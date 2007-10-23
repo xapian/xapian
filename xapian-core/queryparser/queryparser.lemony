@@ -154,17 +154,15 @@ class Term {
 
     filter_group_id get_filter_group_id() const { return filter_group_id(prefixes); }
 
-    Query * as_query() const;
-
     Query * as_wildcarded_query(State * state) const;
 
     Query * as_partial_query(State * state_) const;
 
-    Query as_query_object() const;
+    Query get_query() const;
 
-    Query * as_query_with_synonyms() const;
+    Query get_query_with_synonyms() const;
 
-    Query * as_query_with_auto_synonyms() const;
+    Query get_query_with_auto_synonyms() const;
 };
 
 /// Parser State shared between the lexer and the parser.
@@ -246,10 +244,10 @@ Term::make_term(const string & prefix) const
     return term;
 }
 
-Query *
-Term::as_query_with_synonyms() const
+Query
+Term::get_query_with_synonyms() const
 {
-    Query q = as_query_object();
+    Query q = get_query();
 
     // Handle single-word synonyms with each prefix.
     list<string>::const_iterator piter;
@@ -282,15 +280,16 @@ Term::as_query_with_synonyms() const
 	    ++syn;
 	}
     }
-    return new Query(q);
+    return q;
 }
 
-Query *
-Term::as_query_with_auto_synonyms() const
+Query
+Term::get_query_with_auto_synonyms() const
 {
-    if ((state->flags & QueryParser::FLAG_AUTO_SYNONYMS) == 0)
-	return as_query();
-    return as_query_with_synonyms();
+    if (state->flags & QueryParser::FLAG_AUTO_SYNONYMS)
+	return get_query_with_synonyms();
+
+    return get_query();
 }
 
 static void
@@ -316,7 +315,7 @@ add_to_query(Query *& q, Query::op op, const Query & term)
 }
 
 Query
-Term::as_query_object() const
+Term::get_query() const
 {
     Assert(prefixes.size() >= 1);
     list<string>::const_iterator piter = prefixes.begin();
@@ -325,12 +324,6 @@ Term::as_query_object() const
 	q = Query(Query::OP_OR, q, Query(make_term(*piter), 1, pos));
     }
     return q;
-}
-
-Query *
-Term::as_query() const
-{
-    return new Query(as_query_object());
 }
 
 Query *
@@ -1126,7 +1119,7 @@ TermGroup::as_group(State *state) const
 		    state->add_to_stoplist(*i);
 		} else {
 		    add_to_query(query, default_op,
-				 (*i)->as_query_with_auto_synonyms());
+				 (*i)->get_query_with_auto_synonyms());
 		}
 		begin = ++i;
 		continue;
@@ -1138,7 +1131,7 @@ TermGroup::as_group(State *state) const
 		if (state->is_stopword(*j)) {
 		    state->add_to_stoplist(*j);
 		} else {
-		    add_to_query(q, default_op, (*j)->as_query_object());
+		    add_to_query(q, default_op, (*j)->get_query());
 		}
 	    }
 
@@ -1158,7 +1151,7 @@ TermGroup::as_group(State *state) const
 		state->add_to_stoplist(*i);
 	    } else {
 		add_to_query(query, default_op,
-			     (*i)->as_query_with_auto_synonyms());
+			     (*i)->get_query_with_auto_synonyms());
 	    }
 	}
     }
@@ -1181,8 +1174,9 @@ class TermList {
      */
     bool uniform_prefixes;
 
-    /// The list of prefixes of the terms added.
-    /// This will be empty if the terms have different prefixes.
+    /** The list of prefixes of the terms added.
+     *  This will be empty if the terms have different prefixes.
+     */
     list<string> prefixes;
 
   public:
@@ -1205,23 +1199,30 @@ class TermList {
     }
 
     /// Convert to a query using the given operator and window size.
-    Query * as_opwindow_query(Query::op op, size_t w) const {
+    Query * as_opwindow_query(Query::op op, Xapian::termcount w_delta) const {
 	Query * q = NULL;
+	// Call terms.size() just once since std::list::size() may be O(n).
+	size_t n_terms = terms.size();
+	Xapian::termcount w = w_delta + terms.size();
 	if (uniform_prefixes) {
 	    list<string>::const_iterator piter;
 	    for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
-		list<Query> subqs;
+		vector<Query> subqs;
+		subqs.reserve(n_terms);
 		list<Term *>::const_iterator titer;
 		for (titer = terms.begin(); titer != terms.end(); ++titer) {
-		    subqs.push_back(Query((*titer)->make_term(*piter), 1, (*titer)->pos));
+		    Term * t = *titer;
+		    subqs.push_back(Query(t->make_term(*piter), 1, t->pos));
 		}
-		add_to_query(q, Query::OP_OR, Query(op, subqs.begin(), subqs.end(), w));
+		add_to_query(q, Query::OP_OR,
+			     Query(op, subqs.begin(), subqs.end(), w));
 	    }
 	} else {
-	    list<Query> subqs;
+	    vector<Query> subqs;
+	    subqs.reserve(n_terms);
 	    list<Term *>::const_iterator titer;
 	    for (titer = terms.begin(); titer != terms.end(); ++titer) {
-		subqs.push_back((*titer)->as_query_object());
+		subqs.push_back((*titer)->get_query());
 	    }
 	    q = new Query(op, subqs.begin(), subqs.end(), w);
 	}
@@ -1232,7 +1233,7 @@ class TermList {
 
     /// Convert to a Xapian::Query * using adjacent OP_PHRASE.
     Query * as_phrase_query() const {
-	return as_opwindow_query(Query::OP_PHRASE, terms.size());
+	return as_opwindow_query(Query::OP_PHRASE, 0);
     }
 
     /// Convert to a Xapian::Query * using OP_NEAR.
@@ -1242,7 +1243,7 @@ class TermList {
 	// to the window size for each extra term.
 	size_t w = window;
 	if (w == 0) w = 10;
-	return as_opwindow_query(Query::OP_NEAR, terms.size() + w - 1);
+	return as_opwindow_query(Query::OP_NEAR, w - 1);
     }
 
     /// Convert to a Xapian::Query * using OP_PHRASE to implement ADJ.
@@ -1252,7 +1253,7 @@ class TermList {
 	// one to the window size for each extra term.
 	size_t w = window;
 	if (w == 0) w = 10;
-	return as_opwindow_query(Query::OP_PHRASE, terms.size() + w - 1);
+	return as_opwindow_query(Query::OP_PHRASE, w - 1);
     }
 
     /** Provide a way to explicitly delete an object of this class.  The
@@ -1518,19 +1519,19 @@ prob(P) ::= stop_prob(Q) HATE term(T). {
 
 prob(P) ::= HATE BOOLEAN_FILTER(T). {
     P = new ProbQuery;
-    P->hate = T->as_query();
+    P->hate = new Query(T->get_query());
     delete T;
 }
 
 prob(P) ::= stop_prob(Q) HATE BOOLEAN_FILTER(T). {
     P = Q;
-    add_to_query(P->hate, Query::OP_OR, T->as_query_object());
+    add_to_query(P->hate, Query::OP_OR, T->get_query());
     delete T;
 }
 
 prob(P) ::= BOOLEAN_FILTER(T). {
     P = new ProbQuery;
-    P->filter[T->get_filter_group_id()] = T->as_query_object();
+    P->filter[T->get_filter_group_id()] = T->get_query();
     delete T;
 }
 
@@ -1538,14 +1539,14 @@ prob(P) ::= stop_prob(Q) BOOLEAN_FILTER(T). {
     P = Q;
     // We OR filters with the same prefix...
     Query & q = P->filter[T->get_filter_group_id()];
-    q = Query(Query::OP_OR, q, T->as_query_object());
+    q = Query(Query::OP_OR, q, T->get_query());
     delete T;
 }
 
 prob(P) ::= LOVE BOOLEAN_FILTER(T). {
     // LOVE BOOLEAN_FILTER(T) is just the same as BOOLEAN_FILTER
     P = new ProbQuery;
-    P->filter[T->get_filter_group_id()] = T->as_query_object();
+    P->filter[T->get_filter_group_id()] = T->get_query();
     delete T;
 }
 
@@ -1554,7 +1555,7 @@ prob(P) ::= stop_prob(Q) LOVE BOOLEAN_FILTER(T). {
     P = Q;
     // We OR filters with the same prefix...
     Query & q = P->filter[T->get_filter_group_id()];
-    q = Query(Query::OP_OR, q, T->as_query_object());
+    q = Query(Query::OP_OR, q, T->get_query());
     delete T;
 }
 
@@ -1585,7 +1586,7 @@ stop_term(T) ::= TERM(U). {
 	T = NULL;
 	state->add_to_stoplist(U);
     } else {
-	T = U->as_query_with_auto_synonyms();
+	T = new Query(U->get_query_with_auto_synonyms());
     }
     delete U;
 }
@@ -1600,7 +1601,7 @@ stop_term(T) ::= compound_term(U). {
 %destructor term {delete $$;}
 
 term(T) ::= TERM(U). {
-    T = U->as_query_with_auto_synonyms();
+    T = new Query(U->get_query_with_auto_synonyms());
     delete U;
 }
 
@@ -1641,7 +1642,7 @@ compound_term(T) ::= BRA expr(E) KET.
 	{ T = E; }
 
 compound_term(T) ::= SYNONYM TERM(U). {
-    T = U->as_query_with_synonyms();
+    T = new Query(U->get_query_with_synonyms());
     delete U;
 }
 

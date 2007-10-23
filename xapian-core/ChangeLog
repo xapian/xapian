@@ -1,3 +1,16 @@
+Tue Oct 23 19:13:08 BST 2007  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Some as_XXX() methods delete the
+	  object they are called on, while others don't, so rename the ones
+	  which don't to get_XXX() to make the code clearer, and make them
+	  all return Query rather than Query *.  Eliminate Term::as_query()
+	  completely - when we actually want a new object we can just call
+	  new in the caller.  op_window_query() now takes the difference
+	  between the number of terms and the total window size, and we now
+	  use a std::vector to store the generated Query objects rather than
+	  a std::list, since we know how many there will be and can reserve
+	  the required size in advance.
+
 Tue Oct 23 18:33:49 BST 2007  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Improve comment.
