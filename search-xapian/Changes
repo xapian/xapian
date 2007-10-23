@@ -3,7 +3,8 @@ Revision history for Perl extension Search::Xapian.
 1.0.4.0  ??? ??? ?? ??:??:?? BST 2007
 	[Changes contributed by Olly Betts]
 	- Add all the POD pages to the "see also" on the main POD page.
-	- Fix ':::' to '::' in four places in the POD documentation.
+	- Fix typos and improve wording thoughout the POD documentation.
+	- Add POD documentation for ValueIterator.
 	[Changes contributed by Ron Kass]
 	- Make Search::Xapian work with 'use threads;' by adding 'sub
 	  CLONE_SKIP { 1 }' to all the classes.  This means that Xapian objects
