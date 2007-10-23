@@ -247,6 +247,13 @@ Xapian::Query::Internal::get_description() const
 	return opstr;
     }
 
+    if (op == Xapian::Query::OP_SCALE_WEIGHT) {
+	opstr += om_tostring(dbl_parameter);
+	opstr += " * ";
+	opstr += subqs[0]->get_description();
+	return opstr;
+    }
+
     opstr = " " + get_op_name(op) + " ";
     if (op == Xapian::Query::OP_NEAR ||
 	op == Xapian::Query::OP_PHRASE ||
@@ -258,11 +265,6 @@ Xapian::Query::Internal::get_description() const
     for (i = subqs.begin(); i != subqs.end(); i++) {
 	if (!description.empty()) description += opstr;
 	description += (**i).get_description();
-    }
-
-    if (op == Xapian::Query::OP_SCALE_WEIGHT) {
-	description += " * ";
-	description += om_tostring(dbl_parameter);
     }
 
     return "(" + description + ")";

@@ -1,3 +1,14 @@
+Wed Oct 24 00:16:06 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc: Tweak Query::get_description() to describe
+	  OP_SCALE_WEIGHT queries as '<factor> * <subquery>' rather than
+	  '<subquery> * <factor>' as the former results in more readable
+	  descriptions.
+	* queryparser/queryparser.lemony: Use OP_SCALE_WEIGHT with factor 0.0
+	  for queries which should be purely boolean which resolves a FIXME
+	  comment in the code.
+	* tests/queryparsertest.cc: Fix expected results for this change.
+
 Tue Oct 23 19:13:08 BST 2007  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Some as_XXX() methods delete the

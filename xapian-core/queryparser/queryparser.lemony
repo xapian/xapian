@@ -1432,8 +1432,12 @@ prob_expr(E) ::= prob(P). {
     }
     // Handle any boolean filters.
     if (!P->filter.empty()) {
-	// FIXME: if (!E) make_the_query_boolean_somehow();
-	add_to_query(E, Query::OP_FILTER, P->merge_filters());
+	if (E) {
+	    add_to_query(E, Query::OP_FILTER, P->merge_filters());
+	} else {
+	    // Make the query a boolean one.
+	    E = new Query(Query::OP_SCALE_WEIGHT, P->merge_filters(), 0.0);
+	}
     }
     // FIXME what if E && E->empty() (all terms are stopwords)?
     delete P;
