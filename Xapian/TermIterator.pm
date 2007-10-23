@@ -25,9 +25,10 @@ Search::Xapian::TermIterator - Iterate over sets of terms.
 
 =head1 DESCRIPTION
 
-This object represents a stream of terms. It overloads ++ for
-advancing the iterator, or you can explicitly call the inc method.
-This class also overloads 'eq',ne, and "" (stringification)
+This object represents a stream of terms. It overloads C<++> for
+advancing the iterator, or you can explicitly call the C<inc> method.
+This class also overloads C<eq>, C<ne>, C<==>, C<!=>, and C<"">
+(stringification).
 
 =head1 METHODS
 
@@ -41,7 +42,7 @@ Constructor. Defaults to a uninitialized iterator.
 
 =item inc
 
-Advance the iterator by one. (Called implictly by '++' overloading )
+Advance the iterator by one. (Called implictly by C<++> overloading )
 
 =item skip_to <tname>
 
@@ -75,12 +76,12 @@ Returns a string describing this object.
 =item equal <termiterator>
 
 Checks if a termiterator is the same as this termiterator. Also overloaded as
-the 'eq' and '!=' operators.
+the C<eq> and C<!=> operators.
 
 =item nequal <termiterator>
 
 Checks if a termiterator is different from this termiterator. Also overloaded
-as the 'ne' and '!=' operators.
+as the C<ne> and C<!=> operators.
 
 =cut
 
