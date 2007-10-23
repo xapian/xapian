@@ -28,9 +28,9 @@ Search::Xapian::PositionIterator - Iterate over sets of positions.
 =head1 DESCRIPTION
 
 This iterator represents a stream of positions for a term. It overloads
-++ for advancing the iterator, or you can explicitly call the inc method.
-This class also overloads 'eq', 'ne', '==', '!=', "" (stringification),
-and +0 (conversion to an integer).
+C<++> for advancing the iterator, or you can explicitly call the C<inc> method.
+This class also overloads C<eq>, C<ne>, C<==>, C<!=>, C<"">
+(stringification) and C<0+> (conversion to an integer).
 
 =head1 METHODS
 
@@ -44,7 +44,7 @@ Constructor. Defaults to an uninitialized iterator.
 
 =item inc
 
-Advance the iterator by one. (Called implictly by '++' overloading).
+Advance the iterator by one. (Called implictly by C<++> overloading).
 
 =item skip_to <termpos>
 
@@ -53,13 +53,13 @@ termpos if termpos isn't in the list of term positions being iterated.
 
 =item equal <term>
 
-Checks if a term is the same as this term. Also overloaded to the 'eq'
-and '==' operators.
+Checks if a term is the same as this term. Also overloaded to the C<eq>
+and C<==> operators.
 
 =item nequal <term>
 
-Checks if a term is different from this term. Also overloaded to the 'ne'
-and '!=' operators.
+Checks if a term is different from this term. Also overloaded to the C<ne>
+and C<!=> operators.
 
 =item get_termpos
 

@@ -29,8 +29,9 @@ by a term.
 =head1 DESCRIPTION
 
 This iterator represents a stream of documents indexed by a term. It overloads
-++ for advancing the iterator, or you can explicitly call the inc method.
-This class also overloads 'eq', 'ne', '==', '!=', and "" (stringification).
+C<++> for advancing the iterator, or you can explicitly call the C<inc> method.
+This class also overloads C<eq>, C<ne>, C<==>, C<!=>, and C<"">
+(stringification).
 
 =head1 METHODS
 
@@ -44,7 +45,7 @@ Constructor. Defaults to an uninitialized iterator.
 
 =item inc
 
-Advance the iterator by one. (Called implictly by '++' overloading).
+Advance the iterator by one. (Called implictly by C<++> overloading).
 
 =item skip_to <tname>
 
@@ -78,13 +79,13 @@ database, at a greater performance cost.
 
 =item equal <term>
 
-Checks if a term is the same as this term. Also overloaded to the 'eq'
-and '==' operators.
+Checks if a term is the same as this term. Also overloaded to the C<eq>
+and C<==> operators.
 
 =item nequal <term>
 
-Checks if a term is different from this term. Also overloaded to the 'ne'
-and '!=' operators.
+Checks if a term is different from this term. Also overloaded to the C<ne>
+and C<!=> operators.
 
 =item get_description
 
