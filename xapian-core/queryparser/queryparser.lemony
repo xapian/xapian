@@ -1330,8 +1330,8 @@ class TermList {
 %destructor PARTIAL_TERM {delete $$;}
 
 // BOOLEAN_FILTER is a query term with a prefix registered using
-// add_bool_prefix().  It's added to the query using a FILTER operator,
-// e.g. site:xapian.org (or using AND_NOT if it's negated).
+// add_bool_prefix().  It's added to the query using an OP_FILTER operator,
+// (or OP_AND_NOT if it's negated) e.g. site:xapian.org or -site:xapian.org
 %destructor BOOLEAN_FILTER {delete $$;}
 
 // Grammar rules:
