@@ -24,7 +24,7 @@ Xapian/PostingIterator.pm
 Xapian/QueryParser.pm
 Xapian/Query.pm
 Xapian/RSet.pm
-Xapian/Stem.pod
+Xapian/Stem.pm
 Xapian/SimpleStopper.pm
 Xapian/Stopper.pm
 Xapian/TermGenerator.pm

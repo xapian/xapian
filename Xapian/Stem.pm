@@ -1,3 +1,8 @@
+package Search::Xapian::Stem;
+
+# In a new thread, copy objects of this class to unblessed, undef values.
+sub CLONE_SKIP { 1 }
+
 =head1 NAME
 
 Search::Xapian::Stem - Snowball stemmer
@@ -28,3 +33,5 @@ Returns a stemmed version of the given word.
 L<Search::Xapian>, L<Search::Xapian::QueryParser>
 
 =cut
+
+1;
