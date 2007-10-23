@@ -9,7 +9,7 @@ Search::Xapian::Weight - base class for Weighting schemes.
 
 =head1 DESCRIPTION
 
-This is an asbtract base class for weighting schemes in Xapian.
+This is an abstract base class for weighting schemes in Xapian.
 
 =head1 SEE ALSO
 
