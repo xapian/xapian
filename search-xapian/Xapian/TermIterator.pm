@@ -62,11 +62,11 @@ Return the term frequency of the current term (if meaningful).
 
 =item positionlist_begin
 
-Return L<Search::Xapian:::PositionIterator> pointing to start of positionlist for current term. 
+Return L<Search::Xapian::PositionIterator> pointing to start of positionlist for current term. 
 
 =item positionlist_end
 
-Return L<Search::Xapian:::PositionIterator> pointing to end of positionlist for current term. 
+Return L<Search::Xapian::PositionIterator> pointing to end of positionlist for current term. 
 
 =item get_description
 
