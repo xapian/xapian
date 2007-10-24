@@ -597,7 +597,12 @@ static test test_and_queries[] = {
     // filter and HATE terms weren't accepted.
     { "-cup site:world", "(0 * Hworld AND_NOT Zcup:(pos=1))" },
     { "site:world -cup", "(0 * Hworld AND_NOT Zcup:(pos=1))" },
+    // Regression test for bug fixed in 1.0.4 - the KET token for ')' was lost.
     { "(site:world) -cup", "(0 * Hworld AND_NOT Zcup:(pos=1))" },
+    // Regression test for bug fixed in 1.0.4 - a boolean filter term between
+    // probabilistic terms caused a parse error (probably broken during the
+    // addition of synonym support in 1.0.2).
+    { "foo site:xapian.org bar", "((Zfoo:(pos=1) AND Zbar:(pos=2)) FILTER Hxapian.org)" },
     { NULL, NULL }
 };
 

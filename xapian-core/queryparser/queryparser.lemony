@@ -764,6 +764,8 @@ just_had_operator:
 		    prefixinfo = &(f->second);
 
 		    if (prefixinfo->filter) {
+			// Drop out of IN_GROUP if we're in it.
+			mode = DEFAULT;
 			// Can't boolean filter prefix a subexpression or
 			// phrase; just use anything following the prefix
 			// until the next space or ')' as part of the boolean
