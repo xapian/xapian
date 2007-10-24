@@ -709,10 +709,6 @@ just_had_operator:
 		break;
 
 	      case ')': // End of bracketed subexpression.
-		if (term_pos == 1) {
-		    // Ignore ) at start of query.
-		    break;
-		}
 		if (mode == DEFAULT && (flags & FLAG_BOOLEAN)) {
 		    // Remove the prefix we pushed for the corresponding BRA.
 		    // If brackets are unmatched, it's a syntax error, but

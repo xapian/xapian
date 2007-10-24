@@ -597,6 +597,7 @@ static test test_and_queries[] = {
     // filter and HATE terms weren't accepted.
     { "-cup site:world", "(0 * Hworld AND_NOT Zcup:(pos=1))" },
     { "site:world -cup", "(0 * Hworld AND_NOT Zcup:(pos=1))" },
+    { "(site:world) -cup", "(0 * Hworld AND_NOT Zcup:(pos=1))" },
     { NULL, NULL }
 };
 

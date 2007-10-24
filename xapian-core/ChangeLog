@@ -1,3 +1,11 @@
+Wed Oct 24 06:08:29 BST 2007  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Drop special treatment for unmatched
+	  ')' at the start of the query, as it seems rather arbitrary and not
+	  particularly useful.  Reparsing seems a better approach here.
+	* tests/queryparsertest.cc: Add regression test case for bug which
+	  dropping this special case fixes.
+
 Wed Oct 24 05:25:40 BST 2007  Olly Betts <olly@survex.com>
 
 	* AUTHORS: Add Ron Kass for several bug reports.
