@@ -1,3 +1,7 @@
+Wed Oct 24 05:25:40 BST 2007  Olly Betts <olly@survex.com>
+
+	* AUTHORS: Add Ron Kass for several bug reports.
+
 Wed Oct 24 05:13:01 BST 2007  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Fix parsing of queries which consist
