@@ -366,7 +366,7 @@ static void yy_shift(
 %%
 #endif
 #ifdef XAPIAN_DEBUG_VERBOSE
-  int i;
+  unsigned i;
   DEBUGLINE(QUERYPARSER, "Shift " << yyNewState);
   string stack("Stack:");
   for (i = 0; i < yypParser->yystack.size(); i++) {
