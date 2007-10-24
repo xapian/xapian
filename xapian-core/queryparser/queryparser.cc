@@ -128,14 +128,14 @@ QueryParser::parse_query(const string &query_string, unsigned flags,
 void
 QueryParser::add_prefix(const string &field, const string &prefix)
 {
-    Assert(internal);
+    Assert(internal.get());
     internal->add_prefix(field, prefix, false);
 }
 
 void
 QueryParser::add_boolean_prefix(const string &field, const string &prefix)
 {
-    Assert(internal);
+    Assert(internal.get());
     // Don't allow the empty prefix to be set as boolean as it doesn't
     // really make sense.
     if (field.empty())

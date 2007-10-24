@@ -104,7 +104,7 @@ MultiAndPostList::get_doclength() const
     for (size_t i = 1; i < n_kids; ++i) {
 	AssertEqDouble(doclength, plist[i]->get_doclength());
     }
-    RETURN(doclength);
+    return doclength;
 }
 
 Xapian::weight

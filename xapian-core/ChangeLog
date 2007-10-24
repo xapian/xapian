@@ -1,3 +1,9 @@
+Thu Oct 25 00:34:14 BST 2007  Olly Betts <olly@survex.com>
+
+	* matcher/localmatch.cc,matcher/multiandpostlist.cc,
+	  matcher/queryoptimiser.cc,queryparser/queryparser.cc: Fix build
+	  with --enable-assertions and --enable-log.
+
 Wed Oct 24 06:29:03 BST 2007  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Drop out of IN_GROUP mode when we

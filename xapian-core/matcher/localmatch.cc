@@ -89,6 +89,8 @@ PostList *
 LocalSubMatch::get_postlist_and_term_info(MultiMatch * matcher,
 	map<string, Xapian::MSet::Internal::TermFreqAndWeight> * termfreqandwts)
 {
+    DEBUGCALL(MATCH, PostList *, "LocalSubMatch::get_postlist_and_term_info",
+	      matcher << ", [termfreqandwts]");
     QueryOptimiser opt(*db, *this, matcher);
     PostList * pl = opt.optimise_query(&orig_query);
     // postlist_from_query builds the term_info.
@@ -102,15 +104,17 @@ LocalSubMatch::get_postlist_and_term_info(MultiMatch * matcher,
 	pl = new ExtraWeightPostList(pl, extra_wt.release(), matcher);
     }
 
-    return pl;
+    RETURN(pl);
 }
 
 PostList *
 LocalSubMatch::postlist_from_op_leaf_query(const Xapian::Query::Internal *query,
 					   double factor)
 {
+    DEBUGCALL(MATCH, PostList *, "LocalSubMatch::postlist_from_op_leaf_query",
+	      query << ", " << factor);
     Assert(query);
-    AssertEq(query->op, OP_LEAF);
+    AssertEq(query->op, Xapian::Query::Internal::OP_LEAF);
     Assert(query->subqs.empty());
     bool boolean = (factor == 0.0);
     AutoPtr<Xapian::Weight> wt;

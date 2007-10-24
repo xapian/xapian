@@ -171,9 +171,8 @@ QueryOptimiser::do_and_like(const Xapian::Query::Internal *query, double factor,
 			    vector<PostList *> & and_plists,
 			    list<PosFilter> & pos_filters)
 {
-    DEBUGCALL(MATCH, PostList *,
-	      "QueryOptimiser::do_and_like", query << ", " << factor <<
-	      ", [and_plists]");
+    DEBUGCALL(MATCH, void, "QueryOptimiser::do_and_like",
+	      query << ", " << factor << ", [and_plists], [pos_filters]");
 
     Xapian::Query::Internal::op_t op = query->op;
     Assert(is_and_like(op));
@@ -252,6 +251,9 @@ struct ComparePostListTermFreqAscending {
 PostList *
 QueryOptimiser::do_or_like(const Xapian::Query::Internal *query, double factor)
 {
+    DEBUGCALL(MATCH, PostList *, "QueryOptimiser::do_or_like",
+	      query << ", " << factor);
+
     // FIXME: we could optimise by merging OP_ELITE_SET and OP_OR like we do
     // for AND-like operations.
     Xapian::Query::Internal::op_t op = query->op;
