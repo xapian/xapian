@@ -46,6 +46,7 @@ static test test_or_queries[] = {
     { "simple-example", "(simple:(pos=1) PHRASE 2 example:(pos=2))" },
     { "time_t", "Ztime_t:(pos=1)" },
     { "stock -cooking", "(Zstock:(pos=1) AND_NOT Zcook:(pos=2))" },
+    { "foo -baz bar", "((Zfoo:(pos=1) OR Zbar:(pos=3)) AND_NOT Zbaz:(pos=2))" },
     { "d- school report", "(Zd:(pos=1) OR Zschool:(pos=2) OR Zreport:(pos=3))" },
     { "gtk+ -gnome", "(Zgtk+:(pos=1) AND_NOT Zgnome:(pos=2))" },
     { "c++ -d--", "(Zc++:(pos=1) AND_NOT Zd:(pos=2))" },
@@ -102,12 +103,13 @@ static test test_or_queries[] = {
     { "author:hyphen-ated", "(Ahyphen:(pos=1) PHRASE 2 Aated:(pos=2))" },
     { "cvs site:xapian.org", "(Zcvs:(pos=1) FILTER Hxapian.org)" },
     { "cvs -site:xapian.org", "(Zcvs:(pos=1) AND_NOT Hxapian.org)" },
+    { "foo -site:xapian.org bar", "((Zfoo:(pos=1) OR Zbar:(pos=2)) AND_NOT Hxapian.org)" },
     { "site:xapian.org mail", "(Zmail:(pos=1) FILTER Hxapian.org)" },
     { "-site:xapian.org mail", "(Zmail:(pos=1) AND_NOT Hxapian.org)" },
     { "-Wredundant-decls", "(wredundant:(pos=1) PHRASE 2 decls:(pos=2))" },
     { "site:xapian.org", "0 * Hxapian.org" },
-    { "mug +site:xapian.org -site:cvs.xapian.org", "((Zmug:(pos=1) AND_NOT Hcvs.xapian.org) FILTER Hxapian.org)" },
-    { "mug -site:cvs.xapian.org +site:xapian.org", "((Zmug:(pos=1) AND_NOT Hcvs.xapian.org) FILTER Hxapian.org)" },
+    { "mug +site:xapian.org -site:cvs.xapian.org", "((Zmug:(pos=1) FILTER Hxapian.org) AND_NOT Hcvs.xapian.org)" },
+    { "mug -site:cvs.xapian.org +site:xapian.org", "((Zmug:(pos=1) FILTER Hxapian.org) AND_NOT Hcvs.xapian.org)" },
     { "NOT windows", "Syntax: <expression> NOT <expression>" },
     { "a AND (NOT b)", "Syntax: <expression> NOT <expression>" },
     { "AND NOT windows", "Syntax: <expression> AND NOT <expression>" },
@@ -591,6 +593,10 @@ static test test_and_queries[] = {
     // Regression test for bug fixed in 1.0.4 - the '-' would be ignored there
     // because the whitespace after the '"' wasn't noticed.
     { "\"hello world\" -C++", "((hello:(pos=1) PHRASE 2 world:(pos=2)) AND_NOT c++:(pos=3))" },
+    // Regression tests for bug fixed in 1.0.4 - queries with only boolean
+    // filter and HATE terms weren't accepted.
+    { "-cup site:world", "(0 * Hworld AND_NOT Zcup:(pos=1))" },
+    { "site:world -cup", "(0 * Hworld AND_NOT Zcup:(pos=1))" },
     { NULL, NULL }
 };
 

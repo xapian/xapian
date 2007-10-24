@@ -1421,15 +1421,6 @@ prob_expr(E) ::= prob(P). {
 	}
 	P->love = NULL;
     }
-    // Handle any "- terms".
-    if (P->hate && !P->hate->empty()) {
-	if (!E) {
-	    // Can't just hate!
-	    yy_parse_failed(yypParser);
-	    return;
-	}
-	*E = Query(Query::OP_AND_NOT, *E, *P->hate);
-    }
     // Handle any boolean filters.
     if (!P->filter.empty()) {
 	if (E) {
@@ -1438,6 +1429,15 @@ prob_expr(E) ::= prob(P). {
 	    // Make the query a boolean one.
 	    E = new Query(Query::OP_SCALE_WEIGHT, P->merge_filters(), 0.0);
 	}
+    }
+    // Handle any "- terms".
+    if (P->hate && !P->hate->empty()) {
+	if (!E) {
+	    // Can't just hate!
+	    yy_parse_failed(yypParser);
+	    return;
+	}
+	*E = Query(Query::OP_AND_NOT, *E, *P->hate);
     }
     // FIXME what if E && E->empty() (all terms are stopwords)?
     delete P;
