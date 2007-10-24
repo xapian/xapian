@@ -1,3 +1,14 @@
+Wed Oct 24 04:41:08 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_table.cc,backends/flint/flint_table.h: Don't
+	  use class member function pointers to implement FlintTable::next()
+	  and FlintTable::prev() as we can just call the methods directly
+	  based on the sequential flag.  Profiling suggests this speeds up
+	  searches a little, the two pointers take up 16 bytes each (on
+	  x86_64) so it reduces the class size by up to 32 bytes, and the code
+	  is simpler because we no longer need to update prev_ptr and
+	  next_ptr.
+
 Wed Oct 24 00:16:06 BST 2007  Olly Betts <olly@survex.com>
 
 	* api/omqueryinternal.cc: Tweak Query::get_description() to describe

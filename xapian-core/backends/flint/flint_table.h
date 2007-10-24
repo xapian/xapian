@@ -652,15 +652,21 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	bool writable;
 
 	/* B-tree navigation functions */
-	bool prev(Cursor_ *C_, int j) const { return (this->*prev_ptr)(C_, j); }
-	bool next(Cursor_ *C_, int j) const { return (this->*next_ptr)(C_, j); }
+	bool prev(Cursor_ *C_, int j) const {
+	    if (sequential) return prev_for_sequential(C_, j);
+	    return prev_default(C_, j);
+	}
 
-	bool (FlintTable::* prev_ptr)(Cursor_ *, int) const;
-	bool (FlintTable::* next_ptr)(Cursor_ *, int) const;
+	bool next(Cursor_ *C_, int j) const {
+	    if (sequential) return next_for_sequential(C_, j);
+	    return next_default(C_, j);
+	}
 
+	/* Default implementations. */
 	bool prev_default(Cursor_ *C_, int j) const;
 	bool next_default(Cursor_ *C_, int j) const;
 
+	/* Implementations for sequential mode. */
 	bool prev_for_sequential(Cursor_ *C_, int dummy) const;
 	bool next_for_sequential(Cursor_ *C_, int dummy) const;
 

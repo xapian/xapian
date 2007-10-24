@@ -1564,9 +1564,6 @@ FlintTable::do_open_to_write(bool revision_supplied,
 
     writable = true;
 
-    prev_ptr = &FlintTable::prev_default;
-    next_ptr = &FlintTable::next_default;
-
     for (int j = 0; j <= level; j++) {
 	C[j].n = BLK_UNUSED;
 	C[j].p = new byte[block_size];
@@ -1824,9 +1821,6 @@ FlintTable::cancel()
 
     latest_revision_number = revision_number; // FIXME: we can end up reusing a revision if we opened a btree at an older revision, start to modify it, then cancel...
 
-    prev_ptr = &FlintTable::prev_default;
-    next_ptr = &FlintTable::next_default;
-
     for (int j = 0; j <= level; j++) {
 	C[j].n = BLK_UNUSED;
 	C[j].rewrite = false;
@@ -1868,14 +1862,6 @@ FlintTable::do_open_to_read(bool revision_supplied, flint_revision_number_t revi
 	    return false;
 	}
 	throw Xapian::DatabaseOpeningError("Failed to open table for reading");
-    }
-
-    if (sequential) {
-	prev_ptr = &FlintTable::prev_for_sequential;
-	next_ptr = &FlintTable::next_for_sequential;
-    } else {
-	prev_ptr = &FlintTable::prev_default;
-	next_ptr = &FlintTable::next_default;
     }
 
     for (int j = 0; j <= level; j++) {
