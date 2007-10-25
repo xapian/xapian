@@ -825,9 +825,6 @@ struct func_attrib {
     char ensure;
 };
 
-#define STRINGIZE(N) _STRINGIZE(N)
-#define _STRINGIZE(N) #N
-
 #define T(F,A,B,C,D) {STRINGIZE(F),{CMD_##F,A,B,C,D}}
 struct func_desc {
     const char *name;
