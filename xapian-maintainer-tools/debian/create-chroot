@@ -59,9 +59,9 @@ if test -f "$DCHROOT_CONF" ; then
   perl -ni -e 'print unless /^\Q'"$distro_arch"'\E\b/' "$DCHROOT_CONF"
 fi
 
-mkdir "$chroot_path"
 case $DISTRO in
   sid|woody|sarge|etch|lenny)
+    mkdir "$chroot_path"
     if [ sarge-amd64 = "$distro_arch" ] ; then
       mirror=http://ftp.de.debian.org/debian-amd64/debian
     else
@@ -70,21 +70,25 @@ case $DISTRO in
     # Need to specify --mirror to allow running on Ubuntu.
     debootstrap --variant=buildd --arch $DEBIAN_BUILD_ARCH "$DISTRO" "$chroot_path" "$mirror"
     ;;
-  warty|hoary|breezy|dapper|edgy|feisty|gutsy)
+  warty|hoary|breezy|dapper|edgy|feisty|gutsy|hardy)
+    pkg_for_distros_up_to=hardy
+    pkg=debootstrap_1.0.6_all.deb
     if [ ! -f /usr/lib/debootstrap/scripts/$DISTRO ] ; then
       cat <<END
 Your debootstrap installation doesn't know how to bootstrap a $DISTRO chroot.
-You can fix this something like this (this works for dapper):
+You can fix this something like this (this should work for distros up to and
+including $pkg_for_distros_up_to):
 
-wget http://gb.archive.ubuntu.com/ubuntu/pool/main/d/debootstrap/debootstrap_0.3.3.0ubuntu6_all.deb
-ar x debootstrap_0.3.3.0ubuntu6_all.deb data.tar.gz
+wget http://gb.archive.ubuntu.com/ubuntu/pool/main/d/debootstrap/$pkg
+ar x $pkg data.tar.gz
 tar zxvf data.tar.gz ./usr/lib/debootstrap/scripts/$DISTRO
 mv -i ./usr/lib/debootstrap/scripts/$DISTRO /usr/lib/debootstrap/scripts
 rm data.tar.gz
-rm debootstrap_0.3.3.0ubuntu6_all.deb
+rm $pkg
 END
       exit 1
     fi
+    mkdir "$chroot_path"
     debootstrap --variant=buildd --arch $DEBIAN_BUILD_ARCH "$DISTRO" "$chroot_path" http://gb.archive.ubuntu.com/ubuntu
     # Need universe for (e.g.) python 2.1 and 2.2 on breezy
     echo "deb http://gb.archive.ubuntu.com/ubuntu $DISTRO universe" >> "$chroot_path/etc/apt/sources.list"
