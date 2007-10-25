@@ -1,3 +1,11 @@
+Thu Oct 25 18:11:40 BST 2007  Olly Betts <olly@survex.com>
+
+	* php/Makefile.am: The php4 and php5 .cc and .h files are no longer
+	  identical so don't bother carefully interleaving them as it doesn't
+	  help the tarball compress better now.
+	* php/Makefile.am: Use $(datadir) instead of $(datarootdir) so that
+	  the RPM spec file works with older versions of autoconf.
+
 Tue Oct 23 16:19:15 BST 2007  Olly Betts <olly@survex.com>
 
 	* csharp/docs/Makefile.am,php/docs/Makefile.am,python/docs/Makefile.am,

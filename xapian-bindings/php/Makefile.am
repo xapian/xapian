@@ -16,12 +16,8 @@ TESTS_ENVIRONMENT = $(PHP) -q -n -d safe_mode=off -d enable_dl=on -d extension_d
 ## Test programs to be run
 TESTS = smoketest.php
 
-# Interleave php4 and php5 as the .cc-s and .h-s are identical (currently
-# at least) and gzip will compress this redundancy away if it falls within the
-# compressor's window size.
-BUILT_SOURCES = php4/xapian_wrap.cc php5/xapian_wrap.cc \
-		php4/php_xapian.h php5/php_xapian.h \
-		php4/xapian.php php5/xapian.php
+BUILT_SOURCES = php4/xapian_wrap.cc php4/php_xapian.h php4/xapian.php \
+		php5/xapian_wrap.cc php5/php_xapian.h php5/xapian.php
 
 EXTRA_DIST = except.i util.i $(TESTS) smoketest4.php smoketest5.php $(BUILT_SOURCES)
 
@@ -32,9 +28,9 @@ phpextdir = $(PHP_EXTENSION_DIR)
 phpext_LTLIBRARIES = xapian.la
 
 # This location is correct for Debian, but in general there doesn't seem
-# to be a suitable location which is guarenteed to be in the include_path
+# to be a suitable location which is guaranteed to be in the include_path
 # by default.
-phpincdir = $(datarootdir)/php$(PHP_MAJOR_VERSION)
+phpincdir = $(datadir)/php$(PHP_MAJOR_VERSION)
 phpinc_DATA = php$(PHP_MAJOR_VERSION)/xapian.php
 
 # Remove the .la file - xapian.la is never linked against (it's a module)
