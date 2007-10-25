@@ -1,3 +1,12 @@
+Fri Oct 26 00:23:55 BST 2007  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: When checkatleast is set, and we're sorting
+	  by relevance with forward ordering by docid, and the query is pure
+	  boolean, we were exiting before the checkatleast requirement was
+	  satisfied.  Then the adjustments made to the estimated and max
+	  statistics based on checkatleast meant we claimed there were
+	  exactly msize results.
+
 Thu Oct 25 00:34:14 BST 2007  Olly Betts <olly@survex.com>
 
 	* matcher/localmatch.cc,matcher/multiandpostlist.cc,

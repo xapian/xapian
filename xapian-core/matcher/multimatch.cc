@@ -605,6 +605,11 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		min_item = items.front();
 		if (sort_by == REL || sort_by == REL_VAL) {
 		    if (docs_matched >= check_at_least) {
+			if (sort_by == REL) {
+			    // We're done if this is a forward boolean match
+			    // (bodgetastic, FIXME better if we can)
+			    if (rare(max_weight == 0 && sort_forward)) break;
+			}
 			if (min_item.wt > min_weight) {
 			    DEBUGLINE(MATCH, "Setting min_weight to " <<
 				      min_item.wt << " from " << min_weight);
@@ -620,9 +625,11 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		items.push_back(new_item);
 		is_heap = false;
 		if (sort_by == REL && items.size() == max_msize) {
-		    // We're done if this is a forward boolean match
-		    // (bodgetastic, FIXME better if we can)
-		    if (rare(max_weight == 0 && sort_forward)) break;
+		    if (docs_matched >= check_at_least) {
+			// We're done if this is a forward boolean match
+			// (bodgetastic, FIXME better if we can)
+			if (rare(max_weight == 0 && sort_forward)) break;
+		    }
 		}
 	    }
 	}
