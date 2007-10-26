@@ -74,7 +74,7 @@ try:
         print "Results 1-%i:" % matches.size()
 
         for m in matches:
-            print "%i: %i%% docid=%i [%s]" % (m[xapian.MSET_RANK] + 1, m[xapian.MSET_PERCENT], m[xapian.MSET_DID], m[xapian.MSET_DOCUMENT].get_data())
+            print "%i: %i%% docid=%i [%s]" % (m.rank + 1, m.percent, m.docid, m.document.get_data())
 
     # Put the top 5 (at most) docs into the rset if rset is empty
     if reldocs.empty():

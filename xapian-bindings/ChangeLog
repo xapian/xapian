@@ -1,3 +1,11 @@
+Fri Oct 26 18:10:10 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/docs/examples/simpleexpand.py,
+	  python/docs/examples/simplematchdecider.py,
+	  python/docs/examples/simplesearch.py: Change from using the
+	  old-style MSET_* constants to access the mset item values to the
+	  new-style attribute based method.
+
 Fri Oct 26 17:56:32 BST 2007  Olly Betts <olly@survex.com>
 
 	* python/docs/index.html: Document MSET_DOCUMENT.
