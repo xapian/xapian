@@ -257,6 +257,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
     friend class ::MultiMatch;
     friend class ::QueryOptimiser;
     friend struct ::SortPosName;
+    friend class Query;
     public:
         static const int OP_LEAF = -1;
 

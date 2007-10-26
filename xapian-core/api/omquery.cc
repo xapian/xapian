@@ -136,6 +136,14 @@ Query::Query(Query::op op_, Xapian::Query q, double parameter)
 {
     DEBUGAPICALL(void, "Xapian::Query::Query",
 		 op_ << ", " << q << ", " << parameter);
+    if (op_ == OP_SCALE_WEIGHT) {
+	if (!q.internal.get() || q.internal->op == OP_VALUE_RANGE) {
+	    // Applying OP_SCALE_WEIGHT to Xapian::Query or OP_VALUE_RANGE
+	    // has no effect as they're both pure-boolean.
+	    internal = q.internal;
+	    return;
+	}
+    }
     try {
 	start_construction(op_, 0);
 	internal->set_dbl_parameter(parameter);

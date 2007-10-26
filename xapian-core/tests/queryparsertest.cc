@@ -1093,10 +1093,10 @@ static bool test_qp_unstem_boolean_prefix()
 }
 
 static test test_value_range1_queries[] = {
-    { "a..b", "0 * VALUE_RANGE 1 a b" },
-    { "$50..100", "0 * VALUE_RANGE 1 $50 100" },
-    { "$50..$100", "0 * VALUE_RANGE 1 $50 $100" },
-    { "02/03/1979..10/12/1980", "0 * VALUE_RANGE 1 02/03/1979 10/12/1980" },
+    { "a..b", "VALUE_RANGE 1 a b" },
+    { "$50..100", "VALUE_RANGE 1 $50 100" },
+    { "$50..$100", "VALUE_RANGE 1 $50 $100" },
+    { "02/03/1979..10/12/1980", "VALUE_RANGE 1 02/03/1979 10/12/1980" },
     { "a..b hello", "(hello:(pos=1) FILTER VALUE_RANGE 1 a b)" },
     { "hello a..b", "(hello:(pos=1) FILTER VALUE_RANGE 1 a b)" },
     { "hello a..b world", "((hello:(pos=1) OR world:(pos=2)) FILTER VALUE_RANGE 1 a b)" },
@@ -1104,7 +1104,7 @@ static test test_value_range1_queries[] = {
     { "hello a..b test:foo test:bar", "(hello:(pos=1) FILTER (VALUE_RANGE 1 a b AND (XTESTfoo OR XTESTbar)))" },
     { "hello a..b c..d test:foo", "(hello:(pos=1) FILTER ((VALUE_RANGE 1 a b OR VALUE_RANGE 1 c d) AND XTESTfoo))" },
     { "hello a..b c..d test:foo test:bar", "(hello:(pos=1) FILTER ((VALUE_RANGE 1 a b OR VALUE_RANGE 1 c d) AND (XTESTfoo OR XTESTbar)))" },
-    { "-5..7", "0 * VALUE_RANGE 1 -5 7" },
+    { "-5..7", "VALUE_RANGE 1 -5 7" },
     { "hello -5..7", "(hello:(pos=1) FILTER VALUE_RANGE 1 -5 7)" },
     { "-5..7 hello", "(hello:(pos=1) FILTER VALUE_RANGE 1 -5 7)" },
     { "\"time flies\" 09:00..12:30", "((time:(pos=1) PHRASE 2 flies:(pos=2)) FILTER VALUE_RANGE 1 09:00 12:30)" },
@@ -1142,20 +1142,20 @@ static bool test_qp_value_range1()
 }
 
 static test test_value_range2_queries[] = {
-    { "a..b", "0 * VALUE_RANGE 3 a b" },
-    { "1..12", "0 * VALUE_RANGE 2 \240 \256" },
-    { "20070201..20070228", "0 * VALUE_RANGE 1 20070201 20070228" },
-    { "$10..20", "0 * VALUE_RANGE 4 \255 \261" },
-    { "$10..$20", "0 * VALUE_RANGE 4 \255 \261" },
-    { "12..42kg", "0 * VALUE_RANGE 5 \256 \265@" },
-    { "12kg..42kg", "0 * VALUE_RANGE 5 \256 \265@" },
-    { "12kg..42", "0 * VALUE_RANGE 3 12kg 42" },
-    { "10..$20", "0 * VALUE_RANGE 3 10 $20" },
-    { "1999-03-12..2020-12-30", "0 * VALUE_RANGE 1 19990312 20201230" },
-    { "1999/03/12..2020/12/30", "0 * VALUE_RANGE 1 19990312 20201230" },
-    { "1999.03.12..2020.12.30", "0 * VALUE_RANGE 1 19990312 20201230" },
-    { "12/03/99..12/04/01", "0 * VALUE_RANGE 1 19990312 20010412" },
-    { "03-12-99..04-14-01", "0 * VALUE_RANGE 1 19990312 20010414" },
+    { "a..b", "VALUE_RANGE 3 a b" },
+    { "1..12", "VALUE_RANGE 2 \240 \256" },
+    { "20070201..20070228", "VALUE_RANGE 1 20070201 20070228" },
+    { "$10..20", "VALUE_RANGE 4 \255 \261" },
+    { "$10..$20", "VALUE_RANGE 4 \255 \261" },
+    { "12..42kg", "VALUE_RANGE 5 \256 \265@" },
+    { "12kg..42kg", "VALUE_RANGE 5 \256 \265@" },
+    { "12kg..42", "VALUE_RANGE 3 12kg 42" },
+    { "10..$20", "VALUE_RANGE 3 10 $20" },
+    { "1999-03-12..2020-12-30", "VALUE_RANGE 1 19990312 20201230" },
+    { "1999/03/12..2020/12/30", "VALUE_RANGE 1 19990312 20201230" },
+    { "1999.03.12..2020.12.30", "VALUE_RANGE 1 19990312 20201230" },
+    { "12/03/99..12/04/01", "VALUE_RANGE 1 19990312 20010412" },
+    { "03-12-99..04-14-01", "VALUE_RANGE 1 19990312 20010414" },
     { "(test:a..test:b hello)", "(hello:(pos=1) FILTER VALUE_RANGE 3 test:a test:b)" },
     { "12..42kg 5..6kg 1..12", "0 * (VALUE_RANGE 2 \240 \256 AND (VALUE_RANGE 5 \256 \265@ OR VALUE_RANGE 5 \251 \252))" },
     { NULL, NULL }
@@ -1336,10 +1336,10 @@ static bool test_value_range_serialise1()
 }
 
 static test test_value_daterange1_queries[] = {
-    { "12/03/99..12/04/01", "0 * VALUE_RANGE 1 19991203 20011204" },
-    { "03-12-99..04-14-01", "0 * VALUE_RANGE 1 19990312 20010414" },
-    { "01/30/60..02/02/59", "0 * VALUE_RANGE 1 19600130 20590202" },
-    { "1999-03-12..2001-04-14", "0 * VALUE_RANGE 1 19990312 20010414" },
+    { "12/03/99..12/04/01", "VALUE_RANGE 1 19991203 20011204" },
+    { "03-12-99..04-14-01", "VALUE_RANGE 1 19990312 20010414" },
+    { "01/30/60..02/02/59", "VALUE_RANGE 1 19600130 20590202" },
+    { "1999-03-12..2001-04-14", "VALUE_RANGE 1 19990312 20010414" },
     { "12/03/99..02", "Unknown range operation" },
     { "1999-03-12..2001", "Unknown range operation" },
     { NULL, NULL }
