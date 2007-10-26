@@ -694,11 +694,10 @@ Xapian::Query::Internal::simplify_matchnothing()
             }
             break;
         case OP_SCALE_WEIGHT:
-	    // If subquery is MatchNothing, we match nothing.
             Assert(subqs.size() == 1);
-            if (subqs[0] == 0) {
-		return true;
-	    }
+	    // We should have already handled OP_SCALE_WEIGHT applied to
+	    // MatchNothing in the relevant constructor.
+	    Assert(subqs[0]);
 	    break;
         case OP_LEAF:
             // Do nothing.
