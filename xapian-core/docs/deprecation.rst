@@ -150,7 +150,7 @@ Deprecated Remove Feature name                        Upgrade suggestion and com
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
 1.0.0      1.1.0  Error::get_errno()                  Use ``Error::get_error_string()`` instead.
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.0.0      1.1.0  The Quartz backend                  Use ``the Flint backend`` instead.
+1.0.0      1.1.0  The Quartz backend                  Use the Flint backend instead.
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
 1.0.0      1.1.0  Quartz::open()                      Use ``Flint::open()`` instead.
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
@@ -158,7 +158,7 @@ Deprecated Remove Feature name                        Upgrade suggestion and com
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
 1.0.0      1.1.0  quartzcompact                       Use ``xapian-compact`` instead.
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.0.3      1.2.0? Enquire::register_match_decider()   This method didn't do anything, so just remove calls to it!
+1.0.3      1.1.0  Enquire::register_match_decider()   This method didn't do anything, so just remove calls to it!
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
 1.0.3      1.2.0? ``Database::positionlist_begin()``  This check is quite expensive, and often you don't care.  If you
                   throwing ``RangeError`` if the      do it's easy to check - just open a ``TermListIterator`` for the
@@ -169,6 +169,9 @@ Deprecated Remove Feature name                        Upgrade suggestion and com
                   throwing ``DocNotFoundError`` if    do, it's easy to check - just call ``Database::get_document()`` with the
                   the document specified doesn't      specified document ID.
                   exist.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.0.4      1.1.0  Query::Query(Query::op, Query)      This constructor isn't useful for any currently implemented
+                                                      ``Query::op``.
 ========== ====== =================================== ========================================================================
 
 

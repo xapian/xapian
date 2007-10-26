@@ -163,7 +163,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	      Xapian::termcount parameter = 0);
 
 	/** Apply the specified operator to a single Xapian::Query object. */
-	Query(Query::op op_, Xapian::Query q);
+	XAPIAN_DEPRECATED(Query(Query::op op_, Xapian::Query q));
 
 	/** Apply the specified operator to a single Xapian::Query object, with
 	 *  a double parameter.
