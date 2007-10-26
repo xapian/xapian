@@ -319,7 +319,7 @@ def test_all():
 
     # Test OP_SCALE_WEIGHT and corresponding constructor
     expect_query(xapian.Query(xapian.Query.OP_SCALE_WEIGHT, xapian.Query('foo'), 5),
-                 "(foo * 5)")
+                 "5 * foo")
 
 # Run all tests (ie, callables with names starting "test_").
 if not runtests(globals()):
