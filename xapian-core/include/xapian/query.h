@@ -29,6 +29,7 @@
 #include <vector>
 
 #include <xapian/base.h>
+#include <xapian/deprecated.h>
 #include <xapian/types.h>
 #include <xapian/termiterator.h>
 #include <xapian/visibility.h>
@@ -162,7 +163,12 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	Query(Query::op op_, Iterator qbegin, Iterator qend,
 	      Xapian::termcount parameter = 0);
 
-	/** Apply the specified operator to a single Xapian::Query object. */
+	/** Apply the specified operator to a single Xapian::Query object.
+	 *
+	 *  @deprecated This method is deprecated because it isn't useful,
+	 *  since none of the current query operators can be usefully
+	 *  applied to a single subquery with a parameter value.
+	 */
 	XAPIAN_DEPRECATED(Query(Query::op op_, Xapian::Query q));
 
 	/** Apply the specified operator to a single Xapian::Query object, with
