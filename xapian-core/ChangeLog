@@ -1,3 +1,7 @@
+Sat Oct 27 05:37:33 BST 2007  Olly Betts <olly@survex.com>
+
+	* NEWS: Merge two "testsuite" sections in draft 1.0.4 entry.
+
 Sat Oct 27 02:34:10 BST 2007  Olly Betts <olly@survex.com>
 
 	* HACKING: Note specifically that std::list::size() is O(n) for GCC.

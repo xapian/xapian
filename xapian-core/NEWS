@@ -73,6 +73,9 @@ testsuite:
 * Add another valgrind suppression for a slightly different error from zlib
   in Ubuntu gutsy.
 
+* Remove quartztest's test_postlist1 and test_postlist2, replacing the coverage
+  lost by extending and adding tests which work with other backends as well.
+
 matcher:
 
 * Several performance improvements have been made, mainly to the handling
@@ -149,11 +152,6 @@ documentation:
 * docs/install.html: Reworked - this document now concentrates on giving
   a brief overview of building which should be suitable for most common cases,
   and defers to the INSTALL document in each tarball for more details.
-
-testsuite:
-
-* Remove quartztest's test_postlist1 and test_postlist2, replacing the coverage
-  lost by extending and adding tests which work with other backends as well.
 
 portability:
 
