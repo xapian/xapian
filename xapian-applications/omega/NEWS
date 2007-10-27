@@ -1,7 +1,7 @@
 Up to:
-Sun Sep 30 22:12:46 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+Sat Oct 27 05:30:28 BST 2007  Olly Betts <olly@survex.com>
 
-Omega 1.0.4 (2007-??-??):
+Omega 1.0.4 (2007-10-??):
 
 general:
 
@@ -11,9 +11,11 @@ indexers:
 
 omega:
 
-* Use new forms of add_prefix() internally to avoid deprecation warnings
-  when compiling.  (Requires some extra code to ensure that semantics of
-  adding a prefix in omegascript do not change.)
+* If an OmegaScript template specifies the same field name as both a boolean
+  and a probabilistic term prefix then previous the boolean setting would
+  be ignored (e.g. $setmap{prefix,foo,A}$setmap{boolprefix,foo,H}).  Now this
+  generates an error.  If you set prefixes in your templates, you may wish to
+  check them over before upgrading.
 
 templates:
 
