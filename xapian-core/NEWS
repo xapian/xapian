@@ -1,45 +1,15 @@
 Updated up to:
-Mon Oct 01 13:20:39 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+Fri Oct 26 04:57:31 BST 2007  Olly Betts <olly@survex.com>
 
-Xapian-core 1.0.4 (2007-??-??):
-
-API:
-
-* Query:
-
-  + Add OP_MULT_WEIGHT operator, and a corresponding constructor (which
-    takes a single subquery and a parameter of type "double").  This
-    multiplies the weights from the subquery by the parameter, allowing
-    adjustment of the importance of parts of the query tree.
+Matchspy stuff to be held for 1.0.4:
 
 * Matchspy:
 
-  + Add new header file, "matchspy.h", which defines some pre-defined
-    matchspy classes, which can be used for some types of categorised
-    searches (also called faceted searches), and to get various other
-    items of information from a database at search time.  This also
+  + Add some pre-defined matchspy classes, which can be used for some types of
+    categorised searches (also called faceted searches), and to get various
+    other items of information from a database at search time.  This also
     includes a MultipleMatchDecider class, which can be used to run
     multiple match deciders at once.
-
-* QueryParser:
-
-  + New enum "prefix_type", currently holding two values used to define how
-    terms in a prefix are joined into the query.
-
-  + Add new form of add_prefix() which takes a third argument of type
-    "prefix_type" to define how a prefix is added, and also allows multiple
-    prefixes to be set for a single field, or multiple default prefixes to
-    be set.
-
-  + Deprecate the old (2 argument) form of add_prefix(), and completely
-    deprecate add_boolean_prefix().  Enhance documentation comments to
-    describe their behaviour if called repeatedly (though this behaviour is
-    unchanged from earlier releases).
-
-testsuite:
-
-* Add another valgrind suppression for a slightly different error from zlib
-  in Ubuntu gutsy.
 
 * Add tests of StringListSerialise class.
 
@@ -47,29 +17,150 @@ testsuite:
 
 * Add tests of predefined matchspy classes.
 
-* Add tests of queryparser with multiple prefixes assigned to a single
-  field, and with multiple default prefixes.
+* Add document on categorisation, which describes how to use the new
+  pre-defined matchspy classes for categorisation searches.
 
-* Add test for OP_MULT_WEIGHT operator with various queries and multipliers.
+
+Xapian-core 1.0.4 (2007-10-??):
+
+API:
+
+* Query:
+
+  + Add OP_SCALE_WEIGHT operator (and a corresponding constructor which
+    takes a single subquery and a parameter of type "double").  This
+    multiplies the weights from the subquery by the parameter, allowing
+    adjustment of the importance of parts of the query tree.
+
+  + Deprecate the essentially useless constructor Query(Query::op, Query).
+
+* QueryParser:
+
+  + A field prefix can now be set to expand to more than one term prefix.
+    Similarly, multiple term prefixes can now be applied by default.  This is
+    done by calling QueryParser::add_boolean_prefix() or
+    QueryParser::add_prefix() more than once with the same field name but a
+    different term prefix (previously subsequent calls with the same field name
+    had no effect).
+
+  + Trying to set the same field as probabilistic and boolean now throws
+    InvalidOperationError.
+
+  + Fix parsing of `term1 site:example.org term2', broken by changes in 1.0.2.
+
+  + Drop special treatment for unmatched ')' at the start of the query, as it
+    seems rather arbitrary and not particularly useful and was causing us to
+    parse `(site:example.org) -term' incorrectly.
+
+  + The QueryParser now generates pure boolean Query objects for strings such
+    as `site:example.org' by applying OP_SCALE_WEIGHT with a factor of 0.0.
+
+  + Fix handling of `"quoted phrase" +term' and `"quoted phrase" -term'.
+
+  + Fix handling of `site:example.org -term'.
+
+  + The parser stack is now a std::vector<> rather than a fixed size, so it
+    will typically use less memory, and can't hit the fixed limit.
+
+* PostingIterator: positionlist_begin() and get_wdf() should now always
+  throw InvalidOperationError where they aren't meaningful (before in some
+  cases UnimplementedError was thrown).
+
+testsuite:
+
+* Add tests for new features.
+
+* Add another valgrind suppression for a slightly different error from zlib
+  in Ubuntu gutsy.
 
 matcher:
 
-* Add MultWeightPostlist, to implement OP_MULT_WEIGHT queries.
+* Several performance improvements have been made, mainly to the handling
+  of OP_AND and related operations (OP_FILTER, OP_NEAR, and OP_PHRASE).
+  In combination, these are likely to speed up searching significantly
+  for most users - in tests on real world data we've seen savings of 15-55%
+  in search times).
+
+  + OP_AND of 3 or more sub-queries is now more efficient.
+
+  + Sub-queries from adjacent OP_AND, OP_FILTER, OP_NEAR, and OP_PHRASE are now
+    combined into a single multi-way OP_AND operation, and the filters which
+    implement the near/phrase restrictions are hoisted above this so they need
+    to check fewer documents (bug#23).
+	  
+  + If an OP_OR or OP_AND_MAYBE decays to OP_AND, we now ensure that the less
+    frequent sub-query is on the left, which OP_AND is optimised to expect.
+
+* When the Enquire::get_mset() parameter checkatleast is set, and we're sorting
+  by relevance with forward ordering by docid, and the query is pure boolean,
+  the matcher was deciding it was done before the checkatleast requirement was
+  satisfied.  Then the adjustments made to the estimated and max statistics
+  based on checkatleast meant the results claimed there were exactly msize
+  results.  This bug has now been fixed.
+
+* Queries involving a ValueRangePostList filter now run around 3.5 times faster
+  (bug#164).
+
+* The calculations behind MSet::get_matches_estimated() were always rounding
+  down fractions, but now round to the nearest integer.  Due to cumulative
+  rounding, this could mean that the estimate is now a few documents higher in
+  some cases (and hopefully a better estimate).
 
 flint backend:
 
+* Fixed a bug introduced in 1.0.3 - trying to open a flint database for reading
+  no longer fails if it isn't writable.
+
+* We no longer use member function pointers in the Btree implementation which
+  seems to speed up searching a little.
+
 remote backend:
+
+* The remote protocol minor version has been increased (to accommodate
+  OP_SCALE_WEIGHT).  If you are upgrading a live system which uses the
+  remote backend, upgrade the servers before the clients.
 
 inmemory backend:
 
 build system:
 
+* Added macro machinery to allow branch prediction hints to be specified and
+  used by compilers which support this (current GCC and Intel C++).
+
+* In a developer build, look for rst2html.py if rst2html isn't found as some
+  Linux distros have it installed under with an extension.
+
 documentation:
 
-* Add document on categorisation, which describes how to use the new
-  pre-defined matchspy classes for categorisation searches.
+* In the API documentation, explicitly note that Database::get_metadata()
+  returns an empty string when the backend doesn't support user-specified
+  metadata, and that WritableDatabase::set_metadata() throws UnimplementedError
+  in this case.  Also describe the current behaviour with multidatabases.
+
+* README: Remove the ancient history lesson - this material is better left to
+  the history page on the website.
+
+* deprecation.html: Improve formatting.
+
+* When running rst2html, using "--verbose" was causing "info" messages to be
+  included in the HTML output, so drop this option and really fix this issue
+  (which was thought to have been fixed by changes in 1.0.3).
+
+* docs/install.html: Reworked - this document now concentrates on giving
+  a brief overview of building which should be suitable for most common cases,
+  and defers to the INSTALL document in each tarball for more details.
+
+testsuite:
+
+* Remove quartztest's test_postlist1 and test_postlist2, replacing the coverage
+  lost by extending and adding tests which work with other backends as well.
 
 portability:
+
+debug code:
+
+* The debug assertion code has been rewritten from scratch to be cleaner and
+  pull in fewer other headers.
 
 Xapian-core 1.0.3 (2007-09-28):
 
@@ -171,10 +262,10 @@ documentation:
 * docs/stemming.html: Reorder the initial paragraphs so we actually answer the
   question "What is a stemming algorithm?" up front.
 
-* When running rst2html, use "--exit-status=warning"
-  rather than "--strict".  The former actually gives a non-zero exit status for
-  a warning or worse, while the former doesn't, but does include any "info"
-  messages in the output HTML.
+* When running rst2html, use "--exit-status=warning" rather than "--strict".
+  The former actually gives a non-zero exit status for a warning or worse,
+  while the former doesn't, but does include any "info" messages in the output
+  HTML.
 
 * docs/deprecation.rst: Add "Database::positionlist_begin() throwing
   RangeError and DocNotFoundError".
