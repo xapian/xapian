@@ -305,9 +305,6 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 	/// Within query frequency of this term - leaf node only
 	Xapian::termcount wqf;
 
-	/// Used to store a multiplier for subquery weights.
-	double dbl_parameter;
-
 	/** swap the contents of this with another Xapian::Query::Internal,
 	 *  in a way which is guaranteed not to throw.  This is
 	 *  used with the assignment operator to make it exception
@@ -387,9 +384,9 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 	 */
 	void add_subquery(const Query::Internal * subq);
 
-	void set_dbl_parameter(double dbl_parameter_) {
-	    dbl_parameter = dbl_parameter_;
-	}
+	void set_dbl_parameter(double dbl_parameter_);
+
+	double get_dbl_parameter() const;
 
 	/** Finish off the construction.
 	 */

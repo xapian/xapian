@@ -95,7 +95,8 @@ QueryOptimiser::do_subquery(const Xapian::Query::Internal * query, double factor
 
 	case Xapian::Query::OP_SCALE_WEIGHT: {
 	    AssertEq(query->subqs.size(), 1);
-	    double sub_factor = factor * query->dbl_parameter;
+	    double sub_factor = factor;
+	    if (sub_factor != 0.0) sub_factor *= query->get_dbl_parameter();
 	    RETURN(do_subquery(query->subqs[0], sub_factor));
 	}
 

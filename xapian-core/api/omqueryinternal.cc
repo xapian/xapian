@@ -185,7 +185,7 @@ Xapian::Query::Internal::serialise(Xapian::termpos & curpos) const
 		break;
 	    case Xapian::Query::OP_SCALE_WEIGHT:
 		result += ".";
-		result += serialise_double(dbl_parameter);
+		result += str_parameter; // serialise_double(get_dbl_parameter());
 		break;
 	}
     }
@@ -248,7 +248,7 @@ Xapian::Query::Internal::get_description() const
     }
 
     if (op == Xapian::Query::OP_SCALE_WEIGHT) {
-	opstr += om_tostring(dbl_parameter);
+	opstr += om_tostring(get_dbl_parameter());
 	opstr += " * ";
 	opstr += subqs[0]->get_description();
 	return opstr;
@@ -539,7 +539,6 @@ Xapian::Query::Internal::swap(Xapian::Query::Internal &other)
     std::swap(str_parameter, other.str_parameter);
     std::swap(term_pos, other.term_pos);
     std::swap(wqf, other.wqf);
-    std::swap(dbl_parameter, other.dbl_parameter);
 }
 
 Xapian::Query::Internal::Internal(const Xapian::Query::Internal &copyme)
@@ -550,8 +549,7 @@ Xapian::Query::Internal::Internal(const Xapian::Query::Internal &copyme)
 	  tname(copyme.tname),
 	  str_parameter(copyme.str_parameter),
 	  term_pos(copyme.term_pos),
-	  wqf(copyme.wqf),
-	  dbl_parameter(copyme.dbl_parameter)
+	  wqf(copyme.wqf)
 {
     for (subquery_list::const_iterator i = copyme.subqs.begin();
 	 i != copyme.subqs.end();
@@ -632,7 +630,7 @@ Xapian::Query::Internal::validate_query() const
 		om_tostring(subqs.size()) + ".");
     }
 
-    if (op == OP_SCALE_WEIGHT && dbl_parameter < 0) {
+    if (op == OP_SCALE_WEIGHT && get_dbl_parameter() < 0) {
 	throw Xapian::InvalidArgumentError("Xapian::Query: " + get_op_name(op) + " requires a non-negative parameter.");
     }
 
@@ -726,7 +724,7 @@ Xapian::Query::Internal::simplify_query()
 	    if (tname > str_parameter) return 0;
 	    return this;
 	case OP_SCALE_WEIGHT:
-	    if (fabs(dbl_parameter - 1.0) > DBL_EPSILON) return this;
+	    if (fabs(get_dbl_parameter() - 1.0) > DBL_EPSILON) return this;
 	    // If the multiplier is 1, this node doesn't actually do anything,
 	    // so we leave it to be removed.
 	    break;
@@ -876,4 +874,26 @@ Xapian::Query::Internal::add_subquery(const Xapian::Query::Internal * subq)
     } else {
 	subqs.push_back(new Xapian::Query::Internal(*subq));
     }
+}
+
+void
+Xapian::Query::Internal::set_dbl_parameter(double dbl_parameter_)
+{
+    // We store the double parameter encoded as a string because
+    // Xapian::Query::Internal is defined in an external API header and we want
+    // to avoid any risk of ABI breakage (we suspect it would be OK, but it's
+    // not risking).  FIXME: rework for 1.1.0
+    str_parameter = serialise_double(dbl_parameter_);
+}
+
+double
+Xapian::Query::Internal::get_dbl_parameter() const
+{
+    // We store the double parameter encoded as a string because
+    // Xapian::Query::Internal is defined in an external API header and we want
+    // to avoid any risk of ABI breakage (we suspect it would be OK, but it's
+    // not risking).  FIXME: rework for 1.1.0
+    const char * p = str_parameter.data();
+    const char * end = p + str_parameter.size();
+    return unserialise_double(&p, end);
 }
