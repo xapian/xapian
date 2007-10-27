@@ -165,7 +165,7 @@ class SmokeTest {
 
 	    // Test OP_SCALE_WEIGHT and corresponding constructor
 	    Xapian.Query query4 = new Xapian.Query(Xapian.Query.op.OP_SCALE_WEIGHT, new Xapian.Query("foo"), 5.0);
-	    if (query4.GetDescription() != "Xapian::Query((foo * 5))") {
+	    if (query4.GetDescription() != "Xapian::Query(5 * foo)") {
 		System.Console.WriteLine("Unexpected query4.GetDescription()");
 		System.Environment.Exit(1);
 	    }

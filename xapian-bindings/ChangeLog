@@ -1,3 +1,8 @@
+Sat Oct 27 06:05:56 BST 2007  Olly Betts <olly@survex.com>
+
+	* csharp/SmokeTest.cs,ruby/smoketest.rb,tcl8/smoketest.tcl: Update for
+	  changed output for Query::get_description() for OP_SCALE_WEIGHT.
+
 Sat Oct 27 06:03:53 BST 2007  Olly Betts <olly@survex.com>
 
 	* php/smoketest.php: Update for changed output for
