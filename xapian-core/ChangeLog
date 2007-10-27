@@ -1,3 +1,8 @@
+Sat Oct 27 02:33:14 BST 2007  Olly Betts <olly@survex.com>
+
+	* docs/intro_ir.html: Add link to the forthcoming book
+	  "Introduction to Information Retrieval", which can be read online.
+
 Sat Oct 27 02:22:36 BST 2007  Olly Betts <olly@survex.com>
 
 	* docs/Makefile.am: We no longer build sourcedoc.pdf so remove it from
