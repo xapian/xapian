@@ -48,7 +48,7 @@ uninstall-local:
 	rm -rf $(DESTDIR)$(docdir)/apidoc
 
 MAINTAINERCLEANFILES = doxygen_api_conf doxygen_full_conf \
-	code_structure.html apidoc.pdf sourcedoc.pdf \
+	code_structure.html apidoc.pdf \
 	$(RSTHTML)
 
 .PHONY: doxygen_source_docs doxygen_api_docs doxygen_docs
