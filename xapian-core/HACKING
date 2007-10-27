@@ -876,8 +876,9 @@ to follow the style of the existing code.  In particular:
 * Prefer "container.empty()" to "container.size() == 0" (and
   "!container.empty()" to "container.size() != 0" or "container.size() > 0").
   Finding the size of a container may not be a constant time operation for
-  all containers (e.g. std::list may not be).  And the "empty()" form makes
-  the intent of the test more explicit.
+  all containers (e.g. std::list may not be, and indeed isn't for GCC - see
+  http://gcc.gnu.org/onlinedocs/libstdc++/23_containers/howto.html#6).  And
+  the "empty()" form makes the intent of the test more explicit.
 
 * Prefer not to use "else" when the control flow is diverted elsewhere at the
   end of the "if" block (e.g. by "return", "continue", "break").  This
@@ -1144,16 +1145,12 @@ updated as follows:
   debian control directory with the tag "debian-VERSION-1" - eg, for a new
   release of version 0.9.6, tag with "debian-0.9.6-1".
 
-* Use xapian-maintainer-tools/debian/make-source-packages to make and
-  upload new source packages (for stable, unstable, dapper, and edgy).
-  The source packages for the distributions other than stable are done
-  as "backports" - if unstable's version is 0.9.6-1, then stable's
-  version is 0.9.6-0stable1 (so that it's older than the unstable version
-  so that upgrading between distributions works).  The corresponding dapper
-  version would be 0.9.6-1.99dapper (and similarly for edgy).
+* Use xapian-maintainer-tools/debian/make-source-packages to make and upload
+  new source packages for the various Debian and Ubuntu versions we provide
+  packages for.  Currently this script must be run on ixion.
 
-* Build debs for stable, unstable, dapper, edgy, and feisty.  The scripts
-  xapian-maintainer-tools/debian/create-chroot and
+* Build debs for oldstable, stable, unstable, dapper, edgy, feisty, and gutsy.
+  The scripts xapian-maintainer-tools/debian/create-chroot and
   xapian-maintainer-tools/debian/build-packages allow building these in
   a series of chroots on a single machine using pbuilder.
 
