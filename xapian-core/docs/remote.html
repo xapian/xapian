@@ -85,13 +85,14 @@ One or more databases need to be specified by listing their directories - they
 are opened using the "auto" pseudo-backend.
 
 <P>Once started, the server will run and listen for connections on the
-configured port, currently handling them one by one (although this will
-change at some point).
+configured port.  Each connection is handled by a forked child process
+(or a new thread under Windows), so concurrent read access is supported.
 
 <H2>Notes</H2>
 
-<P>A remote search should behave just like the equivalent local one.  All
-features are now implemented.
+<P>A remote search should behave just like the equivalent local one, except
+a few features aren't currently implemented (e.g. spelling, synonyms, user
+metadata).
 
 <P>Exceptions are propagated across the link and thrown again at the client end.
 
