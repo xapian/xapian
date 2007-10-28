@@ -193,7 +193,6 @@ QueryOptimiser::do_and_like(const Xapian::Query::Internal *query, double factor,
     const Xapian::Query::Internal::subquery_list &queries = query->subqs;
     AssertRel(queries.size(), >=, 2);
 
-    Xapian::Query::Internal::subquery_list::const_iterator q;
     for (size_t i = 0; i != queries.size(); ++i) {
 	// The second branch of OP_FILTER is always boolean.
 	if (i == 1 && op == Xapian::Query::OP_FILTER) factor = 0.0;
