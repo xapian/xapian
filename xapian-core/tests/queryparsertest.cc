@@ -584,51 +584,6 @@ static test test_or_queries[] = {
     { NULL, NULL }
 };
 
-static test test_and_queries[] = {
-    { "internet explorer title:(http www)", "(Zinternet:(pos=1) AND Zexplor:(pos=2) AND ZXThttp:(pos=3) AND ZXTwww:(pos=4))" },
-    // Regression test for bug in 0.9.2 and earlier - this would give
-    // (two:(pos=2) AND_MAYBE (one:(pos=1) AND three:(pos=3)))
-    { "one +two three", "(Zone:(pos=1) AND Ztwo:(pos=2) AND Zthree:(pos=3))" },
-    { "hello -title:\"hello world\"", "(Zhello:(pos=1) AND_NOT (XThello:(pos=2) PHRASE 2 XTworld:(pos=3)))" },
-    // Regression test for bug fixed in 1.0.4 - the '-' would be ignored there
-    // because the whitespace after the '"' wasn't noticed.
-    { "\"hello world\" -C++", "((hello:(pos=1) PHRASE 2 world:(pos=2)) AND_NOT c++:(pos=3))" },
-    // Regression tests for bug fixed in 1.0.4 - queries with only boolean
-    // filter and HATE terms weren't accepted.
-    { "-cup site:world", "(0 * Hworld AND_NOT Zcup:(pos=1))" },
-    { "site:world -cup", "(0 * Hworld AND_NOT Zcup:(pos=1))" },
-    // Regression test for bug fixed in 1.0.4 - the KET token for ')' was lost.
-    { "(site:world) -cup", "(0 * Hworld AND_NOT Zcup:(pos=1))" },
-    // Regression test for bug fixed in 1.0.4 - a boolean filter term between
-    // probabilistic terms caused a parse error (probably broken during the
-    // addition of synonym support in 1.0.2).
-    { "foo site:xapian.org bar", "((Zfoo:(pos=1) AND Zbar:(pos=2)) FILTER Hxapian.org)" },
-    { NULL, NULL }
-};
-
-static test test_stop_queries[] = {
-    { "test the queryparser", "(test:(pos=1) AND queryparser:(pos=3))" },
-    // Regression test for bug in 0.9.6 and earlier.  This would fail to
-    // parse.
-    { "test AND the AND queryparser", "(test:(pos=1) AND the:(pos=2) AND queryparser:(pos=3))" },
-    // 0.9.6 and earlier ignored a stopword even if it was the only term.
-    // We don't ignore it in this case, which is probably better.  But
-    // an all-stopword query with multiple terms doesn't work, which
-    // prevents 'to be or not to be' for being searchable unless made
-    // into a phrase query.
-    { "the", "the:(pos=1)" },
-    { NULL, NULL }
-};
-
-static test test_pure_not_queries[] = {
-    { "NOT windows", "(<alldocuments> AND_NOT Zwindow:(pos=1))" },
-    { "a AND (NOT b)", "(Za:(pos=1) AND (<alldocuments> AND_NOT Zb:(pos=2)))" },
-    { "AND NOT windows", "Syntax: <expression> AND NOT <expression>" },
-    { "gordian NOT", "Syntax: <expression> NOT <expression>" },
-    { "gordian AND NOT", "Syntax: <expression> AND NOT <expression>" },
-    { NULL, NULL }
-};
-
 static bool test_queryparser1()
 {
     Xapian::QueryParser queryparser;
@@ -672,6 +627,28 @@ static bool test_queryparser1()
     }
     return true;
 }
+
+static test test_and_queries[] = {
+    { "internet explorer title:(http www)", "(Zinternet:(pos=1) AND Zexplor:(pos=2) AND ZXThttp:(pos=3) AND ZXTwww:(pos=4))" },
+    // Regression test for bug in 0.9.2 and earlier - this would give
+    // (two:(pos=2) AND_MAYBE (one:(pos=1) AND three:(pos=3)))
+    { "one +two three", "(Zone:(pos=1) AND Ztwo:(pos=2) AND Zthree:(pos=3))" },
+    { "hello -title:\"hello world\"", "(Zhello:(pos=1) AND_NOT (XThello:(pos=2) PHRASE 2 XTworld:(pos=3)))" },
+    // Regression test for bug fixed in 1.0.4 - the '-' would be ignored there
+    // because the whitespace after the '"' wasn't noticed.
+    { "\"hello world\" -C++", "((hello:(pos=1) PHRASE 2 world:(pos=2)) AND_NOT c++:(pos=3))" },
+    // Regression tests for bug fixed in 1.0.4 - queries with only boolean
+    // filter and HATE terms weren't accepted.
+    { "-cup site:world", "(0 * Hworld AND_NOT Zcup:(pos=1))" },
+    { "site:world -cup", "(0 * Hworld AND_NOT Zcup:(pos=1))" },
+    // Regression test for bug fixed in 1.0.4 - the KET token for ')' was lost.
+    { "(site:world) -cup", "(0 * Hworld AND_NOT Zcup:(pos=1))" },
+    // Regression test for bug fixed in 1.0.4 - a boolean filter term between
+    // probabilistic terms caused a parse error (probably broken during the
+    // addition of synonym support in 1.0.2).
+    { "foo site:xapian.org bar", "((Zfoo:(pos=1) AND Zbar:(pos=2)) FILTER Hxapian.org)" },
+    { NULL, NULL }
+};
 
 // With default_op = OP_AND.
 static bool test_qp_default_op1()
@@ -971,11 +948,11 @@ static bool test_qp_flag_partial1()
     // And now with stemming strategy STEM_ALL.
     qp.set_stemming_strategy(Xapian::QueryParser::STEM_ALL);
     qobj = qp.parse_query("Out", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((out:(pos=1) OR outside:(pos=1) OR Zout:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((out:(pos=1,wqf=2) OR outside:(pos=1)))");
     qobj = qp.parse_query("Outs", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((outside:(pos=1) OR Zout:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((outside:(pos=1) OR out:(pos=1)))");
     qobj = qp.parse_query("Outside", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((outside:(pos=1) OR Zoutsid:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((outside:(pos=1) OR outsid:(pos=1)))");
 
     // Check handling of a case with a prefix.
     qp.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
@@ -1014,6 +991,20 @@ static bool test_qp_flag_bool_any_case1()
     return true;
 }
 
+static test test_stop_queries[] = {
+    { "test the queryparser", "(test:(pos=1) AND queryparser:(pos=3))" },
+    // Regression test for bug in 0.9.6 and earlier.  This would fail to
+    // parse.
+    { "test AND the AND queryparser", "(test:(pos=1) AND the:(pos=2) AND queryparser:(pos=3))" },
+    // 0.9.6 and earlier ignored a stopword even if it was the only term.
+    // We don't ignore it in this case, which is probably better.  But
+    // an all-stopword query with multiple terms doesn't work, which
+    // prevents 'to be or not to be' for being searchable unless made
+    // into a phrase query.
+    { "the", "the:(pos=1)" },
+    { NULL, NULL }
+};
+
 static bool test_qp_stopper1()
 {
     Xapian::QueryParser qp;
@@ -1043,6 +1034,15 @@ static bool test_qp_stopper1()
     }
     return true;
 }
+
+static test test_pure_not_queries[] = {
+    { "NOT windows", "(<alldocuments> AND_NOT Zwindow:(pos=1))" },
+    { "a AND (NOT b)", "(Za:(pos=1) AND (<alldocuments> AND_NOT Zb:(pos=2)))" },
+    { "AND NOT windows", "Syntax: <expression> AND NOT <expression>" },
+    { "gordian NOT", "Syntax: <expression> NOT <expression>" },
+    { "gordian AND NOT", "Syntax: <expression> AND NOT <expression>" },
+    { NULL, NULL }
+};
 
 static bool test_qp_flag_pure_not1()
 {
@@ -1683,6 +1683,41 @@ static bool test_qp_synonym3()
     return true;
 }
 
+static test test_stem_all_queries[] = {
+    { "\"chemical engineers\"", "(chemic:(pos=1) PHRASE 2 engin:(pos=2))" },
+    { "chemical NEAR engineers", "(chemic:(pos=1) NEAR 11 engin:(pos=2))" },
+    { "chemical engineers", "(chemic:(pos=1) OR engin:(pos=2))" },
+    { NULL, NULL }
+};
+
+static bool test_qp_stem_all1()
+{
+    Xapian::QueryParser qp;
+    qp.set_stemmer(Xapian::Stem("english"));
+    qp.set_stemming_strategy(qp.STEM_ALL);
+    for (test *p = test_stem_all_queries; p->query; ++p) {
+	string expect, parsed;
+	if (p->expect)
+	    expect = p->expect;
+	else
+	    expect = "parse error";
+	try {
+	    Xapian::Query qobj = qp.parse_query(p->query);
+	    parsed = qobj.get_description();
+	    expect = string("Xapian::Query(") + expect + ')';
+	} catch (const Xapian::QueryParserError &e) {
+	    parsed = e.get_msg();
+	} catch (const Xapian::Error &e) {
+	    parsed = e.get_description();
+	} catch (...) {
+	    parsed = "Unknown exception!";
+	}
+	tout << "Query: " << p->query << '\n';
+	TEST_STRINGS_EQUAL(parsed, expect);
+    }
+    return true;
+}
+
 /// Test cases for the QueryParser.
 static test_desc tests[] = {
     TESTCASE(queryparser1),
@@ -1709,6 +1744,7 @@ static test_desc tests[] = {
     TESTCASE(qp_synonym1),
     TESTCASE(qp_synonym2),
     TESTCASE(qp_synonym3),
+    TESTCASE(qp_stem_all1),
     END_OF_TESTCASES
 };
 

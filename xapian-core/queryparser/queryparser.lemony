@@ -133,22 +133,26 @@ class Term {
     string name;
     list<string> prefixes;
     string unstemmed;
-    bool stem;
+    QueryParser::stem_strategy stem;
     termpos pos;
 
-    Term(const string &name_, termpos pos_) : name(name_), stem(false), pos(pos_) { }
-    Term(const string &name_) : name(name_), stem(false), pos(0) { }
+    Term(const string &name_, termpos pos_) : name(name_), stem(QueryParser::STEM_NONE), pos(pos_) { }
+    Term(const string &name_) : name(name_), stem(QueryParser::STEM_NONE), pos(0) { }
     Term(const string &name_, const list<string> &prefixes_)
-	: name(name_), prefixes(prefixes_), stem(false), pos(0) { }
-    Term(termpos pos_) : stem(false), pos(pos_) { }
+	: name(name_), prefixes(prefixes_), stem(QueryParser::STEM_NONE), pos(0) { }
+    Term(termpos pos_) : stem(QueryParser::STEM_NONE), pos(pos_) { }
     Term(State * state_, const string &name_, const list<string> &prefixes_,
-	 const string &unstemmed_, bool stem_ = false, termpos pos_ = 0)
+	 const string &unstemmed_,
+	 QueryParser::stem_strategy stem_ = QueryParser::STEM_NONE,
+	 termpos pos_ = 0)
 	: state(state_), name(name_), prefixes(prefixes_), unstemmed(unstemmed_),
 	  stem(stem_), pos(pos_) { }
 
     std::string make_term(const string & prefix) const;
 
-    void dont_stem() { stem = false; }
+    void need_positions() {
+	if (stem == QueryParser::STEM_SOME) stem = QueryParser::STEM_NONE;
+    }
 
     termpos get_termpos() const { return pos; }
 
@@ -228,12 +232,12 @@ string
 Term::make_term(const string & prefix) const
 {
     string term;
-    if (stem) term += 'Z';
+    if (stem == QueryParser::STEM_SOME) term += 'Z';
     if (!prefix.empty()) {
 	term += prefix;
 	if (prefix_needs_colon(prefix, name[0])) term += ':';
     }
-    if (stem) {
+    if (stem != QueryParser::STEM_NONE) {
 	term += state->stem_term(name);
     } else {
 	term += name;
@@ -263,7 +267,7 @@ Term::get_query_with_synonyms() const
 	Xapian::Database db = state->get_database();
 	Xapian::TermIterator syn = db.synonyms_begin(term);
 	Xapian::TermIterator end = db.synonyms_end(term);
-	if (syn == end && stem) {
+	if (syn == end && stem != QueryParser::STEM_NONE) {
 	    // If that has no synonyms, try the stemmed form:
 	    term.resize(0);
 	    term += 'Z';
@@ -900,18 +904,24 @@ phrased_term:
 	    string unstemmed_term(term);
 	    term = Unicode::tolower(term);
 
-	    // Don't stem if:
-	    // * We're not stemming terms at all!
-	    // * We're not stemming all terms and "should_stem()" returns false.
-	    // * If the term is followed by a stem preventer character.
-	    bool dont_stem =
-		!stemmer.internal.get() ||
-		stem_action == STEM_NONE ||
-		(stem_action == STEM_SOME && !should_stem(unstemmed_term)) ||
-		(it != end && is_stem_preventer(*it));
+	    // Reuse stem_strategy - STEM_SOME here means "stem terms except
+	    // when used with positional operators".
+	    stem_strategy stem_term = stem_action;
+	    if (stem_term != STEM_NONE) {
+		if (!stemmer.internal.get()) {
+		    // No stemmer is set.
+		    stem_term = STEM_NONE;
+		} else if (stem_term == STEM_SOME) {
+		    if (!should_stem(unstemmed_term) ||
+			(it != end && is_stem_preventer(*it))) {
+			// Don't stem this particular term.
+			stem_term = STEM_NONE;
+		    }
+		}
+	    }
 
 	    Term * term_obj = new Term(&state, term, prefixinfo->prefixes,
-				       unstemmed_term, !dont_stem, term_pos++);
+				       unstemmed_term, stem_term, term_pos++);
 
 	    // Check spelling, if we're a normal term, and any of the prefixes
 	    // are empty.
@@ -1181,14 +1191,14 @@ class TermList {
     TermList() : window(0), uniform_prefixes(true) { }
 
     /// Add an unstemmed Term object to this TermList object.
-    void add_unstemmed_term(Term * term) {
+    void add_positional_term(Term * term) {
         if (terms.empty()) {
 	    prefixes = term->prefixes;
 	} else if (uniform_prefixes && prefixes != term->prefixes)  {
 	    prefixes.clear();
 	    uniform_prefixes = false;
 	}
-	term->dont_stem();
+	term->need_positions();
 	terms.push_back(term);
     }
 
@@ -1656,12 +1666,12 @@ compound_term(T) ::= SYNONYM TERM(U). {
 
 phrase(P) ::= TERM(T). {
     P = new TermList;
-    P->add_unstemmed_term(T);
+    P->add_positional_term(T);
 }
 
 phrase(P) ::= phrase(Q) TERM(T). {
     P = Q;
-    P->add_unstemmed_term(T);
+    P->add_positional_term(T);
 }
 
 // phrased_term - A phrased term works like a single term, but is actually
@@ -1673,13 +1683,13 @@ phrase(P) ::= phrase(Q) TERM(T). {
 
 phrased_term(P) ::= TERM(T) PHR_TERM(U). {
     P = new TermList;
-    P->add_unstemmed_term(T);
-    P->add_unstemmed_term(U);
+    P->add_positional_term(T);
+    P->add_positional_term(U);
 }
 
 phrased_term(P) ::= phrased_term(Q) PHR_TERM(T). {
     P = Q;
-    P->add_unstemmed_term(T);
+    P->add_positional_term(T);
 }
 
 // group - A group of terms separated only by whitespace - candidates for
@@ -1707,8 +1717,8 @@ group(P) ::= group(Q) GROUP_TERM(T). {
 
 near_expr(P) ::= TERM(T) NEAR(N) TERM(U). {
     P = new TermList;
-    P->add_unstemmed_term(T);
-    P->add_unstemmed_term(U);
+    P->add_positional_term(T);
+    P->add_positional_term(U);
     if (N) {
 	P->adjust_window(N->get_termpos());
 	delete N;
@@ -1717,7 +1727,7 @@ near_expr(P) ::= TERM(T) NEAR(N) TERM(U). {
 
 near_expr(P) ::= near_expr(Q) NEAR(N) TERM(T). {
     P = Q;
-    P->add_unstemmed_term(T);
+    P->add_positional_term(T);
     if (N) {
 	P->adjust_window(N->get_termpos());
 	delete N;
@@ -1732,8 +1742,8 @@ near_expr(P) ::= near_expr(Q) NEAR(N) TERM(T). {
 
 adj_expr(P) ::= TERM(T) ADJ(N) TERM(U). {
     P = new TermList;
-    P->add_unstemmed_term(T);
-    P->add_unstemmed_term(U);
+    P->add_positional_term(T);
+    P->add_positional_term(U);
     if (N) {
 	P->adjust_window(N->get_termpos());
 	delete N;
@@ -1742,7 +1752,7 @@ adj_expr(P) ::= TERM(T) ADJ(N) TERM(U). {
 
 adj_expr(P) ::= adj_expr(Q) ADJ(N) TERM(T). {
     P = Q;
-    P->add_unstemmed_term(T);
+    P->add_positional_term(T);
     if (N) {
 	P->adjust_window(N->get_termpos());
 	delete N;
