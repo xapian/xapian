@@ -1,3 +1,8 @@
+Sun Oct 28 05:20:02 GMT 2007  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Update documentation comment for
+	  QueryParser::set_stemming_strategy().
+
 Sun Oct 28 05:03:03 GMT 2007  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Fix handling of STEM_ALL.

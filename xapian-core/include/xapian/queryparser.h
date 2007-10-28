@@ -345,11 +345,14 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *  This controls how the query parser will apply the stemming algorithm.
      *  The default value is STEM_NONE.  The possible values are:
      *
-     *   - STEM_NONE: performs no stemming.
-     *   - STEM_SOME: Search for stemmed forms of words which do not begin
-     *                with a capital letter, and search for unstemmed forms
-     *                of words which do begin with a capital letter.
-     *   - STEM_ALL:  Search for stemmed forms of all words.
+     *   - STEM_NONE: Don't perform any stemming.
+     *   - STEM_SOME: Search for stemmed forms of terms except for those which
+     *		      start with a capital letter, or are followed by certain
+     *		      characters (currently: (/\@<>=*[{" ), or are used with
+     *		      operators which need positional information.  Stemmed
+     *		      terms are prefixed with 'Z'.
+     *   - STEM_ALL:  Search for stemmed forms of all words (note: no 'Z'
+     *		      prefix is added).
      *
      *  Note that the stemming algorithm is only applied to words in
      *  probabilistic fields - boolean filter terms are never stemmed.
