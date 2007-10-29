@@ -1,3 +1,7 @@
+Mon Oct 29 18:36:12 GMT 2007  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Pull out old_item.wt into a variable.
+
 Mon Oct 29 18:24:46 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* queryparser/queryparser.lemony: Fix problem with spelling

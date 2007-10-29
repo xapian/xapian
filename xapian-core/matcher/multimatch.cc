@@ -555,7 +555,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		    // we've seen so far.  Check if the previous best entry
 		    // with this key might still be in the proto-MSet.  If it
 		    // might be, we need to check through for it.
-		    if (old_item.wt >= min_weight && mcmp(old_item, min_item)) {
+		    Xapian::weight old_wt = old_item.wt;
+		    if (old_wt >= min_weight && mcmp(old_item, min_item)) {
 			// Scan through (unsorted) MSet looking for entry.
 			// FIXME: more efficient way than just scanning?
 			Xapian::docid olddid = old_item.did;
@@ -580,8 +581,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		    }
 
 		    // Keep the old weight as it is now second best so far
-		    oldkey->second = make_pair(new_item,
-					       oldkey->second.first.wt);
+		    oldkey->second = make_pair(new_item, old_wt);
 		}
 	    }
 	}
