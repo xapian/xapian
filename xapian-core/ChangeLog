@@ -1,3 +1,13 @@
+Mon Oct 29 18:24:46 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* queryparser/queryparser.lemony: Fix problem with spelling
+	  correction of hyphenated terms (or other terms joined with phrase
+	  generators): the position of the start of the term wasn't being
+	  reset for the second term in the generated phrase, resulting in
+	  out of bounds errors when substituting the new value in the
+	  corrected query string.
+	* tests/queryparsertest.cc: Test the fix.
+
 Mon Oct 29 17:34:17 GMT 2007  Olly Betts <olly@survex.com>
 
 	* docs/deprecation.rst: Move "Stem::stem_word(word)" in the bindings

@@ -1462,6 +1462,9 @@ static test test_mispelled_queries[] = {
     { "\"paragahp pineapple\"", "\"paragraph pineapple\"" },
     { "test S.E.A.R.C.", "" },
     { "this AND that", "" },
+    { "documento", "document" },
+    { "documento-documento", "document-document" },
+    { "documento-searcho", "document-search" },
     { NULL, NULL }
 };
 

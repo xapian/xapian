@@ -1006,6 +1006,7 @@ phrased_term:
 	    // immediately followed by another term.
 	    if (it != end && is_wordchar(*it)) {
 		mode = IN_PHRASED_TERM;
+		term_start_index = it.raw() - qs.data();
 		goto phrased_term;
 	    }
 	} else if (mode == DEFAULT || mode == IN_GROUP) {
