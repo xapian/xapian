@@ -368,6 +368,29 @@ static bool test_uninitdb1()
     return true;
 }
 
+// tests the string list serialisation classes.
+static bool test_stringlistserialise1()
+{
+    Xapian::StringListSerialiser s1;
+    s1.append("foo");
+    s1.append("");
+    Xapian::StringListSerialiser s2(s1);
+    s2.append("baz");
+    Xapian::StringListUnserialiser p(s2.get());
+    Xapian::StringListUnserialiser end;
+    TEST(p != end);
+    TEST_EQUAL(*p, "foo");
+    ++p;
+    TEST(p != end);
+    TEST_EQUAL(*p, "");
+    p++;
+    TEST(p != end);
+    TEST_EQUAL(*p, "baz");
+    ++p;
+    TEST(p == end);
+    return true;
+}
+
 // Test a scaleweight query applied to a match nothing query
 static bool test_scaleweight3()
 {   
@@ -415,6 +438,7 @@ test_desc nodb_tests[] = {
     TESTCASE(addvalue1),
     TESTCASE(poscollapse2),
     TESTCASE(uninitdb1),
+    TESTCASE(stringlistserialise1),
     TESTCASE(scaleweight3),
     TESTCASE(scaleweight4),
     END_OF_TESTCASES
