@@ -6,6 +6,12 @@
 
 <h1><center>The Quartz database backend</center></h1>
 
+<p>
+Note: use of Quartz is now deprecated in favour of the newer Flint disk-based
+format.  We plan to entirely remove the quartz backend in Xapian 1.1.0.
+However a lot of this document is also relevant to Flint as well.
+</p>
+
 <h2>Why Quartz?</h2>
 
 <em>
@@ -13,8 +19,8 @@ What is this thing called Quartz?  How does it fit in with the Xapian
 library?</em>
 <p>
 Xapian can access information stored in various different formats.
-As well as Quartz, there's the newer Flint disk-based format,
-and the InMemory format which is held in memory.
+Generally these are disk-based, but there's also the InMemory format which is
+stored entirely in memory.
 
 <p>
 Each of these formats is comprised by a set of classes providing an interface
