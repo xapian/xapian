@@ -53,6 +53,12 @@
 #include <signal.h>
 
 #include <exception>
+#ifdef USE_RTTI
+# include <typeinfo>
+# if defined __GNUC__ && __GNUC__ >= 3
+#  include <cxxabi.h>
+# endif
+#endif
 
 #include <xapian/error.h>
 #include "testsuite.h"
@@ -406,8 +412,26 @@ test_driver::runtest(const test_desc *test)
 		    if (s[s.size() - 1] != '\n') out << endl;
 		    tout.str("");
 		}
-		out << " " << col_red << "EXCEPTION: std::exception: ";
-		out << e.what();
+		out << " " << col_red;
+#ifndef USE_RTTI
+		out << "std::exception";
+#else
+		const char * name = typeid(e).name();
+#if defined __GNUC__ && __GNUC__ >= 3
+		// Demangle the name which GCC returns for type_info::name().
+		int status;
+		char * realname = abi::__cxa_demangle(name, NULL, 0, &status);
+		if (realname) {
+		    out << realname;
+		    free(realname);
+		} else {
+		    out << name;
+		}
+#else
+		out << name;
+#endif
+#endif
+		out << ": " << e.what();
 		out << col_reset;
 		return FAIL;
 	    } catch (...) {

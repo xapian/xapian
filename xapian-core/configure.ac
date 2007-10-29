@@ -377,6 +377,15 @@ AC_TRY_LINK([#include <math.h>
     ])
 ])
 
+dnl See if <typeinfo> can be used in the testsuite - for GCC at least,
+dnl compilation fails if -fno-rtti is specified.
+AC_MSG_CHECKING([if RTTI is supported])
+AC_TRY_COMPILE([#include <typeinfo>],
+    [int i; const char * m = typeid(i).name();],
+    AC_MSG_RESULT(yes)
+    AC_DEFINE(USE_RTTI, 1, [Define if the testsuite should use RTTI]),
+    AC_MSG_RESULT(no))
+
 dnl Check for time functions.
 AC_CHECK_FUNCS(gettimeofday ftime)
 
