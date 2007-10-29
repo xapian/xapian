@@ -35,11 +35,9 @@ XAPIAN_SWIG_CS_SRCS=\
 	QueryParser.cs \
 	Remote.cs \
 	RSet.cs \
-	SWIGTYPE_p_std__mapTstd__string_unsigned_int_t.cs \
 	SWIGTYPE_p_std__string.cs \
 	SWIGTYPE_p_std__vectorTstd__string_t.cs \
 	SWIGTYPE_p_std__vectorTXapian__Query_t.cs \
-	SWIGTYPE_p_std__vectorTXapian__StringAndFrequency_t.cs \
 	SimpleStopper.cs \
 	Stem.cs \
 	Stopper.cs \

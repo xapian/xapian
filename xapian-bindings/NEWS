@@ -1,29 +1,6 @@
 Updated up to:
 Fri Oct 26 18:10:10 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
-General:
-
-* Add contents of matchspy.h to bindings.
-
-Python:
-
-* Add workaround for MultipleMatchDecider to ensure that a reference to the
-  Python object corresponding to any match deciders added to the
-  MultipleMatchDecider is kept until the MultipleMatchDecider is destroyed.
-
-* Add extra method "get_values_as_dict()" to ValueCountMatchSpy to allow
-  contents to be retrieved as a Python object.
-
-* Add extra method "get_terms_as_dict()" to TermCountMatchSpy to allow
-  contents to be retrieved as a Python object.
-
-* Add test of a ValueCountMatchSpy, a TermCountMatchSpy and a
-  MultipleMatchDecider.
-
------
-  
-Tue Oct 09 22:01:57 BST 2007  Olly Betts <olly@survex.com>
-
 Xapian-bindings 1.0.4 (2007-??-??):
 
 Documentation:
