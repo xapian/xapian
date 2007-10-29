@@ -86,7 +86,84 @@ information about the progress of tests.
 <h2>Iterators</h2>
 
 <p>
-   All iterators support <code>next()</code> and <code>equals()</code> methods
+The iterator classes in the Xapian C++ API are wrapped in a "Pythonic" style.
+The following are supported (where marked as default iterator, it means
+<code>__iter__()</code> does the right
+thing so you can for instance use <code>for term in document</code> to
+iterate over terms in a Document object):
+</p>
+
+<table title="Python iterators">
+<thead><td>Class</td><td>Method</td><td>Equivalent to</td><td>Iterator type</td></thead>
+<tr><td><code>MSet</code></td><td>default iterator</td><td><code>begin()</code></td><td><code>MSetIter</code></td></tr>
+<tr><td><code>ESet</code></td><td>default iterator</td><td><code>begin()</code></td><td><code>ESetIter</code></td></tr>
+<tr><td><code>Enquire</code></td><td><code>matching_terms()</code></td><td><code>get_matching_terms_begin()</code></td><td><code>TermIter</code></td></tr>
+<tr><td><code>Query</code></td><td>default iterator</td><td><code>get_terms_begin()</code></td><td><code>TermIter</code></td></tr>
+<tr><td><code>Database</code></td><td><code>allterms()</code></td><td><code>allterms_begin()</code> (also as default iterator)</td><td><code>TermIter</code></td></tr>
+<tr><td><code>Database</code></td><td><code>postlist(tname)</code></td><td><code>postlist_begin(tname)</code></td><td><code>PostingIter</code></td></tr>
+<tr><td><code>Database</code></td><td><code>termlist(docid)</code></td><td><code>termlist_begin(docid)</code></td><td><code>TermIter</code></td></tr>
+<tr><td><code>Database</code></td><td><code>positionlist(docid, tname)</code></td><td><code>positionlist_begin(docid, tname)</code></td><td><code>PositionIter</code></td></tr>
+<tr><td><code>Document</code></td><td><code>values()</code></td><td><code>values_begin()</code></td><td><code>ValueIter</code></td></tr>
+<tr><td><code>Document</code></td><td><code>termlist()</code></td><td><code>termlist_begin()</code> (also as default iterator)</td><td><code>TermIter</code></td></tr>
+<tr><td><code>QueryParser</code></td><td><code>stoplist()</code></td><td><code>stoplist_begin()</code></td><td><code>TermIter</code></td></tr>
+<tr><td><code>QueryParser</code></td><td><code>unstemlist(tname)</code></td><td><code>unstem_begin(tname)</code></td><td><code>TermIter</code></td></tr>
+</table>
+
+<p>
+The pythonic iterators return Python objects, with properties available as
+attribute values, with lazy evaluation where appropriate.
+</p>
+
+<p>
+The lazy evaluation is mainly transparent, but does become visible in one situation: if you keep an object returned by an iterator, without evaluating its properties to force the lazy evaluation to happen, and then move the iterator forward, the object may no longer be able to efficiently perform the lazy evaluation.  In this situation, an exception will be raised indicating that the information requested wasn't available.  This will only happen for a few of the properties - most are either not evaluated lazily (because the underlying Xapian implementation doesn't evaluate them lazily, so there's no advantage in lazy evaluation), or can be accessed even after the iterator has moved.  The simplest work around is simply to evaluate any properties you wish to use which are affected by this before moving the iterator.  The complete set of iterator properties affected by this is:
+</p>
+
+<ul>
+<li>
+Database.allterms (also accessible as Database.__iter__): <b>termfreq</b>
+</li><li>
+Database.termlist: <b>termfreq</b> and <b>positer</b>
+</li><li>
+Document.termlist (also accessible as Document.__iter__): <b>termfreq</b> and <b>positer</b>
+</li><li>
+Database.postlist: <b>positer</b>
+</li>
+</ul>
+
+<p>
+In older releases, the pythonic iterators returned lists representing the
+appropriate item when their <code>next()</code> method was called, except
+PositionIter which just returned a single value.  For backward compatibility,
+this sequence API is still supported so existing code should continue to work,
+but its use is now deprecated and we plan to remove it in Xapian 1.1.0, so we
+recommend users migrate to the new API.
+</p>
+
+<table title="Sequence API equivalents">
+<thead><td>Class</td><td>Returns</td></thead>
+<tr><td><code>MSetIter</code></td><td>[docid, weight, rank, percentage, document]</td></tr>
+<tr><td><code>ESetIter</code></td><td>[term, weight]</td></tr>
+<tr><td><code>TermIter</code></td><td>[term, wdf, termfreq, position iterator]</td></tr>
+<tr><td><code>PostingIter</code></td><td>[docid, doclength, wdf, position iterator]</td></tr>
+<tr><td><code>PositionIter</code></td><td>termpos</td></tr>
+<tr><td><code>ValueIter</code></td><td>[valueno, value]</td></tr>
+</table>
+   
+<h2>Non-Pythonic Iterators</h2>
+
+<p>
+Before the pythonic iterator wrappers were added, the python bindings provided
+thin wrappers around the C++ iterators.  However, these iterators don't behave
+like most iterators do in Python, so the pythonic iterators were implemented to
+replace them.  The non-pythonic iterators are still available to allow existing
+code to continue to work, but they're now deprecated and we plan to remove them
+in Xapian 1.2.0.  The documentation below is provided to aid migration away from
+them.
+</p>
+
+<p>
+   All non-pythonic iterators support <code>next()</code> and
+   <code>equals()</code> methods
    to move through and test iterators (as for all language bindings).
    MSetIterator and ESetIterator also support <code>prev()</code>.
    Python-wrapped iterators also support direct comparison, so something like:
@@ -98,8 +175,6 @@ information about the progress of tests.
      # do something
      m.next()
 </pre>
-
-<h2>Iterator dereferencing</h2>
 
 <p>
    C++ iterators are often dereferenced to get information, eg
@@ -121,62 +196,6 @@ information about the progress of tests.
    Other methods, such as <code>MSetIterator.get_document()</code>, are
    available unchanged.
 </p>
-
-<h2>Pythonic iterators</h2>
-
-<p>
-Many classes that support C++-style iterators also support Pythonic
-iterators which do the same thing in a Python style. The following are
-supported (where marked as default iterator, it means __iter__() does the right
-thing so you can for instance use <code>for term in document</code> to
-iterate over terms in the Document):
-</p>
-
-<table title="Python iterators">
-<thead><td>Class</td><td>Method</td><td>Equivalent to</td><td>Iterator type</td></thead>
-<tr><td><code>MSet</code></td><td>default iterator</td><td><code>begin()</code></td><td><code>MSetIter</code></td></tr>
-<tr><td><code>ESet</code></td><td>default iterator</td><td><code>begin()</code></td><td><code>ESetIter</code></td></tr>
-<tr><td><code>Enquire</code></td><td><code>matching_terms()</code></td><td><code>get_matching_terms_begin()</code></td><td><code>TermIter</code></td></tr>
-<tr><td><code>Query</code></td><td>default iterator</td><td><code>get_terms_begin()</code></td><td><code>TermIter</code></td></tr>
-<tr><td><code>Database</code></td><td><code>allterms()</code></td><td><code>allterms_begin()</code> (also as default iterator)</td><td><code>TermIter</code></td></tr>
-<tr><td><code>Database</code></td><td><code>postlist(tname)</code></td><td><code>postlist_begin(tname)</code></td><td><code>PostingIter</code></td></tr>
-<tr><td><code>Database</code></td><td><code>termlist(docid)</code></td><td><code>termlist_begin(docid)</code></td><td><code>TermIter</code></td></tr>
-<tr><td><code>Database</code></td><td><code>positionlist(docid, tname)</code></td><td><code>positionlist_begin(docid, tname)</code></td><td><code>PositionIter</code></td></tr>
-<tr><td><code>Document</code></td><td><code>values()</code></td><td><code>values_begin()</code></td><td><code>ValueIter</code></td></tr>
-<tr><td><code>Document</code></td><td><code>termlist()</code></td><td><code>termlist_begin()</code> (also as default iterator)</td><td><code>TermIter</code></td></tr>
-<tr><td><code>QueryParser</code></td><td><code>stoplist()</code></td><td><code>stoplist_begin()</code></td><td><code>TermIter</code></td></tr>
-<tr><td><code>QueryParser</code></td><td><code>unstemlist(tname)</code></td><td><code>unstem_begin(tname)</code></td><td><code>TermIter</code></td></tr>
-</table>
-
-<p>
-The Pythonic iterators used to return lists representing the appropriate item when their <code>next()</code> method is called, except PositionIter which just returns a single value.  They now return Python objects, allowing lazy evaluation of properties where appropriate, and allowing a more pythonic access to attribute values.  The sequence API is being maintained for now, so existing code should continue to work, but we recommend transitioning to the new API.  The sequence API is planned to be removed at release 1.1.0 of Xapian.
-</p>
-
-<table title="Sequence API equivalents">
-<thead><td>Class</td><td>Returns</td></thead>
-<tr><td><code>MSetIter</code></td><td>[docid, weight, rank, percentage, document]</td></tr>
-<tr><td><code>ESetIter</code></td><td>[term, weight]</td></tr>
-<tr><td><code>TermIter</code></td><td>[term, wdf, termfreq, position iterator]</td></tr>
-<tr><td><code>PostingIter</code></td><td>[docid, doclength, wdf, position iterator]</td></tr>
-<tr><td><code>PositionIter</code></td><td>termpos</td></tr>
-<tr><td><code>ValueIter</code></td><td>[valueno, value]</td></tr>
-</table>
-   
-<p>
-The lazy evaluation is mainly transparent, but does become visible in one situation: if you keep an object returned by an iterator, without evaluating its properties to force the lazy evaluation to happen, and then move the iterator forward, the object may no longer be able to efficiently perform the lazy evaluation.  In this situation, an exception will be raised indicating that the information requested wasn't available.  This will only happen for a few of the properties - most are either not evaluated lazily (because the underlying Xapian implementation doesn't evaluate them lazily, so there's no advantage in lazy evaluation), or can be accessed even after the iterator has moved.  The simplest work around is simply to evaluate any properties you wish to use which are affected by this before moving the iterator.  The complete set of iterator properties affected by this is:
-</p>
-
-<ul>
-<li>
-Database.allterms (also accessible as Database.__iter__): <b>termfreq</b>
-</li><li>
-Database.termlist: <b>termfreq</b> and <b>positer</b>
-</li><li>
-Document.termlist (also accessible as Document.__iter__): <b>termfreq</b> and <b>positer</b>
-</li><li>
-Database.postlist: <b>positer</b>
-</li>
-</ul>
 
 <h2>MSet</h2>
 
