@@ -214,15 +214,12 @@ Deprecated Remove Language Feature name                 Upgrade suggestion and c
 0.9.6      1.1.0  SWIG     MSet::get_document_id()      Use ``MSet::get_docid()`` instead.
                   [#swg2]_
 ---------- ------ -------- ---------------------------- ----------------------------------------------------------------------
-0.9.0      1.0.0  SWIG     Stem::stem_word(word)        Use ``Stem::operator()(word)`` instead. [#callable]_
-                  [#swig]_
+1.0.4      1.2.0  Python   Non-pythonic iterators       Use the pythonic iterators instead.
 ========== ====== ======== ============================ ======================================================================
 
 .. [#swig] This affects all SWIG-generated bindings (currently: Python, PHP, Ruby, Tcl8 and CSharp)
 
 .. [#swg2] This affects all SWIG-generated bindings except those for Ruby, support for which was added after the function waan-core.
-
-.. [#callable] Python handles this like C++.  Ruby renames it to 'call' (idiomatic Ruby).  PHP renames it to 'apply'.  CSharp to 'Apply' (delegates could probably be used to provide C++-like functor syntax, but that's effort and it seems debatable if it would actually be more natural to a C# programmer).  Tcl8 renames it to 'apply' - need to ask a Tcl type if that's the best solution.
 
 Omega
 -----
@@ -367,11 +364,16 @@ Removed Language Feature name                 Upgrade suggestion and comments
 1.0.0   CSharp   ExpandDecider::Apply()       Return type is now ``bool`` instead of ``int``.
 ------- -------- ---------------------------- --------------------------------------------------------------------------------
 1.0.0   CSharp   MatchDecider::Apply()        Return type is now ``bool`` instead of ``int``.
+------- -------- ---------------------------- --------------------------------------------------------------------------------
+1.0.0   SWIG     Stem::stem_word(word)        Use ``Stem::operator()(word)`` instead. [#callable]_
+        [#rswg]_
 ======= ======== ============================ ================================================================================
 
 .. [#rswg] This affects all SWIG generated bindings (currently: Python, PHP, Ruby, Tcl8 and CSharp)
 
 .. [#rsw3] This affects all SWIG generated bindings except those for Ruby, which was added after the function was deprecated in Xapian-core, and PHP, where empty is a reserved word (and therefore, the method remains "is_empty").
+
+.. [#callable] Python handles this like C++.  Ruby renames it to 'call' (idiomatic Ruby).  PHP renames it to 'apply'.  CSharp to 'Apply' (delegates could probably be used to provide C++-like functor syntax, but that's effort and it seems debatable if it would actually be more natural to a C# programmer).  Tcl8 renames it to 'apply' - need to ask a Tcl type if that's the best solution.
 
 Omega
 -----
