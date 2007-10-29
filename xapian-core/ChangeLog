@@ -1,3 +1,9 @@
+Mon Oct 29 19:50:05 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/harness/testsuite.cc: Catch std::exception subclasses
+	  explicitly and report e.what() (which gives the method name which
+	  threw, at least under GCC).
+
 Mon Oct 29 18:46:57 GMT 2007  Olly Betts <olly@survex.com>
 
 	* NEWS: Updated.

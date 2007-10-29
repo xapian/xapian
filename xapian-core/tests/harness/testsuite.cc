@@ -399,6 +399,17 @@ test_driver::runtest(const test_desc *test)
 		    out << msg.substr(0, cutoff) << "...";
 		out << col_reset;
 		return FAIL;
+	    } catch (const std::exception & e) {
+		string s = tout.str();
+		if (!s.empty()) {
+		    out << '\n' << tout.str();
+		    if (s[s.size() - 1] != '\n') out << endl;
+		    tout.str("");
+		}
+		out << " " << col_red << "EXCEPTION: std::exception: ";
+		out << e.what();
+		out << col_reset;
+		return FAIL;
 	    } catch (...) {
 		string s = tout.str();
 		if (!s.empty()) {
