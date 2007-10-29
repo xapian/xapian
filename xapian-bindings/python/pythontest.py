@@ -817,6 +817,49 @@ def test_spell():
     del dbr
     shutil.rmtree(dbpath)
 
+def test_matchspy():
+    """Test match spy features.
+
+    """
+    context("checking a ValueCountMatchSpy and TermCountMatchSpy, without an actual search")
+    spy = xapian.ValueCountMatchSpy()
+    spy.add_slot(1)
+    spy2 = xapian.TermCountMatchSpy()
+    spy2.add_prefix('T')
+    spy2.add_prefix('Tf')
+    spy2.add_prefix('Z')
+    spy2.add_prefix('')
+    spy3 = xapian.MultipleMatchDecider()
+    spy3.append(spy)
+    spy3.append(spy2)
+
+    # Show some fake documents to the spy.
+    doc = xapian.Document()
+    doc.add_value(1, 'foo')
+    doc.add_term('Tfoo')
+    spy3(doc)
+    spy3(doc)
+    doc.add_value(1, 'bar')
+    doc.add_term('Tbar')
+    spy3(doc)
+    doc.add_value(1, 'foot')
+    doc.add_term('Tfoot')
+    spy3(doc)
+
+    # Check the results
+    expect(spy.get_values_as_dict(1), {'foot': 1, 'foo': 2, 'bar': 1})
+    expect(spy2.get_terms_as_dict('T'), {'foo': 4, 'foot': 1, 'bar': 2})
+
+    expect(spy.get_top_values(1, 10), [('foo', 2), ('bar', 1), ('foot', 1)])
+    expect(spy.get_top_values(1, 2), [('foo', 2), ('bar', 1)])
+    expect(spy.get_top_values(1, 1), [('foo', 2)])
+    expect(spy.get_top_values(1, 0), [])
+
+    expect(spy2.get_top_terms('T', 10), [('foo', 4), ('bar', 2), ('foot', 1)])
+    expect(spy2.get_top_terms('T', 2), [('foo', 4), ('bar', 2)])
+    expect(spy2.get_top_terms('T', 1), [('foo', 4)])
+    expect(spy2.get_top_terms('T', 0), [])
+
 def test_queryparser_custom_vrp():
     """Test QueryParser with a custom (in python) ValueRangeProcessor.
 
