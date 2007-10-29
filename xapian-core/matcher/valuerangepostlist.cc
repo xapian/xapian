@@ -37,7 +37,7 @@ ValueRangePostList::get_termfreq_min() const
 Xapian::doccount
 ValueRangePostList::get_termfreq_est() const
 {
-    AssertParanoid(db_size == db->get_doccount());
+    AssertParanoid(!db || db_size == db->get_doccount());
     // FIXME: It's hard to estimate well - perhaps consider the values of
     // begin and end?
     return db_size / 2;
@@ -46,7 +46,7 @@ ValueRangePostList::get_termfreq_est() const
 Xapian::doccount
 ValueRangePostList::get_termfreq_max() const
 {
-    AssertParanoid(db_size == db->get_doccount());
+    AssertParanoid(!db || db_size == db->get_doccount());
     return db_size;
 }
 
