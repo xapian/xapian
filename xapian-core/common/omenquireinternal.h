@@ -52,6 +52,12 @@ namespace Internal {
 class ESetItem {
     public:
 	ESetItem(Xapian::weight wt_, string tname_) : wt(wt_), tname(tname_) { }
+
+	void swap(ESetItem & o) {
+	    std::swap(wt, o.wt);
+	    std::swap(tname, o.tname);
+	}
+
 	/// Weight calculated.
 	Xapian::weight wt;
 	/// Term suggested.
@@ -79,6 +85,14 @@ class MSetItem {
 		 Xapian::doccount collapse_count_)
 		: wt(wt_), did(did_), collapse_key(key_),
 		  collapse_count(collapse_count_) {}
+
+	void swap(MSetItem & o) {
+	    std::swap(wt, o.wt);
+	    std::swap(did, o.did);
+	    std::swap(collapse_key, o.collapse_key);
+	    std::swap(collapse_count, o.collapse_count);
+	    std::swap(sort_key, o.sort_key);
+	}
 
 	/** Weight calculated. */
 	Xapian::weight wt;
