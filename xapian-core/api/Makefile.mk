@@ -12,7 +12,6 @@ libxapian_la_SOURCES +=\
 	api/errorhandler.cc\
 	api/expanddecider.cc\
 	api/leafpostlist.cc\
-	api/matchspy.cc\
 	api/omdatabase.cc\
 	api/omdocument.cc\
 	api/omenquire.cc\
