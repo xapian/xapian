@@ -38,10 +38,6 @@ Python:
   non-pythonic iterators.  Make it clearer that the "sequence API" is
   deprecated.
 
-* Fix some problems with threaded use by updating to using a newer SWIG SVN
-  snapshot (SWIG was using PyThread_free_lock(mutex_) instead of
-  PyThread_release_lock(mutex_)).
-
 * Add test of a custom ValueRangeProcessor (ie, one written in python).
 
 * Update the examples to use the new-style attributes to access MSet item
