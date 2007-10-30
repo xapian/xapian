@@ -1,11 +1,4 @@
-Updated up to:
-Mon Oct 29 18:36:12 GMT 2007  Olly Betts <olly@survex.com>
-
-	* include/xapian/queryparser.h: Update documentation comment for
-	  QueryParser::set_stemming_strategy().
-	* queryparser/queryparser.lemony: Fix handling of STEM_ALL.
-
-Xapian-core 1.0.4 (2007-10-??):
+Xapian-core 1.0.4 (2007-10-30):
 
 API:
 
@@ -52,6 +45,9 @@ API:
   + The parser stack is now a std::vector<> rather than a fixed size, so it
     will typically use less memory, and can't hit the fixed limit.
 
+  + Fix handling of STEM_ALL and update the documentation comment for
+    QueryParser::set_stemming_strategy() to explain how it works clearly.
+
 * PostingIterator: positionlist_begin() and get_wdf() should now always
   throw InvalidOperationError where they aren't meaningful (before in some
   cases UnimplementedError was thrown).
@@ -66,15 +62,19 @@ testsuite:
 * Remove quartztest's test_postlist1 and test_postlist2, replacing the coverage
   lost by extending and adding tests which work with other backends as well.
 
+* If a test throws a subclass of std::exception, the test harness now
+  reports the class name and the extra information returned by std::exception's
+  what() method.
+
 matcher:
 
 * Several performance improvements have been made, mainly to the handling
   of OP_AND and related operations (OP_FILTER, OP_NEAR, and OP_PHRASE).
   In combination, these are likely to speed up searching significantly
   for most users - in tests on real world data we've seen savings of 15-55%
-  in search times).
+  in search times).  These improvements are:
 
-  + OP_AND of 3 or more sub-queries is now more efficient.
+  + OP_AND of 3 or more sub-queries is now processed more efficiently.
 
   + Sub-queries from adjacent OP_AND, OP_FILTER, OP_NEAR, and OP_PHRASE are now
     combined into a single multi-way OP_AND operation, and the filters which
@@ -116,8 +116,6 @@ remote backend:
 * The remote protocol minor version has been increased (to accommodate
   OP_SCALE_WEIGHT).  If you are upgrading a live system which uses the
   remote backend, upgrade the servers before the clients.
-
-inmemory backend:
 
 build system:
 
@@ -166,7 +164,9 @@ documentation:
 * intro_ir.html: Add link to the forthcoming book "Introduction to
   Information Retrieval", which can be read online.
 
-portability:
+* scalability.html: Update size of gmane.
+
+* quartzdesign.html: Note that Quartz is now deprecated.
 
 debug code:
 
