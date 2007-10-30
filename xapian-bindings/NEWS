@@ -1,9 +1,4 @@
-Updated up to:
-Mon Oct 29 17:15:20 GMT 2007  Olly Betts <olly@survex.com>
-
-Xapian-bindings 1.0.4 (2007-10-??):
-
-Documentation:
+Xapian-bindings 1.0.4 (2007-10-30):
 
 General:
 
@@ -21,12 +16,6 @@ Packaging:
 Portability:
 
 * Fix warnings when compiling with GCC 4.2.
-
-CSharp:
-
-Guile:
-
-Java:
 
 PHP:
 
@@ -64,8 +53,6 @@ Ruby:
 
 * smoketest.rb: Rename test of metadata access methods which had been named the
   same as the matchdecider test due to a copy-and-paste error.
-
-Tcl:
 
 Xapian-bindings 1.0.3 (2007-09-28):
 
