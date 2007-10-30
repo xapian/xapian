@@ -647,6 +647,9 @@ static test test_and_queries[] = {
     // probabilistic terms caused a parse error (probably broken during the
     // addition of synonym support in 1.0.2).
     { "foo site:xapian.org bar", "((Zfoo:(pos=1) AND Zbar:(pos=2)) FILTER Hxapian.org)" },
+    // Add coverage for other cases similar to the above.
+    { "a b site:xapian.org", "((Za:(pos=1) AND Zb:(pos=2)) FILTER Hxapian.org)" },
+    { "site:xapian.org a b", "((Za:(pos=1) AND Zb:(pos=2)) FILTER Hxapian.org)" },
     { NULL, NULL }
 };
 
