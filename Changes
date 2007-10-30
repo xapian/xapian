@@ -5,6 +5,10 @@ Revision history for Perl extension Search::Xapian.
 	- Add all the POD pages to the "see also" on the main POD page.
 	- Fix typos and improve wording thoughout the POD documentation.
 	- Add POD documentation for ValueIterator.
+	- Makefile.PL now accepts XAPIAN_CONFIG and CXX on the command line
+	  (like autoconf configure scripts) and values specified here are
+	  persistent across automatic reruns, so promote this usage over
+	  environmental variables.
 	[Changes contributed by Ron Kass]
 	- Make Search::Xapian work with 'use threads;' by adding 'sub
 	  CLONE_SKIP { 1 }' to all the classes.  This means that Xapian objects

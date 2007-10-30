@@ -2,7 +2,28 @@ use ExtUtils::MakeMaker;
 use strict;
 use Config;
 
-my $CC = $ENV{"CXX"} || 'g++';
+my $xapian_config;
+my $CC;
+my $expect_warn = 0;
+for (@ARGV) {
+    if (/^XAPIAN_CONFIG=(.*)/) {
+	$xapian_config = $1;
+	++$expect_warn;
+    } elsif (/^CXX=(.*)/) {
+	$CC = $1;
+	++$expect_warn;
+    }
+}
+if ($expect_warn) {
+    print "Please ignore $expect_warn warning(s) about unknown MakeMaker parameter name(s).\n";
+}
+
+$xapian_config ||= $ENV{XAPIAN_CONFIG};
+$xapian_config ||= 'xapian-config';
+
+$CC ||= $ENV{"CXX"};
+$CC ||= 'g++';
+
 my $LD = '$(CC)';
 if ($^O eq 'cygwin' and $CC eq 'g++') {
     # Cygwin packages of Perl < 5.9.5 used "ld2" for $Config{ld} and
@@ -12,11 +33,9 @@ if ($^O eq 'cygwin' and $CC eq 'g++') {
     $LD = 'g++ -shared';
 }
 
-my $xapian_config = $ENV{XAPIAN_CONFIG} || 'xapian-config';
-
 my $xver = `$xapian_config --version`;
 if ($xver eq '') {
-    die "$xapian_config not found - set XAPIAN_CONFIG if Xapian isn't installed on your PATH.\n";
+    die "$xapian_config not found - if Xapian isn't installed on your PATH you can run as: perl Makefile.PL XAPIAN_CONFIG=/path/to/xapian-config\n";
 }
 chomp($xver);
 $xver =~ s/.*\s//; # "xapian 0.9.3" -> "0.9.3"
