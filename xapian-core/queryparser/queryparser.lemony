@@ -269,8 +269,7 @@ Term::get_query_with_synonyms() const
 	Xapian::TermIterator end = db.synonyms_end(term);
 	if (syn == end && stem != QueryParser::STEM_NONE) {
 	    // If that has no synonyms, try the stemmed form:
-	    term.resize(0);
-	    term += 'Z';
+	    term = 'Z';
 	    if (!piter->empty()) {
 		term += *piter;
 		if (prefix_needs_colon(*piter, name[0])) term += ':';

@@ -1,3 +1,7 @@
+Tue Oct 30 04:10:32 GMT 2007  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Code tweak.
+
 Tue Oct 30 03:04:04 GMT 2007  Olly Betts <olly@survex.com>
 
 	* tests/queryparsertest.cc: Add two more test cases to improve
