@@ -1,8 +1,7 @@
-Search/Xapian version 1.0.3.0
-=============================
+Search::Xapian version 1.0.3.0
+==============================
 
-This is Search::Xapian, a Perl XS frontend to the Xapian C++ search 
-library.
+This is Search::Xapian, a Perl XS frontend to the Xapian C++ search library.
 
 INSTALLATION
 
@@ -13,9 +12,16 @@ To install this module type the following:
    make test
    make install
 
-Makefile.PL looks for xapian-config on your PATH.  You can specify a path for
-xapian-config by setting the XAPIAN_CONFIG environmental variable, and you
-can specify a C++ compiler by setting the CXX environmental variable.
+By default, Makefile.PL looks for xapian-config on your PATH.  You can specify
+a path for xapian-config by passing XAPIAN_CONFIG=/path/to/xapian-config on
+the command line after Makefile.PL.  You can also specify a C++ compiler by
+passing CXX=/usr/local/bin/g++ after Makefile.PL.
+
+For compatibility with Search::Xapian 1.0.3.0 and early, XAPIAN_CONFIG and
+CXX can also be specified as environmental variables, but specifying them on
+the command line is preferable because it means that they will automatically
+be preserved if Makefile.PL is modified and gets rerun automatically by
+the generated Makefile.
 
 DEPENDENCIES
 
