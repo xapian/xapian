@@ -55,7 +55,7 @@
 #include <exception>
 #ifdef USE_RTTI
 # include <typeinfo>
-# if defined __GNUC__ && __GNUC__ >= 3
+# if defined __GNUC__ && (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1))
 #  include <cxxabi.h>
 # endif
 #endif
@@ -417,7 +417,8 @@ test_driver::runtest(const test_desc *test)
 		out << "std::exception";
 #else
 		const char * name = typeid(e).name();
-#if defined __GNUC__ && __GNUC__ >= 3
+# if defined __GNUC__ && (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1))
+		// __cxa_demangle() apparently requires GCC >= 3.1.
 		// Demangle the name which GCC returns for type_info::name().
 		int status;
 		char * realname = abi::__cxa_demangle(name, NULL, 0, &status);
@@ -427,9 +428,9 @@ test_driver::runtest(const test_desc *test)
 		} else {
 		    out << name;
 		}
-#else
+# else
 		out << name;
-#endif
+# endif
 #endif
 		out << ": " << e.what();
 		out << col_reset;

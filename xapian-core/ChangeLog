@@ -1,3 +1,8 @@
+Tue Oct 30 00:13:42 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/harness/testsuite.cc: abi::__cxa_demangle() requires GCC 3.1
+	  it seems.
+
 Mon Oct 29 23:14:41 GMT 2007  Olly Betts <olly@survex.com>
 
 	* docs/scalability.html: Update size of gmane.
