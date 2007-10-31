@@ -99,7 +99,7 @@ object.
 
 This re-opens the database(s) to the latest available version(s). It can be 
 used either to make sure the latest results are returned, or to recover from 
-a L<Xapian::DatabaseModifiedError>.
+a Xapian::DatabaseModifiedError.
 
 =item enquire [<query>]
 

@@ -376,21 +376,21 @@ Alex Bowley E<lt>kilinrax@cpan.orgE<gt>
 
 =head1 SEE ALSO
 
-L<Xapian::BM25Weight>,
-L<Xapian::BoolWeight>,
-L<Xapian::Database>,
-L<Xapian::Document>,
-L<Xapian::Enquire>,
-L<Xapian::PositionIterator>,
-L<Xapian::PostingIterator>,
-L<Xapian::QueryParser>,
-L<Xapian::Stem>,
-L<Xapian::TermGenerator>,
-L<Xapian::TermIterator>,
-L<Xapian::TradWeight>,
-L<Xapian::ValueIterator>,
-L<Xapian::Weight>,
-L<Xapian::WritableDatabase>,
+L<Search::Xapian::BM25Weight>,
+L<Search::Xapian::BoolWeight>,
+L<Search::Xapian::Database>,
+L<Search::Xapian::Document>,
+L<Search::Xapian::Enquire>,
+L<Search::Xapian::PositionIterator>,
+L<Search::Xapian::PostingIterator>,
+L<Search::Xapian::QueryParser>,
+L<Search::Xapian::Stem>,
+L<Search::Xapian::TermGenerator>,
+L<Search::Xapian::TermIterator>,
+L<Search::Xapian::TradWeight>,
+L<Search::Xapian::ValueIterator>,
+L<Search::Xapian::Weight>,
+L<Search::Xapian::WritableDatabase>,
 and
 L<http://www.xapian.org/>.
 
