@@ -155,6 +155,12 @@ can read the Xapian C++ API documentation at
 L<http://www.xapian.org/docs/apidoc/html/annotated.html> for details of
 these.  Alternatively, take a look at the code in the examples and tests.
 
+If you want to use Search::Xapian and the threads module together, make
+sure you're using Search::Xapian >= 1.0.4.0 and Perl >= 5.8.7.  As of 1.0.4.0,
+Search::Xapian uses CLONE_SKIP to make sure that the perl wrapper objects
+aren't copied to new threads - without this the underlying C++ objects can get
+destroyed more than once.
+
 If you encounter problems, or have any comments, suggestions, patches, etc
 please email the Xapian-discuss mailing list (details of which can be found at
 L<http://www.xapian.org/lists.php>).
