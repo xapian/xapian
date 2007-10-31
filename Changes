@@ -9,6 +9,9 @@ Revision history for Perl extension Search::Xapian.
 	  (like autoconf configure scripts) and values specified here are
 	  persistent across automatic reruns, so promote this usage over
 	  environmental variables.
+	- Compiling with GCC 4.2 gives many "deprecated conversion from string
+	  constant to 'char*'" warnings.  Most are from XS-generated code, but
+	  fix the small number which aren't.
 	[Changes contributed by Ron Kass]
 	- Make Search::Xapian work with 'use threads;' by adding 'sub
 	  CLONE_SKIP { 1 }' to all the classes.  This means that Xapian objects
