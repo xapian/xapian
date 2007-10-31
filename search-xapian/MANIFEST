@@ -73,6 +73,7 @@ t/index.t
 t/parser.t
 t/search.t
 t/termgenerator.t
+t/thread.t
 t/tied.t
 t/valuerange.t
 
