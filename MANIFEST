@@ -4,6 +4,8 @@ README
 Changes
 Makefile.PL
 
+makehtmldocs
+
 typemap
 perlobject.map
 
