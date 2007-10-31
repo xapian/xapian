@@ -1,3 +1,10 @@
+Wed Oct 31 15:43:58 GMT 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_version.cc: I documented an increase in FLINT_VERSION
+	  but didn't increase it - luckily the previous version wasn't in a
+	  released version, so just adjust the comment to match what actually
+	  happened.
+
 Wed Oct 31 15:24:48 GMT 2007  Olly Betts <olly@survex.com>
 
 	* net/remoteconnection.cc: Add '#include <safeunistd.h>' (bug#208).
