@@ -350,6 +350,7 @@ check_table(string filename, int opts)
 	    if (!unpack_string_preserving_sort(&pos, end, term)) {
 		cout << "Error unpacking termname from key" << endl;
 		++errors;
+		cursor->next();
 		continue;
 	    }
 	    if (current_term.empty()) {
@@ -359,6 +360,7 @@ check_table(string filename, int opts)
 		    cout << "Extra bytes after key for first chunk of "
 			"posting list for term `" << term << "'" << endl;
 		    ++errors;
+		    cursor->next();
 		    continue;
 		}
 		// Unpack extra header from first chunk.
@@ -369,18 +371,21 @@ check_table(string filename, int opts)
 		    cout << "Failed to unpack termfreq for term `" << term
 			 << "'" << endl;
 		    ++errors;
+		    cursor->next();
 		    continue;
 		}
 		if (!unpack_uint(&pos, end, &collfreq)) {
 		    cout << "Failed to unpack collfreq for term `" << term
 			 << "'" << endl;
 		    ++errors;
+		    cursor->next();
 		    continue;
 		}
 		if (!unpack_uint(&pos, end, &did)) {
 		    cout << "Failed to unpack firstdid for term `" << term
 			 << "'" << endl;
 		    ++errors;
+		    cursor->next();
 		    continue;
 		} else {
 		    ++did;
@@ -402,6 +407,7 @@ check_table(string filename, int opts)
 		    if (!unpack_uint_preserving_sort(&pos, end, &did)) {
 			cout << "Failed to unpack did from key" << endl;
 			++errors;
+			cursor->next();
 			continue;
 		    }
 		    if (did <= lastdid) {
@@ -419,12 +425,14 @@ check_table(string filename, int opts)
 	    if (!unpack_bool(&pos, end, &is_last_chunk)) {
 		cout << "Failed to unpack last chunk flag" << endl;
 		++errors;
+		cursor->next();
 		continue;
 	    }
 	    // Read what the final document ID in this chunk is.
 	    if (!unpack_uint(&pos, end, &lastdid)) {
 		cout << "Failed to unpack increase to last" << endl;
 		++errors;
+		cursor->next();
 		continue;
 	    }
 	    ++lastdid;
@@ -472,7 +480,10 @@ check_table(string filename, int opts)
 		    ++errors;
 		}
 	    }
-	    if (bad) continue;
+	    if (bad) {
+		cursor->next();
+		continue;
+	    }
 	    if (is_last_chunk) {
 		if (tf != termfreq) {
 		    cout << "termfreq " << termfreq << " != # of entries "
@@ -543,6 +554,12 @@ check_table(string filename, int opts)
 	    pos = cursor->current_tag.data();
 	    end = pos + cursor->current_tag.size();
 
+	    if (pos == end) {
+		// Empty termlist.
+		cursor->next();
+		continue;
+	    }
+
 	    Xapian::termcount doclen, termlist_size;
 
 	    // Read doclen
@@ -553,6 +570,7 @@ check_table(string filename, int opts)
 		    cout << "Unexpected end of data when reading doclen" << endl;
 		}
 		++errors;
+		cursor->next();
 		continue;
 	    }
 
@@ -564,8 +582,13 @@ check_table(string filename, int opts)
 		    cout << "Unexpected end of data when reading termlist_size" << endl;
 		}
 		++errors;
+		cursor->next();
 		continue;
 	    }
+
+	    // See comment in FlintTermListTable::set_termlist() in
+	    // flint_termlisttable.cc for an explanation of this!
+	    if (pos != end && *pos == '0') ++pos;
 
 	    Xapian::termcount actual_doclen = 0, actual_termlist_size = 0;
 	    string current_tname;
@@ -608,7 +631,10 @@ check_table(string filename, int opts)
 		++actual_termlist_size;
 		actual_doclen += current_wdf;
 	    }
-	    if (bad) continue;
+	    if (bad) {
+		cursor->next();
+		continue;
+	    }
 
 	    if (termlist_size != actual_termlist_size) {
 		cout << "termlist_size != # of entries in termlist" << endl;
@@ -712,6 +738,7 @@ check_table(string filename, int opts)
 	    if (!unpack_uint(&pos, end, &pos_last)) {
 		cout << tablename << " table: Position list data corrupt" << endl;
 		++errors;
+		cursor->next();
 		continue;
 	    }
 	    if (pos == end) {
@@ -734,6 +761,7 @@ check_table(string filename, int opts)
 		    if (pos <= lastpos) {
 			cout << tablename << " table: Positions not strictly monotonically increasing" << endl;
 			++errors;
+			cursor->next();
 			continue;
 		    }
 		    lastpos = pos;
