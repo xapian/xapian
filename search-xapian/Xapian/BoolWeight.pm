@@ -30,6 +30,8 @@ sub new {
 
 1;
 
+__END__
+
 =head1 NAME
 
 Search::Xapian::BoolWeight - Boolean Weighting scheme.
@@ -53,4 +55,3 @@ Constructor. Takes no arguments.
 L<Search::Xapian>,L<Search::Xapian::Enquire>
 
 =cut
-

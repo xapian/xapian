@@ -32,6 +32,8 @@ sub new {
 
 1;
 
+__END__
+
 =head1 NAME
 
 Search::Xapian::BM25Weight - BM25 Weighting scheme.
@@ -56,4 +58,3 @@ Constructor. Either takes no parameters, or the 4 BM25 parameters
 L<Search::Xapian>,L<Search::Xapian::Enquire>
 
 =cut
-

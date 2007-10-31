@@ -24,6 +24,8 @@ Revision history for Perl extension Search::Xapian.
 	  class Weight.
 	- Fix test parser.t to match the fixed behaviour of STEM_ALL.
 	- Cleaned up unnecessary 'require Exporter;' and 'use Carp;'.
+	- Move the POD documentation to the end of the pm files and insert
+	  __END__ before them.
 
 1.0.3.0  Sat Sep 29 13:26:32 BST 2007
 	[Changes contributed by Olly Betts]
