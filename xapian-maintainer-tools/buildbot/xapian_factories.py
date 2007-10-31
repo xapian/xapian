@@ -49,6 +49,19 @@ def gen_svn_updated_factory(baseURL):
     f.addStep(step.Test, name="check", command=("make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="))
     return f
 
+def gen_svn_debug_updated_factory(baseURL, *opts):
+    """
+    Make a factory for doing a debug HEAD build from SVN, but without cleaning
+    first.  This build is intended to catch commonly made mistakes quickly.
+    """
+    f = factory.BuildFactory()
+    f.addStep(step.SVN, baseURL=baseURL, defaultBranch='trunk', mode="update")
+    f.addStep(Bootstrap)
+    f.addStep(step.Configure, command=("sh", "configure", ) + opts)
+    f.addStep(step.Compile)
+    f.addStep(step.Test, name="check", command=("make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="))
+    return f
+
 def gen_tarball_updated_factory(rooturl):
     """
     Make a factory for doing builds from tarballs.
@@ -60,10 +73,10 @@ def gen_tarball_updated_factory(rooturl):
     f.addStep(step.Configure, workdir='build/xapian-core')
     f.addStep(step.Compile, workdir='build/xapian-core')
     f.addStep(step.Test, workdir='build/xapian-core', name="check", command=("make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="))
-    f.addStep(step.Configure, workdir='build/xapian-omega', command=("python", "runconfigure"))
+    f.addStep(step.Configure, workdir='build/xapian-omega', command=("python", "runconfigure.py"))
     f.addStep(step.Compile, workdir='build/xapian-omega')
     f.addStep(step.Test, workdir='build/xapian-omega', name="check", command=("make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="))
-    f.addStep(step.Configure, workdir='build/xapian-omega', command=("python", "runconfigure"))
+    f.addStep(step.Configure, workdir='build/xapian-bindings', command=("python", "runconfigure.py"))
     f.addStep(step.Compile, workdir='build/xapian-bindings')
     f.addStep(step.Test, workdir='build/xapian-bindings', name="check", command=("make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="))
     return f
