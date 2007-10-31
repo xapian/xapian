@@ -3,7 +3,6 @@ package Search::Xapian;
 use 5.006;
 use strict;
 use warnings;
-use Carp;
 
 use Search::Xapian::Database;
 use Search::Xapian::Document;
