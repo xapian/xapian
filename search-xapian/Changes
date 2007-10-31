@@ -20,6 +20,8 @@ Revision history for Perl extension Search::Xapian.
 	  for suggesting this change.
 	- Add testcase thread.t to check that threaded use works as expected
 	  under Perl 5.8.7.
+	- BoolWeight objects are now blessed as class BoolWeight rather than
+	  class Weight.
 
 1.0.3.0  Sat Sep 29 13:26:32 BST 2007
 	[Changes contributed by Olly Betts]
