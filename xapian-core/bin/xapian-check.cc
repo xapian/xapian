@@ -544,7 +544,6 @@ check_table(string filename, int opts)
 	    end = pos + cursor->current_tag.size();
 
 	    Xapian::termcount doclen, termlist_size;
-	    bool has_termfreqs;
 
 	    // Read doclen
 	    if (!unpack_uint(&pos, end, &doclen)) {
@@ -564,18 +563,6 @@ check_table(string filename, int opts)
 		} else {
 		    cout << "Unexpected end of data when reading termlist_size" << endl;
 		}
-		++errors;
-		continue;
-	    }
-
-	    // Read has_termfreqs
-	    if (!unpack_bool(&pos, end, &has_termfreqs)) {
-		cout << "Unexpected end of data when reading termlist" << endl;
-		++errors;
-		continue;
-	    }
-	    if (has_termfreqs) {
-		cout << "has_termfreqs is true, but Xapian never sets it!" << endl;
 		++errors;
 		continue;
 	    }
@@ -608,7 +595,7 @@ check_table(string filename, int opts)
 		    // Read wdf
 		    if (!unpack_uint(&pos, end, &current_wdf)) {
 			if (pos == 0) {
-			    cout << "Unexpected end of data when reading termlist" << endl;
+			    cout << "Unexpected end of data when reading termlist current_wdf" << endl;
 			} else {
 			    cout << "Size of wdf out of range, in termlist" << endl;
 			}
@@ -617,9 +604,6 @@ check_table(string filename, int opts)
 			break;
 		    }
 		}
-
-		// Don't bother with the (has_termfreqs == true) case since
-		// we never generate that.
 
 		++actual_termlist_size;
 		actual_doclen += current_wdf;
