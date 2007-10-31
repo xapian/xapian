@@ -12,11 +12,14 @@ Revision history for Perl extension Search::Xapian.
 	- Compiling with GCC 4.2 gives many "deprecated conversion from string
 	  constant to 'char*'" warnings.  Most are from XS-generated code, but
 	  fix the small number which aren't.
-	[Changes contributed by Ron Kass]
 	- Make Search::Xapian work with 'use threads;' by adding 'sub
-	  CLONE_SKIP { 1 }' to all the classes.  This means that Xapian objects
-	  aren't copied to subthreads, so the wrapped C++ objects don't get
-	  destroyed more than once.
+	  CLONE_SKIP { 1 }' to all the classes (this requires Perl >= 5.8.7
+	  to work, but has no effect on older versions).  Using CLONE_SKIP
+	  means that Xapian objects aren't copied to subthreads, so the wrapped
+	  C++ objects don't get destroyed more than once.  Thanks to Ron Kass
+	  for suggesting this change.
+	- Add testcase thread.t to check that threaded use works as expected
+	  under Perl 5.8.7.
 
 1.0.3.0  Sat Sep 29 13:26:32 BST 2007
 	[Changes contributed by Olly Betts]
