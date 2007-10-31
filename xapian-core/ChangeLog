@@ -1,3 +1,7 @@
+Wed Oct 31 15:24:48 GMT 2007  Olly Betts <olly@survex.com>
+
+	* net/remoteconnection.cc: Add '#include <safeunistd.h>' (bug#208).
+
 Wed Oct 31 15:01:53 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* bin/xapian-check.cc: Update the checking of the termlist table to
