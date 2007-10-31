@@ -144,36 +144,37 @@ INCLUDE: XS/StringValueRangeProcessor.xs
 BOOT:
     {
 	HV *mHvStash = gv_stashpv( "Search::Xapian", TRUE );
+#define ENUM_CONST(P, C) newCONSTSUB( mHvStash, (char*)#P, newSViv(C) )
 
-        newCONSTSUB( mHvStash, "OP_AND", newSViv(Query::OP_AND) );
-        newCONSTSUB( mHvStash, "OP_OR", newSViv(Query::OP_OR) );
-        newCONSTSUB( mHvStash, "OP_AND_NOT", newSViv(Query::OP_AND_NOT) );
-        newCONSTSUB( mHvStash, "OP_XOR", newSViv(Query::OP_XOR) );
-        newCONSTSUB( mHvStash, "OP_AND_MAYBE", newSViv(Query::OP_AND_MAYBE) );
-        newCONSTSUB( mHvStash, "OP_FILTER", newSViv(Query::OP_FILTER) );
-        newCONSTSUB( mHvStash, "OP_NEAR", newSViv(Query::OP_NEAR) );
-        newCONSTSUB( mHvStash, "OP_PHRASE", newSViv(Query::OP_PHRASE) );
-        newCONSTSUB( mHvStash, "OP_VALUE_RANGE", newSViv(Query::OP_VALUE_RANGE) );
-        newCONSTSUB( mHvStash, "OP_ELITE_SET", newSViv(Query::OP_ELITE_SET) );
+	ENUM_CONST(OP_AND, Query::OP_AND);
+	ENUM_CONST(OP_OR, Query::OP_OR);
+	ENUM_CONST(OP_AND_NOT, Query::OP_AND_NOT);
+	ENUM_CONST(OP_XOR, Query::OP_XOR);
+	ENUM_CONST(OP_AND_MAYBE, Query::OP_AND_MAYBE);
+	ENUM_CONST(OP_FILTER, Query::OP_FILTER);
+	ENUM_CONST(OP_NEAR, Query::OP_NEAR);
+	ENUM_CONST(OP_PHRASE, Query::OP_PHRASE);
+	ENUM_CONST(OP_VALUE_RANGE, Query::OP_VALUE_RANGE);
+	ENUM_CONST(OP_ELITE_SET, Query::OP_ELITE_SET);
 
-        newCONSTSUB( mHvStash, "DB_OPEN", newSViv(DB_OPEN) );
-        newCONSTSUB( mHvStash, "DB_CREATE", newSViv(DB_CREATE) );
-        newCONSTSUB( mHvStash, "DB_CREATE_OR_OPEN", newSViv(DB_CREATE_OR_OPEN) );
-        newCONSTSUB( mHvStash, "DB_CREATE_OR_OVERWRITE", newSViv(DB_CREATE_OR_OVERWRITE) );
+	ENUM_CONST(DB_OPEN, DB_OPEN);
+	ENUM_CONST(DB_CREATE, DB_CREATE);
+	ENUM_CONST(DB_CREATE_OR_OPEN, DB_CREATE_OR_OPEN);
+	ENUM_CONST(DB_CREATE_OR_OVERWRITE, DB_CREATE_OR_OVERWRITE);
 
-        newCONSTSUB( mHvStash, "ENQ_DESCENDING", newSViv(Enquire::DESCENDING) );
-        newCONSTSUB( mHvStash, "ENQ_ASCENDING", newSViv(Enquire::ASCENDING) );
-        newCONSTSUB( mHvStash, "ENQ_DONT_CARE", newSViv(Enquire::DONT_CARE) );
+	ENUM_CONST(ENQ_DESCENDING, Enquire::DESCENDING);
+	ENUM_CONST(ENQ_ASCENDING, Enquire::ASCENDING);
+	ENUM_CONST(ENQ_DONT_CARE, Enquire::DONT_CARE);
 
-        newCONSTSUB( mHvStash, "FLAG_BOOLEAN", newSViv(QueryParser::FLAG_BOOLEAN) );
-        newCONSTSUB( mHvStash, "FLAG_PHRASE", newSViv(QueryParser::FLAG_PHRASE) );
-        newCONSTSUB( mHvStash, "FLAG_LOVEHATE", newSViv(QueryParser::FLAG_LOVEHATE) );
-	newCONSTSUB( mHvStash, "FLAG_BOOLEAN_ANY_CASE", newSViv(QueryParser::FLAG_BOOLEAN_ANY_CASE) );
-	newCONSTSUB( mHvStash, "FLAG_WILDCARD", newSViv(QueryParser::FLAG_WILDCARD) );
-	newCONSTSUB( mHvStash, "FLAG_PURE_NOT", newSViv(QueryParser::FLAG_PURE_NOT) );
-	newCONSTSUB( mHvStash, "FLAG_PARTIAL", newSViv(QueryParser::FLAG_PARTIAL) );
+	ENUM_CONST(FLAG_BOOLEAN, QueryParser::FLAG_BOOLEAN);
+	ENUM_CONST(FLAG_PHRASE, QueryParser::FLAG_PHRASE);
+	ENUM_CONST(FLAG_LOVEHATE, QueryParser::FLAG_LOVEHATE);
+	ENUM_CONST(FLAG_BOOLEAN_ANY_CASE, QueryParser::FLAG_BOOLEAN_ANY_CASE);
+	ENUM_CONST(FLAG_WILDCARD, QueryParser::FLAG_WILDCARD);
+	ENUM_CONST(FLAG_PURE_NOT, QueryParser::FLAG_PURE_NOT);
+	ENUM_CONST(FLAG_PARTIAL, QueryParser::FLAG_PARTIAL);
 
-        newCONSTSUB( mHvStash, "STEM_NONE", newSViv(QueryParser::STEM_NONE) );
-        newCONSTSUB( mHvStash, "STEM_SOME", newSViv(QueryParser::STEM_SOME) );
-        newCONSTSUB( mHvStash, "STEM_ALL", newSViv(QueryParser::STEM_ALL) );
+	ENUM_CONST(STEM_NONE, QueryParser::STEM_NONE);
+	ENUM_CONST(STEM_SOME, QueryParser::STEM_SOME);
+	ENUM_CONST(STEM_ALL, QueryParser::STEM_ALL);
     }
