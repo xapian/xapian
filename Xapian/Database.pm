@@ -11,6 +11,61 @@ require DynaLoader;
 
 our @ISA = qw(DynaLoader);
 
+# In a new thread, copy objects of this class to unblessed, undef values.
+sub CLONE_SKIP { 1 }
+
+# Preloaded methods go here.
+
+use overload '='  => sub { $_[0]->clone() },
+             'fallback' => 1;
+
+sub enquire {
+  my $self = shift;
+  my $enquire = Search::Xapian::Enquire->new( $self );
+  if( @_ ) {
+    $enquire->set_query( @_ );
+  }
+  return $enquire;
+}
+
+
+sub clone() {
+  my $self = shift;
+  my $class = ref( $self );
+  my $copy = new2( $self );
+  bless $copy, $class;
+  return $copy;
+}
+
+sub new() {
+  my $class = shift;
+  my $database;
+  my $invalid_args;
+  if( scalar(@_) == 1 ) {
+    my $arg = shift;
+    my $arg_class = ref( $arg );
+    if( !$arg_class ) {
+      $database = new1( $arg );
+    } elsif( $arg_class eq $class ) {
+      $database = new2( $arg );
+    } else {
+      $invalid_args = 1;
+    }
+  } else {
+    $invalid_args = 1;
+  }
+  if( $invalid_args ) {
+    Carp::carp( "USAGE: $class->new(\$file), $class->new(\$database)" );
+    exit;
+  }
+  bless $database, $class;
+  return $database;
+}
+
+1;
+
+__END__
+
 =head1 NAME
 
 Search::Xapian::Database - Search database object
@@ -21,7 +76,6 @@ This class represents a Xapian database for searching. See
 L<Search::Xapian::WritableDatabase> for an object suitable for indexing.
 To perform searches, this class works with the L<Search::Xapian::Query>
 object.
-
 
 =head1 METHODS
 
@@ -133,59 +187,6 @@ Send a "keep-alive" to remote databases to stop them timing out.
 
 Get the number of elements indexed by a certain term.
 
-=cut
-
-# In a new thread, copy objects of this class to unblessed, undef values.
-sub CLONE_SKIP { 1 }
-
-# Preloaded methods go here.
-
-use overload '='  => sub { $_[0]->clone() },
-             'fallback' => 1;
-
-sub enquire {
-  my $self = shift;
-  my $enquire = Search::Xapian::Enquire->new( $self );
-  if( @_ ) {
-    $enquire->set_query( @_ );
-  }
-  return $enquire;
-}
-
-
-sub clone() {
-  my $self = shift;
-  my $class = ref( $self );
-  my $copy = new2( $self );
-  bless $copy, $class;
-  return $copy;
-}
-
-sub new() {
-  my $class = shift;
-  my $database;
-  my $invalid_args;
-  if( scalar(@_) == 1 ) {
-    my $arg = shift;
-    my $arg_class = ref( $arg );
-    if( !$arg_class ) {
-      $database = new1( $arg );
-    } elsif( $arg_class eq $class ) {
-      $database = new2( $arg );
-    } else {
-      $invalid_args = 1;
-    }
-  } else {
-    $invalid_args = 1;
-  }
-  if( $invalid_args ) {
-    Carp::carp( "USAGE: $class->new(\$file), $class->new(\$database)" );
-    exit;
-  }
-  bless $database, $class;
-  return $database;
-}
-
 =back
 
 =head1 SEE ALSO
@@ -193,5 +194,3 @@ sub new() {
 L<Search::Xapian>,L<Search::Xapian::Enquire>,L<Search::Xapian::WritableDatabase>
 
 =cut
-
-1;

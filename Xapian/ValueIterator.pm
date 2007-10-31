@@ -50,6 +50,10 @@ sub new() {
   return $iterator;
 }
 
+1;
+
+__END__
+
 =head1 NAME 
 
 Search::Xapian::ValueIterator - Iterate over value slots in a document.
@@ -105,5 +109,3 @@ as the C<ne> and C<!=> operators.
 L<Search::Xapian>,L<Search::Xapian::Document>
 
 =cut
-
-1;

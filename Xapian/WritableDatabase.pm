@@ -9,6 +9,53 @@ require DynaLoader;
 
 our @ISA = qw(DynaLoader Search::Xapian::Database);
 
+# Preloaded methods go here.
+
+# In a new thread, copy objects of this class to unblessed, undef values.
+sub CLONE_SKIP { 1 }
+
+use overload '='  => sub { $_[0]->clone() },
+             'fallback' => 1;
+
+sub clone() {
+  my $self = shift;
+  my $class = ref( $self );
+  my $copy = new2( $self );
+  bless $copy, $class;
+  return $copy;
+}
+
+sub new() {
+  my $class = shift;
+  my $database;
+  my $invalid_args;
+  if( scalar(@_) == 1 ) {
+    my $arg = shift;
+    my $arg_class = ref( $arg );
+    if( $arg_class eq $class ) {
+      $database = new2( $arg );
+    } else {
+      $invalid_args = 1;
+    }
+  } elsif( scalar(@_) == 2 ) {
+    $database = new1( @_ );
+  } elsif( scalar(@_) == 0 ) {
+    $database = new3();
+  } else {
+    $invalid_args = 1;
+  }
+  if( $invalid_args ) {
+    Carp::carp( "USAGE: $class->new(\$file, DB_OPTS), $class->new(\$database), $class->new()" );
+    exit;
+  }
+  bless $database, $class;
+  return $database;
+}
+
+1;
+
+__END__
+
 =head1 NAME
 
 Search::Xapian::WritableDatabase - writable database object
@@ -131,51 +178,6 @@ called or the database is closed).
 
 Re-open the database. makes sure you have a fresh db handle.
 
-=cut
-
-# Preloaded methods go here.
-
-# In a new thread, copy objects of this class to unblessed, undef values.
-sub CLONE_SKIP { 1 }
-
-use overload '='  => sub { $_[0]->clone() },
-             'fallback' => 1;
-
-sub clone() {
-  my $self = shift;
-  my $class = ref( $self );
-  my $copy = new2( $self );
-  bless $copy, $class;
-  return $copy;
-}
-
-sub new() {
-  my $class = shift;
-  my $database;
-  my $invalid_args;
-  if( scalar(@_) == 1 ) {
-    my $arg = shift;
-    my $arg_class = ref( $arg );
-    if( $arg_class eq $class ) {
-      $database = new2( $arg );
-    } else {
-      $invalid_args = 1;
-    }
-  } elsif( scalar(@_) == 2 ) {
-    $database = new1( @_ );
-  } elsif( scalar(@_) == 0 ) {
-    $database = new3();
-  } else {
-    $invalid_args = 1;
-  }
-  if( $invalid_args ) {
-    Carp::carp( "USAGE: $class->new(\$file, DB_OPTS), $class->new(\$database), $class->new()" );
-    exit;
-  }
-  bless $database, $class;
-  return $database;
-}
-
 =back
 
 =head1 SEE ALSO
@@ -183,5 +185,3 @@ sub new() {
 L<Search::Xapian>,L<Search::Xapian::Enquire>,L<Search::Xapian::Database>
 
 =cut
-
-1;

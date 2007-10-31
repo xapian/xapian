@@ -5,6 +5,8 @@ sub CLONE_SKIP { 1 }
 
 1;
 
+__END__
+
 =head1 NAME
 
 Search::Xapian::Stem - Snowball stemmer

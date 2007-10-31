@@ -3,6 +3,10 @@ package Search::Xapian::Weight;
 # In a new thread, copy objects of this class to unblessed, undef values.
 sub CLONE_SKIP { 1 }
 
+1;
+
+__END__
+
 =head1 NAME
 
 Search::Xapian::Weight - base class for Weighting schemes.
@@ -16,5 +20,3 @@ This is an abstract base class for weighting schemes in Xapian.
 L<Search::Xapian>,L<Search::Xapian::BoolWeight>,L<Search::Xapian::BM25Weight>
 
 =cut
-
-1;

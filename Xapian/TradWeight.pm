@@ -32,6 +32,8 @@ sub new {
 
 1;
 
+__END__
+
 =head1 NAME
 
 Search::Xapian::TradWeight - Traditional Probabilistic Weighting scheme.
@@ -57,4 +59,3 @@ If k isn't specified, the default value used is 1.
 L<Search::Xapian>,L<Search::Xapian::Enquire>
 
 =cut
-

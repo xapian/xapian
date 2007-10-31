@@ -93,6 +93,10 @@ sub get_matching_terms_end {
   exit;
 }
 
+1;
+
+__END__
+
 =head1 NAME
 
 Search::Xapian::Enquire - Make queries against a database
@@ -228,5 +232,3 @@ Returns a description of the object (for introspection).
 L<Search::Xapian::Query>, L<Search::Xapian::Database>
 
 =cut
-
-1;
