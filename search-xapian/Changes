@@ -22,6 +22,7 @@ Revision history for Perl extension Search::Xapian.
 	  under Perl 5.8.7.
 	- BoolWeight objects are now blessed as class BoolWeight rather than
 	  class Weight.
+	- Fix test parser.t to match the fixed behaviour of STEM_ALL.
 
 1.0.3.0  Sat Sep 29 13:26:32 BST 2007
 	[Changes contributed by Olly Betts]
