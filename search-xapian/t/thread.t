@@ -9,13 +9,22 @@ if ($] < 5.008007) {
     plan skip_all => 'Test requires Perl >= 5.8.7';
 } else {
     # Number of test cases to run - increase this if you add more testcases.
-    plan tests => 29;
+    plan tests => 59;
 }
 
 use Search::Xapian qw(:standard);
 use threads;
 
-my ($wdb, $db, $doc, $bm25wt, $boolwt, $tradwt, $enq, $qp, $q);
+# TODO: check these classes too:
+#MSet/Tied.pm
+#PerlStopper.pm
+#SimpleStopper.pm
+#Stopper.pm
+#TermGenerator.pm
+#Weight.pm
+
+my ($wdb, $db, $doc, $bm25wt, $boolwt, $tradwt, $enq, $qp, $q, $stem);
+my ($eset, $mset, $rset, $esetit, $msetit, $postit, $posit, $termit, $valueit);
 
 sub thread_proc {
     # Check that calling a method fails, and that it isn't a Xapian object.
@@ -28,11 +37,11 @@ sub thread_proc {
     eval { $doc->get_data(); };
     return 0 unless $@ && ref($doc) !~ 'Xapian';
     # Check that it isn't a Xapian object.
-    return 0 unless $@ && ref($bm25wt) !~ 'Xapian';
+    return 0 unless ref($bm25wt) !~ 'Xapian';
     # Check that it isn't a Xapian object.
-    return 0 unless $@ && ref($boolwt) !~ 'Xapian';
+    return 0 unless ref($boolwt) !~ 'Xapian';
     # Check that it isn't a Xapian object.
-    return 0 unless $@ && ref($tradwt) !~ 'Xapian';
+    return 0 unless ref($tradwt) !~ 'Xapian';
     # Check that calling a method fails, and that it isn't a Xapian object.
     eval { $enq->get_query(); };
     return 0 unless $@ && ref($enq) !~ 'Xapian';
@@ -42,6 +51,30 @@ sub thread_proc {
     # Check that calling a method fails, and that it isn't a Xapian object.
     eval { $q->empty(); };
     return 0 unless $@ && ref($q) !~ 'Xapian';
+    # Check that calling a method fails, and that it isn't a Xapian object.
+    eval { $stem->stem_word("testing"); };
+    return 0 unless $@ && ref($stem) !~ 'Xapian';
+    # Check that calling a method fails, and that it isn't a Xapian object.
+    eval { $eset->empty(); };
+    return 0 unless $@ && ref($eset) !~ 'Xapian';
+    # Check that calling a method fails, and that it isn't a Xapian object.
+    eval { $mset->empty(); };
+    return 0 unless $@ && ref($mset) !~ 'Xapian';
+    # Check that calling a method fails, and that it isn't a Xapian object.
+    eval { $rset->empty(); };
+    return 0 unless $@ && ref($rset) !~ 'Xapian';
+    # Check that it isn't a Xapian object.
+    return 0 unless ref($esetit) !~ 'Xapian';
+    # Check that it isn't a Xapian object.
+    return 0 unless ref($msetit) !~ 'Xapian';
+    # Check that it isn't a Xapian object.
+    return 0 unless ref($postit) !~ 'Xapian';
+    # Check that it isn't a Xapian object.
+    return 0 unless ref($posit) !~ 'Xapian';
+    # Check that it isn't a Xapian object.
+    return 0 unless ref($termit) !~ 'Xapian';
+    # Check that it isn't a Xapian object.
+    return 0 unless ref($valueit) !~ 'Xapian';
 }
 
 ok( $wdb = Search::Xapian::WritableDatabase->new(), 'create WritableDatabase' );
@@ -71,6 +104,36 @@ is( $qp->get_default_op(), OP_OR, 'check QueryParser' );
 ok( $q = $qp->parse_query("foo"), 'create Query' );
 ok( !$q->empty(), 'check Query' );
 
+ok( $stem = Search::Xapian::Stem->new('en'), 'create Stem' );
+is( $stem->stem_word('testing'), 'test', 'check Stem' );
+
+ok( $eset = Search::Xapian::ESet->new(), 'create ESet' );
+ok( $eset->empty(), 'check ESet' );
+
+ok( $mset = Search::Xapian::MSet->new(), 'create MSet' );
+ok( $mset->empty(), 'check MSet' );
+
+ok( $rset = Search::Xapian::RSet->new(), 'create RSet' );
+ok( $rset->empty(), 'check RSet' );
+
+ok( $esetit = $eset->begin(), 'create ESetIterator' );
+is( ref($esetit), 'Search::Xapian::ESetIterator', 'check ESetIterator' );
+
+ok( $msetit = $mset->begin(), 'create MSetIterator' );
+is( ref($msetit), 'Search::Xapian::MSetIterator', 'check MSetIterator' );
+
+ok( $postit = $db->postlist_begin("one"), 'create PostingIterator' );
+is( ref($postit), 'Search::Xapian::PostingIterator', 'check PostingIterator' );
+
+ok( $posit = $db->positionlist_begin(1, "one"), 'create PositionIterator' );
+is( ref($posit), 'Search::Xapian::PositionIterator', 'check PositionIterator' );
+
+ok( $termit = $db->termlist_begin(1), 'create TermIterator' );
+is( ref($termit), 'Search::Xapian::TermIterator', 'check TermIterator' );
+
+ok( $valueit = $doc->values_begin(), 'create ValueIterator' );
+is( $valueit->get_valueno(), 0, 'check ValueIterator' );
+
 my $thread1 = threads->create(sub { thread_proc(); });
 my $thread2 = threads->create(sub { thread_proc(); });
 ok( $thread1->join, 'check thread1' );
@@ -85,3 +148,13 @@ is( ref($tradwt), 'Search::Xapian::TradWeight', 'check TradWeight' );
 ok( $enq->get_query()->empty(), 'check Enquire' );
 is( $qp->get_default_op(), OP_OR, 'check QueryParser' );
 ok( !$q->empty(), 'check Query' );
+is( $stem->stem_word('testing'), 'test', 'check Stem' );
+ok( $eset->empty(), 'check ESet' );
+ok( $mset->empty(), 'check MSet' );
+ok( $rset->empty(), 'check RSet' );
+is( ref($esetit), 'Search::Xapian::ESetIterator', 'check ESetIterator' );
+is( ref($msetit), 'Search::Xapian::MSetIterator', 'check MSetIterator' );
+is( ref($postit), 'Search::Xapian::PostingIterator', 'check PostingIterator' );
+is( ref($posit), 'Search::Xapian::PositionIterator', 'check PositionIterator' );
+is( ref($termit), 'Search::Xapian::TermIterator', 'check TermIterator' );
+is( $valueit->get_valueno(), 0, 'check ValueIterator' );
