@@ -9,22 +9,21 @@ if ($] < 5.008007) {
     plan skip_all => 'Test requires Perl >= 5.8.7';
 } else {
     # Number of test cases to run - increase this if you add more testcases.
-    plan tests => 59;
+    plan tests => 65;
 }
 
 use Search::Xapian qw(:standard);
 use threads;
 
 # TODO: check these classes too:
-#MSet/Tied.pm
-#PerlStopper.pm
-#SimpleStopper.pm
-#Stopper.pm
-#TermGenerator.pm
-#Weight.pm
+# MSet/Tied.pm
+# PerlStopper.pm
+# Stopper.pm
+# Weight.pm
 
 my ($wdb, $db, $doc, $bm25wt, $boolwt, $tradwt, $enq, $qp, $q, $stem);
 my ($eset, $mset, $rset, $esetit, $msetit, $postit, $posit, $termit, $valueit);
+my ($sstop, $tg);
 
 sub thread_proc {
     # Check that calling a method fails, and that it isn't a Xapian object.
@@ -75,6 +74,10 @@ sub thread_proc {
     return 0 unless ref($termit) !~ 'Xapian';
     # Check that it isn't a Xapian object.
     return 0 unless ref($valueit) !~ 'Xapian';
+    # Check that it isn't a Xapian object.
+    return 0 unless ref($sstop) !~ 'Xapian';
+    # Check that it isn't a Xapian object.
+    return 0 unless ref($tg) !~ 'Xapian';
 }
 
 ok( $wdb = Search::Xapian::WritableDatabase->new(), 'create WritableDatabase' );
@@ -134,6 +137,12 @@ is( ref($termit), 'Search::Xapian::TermIterator', 'check TermIterator' );
 ok( $valueit = $doc->values_begin(), 'create ValueIterator' );
 is( $valueit->get_valueno(), 0, 'check ValueIterator' );
 
+ok( $sstop = Search::Xapian::SimpleStopper->new(), 'create SimpleStopper' );
+is( ref($sstop), 'Search::Xapian::SimpleStopper', 'check SimpleStopper' );
+
+ok( $tg = Search::Xapian::TermGenerator->new(), 'create TermGenerator' );
+is( ref($tg), 'Search::Xapian::TermGenerator', 'check TermGenerator' );
+
 my $thread1 = threads->create(sub { thread_proc(); });
 my $thread2 = threads->create(sub { thread_proc(); });
 ok( $thread1->join, 'check thread1' );
@@ -158,3 +167,5 @@ is( ref($postit), 'Search::Xapian::PostingIterator', 'check PostingIterator' );
 is( ref($posit), 'Search::Xapian::PositionIterator', 'check PositionIterator' );
 is( ref($termit), 'Search::Xapian::TermIterator', 'check TermIterator' );
 is( $valueit->get_valueno(), 0, 'check ValueIterator' );
+is( ref($sstop), 'Search::Xapian::SimpleStopper', 'check SimpleStopper' );
+is( ref($tg), 'Search::Xapian::TermGenerator', 'check TermGenerator' );
