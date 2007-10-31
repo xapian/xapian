@@ -139,9 +139,6 @@ MultiAndPostList::recalc_maxweight()
 PostList *
 MultiAndPostList::find_next_match(Xapian::weight w_min)
 {
-    if (n_kids >= 2) {
-	Assert(plist[0]->get_termfreq_est() <= plist[1]->get_termfreq_est());
-    }
 advanced_plist0:
     if (plist[0]->at_end()) {
 	did = 0;
