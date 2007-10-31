@@ -4,6 +4,8 @@ use 5.006;
 use strict;
 use warnings;
 
+our $VERSION = '1.0.4.0';
+
 use Search::Xapian::Database;
 use Search::Xapian::Document;
 use Search::Xapian::ESet;
@@ -89,9 +91,6 @@ $EXPORT_TAGS{all} = [ @{ $EXPORT_TAGS{'standard'} }, @{ $EXPORT_TAGS{'enq_order'
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
 our @EXPORT = qw( );
-
-
-our $VERSION = '1.0.3.0';
 
 bootstrap Search::Xapian $VERSION;
 
