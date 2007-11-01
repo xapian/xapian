@@ -91,7 +91,7 @@ matcher:
   based on checkatleast meant the results claimed there were exactly msize
   results.  This bug has now been fixed.
 
-* Queries involving a ValueRangePostList filter now run around 3.5 times faster
+* Queries involving an OP_VALUE_RANGE filter now run around 3.5 times faster
   (bug#164).
 
 * The calculations behind MSet::get_matches_estimated() were always rounding
