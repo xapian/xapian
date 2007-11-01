@@ -77,7 +77,7 @@ Retrieval, while others have a specific meaning in the context of Xapian.
  (by analogy with the index in the back of a book).
 
 **Indexer**
- The indexer takes documents (in various formats) and process them so that they
+ The indexer takes documents (in various formats) and processes them so that they
  can be searched efficiently, they are then stored in the database.
 
 **Information Need**
