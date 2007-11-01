@@ -4,7 +4,7 @@ xapian-omega (1.0.4-1) unstable; urgency=low
   * debian/control.in: Update "Suggests:" to include catdvi (for DVI files)
     which omindex can now make use of.
 
- -- Olly Betts <olly@survex.com>  Thu,  1 Nov 2007 23:47:12 +0100
+ -- Olly Betts <olly@survex.com>  Thu,  1 Nov 2007 23:47:12 +0000
 
 xapian-omega (1.0.2-1) unstable; urgency=low
 
