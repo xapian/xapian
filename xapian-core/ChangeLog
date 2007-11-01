@@ -1,3 +1,8 @@
+Thu Nov 01 18:16:20 GMT 2007  Olly Betts <olly@survex.com>
+
+	* matcher/exactphrasepostlist.cc: Fix memory leak if second memory
+	  allocation fails.
+
 Thu Nov 01 17:54:09 GMT 2007  Olly Betts <olly@survex.com>
 
 	* docs/intro_ir.html: Move the section on stemming to a better
