@@ -206,8 +206,7 @@ MultiMatch::get_collapse_key(PostList *pl, Xapian::docid did,
 	Xapian::doccount n = (did - 1) % multiplier; // which actual database
 	Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
 
-	Xapian::Internal::RefCntPtr<Xapian::Document::Internal> temp(db.internal[n]->open_document(m, true));
-	doc = temp;
+	doc = db.internal[n]->open_document(m, true);
     }
     RETURN(doc->get_value(keyno));
 }
