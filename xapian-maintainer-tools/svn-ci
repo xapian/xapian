@@ -115,7 +115,6 @@ if (!$edit_cl) {
 if ($edit_cl) {
     if ($add_diff) {
 	# ChangeLog unchanged - add diff to top
-	open CO, ">$tmp" or die $!;
 	open CI, "svn diff ".join(" ", map quotemeta, @ARGV)."|";
 	my @files;
 	my $diff = '';
@@ -156,6 +155,10 @@ if ($edit_cl) {
 	} else {
 	    push @newfiles, @d;
 	}
+	if (scalar @newfiles == 0) {
+	    die "No modified files found to commit!\n";
+	}
+	open CO, ">$tmp" or die $!;
 	print CO strftime("%a %h %d %H:%M:%S %Z %Y", localtime);
 	print CO "  $realname <$email>\n\n\t* ";
 	my $line = join ',', @newfiles;
@@ -204,7 +207,14 @@ while (<CI>) {
 close CI;
 $msg =~ s/\s+$//s;
 $msg =~ s/^\s+(?:\* \b)?//mg;
-system("svn", "ci", "-m", $msg, @ARGV);
+my $newclentry = "ChangeLog.newentry.$$";
+open M, ">$newclentry" or die $!;
+print M $msg;
+close M;
+# Use a temporary file and -F rather than -m to avoid any risk of overflowing
+# limits on command line length.
+system("svn", "ci", "-F", $newclentry, @ARGV);
+unlink $newclentry;
 
 sub bad_cl {
     if (/^</) {
