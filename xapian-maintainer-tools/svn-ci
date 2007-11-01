@@ -98,6 +98,23 @@ while (<I>) {
 }
 close I;
 
+# See if the ChangeLog is in conflict, and automatically resolve it if it is.
+if (`svn status ChangeLog` =~ /^C/) {
+    print "Automatically merging conflicts in 'ChangeLog'\n";
+    system("svn resolved ChangeLog");
+    open I, "<ChangeLog" or die $!;
+    open O, ">ChangeLog.$$.tmp" or die $!;
+    while (<I>) {
+        # Strip out the conflict markers.
+	next if /^[<=>]{7}/;
+	print O $_;
+    }
+    close I;
+    close O or die $!;
+    rename "ChangeLog.$$.tmp", "ChangeLog" or die $!;
+    $edit_cl = 1;
+}
+
 if (!$edit_cl) {
     system("svn diff ChangeLog");
     my $exit = ($? >> 8);
