@@ -31,14 +31,16 @@ OBJS= \
                  $(INTDIR)\stats.obj \
                  $(INTDIR)\mergepostlist.obj \
                  $(INTDIR)\msetpostlist.obj \
-		 $(INTDIR)\msetcmp.obj \
+                 $(INTDIR)\msetcmp.obj \
                  $(INTDIR)\emptysubmatch.obj \
                  $(INTDIR)\exactphrasepostlist.obj \
                  $(INTDIR)\valuerangepostlist.obj \
                  $(INTDIR)\weight.obj \
                  $(INTDIR)\remotesubmatch.obj \
-		 $(INTDIR)\branchpostlist.obj \
-		 $(INTDIR)\scaleweightpostlist.obj 
+                 $(INTDIR)\branchpostlist.obj \
+                 $(INTDIR)\scaleweight.obj \
+                 $(INTDIR)\queryoptimiser.obj 
+
 
 SRCS= \
                  $(INTDIR)\orpostlist.cc \
@@ -57,14 +59,18 @@ SRCS= \
                  $(INTDIR)\stats.cc \
                  $(INTDIR)\mergepostlist.cc \
                  $(INTDIR)\msetpostlist.cc \
-		 $(INTDIR)\msetcmp.cc \
+                 $(INTDIR)\msetcmp.cc \
                  $(INTDIR)\emptysubmatch.cc \
                  $(INTDIR)\exactphrasepostlist.cc \
                  $(INTDIR)\valuerangepostlist.cc \
                  $(INTDIR)\weight.cc \
                  $(INTDIR)\remotesubmatch.cc \
-		 $(INTDIR)\branchpostlist.cc \
-		 $(INTDIR)\scaleweightpostlist.cc 
+                 $(INTDIR)\branchpostlist.cc \
+                 $(INTDIR)\scaleweight.cc \
+                 $(INTDIR)\queryoptimiser.cc 
+
+
+
 
 CLEAN :
 	-@erase "$(OUTDIR)\libmatcher.lib"

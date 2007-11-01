@@ -1,6 +1,6 @@
 README for Xapian/Visual C++ Tools
 ==================================
-2007-08-08
+2007-10-29
 
 Make files, some extra headers and associated tools for compiling Xapian on
 Win32 using the Microsoft Visual C++ compilers. This is particularly useful
@@ -42,6 +42,7 @@ What doesn't work?
   folder (and the files in the folder) containing the database.  We do not
   expect this restriction to be lifted in future releases - equally, we do
   not expect it to cause serious problems.
+  
 
 TODOS
 =====
@@ -142,7 +143,9 @@ and make sure the path to where you downloaded it matches the path in config.mak
 
 - SWIG can be useful for recompiling the bindings, but this is done by the Xapian
 core maintainers, so you shouldn't need to do this unless you are building from the development sources, in which 
-case use the latest development version of SWIG (the latest Windows binary, 1.3.31, is not suitable).
+case you'll have to use the version of SWIG in the Xapian repository. To build this follow the instructions at
+http://www.swig.org/Doc1.3/Windows.html#swig_exe
+(you'll need to install MinGW).
 
 - To compile the Python bindings you need Python from www.python.org. Make sure the paths to this are set correctly in config.mak.
 
