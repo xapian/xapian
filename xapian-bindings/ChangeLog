@@ -1,3 +1,8 @@
+Fri Nov 02 20:15:19 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tcl8/except.i: Remove code to handle `const char *' exceptions - as
+	  of 1.0.0 the QueryParser throws QueryParserError instead.
+
 Fri Nov 02 02:16:32 GMT 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: Overhaul code to find tcl.h.  The old way no longer
