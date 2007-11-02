@@ -87,7 +87,7 @@ maintclean: clean
 debian/control: debian/rules debian/control.in
 	rm -f debian/control.tmp
 	sed 's/@LIBXAPIAN_SOVERSION@/$(libxapian_soversion)/g; \
-	     s/@LIBXAPIAN_DEV_SOVERSION@/$(libxapian_dev_soversion)/g \
+	     s/@LIBXAPIAN_DEV_SOVERSION@/$(libxapian_dev_soversion)/g; \
 	     s/@BINARY_VERSION@/$(BINARY_VERSION)/g' \
 	     debian/control.in > debian/control.tmp
 	mv debian/control.tmp debian/control
