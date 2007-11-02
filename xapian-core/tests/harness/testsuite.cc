@@ -46,6 +46,7 @@
 #include <float.h> // For DBL_DIG.
 #include <math.h> // For ceil, fabs, log10.
 #include <stdlib.h>
+#include <string.h>
 
 #include "gnu_getopt.h"
 
@@ -277,21 +278,29 @@ test_driver::runtest(const test_desc *test)
 			if (c > 0) {
 			    // Valgrind output has "==<pid>== \n" between
 			    // report "records", so skip to the next occurrence
-			    // of " \n".
+			    // of ' ' not followed by '\n'.
 			    ssize_t i = 0;
 			    do {
-				while (i < c && buf[i] != ' ') ++i;
+				const char * spc;
+				spc = static_cast<const char *>(
+					memchr(buf + i, ' ', c - i));
+				if (!spc) {
+				    i = c;
+				    break;
+				}
+				i = spc - buf;
 			    } while (++i < c && buf[i] == '\n');
 
-			    char *start = buf + 1;
+			    char *start = buf + i;
 			    c -= i;
-
-			    char *p = start;
-			    p = reinterpret_cast<char *>(memchr(p, '\n', c));
-			    if (p == NULL) p += c;
-
-			    c = p - start;
 			    if (c > 128) c = 128;
+
+			    {
+				const char *p;
+				p = static_cast<const char*>(
+					memchr(start, '\n', c));
+				if (p != NULL) c = p - start;
+			    }
 
 			    memmove(buf, start, c);
 			    buf[c] = '\0';
