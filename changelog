@@ -6,7 +6,7 @@ xapian-core (1.0.4-1) unstable; urgency=low
     "${Source-Version}" (except on sarge and dapper which predate
     "${binary:Version}").
 
- -- Olly Betts <olly@survex.com>  Fri,  2 Nov 2007 03:02:53 +0000
+ -- Olly Betts <olly@survex.com>  Fri,  2 Nov 2007 03:15:23 +0000
 
 xapian-core (1.0.2-1) unstable; urgency=low
 
