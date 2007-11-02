@@ -18,8 +18,13 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 # USA
 
-# ${binary:Version} was added after sarge, so use the old name for it there.
-ifeq ($(COMPONENT),sarge)
+# Component we're building packages for.  If not explicitly specified, default
+# to that named in debian/component and if that's not given, use "unstable".
+COMPONENT ?= $(shell cat debian/component 2>/dev/null||echo unstable)
+
+# ${binary:Version} was added after sarge and dapper, so use the old name for
+# it there.
+ifneq ($(findstring .$(COMPONENT)., .oldstable.dapper.), )
 BINARY_VERSION := $${Source-Version}
 else
 BINARY_VERSION := $${binary:Version}
