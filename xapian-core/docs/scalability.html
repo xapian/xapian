@@ -103,10 +103,7 @@ The current limits are:
   If the OS has a filesize limit, that obviously applies to Xapian (a 2GB limit
   is common for older operating systems).  The xapian-core configure script
   will attempt to detect and automatically enable support for "LARGE FILES"
-  where possible.  The old Muscat36 system (Xapian's proprietary precursor)
-  supported splitting the Btree over multiple 1GB files, but native support for
-  larger files is available in any serious modern OS so we don't support this
-  in the modern backends as it no longer seems necessary.
+  where possible.
   <P>
   So what is the limit for a modern OS?  Taking Linux 2.4 with the ext2
   filing system as an example, quoting from
