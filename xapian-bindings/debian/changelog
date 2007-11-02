@@ -6,8 +6,12 @@ xapian-bindings (1.0.4-1) unstable; urgency=low
     defaults upstream.
   * debian/patch: Backport configure fix from upstream SVN to allow tcl8 to be 
     built on unstable.
+  * debian/php4-xapian.install,debian/php5-xapian.install,
+    debian/python-xapian.install,debian/libxapian-ruby1.8.install,
+    debian/tclxapian.install: Update for "bindings.html" -> "index.html"
+    change.
 
- -- Olly Betts <olly@survex.com>  Fri,  2 Nov 2007 03:10:29 +0000
+ -- Olly Betts <olly@survex.com>  Fri,  2 Nov 2007 04:13:29 +0000
 
 xapian-bindings (1.0.2-1) unstable; urgency=low
 
