@@ -1,3 +1,8 @@
+Fri Nov 02 17:39:58 GMT 2007  Olly Betts <olly@survex.com>
+
+	* INSTALL: zlib 1.2.0 apparently fixes a memory leak in deflateInit2,
+	  which we use, so that's another reason to prefer 1.2.x.
+
 Fri Nov 02 06:34:36 GMT 2007  Olly Betts <olly@survex.com>
 
 	* tests/harness/testsuite.cc: Fix extracting of valgrind error
