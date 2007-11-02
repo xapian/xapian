@@ -400,32 +400,40 @@ if test no != "$with_tcl" ; then
     # don't pass -DUSE_TCL_STUBS when compiling) should you need that.
     AC_MSG_CHECKING([$TCLSH version])
     if echo 'if {$tcl_version < 8.1 } { exit 1 }'|$TCLSH 2> /dev/null ; then
-      AC_MSG_RESULT([>= 8.1])
-      tcl_lib=`echo 'puts $tcl_library'|$TCLSH`
+      tcl_version=`echo 'puts "$tcl_version"'|$TCLSH`
+      AC_MSG_RESULT([$tcl_version])
+
       AC_ARG_VAR(TCL_LIB, [Directory to install Tcl files into])
       if test -z "$TCL_LIB" ; then    
-	TCL_LIB=$tcl_lib
+	TCL_LIB=`echo 'puts $tcl_library'|$TCLSH`
       fi
       AC_SUBST(TCL_LIB)
-      dnl There's no obvious way to get "/usr/include/tcl8.N" directly...
-      dnl debian uses /usr/lib/tcl8.4, FC2 uses /usr/share/tcl8.4
-      TCL_INC=`echo "$tcl_lib"|sed 's!/\(share\|lib\)/!/include/!'`
+
+      dnl There's no obvious way to get "/usr/include/tcl8.N" directly, so
+      dnl first we find the prefix Tcl is installed under (e.g. "/usr") from
+      dnl the path on TCLSH (or default to /usr if the path doesn't contain
+      dnl "/bin/"), and then we add "/include/tcl" and $tcl_version.
+      tcl_prefix=`echo "$TCLSH"|sed 's!/bin/.*!!p;d'`
+      test -n "$tcl_prefix" || tcl_prefix=/usr
+      TCL_INC=${tcl_prefix}/include/tcl${tcl_version}
+
       dnl Check that the headers are there (the tcl8.N-dev package
       dnl may not be installed).
       TCL_CPPFLAGS=
-      AC_MSG_CHECKING([for tcl.h for version $TCL_VERSION])
+      AC_MSG_CHECKING([for tcl.h for version $tcl_version])
       if test -f "$TCL_INC/tcl.h" ; then
 	AC_MSG_RESULT([$TCL_INC/tcl.h])
 	BINDINGS="$BINDINGS tcl8"
 	TCL_CPPFLAGS="-I$TCL_INC"
       elif test -f "/usr/include/tcl.h" ; then
-	if test x`awk '($1 == "#define" && $2 == "TCL_VERSION") {print $3}' /usr/include/tcl.h` = x'"'`echo 'puts $tcl_version'|$TCLSH`'"' ; then
+	tcl_hdr_version=`awk '($1 == "#define" && $2 == "TCL_VERSION") {print $3}' /usr/include/tcl.h`
+	if test x"$tcl_hdr_version" = x'"'"$tcl_version"'"' ; then
 	  AC_MSG_RESULT([/usr/include/tcl.h])
 	  BINDINGS="$BINDINGS tcl8"
 	else
 	  AC_MSG_RESULT([not found])
 	  if test yes = "$with_tcl" ; then
-	    AC_MSG_ERROR([Can't find tcl.h for version $TCL_VERSION])
+	    AC_MSG_ERROR([Can't find tcl.h for version $tcl_version])
 	  fi
 	fi
       else
