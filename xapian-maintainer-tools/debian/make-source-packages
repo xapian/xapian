@@ -97,15 +97,16 @@ if [ -n "$*" ] ; then
 fi
 
 for COMPONENT in $COMPONENTS ; do
-# Check that the component is known.
-if expr "$COMPONENT" : '\('"`echo \"$VALID_COMPONENTS\"|sed 's/ /\\\\|/g'`"'\)$' >/dev/null
-then
-  echo "Making source packages for $COMPONENT"
-else
-  echo "Component \"$COMPONENT\" not known."
-  echo "Known components are: $VALID_COMPONENTS"
-  exit 1
-fi
+  # Check that the component is known.
+  VALID_COMPONENTS_RE=`echo "$VALID_COMPONENTS"|sed 's/ /\\\|/g'`
+  if expr "$COMPONENT" : '\('"$VALID_COMPONENTS_RE"'\)$' >/dev/null
+  then
+    echo "Making source packages for $COMPONENT"
+  else
+    echo "Component \"$COMPONENT\" not known."
+    echo "Known components are: $VALID_COMPONENTS"
+    exit 1
+  fi
 
 # Calculate the version which we're building.
 
