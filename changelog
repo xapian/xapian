@@ -1,3 +1,6 @@
+  * debian/rules: Look for "CODENAME" and "debian/codename" rather than
+    "COMPONENT" and "debian/component".
+
 xapian-core (1.0.4-1) unstable; urgency=low
 
   * New upstream release.  Closes: #444858
