@@ -1,3 +1,7 @@
+Sat Nov 03 01:07:39 GMT 2007  Olly Betts <olly@survex.com>
+
+	* csharp/docs/index.html: Improve wording.
+
 Fri Nov 02 20:31:55 GMT 2007  Olly Betts <olly@survex.com>
 
 	* tcl8/docs/index.html: Update documentation to cover flint and that
