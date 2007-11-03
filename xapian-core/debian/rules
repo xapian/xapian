@@ -18,13 +18,13 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 # USA
 
-# Component we're building packages for.  If not explicitly specified, default
-# to that named in debian/component and if that's not given, use "unstable".
-COMPONENT ?= $(shell cat debian/component 2>/dev/null||echo unstable)
+# Codename we're building packages for.  If not explicitly specified, default
+# to that named in debian/codename and if that's not given, use "sid".
+CODENAME ?= $(shell cat debian/codename 2>/dev/null||echo sid)
 
 # ${binary:Version} was added after sarge and dapper, so use the old name for
-# it there.
-ifneq ($(findstring .$(COMPONENT)., .oldstable.dapper.), )
+# it (${Source-Version}) there.
+ifneq ($(findstring .$(CODENAME)., .sarge.dapper.), )
 BINARY_VERSION := $${Source-Version}
 else
 BINARY_VERSION := $${binary:Version}
@@ -115,8 +115,8 @@ configure-stamp:
 	-g++ --version
 
 	# Configure in a subdirectory, for neatness.
-	mkdir -p build-nodebug
-	cd build-nodebug && ../configure $(commonconfflags)
+	mkdir -p build
+	cd build && ../configure $(commonconfflags)
 
 	# Touch the stamp file, to avoid repeating the configure step.
 	touch $@
@@ -124,7 +124,7 @@ configure-stamp:
 build: configure build-stamp
 build-stamp:
 	dh_testdir
-	$(MAKE) -C build-nodebug
+	$(MAKE) -C build
 	touch $@
 
 install: DH_OPTIONS=
@@ -137,7 +137,7 @@ install: build \
 	dh_installdirs
 
 	# Install the files into debian/tmp
-	$(MAKE) -C build-nodebug DESTDIR=$(CURDIR)/debian/tmp install
+	$(MAKE) -C build DESTDIR=$(CURDIR)/debian/tmp install
 
 	# Install the example source code
 	mkdir -p debian/tmp/usr/share/doc/xapian-examples/examples
@@ -188,7 +188,7 @@ binary-arch: build install
 clean: debian/control
 	dh_testdir
 	dh_testroot
-	rm -rf build-nodebug
+	rm -rf build
 	rm -f config.sub config.guess
 	dh_clean
 	rm -f build-stamp configure-stamp
