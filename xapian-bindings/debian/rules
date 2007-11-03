@@ -18,9 +18,9 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 # USA
 
-# Component we're building packages for.  If not explicitly specified, default
-# to that named in debian/component and if that's not given, use "unstable".
-COMPONENT ?= $(shell cat debian/component 2>/dev/null||echo unstable)
+# Codename we're building packages for.  If not explicitly specified, default
+# to that named in debian/codename and if that's not given, use "sid".
+CODENAME ?= $(shell cat debian/codename 2>/dev/null||echo sid)
 
 # Version without the "-N" suffix.
 XAPIAN_VERSION = $(shell sed 's/.*(\([^-]*\)\(-.*\)*).*/\1/;q' debian/changelog)
@@ -28,10 +28,9 @@ XAPIAN_VERSION = $(shell sed 's/.*(\([^-]*\)\(-.*\)*).*/\1/;q' debian/changelog)
 # `--exclude=.EXT' arguments to pass dh_install
 DH_INSTALL_EXCLUDE := --exclude=.pyc --exclude=.pyo
 
-# Debian "stable" ("etch" onwards), "unstable", and Ubuntu "edgy" (and later)
-# have pyversions.
+# Debian "etch" (and later), and Ubuntu "edgy" (and later) have pyversions.
 USE_PYVERSIONS := no
-ifeq ($(findstring .$(COMPONENT)., .oldstable.breezy.dapper.), )
+ifeq ($(findstring .$(CODENAME)., .sarge.breezy.dapper.), )
 USE_PYVERSIONS := yes
 endif
 
@@ -60,15 +59,15 @@ BUILD_DEPS := debhelper (>= 4.1.67), python, $(PYTHON_VERSIONS:%=%-dev,)
 endif
 
 # The PHP versions to build for:
-ifeq ($(COMPONENT), oldstable)
-# Debian oldstable doesn't have PHP5.
+ifeq ($(CODENAME), sarge)
+# Debian sarge doesn't have PHP5.
 PHP_VERSIONS := 4
 DH_INSTALL_EXCLUDE += --exclude=.php5
 else
-ifneq ($(findstring .$(COMPONENT)., .stable.breezy.dapper.edgy.), )
+ifneq ($(findstring .$(CODENAME)., .etch.breezy.dapper.edgy.), )
 PHP_VERSIONS := 4 5
 else
-# Newer releases (currently Debian unstable and Ubuntu feisty) don't have PHP4.
+# PHP4 support was dropped in Debian sid (and lenny) and Ubuntu feisty.
 PHP_VERSIONS := 5
 DH_INSTALL_EXCLUDE += --exclude=.php4
 endif
@@ -236,11 +235,10 @@ install: build
 	    fi \
 	done
 
-ifneq ($(findstring .$(COMPONENT)., .oldstable.breezy.dapper.edgy.), )
+ifneq ($(findstring .$(CODENAME)., .sarge.breezy.dapper.edgy.), )
 	# If PHP doesn't support /etc/phpN/conf.d then add README.Debian with
 	# a note explaining that user needs to modify php.ini themselves.  This
-	# affects Debian oldstable (sarge) (and earlier), and Ubuntu edgy and
-	# earlier.
+	# affects Debian sarge, and Ubuntu edgy (and earlier).
 	for v in $(PHP_VERSIONS); do \
 	    c=/usr/bin/php-config$$v; \
 	    if test -x $$c ; then \
@@ -271,9 +269,9 @@ binary-arch: build install
 	dh_compress
 	dh_fixperms
 	dh_makeshlibs
-	# This allows the rules file to be used for backports to components
+	# This allows the rules file to be used for backports to releases
 	# which predate python-central.  Once python-central is in all the
-	# Debian and Ubuntu versions we want to build packages for, this can
+	# Debian and Ubuntu releases we want to build packages for, this can
 	# be replaced by just "dh_pycentral".
 ifeq ($(USE_PYVERSIONS), yes)
 	dh_pycentral
