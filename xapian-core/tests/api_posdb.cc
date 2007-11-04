@@ -509,7 +509,7 @@ static bool test_poslist1()
 
 static bool test_poslist2()
 {
-    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database();
 
     Xapian::Document doc;
     doc.add_term("nopos");
@@ -566,7 +566,7 @@ static bool test_poslist2()
 /// (used to be quartztest's test_positionlist1).
 static bool test_poslist3()
 {
-    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database();
 
     vector<Xapian::termpos> positions;
 

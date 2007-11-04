@@ -34,6 +34,7 @@
 #include "utils.h"
 
 #include "apitest.h"
+#include "backendmanager_flint.h"
 
 #include <cmath>
 #include <list>
@@ -47,7 +48,7 @@ using namespace std;
 // the wdf
 static bool test_adddoc1()
 {
-    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database();
 
     Xapian::Document doc1, doc2, doc3;
 
@@ -93,7 +94,7 @@ static bool test_adddoc1()
 // test that removing a posting and removing a term works
 static bool test_adddoc2()
 {
-    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database();
 
     Xapian::Document doc1;
 
@@ -269,7 +270,7 @@ static bool test_adddoc2()
 // REGRESSION FIXED:2003-09-07
 static bool test_adddoc3()
 {
-    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database();
 
     for (Xapian::doccount i = 0; i < 2100; ++i) {
 	Xapian::Document doc;
@@ -288,7 +289,7 @@ static bool test_adddoc3()
 // historical reasons!)  Also test all other term lengths while we're at it.
 static bool test_adddoc4()
 {
-    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database();
 
     for (Xapian::doccount i = 1; i <= 240; ++i) {
 	Xapian::Document doc;
@@ -486,7 +487,7 @@ static bool test_adddoc6()
 // tests that database destructors flush if it isn't done explicitly
 static bool test_implicitendsession1()
 {
-    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database();
 
     Xapian::Document doc;
 
@@ -502,7 +503,7 @@ static bool test_implicitendsession1()
 // tests that assignment of Xapian::Database and Xapian::WritableDatabase work as expected
 static bool test_databaseassign1()
 {
-    Xapian::WritableDatabase wdb = get_writable_database("");
+    Xapian::WritableDatabase wdb = get_writable_database();
     Xapian::Database db = get_database("");
     Xapian::Database actually_wdb = wdb;
     Xapian::WritableDatabase w1(wdb);
@@ -519,7 +520,7 @@ static bool test_databaseassign1()
 // tests that deletion and updating of documents works as expected
 static bool test_deldoc1()
 {
-    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database();
 
     Xapian::Document doc1;
 
@@ -567,7 +568,7 @@ static bool test_deldoc1()
 // tests that deletion and updating of documents works as expected
 static bool test_deldoc2()
 {
-    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database();
 
     Xapian::Document doc1;
 
@@ -644,7 +645,7 @@ static bool test_deldoc2()
 // another test of deletion of documents, a cut-down version of deldoc2
 static bool test_deldoc3()
 {
-    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database();
 
     Xapian::Document doc1;
 
@@ -693,7 +694,7 @@ static bool test_deldoc3()
 // tests that deletion and updating of (lots of) documents works as expected
 static bool test_deldoc4()
 {
-    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database();
 
     Xapian::Document doc1;
 
@@ -779,7 +780,7 @@ static bool test_deldoc4()
 // Test deleting a document which was added in the same batch.
 static bool test_deldoc5()
 {
-    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database();
 
     Xapian::Document doc1;
 
@@ -825,7 +826,7 @@ static bool test_deldoc5()
 // Regression test for bug in quartz and flint, fixed in 1.0.2.
 static bool test_deldoc6()
 {
-    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database();
 
     Xapian::Document doc1;
 
@@ -856,7 +857,7 @@ static bool test_deldoc6()
 
 static bool test_replacedoc1()
 {
-    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database();
 
     Xapian::Document doc1;
 
@@ -903,7 +904,7 @@ static bool test_replacedoc1()
 // which doesn't yet exist as of Xapian 0.8.2.
 static bool test_replacedoc2()
 {
-    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database();
 
     Xapian::Document doc1;
 
@@ -962,7 +963,7 @@ static bool test_replacedoc2()
 // Test replacing a document which was added in the same batch.
 static bool test_replacedoc3()
 {
-    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database();
 
     Xapian::Document doc1;
 
@@ -1029,7 +1030,7 @@ static bool test_replacedoc3()
 // Test replacing a document which was deleted in the same batch.
 static bool test_replacedoc4()
 {
-    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database();
 
     Xapian::Document doc1;
 
@@ -1092,7 +1093,7 @@ static bool test_replacedoc4()
 // lose all positional information for the document when you do this.
 static bool test_replacedoc5()
 {
-    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database();
 
     Xapian::Document doc1;
     doc1.add_posting("hello", 1);
@@ -1120,7 +1121,7 @@ static bool test_replacedoc5()
 // can take a unique termname instead of a document id as of Xapian 0.8.2.
 static bool test_uniqueterm1()
 {
-    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database();
 
     for (int n = 1; n <= 20; ++n) {
 	Xapian::Document doc;
@@ -1255,7 +1256,7 @@ static bool test_emptyterm2()
     }
 
     {
-	Xapian::WritableDatabase db(get_writable_database(""));
+	Xapian::WritableDatabase db(get_writable_database());
 	TEST_EQUAL(db.get_doccount(), 0);
 	test_emptyterm2_helper(db);
     }
@@ -1267,7 +1268,7 @@ static bool test_emptyterm2()
 // database.
 static bool test_phraseorneartoand1()
 {
-    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database();
 
     for (int n = 1; n <= 20; ++n) {
 	Xapian::Document doc;
@@ -1307,7 +1308,7 @@ static bool test_phraseorneartoand1()
 // works - regression test for flint.
 static bool test_longpositionlist1()
 {
-    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database();
 
     Xapian::Document doc;
     Xapian::termpos n;
@@ -1373,7 +1374,7 @@ static bool test_longpositionlist1()
 // set_sort_by_value_then_relevance.
 bool test_consistency2()
 {
-    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database();
     char buf[2] = "X";
     int i = 0;
 
@@ -1439,7 +1440,7 @@ static bool test_crashrecovery1()
 
     Xapian::Document doc;
     {
-	Xapian::WritableDatabase db = get_writable_database("");
+	Xapian::WritableDatabase db = get_writable_database();
 	Xapian::Database dbr(get_writable_database_as_database());
 	TEST_EQUAL(dbr.get_doccount(), 0);
 
@@ -1495,7 +1496,7 @@ static bool test_nomoredocids1()
     // document "-1" will fail because we can't allocate enough memory!
     SKIP_TEST_FOR_BACKEND("inmemory");
 
-    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database();
     Xapian::Document doc;
     doc.set_data("prose");
     doc.add_term("word");
@@ -1512,7 +1513,7 @@ static bool test_spell1()
 {
     SKIP_TEST_UNLESS_BACKEND("flint");
 
-    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database();
 
     // Check that the more frequent term is chosen.
     db.add_spelling("hello");
@@ -1587,7 +1588,7 @@ static bool test_spell2()
 {
     SKIP_TEST_UNLESS_BACKEND("flint");
 
-    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database();
 
     // Check that a UTF-8 sequence counts as a single character.
     db.add_spelling("h\xc3\xb6hle");
@@ -1614,21 +1615,15 @@ static bool test_spell2()
 static bool test_spell3()
 {
     SKIP_TEST_UNLESS_BACKEND("flint");
-#ifdef __WIN32__
-    SKIP_TEST("Test not supported on windows");
-#endif
 
-    // FIXME: the following two lines create two writable databases, but at the
-    // same path.  The first database is deleted, but kept open, before the
-    // second is opened.  This isn't really supported behaviour (in Olly's
-    // words: "it'll end in tears if it tries to flush"), and doesn't work on
-    // windows (hence the SKIP_TEST for __WIN32__ above) so we need to fix
-    // this.  This probably involves making the backendmanager support a "name"
-    // parameter for get_writable_database() which specifies the path to create
-    // the database at.  This would also make it easier to get a readonly
-    // handle on a previously created writable database.
-    Xapian::WritableDatabase db1 = get_writable_database("");
-    Xapian::WritableDatabase db2 = get_writable_database("");
+    Xapian::WritableDatabase db1 = get_writable_database();
+    // We can't just call get_writable_database() since it would delete db1
+    // which doesn't work at all under __WIN32__ and will go wrong elsewhere if
+    // changes to db1 are committed.  So we create a temporary new
+    // BackendManagerFlint and set its datadir to a different path.
+    BackendManagerFlint bm_local;
+    bm_local.set_datadir(".flint/spell3");
+    Xapian::WritableDatabase db2 = bm_local.get_writable_database("");
 
     db1.add_spelling("hello");
     db1.add_spelling("cell", 2);
@@ -1684,7 +1679,7 @@ static bool test_spell4()
 {
     SKIP_TEST_UNLESS_BACKEND("flint");
 
-    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database();
 
     db.add_spelling("check");
     db.add_spelling("pecks", 2);
@@ -1702,7 +1697,7 @@ static bool test_spell5()
 {
     SKIP_TEST_UNLESS_BACKEND("flint");
 
-    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database();
 
     db.add_spelling("一些");
     db.flush();
@@ -1717,7 +1712,7 @@ static bool test_synonymitor1()
 {
     SKIP_TEST_UNLESS_BACKEND("flint");
 
-    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database();
 
     // Test iterators for terms which aren't there.
     TEST(db.synonyms_begin("abc") == db.synonyms_end("abc"));
@@ -1832,7 +1827,7 @@ static bool test_synonymitor1()
 // Test basic metadata access methods.
 static bool test_metadata1()
 {
-    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database();
 
     TEST_EQUAL(db.get_metadata("foo"), "");
     try {
@@ -1858,7 +1853,7 @@ static bool test_metadata2()
     /* This test only works for backends which we can get a reader for as
      * well as a writer. */
     SKIP_TEST_UNLESS_BACKEND("flint");
-    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database();
     Xapian::Database dbr = get_writable_database_as_database();
 
     TEST_EQUAL(db.get_metadata("foo"), "");
@@ -1897,7 +1892,7 @@ static bool test_metadata2()
 // Test the empty metadata keys give an error correctly.
 static bool test_metadata3()
 {
-    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database();
 
     TEST_EXCEPTION(Xapian::InvalidArgumentError, db.get_metadata(""));
     TEST_EXCEPTION(Xapian::InvalidArgumentError, db.set_metadata("", "foo"));
@@ -1921,7 +1916,7 @@ static bool test_termtoolong1()
     SKIP_TEST_FOR_BACKEND("remotetcp");
 #endif
 
-    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database();
 
     for (Xapian::doccount i = 246; i <= 290; ++i) {
 	tout << "Term length " << i << endl;
@@ -1947,7 +1942,7 @@ static bool test_termtoolong1()
 /// Test playing with a postlist
 static bool test_postlist7()
 {
-    Xapian::WritableDatabase db_w = get_writable_database("");
+    Xapian::WritableDatabase db_w = get_writable_database();
 
     {
 	Xapian::Document doc;
