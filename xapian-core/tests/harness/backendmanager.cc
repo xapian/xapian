@@ -224,6 +224,15 @@ BackendManager::get_writable_database_as_database()
     throw Xapian::InvalidOperationError(msg);
 }
 
+Xapian::WritableDatabase
+BackendManager::get_writable_database_again()
+{
+    string msg = "Backend ";
+    msg += get_dbtype();
+    msg += " doesn't support get_writable_database_again()";
+    throw Xapian::InvalidOperationError(msg);
+}
+
 const char *
 BackendManager::get_xapian_progsrv_command()
 {

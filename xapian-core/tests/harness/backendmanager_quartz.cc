@@ -59,3 +59,9 @@ BackendManagerQuartz::get_writable_database_as_database()
 {
     return Xapian::Quartz::open(".quartz/dbw");
 }
+
+Xapian::WritableDatabase
+BackendManagerQuartz::get_writable_database_again()
+{
+    return Xapian::Quartz::open(".quartz/dbw", Xapian::DB_OPEN);
+}

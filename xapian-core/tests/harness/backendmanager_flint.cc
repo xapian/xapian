@@ -55,3 +55,9 @@ BackendManagerFlint::get_writable_database_as_database()
 {
     return Xapian::Flint::open(".flint/dbw");
 }
+
+Xapian::WritableDatabase
+BackendManagerFlint::get_writable_database_again()
+{
+    return Xapian::Flint::open(".flint/dbw", Xapian::DB_OPEN);
+}

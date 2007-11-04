@@ -84,6 +84,12 @@ get_writable_database_as_database()
     return backendmanager->get_writable_database_as_database();
 }
 
+Xapian::WritableDatabase
+get_writable_database_again()
+{
+    return backendmanager->get_writable_database_again();
+}
+
 #define RUNTESTS(B, T) if (backend.empty() || backend == (B)) {\
     cout << "Running " << #T << " tests with " << (B) << " backend..." << endl;\
     result = max(result, test_driver::run(T##_tests));\

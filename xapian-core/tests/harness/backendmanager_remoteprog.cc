@@ -98,3 +98,39 @@ BackendManagerRemoteProg::get_remote_database(const vector<string> & files,
 #endif
     return Xapian::Remote::open(XAPIAN_PROGSRV, args);
 }
+
+Xapian::Database
+BackendManagerRemoteProg::get_writable_database_as_database()
+{
+    string args = "-t300000 ";
+#ifdef XAPIAN_HAS_FLINT_BACKEND
+    args += ".flint/dbw";
+#else
+    args += ".quartz/dbw";
+#endif
+#ifdef HAVE_VALGRIND
+    if (RUNNING_ON_VALGRIND) {
+	args.insert(0, XAPIAN_PROGSRV" ");
+	return Xapian::Remote::open("./runsrv", args);
+    }
+#endif
+    return Xapian::Remote::open(XAPIAN_PROGSRV, args);
+}
+
+Xapian::WritableDatabase
+BackendManagerRemoteProg::get_writable_database_again()
+{
+    string args = "-t300000 --writable ";
+#ifdef XAPIAN_HAS_FLINT_BACKEND
+    args += ".flint/dbw";
+#else
+    args += ".quartz/dbw";
+#endif
+#ifdef HAVE_VALGRIND
+    if (RUNNING_ON_VALGRIND) {
+	args.insert(0, XAPIAN_PROGSRV" ");
+	return Xapian::Remote::open_writable("./runsrv", args);
+    }
+#endif
+    return Xapian::Remote::open_writable(XAPIAN_PROGSRV, args);
+}

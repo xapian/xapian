@@ -360,3 +360,31 @@ BackendManagerRemoteTcp::get_remote_database(const vector<string> & files,
     int port = launch_xapian_tcpsrv(args);
     return Xapian::Remote::open(LOCALHOST, port);
 }
+
+Xapian::Database
+BackendManagerRemoteTcp::get_writable_database_as_database()
+{
+    string args = "-t300000 ";
+#ifdef XAPIAN_HAS_FLINT_BACKEND
+    args += ".flint/dbw";
+#else
+    args += ".quartz/dbw";
+#endif
+
+    int port = launch_xapian_tcpsrv(args);
+    return Xapian::Remote::open(LOCALHOST, port);
+}
+
+Xapian::WritableDatabase
+BackendManagerRemoteTcp::get_writable_database_again()
+{
+    string args = "-t300000 --writable ";
+#ifdef XAPIAN_HAS_FLINT_BACKEND
+    args += ".flint/dbw";
+#else
+    args += ".quartz/dbw";
+#endif
+
+    int port = launch_xapian_tcpsrv(args);
+    return Xapian::Remote::open_writable(LOCALHOST, port);
+}

@@ -61,6 +61,9 @@ class BackendManagerQuartz : public BackendManager {
 
     /// Create a Database object for the last opened WritableDatabase object.
     Xapian::Database get_writable_database_as_database();
+
+    /// Create a WritableDatabase object for the last opened WritableDatabase.
+    Xapian::WritableDatabase get_writable_database_again();
 };
 
 #endif // XAPIAN_INCLUDED_BACKENDMANAGER_QUARTZ_H
