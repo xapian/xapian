@@ -339,13 +339,26 @@ static bool test_nosuchdb1()
     return true;
 }
 
-// Regression test for add_value on an existing value (bug#82).
+// Feature tests for value manipulations.
 static bool test_addvalue1()
 {
+    // Regression test for add_value on an existing value (bug#82).
     Xapian::Document doc;
     doc.add_value(1, "original");
     doc.add_value(1, "replacement");
     TEST_EQUAL(doc.get_value(1), "replacement");
+
+    doc.add_value(2, "too");
+    doc.add_value(3, "free");
+    doc.add_value(4, "for");
+
+    doc.remove_value(2);
+    doc.remove_value(4);
+    TEST_EQUAL(doc.get_value(0), "");
+    TEST_EQUAL(doc.get_value(1), "replacement");
+    TEST_EQUAL(doc.get_value(2), "");
+    TEST_EQUAL(doc.get_value(3), "free");
+    TEST_EQUAL(doc.get_value(4), "");
 
     return true;
 }

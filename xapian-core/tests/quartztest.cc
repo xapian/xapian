@@ -417,11 +417,6 @@ static bool test_packstring1()
 // ================================
 // ========= END OF TESTS =========
 // ================================
-//
-// FIXME: Tests to write:
-//
-// Check behaviour of values - write same value twice, test reading
-// single values which exist and don't exist / have been deleted.
 
 /// The lists of tests to perform
 test_desc tests[] = {
