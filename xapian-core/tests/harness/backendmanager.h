@@ -129,6 +129,9 @@ class BackendManager {
     /// Get a remote database instance with the specified timeout.
     virtual Xapian::Database get_remote_database(const std::vector<std::string> & files, unsigned int timeout);
 
+    /// Create a Database object for the last opened WritableDatabase object.
+    virtual Xapian::Database get_writable_database_as_database();
+
     /// Get the command line required to run xapian-progsrv.
     static const char * get_xapian_progsrv_command();
 };

@@ -67,6 +67,8 @@ Xapian::WritableDatabase get_writable_database(const std::string &db);
 
 Xapian::Database get_remote_database(const std::string &db, unsigned timeout);
 
+Xapian::Database get_writable_database_as_database();
+
 #define SKIP_TEST_UNLESS_BACKEND(B) \
     if (strcmp(get_dbtype(), (B)) != 0) SKIP_TEST("Test only supported for "#B" backend"); else (void)0
 

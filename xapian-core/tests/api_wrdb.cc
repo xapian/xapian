@@ -1272,7 +1272,7 @@ static bool test_crashrecovery1()
     Xapian::Document doc;
     {
 	Xapian::WritableDatabase db = get_writable_database("");
-	Xapian::Database dbr(path);
+	Xapian::Database dbr(get_writable_database_as_database());
 	TEST_EQUAL(dbr.get_doccount(), 0);
 
 	// Xapian::Database has full set of baseA, no baseB
@@ -1343,7 +1343,6 @@ static bool test_nomoredocids1()
 static bool test_spell1()
 {
     SKIP_TEST_UNLESS_BACKEND("flint");
-    string dbpath = ".flint/dbw";
 
     Xapian::WritableDatabase db = get_writable_database("");
 
@@ -1352,7 +1351,7 @@ static bool test_spell1()
     db.add_spelling("cell", 2);
     TEST_EQUAL(db.get_spelling_suggestion("hell"), "cell");
     db.flush();
-    Xapian::Database dbr(dbpath);
+    Xapian::Database dbr(get_writable_database_as_database());
     TEST_EQUAL(db.get_spelling_suggestion("hell"), "cell");
     TEST_EQUAL(dbr.get_spelling_suggestion("hell"), "cell");
 
@@ -1419,7 +1418,6 @@ static bool test_spell1()
 static bool test_spell2()
 {
     SKIP_TEST_UNLESS_BACKEND("flint");
-    string dbpath= ".flint/dbw";
 
     Xapian::WritableDatabase db = get_writable_database("");
 
@@ -1433,7 +1431,7 @@ static bool test_spell2()
     TEST_EQUAL(db.get_spelling_suggestion("as\xc3\xb6\xc3\xb7i"), "ascii");
     TEST_EQUAL(db.get_spelling_suggestion("asc\xc3\xb6i\xc3\xb7i"), "ascii");
     db.flush();
-    Xapian::Database dbr(dbpath);
+    Xapian::Database dbr(get_writable_database_as_database());
     TEST_EQUAL(dbr.get_spelling_suggestion("hohle", 1), "h\xc3\xb6hle");
     TEST_EQUAL(dbr.get_spelling_suggestion("hhle", 1), "h\xc3\xb6hle");
     TEST_EQUAL(dbr.get_spelling_suggestion("\xf0\xa8\xa8\x8f\xc3\xb6le", 2), "h\xc3\xb6hle");
@@ -1692,9 +1690,8 @@ static bool test_metadata2()
     /* This test only works for backends which we can get a reader for as
      * well as a writer. */
     SKIP_TEST_UNLESS_BACKEND("flint");
-    string path = ".flint/dbw";
     Xapian::WritableDatabase db = get_writable_database("");
-    Xapian::Database dbr = Xapian::Database(path);
+    Xapian::Database dbr = get_writable_database_as_database();
 
     TEST_EQUAL(db.get_metadata("foo"), "");
     db.set_metadata("foo", "bar");

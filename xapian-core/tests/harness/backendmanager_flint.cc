@@ -49,3 +49,9 @@ BackendManagerFlint::get_writable_database(const string & file)
 {
     return getwritedb_flint(vector<string>(1, file));
 }
+
+Xapian::Database
+BackendManagerFlint::get_writable_database_as_database()
+{
+    return Xapian::Flint::open(".flint/dbw");
+}

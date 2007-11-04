@@ -64,6 +64,12 @@ get_database(const string &dbname, const string &dbname2)
     return backendmanager->get_database(dbnames);
 }
 
+Xapian::WritableDatabase
+get_writable_database(const string &dbname)
+{
+    return backendmanager->get_writable_database(dbname);
+}
+
 Xapian::Database
 get_remote_database(const string &dbname, unsigned int timeout)
 {
@@ -72,10 +78,10 @@ get_remote_database(const string &dbname, unsigned int timeout)
     return backendmanager->get_remote_database(dbnames, timeout);
 }
 
-Xapian::WritableDatabase
-get_writable_database(const string &dbname)
+Xapian::Database
+get_writable_database_as_database()
 {
-    return backendmanager->get_writable_database(dbname);
+    return backendmanager->get_writable_database_as_database();
 }
 
 #define RUNTESTS(B, T) if (backend.empty() || backend == (B)) {\

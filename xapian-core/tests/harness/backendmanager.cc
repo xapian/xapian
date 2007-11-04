@@ -215,6 +215,15 @@ BackendManager::get_remote_database(const vector<string> &, unsigned int)
     throw Xapian::InvalidOperationError(msg);
 }
 
+Xapian::Database
+BackendManager::get_writable_database_as_database()
+{
+    string msg = "Backend ";
+    msg += get_dbtype();
+    msg += " doesn't support get_writable_database_as_database()";
+    throw Xapian::InvalidOperationError(msg);
+}
+
 const char *
 BackendManager::get_xapian_progsrv_command()
 {

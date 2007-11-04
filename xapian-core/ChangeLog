@@ -1,3 +1,9 @@
+Sun Nov 04 06:08:42 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/api_wrdb.cc,tests/apitest.cc,tests/apitest.h,tests/harness/:
+	  Add BackendManager::get_writable_database_as_database() and use it
+	  instead of assuming what the WritableDatabase path will be.
+
 Sun Nov 04 05:31:30 GMT 2007  Olly Betts <olly@survex.com>
 
 	* tests/,tests/harness/: Subclass BackendManager for each database
