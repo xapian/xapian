@@ -183,6 +183,8 @@ ValueIterator
 Document::values_begin() const
 {
     DEBUGAPICALL(ValueIterator, "Document::values_begin", "");
+    // Force the values to be read and cached.
+    internal->need_values();
     RETURN(ValueIterator(0, *this));
 }
 

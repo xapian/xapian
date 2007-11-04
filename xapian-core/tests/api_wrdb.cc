@@ -404,6 +404,18 @@ static bool test_adddoc5()
 	    }
 	    TEST_EQUAL(j, document_out.values_end());
 	}
+
+	{
+	    // Regression test for bug fixed in 1.0.5 - values_begin() didn't
+	    // ensure that values had been read.  However, values_end() did
+	    // (and so did values_count()) so this wasn't generally an issue
+	    // but it shouldn't happen anyway.
+	    Xapian::Document doc_tmp = database.get_document(did);
+	    Xapian::ValueIterator i = document_in.values_begin();
+	    Xapian::ValueIterator j = doc_tmp.values_begin();
+	    TEST_EQUAL(*i, *j);
+	}
+
 	{
 	    Xapian::TermIterator i(document_in.termlist_begin());
 	    Xapian::TermIterator j(document_out.termlist_begin());

@@ -1,3 +1,12 @@
+Sun Nov 04 22:54:13 GMT 2007  Olly Betts <olly@survex.com>
+
+	* api/omdocument.cc,tests/api_wrdb.cc: values_begin() didn't ensure
+	  that values had been read.  However, values_end() did (and so did
+	  values_count()) so this wasn't generally an issue, but it shouldn't
+	  happen anyway.
+	* tests/api_wrdb.cc: Extend adddoc5 to include a regression test for
+	  this bug.
+
 Sun Nov 04 22:44:39 GMT 2007  Olly Betts <olly@survex.com>
 
 	* tests/quartztest.cc: Remove 'FIXME' suggesting more value tests.
