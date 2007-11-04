@@ -99,7 +99,7 @@ class BackendManager {
     BackendManager() { }
 
     /// Virtual methods, so virtual destructor.
-    ~BackendManager() { } // FIXME: move out of header
+    virtual ~BackendManager() { } // FIXME: move out of header
 
     /** Get the database type currently in use.
      *
