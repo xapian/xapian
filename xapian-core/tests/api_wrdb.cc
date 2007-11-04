@@ -1323,12 +1323,9 @@ static bool test_crashrecovery1()
 // Regression test for bug#152.
 static bool test_nomoredocids1()
 {
-    if (get_dbtype() == "inmemory") {
-	// The InMemory backend uses a vector for the documents, so trying
-	// to add document "-1" will fail because we can't allocate enough
-	// memory!
-	SKIP_TEST("Test not supported on inmemory backend");
-    }
+    // The InMemory backend uses a vector for the documents, so trying to add
+    // document "-1" will fail because we can't allocate enough memory!
+    SKIP_TEST_FOR_BACKEND("inmemory");
 
     Xapian::WritableDatabase db = get_writable_database("");
     Xapian::Document doc;
@@ -1345,12 +1342,8 @@ static bool test_nomoredocids1()
 // Test basic spelling correction features.
 static bool test_spell1()
 {
-    string dbpath;
-    if (get_dbtype() == "flint") {
-	dbpath = ".flint/dbw";
-    } else {
-	SKIP_TEST("Test only supported for flint backend");
-    }
+    SKIP_TEST_UNLESS_BACKEND("flint");
+    string dbpath = ".flint/dbw";
 
     Xapian::WritableDatabase db = get_writable_database("");
 
@@ -1425,12 +1418,8 @@ static bool test_spell1()
 // Test spelling correction for Unicode.
 static bool test_spell2()
 {
-    string dbpath;
-    if (get_dbtype() == "flint") {
-	dbpath = ".flint/dbw";
-    } else {
-	SKIP_TEST("Test only supported for flint backend");
-    }
+    SKIP_TEST_UNLESS_BACKEND("flint");
+    string dbpath= ".flint/dbw";
 
     Xapian::WritableDatabase db = get_writable_database("");
 
@@ -1458,13 +1447,11 @@ static bool test_spell2()
 // Test spelling correction with multi databases
 static bool test_spell3()
 {
-    if (get_dbtype() != "flint") {
-	SKIP_TEST("Test only supported for flint backend");
-    }
-
+    SKIP_TEST_UNLESS_BACKEND("flint");
 #ifdef __WIN32__
     SKIP_TEST("Test not supported on windows");
 #endif
+
     // FIXME: the following two lines create two writable databases, but at the
     // same path.  The first database is deleted, but kept open, before the
     // second is opened.  This isn't really supported behaviour (in Olly's
@@ -1529,9 +1516,7 @@ static bool test_spell3()
 // Regression test - check that appending works correctly.
 static bool test_spell4()
 {
-    if (get_dbtype() != "flint") {
-	SKIP_TEST("Test only supported for flint backend");
-    }
+    SKIP_TEST_UNLESS_BACKEND("flint");
 
     Xapian::WritableDatabase db = get_writable_database("");
 
@@ -1549,9 +1534,7 @@ static bool test_spell4()
 // Regression test - used to segfault with some input values.
 static bool test_spell5()
 {
-    if (get_dbtype() != "flint") {
-	SKIP_TEST("Test only supported for flint backend");
-    }
+    SKIP_TEST_UNLESS_BACKEND("flint");
 
     Xapian::WritableDatabase db = get_writable_database("");
 
@@ -1566,9 +1549,7 @@ static bool test_spell5()
 // Test synonym iterators.
 static bool test_synonymitor1()
 {
-    if (get_dbtype() != "flint") {
-	SKIP_TEST("Test only supported for flint backend");
-    }
+    SKIP_TEST_UNLESS_BACKEND("flint");
 
     Xapian::WritableDatabase db = get_writable_database("");
 
@@ -1708,15 +1689,10 @@ static bool test_metadata1()
 // Test that metadata gets applied at same time as other changes.
 static bool test_metadata2()
 {
-    string path;
-    const string & dbtype = get_dbtype();
-    if (dbtype == "flint") {
-	path = ".flint/dbw";
-    } else {
-	/* This test only works for backends which we can get a reader for as
-	 * well as a writer. */
-	SKIP_TEST("Test only supported for flint backend");
-    }
+    /* This test only works for backends which we can get a reader for as
+     * well as a writer. */
+    SKIP_TEST_UNLESS_BACKEND("flint");
+    string path = ".flint/dbw";
     Xapian::WritableDatabase db = get_writable_database("");
     Xapian::Database dbr = Xapian::Database(path);
 
@@ -1769,17 +1745,15 @@ static bool test_metadata3()
 // add_document() rather than on flush().
 static bool test_termtoolong1()
 {
-    const string & dbtype = get_dbtype();
-    if (dbtype == "quartz" || dbtype == "inmemory") {
-	// Quartz doesn't perform this check; inmemory doesn't impose a limit.
-	SKIP_TEST("Test not supported by this backend");
-    }
+    // Quartz doesn't perform this check.
+    SKIP_TEST_FOR_BACKEND("quartz");
+    // Inmemory doesn't impose a limit.
+    SKIP_TEST_FOR_BACKEND("inmemory");
 #ifndef XAPIAN_HAS_FLINT_BACKEND
-    if (dbtype == "remotetcp" || dbtype == "remoteprog") {
-	// If flint is disabled, remotetcp and remoteprog will use quartz
-	// which doesn't perform this check.
-	SKIP_TEST("Test not supported by this backend");
-    }
+    // If flint is disabled, remotetcp and remoteprog will use quartz
+    // which doesn't perform this check.
+    SKIP_TEST_FOR_BACKEND("remoteprog");
+    SKIP_TEST_FOR_BACKEND("remotetcp");
 #endif
 
     Xapian::WritableDatabase db = get_writable_database("");

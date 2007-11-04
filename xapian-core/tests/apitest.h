@@ -57,7 +57,7 @@ extern test_desc writabledb_tests[];
 #define TESTCASE(S) {#S, test_##S}
 #define END_OF_TESTCASES {0, 0}
 
-const std::string & get_dbtype();
+const char * get_dbtype();
 
 Xapian::Database get_database(const std::string &db);
 
@@ -65,6 +65,12 @@ Xapian::Database get_database(const std::string &db1, const std::string &db2);
 
 Xapian::WritableDatabase get_writable_database(const std::string &db);
 
-Xapian::Database get_network_database(const std::string &db, unsigned timeout);
+Xapian::Database get_remote_database(const std::string &db, unsigned timeout);
+
+#define SKIP_TEST_UNLESS_BACKEND(B) \
+    if (strcmp(get_dbtype(), (B)) != 0) SKIP_TEST("Test only supported for "#B" backend"); else (void)0
+
+#define SKIP_TEST_FOR_BACKEND(B) \
+    if (strcmp(get_dbtype(), (B)) == 0) SKIP_TEST("Test not supported for "#B" backend"); else (void)0
 
 #endif // XAPIAN_INCLUDED_APITEST_H

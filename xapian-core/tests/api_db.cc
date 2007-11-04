@@ -34,6 +34,7 @@
 #include <xapian.h>
 
 #include "backendmanager.h"
+#include "backendmanager_local.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include "unixcmds.h"
@@ -590,7 +591,7 @@ static bool test_collapsekey4()
 // test for keepalives
 static bool test_keepalive1()
 {
-    Xapian::Database db(get_network_database("apitest_simpledata", 5000));
+    Xapian::Database db(get_remote_database("apitest_simpledata", 5000));
 
     /* Test that keep-alives work */
     for (int i = 0; i < 10; ++i) {
@@ -1602,14 +1603,7 @@ static bool test_sortrel1()
 // Test network stats and local stats give the same results.
 static bool test_netstats1()
 {
-    BackendManager local_manager;
-#if defined XAPIAN_HAS_FLINT_BACKEND
-    local_manager.set_dbtype("flint");
-#elif defined XAPIAN_HAS_QUARTZ_BACKEND
-    local_manager.set_dbtype("quartz");
-#else
-    SKIP_TEST("No suitable local database backend enabled");
-#endif
+    BackendManagerLocal local_manager;
     local_manager.set_datadir(test_driver::get_srcdir() + "/testdata/");
 
     const char * words[] = { "paragraph", "word" };

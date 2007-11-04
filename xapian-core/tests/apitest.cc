@@ -33,21 +33,26 @@ using namespace std;
 #include "testsuite.h"
 #include "testutils.h"
 #include "backendmanager.h"
+#include "backendmanager_flint.h"
+#include "backendmanager_inmemory.h"
+#include "backendmanager_quartz.h"
+#include "backendmanager_remoteprog.h"
+#include "backendmanager_remotetcp.h"
 #include "utils.h"
 
 #include "apitest.h"
 
-static BackendManager backendmanager;
+static BackendManager * backendmanager;
 
-const std::string & get_dbtype()
+const char * get_dbtype()
 {
-    return backendmanager.get_dbtype();
+    return backendmanager->get_dbtype();
 }
 
 Xapian::Database
 get_database(const string &dbname)
 {
-    return backendmanager.get_database(dbname);
+    return backendmanager->get_database(dbname);
 }
 
 Xapian::Database
@@ -56,31 +61,29 @@ get_database(const string &dbname, const string &dbname2)
     vector<string> dbnames;
     dbnames.push_back(dbname);
     dbnames.push_back(dbname2);
-    return backendmanager.get_database(dbnames);
+    return backendmanager->get_database(dbnames);
 }
 
 Xapian::Database
-get_network_database(const string &dbname,
-		     unsigned int timeout)
+get_remote_database(const string &dbname, unsigned int timeout)
 {
-    vector<string> params;
-    params.push_back("#TIMEOUT#");
-    params.push_back(om_tostring(timeout));
-    params.push_back(dbname);
-    return backendmanager.get_database(params);
+    vector<string> dbnames;
+    dbnames.push_back(dbname);
+    return backendmanager->get_remote_database(dbnames, timeout);
 }
 
 Xapian::WritableDatabase
 get_writable_database(const string &dbname)
 {
-    return backendmanager.get_writable_database(dbname);
+    return backendmanager->get_writable_database(dbname);
 }
 
 #define RUNTESTS(B, T) if (backend.empty() || backend == (B)) {\
-    backendmanager.set_dbtype((B));\
     cout << "Running " << #T << " tests with " << (B) << " backend..." << endl;\
     result = max(result, test_driver::run(T##_tests));\
     } else (void)0
+
+#define USE_BACKEND(B, S) ((B).empty() || (B) == (S))
 
 int main(int argc, char **argv)
 {
@@ -93,73 +96,113 @@ int main(int argc, char **argv)
 
     int result = 0;
 
-    backendmanager.set_datadir(srcdir + "/testdata/");
+    if (USE_BACKEND(backend, "none")) {
+	backendmanager = new BackendManager;
+	backendmanager->set_datadir(srcdir + "/testdata/");
 
-    RUNTESTS("none", nodb);
-    RUNTESTS("none", unicode);
+	RUNTESTS("none", nodb);
+	RUNTESTS("none", unicode);
+
+	delete backendmanager;
+    }
 
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
-    RUNTESTS("inmemory", anydb);
-    RUNTESTS("inmemory", specchar);
-    RUNTESTS("inmemory", writabledb);
-    RUNTESTS("inmemory", localdb);
-    RUNTESTS("inmemory", positionaldb);
-    RUNTESTS("inmemory", doclendb);
-    RUNTESTS("inmemory", collfreq);
-    RUNTESTS("inmemory", allterms);
-    RUNTESTS("inmemory", multivalue);
+    if (USE_BACKEND(backend, "inmemory")) {
+	backendmanager = new BackendManagerInMemory;
+	backendmanager->set_datadir(srcdir + "/testdata/");
+
+	RUNTESTS("inmemory", anydb);
+	RUNTESTS("inmemory", specchar);
+	RUNTESTS("inmemory", writabledb);
+	RUNTESTS("inmemory", localdb);
+	RUNTESTS("inmemory", positionaldb);
+	RUNTESTS("inmemory", doclendb);
+	RUNTESTS("inmemory", collfreq);
+	RUNTESTS("inmemory", allterms);
+	RUNTESTS("inmemory", multivalue);
+
+	delete backendmanager;
+    }
 #endif
 
 #ifdef XAPIAN_HAS_FLINT_BACKEND
-    RUNTESTS("flint", anydb);
-    RUNTESTS("flint", specchar);
-    RUNTESTS("flint", writabledb);
-    RUNTESTS("flint", localdb);
-    RUNTESTS("flint", positionaldb);
-    RUNTESTS("flint", doclendb);
-    RUNTESTS("flint", collfreq);
-    RUNTESTS("flint", allterms);
-    RUNTESTS("flint", multivalue);
-    RUNTESTS("flint", transactiondb);
-    RUNTESTS("flint", flint);
+    if (USE_BACKEND(backend, "flint")) {
+	backendmanager = new BackendManagerFlint;
+	backendmanager->set_datadir(srcdir + "/testdata/");
+
+	RUNTESTS("flint", anydb);
+	RUNTESTS("flint", specchar);
+	RUNTESTS("flint", writabledb);
+	RUNTESTS("flint", localdb);
+	RUNTESTS("flint", positionaldb);
+	RUNTESTS("flint", doclendb);
+	RUNTESTS("flint", collfreq);
+	RUNTESTS("flint", allterms);
+	RUNTESTS("flint", multivalue);
+	RUNTESTS("flint", transactiondb);
+	RUNTESTS("flint", flint);
+
+	delete backendmanager;
+    }
 #endif
 
 #ifdef XAPIAN_HAS_QUARTZ_BACKEND
-    RUNTESTS("quartz", anydb);
-    RUNTESTS("quartz", specchar);
-    RUNTESTS("quartz", writabledb);
-    RUNTESTS("quartz", localdb);
-    RUNTESTS("quartz", positionaldb);
-    RUNTESTS("quartz", doclendb);
-    RUNTESTS("quartz", collfreq);
-    RUNTESTS("quartz", allterms);
-    RUNTESTS("quartz", multivalue);
-    RUNTESTS("quartz", transactiondb);
-    RUNTESTS("quartz", quartz);
+    if (USE_BACKEND(backend, "quartz")) {
+	backendmanager = new BackendManagerQuartz;
+	backendmanager->set_datadir(srcdir + "/testdata/");
+
+	RUNTESTS("quartz", anydb);
+	RUNTESTS("quartz", specchar);
+	RUNTESTS("quartz", writabledb);
+	RUNTESTS("quartz", localdb);
+	RUNTESTS("quartz", positionaldb);
+	RUNTESTS("quartz", doclendb);
+	RUNTESTS("quartz", collfreq);
+	RUNTESTS("quartz", allterms);
+	RUNTESTS("quartz", multivalue);
+	RUNTESTS("quartz", transactiondb);
+	RUNTESTS("quartz", quartz);
+
+	delete backendmanager;
+    }
 #endif
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-    RUNTESTS("remoteprog", anydb);
-    RUNTESTS("remoteprog", specchar);
-    RUNTESTS("remoteprog", writabledb);
-    RUNTESTS("remoteprog", remotedb);
-    RUNTESTS("remoteprog", positionaldb);
-    RUNTESTS("remoteprog", doclendb);
-    RUNTESTS("remoteprog", collfreq);
-    RUNTESTS("remoteprog", allterms);
-    RUNTESTS("remoteprog", multivalue);
-    RUNTESTS("remoteprog", transactiondb);
+    if (USE_BACKEND(backend, "remoteprog")) {
+	backendmanager = new BackendManagerRemoteProg;
+	backendmanager->set_datadir(srcdir + "/testdata/");
 
-    RUNTESTS("remotetcp", anydb);
-    RUNTESTS("remotetcp", specchar);
-    RUNTESTS("remotetcp", writabledb);
-    RUNTESTS("remotetcp", remotedb);
-    RUNTESTS("remotetcp", positionaldb);
-    RUNTESTS("remotetcp", doclendb);
-    RUNTESTS("remotetcp", collfreq);
-    RUNTESTS("remotetcp", allterms);
-    RUNTESTS("remotetcp", multivalue);
-    RUNTESTS("remotetcp", transactiondb);
+	RUNTESTS("remoteprog", anydb);
+	RUNTESTS("remoteprog", specchar);
+	RUNTESTS("remoteprog", writabledb);
+	RUNTESTS("remoteprog", remotedb);
+	RUNTESTS("remoteprog", positionaldb);
+	RUNTESTS("remoteprog", doclendb);
+	RUNTESTS("remoteprog", collfreq);
+	RUNTESTS("remoteprog", allterms);
+	RUNTESTS("remoteprog", multivalue);
+	RUNTESTS("remoteprog", transactiondb);
+
+	delete backendmanager;
+    }
+
+    if (USE_BACKEND(backend, "remotetcp")) {
+	backendmanager = new BackendManagerRemoteTcp;
+	backendmanager->set_datadir(srcdir + "/testdata/");
+
+	RUNTESTS("remotetcp", anydb);
+	RUNTESTS("remotetcp", specchar);
+	RUNTESTS("remotetcp", writabledb);
+	RUNTESTS("remotetcp", remotedb);
+	RUNTESTS("remotetcp", positionaldb);
+	RUNTESTS("remotetcp", doclendb);
+	RUNTESTS("remotetcp", collfreq);
+	RUNTESTS("remotetcp", allterms);
+	RUNTESTS("remotetcp", multivalue);
+	RUNTESTS("remotetcp", transactiondb);
+
+	delete backendmanager;
+    }
 #endif
 
     return result;
