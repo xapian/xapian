@@ -8,15 +8,11 @@
 <H1>Quickstart</H1>
 
 <P>
-This document contains sufficient information to enable you to build your
-first application using Xapian.  It does not attempt to provide complete
-coverage of all the features of Xapian: for that, see the accompanying
-user manual and reference document.
-</P><P>
 The document contains a quick introduction to the basic concepts, and then
 a walk-through development of a simple application using the Xapian
 library, together with commentary on how the application could be taken
-further.
+further.  It deliberately avoids going into a lot of detail - see the
+<a href="index.html">rest of the documentation</a> for more detail.
 </P>
 
 <HR>
@@ -224,11 +220,12 @@ The first step, then, is to create the document:
 </PRE>
 
 <P>
-Next, we associate some data with the document.  The meaning of this data
-is entirely user-defined, and is typically structured in some manner to
-contain information such as a URL pointing to the source of the data, and
-some text which is to be displayed when returning the document as a result
-of a search.
+Each <code>Xapian::Document</code> has a "cargo" known as the <i>document data</i>.
+This data is opaque to Xapian - the meaning of it is entirely user-defined.
+Typically it contains information to allow results to be displayed by the
+application, for example a URL for the indexed document and
+some text which is to be displayed when returning the document as search
+result.
 </P>
 <P>
 For our example, we shall simply store the second parameter given on the
