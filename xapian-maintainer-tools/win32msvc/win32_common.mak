@@ -64,5 +64,5 @@ CLEAN :
 
 # Calculate any header dependencies and automatically insert them into this file
 HEADERS :
-            ..\win32\$(DEPEND) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)"
+	$(CPP) -E $(CPP_PROJ) | $(PERL) ..\makedepend.pl -D -DO -f Makefile
 # DO NOT DELETE THIS LINE -- make depend depends on it.
