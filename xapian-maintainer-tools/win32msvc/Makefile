@@ -111,6 +111,7 @@ COPYMAKFILES:
    copy  win32_queryparser.mak ..\queryparser\Makefile
    copy  win32_tests.mak ..\tests\Makefile
    copy  win32_testsuite.mak ..\tests\harness\Makefile
+   copy makedepend.pl ..
    if exist $(XAPIAN_BINDINGS) copy $(XAPIAN_BINDINGS)\xapian-version.h.in $(XAPIAN_BINDINGS)\xapian-version.h
    if exist $(XAPIAN_BINDINGS) copy win32_bindings_python.mak $(XAPIAN_BINDINGS)\python\Makefile
    if not exist $(XAPIAN_BINDINGS)\python\doccomments.i copy doccomments.i $(XAPIAN_BINDINGS)\python
