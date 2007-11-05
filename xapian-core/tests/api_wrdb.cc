@@ -1844,7 +1844,7 @@ static bool test_metadata1()
     TEST_EQUAL(db.get_metadata("foo"), "");
     try {
 	db.set_metadata("foo", "bar");
-    } catch (Xapian::UnimplementedError &e) {
+    } catch (Xapian::UnimplementedError &) {
 	SKIP_TEST("Metadata not supported by this backend");
     }
     TEST_EQUAL(db.get_metadata("foo"), "bar");
