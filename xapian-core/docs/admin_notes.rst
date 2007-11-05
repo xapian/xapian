@@ -23,7 +23,7 @@ general management of a Xapian database, including tasks such as taking
 backups and optimising performance.  It may also be useful introductory
 reading for Xapian application developers.
 
-The document is up-to-date for Xapian version 1.0.2.
+The document is up-to-date for Xapian version 1.0.4.
 
 Databases
 =========
@@ -124,12 +124,12 @@ at any given instant, there is only permitted to be a single object modifying
 a database, but there may (simultaneously) be many objects reading the
 database at once.
 
-Xapian enforces this restriction using lock-files.  For a flint
-database, each Xapian database directory contains a lock file named
-"flintlock".  The lock-file will always exist, but will be locked using fcntl()
-when the database is open for writing.  If a writer exits without being given a
+Xapian enforces this restriction using lock-files.  For a flint database, each
+Xapian database directory contains a lock file named ``flintlock``.  The
+lock-file will always exist, but will be locked using ``fcntl()`` when the
+database is open for writing.  If a writer exits without being given a
 chance to clean up (for example, if the application holding the writer
-is killed), the fcntl() lock will be automatically released by the operating
+is killed), the ``fcntl()`` lock will be automatically released by the operating
 system.  Under Microsoft Windows, we use a different locking technique, but
 with the same features.
 
@@ -146,12 +146,11 @@ database errors.
 This isn't likely to be a practical problem, since it would take nearly a year
 for a database to reach this limit if 100 modifications were committed every
 second, and no normal Xapian system will commit more than once every few
-seconds.  However, if you are concerned, you can use the
-"xapian-compact" tool to make a fresh copy of the database with the revision
-number set to 1.
+seconds.  However, if you are concerned, you can use the ``xapian-compact``
+tool to make a fresh copy of the database with the revision number set to 1.
 
-For a "flint" database, the revision number of each table can be displayed by the
-"xapian-check" tool.
+For a "flint" database, the revision number of each table can be displayed by
+the ``xapian-check`` tool.
 
 Network file systems
 --------------------
@@ -160,12 +159,12 @@ Xapian should work correctly over a network file system.  However, there are a
 large number of potential issues with such file systems, so we recommend
 extensive testing of your particular network file system before deployment.
 
-Be warned that Xapian is heavily IO dependent, and therefore performance over
+Be warned that Xapian is heavily I/O dependent, and therefore performance over
 a network file system is likely to be slow unless you've got a very well tuned
 setup.
 
 Xapian needs to be able to create a lock file in a database directory when
-modifications are being performed.  On some network files systems (eg, NFS)
+modifications are being performed.  On some network files systems (e.g., NFS)
 this requires a lock daemon to be running.
 
 Which database format to use?
@@ -188,7 +187,7 @@ which will break this technique, so as long as you don't choose a filename
 that Xapian uses itself, there should be no problems.  However, be aware that
 new versions of Xapian may use new files in the database directory, and it is
 also possible that new backend formats may not be compatible with the
-technique (eg, it is possible that a future backend could store its entire
+technique (e.g., it is possible that a future backend could store its entire
 database in a single file, not in a directory).
 
 
@@ -264,20 +263,15 @@ the contents of the database.  Xapian includes a simple command-line program,
 "delve", to allow this.
 
 For example, to display the list of terms in document "1" of the database
-"foo", use: 
-
-::
+"foo", use::
 
   delve foo -r 1
-
 
 It is also possible to perform simple searches of a database.  Xapian includes
 another simple command-line program, "quest", to support this.  "quest" is
 only able to search for un-prefixed terms, the query string must be quoted to
 protect it from the shell.  To search the database "foo" for the phrase "hello
-world", use:
-
-::
+world", use::
 
   quest -d foo '"hello world"'
 
@@ -286,8 +280,8 @@ also be used with the built-in "godmode" template to provide a web-based
 interface for browsing a database.  See Omega's documentation for more details
 on this.
 
-Database maintainance
-=====================
+Database maintenance
+====================
 
 Compacting a database
 ---------------------
@@ -337,11 +331,11 @@ work most efficiently if excessive disk seeking can be avoided; if you have
 several disks, it may be worth placing the source databases and the
 destination database on separate disks to obtain maximum speed.
 
-The "xapian-compact" tool supports an additional option, "--multipass", which
-is useful when merging more than 3 databases.  This will cause the postlist
-tables to be grouped and merged into temporary tables, which are then grouped
-and merged, and so on until a single postlist table is created, which is
-usually faster, but requires more disk space for the temporary files.
+The ``xapian-compact`` tool supports an additional option, ``--multipass``,
+which is useful when merging more than three databases.  This will cause the
+postlist tables to be grouped and merged into temporary tables, which are then
+grouped and merged, and so on until a single postlist table is created, which
+is usually faster, but requires more disk space for the temporary files.
 
 
 Checking database integrity
@@ -351,9 +345,7 @@ Xapian includes a command-line tool to check that a flint database is
 self-consistent.  This tool, "xapian-check", runs through the entire database,
 checking that all the internal nodes are correctly connected.  It can also be
 used on a single table in a flint database, by specifying the prefix of the
-table: for example, for a database "foo", the command:
-
-::
+table: for example, for a database "foo", the command::
 
   xapian-check foo/termlist
 
@@ -371,9 +363,7 @@ re-index from source data since it doesn't need to perform the tokenisation
 step.  It is also useful if you no longer have the source data available.
 
 The following command will copy a database from "SOURCE" to "DESTINATION",
-creating the new database at "DESTINATION" as a flint database.
-
-::
+creating the new database at "DESTINATION" as a flint database::
 
   copydatabase SOURCE DESTINATION
 
@@ -389,15 +379,11 @@ be better to rebuild from scratch if you want to use the new UTF-8 support
 in Xapian::QueryParser, Xapian::Stem, and Xapian::TermGenerator).
 
 Run the following command in your Xapian 0.9.x installation to copy your
-0.9.x flint database "SOURCE" to a new quartz database "INTERMEDIATE"
-
-::
+0.9.x flint database "SOURCE" to a new quartz database "INTERMEDIATE"::
 
   copydatabase SOURCE INTERMEDIATE
 
 Then run the following command in your Xapian 1.0.y installation to copy
-your quartz database to a 1.0.y flint database "DESTINATION":
-
-::
+your quartz database to a 1.0.y flint database "DESTINATION"::
 
   copydatabase INTERMEDIATE DESTINATION
