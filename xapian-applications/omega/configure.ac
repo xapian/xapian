@@ -264,6 +264,11 @@ if test x"$enable_documentation" = xyes; then
   dnl Check for help2man. (Needed to make man pages from "--help" output).
   AC_PATH_PROG(HELP2MAN, help2man, [])
   test -z "$HELP2MAN" && AC_MSG_ERROR([help2man is required in maintainer mode])
+
+  dnl Check for rst2html. (Needed to make HTML from reStructuredText format)
+  dnl Also look for rst2html.py, which archlinux reportedly installs it as.
+  AC_PATH_PROGS(RST2HTML, [rst2html rst2html.py], [])
+  test -z "$RST2HTML" && AC_MSG_ERROR([rst2html is required to build documentation])
 fi
 
 dnl Disabled XML stuff as we don't currently build omindex-config
