@@ -61,8 +61,8 @@ CPP_SBRS=.
 <<
 
 "$(INTDIR)\lemon.obj" : ".\lemon.c"
-    $(CPP) @<< ".\lemon.c"
-  $(CPP_PROJ_LEMON) $**
+    $(CPP) @<<
+  $(CPP_PROJ_LEMON) $** ".\lemon.c"
 <<
 
 "$(INTDIR)\queryparser_internal.cc" : ".\queryparser.lemony" 
