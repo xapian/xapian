@@ -35,7 +35,7 @@
 #include <vector>
 
 class MultiMatch;
-class PosFilter;
+struct PosFilter;
 
 class QueryOptimiser {
     const Xapian::Database::Internal & db;

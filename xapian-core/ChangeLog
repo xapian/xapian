@@ -1,3 +1,8 @@
+Mon Nov 05 06:21:09 GMT 2007  Olly Betts <olly@survex.com>
+
+	* matcher/queryoptimiser.h: Forward declare PosFilter as "struct"
+	  rather than "class", since it's defined as "struct".
+
 Mon Nov 05 05:41:01 GMT 2007  Olly Betts <olly@survex.com>
 
 	* api/sortable-serialise.cc: Suppress MSVC warning.
