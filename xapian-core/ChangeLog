@@ -1,3 +1,9 @@
+Mon Nov 05 11:17:23 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* docs/termgenerator.rst: Change a couple of instances of "terms"
+	  to "words" for clarity; the item from the input text is a word,
+	  and the result of processing is a term.
+
 Mon Nov 05 09:46:53 GMT 2007  Olly Betts <olly@survex.com>
 
 	* docs/admin_notes.rst: Note that this document is up-to-date for
