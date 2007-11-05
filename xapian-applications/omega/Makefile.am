@@ -4,6 +4,8 @@
 # `make QUIET=y' overrides `./configure' without `--enable-quiet'.
 LIBTOOL = @LIBTOOL@ $(QUIET:y=--quiet)
 
+SUBDIRS = . docs
+
 INCLUDES = -I$(top_srcdir)/common
 
 EXTRA_DIST =\
@@ -63,15 +65,6 @@ dist_bin_SCRIPTS = dbi2omega htdig2omega mbox2omega
 
 check_PROGRAMS = htmlparsetest md5test
 TESTS = htmlparsetest$(EXEEXT) md5test$(EXEEXT)
-
-# Install documentation.
-dist_doc_DATA = \
-	docs/cgiparams.txt \
-	docs/omegascript.txt \
-	docs/overview.txt \
-	docs/quickstart.txt \
-	docs/scriptindex.txt \
-	docs/termprefixes.txt
 
 omegadatadir = $(datadir)/omega
 dist_omegadata_DATA = htdig2omega.script mbox2omega.script
