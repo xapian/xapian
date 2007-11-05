@@ -61,7 +61,7 @@ CPP_SBRS=.
 <<
 
 "$(INTDIR)\lemon.obj" : ".\lemon.c"
-    $(CPP) ".\lemon.c" @<<
+    $(CPP) @<< ".\lemon.c"
   $(CPP_PROJ_LEMON) $**
 <<
 
