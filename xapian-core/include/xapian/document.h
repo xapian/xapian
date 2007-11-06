@@ -158,7 +158,9 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 	/// Remove all terms (and postings) from the document.
 	void clear_terms();
 
-	/// Count the terms in this document.
+	/** The length of the termlist - i.e. the number of different terms
+	 *  which index this document.
+	 */
 	Xapian::termcount termlist_count() const;
 
 	/// Iterator for the terms in this document.
