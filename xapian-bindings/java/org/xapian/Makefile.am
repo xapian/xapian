@@ -1,7 +1,5 @@
 SUBDIRS = errors . examples
 
-SUFFIXES = .java .class
-
 EXTRA_DIST = Database.java Document.java ESet.java ESetIterator.java\
  Enquire.java ExpandDecider.java MSet.java MSetIterator.java MatchDecider.java\
  PositionIterator.java Query.java RSet.java Stem.java TermIterator.java\
