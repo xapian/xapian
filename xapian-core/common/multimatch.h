@@ -95,7 +95,7 @@ class MultiMatch
 	 *  @param db_       The database to use.
 	 *  @param query     The query
 	 *  @param qlen      The query length
-	 *  @param omrset    The relevance set
+	 *  @param omrset    The relevance set (or NULL for no RSet)
 	 *  @param errorhandler Errorhandler object
 	 *  @param gatherer_ A pointer to a StatsGatherer instance.
 	 *                   The MultiMatch takes ownership of the
@@ -105,7 +105,7 @@ class MultiMatch
 	MultiMatch(const Xapian::Database &db_,
 		   const Xapian::Query::Internal * query,
 		   Xapian::termcount qlen,
-		   const Xapian::RSet & omrset,
+		   const Xapian::RSet * omrset,
 		   Xapian::valueno collapse_key_,
 		   int percent_cutoff_,
 		   Xapian::weight weight_cutoff_,

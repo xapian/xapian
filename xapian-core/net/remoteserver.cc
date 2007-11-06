@@ -417,7 +417,7 @@ RemoteServer::msg_query(const string &message_in)
 
     NetworkStatsGatherer * gatherer = new NetworkStatsGatherer(this);
 
-    MultiMatch match(*db, query.get(), qlen, rset, collapse_key,
+    MultiMatch match(*db, query.get(), qlen, &rset, collapse_key,
 		     percent_cutoff, weight_cutoff, order,
 		     sort_key, sort_by, sort_value_forward,
 		     NULL, gatherer, wt.get());

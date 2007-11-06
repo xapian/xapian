@@ -78,7 +78,7 @@ const Xapian::Enquire::Internal::sort_setting VAL_REL =
 MultiMatch::MultiMatch(const Xapian::Database &db_,
 		       const Xapian::Query::Internal * query_,
 		       Xapian::termcount qlen,
-		       const Xapian::RSet & omrset,
+		       const Xapian::RSet * omrset,
 		       Xapian::valueno collapse_key_,
 		       int percent_cutoff_, Xapian::weight weight_cutoff_,
 		       Xapian::Enquire::docid_order order_,
@@ -97,7 +97,8 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	  is_remote(db.internal.size())
 {
     DEBUGCALL(MATCH, void, "MultiMatch", db_ << ", " << query_ << ", " <<
-	      qlen << ", " << omrset << ", " << collapse_key_ << ", " <<
+	      qlen << ", " << (omrset ? *omrset : RSet()) << ", " <<
+	      collapse_key_ << ", " <<
 	      percent_cutoff_ << ", " << weight_cutoff_ << ", " <<
 	      int(order_) << ", " << sort_key_ << ", " <<
 	      int(sort_by_) << ", " << sort_value_forward_ << ", " <<
@@ -107,28 +108,35 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
     query->validate_query();
 
     vector<Xapian::RSet> subrsets;
-    if (db.internal.size() == 1) {
-	// Shortcut the common case.
-	subrsets.push_back(omrset);
-    } else {
-	Xapian::doccount number_of_leaves = db.internal.size();
-	// Can't just use resize - that creates N copies of the same RSet!
-	subrsets.reserve(number_of_leaves);
-	for (size_t i = 0; i < number_of_leaves; ++i) {
-	    subrsets.push_back(Xapian::RSet());
-	}
+    Xapian::doccount number_of_subdbs = db.internal.size();
+    if (omrset) {
+	if (number_of_subdbs == 1) {
+	    // The common case of a single database is easy to handle.
+	    subrsets.push_back(*omrset);
+	} else {
+	    // Can't just use vector::resize() here, since that creates N
+	    // copies of the same RSet!
+	    subrsets.reserve(number_of_subdbs);
+	    for (size_t i = 0; i < number_of_subdbs; ++i) {
+		subrsets.push_back(Xapian::RSet());
+	    }
 
-	const set<Xapian::docid> & items = omrset.internal->get_items();
-	set<Xapian::docid>::const_iterator j;
-	for (j = items.begin(); j != items.end(); ++j) {
-	    Xapian::doccount local_docid = (*j - 1) / number_of_leaves + 1;
-	    Xapian::doccount subdatabase = (*j - 1) % number_of_leaves;
-	    subrsets[subdatabase].add_document(local_docid);
+	    const set<Xapian::docid> & items = omrset->internal->get_items();
+	    set<Xapian::docid>::const_iterator j;
+	    for (j = items.begin(); j != items.end(); ++j) {
+		Xapian::doccount local_docid = (*j - 1) / number_of_subdbs + 1;
+		Xapian::doccount subdatabase = (*j - 1) % number_of_subdbs;
+		subrsets[subdatabase].add_document(local_docid);
+	    }
 	}
+    } else {
+	// NB vector::resize() creates N copies of the same empty RSet.
+	subrsets.resize(number_of_subdbs);
     }
 
-    Assert(subrsets.size() == db.internal.size());
-    for (size_t i = 0; i != db.internal.size(); ++i) {
+    Assert(subrsets.size() == number_of_subdbs);
+
+    for (size_t i = 0; i != number_of_subdbs; ++i) {
 	Xapian::Database::Internal *subdb = db.internal[i].get();
 	Assert(subdb);
 	Xapian::Internal::RefCntPtr<SubMatch> smatch;
@@ -161,7 +169,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	leaves.push_back(smatch);
     }
 
-    gatherer->set_global_stats(omrset.size());
+    gatherer->set_global_stats(omrset ? omrset->size() : 0);
 
     // We use a vector<bool> to track which SubMatches we're already prepared.
     vector<bool> prepared;

@@ -1,3 +1,10 @@
+Tue Nov 06 07:22:27 GMT 2007  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,common/multimatch.h,matcher/multimatch.cc,
+	  net/remoteserver.cc: Modify MultiMatch::MultiMatch() to take a const
+	  pointer to Xapian::RSet rather than a const reference.  This makes
+	  the code simpler for the case where we don't have an RSet.
+
 Tue Nov 06 05:47:38 GMT 2007  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc: Use ".empty()" not ".size() == 0".
