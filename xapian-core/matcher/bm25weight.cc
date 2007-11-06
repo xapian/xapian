@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -153,6 +153,8 @@ Xapian::weight
 BM25Weight::get_sumextra(Xapian::doclength len) const
 {
     DEBUGCALL(MATCH, Xapian::weight, "BM25Weight::get_sumextra", len);
+    if (!weight_calculated) calc_termweight();
+
     Xapian::doclength normlen = len * lenpart;
     if (normlen < min_normlen) normlen = min_normlen;
     Xapian::weight extra = 2 * k2 * querysize / (1 + normlen);
@@ -172,6 +174,7 @@ BM25Weight::get_maxextra() const
 }
 
 bool BM25Weight::get_sumpart_needs_doclength() const {
+    if (!weight_calculated) calc_termweight();
     return (b != 0 && k1 != 0 && lenpart != 0);
 }
 

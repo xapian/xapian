@@ -1,7 +1,7 @@
 /* stats.h: Handling of statistics needed for the search.
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2005 Olly Betts
+ * Copyright 2002,2003,2005,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -348,6 +348,8 @@ Xapian::Weight::Internal::get_total_average_length() const
 inline Xapian::doccount
 Xapian::Weight::Internal::get_total_termfreq(const string & tname) const
 {
+    // We pass an empty string for tname when calculating the extra weight.
+    if (tname.empty()) return 0;
     if (total_stats == 0) perform_request();
 
     // To get the statistics about a given term, we have to have
@@ -363,6 +365,8 @@ Xapian::Weight::Internal::get_total_termfreq(const string & tname) const
 inline Xapian::doccount
 Xapian::Weight::Internal::get_total_reltermfreq(const string & tname) const
 {
+    // We pass an empty string for tname when calculating the extra weight.
+    if (tname.empty()) return 0;
     if (total_stats == 0) perform_request();
     std::map<string, Xapian::doccount>::const_iterator rtfreq;
     rtfreq = total_stats->reltermfreq.find(tname);

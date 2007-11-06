@@ -1932,6 +1932,16 @@ static bool test_scaleweight2() {
     return true;
 }
 
+static bool test_bm25weight1() {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_weighting_scheme(Xapian::BM25Weight(1, 25, 1, 0.01, 0.5));
+    enquire.set_query(Xapian::Query("word") );
+
+    Xapian::MSet mset = enquire.get_mset(0, 25);
+
+    return true;
+}
+
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 
@@ -2000,5 +2010,6 @@ test_desc anydb_tests[] = {
     {"valuerange1",	   test_valuerange1},
     {"scaleweight1",	   test_scaleweight1},
     {"scaleweight2",	   test_scaleweight2},
+    {"bm25weight1",	   test_bm25weight1},
     {0, 0}
 };
