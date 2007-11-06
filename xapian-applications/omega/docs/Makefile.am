@@ -1,7 +1,5 @@
 ## Process this file with automake to produce Makefile.in
 
-SUFFIXES = .rst
-
 RSTDOCS = \
 	cgiparams.rst\
 	omegascript.rst\
