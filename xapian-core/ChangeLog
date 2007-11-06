@@ -1,3 +1,10 @@
+Tue Nov 06 07:58:34 GMT 2007  Olly Betts <olly@survex.com>
+
+	* matcher/tradweight.cc: Make sure lenpart has been calculated in
+	  TradWeight::get_sumpart_needs_doclength() (this doesn't appear to
+	  actually be a problem in current use, but it might become an issue
+	  if the code which uses TradWeight changes.
+
 Tue Nov 06 07:49:18 GMT 2007  Olly Betts <olly@survex.com>
 
 	* tests/api_anydb.cc: Add simple feature test for TradWeight being
