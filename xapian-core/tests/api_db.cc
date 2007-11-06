@@ -508,6 +508,33 @@ static bool test_collapsekey1()
 
 // tests that collapse-on-key modifies the predicted bounds for the number of
 // matches appropriately.
+static bool test_collapsekey2()
+{
+    SKIP_TEST("Don't have a suitable database currently");
+    // FIXME: this need an appropriate database creating, but that's quite
+    // subtle to do it seems.
+    Xapian::Enquire enquire(get_database("apitest_simpledata2"));
+    enquire.set_query(Xapian::Query("this"));
+
+    Xapian::MSet mymset1 = enquire.get_mset(0, 1);
+
+    // Test that if no duplicates are found, then the upper bound remains
+    // unchanged and the lower bound drops.
+    {
+	enquire.set_query(Xapian::Query("this"));
+	Xapian::valueno value_no = 3;
+	enquire.set_collapse_key(value_no);
+	Xapian::MSet mymset = enquire.get_mset(0, 1);
+
+	TEST(mymset.get_matches_lower_bound() < mymset1.get_matches_lower_bound());
+	TEST_EQUAL(mymset.get_matches_upper_bound(), mymset1.get_matches_upper_bound());
+    }
+
+    return true;
+}
+
+// tests that collapse-on-key modifies the predicted bounds for the number of
+// matches appropriately.
 static bool test_collapsekey3()
 {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
@@ -533,18 +560,17 @@ static bool test_collapsekey3()
 	}
     }
 
-    // Test that, if no duplicates are found (eg, by collapsing on key 1000,
-    // which has no entries), the upper bound stays the same, but the lower
-    // bound drops.
+
+    // Test that if the collapse value is always empty, then the upper and
+    // lower bounds remain unchanged.  We do this by collapsing on value 1000
+    // which is never set in our test database.
     {
 	Xapian::valueno value_no = 1000;
 	enquire.set_collapse_key(value_no);
 	Xapian::MSet mymset = enquire.get_mset(0, 3);
 
-	TEST_AND_EXPLAIN(mymset1.get_matches_lower_bound() > mymset.get_matches_lower_bound(),
-			 "Lower bound was not lower when performing collapse: don't know whether it worked.");
-	TEST_AND_EXPLAIN(mymset1.get_matches_upper_bound() == mymset.get_matches_upper_bound(),
-			 "Upper bound was not equal when collapse turned on, but no duplicates found.");
+	TEST_EQUAL(mymset.get_matches_lower_bound(), mymset1.get_matches_lower_bound());
+	TEST_EQUAL(mymset.get_matches_upper_bound(), mymset1.get_matches_upper_bound());
 
 	map<string, Xapian::docid> values;
 	Xapian::MSetIterator i = mymset.begin();
@@ -1734,7 +1760,7 @@ static bool test_matchall1()
 /// The tests which require a database which supports values > 0 sensibly
 test_desc multivalue_tests[] = {
     {"collapsekey1",	   test_collapsekey1},
-    // There no longer is a collapsekey2 test!
+    {"collapsekey2",	   test_collapsekey2},
     {"collapsekey3",	   test_collapsekey3},
     {"collapsekey4",	   test_collapsekey4},
     {0, 0}

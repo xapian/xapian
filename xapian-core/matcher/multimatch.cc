@@ -343,12 +343,6 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     Xapian::doccount matches_lower_bound = pl->get_termfreq_min();
     Xapian::doccount matches_estimated   = pl->get_termfreq_est();
 
-    // duplicates_found and documents_considered are used solely to keep track
-    // of how frequently collapses are occurring, so that the matches_estimated
-    // can be adjusted accordingly.
-    Xapian::doccount duplicates_found = 0;
-    Xapian::doccount documents_considered = 0;
-
     // Check if any results have been asked for (might just be wanting
     // maxweight).
     if (check_at_least == 0) {
@@ -373,6 +367,17 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 					   0));
 	return;
     }
+
+    // duplicates_found and documents_considered are used solely to keep track
+    // of how frequently collapses are occurring, so that the matches_estimated
+    // can be adjusted accordingly.
+    Xapian::doccount duplicates_found = 0;
+    Xapian::doccount documents_considered = 0;
+
+    // We keep track of the number of null collapse values because this allows
+    // us to provide a better value for matches_lower_bound if there are null
+    // collapse values.
+    Xapian::doccount null_collapse_values = 0;
 
     // Set max number of results that we want - this is used to decide
     // when to throw away unwanted items.
@@ -526,7 +531,9 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 						     doc);
 
 	    // Don't collapse on null key
-	    if (!new_item.collapse_key.empty()) {
+	    if (new_item.collapse_key.empty()) {
+		++null_collapse_values;
+	    } else {
 		map<string, pair<Xapian::Internal::MSetItem, Xapian::weight> >::iterator oldkey;
 		oldkey = collapse_tab.find(new_item.collapse_key);
 		if (oldkey == collapse_tab.end()) {
@@ -799,10 +806,11 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	Assert(matches_estimated <= matches_upper_bound);
 
 	if (collapse_key != Xapian::BAD_VALUENO) {
-	    // Lower bound must be set to no more than the number of collapse
-	    // values we've got, since it's possible that all further hits
-	    // will be collapsed to a single value.
-	    matches_lower_bound = collapse_tab.size();
+	    // Lower bound must be set to no more than the number of null
+	    // collapse values seen plus the number of unique non-null collapse
+	    // values seen, since it's possible that all further hits will be
+	    // collapsed to values we've already seen.
+	    matches_lower_bound = null_collapse_values + collapse_tab.size();
 
 	    // The estimate for the number of hits can be modified by
 	    // multiplying it by the rate at which we've been finding

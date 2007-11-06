@@ -1,3 +1,14 @@
+Tue Nov 06 10:41:14 GMT 2007  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: If we're collapsing on a value, keep track of
+	  the number of empty collapse values seen, since that allows us to
+	  give a better lower bound on the number of matches.
+	* tests/api_db.cc: This change breaks an (incorrect) assumption in
+	  collapsekey3, so change that test case to be a regression test for
+	  the improved estimate.  Add a new test as (the previously missing)
+	  collapsekey2, but disable it for now as we don't seem to have a
+	  suitable existing database.
+
 Tue Nov 06 07:58:34 GMT 2007  Olly Betts <olly@survex.com>
 
 	* matcher/tradweight.cc: Make sure lenpart has been calculated in
