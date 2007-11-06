@@ -16,7 +16,6 @@ endif
 # Order is relevant: when building, tests must be after ".".
 SUBDIRS = . docs tests
 
-SUFFIXES =
 noinst_HEADERS =
 BUILT_SOURCES =
 noinst_LTLIBRARIES =

@@ -1,7 +1,5 @@
 ## Process this file with automake to produce Makefile.in
 
-SUFFIXES = .rst
-
 # Note: we don't want dist tarballs built with docs missing, so for simplicity
 # this Makefile.am blindly assumes the tools are in place when "make dist" is
 # being run.  For "make all", "make check", etc we carefully skip any docs
