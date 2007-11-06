@@ -618,7 +618,7 @@ Enquire::Internal::Internal(const Database &db_, ErrorHandler * errorhandler_)
     sort_key(Xapian::BAD_VALUENO), sort_by(REL), sort_value_forward(true),
     errorhandler(errorhandler_), weight(0)
 {
-    if (db.internal.size() == 0) {
+    if (db.internal.empty()) {
 	throw InvalidArgumentError("Can't make an Enquire object from an uninitialised Database object.");
     }
 }
