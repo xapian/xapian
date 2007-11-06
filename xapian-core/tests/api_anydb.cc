@@ -1932,12 +1932,32 @@ static bool test_scaleweight2() {
     return true;
 }
 
+// Regression test for bug fixed in 1.0.5 - this test would failed under
+// valgrind because it used an uninitialised value.
 static bool test_bm25weight1() {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_weighting_scheme(Xapian::BM25Weight(1, 25, 1, 0.01, 0.5));
     enquire.set_query(Xapian::Query("word") );
 
     Xapian::MSet mset = enquire.get_mset(0, 25);
+
+    return true;
+}
+
+// Feature test for TradWeight.
+static bool test_tradweight1() {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_weighting_scheme(Xapian::TradWeight());
+    enquire.set_query(Xapian::Query("word") );
+
+    Xapian::MSet mset = enquire.get_mset(0, 25);
+
+    enquire.set_weighting_scheme(Xapian::TradWeight(0));
+    enquire.set_query(Xapian::Query("word") );
+
+    mset = enquire.get_mset(0, 25);
+    // FIXME: should check that TradWeight(0) means wdf and doc length really
+    // don't affect the weights as stated in the documentation.
 
     return true;
 }
@@ -2011,5 +2031,6 @@ test_desc anydb_tests[] = {
     {"scaleweight1",	   test_scaleweight1},
     {"scaleweight2",	   test_scaleweight2},
     {"bm25weight1",	   test_bm25weight1},
+    {"tradweight1",	   test_tradweight1},
     {0, 0}
 };

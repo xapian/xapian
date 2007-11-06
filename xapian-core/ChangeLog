@@ -1,3 +1,8 @@
+Tue Nov 06 07:49:18 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/api_anydb.cc: Add simple feature test for TradWeight being
+	  used to run a query.
+
 Tue Nov 06 07:26:28 GMT 2007  Olly Betts <olly@survex.com>
 
 	* common/stats.h,matcher/bm25weight.cc,tests/api_anydb.cc: Fix bug in
