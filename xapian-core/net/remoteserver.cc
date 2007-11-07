@@ -429,14 +429,18 @@ RemoteServer::msg_query(const string &message_in)
     get_message(active_timeout, message, MSG_GETMSET);
 #else
     char type = get_message(active_timeout, message);
-    if (type != MSG_GETMSET_PRE_30_3 && type != MSG_GETMSET) {
-	string errmsg("Expecting message type ");
-	errmsg += om_tostring(MSG_GETMSET_PRE_30_3);
-	errmsg += " or ";
-	errmsg += om_tostring(MSG_GETMSET);
-	errmsg += ", got ";
-	errmsg += om_tostring(type);
-	throw Xapian::NetworkError(errmsg);
+    if (rare(type != MSG_GETMSET)) {
+	if (type != MSG_GETMSET_PRE_30_5 && type != MSG_GETMSET_PRE_30_3) {
+	    string errmsg("Expecting message type ");
+	    errmsg += om_tostring(MSG_GETMSET_PRE_30_3);
+	    errmsg += " or ";
+	    errmsg += om_tostring(MSG_GETMSET_PRE_30_5);
+	    errmsg += " or ";
+	    errmsg += om_tostring(MSG_GETMSET);
+	    errmsg += ", got ";
+	    errmsg += om_tostring(type);
+	    throw Xapian::NetworkError(errmsg);
+	}
     }
 #endif
     p = message.c_str();
@@ -456,7 +460,11 @@ RemoteServer::msg_query(const string &message_in)
     Xapian::MSet mset;
     match.get_mset(first, maxitems, check_at_least, mset, 0, 0);
 
-    send_message(REPLY_RESULTS, serialise_mset(mset));
+    if (type == MSG_GETMSET_PRE_30_3 || type == MSG_GETMSET_PRE_30_5) {
+	send_message(REPLY_RESULTS_PRE_30_5, serialise_mset_pre_30_5(mset));
+    } else {
+	send_message(REPLY_RESULTS, serialise_mset(mset));
+    }
 }
 
 void

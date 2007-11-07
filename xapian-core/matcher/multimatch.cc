@@ -253,24 +253,33 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
     Assert(!leaves.empty());
 
-    // Start matchers
+    // Start matchers.
+
+    // If there's only one database and it's remote, we can just unserialise
+    // its MSet and return that.
+    if (leaves.size() == 1 && is_remote[0]) {
+	RemoteSubMatch * rem_match;
+	rem_match = static_cast<RemoteSubMatch*>(leaves[0].get());
+	rem_match->start_match(first, maxitems, check_at_least);
+	rem_match->get_mset(mset);
+	return;
+    }
+
     {
 	vector<Xapian::Internal::RefCntPtr<SubMatch> >::iterator leaf;
 	for (leaf = leaves.begin(); leaf != leaves.end(); ++leaf) {
 	    try {
 		// FIXME: look if we can push the "check_at_least" stuff
 		// into the remote match handling too.
-		(*leaf)->start_match(first + maxitems, first + check_at_least);
+		(*leaf)->start_match(0, first + maxitems,
+				     first + check_at_least);
 	    } catch (Xapian::Error & e) {
-		if (errorhandler) {
-		    DEBUGLINE(EXCEPTION, "Calling error handler for "
-			      "start_match() on a SubMatch.");
-		    (*errorhandler)(e);
-		    // Continue match without this sub-match.
-		    *leaf = Xapian::Internal::RefCntPtr<SubMatch>(new EmptySubMatch());
-		} else {
-		    throw;
-		}
+		if (!errorhandler) throw;
+		DEBUGLINE(EXCEPTION, "Calling error handler for "
+			  "start_match() on a SubMatch.");
+		(*errorhandler)(e);
+		// Continue match without this sub-match.
+		*leaf = Xapian::Internal::RefCntPtr<SubMatch>(new EmptySubMatch());
 	    }
 	}
     }

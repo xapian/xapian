@@ -52,7 +52,8 @@ class SubMatch : public Xapian::Internal::RefCntBase {
     virtual bool prepare_match(bool nowait) = 0;
 
     /// Start the match.
-    virtual void start_match(Xapian::doccount maxitems,
+    virtual void start_match(Xapian::doccount first,
+			     Xapian::doccount maxitems,
 			     Xapian::doccount check_at_least) = 0;
 
     /// Get PostList and term info.

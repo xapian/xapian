@@ -204,10 +204,11 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 };
 
 class MSet::Internal : public Xapian::Internal::RefCntBase {
-    private:
+    public:
 	/// Factor to multiply weights by to convert them to percentages.
 	double percent_factor;
 
+    private:
 	/** The set of documents which have been requested but not yet
 	 *  collected.
 	 */

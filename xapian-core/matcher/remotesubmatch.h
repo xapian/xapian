@@ -61,12 +61,16 @@ class RemoteSubMatch : public SubMatch {
     bool prepare_match(bool nowait);
 
     /// Start the match.
-    void start_match(Xapian::doccount maxitems,
+    void start_match(Xapian::doccount first,
+		     Xapian::doccount maxitems,
 		     Xapian::doccount check_at_least);
 
     /// Get PostList and term info.
     PostList * get_postlist_and_term_info(MultiMatch *matcher,
 	map<string, Xapian::MSet::Internal::TermFreqAndWeight> *termfreqandwts);
+
+    /// Short-cut for single remote match.
+    void get_mset(Xapian::MSet & mset) { db->get_mset(mset); }
 };
 
 #endif /* XAPIAN_INCLUDED_REMOTESUBMATCH_H */

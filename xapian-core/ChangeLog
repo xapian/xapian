@@ -1,3 +1,12 @@
+Wed Nov 07 16:30:49 GMT 2007  Olly Betts <olly@survex.com>
+
+	* common/,docs/remote_protocol.html,matcher/,net/remoteserver.cc,
+	  net/serialise.cc: If we're doing a match with only one database
+	  which is remote then just return the unserialised MSet from the
+	  remote match.  This requires that we include
+	  internal->percent_factor in the MSet serialisation, which requires
+	  a minor remote protocol version bump.
+
 Wed Nov 07 09:47:28 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* matcher/multimatch.cc: Fix logging build (a change to the logging
