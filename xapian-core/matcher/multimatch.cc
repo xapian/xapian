@@ -97,7 +97,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	  is_remote(db.internal.size())
 {
     DEBUGCALL(MATCH, void, "MultiMatch", db_ << ", " << query_ << ", " <<
-	      qlen << ", " << (omrset ? *omrset : RSet()) << ", " <<
+	      qlen << ", " << (omrset ? *omrset : Xapian::RSet()) << ", " <<
 	      collapse_key_ << ", " <<
 	      percent_cutoff_ << ", " << weight_cutoff_ << ", " <<
 	      int(order_) << ", " << sort_key_ << ", " <<
