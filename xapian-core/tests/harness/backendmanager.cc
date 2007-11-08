@@ -58,7 +58,8 @@ BackendManager::index_files_to_database(Xapian::WritableDatabase & database,
  *  directory was created and false if it was already there.  Throws
  *  an exception if there was an error (eg not a directory).
  */
-bool create_dir_if_needed(const string &dirname)
+bool
+BackendManager::create_dir_if_needed(const string &dirname)
 {
     // create a directory if not present
     struct stat sbuf;

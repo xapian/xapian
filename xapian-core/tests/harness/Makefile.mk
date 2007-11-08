@@ -8,6 +8,7 @@ noinst_HEADERS +=\
 	harness/backendmanager_inmemory.h\
 	harness/backendmanager_quartz.h\
 	harness/backendmanager_local.h\
+	harness/backendmanager_multi.h\
 	harness/backendmanager_remoteprog.h\
 	harness/backendmanager_remotetcp.h\
 	harness/index_utils.h\
@@ -17,10 +18,11 @@ noinst_HEADERS +=\
 
 testharness_sources =\
 	harness/backendmanager.cc\
+	harness/backendmanager_multi.cc\
 	harness/index_utils.cc\
-	harness/unixcmds.cc\
 	harness/testsuite.cc\
-	harness/testutils.cc
+	harness/testutils.cc\
+	harness/unixcmds.cc
 
 if BUILD_BACKEND_FLINT
 testharness_sources += harness/backendmanager_flint.cc

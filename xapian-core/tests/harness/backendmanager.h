@@ -57,6 +57,8 @@ class BackendManager {
 				 const std::vector<std::string> & dbnames);
 
   protected:
+    bool create_dir_if_needed(const std::string &dirname);
+
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
     /// Get a writable inmemory database instance.
     Xapian::WritableDatabase getwritedb_inmemory(const std::vector<std::string> &dbnames);

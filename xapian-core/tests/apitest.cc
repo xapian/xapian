@@ -35,6 +35,7 @@ using namespace std;
 #include "backendmanager.h"
 #include "backendmanager_flint.h"
 #include "backendmanager_inmemory.h"
+#include "backendmanager_multi.h"
 #include "backendmanager_quartz.h"
 #include "backendmanager_remoteprog.h"
 #include "backendmanager_remotetcp.h"
@@ -153,6 +154,25 @@ int main(int argc, char **argv)
 	RUNTESTS("flint", multivalue);
 	RUNTESTS("flint", transactiondb);
 	RUNTESTS("flint", flint);
+
+	delete backendmanager;
+    }
+#endif
+
+#if defined(XAPIAN_HAS_FLINT_BACKEND) || defined(XAPIAN_HAS_QUARTZ_BACKEND)
+    if (USE_BACKEND(backend, "multi")) {
+	backendmanager = new BackendManagerMulti;
+	backendmanager->set_datadir(srcdir + "/testdata/");
+
+	RUNTESTS("multi", anydb);
+	RUNTESTS("multi", specchar);
+	RUNTESTS("multi", localdb);
+	RUNTESTS("multi", positionaldb);
+	RUNTESTS("multi", doclendb);
+	RUNTESTS("multi", collfreq);
+	RUNTESTS("multi", allterms);
+	RUNTESTS("multi", multivalue);
+	RUNTESTS("multi", flint);
 
 	delete backendmanager;
     }

@@ -537,6 +537,11 @@ static bool test_collapsekey2()
 // matches appropriately.
 static bool test_collapsekey3()
 {
+    // We get higher values for get_matches_lower_bound(), probably
+    // legitimately, but investigate to check this, and probably adjust
+    // the test so it can be run with the multi backend.  (FIXME)
+    SKIP_TEST_FOR_BACKEND("multi");
+
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("this"));
 
@@ -890,6 +895,7 @@ static bool test_specialterms2()
 // test that rsets behave correctly with multiDBs
 static bool test_rsetmultidb2()
 {
+    SKIP_TEST_FOR_BACKEND("multi");
     Xapian::Database mydb1(get_database("apitest_rset", "apitest_simpledata2"));
     Xapian::Database mydb2(get_database("apitest_rset"));
     mydb2.add_database(get_database("apitest_simpledata2"));
@@ -928,6 +934,7 @@ static bool test_rsetmultidb2()
 // tests an expand across multiple databases
 static bool test_multiexpand1()
 {
+    SKIP_TEST_FOR_BACKEND("multi");
     Xapian::Database mydb1(get_database("apitest_simpledata", "apitest_simpledata2"));
     Xapian::Enquire enquire1(mydb1);
 

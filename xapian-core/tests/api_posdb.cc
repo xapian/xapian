@@ -509,6 +509,7 @@ static bool test_poslist1()
 
 static bool test_poslist2()
 {
+    SKIP_TEST_FOR_BACKEND("multi"); // Needs WritableDatabase.
     Xapian::WritableDatabase db = get_writable_database();
 
     Xapian::Document doc;
@@ -566,6 +567,7 @@ static bool test_poslist2()
 /// (used to be quartztest's test_positionlist1).
 static bool test_poslist3()
 {
+    SKIP_TEST_FOR_BACKEND("multi"); // Needs WritableDatabase.
     Xapian::WritableDatabase db = get_writable_database();
 
     vector<Xapian::termpos> positions;

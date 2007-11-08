@@ -1,3 +1,16 @@
+Thu Nov 08 23:44:29 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/,tests/harness/: Add new "multi" test backend which indexes
+	  the specified text file(s) to two databases which will look just
+	  like the equivalent single database when searched together.  Since
+	  writing isn't supported, a number of tests which require this are
+	  disabled, as are any tests which explicitly use a multi-database
+	  since a multi-of-multis isn't equivalent to a multi of equivalent
+	  individual databases.  A handful of testcases are also currently
+	  disabled because they fail for reasons not yet fully explored.
+	  Existing tests run with the new backend provide regression tests
+	  for the two recent fixes.
+
 Thu Nov 08 23:42:33 GMT 2007  Olly Betts <olly@survex.com>
 
 	* backends/multi/multi_postlist.cc: Fix PostingIterator::skip_to()
