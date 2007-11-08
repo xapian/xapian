@@ -1,3 +1,9 @@
+Thu Nov 08 23:54:47 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/api_anydb.cc: Re-enable test case allpostlist1 for multi
+	  since it works fine (presumably thanks to the multi_postlist.cc
+	  fix.
+
 Thu Nov 08 23:44:29 GMT 2007  Olly Betts <olly@survex.com>
 
 	* tests/,tests/harness/: Add new "multi" test backend which indexes

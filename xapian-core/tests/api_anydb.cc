@@ -1775,7 +1775,6 @@ static bool test_checkatleast3()
 // tests all document postlists
 static bool test_allpostlist1()
 {
-    SKIP_TEST_FOR_BACKEND("multi"); // FIXME: buggy for multi
     Xapian::Database db(get_database("apitest_manydocs"));
     Xapian::PostingIterator i = db.postlist_begin("");
     unsigned int j = 1;
