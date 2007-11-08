@@ -20,20 +20,25 @@
 #include <config.h>
 
 #include "index_utils.h"
+
+#include "stringutils.h"
 #include "utils.h"
 
 #include <algorithm>
-#include <iostream>
+#include <cstring>
+#include <fstream>
+
+#include "safeerrno.h"
 
 using namespace std;
 
-// Read a paragraph from stream.
+/// Read a paragraph from stream @a input.
 static string
-get_paragraph(istream &from)
+get_paragraph(istream &input)
 {
     string para, line;
     while (true) {
-	getline(from, line);
+	getline(input, line);
 	if (find_if(line.begin(), line.end(), C_isnotspace) == line.end())
 	    return para;
 	para += line;
@@ -42,12 +47,14 @@ get_paragraph(istream &from)
 }
 
 Xapian::Document
-document_from_stream(istream &from)
+FileIndexer::next()
 {
+    if (input.eof()) next_file();
+
     Xapian::Stem stemmer("english");
 
     Xapian::Document doc;
-    string para = get_paragraph(from);
+    string para = get_paragraph(input);
     doc.set_data(para);
 
     // Value 0 contains all possible character values so we can check that
@@ -79,13 +86,14 @@ document_from_stream(istream &from)
     }
 
     Xapian::termcount pos = 0;
-    string::const_iterator end = para.begin();
+    string::const_iterator word_end = para.begin();
     // Need a const_iterator version of para.end() for find_if.
     const string::const_iterator para_end = para.end();
-    while (end != para_end) {
-	string::const_iterator start = find_if(end, para_end, C_isnotspace);
-	end = find_if(start, para_end, C_isspace);
-	string word = stemmer(munge_term(string(start, end)));
+    while (word_end != para_end) {
+	string::const_iterator word_start;
+	word_start = find_if(word_end, para_end, C_isnotspace);
+	word_end = find_if(word_start, para_end, C_isspace);
+	string word = stemmer(munge_term(string(word_start, word_end)));
 	if (!word.empty()) doc.add_posting(word, ++pos);
     }
 
@@ -143,3 +151,34 @@ munge_term(const string &term)
     }
     return result;
 }
+
+void
+FileIndexer::next_file()
+{
+    if (input.is_open()) input.close();
+
+    // Find the next non-empty filename.
+    while (file != end && (*file).empty()) {
+	++file;
+    }
+    if (file == end) return;
+
+    string filename;
+    if (!datadir.empty()) {
+	filename = datadir;
+	if (!endswith(datadir, '/')) filename += '/';
+    }
+    filename += *file++;
+    filename += ".txt";
+
+    input.open(filename.c_str());
+    if (!input) {
+	string msg = "Can't read file '";
+	msg += filename;
+	msg += "' for indexing (";
+	msg += strerror(errno);
+	msg += ')';
+	throw msg;
+    }
+}
+

@@ -50,28 +50,8 @@ void
 BackendManager::index_files_to_database(Xapian::WritableDatabase & database,
 					const vector<string> & dbnames)
 {
-    vector<string>::const_iterator p;
-    for (p = dbnames.begin(); p != dbnames.end(); ++p) {
-	if (p->empty()) continue;
-	string filename;
-	if (datadir.empty()) {
-	    filename = *p;
-	} else {
-	    filename = datadir;
-	    filename += '/';
-	    filename += *p;
-	    filename += ".txt";
-	}
-
-	ifstream from(filename.c_str());
-	if (!from)
-	    throw Xapian::DatabaseOpeningError("Cannot open file " + filename +
-		    " for indexing");
-
-	while (!from.eof()) {
-	    database.add_document(document_from_stream(from));
-	}
-    }
+    FileIndexer f(datadir, dbnames);
+    while (f) database.add_document(f.next());
 }
 
 /** Create the directory dirname if needed.  Returns true if the
