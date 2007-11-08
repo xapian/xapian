@@ -157,11 +157,13 @@ MultiPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
     DEBUGCALL(DB, PostList *, "MultiPostList::skip_to", did << ", " << w_min);
     Assert(!at_end());
     Xapian::docid newdoc = 0;
-    Xapian::docid offset = 1;
-    Xapian::docid realdid = (did - 1) / multiplier + 1;
+    Xapian::docid offset = 0;
+    Xapian::docid realdid = (did - 1) / multiplier + 2;
     Xapian::doccount dbnumber = (did - 1) % multiplier;
     std::vector<LeafPostList *>::iterator i;
     for (i = postlists.begin(); i != postlists.end(); i++) {	
+	if (offset == dbnumber) --realdid;
+	++offset;
 	Assert((realdid - 1) * multiplier + offset >= did);
 	Assert((realdid - 1) * multiplier + offset < did + multiplier);
 	if (!(*i)->at_end()) {
@@ -171,8 +173,6 @@ MultiPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 		if (newdoc == 0 || id < newdoc) newdoc = id;
 	    }
 	}
-	offset++;
-	if (offset == dbnumber) realdid--;
     }
     if (newdoc) {
 	currdoc = newdoc;

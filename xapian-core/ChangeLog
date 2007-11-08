@@ -1,3 +1,8 @@
+Thu Nov 08 23:42:33 GMT 2007  Olly Betts <olly@survex.com>
+
+	* backends/multi/multi_postlist.cc: Fix PostingIterator::skip_to()
+	  when running over multiple databases.  Regression test to follow.
+
 Thu Nov 08 23:37:51 GMT 2007  Olly Betts <olly@survex.com>
 
 	* docs/overview.html: Mention the "auto" backend.
