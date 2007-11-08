@@ -630,8 +630,16 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		    if (docs_matched >= check_at_least) {
 			if (sort_by == REL) {
 			    // We're done if this is a forward boolean match
-			    // (bodgetastic, FIXME better if we can)
-			    if (rare(max_weight == 0 && sort_forward)) break;
+			    // with only one database (bodgetastic, FIXME
+			    // better if we can!)
+			    if (rare(max_weight == 0 && sort_forward)) {
+				// In the multi database case, MergePostList
+				// currently processes each database
+				// sequentially (which actually may well be
+				// more efficient) so the docids in general
+				// won't arrive in order.
+				if (leaves.size() == 1) break;
+			    }
 			}
 			if (min_item.wt > min_weight) {
 			    DEBUGLINE(MATCH, "Setting min_weight to " <<
@@ -650,8 +658,16 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		if (sort_by == REL && items.size() == max_msize) {
 		    if (docs_matched >= check_at_least) {
 			// We're done if this is a forward boolean match
-			// (bodgetastic, FIXME better if we can)
-			if (rare(max_weight == 0 && sort_forward)) break;
+			// with only one database (bodgetastic, FIXME
+			// better if we can!)
+			if (rare(max_weight == 0 && sort_forward)) {
+			    // In the multi database case, MergePostList
+			    // currently processes each database
+			    // sequentially (which actually may well be
+			    // more efficient) so the docids in general
+			    // won't arrive in order.
+			    if (leaves.size() == 1) break;
+			}
 		    }
 		}
 	    }

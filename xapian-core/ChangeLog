@@ -1,3 +1,10 @@
+Thu Nov 08 23:28:30 GMT 2007  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Fix bug in handling a pure boolen match over
+	  more than one database under set_docid_order(ASCENDING) - we can't
+	  shortcut in this case because MergePostList generally doesn't return
+	  docids in order.  Regression test to follow.
+
 Thu Nov 08 21:07:09 GMT 2007  Olly Betts <olly@survex.com>
 
 	* matcher/queryoptimiser.cc: Fix comment typo.
