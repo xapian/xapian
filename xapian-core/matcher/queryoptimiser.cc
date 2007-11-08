@@ -223,9 +223,9 @@ QueryOptimiser::do_and_like(const Xapian::Query::Internal *query, double factor,
  *  selected.
  */
 struct CmpMaxOrTerms {
-    /** Return true if and only if a has a strictly greater termweight
-     *  than b; with the proviso that if the termfrequency
-     *  of the a or b is 0, the termweight is considered to be 0.
+    /** Return true if and only if a has a strictly greater termweight than b;
+     *  with the proviso that if the termfrequency of a or b is 0, then the
+     *  termweight is considered to be 0.
      *
      *  We use termfreq_max() because we really don't want to exclude a
      *  postlist which has a low but non-zero termfrequency: the estimate

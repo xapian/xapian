@@ -1,3 +1,7 @@
+Thu Nov 08 21:07:09 GMT 2007  Olly Betts <olly@survex.com>
+
+	* matcher/queryoptimiser.cc: Fix comment typo.
+
 Thu Nov 08 07:40:48 GMT 2007  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc: Don't use MultiPostList when there's only one
