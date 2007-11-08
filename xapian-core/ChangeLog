@@ -1,3 +1,7 @@
+Thu Nov 08 23:37:51 GMT 2007  Olly Betts <olly@survex.com>
+
+	* docs/overview.html: Mention the "auto" backend.
+
 Thu Nov 08 23:28:30 GMT 2007  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: Fix bug in handling a pure boolen match over

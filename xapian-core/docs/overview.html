@@ -221,6 +221,13 @@ flint /var/spool/xapian/webindex<br>
 The current types understood by Xapian are:
 </P>
 <TABLE>
+<TR><TD VALIGN="top"><B>auto</B></TD><TD>
+<P>
+This isn't an actual database format, but rather auto-detection of one of the
+disk based backends ("flint", "quartz", or "stub") from a single specified
+file or directory path.
+</P>
+</TD></TR>
 <TR><TD VALIGN="top"><B>flint</B></TD><TD>
 <P>
 Flint is a default backend as of Xapian 1.0. It supports incremental
