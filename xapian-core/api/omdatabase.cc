@@ -116,6 +116,11 @@ Database::postlist_begin(const string &tname) const
     // Don't bother checking that the term exists first.  If it does, we
     // just end up doing more work, and if it doesn't, we save very little
     // work.
+
+    // Handle the common case of a single database specially.
+    if (internal.size() == 1)
+	RETURN(PostingIterator(internal[0]->open_post_list(tname)));
+
     vector<LeafPostList *> pls;
     try {
 	vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
@@ -126,7 +131,7 @@ Database::postlist_begin(const string &tname) const
 	Assert(pls.begin() != pls.end());
     } catch (...) {
 	vector<LeafPostList *>::iterator i;
-	for (i = pls.begin(); i != pls.end(); i++) {
+	for (i = pls.begin(); i != pls.end(); ++i) {
 	    delete *i;
 	    *i = 0;
 	}
@@ -172,7 +177,7 @@ Database::allterms_begin(const std::string & prefix) const
 
     if (internal.size() == 1)
 	RETURN(TermIterator(internal[0]->open_allterms(prefix)));
- 
+
     vector<TermList *> lists;
 
     vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;

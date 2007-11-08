@@ -1,3 +1,8 @@
+Thu Nov 08 07:40:48 GMT 2007  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc: Don't use MultiPostList when there's only one
+	  subdatabase.
+
 Thu Nov 08 05:40:17 GMT 2007  Olly Betts <olly@survex.com>
 
 	* tests/api_db.cc: Run sortrel1 for inmemory too.
