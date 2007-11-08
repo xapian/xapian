@@ -1814,6 +1814,7 @@ test_desc localdb_tests[] = {
     {"postlist6",	   test_postlist6},
     {"termstats",	   test_termstats},
     {"sortvalue1",	   test_sortvalue1},
+    {"sortrel1",	   test_sortrel1},
     // consistency1 will run on the remote backend, but it's particularly slow
     // with that, and testing it there doesn't actually improve the test
     // coverage really.
@@ -1857,13 +1858,11 @@ test_desc flint_tests[] = {
     {"flintbackwardcompat1",		test_flintbackwardcompat1},
     {"flintbackwardcompat2",		test_flintbackwardcompat2},
     {"flintdatabaseopen1",		test_flintdatabaseopen1},
-    {"sortrel1",	   test_sortrel1},
     {0, 0}
 };
 
 test_desc quartz_tests[] = {
     {"quartzdatabaseopeningerror1",	test_quartzdatabaseopeningerror1},
     {"quartzdatabaseopen1",		test_quartzdatabaseopen1},
-    {"sortrel1",	   test_sortrel1},
     {0, 0}
 };

@@ -1,3 +1,7 @@
+Thu Nov 08 05:40:17 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/api_db.cc: Run sortrel1 for inmemory too.
+
 Thu Nov 08 03:43:50 GMT 2007  Olly Betts <olly@survex.com>
 
 	* tests/harness/backendmanager.cc,tests/harness/index_utils.cc,
