@@ -537,11 +537,6 @@ static bool test_collapsekey2()
 // matches appropriately.
 static bool test_collapsekey3()
 {
-    // We get higher values for get_matches_lower_bound(), probably
-    // legitimately, but investigate to check this, and probably adjust
-    // the test so it can be run with the multi backend.  (FIXME)
-    SKIP_TEST_FOR_BACKEND("multi");
-
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("this"));
 
@@ -565,16 +560,17 @@ static bool test_collapsekey3()
 	}
     }
 
-
-    // Test that if the collapse value is always empty, then the upper and
-    // lower bounds remain unchanged.  We do this by collapsing on value 1000
-    // which is never set in our test database.
+    // Test that if the collapse value is always empty, then the upper bound
+    // remains unchanged, and the lower bound is the same or lower (it can be
+    // lower because the matcher counts the number of documents with empty
+    // collapse keys, but may have rejected a document because its weight is
+    // too low for the proto-MSet before it even looks at its collapse key).
     {
 	Xapian::valueno value_no = 1000;
 	enquire.set_collapse_key(value_no);
 	Xapian::MSet mymset = enquire.get_mset(0, 3);
 
-	TEST_EQUAL(mymset.get_matches_lower_bound(), mymset1.get_matches_lower_bound());
+	TEST(mymset.get_matches_lower_bound() <= mymset1.get_matches_lower_bound());
 	TEST_EQUAL(mymset.get_matches_upper_bound(), mymset1.get_matches_upper_bound());
 
 	map<string, Xapian::docid> values;

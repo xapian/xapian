@@ -1,3 +1,9 @@
+Fri Nov 09 19:01:38 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/api_db.cc: collapsekey3 is too strict - even if the value
+	  never occurs, lower_bound may drop as we may reject potential
+	  matches before applying the collapse test.
+
 Fri Nov 09 16:36:39 GMT 2007  Olly Betts <olly@survex.com>
 
 	* include/xapian/termiterator.h: Clarify get_wdf() versus
