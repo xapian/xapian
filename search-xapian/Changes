@@ -11,8 +11,11 @@ Revision history for Perl extension Search::Xapian.
 	- If the Search::Xapian and xapian-config versions don't match, the
 	  usual warning is replaced by an error and exit with status 0 if
 	  $ENV{AUTOMATED_TESTING} is true.
-	- Emphasise in the README that bug reports should be sent to the
-	  xapian-discuss mailing list or Xapian bug tracker.
+	- Emphasise in the README and POD that bug reports should be sent to
+	  the xapian-discuss mailing list or Xapian bug tracker, not to the
+	  CPAN bug tracker or individual authors.
+	- "use Exporter 'import';" rather than inheriting from Exporter to
+	  avoid pulling other symbols in.
  
 1.0.4.0  Wed Oct 31 23:18:02 GMT 2007
 	[Changes contributed by Olly Betts]
