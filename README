@@ -15,13 +15,14 @@ To install this module type the following:
 By default, Makefile.PL looks for xapian-config on your PATH.  You can specify
 a path for xapian-config by passing XAPIAN_CONFIG=/path/to/xapian-config on
 the command line after Makefile.PL.  You can also specify a C++ compiler by
-passing CXX=/usr/local/bin/g++ after Makefile.PL.
+passing CXX=/usr/local/bin/g++ after Makefile.PL.  These values are stored
+in the generated Makefile and will be used if "make" causes "perl Makefile.PL"
+to be automatically rerun (e.g. if you modify Makefile.PL).
 
-For compatibility with Search::Xapian 1.0.3.0 and early, XAPIAN_CONFIG and
-CXX can also be specified as environmental variables, but specifying them on
-the command line is preferable because it means that they will automatically
-be preserved if Makefile.PL is modified and gets rerun automatically by
-the generated Makefile.
+(For compatibility with Search::Xapian 1.0.3.0 and early, XAPIAN_CONFIG and
+CXX can also be specified as environmental variables.  Specifying them on the
+command line is preferred because it avoids issues with differing syntax
+between shells and having to export variables).
 
 DEPENDENCIES
 
@@ -33,6 +34,8 @@ This module requires these other modules and libraries:
 COPYRIGHT AND LICENCE
 
 Please report any bugs/suggestions to <xapian-discuss@lists.xapian.org>
+or use the Xapian bug tracker <http://www.xapian.org/bugs/>.  Please do
+NOT use the CPAN bug tracker or mail any of the authors individually.
 
 Copyright (c) 2002,2003 Alex Bowley. All rights reserved.
 Copyright (c) 2003,2004,2005,2006,2007 Olly Betts. All rights reserved.
