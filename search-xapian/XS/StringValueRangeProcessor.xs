@@ -3,7 +3,7 @@ MODULE = Search::Xapian		PACKAGE = Search::Xapian::StringValueRangeProcessor
 PROTOTYPES: ENABLE
 
 StringValueRangeProcessor *
-new(const char * CLASS, valueno valno)
+StringValueRangeProcessor::new(valueno valno)
     CODE:
 	RETVAL = new StringValueRangeProcessor(valno);
     OUTPUT:
