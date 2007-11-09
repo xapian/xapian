@@ -1,9 +1,23 @@
 Revision history for Perl extension Search::Xapian.
 
+1.0.?.?  ???
+	[Changes contributed by Olly Betts]
+	- Suppress MakeMaker warnings if CXX and/or XAPIAN_CONFIG are
+	  specified.
+	- If CXX and/or XAPIAN_CONFIG are specified in the environment, we
+	  make sure that they are preserved in Makefile.PL is rerun.
+	- If xapian-config isn't found, Makefile.PL now exits with status 0
+	  which CPAN tester script understand to mean "missing dependencies".
+	- If the Search::Xapian and xapian-config versions don't match, the
+	  usual warning is replaced by an error and exit with status 0 if
+	  $ENV{AUTOMATED_TESTING} is true.
+	- Emphasise in the README that bug reports should be sent to the
+	  xapian-discuss mailing list or Xapian bug tracker.
+ 
 1.0.4.0  Wed Oct 31 23:18:02 GMT 2007
 	[Changes contributed by Olly Betts]
 	- Add all the POD pages to the "see also" on the main POD page.
-	- Fix typos and improve wording thoughout the POD documentation.
+	- Fix typos and improve wording throughout the POD documentation.
 	- Add POD documentation for ValueIterator.
 	- Makefile.PL now accepts XAPIAN_CONFIG and CXX on the command line
 	  (like autoconf configure scripts) and values specified here are

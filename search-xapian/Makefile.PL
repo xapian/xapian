@@ -2,26 +2,30 @@ use ExtUtils::MakeMaker;
 use strict;
 use Config;
 
+# Suppress warnings about parameters we allow the user to specify.
+$ExtUtils::MakeMaker::Recognized_Att_Keys{CXX} = 1;
+$ExtUtils::MakeMaker::Recognized_Att_Keys{XAPIAN_CONFIG} = 1;
+
 my $xapian_config;
 my $CC;
-my $expect_warn = 0;
 for (@ARGV) {
     if (/^XAPIAN_CONFIG=(.*)/) {
 	$xapian_config = $1;
-	++$expect_warn;
     } elsif (/^CXX=(.*)/) {
 	$CC = $1;
-	++$expect_warn;
     }
 }
-if ($expect_warn) {
-    print "Please ignore $expect_warn warning(s) about unknown MakeMaker parameter name(s).\n";
-}
 
-$xapian_config ||= $ENV{XAPIAN_CONFIG};
+if (!defined $xapian_config && exists $ENV{XAPIAN_CONFIG}) {
+    $xapian_config = $ENV{XAPIAN_CONFIG};
+    push @ARGV, "XAPIAN_CONFIG=$xapian_config";
+}
 $xapian_config ||= 'xapian-config';
 
-$CC ||= $ENV{"CXX"};
+if (!defined $CC && exists $ENV{CXX}) {
+    $CC = $ENV{CXX};
+    push @ARGV, "CXX=$CC";
+}
 $CC ||= 'g++';
 
 my $LD = '$(CC)';
@@ -35,10 +39,25 @@ if ($^O eq 'cygwin' and $CC eq 'g++') {
 
 my $xver = `$xapian_config --version`;
 if ($xver eq '') {
-    die "$xapian_config not found - if Xapian isn't installed on your PATH you can run as: perl Makefile.PL XAPIAN_CONFIG=/path/to/xapian-config\n";
+    print STDERR <<END;
+$xapian_config not found.
+
+You need Xapian installed before you can build Search::Xapian.  If you have
+installed Xapian from a package, you will also need to install the correspoding
+-dev or -devel package.  If Xapian is installed but xapian-config isn't on your
+PATH you can tell Makefile.PL this by running it like so:
+
+    perl Makefile.PL XAPIAN_CONFIG=/path/to/xapian-config
+END
+    # Perversely, the CPAN automatic testing script expects exit status 0 to
+    # indicate "can't build because of missing dependencies" (which it
+    # distinguishes from "all OK" by seeing if Makefile is generated).  So we
+    # exit with status 0 in this case to avoid being spammed with useless
+    # "bug" reports from testers without Xapian installed.
+    exit(0);
 }
 chomp($xver);
-$xver =~ s/.*\s//; # "xapian 0.9.3" -> "0.9.3"
+$xver =~ s/.*\s//; # "xapian 1.0.4" -> "1.0.4"
 
 my $inc = `$xapian_config --cxxflags`;
 chomp($inc);
@@ -108,7 +127,14 @@ close F;
 
 my ($BASEVERSION) = $VERSION =~ /^([0-9]+\.[0-9]+\.[0-9]+)/;
 if ($xver !~ /^\Q$BASEVERSION\E(?:_svn[0-9]+)?$/) {
-    warn "Warning: Xapian version $xver may be incompatible with Search::Xapian $VERSION\n";
+    my $msg = "Xapian version $xver may be incompatible with Search::Xapian $VERSION\n";
+    if ($ENV{AUTOMATED_TESTING}) {
+	# Don't let automated testers continue, as we don't want bogus failure
+	# reports due to builds with incompatible versions.
+	print $msg;
+	exit 0;
+    }
+    warn "Warning: $msg";
 }
 
 my @bad;
