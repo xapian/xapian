@@ -91,10 +91,15 @@ class XAPIAN_VISIBILITY_DEFAULT TermIterator {
 	void skip_to(const std::string & tname);
 
 	/** Return the wdf of the current term (if meaningful).
+	 *
+	 *  The wdf (within document frequency) is the number of occurences
+	 *  of a term in a particular document.
 	 */
 	Xapian::termcount get_wdf() const;
 
 	/** Return the term frequency of the current term (if meaningful).
+	 *
+	 *  The term frequency is the number of documents which a term indexes.
 	 */
 	Xapian::doccount get_termfreq() const;
 

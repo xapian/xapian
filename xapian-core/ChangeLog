@@ -1,3 +1,8 @@
+Fri Nov 09 16:36:39 GMT 2007  Olly Betts <olly@survex.com>
+
+	* include/xapian/termiterator.h: Clarify get_wdf() versus
+	  get_termfreq() in documentation comments.
+
 Fri Nov 09 00:07:02 GMT 2007  Olly Betts <olly@survex.com>
 
 	* tests/api_db.cc: Fix comment typo.
