@@ -3,7 +3,7 @@ MODULE = Search::Xapian		PACKAGE = Search::Xapian::NumberValueRangeProcessor
 PROTOTYPES: ENABLE
 
 NumberValueRangeProcessor *
-new(const char * CLASS, valueno valno, string str = NO_INIT, bool prefix = true)
+NumberValueRangeProcessor::new(valueno valno, string str = NO_INIT, bool prefix = true)
     CODE:
 	if (items == 2) {
 	    RETVAL = new NumberValueRangeProcessor(valno);

@@ -16,6 +16,8 @@ Revision history for Perl extension Search::Xapian.
 	  CPAN bug tracker or individual authors.
 	- "use Exporter 'import';" rather than inheriting from Exporter to
 	  avoid pulling other symbols in.
+	- Rejig the constructors of the ValueRangeProcessor subclasses so that
+	  they should work with Perl 5.6 too.
  
 1.0.4.0  Wed Oct 31 23:18:02 GMT 2007
 	[Changes contributed by Olly Betts]
