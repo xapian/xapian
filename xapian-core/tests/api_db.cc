@@ -511,7 +511,7 @@ static bool test_collapsekey1()
 static bool test_collapsekey2()
 {
     SKIP_TEST("Don't have a suitable database currently");
-    // FIXME: this need an appropriate database creating, but that's quite
+    // FIXME: this needs an appropriate database creating, but that's quite
     // subtle to do it seems.
     Xapian::Enquire enquire(get_database("apitest_simpledata2"));
     enquire.set_query(Xapian::Query("this"));
