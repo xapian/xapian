@@ -11,7 +11,7 @@ INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include \
 
 TESTS_ENVIRONMENT = ./runtest
 
-.PHONY: check-none check-inmemory \
+.PHONY: check-none check-inmemory check-multi \
         check-remote check-remoteprog check-remotetcp \
         check-flint check-quartz
 
@@ -28,6 +28,9 @@ check-none: apitest$(EXEEXT) \
 
 check-inmemory: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b inmemory
+
+check-multi: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b multi
 
 if BUILD_BACKEND_REMOTE
 check-remote: apitest$(EXEEXT)

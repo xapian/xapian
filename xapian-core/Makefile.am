@@ -25,7 +25,7 @@ bin_PROGRAMS =
 EXTRA_PROGRAMS =
 extra_cleandirs =
 
-.PHONY: check-none check-inmemory \
+.PHONY: check-none check-inmemory check-multi \
         check-remote check-remoteprog check-remotetcp \
         check-flint check-quartz
 
@@ -34,6 +34,9 @@ check-none:
 
 check-inmemory:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-inmemory
+
+check-multi:
+	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-multi
 
 if BUILD_BACKEND_REMOTE
 check-remote:
