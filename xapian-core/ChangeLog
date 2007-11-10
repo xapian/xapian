@@ -1,3 +1,9 @@
+Sat Nov 10 15:34:25 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/harness/testutils.cc,tests/harness/testutils.h:
+	  mset_expect_order_begins() is never used, so remove it.
+	* tests/harness/testutils.cc: Don't need <iostream>, only <fstream>.
+
 Sat Nov 10 11:09:22 GMT 2007  Olly Betts <olly@survex.com>
 
 	* docs/index.html: Add a list of documents on particular features and
