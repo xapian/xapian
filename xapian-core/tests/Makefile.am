@@ -165,6 +165,6 @@ EXTRA_DIST =\
 	testdata/flint-1.0.2/termlist.DB
 
 clean-local:
-	rm -rf .flint .quartz .quartztmp .btreetmp
+	rm -rf .flint .quartz .quartztmp .btreetmp .multi
 
 include harness/Makefile.mk
