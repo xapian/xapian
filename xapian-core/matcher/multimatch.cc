@@ -871,23 +871,26 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    items.clear();
 	} else {
 	    DEBUGLINE(MATCH, "finding " << first << "th");
-	    nth_element(items.begin(), items.begin() + first, items.end(),
-			mcmp);
-	    // Erase the leading ``first'' elements
-	    items.erase(items.begin(), items.begin() + first);
+	    // We perform nth_element() on reverse iterators so that the
+	    // unwanted elements end up at the end of items, which means
+	    // that the call to erase() to remove them doesn't have to copy
+	    // any elements.
+	    vector<Xapian::Internal::MSetItem>::reverse_iterator nth;
+	    nth = items.rbegin() + first;
+	    nth_element(items.rbegin(), nth, items.rend(), mcmp);
+	    // Erase the trailing ``first'' elements
+	    items.erase(items.begin() + items.size() - first, items.end());
 	}
     }
 
-    DEBUGLINE(MATCH, "msize = " << items.size());
+    DEBUGLINE(MATCH, "sorting " << items.size() << " entries");
+
+    // Need a stable sort, but this is provided by comparison operator
+    sort(items.begin(), items.end(), mcmp);
 
     if (!items.empty()) {
-	DEBUGLINE(MATCH, "sorting");
-
-	// Need a stable sort, but this is provided by comparison operator
-	sort(items.begin(), items.end(), mcmp);
-
-	DEBUGLINE(MATCH, "max weight in mset = " << items[0].wt <<
-		  ", min weight in mset = " << items.back().wt);
+	DEBUGLINE(MATCH, "min weight in mset = " << items.back().wt);
+	DEBUGLINE(MATCH, "max weight in mset = " << items[0].wt);
     }
 
     Assert(matches_estimated >= matches_lower_bound);

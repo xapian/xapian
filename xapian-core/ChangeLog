@@ -1,3 +1,10 @@
+Sat Nov 10 02:13:07 GMT 2007  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: If "first" is non-zero, then use nth_element
+	  with vector::reverse_iterator to partition items such that the
+	  unwanted ones are at the end not the start.  This means the call
+	  to vector::erase() no longer needs to copy all the wanted items.
+
 Fri Nov 09 19:01:38 GMT 2007  Olly Betts <olly@survex.com>
 
 	* tests/api_db.cc: collapsekey3 is too strict - even if the value
