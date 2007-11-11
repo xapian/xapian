@@ -1,3 +1,8 @@
+Sun Nov 11 07:51:57 GMT 2007  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Hide the v102 namespace from Doxygen
+	  as it isn't user visible.
+
 Sat Nov 10 21:53:21 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/Makefile.am: Remove .multi in clean-local rule; should fix
