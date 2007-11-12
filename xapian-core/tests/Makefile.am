@@ -80,7 +80,7 @@ check_SCRIPTS = runtest
 noinst_HEADERS = apitest.h
 
 apitest_SOURCES = apitest.cc api_nodb.cc api_posdb.cc api_db.cc api_wrdb.cc \
- api_anydb.cc api_transdb.cc api_unicode.cc $(testharness_sources)
+ api_anydb.cc api_sorting.cc api_transdb.cc api_unicode.cc $(testharness_sources)
 apitest_LDFLAGS = -no-install $(ldflags)
 apitest_LDADD = ../libgetopt.la ../libxapian.la
 

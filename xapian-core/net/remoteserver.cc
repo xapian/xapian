@@ -419,7 +419,7 @@ RemoteServer::msg_query(const string &message_in)
 
     MultiMatch match(*db, query.get(), qlen, &rset, collapse_key,
 		     percent_cutoff, weight_cutoff, order,
-		     sort_key, sort_by, sort_value_forward,
+		     sort_key, sort_by, sort_value_forward, NULL,
 		     NULL, gatherer, wt.get());
 
     send_message(REPLY_STATS, serialise_stats(gatherer->get_local_stats()));

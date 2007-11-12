@@ -26,6 +26,7 @@
 #include <xapian/database.h>
 #include <xapian/document.h>
 #include <xapian/enquire.h>
+#include <xapian/sorter.h>
 #include <xapian/query.h>
 #include <algorithm>
 #include <math.h>
@@ -44,7 +45,7 @@ class ErrorHandler;
 class TermIterator;
 
 namespace Internal {
- 
+
 /** An item in the ESet.
  *  This item contains the termname, and the weight calculated for
  *  the document.
@@ -167,6 +168,8 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 	Xapian::valueno sort_key;
 	sort_setting sort_by;
 	bool sort_value_forward;
+
+	Sorter * sorter;
 
 	/** The error handler, if set.  (0 if not set).
 	 */

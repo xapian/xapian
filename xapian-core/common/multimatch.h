@@ -58,6 +58,8 @@ class MultiMatch
 
 	bool sort_value_forward;
 
+	const Xapian::Sorter * sorter;
+
 	/// ErrorHandler
 	Xapian::ErrorHandler * errorhandler;
 
@@ -97,6 +99,7 @@ class MultiMatch
 	 *  @param qlen      The query length
 	 *  @param omrset    The relevance set (or NULL for no RSet)
 	 *  @param errorhandler Errorhandler object
+	 *  @param sorter    Xapian::Sorter functor (or NULL for no Sorter).
 	 *  @param gatherer_ A pointer to a StatsGatherer instance.
 	 *                   The MultiMatch takes ownership of the
 	 *                   StatsGatherer.
@@ -113,6 +116,7 @@ class MultiMatch
 		   Xapian::valueno sort_key_,
 		   Xapian::Enquire::Internal::sort_setting sort_by_,
 		   bool sort_value_forward_,
+		   const Xapian::Sorter * sorter_,
 		   Xapian::ErrorHandler * errorhandler,
 		   StatsGatherer * gatherer_,
 		   const Xapian::Weight *wtscheme);

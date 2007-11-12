@@ -133,6 +133,7 @@ int main(int argc, char **argv)
 	RUNTESTS("inmemory", collfreq);
 	RUNTESTS("inmemory", allterms);
 	RUNTESTS("inmemory", multivalue);
+	RUNTESTS("inmemory", sorter);
 
 	delete backendmanager;
     }
@@ -154,6 +155,7 @@ int main(int argc, char **argv)
 	RUNTESTS("flint", multivalue);
 	RUNTESTS("flint", transactiondb);
 	RUNTESTS("flint", flint);
+	RUNTESTS("flint", sorter);
 
 	delete backendmanager;
     }
@@ -173,6 +175,7 @@ int main(int argc, char **argv)
 	RUNTESTS("multi", allterms);
 	RUNTESTS("multi", multivalue);
 	RUNTESTS("multi", flint);
+	RUNTESTS("multi", sorter);
 
 	delete backendmanager;
     }
@@ -194,6 +197,7 @@ int main(int argc, char **argv)
 	RUNTESTS("quartz", multivalue);
 	RUNTESTS("quartz", transactiondb);
 	RUNTESTS("quartz", quartz);
+	RUNTESTS("quartz", sorter);
 
 	delete backendmanager;
     }

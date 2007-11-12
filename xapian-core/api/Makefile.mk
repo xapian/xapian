@@ -23,6 +23,7 @@ libxapian_la_SOURCES +=\
 	api/omvalueiterator.cc\
 	api/postlist.cc\
 	api/sortable-serialise.cc\
+	api/sorter.cc\
 	api/termlist.cc\
 	api/valuerangeproc.cc\
 	api/valuerangeproccompat.cc\

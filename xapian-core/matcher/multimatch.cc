@@ -85,6 +85,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 		       Xapian::valueno sort_key_,
 		       Xapian::Enquire::Internal::sort_setting sort_by_,
 		       bool sort_value_forward_,
+		       const Xapian::Sorter * sorter_,
 		       Xapian::ErrorHandler * errorhandler_,
 		       StatsGatherer * gatherer_,
 		       const Xapian::Weight * weight_)
@@ -92,7 +93,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	  collapse_key(collapse_key_), percent_cutoff(percent_cutoff_),
 	  weight_cutoff(weight_cutoff_), order(order_),
 	  sort_key(sort_key_), sort_by(sort_by_),
-	  sort_value_forward(sort_value_forward_),
+	  sort_value_forward(sort_value_forward_), sorter(sorter_),
 	  errorhandler(errorhandler_), weight(weight_),
 	  is_remote(db.internal.size())
 {
@@ -102,6 +103,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	      percent_cutoff_ << ", " << weight_cutoff_ << ", " <<
 	      int(order_) << ", " << sort_key_ << ", " <<
 	      int(sort_by_) << ", " << sort_value_forward_ << ", " <<
+	      sorter_ << ", " <<
 	      errorhandler_ << ", [gatherer_], [weight_]");
     if (!query) return;
 
@@ -476,7 +478,11 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    Xapian::doccount n = (new_item.did - 1) % multiplier; // which actual database
 	    Xapian::docid m = (new_item.did - 1) / multiplier + 1; // real docid in that database
 	    Xapian::Internal::RefCntPtr<Xapian::Document::Internal> doc(db.internal[n]->open_document(m, true));
-	    new_item.sort_key = doc->get_value(sort_key);
+	    if (sorter) {
+		new_item.sort_key = (*sorter)(Xapian::Document(doc.get()));
+	    } else {
+		new_item.sort_key = doc->get_value(sort_key);
+	    }
 
 	    // We're sorting by value (in part at least), so compare the item
 	    // against the lowest currently in the proto-mset.  If sort_by is
