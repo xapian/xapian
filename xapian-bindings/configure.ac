@@ -124,29 +124,18 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   if test -z "$SWIG" ; then
     AC_MSG_ERROR([Can't find SWIG utility])
   fi
-  dnl Check for swig >= 1.3.32
-  dnl (1.3.32 isn't released at the time of writing, but SWIG SVN trunk
-  dnl rev 9853 or later is required, and this identifies itself as 1.3.32).
+  dnl Check for swig >= 1.3.32 (SVN rev 10143):
   dnl
-  dnl 1.3.23 adds support for optional arguments in CSharp.
-  dnl 1.3.24 tweaks CSharp enums
-  dnl 1.3.26 fixes PHP overloading
-  dnl 1.3.27 contains a few fixes, none of which affect us
-  dnl 1.3.28 contains many useful fixes and changes - one thing we need it
-  dnl for is a ability to automatically rename method names for CSharp (e.g.
-  dnl get_description becomes getDescription).
-  dnl 1.3.29 fixes PHP to give an error if an overload can't be resolved
   dnl 1.3.30 produces class wrappers for PHP5
-  dnl You can see the latest SWIG changes here:
-  dnl http://cvs.sourceforge.net/viewcvs.py/*checkout*/swig/SWIG/CHANGES
-  dnl 1.3.32 fixes PHP5 wrappers for overloaded forms with default arguments
-  dnl and some problems with ZTS-enabled PHP builds (noted on
-  dnl Windows; Linux builds of PHP generally don't enable ZTS).
+  dnl 1.3.32 fixes PHP5 wrappers for overloaded forms with default arguments,
+  dnl memory leaks for PHP4 and PHP5, some problems with ZTS-enabled PHP builds
+  dnl (noted on Windows; Linux builds of PHP generally don't enable ZTS), and
+  dnl several other issues.
   v=`$SWIG -version 2>&1|sed 's/^SWIG Version \([[0-9\.]]*\).*/\1/p;d'`
   case $v in
     [1.3.[3-9][0-9]|1.3.[1-9][0-9][0-9][0-9]*|1.[4-9].*|2.*]) ;;
     *)
-      msg="SWIG >= 1.3.32 (SVN rev 9853 or later) required (you have ${v:-an unknown version})"
+      msg="SWIG >= 1.3.32 (SVN rev 10143 or later) required (you have ${v:-an unknown version})"
       if test -n "$swigoverridden" ; then
 	dnl If SWIG was explicitly set, make this a warning only.
 	AC_MSG_WARN([$msg])
