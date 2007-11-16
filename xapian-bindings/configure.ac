@@ -220,7 +220,7 @@ if test no != "$with_python" ; then
     *)
       AC_MSG_RESULT([$version (too old)])
       if test yes = "$with_python" ; then
-	AC_MSG_ERROR([Only python 2.1 or newer is supported ($python is $version)])
+	AC_MSG_ERROR([Only python 2.2 or newer is supported ($python is $version)])
       fi
       PYTHON=
       ;;
