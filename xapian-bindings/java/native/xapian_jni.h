@@ -29,6 +29,7 @@
 #define __XAPIAN_JNI_H__
 
 #include <jni.h>
+#include <cstring>
 #include <typeinfo>
 // Disable any deprecation warnings for Xapian methods/functions/classes.
 #define XAPIAN_DEPRECATED(D) D
