@@ -26,6 +26,7 @@
 
 #include "safeerrno.h"
 #include <stdio.h>
+#include <cstring>
 
 #ifdef HAVE_FORK
 # include <signal.h>
