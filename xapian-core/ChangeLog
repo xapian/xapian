@@ -1,3 +1,10 @@
+Tue Nov 20 10:22:28 GMT 2007  Olly Betts <olly@survex.com>
+
+	* bin/quartzcompact.cc: Recent GCC 4.3 snapshots thinks cf and tf
+	  might be used uninitialised.  They won't be, but we only need to
+	  initialise them once per run to silence the warning, so just do
+	  that.
+
 Tue Nov 20 10:20:13 GMT 2007  Olly Betts <olly@survex.com>
 
 	* bin/quartzcompact.cc: Fix equality testing of C strings to use

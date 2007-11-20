@@ -367,7 +367,8 @@ main(int argc, char **argv)
 		}
 
 		string last_key;
-		Xapian::termcount tf, cf;
+		// We only need to initialise tf and cf to shut up GCC warnings.
+		Xapian::termcount tf = 0, cf = 0;
 		vector<pair<Xapian::docid, string> > tags;
 		while (true) {
 		    PostlistCursor * bc = NULL;
