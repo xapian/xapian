@@ -72,6 +72,44 @@ const Xapian::Enquire::Internal::sort_setting VAL_REL =
 	Xapian::Enquire::Internal::VAL_REL;
 #endif
 
+/** Split an RSet into several sub rsets, one for each database.
+ *
+ *  @param rset The RSet to split.
+ *  @param number_of_subdbs The number of sub databases which exist.
+ *  @param subrsets Vector of RSets which will the sub rsets will be placed in.
+ *                  This should be empty when the function is called.
+ */
+static void
+split_rset_by_db(const Xapian::RSet * rset,
+		 Xapian::doccount number_of_subdbs,
+		 vector<Xapian::RSet> & subrsets)
+{
+    if (rset) {
+	if (number_of_subdbs == 1) {
+	    // The common case of a single database is easy to handle.
+	    subrsets.push_back(*rset);
+	} else {
+	    // Can't just use vector::resize() here, since that creates N
+	    // copies of the same RSet!
+	    subrsets.reserve(number_of_subdbs);
+	    for (size_t i = 0; i < number_of_subdbs; ++i) {
+		subrsets.push_back(Xapian::RSet());
+	    }
+
+	    const set<Xapian::docid> & items = rset->internal->get_items();
+	    set<Xapian::docid>::const_iterator j;
+	    for (j = items.begin(); j != items.end(); ++j) {
+		Xapian::doccount local_docid = (*j - 1) / number_of_subdbs + 1;
+		Xapian::doccount subdatabase = (*j - 1) % number_of_subdbs;
+		subrsets[subdatabase].add_document(local_docid);
+	    }
+	}
+    } else {
+	// NB vector::resize() creates N copies of the same empty RSet.
+	subrsets.resize(number_of_subdbs);
+    }
+}
+
 ////////////////////////////////////
 // Initialisation and cleaning up //
 ////////////////////////////////////
@@ -111,30 +149,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 
     vector<Xapian::RSet> subrsets;
     Xapian::doccount number_of_subdbs = db.internal.size();
-    if (omrset) {
-	if (number_of_subdbs == 1) {
-	    // The common case of a single database is easy to handle.
-	    subrsets.push_back(*omrset);
-	} else {
-	    // Can't just use vector::resize() here, since that creates N
-	    // copies of the same RSet!
-	    subrsets.reserve(number_of_subdbs);
-	    for (size_t i = 0; i < number_of_subdbs; ++i) {
-		subrsets.push_back(Xapian::RSet());
-	    }
-
-	    const set<Xapian::docid> & items = omrset->internal->get_items();
-	    set<Xapian::docid>::const_iterator j;
-	    for (j = items.begin(); j != items.end(); ++j) {
-		Xapian::doccount local_docid = (*j - 1) / number_of_subdbs + 1;
-		Xapian::doccount subdatabase = (*j - 1) % number_of_subdbs;
-		subrsets[subdatabase].add_document(local_docid);
-	    }
-	}
-    } else {
-	// NB vector::resize() creates N copies of the same empty RSet.
-	subrsets.resize(number_of_subdbs);
-    }
+    split_rset_by_db(omrset, number_of_subdbs, subrsets);
 
     Assert(subrsets.size() == number_of_subdbs);
 

@@ -1,3 +1,9 @@
+Tue Nov 20 18:23:53 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/multimatch.cc: Refactor code which splits the RSet into
+	  sub RSets (one for each sub database) into a separate function.
+	  No functional change.
+
 Tue Nov 20 17:56:47 GMT 2007  Olly Betts <olly@survex.com>
 
 	* common/remoteserver.h: Remove unused '#include "omassert.h"'.
