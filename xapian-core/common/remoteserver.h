@@ -25,7 +25,6 @@
 #include <xapian/database.h>
 #include <xapian/visibility.h>
 
-#include "omassert.h"
 #include "remoteconnection.h"
 #include "stats.h"
 
