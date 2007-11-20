@@ -1,3 +1,13 @@
+Mon Nov 19 23:54:53 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/flint/flint_postlist.cc,backends/quartz/quartz_postlist.cc:
+	  Add NORETURN macro to report_read_error(); fixes warnings from
+	  GCC 4.3 about possibly uninitialised values.  Reorder header
+	  includes to follow proposed policy.
+	* backends/flint/flint_postlist.h: Add include of omdebug.h which
+	  previously needed to be done before including this.  Tidy up
+	  order of includes.
+
 Mon Nov 12 14:06:38 GMT 2007  Olly Betts <olly@survex.com>
 
 	* api/Makefile.mk,api/omenquire.cc,api/sorter.cc,common/multimatch.h,
