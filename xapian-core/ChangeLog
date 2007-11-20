@@ -1,3 +1,15 @@
+Tue Nov 20 01:25:22 GMT 2007  Olly Betts <olly@survex.com>
+
+	* api/maptermlist.h,api/termlist.cc,backends/alltermslist.cc,
+	  backends/flint/flint_spelling.cc,backends/flint/flint_spelling.h,
+	  common/alltermslist.h,common/termlist.h,common/vectortermlist.h:
+	  Provide a default implementation of accumulate_stats() in the
+	  virtual base class TermIterator::Internal instead of repeating it
+	  in each subclass which doesn't get used for generating an ESet, and
+	  don't call abort() in the default implementation - an Assert(false)
+	  is sufficient, and more consistent with how we handle other similar
+	  cases.
+
 Tue Nov 20 01:24:17 GMT 2007  Olly Betts <olly@survex.com>
 
 	* bin/xapian-progsrv.cc: Add missing '#include <cstdlib>'.

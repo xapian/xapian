@@ -142,8 +142,6 @@ class FlintSpellingTermList : public TermList {
 
     Xapian::termcount get_approx_size() const;
 
-    void accumulate_stats(Xapian::Internal::ExpandStats & stats) const;
-
     std::string get_termname() const;
 
     Xapian::termcount get_wdf() const;

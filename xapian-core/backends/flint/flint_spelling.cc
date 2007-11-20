@@ -507,12 +507,6 @@ FlintSpellingTermList::get_approx_size() const
     return data.size();
 }
 
-void
-FlintSpellingTermList::accumulate_stats(Xapian::Internal::ExpandStats &) const
-{
-    throw Xapian::UnimplementedError("FlintSpellingTermList::accumulate_stats() not implemented");
-}
-
 std::string
 FlintSpellingTermList::get_termname() const
 {

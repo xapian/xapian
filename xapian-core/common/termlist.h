@@ -56,7 +56,7 @@ class Xapian::TermIterator::Internal : public Xapian::Internal::RefCntBase {
     virtual Xapian::termcount get_approx_size() const = 0;
 
     /// Collate weighting information for the current term.
-    virtual void accumulate_stats(Xapian::Internal::ExpandStats & stats) const = 0;
+    virtual void accumulate_stats(Xapian::Internal::ExpandStats & stats) const;
 
     /// Return the termname at the current position.
     virtual std::string get_termname() const = 0;
