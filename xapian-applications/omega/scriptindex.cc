@@ -32,6 +32,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <cstring>
 
 #include "safeerrno.h"
 #include <stdio.h>

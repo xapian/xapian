@@ -21,18 +21,19 @@
  */
 
 #include <config.h>
+#include "htmlparse.h"
 
 #include <xapian.h>
+
+#include "utf8convert.h"
 
 #include <algorithm>
 using std::find;
 using std::find_if;
+#include <ctype.h>
+#include <cstring>
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
-
-#include "htmlparse.h"
-#include "utf8convert.h"
 
 map<string, unsigned int> HtmlParser::named_ents;
 

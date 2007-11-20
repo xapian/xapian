@@ -20,10 +20,11 @@
 
 #include <config.h>
 
+#include <xapian.h>
+
+#include <cstring>
 #include <iostream>
 #include <string>
-
-#include <xapian.h>
 
 using namespace std;
 
