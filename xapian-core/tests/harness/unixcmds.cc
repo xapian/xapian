@@ -22,6 +22,7 @@
 
 #include "unixcmds.h"
 
+#include <cstring>
 #include <string>
 #include <stdlib.h>
 #include <sys/types.h>
