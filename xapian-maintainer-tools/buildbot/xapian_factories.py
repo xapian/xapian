@@ -49,6 +49,23 @@ def gen_svn_updated_factory(baseURL):
     f.addStep(step.Test, name="check", command=("make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="))
     return f
 
+def gen_svn_gccsnapshot_updated_factory(baseURL):
+    """
+    Make a factory for doing HEAD build from SVN, but without cleaning
+    first, using gcc snapshot.  Also uses compiles with logging and assertions.
+    """
+    f = factory.BuildFactory()
+    f.addStep(step.SVN, baseURL=baseURL, defaultBranch='trunk', mode="update")
+    f.addStep(Bootstrap)
+    f.addStep(step.Configure,
+              command=("sh", "configure", "--enable-assertions",
+                       "--enable-log", "CXX=/usr/lib/gcc-snapshot/bin/g++",
+                       "CC=/usr/lib/gcc-snapshot/bin/gcc",
+                      ))
+    f.addStep(step.Compile)
+    f.addStep(step.Test, name="check", command=("make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="))
+    return f
+
 def gen_svn_debug_updated_factory(baseURL, *opts):
     """
     Make a factory for doing a debug HEAD build from SVN, but without cleaning
