@@ -110,6 +110,58 @@ split_rset_by_db(const Xapian::RSet * rset,
     }
 }
 
+/** Prepare some SubMatches.
+ *
+ *  This calls the prepare_match() method on each SubMatch object, causing them
+ *  to lookup various statistics.
+ *
+ *  This method is rather complicated in order to handle remote matches
+ *  efficiently.  Instead of simply calling "prepare_match()" on each submatch
+ *  and waiting for it to return, it first calls "prepare_match(true)" on each
+ *  submatch.  If any of these calls return false, indicating that the required
+ *  information has not yet been received from the server, the method will try
+ *  those which returned false again, passing "false" as a parameter to
+ *  indicate that they should block until the information is ready.
+ *
+ *  This should improve performance in the case of mixed local-and-remote
+ *  searches - the local searchers will all fetch their statistics from disk
+ *  without waiting for the remote searchers, so as soon as the remote searcher
+ *  statistics arrive, we can move on to the next step.
+ */
+static void
+prepare_sub_matches(std::vector<Xapian::Internal::RefCntPtr<SubMatch> > & leaves,
+		    Xapian::ErrorHandler * errorhandler)
+{
+    // We use a vector<bool> to track which SubMatches we're already prepared.
+    vector<bool> prepared;
+    prepared.resize(leaves.size(), false);
+    size_t unprepared = leaves.size();
+    bool nowait = true;
+    while (unprepared) {
+	for (size_t leaf = 0; leaf < leaves.size(); ++leaf) {
+	    if (prepared[leaf]) continue;
+	    try {
+		if (leaves[leaf]->prepare_match(nowait)) {
+		    prepared[leaf] = true;
+		    --unprepared;
+		}
+	    } catch (Xapian::Error & e) {
+		if (!errorhandler) throw;
+
+		DEBUGLINE(EXCEPTION, "Calling error handler for prepare_match() on a SubMatch.");
+		(*errorhandler)(e);
+		// Continue match without this sub-match.
+		leaves[leaf] = new EmptySubMatch();
+		prepared[leaf] = true;
+		--unprepared;
+	    }
+	}
+	// Use blocking IO on subsequent passes, so that we don't go into
+	// a tight loop.
+	nowait = false;
+    }
+}
+
 ////////////////////////////////////
 // Initialisation and cleaning up //
 ////////////////////////////////////
@@ -150,7 +202,6 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
     vector<Xapian::RSet> subrsets;
     Xapian::doccount number_of_subdbs = db.internal.size();
     split_rset_by_db(omrset, number_of_subdbs, subrsets);
-
     Assert(subrsets.size() == number_of_subdbs);
 
     for (size_t i = 0; i != number_of_subdbs; ++i) {
@@ -188,34 +239,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 
     gatherer->set_global_stats(omrset ? omrset->size() : 0);
 
-    // We use a vector<bool> to track which SubMatches we're already prepared.
-    vector<bool> prepared;
-    prepared.resize(leaves.size(), false);
-    size_t unprepared = leaves.size();
-    bool nowait = true;
-    while (unprepared) {
-	for (size_t leaf = 0; leaf < leaves.size(); ++leaf) {
-	    if (prepared[leaf]) continue;
-	    try {
-		if (leaves[leaf]->prepare_match(nowait)) {
-		    prepared[leaf] = true;
-		    --unprepared;
-		}
-	    } catch (Xapian::Error & e) {
-		if (!errorhandler) throw;
-
-		DEBUGLINE(EXCEPTION, "Calling error handler for prepare_match() on a SubMatch.");
-		(*errorhandler)(e);
-		// Continue match without this sub-match.
-		leaves[leaf] = new EmptySubMatch();
-		prepared[leaf] = true;
-		--unprepared;
-	    }
-	}
-	// Use blocking IO on subsequent passes, so that we don't go into
-	// a tight loop.
-	nowait = false;
-    }
+    prepare_sub_matches(leaves, errorhandler);
 }
 
 string

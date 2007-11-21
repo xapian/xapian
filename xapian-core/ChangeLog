@@ -1,3 +1,8 @@
+Wed Nov 21 10:00:48 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/multimatch.cc: Split the loop which calls prepare_match()
+	  out of the constructor into a separate static function.
+
 Tue Nov 20 18:23:53 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* matcher/multimatch.cc: Refactor code which splits the RSet into
