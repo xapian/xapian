@@ -61,9 +61,6 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
      */
     Xapian::timeout idle_timeout;
 
-    /// Global stats passed from the client and used in the match.
-    Stats global_stats;
-
     /// Registered weighting schemes.
     map<string, Xapian::Weight *> wtschemes;
 
@@ -158,9 +155,6 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
 
     /// Destructor.
     ~RemoteServer();
-
-    /// Return global Stats object.
-    const Stats & get_global_stats() { return global_stats; }
 
     /** Repeatedly accept messages from the client and process them.
      *

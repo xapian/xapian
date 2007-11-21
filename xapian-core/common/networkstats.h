@@ -2,6 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002,2003,2006 Olly Betts
+ * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,32 +36,32 @@ class NetworkStatsGatherer : public StatsGatherer {
 	/// Flag indicating that the global stats are uptodate.
 	mutable bool have_global_stats;
 
-	/** The RemoteServer object using us.
-	 *  It is used to communicate with the remote statistics
-	 *  node.
-	 */
-	RemoteServer *nserv;
-
-	/** Fetch the global statistics, once we have all the
-	 *  local ones.
-	 *  The object will use the RemoteServer to do the exchange.
-	 */
-	void fetch_global_stats() const;
-
 	/** Gather all the local statistics.
 	 */
 	void fetch_local_stats() const;
 
     public:
-	NetworkStatsGatherer(RemoteServer *nserv);
+	NetworkStatsGatherer();
 
-	/// See StatsGatherer::get_stats()
+	/** See StatsGatherer::get_stats()
+	 */
 	const Stats *get_stats() const;
 
 	/** Gather and return the local statistics (ready to send
-	 *  to the remote end)
+	 *  to the remote end).
 	 */
 	Stats get_local_stats() const;
+
+	/** Set the global statistics to store in this gatherer.
+	 *
+	 *  This should be called with the global statistics received from the
+	 *  remote end.
+	 *
+	 *  This overrides any local statistics which are already stored in the
+	 *  gatherer - they should be included in the global statistics
+	 *  supplied.
+	 */
+	void set_global_stats(const Stats & stats) const;
 
 	/** Ignore the rset size - we need to get it from the
 	 *  remote end.

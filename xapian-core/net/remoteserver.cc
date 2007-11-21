@@ -415,7 +415,7 @@ RemoteServer::msg_query(const string &message_in)
     // Unserialise the RSet object.
     Xapian::RSet rset = unserialise_rset(string(p, p_end - p));
 
-    NetworkStatsGatherer * gatherer = new NetworkStatsGatherer(this);
+    NetworkStatsGatherer * gatherer = new NetworkStatsGatherer();
 
     MultiMatch match(*db, query.get(), qlen, &rset, collapse_key,
 		     percent_cutoff, weight_cutoff, order,
@@ -455,7 +455,7 @@ RemoteServer::msg_query(const string &message_in)
     }
 
     message.erase(0, message.size() - (p_end - p));
-    global_stats = unserialise_stats(message);
+    gatherer->set_global_stats(unserialise_stats(message));
 
     Xapian::MSet mset;
     match.get_mset(first, maxitems, check_at_least, mset, 0, 0);
