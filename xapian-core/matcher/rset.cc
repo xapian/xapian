@@ -37,7 +37,7 @@ RSetI::calculate_stats()
     Assert(!calculated_reltermfreqs);
     std::set<Xapian::docid>::const_iterator doc;
     for (doc = documents.begin(); doc != documents.end(); doc++) {
-	DEBUGLINE(WTCALC, "document " << *doc << " [ ");
+	DEBUGLINE(WTCALC, "Counting reltermfreqs in document " << *doc << " [ ");
 	if (dbroot) {
 	    AutoPtr<TermList> tl =
 		AutoPtr<TermList>(dbroot->open_term_list(*doc));
@@ -47,9 +47,10 @@ RSetI::calculate_stats()
 		// Store termnames in a hash for each document, rather than
 		// a list?
 		string tname = tl->get_termname();
-		DEBUGLINE(WTCALC, tname << ", ");
-		if (reltermfreqs.find(tname) != reltermfreqs.end())
+		if (reltermfreqs.find(tname) != reltermfreqs.end()) {
 		    reltermfreqs[tname] ++;
+		    DEBUGLINE(WTCALC, tname << " now has reltermfreq of " << reltermfreqs[tname]);
+		}
 		tl->next();
 	    }
 	} else {
@@ -60,15 +61,15 @@ RSetI::calculate_stats()
 		// Store termnames in a hash for each document, rather than
 		// a list?
 		string tname = *tl;
-		DEBUGLINE(WTCALC, tname << ", ");
-		if (reltermfreqs.find(tname) != reltermfreqs.end())
+		if (reltermfreqs.find(tname) != reltermfreqs.end()) {
 		    reltermfreqs[tname] ++;
+		    DEBUGLINE(WTCALC, tname << " now has reltermfreq of " << reltermfreqs[tname]);
+		}
 		tl++;
 	    }
 	}
 	DEBUGLINE(WTCALC, "] ");
     }
-    DEBUGLINE(WTCALC, "done");
     calculated_reltermfreqs = true;
 }
 
