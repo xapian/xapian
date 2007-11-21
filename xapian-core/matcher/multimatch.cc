@@ -84,6 +84,10 @@ split_rset_by_db(const Xapian::RSet * rset,
 		 Xapian::doccount number_of_subdbs,
 		 vector<Xapian::RSet> & subrsets)
 {
+    DEBUGCALL_STATIC(MATCH, void, "split_rset_by_db",
+		     (rset ? *rset : Xapian::RSet()) <<
+		     ", " << number_of_subdbs <<
+		     ", [subrsets(size=" << subrsets.size() << "]");
     if (rset) {
 	if (number_of_subdbs == 1) {
 	    // The common case of a single database is easy to handle.
@@ -108,6 +112,7 @@ split_rset_by_db(const Xapian::RSet * rset,
 	// NB vector::resize() creates N copies of the same empty RSet.
 	subrsets.resize(number_of_subdbs);
     }
+    Assert(subrsets.size() == number_of_subdbs);
 }
 
 /** Prepare some SubMatches.
@@ -132,6 +137,9 @@ static void
 prepare_sub_matches(std::vector<Xapian::Internal::RefCntPtr<SubMatch> > & leaves,
 		    Xapian::ErrorHandler * errorhandler)
 {
+    DEBUGCALL_STATIC(MATCH, void, "prepare_sub_matches",
+		     "[leaves(size=" << leaves.size() << ")], " <<
+		     errorhandler);
     // We use a vector<bool> to track which SubMatches we're already prepared.
     vector<bool> prepared;
     prepared.resize(leaves.size(), false);
@@ -195,14 +203,13 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	      int(sort_by_) << ", " << sort_value_forward_ << ", " <<
 	      sorter_ << ", " <<
 	      errorhandler_ << ", [gatherer_], [weight_]");
-    if (!query) return;
 
+    if (!query) return;
     query->validate_query();
 
-    vector<Xapian::RSet> subrsets;
     Xapian::doccount number_of_subdbs = db.internal.size();
+    vector<Xapian::RSet> subrsets;
     split_rset_by_db(omrset, number_of_subdbs, subrsets);
-    Assert(subrsets.size() == number_of_subdbs);
 
     for (size_t i = 0; i != number_of_subdbs; ++i) {
 	Xapian::Database::Internal *subdb = db.internal[i].get();

@@ -1,3 +1,8 @@
+Wed Nov 21 13:21:35 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/multimatch.cc: Add DEBUGCALL_STATIC macros to the new
+	  functions, and tidy some code in the constructor slightly.
+
 Wed Nov 21 10:00:48 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* matcher/multimatch.cc: Split the loop which calls prepare_match()
