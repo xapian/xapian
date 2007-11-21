@@ -19,11 +19,21 @@
  */
 
 #include <config.h>
+#include "remotesubmatch.h"
 
 #include "msetpostlist.h"
-#include "remote-database.h"
-#include "remotesubmatch.h"
 #include "networkstats.h"
+#include "omdebug.h"
+#include "remote-database.h"
+
+RemoteSubMatch::RemoteSubMatch(RemoteDatabase *db_, StatsGatherer *gatherer_,
+			       bool decreasing_relevance_)
+	: db(db_), gatherer(gatherer_), stats_source(gatherer_, db_),
+	  decreasing_relevance(decreasing_relevance_)
+{
+    DEBUGCALL(MATCH, void, "RemoteSubMatch",
+	      db_ << ", [gatherer_], " << decreasing_relevance_);
+}
 
 bool
 RemoteSubMatch::prepare_match(bool nowait)
