@@ -46,6 +46,7 @@ class RSetI {
 
 	std::map<string, Xapian::doccount> reltermfreqs;
 	bool calculated_reltermfreqs;
+	void calculate_stats();
     public:
 	std::set<Xapian::docid> documents;
 
@@ -54,7 +55,6 @@ class RSetI {
 
 	void will_want_reltermfreq(string tname);
 
-	void calculate_stats();
 	void give_stats_to_statssource(Xapian::Weight::Internal *statssource);
 
 	Xapian::doccount get_rsize() const;

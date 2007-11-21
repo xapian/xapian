@@ -73,8 +73,6 @@ LocalSubMatch::prepare_match(bool /*nowait*/)
 	rset.will_want_reltermfreq(*terms);
     }
 
-    // FIXME: is there's no RSet, we probably can skip this stuff.
-    rset.calculate_stats();
     rset.give_stats_to_statssource(&statssource);
     RETURN(true);
 }

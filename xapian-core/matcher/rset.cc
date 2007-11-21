@@ -77,7 +77,7 @@ void
 RSetI::give_stats_to_statssource(Xapian::Weight::Internal *statssource)
 {
     DEBUGCALL(MATCH, void, "RSetI::give_stats_to_statssource", statssource);
-    Assert(calculated_reltermfreqs);
+    calculate_stats();
 
     std::map<string, Xapian::doccount>::const_iterator i;
     for (i = reltermfreqs.begin(); i != reltermfreqs.end(); i++) {

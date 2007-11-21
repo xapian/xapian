@@ -1,3 +1,11 @@
+Wed Nov 21 15:26:11 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/rset.h,matcher/localmatch.cc,matcher/rset.cc: Make
+	  RSet::calculate_stats() private, and call it only from
+	  RSet::give_stats_to_statssource().  Was previously called
+	  directly from localmatch.cc, but this way it's clear that it's
+	  only called once.
+
 Wed Nov 21 14:30:17 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* matcher/remotesubmatch.h: Move implementation of constructor into
