@@ -2,6 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2003,2005,2006 Olly Betts
+ * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -46,6 +47,10 @@ class RSetI {
 
 	std::map<string, Xapian::doccount> reltermfreqs;
 	bool calculated_reltermfreqs;
+
+	/// Calculate the statistics.
+	///
+	/// This should be called only once.
 	void calculate_stats();
     public:
 	std::set<Xapian::docid> documents;
@@ -53,12 +58,20 @@ class RSetI {
 	RSetI(const Xapian::Database &root_, const Xapian::RSet & rset);
 	RSetI(const Xapian::Database::Internal *dbroot_, const Xapian::RSet & rset);
 
+	/// Mark a term for calculation of the reltermfreq.
+	///
+	/// @param tname The term for which the reltermfreq is desired.
 	void will_want_reltermfreq(string tname);
 
+	/// Calculate the statistics, and pass them to a statssource.
+	///
+	/// This method must only be called once for a given RSet.
+	///
+	/// @param statssource The statssource to pass the weights to.
 	void give_stats_to_statssource(Xapian::Weight::Internal *statssource);
 
+	/// Get the number of documents in the RSet.
 	Xapian::doccount get_rsize() const;
-	Xapian::doccount get_reltermfreq(string tname) const;
 };
 
 ///////////////////////////////
@@ -81,16 +94,6 @@ RSetI::RSetI(const Xapian::Database::Internal *dbroot_, const Xapian::RSet & rse
 {
 }
 
-#if 0
-inline void
-RSetI::add_document(Xapian::docid did)
-{
-    Assert(!calculated_reltermfreqs);
-    Assert(!documents[did]);
-    documents.insert(did);
-}
-#endif
-
 inline void
 RSetI::will_want_reltermfreq(string tname)
 {
@@ -101,18 +104,6 @@ inline Xapian::doccount
 RSetI::get_rsize() const
 {
     return documents.size();
-}
-
-inline Xapian::doccount
-RSetI::get_reltermfreq(string tname) const
-{
-    Assert(calculated_reltermfreqs);
-
-    std::map<string, Xapian::doccount>::const_iterator rfreq;
-    rfreq = reltermfreqs.find(tname);
-    Assert(rfreq != reltermfreqs.end());
-
-    return rfreq->second;
 }
 
 #endif /* OM_HGUARD_RSET_H */
