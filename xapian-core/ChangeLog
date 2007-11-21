@@ -1,3 +1,9 @@
+Wed Nov 21 14:30:17 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/remotesubmatch.h: Move implementation of constructor into
+	  .cc file (accidentally missed this file from the last-but-one
+	  commit, which did the necessary changes to the .cc file).
+
 Wed Nov 21 14:28:48 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* matcher/rset.cc: Improve debugging messages.

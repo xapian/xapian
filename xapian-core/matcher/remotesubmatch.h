@@ -51,11 +51,8 @@ class RemoteSubMatch : public SubMatch {
 
   public:
     /// Constructor.
-    RemoteSubMatch(RemoteDatabase *db_, StatsGatherer *gatherer_, bool decreasing_relevance_)
-	: db(db_), gatherer(gatherer_), stats_source(gatherer_, db_),
-	  decreasing_relevance(decreasing_relevance_)
-    {
-    }
+    RemoteSubMatch(RemoteDatabase *db_, StatsGatherer *gatherer_,
+		   bool decreasing_relevance_);
 
     /// Fetch and collate statistics.
     bool prepare_match(bool nowait);
