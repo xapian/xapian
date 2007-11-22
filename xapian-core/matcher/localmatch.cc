@@ -89,9 +89,15 @@ LocalSubMatch::get_postlist_and_term_info(MultiMatch * matcher,
 {
     DEBUGCALL(MATCH, PostList *, "LocalSubMatch::get_postlist_and_term_info",
 	      matcher << ", [termfreqandwts]");
+
+    // First, get the statistics into the statssource.
+    statssource.perform_request();
+
+    // Build the postlist tree for the query.  This calls
+    // LocalSubMatch::postlist_from_op_leaf_query() for each term in the query,
+    // which builds term_info as a side effect.
     QueryOptimiser opt(*db, *this, matcher);
     PostList * pl = opt.optimise_query(&orig_query);
-    // postlist_from_op_leaf_query builds the term_info.
     if (termfreqandwts) *termfreqandwts = term_info;
 
     // We only need an ExtraWeightPostList if there's an extra weight

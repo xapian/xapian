@@ -144,20 +144,21 @@ class Xapian::Weight::Internal {
 	 */
 	mutable const Stats * total_stats;
 
+    public:
 	/** Perform the request for the needed information.  This involves
 	 *  passing our information to the gatherer, and then getting the
 	 *  result back.
 	 */
 	void perform_request() const;
-    public:
+
 	/// Constructor
 	Internal(StatsGatherer *gatherer_) : gatherer(gatherer_), total_stats(0)
 	{
 	    gatherer->add_child(this);
 	}
 
-	/// Virtual destructor
-	virtual ~Internal() {
+	/// Destructor
+	~Internal() {
 	    gatherer->remove_child(this);
 	}
 
@@ -308,21 +309,21 @@ Xapian::Weight::Internal::my_reltermfreq_is(const string & tname, Xapian::doccou
 inline Xapian::doccount
 Xapian::Weight::Internal::get_total_collection_size() const
 {
-    if (total_stats == 0) perform_request();
+    Assert(total_stats != 0);
     return total_stats->collection_size;
 }
 
 inline Xapian::doccount
 Xapian::Weight::Internal::get_total_rset_size() const
 {
-    if (total_stats == 0) perform_request();
+    Assert(total_stats != 0);
     return total_stats->rset_size;
 }
 
 inline Xapian::doclength
 Xapian::Weight::Internal::get_total_average_length() const
 {
-    if (total_stats == 0) perform_request();
+    Assert(total_stats != 0);
     return total_stats->average_length;
 }
 
@@ -331,7 +332,7 @@ Xapian::Weight::Internal::get_total_termfreq(const string & tname) const
 {
     // We pass an empty string for tname when calculating the extra weight.
     if (tname.empty()) return 0;
-    if (total_stats == 0) perform_request();
+    Assert(total_stats != 0);
 
     // To get the statistics about a given term, we have to have
     // supplied our own ones first.
@@ -348,7 +349,7 @@ Xapian::Weight::Internal::get_total_reltermfreq(const string & tname) const
 {
     // We pass an empty string for tname when calculating the extra weight.
     if (tname.empty()) return 0;
-    if (total_stats == 0) perform_request();
+    Assert(total_stats != 0);
     std::map<string, Xapian::doccount>::const_iterator rtfreq;
     rtfreq = total_stats->reltermfreq.find(tname);
     Assert(rtfreq != total_stats->reltermfreq.end());
