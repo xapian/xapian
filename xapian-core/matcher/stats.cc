@@ -92,25 +92,19 @@ NetworkStatsGatherer::get_stats() const
     RETURN(&total_stats);
 }
 
-void
-NetworkStatsGatherer::fetch_local_stats() const
-{
-    DEBUGCALL(MATCH, void, "NetworkStatsGatherer::fetch_local_stats", "");
-    if (!have_gathered) {
-	for (std::set<Xapian::Weight::Internal *>::iterator i = sources.begin();
-	     i != sources.end();
-	     ++i) {
-	    total_stats += (*i)->get_my_stats();
-	}
-	have_gathered = true;
-    }
-}
-
 Stats
 NetworkStatsGatherer::get_local_stats() const
 {
     DEBUGCALL(MATCH, Stats, "NetworkStatsGatherer::get_local_stats", "");
-    fetch_local_stats();
+    Assert(!have_gathered);
+
+    for (std::set<Xapian::Weight::Internal *>::iterator i = sources.begin();
+	 i != sources.end();
+	 ++i) {
+	total_stats += (*i)->get_my_stats();
+    }
+
+    have_gathered = true;
     return total_stats;
 }
 

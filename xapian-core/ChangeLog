@@ -1,3 +1,11 @@
+Thu Nov 22 11:02:39 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/networkstats.h,matcher/stats.cc: Remove
+	  fetch_local_stats() method, and use of have_gathered flag for
+	  caching result of gathering the stats - instead, simply Assert
+	  that have_gathered is false before gathering; we currently only
+	  call get_local_stats() once for a given gatherer.
+
 Thu Nov 22 10:04:40 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* common/rset.h: Change multiline "///" comments to use "/**",

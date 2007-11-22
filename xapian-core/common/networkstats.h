@@ -33,10 +33,6 @@ class NetworkStatsGatherer : public StatsGatherer {
 	/// Flag indicating that the global stats are uptodate.
 	mutable bool have_global_stats;
 
-	/** Gather all the local statistics.
-	 */
-	void fetch_local_stats() const;
-
     public:
 	NetworkStatsGatherer();
 
