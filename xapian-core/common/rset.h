@@ -48,9 +48,10 @@ class RSetI {
 	std::map<string, Xapian::doccount> reltermfreqs;
 	bool calculated_reltermfreqs;
 
-	/// Calculate the statistics.
-	///
-	/// This should be called only once.
+	/** Calculate the statistics.
+	 * 
+	 *  This should be called only once.
+	 */
 	void calculate_stats();
     public:
 	std::set<Xapian::docid> documents;
@@ -58,16 +59,18 @@ class RSetI {
 	RSetI(const Xapian::Database &root_, const Xapian::RSet & rset);
 	RSetI(const Xapian::Database::Internal *dbroot_, const Xapian::RSet & rset);
 
-	/// Mark a term for calculation of the reltermfreq.
-	///
-	/// @param tname The term for which the reltermfreq is desired.
+	/** Mark a term for calculation of the reltermfreq.
+	 * 
+	 *  @param tname The term for which the reltermfreq is desired.
+	 */
 	void will_want_reltermfreq(string tname);
 
-	/// Calculate the statistics, and pass them to a statssource.
-	///
-	/// This method must only be called once for a given RSet.
-	///
-	/// @param statssource The statssource to pass the weights to.
+	/** Calculate the statistics, and pass them to a statssource.
+	 * 
+	 *  This method must only be called once for a given RSet.
+	 * 
+	 *  @param statssource The statssource to pass the weights to.
+	 */
 	void give_stats_to_statssource(Xapian::Weight::Internal *statssource);
 
 	/// Get the number of documents in the RSet.

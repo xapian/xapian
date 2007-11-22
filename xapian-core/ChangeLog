@@ -1,3 +1,8 @@
+Thu Nov 22 10:04:40 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/rset.h: Change multiline "///" comments to use "/**",
+	  style.
+
 Thu Nov 22 09:27:42 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* matcher/localmatch.cc,matcher/queryoptimiser.h: Update a couple
