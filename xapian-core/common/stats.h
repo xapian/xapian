@@ -142,15 +142,9 @@ class Xapian::Weight::Internal {
 	/** The collection statistics, held by the StatsGatherer.
 	 *  0 before these have been retrieved.
 	 */
-	mutable const Stats * total_stats;
+	const Stats * total_stats;
 
     public:
-	/** Perform the request for the needed information.  This involves
-	 *  passing our information to the gatherer, and then getting the
-	 *  result back.
-	 */
-	void perform_request() const;
-
 	/// Constructor
 	Internal(StatsGatherer *gatherer_) : gatherer(gatherer_), total_stats(0)
 	{
@@ -198,6 +192,10 @@ class Xapian::Weight::Internal {
 	// /////////////////////////////////////////////////////////////////
 	// Get the statistics back.  The result of each of the following
 	// methods may be an approximation.
+
+	/** Set the total_stats stored.
+	 */
+	void set_total_stats(const Stats * total_stats);
 
 	/** Get the number of documents in the whole collection.
 	 */

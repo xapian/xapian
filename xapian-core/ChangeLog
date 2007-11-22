@@ -1,3 +1,14 @@
+Thu Nov 22 12:58:02 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/stats.h,matcher/localmatch.cc,matcher/localmatch.h,
+	  matcher/stats.cc: Replay Xapian::Weight::Internal's
+	  perform_request() method with set_total_stats().  The replacement
+	  takes the stats as a parameter, rather than magically getting
+	  them from the gatherer.  The LocalSubMatch now needs to call the
+	  gatherer to get the stats, and then pass it to set_total_stats(),
+	  so needs to keep a reference to the gatherer.  However, we are
+	  now one step closer to decoupling the gatherer from the stats.
+
 Thu Nov 22 11:47:56 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* common/stats.h,matcher/localmatch.cc: Remove automatic

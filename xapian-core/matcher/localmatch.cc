@@ -39,14 +39,15 @@
 
 LocalSubMatch::LocalSubMatch(const Xapian::Database::Internal *db_,
 	const Xapian::Query::Internal * query, Xapian::termcount qlen_,
-	const Xapian::RSet & omrset, StatsGatherer *gatherer,
+	const Xapian::RSet & omrset, StatsGatherer *gatherer_,
 	const Xapian::Weight *wt_factory_)
-	: statssource(gatherer), orig_query(*query), qlen(qlen_), db(db_),
+	: gatherer(gatherer_), statssource(gatherer_),
+	  orig_query(*query), qlen(qlen_), db(db_),
 	  rset(db, omrset), wt_factory(wt_factory_)
 {
     DEBUGCALL(MATCH, void, "LocalSubMatch::LocalSubMatch",
 	      db << ", " << query << ", " << qlen_ << ", " << omrset << ", " <<
-	      gatherer << ", [wt_factory]");
+	      gatherer_ << ", [wt_factory]");
 
     statssource.take_my_stats(db->get_doccount(), db->get_avlength());
 }
@@ -91,7 +92,7 @@ LocalSubMatch::get_postlist_and_term_info(MultiMatch * matcher,
 	      matcher << ", [termfreqandwts]");
 
     // First, get the statistics into the statssource.
-    statssource.perform_request();
+    statssource.set_total_stats(gatherer->get_stats());
 
     // Build the postlist tree for the query.  This calls
     // LocalSubMatch::postlist_from_op_leaf_query() for each term in the query,

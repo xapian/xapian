@@ -39,6 +39,9 @@ class LocalSubMatch : public SubMatch {
     /// Don't allow copying.
     LocalSubMatch(const LocalSubMatch &);
 
+    /// The StatsGatherer object, used to access database statistics.
+    StatsGatherer * gatherer;
+
     /** The statssource object is supplied with statistics from the database,
      *  and is then queried for them by the gatherer.
      */

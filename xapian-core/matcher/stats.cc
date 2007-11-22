@@ -140,15 +140,15 @@ Xapian::Weight::Internal::set_my_stats(const Stats & stats)
 }
 
 void
-Xapian::Weight::Internal::perform_request() const
+Xapian::Weight::Internal::set_total_stats(const Stats * stats)
 {
-    DEBUGCALL(MATCH, void, "Xapian::Weight::Internal::perform_request", "");
+    DEBUGCALL(MATCH, void, "Xapian::Weight::Internal::set_total_stats", "[stats]");
     Assert(total_stats == 0);
-    total_stats = gatherer->get_stats();
-    Assert(total_stats != 0);
+    Assert(stats != 0);
+    total_stats = stats;
 
 #ifdef XAPIAN_DEBUG_VERBOSE
-    DEBUGLINE(WTCALC, "Xapian::Weight::Internal::perform_request(): stats are:");
+    DEBUGLINE(WTCALC, "Xapian::Weight::Internal::set_total_stats(): stats are:");
     DEBUGLINE(WTCALC, "  collection_size = " << total_stats->collection_size);
     DEBUGLINE(WTCALC, "  rset_size = "       << total_stats->rset_size);
     DEBUGLINE(WTCALC, "  average_length = "  << total_stats->average_length);
