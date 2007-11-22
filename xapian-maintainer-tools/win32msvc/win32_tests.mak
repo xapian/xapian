@@ -63,7 +63,8 @@ APITEST_OBJS= \
 	"$(OUTDIR)\api_posdb.obj" \
         "$(OUTDIR)\api_transdb.obj" \
         "$(OUTDIR)\api_unicode.obj" \
-	"$(OUTDIR)\api_wrdb.obj" 
+	"$(OUTDIR)\api_wrdb.obj" \
+    "$(OUTDIR)\api_sorting.obj" 
     
 BTREETEST_OBJS= "$(OUTDIR)\btreetest.obj"
 
@@ -84,6 +85,7 @@ SRC = 	"$(INTDIR)\apitest.cc" \
 	"$(INTDIR)\api_posdb.cc" \
         "$(INTDIR)\api_transdb.cc" \
         "$(INTDIR)\api_unicode.cc" \
+        "$(INTDIR)\api_sorting.cc" \
 	"$(INTDIR)\api_wrdb.cc" \
 	"$(INTDIR)\btreetest.cc" \
 	"$(INTDIR)\internaltest.cc" \

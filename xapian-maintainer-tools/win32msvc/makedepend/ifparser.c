@@ -188,6 +188,26 @@ parse_value (IfParser *g, const char *cp, long *valp)
 	return cp + 1;			/* skip the right paren */
 
       case '!':
+		  // check for !defined
+		if (strncmp (cp+1, "defined", 7) == 0 && !isalnum(cp[8])) {
+		    int paren = 0;
+		    int len;
+
+		    cp += 8;
+		    SKIPSPACE (cp);
+			if (*cp == '(') {
+				paren = 1;
+				cp++;
+			}
+		    DO (cp = parse_variable (g, cp, &var));
+		    len = cp - var;
+			SKIPSPACE (cp);
+			if (paren && *cp != ')')
+			return CALLFUNC(g, handle_error) (g, cp, ")");
+			*valp = !(*(g->funcs.eval_defined)) (g, var, len);
+			return cp + paren;		/* skip the right paren */
+		}
+
 	DO (cp = parse_value (g, cp + 1, valp));
 	*valp = !(*valp);
 	return cp;

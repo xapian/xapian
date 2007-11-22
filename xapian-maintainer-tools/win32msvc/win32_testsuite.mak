@@ -22,6 +22,7 @@ OBJS= \
 		$(INTDIR)\backendmanager_flint.obj \
 		$(INTDIR)\backendmanager_inmemory.obj \
 		$(INTDIR)\backendmanager_quartz.obj \
+		$(INTDIR)\backendmanager_multi.obj \
 		$(INTDIR)\backendmanager_remoteprog.obj \
 		$(INTDIR)\backendmanager_remotetcp.obj \
                 $(INTDIR)\index_utils.obj \
@@ -34,6 +35,7 @@ SRCS= \
 		$(INTDIR)\backendmanager_flint.cc \
 		$(INTDIR)\backendmanager_inmemory.cc \
 		$(INTDIR)\backendmanager_quartz.cc \
+        $(INTDIR)\backendmanager_multi.cc \
 		$(INTDIR)\backendmanager_remoteprog.cc \
 		$(INTDIR)\backendmanager_remotetcp.cc \
                 $(INTDIR)\index_utils.cc \
