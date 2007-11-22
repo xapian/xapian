@@ -91,11 +91,6 @@ class NetworkStatsSource : public Xapian::Weight::Internal {
 	    : Xapian::Weight::Internal(gatherer_), db(db_),
 	      have_remote_stats(false) { }
 
-	/** Contribute all the statistics that don't depend on global
-	 *  stats.  Used by StatsGatherer.
-	 */
-	void contrib_my_stats();
-
 	void take_remote_stats(Stats stats);
 };
 

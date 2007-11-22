@@ -60,7 +60,7 @@ LocalStatsGatherer::get_stats() const
 	for (std::set<Xapian::Weight::Internal *>::iterator i = sources.begin();
 	     i != sources.end();
 	     ++i) {
-	    (*i)->contrib_my_stats();
+	    total_stats += (*i)->get_my_stats();
 	}
 	have_gathered = true;
     }
@@ -100,7 +100,7 @@ NetworkStatsGatherer::fetch_local_stats() const
 	for (std::set<Xapian::Weight::Internal *>::iterator i = sources.begin();
 	     i != sources.end();
 	     ++i) {
-	    (*i)->contrib_my_stats();
+	    total_stats += (*i)->get_my_stats();
 	}
 	have_gathered = true;
     }
@@ -134,14 +134,6 @@ NetworkStatsGatherer::set_global_stats(const Stats & stats) const
     total_stats = stats;
 
     have_global_stats = true;
-}
-
-void
-NetworkStatsSource::contrib_my_stats()
-{
-    DEBUGCALL(MATCH, void, "NetworkStatsSource::contrib_my_stats", "");
-    Assert(have_remote_stats);
-    gatherer->contrib_stats(my_stats);
 }
 
 void

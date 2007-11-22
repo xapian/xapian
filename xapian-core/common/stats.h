@@ -161,10 +161,11 @@ class Xapian::Weight::Internal {
 	    gatherer->remove_child(this);
 	}
 
-	/** Contribute all the statistics that don't depend on global
-	 *  stats.  Used by StatsGatherer.
+	/** Get all the statistics that don't depend on global stats.
 	 */
-	virtual void contrib_my_stats() = 0;
+	const Stats & get_my_stats() {
+	    return my_stats;
+	}
 
 	///////////////////////////////////////////////////////////////////
 	// Give statistics about yourself.  These are used to generate,
@@ -231,9 +232,6 @@ class LocalStatsSource : public Xapian::Weight::Internal {
 
 	/// Destructor
 	~LocalStatsSource();
-
-	/// Contribute all the statistics that don't depend on global stats.
-	void contrib_my_stats();
 };
 
 /////////////////////////////////////////
@@ -282,12 +280,6 @@ inline void
 StatsGatherer::set_global_stats(Xapian::doccount rset_size)
 {
     total_stats.rset_size = rset_size;
-}
-
-inline void
-LocalStatsSource::contrib_my_stats()
-{
-    gatherer->contrib_stats(my_stats);
 }
 
 ///////////////////////////////////////////////
