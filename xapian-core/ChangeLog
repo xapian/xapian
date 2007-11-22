@@ -1,3 +1,8 @@
+Thu Nov 22 09:27:42 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/localmatch.cc,matcher/queryoptimiser.h: Update a couple
+	  of comments.
+
 Thu Nov 22 08:29:19 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* common/networkstats.h,common/stats.h,matcher/: Remove the

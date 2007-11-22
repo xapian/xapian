@@ -91,7 +91,7 @@ LocalSubMatch::get_postlist_and_term_info(MultiMatch * matcher,
 	      matcher << ", [termfreqandwts]");
     QueryOptimiser opt(*db, *this, matcher);
     PostList * pl = opt.optimise_query(&orig_query);
-    // postlist_from_query builds the term_info.
+    // postlist_from_op_leaf_query builds the term_info.
     if (termfreqandwts) *termfreqandwts = term_info;
 
     // We only need an ExtraWeightPostList if there's an extra weight
