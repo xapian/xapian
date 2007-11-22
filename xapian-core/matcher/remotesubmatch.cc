@@ -2,6 +2,7 @@
  *  @brief SubMatch class for a remote database.
  */
 /* Copyright (C) 2006,2007 Olly Betts
+ * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +29,7 @@
 
 RemoteSubMatch::RemoteSubMatch(RemoteDatabase *db_, StatsGatherer *gatherer_,
 			       bool decreasing_relevance_)
-	: db(db_), gatherer(gatherer_), stats_source(gatherer_, db_),
+	: db(db_), gatherer(gatherer_), stats_source(gatherer_),
 	  decreasing_relevance(decreasing_relevance_)
 {
     DEBUGCALL(MATCH, void, "RemoteSubMatch",
@@ -42,7 +43,7 @@ RemoteSubMatch::prepare_match(bool nowait)
     // Read Stats from the remote server and pass them to the StatsSource.
     Stats remote_stats;
     if (!db->get_remote_stats(nowait, remote_stats)) RETURN(false);
-    stats_source.take_remote_stats(remote_stats);
+    stats_source.set_my_stats(remote_stats);
     RETURN(true);
 }
 

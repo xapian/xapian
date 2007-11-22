@@ -188,7 +188,11 @@ class Xapian::Weight::Internal {
 	 */
 	void my_reltermfreq_is(const string & tname, Xapian::doccount rtfreq);
 
-
+	/** Set all the statistics about this sub-database.
+	 *
+	 *  The supplied statistics overwrite any statistics set previously.
+	 */
+	void set_my_stats(const Stats & stats);
 
 	// /////////////////////////////////////////////////////////////////
 	// Get the statistics back.  The result of each of the following
@@ -217,21 +221,6 @@ class Xapian::Weight::Internal {
 	 *  in the collection indexed by the given term.
 	 */
 	Xapian::doccount get_total_reltermfreq(const string & tname) const;
-};
-
-/** LocalStatsSource: the Xapian::Weight::Internal object which provides methods
- *  to access the statistics.  A LocalSubMatch object uses it to report
- *  on its local statistics and retrieve the global statistics after
- *  the gathering process is complete.
- */
-class LocalStatsSource : public Xapian::Weight::Internal {
-    private:
-    public:
-	/// Constructor
-	LocalStatsSource(StatsGatherer * gatherer_);
-
-	/// Destructor
-	~LocalStatsSource();
 };
 
 /////////////////////////////////////////

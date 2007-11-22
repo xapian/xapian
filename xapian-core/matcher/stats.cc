@@ -136,25 +136,13 @@ NetworkStatsGatherer::set_global_stats(const Stats & stats) const
     have_global_stats = true;
 }
 
-void
-NetworkStatsSource::take_remote_stats(Stats stats)
-{
-    DEBUGCALL(MATCH, void, "NetworkStatsSource::take_remote_stats", "[stats]");
-    my_stats = stats;
-    have_remote_stats = true;
-}
-
 #endif /* XAPIAN_HAS_REMOTE_BACKEND */
 
-LocalStatsSource::LocalStatsSource(StatsGatherer * gatherer_)
-	: Xapian::Weight::Internal(gatherer_)
+void
+Xapian::Weight::Internal::set_my_stats(const Stats & stats)
 {
-    DEBUGCALL(MATCH, void, "LocalStatsSource", gatherer_);
-}
-
-LocalStatsSource::~LocalStatsSource()
-{
-    DEBUGCALL(MATCH, void, "~LocalStatsSource", "");
+    DEBUGCALL(MATCH, void, "Xapian::Weight::Internal::set_my_stats", "[stats]");
+    my_stats = stats;
 }
 
 void

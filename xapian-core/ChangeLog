@@ -1,3 +1,14 @@
+Thu Nov 22 08:29:19 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/networkstats.h,common/stats.h,matcher/: Remove the
+	  LocalStatsSource and NetworkStatsSource classes - just use the
+	  base class (Xapian::Weight::Internal) instead.  LocalStatsSource
+	  had no extra members whatsoever, whereas NetworkStatsSource had
+	  various members which weren't used, and a single method
+	  "take_remote_stats" which simply sets the statistics held - I've
+	  renamed this method "set_my_stats" and added it to the base
+	  class.
+
 Thu Nov 22 00:05:06 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* common/networkstats.h,common/stats.h,matcher/stats.cc: Replace

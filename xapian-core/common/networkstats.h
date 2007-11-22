@@ -26,9 +26,6 @@
 #include "remote-database.h"
 #include "stats.h"
 
-// forward declaration for NetworkStatsGatherer
-class RemoteServer;
-
 /** A "slave" StatsGatherer used for the remote matcher
  */
 class NetworkStatsGatherer : public StatsGatherer {
@@ -67,31 +64,6 @@ class NetworkStatsGatherer : public StatsGatherer {
 	 *  remote end.
 	 */
 	virtual void set_global_stats(Xapian::doccount /*rset_size*/) {}
-};
-
-class NetworkDatabase;
-
-/** NetworkStatsSource: a virtual Xapian::Weight::Internal which is part of the
- *  glue between a StatsGatherer and the remote matching process.
- */
-class NetworkStatsSource : public Xapian::Weight::Internal {
-    private:
-	/// The RemoteDatabase object used for communications.
-	Xapian::Internal::RefCntPtr<RemoteDatabase> db;
-
-	/** A flag indicating whether or not we have the remote
-	 *  statistics yet.
-	 */
-	bool have_remote_stats;
-
-    public:
-	/// Constructor
-	NetworkStatsSource(StatsGatherer * gatherer_,
-			   Xapian::Internal::RefCntPtr<RemoteDatabase> db_)
-	    : Xapian::Weight::Internal(gatherer_), db(db_),
-	      have_remote_stats(false) { }
-
-	void take_remote_stats(Stats stats);
 };
 
 #endif /* OM_HGUARD_NETWORKSTATS_H */

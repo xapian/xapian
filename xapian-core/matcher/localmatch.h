@@ -39,8 +39,10 @@ class LocalSubMatch : public SubMatch {
     /// Don't allow copying.
     LocalSubMatch(const LocalSubMatch &);
 
-    /// Our StatsSource.
-    LocalStatsSource statssource;
+    /** The statssource object is supplied with statistics from the database,
+     *  and is then queried for them by the gatherer.
+     */
+    Xapian::Weight::Internal statssource;
 
     /// The original query before any rearrangement.
     Xapian::Query::Internal orig_query;
@@ -63,7 +65,7 @@ class LocalSubMatch : public SubMatch {
     /// The termfreqs and weights of terms used in orig_query.
     std::map<string, Xapian::MSet::Internal::TermFreqAndWeight> term_info;
 
-    /// Register term @a tname with the StatsSource.
+    /// Register term @a tname with statssource.
     void register_term(const string &tname);
 
   public:

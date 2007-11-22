@@ -2,6 +2,7 @@
  *  @brief SubMatch class for a remote database.
  */
 /* Copyright (C) 2006,2007 Olly Betts
+ * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,8 +41,8 @@ class RemoteSubMatch : public SubMatch {
     /// The StatsGatherer object, used to access database statistics.
     StatsGatherer * gatherer;
 
-    /// The NetworkStatsSource object handles statistics for the remote db.
-    NetworkStatsSource stats_source;
+    /// The stats_source object handles statistics for the remote db.
+    Xapian::Weight::Internal stats_source;
 
     /** Is the sort order such the relevance decreases down the MSet?
      *
