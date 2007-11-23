@@ -138,32 +138,3 @@ StatsSource::set_my_stats(const Stats & stats)
     DEBUGCALL(MATCH, void, "StatsSource::set_my_stats", "[stats]");
     my_stats = stats;
 }
-
-void
-StatsSource::set_total_stats(const Stats * stats)
-{
-    DEBUGCALL(MATCH, void, "StatsSource::set_total_stats", "[stats]");
-    Assert(total_stats == 0);
-    Assert(stats != 0);
-    total_stats = stats;
-
-#ifdef XAPIAN_DEBUG_VERBOSE
-    DEBUGLINE(WTCALC, "StatsSource::set_total_stats(): stats are:");
-    DEBUGLINE(WTCALC, "  collection_size = " << total_stats->collection_size);
-    DEBUGLINE(WTCALC, "  rset_size = "       << total_stats->rset_size);
-    DEBUGLINE(WTCALC, "  average_length = "  << total_stats->average_length);
-
-    map<string, Xapian::doccount>::const_iterator i;
-    for (i = total_stats->termfreq.begin();
-	 i != total_stats->termfreq.end(); i++) {
-	DEBUGLINE(WTCALC, "  termfreq of `" << i->first <<
-		  "'\tis " << i->second);
-    }
-    for (i = total_stats->reltermfreq.begin();
-	 i != total_stats->reltermfreq.end(); i++) {
-	DEBUGLINE(WTCALC, "  reltermfreq of `" << i->first <<
-		 "'\tis " << i->second);
-    }
-#endif /* XAPIAN_DEBUG_VERBOSE */
-}
-

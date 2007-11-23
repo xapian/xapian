@@ -206,21 +206,6 @@ class StatsSource {
 	 *  The supplied statistics overwrite any statistics set previously.
 	 */
 	void set_my_stats(const Stats & stats);
-
-	// /////////////////////////////////////////////////////////////////
-	// Get the statistics back.  The result of each of the following
-	// methods may be an approximation.
-
-	/** Set the total_stats stored.
-	 */
-	void set_total_stats(const Stats * stats);
-
-	/** Get the statistics for the whole collection.
-	 */
-	const Stats & get_total_stats() const {
-	    Assert(total_stats != 0);
-	    return *total_stats;
-	}
 };
 
 /////////////////////////////////////////

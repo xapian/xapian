@@ -47,6 +47,10 @@ class LocalSubMatch : public SubMatch {
      */
     StatsSource statssource;
 
+    /** The statistics for the collection.
+     */
+    const Stats * stats;
+
     /// The original query before any rearrangement.
     Xapian::Query::Internal orig_query;
 

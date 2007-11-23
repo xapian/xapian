@@ -91,8 +91,8 @@ LocalSubMatch::get_postlist_and_term_info(MultiMatch * matcher,
     DEBUGCALL(MATCH, PostList *, "LocalSubMatch::get_postlist_and_term_info",
 	      matcher << ", [termfreqandwts]");
 
-    // First, get the statistics into the statssource.
-    statssource.set_total_stats(gatherer->get_stats());
+    // First, get the statistics for the whole collection from the gatherer.
+    stats = gatherer->get_stats();
 
     // Build the postlist tree for the query.  This calls
     // LocalSubMatch::postlist_from_op_leaf_query() for each term in the query,
@@ -104,7 +104,7 @@ LocalSubMatch::get_postlist_and_term_info(MultiMatch * matcher,
     // We only need an ExtraWeightPostList if there's an extra weight
     // contribution.
     AutoPtr<Xapian::Weight> extra_wt;
-    extra_wt = wt_factory->create(&(statssource.get_total_stats()), qlen, 1, "");
+    extra_wt = wt_factory->create(stats, qlen, 1, "");
     if (extra_wt->get_maxextra() != 0.0) {
 	pl = new ExtraWeightPostList(pl, extra_wt.release(), matcher);
     }
@@ -127,8 +127,7 @@ LocalSubMatch::postlist_from_op_leaf_query(const Xapian::Query::Internal *query,
 	// FIXME:
 	// pass factor to Weight::create() - and have a shim class for classes
 	// which don't understand it...
-	Xapian::termcount wqf = query->wqf;
-	wt = wt_factory->create(&(statssource.get_total_stats()), qlen, wqf, query->tname);
+	wt = wt_factory->create(stats, qlen, query->wqf, query->tname);
 	if (fabs(factor - 1.0) > DBL_EPSILON) {
 	    wt = new ScaleWeight(wt.release(), factor);
 	}
@@ -137,7 +136,7 @@ LocalSubMatch::postlist_from_op_leaf_query(const Xapian::Query::Internal *query,
     map<string, Xapian::MSet::Internal::TermFreqAndWeight>::iterator i;
     i = term_info.find(query->tname);
     if (i == term_info.end()) {
-	Xapian::doccount tf = statssource.get_total_stats().get_termfreq(query->tname);
+	Xapian::doccount tf = stats->get_termfreq(query->tname);
 	Xapian::weight weight = boolean ? 0 : wt->get_maxpart();
 	Xapian::MSet::Internal::TermFreqAndWeight info(tf, weight);
 	term_info.insert(make_pair(query->tname, info));
