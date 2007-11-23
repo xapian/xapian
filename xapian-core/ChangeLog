@@ -1,3 +1,20 @@
+Fri Nov 23 17:38:28 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/stats.h: Add set_termfreq() and set_reltermfreq()
+	  convenience methods to Stats; and remote the take_my_stats(),
+	  my_termfreq_is() and my_reltermfreq_is() methods from
+	  StatsSource.
+	* common/rset.h,matcher/rset.cc: Rename give_stats_to_statssource()
+	  to contribute_stats(), and give it take a Stats object instead of
+	  a StatsSource object.  Can't forward declare Stats, so we need to
+	  #include "stats.h" in rset.h now, unfortunately.
+	* matcher/localmatch.cc,matcher/localmatch.h: Move register_term()
+	  implementation inline into prepare_match().  Build up the
+	  statistics in a local Stats object, rather than passing them
+	  piecemeal to the StatsSource object, and then use
+	  StatsSource::get_my_stats() to set them, just like
+	  RemoteSubMatcher.
+
 Fri Nov 23 14:35:49 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* matcher/localmatch.cc,matcher/localmatch.h: Get the total

@@ -72,9 +72,6 @@ class LocalSubMatch : public SubMatch {
     /// The termfreqs and weights of terms used in orig_query.
     std::map<string, Xapian::MSet::Internal::TermFreqAndWeight> term_info;
 
-    /// Register term @a tname with statssource.
-    void register_term(const string &tname);
-
   public:
     /// Constructor.
     LocalSubMatch(const Xapian::Database::Internal *db,

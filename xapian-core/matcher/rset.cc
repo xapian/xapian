@@ -75,13 +75,13 @@ RSetI::calculate_stats()
 }
 
 void
-RSetI::give_stats_to_statssource(StatsSource *statssource)
+RSetI::contribute_stats(Stats & stats)
 {
-    DEBUGCALL(MATCH, void, "RSetI::give_stats_to_statssource", statssource);
+    DEBUGCALL(MATCH, void, "RSetI::contribute_stats", stats);
     calculate_stats();
 
     std::map<string, Xapian::doccount>::const_iterator i;
     for (i = reltermfreqs.begin(); i != reltermfreqs.end(); i++) {
-	statssource->my_reltermfreq_is(i->first, i->second);
+	stats.set_reltermfreq(i->first, i->second);
     }
 }

@@ -29,8 +29,7 @@
 #include "omdebug.h"
 #include "xapian/enquire.h"
 #include "omenquireinternal.h"
-
-class StatsSource;
+#include "stats.h"
 
 /** A relevance set.
  *
@@ -67,13 +66,13 @@ class RSetI {
 	 */
 	void will_want_reltermfreq(string tname);
 
-	/** Calculate the statistics, and pass them to a statssource.
+	/** Calculate the statistics, and add them to a Stats object.
 	 * 
 	 *  This method must only be called once for a given RSet.
 	 * 
-	 *  @param statssource The statssource to pass the weights to.
+	 *  @param stats The Stats object to pass the weights to.
 	 */
-	void give_stats_to_statssource(StatsSource *statssource);
+	void contribute_stats(Stats & stats);
 
 	/// Get the number of documents in the RSet.
 	Xapian::doccount get_rsize() const;

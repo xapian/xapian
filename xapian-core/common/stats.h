@@ -60,12 +60,16 @@ class Xapian::Weight::Internal {
 	 */
 	Internal & operator +=(const Internal & inc);
 
-	/** Get the term of the given term.
+	/** Get the term-frequency of the given term.
 	 *
 	 *  This is "n_t", the number of documents in the collection indexed by
 	 *  the given term.
 	 */
 	Xapian::doccount get_termfreq(const string & tname) const;
+
+	/** Set the term-frequency for the given term.
+	 */
+	void set_termfreq(const string & tname, Xapian::doccount tfreq);
 
 	/** Get the relevant term-frequency for the given term.
 	 *
@@ -73,6 +77,10 @@ class Xapian::Weight::Internal {
 	 *  indexed by the given term.
 	 */
 	Xapian::doccount get_reltermfreq(const string & tname) const;
+
+	/** Set the relevant term-frequency for the given term.
+	 */
+	void set_reltermfreq(const string & tname, Xapian::doccount rtfreq);
 };
 
 typedef Xapian::Weight::Internal Stats;
@@ -184,23 +192,6 @@ class StatsSource {
 	// Give statistics about yourself.  These are used to generate,
 	// or check, the global information.
 
-	/** Set stats about this sub-database: the number of documents and
-	 *  average length of a document.
-	 */
-	void take_my_stats(Xapian::doccount csize, Xapian::doclength avlen);
-
-	/** Set the term frequency in the sub-database which this stats
-	 *  object represents.  This is the number of documents in
-	 *  the sub-database indexed by the given term.
-	 */
-	void my_termfreq_is(const string & tname, Xapian::doccount tfreq);
-
-	/** Set the relevant term-frequency in the sub-database which this
-	 *  stats object represents.  This is the number of relevant
-	 *  documents in the sub-database indexed by the given term.
-	 */
-	void my_reltermfreq_is(const string & tname, Xapian::doccount rtfreq);
-
 	/** Set all the statistics about this sub-database.
 	 *
 	 *  The supplied statistics overwrite any statistics set previously.
@@ -253,6 +244,17 @@ Xapian::Weight::Internal::get_termfreq(const string & tname) const
     return tfreq->second;
 }
 
+inline void
+Xapian::Weight::Internal::set_termfreq(const string & tname,
+				       Xapian::doccount tfreq)
+{
+    // Can be called a second time, if a term occurs multiple times in the
+    // query; if this happens, the termfreq should be the same each time.
+    Assert(termfreq.find(tname) == termfreq.end() ||
+	   termfreq.find(tname)->second == tfreq);
+    termfreq[tname] = tfreq;
+}
+
 inline Xapian::doccount
 Xapian::Weight::Internal::get_reltermfreq(const string & tname) const
 {
@@ -263,6 +265,17 @@ Xapian::Weight::Internal::get_reltermfreq(const string & tname) const
     rtfreq = reltermfreq.find(tname);
     Assert(rtfreq != reltermfreq.end());
     return rtfreq->second;
+}
+
+inline void
+Xapian::Weight::Internal::set_reltermfreq(const string & tname,
+					  Xapian::doccount rtfreq)
+{
+    // Can be called a second time, if a term occurs multiple times in the
+    // query; if this happens, the termfreq should be the same each time.
+    Assert(reltermfreq.find(tname) == reltermfreq.end() ||
+	   reltermfreq.find(tname)->second == rtfreq);
+    reltermfreq[tname] = rtfreq;
 }
 
 /////////////////////////////////////////////////
@@ -278,40 +291,6 @@ inline void
 StatsGatherer::set_global_stats(Xapian::doccount rset_size)
 {
     total_stats.rset_size = rset_size;
-}
-
-///////////////////////////////////////////////
-// Inline method definitions for StatsSource //
-///////////////////////////////////////////////
- 
-inline void
-StatsSource::take_my_stats(Xapian::doccount csize, Xapian::doclength avlen)
-{
-    Assert(total_stats == 0);
-    my_stats.collection_size = csize;
-    my_stats.average_length = avlen;
-}
-
-inline void
-StatsSource::my_termfreq_is(const string & tname, Xapian::doccount tfreq)
-{
-    Assert(total_stats == 0);
-    // Can be called a second time, if a term occurs multiple times in the
-    // query.
-    Assert(my_stats.termfreq.find(tname) == my_stats.termfreq.end() ||
-	   my_stats.termfreq.find(tname)->second == tfreq);
-    my_stats.termfreq[tname] = tfreq;
-}
-
-inline void
-StatsSource::my_reltermfreq_is(const string & tname, Xapian::doccount rtfreq)
-{
-    Assert(total_stats == 0);
-    // Can be called a second time, if a term occurs multiple times in the
-    // query.
-    Assert(my_stats.reltermfreq.find(tname) == my_stats.reltermfreq.end() ||
-	   my_stats.reltermfreq.find(tname)->second == rtfreq);
-    my_stats.reltermfreq[tname] = rtfreq;
 }
 
 #endif /* OM_HGUARD_STATS_H */

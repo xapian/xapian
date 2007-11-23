@@ -48,33 +48,33 @@ LocalSubMatch::LocalSubMatch(const Xapian::Database::Internal *db_,
     DEBUGCALL(MATCH, void, "LocalSubMatch::LocalSubMatch",
 	      db << ", " << query << ", " << qlen_ << ", " << omrset << ", " <<
 	      gatherer_ << ", [wt_factory]");
-
-    statssource.take_my_stats(db->get_doccount(), db->get_avlength());
-}
-
-void
-LocalSubMatch::register_term(const string &tname)
-{
-    if (tname.empty()) {
-	statssource.my_termfreq_is(tname, db->get_doccount());
-    } else {
-	statssource.my_termfreq_is(tname, db->get_termfreq(tname));
-    }
 }
 
 bool
 LocalSubMatch::prepare_match(bool /*nowait*/)
 {
     DEBUGCALL(MATCH, bool, "LocalSubMatch::prepare_match", "/*nowait*/");
-    Xapian::TermIterator terms = orig_query.get_terms();
-    Xapian::TermIterator terms_end(NULL);
-    for ( ; terms != terms_end; ++terms) {
-	// MULTI
-	register_term(*terms);
-	rset.will_want_reltermfreq(*terms);
-    }
+    Stats my_stats;
 
-    rset.give_stats_to_statssource(&statssource);
+    // Set the collection statistics.
+    my_stats.collection_size = db->get_doccount();
+    my_stats.average_length = db->get_avlength();
+
+    // Get the term-frequencies and relevant term-frequencies.
+    Xapian::TermIterator titer = orig_query.get_terms();
+    Xapian::TermIterator terms_end(NULL);
+    for ( ; titer != terms_end; ++titer) {
+	if ((*titer).empty()) {
+	    my_stats.set_termfreq(*titer, db->get_doccount());
+	} else {
+	    my_stats.set_termfreq(*titer, db->get_termfreq(*titer));
+	}
+	rset.will_want_reltermfreq(*titer);
+    }
+    rset.contribute_stats(my_stats);
+
+    // Contribute the calculated statistics.
+    statssource.set_my_stats(my_stats);
     RETURN(true);
 }
 
