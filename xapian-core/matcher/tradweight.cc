@@ -3,6 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2006 Olly Betts
+ * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -57,35 +58,35 @@ TradWeight::calc_termweight() const
 {
     DEBUGCALL(MATCH, void, "TradWeight::calc_termweight", "");
 
-    const Stats & stats = internal->get_total_stats();
-
-    lenpart = stats.average_length;
+    lenpart = internal->average_length;
     // lenpart == 0 if there are no documents, or only empty documents.
     if (lenpart != 0) lenpart = param_k / lenpart;
 
-    Xapian::doccount termfreq = stats.get_termfreq(tname);
+    Xapian::doccount termfreq = internal->get_termfreq(tname);
 
-    DEBUGLINE(WTCALC, "Statistics: N=" << stats.collection_size <<
+    DEBUGLINE(WTCALC, "Statistics: N=" << internal->collection_size <<
 	      " n_t=" << termfreq << " lenpart=" << lenpart);
 
     Xapian::weight tw = 0;
-    if (stats.rset_size != 0) {
-	Xapian::doccount rtermfreq = stats.get_reltermfreq(tname);
+    if (internal->rset_size != 0) {
+	Xapian::doccount rtermfreq = internal->get_reltermfreq(tname);
 
-	DEBUGLINE(WTCALC, " R=" << stats.rset_size << " r_t=" << rtermfreq);
+	DEBUGLINE(WTCALC, " R=" << internal->rset_size << " r_t=" << rtermfreq);
 
 	// termfreq must be at least rtermfreq since there are at least
-	// rtermfreq documents indexed by this term.  And it can't be
-	// more than (stats.collection_size - stats.rset_size + rtermfreq) since the number
-	// of relevant documents not indexed by this term can't be
+	// rtermfreq documents indexed by this term.  And it can't be more than
+	// (internal->collection_size - internal->rset_size + rtermfreq) since
+	// the number of relevant documents not indexed by this term can't be
 	// more than the number of documents not indexed by this term.
 	Assert(termfreq >= rtermfreq);
-	Assert(termfreq <= stats.collection_size - stats.rset_size + rtermfreq);
+	Assert(termfreq <= internal->collection_size - internal->rset_size + rtermfreq);
 
-	tw = (rtermfreq + 0.5) * (stats.collection_size - stats.rset_size - termfreq + rtermfreq + 0.5) /
-	     ((stats.rset_size - rtermfreq + 0.5) * (termfreq - rtermfreq + 0.5));
+	tw = ((rtermfreq + 0.5) *
+	      (internal->collection_size - internal->rset_size - termfreq + rtermfreq + 0.5)) /
+	     ((internal->rset_size - rtermfreq + 0.5) *
+	      (termfreq - rtermfreq + 0.5));
     } else {
-	tw = (stats.collection_size - termfreq + 0.5) / (termfreq + 0.5);
+	tw = (internal->collection_size - termfreq + 0.5) / (termfreq + 0.5);
     }
 
     Assert(tw > 0);

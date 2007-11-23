@@ -42,7 +42,7 @@ class RemoteSubMatch : public SubMatch {
     StatsGatherer * gatherer;
 
     /// The stats_source object handles statistics for the remote db.
-    Xapian::Weight::Internal stats_source;
+    StatsSource stats_source;
 
     /** Is the sort order such the relevance decreases down the MSet?
      *

@@ -30,14 +30,14 @@
 #include <xapian/version.h> // For XAPIAN_HAS_REMOTE_BACKEND
 
 void
-StatsGatherer::add_child(Xapian::Weight::Internal *source) {
+StatsGatherer::add_child(StatsSource *source) {
     DEBUGCALL(MATCH, void, "StatsGatherer::add_child", source);
     Assert(have_gathered == false);
     sources.insert(source);
 }
 
 void
-StatsGatherer::remove_child(Xapian::Weight::Internal *source) {
+StatsGatherer::remove_child(StatsSource *source) {
     DEBUGCALL(MATCH, void, "StatsGatherer::remove_child", source);
     // If have_gathered is true, the stats will be wrong, but we just
     // continue as best we can.
@@ -57,7 +57,7 @@ LocalStatsGatherer::get_stats() const
 {
     DEBUGCALL(MATCH, Stats *, "LocalStatsGatherer::get_stats", "");
     if(!have_gathered) {
-	for (std::set<Xapian::Weight::Internal *>::iterator i = sources.begin();
+	for (std::set<StatsSource *>::iterator i = sources.begin();
 	     i != sources.end();
 	     ++i) {
 	    total_stats += (*i)->get_my_stats();
@@ -98,7 +98,7 @@ NetworkStatsGatherer::get_local_stats() const
     DEBUGCALL(MATCH, Stats, "NetworkStatsGatherer::get_local_stats", "");
     Assert(!have_gathered);
 
-    for (std::set<Xapian::Weight::Internal *>::iterator i = sources.begin();
+    for (std::set<StatsSource *>::iterator i = sources.begin();
 	 i != sources.end();
 	 ++i) {
 	total_stats += (*i)->get_my_stats();
@@ -133,22 +133,22 @@ NetworkStatsGatherer::set_global_stats(const Stats & stats) const
 #endif /* XAPIAN_HAS_REMOTE_BACKEND */
 
 void
-Xapian::Weight::Internal::set_my_stats(const Stats & stats)
+StatsSource::set_my_stats(const Stats & stats)
 {
-    DEBUGCALL(MATCH, void, "Xapian::Weight::Internal::set_my_stats", "[stats]");
+    DEBUGCALL(MATCH, void, "StatsSource::set_my_stats", "[stats]");
     my_stats = stats;
 }
 
 void
-Xapian::Weight::Internal::set_total_stats(const Stats * stats)
+StatsSource::set_total_stats(const Stats * stats)
 {
-    DEBUGCALL(MATCH, void, "Xapian::Weight::Internal::set_total_stats", "[stats]");
+    DEBUGCALL(MATCH, void, "StatsSource::set_total_stats", "[stats]");
     Assert(total_stats == 0);
     Assert(stats != 0);
     total_stats = stats;
 
 #ifdef XAPIAN_DEBUG_VERBOSE
-    DEBUGLINE(WTCALC, "Xapian::Weight::Internal::set_total_stats(): stats are:");
+    DEBUGLINE(WTCALC, "StatsSource::set_total_stats(): stats are:");
     DEBUGLINE(WTCALC, "  collection_size = " << total_stats->collection_size);
     DEBUGLINE(WTCALC, "  rset_size = "       << total_stats->rset_size);
     DEBUGLINE(WTCALC, "  average_length = "  << total_stats->average_length);

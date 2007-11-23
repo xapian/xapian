@@ -45,7 +45,7 @@ class LocalSubMatch : public SubMatch {
     /** The statssource object is supplied with statistics from the database,
      *  and is then queried for them by the gatherer.
      */
-    Xapian::Weight::Internal statssource;
+    StatsSource statssource;
 
     /// The original query before any rearrangement.
     Xapian::Query::Internal orig_query;

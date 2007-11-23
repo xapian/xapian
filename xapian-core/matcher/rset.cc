@@ -75,7 +75,7 @@ RSetI::calculate_stats()
 }
 
 void
-RSetI::give_stats_to_statssource(Xapian::Weight::Internal *statssource)
+RSetI::give_stats_to_statssource(StatsSource *statssource)
 {
     DEBUGCALL(MATCH, void, "RSetI::give_stats_to_statssource", statssource);
     calculate_stats();

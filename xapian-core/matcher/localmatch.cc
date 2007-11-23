@@ -104,7 +104,7 @@ LocalSubMatch::get_postlist_and_term_info(MultiMatch * matcher,
     // We only need an ExtraWeightPostList if there's an extra weight
     // contribution.
     AutoPtr<Xapian::Weight> extra_wt;
-    extra_wt = wt_factory->create(&statssource, qlen, 1, "");
+    extra_wt = wt_factory->create(&(statssource.get_total_stats()), qlen, 1, "");
     if (extra_wt->get_maxextra() != 0.0) {
 	pl = new ExtraWeightPostList(pl, extra_wt.release(), matcher);
     }
@@ -128,7 +128,7 @@ LocalSubMatch::postlist_from_op_leaf_query(const Xapian::Query::Internal *query,
 	// pass factor to Weight::create() - and have a shim class for classes
 	// which don't understand it...
 	Xapian::termcount wqf = query->wqf;
-	wt = wt_factory->create(&statssource, qlen, wqf, query->tname);
+	wt = wt_factory->create(&(statssource.get_total_stats()), qlen, wqf, query->tname);
 	if (fabs(factor - 1.0) > DBL_EPSILON) {
 	    wt = new ScaleWeight(wt.release(), factor);
 	}

@@ -27,8 +27,10 @@
 #include <map>
 #include "omassert.h"
 #include "omdebug.h"
-#include <xapian/enquire.h>
+#include "xapian/enquire.h"
 #include "omenquireinternal.h"
+
+class StatsSource;
 
 /** A relevance set.
  *
@@ -71,7 +73,7 @@ class RSetI {
 	 * 
 	 *  @param statssource The statssource to pass the weights to.
 	 */
-	void give_stats_to_statssource(Xapian::Weight::Internal *statssource);
+	void give_stats_to_statssource(StatsSource *statssource);
 
 	/// Get the number of documents in the RSet.
 	Xapian::doccount get_rsize() const;

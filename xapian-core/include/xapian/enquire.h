@@ -1086,7 +1086,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 	virtual Weight * clone() const = 0;
 
     protected:
-	const Internal * internal; // Weight::Internal == StatsSource
+	const Internal * internal; // Weight::Internal == Stats
 	Xapian::doclength querysize;
 	Xapian::termcount wqf;
 	std::string tname;

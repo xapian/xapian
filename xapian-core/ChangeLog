@@ -1,3 +1,17 @@
+Fri Nov 23 11:40:54 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/,include/xapian/enquire.h,matcher/: Rename
+	  Xapian::Weight::Internal to StatsSource (which I hope to be able
+	  to remove shortly), and rename the Stats class to
+	  Xapian::Weight::Internal.  Requires minimal plumbing changes -
+	  TradWeight and BM25Weight classes now query the internals
+	  directly for the statistics, LocalSubMatch now gets the
+	  statistics from StatsSource and passes them to wt_factory.
+	  common/remote-database.h and common/serialise.h now need to
+	  #include stats.h unfortunately, because a forward declaration
+	  can't be used for Xapian::Weight::Internal (unless I'm missing
+	  something).
+
 Fri Nov 23 10:15:43 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* common/stats.h,matcher/bm25weight.cc,matcher/localmatch.cc,

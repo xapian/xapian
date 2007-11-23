@@ -27,13 +27,13 @@
 #include "omqueryinternal.h"
 #include "omtime.h"
 #include "remoteconnection.h"
+#include "stats.h"
 
 namespace Xapian {
     class RSet;
     class Weight;
 }
 
-class Stats;
 class NetworkPostList;
 
 /** RemoteDatabase is the baseclass for remote database implementations.

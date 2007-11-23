@@ -22,21 +22,20 @@
 #define XAPIAN_INCLUDED_SERIALISE_H
 
 #include <xapian/visibility.h>
-
 #include <string>
-
 #include "noreturn.h"
+#include "stats.h"
 
 // Forward class declarations:
-
-class Stats;
 
 namespace Xapian {
     class Document;
     class Error;
     class MSet;
     class RSet;
+    class Weight;
 }
+
 
 /** Encode a length as a variable-length string.
  *

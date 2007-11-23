@@ -33,7 +33,7 @@
 using namespace std;
 
 /** Class to hold statistics for a given collection. */
-class Stats {
+class Xapian::Weight::Internal {
     public:
 	/** Number of documents in the collection. */
 	Xapian::doccount collection_size;
@@ -51,14 +51,14 @@ class Stats {
 	std::map<string, Xapian::doccount> reltermfreq;
 
 
-	Stats() : collection_size(0),
+	Internal() : collection_size(0),
 		  rset_size(0),
 		  average_length(1.0)
 	{}
 
 	/** Add in the supplied statistics from a sub-database.
 	 */
-	Stats & operator +=(const Stats & inc);
+	Internal & operator +=(const Internal & inc);
 
 	/** Get the term of the given term.
 	 *
@@ -75,6 +75,11 @@ class Stats {
 	Xapian::doccount get_reltermfreq(const string & tname) const;
 };
 
+typedef Xapian::Weight::Internal Stats;
+
+// Forward declaration.
+class StatsSource;
+
 /** Statistics collector: gathers statistics from sub-databases, puts them
  *  together to build statistics for whole collection, and returns the
  *  overall statistics to each sub-database.
@@ -87,11 +92,11 @@ class StatsGatherer {
 	 */
 	mutable bool have_gathered;
 
-	/** A collection of Xapian::Weight::Internal children.
+	/** A collection of StatsSource children.
 	 *  The Gatherer uses this to make sure that each child
 	 *  has contributed before it will give out its statistics.
 	 */
-	mutable std::set<Xapian::Weight::Internal *> sources;
+	mutable std::set<StatsSource *> sources;
 
 	/** The total statistics gathered for the whole collection.
 	 */
@@ -105,17 +110,17 @@ class StatsGatherer {
 	 */
 	virtual void set_global_stats(Xapian::doccount rset_size);
 
-	/** Add a Xapian::Weight::Internal object to this gatherer.
+	/** Add a StatsSource object to this gatherer.
 	 *  The gatherer will include the source's statistics
 	 *  into its own summary statistics.
 	 */
-	void add_child(Xapian::Weight::Internal *source);
+	void add_child(StatsSource *source);
 
-	/** Remove a Xapian::Weight::Internal object from this gatherer.
+	/** Remove a StatsSource object from this gatherer.
 	 *  This is needed in the case of some parts of the database dying
 	 *  during the match.
 	 */
-	void remove_child(Xapian::Weight::Internal *source);
+	void remove_child(StatsSource *source);
 
 	/** Contribute some statistics to the overall statistics.
 	 *  Should only be called once by each sub-database.
@@ -137,11 +142,11 @@ class LocalStatsGatherer : public StatsGatherer {
 /** Statistics source: gathers notifications of statistics which will be
  *  needed, and passes them on in bulk to a StatsGatherer.
  */
-class Xapian::Weight::Internal {
+class StatsSource {
     private:
         // Prevent copying
-        Internal(const Internal &);
-        Internal & operator=(const Internal &);
+        StatsSource(const StatsSource &);
+        StatsSource & operator=(const StatsSource &);
 
 	/** The gatherer which we report our information to, and ask
 	 *  for the global information from.
@@ -159,13 +164,13 @@ class Xapian::Weight::Internal {
 
     public:
 	/// Constructor
-	Internal(StatsGatherer *gatherer_) : gatherer(gatherer_), total_stats(0)
+	StatsSource(StatsGatherer *gatherer_) : gatherer(gatherer_), total_stats(0)
 	{
 	    gatherer->add_child(this);
 	}
 
 	/// Destructor
-	~Internal() {
+	~StatsSource() {
 	    gatherer->remove_child(this);
 	}
 
@@ -222,8 +227,8 @@ class Xapian::Weight::Internal {
 // Inline method definitions for Stats //
 /////////////////////////////////////////
 
-inline Stats &
-Stats::operator +=(const Stats & inc)
+inline Xapian::Weight::Internal &
+Xapian::Weight::Internal::operator +=(const Xapian::Weight::Internal & inc)
 {
     // Set the new collection size and average length.
     Xapian::doccount new_collection_size = collection_size + inc.collection_size;
@@ -252,7 +257,7 @@ Stats::operator +=(const Stats & inc)
 }
 
 inline Xapian::doccount
-Stats::get_termfreq(const string & tname) const
+Xapian::Weight::Internal::get_termfreq(const string & tname) const
 {
     // We pass an empty string for tname when calculating the extra weight.
     if (tname.empty()) return 0;
@@ -264,7 +269,7 @@ Stats::get_termfreq(const string & tname) const
 }
 
 inline Xapian::doccount
-Stats::get_reltermfreq(const string & tname) const
+Xapian::Weight::Internal::get_reltermfreq(const string & tname) const
 {
     // We pass an empty string for tname when calculating the extra weight.
     if (tname.empty()) return 0;
@@ -291,11 +296,11 @@ StatsGatherer::set_global_stats(Xapian::doccount rset_size)
 }
 
 ///////////////////////////////////////////////
-// Inline method definitions for Xapian::Weight::Internal
+// Inline method definitions for StatsSource //
 ///////////////////////////////////////////////
  
 inline void
-Xapian::Weight::Internal::take_my_stats(Xapian::doccount csize, Xapian::doclength avlen)
+StatsSource::take_my_stats(Xapian::doccount csize, Xapian::doclength avlen)
 {
     Assert(total_stats == 0);
     my_stats.collection_size = csize;
@@ -303,7 +308,7 @@ Xapian::Weight::Internal::take_my_stats(Xapian::doccount csize, Xapian::doclengt
 }
 
 inline void
-Xapian::Weight::Internal::my_termfreq_is(const string & tname, Xapian::doccount tfreq)
+StatsSource::my_termfreq_is(const string & tname, Xapian::doccount tfreq)
 {
     Assert(total_stats == 0);
     // Can be called a second time, if a term occurs multiple times in the
@@ -314,7 +319,7 @@ Xapian::Weight::Internal::my_termfreq_is(const string & tname, Xapian::doccount 
 }
 
 inline void
-Xapian::Weight::Internal::my_reltermfreq_is(const string & tname, Xapian::doccount rtfreq)
+StatsSource::my_reltermfreq_is(const string & tname, Xapian::doccount rtfreq)
 {
     Assert(total_stats == 0);
     // Can be called a second time, if a term occurs multiple times in the
