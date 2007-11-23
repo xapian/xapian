@@ -59,6 +59,20 @@ class Stats {
 	/** Add in the supplied statistics from a sub-database.
 	 */
 	Stats & operator +=(const Stats & inc);
+
+	/** Get the term of the given term.
+	 *
+	 *  This is "n_t", the number of documents in the collection indexed by
+	 *  the given term.
+	 */
+	Xapian::doccount get_termfreq(const string & tname) const;
+
+	/** Get the relevant term-frequency for the given term.
+	 *
+	 *  This is "r_t", the number of relevant documents in the collection
+	 *  indexed by the given term.
+	 */
+	Xapian::doccount get_reltermfreq(const string & tname) const;
 };
 
 /** Statistics collector: gathers statistics from sub-databases, puts them
@@ -129,7 +143,6 @@ class Xapian::Weight::Internal {
         Internal(const Internal &);
         Internal & operator=(const Internal &);
 
-    protected:
 	/** The gatherer which we report our information to, and ask
 	 *  for the global information from.
 	 */
@@ -195,31 +208,14 @@ class Xapian::Weight::Internal {
 
 	/** Set the total_stats stored.
 	 */
-	void set_total_stats(const Stats * total_stats);
+	void set_total_stats(const Stats * stats);
 
-	/** Get the number of documents in the whole collection.
+	/** Get the statistics for the whole collection.
 	 */
-	Xapian::doccount get_total_collection_size() const;
-
-	/** Get the number of documents marked relevant in the collection.
-	 */
-	Xapian::doccount get_total_rset_size() const;
-
-	/** Get the average length of documents in the collection.
-	 */
-	Xapian::doclength get_total_average_length() const;
-
-	/** Get the term frequency over the whole collection, for the
-	 *  given term.  This is "n_t", the number of documents in the
-	 *  collection indexed by the given term.
-	 */
-	Xapian::doccount get_total_termfreq(const string & tname) const;
-
-	/** Get the relevant term-frequency over the whole collection, for
-	 *  the given term.  This is "r_t", the number of relevant documents
-	 *  in the collection indexed by the given term.
-	 */
-	Xapian::doccount get_total_reltermfreq(const string & tname) const;
+	const Stats & get_total_stats() const {
+	    Assert(total_stats != 0);
+	    return *total_stats;
+	}
 };
 
 /////////////////////////////////////////
@@ -253,6 +249,30 @@ Stats::operator +=(const Stats & inc)
 	reltermfreq[i->first] += i->second;
     }
     return *this;
+}
+
+inline Xapian::doccount
+Stats::get_termfreq(const string & tname) const
+{
+    // We pass an empty string for tname when calculating the extra weight.
+    if (tname.empty()) return 0;
+
+    std::map<string, Xapian::doccount>::const_iterator tfreq;
+    tfreq = termfreq.find(tname);
+    Assert(tfreq != termfreq.end());
+    return tfreq->second;
+}
+
+inline Xapian::doccount
+Stats::get_reltermfreq(const string & tname) const
+{
+    // We pass an empty string for tname when calculating the extra weight.
+    if (tname.empty()) return 0;
+
+    std::map<string, Xapian::doccount>::const_iterator rtfreq;
+    rtfreq = reltermfreq.find(tname);
+    Assert(rtfreq != reltermfreq.end());
+    return rtfreq->second;
 }
 
 /////////////////////////////////////////////////
@@ -302,56 +322,6 @@ Xapian::Weight::Internal::my_reltermfreq_is(const string & tname, Xapian::doccou
     Assert(my_stats.reltermfreq.find(tname) == my_stats.reltermfreq.end() ||
 	   my_stats.reltermfreq.find(tname)->second == rtfreq);
     my_stats.reltermfreq[tname] = rtfreq;
-}
-
-inline Xapian::doccount
-Xapian::Weight::Internal::get_total_collection_size() const
-{
-    Assert(total_stats != 0);
-    return total_stats->collection_size;
-}
-
-inline Xapian::doccount
-Xapian::Weight::Internal::get_total_rset_size() const
-{
-    Assert(total_stats != 0);
-    return total_stats->rset_size;
-}
-
-inline Xapian::doclength
-Xapian::Weight::Internal::get_total_average_length() const
-{
-    Assert(total_stats != 0);
-    return total_stats->average_length;
-}
-
-inline Xapian::doccount
-Xapian::Weight::Internal::get_total_termfreq(const string & tname) const
-{
-    // We pass an empty string for tname when calculating the extra weight.
-    if (tname.empty()) return 0;
-    Assert(total_stats != 0);
-
-    // To get the statistics about a given term, we have to have
-    // supplied our own ones first.
-    Assert(my_stats.termfreq.find(tname) != my_stats.termfreq.end());
-
-    std::map<string, Xapian::doccount>::const_iterator tfreq;
-    tfreq = total_stats->termfreq.find(tname);
-    Assert(tfreq != total_stats->termfreq.end());
-    return tfreq->second;
-}
-
-inline Xapian::doccount
-Xapian::Weight::Internal::get_total_reltermfreq(const string & tname) const
-{
-    // We pass an empty string for tname when calculating the extra weight.
-    if (tname.empty()) return 0;
-    Assert(total_stats != 0);
-    std::map<string, Xapian::doccount>::const_iterator rtfreq;
-    rtfreq = total_stats->reltermfreq.find(tname);
-    Assert(rtfreq != total_stats->reltermfreq.end());
-    return rtfreq->second;
 }
 
 #endif /* OM_HGUARD_STATS_H */

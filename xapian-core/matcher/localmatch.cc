@@ -137,7 +137,7 @@ LocalSubMatch::postlist_from_op_leaf_query(const Xapian::Query::Internal *query,
     map<string, Xapian::MSet::Internal::TermFreqAndWeight>::iterator i;
     i = term_info.find(query->tname);
     if (i == term_info.end()) {
-	Xapian::doccount tf = statssource.get_total_termfreq(query->tname);
+	Xapian::doccount tf = statssource.get_total_stats().get_termfreq(query->tname);
 	Xapian::weight weight = boolean ? 0 : wt->get_maxpart();
 	Xapian::MSet::Internal::TermFreqAndWeight info(tf, weight);
 	term_info.insert(make_pair(query->tname, info));

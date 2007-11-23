@@ -1,3 +1,16 @@
+Fri Nov 23 10:15:43 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/stats.h,matcher/bm25weight.cc,matcher/localmatch.cc,
+	  matcher/tradweight.cc: Remove the Xapian::Weight::Internal
+	  get_total_* methods: instead, add a get_total_stats() method
+	  which returns a Stats object representing the whole collection.
+	  Add get_termfreq() and get_reltermfreq() convenience methods to
+	  Stats for looking up individual term's statistics.  Also, change
+	  protected members of Xapian::Weight::Internal to private members,
+	  since we're no longer subclassed.  Also, in tradweight.cc, avoid
+	  division by zero in the (rare) situation of the average length
+	  being zero; in the same way as this is handled by bm25weight.cc.
+
 Thu Nov 22 12:58:02 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* common/stats.h,matcher/localmatch.cc,matcher/localmatch.h,

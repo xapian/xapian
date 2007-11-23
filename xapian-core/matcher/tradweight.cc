@@ -57,32 +57,35 @@ TradWeight::calc_termweight() const
 {
     DEBUGCALL(MATCH, void, "TradWeight::calc_termweight", "");
 
-    Xapian::doccount dbsize = internal->get_total_collection_size();
-    lenpart = param_k / internal->get_total_average_length();
+    const Stats & stats = internal->get_total_stats();
 
-    Xapian::doccount termfreq = internal->get_total_termfreq(tname);
+    lenpart = stats.average_length;
+    // lenpart == 0 if there are no documents, or only empty documents.
+    if (lenpart != 0) lenpart = param_k / lenpart;
 
-    DEBUGLINE(WTCALC, "Statistics: N=" << dbsize << " n_t=" << termfreq);
+    Xapian::doccount termfreq = stats.get_termfreq(tname);
+
+    DEBUGLINE(WTCALC, "Statistics: N=" << stats.collection_size <<
+	      " n_t=" << termfreq << " lenpart=" << lenpart);
 
     Xapian::weight tw = 0;
-    Xapian::doccount rsize = internal->get_total_rset_size();
-    if (rsize != 0) {
-	Xapian::doccount rtermfreq = internal->get_total_reltermfreq(tname);
+    if (stats.rset_size != 0) {
+	Xapian::doccount rtermfreq = stats.get_reltermfreq(tname);
 
-	DEBUGLINE(WTCALC, " R=" << rsize << " r_t=" << rtermfreq);
+	DEBUGLINE(WTCALC, " R=" << stats.rset_size << " r_t=" << rtermfreq);
 
 	// termfreq must be at least rtermfreq since there are at least
 	// rtermfreq documents indexed by this term.  And it can't be
-	// more than (dbsize - rsize + rtermfreq) since the number
+	// more than (stats.collection_size - stats.rset_size + rtermfreq) since the number
 	// of relevant documents not indexed by this term can't be
 	// more than the number of documents not indexed by this term.
 	Assert(termfreq >= rtermfreq);
-	Assert(termfreq <= dbsize - rsize + rtermfreq);
+	Assert(termfreq <= stats.collection_size - stats.rset_size + rtermfreq);
 
-	tw = (rtermfreq + 0.5) * (dbsize - rsize - termfreq + rtermfreq + 0.5) /
-	     ((rsize - rtermfreq + 0.5) * (termfreq - rtermfreq + 0.5));
+	tw = (rtermfreq + 0.5) * (stats.collection_size - stats.rset_size - termfreq + rtermfreq + 0.5) /
+	     ((stats.rset_size - rtermfreq + 0.5) * (termfreq - rtermfreq + 0.5));
     } else {
-	tw = (dbsize - termfreq + 0.5) / (termfreq + 0.5);
+	tw = (stats.collection_size - termfreq + 0.5) / (termfreq + 0.5);
     }
 
     Assert(tw > 0);
