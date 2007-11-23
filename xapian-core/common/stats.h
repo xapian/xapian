@@ -85,9 +85,6 @@ class Xapian::Weight::Internal {
 
 typedef Xapian::Weight::Internal Stats;
 
-// Forward declaration.
-class StatsSource;
-
 /** Statistics collector: gathers statistics from sub-databases, puts them
  *  together to build statistics for whole collection, and returns the
  *  overall statistics to each sub-database.
@@ -100,12 +97,6 @@ class StatsGatherer {
 	 */
 	mutable bool have_gathered;
 
-	/** A collection of StatsSource children.
-	 *  The Gatherer uses this to make sure that each child
-	 *  has contributed before it will give out its statistics.
-	 */
-	mutable std::set<StatsSource *> sources;
-
 	/** The total statistics gathered for the whole collection.
 	 */
 	mutable Stats total_stats;
@@ -117,18 +108,6 @@ class StatsGatherer {
 	 *  Should be called before the match is performed.
 	 */
 	virtual void set_global_stats(Xapian::doccount rset_size);
-
-	/** Add a StatsSource object to this gatherer.
-	 *  The gatherer will include the source's statistics
-	 *  into its own summary statistics.
-	 */
-	void add_child(StatsSource *source);
-
-	/** Remove a StatsSource object from this gatherer.
-	 *  This is needed in the case of some parts of the database dying
-	 *  during the match.
-	 */
-	void remove_child(StatsSource *source);
 
 	/** Contribute some statistics to the overall statistics.
 	 *  Should only be called once by each sub-database.
@@ -145,58 +124,6 @@ class StatsGatherer {
 class LocalStatsGatherer : public StatsGatherer {
     public:
 	const Stats *get_stats() const;
-};
-
-/** Statistics source: gathers notifications of statistics which will be
- *  needed, and passes them on in bulk to a StatsGatherer.
- */
-class StatsSource {
-    private:
-        // Prevent copying
-        StatsSource(const StatsSource &);
-        StatsSource & operator=(const StatsSource &);
-
-	/** The gatherer which we report our information to, and ask
-	 *  for the global information from.
-	 */
-	StatsGatherer * gatherer;
-
-	/** The stats to give to the StatsGatherer.
-	 */
-	Stats my_stats;
-
-	/** The collection statistics, held by the StatsGatherer.
-	 *  0 before these have been retrieved.
-	 */
-	const Stats * total_stats;
-
-    public:
-	/// Constructor
-	StatsSource(StatsGatherer *gatherer_) : gatherer(gatherer_), total_stats(0)
-	{
-	    gatherer->add_child(this);
-	}
-
-	/// Destructor
-	~StatsSource() {
-	    gatherer->remove_child(this);
-	}
-
-	/** Get all the statistics that don't depend on global stats.
-	 */
-	const Stats & get_my_stats() {
-	    return my_stats;
-	}
-
-	///////////////////////////////////////////////////////////////////
-	// Give statistics about yourself.  These are used to generate,
-	// or check, the global information.
-
-	/** Set all the statistics about this sub-database.
-	 *
-	 *  The supplied statistics overwrite any statistics set previously.
-	 */
-	void set_my_stats(const Stats & stats);
 };
 
 /////////////////////////////////////////

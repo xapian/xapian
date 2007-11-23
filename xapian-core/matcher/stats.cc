@@ -30,21 +30,6 @@
 #include <xapian/version.h> // For XAPIAN_HAS_REMOTE_BACKEND
 
 void
-StatsGatherer::add_child(StatsSource *source) {
-    DEBUGCALL(MATCH, void, "StatsGatherer::add_child", source);
-    Assert(have_gathered == false);
-    sources.insert(source);
-}
-
-void
-StatsGatherer::remove_child(StatsSource *source) {
-    DEBUGCALL(MATCH, void, "StatsGatherer::remove_child", source);
-    // If have_gathered is true, the stats will be wrong, but we just
-    // continue as best we can.
-    sources.erase(source);
-}
-
-void
 StatsGatherer::contrib_stats(const Stats & extra_stats)
 {
     DEBUGCALL(MATCH, void, "StatsGatherer::contrib_stats", "[extra_stats]");
@@ -57,11 +42,6 @@ LocalStatsGatherer::get_stats() const
 {
     DEBUGCALL(MATCH, Stats *, "LocalStatsGatherer::get_stats", "");
     if(!have_gathered) {
-	for (std::set<StatsSource *>::iterator i = sources.begin();
-	     i != sources.end();
-	     ++i) {
-	    total_stats += (*i)->get_my_stats();
-	}
 	have_gathered = true;
     }
 
@@ -98,12 +78,6 @@ NetworkStatsGatherer::get_local_stats() const
     DEBUGCALL(MATCH, Stats, "NetworkStatsGatherer::get_local_stats", "");
     Assert(!have_gathered);
 
-    for (std::set<StatsSource *>::iterator i = sources.begin();
-	 i != sources.end();
-	 ++i) {
-	total_stats += (*i)->get_my_stats();
-    }
-
     have_gathered = true;
     return total_stats;
 }
@@ -131,10 +105,3 @@ NetworkStatsGatherer::set_global_stats(const Stats & stats) const
 }
 
 #endif /* XAPIAN_HAS_REMOTE_BACKEND */
-
-void
-StatsSource::set_my_stats(const Stats & stats)
-{
-    DEBUGCALL(MATCH, void, "StatsSource::set_my_stats", "[stats]");
-    my_stats = stats;
-}

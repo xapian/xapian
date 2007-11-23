@@ -42,11 +42,6 @@ class LocalSubMatch : public SubMatch {
     /// The StatsGatherer object, used to access database statistics.
     StatsGatherer * gatherer;
 
-    /** The statssource object is supplied with statistics from the database,
-     *  and is then queried for them by the gatherer.
-     */
-    StatsSource statssource;
-
     /** The statistics for the collection.
      */
     const Stats * stats;

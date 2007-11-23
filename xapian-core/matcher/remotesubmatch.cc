@@ -29,7 +29,7 @@
 
 RemoteSubMatch::RemoteSubMatch(RemoteDatabase *db_, StatsGatherer *gatherer_,
 			       bool decreasing_relevance_)
-	: db(db_), gatherer(gatherer_), stats_source(gatherer_),
+	: db(db_), gatherer(gatherer_),
 	  decreasing_relevance(decreasing_relevance_)
 {
     DEBUGCALL(MATCH, void, "RemoteSubMatch",
@@ -40,10 +40,9 @@ bool
 RemoteSubMatch::prepare_match(bool nowait)
 {
     DEBUGCALL(MATCH, bool, "RemoteSubMatch::prepare_match", nowait);
-    // Read Stats from the remote server and pass them to the StatsSource.
     Stats remote_stats;
     if (!db->get_remote_stats(nowait, remote_stats)) RETURN(false);
-    stats_source.set_my_stats(remote_stats);
+    gatherer->contrib_stats(remote_stats);
     RETURN(true);
 }
 

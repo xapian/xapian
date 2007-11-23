@@ -41,7 +41,7 @@ LocalSubMatch::LocalSubMatch(const Xapian::Database::Internal *db_,
 	const Xapian::Query::Internal * query, Xapian::termcount qlen_,
 	const Xapian::RSet & omrset, StatsGatherer *gatherer_,
 	const Xapian::Weight *wt_factory_)
-	: gatherer(gatherer_), statssource(gatherer_),
+	: gatherer(gatherer_),
 	  orig_query(*query), qlen(qlen_), db(db_),
 	  rset(db, omrset), wt_factory(wt_factory_)
 {
@@ -74,7 +74,7 @@ LocalSubMatch::prepare_match(bool /*nowait*/)
     rset.contribute_stats(my_stats);
 
     // Contribute the calculated statistics.
-    statssource.set_my_stats(my_stats);
+    gatherer->contrib_stats(my_stats);
     RETURN(true);
 }
 

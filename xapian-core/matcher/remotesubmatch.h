@@ -41,9 +41,6 @@ class RemoteSubMatch : public SubMatch {
     /// The StatsGatherer object, used to access database statistics.
     StatsGatherer * gatherer;
 
-    /// The stats_source object handles statistics for the remote db.
-    StatsSource stats_source;
-
     /** Is the sort order such the relevance decreases down the MSet?
      *
      *  This is true for sort_by_relevance and sort_by_relevance_then_value.
