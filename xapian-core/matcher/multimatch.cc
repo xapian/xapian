@@ -301,6 +301,9 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
     Assert(!leaves.empty());
 
+    // Get the statistics from the gatherer.
+    const Stats * total_stats = gatherer->get_stats();
+
     // Start matchers.
 
     // If there's only one database and it's remote, we can just unserialise
@@ -308,7 +311,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     if (leaves.size() == 1 && is_remote[0]) {
 	RemoteSubMatch * rem_match;
 	rem_match = static_cast<RemoteSubMatch*>(leaves[0].get());
-	rem_match->start_match(first, maxitems, check_at_least);
+	rem_match->start_match(first, maxitems, check_at_least, total_stats);
 	rem_match->get_mset(mset);
 	return;
     }
@@ -320,7 +323,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		// FIXME: look if we can push the "check_at_least" stuff
 		// into the remote match handling too.
 		(*leaf)->start_match(0, first + maxitems,
-				     first + check_at_least);
+				     first + check_at_least, total_stats);
 	    } catch (Xapian::Error & e) {
 		if (!errorhandler) throw;
 		DEBUGLINE(EXCEPTION, "Calling error handler for "

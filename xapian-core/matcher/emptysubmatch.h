@@ -40,7 +40,8 @@ class EmptySubMatch : public SubMatch {
     /// Start the match.
     void start_match(Xapian::doccount first,
 		     Xapian::doccount maxitems,
-		     Xapian::doccount check_at_least);
+		     Xapian::doccount check_at_least,
+		     const Stats * total_stats);
 
     /// Get PostList and term info.
     PostList * get_postlist_and_term_info(MultiMatch *matcher,

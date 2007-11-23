@@ -26,6 +26,7 @@
 
 #include "omenquireinternal.h"
 #include "postlist.h"
+#include "stats.h"
 
 class SubMatch : public Xapian::Internal::RefCntBase {
   public:
@@ -54,7 +55,8 @@ class SubMatch : public Xapian::Internal::RefCntBase {
     /// Start the match.
     virtual void start_match(Xapian::doccount first,
 			     Xapian::doccount maxitems,
-			     Xapian::doccount check_at_least) = 0;
+			     Xapian::doccount check_at_least,
+			     const Stats * total_stats) = 0;
 
     /// Get PostList and term info.
     virtual PostList * get_postlist_and_term_info(MultiMatch *matcher,

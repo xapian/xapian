@@ -50,12 +50,12 @@ RemoteSubMatch::prepare_match(bool nowait)
 void
 RemoteSubMatch::start_match(Xapian::doccount first,
 			    Xapian::doccount maxitems,
-			    Xapian::doccount check_at_least)
+			    Xapian::doccount check_at_least,
+			    const Stats * total_stats)
 {
     DEBUGCALL(MATCH, void, "RemoteSubMatch::start_match",
 	      first << ", " << maxitems << ", " << check_at_least);
-    db->send_global_stats(first, maxitems, check_at_least,
-			  *(gatherer->get_stats()));
+    db->send_global_stats(first, maxitems, check_at_least, *total_stats);
 }
 
 PostList *

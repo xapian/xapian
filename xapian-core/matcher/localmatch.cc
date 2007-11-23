@@ -79,9 +79,11 @@ LocalSubMatch::prepare_match(bool /*nowait*/)
 }
 
 void
-LocalSubMatch::start_match(Xapian::doccount, Xapian::doccount, Xapian::doccount)
+LocalSubMatch::start_match(Xapian::doccount, Xapian::doccount,
+			   Xapian::doccount, const Stats * total_stats)
 {
-    // Nothing to do here for a local match.
+    // Get the statistics for the whole collection from the gatherer.
+    stats = total_stats;
 }
 
 PostList *
@@ -90,9 +92,6 @@ LocalSubMatch::get_postlist_and_term_info(MultiMatch * matcher,
 {
     DEBUGCALL(MATCH, PostList *, "LocalSubMatch::get_postlist_and_term_info",
 	      matcher << ", [termfreqandwts]");
-
-    // First, get the statistics for the whole collection from the gatherer.
-    stats = gatherer->get_stats();
 
     // Build the postlist tree for the query.  This calls
     // LocalSubMatch::postlist_from_op_leaf_query() for each term in the query,
