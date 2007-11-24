@@ -39,19 +39,18 @@
 
 LocalSubMatch::LocalSubMatch(const Xapian::Database::Internal *db_,
 	const Xapian::Query::Internal * query, Xapian::termcount qlen_,
-	const Xapian::RSet & omrset, StatsGatherer *gatherer_,
+	const Xapian::RSet & omrset,
 	const Xapian::Weight *wt_factory_)
-	: gatherer(gatherer_),
-	  orig_query(*query), qlen(qlen_), db(db_),
+	: orig_query(*query), qlen(qlen_), db(db_),
 	  rset(db, omrset), wt_factory(wt_factory_)
 {
     DEBUGCALL(MATCH, void, "LocalSubMatch::LocalSubMatch",
 	      db << ", " << query << ", " << qlen_ << ", " << omrset << ", " <<
-	      gatherer_ << ", [wt_factory]");
+	      ", [wt_factory]");
 }
 
 bool
-LocalSubMatch::prepare_match(bool /*nowait*/)
+LocalSubMatch::prepare_match(bool /*nowait*/, Stats & total_stats)
 {
     DEBUGCALL(MATCH, bool, "LocalSubMatch::prepare_match", "/*nowait*/");
     Stats my_stats;
@@ -74,16 +73,16 @@ LocalSubMatch::prepare_match(bool /*nowait*/)
     rset.contribute_stats(my_stats);
 
     // Contribute the calculated statistics.
-    gatherer->contrib_stats(my_stats);
+    total_stats += my_stats;
     RETURN(true);
 }
 
 void
 LocalSubMatch::start_match(Xapian::doccount, Xapian::doccount,
-			   Xapian::doccount, const Stats * total_stats)
+			   Xapian::doccount, const Stats & total_stats)
 {
     // Get the statistics for the whole collection from the gatherer.
-    stats = total_stats;
+    stats = &total_stats;
 }
 
 PostList *

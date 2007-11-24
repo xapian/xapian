@@ -656,13 +656,15 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	weight = new BM25Weight;
     }
 
+    Stats stats;
     ::MultiMatch match(db, query.internal.get(), qlen, rset, collapse_key,
 		       percent_cutoff, weight_cutoff,
 		       order, sort_key, sort_by, sort_value_forward, sorter,
-		       errorhandler, new LocalStatsGatherer(), weight);
+		       errorhandler, stats, weight);
     // Run query and put results into supplied Xapian::MSet object.
     MSet retval;
-    match.get_mset(first, maxitems, check_at_least, retval, mdecider, matchspy);
+    match.get_mset(first, maxitems, check_at_least, retval,
+		   stats, mdecider, matchspy);
 
     Assert(weight->name() != "bool" || retval.get_max_possible() == 0);
 

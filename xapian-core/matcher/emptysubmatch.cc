@@ -26,13 +26,13 @@
 #include <xapian/enquire.h>
 
 bool
-EmptySubMatch::prepare_match(bool /*nowait*/) {
+EmptySubMatch::prepare_match(bool /*nowait*/, Stats & /*total_stats*/) {
     return true;
 }
 
 void
 EmptySubMatch::start_match(Xapian::doccount, Xapian::doccount,
-			   Xapian::doccount, const Stats *)
+			   Xapian::doccount, const Stats &)
 {
 }
 

@@ -23,26 +23,23 @@
 #include "remotesubmatch.h"
 
 #include "msetpostlist.h"
-#include "networkstats.h"
 #include "omdebug.h"
 #include "remote-database.h"
 
-RemoteSubMatch::RemoteSubMatch(RemoteDatabase *db_, StatsGatherer *gatherer_,
-			       bool decreasing_relevance_)
-	: db(db_), gatherer(gatherer_),
-	  decreasing_relevance(decreasing_relevance_)
+RemoteSubMatch::RemoteSubMatch(RemoteDatabase *db_, bool decreasing_relevance_)
+	: db(db_), decreasing_relevance(decreasing_relevance_)
 {
     DEBUGCALL(MATCH, void, "RemoteSubMatch",
-	      db_ << ", [gatherer_], " << decreasing_relevance_);
+	      db_ << ", " << decreasing_relevance_);
 }
 
 bool
-RemoteSubMatch::prepare_match(bool nowait)
+RemoteSubMatch::prepare_match(bool nowait, Stats & total_stats)
 {
     DEBUGCALL(MATCH, bool, "RemoteSubMatch::prepare_match", nowait);
     Stats remote_stats;
     if (!db->get_remote_stats(nowait, remote_stats)) RETURN(false);
-    gatherer->contrib_stats(remote_stats);
+    total_stats += remote_stats;
     RETURN(true);
 }
 
@@ -50,11 +47,11 @@ void
 RemoteSubMatch::start_match(Xapian::doccount first,
 			    Xapian::doccount maxitems,
 			    Xapian::doccount check_at_least,
-			    const Stats * total_stats)
+			    const Stats & total_stats)
 {
     DEBUGCALL(MATCH, void, "RemoteSubMatch::start_match",
 	      first << ", " << maxitems << ", " << check_at_least);
-    db->send_global_stats(first, maxitems, check_at_least, *total_stats);
+    db->send_global_stats(first, maxitems, check_at_least, total_stats);
 }
 
 PostList *

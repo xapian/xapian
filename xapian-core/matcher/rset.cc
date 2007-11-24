@@ -84,4 +84,5 @@ RSetI::contribute_stats(Stats & stats)
     for (i = reltermfreqs.begin(); i != reltermfreqs.end(); i++) {
 	stats.set_reltermfreq(i->first, i->second);
     }
+    stats.rset_size += get_rsize();
 }

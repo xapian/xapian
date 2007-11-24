@@ -135,11 +135,12 @@ split_rset_by_db(const Xapian::RSet * rset,
  */
 static void
 prepare_sub_matches(std::vector<Xapian::Internal::RefCntPtr<SubMatch> > & leaves,
-		    Xapian::ErrorHandler * errorhandler)
+		    Xapian::ErrorHandler * errorhandler,
+		    Stats & stats)
 {
     DEBUGCALL_STATIC(MATCH, void, "prepare_sub_matches",
 		     "[leaves(size=" << leaves.size() << ")], " <<
-		     errorhandler);
+		     errorhandler << ", [stats]");
     // We use a vector<bool> to track which SubMatches we're already prepared.
     vector<bool> prepared;
     prepared.resize(leaves.size(), false);
@@ -149,7 +150,7 @@ prepare_sub_matches(std::vector<Xapian::Internal::RefCntPtr<SubMatch> > & leaves
 	for (size_t leaf = 0; leaf < leaves.size(); ++leaf) {
 	    if (prepared[leaf]) continue;
 	    try {
-		if (leaves[leaf]->prepare_match(nowait)) {
+		if (leaves[leaf]->prepare_match(nowait, stats)) {
 		    prepared[leaf] = true;
 		    --unprepared;
 		}
@@ -185,9 +186,9 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 		       bool sort_value_forward_,
 		       const Xapian::Sorter * sorter_,
 		       Xapian::ErrorHandler * errorhandler_,
-		       StatsGatherer * gatherer_,
+		       Stats & stats,
 		       const Xapian::Weight * weight_)
-	: gatherer(gatherer_), db(db_), query(query_),
+	: db(db_), query(query_),
 	  collapse_key(collapse_key_), percent_cutoff(percent_cutoff_),
 	  weight_cutoff(weight_cutoff_), order(order_),
 	  sort_key(sort_key_), sort_by(sort_by_),
@@ -226,11 +227,10 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 				  weight_cutoff, weight, subrsets[i]);
 		bool decreasing_relevance =
 		    (sort_by == REL || sort_by == REL_VAL);
-		smatch = new RemoteSubMatch(rem_db, gatherer.get(),
-					    decreasing_relevance);
+		smatch = new RemoteSubMatch(rem_db, decreasing_relevance);
 	    } else {
 #endif /* XAPIAN_HAS_REMOTE_BACKEND */
-		smatch = new LocalSubMatch(subdb, query, qlen, subrsets[i], gatherer.get(), weight);
+		smatch = new LocalSubMatch(subdb, query, qlen, subrsets[i], weight);
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 	    }
 #endif /* XAPIAN_HAS_REMOTE_BACKEND */
@@ -244,9 +244,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	leaves.push_back(smatch);
     }
 
-    gatherer->set_global_stats(omrset ? omrset->size() : 0);
-
-    prepare_sub_matches(leaves, errorhandler);
+    prepare_sub_matches(leaves, errorhandler, stats);
 }
 
 string
@@ -287,7 +285,9 @@ MultiMatch::getorrecalc_maxweight(PostList *pl)
 void
 MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		     Xapian::doccount check_at_least,
-		     Xapian::MSet & mset, const Xapian::MatchDecider *mdecider,
+		     Xapian::MSet & mset,
+		     const Stats & stats,
+		     const Xapian::MatchDecider *mdecider,
 		     const Xapian::MatchDecider *matchspy)
 {
     DEBUGCALL(MATCH, void, "MultiMatch::get_mset", first << ", " << maxitems
@@ -301,21 +301,17 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
     Assert(!leaves.empty());
 
-    // Get the statistics from the gatherer.
-    const Stats * total_stats = gatherer->get_stats();
-
-    // Start matchers.
-
     // If there's only one database and it's remote, we can just unserialise
     // its MSet and return that.
     if (leaves.size() == 1 && is_remote[0]) {
 	RemoteSubMatch * rem_match;
 	rem_match = static_cast<RemoteSubMatch*>(leaves[0].get());
-	rem_match->start_match(first, maxitems, check_at_least, total_stats);
+	rem_match->start_match(first, maxitems, check_at_least, stats);
 	rem_match->get_mset(mset);
 	return;
     }
 
+    // Start matchers.
     {
 	vector<Xapian::Internal::RefCntPtr<SubMatch> >::iterator leaf;
 	for (leaf = leaves.begin(); leaf != leaves.end(); ++leaf) {
@@ -323,7 +319,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		// FIXME: look if we can push the "check_at_least" stuff
 		// into the remote match handling too.
 		(*leaf)->start_match(0, first + maxitems,
-				     first + check_at_least, total_stats);
+				     first + check_at_least, stats);
 	    } catch (Xapian::Error & e) {
 		if (!errorhandler) throw;
 		DEBUGLINE(EXCEPTION, "Calling error handler for "

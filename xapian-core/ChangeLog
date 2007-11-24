@@ -1,3 +1,24 @@
+Sat Nov 24 01:21:56 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/omenquire.cc,common/,matcher/,net/remoteserver.cc: Remove
+	  StatsGatherer and its subclasses completely.  Instead of a
+	  StatsGatherer subclass, MultiMatch is now simply passed a Stats
+	  object, and passes this to the prepare_match() methods of the sub
+	  matchers to be populated with statistics.  OmEnquire then passes
+	  the same Stats object to MultiMatch::get_mset(), whereas a remote
+	  submatch sends the Stats object to the parent match, to be
+	  combined with the global statistics, and then passes the returned
+	  global statistics to MultiMatch::get_mset().  Remove stats.cc
+	  since it only contained implementations of StatsGatherer methods,
+	  and networkstats.h which only contained the definition of the
+	  NetworkStatsGatherer.
+	* matcher/rset.cc: Add the rset size to the database - we now
+	  compute the global rset size the same way as we compute the
+	  global collection size: by adding the sizes in the sub
+	  collections together.  We have the total rset size easily
+	  available in the code, but building the total rset size up from
+	  the sub-databases makes the code simpler.
+
 Sat Nov 24 01:21:18 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* matcher/andnotpostlist.cc: Add a missing #include "omdebug.h".

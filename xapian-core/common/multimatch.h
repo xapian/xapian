@@ -34,10 +34,7 @@
 class MultiMatch
 {
     private:
-	/// stats gatherer
-	AutoPtr<StatsGatherer> gatherer;
-
-	/// Vector of the items.  This MUST be destroyed before "gatherer"
+	/// Vector of the items.
 	std::vector<Xapian::Internal::RefCntPtr<SubMatch> > leaves;
 
 	const Xapian::Database db;
@@ -100,9 +97,7 @@ class MultiMatch
 	 *  @param omrset    The relevance set (or NULL for no RSet)
 	 *  @param errorhandler Errorhandler object
 	 *  @param sorter    Xapian::Sorter functor (or NULL for no Sorter).
-	 *  @param gatherer_ A pointer to a StatsGatherer instance.
-	 *                   The MultiMatch takes ownership of the
-	 *                   StatsGatherer.
+	 *  @param stats     The stats object to add our stats to.
 	 *  @param wtischeme Weighting scheme
 	 */
 	MultiMatch(const Xapian::Database &db_,
@@ -118,13 +113,14 @@ class MultiMatch
 		   bool sort_value_forward_,
 		   const Xapian::Sorter * sorter_,
 		   Xapian::ErrorHandler * errorhandler,
-		   StatsGatherer * gatherer_,
+		   Stats & stats,
 		   const Xapian::Weight *wtscheme);
 
 	void get_mset(Xapian::doccount first,
 		      Xapian::doccount maxitems,
 		      Xapian::doccount check_at_least,
 		      Xapian::MSet & mset,
+		      const Stats & stats,
 		      const Xapian::MatchDecider * mdecider,
 		      const Xapian::MatchDecider * matchspy);
 

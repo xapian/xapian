@@ -32,7 +32,7 @@
 
 #include "autoptr.h"
 #include "multimatch.h"
-#include "networkstats.h"
+#include "omtime.h"
 #include "remoteserver.h"
 #include "serialise.h"
 #include "serialise-double.h"
@@ -415,14 +415,13 @@ RemoteServer::msg_query(const string &message_in)
     // Unserialise the RSet object.
     Xapian::RSet rset = unserialise_rset(string(p, p_end - p));
 
-    NetworkStatsGatherer * gatherer = new NetworkStatsGatherer();
-
+    Stats local_stats;
     MultiMatch match(*db, query.get(), qlen, &rset, collapse_key,
 		     percent_cutoff, weight_cutoff, order,
 		     sort_key, sort_by, sort_value_forward, NULL,
-		     NULL, gatherer, wt.get());
+		     NULL, local_stats, wt.get());
 
-    send_message(REPLY_STATS, serialise_stats(gatherer->get_local_stats()));
+    send_message(REPLY_STATS, serialise_stats(local_stats));
 
     string message;
 #if 0 // Reinstate this when major protocol version increases to 31.
@@ -455,10 +454,10 @@ RemoteServer::msg_query(const string &message_in)
     }
 
     message.erase(0, message.size() - (p_end - p));
-    gatherer->set_global_stats(unserialise_stats(message));
+    Stats total_stats(unserialise_stats(message));
 
     Xapian::MSet mset;
-    match.get_mset(first, maxitems, check_at_least, mset, 0, 0);
+    match.get_mset(first, maxitems, check_at_least, mset, total_stats, 0, 0);
 
     if (type == MSG_GETMSET_PRE_30_3 || type == MSG_GETMSET_PRE_30_5) {
 	send_message(REPLY_RESULTS_PRE_30_5, serialise_mset_pre_30_5(mset));

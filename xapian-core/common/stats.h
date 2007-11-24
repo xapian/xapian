@@ -26,9 +26,7 @@
 
 #include <xapian/enquire.h> // for Xapian::Weight
 #include "omassert.h"
-#include "omdebug.h"
 #include <map>
-#include <set>
 
 using namespace std;
 
@@ -85,47 +83,6 @@ class Xapian::Weight::Internal {
 
 typedef Xapian::Weight::Internal Stats;
 
-/** Statistics collector: gathers statistics from sub-databases, puts them
- *  together to build statistics for whole collection, and returns the
- *  overall statistics to each sub-database.
- */
-class StatsGatherer {
-    protected:
-	/** Flag to say that statistics have been gathered.
-	 *  Some entries in stats are only valid after this.
-	 *  Stats should also not be modified before this.
-	 */
-	mutable bool have_gathered;
-
-	/** The total statistics gathered for the whole collection.
-	 */
-	mutable Stats total_stats;
-    public:
-	StatsGatherer();
-	virtual ~StatsGatherer() {}
-
-	/** Set the global collection statistics.
-	 *  Should be called before the match is performed.
-	 */
-	virtual void set_global_stats(Xapian::doccount rset_size);
-
-	/** Contribute some statistics to the overall statistics.
-	 *  Should only be called once by each sub-database.
-	 */
-	void contrib_stats(const Stats & extra_stats);
-
-	/** Get the collected statistics for the whole collection.
-	 */
-	virtual const Stats * get_stats() const = 0;
-};
-
-/** The top-level StatsGatherer.
- */
-class LocalStatsGatherer : public StatsGatherer {
-    public:
-	const Stats *get_stats() const;
-};
-
 /////////////////////////////////////////
 // Inline method definitions for Stats //
 /////////////////////////////////////////
@@ -144,9 +101,8 @@ Xapian::Weight::Internal::operator +=(const Xapian::Weight::Internal & inc)
     }
     collection_size = new_collection_size;
 
-    // rset_size is set at the top level, we don't want
-    // to pass it back up again.
-    Assert(inc.rset_size == 0);
+    // Add the rset size.
+    rset_size += inc.rset_size;
 
     // Add termfreqs and reltermfreqs
     std::map<string, Xapian::doccount>::const_iterator i;
@@ -203,21 +159,6 @@ Xapian::Weight::Internal::set_reltermfreq(const string & tname,
     Assert(reltermfreq.find(tname) == reltermfreq.end() ||
 	   reltermfreq.find(tname)->second == rtfreq);
     reltermfreq[tname] = rtfreq;
-}
-
-/////////////////////////////////////////////////
-// Inline method definitions for StatsGatherer //
-/////////////////////////////////////////////////
-
-inline
-StatsGatherer::StatsGatherer()
-	: have_gathered(false)
-{}
-
-inline void
-StatsGatherer::set_global_stats(Xapian::doccount rset_size)
-{
-    total_stats.rset_size = rset_size;
 }
 
 #endif /* OM_HGUARD_STATS_H */

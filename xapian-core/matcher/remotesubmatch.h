@@ -24,7 +24,6 @@
 
 #include "submatch.h"
 #include "remote-database.h"
-#include "networkstats.h"
 #include "stats.h"
 
 /// Class for performing matching on a remote database.
@@ -38,9 +37,6 @@ class RemoteSubMatch : public SubMatch {
     /// The remote database.
     RemoteDatabase *db;
 
-    /// The StatsGatherer object, used to access database statistics.
-    StatsGatherer * gatherer;
-
     /** Is the sort order such the relevance decreases down the MSet?
      *
      *  This is true for sort_by_relevance and sort_by_relevance_then_value.
@@ -49,17 +45,16 @@ class RemoteSubMatch : public SubMatch {
 
   public:
     /// Constructor.
-    RemoteSubMatch(RemoteDatabase *db_, StatsGatherer *gatherer_,
-		   bool decreasing_relevance_);
+    RemoteSubMatch(RemoteDatabase *db_, bool decreasing_relevance_);
 
     /// Fetch and collate statistics.
-    bool prepare_match(bool nowait);
+    bool prepare_match(bool nowait, Stats & total_stats);
 
     /// Start the match.
     void start_match(Xapian::doccount first,
 		     Xapian::doccount maxitems,
 		     Xapian::doccount check_at_least,
-		     const Stats * total_stats);
+		     const Stats & total_stats);
 
     /// Get PostList and term info.
     PostList * get_postlist_and_term_info(MultiMatch *matcher,

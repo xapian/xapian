@@ -39,9 +39,6 @@ class LocalSubMatch : public SubMatch {
     /// Don't allow copying.
     LocalSubMatch(const LocalSubMatch &);
 
-    /// The StatsGatherer object, used to access database statistics.
-    StatsGatherer * gatherer;
-
     /** The statistics for the collection.
      */
     const Stats * stats;
@@ -73,17 +70,16 @@ class LocalSubMatch : public SubMatch {
 		  const Xapian::Query::Internal * query,
 		  Xapian::termcount qlen,
 		  const Xapian::RSet & omrset,
-		  StatsGatherer *gatherer,
 		  const Xapian::Weight *wt_factory);
 
     /// Fetch and collate statistics.
-    bool prepare_match(bool nowait);
+    bool prepare_match(bool nowait, Stats & total_stats);
 
     /// Start the match.
     void start_match(Xapian::doccount first,
 		     Xapian::doccount maxitems,
 		     Xapian::doccount check_at_least,
-		     const Stats * total_stats);
+		     const Stats & total_stats);
 
     /// Get PostList and term info.
     PostList * get_postlist_and_term_info(MultiMatch *matcher,
