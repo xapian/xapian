@@ -2,6 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002,2003,2005,2007 Olly Betts
+ * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -79,6 +80,11 @@ class Xapian::Weight::Internal {
 	/** Set the relevant term-frequency for the given term.
 	 */
 	void set_reltermfreq(const string & tname, Xapian::doccount rtfreq);
+
+	/** Introspection method.
+	 *  @return  A string representing the Stats object.
+	 */
+	std::string get_description() const;
 };
 
 typedef Xapian::Weight::Internal Stats;

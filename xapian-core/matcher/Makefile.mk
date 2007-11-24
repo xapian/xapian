@@ -52,6 +52,7 @@ libxapian_la_SOURCES +=\
 	matcher/rset.cc\
 	matcher/scaleweight.cc\
 	matcher/selectpostlist.cc\
+	matcher/stats.cc\
 	matcher/tradweight.cc\
 	matcher/valuerangepostlist.cc\
 	matcher/weight.cc\

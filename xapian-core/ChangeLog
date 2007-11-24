@@ -1,3 +1,12 @@
+Sat Nov 24 20:44:03 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/stats.h,matcher/Makefile.mk,matcher/stats.cc: Add
+	  get_description() method for Xapian::Weight::Internal, and add
+	  stats.cc back to hold it's implementation.
+	* common/output.h: Add an output function for Stats (aka
+	  Xapian::Weight::Internal) to fix the build when debug logging is
+	  enabled.
+
 Sat Nov 24 01:21:56 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/omenquire.cc,common/,matcher/,net/remoteserver.cc: Remove
