@@ -45,9 +45,6 @@ extern test_desc nodb_tests[];
 // Defined in api_posdb.cc:
 extern test_desc positionaldb_tests[];
 
-// Defined in api_sorter.cc:
-extern test_desc sorter_tests[];
-
 // Defined in api_transdb.cc:
 extern test_desc transactiondb_tests[];
 
@@ -57,7 +54,7 @@ extern test_desc unicode_tests[];
 // Defined in api_wrdb.cc:
 extern test_desc writabledb_tests[];
 
-#define DEFINE_TESTCASE(S) static bool test_##S()
+#define DEFINE_TESTCASE(S,COND) bool test_##S()
 #define TESTCASE(S) {#S, test_##S}
 #define END_OF_TESTCASES {0, 0}
 

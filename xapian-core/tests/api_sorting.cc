@@ -23,11 +23,12 @@
 #include <xapian.h>
 
 #include "apitest.h"
+#include "api_sorting.h"
 #include "testutils.h"
 
 using namespace std;
 
-DEFINE_TESTCASE(sortfunctor1) {
+DEFINE_TESTCASE(sortfunctor1,backend && !remote) {
     Xapian::Enquire enquire(get_database("apitest_sortrel"));
     enquire.set_query(Xapian::Query("woman"));
 
@@ -73,9 +74,3 @@ DEFINE_TESTCASE(sortfunctor1) {
 
     return true;
 }
-
-/// Test cases for MSet sorting.
-test_desc sorter_tests[] = {
-    TESTCASE(sortfunctor1),
-    END_OF_TESTCASES
-};

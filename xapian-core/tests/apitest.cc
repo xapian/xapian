@@ -42,6 +42,7 @@ using namespace std;
 #include "utils.h"
 
 #include "apitest.h"
+#include "api_sorting.h"
 
 static BackendManager * backendmanager;
 
@@ -91,7 +92,7 @@ get_writable_database_again()
     return backendmanager->get_writable_database_again();
 }
 
-#define RUNTESTS(B, T) if (backend.empty() || backend == (B)) {\
+#define RUNTESTS(B, T) if (backend_name.empty() || backend_name == (B)) {\
     cout << "Running " << #T << " tests with " << (B) << " backend..." << endl;\
     result = max(result, test_driver::run(T##_tests));\
     } else (void)0
@@ -100,8 +101,8 @@ get_writable_database_again()
 
 int main(int argc, char **argv)
 {
-    string backend;
-    test_driver::add_command_line_option("backend", 'b', &backend);
+    string backend_name;
+    test_driver::add_command_line_option("backend", 'b', &backend_name);
 
     test_driver::parse_command_line(argc, argv);
 
@@ -109,18 +110,21 @@ int main(int argc, char **argv)
 
     int result = 0;
 
-    if (USE_BACKEND(backend, "none")) {
+    if (USE_BACKEND(backend_name, "none")) {
 	backendmanager = new BackendManager;
 	backendmanager->set_datadir(srcdir + "/testdata/");
 
 	RUNTESTS("none", nodb);
 	RUNTESTS("none", unicode);
 
+	bool backend = false, remote = false, transactions = false;
+#include "api_collated.h"
+
 	delete backendmanager;
     }
 
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
-    if (USE_BACKEND(backend, "inmemory")) {
+    if (USE_BACKEND(backend_name, "inmemory")) {
 	backendmanager = new BackendManagerInMemory;
 	backendmanager->set_datadir(srcdir + "/testdata/");
 
@@ -133,14 +137,16 @@ int main(int argc, char **argv)
 	RUNTESTS("inmemory", collfreq);
 	RUNTESTS("inmemory", allterms);
 	RUNTESTS("inmemory", multivalue);
-	RUNTESTS("inmemory", sorter);
+
+	bool backend = true, remote = false, transactions = false;
+#include "api_collated.h"
 
 	delete backendmanager;
     }
 #endif
 
 #ifdef XAPIAN_HAS_FLINT_BACKEND
-    if (USE_BACKEND(backend, "flint")) {
+    if (USE_BACKEND(backend_name, "flint")) {
 	backendmanager = new BackendManagerFlint;
 	backendmanager->set_datadir(srcdir + "/testdata/");
 
@@ -155,14 +161,16 @@ int main(int argc, char **argv)
 	RUNTESTS("flint", multivalue);
 	RUNTESTS("flint", transactiondb);
 	RUNTESTS("flint", flint);
-	RUNTESTS("flint", sorter);
+
+	bool backend = true, remote = false, transactions = false;
+#include "api_collated.h"
 
 	delete backendmanager;
     }
 #endif
 
 #if defined(XAPIAN_HAS_FLINT_BACKEND) || defined(XAPIAN_HAS_QUARTZ_BACKEND)
-    if (USE_BACKEND(backend, "multi")) {
+    if (USE_BACKEND(backend_name, "multi")) {
 	backendmanager = new BackendManagerMulti;
 	backendmanager->set_datadir(srcdir + "/testdata/");
 
@@ -175,14 +183,16 @@ int main(int argc, char **argv)
 	RUNTESTS("multi", allterms);
 	RUNTESTS("multi", multivalue);
 	RUNTESTS("multi", flint);
-	RUNTESTS("multi", sorter);
+
+	bool backend = true, remote = false, transactions = false;
+#include "api_collated.h"
 
 	delete backendmanager;
     }
 #endif
 
 #ifdef XAPIAN_HAS_QUARTZ_BACKEND
-    if (USE_BACKEND(backend, "quartz")) {
+    if (USE_BACKEND(backend_name, "quartz")) {
 	backendmanager = new BackendManagerQuartz;
 	backendmanager->set_datadir(srcdir + "/testdata/");
 
@@ -197,14 +207,16 @@ int main(int argc, char **argv)
 	RUNTESTS("quartz", multivalue);
 	RUNTESTS("quartz", transactiondb);
 	RUNTESTS("quartz", quartz);
-	RUNTESTS("quartz", sorter);
+
+	bool backend = true, remote = false, transactions = false;
+#include "api_collated.h"
 
 	delete backendmanager;
     }
 #endif
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-    if (USE_BACKEND(backend, "remoteprog")) {
+    if (USE_BACKEND(backend_name, "remoteprog")) {
 	backendmanager = new BackendManagerRemoteProg;
 	backendmanager->set_datadir(srcdir + "/testdata/");
 
@@ -219,10 +231,13 @@ int main(int argc, char **argv)
 	RUNTESTS("remoteprog", multivalue);
 	RUNTESTS("remoteprog", transactiondb);
 
+	bool backend = true, remote = true, transactions = false;
+#include "api_collated.h"
+
 	delete backendmanager;
     }
 
-    if (USE_BACKEND(backend, "remotetcp")) {
+    if (USE_BACKEND(backend_name, "remotetcp")) {
 	backendmanager = new BackendManagerRemoteTcp;
 	backendmanager->set_datadir(srcdir + "/testdata/");
 
@@ -236,6 +251,9 @@ int main(int argc, char **argv)
 	RUNTESTS("remotetcp", allterms);
 	RUNTESTS("remotetcp", multivalue);
 	RUNTESTS("remotetcp", transactiondb);
+
+	bool backend = true, remote = true, transactions = false;
+#include "api_collated.h"
 
 	delete backendmanager;
     }

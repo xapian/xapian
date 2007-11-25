@@ -80,7 +80,9 @@ check_SCRIPTS = runtest
 noinst_HEADERS = apitest.h
 
 apitest_SOURCES = apitest.cc api_nodb.cc api_posdb.cc api_db.cc api_wrdb.cc \
- api_anydb.cc api_sorting.cc api_transdb.cc api_unicode.cc $(testharness_sources)
+ api_anydb.cc api_sorting.cc api_transdb.cc api_unicode.cc \
+ api_collated.h \
+ $(testharness_sources)
 apitest_LDFLAGS = -no-install $(ldflags)
 apitest_LDADD = ../libgetopt.la ../libxapian.la
 
@@ -108,8 +110,22 @@ termgentest_SOURCES = termgentest.cc $(testharness_sources)
 termgentest_LDFLAGS = -no-install $(ldflags)
 termgentest_LDADD = ../libgetopt.la ../libxapian.la
 
+collated_apitest_sources = api_sorting.cc
+
+BUILT_SOURCES =
+
+if MAINTAINER_MODE
+BUILT_SOURCES += api_collated.h
+
+api_collated.h: $(collated_apitest_sources) collate-apitest
+	$(PERL) collate-apitest $(collated_apitest_sources) > api_collated.hT
+	mv api_collated.hT api_collated.h
+endif
+
+EXTRA_DIST = collate-apitest api_collated.h
+
 ## Distribute test data:
-EXTRA_DIST =\
+EXTRA_DIST +=\
 	runtest.in \
 	valgrind.supp \
 	testdata/apitest_onedoc.txt \

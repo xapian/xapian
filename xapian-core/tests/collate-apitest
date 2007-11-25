@@ -1,0 +1,54 @@
+#!/usr/bin/perl -w
+use strict;
+
+# FIXME: with XXXX backend...
+print <<END;
+    cout << "Running collated tests..." << endl;
+END
+# Suppress "unused variable" warnings.
+# FIXME: If this is needed, we don't actually need that variable...
+for (qw(transactions)) {
+    print "    (void)$_;\n";
+}
+
+my %by_cond = ();
+for my $cc_source (@ARGV) {
+    (my $generated_h = $cc_source) =~ s/\.\w+$/\.h/;
+    open HDR, ">$generated_h" or die $!;
+
+    open SRC, "<$cc_source" or die $!;
+    while (<SRC>) {
+	if (/^DEFINE_TESTCASE\((.*?),\s*(.*)\)/) {
+	    my ($test_func, $cond) = ($1, $2);
+#$cond =~ s/\s+//g;
+	    push @{$by_cond{$cond}}, $test_func;
+	    print HDR "extern bool test_$test_func();\n";
+	}
+    }
+    close SRC;
+    close HDR or die $!;
+
+    foreach my $cond (sort keys %by_cond) {
+#	my $name = $cond;
+#	$name =~ s/\&\&/_and_/g;
+#	$name =~ s/\|\|/_or_/g;
+#	$name =~ s/\!/not_/g;
+#	$name =~ s/\(/bra_/g;
+#	$name =~ s/\)/_ket/g;
+	print <<END;
+    if ($cond) {
+	static const test_desc tests[] = {
+END
+	for (@{$by_cond{$cond}}) {
+	    print <<END;
+	    { \"$_\", test_$_ },
+END
+	}
+	print <<END;
+	    { 0, 0 }
+	};
+	result = max(result, test_driver::run(tests));
+    }
+END
+    }
+}
