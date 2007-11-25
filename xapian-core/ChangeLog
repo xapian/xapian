@@ -1,3 +1,7 @@
+Sun Nov 25 16:48:21 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/weight.cc: Add another note of a FIXME needed for 1.1
+
 Sun Nov 25 16:40:28 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* matcher/bm25weight.cc,matcher/tradweight.cc: Add some missing

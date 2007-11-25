@@ -34,6 +34,7 @@ Weight *
 Weight::create(const Internal * internal_, Xapian::doclength querysize_,
 	       Xapian::termcount wqf_, const std::string & tname_) const
 {
+    // FIXME:1.1: put internal_ into an AutoPtr here, so that it won't get leaked if an exception occurs in clone().
     Weight * new_weight = clone();
     new_weight->internal = internal_;
     new_weight->querysize = querysize_;
