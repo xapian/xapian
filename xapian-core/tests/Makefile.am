@@ -110,7 +110,7 @@ termgentest_SOURCES = termgentest.cc $(testharness_sources)
 termgentest_LDFLAGS = -no-install $(ldflags)
 termgentest_LDADD = ../libgetopt.la ../libxapian.la
 
-collated_apitest_sources = api_sorting.cc api_unicode.cc
+collated_apitest_sources = api_sorting.cc api_transdb.cc api_unicode.cc
 
 BUILT_SOURCES =
 

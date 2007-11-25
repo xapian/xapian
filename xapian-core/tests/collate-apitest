@@ -5,11 +5,6 @@ use strict;
 print <<END;
     cout << "Running collated tests..." << endl;
 END
-# Suppress "unused variable" warnings.
-# FIXME: If this is needed, we don't actually need that variable...
-for (qw(transactions)) {
-    print "    (void)$_;\n";
-}
 
 my %by_cond = ();
 for my $cc_source (@ARGV) {

@@ -159,10 +159,9 @@ int main(int argc, char **argv)
 	RUNTESTS("flint", collfreq);
 	RUNTESTS("flint", allterms);
 	RUNTESTS("flint", multivalue);
-	RUNTESTS("flint", transactiondb);
 	RUNTESTS("flint", flint);
 
-	bool backend = true, remote = false, transactions = false;
+	bool backend = true, remote = false, transactions = true;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -205,10 +204,9 @@ int main(int argc, char **argv)
 	RUNTESTS("quartz", collfreq);
 	RUNTESTS("quartz", allterms);
 	RUNTESTS("quartz", multivalue);
-	RUNTESTS("quartz", transactiondb);
 	RUNTESTS("quartz", quartz);
 
-	bool backend = true, remote = false, transactions = false;
+	bool backend = true, remote = false, transactions = true;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -229,9 +227,8 @@ int main(int argc, char **argv)
 	RUNTESTS("remoteprog", collfreq);
 	RUNTESTS("remoteprog", allterms);
 	RUNTESTS("remoteprog", multivalue);
-	RUNTESTS("remoteprog", transactiondb);
 
-	bool backend = true, remote = true, transactions = false;
+	bool backend = true, remote = true, transactions = true;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -250,9 +247,8 @@ int main(int argc, char **argv)
 	RUNTESTS("remotetcp", collfreq);
 	RUNTESTS("remotetcp", allterms);
 	RUNTESTS("remotetcp", multivalue);
-	RUNTESTS("remotetcp", transactiondb);
 
-	bool backend = true, remote = true, transactions = false;
+	bool backend = true, remote = true, transactions = true;
 #include "api_collated.h"
 
 	delete backendmanager;

@@ -28,8 +28,7 @@
 using namespace std;
 
 /// Test incorrect uses of the transaction API lead to errors.
-static bool test_badtransaction1()
-{
+DEFINE_TESTCASE(badtransaction1, transactions) {
     Xapian::WritableDatabase db(get_writable_database("apitest_simpledata"));
 
     TEST_EXCEPTION(Xapian::InvalidOperationError, db.commit_transaction());
@@ -59,8 +58,7 @@ static bool test_badtransaction1()
 }
 
 /// Test committing a simple transaction.
-static bool test_committransaction1()
-{
+DEFINE_TESTCASE(committransaction1, transactions) {
     Xapian::WritableDatabase db(get_writable_database("apitest_simpledata"));
 
     Xapian::doccount docs = db.get_doccount();
@@ -80,8 +78,7 @@ static bool test_committransaction1()
 }
 
 /// Test cancelling a simple transaction.
-static bool test_canceltransaction1()
-{
+DEFINE_TESTCASE(canceltransaction1, transactions) {
     Xapian::WritableDatabase db(get_writable_database("apitest_simpledata"));
 
     Xapian::doccount docs = db.get_doccount();
@@ -102,8 +99,7 @@ static bool test_canceltransaction1()
 
 /// Test that begin_transaction() flushes any changes pending before the
 //  transaction.
-static bool test_canceltransaction2()
-{
+DEFINE_TESTCASE(canceltransaction2, transactions) {
     Xapian::WritableDatabase db(get_writable_database("apitest_simpledata"));
 
     Xapian::doccount docs = db.get_doccount();
@@ -128,12 +124,3 @@ static bool test_canceltransaction2()
 
     return true;
 }
-
-/** Test cases requiring a database backend supporting transactions. */
-test_desc transactiondb_tests[] = {
-    TESTCASE(badtransaction1),
-    TESTCASE(committransaction1),
-    TESTCASE(canceltransaction1),
-    TESTCASE(canceltransaction2),
-    END_OF_TESTCASES
-};

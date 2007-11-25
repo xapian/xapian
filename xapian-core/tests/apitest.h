@@ -45,9 +45,6 @@ extern test_desc nodb_tests[];
 // Defined in api_posdb.cc:
 extern test_desc positionaldb_tests[];
 
-// Defined in api_transdb.cc:
-extern test_desc transactiondb_tests[];
-
 // Defined in api_wrdb.cc:
 extern test_desc writabledb_tests[];
 
