@@ -22,11 +22,19 @@
 #ifndef XAPIAN_INCLUDED_REMOTESERVER_H
 #define XAPIAN_INCLUDED_REMOTESERVER_H
 
-#include <xapian/database.h>
-#include <xapian/visibility.h>
+#include "xapian/database.h"
+#include "xapian/enquire.h"
+#include "xapian/visibility.h"
 
 #include "remoteconnection.h"
-#include "stats.h"
+
+#include <map>
+#include <string>
+
+// Forward declaration
+namespace Xapian { class Weight; }
+
+using namespace std;
 
 /** Remote backend server base class. */
 class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {

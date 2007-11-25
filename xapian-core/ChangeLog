@@ -1,3 +1,20 @@
+Sun Nov 25 15:14:04 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/Makefile.mk,api/weightinternal.cc,common/,
+	  include/xapian/enquire.h,matcher/: Split Stats and
+	  Xapian::Weight::Internal into different classes: Stats remains
+	  with the same members (but becomes a concrete class, rather than
+	  a typedef of another class), and Xapian::Weight::Internal becomes
+	  a simple container for exactly those statistics which are
+	  relevant for a weight object (ie, it holds just one termfreq and
+	  reltermfreq, rather than a map of all of them).  This is
+	  dynamically allocated, so Xapian::Weight now owns the object
+	  pointed to by its "internal" member, and deletes it in its
+	  destructor.  Add a new header file "weightinternal.h" so that the
+	  full "stats.h" stuff doesn't need to be included for definitions
+	  of weighting schemes.  Replace #include "stats.h" lines with
+	  forward declarations of Stats, where possible.
+
 Sun Nov 25 15:09:29 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/omenquire.cc: Add missing include of stats.h

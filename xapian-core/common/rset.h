@@ -29,7 +29,9 @@
 #include "omdebug.h"
 #include "xapian/enquire.h"
 #include "omenquireinternal.h"
-#include "stats.h"
+
+// Forward declaration.
+class Stats;
 
 /** A relevance set.
  *

@@ -27,7 +27,6 @@
 #include "omqueryinternal.h"
 #include "omtime.h"
 #include "remoteconnection.h"
-#include "stats.h"
 
 namespace Xapian {
     class RSet;
@@ -35,6 +34,7 @@ namespace Xapian {
 }
 
 class NetworkPostList;
+class Stats;
 
 /** RemoteDatabase is the baseclass for remote database implementations.
  *

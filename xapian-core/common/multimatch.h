@@ -22,13 +22,14 @@
 #ifndef OM_HGUARD_MULTIMATCH_H
 #define OM_HGUARD_MULTIMATCH_H
 
-#include "stats.h"
-
 #include "omqueryinternal.h"
 #include "submatch.h"
 
 #include <vector>
 #include <map>
+
+// Forward declaration.
+class Stats;
 
 class MultiMatch
 {

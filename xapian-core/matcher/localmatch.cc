@@ -32,6 +32,8 @@
 #include "omqueryinternal.h"
 #include "queryoptimiser.h"
 #include "scaleweight.h"
+#include "weightinternal.h"
+#include "stats.h"
 
 #include <cfloat>
 #include <cmath>
@@ -102,7 +104,7 @@ LocalSubMatch::get_postlist_and_term_info(MultiMatch * matcher,
     // We only need an ExtraWeightPostList if there's an extra weight
     // contribution.
     AutoPtr<Xapian::Weight> extra_wt;
-    extra_wt = wt_factory->create(stats, qlen, 1, "");
+    extra_wt = wt_factory->create(new Xapian::Weight::Internal(*stats), qlen, 1, "");
     if (extra_wt->get_maxextra() != 0.0) {
 	pl = new ExtraWeightPostList(pl, extra_wt.release(), matcher);
     }
@@ -125,7 +127,8 @@ LocalSubMatch::postlist_from_op_leaf_query(const Xapian::Query::Internal *query,
 	// FIXME:
 	// pass factor to Weight::create() - and have a shim class for classes
 	// which don't understand it...
-	wt = wt_factory->create(stats, qlen, query->wqf, query->tname);
+	wt = wt_factory->create(new Xapian::Weight::Internal(*stats, query->tname),
+				qlen, query->wqf, query->tname);
 	if (fabs(factor - 1.0) > DBL_EPSILON) {
 	    wt = new ScaleWeight(wt.release(), factor);
 	}

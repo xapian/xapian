@@ -24,7 +24,8 @@
 
 #include "submatch.h"
 #include "remote-database.h"
-#include "stats.h"
+
+class Stats;
 
 /// Class for performing matching on a remote database.
 class RemoteSubMatch : public SubMatch {

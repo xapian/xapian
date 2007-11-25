@@ -1092,7 +1092,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 	std::string tname;
 
     public:
-	Weight() { }
+	Weight() : internal(NULL) { }
 	virtual ~Weight();
 
 	/** Create a new weight object of the same type as this and initialise

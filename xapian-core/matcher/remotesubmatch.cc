@@ -25,6 +25,7 @@
 #include "msetpostlist.h"
 #include "omdebug.h"
 #include "remote-database.h"
+#include "stats.h"
 
 RemoteSubMatch::RemoteSubMatch(RemoteDatabase *db_, bool decreasing_relevance_)
 	: db(db_), decreasing_relevance(decreasing_relevance_)

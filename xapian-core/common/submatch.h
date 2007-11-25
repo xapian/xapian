@@ -26,7 +26,9 @@
 
 #include "omenquireinternal.h"
 #include "postlist.h"
-#include "stats.h"
+
+// Forward declaration.
+class Stats;
 
 class SubMatch : public Xapian::Internal::RefCntBase {
   public:

@@ -1,5 +1,5 @@
-/** @file stats.cc
- * @brief Implementation of methods from stats.h
+/** @file weightinternal.cc
+ * @brief Implementation of methods from weightinternal.h
  */
 /* Copyright (C) 2007 Lemur Consulting Ltd
  *
@@ -19,28 +19,24 @@
  */
 
 #include <config.h>
-#include "stats.h"
+#include "weightinternal.h"
 
-#include "utils.h"
+#include "stats.h"
 
 using namespace std;
 
-std::string
-Stats::get_description() const
+Xapian::Weight::Internal::Internal(const Stats & stats)
 {
-    string result("Stats(");
-    result += "collection_size=" + om_tostring(collection_size);
-    result += ", rset_size=" + om_tostring(rset_size);
-    result += ", average_length=" + om_tostring(average_length);
-    std::map<string, Xapian::doccount>::const_iterator i;
-    for (i = termfreq.begin(); i != termfreq.end(); ++i)
-    {
-	result += ", termfreq[" + i->first + "]=" + om_tostring(i->second);
-    }
-    for (i = reltermfreq.begin(); i != reltermfreq.end(); ++i)
-    {
-	result += ", reltermfreq[" + i->first + "]=" + om_tostring(i->second);
-    }
-    result += ")";
-    return result;
+    collection_size = stats.collection_size;
+    rset_size = stats.rset_size;
+    average_length = stats.average_length;
+}
+
+Xapian::Weight::Internal::Internal(const Stats & stats, const string & tname)
+{
+    collection_size = stats.collection_size;
+    rset_size = stats.rset_size;
+    average_length = stats.average_length;
+    termfreq = stats.get_termfreq(tname);
+    reltermfreq = stats.get_reltermfreq(tname);
 }

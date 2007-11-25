@@ -23,16 +23,15 @@
 #ifndef OM_HGUARD_STATS_H
 #define OM_HGUARD_STATS_H
 
-#include <string>
-
-#include <xapian/enquire.h> // for Xapian::Weight
+#include "xapian/types.h"
 #include "omassert.h"
+#include <string>
 #include <map>
 
 using namespace std;
 
 /** Class to hold statistics for a given collection. */
-class Xapian::Weight::Internal {
+class Stats {
     public:
 	/** Number of documents in the collection. */
 	Xapian::doccount collection_size;
@@ -50,14 +49,14 @@ class Xapian::Weight::Internal {
 	std::map<string, Xapian::doccount> reltermfreq;
 
 
-	Internal() : collection_size(0),
+	Stats() : collection_size(0),
 		  rset_size(0),
 		  average_length(1.0)
 	{}
 
 	/** Add in the supplied statistics from a sub-database.
 	 */
-	Internal & operator +=(const Internal & inc);
+	Stats & operator +=(const Stats & inc);
 
 	/** Get the term-frequency of the given term.
 	 *
@@ -87,14 +86,12 @@ class Xapian::Weight::Internal {
 	std::string get_description() const;
 };
 
-typedef Xapian::Weight::Internal Stats;
-
 /////////////////////////////////////////
 // Inline method definitions for Stats //
 /////////////////////////////////////////
 
-inline Xapian::Weight::Internal &
-Xapian::Weight::Internal::operator +=(const Xapian::Weight::Internal & inc)
+inline Stats &
+Stats::operator +=(const Stats & inc)
 {
     // Set the new collection size and average length.
     Xapian::doccount new_collection_size = collection_size + inc.collection_size;
@@ -122,7 +119,7 @@ Xapian::Weight::Internal::operator +=(const Xapian::Weight::Internal & inc)
 }
 
 inline Xapian::doccount
-Xapian::Weight::Internal::get_termfreq(const string & tname) const
+Stats::get_termfreq(const string & tname) const
 {
     // We pass an empty string for tname when calculating the extra weight.
     if (tname.empty()) return 0;
@@ -134,8 +131,7 @@ Xapian::Weight::Internal::get_termfreq(const string & tname) const
 }
 
 inline void
-Xapian::Weight::Internal::set_termfreq(const string & tname,
-				       Xapian::doccount tfreq)
+Stats::set_termfreq(const string & tname, Xapian::doccount tfreq)
 {
     // Can be called a second time, if a term occurs multiple times in the
     // query; if this happens, the termfreq should be the same each time.
@@ -145,7 +141,7 @@ Xapian::Weight::Internal::set_termfreq(const string & tname,
 }
 
 inline Xapian::doccount
-Xapian::Weight::Internal::get_reltermfreq(const string & tname) const
+Stats::get_reltermfreq(const string & tname) const
 {
     // We pass an empty string for tname when calculating the extra weight.
     if (tname.empty()) return 0;
@@ -157,8 +153,7 @@ Xapian::Weight::Internal::get_reltermfreq(const string & tname) const
 }
 
 inline void
-Xapian::Weight::Internal::set_reltermfreq(const string & tname,
-					  Xapian::doccount rtfreq)
+Stats::set_reltermfreq(const string & tname, Xapian::doccount rtfreq)
 {
     // Can be called a second time, if a term occurs multiple times in the
     // query; if this happens, the termfreq should be the same each time.

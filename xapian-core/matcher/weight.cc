@@ -20,13 +20,17 @@
 
 #include <config.h>
 
-#include <xapian/enquire.h>
+#include "xapian/enquire.h"
+#include "weightinternal.h"
 
 namespace Xapian {
 
 /* Xapian::Weight */
 
-Weight::~Weight() { }
+Weight::~Weight()
+{
+    delete internal;
+}
 
 Weight *
 Weight::create(const Internal * internal_, Xapian::doclength querysize_,

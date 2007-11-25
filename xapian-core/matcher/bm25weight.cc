@@ -30,7 +30,7 @@
 #include "omassert.h"
 #include "omdebug.h"
 #include "serialise-double.h"
-#include "stats.h"
+#include "weightinternal.h"
 
 namespace Xapian {
 
@@ -71,14 +71,14 @@ BM25Weight::calc_termweight() const
     // lenpart == 0 if there are no documents, or only empty documents.
     if (lenpart != 0) lenpart = 1 / lenpart;
 
-    Xapian::doccount termfreq = internal->get_termfreq(tname);
+    Xapian::doccount termfreq = internal->termfreq;
 
     DEBUGLINE(WTCALC, "Statistics: N=" << internal->collection_size <<
 	      " n_t=" << termfreq << " lenpart=" << lenpart);
 
     Xapian::weight tw = 0;
     if (internal->rset_size != 0) {
-	Xapian::doccount rtermfreq = internal->get_reltermfreq(tname);
+	Xapian::doccount rtermfreq = internal->reltermfreq;
 
 	DEBUGLINE(WTCALC, " R=" << internal->rset_size << " r_t=" << rtermfreq);
 

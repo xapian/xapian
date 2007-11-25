@@ -24,13 +24,14 @@
 #include "database.h"
 #include "omqueryinternal.h"
 #include "rset.h"
-#include "stats.h"
 #include "submatch.h"
 
 namespace Xapian { class Weight; }
 
 #include <map>
 #include <vector>
+
+class Stats;
 
 class LocalSubMatch : public SubMatch {
     /// Don't allow assignment.

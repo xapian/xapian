@@ -24,7 +24,6 @@
 #include <xapian/visibility.h>
 #include <string>
 #include "noreturn.h"
-#include "stats.h"
 
 // Forward class declarations:
 
@@ -36,6 +35,7 @@ namespace Xapian {
     class Weight;
 }
 
+class Stats;
 
 /** Encode a length as a variable-length string.
  *
