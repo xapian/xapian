@@ -29,7 +29,6 @@
 
 #include <vector>
 #include <map>
-#include "autoptr.h"  // auto_ptr
 
 class MultiMatch
 {
