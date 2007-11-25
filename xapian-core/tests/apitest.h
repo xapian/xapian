@@ -48,9 +48,6 @@ extern test_desc positionaldb_tests[];
 // Defined in api_transdb.cc:
 extern test_desc transactiondb_tests[];
 
-// Defined in api_unicode.cc:
-extern test_desc unicode_tests[];
-
 // Defined in api_wrdb.cc:
 extern test_desc writabledb_tests[];
 

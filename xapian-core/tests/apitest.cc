@@ -43,6 +43,7 @@ using namespace std;
 
 #include "apitest.h"
 #include "api_sorting.h"
+#include "api_unicode.h"
 
 static BackendManager * backendmanager;
 
@@ -115,7 +116,6 @@ int main(int argc, char **argv)
 	backendmanager->set_datadir(srcdir + "/testdata/");
 
 	RUNTESTS("none", nodb);
-	RUNTESTS("none", unicode);
 
 	bool backend = false, remote = false, transactions = false;
 #include "api_collated.h"

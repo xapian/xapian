@@ -20,10 +20,11 @@
 
 #include <config.h>
 
+#include "api_sorting.h"
+
 #include <xapian.h>
 
 #include "apitest.h"
-#include "api_sorting.h"
 #include "testutils.h"
 
 using namespace std;

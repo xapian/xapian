@@ -1,3 +1,7 @@
+Sun Nov 25 23:49:26 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/: Collate the unicode tests.
+
 Sun Nov 25 23:35:40 GMT 2007  Olly Betts <olly@survex.com>
 
 	* tests/: Make a start on automatically collating test cases.
