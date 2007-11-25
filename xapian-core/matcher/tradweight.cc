@@ -32,19 +32,21 @@
 #include "serialise-double.h"
 #include "weightinternal.h"
 
+using namespace std;
+
 namespace Xapian {
 
 TradWeight * TradWeight::clone() const {
     return new TradWeight(param_k);
 }
 
-std::string TradWeight::name() const { return "Trad"; }
+string TradWeight::name() const { return "Trad"; }
 
 string TradWeight::serialise() const {
     return serialise_double(param_k);
 }
 
-TradWeight * TradWeight::unserialise(const std::string & s) const {
+TradWeight * TradWeight::unserialise(const string & s) const {
     const char *p = s.data();
     const char *p_end = p + s.size();
     double param_k_ = unserialise_double(&p, p_end);

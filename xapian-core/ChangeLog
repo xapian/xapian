@@ -1,3 +1,10 @@
+Sun Nov 25 16:40:28 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/bm25weight.cc,matcher/tradweight.cc: Add some missing
+	  "using namespace std;" lines which are needed due to earlier
+	  changes in header file inclusions.  Also, remove some unnecessary
+	  std:: prefixes.
+
 Sun Nov 25 16:35:30 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* common/stats.h,include/xapian/enquire.h,matcher/localmatch.cc,

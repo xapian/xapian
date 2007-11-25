@@ -32,13 +32,15 @@
 #include "serialise-double.h"
 #include "weightinternal.h"
 
+using namespace std;
+
 namespace Xapian {
 
 BM25Weight * BM25Weight::clone() const {
     return new BM25Weight(k1, k2, k3, b, min_normlen);
 }
 
-std::string BM25Weight::name() const { return "BM25"; }
+string BM25Weight::name() const { return "BM25"; }
 
 string BM25Weight::serialise() const {
     string result = serialise_double(k1);
