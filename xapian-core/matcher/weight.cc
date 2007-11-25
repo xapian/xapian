@@ -27,10 +27,8 @@ namespace Xapian {
 
 /* Xapian::Weight */
 
-Weight::~Weight()
-{
-    delete internal;
-}
+// FIXME:1.1: delete internal here
+Weight::~Weight() { }
 
 Weight *
 Weight::create(const Internal * internal_, Xapian::doclength querysize_,

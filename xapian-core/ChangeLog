@@ -1,3 +1,19 @@
+Sun Nov 25 16:35:30 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/stats.h,include/xapian/enquire.h,matcher/localmatch.cc,
+	  matcher/weight.cc: Undo ABI change introduced in previous commit
+	  with a nasty workaround; we can't initialise Weight::internal
+	  reliably, because applications complied with earlier versions of
+	  the library may have inlined the constructor of the Weight class.
+	  Therefore, we can't delete Weight::internal in the destructor,
+	  because we don't know if it was initialised.  Instead, we
+	  add factory methods for making Weight::Internal objects to Stats,
+	  register all the Weight::Internal objects made by these factory
+	  methods in a list is the Stats object, and delete them when Stats
+	  is deleted (which conveniently happens after the match has
+	  finished).  Mark all this with FIXME:1.1: so that we can easily
+	  convert it to nicer code once we branch for 1.1.
+
 Sun Nov 25 15:14:04 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/Makefile.mk,api/weightinternal.cc,common/,
