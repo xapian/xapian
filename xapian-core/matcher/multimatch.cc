@@ -140,7 +140,7 @@ prepare_sub_matches(std::vector<Xapian::Internal::RefCntPtr<SubMatch> > & leaves
 {
     DEBUGCALL_STATIC(MATCH, void, "prepare_sub_matches",
 		     "[leaves(size=" << leaves.size() << ")], " <<
-		     errorhandler << ", [stats]");
+		     errorhandler << ", " << stats);
     // We use a vector<bool> to track which SubMatches we're already prepared.
     vector<bool> prepared;
     prepared.resize(leaves.size(), false);

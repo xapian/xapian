@@ -1,3 +1,13 @@
+Sun Nov 25 15:09:29 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/omenquire.cc: Add missing include of stats.h
+	* matcher/queryoptimiser.cc,net/tcpserver.cc: Remove unnecessary
+	  include of stats.h
+	* net/remoteserver.cc: Include missing includes of omassert.h and
+	  stats.h, and change an Assert to AssertEq.
+	* matcher/multimatch.cc: Output the contents of the stats object in
+	  debugging code.
+
 Sun Nov 25 04:22:05 GMT 2007  Olly Betts <olly@survex.com>
 
 	* common/multimatch.h: No longer need "autoptr.h" here.

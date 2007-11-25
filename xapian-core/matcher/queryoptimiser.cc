@@ -35,7 +35,6 @@
 #include "orpostlist.h"
 #include "phrasepostlist.h"
 #include "postlist.h"
-#include "stats.h"
 #include "valuerangepostlist.h"
 #include "xorpostlist.h"
 

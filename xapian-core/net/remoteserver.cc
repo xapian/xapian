@@ -20,6 +20,7 @@
  */
 
 #include <config.h>
+#include "remoteserver.h"
 
 #include <xapian/database.h>
 #include <xapian/enquire.h>
@@ -32,10 +33,11 @@
 
 #include "autoptr.h"
 #include "multimatch.h"
+#include "omassert.h"
 #include "omtime.h"
-#include "remoteserver.h"
 #include "serialise.h"
 #include "serialise-double.h"
+#include "stats.h"
 #include "utils.h"
 
 /// Class to throw when we receive the connection closing message.
@@ -53,7 +55,7 @@ RemoteServer::RemoteServer(const std::vector<std::string> &dbpaths,
     // Catch errors opening the database and propagate them to the client.
     try {
 	if (writable) {
-	    Assert(dbpaths.size() == 1); // Expecting exactly one database.
+	    AssertEq(dbpaths.size(), 1); // Expecting exactly one database.
 	    wdb = new Xapian::WritableDatabase(dbpaths[0], Xapian::DB_CREATE_OR_OPEN);
 	    db = wdb;
 	} else {

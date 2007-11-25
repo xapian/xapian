@@ -38,6 +38,7 @@
 #include "expand.h"
 #include "database.h"
 #include "omenquireinternal.h"
+#include "stats.h"
 #include "utils.h"
 
 #include <vector>
