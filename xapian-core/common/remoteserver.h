@@ -28,8 +28,6 @@
 #include "remoteconnection.h"
 #include "stats.h"
 
-class NetworkStatsGatherer;
-
 /** Remote backend server base class. */
 class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
     /// Don't allow assignment.

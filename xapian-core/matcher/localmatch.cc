@@ -81,7 +81,7 @@ void
 LocalSubMatch::start_match(Xapian::doccount, Xapian::doccount,
 			   Xapian::doccount, const Stats & total_stats)
 {
-    // Get the statistics for the whole collection from the gatherer.
+    // Set the statistics for the whole collection.
     stats = &total_stats;
 }
 

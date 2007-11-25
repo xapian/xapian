@@ -1,3 +1,8 @@
+Sun Nov 25 03:58:21 GMT 2007  Olly Betts <olly@survex.com>
+
+	* common/remoteserver.h,matcher/localmatch.cc,matcher/multimatch.cc:
+	  Remove lingering traces of StatsGatherer.
+
 Sat Nov 24 20:44:03 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* common/stats.h,matcher/Makefile.mk,matcher/stats.cc: Add

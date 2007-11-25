@@ -203,7 +203,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	      int(order_) << ", " << sort_key_ << ", " <<
 	      int(sort_by_) << ", " << sort_value_forward_ << ", " <<
 	      sorter_ << ", " <<
-	      errorhandler_ << ", [gatherer_], [weight_]");
+	      errorhandler_ << ", " << stats << ", [weight_]");
 
     if (!query) return;
     query->validate_query();
