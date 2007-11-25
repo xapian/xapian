@@ -26,17 +26,19 @@
 using namespace std;
 
 Xapian::Weight::Internal::Internal(const Stats & stats)
+	: collection_size(stats.collection_size),
+	  rset_size(stats.rset_size),
+	  average_length(stats.average_length),
+	  termfreq(0),
+	  reltermfreq(0)
 {
-    collection_size = stats.collection_size;
-    rset_size = stats.rset_size;
-    average_length = stats.average_length;
 }
 
 Xapian::Weight::Internal::Internal(const Stats & stats, const string & tname)
+	: collection_size(stats.collection_size),
+	  rset_size(stats.rset_size),
+	  average_length(stats.average_length),
+	  termfreq(stats.get_termfreq(tname)),
+	  reltermfreq(stats.get_reltermfreq(tname))
 {
-    collection_size = stats.collection_size;
-    rset_size = stats.rset_size;
-    average_length = stats.average_length;
-    termfreq = stats.get_termfreq(tname);
-    reltermfreq = stats.get_reltermfreq(tname);
 }
