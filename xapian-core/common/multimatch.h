@@ -98,7 +98,7 @@ class MultiMatch
 	 *  @param errorhandler Errorhandler object
 	 *  @param sorter    Xapian::Sorter functor (or NULL for no Sorter).
 	 *  @param stats     The stats object to add our stats to.
-	 *  @param wtischeme Weighting scheme
+	 *  @param wtscheme  Weighting scheme
 	 */
 	MultiMatch(const Xapian::Database &db_,
 		   const Xapian::Query::Internal * query,
