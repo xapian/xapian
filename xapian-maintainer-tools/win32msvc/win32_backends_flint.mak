@@ -11,7 +11,10 @@
 OUTDIR=..\..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 INTDIR=.\
 
-ALL : "$(OUTDIR)\libflint.lib" 
+ALL : "$(OUTDIR)\libflint.lib"  "$(OUTDIR)\libflintbtreecheck.lib" 
+
+LIBFLINTBTREECHECK_OBJS= \
+                $(INTDIR)\flint_check.obj
 
 OBJS= \
                 $(INTDIR)\contiguousalldocspostlist.obj\
@@ -57,14 +60,16 @@ SRCS= \
                 $(INTDIR)\flint_termlist.cc\
                 $(INTDIR)\flint_termlisttable.cc\
                 $(INTDIR)\flint_values.cc\
-                $(INTDIR)\flint_version.cc
+                $(INTDIR)\flint_version.cc\
+                $(INTDIR)\flint_check.cc
 
 CLEAN :
-	-@erase "$(OUTDIR)\libflint.lib"
-	-@erase "*.pch"
-	-@erase "$(INTDIR)\*.pdb"
-        -@erase "$(INTDIR)\getopt.obj"
-	-@erase $(OBJS)
+    -@erase "$(OUTDIR)\libflint.lib" 
+    -@erase "$(OUTDIR)\libflintbtreecheck.lib"
+    -@erase "*.pch"
+    -@erase "$(INTDIR)\*.pdb"
+    -@erase "$(INTDIR)\getopt.obj"
+    -@erase $(OBJS)
 
 
 "$(OUTDIR)" :
@@ -73,12 +78,18 @@ CLEAN :
 CPP_PROJ=$(CPPFLAGS_EXTRA) \
  -I "..\.." -I "..\..\include" -I"..\..\common" -I"..\..\languages" \
  -Fo"$(INTDIR)\\" 
+ 
 CPP_OBJS=..\..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
 "$(OUTDIR)\LIBFLINT.lib" : HEADERS "$(OUTDIR)" $(DEF_FILE) $(OBJS)
     $(LIB32) @<<
   $(LIB32_FLAGS) -out:"$(OUTDIR)\libflint.lib" $(DEF_FLAGS) $(OBJS)
+<<
+
+"$(OUTDIR)\LIBFLINTBTREECHECK.lib" : HEADERS "$(OUTDIR)" $(DEF_FILE) $(LIBFLINTBTREECHECK_OBJS)
+    $(LIB32) @<<
+  $(LIB32_FLAGS) -out:"$(OUTDIR)\libflintbtreecheck.lib" $(DEF_FLAGS) $(LIBFLINTBTREECHECK_OBJS)
 <<
 
 # inference rules, showing how to create one type of file from another with the same root name
