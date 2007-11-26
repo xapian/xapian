@@ -471,6 +471,11 @@ if test x"$enable_documentation" = xyes ; then
   dnl Also look for rst2html.py, which archlinux reportedly installs it as.
   AC_PATH_PROGS(RST2HTML, [rst2html rst2html.py], [])
   test -z "$RST2HTML" && AC_MSG_ERROR([rst2html is required to build documentation])
+
+  dnl Check for pngcrush, which we optionally use to reduce the size of the
+  dnl PNG files which doxygen generates.  We can get by without it, so don't
+  dnl fail here if it's not found.
+  AC_PATH_PROGS(PNGCRUSH, [pngcrush], [])
 fi
 
 dnl Check whether we need -ldl for dlsym() etc.

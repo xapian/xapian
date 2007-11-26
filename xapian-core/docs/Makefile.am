@@ -78,6 +78,11 @@ apidoc.pdf apidoc/html/index.html: $(APIDOC_SRC) doxygen_api_conf \
 	top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN) doxygen_api_conf
 	cd apidoc/latex && (pool_size=750000 $(MAKE) refman.pdf||(cat refman.log;exit 1))
 	mv apidoc/latex/refman.pdf apidoc.pdf
+	if test "x$(PNGCRUSH)" != x ; then \
+	  for png in apidoc/html/*.png ; do \
+	    $(PNGCRUSH) -q $$png $${png}T && mv $${png}T $$png ; \
+	  done \
+	fi
 	touch apidoc/html/index.html
 
 # This dependency is required so that parallel make doesn't try to run latex

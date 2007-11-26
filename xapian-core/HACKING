@@ -337,6 +337,7 @@ makeindex (usually packaged with TeX)
 help2man
 rst2html or rst2html.py (on Debian/Ubuntu, this is provided by the
         python-docutils package)
+pngcrush (optional - used to reduce the size of PNG files in the HTML apidocs)
 
 Building from SVN on Windows with MSVC:
 ---------------------------------------

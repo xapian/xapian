@@ -1,3 +1,8 @@
+Mon Nov 26 17:24:15 GMT 2007  Olly Betts <olly@survex.com>
+
+	* HACKING,configure.ac,docs/Makefile.am: Use pngcrush to reduce the
+	  size of PNG files in the doxygen-generated HTML docs.
+
 Mon Nov 26 15:39:58 GMT 2007  Olly Betts <olly@survex.com>
 
 	* docs/Makefile.am: Don't package or install various intermediate
