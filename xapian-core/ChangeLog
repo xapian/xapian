@@ -1,3 +1,8 @@
+Mon Nov 26 01:40:59 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/: Collate the specchar, doclendb, collfreq, allterms, and
+	  multivalue tests.
+
 Mon Nov 26 01:21:35 GMT 2007  Olly Betts <olly@survex.com>
 
 	* tests/: Collate the anydb tests.  Remove the generated files upon

@@ -23,6 +23,8 @@
 
 #include <config.h>
 
+#include "api_db.h"
+
 #include <algorithm>
 #include <fstream>
 #include <map>
@@ -479,8 +481,7 @@ static bool test_esetiterator2()
 }
 
 // tests the collapse-on-key
-static bool test_collapsekey1()
-{
+DEFINE_TESTCASE(collapsekey1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("this"));
 
@@ -508,8 +509,7 @@ static bool test_collapsekey1()
 
 // tests that collapse-on-key modifies the predicted bounds for the number of
 // matches appropriately.
-static bool test_collapsekey2()
-{
+DEFINE_TESTCASE(collapsekey2, backend) {
     SKIP_TEST("Don't have a suitable database currently");
     // FIXME: this needs an appropriate database creating, but that's quite
     // subtle to do it seems.
@@ -535,8 +535,7 @@ static bool test_collapsekey2()
 
 // tests that collapse-on-key modifies the predicted bounds for the number of
 // matches appropriately.
-static bool test_collapsekey3()
-{
+DEFINE_TESTCASE(collapsekey3, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("this"));
 
@@ -587,8 +586,7 @@ static bool test_collapsekey3()
 
 // tests that collapse-on-key modifies the predicted bounds for the number of
 // matches appropriately even when no results are requested.
-static bool test_collapsekey4()
-{
+DEFINE_TESTCASE(collapsekey4, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("this"));
 
@@ -639,8 +637,7 @@ static bool test_keepalive1()
 }
 
 // test that iterating through all terms in a database works.
-static bool test_allterms1()
-{
+DEFINE_TESTCASE(allterms1, backend) {
     Xapian::Database db(get_database("apitest_allterms"));
     Xapian::TermIterator ati = db.allterms_begin();
     TEST(ati != db.allterms_end());
@@ -688,8 +685,7 @@ static bool test_allterms1()
 }
 
 // test that iterating through all terms in two databases works.
-static bool test_allterms2()
-{
+DEFINE_TESTCASE(allterms2, backend) {
     Xapian::Database db;
     db.add_database(get_database("apitest_allterms"));
     db.add_database(get_database("apitest_allterms2"));
@@ -731,8 +727,7 @@ static bool test_allterms2()
 }
 
 // test that skip_to sets at_end (regression test)
-static bool test_allterms3()
-{
+DEFINE_TESTCASE(allterms3, backend) {
     Xapian::Database db;
     db.add_database(get_database("apitest_allterms"));
     Xapian::TermIterator ati = db.allterms_begin();
@@ -745,8 +740,7 @@ static bool test_allterms3()
 
 // test that next ignores extra entries due to long posting lists being
 // chunked (regression test for quartz)
-static bool test_allterms4()
-{
+DEFINE_TESTCASE(allterms4, backend) {
     // apitest_allterms4 contains 682 documents each containing just the word
     // "foo".  682 was the magic number which started to cause Quartz problems.
     Xapian::Database db = get_database("apitest_allterms4");
@@ -763,8 +757,7 @@ static bool test_allterms4()
 
 // test that skip_to with an exact match sets the current term (regression test
 // for quartz)
-static bool test_allterms5()
-{
+DEFINE_TESTCASE(allterms5, backend) {
     Xapian::Database db;
     db.add_database(get_database("apitest_allterms"));
     Xapian::TermIterator ati = db.allterms_begin();
@@ -776,8 +769,7 @@ static bool test_allterms5()
 }
 
 // test allterms iterators with prefixes
-static bool test_allterms6()
-{
+DEFINE_TESTCASE(allterms6, backend) {
     Xapian::Database db;
     db.add_database(get_database("apitest_allterms"));
     db.add_database(get_database("apitest_allterms2"));
@@ -823,8 +815,7 @@ static bool test_allterms6()
 }
 
 // test that searching for a term with a special characters in it works
-static bool test_specialterms1()
-{
+DEFINE_TESTCASE(specialterms1, backend) {
     Xapian::Enquire enquire(get_database("apitest_space"));
     Xapian::MSet mymset;
     Xapian::doccount count;
@@ -861,12 +852,11 @@ static bool test_specialterms1()
 }
 
 // test that terms with a special characters in appear correctly when iterating allterms
-static bool test_specialterms2()
-{
+DEFINE_TESTCASE(specialterms2, backend) {
     Xapian::Database db(get_database("apitest_space"));
 
-    // Check the terms are all as expected (after stemming) and that allterms copes with
-    // iterating over them.
+    // Check the terms are all as expected (after stemming) and that allterms
+    // copes with iterating over them.
     Xapian::TermIterator t;
     t = db.allterms_begin();
     TEST_EQUAL(*t, "back\\slash"); ++t; TEST_NOT_EQUAL(t, db.allterms_end());
@@ -878,8 +868,9 @@ static bool test_specialterms2()
     TEST_EQUAL(*t, "tu\x02tu"); ++t; TEST_EQUAL(t, db.allterms_end());
 
     // Now check that skip_to exactly a term containing a zero byte works.
-    // This is a regression test for flint and quartz - an Assert() used to fire in debug builds
-    // (the Assert was wrong - the actual code handled this OK).
+    // This is a regression test for flint and quartz - an Assert() used to
+    // fire in debug builds (the Assert was wrong - the actual code handled
+    // this OK).
     t = db.allterms_begin();
     t.skip_to(string("big\0zero", 8));
     TEST_NOT_EQUAL(t, db.allterms_end());
@@ -889,9 +880,7 @@ static bool test_specialterms2()
 }
 
 // test that rsets behave correctly with multiDBs
-static bool test_rsetmultidb2()
-{
-    SKIP_TEST_FOR_BACKEND("multi");
+DEFINE_TESTCASE(rsetmultidb2, backend && !multi) {
     Xapian::Database mydb1(get_database("apitest_rset", "apitest_simpledata2"));
     Xapian::Database mydb2(get_database("apitest_rset"));
     mydb2.add_database(get_database("apitest_simpledata2"));
@@ -1093,8 +1082,7 @@ static bool test_postlist6()
 }
 
 // tests collection frequency
-static bool test_collfreq1()
-{
+DEFINE_TESTCASE(collfreq1, backend) {
     Xapian::Database db(get_database("apitest_simpledata"));
 
     TEST_EQUAL(db.get_collection_freq("this"), 11);
@@ -1759,46 +1747,6 @@ static bool test_matchall1()
 
 // #######################################################################
 // # End of test cases: now we list the tests to run.
-
-/// The tests which require a database which supports values > 0 sensibly
-test_desc multivalue_tests[] = {
-    {"collapsekey1",	   test_collapsekey1},
-    {"collapsekey2",	   test_collapsekey2},
-    {"collapsekey3",	   test_collapsekey3},
-    {"collapsekey4",	   test_collapsekey4},
-    {0, 0}
-};
-
-/// The tests which need a backend which supports iterating over all terms
-test_desc allterms_tests[] = {
-    {"allterms1",	   test_allterms1},
-    {"allterms2",	   test_allterms2},
-    {"allterms3",	   test_allterms3},
-    {"allterms4",	   test_allterms4},
-    {"allterms5",	   test_allterms5},
-    {"allterms6",	   test_allterms6},
-    {"specialterms2",	   test_specialterms2},
-    {0, 0}
-};
-
-/// The tests which need a backend which supports terms with newlines / zeros
-test_desc specchar_tests[] = {
-    {"specialterms1",	   test_specialterms1},
-    {0, 0}
-};
-
-/// The tests which need a backend which supports document length information
-test_desc doclendb_tests[] = {
-// Mset comes out in wrong order - no document length?
-    {"rsetmultidb2",       test_rsetmultidb2},
-    {0, 0}
-};
-
-/// Tests which need getting collection frequencies to be supported.
-test_desc collfreq_tests[] = {
-    {"collfreq1",	   test_collfreq1},
-    {0, 0}
-};
 
 test_desc localdb_tests[] = {
     {"matchfunctor1",	   test_matchfunctor1},

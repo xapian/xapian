@@ -44,6 +44,7 @@ using namespace std;
 #include "utils.h"
 
 #include "api_anydb.h"
+#include "api_db.h"
 #include "api_nodb.h"
 #include "api_posdb.h"
 #include "api_sorting.h"
@@ -134,12 +135,7 @@ int main(int argc, char **argv)
 	backendmanager = new BackendManagerInMemory;
 	backendmanager->set_datadir(srcdir + "/testdata/");
 
-	RUNTESTS("inmemory", specchar);
 	RUNTESTS("inmemory", localdb);
-	RUNTESTS("inmemory", doclendb);
-	RUNTESTS("inmemory", collfreq);
-	RUNTESTS("inmemory", allterms);
-	RUNTESTS("inmemory", multivalue);
 
 	bool backend = true, remote = false, transactions = false;
 	bool positional = true, writable = true, multi = false;
@@ -155,12 +151,7 @@ int main(int argc, char **argv)
 	backendmanager = new BackendManagerFlint;
 	backendmanager->set_datadir(srcdir + "/testdata/");
 
-	RUNTESTS("flint", specchar);
 	RUNTESTS("flint", localdb);
-	RUNTESTS("flint", doclendb);
-	RUNTESTS("flint", collfreq);
-	RUNTESTS("flint", allterms);
-	RUNTESTS("flint", multivalue);
 	RUNTESTS("flint", flint);
 
 	bool backend = true, remote = false, transactions = true;
@@ -177,12 +168,7 @@ int main(int argc, char **argv)
 	backendmanager = new BackendManagerMulti;
 	backendmanager->set_datadir(srcdir + "/testdata/");
 
-	RUNTESTS("multi", specchar);
 	RUNTESTS("multi", localdb);
-	RUNTESTS("multi", doclendb);
-	RUNTESTS("multi", collfreq);
-	RUNTESTS("multi", allterms);
-	RUNTESTS("multi", multivalue);
 	RUNTESTS("multi", flint);
 
 	bool backend = true, remote = false, transactions = false;
@@ -199,12 +185,7 @@ int main(int argc, char **argv)
 	backendmanager = new BackendManagerQuartz;
 	backendmanager->set_datadir(srcdir + "/testdata/");
 
-	RUNTESTS("quartz", specchar);
 	RUNTESTS("quartz", localdb);
-	RUNTESTS("quartz", doclendb);
-	RUNTESTS("quartz", collfreq);
-	RUNTESTS("quartz", allterms);
-	RUNTESTS("quartz", multivalue);
 	RUNTESTS("quartz", quartz);
 
 	bool backend = true, remote = false, transactions = true;
@@ -221,12 +202,7 @@ int main(int argc, char **argv)
 	backendmanager = new BackendManagerRemoteProg;
 	backendmanager->set_datadir(srcdir + "/testdata/");
 
-	RUNTESTS("remoteprog", specchar);
 	RUNTESTS("remoteprog", remotedb);
-	RUNTESTS("remoteprog", doclendb);
-	RUNTESTS("remoteprog", collfreq);
-	RUNTESTS("remoteprog", allterms);
-	RUNTESTS("remoteprog", multivalue);
 
 	bool backend = true, remote = true, transactions = true;
 	bool positional = true, writable = true, multi = false;
@@ -240,12 +216,7 @@ int main(int argc, char **argv)
 	backendmanager = new BackendManagerRemoteTcp;
 	backendmanager->set_datadir(srcdir + "/testdata/");
 
-	RUNTESTS("remotetcp", specchar);
 	RUNTESTS("remotetcp", remotedb);
-	RUNTESTS("remotetcp", doclendb);
-	RUNTESTS("remotetcp", collfreq);
-	RUNTESTS("remotetcp", allterms);
-	RUNTESTS("remotetcp", multivalue);
 
 	bool backend = true, remote = true, transactions = true;
 	bool positional = true, writable = true, multi = false;

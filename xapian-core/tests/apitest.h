@@ -26,11 +26,6 @@
 #include "testsuite.h"
 
 // Defined in api_db.cc:
-extern test_desc multivalue_tests[];
-extern test_desc allterms_tests[];
-extern test_desc specchar_tests[];
-extern test_desc doclendb_tests[];
-extern test_desc collfreq_tests[];
 extern test_desc localdb_tests[];
 extern test_desc remotedb_tests[];
 extern test_desc flint_tests[];
