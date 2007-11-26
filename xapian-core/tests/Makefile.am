@@ -120,7 +120,7 @@ BUILT_SOURCES += api_collated.h $(collated_apitest_sources:.cc=.h)
 CLEANFILES = api_collated.h $(collated_apitest_sources:.cc=.h)
 
 api_collated.h: $(collated_apitest_sources) collate-apitest
-	$(PERL) collate-apitest $(collated_apitest_sources) > api_collated.hT
+	$(PERL) "$(srcdir)/collate-apitest" "$(srcdir)" $(collated_apitest_sources) > api_collated.hT
 	mv api_collated.hT api_collated.h
 endif
 

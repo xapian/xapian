@@ -1,3 +1,10 @@
+Mon Nov 26 09:45:39 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/Makefile.am,tests/collate-apitest: Fix with VPATH builds -
+	  pass srcdir as the first argument to collate-apitest, so it can
+	  find the sources.  Also, use srcdir to form the path to
+	  collate-apitest when calling it from the make rule.
+
 Mon Nov 26 02:22:08 GMT 2007  Olly Betts <olly@survex.com>
 
 	* tests/api_db.cc,tests/apitest.cc,tests/apitest.h: Convert the

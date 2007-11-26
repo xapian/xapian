@@ -7,11 +7,12 @@ print <<END;
 END
 
 my %by_cond = ();
+my $srcdir = shift(@ARGV);
 for my $cc_source (@ARGV) {
     (my $generated_h = $cc_source) =~ s/\.\w+$/\.h/;
     open HDR, ">$generated_h" or die $!;
 
-    open SRC, "<$cc_source" or die $!;
+    open SRC, "<$srcdir/$cc_source" or die $!;
     while (<SRC>) {
 	if (/^DEFINE_TESTCASE\((.*?),\s*(.*)\)/) {
 	    my ($test_func, $cond) = ($1, $2);
