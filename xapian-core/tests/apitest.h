@@ -39,9 +39,6 @@ extern test_desc remotedb_tests[];
 extern test_desc flint_tests[];
 extern test_desc quartz_tests[];
 
-// Defined in api_wrdb.cc:
-extern test_desc writabledb_tests[];
-
 #define DEFINE_TESTCASE(S,COND) bool test_##S()
 #define TESTCASE(S) {#S, test_##S}
 #define END_OF_TESTCASES {0, 0}

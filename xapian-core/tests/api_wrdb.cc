@@ -24,6 +24,9 @@
  */
 
 #include <config.h>
+
+#include "api_wrdb.h"
+
 #include <algorithm>
 #include <map>
 #include <string>
@@ -46,8 +49,7 @@ using namespace std;
 
 // test that indexing a term more than once at the same position increases
 // the wdf
-static bool test_adddoc1()
-{
+DEFINE_TESTCASE(adddoc1, writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     Xapian::Document doc1, doc2, doc3;
@@ -92,8 +94,7 @@ static bool test_adddoc1()
 }
 
 // test that removing a posting and removing a term works
-static bool test_adddoc2()
-{
+DEFINE_TESTCASE(adddoc2, writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     Xapian::Document doc1;
@@ -268,8 +269,7 @@ static bool test_adddoc2()
 
 // test that adding lots of documents works, and doesn't leak memory
 // REGRESSION FIXED:2003-09-07
-static bool test_adddoc3()
-{
+DEFINE_TESTCASE(adddoc3, writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     for (Xapian::doccount i = 0; i < 2100; ++i) {
@@ -287,8 +287,7 @@ static bool test_adddoc3()
 // We want to test that a termlist starting with a 48 character long term works
 // OK since this value currently requires special handling in flint for
 // historical reasons!)  Also test all other term lengths while we're at it.
-static bool test_adddoc4()
-{
+DEFINE_TESTCASE(adddoc4, writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     for (Xapian::doccount i = 1; i <= 240; ++i) {
@@ -318,8 +317,7 @@ static bool test_adddoc4()
 
 // Test adding a document, and checking that it got added correctly.
 // This testcase used to be adddoc2 in quartztest.
-static bool test_adddoc5()
-{
+DEFINE_TESTCASE(adddoc5, writable) {
     // Inmemory doesn't support get_writable_database_as_database().
     SKIP_TEST_FOR_BACKEND("inmemory");
 
@@ -451,8 +449,7 @@ static bool test_adddoc5()
 
 // Test adding a document, and checking that it got added correctly.
 // This testcase used to be adddoc3 in quartztest.
-static bool test_adddoc6()
-{
+DEFINE_TESTCASE(adddoc6, writable) {
     // Inmemory doesn't support get_writable_database_again().
     SKIP_TEST_FOR_BACKEND("inmemory");
 
@@ -497,8 +494,7 @@ static bool test_adddoc6()
 }
 
 // tests that database destructors flush if it isn't done explicitly
-static bool test_implicitendsession1()
-{
+DEFINE_TESTCASE(implicitendsession1, writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     Xapian::Document doc;
@@ -513,8 +509,7 @@ static bool test_implicitendsession1()
 }
 
 // tests that assignment of Xapian::Database and Xapian::WritableDatabase work as expected
-static bool test_databaseassign1()
-{
+DEFINE_TESTCASE(databaseassign1, writable) {
     Xapian::WritableDatabase wdb = get_writable_database();
     Xapian::Database db = get_database("");
     Xapian::Database actually_wdb = wdb;
@@ -530,8 +525,7 @@ static bool test_databaseassign1()
 }
 
 // tests that deletion and updating of documents works as expected
-static bool test_deldoc1()
-{
+DEFINE_TESTCASE(deldoc1, writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     Xapian::Document doc1;
@@ -578,8 +572,7 @@ static bool test_deldoc1()
 }
 
 // tests that deletion and updating of documents works as expected
-static bool test_deldoc2()
-{
+DEFINE_TESTCASE(deldoc2, writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     Xapian::Document doc1;
@@ -655,8 +648,7 @@ static bool test_deldoc2()
 }
 
 // another test of deletion of documents, a cut-down version of deldoc2
-static bool test_deldoc3()
-{
+DEFINE_TESTCASE(deldoc3, writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     Xapian::Document doc1;
@@ -704,8 +696,7 @@ static bool test_deldoc3()
 }
 
 // tests that deletion and updating of (lots of) documents works as expected
-static bool test_deldoc4()
-{
+DEFINE_TESTCASE(deldoc4, writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     Xapian::Document doc1;
@@ -790,8 +781,7 @@ static bool test_deldoc4()
 }
 
 // Test deleting a document which was added in the same batch.
-static bool test_deldoc5()
-{
+DEFINE_TESTCASE(deldoc5, writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     Xapian::Document doc1;
@@ -836,8 +826,7 @@ static bool test_deldoc5()
 }
 
 // Regression test for bug in quartz and flint, fixed in 1.0.2.
-static bool test_deldoc6()
-{
+DEFINE_TESTCASE(deldoc6, writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     Xapian::Document doc1;
@@ -867,8 +856,7 @@ static bool test_deldoc6()
     return true;
 }
 
-static bool test_replacedoc1()
-{
+DEFINE_TESTCASE(replacedoc1, writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     Xapian::Document doc1;
@@ -914,8 +902,7 @@ static bool test_replacedoc1()
 
 // Test of new feature: WritableDatabase::replace_document accepts a docid
 // which doesn't yet exist as of Xapian 0.8.2.
-static bool test_replacedoc2()
-{
+DEFINE_TESTCASE(replacedoc2, writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     Xapian::Document doc1;
@@ -973,8 +960,7 @@ static bool test_replacedoc2()
 }
 
 // Test replacing a document which was added in the same batch.
-static bool test_replacedoc3()
-{
+DEFINE_TESTCASE(replacedoc3, writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     Xapian::Document doc1;
@@ -1040,8 +1026,7 @@ static bool test_replacedoc3()
 }
 
 // Test replacing a document which was deleted in the same batch.
-static bool test_replacedoc4()
-{
+DEFINE_TESTCASE(replacedoc4, writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     Xapian::Document doc1;
@@ -1103,8 +1088,7 @@ static bool test_replacedoc4()
 // Test replacing a document with itself without modifying postings.
 // Regression test for bug in 0.9.9 and earlier - there flint and quartz
 // lose all positional information for the document when you do this.
-static bool test_replacedoc5()
-{
+DEFINE_TESTCASE(replacedoc5, writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     Xapian::Document doc1;
@@ -1131,8 +1115,7 @@ static bool test_replacedoc5()
 
 // Test of new feature: WritableDatabase::replace_document and delete_document
 // can take a unique termname instead of a document id as of Xapian 0.8.2.
-static bool test_uniqueterm1()
-{
+DEFINE_TESTCASE(uniqueterm1, writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     for (int n = 1; n <= 20; ++n) {
@@ -1187,8 +1170,7 @@ static bool test_uniqueterm1()
 }
 
 // tests all document postlists
-static bool test_allpostlist2()
-{
+DEFINE_TESTCASE(allpostlist2, writable) {
     Xapian::WritableDatabase db(get_writable_database("apitest_manydocs"));
     Xapian::PostingIterator i = db.postlist_begin("");
     unsigned int j = 1;
@@ -1241,8 +1223,7 @@ static void test_emptyterm2_helper(Xapian::WritableDatabase & db)
 
 // tests results of passing an empty term to various methods
 // equivalent of emptyterm1 for a writable database
-static bool test_emptyterm2()
-{
+DEFINE_TESTCASE(emptyterm2, writable) {
     {
 	Xapian::WritableDatabase db(get_writable_database("apitest_manydocs"));
 	TEST_EQUAL(db.get_doccount(), 512);
@@ -1278,8 +1259,7 @@ static bool test_emptyterm2()
 
 // Check that PHRASE/NEAR becomes AND if there's no positional info in the
 // database.
-static bool test_phraseorneartoand1()
-{
+DEFINE_TESTCASE(phraseorneartoand1, writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     for (int n = 1; n <= 20; ++n) {
@@ -1318,8 +1298,7 @@ static bool test_phraseorneartoand1()
 
 // Check that a large number of position list entries for a particular term
 // works - regression test for flint.
-static bool test_longpositionlist1()
-{
+DEFINE_TESTCASE(longpositionlist1, writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     Xapian::Document doc;
@@ -1436,8 +1415,7 @@ bool test_consistency2()
     return true;
 }
 
-static bool test_crashrecovery1()
-{
+DEFINE_TESTCASE(crashrecovery1, writable) {
     const string & dbtype = get_dbtype();
     string path, base_ext;
     if (dbtype == "flint") {
@@ -1502,8 +1480,7 @@ static bool test_crashrecovery1()
 
 // Check that DatabaseError is thrown if the docid counter would wrap.
 // Regression test for bug#152.
-static bool test_nomoredocids1()
-{
+DEFINE_TESTCASE(nomoredocids1, writable) {
     // The InMemory backend uses a vector for the documents, so trying to add
     // document "-1" will fail because we can't allocate enough memory!
     SKIP_TEST_FOR_BACKEND("inmemory");
@@ -1521,8 +1498,7 @@ static bool test_nomoredocids1()
 }
 
 // Test basic spelling correction features.
-static bool test_spell1()
-{
+DEFINE_TESTCASE(spell1, spelling) {
     SKIP_TEST_UNLESS_BACKEND("flint");
 
     Xapian::WritableDatabase db = get_writable_database();
@@ -1596,8 +1572,7 @@ static bool test_spell1()
 }
 
 // Test spelling correction for Unicode.
-static bool test_spell2()
-{
+DEFINE_TESTCASE(spell2, spelling) {
     SKIP_TEST_UNLESS_BACKEND("flint");
 
     Xapian::WritableDatabase db = get_writable_database();
@@ -1624,8 +1599,7 @@ static bool test_spell2()
 }
 
 // Test spelling correction with multi databases
-static bool test_spell3()
-{
+DEFINE_TESTCASE(spell3, spelling) {
     SKIP_TEST_UNLESS_BACKEND("flint");
 
     Xapian::WritableDatabase db1 = get_writable_database();
@@ -1687,8 +1661,7 @@ static bool test_spell3()
 }
 
 // Regression test - check that appending works correctly.
-static bool test_spell4()
-{
+DEFINE_TESTCASE(spell4, spelling) {
     SKIP_TEST_UNLESS_BACKEND("flint");
 
     Xapian::WritableDatabase db = get_writable_database();
@@ -1705,8 +1678,7 @@ static bool test_spell4()
 }
 
 // Regression test - used to segfault with some input values.
-static bool test_spell5()
-{
+DEFINE_TESTCASE(spell5, spelling) {
     SKIP_TEST_UNLESS_BACKEND("flint");
 
     Xapian::WritableDatabase db = get_writable_database();
@@ -1720,8 +1692,7 @@ static bool test_spell5()
 }
 
 // Test synonym iterators.
-static bool test_synonymitor1()
-{
+DEFINE_TESTCASE(synonymitor1, writable) {
     SKIP_TEST_UNLESS_BACKEND("flint");
 
     Xapian::WritableDatabase db = get_writable_database();
@@ -1837,8 +1808,7 @@ static bool test_synonymitor1()
 }
 
 // Test basic metadata access methods.
-static bool test_metadata1()
-{
+DEFINE_TESTCASE(metadata1, writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     TEST_EQUAL(db.get_metadata("foo"), "");
@@ -1860,10 +1830,7 @@ static bool test_metadata1()
 }
 
 // Test that metadata gets applied at same time as other changes.
-static bool test_metadata2()
-{
-    /* This test only works for backends which we can get a reader for as
-     * well as a writer. */
+DEFINE_TESTCASE(metadata2, metadata) {
     SKIP_TEST_UNLESS_BACKEND("flint");
     Xapian::WritableDatabase db = get_writable_database();
     Xapian::Database dbr = get_writable_database_as_database();
@@ -1902,8 +1869,7 @@ static bool test_metadata2()
 }
 
 // Test the empty metadata keys give an error correctly.
-static bool test_metadata3()
-{
+DEFINE_TESTCASE(metadata3, metadata) {
     Xapian::WritableDatabase db = get_writable_database();
 
     TEST_EXCEPTION(Xapian::InvalidArgumentError, db.get_metadata(""));
@@ -1915,8 +1881,7 @@ static bool test_metadata3()
 
 // Test that adding a document with a really long term gives an error on
 // add_document() rather than on flush().
-static bool test_termtoolong1()
-{
+DEFINE_TESTCASE(termtoolong1, writable) {
     // Quartz doesn't perform this check.
     SKIP_TEST_FOR_BACKEND("quartz");
     // Inmemory doesn't impose a limit.
@@ -1952,8 +1917,7 @@ static bool test_termtoolong1()
 }
 
 /// Test playing with a postlist
-static bool test_postlist7()
-{
+DEFINE_TESTCASE(postlist7, writable) {
     Xapian::WritableDatabase db_w = get_writable_database();
 
     {
@@ -1994,49 +1958,3 @@ static bool test_postlist7()
 
     return true;
 }
-
-// #######################################################################
-// # End of test cases: now we list the tests to run.
-
-/// The tests which use a writable backend
-test_desc writabledb_tests[] = {
-    TESTCASE(adddoc1),
-    TESTCASE(adddoc2),
-    TESTCASE(adddoc3),
-    TESTCASE(adddoc4),
-    TESTCASE(adddoc5),
-    TESTCASE(adddoc6),
-    TESTCASE(implicitendsession1),
-    TESTCASE(databaseassign1),
-    TESTCASE(deldoc1),
-    TESTCASE(deldoc2),
-    TESTCASE(deldoc3),
-    TESTCASE(deldoc4),
-    TESTCASE(deldoc5),
-    TESTCASE(deldoc6),
-    TESTCASE(replacedoc1),
-    TESTCASE(replacedoc2),
-    TESTCASE(replacedoc3),
-    TESTCASE(replacedoc4),
-    TESTCASE(replacedoc5),
-    TESTCASE(uniqueterm1),
-    TESTCASE(emptyterm2),
-    TESTCASE(phraseorneartoand1),
-    TESTCASE(longpositionlist1),
-    TESTCASE(allpostlist2),
-    TESTCASE(consistency2),
-    TESTCASE(crashrecovery1),
-    TESTCASE(nomoredocids1),
-    TESTCASE(spell1),
-    TESTCASE(spell2),
-    TESTCASE(spell3),
-    TESTCASE(spell4),
-    TESTCASE(spell5),
-    TESTCASE(synonymitor1),
-    TESTCASE(metadata1),
-    TESTCASE(metadata2),
-    TESTCASE(metadata3),
-    TESTCASE(termtoolong1),
-    TESTCASE(postlist7),
-    END_OF_TESTCASES
-};

@@ -1,3 +1,7 @@
+Mon Nov 26 00:34:03 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/: Collate the wrdb tests.
+
 Mon Nov 26 00:18:18 GMT 2007  Olly Betts <olly@survex.com>
 
 	* tests/api_posdb.cc,tests/apitest.cc: Add "writable" flag and use it

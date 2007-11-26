@@ -48,6 +48,7 @@ using namespace std;
 #include "api_sorting.h"
 #include "api_transdb.h"
 #include "api_unicode.h"
+#include "api_wrdb.h"
 
 static BackendManager * backendmanager;
 
@@ -121,6 +122,7 @@ int main(int argc, char **argv)
 
 	bool backend = false, remote = false, transactions = false;
 	bool positional = false, writable = false;
+	bool spelling = false, metadata = false;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -133,7 +135,6 @@ int main(int argc, char **argv)
 
 	RUNTESTS("inmemory", anydb);
 	RUNTESTS("inmemory", specchar);
-	RUNTESTS("inmemory", writabledb);
 	RUNTESTS("inmemory", localdb);
 	RUNTESTS("inmemory", doclendb);
 	RUNTESTS("inmemory", collfreq);
@@ -142,6 +143,7 @@ int main(int argc, char **argv)
 
 	bool backend = true, remote = false, transactions = false;
 	bool positional = true, writable = true;
+	bool spelling = false, metadata = false;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -155,7 +157,6 @@ int main(int argc, char **argv)
 
 	RUNTESTS("flint", anydb);
 	RUNTESTS("flint", specchar);
-	RUNTESTS("flint", writabledb);
 	RUNTESTS("flint", localdb);
 	RUNTESTS("flint", doclendb);
 	RUNTESTS("flint", collfreq);
@@ -165,6 +166,7 @@ int main(int argc, char **argv)
 
 	bool backend = true, remote = false, transactions = true;
 	bool positional = true, writable = true;
+	bool spelling = true, metadata = true;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -187,6 +189,7 @@ int main(int argc, char **argv)
 
 	bool backend = true, remote = false, transactions = false;
 	bool positional = true, writable = false;
+	bool spelling = false, metadata = false;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -200,7 +203,6 @@ int main(int argc, char **argv)
 
 	RUNTESTS("quartz", anydb);
 	RUNTESTS("quartz", specchar);
-	RUNTESTS("quartz", writabledb);
 	RUNTESTS("quartz", localdb);
 	RUNTESTS("quartz", doclendb);
 	RUNTESTS("quartz", collfreq);
@@ -210,6 +212,7 @@ int main(int argc, char **argv)
 
 	bool backend = true, remote = false, transactions = true;
 	bool positional = true, writable = true;
+	bool spelling = false, metadata = false;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -223,7 +226,6 @@ int main(int argc, char **argv)
 
 	RUNTESTS("remoteprog", anydb);
 	RUNTESTS("remoteprog", specchar);
-	RUNTESTS("remoteprog", writabledb);
 	RUNTESTS("remoteprog", remotedb);
 	RUNTESTS("remoteprog", doclendb);
 	RUNTESTS("remoteprog", collfreq);
@@ -232,6 +234,7 @@ int main(int argc, char **argv)
 
 	bool backend = true, remote = true, transactions = true;
 	bool positional = true, writable = true;
+	bool spelling = false, metadata = false;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -243,7 +246,6 @@ int main(int argc, char **argv)
 
 	RUNTESTS("remotetcp", anydb);
 	RUNTESTS("remotetcp", specchar);
-	RUNTESTS("remotetcp", writabledb);
 	RUNTESTS("remotetcp", remotedb);
 	RUNTESTS("remotetcp", doclendb);
 	RUNTESTS("remotetcp", collfreq);
@@ -252,6 +254,7 @@ int main(int argc, char **argv)
 
 	bool backend = true, remote = true, transactions = true;
 	bool positional = true, writable = true;
+	bool spelling = false, metadata = false;
 #include "api_collated.h"
 
 	delete backendmanager;
