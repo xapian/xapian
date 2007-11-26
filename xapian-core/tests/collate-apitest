@@ -1,9 +1,8 @@
 #!/usr/bin/perl -w
 use strict;
 
-# FIXME: with XXXX backend...
 print <<END;
-    cout << "Running collated tests..." << endl;
+    cout << "Running tests with backend \\\"" << backendmanager->get_dbtype() << "\\\"..." << endl;
 END
 
 my %by_cond = ();
