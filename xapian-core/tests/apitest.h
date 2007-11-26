@@ -25,13 +25,7 @@
 
 #include "testsuite.h"
 
-// Defined in api_db.cc:
-extern test_desc flint_tests[];
-extern test_desc quartz_tests[];
-
 #define DEFINE_TESTCASE(S,COND) bool test_##S()
-#define TESTCASE(S) {#S, test_##S}
-#define END_OF_TESTCASES {0, 0}
 
 const char * get_dbtype();
 

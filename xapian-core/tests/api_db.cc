@@ -1168,8 +1168,7 @@ DEFINE_TESTCASE(consistency1, backend && !remote) {
 }
 
 // tests that specifying a nonexistent input file throws an exception.
-static bool test_quartzdatabaseopeningerror1()
-{
+DEFINE_TESTCASE(quartzdatabaseopeningerror1, quartz) {
     mkdir(".quartz", 0755);
 
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
@@ -1197,8 +1196,7 @@ static bool test_quartzdatabaseopeningerror1()
 }
 
 /// Test opening of a quartz database
-static bool test_quartzdatabaseopen1()
-{
+DEFINE_TESTCASE(quartzdatabaseopen1, quartz) {
     const char * dbdir = ".quartz/test_quartzdatabaseopen1";
     mkdir(".quartz", 0755);
 
@@ -1263,8 +1261,7 @@ static bool test_quartzdatabaseopen1()
 }
 
 // tests that specifying a nonexistent input file throws an exception.
-static bool test_flintdatabaseopeningerror1()
-{
+DEFINE_TESTCASE(flintdatabaseopeningerror1, flint) {
     mkdir(".flint", 0755);
 
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
@@ -1292,8 +1289,7 @@ static bool test_flintdatabaseopeningerror1()
 }
 
 /// Tests that appropriate error is thrown for database format change.
-static bool test_flintdatabaseformaterror1()
-{
+DEFINE_TESTCASE(flintdatabaseformaterror1, flint) {
     string dbdir = test_driver::get_srcdir();
     dbdir += "/testdata/flint-0.9.9";
 
@@ -1315,8 +1311,7 @@ static bool test_flintdatabaseformaterror1()
 
 /// Test that an old database can be successfully overwritten when using
 // Xapian::DB_CREATE_OR_OVERWRITE.
-static bool test_flintdatabaseformaterror2()
-{
+DEFINE_TESTCASE(flintdatabaseformaterror2, flint) {
     string flint099 = test_driver::get_srcdir();
     flint099 += "/testdata/flint-0.9.9";
 
@@ -1338,8 +1333,7 @@ static bool test_flintdatabaseformaterror2()
 }
 
 // regression test for not releasing lock on error.
-static bool test_flintdatabaseformaterror3()
-{
+DEFINE_TESTCASE(flintdatabaseformaterror3, flint) {
     string flint099 = test_driver::get_srcdir();
     flint099 += "/testdata/flint-0.9.9";
 
@@ -1360,8 +1354,7 @@ static bool test_flintdatabaseformaterror3()
 }
 
 // Test that 1.0.2 and later can open 1.0.1 databases.
-static bool test_flintbackwardcompat1()
-{
+DEFINE_TESTCASE(flintbackwardcompat1, flint) {
     string flint101 = test_driver::get_srcdir();
     flint101 += "/testdata/flint-1.0.1";
 
@@ -1387,8 +1380,7 @@ static bool test_flintbackwardcompat1()
 }
 
 // Test that 1.0.3 and later can open 1.0.2 databases.
-static bool test_flintbackwardcompat2()
-{
+DEFINE_TESTCASE(flintbackwardcompat2, flint) {
     string flint102 = test_driver::get_srcdir();
     flint102 += "/testdata/flint-1.0.2";
 
@@ -1414,8 +1406,7 @@ static bool test_flintbackwardcompat2()
 }
 
 /// Test opening of a flint database
-static bool test_flintdatabaseopen1()
-{
+DEFINE_TESTCASE(flintdatabaseopen1, flint) {
     const string dbdir = ".flint/test_flintdatabaseopen1";
     mkdir(".flint", 0755);
 
@@ -1724,23 +1715,3 @@ DEFINE_TESTCASE(matchall1, backend) {
 
     return true;
 }
-
-// #######################################################################
-// # End of test cases: now we list the tests to run.
-
-test_desc flint_tests[] = {
-    {"flintdatabaseopeningerror1",	test_flintdatabaseopeningerror1},
-    {"flintdatabaseformaterror1",	test_flintdatabaseformaterror1},
-    {"flintdatabaseformaterror2",	test_flintdatabaseformaterror2},
-    {"flintdatabaseformaterror3",	test_flintdatabaseformaterror3},
-    {"flintbackwardcompat1",		test_flintbackwardcompat1},
-    {"flintbackwardcompat2",		test_flintbackwardcompat2},
-    {"flintdatabaseopen1",		test_flintdatabaseopen1},
-    {0, 0}
-};
-
-test_desc quartz_tests[] = {
-    {"quartzdatabaseopeningerror1",	test_quartzdatabaseopeningerror1},
-    {"quartzdatabaseopen1",		test_quartzdatabaseopen1},
-    {0, 0}
-};

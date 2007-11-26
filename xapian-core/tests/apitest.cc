@@ -100,11 +100,6 @@ get_writable_database_again()
     return backendmanager->get_writable_database_again();
 }
 
-#define RUNTESTS(B, T) if (backend_name.empty() || backend_name == (B)) {\
-    cout << "Running " << #T << " tests with " << (B) << " backend..." << endl;\
-    result = max(result, test_driver::run(T##_tests));\
-    } else (void)0
-
 #define USE_BACKEND(B, S) ((B).empty() || (B) == (S))
 
 int main(int argc, char **argv)
@@ -125,6 +120,7 @@ int main(int argc, char **argv)
 	bool backend = false, remote = false, transactions = false;
 	bool positional = false, writable = false, multi = false;
 	bool spelling = false, metadata = false;
+	bool quartz = false, flint = false;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -138,6 +134,7 @@ int main(int argc, char **argv)
 	bool backend = true, remote = false, transactions = false;
 	bool positional = true, writable = true, multi = false;
 	bool spelling = false, metadata = false;
+	bool quartz = false, flint = false;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -149,11 +146,10 @@ int main(int argc, char **argv)
 	backendmanager = new BackendManagerFlint;
 	backendmanager->set_datadir(srcdir + "/testdata/");
 
-	RUNTESTS("flint", flint);
-
 	bool backend = true, remote = false, transactions = true;
 	bool positional = true, writable = true, multi = false;
 	bool spelling = true, metadata = true;
+	bool quartz = false, flint = true;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -165,11 +161,10 @@ int main(int argc, char **argv)
 	backendmanager = new BackendManagerMulti;
 	backendmanager->set_datadir(srcdir + "/testdata/");
 
-	RUNTESTS("multi", flint);
-
 	bool backend = true, remote = false, transactions = false;
 	bool positional = true, writable = false, multi = true;
 	bool spelling = false, metadata = false;
+	bool quartz = false, flint = false;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -181,11 +176,10 @@ int main(int argc, char **argv)
 	backendmanager = new BackendManagerQuartz;
 	backendmanager->set_datadir(srcdir + "/testdata/");
 
-	RUNTESTS("quartz", quartz);
-
 	bool backend = true, remote = false, transactions = true;
 	bool positional = true, writable = true, multi = false;
 	bool spelling = false, metadata = false;
+	bool quartz = true, flint = false;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -200,6 +194,7 @@ int main(int argc, char **argv)
 	bool backend = true, remote = true, transactions = true;
 	bool positional = true, writable = true, multi = false;
 	bool spelling = false, metadata = false;
+	bool quartz = false, flint = false;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -212,6 +207,7 @@ int main(int argc, char **argv)
 	bool backend = true, remote = true, transactions = true;
 	bool positional = true, writable = true, multi = false;
 	bool spelling = false, metadata = false;
+	bool quartz = false, flint = false;
 #include "api_collated.h"
 
 	delete backendmanager;
