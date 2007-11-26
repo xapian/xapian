@@ -1,3 +1,8 @@
+Mon Nov 26 15:39:58 GMT 2007  Olly Betts <olly@survex.com>
+
+	* docs/Makefile.am: Don't package or install various intermediate
+	  files which doxygen generates.
+
 Mon Nov 26 13:14:19 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/api_db.cc: Ensure that the database needed for stubdb1 is
