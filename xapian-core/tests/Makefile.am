@@ -119,9 +119,24 @@ if MAINTAINER_MODE
 BUILT_SOURCES += api_collated.h $(collated_apitest_sources:.cc=.h)
 CLEANFILES = api_collated.h $(collated_apitest_sources:.cc=.h)
 
-api_collated.h: $(collated_apitest_sources) collate-apitest
+api_collated.h $(collated_apitest_sources:.cc=.h): api_collated.stamp
+## Recover from the removal of $@.  A full explanation of these rules is in the
+## automake manual under the heading "Multiple Outputs".
+	@if test -f $@; then :; else \
+	  trap 'rm -rf api_collated.lock api_collated.stamp' 1 2 13 15; \
+	  if mkdir api_collated.lock 2>/dev/null; then \
+	    rm -f api_collated.stamp; \
+	    $(MAKE) $(AM_MAKEFLAGS) api_collated.stamp; \
+	    rmdir api_collated.lock; \
+	  else \
+	    while test -d api_collated.lock; do sleep 1; done; \
+	    test -f api_collated.stamp; exit $$?; \
+	  fi; \
+	fi
+api_collated.stamp: $(collated_apitest_sources) collate-apitest
 	$(PERL) "$(srcdir)/collate-apitest" "$(srcdir)" $(collated_apitest_sources) > api_collated.hT
 	mv api_collated.hT api_collated.h
+	touch $@
 endif
 
 EXTRA_DIST = collate-apitest api_collated.h $(collated_apitest_sources:.cc=.h)
