@@ -58,8 +58,7 @@ query(const string &t)
 // # Tests start here
 
 // tests Xapian::Database::get_termfreq() and Xapian::Database::term_exists()
-static bool test_termstats()
-{
+DEFINE_TESTCASE(termstats, backend) {
     Xapian::Database db(get_database("apitest_simpledata"));
 
     TEST(!db.term_exists("corn"));
@@ -73,8 +72,7 @@ static bool test_termstats()
 }
 
 // check that stubdbs work
-static bool test_stubdb1()
-{
+DEFINE_TESTCASE(stubdb1, backend) {
     ofstream out("stubdb1");
     TEST(out.is_open());
     // FIXME: not very reliable...
@@ -116,8 +114,7 @@ class MyErrorHandler : public Xapian::ErrorHandler {
 };
 
 // tests error handler in multimatch().
-static bool test_multierrhandler1()
-{
+//DEFINE_TESTCASE(multierrhandler1, backend) {
     MyErrorHandler myhandler;
 
     Xapian::Database mydb2(get_database("apitest_simpledata"));
@@ -251,8 +248,7 @@ class myMatchDecider : public Xapian::MatchDecider {
 };
 
 // Test Xapian::MatchDecider functor.
-static bool test_matchfunctor1()
-{
+DEFINE_TESTCASE(matchfunctor1, backend && !remote) {
     Xapian::Database db(get_database("apitest_simpledata"));
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("this"));
@@ -285,8 +281,7 @@ static bool test_matchfunctor1()
 }
 
 // Test Xapian::MatchDecider functor used as a match spy.
-static bool test_matchfunctor2()
-{
+DEFINE_TESTCASE(matchfunctor2, backend && !remote) {
     Xapian::Database db(get_database("apitest_simpledata"));
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("this"));
@@ -319,8 +314,7 @@ static bool test_matchfunctor2()
 }
 
 // tests that mset iterators on msets compare correctly.
-static bool test_msetiterator1()
-{
+DEFINE_TESTCASE(msetiterator1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("this"));
     Xapian::MSet mymset = enquire.get_mset(0, 2);
@@ -365,8 +359,7 @@ static bool test_msetiterator1()
 }
 
 // tests that mset iterators on empty msets compare equal.
-static bool test_msetiterator2()
-{
+DEFINE_TESTCASE(msetiterator2, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("this"));
     Xapian::MSet mymset = enquire.get_mset(0, 0);
@@ -386,8 +379,7 @@ static bool test_msetiterator2()
 }
 
 // tests that begin().get_document() works when first != 0
-static bool test_msetiterator3()
-{
+DEFINE_TESTCASE(msetiterator3, backend) {
     Xapian::Database mydb(get_database("apitest_simpledata"));
     Xapian::Enquire enquire(mydb);
     enquire.set_query(Xapian::Query("this"));
@@ -402,8 +394,7 @@ static bool test_msetiterator3()
 }
 
 // tests that eset iterators on empty esets compare equal.
-static bool test_esetiterator1()
-{
+DEFINE_TESTCASE(esetiterator1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("this"));
 
@@ -452,8 +443,7 @@ static bool test_esetiterator1()
 }
 
 // tests that eset iterators on empty esets compare equal.
-static bool test_esetiterator2()
-{
+DEFINE_TESTCASE(esetiterator2, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("this"));
 
@@ -614,8 +604,7 @@ DEFINE_TESTCASE(collapsekey4, backend) {
 }
 
 // test for keepalives
-static bool test_keepalive1()
-{
+DEFINE_TESTCASE(keepalive1, remote) {
     Xapian::Database db(get_remote_database("apitest_simpledata", 5000));
 
     /* Test that keep-alives work */
@@ -917,9 +906,7 @@ DEFINE_TESTCASE(rsetmultidb2, backend && !multi) {
 }
 
 // tests an expand across multiple databases
-static bool test_multiexpand1()
-{
-    SKIP_TEST_FOR_BACKEND("multi");
+DEFINE_TESTCASE(multiexpand1, backend && !multi) {
     Xapian::Database mydb1(get_database("apitest_simpledata", "apitest_simpledata2"));
     Xapian::Enquire enquire1(mydb1);
 
@@ -970,8 +957,7 @@ static bool test_multiexpand1()
 }
 
 // tests that opening a non-existent postlist returns an empty list
-static bool test_postlist1()
-{
+DEFINE_TESTCASE(postlist1, backend) {
     Xapian::Database db(get_database("apitest_simpledata"));
 
     TEST_EQUAL(db.postlist_begin("rosebud"), db.postlist_end("rosebud"));
@@ -989,8 +975,7 @@ static bool test_postlist1()
 }
 
 // tests that a Xapian::PostingIterator works as an STL iterator
-static bool test_postlist2()
-{
+DEFINE_TESTCASE(postlist2, backend) {
     Xapian::Database db(get_database("apitest_simpledata"));
     Xapian::PostingIterator p;
     p = db.postlist_begin("this");
@@ -1019,8 +1004,7 @@ static bool test_postlist2()
 }
 
 // tests that a Xapian::PostingIterator still works when the DB is deleted
-static bool test_postlist3()
-{
+DEFINE_TESTCASE(postlist3, backend) {
     Xapian::PostingIterator u;
     {
 	Xapian::Database db_temp(get_database("apitest_simpledata"));
@@ -1040,8 +1024,7 @@ static bool test_postlist3()
 }
 
 // tests skip_to
-static bool test_postlist4()
-{
+DEFINE_TESTCASE(postlist4, backend) {
     Xapian::Database db(get_database("apitest_simpledata"));
     Xapian::PostingIterator i = db.postlist_begin("this");
     i.skip_to(1);
@@ -1051,8 +1034,7 @@ static bool test_postlist4()
 }
 
 // tests long postlists
-static bool test_postlist5()
-{
+DEFINE_TESTCASE(postlist5, backend) {
     Xapian::Database db(get_database("apitest_manydocs"));
     // Allow for databases which don't support length
     if (db.get_avlength() != 1)
@@ -1069,8 +1051,7 @@ static bool test_postlist5()
 }
 
 // tests document length in postlists
-static bool test_postlist6()
-{
+DEFINE_TESTCASE(postlist6, backend) {
     Xapian::Database db(get_database("apitest_simpledata"));
     Xapian::PostingIterator i = db.postlist_begin("this");
     TEST(i != db.postlist_end("this"));
@@ -1107,8 +1088,7 @@ DEFINE_TESTCASE(collfreq1, backend) {
 }
 
 // Regression test for split msets being incorrect when sorting
-static bool test_sortvalue1()
-{
+DEFINE_TESTCASE(sortvalue1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("this"));
 
@@ -1150,9 +1130,11 @@ static bool test_sortvalue1()
     return true;
 }
 
-// consistency check match - vary mset size and check results agree
-static bool test_consistency1()
-{
+// consistency check match - vary mset size and check results agree.
+// consistency1 will run on the remote backend, but it's particularly slow
+// with that, and testing it there doesn't actually improve the test
+// coverage really.
+DEFINE_TESTCASE(consistency1, backend && !remote) {
     Xapian::Database db(get_database("etext"));
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query(Xapian::Query::OP_OR, Xapian::Query("the"), Xapian::Query("sky")));
@@ -1491,8 +1473,7 @@ static bool test_flintdatabaseopen1()
 // set_sort_by_value
 // set_sort_by_value_then_relevance
 // set_sort_by_relevance_then_value
-static bool test_sortrel1()
-{
+DEFINE_TESTCASE(sortrel1, backend) {
     Xapian::Enquire enquire(get_database("apitest_sortrel"));
     enquire.set_sort_by_value(1);
     enquire.set_query(Xapian::Query("woman"));
@@ -1618,8 +1599,7 @@ static bool test_sortrel1()
 }
 
 // Test network stats and local stats give the same results.
-static bool test_netstats1()
-{
+DEFINE_TESTCASE(netstats1, remote) {
     BackendManagerLocal local_manager;
     local_manager.set_datadir(test_driver::get_srcdir() + "/testdata/");
 
@@ -1700,9 +1680,10 @@ class MyWeight : public Xapian::Weight {
 	bool get_sumpart_needs_doclength() const { return false; }
 };
 
-// tests user weighting scheme
-static bool test_userweight1()
-{
+// tests user weighting scheme.
+// Would work with remote if we registered the weighting scheme.
+// FIXME: do this so we also test that functionality...
+DEFINE_TESTCASE(userweight1, backend && !remote) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_weighting_scheme(MyWeight());
     const char * query[] = { "this", "line", "paragraph", "rubbish" };
@@ -1727,8 +1708,7 @@ static bool test_userweight1()
 // tests MatchAll queries
 // This is a regression test, which failed with assertion failures in
 // revision 9094.
-static bool test_matchall1()
-{
+DEFINE_TESTCASE(matchall1, backend) {
     Xapian::Database db(get_database("apitest_simpledata"));
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query::MatchAll);
@@ -1747,59 +1727,6 @@ static bool test_matchall1()
 
 // #######################################################################
 // # End of test cases: now we list the tests to run.
-
-test_desc localdb_tests[] = {
-    {"matchfunctor1",	   test_matchfunctor1},
-    {"matchfunctor2",	   test_matchfunctor2},
-    {"msetiterator1",	   test_msetiterator1},
-    {"msetiterator2",	   test_msetiterator2},
-    {"msetiterator3",	   test_msetiterator3},
-    {"esetiterator1",	   test_esetiterator1},
-    {"esetiterator2",	   test_esetiterator2},
-    {"multiexpand1",       test_multiexpand1},
-    {"postlist1",	   test_postlist1},
-    {"postlist2",	   test_postlist2},
-    {"postlist3",	   test_postlist3},
-    {"postlist4",	   test_postlist4},
-    {"postlist5",	   test_postlist5},
-    {"postlist6",	   test_postlist6},
-    {"termstats",	   test_termstats},
-    {"sortvalue1",	   test_sortvalue1},
-    {"sortrel1",	   test_sortrel1},
-    // consistency1 will run on the remote backend, but it's particularly slow
-    // with that, and testing it there doesn't actually improve the test
-    // coverage really.
-    {"consistency1",	   test_consistency1},
-    // Would work with remote if we registered the weighting scheme.
-    // FIXME: do this so we also test that functionality...
-    {"userweight1",	   test_userweight1},
-    {"matchall1",	   test_matchall1},
-    {0, 0}
-};
-
-test_desc remotedb_tests[] = {
-// FIXME:    {"multierrhandler1",   test_multierrhandler1},
-    {"msetiterator1",	   test_msetiterator1},
-    {"msetiterator2",	   test_msetiterator2},
-    {"msetiterator3",	   test_msetiterator3},
-    {"esetiterator1",	   test_esetiterator1},
-    {"esetiterator2",	   test_esetiterator2},
-    {"multiexpand1",       test_multiexpand1},
-    {"postlist1",	   test_postlist1},
-    {"postlist2",	   test_postlist2},
-    {"postlist3",	   test_postlist3},
-    {"postlist4",	   test_postlist4},
-    {"postlist5",	   test_postlist5},
-    {"postlist6",	   test_postlist6},
-    {"stubdb1",		   test_stubdb1},
-    {"keepalive1",	   test_keepalive1},
-    {"termstats",	   test_termstats},
-    {"sortvalue1",	   test_sortvalue1},
-    {"sortrel1",	   test_sortrel1},
-    {"netstats1",	   test_netstats1},
-    {"matchall1",	   test_matchall1},
-    {0, 0}
-};
 
 test_desc flint_tests[] = {
     {"flintdatabaseopeningerror1",	test_flintdatabaseopeningerror1},

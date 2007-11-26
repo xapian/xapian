@@ -26,8 +26,6 @@
 #include "testsuite.h"
 
 // Defined in api_db.cc:
-extern test_desc localdb_tests[];
-extern test_desc remotedb_tests[];
 extern test_desc flint_tests[];
 extern test_desc quartz_tests[];
 

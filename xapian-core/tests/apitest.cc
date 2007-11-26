@@ -135,8 +135,6 @@ int main(int argc, char **argv)
 	backendmanager = new BackendManagerInMemory;
 	backendmanager->set_datadir(srcdir + "/testdata/");
 
-	RUNTESTS("inmemory", localdb);
-
 	bool backend = true, remote = false, transactions = false;
 	bool positional = true, writable = true, multi = false;
 	bool spelling = false, metadata = false;
@@ -151,7 +149,6 @@ int main(int argc, char **argv)
 	backendmanager = new BackendManagerFlint;
 	backendmanager->set_datadir(srcdir + "/testdata/");
 
-	RUNTESTS("flint", localdb);
 	RUNTESTS("flint", flint);
 
 	bool backend = true, remote = false, transactions = true;
@@ -168,7 +165,6 @@ int main(int argc, char **argv)
 	backendmanager = new BackendManagerMulti;
 	backendmanager->set_datadir(srcdir + "/testdata/");
 
-	RUNTESTS("multi", localdb);
 	RUNTESTS("multi", flint);
 
 	bool backend = true, remote = false, transactions = false;
@@ -185,7 +181,6 @@ int main(int argc, char **argv)
 	backendmanager = new BackendManagerQuartz;
 	backendmanager->set_datadir(srcdir + "/testdata/");
 
-	RUNTESTS("quartz", localdb);
 	RUNTESTS("quartz", quartz);
 
 	bool backend = true, remote = false, transactions = true;
@@ -202,8 +197,6 @@ int main(int argc, char **argv)
 	backendmanager = new BackendManagerRemoteProg;
 	backendmanager->set_datadir(srcdir + "/testdata/");
 
-	RUNTESTS("remoteprog", remotedb);
-
 	bool backend = true, remote = true, transactions = true;
 	bool positional = true, writable = true, multi = false;
 	bool spelling = false, metadata = false;
@@ -215,8 +208,6 @@ int main(int argc, char **argv)
     if (USE_BACKEND(backend_name, "remotetcp")) {
 	backendmanager = new BackendManagerRemoteTcp;
 	backendmanager->set_datadir(srcdir + "/testdata/");
-
-	RUNTESTS("remotetcp", remotedb);
 
 	bool backend = true, remote = true, transactions = true;
 	bool positional = true, writable = true, multi = false;
