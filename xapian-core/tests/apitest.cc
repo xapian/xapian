@@ -43,6 +43,7 @@ using namespace std;
 #include "backendmanager_remotetcp.h"
 #include "utils.h"
 
+#include "api_anydb.h"
 #include "api_nodb.h"
 #include "api_posdb.h"
 #include "api_sorting.h"
@@ -121,7 +122,7 @@ int main(int argc, char **argv)
 	backendmanager->set_datadir(srcdir + "/testdata/");
 
 	bool backend = false, remote = false, transactions = false;
-	bool positional = false, writable = false;
+	bool positional = false, writable = false, multi = false;
 	bool spelling = false, metadata = false;
 #include "api_collated.h"
 
@@ -133,7 +134,6 @@ int main(int argc, char **argv)
 	backendmanager = new BackendManagerInMemory;
 	backendmanager->set_datadir(srcdir + "/testdata/");
 
-	RUNTESTS("inmemory", anydb);
 	RUNTESTS("inmemory", specchar);
 	RUNTESTS("inmemory", localdb);
 	RUNTESTS("inmemory", doclendb);
@@ -142,7 +142,7 @@ int main(int argc, char **argv)
 	RUNTESTS("inmemory", multivalue);
 
 	bool backend = true, remote = false, transactions = false;
-	bool positional = true, writable = true;
+	bool positional = true, writable = true, multi = false;
 	bool spelling = false, metadata = false;
 #include "api_collated.h"
 
@@ -155,7 +155,6 @@ int main(int argc, char **argv)
 	backendmanager = new BackendManagerFlint;
 	backendmanager->set_datadir(srcdir + "/testdata/");
 
-	RUNTESTS("flint", anydb);
 	RUNTESTS("flint", specchar);
 	RUNTESTS("flint", localdb);
 	RUNTESTS("flint", doclendb);
@@ -165,7 +164,7 @@ int main(int argc, char **argv)
 	RUNTESTS("flint", flint);
 
 	bool backend = true, remote = false, transactions = true;
-	bool positional = true, writable = true;
+	bool positional = true, writable = true, multi = false;
 	bool spelling = true, metadata = true;
 #include "api_collated.h"
 
@@ -178,7 +177,6 @@ int main(int argc, char **argv)
 	backendmanager = new BackendManagerMulti;
 	backendmanager->set_datadir(srcdir + "/testdata/");
 
-	RUNTESTS("multi", anydb);
 	RUNTESTS("multi", specchar);
 	RUNTESTS("multi", localdb);
 	RUNTESTS("multi", doclendb);
@@ -188,7 +186,7 @@ int main(int argc, char **argv)
 	RUNTESTS("multi", flint);
 
 	bool backend = true, remote = false, transactions = false;
-	bool positional = true, writable = false;
+	bool positional = true, writable = false, multi = true;
 	bool spelling = false, metadata = false;
 #include "api_collated.h"
 
@@ -201,7 +199,6 @@ int main(int argc, char **argv)
 	backendmanager = new BackendManagerQuartz;
 	backendmanager->set_datadir(srcdir + "/testdata/");
 
-	RUNTESTS("quartz", anydb);
 	RUNTESTS("quartz", specchar);
 	RUNTESTS("quartz", localdb);
 	RUNTESTS("quartz", doclendb);
@@ -211,7 +208,7 @@ int main(int argc, char **argv)
 	RUNTESTS("quartz", quartz);
 
 	bool backend = true, remote = false, transactions = true;
-	bool positional = true, writable = true;
+	bool positional = true, writable = true, multi = false;
 	bool spelling = false, metadata = false;
 #include "api_collated.h"
 
@@ -224,7 +221,6 @@ int main(int argc, char **argv)
 	backendmanager = new BackendManagerRemoteProg;
 	backendmanager->set_datadir(srcdir + "/testdata/");
 
-	RUNTESTS("remoteprog", anydb);
 	RUNTESTS("remoteprog", specchar);
 	RUNTESTS("remoteprog", remotedb);
 	RUNTESTS("remoteprog", doclendb);
@@ -233,7 +229,7 @@ int main(int argc, char **argv)
 	RUNTESTS("remoteprog", multivalue);
 
 	bool backend = true, remote = true, transactions = true;
-	bool positional = true, writable = true;
+	bool positional = true, writable = true, multi = false;
 	bool spelling = false, metadata = false;
 #include "api_collated.h"
 
@@ -244,7 +240,6 @@ int main(int argc, char **argv)
 	backendmanager = new BackendManagerRemoteTcp;
 	backendmanager->set_datadir(srcdir + "/testdata/");
 
-	RUNTESTS("remotetcp", anydb);
 	RUNTESTS("remotetcp", specchar);
 	RUNTESTS("remotetcp", remotedb);
 	RUNTESTS("remotetcp", doclendb);
@@ -253,7 +248,7 @@ int main(int argc, char **argv)
 	RUNTESTS("remotetcp", multivalue);
 
 	bool backend = true, remote = true, transactions = true;
-	bool positional = true, writable = true;
+	bool positional = true, writable = true, multi = false;
 	bool spelling = false, metadata = false;
 #include "api_collated.h"
 

@@ -110,12 +110,13 @@ termgentest_SOURCES = termgentest.cc $(testharness_sources)
 termgentest_LDFLAGS = -no-install $(ldflags)
 termgentest_LDADD = ../libgetopt.la ../libxapian.la
 
-collated_apitest_sources = api_nodb.cc api_posdb.cc api_sorting.cc api_transdb.cc api_unicode.cc api_wrdb.cc
+collated_apitest_sources = api_anydb.cc api_nodb.cc api_posdb.cc api_sorting.cc api_transdb.cc api_unicode.cc api_wrdb.cc
 
 BUILT_SOURCES =
 
 if MAINTAINER_MODE
-BUILT_SOURCES += api_collated.h
+BUILT_SOURCES += api_collated.h $(collated_apitest_sources:.cc=.h)
+CLEANFILES = api_collated.h $(collated_apitest_sources:.cc=.h)
 
 api_collated.h: $(collated_apitest_sources) collate-apitest
 	$(PERL) collate-apitest $(collated_apitest_sources) > api_collated.hT

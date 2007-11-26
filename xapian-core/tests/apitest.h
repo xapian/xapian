@@ -25,9 +25,6 @@
 
 #include "testsuite.h"
 
-// Defined in api_anydb.cc:
-extern test_desc anydb_tests[];
-
 // Defined in api_db.cc:
 extern test_desc multivalue_tests[];
 extern test_desc allterms_tests[];
