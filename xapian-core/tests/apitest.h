@@ -39,9 +39,6 @@ extern test_desc remotedb_tests[];
 extern test_desc flint_tests[];
 extern test_desc quartz_tests[];
 
-// Defined in api_posdb.cc:
-extern test_desc positionaldb_tests[];
-
 // Defined in api_wrdb.cc:
 extern test_desc writabledb_tests[];
 

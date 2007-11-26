@@ -44,6 +44,7 @@ using namespace std;
 #include "utils.h"
 
 #include "api_nodb.h"
+#include "api_posdb.h"
 #include "api_sorting.h"
 #include "api_transdb.h"
 #include "api_unicode.h"
@@ -119,6 +120,7 @@ int main(int argc, char **argv)
 	backendmanager->set_datadir(srcdir + "/testdata/");
 
 	bool backend = false, remote = false, transactions = false;
+	bool positional = false;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -133,13 +135,13 @@ int main(int argc, char **argv)
 	RUNTESTS("inmemory", specchar);
 	RUNTESTS("inmemory", writabledb);
 	RUNTESTS("inmemory", localdb);
-	RUNTESTS("inmemory", positionaldb);
 	RUNTESTS("inmemory", doclendb);
 	RUNTESTS("inmemory", collfreq);
 	RUNTESTS("inmemory", allterms);
 	RUNTESTS("inmemory", multivalue);
 
 	bool backend = true, remote = false, transactions = false;
+	bool positional = true;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -155,7 +157,6 @@ int main(int argc, char **argv)
 	RUNTESTS("flint", specchar);
 	RUNTESTS("flint", writabledb);
 	RUNTESTS("flint", localdb);
-	RUNTESTS("flint", positionaldb);
 	RUNTESTS("flint", doclendb);
 	RUNTESTS("flint", collfreq);
 	RUNTESTS("flint", allterms);
@@ -163,6 +164,7 @@ int main(int argc, char **argv)
 	RUNTESTS("flint", flint);
 
 	bool backend = true, remote = false, transactions = true;
+	bool positional = true;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -177,7 +179,6 @@ int main(int argc, char **argv)
 	RUNTESTS("multi", anydb);
 	RUNTESTS("multi", specchar);
 	RUNTESTS("multi", localdb);
-	RUNTESTS("multi", positionaldb);
 	RUNTESTS("multi", doclendb);
 	RUNTESTS("multi", collfreq);
 	RUNTESTS("multi", allterms);
@@ -185,6 +186,7 @@ int main(int argc, char **argv)
 	RUNTESTS("multi", flint);
 
 	bool backend = true, remote = false, transactions = false;
+	bool positional = true;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -200,7 +202,6 @@ int main(int argc, char **argv)
 	RUNTESTS("quartz", specchar);
 	RUNTESTS("quartz", writabledb);
 	RUNTESTS("quartz", localdb);
-	RUNTESTS("quartz", positionaldb);
 	RUNTESTS("quartz", doclendb);
 	RUNTESTS("quartz", collfreq);
 	RUNTESTS("quartz", allterms);
@@ -208,6 +209,7 @@ int main(int argc, char **argv)
 	RUNTESTS("quartz", quartz);
 
 	bool backend = true, remote = false, transactions = true;
+	bool positional = true;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -223,13 +225,13 @@ int main(int argc, char **argv)
 	RUNTESTS("remoteprog", specchar);
 	RUNTESTS("remoteprog", writabledb);
 	RUNTESTS("remoteprog", remotedb);
-	RUNTESTS("remoteprog", positionaldb);
 	RUNTESTS("remoteprog", doclendb);
 	RUNTESTS("remoteprog", collfreq);
 	RUNTESTS("remoteprog", allterms);
 	RUNTESTS("remoteprog", multivalue);
 
 	bool backend = true, remote = true, transactions = true;
+	bool positional = true;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -243,13 +245,13 @@ int main(int argc, char **argv)
 	RUNTESTS("remotetcp", specchar);
 	RUNTESTS("remotetcp", writabledb);
 	RUNTESTS("remotetcp", remotedb);
-	RUNTESTS("remotetcp", positionaldb);
 	RUNTESTS("remotetcp", doclendb);
 	RUNTESTS("remotetcp", collfreq);
 	RUNTESTS("remotetcp", allterms);
 	RUNTESTS("remotetcp", multivalue);
 
 	bool backend = true, remote = true, transactions = true;
+	bool positional = true;
 #include "api_collated.h"
 
 	delete backendmanager;

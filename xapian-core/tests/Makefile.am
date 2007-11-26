@@ -110,7 +110,7 @@ termgentest_SOURCES = termgentest.cc $(testharness_sources)
 termgentest_LDFLAGS = -no-install $(ldflags)
 termgentest_LDADD = ../libgetopt.la ../libxapian.la
 
-collated_apitest_sources = api_nodb.cc api_sorting.cc api_transdb.cc api_unicode.cc
+collated_apitest_sources = api_nodb.cc api_posdb.cc api_sorting.cc api_transdb.cc api_unicode.cc
 
 BUILT_SOURCES =
 
@@ -122,7 +122,7 @@ api_collated.h: $(collated_apitest_sources) collate-apitest
 	mv api_collated.hT api_collated.h
 endif
 
-EXTRA_DIST = collate-apitest api_collated.h
+EXTRA_DIST = collate-apitest api_collated.h $(collated_apitest_sources:.cc=.h)
 
 ## Distribute test data:
 EXTRA_DIST +=\
