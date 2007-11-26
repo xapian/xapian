@@ -1,3 +1,11 @@
+Mon Nov 26 13:14:19 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_db.cc: Ensure that the database needed for stubdb1 is
+	  present, by creating it first (with get_database()).  This
+	  requires that the database type is flint, but the test doesn't
+	  depend on any particular database type anyway, so this doesn't
+	  lose us anything.
+
 Mon Nov 26 13:08:08 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/collate-apitest: Display the name of the backend which a

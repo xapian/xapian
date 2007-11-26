@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
- * Copyright 2006 Richard Boulton
+ * Copyright 2006,2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -72,7 +72,11 @@ DEFINE_TESTCASE(termstats, backend) {
 }
 
 // check that stubdbs work
-DEFINE_TESTCASE(stubdb1, backend) {
+DEFINE_TESTCASE(stubdb1, flint) {
+    {
+	// Create the database needed; this is why we require the flint backend.
+	(void) get_database("apitest_simpledata");
+    }
     ofstream out("stubdb1");
     TEST(out.is_open());
     // FIXME: not very reliable...
