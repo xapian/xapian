@@ -22,6 +22,8 @@
 
 #include <config.h>
 
+#include "apitest.h"
+
 #include <stdlib.h>
 #include <iostream>
 #include <string>
@@ -41,8 +43,9 @@ using namespace std;
 #include "backendmanager_remotetcp.h"
 #include "utils.h"
 
-#include "apitest.h"
+#include "api_nodb.h"
 #include "api_sorting.h"
+#include "api_transdb.h"
 #include "api_unicode.h"
 
 static BackendManager * backendmanager;
@@ -114,8 +117,6 @@ int main(int argc, char **argv)
     if (USE_BACKEND(backend_name, "none")) {
 	backendmanager = new BackendManager;
 	backendmanager->set_datadir(srcdir + "/testdata/");
-
-	RUNTESTS("none", nodb);
 
 	bool backend = false, remote = false, transactions = false;
 #include "api_collated.h"
