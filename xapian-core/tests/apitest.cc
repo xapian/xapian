@@ -120,7 +120,7 @@ int main(int argc, char **argv)
 	backendmanager->set_datadir(srcdir + "/testdata/");
 
 	bool backend = false, remote = false, transactions = false;
-	bool positional = false;
+	bool positional = false, writable = false;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -141,7 +141,7 @@ int main(int argc, char **argv)
 	RUNTESTS("inmemory", multivalue);
 
 	bool backend = true, remote = false, transactions = false;
-	bool positional = true;
+	bool positional = true, writable = true;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -164,7 +164,7 @@ int main(int argc, char **argv)
 	RUNTESTS("flint", flint);
 
 	bool backend = true, remote = false, transactions = true;
-	bool positional = true;
+	bool positional = true, writable = true;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -186,7 +186,7 @@ int main(int argc, char **argv)
 	RUNTESTS("multi", flint);
 
 	bool backend = true, remote = false, transactions = false;
-	bool positional = true;
+	bool positional = true, writable = false;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -209,7 +209,7 @@ int main(int argc, char **argv)
 	RUNTESTS("quartz", quartz);
 
 	bool backend = true, remote = false, transactions = true;
-	bool positional = true;
+	bool positional = true, writable = true;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -231,7 +231,7 @@ int main(int argc, char **argv)
 	RUNTESTS("remoteprog", multivalue);
 
 	bool backend = true, remote = true, transactions = true;
-	bool positional = true;
+	bool positional = true, writable = true;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -251,7 +251,7 @@ int main(int argc, char **argv)
 	RUNTESTS("remotetcp", multivalue);
 
 	bool backend = true, remote = true, transactions = true;
-	bool positional = true;
+	bool positional = true, writable = true;
 #include "api_collated.h"
 
 	delete backendmanager;

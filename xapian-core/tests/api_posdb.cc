@@ -505,8 +505,7 @@ DEFINE_TESTCASE(poslist1, positional) {
     return true;
 }
 
-DEFINE_TESTCASE(poslist2, positional) {
-    SKIP_TEST_FOR_BACKEND("multi"); // Needs WritableDatabase.
+DEFINE_TESTCASE(poslist2, positional && writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     Xapian::Document doc;
@@ -562,8 +561,7 @@ DEFINE_TESTCASE(poslist2, positional) {
 
 /// Test playing with a positionlist, testing skip_to in particular.
 /// (used to be quartztest's test_positionlist1).
-DEFINE_TESTCASE(poslist3, positional) {
-    SKIP_TEST_FOR_BACKEND("multi"); // Needs WritableDatabase.
+DEFINE_TESTCASE(poslist3, positional && writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     vector<Xapian::termpos> positions;
