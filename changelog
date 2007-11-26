@@ -1,3 +1,6 @@
+  * New upstream release.
+    + No longer installs ".map" files with documentation, which fixes lintian
+      warning about an empty one.
   * debian/rules: Look for "CODENAME" and "debian/codename" rather than
     "COMPONENT" and "debian/component".
 
