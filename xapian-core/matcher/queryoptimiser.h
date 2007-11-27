@@ -63,9 +63,7 @@ class QueryOptimiser {
      *
      *  @return		A PostList.
      */
-    PostList * do_leaf(const Xapian::Query::Internal * query, double factor) {
-	return localsubmatch.postlist_from_op_leaf_query(query, factor);
-    }
+    PostList * do_leaf(const Xapian::Query::Internal * query, double factor);
 
     /** Optimise an AND-like Xapian::Query::Internal subtree into a PostList
      *  subtree.
@@ -100,6 +98,15 @@ class QueryOptimiser {
      *  @return		A PostList subtree.
      */
     PostList * do_or_like(const Xapian::Query::Internal *query, double factor);
+
+    /** Optimise a synonym Xapian::Query::Internal subtree into a PostList
+     *
+     *  @param query	The subtree to optimise.
+     *  @param factor	How much to scale weights for this subtree by.
+     *
+     *  @return		A PostList subtree.
+     */
+    PostList * do_synonym(const Xapian::Query::Internal *query, double factor);
 
   public:
     QueryOptimiser(const Xapian::Database::Internal & db_,

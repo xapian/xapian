@@ -32,8 +32,9 @@
 #include "omqueryinternal.h"
 #include "queryoptimiser.h"
 #include "scaleweight.h"
-#include "weightinternal.h"
 #include "stats.h"
+#include "synonympostlist.h"
+#include "weightinternal.h"
 
 #include <cfloat>
 #include <cmath>
@@ -114,11 +115,32 @@ LocalSubMatch::get_postlist_and_term_info(MultiMatch * matcher,
 }
 
 PostList *
+LocalSubMatch::make_synonym_postlist(PostList * or_pl, MultiMatch * matcher)
+{
+    DEBUGCALL(MATCH, PostList *, "LocalSubMatch::make_synonym_postlist",
+	      "[or_pl]");
+    DEBUGLINE(MATCH, "or_pl->get_termfreq() = " << or_pl->get_termfreq_est());
+    AutoPtr<SynonymPostList> res(new SynonymPostList(or_pl, matcher));
+    AutoPtr<Xapian::Weight> wt;
+
+    // FIXME:1.1: create the Xapian::Weight::Internal directly, and hold it in
+    // an AutoPtr until supplying it to wt_factory->create() in case of an
+    // exception.
+    Xapian::Weight::Internal * wt_internal(stats->create_weight_internal());
+    wt_internal->termfreq = or_pl->get_termfreq_est();
+    wt_internal->reltermfreq = 0; // FIXME - calculate this.
+    wt = wt_factory->create(wt_internal, qlen, 1, "");
+
+    res->set_weight(wt.release());
+    RETURN(res.release());
+}
+
+PostList *
 LocalSubMatch::postlist_from_op_leaf_query(const Xapian::Query::Internal *query,
 					   double factor)
 {
     DEBUGCALL(MATCH, PostList *, "LocalSubMatch::postlist_from_op_leaf_query",
-	      query << ", " << factor);
+	      query->get_description() << ", " << factor);
     Assert(query);
     AssertEq(query->op, Xapian::Query::Internal::OP_LEAF);
     Assert(query->subqs.empty());
@@ -142,9 +164,12 @@ LocalSubMatch::postlist_from_op_leaf_query(const Xapian::Query::Internal *query,
 	Xapian::doccount tf = stats->get_termfreq(query->tname);
 	Xapian::weight weight = boolean ? 0 : wt->get_maxpart();
 	Xapian::MSet::Internal::TermFreqAndWeight info(tf, weight);
+	DEBUGLINE(MATCH, "Setting term_info[" << query->tname << "] to (" << tf << ", " << weight << ")");
 	term_info.insert(make_pair(query->tname, info));
     } else if (!boolean) {
 	i->second.termweight += wt->get_maxpart();
+	AssertEq(stats->get_termfreq(query->tname), i->second.termfreq);
+	DEBUGLINE(MATCH, "Increasing term_info[" << query->tname << "] to (" << i->second.termfreq << ", " << i->second.termweight << ")");
     }
 
     LeafPostList * pl = db->open_post_list(query->tname);

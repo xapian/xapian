@@ -374,6 +374,17 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     }
     Assert(!postlists.empty());
 
+#ifdef XAPIAN_DEBUG_VERBOSE
+    {
+	DEBUGLINE(MATCH, "termfreqandwts:");
+	map<string, Xapian::MSet::Internal::TermFreqAndWeight>::const_iterator tfwi;
+	for (tfwi = termfreqandwts.begin(); tfwi != termfreqandwts.end(); ++tfwi)
+	{
+	    DEBUGLINE(MATCH, "termfreqandwt[" << tfwi->first << "] = " << tfwi->second.termfreq << ", " << tfwi->second.termweight);
+	}
+    }
+#endif
+
     // Get a single combined postlist
     PostList *pl;
     if (postlists.size() == 1) {
@@ -794,8 +805,12 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		DEBUGLINE(MATCH, "denom = " << denom << " percent_scale = " << percent_scale);
 		Assert(percent_scale <= denom);
 		denom *= greatest_wt;
+		if (denom == 0) {
+		    percent_scale = 1.0 / greatest_wt;
+		} else {
 		Assert(denom > 0);
 		percent_scale /= denom;
+		}
 	    } else {
 		// If all the terms match, the 2 sums of weights cancel
 		percent_scale = 1.0 / greatest_wt;

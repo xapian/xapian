@@ -51,7 +51,7 @@ PostList *
 QueryOptimiser::do_subquery(const Xapian::Query::Internal * query, double factor)
 {
     DEBUGCALL(MATCH, PostList *, "QueryOptimiser::do_subquery",
-	      query << ", " << factor);
+	      query->get_description() << ", " << factor);
 
     // Handle QueryMatchNothing.
     if (!query) RETURN(new EmptyPostList());
@@ -99,10 +99,19 @@ QueryOptimiser::do_subquery(const Xapian::Query::Internal * query, double factor
 	    RETURN(do_subquery(query->subqs[0], sub_factor));
 	}
 
+	case Xapian::Query::OP_SYNONYM: {
+	    RETURN(do_synonym(query, factor));
+	}
+
 	default:
 	    Assert(false);
 	    RETURN(NULL);
     }
+}
+
+PostList *
+QueryOptimiser::do_leaf(const Xapian::Query::Internal * query, double factor) {
+    return localsubmatch.postlist_from_op_leaf_query(query, factor);
 }
 
 struct PosFilter {
@@ -122,7 +131,7 @@ PostList *
 QueryOptimiser::do_and_like(const Xapian::Query::Internal *query, double factor)
 {
     DEBUGCALL(MATCH, PostList *, "QueryOptimiser::do_and_like",
-	      query << ", " << factor);
+	      query->get_description() << ", " << factor);
 
     list<PosFilter> pos_filters;
     vector<PostList *> plists;
@@ -172,7 +181,8 @@ QueryOptimiser::do_and_like(const Xapian::Query::Internal *query, double factor,
 			    list<PosFilter> & pos_filters)
 {
     DEBUGCALL(MATCH, void, "QueryOptimiser::do_and_like",
-	      query << ", " << factor << ", [and_plists], [pos_filters]");
+	      query->get_description() << ", " <<
+	      factor << ", [and_plists], [pos_filters],");
 
     Xapian::Query::Internal::op_t op = query->op;
     Assert(is_and_like(op));
@@ -251,13 +261,19 @@ PostList *
 QueryOptimiser::do_or_like(const Xapian::Query::Internal *query, double factor)
 {
     DEBUGCALL(MATCH, PostList *, "QueryOptimiser::do_or_like",
-	      query << ", " << factor);
+	      query->get_description() << ", " << factor);
 
     // FIXME: we could optimise by merging OP_ELITE_SET and OP_OR like we do
     // for AND-like operations.
     Xapian::Query::Internal::op_t op = query->op;
     Assert(op == Xapian::Query::OP_ELITE_SET || op == Xapian::Query::OP_OR ||
-	   op == Xapian::Query::OP_XOR);
+	   op == Xapian::Query::OP_XOR || op == Xapian::Query::OP_SYNONYM);
+
+    // We build an OR tree for OP_SYNONYM.  (The resulting tree will then be
+    // passed into a SynonymPostList, from which the weightings will come.)
+    if (op == Xapian::Query::OP_SYNONYM) {
+	op = Xapian::Query::OP_OR;
+    }
 
     const Xapian::Query::Internal::subquery_list &queries = query->subqs;
     AssertRel(queries.size(), >=, 2);
@@ -332,4 +348,25 @@ QueryOptimiser::do_or_like(const Xapian::Query::Internal *query, double factor)
 	push_heap(postlists.begin(), postlists.end(),
 		  ComparePostListTermFreqAscending());
     }
+}
+
+PostList *
+QueryOptimiser::do_synonym(const Xapian::Query::Internal *query, double factor)
+{
+    DEBUGCALL(MATCH, PostList *, "QueryOptimiser::do_synonym",
+	      query->get_description() << ", " << factor);
+
+    if (factor == 0.0) {
+	// If we have a factor of 0, we don't care about the weights, so
+	// we're just like a normal OR query.
+	RETURN(do_or_like(query, 0.0));
+    }
+
+    AssertEq(query->wqf, 0); // FIXME - should we be doing something with the wqf?
+
+    // Build a postlist tree which we'll use to get the frequencies.
+    AutoPtr<PostList> freq_pl(do_or_like(query, 0.0));
+
+    RETURN(localsubmatch.make_synonym_postlist(do_or_like(query, 0.0),
+					       matcher));
 }

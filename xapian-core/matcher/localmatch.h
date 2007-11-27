@@ -86,6 +86,10 @@ class LocalSubMatch : public SubMatch {
     PostList * get_postlist_and_term_info(MultiMatch *matcher,
 	std::map<string, Xapian::MSet::Internal::TermFreqAndWeight> *termfreqandwts);
 
+    /** Convert a postlist into a synonym postlist.
+     */
+    PostList * make_synonym_postlist(PostList * or_pl, MultiMatch * matcher);
+
     /** Convert an OP_LEAF query to a PostList.
      *
      *  This is called by QueryOptimiser when it reaches an OP_LEAF query.

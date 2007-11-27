@@ -17,6 +17,7 @@ noinst_HEADERS +=\
 	matcher/remotesubmatch.h\
 	matcher/scaleweight.h\
 	matcher/selectpostlist.h\
+	matcher/synonympostlist.h\
 	matcher/valuerangepostlist.h\
 	matcher/xorpostlist.h
 
@@ -53,6 +54,7 @@ libxapian_la_SOURCES +=\
 	matcher/scaleweight.cc\
 	matcher/selectpostlist.cc\
 	matcher/stats.cc\
+	matcher/synonympostlist.cc\
 	matcher/tradweight.cc\
 	matcher/valuerangepostlist.cc\
 	matcher/weight.cc\

@@ -1171,6 +1171,92 @@ DEFINE_TESTCASE(consistency1, backend && !remote) {
     return true;
 }
 
+// Check a synonym search
+DEFINE_TESTCASE(synonym1, backend) {
+    Xapian::Database db(get_database("etext"));
+    Xapian::doccount lots = 214;
+    vector<vector<Xapian::Query> > subqueries_list;
+
+    vector<Xapian::Query> subqueries;
+    subqueries.push_back(Xapian::Query("date"));
+    subqueries_list.push_back(subqueries);
+
+    subqueries.clear();
+    subqueries.push_back(Xapian::Query("sky"));
+    subqueries.push_back(Xapian::Query("date"));
+    subqueries_list.push_back(subqueries);
+
+    subqueries.clear();
+    subqueries.push_back(Xapian::Query("date"));
+    subqueries.push_back(Xapian::Query(Xapian::Query::OP_OR,
+				       Xapian::Query("sky"),
+				       Xapian::Query("glove")));
+    subqueries_list.push_back(subqueries);
+
+    subqueries.clear();
+    subqueries.push_back(Xapian::Query("sky"));
+    subqueries.push_back(Xapian::Query("date"));
+    subqueries.push_back(Xapian::Query("stein"));
+    subqueries.push_back(Xapian::Query("ally"));
+    subqueries_list.push_back(subqueries);
+
+    subqueries.clear();
+    subqueries.push_back(Xapian::Query("sky"));
+    subqueries.push_back(Xapian::Query(Xapian::Query::OP_PHRASE,
+				       Xapian::Query("date"),
+				       Xapian::Query("stein")));
+    subqueries_list.push_back(subqueries);
+
+    for (vector<vector<Xapian::Query> >::const_iterator
+	 qlist = subqueries_list.begin();
+	 qlist != subqueries_list.end(); ++qlist)
+    {
+	// Run two queries, one joining the subqueries with OR and one joining them
+	// with SYNONYM.
+	Xapian::Enquire enquire(db);
+	enquire.set_query(Xapian::Query(Xapian::Query::OP_OR, qlist->begin(), qlist->end()));
+	Xapian::MSet ormset = enquire.get_mset(0, lots);
+	Xapian::Query synquery(Xapian::Query::OP_SYNONYM, qlist->begin(), qlist->end());
+	tout << synquery << "\n";
+	enquire.set_query(synquery);
+	Xapian::MSet mset = enquire.get_mset(0, lots);
+
+	// Check that the queries return some results.
+	TEST_NOT_EQUAL(mset.size(), 0);
+	// Check that the queries return the same number of results.
+	TEST_EQUAL(mset.size(), ormset.size());
+	map<Xapian::docid, Xapian::weight> values_or;
+	map<Xapian::docid, Xapian::weight> values_synonym;
+	for (Xapian::doccount i = 0; i < mset.size(); ++i) {
+	    values_or[*ormset[i]] = ormset[i].get_weight();
+	    values_synonym[*mset[i]] = mset[i].get_weight();
+	}
+	TEST_EQUAL(values_or.size(), values_synonym.size());
+
+	/* Check that the weights for each item in the or mset are different from
+	 * those in the synonym mset. (Note, it's technically possible that some
+	 * might be equal, but unlikely, so for now we just check that none are.
+	 * If this causes problems, we can change to just checking that most
+	 * differ.) */
+	for (map<Xapian::docid, Xapian::weight>::const_iterator
+	     j = values_or.begin();
+	     j != values_or.end(); ++j)
+	{
+	    Xapian::docid did = j->first;
+	    // Check that all the results in the or tree make it to the synonym tree.
+	    TEST(values_synonym.find(did) != values_synonym.end());
+	    if (qlist->size() == 1) {
+		// Check that the weights are the same.
+		TEST_EQUAL(values_or[did], values_synonym[did]);
+	    } else {
+		// Check that the weights differ.
+		TEST_NOT_EQUAL(values_or[did], values_synonym[did]);
+	    }
+	}
+    }
+    return true;
+}
+
 // tests that specifying a nonexistent input file throws an exception.
 DEFINE_TESTCASE(quartzdatabaseopeningerror1, quartz) {
     mkdir(".quartz", 0755);

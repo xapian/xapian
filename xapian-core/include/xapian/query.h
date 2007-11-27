@@ -111,7 +111,24 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	    /** Select an elite set from the subqueries, and perform
 	     *  a query with these combined as an OR query.
 	     */
-	    OP_ELITE_SET
+	    OP_ELITE_SET,
+
+	    /** Treat a set of queries as synonyms.
+	     *
+	     *  This returns all results which match at least one of the
+	     *  queries, but weighting as if all the sub-queries are instances
+	     *  of the same term: so multiple matching terms for a document
+	     *  increase the wdf value used, and the term frequency is based on
+	     *  the number of documents which would match an OR of all the
+	     *  subqueries.
+	     *
+	     *  The term frequency used will usually be an approximation,
+	     *  because calculating the precise combined term frequency would
+	     *  be overly expensive.
+	     *
+	     *  Identical to OP_OR, except for the weightings returned.
+	     */
+	    OP_SYNONYM
 	} op;
 
 	/** Copy constructor. */
