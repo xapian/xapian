@@ -302,6 +302,7 @@ CategorySelectMatchSpy::build_numeric_ranges(Xapian::valueno valno, size_t max_r
 	for (j = histo.begin(); j != histo.end(); ++j) {
 	    double v = j->first;
 	    size_t b = size_t(floor((v - start) / unit));
+	    if (b > n_buckets) b = n_buckets; // FIXME - Hacky workaround to ensure that b is in range.
 	    if (bucket[b].count == 0) ++n_used;
 	    bucket[b].update(j->second, v);
 	}
