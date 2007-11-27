@@ -23,12 +23,30 @@
 %}
 
 %extend ValueCountMatchSpy {
+    %feature("nothread") get_values_as_dict;
+    %exception get_values_as_dict {
+        try {
+            $action
+        } catch (...) {
+            XapianSetPythonException();
+            SWIG_fail;
+        }
+    }
     PyObject * get_values_as_dict(Xapian::valueno valno) {
         return value_map_to_dict($self->get_values(valno));
     }
 }
 
 %extend TermCountMatchSpy {
+    %feature("nothread") get_terms_as_dict;
+    %exception get_terms_as_dict {
+        try {
+            $action
+        } catch (...) {
+            XapianSetPythonException();
+            SWIG_fail;
+        }
+    }
     PyObject * get_terms_as_dict(std::string prefix) {
         return value_map_to_dict($self->get_terms(prefix));
     }
