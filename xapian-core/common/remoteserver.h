@@ -22,14 +22,19 @@
 #ifndef XAPIAN_INCLUDED_REMOTESERVER_H
 #define XAPIAN_INCLUDED_REMOTESERVER_H
 
-#include <xapian/database.h>
-#include <xapian/visibility.h>
+#include "xapian/database.h"
+#include "xapian/enquire.h"
+#include "xapian/visibility.h"
 
-#include "omassert.h"
 #include "remoteconnection.h"
-#include "stats.h"
 
-class NetworkStatsGatherer;
+#include <map>
+#include <string>
+
+// Forward declaration
+namespace Xapian { class Weight; }
+
+using namespace std;
 
 /** Remote backend server base class. */
 class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
@@ -61,9 +66,6 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
      *  then a Xapian::NetworkTimeoutError is thrown.
      */
     Xapian::timeout idle_timeout;
-
-    /// Global stats passed from the client and used in the match.
-    Stats global_stats;
 
     /// Registered weighting schemes.
     map<string, Xapian::Weight *> wtschemes;
@@ -159,9 +161,6 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
 
     /// Destructor.
     ~RemoteServer();
-
-    /// Return global Stats object.
-    const Stats & get_global_stats() { return global_stats; }
 
     /** Repeatedly accept messages from the client and process them.
      *

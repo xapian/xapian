@@ -3,6 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2003,2007 Olly Betts
+ * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,7 +38,7 @@ RSetI::calculate_stats()
     Assert(!calculated_reltermfreqs);
     std::set<Xapian::docid>::const_iterator doc;
     for (doc = documents.begin(); doc != documents.end(); doc++) {
-	DEBUGLINE(WTCALC, "document " << *doc << " [ ");
+	DEBUGLINE(WTCALC, "Counting reltermfreqs in document " << *doc << " [ ");
 	if (dbroot) {
 	    AutoPtr<TermList> tl =
 		AutoPtr<TermList>(dbroot->open_term_list(*doc));
@@ -47,9 +48,10 @@ RSetI::calculate_stats()
 		// Store termnames in a hash for each document, rather than
 		// a list?
 		string tname = tl->get_termname();
-		DEBUGLINE(WTCALC, tname << ", ");
-		if (reltermfreqs.find(tname) != reltermfreqs.end())
+		if (reltermfreqs.find(tname) != reltermfreqs.end()) {
 		    reltermfreqs[tname] ++;
+		    DEBUGLINE(WTCALC, tname << " now has reltermfreq of " << reltermfreqs[tname]);
+		}
 		tl->next();
 	    }
 	} else {
@@ -60,26 +62,27 @@ RSetI::calculate_stats()
 		// Store termnames in a hash for each document, rather than
 		// a list?
 		string tname = *tl;
-		DEBUGLINE(WTCALC, tname << ", ");
-		if (reltermfreqs.find(tname) != reltermfreqs.end())
+		if (reltermfreqs.find(tname) != reltermfreqs.end()) {
 		    reltermfreqs[tname] ++;
+		    DEBUGLINE(WTCALC, tname << " now has reltermfreq of " << reltermfreqs[tname]);
+		}
 		tl++;
 	    }
 	}
 	DEBUGLINE(WTCALC, "] ");
     }
-    DEBUGLINE(WTCALC, "done");
     calculated_reltermfreqs = true;
 }
 
 void
-RSetI::give_stats_to_statssource(Xapian::Weight::Internal *statssource)
+RSetI::contribute_stats(Stats & stats)
 {
-    DEBUGCALL(MATCH, void, "RSetI::give_stats_to_statssource", statssource);
-    Assert(calculated_reltermfreqs);
+    DEBUGCALL(MATCH, void, "RSetI::contribute_stats", stats);
+    calculate_stats();
 
     std::map<string, Xapian::doccount>::const_iterator i;
     for (i = reltermfreqs.begin(); i != reltermfreqs.end(); i++) {
-	statssource->my_reltermfreq_is(i->first, i->second);
+	stats.set_reltermfreq(i->first, i->second);
     }
+    stats.rset_size += get_rsize();
 }

@@ -35,7 +35,7 @@
 #include <vector>
 
 class MultiMatch;
-class PosFilter;
+struct PosFilter;
 
 class QueryOptimiser {
     const Xapian::Database::Internal & db;
@@ -84,6 +84,8 @@ class QueryOptimiser {
      *  @param factor	    How much to scale weights for this subtree by.
      *  @param and_plists   Append new PostList subtrees to be combined with
      *			    AND to this vector.
+     *  @param pos_filters  Append any positional filters to be applied to the
+     *                      tree to this list.
      */
     void do_and_like(const Xapian::Query::Internal *query, double factor,
 		     std::vector<PostList *> & and_plists,

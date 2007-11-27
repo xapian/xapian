@@ -9,6 +9,74 @@ Mon Oct 29 03:03:57 GMT 2007  Olly Betts <olly@survex.com>
 	* NEWS,csharp/Makefile.am,python/extra.i,python/pythontest.py,
 	  python/util.i,xapian.i: Restore the changes.
 
+Tue Nov 27 03:08:51 GMT 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Log the output of trying to compile conftest.java in
+	  config.log; if the test fails, report whether the failure was
+	  compiling or running the test program.
+
+Tue Nov 20 01:04:31 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* java/native/xapian_jni.h: Add include of <cstring> to fix
+	  compile error with gcc-4.3 snapshot.
+
+Fri Nov 16 15:58:57 GMT 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Update error message to reflect requirement for at
+	  least python 2.2.
+
+Fri Nov 16 15:57:53 GMT 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: SWIG 1.3.32 has now been released, so require at least
+	  this released version.
+
+Tue Nov 06 12:34:00 GMT 2007  Olly Betts <olly@survex.com>
+
+	* java/org/xapian/Makefile.am: No need to set SUFFIXES manually for
+	  suffixes used in implicit rules.
+
+Sat Nov 03 01:07:39 GMT 2007  Olly Betts <olly@survex.com>
+
+	* csharp/docs/index.html: Improve wording.
+
+Fri Nov 02 20:31:55 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tcl8/docs/index.html: Update documentation to cover flint and that
+	  quartz is now deprecated.
+
+Fri Nov 02 20:15:19 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tcl8/except.i: Remove code to handle `const char *' exceptions - as
+	  of 1.0.0 the QueryParser throws QueryParserError instead.
+
+Fri Nov 02 02:16:32 GMT 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Overhaul code to find tcl.h.  The old way no longer
+	  worked with Debian unstable.
+
+Tue Oct 30 05:00:42 GMT 2007  Olly Betts <olly@survex.com>
+
+	* NEWS: The GUARD macro I fixed in SWIG/Python isn't actually used by
+	  Xapian so remove the NEWS item about it.
+
+Tue Oct 30 04:56:13 GMT 2007  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update for 1.0.4.
+
+Mon Oct 29 18:35:09 GMT 2007  Olly Betts <olly@survex.com>
+
+	* NEWS: Update.
+
+Mon Oct 29 17:15:20 GMT 2007  Olly Betts <olly@survex.com>
+
+	* python/docs/index.html: Promote the Pythonic iterators more
+	  and deprecate the non-pythonic iterators.  Make it clearer
+	  that the "sequence API" is deprecated.
+
+Mon Oct 29 16:50:28 GMT 2007  Olly Betts <olly@survex.com>
+
+	* python/docs/index.html: Fix typo.
+
 Mon Oct 29 02:54:53 GMT 2007  Olly Betts <olly@survex.com>
 
 	* NEWS,csharp/Makefile.am,python/extra.i,python/pythontest.py,

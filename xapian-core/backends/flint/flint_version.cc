@@ -41,8 +41,8 @@ using std::string;
 
 // YYYYMMDDX where X allows multiple format revisions in a day
 #define FLINT_VERSION 200709120
-// 200709150 1.0.3 Database::get_metadata(), WritableDatabase::set_metadata().
-// 200709120  N/A  Kill the unused "has_termfreqs" flag in the termlist table.
+// 200709120 1.0.3 Database::get_metadata(), WritableDatabase::set_metadata().
+//                 Kill the unused "has_termfreqs" flag in the termlist table.
 // 200706140 1.0.2 Optional value and position tables.
 // 200704230 1.0.0 Use zlib compression of tags for record and termlist tables.
 // 200611200  N/A  Fixed occasional, architecture-dependent surplus bits in

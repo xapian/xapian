@@ -38,6 +38,7 @@
 #include "expand.h"
 #include "database.h"
 #include "omenquireinternal.h"
+#include "stats.h"
 #include "utils.h"
 
 #include <vector>
@@ -616,9 +617,9 @@ Enquire::Internal::Internal(const Database &db_, ErrorHandler * errorhandler_)
   : db(db_), query(), collapse_key(Xapian::BAD_VALUENO),
     order(Enquire::ASCENDING), percent_cutoff(0), weight_cutoff(0),
     sort_key(Xapian::BAD_VALUENO), sort_by(REL), sort_value_forward(true),
-    errorhandler(errorhandler_), weight(0)
+    sorter(0), errorhandler(errorhandler_), weight(0)
 {
-    if (db.internal.size() == 0) {
+    if (db.internal.empty()) {
 	throw InvalidArgumentError("Can't make an Enquire object from an uninitialised Database object.");
     }
 }
@@ -656,24 +657,15 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	weight = new BM25Weight;
     }
 
+    Stats stats;
+    ::MultiMatch match(db, query.internal.get(), qlen, rset, collapse_key,
+		       percent_cutoff, weight_cutoff,
+		       order, sort_key, sort_by, sort_value_forward, sorter,
+		       errorhandler, stats, weight);
+    // Run query and put results into supplied Xapian::MSet object.
     MSet retval;
-    if (rset == 0) {
-	::MultiMatch match(db, query.internal.get(), qlen, RSet(), collapse_key,
-			   percent_cutoff, weight_cutoff,
-			   order, sort_key, sort_by, sort_value_forward,
-			   errorhandler, new LocalStatsGatherer(), weight);
-	// Run query and put results into supplied Xapian::MSet object.
-	match.get_mset(first, maxitems, check_at_least, retval, mdecider,
-		       matchspy);
-    } else {
-	::MultiMatch match(db, query.internal.get(), qlen, *rset, collapse_key,
-			   percent_cutoff, weight_cutoff,
-			   order, sort_key, sort_by, sort_value_forward,
-			   errorhandler, new LocalStatsGatherer(), weight);
-	// Run query and put results into supplied Xapian::MSet object.
-	match.get_mset(first, maxitems, check_at_least, retval, mdecider,
-		       matchspy);
-    }
+    match.get_mset(first, maxitems, check_at_least, retval,
+		   stats, mdecider, matchspy);
 
     Assert(weight->name() != "bool" || retval.get_max_possible() == 0);
 
@@ -928,6 +920,36 @@ Enquire::set_sort_by_relevance_then_value(Xapian::valueno sort_key,
 					  bool ascending)
 {
     internal->sort_key = sort_key;
+    internal->sort_by = Internal::REL_VAL;
+    internal->sort_value_forward = ascending;
+}
+
+void
+Enquire::set_sort_by_key(Xapian::Sorter * sorter, bool ascending)
+{
+    if (sorter == NULL)
+	throw Xapian::InvalidArgumentError("sorter can't be NULL");
+    internal->sorter = sorter;
+    internal->sort_by = Internal::VAL;
+    internal->sort_value_forward = ascending;
+}
+
+void
+Enquire::set_sort_by_key_then_relevance(Xapian::Sorter * sorter, bool ascending)
+{
+    if (sorter == NULL)
+	throw Xapian::InvalidArgumentError("sorter can't be NULL");
+    internal->sorter = sorter;
+    internal->sort_by = Internal::VAL_REL;
+    internal->sort_value_forward = ascending;
+}
+
+void
+Enquire::set_sort_by_relevance_then_key(Xapian::Sorter * sorter, bool ascending)
+{
+    if (sorter == NULL)
+	throw Xapian::InvalidArgumentError("sorter can't be NULL");
+    internal->sorter = sorter;
     internal->sort_by = Internal::REL_VAL;
     internal->sort_value_forward = ascending;
 }

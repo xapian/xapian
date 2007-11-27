@@ -22,21 +22,20 @@
 #define XAPIAN_INCLUDED_SERIALISE_H
 
 #include <xapian/visibility.h>
-
 #include <string>
-
 #include "noreturn.h"
 
 // Forward class declarations:
-
-class Stats;
 
 namespace Xapian {
     class Document;
     class Error;
     class MSet;
     class RSet;
+    class Weight;
 }
+
+class Stats;
 
 /** Encode a length as a variable-length string.
  *
@@ -104,6 +103,14 @@ std::string serialise_stats(const Stats &stats);
  *  @return	The unserialised Stats object.
  */
 Stats unserialise_stats(const std::string &s);
+
+/** Serialise a Xapian::MSet object for remote protocol < 30.5.
+ *
+ *  @param mset		The object to serialise.
+ *
+ *  @return		The serialisation of the Xapian::MSet object.
+ */
+std::string serialise_mset_pre_30_5(const Xapian::MSet &mset);
 
 /** Serialise a Xapian::MSet object.
  *

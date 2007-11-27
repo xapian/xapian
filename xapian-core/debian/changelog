@@ -1,10 +1,18 @@
-xapian-core (1.0.3-1) unstable; urgency=low
+  * New upstream release.
+    + No longer installs ".map" files with documentation, which fixes lintian
+      warning about an empty one.
+  * debian/rules: Look for "CODENAME" and "debian/codename" rather than
+    "COMPONENT" and "debian/component".
+
+xapian-core (1.0.4-1) unstable; urgency=low
 
   * New upstream release.  Closes: #444858
     + Fixes compilation with latest GCC 4.3 snapshot.  Closes: #441618
-  * debian/control.in: Use "${binary:Version}" instead of "${Source-Version}".
+  * debian/control.in,debian/rules: Use "${binary:Version}" instead of
+    "${Source-Version}" (except on sarge and dapper which predate
+    "${binary:Version}").
 
- -- Olly Betts <olly@survex.com>  Sun,  7 Oct 2007 19:14:53 +0100
+ -- Olly Betts <olly@survex.com>  Fri,  2 Nov 2007 03:15:23 +0000
 
 xapian-core (1.0.2-1) unstable; urgency=low
 

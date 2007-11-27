@@ -198,6 +198,40 @@ unserialise_stats(const string &s)
 }
 
 string
+serialise_mset_pre_30_5(const Xapian::MSet &mset)
+{
+    string result;
+
+    result += encode_length(mset.get_firstitem());
+    result += encode_length(mset.get_matches_lower_bound());
+    result += encode_length(mset.get_matches_estimated());
+    result += encode_length(mset.get_matches_upper_bound());
+    result += serialise_double(mset.get_max_possible());
+    result += serialise_double(mset.get_max_attained());
+    result += encode_length(mset.size());
+    for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
+	result += serialise_double(i.get_weight());
+	result += encode_length(*i);
+	result += encode_length(i.get_collapse_key().size());
+	result += i.get_collapse_key();
+	result += encode_length(i.get_collapse_count());
+    }
+
+    const map<string, Xapian::MSet::Internal::TermFreqAndWeight> &termfreqandwts
+	= mset.internal->termfreqandwts;
+
+    map<string, Xapian::MSet::Internal::TermFreqAndWeight>::const_iterator j;
+    for (j = termfreqandwts.begin(); j != termfreqandwts.end(); ++j) {
+	result += encode_length(j->first.size());
+	result += j->first;
+	result += encode_length(j->second.termfreq);
+	result += serialise_double(j->second.termweight);
+    }
+
+    return result;
+}
+
+string
 serialise_mset(const Xapian::MSet &mset)
 {
     string result;
@@ -208,6 +242,9 @@ serialise_mset(const Xapian::MSet &mset)
     result += encode_length(mset.get_matches_upper_bound());
     result += serialise_double(mset.get_max_possible());
     result += serialise_double(mset.get_max_attained());
+
+    result += serialise_double(mset.internal->percent_factor);
+
     result += encode_length(mset.size());
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
 	result += serialise_double(i.get_weight());
@@ -243,6 +280,9 @@ unserialise_mset(const string &s)
     Xapian::doccount matches_upper_bound = decode_length(&p, p_end, false);
     Xapian::weight max_possible = unserialise_double(&p, p_end);
     Xapian::weight max_attained = unserialise_double(&p, p_end);
+
+    double percent_factor = unserialise_double(&p, p_end);
+
     vector<Xapian::Internal::MSetItem> items;
     size_t msize = decode_length(&p, p_end, false);
     while (msize-- > 0) {
@@ -272,7 +312,7 @@ unserialise_mset(const string &s)
 				       matches_lower_bound,
 				       matches_estimated,
 				       max_possible, max_attained,
-				       items, terminfo, 0));
+				       items, terminfo, percent_factor));
 }
 
 string

@@ -60,13 +60,6 @@ mset_expect_order(const Xapian::MSet &A,
 		  Xapian::docid d7 = 0, Xapian::docid d8 = 0, Xapian::docid d9 = 0,
 		  Xapian::docid d10 = 0, Xapian::docid d11 = 0, Xapian::docid d12 = 0);
 
-void
-mset_expect_order_begins(const Xapian::MSet &A,
-			 Xapian::docid d1 = 0, Xapian::docid d2 = 0, Xapian::docid d3 = 0,
-			 Xapian::docid d4 = 0, Xapian::docid d5 = 0, Xapian::docid d6 = 0,
-			 Xapian::docid d7 = 0, Xapian::docid d8 = 0, Xapian::docid d9 = 0,
-			 Xapian::docid d10 = 0, Xapian::docid d11 = 0, Xapian::docid d12 = 0);
-
 void test_mset_order_equal(const Xapian::MSet &mset1, const Xapian::MSet &mset2);
 
 // ######################################################################

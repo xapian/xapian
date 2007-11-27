@@ -55,12 +55,6 @@ class VectorTermList : public TermList {
 	    return terms.size();
 	}
 
-	// Collate weighting information for the current term.
-	void accumulate_stats(Xapian::Internal::ExpandStats &) const {
-	    Assert(false); // should never get called
-	    abort();
-	}
-
 	// Gets current termname
 	string get_termname() const {
 	    Assert(!before_start && offset < terms.size());

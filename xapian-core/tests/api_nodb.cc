@@ -23,6 +23,8 @@
 
 #include <config.h>
 
+#include "api_nodb.h"
+
 #include <string>
 #include <vector>
 #include "autoptr.h"
@@ -39,14 +41,12 @@
 using namespace std;
 
 // always succeeds
-static bool test_trivial1()
-{
+DEFINE_TESTCASE(trivial1, !backend) {
     return true;
 }
 
 // tests that get_query_terms() returns the terms in the right order
-static bool test_getqterms1()
-{
+DEFINE_TESTCASE(getqterms1, !backend) {
     list<string> answers_list;
     answers_list.push_back("one");
     answers_list.push_back("two");
@@ -75,16 +75,14 @@ static bool test_getqterms1()
 
 // tests that get_query_terms() doesn't SEGV on an empty query
 // (regression test for bug in 0.9.0)
-static bool test_getqterms2()
-{
+DEFINE_TESTCASE(getqterms2, !backend) {
     Xapian::Query empty_query;
     TEST_EQUAL(empty_query.get_terms_begin(), empty_query.get_terms_end());
     return true;
 }
 
 // tests that empty queries work correctly
-static bool test_emptyquery2()
-{
+DEFINE_TESTCASE(emptyquery2, !backend) {
     // test that Query::empty() is true for an empty query.
     TEST(Xapian::Query().empty());
     // test that an empty query has length 0
@@ -96,8 +94,7 @@ static bool test_emptyquery2()
 }
 
 /// Regression test for behaviour for an empty query with AND_NOT.
-static bool test_emptyquery3()
-{
+DEFINE_TESTCASE(emptyquery3, !backend) {
     static const Xapian::Query::op ops[] = {
 	Xapian::Query::OP_AND,
 	Xapian::Query::OP_OR,
@@ -120,8 +117,7 @@ static bool test_emptyquery3()
 }
 
 // tests that query lengths are calculated correctly
-static bool test_querylen1()
-{
+DEFINE_TESTCASE(querylen1, !backend) {
     // test that a simple query has the right length
     Xapian::Query myquery;
     myquery = Xapian::Query(Xapian::Query::OP_OR,
@@ -139,8 +135,7 @@ static bool test_querylen1()
 }
 
 // tests that query lengths are calculated correctly
-static bool test_querylen2()
-{
+DEFINE_TESTCASE(querylen2, !backend) {
     // test with an even bigger and strange query
     string terms[3] = {
 	"foo",
@@ -188,8 +183,7 @@ static bool test_querylen2()
 }
 
 // tests that queries validate correctly
-static bool test_queryvalid1()
-{
+DEFINE_TESTCASE(queryvalid1, !backend) {
     vector<Xapian::Query> v1;
     // Need two arguments
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
@@ -210,8 +204,7 @@ static bool test_queryvalid1()
 }
 
 // tests that collapsing of queries includes subqueries
-static bool test_subqcollapse1()
-{
+DEFINE_TESTCASE(subqcollapse1, !backend) {
     Xapian::Query queries1[3] = {
 	Xapian::Query("wibble"),
 	Xapian::Query("wobble"),
@@ -238,8 +231,7 @@ static bool test_subqcollapse1()
 }
 
 // test behaviour when creating a query from an empty vector
-static bool test_emptyquerypart1()
-{
+DEFINE_TESTCASE(emptyquerypart1, !backend) {
     vector<string> emptyterms;
     Xapian::Query query(Xapian::Query::OP_OR, emptyterms.begin(), emptyterms.end());
     TEST(Xapian::Query(Xapian::Query::OP_AND, query, Xapian::Query("x")).empty());
@@ -249,8 +241,7 @@ static bool test_emptyquerypart1()
     return true;
 }
 
-static bool test_singlesubq1()
-{
+DEFINE_TESTCASE(singlesubq1, !backend) {
     vector<string> oneterm;
     oneterm.push_back("solo");
     Xapian::Query q_eliteset(Xapian::Query::OP_ELITE_SET, oneterm.begin(), oneterm.end(), 1);
@@ -259,8 +250,7 @@ static bool test_singlesubq1()
     return true;
 }
 
-static bool test_stemlangs1()
-{
+DEFINE_TESTCASE(stemlangs1, !backend) {
     unsigned lang_count = 0;
     string langs = Xapian::Stem::get_available_languages();
     tout << "available languages '" << langs << "'" << endl;
@@ -295,8 +285,7 @@ static bool test_stemlangs1()
 }
 
 // Some simple tests of the built in weighting schemes.
-static bool test_weight1()
-{
+DEFINE_TESTCASE(weight1, !backend) {
     Xapian::Weight * wt;
 
     Xapian::BoolWeight boolweight;
@@ -331,28 +320,38 @@ static bool test_weight1()
 }
 
 // Regression test.
-static bool test_nosuchdb1()
-{
+DEFINE_TESTCASE(nosuchdb1, !backend) {
     // This is a "nodb" test because it doesn't test a particular backend.
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
 		   Xapian::Database db("NOsuChdaTabASe"));
     return true;
 }
 
-// Regression test for add_value on an existing value (bug#82).
-static bool test_addvalue1()
-{
+// Feature tests for value manipulations.
+DEFINE_TESTCASE(addvalue1, !backend) {
+    // Regression test for add_value on an existing value (bug#82).
     Xapian::Document doc;
     doc.add_value(1, "original");
     doc.add_value(1, "replacement");
     TEST_EQUAL(doc.get_value(1), "replacement");
 
+    doc.add_value(2, "too");
+    doc.add_value(3, "free");
+    doc.add_value(4, "for");
+
+    doc.remove_value(2);
+    doc.remove_value(4);
+    TEST_EQUAL(doc.get_value(0), "");
+    TEST_EQUAL(doc.get_value(1), "replacement");
+    TEST_EQUAL(doc.get_value(2), "");
+    TEST_EQUAL(doc.get_value(3), "free");
+    TEST_EQUAL(doc.get_value(4), "");
+
     return true;
 }
 
 // tests that the collapsing on termpos optimisation gives correct query length
-static bool test_poscollapse2()
-{
+DEFINE_TESTCASE(poscollapse2, !backend) {
     Xapian::Query q(Xapian::Query::OP_OR, Xapian::Query("this", 1, 1), Xapian::Query("this", 1, 1));
     TEST_EQUAL(q.get_length(), 2);
     return true;
@@ -360,8 +359,7 @@ static bool test_poscollapse2()
 
 // regression test of querying an uninitialised database: should report an
 // error; used to segfault with 1.0.0.
-static bool test_uninitdb1()
-{
+DEFINE_TESTCASE(uninitdb1, !backend) {
     Xapian::Database db;
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
 		   Xapian::Enquire enq(db));
@@ -369,7 +367,7 @@ static bool test_uninitdb1()
 }
 
 // tests the string list serialisation classes.
-static bool test_stringlistserialise1()
+DEFINE_TESTCASE(stringlistserialise1, !backend)
 {
     Xapian::StringListSerialiser s1;
     s1.append("foo");
@@ -392,8 +390,7 @@ static bool test_stringlistserialise1()
 }
 
 // Test a scaleweight query applied to a match nothing query
-static bool test_scaleweight3()
-{   
+DEFINE_TESTCASE(scaleweight3, !backend) {
     Xapian::Query matchnothing(Xapian::Query::MatchNothing);
     Xapian::Query query(Xapian::Query::OP_SCALE_WEIGHT, matchnothing, 3.0);
     TEST_EQUAL(query.get_description(), "Xapian::Query()");
@@ -401,8 +398,7 @@ static bool test_scaleweight3()
 }
 
 // Test that scaling by a weight close to 1 is optimised away.
-static bool test_scaleweight4()
-{
+DEFINE_TESTCASE(scaleweight4, !backend) {
     // Factor is a double which, when multiplied by its reciprocal, doesn't
     // give exactly 1.0
     double factor = 179.76931348623157e306;
@@ -415,31 +411,3 @@ static bool test_scaleweight4()
 
     return true;
 }
-
-
-// #######################################################################
-// # End of test cases: now we list the tests to run.
-
-test_desc nodb_tests[] = {
-    TESTCASE(trivial1),
-    TESTCASE(getqterms1),
-    TESTCASE(getqterms2),
-    TESTCASE(emptyquery2),
-    TESTCASE(emptyquery3),
-    TESTCASE(querylen1),
-    TESTCASE(querylen2),
-    TESTCASE(queryvalid1),
-    TESTCASE(subqcollapse1),
-    TESTCASE(emptyquerypart1),
-    TESTCASE(singlesubq1),
-    TESTCASE(stemlangs1),
-    TESTCASE(weight1),
-    TESTCASE(nosuchdb1),
-    TESTCASE(addvalue1),
-    TESTCASE(poscollapse2),
-    TESTCASE(uninitdb1),
-    TESTCASE(stringlistserialise1),
-    TESTCASE(scaleweight3),
-    TESTCASE(scaleweight4),
-    END_OF_TESTCASES
-};

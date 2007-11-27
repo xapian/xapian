@@ -28,6 +28,7 @@
 
 #include <xapian/base.h>
 #include <xapian/deprecated.h>
+#include <xapian/sorter.h>
 #include <xapian/types.h>
 #include <xapian/termiterator.h>
 #include <xapian/visibility.h>
@@ -781,6 +782,16 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
          */
 	void set_sort_by_value(Xapian::valueno sort_key, bool ascending = true);
 
+	/** Set the sorting to be by key generated from values only.
+	 *
+	 * @param sorter    The functor to use for generating keys.
+	 *
+	 * @param ascending  If true, documents values which sort higher by
+	 *		 string compare are better.  If false, the sort order
+	 *		 is reversed.  (default true)
+         */
+	void set_sort_by_key(Xapian::Sorter * sorter, bool ascending = true);
+
 	/** Set the sorting to be by value, then by relevance for documents
 	 *  with the same value.
 	 *
@@ -796,6 +807,18 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 */
 	void set_sort_by_value_then_relevance(Xapian::valueno sort_key,
 					      bool ascending = true);
+
+	/** Set the sorting to be by keys generated from values, then by
+	 *  relevance for documents with identical keys.
+	 *
+	 * @param sorter    The functor to use for generating keys.
+	 *
+	 * @param ascending  If true, keys which sort higher by
+	 *		 string compare are better.  If false, the sort order
+	 *		 is reversed.  (default true)
+	 */
+	void set_sort_by_key_then_relevance(Xapian::Sorter * sorter,
+					    bool ascending = true);
 
 	/** Set the sorting to be by relevance then value.
 	 *
@@ -818,6 +841,25 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 */
 	void set_sort_by_relevance_then_value(Xapian::valueno sort_key,
 					      bool ascending = true);
+
+	/** Set the sorting to be by relevance, then by keys generated from
+	 *  values.
+	 *
+	 *  Note that with the default BM25 weighting scheme parameters,
+	 *  non-identical documents will rarely have the same weight, so
+	 *  this setting will give very similar results to
+	 *  set_sort_by_relevance().  It becomes more useful with particular
+	 *  BM25 parameter settings (e.g. BM25Weight(1,0,1,0,0)) or custom
+	 *  weighting schemes.
+	 *
+	 * @param sorter    The functor to use for generating keys.
+	 *
+	 * @param ascending  If true, keys which sort higher by
+	 *		 string compare are better.  If false, the sort order
+	 *		 is reversed.  (default true)
+	 */
+	void set_sort_by_relevance_then_key(Xapian::Sorter * sorter,
+					    bool ascending = true);
 
 	/** Get (a portion of) the match set for the current query.
 	 *
@@ -1044,12 +1086,13 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 	virtual Weight * clone() const = 0;
 
     protected:
-	const Internal * internal; // Weight::Internal == StatsSource
+	const Internal * internal; // Weight::Internal == Stats
 	Xapian::doclength querysize;
 	Xapian::termcount wqf;
 	std::string tname;
 
     public:
+	// FIXME:1.1: initialise internal to NULL here
 	Weight() { }
 	virtual ~Weight();
 

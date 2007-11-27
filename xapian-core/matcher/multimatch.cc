@@ -72,97 +72,75 @@ const Xapian::Enquire::Internal::sort_setting VAL_REL =
 	Xapian::Enquire::Internal::VAL_REL;
 #endif
 
-////////////////////////////////////
-// Initialisation and cleaning up //
-////////////////////////////////////
-MultiMatch::MultiMatch(const Xapian::Database &db_,
-		       const Xapian::Query::Internal * query_,
-		       Xapian::termcount qlen,
-		       const Xapian::RSet & omrset,
-		       Xapian::valueno collapse_key_,
-		       int percent_cutoff_, Xapian::weight weight_cutoff_,
-		       Xapian::Enquire::docid_order order_,
-		       Xapian::valueno sort_key_,
-		       Xapian::Enquire::Internal::sort_setting sort_by_,
-		       bool sort_value_forward_,
-		       Xapian::ErrorHandler * errorhandler_,
-		       StatsGatherer * gatherer_,
-		       const Xapian::Weight * weight_)
-	: gatherer(gatherer_), db(db_), query(query_),
-	  collapse_key(collapse_key_), percent_cutoff(percent_cutoff_),
-	  weight_cutoff(weight_cutoff_), order(order_),
-	  sort_key(sort_key_), sort_by(sort_by_),
-	  sort_value_forward(sort_value_forward_),
-	  errorhandler(errorhandler_), weight(weight_),
-	  is_remote(db.internal.size())
+/** Split an RSet into several sub rsets, one for each database.
+ *
+ *  @param rset The RSet to split.
+ *  @param number_of_subdbs The number of sub databases which exist.
+ *  @param subrsets Vector of RSets which will the sub rsets will be placed in.
+ *                  This should be empty when the function is called.
+ */
+static void
+split_rset_by_db(const Xapian::RSet * rset,
+		 Xapian::doccount number_of_subdbs,
+		 vector<Xapian::RSet> & subrsets)
 {
-    DEBUGCALL(MATCH, void, "MultiMatch", db_ << ", " << query_ << ", " <<
-	      qlen << ", " << omrset << ", " << collapse_key_ << ", " <<
-	      percent_cutoff_ << ", " << weight_cutoff_ << ", " <<
-	      int(order_) << ", " << sort_key_ << ", " <<
-	      int(sort_by_) << ", " << sort_value_forward_ << ", " <<
-	      errorhandler_ << ", [gatherer_], [weight_]");
-    if (!query) return;
-
-    query->validate_query();
-
-    vector<Xapian::RSet> subrsets;
-    if (db.internal.size() == 1) {
-	// Shortcut the common case.
-	subrsets.push_back(omrset);
-    } else {
-	Xapian::doccount number_of_leaves = db.internal.size();
-	// Can't just use resize - that creates N copies of the same RSet!
-	subrsets.reserve(number_of_leaves);
-	for (size_t i = 0; i < number_of_leaves; ++i) {
-	    subrsets.push_back(Xapian::RSet());
-	}
-
-	const set<Xapian::docid> & items = omrset.internal->get_items();
-	set<Xapian::docid>::const_iterator j;
-	for (j = items.begin(); j != items.end(); ++j) {
-	    Xapian::doccount local_docid = (*j - 1) / number_of_leaves + 1;
-	    Xapian::doccount subdatabase = (*j - 1) % number_of_leaves;
-	    subrsets[subdatabase].add_document(local_docid);
-	}
-    }
-
-    Assert(subrsets.size() == db.internal.size());
-    for (size_t i = 0; i != db.internal.size(); ++i) {
-	Xapian::Database::Internal *subdb = db.internal[i].get();
-	Assert(subdb);
-	Xapian::Internal::RefCntPtr<SubMatch> smatch;
-	try {
-	    // There is currently only one special case, for network databases.
-#ifdef XAPIAN_HAS_REMOTE_BACKEND
-	    RemoteDatabase *rem_db = subdb->as_remotedatabase();
-	    if (rem_db) {
-		is_remote[i] = true;
-		rem_db->set_query(query, qlen, collapse_key, order, sort_key,
-				  sort_by, sort_value_forward, percent_cutoff,
-				  weight_cutoff, weight, subrsets[i]);
-		bool decreasing_relevance =
-		    (sort_by == REL || sort_by == REL_VAL);
-		smatch = new RemoteSubMatch(rem_db, gatherer.get(),
-					    decreasing_relevance);
-	    } else {
-#endif /* XAPIAN_HAS_REMOTE_BACKEND */
-		smatch = new LocalSubMatch(subdb, query, qlen, subrsets[i], gatherer.get(), weight);
-#ifdef XAPIAN_HAS_REMOTE_BACKEND
+    DEBUGCALL_STATIC(MATCH, void, "split_rset_by_db",
+		     (rset ? *rset : Xapian::RSet()) <<
+		     ", " << number_of_subdbs <<
+		     ", [subrsets(size=" << subrsets.size() << "]");
+    if (rset) {
+	if (number_of_subdbs == 1) {
+	    // The common case of a single database is easy to handle.
+	    subrsets.push_back(*rset);
+	} else {
+	    // Can't just use vector::resize() here, since that creates N
+	    // copies of the same RSet!
+	    subrsets.reserve(number_of_subdbs);
+	    for (size_t i = 0; i < number_of_subdbs; ++i) {
+		subrsets.push_back(Xapian::RSet());
 	    }
-#endif /* XAPIAN_HAS_REMOTE_BACKEND */
-	} catch (Xapian::Error & e) {
-	    if (!errorhandler) throw;
-	    DEBUGLINE(EXCEPTION, "Calling error handler for creation of a SubMatch from a database and query.");
-	    (*errorhandler)(e);
-	    // Continue match without this sub-postlist.
-	    smatch = new EmptySubMatch;
+
+	    const set<Xapian::docid> & items = rset->internal->get_items();
+	    set<Xapian::docid>::const_iterator j;
+	    for (j = items.begin(); j != items.end(); ++j) {
+		Xapian::doccount local_docid = (*j - 1) / number_of_subdbs + 1;
+		Xapian::doccount subdatabase = (*j - 1) % number_of_subdbs;
+		subrsets[subdatabase].add_document(local_docid);
+	    }
 	}
-	leaves.push_back(smatch);
+    } else {
+	// NB vector::resize() creates N copies of the same empty RSet.
+	subrsets.resize(number_of_subdbs);
     }
+    Assert(subrsets.size() == number_of_subdbs);
+}
 
-    gatherer->set_global_stats(omrset.size());
-
+/** Prepare some SubMatches.
+ *
+ *  This calls the prepare_match() method on each SubMatch object, causing them
+ *  to lookup various statistics.
+ *
+ *  This method is rather complicated in order to handle remote matches
+ *  efficiently.  Instead of simply calling "prepare_match()" on each submatch
+ *  and waiting for it to return, it first calls "prepare_match(true)" on each
+ *  submatch.  If any of these calls return false, indicating that the required
+ *  information has not yet been received from the server, the method will try
+ *  those which returned false again, passing "false" as a parameter to
+ *  indicate that they should block until the information is ready.
+ *
+ *  This should improve performance in the case of mixed local-and-remote
+ *  searches - the local searchers will all fetch their statistics from disk
+ *  without waiting for the remote searchers, so as soon as the remote searcher
+ *  statistics arrive, we can move on to the next step.
+ */
+static void
+prepare_sub_matches(std::vector<Xapian::Internal::RefCntPtr<SubMatch> > & leaves,
+		    Xapian::ErrorHandler * errorhandler,
+		    Stats & stats)
+{
+    DEBUGCALL_STATIC(MATCH, void, "prepare_sub_matches",
+		     "[leaves(size=" << leaves.size() << ")], " <<
+		     errorhandler << ", " << stats);
     // We use a vector<bool> to track which SubMatches we're already prepared.
     vector<bool> prepared;
     prepared.resize(leaves.size(), false);
@@ -172,7 +150,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	for (size_t leaf = 0; leaf < leaves.size(); ++leaf) {
 	    if (prepared[leaf]) continue;
 	    try {
-		if (leaves[leaf]->prepare_match(nowait)) {
+		if (leaves[leaf]->prepare_match(nowait, stats)) {
 		    prepared[leaf] = true;
 		    --unprepared;
 		}
@@ -193,6 +171,82 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
     }
 }
 
+////////////////////////////////////
+// Initialisation and cleaning up //
+////////////////////////////////////
+MultiMatch::MultiMatch(const Xapian::Database &db_,
+		       const Xapian::Query::Internal * query_,
+		       Xapian::termcount qlen,
+		       const Xapian::RSet * omrset,
+		       Xapian::valueno collapse_key_,
+		       int percent_cutoff_, Xapian::weight weight_cutoff_,
+		       Xapian::Enquire::docid_order order_,
+		       Xapian::valueno sort_key_,
+		       Xapian::Enquire::Internal::sort_setting sort_by_,
+		       bool sort_value_forward_,
+		       const Xapian::Sorter * sorter_,
+		       Xapian::ErrorHandler * errorhandler_,
+		       Stats & stats,
+		       const Xapian::Weight * weight_)
+	: db(db_), query(query_),
+	  collapse_key(collapse_key_), percent_cutoff(percent_cutoff_),
+	  weight_cutoff(weight_cutoff_), order(order_),
+	  sort_key(sort_key_), sort_by(sort_by_),
+	  sort_value_forward(sort_value_forward_), sorter(sorter_),
+	  errorhandler(errorhandler_), weight(weight_),
+	  is_remote(db.internal.size())
+{
+    DEBUGCALL(MATCH, void, "MultiMatch", db_ << ", " << query_ << ", " <<
+	      qlen << ", " << (omrset ? *omrset : Xapian::RSet()) << ", " <<
+	      collapse_key_ << ", " <<
+	      percent_cutoff_ << ", " << weight_cutoff_ << ", " <<
+	      int(order_) << ", " << sort_key_ << ", " <<
+	      int(sort_by_) << ", " << sort_value_forward_ << ", " <<
+	      sorter_ << ", " <<
+	      errorhandler_ << ", " << stats << ", [weight_]");
+
+    if (!query) return;
+    query->validate_query();
+
+    Xapian::doccount number_of_subdbs = db.internal.size();
+    vector<Xapian::RSet> subrsets;
+    split_rset_by_db(omrset, number_of_subdbs, subrsets);
+
+    for (size_t i = 0; i != number_of_subdbs; ++i) {
+	Xapian::Database::Internal *subdb = db.internal[i].get();
+	Assert(subdb);
+	Xapian::Internal::RefCntPtr<SubMatch> smatch;
+	try {
+	    // There is currently only one special case, for network databases.
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
+	    RemoteDatabase *rem_db = subdb->as_remotedatabase();
+	    if (rem_db) {
+		is_remote[i] = true;
+		rem_db->set_query(query, qlen, collapse_key, order, sort_key,
+				  sort_by, sort_value_forward, percent_cutoff,
+				  weight_cutoff, weight, subrsets[i]);
+		bool decreasing_relevance =
+		    (sort_by == REL || sort_by == REL_VAL);
+		smatch = new RemoteSubMatch(rem_db, decreasing_relevance);
+	    } else {
+#endif /* XAPIAN_HAS_REMOTE_BACKEND */
+		smatch = new LocalSubMatch(subdb, query, qlen, subrsets[i], weight);
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
+	    }
+#endif /* XAPIAN_HAS_REMOTE_BACKEND */
+	} catch (Xapian::Error & e) {
+	    if (!errorhandler) throw;
+	    DEBUGLINE(EXCEPTION, "Calling error handler for creation of a SubMatch from a database and query.");
+	    (*errorhandler)(e);
+	    // Continue match without this sub-postlist.
+	    smatch = new EmptySubMatch;
+	}
+	leaves.push_back(smatch);
+    }
+
+    prepare_sub_matches(leaves, errorhandler, stats);
+}
+
 string
 MultiMatch::get_collapse_key(PostList *pl, Xapian::docid did,
 			     Xapian::valueno keyno, Xapian::Internal::RefCntPtr<Xapian::Document::Internal> &doc)
@@ -206,8 +260,7 @@ MultiMatch::get_collapse_key(PostList *pl, Xapian::docid did,
 	Xapian::doccount n = (did - 1) % multiplier; // which actual database
 	Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
 
-	Xapian::Internal::RefCntPtr<Xapian::Document::Internal> temp(db.internal[n]->open_document(m, true));
-	doc = temp;
+	doc = db.internal[n]->open_document(m, true);
     }
     RETURN(doc->get_value(keyno));
 }
@@ -232,7 +285,9 @@ MultiMatch::getorrecalc_maxweight(PostList *pl)
 void
 MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		     Xapian::doccount check_at_least,
-		     Xapian::MSet & mset, const Xapian::MatchDecider *mdecider,
+		     Xapian::MSet & mset,
+		     const Stats & stats,
+		     const Xapian::MatchDecider *mdecider,
 		     const Xapian::MatchDecider *matchspy)
 {
     DEBUGCALL(MATCH, void, "MultiMatch::get_mset", first << ", " << maxitems
@@ -246,24 +301,32 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
     Assert(!leaves.empty());
 
-    // Start matchers
+    // If there's only one database and it's remote, we can just unserialise
+    // its MSet and return that.
+    if (leaves.size() == 1 && is_remote[0]) {
+	RemoteSubMatch * rem_match;
+	rem_match = static_cast<RemoteSubMatch*>(leaves[0].get());
+	rem_match->start_match(first, maxitems, check_at_least, stats);
+	rem_match->get_mset(mset);
+	return;
+    }
+
+    // Start matchers.
     {
 	vector<Xapian::Internal::RefCntPtr<SubMatch> >::iterator leaf;
 	for (leaf = leaves.begin(); leaf != leaves.end(); ++leaf) {
 	    try {
 		// FIXME: look if we can push the "check_at_least" stuff
 		// into the remote match handling too.
-		(*leaf)->start_match(first + maxitems, first + check_at_least);
+		(*leaf)->start_match(0, first + maxitems,
+				     first + check_at_least, stats);
 	    } catch (Xapian::Error & e) {
-		if (errorhandler) {
-		    DEBUGLINE(EXCEPTION, "Calling error handler for "
-			      "start_match() on a SubMatch.");
-		    (*errorhandler)(e);
-		    // Continue match without this sub-match.
-		    *leaf = Xapian::Internal::RefCntPtr<SubMatch>(new EmptySubMatch());
-		} else {
-		    throw;
-		}
+		if (!errorhandler) throw;
+		DEBUGLINE(EXCEPTION, "Calling error handler for "
+			  "start_match() on a SubMatch.");
+		(*errorhandler)(e);
+		// Continue match without this sub-match.
+		*leaf = Xapian::Internal::RefCntPtr<SubMatch>(new EmptySubMatch());
 	    }
 	}
     }
@@ -336,12 +399,6 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     Xapian::doccount matches_lower_bound = pl->get_termfreq_min();
     Xapian::doccount matches_estimated   = pl->get_termfreq_est();
 
-    // duplicates_found and documents_considered are used solely to keep track
-    // of how frequently collapses are occurring, so that the matches_estimated
-    // can be adjusted accordingly.
-    Xapian::doccount duplicates_found = 0;
-    Xapian::doccount documents_considered = 0;
-
     // Check if any results have been asked for (might just be wanting
     // maxweight).
     if (check_at_least == 0) {
@@ -366,6 +423,17 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 					   0));
 	return;
     }
+
+    // duplicates_found and documents_considered are used solely to keep track
+    // of how frequently collapses are occurring, so that the matches_estimated
+    // can be adjusted accordingly.
+    Xapian::doccount duplicates_found = 0;
+    Xapian::doccount documents_considered = 0;
+
+    // We keep track of the number of null collapse values because this allows
+    // us to provide a better value for matches_lower_bound if there are null
+    // collapse values.
+    Xapian::doccount null_collapse_values = 0;
 
     // Set max number of results that we want - this is used to decide
     // when to throw away unwanted items.
@@ -455,7 +523,11 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    Xapian::doccount n = (new_item.did - 1) % multiplier; // which actual database
 	    Xapian::docid m = (new_item.did - 1) / multiplier + 1; // real docid in that database
 	    Xapian::Internal::RefCntPtr<Xapian::Document::Internal> doc(db.internal[n]->open_document(m, true));
-	    new_item.sort_key = doc->get_value(sort_key);
+	    if (sorter) {
+		new_item.sort_key = (*sorter)(Xapian::Document(doc.get()));
+	    } else {
+		new_item.sort_key = doc->get_value(sort_key);
+	    }
 
 	    // We're sorting by value (in part at least), so compare the item
 	    // against the lowest currently in the proto-mset.  If sort_by is
@@ -519,7 +591,9 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 						     doc);
 
 	    // Don't collapse on null key
-	    if (!new_item.collapse_key.empty()) {
+	    if (new_item.collapse_key.empty()) {
+		++null_collapse_values;
+	    } else {
 		map<string, pair<Xapian::Internal::MSetItem, Xapian::weight> >::iterator oldkey;
 		oldkey = collapse_tab.find(new_item.collapse_key);
 		if (oldkey == collapse_tab.end()) {
@@ -555,7 +629,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		    // we've seen so far.  Check if the previous best entry
 		    // with this key might still be in the proto-MSet.  If it
 		    // might be, we need to check through for it.
-		    if (old_item.wt >= min_weight && mcmp(old_item, min_item)) {
+		    Xapian::weight old_wt = old_item.wt;
+		    if (old_wt >= min_weight && mcmp(old_item, min_item)) {
 			// Scan through (unsorted) MSet looking for entry.
 			// FIXME: more efficient way than just scanning?
 			Xapian::docid olddid = old_item.did;
@@ -580,8 +655,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		    }
 
 		    // Keep the old weight as it is now second best so far
-		    oldkey->second = make_pair(new_item,
-					       oldkey->second.first.wt);
+		    oldkey->second = make_pair(new_item, old_wt);
 		}
 	    }
 	}
@@ -607,8 +681,16 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		    if (docs_matched >= check_at_least) {
 			if (sort_by == REL) {
 			    // We're done if this is a forward boolean match
-			    // (bodgetastic, FIXME better if we can)
-			    if (rare(max_weight == 0 && sort_forward)) break;
+			    // with only one database (bodgetastic, FIXME
+			    // better if we can!)
+			    if (rare(max_weight == 0 && sort_forward)) {
+				// In the multi database case, MergePostList
+				// currently processes each database
+				// sequentially (which actually may well be
+				// more efficient) so the docids in general
+				// won't arrive in order.
+				if (leaves.size() == 1) break;
+			    }
 			}
 			if (min_item.wt > min_weight) {
 			    DEBUGLINE(MATCH, "Setting min_weight to " <<
@@ -627,8 +709,16 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		if (sort_by == REL && items.size() == max_msize) {
 		    if (docs_matched >= check_at_least) {
 			// We're done if this is a forward boolean match
-			// (bodgetastic, FIXME better if we can)
-			if (rare(max_weight == 0 && sort_forward)) break;
+			// with only one database (bodgetastic, FIXME
+			// better if we can!)
+			if (rare(max_weight == 0 && sort_forward)) {
+			    // In the multi database case, MergePostList
+			    // currently processes each database
+			    // sequentially (which actually may well be
+			    // more efficient) so the docids in general
+			    // won't arrive in order.
+			    if (leaves.size() == 1) break;
+			}
 		    }
 		}
 	    }
@@ -792,10 +882,11 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	Assert(matches_estimated <= matches_upper_bound);
 
 	if (collapse_key != Xapian::BAD_VALUENO) {
-	    // Lower bound must be set to no more than the number of collapse
-	    // values we've got, since it's possible that all further hits
-	    // will be collapsed to a single value.
-	    matches_lower_bound = collapse_tab.size();
+	    // Lower bound must be set to no more than the number of null
+	    // collapse values seen plus the number of unique non-null collapse
+	    // values seen, since it's possible that all further hits will be
+	    // collapsed to values we've already seen.
+	    matches_lower_bound = null_collapse_values + collapse_tab.size();
 
 	    // The estimate for the number of hits can be modified by
 	    // multiplying it by the rate at which we've been finding
@@ -831,23 +922,26 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    items.clear();
 	} else {
 	    DEBUGLINE(MATCH, "finding " << first << "th");
-	    nth_element(items.begin(), items.begin() + first, items.end(),
-			mcmp);
-	    // Erase the leading ``first'' elements
-	    items.erase(items.begin(), items.begin() + first);
+	    // We perform nth_element() on reverse iterators so that the
+	    // unwanted elements end up at the end of items, which means
+	    // that the call to erase() to remove them doesn't have to copy
+	    // any elements.
+	    vector<Xapian::Internal::MSetItem>::reverse_iterator nth;
+	    nth = items.rbegin() + first;
+	    nth_element(items.rbegin(), nth, items.rend(), mcmp);
+	    // Erase the trailing ``first'' elements
+	    items.erase(items.begin() + items.size() - first, items.end());
 	}
     }
 
-    DEBUGLINE(MATCH, "msize = " << items.size());
+    DEBUGLINE(MATCH, "sorting " << items.size() << " entries");
+
+    // Need a stable sort, but this is provided by comparison operator
+    sort(items.begin(), items.end(), mcmp);
 
     if (!items.empty()) {
-	DEBUGLINE(MATCH, "sorting");
-
-	// Need a stable sort, but this is provided by comparison operator
-	sort(items.begin(), items.end(), mcmp);
-
-	DEBUGLINE(MATCH, "max weight in mset = " << items[0].wt <<
-		  ", min weight in mset = " << items.back().wt);
+	DEBUGLINE(MATCH, "min weight in mset = " << items.back().wt);
+	DEBUGLINE(MATCH, "max weight in mset = " << items[0].wt);
     }
 
     Assert(matches_estimated >= matches_lower_bound);

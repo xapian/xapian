@@ -2,6 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002,2003,2004,2005,2007 Olly Betts
+ * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,12 +21,13 @@
  */
 
 #include <config.h>
-
-#include "omdebug.h"
 #include "flint_postlist.h"
-#include "flint_utils.h"
+
 #include "flint_cursor.h"
 #include "flint_database.h"
+#include "flint_utils.h"
+#include "noreturn.h"
+#include "omdebug.h"
 #include "utils.h"
 
 Xapian::doccount
@@ -112,6 +114,7 @@ class PostlistChunkWriter {
 // Static functions
 
 /// Report an error when reading the posting list.
+XAPIAN_NORETURN(static void report_read_error(const char * position));
 static void report_read_error(const char * position)
 {
     if (position == 0) {

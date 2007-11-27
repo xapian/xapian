@@ -1,7 +1,7 @@
 %{
 /* tcl8/except.i: Custom tcl8 exception handling.
  *
- * Copyright (c) 2006 Olly Betts
+ * Copyright (c) 2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,26 +19,20 @@
  * USA
  */
 
-    static int XapianTclHandleError(Tcl_Interp * interp, const Xapian::Error &e) {
-	Tcl_ResetResult(interp);
-	Tcl_SetErrorCode(interp, "XAPIAN", e.get_type(), NULL);
-	Tcl_AppendResult(interp, e.get_msg().c_str(), NULL);
-	return TCL_ERROR;
-    }
+static int XapianTclHandleError(Tcl_Interp * interp, const Xapian::Error &e) {
+    Tcl_ResetResult(interp);
+    Tcl_SetErrorCode(interp, "XAPIAN", e.get_type(), NULL);
+    Tcl_AppendResult(interp, e.get_msg().c_str(), NULL);
+    return TCL_ERROR;
+}
 
-    static int XapianTclHandleError(Tcl_Interp * interp, const char *e) {
-	Tcl_ResetResult(interp);
-	Tcl_SetErrorCode(interp, "XAPIAN", "QueryParserError", NULL);
-	Tcl_AppendResult(interp, e, NULL);
-	return TCL_ERROR;
-    }
+static int XapianTclHandleError(Tcl_Interp * interp) {
+    Tcl_ResetResult(interp);
+    Tcl_SetErrorCode(interp, "XAPIAN ?", NULL);
+    Tcl_AppendResult(interp, "Unknown Error", NULL);
+    return TCL_ERROR;
+}
 
-    static int XapianTclHandleError(Tcl_Interp * interp) {
-	Tcl_ResetResult(interp);
-	Tcl_SetErrorCode(interp, "XAPIAN ?", NULL);
-	Tcl_AppendResult(interp, "Unknown Error", NULL);
-	return TCL_ERROR;
-    }
 %}
 
 %exception {
@@ -46,8 +40,6 @@
 	$function
     } catch (const Xapian::Error &e) {
 	return XapianTclHandleError(interp, e);
-    } catch (const char * str) {
-	return XapianTclHandleError(interp, str);
     } catch (...) {
 	return XapianTclHandleError(interp);
     }

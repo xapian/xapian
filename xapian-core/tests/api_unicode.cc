@@ -20,6 +20,8 @@
 
 #include <config.h>
 
+#include "api_unicode.h"
+
 #include <xapian.h>
 
 #include "apitest.h"
@@ -39,8 +41,7 @@ static const testcase testcases[] = {
 };
 
 // Test handling of invalid utf-8 is as desired.
-bool test_utf8iterator1()
-{
+DEFINE_TESTCASE(utf8iterator1,!backend) {
     const testcase * p;
     for (p = testcases; p->a; ++p) {
 	tout << '"' << p->a << "\" and \"" << p->b << '"' << endl;
@@ -79,8 +80,7 @@ static const testcase2 testcases2[] = {
 };
 
 // Test decoding of utf-8.
-bool test_utf8iterator2()
-{
+DEFINE_TESTCASE(utf8iterator2,!backend) {
     const testcase2 * p;
     for (p = testcases2; p->a; ++p) {
 	Xapian::Utf8Iterator a(p->a, strlen(p->a));
@@ -93,8 +93,7 @@ bool test_utf8iterator2()
 }
 
 // Test Unicode categorisation.
-bool test_unicode1()
-{
+DEFINE_TESTCASE(unicode1,!backend) {
     using namespace Xapian;
     TEST_EQUAL(Unicode::get_category('a'), Unicode::LOWERCASE_LETTER);
     TEST_EQUAL(Unicode::get_category('0'), Unicode::DECIMAL_DIGIT_NUMBER);
@@ -112,11 +111,3 @@ bool test_unicode1()
     TEST_EQUAL(Unicode::get_category(0xFFFFFFFF), Unicode::UNASSIGNED);
     return true;
 }
-
-/** Test cases for the Unicode and Utf8 classes and functions. */
-test_desc unicode_tests[] = {
-    TESTCASE(utf8iterator1),
-    TESTCASE(utf8iterator2),
-    TESTCASE(unicode1),
-    END_OF_TESTCASES
-};

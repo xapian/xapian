@@ -142,10 +142,9 @@ CPPFLAGS_COMMON=-nologo -c -Zi -I.. -I..\include -I..\common -W3 -EHsc \
 -D_CRT_SECURE_NO_DEPRECATE \
 -I "$(ZLIB_INCLUDE_DIR)"
 
-# The various parts of Xapian (but *not* the test suite!)
+# The various parts of Xapian (but *not* the test suite or treecheck libs)
 XAPIAN_LIBS = \
  "$(OUTLIBDIR)\libcommon.lib"  \
- "$(OUTLIBDIR)\libbtreecheck.lib"  \
  "$(OUTLIBDIR)\libbackend.lib"  \
  "$(OUTLIBDIR)\libexpand.lib"  \
  "$(OUTLIBDIR)\libquartz.lib" \

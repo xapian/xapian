@@ -63,7 +63,8 @@ APITEST_OBJS= \
 	"$(OUTDIR)\api_posdb.obj" \
         "$(OUTDIR)\api_transdb.obj" \
         "$(OUTDIR)\api_unicode.obj" \
-	"$(OUTDIR)\api_wrdb.obj" 
+	"$(OUTDIR)\api_wrdb.obj" \
+    "$(OUTDIR)\api_sorting.obj" 
     
 BTREETEST_OBJS= "$(OUTDIR)\btreetest.obj"
 
@@ -84,6 +85,7 @@ SRC = 	"$(INTDIR)\apitest.cc" \
 	"$(INTDIR)\api_posdb.cc" \
         "$(INTDIR)\api_transdb.cc" \
         "$(INTDIR)\api_unicode.cc" \
+        "$(INTDIR)\api_sorting.cc" \
 	"$(INTDIR)\api_wrdb.cc" \
 	"$(INTDIR)\btreetest.cc" \
 	"$(INTDIR)\internaltest.cc" \
@@ -148,7 +150,7 @@ PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS) "$(OUTLIBDIR)\libtest.lib"
 "$(OUTDIR)\btreetest.exe" : "$(OUTDIR)" $(DEF_FILE) $(BTREETEST_OBJS) \
                       $(PROGRAM_DEPENDENCIES)
     $(LINK32) @<<
-  $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\btreetest.exe" $(DEF_FLAGS) $(BTREETEST_OBJS)
+  $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\btreetest.exe" $(DEF_FLAGS) $(BTREETEST_OBJS) "$(OUTLIBDIR)\libquartzbtreecheck.lib" 
 <<
 
 "$(OUTDIR)\internaltest.exe" : "$(OUTDIR)" $(DEF_FILE) $(INTERNALTEST_OBJS) \
@@ -194,5 +196,5 @@ PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS) "$(OUTLIBDIR)\libtest.lib"
 
 # Calculate any header dependencies and automatically insert them into this file
 HEADERS :
-            ..\win32\$(DEPEND) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)"
+            if exist ..\win32\$(DEPEND) ..\win32\$(DEPEND) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)"
 # DO NOT DELETE THIS LINE -- make depend depends on it.

@@ -21,15 +21,15 @@
 
 set -e
 
-VALID_COMPONENTS='unstable stable oldstable gutsy feisty edgy dapper'
+VALID_SUITES='unstable stable oldstable gutsy feisty edgy dapper'
 
 if [ x"$1" = x--help ] ; then
-  echo "Usage: $0 [COMPONENT...]"
+  echo "Usage: $0 [SUITE...]"
   echo
-  echo 'If no components are specified, the default is to make source packages'
+  echo 'If no suites are specified, the default is to make source packages'
   echo 'for all of them.'
   echo
-  echo "Currently, the recognised values are: $VALID_COMPONENTS"
+  echo "Currently, the recognised values are: $VALID_SUITES"
   exit 0
 fi
 
@@ -40,9 +40,9 @@ fi
 SNAPSHOT=
 #SNAPSHOT=trunk
 
-# Debian/Ubuntu component or components to build for.
+# Debian/Ubuntu suite or suites to build for.
 # This will be overridden by the command line arguments, if any were passed.
-COMPONENTS=$VALID_COMPONENTS
+SUITES=$VALID_SUITES
 
 # Options to pass to dpkg-buildpackage when building source packages
 BUILDPACKAGE_SRC_OPTS="-us -uc -d -S"
@@ -78,10 +78,10 @@ adjust_changelog() {
     # upgrading to a newer distribution works).  The corresponding versions for
     # Ubuntu distributions are 1.0.3-1.99dapper, 1.0.3-1.9.9edgy,
     # 1.0.3-1.9.9feisty, 1.0.3-1.9.9gutsy, etc which have the correct ordering.
-    if [ stable = "$COMPONENT" -o oldstable = "$COMPONENT" ] ; then
+    if [ stable = "$SUITE" -o oldstable = "$SUITE" ] ; then
       package_ver=`expr $package_ver - 1||true`
     fi
-    head -n 1 debian/changelog | sed "s/(\([^-]*\)-.*).*$/(\1$EXTRA_VERSION_UPSTREAM-$package_ver$EXTRA_VERSION_DEBIAN) $COMPONENT; urgency=low/" > debian/changelog.new
+    head -n 1 debian/changelog | sed 's/(\([^-]*\)-.*).*$/(\1'"$EXTRA_VERSION_UPSTREAM-$package_ver$EXTRA_VERSION_DEBIAN) $SUITE; urgency=low/" > debian/changelog.new
     echo "$CHANGE_MSG" >> debian/changelog.new
     cat debian/changelog >> debian/changelog.new
     mv debian/changelog.new debian/changelog
@@ -91,21 +91,22 @@ adjust_changelog() {
 ## BEGIN PROCESSING ##
 trap "echo \"make-source-packages failed\"" EXIT
 
-# Get the component specified by the user.
+# Get the suite specified by the user.
 if [ -n "$*" ] ; then
-  COMPONENTS=$*
+  SUITES=$*
 fi
 
-for COMPONENT in $COMPONENTS ; do
-# Check that the component is known.
-if expr "$COMPONENT" : '\('"`echo \"$VALID_COMPONENTS\"|sed 's/ /\\\\|/g'`"'\)$' >/dev/null
-then
-  echo "Making source packages for $COMPONENT"
-else
-  echo "Component \"$COMPONENT\" not known."
-  echo "Known components are: $VALID_COMPONENTS"
-  exit 1
-fi
+for SUITE in $SUITES ; do
+  # Check that the suite is known.
+  VALID_SUITES_RE='^\('`echo "$VALID_SUITES"|sed 's/ /\\\|/g'`'\)$'
+  if expr "$SUITE" : "$VALID_SUITES_RE" >/dev/null
+  then
+    echo "Making source packages for $SUITE"
+  else
+    echo "Component \"$SUITE\" not known."
+    echo "Known suites are: $VALID_SUITES"
+    exit 1
+  fi
 
 # Calculate the version which we're building.
 
@@ -147,21 +148,22 @@ DEBTAG_OMEGA="$DEBTAG_BASE`svn cat ${SVNROOT}/trunk/xapian-applications/omega/de
 
 # If we're building for anything other than the unstable distribution, we need
 # to add a bit to the debian version number, to avoid conflicts with the
-# package in unstable.  For Ubuntu we add ".99$COMPONENT" since it should sort
-# before any other modification.  For stable we decrement the change number
-# and append stable1.
-case $COMPONENT in
+# package in unstable.  For Ubuntu we add ".99$SUITE" since it should sort
+# before any other modification (and Ubuntu codenames are now allocated
+# alphabetically).  For stable and oldstable, we decrement the change number
+# and append stable1 or oldstable1 (and oldstable sorts before stable).
+case $SUITE in
 unstable)
   EXTRA_VERSION_DEBIAN=
   ;;
-stable)
-  EXTRA_VERSION_DEBIAN="${COMPONENT}1"
-  CHANGE_MSG="$CHANGE_MSG  * Backported to $COMPONENT distribution.
+oldstable|stable)
+  EXTRA_VERSION_DEBIAN="${SUITE}1"
+  CHANGE_MSG="$CHANGE_MSG  * Backported to $SUITE distribution.
 "
   ;;
 *)
-  EXTRA_VERSION_DEBIAN=".99$COMPONENT"
-  CHANGE_MSG="$CHANGE_MSG  * Backported to $COMPONENT distribution.
+  EXTRA_VERSION_DEBIAN=".99$SUITE"
+  CHANGE_MSG="$CHANGE_MSG  * Backported to $SUITE distribution.
 "
   ;;
 esac
@@ -189,20 +191,20 @@ fi
 
 # TARGETDIR is the location that all generated files will be stored in.
 if [ -z "$EXTRA_VERSION_UPSTREAM" ] ; then
-  TARGETDIR=dists/${COMPONENT}/main
+  TARGETDIR=dists/${SUITE}/main
 else
-  TARGETDIR=dists/${COMPONENT}/snapshot
+  TARGETDIR=dists/${SUITE}/snapshot
 fi
 SRCDIR=${TARGETDIR}/source
 mkdir -p "$PUBDIR/$SRCDIR"
 
-case $COMPONENT in
-  sarge) DIR=oldstable ;;
-  etch) DIR=stable ;;
-  sid) DIR=unstable ;;
-  *) DIR=$COMPONENT ;;
+case $SUITE in
+  oldstable) CODENAME=sarge ;;
+  stable) CODENAME=etch ;;
+  unstable) CODENAME=sid ;;
+  *) CODENAME=$SUITE ;;
 esac
-POOLDIR=pool/${VERSION}/${DIR}
+POOLDIR=pool/${VERSION}/${CODENAME}
 
 # Calculate location that tarballs should be found at
 TARBALL_CORE="${PUBDIR}/${POOLDIR}/source/xapian-core_${SNAP_VERSION}.orig.tar.gz"
@@ -268,8 +270,9 @@ cd build
     if [ -r debian/patch ]; then
       patch -p0 <debian/patch
     fi
+    echo "$CODENAME" >debian/codename
     # Generates control from control.in
-    debian/rules COMPONENT=$COMPONENT 
+    debian/rules CODENAME=$CODENAME 
     fakeroot dpkg-buildpackage ${BUILDPACKAGE_SRC_OPTS}
   cd ..
 
@@ -283,9 +286,9 @@ cd build
     if [ -r debian/patch ]; then
       patch -p0 <debian/patch
     fi
-    echo "$COMPONENT" >debian/component
+    echo "$CODENAME" >debian/codename
     # Generates control from control.in and control-{python,php}.in
-    debian/rules COMPONENT=$COMPONENT 
+    debian/rules CODENAME=$CODENAME 
     fakeroot dpkg-buildpackage ${BUILDPACKAGE_SRC_OPTS}
   cd ..
 
@@ -299,8 +302,9 @@ cd build
     if [ -r debian/patch ]; then
       patch -p0 <debian/patch
     fi
+    echo "$CODENAME" >debian/codename
     # Generates control from control.in
-    debian/rules COMPONENT=$COMPONENT 
+    debian/rules CODENAME=$CODENAME 
     fakeroot dpkg-buildpackage ${BUILDPACKAGE_SRC_OPTS}
   cd ..
 
@@ -315,7 +319,7 @@ mkdir -p "upload-sources/${POOLDIR}/source"
 mkdir -p "upload-sources/${POOLDIR}/binary"
 mv $src_files upload-sources/${POOLDIR}/source
 cat >upload-sources/$SRCDIR/Release <<EOF
-Archive: $COMPONENT
+Archive: $SUITE
 Component: main
 Origin: Xapian
 Label: Xapian
@@ -344,7 +348,7 @@ chmod -R g+w ${PUBDIR}/* || true
 
 # Source packages are now generated and uploaded.
 
-echo "Made Debian source packages for $COMPONENT successfully"
+echo "Made Debian source packages for $SUITE successfully"
 done
 
 trap EXIT

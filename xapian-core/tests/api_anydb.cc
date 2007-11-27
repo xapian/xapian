@@ -22,6 +22,9 @@
  */
 
 #include <config.h>
+
+#include "api_anydb.h"
+
 #include <algorithm>
 #include <string>
 
@@ -107,8 +110,7 @@ query(const string &t)
 // # Tests start here
 
 // tests that the backend doesn't return zero docids
-static bool test_zerodocid1()
-{
+DEFINE_TESTCASE(zerodocid1, backend) {
     // open the database (in this case a simple text file
     // we prepared earlier)
 
@@ -133,8 +135,7 @@ static bool test_zerodocid1()
 }
 
 // tests that an empty query returns no matches
-static bool test_emptyquery1()
-{
+DEFINE_TESTCASE(emptyquery1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
 
     enquire.set_query(Xapian::Query());
@@ -156,8 +157,7 @@ static bool test_emptyquery1()
 }
 
 // tests the document count for a simple query
-static bool test_simplequery1()
-{
+DEFINE_TESTCASE(simplequery1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("word"));
     Xapian::MSet mymset = enquire.get_mset(0, 10);
@@ -166,8 +166,7 @@ static bool test_simplequery1()
 }
 
 // tests for the right documents and weights returned with simple query
-static bool test_simplequery2()
-{
+DEFINE_TESTCASE(simplequery2, backend) {
     // open the database (in this case a simple text file
     // we prepared earlier)
     Xapian::Database db = get_database("apitest_simpledata");
@@ -192,8 +191,7 @@ static bool test_simplequery2()
 }
 
 // tests for the right document count for another simple query
-static bool test_simplequery3()
-{
+DEFINE_TESTCASE(simplequery3, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(query("this"));
     Xapian::MSet mymset = enquire.get_mset(0, 10);
@@ -206,8 +204,7 @@ static bool test_simplequery3()
 
 // tests for the right document count for a wildcard query
 // FIXME: move this to querytest (and just use an InMemory DB).
-static bool test_wildquery1()
-{
+DEFINE_TESTCASE(wildquery1, backend) {
     Xapian::QueryParser queryparser;
     unsigned flags = Xapian::QueryParser::FLAG_WILDCARD |
 		     Xapian::QueryParser::FLAG_LOVEHATE;
@@ -242,8 +239,7 @@ static bool test_wildquery1()
 }
 
 // tests a query across multiple databases
-static bool test_multidb1()
-{
+DEFINE_TESTCASE(multidb1, backend) {
     Xapian::Database mydb1(get_database("apitest_simpledata", "apitest_simpledata2"));
     Xapian::Enquire enquire1(mydb1);
 
@@ -268,8 +264,7 @@ static bool test_multidb1()
 
 // tests a query across multiple databases with terms only
 // in one of the two databases
-static bool test_multidb2()
-{
+DEFINE_TESTCASE(multidb2, backend && !multi) {
     Xapian::Database mydb1(get_database("apitest_simpledata",
 				  "apitest_simpledata2"));
     Xapian::Enquire enquire1(mydb1);
@@ -294,8 +289,7 @@ static bool test_multidb2()
 }
 
 // test that a multidb with 2 dbs query returns correct docids
-static bool test_multidb3()
-{
+DEFINE_TESTCASE(multidb3, backend && !multi) {
     Xapian::Database mydb2(get_database("apitest_simpledata"));
     mydb2.add_database(get_database("apitest_simpledata2"));
     Xapian::Enquire enquire(mydb2);
@@ -313,8 +307,7 @@ static bool test_multidb3()
 }
 
 // test that a multidb with 3 dbs query returns correct docids
-static bool test_multidb4()
-{
+DEFINE_TESTCASE(multidb4, backend && !multi) {
     Xapian::Database mydb2(get_database("apitest_simpledata"));
     mydb2.add_database(get_database("apitest_simpledata2"));
     mydb2.add_database(get_database("apitest_termorder"));
@@ -333,8 +326,7 @@ static bool test_multidb4()
 }
 
 // tests MultiPostList::skip_to().
-static bool test_multidb5()
-{
+DEFINE_TESTCASE(multidb5, backend && !multi) {
     Xapian::Database mydb2(get_database("apitest_simpledata"));
     mydb2.add_database(get_database("apitest_simpledata2"));
     Xapian::Enquire enquire(mydb2);
@@ -353,8 +345,7 @@ static bool test_multidb5()
 
 // tests that when specifying maxitems to get_mset, no more than
 // that are returned.
-static bool test_msetmaxitems1()
-{
+DEFINE_TESTCASE(msetmaxitems1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(query("this"));
     Xapian::MSet mymset = enquire.get_mset(0, 1);
@@ -369,8 +360,7 @@ static bool test_msetmaxitems1()
 // tests the returned weights are as expected (regression test for remote
 // backend which was using the average weight rather than the actual document
 // weight for computing weights - fixed in 1.0.0).
-static bool test_expandweights1()
-{
+DEFINE_TESTCASE(expandweights1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("this"));
 
@@ -381,19 +371,49 @@ static bool test_expandweights1()
     myrset.add_document(*i);
     myrset.add_document(*(++i));
 
-    Xapian::ESet myeset = enquire.get_eset(3, myrset);
-    TEST_EQUAL(myeset.size(), 3);
-    TEST_EQUAL_DOUBLE(myeset[0].get_weight(), 6.08904001099445);
-    TEST_EQUAL_DOUBLE(myeset[1].get_weight(), 6.08904001099445);
-    TEST_EQUAL_DOUBLE(myeset[2].get_weight(), 4.73383620844021);
+    Xapian::ESet eset = enquire.get_eset(3, myrset, enquire.USE_EXACT_TERMFREQ);
+    TEST_EQUAL(eset.size(), 3);
+    TEST_EQUAL_DOUBLE(eset[0].get_weight(), 6.08904001099445);
+    TEST_EQUAL_DOUBLE(eset[1].get_weight(), 6.08904001099445);
+    TEST_EQUAL_DOUBLE(eset[2].get_weight(), 4.73383620844021);
+
+    return true;
+}
+
+// Just like test_expandweights1 but without USE_EXACT_TERMFREQ.
+DEFINE_TESTCASE(expandweights2, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_query(Xapian::Query("this"));
+
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
+
+    Xapian::RSet myrset;
+    Xapian::MSetIterator i = mymset.begin();
+    myrset.add_document(*i);
+    myrset.add_document(*(++i));
+
+    Xapian::ESet eset = enquire.get_eset(3, myrset);
+    TEST_EQUAL(eset.size(), 3);
+    if (strcmp(get_dbtype(), "multi") != 0) {
+	// For a single database, the weights should be the same with or
+	// without USE_EXACT_TERMFREQ.
+	TEST_EQUAL_DOUBLE(eset[0].get_weight(), 6.08904001099445);
+	TEST_EQUAL_DOUBLE(eset[1].get_weight(), 6.08904001099445);
+	TEST_EQUAL_DOUBLE(eset[2].get_weight(), 4.73383620844021);
+    } else {
+	// For multiple databases, we expect that using USE_EXACT_TERMFREQ
+	// will result in different weights in some cases.
+	TEST_NOT_EQUAL_DOUBLE(eset[0].get_weight(), 6.08904001099445);
+	TEST_EQUAL_DOUBLE(eset[1].get_weight(), 6.08904001099445);
+	TEST_NOT_EQUAL_DOUBLE(eset[2].get_weight(), 4.73383620844021);
+    }
 
     return true;
 }
 
 // tests that when specifying maxitems to get_eset, no more than
 // that are returned.
-static bool test_expandmaxitems1()
-{
+DEFINE_TESTCASE(expandmaxitems1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("this"));
 
@@ -413,8 +433,7 @@ static bool test_expandmaxitems1()
 }
 
 // tests that a pure boolean query has all weights set to 0
-static bool test_boolquery1()
-{
+DEFINE_TESTCASE(boolquery1, backend) {
     Xapian::Query myboolquery(query("this"));
 
     // open the database (in this case a simple text file
@@ -435,8 +454,7 @@ static bool test_boolquery1()
 }
 
 // tests that get_mset() specifying "this" works as expected
-static bool test_msetfirst1()
-{
+DEFINE_TESTCASE(msetfirst1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(query("this"));
     Xapian::MSet mymset1 = enquire.get_mset(0, 6);
@@ -451,8 +469,7 @@ static bool test_msetfirst1()
 }
 
 // tests the converting-to-percent functions
-static bool test_topercent1()
-{
+DEFINE_TESTCASE(topercent1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(query("this"));
     Xapian::MSet mymset = enquire.get_mset(0, 20);
@@ -488,8 +505,7 @@ class myExpandFunctor : public Xapian::ExpandDecider {
 };
 
 // tests the expand decision functor
-static bool test_expandfunctor1()
-{
+DEFINE_TESTCASE(expandfunctor1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("this"));
 
@@ -550,8 +566,7 @@ static bool test_expandfunctor1()
 }
 
 // tests the percent cutoff option
-static bool test_pctcutoff1()
-{
+DEFINE_TESTCASE(pctcutoff1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(query(Xapian::Query::OP_OR,
 			    "this", "line", "paragraph", "rubbish"));
@@ -604,8 +619,7 @@ static bool test_pctcutoff1()
 }
 
 // tests the cutoff option
-static bool test_cutoff1()
-{
+DEFINE_TESTCASE(cutoff1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(query(Xapian::Query::OP_OR,
 			    "this", "line", "paragraph", "rubbish"));
@@ -658,8 +672,7 @@ static bool test_cutoff1()
 }
 
 // tests the allow query terms expand option
-static bool test_allowqterms1()
-{
+DEFINE_TESTCASE(allowqterms1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("this"));
 
@@ -687,8 +700,7 @@ static bool test_allowqterms1()
 }
 
 // tests that the MSet max_attained works
-static bool test_maxattain1()
-{
+DEFINE_TESTCASE(maxattain1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(query("this"));
     Xapian::MSet mymset = enquire.get_mset(0, 100);
@@ -704,8 +716,7 @@ static bool test_maxattain1()
 }
 
 // tests a reversed boolean query
-static bool test_reversebool1()
-{
+DEFINE_TESTCASE(reversebool1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("this"));
     enquire.set_weighting_scheme(Xapian::BoolWeight());
@@ -751,8 +762,7 @@ static bool test_reversebool1()
 }
 
 // tests a reversed boolean query, where the full mset isn't returned
-static bool test_reversebool2()
-{
+DEFINE_TESTCASE(reversebool2, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("this"));
     enquire.set_weighting_scheme(Xapian::BoolWeight());
@@ -770,7 +780,6 @@ static bool test_reversebool2()
 
     // mymset2 should be first msize items of mymset1
     TEST_EQUAL(msize, mymset2.size());
-
     {
 	Xapian::MSetIterator i = mymset1.begin();
 	Xapian::MSetIterator j = mymset2.begin();
@@ -799,8 +808,7 @@ static bool test_reversebool2()
 }
 
 // tests that get_matching_terms() returns the terms in the right order
-static bool test_getmterms1()
-{
+DEFINE_TESTCASE(getmterms1, backend) {
     list<string> answers_list;
     answers_list.push_back("one");
     answers_list.push_back("two");
@@ -831,8 +839,7 @@ static bool test_getmterms1()
 }
 
 // tests that get_matching_terms() returns the terms only once
-static bool test_getmterms2()
-{
+DEFINE_TESTCASE(getmterms2, backend) {
     list<string> answers_list;
     answers_list.push_back("one");
     answers_list.push_back("two");
@@ -862,8 +869,7 @@ static bool test_getmterms2()
 }
 
 // tests that the collapsing on termpos optimisation works
-static bool test_poscollapse1()
-{
+DEFINE_TESTCASE(poscollapse1, backend) {
     Xapian::Query myquery1(Xapian::Query::OP_OR,
 		     Xapian::Query("this", 1, 1),
 		     Xapian::Query("this", 1, 1));
@@ -887,8 +893,7 @@ static bool test_poscollapse1()
 }
 
 // test that running a query twice returns the same results
-static bool test_repeatquery1()
-{
+DEFINE_TESTCASE(repeatquery1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("this"));
 
@@ -902,8 +907,7 @@ static bool test_repeatquery1()
 }
 
 // test that prefetching documents works (at least, gives same results)
-static bool test_fetchdocs1()
-{
+DEFINE_TESTCASE(fetchdocs1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("this"));
 
@@ -935,8 +939,7 @@ static bool test_fetchdocs1()
 }
 
 // test that searching for a term not in the database fails nicely
-static bool test_absentterm1()
-{
+DEFINE_TESTCASE(absentterm1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_weighting_scheme(Xapian::BoolWeight());
     enquire.set_query(Xapian::Query("frink"));
@@ -948,8 +951,7 @@ static bool test_absentterm1()
 }
 
 // as absentterm1, but setting query from a vector of terms
-static bool test_absentterm2()
-{
+DEFINE_TESTCASE(absentterm2, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     vector<string> terms;
     terms.push_back("frink");
@@ -964,8 +966,7 @@ static bool test_absentterm2()
 }
 
 // test that rsets do sensible things
-static bool test_rset1()
-{
+DEFINE_TESTCASE(rset1, backend) {
     Xapian::Database mydb(get_database("apitest_rset"));
     Xapian::Enquire enquire(mydb);
     Xapian::Query myquery = query(Xapian::Query::OP_OR, "giraffe", "tiger");
@@ -987,8 +988,7 @@ static bool test_rset1()
 }
 
 // test that rsets do more sensible things
-static bool test_rset2()
-{
+DEFINE_TESTCASE(rset2, backend) {
     Xapian::Database mydb(get_database("apitest_rset"));
     Xapian::Enquire enquire(mydb);
     Xapian::Query myquery = query(Xapian::Query::OP_OR, "cuddly", "people");
@@ -1008,8 +1008,7 @@ static bool test_rset2()
 }
 
 // test that rsets behave correctly with multiDBs
-static bool test_rsetmultidb1()
-{
+DEFINE_TESTCASE(rsetmultidb1, backend && !multi) {
     Xapian::Database mydb1(get_database("apitest_rset", "apitest_simpledata2"));
     Xapian::Database mydb2(get_database("apitest_rset"));
     mydb2.add_database(get_database("apitest_simpledata2"));
@@ -1046,8 +1045,8 @@ static bool test_rsetmultidb1()
 }
 
 // regression tests - used to cause assertion in stats.h to fail
-static bool test_rsetmultidb3()
-{
+// Doesn't actually fail for multi but it doesn't make sense to run there.
+DEFINE_TESTCASE(rsetmultidb3, backend && !multi) {
     Xapian::Enquire enquire(get_database("apitest_simpledata2"));
     enquire.set_query(query(Xapian::Query::OP_OR, "cuddly", "people"));
     Xapian::MSet mset = enquire.get_mset(0, 10); // used to fail assertion
@@ -1055,8 +1054,11 @@ static bool test_rsetmultidb3()
 }
 
 /// Simple test of the elite set operator.
-static bool test_eliteset1()
-{
+DEFINE_TESTCASE(eliteset1, backend) {
+    // FIXME: OP_ELITE_SET erroneously picks the best N terms separately in
+    // each sub-database!
+    SKIP_TEST_FOR_BACKEND("multi");
+
     Xapian::Database mydb(get_database("apitest_simpledata"));
     Xapian::Enquire enquire(mydb);
 
@@ -1077,8 +1079,11 @@ static bool test_eliteset1()
 
 /// Test that the elite set operator works if the set contains
 /// sub-expressions (regression test)
-static bool test_eliteset2()
-{
+DEFINE_TESTCASE(eliteset2, backend) {
+    // FIXME: OP_ELITE_SET erroneously picks the best N terms separately in
+    // each sub-database!
+    SKIP_TEST_FOR_BACKEND("multi");
+
     Xapian::Database mydb(get_database("apitest_simpledata"));
     Xapian::Enquire enquire(mydb);
 
@@ -1106,8 +1111,7 @@ static bool test_eliteset2()
 
 /// Test that elite set doesn't affect query results if we have fewer
 /// terms than the threshold
-static bool test_eliteset3()
-{
+DEFINE_TESTCASE(eliteset3, backend) {
     Xapian::Database mydb1(get_database("apitest_simpledata"));
     Xapian::Enquire enquire1(mydb1);
 
@@ -1154,8 +1158,11 @@ static bool test_eliteset3()
 }
 
 /// Test that elite set doesn't pick terms with 0 frequency
-static bool test_eliteset4()
-{
+DEFINE_TESTCASE(eliteset4, backend) {
+    // FIXME: OP_ELITE_SET erroneously picks the best N terms separately in
+    // each sub-database!
+    SKIP_TEST_FOR_BACKEND("multi");
+
     Xapian::Database mydb1(get_database("apitest_simpledata"));
     Xapian::Enquire enquire1(mydb1);
 
@@ -1180,8 +1187,7 @@ static bool test_eliteset4()
 }
 
 /// Test that the termfreq returned by termlists is correct.
-static bool test_termlisttermfreq1()
-{
+DEFINE_TESTCASE(termlisttermfreq1, backend) {
     Xapian::Database mydb(get_database("apitest_simpledata"));
     Xapian::Enquire enquire(mydb);
     Xapian::Stem stemmer("english");
@@ -1225,8 +1231,7 @@ static bool test_termlisttermfreq1()
 }
 
 /// Test the termfrequency and termweight info returned for query terms
-static bool test_qterminfo1()
-{
+DEFINE_TESTCASE(qterminfo1, backend) {
     Xapian::Database mydb1(get_database("apitest_simpledata", "apitest_simpledata2"));
     Xapian::Enquire enquire1(mydb1);
 
@@ -1282,8 +1287,7 @@ static bool test_qterminfo1()
 }
 
 /// Regression test for bug #37.
-static bool test_qterminfo2()
-{
+DEFINE_TESTCASE(qterminfo2, backend) {
     Xapian::Database db(get_database("apitest_simpledata"));
     Xapian::Enquire enquire(db);
 
@@ -1308,8 +1312,7 @@ static bool test_qterminfo2()
 
 // tests that when specifying that no items are to be returned, those
 // statistics which should be the same are.
-static bool test_msetzeroitems1()
-{
+DEFINE_TESTCASE(msetzeroitems1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(query("this"));
     Xapian::MSet mymset1 = enquire.get_mset(0, 0);
@@ -1322,8 +1325,7 @@ static bool test_msetzeroitems1()
 }
 
 // test that the matches_* of a simple query are as expected
-static bool test_matches1()
-{
+DEFINE_TESTCASE(matches1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     Xapian::Query myquery;
     Xapian::MSet mymset;
@@ -1359,7 +1361,11 @@ static bool test_matches1()
     myquery = query(Xapian::Query::OP_AND, "simple", "word");
     enquire.set_query(myquery);
     mymset = enquire.get_mset(0, 0);
-    TEST_EQUAL(mymset.get_matches_lower_bound(), 0);
+    // For a single database, this is true, but not for "multi" (since there
+    // one sub-database has 3 documents and simple and word both have termfreq
+    // of 2, so the matcher can tell at least one document must match!)
+    // TEST_EQUAL(mymset.get_matches_lower_bound(), 0);
+    TEST(mymset.get_matches_lower_bound() <= mymset.get_matches_estimated());
     TEST_EQUAL(mymset.get_matches_estimated(), 1);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 2);
 
@@ -1399,8 +1405,7 @@ static bool test_matches1()
 }
 
 // tests that wqf affects the document weights
-static bool test_wqf1()
-{
+DEFINE_TESTCASE(wqf1, backend) {
     // Both queries have length 2; in q1 word has wqf=2, in q2 word has wqf=1
     Xapian::Query q1("word", 2);
     Xapian::Query q2("word");
@@ -1415,8 +1420,7 @@ static bool test_wqf1()
 }
 
 // tests that query length affects the document weights
-static bool test_qlen1()
-{
+DEFINE_TESTCASE(qlen1, backend) {
     Xapian::Query q1("word");
     Xapian::Query q2("word");
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
@@ -1431,8 +1435,7 @@ static bool test_qlen1()
 }
 
 // tests that opening a non-existent termlist throws the correct exception
-static bool test_termlist1()
-{
+DEFINE_TESTCASE(termlist1, backend) {
     Xapian::Database db(get_database("apitest_onedoc"));
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
 		   Xapian::TermIterator t = db.termlist_begin(0));
@@ -1447,8 +1450,7 @@ static bool test_termlist1()
 }
 
 // tests that a Xapian::TermIterator works as an STL iterator
-static bool test_termlist2()
-{
+DEFINE_TESTCASE(termlist2, backend) {
     Xapian::Database db(get_database("apitest_onedoc"));
     Xapian::TermIterator t = db.termlist_begin(1);
     Xapian::TermIterator tend = db.termlist_end(1);
@@ -1483,8 +1485,7 @@ test_termlist3_helper()
 }
 
 // tests that a Xapian::TermIterator still works when the DB is deleted
-static bool test_termlist3()
-{
+DEFINE_TESTCASE(termlist3, backend) {
     Xapian::TermIterator u = test_termlist3_helper();
     Xapian::Database db(get_database("apitest_onedoc"));
     Xapian::TermIterator t = db.termlist_begin(1);
@@ -1499,8 +1500,7 @@ static bool test_termlist3()
 }
 
 // tests skip_to
-static bool test_termlist4()
-{
+DEFINE_TESTCASE(termlist4, backend) {
     Xapian::Database db(get_database("apitest_onedoc"));
     Xapian::TermIterator i = db.termlist_begin(1);
     i.skip_to("");
@@ -1509,8 +1509,7 @@ static bool test_termlist4()
 }
 
 // tests punctuation is OK in terms (particularly in remote queries)
-static bool test_puncterms1()
-{
+DEFINE_TESTCASE(puncterms1, backend) {
     Xapian::Database db(get_database("apitest_punc"));
     Xapian::Enquire enquire(db);
 
@@ -1530,8 +1529,7 @@ static bool test_puncterms1()
 }
 
 // test that searching for a term with a space or backslash in it works
-static bool test_spaceterms1()
-{
+DEFINE_TESTCASE(spaceterms1, backend) {
     Xapian::Enquire enquire(get_database("apitest_space"));
     Xapian::MSet mymset;
     Xapian::doccount count;
@@ -1577,8 +1575,7 @@ static bool test_spaceterms1()
 }
 
 // test that XOR queries work
-static bool test_xor1()
-{
+DEFINE_TESTCASE(xor1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("this"));
     Xapian::Stem stemmer("english");
@@ -1599,8 +1596,7 @@ static bool test_xor1()
 }
 
 // test Xapian::Database::get_document()
-static bool test_getdoc1()
-{
+DEFINE_TESTCASE(getdoc1, backend) {
     Xapian::Database db(get_database("apitest_onedoc"));
     Xapian::Document doc(db.get_document(1));
     TEST_EXCEPTION(Xapian::InvalidArgumentError, db.get_document(0));
@@ -1618,8 +1614,7 @@ static bool test_getdoc1()
 }
 
 // test whether operators with no elements work as a null query
-static bool test_emptyop1()
-{
+DEFINE_TESTCASE(emptyop1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     vector<Xapian::Query> nullvec;
 
@@ -1634,8 +1629,7 @@ static bool test_emptyop1()
 }
 
 // Regression test for check_at_least SEGV when there are no matches.
-static bool test_checkatleast1()
-{
+DEFINE_TESTCASE(checkatleast1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("thom"));
     Xapian::MSet mymset = enquire.get_mset(0, 10, 11);
@@ -1646,8 +1640,7 @@ static bool test_checkatleast1()
 
 // Regression test - if check_at_least was set we returned (check_at_least - 1)
 // results, rather than the requested msize.  Fixed in 1.0.2.
-static bool test_checkatleast2()
-{
+DEFINE_TESTCASE(checkatleast2, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("paragraph"));
 
@@ -1663,8 +1656,7 @@ static bool test_checkatleast2()
 }
 
 // Feature tests - check_at_least with various sorting options.
-static bool test_checkatleast3()
-{
+DEFINE_TESTCASE(checkatleast3, backend) {
     Xapian::Enquire enquire(get_database("etext"));
     enquire.set_query(Xapian::Query("prussian")); // 60 matches.
 
@@ -1719,8 +1711,7 @@ static bool test_checkatleast3()
 }
 
 // tests all document postlists
-static bool test_allpostlist1()
-{
+DEFINE_TESTCASE(allpostlist1, backend) {
     Xapian::Database db(get_database("apitest_manydocs"));
     Xapian::PostingIterator i = db.postlist_begin("");
     unsigned int j = 1;
@@ -1757,8 +1748,7 @@ static void test_emptyterm1_helper(Xapian::Database & db)
 }
 
 // tests results of passing an empty term to various methods
-static bool test_emptyterm1()
-{
+DEFINE_TESTCASE(emptyterm1, backend) {
     Xapian::Database db(get_database("apitest_manydocs"));
     TEST_EQUAL(db.get_doccount(), 512);
     test_emptyterm1_helper(db);
@@ -1775,7 +1765,7 @@ static bool test_emptyterm1()
 }
 
 // Feature test for Query::OP_VALUE_RANGE.
-static bool test_valuerange1() {
+DEFINE_TESTCASE(valuerange1, backend) {
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::Enquire enq(db);
     static const char * vals[] = {
@@ -1810,7 +1800,7 @@ static bool test_valuerange1() {
 }
 
 // Feature test for Query::OP_SCALE_WEIGHT.
-static bool test_scaleweight1() {
+DEFINE_TESTCASE(scaleweight1, backend) {
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::Enquire enq(db);
     Xapian::QueryParser qp;
@@ -1880,7 +1870,7 @@ static bool test_scaleweight1() {
 
 // Test Query::OP_SCALE_WEIGHT being used to multiply some of the weights of a
 // search by zero.
-static bool test_scaleweight2() {
+DEFINE_TESTCASE(scaleweight2, backend) {
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::Enquire enq(db);
     Xapian::MSetIterator i;
@@ -1932,73 +1922,32 @@ static bool test_scaleweight2() {
     return true;
 }
 
-// #######################################################################
-// # End of test cases: now we list the tests to run.
+// Regression test for bug fixed in 1.0.5 - this test would failed under
+// valgrind because it used an uninitialised value.
+DEFINE_TESTCASE(bm25weight1, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_weighting_scheme(Xapian::BM25Weight(1, 25, 1, 0.01, 0.5));
+    enquire.set_query(Xapian::Query("word") );
 
-/// The tests which work with any backend
-test_desc anydb_tests[] = {
-    {"zerodocid1",	   test_zerodocid1},
-    {"emptyquery1",	   test_emptyquery1},
-    {"simplequery1",       test_simplequery1},
-    {"simplequery2",       test_simplequery2},
-    {"simplequery3",       test_simplequery3},
-    {"wildquery1",	   test_wildquery1},
-    {"multidb1",           test_multidb1},
-    {"multidb2",           test_multidb2},
-    {"multidb3",           test_multidb3},
-    {"multidb4",           test_multidb4},
-    {"multidb5",           test_multidb5},
-    {"msetmaxitems1",      test_msetmaxitems1},
-    {"expandweights1",	   test_expandweights1},
-    {"expandmaxitems1",    test_expandmaxitems1},
-    {"boolquery1",         test_boolquery1},
-    {"msetfirst1",         test_msetfirst1},
-    {"topercent1",	   test_topercent1},
-    {"expandfunctor1",	   test_expandfunctor1},
-    {"pctcutoff1",	   test_pctcutoff1},
-    {"cutoff1",		   test_cutoff1},
-    {"allowqterms1",       test_allowqterms1},
-    {"maxattain1",         test_maxattain1},
-    {"reversebool1",	   test_reversebool1},
-    {"reversebool2",	   test_reversebool2},
-    {"getmterms1",	   test_getmterms1},
-    {"getmterms2",	   test_getmterms2},
-    {"poscollapse1",	   test_poscollapse1},
-    {"repeatquery1",	   test_repeatquery1},
-    {"fetchdocs1",	   test_fetchdocs1},
-    {"absentterm1",	   test_absentterm1},
-    {"absentterm2",	   test_absentterm2},
-    {"rset1",              test_rset1},
-    {"rset2",              test_rset2},
-    {"rsetmultidb1",       test_rsetmultidb1},
-    {"rsetmultidb3",       test_rsetmultidb3},
-    {"eliteset1",          test_eliteset1},
-    {"eliteset2",          test_eliteset2},
-    {"eliteset3",          test_eliteset3},
-    {"eliteset4",          test_eliteset4},
-    {"termlisttermfreq1",  test_termlisttermfreq1},
-    {"qterminfo1",	   test_qterminfo1},
-    {"qterminfo2",	   test_qterminfo2},
-    {"msetzeroitems1",     test_msetzeroitems1},
-    {"matches1",	   test_matches1},
-    {"wqf1",		   test_wqf1},
-    {"qlen1",		   test_qlen1},
-    {"termlist1",	   test_termlist1},
-    {"termlist2",	   test_termlist2},
-    {"termlist3",	   test_termlist3},
-    {"termlist4",	   test_termlist4},
-    {"puncterms1",	   test_puncterms1},
-    {"spaceterms1",	   test_spaceterms1},
-    {"xor1",		   test_xor1},
-    {"getdoc1",		   test_getdoc1},
-    {"emptyop1",	   test_emptyop1},
-    {"checkatleast1",	   test_checkatleast1},
-    {"checkatleast2",	   test_checkatleast2},
-    {"checkatleast3",	   test_checkatleast3},
-    {"allpostlist1",	   test_allpostlist1},
-    {"emptyterm1",	   test_emptyterm1},
-    {"valuerange1",	   test_valuerange1},
-    {"scaleweight1",	   test_scaleweight1},
-    {"scaleweight2",	   test_scaleweight2},
-    {0, 0}
-};
+    Xapian::MSet mset = enquire.get_mset(0, 25);
+
+    return true;
+}
+
+// Feature test for TradWeight.
+DEFINE_TESTCASE(tradweight1, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_weighting_scheme(Xapian::TradWeight());
+    enquire.set_query(Xapian::Query("word") );
+
+    Xapian::MSet mset = enquire.get_mset(0, 25);
+
+    enquire.set_weighting_scheme(Xapian::TradWeight(0));
+    enquire.set_query(Xapian::Query("word") );
+
+    mset = enquire.get_mset(0, 25);
+    // FIXME: should check that TradWeight(0) means wdf and doc length really
+    // don't affect the weights as stated in the documentation.
+
+    return true;
+}

@@ -8,7 +8,7 @@ dnl 2.59 was released the same day as 2.58 to fix a problem
 AC_PREREQ(2.59)
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT(xapian-core, 1.0.3)dnl FIXME: bugreport addr as third argument
+AC_INIT(xapian-core, 1.0.4)dnl FIXME: bugreport addr as third argument
 dnl Extract from the libtool info manual:
 dnl
 dnl Here are a set of rules to help you update your library version information:
@@ -66,7 +66,8 @@ dnl 14:0:0 1.0.0 Numerous API changes
 dnl 15:0:0 1.0.1 Error::error_string changed type
 dnl 16:0:1 1.0.2 New QueryParser flags, etc
 dnl 17:0:2 1.0.3 Database::get_metadata(), etc
-LIBRARY_VERSION_INFO=17:0:2
+dnl 18:0:3 1.0.4 New Query ctor for OP_SCALE_WEIGHT
+LIBRARY_VERSION_INFO=18:0:3
 AC_SUBST(LIBRARY_VERSION_INFO)
 
 dnl Check the build directory doesn't contain a space, so we die early with
@@ -377,6 +378,15 @@ AC_TRY_LINK([#include <math.h>
     ])
 ])
 
+dnl See if <typeinfo> can be used in the testsuite - for GCC at least,
+dnl compilation fails if -fno-rtti is specified.
+AC_MSG_CHECKING([if RTTI is supported])
+AC_TRY_COMPILE([#include <typeinfo>],
+    [int i; const char * m = typeid(i).name();],
+    AC_MSG_RESULT(yes)
+    AC_DEFINE(USE_RTTI, 1, [Define if the testsuite should use RTTI]),
+    AC_MSG_RESULT(no))
+
 dnl Check for time functions.
 AC_CHECK_FUNCS(gettimeofday ftime)
 
@@ -461,6 +471,11 @@ if test x"$enable_documentation" = xyes ; then
   dnl Also look for rst2html.py, which archlinux reportedly installs it as.
   AC_PATH_PROGS(RST2HTML, [rst2html rst2html.py], [])
   test -z "$RST2HTML" && AC_MSG_ERROR([rst2html is required to build documentation])
+
+  dnl Check for pngcrush, which we optionally use to reduce the size of the
+  dnl PNG files which doxygen generates.  We can get by without it, so don't
+  dnl fail here if it's not found.
+  AC_PATH_PROGS(PNGCRUSH, [pngcrush], [])
 fi
 
 dnl Check whether we need -ldl for dlsym() etc.

@@ -20,10 +20,34 @@
 #ifndef XAPIAN_HGUARD_INDEX_UTILS_H
 #define XAPIAN_HGUARD_INDEX_UTILS_H
 
-#include <iosfwd>
+#include <fstream>
+#include <string>
+#include <vector>
+
 #include <xapian.h>
 
-Xapian::Document document_from_stream(std::istream &from);
 std::string munge_term(const std::string &term);
+
+class FileIndexer {
+    std::string datadir;
+    std::vector<std::string>::const_iterator file, end;
+    std::ifstream input;
+
+    void next_file();
+
+  public:
+    FileIndexer(const std::string & datadir_,
+		const std::vector<std::string> & files)
+	: datadir(datadir_), file(files.begin()), end(files.end())
+    {
+	next_file();
+    }
+
+    operator bool() {
+	return !(file == end && (!input.is_open() || input.eof()));
+    }
+
+    Xapian::Document next();
+};
 
 #endif /* XAPIAN_HGUARD_INDEX_UTILS_H */

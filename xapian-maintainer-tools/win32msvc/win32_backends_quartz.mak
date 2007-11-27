@@ -12,10 +12,10 @@
 OUTDIR=..\..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 INTDIR=.\
 
-ALL : HEADERS "$(OUTDIR)\libquartz.lib" "$(OUTDIR)\libbtreecheck.lib" 
+ALL : HEADERS "$(OUTDIR)\libquartz.lib" "$(OUTDIR)\libquartzbtreecheck.lib" 
 
 
-LIBBTREECHECK_OBJS= \
+LIBQUARTZBTREECHECK_OBJS= \
                 $(INTDIR)\btreecheck.obj
 
 LIBQUARTZ_OBJS= \
@@ -28,7 +28,7 @@ LIBQUARTZ_OBJS= \
                 $(INTDIR)\quartz_log.obj \
                 $(INTDIR)\quartz_document.obj \
                 $(INTDIR)\quartz_alltermslist.obj \
-		$(INTDIR)\quartz_alldocspostlist.obj \
+                $(INTDIR)\quartz_alldocspostlist.obj \
                 $(INTDIR)\quartz_metafile.obj \
                 $(INTDIR)\btree.obj \
                 $(INTDIR)\bcursor.obj \
@@ -44,21 +44,21 @@ SRCS= \
                 $(INTDIR)\quartz_log.cc \
                 $(INTDIR)\quartz_document.cc \
                 $(INTDIR)\quartz_alltermslist.cc \
-		$(INTDIR)\quartz_alldocspostlist.cc \
+                $(INTDIR)\quartz_alldocspostlist.cc \
                 $(INTDIR)\quartz_metafile.cc \
                 $(INTDIR)\btree.cc \
                 $(INTDIR)\bcursor.cc \
                 $(INTDIR)\btree_base.cc \
-		$(INTDIR)\btreecheck.cc \
-		
+                $(INTDIR)\btreecheck.cc 
+
 CLEAN :
-	-@erase "$(OUTDIR)\libquartz.lib"
-	-@erase "$(OUTDIR)\libbtreecheck.lib"
-	-@erase "*.pch"
-        -@erase "$(INTDIR)\getopt.obj"
-	-@erase "$(INTDIR)\*.pdb"
-        -@erase $(LIBBTREECHECK_OBJS)
-	-@erase $(LIBQUARTZ_OBJS)
+    -@erase "$(OUTDIR)\libquartz.lib"
+    -@erase "$(OUTDIR)\libquartzbtreecheck.lib"
+    -@erase "*.pch"
+    -@erase "$(INTDIR)\getopt.obj"
+    -@erase "$(INTDIR)\*.pdb"
+    -@erase $(LIBQUARTZBTREECHECK_OBJS)
+    -@erase $(LIBQUARTZ_OBJS)
 
 
 "$(OUTDIR)" :
@@ -77,9 +77,9 @@ CPP_SBRS=.
 <<
 
 
-"$(OUTDIR)\LIBBTREECHECK.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIBBTREECHECK_OBJS)
+"$(OUTDIR)\LIBQUARTZBTREECHECK.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIBQUARTZBTREECHECK_OBJS)
     $(LIB32) @<<
-  $(LIB32_FLAGS) /out:"$(OUTDIR)\libbtreecheck.lib" $(DEF_FLAGS) $(LIBBTREECHECK_OBJS)
+  $(LIB32_FLAGS) /out:"$(OUTDIR)\libquartzbtreecheck.lib" $(DEF_FLAGS) $(LIBQUARTZBTREECHECK_OBJS)
 <<
 
 # inference rules, showing how to create one type of file from another with the same root name
@@ -95,5 +95,5 @@ CPP_SBRS=.
 
 # Calculate any header dependencies and automatically insert them into this file
 HEADERS :
-            ..\..\win32\$(DEPEND) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)"
+            if exist ..\..\win32\$(DEPEND) ..\..\win32\$(DEPEND) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)"
 # DO NOT DELETE THIS LINE -- make depend depends on it.

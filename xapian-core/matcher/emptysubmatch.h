@@ -35,11 +35,13 @@ class EmptySubMatch : public SubMatch {
     EmptySubMatch() {}
 
     /// Fetch and collate statistics.
-    bool prepare_match(bool nowait);
+    bool prepare_match(bool nowait, Stats & total_stats);
 
     /// Start the match.
-    void start_match(Xapian::doccount maxitems,
-		     Xapian::doccount check_at_least);
+    void start_match(Xapian::doccount first,
+		     Xapian::doccount maxitems,
+		     Xapian::doccount check_at_least,
+		     const Stats & total_stats);
 
     /// Get PostList and term info.
     PostList * get_postlist_and_term_info(MultiMatch *matcher,

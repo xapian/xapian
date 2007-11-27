@@ -61,8 +61,8 @@ CPP_SBRS=.
 <<
 
 "$(INTDIR)\lemon.obj" : ".\lemon.c"
-    $(CPP) ".\lemon.c" @<<
-  $(CPP_PROJ_LEMON) $**
+    $(CPP) @<<
+  $(CPP_PROJ_LEMON) $** ".\lemon.c"
 <<
 
 "$(INTDIR)\queryparser_internal.cc" : ".\queryparser.lemony" 
@@ -81,5 +81,5 @@ CPP_SBRS=.
 
 # Calculate any header dependencies and automatically insert them into this file
 HEADERS :
-            ..\win32\$(DEPEND) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)"
+            if exist ..\win32\$(DEPEND) ..\win32\$(DEPEND) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)"
 # DO NOT DELETE THIS LINE -- make depend depends on it.

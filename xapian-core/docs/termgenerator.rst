@@ -18,14 +18,14 @@ Stemming
 
 The most obvious difference is the handling of stemmed forms.
 
-Previously all terms were indexed stemmed without a prefix, and capitalised words were
+Previously all words were indexed stemmed without a prefix, and capitalised words were
 indexed unstemmed (but lower cased) with an 'R' prefix.  The rationale for doing this was
 that people want to be able to search for exact proper nouns (e.g. the English stemmer
 conflates ``Tony`` and ``Toni``).  But of course this also indexes words at the start
 of sentences, words in titles, and in German all nouns are capitalised so will be indexed.
 Both the normal and R-prefixed terms were indexed with positional information.
 
-Now we index all terms lowercased with positional information, and also stemmed with a
+Now we index all words lowercased with positional information, and also stemmed with a
 'Z' prefix (unless they start with a digit), but without positional information.  By default
 a Xapian::Stopper is used to avoid indexed stemmed forms of stopwords (tests show this shaves
 around 1% off the database size).

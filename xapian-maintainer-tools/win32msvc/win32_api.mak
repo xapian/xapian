@@ -16,49 +16,50 @@ INTDIR=.\
 ALL : "$(OUTDIR)\libapi.lib" 
 
 OBJS= \
-             $(INTDIR)\error.obj \
-             $(INTDIR)\errorhandler.obj \
-             $(INTDIR)\expanddecider.obj \
-             $(INTDIR)\leafpostlist.obj \
-             $(INTDIR)\omenquire.obj  \
-             $(INTDIR)\omquery.obj  \
-             $(INTDIR)\omqueryinternal.obj  \
-             $(INTDIR)\omdatabase.obj  \
-             $(INTDIR)\omdocument.obj  \
-             $(INTDIR)\ompostlistiterator.obj  \
-             $(INTDIR)\ompositionlistiterator.obj  \
-             $(INTDIR)\omtermlistiterator.obj  \
-             $(INTDIR)\omvalueiterator.obj \
-             $(INTDIR)\postlist.obj \
-             $(INTDIR)\termlist.obj \
-             $(INTDIR)\valuerangeproc.obj \
-	     $(INTDIR)\version.obj \
-	     $(INTDIR)\editdistance.obj \
-	     $(INTDIR)\valuerangeproccompat.obj \
-	     $(INTDIR)\sortable-serialise.obj \
-	     $(INTDIR)\matchspy.obj 
+    $(INTDIR)/editdistance.obj\
+    $(INTDIR)/error.obj\
+    $(INTDIR)/errorhandler.obj\
+    $(INTDIR)/expanddecider.obj\
+    $(INTDIR)/leafpostlist.obj\
+    $(INTDIR)/omdatabase.obj\
+    $(INTDIR)/omdocument.obj\
+    $(INTDIR)/omenquire.obj\
+    $(INTDIR)/ompositionlistiterator.obj\
+    $(INTDIR)/ompostlistiterator.obj\
+    $(INTDIR)/omquery.obj\
+    $(INTDIR)/omqueryinternal.obj\
+    $(INTDIR)/omtermlistiterator.obj\
+    $(INTDIR)/omvalueiterator.obj\
+    $(INTDIR)/postlist.obj\
+    $(INTDIR)/sortable-serialise.obj\
+    $(INTDIR)/sorter.obj\
+    $(INTDIR)/termlist.obj\
+    $(INTDIR)/valuerangeproc.obj\
+    $(INTDIR)/valuerangeproccompat.obj\
+    $(INTDIR)/version.obj
+    
 SRCS= \
-             $(INTDIR)\error.cc \
-             $(INTDIR)\errorhandler.cc \
-             $(INTDIR)\expanddecider.cc \
-             $(INTDIR)\leafpostlist.cc \
-             $(INTDIR)\omenquire.cc  \
-             $(INTDIR)\omquery.cc  \
-             $(INTDIR)\omqueryinternal.cc  \
-             $(INTDIR)\omdatabase.cc  \
-             $(INTDIR)\omdocument.cc  \
-             $(INTDIR)\ompostlistiterator.cc  \
-             $(INTDIR)\ompositionlistiterator.cc  \
-             $(INTDIR)\omtermlistiterator.cc  \
-             $(INTDIR)\omvalueiterator.cc \
-             $(INTDIR)\postlist.cc \
-             $(INTDIR)\termlist.cc \
-             $(INTDIR)\valuerangeproc.cc \
-	     $(INTDIR)\version.cc \
-	     $(INTDIR)\editdistance.cc  \
-	     $(INTDIR)\valuerangeproccompat.cc \
-	     $(INTDIR)\sortable-serialise.cc \
-	     $(INTDIR)\matchspy.cc
+    $(INTDIR)/editdistance.cc\
+    $(INTDIR)/error.cc\
+    $(INTDIR)/errorhandler.cc\
+    $(INTDIR)/expanddecider.cc\
+    $(INTDIR)/leafpostlist.cc\
+    $(INTDIR)/omdatabase.cc\
+    $(INTDIR)/omdocument.cc\
+    $(INTDIR)/omenquire.cc\
+    $(INTDIR)/ompositionlistiterator.cc\
+    $(INTDIR)/ompostlistiterator.cc\
+    $(INTDIR)/omquery.cc\
+    $(INTDIR)/omqueryinternal.cc\
+    $(INTDIR)/omtermlistiterator.cc\
+    $(INTDIR)/omvalueiterator.cc\
+    $(INTDIR)/postlist.cc\
+    $(INTDIR)/sortable-serialise.cc\
+    $(INTDIR)/sorter.cc\
+    $(INTDIR)/termlist.cc\
+    $(INTDIR)/valuerangeproc.cc\
+    $(INTDIR)/valuerangeproccompat.cc\
+    $(INTDIR)/version.cc
 
 	     
 CLEAN :
@@ -94,5 +95,5 @@ CPP_SBRS=.
 
 # Calculate any header dependencies and automatically insert them into this file
 HEADERS :
-            ..\win32\$(DEPEND) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)"
+            if exist ..\win32\$(DEPEND) ..\win32\$(DEPEND) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)"
 # DO NOT DELETE THIS LINE -- make depend depends on it.

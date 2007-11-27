@@ -1,7 +1,4 @@
-Updated up to:
-Fri Oct 26 04:57:31 BST 2007  Olly Betts <olly@survex.com>
-
-Matchspy stuff to be held for 1.0.4:
+Changes on MatchSpy branch:
 
 * Matchspy:
 
@@ -20,8 +17,10 @@ Matchspy stuff to be held for 1.0.4:
 * Add document on categorisation, which describes how to use the new
   pre-defined matchspy classes for categorisation searches.
 
+-----
 
-Xapian-core 1.0.4 (2007-10-??):
+
+Xapian-core 1.0.4 (2007-10-30):
 
 API:
 
@@ -59,8 +58,17 @@ API:
 
   + Fix handling of `site:example.org -term'.
 
+  + Fix problem with spelling correction of hyphenated terms (or other terms
+    joined with phrase generators): the position of the start of the term
+    wasn't being reset for the second term in the generated phrase, resulting
+    in out of bounds errors when substituting the new value in the corrected
+    query string.
+
   + The parser stack is now a std::vector<> rather than a fixed size, so it
     will typically use less memory, and can't hit the fixed limit.
+
+  + Fix handling of STEM_ALL and update the documentation comment for
+    QueryParser::set_stemming_strategy() to explain how it works clearly.
 
 * PostingIterator: positionlist_begin() and get_wdf() should now always
   throw InvalidOperationError where they aren't meaningful (before in some
@@ -76,15 +84,19 @@ testsuite:
 * Remove quartztest's test_postlist1 and test_postlist2, replacing the coverage
   lost by extending and adding tests which work with other backends as well.
 
+* If a test throws a subclass of std::exception, the test harness now
+  reports the class name and the extra information returned by std::exception's
+  what() method.
+
 matcher:
 
 * Several performance improvements have been made, mainly to the handling
   of OP_AND and related operations (OP_FILTER, OP_NEAR, and OP_PHRASE).
   In combination, these are likely to speed up searching significantly
   for most users - in tests on real world data we've seen savings of 15-55%
-  in search times).
+  in search times).  These improvements are:
 
-  + OP_AND of 3 or more sub-queries is now more efficient.
+  + OP_AND of 3 or more sub-queries is now processed more efficiently.
 
   + Sub-queries from adjacent OP_AND, OP_FILTER, OP_NEAR, and OP_PHRASE are now
     combined into a single multi-way OP_AND operation, and the filters which
@@ -101,13 +113,17 @@ matcher:
   based on checkatleast meant the results claimed there were exactly msize
   results.  This bug has now been fixed.
 
-* Queries involving a ValueRangePostList filter now run around 3.5 times faster
+* Queries involving an OP_VALUE_RANGE filter now run around 3.5 times faster
   (bug#164).
 
 * The calculations behind MSet::get_matches_estimated() were always rounding
   down fractions, but now round to the nearest integer.  Due to cumulative
   rounding, this could mean that the estimate is now a few documents higher in
   some cases (and hopefully a better estimate).
+
+* Implement explicit swap() methods for internal classes MSetItem and ESetItem
+  which should make the final sort of the MSet and ESet a little more
+  efficient.
 
 flint backend:
 
@@ -122,8 +138,6 @@ remote backend:
 * The remote protocol minor version has been increased (to accommodate
   OP_SCALE_WEIGHT).  If you are upgrading a live system which uses the
   remote backend, upgrade the servers before the clients.
-
-inmemory backend:
 
 build system:
 
@@ -143,17 +157,38 @@ documentation:
 * README: Remove the ancient history lesson - this material is better left to
   the history page on the website.
 
-* deprecation.html: Improve formatting.
+* deprecation.html:
+
+  + Deprecate the non-pythonic iterators in favour of the pythonic ones.
+
+  + Move "Stem::stem_word(word)" in the bindings to the right section (it was
+    done in 1.0.0, as already indicated).
+
+  + Improve formatting.
 
 * When running rst2html, using "--verbose" was causing "info" messages to be
   included in the HTML output, so drop this option and really fix this issue
   (which was thought to have been fixed by changes in 1.0.3).
 
-* docs/install.html: Reworked - this document now concentrates on giving
+* install.html: Reworked - this document now concentrates on giving
   a brief overview of building which should be suitable for most common cases,
   and defers to the INSTALL document in each tarball for more details.
 
-portability:
+* PLATFORMS: Update from tinderbox and buildbot.
+
+* remote.html: xapian-tcpsrv has been able to handle concurrent read
+  access since 0.3.1 (7 years ago) so update the very out-of-date information
+  here.  Also, note that some newer features aren't supported by the remote
+  backend yet.
+
+* HACKING: Note specifically that std::list::size() is O(n) for GCC.
+
+* intro_ir.html: Add link to the forthcoming book "Introduction to
+  Information Retrieval", which can be read online.
+
+* scalability.html: Update size of gmane.
+
+* quartzdesign.html: Note that Quartz is now deprecated.
 
 debug code:
 

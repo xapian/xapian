@@ -2,6 +2,7 @@
  *  @brief SubMatch class for a remote database.
  */
 /* Copyright (C) 2006,2007 Olly Betts
+ * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,8 +24,8 @@
 
 #include "submatch.h"
 #include "remote-database.h"
-#include "networkstats.h"
-#include "stats.h"
+
+class Stats;
 
 /// Class for performing matching on a remote database.
 class RemoteSubMatch : public SubMatch {
@@ -37,12 +38,6 @@ class RemoteSubMatch : public SubMatch {
     /// The remote database.
     RemoteDatabase *db;
 
-    /// The StatsGatherer object, used to access database statistics.
-    StatsGatherer * gatherer;
-
-    /// The NetworkStatsSource object handles statistics for the remote db.
-    NetworkStatsSource stats_source;
-
     /** Is the sort order such the relevance decreases down the MSet?
      *
      *  This is true for sort_by_relevance and sort_by_relevance_then_value.
@@ -51,22 +46,23 @@ class RemoteSubMatch : public SubMatch {
 
   public:
     /// Constructor.
-    RemoteSubMatch(RemoteDatabase *db_, StatsGatherer *gatherer_, bool decreasing_relevance_)
-	: db(db_), gatherer(gatherer_), stats_source(gatherer_, db_),
-	  decreasing_relevance(decreasing_relevance_)
-    {
-    }
+    RemoteSubMatch(RemoteDatabase *db_, bool decreasing_relevance_);
 
     /// Fetch and collate statistics.
-    bool prepare_match(bool nowait);
+    bool prepare_match(bool nowait, Stats & total_stats);
 
     /// Start the match.
-    void start_match(Xapian::doccount maxitems,
-		     Xapian::doccount check_at_least);
+    void start_match(Xapian::doccount first,
+		     Xapian::doccount maxitems,
+		     Xapian::doccount check_at_least,
+		     const Stats & total_stats);
 
     /// Get PostList and term info.
     PostList * get_postlist_and_term_info(MultiMatch *matcher,
 	map<string, Xapian::MSet::Internal::TermFreqAndWeight> *termfreqandwts);
+
+    /// Short-cut for single remote match.
+    void get_mset(Xapian::MSet & mset) { db->get_mset(mset); }
 };
 
 #endif /* XAPIAN_INCLUDED_REMOTESUBMATCH_H */

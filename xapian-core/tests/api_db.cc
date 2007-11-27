@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
- * Copyright 2006 Richard Boulton
+ * Copyright 2006,2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,6 +23,8 @@
 
 #include <config.h>
 
+#include "api_db.h"
+
 #include <algorithm>
 #include <fstream>
 #include <map>
@@ -34,6 +36,7 @@
 #include <xapian.h>
 
 #include "backendmanager.h"
+#include "backendmanager_local.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include "unixcmds.h"
@@ -55,8 +58,7 @@ query(const string &t)
 // # Tests start here
 
 // tests Xapian::Database::get_termfreq() and Xapian::Database::term_exists()
-static bool test_termstats()
-{
+DEFINE_TESTCASE(termstats, backend) {
     Xapian::Database db(get_database("apitest_simpledata"));
 
     TEST(!db.term_exists("corn"));
@@ -70,8 +72,11 @@ static bool test_termstats()
 }
 
 // check that stubdbs work
-static bool test_stubdb1()
-{
+DEFINE_TESTCASE(stubdb1, flint) {
+    {
+	// Create the database needed; this is why we require the flint backend.
+	(void) get_database("apitest_simpledata");
+    }
     ofstream out("stubdb1");
     TEST(out.is_open());
     // FIXME: not very reliable...
@@ -113,8 +118,7 @@ class MyErrorHandler : public Xapian::ErrorHandler {
 };
 
 // tests error handler in multimatch().
-static bool test_multierrhandler1()
-{
+//DEFINE_TESTCASE(multierrhandler1, backend) {
     MyErrorHandler myhandler;
 
     Xapian::Database mydb2(get_database("apitest_simpledata"));
@@ -248,8 +252,7 @@ class myMatchDecider : public Xapian::MatchDecider {
 };
 
 // Test Xapian::MatchDecider functor.
-static bool test_matchfunctor1()
-{
+DEFINE_TESTCASE(matchfunctor1, backend && !remote) {
     Xapian::Database db(get_database("apitest_simpledata"));
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("this"));
@@ -282,8 +285,7 @@ static bool test_matchfunctor1()
 }
 
 // Test Xapian::MatchDecider functor used as a match spy.
-static bool test_matchfunctor2()
-{
+DEFINE_TESTCASE(matchfunctor2, backend && !remote) {
     Xapian::Database db(get_database("apitest_simpledata"));
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("this"));
@@ -316,7 +318,7 @@ static bool test_matchfunctor2()
 }
 
 // Test builtin match deciders
-static bool test_matchfunctor3()
+DEFINE_TESTCASE(matchfunctor3, backend && !remote)
 {
     Xapian::Database db(get_database("apitest_simpledata"));
     Xapian::Enquire enquire(db);
@@ -368,8 +370,7 @@ static bool test_matchfunctor3()
 }
 
 // tests that mset iterators on msets compare correctly.
-static bool test_msetiterator1()
-{
+DEFINE_TESTCASE(msetiterator1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("this"));
     Xapian::MSet mymset = enquire.get_mset(0, 2);
@@ -414,8 +415,7 @@ static bool test_msetiterator1()
 }
 
 // tests that mset iterators on empty msets compare equal.
-static bool test_msetiterator2()
-{
+DEFINE_TESTCASE(msetiterator2, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("this"));
     Xapian::MSet mymset = enquire.get_mset(0, 0);
@@ -435,8 +435,7 @@ static bool test_msetiterator2()
 }
 
 // tests that begin().get_document() works when first != 0
-static bool test_msetiterator3()
-{
+DEFINE_TESTCASE(msetiterator3, backend) {
     Xapian::Database mydb(get_database("apitest_simpledata"));
     Xapian::Enquire enquire(mydb);
     enquire.set_query(Xapian::Query("this"));
@@ -451,8 +450,7 @@ static bool test_msetiterator3()
 }
 
 // tests that eset iterators on empty esets compare equal.
-static bool test_esetiterator1()
-{
+DEFINE_TESTCASE(esetiterator1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("this"));
 
@@ -501,8 +499,7 @@ static bool test_esetiterator1()
 }
 
 // tests that eset iterators on empty esets compare equal.
-static bool test_esetiterator2()
-{
+DEFINE_TESTCASE(esetiterator2, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("this"));
 
@@ -530,8 +527,7 @@ static bool test_esetiterator2()
 }
 
 // tests the collapse-on-key
-static bool test_collapsekey1()
-{
+DEFINE_TESTCASE(collapsekey1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("this"));
 
@@ -559,8 +555,33 @@ static bool test_collapsekey1()
 
 // tests that collapse-on-key modifies the predicted bounds for the number of
 // matches appropriately.
-static bool test_collapsekey3()
-{
+DEFINE_TESTCASE(collapsekey2, backend) {
+    SKIP_TEST("Don't have a suitable database currently");
+    // FIXME: this needs an appropriate database creating, but that's quite
+    // subtle to do it seems.
+    Xapian::Enquire enquire(get_database("apitest_simpledata2"));
+    enquire.set_query(Xapian::Query("this"));
+
+    Xapian::MSet mymset1 = enquire.get_mset(0, 1);
+
+    // Test that if no duplicates are found, then the upper bound remains
+    // unchanged and the lower bound drops.
+    {
+	enquire.set_query(Xapian::Query("this"));
+	Xapian::valueno value_no = 3;
+	enquire.set_collapse_key(value_no);
+	Xapian::MSet mymset = enquire.get_mset(0, 1);
+
+	TEST(mymset.get_matches_lower_bound() < mymset1.get_matches_lower_bound());
+	TEST_EQUAL(mymset.get_matches_upper_bound(), mymset1.get_matches_upper_bound());
+    }
+
+    return true;
+}
+
+// tests that collapse-on-key modifies the predicted bounds for the number of
+// matches appropriately.
+DEFINE_TESTCASE(collapsekey3, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("this"));
 
@@ -584,18 +605,18 @@ static bool test_collapsekey3()
 	}
     }
 
-    // Test that, if no duplicates are found (eg, by collapsing on key 1000,
-    // which has no entries), the upper bound stays the same, but the lower
-    // bound drops.
+    // Test that if the collapse value is always empty, then the upper bound
+    // remains unchanged, and the lower bound is the same or lower (it can be
+    // lower because the matcher counts the number of documents with empty
+    // collapse keys, but may have rejected a document because its weight is
+    // too low for the proto-MSet before it even looks at its collapse key).
     {
 	Xapian::valueno value_no = 1000;
 	enquire.set_collapse_key(value_no);
 	Xapian::MSet mymset = enquire.get_mset(0, 3);
 
-	TEST_AND_EXPLAIN(mymset1.get_matches_lower_bound() > mymset.get_matches_lower_bound(),
-			 "Lower bound was not lower when performing collapse: don't know whether it worked.");
-	TEST_AND_EXPLAIN(mymset1.get_matches_upper_bound() == mymset.get_matches_upper_bound(),
-			 "Upper bound was not equal when collapse turned on, but no duplicates found.");
+	TEST(mymset.get_matches_lower_bound() <= mymset1.get_matches_lower_bound());
+	TEST_EQUAL(mymset.get_matches_upper_bound(), mymset1.get_matches_upper_bound());
 
 	map<string, Xapian::docid> values;
 	Xapian::MSetIterator i = mymset.begin();
@@ -611,8 +632,7 @@ static bool test_collapsekey3()
 
 // tests that collapse-on-key modifies the predicted bounds for the number of
 // matches appropriately even when no results are requested.
-static bool test_collapsekey4()
-{
+DEFINE_TESTCASE(collapsekey4, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("this"));
 
@@ -640,9 +660,8 @@ static bool test_collapsekey4()
 }
 
 // test for keepalives
-static bool test_keepalive1()
-{
-    Xapian::Database db(get_network_database("apitest_simpledata", 5000));
+DEFINE_TESTCASE(keepalive1, remote) {
+    Xapian::Database db(get_remote_database("apitest_simpledata", 5000));
 
     /* Test that keep-alives work */
     for (int i = 0; i < 10; ++i) {
@@ -663,8 +682,7 @@ static bool test_keepalive1()
 }
 
 // test that iterating through all terms in a database works.
-static bool test_allterms1()
-{
+DEFINE_TESTCASE(allterms1, backend) {
     Xapian::Database db(get_database("apitest_allterms"));
     Xapian::TermIterator ati = db.allterms_begin();
     TEST(ati != db.allterms_end());
@@ -712,8 +730,7 @@ static bool test_allterms1()
 }
 
 // test that iterating through all terms in two databases works.
-static bool test_allterms2()
-{
+DEFINE_TESTCASE(allterms2, backend) {
     Xapian::Database db;
     db.add_database(get_database("apitest_allterms"));
     db.add_database(get_database("apitest_allterms2"));
@@ -755,8 +772,7 @@ static bool test_allterms2()
 }
 
 // test that skip_to sets at_end (regression test)
-static bool test_allterms3()
-{
+DEFINE_TESTCASE(allterms3, backend) {
     Xapian::Database db;
     db.add_database(get_database("apitest_allterms"));
     Xapian::TermIterator ati = db.allterms_begin();
@@ -769,8 +785,7 @@ static bool test_allterms3()
 
 // test that next ignores extra entries due to long posting lists being
 // chunked (regression test for quartz)
-static bool test_allterms4()
-{
+DEFINE_TESTCASE(allterms4, backend) {
     // apitest_allterms4 contains 682 documents each containing just the word
     // "foo".  682 was the magic number which started to cause Quartz problems.
     Xapian::Database db = get_database("apitest_allterms4");
@@ -787,8 +802,7 @@ static bool test_allterms4()
 
 // test that skip_to with an exact match sets the current term (regression test
 // for quartz)
-static bool test_allterms5()
-{
+DEFINE_TESTCASE(allterms5, backend) {
     Xapian::Database db;
     db.add_database(get_database("apitest_allterms"));
     Xapian::TermIterator ati = db.allterms_begin();
@@ -800,8 +814,7 @@ static bool test_allterms5()
 }
 
 // test allterms iterators with prefixes
-static bool test_allterms6()
-{
+DEFINE_TESTCASE(allterms6, backend) {
     Xapian::Database db;
     db.add_database(get_database("apitest_allterms"));
     db.add_database(get_database("apitest_allterms2"));
@@ -847,8 +860,7 @@ static bool test_allterms6()
 }
 
 // test that searching for a term with a special characters in it works
-static bool test_specialterms1()
-{
+DEFINE_TESTCASE(specialterms1, backend) {
     Xapian::Enquire enquire(get_database("apitest_space"));
     Xapian::MSet mymset;
     Xapian::doccount count;
@@ -885,12 +897,11 @@ static bool test_specialterms1()
 }
 
 // test that terms with a special characters in appear correctly when iterating allterms
-static bool test_specialterms2()
-{
+DEFINE_TESTCASE(specialterms2, backend) {
     Xapian::Database db(get_database("apitest_space"));
 
-    // Check the terms are all as expected (after stemming) and that allterms copes with
-    // iterating over them.
+    // Check the terms are all as expected (after stemming) and that allterms
+    // copes with iterating over them.
     Xapian::TermIterator t;
     t = db.allterms_begin();
     TEST_EQUAL(*t, "back\\slash"); ++t; TEST_NOT_EQUAL(t, db.allterms_end());
@@ -902,8 +913,9 @@ static bool test_specialterms2()
     TEST_EQUAL(*t, "tu\x02tu"); ++t; TEST_EQUAL(t, db.allterms_end());
 
     // Now check that skip_to exactly a term containing a zero byte works.
-    // This is a regression test for flint and quartz - an Assert() used to fire in debug builds
-    // (the Assert was wrong - the actual code handled this OK).
+    // This is a regression test for flint and quartz - an Assert() used to
+    // fire in debug builds (the Assert was wrong - the actual code handled
+    // this OK).
     t = db.allterms_begin();
     t.skip_to(string("big\0zero", 8));
     TEST_NOT_EQUAL(t, db.allterms_end());
@@ -913,8 +925,7 @@ static bool test_specialterms2()
 }
 
 // test that rsets behave correctly with multiDBs
-static bool test_rsetmultidb2()
-{
+DEFINE_TESTCASE(rsetmultidb2, backend && !multi) {
     Xapian::Database mydb1(get_database("apitest_rset", "apitest_simpledata2"));
     Xapian::Database mydb2(get_database("apitest_rset"));
     mydb2.add_database(get_database("apitest_simpledata2"));
@@ -951,8 +962,7 @@ static bool test_rsetmultidb2()
 }
 
 // tests an expand across multiple databases
-static bool test_multiexpand1()
-{
+DEFINE_TESTCASE(multiexpand1, backend && !multi) {
     Xapian::Database mydb1(get_database("apitest_simpledata", "apitest_simpledata2"));
     Xapian::Enquire enquire1(mydb1);
 
@@ -1003,8 +1013,7 @@ static bool test_multiexpand1()
 }
 
 // tests that opening a non-existent postlist returns an empty list
-static bool test_postlist1()
-{
+DEFINE_TESTCASE(postlist1, backend) {
     Xapian::Database db(get_database("apitest_simpledata"));
 
     TEST_EQUAL(db.postlist_begin("rosebud"), db.postlist_end("rosebud"));
@@ -1022,8 +1031,7 @@ static bool test_postlist1()
 }
 
 // tests that a Xapian::PostingIterator works as an STL iterator
-static bool test_postlist2()
-{
+DEFINE_TESTCASE(postlist2, backend) {
     Xapian::Database db(get_database("apitest_simpledata"));
     Xapian::PostingIterator p;
     p = db.postlist_begin("this");
@@ -1052,8 +1060,7 @@ static bool test_postlist2()
 }
 
 // tests that a Xapian::PostingIterator still works when the DB is deleted
-static bool test_postlist3()
-{
+DEFINE_TESTCASE(postlist3, backend) {
     Xapian::PostingIterator u;
     {
 	Xapian::Database db_temp(get_database("apitest_simpledata"));
@@ -1073,8 +1080,7 @@ static bool test_postlist3()
 }
 
 // tests skip_to
-static bool test_postlist4()
-{
+DEFINE_TESTCASE(postlist4, backend) {
     Xapian::Database db(get_database("apitest_simpledata"));
     Xapian::PostingIterator i = db.postlist_begin("this");
     i.skip_to(1);
@@ -1084,8 +1090,7 @@ static bool test_postlist4()
 }
 
 // tests long postlists
-static bool test_postlist5()
-{
+DEFINE_TESTCASE(postlist5, backend) {
     Xapian::Database db(get_database("apitest_manydocs"));
     // Allow for databases which don't support length
     if (db.get_avlength() != 1)
@@ -1102,8 +1107,7 @@ static bool test_postlist5()
 }
 
 // tests document length in postlists
-static bool test_postlist6()
-{
+DEFINE_TESTCASE(postlist6, backend) {
     Xapian::Database db(get_database("apitest_simpledata"));
     Xapian::PostingIterator i = db.postlist_begin("this");
     TEST(i != db.postlist_end("this"));
@@ -1115,8 +1119,7 @@ static bool test_postlist6()
 }
 
 // tests collection frequency
-static bool test_collfreq1()
-{
+DEFINE_TESTCASE(collfreq1, backend) {
     Xapian::Database db(get_database("apitest_simpledata"));
 
     TEST_EQUAL(db.get_collection_freq("this"), 11);
@@ -1141,8 +1144,7 @@ static bool test_collfreq1()
 }
 
 // Regression test for split msets being incorrect when sorting
-static bool test_sortvalue1()
-{
+DEFINE_TESTCASE(sortvalue1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("this"));
 
@@ -1184,9 +1186,11 @@ static bool test_sortvalue1()
     return true;
 }
 
-// consistency check match - vary mset size and check results agree
-static bool test_consistency1()
-{
+// consistency check match - vary mset size and check results agree.
+// consistency1 will run on the remote backend, but it's particularly slow
+// with that, and testing it there doesn't actually improve the test
+// coverage really.
+DEFINE_TESTCASE(consistency1, backend && !remote) {
     Xapian::Database db(get_database("etext"));
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query(Xapian::Query::OP_OR, Xapian::Query("the"), Xapian::Query("sky")));
@@ -1220,8 +1224,7 @@ static bool test_consistency1()
 }
 
 // tests that specifying a nonexistent input file throws an exception.
-static bool test_quartzdatabaseopeningerror1()
-{
+DEFINE_TESTCASE(quartzdatabaseopeningerror1, quartz) {
     mkdir(".quartz", 0755);
 
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
@@ -1249,8 +1252,7 @@ static bool test_quartzdatabaseopeningerror1()
 }
 
 /// Test opening of a quartz database
-static bool test_quartzdatabaseopen1()
-{
+DEFINE_TESTCASE(quartzdatabaseopen1, quartz) {
     const char * dbdir = ".quartz/test_quartzdatabaseopen1";
     mkdir(".quartz", 0755);
 
@@ -1315,8 +1317,7 @@ static bool test_quartzdatabaseopen1()
 }
 
 // tests that specifying a nonexistent input file throws an exception.
-static bool test_flintdatabaseopeningerror1()
-{
+DEFINE_TESTCASE(flintdatabaseopeningerror1, flint) {
     mkdir(".flint", 0755);
 
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
@@ -1344,8 +1345,7 @@ static bool test_flintdatabaseopeningerror1()
 }
 
 /// Tests that appropriate error is thrown for database format change.
-static bool test_flintdatabaseformaterror1()
-{
+DEFINE_TESTCASE(flintdatabaseformaterror1, flint) {
     string dbdir = test_driver::get_srcdir();
     dbdir += "/testdata/flint-0.9.9";
 
@@ -1367,8 +1367,7 @@ static bool test_flintdatabaseformaterror1()
 
 /// Test that an old database can be successfully overwritten when using
 // Xapian::DB_CREATE_OR_OVERWRITE.
-static bool test_flintdatabaseformaterror2()
-{
+DEFINE_TESTCASE(flintdatabaseformaterror2, flint) {
     string flint099 = test_driver::get_srcdir();
     flint099 += "/testdata/flint-0.9.9";
 
@@ -1390,8 +1389,7 @@ static bool test_flintdatabaseformaterror2()
 }
 
 // regression test for not releasing lock on error.
-static bool test_flintdatabaseformaterror3()
-{
+DEFINE_TESTCASE(flintdatabaseformaterror3, flint) {
     string flint099 = test_driver::get_srcdir();
     flint099 += "/testdata/flint-0.9.9";
 
@@ -1412,8 +1410,7 @@ static bool test_flintdatabaseformaterror3()
 }
 
 // Test that 1.0.2 and later can open 1.0.1 databases.
-static bool test_flintbackwardcompat1()
-{
+DEFINE_TESTCASE(flintbackwardcompat1, flint) {
     string flint101 = test_driver::get_srcdir();
     flint101 += "/testdata/flint-1.0.1";
 
@@ -1439,8 +1436,7 @@ static bool test_flintbackwardcompat1()
 }
 
 // Test that 1.0.3 and later can open 1.0.2 databases.
-static bool test_flintbackwardcompat2()
-{
+DEFINE_TESTCASE(flintbackwardcompat2, flint) {
     string flint102 = test_driver::get_srcdir();
     flint102 += "/testdata/flint-1.0.2";
 
@@ -1466,8 +1462,7 @@ static bool test_flintbackwardcompat2()
 }
 
 /// Test opening of a flint database
-static bool test_flintdatabaseopen1()
-{
+DEFINE_TESTCASE(flintdatabaseopen1, flint) {
     const string dbdir = ".flint/test_flintdatabaseopen1";
     mkdir(".flint", 0755);
 
@@ -1525,8 +1520,7 @@ static bool test_flintdatabaseopen1()
 // set_sort_by_value
 // set_sort_by_value_then_relevance
 // set_sort_by_relevance_then_value
-static bool test_sortrel1()
-{
+DEFINE_TESTCASE(sortrel1, backend) {
     Xapian::Enquire enquire(get_database("apitest_sortrel"));
     enquire.set_sort_by_value(1);
     enquire.set_query(Xapian::Query("woman"));
@@ -1652,16 +1646,8 @@ static bool test_sortrel1()
 }
 
 // Test network stats and local stats give the same results.
-static bool test_netstats1()
-{
-    BackendManager local_manager;
-#if defined XAPIAN_HAS_FLINT_BACKEND
-    local_manager.set_dbtype("flint");
-#elif defined XAPIAN_HAS_QUARTZ_BACKEND
-    local_manager.set_dbtype("quartz");
-#else
-    SKIP_TEST("No suitable local database backend enabled");
-#endif
+DEFINE_TESTCASE(netstats1, remote) {
+    BackendManagerLocal local_manager;
     local_manager.set_datadir(test_driver::get_srcdir() + "/testdata/");
 
     const char * words[] = { "paragraph", "word" };
@@ -1741,9 +1727,10 @@ class MyWeight : public Xapian::Weight {
 	bool get_sumpart_needs_doclength() const { return false; }
 };
 
-// tests user weighting scheme
-static bool test_userweight1()
-{
+// tests user weighting scheme.
+// Would work with remote if we registered the weighting scheme.
+// FIXME: do this so we also test that functionality...
+DEFINE_TESTCASE(userweight1, backend && !remote) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_weighting_scheme(MyWeight());
     const char * query[] = { "this", "line", "paragraph", "rubbish" };
@@ -1768,8 +1755,7 @@ static bool test_userweight1()
 // tests MatchAll queries
 // This is a regression test, which failed with assertion failures in
 // revision 9094.
-static bool test_matchall1()
-{
+DEFINE_TESTCASE(matchall1, backend) {
     Xapian::Database db(get_database("apitest_simpledata"));
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query::MatchAll);
@@ -1785,118 +1771,3 @@ static bool test_matchall1()
 
     return true;
 }
-
-// #######################################################################
-// # End of test cases: now we list the tests to run.
-
-/// The tests which require a database which supports values > 0 sensibly
-test_desc multivalue_tests[] = {
-    {"collapsekey1",	   test_collapsekey1},
-    // There no longer is a collapsekey2 test!
-    {"collapsekey3",	   test_collapsekey3},
-    {"collapsekey4",	   test_collapsekey4},
-    {0, 0}
-};
-
-/// The tests which need a backend which supports iterating over all terms
-test_desc allterms_tests[] = {
-    {"allterms1",	   test_allterms1},
-    {"allterms2",	   test_allterms2},
-    {"allterms3",	   test_allterms3},
-    {"allterms4",	   test_allterms4},
-    {"allterms5",	   test_allterms5},
-    {"allterms6",	   test_allterms6},
-    {"specialterms2",	   test_specialterms2},
-    {0, 0}
-};
-
-/// The tests which need a backend which supports terms with newlines / zeros
-test_desc specchar_tests[] = {
-    {"specialterms1",	   test_specialterms1},
-    {0, 0}
-};
-
-/// The tests which need a backend which supports document length information
-test_desc doclendb_tests[] = {
-// Mset comes out in wrong order - no document length?
-    {"rsetmultidb2",       test_rsetmultidb2},
-    {0, 0}
-};
-
-/// Tests which need getting collection frequencies to be supported.
-test_desc collfreq_tests[] = {
-    {"collfreq1",	   test_collfreq1},
-    {0, 0}
-};
-
-test_desc localdb_tests[] = {
-    {"matchfunctor1",	   test_matchfunctor1},
-    {"matchfunctor2",	   test_matchfunctor2},
-    {"matchfunctor3",	   test_matchfunctor3},
-    {"msetiterator1",	   test_msetiterator1},
-    {"msetiterator2",	   test_msetiterator2},
-    {"msetiterator3",	   test_msetiterator3},
-    {"esetiterator1",	   test_esetiterator1},
-    {"esetiterator2",	   test_esetiterator2},
-    {"multiexpand1",       test_multiexpand1},
-    {"postlist1",	   test_postlist1},
-    {"postlist2",	   test_postlist2},
-    {"postlist3",	   test_postlist3},
-    {"postlist4",	   test_postlist4},
-    {"postlist5",	   test_postlist5},
-    {"postlist6",	   test_postlist6},
-    {"termstats",	   test_termstats},
-    {"sortvalue1",	   test_sortvalue1},
-    // consistency1 will run on the remote backend, but it's particularly slow
-    // with that, and testing it there doesn't actually improve the test
-    // coverage really.
-    {"consistency1",	   test_consistency1},
-    // Would work with remote if we registered the weighting scheme.
-    // FIXME: do this so we also test that functionality...
-    {"userweight1",	   test_userweight1},
-    {"matchall1",	   test_matchall1},
-    {0, 0}
-};
-
-test_desc remotedb_tests[] = {
-// FIXME:    {"multierrhandler1",   test_multierrhandler1},
-    {"msetiterator1",	   test_msetiterator1},
-    {"msetiterator2",	   test_msetiterator2},
-    {"msetiterator3",	   test_msetiterator3},
-    {"esetiterator1",	   test_esetiterator1},
-    {"esetiterator2",	   test_esetiterator2},
-    {"multiexpand1",       test_multiexpand1},
-    {"postlist1",	   test_postlist1},
-    {"postlist2",	   test_postlist2},
-    {"postlist3",	   test_postlist3},
-    {"postlist4",	   test_postlist4},
-    {"postlist5",	   test_postlist5},
-    {"postlist6",	   test_postlist6},
-    {"stubdb1",		   test_stubdb1},
-    {"keepalive1",	   test_keepalive1},
-    {"termstats",	   test_termstats},
-    {"sortvalue1",	   test_sortvalue1},
-    {"sortrel1",	   test_sortrel1},
-    {"netstats1",	   test_netstats1},
-    {"matchall1",	   test_matchall1},
-    {0, 0}
-};
-
-test_desc flint_tests[] = {
-    {"flintdatabaseopeningerror1",	test_flintdatabaseopeningerror1},
-    {"flintdatabaseformaterror1",	test_flintdatabaseformaterror1},
-    {"flintdatabaseformaterror2",	test_flintdatabaseformaterror2},
-    {"flintdatabaseformaterror3",	test_flintdatabaseformaterror3},
-    {"flintbackwardcompat1",		test_flintbackwardcompat1},
-    {"flintbackwardcompat2",		test_flintbackwardcompat2},
-    {"flintdatabaseopen1",		test_flintdatabaseopen1},
-    {"sortrel1",	   test_sortrel1},
-    {0, 0}
-};
-
-test_desc quartz_tests[] = {
-    {"quartzdatabaseopeningerror1",	test_quartzdatabaseopeningerror1},
-    {"quartzdatabaseopen1",		test_quartzdatabaseopen1},
-    {"sortrel1",	   test_sortrel1},
-    {0, 0}
-};

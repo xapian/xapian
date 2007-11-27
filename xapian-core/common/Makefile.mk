@@ -13,7 +13,6 @@ noinst_HEADERS +=\
 	common/msvc_posix_wrapper.h\
 	common/multialltermslist.h\
 	common/multimatch.h\
-	common/networkstats.h\
 	common/noreturn.h\
 	common/omassert.h\
 	common/omdebug.h\
@@ -47,7 +46,8 @@ noinst_HEADERS +=\
 	common/tcpserver.h\
 	common/termlist.h\
 	common/utils.h\
-	common/vectortermlist.h
+	common/vectortermlist.h\
+	common/weightinternal.h
 
 EXTRA_DIST +=\
 	common/dir_contents\

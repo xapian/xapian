@@ -44,9 +44,6 @@ class AllTermsList : public TermList {
     /// Return approximate size of this termlist.
     virtual Xapian::termcount get_approx_size() const = 0;
 
-    // Collate weighting information for the current term.
-    virtual void accumulate_stats(Xapian::Internal::ExpandStats &) const;
-
     /// Return the termname at the current position.
     virtual std::string get_termname() const = 0;
 

@@ -19,8 +19,8 @@ PROGRAMS = "$(OUTDIR)\quartzcheck.exe" \
            "$(OUTDIR)\xapian-compact.exe" \
            "$(OUTDIR)\xapian-progsrv.exe" \
            "$(OUTDIR)\xapian-tcpsrv.exe" \
-	   "$(OUTDIR)\xapian-inspect.exe" \
-	   "$(OUTDIR)\xapian-check.exe"
+           "$(OUTDIR)\xapian-inspect.exe" \
+           "$(OUTDIR)\xapian-check.exe"
 SRCS = \
 	"$(INTDIR)\quartzcheck.cc" \
 	"$(INTDIR)\quartzcompact.cc" \
@@ -79,9 +79,9 @@ PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS)
 
 
 "$(OUTDIR)\quartzcheck.exe" : "$(OUTDIR)" $(DEF_FILE) $(QUARTZCHECK_OBJS) \
-                      $(PROGRAM_DEPENDENCIES)
+                      $(PROGRAM_DEPENDENCIES) 
     $(LINK32) @<<
-  $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\quartzcheck.exe" $(DEF_FLAGS) $(QUARTZCHECK_OBJS)
+  $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\quartzcheck.exe" $(DEF_FLAGS) $(QUARTZCHECK_OBJS) "$(OUTLIBDIR)\libquartzbtreecheck.lib" 
 <<
 
 "$(OUTDIR)\quartzcompact.exe" : "$(OUTDIR)" $(DEF_FILE) $(QUARTZCOMPACT_OBJS) \
@@ -123,7 +123,7 @@ PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS)
 "$(OUTDIR)\xapian-check.exe" : "$(OUTDIR)" $(DEF_FILE) $(XAPIAN_CHECK_OBJS) \
                              $(PROGRAM_DEPENDENCIES)
     $(LINK32) @<<
-  $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\xapian-check.exe" $(DEF_FLAGS) $(XAPIAN_CHECK_OBJS)
+  $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\xapian-check.exe" $(DEF_FLAGS) $(XAPIAN_CHECK_OBJS) "$(OUTLIBDIR)\libflintbtreecheck.lib" 
 <<
 
 # inference rules, showing how to create one type of file from another with the same root name
@@ -139,6 +139,6 @@ PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS)
 
 # Calculate any header dependencies and automatically insert them into this file
 HEADERS :
-            ..\..\win32\$(DEPEND) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)"
+            if exist ..\..\win32\$(DEPEND) ..\..\win32\$(DEPEND) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)"
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 

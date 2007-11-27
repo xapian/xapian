@@ -1,7 +1,8 @@
 /* stats.h: Handling of statistics needed for the search.
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2005 Olly Betts
+ * Copyright 2002,2003,2005,2007 Olly Betts
+ * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,13 +23,14 @@
 #ifndef OM_HGUARD_STATS_H
 #define OM_HGUARD_STATS_H
 
-#include <string>
-
-#include <xapian/enquire.h> // for Xapian::Weight
+#include "xapian/types.h"
 #include "omassert.h"
-#include "omdebug.h"
+#include <string>
 #include <map>
-#include <set>
+
+#include "autoptr.h" // FIXME:1.1: remove this
+#include "weightinternal.h" // FIXME:1.1: remove this
+#include <list> // FIXME:1.1: remove this
 
 using namespace std;
 
@@ -59,181 +61,96 @@ class Stats {
 	/** Add in the supplied statistics from a sub-database.
 	 */
 	Stats & operator +=(const Stats & inc);
-};
 
-/** Statistics collector: gathers statistics from sub-databases, puts them
- *  together to build statistics for whole collection, and returns the
- *  overall statistics to each sub-database.
- */
-class StatsGatherer {
-    protected:
-	/** Flag to say that statistics have been gathered.
-	 *  Some entries in stats are only valid after this.
-	 *  Stats should also not be modified before this.
+	/** Get the term-frequency of the given term.
+	 *
+	 *  This is "n_t", the number of documents in the collection indexed by
+	 *  the given term.
 	 */
-	mutable bool have_gathered;
+	Xapian::doccount get_termfreq(const string & tname) const;
 
-	/** A collection of Xapian::Weight::Internal children.
-	 *  The Gatherer uses this to make sure that each child
-	 *  has contributed before it will give out its statistics.
+	/** Set the term-frequency for the given term.
 	 */
-	mutable std::set<Xapian::Weight::Internal *> sources;
+	void set_termfreq(const string & tname, Xapian::doccount tfreq);
 
-	/** The total statistics gathered for the whole collection.
+	/** Get the relevant term-frequency for the given term.
+	 *
+	 *  This is "r_t", the number of relevant documents in the collection
+	 *  indexed by the given term.
 	 */
-	mutable Stats total_stats;
-    public:
-	StatsGatherer();
-	virtual ~StatsGatherer() {}
+	Xapian::doccount get_reltermfreq(const string & tname) const;
 
-	/** Set the global collection statistics.
-	 *  Should be called before the match is performed.
+	/** Set the relevant term-frequency for the given term.
 	 */
-	virtual void set_global_stats(Xapian::doccount rset_size);
+	void set_reltermfreq(const string & tname, Xapian::doccount rtfreq);
 
-	/** Add a Xapian::Weight::Internal object to this gatherer.
-	 *  The gatherer will include the source's statistics
-	 *  into its own summary statistics.
+	/** Introspection method.
+	 *  @return  A string representing the Stats object.
 	 */
-	void add_child(Xapian::Weight::Internal *source);
+	string get_description() const;
 
-	/** Remove a Xapian::Weight::Internal object from this gatherer.
-	 *  This is needed in the case of some parts of the database dying
-	 *  during the match.
+
+	/** A list of all the Xapian::Weight::Internals allocated.
+	 *
+	 *  These will be deleted by the destructor.
+	 *
+	 *  FIXME:1.1: this should be removed for the 1.1 release.  In 1.0, the
+	 *  constructor of Xapian::Weight doesn't initialise it's "internal"
+	 *  member to NULL.  This means that we can't delete the object pointed
+	 *  to by "internal" in the destructor, because it may not be
+	 *  initialised.  Therefore, we have to register the objects somewhere
+	 *  else, and deleted them another way.  We use the Stats object for
+	 *  this purpose, since they're related to it.
 	 */
-	void remove_child(Xapian::Weight::Internal *source);
+	mutable list<Xapian::Weight::Internal *> weight_internals;
 
-	/** Contribute some statistics to the overall statistics.
-	 *  Should only be called once by each sub-database.
+	/** Destructor - delete the internals registered.
+	 *
+	 *  FIXME:1.1: remove this - just use the default.
 	 */
-	void contrib_stats(const Stats & extra_stats);
+	~Stats() {
+	    list<Xapian::Weight::Internal *>::const_iterator i;
+	    for (i = weight_internals.begin(); i != weight_internals.end(); ++i)
+	    {
+		delete *i;
+	    }
+	}
 
-	/** Get the collected statistics for the whole collection.
+	/** Create and return a Weight::Internal object with global statistics.
+	 *
+	 *  FIXME:1.1: remove this method - just create it directly.
+	 *
+	 *  All term-specific statistics will be set to 0.
+	 *
+	 *  The caller must NOT delete the returned object after use - it is
+	 *  owned by the Stats object.
+	 *
+	 *  @param stats Object containing the statistics to use.
 	 */
-	virtual const Stats * get_stats() const = 0;
-};
-
-/** The top-level StatsGatherer.
- */
-class LocalStatsGatherer : public StatsGatherer {
-    public:
-	const Stats *get_stats() const;
-};
-
-/** Statistics source: gathers notifications of statistics which will be
- *  needed, and passes them on in bulk to a StatsGatherer.
- */
-class Xapian::Weight::Internal {
-    private:
-        // Prevent copying
-        Internal(const Internal &);
-        Internal & operator=(const Internal &);
-
-    protected:
-	/** The gatherer which we report our information to, and ask
-	 *  for the global information from.
-	 */
-	StatsGatherer * gatherer;
-
-	/** The stats to give to the StatsGatherer.
-	 */
-	Stats my_stats;
-
-	/** The collection statistics, held by the StatsGatherer.
-	 *  0 before these have been retrieved.
-	 */
-	mutable const Stats * total_stats;
-
-	/** Perform the request for the needed information.  This involves
-	 *  passing our information to the gatherer, and then getting the
-	 *  result back.
-	 */
-	void perform_request() const;
-    public:
-	/// Constructor
-	Internal(StatsGatherer *gatherer_) : gatherer(gatherer_), total_stats(0)
+	Xapian::Weight::Internal * create_weight_internal() const
 	{
-	    gatherer->add_child(this);
+	    AutoPtr<Xapian::Weight::Internal> wti(new Xapian::Weight::Internal(*this));
+	    weight_internals.push_back(wti.get());
+	    return wti.release();
 	}
 
-	/// Virtual destructor
-	virtual ~Internal() {
-	    gatherer->remove_child(this);
+	/** Create and return a Weight::Internal object with global and term
+	 *  statistics.
+	 *
+	 *  FIXME:1.1: remove this method - just create it directly.
+	 *
+	 *  The caller must NOT delete the returned object after use - it is
+	 *  owned by the Stats object.
+	 *
+	 *  @param stats Object containing the statistics to use.
+	 *  @param tname The term to read the term-specific statistics for.
+	 */
+	Xapian::Weight::Internal * create_weight_internal(const string & tname) const
+	{
+	    AutoPtr<Xapian::Weight::Internal> wti(new Xapian::Weight::Internal(*this, tname));
+	    weight_internals.push_back(wti.get());
+	    return wti.release();
 	}
-
-	/** Contribute all the statistics that don't depend on global
-	 *  stats.  Used by StatsGatherer.
-	 */
-	virtual void contrib_my_stats() = 0;
-
-	///////////////////////////////////////////////////////////////////
-	// Give statistics about yourself.  These are used to generate,
-	// or check, the global information.
-
-	/** Set stats about this sub-database: the number of documents and
-	 *  average length of a document.
-	 */
-	void take_my_stats(Xapian::doccount csize, Xapian::doclength avlen);
-
-	/** Set the term frequency in the sub-database which this stats
-	 *  object represents.  This is the number of documents in
-	 *  the sub-database indexed by the given term.
-	 */
-	void my_termfreq_is(const string & tname, Xapian::doccount tfreq);
-
-	/** Set the relevant term-frequency in the sub-database which this
-	 *  stats object represents.  This is the number of relevant
-	 *  documents in the sub-database indexed by the given term.
-	 */
-	void my_reltermfreq_is(const string & tname, Xapian::doccount rtfreq);
-
-
-
-	// /////////////////////////////////////////////////////////////////
-	// Get the statistics back.  The result of each of the following
-	// methods may be an approximation.
-
-	/** Get the number of documents in the whole collection.
-	 */
-	Xapian::doccount get_total_collection_size() const;
-
-	/** Get the number of documents marked relevant in the collection.
-	 */
-	Xapian::doccount get_total_rset_size() const;
-
-	/** Get the average length of documents in the collection.
-	 */
-	Xapian::doclength get_total_average_length() const;
-
-	/** Get the term frequency over the whole collection, for the
-	 *  given term.  This is "n_t", the number of documents in the
-	 *  collection indexed by the given term.
-	 */
-	Xapian::doccount get_total_termfreq(const string & tname) const;
-
-	/** Get the relevant term-frequency over the whole collection, for
-	 *  the given term.  This is "r_t", the number of relevant documents
-	 *  in the collection indexed by the given term.
-	 */
-	Xapian::doccount get_total_reltermfreq(const string & tname) const;
-};
-
-/** LocalStatsSource: the Xapian::Weight::Internal object which provides methods
- *  to access the statistics.  A LocalSubMatch object uses it to report
- *  on its local statistics and retrieve the global statistics after
- *  the gathering process is complete.
- */
-class LocalStatsSource : public Xapian::Weight::Internal {
-    private:
-    public:
-	/// Constructor
-	LocalStatsSource(StatsGatherer * gatherer_);
-
-	/// Destructor
-	~LocalStatsSource();
-
-	/// Contribute all the statistics that don't depend on global stats.
-	void contrib_my_stats();
 };
 
 /////////////////////////////////////////
@@ -254,9 +171,8 @@ Stats::operator +=(const Stats & inc)
     }
     collection_size = new_collection_size;
 
-    // rset_size is set at the top level, we don't want
-    // to pass it back up again.
-    Assert(inc.rset_size == 0);
+    // Add the rset size.
+    rset_size += inc.rset_size;
 
     // Add termfreqs and reltermfreqs
     std::map<string, Xapian::doccount>::const_iterator i;
@@ -269,105 +185,48 @@ Stats::operator +=(const Stats & inc)
     return *this;
 }
 
-/////////////////////////////////////////////////
-// Inline method definitions for StatsGatherer //
-/////////////////////////////////////////////////
-
-inline
-StatsGatherer::StatsGatherer()
-	: have_gathered(false)
-{}
-
-inline void
-StatsGatherer::set_global_stats(Xapian::doccount rset_size)
-{
-    total_stats.rset_size = rset_size;
-}
-
-inline void
-LocalStatsSource::contrib_my_stats()
-{
-    gatherer->contrib_stats(my_stats);
-}
-
-///////////////////////////////////////////////
-// Inline method definitions for Xapian::Weight::Internal
-///////////////////////////////////////////////
- 
-inline void
-Xapian::Weight::Internal::take_my_stats(Xapian::doccount csize, Xapian::doclength avlen)
-{
-    Assert(total_stats == 0);
-    my_stats.collection_size = csize;
-    my_stats.average_length = avlen;
-}
-
-inline void
-Xapian::Weight::Internal::my_termfreq_is(const string & tname, Xapian::doccount tfreq)
-{
-    Assert(total_stats == 0);
-    // Can be called a second time, if a term occurs multiple times in the
-    // query.
-    Assert(my_stats.termfreq.find(tname) == my_stats.termfreq.end() ||
-	   my_stats.termfreq.find(tname)->second == tfreq);
-    my_stats.termfreq[tname] = tfreq;
-}
-
-inline void
-Xapian::Weight::Internal::my_reltermfreq_is(const string & tname, Xapian::doccount rtfreq)
-{
-    Assert(total_stats == 0);
-    // Can be called a second time, if a term occurs multiple times in the
-    // query.
-    Assert(my_stats.reltermfreq.find(tname) == my_stats.reltermfreq.end() ||
-	   my_stats.reltermfreq.find(tname)->second == rtfreq);
-    my_stats.reltermfreq[tname] = rtfreq;
-}
-
 inline Xapian::doccount
-Xapian::Weight::Internal::get_total_collection_size() const
+Stats::get_termfreq(const string & tname) const
 {
-    if (total_stats == 0) perform_request();
-    return total_stats->collection_size;
-}
-
-inline Xapian::doccount
-Xapian::Weight::Internal::get_total_rset_size() const
-{
-    if (total_stats == 0) perform_request();
-    return total_stats->rset_size;
-}
-
-inline Xapian::doclength
-Xapian::Weight::Internal::get_total_average_length() const
-{
-    if (total_stats == 0) perform_request();
-    return total_stats->average_length;
-}
-
-inline Xapian::doccount
-Xapian::Weight::Internal::get_total_termfreq(const string & tname) const
-{
-    if (total_stats == 0) perform_request();
-
-    // To get the statistics about a given term, we have to have
-    // supplied our own ones first.
-    Assert(my_stats.termfreq.find(tname) != my_stats.termfreq.end());
+    // We pass an empty string for tname when calculating the extra weight.
+    if (tname.empty()) return 0;
 
     std::map<string, Xapian::doccount>::const_iterator tfreq;
-    tfreq = total_stats->termfreq.find(tname);
-    Assert(tfreq != total_stats->termfreq.end());
+    tfreq = termfreq.find(tname);
+    Assert(tfreq != termfreq.end());
     return tfreq->second;
 }
 
-inline Xapian::doccount
-Xapian::Weight::Internal::get_total_reltermfreq(const string & tname) const
+inline void
+Stats::set_termfreq(const string & tname, Xapian::doccount tfreq)
 {
-    if (total_stats == 0) perform_request();
+    // Can be called a second time, if a term occurs multiple times in the
+    // query; if this happens, the termfreq should be the same each time.
+    Assert(termfreq.find(tname) == termfreq.end() ||
+	   termfreq.find(tname)->second == tfreq);
+    termfreq[tname] = tfreq;
+}
+
+inline Xapian::doccount
+Stats::get_reltermfreq(const string & tname) const
+{
+    // We pass an empty string for tname when calculating the extra weight.
+    if (tname.empty()) return 0;
+
     std::map<string, Xapian::doccount>::const_iterator rtfreq;
-    rtfreq = total_stats->reltermfreq.find(tname);
-    Assert(rtfreq != total_stats->reltermfreq.end());
+    rtfreq = reltermfreq.find(tname);
+    Assert(rtfreq != reltermfreq.end());
     return rtfreq->second;
+}
+
+inline void
+Stats::set_reltermfreq(const string & tname, Xapian::doccount rtfreq)
+{
+    // Can be called a second time, if a term occurs multiple times in the
+    // query; if this happens, the termfreq should be the same each time.
+    Assert(reltermfreq.find(tname) == reltermfreq.end() ||
+	   reltermfreq.find(tname)->second == rtfreq);
+    reltermfreq[tname] = rtfreq;
 }
 
 #endif /* OM_HGUARD_STATS_H */

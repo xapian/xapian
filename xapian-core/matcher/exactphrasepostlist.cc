@@ -1,7 +1,7 @@
 /** @file exactphrasepostlist.cc
  * @brief Return docs containing terms forming a particular exact phrase.
  *
- * Copyright (C) 2006 Olly Betts
+ * Copyright (C) 2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,7 +35,12 @@ ExactPhrasePostList::ExactPhrasePostList(PostList *source_,
 {
     size_t n = terms_.size();
     poslists = new PositionList*[n];
-    order = new unsigned[n];
+    try {
+	order = new unsigned[n];
+    } catch (...) {
+	delete [] poslists;
+	throw;
+    }
     for (size_t i = 0; i < n; ++i) order[i] = i;
 }
 

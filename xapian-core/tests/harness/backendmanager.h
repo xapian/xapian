@@ -25,138 +25,120 @@
 #include <xapian.h>
 #include <vector>
 
+// Paths to xapian-tcpsrv and xapian-progsrv.
+#ifdef __WIN32__
+// Under __WIN32__ we want \ path separators since we pass this path to
+// CreateProcess().
+# ifdef _MSC_VER
+#  ifdef DEBUG
+#   define XAPIAN_BIN_PATH "..\\win32\\Debug\\"
+#  else
+#   define XAPIAN_BIN_PATH "..\\win32\\Release\\"
+#  endif
+# else
+#  define XAPIAN_BIN_PATH "..\\bin\\" // mingw
+# endif
+#else
+# define XAPIAN_BIN_PATH "../bin/"
+#endif
+#define XAPIAN_TCPSRV XAPIAN_BIN_PATH"xapian-tcpsrv"
+#define XAPIAN_PROGSRV XAPIAN_BIN_PATH"xapian-progsrv"
+
 #ifdef __SUNPRO_CC
 class Xapian::WritableDatabase; // Sun's CC appears to need this to compile this file
 #endif
 
 class BackendManager {
-    private:
-	/// Index data from zero or more text files into a database.
-	void index_files_to_database(Xapian::WritableDatabase & database,
-				     const std::vector<std::string> & dbnames);
+    /// The current data directory
+    std::string datadir;
 
-	/// The type of a get_database member function
-	typedef Xapian::Database (BackendManager::*getdb_func)
-				   (const std::vector<std::string> &dbnames);
+    /// Index data from zero or more text files into a database.
+    void index_files_to_database(Xapian::WritableDatabase & database,
+				 const std::vector<std::string> & dbnames);
 
-	/// The type of a get_writable_database member function
-	typedef Xapian::WritableDatabase (BackendManager::*getwritedb_func)
-				   (const std::vector<std::string> &dbnames);
-
-	/// The current get_database member function
-	getdb_func do_getdb;
-
-	/// The current get_writable_database member function
-	getwritedb_func do_getwritedb;
-
-	/// The current data directory
-	std::string datadir;
-
-	/// The current backend type
-	std::string current_type;
-
-	/// Throw an exception.
-	Xapian::Database getdb_none(const std::vector<std::string> &dbnames);
-
-	/// Throw an exception.
-	Xapian::WritableDatabase getwritedb_none(const std::vector<std::string> &dbnames);
+  protected:
+    bool create_dir_if_needed(const std::string &dirname);
 
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
-	/// Get an inmemory database instance.
-	Xapian::Database getdb_inmemory(const std::vector<std::string> &dbnames);
-
-	/// Get a writable inmemory database instance.
-	Xapian::WritableDatabase getwritedb_inmemory(const std::vector<std::string> &dbnames);
-
-#if 0
-	/** Get an inmemory database instance, which will throw an error when
-	 *  next is called.
-	 */
-	Xapian::Database getdb_inmemoryerr(const std::vector<std::string> &dbnames);
-	Xapian::Database getdb_inmemoryerr2(const std::vector<std::string> &dbnames);
-	Xapian::Database getdb_inmemoryerr3(const std::vector<std::string> &dbnames);
-
-	/** Get a writable inmemory database instance, which will throw an
-	 *  error when next is called.
-	 */
-	Xapian::WritableDatabase getwritedb_inmemoryerr(const std::vector<std::string> &dbnames);
-	Xapian::WritableDatabase getwritedb_inmemoryerr2(const std::vector<std::string> &dbnames);
-	Xapian::WritableDatabase getwritedb_inmemoryerr3(const std::vector<std::string> &dbnames);
-#endif
+    /// Get a writable inmemory database instance.
+    Xapian::WritableDatabase getwritedb_inmemory(const std::vector<std::string> &dbnames);
 #endif
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-	/// Get a remote database instance using xapian-progsrv.
-	Xapian::Database getdb_remoteprog(const std::vector<std::string> &dbnames);
+    /// Get a remote database instance using xapian-progsrv.
+    Xapian::Database getdb_remoteprog(const std::vector<std::string> &dbnames);
 
-	/// Get a writable remote database instance using xapian-progsrv.
-	Xapian::WritableDatabase getwritedb_remoteprog(const std::vector<std::string> &dbnames);
+    /// Get a writable remote database instance using xapian-progsrv.
+    Xapian::WritableDatabase getwritedb_remoteprog(const std::vector<std::string> &dbnames);
 
-	/// Get a remote database instance using xapian-tcpsrv.
-	Xapian::Database getdb_remotetcp(const std::vector<std::string> &dbnames);
+    /// Get a remote database instance using xapian-tcpsrv.
+    Xapian::Database getdb_remotetcp(const std::vector<std::string> &dbnames);
 
-	/// Get a writable remote database instance using xapian-tcpsrv.
-	Xapian::WritableDatabase getwritedb_remotetcp(const std::vector<std::string> &dbnames);
+    /// Get a writable remote database instance using xapian-tcpsrv.
+    Xapian::WritableDatabase getwritedb_remotetcp(const std::vector<std::string> &dbnames);
 #endif
 
 #ifdef XAPIAN_HAS_FLINT_BACKEND
-    private:
-	std::string createdb_flint(const std::vector<std::string> &dbnames);
+  protected:
+    std::string createdb_flint(const std::vector<std::string> &dbnames);
 
-    public:
-	/// Get a flint database instance.
-	Xapian::Database getdb_flint(const std::vector<std::string> &dbnames);
-
-	/// Get a writable flint database instance.
-	Xapian::WritableDatabase getwritedb_flint(const std::vector<std::string> &dbnames);
+  public:
+    /// Get a writable flint database instance.
+    Xapian::WritableDatabase getwritedb_flint(const std::vector<std::string> &dbnames);
 #endif
 
 #ifdef XAPIAN_HAS_QUARTZ_BACKEND
-    private:
-	std::string createdb_quartz(const std::vector<std::string> &dbnames);
+  protected:
+    std::string createdb_quartz(const std::vector<std::string> &dbnames);
 
-    public:
-	/// Get a quartz database instance.
-	Xapian::Database getdb_quartz(const std::vector<std::string> &dbnames);
-
-	/// Get a writable quartz database instance.
-	Xapian::WritableDatabase getwritedb_quartz(const std::vector<std::string> &dbnames);
+  public:
+    /// Get a writable quartz database instance.
+    Xapian::WritableDatabase getwritedb_quartz(const std::vector<std::string> &dbnames);
 #endif
 
-    public:
-	/// Constructor - set up default state.
-	BackendManager();
+  public:
+    /// Constructor - set up default state.
+    BackendManager() { }
 
-	/** Set the database type to use.
-	 *
-	 *  Valid values for dbtype are "inmemory", "flint", "quartz",
-	 *  "none", "da", "daflimsy", "db", "dbflimsy", "remoteprog", and
-	 *  "remotetcp".
-	 */
-	void set_dbtype(const std::string &type);
+    /// Virtual methods, so virtual destructor.
+    virtual ~BackendManager() { } // FIXME: move out of header
 
-	/** Get the database type currently in use. */
-	const std::string & get_dbtype() const { return current_type; }
+    /** Get the database type currently in use.
+     *
+     *  Current possible return values are "inmemory", "flint", "quartz",
+     *  "none", "da", "daflimsy", "db", "dbflimsy", "remoteprog", and
+     *  "remotetcp".
+     */
+    virtual const char * get_dbtype() const { return "none"; } // FIXME: move out of header
 
-	/** Set the directory to store data in.
-	 */
-	void set_datadir(const std::string &datadir_) { datadir = datadir_; }
+    /** Set the directory to store data in.
+     */
+    void set_datadir(const std::string &datadir_) { datadir = datadir_; }
 
-	/** Get the directory to store data in.
-	 */
-	const std::string & get_datadir() const { return datadir; }
+    /** Get the directory to store data in.
+     */
+    const std::string & get_datadir() const { return datadir; }
 
-	/// Get a database instance of the current type.
-	Xapian::Database get_database(const std::vector<std::string> &dbnames);
+    /// Get a database instance of the current type.
+    virtual Xapian::Database get_database(const std::vector<std::string> &dbnames);
 
-	/// Get a database instance of the current type, single file case.
-	Xapian::Database get_database(const std::string &dbname);
+    /// Get a database instance of the current type, single file case.
+    virtual Xapian::Database get_database(const std::string &dbname);
 
-	/// Get a writable database instance.
-	Xapian::WritableDatabase get_writable_database(const std::string & dbname);
+    /// Get a writable database instance.
+    virtual Xapian::WritableDatabase get_writable_database(const std::string & dbname);
 
-	/// Get the command line required to run xapian-progsrv.
-	static const char * get_xapian_progsrv_command();
+    /// Get a remote database instance with the specified timeout.
+    virtual Xapian::Database get_remote_database(const std::vector<std::string> & files, unsigned int timeout);
+
+    /// Create a Database object for the last opened WritableDatabase.
+    virtual Xapian::Database get_writable_database_as_database();
+
+    /// Create a WritableDatabase object for the last opened WritableDatabase.
+    virtual Xapian::WritableDatabase get_writable_database_again();
+
+    /// Get the command line required to run xapian-progsrv.
+    static const char * get_xapian_progsrv_command();
 };
 
 #endif /* OM_HGUARD_BACKENDMANAGER_H */

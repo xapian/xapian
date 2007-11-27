@@ -35,6 +35,11 @@ using namespace std;
 # error Code currently assumes FLT_RADIX == 2
 #endif
 
+#ifdef _MSC_VER
+// Disable warning about negating an unsigned type, which we do deliberately.
+# pragma warning(disable:4146)
+#endif
+
 string
 Xapian::sortable_serialise(double value)
 {

@@ -11,7 +11,7 @@ INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include \
 
 TESTS_ENVIRONMENT = ./runtest
 
-.PHONY: check-none check-inmemory \
+.PHONY: check-none check-inmemory check-multi \
         check-remote check-remoteprog check-remotetcp \
         check-flint check-quartz
 
@@ -28,6 +28,9 @@ check-none: apitest$(EXEEXT) \
 
 check-inmemory: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b inmemory
+
+check-multi: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b multi
 
 if BUILD_BACKEND_REMOTE
 check-remote: apitest$(EXEEXT)
@@ -76,8 +79,11 @@ check_SCRIPTS = runtest
 
 noinst_HEADERS = apitest.h
 
-apitest_SOURCES = apitest.cc api_nodb.cc api_posdb.cc api_db.cc api_wrdb.cc \
- api_anydb.cc api_transdb.cc api_unicode.cc $(testharness_sources)
+collated_apitest_sources = api_anydb.cc api_db.cc api_nodb.cc api_posdb.cc \
+ api_sorting.cc api_transdb.cc api_unicode.cc api_wrdb.cc
+
+apitest_SOURCES = apitest.cc $(collated_apitest_sources) api_collated.h \
+ $(testharness_sources)
 apitest_LDFLAGS = -no-install $(ldflags)
 apitest_LDADD = ../libgetopt.la ../libxapian.la
 
@@ -105,8 +111,36 @@ termgentest_SOURCES = termgentest.cc $(testharness_sources)
 termgentest_LDFLAGS = -no-install $(ldflags)
 termgentest_LDADD = ../libgetopt.la ../libxapian.la
 
+BUILT_SOURCES =
+
+if MAINTAINER_MODE
+BUILT_SOURCES += api_collated.h $(collated_apitest_sources:.cc=.h)
+CLEANFILES = api_collated.h $(collated_apitest_sources:.cc=.h)
+
+api_collated.h $(collated_apitest_sources:.cc=.h): api_collated.stamp
+## Recover from the removal of $@.  A full explanation of these rules is in the
+## automake manual under the heading "Multiple Outputs".
+	@if test -f $@; then :; else \
+	  trap 'rm -rf api_collated.lock api_collated.stamp' 1 2 13 15; \
+	  if mkdir api_collated.lock 2>/dev/null; then \
+	    rm -f api_collated.stamp; \
+	    $(MAKE) $(AM_MAKEFLAGS) api_collated.stamp; \
+	    rmdir api_collated.lock; \
+	  else \
+	    while test -d api_collated.lock; do sleep 1; done; \
+	    test -f api_collated.stamp; exit $$?; \
+	  fi; \
+	fi
+api_collated.stamp: $(collated_apitest_sources) collate-apitest
+	$(PERL) "$(srcdir)/collate-apitest" "$(srcdir)" $(collated_apitest_sources) > api_collated.hT
+	mv api_collated.hT api_collated.h
+	touch $@
+endif
+
+EXTRA_DIST = collate-apitest api_collated.h $(collated_apitest_sources:.cc=.h)
+
 ## Distribute test data:
-EXTRA_DIST =\
+EXTRA_DIST +=\
 	runtest.in \
 	valgrind.supp \
 	testdata/apitest_onedoc.txt \
@@ -162,6 +196,6 @@ EXTRA_DIST =\
 	testdata/flint-1.0.2/termlist.DB
 
 clean-local:
-	rm -rf .flint .quartz .quartztmp .btreetmp
+	rm -rf .flint .quartz .quartztmp .btreetmp .multi
 
 include harness/Makefile.mk

@@ -33,8 +33,8 @@ namespace Xapian {
     class Weight;
 }
 
-class Stats;
 class NetworkPostList;
+class Stats;
 
 /** RemoteDatabase is the baseclass for remote database implementations.
  *

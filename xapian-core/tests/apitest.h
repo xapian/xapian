@@ -25,46 +25,26 @@
 
 #include "testsuite.h"
 
-// Defined in api_anydb.cc:
-extern test_desc anydb_tests[];
+#define DEFINE_TESTCASE(S,COND) bool test_##S()
 
-// Defined in api_db.cc:
-extern test_desc multivalue_tests[];
-extern test_desc allterms_tests[];
-extern test_desc specchar_tests[];
-extern test_desc doclendb_tests[];
-extern test_desc collfreq_tests[];
-extern test_desc localdb_tests[];
-extern test_desc remotedb_tests[];
-extern test_desc flint_tests[];
-extern test_desc quartz_tests[];
-
-// Defined in api_nodb.cc:
-extern test_desc nodb_tests[];
-
-// Defined in api_posdb.cc:
-extern test_desc positionaldb_tests[];
-
-// Defined in api_transdb.cc:
-extern test_desc transactiondb_tests[];
-
-// Defined in api_unicode.cc:
-extern test_desc unicode_tests[];
-
-// Defined in api_wrdb.cc:
-extern test_desc writabledb_tests[];
-
-#define TESTCASE(S) {#S, test_##S}
-#define END_OF_TESTCASES {0, 0}
-
-const std::string & get_dbtype();
+const char * get_dbtype();
 
 Xapian::Database get_database(const std::string &db);
 
 Xapian::Database get_database(const std::string &db1, const std::string &db2);
 
-Xapian::WritableDatabase get_writable_database(const std::string &db);
+Xapian::WritableDatabase get_writable_database(const std::string &db = "");
 
-Xapian::Database get_network_database(const std::string &db, unsigned timeout);
+Xapian::Database get_remote_database(const std::string &db, unsigned timeout);
+
+Xapian::Database get_writable_database_as_database();
+
+Xapian::WritableDatabase get_writable_database_again();
+
+#define SKIP_TEST_UNLESS_BACKEND(B) \
+    if (strcmp(get_dbtype(), (B)) != 0) SKIP_TEST("Test only supported for "#B" backend"); else (void)0
+
+#define SKIP_TEST_FOR_BACKEND(B) \
+    if (strcmp(get_dbtype(), (B)) == 0) SKIP_TEST("Test not supported for "#B" backend"); else (void)0
 
 #endif // XAPIAN_INCLUDED_APITEST_H

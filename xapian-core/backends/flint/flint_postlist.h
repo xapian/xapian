@@ -3,6 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2007 Olly Betts
+ * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,15 +24,17 @@
 #ifndef OM_HGUARD_FLINT_POSTLIST_H
 #define OM_HGUARD_FLINT_POSTLIST_H
 
+#include <xapian/database.h>
+
+#include "flint_types.h"
+#include "flint_positionlist.h"
+#include "leafpostlist.h"
+#include "omassert.h"
+#include "omdebug.h"
+
 #include "autoptr.h"
 #include <map>
 #include <string>
-
-#include "leafpostlist.h"
-#include <xapian/database.h>
-#include "omassert.h"
-#include "flint_types.h"
-#include "flint_positionlist.h"
 
 using namespace std;
 

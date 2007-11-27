@@ -29,7 +29,6 @@
 
 #include "remoteserver.h"
 #include "tcpserver.h"
-#include "stats.h"
 #include "utils.h"
 
 #ifdef __WIN32__

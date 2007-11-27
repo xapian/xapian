@@ -21,6 +21,9 @@
  */
 
 #include <config.h>
+
+#include "api_posdb.h"
+
 #include <string>
 #include <vector>
 
@@ -33,8 +36,7 @@ using namespace std;
 #include "apitest.h"
 
 /// Simple test of NEAR
-static bool test_near1()
-{
+DEFINE_TESTCASE(near1, positional) {
     Xapian::Database mydb(get_database("apitest_phrase"));
     Xapian::Enquire enquire(mydb);
     Xapian::Stem stemmer("english");
@@ -174,8 +176,7 @@ static bool test_near1()
 }
 
 /// Test NEAR over operators
-static bool test_near2()
-{
+DEFINE_TESTCASE(near2, positional) {
     Xapian::Database mydb(get_database("apitest_phrase"));
     Xapian::Enquire enquire(mydb);
     Xapian::Stem stemmer("english");
@@ -223,8 +224,7 @@ static bool test_near2()
 }
 
 /// Simple test of PHRASE
-static bool test_phrase1()
-{
+DEFINE_TESTCASE(phrase1, positional) {
     Xapian::Database mydb(get_database("apitest_phrase"));
     Xapian::Enquire enquire(mydb);
     Xapian::Stem stemmer("english");
@@ -412,8 +412,7 @@ static bool test_phrase1()
 }
 
 /// Test PHRASE over operators
-static bool test_phrase2()
-{
+DEFINE_TESTCASE(phrase2, positional) {
     Xapian::Database mydb(get_database("apitest_phrase"));
     Xapian::Enquire enquire(mydb);
     Xapian::Stem stemmer("english");
@@ -461,8 +460,7 @@ static bool test_phrase2()
 }
 
 /// Test getting position lists from databases
-static bool test_poslist1()
-{
+DEFINE_TESTCASE(poslist1, positional) {
     Xapian::Database mydb(get_database("apitest_poslist"));
 
     Xapian::Stem stemmer("english");
@@ -507,9 +505,8 @@ static bool test_poslist1()
     return true;
 }
 
-static bool test_poslist2()
-{
-    Xapian::WritableDatabase db = get_writable_database("");
+DEFINE_TESTCASE(poslist2, positional && writable) {
+    Xapian::WritableDatabase db = get_writable_database();
 
     Xapian::Document doc;
     doc.add_term("nopos");
@@ -521,21 +518,21 @@ static bool test_poslist2()
     );
 
     TEST_EXCEPTION(Xapian::DocNotFoundError,
-        // Check what happens when the document doesn't even exist
-        Xapian::PositionIterator i = db.positionlist_begin(123, "nosuchterm");
-    );            
-    
+	// Check what happens when the document doesn't even exist
+	Xapian::PositionIterator i = db.positionlist_begin(123, "nosuchterm");
+    );
+
     {
 	Xapian::PositionIterator i = db.positionlist_begin(did, "nopos");
 	TEST_EQUAL(i, db.positionlist_end(did, "nopos"));
     }
-    
+
     Xapian::Document doc2 = db.get_document(did);
-   
+
     Xapian::TermIterator term = doc2.termlist_begin();
 
     {
-	Xapian::PositionIterator i = term.positionlist_begin(); 
+	Xapian::PositionIterator i = term.positionlist_begin();
 	TEST_EQUAL(i, term.positionlist_end());
     }
 
@@ -546,7 +543,7 @@ static bool test_poslist2()
     Xapian::Document doc4 = db.get_document(did2);
     doc4.remove_posting("hadpos", 1);
     db.replace_document(did2, doc4);
-   
+
     {
 	Xapian::PositionIterator i = db.positionlist_begin(did2, "hadpos");
 	TEST_EQUAL(i, db.positionlist_end(did2, "hadpos"));
@@ -554,7 +551,7 @@ static bool test_poslist2()
 
     db.delete_document(did);
     TEST_EXCEPTION(Xapian::DocNotFoundError,
-        // Check what happens when the document doesn't even exist
+	// Check what happens when the document doesn't even exist
 	// (but once did)
 	Xapian::PositionIterator i = db.positionlist_begin(did, "nosuchterm");
     );
@@ -564,9 +561,8 @@ static bool test_poslist2()
 
 /// Test playing with a positionlist, testing skip_to in particular.
 /// (used to be quartztest's test_positionlist1).
-static bool test_poslist3()
-{
-    Xapian::WritableDatabase db = get_writable_database("");
+DEFINE_TESTCASE(poslist3, positional && writable) {
+    Xapian::WritableDatabase db = get_writable_database();
 
     vector<Xapian::termpos> positions;
 
@@ -625,15 +621,14 @@ static bool test_poslist3()
 //
 // Also test that positionlist_count() is implemented for this case, which it
 // wasn't in 1.0.2 and earlier.
-static bool test_positfromtermit1()
-{
+DEFINE_TESTCASE(positfromtermit1, positional) {
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::TermIterator t(db.termlist_begin(7));
     TEST_NOT_EQUAL(t, db.termlist_end(7));
     Xapian::PositionIterator p = t.positionlist_begin();
     TEST_NOT_EQUAL(p, t.positionlist_end());
 
-    try { 
+    try {
 	TEST_EQUAL(t.positionlist_count(), 1);
 	t.skip_to("on");
 	TEST_NOT_EQUAL(t, db.termlist_end(7));
@@ -644,18 +639,3 @@ static bool test_positfromtermit1()
 
     return true;
 }
-
-// # End of test cases: now we list the tests to run.
-
-/// The tests which need a backend which supports positional information
-test_desc positionaldb_tests[] = {
-    {"near1",		   test_near1},
-    {"near2",		   test_near2},
-    {"phrase1",		   test_phrase1},
-    {"phrase2",		   test_phrase2},
-    {"poslist1",	   test_poslist1},
-    {"poslist2",	   test_poslist2},
-    {"poslist3",	   test_poslist3},
-    {"positfromtermit1",   test_positfromtermit1},
-    {0, 0}
-};

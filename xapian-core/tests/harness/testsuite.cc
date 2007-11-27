@@ -46,6 +46,7 @@
 #include <float.h> // For DBL_DIG.
 #include <math.h> // For ceil, fabs, log10.
 #include <stdlib.h>
+#include <string.h>
 
 #include "gnu_getopt.h"
 
@@ -53,6 +54,12 @@
 #include <signal.h>
 
 #include <exception>
+#ifdef USE_RTTI
+# include <typeinfo>
+# if defined __GNUC__ && (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1))
+#  include <cxxabi.h>
+# endif
+#endif
 
 #include <xapian/error.h>
 #include "testsuite.h"
@@ -271,21 +278,29 @@ test_driver::runtest(const test_desc *test)
 			if (c > 0) {
 			    // Valgrind output has "==<pid>== \n" between
 			    // report "records", so skip to the next occurrence
-			    // of " \n".
+			    // of ' ' not followed by '\n'.
 			    ssize_t i = 0;
 			    do {
-				while (i < c && buf[i] != ' ') ++i;
+				const char * spc;
+				spc = static_cast<const char *>(
+					memchr(buf + i, ' ', c - i));
+				if (!spc) {
+				    i = c;
+				    break;
+				}
+				i = spc - buf;
 			    } while (++i < c && buf[i] == '\n');
 
-			    char *start = buf + 1;
+			    char *start = buf + i;
 			    c -= i;
-
-			    char *p = start;
-			    p = reinterpret_cast<char *>(memchr(p, '\n', c));
-			    if (p == NULL) p += c;
-
-			    c = p - start;
 			    if (c > 128) c = 128;
+
+			    {
+				const char *p;
+				p = static_cast<const char*>(
+					memchr(start, '\n', c));
+				if (p != NULL) c = p - start;
+			    }
 
 			    memmove(buf, start, c);
 			    buf[c] = '\0';
@@ -397,6 +412,36 @@ test_driver::runtest(const test_desc *test)
 		    out << msg;
 		else
 		    out << msg.substr(0, cutoff) << "...";
+		out << col_reset;
+		return FAIL;
+	    } catch (const std::exception & e) {
+		string s = tout.str();
+		if (!s.empty()) {
+		    out << '\n' << tout.str();
+		    if (s[s.size() - 1] != '\n') out << endl;
+		    tout.str("");
+		}
+		out << " " << col_red;
+#ifndef USE_RTTI
+		out << "std::exception";
+#else
+		const char * name = typeid(e).name();
+# if defined __GNUC__ && (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1))
+		// __cxa_demangle() apparently requires GCC >= 3.1.
+		// Demangle the name which GCC returns for type_info::name().
+		int status;
+		char * realname = abi::__cxa_demangle(name, NULL, 0, &status);
+		if (realname) {
+		    out << realname;
+		    free(realname);
+		} else {
+		    out << name;
+		}
+# else
+		out << name;
+# endif
+#endif
+		out << ": " << e.what();
 		out << col_reset;
 		return FAIL;
 	    } catch (...) {

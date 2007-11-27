@@ -339,7 +339,7 @@ main(int argc, char **argv)
 
 	    vector<Btree *> btrees;
 
-	    if (*t == "postlist") {
+	    if (strcmp(*t, "postlist") == 0) {
 		priority_queue<PostlistCursor *, vector<PostlistCursor *>,
 			       CursorGt> pq;
 		for (size_t i = 0; i < out_of; ++i) {
@@ -367,7 +367,8 @@ main(int argc, char **argv)
 		}
 
 		string last_key;
-		Xapian::termcount tf, cf;
+		// We only need to initialise tf and cf to shut up GCC warnings.
+		Xapian::termcount tf = 0, cf = 0;
 		vector<pair<Xapian::docid, string> > tags;
 		while (true) {
 		    PostlistCursor * bc = NULL;
@@ -408,7 +409,7 @@ main(int argc, char **argv)
 			delete bc;
 		    }
 		}
-	    } else if (*t == "position") {
+	    } else if (strcmp(*t, "position") == 0) {
 		priority_queue<PositionCursor *, vector<PositionCursor *>,
 			       CursorGt> pq;
 		for (size_t i = 0; i < out_of; ++i) {
@@ -473,7 +474,7 @@ main(int argc, char **argv)
 			bad_stat = true;
 		}
 
-		if (*t == "record") {
+		if (strcmp(*t, "record") == 0) {
 		    // Merge the METAINFO tags from each database into one.
 		    // They have a key with a single zero byte, which will
 		    // always be the first key.

@@ -1,7 +1,5 @@
 ## Process this file with automake to produce Makefile.in
 
-SUFFIXES = .rst
-
 # Note: we don't want dist tarballs built with docs missing, so for simplicity
 # this Makefile.am blindly assumes the tools are in place when "make dist" is
 # being run.  For "make all", "make check", etc we carefully skip any docs
@@ -21,7 +19,8 @@ RSTHTML = $(RSTDOCS:.rst=.html)
 EXTRA_DIST = doxygen_api_conf.in doxygen_full_conf.in \
 	doxygen_api_header.html_tmpl doxygen_api_footer.html_tmpl \
 	doxygen_full_header.html_tmpl doxygen_full_footer.html_tmpl \
-	$(RSTDOCS) apidoc/html
+	$(RSTDOCS) \
+	apidoc/html/*.gif apidoc/html/*.png apidoc/html/*.css apidoc/html/*.html
 
 if !MAINTAINER_NO_DOCS
 # Build API docs with doxygen
@@ -31,7 +30,10 @@ dist_doc_DATA = $(HTMLDOCS) $(RSTHTML) apidoc.pdf
 
 install-data-local:
 	$(mkinstalldirs) $(DESTDIR)$(docdir)/apidoc/html
-	$(INSTALL_DATA) `test -f apidoc/html/index.html || echo $(srcdir)/`apidoc/html/* $(DESTDIR)$(docdir)/apidoc/html
+	$(INSTALL_DATA) `test -f apidoc/html/index.html || echo $(srcdir)/`apidoc/html/*.gif $(DESTDIR)$(docdir)/apidoc/html
+	$(INSTALL_DATA) `test -f apidoc/html/index.html || echo $(srcdir)/`apidoc/html/*.png $(DESTDIR)$(docdir)/apidoc/html
+	$(INSTALL_DATA) `test -f apidoc/html/index.html || echo $(srcdir)/`apidoc/html/*.css $(DESTDIR)$(docdir)/apidoc/html
+	$(INSTALL_DATA) `test -f apidoc/html/index.html || echo $(srcdir)/`apidoc/html/*.html $(DESTDIR)$(docdir)/apidoc/html
 endif
 
 ###############################
@@ -76,6 +78,11 @@ apidoc.pdf apidoc/html/index.html: $(APIDOC_SRC) doxygen_api_conf \
 	top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN) doxygen_api_conf
 	cd apidoc/latex && (pool_size=750000 $(MAKE) refman.pdf||(cat refman.log;exit 1))
 	mv apidoc/latex/refman.pdf apidoc.pdf
+	if test "x$(PNGCRUSH)" != x ; then \
+	  for png in apidoc/html/*.png ; do \
+	    $(PNGCRUSH) -q $$png $${png}T && mv $${png}T $$png ; \
+	  done \
+	fi
 	touch apidoc/html/index.html
 
 # This dependency is required so that parallel make doesn't try to run latex

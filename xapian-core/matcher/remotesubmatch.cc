@@ -2,6 +2,7 @@
  *  @brief SubMatch class for a remote database.
  */
 /* Copyright (C) 2006,2007 Olly Betts
+ * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,31 +20,39 @@
  */
 
 #include <config.h>
+#include "remotesubmatch.h"
 
 #include "msetpostlist.h"
+#include "omdebug.h"
 #include "remote-database.h"
-#include "remotesubmatch.h"
-#include "networkstats.h"
+#include "stats.h"
+
+RemoteSubMatch::RemoteSubMatch(RemoteDatabase *db_, bool decreasing_relevance_)
+	: db(db_), decreasing_relevance(decreasing_relevance_)
+{
+    DEBUGCALL(MATCH, void, "RemoteSubMatch",
+	      db_ << ", " << decreasing_relevance_);
+}
 
 bool
-RemoteSubMatch::prepare_match(bool nowait)
+RemoteSubMatch::prepare_match(bool nowait, Stats & total_stats)
 {
     DEBUGCALL(MATCH, bool, "RemoteSubMatch::prepare_match", nowait);
-    // Read Stats from the remote server and pass them to the StatsSource.
     Stats remote_stats;
     if (!db->get_remote_stats(nowait, remote_stats)) RETURN(false);
-    stats_source.take_remote_stats(remote_stats);
+    total_stats += remote_stats;
     RETURN(true);
 }
 
 void
-RemoteSubMatch::start_match(Xapian::doccount maxitems,
-			    Xapian::doccount check_at_least)
+RemoteSubMatch::start_match(Xapian::doccount first,
+			    Xapian::doccount maxitems,
+			    Xapian::doccount check_at_least,
+			    const Stats & total_stats)
 {
     DEBUGCALL(MATCH, void, "RemoteSubMatch::start_match",
-	      maxitems << ", " << check_at_least);
-    db->send_global_stats(0, maxitems, check_at_least,
-			  *(gatherer->get_stats()));
+	      first << ", " << maxitems << ", " << check_at_least);
+    db->send_global_stats(first, maxitems, check_at_least, total_stats);
 }
 
 PostList *

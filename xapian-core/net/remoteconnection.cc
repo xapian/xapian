@@ -24,6 +24,7 @@
 
 #include "safeerrno.h"
 #include "safefcntl.h"
+#include "safeunistd.h"
 
 #include <string>
 

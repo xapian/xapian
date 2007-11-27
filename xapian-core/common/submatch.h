@@ -27,6 +27,9 @@
 #include "omenquireinternal.h"
 #include "postlist.h"
 
+// Forward declaration.
+class Stats;
+
 class SubMatch : public Xapian::Internal::RefCntBase {
   public:
     /// Virtual destructor required because we have virtual methods.
@@ -42,6 +45,7 @@ class SubMatch : public Xapian::Internal::RefCntBase {
      *			false in this situation allowing the matcher to ask
      *			other database.  If nowait is false, then this method
      *			will block until statistics are available.
+     *  @param total_stats A Stats object which the statistics should be added to.
      *
      *  @return		If nowait is true and results aren't available yet
      *			then false will be returned and this method must be
@@ -49,11 +53,19 @@ class SubMatch : public Xapian::Internal::RefCntBase {
      *			are available or nowait is false, then this method
      *			returns true.
      */
-    virtual bool prepare_match(bool nowait) = 0;
+    virtual bool prepare_match(bool nowait, Stats & total_stats) = 0;
 
-    /// Start the match.
-    virtual void start_match(Xapian::doccount maxitems,
-			     Xapian::doccount check_at_least) = 0;
+    /** Start the match.
+     *
+     *  @param first          The first item in the result set to return.
+     *  @param maxitems       The maximum number of items to return.
+     *  @param check_at_least The minimum number of items to check.
+     *  @param total_stats    The total statistics for the collection.
+     */
+    virtual void start_match(Xapian::doccount first,
+			     Xapian::doccount maxitems,
+			     Xapian::doccount check_at_least,
+			     const Stats & total_stats) = 0;
 
     /// Get PostList and term info.
     virtual PostList * get_postlist_and_term_info(MultiMatch *matcher,

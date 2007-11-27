@@ -30,13 +30,6 @@ using namespace std;
 
 AllTermsList::~AllTermsList() { }
 
-void
-AllTermsList::accumulate_stats(Xapian::Internal::ExpandStats &) const
-{
-    Assert(false); // should never get called
-    abort();
-}
-
 Xapian::termcount
 AllTermsList::get_wdf() const
 {

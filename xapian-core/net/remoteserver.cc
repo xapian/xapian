@@ -20,6 +20,7 @@
  */
 
 #include <config.h>
+#include "remoteserver.h"
 
 #include <xapian/database.h>
 #include <xapian/enquire.h>
@@ -32,10 +33,11 @@
 
 #include "autoptr.h"
 #include "multimatch.h"
-#include "networkstats.h"
-#include "remoteserver.h"
+#include "omassert.h"
+#include "omtime.h"
 #include "serialise.h"
 #include "serialise-double.h"
+#include "stats.h"
 #include "utils.h"
 
 /// Class to throw when we receive the connection closing message.
@@ -53,7 +55,7 @@ RemoteServer::RemoteServer(const std::vector<std::string> &dbpaths,
     // Catch errors opening the database and propagate them to the client.
     try {
 	if (writable) {
-	    Assert(dbpaths.size() == 1); // Expecting exactly one database.
+	    AssertEq(dbpaths.size(), 1); // Expecting exactly one database.
 	    wdb = new Xapian::WritableDatabase(dbpaths[0], Xapian::DB_CREATE_OR_OPEN);
 	    db = wdb;
 	} else {
@@ -415,28 +417,31 @@ RemoteServer::msg_query(const string &message_in)
     // Unserialise the RSet object.
     Xapian::RSet rset = unserialise_rset(string(p, p_end - p));
 
-    NetworkStatsGatherer * gatherer = new NetworkStatsGatherer(this);
-
-    MultiMatch match(*db, query.get(), qlen, rset, collapse_key,
+    Stats local_stats;
+    MultiMatch match(*db, query.get(), qlen, &rset, collapse_key,
 		     percent_cutoff, weight_cutoff, order,
-		     sort_key, sort_by, sort_value_forward,
-		     NULL, gatherer, wt.get());
+		     sort_key, sort_by, sort_value_forward, NULL,
+		     NULL, local_stats, wt.get());
 
-    send_message(REPLY_STATS, serialise_stats(gatherer->get_local_stats()));
+    send_message(REPLY_STATS, serialise_stats(local_stats));
 
     string message;
 #if 0 // Reinstate this when major protocol version increases to 31.
     get_message(active_timeout, message, MSG_GETMSET);
 #else
     char type = get_message(active_timeout, message);
-    if (type != MSG_GETMSET_PRE_30_3 && type != MSG_GETMSET) {
-	string errmsg("Expecting message type ");
-	errmsg += om_tostring(MSG_GETMSET_PRE_30_3);
-	errmsg += " or ";
-	errmsg += om_tostring(MSG_GETMSET);
-	errmsg += ", got ";
-	errmsg += om_tostring(type);
-	throw Xapian::NetworkError(errmsg);
+    if (rare(type != MSG_GETMSET)) {
+	if (type != MSG_GETMSET_PRE_30_5 && type != MSG_GETMSET_PRE_30_3) {
+	    string errmsg("Expecting message type ");
+	    errmsg += om_tostring(MSG_GETMSET_PRE_30_3);
+	    errmsg += " or ";
+	    errmsg += om_tostring(MSG_GETMSET_PRE_30_5);
+	    errmsg += " or ";
+	    errmsg += om_tostring(MSG_GETMSET);
+	    errmsg += ", got ";
+	    errmsg += om_tostring(type);
+	    throw Xapian::NetworkError(errmsg);
+	}
     }
 #endif
     p = message.c_str();
@@ -451,12 +456,16 @@ RemoteServer::msg_query(const string &message_in)
     }
 
     message.erase(0, message.size() - (p_end - p));
-    global_stats = unserialise_stats(message);
+    Stats total_stats(unserialise_stats(message));
 
     Xapian::MSet mset;
-    match.get_mset(first, maxitems, check_at_least, mset, 0, 0);
+    match.get_mset(first, maxitems, check_at_least, mset, total_stats, 0, 0);
 
-    send_message(REPLY_RESULTS, serialise_mset(mset));
+    if (type == MSG_GETMSET_PRE_30_3 || type == MSG_GETMSET_PRE_30_5) {
+	send_message(REPLY_RESULTS_PRE_30_5, serialise_mset_pre_30_5(mset));
+    } else {
+	send_message(REPLY_RESULTS, serialise_mset(mset));
+    }
 }
 
 void

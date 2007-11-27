@@ -22,6 +22,7 @@
 
 #include <config.h>
 #include "andnotpostlist.h"
+#include "omdebug.h"
 #include <algorithm>
 
 PostList *

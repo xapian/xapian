@@ -15,69 +15,68 @@ INTDIR=.\
 ALL : "$(OUTDIR)\libmatcher.lib" 
 
 OBJS= \
-                 $(INTDIR)\orpostlist.obj \
-                 $(INTDIR)\andpostlist.obj \
-                 $(INTDIR)\andnotpostlist.obj \
-                 $(INTDIR)\andmaybepostlist.obj \
-                 $(INTDIR)\xorpostlist.obj \
-                 $(INTDIR)\phrasepostlist.obj \
-                 $(INTDIR)\selectpostlist.obj \
-                 $(INTDIR)\rset.obj \
-                 $(INTDIR)\bm25weight.obj \
-                 $(INTDIR)\tradweight.obj \
-                 $(INTDIR)\localmatch.obj \
-                 $(INTDIR)\multiandpostlist.obj \
-                 $(INTDIR)\multimatch.obj \
-                 $(INTDIR)\stats.obj \
-                 $(INTDIR)\mergepostlist.obj \
-                 $(INTDIR)\msetpostlist.obj \
-                 $(INTDIR)\msetcmp.obj \
-                 $(INTDIR)\emptysubmatch.obj \
-                 $(INTDIR)\exactphrasepostlist.obj \
-                 $(INTDIR)\valuerangepostlist.obj \
-                 $(INTDIR)\weight.obj \
-                 $(INTDIR)\remotesubmatch.obj \
-                 $(INTDIR)\branchpostlist.obj \
-                 $(INTDIR)\scaleweight.obj \
-                 $(INTDIR)\queryoptimiser.obj 
+    $(INTDIR)\andmaybepostlist.obj\
+    $(INTDIR)\andnotpostlist.obj\
+    $(INTDIR)\andpostlist.obj\
+    $(INTDIR)\bm25weight.obj\
+    $(INTDIR)\branchpostlist.obj\
+    $(INTDIR)\emptysubmatch.obj\
+    $(INTDIR)\exactphrasepostlist.obj\
+    $(INTDIR)\localmatch.obj\
+    $(INTDIR)\mergepostlist.obj\
+    $(INTDIR)\msetcmp.obj\
+    $(INTDIR)\msetpostlist.obj\
+    $(INTDIR)\multiandpostlist.obj\
+    $(INTDIR)\multimatch.obj\
+    $(INTDIR)\orpostlist.obj\
+    $(INTDIR)\phrasepostlist.obj\
+    $(INTDIR)\queryoptimiser.obj\
+    $(INTDIR)\rset.obj\
+    $(INTDIR)\scaleweight.obj\
+    $(INTDIR)\selectpostlist.obj\
+    $(INTDIR)\stats.obj\
+    $(INTDIR)\tradweight.obj\
+    $(INTDIR)\valuerangepostlist.obj\
+    $(INTDIR)\weight.obj\
+    $(INTDIR)\xorpostlist.obj\
+    $(INTDIR)\remotesubmatch.obj
 
 
 SRCS= \
-                 $(INTDIR)\orpostlist.cc \
-                 $(INTDIR)\andpostlist.cc \
-                 $(INTDIR)\andnotpostlist.cc \
-                 $(INTDIR)\andmaybepostlist.cc \
-                 $(INTDIR)\xorpostlist.cc \
-                 $(INTDIR)\phrasepostlist.cc \
-                 $(INTDIR)\selectpostlist.cc \
-                 $(INTDIR)\rset.cc \
-                 $(INTDIR)\bm25weight.cc \
-                 $(INTDIR)\tradweight.cc \
-                 $(INTDIR)\localmatch.cc \
-                 $(INTDIR)\multiandpostlist.cc \
-                 $(INTDIR)\multimatch.cc \
-                 $(INTDIR)\stats.cc \
-                 $(INTDIR)\mergepostlist.cc \
-                 $(INTDIR)\msetpostlist.cc \
-                 $(INTDIR)\msetcmp.cc \
-                 $(INTDIR)\emptysubmatch.cc \
-                 $(INTDIR)\exactphrasepostlist.cc \
-                 $(INTDIR)\valuerangepostlist.cc \
-                 $(INTDIR)\weight.cc \
-                 $(INTDIR)\remotesubmatch.cc \
-                 $(INTDIR)\branchpostlist.cc \
-                 $(INTDIR)\scaleweight.cc \
-                 $(INTDIR)\queryoptimiser.cc 
-
+    $(INTDIR)\andmaybepostlist.cc\
+    $(INTDIR)\andnotpostlist.cc\
+    $(INTDIR)\andpostlist.cc\
+    $(INTDIR)\bm25weight.cc\
+    $(INTDIR)\branchpostlist.cc\
+    $(INTDIR)\emptysubmatch.cc\
+    $(INTDIR)\exactphrasepostlist.cc\
+    $(INTDIR)\localmatch.cc\
+    $(INTDIR)\mergepostlist.cc\
+    $(INTDIR)\msetcmp.cc\
+    $(INTDIR)\msetpostlist.cc\
+    $(INTDIR)\multiandpostlist.cc\
+    $(INTDIR)\multimatch.cc\
+    $(INTDIR)\orpostlist.cc\
+    $(INTDIR)\phrasepostlist.cc\
+    $(INTDIR)\queryoptimiser.cc\
+    $(INTDIR)\rset.cc\
+    $(INTDIR)\scaleweight.cc\
+    $(INTDIR)\selectpostlist.cc\
+    $(INTDIR)\stats.cc\
+    $(INTDIR)\tradweight.cc\
+    $(INTDIR)\valuerangepostlist.cc\
+    $(INTDIR)\weight.cc\
+    $(INTDIR)\xorpostlist.cc\
+    $(INTDIR)\remotesubmatch.cc
 
 
 
 CLEAN :
-	-@erase "$(OUTDIR)\libmatcher.lib"
-	-@erase "*.pch"
+    -@erase "$(OUTDIR)\libmatcher.lib"
+    -@erase "*.pch"
         -@erase "$(INTDIR)\getopt.obj"
-	-@erase "$(INTDIR)\*.pdb"
-	-@erase $(OBJS)
+    -@erase "$(INTDIR)\*.pdb"
+    -@erase $(OBJS)
 
 
 "$(OUTDIR)" :
@@ -99,8 +98,8 @@ CPP_SBRS=.
 
 # inference rules, showing how to create one type of file from another with the same root name
 {.}.cc{$(INTDIR)}.obj::
-	$(CPP) @<<
-	$(CPP_PROJ) $< 
+    $(CPP) @<<
+    $(CPP_PROJ) $< 
 <<
 
 {.}.cc{$(CPP_SBRS)}.sbr::
@@ -110,5 +109,5 @@ CPP_SBRS=.
 
 # Calculate any header dependencies and automatically insert them into this file
 HEADERS :
-            ..\win32\$(DEPEND) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)"
+            if exist ..\win32\$(DEPEND) ..\win32\$(DEPEND) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)"
 # DO NOT DELETE THIS LINE -- make depend depends on it.

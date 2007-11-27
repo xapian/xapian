@@ -30,6 +30,13 @@ namespace Xapian {
 
 TermIterator::Internal::~Internal() { }
 
+void
+TermIterator::Internal::accumulate_stats(Xapian::Internal::ExpandStats &) const
+{
+    // accumulate_stats should never get called for some subclasses.
+    Assert(false);
+}
+
 Xapian::termcount
 TermIterator::Internal::get_collection_freq() const
 {

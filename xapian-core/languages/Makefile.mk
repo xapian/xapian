@@ -4,8 +4,6 @@ if VPATH_BUILD
 INCLUDES += -I$(top_srcdir)/languages -Ilanguages
 endif
 
-SUFFIXES += .sbl
-
 noinst_HEADERS +=\
 	languages/steminternal.h
 

@@ -48,6 +48,7 @@
 #include <xapian/matchspy.h>
 #include <xapian/query.h>
 #include <xapian/queryparser.h>
+#include <xapian/sorter.h>
 
 // Stemming
 #include <xapian/stem.h>

@@ -161,7 +161,10 @@ class XAPIAN_VISIBILITY_DEFAULT DateValueRangeProcessor : public ValueRangeProce
 // declared in an external or internal header, so will only be used when
 // dynamically linking with application code built against Xapian 1.0.0 or
 // 1.0.1.
+#ifndef DOXYGEN
+// Hide the v102 namespace from Doxygen as it isn't user-visible.
 namespace v102 {
+#endif
 
 /** Handle a number range.
  *
@@ -231,10 +234,12 @@ class XAPIAN_VISIBILITY_DEFAULT NumberValueRangeProcessor : public ValueRangePro
     Xapian::valueno operator()(std::string &begin, std::string &end);
 };
 
+#ifndef DOXYGEN
 }
 
-#ifndef XAPIAN_NO_V102_NUMBER_VRP
+# ifndef XAPIAN_NO_V102_NUMBER_VRP
 using v102::NumberValueRangeProcessor;
+# endif
 #endif
 
 /// Build a Xapian::Query object from a user query string.

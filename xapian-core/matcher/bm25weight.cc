@@ -2,7 +2,8 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,7 +30,9 @@
 #include "omassert.h"
 #include "omdebug.h"
 #include "serialise-double.h"
-#include "stats.h"
+#include "weightinternal.h"
+
+using namespace std;
 
 namespace Xapian {
 
@@ -37,7 +40,7 @@ BM25Weight * BM25Weight::clone() const {
     return new BM25Weight(k1, k2, k3, b, min_normlen);
 }
 
-std::string BM25Weight::name() const { return "BM25"; }
+string BM25Weight::name() const { return "BM25"; }
 
 string BM25Weight::serialise() const {
     string result = serialise_double(k1);
@@ -66,35 +69,35 @@ BM25Weight::calc_termweight() const
 {
     DEBUGCALL(MATCH, void, "BM25Weight::calc_termweight", "");
 
-    Xapian::doccount dbsize = internal->get_total_collection_size();
-    lenpart = internal->get_total_average_length();
-
+    lenpart = internal->average_length;
     // lenpart == 0 if there are no documents, or only empty documents.
     if (lenpart != 0) lenpart = 1 / lenpart;
 
-    Xapian::doccount termfreq = internal->get_total_termfreq(tname);
+    Xapian::doccount termfreq = internal->termfreq;
 
-    DEBUGMSG(WTCALC, "Statistics: N=" << dbsize << " n_t=" << termfreq);
+    DEBUGLINE(WTCALC, "Statistics: N=" << internal->collection_size <<
+	      " n_t=" << termfreq << " lenpart=" << lenpart);
 
     Xapian::weight tw = 0;
-    Xapian::doccount rsize = internal->get_total_rset_size();
-    if (rsize != 0) {
-	Xapian::doccount rtermfreq = internal->get_total_reltermfreq(tname);
+    if (internal->rset_size != 0) {
+	Xapian::doccount rtermfreq = internal->reltermfreq;
 
-	DEBUGMSG(WTCALC, " R=" << rsize << " r_t=" << rtermfreq);
+	DEBUGLINE(WTCALC, " R=" << internal->rset_size << " r_t=" << rtermfreq);
 
 	// termfreq must be at least rtermfreq since there are at least
-	// rtermfreq documents indexed by this term.  And it can't be
-	// more than (dbsize - rsize + rtermfreq) since the number
-	// of relevant documents not indexed by this term can't be
+	// rtermfreq documents indexed by this term.  And it can't be more than
+	// (internal->collection_size - internal->rset_size + rtermfreq) since
+	// the number of relevant documents not indexed by this term can't be
 	// more than the number of documents not indexed by this term.
 	Assert(termfreq >= rtermfreq);
-	Assert(termfreq <= dbsize - rsize + rtermfreq);
+	Assert(termfreq <= internal->collection_size - internal->rset_size + rtermfreq);
 
-	tw = (rtermfreq + 0.5) * (dbsize - rsize - termfreq + rtermfreq + 0.5) /
-	     ((rsize - rtermfreq + 0.5) * (termfreq - rtermfreq + 0.5));
+	tw = ((rtermfreq + 0.5) *
+	      (internal->collection_size - internal->rset_size - termfreq + rtermfreq + 0.5)) /
+	     ((internal->rset_size - rtermfreq + 0.5) *
+	      (termfreq - rtermfreq + 0.5));
     } else {
-	tw = (dbsize - termfreq + 0.5) / (termfreq + 0.5);
+	tw = (internal->collection_size - termfreq + 0.5) / (termfreq + 0.5);
     }
 
     Assert(tw > 0);
@@ -127,8 +130,8 @@ BM25Weight::get_sumpart(Xapian::termcount wdf, Xapian::doclength len) const
     } else {
 	wt = 0;
     }
-    DEBUGMSG(WTCALC, "(wdf,len,lenpart) = (" << wdf << "," << len << "," <<
-	     lenpart << ") => wtadj = " << wt);
+    DEBUGLINE(WTCALC, "(wdf,len,lenpart) = (" << wdf << "," << len << "," <<
+	      lenpart << ") => wtadj = " << wt);
 
     wt *= termweight;
 
@@ -153,6 +156,8 @@ Xapian::weight
 BM25Weight::get_sumextra(Xapian::doclength len) const
 {
     DEBUGCALL(MATCH, Xapian::weight, "BM25Weight::get_sumextra", len);
+    if (!weight_calculated) calc_termweight();
+
     Xapian::doclength normlen = len * lenpart;
     if (normlen < min_normlen) normlen = min_normlen;
     Xapian::weight extra = 2 * k2 * querysize / (1 + normlen);
@@ -172,6 +177,7 @@ BM25Weight::get_maxextra() const
 }
 
 bool BM25Weight::get_sumpart_needs_doclength() const {
+    if (!weight_calculated) calc_termweight();
     return (b != 0 && k1 != 0 && lenpart != 0);
 }
 

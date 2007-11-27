@@ -21,12 +21,16 @@ concerned with creating them.
 </P>
 
 <P>
-It is probably a good idea to read the
-<A HREF="intro_ir.html">Introduction to Information Retrieval</A> and
-<A HREF="install.html">Installing Xapian</A> before reading this document,
-or at least before attempting to use the API.  You may also wish to read
+This document assumes you already have Xapian installed, so if you
+haven't, it is a good idea to read <A HREF="install.html">Installing Xapian</A> first.
+</P>
+
+<P>
+You may also wish to read
 the <A HREF="quickstart.html">QuickStart</A> reference, for some simple
-worked examples of Xapian usage.
+worked examples of Xapian usage, and the
+<A HREF="intro_ir.html">Introduction to Information Retrieval</A> for a
+background into the Information Retrieval theories behind Xapian.
 </P>
 
 <P>
@@ -217,6 +221,13 @@ flint /var/spool/xapian/webindex<br>
 The current types understood by Xapian are:
 </P>
 <TABLE>
+<TR><TD VALIGN="top"><B>auto</B></TD><TD>
+<P>
+This isn't an actual database format, but rather auto-detection of one of the
+disk based backends ("flint", "quartz", or "stub") from a single specified
+file or directory path.
+</P>
+</TD></TR>
 <TR><TD VALIGN="top"><B>flint</B></TD><TD>
 <P>
 Flint is a default backend as of Xapian 1.0. It supports incremental
@@ -303,18 +314,18 @@ A word like
 &quot;<EM>grand</EM>&quot;,
 exists in both languages (with similar meanings), but is more common in French
 than English. In the English subset it could therefore be expected to have a higher
-weight than it would get in the joint English and French
-databases.
-
+weight than it would get in the joint English and French databases.
 </P>
-<P>
-In fact Xapian, as described below, goes for the second approach, which
-can be implemented very efficiently, despite the the fact that the first
-is more exact.
 
-</P>
 <P>
-In reality, Xapian performs the combined boolean and probabilistic searches
+Xapian takes the second approach simply because this can be implemented very
+efficiently.  The first approach is more exact, but inefficient to implement.
+</P>
+
+<P>
+Rather than implementing this approach as described above and first
+performing the probabilistic search and then filtering the results, Xapian
+actually performs both tasks
 simultaneously.  This allows various optimisations to be performed, such
 as giving up on calculating a boolean AND operation when the probabilistic
 weights that could result from further documents can have no effect on the
@@ -325,13 +336,15 @@ containing many terms.
 
 <H3>A query for a single term</H3>
 <P>
-All queries are represented by
+A search query is represented by a
 <A HREF="apidoc/html/classXapian_1_1Query.html"><CODE>Xapian::Query</CODE></A>
-objects.  The simplest possible useful query is one which searches
-for a single term.  This can be created as follows (where <CODE>tname</CODE> is the term to be searched for):
+object.  The simplest useful query is one which searches for a single term
+(and several of these can be combined to form more complex queries).
+A single term query can be created as follows (where <CODE>term</CODE> is a
+<CODE>std::string</CODE> holding the term to be searched for):
 </P>
 <PRE>
-Xapian::Query query(tname);
+Xapian::Query query(term);
 </PRE>
 <P>
 A term in Xapian is represented simply by a string of binary characters.
@@ -350,15 +363,19 @@ Xapian::Query(const string &amp; tname_,
 </PRE>
 <P>
 The <CODE>wqf</CODE> (<B>W</B>ithin <B>Q</B>uery <B>F</B>requency) is
-a measure of how common a term is in the query.  This is particularly useful
+a measure of how common a term is in the query.  This isn't useful for
+a single term query unless it is going to be combined to form a more
+complex query.  In that case, it's particularly useful
 when generating a query from an existing document, but may also be used
-to increase the "importance" of a term in a query.  Note that,
-if the intention is simply to ensure that a particular term is in the query
-results, you should use a boolean AND or AND_MAYBE rather than set a high wqf.
+to increase the "importance" of a term in a query.  Another way to
+increase the "importance" of a term is to use <code>OP_SCALE_WEIGHT</code>.
+But if the intention is simply to ensure that a particular term is in the query
+results, you should use a boolean AND or AND_MAYBE rather than setting a high wqf.
 </P>
 <P>
 The <CODE>term_pos</CODE> represents the position of the term in the query.
-This is used for phrase searching, passage retrieval, and other operations
+Again, this isn't useful for a single term query by itself, but is used for
+phrase searching, passage retrieval, and other operations
 which require knowledge of the order of terms in the query (such as returning
 the set of matching terms in a given document in the same order as they
 occur in the query).  If such operations are not required, the default
@@ -446,11 +463,10 @@ a query with all those terms combined as an OR query.
 
 <P>
 Each term in the query has a weight in each document.  Each document may also
-have an additional weights not associated with any of the terms.  By default
-the probabilistic weighting scheme BM25 is used to provide the formulae which
-give these weights.  See the <A
-HREF="intro_ir.html">Introduction to Information Retrieval</A> for a fuller
-discussion.
+have an additional weight not associated with any of the terms.  By default
+the probabilistic weighting scheme <a href="bm25.html">BM25</a>
+is used to provide the formulae which
+give these weights.
 </P>
 <P>
 A query can be thought of as a tree structure. At each node is
@@ -566,13 +582,13 @@ and right branches are not transmitted up the tree. For example,
 construction, so it will not be mentioned again.-->
 </P>
 <P>
-A query can therefore be thought of as a process for generating an M set from
+A query can therefore be thought of as a process for generating an MSet from
 the terms at the leaf nodes of the query. Each leaf node gives rise to a
 posting list of documents with scores. Each higher level node gives rise to a
 similar list, and the root node of the tree contains the final set of documents
-with scores (or weights), which are candidates for going into the M set. The M
-set contains the documents which get the highest weights, and they are held in
-the M set in weight order.
+with scores (or weights), which are candidates for going into the MSet. The
+MSet contains the documents which get the highest weights, and they are held in
+the MSet in weight order.
 </P>
 <P>
 It is important to realise that within Xapian the structure of a query is
@@ -584,7 +600,7 @@ Xapian will build the same structure internally.
 </P>
 
 <H3>Using queries</H3>
-
+<H4>Probabilistic queries </H4>
 A plain probabilistic query is created by connecting terms together with
 Xapian::Query::OP_OR operators. For example,
 
@@ -612,7 +628,7 @@ construction:
 
     Xapian::Query query(Xapian::Query::OP_OR, terms.begin(), terms.end());
 </PRE>
-
+<H4>Boolean queries</H4>
 Suppose now we have this Boolean query,
 <PRE>
     ('EEC' - 'France') and ('1989' or '1991' or '1992') and 'Corporate Law'
@@ -641,6 +657,7 @@ probabilistic query with a Boolean filter,
 
 If you want to run a pure boolean query, then set BoolWeight as the weighting
 scheme (by calling Enquire::set_weighting_scheme() with argument BoolWeight()).
+<H4>Plus and minus terms </H4>
 <P>
 A common requirement in search engine functionality is to run a
 probabilistic query where some terms are required to index all the
@@ -734,7 +751,7 @@ result:
 <TR><TD VALIGN="top">
 <CODE>firstitem</CODE>
 </TD><TD>
-The index of the first item in the result which was put into the mset.
+The index of the first item in the result which was put into the MSet.
 (Corresponding to <CODE>first</CODE> in
 <CODE>Xapian::Enquire::get_mset()</CODE>)
 </TD></TR><TR><TD VALIGN="top">
@@ -744,11 +761,11 @@ The greatest weight which is attained in the full results of the search.
 </TD></TR><TR><TD VALIGN="top">
 <CODE>max_possible</CODE>
 </TD><TD VALIGN="top">
-The maximum possible weight in the mset.
+The maximum possible weight in the MSet.
 </TD></TR><TR><TD VALIGN="top">
 <CODE>docs_considered</CODE>
 </TD><TD VALIGN="top">
-The number of documents matching the query considered for the mset.
+The number of documents matching the query considered for the MSet.
 This provides a lower bound on the number of documents in the database
 which have a weight greater than zero.  Note that this value may change
 if the search is recalculated with different values for <CODE>first</CODE> or

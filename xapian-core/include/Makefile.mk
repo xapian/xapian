@@ -23,6 +23,7 @@ xapianinclude_HEADERS =\
 	include/xapian/postingiterator.h\
 	include/xapian/query.h\
 	include/xapian/queryparser.h\
+	include/xapian/sorter.h\
 	include/xapian/stem.h\
 	include/xapian/termgenerator.h\
 	include/xapian/termiterator.h\

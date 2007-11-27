@@ -6,7 +6,7 @@ dnl 2.57 fixes the annoying warnings from configure on FreeBSD
 dnl 2.58 is needed by automake 1.8.5
 dnl 2.59 was released the same day as 2.58 to fix a problem
 AC_PREREQ(2.59)
-AC_INIT(xapian-bindings, 1.0.3)dnl FIXME: bugreport addr as third argument
+AC_INIT(xapian-bindings, 1.0.4)dnl FIXME: bugreport addr as third argument
 dnl 1.9 reduces Makefile.in size, and 1.9.5 was in Debian sarge
 dnl But the RPM spec file runs autoreconf, and SLES 9 has 1.8.3.
 AM_INIT_AUTOMAKE([1.8.3 -Wportability tar-ustar])
@@ -124,29 +124,18 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   if test -z "$SWIG" ; then
     AC_MSG_ERROR([Can't find SWIG utility])
   fi
-  dnl Check for swig >= 1.3.32
-  dnl (1.3.32 isn't released at the time of writing, but SWIG SVN trunk
-  dnl rev 9853 or later is required, and this identifies itself as 1.3.32).
+  dnl Check for swig >= 1.3.32 (SVN rev 10143):
   dnl
-  dnl 1.3.23 adds support for optional arguments in CSharp.
-  dnl 1.3.24 tweaks CSharp enums
-  dnl 1.3.26 fixes PHP overloading
-  dnl 1.3.27 contains a few fixes, none of which affect us
-  dnl 1.3.28 contains many useful fixes and changes - one thing we need it
-  dnl for is a ability to automatically rename method names for CSharp (e.g.
-  dnl get_description becomes getDescription).
-  dnl 1.3.29 fixes PHP to give an error if an overload can't be resolved
   dnl 1.3.30 produces class wrappers for PHP5
-  dnl You can see the latest SWIG changes here:
-  dnl http://cvs.sourceforge.net/viewcvs.py/*checkout*/swig/SWIG/CHANGES
-  dnl 1.3.32 fixes PHP5 wrappers for overloaded forms with default arguments
-  dnl and some problems with ZTS-enabled PHP builds (noted on
-  dnl Windows; Linux builds of PHP generally don't enable ZTS).
+  dnl 1.3.32 fixes PHP5 wrappers for overloaded forms with default arguments,
+  dnl memory leaks for PHP4 and PHP5, some problems with ZTS-enabled PHP builds
+  dnl (noted on Windows; Linux builds of PHP generally don't enable ZTS), and
+  dnl several other issues.
   v=`$SWIG -version 2>&1|sed 's/^SWIG Version \([[0-9\.]]*\).*/\1/p;d'`
   case $v in
     [1.3.[3-9][0-9]|1.3.[1-9][0-9][0-9][0-9]*|1.[4-9].*|2.*]) ;;
     *)
-      msg="SWIG >= 1.3.32 (SVN rev 9853 or later) required (you have ${v:-an unknown version})"
+      msg="SWIG >= 1.3.32 (SVN rev 10143 or later) required (you have ${v:-an unknown version})"
       if test -n "$swigoverridden" ; then
 	dnl If SWIG was explicitly set, make this a warning only.
 	AC_MSG_WARN([$msg])
@@ -231,7 +220,7 @@ if test no != "$with_python" ; then
     *)
       AC_MSG_RESULT([$version (too old)])
       if test yes = "$with_python" ; then
-	AC_MSG_ERROR([Only python 2.1 or newer is supported ($python is $version)])
+	AC_MSG_ERROR([Only python 2.2 or newer is supported ($python is $version)])
       fi
       PYTHON=
       ;;
@@ -400,32 +389,40 @@ if test no != "$with_tcl" ; then
     # don't pass -DUSE_TCL_STUBS when compiling) should you need that.
     AC_MSG_CHECKING([$TCLSH version])
     if echo 'if {$tcl_version < 8.1 } { exit 1 }'|$TCLSH 2> /dev/null ; then
-      AC_MSG_RESULT([>= 8.1])
-      tcl_lib=`echo 'puts $tcl_library'|$TCLSH`
+      tcl_version=`echo 'puts "$tcl_version"'|$TCLSH`
+      AC_MSG_RESULT([$tcl_version])
+
       AC_ARG_VAR(TCL_LIB, [Directory to install Tcl files into])
       if test -z "$TCL_LIB" ; then    
-	TCL_LIB=$tcl_lib
+	TCL_LIB=`echo 'puts $tcl_library'|$TCLSH`
       fi
       AC_SUBST(TCL_LIB)
-      dnl There's no obvious way to get "/usr/include/tcl8.N" directly...
-      dnl debian uses /usr/lib/tcl8.4, FC2 uses /usr/share/tcl8.4
-      TCL_INC=`echo "$tcl_lib"|sed 's!/\(share\|lib\)/!/include/!'`
+
+      dnl There's no obvious way to get "/usr/include/tcl8.N" directly, so
+      dnl first we find the prefix Tcl is installed under (e.g. "/usr") from
+      dnl the path on TCLSH (or default to /usr if the path doesn't contain
+      dnl "/bin/"), and then we add "/include/tcl" and $tcl_version.
+      tcl_prefix=`echo "$TCLSH"|sed 's!/bin/.*!!p;d'`
+      test -n "$tcl_prefix" || tcl_prefix=/usr
+      TCL_INC=${tcl_prefix}/include/tcl${tcl_version}
+
       dnl Check that the headers are there (the tcl8.N-dev package
       dnl may not be installed).
       TCL_CPPFLAGS=
-      AC_MSG_CHECKING([for tcl.h for version $TCL_VERSION])
+      AC_MSG_CHECKING([for tcl.h for version $tcl_version])
       if test -f "$TCL_INC/tcl.h" ; then
 	AC_MSG_RESULT([$TCL_INC/tcl.h])
 	BINDINGS="$BINDINGS tcl8"
 	TCL_CPPFLAGS="-I$TCL_INC"
       elif test -f "/usr/include/tcl.h" ; then
-	if test x`awk '($1 == "#define" && $2 == "TCL_VERSION") {print $3}' /usr/include/tcl.h` = x'"'`echo 'puts $tcl_version'|$TCLSH`'"' ; then
+	tcl_hdr_version=`awk '($1 == "#define" && $2 == "TCL_VERSION") {print $3}' /usr/include/tcl.h`
+	if test x"$tcl_hdr_version" = x'"'"$tcl_version"'"' ; then
 	  AC_MSG_RESULT([/usr/include/tcl.h])
 	  BINDINGS="$BINDINGS tcl8"
 	else
 	  AC_MSG_RESULT([not found])
 	  if test yes = "$with_tcl" ; then
-	    AC_MSG_ERROR([Can't find tcl.h for version $TCL_VERSION])
+	    AC_MSG_ERROR([Can't find tcl.h for version $tcl_version])
 	  fi
 	fi
       else
@@ -651,20 +648,21 @@ if test no != "$with_java" ; then
       AC_MSG_CHECKING([for Java path separator])
       [echo 'public class conftest { public static void main(String[] args) { System.out.println(System.getProperty("path.separator")); } }' > conftest.java]
       if (exec >&5 2>&5;$JAVAC conftest.java;exit $?) ; then
-	JAVA_PATHSEP=`$JAVA conftest 2> /dev/null`
+	JAVA_PATHSEP=`$JAVA conftest 2>&5`
 	AC_SUBST(JAVA_PATHSEP)
 	if test -n "$JAVA_PATHSEP" ; then
 	  AC_MSG_RESULT($JAVA_PATHSEP)
 	  BINDINGS="$BINDINGS java"
 	else
+	  AC_MSG_RESULT([failed to run test program])
 	  java_ok=no
 	fi
       else
+	AC_MSG_RESULT([failed to compile test program])
 	java_ok=no
       fi
       if test no = "$java_ok" ; then
-	AC_MSG_RESULT([test failed])
-	test yes = "$with_java" && AC_MSG_ERROR([Couldn't compile and run a simple Java program])
+	test yes = "$with_java" && AC_MSG_ERROR([Couldn't compile and run a simple Java test program])
       fi
     fi
   else

@@ -107,12 +107,14 @@ VALGRIND= ./runtest ./apitest
 Running test programs
 =====================
 
-To run all tests, use "make check".  You can also run just the subset of tests
-which exercise the inmemory, remote progserver, remote TCP, quartz, or flint
-backends using "make check-inmemory", "make check-remoteprog", "make
-check-remotetcp", "make check-quartz", or "make check-flint" respectively.
-Also, "make check-remote" will run the tests on both variants of the remote
-backend, and "make check-none" will run those tests which don't use any
+To run all tests, use ``make check``.  You can also run just the subset of
+tests which exercise the inmemory, remote progserver, remote TCP,
+multi-database, quartz, or flint backends using ``make check-inmemory``, ``make
+check-remoteprog``, ``make check-remotetcp``, ``make check-multi``,
+``make check-quartz``, or ``make check-flint`` respectively.
+
+Also, ``make check-remote`` will run the tests on both variants of the remote
+backend, and ``make check-none`` will run those tests which don't use any
 backend.  These are handy shortcuts when doing development work on a particular
 backend.
 
@@ -124,7 +126,7 @@ run a test program by hand (rather than via make) just use:
 ./runtest ./apitest
 
 You can specify options and arguments.  Individual test programs optionally
-take one or more test names as arguments, and you can also pass "-v" to get
+take one or more test names as arguments, and you can also pass ``-v`` to get
 more verbose output from failing tests, e.g.:
 
 ./runtest ./apitest -v deldoc1
@@ -140,7 +142,7 @@ You can also use runtest to run a test program under gdb (or most other tools):
 ./runtest valgrind ./apitest -v deldoc1
 
 Some test programs take special arguments - for example, you can restrict
-apitest to the flint backend using "-bflint".
+apitest to the flint backend using ``-bflint``.
 
 There are a few environmental variables which the testsuite harness checks for
 which you might find useful:
@@ -335,6 +337,7 @@ makeindex (usually packaged with TeX)
 help2man
 rst2html or rst2html.py (on Debian/Ubuntu, this is provided by the
         python-docutils package)
+pngcrush (optional - used to reduce the size of PNG files in the HTML apidocs)
 
 Building from SVN on Windows with MSVC:
 ---------------------------------------
@@ -502,7 +505,8 @@ If using GCC 3.0 or newer, you should consider configure-ing with:
 ./configure CXXFLAGS=-Werror
 
 when doing development work on Xapian.  This promotes warnings to errors,
-and should ensure you don't introduce warnings.
+which should ensure you at least don't introduce new warnings for the compiler
+you're using.
 
 If you configure with --enable-maintainer-mode, and are using GCC 4.0 or newer,
 this is done for you automatically.  This is intended to be an aid rather than

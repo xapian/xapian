@@ -1,14 +1,22 @@
-xapian-bindings (1.0.3-1) unstable; urgency=low
+  * debian/rules: Look for "CODENAME" and "debian/codename" rather than
+    "COMPONENT" and "debian/component".
+
+xapian-bindings (1.0.4-1) unstable; urgency=low
 
   * New upstream release.
     + "make clean" now removes python/testsuite.pyc.  Closes: #442766
   * debian/rules: Override RUBY_LIB and RUBY_LIB_ARCH which now have different
     defaults upstream.
-  * debian/patch: Add patch to fix NumberValueRangeProcessor for PHP4, which
-    some of the backports still support.  Add patch to fix regression test for
-    #193 which as shipped fails to work for PHP4.
+  * debian/patch: Backport configure fix from upstream SVN to allow tcl8 to be 
+    built on unstable.
+  * debian/tclxapian.install: Also package "usr/share/tcltk/xapian*" which is
+    where files get installed on unstable.
+  * debian/php4-xapian.install,debian/php5-xapian.install,
+    debian/python-xapian.install,debian/libxapian-ruby1.8.install,
+    debian/tclxapian.install: Update for "bindings.html" -> "index.html"
+    change.
 
- -- Olly Betts <olly@survex.com>  Tue,  9 Oct 2007 00:08:07 +0100
+ -- Olly Betts <olly@survex.com>  Fri,  2 Nov 2007 05:13:29 +0000
 
 xapian-bindings (1.0.2-1) unstable; urgency=low
 
