@@ -1,3 +1,8 @@
+Tue Nov 27 22:34:11 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* configure.ac: Change "print foo" to "print(foo)" in python
+	  version checks, for compatibility with python 3.0.
+
 Tue Nov 27 03:08:51 GMT 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: Log the output of trying to compile conftest.java in

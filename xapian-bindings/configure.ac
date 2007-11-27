@@ -213,7 +213,7 @@ if test no != "$with_python" ; then
     dnl for Pythonic iterator support, and it's now > 4.5 years since the last
     dnl 2.1.x release and 2.5 is out.
     AC_MSG_CHECKING([$PYTHON version])
-    version=`$PYTHON -c 'import sys;print sys.version[[:3]]' 2>/dev/null`
+    version=`$PYTHON -c 'import sys;print(sys.version[[:3]])' 2>/dev/null`
     case $version in
     [2.[2-9]*|2.1[0-9]*|[3-9].*])
       ;;
@@ -228,7 +228,7 @@ if test no != "$with_python" ; then
     AC_MSG_RESULT([$version])
     if test -n "$PYTHON" ; then
       if $PYTHON -c 'import distutils.sysconfig' 2>/dev/null ; then
-	PYTHON_INC=`$PYTHON -c 'import os,distutils.sysconfig;print distutils.sysconfig.get_python_inc().replace(os.sep,"/")'`
+	PYTHON_INC=`$PYTHON -c 'import os,distutils.sysconfig;print(distutils.sysconfig.get_python_inc().replace(os.sep,"/"))'`
 	AC_SUBST(PYTHON_INC)
       else
 	if test yes = "$with_python" ; then
