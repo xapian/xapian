@@ -1,3 +1,9 @@
+Tue Nov 27 16:56:12 GMT 2007  Olly Betts <olly@survex.com>
+
+	* xapian-config.in: Factor out the code to check if we need explicit
+	  dependencies into a function.  On platforms we know don't need
+	  explicit dependencies, --ltlibs now gives the same output as --libs.
+
 Tue Nov 27 00:24:18 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/Makefile.am: Remove api_regressions.cc from list - didn't
