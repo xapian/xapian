@@ -23,6 +23,8 @@
 
 #include "safeerrno.h"
 
+#include <cstring>
+
 using namespace std;
 
 void

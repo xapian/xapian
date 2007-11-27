@@ -73,8 +73,8 @@ Filtering parameters
 --------------------
 
 B
-	general boolean filter terms.  See overview.txt for details of how
-	multiple B parameters are handled.
+        general boolean filter terms.  See the `overview document
+        <overview.html>`_ for details of how multiple B parameters are handled.
 
 COLLAPSE
 	value number to use for removing duplicate documents.
@@ -144,7 +144,7 @@ Display parameters and navigation
 ---------------------------------
 
 FMT
-	name of page format to use (may not contain `..').
+	name of page format to use (may not contain ``..``).
 
 HITSPERPAGE
 	hits per page (integer) - clipped to range 10-1000.
@@ -160,7 +160,7 @@ number given by that parameter (trailing junk after the number is
 ignored). (See the section below on modification of CGI parameters to
 see how this works.)
 
-This means that <input type='image' .../> forms buttons can have names
+This means that <input type='image' .../> form buttons can have names
 of the form '[ 3 ]', which looks nice in lynx, for tooltips, and so
 on. For text-only links, you really need to write out the entire GET
 parameters and use a normal anchor.
@@ -184,13 +184,13 @@ page), so Omega does some mangling of these parameters:
  * PARAM.x is truncated to PARAM
  * if PARAM contains a space (the CGI parameter name, not the value):
     * the value becomes everything after the first space; the
-      original value is dropped. (eg: [ 2 ].x=NNN becomes [=2 ])
+      original value is dropped. (e.g.: [ 2 ].x=NNN becomes [=2 ])
 
    otherwise:
     * if PARAM is entirely numeric, the name becomes '#' and the value
-      becomes PARAM. (eg: 2.x=NNN becomes #=2)
+      becomes PARAM. (e.g.: 2.x=NNN becomes #=2)
     * if PARAM is not entirely numeric, the value is copied from PARAM
-      (eg: >.x=NNN becomes >=>)
+      (e.g.: >.x=NNN becomes >=>)
 
 Then, for ALL CGI parameters, the name is truncated at the first
 space. So [ page two ]=2 becomes [=2.

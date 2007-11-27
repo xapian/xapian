@@ -4,7 +4,7 @@ dnl Need autoconf 2.50 or later for many features
 dnl automake 1.6.3 requires autoconf 2.54
 dnl autoconf 2.59 is what xapian-core requires, so be consistent
 AC_PREREQ(2.59)
-AC_INIT(xapian-omega, 1.0.3)dnl FIXME: bugreport addr as third argument
+AC_INIT(xapian-omega, 1.0.4)dnl FIXME: bugreport addr as third argument
 dnl Need 1.5 for AM_CXXFLAGS, etc; 1.6.3 for AM_INIT_AUTOMAKE with no args
 dnl 1.8.5 contains a lot of fixes over 1.6.3
 dnl 1.9 reduces Makefile.in size, and 1.9.5 was in Debian sarge
@@ -264,6 +264,11 @@ if test x"$enable_documentation" = xyes; then
   dnl Check for help2man. (Needed to make man pages from "--help" output).
   AC_PATH_PROG(HELP2MAN, help2man, [])
   test -z "$HELP2MAN" && AC_MSG_ERROR([help2man is required in maintainer mode])
+
+  dnl Check for rst2html. (Needed to make HTML from reStructuredText format)
+  dnl Also look for rst2html.py, which archlinux reportedly installs it as.
+  AC_PATH_PROGS(RST2HTML, [rst2html rst2html.py], [])
+  test -z "$RST2HTML" && AC_MSG_ERROR([rst2html is required to build documentation])
 fi
 
 dnl Disabled XML stuff as we don't currently build omindex-config
@@ -399,6 +404,6 @@ dnl **************************
 dnl * Build the output files *
 dnl **************************
 
-AC_CONFIG_FILES([Makefile xapian-omega.spec])
+AC_CONFIG_FILES([Makefile docs/Makefile xapian-omega.spec])
 AC_CONFIG_FILES([makemanpage], [chmod +x makemanpage])
 AC_OUTPUT

@@ -9,10 +9,10 @@ See INSTALL for installation instructions.
 
 Once you've built and installed Omega, you can find documentation explaining
 how to use it in the docs subdirectory of the omega source code.  A good
-place to start is to read docs/quickstart.txt followed by docs/overview.txt.
+place to start is to read docs/quickstart.html followed by docs/overview.html.
 
 Developers
 ==========
 
-If you are trying to build from SVN, see the HACKING documentation in the
+If you are trying to build from SVN, see the HACKING document in the
 xapian-core tarball for details.

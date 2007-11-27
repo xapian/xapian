@@ -1,9 +1,13 @@
+=============
+Term Prefixes
+=============
+
 Xapian itself doesn't put any restrictions on the contents of a term, other
 than that terms can't be empty, and there's an upper limit on the length
-(which is backend dependent - quartz allows just over 240 characters, except
-that zero bytes count double in this length).
+(which is backend dependent - flint and quartz allow just over 240 characters,
+except that zero bytes count double in this length).
 
-However, Omega and Xapian::QueryParser impose some rules to aid
+However, Omega and ``Xapian::QueryParser`` impose some rules to aid
 interoperability and make it easier to write code that doesn't require
 excessive configuring.  It's probably wise to follow these rules unless
 you have a good reason not to.  Right now you might not intend to use Omega
@@ -12,11 +16,10 @@ you later find you do, it'll be much easier if you're using compatible
 rules!
 
 The basic idea is that terms won't begin with a capital letter (since they're
-usually lower-cased and stemmed) - unstemmed terms which might are handled
-by adding an "R" prefix.  So any term which starts with a capital letter is
-assumed to have a prefix.  For all letters apart from X, this is a single
-character prefix and these have predefined standard meanings (or are reserved
-for standard meanings but currently unallocated).
+usually lower-cased and often stemmed), so any term which starts with a capital
+letter is assumed to have a prefix.  For all letters apart from X, this is a
+single character prefix and these have predefined standard meanings (or are
+reserved for standard meanings but currently unallocated).
 
 X starts a multi-capital letter user-defined prefix.  If you want a prefix for
 something without a standard prefix, you create your own starting with an X
@@ -26,28 +29,46 @@ resolve ambiguity about where the prefix ends and the term begins.
 
 Here's the current allocation list:
 
-A	Author
-D	Date (numeric format: YYYYMMDD or "latest" - e.g. D20050224 or Dlatest)
-G	newsGroup (or similar entity - e.g. a web forum name)
-H	Hostname
-K	Keyword
-L	ISO Language code
-M	Month (numeric format: YYYYMM)
-N	ISO couNtry code (or domaiN name)
-P	Pathname
-Q	uniQue id
-R	Raw (i.e. unstemmed) term (unused by Xapian as of version 1.0.0)
-S	Subject (or title)
-T	mimeType
-U	full URL of indexed document - if the resulting term would be > 240
+A	
+        Author
+D	
+        Date (numeric format: YYYYMMDD or "latest" - e.g. D20050224 or Dlatest)
+G	
+        newsGroup (or similar entity - e.g. a web forum name)
+H	
+        Hostname
+K	
+        Keyword
+L	
+        ISO Language code
+M	
+        Month (numeric format: YYYYMM)
+N	
+        ISO couNtry code (or domaiN name)
+P	
+        Pathname
+Q	
+        uniQue id
+R	
+        Raw (i.e. unstemmed) term (unused by Xapian as of version 1.0.0)
+S	
+        Subject (or title)
+T	
+        mimeType
+U	
+        full URL of indexed document - if the resulting term would be > 240
 	characters, a hashing scheme is used to prevent overflowing
 	the Xapian term length limit (see omindex for how to do this).
-W	"weak" (approximately 10 day intervals, taken as YYYYMMD from
+W	
+        "weak" (approximately 10 day intervals, taken as YYYYMMD from
 	the D term, and changing the last digit to a '2' if it's a '3')
 	(unused by Xapian at present)
-X	longer prefix for user-defined use
-Y	year (four digits)
-Z	stemmed term
+X	
+        longer prefix for user-defined use
+Y	
+        year (four digits)
+Z	
+        stemmed term
 
 Reserved but currently unallocated: BCEFIJOV
 
@@ -65,7 +86,7 @@ will be indexed by one of XGENDERm, XGENDERf, or XGENDERx.
 
 If you're indexing using scriptindex, and have a field in the input file
 which can be "gender=M", etc, then your index script would have a rule
-such as:
+such as::
 
     gender : lower boolean=XGENDER
 
@@ -73,7 +94,7 @@ You can then restrict a search in Omega by passing a B parameter with one
 of these as the value, e.g. B=XGENDERf
 
 In your HTML search form, you can allow the user to select this using a set of
-radio buttons:
+radio buttons::
 
     Gender:<br>
     <input type="radio" name="B" value=""> any<br>
@@ -83,9 +104,9 @@ radio buttons:
 If you want to have multiple sets of radio buttons for selecting different
 boolean filters, you can make use of Omega's preprocessing of CGI parameter
 names by calling them "B 1", "B 2", etc (names are truncated at the first
-space - see cgiparams.txt for full details).
+space - see `cgiparams.html <cgiparams.html>`_ for full details).
 
-You can also use a select tag:
+You can also use a select tag::
 
     Gender:
     <select name="B">
@@ -97,13 +118,13 @@ You can also use a select tag:
 
 You can also allow the user to restrict a search with a boolean filter
 specified in text query (e.g. sex:f -> XGENDERf) by adding this to the
-start of your omegascript template:
+start of your omegascript template::
 
-$setmap{boolprefix,sex,XGENDER}
+    $setmap{boolprefix,sex,XGENDER}
 
-Multiple aliases are allowed:
+Multiple aliases are allowed::
 
-$setmap{boolprefix,sex,XGENDER,gender,XGENDER}
+    $setmap{boolprefix,sex,XGENDER,gender,XGENDER}
 
 This decoupling of internal and external names is also useful if you want
 to offer search frontends in more than one language, as it allows the
@@ -118,17 +139,17 @@ query.
 
 Title has standard prefix S, so you'd generate terms as normal, but then
 add an "S" prefix.  If you're using scriptindex, then you do this by
-adding "index=S" to the scriptindex rule like so:
+adding "index=S" to the scriptindex rule like so::
 
-title : field=title index=S
+    title : field=title index=S
 
 You then need to tell Xapian::QueryParser that "title:" maps to an "S" prefix.
 If you're using Omega, then you do so by adding this to your omegascript
-template (at the start is best):
+template (at the start is best)::
 
     $setmap{prefix,title,S}
 
-Or if you're writing your own search frontend, like this:
+Or if you're writing your own search frontend, like this::
 
     Xapian::QueryParser qp;
     qp.add_prefix("subject", "S");

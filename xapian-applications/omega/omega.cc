@@ -28,6 +28,7 @@
 #include <time.h>
 
 #include <algorithm>
+#include <cstring>
 #include <iostream>
 #include <set>
 

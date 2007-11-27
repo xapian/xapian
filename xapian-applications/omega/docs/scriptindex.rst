@@ -6,13 +6,13 @@ one or more actions.  Some actions take an optional or required parameter.
 The actions are applied in the specified order to each field listed, and
 fields can be listed in several lines.
 
-Here's an example:
+Here's an example::
 
-desc1 : unhtml index truncate=200 field=sample
-desc2 desc3 desc4 : unhtml index
-name : field=caption weight=3 index
-ref : field=ref boolean=Q unique=Q
-type : field=type boolean=XT
+ desc1 : unhtml index truncate=200 field=sample
+ desc2 desc3 desc4 : unhtml index
+ name : field=caption weight=3 index
+ ref : field=ref boolean=Q unique=Q
+ type : field=type boolean=XT
 
 The actions are:
 
@@ -98,14 +98,14 @@ Input files:
 The data to be indexed is read in from one or more files.  Each file has
 records separated by a blank line.  Each record contains one or more fields of
 the form "name=value".  If value contains newlines, these must be escaped by
-inserting an equals sign ('=') after each newline.  Here's an example record:
+inserting an equals sign ('=') after each newline.  Here's an example record::
 
-id=ghq147
-title=Sample Record
-value=This is a multi-line
-=value.  Note how each newline
-=is escaped.
-format=HTML
+ id=ghq147
+ title=Sample Record
+ value=This is a multi-line
+ =value.  Note how each newline
+ =is escaped.
+ format=HTML
 
 Example:
 ========
