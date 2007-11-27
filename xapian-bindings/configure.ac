@@ -648,20 +648,21 @@ if test no != "$with_java" ; then
       AC_MSG_CHECKING([for Java path separator])
       [echo 'public class conftest { public static void main(String[] args) { System.out.println(System.getProperty("path.separator")); } }' > conftest.java]
       if (exec >&5 2>&5;$JAVAC conftest.java;exit $?) ; then
-	JAVA_PATHSEP=`$JAVA conftest 2> /dev/null`
+	JAVA_PATHSEP=`$JAVA conftest 2>&5`
 	AC_SUBST(JAVA_PATHSEP)
 	if test -n "$JAVA_PATHSEP" ; then
 	  AC_MSG_RESULT($JAVA_PATHSEP)
 	  BINDINGS="$BINDINGS java"
 	else
+	  AC_MSG_RESULT([failed to run test program])
 	  java_ok=no
 	fi
       else
+	AC_MSG_RESULT([failed to compile test program])
 	java_ok=no
       fi
       if test no = "$java_ok" ; then
-	AC_MSG_RESULT([test failed])
-	test yes = "$with_java" && AC_MSG_ERROR([Couldn't compile and run a simple Java program])
+	test yes = "$with_java" && AC_MSG_ERROR([Couldn't compile and run a simple Java test program])
       fi
     fi
   else

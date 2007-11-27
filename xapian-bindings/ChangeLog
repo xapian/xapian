@@ -1,3 +1,9 @@
+Tue Nov 27 03:08:51 GMT 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Log the output of trying to compile conftest.java in
+	  config.log; if the test fails, report whether the failure was
+	  compiling or running the test program.
+
 Tue Nov 20 01:04:31 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* java/native/xapian_jni.h: Add include of <cstring> to fix
