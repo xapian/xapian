@@ -26,6 +26,10 @@ use exception_data;
 
 my @allclasses = (@baseclasses, @classes);
 
+my @directorclasses = qw(
+    MatchDecider ExpandDecider Stopper ValueRangeProcessor Sorter
+);
+
 open FD, ">except.i" or die $!;
 
 print FD <<"EOF";
@@ -34,6 +38,7 @@ print FD <<"EOF";
  * - do not modify directly!
  *
  * Copyright 2007 Lemur Consulting Ltd
+ * Copyright 2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -133,39 +138,22 @@ print FD <<'EOF';
 
 /* The following exception directives are for the methods defined by
  * director classes, which don't drop the GIL in the first place. */
-%exception Xapian::MatchDecider::operator() {
+EOF
+for my $class (@directorclasses) {
+    print FD <<"EOF";
+%exception Xapian::${class}::operator() {
     try {
-	$action
+	\$action
     } catch (...) {
 	XapianSetPythonException();
 	SWIG_fail;
     }
 }
-%exception Xapian::ExpandDecider::operator() {
-    try {
-	$action
-    } catch (...) {
-	XapianSetPythonException();
-	SWIG_fail;
-    }
+EOF
 }
-%exception Xapian::Stopper::operator() {
-    try {
-	$action
-    } catch (...) {
-	XapianSetPythonException();
-	SWIG_fail;
-    }
-}
+
+print FD <<'EOF';
 %exception Xapian::Stopper::get_description {
-    try {
-	$action
-    } catch (...) {
-	XapianSetPythonException();
-	SWIG_fail;
-    }
-}
-%exception Xapian::ValueRangeProcessor::operator() {
     try {
 	$action
     } catch (...) {

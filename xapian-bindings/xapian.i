@@ -914,6 +914,9 @@ class Query {
 %ignore Xapian::TermGenerator::TermGenerator(const TermGenerator &);
 %include <xapian/termgenerator.h>
 
+%feature("director") Xapian::Sorter;
+%include <xapian/sorter.h>
+
 namespace Xapian {
 
 #if defined SWIGPYTHON
