@@ -1,3 +1,10 @@
+Wed Nov 28 03:17:06 GMT 2007  Olly Betts <olly@survex.com>
+
+	* api/sorter.cc: Fix reverse sorting of value strings with different
+	  lengths.
+	* tests/api_wrdb.cc: Add test sortfunctor2 to check this actually
+	  works.
+
 Wed Nov 28 02:27:37 GMT 2007  Olly Betts <olly@survex.com>
 
 	* tests/api_wrdb.cc,tests/apitest.cc,tests/apitest.h,tests/harness/:

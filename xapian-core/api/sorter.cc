@@ -36,32 +36,47 @@ MultiValueSorter::operator()(const Xapian::Document & doc) const
 {
     string result;
 
-    string value;
     vector<pair<Xapian::valueno, bool> >::const_iterator i = valnos.begin();
     while (true) {
-	// All values but the last need to be munged to make them sort.  We
-	// do this by converting any '\0' to "\0\xff", and then we insert
-	// "\0\0" between encoded values.
+	// All values (except for the last if it's sorted forwards) need to
+	// be adjusted.
+	//
 	// FIXME: allow Xapian::BAD_VALNO to mean "relevance?"
-	value = doc.get_value(i->first);
+	string v = doc.get_value(i->first);
 	bool reverse_sort = !i->second;
+
+	if (++i == valnos.end() && !reverse_sort) {
+	    // No need to adjust the last value if it's sorted forwards.
+	    result += v;
+	    break;
+	}
+
 	if (reverse_sort) {
-	    for (string::iterator j = value.begin(); j != value.end(); ++j)
-		*j = char(255 - static_cast<unsigned char>(*j));
+	    // For a reverse ordered value, we subtract each byte from '\xff',
+	    // except for '\0' which we convert to "\xff\0".  We insert
+	    // "\xff\xff" after the encoded value.
+	    for (string::const_iterator j = v.begin(); j != v.end(); ++j) {
+		unsigned char ch(*j);
+		result += char(255 - ch);
+		if (ch == 0) result += '\0';
+	    }
+	    result.append("\xff\xff", 2);
+	    if (i == valnos.end()) break;
+	} else {
+	    // For a forward ordered value (unless it's the last value), we
+	    // convert any '\0' to "\0\xff".  We insert "\0\0" after the
+	    // encoded value.
+	    string::size_type j = 0, nul;
+	    while ((nul = v.find('\0', j)) != string::npos) {
+		++nul;
+		result.append(v, j, nul - j);
+		result += '\xff';
+		j = nul;
+	    }
+	    result.append(v, j, string::npos);
+	    result.append("\0", 2);
 	}
-	if (++i == valnos.end()) break;
-
-	string::size_type j = 0, nul;
-	while ((nul = value.find('\0', j)) != string::npos) {
-	    ++nul;
-	    result.append(value, j, nul - j);
-	    result += '\xff';
-	}
-	result.append(value, j, string::npos);
-	result.append("\0", 2);
     }
-    result += value;
-
     return result;
 }
 
