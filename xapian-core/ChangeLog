@@ -1,3 +1,9 @@
+Wed Nov 28 02:27:37 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/api_wrdb.cc,tests/apitest.cc,tests/apitest.h,tests/harness/:
+	  Add get_named_writable_database() and use it to fix spell3 on
+	  Microsoft Windows.
+
 Tue Nov 27 16:56:12 GMT 2007  Olly Betts <olly@survex.com>
 
 	* xapian-config.in: Factor out the code to check if we need explicit

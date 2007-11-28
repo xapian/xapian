@@ -109,7 +109,7 @@ BackendManagerMulti::get_database(const string & file)
 }
 
 Xapian::WritableDatabase
-BackendManagerMulti::get_writable_database(const string &)
+BackendManagerMulti::get_writable_database(const string &, const string &)
 {
     throw Xapian::UnimplementedError("Multi-databases don't support writing");
 }

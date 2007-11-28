@@ -49,19 +49,21 @@ BackendManagerQuartz::get_database(const string & file)
 }
 
 Xapian::WritableDatabase
-BackendManagerQuartz::get_writable_database(const string & file)
+BackendManagerQuartz::get_writable_database(const string & name,
+					    const string & file)
 {
-    return getwritedb_quartz(vector<string>(1, file));
+    last_wdb_name = name;
+    return getwritedb_quartz(name, vector<string>(1, file));
 }
 
 Xapian::Database
 BackendManagerQuartz::get_writable_database_as_database()
 {
-    return Xapian::Quartz::open(".quartz/dbw");
+    return Xapian::Quartz::open(".quartz/" + last_wdb_name);
 }
 
 Xapian::WritableDatabase
 BackendManagerQuartz::get_writable_database_again()
 {
-    return Xapian::Quartz::open(".quartz/dbw", Xapian::DB_OPEN);
+    return Xapian::Quartz::open(".quartz/" + last_wdb_name, Xapian::DB_OPEN);
 }

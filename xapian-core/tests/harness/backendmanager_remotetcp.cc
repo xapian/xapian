@@ -327,19 +327,23 @@ BackendManagerRemoteTcp::get_database(const string & file)
 }
 
 Xapian::WritableDatabase
-BackendManagerRemoteTcp::get_writable_database(const string & file)
+BackendManagerRemoteTcp::get_writable_database(const string & name,
+					       const string & file)
 {
+    last_wdb_name = name;
+
     // Default to a long (5 minute) timeout so that tests won't fail just
     // because the host is slow or busy.
     string args = "-t300000 --writable ";
 
 #ifdef XAPIAN_HAS_FLINT_BACKEND
-    (void)getwritedb_flint(vector<string>(1, file));
-    args += ".flint/dbw";
+    (void)getwritedb_flint(name, vector<string>(1, file));
+    args += ".flint/";
 #else
     (void)getwritedb_quartz(vector<string>(1, file));
-    args += ".quartz/dbw";
+    args += ".quartz/";
 #endif
+    args += name;
 
     int port = launch_xapian_tcpsrv(args);
     return Xapian::Remote::open_writable(LOCALHOST, port);
@@ -367,10 +371,11 @@ BackendManagerRemoteTcp::get_writable_database_as_database()
 {
     string args = "-t300000 ";
 #ifdef XAPIAN_HAS_FLINT_BACKEND
-    args += ".flint/dbw";
+    args += ".flint/";
 #else
-    args += ".quartz/dbw";
+    args += ".quartz/";
 #endif
+    args += last_wdb_name;
 
     int port = launch_xapian_tcpsrv(args);
     return Xapian::Remote::open(LOCALHOST, port);
@@ -381,10 +386,11 @@ BackendManagerRemoteTcp::get_writable_database_again()
 {
     string args = "-t300000 --writable ";
 #ifdef XAPIAN_HAS_FLINT_BACKEND
-    args += ".flint/dbw";
+    args += ".flint/";
 #else
-    args += ".quartz/dbw";
+    args += ".quartz/";
 #endif
+    args += last_wdb_name;
 
     int port = launch_xapian_tcpsrv(args);
     return Xapian::Remote::open_writable(LOCALHOST, port);

@@ -37,7 +37,6 @@
 #include "utils.h"
 
 #include "apitest.h"
-#include "backendmanager_flint.h"
 
 #include <cmath>
 #include <list>
@@ -1605,11 +1604,8 @@ DEFINE_TESTCASE(spell3, spelling) {
     Xapian::WritableDatabase db1 = get_writable_database();
     // We can't just call get_writable_database() since it would delete db1
     // which doesn't work at all under __WIN32__ and will go wrong elsewhere if
-    // changes to db1 are committed.  So we create a temporary new
-    // BackendManagerFlint and set its datadir to a different path.
-    BackendManagerFlint bm_local;
-    bm_local.set_datadir(".flint/spell3");
-    Xapian::WritableDatabase db2 = bm_local.get_writable_database("");
+    // changes to db1 are committed.
+    Xapian::WritableDatabase db2 = get_named_writable_database("spell3", "");
 
     db1.add_spelling("hello");
     db1.add_spelling("cell", 2);
