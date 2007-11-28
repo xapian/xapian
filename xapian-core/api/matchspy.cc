@@ -270,6 +270,7 @@ CategorySelectMatchSpy::build_numeric_ranges(Xapian::valueno valno, size_t max_r
     Xapian::doccount total_set = 0;
     map<string, Xapian::doccount>::const_iterator i;
     for (i = cat.begin(); i != cat.end(); ++i) {
+	if (i->first.size() == 0) continue;
 	double v = Xapian::sortable_unserialise(i->first.c_str());
 	if (v < lo) lo = v;
 	if (v > hi) hi = v;
