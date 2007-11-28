@@ -198,7 +198,9 @@ namespace Xapian {
 #define ESET_WT 1
 %}
 
+%feature("nothread") Xapian::MSet::items;
 %{
+/* The GIL must be held when this is called. */
 PyObject *Xapian_MSet_items_get(Xapian::MSet *mset)
 {
     PyObject *retval = PyList_New(0);
@@ -219,7 +221,11 @@ PyObject *Xapian_MSet_items_get(Xapian::MSet *mset)
     }
     return retval;
 }
+%}
 
+%feature("nothread") Xapian::ESet::items;
+%{
+/* The GIL must be held when this is called. */
 PyObject *Xapian_ESet_items_get(Xapian::ESet *eset)
 {
     PyObject *retval = PyList_New(0);
@@ -318,6 +324,7 @@ namespace Xapian {
 	%immutable;
 	// access to the items array
 	PyObject *items;
+	%mutable;
 
 	// for comparison
 	int __cmp__(const MSet &other) {
@@ -338,7 +345,6 @@ namespace Xapian {
 	    }
 	    return 0;
 	}
-	%mutable;
     }
 
     //%apply LangSpecificListType items { PyObject *items }
