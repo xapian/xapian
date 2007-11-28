@@ -279,7 +279,7 @@ Term::get_query_with_synonyms() const
 	    end = db.synonyms_end(term);
 	}
 	while (syn != end) {
-	    q = Query(Query::OP_OR, q, Query(*syn, 1, pos));
+	    q = Query(Query::OP_SYNONYM, q, Query(*syn, 1, pos));
 	    ++syn;
 	}
     }
@@ -340,7 +340,7 @@ Term::as_wildcarded_query(State * state_) const
 	root += name;
 	TermIterator t = db.allterms_begin(root);
 	while (t != db.allterms_end(root)) {
-	    add_to_query(q, Query::OP_OR, Query(*t, 1, pos));
+	    add_to_query(q, Query::OP_SYNONYM, Query(*t, 1, pos));
 	    ++t;
 	}
     }
@@ -359,7 +359,7 @@ Term::as_partial_query(State * state_) const
 	root += name;
 	TermIterator t = db.allterms_begin(root);
 	while (t != db.allterms_end(root)) {
-	    add_to_query(q, Query::OP_OR, Query(*t, 1, pos));
+	    add_to_query(q, Query::OP_SYNONYM, Query(*t, 1, pos));
 	    ++t;
 	}
 	// Add the term, as it would normally be handled, as an alternative.
@@ -1147,7 +1147,7 @@ TermGroup::as_group(State *state) const
 	    Xapian::termpos pos = (*begin)->pos;
 	    begin = i;
 	    while (syn != end) {
-		add_to_query(q, Query::OP_OR, Query(*syn, 1, pos));
+		add_to_query(q, Query::OP_SYNONYM, Query(*syn, 1, pos));
 		++syn;
 	    }
 	    add_to_query(query, default_op, q);
