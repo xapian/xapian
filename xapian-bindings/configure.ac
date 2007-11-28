@@ -247,17 +247,17 @@ if test no != "$with_python" ; then
 	AC_MSG_RESULT(yes)
 	AC_MSG_CHECKING([for directory to install python bindings in])
 	if test -z "$PYTHON_LIB" ; then
-	  PYTHON_LIB=`$PYTHON -c 'import os,distutils.sysconfig;print distutils.sysconfig.get_python_lib(1).replace(os.sep,"/")'`
+	  PYTHON_LIB=`$PYTHON -c 'import os,distutils.sysconfig;print(distutils.sysconfig.get_python_lib(1).replace(os.sep,"/"))'`
 	fi
 	AC_MSG_RESULT([$PYTHON_LIB])
 	AC_ARG_VAR(PYTHON_LIB, [Directory to install python bindings in])
 	AC_MSG_CHECKING([for Python path separator])
-	PYTHON_PATHSEP=`$PYTHON -c 'import os;print os.pathsep'`
+	PYTHON_PATHSEP=`$PYTHON -c 'import os;print(os.pathsep)'`
 	AC_MSG_RESULT([$PYTHON_PATHSEP])
 	AC_SUBST(PYTHON_PATHSEP)
 	case $host_os in
 	mingw* | pw32*)
-	  PYTHON_LIBS=`$PYTHON -c 'import os,sys;print "-L"+os.path.join(sys.prefix,"libs").replace(os.sep,"/"),"-lpython"+sys.version[[:3]].replace(".","")'` ;;
+	  PYTHON_LIBS=`$PYTHON -c 'import os,sys;print("-L"+os.path.join(sys.prefix,"libs").replace(os.sep,"/"),"-lpython"+sys.version[[:3]].replace(".",""))'` ;;
 	*)
 	  PYTHON_LIBS= ;;
 	esac

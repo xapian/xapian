@@ -1,3 +1,8 @@
+Wed Nov 28 00:52:46 GMT 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Change remaining uses of "print" in python to bracket
+	  their arguments.
+
 Wed Nov 28 00:50:41 GMT 2007  Olly Betts <olly@survex.com>
 
 	* java-swig/Makefile.am,java/Makefile.am: Check for directory
