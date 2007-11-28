@@ -54,7 +54,7 @@ xapian_wrap.cc xapian_wrap.h: xapian_wrap.stamp
 	fi
 xapian_wrap.stamp: $(SWIG_sources) util.i
 	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
-	    -feature _xapian -ruby \
+	    -initname _xapian -ruby \
 	    -o xapian_wrap.cc $(SWIG_mainsource)
 	touch $@
 
