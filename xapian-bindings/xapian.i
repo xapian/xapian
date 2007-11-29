@@ -429,6 +429,7 @@ class ExpandDecider {
 
 class Database;
 class Query;
+class Sorter;
 
 class Enquire {
   public:
@@ -457,6 +458,9 @@ class Enquire {
 					  bool ascending = true);
     void set_sort_by_relevance_then_value(Xapian::valueno sort_key,
 					  bool ascending = true);
+    void set_sort_by_key(Xapian::Sorter * sorter, bool ascending = true);
+    void set_sort_by_key_then_relevance(Xapian::Sorter * sorter,
+                                        bool ascending = true);
 
     static const int INCLUDE_QUERY_TERMS = 1;
     static const int USE_EXACT_TERMFREQ = 2;
