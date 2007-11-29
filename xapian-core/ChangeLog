@@ -1,3 +1,9 @@
+Thu Nov 29 18:53:09 GMT 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Assume we have <sstream> and hardwire HAVE_SSTREAM to
+	  be 1.  If this assumption proves correct for all platforms we care
+	  about, we can rip out the old om_ostringstream code.
+
 Thu Nov 29 17:51:11 GMT 2007  Olly Betts <olly@survex.com>
 
 	* tests/harness/index_utils.cc: Work around MSVC.
