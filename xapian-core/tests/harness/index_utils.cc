@@ -172,7 +172,8 @@ FileIndexer::next_file()
     filename += ".txt";
 
     input.open(filename.c_str());
-    if (!input) {
+    // Need to check is_open() - just using operator! fails with MSVC.
+    if (!input.is_open()) {
 	string msg = "Can't read file '";
 	msg += filename;
 	msg += "' for indexing (";
@@ -181,4 +182,3 @@ FileIndexer::next_file()
 	throw msg;
     }
 }
-
