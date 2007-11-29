@@ -28,6 +28,7 @@ if ($v != $v2) {
 }
 
 $db = Xapian::inmemory_open();
+$db2 = Xapian::inmemory_open();
 
 # Check PHP5 handling of Xapian::DocNotFoundError
 try {
