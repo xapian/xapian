@@ -418,7 +418,9 @@ dnl <sstream>, but just hardwire HAVE_SSTREAM to 1 for now while we test
 dnl out this theory.  If it's correct, we can then go and rip out the old
 dnl om_ostringstream code.
 AH_VERBATIM([HAVE_SSTREAM], 
-    [/* Define to 1 if you have the <sstream> header file. */])
+[/* Define to 1 if you have the <sstream> header file. */
+#define HAVE_SSTREAM 1])
+
 dnl Check for a new streams implementation.
 AC_CHECK_HEADERS(streambuf, [], [], [ ])
 
