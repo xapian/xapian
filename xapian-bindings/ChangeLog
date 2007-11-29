@@ -1,3 +1,8 @@
+Thu Nov 29 02:06:10 GMT 2007  Olly Betts <olly@survex.com>
+
+	* php/smoketest5.php: Fix use of Database_get_document to new style OO
+	  interface.  Fix error string when the PHP5 exception test fails.
+
 Wed Nov 28 20:17:09 GMT 2007  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am,python/generate-python-exceptions.in,xapian.i:

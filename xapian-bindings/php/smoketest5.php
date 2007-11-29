@@ -31,12 +31,12 @@ $db = Xapian::inmemory_open();
 
 # Check PHP5 handling of Xapian::DocNotFoundError
 try {
-    $doc2 = Database_get_document($db, 2);
+    $doc2 = $db->get_document(2);
     print "Retrieved non-existent document\n";
     exit(1);
 } catch (Exception $e) {
     if ($e->getMessage() !== "DocNotFoundError: Docid 2 not found") {
-	print "DocNotFoundError Exception string not as expected, got: '$e->getMessage()'\n";
+	print "DocNotFoundError Exception string not as expected, got: '{$e->getMessage()}'\n";
 	exit(1);
     }
 }
