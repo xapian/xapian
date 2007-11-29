@@ -21,7 +21,7 @@ PROGRAM_QUERYPARSERTEST= "$(OUTDIR)\queryparsertest.exe"
 PROGRAM_STEMTEST= "$(OUTDIR)\stemtest.exe"
 PROGRAM_TERMGENTEST= "$(OUTDIR)\termgentest.exe"
 
-ALL : HEADERS $(PROGRAM_APITEST) $(PROGRAM_BTREETEST) $(PROGRAM_INTERNALTEST) \
+ALL : HEADERS $(CLEAN_COLLATED_HEADERS) $(PROGRAM_APITEST) $(PROGRAM_BTREETEST) $(PROGRAM_INTERNALTEST) \
  $(PROGRAM_QUARTZTEST) $(PROGRAM_QUERYPARSERTEST) $(PROGRAM_STEMTEST) $(PROGRAM_TERMGENTEST)
  
  
@@ -35,18 +35,18 @@ TERMGENTEST : $(PROGRAM_TERMGENTEST)
 
 
 DOTEST :
-	set srcdir=.
-	copy "$(ZLIB_BIN_DIR)\zlib1.dll"
-	apitest -v
-	btreetest
-	internaltest
-	quartztest
-	queryparsertest
-	stemtest
-	termgentest
+    set srcdir=.
+    copy "$(ZLIB_BIN_DIR)\zlib1.dll"
+    apitest -v
+    btreetest
+    internaltest
+    quartztest
+    queryparsertest
+    stemtest
+    termgentest
 
-	
-#	remotetest
+    
+#    remotetest
 #  $(PROGRAM_REMOTETEST) not built
 # REMOTETEST : $(PROGRAM_REMOTETEST)  
 #PROGRAM_REMOTETEST= "$(OUTDIR)\remotetest.exe" 
@@ -56,70 +56,91 @@ DOTEST :
 STEMTEST_OBJS= "$(OUTDIR)\stemtest.obj" 
 
 APITEST_OBJS= \
-	"$(OUTDIR)\apitest.obj" \
-	"$(OUTDIR)\api_anydb.obj" \
-	"$(OUTDIR)\api_db.obj" \
-	"$(OUTDIR)\api_nodb.obj" \
-	"$(OUTDIR)\api_posdb.obj" \
-        "$(OUTDIR)\api_transdb.obj" \
-        "$(OUTDIR)\api_unicode.obj" \
-	"$(OUTDIR)\api_wrdb.obj" \
+    "$(OUTDIR)\apitest.obj" \
+    "$(OUTDIR)\api_anydb.obj" \
+    "$(OUTDIR)\api_db.obj" \
+    "$(OUTDIR)\api_nodb.obj" \
+    "$(OUTDIR)\api_posdb.obj" \
+    "$(OUTDIR)\api_transdb.obj" \
+    "$(OUTDIR)\api_unicode.obj" \
+    "$(OUTDIR)\api_wrdb.obj" \
     "$(OUTDIR)\api_sorting.obj" 
     
 BTREETEST_OBJS= "$(OUTDIR)\btreetest.obj"
 
 INTERNALTEST_OBJS= "$(OUTDIR)\internaltest.obj"
-	
+    
 QUARTZTEST_OBJS= "$(OUTDIR)\quartztest.obj"
 
 QUERYPARSERTEST_OBJS= "$(OUTDIR)\queryparsertest.obj"
-	
-REMOTETEST_OBJS= "$(OUTDIR)\remotetest.obj"	
+    
+REMOTETEST_OBJS= "$(OUTDIR)\remotetest.obj"    
 
-TERMGENTEST_OBJS= "$(OUTDIR)\termgentest.obj"	
+TERMGENTEST_OBJS= "$(OUTDIR)\termgentest.obj"    
 
-SRC = 	"$(INTDIR)\apitest.cc" \
-	"$(INTDIR)\api_anydb.cc" \
-	"$(INTDIR)\api_db.cc" \
-	"$(INTDIR)\api_nodb.cc" \
-	"$(INTDIR)\api_posdb.cc" \
-        "$(INTDIR)\api_transdb.cc" \
-        "$(INTDIR)\api_unicode.cc" \
-        "$(INTDIR)\api_sorting.cc" \
-	"$(INTDIR)\api_wrdb.cc" \
-	"$(INTDIR)\btreetest.cc" \
-	"$(INTDIR)\internaltest.cc" \
-	"$(INTDIR)\quartztest.cc" \
-	"$(INTDIR)\queryparsertest.cc" \
-	"$(INTDIR)\remotetest.cc" \
-	"$(INTDIR)\termgentest.cc" 
+SRC = \
+    "$(INTDIR)\apitest.cc" \
+    "$(INTDIR)\api_anydb.cc" \
+    "$(INTDIR)\api_db.cc" \
+    "$(INTDIR)\api_nodb.cc" \
+    "$(INTDIR)\api_posdb.cc" \
+    "$(INTDIR)\api_transdb.cc" \
+    "$(INTDIR)\api_unicode.cc" \
+    "$(INTDIR)\api_sorting.cc" \
+    "$(INTDIR)\api_wrdb.cc" \
+    "$(INTDIR)\btreetest.cc" \
+    "$(INTDIR)\internaltest.cc" \
+    "$(INTDIR)\quartztest.cc" \
+    "$(INTDIR)\queryparsertest.cc" \
+    "$(INTDIR)\remotetest.cc" \
+    "$(INTDIR)\termgentest.cc" 
 
-CLEAN :
-	-@erase $(PROGRAM_APITEST) 
-	-@erase $(PROGRAM_BTREETEST)
-	-@erase $(PROGRAM_INTERNALTEST) 
- 	-@erase $(PROGRAM_QUARTZTEST) 
-	-@erase $(PROGRAM_QUERYPARSERTEST) 
-	-@erase $(PROGRAM_REMOTETEST)
-	-@erase $(PROGRAM_STEMTEST)
-	-@erase $(PROGRAM_TERMGENTEST)
-	-@erase $(APITEST_OBJS)
-	-@erase $(BTREETEST_OBJS)
-	-@erase $(INTERNALTEST_OBJS)
-	-@erase $(QUARTZTEST_OBJS)
-	-@erase $(QUERYPARSERTEST_OBJS)
-	-@erase $(STEMTEST_OBJS)
-	-@erase $(TERMGENTEST_OBJS)
-	-@erase "$(INTDIR)\*.pdb"
-	-@erase "$(INTDIR)\*.ilk"
-	-@erase "$(INTDIR)\*.exp"
-	-@erase "$(INTDIR)\*.lib"
-	-@erase "$(INTDIR)\*.manifest"
-	if exist ".btreetmp" rmdir ".btreetmp" /s /q
-	if exist ".flint" rmdir ".flint" /s /q
-	if exist ".quartz" rmdir ".quartz" /s /q
-	if exist ".quartztmp" rmdir ".quartztmp" /s /q
-	
+COLLATED_APITEST_SOURCES=api_anydb.cc api_db.cc api_nodb.cc api_posdb.cc api_sorting.cc api_transdb.cc api_unicode.cc api_wrdb.cc
+    
+COLLATED_APITEST_HEADERS=\
+    "$(INTDIR)\api_anydb.h" \
+    "$(INTDIR)\api_db.h" \
+    "$(INTDIR)\api_nodb.h" \
+    "$(INTDIR)\api_posdb.h" \
+    "$(INTDIR)\api_sorting.h" \
+    "$(INTDIR)\api_transdb.h" \
+    "$(INTDIR)\api_unicode.h" \
+    "$(INTDIR)\api_wrdb.h"
+
+CLEAN_COLLATED_HEADERS:
+    -@erase api_collated.h
+    -@erase $(COLLATED_APITEST_HEADERS)
+
+CLEAN : 
+    -@erase $(PROGRAM_APITEST) 
+    -@erase $(PROGRAM_BTREETEST)
+    -@erase $(PROGRAM_INTERNALTEST) 
+     -@erase $(PROGRAM_QUARTZTEST) 
+    -@erase $(PROGRAM_QUERYPARSERTEST) 
+    -@erase $(PROGRAM_REMOTETEST)
+    -@erase $(PROGRAM_STEMTEST)
+    -@erase $(PROGRAM_TERMGENTEST)
+    -@erase $(APITEST_OBJS)
+    -@erase $(BTREETEST_OBJS)
+    -@erase $(INTERNALTEST_OBJS)
+    -@erase $(QUARTZTEST_OBJS)
+    -@erase $(QUERYPARSERTEST_OBJS)
+    -@erase $(STEMTEST_OBJS)
+    -@erase $(TERMGENTEST_OBJS)
+    -@erase "$(INTDIR)\*.pdb"
+    -@erase "$(INTDIR)\*.ilk"
+    -@erase "$(INTDIR)\*.exp"
+    -@erase "$(INTDIR)\*.lib"
+    -@erase "$(INTDIR)\*.manifest"
+    -@erase api_collated.h
+    -@erase $(COLLATED_APITEST_HEADERS)
+    if exist ".btreetmp" rmdir ".btreetmp" /s /q
+    if exist ".flint" rmdir ".flint" /s /q
+    if exist ".quartz" rmdir ".quartz" /s /q
+    if exist ".quartztmp" rmdir ".quartztmp" /s /q
+    
+    
+    
 CPP_PROJ=$(CPPFLAGS_EXTRA) \
  -I ".." -I "..\tests" -I "harness" -I"..\backends\quartz" \
  -Fo"$(INTDIR)\\" -Fd"$(INTDIR)\\" -Tp$(INPUTNAME) 
@@ -127,12 +148,14 @@ CPP_PROJ=$(CPPFLAGS_EXTRA) \
 CPP_OBJS=..\win32\Tests$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
-
-
+    
+api_collated.h: collate-apitest
+    $(PERL_EXE) "$(INTDIR)/collate-apitest" "$(INTDIR)" $(COLLATED_APITEST_SOURCES) > api_collated.h
+    
 LINK32=link.exe
 ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS) "$(OUTLIBDIR)\libtest.lib"
 
-PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS) "$(OUTLIBDIR)\libtest.lib"
+PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS) "$(OUTLIBDIR)\libtest.lib" 
 
 # executables
 "$(OUTDIR)\termgentest.exe" : "$(OUTDIR)" $(DEF_FILE) $(TERMGENTEST_OBJS) \
@@ -171,7 +194,7 @@ PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS) "$(OUTLIBDIR)\libtest.lib"
   $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\queryparsertest.exe" $(DEF_FLAGS) $(QUERYPARSERTEST_OBJS)
 <<
 
-"$(OUTDIR)\apitest.exe" : "$(OUTDIR)" $(DEF_FILE) $(APITEST_OBJS) \
+"$(OUTDIR)\apitest.exe" : api_collated.h "$(OUTDIR)" $(DEF_FILE) $(APITEST_OBJS) \
                       $(PROGRAM_DEPENDENCIES)
     $(LINK32) @<<
   $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\apitest.exe" $(DEF_FLAGS) $(APITEST_OBJS)
@@ -185,8 +208,8 @@ PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS) "$(OUTLIBDIR)\libtest.lib"
 
 # inference rules, showing how to create one type of file from another with the same root name
 {.}.cc{$(INTDIR)}.obj::
-	$(CPP) @<<
-	$(CPP_PROJ) $< 
+    $(CPP) @<<
+    $(CPP_PROJ) $< 
 <<
 
 {.}.cc{$(CPP_SBRS)}.sbr::

@@ -16,27 +16,28 @@ INTDIR=.\
 ALL : "$(OUTDIR)\libapi.lib" 
 
 OBJS= \
-    $(INTDIR)/editdistance.obj\
-    $(INTDIR)/error.obj\
-    $(INTDIR)/errorhandler.obj\
-    $(INTDIR)/expanddecider.obj\
-    $(INTDIR)/leafpostlist.obj\
-    $(INTDIR)/omdatabase.obj\
-    $(INTDIR)/omdocument.obj\
-    $(INTDIR)/omenquire.obj\
-    $(INTDIR)/ompositionlistiterator.obj\
-    $(INTDIR)/ompostlistiterator.obj\
-    $(INTDIR)/omquery.obj\
-    $(INTDIR)/omqueryinternal.obj\
-    $(INTDIR)/omtermlistiterator.obj\
-    $(INTDIR)/omvalueiterator.obj\
-    $(INTDIR)/postlist.obj\
-    $(INTDIR)/sortable-serialise.obj\
-    $(INTDIR)/sorter.obj\
-    $(INTDIR)/termlist.obj\
-    $(INTDIR)/valuerangeproc.obj\
-    $(INTDIR)/valuerangeproccompat.obj\
-    $(INTDIR)/version.obj
+    $(INTDIR)/editdistance.obj \
+    $(INTDIR)/error.obj \
+    $(INTDIR)/errorhandler.obj \
+    $(INTDIR)/expanddecider.obj \
+    $(INTDIR)/leafpostlist.obj \
+    $(INTDIR)/omdatabase.obj \
+    $(INTDIR)/omdocument.obj \
+    $(INTDIR)/omenquire.obj \
+    $(INTDIR)/ompositionlistiterator.obj \
+    $(INTDIR)/ompostlistiterator.obj \
+    $(INTDIR)/omquery.obj \
+    $(INTDIR)/omqueryinternal.obj \
+    $(INTDIR)/omtermlistiterator.obj \
+    $(INTDIR)/omvalueiterator.obj \
+    $(INTDIR)/postlist.obj \
+    $(INTDIR)/sortable-serialise.obj \
+    $(INTDIR)/sorter.obj \
+    $(INTDIR)/termlist.obj \
+    $(INTDIR)/valuerangeproc.obj \
+    $(INTDIR)/valuerangeproccompat.obj \
+    $(INTDIR)/version.obj\
+    $(INTDIR)/weightinternal.obj
     
 SRCS= \
     $(INTDIR)/editdistance.cc\
@@ -59,14 +60,15 @@ SRCS= \
     $(INTDIR)/termlist.cc\
     $(INTDIR)/valuerangeproc.cc\
     $(INTDIR)/valuerangeproccompat.cc\
-    $(INTDIR)/version.cc
+    $(INTDIR)/version.cc\
+    $(INTDIR)/weightinternal.cc
 
 	     
 CLEAN :
-	-@erase "$(OUTDIR)\libapi.lib"
-	-@erase "*.pch"
-	-@erase "$(INTDIR)\*.pdb"
-        -@erase $(OBJS)
+    -@erase "$(OUTDIR)\libapi.lib"
+    -@erase "*.pch"
+    -@erase "$(INTDIR)\*.pdb"
+    -@erase "$(INTDIR)\*.obj"
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
