@@ -1,3 +1,9 @@
+Fri Nov 30 00:44:21 GMT 2007  Olly Betts <olly@survex.com>
+
+	* matcher/queryoptimiser.cc: Make delete_ptr<> a functor rather than
+	  a function.  This fixes the build with SGI's compiler, and
+	  apparently a functor allows more compilers to inline the call.
+
 Thu Nov 29 19:24:22 GMT 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix previous change to work.
