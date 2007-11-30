@@ -1,3 +1,8 @@
+Fri Nov 30 18:06:49 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/harness/index_utils.cc: Workaround MSVC which doesn't clear
+	  the fail bit when a stream is reopened.
+
 Fri Nov 30 00:44:21 GMT 2007  Olly Betts <olly@survex.com>
 
 	* matcher/queryoptimiser.cc: Make delete_ptr<> a functor rather than

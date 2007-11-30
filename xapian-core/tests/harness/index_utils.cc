@@ -155,7 +155,11 @@ munge_term(const string &term)
 void
 FileIndexer::next_file()
 {
-    if (input.is_open()) input.close();
+    if (input.is_open()) {
+	input.close();
+	// MSVC doesn't clear fail() on close() and re-open().
+	input.clear();
+    }
 
     // Find the next non-empty filename.
     while (file != end && (*file).empty()) {
