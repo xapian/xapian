@@ -3,14 +3,14 @@ MODULE = Search::Xapian		PACKAGE = Search::Xapian::PostingIterator
 PROTOTYPES: ENABLE
 
 PostingIterator *
-new1();
+new1()
     CODE:
         RETVAL = new PostingIterator();
     OUTPUT:
         RETVAL
 
 PostingIterator *
-new2(other);
+new2(other)
     PostingIterator *	other
     CODE:
         RETVAL = new PostingIterator(*other);

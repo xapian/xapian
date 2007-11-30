@@ -1,16 +1,16 @@
-MODULE = Search::Xapian 		PACKAGE = Search::Xapian::Document
+MODULE = Search::Xapian			PACKAGE = Search::Xapian::Document
 
 PROTOTYPES: ENABLE
 
 Document *
-new1();
+new1()
     CODE:
         RETVAL = new Document();
     OUTPUT:
         RETVAL
 
 Document *
-new2(other);
+new2(other)
     Document * other
     CODE:
         RETVAL = new Document(*other);

@@ -3,14 +3,14 @@ MODULE = Search::Xapian		PACKAGE = Search::Xapian::PositionIterator
 PROTOTYPES: ENABLE
 
 PositionIterator *
-new1();
+new1()
     CODE:
         RETVAL = new PositionIterator();
     OUTPUT:
         RETVAL
 
 PositionIterator *
-new2(other);
+new2(other)
     PositionIterator *	other
     CODE:
         RETVAL = new PositionIterator(*other);
@@ -19,7 +19,7 @@ new2(other);
 
 void
 PositionIterator::DESTROY()
-  
+
 void
 PositionIterator::inc()
     CODE:

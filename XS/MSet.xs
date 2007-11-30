@@ -3,14 +3,14 @@ MODULE = Search::Xapian		PACKAGE = Search::Xapian::MSet
 PROTOTYPES: ENABLE
 
 MSet *
-new1();
+new1()
     CODE:
         RETVAL = new MSet();
     OUTPUT:
         RETVAL
 
 MSet *
-new2(other);
+new2(other)
     MSet *	other
     CODE:
         RETVAL = new MSet(*other);

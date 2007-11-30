@@ -14,6 +14,7 @@ use Search::Xapian::ESet;
 use Search::Xapian::ESetIterator;
 use Search::Xapian::MSet;
 use Search::Xapian::MSetIterator;
+use Search::Xapian::MultiValueSorter;
 use Search::Xapian::PositionIterator;
 use Search::Xapian::PostingIterator;
 use Search::Xapian::Query;

@@ -3,14 +3,14 @@ MODULE = Search::Xapian		PACKAGE = Search::Xapian::ValueIterator
 PROTOTYPES: ENABLE
 
 ValueIterator *
-new1();
+new1()
     CODE:
         RETVAL = new ValueIterator();
     OUTPUT:
         RETVAL
 
 ValueIterator *
-new2(other);
+new2(other)
     ValueIterator *	other
     CODE:
         RETVAL = new ValueIterator(*other);
@@ -19,7 +19,7 @@ new2(other);
 
 void
 ValueIterator::DESTROY()
-  
+
 void
 ValueIterator::inc()
     CODE:

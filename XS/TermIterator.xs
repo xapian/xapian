@@ -3,14 +3,14 @@ MODULE = Search::Xapian		PACKAGE = Search::Xapian::TermIterator
 PROTOTYPES: ENABLE
 
 TermIterator *
-new1();
+new1()
     CODE:
         RETVAL = new TermIterator();
     OUTPUT:
         RETVAL
 
 TermIterator *
-new2(other);
+new2(other)
     TermIterator *	other
     CODE:
         RETVAL = new TermIterator(*other);
