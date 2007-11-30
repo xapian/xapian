@@ -1,5 +1,7 @@
   * debian/rules: Look for "CODENAME" and "debian/codename" rather than
     "COMPONENT" and "debian/component".
+  * debian/rules: Strip out unused support for Ubuntu breezy since it reached
+    end-of-life and we stopped building packages for it a while ago.
 
 xapian-bindings (1.0.4-1) unstable; urgency=low
 

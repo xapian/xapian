@@ -30,7 +30,7 @@ DH_INSTALL_EXCLUDE := --exclude=.pyc --exclude=.pyo
 
 # Debian "etch" (and later), and Ubuntu "edgy" (and later) have pyversions.
 USE_PYVERSIONS := no
-ifeq ($(findstring .$(CODENAME)., .sarge.breezy.dapper.), )
+ifeq ($(findstring .$(CODENAME)., .sarge.dapper.), )
 USE_PYVERSIONS := yes
 endif
 
@@ -46,8 +46,10 @@ BUILD_DEPS := debhelper (>= 5.0.37.1), python (>= 2.3.5-7), python-central (>= 0
 
 else
 
-# When we finally drop support for all of sarge, breezy, and dapper, we
-# can remove this branch of the code.
+# When we finally drop support for both sarge and dapper, we can remove this
+# branch as all newer distros have pyversions.  On dapper, python2.2 is in
+# universe and 2.3 and 2.4 are available, so we could drop 2.2 support if
+# necessary.
 
 # The python versions to build for (Debian sarge also has Python 2.1, but
 # xapian-bindings now requires at least Python 2.2):
@@ -64,7 +66,7 @@ ifeq ($(CODENAME), sarge)
 PHP_VERSIONS := 4
 DH_INSTALL_EXCLUDE += --exclude=.php5
 else
-ifneq ($(findstring .$(CODENAME)., .etch.breezy.dapper.edgy.), )
+ifneq ($(findstring .$(CODENAME)., .etch.dapper.edgy.), )
 PHP_VERSIONS := 4 5
 else
 # PHP4 support was dropped in Debian sid (and lenny) and Ubuntu feisty.
@@ -235,7 +237,7 @@ install: build
 	    fi \
 	done
 
-ifneq ($(findstring .$(CODENAME)., .sarge.breezy.dapper.edgy.), )
+ifneq ($(findstring .$(CODENAME)., .sarge.dapper.edgy.), )
 	# If PHP doesn't support /etc/phpN/conf.d then add README.Debian with
 	# a note explaining that user needs to modify php.ini themselves.  This
 	# affects Debian sarge, and Ubuntu edgy (and earlier).
