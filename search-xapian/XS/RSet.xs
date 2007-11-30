@@ -3,20 +3,20 @@ MODULE = Search::Xapian		PACKAGE = Search::Xapian::RSet
 PROTOTYPES: ENABLE
 
 RSet *
-new1();
+new1()
     CODE:
         RETVAL = new RSet();
     OUTPUT:
         RETVAL
 
 RSet *
-new2(other);
+new2(other)
     RSet *	other
     CODE:
         RETVAL = new RSet(*other);
     OUTPUT:
         RETVAL
- 
+
 
 doccount
 RSet::size()

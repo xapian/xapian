@@ -3,7 +3,7 @@ MODULE = Search::Xapian			PACKAGE = Search::Xapian::Query
 PROTOTYPES: ENABLE
 
 Query *
-new1(term);
+new1(term)
     string	term
     CODE:
         RETVAL = new Query(term);
@@ -11,7 +11,7 @@ new1(term);
         RETVAL
 
 Query *
-new1weight(term, wqf, pos);
+new1weight(term, wqf, pos)
     string	term
     termcount	wqf
     termpos	pos
@@ -21,7 +21,7 @@ new1weight(term, wqf, pos);
 	RETVAL
 
 Query *
-new2sv(op, subq);
+new2sv(op, subq)
     int		op
     string	subq
     CODE:
@@ -30,7 +30,7 @@ new2sv(op, subq);
         RETVAL
 
 Query *
-new2obj(op, subq);
+new2obj(op, subq)
     int		op
     Query *	subq
     CODE:
@@ -39,7 +39,7 @@ new2obj(op, subq);
         RETVAL
 
 Query *
-new4range(op, valno, start, end);
+new4range(op, valno, start, end)
     int		op
     valueno	valno
     string	start
@@ -50,7 +50,7 @@ new4range(op, valno, start, end);
         RETVAL
 
 Query *
-newXsv(op, ...);
+newXsv(op, ...)
     int		op
     PREINIT:
         vector<string> terms;
@@ -74,7 +74,7 @@ newXsv(op, ...);
         RETVAL
 
 Query *
-newXobj(op, ...);
+newXobj(op, ...)
     int		op
     PREINIT:
         vector<Query> queries;

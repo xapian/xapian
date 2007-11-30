@@ -1,16 +1,16 @@
-MODULE = Search::Xapian 	PACKAGE = Search::Xapian::MSetIterator
+MODULE = Search::Xapian		PACKAGE = Search::Xapian::MSetIterator
 
 PROTOTYPES: ENABLE
 
 MSetIterator *
-new1();
+new1()
     CODE:
         RETVAL = new MSetIterator();
     OUTPUT:
         RETVAL
 
 MSetIterator *
-new2(other);
+new2(other)
     MSetIterator *	other
     CODE:
         RETVAL = new MSetIterator(* other);

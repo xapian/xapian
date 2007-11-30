@@ -3,14 +3,14 @@ MODULE = Search::Xapian		PACKAGE = Search::Xapian::ESet
 PROTOTYPES: ENABLE
 
 ESet *
-new1();
+new1()
     CODE:
         RETVAL = new ESet();
     OUTPUT:
         RETVAL
 
 ESet *
-new2(other);
+new2(other)
     ESet *	other
     CODE:
         RETVAL = new ESet(*other);

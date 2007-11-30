@@ -1,16 +1,16 @@
-MODULE = Search::Xapian 	PACKAGE = Search::Xapian::ESetIterator
+MODULE = Search::Xapian		PACKAGE = Search::Xapian::ESetIterator
 
 PROTOTYPES: ENABLE
 
 ESetIterator *
-new1();
+new1()
     CODE:
         RETVAL = new ESetIterator();
     OUTPUT:
         RETVAL
 
 ESetIterator *
-new2(other);
+new2(other)
     ESetIterator *	other
     CODE:
         RETVAL = new ESetIterator(* other);
