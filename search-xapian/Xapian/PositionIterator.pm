@@ -123,8 +123,7 @@ conversion to an integer.
 
 =item get_description
 
-Returns a string describing this object (for introspection). Also implemented
-as stringification.
+Return a description of this object.  Also implemented as stringification.
 
 =back
 

@@ -136,7 +136,7 @@ returns true if this term exists in the database, or false otherwise.
 
 =item get_description
 
-return a description of this object (for introspection)
+return a description of this object.
 
 =item allterms_begin [<prefix>]
 
