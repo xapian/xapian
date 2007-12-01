@@ -1,3 +1,8 @@
+Sat Dec 01 01:10:04 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/api_sorting.cc,tests/api_wrdb.cc: Move sortfunctor2 from
+	  api_wrdb.cc to api_sorting.cc.
+
 Sat Dec 01 00:43:31 GMT 2007  Olly Betts <olly@survex.com>
 
 	* tests/valgrind.supp: Add version of the valgrind zlib suppression
