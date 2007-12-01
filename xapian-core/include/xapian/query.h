@@ -223,9 +223,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 */
 	bool empty() const;
 
-	/** Returns a string representing the query.
-	 *  Introspection method.
-	 */
+	/// Return a string describing this object.
 	std::string get_description() const;
 
     private:
@@ -400,9 +398,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
             return serialise(curpos);
         }
 
-	/** Returns a string representing the query.
-	 * Introspection method.
-	 */
+	/// Return a string describing this object.
 	std::string get_description() const;
 
 	/** Get the numeric parameter used in this query.

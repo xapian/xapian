@@ -230,9 +230,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	typedef Xapian::doccount size_type;
 	//@}
 
-	/** Returns a string representing the MSet.
-	 *  Introspection method.
-	 */
+	/// Return a string describing this object.
 	std::string get_description() const;
 };
 
@@ -360,9 +358,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
 	 */
 	Xapian::percent get_percent() const;
 
-	/** Returns a string describing this object.
-	 *  Introspection method.
-	 */
+	/// Return a string describing this object.
 	std::string get_description() const;
 
 	/// Allow use as an STL iterator
@@ -439,10 +435,7 @@ class XAPIAN_VISIBILITY_DEFAULT ESet {
 	/** This returns the term at position i in this E-Set.  */
 	ESetIterator operator[](Xapian::termcount i) const;
 
-	/** Introspection method.
-	 *
-	 *  @return  A string representing this ESet.
-	 */
+	/// Return a string describing this object.
 	std::string get_description() const;
 };
 
@@ -511,9 +504,7 @@ class XAPIAN_VISIBILITY_DEFAULT ESetIterator {
 	/// Get the weight of the term at the current position
 	Xapian::weight get_weight() const;
 
-	/** Returns a string describing this object.
-	 *  Introspection method.
-	 */
+	/// Return a string describing this object.
 	std::string get_description() const;
 
 	/// Allow use as an STL iterator
@@ -584,10 +575,7 @@ class XAPIAN_VISIBILITY_DEFAULT RSet {
 	/// Test if a given document in the relevance set.
 	bool contains(const Xapian::MSetIterator & i) const { return contains(*i); }
 
-	/** Introspection method.
-	 *
-	 *  @return  A string representing this RSet.
-	 */
+	/// Return a string describing this object.
 	std::string get_description() const;
 };
 
@@ -1049,9 +1037,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	void register_match_decider(const std::string &name,
 				    const MatchDecider *mdecider = NULL));
 
-	/** Introspection method.
-	 *  @return  A string representing the enquire object.
-	 */
+	/// Return a string describing this object.
 	std::string get_description() const;
 };
 
