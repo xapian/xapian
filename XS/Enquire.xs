@@ -89,6 +89,39 @@ Enquire::set_sort_by_relevance_then_value(sort_key, ascending = NO_INIT)
 	    THIS->set_sort_by_relevance_then_value(sort_key);
 	}
 
+void
+Enquire::set_sort_by_key(sorter, ascending = NO_INIT)
+    MultiValueSorter * sorter
+    bool	ascending
+    CODE:
+	if (items == 3) { /* items includes the hidden this pointer */
+	    THIS->set_sort_by_key(sorter, ascending);
+	} else {
+	    THIS->set_sort_by_key(sorter);
+	}
+
+void
+Enquire::set_sort_by_key_then_relevance(sorter, ascending = NO_INIT)
+    MultiValueSorter * sorter
+    bool	ascending
+    CODE:
+	if (items == 3) { /* items includes the hidden this pointer */
+	    THIS->set_sort_by_key_then_relevance(sorter, ascending);
+	} else {
+	    THIS->set_sort_by_key_then_relevance(sorter);
+	}
+
+void
+Enquire::set_sort_by_relevance_then_key(sorter, ascending = NO_INIT)
+    MultiValueSorter * sorter
+    bool	ascending
+    CODE:
+	if (items == 3) { /* items includes the hidden this pointer */
+	    THIS->set_sort_by_relevance_then_key(sorter, ascending);
+	} else {
+	    THIS->set_sort_by_relevance_then_key(sorter);
+	}
+
 MSet *
 Enquire::get_mset1(first, maxitems, checkatleast = NO_INIT, rset = NO_INIT, func = NO_INIT)
     doccount    first

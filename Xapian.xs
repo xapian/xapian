@@ -123,6 +123,7 @@ INCLUDE: XS/MSetIterator.xs
 INCLUDE: XS/ESet.xs
 INCLUDE: XS/ESetIterator.xs
 INCLUDE: XS/RSet.xs
+INCLUDE: XS/MultiValueSorter.xs
 INCLUDE: XS/Query.xs
 INCLUDE: XS/QueryParser.xs
 INCLUDE: XS/SimpleStopper.xs

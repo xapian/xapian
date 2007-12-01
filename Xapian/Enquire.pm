@@ -175,11 +175,11 @@ sort_key - value number to reorder on.  Sorting is with a
 string compare.  If ascending is true (the default) higher
 is better; if ascending is false, lower is better.
 
-ascending - If true, documents values which sort higher by
+ascending - If true, document values which sort higher by
 string compare are better.  If false, the sort order
 is reversed.  (default true)
 
-=item set_sort_by_value_then_relevance <sort_key> <ascending>
+=item set_sort_by_value_then_relevance <sort_key> [<ascending>]
 
 Set the sorting to be by value, then by relevance for documents
 with the same value.
@@ -188,11 +188,11 @@ sort_key - value number to reorder on.  Sorting is with a
 string compare.  If ascending is true (the default) higher
 is better; if ascending is false, lower is better.
 
-ascending - If true, documents values which sort higher by
+ascending - If true, document values which sort higher by
 string compare are better.  If false, the sort order
 is reversed.  (default true)
 
-=item set_sort_by_relevance_then_value <sort_key> <ascending>
+=item set_sort_by_relevance_then_value <sort_key> [<ascending>]
 
 Set the sorting to be by relevance then value.
 
@@ -207,7 +207,38 @@ sort_key - value number to reorder on.  Sorting is with a
 string compare.  If ascending is true (the default) higher
 is better; if ascending is false, lower is better.
 
-ascending - If true, documents values which sort higher by
+ascending - If true, document values which sort higher by
+string compare are better.  If false, the sort order
+is reversed.  (default true)
+
+=item set_sort_by_key <sorter> [<ascending>]
+
+Set the sorting to be by key only.
+
+sorter - the functor to use to build the key.
+
+ascending - If true, keys which sort higher by
+string compare are better.  If false, the sort order
+is reversed.  (default true)
+
+=item set_sort_by_key_then_relevance <sorter> [<ascending>]
+
+Set the sorting to be by key, then by relevance for documents
+with the same key.
+
+sorter - the functor to use to build the key.
+
+ascending - If true, keys which sort higher by
+string compare are better.  If false, the sort order
+is reversed.  (default true)
+
+=item set_sort_by_relevance_then_key <sorter> [<ascending>]
+
+Set the sorting to be by relevance then key.
+
+sorter - the functor to use to build the key.
+
+ascending - If true, keys which sort higher by
 string compare are better.  If false, the sort order
 is reversed.  (default true)
 
@@ -219,7 +250,7 @@ Get match set.
 
 =item register_match_decoder <name> <mdecider>
 
-See xapian api doc for these functions.
+See Xapian API documentation for these functions.
 
 =item get_description
 

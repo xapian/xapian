@@ -60,6 +60,9 @@ NumberValueRangeProcessor *	O_OBJECT
 StringValueRangeProcessor	O_OBJECT
 StringValueRangeProcessor *	O_OBJECT
 
+MultiValueSorter	O_SORTER
+MultiValueSorter *	O_SORTER
+
 string			STRING
 
 docid			T_UV
@@ -226,6 +229,14 @@ O_WEIGHT
 		XSRETURN_UNDEF;
 	}
 
+O_SORTER
+	if( sv_isobject($arg) && sv_derived_from($arg, \"Search::Xapian::MultiValueSorter\") )
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	else{
+		warn( \"${Package}::$func_name() -- $var is not a \\\"Search::Xapian::MultiValueSorter\\\" object\" );
+		XSRETURN_UNDEF;
+	}
+
 OUTPUT
 STRING
 	sv_setpvn((SV*)$arg, (char *) ($var.data()), ($var.size()));
@@ -265,3 +276,5 @@ O_POSITION_I
 	sv_setref_pv( $arg, "Search::Xapian::PositionIterator", (void*)$var );
 O_VALUE_I
 	sv_setref_pv( $arg, "Search::Xapian::ValueIterator", (void*)$var );
+O_SORTER
+	sv_setref_pv( $arg, "Search::Xapian::MultiValueSorter", (void*)$var );
