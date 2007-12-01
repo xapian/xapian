@@ -1,6 +1,6 @@
 /* index_utils.h - utility functions for indexing testcase data
  *
- * Copyright (C) 2005 Olly Betts
+ * Copyright (C) 2005,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 #ifndef XAPIAN_HGUARD_INDEX_UTILS_H
