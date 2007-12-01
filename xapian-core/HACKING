@@ -353,7 +353,6 @@ Use of C++ Features:
   don't include full support for this.  Often we can work around this, for
   example:
 
-  * Using om_stringstream instead of stringstream or strstream.
   * Providing our own auto_ptr implementation (AutoPtr).
   * Using string::resize(0) instead of string::clear() (for GCC 2.95).
   * Avoiding use of '#include <limits>' (for GCC 2.95; GCC 3.0+ support it).
@@ -363,6 +362,15 @@ Use of C++ Features:
   should just document the issue and users will either have to upgrade to a
   more compliant compiler, or use another STL implementation such as STLPort
   (http://www.stlport.org/).
+
+* C++ features we currently assume:
+
+  * We assume <sstream> is available.  GCC < 2.95.3 didn't have it but GCC
+    2.95.3 includes a backported version.  We aren't aware of any other
+    compilers still in use which lack it.
+
+  * Non-".h" versions of C++ headers.  We assume that <iostream> is available
+    and that we don't ever have to use <iostream.h> instead.
 
 * RTTI (dynamic_cast<>, typeid, etc):  Needing to use RTTI features in the
   library most likely indicates a design flaw, and you should avoid use

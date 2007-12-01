@@ -36,24 +36,6 @@ operator<<(ostream &os, const vector<unsigned int> &ints)
     return os;
 }
 
-#ifndef HAVE_SSTREAM
-om_ostringstream &
-operator<<(om_ostringstream &os, const vector<unsigned int> &ints)
-{
-// FIXME don't have output_iterator for our own stringstream
-//    copy(ints.begin(), ints.end(),
-//	 ostream_iterator<unsigned int>(os, ", "));
-//    return os;
-    vector<unsigned int>::const_iterator i = ints.begin();
-    while (true) {
-	os << *i;
-	if (i == ints.end()) return os;
-	os << ", ";
-	++i;
-    }
-}
-#endif
-
 // ######################################################################
 // Useful comparison operators
 

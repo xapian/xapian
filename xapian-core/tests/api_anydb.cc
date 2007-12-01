@@ -26,6 +26,7 @@
 #include "api_anydb.h"
 
 #include <algorithm>
+#include <iomanip>
 #include <string>
 
 #include <xapian.h>

@@ -1,3 +1,12 @@
+Sat Dec 01 02:34:59 GMT 2007  Olly Betts <olly@survex.com>
+
+	* HACKING,INSTALL,common/,configure.ac,tests/api_anydb.cc,
+	  tests/api_db.cc,tests/btreetest.cc,tests/harness/testsuite.cc,
+	  tests/harness/testsuite.h,tests/harness/testutils.cc,
+	  tests/internaltest.cc: Raise the minimum supported GCC version
+	  to 2.95.3 and strip out om_ostringstream which is no longer
+	  required.
+
 Sat Dec 01 01:10:04 GMT 2007  Olly Betts <olly@survex.com>
 
 	* tests/api_sorting.cc,tests/api_wrdb.cc: Move sortfunctor2 from
