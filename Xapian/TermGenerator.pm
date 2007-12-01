@@ -111,7 +111,7 @@ Set the current term position.
 
 =item get_description
 
-Returns a string describing this object.  (for introspection)
+Return a description of this object.
 
 =back
 

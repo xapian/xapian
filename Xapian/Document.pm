@@ -141,7 +141,7 @@ values in this document.
 
 =item get_description
 
-Document description (for introspection)
+Return a description of this object.
 
 =back
 

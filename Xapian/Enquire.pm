@@ -254,7 +254,7 @@ See Xapian API documentation for these functions.
 
 =item get_description
 
-Returns a description of the object (for introspection).
+Return a description of this object.
 
 =back
 
