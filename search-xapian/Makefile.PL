@@ -154,7 +154,7 @@ for my $file (qw(Changes README)) {
 }
 if (scalar @bad) {
     unlink "Makefile";
-    die(join(",",@bad).": No mention current version: $VERSION\n");
+    die(join(",",@bad).": No mention of current version: $VERSION\n");
 }
 
 
