@@ -28,3 +28,17 @@
     obj:/usr/lib/libz.so.1.2.*
     fun:deflate
 }
+{
+    zlib end condition check
+    Memcheck:Value8
+    obj:/usr/lib/libz.so.1.2.*
+    fun:deflate
+}
+{
+    zlib end condition check
+    Memcheck:Value8
+    obj:/usr/lib/libz.so.1.2.*
+    obj:/usr/lib/libz.so.1.2.*
+    obj:/usr/lib/libz.so.1.2.*
+    fun:deflate
+}
