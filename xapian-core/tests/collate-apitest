@@ -39,9 +39,11 @@ for my $cc_source (@ARGV) {
     $cc_source = "$srcdir/$cc_source";
     my $hdr_mod = -M $generated_h;
     if (defined $hdr_mod) {
-       if ($script_mod <= $hdr_mod && -M $cc_source <= $hdr_mod) {
-	   $generated_h = $devnull;
-       }
+	if ($script_mod >= $hdr_mod && -M $cc_source >= $hdr_mod) {
+	    # Don't update a particular header if it has been updated
+	    # more recently than the script or corresponding source.
+	    $generated_h = $devnull;
+	}
     }
 
     open HDR, ">$generated_h" or die $!;
