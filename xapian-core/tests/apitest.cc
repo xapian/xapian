@@ -43,14 +43,7 @@ using namespace std;
 #include "backendmanager_remotetcp.h"
 #include "utils.h"
 
-#include "api_anydb.h"
-#include "api_db.h"
-#include "api_nodb.h"
-#include "api_posdb.h"
-#include "api_sorting.h"
-#include "api_transdb.h"
-#include "api_unicode.h"
-#include "api_wrdb.h"
+#include "api_all.h"
 
 static BackendManager * backendmanager;
 

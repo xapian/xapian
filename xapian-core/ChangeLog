@@ -1,3 +1,8 @@
+Sun Dec 02 03:47:44 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/apitest.cc: Include api_all.h instead of the individual
+	  generated headers.
+
 Sun Dec 02 03:44:56 GMT 2007  Olly Betts <olly@survex.com>
 
 	* tests/collate-apitest: Add licence and (C).  Only update .h files
