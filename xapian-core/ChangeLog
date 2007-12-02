@@ -1,3 +1,11 @@
+Sun Dec 02 03:44:56 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/collate-apitest: Add licence and (C).  Only update .h files
+	  which may have changed.  Generate api_all.h which just includes
+	  the generated headers corresponding to all the sources processed.
+	  Strip spaces from conditions.
+	* tests/Makefile.am: Update for api_all.h.
+
 Sun Dec 02 03:21:59 GMT 2007  Olly Betts <olly@survex.com>
 
 	* matcher/weight.cc: Wrap comment.
