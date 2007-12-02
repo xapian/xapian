@@ -1,3 +1,7 @@
+Sun Dec 02 03:21:25 GMT 2007  Olly Betts <olly@survex.com>
+
+	* AUTHORS: Thank Petr Ročkai.
+
 Sun Dec 02 02:40:58 GMT 2007  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc: Oops, this file also part of previous change.
