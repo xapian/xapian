@@ -1,3 +1,7 @@
+Sun Dec 02 03:21:59 GMT 2007  Olly Betts <olly@survex.com>
+
+	* matcher/weight.cc: Wrap comment.
+
 Sun Dec 02 03:21:25 GMT 2007  Olly Betts <olly@survex.com>
 
 	* AUTHORS: Thank Petr Ročkai.
