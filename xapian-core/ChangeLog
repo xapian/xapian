@@ -1,3 +1,9 @@
+Sun Dec 02 02:14:27 GMT 2007  Olly Betts <olly@survex.com>
+
+	* include/xapian/enquire.h: Implement copy ctor and assignment
+	  operator for Xapian::Enquire (bug#219).
+	* configure.ac: Note what this means in terms of library versioning.
+
 Sat Dec 01 02:54:51 GMT 2007  Olly Betts <olly@survex.com>
 
 	* include/xapian/: Stop describing get_description() as an

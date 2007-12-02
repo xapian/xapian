@@ -605,14 +605,13 @@ class XAPIAN_VISIBILITY_DEFAULT MatchDecider {
  *  argument is supplied, for example, an unknown database type.
  */
 class XAPIAN_VISIBILITY_DEFAULT Enquire {
-    private:
-	/// Copies are not allowed.
-	Enquire(const Enquire &);
-
-	/// Assignment is not allowed.
-	void operator=(const Enquire &);
-
     public:
+	/// Copying is allowed (and is cheap).
+	Enquire(const Enquire & other);
+
+	/// Assignment is allowed (and is cheap).
+	void operator=(const Enquire & other);
+
 	class Internal;
 	/// @internal Reference counted internals.
 	Xapian::Internal::RefCntPtr<Internal> internal;
