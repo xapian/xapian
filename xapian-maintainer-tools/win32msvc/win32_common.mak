@@ -16,7 +16,6 @@ OBJS= \
 	$(INTDIR)\utils.obj \
 	$(INTDIR)\getopt.obj \
 	$(INTDIR)\omdebug.obj \
-	$(INTDIR)\omstringstream.obj \
 	$(INTDIR)\serialise-double.obj \
 	$(INTDIR)\msvc_posix_wrapper.obj \
 	$(INTDIR)\safe.obj
@@ -25,7 +24,6 @@ SRCS= \
 	$(INTDIR)\utils.cc \
 	$(INTDIR)\getopt.cc \
 	$(INTDIR)\omdebug.cc \
-	$(INTDIR)\omstringstream.cc \
 	$(INTDIR)\serialise-double.cc \
 	$(INTDIR)\msvc_posix_wrapper.cc \
 	$(INTDIR)\safe.cc
