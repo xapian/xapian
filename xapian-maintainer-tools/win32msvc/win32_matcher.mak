@@ -34,6 +34,7 @@ OBJS= \
     $(INTDIR)\rset.obj\
     $(INTDIR)\scaleweight.obj\
     $(INTDIR)\selectpostlist.obj\
+    $(INTDIR)\synonympostlist.obj\
     $(INTDIR)\stats.obj\
     $(INTDIR)\tradweight.obj\
     $(INTDIR)\valuerangepostlist.obj\
@@ -62,6 +63,7 @@ SRCS= \
     $(INTDIR)\rset.cc\
     $(INTDIR)\scaleweight.cc\
     $(INTDIR)\selectpostlist.cc\
+    $(INTDIR)\synonympostlist.cc\
     $(INTDIR)\stats.cc\
     $(INTDIR)\tradweight.cc\
     $(INTDIR)\valuerangepostlist.cc\
