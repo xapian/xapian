@@ -2,6 +2,7 @@
     "COMPONENT" and "debian/component".
   * debian/rules: Strip out unused support for Ubuntu breezy since it reached
     end-of-life and we stopped building packages for it a while ago.
+  * debian/control.in: Standards-Version: 3.7.3 (no changes required).
 
 xapian-bindings (1.0.4-1) unstable; urgency=low
 
