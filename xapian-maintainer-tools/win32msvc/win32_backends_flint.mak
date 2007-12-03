@@ -69,6 +69,7 @@ CLEAN :
     -@erase "*.pch"
     -@erase "$(INTDIR)\*.pdb"
     -@erase "$(INTDIR)\getopt.obj"
+    -@erase "$(INTDIR)\flint_check.obj"
     -@erase $(OBJS)
 
 

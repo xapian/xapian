@@ -96,9 +96,7 @@ class XAPIAN_VISIBILITY_DEFAULT PositionIterator {
 	// extra method, not required for an input_iterator
 	void skip_to(Xapian::termpos pos);
 
-	/** Returns a string describing this object.
-	 *  Introspection method.
-	 */
+	/// Return a string describing this object.
 	std::string get_description() const;
 
 	// Allow use as an STL iterator

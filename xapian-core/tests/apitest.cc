@@ -43,14 +43,7 @@ using namespace std;
 #include "backendmanager_remotetcp.h"
 #include "utils.h"
 
-#include "api_anydb.h"
-#include "api_db.h"
-#include "api_nodb.h"
-#include "api_posdb.h"
-#include "api_sorting.h"
-#include "api_transdb.h"
-#include "api_unicode.h"
-#include "api_wrdb.h"
+#include "api_all.h"
 
 static BackendManager * backendmanager;
 
@@ -77,7 +70,13 @@ get_database(const string &dbname, const string &dbname2)
 Xapian::WritableDatabase
 get_writable_database(const string &dbname)
 {
-    return backendmanager->get_writable_database(dbname);
+    return backendmanager->get_writable_database("dbw", dbname);
+}
+
+Xapian::WritableDatabase
+get_named_writable_database(const std::string &name, const std::string &source)
+{
+   return backendmanager->get_writable_database("dbw__" + name, source);
 }
 
 Xapian::Database

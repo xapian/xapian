@@ -3,6 +3,55 @@ Mon Dec 03 15:35:38 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 	* python/smoketest.py: Change expected query to match new output
 	  using the SYNONYM operator.
 
+Thu Nov 29 02:48:06 GMT 2007  Olly Betts <olly@survex.com>
+
+	* php/: Add test for XapianMultiValueSorter.
+
+Thu Nov 29 02:47:17 GMT 2007  Olly Betts <olly@survex.com>
+
+	* xapian.i: Wrap Enquire::set_sort_by_key() and
+	  Enquire::set_sort_by_key_then_relevance().
+
+Thu Nov 29 02:06:10 GMT 2007  Olly Betts <olly@survex.com>
+
+	* php/smoketest5.php: Fix use of Database_get_document to new style OO
+	  interface.  Fix error string when the PHP5 exception test fails.
+
+Wed Nov 28 20:17:09 GMT 2007  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,python/generate-python-exceptions.in,xapian.i:
+	  Wrap Xapian::Sorter and subclasses.
+
+Wed Nov 28 19:19:08 GMT 2007  Olly Betts <olly@survex.com>
+
+	* ruby/Makefile.am: SWIG has accepted -initname in at least one
+	  released version, so switch to using it instead of the now
+	  deprecated -feature option.
+
+Wed Nov 28 11:17:40 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/util.i: Don't drop the GIL when calling
+	  Xapian_MSet_items_get() and Xapian_ESet_items_get() - these
+	  methods build a python list, and return a PyObject, so it's not
+	  safe to do so, and doing so may cause undefined behaviour in
+	  multithreaded environments.
+
+Wed Nov 28 00:52:46 GMT 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Change remaining uses of "print" in python to bracket
+	  their arguments.
+
+Wed Nov 28 00:50:41 GMT 2007  Olly Betts <olly@survex.com>
+
+	* java-swig/Makefile.am,java/Makefile.am: Check for directory
+	  existence rather than calling mkdir unconditionally as despite the
+	  "(ignored)", the error message seems to confuse some people.
+
+Tue Nov 27 22:34:11 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* configure.ac: Change "print foo" to "print(foo)" in python
+	  version checks, for compatibility with python 3.0.
+
 Tue Nov 27 03:08:51 GMT 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: Log the output of trying to compile conftest.java in

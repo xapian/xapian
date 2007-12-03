@@ -33,6 +33,9 @@ class BackendManagerRemoteTcp : public BackendManager {
     /// Don't allow copying.
     BackendManagerRemoteTcp(const BackendManagerRemoteTcp &);
 
+    /// The path of the last writable database used.
+    std::string last_wdb_name;
+
   public:
     BackendManagerRemoteTcp() { }
 
@@ -51,7 +54,8 @@ class BackendManagerRemoteTcp : public BackendManager {
     Xapian::Database get_database(const std::string & file);
 
     /// Create a RemoteTcp Xapian::WritableDatabase object indexing a single file.
-    Xapian::WritableDatabase get_writable_database(const std::string & dbname);
+    Xapian::WritableDatabase get_writable_database(const std::string & name,
+						   const std::string & file);
 
     /// Create a RemoteTcp Xapian::Database with the specified timeout.
     Xapian::Database get_remote_database(const std::vector<std::string> & files,

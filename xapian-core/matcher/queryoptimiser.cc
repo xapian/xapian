@@ -247,7 +247,9 @@ struct CmpMaxOrTerms {
     }
 };
 
-template<class CLASS> void delete_ptr(CLASS *p) { delete p; }
+template<class CLASS> struct delete_ptr {
+    void operator()(CLASS *p) { delete p; }
+};
 
 /// Comparison functor which orders PostList* by descending get_termfreq_est().
 struct ComparePostListTermFreqAscending {
@@ -300,7 +302,7 @@ QueryOptimiser::do_or_like(const Xapian::Query::Internal *query, double factor)
 			postlists.end(), CmpMaxOrTerms());
 
 	    for_each(postlists.begin() + elite_set_size, postlists.end(),
-		     delete_ptr<PostList>);
+		     delete_ptr<PostList>());
 
 	    if (elite_set_size == 1) RETURN(postlists[0]);
 

@@ -133,9 +133,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingIterator {
 	// Xapian::doccount get_termfreq() const;
 	// Xapian::termcount get_collection_freq() const;
 
-	/** Returns a string describing this object.
-	 *  Introspection method.
-	 */
+	/// Return a string describing this object.
 	std::string get_description() const;
 
 	/// Allow use as an STL iterator

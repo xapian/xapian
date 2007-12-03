@@ -1,10 +1,9 @@
 /** \file valueiterator.h
  * \brief classes for iterating through values
  */
-/* ----START-LICENCE----
- * Copyright 1999,2000,2001 BrightStation PLC
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,9 +17,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #ifndef OM_HGUARD_OMVALUEITERATOR_H
@@ -90,13 +88,11 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
 	/// Get the number of the value at the current position
         Xapian::valueno get_valueno() const;
 
-	/** Returns a string describing this object.
-	 *  Introspection method.
-	 */
+	/// Return a string describing this object.
 	std::string get_description() const;
 
 	/// Allow use as an STL iterator
-	//@{	
+	//@{
 	typedef std::input_iterator_tag iterator_category;
 	typedef std::string value_type;
 	typedef Xapian::valueno_diff difference_type;

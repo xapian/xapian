@@ -106,10 +106,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 */
 	void reopen();
 
-	/** Introspection method.
-	 *
-	 *  @return A string describing this object.
-	 */
+	/// Return a string describing this object.
 	virtual std::string get_description() const;
 
 	/** An iterator pointing to the start of the postlist
@@ -717,10 +714,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 */
 	void set_metadata(const std::string & key, const std::string & value);
 
-	/** Introspection method.
-	 *
-	 *  @return A string describing this object.
-	 */
+	/// Return a string describing this object.
 	std::string get_description() const;
 };
 

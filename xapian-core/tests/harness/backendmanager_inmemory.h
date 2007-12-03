@@ -57,7 +57,7 @@ class BackendManagerInMemory : public BackendManager {
     Xapian::Database get_database(const std::string & file);
 
     /// Create a InMemory Xapian::WritableDatabase object indexing a single file.
-    Xapian::WritableDatabase get_writable_database(const std::string & dbname);
+    Xapian::WritableDatabase get_writable_database(const std::string & name, const std::string & file);
 };
 
 #endif // XAPIAN_INCLUDED_BACKENDMANAGER_INMEMORY_H

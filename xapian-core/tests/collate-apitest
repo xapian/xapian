@@ -1,5 +1,26 @@
 #!/usr/bin/perl -w
+# collate-apitest: Collate testcases for apitest from several source files.
+#
+# Copyright (C) 2007 Olly Betts
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+
 use strict;
+
+my $devnull = '/dev/null';
+$devnull = 'nul' if $^O eq 'MSWin32';
 
 print <<END;
     cout << "Running tests with backend \\\"" << backendmanager->get_dbtype() << "\\\"..." << endl;
@@ -7,15 +28,30 @@ END
 
 my %by_cond = ();
 my $srcdir = shift(@ARGV);
+
+open ALL, ">api_all.h" or die $!;
+
+my $script_mod = -M $0;
 for my $cc_source (@ARGV) {
     (my $generated_h = $cc_source) =~ s/\.\w+$/\.h/;
-    open HDR, ">$generated_h" or die $!;
+    print ALL "#include \"$generated_h\"\n";
 
-    open SRC, "<$srcdir/$cc_source" or die $!;
+    $cc_source = "$srcdir/$cc_source";
+    my $hdr_mod = -M $generated_h;
+    if (defined $hdr_mod) {
+	if ($script_mod >= $hdr_mod && -M $cc_source >= $hdr_mod) {
+	    # Don't update a particular header if it has been updated
+	    # more recently than the script or corresponding source.
+	    $generated_h = $devnull;
+	}
+    }
+
+    open HDR, ">$generated_h" or die $!;
+    open SRC, "<$cc_source" or die $!;
     while (<SRC>) {
 	if (/^DEFINE_TESTCASE\((.*?),\s*(.*)\)/) {
 	    my ($test_func, $cond) = ($1, $2);
-#$cond =~ s/\s+//g;
+	    $cond =~ s/\s+//g;
 	    push @{$by_cond{$cond}}, $test_func;
 	    print HDR "extern bool test_$test_func();\n";
 	}

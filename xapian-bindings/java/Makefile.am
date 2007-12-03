@@ -21,5 +21,5 @@ SmokeTest: SmokeTest.class
 noinst_DATA = built/xapian_jni.jar
 
 built/xapian_jni.jar:
-	-mkdir built
+	-test -d built || mkdir built
 	$(JAR) -cf built/xapian_jni.jar org/xapian/*.class org/xapian/errors/*.class

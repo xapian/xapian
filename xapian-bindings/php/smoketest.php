@@ -140,4 +140,87 @@ if ($query4->get_description() != "Xapian::Query(5 * foo)") {
     exit(1);
 }
 
+# Test MultiValueSorter.
+
+$doc = new XapianDocument();
+$doc->add_term("foo");
+$doc->add_value(0, "ABB");
+$db2->add_document($doc);
+$doc->add_value(0, "ABC");
+$db2->add_document($doc);
+$doc->add_value(0, "ABC\0");
+$db2->add_document($doc);
+$doc->add_value(0, "ABCD");
+$db2->add_document($doc);
+$doc->add_value(0, "ABC\xff");
+$db2->add_document($doc);
+
+$enquire = new XapianEnquire($db2);
+$enquire->set_query(new XapianQuery("foo"));
+
+{
+    $sorter = new XapianMultiValueSorter();
+    $sorter->add(0);
+    $enquire->set_sort_by_key($sorter);
+    $mset = $enquire->get_mset(0, 10);
+    mset_expect_order($mset, array(5, 4, 3, 2, 1));
+}
+
+{
+    $sorter = new XapianMultiValueSorter();
+    $sorter->add(0, false);
+    $enquire->set_sort_by_key($sorter);
+    $mset = $enquire->get_mset(0, 10);
+    mset_expect_order($mset, array(1, 2, 3, 4, 5));
+}
+
+{
+    $sorter = new XapianMultiValueSorter();
+    $sorter->add(0);
+    $sorter->add(1);
+    $enquire->set_sort_by_key($sorter);
+    $mset = $enquire->get_mset(0, 10);
+    mset_expect_order($mset, array(5, 4, 3, 2, 1));
+}
+
+{
+    $sorter = new XapianMultiValueSorter();
+    $sorter->add(0, false);
+    $sorter->add(1);
+    $enquire->set_sort_by_key($sorter);
+    $mset = $enquire->get_mset(0, 10);
+    mset_expect_order($mset, array(1, 2, 3, 4, 5));
+}
+
+{
+    $sorter = new XapianMultiValueSorter();
+    $sorter->add(0);
+    $sorter->add(1, false);
+    $enquire->set_sort_by_key($sorter);
+    $mset = $enquire->get_mset(0, 10);
+    mset_expect_order($mset, array(5, 4, 3, 2, 1));
+}
+
+{
+    $sorter = new XapianMultiValueSorter();
+    $sorter->add(0, false);
+    $sorter->add(1, false);
+    $enquire->set_sort_by_key($sorter);
+    $mset = $enquire->get_mset(0, 10);
+    mset_expect_order($mset, array(1, 2, 3, 4, 5));
+}
+
+function mset_expect_order($mset, $a) {
+    if ($mset->size() != sizeof($a)) {
+	print "MSet has {$mset->size()} entries, expected ".sizeof($a)."\n";
+	exit(1);
+    }
+    for ($j = 0; $j < sizeof($a); ++$j) {
+	if ($mset->get_hit($j)->get_docid() != $a[$j]) {
+	    print "Expected MSet[$j] to be $a[$j], got {$mset->get_hit($j)->get_docid()}\n";
+	    exit(1);
+	}
+    }
+}
+
 ?>

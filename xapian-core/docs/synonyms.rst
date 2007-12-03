@@ -22,7 +22,8 @@ Model
 
 The model for the synonym dictionary is that a term or group of consecutive
 terms can have one or more synonym terms.  A group of consecutive terms is
-specified by simply joining them with a single space between each one.
+specified in the dictionary by simply joining them with a single space between
+each one.
 
 QueryParser Integration
 =======================

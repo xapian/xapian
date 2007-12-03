@@ -67,6 +67,7 @@ dnl 15:0:0 1.0.1 Error::error_string changed type
 dnl 16:0:1 1.0.2 New QueryParser flags, etc
 dnl 17:0:2 1.0.3 Database::get_metadata(), etc
 dnl 18:0:3 1.0.4 New Query ctor for OP_SCALE_WEIGHT
+dnl 19:0:4 1.0.5 Enquire now copyable and assignable
 LIBRARY_VERSION_INFO=18:0:3
 AC_SUBST(LIBRARY_VERSION_INFO)
 
@@ -413,9 +414,6 @@ AC_TYPE_PID_T
 
 AC_TYPE_MODE_T
 
-dnl Check for a stringstream implementation.  (If not present, we roll
-dnl one ourselves).
-AC_CHECK_HEADERS(sstream, [], [], [ ])
 dnl Check for a new streams implementation.
 AC_CHECK_HEADERS(streambuf, [], [], [ ])
 
