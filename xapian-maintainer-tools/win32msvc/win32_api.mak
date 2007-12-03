@@ -21,6 +21,7 @@ OBJS= \
     $(INTDIR)/errorhandler.obj \
     $(INTDIR)/expanddecider.obj \
     $(INTDIR)/leafpostlist.obj \
+    $(INTDIR)/matchspy.obj \
     $(INTDIR)/omdatabase.obj \
     $(INTDIR)/omdocument.obj \
     $(INTDIR)/omenquire.obj \
@@ -45,6 +46,7 @@ SRCS= \
     $(INTDIR)/errorhandler.cc\
     $(INTDIR)/expanddecider.cc\
     $(INTDIR)/leafpostlist.cc\
+    $(INTDIR)/matchspy.cc \
     $(INTDIR)/omdatabase.cc\
     $(INTDIR)/omdocument.cc\
     $(INTDIR)/omenquire.cc\
