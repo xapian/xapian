@@ -83,7 +83,7 @@ static int vg_log_fd = -1;
 const char * expected_exception = NULL;
 
 /// The debug printing stream
-om_ostringstream tout;
+std::ostringstream tout;
 
 int test_driver::runs = 0;
 test_driver::result test_driver::total = {0, 0, 0};

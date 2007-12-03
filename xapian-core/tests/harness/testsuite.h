@@ -23,10 +23,13 @@
 #define OM_HGUARD_TESTSUITE_H
 
 #include "noreturn.h"
-#include "omstringstream.h"
+
+#include "output.h"
+
 #include "stringutils.h" // For STRINGIZE().
 
 #include <map>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -84,7 +87,7 @@ extern const char * expected_exception;
 /** The output stream.  Data written to this stream will only appear
  *  when a test fails.
  */
-extern om_ostringstream tout;
+extern std::ostringstream tout;
 
 /// The test driver.  This class takes care of running the tests.
 class test_driver {

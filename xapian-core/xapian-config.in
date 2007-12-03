@@ -59,6 +59,29 @@ is_uninstalled()
     return $is_uninstalled_cache
 }
 
+need_explicit_dependencies()
+{
+    # For static libraries, we need to explicitly link with dependency_libs
+    # on all platforms.  If we only have static libraries, then "$dlname"
+    # will be empty.
+    extract_dlname "@libdir@/libxapian.la"
+    [ -n "$dlname" ] || return 0 # "true"
+
+    # If libtool has been patched to give link_all_deplibs=no, don't link them.
+    [ no != "@link_all_deplibs_CXX@" ] || return 1 # "false"
+
+    # Handle cases which libtool thinks are "unknown", but we know are "no".
+    if [ yes != "@link_all_deplibs_CXX@" ]; then
+	case "@host_os@" in
+	linux* | k*bsd*-gnu)
+	    # We don't need dependency_libs for shared libraries on these
+	    # platforms, but upstream libtool doesn't know this (yet).
+	    return 1 ;; # "false"
+	esac
+    fi
+    return 0 # "true"
+}
+
 # Any extra ldflags needed.
 set_F_to_extra_ldflags() {
     F=
@@ -203,21 +226,8 @@ while [ 0 != "$#" ] ; do
 	fi
 	set_F_to_extra_ldflags
 	set_L_to_library_path
-	extract_dlname "@libdir@/libxapian.la"
-	# For static libraries, we need to explicitly link with dependency_libs
-	# on all platforms.  For shared libraries, only pull in dependency_libs
-	# if libtool would.
-	explicit_dependencies=yes
-	if [ -n "$dlname" ] && [ no != "@link_all_deplibs_CXX@" ]; then
-	    case "@host_os@" in
-	    linux* | k*bsd*-gnu)
-		# We don't need dependency_libs for shared libraries on these
-		# platforms, but upstream libtool doesn't know this (yet).
-		explicit_dependencies=no ;;
-	    esac
-	fi
 	D=
-	if [ yes = "$explicit_dependencies" ] ; then
+	if need_explicit_dependencies ; then
 	    extract_dependency_libs "@libdir@/libxapian.la"
 	    [ -n "$dependency_libs" ] && D=" $dependency_libs"
 	fi
@@ -227,35 +237,31 @@ while [ 0 != "$#" ] ; do
     --ltlibs)
 	set_F_to_extra_ldflags
 	if is_uninstalled ; then
-	    # Don't check if libxapian.la exists yet - it won't unless
-	    # the xapian-core tree has been built!
+	    # Don't check if libxapian.la exists yet since we want to allow
+	    # configuring against a xapian-core tree which hasn't been built
+	    # yet (the top level bootstrap script relies on this).
 	    [ ./ != "$builddir" ] && F="$F$builddir"
 	    echo "${F}libxapian.la"
 	    continue
 	fi
 
-	if [ -f "@libdir@/libxapian.la" ]; then
-	    echo "${F}@libdir@/libxapian.la"
-	    continue
+	# If we need to pull in dependency_libs, we need libxapian.la.
+	# Otherwise just use the appropriate -L and -l options.
+	# Upstream libtool currently never sets link_all_deplibs_CXX=no.
+	# Some Linux distros patch libtool to return no, and some have an
+	# unhelpful policy of not packaging .la files in an attempt to work
+	# around this.  So avoiding using libtool here gives more consistent
+	# behaviour.
+	if need_explicit_dependencies ; then
+	    if [ -f "@libdir@/libxapian.la" ]; then
+		echo "${F}@libdir@/libxapian.la"
+		continue
+	    fi
+
+	    echo "$0: Can't find libxapian.la to link against." 1>&2
+	    exit 1
 	fi
 
-	# If we need to pull in dependency_libs, we need libxapian.la.
-	# Otherwise we can cope with out it, which is useful as some Linux
-	# distros have an unhelpful policy of not packaging .la files.
-	case "@host_os@" in
-	linux* | k*bsd*-gnu)
-	    # We don't need dependency_libs for shared libraries on these
-	    # platforms, but upstream libtool doesn't know this (yet).
-	    ;;
-	*)
-	    # If libtool wouldn't pull in dependency_libs, we can cope with
-	    # letting libtool link without the .la file.
-	    if [ no != "@link_all_deplibs_CXX@" ]; then
-		echo "$0: Can't find libxapian.la to link against." 1>&2
-		exit 1
-	    fi
-	    ;;
-	esac
 	set_L_to_library_path
 	echo "$F$L-lxapian"
 	;;

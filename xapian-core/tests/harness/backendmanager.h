@@ -84,7 +84,8 @@ class BackendManager {
 
   public:
     /// Get a writable flint database instance.
-    Xapian::WritableDatabase getwritedb_flint(const std::vector<std::string> &dbnames);
+    Xapian::WritableDatabase getwritedb_flint(const std::string & name,
+					      const std::vector<std::string> &files);
 #endif
 
 #ifdef XAPIAN_HAS_QUARTZ_BACKEND
@@ -93,7 +94,8 @@ class BackendManager {
 
   public:
     /// Get a writable quartz database instance.
-    Xapian::WritableDatabase getwritedb_quartz(const std::vector<std::string> &dbnames);
+    Xapian::WritableDatabase getwritedb_quartz(const std::string & name,
+					       const std::vector<std::string> &files);
 #endif
 
   public:
@@ -106,8 +108,7 @@ class BackendManager {
     /** Get the database type currently in use.
      *
      *  Current possible return values are "inmemory", "flint", "quartz",
-     *  "none", "da", "daflimsy", "db", "dbflimsy", "remoteprog", and
-     *  "remotetcp".
+     *  "none", "remoteprog", and "remotetcp".
      */
     virtual const char * get_dbtype() const { return "none"; } // FIXME: move out of header
 
@@ -126,7 +127,7 @@ class BackendManager {
     virtual Xapian::Database get_database(const std::string &dbname);
 
     /// Get a writable database instance.
-    virtual Xapian::WritableDatabase get_writable_database(const std::string & dbname);
+    virtual Xapian::WritableDatabase get_writable_database(const std::string & name, const std::string & file);
 
     /// Get a remote database instance with the specified timeout.
     virtual Xapian::Database get_remote_database(const std::vector<std::string> & files, unsigned int timeout);

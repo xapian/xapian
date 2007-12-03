@@ -109,20 +109,23 @@ BackendManager::createdb_flint(const vector<string> &dbnames)
 }
 
 Xapian::WritableDatabase
-BackendManager::getwritedb_flint(const vector<string> &dbnames)
+BackendManager::getwritedb_flint(const string & name,
+				 const vector<string> & files)
 {
     string parent_dir = ".flint";
     create_dir_if_needed(parent_dir);
 
-    // Add 'w' to distinguish writable dbs (which need to be recreated on each
-    // use) from readonly ones (which can be reused).
-    string dbdir = parent_dir + "/dbw";
+    string dbdir = parent_dir;
+    dbdir += '/';
+    dbdir += name;
+
     // For a writable database we need to start afresh each time.
     rm_rf(dbdir);
     (void)create_dir_if_needed(dbdir);
+
     // directory was created, so do the indexing.
     Xapian::WritableDatabase db(Xapian::Flint::open(dbdir, Xapian::DB_CREATE, 2048));
-    index_files_to_database(db, dbnames);
+    index_files_to_database(db, files);
     return db;
 }
 #endif
@@ -150,21 +153,24 @@ BackendManager::createdb_quartz(const vector<string> &dbnames)
 }
 
 Xapian::WritableDatabase
-BackendManager::getwritedb_quartz(const vector<string> &dbnames)
+BackendManager::getwritedb_quartz(const string & name,
+				  const vector<string> & files)
 {
     string parent_dir = ".quartz";
     create_dir_if_needed(parent_dir);
 
-    // Add 'w' to distinguish writable dbs (which need to be recreated on each
-    // use) from readonly ones (which can be reused).
-    string dbdir = parent_dir + "/dbw";
+    string dbdir = parent_dir;
+    dbdir += '/';
+    dbdir += name;
+
     // For a writable database we need to start afresh each time.
     rm_rf(dbdir);
     (void)create_dir_if_needed(dbdir);
     touch(dbdir + "/log");
+
     // directory was created, so do the indexing.
     Xapian::WritableDatabase db(Xapian::Quartz::open(dbdir, Xapian::DB_CREATE, 2048));
-    index_files_to_database(db, dbnames);
+    index_files_to_database(db, files);
     return db;
 }
 #endif
@@ -182,7 +188,7 @@ BackendManager::get_database(const string &)
 }
 
 Xapian::WritableDatabase
-BackendManager::get_writable_database(const string &)
+BackendManager::get_writable_database(const string &, const string &)
 {
     throw Xapian::InvalidArgumentError("Attempted to open a disabled database");
 }

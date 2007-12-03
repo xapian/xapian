@@ -28,6 +28,7 @@ if ($v != $v2) {
 }
 
 $db = inmemory_open();
+$db2 = inmemory_open();
 
 function my_errhandler($type, $str) {
     global $last_exception;

@@ -70,7 +70,6 @@ SRCS= \
     $(INTDIR)\remotesubmatch.cc
 
 
-
 CLEAN :
     -@erase "$(OUTDIR)\libmatcher.lib"
     -@erase "*.pch"

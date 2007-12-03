@@ -3,6 +3,7 @@
       warning about an empty one.
   * debian/rules: Look for "CODENAME" and "debian/codename" rather than
     "COMPONENT" and "debian/component".
+  * debian/control.in: Standards-Version: 3.7.3 (no changes required).
 
 xapian-core (1.0.4-1) unstable; urgency=low
 

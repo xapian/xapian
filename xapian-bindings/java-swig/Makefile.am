@@ -76,7 +76,7 @@ XAPIAN_SWIG_JAVA_EXTRA_CLASSES=\
 noinst_DATA = built/xapian_jni.jar
 
 built/xapian_jni.jar: $(XAPIAN_SWIG_JAVA_CLASS)
-	-mkdir built
+	-test -d built || mkdir built
 	$(JAR) -cf built/xapian_jni.jar $(XAPIAN_SWIG_JAVA_CLASS) $(XAPIAN_SWIG_JAVA_EXTRA_CLASSES)
 
 jnidir = `pwd`/built

@@ -18,7 +18,6 @@ noinst_HEADERS +=\
 	common/omdebug.h\
 	common/omenquireinternal.h\
 	common/omqueryinternal.h\
-	common/omstringstream.h\
 	common/omtime.h\
 	common/ortermlist.h\
 	common/output.h\
@@ -56,7 +55,6 @@ EXTRA_DIST +=\
 libxapian_la_SOURCES +=\
 	common/msvc_posix_wrapper.cc\
 	common/omdebug.cc\
-	common/omstringstream.cc\
 	common/safe.cc\
 	common/serialise-double.cc\
 	common/utils.cc

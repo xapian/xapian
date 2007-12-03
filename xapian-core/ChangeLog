@@ -14,6 +14,120 @@ Mon Oct 29 03:03:31 GMT 2007  Olly Betts <olly@survex.com>
 	  include/xapian.h,tests/api_db.cc,tests/api_nodb.cc,
 	  tests/api_wrdb.cc: Restore the changes.
 
+Sun Dec 02 14:36:47 GMT 2007  Olly Betts <olly@survex.com>
+
+	* docs/synonyms.rst: Minor wording clarification.
+
+Sun Dec 02 14:23:37 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/collate-apitest: Fix reversed conditional for deciding
+	  which generated headers to update.
+
+Sun Dec 02 03:47:44 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/apitest.cc: Include api_all.h instead of the individual
+	  generated headers.
+
+Sun Dec 02 03:44:56 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/collate-apitest: Add licence and (C).  Only update .h files
+	  which may have changed.  Generate api_all.h which just includes
+	  the generated headers corresponding to all the sources processed.
+	  Strip spaces from conditions.
+	* tests/Makefile.am: Update for api_all.h.
+
+Sun Dec 02 03:21:59 GMT 2007  Olly Betts <olly@survex.com>
+
+	* matcher/weight.cc: Wrap comment.
+
+Sun Dec 02 03:21:25 GMT 2007  Olly Betts <olly@survex.com>
+
+	* AUTHORS: Thank Petr Ročkai.
+
+Sun Dec 02 02:40:58 GMT 2007  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc: Oops, this file also part of previous change.
+
+Sun Dec 02 02:14:27 GMT 2007  Olly Betts <olly@survex.com>
+
+	* include/xapian/enquire.h: Implement copy ctor and assignment
+	  operator for Xapian::Enquire (bug#219).
+	* configure.ac: Note what this means in terms of library versioning.
+
+Sat Dec 01 02:54:51 GMT 2007  Olly Betts <olly@survex.com>
+
+	* include/xapian/: Stop describing get_description() as an
+	  "Introspection method", as this doesn't help to explain what it
+	  does, and get_description() doesn't actually fall under any of the
+	  formal definitions of "introspection" I can find.
+
+Sat Dec 01 02:45:16 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/harness/index_utils.h: Overlooked (C) update.
+
+Sat Dec 01 02:34:59 GMT 2007  Olly Betts <olly@survex.com>
+
+	* HACKING,INSTALL,common/,configure.ac,tests/api_anydb.cc,
+	  tests/api_db.cc,tests/btreetest.cc,tests/harness/testsuite.cc,
+	  tests/harness/testsuite.h,tests/harness/testutils.cc,
+	  tests/internaltest.cc: Raise the minimum supported GCC version
+	  to 2.95.3 and strip out om_ostringstream which is no longer
+	  required.
+
+Sat Dec 01 01:10:04 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/api_sorting.cc,tests/api_wrdb.cc: Move sortfunctor2 from
+	  api_wrdb.cc to api_sorting.cc.
+
+Sat Dec 01 00:43:31 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/valgrind.supp: Add version of the valgrind zlib suppression
+	  for 64 bit hosts.
+
+Fri Nov 30 18:06:49 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/harness/index_utils.cc: Workaround MSVC which doesn't clear
+	  the fail bit when a stream is reopened.
+
+Fri Nov 30 00:44:21 GMT 2007  Olly Betts <olly@survex.com>
+
+	* matcher/queryoptimiser.cc: Make delete_ptr<> a functor rather than
+	  a function.  This fixes the build with SGI's compiler, and
+	  apparently a functor allows more compilers to inline the call.
+
+Thu Nov 29 19:24:22 GMT 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix previous change to work.
+
+Thu Nov 29 18:53:09 GMT 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Assume we have <sstream> and hardwire HAVE_SSTREAM to
+	  be 1.  If this assumption proves correct for all platforms we care
+	  about, we can rip out the old om_ostringstream code.
+
+Thu Nov 29 17:51:11 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/harness/index_utils.cc: Work around MSVC.
+
+Wed Nov 28 03:17:06 GMT 2007  Olly Betts <olly@survex.com>
+
+	* api/sorter.cc: Fix reverse sorting of value strings with different
+	  lengths.
+	* tests/api_wrdb.cc: Add test sortfunctor2 to check this actually
+	  works.
+
+Wed Nov 28 02:27:37 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/api_wrdb.cc,tests/apitest.cc,tests/apitest.h,tests/harness/:
+	  Add get_named_writable_database() and use it to fix spell3 on
+	  Microsoft Windows.
+
+Tue Nov 27 16:56:12 GMT 2007  Olly Betts <olly@survex.com>
+
+	* xapian-config.in: Factor out the code to check if we need explicit
+	  dependencies into a function.  On platforms we know don't need
+	  explicit dependencies, --ltlibs now gives the same output as --libs.
+
 Tue Nov 27 00:24:18 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/Makefile.am: Remove api_regressions.cc from list - didn't

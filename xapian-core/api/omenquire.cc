@@ -835,6 +835,18 @@ Enquire::Internal::register_match_decider(const string &,
 
 // Methods of Xapian::Enquire
 
+Enquire::Enquire(const Enquire & other) : internal(other.internal)
+{
+    DEBUGAPICALL(void, "Xapian::Enquire::Enquire", other);
+}
+
+void
+Enquire::operator=(const Enquire & other)
+{
+    DEBUGAPICALL(void, "Xapian::Enquire::operator=", other);
+    internal = other.internal;
+}
+
 Enquire::Enquire(const Database &databases, ErrorHandler * errorhandler)
     : internal(new Internal(databases, errorhandler))
 {

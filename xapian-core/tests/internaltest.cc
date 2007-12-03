@@ -38,7 +38,6 @@ using namespace std;
 #include "autoptr.h"
 #include "testsuite.h"
 #include "testutils.h"
-#include "omstringstream.h"
 
 #include "serialise.h"
 #include "serialise-double.h"
@@ -224,15 +223,6 @@ static bool test_stringcomp1()
     }
 
     return success;
-}
-
-static bool test_omstringstream1()
-{
-    om_ostringstream oss;
-    oss << "foo" << 4 << "bar";
-    TEST_EQUAL(oss.str(), "foo4bar");
-
-    return true;
 }
 
 static bool test_tostring1()
@@ -549,7 +539,6 @@ test_desc tests[] = {
     {"autoptr1",		test_autoptr1},
     {"stringcomp1",		test_stringcomp1},
     {"temporarydtor1",		test_temporarydtor1},
-    {"omstringstream1",		test_omstringstream1},
     {"tostring1",		test_tostring1},
     {"serialisedouble1",	test_serialisedouble1},
 #ifdef XAPIAN_HAS_REMOTE_BACKEND

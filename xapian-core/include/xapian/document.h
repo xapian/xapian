@@ -191,10 +191,7 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 	 */
 	docid get_docid() const;
 
-	/** Introspection method.
-	 *
-	 *  @return  A string representing this Document.
-	 */
+	/// Return a string describing this object.
 	std::string get_description() const;
 };
 

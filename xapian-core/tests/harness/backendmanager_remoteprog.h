@@ -39,6 +39,9 @@ class BackendManagerRemoteProg : public BackendManager {
     /// Don't allow copying.
     BackendManagerRemoteProg(const BackendManagerRemoteProg &);
 
+    /// The path of the last writable database used.
+    std::string last_wdb_name;
+
   public:
     BackendManagerRemoteProg() { }
 
@@ -57,7 +60,8 @@ class BackendManagerRemoteProg : public BackendManager {
     Xapian::Database get_database(const std::string & file);
 
     /// Create a RemoteProg Xapian::WritableDatabase object indexing a single file.
-    Xapian::WritableDatabase get_writable_database(const std::string & dbname);
+    Xapian::WritableDatabase get_writable_database(const std::string & name,
+						   const std::string & file);
 
     /// Create a RemoteProg Xapian::Database with the specified timeout.
     Xapian::Database get_remote_database(const std::vector<std::string> & files,

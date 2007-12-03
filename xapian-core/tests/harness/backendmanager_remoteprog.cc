@@ -55,20 +55,25 @@ BackendManagerRemoteProg::get_database(const string & file)
 }
 
 Xapian::WritableDatabase
-BackendManagerRemoteProg::get_writable_database(const string & file)
+BackendManagerRemoteProg::get_writable_database(const string & name,
+						const string & file)
 {
+    last_wdb_name = name;
+
     vector<string> files(1, file);
     // Default to a long (5 minute) timeout so that tests won't fail just
     // because the host is slow or busy.
     string args = "-t300000 --writable ";
 
 #ifdef XAPIAN_HAS_FLINT_BACKEND
-    (void)getwritedb_flint(files);
-    args += ".flint/dbw";
+    (void)getwritedb_flint(name, files);
+    args += ".flint/";
 #else
-    (void)getwritedb_quartz(files);
-    args += ".quartz/dbw";
+    (void)getwritedb_quartz(name, files);
+    args += ".quartz/";
 #endif
+    args += name;
+
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {
 	args.insert(0, XAPIAN_PROGSRV" ");
@@ -104,10 +109,12 @@ BackendManagerRemoteProg::get_writable_database_as_database()
 {
     string args = "-t300000 ";
 #ifdef XAPIAN_HAS_FLINT_BACKEND
-    args += ".flint/dbw";
+    args += ".flint/";
 #else
-    args += ".quartz/dbw";
+    args += ".quartz/";
 #endif
+    args += last_wdb_name;
+
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {
 	args.insert(0, XAPIAN_PROGSRV" ");
@@ -122,10 +129,12 @@ BackendManagerRemoteProg::get_writable_database_again()
 {
     string args = "-t300000 --writable ";
 #ifdef XAPIAN_HAS_FLINT_BACKEND
-    args += ".flint/dbw";
+    args += ".flint/";
 #else
-    args += ".quartz/dbw";
+    args += ".quartz/";
 #endif
+    args += last_wdb_name;
+
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {
 	args.insert(0, XAPIAN_PROGSRV" ");

@@ -39,14 +39,7 @@ using namespace std;
 #include <sys/types.h>
 #include "safesysstat.h"
 
-#ifdef HAVE_SSTREAM
-# define BTREE_CHECK(DIR, OPTS) BtreeCheck::check(DIR, OPTS, tout)
-#else
-// FIXME: If we don't have <sstream> and hence ostringstream, we roll our own
-// which can't be passed as an ostream so we just turn off the options and send
-// the output (only a one line report of any error) to cout
-# define BTREE_CHECK(DIR, OPTS) BtreeCheck::check(DIR, 0, cout)
-#endif
+#define BTREE_CHECK(DIR, OPTS) BtreeCheck::check(DIR, OPTS, tout)
 
 static string tmpdir;
 static string datadir;

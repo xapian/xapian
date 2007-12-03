@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Olly Betts <olly@survex.com>
 Build-Depends: @BUILD_DEPS@ po-debconf, autotools-dev
 XS-Python-Version: all
-Standards-Version: 3.7.2
+Standards-Version: 3.7.3
 
 Package: tclxapian
 Section: libs

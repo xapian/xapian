@@ -119,9 +119,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermIterator {
 	    return PositionIterator(NULL);
 	}
 
-	/** Returns a string describing this object.
-	 *  Introspection method.
-	 */
+	/// Return a string describing this object.
 	std::string get_description() const;
 
 	/// Allow use as an STL iterator

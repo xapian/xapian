@@ -44,6 +44,10 @@
 %ignore Xapian::xapian_minor_version;
 %ignore Xapian::xapian_revision;
 
+// No point wrapping this abstract base class until SWIG supports directors
+// for PHP.
+%ignore Xapian::Sorter;
+
 #ifdef SWIGPHP4
 %rename("XapianBM25Weight") Xapian::BM25Weight;
 %rename("XapianBoolWeight") Xapian::BoolWeight;
@@ -55,6 +59,7 @@
 %rename("XapianESetIterator") Xapian::ESetIterator;
 %rename("XapianMSet") Xapian::MSet;
 %rename("XapianMSetIterator") Xapian::MSetIterator;
+%rename("XapianMultiValueSorter") Xapian::MultiValueSorter;
 %rename("XapianNumberValueRangeProcessor") Xapian::v102::NumberValueRangeProcessor;
 %rename("XapianNumberValueRangeProcessor") Xapian::NumberValueRangeProcessor;
 %rename("XapianPositionIterator") Xapian::PositionIterator;

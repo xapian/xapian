@@ -213,7 +213,7 @@ if test no != "$with_python" ; then
     dnl for Pythonic iterator support, and it's now > 4.5 years since the last
     dnl 2.1.x release and 2.5 is out.
     AC_MSG_CHECKING([$PYTHON version])
-    version=`$PYTHON -c 'import sys;print sys.version[[:3]]' 2>/dev/null`
+    version=`$PYTHON -c 'import sys;print(sys.version[[:3]])' 2>/dev/null`
     case $version in
     [2.[2-9]*|2.1[0-9]*|[3-9].*])
       ;;
@@ -228,7 +228,7 @@ if test no != "$with_python" ; then
     AC_MSG_RESULT([$version])
     if test -n "$PYTHON" ; then
       if $PYTHON -c 'import distutils.sysconfig' 2>/dev/null ; then
-	PYTHON_INC=`$PYTHON -c 'import os,distutils.sysconfig;print distutils.sysconfig.get_python_inc().replace(os.sep,"/")'`
+	PYTHON_INC=`$PYTHON -c 'import os,distutils.sysconfig;print(distutils.sysconfig.get_python_inc().replace(os.sep,"/"))'`
 	AC_SUBST(PYTHON_INC)
       else
 	if test yes = "$with_python" ; then
@@ -247,17 +247,17 @@ if test no != "$with_python" ; then
 	AC_MSG_RESULT(yes)
 	AC_MSG_CHECKING([for directory to install python bindings in])
 	if test -z "$PYTHON_LIB" ; then
-	  PYTHON_LIB=`$PYTHON -c 'import os,distutils.sysconfig;print distutils.sysconfig.get_python_lib(1).replace(os.sep,"/")'`
+	  PYTHON_LIB=`$PYTHON -c 'import os,distutils.sysconfig;print(distutils.sysconfig.get_python_lib(1).replace(os.sep,"/"))'`
 	fi
 	AC_MSG_RESULT([$PYTHON_LIB])
 	AC_ARG_VAR(PYTHON_LIB, [Directory to install python bindings in])
 	AC_MSG_CHECKING([for Python path separator])
-	PYTHON_PATHSEP=`$PYTHON -c 'import os;print os.pathsep'`
+	PYTHON_PATHSEP=`$PYTHON -c 'import os;print(os.pathsep)'`
 	AC_MSG_RESULT([$PYTHON_PATHSEP])
 	AC_SUBST(PYTHON_PATHSEP)
 	case $host_os in
 	mingw* | pw32*)
-	  PYTHON_LIBS=`$PYTHON -c 'import os,sys;print "-L"+os.path.join(sys.prefix,"libs").replace(os.sep,"/"),"-lpython"+sys.version[[:3]].replace(".","")'` ;;
+	  PYTHON_LIBS=`$PYTHON -c 'import os,sys;print("-L"+os.path.join(sys.prefix,"libs").replace(os.sep,"/"),"-lpython"+sys.version[[:3]].replace(".",""))'` ;;
 	*)
 	  PYTHON_LIBS= ;;
 	esac

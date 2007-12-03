@@ -31,12 +31,20 @@
 
 #include <xapian/visibility.h>
 
-#include "omstringstream.h"
+#include "omtime.h"
+#include "output.h"
 #include "stringutils.h" // For STRINGIZE().
 
+#include <iomanip>
+#include <sstream>
 #include <vector>
 
 #include "safeunistd.h"
+
+inline std::ostream &
+operator<<(std::ostream & os, const OmTime & om_time) {
+    return os << om_time.sec << '.' << std::setw(6) << std::setfill('0') << om_time.usec;
+}
 
 /** The types of debug output.  These are specified within a DEBUGMSG in
  *  the code by the final portion of the name: ie, UNKNOWN, LOCK, etc...
@@ -153,7 +161,7 @@ extern OmDebug om_debug;
 // Don't bracket b, because it may have <<'s in it
 #define DEBUGMSG2(a,b) do { \
     if (om_debug.want_type(a)) { \
-	om_ostringstream os; \
+	std::ostringstream os; \
 	os << b; \
 	om_debug.display_message(a, os.str()); \
     } \
@@ -201,10 +209,10 @@ class OmDebugCall {
     std::string omdebugapicall_method; \
     typedef r omdebugapicallreturn_t; \
     if (om_debug.want_type(OM_DEBUG_##t)) { \
-	om_ostringstream os1; \
+	std::ostringstream os1; \
 	os1 << "[" << static_cast<const void*>(this) << "] " << STRINGIZE(r) << " " << a; \
 	omdebugapicall_method = os1.str(); \
-	om_ostringstream os2; \
+	std::ostringstream os2; \
 	os2 << b; \
 	omdebugapicall_str = os2.str(); \
     } \
@@ -217,10 +225,10 @@ class OmDebugCall {
     std::string omdebugapicall_method; \
     typedef r omdebugapicallreturn_t; \
     if (om_debug.want_type(OM_DEBUG_##t)) { \
-	om_ostringstream os1; \
+	std::ostringstream os1; \
 	os1 << "[static   ] " << STRINGIZE(r) << " " << a; \
 	omdebugapicall_method = os1.str(); \
-	om_ostringstream os2; \
+	std::ostringstream os2; \
 	os2 << b; \
 	omdebugapicall_str = os2.str(); \
     } \
@@ -228,7 +236,7 @@ class OmDebugCall {
 
 #define RETURN(A) do { \
     omdebugapicallreturn_t omdebugapicallreturn = (A); \
-    om_ostringstream os; \
+    std::ostringstream os; \
     os << omdebugapicallreturn; \
     omdebugapicall.setreturnval(os.str()); \
     return omdebugapicallreturn; \

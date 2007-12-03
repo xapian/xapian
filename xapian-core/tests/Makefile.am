@@ -82,8 +82,9 @@ noinst_HEADERS = apitest.h
 collated_apitest_sources = api_anydb.cc api_db.cc api_nodb.cc api_posdb.cc \
  api_sorting.cc api_transdb.cc api_unicode.cc api_wrdb.cc
 
-apitest_SOURCES = apitest.cc $(collated_apitest_sources) api_collated.h \
- $(testharness_sources)
+apitest_SOURCES = apitest.cc $(collated_apitest_sources) \
+ api_all.h api_collated.h $(testharness_sources)
+
 apitest_LDFLAGS = -no-install $(ldflags)
 apitest_LDADD = ../libgetopt.la ../libxapian.la
 
@@ -114,10 +115,10 @@ termgentest_LDADD = ../libgetopt.la ../libxapian.la
 BUILT_SOURCES =
 
 if MAINTAINER_MODE
-BUILT_SOURCES += api_collated.h $(collated_apitest_sources:.cc=.h)
-CLEANFILES = api_collated.h $(collated_apitest_sources:.cc=.h)
+BUILT_SOURCES += api_all.h api_collated.h $(collated_apitest_sources:.cc=.h)
+CLEANFILES = api_all.h api_collated.h $(collated_apitest_sources:.cc=.h)
 
-api_collated.h $(collated_apitest_sources:.cc=.h): api_collated.stamp
+api_all.h api_collated.h $(collated_apitest_sources:.cc=.h): api_collated.stamp
 ## Recover from the removal of $@.  A full explanation of these rules is in the
 ## automake manual under the heading "Multiple Outputs".
 	@if test -f $@; then :; else \
@@ -137,7 +138,7 @@ api_collated.stamp: $(collated_apitest_sources) collate-apitest
 	touch $@
 endif
 
-EXTRA_DIST = collate-apitest api_collated.h $(collated_apitest_sources:.cc=.h)
+EXTRA_DIST = collate-apitest api_all.h api_collated.h $(collated_apitest_sources:.cc=.h)
 
 ## Distribute test data:
 EXTRA_DIST +=\
