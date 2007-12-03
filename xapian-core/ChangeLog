@@ -1,3 +1,7 @@
+Mon Dec 03 17:10:04 GMT 2007  Olly Betts <olly@survex.com>
+
+	* common/stats.h: Fix comment typos.
+
 Sun Dec 02 14:36:47 GMT 2007  Olly Betts <olly@survex.com>
 
 	* docs/synonyms.rst: Minor wording clarification.
