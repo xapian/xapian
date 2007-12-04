@@ -95,11 +95,11 @@ class Stats {
 	 *  These will be deleted by the destructor.
 	 *
 	 *  FIXME:1.1: this should be removed for the 1.1 release.  In 1.0, the
-	 *  constructor of Xapian::Weight doesn't initialise it's "internal"
+	 *  constructor of Xapian::Weight doesn't initialise its "internal"
 	 *  member to NULL.  This means that we can't delete the object pointed
 	 *  to by "internal" in the destructor, because it may not be
 	 *  initialised.  Therefore, we have to register the objects somewhere
-	 *  else, and deleted them another way.  We use the Stats object for
+	 *  else, and delete them another way.  We use the Stats object for
 	 *  this purpose, since they're related to it.
 	 */
 	mutable list<Xapian::Weight::Internal *> weight_internals;
