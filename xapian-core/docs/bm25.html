@@ -162,14 +162,14 @@ The default parameter values Xapian uses are
 <tt>k<sub>1</sub>&nbsp;=&nbsp;1</tt>,
 <tt>k<sub>2</sub>&nbsp;=&nbsp;0</tt>,
 <tt>k<sub>3</sub>&nbsp;=&nbsp;1</tt>,
-and <tt>b&nbsp;=&nbsp;0.5</tt>.  These are almost certainly not optimal and
-the best values will vary with the documents being searched, and the type
-of queries so you can easily tune by using different values for these
-parameters.
+and <tt>b&nbsp;=&nbsp;0.5</tt>.  These are reasonable defaults, but the optimum
+values will vary with both the documents being searched and the type of
+queries, so you may be able to improve the effectiveness of your search system
+by tuning the values of these parameters.
 </p>
 
 <p>
-We also apply a floor to L (0.5 by default) which
+In Xapian, we also apply a floor to L (0.5 by default) which
 helps stop tiny documents get ridiculously high weights.  And the matcher
 wants the extra item in the sum to be positive, so we add
 <tt>k<sub>2</sub>n<sub>q</sub></tt>
