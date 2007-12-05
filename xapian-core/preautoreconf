@@ -43,6 +43,10 @@ for (sort keys %s) {
 	}
 	push @apidoc_src, $p.$_;
     } else {
+	if (m!^languages/allsnowballheaders\.h$! ||
+	    m!^queryparser/queryparser_(?:internal\.cc|token\.h)$!) {
+	    $p = '$(top_builddir)/';
+	}
 	push @sourcedoc_src, $p.$_;
     }
 }
@@ -89,7 +93,7 @@ rename "docs/docsource.tmp", "docs/docsource.mk" or do { unlink "docs/docsource.
 
 open MAKEFRAG, ">docsource.tmp" or die $!;
 print MAKEFRAG "docsource.mk: preautoreconf ", join(" ", @makefile_am, @dir_contents), "\n";
-print MAKEFRAG "\t./preautoreconf\n";
+print MAKEFRAG "\tcd \$(top_srcdir) && ./preautoreconf\n";
 # Add dummy rules so that "make" works even if a Makefile.am or dir_contents
 # file is removed.
 for (@makefile_am, @dir_contents) {
