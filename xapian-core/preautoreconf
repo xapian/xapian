@@ -101,7 +101,9 @@ exit 0;
 
 sub parse_makefile_am($) {
     my $dir = shift;
-    my %v = ();
+    # Ensure that BUILT_SOURCES is always present, and avoid it being parsed
+    # as other *_SOURCES.
+    my %v = ('BUILT_SOURCES' => '');
     my @l;
     my $makefile_am = $dir . "Makefile.am";
     my @pending = ();
@@ -124,7 +126,7 @@ pending:
 		$v{$var} .= " $2";
 	    } else {
 		$v{$var} = $2;
-		if ($var =~ /_(?:SOURCE|HEADER)S$/ && $var ne 'BUILT_SOURCES') {
+		if ($var =~ /_(?:SOURCE|HEADER)S$/) {
 		    push @l, $var;
 		}
 	    }
@@ -145,7 +147,7 @@ pending:
     }
     close M;
 
-    for (map {/^$/ ? () : $dir.$_} split /\s+/, expand($var{BUILT_SOURCES), \%v) {
+    for (map {/^$/ ? () : $dir.$_} split /\s+/, expand('BUILT_SOURCES', \%v)) {
 	$built_sources{$_}++;
     }
     my @src;
