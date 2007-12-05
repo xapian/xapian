@@ -1,3 +1,8 @@
+Wed Dec 05 18:04:58 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_db.cc: Regression test for MultiAndPostlists being used
+	  in SynonymPostlist queries.
+
 Wed Nov 28 06:16:22 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/queryparsertest.cc: Use OP_SYNONYM for wildcards, partial

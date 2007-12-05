@@ -1258,6 +1258,31 @@ DEFINE_TESTCASE(synonym1, backend) {
     return true;
 }
 
+// Regression test - test a synonym search with a MultiAndPostlist.
+DEFINE_TESTCASE(synonym2, backend) {
+    Xapian::Query query;
+    vector<Xapian::Query> subqueries;
+    subqueries.push_back(Xapian::Query("file"));
+    subqueries.push_back(Xapian::Query("the"));
+    subqueries.push_back(Xapian::Query("next"));
+    subqueries.push_back(Xapian::Query("reader"));
+    query = Xapian::Query(Xapian::Query::OP_AND, subqueries.begin(), subqueries.end());
+    subqueries.clear();
+    subqueries.push_back(query);
+    subqueries.push_back(Xapian::Query("gutenberg"));
+    query = Xapian::Query(Xapian::Query::OP_SYNONYM, subqueries.begin(), subqueries.end());
+
+    tout << query.get_description() << endl;
+
+    Xapian::Database db(get_database("etext"));
+    Xapian::Enquire enquire(db);
+    enquire.set_query(query);
+    Xapian::MSet mset = enquire.get_mset(0, 10);
+    tout << mset.get_description() << endl;
+
+    return true;
+}
+
 // tests that specifying a nonexistent input file throws an exception.
 DEFINE_TESTCASE(quartzdatabaseopeningerror1, quartz) {
     mkdir(".quartz", 0755);
