@@ -1,3 +1,10 @@
+Wed Dec 05 17:18:26 GMT 2007  Olly Betts <olly@survex.com>
+
+	* preautoreconf: Parse BUILT_SOURCES to determine which files are
+	  generated and so need looking for in the build directory - this
+	  won't need updating when new files are generated, or existing
+	  ones stop being.
+
 Wed Dec 05 16:55:26 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* preautoreconf: Fix "make doxygen_docs" with VPATH build: look for

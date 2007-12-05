@@ -22,6 +22,7 @@ use strict;
 sub parse_makefile_am($);
 
 my @makefile_am;
+my %built_sources = ();
 
 if ($0 =~ m!(.*)/!) {
     $1 eq '.' or chdir $1 or die $!;
@@ -29,25 +30,19 @@ if ($0 =~ m!(.*)/!) {
 
 my %s;
 for (parse_makefile_am("")) {
-    $s{$_} = 1;
+    $s{$_}++;
 }
 my @apidoc_src = ();
 my @sourcedoc_src = ();
 for (sort keys %s) {
-    s/^\.\///;
+    s!^\./!!;
     next if m!^tests/! || $_ eq 'include/xapian/errordispatch.h';
-    my $p = '$T/';
+    my $src = $built_sources{$_} ? '$(top_builddir)' : '$T';
+    $src .= "/$_";
     if (m!^include/!) {
-	if (m!^include/xapian/(?:version|error)\.h$!) {
-	    $p = '$(top_builddir)/';
-	}
-	push @apidoc_src, $p.$_;
+	push @apidoc_src, $src;
     } else {
-	if (m!^languages/allsnowballheaders\.h$! ||
-	    m!^queryparser/queryparser_(?:internal\.cc|token\.h)$!) {
-	    $p = '$(top_builddir)/';
-	}
-	push @sourcedoc_src, $p.$_;
+	push @sourcedoc_src, $src;
     }
 }
 
@@ -129,9 +124,9 @@ pending:
 		$v{$var} .= " $2";
 	    } else {
 		$v{$var} = $2;
-	    }
-	    if ($var =~ /_(?:SOURCES|HEADERS)$/) {
-		push @l, $var;
+		if ($var =~ /_(?:SOURCE|HEADER)S$/ && $var ne 'BUILT_SOURCES') {
+		    push @l, $var;
+		}
 	    }
 	} elsif (/^\s*include\s+(\S+)/ && $1 ne 'docsource.mk') {
 	    # automake looks for a nested included file starting from the
@@ -150,9 +145,12 @@ pending:
     }
     close M;
 
+    for (map {/^$/ ? () : $dir.$_} split /\s+/, expand($var{BUILT_SOURCES), \%v) {
+	$built_sources{$_}++;
+    }
     my @src;
     for (@l) {
-	push @src, map {/^$/ ? () : "$dir$_"} split /\s+/, expand($_, \%v);
+	push @src, map {/^$/ ? () : $dir.$_} split /\s+/, expand($_, \%v);
     }
 
     my $subdirs = $v{DIST_SUBDIRS} || $v{SUBDIRS} || '';
