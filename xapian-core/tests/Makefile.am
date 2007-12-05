@@ -138,7 +138,8 @@ api_collated.stamp: $(collated_apitest_sources) collate-apitest
 	touch $@
 endif
 
-EXTRA_DIST = collate-apitest api_all.h api_collated.h $(collated_apitest_sources:.cc=.h)
+EXTRA_DIST = collate-apitest api_all.h api_collated.h \
+	$(collated_apitest_sources:.cc=.h) dir_contents
 
 ## Distribute test data:
 EXTRA_DIST +=\

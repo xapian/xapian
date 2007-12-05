@@ -20,7 +20,8 @@ EXTRA_DIST = doxygen_api_conf.in doxygen_full_conf.in \
 	doxygen_api_header.html_tmpl doxygen_api_footer.html_tmpl \
 	doxygen_full_header.html_tmpl doxygen_full_footer.html_tmpl \
 	$(RSTDOCS) \
-	apidoc/html/*.gif apidoc/html/*.png apidoc/html/*.css apidoc/html/*.html
+	apidoc/html/*.gif apidoc/html/*.png apidoc/html/*.css apidoc/html/*.html \
+	dir_contents
 
 if !MAINTAINER_NO_DOCS
 # Build API docs with doxygen
