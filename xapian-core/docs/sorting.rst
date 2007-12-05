@@ -24,21 +24,56 @@ using ``enquire.set_docid_order(enquire.DONT_CARE);``.
 Sorting by Relevance
 --------------------
 
-The BM25 weighting formula which Xapian uses by default has a number of parameters.
-The optimal values of these depends on the data being indexed and the type of
-queries being run, so we have picked some default parameter values which do a
-good job in general.
+The BM25 weighting formula which Xapian uses by default has a number of
+parameters.  We have picked some default parameter values which do a good job
+in general.  The optimal values of these parameters depend on the data being
+indexed and the type of queries being run, so you may be able to improve the
+effectiveness of your search system by adjusting these values, but it's a
+fiddly process to tune them so people tend not to bother.
 
-.. Explain more about altering BM25 parameters
+See the `BM25 documentation <bm25.html>`_ for more details of BM25.
 
 The other included weighting schemes are ``TradWeight`` and ``BoolWeight``.
 
-.. Explain details of other included weighting scheme
+TradWeight implements the original probabilistic weighting formula, which is
+actually a special case of BM25 (it's BM25 with k2 = 0, k3 = 0, b = 1, and
+min_normlen = 0, except that the weights are scaled by a constant factor).
 
-You can also implement your own weighting scheme, provide it can be expressed in
-a particular form.
+BoolWeight assigns a weight of 0 to all documents, so the ordering is
+determined solely by other factors.
 
-.. Details of writing your own weighting scheme
+You can also implement your own weighting scheme, provided it can be expressed
+in the form of a sum over the matching terms, plus an extra term which depends
+on term-independent statistics (such as the normalised document length).
+
+For example, here's an implementation of "coordinate matching" - each matching
+term scores one point::
+
+    class CoordinateWeight : public Xapian::Weight {
+      public:
+	CoordinateWeight * clone() const { return new CoordinateWeight; }
+	CoordinateWeight() { }
+	~CoordinateWeight() { }
+
+	std::string name() const { return "Coord"; }
+	std::string serialise() const { return ""; }
+	CoordinateWeight * unserialise(const std::string &) const {
+	    return new CoordinateWeight;
+	}
+
+	Xapian::weight get_sumpart(Xapian::termcount, Xapian::doclength) const {
+            return 1;
+        }
+	Xapian::weight get_maxpart() const { return 1; }
+
+	Xapian::weight get_sumextra(Xapian::doclength) const { return 0; }
+	Xapian::weight get_maxextra() const { return 0; }
+
+	bool get_sumpart_needs_doclength() const { return false; }
+    };
+
+.. FIXME: add a more complex example once user-defined weight classes can
+   see the statistics.
 
 Sorting by Value
 ----------------
@@ -62,4 +97,4 @@ Sorting by Generated Key
 
 .. discuss
 
-.. sort by geographical distance from coordinates
+.. e.g. sort by geographical distance from coordinates
