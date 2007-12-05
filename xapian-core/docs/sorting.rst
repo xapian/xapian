@@ -22,7 +22,7 @@ have no preference, you can tell Xapian to use whatever order is most efficient
 using ``enquire.set_docid_order(enquire.DONT_CARE);``.
 
 Sorting by Relevance
---------------------
+====================
 
 The BM25 weighting formula which Xapian uses by default has a number of
 parameters.  We have picked some default parameter values which do a good job
@@ -75,22 +75,41 @@ term scores one point::
 .. FIXME: add a more complex example once user-defined weight classes can
    see the statistics.
 
-Sorting by Value
-----------------
+Sorting by Other Properties
+===========================
 
 If you want to offer a "sort by date" feature, and can arrange for documents to
-be indexed in date order (or a close-enough approximation), then you can implement
-a very efficient "sort by date" feature by using a boolean search (i.e. call
-``enquire.set_weighting_scheme(Xapian::BoolWeight());``) with
+be indexed in date order (or a close-enough approximation), then you can
+implement a very efficient "sort by date" feature by using a boolean search
+(i.e. call ``enquire.set_weighting_scheme(Xapian::BoolWeight());``) with
 ``enquire.set_docid_order(Xapian::Enquire::DESCENDING);`` (for newest first) or
 ``enquire.set_docid_order(Xapian::Enquire::ASCENDING);`` (for oldest first).
 There's no inherent reason why this technique can't be used for sorting by
 something other than date, but it's usually much easier to arrange for new
 documents to arrive in date order than in other orders.
 
-.. set_sort_by_value
-.. set_sort_by_value_then_relevance
-.. set_sort_by_relevance_then_value
+Sorting by Value
+----------------
+
+You can order documents by comparing a specified document value.  Note that the
+comparison used compares the byte values in the value (i.e. it's a string sort
+ignoring locale), so ``1`` < ``10`` < ``2``.  If you want to encode the value
+such that it sorts numerically, use ``Xapian::sortable_serialise()``, which
+works equally will on integers and floating point values.
+
+There are three methods which are used to specify how the value is used to
+sort, depending if/how you want relevance used in the ordering:
+
+ * ``Enquire::set_sort_by_value()`` specifies the relevance doesn't affect the
+   ordering at all.
+ * ``Enquire::set_sort_by_value_then_relevance()`` specifies that relevance is
+   used for ordering any groups of documents for which the value is the same.
+ * ``Enquire::set_sort_by_relevance_then_value()`` specifies that documents are
+   ordered by relevance, and the value is only used to order groups of documents
+   with identical relevance values (note: the weight has to be the same, not
+   just the rounded percentage score).  This method isn't very useful with the
+   default BM25 weighting, since it rarely assigns identical scores to
+   different documents.
 
 Sorting by Generated Key
 ------------------------
