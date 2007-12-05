@@ -164,13 +164,25 @@ pending:
 }
 
 sub expand {
-   my $var = shift;
-   my $vref = shift;
+   my ($var, $from, $to, $vref);
+   if (scalar @_ == 2) {
+      ($var, $vref) = @_;
+   } else {
+      ($var, $from, $to, $vref) = @_;
+   }
+
    my $val = $$vref{$var};
+
+   # Deal with $(FOO:.bar=.c) pattern substitutions.
+   if (defined $from) {
+       my $x = $val;
+       $val =~ s/\Q$from\E(?:\s|$)/$to/g;
+   }
+
    if (!defined $val) {
        print STDERR "$0: Unknown variable: \$($var)\n";
        return "";
    }
-   $val =~ s/\$\((\w+)\)/expand($1, $vref)/eg;
+   $val =~ s/\$\((\w+)(?::([^=)]+)=([^=)]+))?\)/expand($1, $2, $3, $vref)/eg;
    return $val;
 }
