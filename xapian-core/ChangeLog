@@ -1,3 +1,10 @@
+Thu Dec 06 15:55:31 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am,tests/collate-apitest,
+	  tests/generate-api_generated: Add automatically generated tests to
+	  ensure that API classes generally have copy ctors and assignment
+	  operators, and also generally have a default ctor.
+
 Thu Dec 06 15:32:23 GMT 2007  Olly Betts <olly@survex.com>
 
 	* docs/sorting.rst: Fill in the remaining items in the outline.
