@@ -55,6 +55,9 @@
 // Unicode support
 #include <xapian/unicode.h>
 
+// Document similarity
+#include <xapian/docsim.h>
+
 // Methods returning library version:
 
 #include <xapian/deprecated.h>

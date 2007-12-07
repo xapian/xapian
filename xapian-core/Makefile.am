@@ -27,7 +27,7 @@ extra_cleandirs =
 
 .PHONY: check-none check-inmemory check-multi \
         check-remote check-remoteprog check-remotetcp \
-        check-flint check-quartz
+        check-flint check-quartz check-docsim
 
 check-none:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-none
@@ -56,6 +56,9 @@ if BUILD_BACKEND_QUARTZ
 check-quartz:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-quartz
 endif
+
+check-docsim:
+	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-docsim
 
 bin_SCRIPTS = xapian-config
 
@@ -88,6 +91,7 @@ include api/Makefile.mk
 include bin/Makefile.mk
 include backends/Makefile.mk
 include common/Makefile.mk
+include docsim/Makefile.mk
 include examples/Makefile.mk
 include expand/Makefile.mk
 include include/Makefile.mk

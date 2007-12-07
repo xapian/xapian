@@ -1,3 +1,10 @@
+Fri Dec 07 14:19:00 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* Makefile.am,docsim/,include/xapian.h,include/xapian/docsim.h,
+	  tests/Makefile.am,tests/docsimtest.cc: Add document similarity
+	  calculation stuff from Yung-chung Lin; exactly as in his patch
+	  from 18 September 2007.
+
 Thu Dec 06 15:55:31 GMT 2007  Olly Betts <olly@survex.com>
 
 	* tests/Makefile.am,tests/collate-apitest,

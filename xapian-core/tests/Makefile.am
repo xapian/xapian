@@ -13,7 +13,7 @@ TESTS_ENVIRONMENT = ./runtest
 
 .PHONY: check-none check-inmemory check-multi \
         check-remote check-remoteprog check-remotetcp \
-        check-flint check-quartz
+        check-flint check-quartz check-docsim
 
 check-none: apitest$(EXEEXT) \
             internaltest$(EXEEXT) \
@@ -62,6 +62,9 @@ quartz_tests= btreetest$(EXEEXT) quartztest$(EXEEXT)
 INCLUDES += -I$(top_srcdir)/backends/quartz
 endif
 
+check-docsim: docsimtest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./docsimtest$(EXEEXT)
+
 ## Test programs to be run
 TESTS = $(quartz_tests) \
  apitest$(EXEEXT) internaltest$(EXEEXT) stemtest$(EXEEXT) \
@@ -70,7 +73,8 @@ TESTS = $(quartz_tests) \
 
 ## Programs to build
 check_PROGRAMS = $(quartz_check_programs) \
- apitest internaltest stemtest queryparsertest termgentest
+ apitest internaltest stemtest queryparsertest termgentest \
+ docsimtest
 
 # Make sure runtest is up to date before running tests
 check_SCRIPTS = runtest
@@ -146,6 +150,10 @@ endif
 
 EXTRA_DIST = collate-apitest generate-api_generated api_all.h api_collated.h \
 	$(collated_apitest_sources:.cc=.h) dir_contents
+
+docsimtest_SOURCES = docsimtest.cc $(testharness_sources)
+docsimtest_LDFLAGS = -no-install $(ldflags)
+docsimtest_LDADD = ../libgetopt.la ../libxapian.la
 
 ## Distribute test data:
 EXTRA_DIST +=\
