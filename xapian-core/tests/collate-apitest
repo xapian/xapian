@@ -43,7 +43,8 @@ for my $cc_source (@ARGV) {
     (my $generated_h = $cc_source) =~ s/\.\w+$/\.h/;
     print ALL "#include \"$generated_h\"\n";
 
-    $cc_source = "$srcdir/$cc_source";
+    -f $cc_source or $cc_source = "$srcdir/$cc_source";
+
     my $hdr_mod = -M $generated_h;
     if (defined $hdr_mod) {
 	if ($script_mod >= $hdr_mod && -M $cc_source >= $hdr_mod) {
