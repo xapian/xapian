@@ -1,3 +1,5 @@
+  * New upstream release.
+    + Now builds with GCC 4.3 snapshot.  Closes: #455149.
   * debian/control.in: Standards-Version: 3.7.3 (no changes required).
 
 xapian-omega (1.0.4-1) unstable; urgency=low
