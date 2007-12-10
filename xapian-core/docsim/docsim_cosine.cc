@@ -18,20 +18,27 @@
  * 02110-1301 USA
  */
 
-#include <map>
-#include <math.h>
+#include <config.h>
 
 #include <xapian/docsim.h>
 #include <xapian/document.h>
 
 #include "omdebug.h"
-#include "docsim_internal.h"
+
+#include <map>
+#include <math.h>
+
+Xapian::DocSimCosine::~DocSimCosine()
+{
+    DEBUGAPICALL(void, "DocSimCosine::~DocSimCosine", "");
+}
 
 double
 Xapian::DocSimCosine::calculate_similarity(const Xapian::Document &a,
                                            const Xapian::Document &b) const 
 {
-    Xapian::doccount doc_count = internal->db.get_doccount();
+    DEBUGAPICALL(void, "DocSimCosine::~calculate_similarity", a << ", " << b);
+    Xapian::doccount doc_count = db.get_doccount();
 
     std::map<std::string, double> wt_a;
     std::map<std::string, double> wt_b;
@@ -42,14 +49,14 @@ Xapian::DocSimCosine::calculate_similarity(const Xapian::Document &a,
     Xapian::TermIterator titer;
 
     for (titer = a.termlist_begin(); titer != a.termlist_end(); ++titer) {
-        double idf = log(doc_count / internal->db.get_termfreq(*titer));
+        double idf = log(doc_count / db.get_termfreq(*titer));
         double tmp = (log(titer.get_wdf()) + 1.0) * idf;
         wt_a[*titer] = tmp;
         wt_a_denom += tmp * tmp;
     }
 
     for (titer = b.termlist_begin(); titer != b.termlist_end(); ++titer) {
-        double idf = log(doc_count / internal->db.get_termfreq(*titer));
+        double idf = log(doc_count / db.get_termfreq(*titer));
         double tmp = (log(titer.get_wdf()) + 1.0) * idf;
         wt_b[*titer] = tmp;
         wt_b_denom += tmp * tmp;
@@ -74,7 +81,7 @@ Xapian::DocSimCosine::calculate_similarity(const Xapian::Document &a,
         std::map<std::string, double>::iterator wt_iter2;
         wt_iter2 = wt_b.find(wt_iter->first);
         if (wt_iter2 != wt_b.end()) {
-            inner_product += wt_iter->second * wt_iter->second;
+            inner_product += wt_iter->second * wt_iter2->second;
         }
     }
     
@@ -82,10 +89,11 @@ Xapian::DocSimCosine::calculate_similarity(const Xapian::Document &a,
         wt_sq_sum_b += wt_iter->second * wt_iter->second;
     }
     
-    return inner_product / (sqrt(wt_sq_sum_a) * sqrt(wt_sq_sum_b));
+    RETURN(inner_product / (sqrt(wt_sq_sum_a) * sqrt(wt_sq_sum_b)));
 }
 
-std::string Xapian::DocSimCosine::get_description() const
+std::string
+Xapian::DocSimCosine::get_description() const
 {
     DEBUGCALL(INTRO, string, "Xapian::DocSimCosine::get_description", "");
     RETURN("Xapian::DocSimCosine()");

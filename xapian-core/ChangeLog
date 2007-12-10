@@ -1,3 +1,14 @@
+Mon Dec 10 08:02:23 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* AUTHORS: Credit Yung-chung Lin.
+	* include/xapian/docsim.h: Don't have an opaque DocSim::Internal
+	  class - just store the database as a member.
+	* docsim/: Remove DocSim::Internal class, and adjust code
+	  accordingly.
+	* tests/Makefile.am,tests/api_docsim.cc,tests/docsimtest.cc: Move
+	  docsim1 into apitest, in a new source file - we'll have lots more
+	  document similarity tests in the future.
+
 Fri Dec 07 14:19:00 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* Makefile.am,docsim/,include/xapian.h,include/xapian/docsim.h,

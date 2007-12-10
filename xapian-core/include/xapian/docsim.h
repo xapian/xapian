@@ -23,58 +23,35 @@
 #define XAPIAN_INCLUDED_DOCSIM_H
 
 #include <string>
-#include <xapian/base.h>
-#include <xapian/types.h>
+#include <xapian/database.h>
 #include <xapian/visibility.h>
 
 namespace Xapian {
 
 class Document;
-class Database;
 
 /// Base class of document similarity calculation
 class XAPIAN_VISIBILITY_DEFAULT DocSim {
-  public:
-    class Internal;
-
+    
   protected:
-    /// @private @internal Reference counted internals.
-    Xapian::Internal::RefCntPtr<Internal> internal;
-
-    /** @private @internal Constructor is only used by internal classes.
-     *
-     *  @param internal_ pointer to internal opaque class
-     */
-    explicit DocSim(Internal *internal_);
-    
-    /** Copying is allowed.  The internals are reference counted, so
-     *  copying is cheap.
-     */
-    DocSim(const DocSim &other);
-    
-    /** Assignment is allowed.  The internals are reference counted,
-     *  so assignment is cheap.
-     */
-    void operator=(const DocSim &other);
+    /// The database from which documents are retrieved.
+    Database db;
     
   public:
     /// Make a new empty DocSim
-    DocSim();
+    DocSim() { }
 
     /// Destructor
-    virtual ~DocSim() = 0;
+    virtual ~DocSim();
     
     /// Specify database
-    void set_database(const Database &db);
+    void set_database(const Database & db_) { db = db_; }
     
     /// Calculate the similarity between two documents.
-    virtual double calculate_similarity(const Document &a,
-                                        const Document &b) const = 0;
+    virtual double calculate_similarity(const Document & a,
+                                        const Document & b) const = 0;
     
-    /** Introspection method.
-     *
-     *  @return  A string representing this DocSim.
-     */
+    /// Return a string describing this object.
     virtual std::string get_description() const = 0;
 };
     
@@ -82,13 +59,13 @@ class XAPIAN_VISIBILITY_DEFAULT DocSim {
 class XAPIAN_VISIBILITY_DEFAULT DocSimCosine : public DocSim {
   public:
     /// Make a new empty DocSim
-    DocSimCosine() { };
+    DocSimCosine() { }
     
     /// Destructor
-    ~DocSimCosine() { };
+    ~DocSimCosine();
     
     /// Calculate the similarity between two documents.
-    double calculate_similarity(const Document &a, const Document &b) const;
+    double calculate_similarity(const Document & a, const Document & b) const;
     
     /** Introspection method.
      *

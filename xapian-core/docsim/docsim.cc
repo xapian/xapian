@@ -1,4 +1,4 @@
-/* docsim.cc: document similarity module
+/* docsim.cc: document similarity base class implementation
  *
  * Copyright 2007 Yung-chung Lin
  *
@@ -18,38 +18,11 @@
  * 02110-1301 USA
  */
 
-#include <xapian/database.h>
-#include <xapian/document.h>
 #include <xapian/docsim.h>
 
-#include "docsim_internal.h"
-
-Xapian::DocSim::DocSim(Xapian::DocSim::Internal * internal_)
-{
-    internal = internal_;
-}
-
-Xapian::DocSim::DocSim()
-        : internal(new Xapian::DocSim::Internal())
-{
-}
-
-Xapian::DocSim::DocSim(const Xapian::DocSim & other)
-        : internal(other.internal)
-{
-}
+#include "omdebug.h"
 
 Xapian::DocSim::~DocSim()
 {
+    DEBUGAPICALL(void, "DocSim::~DocSim", "");
 }
-
-void Xapian::DocSim::operator=(const Xapian::DocSim & other)
-{
-    internal = other.internal;
-}
-
-void Xapian::DocSim::set_database(const Xapian::Database & db)
-{
-    internal->db = db;
-}
-
