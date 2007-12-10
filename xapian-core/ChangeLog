@@ -1,3 +1,7 @@
+Mon Dec 10 11:55:13 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* docsim/Makefile: copy the generic sub-makefile into docsim.
+
 Mon Dec 10 10:16:22 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* docsim/docsim_cosine.cc: Convert tf to double before dividing
