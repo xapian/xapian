@@ -151,6 +151,7 @@ XAPIAN_LIBS = \
  "$(OUTLIBDIR)\libflint.lib" \
  "$(OUTLIBDIR)\libinmemory.lib" \
  "$(OUTLIBDIR)\libmulti.lib" \
+ "$(OUTLIBDIR)\libdocsim.lib"  \
  "$(OUTLIBDIR)\libmatcher.lib"  \
  "$(OUTLIBDIR)\libnet.lib" \
  "$(OUTLIBDIR)\liblanguages.lib"  \
