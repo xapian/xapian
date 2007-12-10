@@ -1,4 +1,5 @@
   * New upstream release.
+    + Fixes compilation with latest GCC 4.3 snapshot.  Closes: #455151
     + No longer installs ".map" files with documentation, which fixes lintian
       warning about an empty one.
   * debian/rules: Look for "CODENAME" and "debian/codename" rather than

@@ -16,6 +16,19 @@ Fri Dec 07 14:19:00 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 	  calculation stuff from Yung-chung Lin; exactly as in his patch
 	  from 18 September 2007.
 
+Sun Dec 09 01:09:19 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/collate-apitest: Check for sources in the build directory
+	  first, and only if not there prepend "$srcdir/".  The recently
+	  added api_generated.cc will be in the build directory when using an
+	  SVN checkout.
+
+Fri Dec 07 12:37:08 GMT 2007  Olly Betts <olly@survex.com>
+
+	* docs/sorting.rst,docs/valueranges.rst: State explicitly that
+	  Xapian::sortable_serialise() is used to encode values at index time
+	  and give an example of how it is called.
+
 Thu Dec 06 15:55:31 GMT 2007  Olly Betts <olly@survex.com>
 
 	* tests/Makefile.am,tests/collate-apitest,
