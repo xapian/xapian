@@ -920,6 +920,11 @@ def test_docsim():
     """Test document similarity calculations.
 
     """
+    # Feature test for ExpandDecider
+    class testexpanddecider(xapian.ExpandDecider):
+        def __call__(self, term):
+            return (not term.startswith('w'))
+
     db = setup_database()
     for query in (
                   "it",
@@ -938,21 +943,21 @@ def test_docsim():
         mset1 = enquire.get_mset(0, 10)
         docsim = xapian.DocSimCosine()
         docsim.set_database(db)
+        docsim.set_expand_decider(testexpanddecider())
 
         docs = [item.document for item in mset1]
         for j in xrange(len(docs)):
             for i in xrange(j + 1):
                 sim = docsim.calculate_similarity(docs[i], docs[j])
-                if i == j:
+                terms1 = [item.term for item in docs[i].termlist() if not item.term.startswith('w')]
+                terms2 = [item.term for item in docs[j].termlist() if not item.term.startswith('w')]
+                terms = [term for term in terms1 if term in terms2 and (db.get_termfreq(term) != db.get_doccount())]
+                if len(terms) == 0:
+                    expect(sim, 0.0)
+                elif i == j:
                     expect(sim, 1.0)
                 else:
-                    terms1 = [item.term for item in docs[i].termlist()]
-                    terms2 = [item.term for item in docs[j].termlist()]
-                    terms = [term for term in terms1 if term in terms2 and (db.get_termfreq(term) != db.get_doccount())]
-                    if len(terms) == 0:
-                        expect(sim, 0.0)
-                    else:
-                        expect(sim == 0.0, False)
+                    expect(sim == 0.0, False)
 
 
 # The legacy sequence API is only supported for Python >= 2.3 so don't try

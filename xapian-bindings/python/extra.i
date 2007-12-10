@@ -925,6 +925,17 @@ __all__ = tuple(__all__)
 # work) with its __call() method (which we define with an %extend in utils.i
 ValueRangeProcessor.__call__ = ValueRangeProcessor.__call
 
+# Fix up DocSimCosine so that it keeps a python reference to the decider
+# supplied to it so it won't be deleted before the DocSimCosine.  This hack can
+# probably be removed once xapian bug #186 is fixed.
+__docsimcosine_set_expand_decider_orig = DocSimCosine.set_expand_decider
+def _docsimcosine_set_expand_decider(self, decider):
+    self.__expand_decider = decider
+    return __docsimcosine_set_expand_decider_orig(self, decider)
+_docsimcosine_set_expand_decider.__doc__ = __docsimcosine_set_expand_decider_orig.__doc__
+DocSimCosine.set_expand_decider = _docsimcosine_set_expand_decider
+del _docsimcosine_set_expand_decider
+
 %}
 
 /* vim:syntax=python:set expandtab: */
