@@ -921,6 +921,9 @@ class Query {
 %feature("director") Xapian::Sorter;
 %include <xapian/sorter.h>
 
+#ifndef XAPIAN_SWIG_DIRECTORS
+%ignore Xapian::DocSimCosine::set_expand_decider;
+#endif
 %include <xapian/docsim.h>
 
 namespace Xapian {
