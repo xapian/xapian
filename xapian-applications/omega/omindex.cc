@@ -691,7 +691,7 @@ main(int argc, char **argv)
     // Other formats:
     mime_map["dvi"] = "application/x-dvi";
 
-    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:lp", longopts, NULL))!=EOF) {
+    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:lpf", longopts, NULL)) != -1) {
 	switch (getopt_ret) {
 	case 'h': {
 	    cout << PROG_NAME" - "PROG_DESC"\n\n"
