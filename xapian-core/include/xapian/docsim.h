@@ -59,9 +59,22 @@ class XAPIAN_VISIBILITY_DEFAULT DocSim {
 /// Cosine similarity
 class XAPIAN_VISIBILITY_DEFAULT DocSimCosine : public DocSim {
     const ExpandDecider * decider;
+    bool lookup_termfreqs;
+
   public:
-    /// Make a new empty DocSim
-    DocSimCosine() : decider(NULL) { }
+    /** Make a new DocSim.
+     *
+     *  @param lookup_termfreqs If false, the similarity measure will assume,
+     *                          for weight calculation purposes, that the term
+     *                          frequency of all terms is 1.  This will produce
+     *                          a poorer distance calculation, but will be very
+     *                          much faster, and the distance measure will
+     *                          still sometimes be useful.
+     */
+    DocSimCosine(bool lookup_termfreqs_ = true)
+	    : decider(NULL),
+	      lookup_termfreqs(lookup_termfreqs_)
+    { }
     
     /// Destructor
     ~DocSimCosine();
