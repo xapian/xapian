@@ -49,7 +49,7 @@ class XAPIAN_VISIBILITY_DEFAULT DocSim {
     
     /// Calculate the similarity between two documents.
     virtual double calculate_similarity(const Document & a,
-                                        const Document & b) const = 0;
+					const Document & b) const = 0;
     
     /// Return a string describing this object.
     virtual std::string get_description() const = 0;

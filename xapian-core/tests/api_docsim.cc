@@ -50,10 +50,9 @@ DEFINE_TESTCASE(docsim1, backend) {
     Xapian::DocSimCosine doc_sim;
     doc_sim.set_database(db);
     for (Xapian::doccount i = 0; i < matches.size(); i+=2) {
-        double sim
-            = doc_sim.calculate_similarity(matches[i].get_document(),
-                                           matches[i+1].get_document());
-        TEST(sim >= 0 && sim <= 1);
+	double sim = doc_sim.calculate_similarity(matches[i].get_document(),
+						  matches[i+1].get_document());
+	TEST(sim >= 0 && sim <= 1);
     }
 
     return true;

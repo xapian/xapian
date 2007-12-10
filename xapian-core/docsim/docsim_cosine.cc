@@ -1,6 +1,7 @@
 /* docsim_cosine.cc: cosine similarity
  *
  * Copyright 2007 Yung-chung Lin
+ * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,7 +36,7 @@ Xapian::DocSimCosine::~DocSimCosine()
 
 double
 Xapian::DocSimCosine::calculate_similarity(const Xapian::Document &a,
-                                           const Xapian::Document &b) const 
+					   const Xapian::Document &b) const 
 {
     DEBUGAPICALL(void, "DocSimCosine::~calculate_similarity", a << ", " << b);
     Xapian::doccount doc_count = db.get_doccount();
@@ -49,27 +50,31 @@ Xapian::DocSimCosine::calculate_similarity(const Xapian::Document &a,
     Xapian::TermIterator titer;
 
     for (titer = a.termlist_begin(); titer != a.termlist_end(); ++titer) {
-        double idf = log(doc_count / db.get_termfreq(*titer));
-        double tmp = (log(titer.get_wdf()) + 1.0) * idf;
-        wt_a[*titer] = tmp;
-        wt_a_denom += tmp * tmp;
+	double tf = db.get_termfreq(*titer);
+	if (tf < 1.0) tf = 1.0;
+	double idf = log(doc_count / tf);
+	double tmp = (log(titer.get_wdf()) + 1.0) * idf;
+	wt_a[*titer] = tmp;
+	wt_a_denom += tmp * tmp;
     }
 
     for (titer = b.termlist_begin(); titer != b.termlist_end(); ++titer) {
-        double idf = log(doc_count / db.get_termfreq(*titer));
-        double tmp = (log(titer.get_wdf()) + 1.0) * idf;
-        wt_b[*titer] = tmp;
-        wt_b_denom += tmp * tmp;
+	double tf = db.get_termfreq(*titer);
+	if (tf < 1.0) tf = 1.0;
+	double idf = log(doc_count / tf);
+	double tmp = (log(titer.get_wdf()) + 1.0) * idf;
+	wt_b[*titer] = tmp;
+	wt_b_denom += tmp * tmp;
     }
 
     std::map<std::string, double>::iterator wt_iter;
 
     for (wt_iter = wt_a.begin(); wt_iter != wt_a.end(); ++wt_iter) {
-        wt_iter->second /= wt_a_denom;
+	wt_iter->second /= wt_a_denom;
     }
     
     for (wt_iter = wt_b.begin(); wt_iter != wt_b.end(); ++wt_iter) {
-        wt_iter->second /= wt_b_denom;
+	wt_iter->second /= wt_b_denom;
     }
     
     double wt_sq_sum_a = 0;
@@ -77,18 +82,18 @@ Xapian::DocSimCosine::calculate_similarity(const Xapian::Document &a,
     double inner_product = 0;
 
     for (wt_iter = wt_a.begin(); wt_iter != wt_a.end(); ++wt_iter) {
-        wt_sq_sum_a += wt_iter->second * wt_iter->second;
-        std::map<std::string, double>::iterator wt_iter2;
-        wt_iter2 = wt_b.find(wt_iter->first);
-        if (wt_iter2 != wt_b.end()) {
-            inner_product += wt_iter->second * wt_iter2->second;
-        }
+	wt_sq_sum_a += wt_iter->second * wt_iter->second;
+	std::map<std::string, double>::iterator wt_iter2;
+	wt_iter2 = wt_b.find(wt_iter->first);
+	if (wt_iter2 != wt_b.end()) {
+	    inner_product += wt_iter->second * wt_iter2->second;
+	}
     }
-    
+
     for (wt_iter = wt_b.begin(); wt_iter != wt_b.end(); ++wt_iter) {
-        wt_sq_sum_b += wt_iter->second * wt_iter->second;
+	wt_sq_sum_b += wt_iter->second * wt_iter->second;
     }
-    
+
     RETURN(inner_product / (sqrt(wt_sq_sum_a) * sqrt(wt_sq_sum_b)));
 }
 
