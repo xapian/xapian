@@ -24,6 +24,7 @@
 
 #include <string>
 #include <xapian/database.h>
+#include <xapian/expanddecider.h>
 #include <xapian/visibility.h>
 
 namespace Xapian {
@@ -57,12 +58,22 @@ class XAPIAN_VISIBILITY_DEFAULT DocSim {
     
 /// Cosine similarity
 class XAPIAN_VISIBILITY_DEFAULT DocSimCosine : public DocSim {
+    const ExpandDecider * decider;
   public:
     /// Make a new empty DocSim
-    DocSimCosine() { }
+    DocSimCosine() : decider(NULL) { }
     
     /// Destructor
     ~DocSimCosine();
+
+    /** Specify an expand decider.
+     *
+     *  This is used to determine which terms contribute to similarity.
+     *
+     *  The caller must ensure that the decider remains valid for the lifetime
+     *  of the DocSimCosine object.
+     */
+    void set_expand_decider(const ExpandDecider * decider_) { decider = decider_; }
     
     /// Calculate the similarity between two documents.
     double calculate_similarity(const Document & a, const Document & b) const;

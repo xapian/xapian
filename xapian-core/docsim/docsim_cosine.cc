@@ -50,6 +50,8 @@ Xapian::DocSimCosine::calculate_similarity(const Xapian::Document &a,
     Xapian::TermIterator titer;
 
     for (titer = a.termlist_begin(); titer != a.termlist_end(); ++titer) {
+	if (decider != NULL && !(*decider)(*titer))
+	    continue;
 	double tf = db.get_termfreq(*titer);
 	if (tf < 1.0) tf = 1.0;
 	double idf = log(doc_count / tf);
@@ -61,6 +63,8 @@ Xapian::DocSimCosine::calculate_similarity(const Xapian::Document &a,
     }
 
     for (titer = b.termlist_begin(); titer != b.termlist_end(); ++titer) {
+	if (decider != NULL && !(*decider)(*titer))
+	    continue;
 	double tf = db.get_termfreq(*titer);
 	if (tf < 1.0) tf = 1.0;
 	double idf = log(doc_count / tf);
@@ -69,6 +73,11 @@ Xapian::DocSimCosine::calculate_similarity(const Xapian::Document &a,
 	double tmp = (log(wdf) + 1.0) * idf;
 	wt_b[*titer] = tmp;
 	wt_b_denom += tmp * tmp;
+    }
+
+    if (wt_a_denom == 0 || wt_b_denom == 0) {
+	// At least one of the lists is entirely composed of zero weights.
+	RETURN(0.0);
     }
 
     std::map<std::string, double>::iterator wt_iter;
