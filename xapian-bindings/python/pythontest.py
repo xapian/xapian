@@ -916,6 +916,44 @@ def test_weight_normalise():
             expect(item.weight > 0, True)
             expect(item.weight <= 1, True)
 
+def test_docsim():
+    """Test document similarity calculations.
+
+    """
+    db = setup_database()
+    for query in (
+                  "it",
+                  "was",
+                  "it was",
+                  "it was four",
+                  "it was four five",
+                  "\"was it warm\" four notpresent",
+                  "notpresent",
+    ):
+        context("checking document similarity of results of query %r" % query)
+        qp = xapian.QueryParser()
+        query1 = qp.parse_query(query)
+        enquire = xapian.Enquire(db)
+        enquire.set_query(query1)
+        mset1 = enquire.get_mset(0, 10)
+        docsim = xapian.DocSimCosine()
+        docsim.set_database(db)
+
+        docs = [item.document for item in mset1]
+        for j in xrange(len(docs)):
+            for i in xrange(j + 1):
+                sim = docsim.calculate_similarity(docs[i], docs[j])
+                if i == j:
+                    expect(sim, 1.0)
+                else:
+                    terms1 = [item.term for item in docs[i].termlist()]
+                    terms2 = [item.term for item in docs[j].termlist()]
+                    terms = [term for term in terms1 if term in terms2 and (db.get_termfreq(term) != db.get_doccount())]
+                    if len(terms) == 0:
+                        expect(sim, 0.0)
+                    else:
+                        expect(sim == 0.0, False)
+
 
 # The legacy sequence API is only supported for Python >= 2.3 so don't try
 # testing it for Python 2.2.

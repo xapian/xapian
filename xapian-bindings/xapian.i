@@ -921,6 +921,8 @@ class Query {
 %feature("director") Xapian::Sorter;
 %include <xapian/sorter.h>
 
+%include <xapian/docsim.h>
+
 namespace Xapian {
 
 #if defined SWIGPYTHON
