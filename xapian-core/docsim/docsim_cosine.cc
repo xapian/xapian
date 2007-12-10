@@ -53,7 +53,9 @@ Xapian::DocSimCosine::calculate_similarity(const Xapian::Document &a,
 	double tf = db.get_termfreq(*titer);
 	if (tf < 1.0) tf = 1.0;
 	double idf = log(doc_count / tf);
-	double tmp = (log(titer.get_wdf()) + 1.0) * idf;
+	double wdf = titer.get_wdf();
+	if (wdf < 1) wdf = 1;
+	double tmp = (log(wdf) + 1.0) * idf;
 	wt_a[*titer] = tmp;
 	wt_a_denom += tmp * tmp;
     }
@@ -62,7 +64,9 @@ Xapian::DocSimCosine::calculate_similarity(const Xapian::Document &a,
 	double tf = db.get_termfreq(*titer);
 	if (tf < 1.0) tf = 1.0;
 	double idf = log(doc_count / tf);
-	double tmp = (log(titer.get_wdf()) + 1.0) * idf;
+	double wdf = titer.get_wdf();
+	if (wdf < 1) wdf = 1;
+	double tmp = (log(wdf) + 1.0) * idf;
 	wt_b[*titer] = tmp;
 	wt_b_denom += tmp * tmp;
     }
