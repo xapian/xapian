@@ -730,6 +730,18 @@ if test no != "$with_ruby" ; then
 	  RUBY_LIB_ARCH=`$RUBY -rrbconfig -e 'puts Config::CONFIG[["sitearchdir"]]'`
 	fi
 	AC_SUBST(RUBY_LIB_ARCH)
+	if test yes = "$enable_documentation" ; then
+	  if test -n "$RDOC" ; then
+	    AC_PATH_PROGS(RDOC, ["$RDOC"], [])
+	  else
+	    dnl Try replace the *last* 'ruby' with 'rdoc'.
+	    rdoc_best_guess=`echo "$RUBY"|sed 's,\(.*\)ruby,\1rdoc,'`
+	    AC_PATH_PROGS(RDOC, ["$rdoc_best_guess"], [])
+	    if test -z "$RDOC"; then
+	      AC_PATH_PROGS(RDOC, [rdoc1.8 rdoc], [])
+	    fi
+	  fi
+	fi
 	BINDINGS="$BINDINGS ruby"
       else
 	AC_MSG_RESULT([no (install ruby-dev or ruby-devel package or similar)])

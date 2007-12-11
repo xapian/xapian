@@ -7,4 +7,10 @@ dist_exampledata_DATA = examples/simpleexpand.rb examples/simpleindex.rb \
 # Not implemented yet: examples/simplematchdecider.rb
 
 docdatadir = $(docdir)/ruby
-dist_docdata_DATA = index.html
+dist_docdata_DATA = index.html rdocs
+
+if DOCUMENTATION_RULES
+rdocs/index.html: ../xapian.rb
+	rm -rf rdocs
+	$(RDOC) --op rdocs $(srcdir)/../xapian.rb
+endif

@@ -1,3 +1,10 @@
+Tue Dec 11 01:33:23 GMT 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac,ruby/docs/Makefile.am: Run "rdoc" to generate the
+	  Ruby-specific API documentation which ruby/docs/index.html has
+	  a (previously dead) link to.
+	* ruby/xapian.rb: Tweak ":nodoc:" directive so rdoc recognises it.
+
 Thu Nov 29 02:48:06 GMT 2007  Olly Betts <olly@survex.com>
 
 	* php/: Add test for XapianMultiValueSorter.
