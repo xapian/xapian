@@ -10,6 +10,10 @@ docdatadir = $(docdir)/ruby
 dist_docdata_DATA = index.html rdocs
 
 if DOCUMENTATION_RULES
+BUILT_SOURCES = rdocs/index.html
+
+rdocs: rdocs/index.html
+
 rdocs/index.html: ../xapian.rb
 	rm -rf rdocs
 	$(RDOC) --op rdocs $(srcdir)/../xapian.rb
