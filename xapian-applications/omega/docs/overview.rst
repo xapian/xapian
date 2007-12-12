@@ -312,9 +312,6 @@ D
 	with Dlatest and they'll match as expected.  (If you use sort by date,
 	you'll probably also want to set the value containing the timestamp to
 	a "max" value so dynamic documents match a date in the far future).
-W	
-        "weak" (approximately 10 day intervals, taken as YYYYMMD from
-	the D term, and changing the last digit to a '2' if it's a '3')
 M	
         month (numeric format: YYYYMM)
 Y	
