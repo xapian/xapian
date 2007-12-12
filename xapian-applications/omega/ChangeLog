@@ -1,3 +1,7 @@
+Wed Dec 12 02:09:02 GMT 2007  Olly Betts <olly@survex.com>
+
+	* NEWS: Updated from ChangeLog in preparation for 1.0.5.
+
 Mon Dec 10 23:27:40 GMT 2007  Olly Betts <olly@survex.com>
 
 	* omindex.cc: '-f' is documented by --help as a short option for
