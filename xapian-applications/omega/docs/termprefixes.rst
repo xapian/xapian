@@ -50,7 +50,7 @@ P
 Q	
         uniQue id
 R	
-        Raw (i.e. unstemmed) term (unused by Xapian as of version 1.0.0)
+        Raw (i.e. unstemmed) term (unused by Xapian since 1.0.0)
 S	
         Subject (or title)
 T	
@@ -62,7 +62,7 @@ U
 W	
         "weak" (approximately 10 day intervals, taken as YYYYMMD from
 	the D term, and changing the last digit to a '2' if it's a '3')
-	(unused by Xapian at present)
+	(unused by Xapian since 0.9.7)
 X	
         longer prefix for user-defined use
 Y	

@@ -1,3 +1,8 @@
+Wed Dec 12 18:20:34 GMT 2007  Olly Betts <olly@survex.com>
+
+	* docs/termprefixes.rst: Note the version where we stopped generating
+	  terms with a 'W' prefix (0.9.7).
+
 Wed Dec 12 18:17:28 GMT 2007  Olly Betts <olly@survex.com>
 
 	* docs/overview.rst: omindex hasn't generated "W"-prefix terms since
