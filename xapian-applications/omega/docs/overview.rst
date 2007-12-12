@@ -252,6 +252,13 @@ of:
 If you wish to remove a MIME mapping, you can do this by omitting the type -
 for example to not index .doc files, use: --mime-type doc:
 
+The lookup of extensions in the MIME mappings is case sensitive, but if an
+extension isn't found and includes upper case ASCII letters, they're converted
+to lower case and the lookup is repeated, so you effectively get case
+insensitive lookup for mappings specified with a lower-case extension, but
+you can set different handling for differently cased variants if you need
+to.
+
 --duplicates configures how omindex handles duplicates (detected on
 URL). 'ignore' means to ignore a document if it already appears to be
 in the database; 'replace' means to replace the document in the
