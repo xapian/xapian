@@ -1,3 +1,9 @@
+Wed Dec 12 17:49:12 GMT 2007  Olly Betts <olly@survex.com>
+
+	* omindex.cc: If an extension isn't found in the mime_map and contains
+	  uppercase ASCII characters, see if the lower cased extension is in
+	  the mime_map.
+
 Wed Dec 12 02:09:02 GMT 2007  Olly Betts <olly@survex.com>
 
 	* NEWS: Updated from ChangeLog in preparation for 1.0.5.

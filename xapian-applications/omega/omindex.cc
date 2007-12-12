@@ -562,6 +562,19 @@ index_directory(size_t depth_limit, const string &dir,
 		if (dot != string::npos) ext = url.substr(dot + 1);
 
 		map<string,string>::iterator mt = mime_map.find(ext);
+		if (mt == mime_map.end()) {
+		    // If the extension isn't found, see if the lower-cased
+		    // version (if different) is found.
+		    bool changed = false;
+		    string::iterator i;
+		    for (i = ext.begin(); i != ext.end(); ++i) {
+			if (*i >= 'A' && *i <= 'Z') {
+			    *i = tolower(*i);
+			    changed = true;
+			}
+		    }
+		    if (changed) mt = mime_map.find(ext);
+		}
 		if (mt != mime_map.end()) {
 		    // Only check the file size if we recognise the extension
 		    // to avoid a call to stat()/lstat() for files we can't
