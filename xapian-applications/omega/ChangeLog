@@ -1,3 +1,10 @@
+Wed Dec 12 23:49:27 GMT 2007  Olly Betts <olly@survex.com>
+
+	* Makefile.am,freemem.cc,freemem.h,runfilter.cc: Limit filter programs
+	  to 7/8 of free physical memory on platforms where we know how to
+	  determine this (currently at least Linux, FreeBSD, IRIX, HP-UX;
+	  probably Solaris and a few others too).  Fixes bug#111.
+
 Wed Dec 12 18:20:34 GMT 2007  Olly Betts <olly@survex.com>
 
 	* docs/termprefixes.rst: Note the version where we stopped generating
