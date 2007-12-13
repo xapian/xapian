@@ -1,3 +1,8 @@
+Thu Dec 13 17:34:19 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/stemtest.cc: Mark undocumented OM_STEMTEST_* environmental
+	  variables for removal in 1.1.
+
 Thu Dec 13 01:27:15 GMT 2007  Olly Betts <olly@survex.com>
 
 	* HACKING: Need to check RPM packaging with Tim Brody too.
