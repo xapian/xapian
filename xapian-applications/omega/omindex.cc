@@ -372,7 +372,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	}
     } else if (mimetype == "text/rtf") {
 	// The --text option unhelpfully converts all non-ASCII characters to
-	// "?" so we use --html instead, which write HTML entities.
+	// "?" so we use --html instead, which produces HTML entities.
 	string cmd = "unrtf --nopict --html 2>/dev/null " + shell_protect(file);
 	MyHtmlParser p;
 	try {
