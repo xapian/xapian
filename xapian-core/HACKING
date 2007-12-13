@@ -1072,7 +1072,7 @@ How to make a release
 
 This is a (hopefully complete) list of the jobs which need doing:
 
-* Email Fabrice Colin so he can check RPM spec files.
+* Email Fabrice Colin and Tim Brody so they can check RPM packaging.
 
 * Check the revision currently specified in the svn:externals property of
   xapian-applications/omega.  Unless there's a good reason, we should release
