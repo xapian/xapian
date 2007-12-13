@@ -1,3 +1,8 @@
+Thu Dec 13 01:58:58 GMT 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Improve the clarity of the error given when none
+	  of the tools neeed for any supported language are found.
+
 Thu Dec 13 01:50:17 GMT 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac,ruby/Makefile.am: Fix the Ruby module's extension so it

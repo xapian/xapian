@@ -858,9 +858,14 @@ AC_OUTPUT
 
 echo ""
 if test -z "$BINDINGS" ; then
-  echo "*** Not found the tools to build any bindings!"
-  echo "*** To point configure at tools not on PATH, see: ./configure --help"
-  echo "*** You may need to install -dev or -devel packages to build bindings"
+  echo "*** Not found the required tools for building bindings for any"
+  echo "*** supported language!"
+  echo "***"
+  echo "*** You may need to install -dev or -devel packages for the languages"
+  echo "*** you want to build bindings for."
+  echo "***"
+  echo "*** For details of how to point configure at tools not on PATH, see:"
+  echo "***     ./configure --help"
 else
   echo "*** Building bindings for languages:" $BINDINGS
 fi
