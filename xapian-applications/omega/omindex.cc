@@ -353,8 +353,10 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	// FIXME: Implement support for metadata.
 	try {
 	    XmlParser xmlparser;
-	    xmlparser.parse_html(file_to_string(file));
+	    string text = file_to_string(file);
+	    xmlparser.parse_html(text);
 	    dump = xmlparser.dump;
+	    md5_string(text, md5);
 	} catch (ReadError) {
 	    cout << "can't read \"" << file << "\" - skipping\n";
 	    return;

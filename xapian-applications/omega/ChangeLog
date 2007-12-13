@@ -1,3 +1,8 @@
+Thu Dec 13 01:38:43 GMT 2007  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Avoid rereading uncompressed AbiWord documents in order
+	  to calculate their MD5 checksums.
+
 Thu Dec 13 01:34:53 GMT 2007  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Improve comment wording.
