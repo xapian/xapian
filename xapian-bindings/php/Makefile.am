@@ -57,46 +57,24 @@ if MAINTAINER_MODE
 # option.
 
 php4/xapian_wrap.cc php4/php_xapian.h php4/xapian.php: php4/xapian_wrap.stamp
-## Recover from the removal of $@.  A full explanation of these rules is in the
-## automake manual under the heading "Multiple Outputs".
-	@if test -f $@; then :; else \
-	  trap 'rm -rf php4/xapian_wrap.lock php4/xapian_wrap.stamp' 1 2 13 15; \
-	  if mkdir php4/xapian_wrap.lock 2>/dev/null; then \
-	    rm -f php4/xapian_wrap.stamp; \
-	    $(MAKE) $(AM_MAKEFLAGS) php4/xapian_wrap.stamp; \
-	    rmdir php4/xapian_wrap.lock; \
-	  else \
-	    while test -d php4/xapian_wrap.lock; do sleep 1; done; \
-	    test -f php4/xapian_wrap.stamp; exit $$?; \
-	  fi; \
-	fi
+	@stamp=php4/xapian_wrap.stamp; $(make_many_locked)
 php4/xapian_wrap.stamp: $(SWIG_sources) except.i util.i
+	$(multitarget_begin)
 	test -d php4 || mkdir php4
 	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
 	    -php4 -outdir php4 \
 	    -o php4/xapian_wrap.cc $(SWIG_mainsource)
-	touch $@
+	$(multitarget_end)
 
 php5/xapian_wrap.cc php5/php_xapian.h php5/xapian.php: php5/xapian_wrap.stamp
-## Recover from the removal of $@.  A full explanation of these rules is in the
-## automake manual under the heading "Multiple Outputs".
-	@if test -f $@; then :; else \
-	  trap 'rm -rf php5/xapian_wrap.lock php5/xapian_wrap.stamp' 1 2 13 15; \
-	  if mkdir php5/xapian_wrap.lock 2>/dev/null; then \
-	    rm -f php5/xapian_wrap.stamp; \
-	    $(MAKE) $(AM_MAKEFLAGS) php5/xapian_wrap.stamp; \
-	    rmdir php5/xapian_wrap.lock; \
-	  else \
-	    while test -d php5/xapian_wrap.lock; do sleep 1; done; \
-	    test -f php5/xapian_wrap.stamp; exit $$?; \
-	  fi; \
-	fi
+	@stamp=php5/xapian_wrap.stamp; $(make_many_locked)
 php5/xapian_wrap.stamp: $(SWIG_sources) except.i util.i
+	$(multitarget_begin)
 	test -d php5 || mkdir php5
 	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
 	    -php5 -prefix Xapian -outdir php5 \
 	    -o php5/xapian_wrap.cc $(SWIG_mainsource)
-	touch $@
+	$(multitarget_end)
 
 CLEANFILES = $(BUILT_SOURCES) php4/xapian_wrap.stamp php5/xapian_wrap.stamp
 else

@@ -1,3 +1,13 @@
+Thu Dec 13 01:14:29 GMT 2007  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,generic/generic.mk,java-swig/Makefile.am,
+	  php/Makefile.am,python/Makefile.am,ruby/Makefile.am: Factor
+	  out the code to lock multitarget rules against parallel make,
+	  and fix it to handle the source being changed while the rule
+	  is executing, and to correct return an error code if we fail
+	  while trying to recover from the removal of a target of a
+	  multi-target rule.
+
 Thu Dec 13 01:04:04 GMT 2007  Olly Betts <olly@survex.com>
 
 	* xapian.i: Wrap Enquire::set_sort_by_relevance_then_key().
