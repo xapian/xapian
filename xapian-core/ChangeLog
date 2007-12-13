@@ -1,3 +1,8 @@
+Thu Dec 13 01:26:16 GMT 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Note that we check for <streambuf> because GCC 2.95
+	  only has <streambuf.h>.
+
 Thu Dec 13 01:23:27 GMT 2007  Olly Betts <olly@survex.com>
 
 	* AUTHORS: Add Ralf Wildenhues for suggesting a way to factor out

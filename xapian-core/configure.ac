@@ -414,7 +414,7 @@ AC_TYPE_PID_T
 
 AC_TYPE_MODE_T
 
-dnl Check for a new streams implementation.
+dnl Check for a new streams implementation (GCC 2.95 only has streambuf.h).
 AC_CHECK_HEADERS(streambuf, [], [], [ ])
 
 dnl Check for perl (needed to generate some sources and documentation).
