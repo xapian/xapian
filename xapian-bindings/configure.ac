@@ -749,6 +749,8 @@ if test no != "$with_ruby" ; then
 	  AC_MSG_ERROR([ruby.h not found])
 	fi
       fi
+      RUBY_DLEXT=`$RUBY -rrbconfig -e 'puts Config::CONFIG[["DLEXT"]]'`
+      AC_SUBST(RUBY_DLEXT)
     fi
   fi
 fi
