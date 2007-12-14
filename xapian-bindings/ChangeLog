@@ -1,3 +1,8 @@
+Fri Dec 14 10:02:24 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/extra.i,python/pythontest.py,xapian.i: Wrap the clustering
+	  stuff for python.  May well break for other languages.
+
 Mon Dec 10 18:42:12 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* xapian.i: For languages which don't support directors, don't try
