@@ -1,3 +1,9 @@
+Fri Dec 14 10:43:03 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* php/Makefile.am,python/Makefile.am: Ensure that the directories
+	  that stamp files will be placed in exist before calling
+	  $(multitarget_begin).  Fixes compilation failures in clean trees.
+
 Thu Dec 13 01:58:58 GMT 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: Improve the clarity of the error given when none
