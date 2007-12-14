@@ -3,6 +3,7 @@ EXTRA_DIST += \
 	docsim/Makefile
 
 libxapian_la_SOURCES += \
+	docsim/cluster.cc \
 	docsim/docsim.cc \
 	docsim/docsim_cosine.cc
 

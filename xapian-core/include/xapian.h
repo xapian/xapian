@@ -55,8 +55,8 @@
 // Unicode support
 #include <xapian/unicode.h>
 
-// Document similarity
-#include <xapian/docsim.h>
+// Clustering
+#include <xapian/cluster.h>
 
 // Methods returning library version:
 

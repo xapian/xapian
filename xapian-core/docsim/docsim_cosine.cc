@@ -21,8 +21,7 @@
 
 #include <config.h>
 
-#include <xapian/docsim.h>
-#include <xapian/document.h>
+#include <xapian/cluster.h>
 
 #include "omdebug.h"
 
@@ -35,11 +34,18 @@ Xapian::DocSimCosine::~DocSimCosine()
 }
 
 double
-Xapian::DocSimCosine::calculate_similarity(const Xapian::Document &a,
-					   const Xapian::Document &b) const 
+Xapian::DocSimCosine::similarity(TermIterator a_begin,
+				 const TermIterator & a_end,
+				 TermIterator b_begin,
+				 const TermIterator & b_end) const
 {
-    DEBUGAPICALL(void, "DocSimCosine::~calculate_similarity", a << ", " << b);
-    Xapian::doccount doc_count = db.get_doccount();
+    DEBUGAPICALL(void, "DocSimCosine::~calculate_similarity",
+		 a_begin << ", " << a_end << ", " <<
+		 b_begin << ", " << b_end);
+    DummyTermFreqSource dummytfs;
+    const TermFreqSource * tfs = ((freqsource == NULL) ? &dummytfs : freqsource);
+
+    Xapian::doccount doc_count = tfs->get_doccount();
 
     std::map<std::string, double> wt_a;
     std::map<std::string, double> wt_b;
@@ -49,15 +55,9 @@ Xapian::DocSimCosine::calculate_similarity(const Xapian::Document &a,
 
     Xapian::TermIterator titer;
 
-    for (titer = a.termlist_begin(); titer != a.termlist_end(); ++titer) {
-	if (decider != NULL && !(*decider)(*titer))
-	    continue;
+    for (titer = a_begin; titer != a_end; ++titer) {
 	double tf;
-	if (lookup_termfreqs) {
-	    tf = db.get_termfreq(*titer);
-	} else {
-	    tf = 1;
-	}
+	tf = tfs->get_termfreq(*titer);
 	if (tf < 1.0) tf = 1.0;
 	double idf = log(doc_count / tf);
 	double wdf = titer.get_wdf();
@@ -67,15 +67,9 @@ Xapian::DocSimCosine::calculate_similarity(const Xapian::Document &a,
 	wt_a_denom += tmp * tmp;
     }
 
-    for (titer = b.termlist_begin(); titer != b.termlist_end(); ++titer) {
-	if (decider != NULL && !(*decider)(*titer))
-	    continue;
+    for (titer = b_begin; titer != b_end; ++titer) {
 	double tf;
-	if (lookup_termfreqs) {
-	    tf = db.get_termfreq(*titer);
-	} else {
-	    tf = 1;
-	}
+	tf = tfs->get_termfreq(*titer);
 	if (tf < 1.0) tf = 1.0;
 	double idf = log(doc_count / tf);
 	double wdf = titer.get_wdf();
@@ -95,11 +89,11 @@ Xapian::DocSimCosine::calculate_similarity(const Xapian::Document &a,
     for (wt_iter = wt_a.begin(); wt_iter != wt_a.end(); ++wt_iter) {
 	wt_iter->second /= wt_a_denom;
     }
-    
+
     for (wt_iter = wt_b.begin(); wt_iter != wt_b.end(); ++wt_iter) {
 	wt_iter->second /= wt_b_denom;
     }
-    
+
     double wt_sq_sum_a = 0;
     double wt_sq_sum_b = 0;
     double inner_product = 0;

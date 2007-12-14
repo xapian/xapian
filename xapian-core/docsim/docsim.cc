@@ -18,7 +18,7 @@
  * 02110-1301 USA
  */
 
-#include <xapian/docsim.h>
+#include <xapian/cluster.h>
 
 #include "omdebug.h"
 

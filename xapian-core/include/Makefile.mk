@@ -11,11 +11,11 @@ include_HEADERS =\
 
 xapianinclude_HEADERS =\
 	include/xapian/base.h\
+	include/xapian/cluster.h\
 	include/xapian/database.h\
 	include/xapian/dbfactory.h\
 	include/xapian/deprecated.h\
 	include/xapian/document.h\
-	include/xapian/docsim.h\
 	include/xapian/enquire.h\
 	include/xapian/errorhandler.h\
 	include/xapian/expanddecider.h\
