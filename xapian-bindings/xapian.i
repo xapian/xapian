@@ -924,6 +924,7 @@ class Query {
 #ifndef XAPIAN_SWIG_DIRECTORS
 %ignore Xapian::TermListGroup::add_document(const Document &, const ExpandDecider *);
 %ignore Xapian::TermListGroup::add_documents(DocumentSource &, const ExpandDecider *);
+%ignore Xapian::ClusterSingleLink::cluster(ClusterAssignments &, DocSimCosine &, DocumentSource &, const ExpandDecider *, int);
 #endif
 %include <xapian/cluster.h>
 
