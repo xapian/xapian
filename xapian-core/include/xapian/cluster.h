@@ -328,6 +328,14 @@ class XAPIAN_VISIBILITY_DEFAULT ClusterSingleLink {
     void cluster(ClusterAssignments & clusters,
 		 DocSimCosine & docsim,
 		 DocumentSource & docsource,
+		 int num_clusters)
+    {
+	cluster(clusters, docsim, docsource, NULL, num_clusters);
+    }
+
+    void cluster(ClusterAssignments & clusters,
+		 DocSimCosine & docsim,
+		 DocumentSource & docsource,
 		 const ExpandDecider * decider,
 		 int num_clusters);
 };

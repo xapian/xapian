@@ -1,3 +1,9 @@
+Fri Dec 14 10:05:53 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/cluster.h: Add a variant of ClusterSingleLink
+	  which doesn't take an ExpandDecider, to help wrapping for
+	  languages which don't support ExpandDeciders.
+
 Fri Dec 14 10:01:13 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* docsim/,include/Makefile.mk,include/xapian.h,
