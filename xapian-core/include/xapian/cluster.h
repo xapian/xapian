@@ -197,9 +197,10 @@ class XAPIAN_VISIBILITY_DEFAULT TermListGroup : public TermFreqSource {
      *
      *  @param document The document to read the termlist from.
      */
-    void add_document(const Document & document)
+    void add_document(const Database & database,
+		      const Document & document)
     {
-	add_document(document, NULL);
+	add_document(database, document, NULL);
     }
 
     /** Add a document to the termlist group.
@@ -210,7 +211,8 @@ class XAPIAN_VISIBILITY_DEFAULT TermListGroup : public TermFreqSource {
      *  @param decider A decider to determine which terms should be stored.  If
      *                 NULL, all terms will be stored.
      */
-    void add_document(const Document & document,
+    void add_document(const Database & database,
+		      const Document & document,
 		      const ExpandDecider * decider);
 
     /** Add all documents from a document source to the termlist group.
@@ -220,9 +222,9 @@ class XAPIAN_VISIBILITY_DEFAULT TermListGroup : public TermFreqSource {
      *
      *  @param source The source to read the documents from.
      */
-    void add_documents(DocumentSource & source)
+    void add_documents(const Database & database, DocumentSource & source)
     {
-	add_documents(source, NULL);
+	add_documents(database, source, NULL);
     }
 
     /** Add all documents from a document source to the termlist group.
@@ -234,7 +236,8 @@ class XAPIAN_VISIBILITY_DEFAULT TermListGroup : public TermFreqSource {
      *  @param decider A decider to determine which terms should be stored.  If
      *                 NULL, all terms will be stored.
      */
-    void add_documents(DocumentSource & source,
+    void add_documents(const Database & database,
+		       DocumentSource & source,
 		       const ExpandDecider * decider);
 
     /** Get the frequency of a term.
@@ -325,15 +328,17 @@ struct XAPIAN_VISIBILITY_DEFAULT ClusterAssignments {
 
 class XAPIAN_VISIBILITY_DEFAULT ClusterSingleLink {
   public:
-    void cluster(ClusterAssignments & clusters,
+    void cluster(const Database & database,
+		 ClusterAssignments & clusters,
 		 DocSimCosine & docsim,
 		 DocumentSource & docsource,
 		 int num_clusters)
     {
-	cluster(clusters, docsim, docsource, NULL, num_clusters);
+	cluster(database, clusters, docsim, docsource, NULL, num_clusters);
     }
 
-    void cluster(ClusterAssignments & clusters,
+    void cluster(const Database & database,
+		 ClusterAssignments & clusters,
 		 DocSimCosine & docsim,
 		 DocumentSource & docsource,
 		 const ExpandDecider * decider,

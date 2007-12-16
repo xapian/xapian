@@ -111,17 +111,17 @@ DatabaseTermFreqSource::get_doccount() const
 }
 
 void
-TermListGroup::add_document(const Document & document,
+TermListGroup::add_document(const Database & database,
+			    const Document & document,
 			    const ExpandDecider * decider)
 {
     DEBUGAPICALL(void, "TermListGroup::add_document",
 		 document << ", " << decider);
     vector<TermWdf> & tl = termlists[document.get_docid()];
     tl.clear();
-    tl.reserve(document.termlist_count());
     TermIterator titer;
-    TermIterator end(document.termlist_end());
-    for (titer = document.termlist_begin(); titer != end; ++titer) {
+    TermIterator end(database.termlist_end(document.get_docid()));
+    for (titer = database.termlist_begin(document.get_docid()); titer != end; ++titer) {
 	if (decider != NULL && !(*decider)(*titer))
 	    continue;
 	tl.push_back(TermWdf(*titer, titer.get_wdf()));
@@ -136,13 +136,14 @@ TermListGroup::add_document(const Document & document,
 }
 
 void
-TermListGroup::add_documents(DocumentSource & source,
+TermListGroup::add_documents(const Database & database,
+			     DocumentSource & source,
 			     const ExpandDecider * decider)
 {
     DEBUGAPICALL(void, "TermListGroup::add_documents",
 		 source << ", " << decider);
     while (!source.at_end()) {
-	add_document(source.next_document(), decider);
+	add_document(database, source.next_document(), decider);
     }
 }
 
@@ -238,7 +239,8 @@ void set_distance(vector<double> & distance, int docs, int i, int j,
 }
 
 void
-ClusterSingleLink::cluster(ClusterAssignments & clusters,
+ClusterSingleLink::cluster(const Database & database,
+			   ClusterAssignments & clusters,
 			   DocSimCosine & docsim,
 			   DocumentSource & docsource,
 			   const ExpandDecider * decider,
@@ -249,7 +251,7 @@ ClusterSingleLink::cluster(ClusterAssignments & clusters,
     while (!docsource.at_end())
     {
 	Document doc = docsource.next_document();
-	tlg.add_document(doc, decider);
+	tlg.add_document(database, doc, decider);
 	docids.push_back(doc.get_docid());
     }
     int docs = docids.size();

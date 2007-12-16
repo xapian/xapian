@@ -1,3 +1,13 @@
+Sun Dec 16 23:51:17 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* docsim/cluster.cc,include/xapian/cluster.h: Add explicit setting
+	  of the database to all methods which add a document to the
+	  TermListGroup, and read the termlist from the database, not the
+	  document.  This avoids a reasonably large overhead from caching
+	  the termlist in the Document object, which involves reading all
+	  the positionlists into the Document object, and also involves a
+	  load of unwanted dynamic memory allocation.
+
 Fri Dec 14 10:05:53 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* include/xapian/cluster.h: Add a variant of ClusterSingleLink
