@@ -922,9 +922,9 @@ class Query {
 %include <xapian/sorter.h>
 
 #ifndef XAPIAN_SWIG_DIRECTORS
-%ignore Xapian::TermListGroup::add_document(const Document &, const ExpandDecider *);
-%ignore Xapian::TermListGroup::add_documents(DocumentSource &, const ExpandDecider *);
-%ignore Xapian::ClusterSingleLink::cluster(ClusterAssignments &, DocSimCosine &, DocumentSource &, const ExpandDecider *, int);
+%ignore Xapian::TermListGroup::add_document(const Database &, const Document &, const ExpandDecider *);
+%ignore Xapian::TermListGroup::add_documents(const Database &, DocumentSource &, const ExpandDecider *);
+%ignore Xapian::ClusterSingleLink::cluster(const Database &, ClusterAssignments &, DocSimCosine &, DocumentSource &, const ExpandDecider *, int);
 #endif
 %include <xapian/cluster.h>
 
