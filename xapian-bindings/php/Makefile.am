@@ -59,7 +59,7 @@ if MAINTAINER_MODE
 php4/xapian_wrap.cc php4/php_xapian.h php4/xapian.php: php4/xapian_wrap.stamp
 	@stamp=php4/xapian_wrap.stamp; $(make_many_locked)
 php4/xapian_wrap.stamp: $(SWIG_sources) except.i util.i
-	test -d php4 || mkdir php4
+	-test -d php4 || mkdir php4
 	$(multitarget_begin)
 	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
 	    -php4 -outdir php4 \
@@ -69,7 +69,7 @@ php4/xapian_wrap.stamp: $(SWIG_sources) except.i util.i
 php5/xapian_wrap.cc php5/php_xapian.h php5/xapian.php: php5/xapian_wrap.stamp
 	@stamp=php5/xapian_wrap.stamp; $(make_many_locked)
 php5/xapian_wrap.stamp: $(SWIG_sources) except.i util.i
-	test -d php5 || mkdir php5
+	-test -d php5 || mkdir php5
 	$(multitarget_begin)
 	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
 	    -php5 -prefix Xapian -outdir php5 \
