@@ -1,3 +1,11 @@
+Tue Dec 18 18:58:36 GMT 2007  Olly Betts <olly@survex.com>
+
+	* php/smoketest.php: Add feature test to ensure that optional
+	  arguments to XapianQuery's "term" constructor are wrapped.
+	* xapian.i: Remove comment "FIXME wrap optional arguments in PHP?"
+	  referring to XapianQuery's "term" constructor as they are already
+	  wrapped.
+
 Mon Dec 17 21:02:38 GMT 2007  Olly Betts <olly@survex.com>
 
 	* php/Makefile.am,python/Makefile.am: Having moved the directory

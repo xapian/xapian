@@ -851,7 +851,6 @@ class Query {
 	    OP_SCALE_WEIGHT,
 	    OP_ELITE_SET = 10
 	};
-	// FIXME wrap optional arguments in PHP?
 	Query(const string &tname, termcount wqf = 1, termpos term_pos = 0);
 	Query(Query::op op_, const Query & left, const Query & right);
 	Query(Query::op op_, const string & left, const string & right);

@@ -223,4 +223,12 @@ function mset_expect_order($mset, $a) {
     }
 }
 
+# Feature tests for Query "term" constructor optional arguments:
+$query_wqf = new XapianQuery('wqf', 3);
+if ($query_wqf->get_description() != 'Xapian::Query(wqf:(wqf=3))') {
+    print "Unexpected \$query_wqf->get_description():\n";
+    print $query_wqf->get_description() . "\n";
+    exit(1);
+}
+
 ?>
