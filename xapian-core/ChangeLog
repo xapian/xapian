@@ -1,3 +1,10 @@
+Tue Dec 18 23:17:37 GMT 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_lock.cc,backends/flint/flint_lock.h: Move lots
+	  of headers included by flint_lock.h to flint_lock.cc since
+	  flint_lock.h doesn't need them.  Add a "FIXME:1.1:" comment about
+	  an odd special-case for newlib.
+
 Thu Dec 13 17:34:19 GMT 2007  Olly Betts <olly@survex.com>
 
 	* tests/stemtest.cc: Mark undocumented OM_STEMTEST_* environmental
