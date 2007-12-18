@@ -1,5 +1,5 @@
 up to:
-Wed Dec 12 02:09:02 GMT 2007  Olly Betts <olly@survex.com>
+Thu Dec 13 01:38:43 GMT 2007  Olly Betts <olly@survex.com>
 
 Omega 1.0.5 (2007-12-??):
 
@@ -9,12 +9,30 @@ documentation:
 
 * Convert .txt docs to reStructedText which we process to produce HTML.
 
+* Add a note inviting suggestions for additional reliable filter programs.
+
+* overview.html: omindex hasn't generated "W"-prefix terms since 0.9.7, so
+  remove the documentation saying it does.
+
 indexers:
 
 * omindex:
 
+  + If a file's extension isn't found in the mime_map and contains uppercase
+    ASCII characters, check for the lower cased extension (so .PDF and .Pdf
+    behave the same way as .pdf, unless you deliberately add different mappings
+    for them).
+
   + '-f' is documented by --help as a short option for '--follow', but wasn't
     previously actually recognised.
+
+  + Limit filter programs to 7/8 of free physical memory on platforms where we
+    know how to determine this statistic (currently at least Linux, FreeBSD,
+    IRIX, HP-UX; probably Solaris and a few others too).  This avoids runaway
+    filters from causing problems (bug#111).
+
+  + Avoid rereading uncompressed AbiWord documents in order to calculate their
+    MD5 checksums.
 
 * scriptindex:
 
