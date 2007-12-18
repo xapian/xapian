@@ -6,7 +6,7 @@
 
 use Test;
 use Devel::Peek;
-BEGIN { plan tests => 51 };
+BEGIN { plan tests => 52 };
 use Search::Xapian qw(:standard);
 ok(1); # If we made it this far, we're ok.
 
@@ -129,5 +129,14 @@ foreach $pair (
     my $query = $qp->parse_query($str);
     ok( $query->get_description(), "Xapian::Query($res)" );
 }
+
+# Regression test for Search::Xapian bug fixed in 1.0.5.0.  In 1.0.0.0-1.0.4.0
+# we tried to catch const char * not Xapian::Error, so std::terminate got
+# called.
+$qp = Search::Xapian::QueryParser->new;
+eval {
+    $qp->parse_query('foo other* this AND more', FLAG_BOOLEAN|FLAG_WILDCARD);
+};
+ok( $@ =~ /^Exception: Syntax: <expression> AND <expression> at \S+ line \d+\.$/ );
 
 1;
