@@ -47,8 +47,8 @@ Xapian::DocSimCosine::similarity(TermIterator a_begin,
 
     Xapian::doccount doc_count = tfs->get_doccount();
 
-    std::map<std::string, double> wt_a;
-    std::map<std::string, double> wt_b;
+    std::vector<std::pair<std::string, double> > wt_a;
+    std::vector<std::pair<std::string, double> > wt_b;
 
     double wt_a_denom = 0;
     double wt_b_denom = 0;
@@ -63,7 +63,7 @@ Xapian::DocSimCosine::similarity(TermIterator a_begin,
 	double wdf = titer.get_wdf();
 	if (wdf < 1) wdf = 1;
 	double tmp = (log(wdf) + 1.0) * idf;
-	wt_a[*titer] = tmp;
+	wt_a.push_back(std::make_pair(*titer, tmp));
 	wt_a_denom += tmp * tmp;
     }
 
@@ -75,7 +75,7 @@ Xapian::DocSimCosine::similarity(TermIterator a_begin,
 	double wdf = titer.get_wdf();
 	if (wdf < 1) wdf = 1;
 	double tmp = (log(wdf) + 1.0) * idf;
-	wt_b[*titer] = tmp;
+	wt_b.push_back(std::make_pair(*titer, tmp));
 	wt_b_denom += tmp * tmp;
     }
 
@@ -84,7 +84,8 @@ Xapian::DocSimCosine::similarity(TermIterator a_begin,
 	RETURN(0.0);
     }
 
-    std::map<std::string, double>::iterator wt_iter;
+    std::vector<std::pair<std::string, double> >::iterator wt_iter;
+    std::vector<std::pair<std::string, double> >::iterator wt_iter2;
 
     for (wt_iter = wt_a.begin(); wt_iter != wt_a.end(); ++wt_iter) {
 	wt_iter->second /= wt_a_denom;
@@ -98,17 +99,21 @@ Xapian::DocSimCosine::similarity(TermIterator a_begin,
     double wt_sq_sum_b = 0;
     double inner_product = 0;
 
+    wt_iter2 = wt_b.begin();
     for (wt_iter = wt_a.begin(); wt_iter != wt_a.end(); ++wt_iter) {
 	wt_sq_sum_a += wt_iter->second * wt_iter->second;
-	std::map<std::string, double>::iterator wt_iter2;
-	wt_iter2 = wt_b.find(wt_iter->first);
-	if (wt_iter2 != wt_b.end()) {
+	if (wt_iter2 == wt_b.end())
+	    continue;
+	while (wt_iter2->first < wt_iter->first) {
+	    wt_sq_sum_b += wt_iter->second * wt_iter->second;
+	    ++wt_iter2;
+	    if (wt_iter2 == wt_b.end())
+		break;
+	}
+	if (wt_iter2 != wt_b.end() && wt_iter2->first == wt_iter->first)
+	{
 	    inner_product += wt_iter->second * wt_iter2->second;
 	}
-    }
-
-    for (wt_iter = wt_b.begin(); wt_iter != wt_b.end(); ++wt_iter) {
-	wt_sq_sum_b += wt_iter->second * wt_iter->second;
     }
 
     RETURN(inner_product / (sqrt(wt_sq_sum_a) * sqrt(wt_sq_sum_b)));

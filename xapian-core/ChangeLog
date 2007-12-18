@@ -1,3 +1,10 @@
+Tue Dec 18 10:07:51 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* docsim/docsim_cosine.cc: Store weights for documents being
+	  compared in a pair of vectors rather than in a map, and access
+	  them by iterating through the vectors in lock-step.  Gives a 67%
+	  speedup in my tests.
+
 Sun Dec 16 23:51:17 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* docsim/cluster.cc,include/xapian/cluster.h: Add explicit setting
