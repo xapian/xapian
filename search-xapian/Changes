@@ -21,6 +21,9 @@ Revision history for Perl extension Search::Xapian.
 	- Wrap MultiValueSorter and Enquire::set_sort_by_key(), etc.
 	- Minor documentation improvements.
 	- Enhance t/parser.t to check results of NumberValueRangeProcessor.
+	- Fix QueryParser::parse_query() to catch Xapian::Error rather than
+	  const char * - it stopped throwing const char * in Xapian 1.0.0
+	  (bug#221).
  
 1.0.4.0  Wed Oct 31 23:18:02 GMT 2007
 	[Changes contributed by Olly Betts]

@@ -56,8 +56,8 @@ QueryParser::parse_query(q, flags = 7)
     CODE:
 	try {
 	    RETVAL = new Query(THIS->parse_query(q,flags));
-	} catch (const char * err_msg) {
-	    croak( "Exception: %s", err_msg );
+	} catch (const Error &error) {
+	    croak( "Exception: %s", error.get_msg().c_str() );
 	}
     OUTPUT:
 	RETVAL
