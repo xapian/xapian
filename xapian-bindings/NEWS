@@ -1,5 +1,5 @@
 up to:
-Wed Dec 12 02:22:58 GMT 2007  Olly Betts <olly@survex.com>
+Tue Dec 18 18:58:36 GMT 2007  Olly Betts <olly@survex.com>
 
 Xapian-bindings 1.0.5 (2007-12-??):
 
@@ -7,13 +7,21 @@ Documentation:
 
 General:
 
-* configure: SWIG 1.3.32 has now been released, so require at least this
-  released version for maintainer builds.
-
 * Wrap Xapian::Sorter and subclasses.
 
 * Wrap Enquire::set_sort_by_key(), Enquire::set_sort_by_key_then_relevance(),
   and Enquire::set_sort_by_relevance_then_key().
+
+* Factor out the code to protect multitarget rules against parallel make, and
+  fix it to handle the source being changed while the rule is executing, and to
+  correctly return an error code if we fail while trying to recover from the
+  removal of a target of a multi-target rule.
+
+* configure: Improve the clarity of the error given when none of the tools
+  needed for any supported language are found.
+
+* configure: SWIG 1.3.32 has now been released, so require at least this
+  released version for maintainer builds.
 
 Packaging:
 
@@ -42,6 +50,11 @@ PHP:
 * php/smoketest5.php: Fix use of Database_get_document to new style OO
   interface.  Fix the error reported when the PHP5 exception test fails.
 
+* php/smoketest.php: Add feature test to confirm that optional arguments to
+  XapianQuery's "term" constructor are wrapped.
+
+Mon Dec 17 21:02:38 GMT 2007  Olly Betts <olly@survex.com>
+
 Python:
 
 * Don't drop the GIL when calling Xapian_MSet_items_get() and
@@ -57,11 +70,11 @@ Python:
 
 Ruby:
 
+* The Ruby bindings now work on Mac OS X (the Ruby module's extension was
+  previously incorrect).
+
 * Run "rdoc" to generate HTML for the Ruby-specific API documentation which
   ruby/docs/index.html previously had a dead link to.
-
-* 'swig -ruby' understands '-initname' as of the 1.3.32 release which we now
-  require, so use '-initname' instead of its deprecated alias '-feature'.
 
 Tcl:
 
