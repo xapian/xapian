@@ -1,7 +1,4 @@
-up to:
-Wed Dec 12 02:02:51 GMT 2007  Olly Betts <olly@survex.com>
-
-Xapian-core 1.0.5 (2007-12-??):
+Xapian-core 1.0.5 (2007-12-19):
 
 API:
 
@@ -24,6 +21,9 @@ API:
 * Xapian::TradWeight now avoids division by zero in the (rare) situation of the
   average document length being zero (which can only happen if all documents
   are empty or only have terms with wdf 0).
+
+* Calling Xapian::WritableDatabase methods when we don't have exactly one
+  subdatabase now throws InvalidOperationError.
 
 testsuite:
 
@@ -101,9 +101,6 @@ remote backend:
   update to the MSet serialisation, which requires a minor remote protocol
   version bump.
 
-inmemory backend:
-
-
 build system:
 
 * XO_LIB_XAPIAN now hooks LT_INIT as well as AC_PROG_LIBTOOL and
@@ -155,9 +152,6 @@ documentation:
 * INSTALL: zlib 1.2.0 apparently fixes a memory leak in deflateInit2(), which
   we use, so that's another reason to prefer 1.2.x.
 
-examples:
-
-
 portability:
 
 * Add explicit includes of C headers needed to build with the latest snapshots
@@ -173,9 +167,6 @@ portability:
 * Fix build with SGI's compiler on IRIX.
 
 * Fix or suppress some MSVC warnings.
-
-packaging:
-
 
 debug code:
 
