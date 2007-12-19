@@ -1,9 +1,4 @@
-up to:
-Thu Dec 13 01:38:43 GMT 2007  Olly Betts <olly@survex.com>
-
-Omega 1.0.5 (2007-12-??):
-
-general:
+Omega 1.0.5 (2007-12-19):
 
 documentation:
 
@@ -36,20 +31,10 @@ indexers:
 
 * scriptindex:
 
-omega:
-
-templates:
-
-testsuite:
-
-build system:
-
 portability:
 
 * Add explicit includes of C headers needed to build with the latest snapshots
   of GCC 4.3.
-
-packaging:
 
 Omega 1.0.4 (2007-10-30):
 
