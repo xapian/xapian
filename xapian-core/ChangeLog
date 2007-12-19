@@ -1,3 +1,11 @@
+Wed Dec 19 03:36:30 GMT 2007  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc: Calling WritableDatabase methods when we don't
+	  have exactly one subdatabase now throws InvalidOperationError.
+	* tests/termgentest.cc: Add regression test to check that we now get
+	  InvalidOperationError (previously this case gave a segmentation
+	  fault).
+
 Wed Dec 19 01:39:01 GMT 2007  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Update from tinderbox.
