@@ -1,4 +1,4 @@
-Xapian-core 1.0.5 (2007-12-19):
+Xapian-core 1.0.5 (2007-12-20):
 
 API:
 
@@ -58,6 +58,9 @@ testsuite:
   + stubdb1 now explicitly creates the database it needs - generally this
     bug didn't manifest because an earlier test has already created it.
 
+* queryparsertest: Add feature tests to check that ':' is being inserted
+  between prefix and term when it should be.
+
 * Fix extracting of valgrind error messages in the test harness.
 
 * tests/valgrind.supp: Add more variants of the zlib suppressions.
@@ -115,14 +118,14 @@ build system:
 
 documentation:
 
+* sorting.html: New document on the topic of sorting match results.
+
 * HACKING,admin_notes.html,bm25.html,glossary.html,intro_ir.html,overview.html,
   quickstart.html,scalability.html,termgenerator,html,synonyms.html: Assorted
   minor improvements.
 
 * valueranges.html: State explicitly that Xapian::sortable_serialise() is used
   to encode values at index time, and give an example of how it is called.
-
-* sorting.html: New document on the topic of sorting match results.
 
 * API documentation:
 
