@@ -240,23 +240,20 @@ Some older versions of these programs may not work correctly at the time of
 writing, we require the following versions:
 
 	autoconf (GNU Autoconf) 2.59
-		2.57 fixes the annoying chmod warning on FreeBSD.  2.54 is
-		required by automake 1.6.3; autoconf 2.50 is needed for many
-		reasons anyway.  automake 1.8.5 needs at least 2.58, and 2.59
-		was released the same day as 2.58 to fix a problem.  Currently
-		snapshots and release tarballs are generated with autoconf 2.61
-		but this isn't yet a hard requirement (because the spec file
-		for building RPMs currently runs autoreconf to avoid a libtool
-		bug with setting rpath for /usr/lib64, and such platforms may
-		still only have autoconf 2.59).
+		2.57 fixes the annoying chmod warning on FreeBSD.  automake
+		1.8.5 needs at least 2.58, and 2.59 was released the same day
+		as 2.58 to fix a problem.  Currently snapshots and release
+		tarballs are generated with autoconf 2.61 but this isn't yet a
+		hard requirement (because the spec file for building RPMs
+		currently runs autoreconf to avoid a libtool bug with setting
+		rpath for /usr/lib64, and such platforms may still only have
+		autoconf 2.59).
 
 	automake (GNU automake) 1.8.3
-		automake 1.4 has problems with "make dist" in a VPATH build,
-		and doesn't support AM_CXXFLAGS.
-
-		automake 1.5 doesn't work with "make check" with Solaris make -
-		the problem is with the rules to build tests/internaltest
-		(perhaps no longer relevant as those rules are simpler now).
+		automake 1.5 adds support for AM_CXXFLAGS, but doesn't work
+		with "make check" with Solaris make - the problem is with the
+		rules to build tests/internaltest (perhaps no longer relevant
+		as those rules are simpler now).
 
 		Note that automake 1.6 has a bug which causes it to emit
 		spurious warnings: this is fixed in automake 1.6.1.
@@ -267,12 +264,12 @@ writing, we require the following versions:
 		smaller Makefile.ins amongst other things.
 
 		automake 1.10 requires autoconf 2.60.  Currently snapshots and
-                release tarballs are generated with automake 1.10, but this
-                isn't a hard requirement - configure.ac requires at least
-                1.8.3, but only because this is the version which SLES 9 had
-                and the RPM spec file runs autoreconf (RHEL 4 had 1.9.2; Debian
-                sarge had 1.9.5).  Please use a newer version (1.9.x or 1.10)
-                for development if at all possible.
+		release tarballs are generated with automake 1.10, but this
+		isn't a hard requirement - configure.ac requires at least
+		1.8.3, but only because this is the version which SLES 9 had
+		and the RPM spec file runs autoreconf (RHEL 4 had 1.9.2; Debian
+		sarge had 1.9.5).  Please use a newer version (1.9.x or 1.10)
+		for development if at all possible.
 
 	GNU libtool 1.5.24
 		libtool 1.5 was the first version to properly support linking
