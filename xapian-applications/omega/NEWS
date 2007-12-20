@@ -1,4 +1,4 @@
-Omega 1.0.5 (2007-12-19):
+Omega 1.0.5 (2007-12-20):
 
 documentation:
 
@@ -23,13 +23,22 @@ indexers:
 
   + Limit filter programs to 7/8 of free physical memory on platforms where we
     know how to determine this statistic (currently at least Linux, FreeBSD,
-    IRIX, HP-UX; probably Solaris and a few others too).  This avoids runaway
-    filters from causing problems (bug#111).
+    IRIX, HP-UX; probably Solaris and a few others too).  This helps to prevent
+    runaway filters from causing a denial of service (bug#111).
 
   + Avoid rereading uncompressed AbiWord documents in order to calculate their
     MD5 checksums.
 
 * scriptindex:
+
+  + Now inserts a ':' between prefix and term, using the same criteria which
+    Xapian::QueryParser does.
+
+  + The 'BOOLEAN' action now ignores an empty input rather than adding just the
+    prefix as a term.
+  
+  + The 'UNIQUE' action now issues an warning for empty input but otherwise
+    ignores it.
 
 portability:
 
