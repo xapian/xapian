@@ -17,10 +17,10 @@ Here's an example::
 The actions are:
 
 boolean[=PREFIX]
-	index the text as a single boolean term (with prefix PREFIX).  Omega
-	expects certain prefixes to be used for certain purposes - those
-	starting "X" are reserved for user applications.  Q is reserved for a
-	unique ID term.
+	index the text as a single boolean term (with prefix PREFIX).  If
+	there's no text, no term is added.  Omega expects certain prefixes to
+	be used for certain purposes - those starting "X" are reserved for user
+	applications.  Q is reserved for a unique ID term.
 
 date=FORMAT
 	generate terms for date range searching.  If FORMAT is "unix", then the
@@ -75,11 +75,12 @@ unhtml
 	strip out HTML tags
 
 unique[=PREFIX]
-	use the value in this field for a unique ID.  Only one record with
+	use the value in this field for a unique ID.  If the value is empty,
+	a warning is issued but nothing else is done.  Only one record with
 	each value of the ID may be present in the index: adding a new record
 	with an ID which is already present will cause the old record to be
-	replaced (or deleted if the new record is otherwise empty).  The field
-	should also be indexed as a boolean field using the same prefix so that
+	replaced (or deleted if the new record is otherwise empty).  You should
+	also index the field as a boolean field using the same prefix so that
 	the old record can be found.  In Omega, Q is reserved for use as the
 	prefix of a unique term.
 
