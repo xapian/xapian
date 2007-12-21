@@ -1,4 +1,4 @@
-Xapian-core 1.0.5 (2007-12-20):
+Xapian-core 1.0.5 (2007-12-21):
 
 API:
 
@@ -81,7 +81,7 @@ matcher:
   probably won't have affected most users.
 
 * The mechanism used to collate term statistics across multiple databases has
-  been greatly simplified.
+  been greatly simplified (bug#45).
 
 flint backend:
 
