@@ -42,10 +42,9 @@ PHP:
 
 Python:
 
-* Don't drop the GIL when calling Xapian_MSet_items_get() and
-  Xapian_ESet_items_get() - these methods build a python list, and return a
-  PyObject, so it's not safe to do so, and doing so may cause undefined
-  behaviour in multithreaded environments.
+* Don't drop the GIL when calling Xapian.MSet.items and Xapian.ESet.items -
+  these properties build a python list, so dropping the GIL isn't safe and
+  may cause undefined behaviour in multithreaded environments.
 
 * configure: Update error message to reflect requirement for at least python
   2.2.
