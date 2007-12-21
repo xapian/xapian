@@ -1,8 +1,12 @@
+xapian-bindings (1.0.5-1) unstable; urgency=low
+
   * debian/rules: Look for "CODENAME" and "debian/codename" rather than
     "COMPONENT" and "debian/component".
   * debian/rules: Strip out unused support for Ubuntu breezy since it reached
     end-of-life and we stopped building packages for it a while ago.
   * debian/control.in: Standards-Version: 3.7.3 (no changes required).
+
+ -- Olly Betts <olly@survex.com>  Fri, 21 Dec 2007 18:30:09 +0000
 
 xapian-bindings (1.0.4-1) unstable; urgency=low
 
