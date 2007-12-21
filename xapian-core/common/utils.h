@@ -100,4 +100,10 @@ inline int stat(const string &filename, struct stat *buf) {
     return stat(filename.c_str(), buf);
 }
 
+namespace Xapian {
+    namespace Internal {
+	bool within_DBL_EPSILON(double a, double b);
+    }
+}
+
 #endif /* OM_HGUARD_UTILS_H */

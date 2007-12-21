@@ -115,8 +115,6 @@ namespace Xapian {
 	extern const unsigned char lo_tab[];
 	XAPIAN_VISIBILITY_DEFAULT
 	extern const unsigned char up_tab[];
-
-	bool within_DBL_EPSILON(double a, double b);
     }
 }
 

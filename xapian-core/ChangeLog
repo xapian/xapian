@@ -1,3 +1,9 @@
+Fri Dec 21 15:31:35 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/stringutils.h,common/utils.h: Move declaration of
+	  within_DBL_EPSILON back into utils.h to fix builds with
+	  --enable-assertions, and since it's not string-related.
+
 Fri Dec 21 02:12:49 GMT 2007  Olly Betts <olly@survex.com>
 
 	* NEWS: Note that one change was "(bug#45)".  Bump release date.
