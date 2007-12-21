@@ -1,3 +1,5 @@
+xapian-omega (1.0.5-1) unstable; urgency=low
+
   * New upstream release.
     + Fixes compilation with latest GCC 4.3 snapshot.  Closes: #455149
     + omindex now accepts '-f' as documented.  Closes: #455526.
@@ -8,6 +10,8 @@
   * debian/xapian-omega.prerm,debian/xapian-omega.postrm: prerm doesn't get
     the "purge" action, so replace the prerm with a postrm so templates get
     removed on purge.  Closes: #455103
+
+ -- Olly Betts <olly@survex.com>  Fri, 21 Dec 2007 18:25:47 +0000
 
 xapian-omega (1.0.4-1) unstable; urgency=low
 
