@@ -1,0 +1,164 @@
+#!/usr/bin/make -f
+#
+# Copyright (C) 2004,2005,2006 Lemur Consulting Ltd
+# Copyright (C) 2006,2007 Olly Betts
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
+# USA
+
+# Version without the "-N" suffix.
+XAPIAN_VERSION = $(shell sed 's/.*(\([^-]*\)\(-.*\)*).*/\1/;q' debian/changelog)
+
+export DH_OPTIONS
+
+export DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
+export DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
+
+ifeq ($(DEB_BUILD_GNU_TYPE), $(DEB_HOST_GNU_TYPE))
+	confflags += --build $(DEB_HOST_GNU_TYPE)
+else
+	confflags += --build $(DEB_BUILD_GNU_TYPE) --host $(DEB_HOST_GNU_TYPE)
+endif
+
+ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
+	confflags += CFLAGS="-O0" CXXFLAGS="-O0"
+else
+	confflags += CFLAGS="-O2" CXXFLAGS="-O2"
+endif
+
+BUILD_DEPS := debhelper (>= 4.1.22),
+# We need a versioned build dependency on libxapian-dev.
+BUILD_DEPS += libxapian-dev (>= $(XAPIAN_VERSION)),# NB Trailing ',' required here!
+BUILD_DEPS += libxapian-dev (<= $(XAPIAN_VERSION)-9999),# NB Trailing ',' required here!
+
+commonconfflags := \
+	$(confflags) \
+	--prefix=/usr \
+	--sysconfdir=/etc
+
+# With GCC3 and later this won't make a huge difference, but it'll save
+# a bit of time and diskspace while building.
+commonconfflags += --disable-dependency-tracking
+
+maint: debian/control
+
+maintclean: clean
+	rm -f debian/control
+
+debian/control: debian/rules debian/control.in
+	rm -f debian/control.tmp
+	sed -e "s/@BUILD_DEPS@/$(BUILD_DEPS)/g" \
+	    < debian/control.in > debian/control.tmp
+	mv debian/control.tmp debian/control
+
+configure: configure-stamp
+configure-stamp:
+	dh_testdir
+
+	# Use the latest config.sub and config.guess from the autotools-dev
+	# package.
+	rm -f config.sub config.guess
+	ln -s /usr/share/misc/config.sub config.sub
+	ln -s /usr/share/misc/config.guess config.guess
+
+	# Configure in a subdirectory, for neatness.
+	mkdir -p build
+	cd build && ../configure $(commonconfflags)
+
+	# Touch the stamp file, to avoid repeating the configure step.
+	touch $@
+
+build: configure build-stamp
+build-stamp:
+	dh_testdir
+	$(MAKE) -C build
+	touch $@
+
+install: DH_OPTIONS=
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+
+	# Install the files into debian/tmp.
+	$(MAKE) -C build DESTDIR=$(CURDIR)/debian/tmp install
+
+	# Replace omega.conf with one with paths suitable for debian.
+	rm -f debian/tmp/etc/omega.conf
+	install -m 644 debian/omega.conf.debian debian/tmp/etc/omega.conf
+
+	# Install the icons.
+	install -d -m 755 debian/tmp/usr/share/images/xapian-omega
+	install -m 644 images/*.png debian/tmp/usr/share/images/xapian-omega
+
+	# Install the omegascript templates.
+	install -d -m 755 debian/tmp/usr/share/xapian-omega/templates
+	install -d -m 755 debian/tmp/usr/share/xapian-omega/templates/inc
+	install -m 644 templates/inc/[a-z]* debian/tmp/usr/share/xapian-omega/templates/inc
+	install -m 644 templates/[a-hj-z]* debian/tmp/usr/share/xapian-omega/templates
+
+	# Fix paths in query template, and install that instead.
+	sed 's!/icons/omega/!/images/xapian-omega/!g' templates/query > debian/query.tmp
+	install -m 644 debian/query.tmp debian/tmp/usr/share/xapian-omega/templates/query
+	rm -f debian/query.tmp
+
+	# Symlink them in as examples (they can't just go under /usr/share/doc
+	# because policy 12.3 says "Packages must not require the existence of
+	# any files in `/usr/share/doc/' in order to function").
+	install -d -m 755 debian/tmp/usr/share/doc/xapian-omega/examples
+	ln -s ../../../xapian-omega/templates debian/tmp/usr/share/doc/xapian-omega/examples/templates
+
+	# Create the /var directories.
+	install -d -m 755 debian/tmp/var/lib/xapian-omega/data
+	install -d -m 755 debian/tmp/var/lib/xapian-omega/cdb
+	install -d -m 755 debian/tmp/var/log/xapian-omega
+
+	# Reads the *.install files to decide where to install everything.
+	dh_install --sourcedir=debian/tmp --fail-missing
+
+binary: binary-arch binary-indep
+binary-indep: DH_OPTIONS=-i
+binary-indep:
+
+binary-arch: DH_OPTIONS=-a
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+	dh_installdocs
+	dh_installexamples
+	dh_installmenu
+	dh_installman
+	dh_installchangelogs ChangeLog
+	dh_strip
+	dh_link
+	dh_compress
+	dh_fixperms
+	dh_makeshlibs
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -rf build
+	rm -f config.sub config.guess
+	dh_clean
+	rm -f build-stamp configure-stamp
+
+.PHONY: configure build install binary binary-arch binary-indep clean
