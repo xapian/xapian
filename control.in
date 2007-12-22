@@ -4,6 +4,7 @@ Priority: optional
 Maintainer: Olly Betts <olly@survex.com>
 Standards-Version: 3.7.3
 Build-Depends: debhelper (>= 4.1.22), autotools-dev, zlib1g-dev
+Homepage: http://www.xapian.org/
 
 Package: libxapian@LIBXAPIAN_SOVERSION@
 Architecture: any
@@ -21,8 +22,6 @@ Description: Search engine library
  feedback, phrase searching, boolean searching, stemming, and simultaneous
  update and searching.  It is highly scalable, and is capable of working with
  collections containing hundreds of millions of documents.
- .
-  Homepage: http://www.xapian.org/
 
 Package: libxapian@LIBXAPIAN_DEV_SOVERSION@-dev
 Architecture: any
@@ -40,8 +39,6 @@ Description: Development files for Xapian search engine library
  feedback, phrase searching, boolean searching, stemming, and simultaneous
  update and searching.  It is highly scalable, and is capable of working with
  collections containing hundreds of millions of documents.
- .
-  Homepage: http://www.xapian.org/
 
 Package: xapian-tools
 Architecture: any
@@ -67,8 +64,6 @@ Description: Basic tools for Xapian search engine library
  feedback, phrase searching, boolean searching, stemming, and simultaneous
  update and searching.  It is highly scalable, and is capable of working with
  collections containing hundreds of millions of documents.
- .
-  Homepage: http://www.xapian.org/
 
 Package: xapian-doc
 Architecture: all
@@ -85,8 +80,6 @@ Description: Core Xapian documentation
  feedback, phrase searching, boolean searching, stemming, and simultaneous
  update and searching.  It is highly scalable, and is capable of working with
  collections containing hundreds of millions of documents.
- .
-  Homepage: http://www.xapian.org/
 
 Package: xapian-examples
 Architecture: any
@@ -105,5 +98,3 @@ Description: Xapian simple example programs
  feedback, phrase searching, boolean searching, stemming, and simultaneous
  update and searching.  It is highly scalable, and is capable of working with
  collections containing hundreds of millions of documents.
- .
-  Homepage: http://www.xapian.org/
