@@ -1,4 +1,6 @@
 <?php
+// Run this PHP script using 'make check' in the build tree.
+
 /* Simple test to ensure that we can load the xapian module and exercise basic
  * functionality successfully.
  *
