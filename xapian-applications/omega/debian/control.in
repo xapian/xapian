@@ -4,6 +4,7 @@ Priority: optional
 Maintainer: Olly Betts <olly@survex.com>
 Build-Depends: @BUILD_DEPS@ autotools-dev
 Standards-Version: 3.7.3
+Homepage: http://www.xapian.org/
 
 Package: xapian-omega
 Section: web
@@ -25,5 +26,3 @@ Description: CGI search interface and indexers using Xapian
  .
  The package also contains some example scripts for converting data from
  different sources into a form suitable for processing with "scriptindex".
- .
-  Homepage: http://www.xapian.org/
