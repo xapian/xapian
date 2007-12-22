@@ -5,10 +5,11 @@ xapian-bindings (1.0.5-1) unstable; urgency=low
   * debian/rules: Strip out unused support for Ubuntu breezy since it reached
     end-of-life and we stopped building packages for it a while ago.
   * debian/control.in: Standards-Version: 3.7.3 (no changes required).
-  * debian/patch: Deleted as the patch to configure for building tcl8 is
+  * debian/patch: Remove patch for building tcl8 on latest sid as it is
     already in the upstream sources.
+  * debian/patch: Add patch to fix installation of Ruby RDocs.
 
- -- Olly Betts <olly@survex.com>  Fri, 21 Dec 2007 19:28:16 +0000
+ -- Olly Betts <olly@survex.com>  Sat, 22 Dec 2007 04:40:41 +0000
 
 xapian-bindings (1.0.4-1) unstable; urgency=low
 
