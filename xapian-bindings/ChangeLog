@@ -1,3 +1,9 @@
+Sat Dec 22 04:32:39 GMT 2007  Olly Betts <olly@survex.com>
+
+	* ruby/docs/Makefile.am: We need a custom install-data-local rule to
+	  get the rdocs subdirectory installed (and a corresponding
+	  uninstall-local rule to uninstall it).
+
 Fri Dec 21 18:14:06 GMT 2007  Olly Betts <olly@survex.com>
 
 	* NEWS: Too late for the 1.0.5 release, but reword the Python GIL fix
