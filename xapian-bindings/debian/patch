@@ -1,6 +1,6 @@
-diff -ru xapian-bindings-1.0.5-orig/ruby/docs/Makefile.am xapian-bindings-1.0.5/ruby/docs/Makefile.am
---- xapian-bindings-1.0.5-orig/ruby/docs/Makefile.am	2007-12-21 03:01:52.000000000 +0000
-+++ xapian-bindings-1.0.5/ruby/docs/Makefile.am	2007-12-22 04:37:10.000000000 +0000
+diff -ru ruby/docs/Makefile.am xapian-bindings-1.0.5/ruby/docs/Makefile.am
+--- ruby/docs/Makefile.am	2007-12-21 03:01:52.000000000 +0000
++++ ruby/docs/Makefile.am	2007-12-22 04:37:10.000000000 +0000
 @@ -7,7 +7,28 @@
  # Not implemented yet: examples/simplematchdecider.rb
  
@@ -31,9 +31,9 @@ diff -ru xapian-bindings-1.0.5-orig/ruby/docs/Makefile.am xapian-bindings-1.0.5/
  
  if DOCUMENTATION_RULES
  BUILT_SOURCES = rdocs/index.html
-diff -ru xapian-bindings-1.0.5-orig/ruby/docs/Makefile.in xapian-bindings-1.0.5/ruby/docs/Makefile.in
---- xapian-bindings-1.0.5-orig/ruby/docs/Makefile.in	2007-12-21 03:04:31.000000000 +0000
-+++ xapian-bindings-1.0.5/ruby/docs/Makefile.in	2007-12-22 04:38:33.000000000 +0000
+diff -ru ruby/docs/Makefile.in xapian-bindings-1.0.5/ruby/docs/Makefile.in
+--- ruby/docs/Makefile.in	2007-12-21 03:04:31.000000000 +0000
++++ ruby/docs/Makefile.in	2007-12-22 04:38:33.000000000 +0000
 @@ -214,7 +214,8 @@
  
  # Not implemented yet: examples/simplematchdecider.rb
