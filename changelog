@@ -10,8 +10,10 @@ xapian-omega (1.0.5-1) unstable; urgency=low
   * debian/xapian-omega.prerm,debian/xapian-omega.postrm: prerm doesn't get
     the "purge" action, so replace the prerm with a postrm so templates get
     removed on purge.  Closes: #455103
+  * debian/control.in: The "Homepage:" header is now official, so convert
+    "Homepage:" pseudo-header.
 
- -- Olly Betts <olly@survex.com>  Fri, 21 Dec 2007 18:25:47 +0000
+ -- Olly Betts <olly@survex.com>  Sat, 22 Dec 2007 21:38:44 +0000
 
 xapian-omega (1.0.4-1) unstable; urgency=low
 
