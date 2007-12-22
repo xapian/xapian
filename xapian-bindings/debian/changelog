@@ -11,8 +11,10 @@ xapian-bindings (1.0.5-1) unstable; urgency=low
   * debian/patch: Add patch to fix "make check" for PHP4 (needed for some of
     the backports).
   * debian/libxapian-ruby1.8.install: Package the installed RDocs.
+  * debian/control.in,debian/control-php.in: The "Homepage:" header is now
+    official, so convert "Homepage:" pseudo-headers.
 
- -- Olly Betts <olly@survex.com>  Sat, 22 Dec 2007 19:00:36 +0000
+ -- Olly Betts <olly@survex.com>  Sat, 22 Dec 2007 21:33:21 +0000
 
 xapian-bindings (1.0.4-1) unstable; urgency=low
 
