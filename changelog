@@ -9,7 +9,7 @@ xapian-bindings (1.0.5-1) unstable; urgency=low
     already in the upstream sources.
   * debian/patch: Add patch to fix installation of Ruby RDocs.
 
- -- Olly Betts <olly@survex.com>  Sat, 22 Dec 2007 04:40:41 +0000
+ -- Olly Betts <olly@survex.com>  Sat, 22 Dec 2007 04:46:27 +0000
 
 xapian-bindings (1.0.4-1) unstable; urgency=low
 
