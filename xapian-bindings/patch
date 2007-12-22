@@ -1,0 +1,112 @@
+diff -ru ruby/docs/Makefile.am xapian-bindings-1.0.5/ruby/docs/Makefile.am
+--- ruby/docs/Makefile.am	2007-12-21 03:01:52.000000000 +0000
++++ ruby/docs/Makefile.am	2007-12-22 04:37:10.000000000 +0000
+@@ -7,7 +7,28 @@
+ # Not implemented yet: examples/simplematchdecider.rb
+ 
+ docdatadir = $(docdir)/ruby
+-dist_docdata_DATA = index.html rdocs
++dist_docdata_DATA = index.html
++EXTRA_DIST = rdocs
++
++install-data-local:
++	$(mkinstalldirs) $(DESTDIR)$(docdatadir)
++	@test -f rdocs/index.html || cd "$(srcdir)"; \
++	  for dir in `find rdocs -type d -print` ; do \
++	    echo " $(mkinstalldirs) '$(DESTDIR)$(docdatadir)/$$dir'"; \
++	    $(mkinstalldirs) "$(DESTDIR)$(docdatadir)/$$dir"; \
++	  done ; \
++	  for f in `find rdocs -type f -print` ; do \
++	    echo " $(INSTALL_DATA) '$$f' '$(DESTDIR)$(docdatadir)/$$f'"; \
++	    $(INSTALL_DATA) "$$f" "$(DESTDIR)$(docdatadir)/$$f"; \
++	  done
++
++uninstall-local:
++	$(mkinstalldirs) $(DESTDIR)$(docdatadir)
++	@test -f rdocs/index.html || cd "$(srcdir)"; \
++	  for f in `find rdocs -type f -print` ; do \
++	    echo " rm -f '$(DESTDIR)$(docdatadir)/$$f'"; \
++	    rm -f "$(DESTDIR)$(docdatadir)/$$f"; \
++	  done
+ 
+ if DOCUMENTATION_RULES
+ BUILT_SOURCES = rdocs/index.html
+diff -ru ruby/docs/Makefile.in xapian-bindings-1.0.5/ruby/docs/Makefile.in
+--- ruby/docs/Makefile.in	2007-12-21 03:04:31.000000000 +0000
++++ ruby/docs/Makefile.in	2007-12-22 04:38:33.000000000 +0000
+@@ -214,7 +214,8 @@
+ 
+ # Not implemented yet: examples/simplematchdecider.rb
+ docdatadir = $(docdir)/ruby
+-dist_docdata_DATA = index.html rdocs
++dist_docdata_DATA = index.html
++EXTRA_DIST = rdocs
+ @DOCUMENTATION_RULES_TRUE@BUILT_SOURCES = rdocs/index.html
+ all: $(BUILT_SOURCES)
+ 	$(MAKE) $(AM_MAKEFLAGS) all-am
+@@ -374,7 +375,8 @@
+ 
+ info-am:
+ 
+-install-data-am: install-dist_docdataDATA install-dist_exampledataDATA
++install-data-am: install-data-local install-dist_docdataDATA \
++	install-dist_exampledataDATA
+ 
+ install-dvi: install-dvi-am
+ 
+@@ -409,23 +411,44 @@
+ ps-am:
+ 
+ uninstall-am: uninstall-dist_docdataDATA \
+-	uninstall-dist_exampledataDATA
++	uninstall-dist_exampledataDATA uninstall-local
+ 
+ .MAKE: install-am install-strip
+ 
+ .PHONY: all all-am check check-am clean clean-generic clean-libtool \
+ 	distclean distclean-generic distclean-libtool distdir dvi \
+ 	dvi-am html html-am info info-am install install-am \
+-	install-data install-data-am install-dist_docdataDATA \
+-	install-dist_exampledataDATA install-dvi install-dvi-am \
+-	install-exec install-exec-am install-html install-html-am \
+-	install-info install-info-am install-man install-pdf \
+-	install-pdf-am install-ps install-ps-am install-strip \
+-	installcheck installcheck-am installdirs maintainer-clean \
+-	maintainer-clean-generic mostlyclean mostlyclean-generic \
+-	mostlyclean-libtool pdf pdf-am ps ps-am uninstall uninstall-am \
+-	uninstall-dist_docdataDATA uninstall-dist_exampledataDATA
+-
++	install-data install-data-am install-data-local \
++	install-dist_docdataDATA install-dist_exampledataDATA \
++	install-dvi install-dvi-am install-exec install-exec-am \
++	install-html install-html-am install-info install-info-am \
++	install-man install-pdf install-pdf-am install-ps \
++	install-ps-am install-strip installcheck installcheck-am \
++	installdirs maintainer-clean maintainer-clean-generic \
++	mostlyclean mostlyclean-generic mostlyclean-libtool pdf pdf-am \
++	ps ps-am uninstall uninstall-am uninstall-dist_docdataDATA \
++	uninstall-dist_exampledataDATA uninstall-local
++
++
++install-data-local:
++	$(mkinstalldirs) $(DESTDIR)$(docdatadir)
++	@test -f rdocs/index.html || cd "$(srcdir)"; \
++	  for dir in `find rdocs -type d -print` ; do \
++	    echo " $(mkinstalldirs) '$(DESTDIR)$(docdatadir)/$$dir'"; \
++	    $(mkinstalldirs) "$(DESTDIR)$(docdatadir)/$$dir"; \
++	  done ; \
++	  for f in `find rdocs -type f -print` ; do \
++	    echo " $(INSTALL_DATA) '$$f' '$(DESTDIR)$(docdatadir)/$$f'"; \
++	    $(INSTALL_DATA) "$$f" "$(DESTDIR)$(docdatadir)/$$f"; \
++	  done
++
++uninstall-local:
++	$(mkinstalldirs) $(DESTDIR)$(docdatadir)
++	@test -f rdocs/index.html || cd "$(srcdir)"; \
++	  for f in `find rdocs -type f -print` ; do \
++	    echo " rm -f '$(DESTDIR)$(docdatadir)/$$f'"; \
++	    rm -f "$(DESTDIR)$(docdatadir)/$$f"; \
++	  done
+ 
+ @DOCUMENTATION_RULES_TRUE@rdocs: rdocs/index.html
+ 
