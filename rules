@@ -121,10 +121,17 @@ BUILD_DEPS += $(PHP_VERSIONS:%=php%-cli [!hurd-i386],)
 # bindings will work with any Tcl version from 8.0.6 upwards, whichever
 # version they were built against.
 #
-# Currently all the distributions which we want to build packages for have
+ifeq ($(findstring .$(CODENAME)., .sarge.etch.dapper.edgy.feisty.gutsy.), )
+# lenny/hardy onwards have a "tcl-dev" dummy package which pulls in the package
+# for the current preferred version.
+BUILD_DEPS += tcl-dev,# NB Trailing ',' required here!
+TCLSH=/usr/bin/tclsh
+else
+# All the older distributions which we want to build packages for have
 # tcl8.4-dev, so just build against that.
 BUILD_DEPS += tcl8.4-dev,# NB Trailing ',' required here!
 TCLSH=/usr/bin/tclsh8.4
+endif
 
 # Build depends for Ruby.
 BUILD_DEPS += ruby1.8-dev, ruby1.8,# NB Trailing ',' required here!
@@ -191,7 +198,9 @@ debian/configure-stamp:
 	done
 
 	mkdir -p build-tcl-and-ruby
-	cd build-tcl-and-ruby && ../configure $(commonconfflags) --with-tcl TCLSH=$(TCLSH) --with-ruby RUBY=$(RUBY) RUBY_LIB=$(RUBY_LIB) RUBY_LIB_ARCH=$(RUBY_LIB_ARCH)
+	cd build-tcl-and-ruby && ../configure $(commonconfflags) \
+	    --with-tcl TCLSH=$(TCLSH) TCL_LIB=/usr/lib/tcltk \
+	    --with-ruby RUBY=$(RUBY) RUBY_LIB=$(RUBY_LIB) RUBY_LIB_ARCH=$(RUBY_LIB_ARCH)
 
 	touch $@
 
@@ -297,9 +306,18 @@ endif
 	    fi \
 	done
 
+ifeq ($(findstring .$(CODENAME)., .sarge.etch.dapper.edgy.feisty.gutsy.), )
+	# lenny/hardy onwards have a "tcl" dummy package which pulls in the
+	# package for the current preferred version.  "tclsh" is a virtual
+	# package which the Debian Tcl/Tk Policy recommends we specify as an
+	# alternative if we work with all available Tcl/Tk versions:
+	# http://pkg-tcltk.alioth.debian.org/tcltk-policy.html/ch-module_packages.html
+	echo "tcl|tclsh" >> debian/tclxapian.substvars
+else
 	# sarge onwards don't have tcl8.2 or earlier, though we would work with
 	# 8.2 and 8.1 if they were packaged.
 	echo "tcl:Depends=tcl8.4|tcl8.3" >> debian/tclxapian.substvars
+endif
 
 	echo "ruby:Depends=libruby1.8" >> debian/libxapian-ruby1.8.substvars
 
