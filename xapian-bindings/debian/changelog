@@ -13,8 +13,11 @@ xapian-bindings (1.0.5-1) unstable; urgency=low
   * debian/libxapian-ruby1.8.install: Package the installed RDocs.
   * debian/control.in,debian/control-php.in: The "Homepage:" header is now
     official, so convert "Homepage:" pseudo-headers.
+  * debian/rules: For Debian lenny and later, and Ubuntu hardy and later,
+    make use of the new tcl and tcl-dev packages as the Debian Tcl/Tk policy
+    describes.
 
- -- Olly Betts <olly@survex.com>  Sat, 22 Dec 2007 21:33:21 +0000
+ -- Olly Betts <olly@survex.com>  Sun, 23 Dec 2007 01:11:14 +0000
 
 xapian-bindings (1.0.4-1) unstable; urgency=low
 
