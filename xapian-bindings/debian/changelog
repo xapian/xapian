@@ -17,7 +17,7 @@ xapian-bindings (1.0.5-1) unstable; urgency=low
     make use of the new tcl and tcl-dev packages as the Debian Tcl/Tk policy
     describes.
 
- -- Olly Betts <olly@survex.com>  Sun, 23 Dec 2007 01:11:14 +0000
+ -- Olly Betts <olly@survex.com>  Sun, 23 Dec 2007 01:30:45 +0000
 
 xapian-bindings (1.0.4-1) unstable; urgency=low
 

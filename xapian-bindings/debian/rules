@@ -312,7 +312,7 @@ ifeq ($(findstring .$(CODENAME)., .sarge.etch.dapper.edgy.feisty.gutsy.), )
 	# package which the Debian Tcl/Tk Policy recommends we specify as an
 	# alternative if we work with all available Tcl/Tk versions:
 	# http://pkg-tcltk.alioth.debian.org/tcltk-policy.html/ch-module_packages.html
-	echo "tcl|tclsh" >> debian/tclxapian.substvars
+	echo "tcl:Depends=tcl|tclsh" >> debian/tclxapian.substvars
 else
 	# sarge onwards don't have tcl8.2 or earlier, though we would work with
 	# 8.2 and 8.1 if they were packaged.
