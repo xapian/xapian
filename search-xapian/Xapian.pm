@@ -76,6 +76,10 @@ our %EXPORT_TAGS = (
 				 FLAG_WILDCARD
 				 FLAG_PURE_NOT
 				 FLAG_PARTIAL
+				 FLAG_SPELLING_CORRECTION
+				 FLAG_SYNONYM
+				 FLAG_AUTO_SYNONYMS
+				 FLAG_AUTO_MULTIWORD_SYNONYMS
                                  ) ],
                     'qpstem' => [ qw(
 				 STEM_NONE

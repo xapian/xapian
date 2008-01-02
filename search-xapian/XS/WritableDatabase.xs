@@ -388,3 +388,30 @@ WritableDatabase::set_metadata(string key, string value)
 
 void
 WritableDatabase::DESTROY()
+
+void
+WritableDatabase::add_synonym(string term, string synonym)
+    CODE:
+	try {
+	    THIS->add_synonym(term, synonym);
+	} catch (const Error &error) {
+	    croak( "Exception: %s", error.get_msg().c_str() );
+	}
+
+void
+WritableDatabase::remove_synonym(string term, string synonym)
+    CODE:
+	try {
+	    THIS->remove_synonym(term, synonym);
+	} catch (const Error &error) {
+	    croak( "Exception: %s", error.get_msg().c_str() );
+	}
+
+void
+WritableDatabase::clear_synonyms(string term)
+    CODE:
+	try {
+	    THIS->clear_synonyms(term);
+	} catch (const Error &error) {
+	    croak( "Exception: %s", error.get_msg().c_str() );
+	}

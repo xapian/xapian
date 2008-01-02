@@ -1,6 +1,6 @@
 Revision history for Perl extension Search::Xapian.
 
-1.0.?.?  ???
+1.0.5.0  ???
 	[Changes contributed by Olly Betts]
 	- Suppress MakeMaker warnings if CXX and/or XAPIAN_CONFIG are
 	  specified.
@@ -24,6 +24,13 @@ Revision history for Perl extension Search::Xapian.
 	- Fix QueryParser::parse_query() to catch Xapian::Error rather than
 	  const char * - it stopped throwing const char * in Xapian 1.0.0
 	  (bug#221).
+	- Wrap TermGenerator methods: set_database() and set_flags().
+	[Changes contributed by Rusty Conover]        
+	- Wrap QueryParser flags: FLAG_SPELLING_CORRECTION, FLAG_SYNONYM,
+	  FLAG_AUTO_SYNONYMS, and FLAG_AUTO_MULTIWORD_SYNONYMS.
+	- Wrap WritableDatabase methods: add_synonym(), remove_synonym(), and
+	  clear_synonyms().
+	- Wrap TermGenerator::FLAG_SPELLING and TermGenerator::set_database().
  
 1.0.4.0  Wed Oct 31 23:18:02 GMT 2007
 	[Changes contributed by Olly Betts]
