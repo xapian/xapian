@@ -132,6 +132,10 @@ if ($xver !~ /^\Q$BASEVERSION\E(?:_svn[0-9]+)?$/) {
 	# Don't let automated testers continue, as we don't want bogus failure
 	# reports due to builds with incompatible versions.
 	print $msg;
+	# Remove Makefile since "exit status 0 without generating Makefile"
+	# is taken to indicate "can't build because of missing dependencies"
+	# by CPAN test building scripts.
+	unlink "Makefile";
 	exit 0;
     }
     warn "Warning: $msg";
