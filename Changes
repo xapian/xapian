@@ -1,5 +1,11 @@
 Revision history for Perl extension Search::Xapian.
 
+1.0.?.?  ???
+	[Changes contributed by Olly Betts]
+	- If the Search::Xapian and xapian-config versions don't match, and
+	  $ENV{AUTOMATED_TESTING} is true, then we need to unlink Makefile as
+	  well as exiting with status 0.
+
 1.0.5.0  Wed Jan 02 01:07:28 GMT 2008
 	[Changes contributed by Olly Betts]
 	- Suppress MakeMaker warnings if CXX and/or XAPIAN_CONFIG are
