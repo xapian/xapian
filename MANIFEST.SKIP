@@ -6,6 +6,7 @@ MANIFEST.bak
 MANIFEST.OLD
 testdb
 testdb-exception
+testdb-spell
 blib
 pm_to_blib
 .*\.o

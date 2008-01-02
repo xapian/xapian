@@ -5,7 +5,7 @@
 
 use Test;
 use Devel::Peek;
-BEGIN { plan tests => 26 };
+BEGIN { plan tests => 27 };
 use Search::Xapian qw(:standard);
 ok(1); # If we made it this far, we're ok.
 
@@ -56,5 +56,16 @@ $pi = $ti->positionlist_begin();
 ok( $pi, $ti->positionlist_end() );
 
 ok( ++$ti eq $doc->termlist_end() );
+
+my $db = Search::Xapian::WritableDatabase->new("testdb-spell", DB_CREATE_OR_OVERWRITE);
+ok( $db );
+my $indexer = Search::Xapian::TermGenerator->new();
+$indexer->set_flags(Search::Xapian::FLAG_SPELLING);
+$indexer->set_database($db);
+my $document = Search::Xapian::Document->new();
+$indexer->set_document($document);
+$indexer->index_text('test hello');
+$db->add_document($document);
+undef $db;
 
 1;

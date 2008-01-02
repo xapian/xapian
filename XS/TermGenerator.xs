@@ -25,6 +25,12 @@ TermGenerator::set_stopper(stopper)
 	THIS->set_stopper(stopper);
 
 void
+TermGenerator::set_database(db)
+    WritableDatabase * db
+    CODE:
+	THIS->set_database(*db);
+
+void
 TermGenerator::set_document(Document * doc)
     CODE:
 	THIS->set_document(*doc);
@@ -41,6 +47,14 @@ TermGenerator::index_text(text, weight = 1, prefix = "")
     string text
     termcount weight
     string prefix
+
+int
+TermGenerator::set_flags(int toggle, int mask = 0)
+    CODE:
+	RETVAL = THIS->set_flags(TermGenerator::flags(toggle),
+				 TermGenerator::flags(mask));
+    OUTPUT:
+	RETVAL
 
 void
 TermGenerator::index_text_without_positions(text, weight = 1, prefix = "")
