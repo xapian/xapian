@@ -1,6 +1,6 @@
 Revision history for Perl extension Search::Xapian.
 
-1.0.5.0  ???
+1.0.5.0  Wed Jan 02 01:07:28 GMT 2008
 	[Changes contributed by Olly Betts]
 	- Suppress MakeMaker warnings if CXX and/or XAPIAN_CONFIG are
 	  specified.
