@@ -1,3 +1,8 @@
+Sat Jan 05 18:27:07 GMT 2008  Olly Betts <olly@survex.com>
+
+	* languages/steminternal.cc: Tweak skip_utf8() to save ~0.5% on
+	  stemtest.
+
 Sat Jan 05 02:20:57 GMT 2008  Olly Betts <olly@survex.com>
 
 	* languages/compiler/generator.c: Optimise a single ASCII character
