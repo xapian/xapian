@@ -1,3 +1,9 @@
+Sat Jan 05 02:20:57 GMT 2008  Olly Betts <olly@survex.com>
+
+	* languages/compiler/generator.c: Optimise a single ASCII character
+	  literalstring check by inlining the check.  This makes stemtest run
+	  about 2% faster.
+
 Fri Dec 21 21:57:11 GMT 2007  Olly Betts <olly@survex.com>
 
 	* docs/valueranges.rst: Fix example of using multiple VRPs to come out

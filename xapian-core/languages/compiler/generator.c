@@ -1015,11 +1015,25 @@ static void generate_namedstring(struct generator * g, struct node * p) {
 
 static void generate_literalstring(struct generator * g, struct node * p) {
     symbol * b = p->literalstring;
-    g->S[0] = p->mode == m_forward ? "" : "_b";
-    g->I[0] = SIZE(b);
-    g->L[0] = b;
+    if (SIZE(b) == 1 && *b < 128) {
+	/* It's quite common to compare with a single ASCII character literal
+	 * string, so just inline the simpler code for this case rather than
+	 * making a function call. */
+	g->I[0] = *b;
+	if (p->mode == m_forward) {
+	    wp(g, "~Mif (c == l || p[c] != ~I0) ~f~N"
+		  "~Mc++;~N", p);
+	} else {
+	    wp(g, "~Mif (c <= lb || p[c - 1] != ~I0) ~f~N"
+		  "~Mc--;~N", p);
+	}
+    } else {
+	g->S[0] = p->mode == m_forward ? "" : "_b";
+	g->I[0] = SIZE(b);
+	g->L[0] = b;
 
-    wp(g, "~Mif (!(eq_s~S0(~Z~I0, ~L0))) ~f~C", p);
+	wp(g, "~Mif (!(eq_s~S0(~Z~I0, ~L0))) ~f~C", p);
+    }
 }
 
 static void generate_define(struct generator * g, struct node * p) {
