@@ -1,3 +1,8 @@
+Sat Jan 05 18:28:31 GMT 2008  Olly Betts <olly@survex.com>
+
+	* languages/compiler/generator.c: Generate more readable code for the
+	  inlined single ASCII character literal string check.
+
 Sat Jan 05 18:27:07 GMT 2008  Olly Betts <olly@survex.com>
 
 	* languages/steminternal.cc: Tweak skip_utf8() to save ~0.5% on

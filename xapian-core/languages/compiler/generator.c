@@ -1019,12 +1019,18 @@ static void generate_literalstring(struct generator * g, struct node * p) {
 	/* It's quite common to compare with a single ASCII character literal
 	 * string, so just inline the simpler code for this case rather than
 	 * making a function call. */
-	g->I[0] = *b;
+	char buf[8];
+	if (*b < 32 || *b == 127 || *b == '\'' || *b == '\\') {
+	    sprintf(buf, "%d", (int)*b);
+	} else {
+	    sprintf(buf, "'%c'", (char)*b);
+	}
+	g->S[0] = buf;
 	if (p->mode == m_forward) {
-	    wp(g, "~Mif (c == l || p[c] != ~I0) ~f~N"
+	    wp(g, "~Mif (c == l || p[c] != ~S0) ~f~N"
 		  "~Mc++;~N", p);
 	} else {
-	    wp(g, "~Mif (c <= lb || p[c - 1] != ~I0) ~f~N"
+	    wp(g, "~Mif (c <= lb || p[c - 1] != ~S0) ~f~N"
 		  "~Mc--;~N", p);
 	}
     } else {
