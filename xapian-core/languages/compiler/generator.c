@@ -989,9 +989,15 @@ static void generate_integer_test(struct generator * g, struct node * p, char * 
 static void generate_call(struct generator * g, struct node * p) {
 
     g->V[0] = p->name;
-    wp(g, "~{int ret = ~V0(~Z);~C"
-          "~Mif (ret == 0) ~f~N"
-          "~Mif (ret < 0) return ret;~N~}", p);
+    wp(g, "~{int ret = ~V0(~Z);~C", p);
+    if (g->failure_keep_count == 0 && g->failure_label == x_return) {
+	/* Combine the two tests in this special case for better optimisation
+	 * and clearer generated code. */
+	wp(g, "~Mif (ret <= 0) return ret;~N~}", p);
+    } else {
+	wp(g, "~Mif (ret == 0) ~f~N"
+	      "~Mif (ret < 0) return ret;~N~}", p);
+    }
 }
 
 static void generate_grouping(struct generator * g, struct node * p, int complement) {

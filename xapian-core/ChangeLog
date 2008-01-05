@@ -1,3 +1,9 @@
+Sat Jan 05 19:13:12 GMT 2008  Olly Betts <olly@survex.com>
+
+	* languages/compiler/generator.c: In generate_call(), if the failure
+	  case would just be "if (ret == 0) return 0;" then combine it with
+	  the test for the called method returning signal `f'.
+
 Sat Jan 05 18:28:31 GMT 2008  Olly Betts <olly@survex.com>
 
 	* languages/compiler/generator.c: Generate more readable code for the
