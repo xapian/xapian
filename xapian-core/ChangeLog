@@ -1,3 +1,8 @@
+Mon Jan 07 01:28:14 GMT 2008  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Remove reports for 0.8.x as they're too old to be
+	  interesting.  Separate out 0.9.x reports.
+
 Mon Jan 07 00:23:10 GMT 2008  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Add Solaris 9 and 10 success reports from James Aylett.
