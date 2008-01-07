@@ -48,10 +48,13 @@ DEFINE_TESTCASE(docsim1, backend) {
     Xapian::MSet matches = enq.get_mset(0, 30);
 
     Xapian::DocSimCosine doc_sim;
-    doc_sim.set_database(db);
     for (Xapian::doccount i = 0; i < matches.size(); i+=2) {
-	double sim = doc_sim.calculate_similarity(matches[i].get_document(),
-						  matches[i+1].get_document());
+	Xapian::Document doc1(matches[i].get_document());
+	Xapian::Document doc2(matches[i+1].get_document());
+	double sim = doc_sim.similarity(doc1.termlist_begin(),
+					doc1.termlist_end(),
+					doc2.termlist_begin(),
+					doc2.termlist_end());
 	TEST(sim >= 0 && sim <= 1);
     }
 
