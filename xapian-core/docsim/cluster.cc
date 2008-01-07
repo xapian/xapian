@@ -170,9 +170,11 @@ class VectorTermWdfIterator : public TermIterator::Internal
     vector<TermWdf>::const_iterator i;
     vector<TermWdf>::const_iterator end;
     termcount size;
+    bool started;
   public:
     VectorTermWdfIterator(const vector<TermWdf> & termlist)
-	: i(termlist.begin()), end(termlist.end()), size(termlist.size())
+	: i(termlist.begin()), end(termlist.end()), size(termlist.size()),
+	  started(false)
     {}
 
     termcount get_approx_size() const { return size; }
@@ -181,17 +183,40 @@ class VectorTermWdfIterator : public TermIterator::Internal
     doccount get_termfreq() const {
 	throw UnimplementedError("VectorTermWdfIterator doesn't support get_termfreq()");
     }
-    Internal * next() { ++i; return NULL; }
-    bool at_end() const { return i == end; }
-    termcount positionlist_count() const
-    {
-	throw UnimplementedError("VectorTermWdfIterator doesn't support positionlist_count()");
-    }
-    PositionIterator positionlist_begin() const
-    {
-	throw UnimplementedError("VectorTermWdfIterator doesn't support positionlist_begin()");
-    }
+    Internal * next();
+    bool at_end() const;
+    termcount positionlist_count() const;
+    PositionIterator positionlist_begin() const;
 };
+
+TermIterator::Internal *
+VectorTermWdfIterator::next() {
+    if (!started) {
+	started = true;
+	return NULL;
+    }
+    Assert(i != end);
+    ++i; return NULL;
+}
+
+bool
+VectorTermWdfIterator::at_end() const
+{
+    if (!started) return false;
+    return i == end;
+}
+
+termcount
+VectorTermWdfIterator::positionlist_count() const
+{
+    throw UnimplementedError("VectorTermWdfIterator doesn't support positionlist_count()");
+}
+
+PositionIterator
+VectorTermWdfIterator::positionlist_begin() const
+{
+    throw UnimplementedError("VectorTermWdfIterator doesn't support positionlist_begin()");
+}
 
 TermIterator
 TermListGroup::termlist_begin(docid did) const
