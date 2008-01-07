@@ -1,107 +1,134 @@
-diff -u configure.ac~ configure.ac
---- configure.ac~	2007-10-30 05:47:19.000000000 +0000
-+++ configure.ac	2007-11-02 02:50:11.000000000 +0000
-@@ -400,32 +400,40 @@
-     # don't pass -DUSE_TCL_STUBS when compiling) should you need that.
-     AC_MSG_CHECKING([$TCLSH version])
-     if echo 'if {$tcl_version < 8.1 } { exit 1 }'|$TCLSH 2> /dev/null ; then
--      AC_MSG_RESULT([>= 8.1])
--      tcl_lib=`echo 'puts $tcl_library'|$TCLSH`
-+      tcl_version=`echo 'puts "$tcl_version"'|$TCLSH`
-+      AC_MSG_RESULT([$tcl_version])
-+
-       AC_ARG_VAR(TCL_LIB, [Directory to install Tcl files into])
-       if test -z "$TCL_LIB" ; then    
--	TCL_LIB=$tcl_lib
-+	TCL_LIB=`echo 'puts $tcl_library'|$TCLSH`
-       fi
-       AC_SUBST(TCL_LIB)
--      dnl There's no obvious way to get "/usr/include/tcl8.N" directly...
--      dnl debian uses /usr/lib/tcl8.4, FC2 uses /usr/share/tcl8.4
--      TCL_INC=`echo "$tcl_lib"|sed 's!/\(share\|lib\)/!/include/!'`
-+
-+      dnl There's no obvious way to get "/usr/include/tcl8.N" directly, so
-+      dnl first we find the prefix Tcl is installed under (e.g. "/usr") from
-+      dnl the path on TCLSH (or default to /usr if the path doesn't contain
-+      dnl "/bin/"), and then we add "/include/tcl" and $tcl_version.
-+      tcl_prefix=`echo "$TCLSH"|sed 's!/bin/.*!!p;d'`
-+      test -n "$tcl_prefix" || tcl_prefix=/usr
-+      TCL_INC=${tcl_prefix}/include/tcl${tcl_version}
-+
-       dnl Check that the headers are there (the tcl8.N-dev package
-       dnl may not be installed).
-       TCL_CPPFLAGS=
--      AC_MSG_CHECKING([for tcl.h for version $TCL_VERSION])
-+      AC_MSG_CHECKING([for tcl.h for version $tcl_version])
-       if test -f "$TCL_INC/tcl.h" ; then
- 	AC_MSG_RESULT([$TCL_INC/tcl.h])
- 	BINDINGS="$BINDINGS tcl8"
- 	TCL_CPPFLAGS="-I$TCL_INC"
-       elif test -f "/usr/include/tcl.h" ; then
--	if test x`awk '($1 == "#define" && $2 == "TCL_VERSION") {print $3}' /usr/include/tcl.h` = x'"'`echo 'puts $tcl_version'|$TCLSH`'"' ; then
-+	tcl_hdr_version=`awk '($1 == "#define" && $2 == "TCL_VERSION") {print $3}' /usr/include/tcl.h`
-+	if test x"$tcl_hdr_version" = x'"'"$tcl_version"'"' ; then
- 	  AC_MSG_RESULT([/usr/include/tcl.h])
- 	  BINDINGS="$BINDINGS tcl8"
- 	else
- 	  AC_MSG_RESULT([not found])
- 	  if test yes = "$with_tcl" ; then
--	    AC_MSG_ERROR([Can't find tcl.h for version $TCL_VERSION])
-+	    AC_MSG_ERROR([Can't find tcl.h for version $tcl_version])
- 	  fi
- 	fi
-       else
-diff -u configure~ configure
---- configure~	2007-10-30 05:49:36.000000000 +0000
-+++ configure	2007-11-02 02:50:51.000000000 +0000
-@@ -14922,25 +14922,31 @@
-     { echo "$as_me:$LINENO: checking $TCLSH version" >&5
- echo $ECHO_N "checking $TCLSH version... $ECHO_C" >&6; }
-     if echo 'if {$tcl_version < 8.1 } { exit 1 }'|$TCLSH 2> /dev/null ; then
--      { echo "$as_me:$LINENO: result: >= 8.1" >&5
--echo "${ECHO_T}>= 8.1" >&6; }
--      tcl_lib=`echo 'puts $tcl_library'|$TCLSH`
-+      tcl_version=`echo 'puts "$tcl_version"'|$TCLSH`
-+      { echo "$as_me:$LINENO: result: $tcl_version" >&5
-+echo "${ECHO_T}$tcl_version" >&6; }
-+
+diff -ru ruby/docs/Makefile.am xapian-bindings-1.0.5/ruby/docs/Makefile.am
+--- ruby/docs/Makefile.am	2007-12-21 03:01:52.000000000 +0000
++++ ruby/docs/Makefile.am	2007-12-22 04:37:10.000000000 +0000
+@@ -7,7 +7,28 @@
+ # Not implemented yet: examples/simplematchdecider.rb
  
-       if test -z "$TCL_LIB" ; then
--	TCL_LIB=$tcl_lib
-+	TCL_LIB=`echo 'puts $tcl_library'|$TCLSH`
-       fi
+ docdatadir = $(docdir)/ruby
+-dist_docdata_DATA = index.html rdocs
++dist_docdata_DATA = index.html
++EXTRA_DIST = rdocs
++
++install-data-local:
++	$(mkinstalldirs) $(DESTDIR)$(docdatadir)
++	@test -f rdocs/index.html || cd "$(srcdir)"; \
++	  for dir in `find rdocs -type d -print` ; do \
++	    echo " $(mkinstalldirs) '$(DESTDIR)$(docdatadir)/$$dir'"; \
++	    $(mkinstalldirs) "$(DESTDIR)$(docdatadir)/$$dir"; \
++	  done ; \
++	  for f in `find rdocs -type f -print` ; do \
++	    echo " $(INSTALL_DATA) '$$f' '$(DESTDIR)$(docdatadir)/$$f'"; \
++	    $(INSTALL_DATA) "$$f" "$(DESTDIR)$(docdatadir)/$$f"; \
++	  done
++
++uninstall-local:
++	$(mkinstalldirs) $(DESTDIR)$(docdatadir)
++	@test -f rdocs/index.html || cd "$(srcdir)"; \
++	  for f in `find rdocs -type f -print` ; do \
++	    echo " rm -f '$(DESTDIR)$(docdatadir)/$$f'"; \
++	    rm -f "$(DESTDIR)$(docdatadir)/$$f"; \
++	  done
  
--                  TCL_INC=`echo "$tcl_lib"|sed 's!/\(share\|lib\)/!/include/!'`
+ if DOCUMENTATION_RULES
+ BUILT_SOURCES = rdocs/index.html
+diff -ru ruby/docs/Makefile.in xapian-bindings-1.0.5/ruby/docs/Makefile.in
+--- ruby/docs/Makefile.in	2007-12-21 03:04:31.000000000 +0000
++++ ruby/docs/Makefile.in	2007-12-22 04:38:33.000000000 +0000
+@@ -214,7 +214,8 @@
+ 
+ # Not implemented yet: examples/simplematchdecider.rb
+ docdatadir = $(docdir)/ruby
+-dist_docdata_DATA = index.html rdocs
++dist_docdata_DATA = index.html
++EXTRA_DIST = rdocs
+ @DOCUMENTATION_RULES_TRUE@BUILT_SOURCES = rdocs/index.html
+ all: $(BUILT_SOURCES)
+ 	$(MAKE) $(AM_MAKEFLAGS) all-am
+@@ -374,7 +375,8 @@
+ 
+ info-am:
+ 
+-install-data-am: install-dist_docdataDATA install-dist_exampledataDATA
++install-data-am: install-data-local install-dist_docdataDATA \
++	install-dist_exampledataDATA
+ 
+ install-dvi: install-dvi-am
+ 
+@@ -409,23 +411,44 @@
+ ps-am:
+ 
+ uninstall-am: uninstall-dist_docdataDATA \
+-	uninstall-dist_exampledataDATA
++	uninstall-dist_exampledataDATA uninstall-local
+ 
+ .MAKE: install-am install-strip
+ 
+ .PHONY: all all-am check check-am clean clean-generic clean-libtool \
+ 	distclean distclean-generic distclean-libtool distdir dvi \
+ 	dvi-am html html-am info info-am install install-am \
+-	install-data install-data-am install-dist_docdataDATA \
+-	install-dist_exampledataDATA install-dvi install-dvi-am \
+-	install-exec install-exec-am install-html install-html-am \
+-	install-info install-info-am install-man install-pdf \
+-	install-pdf-am install-ps install-ps-am install-strip \
+-	installcheck installcheck-am installdirs maintainer-clean \
+-	maintainer-clean-generic mostlyclean mostlyclean-generic \
+-	mostlyclean-libtool pdf pdf-am ps ps-am uninstall uninstall-am \
+-	uninstall-dist_docdataDATA uninstall-dist_exampledataDATA
+-
++	install-data install-data-am install-data-local \
++	install-dist_docdataDATA install-dist_exampledataDATA \
++	install-dvi install-dvi-am install-exec install-exec-am \
++	install-html install-html-am install-info install-info-am \
++	install-man install-pdf install-pdf-am install-ps \
++	install-ps-am install-strip installcheck installcheck-am \
++	installdirs maintainer-clean maintainer-clean-generic \
++	mostlyclean mostlyclean-generic mostlyclean-libtool pdf pdf-am \
++	ps ps-am uninstall uninstall-am uninstall-dist_docdataDATA \
++	uninstall-dist_exampledataDATA uninstall-local
 +
-+                              tcl_prefix=`echo "$TCLSH"|sed 's!/bin/.*!!p;d'`
-+      test -n "$tcl_prefix" || tcl_prefix=/usr
-+      TCL_INC=${tcl_prefix}/include/tcl${tcl_version}
 +
-                   TCL_CPPFLAGS=
--      { echo "$as_me:$LINENO: checking for tcl.h for version $TCL_VERSION" >&5
--echo $ECHO_N "checking for tcl.h for version $TCL_VERSION... $ECHO_C" >&6; }
-+      { echo "$as_me:$LINENO: checking for tcl.h for version $tcl_version" >&5
-+echo $ECHO_N "checking for tcl.h for version $tcl_version... $ECHO_C" >&6; }
-       if test -f "$TCL_INC/tcl.h" ; then
- 	{ echo "$as_me:$LINENO: result: $TCL_INC/tcl.h" >&5
- echo "${ECHO_T}$TCL_INC/tcl.h" >&6; }
- 	BINDINGS="$BINDINGS tcl8"
- 	TCL_CPPFLAGS="-I$TCL_INC"
-       elif test -f "/usr/include/tcl.h" ; then
--	if test x`awk '($1 == "#define" && $2 == "TCL_VERSION") {print $3}' /usr/include/tcl.h` = x'"'`echo 'puts $tcl_version'|$TCLSH`'"' ; then
-+	tcl_hdr_version=`awk '($1 == "#define" && $2 == "TCL_VERSION") {print $3}' /usr/include/tcl.h`
-+	if test x"$tcl_hdr_version" = x'"'"$tcl_version"'"' ; then
- 	  { echo "$as_me:$LINENO: result: /usr/include/tcl.h" >&5
- echo "${ECHO_T}/usr/include/tcl.h" >&6; }
- 	  BINDINGS="$BINDINGS tcl8"
-@@ -14948,8 +14954,8 @@
- 	  { echo "$as_me:$LINENO: result: not found" >&5
- echo "${ECHO_T}not found" >&6; }
- 	  if test yes = "$with_tcl" ; then
--	    { { echo "$as_me:$LINENO: error: Can't find tcl.h for version $TCL_VERSION" >&5
--echo "$as_me: error: Can't find tcl.h for version $TCL_VERSION" >&2;}
-+	    { { echo "$as_me:$LINENO: error: Can't find tcl.h for version $tcl_version" >&5
-+echo "$as_me: error: Can't find tcl.h for version $tcl_version" >&2;}
-    { (exit 1); exit 1; }; }
- 	  fi
- 	fi
++install-data-local:
++	$(mkinstalldirs) $(DESTDIR)$(docdatadir)
++	@test -f rdocs/index.html || cd "$(srcdir)"; \
++	  for dir in `find rdocs -type d -print` ; do \
++	    echo " $(mkinstalldirs) '$(DESTDIR)$(docdatadir)/$$dir'"; \
++	    $(mkinstalldirs) "$(DESTDIR)$(docdatadir)/$$dir"; \
++	  done ; \
++	  for f in `find rdocs -type f -print` ; do \
++	    echo " $(INSTALL_DATA) '$$f' '$(DESTDIR)$(docdatadir)/$$f'"; \
++	    $(INSTALL_DATA) "$$f" "$(DESTDIR)$(docdatadir)/$$f"; \
++	  done
++
++uninstall-local:
++	$(mkinstalldirs) $(DESTDIR)$(docdatadir)
++	@test -f rdocs/index.html || cd "$(srcdir)"; \
++	  for f in `find rdocs -type f -print` ; do \
++	    echo " rm -f '$(DESTDIR)$(docdatadir)/$$f'"; \
++	    rm -f "$(DESTDIR)$(docdatadir)/$$f"; \
++	  done
+ 
+ @DOCUMENTATION_RULES_TRUE@rdocs: rdocs/index.html
+ 
+Index: php/smoketest.php
+===================================================================
+--- php/smoketest.php	(revision 9929)
++++ php/smoketest.php	(working copy)
+@@ -212,12 +212,14 @@
+ 
+ function mset_expect_order($mset, $a) {
+     if ($mset->size() != sizeof($a)) {
+-	print "MSet has {$mset->size()} entries, expected ".sizeof($a)."\n";
++	print "MSet has ".$mset->size()." entries, expected ".sizeof($a)."\n";
+ 	exit(1);
+     }
+     for ($j = 0; $j < sizeof($a); ++$j) {
+-	if ($mset->get_hit($j)->get_docid() != $a[$j]) {
+-	    print "Expected MSet[$j] to be $a[$j], got {$mset->get_hit($j)->get_docid()}\n";
++	# PHP4 doesn't cope with: $mset->get_hit($j)->get_docid();
++	$hit = $mset->get_hit($j);
++	if ($hit->get_docid() != $a[$j]) {
++	    print "Expected MSet[$j] to be $a[$j], got ".$hit->get_docid()."\n";
+ 	    exit(1);
+ 	}
+     }

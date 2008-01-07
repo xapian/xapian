@@ -1,4 +1,6 @@
 <?php
+// Run this PHP script using 'make check' in the build tree.
+
 /* Simple test to ensure that we can load the xapian module and exercise basic
  * functionality successfully.
  *
@@ -212,15 +214,25 @@ $enquire->set_query(new XapianQuery("foo"));
 
 function mset_expect_order($mset, $a) {
     if ($mset->size() != sizeof($a)) {
-	print "MSet has {$mset->size()} entries, expected ".sizeof($a)."\n";
+	print "MSet has ".$mset->size()." entries, expected ".sizeof($a)."\n";
 	exit(1);
     }
     for ($j = 0; $j < sizeof($a); ++$j) {
-	if ($mset->get_hit($j)->get_docid() != $a[$j]) {
-	    print "Expected MSet[$j] to be $a[$j], got {$mset->get_hit($j)->get_docid()}\n";
+	# PHP4 doesn't cope with: $mset->get_hit($j)->get_docid();
+	$hit = $mset->get_hit($j);
+	if ($hit->get_docid() != $a[$j]) {
+	    print "Expected MSet[$j] to be $a[$j], got ".$hit->get_docid()."\n";
 	    exit(1);
 	}
     }
+}
+
+# Feature tests for Query "term" constructor optional arguments:
+$query_wqf = new XapianQuery('wqf', 3);
+if ($query_wqf->get_description() != 'Xapian::Query(wqf:(wqf=3))') {
+    print "Unexpected \$query_wqf->get_description():\n";
+    print $query_wqf->get_description() . "\n";
+    exit(1);
 }
 
 ?>

@@ -76,7 +76,7 @@ noinst_HEADERS = omega.h query.h cgiparam.h\
  commonhelp.h cdb.h cdb_int.h hashterm.h loadfile.h\
  md5.h md5wrap.h xmlparse.h metaxmlparse.h values.h utf8convert.h\
  namedentities.h datematchdecider.h sample.h strcasecmp.h\
- utf8truncate.h diritor.h runfilter.h
+ utf8truncate.h diritor.h runfilter.h freemem.h
 
 # headers maintained in xapian-core
 noinst_HEADERS +=\
@@ -99,7 +99,7 @@ omega_LDADD = $(XAPIAN_LIBS) # -lpcre
 omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc\
  common/getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc md5.cc\
  md5wrap.cc xmlparse.cc metaxmlparse.cc utf8convert.cc sample.cc diritor.cc\
- runfilter.cc
+ runfilter.cc freemem.cc
 if NEED_MKDTEMP
 omindex_SOURCES += portability/mkdtemp.cc
 endif
@@ -107,7 +107,7 @@ omindex_LDADD = $(XAPIAN_LIBS)
 
 scriptindex_SOURCES = scriptindex.cc myhtmlparse.cc htmlparse.cc\
  common/getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc\
- common/safe.cc utf8convert.cc utf8truncate.cc
+ common/safe.cc common/stringutils.cc utf8convert.cc utf8truncate.cc
 scriptindex_LDADD = $(XAPIAN_LIBS)
 
 htmlparsetest_SOURCES = htmlparsetest.cc myhtmlparse.cc htmlparse.cc\

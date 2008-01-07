@@ -132,7 +132,7 @@ Using Several ValueRangeProcessors
 
 If you want to allow the user to specify different types of ranges, you can
 specify multiple ``ValueRangeProcessor`` objects to use.  Just add them in
-the order you want them to be checked:
+the order you want them to be checked::
 
     Xapian::QueryParser qp;
     AuthorValueRangeProcessor author_proc();

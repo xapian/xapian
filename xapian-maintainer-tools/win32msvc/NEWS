@@ -35,7 +35,7 @@ Xapian-core 0.9.6 (2006-05-15)
  
  * use new Makedepend tool to calculate header dependencies automatically
  
- Xapian-core SVN HEAD:
+ Xapian-core version 1.0.5 (2008-12-2)
  
  * add version information to bindings DLLs
  * add xapian-check compilation

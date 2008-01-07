@@ -174,7 +174,14 @@ products would no longer come up in a search of the products
 site. (Note that the --depth-limit option may come in handy if you have
 sites '/products' and '/products/large', or similar.)
 
-Currently omindex can index:
+omindex has built-in support for indexing HTML, PHP, text files, and AbiWord
+documents.  It can also index a number of other formats using external
+programs.  Filter programs are run with CPU and memory limits to prevent a
+runaway filter from blocking indexing of other files.
+
+The following formats are currently supported (if you know of a reliable
+filter which can extract text from another useful file format, please let us
+know):
 
 * HTML (.html, .htm, .shtml)
 * PHP (.php) - our HTML parser knows to ignore PHP code
@@ -252,6 +259,13 @@ of:
 If you wish to remove a MIME mapping, you can do this by omitting the type -
 for example to not index .doc files, use: --mime-type doc:
 
+The lookup of extensions in the MIME mappings is case sensitive, but if an
+extension isn't found and includes upper case ASCII letters, they're converted
+to lower case and the lookup is repeated, so you effectively get case
+insensitive lookup for mappings specified with a lower-case extension, but
+you can set different handling for differently cased variants if you need
+to.
+
 --duplicates configures how omindex handles duplicates (detected on
 URL). 'ignore' means to ignore a document if it already appears to be
 in the database; 'replace' means to replace the document in the
@@ -305,9 +319,6 @@ D
 	with Dlatest and they'll match as expected.  (If you use sort by date,
 	you'll probably also want to set the value containing the timestamp to
 	a "max" value so dynamic documents match a date in the far future).
-W	
-        "weak" (approximately 10 day intervals, taken as YYYYMMD from
-	the D term, and changing the last digit to a '2' if it's a '3')
 M	
         month (numeric format: YYYYMM)
 Y	

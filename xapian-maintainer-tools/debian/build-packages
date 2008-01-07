@@ -39,7 +39,7 @@ rm -rf Sources.gz *.dsc *.orig.tar.gz *.diff.gz
 
 CODENAME=$1
 ARCH=$2
-VERSION=$2
+VERSION=$3
 shift
 shift
 PACKAGES=${*-"core bindings omega"}

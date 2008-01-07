@@ -20,17 +20,19 @@
  */
 
 #include <config.h>
+
 #include <xapian.h>
 #include <iostream>
 #include <string>
+
+#include "testsuite.h"
+#include "testutils.h"
 #include "utils.h"
 
 using namespace std;
 
 #define TESTCASE(S) {#S, test_##S}
 #define END_OF_TESTCASES {0, 0}
-
-#include "testsuite.h"
 
 struct test {
     // A string of options, separated by commas.
@@ -735,10 +737,26 @@ static bool test_tg_spell1()
 
     return true;
 }
+
+/// Regression test for bug fixed in 1.0.5 - previously this segfaulted.
+static bool test_tg_spell2()
+{
+    Xapian::TermGenerator termgen;
+    Xapian::Document doc;
+
+    termgen.set_document(doc);
+    termgen.set_flags(Xapian::TermGenerator::FLAG_SPELLING);
+
+    TEST_EXCEPTION(Xapian::InvalidOperationError, termgen.index_text("foo"));
+
+    return true;
+}
+
 /// Test cases for the TermGenerator.
 static test_desc tests[] = {
     TESTCASE(termgen1),
     TESTCASE(tg_spell1),
+    TESTCASE(tg_spell2),
     END_OF_TESTCASES
 };
 

@@ -24,12 +24,18 @@ rubylibarch_LTLIBRARIES = _xapian.la
 # install-data, so that's where we need to hook.
 install-data-hook:
 	rm -f $(DESTDIR)$(rubylibarchdir)/_xapian.la
+## We need to rename the file to have the extension Ruby expects on certain
+## platforms (e.g. Mac OS X).
+	$(LIBTOOL) --config > libtoolconfig.tmp
+	. ./libtoolconfig.tmp; module=yes; eval shlibext=$$shrext_cmds; \
+	  test ".$(RUBY_DLEXT)" = "$$shlibext" || mv $(DESTDIR)$(rubylibarchdir)/_xapian$$shlibext $(DESTDIR)$(rubylibarchdir)/_xapian.$(RUBY_DLEXT)
+	rm -f libtoolconfig.tmp
 
 # Because we don't install the .la file, "make uninstall" doesn't work and
-# we need to remove the files ourselves.
+# we need to remove the files ourselves.  Also, the extension may not match
+# what libtool expects.
 uninstall-local:
-	eval `grep '^dlname=' $(rubylibarch_LTLIBRARIES)` ; \
-	  rm -f $(DESTDIR)$(rubylibarchdir)/"$$dlname"
+	rm -f $(DESTDIR)$(rubylibarchdir)/_xapian.$(RUBY_DLEXT)
 
 AM_CPPFLAGS = -I$(RUBY_INC)
 AM_CXXFLAGS = @SWIG_CXXFLAGS@ $(XAPIAN_CXXFLAGS)
@@ -39,24 +45,13 @@ _xapian_la_LIBADD = $(XAPIAN_LIBS)
 
 if MAINTAINER_MODE
 xapian_wrap.cc xapian_wrap.h: xapian_wrap.stamp
-## Recover from the removal of $@.  A full explanation of these rules is in the
-## automake manual under the heading "Multiple Outputs".
-	@if test -f $@; then :; else \
-	  trap 'rm -rf xapian_wrap.lock xapian_wrap.stamp' 1 2 13 15; \
-	  if mkdir xapian_wrap.lock 2>/dev/null; then \
-	    rm -f xapian_wrap.stamp; \
-	    $(MAKE) $(AM_MAKEFLAGS) xapian_wrap.stamp; \
-	    rmdir xapian_wrap.lock; \
-	  else \
-	    while test -d xapian_wrap.lock; do sleep 1; done; \
-	    test -f xapian_wrap.stamp; exit $$?; \
-	  fi; \
-	fi
+	@stamp=xapian_wrap.stamp; $(make_many_locked)
 xapian_wrap.stamp: $(SWIG_sources) util.i
+	$(multitarget_begin)
 	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
 	    -initname _xapian -ruby \
 	    -o xapian_wrap.cc $(SWIG_mainsource)
-	touch $@
+	$(multitarget_end)
 
 CLEANFILES = $(BUILT_SOURCES) xapian_wrap.stamp
 else

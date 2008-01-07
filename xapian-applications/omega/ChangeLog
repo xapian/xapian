@@ -1,3 +1,83 @@
+Fri Dec 21 02:13:49 GMT 2007  Olly Betts <olly@survex.com>
+
+	* NEWS: Bump release date.
+
+Thu Dec 20 21:40:34 GMT 2007  Olly Betts <olly@survex.com>
+
+	* NEWS: Another update for 1.0.5.
+
+Thu Dec 20 20:08:58 GMT 2007  Olly Betts <olly@survex.com>
+
+	* Makefile.am,scriptindex.cc: Fix scriptindex to insert a ':' between
+	  prefix and term using the same criteria which the QueryParser does.
+	* scriptindex.cc,docs/scriptindex.rst: Action BOOLEAN now ignores an
+	  empty input rather than adding the prefix as a term.  Action UNIQUE
+	  now issues an warning for empty input but otherwise ignores it.
+
+Thu Dec 20 17:44:57 GMT 2007  Olly Betts <olly@survex.com>
+
+	* common/: Update to r9894 to pick up stringutils.cc.
+
+Wed Dec 19 03:44:50 GMT 2007  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update for 1.0.5.
+
+Tue Dec 18 00:58:07 GMT 2007  Olly Betts <olly@survex.com>
+
+	* NEWS: Update.
+
+Thu Dec 13 01:38:43 GMT 2007  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Avoid rereading uncompressed AbiWord documents in order
+	  to calculate their MD5 checksums.
+
+Thu Dec 13 01:34:53 GMT 2007  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Improve comment wording.
+
+Thu Dec 13 00:59:35 GMT 2007  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst: Document that omindex limits resources that
+	  filter programs can use.  Also add a note welcoming suggestions
+	  for additional reliable filter programs.
+
+Wed Dec 12 23:49:27 GMT 2007  Olly Betts <olly@survex.com>
+
+	* Makefile.am,freemem.cc,freemem.h,runfilter.cc: Limit filter programs
+	  to 7/8 of free physical memory on platforms where we know how to
+	  determine this (currently at least Linux, FreeBSD, IRIX, HP-UX;
+	  probably Solaris and a few others too).  Fixes bug#111.
+
+Wed Dec 12 18:20:34 GMT 2007  Olly Betts <olly@survex.com>
+
+	* docs/termprefixes.rst: Note the version where we stopped generating
+	  terms with a 'W' prefix (0.9.7).
+
+Wed Dec 12 18:17:28 GMT 2007  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst: omindex hasn't generated "W"-prefix terms since
+	  0.9.7, so remove the documentation saying it does!
+
+Wed Dec 12 18:16:52 GMT 2007  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst: Update to mention how upper case in extensions is
+	  handled.
+
+Wed Dec 12 17:49:12 GMT 2007  Olly Betts <olly@survex.com>
+
+	* omindex.cc: If an extension isn't found in the mime_map and contains
+	  uppercase ASCII characters, see if the lower cased extension is in
+	  the mime_map.
+
+Wed Dec 12 02:09:02 GMT 2007  Olly Betts <olly@survex.com>
+
+	* NEWS: Updated from ChangeLog in preparation for 1.0.5.
+
+Mon Dec 10 23:27:40 GMT 2007  Olly Betts <olly@survex.com>
+
+	* omindex.cc: '-f' is documented by --help as a short option for
+	  '--follow', but wasn't previously actually recognised.
+
 Tue Nov 20 13:08:19 GMT 2007  Olly Betts <olly@survex.com>
 
 	* htmlparse.cc: Add "using namespace std;" to ensure that

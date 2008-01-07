@@ -40,6 +40,7 @@
 #include "database.h"
 #include "editdistance.h"
 #include "ortermlist.h"
+#include "noreturn.h"
 
 #include <stdlib.h> // For abs().
 
@@ -542,10 +543,17 @@ WritableDatabase::~WritableDatabase()
     DEBUGAPICALL(void, "WritableDatabase::~WritableDatabase", "");
 }
 
+XAPIAN_NORETURN(static void only_one_subdatabase_allowed());
+static void only_one_subdatabase_allowed()
+{
+    throw Xapian::InvalidOperationError("WritableDatabase needs exactly one subdatabase");
+}
+
 void
 WritableDatabase::flush()
 {
     DEBUGAPICALL(void, "WritableDatabase::flush", "");
+    if (internal.size() != 1) only_one_subdatabase_allowed();
     internal[0]->flush();
 }
 
@@ -553,6 +561,7 @@ void
 WritableDatabase::begin_transaction(bool flushed)
 {
     DEBUGAPICALL(void, "WritableDatabase::begin_transaction", "");
+    if (internal.size() != 1) only_one_subdatabase_allowed();
     internal[0]->begin_transaction(flushed);
 }
 
@@ -560,6 +569,7 @@ void
 WritableDatabase::commit_transaction()
 {
     DEBUGAPICALL(void, "WritableDatabase::commit_transaction", "");
+    if (internal.size() != 1) only_one_subdatabase_allowed();
     internal[0]->commit_transaction();
 }
 
@@ -567,6 +577,7 @@ void
 WritableDatabase::cancel_transaction()
 {
     DEBUGAPICALL(void, "WritableDatabase::cancel_transaction", "");
+    if (internal.size() != 1) only_one_subdatabase_allowed();
     internal[0]->cancel_transaction();
 }
 
@@ -575,6 +586,7 @@ Xapian::docid
 WritableDatabase::add_document(const Document & document)
 {
     DEBUGAPICALL(Xapian::docid, "WritableDatabase::add_document", document);
+    if (internal.size() != 1) only_one_subdatabase_allowed();
     RETURN(internal[0]->add_document(document));
 }
 
@@ -582,6 +594,7 @@ void
 WritableDatabase::delete_document(Xapian::docid did)
 {
     DEBUGAPICALL(void, "WritableDatabase::delete_document", did);
+    if (internal.size() != 1) only_one_subdatabase_allowed();
     if (did == 0) throw InvalidArgumentError("Document ID 0 is invalid");
     internal[0]->delete_document(did);
 }
@@ -590,6 +603,7 @@ void
 WritableDatabase::delete_document(const std::string & unique_term)
 {
     DEBUGAPICALL(void, "WritableDatabase::delete_document", unique_term);
+    if (internal.size() != 1) only_one_subdatabase_allowed();
     if (unique_term.empty())
 	throw InvalidArgumentError("Empty termnames are invalid");
     internal[0]->delete_document(unique_term);
@@ -600,6 +614,7 @@ WritableDatabase::replace_document(Xapian::docid did, const Document & document)
 {
     DEBUGAPICALL(void, "WritableDatabase::replace_document",
 		 did << ", " << document);
+    if (internal.size() != 1) only_one_subdatabase_allowed();
     if (did == 0) throw Xapian::InvalidArgumentError("Document ID 0 is invalid");
     internal[0]->replace_document(did, document);
 }
@@ -610,6 +625,7 @@ WritableDatabase::replace_document(const std::string & unique_term,
 {
     DEBUGAPICALL(Xapian::docid, "WritableDatabase::replace_document",
 		 unique_term << ", " << document);
+    if (internal.size() != 1) only_one_subdatabase_allowed();
     if (unique_term.empty())
 	throw InvalidArgumentError("Empty termnames are invalid");
     RETURN(internal[0]->replace_document(unique_term, document));
@@ -621,6 +637,7 @@ WritableDatabase::add_spelling(const std::string & word,
 {
     DEBUGAPICALL(void, "WritableDatabase::add_spelling",
 		 word << ", " << freqinc);
+    if (internal.size() != 1) only_one_subdatabase_allowed();
     internal[0]->add_spelling(word, freqinc);
 }
 
@@ -630,6 +647,7 @@ WritableDatabase::remove_spelling(const std::string & word,
 {
     DEBUGAPICALL(void, "WritableDatabase::remove_spelling",
 		 word << ", " << freqdec);
+    if (internal.size() != 1) only_one_subdatabase_allowed();
     internal[0]->remove_spelling(word, freqdec);
 }
 
@@ -639,6 +657,7 @@ WritableDatabase::add_synonym(const std::string & term,
 {
     DEBUGAPICALL(void, "WritableDatabase::add_synonym",
 		 term << ", " << synonym);
+    if (internal.size() != 1) only_one_subdatabase_allowed();
     internal[0]->add_synonym(term, synonym);
 }
 
@@ -648,6 +667,7 @@ WritableDatabase::remove_synonym(const std::string & term,
 {
     DEBUGAPICALL(void, "WritableDatabase::remove_synonym",
 		 term << ", " << synonym);
+    if (internal.size() != 1) only_one_subdatabase_allowed();
     internal[0]->remove_synonym(term, synonym);
 }
 
@@ -655,6 +675,7 @@ void
 WritableDatabase::clear_synonyms(const std::string & term) const
 {
     DEBUGAPICALL(void, "WritableDatabase::clear_synonyms", term);
+    if (internal.size() != 1) only_one_subdatabase_allowed();
     internal[0]->clear_synonyms(term);
 }
 
@@ -662,6 +683,7 @@ void
 WritableDatabase::set_metadata(const string & key, const string & value)
 {
     DEBUGAPICALL(void, "WritableDatabase::set_metadata", key << ", " << value);
+    if (internal.size() != 1) only_one_subdatabase_allowed();
     if (key.empty())
 	throw InvalidArgumentError("Empty metadata keys are invalid");
     internal[0]->set_metadata(key, value);

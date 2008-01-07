@@ -353,8 +353,10 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	// FIXME: Implement support for metadata.
 	try {
 	    XmlParser xmlparser;
-	    xmlparser.parse_html(file_to_string(file));
+	    string text = file_to_string(file);
+	    xmlparser.parse_html(text);
 	    dump = xmlparser.dump;
+	    md5_string(text, md5);
 	} catch (ReadError) {
 	    cout << "can't read \"" << file << "\" - skipping\n";
 	    return;
@@ -372,7 +374,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	}
     } else if (mimetype == "text/rtf") {
 	// The --text option unhelpfully converts all non-ASCII characters to
-	// "?" so we use --html instead, which write HTML entities.
+	// "?" so we use --html instead, which produces HTML entities.
 	string cmd = "unrtf --nopict --html 2>/dev/null " + shell_protect(file);
 	MyHtmlParser p;
 	try {
@@ -562,6 +564,19 @@ index_directory(size_t depth_limit, const string &dir,
 		if (dot != string::npos) ext = url.substr(dot + 1);
 
 		map<string,string>::iterator mt = mime_map.find(ext);
+		if (mt == mime_map.end()) {
+		    // If the extension isn't found, see if the lower-cased
+		    // version (if different) is found.
+		    bool changed = false;
+		    string::iterator i;
+		    for (i = ext.begin(); i != ext.end(); ++i) {
+			if (*i >= 'A' && *i <= 'Z') {
+			    *i = tolower(*i);
+			    changed = true;
+			}
+		    }
+		    if (changed) mt = mime_map.find(ext);
+		}
 		if (mt != mime_map.end()) {
 		    // Only check the file size if we recognise the extension
 		    // to avoid a call to stat()/lstat() for files we can't
@@ -691,7 +706,7 @@ main(int argc, char **argv)
     // Other formats:
     mime_map["dvi"] = "application/x-dvi";
 
-    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:lp", longopts, NULL))!=EOF) {
+    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:lpf", longopts, NULL)) != -1) {
 	switch (getopt_ret) {
 	case 'h': {
 	    cout << PROG_NAME" - "PROG_DESC"\n\n"
