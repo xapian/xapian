@@ -1,3 +1,7 @@
+Mon Jan 07 00:23:10 GMT 2008  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Add Solaris 9 and 10 success reports from James Aylett.
+
 Sat Jan 05 19:13:12 GMT 2008  Olly Betts <olly@survex.com>
 
 	* languages/compiler/generator.c: In generate_call(), if the failure
