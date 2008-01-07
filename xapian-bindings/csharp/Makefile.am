@@ -90,27 +90,16 @@ CLEANFILES = XapianSharp.snk AssemblyInfo.cs $(ASSEMBLY).dll SmokeTest.exe
 
 if MAINTAINER_MODE
 xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_CS_SRCS): xapian_wrap.stamp
-## Recover from the removal of $@.  A full explanation of these rules is in the
-## automake manual under the heading "Multiple Outputs".
-	@if test -f $@; then :; else \
-	  trap 'rm -rf xapian_wrap.lock xapian_wrap.stamp' 1 2 13 15; \
-	  if mkdir xapian_wrap.lock 2>/dev/null; then \
-	    rm -f xapian_wrap.stamp; \
-	    $(MAKE) $(AM_MAKEFLAGS) xapian_wrap.stamp; \
-	    rmdir xapian_wrap.lock; \
-	  else \
-	    while test -d xapian_wrap.lock; do sleep 1; done; \
-	    test -f xapian_wrap.stamp; exit $$?; \
-	  fi; \
-	fi
+	@stamp=xapian_wrap.stamp; $(make_many_locked)
 xapian_wrap.stamp: $(SWIG_sources) util.i
+	$(multitarget_begin)
 	: # Make sure that we don't package stale generated sources in the
 	: # case where SWIG changes its mind as to which files it generates.
 	-rm -f $(XAPIAN_SWIG_CS_SRCS)
 	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
 	    -csharp -namespace Xapian -module Xapian -dllimport XapianSharp \
 	    -o xapian_wrap.cc $(SWIG_mainsource)
-	touch $@
+	$(multitarget_end)
 
 CLEANFILES += $(BUILT_SOURCES) xapian_wrap.stamp
 else

@@ -191,3 +191,13 @@ MultiAndPostList::get_description() const
     desc += ')';
     return desc;
 }
+
+Xapian::termcount
+MultiAndPostList::get_wdf() const
+{
+    Xapian::termcount totwdf = 0;
+    for (size_t i = 0; i < n_kids; ++i) {
+	totwdf += plist[i]->get_wdf();
+    }
+    return totwdf;
+}

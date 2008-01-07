@@ -71,16 +71,13 @@ DOWNLOAD_BASE="http://www.oligarchy.co.uk/xapian/"
 adjust_changelog() {
   if [ -n "$CHANGE_MSG" ] ; then
     package_ver=`head -n 1 debian/changelog | sed "s/^.*([^-]*-\(.*\)).*$/\1/"`	
-    # The source packages for the distributions other than unstable are done
-    # as "backports" - if unstable's version is 1.0.3-1, then stable's
-    # version is 1.0.3-0stable1 and oldstable's is 1.0.3-0oldstable1 (note that
+    # The source packages for older Debian distributions are done as
+    # "backports" - if unstable's version is 1.0.3-1, then stable's version is
+    # 1.0.3-1~bpo40+1 and oldstable's is 1.0.3-1~bpo31+1 (note that
     # oldstable's version < stable's version < unstable's version so that
     # upgrading to a newer distribution works).  The corresponding versions for
-    # Ubuntu distributions are 1.0.3-1.99dapper, 1.0.3-1.9.9edgy,
-    # 1.0.3-1.9.9feisty, 1.0.3-1.9.9gutsy, etc which have the correct ordering.
-    if [ stable = "$SUITE" -o oldstable = "$SUITE" ] ; then
-      package_ver=`expr $package_ver - 1||true`
-    fi
+    # Ubuntu distributions are 1.0.3-1.99dapper, 1.0.3-1.99edgy,
+    # 1.0.3-1.99feisty, 1.0.3-1.99gutsy, etc which have the correct ordering.
     head -n 1 debian/changelog | sed 's/(\([^-]*\)-.*).*$/(\1'"$EXTRA_VERSION_UPSTREAM-$package_ver$EXTRA_VERSION_DEBIAN) $SUITE; urgency=low/" > debian/changelog.new
     echo "$CHANGE_MSG" >> debian/changelog.new
     cat debian/changelog >> debian/changelog.new
@@ -150,23 +147,26 @@ DEBTAG_OMEGA="$DEBTAG_BASE`svn cat ${SVNROOT}/trunk/xapian-applications/omega/de
 # to add a bit to the debian version number, to avoid conflicts with the
 # package in unstable.  For Ubuntu we add ".99$SUITE" since it should sort
 # before any other modification (and Ubuntu codenames are now allocated
-# alphabetically).  For stable and oldstable, we decrement the change number
-# and append stable1 or oldstable1 (and oldstable sorts before stable).
+# alphabetically).  For stable and oldstable, we use backports.org compatible
+# versions - we append "~bpo40+1" or "~bpo31+1" respectively.
 case $SUITE in
 unstable)
   EXTRA_VERSION_DEBIAN=
   ;;
-oldstable|stable)
-  EXTRA_VERSION_DEBIAN="${SUITE}1"
-  CHANGE_MSG="$CHANGE_MSG  * Backported to $SUITE distribution.
-"
+stable)
+  EXTRA_VERSION_DEBIAN='~bpo40+1'
+  ;;
+oldstable)
+  EXTRA_VERSION_DEBIAN='~bpo31+1'
   ;;
 *)
   EXTRA_VERSION_DEBIAN=".99$SUITE"
-  CHANGE_MSG="$CHANGE_MSG  * Backported to $SUITE distribution.
-"
   ;;
 esac
+if [ unstable != "$SUITE" ] ; then
+  CHANGE_MSG="$CHANGE_MSG  * Rebuild for $SUITE backports.
+"
+fi
 
 # $SNAP_VERSION will be set to "$VERSION$EXTRA_VERSION_UPSTREAM"
 # (and will therefore be identical to $VERSION when building a release).

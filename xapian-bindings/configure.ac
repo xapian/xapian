@@ -6,7 +6,7 @@ dnl 2.57 fixes the annoying warnings from configure on FreeBSD
 dnl 2.58 is needed by automake 1.8.5
 dnl 2.59 was released the same day as 2.58 to fix a problem
 AC_PREREQ(2.59)
-AC_INIT(xapian-bindings, 1.0.4)dnl FIXME: bugreport addr as third argument
+AC_INIT(xapian-bindings, 1.0.5)dnl FIXME: bugreport addr as third argument
 dnl 1.9 reduces Makefile.in size, and 1.9.5 was in Debian sarge
 dnl But the RPM spec file runs autoreconf, and SLES 9 has 1.8.3.
 AM_INIT_AUTOMAKE([1.8.3 -Wportability tar-ustar])
@@ -394,7 +394,7 @@ if test no != "$with_tcl" ; then
 
       AC_ARG_VAR(TCL_LIB, [Directory to install Tcl files into])
       if test -z "$TCL_LIB" ; then    
-	TCL_LIB=`echo 'puts $tcl_library'|$TCLSH`
+	TCL_LIB=`echo 'foreach d $tcl_pkgPath {if {![regexp {/share(/|$)} $d]} {break}};puts $d'|$TCLSH`
       fi
       AC_SUBST(TCL_LIB)
 
@@ -730,6 +730,19 @@ if test no != "$with_ruby" ; then
 	  RUBY_LIB_ARCH=`$RUBY -rrbconfig -e 'puts Config::CONFIG[["sitearchdir"]]'`
 	fi
 	AC_SUBST(RUBY_LIB_ARCH)
+	if test yes = "$enable_documentation" ; then
+	  if test -n "$RDOC" ; then
+	    AC_PATH_PROGS(RDOC, ["$RDOC"], [])
+	  else
+	    dnl Try replace the *last* 'ruby' with 'rdoc'.
+	    rdoc_best_guess=`echo "$RUBY"|sed 's,\(.*\)ruby,\1rdoc,'`
+	    AC_PATH_PROGS(RDOC, ["$rdoc_best_guess"], [])
+	    if test -z "$RDOC"; then
+	      AC_PATH_PROGS(RDOC, [rdoc1.8 rdoc], [])
+	      test -n "$RDOC" || RDOC="$MISSING rdoc"
+	    fi
+	  fi
+	fi
 	BINDINGS="$BINDINGS ruby"
       else
 	AC_MSG_RESULT([no (install ruby-dev or ruby-devel package or similar)])
@@ -737,6 +750,8 @@ if test no != "$with_ruby" ; then
 	  AC_MSG_ERROR([ruby.h not found])
 	fi
       fi
+      RUBY_DLEXT=`$RUBY -rrbconfig -e 'puts Config::CONFIG[["DLEXT"]]'`
+      AC_SUBST(RUBY_DLEXT)
     fi
   fi
 fi
@@ -844,9 +859,14 @@ AC_OUTPUT
 
 echo ""
 if test -z "$BINDINGS" ; then
-  echo "*** Not found the tools to build any bindings!"
-  echo "*** To point configure at tools not on PATH, see: ./configure --help"
-  echo "*** You may need to install -dev or -devel packages to build bindings"
+  echo "*** Not found the required tools for building bindings for any"
+  echo "*** supported language!"
+  echo "***"
+  echo "*** You may need to install -dev or -devel packages for the languages"
+  echo "*** you want to build bindings for."
+  echo "***"
+  echo "*** For details of how to point configure at tools not on PATH, see:"
+  echo "***     ./configure --help"
 else
   echo "*** Building bindings for languages:" $BINDINGS
 fi

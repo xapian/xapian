@@ -1,9 +1,16 @@
+xapian-core (1.0.5-1) unstable; urgency=low
+
   * New upstream release.
+    + Fixes compilation with latest GCC 4.3 snapshot.  Closes: #455151
     + No longer installs ".map" files with documentation, which fixes lintian
-      warning about an empty one.
+      warning about an empty file in the documentation.
   * debian/rules: Look for "CODENAME" and "debian/codename" rather than
     "COMPONENT" and "debian/component".
   * debian/control.in: Standards-Version: 3.7.3 (no changes required).
+  * debian/control.in: The "Homepage:" header is now official, so convert
+    "Homepage:" pseudo-headers.
+
+ -- Olly Betts <olly@survex.com>  Sat, 22 Dec 2007 21:37:09 +0000
 
 xapian-core (1.0.4-1) unstable; urgency=low
 

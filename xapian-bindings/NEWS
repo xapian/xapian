@@ -22,6 +22,79 @@ Python:
 -----
 
 
+Xapian-bindings 1.0.5 (2007-12-21):
+
+General:
+
+* Wrap Xapian::Sorter and subclasses.
+
+* Wrap Enquire::set_sort_by_key(), Enquire::set_sort_by_key_then_relevance(),
+  and Enquire::set_sort_by_relevance_then_key().
+
+* Factor out the code to protect multitarget rules against parallel make, and
+  fix it to handle the source being changed while the rule is executing, and to
+  correctly return an error code if we fail while trying to recover from the
+  removal of a target of a multi-target rule.
+
+* configure: Improve the clarity of the error given when none of the tools
+  needed for any supported language are found.
+
+* configure: SWIG 1.3.32 has now been released, so require at least this
+  released version for maintainer builds.
+
+Java:
+
+* Add explicit '#include <cstring>' to fix build with the latest snapshots of
+  GCC 4.3.
+
+* configure: Log the output of trying to compile conftest.java in config.log;
+  if the test fails, report whether the failure was compiling or running the
+  test program.
+
+* Check for directory existence rather than calling mkdir unconditionally as
+  despite the "(ignored)", the error message seems to confuse some people.
+
+PHP:
+
+* Add feature test for XapianMultiValueSorter.
+
+* php/smoketest5.php: Fix use of Database_get_document to new style OO
+  interface.  Fix the error reported when the PHP5 exception test fails.
+
+* php/smoketest.php: Add feature test to confirm that optional arguments to
+  XapianQuery's "term" constructor are wrapped.
+
+Python:
+
+* Don't drop the GIL when calling Xapian.MSet.items and Xapian.ESet.items -
+  these properties build a python list, so dropping the GIL isn't safe and
+  may cause undefined behaviour in multithreaded environments.
+
+* configure: Update error message to reflect requirement for at least python
+  2.2.
+
+* configure: Change "print foo" to "print(foo)" in python version checks, for
+  compatibility with python 3.0.
+
+Ruby:
+
+* The Ruby bindings now work on Mac OS X (the Ruby module's extension was
+  previously incorrect).
+
+* Run "rdoc" to generate HTML for the Ruby-specific API documentation which
+  ruby/docs/index.html previously had a dead link to.
+
+Tcl:
+
+* configure: Overhaul code to find tcl.h since the old version no longer worked
+  with Debian unstable.
+
+* tcl8/docs/index.html: Update documentation to cover flint and mention that
+  quartz is now deprecated.
+
+* Remove code to handle `const char *' exceptions - as of 1.0.0 the QueryParser
+  throws QueryParserError instead.
+
 Xapian-bindings 1.0.4 (2007-10-30):
 
 General:

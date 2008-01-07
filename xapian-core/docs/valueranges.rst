@@ -82,10 +82,14 @@ NumberValueRangeProcessor
 
 This class allows you to implement numeric range searches.  The numbers used
 may be any number which is representable as a double, but requires that the
-stored values which the range is being applied to are numbers which have been
-converted to strings using the ``Xapian::sortable_serialise()`` method.  This
-method produces strings which will sort in numeric order, so you can use it if
-you want to be able to sort based on the value in numeric order, too.
+stored values which the range is being applied have been converted to strings
+at index time using the ``Xapian::sortable_serialise()`` method::
+
+    Xapian::Document doc;
+    doc.add_value(0, Xapian::sortable_serialise(price));
+
+This method produces strings which will sort in numeric order, so you can use
+it if you want to be able to sort based on the value in numeric order, too.
 
 The class allows a prefix or suffix to be specified which must be present on
 the values, allowing multiple NumberValueRangeProcessors to be active in the
@@ -128,7 +132,7 @@ Using Several ValueRangeProcessors
 
 If you want to allow the user to specify different types of ranges, you can
 specify multiple ``ValueRangeProcessor`` objects to use.  Just add them in
-the order you want them to be checked:
+the order you want them to be checked::
 
     Xapian::QueryParser qp;
     AuthorValueRangeProcessor author_proc();

@@ -25,7 +25,7 @@
 #include "queryparser_internal.h"
 #include <xapian/error.h>
 #include <xapian/unicode.h>
-#include "utils.h"
+#include "stringutils.h"
 
 // Include the list of token values lemon generates.
 #include "queryparser_token.h"
