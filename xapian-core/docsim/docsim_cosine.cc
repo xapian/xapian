@@ -39,7 +39,7 @@ Xapian::DocSimCosine::similarity(TermIterator a_begin,
 				 TermIterator b_begin,
 				 const TermIterator & b_end) const
 {
-    DEBUGAPICALL(void, "DocSimCosine::~calculate_similarity",
+    DEBUGAPICALL(double, "DocSimCosine::~calculate_similarity",
 		 a_begin << ", " << a_end << ", " <<
 		 b_begin << ", " << b_end);
     DummyTermFreqSource dummytfs;
