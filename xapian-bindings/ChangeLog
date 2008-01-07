@@ -1,3 +1,8 @@
+Mon Jan 07 18:54:48 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/pythontest.py: Update python test with new function
+	  signatures.
+
 Mon Dec 17 08:55:58 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* xapian.i: Change ignores to match new signatures of add_document

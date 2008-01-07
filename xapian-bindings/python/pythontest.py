@@ -960,7 +960,7 @@ def test_docsim():
 
         decider = testexpanddecider()
         tlg = xapian.TermListGroup()
-        tlg.add_documents(xapian.MSetDocumentSource(mset), decider)
+        tlg.add_documents(db, xapian.MSetDocumentSource(mset), decider)
         docsim.set_termfreqsource(tlg)
 
         docs = [item.document for item in mset]
@@ -980,7 +980,7 @@ def test_docsim():
         clusterer = xapian.ClusterSingleLink()
         clusters = xapian.ClusterAssignments()
         docsim = xapian.DocSimCosine()
-        clusterer.cluster(clusters, docsim, xapian.MSetDocumentSource(mset),
+        clusterer.cluster(db, clusters, docsim, xapian.MSetDocumentSource(mset),
                           decider, 2)
 
 # The legacy sequence API is only supported for Python >= 2.3 so don't try
