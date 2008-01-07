@@ -105,7 +105,7 @@ Xapian::DocSimCosine::similarity(TermIterator a_begin,
 	if (wt_iter2 == wt_b.end())
 	    continue;
 	while (wt_iter2->first < wt_iter->first) {
-	    wt_sq_sum_b += wt_iter->second * wt_iter->second;
+	    wt_sq_sum_b += wt_iter2->second * wt_iter2->second;
 	    ++wt_iter2;
 	    if (wt_iter2 == wt_b.end())
 		break;
@@ -114,6 +114,9 @@ Xapian::DocSimCosine::similarity(TermIterator a_begin,
 	{
 	    inner_product += wt_iter->second * wt_iter2->second;
 	}
+    }
+    for (; wt_iter2 != wt_b.end(); ++wt_iter2) {
+	wt_sq_sum_b += wt_iter2->second * wt_iter2->second;
     }
 
     RETURN(inner_product / (sqrt(wt_sq_sum_a) * sqrt(wt_sq_sum_b)));

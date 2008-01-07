@@ -1,3 +1,8 @@
+Mon Jan 07 18:53:12 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* docsim/docsim_cosine.cc: Ensure that all entries in wt_iter2 are
+	  counted correctly.
+
 Mon Jan 07 13:29:59 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/api_docsim.cc: Update for new doc_sim API.
