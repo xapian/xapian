@@ -18,6 +18,7 @@ OBJS= \
 	$(INTDIR)\omdebug.obj \
 	$(INTDIR)\serialise-double.obj \
 	$(INTDIR)\msvc_posix_wrapper.obj \
+	$(INTDIR)\stringutils.obj \
 	$(INTDIR)\safe.obj
 	
 SRCS= \
@@ -26,6 +27,7 @@ SRCS= \
 	$(INTDIR)\omdebug.cc \
 	$(INTDIR)\serialise-double.cc \
 	$(INTDIR)\msvc_posix_wrapper.cc \
+	$(INTDIR)\stringutils.cc \
 	$(INTDIR)\safe.cc
 
 CPP_PROJ=$(CPPFLAGS_EXTRA) -Fo"$(INTDIR)\\" -Tp$(INPUTNAME)
