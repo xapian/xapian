@@ -79,8 +79,8 @@ check_SCRIPTS = runtest
 
 noinst_HEADERS = apitest.h
 
-collated_apitest_sources = api_anydb.cc api_db.cc api_nodb.cc api_posdb.cc \
- api_sorting.cc api_transdb.cc api_unicode.cc api_wrdb.cc
+collated_apitest_sources = api_anydb.cc api_db.cc api_generated.cc api_nodb.cc \
+ api_posdb.cc api_sorting.cc api_transdb.cc api_unicode.cc api_wrdb.cc
 
 apitest_SOURCES = apitest.cc $(collated_apitest_sources) \
  api_all.h api_collated.h $(testharness_sources)
@@ -115,8 +115,10 @@ termgentest_LDADD = ../libgetopt.la ../libxapian.la
 BUILT_SOURCES =
 
 if MAINTAINER_MODE
-BUILT_SOURCES += api_all.h api_collated.h $(collated_apitest_sources:.cc=.h)
-CLEANFILES = api_all.h api_collated.h $(collated_apitest_sources:.cc=.h)
+BUILT_SOURCES += api_all.h api_collated.h $(collated_apitest_sources:.cc=.h) \
+ api_generated.cc
+CLEANFILES = api_all.h api_collated.h $(collated_apitest_sources:.cc=.h) \
+ api_generated.cc
 
 api_all.h api_collated.h $(collated_apitest_sources:.cc=.h): api_collated.stamp
 ## Recover from the removal of $@.  A full explanation of these rules is in the
@@ -136,9 +138,14 @@ api_collated.stamp: $(collated_apitest_sources) collate-apitest
 	$(PERL) "$(srcdir)/collate-apitest" "$(srcdir)" $(collated_apitest_sources) > api_collated.hT
 	mv api_collated.hT api_collated.h
 	touch $@
+
+api_generated.cc: generate-api_generated
+	$(PERL) "$(srcdir)/generate-api_generated" > api_generated.ccT
+	mv api_generated.ccT api_generated.cc
 endif
 
-EXTRA_DIST = collate-apitest api_all.h api_collated.h $(collated_apitest_sources:.cc=.h)
+EXTRA_DIST = collate-apitest generate-api_generated api_all.h api_collated.h \
+	$(collated_apitest_sources:.cc=.h) dir_contents
 
 ## Distribute test data:
 EXTRA_DIST +=\

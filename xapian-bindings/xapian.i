@@ -461,6 +461,8 @@ class Enquire {
     void set_sort_by_key(Xapian::Sorter * sorter, bool ascending = true);
     void set_sort_by_key_then_relevance(Xapian::Sorter * sorter,
                                         bool ascending = true);
+    void set_sort_by_relevance_then_key(Xapian::Sorter * sorter,
+                                        bool ascending = true);
 
     static const int INCLUDE_QUERY_TERMS = 1;
     static const int USE_EXACT_TERMFREQ = 2;
@@ -849,7 +851,6 @@ class Query {
 	    OP_SCALE_WEIGHT,
 	    OP_ELITE_SET = 10
 	};
-	// FIXME wrap optional arguments in PHP?
 	Query(const string &tname, termcount wqf = 1, termpos term_pos = 0);
 	Query(Query::op op_, const Query & left, const Query & right);
 	Query(Query::op op_, const string & left, const string & right);

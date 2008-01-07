@@ -26,7 +26,7 @@
 #include <xapian/queryparser.h>
 #include <xapian/unicode.h>
 
-#include "utils.h"
+#include "stringutils.h"
 
 #include <algorithm>
 #include <string>

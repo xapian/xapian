@@ -26,17 +26,7 @@
 #if defined __CYGWIN__ || defined __WIN32__
 #include "safewindows.h"
 #else
-#include "safefcntl.h"
-#include <unistd.h>
-#include <stdlib.h>
-#ifdef _NEWLIB_VERSION
-// Workaround bug in newlib (at least some versions) - socklen_t doesn't
-// get defined if you just "#include <sys/socket.h>".
-#include <netinet/in.h>
-#endif
-#include <sys/socket.h>
 #include <sys/types.h>
-#include <sys/wait.h>
 #endif
 
 class FlintLock {

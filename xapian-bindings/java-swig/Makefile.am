@@ -107,20 +107,9 @@ EXTRA_DIST = run-java-test SmokeTest.java $(BUILT_SOURCES)
 
 if MAINTAINER_MODE
 xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_JAVA_SRCS): xapian_wrap.stamp
-## Recover from the removal of $@.  A full explanation of these rules is in the
-## automake manual under the heading "Multiple Outputs".
-	@if test -f $@; then :; else \
-	  trap 'rm -rf xapian_wrap.lock xapian_wrap.stamp' 1 2 13 15; \
-	  if mkdir xapian_wrap.lock 2>/dev/null; then \
-	    rm -f xapian_wrap.stamp; \
-	    $(MAKE) $(AM_MAKEFLAGS) xapian_wrap.stamp; \
-	    rmdir xapian_wrap.lock; \
-	  else \
-	    while test -d xapian_wrap.lock; do sleep 1; done; \
-	    test -f xapian_wrap.stamp; exit $$?; \
-	  fi; \
-	fi
+	@stamp=xapian_wrap.stamp; $(make_many_locked)						       
 xapian_wrap.stamp: $(SWIG_sources) util.i
+	$(multitarget_begin)
 	: # Make sure that we don't package stale generated sources in the
 	: # case where SWIG changes its mind as to which files it generates.
 	-rm -f $(XAPIAN_SWIG_JAVA_SRCS)
@@ -132,7 +121,7 @@ xapian_wrap.stamp: $(SWIG_sources) util.i
 	$(PERL) -pi -e 'print "    System.loadLibrary(\"xapian_jni\");\n" if /^\s*swig_module_init/' XapianJNI.java
 	: # Check that all the sources we expected were generated.
 	ls $(XAPIAN_SWIG_JAVA_SRCS) > /dev/null
-	touch $@
+	$(multitarget_end)
 
 CLEANFILES += $(BUILT_SOURCES)
 else

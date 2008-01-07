@@ -41,6 +41,7 @@
 #endif
 #include "safeunistd.h"
 
+#include "freemem.h"
 #include "runfilter.h"
 
 #ifdef __WIN32__
@@ -87,6 +88,14 @@ stdout_to_string(const string &cmd)
 	// Limit CPU time to 300 seconds (5 minutes).
 	struct rlimit cpu_limit = { 300, RLIM_INFINITY } ;
 	setrlimit(RLIMIT_CPU, &cpu_limit);
+
+	// Limit process data to 7/8 of free physical memory.
+	long mem = get_free_physical_memory();
+	if (mem > 0) {
+	    mem = (mem / 8) * 7;
+	    struct rlimit ram_limit = { mem, RLIM_INFINITY } ;
+	    setrlimit(RLIMIT_AS, &ram_limit);
+	}
 
 	execl("/bin/sh", "/bin/sh", "-c", cmd.c_str(), (void*)NULL);
 	_exit(-1);

@@ -36,7 +36,7 @@ See the `BM25 documentation <bm25.html>`_ for more details of BM25.
 The other included weighting schemes are ``TradWeight`` and ``BoolWeight``.
 
 TradWeight implements the original probabilistic weighting formula, which is
-actually a special case of BM25 (it's BM25 with k2 = 0, k3 = 0, b = 1, and
+essentially a special case of BM25 (it's BM25 with k2 = 0, k3 = 0, b = 1, and
 min_normlen = 0, except that the weights are scaled by a constant factor).
 
 BoolWeight assigns a weight of 0 to all documents, so the ordering is
@@ -94,8 +94,12 @@ Sorting by Value
 You can order documents by comparing a specified document value.  Note that the
 comparison used compares the byte values in the value (i.e. it's a string sort
 ignoring locale), so ``1`` < ``10`` < ``2``.  If you want to encode the value
-such that it sorts numerically, use ``Xapian::sortable_serialise()``, which
-works equally will on integers and floating point values.
+such that it sorts numerically, use ``Xapian::sortable_serialise()`` to encode
+values at index time - this works equally will on integers and floating point
+values::
+
+    Xapian::Document doc;
+    doc.add_value(0, Xapian::sortable_serialise(price));
 
 There are three methods which are used to specify how the value is used to
 sort, depending if/how you want relevance used in the ordering:
@@ -114,6 +118,19 @@ sort, depending if/how you want relevance used in the ordering:
 Sorting by Generated Key
 ------------------------
 
-.. discuss
+To allow more elaborate sorting schemes, Xapian allows you to provide a functor
+object subclassed from ``Xapian::Sorter`` which generates a sort key for each
+matching document which is under consideration.  This is called at most once
+for each document, and then the generated sort keys are ordered by comparing
+byte values (i.e. with a string sort ignoring locale).
 
-.. e.g. sort by geographical distance from coordinates
+There's a standard subclass ``Xapian::MultiValueSorter`` which allows sorting
+on more than one document value (so the first document value specified
+determines the order except among groups which have the same value, when
+the second document value specified is used, and so on).
+
+``Xapian::Sorter`` can also be subclassed to offer features such as "sort by
+geographical distance".  A subclass could take a coordinate pair - e.g.
+(latitude, longitude) - for the user's location and sort results using
+coordinates stored in a document value so that the nearest results ranked
+highest.

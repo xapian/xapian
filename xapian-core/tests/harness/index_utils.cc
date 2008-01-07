@@ -22,7 +22,6 @@
 #include "index_utils.h"
 
 #include "stringutils.h"
-#include "utils.h"
 
 #include <algorithm>
 #include <cstring>

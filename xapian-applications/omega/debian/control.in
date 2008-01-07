@@ -4,12 +4,13 @@ Priority: optional
 Maintainer: Olly Betts <olly@survex.com>
 Build-Depends: @BUILD_DEPS@ autotools-dev
 Standards-Version: 3.7.3
+Homepage: http://www.xapian.org/
 
 Package: xapian-omega
 Section: web
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Suggests: unzip, antiword, libwpd-tools, unrtf, xpdf-utils, gs-common, perl, catdoc, libwps-tools, catdvi
+Suggests: unzip, antiword, libwpd-tools, unrtf, xpdf-utils, gs-common, catdoc, libwps-tools, catdvi
 Recommends: apache2|httpd-cgi
 Description: CGI search interface and indexers using Xapian
  This package contains the "omega" CGI application which provides a
@@ -25,5 +26,3 @@ Description: CGI search interface and indexers using Xapian
  .
  The package also contains some example scripts for converting data from
  different sources into a form suitable for processing with "scriptindex".
- .
-  Homepage: http://www.xapian.org/

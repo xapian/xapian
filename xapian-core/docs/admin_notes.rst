@@ -23,7 +23,7 @@ general management of a Xapian database, including tasks such as taking
 backups and optimising performance.  It may also be useful introductory
 reading for Xapian application developers.
 
-The document is up-to-date for Xapian version 1.0.4.
+The document is up-to-date for Xapian version 1.0.5.
 
 Databases
 =========
@@ -69,9 +69,9 @@ there may be more than one valid revision of the database stored in the ".DB"
 file at once.
 
 The ".DB" file is structured as a set of blocks, which have a default size of
-8Kb (though this can be set, either through the Xapian API, or with some of
+8KB (though this can be set, either through the Xapian API, or with some of
 the tools detailed later in this document).  The first block is used for
-header information, so a ".DB" file with only a single entry will be 16Kb in
+header information, so a ".DB" file with only a single entry will be 16KB in
 size.
 
 Changing the blocksize may have performance implications, but it is hard to
@@ -345,11 +345,9 @@ Xapian includes a command-line tool to check that a flint database is
 self-consistent.  This tool, "xapian-check", runs through the entire database,
 checking that all the internal nodes are correctly connected.  It can also be
 used on a single table in a flint database, by specifying the prefix of the
-table: for example, for a database "foo", the command::
+table: for example, this command will check the termlist table of database "foo"::
 
   xapian-check foo/termlist
-
-will check the termlist table.
 
 
 Converting a quartz database to a flint database

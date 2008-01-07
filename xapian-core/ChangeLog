@@ -26,6 +26,176 @@ Tue Nov 27 08:40:51 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 	* tests/api_db.cc: Add basic test of synonyms (currently doesn't
 	  pass due to testcase shortcomings).
 
+Mon Jan 07 01:28:14 GMT 2008  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Remove reports for 0.8.x as they're too old to be
+	  interesting.  Separate out 0.9.x reports.
+
+Mon Jan 07 00:23:10 GMT 2008  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Add Solaris 9 and 10 success reports from James Aylett.
+
+Sat Jan 05 19:13:12 GMT 2008  Olly Betts <olly@survex.com>
+
+	* languages/compiler/generator.c: In generate_call(), if the failure
+	  case would just be "if (ret == 0) return 0;" then combine it with
+	  the test for the called method returning signal `f'.
+
+Sat Jan 05 18:28:31 GMT 2008  Olly Betts <olly@survex.com>
+
+	* languages/compiler/generator.c: Generate more readable code for the
+	  inlined single ASCII character literal string check.
+
+Sat Jan 05 18:27:07 GMT 2008  Olly Betts <olly@survex.com>
+
+	* languages/steminternal.cc: Tweak skip_utf8() to save ~0.5% on
+	  stemtest.
+
+Sat Jan 05 02:20:57 GMT 2008  Olly Betts <olly@survex.com>
+
+	* languages/compiler/generator.c: Optimise a single ASCII character
+	  literalstring check by inlining the check.  This makes stemtest run
+	  about 2% faster.
+
+Fri Dec 21 21:57:11 GMT 2007  Olly Betts <olly@survex.com>
+
+	* docs/valueranges.rst: Fix example of using multiple VRPs to come out
+	  as a "program listing".
+
+Fri Dec 21 15:31:35 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/stringutils.h,common/utils.h: Move declaration of
+	  within_DBL_EPSILON back into utils.h to fix builds with
+	  --enable-assertions, and since it's not string-related.
+
+Fri Dec 21 02:12:49 GMT 2007  Olly Betts <olly@survex.com>
+
+	* NEWS: Note that one change was "(bug#45)".  Bump release date.
+
+Thu Dec 20 22:00:41 GMT 2007  Olly Betts <olly@survex.com>
+
+	* NEWS: Update again for 1.0.5.
+
+Thu Dec 20 17:50:26 GMT 2007  Olly Betts <olly@survex.com>
+
+	* common/stringutils.cc: Add new file I failed to commit.
+
+Thu Dec 20 17:17:28 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: Add feature tests to ensure that ':' is
+	  inserted between prefix and term when it should be.
+
+Thu Dec 20 13:58:18 GMT 2007  Olly Betts <olly@survex.com>
+
+	* common/,queryparser/queryparser.lemony,
+	  queryparser/termgenerator_internal.cc,tests/harness/index_utils.cc,
+	  tests/harness/unixcmds.cc: Move C_isupper(), C_toupper(), etc from
+	  utils.cc/utils.h to stringutils.cc/stringutils.h, since they are
+	  string-related.
+
+Thu Dec 20 03:00:08 GMT 2007  Olly Betts <olly@survex.com>
+
+	* HACKING: Remove details of issues with autoconf < 2.57 and
+	  automake < 1.5 as these versions are antiques compared to our
+	  current requirements of autoconf >= 2.59 and automake >= 1.8.3.
+
+Wed Dec 19 03:41:42 GMT 2007  Olly Betts <olly@survex.com>
+
+	* AUTHORS,NEWS,configure.ac: Update for 1.0.5.
+
+Wed Dec 19 03:36:30 GMT 2007  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc: Calling WritableDatabase methods when we don't
+	  have exactly one subdatabase now throws InvalidOperationError.
+	* tests/termgentest.cc: Add regression test to check that we now get
+	  InvalidOperationError (previously this case gave a segmentation
+	  fault).
+
+Wed Dec 19 01:39:01 GMT 2007  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Update from tinderbox.
+
+Tue Dec 18 23:17:37 GMT 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_lock.cc,backends/flint/flint_lock.h: Move lots
+	  of headers included by flint_lock.h to flint_lock.cc since
+	  flint_lock.h doesn't need them.  Add a "FIXME:1.1:" comment about
+	  an odd special-case for newlib.
+
+Thu Dec 13 17:34:19 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/stemtest.cc: Mark undocumented OM_STEMTEST_* environmental
+	  variables for removal in 1.1.
+
+Thu Dec 13 01:27:15 GMT 2007  Olly Betts <olly@survex.com>
+
+	* HACKING: Need to check RPM packaging with Tim Brody too.
+
+Thu Dec 13 01:26:16 GMT 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Note that we check for <streambuf> because GCC 2.95
+	  only has <streambuf.h>.
+
+Thu Dec 13 01:23:27 GMT 2007  Olly Betts <olly@survex.com>
+
+	* AUTHORS: Add Ralf Wildenhues for suggesting a way to factor out
+	  the boilerplate in multitarget rules.
+
+Wed Dec 12 02:02:51 GMT 2007  Olly Betts <olly@survex.com>
+
+	* NEWS: Update for ChangeLog in preparation for 1.0.5.
+
+Wed Dec 12 01:02:29 GMT 2007  Olly Betts <olly@survex.com>
+
+	* docs/admin_notes.rst: Mark as up to date for Xapian 1.0.5.  Minor
+	  wording improvements.
+
+Sun Dec 09 01:09:19 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/collate-apitest: Check for sources in the build directory
+	  first, and only if not there prepend "$srcdir/".  The recently
+	  added api_generated.cc will be in the build directory when using an
+	  SVN checkout.
+
+Fri Dec 07 12:37:08 GMT 2007  Olly Betts <olly@survex.com>
+
+	* docs/sorting.rst,docs/valueranges.rst: State explicitly that
+	  Xapian::sortable_serialise() is used to encode values at index time
+	  and give an example of how it is called.
+
+Thu Dec 06 15:55:31 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am,tests/collate-apitest,
+	  tests/generate-api_generated: Add automatically generated tests to
+	  ensure that API classes generally have copy ctors and assignment
+	  operators, and also generally have a default ctor.
+
+Thu Dec 06 15:32:23 GMT 2007  Olly Betts <olly@survex.com>
+
+	* docs/sorting.rst: Fill in the remaining items in the outline.
+
+Thu Dec 06 12:50:46 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/valgrind.supp: Another variant of the zlib suppression.
+
+Wed Dec 05 18:31:12 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* Makefile.am,docs/Makefile.am,tests/Makefile.am: Add dir_contents,
+	  docs/dir_contents and tests/dir_contents to distribution
+	  tarballs.
+
+Wed Dec 05 18:28:12 GMT 2007  Olly Betts <olly@survex.com>
+
+	* preautoreconf: Really fix handling of version.h.
+
+Wed Dec 05 18:20:54 GMT 2007  Olly Betts <olly@survex.com>
+
+	* preautoreconf: Handle make pattern substitutions.
+
+Wed Dec 05 18:11:31 GMT 2007  Olly Betts <olly@survex.com>
+
+	* preautoreconf: Fix special-case handling of include/xapian/version.h.
+
 Wed Dec 05 18:01:34 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* matcher/multiandpostlist.cc,matcher/multiandpostlist.h: Implement

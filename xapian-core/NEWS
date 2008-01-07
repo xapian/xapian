@@ -1,3 +1,182 @@
+Xapian-core 1.0.5 (2007-12-21):
+
+API:
+
+* More sophisticated sorting of results is now possible by defining a
+  functor subclassing Xapian::Sorter (bug#100).
+
+* Xapian::Enquire now provides a public copy constructor and assignment
+  operator (bug#219).
+
+* Xapian::Document::values_begin() didn't ensure that values had been read
+  when working on a Document read from a database.  However, values_end() did
+  (and so did values_count()) so this wasn't generally a problem in practice.
+
+* Xapian::PostingIterator::skip_to() now works correctly when running over
+  multiple databases.
+
+* Xapian::Database::postlist_begin() no longer adds a "MultiPostList" wrapper
+  for the common case when there's only one subdatabase.
+
+* Xapian::TradWeight now avoids division by zero in the (rare) situation of the
+  average document length being zero (which can only happen if all documents
+  are empty or only have terms with wdf 0).
+
+* Calling Xapian::WritableDatabase methods when we don't have exactly one
+  subdatabase now throws InvalidOperationError.
+
+testsuite:
+
+* apitest:
+
+  + Testcases now describe the conditions they need to run, and are
+    automatically collated by a Perl script.  This makes it significantly
+    easier to add a new testcase.
+
+  + The test harness's "BackendManager" has been overhauled to allow
+    cleaner implementations of testcases which are currently hard to
+    write cleanly, and to make it easier to add new backend settings.
+
+  + Add a "multi" backend setting which runs suitable tests over two
+    subdatabases combined.  There's a corresponding new make target
+    "check-multi".
+
+  + Add more feature tests of document values.
+
+  + sortrel1 now runs for inmemory too.
+
+  + Add simple feature test for TradWeight being used to run a query.
+
+  + Fix spell3 to work on Microsoft Windows (bug#177).
+
+  + API classes are now tested to check they have copy constructors and
+    assignment operators, and also that most have a default constructor.
+
+  + quartztest testcases adddoc2 and adddoc3 have been reworked as apitest
+    testcases adddoc5 and adddoc6, which run for other backends.
+
+  + stubdb1 now explicitly creates the database it needs - generally this
+    bug didn't manifest because an earlier test has already created it.
+
+* queryparsertest: Add feature tests to check that ':' is being inserted
+  between prefix and term when it should be.
+
+* Fix extracting of valgrind error messages in the test harness.
+
+* tests/valgrind.supp: Add more variants of the zlib suppressions.
+
+matcher:
+
+* Xapian::Enquire: When the "first" parameter to get_mset() is non-zero, avoid
+  copying all the wanted items after performing the match.
+
+* Fix bug in handling a pure boolean match over more than one database under
+  set_docid_order(ASCENDING) - we used to exit early which isn't correct.
+
+* When collapsing on a value, give a better lower bound on the number of
+  matches by keeping track of the number of empty collapse values seen.
+
+* Xapian::BM25Weight: Fix bug when k2 is non-zero: a non-initialised value
+  influenced the weight calculations.  By default k2 is zero, so this bug
+  probably won't have affected most users.
+
+* The mechanism used to collate term statistics across multiple databases has
+  been greatly simplified (bug#45).
+
+flint backend:
+
+* xapian-check:
+
+  + Update to handle flint databases produced by Xapian 1.0.3 and later.
+
+  + Fix not to go into an infinite loop if certain checks fail.
+
+quartz backend:
+
+* quartzcompact: Fix equality testing of C strings to use strcmp() rather than
+  '=='!  In practice, using '==' often gives the desired effect due to pooling
+  of constant strings, but this may have resulted in a bug on some platforms.
+
+remote backend:
+
+* If we're doing a match with only one database which is remote then just
+  return the unserialised MSet from the remote match.  This requires an
+  update to the MSet serialisation, which requires a minor remote protocol
+  version bump.
+
+build system:
+
+* XO_LIB_XAPIAN now hooks LT_INIT as well as AC_PROG_LIBTOOL and
+  AM_PROG_LIBTOOL.
+
+* Distribute preautoreconf, dir_contents, docs/dir_contents and
+  tests/dir_contents.
+
+* Fix preautoreconf to correctly handle all the sources passed to doxygen to
+  create the collated internal source documentation, and to work in a VPATH
+  build.
+
+documentation:
+
+* sorting.html: New document on the topic of sorting match results.
+
+* HACKING,admin_notes.html,bm25.html,glossary.html,intro_ir.html,overview.html,
+  quickstart.html,scalability.html,termgenerator,html,synonyms.html: Assorted
+  minor improvements.
+
+* valueranges.html: State explicitly that Xapian::sortable_serialise() is used
+  to encode values at index time, and give an example of how it is called.
+
+* API documentation:
+
+ + Clarify get_wdf() versus get_termfreq().
+
+ + We now use pngcrush to reduce the size of PNG files in the HTML version.
+
+ + The HTML version no longer includes various intermediate files which doxygen
+   generates.
+
+ + Hide the v102 namespace from Doxygen as it isn't user visible.
+
+ + Stop describing get_description() as an "Introspection method", as this
+   doesn't help to explain what it does, and get_description() doesn't really
+   fall under common formal definitions of "introspection".
+
+* index.html: Add a list of documents on particular topics and include links to
+  previously unlinked-to documents.  Weed down the top navigation bar which had
+  grown to unwieldy length.
+
+* PLATFORMS: Update for Debian buildds.
+
+* Improve documentation comment for Document::termlist_count().
+
+* admin_notes.html: Note that this document is up-to-date for 1.0.5.
+
+* INSTALL: zlib 1.2.0 apparently fixes a memory leak in deflateInit2(), which
+  we use, so that's another reason to prefer 1.2.x.
+
+portability:
+
+* Add explicit includes of C headers needed to build with the latest snapshots
+  of GCC 4.3.  Fix new warnings.
+
+* xapian-config: On platforms which we know don't need explicit dependencies,
+  --ltlibs now gives the same output as --libs.
+
+* The minimum supported GCC version is now 2.95.3 (rather than 2.95) as 2.95.3
+  added support for '#include <sstream>' which means we no longer need to
+  maintain our own version.
+
+* Fix build with SGI's compiler on IRIX.
+
+* Fix or suppress some MSVC warnings.
+
+debug code:
+
+* Remove incorrect assertion in MultiAndPostList (bug#209).
+
+* Fix build when configured with "--enable-log --disable-assertions".
+
 Xapian-core 1.0.4 (2007-10-30):
 
 API:

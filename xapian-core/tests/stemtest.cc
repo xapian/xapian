@@ -50,6 +50,7 @@ test_stemrandom()
     static const char wordchars[] =
 	"abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz0123456789^\0";
 
+    // FIXME:1.1: remove check for OM_STEMTEST_SKIP_RANDOM
     if (getenv("OM_STEMTEST_SKIP_RANDOM"))
 	SKIP_TEST("OM_STEMTEST_SKIP_RANDOM set");
 
@@ -86,6 +87,7 @@ test_stemrandom()
 static bool
 test_stemjunk()
 {
+    // FIXME:1.1: remove check for OM_STEMTEST_SKIP_RANDOM
     if (getenv("OM_STEMTEST_SKIP_RANDOM"))
 	SKIP_TEST("OM_STEMTEST_SKIP_RANDOM set");
 
@@ -171,6 +173,7 @@ int main(int argc, char **argv)
     string langs, seed_str;
     // Backward compatibility
     char * val;
+    // FIXME:1.1: remove check for OM_STEMTEST_LANGUAGES
     val = getenv("OM_STEMTEST_LANGUAGES");
     if (val && *val)
 	langs = val;
@@ -179,6 +182,7 @@ int main(int argc, char **argv)
     test_driver::add_command_line_option("languages", 'l', &langs);
 
     seed = 42;
+    // FIXME:1.1: remove check for OM_STEMTEST_SEED
     // Backward compatibility
     val = getenv("OM_STEMTEST_SEED");
     if (val && *val) {

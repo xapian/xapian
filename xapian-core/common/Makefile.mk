@@ -57,6 +57,7 @@ libxapian_la_SOURCES +=\
 	common/omdebug.cc\
 	common/safe.cc\
 	common/serialise-double.cc\
+	common/stringutils.cc\
 	common/utils.cc
 
 noinst_LTLIBRARIES += libgetopt.la

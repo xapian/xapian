@@ -142,6 +142,10 @@ static test test_or_queries[] = {
     // to 1.0.2.
     { "+(one two) three", "((Zone:(pos=1) OR Ztwo:(pos=2)) AND_MAYBE Zthree:(pos=3))" },
     { "zero -(one two)", "(Zzero:(pos=1) AND_NOT (Zone:(pos=2) OR Ztwo:(pos=3)))" },
+    // Feature tests that ':' is inserted between prefix and term correctly:
+    { "category:Foo", "0 * XCAT:Foo" },
+    { "category:foo", "0 * XCATfoo" },
+    { "category:\xc3\x96oo", "0 * XCAT\xc3\x96oo" },
     // Real world examples from tweakers.net:
     { "Call to undefined function: imagecreate()", "(call:(pos=1) OR Zto:(pos=2) OR Zundefin:(pos=3) OR Zfunction:(pos=4) OR imagecreate:(pos=5))" },
     { "mysql_fetch_row(): supplied argument is not a valid MySQL result resource", "(mysql_fetch_row:(pos=1) OR Zsuppli:(pos=2) OR Zargument:(pos=3) OR Zis:(pos=4) OR Znot:(pos=5) OR Za:(pos=6) OR Zvalid:(pos=7) OR mysql:(pos=8) OR Zresult:(pos=9) OR Zresourc:(pos=10))" },
@@ -599,6 +603,7 @@ static bool test_queryparser1()
     queryparser.add_boolean_prefix("site2", "J");
     queryparser.add_boolean_prefix("multisite", "H");
     queryparser.add_boolean_prefix("multisite", "J");
+    queryparser.add_boolean_prefix("category", "XCAT");
     TEST_EXCEPTION(Xapian::InvalidOperationError,
 	queryparser.add_boolean_prefix("authortitle", "B");
     );

@@ -34,6 +34,7 @@
 # include "safewindows.h"
 #endif
 
+#include "stringutils.h"
 #include "utils.h"
 
 using namespace std;

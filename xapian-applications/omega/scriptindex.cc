@@ -43,6 +43,7 @@
 #include "hashterm.h"
 #include "loadfile.h"
 #include "myhtmlparse.h"
+#include "stringutils.h"
 #include "utf8truncate.h"
 #include "utils.h"
 
@@ -81,6 +82,14 @@ inline static bool
 p_notfieldnamechar(unsigned int c)
 {
     return !isalnum(static_cast<unsigned char>(c)) && c != '_';
+}
+
+inline bool
+prefix_needs_colon(const string & prefix, unsigned ch)
+{
+    if (!C_isupper(ch)) return false;
+    string::size_type len = prefix.length();
+    return (len > 1 && prefix[len - 1] != ':');
 }
 
 const char * action_names[] = {
@@ -489,9 +498,17 @@ index_file(const char *fname, istream &stream,
 							     i->get_num_arg(),
 							     i->get_string_arg());
 			break;
-		    case Action::BOOLEAN:
-			doc.add_term(i->get_string_arg() + value);
+		    case Action::BOOLEAN: {
+			// Do nothing if there's no text.
+			if (value.empty()) break;
+
+			string term = i->get_string_arg();
+			if (prefix_needs_colon(term, value[0])) term += ':';
+			term += value;
+
+			doc.add_term(term);
 			break;
+		    }
 		    case Action::HASH: {
 			unsigned int max_length = i->get_num_arg();
 			if (max_length == 0)
@@ -532,6 +549,14 @@ index_file(const char *fname, istream &stream,
 			break;
 		    }
 		    case Action::UNIQUE: {
+			// If there's no text, just issue a warning.
+			if (value.empty()) {
+			    cout << fname << ':' << line_no
+				 << ": Ignoring UNIQUE action on empty text"
+				 << endl;
+			    break;
+			}
+
 			// Ensure that the value of this field is unique.
 			// If a record already exists with the same value,
 			// it will be replaced with the new record.
@@ -544,6 +569,7 @@ index_file(const char *fname, istream &stream,
 			// Argument is the prefix to add to the field value
 			// to get the unique term.
 			string t = i->get_string_arg();
+			if (prefix_needs_colon(t, value[0])) t += ':';
 			t += value;
 again:
 			try {

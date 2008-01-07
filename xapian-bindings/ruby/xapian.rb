@@ -47,8 +47,7 @@ module Xapian
   #
   # Takes a block that returns some appropriate Ruby object to wrap the
   # underlying Iterator
-  #:nodoc:
-  def _safelyIterate(dangerousStart, dangerousEnd)
+  def _safelyIterate(dangerousStart, dangerousEnd) #:nodoc:
     retval = Array.new
     
     item = dangerousStart
