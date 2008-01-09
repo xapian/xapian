@@ -137,9 +137,12 @@ Query::Query(Query::op op_, Xapian::Query q, double parameter)
     DEBUGAPICALL(void, "Xapian::Query::Query",
 		 op_ << ", " << q << ", " << parameter);
     if (op_ == OP_SCALE_WEIGHT) {
-	if (!q.internal.get() || q.internal->op == OP_VALUE_RANGE) {
-	    // Applying OP_SCALE_WEIGHT to Xapian::Query or OP_VALUE_RANGE
-	    // has no effect as they're both pure-boolean.
+	if (!q.internal.get() ||
+	    q.internal->op == OP_VALUE_RANGE ||
+	    q.internal->op == OP_VALUE_GE ||
+	    q.internal->op == OP_VALUE_LE) {
+	    // Applying OP_SCALE_WEIGHT to Xapian::Query or OP_VALUE_*
+	    // has no effect as they're all pure-boolean.
 	    internal = q.internal;
 	    return;
 	}
@@ -163,11 +166,11 @@ Query::Query(Query::op op_, Xapian::valueno valno,
 		 op_ << ", " << valno << ", " << begin << ", " << end);
 }
 
-Query::Query(Query::op op_, Xapian::valueno valno, const std::string &begin)
-    : internal(new Query::Internal(op_, valno, begin))
+Query::Query(Query::op op_, Xapian::valueno valno, const std::string &value)
+    : internal(new Query::Internal(op_, valno, value))
 {
     DEBUGAPICALL(void, "Xapian::Query::Query",
-		 op_ << ", " << valno << ", " << begin);
+		 op_ << ", " << valno << ", " << value);
 }
 
 // Copy constructor

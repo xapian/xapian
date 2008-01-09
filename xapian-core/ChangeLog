@@ -1,3 +1,11 @@
+Wed Jan 09 21:57:59 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/omquery.cc,api/omqueryinternal.cc,common/remoteprotocol.h,
+	  include/xapian/query.h,matcher/queryoptimiser.cc,tests/api_anydb.cc:
+	  Add OP_VALUE_LE operator, for symmetry with OP_VALUE_GE.
+	  Currently implemented internally using a ValueRangePostList with
+	  an empty string as the start of the range.
+
 Wed Jan 09 19:36:37 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/omquery.cc,api/omqueryinternal.cc,include/xapian/query.h: Add

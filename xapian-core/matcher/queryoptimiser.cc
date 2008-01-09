@@ -100,6 +100,12 @@ QueryOptimiser::do_subquery(const Xapian::Query::Internal * query, double factor
 	    RETURN(new ValueGePostList(&db, valno, range_begin));
 	}
 
+	case Xapian::Query::OP_VALUE_LE: {
+	    Xapian::valueno valno(query->parameter);
+	    const string & range_end = query->tname;
+	    RETURN(new ValueRangePostList(&db, valno, "", range_end));
+	}
+
 	case Xapian::Query::OP_SCALE_WEIGHT: {
 	    AssertEq(query->subqs.size(), 1);
 	    double sub_factor = factor;

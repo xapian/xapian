@@ -114,7 +114,10 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	    OP_ELITE_SET,
 
 	    /** Filter by a greater-than-or-equal test on a document value. */
-	    OP_VALUE_GE
+	    OP_VALUE_GE,
+
+	    /** Filter by a less-than-or-equal test on a document value. */
+	    OP_VALUE_LE
 	} op;
 
 	/** Copy constructor. */
@@ -195,18 +198,18 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	Query(Query::op op_, Xapian::valueno valno,
 	      const std::string &begin, const std::string &end);
 
-	/** Construct a value greater-than-or-equal query on a document value.
+	/** Construct a value comparison query on a document value.
 	 *
 	 *  This query matches those documents which have a value stored in the
-	 *  slot given by @a valno which compares greater than or equal to @a
-	 *  begin.
+	 *  slot given by @a valno which compares, as specified by the
+	 *  operator, to @a value.
 	 *
 	 *  @param op_   The operator to use for the query.  Currently, must
-	 *               be OP_VALUE_GE.
+	 *               be OP_VALUE_GE or OP_VALUE_LE.
 	 *  @param valno The slot number to get the value from.
-	 *  @param begin The start of the range.
+	 *  @param value The value to compare.
 	 */
-	Query(Query::op op_, Xapian::valueno valno, const std::string &begin);
+	Query(Query::op op_, Xapian::valueno valno, const std::string &value);
 
 	/** A query which matches all documents in the database. */
 	static Xapian::Query MatchAll;
@@ -306,7 +309,8 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 	/** Term that this node represents, or start of a range query.
 	 *
 	 *  For a leaf node, this holds the term name.  For an OP_VALUE_RANGE
-	 *  or OP_VALUE_GE query this holds the start of the range.
+	 *  query this holds the start of the range.  For an OP_VALUE_GE or
+	 *  OP_VALUE_LE query this holds the value to compare against.
 	 */
 	std::string tname;
 
@@ -391,7 +395,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 
 	/** Construct a value greater-than-or-equal query on a document value.
 	 */
-	Internal(op_t op_, Xapian::valueno valno, const std::string &begin);
+	Internal(op_t op_, Xapian::valueno valno, const std::string &value);
 
 	/** Destructor. */
 	~Internal();

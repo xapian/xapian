@@ -60,6 +60,7 @@ get_min_subqs(Xapian::Query::Internal::op_t op)
 	case Xapian::Query::OP_ELITE_SET:
 	case Xapian::Query::OP_VALUE_RANGE:
 	case Xapian::Query::OP_VALUE_GE:
+	case Xapian::Query::OP_VALUE_LE:
 	    return 0;
 	case Xapian::Query::OP_SCALE_WEIGHT:
 	    return 1;
@@ -80,6 +81,7 @@ get_max_subqs(Xapian::Query::Internal::op_t op)
 	case Xapian::Query::Internal::OP_LEAF:
 	case Xapian::Query::OP_VALUE_RANGE:
 	case Xapian::Query::OP_VALUE_GE:
+	case Xapian::Query::OP_VALUE_LE:
 	    return 0;
 	case Xapian::Query::OP_SCALE_WEIGHT:
 	    return 1;
@@ -191,6 +193,12 @@ Xapian::Query::Internal::serialise(Xapian::termpos & curpos) const
 		result += tname;
 		result += om_tostring(parameter);
 		break;
+	    case Xapian::Query::OP_VALUE_LE:
+		result += "{";
+		result += encode_length(tname.length());
+		result += tname;
+		result += om_tostring(parameter);
+		break;
 	    case Xapian::Query::OP_SCALE_WEIGHT:
 		result += ".";
 		result += str_parameter; // serialise_double(get_dbl_parameter());
@@ -221,6 +229,7 @@ Xapian::Query::Internal::get_op_name(Xapian::Query::Internal::op_t op)
 	case Xapian::Query::OP_ELITE_SET:       name = "ELITE_SET"; break;
 	case Xapian::Query::OP_VALUE_RANGE:     name = "VALUE_RANGE"; break;
 	case Xapian::Query::OP_VALUE_GE:        name = "VALUE_GE"; break;
+	case Xapian::Query::OP_VALUE_LE:        name = "VALUE_LE"; break;
 	case Xapian::Query::OP_SCALE_WEIGHT:    name = "SCALE_WEIGHT"; break;
     }
     return name;
@@ -256,7 +265,8 @@ Xapian::Query::Internal::get_description() const
 	    opstr += str_parameter;
 	    return opstr;
 	}
-	case Xapian::Query::OP_VALUE_GE: {
+	case Xapian::Query::OP_VALUE_GE:
+	case Xapian::Query::OP_VALUE_LE: {
 	    opstr = get_op_name(op);
 	    opstr += ' ';
 	    opstr += om_tostring(parameter);
@@ -515,6 +525,16 @@ QUnserial::readcompound() {
 		    return new Xapian::Query::Internal(Xapian::Query::OP_VALUE_GE, valno,
 						       start);
 	        }
+		case '{': {
+		    size_t len = decode_length(&p, end, true);
+		    string start(p, len);
+		    p += len;
+		    char *tmp; // avoid compiler warning
+		    Xapian::valueno valno = strtoul(p, &tmp, 10);
+		    p = tmp;
+		    return new Xapian::Query::Internal(Xapian::Query::OP_VALUE_LE, valno,
+						       start);
+	        }
 	        case '.': {
 		    double param = unserialise_double(&p, end);
 		    return qint_from_vector(Xapian::Query::OP_SCALE_WEIGHT,
@@ -626,13 +646,13 @@ Xapian::Query::Internal::Internal(op_t op_, Xapian::valueno valno,
 }
 
 Xapian::Query::Internal::Internal(op_t op_, Xapian::valueno valno,
-				  const std::string &begin)
+				  const std::string &value)
 	: op(op_),
 	  parameter(Xapian::termcount(valno)),
-	  tname(begin)
+	  tname(value)
 {
-    if (op != OP_VALUE_GE)
-	throw Xapian::InvalidArgumentError("This constructor is only meaningful for OP_VALUE_GE");
+    if (op != OP_VALUE_GE && op != OP_VALUE_LE)
+	throw Xapian::InvalidArgumentError("This constructor is only meaningful for OP_VALUE_GE or OP_VALUE_LE");
     validate_query();
 }
 
@@ -674,8 +694,11 @@ Xapian::Query::Internal::validate_query() const
     }
 
     // Check that the termname is null in a branch query, unless the op
-    // is OP_VALUE_RANGE or OP_VALUE_GE.
-    Assert(is_leaf(op) || op == OP_VALUE_RANGE || op == OP_VALUE_GE ||
+    // is OP_VALUE_RANGE or OP_VALUE_GE or OP_VALUE_LE.
+    Assert(is_leaf(op) ||
+	   op == OP_VALUE_RANGE ||
+	   op == OP_VALUE_GE ||
+	   op == OP_VALUE_LE ||
 	   tname.empty());
 }
 
@@ -764,6 +787,7 @@ Xapian::Query::Internal::simplify_query()
 	    if (tname > str_parameter) return 0;
 	    return this;
 	case OP_VALUE_GE:
+	case OP_VALUE_LE:
 	    return this;
 	case OP_SCALE_WEIGHT:
 	    if (fabs(get_dbl_parameter() - 1.0) > DBL_EPSILON) return this;
