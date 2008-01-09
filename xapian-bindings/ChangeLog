@@ -1,3 +1,8 @@
+Wed Jan 09 22:00:15 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* xapian.i: Add OP_VALUE_GE and OP_VALUE_LE to Query, and add
+	  constructor which they are used with.
+
 Sun Dec 23 03:29:32 GMT 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: Sort out the default value of TCL_LIB, which could
