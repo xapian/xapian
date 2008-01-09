@@ -1,3 +1,8 @@
+Wed Jan 09 23:57:34 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* xapian.i: Add OP_SYNONYM to allow synonym queries to be built
+	  directly.
+
 Mon Dec 03 15:35:38 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/smoketest.py: Change expected query to match new output
