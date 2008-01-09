@@ -4,7 +4,7 @@
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2003,2004,2005,2006,2007 Olly Betts
- * Copyright 2006,2007 Lemur Consulting Ltd
+ * Copyright 2006,2007,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -113,6 +113,12 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	     */
 	    OP_ELITE_SET,
 
+	    /** Filter by a greater-than-or-equal test on a document value. */
+	    OP_VALUE_GE,
+
+	    /** Filter by a less-than-or-equal test on a document value. */
+	    OP_VALUE_LE,
+
 	    /** Treat a set of queries as synonyms.
 	     *
 	     *  This returns all results which match at least one of the
@@ -208,6 +214,19 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 */
 	Query(Query::op op_, Xapian::valueno valno,
 	      const std::string &begin, const std::string &end);
+
+	/** Construct a value comparison query on a document value.
+	 *
+	 *  This query matches those documents which have a value stored in the
+	 *  slot given by @a valno which compares, as specified by the
+	 *  operator, to @a value.
+	 *
+	 *  @param op_   The operator to use for the query.  Currently, must
+	 *               be OP_VALUE_GE or OP_VALUE_LE.
+	 *  @param valno The slot number to get the value from.
+	 *  @param value The value to compare.
+	 */
+	Query(Query::op op_, Xapian::valueno valno, const std::string &value);
 
 	/** A query which matches all documents in the database. */
 	static Xapian::Query MatchAll;
@@ -307,7 +326,8 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 	/** Term that this node represents, or start of a range query.
 	 *
 	 *  For a leaf node, this holds the term name.  For an OP_VALUE_RANGE
-	 *  query this holds the start of the range.
+	 *  query this holds the start of the range.  For an OP_VALUE_GE or
+	 *  OP_VALUE_LE query this holds the value to compare against.
 	 */
 	std::string tname;
 
@@ -389,6 +409,10 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 	/** Construct a range query on a document value. */
 	Internal(op_t op_, Xapian::valueno valno,
 		 const std::string &begin, const std::string &end);
+
+	/** Construct a value greater-than-or-equal query on a document value.
+	 */
+	Internal(op_t op_, Xapian::valueno valno, const std::string &value);
 
 	/** Destructor. */
 	~Internal();

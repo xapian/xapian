@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
- * Copyright 2006 Richard Boulton
+ * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1794,6 +1794,70 @@ DEFINE_TESTCASE(valuerange1, backend) {
 		    tout << value << " < '" << *start << "' or > '" << *end << "'" << endl;
 		    TEST(value < *start || value > *end);
 		}
+	    }
+	}
+    }
+    return true;
+}
+
+// Feature test for Query::OP_VALUE_GE.
+DEFINE_TESTCASE(valuege1, backend) {
+    Xapian::Database db(get_database("apitest_phrase"));
+    Xapian::Enquire enq(db);
+    static const char * vals[] = {
+	"", " ", "a", "aa", "abcd", "e", "g", "h", "hzz", "i", "l", "z", NULL
+    };
+    for (const char **start = vals; *start; ++start) {
+	Xapian::Query query(Xapian::Query::OP_VALUE_GE, 1, *start);
+	enq.set_query(query);
+	Xapian::MSet mset = enq.get_mset(0, 20);
+	// Check that documents in the MSet match the value range filter.
+	set<Xapian::docid> matched;
+	Xapian::MSetIterator i;
+	for (i = mset.begin(); i != mset.end(); ++i) {
+	    matched.insert(*i);
+	    string value = db.get_document(*i).get_value(1);
+	    tout << "'" << *start << "' <= '" << value << "'" << endl;
+	    TEST(value >= *start);
+	}
+	// Check that documents not in the MSet don't match the value range filter.
+	for (Xapian::docid j = db.get_lastdocid(); j != 0; --j) {
+	    if (matched.find(j) == matched.end()) {
+		string value = db.get_document(j).get_value(1);
+		tout << value << " < '" << *start << "'" << endl;
+		TEST(value < *start);
+	    }
+	}
+    }
+    return true;
+}
+
+// Feature test for Query::OP_VALUE_LE.
+DEFINE_TESTCASE(valuele1, backend) {
+    Xapian::Database db(get_database("apitest_phrase"));
+    Xapian::Enquire enq(db);
+    static const char * vals[] = {
+	"", " ", "a", "aa", "abcd", "e", "g", "h", "hzz", "i", "l", "z", NULL
+    };
+    for (const char **end = vals; *end; ++end) {
+	Xapian::Query query(Xapian::Query::OP_VALUE_LE, 1, *end);
+	enq.set_query(query);
+	Xapian::MSet mset = enq.get_mset(0, 20);
+	// Check that documents in the MSet match the value range filter.
+	set<Xapian::docid> matched;
+	Xapian::MSetIterator i;
+	for (i = mset.begin(); i != mset.end(); ++i) {
+	    matched.insert(*i);
+	    string value = db.get_document(*i).get_value(1);
+	    tout << "'" << *end << "' <= '" << value << "'" << endl;
+	    TEST(value <= *end);
+	}
+	// Check that documents not in the MSet don't match the value range filter.
+	for (Xapian::docid j = db.get_lastdocid(); j != 0; --j) {
+	    if (matched.find(j) == matched.end()) {
+		string value = db.get_document(j).get_value(1);
+		tout << value << " < '" << *end << "'" << endl;
+		TEST(value > *end);
 	    }
 	}
     }

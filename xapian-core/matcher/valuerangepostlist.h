@@ -25,6 +25,7 @@
 #include "postlist.h"
 
 class ValueRangePostList : public PostList {
+  protected:
     const Xapian::Database::Internal *db;
 
     Xapian::valueno valno;

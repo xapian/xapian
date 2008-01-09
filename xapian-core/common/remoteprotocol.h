@@ -38,9 +38,10 @@
 // 30.3: New MSG_GETMSET which passes check_at_least parameter.
 // 30.4: New query operator OP_SCALE_WEIGHT.
 // 30.5: New MSG_GETMSET which expects MSet's percent_factor to be returned.
-// 30.6: Add synonym queries (add operator to the serialised form of queries)
+// 30.6: Support for OP_VALUE_GE and OP_VALUE_LE in query serialisation
+// 30.7: Add synonym queries (add operator to the serialised form of queries)
 #define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 30
-#define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 6
+#define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 7
 
 /* When we move to version 31:
  * + Remove MSG_DELETEDOCUMENT_PRE_30_2
