@@ -1,3 +1,10 @@
+Wed Jan 09 13:53:34 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/harness/backendmanager_remotetcp.cc: Fix XAPIAN_NORETURN() to
+	  wrap a declaration, not the definition, to fix compile failure on
+	  mingw "make check".  Correct file documentation comment to refer
+	  to "remotetcp" not "remoteprog".
+
 Mon Jan 07 01:28:14 GMT 2008  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Remove reports for 0.8.x as they're too old to be

@@ -1,7 +1,7 @@
-/** @file backendmanager_remoteprog.cc
- * @brief BackendManager subclass for remoteprog databases.
+/** @file backendmanager_remotetcp.cc
+ * @brief BackendManager subclass for remotetcp databases.
  */
-/* Copyright (C) 2006,2007 Olly Betts
+/* Copyright (C) 2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -205,7 +205,8 @@ try_next_port:
 
 #elif defined __WIN32__
 
-XAPIAN_NORETURN(static void win32_throw_error_string(const char * str))
+XAPIAN_NORETURN(static void win32_throw_error_string(const char * str));
+static void win32_throw_error_string(const char * str)
 {
     string msg(str);
     char * error = 0;
