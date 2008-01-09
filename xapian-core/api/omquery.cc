@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2003,2004,2005,2006,2007 Olly Betts
- * Copyright 2006,2007 Lemur Consulting Ltd
+ * Copyright 2006,2007,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -137,9 +137,12 @@ Query::Query(Query::op op_, Xapian::Query q, double parameter)
     DEBUGAPICALL(void, "Xapian::Query::Query",
 		 op_ << ", " << q << ", " << parameter);
     if (op_ == OP_SCALE_WEIGHT) {
-	if (!q.internal.get() || q.internal->op == OP_VALUE_RANGE) {
-	    // Applying OP_SCALE_WEIGHT to Xapian::Query or OP_VALUE_RANGE
-	    // has no effect as they're both pure-boolean.
+	if (!q.internal.get() ||
+	    q.internal->op == OP_VALUE_RANGE ||
+	    q.internal->op == OP_VALUE_GE ||
+	    q.internal->op == OP_VALUE_LE) {
+	    // Applying OP_SCALE_WEIGHT to Xapian::Query or OP_VALUE_*
+	    // has no effect as they're all pure-boolean.
 	    internal = q.internal;
 	    return;
 	}
@@ -161,6 +164,13 @@ Query::Query(Query::op op_, Xapian::valueno valno,
 {
     DEBUGAPICALL(void, "Xapian::Query::Query",
 		 op_ << ", " << valno << ", " << begin << ", " << end);
+}
+
+Query::Query(Query::op op_, Xapian::valueno valno, const std::string &value)
+    : internal(new Query::Internal(op_, valno, value))
+{
+    DEBUGAPICALL(void, "Xapian::Query::Query",
+		 op_ << ", " << valno << ", " << value);
 }
 
 // Copy constructor

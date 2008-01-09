@@ -14,6 +14,40 @@ Mon Oct 29 03:03:31 GMT 2007  Olly Betts <olly@survex.com>
 	  include/xapian.h,tests/api_db.cc,tests/api_nodb.cc,
 	  tests/api_wrdb.cc: Restore the changes.
 
+Wed Jan 09 21:57:59 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/omquery.cc,api/omqueryinternal.cc,common/remoteprotocol.h,
+	  include/xapian/query.h,matcher/queryoptimiser.cc,tests/api_anydb.cc:
+	  Add OP_VALUE_LE operator, for symmetry with OP_VALUE_GE.
+	  Currently implemented internally using a ValueRangePostList with
+	  an empty string as the start of the range.
+
+Wed Jan 09 19:36:37 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/omquery.cc,api/omqueryinternal.cc,include/xapian/query.h: Add
+	  new query operator OP_VALUE_GE, for performing "return documents
+	  with a value greater than this" searches.  Also add a new
+	  constructor to go with this which takes a value number and a
+	  single string argument.
+	* matcher/: Add ValueGePostList class, as a subclass of
+	  ValueRangePostList.  Change internal members of
+	  ValueRangePostList to be protected instead of private.  Add
+	  support for making ValueGePostLists from OP_VALUE_GE queries.
+	* tests/api_anydb.cc: Add valuege1 testcase of OP_VALUE_GE queries.
+	* common/remoteprotocol.h: Bump minor protocol number, due to
+	  additional operator being possible in serialised queries.
+
+Wed Jan 09 15:18:16 GMT 2008  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Update from Debian buildd logs.
+
+Wed Jan 09 13:53:34 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/harness/backendmanager_remotetcp.cc: Fix XAPIAN_NORETURN() to
+	  wrap a declaration, not the definition, to fix compile failure on
+	  mingw "make check".  Correct file documentation comment to refer
+	  to "remotetcp" not "remoteprog".
+
 Mon Jan 07 01:28:14 GMT 2008  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Remove reports for 0.8.x as they're too old to be
