@@ -2,6 +2,7 @@
  * @brief Convert a Xapian::Query::Internal tree into an optimal PostList tree.
  */
 /* Copyright (C) 2007 Olly Betts
+ * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,6 +36,7 @@
 #include "orpostlist.h"
 #include "phrasepostlist.h"
 #include "postlist.h"
+#include "valuegepostlist.h"
 #include "valuerangepostlist.h"
 #include "xorpostlist.h"
 
@@ -90,6 +92,12 @@ QueryOptimiser::do_subquery(const Xapian::Query::Internal * query, double factor
 	    const string & range_begin = query->tname;
 	    const string & range_end = query->str_parameter;
 	    RETURN(new ValueRangePostList(&db, valno, range_begin, range_end));
+	}
+
+	case Xapian::Query::OP_VALUE_GE: {
+	    Xapian::valueno valno(query->parameter);
+	    const string & range_begin = query->tname;
+	    RETURN(new ValueGePostList(&db, valno, range_begin));
 	}
 
 	case Xapian::Query::OP_SCALE_WEIGHT: {

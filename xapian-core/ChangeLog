@@ -1,3 +1,18 @@
+Wed Jan 09 19:36:37 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/omquery.cc,api/omqueryinternal.cc,include/xapian/query.h: Add
+	  new query operator OP_VALUE_GE, for performing "return documents
+	  with a value greater than this" searches.  Also add a new
+	  constructor to go with this which takes a value number and a
+	  single string argument.
+	* matcher/: Add ValueGePostList class, as a subclass of
+	  ValueRangePostList.  Change internal members of
+	  ValueRangePostList to be protected instead of private.  Add
+	  support for making ValueGePostLists from OP_VALUE_GE queries.
+	* tests/api_anydb.cc: Add valuege1 testcase of OP_VALUE_GE queries.
+	* common/remoteprotocol.h: Bump minor protocol number, due to
+	  additional operator being possible in serialised queries.
+
 Wed Jan 09 15:18:16 GMT 2008  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Update from Debian buildd logs.

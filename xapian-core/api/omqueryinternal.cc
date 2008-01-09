@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
- * Copyright 2006,2007 Lemur Consulting Ltd
+ * Copyright 2006,2007,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -59,6 +59,7 @@ get_min_subqs(Xapian::Query::Internal::op_t op)
 	case Xapian::Query::OP_PHRASE:
 	case Xapian::Query::OP_ELITE_SET:
 	case Xapian::Query::OP_VALUE_RANGE:
+	case Xapian::Query::OP_VALUE_GE:
 	    return 0;
 	case Xapian::Query::OP_SCALE_WEIGHT:
 	    return 1;
@@ -78,6 +79,7 @@ get_max_subqs(Xapian::Query::Internal::op_t op)
     switch (op) {
 	case Xapian::Query::Internal::OP_LEAF:
 	case Xapian::Query::OP_VALUE_RANGE:
+	case Xapian::Query::OP_VALUE_GE:
 	    return 0;
 	case Xapian::Query::OP_SCALE_WEIGHT:
 	    return 1;
@@ -183,6 +185,12 @@ Xapian::Query::Internal::serialise(Xapian::termpos & curpos) const
 		result += str_parameter;
 		result += om_tostring(parameter);
 		break;
+	    case Xapian::Query::OP_VALUE_GE:
+		result += "}";
+		result += encode_length(tname.length());
+		result += tname;
+		result += om_tostring(parameter);
+		break;
 	    case Xapian::Query::OP_SCALE_WEIGHT:
 		result += ".";
 		result += str_parameter; // serialise_double(get_dbl_parameter());
@@ -212,6 +220,7 @@ Xapian::Query::Internal::get_op_name(Xapian::Query::Internal::op_t op)
 	case Xapian::Query::OP_PHRASE:          name = "PHRASE"; break;
 	case Xapian::Query::OP_ELITE_SET:       name = "ELITE_SET"; break;
 	case Xapian::Query::OP_VALUE_RANGE:     name = "VALUE_RANGE"; break;
+	case Xapian::Query::OP_VALUE_GE:        name = "VALUE_GE"; break;
 	case Xapian::Query::OP_SCALE_WEIGHT:    name = "SCALE_WEIGHT"; break;
     }
     return name;
@@ -236,22 +245,31 @@ Xapian::Query::Internal::get_description() const
 	return tname + opstr;
     }
 
-    if (op == Xapian::Query::OP_VALUE_RANGE) {
-	opstr = get_op_name(op);
-	opstr += ' ';
-	opstr += om_tostring(parameter);
-	opstr += ' ';
-	opstr += tname;
-	opstr += ' ';
-	opstr += str_parameter;
-	return opstr;
-    }
-
-    if (op == Xapian::Query::OP_SCALE_WEIGHT) {
-	opstr += om_tostring(get_dbl_parameter());
-	opstr += " * ";
-	opstr += subqs[0]->get_description();
-	return opstr;
+    switch (op) {
+	case Xapian::Query::OP_VALUE_RANGE: {
+	    opstr = get_op_name(op);
+	    opstr += ' ';
+	    opstr += om_tostring(parameter);
+	    opstr += ' ';
+	    opstr += tname;
+	    opstr += ' ';
+	    opstr += str_parameter;
+	    return opstr;
+	}
+	case Xapian::Query::OP_VALUE_GE: {
+	    opstr = get_op_name(op);
+	    opstr += ' ';
+	    opstr += om_tostring(parameter);
+	    opstr += ' ';
+	    opstr += tname;
+	    return opstr;
+	}
+	case Xapian::Query::OP_SCALE_WEIGHT: {
+	    opstr += om_tostring(get_dbl_parameter());
+	    opstr += " * ";
+	    opstr += subqs[0]->get_description();
+	    return opstr;
+	}
     }
 
     opstr = " " + get_op_name(op) + " ";
@@ -487,6 +505,16 @@ QUnserial::readcompound() {
 		    return new Xapian::Query::Internal(Xapian::Query::OP_VALUE_RANGE, valno,
 						       start, stop);
 	        }
+		case '}': {
+		    size_t len = decode_length(&p, end, true);
+		    string start(p, len);
+		    p += len;
+		    char *tmp; // avoid compiler warning
+		    Xapian::valueno valno = strtoul(p, &tmp, 10);
+		    p = tmp;
+		    return new Xapian::Query::Internal(Xapian::Query::OP_VALUE_GE, valno,
+						       start);
+	        }
 	        case '.': {
 		    double param = unserialise_double(&p, end);
 		    return qint_from_vector(Xapian::Query::OP_SCALE_WEIGHT,
@@ -597,6 +625,17 @@ Xapian::Query::Internal::Internal(op_t op_, Xapian::valueno valno,
     validate_query();
 }
 
+Xapian::Query::Internal::Internal(op_t op_, Xapian::valueno valno,
+				  const std::string &begin)
+	: op(op_),
+	  parameter(Xapian::termcount(valno)),
+	  tname(begin)
+{
+    if (op != OP_VALUE_GE)
+	throw Xapian::InvalidArgumentError("This constructor is only meaningful for OP_VALUE_GE");
+    validate_query();
+}
+
 Xapian::Query::Internal::~Internal()
 {
     subquery_list::iterator i;
@@ -635,8 +674,9 @@ Xapian::Query::Internal::validate_query() const
     }
 
     // Check that the termname is null in a branch query, unless the op
-    // is OP_VALUE_RANGE.
-    Assert(is_leaf(op) || op == OP_VALUE_RANGE || tname.empty());
+    // is OP_VALUE_RANGE or OP_VALUE_GE.
+    Assert(is_leaf(op) || op == OP_VALUE_RANGE || op == OP_VALUE_GE ||
+	   tname.empty());
 }
 
 bool
@@ -722,6 +762,8 @@ Xapian::Query::Internal::simplify_query()
 	    // If the start of the range is greater than the end then we won't
 	    // match anything.
 	    if (tname > str_parameter) return 0;
+	    return this;
+	case OP_VALUE_GE:
 	    return this;
 	case OP_SCALE_WEIGHT:
 	    if (fabs(get_dbl_parameter() - 1.0) > DBL_EPSILON) return this;

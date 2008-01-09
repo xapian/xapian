@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2003,2004,2005,2006,2007 Olly Betts
- * Copyright 2006,2007 Lemur Consulting Ltd
+ * Copyright 2006,2007,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -161,6 +161,13 @@ Query::Query(Query::op op_, Xapian::valueno valno,
 {
     DEBUGAPICALL(void, "Xapian::Query::Query",
 		 op_ << ", " << valno << ", " << begin << ", " << end);
+}
+
+Query::Query(Query::op op_, Xapian::valueno valno, const std::string &begin)
+    : internal(new Query::Internal(op_, valno, begin))
+{
+    DEBUGAPICALL(void, "Xapian::Query::Query",
+		 op_ << ", " << valno << ", " << begin);
 }
 
 // Copy constructor
