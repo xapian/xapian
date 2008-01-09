@@ -848,6 +848,8 @@ class Query {
 	    OP_NEAR,
 	    OP_PHRASE,
 	    OP_VALUE_RANGE,
+	    OP_VALUE_GE,
+	    OP_VALUE_LE,
 	    OP_SCALE_WEIGHT,
 	    OP_ELITE_SET = 10
 	};
@@ -856,6 +858,7 @@ class Query {
 	Query(Query::op op_, const string & left, const string & right);
 	Query(const Query& copyme);
 	Query(Query::op op_, Xapian::valueno valno, const std::string &begin, const std::string &end);
+	Query(Query::op op_, Xapian::valueno valno, const std::string &value);
 	%extend {
 #ifndef XAPIAN_MIXED_VECTOR_QUERY_INPUT_TYPEMAP
 	    /* For some languages we handle strings in the vector<Query>
