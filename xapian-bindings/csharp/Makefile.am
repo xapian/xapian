@@ -27,6 +27,7 @@ XAPIAN_SWIG_CS_SRCS=\
 	MatchDecider.cs \
 	MSet.cs \
 	MSetIterator.cs \
+	MultiValueSorter.cs \
 	NumberValueRangeProcessor.cs \
 	PositionIterator.cs \
 	PostingIterator.cs \

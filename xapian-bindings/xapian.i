@@ -848,10 +848,10 @@ class Query {
 	    OP_NEAR,
 	    OP_PHRASE,
 	    OP_VALUE_RANGE,
-	    OP_VALUE_GE,
-	    OP_VALUE_LE,
 	    OP_SCALE_WEIGHT,
-	    OP_ELITE_SET = 10
+	    OP_ELITE_SET = 10,
+	    OP_VALUE_GE,
+	    OP_VALUE_LE
 	};
 	Query(const string &tname, termcount wqf = 1, termpos term_pos = 0);
 	Query(Query::op op_, const Query & left, const Query & right);
