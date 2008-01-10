@@ -1,3 +1,7 @@
+Thu Jan 10 02:04:55 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/runtest.in: Cope with "@EXEEXT" extension on test programs.
+
 Wed Jan 09 21:57:59 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/omquery.cc,api/omqueryinternal.cc,common/remoteprotocol.h,
