@@ -1,3 +1,9 @@
+Sat Jan 12 03:37:28 GMT 2008  Olly Betts <olly@survex.com>
+
+	* freemem.cc: Check "defined HAVE_SYSMP" rather than just "HAVE_SYSMP".
+	  This doesn't change behaviour, but fixes a compile warning on
+	  platforms other than Linux and IRIX.
+
 Fri Dec 21 02:13:49 GMT 2007  Olly Betts <olly@survex.com>
 
 	* NEWS: Bump release date.
