@@ -1,7 +1,7 @@
 /* btree.h: Btree implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,6 +32,7 @@ using std::string;
 #include "btree_base.h"
 #include "btree_util.h"
 #include "bcursor.h"
+#include "noreturn.h"
 
 /** The largest possible value of a key_len.
  *
@@ -571,7 +572,7 @@ class XAPIAN_VISIBILITY_DEFAULT Btree {
 	int delete_kt();
 	void read_block(uint4 n, byte *p) const;
 	void write_block(uint4 n, const byte *p) const;
-	void set_overwritten() const;
+	XAPIAN_NORETURN(void set_overwritten() const);
 	void block_to_cursor(Cursor *C_, int j, uint4 n) const;
 	void alter();
 	void compact(byte *p);

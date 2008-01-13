@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2004,2005,2006 Olly Betts
+ * Copyright 2002,2004,2005,2006,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,6 +24,7 @@
 #define OM_HGUARD_FLINT_CHECK_H
 
 #include "flint_table.h"
+#include "noreturn.h"
 
 #include <iostream>
 #include <string>
@@ -42,7 +43,7 @@ class BtreeCheck : public FlintTable {
 	void report_block_full(int m, int n, const byte * p) const;
 	void report_cursor(int N, const Cursor_ *C_) const;
 
-	void failure(int n) const;
+	XAPIAN_NORETURN(void failure(int n) const);
 	void print_key(const byte * p, int c, int j) const;
 	void print_tag(const byte * p, int c, int j) const;
 	void print_spaces(int n) const;

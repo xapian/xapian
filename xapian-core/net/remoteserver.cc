@@ -1,7 +1,7 @@
 /** @file remoteserver.cc
  *  @brief Xapian remote backend server base class
  */
-/* Copyright (C) 2006,2007 Olly Betts
+/* Copyright (C) 2006,2007,2008 Olly Betts
  * Copyright (C) 2006,2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -389,7 +389,7 @@ RemoteServer::msg_query(const string &message_in)
     if (*p < '0' || *p > '1') {
 	throw Xapian::NetworkError("bad message (sort_value_forward)");
     }
-    bool sort_value_forward(*p++ - '0');
+    bool sort_value_forward(*p++ != '0');
 
     int percent_cutoff = *p++;
     if (percent_cutoff < 0 || percent_cutoff > 100) {

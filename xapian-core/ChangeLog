@@ -1,3 +1,12 @@
+Sun Jan 13 00:25:25 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_check.h,backends/flint/flint_table.h,
+	  backends/quartz/btree.h,net/tcpserver.cc,tests/harness/testsuite.cc:
+	  Add XAPIAN_NORETURN() annotations to functions and non-virtual
+	  methods which don't return.
+	* net/remoteserver.cc: Assign bool variable using a comparison rather
+	  than subtraction, so the intent is clearer.
+
 Sun Jan 13 00:23:41 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_check.cc: Tweak a comparison so all the
