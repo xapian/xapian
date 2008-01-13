@@ -1,3 +1,14 @@
+Sun Jan 13 23:28:04 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: GCC warning flag overhaul.  Stop passing
+	  "-Wno-multichar" since any multi-character character literal is
+	  bound to be a typo (I believe we were only passing it after
+	  misinterpreting its sense!)  Pass "-Wformat-security",
+	  "-Wconversion", and "-pedantic" for all GCC versions.  Add
+	  "-Winit-self" and "-Wstrict-overflow=5" for GCC >= 4.2.  The
+	  latter may be too aggressive, but it's hard to know without
+	  trying it more widely.
+
 Sun Jan 13 00:25:25 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_check.h,backends/flint/flint_table.h,
