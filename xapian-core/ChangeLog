@@ -1,3 +1,9 @@
+Sun Jan 13 00:23:41 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_check.cc: Tweak a comparison so all the
+	  constants are on the same side (micro-optimisation).
+	* backends/quartz/btreecheck.cc: Equivalent change for quartz.
+
 Sun Jan 13 00:20:08 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/queryparsertest.cc: Add a couple of testcases I wrote for a
