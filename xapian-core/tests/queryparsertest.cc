@@ -1,6 +1,6 @@
 /* queryparsertest.cc: Tests of Xapian::QueryParser
  *
- * Copyright (C) 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright (C) 2002,2003,2004,2005,2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -82,6 +82,8 @@ static test test_or_queries[] = {
     { "\"1.4\"", "1.4:(pos=1)" },
     { "\"1.\"", "1:(pos=1)" },
     { "\"A#.B.\"", "(a#:(pos=1) PHRASE 2 b:(pos=2))" },
+    { "\" Xapian QueryParser\" parses queries", "((xapian:(pos=1) PHRASE 2 queryparser:(pos=2)) OR Zpars:(pos=3) OR Zqueri:(pos=4))" },
+    { "\" xapian queryParser\" parses queries", "((xapian:(pos=1) PHRASE 2 queryparser:(pos=2)) OR Zpars:(pos=3) OR Zqueri:(pos=4))" },
     { "h\xc3\xb6hle", "Zh\xc3\xb6hle:(pos=1)" },
     { "one +two three", "(Ztwo:(pos=2) AND_MAYBE (Zone:(pos=1) OR Zthree:(pos=3)))" },
     { "subject:test other", "(ZXTtest:(pos=1) OR Zother:(pos=2))" },

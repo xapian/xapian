@@ -1,3 +1,9 @@
+Sun Jan 13 00:20:08 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: Add a couple of testcases I wrote for a
+	  reported problem which turned out to work correctly already.  Still,
+	  they add to our test coverage.
+
 Thu Jan 10 02:04:55 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/runtest.in: Cope with "@EXEEXT" extension on test programs.
