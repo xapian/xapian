@@ -1,3 +1,8 @@
+Mon Jan 14 09:29:51 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/flint/flint_btreeutil.h: Fix assertions to not overflow
+	  int.
+
 Mon Jan 14 09:23:54 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree_util.h: Fix assertions to not overflow int.
