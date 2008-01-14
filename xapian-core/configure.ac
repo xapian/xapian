@@ -988,7 +988,7 @@ if test yes = "$GXX"; then
 	dnl this case with -Wunitialized (implied by -W).
 	dnl -Wstrict-overflow is new in GCC 4.2.
 	case $gxx_version in
-	4.0|4.1) ;;
+	4.0*|4.1*) ;;
 	*) AM_CXXFLAGS="$AM_CXXFLAGS -Winit-self -Wstrict-overflow=5" ;;
 	esac
 

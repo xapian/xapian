@@ -1,3 +1,8 @@
+Mon Jan 14 08:47:33 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* configure.ac: Fix test for gcc being 4.0.x or 4.1.x, so we don't
+	  use -Wstrict-overflow with them.
+
 Sun Jan 13 23:28:04 GMT 2008  Olly Betts <olly@survex.com>
 
 	* configure.ac: GCC warning flag overhaul.  Stop passing
