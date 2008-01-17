@@ -277,7 +277,7 @@ static size_t
 check_table(string filename, int opts)
 {
     size_t p = filename.find_last_of('/');
-#ifdef __WIN32__
+#if defined __WIN32__ || defined __EMX__
     if (p == string::npos) p = 0;
     p = filename.find_last_of('\\', p);
 #endif

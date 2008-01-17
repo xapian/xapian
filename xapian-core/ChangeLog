@@ -1,3 +1,11 @@
+Thu Jan 17 22:32:08 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_lock.cc,backends/flint/flint_lock.h,
+	  bin/xapian-check.cc: Apply tweaked version of patch for OS/2 support
+	  by Yuri Dario.
+	* AUTHORS: Add Yuri Dario.
+	* PLATFORMS: Mention OS/2.
+
 Mon Jan 14 11:03:05 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* backends/flint/flint_table.cc,backends/quartz/btree.cc: Fix more
