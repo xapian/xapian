@@ -37,6 +37,7 @@ OBJS= \
     $(INTDIR)\stats.obj\
     $(INTDIR)\tradweight.obj\
     $(INTDIR)\valuerangepostlist.obj\
+    $(INTDIR)\valuegepostlist.obj\
     $(INTDIR)\weight.obj\
     $(INTDIR)\xorpostlist.obj\
     $(INTDIR)\remotesubmatch.obj
@@ -65,6 +66,7 @@ SRCS= \
     $(INTDIR)\stats.cc\
     $(INTDIR)\tradweight.cc\
     $(INTDIR)\valuerangepostlist.cc\
+    $(INTDIR)\valuegepostlist.cc\
     $(INTDIR)\weight.cc\
     $(INTDIR)\xorpostlist.cc\
     $(INTDIR)\remotesubmatch.cc
