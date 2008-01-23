@@ -90,6 +90,7 @@ SRC = \
     "$(INTDIR)\api_sorting.cc" \
     "$(INTDIR)\api_wrdb.cc" \
     "$(INTDIR)\api_generated.cc" \
+    "$(INTDIR)\api_docsim.cc" \
     "$(INTDIR)\btreetest.cc" \
     "$(INTDIR)\internaltest.cc" \
     "$(INTDIR)\quartztest.cc" \
@@ -108,6 +109,7 @@ COLLATED_APITEST_HEADERS=\
     "$(INTDIR)\api_transdb.h" \
     "$(INTDIR)\api_unicode.h" \
     "$(INTDIR)\api_generated.h" \
+    "$(INTDIR)\api_docsim.h" \
     "$(INTDIR)\api_wrdb.h"
 
 CLEAN_COLLATED_HEADERS:
