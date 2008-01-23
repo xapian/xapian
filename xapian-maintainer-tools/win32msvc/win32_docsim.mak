@@ -15,11 +15,13 @@ ALL : "$(OUTDIR)\libdocsim.lib"
 
 OBJS= \
     $(INTDIR)\docsim.obj\
+    $(INTDIR)\cluster.obj\
     $(INTDIR)\docsim_cosine.obj
 
 
 SRCS= \
     $(INTDIR)\docsim.cc\
+    $(INTDIR)\cluster.cc\
     $(INTDIR)\docsim_cosine.cc
 
 

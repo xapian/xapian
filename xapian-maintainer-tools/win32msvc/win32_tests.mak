@@ -62,6 +62,7 @@ APITEST_OBJS= \
     "$(OUTDIR)\api_nodb.obj" \
     "$(OUTDIR)\api_posdb.obj" \
     "$(OUTDIR)\api_transdb.obj" \
+    "$(OUTDIR)\api_docsim.obj" \
     "$(OUTDIR)\api_unicode.obj" \
     "$(OUTDIR)\api_wrdb.obj" \
     "$(OUTDIR)\api_sorting.obj" \
@@ -98,7 +99,7 @@ SRC = \
     "$(INTDIR)\remotetest.cc" \
     "$(INTDIR)\termgentest.cc" 
 
-COLLATED_APITEST_SOURCES=api_anydb.cc api_db.cc api_nodb.cc api_posdb.cc api_sorting.cc api_transdb.cc api_unicode.cc api_wrdb.cc api_generated.cc
+COLLATED_APITEST_SOURCES=api_anydb.cc api_db.cc api_nodb.cc api_posdb.cc api_sorting.cc api_transdb.cc api_unicode.cc api_wrdb.cc api_docsim.cc api_generated.cc
     
 COLLATED_APITEST_HEADERS=\
     "$(INTDIR)\api_anydb.h" \
