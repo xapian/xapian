@@ -21,12 +21,12 @@
 
 #include <config.h>
 
-#include <xapian/cluster.h>
+#include "xapian/cluster.h"
 
 #include "omdebug.h"
 
-#include <map>
 #include <math.h>
+#include <map>
 
 Xapian::DocSimCosine::~DocSimCosine()
 {

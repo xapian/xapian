@@ -18,7 +18,9 @@
  * 02110-1301 USA
  */
 
-#include <xapian/cluster.h>
+#include <config.h>
+
+#include "xapian/cluster.h"
 
 #include "omdebug.h"
 

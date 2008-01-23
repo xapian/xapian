@@ -18,12 +18,16 @@
  * 02110-1301 USA
  */
 
-#include <xapian/cluster.h>
-#include <xapian/error.h>
+#include <config.h>
+
+#include "xapian/cluster.h"
+#include "xapian/error.h"
 
 #include "omassert.h"
 #include "omdebug.h"
 #include "termlist.h"
+
+#include <algorithm>
 
 using namespace Xapian;
 using namespace std;
