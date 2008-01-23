@@ -84,7 +84,8 @@ Description: Core Xapian documentation
 Package: xapian-examples
 Architecture: any
 Section: doc
-Depends: libxapian@LIBXAPIAN_DEV_SOVERSION@-dev (= @BINARY_VERSION@)
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Recommends: libxapian@LIBXAPIAN_DEV_SOVERSION@-dev (= @BINARY_VERSION@)
 Description: Xapian simple example programs
  This package contains source code for some example programs which use the
  Xapian library.  The three "simple" examples are also included in binary

@@ -101,6 +101,69 @@ Fri Dec 07 14:19:00 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 	  calculation stuff from Yung-chung Lin; exactly as in his patch
 	  from 18 September 2007.
 
+Thu Jan 17 22:32:08 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_lock.cc,backends/flint/flint_lock.h,
+	  bin/xapian-check.cc: Apply tweaked version of patch for OS/2 support
+	  by Yuri Dario.
+	* AUTHORS: Add Yuri Dario.
+	* PLATFORMS: Mention OS/2.
+
+Mon Jan 14 11:03:05 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/flint/flint_table.cc,backends/quartz/btree.cc: Fix more
+	  assertions to avoid overflowing int.
+
+Mon Jan 14 09:29:51 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/flint/flint_btreeutil.h: Fix assertions to not overflow
+	  int.
+
+Mon Jan 14 09:23:54 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree_util.h: Fix assertions to not overflow int.
+
+Mon Jan 14 08:47:33 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* configure.ac: Fix test for gcc being 4.0.x or 4.1.x, so we don't
+	  use -Wstrict-overflow with them.
+
+Sun Jan 13 23:28:04 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: GCC warning flag overhaul.  Stop passing
+	  "-Wno-multichar" since any multi-character character literal is
+	  bound to be a typo (I believe we were only passing it after
+	  misinterpreting its sense!)  Pass "-Wformat-security",
+	  "-Wconversion", and "-pedantic" for all GCC versions.  Add
+	  "-Winit-self" and "-Wstrict-overflow=5" for GCC >= 4.2.  The
+	  latter may be too aggressive, but it's hard to know without
+	  trying it more widely.
+
+Sun Jan 13 00:25:25 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_check.h,backends/flint/flint_table.h,
+	  backends/quartz/btree.h,net/tcpserver.cc,tests/harness/testsuite.cc:
+	  Add XAPIAN_NORETURN() annotations to functions and non-virtual
+	  methods which don't return.
+	* net/remoteserver.cc: Assign bool variable using a comparison rather
+	  than subtraction, so the intent is clearer.
+
+Sun Jan 13 00:23:41 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_check.cc: Tweak a comparison so all the
+	  constants are on the same side (micro-optimisation).
+	* backends/quartz/btreecheck.cc: Equivalent change for quartz.
+
+Sun Jan 13 00:20:08 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: Add a couple of testcases I wrote for a
+	  reported problem which turned out to work correctly already.  Still,
+	  they add to our test coverage.
+
+Thu Jan 10 02:04:55 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/runtest.in: Cope with "@EXEEXT" extension on test programs.
+
 Wed Jan 09 21:57:59 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/omquery.cc,api/omqueryinternal.cc,common/remoteprotocol.h,

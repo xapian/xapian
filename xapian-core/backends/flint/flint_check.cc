@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2004,2005 Olly Betts
+ * Copyright 2002,2004,2005,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -196,7 +196,7 @@ BtreeCheck::block_check(Cursor_ * C_, int j, int opts)
 	 * D2 < dir_end: */
 
 	if (c + D2 < dir_end &&
-	    (j == 1 || DIR_END(q) - D2 > DIR_START) &&
+	    (j == 1 || DIR_START + D2 < DIR_END(q)) &&
 	    Item_(q, DIR_END(q) - D2).key() >= Item_(p, c + D2).key())
 	    failure(90);
 

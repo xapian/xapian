@@ -37,6 +37,13 @@ Mon Dec 10 10:28:25 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 	* python/pythontest.py: Add test_docsim(), to test document
 	  similarity calculations.
 
+Wed Jan 09 22:41:24 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* csharp/Makefile.am: Add MultiValueSorter.cs to
+	  XAPIAN_SWIG_CS_SRCS so that it gets cleaned up correctly.
+	* xapian.i: Put OP_VALUE_GE and OP_VALUE_LE in the right place in
+	  the enum, so that they get the right values in language bindings.
+
 Wed Jan 09 22:00:15 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* xapian.i: Add OP_VALUE_GE and OP_VALUE_LE to Query, and add

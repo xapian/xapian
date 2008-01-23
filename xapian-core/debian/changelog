@@ -1,3 +1,11 @@
+  * debian/copyright: Update for 2008 and a few other minor changes.
+  * debian/control.in: Move libxapianNN-dev from "Depends" to "Recommends",
+    since it's needed to run the built examples, but not just to look at the
+    source code.
+  * debian/control.in: Add "${shlibs:Depends}, ${misc:Depends}" to "Depends"
+    to fix a policy violation (dependencies will pull them in anyway so this
+    hasn't caused problems in practice).  Omission noticed by Niko Tyni.
+
 xapian-core (1.0.5-1) unstable; urgency=low
 
   * New upstream release.

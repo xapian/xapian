@@ -961,7 +961,7 @@ if test yes = "$GXX"; then
       dnl All these options were supported by g++ 2.95 and there's little
       dnl likelihood Xapian will build with any earlier version, so there's
       dnl not much point worrying about whether older versions had them or not.
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-multichar -Wno-long-long -fno-gnu-keywords"
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -Wconversion -fno-gnu-keywords -pedantic"
 
       dnl GCC2 reports e.g. "2.7.2.3" or "2.95.4".  3.0 reports e.g. "3.0.4"
       dnl but somewhere in the 3.X series the output became more verbose
@@ -970,35 +970,43 @@ if test yes = "$GXX"; then
       gxx_version=`$CXX --version 2>&1|head -1|${SED-sed} 's/^[[^ ]]* (GCC) //;s/ .*//'`
 
       case $gxx_version in
-      2.96) dnl Oddly Redhat's "2.96" doesn't support -Wundef, though real
-	    dnl GCC versions before and after it do!
+      2.96)
+	dnl Oddly Redhat's "2.96" doesn't support -Wundef, though real
+	dnl GCC versions before and after it do!
 	;;
-      [[12]].*) dnl GCC < 3
-	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef" ;;
-      3.0*) dnl -Wshadow spews false positives with GCC 3.0.4
+      [[012]].* | 3.0*) dnl GCC < 3.1, other than 2.96
+	dnl GCC 3.0 supports -Wshadow, but it spews false positives (at least
+	dnl with 3.0.4) so we don't use it.
 	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef" ;;
       3.*)
 	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow" ;;
       *)
+        AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow"
+
+        dnl -Winit-self was added in GCC 3.4, but contrary to the documentation
+	dnl it is currently (tested with GCC 4.2) ignored by g++ which warns for
+	dnl this case with -Wunitialized (implied by -W).
+	dnl -Wstrict-overflow is new in GCC 4.2.
+	case $gxx_version in
+	4.0*|4.1*) ;;
+	*) AM_CXXFLAGS="$AM_CXXFLAGS -Winit-self -Wstrict-overflow=5" ;;
+	esac
+
 	if test no = "$enable_visibility"; then
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow"
 	  AC_DEFINE(XAPIAN_DISABLE_VISIBILITY, 1, [Define to disable use of visibility attributes])
 	else
 	  dnl Turn on visibility support for GCC >= 4.0.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow -fvisibility=hidden"
+	  AM_CXXFLAGS="$AM_CXXFLAGS -fvisibility=hidden"
+	fi
+
+	dnl Automatically add -Werror if maintainer mode is enabled and we're
+	dnl using GCC4 or newer.  We don't do this for older GCCs as GCC 2.95
+	dnl and some GCC 3.x compilers issue spurious warnings.
+	if test x$USE_MAINTAINER_MODE = xyes; then
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
 	fi
 	;;
       esac
-
-      dnl Automatically add -Werror if maintainer mode is enabled and we're
-      dnl using GCC4 or newer.  We don't do this for older GCCs as GCC 2.95
-      dnl and some GCC 3.x compilers issue spurious warnings.
-      if test x$USE_MAINTAINER_MODE = xyes; then
-	case $gxx_version in
-	[[123]].*) ;; dnl GCC < 4
-	*) AM_CXXFLAGS="$AM_CXXFLAGS -Werror" ;;
-	esac
-      fi
 
       XAPIAN_TEST_LINKER_FLAG([-Bsymbolic-functions], [symbolic_functions],
 	[XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $flag"])
