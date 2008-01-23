@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,13 +22,15 @@
 
 #include <config.h>
 
+#include "tcpserver.h"
+
 #include <xapian/error.h>
 
 #include "safeerrno.h"
 #include "safefcntl.h"
 
+#include "noreturn.h"
 #include "remoteserver.h"
-#include "tcpserver.h"
 #include "utils.h"
 
 #ifdef __WIN32__
@@ -314,6 +316,8 @@ TcpServer::run_once()
 
 extern "C" {
 
+XAPIAN_NORETURN(static void on_SIGTERM(int /*sig*/));
+
 static void
 on_SIGTERM(int /*sig*/)
 {
@@ -324,7 +328,7 @@ on_SIGTERM(int /*sig*/)
 #else
     kill(0, SIGTERM);
 #endif
-    exit (0);
+    exit(0);
 }
 
 #ifdef HAVE_WAITPID

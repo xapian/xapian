@@ -64,7 +64,7 @@ inline int
 getint2(const byte *p, int c)
 {
     Assert(c >= 0);
-    Assert(c + 1 < 65536);
+    Assert(c < 65536 - 1);
     return p[c] << 8 | p[c + 1];
 }
 
@@ -72,7 +72,7 @@ inline void
 setint2(byte *p, int c, int x)
 {
     Assert(c >= 0);
-    Assert(c + 1 < 65536);
+    Assert(c < 65536 - 1);
     p[c] = x >> 8;
     p[c + 1] = x;
 }
@@ -81,7 +81,7 @@ inline int
 getint4(const byte *p, int c)
 {
     Assert(c >= 0);
-    Assert(c + 3 < 65536);
+    Assert(c < 65536 - 3);
     return p[c] << 24 | p[c + 1] << 16 | p[c + 2] << 8 | p[c + 3];
 }
 
@@ -89,7 +89,7 @@ inline void
 setint4(byte *p, int c, int x)
 {
     Assert(c >= 0);
-    Assert(c + 3 < 65536);
+    Assert(c < 65536 - 3);
     p[c] = x >> 24;
     p[c + 1] = x >> 16;
     p[c + 2] = x >> 8;

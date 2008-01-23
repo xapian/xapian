@@ -63,7 +63,7 @@ my $output_tmp = $output . "T";
 open OUTPUT, ">$output_tmp" or die "$output_tmp: $!\n";
 
 print OUTPUT <<EOF;
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <!-- automatically generated from $version source code -->
 <html>
 <head>
@@ -71,7 +71,7 @@ print OUTPUT <<EOF;
 <title>Xapian: Code structure</title>
 </head>
 <body bgcolor="white" text="black">
-<H1>Index</H1>
+<h1>Index</h1>
 EOF
 
 my $depth = -1;
@@ -90,7 +90,7 @@ for my $dir (sort keys(%desc)) {
     my $id = $dir;
     $id =~ s!_!__!g;
     $id =~ s!/+!_!g;
-    print OUTPUT "<li><a href=\"#$id\">$dir</A>\n";
+    print OUTPUT "<li><a href=\"#$id\">$dir</a>\n";
 }
 if ($depth >= 0) {
     print OUTPUT "</ul>\n" x ($depth + 1);
@@ -117,7 +117,7 @@ foreach my $dir (sort keys(%desc)) {
     $id =~ s!_!__!g;
     $id =~ s!/+!_!g;
     print OUTPUT "<div id=\"$id\">\n";
-    print OUTPUT "<a href=\"$url\"><h$d>$dir</h$d></a>\n";
+    print OUTPUT "<h$d><a href=\"$url\">$dir</a></h$d>\n";
     print OUTPUT "<p>", html_escape($desc), "</p>\n";
     print OUTPUT "</div>\n\n";
 }
@@ -126,9 +126,9 @@ my $date = POSIX::strftime("%Y-%m-%d", gmtime());
 
 print OUTPUT <<EOF;
 <hr>
-<small>
+<address>
 Generated for $version on $date by gen_codestructure_doc.
-</small>
+</address>
 </body>
 </html>
 EOF

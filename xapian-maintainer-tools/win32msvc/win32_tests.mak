@@ -97,7 +97,7 @@ SRC = \
     "$(INTDIR)\remotetest.cc" \
     "$(INTDIR)\termgentest.cc" 
 
-COLLATED_APITEST_SOURCES=api_anydb.cc api_db.cc api_nodb.cc api_posdb.cc api_sorting.cc api_transdb.cc api_unicode.cc api_wrdb.cc
+COLLATED_APITEST_SOURCES=api_anydb.cc api_db.cc api_nodb.cc api_posdb.cc api_sorting.cc api_transdb.cc api_unicode.cc api_wrdb.cc api_generated.cc
     
 COLLATED_APITEST_HEADERS=\
     "$(INTDIR)\api_anydb.h" \
@@ -107,6 +107,7 @@ COLLATED_APITEST_HEADERS=\
     "$(INTDIR)\api_sorting.h" \
     "$(INTDIR)\api_transdb.h" \
     "$(INTDIR)\api_unicode.h" \
+    "$(INTDIR)\api_generated.h" \
     "$(INTDIR)\api_wrdb.h"
 
 CLEAN_COLLATED_HEADERS:
@@ -135,6 +136,7 @@ CLEAN :
     -@erase "$(INTDIR)\*.lib"
     -@erase "$(INTDIR)\*.manifest"
     -@erase api_collated.h
+    -@erase api_generated.cc
     -@erase $(COLLATED_APITEST_HEADERS)
     if exist ".btreetmp" rmdir ".btreetmp" /s /q
     if exist ".flint" rmdir ".flint" /s /q
@@ -151,8 +153,11 @@ CPP_OBJS=..\win32\Tests$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
     
-api_collated.h: collate-apitest
+api_collated.h: collate-apitest $(COLLATED_APITEST_SOURCES)
     $(PERL_EXE) "$(INTDIR)/collate-apitest" "$(INTDIR)" $(COLLATED_APITEST_SOURCES) > api_collated.h
+    
+api_generated.cc: generate-api_generated
+    $(PERL_EXE) "$(INTDIR)/generate-api_generated" > api_generated.cc
     
 LINK32=link.exe
 ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS) "$(OUTLIBDIR)\libtest.lib"

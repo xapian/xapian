@@ -204,6 +204,7 @@ know):
 * Rich Text Format documents (.rtf) if unrtf is available
 * Perl POD documentation (.pl, .pm, .pod) if pod2text is available
 * TeX DVI files (.dvi) if catdvi is available
+* DjVu files (.djv, .djvu) if djvutxt is available
 
 If you have additional extensions that represent one of these types, you need
 to add an additional MIME mapping using the --mime-type option. For instance::
@@ -255,6 +256,7 @@ of:
    - application/x-abiword
    - application/x-abiword-compressed
    - application/x-dvi
+   - image/vnd.djvu
 
 If you wish to remove a MIME mapping, you can do this by omitting the type -
 for example to not index .doc files, use: --mime-type doc:

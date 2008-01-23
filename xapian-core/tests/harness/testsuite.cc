@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,6 +21,8 @@
  */
 
 #include <config.h>
+
+#include "testsuite.h"
 
 #ifdef HAVE_VALGRIND
 # include "safeerrno.h"
@@ -62,7 +64,7 @@
 #endif
 
 #include <xapian/error.h>
-#include "testsuite.h"
+#include "noreturn.h"
 #include "omdebug.h"
 #include "stringutils.h"
 #include "utils.h"
@@ -154,8 +156,9 @@ static int signum = 0;
 
 /* Needs C linkage so we can pass it to signal() without problems. */
 extern "C" {
-static void
-handle_sig(int signum_)
+
+XAPIAN_NORETURN(static void handle_sig(int signum_));
+static void handle_sig(int signum_)
 {
     signal(SIGSEGV, SIG_DFL);
     signal(SIGFPE, SIG_DFL);
@@ -169,6 +172,7 @@ handle_sig(int signum_)
     signum = signum_;
     longjmp(jb, 1);
 }
+
 }
 
 class SignalRedirector {

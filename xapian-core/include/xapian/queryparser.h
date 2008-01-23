@@ -213,7 +213,7 @@ class XAPIAN_VISIBILITY_DEFAULT NumberValueRangeProcessor : public ValueRangePro
      *
      *  For example, if str_ is "$" and prefix_ is true, and the range
      *  processor has been added to the queryparser, the queryparser will
-     *  accept "$10..50" or "$10..50", but not "10..50" or "10..$50" as valid
+     *  accept "$10..50" or "$10..$50", but not "10..50" or "10..$50" as valid
      *  ranges.  If str_ is "kg" and prefix_ is false, the queryparser will
      *  accept "10..50kg" or "10kg..50kg", but not "10..50" or "10kg..50" as
      *  valid ranges.

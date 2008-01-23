@@ -69,6 +69,16 @@ FlintLock::lock(bool exclusive) {
     if (hFile != INVALID_HANDLE_VALUE) return SUCCESS;
     if (GetLastError() == ERROR_ALREADY_EXISTS) return INUSE;
     return UNKNOWN;
+#elif defined __EMX__
+    APIRET rc;
+    ULONG ulAction;
+    rc = DosOpen((PCSZ)filename.c_str(), &hFile, &ulAction, 0, FILE_NORMAL,
+		 OPEN_ACTION_OPEN_IF_EXISTS  | OPEN_ACTION_CREATE_IF_NEW,
+		 OPEN_SHARE_DENYWRITE | OPEN_ACCESS_WRITEONLY,
+		 NULL);
+    if (rc == NO_ERROR) return SUCCESS;
+    if (rc == ERROR_ACCESS_DENIED) return INUSE;
+    return UNKNOWN;
 #else
     Assert(fd == -1);
     int lockfd = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0600);
@@ -173,6 +183,10 @@ FlintLock::release() {
     if (hFile == INVALID_HANDLE_VALUE) return;
     CloseHandle(hFile);
     hFile = INVALID_HANDLE_VALUE;
+#elif defined __EMX__
+    if (hFile == NULLHANDLE) return;
+    DosClose(hFile);
+    hFile = NULLHANDLE;
 #else
     if (fd < 0) return;
     close(fd);
