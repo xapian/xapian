@@ -24,15 +24,21 @@
 #include <string>
 
 #if defined __CYGWIN__ || defined __WIN32__
-#include "safewindows.h"
+# include "safewindows.h"
+#elif defined __EMX__
+# define INCL_DOS
+# define INCL_DOSERRORS
+# include <os2.h>
 #else
-#include <sys/types.h>
+# include <sys/types.h>
 #endif
 
 class FlintLock {
     std::string filename;
 #if defined __CYGWIN__ || defined __WIN32__
     HANDLE hFile;
+#elif defined __EMX__
+    HFILE hFile;
 #else
     int fd;
     pid_t pid;
@@ -49,6 +55,10 @@ class FlintLock {
     FlintLock(const std::string &filename_)
 	: filename(filename_), hFile(INVALID_HANDLE_VALUE) { }
     operator bool() { return hFile != INVALID_HANDLE_VALUE; }
+#elif defined __EMX__
+    FlintLock(const std::string &filename_)
+	: filename(filename_), hFile(NULLHANDLE) { }
+    operator bool() { return hFile != NULLHANDLE; }
 #else
     FlintLock(const std::string &filename_) : filename(filename_), fd(-1) { }
     operator bool() { return fd != -1; }

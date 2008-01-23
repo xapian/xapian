@@ -1,6 +1,6 @@
 /* freemem.cc: determine how much free physical memory there is.
  *
- * Copyright (C) 2007 Olly Betts
+ * Copyright (C) 2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,7 +56,7 @@ get_free_physical_memory()
     /* Linux: */
     pagesize = sysconf(_SC_PAGESIZE);
     pages = sysconf(_SC_AVPHYS_PAGES);
-#elif HAVE_SYSMP
+#elif defined HAVE_SYSMP 
     /* IRIX: (rminfo64 and MPSA_RMINFO64?) */
     struct rminfo meminfo;
     if (sysmp(MP_SAGET, MPSA_RMINFO, &meminfo, sizeof(meminfo)) == 0) {

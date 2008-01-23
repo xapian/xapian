@@ -639,8 +639,8 @@ FlintTable::enter_key(int j, Key_ prevkey, Key_ newkey)
 
     byte b[UCHAR_MAX + 6];
     Item_wr_ item(b);
-    Assert(I2 + i + C2 <= 256);
-    Assert(I2 + i + C2 + 4 <= (int)sizeof(b));
+    Assert(i <= 256 - I2 - C2);
+    Assert(i <= (int)sizeof(b) - I2 - C2 - 4);
     item.set_key_and_block(newkey, i, blocknumber);
 
     // When j > 1 we can make the first key of block p null.  This is probably

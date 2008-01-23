@@ -15,7 +15,7 @@ Linux), as are both big and little endian platforms.  Any sane Linux
 distribution should work, and we regularly test build on several.
 
 Additionally, Xapian can be built on Microsoft Windows using Cygwin or Mingw
-GCC, or with MSVC.
+GCC, or with MSVC.  And on OS/2 with EMX GCC.
 
 We have automated builds on all the platforms we can get access to, and users
 have submitted the results trying to build Xapian on various other platforms.
