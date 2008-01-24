@@ -7,6 +7,10 @@ Revision history for Perl extension Search::Xapian.
 	  well as exiting with status 0.
 	- Mention QueryParser flags in POD: FLAG_SPELLING_CORRECTION,
 	  FLAG_SYNONYM, FLAG_AUTO_SYNONYMS, and FLAG_AUTO_MULTIWORD_SYNONYMS.
+	- Removed no-op method Enquire::register_match_decider() which is now
+	  deprecated in C++.  It doesn't do anything, and never has, so if
+	  you were calling it, you can just remove the call!
+	- Improve POD for Enquire::get_eset().
 
 1.0.5.0  Wed Jan 02 01:07:28 GMT 2008
 	[Changes contributed by Olly Betts]
