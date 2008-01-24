@@ -45,56 +45,57 @@ $db->add_document($doc);
 
 $enquire->set_query(Search::Xapian::Query->new("foo"));
 
-my @matches;
 {
-    $sorter = Search::Xapian::MultiValueSorter->new();
-    $sorter->add(0);
-    $enquire->set_sort_by_key($sorter);
-    @matches = $enquire->matches(0, 10);
+    {
+	my $sorter = Search::Xapian::MultiValueSorter->new();
+	$sorter->add(0);
+	$enquire->set_sort_by_key($sorter);
+    }
+    my @matches = $enquire->matches(0, 10);
     mset_expect_order(@matches, (5, 4, 3, 2, 1));
 }
 
 {
-    $sorter = Search::Xapian::MultiValueSorter->new();
+    my $sorter = Search::Xapian::MultiValueSorter->new();
     $sorter->add(0, 0);
     $enquire->set_sort_by_key($sorter);
-    @matches = $enquire->matches(0, 10);
+    my @matches = $enquire->matches(0, 10);
     mset_expect_order(@matches, (1, 2, 3, 4, 5));
 }
 
 {
-    $sorter = Search::Xapian::MultiValueSorter->new();
+    my $sorter = Search::Xapian::MultiValueSorter->new();
     $sorter->add(0);
     $sorter->add(1);
     $enquire->set_sort_by_key($sorter);
-    @matches = $enquire->matches(0, 10);
+    my @matches = $enquire->matches(0, 10);
     mset_expect_order(@matches, (5, 4, 3, 2, 1));
 }
 
 {
-    $sorter = Search::Xapian::MultiValueSorter->new();
+    my $sorter = Search::Xapian::MultiValueSorter->new();
     $sorter->add(0, 0);
     $sorter->add(1);
     $enquire->set_sort_by_key($sorter);
-    @matches = $enquire->matches(0, 10);
+    my @matches = $enquire->matches(0, 10);
     mset_expect_order(@matches, (1, 2, 3, 4, 5));
 }
 
 {
-    $sorter = Search::Xapian::MultiValueSorter->new();
+    my $sorter = Search::Xapian::MultiValueSorter->new();
     $sorter->add(0);
     $sorter->add(1, 0);
     $enquire->set_sort_by_key($sorter);
-    @matches = $enquire->matches(0, 10);
+    my @matches = $enquire->matches(0, 10);
     mset_expect_order(@matches, (5, 4, 3, 2, 1));
 }
 
 {
-    $sorter = Search::Xapian::MultiValueSorter->new();
+    my $sorter = Search::Xapian::MultiValueSorter->new();
     $sorter->add(0, 0);
     $sorter->add(1, 0);
     $enquire->set_sort_by_key($sorter);
-    @matches = $enquire->matches(0, 10);
+    my @matches = $enquire->matches(0, 10);
     mset_expect_order(@matches, (1, 2, 3, 4, 5));
 }
 
