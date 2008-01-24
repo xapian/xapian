@@ -1,3 +1,8 @@
+Thu Jan 24 13:30:04 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/intro_ir.html: Briefly mention how pure boolean retrieval is
+	  supported.
+
 Thu Jan 24 13:28:44 GMT 2008  Olly Betts <olly@survex.com>
 
 	* HACKING: Move "debian/patch" update earlier in the checklist.
