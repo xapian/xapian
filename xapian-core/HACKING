@@ -1138,6 +1138,10 @@ for which packages have been produced (currently xapian-core, xapian-bindings
 and xapian-applications/omega).  After each release, these should be
 updated as follows:
 
+* If any patches are being applied when building the debian package
+  (ie, there is a patch file "debian/patch"), and these patches are
+  now incorporated into the release, remove or update the patch file.
+
 * Update the debian/changelog file, being sure to keep it in the
   standard Debian format (the easiest way is to use the dch utility
   like so: "dch -v 0.9.7-1".  The new version number should be the
@@ -1145,10 +1149,6 @@ updated as follows:
   patch number of 1).  The changelog message should indicate that
   there is a new upstream release, and should mention any significant
   changes in the new release.
-
-* If any patches are being applied when building the debian package
-  (ie, there is a patch file "debian/patch"), and these patches are
-  now incorporated into the release, remove or update the patch file.
 
 * Use xapian-maintainer-tools/debian/svn-tag-debs to tag all the files in the
   debian control directory with the tag "debian-VERSION-1" - eg, for a new
