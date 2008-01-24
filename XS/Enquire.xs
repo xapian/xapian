@@ -204,13 +204,6 @@ Enquire::get_matching_terms_end2(it)
         RETVAL
 
 void
-Enquire::register_match_decider(name, mdecider)
-        string          name
-        MatchDecider *  mdecider
-    CODE:
-        THIS->register_match_decider(name, mdecider);
-
-void
 Enquire::set_weighting_scheme(weight_)
 	Weight *  weight_
     CODE:

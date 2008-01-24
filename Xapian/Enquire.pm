@@ -248,9 +248,7 @@ Get match set.
 
 =item get_eset
 
-=item register_match_decoder <name> <mdecider>
-
-See Xapian API documentation for these functions.
+Get set of query expansion terms.
 
 =item get_description
 
