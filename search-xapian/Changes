@@ -5,6 +5,8 @@ Revision history for Perl extension Search::Xapian.
 	- If the Search::Xapian and xapian-config versions don't match, and
 	  $ENV{AUTOMATED_TESTING} is true, then we need to unlink Makefile as
 	  well as exiting with status 0.
+	- Mention QueryParser flags in POD: FLAG_SPELLING_CORRECTION,
+	  FLAG_SYNONYM, FLAG_AUTO_SYNONYMS, and FLAG_AUTO_MULTIWORD_SYNONYMS.
 
 1.0.5.0  Wed Jan 02 01:07:28 GMT 2008
 	[Changes contributed by Olly Betts]

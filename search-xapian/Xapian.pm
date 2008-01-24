@@ -287,6 +287,14 @@ final word as a wildcarded match, unless it is followed by
 whitespace, to produce more stable results from interactive
 searches.
 
+=item FLAG_SPELLING_CORRECTION
+
+=item FLAG_SYNONYM
+
+=item FLAG_AUTO_SYNONYMS
+
+=item FLAG_AUTO_MULTIWORD_SYNONYMS
+
 =back
 
 =head1 :qpstem
