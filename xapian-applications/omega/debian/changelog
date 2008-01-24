@@ -1,5 +1,9 @@
   * debian/control.in: Add "djvulibre-bin" to "Suggests:" as omindex can now
     make use of it to index DjVu files.
+  * debian/rules: The dependency on libxapianN is now versioned.  We require a
+    version >= the version of xapian-omega being packaged (which is sometimes
+    slightly too conservative, but simple to implement without manual
+    maintenance).
 
 xapian-omega (1.0.5-1) unstable; urgency=low
 
