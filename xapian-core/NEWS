@@ -1,3 +1,94 @@
+upto:
+Thu Jan 17 22:32:08 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_table.cc,backends/quartz/btree.cc: Fix more
+	  assertions to avoid overflowing int.
+	* backends/flint/flint_btreeutil.h: Fix assertions to not overflow
+	  int.
+	* backends/quartz/btree_util.h: Fix assertions to not overflow int.
+
+	* configure.ac: GCC warning flag overhaul.  Stop passing
+	  "-Wno-multichar" since any multi-character character literal is
+	  bound to be a typo (I believe we were only passing it after
+	  misinterpreting its sense!)  Pass "-Wformat-security",
+	  "-Wconversion", and "-pedantic" for all GCC versions.  Add
+	  "-Winit-self" and "-Wstrict-overflow=5" for GCC >= 4.2.  The
+	  latter may be too aggressive, but it's hard to know without
+	  trying it more widely.
+
+	* backends/flint/flint_check.h,backends/flint/flint_table.h,
+	  backends/quartz/btree.h,net/tcpserver.cc,tests/harness/testsuite.cc:
+	  Add XAPIAN_NORETURN() annotations to functions and non-virtual
+	  methods which don't return.
+	  
+	* net/remoteserver.cc: Assign bool variable using a comparison rather
+	  than subtraction, so the intent is clearer.
+
+	* backends/flint/flint_check.cc: Tweak a comparison so all the
+	  constants are on the same side (micro-optimisation).
+	* backends/quartz/btreecheck.cc: Equivalent change for quartz.
+
+Xapian-core 1.0.6 (2008-0?-??):
+
+
+API:
+
+* Add new query operators OP_VALUE_LE and OP_VALUE_GE which perform "single
+  ended" range checks, and a corresponding new Query constructor.
+
+* Xapian::Stem has been further optimised - stemtest now runs ~2.5% faster.
+
+testsuite:
+
+* tests/runtest: Fixed to handle test programs with a ".exe" extension.
+
+	* tests/queryparsertest.cc: Add a couple of testcases I wrote for a
+	  reported problem which turned out to work correctly already.  Still,
+	  they add to our test coverage.
+
+flint backend:
+
+
+quartz backend:
+
+
+remote backend:
+
+* The addition of OP_VALUE_LE and OP_VALUE_GE required an update to the Query
+  serialisation, which required a minor remote protocol version bump.
+
+inmemory backend:
+
+
+build system:
+
+
+documentation:
+
+	* docs/valueranges.rst: Fix example of using multiple VRPs to come out
+	  as a "program listing".
+
+	* PLATFORMS: Remove reports for 0.8.x as they're too old to be
+	  interesting.  Separate out 0.9.x reports.
+	* PLATFORMS: Add Solaris 9 and 10 success reports from James Aylett.
+	* PLATFORMS: Update from Debian buildd logs.
+
+examples:
+
+
+portability:
+
+* Now builds on OS/2, thanks to a patch by Yuri Dario.
+
+* Fix testsuite to build on mingw (broken by changes in 1.0.5).
+
+packaging:
+
+
+debug code:
+
+* Fix --enable-assertions build, broken by changes in 1.0.5.
+
 Xapian-core 1.0.5 (2007-12-21):
 
 API:
