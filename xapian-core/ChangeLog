@@ -1,3 +1,12 @@
+Fri Jan 25 15:06:30 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/flint/flint_table.cc,backends/quartz/btree.cc: Use
+	  msvc_posix_unlink() on windows in sys_unlink_if_exists()
+	  functions, so that they will work even if the file is still open.
+	  This probably changes no behaviour, because
+	  sys_unlink_if_exists() is probably never called in such a
+	  situation, but this may not be true in future.
+
 Thu Jan 24 13:31:20 GMT 2008  Olly Betts <olly@survex.com>
 
 	* docs/overview.html: Remove commented-out comment about OP_XOR.

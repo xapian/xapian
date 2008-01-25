@@ -1522,7 +1522,11 @@ Btree::exists() const {
 void
 sys_unlink_if_exists(const string & filename)
 {
+#ifdef __WIN32__
+    if (msvc_posix_unlink(filename.c_str()) == -1) {
+#else
     if (unlink(filename) == -1) {
+#endif
 	if (errno == ENOENT) return;
 	throw Xapian::DatabaseError("Can't delete file: `" + filename +
 			      "': " + strerror(errno));
