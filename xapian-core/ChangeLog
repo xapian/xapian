@@ -1,3 +1,11 @@
+Sat Jan 26 17:18:09 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/dbfactory_remote.cc,common/Makefile.mk,
+	  common/remotetcpclient.h,common/tcpclient.h,net/Makefile.mk,
+	  net/remotetcpclient.cc,net/tcpclient.cc: Split out the "open
+	  a connection" part of TcpClient and rename the rest to
+	  RemoteTcpClient.
+
 Sat Jan 26 14:01:34 GMT 2008  Olly Betts <olly@survex.com>
 
 	* bin/xapian-tcpsrv.cc,common/Makefile.mk,common/remotetcpserver.h,

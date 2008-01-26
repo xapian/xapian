@@ -28,6 +28,7 @@ noinst_HEADERS +=\
 	common/remote-database.h\
 	common/remoteprotocol.h\
 	common/remoteserver.h\
+	common/remotetcpclient.h\
 	common/remotetcpserver.h\
 	common/rset.h\
 	common/safeerrno.h\
