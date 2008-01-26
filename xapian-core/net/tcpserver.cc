@@ -30,7 +30,7 @@
 #include "safefcntl.h"
 
 #include "noreturn.h"
-#include "remoteserver.h"
+#include "remoteconnection.h"
 #include "utils.h"
 
 #ifdef __WIN32__
@@ -68,23 +68,17 @@ using namespace std;
 #endif
 
 /// The TcpServer constructor, taking a database and a listening port.
-TcpServer::TcpServer(const vector<std::string> &dbpaths_, const std::string & host, int port,
-		     int msecs_active_timeout_,
-		     int msecs_idle_timeout_,
-		     bool writable_,
-		     bool verbose_)
-	: dbpaths(dbpaths_), writable(writable_),
+TcpServer::TcpServer(const std::string & host, int port, bool verbose_)
+    :
 #if defined __CYGWIN__ || defined __WIN32__
-	  mutex(NULL),
+      mutex(NULL),
 #endif
-	  listen_socket(get_listening_socket(host, port
+      listen_socket(get_listening_socket(host, port
 #if defined __CYGWIN__ || defined __WIN32__
-					     , mutex
+					 , mutex
 #endif
-					    )),
-	  msecs_active_timeout(msecs_active_timeout_),
-	  msecs_idle_timeout(msecs_idle_timeout_),
-	  verbose(verbose_)
+					 )),
+      verbose(verbose_)
 {
 }
 
@@ -261,28 +255,6 @@ TcpServer::~TcpServer()
 #if defined __CYGWIN__ || defined __WIN32__
     if (mutex) CloseHandle(mutex);
 #endif
-}
-
-void
-TcpServer::handle_one_connection(int socket)
-{
-    try {
-	RemoteServer sserv(dbpaths, socket, socket,
-			   msecs_active_timeout, msecs_idle_timeout,
-			   writable);
-	sserv.run();
-	CLOSESOCKET(socket);
-    } catch (const Xapian::NetworkTimeoutError &e) {
-	CLOSESOCKET(socket);
-	if (verbose)
-	    cerr << "Connection timed out: " << e.get_description() << endl;
-    } catch (const Xapian::Error &e) {
-	CLOSESOCKET(socket);
-	cerr << "Got exception " << e.get_description() << endl;
-    } catch (...) {
-	CLOSESOCKET(socket);
-	// ignore other exceptions
-    }
 }
 
 #ifdef HAVE_FORK

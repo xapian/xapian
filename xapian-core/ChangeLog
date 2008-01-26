@@ -1,3 +1,11 @@
+Sat Jan 26 14:01:34 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/xapian-tcpsrv.cc,common/Makefile.mk,common/remotetcpserver.h,
+	  common/tcpserver.h,net/Makefile.mk,net/remotetcpserver.cc,
+	  net/tcpserver.cc: Split TcpServer into a generic TCP server
+	  class (TcpServer) and a subclass of this which implements the
+	  remote backend TCP server (RemoteTcpServer).
+
 Sat Jan 26 11:06:30 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* backends/flint/flint_btreebase.cc,backends/quartz/btree_util.h,
