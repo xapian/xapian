@@ -1,3 +1,10 @@
+Sat Jan 26 11:06:30 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/flint/flint_btreebase.cc,backends/quartz/btree_util.h,
+	  common/utils.h: Move fdcloser into utils.h, since it's generally
+	  useful, and it's better not to have multiple copies of it
+	  scattered through the code.
+
 Fri Jan 25 15:06:30 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* backends/flint/flint_table.cc,backends/quartz/btree.cc: Use

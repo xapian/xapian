@@ -39,21 +39,6 @@
 
 using namespace std;
 
-/** A tiny class used to close a filehandle safely in the presence
- *  of exceptions.
- */
-class fdcloser {
-    public:
-	fdcloser(int fd_) : fd(fd_) {}
-	~fdcloser() {
-	    if (fd >= 0) {
-		(void)close(fd);
-	    }
-	}
-    private:
-	int fd;
-};
-
 /************ Base file parameters ************/
 
 /** This is the current description of the base file format:

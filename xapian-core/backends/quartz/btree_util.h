@@ -120,19 +120,4 @@ inline byte *zeroed_new(size_t size)
     return temp;
 }
 
-/** A tiny class used to close a filehandle safely in the presence
- *  of exceptions.
- */
-class fdcloser {
-    public:
-	fdcloser(int fd_) : fd(fd_) {}
-	~fdcloser() {
-	    if (fd >= 0) {
-		sys_close(fd);
-	    }
-	}
-    private:
-	int fd;
-};
-
 #endif /* OM_HGUARD_BTREE_UTIL_H */
