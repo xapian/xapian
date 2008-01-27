@@ -274,6 +274,7 @@ TcpServer::run_once()
 	close(listen_socket);
 
 	handle_one_connection(connected_socket);
+	close(connected_socket);
 
 	if (verbose) cout << "Closing connection." << endl;
 	exit(0);
@@ -412,6 +413,7 @@ run_thread(void * param_)
     int socket = param->connected_socket;
 
     param->server->handle_one_connection(socket);
+    closesocket(socket);
 
     delete param;
 
@@ -468,7 +470,9 @@ void
 TcpServer::run_once()
 {
     // Run a single request on the current thread.
-    handle_one_connection(accept_connection());
+    int fd = accept_connection();
+    handle_one_connection(fd);
+    closesocket(fd);
 }
 
 #else

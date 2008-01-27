@@ -32,14 +32,6 @@
 
 using namespace std;
 
-#ifdef __WIN32__
-// We must call closesocket() (instead of just close()) under __WIN32__ or
-// else the socket remains in the CLOSE_WAIT state.
-# define CLOSESOCKET(S) closesocket(S)
-#else
-# define CLOSESOCKET(S) close(S)
-#endif
-
 /// The RemoteTcpServer constructor, taking a database and a listening port.
 RemoteTcpServer::RemoteTcpServer(const vector<std::string> &dbpaths_,
 				 const std::string & host, int port,
@@ -62,16 +54,12 @@ RemoteTcpServer::handle_one_connection(int socket)
 			   msecs_active_timeout, msecs_idle_timeout,
 			   writable);
 	sserv.run();
-	CLOSESOCKET(socket);
     } catch (const Xapian::NetworkTimeoutError &e) {
-	CLOSESOCKET(socket);
 	if (verbose)
 	    cerr << "Connection timed out: " << e.get_description() << endl;
     } catch (const Xapian::Error &e) {
-	CLOSESOCKET(socket);
 	cerr << "Got exception " << e.get_description() << endl;
     } catch (...) {
-	CLOSESOCKET(socket);
 	// ignore other exceptions
     }
 }
