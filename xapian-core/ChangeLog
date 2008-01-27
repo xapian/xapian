@@ -1,3 +1,7 @@
+Sun Jan 27 12:53:51 GMT 2008  Olly Betts <olly@survex.com>
+
+	* net/tcpserver.cc: Change explicit references to xapian-tcpsrv.
+
 Sun Jan 27 12:26:24 GMT 2008  Olly Betts <olly@survex.com>
 
 	* common/tcpclient.h,common/tcpserver.h,net/: Make use of TCP_NODELAY
