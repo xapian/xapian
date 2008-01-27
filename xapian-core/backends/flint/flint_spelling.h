@@ -99,9 +99,9 @@ class FlintSpellingTable : public FlintTable {
 	FlintTable::set_block_size(blocksize);
     }
 
-    void commit(flint_revision_number_t revision) {
+    void flush_db() {
 	merge_changes();
-	FlintTable::commit(revision);
+	FlintTable::flush_db();
     }
 
     void cancel() {
