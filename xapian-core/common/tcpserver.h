@@ -60,8 +60,10 @@ class XAPIAN_VISIBILITY_DEFAULT TcpServer SOCKET_INITIALIZER_MIXIN {
      *  @param host	hostname or address to listen on or an empty string to
      *			accept connections on any interface.
      *  @param port	TCP port to listen on.
+     *  @param tcp_nodelay	If true, enable TCP_NODELAY option.
      */
-    static int get_listening_socket(const std::string & host, int port
+    static int get_listening_socket(const std::string & host, int port,
+				    bool tcp_nodelay
 #if defined __CYGWIN__ || defined __WIN32__
 				    , HANDLE &mutex
 #endif
@@ -80,10 +82,12 @@ class XAPIAN_VISIBILITY_DEFAULT TcpServer SOCKET_INITIALIZER_MIXIN {
      *  @param host	The hostname or address for the interface to listen on
      *			(or "" to listen on all interfaces).
      *  @param port	The TCP port number to listen on.
+     *  @param tcp_nodelay	If true, enable TCP_NODELAY option.
      *	@param verbose	Should we produce output when connections are
      *			made or lost?
      */
-    TcpServer(const std::string &host, int port, bool verbose);
+    TcpServer(const std::string &host, int port, bool tcp_nodelay,
+	      bool verbose);
 
     /** Destructor. */
     virtual ~TcpServer();

@@ -35,7 +35,7 @@ RemoteTcpClient::open_socket(const string & hostname, int port,
 {
     // If TcpClient::open_socket() throws, fill in the context.
     try {
-	return TcpClient::open_socket(hostname, port, msecs_timeout_connect);
+	return TcpClient::open_socket(hostname, port, msecs_timeout_connect, true);
     } catch (const Xapian::NetworkTimeoutError & e) {
 	throw Xapian::NetworkTimeoutError(e.get_msg(), get_tcpcontext(hostname, port),
 					  e.get_error_string());

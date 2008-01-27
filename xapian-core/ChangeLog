@@ -1,3 +1,8 @@
+Sun Jan 27 12:26:24 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/tcpclient.h,common/tcpserver.h,net/: Make use of TCP_NODELAY
+	  optional at the class level.  No user-visible changes.
+
 Sat Jan 26 17:18:09 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/dbfactory_remote.cc,common/Makefile.mk,

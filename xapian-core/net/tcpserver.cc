@@ -68,12 +68,13 @@ using namespace std;
 #endif
 
 /// The TcpServer constructor, taking a database and a listening port.
-TcpServer::TcpServer(const std::string & host, int port, bool verbose_)
+TcpServer::TcpServer(const std::string & host, int port, bool tcp_nodelay,
+		     bool verbose_)
     :
 #if defined __CYGWIN__ || defined __WIN32__
       mutex(NULL),
 #endif
-      listen_socket(get_listening_socket(host, port
+      listen_socket(get_listening_socket(host, port, tcp_nodelay
 #if defined __CYGWIN__ || defined __WIN32__
 					 , mutex
 #endif
@@ -83,7 +84,8 @@ TcpServer::TcpServer(const std::string & host, int port, bool verbose_)
 }
 
 int
-TcpServer::get_listening_socket(const std::string & host, int port
+TcpServer::get_listening_socket(const std::string & host, int port,
+				bool tcp_nodelay
 #if defined __CYGWIN__ || defined __WIN32__
 				, HANDLE &mutex
 #endif
@@ -95,16 +97,19 @@ TcpServer::get_listening_socket(const std::string & host, int port
 	throw Xapian::NetworkError("socket", socket_errno());
     }
 
-    int retval;
+    int retval = 0;
 
-    {
+    if (tcp_nodelay) {
 	int optval = 1;
 	// 4th argument might need to be void* or char* - cast it to char*
 	// since C++ allows implicit conversion to void* but not from void*.
 	retval = setsockopt(socketfd, IPPROTO_TCP, TCP_NODELAY,
 			    reinterpret_cast<char *>(&optval),
 			    sizeof(optval));
+    }
 
+    {
+	int optval = 1;
 #if defined __CYGWIN__ || defined __WIN32__
 	// Windows has screwy semantics for SO_REUSEADDR - it allows the user
 	// to bind to a port which is already bound and listening!  That's

@@ -30,7 +30,7 @@ namespace TcpClient {
      *  Give up trying to connect after @msecs_timeout_connect milliseconds.
      */
     int open_socket(const std::string & hostname, int port,
-		    int msecs_timeout_connect);
+		    int msecs_timeout_connect, bool tcp_nodelay);
 }
 
 #endif  // XAPIAN_INCLUDED_TCPCLIENT_H

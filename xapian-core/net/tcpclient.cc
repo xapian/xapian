@@ -40,7 +40,7 @@
 
 int
 TcpClient::open_socket(const std::string & hostname, int port,
-		       int msecs_timeout_connect)
+		       int msecs_timeout_connect, bool tcp_nodelay)
 {
     // FIXME: timeout on gethostbyname() ?
     struct hostent *host = gethostbyname(hostname.c_str());
@@ -83,7 +83,7 @@ TcpClient::open_socket(const std::string & hostname, int port,
 	throw Xapian::NetworkError("Couldn't set O_NDELAY", saved_errno);
     }
 
-    {
+    if (tcp_nodelay) {
 	int optval = 1;
 	// 4th argument might need to be void* or char* - cast it to char*
 	// since C++ allows implicit conversion to void* but not from void*.

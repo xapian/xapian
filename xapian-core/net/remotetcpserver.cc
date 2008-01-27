@@ -47,7 +47,7 @@ RemoteTcpServer::RemoteTcpServer(const vector<std::string> &dbpaths_,
 				 int msecs_idle_timeout_,
 				 bool writable_,
 				 bool verbose_)
-    : TcpServer(host, port, verbose_),
+    : TcpServer(host, port, true, verbose_),
       dbpaths(dbpaths_), writable(writable_),
       msecs_active_timeout(msecs_active_timeout_),
       msecs_idle_timeout(msecs_idle_timeout_)
