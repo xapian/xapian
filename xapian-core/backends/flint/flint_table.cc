@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -1740,12 +1740,6 @@ FlintTable::flush_db()
 	}
     }
 
-    if (!flint_io_sync(handle)) {
-	(void)::close(handle);
-	handle = -1;
-	throw Xapian::DatabaseError("Can't commit new revision - failed to flush DB to disk");
-    }
-
     if (Btree_modified) {
 	faked_root_block = false;
     }
@@ -1790,6 +1784,13 @@ FlintTable::commit(flint_revision_number_t revision)
 	C[i].n = BLK_UNUSED;
 	C[i].c = -1;
 	C[i].rewrite = false;
+    }
+
+    // Do this as late as possible to allow maximum time for writes to be committed.
+    if (!flint_io_sync(handle)) {
+	(void)::close(handle);
+	handle = -1;
+	throw Xapian::DatabaseError("Can't commit new revision - failed to flush DB to disk");
     }
 
     base.write_to_file(name + "base" + char(base_letter));
