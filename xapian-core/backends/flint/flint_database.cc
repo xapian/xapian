@@ -4,7 +4,7 @@
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
- * Copyright 2006 Richard Boulton
+ * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -337,6 +337,15 @@ void
 FlintDatabase::set_revision_number(flint_revision_number_t new_revision)
 {
     DEBUGCALL(DB, void, "FlintDatabase::set_revision_number", new_revision);
+
+    postlist_table.flush_db();
+    position_table.flush_db();
+    termlist_table.flush_db();
+    value_table.flush_db();
+    synonym_table.flush_db();
+    spelling_table.flush_db();
+    record_table.flush_db();
+
     postlist_table.commit(new_revision);
     position_table.commit(new_revision);
     termlist_table.commit(new_revision);

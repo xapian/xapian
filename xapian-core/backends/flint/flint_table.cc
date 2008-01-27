@@ -3,6 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1727,22 +1728,11 @@ void FlintTable::close() {
 }
 
 void
-FlintTable::commit(flint_revision_number_t revision)
+FlintTable::flush_db()
 {
-    DEBUGCALL(DB, void, "FlintTable::commit", revision);
+    DEBUGCALL(DB, void, "FlintTable::flush_db", "");
     Assert(writable);
-
-    if (revision <= revision_number) {
-	throw Xapian::DatabaseError("New revision too low");
-    }
-
     if (handle == -1) return;
-
-    // FIXME: this doesn't work (probably because the table revisions get
-    // out of step) but it's wasteful to keep applying changes to value
-    // and position if they're never used...
-    //
-    // if (!Btree_modified) return;
 
     for (int j = level; j >= 0; j--) {
 	if (C[j].rewrite) {
@@ -1759,6 +1749,19 @@ FlintTable::commit(flint_revision_number_t revision)
     if (Btree_modified) {
 	faked_root_block = false;
     }
+}
+
+void
+FlintTable::commit(flint_revision_number_t revision)
+{
+    DEBUGCALL(DB, void, "FlintTable::commit", revision);
+    Assert(writable);
+
+    if (revision <= revision_number) {
+	throw Xapian::DatabaseError("New revision too low");
+    }
+
+    if (handle == -1) return;
 
     if (faked_root_block) {
 	/* We will use a dummy bitmap. */

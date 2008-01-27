@@ -2,6 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -317,6 +318,13 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	 *	not present, etc).
 	 */
 	bool open(flint_revision_number_t revision_);
+
+	/** Flush any outstanding changes to the DB file of the table.
+	 *
+	 *  This must be called before commit, to ensure that the DB file is
+	 *  ready to be switched to a new version by the commit.
+	 */
+	void flush_db();
 
 	/** Commit any outstanding changes to the table.
 	 *
