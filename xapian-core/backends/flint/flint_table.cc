@@ -1842,7 +1842,7 @@ FlintTable::write_changed_blocks(int changes_fd)
 	    // Write block n to the file.
 	    flint_io_write(changes_fd, reinterpret_cast<const char *>(p),
 			   block_size);
-	    n += 1;
+	    ++n;
 	}
 	delete[] p;
 	p = 0;
