@@ -47,6 +47,9 @@ class XAPIAN_VISIBILITY_DEFAULT DatabaseMaster {
      */
     void write_changesets_to_fd(int fd,
 				const std::string & start_revision) const;
+
+    /// Return a string describing this object.
+    std::string get_description() const;
 };
 
 /// Access to a database replica, for applying replication to it.
@@ -116,6 +119,9 @@ class XAPIAN_VISIBILITY_DEFAULT DatabaseReplica {
      *  InvalidOperationError.
      */
     void close();
+
+    /// Return a string describing this object.
+    std::string get_description() const;
 };
 
 }

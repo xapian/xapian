@@ -1,3 +1,11 @@
+Mon Jan 28 16:22:18 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/replication.cc,common/output.h,include/xapian/replication.h:
+	  Add get_description() methods to DatabaseMaster and
+	  DatabaseReplica, and add XAPIAN_OUTPUT_FUNCTION methods for them
+	  so that they can be displayed in debugging methods.  Should fix
+	  build with logging enabled.
+
 Mon Jan 28 11:52:24 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/replication.cc,include/xapian/replication.h: Add

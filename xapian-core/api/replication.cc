@@ -51,6 +51,13 @@ DatabaseMaster::write_changesets_to_fd(int fd,
     (void) start_revision;
 }
 
+string
+DatabaseMaster::get_description() const
+{
+    DEBUGCALL(INTRO, string, "DatabaseMaster::get_description", "");
+    RETURN("DatabaseMaster(" + path + ")");
+}
+
 /// Internal implementation of DatabaseReplica
 class DatabaseReplica::Internal : public Xapian::Internal::RefCntBase {
     /// Don't allow assignment.
@@ -145,6 +152,13 @@ DatabaseReplica::close()
 {
     DEBUGAPICALL(bool, "Xapian::DatabaseReplica::close", "");
     internal = NULL;
+}
+
+string
+DatabaseReplica::get_description() const
+{
+    DEBUGCALL(INTRO, string, "DatabaseReplica::get_description", "");
+    RETURN("DatabaseReplica(" + internal->path + ")");
 }
 
 // Methods of DatabaseReplica::Internal
