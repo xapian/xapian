@@ -112,6 +112,16 @@ file_exists(const string &fname)
     return stat(fname, &sbuf) == 0 && S_ISREG(sbuf.st_mode);
 }
 
+/** Return true if the file fname exists
+ */
+bool
+dir_exists(const string &fname)
+{
+    struct stat sbuf;
+    // exists && is a directory
+    return stat(fname, &sbuf) == 0 && S_ISDIR(sbuf.st_mode);
+}
+
 namespace Xapian {
 namespace Internal {
 
