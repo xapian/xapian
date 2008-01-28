@@ -926,6 +926,9 @@ class Query {
 %feature("director") Xapian::Sorter;
 %include <xapian/sorter.h>
 
+%ignore Xapian::DatabaseReplica::internal;
+%ignore Xapian::DatabaseReplica::operator=;
+%ignore Xapian::DatabaseReplica::DatabaseReplica(const DatabaseReplica &);
 %include <xapian/replication.h>
 
 namespace Xapian {
