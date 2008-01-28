@@ -65,7 +65,7 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteTcpServer : public TcpServer {
      *  @param dbpaths_	The path(s) to the database(s) we should open.
      *  @param host	The hostname or address for the interface to listen on
      *			(or "" to listen on all interfaces).
-     *  @port		The TCP port number to listen on.
+     *  @param port	The TCP port number to listen on.
      *  @param msecs_active_timeout	Timeout between messages during a
      *					single operation (in milliseconds).
      *  @param msecs_idle_timeout	Timeout between operations (in
@@ -83,10 +83,9 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteTcpServer : public TcpServer {
 
     /** Handle a single connection on an already connected socket.
      *
-     *  @a socket will be closed before returning.  This method may be called
-     *  by multiple threads.
+     *  This method may be called by multiple threads.
      */
     void handle_one_connection(int socket);
 };
 
-#endif  // XAPIAN_INCLUDED_REMOTETCPSERVER_H
+#endif // XAPIAN_INCLUDED_REMOTETCPSERVER_H
