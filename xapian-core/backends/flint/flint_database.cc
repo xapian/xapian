@@ -383,7 +383,8 @@ FlintDatabase::set_revision_number(flint_revision_number_t new_revision)
     string changes_name;
 
     if (max_changesets > 0) {
-	changes_name = db_dir + "/changes" + om_tostring(new_revision);
+	flint_revision_number_t old_revision = get_revision_number();
+	changes_name = db_dir + "/changes" + om_tostring(old_revision);
 #ifdef __WIN32__
 	changes_fd = msvc_posix_open(changes_name.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);
 #else
@@ -400,8 +401,7 @@ FlintDatabase::set_revision_number(flint_revision_number_t new_revision)
 	fdcloser closefd(changes_fd);
 	if (changes_fd >= 0) {
 	    string buf;
-	    flint_revision_number_t old_revision =
-		    record_table.get_open_revision_number();
+	    flint_revision_number_t old_revision = get_revision_number();
 	    buf += CHANGES_MAGIC_STRING;
 	    buf += pack_uint(CHANGES_VERSION);
 	    buf += pack_uint(old_revision);
@@ -722,6 +722,16 @@ FlintDatabase::get_metadata(const string & key) const
     string tag;
     (void)postlist_table.get_exact_entry(btree_key, tag);
     RETURN(tag);
+}
+
+string
+FlintDatabase::get_revision_info() const
+{
+    DEBUGCALL(DB, string, "FlintDatabase::get_revision_info", "");
+    string buf;
+    flint_revision_number_t revision = get_revision_number();
+    buf += pack_uint(revision);
+    RETURN(buf);
 }
 
 ///////////////////////////////////////////////////////////////////////////

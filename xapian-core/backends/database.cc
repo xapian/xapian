@@ -465,6 +465,12 @@ Database::Internal::collect_document(Xapian::docid did) const
     return open_document(did);
 }
 
+string
+Database::Internal::get_revision_info() const
+{
+    throw Xapian::UnimplementedError("This backend doesn't provide access to revision information");
+}
+
 RemoteDatabase *
 Database::Internal::as_remotedatabase()
 {

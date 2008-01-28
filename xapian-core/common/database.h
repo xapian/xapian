@@ -403,6 +403,9 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	virtual Xapian::Document::Internal * collect_document(Xapian::docid did) const;
 	//@}
 
+	/// Get a string describing the current revision of the database.
+	virtual string get_revision_info() const;
+
 	//////////////////////////////////////////////////////////////////
 	// Introspection methods:
 	// ======================

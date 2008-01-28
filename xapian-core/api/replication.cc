@@ -19,11 +19,16 @@
  */
 
 #include <config.h>
+#include "xapian/replication.h"
 
-#include <xapian/replication.h>
+#include "xapian/dbfactory.h"
+#include "xapian/error.h"
 
+#include "database.h"
 #include "omdebug.h"
+#include "utils.h"
 
+#include <fstream>
 #include <string>
 
 using namespace std;
@@ -33,23 +38,62 @@ void
 DatabaseMaster::write_changesets_to_fd(int fd,
 				       const string & start_revision) const
 {
-    DEBUGAPICALL(string, "DatabaseMaster::write_changesets_to_fd",
+    DEBUGAPICALL(void, "DatabaseMaster::write_changesets_to_fd",
 		 fd << ", " << start_revision);
     // FIXME - implement
     (void) fd;
     (void) start_revision;
 }
 
-DatabaseReplica::DatabaseReplica(const std::string & path_)
+DatabaseReplica::DatabaseReplica(const string & path_)
 	: path(path_), db()
 {
+    DEBUGAPICALL(void, "DatabaseReplica::DatabaseReplica", path_);
+    if (dir_exists(path)) {
+	throw InvalidOperationError("Replica path should not be a directory");
+    }
+#ifndef XAPIAN_HAS_FLINT_BACKEND
+    throw FeatureUnavailableError("Flint backend is not enabled, and needed for database replication");
+#endif
+    if (!file_exists(path)) {
+	// The database doesn't already exist - make a stub database, and point
+	// it to a separate flint database.
+	string real_path(path);
+	real_path += "_0";
+	ofstream stub(path.c_str());
+	stub << "flint " << real_path;
+    } else {
+	// The database already exists as a stub database - open it.  We can't
+	// just use the standard opening routines, because we want to open it
+	// for writing.
+	ifstream stub(path.c_str());
+	string line;
+	while (getline(stub, line)) {
+	    string::size_type space = line.find(' ');
+	    if (space != string::npos) {
+		string type = line.substr(0, space);
+		line.erase(0, space + 1);
+		if (type == "flint") {
+		    db.add_database(Flint::open(line, Xapian::DB_OPEN));
+		} else {
+		    throw FeatureUnavailableError("Database replication only works with flint databases.");
+		}
+	    }
+	}
+	if (db.internal.size() != 1) {
+	    throw Xapian::InvalidOperationError("DatabaseReplica needs to be pointed at exactly one subdatabase");
+	}
+    }
 }
 
 string
 DatabaseReplica::get_revision_info() const
 {
     DEBUGAPICALL(string, "DatabaseReplica::get_revision_info", "");
-    RETURN("");
+    if (db.internal.size() != 1) {
+	throw Xapian::InvalidOperationError("DatabaseReplica needs to be pointed at exactly one subdatabase");
+    }
+    RETURN((db.internal[0])->get_revision_info());
 }
 
 bool 
