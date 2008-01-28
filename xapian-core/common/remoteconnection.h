@@ -1,7 +1,7 @@
 /** @file  remoteconnection.h
  *  @brief RemoteConnection class used by the remote backend.
  */
-/* Copyright (C) 2006,2007 Olly Betts
+/* Copyright (C) 2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -99,10 +99,19 @@ class RemoteConnection {
     /// Don't allow copying.
     RemoteConnection(const RemoteConnection &);
 
-    /// The file descriptor used for reading.
+    /** The file descriptor used for reading.
+     *
+     *  If this is -1, the connection is unidirection and write-only.
+     *  If both fdin and fdout are -1, then the connection has been closed.
+     */
     int fdin;
 
-    /// The file descriptor used for writing.
+    /** The file descriptor used for writing.
+     *
+     *  If this is -1, the connection is unidirection and read-only.
+     *  If both fdin and fdout are -1, then the connection has been closed.
+     *  It is valid for fdout to be the same as fdin.
+     */
     int fdout;
 
     /// Buffer to hold unprocessed input.

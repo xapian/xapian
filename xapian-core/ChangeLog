@@ -1,3 +1,8 @@
+Mon Jan 28 17:01:02 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/remoteconnection.h,net/remoteconnection.cc: Minor tweaks
+	  to allow unidirectional connections.
+
 Mon Jan 28 16:26:22 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/replication.cc: Fix overly hasty commit - add

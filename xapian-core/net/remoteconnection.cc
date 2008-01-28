@@ -1,7 +1,7 @@
 /** @file  remoteconnection.cc
  *  @brief RemoteConnection class used by the remote backend.
  */
-/* Copyright (C) 2006,2007 Olly Betts
+/* Copyright (C) 2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -401,18 +401,29 @@ RemoteConnection::do_close()
 {
     DEBUGCALL(REMOTE, void, "RemoteConnection::do_close", "");
 
-    if (fdout == -1) return;
-    // We can be called from a destructor, so we can't throw an exception.
-    try {
-	/* If we can't send the close-down message right away, then just
-	 * close the connection as the other end will cope.
-	 */
-	send_message(MSG_SHUTDOWN, "", OmTime::now());
-    } catch (...) {
+    if (fdin == -1 && fdout == -1) return;
+
+    if (fdin >= 0) {
+	// We can be called from a destructor, so we can't throw an exception.
+	try {
+	    /* If we can't send the close-down message right away, then just
+	     * close the connection as the other end will cope.
+	     */
+	    send_message(MSG_SHUTDOWN, "", OmTime::now());
+	} catch (...) {
+	}
+	close_fd_or_socket(fdin);
+
+	// If the same fd is used in both directions, don't close it twice.
+	if (fdin == fdout) fdout = -1;
+
+	fdin = -1;
     }
-    close_fd_or_socket(fdin);
-    if (fdin != fdout) close_fd_or_socket(fdout);
-    fdout = -1;
+
+    if (fdout >= 0) {
+	close_fd_or_socket(fdout);
+	fdout = -1;
+    }
 }
 
 #ifdef __WIN32__
