@@ -107,6 +107,15 @@ class XAPIAN_VISIBILITY_DEFAULT DatabaseReplica {
      *  descriptor, false otherwise.
      */
     bool apply_next_changeset_from_fd(int fd);
+
+    /** Close the DatabaseReplica.
+     *
+     *  After this has been called, there will no longer be a write lock on the
+     *  database created by the DatabaseReplica, but if any of the methods of
+     *  this object which access the database are called, they will throw an
+     *  InvalidOperationError.
+     */
+    void close();
 };
 
 }

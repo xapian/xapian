@@ -126,7 +126,8 @@ string
 DatabaseReplica::get_revision_info() const
 {
     DEBUGAPICALL(string, "Xapian::DatabaseReplica::get_revision_info", "");
-    Assert(internal.get());
+    if (internal.get() == NULL)
+	throw Xapian::InvalidOperationError("Attempt to call DatabaseReplica::get_revision_info on a closed replica.");
     RETURN(internal->get_revision_info());
 }
 
@@ -134,8 +135,16 @@ bool
 DatabaseReplica::apply_next_changeset_from_fd(int fd)
 {
     DEBUGAPICALL(bool, "Xapian::DatabaseReplica::apply_next_changeset_from_fd", fd);
-    Assert(internal.get());
+    if (internal.get() == NULL)
+	throw Xapian::InvalidOperationError("Attempt to call DatabaseReplica::get_revision_info on a closed replica.");
     RETURN(internal->apply_next_changeset_from_fd(fd));
+}
+
+void 
+DatabaseReplica::close()
+{
+    DEBUGAPICALL(bool, "Xapian::DatabaseReplica::close", "");
+    internal = NULL;
 }
 
 // Methods of DatabaseReplica::Internal
