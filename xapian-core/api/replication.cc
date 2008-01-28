@@ -95,6 +95,8 @@ class DatabaseReplica::Internal : public Xapian::Internal::RefCntBase {
      */
     void update_stub_database(const string & flint_path) const;
 
+    /// Return a string describing this object.
+    string get_description() const { return path; }
 };
 
 // Methods of DatabaseReplica
@@ -158,7 +160,7 @@ string
 DatabaseReplica::get_description() const
 {
     DEBUGCALL(INTRO, string, "DatabaseReplica::get_description", "");
-    RETURN("DatabaseReplica(" + internal->path + ")");
+    RETURN("DatabaseReplica(" + internal->get_description() + ")");
 }
 
 // Methods of DatabaseReplica::Internal

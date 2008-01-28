@@ -1,3 +1,9 @@
+Mon Jan 28 16:26:22 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/replication.cc: Fix overly hasty commit - add
+	  get_description() method for internal class, and use that instead
+	  of trying to access a private member.
+
 Mon Jan 28 16:22:18 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/replication.cc,common/output.h,include/xapian/replication.h:
