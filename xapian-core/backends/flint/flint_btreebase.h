@@ -89,7 +89,7 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable_base {
 	void write_to_file(const std::string &filename,
 			   const std::string &tablename,
 			   int changes_fd,
-			   const string * changes_tail);
+			   const std::string * changes_tail);
 
 	/* Methods dealing with the bitmap */
 	/** true iff block n was free at the start of the transaction on
