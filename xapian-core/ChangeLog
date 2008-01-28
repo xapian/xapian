@@ -1,3 +1,9 @@
+Mon Jan 28 17:13:09 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/Makefile.mk,common/replicatetcpserver.h,net/Makefile.mk,
+	  net/replicatetcpserver.cc: Add ReplicateTcpServer class implementing
+	  a replication server over TCP/IP.
+
 Mon Jan 28 17:01:02 GMT 2008  Olly Betts <olly@survex.com>
 
 	* common/remoteconnection.h,net/remoteconnection.cc: Minor tweaks

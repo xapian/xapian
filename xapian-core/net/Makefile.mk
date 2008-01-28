@@ -9,6 +9,7 @@ libxapian_la_SOURCES +=\
 	net/remoteserver.cc\
 	net/remotetcpclient.cc\
 	net/remotetcpserver.cc\
+	net/replicatetcpserver.cc\
 	net/serialise.cc\
 	net/tcpclient.cc\
 	net/tcpserver.cc
