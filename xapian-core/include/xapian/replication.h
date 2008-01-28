@@ -22,13 +22,15 @@
 #ifndef XAPIAN_INCLUDED_REPLICATION_H
 #define XAPIAN_INCLUDED_REPLICATION_H
 
+#include <xapian/base.h>
 #include <xapian/database.h>
+#include <xapian/visibility.h>
 #include <string>
 
 namespace Xapian {
 
 /// Access to a master database for replication.
-class DatabaseMaster {
+class XAPIAN_VISIBILITY_DEFAULT DatabaseMaster {
     /// The path to the master database.
     std::string path;
 
@@ -48,16 +50,25 @@ class DatabaseMaster {
 };
 
 /// Access to a database replica, for applying replication to it.
-class DatabaseReplica {
-    /// The path to the replica (will point to a stub database file).
-    std::string path;
+class XAPIAN_VISIBILITY_DEFAULT DatabaseReplica {
+    /// Class holding details of the replica.
+    class Internal;
+    /// Reference counted internals.
+    Xapian::Internal::RefCntPtr<Internal> internal;
 
-    /// The path to the actual database in the replica.
-    std::string real_path;
-
-    /// The database being replicated.
-    WritableDatabase db;
   public:
+    /// Copying is allowed (and is cheap).
+    DatabaseReplica(const DatabaseReplica & other);
+
+    /// Assignment is allowed (and is cheap).
+    void operator=(const DatabaseReplica & other);
+
+    /// Default constructor - for declaring an uninitialised replica.
+    DatabaseReplica();
+
+    /// Destructor.
+    ~DatabaseReplica();
+
     /** Open a new DatabaseReplica for the database at the specified path.
      *
      *  The path should either point to a database previously created by a
