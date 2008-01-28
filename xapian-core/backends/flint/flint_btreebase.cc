@@ -277,7 +277,10 @@ FlintTable_base::read(const string & name, char ch, string &err_msg)
 }
 
 void
-FlintTable_base::write_to_file(const string &filename)
+FlintTable_base::write_to_file(const string &filename,
+			       const string &tablename,
+			       int changes_fd,
+			       const string * changes_tail)
 {
     calculate_last_block();
 
@@ -309,6 +312,24 @@ FlintTable_base::write_to_file(const string &filename)
 	throw Xapian::DatabaseOpeningError(message);
     }
     fdcloser closefd(h);
+
+    if (changes_fd >= 0) {
+	string changes_buf;
+	changes_buf += pack_uint(1u); // Indicate the item is a base file.
+	changes_buf += pack_uint(tablename.size());
+	changes_buf += tablename;
+	changes_buf += filename[filename.size() - 1]; // The base file letter.
+	changes_buf += pack_uint(buf.size());
+	if (changes_tail != NULL) {
+	    changes_buf += *changes_tail;
+	}
+	flint_io_write(changes_fd, changes_buf.data(), changes_buf.size());
+	flint_io_write(changes_fd, buf.data(), buf.size());
+	if (changes_tail != NULL) {
+	    // changes_tail is only specified for the final table.
+	    flint_io_sync(changes_fd);
+	}
+    }
 
     flint_io_write(h, buf.data(), buf.size());
     flint_io_sync(h);
@@ -410,6 +431,24 @@ FlintTable_base::next_free_block()
     bit_map[i] |= d;   /* set as 'in use' */
     bit_map_low = i;
     return n;
+}
+
+bool
+FlintTable_base::find_changed_block(uint4 * n)
+{
+    // Search for a block which was free at the start of the transaction, but
+    // isn't now.
+    while ((*n) <= last_block) {
+	size_t offset = (*n) / CHAR_BIT;
+	int bit = 0x1 << (*n) % CHAR_BIT;
+
+	if (((bit_map0[offset] & bit) == 0) && ((bit_map[offset] & bit) != 0)) {
+	    return true;
+	}
+	++(*n);
+    }
+    
+    return false;
 }
 
 bool

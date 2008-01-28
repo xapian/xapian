@@ -27,7 +27,11 @@
 #include <xapian/error.h>
 
 #include "safeerrno.h"
+#ifdef __WIN32__
+# include "msvc_posix_wrapper.h"
+#endif
 
+#include "flint_io.h"
 #include "flint_database.h"
 #include "utils.h"
 #include "omdebug.h"
@@ -67,9 +71,33 @@ using namespace Xapian;
 // in the term).
 #define MAX_SAFE_TERM_LENGTH 245
 
+// Magic string used to recognise a changeset file.
+#define CHANGES_MAGIC_STRING "FlintChanges"
+
+// The current version of changeset files.
+// 1  - initial implementation
+#define CHANGES_VERSION 1u
+
 // Magic key in the postlist table (which corresponds to an invalid docid) is
 // used to store the next free docid and total length of all documents.
 static const string METAINFO_KEY("", 1);
+
+/** Delete file, throwing an error if we can't delete it (but not if it
+ *  doesn't exist).
+ */
+static void
+sys_unlink_if_exists(const string & filename)
+{
+#ifdef __WIN32__
+    if (msvc_posix_unlink(filename.c_str()) == -1) {
+#else
+    if (unlink(filename) == -1) {
+#endif
+	if (errno == ENOENT) return;
+	throw Xapian::DatabaseError("Can't delete file: `" + filename +
+			      "': " + strerror(errno));
+    }
+}
 
 /* This finds the tables, opens them at consistent revisions, manages
  * determining the current and next revision numbers, and stores handles
@@ -89,7 +117,8 @@ FlintDatabase::FlintDatabase(const string &flint_dir, int action,
 	  record_table(db_dir, readonly),
 	  lock(db_dir + "/flintlock"),
 	  total_length(0),
-	  lastdocid(0)
+	  lastdocid(0),
+	  max_changesets(0)
 {
     DEBUGCALL(DB, void, "FlintDatabase", flint_dir << ", " << action <<
 	      ", " << block_size);
@@ -98,6 +127,10 @@ FlintDatabase::FlintDatabase(const string &flint_dir, int action,
 	open_tables_consistent();
 	return;
     }
+
+    const char *p = getenv("XAPIAN_MAX_CHANGESETS");
+    if (p)
+	max_changesets = atoi(p);
 
     if (action != Xapian::DB_OPEN && !database_exists()) {
 	// FIXME: if we allow Xapian::DB_OVERWRITE, check it here
@@ -346,13 +379,74 @@ FlintDatabase::set_revision_number(flint_revision_number_t new_revision)
     spelling_table.flush_db();
     record_table.flush_db();
 
-    postlist_table.commit(new_revision);
-    position_table.commit(new_revision);
-    termlist_table.commit(new_revision);
-    value_table.commit(new_revision);
-    synonym_table.commit(new_revision);
-    spelling_table.commit(new_revision);
-    record_table.commit(new_revision);
+    int changes_fd = -1;
+    string changes_name;
+
+    if (max_changesets > 0) {
+	changes_name = db_dir + "/changes" + om_tostring(new_revision);
+#ifdef __WIN32__
+	changes_fd = msvc_posix_open(changes_name.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);
+#else
+	changes_fd = open(changes_name.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
+#endif
+	if (changes_fd < 0) {
+	    string message = string("Couldn't open changeset ")
+		    + changes_name + " to write: " + strerror(errno);
+	    throw Xapian::DatabaseOpeningError(message);
+	}
+    }
+
+    try {
+	fdcloser closefd(changes_fd);
+	if (changes_fd >= 0) {
+	    string buf;
+	    flint_revision_number_t old_revision =
+		    record_table.get_open_revision_number();
+	    buf += CHANGES_MAGIC_STRING;
+	    buf += pack_uint(CHANGES_VERSION);
+	    buf += pack_uint(old_revision);
+	    buf += pack_uint(new_revision);
+
+	    // FIXME - if DANGEROUS mode is in use, this should contain pack_uint(1u)
+	    buf += pack_uint(0u); // Changes can be applied to a live database.
+
+	    flint_io_write(changes_fd, buf.data(), buf.size());
+
+	    // Write the changes to the blocks in the tables.  Do the postlist
+	    // table last, so that ends up cached the most, if the cache
+	    // available is limited.  Do the position and value tables just
+	    // before that, because they're also critical to search speed.
+	    termlist_table.write_changed_blocks(changes_fd);
+	    synonym_table.write_changed_blocks(changes_fd);
+	    spelling_table.write_changed_blocks(changes_fd);
+	    record_table.write_changed_blocks(changes_fd);
+	    position_table.write_changed_blocks(changes_fd);
+	    value_table.write_changed_blocks(changes_fd);
+	    postlist_table.write_changed_blocks(changes_fd);
+	}
+
+	postlist_table.commit(new_revision, changes_fd);
+	position_table.commit(new_revision, changes_fd);
+	termlist_table.commit(new_revision, changes_fd);
+	value_table.commit(new_revision, changes_fd);
+	synonym_table.commit(new_revision, changes_fd);
+	spelling_table.commit(new_revision, changes_fd);
+
+	string changes_tail; // Data to be appended to the changes file
+	if (changes_fd >= 0) {
+	    changes_tail += '\0';
+	    changes_tail += pack_uint(new_revision);
+	}
+	record_table.commit(new_revision, changes_fd, &changes_tail);
+
+    } catch(...) {
+	// Remove the changeset, if there was one.
+	if (changes_fd >= 0) {
+	    sys_unlink_if_exists(changes_name);
+	}
+
+	throw;
+    }
 }
 
 void
@@ -385,6 +479,15 @@ FlintDatabase::get_database_write_lock()
 	}
 	throw Xapian::DatabaseLockError(msg);
     }
+}
+
+void
+FlintDatabase::write_changesets_to_fd(int fd,
+				      flint_revision_number_t revision) const
+{
+    // FIXME - implement
+    (void) fd;
+    (void) revision;
 }
 
 void

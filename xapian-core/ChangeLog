@@ -1,3 +1,18 @@
+Mon Jan 28 01:28:00 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/flint/: Add support for recording the changes made to a
+	  database in "changeset" files.  These are currently not produced
+	  by default - for now, the "XAPIAN_MAX_CHANGESETS" environment
+	  variable can be set to control production of them.  As part of
+	  these changes, the FlintTable constructor now takes the
+	  tablename, so that this can be stored in changesets produced from
+	  the table.
+	* bin/xapian-check.cc,bin/xapian-compact.cc,bin/xapian-inspect.cc:
+	  Update to match changes in FlintTable constructor.
+	* docs/Makefile.am,docs/replication.rst,docs/replication_protocol.rst:
+	  Add basic documentation of the replication protocol (though this
+	  isn't yet definitive, since the protocol isn't finished!)
+
 Sun Jan 27 21:10:24 GMT 2008  Olly Betts <olly@survex.com>
 
 	* net/remotetcpserver.cc,net/tcpserver.cc: The job of closing the

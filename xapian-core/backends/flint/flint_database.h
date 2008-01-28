@@ -3,6 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -114,6 +115,10 @@ class FlintDatabase : public Xapian::Database::Internal {
 	/** Highest document ID ever allocated by this database. */
 	mutable Xapian::docid lastdocid;
 
+	/** The maximum number of changesets which should be kept in the
+	 *  database. */
+	unsigned int max_changesets;
+
 	/// Read lastdocid and total_length from the postlist table.
 	void read_metainfo();
 
@@ -176,6 +181,30 @@ class FlintDatabase : public Xapian::Database::Internal {
 	 *  or just get most up-to-date version.
 	 */
 	void reopen();
+
+	/** Write a set of changesets for upgrading the database to a file.
+	 *
+	 *  The changesets will be such that, if they are applied in order to a
+	 *  copy of the database at the start revision, a copy of the database
+	 *  at the current revision (ie, the revision which the FlintDatabase
+	 *  object is currently open at) will be produced.
+	 *
+	 *  If suitable changesets have been stored in the database, this will
+	 *  write the appropriate changesets, in order.  If suitable changesets
+	 *  are not available, this will write a copy of sufficient blocks of
+	 *  the database to reconstruct the current revision.
+	 *
+	 *  This will therefore potentially write a very large amount of data
+	 *  to the file descriptor.
+	 *
+	 *  @param fd       An open file descriptor to write the changes to.
+	 *  @param revision The starting revision of the database that the
+	 *                  changesets are to be applied to.  Specify 0 to
+	 *                  get a "creation" changeset, which includes the
+	 *                  creation of the database.
+	 */
+	void write_changesets_to_fd(int fd,
+				    flint_revision_number_t revision) const;
 
 	/** Apply any outstanding changes to the tables.
 	 *

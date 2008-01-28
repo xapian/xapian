@@ -1590,9 +1590,10 @@ FlintTable::do_open_to_write(bool revision_supplied,
     return true;
 }
 
-FlintTable::FlintTable(string path_, bool readonly_,
+FlintTable::FlintTable(string tablename_, string path_, bool readonly_,
 		       int compress_strategy_, bool lazy_)
-	: revision_number(0),
+	: tablename(tablename_),
+	  revision_number(0),
 	  item_count(0),
 	  block_size(0),
 	  latest_revision_number(0),
@@ -1690,7 +1691,7 @@ FlintTable::create_and_open(unsigned int block_size_)
     base_.set_block_size(block_size_);
     base_.set_have_fakeroot(true);
     base_.set_sequential(true);
-    base_.write_to_file(name + "baseA");
+    base_.write_to_file(name + "baseA", "", -1, NULL);
 
     /* remove the alternative base file, if any */
     sys_unlink_if_exists(name + "baseB");
@@ -1746,9 +1747,11 @@ FlintTable::flush_db()
 }
 
 void
-FlintTable::commit(flint_revision_number_t revision)
+FlintTable::commit(flint_revision_number_t revision, int changes_fd,
+		   const string * changes_tail)
 {
-    DEBUGCALL(DB, void, "FlintTable::commit", revision);
+    DEBUGCALL(DB, void, "FlintTable::commit",
+	      revision << ", " << changes_fd << ", " << changes_tail);
     Assert(writable);
 
     if (revision <= revision_number) {
@@ -1793,7 +1796,8 @@ FlintTable::commit(flint_revision_number_t revision)
 	throw Xapian::DatabaseError("Can't commit new revision - failed to flush DB to disk");
     }
 
-    base.write_to_file(name + "base" + char(base_letter));
+    base.write_to_file(name + "base" + char(base_letter),
+		       tablename, changes_fd, changes_tail);
     base.commit();
 
     read_root();
@@ -1801,6 +1805,53 @@ FlintTable::commit(flint_revision_number_t revision)
     changed_n = 0;
     changed_c = DIR_START;
     seq_count = SEQ_START_POINT;
+}
+
+void
+FlintTable::write_changed_blocks(int changes_fd)
+{
+    Assert(changes_fd >= 0);
+    if (handle == -1) return;
+    if (faked_root_block) return;
+
+    string buf;
+    buf += pack_uint(2u); // Indicate the item is a list of blocks
+    buf += pack_uint(tablename.size());
+    buf += tablename;
+    buf += pack_uint(block_size);
+    flint_io_write(changes_fd, buf.data(), buf.size());
+
+    // Compare the old and new bitmaps to find blocks which have changed, and
+    // write them to the file descriptor.
+    uint4 n = 0;
+    byte * p = new byte[block_size];
+    try {
+	base.calculate_last_block();
+	while (base.find_changed_block(&n)) {
+	    buf = pack_uint(n + 1);
+	    flint_io_write(changes_fd, buf.data(), buf.size());
+
+	    // Read block n.
+	    try {
+		read_block(n, p);
+	    } catch(Xapian::DatabaseError & e) {
+		printf("Error in %s: %s\n", tablename.c_str(), e.get_msg().c_str());
+		throw;
+	    }
+
+	    // Write block n to the file.
+	    flint_io_write(changes_fd, reinterpret_cast<const char *>(p),
+			   block_size);
+	    n += 1;
+	}
+	delete[] p;
+	p = 0;
+    } catch(...) {
+	delete[] p;
+	throw;
+    }
+    buf = pack_uint(0u);
+    flint_io_write(changes_fd, buf.data(), buf.size());
 }
 
 void
