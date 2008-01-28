@@ -28,6 +28,7 @@
 // Disable any deprecation warnings for Xapian methods/functions/classes.
 #define XAPIAN_DEPRECATED(D) D
 #include <xapian.h>
+#include <xapian/replication.h>
 #include <string>
 #include <vector>
 
@@ -924,6 +925,8 @@ class Query {
 
 %feature("director") Xapian::Sorter;
 %include <xapian/sorter.h>
+
+%include <xapian/replication.h>
 
 namespace Xapian {
 
