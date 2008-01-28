@@ -1,5 +1,5 @@
-/** @file replicatetcpserver.cc
- * @brief TCP/IP replication server class.
+/** @file replicatetcpclient.cc
+ *  @brief TCP/IP replication client class.
  */
 /* Copyright (C) 2008 Olly Betts
  *
@@ -20,37 +20,30 @@
 
 #include <config.h>
 
-#include "replicatetcpserver.h"
+#include "replicatetcpclient.h"
 
-#include <xapian/error.h>
 #include <xapian/replication.h>
 
 #include "omtime.h"
+#include "tcpclient.h"
+#include "utils.h"
 
 using namespace std;
 
-ReplicateTcpServer::ReplicateTcpServer(const string & host, int port,
-				       const string & path_)
-    : TcpServer(host, port, false, false), path(path_)
+int
+ReplicateTcpClient::open_socket(const string & hostname, int port,
+				int msecs_timeout_connect)
 {
-}
-
-ReplicateTcpServer::~ReplicateTcpServer() {
+    return TcpClient::open_socket(hostname, port, msecs_timeout_connect, false);
 }
 
 void
-ReplicateTcpServer::handle_one_connection(int socket)
+ReplicateTcpClient::update_from_master(const std::string & path)
 {
-    RemoteConnection client(socket, -1, "");
-    try {
-	string start_revision;
-	// Read start_revision from the client.
-	if (client.get_message(start_revision, OmTime()) != 'R') {
-	    throw Xapian::NetworkError("Bad replication client message");
-	}
-	Xapian::DatabaseMaster master(path);
-	master.write_changesets_to_fd(socket, start_revision);
-    } catch (...) {
-	// Ignore exceptions.
+    Xapian::DatabaseReplica replica(path);
+    // We only have one message type to send, so make it 'R' arbitrarily.
+    remconn.send_message('R', replica.get_revision_info(), OmTime());
+    while (replica.apply_next_changeset_from_fd(socket)) {
+	sleep(30);
     }
 }

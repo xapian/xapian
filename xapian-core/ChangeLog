@@ -1,3 +1,10 @@
+Mon Jan 28 19:07:20 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/Makefile.mk,common/replicatetcpclient.h,net/Makefile.mk,
+	  net/replicatetcpclient.cc,net/replicatetcpserver.cc: Add
+	  ReplicateTcpClient class implementing a replication client over
+	  TCP/IP.
+
 Mon Jan 28 17:13:09 GMT 2008  Olly Betts <olly@survex.com>
 
 	* common/Makefile.mk,common/replicatetcpserver.h,net/Makefile.mk,
