@@ -25,7 +25,11 @@
 #include "xapian/error.h"
 
 #include "database.h"
+#ifdef __WIN32__
+# include "msvc_posix_wrapper.h"
+#endif
 #include "omdebug.h"
+#include "safeerrno.h"
 #include "utils.h"
 
 #include <fstream>
@@ -45,8 +49,38 @@ DatabaseMaster::write_changesets_to_fd(int fd,
     (void) start_revision;
 }
 
+/** Create a stub database which points to a single flint database.
+ *
+ *  The stub database file is created at a separate path, and then atomically
+ *  moved into place to replace the old stub database.  This should allow
+ *  searches to continue uninterrupted.
+ *
+ *  @param stub_path  The path to the stub database.
+ *  @param flint_path The path to the flint database.
+ */
+static void
+create_stub_database(const string & stub_path, const string & flint_path)
+{
+    string tmp_path = stub_path + ".tmp";
+    {
+	ofstream stub(tmp_path.c_str());
+	stub << "flint " << flint_path;
+    }
+    int result;
+#ifdef __WIN32__
+    result = msvc_posix_rename(tmp_path.c_str(), stub_path.c_str());
+#else
+    result = rename(tmp_path.c_str(), stub_path.c_str());
+#endif
+    if (result == -1) {
+	string msg("Failed to update stub db file for replica: ");
+	msg += stub_path;
+	throw Xapian::DatabaseOpeningError(msg);
+    }
+}
+
 DatabaseReplica::DatabaseReplica(const string & path_)
-	: path(path_), db()
+	: path(path_), real_path(), db()
 {
     DEBUGAPICALL(void, "DatabaseReplica::DatabaseReplica", path_);
     if (dir_exists(path)) {
@@ -57,15 +91,15 @@ DatabaseReplica::DatabaseReplica(const string & path_)
 #endif
     if (!file_exists(path)) {
 	// The database doesn't already exist - make a stub database, and point
-	// it to a separate flint database.
-	string real_path(path);
-	real_path += "_0";
-	ofstream stub(path.c_str());
-	stub << "flint " << real_path;
+	// it to a new flint database.
+	real_path = path + "_0";
+	db.add_database(Flint::open(real_path, Xapian::DB_CREATE));
+	create_stub_database(path, real_path);
     } else {
 	// The database already exists as a stub database - open it.  We can't
 	// just use the standard opening routines, because we want to open it
-	// for writing.
+	// for writing.  We enforce that the stub database points to a single
+	// flint database here.
 	ifstream stub(path.c_str());
 	string line;
 	while (getline(stub, line)) {

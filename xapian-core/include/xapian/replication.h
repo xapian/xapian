@@ -49,10 +49,13 @@ class DatabaseMaster {
 
 /// Access to a database replica, for applying replication to it.
 class DatabaseReplica {
-
-    /// The path to the replica.
+    /// The path to the replica (will point to a stub database file).
     std::string path;
 
+    /// The path to the actual database in the replica.
+    std::string real_path;
+
+    /// The database being replicated.
     WritableDatabase db;
   public:
     /** Open a new DatabaseReplica for the database at the specified path.
@@ -83,11 +86,15 @@ class DatabaseReplica {
      *  A common way to use this method is to call it repeatedly until it
      *  returns false, with an appropriate gap between each call.
      *
+     *  Information beyond the end of the next changeset may be read from the
+     *  file descriptor and cached in the DatabaseReplica object.  Therefore,
+     *  the file descriptor shouldn't be accessed by any other external code,
+     *  since it will be in an indeterminate state.
+     *
      *  @param fd The file descriptor to read the changeset from.
      *  @return true if there are more changesets to apply on the file
      *  descriptor, false otherwise.
      */
-
     bool apply_next_changeset_from_fd(int fd);
 };
 
