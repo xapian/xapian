@@ -36,6 +36,7 @@
 #include "utils.h"
 
 #ifndef __WIN32__
+# include "msvc_posix_wrapper.h"
 # include "safesysselect.h"
 #endif
 
@@ -366,7 +367,11 @@ RemoteConnection::send_file(char type, const string &file, const OmTime & end_ti
     DEBUGCALL(REMOTE, void, "RemoteConnection::send_file",
 	      type << ", " << file << ", " << end_time);
 
+#if __WIN32__
+    int fd = msvc_posix_open(file.c_str(), O_RDONLY);
+#else
     int fd = open(file.c_str(), O_RDONLY);
+#endif
     if (fd == -1) throw Xapian::NetworkError("File not found: " + file, errno);
     fdcloser closefd(fd);
 

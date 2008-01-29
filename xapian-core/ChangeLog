@@ -1,3 +1,9 @@
+Tue Jan 29 09:48:15 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* net/remoteconnection.cc: For win32, use msvc_posix_open() to open
+	  the file descriptor, so other things can delete the file while
+	  the sending is in progress.
+
 Tue Jan 29 01:23:19 GMT 2008  Olly Betts <olly@survex.com>
 
 	* net/remoteconnection.cc: Add an assertion.
