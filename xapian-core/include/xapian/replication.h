@@ -72,7 +72,7 @@ class XAPIAN_VISIBILITY_DEFAULT DatabaseReplica {
     /// Destructor.
     ~DatabaseReplica();
 
-    /** Open a new DatabaseReplica for the database at the specified path.
+    /** Open a DatabaseReplica for the database at the specified path.
      *
      *  The path should either point to a database previously created by a
      *  DatabaseReplica, or to a path which doesn't yet exist.
@@ -82,11 +82,36 @@ class XAPIAN_VISIBILITY_DEFAULT DatabaseReplica {
      *  If the specified path does not contain a database, a database will be
      *  created when an appropriate changeset is supplied to the replica.
      *
-     *  @param path The path to make the replica at.
+     *  @param path       The path to make the replica at.
+     *  @param remotename The remote database name that the replica is for.
      */
-    DatabaseReplica(const std::string & path_);
+    DatabaseReplica(const std::string & path);
 
-    /// Get a string describing the current revision of the replica.
+    /** Set a parameter for the replica.
+     *
+     *  This allows the parameters which were used to create the replica to be
+     *  stored, so that they can be reused in future.
+     *
+     *  @param name  The name of the parameter to set.
+     *  @param value The value to set the parameter to.
+     */
+    void set_parameter(const std::string & name, const std::string & value);
+
+    /** Get a parameter from the replica.
+     *
+     *  @param name The name of the parameter to get.
+     */
+    std::string get_parameter(const std::string & name) const;
+
+    /** Get a string describing the current revision of the replica.
+     *
+     *  The revision information includes the remotename of the replica, and a
+     *  unique identifier for the master database that the replica is off, as
+     *  well as information about the exact revision of the master database
+     *  that the replica represents.  This information allows the master
+     *  database to send the appropriate changeset to mirror whatever changes
+     *  have been made on the master.
+     */
     std::string get_revision_info() const;
 
     /** Read and apply the next changeset.

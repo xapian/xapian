@@ -35,6 +35,7 @@
 #include "utils.h"
 
 #include <fstream>
+#include <map>
 #include <string>
 
 using namespace std;
@@ -67,23 +68,22 @@ class DatabaseReplica::Internal : public Xapian::Internal::RefCntBase {
     Internal(const Internal &);
 
     /// The path to the replica (will point to a stub database file).
-    std::string path;
+    string path;
 
     /// The path to the actual database in the replica.
-    std::string real_path;
+    string real_path;
 
     /// The database being replicated.
     WritableDatabase db;
 
-  public:
-    /// Open a new DatabaseReplica::Internal for the specified path.
-    Internal(const std::string & path_);
+    /// The parameters stored for this replica.
+    map<string, string> parameters;
 
-    /// Get a string describing the current revision of the replica.
-    std::string get_revision_info() const;
+    /// Read the parameters from a file in the replica.
+    void read_parameters();
 
-    /// Read and apply the next changeset.
-    bool apply_next_changeset_from_fd(int fd);
+    /// Write the parameters to a file in the replica.
+    void write_parameters() const;
 
     /** Update the stub database which points to a single flint database.
      *
@@ -94,6 +94,22 @@ class DatabaseReplica::Internal : public Xapian::Internal::RefCntBase {
      *  @param flint_path The path to the flint database.
      */
     void update_stub_database(const string & flint_path) const;
+
+  public:
+    /// Open a new DatabaseReplica::Internal for the specified path.
+    Internal(const string & path_);
+
+    /// Set a parameter for the replica.
+    void set_parameter(const string & name, const string & value);
+
+    /// Get a parameter from the replica.
+    string get_parameter(const string & name) const;
+
+    /// Get a string describing the current revision of the replica.
+    string get_revision_info() const;
+
+    /// Read and apply the next changeset.
+    bool apply_next_changeset_from_fd(int fd);
 
     /// Return a string describing this object.
     string get_description() const { return path; }
@@ -120,15 +136,30 @@ DatabaseReplica::DatabaseReplica()
     DEBUGAPICALL(void, "Xapian::DatabaseReplica::DatabaseReplica", "");
 }
 
-DatabaseReplica::DatabaseReplica(const string & path_)
-	: internal(new DatabaseReplica::Internal(path_))
+DatabaseReplica::DatabaseReplica(const string & path)
+	: internal(new DatabaseReplica::Internal(path))
 {
-    DEBUGAPICALL(void, "Xapian::DatabaseReplica::DatabaseReplica", path_);
+    DEBUGAPICALL(void, "Xapian::DatabaseReplica::DatabaseReplica", path);
 }
 
 DatabaseReplica::~DatabaseReplica()
 {
     DEBUGAPICALL(void, "Xapian::DatabaseReplica::~DatabaseReplica", "");
+}
+
+void
+DatabaseReplica::set_parameter(const string & name, const string & value)
+{
+    DEBUGAPICALL(void, "Xapian::DatabaseReplica::set_parameter",
+		 name << ", " << value);
+    internal->set_parameter(name, value);
+}
+
+string
+DatabaseReplica::get_parameter(const string & name) const
+{
+    DEBUGAPICALL(string, "Xapian::DatabaseReplica::get_parameter", name);
+    RETURN(internal->get_parameter(name));
 }
 
 string
@@ -145,7 +176,7 @@ DatabaseReplica::apply_next_changeset_from_fd(int fd)
 {
     DEBUGAPICALL(bool, "Xapian::DatabaseReplica::apply_next_changeset_from_fd", fd);
     if (internal.get() == NULL)
-	throw Xapian::InvalidOperationError("Attempt to call DatabaseReplica::get_revision_info on a closed replica.");
+	throw Xapian::InvalidOperationError("Attempt to call DatabaseReplica::apply_next_changeset_from_fd on a closed replica.");
     RETURN(internal->apply_next_changeset_from_fd(fd));
 }
 
@@ -164,6 +195,39 @@ DatabaseReplica::get_description() const
 }
 
 // Methods of DatabaseReplica::Internal
+
+void
+DatabaseReplica::Internal::read_parameters()
+{
+    parameters.clear();
+
+    string param_path = path + "_p";
+    if (!file_exists(param_path)) {
+	ifstream p_in(param_path.c_str());
+	string line;
+	while (getline(p_in, line)) {
+	    string::size_type eq = line.find('=');
+	    if (eq != string::npos) {
+		string key = line.substr(0, eq);
+		line.erase(0, eq + 1);
+		parameters[key] = line;
+	    }
+	}
+    }
+}
+
+void
+DatabaseReplica::Internal::write_parameters() const
+{
+    string param_path = path + "_p";
+    ofstream p_out(param_path.c_str());
+
+    map<string, string>::const_iterator i;
+    for (i = parameters.begin(); i != parameters.end(); ++i)
+    {
+	p_out << i->first << "=" << i->second << endl;
+    }
+}
 
 void
 DatabaseReplica::Internal::update_stub_database(const string & flint_path) const
@@ -187,7 +251,7 @@ DatabaseReplica::Internal::update_stub_database(const string & flint_path) const
 }
 
 DatabaseReplica::Internal::Internal(const string & path_)
-	: path(path_), real_path(), db()
+	: path(path_), real_path(), db(), parameters()
 {
     DEBUGCALL(API, void, "DatabaseReplica::Internal::Internal", path_);
     if (dir_exists(path)) {
@@ -225,6 +289,34 @@ DatabaseReplica::Internal::Internal(const string & path_)
 	if (db.internal.size() != 1) {
 	    throw Xapian::InvalidOperationError("DatabaseReplica needs to be pointed at exactly one subdatabase");
 	}
+    }
+
+    read_parameters();
+}
+
+void
+DatabaseReplica::Internal::set_parameter(const string & name,
+					 const string & value)
+{
+    DEBUGCALL(API, void, "DatabaseReplica::Internal::set_parameter",
+	      name << ", " << value);
+    if (value.empty()) {
+	parameters.erase(name);
+    } else {
+	parameters[name] = value;
+    }
+    write_parameters();
+}
+
+string
+DatabaseReplica::Internal::get_parameter(const string & name) const
+{
+    DEBUGCALL(API, string, "DatabaseReplica::Internal::get_parameter", name);
+    map<string, string>::const_iterator i = parameters.find(name);
+    if (i == parameters.end()) {
+	RETURN("");
+    } else {
+	RETURN(i->second);
     }
 }
 
