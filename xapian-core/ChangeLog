@@ -1,3 +1,7 @@
+Tue Jan 29 01:23:19 GMT 2008  Olly Betts <olly@survex.com>
+
+	* net/remoteconnection.cc: Add an assertion.
+
 Tue Jan 29 01:14:07 GMT 2008  Olly Betts <olly@survex.com>
 
 	* common/remoteconnection.h,net/remoteconnection.cc: Add send_file()

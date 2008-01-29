@@ -384,6 +384,8 @@ RemoteConnection::send_file(char type, const string &file, const OmTime & end_ti
     {
 	string enc_size = encode_length(size);
 	c += enc_size.size();
+	// An encoded length should be just a few bytes.
+	AssertRel(c, <=, sizeof(buf));
 	memcpy(buf + 1, enc_size.data(), enc_size.size());
     }
 
