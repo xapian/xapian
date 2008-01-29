@@ -185,6 +185,17 @@ class RemoteConnection {
      */
     void send_message(char type, const std::string & s, const OmTime & end_time);
 
+    /** Send the contents of a file as a message.
+     *
+     *  @param type		Message type code.
+     *  @param file		Path to file containing the Message data.
+     *  @param end_time		If this time is reached, then a timeout
+     *				exception will be thrown.  If
+     *				!end_time.is_set() then the operation will
+     *				never timeout.
+     */
+    void send_file(char type, const std::string &file, const OmTime & end_time);
+
     /// Shutdown the connection.
     void do_close();
 };

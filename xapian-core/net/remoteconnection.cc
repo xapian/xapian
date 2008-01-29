@@ -33,6 +33,7 @@
 #include "omtime.h"
 #include "remoteconnection.h"
 #include "serialise.h"
+#include "utils.h"
 
 #ifndef __WIN32__
 # include "safesysselect.h"
@@ -316,6 +317,143 @@ RemoteConnection::send_message(char type, const string &message, const OmTime & 
 	    if (count == str->size()) {
 		if (str == &message || message.empty()) return;
 		str = &message;
+		count = 0;
+	    }
+	    continue;
+	}
+
+	DEBUGLINE(REMOTE, "write gave errno = " << strerror(errno));
+	if (errno == EINTR) continue;
+
+	if (errno != EAGAIN)
+	    throw Xapian::NetworkError("write failed", context, errno);
+
+	// Use select to wait until there is space or the timeout is reached.
+	FD_ZERO(&fdset);
+	FD_SET(fdout, &fdset);
+
+	OmTime time_diff(end_time - OmTime::now());
+	if (time_diff.sec < 0) {
+	    DEBUGLINE(REMOTE, "write: timeout has expired");
+	    throw Xapian::NetworkTimeoutError("Timeout expired while trying to write", context);
+	}
+
+	struct timeval tv;
+	tv.tv_sec = time_diff.sec;
+	tv.tv_usec = time_diff.usec;
+
+	int select_result = select(fdout + 1, 0, &fdset, &fdset, &tv);
+
+	if (select_result < 0) {
+	    if (errno == EINTR) {
+		// EINTR means select was interrupted by a signal.
+		// We could just retry the select, but it's easier to just
+		// retry the write.
+		continue;
+	    }
+	    throw Xapian::NetworkError("select failed during write", context, errno);
+	}
+
+	if (select_result == 0)
+	    throw Xapian::NetworkTimeoutError("Timeout expired while trying to write", context);
+    }
+#endif
+}
+
+void
+RemoteConnection::send_file(char type, const string &file, const OmTime & end_time)
+{
+    DEBUGCALL(REMOTE, void, "RemoteConnection::send_file",
+	      type << ", " << file << ", " << end_time);
+
+    int fd = open(file.c_str(), O_RDONLY);
+    if (fd == -1) throw Xapian::NetworkError("File not found: " + file, errno);
+    fdcloser closefd(fd);
+
+    off_t size;
+    {
+	struct stat sb;
+	if (fstat(fd, &sb) == -1)
+	    throw Xapian::NetworkError("Couldn't stat file: " + file, errno);
+	size = sb.st_size;
+    }
+
+    char buf[4096];
+    buf[0] = type;
+    size_t c = 1;
+    {
+	string enc_size = encode_length(size);
+	c += enc_size.size();
+	memcpy(buf + 1, enc_size.data(), enc_size.size());
+    }
+
+#ifdef __WIN32__
+    HANDLE hout = fd_to_handle(fdout);
+    const string * str = &header;
+
+    size_t count = 0;
+    while (true) {
+	DWORD n;
+	BOOL ok = WriteFile(hout, buf + count, c - count, &n, &overlapped);
+	if (!ok) {
+	    int errcode = GetLastError();
+	    if (errcode != ERROR_IO_PENDING)
+		throw Xapian::NetworkError("write failed", context, -errcode);
+	    // Just wait for the data to be received, or a timeout.
+	    DWORD waitrc;
+	    waitrc = WaitForSingleObject(overlapped.hEvent, calc_read_wait_msecs(end_time));
+	    if (waitrc != WAIT_OBJECT_0) {
+		DEBUGLINE(REMOTE, "write: timeout has expired");
+		throw Xapian::NetworkTimeoutError("Timeout expired while trying to write", context);
+	    }
+	    // Get the final result.
+	    if (!GetOverlappedResult(hout, &overlapped, &n, FALSE))
+		throw Xapian::NetworkError("Failed to get overlapped result",
+					   context, -(int)GetLastError());
+	}
+
+	count += n;
+	if (count == c) {
+	    if (size == 0) return;
+
+	    ssize_t res;
+	    do {
+		res = read(fd, buf, sizeof(buf));
+	    } while (res < 0 && errno == EINTR);
+	    if (res < 0) throw Xapian::NetworkError("read failed", errno);
+	    c = size_t(res);
+
+	    size -= c;
+	    count = 0;
+	}
+    }
+#else
+    // If there's no end_time, just use blocking I/O.
+    if (fcntl(fdin, F_SETFL, end_time.is_set() ? O_NONBLOCK : 0) < 0) {
+	throw Xapian::NetworkError("Failed to set fdout non-blocking-ness",
+				   context, errno);
+    }
+
+    fd_set fdset;
+    size_t count = 0;
+    while (true) {
+	// We've set write to non-blocking, so just try writing as there
+	// will usually be space.
+	ssize_t n = write(fdout, buf + count, c - count);
+
+	if (n >= 0) {
+	    count += n;
+	    if (count == c) {
+		if (size == 0) return;
+
+		ssize_t res;
+		do {
+		    res = read(fd, buf, sizeof(buf));
+		} while (res < 0 && errno == EINTR);
+		if (res < 0) throw Xapian::NetworkError("read failed", errno);
+		c = size_t(res);
+
+		size -= c;
 		count = 0;
 	    }
 	    continue;
