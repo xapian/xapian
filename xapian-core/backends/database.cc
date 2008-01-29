@@ -465,6 +465,15 @@ Database::Internal::collect_document(Xapian::docid did) const
     return open_document(did);
 }
 
+void
+Database::Internal::write_changesets_to_fd(int fd,
+					   const std::string & start_revision)
+{
+    (void)fd;
+    (void)start_revision;
+    throw Xapian::UnimplementedError("This backend doesn't provide changesets");
+}
+
 string
 Database::Internal::get_revision_info() const
 {

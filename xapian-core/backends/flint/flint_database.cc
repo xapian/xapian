@@ -52,6 +52,8 @@
 #include "flint_alltermslist.h"
 #include "flint_lock.h"
 #include "flint_spellingwordslist.h"
+#include "omtime.h"
+#include "remoteconnection.h"
 #include "stringutils.h"
 
 #include <sys/types.h>
@@ -62,6 +64,21 @@
 
 using namespace std;
 using namespace Xapian;
+
+enum replicate_reply_type {
+    REPL_REPLY_END_OF_CHANGES,	// No more changes to transfer.
+    REPL_REPLY_FAIL,		// Couldn't generate full set of changes.
+    REPL_REPLY_DB_HEADER,	// Start of a whole DB copy.
+    REPL_REPLY_DB_FILENAME,	// The name of a file in a DB copy.
+    REPL_REPLY_DB_FILEDATA,	// Contents of a file in a DB copy.
+    REPL_REPLY_DB_FOOTER,	// End of a whole DB copy.
+    REPL_REPLY_CHANGESET	// A changeset file is being sent.
+};
+
+// The maximum number of copies of a database to send in a single conversation.
+// If more copies than this are required, a REPL_REPLY_FAIL message will be
+// sent.
+#define MAX_DB_COPIES_PER_CONVERSATION 5
 
 // The maximum safe term length is determined by the postlist.  There we
 // store the term followed by "\x00\x00" then a length byte, then up to
@@ -482,15 +499,136 @@ FlintDatabase::get_database_write_lock()
 }
 
 void
-FlintDatabase::write_changesets_to_fd(int fd,
-				      const string & revision) const
+FlintDatabase::send_whole_database(RemoteConnection & conn,
+				   const OmTime & end_time)
 {
-    // Check whether the UUID in the revision is the same as that for this
-    // database.  If not, we need to send the current version of the database.
+    DEBUGCALL(DB, void, "FlintDatabase::send_whole_database",
+	      "conn" << ", " << "end_time");
 
+    // Send the current revision number in the header.
+    string buf;
+    buf += pack_uint(get_revision_number());
+    conn.send_message(REPL_REPLY_DB_HEADER, buf, end_time);
+
+    // Send all the tables and the appropriate base files.
     // FIXME - implement
-    (void) fd;
-    (void) revision;
+    //for each table:
+    // conn.send_message(REPL_REPLY_DB_FILENAME, buf, end_time);
+    // conn.send_file(REPL_REPLY_DB_FILEDATA, path + tablename, end_time);
+}
+
+void
+FlintDatabase::write_changesets_to_fd(int fd,
+				      const string & revision)
+{
+    DEBUGCALL(DB, void, "FlintDatabase::write_changesets_to_fd",
+	      fd << ", " << revision);
+
+    int whole_db_copies_left = MAX_DB_COPIES_PER_CONVERSATION;
+    bool need_whole_db = false;
+    flint_revision_number_t start_rev_num = 0;
+    string start_uuid;
+
+    if (revision.size() == 0) {
+	need_whole_db = true;
+    } else {
+	// Check whether the UUID in the revision is the same as that for this
+	// database.  If not, we need to send the current version of the database.
+	const char * rev_ptr = revision.data();
+	const char * rev_end = rev_ptr + revision.size();
+	if (!unpack_string(&rev_ptr, rev_end, start_uuid)) {
+	    // Failed to read a string from the revision - revision must be in
+	    // some unknown format, implying an unknown database format.
+	    // Presumably this means the slave is a very old version of the
+	    // database, so we'll send a full copy to replace it.
+	    need_whole_db = true;
+	} else if (start_uuid != get_uuid()) {
+	    need_whole_db = true;
+	} else if (!unpack_uint(&rev_ptr, rev_end, &start_rev_num)) {
+	    need_whole_db = true;
+	}
+    }
+
+    RemoteConnection conn(-1, fd, "");
+    OmTime end_time;
+
+    // While the starting revision number is less than the latest revision
+    // number, look for a changeset, and write it.
+    //
+    // FIXME - perhaps we should make hardlinks for all the changesets we're
+    // likely to need, first, and then start sending them, so that there's no
+    // risk of them disappearing while we're sending earlier ones.
+    while (true) {
+	if (need_whole_db) {
+	    // Decrease the counter of copies left to be sent, and fail
+	    // if we've already copied the database enough.  This ensures that
+	    // synchronisation attempts always terminate eventually.
+	    if (whole_db_copies_left == 0) {
+		conn.send_message(REPL_REPLY_FAIL, "", end_time);
+		return;
+	    }
+	    whole_db_copies_left--;
+
+	    // Send the whole database across.
+	    start_rev_num = get_revision_number();
+	    start_uuid = get_uuid();
+
+	    send_whole_database(conn, end_time);
+
+	    need_whole_db = false;
+
+	    reopen();
+	    if (start_uuid == get_uuid()) {
+		// Send the latest revision number after sending the tables.
+		// The update must proceed to that revision number before the
+		// copy is safe to make live.
+
+		string buf;
+		buf += pack_uint(get_revision_number());
+		conn.send_message(REPL_REPLY_DB_FOOTER, buf, end_time);
+	    } else {
+		// Database has been replaced since we did the copy.  Send a
+		// higher revision number than the revision we've just copied,
+		// so that the client doesn't make the copy we've just done
+		// live, and then mark that we need to do a copy again.
+		// The client will never actually get the required revision,
+		// because the next message is going to be the start of a new
+		// database transfer.
+
+		string buf;
+		buf += pack_uint(start_rev_num + 1);
+		conn.send_message(REPL_REPLY_DB_FOOTER, buf, end_time);
+		need_whole_db = true;
+	    }
+	} else {
+	    // Check if we've sent all the updates.
+	    if (start_rev_num >= get_revision_number()) {
+		reopen();
+		if (start_uuid != get_uuid()) {
+		    need_whole_db = true;
+		    continue;
+		}
+		if (start_rev_num >= get_revision_number()) {
+		    break;
+		}
+	    }
+
+	    // Look for the changeset for revision start_rev_num.
+	    string changes_name = db_dir + "/changes" + om_tostring(start_rev_num);
+	    if (file_exists(changes_name)) {
+		// Send it, and also update start_rev_num to the new value
+		// specified in the changeset.
+		// FIXME - there is a race condition here - the file might get
+		// deleted between the file_exists() test and the access to send it.
+		conn.send_file(REPL_REPLY_CHANGESET, changes_name, end_time);
+	    } else {
+		// The changeset doesn't exist: leave the revision number as it
+		// is, and mark for doing a full database copy.
+		need_whole_db = true;
+	    }
+	}
+    }
+    conn.send_message(REPL_REPLY_END_OF_CHANGES, "", end_time);
 }
 
 void
@@ -731,10 +869,8 @@ string
 FlintDatabase::get_revision_info() const
 {
     DEBUGCALL(DB, string, "FlintDatabase::get_revision_info", "");
-    string uuid = get_uuid();
     string buf;
-    buf += pack_uint(uuid.size());
-    buf += uuid;
+    buf += pack_string(get_uuid());
     buf += pack_uint(get_revision_number());
     RETURN(buf);
 }

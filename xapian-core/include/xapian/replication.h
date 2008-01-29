@@ -42,8 +42,29 @@ class XAPIAN_VISIBILITY_DEFAULT DatabaseMaster {
      */
     DatabaseMaster(const std::string & path_) : path(path_) {}
 
-    /** Write a set of changeset to a file descriptor to upgrade a database
-     *  from a specified revision to the latest available revision.
+    /** Write a set of changesets for upgrading the database to a file.
+     *
+     *  The changesets will be such that, if they are applied in order to a
+     *  copy of the database at the start revision, a copy of the database
+     *  at the current revision (ie, the revision which the FlintDatabase
+     *  object is currently open at) will be produced.
+     *
+     *  If suitable changesets have been stored in the database, this will
+     *  write the appropriate changesets, in order.  If suitable changesets
+     *  are not available, this will write a copy of sufficient blocks of
+     *  the database to reconstruct the current revision.
+     *
+     *  This will therefore potentially write a very large amount of data
+     *  to the file descriptor.
+     *
+     *  @param fd       An open file descriptor to write the changes to.
+     *
+     *  @param revision The starting revision of the database that the
+     *                  changesets are to be applied to.  Specify an empty
+     *                  string to get a "creation" changeset, which
+     *                  includes the creation of the database.  The
+     *                  revision will include the unique identifier for the
+     *                  database, if one is available.
      */
     void write_changesets_to_fd(int fd,
 				const std::string & start_revision) const;

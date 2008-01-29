@@ -1,3 +1,15 @@
+Tue Jan 29 10:08:02 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/replication.h: Expand documentation comment.
+	* api/replication.cc,backends/database.cc,
+	  backends/flint/flint_database.cc,backends/flint/flint_database.h,
+	  common/database.h: Add a write_changesets_to_fd() function to
+	  Database::Internal, with a default implementation to raise an
+	  UnimplementedError.  Hook
+	  DatabaseMaster::write_changesets_to_fd() up to this, and
+	  implement it for flint databases (the code to send a copy of a
+	  database still needs work). 
+
 Tue Jan 29 10:01:39 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* docs/replication_protocol.rst: Document that a FAIL message ends

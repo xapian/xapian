@@ -47,9 +47,11 @@ DatabaseMaster::write_changesets_to_fd(int fd,
 {
     DEBUGAPICALL(void, "Xapian::DatabaseMaster::write_changesets_to_fd",
 		 fd << ", " << start_revision);
-    // FIXME - implement
-    (void) fd;
-    (void) start_revision;
+    Database db(path);
+    if (db.internal.size() != 1) {
+	throw Xapian::InvalidOperationError("DatabaseMaster needs to be pointed at exactly one subdatabase");
+    }
+    db.internal[0]->write_changesets_to_fd(fd, start_revision);
 }
 
 string

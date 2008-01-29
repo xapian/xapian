@@ -403,6 +403,14 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	virtual Xapian::Document::Internal * collect_document(Xapian::docid did) const;
 	//@}
 
+	/** Write a set of changesets to a file descriptor.
+	 *
+	 *  This call may reopen the database, leaving it pointing to a more
+	 *  recent version of the database.
+	 */
+	virtual void write_changesets_to_fd(int fd,
+					    const std::string & start_revision);
+
 	/// Get a string describing the current revision of the database.
 	virtual string get_revision_info() const;
 
