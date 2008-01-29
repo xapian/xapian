@@ -1,3 +1,11 @@
+Tue Jan 29 00:16:42 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/flint/flint_database.cc,backends/flint/flint_database.h:
+	  Change write_changesets_to_fd() to take the revision information
+	  as a string - it now includes a UUID.  Add get_uuid() method to
+	  FlintDatabase - currently always returns "FIXME", but will
+	  eventually return an ID for the database.
+
 Mon Jan 28 19:07:20 GMT 2008  Olly Betts <olly@survex.com>
 
 	* common/Makefile.mk,common/replicatetcpclient.h,net/Makefile.mk,

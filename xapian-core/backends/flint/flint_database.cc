@@ -483,8 +483,11 @@ FlintDatabase::get_database_write_lock()
 
 void
 FlintDatabase::write_changesets_to_fd(int fd,
-				      flint_revision_number_t revision) const
+				      const string & revision) const
 {
+    // Check whether the UUID in the revision is the same as that for this
+    // database.  If not, we need to send the current version of the database.
+
     // FIXME - implement
     (void) fd;
     (void) revision;
@@ -728,10 +731,19 @@ string
 FlintDatabase::get_revision_info() const
 {
     DEBUGCALL(DB, string, "FlintDatabase::get_revision_info", "");
+    string uuid = get_uuid();
     string buf;
-    flint_revision_number_t revision = get_revision_number();
-    buf += pack_uint(revision);
+    buf += pack_uint(uuid.size());
+    buf += uuid;
+    buf += pack_uint(get_revision_number());
     RETURN(buf);
+}
+
+string
+FlintDatabase::get_uuid() const
+{
+    DEBUGCALL(DB, string, "FlintDatabase::get_uuid", "");
+    RETURN("FIXME");
 }
 
 ///////////////////////////////////////////////////////////////////////////

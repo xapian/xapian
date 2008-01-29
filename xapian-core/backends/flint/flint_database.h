@@ -198,13 +198,16 @@ class FlintDatabase : public Xapian::Database::Internal {
 	 *  to the file descriptor.
 	 *
 	 *  @param fd       An open file descriptor to write the changes to.
+	 *
 	 *  @param revision The starting revision of the database that the
-	 *                  changesets are to be applied to.  Specify 0 to
-	 *                  get a "creation" changeset, which includes the
-	 *                  creation of the database.
+	 *                  changesets are to be applied to.  Specify an empty
+	 *                  string to get a "creation" changeset, which
+	 *                  includes the creation of the database.  The
+	 *                  revision will include the unique identifier for the
+	 *                  database, if one is available.
 	 */
 	void write_changesets_to_fd(int fd,
-				    flint_revision_number_t revision) const;
+				    const std::string & start_revision) const;
 
 	/** Apply any outstanding changes to the tables.
 	 *
@@ -273,6 +276,14 @@ class FlintDatabase : public Xapian::Database::Internal {
 	string get_metadata(const string & key) const;
 	string get_revision_info() const;
 	//@}
+
+	/** Get a UUID for the database.
+	 *
+	 *  Replicas (eg, made with the replication protocol, or by copying all
+	 *  the database files) will have the same UUID.  However, copies (made
+	 *  with copydatabase, or xapian-compact) will have different UUIDs.
+	 */
+	string get_uuid() const;
 };
 
 /** A writable flint database.
