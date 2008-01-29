@@ -14,8 +14,49 @@ document.
 Protocol description
 ====================
 
-FIXME - describe the protocol used to transfer the updates.
+The protocol used to transfer the updates is based on the RemoteConnection
+system (also used for remote xapian databases).  This provides a "message"
+layer abstraction for the connections; so the communication is based on a set
+of messages, each with a type, and some associated data.
 
+Client messages
+---------------
+
+The client sends a single message type to the server: this is a message of type
+'R', and includes the name of a database to be replicated and a revision string
+for that database.  This message is send whenever the client wants to receive
+updates for a database.
+
+Server messages
+---------------
+
+The server can send a variety of messages.  The message types are currently
+defined in an enum in flint_database.cc (in which each type is preceded by
+REPL_REPLY):
+
+ - END_OF_CHANGES: this indicates that no further changes are needed, and ends
+   the response to the original request.  It contains no data.
+
+ - FAIL: this indicates that a consistent set of changes couldn't be sent.  It
+   may occur because the database is being changed too quickly at the senders
+   end, or for other reasons.
+
+ - DB_HEADER: this indicates that an entire database copy is about to be sent.
+   It contains a single (packed) unsigned integer, representing the revision
+   number of the copy which is about to be sent.
+
+ - DB_FILENAME: this contains the name of the next file to be sent in a DB copy
+   operation.
+
+ - DB_FILEDATA: this contains the contents of a file in a DB copy operation.
+   The contents of the message are the details of the file.
+
+ - DB_FOOTER: this indicates the end of a DB copy operation.  The contents of
+   this message are a single (packed) unsigned integer, which represents a
+   revision number.  The newly copied database is not safe to make live until
+   changesets up to the specified revision have been applied.
+
+ - CHANGESET: this indicates that a changeset file (see below) is being sent.
 
 Changeset files
 ===============
