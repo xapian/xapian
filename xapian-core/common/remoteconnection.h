@@ -117,6 +117,9 @@ class RemoteConnection {
     /// Buffer to hold unprocessed input.
     std::string buffer;
 
+    /// Remaining bytes of message data still to come over fdin for a chunked read.
+    off_t chunked_data_left;
+
     /** Read until there are at least min_len bytes in buffer.
      *
      *  If for some reason this isn't possible, throws NetworkError.
@@ -173,6 +176,45 @@ class RemoteConnection {
      *  @return			Message type code.
      */
     char get_message(std::string &result, const OmTime & end_time);
+
+    /** Prepare to read one message from fdin in chunks.
+     *
+     *  Sometimes a message can be sufficiently large that you don't want to
+     *  read it all into memory before processing it.  Also, it may be more
+     *  efficient to process it as you go.
+     *
+     *  This method doesn't actually return any message data - call
+     *  get_message_chunk() to do that.
+     *
+     *  @param end_time		If this time is reached, then a timeout
+     *				exception will be thrown.  If
+     *				!end_time.is_set() then the operation will
+     *				never timeout.
+     *
+     *  @return			Message type code.
+     */
+    char get_message_chunked(const OmTime & end_time);
+
+    /** Read a chunk of a message from fdin.
+     *
+     *  You must call get_message_chunked() before calling this method.
+     *
+     *  @param[inout] result	Message data.  This is appended to, so if you read
+     *				more than needed the previous time, leave the excess
+     *				in result.
+     *	@param at_least		Return at least this many bytes in result, unless
+     *				there isn't enough data left in the message (in
+     *				which case all remaining data is read and false is
+     *				returned).
+     *  @param end_time		If this time is reached, then a timeout
+     *				exception will be thrown.  If
+     *				!end_time.is_set() then the operation will
+     *				never timeout.
+     *
+     *  @return			true if at least at_least bytes are now in result.
+     */
+    bool get_message_chunk(std::string &result, size_t at_least,
+			   const OmTime & end_time);
 
     /** Send a message.
      *

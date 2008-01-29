@@ -541,6 +541,64 @@ RemoteConnection::get_message(string &result, const OmTime & end_time)
     RETURN(type);
 }
 
+char
+RemoteConnection::get_message_chunked(const OmTime & end_time)
+{
+    DEBUGCALL(REMOTE, char, "RemoteConnection::get_message_chunked", end_time);
+
+    read_at_least(2, end_time);
+    off_t len = static_cast<unsigned char>(buffer[1]);
+    if (len != 0xff) {
+	chunked_data_left = len;
+	char type = buffer[0];
+	buffer.erase(0, 2);
+	RETURN(type);
+    }
+    read_at_least(len + 2, end_time);
+    len = 0;
+    string::const_iterator i = buffer.begin() + 2;
+    unsigned char ch;
+    int shift = 0;
+    do {
+	if (i == buffer.end() || shift > 28) {
+	    // Something is very wrong...
+	    throw Xapian::NetworkError("Insane message length specified!");
+	}
+	ch = *i++;
+	len |= off_t(ch & 0x7f) << shift;
+	shift += 7;
+    } while ((ch & 0x80) == 0);
+    len += 255;
+    chunked_data_left = len;
+    char type = buffer[0];
+    size_t header_len = (i - buffer.begin());
+    buffer.erase(0, header_len);
+    RETURN(type);
+}
+
+bool
+RemoteConnection::get_message_chunk(string &result, size_t at_least,
+				    const OmTime & end_time)
+{
+    DEBUGCALL(REMOTE, bool, "RemoteConnection::get_message_chunk",
+	      result << ", " << at_least << ", " << end_time);
+
+    if (at_least <= result.size()) RETURN(true);
+    at_least -= result.size();
+
+    bool read_enough = (off_t(at_least) <= chunked_data_left);
+    if (!read_enough) at_least = chunked_data_left;
+
+    read_at_least(at_least, end_time);
+
+    size_t retlen(min(off_t(buffer.size()), chunked_data_left));
+    result.append(buffer, 0, retlen);
+    buffer.erase(0, retlen);
+    chunked_data_left -= retlen;
+
+    RETURN(read_enough);
+}
+
 void
 RemoteConnection::do_close()
 {
