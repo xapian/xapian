@@ -367,7 +367,7 @@ RemoteConnection::send_file(char type, const string &file, const OmTime & end_ti
     DEBUGCALL(REMOTE, void, "RemoteConnection::send_file",
 	      type << ", " << file << ", " << end_time);
 
-#if __WIN32__
+#ifdef __WIN32__
     int fd = msvc_posix_open(file.c_str(), O_RDONLY);
 #else
     int fd = open(file.c_str(), O_RDONLY);

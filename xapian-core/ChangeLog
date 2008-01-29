@@ -1,3 +1,7 @@
+Tue Jan 29 09:57:14 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* net/remoteconnection.cc: Fix typo.
+
 Tue Jan 29 09:48:15 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* net/remoteconnection.cc: For win32, use msvc_posix_open() to open
