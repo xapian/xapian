@@ -39,7 +39,8 @@ REPL_REPLY):
 
  - FAIL: this indicates that a consistent set of changes couldn't be sent.  It
    may occur because the database is being changed too quickly at the senders
-   end, or for other reasons.
+   end, or for other reasons.  It ends the response to the original request,
+   and may occur when any other messages are expected.
 
  - DB_HEADER: this indicates that an entire database copy is about to be sent.
    It contains a single (packed) unsigned integer, representing the revision
