@@ -26,6 +26,7 @@
 #include "safefcntl.h"
 #include "safeunistd.h"
 
+#include <algorithm>
 #include <string>
 
 #include "omassert.h"
@@ -597,6 +598,72 @@ RemoteConnection::get_message_chunk(string &result, size_t at_least,
     chunked_data_left -= retlen;
 
     RETURN(read_enough);
+}
+
+/** Write n bytes from block pointed to by p to file descriptor fd. */
+static void write_all(int fd, const char * p, size_t n)
+{
+    while (n) {
+	int c = write(fd, p, n);
+	if (c < 0) {
+	    if (errno == EINTR) continue;
+	    throw Xapian::NetworkError("Error writing to file", errno);
+	}
+	p += c;
+	n -= c;
+    }
+}
+
+char
+RemoteConnection::receive_file(const string &file, const OmTime & end_time)
+{
+    DEBUGCALL(REMOTE, char, "RemoteConnection::receive_file",
+	      file << ", " << end_time);
+
+#ifdef __WIN32__
+    // Do we want to be able to delete the file during writing?
+    int fd = msvc_posix_open(file.c_str(), O_WRONLY|O_CREAT|O_TRUNC);
+#else
+    int fd = open(file.c_str(), O_WRONLY|O_CREAT|O_TRUNC);
+#endif
+    if (fd == -1) throw Xapian::NetworkError("Couldn't open file for writing: " + file, errno);
+    fdcloser closefd(fd);
+
+    read_at_least(2, end_time);
+    size_t len = static_cast<unsigned char>(buffer[1]);
+    read_at_least(len + 2, end_time);
+    if (len != 0xff) {
+	write_all(fd, buffer.data() + 2, len);
+	char type = buffer[0];
+	buffer.erase(0, len + 2);
+	RETURN(type);
+    }
+    len = 0;
+    string::const_iterator i = buffer.begin() + 2;
+    unsigned char ch;
+    int shift = 0;
+    do {
+	if (i == buffer.end() || shift > 28) {
+	    // Something is very wrong...
+	    throw Xapian::NetworkError("Insane message length specified!");
+	}
+	ch = *i++;
+	len |= size_t(ch & 0x7f) << shift;
+	shift += 7;
+    } while ((ch & 0x80) == 0);
+    len += 255;
+    size_t header_len = (i - buffer.begin());
+    write_all(fd, buffer.data() + header_len, buffer.size() - header_len);
+    len -= (buffer.size() - header_len);
+    char type = buffer[0];
+    buffer.clear();
+    while (len > 0) {
+	read_at_least(min(len, size_t(4096)), end_time);
+	write_all(fd, buffer.data(), buffer.size());
+	len -= buffer.size();
+	buffer.clear();
+    }
+    RETURN(type);
 }
 
 void

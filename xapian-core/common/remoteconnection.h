@@ -216,6 +216,19 @@ class RemoteConnection {
     bool get_message_chunk(std::string &result, size_t at_least,
 			   const OmTime & end_time);
 
+    /** Save the contents of a message as a file.
+     *
+     *  @param file		Path to file to save the message data into.  If
+     *				the file exists it will be overwritten.
+     *  @param end_time		If this time is reached, then a timeout
+     *				exception will be thrown.  If
+     *				!end_time.is_set() then the operation will
+     *				never timeout.
+     *
+     *  @return			Message type code.
+     */
+    char receive_file(const std::string &file, const OmTime & end_time);
+
     /** Send a message.
      *
      *  @param type		Message type code.
