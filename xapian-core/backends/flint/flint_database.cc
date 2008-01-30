@@ -510,11 +510,39 @@ FlintDatabase::send_whole_database(RemoteConnection & conn,
     buf += pack_uint(get_revision_number());
     conn.send_message(REPL_REPLY_DB_HEADER, buf, end_time);
 
-    // Send all the tables and the appropriate base files.
-    // FIXME - implement
-    //for each table:
-    // conn.send_message(REPL_REPLY_DB_FILENAME, buf, end_time);
-    // conn.send_file(REPL_REPLY_DB_FILEDATA, path + tablename, end_time);
+    // Send all the tables.  The tables which we want to be cached best after
+    // the copy finished are sent last.
+    const char * tablenames[] = {
+	"termlist",
+	"synonym",
+	"spelling",
+	"record",
+	"position",
+	"value",
+	"postlist"
+    };
+    list<string> filenames;
+    const char ** tablenameptr;
+    for (tablenameptr = tablenames;
+	 tablenameptr != tablenames + (sizeof(tablenames) / sizeof(const char *));
+	 ++tablenameptr) {
+	filenames.push_back(string(*tablenameptr) + ".DB");
+	filenames.push_back(string(*tablenameptr) + ".baseA");
+	filenames.push_back(string(*tablenameptr) + ".baseB");
+    };
+    filenames.push_back("iamflint");
+
+    for (list<string>::const_iterator i = filenames.begin();
+	 i != filenames.end(); ++i) {
+	string filepath = db_dir + "/" + *i;
+	if (file_exists(filepath)) {
+	    // FIXME - there is a race condition here - the file might get
+	    // deleted between the file_exists() test and the access to send it.
+	    buf = *i;
+	    conn.send_message(REPL_REPLY_DB_FILENAME, buf, end_time);
+	    conn.send_file(REPL_REPLY_DB_FILEDATA, filepath, end_time);
+	}
+    }
 }
 
 void

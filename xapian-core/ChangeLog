@@ -1,3 +1,8 @@
+Wed Jan 30 15:10:37 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/flint/flint_database.cc: Implement sending of the whole
+	  database copy.
+
 Wed Jan 30 14:45:01 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/,tests/harness/: Add new testcase file (api_replicate.cc)
