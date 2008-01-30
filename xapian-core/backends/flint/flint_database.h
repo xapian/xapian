@@ -257,6 +257,7 @@ class FlintDatabase : public Xapian::Database::Internal {
 	void write_changesets_to_fd(int fd,
 				    const string & start_revision);
 	string get_revision_info() const;
+	bool apply_next_changeset_from_fd(int fd);
 	//@}
 
 	/** Get a UUID for the database.

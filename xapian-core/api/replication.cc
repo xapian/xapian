@@ -337,7 +337,8 @@ DatabaseReplica::Internal::apply_next_changeset_from_fd(int fd)
 {
     DEBUGCALL(API, bool,
 	      "DatabaseReplica::Internal::apply_next_changeset_from_fd", fd);
-    // FIXME - implement
-    (void) fd;
-    RETURN(false);
+    if (db.internal.size() != 1) {
+	throw Xapian::InvalidOperationError("DatabaseReplica needs to be pointed at exactly one subdatabase");
+    }
+    RETURN((db.internal[0])->apply_next_changeset_from_fd(fd));
 }

@@ -414,6 +414,9 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	/// Get a string describing the current revision of the database.
 	virtual string get_revision_info() const;
 
+	/// Read and apply the next changeset.
+	virtual bool apply_next_changeset_from_fd(int fd);
+
 	//////////////////////////////////////////////////////////////////
 	// Introspection methods:
 	// ======================

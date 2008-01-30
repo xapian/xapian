@@ -1,3 +1,17 @@
+Wed Jan 30 15:58:44 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/replication.cc,backends/database.cc,
+	  backends/flint/flint_database.cc,backends/flint/flint_database.h,
+	  common/database.h: Hook up the apply_changeset function from the
+	  API through to flint.  (The flint layer currently doesn't work,
+	  though.)  Also, implement the get_uuid() function for flint, by
+	  using the mtime of the iamflint file.
+	* tests/api_replicate.cc: Finish implementation of the "replicate"
+	  function, and add a test of a replication of a database using
+	  this.  The return value test is commented out for now, because
+	  the flint layer doesn't work, but this puts the machinery needed
+	  to test this in place.
+
 Wed Jan 30 15:10:37 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* backends/flint/flint_database.cc: Implement sending of the whole

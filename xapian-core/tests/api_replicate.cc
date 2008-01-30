@@ -48,19 +48,34 @@ static void mktmpdir(const string & path) {
     }
 }
 
-static void replicate(Xapian::DatabaseMaster & master,
-		      Xapian::DatabaseReplica &replica,
-		      const string & tempdir)
+// Replicate from the master to the replica.
+// Returns the number of changsets which were applied.
+static int
+replicate(Xapian::DatabaseMaster & master,
+	  Xapian::DatabaseReplica &replica,
+	  const string & tempdir)
 {
     string changesetpath = tempdir + "/changeset";
     int fd = open(changesetpath.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
     if (fd == -1) {
-	FAIL_TEST("Open failed (when creating a new changeset file at )"
-		  + changesetpath);
+	FAIL_TEST("Open failed (when creating a new changeset file at '"
+		  + changesetpath + "')");
     }
-    return;
-    // This currently fails!
     master.write_changesets_to_fd(fd, replica.get_revision_info());
+    close(fd);
+
+    fd = open(changesetpath.c_str(), O_RDONLY);
+    if (fd == -1) {
+	FAIL_TEST("Open failed (when reading changeset file at '"
+		  + changesetpath + "')");
+    }
+
+    int count = 0;
+    while (replica.apply_next_changeset_from_fd(fd)) {
+	++count;
+    }
+    close(fd);
+    return count;
 }
 
 // #######################################################################
@@ -85,8 +100,16 @@ DEFINE_TESTCASE(replicate1, replicas) {
     orig.add_document(doc1);
     orig.flush();
 
-    replicate(master, replica, tempdir);
+    // Apply the replication - we don't have changesets stored, so this should
+    // just do a database copy, and return a count of 1.
 
-    //rmtmpdir(tempdir);
+    // FIXME - this doesn't yet pass, because the changeset applying stuff doesn't yet work.
+    //TEST_EQUAL(replicate(master, replica, tempdir), 1);
+
+    // Repeating the replication should return a count of 0, since no further
+    // changes should need to be applied.
+    TEST_EQUAL(replicate(master, replica, tempdir), 0);
+
+    rmtmpdir(tempdir);
     return true;
 }

@@ -466,11 +466,8 @@ Database::Internal::collect_document(Xapian::docid did) const
 }
 
 void
-Database::Internal::write_changesets_to_fd(int fd,
-					   const std::string & start_revision)
+Database::Internal::write_changesets_to_fd(int, const std::string &)
 {
-    (void)fd;
-    (void)start_revision;
     throw Xapian::UnimplementedError("This backend doesn't provide changesets");
 }
 
@@ -478,6 +475,12 @@ string
 Database::Internal::get_revision_info() const
 {
     throw Xapian::UnimplementedError("This backend doesn't provide access to revision information");
+}
+
+bool
+Database::Internal::apply_next_changeset_from_fd(int)
+{
+    throw Xapian::UnimplementedError("This backend doesn't support applying changesets");
 }
 
 RemoteDatabase *

@@ -903,11 +903,30 @@ FlintDatabase::get_revision_info() const
     RETURN(buf);
 }
 
+bool
+FlintDatabase::apply_next_changeset_from_fd(int fd)
+{
+    DEBUGCALL(DB, string, "FlintDatabase::apply_next_changeset_from_fd", "");
+    (void)fd;
+    RETURN(0);
+}
+
 string
 FlintDatabase::get_uuid() const
 {
     DEBUGCALL(DB, string, "FlintDatabase::get_uuid", "");
-    RETURN("FIXME");
+    // Currently, we generate the uuid simply by getting the mtime of the
+    // "iamflint" file, and packing it.
+    // FIXME - a better uuid should be generated whenever a database is
+    // created, and stored in the database somewhere.
+
+    struct stat statbuf;
+    string iamflint_path = db_dir + "/iamflint";
+    if (stat(iamflint_path, &statbuf) != 0) {
+	throw Xapian::DatabaseError("Couldn't stat " + iamflint_path, errno);
+    }
+    unsigned int mtime = statbuf.st_mtime;
+    RETURN(pack_uint(mtime));
 }
 
 ///////////////////////////////////////////////////////////////////////////
