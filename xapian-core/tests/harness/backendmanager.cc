@@ -112,12 +112,7 @@ Xapian::WritableDatabase
 BackendManager::getwritedb_flint(const string & name,
 				 const vector<string> & files)
 {
-    string parent_dir = ".flint";
-    create_dir_if_needed(parent_dir);
-
-    string dbdir = parent_dir;
-    dbdir += '/';
-    dbdir += name;
+    string dbdir = getwritedb_flint_path(name);
 
     // For a writable database we need to start afresh each time.
     rm_rf(dbdir);
@@ -128,6 +123,19 @@ BackendManager::getwritedb_flint(const string & name,
     index_files_to_database(db, files);
     return db;
 }
+
+std::string
+BackendManager::getwritedb_flint_path(const string & name)
+{
+    string parent_dir = ".flint";
+    create_dir_if_needed(parent_dir);
+
+    string dbdir = parent_dir;
+    dbdir += '/';
+    dbdir += name;
+    return dbdir;
+}
+
 #endif
 
 #ifdef XAPIAN_HAS_QUARTZ_BACKEND
@@ -191,6 +199,12 @@ Xapian::WritableDatabase
 BackendManager::get_writable_database(const string &, const string &)
 {
     throw Xapian::InvalidArgumentError("Attempted to open a disabled database");
+}
+
+string
+BackendManager::get_writable_database_path(const std::string &)
+{
+    throw Xapian::InvalidArgumentError("Path isn't meaningful for this database type");
 }
 
 Xapian::Database

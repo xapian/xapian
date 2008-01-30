@@ -1,3 +1,14 @@
+Wed Jan 30 14:45:01 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/,tests/harness/: Add new testcase file (api_replicate.cc)
+	  to hold tests of the replication functionality.  Currently has
+	  one partially written test.  Also, add new function to apitest.h:
+	  get_named_writable_database_path(), which allows the path to a
+	  writable database to be obtained; throws an exception for those
+	  backend types for which that isn't meaningful.  Add a new
+	  variable for use in the conditions for tests: "replicas", which
+	  should be set to true for all backends which support replication.
+
 Wed Jan 30 14:42:26 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* net/remoteconnection.cc: Fix the calls to fcntl() in
