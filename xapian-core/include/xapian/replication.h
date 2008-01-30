@@ -46,7 +46,7 @@ class XAPIAN_VISIBILITY_DEFAULT DatabaseMaster {
      *
      *  The changesets will be such that, if they are applied in order to a
      *  copy of the database at the start revision, a copy of the database
-     *  at the current revision (ie, the revision which the FlintDatabase
+     *  at the current revision (i.e. the revision which the FlintDatabase
      *  object is currently open at) will be produced.
      *
      *  If suitable changesets have been stored in the database, this will
@@ -59,7 +59,7 @@ class XAPIAN_VISIBILITY_DEFAULT DatabaseMaster {
      *
      *  @param fd       An open file descriptor to write the changes to.
      *
-     *  @param revision The starting revision of the database that the
+     *  @param start_revision The starting revision of the database that the
      *                  changesets are to be applied to.  Specify an empty
      *                  string to get a "creation" changeset, which
      *                  includes the creation of the database.  The
