@@ -300,7 +300,7 @@ RemoteConnection::send_message(char type, const string &message, const OmTime & 
     }
 #else
     // If there's no end_time, just use blocking I/O.
-    if (fcntl(fdin, F_SETFL, end_time.is_set() ? O_NONBLOCK : 0) < 0) {
+    if (fcntl(fdout, F_SETFL, end_time.is_set() ? O_NONBLOCK : 0) < 0) {
 	throw Xapian::NetworkError("Failed to set fdout non-blocking-ness",
 				   context, errno);
     }
@@ -437,7 +437,7 @@ RemoteConnection::send_file(char type, const string &file, const OmTime & end_ti
     }
 #else
     // If there's no end_time, just use blocking I/O.
-    if (fcntl(fdin, F_SETFL, end_time.is_set() ? O_NONBLOCK : 0) < 0) {
+    if (fcntl(fdout, F_SETFL, end_time.is_set() ? O_NONBLOCK : 0) < 0) {
 	throw Xapian::NetworkError("Failed to set fdout non-blocking-ness",
 				   context, errno);
     }

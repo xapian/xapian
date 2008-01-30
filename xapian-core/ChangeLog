@@ -1,3 +1,9 @@
+Wed Jan 30 14:42:26 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* net/remoteconnection.cc: Fix the calls to fcntl() in
+	  send_message() and send_file() to use fdout instead of fdin.
+	  This has probably been stopping timeouts working very well.
+
 Tue Jan 29 15:05:09 GMT 2008  Olly Betts <olly@survex.com>
 
 	* common/remoteconnection.h,net/remoteconnection.cc: Add
