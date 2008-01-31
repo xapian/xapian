@@ -30,6 +30,13 @@
 
 using namespace std;
 
+ReplicateTcpClient::ReplicateTcpClient(const string & hostname, int port,
+				       int msecs_timeout_connect)
+    : socket(open_socket(hostname, port, msecs_timeout_connect)),
+      remconn(-1, socket, "")
+{
+}
+
 int
 ReplicateTcpClient::open_socket(const string & hostname, int port,
 				int msecs_timeout_connect)
@@ -38,12 +45,18 @@ ReplicateTcpClient::open_socket(const string & hostname, int port,
 }
 
 void
-ReplicateTcpClient::update_from_master(const std::string & path)
+ReplicateTcpClient::update_from_master(const std::string & path,
+				       const std::string & masterdb)
 {
     Xapian::DatabaseReplica replica(path);
-    // We only have one message type to send, so make it 'R' arbitrarily.
     remconn.send_message('R', replica.get_revision_info(), OmTime());
+    remconn.send_message('D', masterdb, OmTime());
     while (replica.apply_next_changeset_from_fd(socket)) {
 	sleep(30);
     }
+}
+
+ReplicateTcpClient::~ReplicateTcpClient()
+{
+    remconn.do_close();
 }

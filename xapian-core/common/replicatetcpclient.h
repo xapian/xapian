@@ -23,6 +23,8 @@
 
 #include "remoteconnection.h"
 
+#include "xapian/visibility.h"
+
 #ifdef __WIN32__
 # define SOCKET_INITIALIZER_MIXIN : private WinsockInitializer,
 #else
@@ -30,7 +32,7 @@
 #endif
 
 /// TCP/IP replication client class.
-class ReplicateTcpClient SOCKET_INITIALIZER_MIXIN {
+class XAPIAN_VISIBILITY_DEFAULT ReplicateTcpClient SOCKET_INITIALIZER_MIXIN {
     /// Don't allow assignment.
     void operator=(const ReplicateTcpClient &);
 
@@ -66,17 +68,13 @@ class ReplicateTcpClient SOCKET_INITIALIZER_MIXIN {
      *					 milliseconds).
      */
     ReplicateTcpClient(const std::string & hostname, int port,
-		       int msecs_timeout_connect)
-	: socket(open_socket(hostname, port, msecs_timeout_connect)),
-	  remconn(-1, socket, "")
-    { }
+		       int msecs_timeout_connect);
 
-    void update_from_master(const std::string & path);
+    void update_from_master(const std::string & path,
+			    const std::string & remotedb);
 
     /** Destructor. */
-    ~ReplicateTcpClient() {
-	remconn.do_close();
-    }
+    ~ReplicateTcpClient();
 };
 
 #endif // XAPIAN_INCLUDED_REPLICATETCPCLIENT_H

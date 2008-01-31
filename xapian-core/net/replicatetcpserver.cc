@@ -43,12 +43,25 @@ ReplicateTcpServer::handle_one_connection(int socket)
 {
     RemoteConnection client(socket, -1, "");
     try {
-	string start_revision;
 	// Read start_revision from the client.
+	string start_revision;
 	if (client.get_message(start_revision, OmTime()) != 'R') {
 	    throw Xapian::NetworkError("Bad replication client message");
 	}
-	Xapian::DatabaseMaster master(path);
+
+	// Read dbname from the client.
+	string dbname;
+	if (client.get_message(dbname, OmTime()) != 'D') {
+	    throw Xapian::NetworkError("Bad replication client message (2)");
+	}
+	if (dbname.find("..") != string::npos) {
+	    throw Xapian::NetworkError("dbname contained '..'");
+	}
+
+	string dbpath(path);
+	dbpath += '/';
+	dbpath += dbname;
+	Xapian::DatabaseMaster master(dbpath);
 	master.write_changesets_to_fd(socket, start_revision);
     } catch (...) {
 	// Ignore exceptions.

@@ -1,3 +1,9 @@
+Thu Jan 31 02:46:38 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/Makefile.mk,bin/xapian-replicate.cc,common/replicatetcpclient.h,
+	  net/replicatetcpclient.cc,net/replicatetcpserver.cc: Add
+	  xapian-replicate client program.
+
 Wed Jan 30 19:13:08 GMT 2008  Olly Betts <olly@survex.com>
 
 	* include/xapian/replication.h: Correct name of parameter in doxygen
