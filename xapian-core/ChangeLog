@@ -1,3 +1,9 @@
+Thu Jan 31 03:41:42 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/Makefile.mk,bin/xapian-replicate-server.cc,
+	  common/replicatetcpserver.h: Add xapian-replicate-server server
+	  program.
+
 Thu Jan 31 02:46:38 GMT 2008  Olly Betts <olly@survex.com>
 
 	* bin/Makefile.mk,bin/xapian-replicate.cc,common/replicatetcpclient.h,

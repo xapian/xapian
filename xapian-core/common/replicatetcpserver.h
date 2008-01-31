@@ -24,7 +24,9 @@
 #include "remoteconnection.h"
 #include "tcpserver.h"
 
-class ReplicateTcpServer : public TcpServer {
+#include "xapian/visibility.h"
+
+class XAPIAN_VISIBILITY_DEFAULT ReplicateTcpServer : public TcpServer {
     /// The path to pass to DatabaseMaster.
     std::string path;
 
