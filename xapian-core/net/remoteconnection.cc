@@ -667,12 +667,10 @@ RemoteConnection::receive_file(const string &file, const OmTime & end_time)
     len += 255;
     size_t header_len = (i - buffer.begin());
     size_t remainlen(min(buffer.size() - header_len, len));
-    printf("len2:%d, header_len:%d, buffersize:%d, remainlen:%d\n", len, header_len, buffer.size(), remainlen);
     write_all(fd, buffer.data() + header_len, remainlen);
     len -= remainlen;
     char type = buffer[0];
     buffer.erase(0, header_len + remainlen);
-    printf("len:%d, buffer.size():%d\n", len, buffer.size());
     while (len > 0) {
 	read_at_least(min(len, size_t(CHUNKSIZE)), end_time);
 	remainlen = min(buffer.size(), len);
