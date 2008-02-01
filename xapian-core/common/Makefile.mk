@@ -7,6 +7,7 @@ noinst_HEADERS +=\
 	common/emptypostlist.h\
 	common/expand.h\
 	common/expandweight.h\
+	common/fileutils.h\
 	common/gnu_getopt.h\
 	common/inmemory_positionlist.h\
 	common/leafpostlist.h\
@@ -57,6 +58,7 @@ EXTRA_DIST +=\
 	common/Makefile
 
 libxapian_la_SOURCES +=\
+	common/fileutils.cc\
 	common/msvc_posix_wrapper.cc\
 	common/omdebug.cc\
 	common/safe.cc\

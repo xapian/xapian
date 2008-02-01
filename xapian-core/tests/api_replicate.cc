@@ -70,12 +70,22 @@ replicate(Xapian::DatabaseMaster & master,
 		  + changesetpath + "')");
     }
 
-    int count = 0;
+    int count = 1;
     while (replica.apply_next_changeset_from_fd(fd)) {
 	++count;
     }
     close(fd);
     return count;
+}
+
+// Check that the databases held at the given path are identical.
+static void
+check_equal_dbs(const string & path1, const string & path2)
+{
+    Xapian::Database db1(path1);
+    Xapian::Database db2(path2);
+
+    TEST_EQUAL(db1.get_doccount(), db2.get_doccount());
 }
 
 // #######################################################################
@@ -86,9 +96,10 @@ replicate(Xapian::DatabaseMaster & master,
 DEFINE_TESTCASE(replicate1, replicas) {
     string tempdir = ".replicatmp";
     mktmpdir(tempdir);
+    string masterpath = get_named_writable_database_path("master");
 
     Xapian::WritableDatabase orig(get_named_writable_database("master"));
-    Xapian::DatabaseMaster master(get_named_writable_database_path("master"));
+    Xapian::DatabaseMaster master(masterpath);
     string replicapath = tempdir + "/replica";
     Xapian::DatabaseReplica replica(replicapath);
 
@@ -102,14 +113,16 @@ DEFINE_TESTCASE(replicate1, replicas) {
 
     // Apply the replication - we don't have changesets stored, so this should
     // just do a database copy, and return a count of 1.
+    TEST_EQUAL(replicate(master, replica, tempdir), 1);
 
-    // FIXME - this doesn't yet pass, because the changeset applying stuff doesn't yet work.
-    //TEST_EQUAL(replicate(master, replica, tempdir), 1);
-
-    // Repeating the replication should return a count of 0, since no further
+    // Repeating the replication should return a count of 1, since no further
     // changes should need to be applied.
-    TEST_EQUAL(replicate(master, replica, tempdir), 0);
+    TEST_EQUAL(replicate(master, replica, tempdir), 1);
 
-    rmtmpdir(tempdir);
+    TEST_EQUAL(replicate(master, replica, tempdir), 1);
+
+    check_equal_dbs(masterpath, replicapath);
+
+//rmtmpdir(tempdir);
     return true;
 }

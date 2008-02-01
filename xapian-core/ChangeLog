@@ -1,3 +1,23 @@
+Fri Feb 01 12:10:19 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/database.cc: Stub databases used to
+	  assume that any relative paths were relative to the current
+	  working directory.  They now assume that relative paths are
+	  relative to the directory holding the stub database file.
+	  Also, lines which begin with a '#' character are ignored, so we
+	  can place comments in the stub database files.  Also, recognise a
+	  new database type: a "stub directory", which is a directory
+	  containing a stub database file named "XAPIANDB".
+	* api/replication.cc: Replica databases are now created as
+	  directories containing a "XAPIANDB" stub file, so all the
+	  workings are internal.
+	* common/Makefile.mk,common/fileutils.cc,common/fileutils.h: Add
+	  new set of utilities to manipulate path names - extracting
+	  directory names, and joining paths.
+	* tests/api_replicate.cc: Enable test properly, now that
+	  it passes.  Test needs to be expanded to check that the database
+	  copy succeeded better.
+
 Fri Feb 01 09:47:00 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* backends/flint/flint_database.cc: Fix warning about unused
@@ -29,7 +49,7 @@ Fri Feb 01 03:09:06 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 Fri Feb 01 03:07:29 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
-	* net/remoteconnection.cc: Remove debuf printfs()
+	* net/remoteconnection.cc: Remove debug printfs()
 
 Fri Feb 01 03:03:59 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
