@@ -1,3 +1,8 @@
+Fri Feb 01 19:36:47 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* bin/xapian-replicate.cc: Add one-shot and verbose options to
+	  replication client.
+
 Fri Feb 01 17:52:36 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/replication.cc,backends/flint/flint_database.cc,

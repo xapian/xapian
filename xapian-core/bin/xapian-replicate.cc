@@ -43,7 +43,9 @@ static void show_usage() {
 "  -h, --host=HOST   host to connect to\n"
 "  -p, --port=PORT   port to connect to\n"
 "  -m, --master=DB   replicate database DB from the master\n"
-"  -i, --interval=N  connect to master every N seconds\n"
+"  -i, --interval=N  wait N seconds between each connection to the master\n"
+"  -o, --one-shot    replicate only once and then exit\n"
+"  -v, --verbose     be more verbose\n"
 "  --help            display this help and exit\n"
 "  --version         output version information and exit" << endl;
 }
@@ -56,6 +58,8 @@ main(int argc, char **argv)
 	{"port",	required_argument,	0, 'p'},
 	{"master",	required_argument,	0, 'm'},
 	{"interval",	required_argument,	0, 'i'},
+	{"one-shot",	no_argument,		0, 'o'},
+	{"verbose",	no_argument,		0, 'v'},
 	{"help",	no_argument, 0, OPT_HELP},
 	{"version",	no_argument, 0, OPT_VERSION},
 	{NULL,		0, 0, 0}
@@ -64,10 +68,12 @@ main(int argc, char **argv)
     string host;
     int port = 0;
     string masterdb;
-    int interval = 0;
+    int interval = 60;
+    bool one_shot = false;
+    bool verbose = false;
 
     int c;
-    while ((c = gnu_getopt_long(argc, argv, "h:p:m:i:", long_opts, 0)) != EOF) {
+    while ((c = gnu_getopt_long(argc, argv, "h:p:m:i:ov", long_opts, 0)) != EOF) {
 	switch (c) {
 	    case 'h':
 		host.assign(optarg);
@@ -80,6 +86,12 @@ main(int argc, char **argv)
 		break;
 	    case 'i':
 		interval = atoi(optarg);
+		break;
+	    case 'o':
+		one_shot = true;
+		break;
+	    case 'v':
+		verbose = true;
 		break;
 	    case OPT_HELP:
 		cout << PROG_NAME" - "PROG_DESC"\n\n";
@@ -102,14 +114,43 @@ main(int argc, char **argv)
     // Path to the database to create/update.
     string dbpath(argv[optind]);
 
-    try {
-	while (true) {
+    while (true) {
+	try {
+	    if (verbose) {
+		cout << "Connecting to " << host << ":" << port << endl;
+	    }
 	    ReplicateTcpClient client(host, port, 10000);
+	    if (verbose) {
+		cout << "Getting update for " << dbpath << " from "
+			<< masterdb << endl;
+	    }
 	    client.update_from_master(dbpath, masterdb);
-	    sleep(interval);
+	    if (verbose) {
+		cout << "Update complete" << endl;
+	    }
+	} catch (const Xapian::NetworkError &error) {
+	    // Don't stop running if there's a network error - just log to
+	    // stderr and retry at next timeout.  This should make the client
+	    // robust against temporary network failures.
+	    cerr << argv[0] << ": " << error.get_description() << endl;
+
+	    // If we were running as a one-shot server though, were going to
+	    // exit anyway, so let's make the return value reflect that there
+	    // was a failure.
+	    if (one_shot)
+		exit(1);
+	} catch (const Xapian::Error &error) {
+	    cerr << argv[0] << ": " << error.get_description() << endl;
+	    exit(1);
+	} catch (const exception &e) {
+	    cerr << "Caught standard exception: " << e.what() << endl;
+	    exit(1);
+	} catch (...) {
+	    cerr << "Caught unknown exception" << endl;
+	    exit(1);
 	}
-    } catch (const Xapian::Error &error) {
-	cerr << argv[0] << ": " << error.get_description() << endl;
-	exit(1);
+	if (one_shot) break;
+	sleep(interval);
     }
+    return 0;
 }
