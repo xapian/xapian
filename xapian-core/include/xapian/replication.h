@@ -135,6 +135,13 @@ class XAPIAN_VISIBILITY_DEFAULT DatabaseReplica {
      */
     std::string get_revision_info() const;
 
+    /** Set the file descriptor to read changesets from.
+     *
+     *  This will be remembered in the DatabaseReplica, but the caller is still
+     *  responsible for closing it after it is finished with.
+     */
+    void set_read_fd(int fd);
+
     /** Read and apply the next changeset.
      *
      *  If no changesets are found on the file descriptor, returns false
@@ -161,7 +168,7 @@ class XAPIAN_VISIBILITY_DEFAULT DatabaseReplica {
      *  @return true if there are more changesets to apply on the file
      *  descriptor, false otherwise.
      */
-    bool apply_next_changeset_from_fd(int fd);
+    bool apply_next_changeset();
 
     /** Close the DatabaseReplica.
      *

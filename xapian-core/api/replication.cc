@@ -55,7 +55,17 @@ DatabaseMaster::write_changesets_to_fd(int fd,
 {
     DEBUGAPICALL(void, "Xapian::DatabaseMaster::write_changesets_to_fd",
 		 fd << ", " << start_revision);
-    Database db(path);
+    Database db;
+    try {
+	db = Database(path);
+    } catch(Xapian::DatabaseError & e) {
+	RemoteConnection conn(-1, fd, "");
+	OmTime end_time;
+	conn.send_message(REPL_REPLY_FAIL,
+			  "Can't open database: " + e.get_msg(),
+			  end_time);
+	return;
+    }
     if (db.internal.size() != 1) {
 	throw Xapian::InvalidOperationError("DatabaseMaster needs to be pointed at exactly one subdatabase");
     }
@@ -128,6 +138,9 @@ class DatabaseReplica::Internal : public Xapian::Internal::RefCntBase {
     /// The parameters stored for this replica.
     map<string, string> parameters;
 
+    /// The remote connection we're using.
+    RemoteConnection * conn;
+
     /// Read the parameters from a file in the replica.
     void read_parameters();
 
@@ -150,8 +163,7 @@ class DatabaseReplica::Internal : public Xapian::Internal::RefCntBase {
 
     /** Apply a set of DB copy messages from the connection.
      */
-    void apply_db_copy(RemoteConnection & conn,
-		       const OmTime & end_time);
+    void apply_db_copy(const OmTime & end_time);
 
     /** Check that a message type is as expected.
      *
@@ -177,8 +189,11 @@ class DatabaseReplica::Internal : public Xapian::Internal::RefCntBase {
     /// Get a string describing the current revision of the replica.
     string get_revision_info() const;
 
+    /// Set the file descriptor to read changesets from.
+    void set_read_fd(int fd);
+
     /// Read and apply the next changeset.
-    bool apply_next_changeset_from_fd(int fd);
+    bool apply_next_changeset();
 
     /// Return a string describing this object.
     string get_description() const { return path; }
@@ -240,13 +255,22 @@ DatabaseReplica::get_revision_info() const
     RETURN(internal->get_revision_info());
 }
 
-bool 
-DatabaseReplica::apply_next_changeset_from_fd(int fd)
+void 
+DatabaseReplica::set_read_fd(int fd)
 {
-    DEBUGAPICALL(bool, "Xapian::DatabaseReplica::apply_next_changeset_from_fd", fd);
+    DEBUGAPICALL(bool, "Xapian::DatabaseReplica::set_read_fd", fd);
     if (internal.get() == NULL)
-	throw Xapian::InvalidOperationError("Attempt to call DatabaseReplica::apply_next_changeset_from_fd on a closed replica.");
-    RETURN(internal->apply_next_changeset_from_fd(fd));
+	throw Xapian::InvalidOperationError("Attempt to call DatabaseReplica::set_read_fd on a closed replica.");
+    RETURN(internal->set_read_fd(fd));
+}
+
+bool 
+DatabaseReplica::apply_next_changeset()
+{
+    DEBUGAPICALL(bool, "Xapian::DatabaseReplica::apply_next_changeset", "");
+    if (internal.get() == NULL)
+	throw Xapian::InvalidOperationError("Attempt to call DatabaseReplica::apply_next_changeset on a closed replica.");
+    RETURN(internal->apply_next_changeset());
 }
 
 void 
@@ -330,7 +354,7 @@ DatabaseReplica::Internal::update_stub_database(const string & flint_path) const
 DatabaseReplica::Internal::Internal(const string & path_)
 	: path(path_), live_name(), live_db(), 
 	  offline_name(), offline_revision(), offline_needed_revision(),
-	  parameters()
+	  parameters(), conn(NULL)
 {
     DEBUGCALL(API, void, "DatabaseReplica::Internal::Internal", path_);
     if (file_exists(path)) {
@@ -436,8 +460,7 @@ DatabaseReplica::Internal::remove_offline_db()
 }
 
 void
-DatabaseReplica::Internal::apply_db_copy(RemoteConnection & conn,
-					 const OmTime & end_time)
+DatabaseReplica::Internal::apply_db_copy(const OmTime & end_time)
 {
     // If there's already an offline database, discard it.  This happens if one
     // copy of the database was sent, but further updates were needed before it
@@ -464,7 +487,7 @@ DatabaseReplica::Internal::apply_db_copy(RemoteConnection & conn,
     }
 
     string buf;
-    char type = conn.get_message(buf, end_time);
+    char type = conn->get_message(buf, end_time);
     check_message_type(type, REPL_REPLY_DB_HEADER);
     {
 	const char * ptr = buf.data();
@@ -478,13 +501,13 @@ DatabaseReplica::Internal::apply_db_copy(RemoteConnection & conn,
     // Now, read the files for the database from the connection and create it.
     while (true) {
 	string filename;
-	type = conn.sniff_next_message_type(end_time);
+	type = conn->sniff_next_message_type(end_time);
 	if (type == REPL_REPLY_FAIL)
 	    return;
 	if (type == REPL_REPLY_DB_FOOTER)
 	    break;
 
-	type = conn.get_message(filename, end_time);
+	type = conn->get_message(filename, end_time);
 	check_message_type(type, REPL_REPLY_DB_FILENAME);
 
 	// Check that the filename doesn't contain '..'.  No valid database
@@ -493,15 +516,15 @@ DatabaseReplica::Internal::apply_db_copy(RemoteConnection & conn,
 	    throw NetworkError("Filename in database contained '..'");
 	}
 
-	type = conn.sniff_next_message_type(end_time);
+	type = conn->sniff_next_message_type(end_time);
 	if (type == REPL_REPLY_FAIL)
 	    return;
 
 	string filepath = offline_path + "/" + filename;
-	type = conn.receive_file(filepath, end_time);
+	type = conn->receive_file(filepath, end_time);
 	check_message_type(type, REPL_REPLY_DB_FILEDATA);
     }
-    type = conn.get_message(offline_needed_revision, end_time);
+    type = conn->get_message(offline_needed_revision, end_time);
     check_message_type(type, REPL_REPLY_DB_FOOTER);
 }
 
@@ -530,20 +553,27 @@ DatabaseReplica::Internal::possibly_make_offline_live()
     remove_offline_db();
 }
 
+void
+DatabaseReplica::Internal::set_read_fd(int fd)
+{
+    delete(conn);
+    conn = NULL;
+    conn = new RemoteConnection(fd, -1, "");
+}
+
 bool 
-DatabaseReplica::Internal::apply_next_changeset_from_fd(int fd)
+DatabaseReplica::Internal::apply_next_changeset()
 {
     DEBUGCALL(API, bool,
-	      "DatabaseReplica::Internal::apply_next_changeset_from_fd", fd);
+	      "DatabaseReplica::Internal::apply_next_changeset", "");
     if (live_db.internal.size() != 1) {
 	throw Xapian::InvalidOperationError("DatabaseReplica needs to be pointed at exactly one subdatabase");
     }
-    RemoteConnection conn(fd, -1, "");
     OmTime end_time;
 
     while(true) {
 	char type;
-	type = conn.sniff_next_message_type(end_time);
+	type = conn->sniff_next_message_type(end_time);
 	switch(type)
 	{
 	    case REPL_REPLY_END_OF_CHANGES:
@@ -551,7 +581,7 @@ DatabaseReplica::Internal::apply_next_changeset_from_fd(int fd)
 	    case REPL_REPLY_DB_HEADER:
 		// Apply the copy - remove offline db in case of any error.
 		try {
-		    apply_db_copy(conn, end_time);
+		    apply_db_copy(end_time);
 		} catch(...) {
 		    remove_offline_db();
 		    throw;
@@ -560,9 +590,9 @@ DatabaseReplica::Internal::apply_next_changeset_from_fd(int fd)
 		break;
 	    case REPL_REPLY_CHANGESET:
 		if (offline_name.size() == 0) {
-		    (live_db.internal[0])->apply_changeset_from_conn(conn, end_time);
+		    (live_db.internal[0])->apply_changeset_from_conn(*conn, end_time);
 		} else {
-		    // apply_changeset_from_conn(offline_name, conn, end_time);
+		    // apply_changeset_from_conn(offline_name, *conn, end_time);
 
 		    // Check if offline  is now at offline_needed_revision
 		    // (or later), and swap it in place of live_db if it is.
@@ -570,7 +600,11 @@ DatabaseReplica::Internal::apply_next_changeset_from_fd(int fd)
 		}
 		RETURN(true);
 	    case REPL_REPLY_FAIL:
-		throw NetworkError("Unable to fully synchronise");
+		{
+		    string buf;
+		    (void) conn->get_message(buf, end_time);
+		    throw NetworkError("Unable to fully synchronise: " + buf);
+		}
 	    default:
 		throw NetworkError("Unknown replication protocol message ("
 				   + om_tostring(type) + ")");

@@ -71,7 +71,8 @@ replicate(Xapian::DatabaseMaster & master,
     }
 
     int count = 1;
-    while (replica.apply_next_changeset_from_fd(fd)) {
+    replica.set_read_fd(fd);
+    while (replica.apply_next_changeset()) {
 	++count;
     }
     close(fd);

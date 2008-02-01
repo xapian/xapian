@@ -1,3 +1,13 @@
+Fri Feb 01 17:52:36 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/replication.cc,backends/flint/flint_database.cc,
+	  include/xapian/replication.h,net/replicatetcpclient.cc,
+	  tests/api_replicate.cc: Keep the RemoteConnection in the
+	  DatabaseReplica object, so that any data which is read ahead
+	  doesn't get lost.  If an error occurs opening the database on
+	  the server, send a FAIL message over the connection, rather than
+	  just shutting it.
+
 Fri Feb 01 16:51:05 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* backends/flint/flint_table.cc: Fix a database corruption bug: see

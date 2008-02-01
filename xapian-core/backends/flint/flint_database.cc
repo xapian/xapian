@@ -567,7 +567,9 @@ FlintDatabase::write_changesets_to_fd(int fd,
 	    // if we've already copied the database enough.  This ensures that
 	    // synchronisation attempts always terminate eventually.
 	    if (whole_db_copies_left == 0) {
-		conn.send_message(REPL_REPLY_FAIL, "", end_time);
+		conn.send_message(REPL_REPLY_FAIL,
+				  "Database changing too fast",
+				  end_time);
 		return;
 	    }
 	    whole_db_copies_left--;

@@ -51,7 +51,8 @@ ReplicateTcpClient::update_from_master(const std::string & path,
     Xapian::DatabaseReplica replica(path);
     remconn.send_message('R', replica.get_revision_info(), OmTime());
     remconn.send_message('D', masterdb, OmTime());
-    while (replica.apply_next_changeset_from_fd(socket)) {
+    replica.set_read_fd(socket);
+    while (replica.apply_next_changeset()) {
 	sleep(30);
     }
 }
