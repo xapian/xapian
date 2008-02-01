@@ -1688,6 +1688,7 @@ FlintTable::create_and_open(unsigned int block_size_)
 
     /* create the base file */
     FlintTable_base base_;
+    base_.set_revision(revision_number);
     base_.set_block_size(block_size_);
     base_.set_have_fakeroot(true);
     base_.set_sequential(true);
@@ -1758,7 +1759,10 @@ FlintTable::commit(flint_revision_number_t revision, int changes_fd,
 	throw Xapian::DatabaseError("New revision too low");
     }
 
-    if (handle == -1) return;
+    if (handle == -1) {
+	latest_revision_number = revision_number = revision;
+	return;
+    }
 
     if (faked_root_block) {
 	/* We will use a dummy bitmap. */
@@ -1860,7 +1864,10 @@ FlintTable::cancel()
     DEBUGCALL(DB, void, "FlintTable::cancel", "");
     Assert(writable);
 
-    if (handle == -1) return;
+    if (handle == -1) {
+	latest_revision_number = revision_number; // FIXME: we can end up reusing a revision if we opened a btree at an older revision, start to modify it, then cancel...
+	return;
+    }
 
     // This causes problems: if (!Btree_modified) return;
 
