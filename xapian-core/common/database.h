@@ -411,7 +411,8 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *  recent version of the database.
 	 */
 	virtual void write_changesets_to_fd(int fd,
-					    const std::string & start_revision);
+					    const std::string & start_revision,
+					    bool need_whole_db);
 
 	/// Get a string describing the current revision of the database.
 	virtual string get_revision_info() const;
@@ -423,6 +424,14 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	/// Read and apply the next changeset.
 	virtual void apply_changeset_from_conn(RemoteConnection & conn,
 					       const OmTime & end_time);
+
+	/** Get a UUID for the database.
+	 *
+	 *  Replicas (eg, made with the replication protocol, or by copying all
+	 *  the database files) will have the same UUID.  However, copies (made
+	 *  with copydatabase, or xapian-compact) will have different UUIDs.
+	 */
+	virtual string get_uuid() const;
 
 	//////////////////////////////////////////////////////////////////
 	// Introspection methods:

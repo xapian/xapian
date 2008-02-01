@@ -47,7 +47,8 @@ REPL_REPLY):
    and may occur when any other messages are expected.
 
  - DB_HEADER: this indicates that an entire database copy is about to be sent.
-   It contains a single (packed) unsigned integer, representing the revision
+   It contains a string representing the uuid of the database which is about to
+   be sent, followed by a (packed) unsigned integer, representing the revision
    number of the copy which is about to be sent.
 
  - DB_FILENAME: this contains the name of the next file to be sent in a DB copy

@@ -1,3 +1,17 @@
+Fri Feb 01 15:10:23 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/replication.cc,backends/database.cc,
+	  backends/flint/flint_database.cc,backends/flint/flint_database.h,
+	  common/database.h,docs/replication_protocol.rst,
+	  tests/api_replicate.cc: Add the UUID of the new database to the
+	  DB_HEADER message, and move the code which compares UUIDs out of
+	  flint_database.cc and into replication.cc.  Fix testcase which
+	  missed incorrect comparison of UUIDs.  Store the UUID of the
+	  live database which has been replicated in the config file - this
+	  isn't an ideal place, but will do until the UUID is stored in the
+	  iamflint file, and we can parse it from there.  Remove debug
+	  printfs.
+
 Fri Feb 01 15:09:12 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* bin/quartzdump.cc: Rename hex_encode() to hex_display_encode() to

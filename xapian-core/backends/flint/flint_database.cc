@@ -55,6 +55,7 @@
 #include "omtime.h"
 #include "replicationprotocol.h"
 #include "remoteconnection.h"
+#include "serialise.h"
 #include "stringutils.h"
 
 #include <sys/types.h>
@@ -493,6 +494,9 @@ FlintDatabase::send_whole_database(RemoteConnection & conn,
 
     // Send the current revision number in the header.
     string buf;
+    string uuid = get_uuid();
+    buf += encode_length(uuid.size());
+    buf += uuid;
     buf += pack_uint(get_revision_number());
     conn.send_message(REPL_REPLY_DB_HEADER, buf, end_time);
 
@@ -532,39 +536,20 @@ FlintDatabase::send_whole_database(RemoteConnection & conn,
 
 void
 FlintDatabase::write_changesets_to_fd(int fd,
-				      const string & revision)
+				      const string & revision,
+				      bool need_whole_db)
 {
     DEBUGCALL(DB, void, "FlintDatabase::write_changesets_to_fd",
-	      fd << ", " << revision);
+	      fd << ", " << revision << ", " << need_whole_db);
 
     int whole_db_copies_left = MAX_DB_COPIES_PER_CONVERSATION;
-    bool need_whole_db = false;
-    flint_revision_number_t start_rev_num = 0;
-    string start_uuid;
+    flint_revision_number_t start_rev_num = get_revision_number();
+    string start_uuid = get_uuid();
 
-    printf("Writing changesets to fd\n");
-    if (revision.size() == 0) {
-	printf("Had no database - need full copy\n");
+    const char * rev_ptr = revision.data();
+    const char * rev_end = rev_ptr + revision.size();
+    if (!unpack_uint(&rev_ptr, rev_end, &start_rev_num)) {
 	need_whole_db = true;
-    } else {
-	// Check whether the UUID in the revision is the same as that for this
-	// database.  If not, we need to send the current version of the database.
-	const char * rev_ptr = revision.data();
-	const char * rev_end = rev_ptr + revision.size();
-	if (!unpack_string(&rev_ptr, rev_end, start_uuid)) {
-	    // Failed to read a string from the revision - revision must be in
-	    // some unknown format, implying an unknown database format.
-	    // Presumably this means the slave is a very old version of the
-	    // database, so we'll send a full copy to replace it.
-	    printf("Had no uuid - need full copy\n");
-	    need_whole_db = true;
-	} else if (start_uuid != get_uuid()) {
-	    printf("uuids didn't match - need full copy\n");
-	    need_whole_db = true;
-	} else if (!unpack_uint(&rev_ptr, rev_end, &start_rev_num)) {
-	    printf("Had no revision number - need full copy\n");
-	    need_whole_db = true;
-	}
     }
 
     RemoteConnection conn(-1, fd, "");
@@ -888,7 +873,6 @@ FlintDatabase::get_revision_info() const
 {
     DEBUGCALL(DB, string, "FlintDatabase::get_revision_info", "");
     string buf;
-    buf += pack_string(get_uuid());
     buf += pack_uint(get_revision_number());
     RETURN(buf);
 }
@@ -915,7 +899,6 @@ FlintDatabase::check_revision_at_least(const string & rev,
 	throw Xapian::NetworkError("Invalid revision string supplied to check_revision_at_least");
     }
 
-    printf("Comparing revision %d with %d\n", rev_val, target_val);
     RETURN(rev_val >= target_val);
 }
 

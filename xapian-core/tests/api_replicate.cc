@@ -111,6 +111,7 @@ DEFINE_TESTCASE(replicate1, replicas) {
     orig.add_document(doc1);
     orig.flush();
 
+    sleep(1); // Wait for a second to ensure that the uuid isn't the same by chance
     // Apply the replication - we don't have changesets stored, so this should
     // just do a database copy, and return a count of 1.
     TEST_EQUAL(replicate(master, replica, tempdir), 1);

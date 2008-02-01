@@ -484,7 +484,7 @@ Database::Internal::collect_document(Xapian::docid did) const
 }
 
 void
-Database::Internal::write_changesets_to_fd(int, const std::string &)
+Database::Internal::write_changesets_to_fd(int, const std::string &, bool)
 {
     throw Xapian::UnimplementedError("This backend doesn't provide changesets");
 }
@@ -506,6 +506,12 @@ Database::Internal::apply_changeset_from_conn(RemoteConnection &,
 					      const OmTime &)
 {
     throw Xapian::UnimplementedError("This backend doesn't support applying changesets");
+}
+
+string
+Database::Internal::get_uuid() const
+{
+    throw Xapian::UnimplementedError("This backend doesn't support UUIDs");
 }
 
 RemoteDatabase *

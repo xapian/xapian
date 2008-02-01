@@ -38,6 +38,7 @@
 #include "safeerrno.h"
 #include "safesysstat.h"
 #include "safeunistd.h"
+#include "serialise.h"
 #include "utils.h"
 
 #include <algorithm>
@@ -58,7 +59,26 @@ DatabaseMaster::write_changesets_to_fd(int fd,
     if (db.internal.size() != 1) {
 	throw Xapian::InvalidOperationError("DatabaseMaster needs to be pointed at exactly one subdatabase");
     }
-    db.internal[0]->write_changesets_to_fd(fd, start_revision);
+
+    // Extract the UUID from start_revision and compare it to the database.
+    bool need_whole_db = false;
+    string revision(start_revision);
+    if (revision.size() == 0) {
+	need_whole_db = true;
+    } else {
+	const char * ptr = revision.data();
+	const char * end = ptr + revision.size();
+	size_t uuid_length = decode_length(&ptr, end, true);
+	string request_uuid(ptr, uuid_length);
+	string db_uuid = db.internal[0]->get_uuid();
+	if (request_uuid != db_uuid) {
+	    need_whole_db = true;
+	}
+
+	revision.erase(0, ptr + uuid_length - revision.data());
+    }
+
+    db.internal[0]->write_changesets_to_fd(fd, revision, need_whole_db);
 }
 
 string
@@ -95,6 +115,10 @@ class DatabaseReplica::Internal : public Xapian::Internal::RefCntBase {
     /** The revision that the secondary database has been updated to.
      */
     string offline_revision;
+
+    /** The UUID of the secondary database.
+     */
+    string offline_uuid;
 
     /** The revision that the secondary database must reach before it can be
      *  made live.
@@ -388,8 +412,14 @@ DatabaseReplica::Internal::get_revision_info() const
     if (live_db.internal.size() != 1) {
 	throw Xapian::InvalidOperationError("DatabaseReplica needs to be pointed at exactly one subdatabase");
     }
-    printf("revision_info=!%s!\n", (live_db.internal[0])->get_revision_info().c_str());
-    RETURN((live_db.internal[0])->get_revision_info());
+    string buf;
+    string uuid = hex_decode(get_parameter("uuid"));
+    if (uuid == "")
+	uuid = (live_db.internal[0])->get_uuid();
+    buf += encode_length(uuid.size());
+    buf += uuid;
+    buf += (live_db.internal[0])->get_revision_info();
+    RETURN(buf);
 }
 
 void
@@ -398,7 +428,6 @@ DatabaseReplica::Internal::remove_offline_db()
     if (offline_name.size() == 0)
 	return;
     string offline_path = join_paths(path, offline_name);
-    printf("Removing offline db from %s\n", offline_path.c_str());
     // Close and then delete the database.
     if (dir_exists(offline_path)) {
 	removedir(offline_path);
@@ -433,10 +462,18 @@ DatabaseReplica::Internal::apply_db_copy(RemoteConnection & conn,
 	throw Xapian::DatabaseError("Cannot make directory '" +
 				    offline_path + "'", errno);
     }
-    printf("Copying DB to %s\n", offline_path.c_str());
 
-    char type = conn.get_message(offline_revision, end_time);
+    string buf;
+    char type = conn.get_message(buf, end_time);
     check_message_type(type, REPL_REPLY_DB_HEADER);
+    {
+	const char * ptr = buf.data();
+	const char * end = ptr + buf.size();
+	size_t uuid_length = decode_length(&ptr, end, true);
+	offline_uuid = string(ptr, uuid_length);
+	buf.erase(0, ptr + uuid_length - buf.data());
+    }
+    offline_revision = buf;
 
     // Now, read the files for the database from the connection and create it.
     while (true) {
@@ -466,7 +503,6 @@ DatabaseReplica::Internal::apply_db_copy(RemoteConnection & conn,
     }
     type = conn.get_message(offline_needed_revision, end_time);
     check_message_type(type, REPL_REPLY_DB_FOOTER);
-    printf("Copied DB\n");
 }
 
 void
@@ -485,11 +521,11 @@ DatabaseReplica::Internal::possibly_make_offline_live()
     if (!(live_db.internal[0])->check_revision_at_least(offline_revision,
 							offline_needed_revision))
 	return;
-    printf("Making offline live\n");
     string offline_path = join_paths(path, offline_name);
     live_db = WritableDatabase();
     live_db.add_database(Flint::open(offline_path, Xapian::DB_OPEN));
     update_stub_database(offline_name);
+    set_parameter("uuid", hex_encode(offline_uuid));
     swap(live_name, offline_name);
     remove_offline_db();
 }

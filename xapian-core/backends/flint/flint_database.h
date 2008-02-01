@@ -255,21 +255,16 @@ class FlintDatabase : public Xapian::Database::Internal {
 
 	string get_metadata(const string & key) const;
 	void write_changesets_to_fd(int fd,
-				    const string & start_revision);
+				    const string & start_revision,
+				    bool need_whole_db);
 	bool check_revision_at_least(const string & rev,
 				     const string & target) const;
 	string get_revision_info() const;
 	void apply_changeset_from_conn(RemoteConnection & conn,
 				       const OmTime & end_time);
+	string get_uuid() const;
 	//@}
 
-	/** Get a UUID for the database.
-	 *
-	 *  Replicas (eg, made with the replication protocol, or by copying all
-	 *  the database files) will have the same UUID.  However, copies (made
-	 *  with copydatabase, or xapian-compact) will have different UUIDs.
-	 */
-	string get_uuid() const;
 };
 
 /** A writable flint database.
