@@ -1,3 +1,7 @@
+Fri Feb 01 12:17:38 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/Makefile.mk: Add replicationprotocol.h to distribution.
+
 Fri Feb 01 12:10:19 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* backends/database.cc: Stub databases used to
