@@ -1,3 +1,8 @@
+Fri Feb 01 03:09:06 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/replication.h: Be more precise in documentation
+	  comment.
+
 Fri Feb 01 03:07:29 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* net/remoteconnection.cc: Remove debuf printfs()

@@ -151,7 +151,13 @@ class XAPIAN_VISIBILITY_DEFAULT DatabaseReplica {
      *  the file descriptor shouldn't be accessed by any other external code,
      *  since it will be in an indeterminate state.
      *
+     *  Note that if this raises an exception (other than DatabaseCorrupt
+     *  error) the database will be left in a valid and consistent state.  It
+     *  may or may not be changed from its initial state, and may or may not be
+     *  fully synchronised with the master database.
+     *
      *  @param fd The file descriptor to read the changeset from.
+     *
      *  @return true if there are more changesets to apply on the file
      *  descriptor, false otherwise.
      */
