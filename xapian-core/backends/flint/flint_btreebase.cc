@@ -1,4 +1,4 @@
-/* btree_base.cc: Btree base file implementation
+/* flint_btreebase.cc: Btree base file implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002,2003,2004,2006 Olly Betts
