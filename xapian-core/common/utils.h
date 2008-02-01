@@ -100,10 +100,23 @@ inline int mkdir(const string &filename, mode_t mode) {
     return mkdir(filename.c_str(), mode);
 }
 
+/// Allow rmdir to work directly on C++ strings.
+inline int rmdir(const string &filename) {
+    return rmdir(filename.c_str());
+}
+
 /// Allow stat to work directly on C++ strings.
 inline int stat(const string &filename, struct stat *buf) {
     return stat(filename.c_str(), buf);
 }
+
+/** Remove a directory, and its contents.
+ *
+ *  Note - this doesn't currently cope with directories which contain
+ *  subdirectories.
+ */
+XAPIAN_VISIBILITY_DEFAULT
+void removedir(const string &dirname);
 
 namespace Xapian {
     namespace Internal {
