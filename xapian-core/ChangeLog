@@ -1,3 +1,9 @@
+Fri Feb 01 15:08:06 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/utils.cc,common/utils.h: Add utility functions to
+	  hex-encode and decode a string, so we can store UUIDs in the
+	  config file in replicated DB directories.
+
 Fri Feb 01 12:49:34 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/harness/backendmanager_multi.cc: Make the multi

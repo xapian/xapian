@@ -118,6 +118,16 @@ inline int stat(const string &filename, struct stat *buf) {
 XAPIAN_VISIBILITY_DEFAULT
 void removedir(const string &dirname);
 
+/** Hex-encode a string.
+ */
+XAPIAN_VISIBILITY_DEFAULT
+string hex_encode(const string &input);
+
+/** Hex-decode a string.
+ */
+XAPIAN_VISIBILITY_DEFAULT
+string hex_decode(const string &input);
+
 namespace Xapian {
     namespace Internal {
 	bool within_DBL_EPSILON(double a, double b);

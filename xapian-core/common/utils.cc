@@ -167,6 +167,44 @@ removedir(const string &dirname)
     }
 }
 
+string hex_encode(const string &input)
+{
+    string buf;
+    for (string::size_type i = 0; i != input.size(); ++i)
+    {
+	unsigned char ch = input[i];
+	buf += "0123456789abcdef"[ch / 16];
+	buf += "0123456789abcdef"[ch % 16];
+    }
+    return buf;
+}
+
+string hex_decode(const string &input)
+{
+    string buf;
+    for (string::size_type i = 0; i != input.size(); ++i)
+    {
+	int val = 0;
+	unsigned char ch = input[i];
+	if (ch >= '0' && ch <= '9') {
+	    val += (ch - '0') * 16;
+	} else {
+	    val += (10 + (ch - 'a')) * 16;
+	}
+	++i;
+	if (i == input.size())
+	    return buf;
+	ch = input[i];
+	if (ch >= '0' && ch <= '9') {
+	    val += ch - '0';
+	} else {
+	    val += 10 + (ch - 'a');
+	}
+	buf += char(val);
+    }
+    return buf;
+}
+
 namespace Xapian {
 namespace Internal {
 
