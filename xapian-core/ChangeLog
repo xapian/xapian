@@ -1,3 +1,10 @@
+Fri Feb 01 20:05:08 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* bin/xapian-replicate.cc: Remove the "return 0;" I added at the
+	  end of the function - I didn't realise this, but in C++ it's not
+	  necessary to have a return at the end of main().  Tidier without
+	  it, so it's gone.
+
 Fri Feb 01 19:44:05 GMT 2008  Olly Betts <olly@survex.com>
 
 	* include/xapian/unicode.h: Add Unicode::toupper() to complement

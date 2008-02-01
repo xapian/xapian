@@ -152,5 +152,4 @@ main(int argc, char **argv)
 	if (one_shot) break;
 	sleep(interval);
     }
-    return 0;
 }
