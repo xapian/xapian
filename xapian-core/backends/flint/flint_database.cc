@@ -927,6 +927,7 @@ FlintDatabase::apply_changeset_from_conn(RemoteConnection & conn,
 	      "conn, end_time");
     
     char type = conn.get_message_chunked(end_time);
+    (void) type; // Don't give warning about unused variable.
     Assert(type == REPL_REPLY_CHANGESET);
 
     string buf;

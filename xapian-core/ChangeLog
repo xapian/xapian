@@ -1,3 +1,8 @@
+Fri Feb 01 09:47:00 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/flint/flint_database.cc: Fix warning about unused
+	  variable.
+
 Fri Feb 01 03:49:56 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/replication.cc,backends/database.cc,
