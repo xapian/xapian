@@ -4,7 +4,7 @@
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002 Intercede 1749 Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -51,10 +51,7 @@
 #endif
 
 #include <cdb.h>
-
-#ifdef HAVE_PCRE
 #include <pcre.h>
-#endif
 
 #include "date.h"
 #include "datematchdecider.h"
@@ -795,9 +792,7 @@ CMD_thispage,
 CMD_time,
 CMD_topdoc,
 CMD_topterms,
-#ifdef HAVE_PCRE
 CMD_transform,
-#endif
 CMD_uniq,
 CMD_unpack,
 CMD_unstem,
@@ -913,9 +908,7 @@ T(topdoc,	   0, 0, N, M), // first document on current page of hit list
 				// (counting from 0)
 T(topterms,	   0, 1, N, M), // list of up to N top relevance feedback terms
 				// (default 16)
-#ifdef HAVE_PCRE
 T(transform,	   3, 3, N, 0), // transform with a regexp
-#endif
 T(uniq,		   1, 1, N, 0), // removed duplicates from a sorted list
 T(unpack,	   1, 1, N, 0), // convert 4 byte big endian binary string to a number
 T(unstem,	   1, 1, N, Q), // return list of probabilistic terms from
@@ -1820,7 +1813,6 @@ eval(const string &fmt, const vector<string> &param)
 		    if (!value.empty()) value.erase(value.size() - 1);
 		}
 		break;
-#ifdef HAVE_PCRE
 	    case CMD_transform: {
 		pcre *re;
 		const char *error;
@@ -1855,7 +1847,6 @@ eval(const string &fmt, const vector<string> &param)
 		}
 		break;
 	    }
-#endif
 	    case CMD_uniq: {
 		const string &list = args[0];
 		if (list.empty()) break;
