@@ -55,7 +55,7 @@ static void makedir(const string &filename)
     }
 }
 
-static void removedir(const string &filename)
+static void removedir_recursive(const string &filename)
 {
     rm_rf(filename);
     struct stat buf;
@@ -69,7 +69,7 @@ static void removedir(const string &filename)
 static bool test_create1()
 {
     const string dbdir = tmpdir + "testdb_create1";
-    removedir(dbdir);
+    removedir_recursive(dbdir);
 
     Xapian::Internal::RefCntPtr<Xapian::Database::Internal> db;
     db = new QuartzWritableDatabase(dbdir, Xapian::DB_CREATE, 2048);
@@ -108,7 +108,7 @@ static bool test_create1()
 static bool test_adddoc1()
 {
     const string dbdir = tmpdir + "testdb_adddoc1";
-    removedir(dbdir);
+    removedir_recursive(dbdir);
 
     Xapian::Internal::RefCntPtr<Xapian::Database::Internal> db = new QuartzWritableDatabase(dbdir, Xapian::DB_CREATE, 2048);
 
@@ -343,7 +343,7 @@ static bool test_unpackint1()
 static bool test_writelock1()
 {
     const string dbname = tmpdir + "writelock1";
-    removedir(dbname);
+    removedir_recursive(dbname);
 
     Xapian::WritableDatabase writer = Xapian::Quartz::open(dbname, Xapian::DB_CREATE);
     TEST_EXCEPTION(Xapian::DatabaseLockError,
@@ -434,7 +434,7 @@ test_desc tests[] = {
 int main(int argc, char **argv)
 {
     tmpdir = ".quartztmp";
-    removedir(tmpdir);
+    removedir_recursive(tmpdir);
     makedir(tmpdir);
     tmpdir += '/';
     test_driver::parse_command_line(argc, argv);
