@@ -478,7 +478,14 @@ Database::Internal::get_revision_info() const
 }
 
 bool
-Database::Internal::apply_next_changeset_from_fd(int)
+Database::Internal::check_revision_at_least(const string &, const string &) const
+{
+    throw Xapian::UnimplementedError("This backend doesn't support comparing revision numbers");
+}
+
+void
+Database::Internal::apply_changeset_from_conn(RemoteConnection &,
+					      const OmTime &)
 {
     throw Xapian::UnimplementedError("This backend doesn't support applying changesets");
 }

@@ -31,9 +31,15 @@
 #endif
 #include "omassert.h"
 #include "omdebug.h"
+#include "omtime.h"
+#include "remoteconnection.h"
+#include "replicationprotocol.h"
 #include "safeerrno.h"
+#include "safesysstat.h"
+#include "safeunistd.h"
 #include "utils.h"
 
+#include <algorithm>
 #include <fstream>
 #include <map>
 #include <string>
@@ -73,10 +79,26 @@ class DatabaseReplica::Internal : public Xapian::Internal::RefCntBase {
     string path;
 
     /// The path to the actual database in the replica.
-    string real_path;
+    string live_path;
 
-    /// The database being replicated.
-    WritableDatabase db;
+    /// The live database being replicated.
+    WritableDatabase live_db;
+
+    /** The path to the secondary database being built.
+     *
+     *  This is used when we're building a new copy of the database, which
+     *  can't yet be made live.
+     */
+    string offline_path;
+
+    /** The revision that the secondary database has been updated to.
+     */
+    string offline_revision;
+
+    /** The revision that the secondary database must reach before it can be
+     *  made live.
+     */
+    string offline_needed_revision;
 
     /// The parameters stored for this replica.
     map<string, string> parameters;
@@ -97,6 +119,26 @@ class DatabaseReplica::Internal : public Xapian::Internal::RefCntBase {
      */
     void update_stub_database(const string & flint_path) const;
 
+    /** If there's an offline database, discard it.
+     */
+    void remove_offline_db();
+
+    /** Apply a set of DB copy messages from the connection.
+     */
+    void apply_db_copy(RemoteConnection & conn,
+		       const OmTime & end_time);
+
+    /** Check that a message type is as expected.
+     *
+     *  Throws a NetworkError if the type is not the expected one.
+     */
+    void check_message_type(char type, char expected);
+
+    /** Check if the offline database has reached the required version.
+     *
+     *  If so, make it live, and remove the old live database.
+     */
+    void possibly_make_offline_live();
   public:
     /// Open a new DatabaseReplica::Internal for the specified path.
     Internal(const string & path_);
@@ -253,7 +295,9 @@ DatabaseReplica::Internal::update_stub_database(const string & flint_path) const
 }
 
 DatabaseReplica::Internal::Internal(const string & path_)
-	: path(path_), real_path(), db(), parameters()
+	: path(path_), live_path(), live_db(), 
+	  offline_path(), offline_revision(), offline_needed_revision(),
+	  parameters()
 {
     DEBUGCALL(API, void, "DatabaseReplica::Internal::Internal", path_);
     if (dir_exists(path)) {
@@ -265,9 +309,9 @@ DatabaseReplica::Internal::Internal(const string & path_)
     if (!file_exists(path)) {
 	// The database doesn't already exist - make a stub database, and point
 	// it to a new flint database.
-	real_path = path + "_0";
-	db.add_database(Flint::open(real_path, Xapian::DB_CREATE));
-	update_stub_database(real_path);
+	live_path = path + "_0";
+	live_db.add_database(Flint::open(live_path, Xapian::DB_CREATE));
+	update_stub_database(live_path);
     } else {
 	// The database already exists as a stub database - open it.  We can't
 	// just use the standard opening routines, because we want to open it
@@ -280,15 +324,15 @@ DatabaseReplica::Internal::Internal(const string & path_)
 	    if (space != string::npos) {
 		string type = line.substr(0, space);
 		line.erase(0, space + 1);
-		real_path = line;
+		live_path = line;
 		if (type == "flint") {
-		    db.add_database(Flint::open(real_path, Xapian::DB_OPEN));
+		    live_db.add_database(Flint::open(live_path, Xapian::DB_OPEN));
 		} else {
 		    throw FeatureUnavailableError("Database replication only works with flint databases.");
 		}
 	    }
 	}
-	if (db.internal.size() != 1) {
+	if (live_db.internal.size() != 1) {
 	    throw Xapian::InvalidOperationError("DatabaseReplica needs to be pointed at exactly one subdatabase");
 	}
     }
@@ -326,10 +370,110 @@ string
 DatabaseReplica::Internal::get_revision_info() const
 {
     DEBUGCALL(API, string, "DatabaseReplica::Internal::get_revision_info", "");
-    if (db.internal.size() != 1) {
+    if (live_db.internal.size() != 1) {
 	throw Xapian::InvalidOperationError("DatabaseReplica needs to be pointed at exactly one subdatabase");
     }
-    RETURN((db.internal[0])->get_revision_info());
+    printf("revision_info=!%s!\n", (live_db.internal[0])->get_revision_info().c_str());
+    RETURN((live_db.internal[0])->get_revision_info());
+}
+
+void
+DatabaseReplica::Internal::remove_offline_db()
+{
+    if (offline_path.size() == 0)
+	return;
+    printf("Removing offline db from %s\n", offline_path.c_str());
+    // Close and then delete the database.
+    if (dir_exists(offline_path)) {
+	removedir(offline_path);
+    }
+    offline_path.resize(0);
+}
+
+void
+DatabaseReplica::Internal::apply_db_copy(RemoteConnection & conn,
+					 const OmTime & end_time)
+{
+    // If there's already an offline database, discard it.  This happens if one
+    // copy of the database was sent, but further updates were needed before it
+    // could be made live, and the remote end was then unable to send those
+    // updates (probably due to not having changesets available, or the remote
+    // database being replaced by a new database).
+    remove_offline_db();
+
+    // Work out new path to make an offline database at.
+    if (live_path.size() < 2 || live_path[live_path.size() - 2] != '_') {
+	offline_path = live_path + "_0";
+    } else if (live_path[live_path.size() - 1] == '0') {
+	offline_path = live_path.substr(0, live_path.size() - 1) + "1";
+    } else {
+	offline_path = live_path.substr(0, live_path.size() - 1) + "0";
+    }
+    if (dir_exists(offline_path)) {
+	removedir(offline_path);
+    }
+    if (mkdir(offline_path, 0777)) {
+	throw Xapian::DatabaseError("Cannot make directory '" +
+				    offline_path + "'", errno);
+    }
+    printf("Copying DB to %s\n", offline_path.c_str());
+
+    char type = conn.get_message(offline_revision, end_time);
+    check_message_type(type, REPL_REPLY_DB_HEADER);
+
+    // Now, read the files for the database from the connection and create it.
+    while (true) {
+	string filename;
+	type = conn.sniff_next_message_type(end_time);
+	if (type == REPL_REPLY_FAIL)
+	    return;
+	if (type == REPL_REPLY_DB_FOOTER)
+	    break;
+
+	type = conn.get_message(filename, end_time);
+	check_message_type(type, REPL_REPLY_DB_FILENAME);
+
+	// Check that the filename doesn't contain '..'.  No valid database
+	// file contains .., so we don't need to check that the .. is a path.
+	if (filename.find("..") != string::npos) {
+	    throw NetworkError("Filename in database contained '..'");
+	}
+
+	type = conn.sniff_next_message_type(end_time);
+	if (type == REPL_REPLY_FAIL)
+	    return;
+
+	string filepath = offline_path + "/" + filename;
+	type = conn.receive_file(filepath, end_time);
+	check_message_type(type, REPL_REPLY_DB_FILEDATA);
+    }
+    type = conn.get_message(offline_needed_revision, end_time);
+    check_message_type(type, REPL_REPLY_DB_FOOTER);
+    printf("Copied DB\n");
+}
+
+void
+DatabaseReplica::Internal::check_message_type(char type, char expected)
+{
+    if (type != expected) {
+	throw NetworkError("Unexpected replication protocol message type (got "
+			   + om_tostring(type) + ", expected "
+			   + om_tostring(expected) + ")");
+    }
+}
+
+void
+DatabaseReplica::Internal::possibly_make_offline_live()
+{
+    if (!(live_db.internal[0])->check_revision_at_least(offline_revision,
+							offline_needed_revision))
+	return;
+    printf("Making offline live\n");
+    live_db = WritableDatabase();
+    live_db.add_database(Flint::open(offline_path, Xapian::DB_OPEN));
+    update_stub_database(offline_path);
+    swap(live_path, offline_path);
+    remove_offline_db();
 }
 
 bool 
@@ -337,8 +481,45 @@ DatabaseReplica::Internal::apply_next_changeset_from_fd(int fd)
 {
     DEBUGCALL(API, bool,
 	      "DatabaseReplica::Internal::apply_next_changeset_from_fd", fd);
-    if (db.internal.size() != 1) {
+    if (live_db.internal.size() != 1) {
 	throw Xapian::InvalidOperationError("DatabaseReplica needs to be pointed at exactly one subdatabase");
     }
-    RETURN((db.internal[0])->apply_next_changeset_from_fd(fd));
+    RemoteConnection conn(fd, -1, "");
+    OmTime end_time;
+
+    while(true) {
+	char type;
+	type = conn.sniff_next_message_type(end_time);
+	switch(type)
+	{
+	    case REPL_REPLY_END_OF_CHANGES:
+		RETURN(false);
+	    case REPL_REPLY_DB_HEADER:
+		// Apply the copy - remove offline db in case of any error.
+		try {
+		    apply_db_copy(conn, end_time);
+		} catch(...) {
+		    remove_offline_db();
+		    throw;
+		}
+		possibly_make_offline_live();
+		break;
+	    case REPL_REPLY_CHANGESET:
+		if (offline_path.size() == 0) {
+		    (live_db.internal[0])->apply_changeset_from_conn(conn, end_time);
+		} else {
+		    // apply_changeset_from_conn(offline_path, conn, end_time);
+
+		    // Check if offline  is now at offline_needed_revision
+		    // (or later), and swap it in place of live_db if it is.
+		    // FIXME - implement
+		}
+		RETURN(true);
+	    case REPL_REPLY_FAIL:
+		throw NetworkError("Unable to fully synchronise");
+	    default:
+		throw NetworkError("Unknown replication protocol message ("
+				   + om_tostring(type) + ")");
+	}
+    }
 }

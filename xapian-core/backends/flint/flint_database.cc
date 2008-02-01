@@ -53,6 +53,7 @@
 #include "flint_lock.h"
 #include "flint_spellingwordslist.h"
 #include "omtime.h"
+#include "replicationprotocol.h"
 #include "remoteconnection.h"
 #include "stringutils.h"
 
@@ -64,21 +65,6 @@
 
 using namespace std;
 using namespace Xapian;
-
-enum replicate_reply_type {
-    REPL_REPLY_END_OF_CHANGES,	// No more changes to transfer.
-    REPL_REPLY_FAIL,		// Couldn't generate full set of changes.
-    REPL_REPLY_DB_HEADER,	// Start of a whole DB copy.
-    REPL_REPLY_DB_FILENAME,	// The name of a file in a DB copy.
-    REPL_REPLY_DB_FILEDATA,	// Contents of a file in a DB copy.
-    REPL_REPLY_DB_FOOTER,	// End of a whole DB copy.
-    REPL_REPLY_CHANGESET	// A changeset file is being sent.
-};
-
-// The maximum number of copies of a database to send in a single conversation.
-// If more copies than this are required, a REPL_REPLY_FAIL message will be
-// sent.
-#define MAX_DB_COPIES_PER_CONVERSATION 5
 
 // The maximum safe term length is determined by the postlist.  There we
 // store the term followed by "\x00\x00" then a length byte, then up to
@@ -538,8 +524,7 @@ FlintDatabase::send_whole_database(RemoteConnection & conn,
 	if (file_exists(filepath)) {
 	    // FIXME - there is a race condition here - the file might get
 	    // deleted between the file_exists() test and the access to send it.
-	    buf = *i;
-	    conn.send_message(REPL_REPLY_DB_FILENAME, buf, end_time);
+	    conn.send_message(REPL_REPLY_DB_FILENAME, *i, end_time);
 	    conn.send_file(REPL_REPLY_DB_FILEDATA, filepath, end_time);
 	}
     }
@@ -557,7 +542,9 @@ FlintDatabase::write_changesets_to_fd(int fd,
     flint_revision_number_t start_rev_num = 0;
     string start_uuid;
 
+    printf("Writing changesets to fd\n");
     if (revision.size() == 0) {
+	printf("Had no database - need full copy\n");
 	need_whole_db = true;
     } else {
 	// Check whether the UUID in the revision is the same as that for this
@@ -569,10 +556,13 @@ FlintDatabase::write_changesets_to_fd(int fd,
 	    // some unknown format, implying an unknown database format.
 	    // Presumably this means the slave is a very old version of the
 	    // database, so we'll send a full copy to replace it.
+	    printf("Had no uuid - need full copy\n");
 	    need_whole_db = true;
 	} else if (start_uuid != get_uuid()) {
+	    printf("uuids didn't match - need full copy\n");
 	    need_whole_db = true;
 	} else if (!unpack_uint(&rev_ptr, rev_end, &start_rev_num)) {
+	    printf("Had no revision number - need full copy\n");
 	    need_whole_db = true;
 	}
     }
@@ -904,11 +894,57 @@ FlintDatabase::get_revision_info() const
 }
 
 bool
-FlintDatabase::apply_next_changeset_from_fd(int fd)
+FlintDatabase::check_revision_at_least(const string & rev,
+				       const string & target) const
 {
-    DEBUGCALL(DB, string, "FlintDatabase::apply_next_changeset_from_fd", "");
-    (void)fd;
-    RETURN(0);
+    DEBUGCALL(DB, bool, "FlintDatabase::check_revision_at_least",
+	      rev << ", " << target);
+
+    flint_revision_number_t rev_val;
+    flint_revision_number_t target_val;
+
+    const char * ptr = rev.data();
+    const char * end = ptr + rev.size();
+    if (!unpack_uint(&ptr, end, &rev_val)) {
+	throw Xapian::NetworkError("Invalid revision string supplied to check_revision_at_least");
+    }
+
+    ptr = target.data();
+    end = ptr + target.size();
+    if (!unpack_uint(&ptr, end, &target_val)) {
+	throw Xapian::NetworkError("Invalid revision string supplied to check_revision_at_least");
+    }
+
+    printf("Comparing revision %d with %d\n", rev_val, target_val);
+    RETURN(rev_val >= target_val);
+}
+
+void
+FlintDatabase::apply_changeset_from_conn(RemoteConnection & conn,
+					 const OmTime & end_time)
+{
+    DEBUGCALL(DB, void, "FlintDatabase::apply_changeset_from_conn",
+	      "conn, end_time");
+    
+    char type = conn.get_message_chunked(end_time);
+    Assert(type == REPL_REPLY_CHANGESET);
+
+    string buf;
+    // Read enough to be certain that we've got the header part of the
+    // changeset.
+
+    (void) conn.get_message_chunk(buf, 1024, end_time);
+    // Check the magic string.
+    if (buf.size() < 12 || buf.substr(0, 12) != CHANGES_MAGIC_STRING)
+    {
+	throw Xapian::NetworkError("Invalid ChangeSet magic string");
+    }
+    buf.erase(0, 12);
+
+    // FIXME - do something with the changeset.
+    while (conn.get_message_chunk(buf, 4096, end_time))
+    {
+    }
 }
 
 string
