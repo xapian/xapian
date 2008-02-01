@@ -43,6 +43,8 @@
 
 using namespace std;
 
+#define CHUNKSIZE 4096
+
 #ifdef __WIN32__
 // __STDC_SECURE_LIB__ doesn't appear to be publicly documented, but appears
 // to be a good idea.  We cribbed this test from the python sources - see, for
@@ -151,7 +153,7 @@ RemoteConnection::read_at_least(size_t min_len, const OmTime & end_time)
 #ifdef __WIN32__
     HANDLE hin = fd_to_handle(fdin);
     do {
-	char buf[4096];
+	char buf[CHUNKSIZE];
 	DWORD received;
 	BOOL ok = ReadFile(hin, buf, sizeof(buf), &received, &overlapped);
 	if (!ok) {
@@ -184,7 +186,7 @@ RemoteConnection::read_at_least(size_t min_len, const OmTime & end_time)
     }
 
     while (true) {
-	char buf[4096];
+	char buf[CHUNKSIZE];
 	ssize_t received = read(fdin, buf, sizeof(buf));
 
 	if (received > 0) {
@@ -384,7 +386,7 @@ RemoteConnection::send_file(char type, const string &file, const OmTime & end_ti
 	size = sb.st_size;
     }
 
-    char buf[4096];
+    char buf[CHUNKSIZE];
     buf[0] = type;
     size_t c = 1;
     {
@@ -506,6 +508,17 @@ RemoteConnection::send_file(char type, const string &file, const OmTime & end_ti
 }
 
 char
+RemoteConnection::sniff_next_message_type(const OmTime & end_time)
+{
+    DEBUGCALL(REMOTE, char, "RemoteConnection::get_message",
+	      "[result], " << end_time);
+
+    read_at_least(1, end_time);
+    char type = buffer[0];
+    RETURN(type);
+}
+
+char
 RemoteConnection::get_message(string &result, const OmTime & end_time)
 {
     DEBUGCALL(REMOTE, char, "RemoteConnection::get_message",
@@ -624,7 +637,7 @@ RemoteConnection::receive_file(const string &file, const OmTime & end_time)
     // Do we want to be able to delete the file during writing?
     int fd = msvc_posix_open(file.c_str(), O_WRONLY|O_CREAT|O_TRUNC);
 #else
-    int fd = open(file.c_str(), O_WRONLY|O_CREAT|O_TRUNC);
+    int fd = open(file.c_str(), O_WRONLY|O_CREAT|O_TRUNC, 0666);
 #endif
     if (fd == -1) throw Xapian::NetworkError("Couldn't open file for writing: " + file, errno);
     fdcloser closefd(fd);
@@ -653,15 +666,19 @@ RemoteConnection::receive_file(const string &file, const OmTime & end_time)
     } while ((ch & 0x80) == 0);
     len += 255;
     size_t header_len = (i - buffer.begin());
-    write_all(fd, buffer.data() + header_len, buffer.size() - header_len);
-    len -= (buffer.size() - header_len);
+    size_t remainlen(min(buffer.size() - header_len, len));
+    printf("len2:%d, header_len:%d, buffersize:%d, remainlen:%d\n", len, header_len, buffer.size(), remainlen);
+    write_all(fd, buffer.data() + header_len, remainlen);
+    len -= remainlen;
     char type = buffer[0];
-    buffer.clear();
+    buffer.erase(0, header_len + remainlen);
+    printf("len:%d, buffer.size():%d\n", len, buffer.size());
     while (len > 0) {
-	read_at_least(min(len, size_t(4096)), end_time);
-	write_all(fd, buffer.data(), buffer.size());
-	len -= buffer.size();
-	buffer.clear();
+	read_at_least(min(len, size_t(CHUNKSIZE)), end_time);
+	remainlen = min(buffer.size(), len);
+	write_all(fd, buffer.data(), remainlen);
+	len -= remainlen;
+	buffer.erase(0, remainlen);
     }
     RETURN(type);
 }

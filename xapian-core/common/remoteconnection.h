@@ -165,6 +165,24 @@ class RemoteConnection {
      */
     bool ready_to_read() const;
 
+    /** Check what the next message type is.
+     *
+     *  This must not be called after a call to get_message_chunked() until
+     *  get_message_chunk() has returned fales to indicate the message.
+     *
+     *  Other than that restriction, this may be called at any time to
+     *  determine what the next message waiting to be processed is: it will not
+     *  affect subsequent calls which read messages.
+
+     *  @param end_time		If this time is reached, then a timeout
+     *				exception will be thrown.  If
+     *				!end_time.is_set() then the operation will
+     *				never timeout.
+     *
+     *  @return			Message type code.
+     */
+    char sniff_next_message_type(const OmTime & end_time);
+
     /** Read one message from fdin.
      *
      *  @param[out] result	Message data.

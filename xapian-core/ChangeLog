@@ -1,3 +1,12 @@
+Fri Feb 01 01:51:22 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/remoteconnection.h,net/remoteconnection.cc: Add
+	  "sniff_next_message_type" method to RemoteConnection, and replace
+	  the hardcoded "4096" size of the chunks used for the remote
+	  connection confersation with a #define.  Fix file mode when
+	  creating a file with receive_file(), and bugs with writing too
+	  much data to the file.
+
 Thu Jan 31 03:41:42 GMT 2008  Olly Betts <olly@survex.com>
 
 	* bin/Makefile.mk,bin/xapian-replicate-server.cc,
