@@ -1,3 +1,7 @@
+Fri Feb 01 20:20:23 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/xapian-replicate.cc: Fix comment.
+
 Fri Feb 01 20:13:23 GMT 2008  Olly Betts <olly@survex.com>
 
 	* bin/xapian-replicate.cc: Document the default interval in --help.

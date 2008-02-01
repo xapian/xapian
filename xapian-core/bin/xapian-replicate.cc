@@ -139,7 +139,7 @@ main(int argc, char **argv)
 	    // robust against temporary network failures.
 	    cerr << argv[0] << ": " << error.get_description() << endl;
 
-	    // If we were running as a one-shot server though, were going to
+	    // If we were running as a one-shot client though, we're going to
 	    // exit anyway, so let's make the return value reflect that there
 	    // was a failure.
 	    if (one_shot)
