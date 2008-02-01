@@ -19,6 +19,10 @@ system (also used for remote xapian databases).  This provides a "message"
 layer abstraction for the connections; so the communication is based on a set
 of messages, each with a type, and some associated data.
 
+Where the following description refers to "packed" strings or integers, this
+means packed according to the same methods for packing these into flint
+databases.
+
 Client messages
 ---------------
 
@@ -95,8 +99,7 @@ implementations of flint):
    - A byte: 0 if there are no more items in the changeset, 1 if the next item
      is a base file, 2 if the next item is a list of blocks.
 
-   - A string, holding a table name.  (preceded by the length of the string as
-     a variable length unsigned integer)
+   - A (packed) string, holding a table name.
 
    - If a base file:
 

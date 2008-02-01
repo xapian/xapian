@@ -1,3 +1,8 @@
+Fri Feb 01 03:09:45 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* docs/replication_protocol.rst: Specify (though not in much
+	  detail) what we mean by "packed" strings and integers.
+
 Fri Feb 01 03:09:06 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* include/xapian/replication.h: Be more precise in documentation
