@@ -26,6 +26,7 @@
 #include <xapian.h>
 
 #include "gnu_getopt.h"
+#include "stringutils.h"
 
 #include <iostream>
 
@@ -37,6 +38,9 @@ using namespace std;
 #define OPT_HELP 1
 #define OPT_VERSION 2
 
+// Wait DEFAULT_INTERVAL seconds between updates unless --interval is passed.
+#define DEFAULT_INTERVAL 60
+
 static void show_usage() {
     cout << "Usage: "PROG_NAME" [OPTIONS] DATABASE\n\n"
 "Options:\n"
@@ -44,6 +48,7 @@ static void show_usage() {
 "  -p, --port=PORT   port to connect to\n"
 "  -m, --master=DB   replicate database DB from the master\n"
 "  -i, --interval=N  wait N seconds between each connection to the master\n"
+"                    (default: "STRINGIZE(DEFAULT_INTERVAL)")\n"
 "  -o, --one-shot    replicate only once and then exit\n"
 "  -v, --verbose     be more verbose\n"
 "  --help            display this help and exit\n"
@@ -68,7 +73,7 @@ main(int argc, char **argv)
     string host;
     int port = 0;
     string masterdb;
-    int interval = 60;
+    int interval = DEFAULT_INTERVAL;
     bool one_shot = false;
     bool verbose = false;
 
@@ -122,7 +127,7 @@ main(int argc, char **argv)
 	    ReplicateTcpClient client(host, port, 10000);
 	    if (verbose) {
 		cout << "Getting update for " << dbpath << " from "
-			<< masterdb << endl;
+		     << masterdb << endl;
 	    }
 	    client.update_from_master(dbpath, masterdb);
 	    if (verbose) {

@@ -1,3 +1,7 @@
+Fri Feb 01 20:13:23 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/xapian-replicate.cc: Document the default interval in --help.
+
 Fri Feb 01 20:05:08 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* bin/xapian-replicate.cc: Remove the "return 0;" I added at the
