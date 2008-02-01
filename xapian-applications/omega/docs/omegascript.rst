@@ -19,7 +19,7 @@ $simplecommand.::
 
 Where appropriate, arguments themselves can contain OmegaScript commands.
 Where an argument is treated as a string, the string is precisely the contents
-of that argument - there is no string delimiter (such as the double-quoted
+of that argument - there is no string delimiter (such as the double-quote
 character '"' in C and similar languages).  This can make complex OmegaScript
 slightly difficult to read at times.
 
@@ -429,8 +429,7 @@ $topterms[{N}]
 
 $transform{REGEXP,SUBST,STRING}
 	transform string using Perl compatible regular expressions.  This
-	command is like the perl code: STRING =~ s/REGEXP/SUBST/
-	[Disabled for now - need to sort out build issues]
+	command is sort of like the perl code: STRING =~ s/REGEXP/SUBST/
 
 $uniq{LIST}
 	remove duplicates from a sorted list

@@ -1,3 +1,8 @@
+Fri Feb 01 01:45:26 GMT 2008  Olly Betts <olly@survex.com>
+
+	* INSTALL: PCRE required.
+	* docs/omegascript.rst: $transform{} now enabled.  Fixes bug#231.
+
 Fri Feb 01 01:35:58 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.ac,query.cc: Add PCRE as a requirement and
