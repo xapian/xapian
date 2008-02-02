@@ -1,3 +1,9 @@
+Sat Feb 02 21:23:07 GMT 2008  Olly Betts <olly@survex.com>
+
+	* omindex.cc,query.cc: New OmegaScript commands $addfilter, $lower,
+	  $upper.
+	* docs/omegascript.rst: Document.  Improve formatting.
+
 Fri Feb 01 01:45:26 GMT 2008  Olly Betts <olly@survex.com>
 
 	* INSTALL: PCRE required.

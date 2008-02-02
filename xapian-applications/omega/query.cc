@@ -712,6 +712,7 @@ static string print_caption(const string &fmt, const vector<string> &param);
 enum tagval {
 CMD_,
 CMD_add,
+CMD_addfilter,
 CMD_allterms,
 CMD_and,
 CMD_cgi,
@@ -753,6 +754,7 @@ CMD_length,
 CMD_list,
 CMD_log,
 CMD_lookup,
+CMD_lower,
 CMD_lt,
 CMD_map,
 CMD_max,
@@ -796,6 +798,7 @@ CMD_transform,
 CMD_uniq,
 CMD_unpack,
 CMD_unstem,
+CMD_upper,
 CMD_url,
 CMD_value,
 CMD_version,
@@ -824,6 +827,7 @@ static struct func_desc func_tab[] = {
 //name minargs maxargs evalargs ensure
 {"",{CMD_,	   N, N, 0, 0}},// commented out code
 T(add,		   0, N, N, 0), // add a list of numbers
+T(addfilter,	   1, 1, N, 0), // add filter term
 T(allterms,	   0, 1, N, 0), // list of all terms matching document
 T(and,		   1, N, 0, 0), // logical shortcutting and of a list of values
 T(cgi,		   1, 1, N, 0), // return cgi parameter value
@@ -867,6 +871,7 @@ T(length,	   1, 1, N, 0), // length of list
 T(list,		   2, 5, N, 0), // pretty print list
 T(log,		   1, 2, 1, 0), // create a log entry
 T(lookup,	   2, 2, N, 0), // lookup in named cdb file
+T(lower,	   1, 1, N, 0), // convert string to lower case
 T(lt,		   2, 2, N, 0), // test <
 T(map,		   1, 2, 1, 0), // map a list into another list
 T(max,		   1, N, N, 0), // maximum of a list of values
@@ -913,6 +918,7 @@ T(uniq,		   1, 1, N, 0), // removed duplicates from a sorted list
 T(unpack,	   1, 1, N, 0), // convert 4 byte big endian binary string to a number
 T(unstem,	   1, 1, N, Q), // return list of probabilistic terms from
 				// the query which stemmed to this term
+T(upper,	   1, 1, N, 0), // convert string to upper case
 T(url,		   1, 1, N, 0), // url encode argument
 T(value,	   1, 2, N, 0), // return document value
 T(version,	   0, 0, N, 0), // omega version string
@@ -1050,6 +1056,9 @@ eval(const string &fmt, const vector<string> &param)
 		value = int_to_string(total);
 		break;
 	    }
+	    case CMD_addfilter:
+		add_bterm(args[0]);
+		break;
 	    case CMD_allterms: {
 		// list of all terms indexing document
 		int id = q0;
@@ -1449,6 +1458,9 @@ eval(const string &fmt, const vector<string> &param)
 		close(fd); // FIXME: cache fds?
 		break;
 	    }
+	    case CMD_lower:
+		value = Xapian::Unicode::tolower(args[0]);
+		break;
             case CMD_lt:
 		if (string_to_int(args[0]) < string_to_int(args[1]))
 		    value = "true";
@@ -1880,6 +1892,9 @@ eval(const string &fmt, const vector<string> &param)
 		}
 		break;
 	    }
+	    case CMD_upper:
+		value = Xapian::Unicode::toupper(args[0]);
+		break;
 	    case CMD_url:
 	        value = percent_encode(args[0]);
 		break;
