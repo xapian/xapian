@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2005 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -510,13 +510,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
     newdocument.add_term(urlterm); // Url
 
     // Add last_mod as a value to allow "sort by date".
-    //newdocument.add_value(VALUE_LASTMOD, int_to_binary_string((uint32_t)last_mod));
-    // we want to be able to use a DateValueRangeProcessor
-    struct tm *last_mod_tm = localtime(&last_mod);
-    char date_str[64];
-    if (snprintf(date_str, 63, "%04d%02d%02d", last_mod_tm->tm_year + 1900, last_mod_tm->tm_mon + 1, last_mod_tm->tm_mday) > 0) {
-        newdocument.add_value(VALUE_LASTMOD, date_str);
-    }
+    newdocument.add_value(VALUE_LASTMOD, int_to_binary_string((uint32_t)last_mod));
 
     // Add MD5 as a value to allow duplicate documents to be collapsed together.
     newdocument.add_value(VALUE_MD5, md5);

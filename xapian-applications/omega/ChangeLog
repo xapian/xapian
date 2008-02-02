@@ -1,3 +1,7 @@
+Sat Feb 02 22:46:14 GMT 2008  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Back out random change committed by accident.
+
 Sat Feb 02 21:23:07 GMT 2008  Olly Betts <olly@survex.com>
 
 	* omindex.cc,query.cc: New OmegaScript commands $addfilter, $lower,
