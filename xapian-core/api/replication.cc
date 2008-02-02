@@ -2,6 +2,7 @@
  * @brief Replication support for Xapian databases.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
+ * Copyright (C) 2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -179,6 +180,9 @@ class DatabaseReplica::Internal : public Xapian::Internal::RefCntBase {
   public:
     /// Open a new DatabaseReplica::Internal for the specified path.
     Internal(const string & path_);
+
+    /// Destructor.
+    ~Internal() { delete conn; }
 
     /// Set a parameter for the replica.
     void set_parameter(const string & name, const string & value);
