@@ -1,3 +1,8 @@
+Sun Feb 03 13:31:10 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc: Backport atomic base update fix from
+	  flint.
+
 Sat Feb 02 22:47:56 GMT 2008  Olly Betts <olly@survex.com>
 
 	* AUTHORS: Add Thomas Viehmann.
