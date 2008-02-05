@@ -49,7 +49,47 @@ the separate `Replication Protocol <replication_protocol.html>`_ document.
 Setting up replicated databases
 ===============================
 
-FIXME - describe how to set up a set of replicated databases.
+FIXME - expand this section.
+
+To replicate a database efficiently from one master machine to other machines,
+there is one configuration step to be performed on the master machine, and two
+servers to run.
+
+Firstly, on the master machine, the indexer must be run with the environment
+variable `XAPIAN_MAX_CHANGESETS` set to a non-zero value.  (Currently, the
+actual value it is set to is irrelevant, but I suggest using a value of 10).
+This will cause changeset files to be created whenever a transaction is
+performed, which allow the transaction to be replaced efficiently on a replica
+of the database.
+
+Secondly, also on the master machine, run the `xapian-replicate-server` server
+to serve the databases which are to be replicated.  This takes various
+parameters to control the directory that databases are found in, and the
+network interface to serve on.  The "-h" parameter will cause usage information
+to be displayed.  For example, if /var/search/dbs contains a set of xapian
+databases to be replicated::
+
+  ./xapian-replicate-server /var/search/dbs -p 7010
+
+would run a server allowing access to these databases, on port 7010.
+
+
+Finally, on the client machine, run the `xapian-replicate` server to keep an
+individual database up-to-date.  This will contact the server on the specified
+host and port, and copy the database with the name (on the master) specified in
+the `-m` option to the client.  One non-option argument is required - this is
+the name that the database should be stored in on the slave machine.  For
+example, contacting the above server from the same machine::
+
+  ./xapian-replicate -h 127.0.0.1 -p 7010 -m foo foo2
+
+would produce a database "foo2" containing a replica of the database
+"/var/search/dbs/foo".
+
+Both the server and client can be run in "one-shot" mode, by passing "-o".
+This may be particularly useful for the client, to allow a shell script to be
+used to cycle through a set of databases, updating each in turn (and then
+probably sleeping for a period).
 
 
 Alternative approaches

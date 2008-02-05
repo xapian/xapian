@@ -370,6 +370,59 @@ FlintDatabase::get_next_revision_number() const
     RETURN(new_revision);
 }
 
+// Must be big enough to ensure that the start of the changeset (up to the new
+// revision number) will fit in this much space.
+#define REASONABLE_CHANGESET_SIZE 1024
+void
+FlintDatabase::get_changeset_revisions(const string & path,
+				       flint_revision_number_t * startrev,
+				       flint_revision_number_t * endrev)
+{
+    int changes_fd = -1;
+#ifdef __WIN32__
+    changes_fd = msvc_posix_open(path.c_str(), O_RDONLY);
+#else
+    changes_fd = open(path.c_str(), O_RDONLY);
+#endif
+    fdcloser closer(changes_fd);
+
+    if (changes_fd < 0) {
+	string message = string("Couldn't open changeset ")
+		+ path + " to read";
+	throw Xapian::DatabaseError(message, errno);
+    }
+
+    char buf[REASONABLE_CHANGESET_SIZE];
+    const char *start = buf;
+    const char *end = buf + flint_io_read(changes_fd, buf,
+					  REASONABLE_CHANGESET_SIZE, 0);
+    if (strncmp(start, CHANGES_MAGIC_STRING,
+		sizeof(CHANGES_MAGIC_STRING) - 1) != 0) {
+	string message = string("Changeset at ")
+		+ path + " does not contain valid magic string";
+	throw Xapian::DatabaseError(message);
+    }
+    start += sizeof(CHANGES_MAGIC_STRING) - 1;
+    if (start >= end)
+	throw Xapian::DatabaseError("Changeset too short at " + path);
+
+    unsigned int changes_version;
+    if (!unpack_uint(&start, end, &changes_version))
+	throw Xapian::DatabaseError("Couldn't read a valid version number for "
+				    "changeset at " + path);
+    if (changes_version != CHANGES_VERSION)
+	throw Xapian::DatabaseError("Don't support version of changeset at "
+				    + path);
+
+    if (!unpack_uint(&start, end, startrev))
+	throw Xapian::DatabaseError("Couldn't read a valid start revision from "
+				    "changeset at " + path);
+
+    if (!unpack_uint(&start, end, endrev))
+	throw Xapian::DatabaseError("Couldn't read a valid end revision for "
+				    "changeset at " + path);
+}
+
 void
 FlintDatabase::set_revision_number(flint_revision_number_t new_revision)
 {
@@ -543,7 +596,7 @@ FlintDatabase::write_changesets_to_fd(int fd,
 	      fd << ", " << revision << ", " << need_whole_db);
 
     int whole_db_copies_left = MAX_DB_COPIES_PER_CONVERSATION;
-    flint_revision_number_t start_rev_num = get_revision_number();
+    flint_revision_number_t start_rev_num = 0;
     string start_uuid = get_uuid();
 
     const char * rev_ptr = revision.data();
@@ -623,9 +676,23 @@ FlintDatabase::write_changesets_to_fd(int fd,
 	    if (file_exists(changes_name)) {
 		// Send it, and also update start_rev_num to the new value
 		// specified in the changeset.
+		flint_revision_number_t changeset_start_rev_num;
+		flint_revision_number_t changeset_end_rev_num;
+		get_changeset_revisions(changes_name,
+					&changeset_start_rev_num,
+					&changeset_end_rev_num);
+		if (changeset_start_rev_num != start_rev_num)
+		{
+		    throw Xapian::DatabaseError("Changeset start revision does not match changeset filename");
+		}
+		if (changeset_start_rev_num >= changeset_end_rev_num)
+		{
+		    throw Xapian::DatabaseError("Changeset start revision is not less than end revision");
+		}
 		// FIXME - there is a race condition here - the file might get
 		// deleted between the file_exists() test and the access to send it.
 		conn.send_file(REPL_REPLY_CHANGESET, changes_name, end_time);
+		start_rev_num = changeset_end_rev_num;
 	    } else {
 		// The changeset doesn't exist: leave the revision number as it
 		// is, and mark for doing a full database copy.
@@ -905,6 +972,124 @@ FlintDatabase::check_revision_at_least(const string & rev,
 }
 
 void
+FlintDatabase::process_changeset_chunk_base(const string & tablename,
+					    string & buf,
+					    RemoteConnection & conn,
+					    const OmTime & end_time)
+{
+    const char *ptr = buf.data();
+    const char *end = ptr + buf.size(); 
+
+    // Get the letter
+    char letter = ptr[0];
+    if (letter != 'A' && letter != 'B')
+	throw Xapian::NetworkError("Invalid base file letter in changeset");
+    ++ptr;
+
+
+    // Get the base size
+    if (ptr == end)
+	throw Xapian::NetworkError("Unexpected end of changeset (5)");
+    string::size_type base_size;
+    if (!unpack_uint(&ptr, end, &base_size))
+	throw Xapian::NetworkError("Invalid base file size in changeset");
+
+    // Get the new base file into buf.
+    buf.erase(0, ptr - buf.data());
+    conn.get_message_chunk(buf, base_size, end_time);
+
+    if (buf.size() < base_size)
+	throw Xapian::NetworkError("Unexpected end of changeset (6)");
+
+    // Write base_size bytes from start of buf to base file for tablename
+    string tmp_path = db_dir + "/" + tablename + "tmp";
+    string base_path = db_dir + "/" + tablename + ".base" + letter;
+#ifdef __WIN32__
+    int fd = msvc_posix_open(tmp_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);
+#else
+    int fd = open(tmp_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
+#endif
+    {
+	fdcloser closer(fd);
+
+	flint_io_write(fd, buf.data(), base_size);
+	flint_io_sync(fd);
+    }
+    if (rename(tmp_path.c_str(), base_path.c_str()) < 0) {
+	// With NFS, rename() failing may just mean that the server crashed
+	// after successfully renaming, but before reporting this, and then
+	// the retried operation fails.  So we need to check if the source
+	// file still exists, which we do by calling unlink(), since we want
+	// to remove the temporary file anyway.
+	int saved_errno = errno;
+	if (unlink(tmp_path) == 0 || errno != ENOENT) {
+	    string msg("Couldn't update base file ");
+	    msg += tablename + ".base" + letter;
+	    msg += ": ";
+	    msg += strerror(saved_errno);
+	    throw Xapian::DatabaseError(msg);
+	}
+    }
+
+    buf.erase(0, base_size);
+}
+
+void
+FlintDatabase::process_changeset_chunk_blocks(const string & tablename,
+					      string & buf,
+					      RemoteConnection & conn,
+					      const OmTime & end_time)
+{
+    const char *ptr = buf.data();
+    const char *end = ptr + buf.size(); 
+
+    unsigned int changeset_blocksize;
+    if (!unpack_uint(&ptr, end, &changeset_blocksize))
+	throw Xapian::NetworkError("Invalid blocksize in changeset");
+    buf.erase(0, ptr - buf.data());
+
+    string db_path = db_dir + "/" + tablename + ".DB";
+#ifdef __WIN32__
+    int fd = msvc_posix_open(db_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);
+#else
+    int fd = open(db_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
+#endif
+    {
+	fdcloser closer(fd);
+
+	while (true) {
+	    conn.get_message_chunk(buf, REASONABLE_CHANGESET_SIZE, end_time);
+	    ptr = buf.data();
+	    end = ptr + buf.size(); 
+
+	    uint4 block_number;
+	    if (!unpack_uint(&ptr, end, &block_number))
+		throw Xapian::NetworkError("Invalid block number in changeset");
+	    buf.erase(0, ptr - buf.data());
+	    if (block_number == 0)
+		break;
+	    --block_number;
+
+	    conn.get_message_chunk(buf, changeset_blocksize, end_time);
+	    if (buf.size() < changeset_blocksize)
+		throw Xapian::NetworkError("Incomplete block in changeset");
+
+	    // Write the block.
+	    // FIXME - should use pwrite if that's available.
+	    if (lseek(fd, (off_t)changeset_blocksize * block_number, SEEK_SET) == -1) {
+		string message = "Error seeking to block: ";
+		message += strerror(errno);
+		throw Xapian::DatabaseError(message);
+	    }
+	    flint_io_write(fd, buf.data(), changeset_blocksize);
+
+	    buf.erase(0, changeset_blocksize);
+	}
+	flint_io_sync(fd);
+    }
+}
+
+string
 FlintDatabase::apply_changeset_from_conn(RemoteConnection & conn,
 					 const OmTime & end_time)
 {
@@ -919,18 +1104,100 @@ FlintDatabase::apply_changeset_from_conn(RemoteConnection & conn,
     // Read enough to be certain that we've got the header part of the
     // changeset.
 
-    (void) conn.get_message_chunk(buf, 1024, end_time);
+    conn.get_message_chunk(buf, REASONABLE_CHANGESET_SIZE, end_time);
     // Check the magic string.
     if (buf.size() < 12 || buf.substr(0, 12) != CHANGES_MAGIC_STRING)
     {
 	throw Xapian::NetworkError("Invalid ChangeSet magic string");
     }
     buf.erase(0, 12);
+    const char *ptr = buf.data();
+    const char *end = ptr + buf.size(); 
 
-    // FIXME - do something with the changeset.
-    while (conn.get_message_chunk(buf, 4096, end_time))
-    {
+    unsigned int changes_version;
+    if (!unpack_uint(&ptr, end, &changes_version))
+	throw Xapian::NetworkError("Couldn't read a valid version number from changeset");
+    if (changes_version != CHANGES_VERSION)
+	throw Xapian::NetworkError("Unsupported changeset version");
+
+    flint_revision_number_t startrev;
+    flint_revision_number_t endrev;
+
+    if (!unpack_uint(&ptr, end, &startrev))
+	throw Xapian::NetworkError("Couldn't read a valid start revision from changeset");
+    if (!unpack_uint(&ptr, end, &endrev))
+	throw Xapian::NetworkError("Couldn't read a valid end revision from changeset");
+
+    if (startrev != get_revision_number())
+	throw Xapian::NetworkError("Changeset supplied is for wrong revision number");
+    if (endrev <= startrev)
+	throw Xapian::NetworkError("End revision in changeset is not later than start revision");
+
+    if (ptr == end)
+	throw Xapian::NetworkError("Unexpected end of changeset (1)");
+    unsigned char changes_type = ptr[0];
+
+    if (changes_type != 0) {
+	throw Xapian::NetworkError("Unsupported changeset type (got %d)",
+				   changes_type);
+	// FIXME - support changes of type 1, produced when DANGEROUS mode is
+	// on.
     }
+
+    // Clear the bits of the buffer which have been read.
+    buf.erase(0, ptr + 1 - buf.data());
+
+    // Read the items from the changeset.
+    while (true)
+    {
+	conn.get_message_chunk(buf, REASONABLE_CHANGESET_SIZE, end_time);
+	ptr = buf.data();
+	end = ptr + buf.size();
+
+	// Read the type of the next chunk of data
+	if (ptr == end)
+	    throw Xapian::NetworkError("Unexpected end of changeset (2)");
+	unsigned char chunk_type = ptr[0];
+	++ptr;
+	if (chunk_type == 0)
+	    break;
+
+	// Get the tablename.
+	string tablename;
+	if (!unpack_string(&ptr, end, tablename))
+	    throw Xapian::NetworkError("Unexpected end of changeset (3)");
+	if (tablename.size() == 0)
+	    throw Xapian::NetworkError("Missing tablename in changeset");
+	if (tablename.find_first_not_of("abcdefghijklmnopqrstuvwxyz") !=
+	    tablename.npos)
+	    throw Xapian::NetworkError("Invalid character in tablename in changeset");
+
+	// Process the chunk
+	if (ptr == end)
+	    throw Xapian::NetworkError("Unexpected end of changeset (4)");
+	buf.erase(0, ptr - buf.data());
+
+	switch (chunk_type) {
+	    case 1:
+		process_changeset_chunk_base(tablename, buf, conn, end_time);
+		break;
+	    case 2:
+		process_changeset_chunk_blocks(tablename, buf, conn, end_time);
+		break;
+	    default:
+		throw Xapian::NetworkError("Unrecognised item type in changeset");
+	}
+    }
+    flint_revision_number_t reqrev;
+    if (!unpack_uint(&ptr, end, &reqrev))
+	throw Xapian::NetworkError("Couldn't read a valid required revision from changeset");
+    if (reqrev < endrev)
+	throw Xapian::NetworkError("Required revision in changeset is earlier than end revision");
+    if (ptr != end)
+	throw Xapian::NetworkError("Junk found at end of changeset");
+
+    buf = pack_uint(reqrev);
+    RETURN(buf);
 }
 
 string

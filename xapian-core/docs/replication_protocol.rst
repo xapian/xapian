@@ -91,10 +91,6 @@ implementations of flint):
    - 1 if the changes cannot be applied while searching is in progress.  (This
      will be set if the database was modified in "DANGEROUS" mode).
 
-   - 2 if the changes contain a whole database copy (or at least, a copy of all
-     active blocks in a database), in which case the changes should be used to
-     make a brand new database.
-
  - A series of items:
 
    - A byte: 0 if there are no more items in the changeset, 1 if the next item

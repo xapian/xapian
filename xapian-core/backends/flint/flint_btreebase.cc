@@ -278,6 +278,7 @@ FlintTable_base::read(const string & name, char ch, string &err_msg)
 
 void
 FlintTable_base::write_to_file(const string &filename,
+			       char base_letter,
 			       const string &tablename,
 			       int changes_fd,
 			       const string * changes_tail)
@@ -316,17 +317,14 @@ FlintTable_base::write_to_file(const string &filename,
     if (changes_fd >= 0) {
 	string changes_buf;
 	changes_buf += pack_uint(1u); // Indicate the item is a base file.
-	changes_buf += pack_uint(tablename.size());
-	changes_buf += tablename;
-	changes_buf += filename[filename.size() - 1]; // The base file letter.
+	changes_buf += pack_string(tablename);
+	changes_buf += base_letter; // The base file letter.
 	changes_buf += pack_uint(buf.size());
-	if (changes_tail != NULL) {
-	    changes_buf += *changes_tail;
-	}
 	flint_io_write(changes_fd, changes_buf.data(), changes_buf.size());
 	flint_io_write(changes_fd, buf.data(), buf.size());
 	if (changes_tail != NULL) {
-	    // changes_tail is only specified for the final table.
+	    flint_io_write(changes_fd, changes_tail->data(), changes_tail->size());
+	    // changes_tail is only specified for the final table, so sync.
 	    flint_io_sync(changes_fd);
 	}
     }

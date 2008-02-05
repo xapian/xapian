@@ -422,8 +422,8 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 					     const string & target) const;
 
 	/// Read and apply the next changeset.
-	virtual void apply_changeset_from_conn(RemoteConnection & conn,
-					       const OmTime & end_time);
+	virtual string apply_changeset_from_conn(RemoteConnection & conn,
+						 const OmTime & end_time);
 
 	/** Get a UUID for the database.
 	 *

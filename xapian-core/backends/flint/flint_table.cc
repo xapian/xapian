@@ -1692,7 +1692,7 @@ FlintTable::create_and_open(unsigned int block_size_)
     base_.set_block_size(block_size_);
     base_.set_have_fakeroot(true);
     base_.set_sequential(true);
-    base_.write_to_file(name + "baseA", "", -1, NULL);
+    base_.write_to_file(name + "baseA", 'A', "", -1, NULL);
 
     /* remove the alternative base file, if any */
     sys_unlink_if_exists(name + "baseB");
@@ -1807,7 +1807,7 @@ FlintTable::commit(flint_revision_number_t revision, int changes_fd,
     string basefile = name;
     basefile += "base";
     basefile += char(base_letter);
-    base.write_to_file(tmp, tablename, changes_fd, changes_tail);
+    base.write_to_file(tmp, base_letter, tablename, changes_fd, changes_tail);
     if (rename(tmp.c_str(), basefile.c_str()) < 0) {
 	// With NFS, rename() failing may just mean that the server crashed
 	// after successfully renaming, but before reporting this, and then

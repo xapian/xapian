@@ -33,6 +33,7 @@
 #include "utils.h"
 #include "unixcmds.h"
 
+#include <stdlib.h>
 #include <string>
 
 using namespace std;
@@ -99,6 +100,8 @@ DEFINE_TESTCASE(replicate1, replicas) {
     mktmpdir(tempdir);
     string masterpath = get_named_writable_database_path("master");
 
+    setenv("XAPIAN_MAX_CHANGESETS", "10", 1);
+
     Xapian::WritableDatabase orig(get_named_writable_database("master"));
     Xapian::DatabaseMaster master(masterpath);
     string replicapath = tempdir + "/replica";
@@ -121,10 +124,15 @@ DEFINE_TESTCASE(replicate1, replicas) {
     // changes should need to be applied.
     TEST_EQUAL(replicate(master, replica, tempdir), 1);
 
-    TEST_EQUAL(replicate(master, replica, tempdir), 1);
+    orig.add_document(doc1);
+    orig.flush();
+    orig.add_document(doc1);
+    orig.flush();
+
+    TEST_EQUAL(replicate(master, replica, tempdir), 2);
 
     check_equal_dbs(masterpath, replicapath);
 
-//rmtmpdir(tempdir);
+    rmtmpdir(tempdir);
     return true;
 }

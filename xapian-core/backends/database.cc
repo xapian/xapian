@@ -501,7 +501,7 @@ Database::Internal::check_revision_at_least(const string &, const string &) cons
     throw Xapian::UnimplementedError("This backend doesn't support comparing revision numbers");
 }
 
-void
+string
 Database::Internal::apply_changeset_from_conn(RemoteConnection &,
 					      const OmTime &)
 {

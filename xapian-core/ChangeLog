@@ -1,3 +1,14 @@
+Tue Feb 05 02:07:08 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/replication.cc,backends/database.cc,backends/flint/,
+	  common/database.h: Many fixes to the replication code.  Now
+	  parses replication changesets correctly and applies them to the
+	  databases.  Also, correct one bug with the generation of
+	  changesets.
+	* docs/replication.rst,docs/replication_protocol.rst: Update.
+	* tests/api_replicate.cc: Add test of two changesets being applied
+	  at once.
+
 Sun Feb 03 13:31:10 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc: Backport atomic base update fix from

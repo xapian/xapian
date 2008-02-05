@@ -442,8 +442,8 @@ DatabaseReplica::Internal::get_revision_info() const
     }
     string buf;
     string uuid = hex_decode(get_parameter("uuid"));
-    if (uuid == "")
-	uuid = (live_db.internal[0])->get_uuid();
+    // FIXME - when uuids are actually stored in databases, use the following:
+    // string uuid = (live_db.internal[0])->get_uuid();
     buf += encode_length(uuid.size());
     buf += uuid;
     buf += (live_db.internal[0])->get_revision_info();
@@ -460,7 +460,7 @@ DatabaseReplica::Internal::remove_offline_db()
     if (dir_exists(offline_path)) {
 	removedir(offline_path);
     }
-    offline_path.resize(0);
+    offline_name.resize(0);
 }
 
 void
@@ -594,13 +594,17 @@ DatabaseReplica::Internal::apply_next_changeset()
 		break;
 	    case REPL_REPLY_CHANGESET:
 		if (offline_name.size() == 0) {
-		    (live_db.internal[0])->apply_changeset_from_conn(*conn, end_time);
+		    offline_needed_revision = (live_db.internal[0])->
+			    apply_changeset_from_conn(*conn, end_time);
 		} else {
-		    // apply_changeset_from_conn(offline_name, *conn, end_time);
-
-		    // Check if offline  is now at offline_needed_revision
-		    // (or later), and swap it in place of live_db if it is.
-		    // FIXME - implement
+		    {
+			string offline_path = join_paths(path, offline_name);
+			WritableDatabase offline_db;
+			offline_db.add_database(Flint::open(offline_path, Xapian::DB_OPEN));
+			offline_needed_revision = (offline_db.internal[0])->
+				apply_changeset_from_conn(*conn, end_time);
+		    }
+		    possibly_make_offline_live();
 		}
 		RETURN(true);
 	    case REPL_REPLY_FAIL:
