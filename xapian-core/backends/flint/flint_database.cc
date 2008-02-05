@@ -1093,7 +1093,7 @@ string
 FlintDatabase::apply_changeset_from_conn(RemoteConnection & conn,
 					 const OmTime & end_time)
 {
-    DEBUGCALL(DB, void, "FlintDatabase::apply_changeset_from_conn",
+    DEBUGCALL(DB, string, "FlintDatabase::apply_changeset_from_conn",
 	      "conn, end_time");
     
     char type = conn.get_message_chunked(end_time);

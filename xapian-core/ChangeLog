@@ -1,3 +1,11 @@
+Tue Feb 05 09:24:36 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/flint/flint_cursor.cc,backends/flint/flint_database.cc,
+	  backends/quartz/bcursor.cc: More fixes for debug logging - rename
+	  the "hex_encode" functions used for logging to
+	  "hex_display_encode" to avoid name clash.  Fix return type
+	  declared in flint_database.cc's DEBUGCALL macro.
+
 Tue Feb 05 09:18:29 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/replication.cc: Fix for logging compiles: don't check return
