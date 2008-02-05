@@ -262,10 +262,10 @@ DatabaseReplica::get_revision_info() const
 void 
 DatabaseReplica::set_read_fd(int fd)
 {
-    DEBUGAPICALL(bool, "Xapian::DatabaseReplica::set_read_fd", fd);
+    DEBUGAPICALL(void, "Xapian::DatabaseReplica::set_read_fd", fd);
     if (internal.get() == NULL)
 	throw Xapian::InvalidOperationError("Attempt to call DatabaseReplica::set_read_fd on a closed replica.");
-    RETURN(internal->set_read_fd(fd));
+    internal->set_read_fd(fd);
 }
 
 bool 
