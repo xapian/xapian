@@ -596,6 +596,9 @@ DatabaseReplica::Internal::apply_next_changeset()
 		if (offline_name.size() == 0) {
 		    offline_needed_revision = (live_db.internal[0])->
 			    apply_changeset_from_conn(*conn, end_time);
+		    live_db = WritableDatabase();
+		    string livedb_path = join_paths(path, live_name);
+		    live_db.add_database(Flint::open(livedb_path, Xapian::DB_OPEN));
 		} else {
 		    {
 			string offline_path = join_paths(path, offline_name);

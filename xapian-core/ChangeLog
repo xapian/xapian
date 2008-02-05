@@ -1,3 +1,13 @@
+Tue Feb 05 09:14:34 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/replication.cc: Reopen database after replication, to fix bug
+	  with applying a chain of changesets.
+	* backends/flint/flint_database.cc: Don't use O_TRUNC (or O_CREAT)
+	  when modifying the DB files!
+	* tests/api_replicate.cc: Don't call function from inside
+	  TEST_EQUAL, because that's a macro and the function will be
+	  double-evaluated.
+
 Tue Feb 05 02:07:08 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/replication.cc,backends/database.cc,backends/flint/,

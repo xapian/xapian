@@ -1050,9 +1050,9 @@ FlintDatabase::process_changeset_chunk_blocks(const string & tablename,
 
     string db_path = db_dir + "/" + tablename + ".DB";
 #ifdef __WIN32__
-    int fd = msvc_posix_open(db_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);
+    int fd = msvc_posix_open(db_path.c_str(), O_WRONLY | O_BINARY);
 #else
-    int fd = open(db_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
+    int fd = open(db_path.c_str(), O_WRONLY | O_BINARY, 0666);
 #endif
     {
 	fdcloser closer(fd);
