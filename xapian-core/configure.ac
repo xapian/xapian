@@ -1018,8 +1018,8 @@ if test yes = "$GXX"; then
       AC_MSG_CHECKING([whether -pedantic causes problems with INFINITY])
       AC_CACHE_VAL([xo_cv_pedantic_inf_fails],
         [
-        SAVE_AM_CXXFLAGS="$AM_CXXFLAGS"
-        AM_CXXFLAGS="$AM_CXXFLAGS -pedantic"
+        SAVE_CXXFLAGS="$CXXFLAGS"
+        CXXFLAGS="$CXXFLAGS -pedantic"
         AC_COMPILE_IFELSE([
           AC_LANG_PROGRAM(
 	    [[
@@ -1031,7 +1031,7 @@ if test yes = "$GXX"; then
 	  xo_cv_pedantic_inf_fails=no,
 	  xo_cv_pedantic_inf_fails=yes
 	)
-	AM_CXXFLAGS="$SAVE_AM_CXXFLAGS"
+	CXXFLAGS="$SAVE_CXXFLAGS"
 	])
       AC_MSG_RESULT([$xo_cv_pedantic_inf_fails])
       if test no = "$xo_cv_pedantic_inf_fails" ; then

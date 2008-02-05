@@ -1,3 +1,9 @@
+Tue Feb 05 18:10:23 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* configure.ac: Set -pedantic in CXXFLAGS not AM_CXXFLAGS when
+	  testing for problem with it - AM_CXXFLAGS is an automake thing,
+	  and isn't used by the autoconf test.
+
 Tue Feb 05 17:50:55 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* configure.ac: Cleaner patch for the test of compilation with
