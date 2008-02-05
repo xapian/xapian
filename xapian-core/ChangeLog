@@ -1,3 +1,8 @@
+Tue Feb 05 17:50:55 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* configure.ac: Cleaner patch for the test of compilation with
+	  -pedantic - cache the result using AC_CACHE_VAL().
+
 Tue Feb 05 17:32:11 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* configure.ac: Check whether compilation of a cast of INFINITY to

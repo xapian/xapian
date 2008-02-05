@@ -1015,21 +1015,28 @@ if test yes = "$GXX"; then
       dnl XCode 2.2.1 on Tiger - which uses gcc version 4.0.1), so don't use
       dnl -pedantic on that platform.  Otherwise, we add -pedantic to the
       dnl flags.
-      SAVE_AM_CXXFLAGS="$AM_CXXFLAGS"
-      AM_CXXFLAGS="$AM_CXXFLAGS -pedantic"
       AC_MSG_CHECKING([whether -pedantic causes problems with INFINITY])
-      AC_COMPILE_IFELSE([
-        AC_LANG_PROGRAM(
-	  [[
+      AC_CACHE_VAL([xo_cv_pedantic_inf_fails],
+        [
+        SAVE_AM_CXXFLAGS="$AM_CXXFLAGS"
+        AM_CXXFLAGS="$AM_CXXFLAGS -pedantic"
+        AC_COMPILE_IFELSE([
+          AC_LANG_PROGRAM(
+	    [[
 #define _ISOC99_SOURCE
 #include <math.h>
-	  ]],
-	  [[if (double(INFINITY) > HUGE_VAL) return 0;]]
-	)],
-	AC_MSG_RESULT([no]),
-	[AM_CXXFLAGS="$SAVE_AM_CXXFLAGS"
-	AC_MSG_RESULT([yes])]
-      )
+	    ]],
+	    [[double(INFINITY);]]
+	  )],
+	  xo_cv_pedantic_inf_fails=no,
+	  xo_cv_pedantic_inf_fails=yes
+	)
+	AM_CXXFLAGS="$SAVE_AM_CXXFLAGS"
+	])
+      AC_MSG_RESULT([$xo_cv_pedantic_inf_fails])
+      if test no = "$xo_cv_pedantic_inf_fails" ; then
+        AM_CXXFLAGS="$AM_CXXFLAGS -pedantic"
+      fi
     ])
 else
   dnl WARNING_CXXFLAGS is set above.
