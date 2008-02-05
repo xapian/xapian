@@ -1,3 +1,10 @@
+Tue Feb 05 17:32:11 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* configure.ac: Check whether compilation of a cast of INFINITY to
+	  a double, and comparison with HUGE_VAL, causes a problem if
+	  -pedantic is specified (which it does on at least some Mac OSX
+	  versions).  If so, don't use the -pedantic compiler flag.
+
 Tue Feb 05 09:24:36 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* backends/flint/flint_cursor.cc,backends/flint/flint_database.cc,
