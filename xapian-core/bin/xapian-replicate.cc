@@ -27,6 +27,7 @@
 
 #include "gnu_getopt.h"
 #include "stringutils.h"
+#include "safeunistd.h"
 
 #include <iostream>
 
