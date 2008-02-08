@@ -33,12 +33,13 @@
 #include "omdebug.h"
 #include "omtime.h"
 #include "remoteconnection.h"
+#include "safesysselect.h"
 #include "serialise.h"
 #include "utils.h"
 
-#ifndef __WIN32__
+#ifdef __WIN32__
 # include "msvc_posix_wrapper.h"
-# include "safesysselect.h"
+# include <io.h>
 #endif
 
 using namespace std;
@@ -399,7 +400,6 @@ RemoteConnection::send_file(char type, const string &file, const OmTime & end_ti
 
 #ifdef __WIN32__
     HANDLE hout = fd_to_handle(fdout);
-    const string * str = &header;
 
     size_t count = 0;
     while (true) {

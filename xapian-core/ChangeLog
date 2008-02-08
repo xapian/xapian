@@ -1,3 +1,10 @@
+Fri Feb 08 15:29:28 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* net/remoteconnection.cc: Fixes for windows - always include
+	  "safesysselect.h", and include <io.h> on windows.
+	  Also, remove definition of an unused variable (probably due to a
+	  copy and paste error).
+
 Wed Feb 06 13:45:59 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* bin/xapian-replicate.cc: Include "safeunistd.h" - needed for
