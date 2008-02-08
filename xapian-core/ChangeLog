@@ -1,3 +1,8 @@
+Fri Feb 08 16:40:29 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/fileutils.cc,common/replicatetcpclient.h: Correct typos in
+	  windows only sections of code.
+
 Fri Feb 08 15:29:28 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* net/remoteconnection.cc: Fixes for windows - always include

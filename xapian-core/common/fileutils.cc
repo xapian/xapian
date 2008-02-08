@@ -42,7 +42,7 @@ calc_dirname(const string & filename)
 static bool
 has_drive(const string &path)
 {
-    return (path.size() >= 2 && path.[1] == ':');
+    return (path.size() >= 2 && path[1] == ':');
 }
 
 /// Return true iff a path consists only of a drive letter.
