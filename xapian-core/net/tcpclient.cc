@@ -28,6 +28,7 @@
 
 #include "safeerrno.h"
 #include "safefcntl.h"
+#include "socket_utils.h"
 
 #include <string.h>
 #ifndef __WIN32__
@@ -79,7 +80,7 @@ TcpClient::open_socket(const std::string & hostname, int port,
 #endif
     if (rc < 0) {
 	int saved_errno = socket_errno(); // note down in case close hits an error
-	close(socketfd);
+	close_fd_or_socket(socketfd);
 	throw Xapian::NetworkError("Couldn't set O_NDELAY", saved_errno);
     }
 
@@ -91,7 +92,7 @@ TcpClient::open_socket(const std::string & hostname, int port,
 		       reinterpret_cast<char *>(&optval),
 		       sizeof(optval)) < 0) {
 	    int saved_errno = socket_errno(); // note down in case close hits an error
-	    close(socketfd);
+	    close_fd_or_socket(socketfd);
 	    throw Xapian::NetworkError("Couldn't set TCP_NODELAY", saved_errno);
 	}
     }
@@ -106,7 +107,7 @@ TcpClient::open_socket(const std::string & hostname, int port,
 	if (socket_errno() != EINPROGRESS) {
 #endif
 	    int saved_errno = socket_errno(); // note down in case close hits an error
-	    close(socketfd);
+	    close_fd_or_socket(socketfd);
 	    throw Xapian::NetworkError("Couldn't connect", saved_errno);
 	}
 
@@ -122,7 +123,7 @@ TcpClient::open_socket(const std::string & hostname, int port,
 	retval = select(socketfd + 1, 0, &fdset, &fdset, &tv);
 
 	if (retval == 0) {
-	    close(socketfd);
+	    close_fd_or_socket(socketfd);
 	    throw Xapian::NetworkTimeoutError("Couldn't connect", ETIMEDOUT);
 	}
 
@@ -136,11 +137,11 @@ TcpClient::open_socket(const std::string & hostname, int port,
 
 	if (retval < 0) {
 	    int saved_errno = socket_errno(); // note down in case close hits an error
-	    close(socketfd);
+	    close_fd_or_socket(socketfd);
 	    throw Xapian::NetworkError("Couldn't get socket options", saved_errno);
 	}
 	if (err) {
-	    close(socketfd);
+	    close_fd_or_socket(socketfd);
 	    throw Xapian::NetworkError("Couldn't connect", err);
 	}
     }

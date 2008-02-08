@@ -44,6 +44,7 @@ noinst_HEADERS +=\
 	common/safewinsock2.h\
 	common/serialise-double.h\
 	common/serialise.h\
+	common/socket_utils.h\
 	common/stats.h\
 	common/stringutils.h\
 	common/submatch.h\
@@ -64,6 +65,7 @@ libxapian_la_SOURCES +=\
 	common/omdebug.cc\
 	common/safe.cc\
 	common/serialise-double.cc\
+	common/socket_utils.cc\
 	common/stringutils.cc\
 	common/utils.cc
 
