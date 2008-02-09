@@ -24,9 +24,9 @@
 
 #include "utils.h"
 #include "xapian/error.h"
+#include "safedirent.h"
 #include "safeerrno.h"
 
-#include <dirent.h>
 #include <stdio.h>
 #include <sys/types.h>
 #include <cfloat>

@@ -1,3 +1,10 @@
+Sat Feb 09 10:59:50 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/: Add implementation of dirent.h for use with MSVC; this
+	  is copied from the mingw implementation, which has been placed in
+	  the public domain.  Add "safedirent.h" header for easy inclusion
+	  of this implementation.
+
 Sat Feb 09 10:43:49 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/api_replicate.cc: Use _putenv instead of setenv on windows.
