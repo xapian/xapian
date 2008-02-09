@@ -1,129 +1,53 @@
 /** @file msvc_dirent.h
  *  @brief Implementation of dirent functions using WIN32 API.
- *
- *  This is copied from the cygwin CVS tree:
- *  http://cygwin.com/cgi-bin/cvsweb.cgi/src/winsup/mingw/include/dirent.h?cvsroot=src
  */
+#ifndef XAPIAN_INCLUDED_MSVC_DIRENT_H
+#define XAPIAN_INCLUDED_MSVC_DIRENT_H
+
 /*
- * DIRENT.H (formerly DIRLIB.H)
- * This file has no copyright assigned and is placed in the Public Domain.
- * This file is a part of the mingw-runtime package.
- * No warranty is given; refer to the file DISCLAIMER within the package.
- *
- */
-#ifndef _DIRENT_H_
-#define _DIRENT_H_
 
-/* All the headers include this file. */
-#include <_mingw.h>
+    Declaration of POSIX directory browsing functions and types for Win32.
 
-#include <io.h>
-
-#ifndef RC_INVOKED
+    Author:  Kevlin Henney (kevlin@acm.org, kevlin@curbralan.com)
+    History: Created March 1997. Updated June 2003.
+    Rights:  See end of file.
+    
+*/
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
+
+typedef struct DIR DIR;
 
 struct dirent
 {
-	long		d_ino;		/* Always zero. */
-	unsigned short	d_reclen;	/* Always zero. */
-	unsigned short	d_namlen;	/* Length of name in d_name. */
-	char		d_name[FILENAME_MAX]; /* File name. */
+    char *d_name;
 };
 
-/*
- * This is an internal data structure. Good programmers will not use it
- * except as an argument to one of the functions below.
- * dd_stat field is now int (was short in older versions).
- */
-typedef struct
-{
-	/* disk transfer area for this dir */
-	struct _finddata_t	dd_dta;
-
-	/* dirent struct to return from dir (NOTE: this makes this thread
-	 * safe as long as only one thread uses a particular DIR struct at
-	 * a time) */
-	struct dirent		dd_dir;
-
-	/* _findnext handle */
-	long			dd_handle;
-
-	/*
-         * Status of search:
-	 *   0 = not started yet (next entry to read is first entry)
-	 *  -1 = off the end
-	 *   positive = 0 based index of next entry
-	 */
-	int			dd_stat;
-
-	/* given path for dir with search pattern (struct is extended) */
-	char			dd_name[1];
-} DIR;
-
-DIR* __cdecl __MINGW_NOTHROW opendir (const char*);
-struct dirent* __cdecl __MINGW_NOTHROW readdir (DIR*);
-int __cdecl __MINGW_NOTHROW closedir (DIR*);
-void __cdecl __MINGW_NOTHROW rewinddir (DIR*);
-long __cdecl __MINGW_NOTHROW telldir (DIR*);
-void __cdecl __MINGW_NOTHROW seekdir (DIR*, long);
-
-
-/* wide char versions */
-
-struct _wdirent
-{
-	long		d_ino;		/* Always zero. */
-	unsigned short	d_reclen;	/* Always zero. */
-	unsigned short	d_namlen;	/* Length of name in d_name. */
-	wchar_t		d_name[FILENAME_MAX]; /* File name. */
-};
+DIR           *opendir(const char *);
+int           closedir(DIR *);
+struct dirent *readdir(DIR *);
+void          rewinddir(DIR *);
 
 /*
- * This is an internal data structure. Good programmers will not use it
- * except as an argument to one of the functions below.
- */
-typedef struct
-{
-	/* disk transfer area for this dir */
-	struct _wfinddata_t	dd_dta;
 
-	/* dirent struct to return from dir (NOTE: this makes this thread
-	 * safe as long as only one thread uses a particular DIR struct at
-	 * a time) */
-	struct _wdirent		dd_dir;
+    Copyright Kevlin Henney, 1997, 2003. All rights reserved.
 
-	/* _findnext handle */
-	long			dd_handle;
+    Permission to use, copy, modify, and distribute this software and its
+    documentation for any purpose is hereby granted without fee, provided
+    that this copyright and permissions notice appear in all copies and
+    derivatives.
+    
+    This software is supplied "as is" without express or implied warranty.
 
-	/*
-         * Status of search:
-	 *   0 = not started yet (next entry to read is first entry)
-	 *  -1 = off the end
-	 *   positive = 0 based index of next entry
-	 */
-	int			dd_stat;
+    But that said, if there are any problems please get in touch.
 
-	/* given path for dir with search pattern (struct is extended) */
-	wchar_t			dd_name[1];
-} _WDIR;
+*/
 
-
-
-_WDIR* __cdecl __MINGW_NOTHROW _wopendir (const wchar_t*);
-struct _wdirent*  __cdecl __MINGW_NOTHROW _wreaddir (_WDIR*);
-int __cdecl __MINGW_NOTHROW _wclosedir (_WDIR*);
-void __cdecl __MINGW_NOTHROW _wrewinddir (_WDIR*);
-long __cdecl __MINGW_NOTHROW _wtelldir (_WDIR*);
-void __cdecl __MINGW_NOTHROW _wseekdir (_WDIR*, long);
-
-
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 
-#endif	/* Not RC_INVOKED */
-
-#endif	/* Not _DIRENT_H_ */
+#endif // XAPIAN_INCLUDED_MSVC_DIRENT_H

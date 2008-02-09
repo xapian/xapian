@@ -1,3 +1,8 @@
+Sat Feb 09 11:31:30 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/msvc_dirent.cc,common/msvc_dirent.h: Hopefully this is a
+	  better implementation of dirent functions.
+
 Sat Feb 09 10:59:50 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* common/: Add implementation of dirent.h for use with MSVC; this
