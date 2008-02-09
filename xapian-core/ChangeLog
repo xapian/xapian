@@ -1,3 +1,7 @@
+Sat Feb 09 10:43:49 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_replicate.cc: Use _putenv instead of setenv on windows.
+
 Sat Feb 09 09:56:08 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* common/socket_utils.cc,common/socket_utils.h: More fixes for

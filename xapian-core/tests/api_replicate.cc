@@ -100,7 +100,11 @@ DEFINE_TESTCASE(replicate1, replicas) {
     mktmpdir(tempdir);
     string masterpath = get_named_writable_database_path("master");
 
+#ifdef __WIN32__
+    _putenv("XAPIAN_MAX_CHANGESETS=10");
+#else
     setenv("XAPIAN_MAX_CHANGESETS", "10", 1);
+#endif
 
     Xapian::WritableDatabase orig(get_named_writable_database("master"));
     Xapian::DatabaseMaster master(masterpath);
