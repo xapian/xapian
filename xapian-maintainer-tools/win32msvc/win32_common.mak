@@ -17,24 +17,24 @@ OBJS= \
     $(INTDIR)\getopt.obj \
     $(INTDIR)\omdebug.obj \
     $(INTDIR)\serialise-double.obj \
+    $(INTDIR)\msvc_dirent.obj \
     $(INTDIR)\msvc_posix_wrapper.obj \
     $(INTDIR)\socket_utils.obj \
     $(INTDIR)\stringutils.obj \
     $(INTDIR)\safe.obj \
-    $(INTDIR)\fileutils.obj \
-    $(INTDIR)\dirent.obj
+    $(INTDIR)\fileutils.obj
    
 SRCS= \
     $(INTDIR)\utils.cc \
     $(INTDIR)\getopt.cc \
     $(INTDIR)\omdebug.cc \
     $(INTDIR)\serialise-double.cc \
+    $(INTDIR)\msvc_dirent.cc \
     $(INTDIR)\msvc_posix_wrapper.cc \
     $(INTDIR)\socket_utils.cc \
     $(INTDIR)\stringutils.cc \
     $(INTDIR)\safe.cc \
-    $(INTDIR)\fileutils.cc \
-    $(INTDIR)\dirent.c
+    $(INTDIR)\fileutils.cc
 
 CPP_PROJ=$(CPPFLAGS_EXTRA) -I..\win32\ -Fo"$(INTDIR)\\" -Tp$(INPUTNAME) 
 CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
@@ -56,9 +56,6 @@ CLEAN :
     $(LIB32) @<<
   $(LIB32_FLAGS) /out:"$(OUTDIR)\libcommon.lib" $(DEF_FLAGS) $(OBJS)
 <<
-
-dirent.c:
-   copy ..\win32\dirent.*
 
 # inference rules, showing how to create one type of file from another with the same root name
 {.}.cc{$(INTDIR)}.obj::
