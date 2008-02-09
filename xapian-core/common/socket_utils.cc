@@ -22,6 +22,8 @@
 #include "socket_utils.h"
 
 #ifdef __WIN32__
+# include "safeerrno.h"
+
 # include <io.h>
 // __STDC_SECURE_LIB__ doesn't appear to be publicly documented, but appears
 // to be a good idea.  We cribbed this test from the python sources - see, for

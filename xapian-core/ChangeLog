@@ -1,3 +1,8 @@
+Sat Feb 09 09:56:08 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/socket_utils.cc,common/socket_utils.h: More fixes for
+	  windows.
+
 Fri Feb 08 16:40:56 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* common/Makefile.mk,common/socket_utils.cc,common/socket_utils.h,

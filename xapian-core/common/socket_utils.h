@@ -25,6 +25,9 @@
 #include "safeunistd.h"
 
 #ifdef __WIN32__
+
+#include "safewinsock2.h"
+
 /// Convert an fd (which might be a socket) to a WIN32 HANDLE.
 static HANDLE fd_to_handle(int fd);
 
