@@ -1,3 +1,8 @@
+Sat Feb 09 11:56:40 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/socket_utils.h,net/remoteconnection.cc: More fixes for
+	  windows.
+
 Sat Feb 09 11:31:30 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* common/msvc_dirent.cc,common/msvc_dirent.h: Hopefully this is a

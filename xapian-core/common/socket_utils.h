@@ -29,7 +29,7 @@
 #include "safewinsock2.h"
 
 /// Convert an fd (which might be a socket) to a WIN32 HANDLE.
-static HANDLE fd_to_handle(int fd);
+extern HANDLE fd_to_handle(int fd);
 
 /// Close an fd, which might be a socket.
 extern void close_fd_or_socket(int fd);

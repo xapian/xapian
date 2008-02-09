@@ -33,12 +33,13 @@
 #include "omdebug.h"
 #include "omtime.h"
 #include "remoteconnection.h"
-#include "safesysselect.h"
 #include "serialise.h"
 #include "socket_utils.h"
 #include "utils.h"
 
-#ifdef __WIN32__
+#ifndef __WIN32__
+# include "safesysselect.h"
+#else
 # include "msvc_posix_wrapper.h"
 #endif
 
