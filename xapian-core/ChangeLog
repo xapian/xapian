@@ -1,3 +1,7 @@
+Tue Feb 12 16:27:30 GMT 2008  Olly Betts <olly@survex.com>
+
+	* AUTHORS: Add David Spencer for reporting bug#237.
+
 Tue Feb 12 16:25:00 GMT 2008  Olly Betts <olly@survex.com>
 
 	* docs/quickstart.html: Fix very out of date reference to MSet::items
