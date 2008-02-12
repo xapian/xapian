@@ -1,3 +1,9 @@
+Tue Feb 12 16:34:52 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/quickstart.html: Remove information covered by INSTALL since
+	  there's no good reason to repeat it and two copies just risks one
+	  getting out of date (as has happened here!)
+
 Tue Feb 12 16:27:30 GMT 2008  Olly Betts <olly@survex.com>
 
 	* AUTHORS: Add David Spencer for reporting bug#237.
