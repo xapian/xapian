@@ -885,7 +885,7 @@ main(int argc, char **argv)
 	    dest += t->name;
 	    dest += '.';
 
-	    FlintTable out(dest, false, t->compress_strategy, t->lazy);
+	    FlintTable out(t->name, dest, false, t->compress_strategy, t->lazy);
 	    if (!t->lazy) {
 		out.create_and_open(block_size);
 	    } else {
