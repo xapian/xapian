@@ -15,6 +15,9 @@ Revision history for Perl extension Search::Xapian.
 	  of Enquire.  This means we'll leak them, but that's better than
 	  having them garbage collected while the C++ code is still using them.
 	  This will be fixed properly in a future release.
+	[Changes contributed by Matthew Somerville]
+	- Wrap optional prefix argument to WritableDatabase::allterms_begin()
+	  and WritableDatabase::allterms_end().
 
 1.0.5.0  Wed Jan 02 01:07:28 GMT 2008
 	[Changes contributed by Olly Betts]
