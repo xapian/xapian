@@ -1,3 +1,7 @@
+Sat Feb 16 19:53:44 GMT 2008  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Fix incorrect example in doccomment.
+
 Sat Feb 16 14:46:08 GMT 2008  Olly Betts <olly@survex.com>
 
 	* AUTHORS: Add Matthew Somerville for Search::Xapian patches.
