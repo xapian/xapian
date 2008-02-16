@@ -1,3 +1,7 @@
+Sat Feb 16 14:46:08 GMT 2008  Olly Betts <olly@survex.com>
+
+	* AUTHORS: Add Matthew Somerville for Search::Xapian patches.
+
 Tue Feb 12 16:34:52 GMT 2008  Olly Betts <olly@survex.com>
 
 	* docs/quickstart.html: Remove information covered by INSTALL since
