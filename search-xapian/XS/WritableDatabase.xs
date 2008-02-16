@@ -217,10 +217,11 @@ WritableDatabase::positionlist_end(did, term)
         RETVAL
 
 TermIterator *
-WritableDatabase::allterms_begin()
+WritableDatabase::allterms_begin(prefix = "")
+    string prefix
     CODE:
 	try {
-	    RETVAL = new TermIterator(THIS->allterms_begin());
+	    RETVAL = new TermIterator(THIS->allterms_begin(prefix));
         }
         catch (const Error &error) {
             croak( "Exception: %s", error.get_msg().c_str() );
@@ -229,10 +230,11 @@ WritableDatabase::allterms_begin()
         RETVAL
 
 TermIterator *
-WritableDatabase::allterms_end()
+WritableDatabase::allterms_end(prefix = "")
+    string prefix
     CODE:
 	try {
-	    RETVAL = new TermIterator(THIS->allterms_end());
+	    RETVAL = new TermIterator(THIS->allterms_end(prefix));
         }
         catch (const Error &error) {
             croak( "Exception: %s", error.get_msg().c_str() );
