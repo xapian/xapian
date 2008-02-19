@@ -1,3 +1,8 @@
+Tue Feb 19 11:58:22 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* bin/xapian-compact.cc: Fix compaction for database which contain
+	  user metadata keys.
+
 Sat Feb 16 19:53:44 GMT 2008  Olly Betts <olly@survex.com>
 
 	* include/xapian/queryparser.h: Fix incorrect example in doccomment.

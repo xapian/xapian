@@ -73,6 +73,12 @@ is_metainfo_key(const string & key)
     return key.size() == 1 && key[0] == '\0';
 }
 
+static inline bool
+is_user_metainfo_key(const string & key)
+{
+    return key.size() > 1 && key[0] == '\0' && key[1] != '\xff';
+}
+
 class PostlistCursor : private FlintCursor {
     Xapian::docid offset;
 
@@ -102,6 +108,7 @@ class PostlistCursor : private FlintCursor {
 	tag = current_tag;
 	tf = cf = 0;
 	if (is_metainfo_key(key)) return true;
+	if (is_user_metainfo_key(key)) return true;
 	// Adjust key if this is *NOT* an initial chunk.
 	// key is: pack_string_preserving_sort(tname)
 	// plus optionally: pack_uint_preserving_sort(did)
@@ -194,6 +201,23 @@ merge_postlists(const string & tablename,
     out->add(string("", 1), tag);
 
     string last_key;
+    while (true) {
+	PostlistCursor * cur = NULL;
+	if (!pq.empty()) {
+	    cur = pq.top();
+	    pq.pop();
+	}
+	if (!is_user_metainfo_key(cur->key)) {
+	    pq.push(cur);
+	    break;
+	}
+	if (cur->next()) {
+	    pq.push(cur);
+	} else {
+	    delete cur;
+	}
+    }
+
     Xapian::termcount tf = 0, cf = 0; // Initialise to avoid warnings.
     vector<pair<Xapian::docid, string> > tags;
     while (true) {
@@ -202,6 +226,7 @@ merge_postlists(const string & tablename,
 	    cur = pq.top();
 	    pq.pop();
 	}
+	Assert(cur == NULL || !is_user_metainfo_key(cur->key));
 	if (cur == NULL || cur->key != last_key) {
 	    if (!tags.empty()) {
 		string first_tag = pack_uint(tf);
