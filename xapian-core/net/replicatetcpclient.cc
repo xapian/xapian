@@ -46,15 +46,26 @@ ReplicateTcpClient::open_socket(const string & hostname, int port,
 
 void
 ReplicateTcpClient::update_from_master(const std::string & path,
-				       const std::string & masterdb)
+				       const std::string & masterdb,
+				       Xapian::ReplicationInfo & info)
 {
     Xapian::DatabaseReplica replica(path);
     remconn.send_message('R', replica.get_revision_info(), OmTime());
     remconn.send_message('D', masterdb, OmTime());
     replica.set_read_fd(socket);
-    while (replica.apply_next_changeset()) {
+    info.clear();
+    Xapian::ReplicationInfo subinfo;
+    while (replica.apply_next_changeset(&subinfo)) {
 	sleep(30);
+	info.changeset_count += subinfo.changeset_count;
+	info.fullcopy_count += subinfo.fullcopy_count;
+	if (subinfo.changed)
+	    info.changed = true;
     }
+    info.changeset_count += subinfo.changeset_count;
+    info.fullcopy_count += subinfo.fullcopy_count;
+    if (subinfo.changed)
+	info.changed = true;
 }
 
 ReplicateTcpClient::~ReplicateTcpClient()

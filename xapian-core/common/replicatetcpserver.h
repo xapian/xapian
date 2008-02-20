@@ -25,6 +25,7 @@
 #include "tcpserver.h"
 
 #include "xapian/visibility.h"
+#include "xapian/replication.h"
 
 class XAPIAN_VISIBILITY_DEFAULT ReplicateTcpServer : public TcpServer {
     /// The path to pass to DatabaseMaster.

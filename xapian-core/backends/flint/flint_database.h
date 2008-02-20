@@ -281,7 +281,8 @@ class FlintDatabase : public Xapian::Database::Internal {
 	string get_metadata(const string & key) const;
 	void write_changesets_to_fd(int fd,
 				    const string & start_revision,
-				    bool need_whole_db);
+				    bool need_whole_db,
+				    Xapian::ReplicationInfo * info);
 	bool check_revision_at_least(const string & rev,
 				     const string & target) const;
 	string get_revision_info() const;

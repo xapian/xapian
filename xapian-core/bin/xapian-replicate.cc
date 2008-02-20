@@ -130,9 +130,14 @@ main(int argc, char **argv)
 		cout << "Getting update for " << dbpath << " from "
 		     << masterdb << endl;
 	    }
-	    client.update_from_master(dbpath, masterdb);
+	    Xapian::ReplicationInfo info;
+	    client.update_from_master(dbpath, masterdb, info);
 	    if (verbose) {
-		cout << "Update complete" << endl;
+		cout << "Update complete: " <<
+			info.fullcopy_count << " copies, " <<
+			info.changeset_count << " changesets, " <<
+			(info.changed ? "new live database" : "no changes to live database") <<
+			endl;
 	    }
 	} catch (const Xapian::NetworkError &error) {
 	    // Don't stop running if there's a network error - just log to

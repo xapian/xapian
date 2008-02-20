@@ -29,6 +29,34 @@
 
 namespace Xapian {
 
+/// Information about the steps involved in performing a replication.
+struct XAPIAN_VISIBILITY_DEFAULT ReplicationInfo {
+    /// Number of changesets applied.
+    int changeset_count;
+
+    /// Number of times a full database copy was performed.
+    int fullcopy_count;
+
+    /** True if and only if the replication corresponds to a change in the
+     *  live version of the database.  Note that this may be false even if
+     *  changeset_count and fullcopy_count are non-zero, since the changes
+     *  may have been made to a non-live copy of the database.
+     */
+    bool changed;
+
+    ReplicationInfo()
+	: changeset_count(0),
+	  fullcopy_count(0),
+	  changed(false)
+    {}
+
+    void clear() {
+	changeset_count = 0;
+	fullcopy_count = 0;
+	changed = false;
+    }
+};
+
 /// Access to a master database for replication.
 class XAPIAN_VISIBILITY_DEFAULT DatabaseMaster {
     /// The path to the master database.
@@ -65,9 +93,14 @@ class XAPIAN_VISIBILITY_DEFAULT DatabaseMaster {
      *                  includes the creation of the database.  The
      *                  revision will include the unique identifier for the
      *                  database, if one is available.
+     *
+     *  @param info     If non-NULL, the supplied structure will be updated
+     *                  to reflect the changes written to the file
+     *                  descriptor.
      */
     void write_changesets_to_fd(int fd,
-				const std::string & start_revision) const;
+				const std::string & start_revision,
+				ReplicationInfo * info) const;
 
     /// Return a string describing this object.
     std::string get_description() const;
@@ -139,6 +172,8 @@ class XAPIAN_VISIBILITY_DEFAULT DatabaseReplica {
      *
      *  This will be remembered in the DatabaseReplica, but the caller is still
      *  responsible for closing it after it is finished with.
+     *
+     *  @param fd The file descriptor to read the changeset from.
      */
     void set_read_fd(int fd);
 
@@ -163,17 +198,18 @@ class XAPIAN_VISIBILITY_DEFAULT DatabaseReplica {
      *  may or may not be changed from its initial state, and may or may not be
      *  fully synchronised with the master database.
      *
-     *  @param fd The file descriptor to read the changeset from.
+     *  @param info     If non-NULL, the supplied structure will be updated
+     *                  to reflect the changes read from the file descriptor.
      *
      *  @return true if there are more changesets to apply on the file
      *  descriptor, false otherwise.
      */
-    bool apply_next_changeset();
+    bool apply_next_changeset(ReplicationInfo * info);
 
     /** Close the DatabaseReplica.
      *
      *  After this has been called, there will no longer be a write lock on the
-     *  database created by the DatabaseReplica, but if any of the methods of
+     *  database created by the DatabaseReplica, and if any of the methods of
      *  this object which access the database are called, they will throw an
      *  InvalidOperationError.
      */

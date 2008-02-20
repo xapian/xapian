@@ -52,10 +52,13 @@ using namespace Xapian;
 
 void
 DatabaseMaster::write_changesets_to_fd(int fd,
-				       const string & start_revision) const
+				       const string & start_revision,
+				       ReplicationInfo * info) const
 {
     DEBUGAPICALL(void, "Xapian::DatabaseMaster::write_changesets_to_fd",
-		 fd << ", " << start_revision);
+		 fd << ", " << start_revision << ", " << info);
+    if (info != NULL)
+	info->clear();
     Database db;
     try {
 	db = Database(path);
@@ -89,7 +92,7 @@ DatabaseMaster::write_changesets_to_fd(int fd,
 	revision.erase(0, ptr + uuid_length - revision.data());
     }
 
-    db.internal[0]->write_changesets_to_fd(fd, revision, need_whole_db);
+    db.internal[0]->write_changesets_to_fd(fd, revision, need_whole_db, info);
 }
 
 string
@@ -175,8 +178,10 @@ class DatabaseReplica::Internal : public Xapian::Internal::RefCntBase {
     /** Check if the offline database has reached the required version.
      *
      *  If so, make it live, and remove the old live database.
+     *
+     *  @return true iff the offline database is made live
      */
-    void possibly_make_offline_live();
+    bool possibly_make_offline_live();
   public:
     /// Open a new DatabaseReplica::Internal for the specified path.
     Internal(const string & path_);
@@ -197,7 +202,7 @@ class DatabaseReplica::Internal : public Xapian::Internal::RefCntBase {
     void set_read_fd(int fd);
 
     /// Read and apply the next changeset.
-    bool apply_next_changeset();
+    bool apply_next_changeset(ReplicationInfo * info);
 
     /// Return a string describing this object.
     string get_description() const { return path; }
@@ -240,6 +245,8 @@ DatabaseReplica::set_parameter(const string & name, const string & value)
 {
     DEBUGAPICALL(void, "Xapian::DatabaseReplica::set_parameter",
 		 name << ", " << value);
+    if (internal.get() == NULL)
+	throw Xapian::InvalidOperationError("Attempt to call DatabaseReplica::set_parameter on a closed replica.");
     internal->set_parameter(name, value);
 }
 
@@ -247,6 +254,8 @@ string
 DatabaseReplica::get_parameter(const string & name) const
 {
     DEBUGAPICALL(string, "Xapian::DatabaseReplica::get_parameter", name);
+    if (internal.get() == NULL)
+	throw Xapian::InvalidOperationError("Attempt to call DatabaseReplica::get_parameter on a closed replica.");
     RETURN(internal->get_parameter(name));
 }
 
@@ -269,12 +278,14 @@ DatabaseReplica::set_read_fd(int fd)
 }
 
 bool 
-DatabaseReplica::apply_next_changeset()
+DatabaseReplica::apply_next_changeset(ReplicationInfo * info)
 {
-    DEBUGAPICALL(bool, "Xapian::DatabaseReplica::apply_next_changeset", "");
+    DEBUGAPICALL(bool, "Xapian::DatabaseReplica::apply_next_changeset", info);
+    if (info != NULL)
+	info->clear();
     if (internal.get() == NULL)
 	throw Xapian::InvalidOperationError("Attempt to call DatabaseReplica::apply_next_changeset on a closed replica.");
-    RETURN(internal->apply_next_changeset());
+    RETURN(internal->apply_next_changeset(info));
 }
 
 void 
@@ -299,7 +310,7 @@ DatabaseReplica::Internal::read_parameters()
     parameters.clear();
 
     string param_path = join_paths(path, "params");
-    if (!file_exists(param_path)) {
+    if (file_exists(param_path)) {
 	ifstream p_in(param_path.c_str());
 	string line;
 	while (getline(p_in, line)) {
@@ -542,12 +553,12 @@ DatabaseReplica::Internal::check_message_type(char type, char expected)
     }
 }
 
-void
+bool
 DatabaseReplica::Internal::possibly_make_offline_live()
 {
     if (!(live_db.internal[0])->check_revision_at_least(offline_revision,
 							offline_needed_revision))
-	return;
+	return false;
     string offline_path = join_paths(path, offline_name);
     live_db = WritableDatabase();
     live_db.add_database(Flint::open(offline_path, Xapian::DB_OPEN));
@@ -555,6 +566,7 @@ DatabaseReplica::Internal::possibly_make_offline_live()
     set_parameter("uuid", hex_encode(offline_uuid));
     swap(live_name, offline_name);
     remove_offline_db();
+    return true;
 }
 
 void
@@ -566,10 +578,10 @@ DatabaseReplica::Internal::set_read_fd(int fd)
 }
 
 bool 
-DatabaseReplica::Internal::apply_next_changeset()
+DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info)
 {
     DEBUGCALL(API, bool,
-	      "DatabaseReplica::Internal::apply_next_changeset", "");
+	      "DatabaseReplica::Internal::apply_next_changeset", info);
     if (live_db.internal.size() != 1) {
 	throw Xapian::InvalidOperationError("DatabaseReplica needs to be pointed at exactly one subdatabase");
     }
@@ -586,16 +598,25 @@ DatabaseReplica::Internal::apply_next_changeset()
 		// Apply the copy - remove offline db in case of any error.
 		try {
 		    apply_db_copy(end_time);
+		    if (info != NULL)
+			++(info->fullcopy_count);
 		} catch(...) {
 		    remove_offline_db();
 		    throw;
 		}
-		possibly_make_offline_live();
+		if (possibly_make_offline_live()) {
+		    if (info != NULL)
+			info->changed = true;
+		}
 		break;
 	    case REPL_REPLY_CHANGESET:
 		if (offline_name.size() == 0) {
 		    offline_needed_revision = (live_db.internal[0])->
 			    apply_changeset_from_conn(*conn, end_time);
+		    if (info != NULL) {
+			++(info->changeset_count);
+			info->changed = true;
+		    }
 		    live_db = WritableDatabase();
 		    string livedb_path = join_paths(path, live_name);
 		    live_db.add_database(Flint::open(livedb_path, Xapian::DB_OPEN));
@@ -607,7 +628,10 @@ DatabaseReplica::Internal::apply_next_changeset()
 			offline_needed_revision = (offline_db.internal[0])->
 				apply_changeset_from_conn(*conn, end_time);
 		    }
-		    possibly_make_offline_live();
+		    if (possibly_make_offline_live()) {
+			if (info != NULL)
+			    info->changed = true;
+		    }
 		}
 		RETURN(true);
 	    case REPL_REPLY_FAIL:

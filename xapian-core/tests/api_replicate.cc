@@ -54,7 +54,10 @@ static void mktmpdir(const string & path) {
 static int
 replicate(Xapian::DatabaseMaster & master,
 	  Xapian::DatabaseReplica &replica,
-	  const string & tempdir)
+	  const string & tempdir,
+	  int expected_changesets,
+	  int expected_fullcopies,
+	  bool expected_changed)
 {
     string changesetpath = tempdir + "/changeset";
     int fd = open(changesetpath.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
@@ -62,7 +65,13 @@ replicate(Xapian::DatabaseMaster & master,
 	FAIL_TEST("Open failed (when creating a new changeset file at '"
 		  + changesetpath + "')");
     }
-    master.write_changesets_to_fd(fd, replica.get_revision_info());
+    Xapian::ReplicationInfo info1;
+    master.write_changesets_to_fd(fd, replica.get_revision_info(), &info1);
+
+    TEST_EQUAL(info1.changeset_count, expected_changesets);
+    TEST_EQUAL(info1.fullcopy_count, expected_fullcopies);
+    TEST_EQUAL(info1.changed, expected_changed);
+
     close(fd);
 
     fd = open(changesetpath.c_str(), O_RDONLY);
@@ -73,10 +82,24 @@ replicate(Xapian::DatabaseMaster & master,
 
     int count = 1;
     replica.set_read_fd(fd);
-    while (replica.apply_next_changeset()) {
+    Xapian::ReplicationInfo info2;
+    bool client_changed = false;
+    while (replica.apply_next_changeset(&info2)) {
 	++count;
+	info1.changeset_count -= info2.changeset_count;
+	info1.fullcopy_count -= info2.fullcopy_count;
+	if (info2.changed)
+	    client_changed = true;
     }
+    info1.changeset_count -= info2.changeset_count;
+    info1.fullcopy_count -= info2.fullcopy_count;
+    if (info2.changed)
+	client_changed = true;
     close(fd);
+
+    TEST_EQUAL(info1.changeset_count, 0);
+    TEST_EQUAL(info1.fullcopy_count, 0);
+    TEST_EQUAL(info1.changed, client_changed);
     return count;
 }
 
@@ -119,15 +142,27 @@ DEFINE_TESTCASE(replicate1, replicas) {
     orig.add_document(doc1);
     orig.flush();
 
-    sleep(1); // Wait for a second to ensure that the uuid isn't the same by chance
+    // Wait for a second to ensure that the uuid isn't the same by chance
+    //
+    // FIXME - remove the sleep when we generate uuids better than just from
+    // the creation time for the database.
+    sleep(1);
+
     // Apply the replication - we don't have changesets stored, so this should
     // just do a database copy, and return a count of 1.
-    int count = replicate(master, replica, tempdir);
+    int count = replicate(master, replica, tempdir, 0, 1, 1);
     TEST_EQUAL(count, 1);
 
     // Repeating the replication should return a count of 1, since no further
     // changes should need to be applied.
-    count = replicate(master, replica, tempdir);
+    count = replicate(master, replica, tempdir, 0, 0, 0);
+    TEST_EQUAL(count, 1);
+
+    // Regression test - if the replica was reopened, a full copy always used
+    // to occur, whether it was needed or not.  Fixed in revision #10117.
+    replica.close();
+    replica = Xapian::DatabaseReplica(replicapath);
+    count = replicate(master, replica, tempdir, 0, 0, 0);
     TEST_EQUAL(count, 1);
 
     orig.add_document(doc1);
@@ -135,7 +170,7 @@ DEFINE_TESTCASE(replicate1, replicas) {
     orig.add_document(doc1);
     orig.flush();
 
-    count = replicate(master, replica, tempdir);
+    count = replicate(master, replica, tempdir, 2, 0, 1);
     TEST_EQUAL(count, 3);
 
     check_equal_dbs(masterpath, replicapath);

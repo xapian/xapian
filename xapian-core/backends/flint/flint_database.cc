@@ -38,6 +38,7 @@
 #include "autoptr.h"
 #include <xapian/error.h>
 #include <xapian/valueiterator.h>
+#include <xapian/replication.h>
 
 #include "contiguousalldocspostlist.h"
 #include "flint_modifiedpostlist.h"
@@ -594,14 +595,17 @@ FlintDatabase::send_whole_database(RemoteConnection & conn,
 void
 FlintDatabase::write_changesets_to_fd(int fd,
 				      const string & revision,
-				      bool need_whole_db)
+				      bool need_whole_db,
+				      ReplicationInfo * info)
 {
     DEBUGCALL(DB, void, "FlintDatabase::write_changesets_to_fd",
-	      fd << ", " << revision << ", " << need_whole_db);
+	      fd << ", " << revision << ", " << need_whole_db << ", " << info);
 
     int whole_db_copies_left = MAX_DB_COPIES_PER_CONVERSATION;
     flint_revision_number_t start_rev_num = 0;
     string start_uuid = get_uuid();
+
+    flint_revision_number_t needed_rev_num = 0;
 
     const char * rev_ptr = revision.data();
     const char * rev_end = rev_ptr + revision.size();
@@ -636,6 +640,8 @@ FlintDatabase::write_changesets_to_fd(int fd,
 	    start_uuid = get_uuid();
 
 	    send_whole_database(conn, end_time);
+	    if (info != NULL)
+		++(info->fullcopy_count);
 
 	    need_whole_db = false;
 
@@ -646,8 +652,11 @@ FlintDatabase::write_changesets_to_fd(int fd,
 		// copy is safe to make live.
 
 		string buf;
-		buf += pack_uint(get_revision_number());
+		needed_rev_num = get_revision_number();
+		buf += pack_uint(needed_rev_num);
 		conn.send_message(REPL_REPLY_DB_FOOTER, buf, end_time);
+		if (info != NULL && start_rev_num == needed_rev_num)
+		    info->changed = true;
 	    } else {
 		// Database has been replaced since we did the copy.  Send a
 		// higher revision number than the revision we've just copied,
@@ -697,6 +706,11 @@ FlintDatabase::write_changesets_to_fd(int fd,
 		// deleted between the file_exists() test and the access to send it.
 		conn.send_file(REPL_REPLY_CHANGESET, changes_name, end_time);
 		start_rev_num = changeset_end_rev_num;
+		if (info != NULL) {
+		    ++(info->changeset_count);
+		    if (start_rev_num >= needed_rev_num)
+			info->changed = true;
+		}
 	    } else {
 		// The changeset doesn't exist: leave the revision number as it
 		// is, and mark for doing a full database copy.

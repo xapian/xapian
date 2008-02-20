@@ -1,3 +1,24 @@
+Wed Feb 20 20:59:55 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/replication.h: Add a ReplicationInfo structure,
+	  and use it to return information about what has been done when
+	  the replication methods are called.
+	* api/replication.cc,backends/database.cc,
+	  backends/flint/flint_database.cc,backends/flint/flint_database.h,
+	  common/database.h,common/replicatetcpclient.h,
+	  common/replicatetcpserver.h,net/replicatetcpclient.cc,
+	  net/replicatetcpserver.cc: Populate a ReplicationInfo structure
+	  when updating a replica, or sending changes to a file descriptor.
+	  Also, fix a bug with reading the replication parameters from a
+	  file, which caused a full database copy to be performed on every
+	  replication request on a newly opened DatabaseReplica object.
+	* bin/xapian-replicate.cc: When doing verbose logging, display the
+	  number of database copies and changesets applied, and whether the
+	  live database has been updated.
+	* tests/api_replicate.cc: Check that the information returned by
+	  the replication methods is as is should be, and add a regression
+	  test for always copying the database.
+
 Wed Feb 20 11:20:55 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* backends/flint/: Improve reporting of failures to obtain lock due

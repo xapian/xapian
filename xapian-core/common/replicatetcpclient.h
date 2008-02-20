@@ -24,6 +24,7 @@
 #include "remoteconnection.h"
 
 #include "xapian/visibility.h"
+#include "xapian/replication.h"
 
 #ifdef __WIN32__
 # define SOCKET_INITIALIZER_MIXIN : private WinsockInitializer
@@ -71,7 +72,8 @@ class XAPIAN_VISIBILITY_DEFAULT ReplicateTcpClient SOCKET_INITIALIZER_MIXIN {
 		       int msecs_timeout_connect);
 
     void update_from_master(const std::string & path,
-			    const std::string & remotedb);
+			    const std::string & remotedb,
+			    Xapian::ReplicationInfo & info);
 
     /** Destructor. */
     ~ReplicateTcpClient();

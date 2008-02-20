@@ -46,6 +46,8 @@ typedef Xapian::PositionIterator::Internal PositionList;
 
 namespace Xapian {
 
+class ReplicationInfo;
+
 /** Base class for databases.
  */
 class Database::Internal : public Xapian::Internal::RefCntBase {
@@ -412,7 +414,8 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	virtual void write_changesets_to_fd(int fd,
 					    const std::string & start_revision,
-					    bool need_whole_db);
+					    bool need_whole_db,
+					    Xapian::ReplicationInfo * info);
 
 	/// Get a string describing the current revision of the database.
 	virtual string get_revision_info() const;
