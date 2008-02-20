@@ -152,7 +152,7 @@ FlintDatabase::FlintDatabase(const string &flint_dir, int action,
 	    throw Xapian::DatabaseCreateError("Cannot create directory `" +
 					      db_dir + "'", errno);
 	}
-	get_database_write_lock();
+	get_database_write_lock(true);
 
 	create_and_open_tables(block_size);
 	return;
@@ -164,7 +164,7 @@ FlintDatabase::FlintDatabase(const string &flint_dir, int action,
 					  "not to overwrite it");
     }
 
-    get_database_write_lock();
+    get_database_write_lock(false);
     // if we're overwriting, pretend the db doesn't exist
     // FIXME: if we allow Xapian::DB_OVERWRITE, check it here
     if (action == Xapian::DB_CREATE_OR_OVERWRITE) {
@@ -516,12 +516,13 @@ FlintDatabase::reopen()
 }
 
 void
-FlintDatabase::get_database_write_lock()
+FlintDatabase::get_database_write_lock(bool creating)
 {
-    DEBUGCALL(DB, void, "FlintDatabase::get_database_write_lock", "");
-    FlintLock::reason why = lock.lock(true);
+    DEBUGCALL(DB, void, "FlintDatabase::get_database_write_lock", creating);
+    string explanation;
+    FlintLock::reason why = lock.lock(true, explanation);
     if (why != FlintLock::SUCCESS) {
-	if (why == FlintLock::UNKNOWN && !database_exists()) {
+	if (why == FlintLock::UNKNOWN && !creating && !database_exists()) {
 	    string msg("No flint database found at path `");
 	    msg += db_dir;
 	    msg += '\'';
@@ -533,6 +534,9 @@ FlintDatabase::get_database_write_lock()
 	    msg += ": already locked";
 	} else if (why == FlintLock::UNSUPPORTED) {
 	    msg += ": locking probably not supported by this FS";
+	} else if (why == FlintLock::UNKNOWN) {
+	    if (!explanation.empty())
+		msg += ": " + explanation;
 	}
 	throw Xapian::DatabaseLockError(msg);
     }
