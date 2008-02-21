@@ -1,3 +1,9 @@
+Thu Feb 21 00:25:33 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* xapian-config.in: Add swigheaders option, listing the header
+	  files used by swig, so that we can add the appropriate
+	  dependencies to the makefiles in the bindings.
+
 Wed Feb 20 20:59:55 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* include/xapian/replication.h: Add a ReplicationInfo structure,
