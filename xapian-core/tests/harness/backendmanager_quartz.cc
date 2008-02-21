@@ -56,6 +56,12 @@ BackendManagerQuartz::get_writable_database(const string & name,
     return getwritedb_quartz(name, vector<string>(1, file));
 }
 
+string
+BackendManagerQuartz::get_writable_database_path(const std::string & name)
+{
+    return ".quartz/" + name;
+}
+
 Xapian::Database
 BackendManagerQuartz::get_writable_database_as_database()
 {

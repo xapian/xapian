@@ -52,7 +52,7 @@
 #endif
 
 FlintLock::reason
-FlintLock::lock(bool exclusive) {
+FlintLock::lock(bool exclusive, std::string & explanation) {
     // Currently we only support exclusive locks.
     (void)exclusive;
     Assert(exclusive);
@@ -68,6 +68,7 @@ FlintLock::lock(bool exclusive) {
 		       NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     if (hFile != INVALID_HANDLE_VALUE) return SUCCESS;
     if (GetLastError() == ERROR_ALREADY_EXISTS) return INUSE;
+    explanation = "";
     return UNKNOWN;
 #elif defined __EMX__
     APIRET rc;
@@ -78,20 +79,36 @@ FlintLock::lock(bool exclusive) {
 		 NULL);
     if (rc == NO_ERROR) return SUCCESS;
     if (rc == ERROR_ACCESS_DENIED) return INUSE;
+    explanation = "";
     return UNKNOWN;
 #else
     Assert(fd == -1);
     int lockfd = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0600);
-    if (lockfd < 0) return UNKNOWN; // Couldn't open lockfile.
+    if (lockfd < 0) {
+	// Couldn't open lockfile.
+	explanation = std::string("Couldn't open lockfile: ") + strerror(errno);
+	return UNKNOWN;
+    }
 
     int fds[2];
     if (socketpair(AF_UNIX, SOCK_STREAM, PF_UNSPEC, fds) < 0) {
 	// Couldn't create socketpair.
+	explanation = std::string("Couldn't create socketpair: ") + strerror(errno);
 	close(lockfd);
 	return UNKNOWN;
     }
 
     pid_t child = fork();
+
+    if (child == -1) {
+	// Couldn't fork.
+	explanation = std::string("Couldn't fork: ") + strerror(errno);
+	close(lockfd);
+	close(fds[0]);
+	close(fds[1]);
+	return UNKNOWN;
+    }
+
     if (child == 0) {
 	// Child process.
 	close(fds[0]);
@@ -145,13 +162,6 @@ FlintLock::lock(bool exclusive) {
 
     close(lockfd);
 
-    if (child == -1) {
-	// Couldn't fork.
-	close(fds[0]);
-	close(fds[1]);
-	return UNKNOWN;
-    }
-
     // Parent process.
     close(fds[1]);
     while (true) {
@@ -162,10 +172,14 @@ FlintLock::lock(bool exclusive) {
 	    if (why == SUCCESS) break; // Got the lock.
 	    close(fds[0]);
 	    return why;
-	}
-	if (n == 0 || errno != EINTR) {
-	    // EOF means the lock failed; we also treat unexpected errors from
-	    // read() the same way.
+	} else if (n == 0) {
+	    // EOF means the lock failed.
+	    explanation = std::string("Got EOF reading from child process");
+	    close(fds[0]);
+	    return UNKNOWN;
+	} else if (errno != EINTR) {
+	    // Treat unexpected errors from read() as failure to get the lock.
+	    explanation = std::string("Error reading from child process: ") + strerror(errno);
 	    close(fds[0]);
 	    return UNKNOWN;
 	}

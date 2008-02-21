@@ -1,7 +1,7 @@
 /** @file unicode.h
  * @brief Unicode and UTF-8 related classes and functions.
  */
-/* Copyright (C) 2006,2007 Olly Betts
+/* Copyright (C) 2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
-
-// FIXME: Nail down API details (what to expose; what names to use).
 
 #ifndef XAPIAN_INCLUDED_UNICODE_H
 #define XAPIAN_INCLUDED_UNICODE_H
@@ -324,6 +322,15 @@ inline unsigned tolower(unsigned ch) {
     return ch + Internal::get_delta(info);
 }
 
+/// Convert a unicode character to uppercase.
+inline unsigned toupper(unsigned ch) {
+    int info;
+    // Leave non-Unicode values unchanged.
+    if (ch >= 0x110000 || !(Internal::get_case_type((info = Xapian::Unicode::Internal::get_character_info(ch))) & 4))
+	return ch;
+    return ch - Internal::get_delta(info);
+}
+
 /// Convert a UTF-8 std::string to lowercase.
 inline std::string
 tolower(const std::string &term)
@@ -332,6 +339,18 @@ tolower(const std::string &term)
     result.reserve(term.size());
     for (Utf8Iterator i(term); i != Utf8Iterator(); ++i) {
 	append_utf8(result, tolower(*i));
+    }
+    return result;
+}
+
+/// Convert a UTF-8 std::string to uppercase.
+inline std::string
+toupper(const std::string &term)
+{
+    std::string result;
+    result.reserve(term.size());
+    for (Utf8Iterator i(term); i != Utf8Iterator(); ++i) {
+	append_utf8(result, toupper(*i));
     }
     return result;
 }

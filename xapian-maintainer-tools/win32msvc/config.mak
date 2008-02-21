@@ -136,7 +136,7 @@ DEPEND=makedepend.exe
 # stackframe information, meaning basic debugging on release builds
 # is still possible (so long as the .pdb files are in place - it is
 # assumed these files will *not* ship with a default binary build)
-CPPFLAGS_COMMON=-nologo -c -Zi -I.. -I..\include -I..\common -W3 -EHsc \
+CPPFLAGS_COMMON=-nologo -c -Zi -I.. -I..\include -I..\common -I..\win32 -W3 -EHsc \
 -D "WIN32" -D "__WIN32__" -D "_WIN32" -D "_WINDOWS" \
 -D "HAVE_VSNPRINTF" -D "HAVE_STRDUP" -D "_USE_32BIT_TIME_T" \
 -D_CRT_SECURE_NO_DEPRECATE \

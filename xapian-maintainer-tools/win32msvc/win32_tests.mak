@@ -66,7 +66,8 @@ APITEST_OBJS= \
     "$(OUTDIR)\api_unicode.obj" \
     "$(OUTDIR)\api_wrdb.obj" \
     "$(OUTDIR)\api_sorting.obj" \
-    "$(OUTDIR)\api_generated.obj"
+    "$(OUTDIR)\api_generated.obj" \
+    "$(OUTDIR)\api_replicate.obj"
     
 BTREETEST_OBJS= "$(OUTDIR)\btreetest.obj"
 
@@ -92,6 +93,7 @@ SRC = \
     "$(INTDIR)\api_wrdb.cc" \
     "$(INTDIR)\api_generated.cc" \
     "$(INTDIR)\api_docsim.cc" \
+    "$(INTDIR)\api_replicate.cc" \
     "$(INTDIR)\btreetest.cc" \
     "$(INTDIR)\internaltest.cc" \
     "$(INTDIR)\quartztest.cc" \
@@ -99,7 +101,7 @@ SRC = \
     "$(INTDIR)\remotetest.cc" \
     "$(INTDIR)\termgentest.cc" 
 
-COLLATED_APITEST_SOURCES=api_anydb.cc api_db.cc api_nodb.cc api_posdb.cc api_sorting.cc api_transdb.cc api_unicode.cc api_wrdb.cc api_docsim.cc api_generated.cc
+COLLATED_APITEST_SOURCES=api_anydb.cc api_db.cc api_docsim.cc api_generated.cc api_nodb.cc api_posdb.cc api_replicate.cc api_sorting.cc api_transdb.cc api_unicode.cc api_wrdb.cc
     
 COLLATED_APITEST_HEADERS=\
     "$(INTDIR)\api_anydb.h" \
@@ -111,6 +113,7 @@ COLLATED_APITEST_HEADERS=\
     "$(INTDIR)\api_unicode.h" \
     "$(INTDIR)\api_generated.h" \
     "$(INTDIR)\api_docsim.h" \
+    "$(INTDIR)\api_replicate.h" \
     "$(INTDIR)\api_wrdb.h"
 
 CLEAN_COLLATED_HEADERS:
@@ -145,6 +148,7 @@ CLEAN :
     if exist ".flint" rmdir ".flint" /s /q
     if exist ".quartz" rmdir ".quartz" /s /q
     if exist ".quartztmp" rmdir ".quartztmp" /s /q
+    if exist ".multi" rmdir ".multi" /s /q
     
     
     

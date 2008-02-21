@@ -49,7 +49,7 @@ class FlintSynonymTable : public FlintTable {
      *  @param readonly		true if we're opening read-only, else false.
      */
     FlintSynonymTable(std::string dbdir, bool readonly)
-	: FlintTable(dbdir + "/synonym.", readonly, Z_DEFAULT_STRATEGY, true) { }
+	: FlintTable("synonym", dbdir + "/synonym.", readonly, Z_DEFAULT_STRATEGY, true) { }
 
     // Merge in batched-up changes.
     void merge_changes();
@@ -102,9 +102,9 @@ class FlintSynonymTable : public FlintTable {
 	FlintTable::set_block_size(blocksize);
     }
 
-    void commit(flint_revision_number_t revision) {
+    void flush_db() {
 	merge_changes();
-	FlintTable::commit(revision);
+	FlintTable::flush_db();
     }
 
     void cancel() {

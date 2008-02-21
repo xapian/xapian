@@ -1,6 +1,6 @@
 /* dbfactory_remote.cc: Database factories for remote databases.
  *
- * Copyright (C) 2006,2007 Olly Betts
+ * Copyright (C) 2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +22,7 @@
 #include <xapian/dbfactory.h>
 
 #include "progclient.h"
-#include "tcpclient.h"
+#include "remotetcpclient.h"
 
 #include <string>
 
@@ -36,7 +36,7 @@ Remote::open(const string &host, unsigned int port, Xapian::timeout timeout,
 {
     DEBUGAPICALL_STATIC(Database, "Remote::open",
 	host << ", " << port << ", " << timeout << ", " << connect_timeout);
-    return Database(new TcpClient(host, port, timeout, connect_timeout, false));
+    return Database(new RemoteTcpClient(host, port, timeout, connect_timeout, false));
 }
 
 WritableDatabase
@@ -45,7 +45,7 @@ Remote::open_writable(const string &host, unsigned int port,
 {
     DEBUGAPICALL_STATIC(WritableDatabase, "Remote::open_writable",
 	host << ", " << port << ", " << timeout << ", " << connect_timeout);
-    return WritableDatabase(new TcpClient(host, port, timeout, connect_timeout, true));
+    return WritableDatabase(new RemoteTcpClient(host, port, timeout, connect_timeout, true));
 }
 
 Database

@@ -3,6 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -40,6 +41,8 @@
 
 class FlintTermList;
 class FlintAllDocsPostList;
+class RemoteConnection;
+class OmTime;
 
 const int XAPIAN_DB_READONLY = 0;
 
@@ -114,6 +117,10 @@ class FlintDatabase : public Xapian::Database::Internal {
 	/** Highest document ID ever allocated by this database. */
 	mutable Xapian::docid lastdocid;
 
+	/** The maximum number of changesets which should be kept in the
+	 *  database. */
+	unsigned int max_changesets;
+
 	/// Read lastdocid and total_length from the postlist table.
 	void read_metainfo();
 
@@ -136,8 +143,12 @@ class FlintDatabase : public Xapian::Database::Internal {
 
 	/** Get a write lock on the database, or throw an
 	 *  Xapian::DatabaseLockError if failure.
+	 *
+	 *  @param creating true if the database is in the process of being
+	 *  created - if false, will throw a DatabaseOpening error if the lock
+	 *  can't be acquired and the database doesn't exist.
 	 */
-	void get_database_write_lock();
+	void get_database_write_lock(bool creating);
 
 	/** Open tables at specified revision number.
 	 *
@@ -191,6 +202,32 @@ class FlintDatabase : public Xapian::Database::Internal {
 	 */
 	void cancel();
 
+	/** Send a set of messages which transfer the whole database.
+	 */
+	void send_whole_database(RemoteConnection & conn,
+				 const OmTime & end_time);
+
+
+	/** Process a chunk which holds a base block.
+	 */
+	void process_changeset_chunk_base(const string & tablename,
+					  string & buf,
+					  RemoteConnection & conn,
+					  const OmTime & end_time);
+
+	/** Process a chunk which holds a list of changed blocks in the
+	 *  database.
+	 */
+	void process_changeset_chunk_blocks(const string & tablename,
+					    string & buf,
+					    RemoteConnection & conn,
+					    const OmTime & end_time);
+
+	/** Get the revision stored in a changeset.
+	 */
+	void get_changeset_revisions(const string & path,
+				     flint_revision_number_t * startrev,
+				     flint_revision_number_t * endrev);
     public:
 	/** Create and open a flint database.
 	 *
@@ -242,7 +279,18 @@ class FlintDatabase : public Xapian::Database::Internal {
 	TermList * open_synonym_keylist(const string & prefix) const;
 
 	string get_metadata(const string & key) const;
+	void write_changesets_to_fd(int fd,
+				    const string & start_revision,
+				    bool need_whole_db,
+				    Xapian::ReplicationInfo * info);
+	bool check_revision_at_least(const string & rev,
+				     const string & target) const;
+	string get_revision_info() const;
+	string apply_changeset_from_conn(RemoteConnection & conn,
+					 const OmTime & end_time);
+	string get_uuid() const;
 	//@}
+
 };
 
 /** A writable flint database.

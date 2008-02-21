@@ -81,7 +81,8 @@ noinst_HEADERS = apitest.h
 
 collated_apitest_sources = api_anydb.cc api_db.cc api_docsim.cc \
  api_generated.cc api_nodb.cc \
- api_posdb.cc api_sorting.cc api_transdb.cc api_unicode.cc api_wrdb.cc
+ api_posdb.cc api_replicate.cc api_sorting.cc api_transdb.cc api_unicode.cc \
+ api_wrdb.cc
 
 apitest_SOURCES = apitest.cc $(collated_apitest_sources) \
  api_all.h api_collated.h $(testharness_sources)

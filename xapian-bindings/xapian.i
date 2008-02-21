@@ -28,6 +28,7 @@
 // Disable any deprecation warnings for Xapian methods/functions/classes.
 #define XAPIAN_DEPRECATED(D) D
 #include <xapian.h>
+#include <xapian/replication.h>
 #include <string>
 #include <vector>
 
@@ -931,6 +932,11 @@ class Query {
 %ignore Xapian::ClusterSingleLink::cluster(const Database &, ClusterAssignments &, DocSimCosine &, DocumentSource &, const ExpandDecider *, int);
 #endif
 %include <xapian/cluster.h>
+
+%ignore Xapian::DatabaseReplica::internal;
+%ignore Xapian::DatabaseReplica::operator=;
+%ignore Xapian::DatabaseReplica::DatabaseReplica(const DatabaseReplica &);
+%include <xapian/replication.h>
 
 namespace Xapian {
 

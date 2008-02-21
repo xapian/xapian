@@ -1,7 +1,7 @@
 /** \file  queryparser.h
  *  \brief parsing a user query string to build a Xapian::Query object
  */
-/* Copyright (C) 2005,2006,2007 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -450,7 +450,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *  combined with the OR operator.
      *
      *  For example, if "site" and "domain" map to "H", but author maps to "A",
-     *  a search for "site:Foo domain:Bar author:Fred" will map to
+     *  a search for "site:foo domain:bar author:Fred" will map to
      *  "(Hfoo OR Hbar) AND Afred".
      *
      *  As of 1.0.4, you can call this method multiple times with the same
