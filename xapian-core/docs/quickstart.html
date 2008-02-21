@@ -24,11 +24,6 @@ the Xapian library installed on your system.
 For instructions on obtaining and installing Xapian, read the
 <A HREF="install.html">Installation</A> document.
 </P>
-<P>
-You will also need a reasonably recent C++ compiler.  You'll need one
-which supports most of the ISO C++ standard.  If using GCC, 2.95 is the
-very minimum requirement - 3.3 or later is recommended.
-</P>
 
 <HR>
 <H2>Databases</H2>
@@ -478,10 +473,11 @@ to return (we specify 10 here):
 <H3>Displaying the results of the search</H3>
 <P>
 Finally, we display the results of the search.  The results are stored in
-a container called <CODE>items</CODE> in the <CODE>Xapian::MSet</CODE> object,
-so first we display how many items are in that:
+in the <CODE>Xapian::MSet</CODE> object, which provides the features required
+to be an STL-compatible container, so first we display how many items are in
+the MSet:
 <PRE>
-    cout &lt;&lt; matches.items.size() &lt;&lt; " results found" &lt;&lt; endl;
+    cout &lt;&lt; matches.size() &lt;&lt; " results found" &lt;&lt; endl;
 </PRE>
 </P>
 

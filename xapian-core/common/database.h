@@ -37,12 +37,16 @@
 using namespace std;
 
 class LeafPostList;
+class OmTime;
+class RemoteConnection;
 class RemoteDatabase;
 
 typedef Xapian::TermIterator::Internal TermList;
 typedef Xapian::PositionIterator::Internal PositionList;
 
 namespace Xapian {
+
+class ReplicationInfo;
 
 /** Base class for databases.
  */
@@ -402,6 +406,35 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 
 	virtual Xapian::Document::Internal * collect_document(Xapian::docid did) const;
 	//@}
+
+	/** Write a set of changesets to a file descriptor.
+	 *
+	 *  This call may reopen the database, leaving it pointing to a more
+	 *  recent version of the database.
+	 */
+	virtual void write_changesets_to_fd(int fd,
+					    const std::string & start_revision,
+					    bool need_whole_db,
+					    Xapian::ReplicationInfo * info);
+
+	/// Get a string describing the current revision of the database.
+	virtual string get_revision_info() const;
+
+	/// Check if the revision of the database is at least that supplied.
+	virtual bool check_revision_at_least(const string & rev,
+					     const string & target) const;
+
+	/// Read and apply the next changeset.
+	virtual string apply_changeset_from_conn(RemoteConnection & conn,
+						 const OmTime & end_time);
+
+	/** Get a UUID for the database.
+	 *
+	 *  Replicas (eg, made with the replication protocol, or by copying all
+	 *  the database files) will have the same UUID.  However, copies (made
+	 *  with copydatabase, or xapian-compact) will have different UUIDs.
+	 */
+	virtual string get_uuid() const;
 
 	//////////////////////////////////////////////////////////////////
 	// Introspection methods:

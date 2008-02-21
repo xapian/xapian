@@ -27,6 +27,7 @@
 
 #include "database.h"
 #include "utils.h" // for om_tostring
+#include "fileutils.h"
 #include <xapian/dbfactory.h>
 #include <xapian/error.h>
 #include <xapian/version.h> // For XAPIAN_HAS_XXX_BACKEND
@@ -93,61 +94,72 @@ InMemory::open() {
 static void
 open_stub(Database *db, const string &file)
 {
+
     // A stub database is a text file with one or more lines of this format:
     // <dbtype> <serialised db object>
+    //
+    // Lines which start with a "#" character, and lines which have no spaces
+    // in them, are ignored.
+    //
+    // Any paths specified in stub database files which are relative will be
+    // considered to be relative to the directory containing the stub database.
     ifstream stub(file.c_str());
+    string stubdir = calc_dirname(file);
     string line;
-    int line_no = 1;
+    int line_no = 0;
     bool ok = false;
     while (getline(stub, line)) {
+	++line_no;
+	if (line.size() == 0 || line[0] == '#')
+	    continue;
 	string::size_type space = line.find(' ');
-	if (space != string::npos) {
-	    string type = line.substr(0, space);
-	    line.erase(0, space + 1);
-	    if (type == "auto") {
-		db->add_database(Database(line));
-		ok = true;
+	if (space == string::npos)
+	    continue;
+
+	string type = line.substr(0, space);
+	line.erase(0, space + 1);
+	if (type == "auto") {
+	    db->add_database(Database(join_paths(stubdir, line)));
+	    ok = true;
 #ifdef XAPIAN_HAS_FLINT_BACKEND
-	    } else if (type == "flint") {
-		db->add_database(Flint::open(line));
-		ok = true;
+	} else if (type == "flint") {
+	    db->add_database(Flint::open(join_paths(stubdir, line)));
+	    ok = true;
 #endif
 #ifdef XAPIAN_HAS_QUARTZ_BACKEND
-	    } else if (type == "quartz") {
-		db->add_database(Quartz::open(line));
-		ok = true;
+	} else if (type == "quartz") {
+	    db->add_database(Quartz::open(join_paths(stubdir, line)));
+	    ok = true;
 #endif
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-	    } else if (type == "remote") {
-		string::size_type colon = line.find(':');
-		if (colon == 0) {
-		    // prog
-		    // FIXME: timeouts
-		    // FIXME: Is prog actually useful beyond testing?
-		    // Is it a security risk?
-		    space = line.find(' ');
-		    string args;
-		    if (space != string::npos) {
-			args = line.substr(space + 1);
-			line = line.substr(1, space - 1);
-		    } else {
-			line.erase(0, 1);
-		    }
-		    db->add_database(Remote::open(line, args));
-		    ok = true;
-		} else if (colon != string::npos) {
-		    // tcp
-		    // FIXME: timeouts
-		    unsigned int port = atoi(line.c_str() + colon + 1);
-		    line.erase(colon);
-		    db->add_database(Remote::open(line, port));
-		    ok = true;
+	} else if (type == "remote") {
+	    string::size_type colon = line.find(':');
+	    if (colon == 0) {
+		// prog
+		// FIXME: timeouts
+		// FIXME: Is prog actually useful beyond testing?
+		// Is it a security risk?
+		space = line.find(' ');
+		string args;
+		if (space != string::npos) {
+		    args = line.substr(space + 1);
+		    line = line.substr(1, space - 1);
+		} else {
+		    line.erase(0, 1);
 		}
-#endif
+		db->add_database(Remote::open(line, args));
+		ok = true;
+	    } else if (colon != string::npos) {
+		// tcp
+		// FIXME: timeouts
+		unsigned int port = atoi(line.c_str() + colon + 1);
+		line.erase(colon);
+		db->add_database(Remote::open(line, port));
+		ok = true;
 	    }
+#endif
 	}
 	if (!ok) break;
-	++line_no;
     }
     if (!ok) {
 	// Don't include the line itself - that might help an attacker
@@ -175,6 +187,12 @@ Database::Database(const string &path)
     // a stub database.
     if (file_exists(path)) {
 	open_stub(this, path);
+	return;
+    }
+
+    // Check for "stub directories".
+    if (file_exists(path + "/XAPIANDB")) {
+	open_stub(this, path + "/XAPIANDB");
 	return;
     }
 
@@ -463,6 +481,37 @@ Xapian::Document::Internal *
 Database::Internal::collect_document(Xapian::docid did) const
 {
     return open_document(did);
+}
+
+void
+Database::Internal::write_changesets_to_fd(int, const std::string &, bool, ReplicationInfo *)
+{
+    throw Xapian::UnimplementedError("This backend doesn't provide changesets");
+}
+
+string
+Database::Internal::get_revision_info() const
+{
+    throw Xapian::UnimplementedError("This backend doesn't provide access to revision information");
+}
+
+bool
+Database::Internal::check_revision_at_least(const string &, const string &) const
+{
+    throw Xapian::UnimplementedError("This backend doesn't support comparing revision numbers");
+}
+
+string
+Database::Internal::apply_changeset_from_conn(RemoteConnection &,
+					      const OmTime &)
+{
+    throw Xapian::UnimplementedError("This backend doesn't support applying changesets");
+}
+
+string
+Database::Internal::get_uuid() const
+{
+    throw Xapian::UnimplementedError("This backend doesn't support UUIDs");
 }
 
 RemoteDatabase *

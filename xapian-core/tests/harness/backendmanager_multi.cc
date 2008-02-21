@@ -46,12 +46,13 @@ BackendManagerMulti::createdb_multi(const vector<string> & files)
 {
     create_dir_if_needed(".multi");
 
-    string dbpath = ".multi/db";
+    string dbname = "db";
     vector<string>::const_iterator i;
     for (i = files.begin(); i != files.end(); ++i) {
-	dbpath += "__";
-	dbpath += *i;
+	dbname += "__";
+	dbname += *i;
     }
+    string dbpath = ".multi/" + dbname;
 
     if (file_exists(dbpath)) return dbpath;
 
@@ -71,14 +72,14 @@ BackendManagerMulti::createdb_multi(const vector<string> & files)
     // multi-db combining them contains the documents in the expected order.
     Xapian::WritableDatabase dbs[NUMBER_OF_SUB_DBS];
     for (size_t n = 0; n < NUMBER_OF_SUB_DBS; ++n) {
-	string subdbdir = dbpath;
+	string subdbdir = dbname;
 	subdbdir += "___";
 	subdbdir += om_tostring(n);
 #ifdef XAPIAN_HAS_FLINT_BACKEND
-	dbs[n] = Xapian::Flint::open(subdbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+	dbs[n] = Xapian::Flint::open(".multi/" + subdbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 	out << "flint " << subdbdir << '\n';
 #else
-	dbs[n] = Xapian::Quartz::open(subdbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+	dbs[n] = Xapian::Quartz::open(".multi/" + subdbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 	out << "quartz " << subdbdir << '\n';
 #endif
     }

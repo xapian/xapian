@@ -30,7 +30,8 @@ SWIG_mainsource = \
 
 SWIG_sources = \
 	$(SWIG_mainsource) \
-	$(srcdir)/../generic/except.i
+	$(srcdir)/../generic/except.i \
+	$(SWIG_COREHEADERS)
 
 SWIG_includes = \
 	-I$(srcdir) \

@@ -961,7 +961,7 @@ if test yes = "$GXX"; then
       dnl All these options were supported by g++ 2.95 and there's little
       dnl likelihood Xapian will build with any earlier version, so there's
       dnl not much point worrying about whether older versions had them or not.
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -Wconversion -fno-gnu-keywords -pedantic"
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -Wconversion -fno-gnu-keywords"
 
       dnl GCC2 reports e.g. "2.7.2.3" or "2.95.4".  3.0 reports e.g. "3.0.4"
       dnl but somewhere in the 3.X series the output became more verbose
@@ -1010,6 +1010,33 @@ if test yes = "$GXX"; then
 
       XAPIAN_TEST_LINKER_FLAG([-Bsymbolic-functions], [symbolic_functions],
 	[XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $flag"])
+
+      dnl -pedantic causes a compilation failure on Mac OS X (at least, with
+      dnl XCode 2.2.1 on Tiger - which uses gcc version 4.0.1), so don't use
+      dnl -pedantic on that platform.  Otherwise, we add -pedantic to the
+      dnl flags.
+      AC_MSG_CHECKING([whether -pedantic causes problems with INFINITY])
+      AC_CACHE_VAL([xo_cv_pedantic_inf_fails],
+        [
+        SAVE_CXXFLAGS="$CXXFLAGS"
+        CXXFLAGS="$CXXFLAGS -pedantic"
+        AC_COMPILE_IFELSE([
+          AC_LANG_PROGRAM(
+	    [[
+#define _ISOC99_SOURCE
+#include <math.h>
+	    ]],
+	    [[double(INFINITY);]]
+	  )],
+	  xo_cv_pedantic_inf_fails=no,
+	  xo_cv_pedantic_inf_fails=yes
+	)
+	CXXFLAGS="$SAVE_CXXFLAGS"
+	])
+      AC_MSG_RESULT([$xo_cv_pedantic_inf_fails])
+      if test no = "$xo_cv_pedantic_inf_fails" ; then
+        AM_CXXFLAGS="$AM_CXXFLAGS -pedantic"
+      fi
     ])
 else
   dnl WARNING_CXXFLAGS is set above.

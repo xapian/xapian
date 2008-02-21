@@ -43,7 +43,7 @@ class FlintTermListTable : public FlintTable {
      *  @param readonly	    true if we're opening read-only, else false.
      */
     FlintTermListTable(std::string dbdir, bool readonly)
-	: FlintTable(dbdir + "/termlist.", readonly, Z_DEFAULT_STRATEGY) { }
+	: FlintTable("termlist", dbdir + "/termlist.", readonly, Z_DEFAULT_STRATEGY) { }
 
     /** Set the termlist data for document @a did.
      *

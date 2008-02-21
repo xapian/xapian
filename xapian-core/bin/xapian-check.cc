@@ -290,10 +290,10 @@ check_table(string filename, int opts)
     filename += '.';
 
     // Check the btree structure.
-    BtreeCheck::check(filename, opts);
+    BtreeCheck::check(tablename, filename, opts);
 
     // Now check the flint structures inside the btree.
-    FlintTable table(filename, true);
+    FlintTable table(tablename, filename, true);
     table.open();
     AutoPtr<FlintCursor> cursor(table.cursor_get());
 

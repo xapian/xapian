@@ -154,11 +154,13 @@ By default, Xapian uses probabilistic ranking to order retrieved documents
 while allowing Boolean expressions of arbitrary complexity (some boolean IR
 systems are restricted to queries in normal form) to limit those
 documents retrieved, which provides the benefits of both approaches.
-Pure Boolean retrieval is also supported.
+Pure Boolean retrieval is also supported (select the <a
+href="apidoc/html/classXapian_1_1BoolWeight.html">BoolWeight</a> weighting
+scheme using <code>enquire.set_weighting_scheme(Xapian::BoolWeight());</code>).
 
 <H2>Relevance and the idea of a query</H2>
 
-<EM>relevance</EM> is a central concept to the probabilistic model.
+<EM>Relevance</EM> is a central concept to the probabilistic model.
 Whole academic papers have been devoted to discussing the nature of relevance
 but essentially a document is relevant if it was what the user really wanted!
 Retrieval is rarely perfect, so among documents retrieved there

@@ -48,7 +48,7 @@ class FlintRecordTable : public FlintTable {
 	 *                          access.
 	 */
 	FlintRecordTable(string path_, bool readonly_)
-	    : FlintTable(path_ + "/record.", readonly_, Z_DEFAULT_STRATEGY) { }
+	    : FlintTable("record", path_ + "/record.", readonly_, Z_DEFAULT_STRATEGY) { }
 
 	/** Retrieve a document from the table.
 	 */
