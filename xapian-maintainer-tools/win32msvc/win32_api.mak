@@ -38,7 +38,8 @@ OBJS= \
     $(INTDIR)/valuerangeproc.obj \
     $(INTDIR)/valuerangeproccompat.obj \
     $(INTDIR)/version.obj\
-    $(INTDIR)/weightinternal.obj
+    $(INTDIR)/weightinternal.obj\
+    $(INTDIR)/replication.obj
     
 SRCS= \
     $(INTDIR)/editdistance.cc\
@@ -63,7 +64,8 @@ SRCS= \
     $(INTDIR)/valuerangeproc.cc\
     $(INTDIR)/valuerangeproccompat.cc\
     $(INTDIR)/version.cc\
-    $(INTDIR)/weightinternal.cc
+    $(INTDIR)/weightinternal.cc\
+    $(INTDIR)/replication.cc
 
 	     
 CLEAN :

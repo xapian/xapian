@@ -16,15 +16,22 @@ OBJS= \
              $(INTDIR)\serialise.obj  \
              $(INTDIR)\tcpclient.obj  \
              $(INTDIR)\tcpserver.obj  \
-             $(NULL)
-
+             $(INTDIR)\replicatetcpclient.obj \
+             $(INTDIR)\remotetcpclient.obj \
+             $(INTDIR)\replicatetcpserver.obj \
+             $(INTDIR)\remotetcpserver.obj
+             
 SRCS= \
              $(INTDIR)\progclient.cc \
              $(INTDIR)\remoteconnection.cc  \
              $(INTDIR)\remoteserver.cc  \
              $(INTDIR)\serialise.cc  \
              $(INTDIR)\tcpclient.cc  \
-             $(INTDIR)\tcpserver.cc
+             $(INTDIR)\tcpserver.cc \
+             $(INTDIR)\replicatetcpclient.cc \
+             $(INTDIR)\remotetcpclient.cc \
+             $(INTDIR)\replicatetcpserver.cc \
+             $(INTDIR)\remotetcpserver.cc
 
 CLEAN :
 	-@erase "$(OUTDIR)\libnet.lib"

@@ -7,9 +7,11 @@ noinst_HEADERS +=\
 	common/emptypostlist.h\
 	common/expand.h\
 	common/expandweight.h\
+	common/fileutils.h\
 	common/gnu_getopt.h\
 	common/inmemory_positionlist.h\
 	common/leafpostlist.h\
+	common/msvc_dirent.h\
 	common/msvc_posix_wrapper.h\
 	common/multialltermslist.h\
 	common/multimatch.h\
@@ -28,6 +30,11 @@ noinst_HEADERS +=\
 	common/remote-database.h\
 	common/remoteprotocol.h\
 	common/remoteserver.h\
+	common/remotetcpclient.h\
+	common/remotetcpserver.h\
+	common/replicatetcpclient.h\
+	common/replicatetcpserver.h\
+	common/replicationprotocol.h\
 	common/rset.h\
 	common/safeerrno.h\
 	common/safefcntl.h\
@@ -38,6 +45,7 @@ noinst_HEADERS +=\
 	common/safewinsock2.h\
 	common/serialise-double.h\
 	common/serialise.h\
+	common/socket_utils.h\
 	common/stats.h\
 	common/stringutils.h\
 	common/submatch.h\
@@ -53,10 +61,13 @@ EXTRA_DIST +=\
 	common/Makefile
 
 libxapian_la_SOURCES +=\
+	common/fileutils.cc\
+	common/msvc_dirent.cc\
 	common/msvc_posix_wrapper.cc\
 	common/omdebug.cc\
 	common/safe.cc\
 	common/serialise-double.cc\
+	common/socket_utils.cc\
 	common/stringutils.cc\
 	common/utils.cc
 

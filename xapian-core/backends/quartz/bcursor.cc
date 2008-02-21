@@ -31,7 +31,7 @@
 
 #ifdef XAPIAN_DEBUG_VERBOSE
 static string
-hex_encode(const string & input)
+hex_display_encode(const string & input)
 {
     const char * table = "0123456789abcdef";
     string result;
@@ -113,7 +113,7 @@ Bcursor::prev()
     // FIXME: check for errors
     have_read_tag = false;
 
-    DEBUGLINE(DB, "Moved to entry: key=`" << hex_encode(current_key) << "'");
+    DEBUGLINE(DB, "Moved to entry: key=`" << hex_display_encode(current_key) << "'");
     return true;
 }
 
@@ -145,7 +145,7 @@ Bcursor::next()
     // FIXME: check for errors
     have_read_tag = false;
 
-    DEBUGLINE(DB, "Moved to entry: key=`" << hex_encode(current_key) << "'");
+    DEBUGLINE(DB, "Moved to entry: key=`" << hex_display_encode(current_key) << "'");
     return true;
 }
 
@@ -190,7 +190,7 @@ done:
     (void)err; // FIXME: check for errors
     have_read_tag = false;
 
-    DEBUGLINE(DB, "Found entry: key=`" << hex_encode(current_key) << "'");
+    DEBUGLINE(DB, "Found entry: key=`" << hex_display_encode(current_key) << "'");
 
     RETURN(found);
 }
@@ -223,7 +223,7 @@ Bcursor::read_tag()
 
     have_read_tag = true;
 
-    DEBUGLINE(DB, "tag=`" << hex_encode(current_tag) << "'");
+    DEBUGLINE(DB, "tag=`" << hex_display_encode(current_tag) << "'");
 }
 
 void
@@ -237,5 +237,5 @@ Bcursor::del()
     find_entry(current_key);
     next();
 
-    DEBUGLINE(DB, "Moved to entry: key=`" << hex_encode(current_key) << "'");
+    DEBUGLINE(DB, "Moved to entry: key=`" << hex_display_encode(current_key) << "'");
 }

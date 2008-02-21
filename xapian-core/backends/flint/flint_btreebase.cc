@@ -1,4 +1,4 @@
-/* btree_base.cc: Btree base file implementation
+/* flint_btreebase.cc: Btree base file implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002,2003,2004,2006 Olly Betts
@@ -38,21 +38,6 @@
 #include <algorithm>
 
 using namespace std;
-
-/** A tiny class used to close a filehandle safely in the presence
- *  of exceptions.
- */
-class fdcloser {
-    public:
-	fdcloser(int fd_) : fd(fd_) {}
-	~fdcloser() {
-	    if (fd >= 0) {
-		(void)close(fd);
-	    }
-	}
-    private:
-	int fd;
-};
 
 /************ Base file parameters ************/
 
@@ -292,7 +277,11 @@ FlintTable_base::read(const string & name, char ch, string &err_msg)
 }
 
 void
-FlintTable_base::write_to_file(const string &filename)
+FlintTable_base::write_to_file(const string &filename,
+			       char base_letter,
+			       const string &tablename,
+			       int changes_fd,
+			       const string * changes_tail)
 {
     calculate_last_block();
 
@@ -324,6 +313,21 @@ FlintTable_base::write_to_file(const string &filename)
 	throw Xapian::DatabaseOpeningError(message);
     }
     fdcloser closefd(h);
+
+    if (changes_fd >= 0) {
+	string changes_buf;
+	changes_buf += pack_uint(1u); // Indicate the item is a base file.
+	changes_buf += pack_string(tablename);
+	changes_buf += base_letter; // The base file letter.
+	changes_buf += pack_uint(buf.size());
+	flint_io_write(changes_fd, changes_buf.data(), changes_buf.size());
+	flint_io_write(changes_fd, buf.data(), buf.size());
+	if (changes_tail != NULL) {
+	    flint_io_write(changes_fd, changes_tail->data(), changes_tail->size());
+	    // changes_tail is only specified for the final table, so sync.
+	    flint_io_sync(changes_fd);
+	}
+    }
 
     flint_io_write(h, buf.data(), buf.size());
     flint_io_sync(h);
@@ -425,6 +429,24 @@ FlintTable_base::next_free_block()
     bit_map[i] |= d;   /* set as 'in use' */
     bit_map_low = i;
     return n;
+}
+
+bool
+FlintTable_base::find_changed_block(uint4 * n)
+{
+    // Search for a block which was free at the start of the transaction, but
+    // isn't now.
+    while ((*n) <= last_block) {
+	size_t offset = (*n) / CHAR_BIT;
+	int bit = 0x1 << (*n) % CHAR_BIT;
+
+	if (((bit_map0[offset] & bit) == 0) && ((bit_map[offset] & bit) != 0)) {
+	    return true;
+	}
+	++(*n);
+    }
+    
+    return false;
 }
 
 bool

@@ -9,6 +9,23 @@ Mon Oct 29 03:03:57 GMT 2007  Olly Betts <olly@survex.com>
 	* NEWS,csharp/Makefile.am,python/extra.i,python/pythontest.py,
 	  python/util.i,xapian.i: Restore the changes.
 
+Thu Feb 21 00:28:20 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* configure.ac,generic/generic.mk: Use the new --swigheaders option
+	  in xapian-config to get the list of header files for the core,
+	  and add all of these as a dependency for the rules to run swig.
+	  This is currently an overly inclusive dependency, but it's hard
+	  to keep track of exactly which header files are being included,
+	  and the plan is to eventually include all of them.
+
+Mon Jan 28 11:52:59 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* xapian.i: Ignore various unwanted bits of DatabaseReplica.
+
+Mon Jan 28 03:22:43 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* xapian.i: Include replication.h in the bindings.
+
 Wed Jan 09 22:41:24 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* csharp/Makefile.am: Add MultiValueSorter.cs to

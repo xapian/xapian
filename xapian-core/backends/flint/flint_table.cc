@@ -2,7 +2,8 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1589,9 +1590,10 @@ FlintTable::do_open_to_write(bool revision_supplied,
     return true;
 }
 
-FlintTable::FlintTable(string path_, bool readonly_,
+FlintTable::FlintTable(string tablename_, string path_, bool readonly_,
 		       int compress_strategy_, bool lazy_)
-	: revision_number(0),
+	: tablename(tablename_),
+	  revision_number(0),
 	  item_count(0),
 	  block_size(0),
 	  latest_revision_number(0),
@@ -1634,7 +1636,11 @@ FlintTable::exists() const {
 static void
 sys_unlink_if_exists(const string & filename)
 {
+#ifdef __WIN32__
+    if (msvc_posix_unlink(filename.c_str()) == -1) {
+#else
     if (unlink(filename) == -1) {
+#endif
 	if (errno == ENOENT) return;
 	throw Xapian::DatabaseError("Can't delete file: `" + filename +
 			      "': " + strerror(errno));
@@ -1682,10 +1688,11 @@ FlintTable::create_and_open(unsigned int block_size_)
 
     /* create the base file */
     FlintTable_base base_;
+    base_.set_revision(revision_number);
     base_.set_block_size(block_size_);
     base_.set_have_fakeroot(true);
     base_.set_sequential(true);
-    base_.write_to_file(name + "baseA");
+    base_.write_to_file(name + "baseA", 'A', "", -1, NULL);
 
     /* remove the alternative base file, if any */
     sys_unlink_if_exists(name + "baseB");
@@ -1723,22 +1730,11 @@ void FlintTable::close() {
 }
 
 void
-FlintTable::commit(flint_revision_number_t revision)
+FlintTable::flush_db()
 {
-    DEBUGCALL(DB, void, "FlintTable::commit", revision);
+    DEBUGCALL(DB, void, "FlintTable::flush_db", "");
     Assert(writable);
-
-    if (revision <= revision_number) {
-	throw Xapian::DatabaseError("New revision too low");
-    }
-
     if (handle == -1) return;
-
-    // FIXME: this doesn't work (probably because the table revisions get
-    // out of step) but it's wasteful to keep applying changes to value
-    // and position if they're never used...
-    //
-    // if (!Btree_modified) return;
 
     for (int j = level; j >= 0; j--) {
 	if (C[j].rewrite) {
@@ -1746,14 +1742,26 @@ FlintTable::commit(flint_revision_number_t revision)
 	}
     }
 
-    if (!flint_io_sync(handle)) {
-	(void)::close(handle);
-	handle = -1;
-	throw Xapian::DatabaseError("Can't commit new revision - failed to flush DB to disk");
-    }
-
     if (Btree_modified) {
 	faked_root_block = false;
+    }
+}
+
+void
+FlintTable::commit(flint_revision_number_t revision, int changes_fd,
+		   const string * changes_tail)
+{
+    DEBUGCALL(DB, void, "FlintTable::commit",
+	      revision << ", " << changes_fd << ", " << changes_tail);
+    Assert(writable);
+
+    if (revision <= revision_number) {
+	throw Xapian::DatabaseError("New revision too low");
+    }
+
+    if (handle == -1) {
+	latest_revision_number = revision_number = revision;
+	return;
     }
 
     if (faked_root_block) {
@@ -1785,7 +1793,36 @@ FlintTable::commit(flint_revision_number_t revision)
 	C[i].rewrite = false;
     }
 
-    base.write_to_file(name + "base" + char(base_letter));
+    // Do this as late as possible to allow maximum time for writes to be committed.
+    if (!flint_io_sync(handle)) {
+	(void)::close(handle);
+	handle = -1;
+	throw Xapian::DatabaseError("Can't commit new revision - failed to flush DB to disk");
+    }
+
+    // Save to "<table>.tmp" and then rename to "<table>.base<letter>" so that
+    // a reader can't try to read a partially written base file.
+    string tmp = name;
+    tmp += "tmp";
+    string basefile = name;
+    basefile += "base";
+    basefile += char(base_letter);
+    base.write_to_file(tmp, base_letter, tablename, changes_fd, changes_tail);
+    if (rename(tmp.c_str(), basefile.c_str()) < 0) {
+	// With NFS, rename() failing may just mean that the server crashed
+	// after successfully renaming, but before reporting this, and then
+	// the retried operation fails.  So we need to check if the source
+	// file still exists, which we do by calling unlink(), since we want
+	// to remove the temporary file anyway.
+	int saved_errno = errno;
+	if (unlink(tmp) == 0 || errno != ENOENT) {
+	    string msg("Couldn't update base file ");
+	    msg += basefile;
+	    msg += ": ";
+	    msg += strerror(saved_errno);
+	    throw Xapian::DatabaseError(msg);
+	}
+    }
     base.commit();
 
     read_root();
@@ -1796,12 +1833,62 @@ FlintTable::commit(flint_revision_number_t revision)
 }
 
 void
+FlintTable::write_changed_blocks(int changes_fd)
+{
+    Assert(changes_fd >= 0);
+    if (handle == -1) return;
+    if (faked_root_block) return;
+
+    string buf;
+    buf += pack_uint(2u); // Indicate the item is a list of blocks
+    buf += pack_uint(tablename.size());
+    buf += tablename;
+    buf += pack_uint(block_size);
+    flint_io_write(changes_fd, buf.data(), buf.size());
+
+    // Compare the old and new bitmaps to find blocks which have changed, and
+    // write them to the file descriptor.
+    uint4 n = 0;
+    byte * p = new byte[block_size];
+    try {
+	base.calculate_last_block();
+	while (base.find_changed_block(&n)) {
+	    buf = pack_uint(n + 1);
+	    flint_io_write(changes_fd, buf.data(), buf.size());
+
+	    // Read block n.
+	    try {
+		read_block(n, p);
+	    } catch(Xapian::DatabaseError & e) {
+		printf("Error in %s: %s\n", tablename.c_str(), e.get_msg().c_str());
+		throw;
+	    }
+
+	    // Write block n to the file.
+	    flint_io_write(changes_fd, reinterpret_cast<const char *>(p),
+			   block_size);
+	    ++n;
+	}
+	delete[] p;
+	p = 0;
+    } catch(...) {
+	delete[] p;
+	throw;
+    }
+    buf = pack_uint(0u);
+    flint_io_write(changes_fd, buf.data(), buf.size());
+}
+
+void
 FlintTable::cancel()
 {
     DEBUGCALL(DB, void, "FlintTable::cancel", "");
     Assert(writable);
 
-    if (handle == -1) return;
+    if (handle == -1) {
+	latest_revision_number = revision_number; // FIXME: we can end up reusing a revision if we opened a btree at an older revision, start to modify it, then cancel...
+	return;
+    }
 
     // This causes problems: if (!Btree_modified) return;
 

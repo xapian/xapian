@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 #
 # Copyright (C) 2004,2005,2006 Lemur Consulting Ltd
-# Copyright (C) 2006,2007 Olly Betts
+# Copyright (C) 2006,2007,2008 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -148,7 +148,14 @@ binary-arch: build install
 	dh_fixperms
 	dh_makeshlibs
 	dh_installdeb
+
 	dh_shlibdeps
+	# Rewrite the dependency on libxapianN to be >= our version, since
+	# we may require features added in that version.
+	perl -pi -e \
+	    's/^(shlibs:Depends=.*libxapian\d+)/$$1 (>= $(XAPIAN_VERSION))/' \
+	    debian/*.substvars
+
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb

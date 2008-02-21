@@ -51,7 +51,7 @@ static void show_usage() {
 "  --version              output version information and exit" << endl;
 }
 
-static string hex_encode(const string & input) {
+static string hex_display_encode(const string & input) {
     const char * table = "0123456789abcdef";
     string result;
     for (string::const_iterator i = input.begin(); i != input.end(); ++i) {
@@ -161,8 +161,8 @@ main(int argc, char *argv[])
 	    while (!cursor->after_end()) {
 		if (use_endkey && cursor->current_key > endkey) break;
 		cursor->read_tag();
-		cout << hex_encode(cursor->current_key) << " -> "
-		     << hex_encode(cursor->current_tag) << "\n";
+		cout << hex_display_encode(cursor->current_key) << " -> "
+		     << hex_display_encode(cursor->current_tag) << "\n";
 		cursor->next();
 	    }
 	} catch (const Xapian::Error &e) {

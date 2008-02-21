@@ -1,7 +1,7 @@
-/* btree_base.h: Btree base file implementation
+/* flint_btreebase.h: Btree base file implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2004,2007 Olly Betts
+ * Copyright 2002,2004,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,8 +31,7 @@
 
 class XAPIAN_VISIBILITY_DEFAULT FlintTable_base {
     public:
-	/** Initialise a Btree_Base object with all zero fields.
-	 */
+	/** Construct an object with all zero fields. */
 	FlintTable_base();
 
 	/** Copy constructor */
@@ -86,7 +85,11 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable_base {
 	}
 
 	/** Write the btree base file to disk. */
-	void write_to_file(const std::string &filename);
+	void write_to_file(const std::string &filename,
+			   char base_letter,
+			   const std::string &tablename,
+			   int changes_fd,
+			   const std::string * changes_tail);
 
 	/* Methods dealing with the bitmap */
 	/** true iff block n was free at the start of the transaction on
@@ -98,6 +101,12 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable_base {
 
 	uint4 next_free_block();
 
+	/** Find the first changed block at or after position *n.
+	 *
+	 *  Returns true if such a block was found, or false otherwise.
+	 */
+	bool find_changed_block(uint4 * n);
+
 	bool block_free_now(uint4 n);
 
 	void calculate_last_block();
@@ -107,7 +116,7 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable_base {
 
 	void commit();
 
-	/* Used by Btree::check() */
+	/* Used by FlintTable::check() */
 	bool is_empty() const;
 
 	void swap(FlintTable_base &other);

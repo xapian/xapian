@@ -2146,6 +2146,25 @@ DEFINE_TESTCASE(metadata3, metadata) {
     return true;
 }
 
+// Regression test for adding a piece of metadata on its own before adding
+// other things.
+DEFINE_TESTCASE(metadata4, metadata) {
+    Xapian::WritableDatabase db = get_writable_database();
+
+    db.set_metadata("foo", "foo");
+    db.flush();
+
+    Xapian::Document doc;
+    doc.add_posting("foo", 1);
+    db.add_document(doc);
+
+    Xapian::Database dbr(get_writable_database_as_database());
+
+    return true;
+}
+
+
+
 // Test that adding a document with a really long term gives an error on
 // add_document() rather than on flush().
 DEFINE_TESTCASE(termtoolong1, writable) {

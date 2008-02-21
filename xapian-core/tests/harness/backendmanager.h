@@ -86,6 +86,9 @@ class BackendManager {
     /// Get a writable flint database instance.
     Xapian::WritableDatabase getwritedb_flint(const std::string & name,
 					      const std::vector<std::string> &files);
+
+    /// Get the path of a writable flint database instance.
+    std::string getwritedb_flint_path(const std::string & name);
 #endif
 
 #ifdef XAPIAN_HAS_QUARTZ_BACKEND
@@ -128,6 +131,9 @@ class BackendManager {
 
     /// Get a writable database instance.
     virtual Xapian::WritableDatabase get_writable_database(const std::string & name, const std::string & file);
+
+    /// Get the path of a writable database instance, if such a thing exists.
+    virtual std::string get_writable_database_path(const std::string & name);
 
     /// Get a remote database instance with the specified timeout.
     virtual Xapian::Database get_remote_database(const std::vector<std::string> & files, unsigned int timeout);

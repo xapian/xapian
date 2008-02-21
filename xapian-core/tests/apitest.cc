@@ -79,6 +79,12 @@ get_named_writable_database(const std::string &name, const std::string &source)
    return backendmanager->get_writable_database("dbw__" + name, source);
 }
 
+std::string
+get_named_writable_database_path(const std::string &name)
+{
+   return backendmanager->get_writable_database_path("dbw__" + name);
+}
+
 Xapian::Database
 get_remote_database(const string &dbname, unsigned int timeout)
 {
@@ -119,6 +125,7 @@ int main(int argc, char **argv)
 	bool backend = false, remote = false, transactions = false;
 	bool positional = false, writable = false, multi = false;
 	bool spelling = false, metadata = false;
+	bool replicas = false;
 	bool quartz = false, flint = false;
 #include "api_collated.h"
 
@@ -133,6 +140,7 @@ int main(int argc, char **argv)
 	bool backend = true, remote = false, transactions = false;
 	bool positional = true, writable = true, multi = false;
 	bool spelling = false, metadata = false;
+	bool replicas = false;
 	bool quartz = false, flint = false;
 #include "api_collated.h"
 
@@ -148,6 +156,7 @@ int main(int argc, char **argv)
 	bool backend = true, remote = false, transactions = true;
 	bool positional = true, writable = true, multi = false;
 	bool spelling = true, metadata = true;
+	bool replicas = true;
 	bool quartz = false, flint = true;
 #include "api_collated.h"
 
@@ -163,6 +172,7 @@ int main(int argc, char **argv)
 	bool backend = true, remote = false, transactions = false;
 	bool positional = true, writable = false, multi = true;
 	bool spelling = false, metadata = false;
+	bool replicas = false;
 	bool quartz = false, flint = false;
 #include "api_collated.h"
 
@@ -178,6 +188,7 @@ int main(int argc, char **argv)
 	bool backend = true, remote = false, transactions = true;
 	bool positional = true, writable = true, multi = false;
 	bool spelling = false, metadata = false;
+	bool replicas = false;
 	bool quartz = true, flint = false;
 #include "api_collated.h"
 
@@ -193,6 +204,7 @@ int main(int argc, char **argv)
 	bool backend = true, remote = true, transactions = true;
 	bool positional = true, writable = true, multi = false;
 	bool spelling = false, metadata = false;
+	bool replicas = false;
 	bool quartz = false, flint = false;
 #include "api_collated.h"
 
@@ -206,6 +218,7 @@ int main(int argc, char **argv)
 	bool backend = true, remote = true, transactions = true;
 	bool positional = true, writable = true, multi = false;
 	bool spelling = false, metadata = false;
+	bool replicas = false;
 	bool quartz = false, flint = false;
 #include "api_collated.h"
 

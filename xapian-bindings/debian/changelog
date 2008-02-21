@@ -1,3 +1,8 @@
+  * debian/rules: The dependency on libxapianN is now versioned.  We require a
+    version >= the version of xapian-bindings being packaged (which is
+    sometimes slightly too conservative, but simple to implement without
+    manual maintenance).  Closes: #462106
+
 xapian-bindings (1.0.5-1) unstable; urgency=low
 
   * debian/rules: Look for "CODENAME" and "debian/codename" rather than

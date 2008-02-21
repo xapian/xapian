@@ -2,6 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -254,6 +255,9 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	/// Assignment not allowed
         FlintTable & operator=(const FlintTable &);
 
+	/// The name of the table (used when writing changesets).
+	string tablename;
+
     public:
 	/** Create a new Btree object.
 	 *
@@ -263,6 +267,7 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	 *  This also does not open the table - either the create_and_open()
 	 *  or open() methods must be called before use is made of the table.
 	 *
+	 *  @param tablename_   The name of the table (used in changesets).
 	 *  @param path_	Path at which the table is stored.
 	 *  @param readonly_	whether to open the table for read only access.
 	 *  @param compress_strategy_	DONT_COMPRESS, Z_DEFAULT_STRATEGY,
@@ -270,7 +275,7 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	 *  @param lazy		If true, don't create the table until it's
 	 *			needed.
 	 */
-	FlintTable(string path_, bool readonly_,
+	FlintTable(string tablename_, string path_, bool readonly_,
 		   int compress_strategy_ = DONT_COMPRESS, bool lazy = false);
 
 	/** Close the Btree.
@@ -318,6 +323,13 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	 */
 	bool open(flint_revision_number_t revision_);
 
+	/** Flush any outstanding changes to the DB file of the table.
+	 *
+	 *  This must be called before commit, to ensure that the DB file is
+	 *  ready to be switched to a new version by the commit.
+	 */
+	void flush_db();
+
 	/** Commit any outstanding changes to the table.
 	 *
 	 *  Commit changes made by calling add() and del() to the Btree.
@@ -330,8 +342,18 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	 *          be greater than the latest revision number (see
 	 *          get_latest_revision_number()), or an exception will be
 	 *          thrown.
+	 *
+	 *  @param changes_fd  The file descriptor to write changes to.  If -1,
+	 *          no changes will be written.
 	 */
-	void commit(flint_revision_number_t revision);
+	void commit(flint_revision_number_t revision, int changes_fd,
+		    const string * changes_tail = NULL);
+
+	/** Append the list of blocks changed to a changeset file.
+	 *
+	 *  @param changes_fd  The file descriptor to write changes to.
+	 */
+	void write_changed_blocks(int changes_fd);
 
 	/** Cancel any outstanding changes.
 	 *
