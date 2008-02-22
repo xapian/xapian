@@ -1033,7 +1033,11 @@ FlintDatabase::process_changeset_chunk_base(const string & tablename,
 	flint_io_write(fd, buf.data(), base_size);
 	flint_io_sync(fd);
     }
+#if defined __WIN32__
+    if (msvc_posix_rename(tmp_path.c_str(), base_path.c_str()) < 0) {
+#else
     if (rename(tmp_path.c_str(), base_path.c_str()) < 0) {
+#endif
 	// With NFS, rename() failing may just mean that the server crashed
 	// after successfully renaming, but before reporting this, and then
 	// the retried operation fails.  So we need to check if the source

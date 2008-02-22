@@ -1808,7 +1808,11 @@ FlintTable::commit(flint_revision_number_t revision, int changes_fd,
     basefile += "base";
     basefile += char(base_letter);
     base.write_to_file(tmp, base_letter, tablename, changes_fd, changes_tail);
+#if defined __WIN32__
+    if (msvc_posix_rename(tmp.c_str(), basefile.c_str()) < 0) {
+#else
     if (rename(tmp.c_str(), basefile.c_str()) < 0) {
+#endif
 	// With NFS, rename() failing may just mean that the server crashed
 	// after successfully renaming, but before reporting this, and then
 	// the retried operation fails.  So we need to check if the source
