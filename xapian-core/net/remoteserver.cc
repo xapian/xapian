@@ -54,7 +54,7 @@ RemoteServer::RemoteServer(const std::vector<std::string> &dbpaths,
     // RemoteConnection constructor, code compiled with this compiler will
     // produce a memory access exception when a new value is assigned to
     // "context".
-    : RemoteConnection(fdin_, fdout_, std::string("")),
+    : RemoteConnection(fdin_, fdout_, std::string()),
       db(NULL), wdb(NULL),
       active_timeout(active_timeout_), idle_timeout(idle_timeout_)
 {
