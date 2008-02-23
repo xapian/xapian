@@ -135,7 +135,7 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   case $v in
     [1.3.[3-9][0-9]|1.3.[1-9][0-9][0-9][0-9]*|1.[4-9].*|2.*]) ;;
     *)
-      msg="SWIG >= 1.3.32 (SVN rev 10143 or later) required (you have ${v:-an unknown version})"
+      msg="SWIG >= 1.3.33 (SVN rev 10143 or later) required (you have ${v:-an unknown version})"
       if test -n "$swigoverridden" ; then
 	dnl If SWIG was explicitly set, make this a warning only.
 	AC_MSG_WARN([$msg])

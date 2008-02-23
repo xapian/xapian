@@ -1,3 +1,7 @@
+Sat Feb 23 23:09:05 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: Correct SWIG version in error message.
+
 Thu Feb 21 00:28:20 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* configure.ac,generic/generic.mk: Use the new --swigheaders option
