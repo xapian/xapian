@@ -104,8 +104,9 @@ set_I_for_uninstalled() {
     I="$I-I@abs_srcdir@/include"
 }
 
-# Add any header files found in $HDIR to $H
+# Add any header files found in $1 to $H
 add_headers_in_HDIR_to_H() {
+    HDIR=$1
     for file in `ls "$HDIR"`;
     do
 	case "$file" in
@@ -120,19 +121,15 @@ set_H_to_headers() {
     H=
     if is_uninstalled ; then
         # Some header files are generated, so we need to look in builddir too.
-	HDIR="@abs_builddir@/include"
-	add_headers_in_HDIR_to_H
-	HDIR="@abs_builddir@/include/xapian"
-	add_headers_in_HDIR_to_H
-	HDIR="@abs_srcdir@/include"
-	add_headers_in_HDIR_to_H
-	HDIR="@abs_srcdir@/include/xapian"
-	add_headers_in_HDIR_to_H
+	add_headers_in_HDIR_to_H "@abs_builddir@/include"
+	add_headers_in_HDIR_to_H "@abs_builddir@/include/xapian"
+        if [ "@abs_srcdir@" != "@abs_builddir@" ] ; then
+	    add_headers_in_HDIR_to_H "@abs_srcdir@/include"
+	    add_headers_in_HDIR_to_H "@abs_srcdir@/include/xapian"
+	fi
     else
-	HDIR="@includedir@"
-	add_headers_in_HDIR_to_H
-	HDIR="@includedir@/xapian"
-	add_headers_in_HDIR_to_H
+	add_headers_in_HDIR_to_H "@includedir@"
+	add_headers_in_HDIR_to_H "@includedir@/xapian"
     fi
 }
 

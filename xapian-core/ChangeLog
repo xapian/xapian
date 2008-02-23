@@ -1,3 +1,8 @@
+Sat Feb 23 23:33:39 GMT 2008  Olly Betts <olly@survex.com>
+
+	* xapian-config.in: Fix not to repeated headers in --swigheaders in a
+	  non-VPATH build.
+
 Fri Feb 22 17:20:19 GMT 2008  Olly Betts <olly@survex.com>
 
 	* HACKING: Add note about preferring std::string().
