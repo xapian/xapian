@@ -107,13 +107,8 @@ set_I_for_uninstalled() {
 # Add any header files found in $1 to $H
 add_headers_in_HDIR_to_H() {
     HDIR=$1
-    for file in `ls "$HDIR"`;
-    do
-	case "$file" in
-	*.h)
-	    H="$H$HDIR/$file "
-	esac
-    done
+    list=`echo "$HDIR"/*.h`
+    [ "$list" != "$HDIR/*.h" ] && H="$H$list "
 }
 
 # set $H to a list of header files.

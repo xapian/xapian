@@ -1,3 +1,8 @@
+Sat Feb 23 23:40:56 GMT 2008  Olly Betts <olly@survex.com>
+
+	* xapian-config.in: Use globbing rather than iterating over the output
+	  of ls.
+
 Sat Feb 23 23:33:39 GMT 2008  Olly Betts <olly@survex.com>
 
 	* xapian-config.in: Fix not to repeated headers in --swigheaders in a
