@@ -1,3 +1,9 @@
+Sun Feb 24 01:11:25 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac,python/Makefile.am: The Python module now has the
+	  extension which Python expects, which fixes a failure on Mac OS X.
+	  PYTHON_PATHSEP is no longer required.
+
 Sat Feb 23 23:09:05 GMT 2008  Olly Betts <olly@survex.com>
 
 	* configure.ac: Correct SWIG version in error message.

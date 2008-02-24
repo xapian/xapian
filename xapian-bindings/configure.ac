@@ -253,10 +253,8 @@ if test no != "$with_python" ; then
 	fi
 	AC_MSG_RESULT([$PYTHON_LIB])
 	AC_ARG_VAR(PYTHON_LIB, [Directory to install python bindings in])
-	AC_MSG_CHECKING([for Python path separator])
-	PYTHON_PATHSEP=`$PYTHON -c 'import os;print(os.pathsep)'`
-	AC_MSG_RESULT([$PYTHON_PATHSEP])
-	AC_SUBST(PYTHON_PATHSEP)
+
+	AC_MSG_CHECKING([for python libraries to link against])
 	case $host_os in
 	mingw* | pw32*)
 	  PYTHON_LIBS=`$PYTHON -c 'import os,sys;print("-L"+os.path.join(sys.prefix,"libs").replace(os.sep,"/"),"-lpython"+sys.version[[:3]].replace(".",""))'` ;;
@@ -264,6 +262,14 @@ if test no != "$with_python" ; then
 	  PYTHON_LIBS= ;;
 	esac
 	AC_SUBST(PYTHON_LIBS)
+	AC_MSG_RESULT([$PYTHON_LIBS])
+
+	AC_MSG_CHECKING([for python module extension])
+	dnl Usually ".so", but for example, Mac OS X uses ".dylib".
+	PYTHON_SO=`$PYTHON -c 'import distutils.sysconfig;print(distutils.sysconfig.get_config_vars("SO")[[0]])'`
+	AC_SUBST(PYTHON_SO)
+	AC_MSG_RESULT([$PYTHON_SO])
+
 	BINDINGS="$BINDINGS python"
       else
 	AC_MSG_RESULT([no (install python-dev or python-devel package or similar)])
