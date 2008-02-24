@@ -1,3 +1,9 @@
+Sun Feb 24 11:02:44 GMT 2008  Olly Betts <olly@survex.com>
+
+	* java-swig/Makefile.am,php/Makefile.am,ruby/Makefile.am,
+	  tcl8/Makefile.am: Minor comment correction (we only remove a single
+	  file in each case).
+
 Sun Feb 24 01:11:25 GMT 2008  Olly Betts <olly@survex.com>
 
 	* configure.ac,python/Makefile.am: The Python module now has the

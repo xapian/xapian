@@ -32,7 +32,7 @@ install-data-hook:
 	rm -f libtoolconfig.tmp
 
 # Because we don't install the .la file, "make uninstall" doesn't work and
-# we need to remove the files ourselves.  Also, the extension may not match
+# we need to remove the file ourselves.  Also, the extension may not match
 # what libtool expects.
 uninstall-local:
 	rm -f $(DESTDIR)$(rubylibarchdir)/_xapian.$(RUBY_DLEXT)

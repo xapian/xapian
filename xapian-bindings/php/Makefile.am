@@ -40,7 +40,7 @@ install-data-hook:
 	rm -f $(DESTDIR)$(phpextdir)/xapian.la
 
 # Because we don't install the .la file, "make uninstall" doesn't work and
-# we need to remove the files ourselves.
+# we need to remove the file ourselves.
 uninstall-local:
 	eval `grep '^dlname=' $(phpext_LTLIBRARIES)` ; \
 	  rm -f $(DESTDIR)$(phpextdir)/"$$dlname"

@@ -90,7 +90,7 @@ install-data-hook:
 	rm -f $(DESTDIR)$(jnidir)/xapian.la
 
 # Because we don't install the .la file, "make uninstall" doesn't work and
-# we need to remove the files ourselves.
+# we need to remove the file ourselves.
 uninstall-local:
 	eval `grep '^dlname=' $(jni_LTLIBRARIES)` ; \
 	  rm -f $(DESTDIR)$(jnidir)/"$$dlname"
