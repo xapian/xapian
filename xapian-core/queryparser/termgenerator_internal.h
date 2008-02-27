@@ -33,7 +33,7 @@ class Stopper;
 
 class TermGenerator::Internal : public Xapian::Internal::RefCntBase {
     friend class TermGenerator;
-    Stem stemmer;
+    Xapian::Internal::RefCntPtr<Xapian::StemBase> stemmer;
     const Stopper * stopper;
     Document doc;
     termcount termpos;

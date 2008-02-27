@@ -206,7 +206,7 @@ endofterm:
 	}
 	if ((flags & FLAG_SPELLING) && prefix.empty()) db.add_spelling(term);
 
-	if (!stemmer.internal.get()) continue;
+	if (!stemmer.get()) continue;
 
 	if (stop_mode == STOPWORDS_INDEX_UNSTEMMED_ONLY && (*stopper)(term))
 	    continue;
@@ -218,7 +218,7 @@ endofterm:
 	// Add stemmed form without positional information.
 	string stem("Z");
 	stem += prefix;
-	stem += stemmer(term);
+	stem += (*stemmer)(term);
 	doc.add_term(stem, weight);
     }
 }

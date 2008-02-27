@@ -2,6 +2,7 @@
  *  \brief stemming algorithms
  */
 /* Copyright (C) 2005,2007 Olly Betts
+ * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,27 +29,62 @@
 
 namespace Xapian {
 
-/// Class representing a stemming algorithm.
-class XAPIAN_VISIBILITY_DEFAULT Stem {
-  public:
-    /// @private @internal Class representing the stemmer internals.
-    class Internal;
-    /// @private @internal Reference counted internals.
-    Xapian::Internal::RefCntPtr<Internal> internal;
+/// Base representing a stemming algorithm.
+class XAPIAN_VISIBILITY_DEFAULT StemBase : public Xapian::Internal::RefCntBase {
+    /// No copying allowed.
+    StemBase(const StemBase & o);
 
-    /// Copy constructor.
-    Stem(const Stem & o);
+    /// No assignment allowed.
+    void operator=(const StemBase & o);
 
-    /// Assignment.
-    void operator=(const Stem & o);
-
-    /** Construct a Xapian::Stem object which doesn't change terms.
-     *
-     *  Equivalent to Stem("none").
+  protected:
+    /** Destructor is protected since it should only be called by subclasses
+     *  and RefCntPtr.  Subclasses should make their destructors protected,
+     *  to force users to use a RefCntPtr to reference them.
      */
-    Stem();
+    virtual ~StemBase() {}
 
-    /** Construct a Xapian::Stem object for a particular language.
+    friend class Xapian::Internal::RefCntPtr<StemBase>;
+
+  public:
+    StemBase() {}
+
+    /** Stem a word.
+     *
+     *  @param word  a word to stem.
+     *  @return      the stemmed form of the word.
+     */
+    virtual std::string operator()(const std::string &word) const = 0;
+
+    /// Return a string describing this object.
+    virtual std::string get_description() const = 0;
+};
+
+/// Class representing one of the snowball stemming algorithms.
+class XAPIAN_VISIBILITY_DEFAULT StemSnowball : public StemBase {
+    /// No copying allowed.
+    StemSnowball(const StemSnowball & o);
+
+    /// No assignment allowed.
+    void operator=(const StemSnowball & o);
+
+  protected:
+    /** Destructor is protected since it should only be called by subclasses
+     *  and RefCntPtr.  Subclasses should make their destructors protected,
+     *  to force users to use a RefCntPtr to reference them.
+     */
+    virtual ~StemSnowball();
+
+  public:
+    /// @private @internal Class representing the snowball stemmer internals.
+    class Internal;
+
+  private:
+    /// @private @internal Snowball stemmer internals.
+    Internal * internal;
+
+  public:
+    /** Construct a Xapian::StemSnowball object for a particular language.
      *
      *  @param language	Either the English name for the language
      *			or the two letter ISO639 code.
@@ -56,7 +92,6 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      *  The following language names are understood (aliases follow the
      *  name):
      *
-     *  - none - don't stem terms
      *  - danish (da)
      *  - dutch (nl)
      *  - english (en) - Martin Porter's 2002 revision of his stemmer
@@ -76,15 +111,12 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      *  @exception		Xapian::InvalidArgumentError is thrown if
      *			language isn't recognised.
      */
-    explicit Stem(const std::string &language);
-
-    /// Destructor.
-    ~Stem();
+    explicit StemSnowball(const std::string &language);
 
     /** Stem a word.
      *
-     *  @param word		a word to stem.
-     *  @return		the stem
+     *  @param word  a word to stem.
+     *  @return      the stemmed form of the word.
      */
     std::string operator()(const std::string &word) const;
 
@@ -102,6 +134,74 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      *  required for this operation.
      */
     static std::string get_available_languages();
+};
+
+/// Class wrapping a reference counted stemming algorithm.
+class XAPIAN_VISIBILITY_DEFAULT Stem {
+  public:
+    /// @private @internal Reference counted internals.
+    Xapian::Internal::RefCntPtr<Xapian::StemBase> internal;
+
+    /// Copy constructor.
+    Stem(const Stem & o) : internal(o.internal) { }
+
+    /// Assignment.
+    void operator=(const Stem & o) { internal = o.internal; }
+
+    /** Construct a Xapian::Stem object from a pointer to a StemBase.
+     */
+    Stem(Xapian::Internal::RefCntPtr<Xapian::StemBase> internal_)
+	    : internal(internal_) {}
+
+    /** Construct a Xapian::Stem object which doesn't change terms.
+     */
+    Stem() : internal(0) {}
+
+    /** Construct a Xapian::Stem object for a particular language.
+     *
+     *  This constructor is included for convenience, and is equivalent to
+     *  Stem(new StemSnowball(language)) - except that a language parameter of
+     *  "none" will produce a stemmer which doesn't remove any stems.
+     *
+     *  See Xapian::StemSnowball for details.
+     */
+    explicit Stem(const std::string &language)
+    {
+	if (language == "none") 
+	    internal = 0;
+	else
+	    internal = new Xapian::StemSnowball(language);
+    }
+
+    /** Stem a word.
+     *
+     *  @param word  a word to stem.
+     *  @return      the stemmed form of the word.
+     */
+    std::string operator()(const std::string &word) const
+    {
+	if (!internal.get()) return word;
+	return internal->operator()(word);
+    }
+
+    /// Return a string describing this object.
+    std::string get_description() const
+    {
+	if (!internal.get()) return "Xapian::Stem()";
+	return "Xapian::Stem(" + internal->get_description() + ")";
+    }
+
+    /** Return a list of available languages.
+     *
+     *  This is included for convenience, and is equivalent to
+     *  StemSnowball.get_available_languages().
+     *
+     *  See Xapian::StemSnowball for details.
+     */
+    static std::string get_available_languages()
+    {
+	return StemSnowball::get_available_languages();
+    }
 };
 
 }

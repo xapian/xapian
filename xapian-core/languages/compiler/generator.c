@@ -1481,7 +1481,7 @@ static void generate_amongs(struct generator * g) {
         if (q->type == t_routine && q->routine_called_from_among) {
 	    q->among_func_count = ++among_func_count;
 	    g->V[0] = q;
-	    w(g, "static int t~V0(Xapian::Stem::Internal * this_ptr) {~N"
+	    w(g, "static int t~V0(Xapian::StemSnowball::Internal * this_ptr) {~N"
 		 "    return (static_cast<Xapian::~S0 *>(this_ptr))->~V0();~N"
 		 "}~N"
 		 "~N");

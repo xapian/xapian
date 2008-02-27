@@ -46,7 +46,7 @@ TermGenerator::~TermGenerator() { }
 void
 TermGenerator::set_stemmer(const Xapian::Stem & stemmer)
 {
-    internal->stemmer = stemmer;
+    internal->stemmer = stemmer.internal;
 }
 
 void
@@ -122,7 +122,7 @@ TermGenerator::get_description() const
     string s("Xapian::TermGenerator(");
     if (internal.get()) {
 	s += "stem=";
-	s += internal->stemmer.get_description();
+	s += internal->stemmer->get_description();
 	if (internal->stopper) {
 	    s += ", stopper set";
 	}

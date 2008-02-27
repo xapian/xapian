@@ -1114,6 +1114,7 @@ AC_CONFIG_FILES([
  docs/doxygen_full_conf
  xapian-core.spec
  ])
+AC_CONFIG_FILES([tests/nocompiletest], [chmod +x tests/nocompiletest])
 AC_CONFIG_FILES([tests/runtest], [chmod +x tests/runtest])
 AC_CONFIG_FILES([tests/runsrv], [chmod +x tests/runsrv])
 AC_CONFIG_FILES([xapian-config], [chmod +x xapian-config])

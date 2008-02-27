@@ -27,9 +27,6 @@
 #include <stdlib.h>
 #include <string>
 
-// FIXME: we might want to make Stem::Internal a virtual base class and have
-// Stem::Internal::Snowball to allow for non-Snowball stemmers...
-
 typedef unsigned char symbol;
 
 #define HEAD 2*sizeof(int)
@@ -41,7 +38,7 @@ typedef unsigned char symbol;
 #define CAPACITY(P)    ((const int *)(const void *)(P))[-2]
 #define SET_CAPACITY(P, N) ((int *)(void *)(P))[-2] = N
 
-typedef int (*among_function)(Xapian::Stem::Internal *);
+typedef int (*among_function)(Xapian::StemSnowball::Internal *);
 
 struct among {
     int s_size;		/* length of search string (in symbols) */
@@ -60,7 +57,7 @@ extern int skip_utf8(const symbol * p, int c, int lb, int l, int n);
 
 namespace Xapian {
 
-class Stem::Internal : public Xapian::Internal::RefCntBase {
+class StemSnowball::Internal {
     int slice_check();
 
   protected:

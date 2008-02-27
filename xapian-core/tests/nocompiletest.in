@@ -1,0 +1,61 @@
+#!/bin/sh
+# @configure_input@
+#
+# Copyright (C) 2002,2003,2004,2005,2006,2007 Olly Betts
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
+# USA
+
+# Test that various programs don't compile.
+
+EXEEXT="@EXEEXT@"
+SRCDIR="@srcdir@"
+out="nocompiletest_stdout.tmp"
+err="nocompiletest_stderr.tmp"
+
+TESTS="stem1 stem2"
+exitstatus=0
+failures=0
+
+echo "Attempting to build valid test program"
+# First, check that building "nocompile_pass" works, to ensure that the
+# platform actually allows anything to compile.
+rm -f "nocompile_pass${EXEEXT}"
+make "nocompile_pass${EXEEXT}" >"$out" 2>"$err"
+if [ $? -ne 0 ] ; then
+    cat < "$out"
+    echo
+    echo "Failed to compile valid test program, so unable to test for compilation"
+    echo "problems with invalid test programs."
+    echo
+    cat < "$err"
+    rm -f $out $err
+    exit 1
+fi
+
+# Now, try compiling each of the test programs, checking that compilation fails.
+for test in $TESTS
+do
+  echo "Testing build of nocompile_${test}"
+  rm -f "nocompile_${test}${EXEEXT}"
+  make "nocompile_${test}${EXEEXT}" >"$out" 2>"$err"
+  if [ $? -eq 0 ] ; then
+    echo "FAIL: Compilation of invalid test program succeeded."
+    exitstatus=1
+  fi
+done
+
+rm -f $out $err
+exit $exitstatus

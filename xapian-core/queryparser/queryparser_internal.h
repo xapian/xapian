@@ -57,7 +57,7 @@ class Utf8Iterator;
 class QueryParser::Internal : public Xapian::Internal::RefCntBase {
     friend class QueryParser;
     friend class ::State;
-    Stem stemmer;
+    Xapian::Internal::RefCntPtr<Xapian::StemBase> stemmer;
     stem_strategy stem_action;
     const Stopper * stopper;
     Query::op default_op;

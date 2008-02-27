@@ -17,11 +17,13 @@ TESTS_ENVIRONMENT = ./runtest
 
 check-none: apitest$(EXEEXT) \
             internaltest$(EXEEXT) \
+	    nocompiletest \
 	    stemtest$(EXEEXT) \
 	    queryparsertest$(EXEEXT) \
 	    termgentest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b none
 	$(TESTS_ENVIRONMENT) ./internaltest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./nocompiletest
 	$(TESTS_ENVIRONMENT) ./stemtest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./queryparsertest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./termgentest$(EXEEXT)
@@ -62,9 +64,18 @@ quartz_tests= btreetest$(EXEEXT) quartztest$(EXEEXT)
 INCLUDES += -I$(top_srcdir)/backends/quartz
 endif
 
+nocompile_programs = \
+  nocompile_pass \
+  nocompile_stem1 \
+  nocompile_stem2
+
 ## Test programs to be run
-TESTS = $(quartz_tests) \
- apitest$(EXEEXT) internaltest$(EXEEXT) stemtest$(EXEEXT) \
+TESTS = \
+ nocompiletest \
+ $(quartz_tests) \
+ apitest$(EXEEXT) \
+ internaltest$(EXEEXT) \
+ stemtest$(EXEEXT) \
  queryparsertest$(EXEEXT) \
  termgentest$(EXEEXT)
 
@@ -72,8 +83,12 @@ TESTS = $(quartz_tests) \
 check_PROGRAMS = $(quartz_check_programs) \
  apitest internaltest stemtest queryparsertest termgentest
 
-# Make sure runtest is up to date before running tests
-check_SCRIPTS = runtest
+## We want to have rules for the nocompile programs, but not try building
+## ourselves (nocompiletest calls back to the makefile to build them).
+EXTRA_PROGRAMS = $(nocompile_programs)
+
+# We include runtest here to make sure it is up to date before running tests
+check_SCRIPTS = nocompiletest runtest
 
 ## Sources:
 
@@ -113,6 +128,13 @@ termgentest_SOURCES = termgentest.cc $(testharness_sources)
 termgentest_LDFLAGS = -no-install $(ldflags)
 termgentest_LDADD = ../libgetopt.la ../libxapian.la
 
+nocompile_pass_SOURCES = nocompile_pass.cc
+nocompile_pass_LDADD = ../libxapian.la
+nocompile_stem1_SOURCES = nocompile_stem1.cc
+nocompile_stem1_LDADD = ../libxapian.la
+nocompile_stem2_SOURCES = nocompile_stem2.cc
+nocompile_stem2_LDADD = ../libxapian.la
+
 BUILT_SOURCES =
 
 if MAINTAINER_MODE
@@ -150,6 +172,7 @@ EXTRA_DIST = collate-apitest generate-api_generated api_all.h api_collated.h \
 
 ## Distribute test data:
 EXTRA_DIST +=\
+	nocompiletest.in \
 	runtest.in \
 	valgrind.supp \
 	testdata/apitest_onedoc.txt \

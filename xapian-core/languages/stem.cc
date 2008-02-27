@@ -33,17 +33,9 @@ using namespace std;
 
 namespace Xapian {
 
-Stem::Stem(const Stem & o) : internal(o.internal) { }
-
-void
-Stem::operator=(const Stem & o)
+StemSnowball::StemSnowball(const std::string &language)
+	: internal(0)
 {
-    internal = o.internal;
-}
-
-Stem::Stem() : internal(0) { }
-
-Stem::Stem(const std::string &language) : internal(0) {
     if (language.empty()) return;
     switch (language[0]) {
 	case 'd':
@@ -119,9 +111,6 @@ Stem::Stem(const std::string &language) : internal(0) {
 		internal = new InternalStemNorwegian;
 		return;
 	    }
-	    if (language == "none") {
-		return;
-	    }
 	    break;
 	case 'p':
 	    if (language == "pt" || language == "portuguese") {
@@ -163,22 +152,25 @@ Stem::Stem(const std::string &language) : internal(0) {
     throw Xapian::InvalidArgumentError("Language code " + language + " unknown");
 }
 
-Stem::~Stem() { }
+StemSnowball::~StemSnowball()
+{
+    delete internal;
+}
 
 string
-Stem::operator()(const std::string &word) const
+StemSnowball::operator()(const std::string &word) const
 {
-    if (!internal.get() || word.empty()) return word;
+    if (word.empty()) return word;
     return internal->operator()(word);
 }
 
 string
-Stem::get_description() const
+StemSnowball::get_description() const
 {
-    string desc = "Xapian::Stem(";
-    if (internal.get()) {
+    string desc = "Xapian::StemSnowball(\"";
+    if (internal) {
 	desc += internal->get_description();
-	desc += ')';
+	desc += "\")";
     } else {
 	desc += "none)";
     }
@@ -186,7 +178,7 @@ Stem::get_description() const
 }
 
 string
-Stem::get_available_languages()
+StemSnowball::get_available_languages()
 {
     return LANGSTRING;
 }

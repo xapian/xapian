@@ -74,7 +74,7 @@ QueryParser::~QueryParser() { }
 void
 QueryParser::set_stemmer(const Xapian::Stem & stemmer)
 {
-    internal->stemmer = stemmer;
+    internal->stemmer = stemmer.internal;
 }
 
 void

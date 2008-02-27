@@ -1,3 +1,12 @@
+Wed Feb 27 22:58:10 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* configure.ac,include/xapian/stem.h,languages/Makefile.mk,
+	  languages/compiler/generator.c,languages/stem.cc,
+	  languages/steminternal.cc,languages/steminternal.h,queryparser/,
+	  tests/: Rework Stem interface, such that Stem is a wrapper for
+	  a reference counted pointer to a new StemBase class, with a
+	  built-in StemSnowball subclass.
+
 Sat Feb 23 23:40:56 GMT 2008  Olly Betts <olly@survex.com>
 
 	* xapian-config.in: Use globbing rather than iterating over the output

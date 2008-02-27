@@ -131,18 +131,18 @@ static symbol * increase_size(symbol * p, int n) {
 
 namespace Xapian {
 
-Stem::Internal::Internal()
+StemSnowball::Internal::Internal()
     : p(create_s()), c(0), l(0), lb(0), bra(0), ket(0)
 {
 }
 
-Stem::Internal::~Internal()
+StemSnowball::Internal::~Internal()
 {
     lose_s(p);
 }
 
 string
-Stem::Internal::operator()(const string & word)
+StemSnowball::Internal::operator()(const string & word)
 {
     const symbol * s = reinterpret_cast<const symbol *>(word.data());
     replace_s(0, l, word.size(), s);
@@ -156,7 +156,7 @@ Stem::Internal::operator()(const string & word)
 
 /* Code for character groupings: utf8 cases */
 
-int Stem::Internal::get_utf8(int * slot) {
+int StemSnowball::Internal::get_utf8(int * slot) {
     int b0, b1;
     int tmp = c;
     if (tmp >= l) return 0;
@@ -171,7 +171,7 @@ int Stem::Internal::get_utf8(int * slot) {
     * slot = (b0 & 0xF) << 12 | (b1 & 0x3F) << 6 | (p[tmp] & 0x3F); return 3;
 }
 
-int Stem::Internal::get_b_utf8(int * slot) {
+int StemSnowball::Internal::get_b_utf8(int * slot) {
     int b0, b1;
     int tmp = c;
     if (tmp <= lb) return 0;
@@ -186,7 +186,7 @@ int Stem::Internal::get_b_utf8(int * slot) {
     * slot = (p[tmp] & 0xF) << 12 | (b1 & 0x3F) << 6 | (b0 & 0x3F); return 3;
 }
 
-int Stem::Internal::in_grouping_U(const unsigned char * s, int min, int max, int repeat) {
+int StemSnowball::Internal::in_grouping_U(const unsigned char * s, int min, int max, int repeat) {
     do {
 	int ch;
 	int w = get_utf8(&ch);
@@ -198,7 +198,7 @@ int Stem::Internal::in_grouping_U(const unsigned char * s, int min, int max, int
     return 0;
 }
 
-int Stem::Internal::in_grouping_b_U(const unsigned char * s, int min, int max, int repeat) {
+int StemSnowball::Internal::in_grouping_b_U(const unsigned char * s, int min, int max, int repeat) {
     do {
 	int ch;
 	int w = get_b_utf8(&ch);
@@ -210,7 +210,7 @@ int Stem::Internal::in_grouping_b_U(const unsigned char * s, int min, int max, i
     return 0;
 }
 
-int Stem::Internal::out_grouping_U(const unsigned char * s, int min, int max, int repeat) {
+int StemSnowball::Internal::out_grouping_U(const unsigned char * s, int min, int max, int repeat) {
     do {
 	int ch;
 	int w = get_utf8(&ch);
@@ -222,7 +222,7 @@ int Stem::Internal::out_grouping_U(const unsigned char * s, int min, int max, in
     return 0;
 }
 
-int Stem::Internal::out_grouping_b_U(const unsigned char * s, int min, int max, int repeat) {
+int StemSnowball::Internal::out_grouping_b_U(const unsigned char * s, int min, int max, int repeat) {
     do {
 	int ch;
 	int w = get_b_utf8(&ch);
@@ -234,21 +234,21 @@ int Stem::Internal::out_grouping_b_U(const unsigned char * s, int min, int max, 
     return 0;
 }
 
-int Stem::Internal::eq_s(int s_size, const symbol * s) {
+int StemSnowball::Internal::eq_s(int s_size, const symbol * s) {
     if (l - c < s_size || memcmp(p + c, s, s_size * sizeof(symbol)) != 0)
 	return 0;
     c += s_size;
     return 1;
 }
 
-int Stem::Internal::eq_s_b(int s_size, const symbol * s) {
+int StemSnowball::Internal::eq_s_b(int s_size, const symbol * s) {
     if (c - lb < s_size || memcmp(p + c - s_size, s, s_size * sizeof(symbol)) != 0)
 	return 0;
     c -= s_size;
     return 1;
 }
 
-int Stem::Internal::find_among(const struct among * v, int v_size, const unsigned char * fnum, const among_function * f) {
+int StemSnowball::Internal::find_among(const struct among * v, int v_size, const unsigned char * fnum, const among_function * f) {
     int i = 0;
     int j = v_size;
 
@@ -302,7 +302,7 @@ int Stem::Internal::find_among(const struct among * v, int v_size, const unsigne
 }
 
 /* find_among_b is for backwards processing. Same comments apply */
-int Stem::Internal::find_among_b(const struct among * v, int v_size, const unsigned char * fnum, const among_function * f) {
+int StemSnowball::Internal::find_among_b(const struct among * v, int v_size, const unsigned char * fnum, const among_function * f) {
     int i = 0;
     int j = v_size;
 
@@ -351,7 +351,7 @@ int Stem::Internal::find_among_b(const struct among * v, int v_size, const unsig
 }
 
 int
-Stem::Internal::replace_s(int c_bra, int c_ket, int s_size, const symbol * s)
+StemSnowball::Internal::replace_s(int c_bra, int c_ket, int s_size, const symbol * s)
 {
     int adjustment;
     int len;
@@ -377,7 +377,7 @@ Stem::Internal::replace_s(int c_bra, int c_ket, int s_size, const symbol * s)
     return adjustment;
 }
 
-int Stem::Internal::slice_check() {
+int StemSnowball::Internal::slice_check() {
     Assert(p);
     if (bra < 0 || bra > ket || ket > l) {
 #if 0
@@ -389,19 +389,19 @@ int Stem::Internal::slice_check() {
     return 0;
 }
 
-int Stem::Internal::slice_from_s(int s_size, const symbol * s) {
+int StemSnowball::Internal::slice_from_s(int s_size, const symbol * s) {
     if (slice_check()) return -1;
     replace_s(bra, ket, s_size, s);
     return 0;
 }
 
-void Stem::Internal::insert_s(int c_bra, int c_ket, int s_size, const symbol * s) {
+void StemSnowball::Internal::insert_s(int c_bra, int c_ket, int s_size, const symbol * s) {
     int adjustment = replace_s(c_bra, c_ket, s_size, s);
     if (c_bra <= bra) bra += adjustment;
     if (c_bra <= ket) ket += adjustment;
 }
 
-symbol * Stem::Internal::slice_to(symbol * v) {
+symbol * StemSnowball::Internal::slice_to(symbol * v) {
     if (slice_check()) return NULL;
     {
         int len = ket - bra;
@@ -414,7 +414,7 @@ symbol * Stem::Internal::slice_to(symbol * v) {
     return v;
 }
 
-symbol * Stem::Internal::assign_to(symbol * v) {
+symbol * StemSnowball::Internal::assign_to(symbol * v) {
     int len = l;
     if (CAPACITY(v) < len) {
         v = increase_size(v, len);
@@ -425,7 +425,7 @@ symbol * Stem::Internal::assign_to(symbol * v) {
 }
 
 #if 0
-void Stem::Internal::debug(int number, int line_count) {
+void StemSnowball::Internal::debug(int number, int line_count) {
     int i;
     int limit = SIZE(p);
     /*if (number >= 0) printf("%3d (line %4d): '", number, line_count);*/

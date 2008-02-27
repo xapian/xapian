@@ -284,6 +284,37 @@ DEFINE_TESTCASE(stemlangs1, !backend) {
     return true;
 }
 
+class StemSubclass : public Xapian::StemBase {
+    private:
+	virtual ~StemSubclass() {}
+    public:
+	std::string operator()(const std::string &word) const { return "!" + word; }
+	std::string get_description() const { return "StemSubclass"; }
+};
+
+class StemSnowballSubclass : public Xapian::StemSnowball {
+    public:
+	StemSnowballSubclass(const std::string & language)
+		: Xapian::StemSnowball(language) {}
+
+	std::string operator()(const std::string &word) const { return "!2" + Xapian::StemSnowball::operator()(word); }
+	std::string get_description() const { return "StemSubclass"; }
+};
+
+// Test subclassing of stem.
+DEFINE_TESTCASE(stemsubclass1, !backend) {
+    Xapian::Stem stemmer(new StemSubclass());
+    TEST_EQUAL(stemmer("foods"), "!foods");
+    TEST_EQUAL(stemmer("food"), "!food");
+    TEST_EQUAL(stemmer(""), "!");
+
+    Xapian::Stem stemmer2(new StemSnowballSubclass("en"));
+    TEST_EQUAL(stemmer2("foods"), "!2food");
+    TEST_EQUAL(stemmer2("food"), "!2food");
+    TEST_EQUAL(stemmer2(""), "!2");
+    return true;
+}
+
 // Some simple tests of the built in weighting schemes.
 DEFINE_TESTCASE(weight1, !backend) {
     Xapian::Weight * wt;

@@ -182,7 +182,7 @@ class State {
 	: qpi(qpi_), error(NULL), flags(flags_) { }
 
     string stem_term(const string &term) {
-	return qpi->stemmer(term);
+	return (*qpi->stemmer)(term);
     }
 
     void add_to_stoplist(const Term * term) {
@@ -907,7 +907,7 @@ phrased_term:
 	    // when used with positional operators".
 	    stem_strategy stem_term = stem_action;
 	    if (stem_term != STEM_NONE) {
-		if (!stemmer.internal.get()) {
+		if (!stemmer.get()) {
 		    // No stemmer is set.
 		    stem_term = STEM_NONE;
 		} else if (stem_term == STEM_SOME) {
