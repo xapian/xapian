@@ -916,6 +916,30 @@ def test_weight_normalise():
             expect(item.weight > 0, True)
             expect(item.weight <= 1, True)
 
+def test_stem_subclass():
+    """Test subclassing a stemmer in Python.
+
+    """
+    class StemSubclass(xapian.Stem):
+        def __init__(self):
+            xapian.Stem.__init__(self, 'en')
+
+        def __call__(self, word):
+            return "!" + xapian.Stem.__call__(self, word)
+
+        def __str__(self):
+            return "StemSubclass()"
+
+    o = xapian.Stem('en')
+    s = StemSubclass()
+
+    expect(str(o), 'Xapian::Stem(Xapian::StemSnowball("english"))')
+    expect(str(s), 'StemSubclass()')
+
+    expect(o('food'), 'food')
+    expect(s('food'), '!food')
+    expect(o('foods'), 'food')
+    expect(s('foods'), '!food')
 
 # The legacy sequence API is only supported for Python >= 2.3 so don't try
 # testing it for Python 2.2.

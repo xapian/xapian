@@ -27,7 +27,7 @@ use exception_data;
 my @allclasses = (@baseclasses, @classes);
 
 my @directorclasses = qw(
-    MatchDecider ExpandDecider Stopper ValueRangeProcessor Sorter
+    ExpandDecider MatchDecider Sorter StemBase Stopper ValueRangeProcessor
 );
 
 open FD, ">except.i" or die $!;
@@ -154,6 +154,15 @@ EOF
 
 print FD <<'EOF';
 %exception Xapian::Stopper::get_description {
+    try {
+	$action
+    } catch (...) {
+	XapianSetPythonException();
+	SWIG_fail;
+    }
+}
+
+%exception Xapian::StemBase::get_description {
     try {
 	$action
     } catch (...) {

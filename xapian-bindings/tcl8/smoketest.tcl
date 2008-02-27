@@ -32,7 +32,7 @@ if { $v != $v2 } {
 }
 
 xapian::Stem stem "english"
-if { [stem get_description] != "Xapian::Stem(english)" } {
+if { [stem get_description] != "Xapian::Stem(Xapian::StemSnowball(\"english\"))" } {
     puts stderr "Unexpected stem.get_description()"
     exit 1
 }

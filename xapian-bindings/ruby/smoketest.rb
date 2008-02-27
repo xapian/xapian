@@ -52,7 +52,7 @@ class XapianSmoketest < Test::Unit::TestCase
   end # setup
 
   def test_stem
-    assert_equal("Xapian::Stem(english)", @stem.description())    
+    assert_equal("Xapian::Stem(Xapian::StemSnowball(\"english\"))", @stem.description())    
 
     assert_equal("is", @stem.call("is"))
     assert_equal("go", @stem.call("going"))

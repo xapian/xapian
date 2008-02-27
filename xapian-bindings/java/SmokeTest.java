@@ -40,7 +40,7 @@ public class SmokeTest {
     public static void main(String[] args) throws Exception {
 	try {
 	    Stem stem = new Stem("english");
-	    if (!stem.toString().equals("Xapian::Stem(english)")) {
+	    if (!stem.toString().equals("Xapian::Stem(Xapian::StemSnowball(\"english\"))")) {
 		System.err.println("Unexpected stem.toString()");
 		System.exit(1);
 	    }

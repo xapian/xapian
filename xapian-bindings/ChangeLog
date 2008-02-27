@@ -1,3 +1,10 @@
+Wed Feb 27 23:02:19 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* csharp/Makefile.am,java/SmokeTest.java,php/smoketest.php,
+	  python/generate-python-exceptions.in,python/pythontest.py,
+	  python/smoketest.py,ruby/smoketest.rb,tcl8/smoketest.tcl,xapian.i:
+	  Add support for the new StemBase and StemSnowball classes.
+
 Sun Feb 24 11:02:44 GMT 2008  Olly Betts <olly@survex.com>
 
 	* java-swig/Makefile.am,php/Makefile.am,ruby/Makefile.am,

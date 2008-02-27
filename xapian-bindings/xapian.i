@@ -906,11 +906,51 @@ class Query {
 %ignore Xapian::QueryParser::QueryParser(const QueryParser &);
 %include <xapian/queryparser.h>
 
+/**
+I think the following ought to work for wrapping stem.h, and does for Python,
+but (with swig revision 10145) fails for PHP with "Fatal error: Class
+'XapianRefCntBase' not found in ... php5/xapian.php", and gives a segmentation
+fault for ruby.  Therefore, we include an inline version instead.
+
+%ignore Xapian::Internal::RefCntPtr::operator=;
+%import <xapian/base.h>
+%feature("director") Xapian::StemBase;
 %ignore Xapian::Stem::internal;
 %ignore Xapian::Stem::operator=;
 %ignore Xapian::Stem::Stem();
 %ignore Xapian::Stem::Stem(const Stem &);
+%ignore Xapian::Stem::Stem(Xapian::Internal::RefCntPtr<Xapian::StemBase>);
 %include <xapian/stem.h>
+*/
+
+%feature("director") Xapian::StemBase;
+namespace Xapian {
+class StemBase {
+  protected:
+    virtual ~StemBase() {}
+  public:
+    StemBase() {}
+    virtual std::string operator()(const std::string &word) const = 0;
+    virtual std::string get_description() const = 0;
+};
+class StemSnowball : public StemBase {
+  protected:
+    virtual ~StemSnowball() {}
+  public:
+    explicit StemSnowball(const std::string &language);
+    std::string operator()(const std::string &word) const;
+    std::string get_description() const;
+    static std::string get_available_languages();
+};
+class Stem {
+  public:
+    Stem();
+    explicit Stem(const std::string &language);
+    std::string operator()(const std::string &word) const;
+    std::string get_description() const;
+    static std::string get_available_languages();
+};
+}
 
 %ignore Xapian::TermGenerator::internal;
 %ignore Xapian::TermGenerator::operator=;

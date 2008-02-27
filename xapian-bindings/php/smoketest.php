@@ -30,7 +30,7 @@ include "php$php_version/xapian.php";
 include "smoketest$php_version.php";
 
 $stem = new XapianStem("english");
-if ($stem->get_description() != "Xapian::Stem(english)") {
+if ($stem->get_description() != "Xapian::Stem(Xapian::StemSnowball(\"english\"))") {
     print "Unexpected \$stem->get_description()\n";
     exit(1);
 }

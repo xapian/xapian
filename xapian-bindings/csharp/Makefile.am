@@ -41,6 +41,8 @@ XAPIAN_SWIG_CS_SRCS=\
 	SWIGTYPE_p_std__vectorTXapian__Query_t.cs \
 	SimpleStopper.cs \
 	Sorter.cs \
+	StemBase.cs \
+	StemSnowball.cs \
 	Stem.cs \
 	Stopper.cs \
 	StringValueRangeProcessor.cs \

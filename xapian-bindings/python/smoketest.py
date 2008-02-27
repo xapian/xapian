@@ -33,7 +33,7 @@ def test_all():
     expect(v2, v, "Unexpected version output")
 
     stem = xapian.Stem("english")
-    expect(stem.get_description(), "Xapian::Stem(english)", "Unexpected stem.get_description()")
+    expect(stem.get_description(), 'Xapian::Stem(Xapian::StemSnowball("english"))', "Unexpected stem.get_description()")
 
     doc = xapian.Document()
     doc.set_data("a\0b")
