@@ -48,12 +48,6 @@ RemoteServer::RemoteServer(const std::vector<std::string> &dbpaths,
 			   Xapian::timeout active_timeout_,
 			   Xapian::timeout idle_timeout_,
 			   bool writable)
-    // Note - the explicit construction of the string is required to work
-    // around a bug in MS Visual C++ 2005 Express Edition (and possibly other
-    // versions of MSVC).  If we just pass "" as the 3rd parameter to the
-    // RemoteConnection constructor, code compiled with this compiler will
-    // produce a memory access exception when a new value is assigned to
-    // "context".
     : RemoteConnection(fdin_, fdout_, std::string()),
       db(NULL), wdb(NULL),
       active_timeout(active_timeout_), idle_timeout(idle_timeout_)

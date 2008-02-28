@@ -1,3 +1,12 @@
+Thu Feb 28 16:41:34 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/remoteconnection.h: Include safeunistd.h, to get correct
+	  typedef for off_t on windows - previously, the size of the
+	  RemoteConnection class was varying depending on the order in
+	  which header files were included, resulting in memory corruption.
+	* net/remoteserver.cc: Remove incorrect comment about what the
+	  problem was.
+
 Sat Feb 23 23:40:56 GMT 2008  Olly Betts <olly@survex.com>
 
 	* xapian-config.in: Use globbing rather than iterating over the output
