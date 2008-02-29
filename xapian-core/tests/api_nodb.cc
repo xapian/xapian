@@ -315,6 +315,36 @@ DEFINE_TESTCASE(stemsubclass1, !backend) {
     return true;
 }
 
+// Test StemWithNoStemList
+DEFINE_TESTCASE(stemwithnostemlist1, !backend) {
+    Xapian::Stem stemmer("english");
+
+    std::list<std::string> nostemwords;
+    nostemwords.push_back("bedding");
+    nostemwords.push_back("painting");
+
+    Xapian::Stem stemmer2(new Xapian::StemWithNoStemList(stemmer,
+							 nostemwords.begin(),
+							 nostemwords.end()));
+
+    TEST_EQUAL(stemmer("foods"), "food");
+    TEST_EQUAL(stemmer2("foods"), "food");
+    TEST_EQUAL(stemmer("food"), "food");
+    TEST_EQUAL(stemmer2("food"), "food");
+    TEST_EQUAL(stemmer("bedding"), "bed");
+    TEST_EQUAL(stemmer2("bedding"), "bedding");
+    TEST_EQUAL(stemmer("beds"), "bed");
+    TEST_EQUAL(stemmer2("beds"), "bed");
+    TEST_EQUAL(stemmer("painting"), "paint");
+    TEST_EQUAL(stemmer2("painting"), "painting");
+    TEST_EQUAL(stemmer("paints"), "paint");
+    TEST_EQUAL(stemmer2("paints"), "paint");
+    TEST_EQUAL(stemmer(""), "");
+    TEST_EQUAL(stemmer2(""), "");
+    return true;
+}
+
+
 // Some simple tests of the built in weighting schemes.
 DEFINE_TESTCASE(weight1, !backend) {
     Xapian::Weight * wt;

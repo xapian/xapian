@@ -33,6 +33,15 @@ using namespace std;
 
 namespace Xapian {
 
+StemBase::StemBase()
+{
+}
+
+StemBase::~StemBase()
+{
+}
+
+
 StemSnowball::StemSnowball(const std::string &language)
 	: internal(0)
 {
@@ -181,6 +190,65 @@ string
 StemSnowball::get_available_languages()
 {
     return LANGSTRING;
+}
+
+
+
+StemWithNoStemList::StemWithNoStemList(
+    const Xapian::Internal::RefCntPtr<Xapian::StemBase> & stemmer_)
+{
+    init_stemmer(stemmer_);
+}
+
+StemWithNoStemList::StemWithNoStemList(const Stem & stemmer_)
+{
+    init_stemmer(stemmer_);
+}
+
+StemWithNoStemList::~StemWithNoStemList()
+{
+}
+
+void
+StemWithNoStemList::init_stemmer(
+    const Xapian::Internal::RefCntPtr<Xapian::StemBase> & stemmer_)
+{
+    stemmer = stemmer_;
+    if (!stemmer.get())
+	throw Xapian::InvalidArgumentError("NULL pointer was supplied to StemWithNoStemList");
+}
+
+void
+StemWithNoStemList::init_stemmer(const Stem & stemmer_)
+{
+    stemmer = stemmer_.internal;
+    if (!stemmer.get())
+	throw Xapian::InvalidArgumentError("NULL pointer was supplied to StemWithNoStemList");
+}
+
+string
+StemWithNoStemList::operator()(const std::string &word) const
+{
+    if (word.empty()) return word;
+    if (nostemwords.find(word) != nostemwords.end()) return word;
+    return stemmer->operator()(word);
+}
+
+string
+StemWithNoStemList::get_description() const
+{
+    string desc = "Xapian::StemWithNoStemList(\"";
+    desc += stemmer->get_description();
+    desc += "\",[";
+    int count;
+    std::set<std::string>::const_iterator i;
+    for (i = nostemwords.begin(), count = 3; i != nostemwords.end();
+	 ++i, ++count) {
+	desc += *i;
+	desc += ",";
+    }
+    desc += "])";
+    return desc;
 }
 
 }

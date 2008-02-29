@@ -26,8 +26,12 @@
 #include <xapian/visibility.h>
 
 #include <string>
+#include <set>
 
 namespace Xapian {
+
+// Forward declaration.
+class Stem;
 
 /// Base representing a stemming algorithm.
 class XAPIAN_VISIBILITY_DEFAULT StemBase : public Xapian::Internal::RefCntBase {
@@ -42,12 +46,12 @@ class XAPIAN_VISIBILITY_DEFAULT StemBase : public Xapian::Internal::RefCntBase {
      *  and RefCntPtr.  Subclasses should make their destructors protected,
      *  to force users to use a RefCntPtr to reference them.
      */
-    virtual ~StemBase() {}
+    virtual ~StemBase();
 
     friend class Xapian::Internal::RefCntPtr<StemBase>;
 
   public:
-    StemBase() {}
+    StemBase();
 
     /** Stem a word.
      *
@@ -136,6 +140,106 @@ class XAPIAN_VISIBILITY_DEFAULT StemSnowball : public StemBase {
     static std::string get_available_languages();
 };
 
+/** A stemmer which stems using a different stemmer, except for a "nostem list"
+ *  of words which it returns unstemmed.
+ */
+class XAPIAN_VISIBILITY_DEFAULT StemWithNoStemList : public StemBase {
+    /// The words which the stemmer will return unstemmed.
+    std::set<std::string> nostemwords;
+
+    /// The stemmer to use for all other words.
+    Xapian::Internal::RefCntPtr<Xapian::StemBase> stemmer;
+
+    /// No copying allowed.
+    StemWithNoStemList(const StemWithNoStemList & o);
+
+    /// No assignment allowed.
+    void operator=(const StemWithNoStemList & o);
+
+    /// Initialise the stemmer, checking for validitiy.
+    void init_stemmer(
+	const Xapian::Internal::RefCntPtr<Xapian::StemBase> & stemmer_);
+
+    /// Initialise the stemmer, checking for validitiy.
+    void init_stemmer(const Xapian::Stem & stemmer_);
+
+  protected:
+    /** Destructor is protected since it should only be called by subclasses
+     *  and RefCntPtr.  Subclasses should make their destructors protected,
+     *  to force users to use a RefCntPtr to reference them.
+     */
+    virtual ~StemWithNoStemList();
+
+  public:
+    /** Create a new StemWithNoStemList, using a given stemmer.
+     *
+     *  The supplied pointer must not be NULL - an exception will be raised if it is.
+     */
+    StemWithNoStemList(
+	const Xapian::Internal::RefCntPtr<Xapian::StemBase> & stemmer_);
+
+    /** Create a new StemWithNoStemList, using a given stemmer.
+     *
+     *  The Stem object supplied will be copied at this point - a change to the
+     *  internals of it will not be reflected in the StemWithNoStemList stemmer.
+     *
+     *  The internal pointer in the supplied stemmer must not be NULL - an
+     *  exception will be raised if it is.
+     */
+    StemWithNoStemList(const Xapian::Stem & stemmer_);
+
+    /** Create a new StemWithNoStemList, using a given stemmer and sequence
+     *  of words.
+     *
+     *  The Stem object supplied will be copied at this point - a change to the
+     *  internals of it will not be reflected in the StemWithNoStemList stemmer.
+     *
+     *  The internal pointer in the supplied stemmer must not be NULL - an
+     *  exception will be raised if it is.
+     */
+    template <class Stemmer, class Iterator>
+    StemWithNoStemList(Stemmer stemmer_, Iterator wbegin, Iterator wend)
+    {
+	init_stemmer(stemmer_);
+	while (wbegin != wend) {
+	    insert_word(*wbegin);
+	    ++wbegin;
+	}
+    }
+
+    /** Stem a word.
+     *
+     *  @param word  a word to stem.
+     *  @return      the stemmed form of the word.
+     */
+    std::string operator()(const std::string &word) const;
+
+    /// Return a string describing this object.
+    std::string get_description() const;
+
+    /** Add a word (ie, an unstemmed form of a word) to the nostem list.
+     *
+     *  Any attempt to stem the word in future will return the unstemmed form.
+     *
+     *  @param word The word to add to the nostem list.
+     */
+    void insert_word(const std::string & word)
+    {
+	nostemwords.insert(word);
+    }
+
+    /** Remove a word (ie, an unstemmed form of a word) from the nostem list.
+     *
+     *  Any attempt to stem the word in future will return the stemmed form.
+     *
+     *  @param word The word to remove from the nostem list.
+     */
+    void erase_word(const std::string & word)
+    {
+	nostemwords.erase(word);
+    }
+};
+
 /// Class wrapping a reference counted stemming algorithm.
 class XAPIAN_VISIBILITY_DEFAULT Stem {
   public:
@@ -150,7 +254,7 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
 
     /** Construct a Xapian::Stem object from a pointer to a StemBase.
      */
-    Stem(Xapian::Internal::RefCntPtr<Xapian::StemBase> internal_)
+    explicit Stem(Xapian::Internal::RefCntPtr<Xapian::StemBase> internal_)
 	    : internal(internal_) {}
 
     /** Construct a Xapian::Stem object which doesn't change terms.
