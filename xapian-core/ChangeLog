@@ -1,3 +1,9 @@
+Tue Mar 04 18:48:25 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/msvc_dirent.cc: Fix readdir() so that it doesn't change
+	  errno to ENOENT on reaching the end of the directory, as
+	  specified by POSIX.
+
 Tue Mar 04 17:54:56 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* net/remoteconnection.cc: Fix for a problem with windows.  Because

@@ -100,14 +100,24 @@ int closedir(DIR *dir)
 struct dirent *readdir(DIR *dir)
 {
     struct dirent *result = 0;
+    int orig_errno = errno;
 
     if(dir && dir->handle != -1)
     {
-        if(!dir->result.d_name || _findnext(dir->handle, &dir->info) != -1)
-        {
-            result         = &dir->result;
-            result->d_name = dir->info.name;
-        }
+	if(!dir->result.d_name) {
+	    result = &dir->result;
+	    result->d_name = dir->info.name;
+	} else if (_findnext(dir->handle, &dir->info) != -1) {
+	    result = &dir->result;
+	    result->d_name = dir->info.name;
+	    if (errno == ENOENT) {
+		// _findnext sets errno to ENOENT when the end of the directory
+		// is reached.  However, according to POSIX, the value of errno
+		// should not be changed in this condition.  Therefore, we have
+		// to set it back to the original value.
+		errno = orig_errno;
+	    }
+	}
     }
     else
     {
