@@ -1,3 +1,8 @@
+Tue Mar 04 17:41:38 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_replicate.cc: Close the replica before removing the
+	  temporary directory, to allow the rmdir to work on windows.
+
 Thu Feb 28 16:41:34 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* common/remoteconnection.h: Include safeunistd.h, to get correct
