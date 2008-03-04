@@ -78,7 +78,12 @@ RemoteConnection::read_at_least(size_t min_len, const OmTime & end_time)
     if (buffer.length() >= min_len) return;
 
 #ifdef __WIN32__
+    // FIXME: transforming handles this way isn't recommended. In particular
+    // file offsets are not preserved through subsequent ReadFile calls, so
+    // we have to do this manually (although this will only manifest when using 
+    // an actual file).
     HANDLE hin = fd_to_handle(fdin);
+    off_t ofs;
     do {
 	char buf[CHUNKSIZE];
 	DWORD received;
@@ -104,6 +109,12 @@ RemoteConnection::read_at_least(size_t min_len, const OmTime & end_time)
 	    throw Xapian::NetworkError("Received EOF", context);
 
 	buffer.append(buf, received);
+
+	// We must move the offset in the OVERLAPPED structure manually.
+	ofs = (((off_t)overlapped.OffsetHigh)<<32) + overlapped.Offset + received;
+	overlapped.Offset = ofs & 0xFFFFFFFF;
+	overlapped.OffsetHigh = ofs >> 32;
+
     } while (buffer.length() < min_len);
 #else
     // If there's no end_time, just use blocking I/O.
@@ -196,8 +207,13 @@ RemoteConnection::send_message(char type, const string &message, const OmTime & 
     header += encode_length(message.size());
 
 #ifdef __WIN32__
+    // FIXME: transforming handles this way isn't recommended. In particular
+    // file offsets are not preserved through subsequent WriteFile calls, so
+    // we have to do this manually (although this will only manifest when using 
+    // an actual file).
     HANDLE hout = fd_to_handle(fdout);
     const string * str = &header;
+    off_t ofs;
 
     size_t count = 0;
     while (true) {
@@ -221,6 +237,12 @@ RemoteConnection::send_message(char type, const string &message, const OmTime & 
 	}
 
 	count += n;
+
+	// We must move the offset in the OVERLAPPED structure manually.
+	ofs = (((off_t)overlapped.OffsetHigh)<<32) + overlapped.Offset + n;
+	overlapped.Offset = ofs & 0xFFFFFFFF;
+	overlapped.OffsetHigh = ofs >> 32;
+
 	if (count == str->size()) {
 	    if (str == &message || message.empty()) return;
 	    str = &message;
@@ -325,8 +347,12 @@ RemoteConnection::send_file(char type, const string &file, const OmTime & end_ti
     }
 
 #ifdef __WIN32__
+    // FIXME: transforming handles this way isn't recommended. In particular
+    // file offsets are not preserved through subsequent WriteFile calls, so
+    // we have to do this manually (although this will only manifest when using 
+    // an actual file).
     HANDLE hout = fd_to_handle(fdout);
-
+    off_t ofs;
     size_t count = 0;
     while (true) {
 	DWORD n;
@@ -349,6 +375,12 @@ RemoteConnection::send_file(char type, const string &file, const OmTime & end_ti
 	}
 
 	count += n;
+
+	// We must move the offset in the OVERLAPPED structure manually.
+	ofs = (((off_t)overlapped.OffsetHigh)<<32) + overlapped.Offset + n;
+	overlapped.Offset = ofs & 0xFFFFFFFF;
+	overlapped.OffsetHigh = ofs >> 32;
+
 	if (count == c) {
 	    if (size == 0) return;
 

@@ -1,3 +1,15 @@
+Tue Mar 04 17:54:56 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* net/remoteconnection.cc: Fix for a problem with windows.  Because
+	  we're using mixed styles of windows file IO, if a file descriptor
+	  which actually corresponds to a file was supplied to remote
+	  connection, the file pointer wasn't being adjusted after each
+	  call to ReadFile or WriteFile.  This manifested in the test case
+	  for replication, resulting in a (corrupt) 2048 byte changeset
+	  file being written (instead of a considerably longer changeset).
+	  To work around this, we explicitly move the file pointer
+	  ourselves.
+
 Tue Mar 04 17:41:38 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/api_replicate.cc: Close the replica before removing the
