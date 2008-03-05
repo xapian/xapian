@@ -1,3 +1,11 @@
+Wed Mar 05 02:32:02 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/flint/flint_table.cc: Fix a database corruption bug: see
+	  bugzilla entry #232.  Was caused by lazy tables not being created
+	  at the right revision.
+	* tests/api_wrdb.cc: Regression test for bug.
+
 Thu Jan 24 13:31:20 GMT 2008  Olly Betts <olly@survex.com>
 
 	* docs/overview.html: Remove commented-out comment about OP_XOR.
