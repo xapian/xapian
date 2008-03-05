@@ -1,3 +1,8 @@
+Wed Mar 05 06:26:58 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+ 	* AUTHORS: Add David Spencer for reporting bug#237.
+
 Wed Mar 05 06:26:00 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
