@@ -1,3 +1,10 @@
+Wed Mar 05 02:59:41 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* net/remoteconnection.cc: Fix the call to fcntl() in send_message()
+	  to use fdout instead of fdin.  This has probably been stopping
+	  timeouts working very well.
+
 Wed Mar 05 02:38:57 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
