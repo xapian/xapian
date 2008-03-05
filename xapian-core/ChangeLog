@@ -1,3 +1,9 @@
+Wed Mar 05 09:30:42 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* bin/xapian-check.cc: Add understanding of user metainfo keys in
+	  the postlist table.  Allow the METAINFO key to be absent if the
+	  table only contains user metainfo keys.
+
 Wed Mar 05 09:01:48 GMT 2008  Olly Betts <olly@survex.com>
 
 	* common/msvc_dirent.cc,common/msvc_dirent.h: Move licence boilerplate
