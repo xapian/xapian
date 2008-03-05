@@ -1,3 +1,10 @@
+Wed Mar 05 07:36:25 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/flint/flint_table.cc,backends/quartz/btree.cc: Use
+	  msvc_posix_rename() instead of rename() when renaming base files, so
+	  that an error isn't returned if the destination already exists.
+
 Wed Mar 05 06:51:25 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
