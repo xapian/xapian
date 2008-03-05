@@ -1,3 +1,8 @@
+Wed Mar 05 04:31:07 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* AUTHORS: Add Thomas Viehmann.
+
 Wed Mar 05 03:56:45 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
