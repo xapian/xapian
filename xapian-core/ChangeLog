@@ -1,3 +1,9 @@
+Wed Mar 05 03:32:28 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/flint/flint_btreebase.cc,backends/flint/flint_btreebase.h:
+	  Fix assorted comment errors.
+
 Wed Mar 05 02:59:41 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

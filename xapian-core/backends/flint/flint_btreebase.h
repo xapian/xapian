@@ -1,7 +1,7 @@
-/* btree_base.h: Btree base file implementation
+/* flint_btreebase.h: Btree base file implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2004,2007 Olly Betts
+ * Copyright 2002,2004,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,8 +31,7 @@
 
 class XAPIAN_VISIBILITY_DEFAULT FlintTable_base {
     public:
-	/** Initialise a Btree_Base object with all zero fields.
-	 */
+	/** Construct an object with all zero fields. */
 	FlintTable_base();
 
 	/** Copy constructor */
@@ -107,7 +106,7 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable_base {
 
 	void commit();
 
-	/* Used by Btree::check() */
+	/* Used by FlintTable::check() */
 	bool is_empty() const;
 
 	void swap(FlintTable_base &other);
