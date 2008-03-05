@@ -326,11 +326,13 @@ foreach my $tag (@ARGV) {
 	close HTACCESS or die $!;
     } else {
 	if (-d "$d/old") {
+	    # Delete snapshots more than a week old, but leave at least one.
+	    # FIXME: disk space is tight, so make that 2 days for now...
+	    my $num_of_days_to_keep = 2;
 	    my @o = glob "$d/old/*.tar.gz";
 	    my $n = scalar @o;
-	    @o = grep {-M $_ > 7} @o;
+	    @o = grep {-M $_ > $num_of_days_to_keep} @o;
 	    $n -= scalar @o;
-	    # Delete snapshots more than a week old, but leave at least one.
 	    unlink @o if $n > 0;
 	} else {
 	    mkdir "$d/old", 0755 or die $!;

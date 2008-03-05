@@ -1,5 +1,10 @@
 upto:
-Thu Jan 17 22:32:08 GMT 2008  Olly Betts <olly@survex.com>
+Thu Jan 24 13:31:20 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/overview.html: Remove commented-out comment about OP_XOR.
+
+	* docs/intro_ir.html: Briefly mention how pure boolean retrieval is
+	  supported.
 
 	* backends/flint/flint_table.cc,backends/quartz/btree.cc: Fix more
 	  assertions to avoid overflowing int.

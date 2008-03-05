@@ -1,3 +1,29 @@
+Wed Jan 09 22:41:24 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* csharp/Makefile.am: Add MultiValueSorter.cs to
+	  XAPIAN_SWIG_CS_SRCS so that it gets cleaned up correctly.
+	* xapian.i: Put OP_VALUE_GE and OP_VALUE_LE in the right place in
+	  the enum, so that they get the right values in language bindings.
+
+	* xapian.i: Add OP_VALUE_GE and OP_VALUE_LE to Query, and add
+	  constructor which they are used with.
+
+	* configure.ac: Sort out the default value of TCL_LIB, which could
+	  end up being under /usr/share in 1.0.4 and 1.0.5.
+
+	* php/smoketest.php: Add note that this script should be run using
+	  'make check' in the build tree (rather than trying to copy it to
+	  a webserver as someone recently tried to).
+
+	* php/smoketest.php: Fix to work under PHP4.
+
+	* ruby/docs/Makefile.am: We need a custom install-data-local rule to
+	  get the rdocs subdirectory installed (and a corresponding
+	  uninstall-local rule to uninstall it).
+
+	* NEWS: Too late for the 1.0.5 release, but reword the Python GIL fix
+	  description in terms of user-visible API.
+
 Xapian-bindings 1.0.5 (2007-12-21):
 
 General:
