@@ -1,3 +1,9 @@
+Wed Mar 05 16:29:47 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/fileutils.cc: Check case where a backslash isn't found in
+	  calc_dirname, and don't replace slash with backslash in this
+	  case.
+
 Wed Mar 05 09:30:42 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* bin/xapian-check.cc: Add understanding of user metainfo keys in
