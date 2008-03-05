@@ -1,3 +1,11 @@
+Wed Mar 05 02:14:07 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_table.cc: Call flint_io_sync() in commit()
+	  rather than flush_db(), as that gives more time for written blocks
+	  to get written to disk before we block on waiting for them to be.
+	  This should tend to speed up WritableDatabase::flush() in I/O bound
+	  situations.
+
 Thu Jan 24 13:31:20 GMT 2008  Olly Betts <olly@survex.com>
 
 	* docs/overview.html: Remove commented-out comment about OP_XOR.
