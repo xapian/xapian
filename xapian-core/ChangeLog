@@ -1,3 +1,9 @@
+Wed Mar 05 06:51:25 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* bin/xapian-compact.cc: Fix compaction for database which contains
+	  user metadata keys.
+
 Wed Mar 05 06:29:08 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
