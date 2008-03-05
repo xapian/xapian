@@ -1,3 +1,9 @@
+Wed Mar 05 04:43:12 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/quartz/btree.cc: Backport atomic base update fix from
+	  flint.
+
 Wed Mar 05 04:31:07 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
