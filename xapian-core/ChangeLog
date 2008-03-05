@@ -1,7 +1,14 @@
+Wed Mar 05 06:27:43 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/quickstart.html: Remove information covered by INSTALL since
+	  there's no good reason to repeat it and two copies just risks one
+	  getting out of date (as has happened here!)
+
 Wed Mar 05 06:26:58 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
- 	* AUTHORS: Add David Spencer for reporting bug#237.
+	* AUTHORS: Add David Spencer for reporting bug#237.
 
 Wed Mar 05 06:26:00 GMT 2008  Olly Betts <olly@survex.com>
 
