@@ -1,3 +1,11 @@
+Wed Mar 05 04:28:49 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* omindex.cc,query.cc: New OmegaScript commands $addfilter, $lower,
+	  $upper.
+	* docs/omegascript.rst: Document.  Improve formatting.
+	* query.cc: Add (C) notice for Thomas Viehmann.
+
 Sat Jan 19 02:01:02 GMT 2008  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Add support for DjVu files.
