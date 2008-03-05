@@ -1,9 +1,21 @@
 upto:
-Sat Jan 19 02:01:02 GMT 2008  Olly Betts <olly@survex.com>
+Wed Mar 05 19:05:12 GMT 2008  Olly Betts <olly@survex.com>
+
+HEAD only:
+
+	* INSTALL: PCRE required.
+	* docs/omegascript.rst: $transform{} now enabled.  Fixes bug#231.
+	* Makefile.am,configure.ac,query.cc: Add PCRE as a requirement and
+	  add $transform{} command (which has been in the code for ages but
+	  disabled).
 
 Omega 1.0.6 (2008-03-??):
 
+general:
+
 documentation:
+
+* docs/omegascript.html: Improve formatting.
 
 indexers:
 
@@ -13,12 +25,23 @@ indexers:
 
 * scriptindex:
 
+omega:
+
+* OmegaScript commands $addfilter, $lower, $upper.
+
+templates:
+
+testsuite:
+
+build system:
 
 portability:
 
 * Check "defined HAVE_SYSMP" rather than just "HAVE_SYSMP".  This doesn't
   change behaviour, but fixes a compile warning on platforms other than Linux
   and IRIX.
+
+packaging:
 
 Omega 1.0.5 (2007-12-21):
 
