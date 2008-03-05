@@ -478,10 +478,11 @@ to return (we specify 10 here):
 <H3>Displaying the results of the search</H3>
 <P>
 Finally, we display the results of the search.  The results are stored in
-a container called <CODE>items</CODE> in the <CODE>Xapian::MSet</CODE> object,
-so first we display how many items are in that:
+in the <CODE>Xapian::MSet</CODE> object, which provides the features required
+to be an STL-compatible container, so first we display how many items are in
+the MSet:
 <PRE>
-    cout &lt;&lt; matches.items.size() &lt;&lt; " results found" &lt;&lt; endl;
+    cout &lt;&lt; matches.size() &lt;&lt; " results found" &lt;&lt; endl;
 </PRE>
 </P>
 
