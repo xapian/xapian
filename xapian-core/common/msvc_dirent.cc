@@ -1,18 +1,29 @@
 /** @file msvc_dirent.cc
  *  @brief Implementation of dirent functions using WIN32 API.
  */
-#include <config.h>
-#ifdef __WIN32__
-
 /*
-
     Implementation of POSIX directory browsing functions and types for Win32.
 
     Author:  Kevlin Henney (kevlin@acm.org, kevlin@curbralan.com)
     History: Created March 1997. Updated June 2003.
-    Rights:  See end of file.
+    Fixes since importing into Xapian:
+    2008-03-04 Fixed readdir() not to set errno to ENOENT when the
+	       end of the directory is reached.
 
+    Copyright Kevlin Henney, 1997, 2003. All rights reserved.
+
+    Permission to use, copy, modify, and distribute this software and its
+    documentation for any purpose is hereby granted without fee, provided
+    that this copyright and permissions notice appear in all copies and
+    derivatives.
+    
+    This software is supplied "as is" without express or implied warranty.
+
+    But that said, if there are any problems please get in touch.
 */
+
+#include <config.h>
+#ifdef __WIN32__
 
 #include "msvc_dirent.h"
 #include <errno.h>
@@ -100,22 +111,24 @@ int closedir(DIR *dir)
 struct dirent *readdir(DIR *dir)
 {
     struct dirent *result = 0;
-    int orig_errno = errno;
 
     if(dir && dir->handle != -1)
     {
 	if(!dir->result.d_name) {
 	    result = &dir->result;
 	    result->d_name = dir->info.name;
-	} else if (_findnext(dir->handle, &dir->info) != -1) {
-	    result = &dir->result;
-	    result->d_name = dir->info.name;
-	    if (errno == ENOENT) {
-		// _findnext sets errno to ENOENT when the end of the directory
-		// is reached.  However, according to POSIX, the value of errno
-		// should not be changed in this condition.  Therefore, we have
-		// to set it back to the original value.
-		errno = orig_errno;
+	} else {
+	    int orig_errno = errno;
+	    if (_findnext(dir->handle, &dir->info) != -1) {
+		result = &dir->result;
+		result->d_name = dir->info.name;
+		if (errno == ENOENT) {
+		    // _findnext sets errno to ENOENT when the end of the directory
+		    // is reached.  However, according to POSIX, the value of errno
+		    // should not be changed in this condition.  Therefore, we have
+		    // to set it back to the original value.
+		    errno = orig_errno;
+		}
 	    }
 	}
     }
@@ -144,20 +157,5 @@ void rewinddir(DIR *dir)
 #ifdef __cplusplus
 }
 #endif
-
-/*
-
-    Copyright Kevlin Henney, 1997, 2003. All rights reserved.
-
-    Permission to use, copy, modify, and distribute this software and its
-    documentation for any purpose is hereby granted without fee, provided
-    that this copyright and permissions notice appear in all copies and
-    derivatives.
-    
-    This software is supplied "as is" without express or implied warranty.
-
-    But that said, if there are any problems please get in touch.
-
-*/
 
 #endif
