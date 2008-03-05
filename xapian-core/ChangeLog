@@ -1,3 +1,8 @@
+Wed Mar 05 06:12:02 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* common/Makefile.mk: Add msvc_dirent.cc and msvc_dirent.h.
+
 Wed Mar 05 05:56:45 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
