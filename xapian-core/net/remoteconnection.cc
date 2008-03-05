@@ -112,8 +112,8 @@ RemoteConnection::read_at_least(size_t min_len, const OmTime & end_time)
 
 	// We must move the offset in the OVERLAPPED structure manually.
 	ofs = (((off_t)overlapped.OffsetHigh)<<32) + overlapped.Offset + received;
-	overlapped.Offset = ofs & 0xFFFFFFFF;
-	overlapped.OffsetHigh = ofs >> 32;
+	overlapped.Offset = (DWORD)(ofs & 0xFFFFFFFF);
+	overlapped.OffsetHigh = (DWORD)(ofs >> 32);
 
     } while (buffer.length() < min_len);
 #else
@@ -240,8 +240,8 @@ RemoteConnection::send_message(char type, const string &message, const OmTime & 
 
 	// We must move the offset in the OVERLAPPED structure manually.
 	ofs = (((off_t)overlapped.OffsetHigh)<<32) + overlapped.Offset + n;
-	overlapped.Offset = ofs & 0xFFFFFFFF;
-	overlapped.OffsetHigh = ofs >> 32;
+	overlapped.Offset = (DWORD)(ofs & 0xFFFFFFFF);
+	overlapped.OffsetHigh = (DWORD)(ofs >> 32);
 
 	if (count == str->size()) {
 	    if (str == &message || message.empty()) return;
@@ -378,8 +378,8 @@ RemoteConnection::send_file(char type, const string &file, const OmTime & end_ti
 
 	// We must move the offset in the OVERLAPPED structure manually.
 	ofs = (((off_t)overlapped.OffsetHigh)<<32) + overlapped.Offset + n;
-	overlapped.Offset = ofs & 0xFFFFFFFF;
-	overlapped.OffsetHigh = ofs >> 32;
+	overlapped.Offset = (DWORD)(ofs & 0xFFFFFFFF);
+	overlapped.OffsetHigh = (DWORD)(ofs >> 32);
 
 	if (count == c) {
 	    if (size == 0) return;
