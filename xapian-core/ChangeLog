@@ -1,3 +1,11 @@
+Wed Mar 05 02:38:57 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/unicode.h: Add Unicode::toupper() to complement
+	  Unicode::tolower().
+	* tests/api_unicode.cc: Add caseconvert1 testcase to test
+	  Unicode::tolower() and Unicode::toupper().
+
 Wed Mar 05 02:32:02 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
