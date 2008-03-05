@@ -1,3 +1,11 @@
+Wed Mar 05 09:10:37 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/valuegepostlist.cc,matcher/valuegepostlist.h: Implement
+	  skip_to method for ValueGePostList.  Previously, the
+	  ValueRangePostList::skip_to method was used, which would
+	  return incorrect documents.
+
 Wed Mar 05 07:36:25 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

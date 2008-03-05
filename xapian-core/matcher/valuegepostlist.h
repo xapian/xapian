@@ -39,6 +39,8 @@ class ValueGePostList: public ValueRangePostList {
 
     PostList * next(Xapian::weight w_min);
 
+    PostList * skip_to(Xapian::docid, Xapian::weight w_min);
+
     PostList * check(Xapian::docid did, Xapian::weight w_min, bool &valid);
 
     string get_description() const;

@@ -50,6 +50,15 @@ ValueGePostList::next(Xapian::weight)
 }
 
 PostList *
+ValueGePostList::skip_to(Xapian::docid did, Xapian::weight w_min)
+{
+    Assert(db);
+    if (did <= current) return NULL;
+    current = did - 1;
+    return ValueGePostList::next(w_min);
+}
+
+PostList *
 ValueGePostList::check(Xapian::docid did, Xapian::weight, bool &valid)
 {
     Assert(db);
