@@ -1,3 +1,10 @@
+Wed Mar 05 07:47:44 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* java-swig/Makefile.am,php/Makefile.am,ruby/Makefile.am,
+	  tcl8/Makefile.am: Minor comment correction (we only remove a single
+	  file in each case).
+
 Wed Mar 05 07:43:55 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
