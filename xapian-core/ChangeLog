@@ -1,3 +1,10 @@
+Wed Mar 05 05:56:45 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: -pedantic isn't actually very useful and causes
+	  problems on Mac OS X, so just drop it rather than testing for known
+	  problem cases and risking unknown problem cases.
+
 Wed Mar 05 04:43:12 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
