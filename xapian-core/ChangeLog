@@ -1,3 +1,10 @@
+Wed Mar 05 03:10:24 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/valuegepostlist.cc,matcher/valuegepostlist.h: Implement
+	  skip_to method for ValueGePostList.  Previously, the
+	  ValueRangePostList::skip_to method was used, which would
+	  return incorrect documents.
+
 Wed Mar 05 02:54:27 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* common/fileutils.cc: Search for \ instead of / when looking for a
