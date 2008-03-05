@@ -1,3 +1,10 @@
+Wed Mar 05 03:56:45 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/flint/flint_table.cc: Update the base files atomically to
+	  avoid problems with reading processes finding partially written
+	  ones.
+
 Wed Mar 05 03:32:28 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

@@ -1789,7 +1789,29 @@ FlintTable::commit(flint_revision_number_t revision)
 	C[i].rewrite = false;
     }
 
-    base.write_to_file(name + "base" + char(base_letter));
+    // Save to "<table>.tmp" and then rename to "<table>.base<letter>" so that
+    // a reader can't try to read a partially written base file.
+    string tmp = name;
+    tmp += "tmp";
+    string basefile = name;
+    basefile += "base";
+    basefile += char(base_letter);
+    base.write_to_file(tmp);
+    if (rename(tmp.c_str(), basefile.c_str()) < 0) {
+	// With NFS, rename() failing may just mean that the server crashed
+	// after successfully renaming, but before reporting this, and then
+	// the retried operation fails.  So we need to check if the source
+	// file still exists, which we do by calling unlink(), since we want
+	// to remove the temporary file anyway.
+	int saved_errno = errno;
+	if (unlink(tmp) == 0 || errno != ENOENT) {
+	    string msg("Couldn't update base file ");
+	    msg += basefile;
+	    msg += ": ";
+	    msg += strerror(saved_errno);
+	    throw Xapian::DatabaseError(msg);
+	}
+    }
     base.commit();
 
     read_root();
