@@ -1,35 +1,7 @@
 upto:
-Thu Jan 17 22:32:08 GMT 2008  Olly Betts <olly@survex.com>
+Thu Jan 24 13:31:20 GMT 2008  Olly Betts <olly@survex.com>
 
-	* backends/flint/flint_table.cc,backends/quartz/btree.cc: Fix more
-	  assertions to avoid overflowing int.
-	* backends/flint/flint_btreeutil.h: Fix assertions to not overflow
-	  int.
-	* backends/quartz/btree_util.h: Fix assertions to not overflow int.
-
-	* configure.ac: GCC warning flag overhaul.  Stop passing
-	  "-Wno-multichar" since any multi-character character literal is
-	  bound to be a typo (I believe we were only passing it after
-	  misinterpreting its sense!)  Pass "-Wformat-security",
-	  "-Wconversion", and "-pedantic" for all GCC versions.  Add
-	  "-Winit-self" and "-Wstrict-overflow=5" for GCC >= 4.2.  The
-	  latter may be too aggressive, but it's hard to know without
-	  trying it more widely.
-
-	* backends/flint/flint_check.h,backends/flint/flint_table.h,
-	  backends/quartz/btree.h,net/tcpserver.cc,tests/harness/testsuite.cc:
-	  Add XAPIAN_NORETURN() annotations to functions and non-virtual
-	  methods which don't return.
-	  
-	* net/remoteserver.cc: Assign bool variable using a comparison rather
-	  than subtraction, so the intent is clearer.
-
-	* backends/flint/flint_check.cc: Tweak a comparison so all the
-	  constants are on the same side (micro-optimisation).
-	* backends/quartz/btreecheck.cc: Equivalent change for quartz.
-
-Xapian-core 1.0.6 (2008-0?-??):
-
+Xapian-core 1.0.6 (2008-03-??):
 
 API:
 
@@ -42,9 +14,8 @@ testsuite:
 
 * tests/runtest: Fixed to handle test programs with a ".exe" extension.
 
-	* tests/queryparsertest.cc: Add a couple of testcases I wrote for a
-	  reported problem which turned out to work correctly already.  Still,
-	  they add to our test coverage.
+* tests/queryparsertest: Add a couple more testcases which already work to
+  improve test coverage.
 
 flint backend:
 
@@ -62,16 +33,27 @@ inmemory backend:
 
 build system:
 
+* configure: GCC warning flag overhaul:  Stop passing "-Wno-multichar" since
+  any multi-character character literal is bound to be a typo (I believe we
+  were only passing it after misinterpreting its sense!)  Pass
+  "-Wformat-security", and "-Wconversion" for all GCC versions.  Add
+  "-Winit-self" and "-Wstrict-overflow=5" for GCC >= 4.2.  The latter might
+  prove too aggressive, but seems reasonable so far.  Fix some minor niggles
+  revealled by "-Wconversion" and "-Wstrict-overflow=5".
+
+* Add XAPIAN_NORETURN() annotations to functions and non-virtual methods which
+  don't return.
 
 documentation:
 
-	* docs/valueranges.rst: Fix example of using multiple VRPs to come out
-	  as a "program listing".
+* docs/intro_ir.html: Briefly mention how pure boolean retrieval is supported.
 
-	* PLATFORMS: Remove reports for 0.8.x as they're too old to be
-	  interesting.  Separate out 0.9.x reports.
-	* PLATFORMS: Add Solaris 9 and 10 success reports from James Aylett.
-	* PLATFORMS: Update from Debian buildd logs.
+* docs/valueranges.html: Fix example of using multiple VRPs to come out as a
+  "program listing".
+
+* PLATFORMS: Remove reports for 0.8.x as they're too old to be interesting.
+  Separate out 0.9.x reports.  Add Solaris 9 and 10 success reports from James
+  Aylett.  Update from Debian buildd logs.
 
 examples:
 

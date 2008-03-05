@@ -1,3 +1,7 @@
+Wed Mar 05 19:01:35 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Update to 1.0 branch point.
+
 Wed Mar 05 19:00:07 GMT 2008  Olly Betts <olly@survex.com>
 
 	* common/msvc_dirent.cc: Tweak to bring comment back into 80 columns.
