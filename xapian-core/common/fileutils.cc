@@ -1,5 +1,5 @@
 /** @file fileutils.cc
- * @brief Replication support for Xapian databases.
+ *  @brief File and path manipulation routines.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
  *
