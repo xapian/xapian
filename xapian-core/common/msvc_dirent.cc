@@ -122,6 +122,7 @@ struct dirent *readdir(DIR *dir)
 	    if (_findnext(dir->handle, &dir->info) != -1) {
 		result = &dir->result;
 		result->d_name = dir->info.name;
+	    } else {	    
 		if (errno == ENOENT) {
 		    // _findnext sets errno to ENOENT when the end of the directory
 		    // is reached.  However, according to POSIX, the value of errno

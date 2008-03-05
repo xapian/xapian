@@ -1,3 +1,10 @@
+Wed Mar 05 16:35:33 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/msvc_dirent.cc: Fix sense of check for ENOENT after
+	  calling _findnext() - it should be checked for when an error code
+	  is returned, not when the call succeeds.
+	* tests/api_replicate.cc: Fix tiny capitalisation typo.
+
 Wed Mar 05 16:29:47 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* common/fileutils.cc: Check case where a backslash isn't found in
