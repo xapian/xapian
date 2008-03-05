@@ -1,3 +1,8 @@
+Wed Mar 05 06:29:08 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/queryparser.h: Fix incorrect example in doccomment.
+
 Wed Mar 05 06:27:43 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
