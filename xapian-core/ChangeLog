@@ -1,3 +1,11 @@
+Wed Mar 05 09:01:48 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/msvc_dirent.cc,common/msvc_dirent.h: Move licence boilerplate
+	  up front where we have it in every other file.  Move header guards
+	  to the usual location.  Detail the fix we've made for not setting
+	  errno to ENOENT erroneously.  Push the setting of orig_errno down
+	  a bit.
+
 Wed Mar 05 04:57:44 GMT 2008  Olly Betts <olly@survex.com>
 
 	* configure.ac: -pedantic isn't actually very useful so just drop it
