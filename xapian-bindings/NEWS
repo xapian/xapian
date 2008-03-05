@@ -1,3 +1,44 @@
+Wed Jan 09 22:41:24 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+Xapian-bindings 1.0.8 (2008-03-??):
+
+Documentation:
+
+General:
+
+* Wrap OP_VALUE_GE and OP_VALUE_LE and the new Query constructor which they are
+  used with.
+
+Packaging:
+
+Portability:
+
+CSharp:
+
+Guile:
+
+Java:
+
+PHP:
+
+* php/smoketest.php: Add note that this script should be run using 'make check'
+  in the build tree (rather than trying to copy it to a webserver as someone
+  recently tried to).
+
+* php/smoketest.php: Fix to work under PHP4.
+
+Python:
+
+Ruby:
+
+* Automatically install/uninstall the Ruby rdoc-generated documentation along
+  with the ruby bindings.
+
+Tcl:
+
+* configure: Sort out the default value of TCL_LIB, which could end up being
+  under /usr/share in xapian-bindings 1.0.4 and 1.0.5.
+
 Xapian-bindings 1.0.5 (2007-12-21):
 
 General:

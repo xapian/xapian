@@ -1,3 +1,7 @@
+Wed Mar 05 21:30:13 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Update to 1.0 branch point.
+
 Sun Feb 24 11:02:44 GMT 2008  Olly Betts <olly@survex.com>
 
 	* java-swig/Makefile.am,php/Makefile.am,ruby/Makefile.am,
