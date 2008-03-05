@@ -1,3 +1,10 @@
+Wed Mar 05 07:43:55 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac,python/Makefile.am: The Python module now has the
+	  extension which Python expects, which fixes a failure on Mac OS X.
+	  PYTHON_PATHSEP is no longer required.
+
 Wed Mar 05 07:39:09 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
