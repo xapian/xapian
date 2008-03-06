@@ -74,7 +74,7 @@ is_metainfo_key(const string & key)
 }
 
 static inline bool
-is_user_metainfo_key(const string & key)
+is_user_metadata_key(const string & key)
 {
     return key.size() > 1 && key[0] == '\0' && key[1] != '\xff';
 }
@@ -108,7 +108,7 @@ class PostlistCursor : private FlintCursor {
 	tag = current_tag;
 	tf = cf = 0;
 	if (is_metainfo_key(key)) return true;
-	if (is_user_metainfo_key(key)) return true;
+	if (is_user_metadata_key(key)) return true;
 	// Adjust key if this is *NOT* an initial chunk.
 	// key is: pack_string_preserving_sort(tname)
 	// plus optionally: pack_uint_preserving_sort(did)
@@ -207,7 +207,7 @@ merge_postlists(const string & tablename,
 	    cur = pq.top();
 	    pq.pop();
 	}
-	if (!is_user_metainfo_key(cur->key)) {
+	if (!is_user_metadata_key(cur->key)) {
 	    pq.push(cur);
 	    break;
 	}
@@ -226,7 +226,7 @@ merge_postlists(const string & tablename,
 	    cur = pq.top();
 	    pq.pop();
 	}
-	Assert(cur == NULL || !is_user_metainfo_key(cur->key));
+	Assert(cur == NULL || !is_user_metadata_key(cur->key));
 	if (cur == NULL || cur->key != last_key) {
 	    if (!tags.empty()) {
 		string first_tag = pack_uint(tf);

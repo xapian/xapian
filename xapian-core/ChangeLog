@@ -1,3 +1,8 @@
+Thu Mar 06 01:41:09 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Fix terminology - "user metadata" not "user
+	  metainfo".
+
 Wed Mar 05 21:17:02 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* net/remoteconnection.cc: Add some casts (in the windows-specific
