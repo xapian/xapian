@@ -1,3 +1,9 @@
+Thu Mar 06 23:43:11 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/: Update to latest revisions.
+	* Makefile.am,diritor.h: Use safedirent.h not dirent.h and build
+	  msvc_dirent.cc as part of omindex.
+
 Wed Mar 05 23:16:23 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS: Update to HEAD with un-backported changes kept separate.
