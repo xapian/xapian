@@ -165,7 +165,7 @@ BitReader::decode_interpolative(vector<Xapian::termpos> & pos, int j, int k)
 }
 
 static inline bool
-is_user_metainfo_key(const string & key)
+is_user_metadata_key(const string & key)
 {
     return key.size() > 1 && key[0] == '\0' && key[1] != '\xff';
 }
@@ -346,16 +346,16 @@ check_table(string filename, int opts)
 	while (!cursor->after_end()) {
 	    string & key = cursor->current_key;
 
-	    if (is_user_metainfo_key) {
-		// User metainfo can be anything, so we can't do any particular checks on it.
+	    if (is_user_metadata_key(key)) {
+		// User metadata can be anything, so we can't do any particular
+		// checks on it.
 		cursor->next();
 		continue;
+	    }
 
-	    } else {
-		if (!have_metainfo_key) {
-		    cout << "METAINFO key missing from postlist table" << endl;
-		    return errors + 1;
-		}
+	    if (!have_metainfo_key) {
+		cout << "METAINFO key missing from postlist table" << endl;
+		return errors + 1;
 	    }
 
 	    const char * pos, * end;

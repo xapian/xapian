@@ -1,3 +1,9 @@
+Thu Mar 06 01:44:07 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Fix terminology - "user metadata" not "user
+	  metainfo".  Fix bug - need to invoke is_user_metadata rather than
+	  using the function pointer as the if condition!
+
 Thu Mar 06 01:41:09 GMT 2008  Olly Betts <olly@survex.com>
 
 	* bin/xapian-compact.cc: Fix terminology - "user metadata" not "user
