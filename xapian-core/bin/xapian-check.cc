@@ -164,6 +164,12 @@ BitReader::decode_interpolative(vector<Xapian::termpos> & pos, int j, int k)
     }
 }
 
+static inline bool
+is_user_metadata_key(const string & key)
+{
+    return key.size() > 1 && key[0] == '\0' && key[1] != '\xff';
+}
+
 int
 main(int argc, char **argv)
 {
@@ -308,36 +314,49 @@ check_table(string filename, int opts)
 	Xapian::docid lastdid = 0;
 	Xapian::termcount termfreq = 0, collfreq = 0;
 	Xapian::termcount tf = 0, cf = 0;
+	bool have_metainfo_key = false;
 
-	// The first key/tag pair should be the METAINFO.
+	// The first key/tag pair should be the METAINFO - though this may be
+	// missing if the table only contains user-metadata.
 	if (!cursor->after_end()) {
-	    if (cursor->current_key != string("", 1)) {
-		cout << "METAINFO key missing from postlist table" << endl;
-		return errors + 1;
+	    if (cursor->current_key == string("", 1)) {
+		have_metainfo_key = true;
+		cursor->read_tag();
+		// Check format of the METAINFO key.
+		Xapian::docid did;
+		flint_totlen_t totlen;
+		const char * data = cursor->current_tag.data();
+		const char * end = data + cursor->current_tag.size();
+		if (!unpack_uint(&data, end, &did)) {
+		    cout << "Tag containing meta information is corrupt." << endl;
+		    return errors + 1;
+		}
+		if (!unpack_uint_last(&data, end, &totlen)) {
+		    cout << "Tag containing meta information is corrupt." << endl;
+		    return errors + 1;
+		}
+		if (data != end) {
+		    cout << "Tag containing meta information is corrupt." << endl;
+		    return errors + 1;
+		}
+		cursor->next();
 	    }
-	    cursor->read_tag();
-	    // Check format of the METAINFO key.
-	    Xapian::docid did;
-	    flint_totlen_t totlen;
-	    const char * data = cursor->current_tag.data();
-	    const char * end = data + cursor->current_tag.size();
-	    if (!unpack_uint(&data, end, &did)) {
-		cout << "Tag containing meta information is corrupt." << endl;
-		return errors + 1;
-	    }
-	    if (!unpack_uint_last(&data, end, &totlen)) {
-		cout << "Tag containing meta information is corrupt." << endl;
-		return errors + 1;
-	    }
-	    if (data != end) {
-		cout << "Tag containing meta information is corrupt." << endl;
-		return errors + 1;
-	    }
-	    cursor->next();
 	}
 
 	while (!cursor->after_end()) {
 	    string & key = cursor->current_key;
+
+	    if (is_user_metadata_key(key)) {
+		// User metadata can be anything, so we can't do any particular
+		// checks on it.
+		cursor->next();
+		continue;
+	    }
+
+	    if (!have_metainfo_key) {
+		cout << "METAINFO key missing from postlist table" << endl;
+		return errors + 1;
+	    }
 
 	    const char * pos, * end;
 

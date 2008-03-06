@@ -1,3 +1,15 @@
+Thu Mar 06 01:49:26 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* bin/xapian-check.cc: Add understanding of user metainfo keys in
+	  the postlist table.  Allow the METAINFO key to be absent if the
+	  table only contains user metainfo keys.
+	* bin/xapian-check.cc: Fix terminology - "user metadata" not "user
+	  metainfo".  Fix bug - need to invoke is_user_metadata rather than
+	  using the function pointer as the if condition!
+	* bin/xapian-compact.cc: Fix terminology - "user metadata" not "user
+	  metainfo".
+
 Thu Mar 06 01:30:46 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
