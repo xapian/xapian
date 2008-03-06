@@ -1,6 +1,6 @@
 Thu Mar 06 01:44:07 GMT 2008  Olly Betts <olly@survex.com>
 
-	* bin/xapian-compact.cc: Fix terminology - "user metadata" not "user
+	* bin/xapian-check.cc: Fix terminology - "user metadata" not "user
 	  metainfo".  Fix bug - need to invoke is_user_metadata rather than
 	  using the function pointer as the if condition!
 
@@ -566,7 +566,7 @@ Tue Jan 29 10:08:02 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 	  UnimplementedError.  Hook
 	  DatabaseMaster::write_changesets_to_fd() up to this, and
 	  implement it for flint databases (the code to send a copy of a
-	  database still needs work). 
+	  database still needs work).
 
 Tue Jan 29 10:01:39 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
