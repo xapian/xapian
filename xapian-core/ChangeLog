@@ -1,3 +1,11 @@
+Thu Mar 06 01:30:46 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* common/msvc_dirent.cc: Fix sense of check for ENOENT after
+	  calling _findnext() - it should be checked for when an error code
+	  is returned, not when the call succeeds.
+	* common/msvc_dirent.cc: Tweak to bring comment back into 80 columns.
+
 Wed Mar 05 09:11:48 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
