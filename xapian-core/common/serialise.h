@@ -45,8 +45,28 @@ class Stats;
  *
  *  @return	The encoded length.
  */
-XAPIAN_VISIBILITY_DEFAULT
-std::string encode_length(size_t len);
+template<class T>
+std::string
+encode_length(T len)
+{
+    string result;
+    if (len < 255) {
+	result += static_cast<unsigned char>(len);
+    } else {
+	result += '\xff';
+	len -= 255;
+	while (true) {
+	    unsigned char byte = static_cast<unsigned char>(len & 0x7f);
+	    len >>= 7;
+	    if (!len) {
+		result += (byte | static_cast<unsigned char>(0x80));
+		break;
+	    }
+	    result += byte;
+	}
+    }
+    return result;
+}
 
 /** Decode a length encoded by encode_length.
  *

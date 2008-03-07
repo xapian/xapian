@@ -1,3 +1,13 @@
+Fri Mar 07 00:34:28 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/serialise.h,net/remoteconnection.cc,net/serialise.cc:
+	  Change encode_length() to a template, to allow the full range of
+	  off_t values to be encoded.  Also, adjust
+	  RemoteConnection::get_message_chunked() to allow the message
+	  length to be a 64 bit quantity.  Also, make a couple of type
+	  conversions to size_t explicit, to remove some warnings on
+	  windows.
+
 Thu Mar 06 01:57:04 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.

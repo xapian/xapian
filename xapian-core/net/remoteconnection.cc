@@ -532,7 +532,9 @@ RemoteConnection::get_message_chunked(const OmTime & end_time)
     unsigned char ch;
     int shift = 0;
     do {
-	if (i == buffer.end() || shift > 28) {
+	// Allow a full 64 bits for message lengths - anything longer than that
+	// is almost certainly a corrupt value.
+	if (i == buffer.end() || shift > 63) {
 	    // Something is very wrong...
 	    throw Xapian::NetworkError("Insane message length specified!");
 	}
@@ -559,11 +561,11 @@ RemoteConnection::get_message_chunk(string &result, size_t at_least,
     at_least -= result.size();
 
     bool read_enough = (off_t(at_least) <= chunked_data_left);
-    if (!read_enough) at_least = chunked_data_left;
+    if (!read_enough) at_least = size_t(chunked_data_left);
 
     read_at_least(at_least, end_time);
 
-    size_t retlen(min(off_t(buffer.size()), chunked_data_left));
+    size_t retlen(size_t(min(off_t(buffer.size()), chunked_data_left)));
     result.append(buffer, 0, retlen);
     buffer.erase(0, retlen);
     chunked_data_left -= retlen;
