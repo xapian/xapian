@@ -49,7 +49,7 @@ template<class T>
 std::string
 encode_length(T len)
 {
-    string result;
+    std::string result;
     if (len < 255) {
 	result += static_cast<unsigned char>(len);
     } else {
