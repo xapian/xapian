@@ -1,3 +1,9 @@
+Fri Mar 07 00:47:06 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/replication.cc: Tidy up a line which was wider than 80
+	  columns, and improve the error message returned when a database
+	  replica doesn't contain exactly one subdatabase.
+
 Fri Mar 07 00:34:28 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* common/serialise.h,net/remoteconnection.cc,net/serialise.cc:
