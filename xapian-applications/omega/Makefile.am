@@ -81,6 +81,9 @@ noinst_HEADERS = omega.h query.h cgiparam.h\
 # headers maintained in xapian-core
 noinst_HEADERS +=\
 	common/gnu_getopt.h\
+	common/msvc_dirent.h\
+	common/noreturn.h\
+	common/safedirent.h\
 	common/safeerrno.h\
 	common/safefcntl.h\
 	common/safesysselect.h\
@@ -99,7 +102,7 @@ omega_LDADD = $(XAPIAN_LIBS) # -lpcre
 omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc\
  common/getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc md5.cc\
  md5wrap.cc xmlparse.cc metaxmlparse.cc utf8convert.cc sample.cc diritor.cc\
- runfilter.cc freemem.cc
+ runfilter.cc freemem.cc common/msvc_dirent.cc
 if NEED_MKDTEMP
 omindex_SOURCES += portability/mkdtemp.cc
 endif

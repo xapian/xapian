@@ -1,3 +1,11 @@
+Mon Mar 10 03:53:20 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* Makefile.am,diritor.h: Use safedirent.h not dirent.h and build
+	  msvc_dirent.cc as part of omindex.
+	* Makefile.am,diritor.cc,diritor.h,omindex.cc: Check for readdir()
+	  failing.
+
 Thu Mar 06 23:08:16 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

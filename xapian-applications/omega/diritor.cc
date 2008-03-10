@@ -1,6 +1,6 @@
 /* diritor.cc: Iterator through entries in a directory.
  *
- * Copyright (C) 2007 Olly Betts
+ * Copyright (C) 2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,4 +69,15 @@ DirectoryIterator::start(const std::string & path_)
 	error += ')';
 	throw error;
     }
+}
+
+void
+DirectoryIterator::next_failed() const
+{
+    string error = "Can't read next entry from directory \"";
+    error += path;
+    error += "\" (";
+    error += strerror(errno);
+    error += ')';
+    throw error;
 }
