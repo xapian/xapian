@@ -1,3 +1,8 @@
+Mon Mar 10 03:37:30 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Makefile.am,diritor.cc,diritor.h,omindex.cc: Check for readdir()
+	  failing.
+
 Thu Mar 06 23:43:11 GMT 2008  Olly Betts <olly@survex.com>
 
 	* common/: Update to latest revisions.

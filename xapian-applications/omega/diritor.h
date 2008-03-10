@@ -23,7 +23,10 @@
 #include <string>
 
 #include "safedirent.h"
+#include "safeerrno.h"
 #include "safesysstat.h"
+
+#include "common/noreturn.h"
 
 class DirectoryIterator {
     std::string path;
@@ -55,12 +58,16 @@ class DirectoryIterator {
     //
     //  @return false if there are no more entries.
     bool next() {
+	errno = 0;
 	do {
 	    entry = readdir(dir);
 	} while (entry && entry->d_name[0] == '.');
 	statbuf_valid = false;
+	if (entry == NULL && errno != 0) next_failed();
 	return (entry != NULL);
     }
+
+    XAPIAN_NORETURN(void next_failed() const);
 
     const char * leafname() const { return entry->d_name; }
 
