@@ -1,3 +1,12 @@
+Tue Mar 11 23:30:06 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* java-swig/Makefile.am: Add MultiValueSorter.java, Sorter.java, and
+	  TermGenerator$flags.class.
+	* java-swig/util.i: Xapian::weight::clone() collides with Java's
+	  Object.clone(), so rename to cloneWeight().  Wrap Xapian::valueno
+	  as Java type int to avoid a conflict with SWIG/Java's machinery.
+
 Thu Mar 06 23:09:45 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
