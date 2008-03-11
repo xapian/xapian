@@ -1,3 +1,9 @@
+Tue Mar 11 20:32:26 GMT 2008  Olly Betts <olly@survex.com>
+
+	* java-swig/util.i: Xapian::weight::clone() collides with Java's
+	  Object.clone(), so rename to cloneWeight().  Wrap Xapian::valueno
+	  as Java type int to avoid a conflict with SWIG/Java's machinery.
+
 Tue Mar 11 04:51:00 GMT 2008  Olly Betts <olly@survex.com>
 
 	* java-swig/Makefile.am: Add MultiValueSorter.java, Sorter.java, and
