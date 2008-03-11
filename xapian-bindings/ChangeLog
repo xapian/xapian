@@ -1,6 +1,11 @@
+Tue Mar 11 04:51:00 GMT 2008  Olly Betts <olly@survex.com>
+
+	* java-swig/Makefile.am: Add MultiValueSorter.java, Sorter.java, and
+	  TermGenerator$flags.class.
+
 Wed Mar 05 22:36:46 GMT 2008  Olly Betts <olly@survex.com>
 
-	* NEWS: Update to HEA with un-backported changes kept separate.
+	* NEWS: Update to HEAD with un-backported changes kept separate.
 
 Wed Mar 05 21:30:13 GMT 2008  Olly Betts <olly@survex.com>
 
