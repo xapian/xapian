@@ -1,3 +1,11 @@
+Wed Mar 12 01:44:42 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Initialise PostlistCursor member firstdid to
+	  avoid using it uninitialised when merging user metadata and the same
+	  key is present in more than one source database.  If the same user
+	  metadata key is present in more than one source database, copy an
+	  arbitrary tag value.
+
 Wed Mar 12 00:34:04 GMT 2008  Olly Betts <olly@survex.com>
 
 	* bin/xapian-compact.cc: Fix potential SEGV (which I think can occur

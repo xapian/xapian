@@ -88,7 +88,7 @@ class PostlistCursor : private FlintCursor {
     Xapian::termcount tf, cf;
 
     PostlistCursor(FlintTable *in, Xapian::docid offset_)
-	: FlintCursor(in), offset(offset_)
+	: FlintCursor(in), offset(offset_), firstdid(0)
     {
 	find_entry("");
 	next();
@@ -204,9 +204,16 @@ merge_postlists(const string & tablename,
     while (!pq.empty()) {
 	PostlistCursor * cur = pq.top();
 	pq.pop();
-	if (!is_user_metadata_key(cur->key)) {
+	const string& key = cur->key;
+	if (!is_user_metadata_key(key)) {
 	    pq.push(cur);
 	    break;
+	}
+	if (key == last_key) {
+	    cerr << "Warning: duplicate user metadata key - picking arbitrary tag value" << endl;
+	} else {
+	    out->add(key, cur->tag);
+	    last_key = key;
 	}
 	if (cur->next()) {
 	    pq.push(cur);
