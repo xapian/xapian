@@ -1,5 +1,5 @@
 
-.. Copyright (C) 2007 Olly Betts
+.. Copyright (C) 2007,2008 Olly Betts
 
 ==========================
 Xapian Spelling Correction

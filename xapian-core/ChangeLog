@@ -1,3 +1,11 @@
+Wed Mar 12 05:11:53 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,api/omquery.cc,api/version.cc,docs/,
+	  generate-exceptions.in,include/xapian.h,include/xapian/enquire.h,
+	  include/xapian/query.h,tests/api_db.cc,tests/api_wrdb.cc,
+	  tests/apitest.cc,tests/harness/,tests/internaltest.cc: Remove all
+	  xapian-core features marked for removal in 1.1.0.
+
 Wed Mar 12 03:28:18 GMT 2008  Olly Betts <olly@survex.com>
 
 	* HACKING,INSTALL,Makefile.am,backends/Makefile.mk,

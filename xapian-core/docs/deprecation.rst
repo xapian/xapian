@@ -1,7 +1,7 @@
 .. This document was originally written by Richard Boulton.
 
 .. Copyright (C) 2007 Lemur Consulting Ltd
-.. Copyright (C) 2007 Olly Betts
+.. Copyright (C) 2007,2008 Olly Betts
 
 ===========
 Deprecation
@@ -136,22 +136,6 @@ Native C++ API
 ========== ====== =================================== ========================================================================
 Deprecated Remove Feature name                        Upgrade suggestion and comments
 ========== ====== =================================== ========================================================================
-0.9.6      1.1.0  xapian_version_string()             Use ``version_string()`` instead.
----------- ------ ----------------------------------- ------------------------------------------------------------------------
-0.9.6      1.1.0  xapian_major_version()              Use ``major_version()`` instead.
----------- ------ ----------------------------------- ------------------------------------------------------------------------
-0.9.6      1.1.0  xapian_minor_version()              Use ``minor_version()`` instead.
----------- ------ ----------------------------------- ------------------------------------------------------------------------
-0.9.6      1.1.0  xapian_revision()                   Use ``revision()`` instead.
----------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.0.0      1.1.0  Enquire::include_query_terms        Use ``Enquire::INCLUDE_QUERY_TERMS`` instead.
----------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.0.0      1.1.0  Enquire::use_exact_termfreq         Use ``Enquire::USE_EXACT_TERMFREQ`` instead.
----------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.0.0      1.1.0  Error::get_errno()                  Use ``Error::get_error_string()`` instead.
----------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.0.3      1.1.0  Enquire::register_match_decider()   This method didn't do anything, so just remove calls to it!
----------- ------ ----------------------------------- ------------------------------------------------------------------------
 1.0.3      1.2.0? ``Database::positionlist_begin()``  This check is quite expensive, and often you don't care.  If you
                   throwing ``RangeError`` if the      do it's easy to check - just open a ``TermListIterator`` for the
                   term specified doesn't index the    document and use ``skip_to()`` to check if the term is there.
@@ -161,9 +145,6 @@ Deprecated Remove Feature name                        Upgrade suggestion and com
                   throwing ``DocNotFoundError`` if    do, it's easy to check - just call ``Database::get_document()`` with the
                   the document specified doesn't      specified document ID.
                   exist.
----------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.0.4      1.1.0  Query::Query(Query::op, Query)      This constructor isn't useful for any currently implemented
-                                                      ``Query::op``.
 ========== ====== =================================== ========================================================================
 
 
@@ -305,15 +286,34 @@ Removed Feature name                        Upgrade suggestion and comments
                                             catch both (you'll need to compile the part which catches ``QueryParserError``
                                             conditionally, since this exception isn't present in the 0.9 release series).
 ------- ----------------------------------- ----------------------------------------------------------------------------------
-1.0.0   The Quartz backend                  Use the Flint backend instead.
+1.1.0   xapian_version_string()             Use ``version_string()`` instead.
 ------- ----------------------------------- ----------------------------------------------------------------------------------
-1.0.0   Quartz::open()                      Use ``Flint::open()`` instead.
+1.1.0   xapian_major_version()              Use ``major_version()`` instead.
 ------- ----------------------------------- ----------------------------------------------------------------------------------
-1.0.0   quartzcheck                         Use ``xapian-check`` instead.
+1.1.0   xapian_minor_version()              Use ``minor_version()`` instead.
 ------- ----------------------------------- ----------------------------------------------------------------------------------
-1.0.0   quartzcompact                       Use ``xapian-compact`` instead.
+1.1.0   xapian_revision()                   Use ``revision()`` instead.
 ------- ----------------------------------- ----------------------------------------------------------------------------------
-1.0.0   quartzdump                          Use ``xapian-inspect`` instead.
+1.1.0   Enquire::include_query_terms        Use ``Enquire::INCLUDE_QUERY_TERMS`` instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.1.0   Enquire::use_exact_termfreq         Use ``Enquire::USE_EXACT_TERMFREQ`` instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.1.0   Error::get_errno()                  Use ``Error::get_error_string()`` instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.1.0   Enquire::register_match_decider()   This method didn't do anything, so just remove calls to it!
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.1.0   Query::Query(Query::op, Query)      This constructor isn't useful for any currently implemented
+                                            ``Query::op``.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.1.0   The Quartz backend                  Use the Flint backend instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.1.0   Quartz::open()                      Use ``Flint::open()`` instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.1.0   quartzcheck                         Use ``xapian-check`` instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.1.0   quartzcompact                       Use ``xapian-compact`` instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.1.0   quartzdump                          Use ``xapian-inspect`` instead.
 ======= =================================== ==================================================================================
 
 

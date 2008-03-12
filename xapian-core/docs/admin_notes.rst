@@ -1,8 +1,6 @@
-.. This document was originally written by Richard Boulton, with funding
-.. provided by Enfold Systems.
 
 .. Copyright (C) 2006 Lemur Consulting Ltd
-.. Copyright (C) 2007 Olly Betts
+.. Copyright (C) 2007,2008 Olly Betts
 
 ============================
 Xapian Administrator's Guide
