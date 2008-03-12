@@ -1,3 +1,8 @@
+Wed Mar 12 00:34:04 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Fix potential SEGV (which I think can occur
+	  when compacting database(s) with user metadata but no postings).
+
 Fri Mar 07 09:46:38 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* common/serialise.h: Add missing std:: before string.

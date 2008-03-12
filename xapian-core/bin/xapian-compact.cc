@@ -1,6 +1,6 @@
 /* xapian-compact.cc: Compact a flint database, or merge and compact several.
  *
- * Copyright (C) 2004,2005,2006,2007 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -201,12 +201,9 @@ merge_postlists(const string & tablename,
     out->add(string("", 1), tag);
 
     string last_key;
-    while (true) {
-	PostlistCursor * cur = NULL;
-	if (!pq.empty()) {
-	    cur = pq.top();
-	    pq.pop();
-	}
+    while (!pq.empty()) {
+	PostlistCursor * cur = pq.top();
+	pq.pop();
 	if (!is_user_metadata_key(cur->key)) {
 	    pq.push(cur);
 	    break;
