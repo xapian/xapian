@@ -156,43 +156,8 @@ Bindings
 ========== ====== ======== ============================ ======================================================================
 Deprecated Remove Language Feature name                 Upgrade suggestion and comments
 ========== ====== ======== ============================ ======================================================================
-0.9.6      1.1.0  SWIG     xapian_version_string()      Use ``version_string()`` instead.
-                  [#swig]_
----------- ------ -------- ---------------------------- ----------------------------------------------------------------------
-0.9.6      1.1.0  SWIG     xapian_major_version()       Use ``major_version()`` instead.
-                  [#swig]_
----------- ------ -------- ---------------------------- ----------------------------------------------------------------------
-0.9.6      1.1.0  SWIG     xapian_minor_version()       Use ``minor_version()`` instead.
-                  [#swig]_
----------- ------ -------- ---------------------------- ----------------------------------------------------------------------
-0.9.6      1.1.0  SWIG     xapian_revision()            Use ``revision()`` instead.
-                  [#swig]_
----------- ------ -------- ---------------------------- ----------------------------------------------------------------------
-1.0.0      1.1.0  SWIG     ESet::get_termname()         Use ``ESet::get_term()`` instead.  This change is intended to bring
-                  [#swig]_                              the ESet iterators in line with other term iterators, which all
-                                                        support ``get_term()`` instead of ``get_termname()``.
----------- ------ -------- ---------------------------- ----------------------------------------------------------------------
-1.0.0      1.1.0  Python   get_description()            All ``get_description()`` methods have been renamed to ``__str__()``,
-                                                        so the normal python ``str()`` function can be used.
----------- ------ -------- ---------------------------- ----------------------------------------------------------------------
-1.0.0      1.1.0  Python   MSetItem.get_*()             All these methods are deprecated, in favour of properties.
-                                                        To convert, just change ``msetitem.get_FOO()`` to ``msetitem.FOO``
----------- ------ -------- ---------------------------- ----------------------------------------------------------------------
-1.0.0      1.1.0  Python   Enquire.get_matching_terms   Replaced by ``Enquire.matching_terms``, for consistency with
-                                                        rest of Python API.
----------- ------ -------- ---------------------------- ----------------------------------------------------------------------
-1.0.0      1.1.0  SWIG     Error::get_errno()           Use ``Error::get_error_string()`` instead.
-                  [#swig]_
----------- ------ -------- ---------------------------- ----------------------------------------------------------------------
-0.9.6      1.1.0  SWIG     MSet::get_document_id()      Use ``MSet::get_docid()`` instead.
-                  [#swg2]_
----------- ------ -------- ---------------------------- ----------------------------------------------------------------------
 1.0.4      1.2.0  Python   Non-pythonic iterators       Use the pythonic iterators instead.
 ========== ====== ======== ============================ ======================================================================
-
-.. [#swig] This affects all SWIG-generated bindings (currently: Python, PHP, Ruby, Tcl8 and CSharp)
-
-.. [#swg2] This affects all SWIG-generated bindings except those for Ruby, support for which was added after the function waan-core.
 
 Omega
 -----
@@ -368,9 +333,43 @@ Removed Language Feature name                 Upgrade suggestion and comments
 ------- -------- ---------------------------- --------------------------------------------------------------------------------
 1.0.0   SWIG     Stem::stem_word(word)        Use ``Stem::operator()(word)`` instead. [#callable]_
         [#rswg]_
+------- -------- ---------------------------- --------------------------------------------------------------------------------
+1.1.0   SWIG     xapian_version_string()      Use ``version_string()`` instead.
+        [#swig]_
+------- -------- ---------------------------- --------------------------------------------------------------------------------
+1.1.0   SWIG     xapian_major_version()       Use ``major_version()`` instead.
+        [#swig]_
+------- -------- ---------------------------- --------------------------------------------------------------------------------
+1.1.0   SWIG     xapian_minor_version()       Use ``minor_version()`` instead.
+        [#swig]_
+------- -------- ---------------------------- --------------------------------------------------------------------------------
+1.1.0   SWIG     xapian_revision()            Use ``revision()`` instead.
+        [#swig]_
+------- -------- ---------------------------- --------------------------------------------------------------------------------
+1.1.0   SWIG     ESetIterator::get_termname() Use ``ESetIterator::get_term()`` instead.  This change is intended to
+        [#swig]_                              bring the ESet iterators in line with other term iterators, which all
+                                              support ``get_term()`` instead of ``get_termname()``.
+      
+------- -------- ---------------------------- --------------------------------------------------------------------------------
+1.1.0   Python   get_description()            All ``get_description()`` methods have been renamed to ``__str__()``,
+                                              so the normal python ``str()`` function can be used.
+------- -------- ---------------------------- --------------------------------------------------------------------------------
+1.1.0   Python   MSetItem.get_*()             All these methods are deprecated, in favour of properties.
+                                              To convert, just change ``msetitem.get_FOO()`` to ``msetitem.FOO``
+------- -------- ---------------------------- --------------------------------------------------------------------------------
+1.1.0   Python   Enquire.get_matching_terms   Replaced by ``Enquire.matching_terms``, for consistency with
+                                              rest of Python API.
+------- -------- ---------------------------- --------------------------------------------------------------------------------
+1.1.0   SWIG     Error::get_errno()           Use ``Error::get_error_string()`` instead.
+        [#swig]_
+------- -------- ---------------------------- --------------------------------------------------------------------------------
+1.1.0   SWIG     MSet::get_document_id()      Use ``MSet::get_docid()`` instead.
+        [#swg2]_
 ======= ======== ============================ ================================================================================
 
 .. [#rswg] This affects all SWIG generated bindings (currently: Python, PHP, Ruby, Tcl8 and CSharp)
+
+.. [#swg2] This affects all SWIG-generated bindings except those for Ruby, support for which was added after the function waan-core.
 
 .. [#rsw3] This affects all SWIG generated bindings except those for Ruby, which was added after the function was deprecated in Xapian-core, and PHP, where empty is a reserved word (and therefore, the method remains "is_empty").
 
