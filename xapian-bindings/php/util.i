@@ -1,5 +1,5 @@
 %{
-/* php4/util.i: custom PHP typemaps for xapian-bindings
+/* php/util.i: custom PHP typemaps for xapian-bindings
  *
  * Copyright (C) 2004,2005,2006,2007,2008 Olly Betts
  *
@@ -43,47 +43,8 @@
 // for PHP.
 %ignore Xapian::Sorter;
 
-#ifdef SWIGPHP4
-%rename("XapianBM25Weight") Xapian::BM25Weight;
-%rename("XapianBoolWeight") Xapian::BoolWeight;
-%rename("XapianDatabase") Xapian::Database;
-%rename("XapianDateValueRangeProcessor") Xapian::DateValueRangeProcessor;
-%rename("XapianDocument") Xapian::Document;
-%rename("XapianEnquire") Xapian::Enquire;
-%rename("XapianESet") Xapian::ESet;
-%rename("XapianESetIterator") Xapian::ESetIterator;
-%rename("XapianMSet") Xapian::MSet;
-%rename("XapianMSetIterator") Xapian::MSetIterator;
-%rename("XapianMultiValueSorter") Xapian::MultiValueSorter;
-%rename("XapianNumberValueRangeProcessor") Xapian::v102::NumberValueRangeProcessor;
-%rename("XapianNumberValueRangeProcessor") Xapian::NumberValueRangeProcessor;
-%rename("XapianPositionIterator") Xapian::PositionIterator;
-%rename("XapianPostingIterator") Xapian::PostingIterator;
-%rename("XapianQuery") Xapian::Query;
-%rename("XapianQueryParser") Xapian::QueryParser;
-%rename("XapianRSet") Xapian::RSet;
-%rename("XapianSimpleStopper") Xapian::SimpleStopper;
-%rename("XapianStem") Xapian::Stem;
-%rename("XapianStopper") Xapian::Stopper;
-%rename("XapianStringValueRangeProcessor") Xapian::StringValueRangeProcessor;
-%rename("XapianTermGenerator") Xapian::TermGenerator;
-%rename("XapianTermIterator") Xapian::TermIterator;
-%rename("XapianTradWeight") Xapian::TradWeight;
-%rename("XapianValueIterator") Xapian::ValueIterator;
-%rename("XapianValueRangeProcessor") Xapian::ValueRangeProcessor;
-%rename("XapianWeight") Xapian::Weight;
-%rename("XapianWritableDatabase") Xapian::WritableDatabase;
-
-%rename("xapian_version_string") Xapian::version_string;
-%rename("xapian_major_version") Xapian::major_version;
-%rename("xapian_minor_version") Xapian::minor_version;
-%rename("xapian_revision") Xapian::revision;
-%rename("xapian_sortable_serialise") Xapian::sortable_serialise;
-%rename("xapian_sortable_unserialise") Xapian::sortable_unserialise;
-#else
 %rename("is_empty") empty() const;
 %rename("clone_object") clone() const;
-#endif
 
 %typemap(typecheck, precedence=SWIG_TYPECHECK_POINTER) const SWIGTYPE & {
     void *ptr;

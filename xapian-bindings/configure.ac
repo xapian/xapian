@@ -290,10 +290,6 @@ if test no != "$with_php" ; then
     AC_MSG_CHECKING([$PHP_CONFIG version])
     version=`$PHP_CONFIG --version 2>/dev/null`
     case $version in
-    4.*)
-      AC_MSG_RESULT([$version])
-      PHP_MAJOR_VERSION=4
-      ;;
     5.*)
       AC_MSG_RESULT([$version])
       PHP_MAJOR_VERSION=5
@@ -301,7 +297,7 @@ if test no != "$with_php" ; then
     *)
       AC_MSG_RESULT([$version (not supported)])
       if test yes = "$with_php" ; then
-	AC_MSG_ERROR([Only PHP4 and PHP5 are supported ($PHP_CONFIG reports version $version)])
+	AC_MSG_ERROR([Only PHP5 is supported ($PHP_CONFIG reports version $version)])
       fi
       with_php=no
       ;;

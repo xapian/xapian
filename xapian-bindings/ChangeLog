@@ -1,3 +1,12 @@
+Wed Mar 12 08:57:55 GMT 2008  Olly Betts <olly@survex.com>
+
+	* README,configure.ac,php/Makefile.am,php/docs/Makefile.am,
+	  php/docs/examples/simpleexpand.php4,
+	  php/docs/examples/simpleindex.php4,
+	  php/docs/examples/simplesearch.php4,php/docs/index.html,
+	  php/smoketest4.php,php/util.i,xapian-bindings.spec.in,xapian.i:
+	  Remove PHP4 support.
+
 Wed Mar 12 08:29:06 GMT 2008  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am,csharp/SmokeTest.cs,csharp/util.i,

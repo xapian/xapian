@@ -672,19 +672,13 @@ class WritableDatabase : public Database {
 %constant int DB_CREATE = Xapian::DB_CREATE;
 %constant int DB_CREATE_OR_OVERWRITE = Xapian::DB_CREATE_OR_OVERWRITE;
 %constant int DB_OPEN = Xapian::DB_OPEN;
-#ifdef SWIGPHP4
-%constant int Xapian_DB_CREATE_OR_OPEN = Xapian::DB_CREATE_OR_OPEN;
-%constant int Xapian_DB_CREATE = Xapian::DB_CREATE;
-%constant int Xapian_DB_CREATE_OR_OVERWRITE = Xapian::DB_CREATE_OR_OVERWRITE;
-%constant int Xapian_DB_OPEN = Xapian::DB_OPEN;
-#endif
 
 // Database factory functions:
 
 #if !defined SWIGCSHARP && !defined SWIGJAVA
 namespace Auto {
 #ifdef SWIGPHP
-    /* PHP4 lacks namespaces so fake them. */
+    /* PHP lacks namespaces so fake them. */
     %rename(auto_open_stub) open_stub;
 #endif
     Database open_stub(const string & file);
