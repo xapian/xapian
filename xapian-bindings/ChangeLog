@@ -1,3 +1,13 @@
+Wed Mar 12 08:29:06 GMT 2008  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,csharp/SmokeTest.cs,csharp/util.i,
+	  java-swig/Makefile.am,java-swig/SmokeTest.java,
+	  java/native/Enquire.cc,java/native/Query.cc,
+	  java/native/org_xapian_XapianJNI.h,java/org/xapian/Enquire.java,
+	  java/org/xapian/Query.java,java/org/xapian/XapianJNI.java,php/util.i,
+	  python/,ruby/util.i,ruby/xapian.rb,xapian.i: Remove all deprecated
+	  features slated for removal in 1.1.0.
+
 Tue Mar 11 20:32:26 GMT 2008  Olly Betts <olly@survex.com>
 
 	* java-swig/util.i: Xapian::weight::clone() collides with Java's

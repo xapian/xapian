@@ -31,7 +31,6 @@ XAPIAN_SWIG_CS_SRCS=\
 	NumberValueRangeProcessor.cs \
 	PositionIterator.cs \
 	PostingIterator.cs \
-	Quartz.cs \
 	Query.cs \
 	QueryParser.cs \
 	Remote.cs \

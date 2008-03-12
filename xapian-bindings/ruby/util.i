@@ -5,7 +5,7 @@
  * Based on the php4 and python util.i files.
  *
  * Copyright (C) 2006 Networked Knowledge Systems, Inc.
- * Copyright (C) 2006,2007 Olly Betts
+ * Copyright (C) 2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -53,7 +53,6 @@
 %rename("doclength") get_doclength;
 %rename("document") get_document;
 %rename("ebound") get_ebound;
-%rename("errno") get_errno;
 %rename("eset") get_eset;
 %rename("firstitem") get_firstitem;
 %rename("hit") get_hit;
@@ -80,7 +79,6 @@
 %rename("terms") get_terms;
 %rename("term") get_term;
 %rename("termpos") get_termpos;
-%rename("termname") get_termname;
 %rename("termweight") get_termweight;
 %rename("type") get_type;
 %rename("value") get_value;
@@ -146,12 +144,6 @@
 
 // Booleans
 %predicate empty;
-
-// Other deprecated methods
-%ignore Xapian::xapian_version_string();
-%ignore Xapian::xapian_major_version();
-%ignore Xapian::xapian_minor_version();
-%ignore Xapian::xapian_revision();
 
 #define XAPIAN_MIXED_VECTOR_QUERY_INPUT_TYPEMAP
 /*

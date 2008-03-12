@@ -1,7 +1,7 @@
 %{
 /* php4/util.i: custom PHP typemaps for xapian-bindings
  *
- * Copyright (C) 2004,2005,2006,2007 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,7 +30,7 @@
 
 /* Add a section to the output from phpinfo(). */
 %pragma(php4) phpinfo="
-    const char * linked_version = Xapian::xapian_version_string();
+    const char * linked_version = Xapian::version_string();
     php_info_print_table_start();
     php_info_print_table_row(2, \"Xapian Support\", \"enabled\");
     php_info_print_table_row(2, \"Xapian Compiled Version\",
@@ -38,11 +38,6 @@
     php_info_print_table_row(2, \"Xapian Linked Version\", linked_version);
     php_info_print_table_end();
 "
-
-%ignore Xapian::xapian_version_string;
-%ignore Xapian::xapian_major_version;
-%ignore Xapian::xapian_minor_version;
-%ignore Xapian::xapian_revision;
 
 // No point wrapping this abstract base class until SWIG supports directors
 // for PHP.
