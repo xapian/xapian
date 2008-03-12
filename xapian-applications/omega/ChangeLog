@@ -1,3 +1,7 @@
+Wed Mar 12 07:04:56 GMT 2008  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: Make deprecated "index=nopos" an error.
+
 Mon Mar 10 03:37:30 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Makefile.am,diritor.cc,diritor.h,omindex.cc: Check for readdir()
