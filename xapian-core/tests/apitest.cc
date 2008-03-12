@@ -38,7 +38,6 @@ using namespace std;
 #include "backendmanager_flint.h"
 #include "backendmanager_inmemory.h"
 #include "backendmanager_multi.h"
-#include "backendmanager_quartz.h"
 #include "backendmanager_remoteprog.h"
 #include "backendmanager_remotetcp.h"
 #include "utils.h"
@@ -126,7 +125,7 @@ int main(int argc, char **argv)
 	bool positional = false, writable = false, multi = false;
 	bool spelling = false, metadata = false;
 	bool replicas = false;
-	bool quartz = false, flint = false;
+	bool flint = false;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -141,7 +140,7 @@ int main(int argc, char **argv)
 	bool positional = true, writable = true, multi = false;
 	bool spelling = false, metadata = false;
 	bool replicas = false;
-	bool quartz = false, flint = false;
+	bool flint = false;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -157,14 +156,14 @@ int main(int argc, char **argv)
 	bool positional = true, writable = true, multi = false;
 	bool spelling = true, metadata = true;
 	bool replicas = true;
-	bool quartz = false, flint = true;
+	bool flint = true;
 #include "api_collated.h"
 
 	delete backendmanager;
     }
 #endif
 
-#if defined(XAPIAN_HAS_FLINT_BACKEND) || defined(XAPIAN_HAS_QUARTZ_BACKEND)
+#if defined(XAPIAN_HAS_FLINT_BACKEND)
     if (USE_BACKEND(backend_name, "multi")) {
 	backendmanager = new BackendManagerMulti;
 	backendmanager->set_datadir(srcdir + "/testdata/");
@@ -173,23 +172,7 @@ int main(int argc, char **argv)
 	bool positional = true, writable = false, multi = true;
 	bool spelling = false, metadata = false;
 	bool replicas = false;
-	bool quartz = false, flint = false;
-#include "api_collated.h"
-
-	delete backendmanager;
-    }
-#endif
-
-#ifdef XAPIAN_HAS_QUARTZ_BACKEND
-    if (USE_BACKEND(backend_name, "quartz")) {
-	backendmanager = new BackendManagerQuartz;
-	backendmanager->set_datadir(srcdir + "/testdata/");
-
-	bool backend = true, remote = false, transactions = true;
-	bool positional = true, writable = true, multi = false;
-	bool spelling = false, metadata = false;
-	bool replicas = false;
-	bool quartz = true, flint = false;
+	bool flint = false;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -205,7 +188,7 @@ int main(int argc, char **argv)
 	bool positional = true, writable = true, multi = false;
 	bool spelling = false, metadata = false;
 	bool replicas = false;
-	bool quartz = false, flint = false;
+	bool flint = false;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -219,7 +202,7 @@ int main(int argc, char **argv)
 	bool positional = true, writable = true, multi = false;
 	bool spelling = false, metadata = false;
 	bool replicas = false;
-	bool quartz = false, flint = false;
+	bool flint = false;
 #include "api_collated.h"
 
 	delete backendmanager;

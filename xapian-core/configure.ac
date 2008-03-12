@@ -639,7 +639,6 @@ AC_DEFUN([XAPIAN_BACKEND_ENABLE],
 dnl When adding a new backend, update INSTALL too.
 XAPIAN_BACKEND_ENABLE(flint)
 XAPIAN_BACKEND_ENABLE(inmemory)
-XAPIAN_BACKEND_ENABLE(quartz)
 XAPIAN_BACKEND_ENABLE(remote)
 
 if test yes = "$enable_backend_flint" ; then
@@ -765,7 +764,6 @@ dnl Turn off compilation of anything that we don't have the requirements for
 
 dnl Set conditionals to specify what we compile
 
-AM_CONDITIONAL(BUILD_BACKEND_QUARTZ, test yes = "$enable_backend_quartz")
 AM_CONDITIONAL(BUILD_BACKEND_FLINT, test yes = "$enable_backend_flint")
 AM_CONDITIONAL(BUILD_BACKEND_INMEMORY, test yes = "$enable_backend_inmemory")
 AM_CONDITIONAL(BUILD_BACKEND_REMOTE, test yes = "$enable_backend_remote")
@@ -1110,7 +1108,7 @@ dnl Generate include/xapian/version.h:
 dnl MAIN_VERSION is VERSION without any _svn6789 suffix.
 MAIN_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$REVISION"
 cxxcpp_flags=-I.
-for backend in QUARTZ FLINT INMEMORY REMOTE ; do
+for backend in FLINT INMEMORY REMOTE ; do
   val=`eval echo "\\\$BUILD_BACKEND_${backend}_TRUE"`
   if test -z "$val" ; then
     cxxcpp_flags="$cxxcpp_flags -DXAPIAN_HAS_${backend}_BACKEND"

@@ -21,7 +21,7 @@ requires a modification to the external interface.
 
 We aim to make such changes in a way that allows developers to work against a
 stable API, while avoiding the need for the Xapian developers to maintain too
-many old historical interface artifacts.  This document describes the process
+many old historical interface artefacts.  This document describes the process
 we use to deprecate old pieces of the API, lists parts of the API which are
 currently marked as deprecated, and also describes parts of the API which have
 been deprecated for some time, and are now removed from the Xapian library.
@@ -149,14 +149,6 @@ Deprecated Remove Feature name                        Upgrade suggestion and com
 1.0.0      1.1.0  Enquire::use_exact_termfreq         Use ``Enquire::USE_EXACT_TERMFREQ`` instead.
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
 1.0.0      1.1.0  Error::get_errno()                  Use ``Error::get_error_string()`` instead.
----------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.0.0      1.1.0  The Quartz backend                  Use the Flint backend instead.
----------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.0.0      1.1.0  Quartz::open()                      Use ``Flint::open()`` instead.
----------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.0.0      1.1.0  quartzcheck                         Use ``xapian-check`` instead.
----------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.0.0      1.1.0  quartzcompact                       Use ``xapian-compact`` instead.
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
 1.0.3      1.1.0  Enquire::register_match_decider()   This method didn't do anything, so just remove calls to it!
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
@@ -312,6 +304,16 @@ Removed Feature name                        Upgrade suggestion and comments
         ``const char *`` exception.         ``get_msg()`` on the caught object.  If you need to build with either version,
                                             catch both (you'll need to compile the part which catches ``QueryParserError``
                                             conditionally, since this exception isn't present in the 0.9 release series).
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.0.0   The Quartz backend                  Use the Flint backend instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.0.0   Quartz::open()                      Use ``Flint::open()`` instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.0.0   quartzcheck                         Use ``xapian-check`` instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.0.0   quartzcompact                       Use ``xapian-compact`` instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.0.0   quartzdump                          Use ``xapian-inspect`` instead.
 ======= =================================== ==================================================================================
 
 

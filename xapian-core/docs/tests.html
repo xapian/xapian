@@ -12,7 +12,6 @@
 <ol>
 <li> <A HREF="#running">A Brief Guide to Running Tests</A>
 <li> <A HREF="#writing">A Brief Guide to Writing Tests</A>
-<li> <A HREF="#quartz">Quartz Backend Tests</A>
 </ol>
 
 <H2><A NAME="running">A Brief Guide to Running Tests</A></H2>
@@ -67,7 +66,7 @@ existing one.
 
 <P>You'll notice in <code>apitest.cc</code> that it runs all appropriate test groups against
 each backend that is being built. The backends are inmemory,
-quartz, flint, remote and remotetcp. If you need to create a new test group
+multi, flint, remote and remotetcp. If you need to create a new test group
 with different
 requirements to any current ones, put it in the appropriate api_ file (or
 create a new one, and add it into Makefile.am) and remember to add the group to
@@ -82,11 +81,6 @@ Secondly you're more likely to write the test
 carefully, because once you've fixed something there's often a feeling
 that you should commit it for the good of the world, which tends to
 distract you.
-
-<H2><A NAME="quartz">Quartz Backend Tests</A></H2>
-
-<P>Tests of the btree's functionality go in <code>tests/btreetest.cc</code>;
-tests of quartz itself in <code>tests/quartztest.cc</code>.
 
 <P>The framework is done for you, so you don't need to worry about that much.
 You are responsible for doing two things:

@@ -22,8 +22,6 @@
 
 #include <config.h>
 
-// We have to use the deprecated Quartz::open() method.
-#define XAPIAN_DEPRECATED(D) D
 #include <xapian.h>
 
 #ifdef HAVE_VALGRIND
@@ -136,51 +134,6 @@ BackendManager::getwritedb_flint_path(const string & name)
     return dbdir;
 }
 
-#endif
-
-#ifdef XAPIAN_HAS_QUARTZ_BACKEND
-string
-BackendManager::createdb_quartz(const vector<string> &dbnames)
-{
-    string parent_dir = ".quartz";
-    create_dir_if_needed(parent_dir);
-
-    string dbdir = parent_dir + "/db";
-    for (vector<string>::const_iterator i = dbnames.begin();
-	 i != dbnames.end(); i++) {
-	dbdir += '=';
-	dbdir += *i;
-    }
-    // If the database is readonly, we can reuse it if it exists.
-    if (create_dir_if_needed(dbdir)) {
-	// Directory was created, so do the indexing.
-	Xapian::WritableDatabase db(Xapian::Quartz::open(dbdir, Xapian::DB_CREATE, 2048));
-	index_files_to_database(db, dbnames);
-    }
-    return dbdir;
-}
-
-Xapian::WritableDatabase
-BackendManager::getwritedb_quartz(const string & name,
-				  const vector<string> & files)
-{
-    string parent_dir = ".quartz";
-    create_dir_if_needed(parent_dir);
-
-    string dbdir = parent_dir;
-    dbdir += '/';
-    dbdir += name;
-
-    // For a writable database we need to start afresh each time.
-    rm_rf(dbdir);
-    (void)create_dir_if_needed(dbdir);
-    touch(dbdir + "/log");
-
-    // directory was created, so do the indexing.
-    Xapian::WritableDatabase db(Xapian::Quartz::open(dbdir, Xapian::DB_CREATE, 2048));
-    index_files_to_database(db, files);
-    return db;
-}
 #endif
 
 Xapian::Database

@@ -79,8 +79,7 @@ BackendManagerMulti::createdb_multi(const vector<string> & files)
 	dbs[n] = Xapian::Flint::open(".multi/" + subdbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 	out << "flint " << subdbdir << '\n';
 #else
-	dbs[n] = Xapian::Quartz::open(".multi/" + subdbdir, Xapian::DB_CREATE_OR_OVERWRITE);
-	out << "quartz " << subdbdir << '\n';
+# error No local backend enabled
 #endif
     }
     out.close();

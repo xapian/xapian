@@ -1,3 +1,10 @@
+Wed Mar 12 03:28:18 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING,INSTALL,Makefile.am,backends/Makefile.mk,
+	  backends/dir_contents,backends/quartz/,bin/,configure.ac,docs/,
+	  tests/,tests/harness/,tests/quartztest.cc,tests/testdata/,
+	  xapian-core.spec.in: Remove the quartz backend.
+
 Wed Mar 12 02:14:33 GMT 2008  Olly Betts <olly@survex.com>
 
 	* m4/xapian.m4: Improve wording of the error message when we can't

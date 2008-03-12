@@ -1420,11 +1420,8 @@ DEFINE_TESTCASE(crashrecovery1, writable) {
     if (dbtype == "flint") {
 	path = ".flint/dbw";
 	base_ext = ".baseB";
-    } else if (dbtype == "quartz") {
-	path = ".quartz/dbw";
-	base_ext = "_baseB";
     } else {
-	SKIP_TEST("Test only supported for flint and quartz backends");
+	SKIP_TEST("Test only supported for flint backends");
     }
 
     Xapian::Document doc;
@@ -1897,16 +1894,8 @@ DEFINE_TESTCASE(metadata4, metadata) {
 // Test that adding a document with a really long term gives an error on
 // add_document() rather than on flush().
 DEFINE_TESTCASE(termtoolong1, writable) {
-    // Quartz doesn't perform this check.
-    SKIP_TEST_FOR_BACKEND("quartz");
     // Inmemory doesn't impose a limit.
     SKIP_TEST_FOR_BACKEND("inmemory");
-#ifndef XAPIAN_HAS_FLINT_BACKEND
-    // If flint is disabled, remotetcp and remoteprog will use quartz
-    // which doesn't perform this check.
-    SKIP_TEST_FOR_BACKEND("remoteprog");
-    SKIP_TEST_FOR_BACKEND("remotetcp");
-#endif
 
     Xapian::WritableDatabase db = get_writable_database();
 

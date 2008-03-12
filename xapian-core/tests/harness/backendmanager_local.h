@@ -26,9 +26,6 @@
 #ifdef XAPIAN_HAS_FLINT_BACKEND
 # include "backendmanager_flint.h"
 # define BackendManagerLocal BackendManagerFlint
-#elif defined XAPIAN_HAS_QUARTZ_BACKEND
-# include "backendmanager_quartz.h"
-# define BackendManagerLocal BackendManagerQuartz
 #else
 # include "backendmanager.h"
 class BackendManagerLocal : public BackendManager {
