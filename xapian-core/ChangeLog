@@ -1,3 +1,8 @@
+Wed Mar 12 10:08:37 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/stemtest.cc: Remove support for OM_STEMTEST_SKIP_RANDOM,
+	  OM_STEMTEST_LANGUAGES, and OM_STEMTEST_SEED.
+
 Wed Mar 12 08:30:48 GMT 2008  Olly Betts <olly@survex.com>
 
 	* docs/deprecation.rst: Update for bindings removals for 1.1.0.
