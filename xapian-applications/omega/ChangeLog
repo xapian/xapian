@@ -1,3 +1,9 @@
+Wed Mar 12 08:04:58 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Update.
+	* common/: Update to latest xapian-core on branch to pick up
+	  safedirent.h and fix the build.
+
 Mon Mar 10 03:53:20 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

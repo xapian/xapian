@@ -1,6 +1,5 @@
 upto:
-Wed Mar 05 19:05:12 GMT 2008  Olly Betts <olly@survex.com>
-
+Wed Mar 12 08:04:58 GMT 2008  Olly Betts <olly@survex.com>
 
 Omega 1.0.6 (2008-03-??):
 
@@ -15,6 +14,9 @@ indexers:
 * omindex:
 
  + Add support for DjVu files.
+
+ + If we get an error trying to read a directory entry, report it to the user
+   rather than ignoring it.
 
 * scriptindex:
 
