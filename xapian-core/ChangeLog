@@ -1,3 +1,8 @@
+Thu Mar 13 00:50:06 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_lock.cc: Remove workaround for newlib which we
+	  don't seem to need elsewhere and was marked "FIXME:1.1".
+
 Thu Mar 13 00:49:27 GMT 2008  Olly Betts <olly@survex.com>
 
 	* docs/deprecation.rst: Fix footnote ids after deprecation updates.
