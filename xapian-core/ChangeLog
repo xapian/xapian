@@ -1,3 +1,10 @@
+Thu Mar 13 01:58:18 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/stats.h,include/xapian/enquire.h,matcher/localmatch.cc,
+	  matcher/weight.cc: Untangle Xapian::Weight to just initialise
+	  internal to 0 in its ctor, which is an ABI change.  Resolves
+	  a load of FIXME:1.1 comments.
+
 Thu Mar 13 00:50:06 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_lock.cc: Remove workaround for newlib which we
