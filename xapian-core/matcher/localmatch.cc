@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
  * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -103,9 +103,8 @@ LocalSubMatch::get_postlist_and_term_info(MultiMatch * matcher,
 
     // We only need an ExtraWeightPostList if there's an extra weight
     // contribution.
-    AutoPtr<Xapian::Weight> extra_wt;
-    // FIXME:1.1: create the Xapian::Weight::Internal directly.
-    extra_wt = wt_factory->create(stats->create_weight_internal(), qlen, 1, "");
+    AutoPtr<Xapian::Weight> extra_wt(
+	wt_factory->create(new Xapian::Weight::Internal(*stats), qlen, 1, ""));
     if (extra_wt->get_maxextra() != 0.0) {
 	pl = new ExtraWeightPostList(pl, extra_wt.release(), matcher);
     }
@@ -128,8 +127,7 @@ LocalSubMatch::postlist_from_op_leaf_query(const Xapian::Query::Internal *query,
 	// FIXME:
 	// pass factor to Weight::create() - and have a shim class for classes
 	// which don't understand it...
-	// FIXME:1.1: create the Xapian::Weight::Internal directly.
-	wt = wt_factory->create(stats->create_weight_internal(query->tname),
+	wt = wt_factory->create(new Xapian::Weight::Internal(*stats, query->tname),
 				qlen, query->wqf, query->tname);
 	if (fabs(factor - 1.0) > DBL_EPSILON) {
 	    wt = new ScaleWeight(wt.release(), factor);

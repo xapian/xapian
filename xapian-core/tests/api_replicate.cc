@@ -176,7 +176,7 @@ DEFINE_TESTCASE(replicate1, replicas) {
     check_equal_dbs(masterpath, replicapath);
 
     // Need to close the replica before we remove the temporary directory on
-    // windows.
+    // Windows.
     replica.close();
     rmtmpdir(tempdir);
     return true;

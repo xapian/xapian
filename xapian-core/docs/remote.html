@@ -19,11 +19,10 @@ for the client.  There can be many servers, with many clients sharing
 them.  In theory, a server can also be a client to other servers, but
 this may not be very useful or efficient.
 
-<P>The client runs queries in the same way that it would on local databases,
-but with different database arguments.  Instead of type, eg, "quartz",
-use "remote".  The extra parameters describe how to connect to the server.
+<P>The client runs queries in the same way that it would on local databases
+- the difference is in how the database is opened.
 Once the database is opened, the query process is identical to any other.
-Using a stub database with autobackend is a good way to wrap up access to
+Using a stub database with "auto" backend is a good way to wrap up access to
 a remote database in a neat way.
 
 <P>The remote backend currently support two client/server methods: prog and

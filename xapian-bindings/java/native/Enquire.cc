@@ -1,6 +1,6 @@
 /**
  Copyright (c) 2003, Technology Concepts & Design, Inc.
- Copyright (c) 2006, Olly Betts
+ Copyright (c) 2006,2008, Olly Betts
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -242,15 +242,6 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_enquire_1get_1matching_1terms_
         TermIterator *itr = new TermIterator (e->get_matching_terms_end(*msetitr));
         return _termiterator->put(itr);
     CATCH(-1)
-}
-
-JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_enquire_1register_1match_1decider (JNIEnv *env, jclass clazz, jlong eid, jstring name, jobject md) {
-    TRY
-        Enquire *e = _enquire->get(eid);
-        const char *c_name = env->GetStringUTFChars(name, 0);
-        e->register_match_decider(c_name, md ? new JavaMatchDecider(env, clazz, md) : NULL);
-        env->ReleaseStringUTFChars(name, c_name);
-    CATCH(;)
 }
 
 JNIEXPORT jstring JNICALL Java_org_xapian_XapianJNI_enquire_1get_1description (JNIEnv *env, jclass clazz, jlong eid) {

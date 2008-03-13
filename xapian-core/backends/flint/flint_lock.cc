@@ -1,6 +1,6 @@
 /* flint_lock.cc: database locking for flint backend.
  *
- * Copyright (C) 2005,2006,2007 Olly Betts
+ * Copyright (C) 2005,2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,17 +29,6 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/types.h>
-// FIXME:1.1: It's unclear why this workaround is needed here, yet not needed
-// in configure or the other files which include sys/socket.h and use
-// SOCKLEN_T.  The commit comment doesn't help, and there's no obvious related
-// email thread.  I think the way forward is to drop this in 1.1.0, and if it
-// is required, we can work out why this file is different and either fix that
-// or add a "safesyssocket.h" header to replace <sys/socket.h> uses with.
-#ifdef _NEWLIB_VERSION
-// Workaround bug in newlib (at least some versions) - socklen_t doesn't
-// get defined if you just "#include <sys/socket.h>".
-#include <netinet/in.h>
-#endif
 #include <sys/socket.h>
 #include <sys/wait.h>
 #include <signal.h>

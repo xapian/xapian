@@ -224,7 +224,7 @@ The current types understood by Xapian are:
 <TR><TD VALIGN="top"><B>auto</B></TD><TD>
 <P>
 This isn't an actual database format, but rather auto-detection of one of the
-disk based backends ("flint", "quartz", or "stub") from a single specified
+disk based backends ("flint" or "stub") from a single specified
 file or directory path.
 </P>
 </TD></TR>
@@ -242,10 +242,6 @@ if a writing process dies.
 <P>
 Flint is very much a work in progress. The aim is to have it stable and working at any given point (and Xapian's extensive test suite should help give us some reassurance of this), but the database format will change frequently and there'll be no migration path during development (except for rebuilding your index from the source data, or alternatively using copydatabase to copy the old-flint database to a quartz database, upgrading, then using copydatabase to copy the quartz database to a new-flint one).
 </P>
-<P>
-That said flint already outperforms quartz, and Gmane, tweakers.net and
-srpko.com are all running production systems using the flint backend.
-</P>
 -->
 <P>
 For more information, see the <a href="http://wiki.xapian.org/FlintBackend">Xapian Wiki</a>.
@@ -253,9 +249,11 @@ For more information, see the <a href="http://wiki.xapian.org/FlintBackend">Xapi
 </TD></TR>
 <TR><TD VALIGN="top"><B>quartz</B></TD><TD>
 <P>
-Quartz was the default backend prior to Xapian 1.0.  New installations should
-use Flint, and existing installations should consider migrating to Flint.
-Support for Quartz will be dropped at some point in the future.
+Quartz was the default backend prior to Xapian 1.0, and has been removed as
+of Xapian 1.1.0.  If you want to migrate an existing Quartz database to
+Flint, <a
+href="admin_notes.html#converting-a-quartz-database-to-a-flint-database`">see
+the 'Admin Notes'</a> for a way to do this.
 </P>
 </TD></TR>
 <TR><TD VALIGN="top"><B>inmemory</B></TD><TD>

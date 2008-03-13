@@ -6,7 +6,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002,2003,2005 James Aylett
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
  * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -38,17 +38,6 @@ using namespace std;
 // If a backend has been disabled in xapian-core (manually or automatically) we
 // include a stub definition here so the bindings can still be built.
 namespace Xapian {
-#ifndef XAPIAN_HAS_QUARTZ_BACKEND
-    namespace Quartz {
-	static Database open() {
-	    throw FeatureUnavailableError("Quartz backend not supported");
-	}
-	static WritableDatabase open(const string &, int, int = 8192) {
-	    throw FeatureUnavailableError("Quartz backend not supported");
-	}
-    }
-#endif
-
 #ifndef XAPIAN_HAS_FLINT_BACKEND
     namespace Flint {
 	static Database open() {
@@ -147,16 +136,6 @@ const char * version_string();
 int major_version();
 int minor_version();
 int revision();
-
-// Aliases deprecated in 0.9.6:
-%exception xapian_version_string "$action"
-%exception xapian_major_version "$action"
-%exception xapian_minor_version "$action"
-%exception xapian_revision "$action"
-const char * xapian_version_string();
-int xapian_major_version();
-int xapian_minor_version();
-int xapian_revision();
 
 class Weight;
 class Stopper;
@@ -315,14 +294,6 @@ class MSet {
 	    return ((*self)[i]);
 	}
 #endif
-#ifndef SWIGRUBY
-	// We don't wrap methods which were already deprecated when the Ruby
-	// bindings were added.  This method is deprecated for all other
-	// bindings from version 0.9.6 - use get_docid() instead.
-	docid get_document_id(doccount i) const {
-	    return *((*self)[i]);
-	}
-#endif
     }
     string get_description() const;
 };
@@ -373,11 +344,6 @@ class ESetIterator {
     ESetIterator(const ESetIterator& other);
     ~ESetIterator();
     %extend {
-	// Get termname is deprecated since version 1.0 - we use "term"
-	// everywhere else to refer to terms.
-	std::string get_termname() const {
-	    return *(*self);
-	}
 	std::string get_term() const {
 	    return *(*self);
 	}
@@ -508,10 +474,6 @@ class Enquire {
     TermIterator get_matching_terms_end(docid did) const;
     TermIterator get_matching_terms_begin(const MSetIterator& i) const;
     TermIterator get_matching_terms_end(const MSetIterator& i) const;
-
-#ifdef XAPIAN_SWIG_DIRECTORS
-    void register_match_decider(const std::string& name, const MatchDecider* mdecider=NULL);
-#endif
 
 #ifdef XAPIAN_TERMITERATOR_PAIR_OUTPUT_TYPEMAP
     /* We've not written the required custom typemap for all languages yet. */
@@ -711,33 +673,16 @@ class WritableDatabase : public Database {
 %constant int DB_CREATE = Xapian::DB_CREATE;
 %constant int DB_CREATE_OR_OVERWRITE = Xapian::DB_CREATE_OR_OVERWRITE;
 %constant int DB_OPEN = Xapian::DB_OPEN;
-#ifdef SWIGPHP4
-%constant int Xapian_DB_CREATE_OR_OPEN = Xapian::DB_CREATE_OR_OPEN;
-%constant int Xapian_DB_CREATE = Xapian::DB_CREATE;
-%constant int Xapian_DB_CREATE_OR_OVERWRITE = Xapian::DB_CREATE_OR_OVERWRITE;
-%constant int Xapian_DB_OPEN = Xapian::DB_OPEN;
-#endif
 
 // Database factory functions:
 
 #if !defined SWIGCSHARP && !defined SWIGJAVA
 namespace Auto {
 #ifdef SWIGPHP
-    /* PHP4 lacks namespaces so fake them. */
+    /* PHP lacks namespaces so fake them. */
     %rename(auto_open_stub) open_stub;
 #endif
     Database open_stub(const string & file);
-}
-
-namespace Quartz {
-    %rename(quartz_open) open;
-    Database open(const std::string &dir);
-/* SWIG Tcl wrappers don't call destructors for classes returned by factory
- * functions, so don't wrap them so users are forced to use the
- * WritableDatabase ctor instead. */
-#ifndef SWIGTCL
-    WritableDatabase open(const std::string &dir, int action, int block_size = 8192);
-#endif
 }
 
 namespace Flint {
@@ -780,17 +725,6 @@ class Auto {
   public:
     static
     Database open_stub(const string & file);
-};
-
-class Quartz {
-  private:
-    Quartz();
-    ~Quartz();
-  public:
-    static
-    Database open(const std::string &dir);
-    static
-    WritableDatabase open(const std::string &dir, int action, int block_size = 8192);
 };
 
 class Flint {
@@ -879,8 +813,6 @@ class Query {
 		return new Xapian::Query(op, subqs.begin(), subqs.end(), param);
 	    }
 	}
-	/** Apply the specified operator to a single Xapian::Query object. */
-	Query(Query::op op_, Xapian::Query q);
 
 	/** Apply the specified operator to a single Xapian::Query object, with a parameter. */
 	Query(Query::op op_, Xapian::Query q, double parameter);

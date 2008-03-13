@@ -1,3 +1,150 @@
+Thu Mar 13 01:58:18 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/stats.h,include/xapian/enquire.h,matcher/localmatch.cc,
+	  matcher/weight.cc: Untangle Xapian::Weight to just initialise
+	  internal to 0 in its ctor, which is an ABI change.  Resolves
+	  a load of FIXME:1.1 comments.
+
+Thu Mar 13 00:50:06 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_lock.cc: Remove workaround for newlib which we
+	  don't seem to need elsewhere and was marked "FIXME:1.1".
+
+Thu Mar 13 00:49:27 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/deprecation.rst: Fix footnote ids after deprecation updates.
+
+Wed Mar 12 10:08:37 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/stemtest.cc: Remove support for OM_STEMTEST_SKIP_RANDOM,
+	  OM_STEMTEST_LANGUAGES, and OM_STEMTEST_SEED.
+
+Wed Mar 12 08:30:48 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/deprecation.rst: Update for bindings removals for 1.1.0.
+
+Wed Mar 12 06:59:25 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/deprecation.rst: Update for Omega removals for 1.1.0.
+
+Wed Mar 12 05:11:53 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,api/omquery.cc,api/version.cc,docs/,
+	  generate-exceptions.in,include/xapian.h,include/xapian/enquire.h,
+	  include/xapian/query.h,tests/api_db.cc,tests/api_wrdb.cc,
+	  tests/apitest.cc,tests/harness/,tests/internaltest.cc: Remove all
+	  xapian-core features marked for removal in 1.1.0.
+
+Wed Mar 12 03:28:18 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING,INSTALL,Makefile.am,backends/Makefile.mk,
+	  backends/dir_contents,backends/quartz/,bin/,configure.ac,docs/,
+	  tests/,tests/harness/,tests/quartztest.cc,tests/testdata/,
+	  xapian-core.spec.in: Remove the quartz backend.
+
+Wed Mar 12 02:14:33 GMT 2008  Olly Betts <olly@survex.com>
+
+	* m4/xapian.m4: Improve wording of the error message when we can't
+	  find xapian-config.
+
+Wed Mar 12 02:13:32 GMT 2008  Olly Betts <olly@survex.com>
+
+	* INSTALL: Minor wording tweak.
+
+Wed Mar 12 01:44:42 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Initialise PostlistCursor member firstdid to
+	  avoid using it uninitialised when merging user metadata and the same
+	  key is present in more than one source database.  If the same user
+	  metadata key is present in more than one source database, copy an
+	  arbitrary tag value.
+
+Wed Mar 12 00:34:04 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Fix potential SEGV (which I think can occur
+	  when compacting database(s) with user metadata but no postings).
+
+Fri Mar 07 09:46:38 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/serialise.h: Add missing std:: before string.
+
+Fri Mar 07 00:47:06 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/replication.cc: Tidy up a line which was wider than 80
+	  columns, and improve the error message returned when a database
+	  replica doesn't contain exactly one subdatabase.
+
+Fri Mar 07 00:34:28 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/serialise.h,net/remoteconnection.cc,net/serialise.cc:
+	  Change encode_length() to a template, to allow the full range of
+	  off_t values to be encoded.  Also, adjust
+	  RemoteConnection::get_message_chunked() to allow the message
+	  length to be a 64 bit quantity.  Also, make a couple of type
+	  conversions to size_t explicit, to remove some warnings on
+	  windows.
+
+Thu Mar 06 01:57:04 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
+Thu Mar 06 01:44:07 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/xapian-check.cc: Fix terminology - "user metadata" not "user
+	  metainfo".  Fix bug - need to invoke is_user_metadata rather than
+	  using the function pointer as the if condition!
+
+Thu Mar 06 01:41:09 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Fix terminology - "user metadata" not "user
+	  metainfo".
+
+Wed Mar 05 21:17:02 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* net/remoteconnection.cc: Add some casts (in the windows-specific
+	  code) to fix some warnings from MSVC.
+
+Wed Mar 05 19:01:35 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Update to 1.0 branch point.
+
+Wed Mar 05 19:00:07 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/msvc_dirent.cc: Tweak to bring comment back into 80 columns.
+
+Wed Mar 05 16:35:33 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/msvc_dirent.cc: Fix sense of check for ENOENT after
+	  calling _findnext() - it should be checked for when an error code
+	  is returned, not when the call succeeds.
+	* tests/api_replicate.cc: Fix tiny capitalisation typo.
+
+Wed Mar 05 16:29:47 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/fileutils.cc: Check case where a backslash isn't found in
+	  calc_dirname, and don't replace slash with backslash in this
+	  case.
+
+Wed Mar 05 09:30:42 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* bin/xapian-check.cc: Add understanding of user metainfo keys in
+	  the postlist table.  Allow the METAINFO key to be absent if the
+	  table only contains user metainfo keys.
+
+Wed Mar 05 09:01:48 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/msvc_dirent.cc,common/msvc_dirent.h: Move licence boilerplate
+	  up front where we have it in every other file.  Move header guards
+	  to the usual location.  Detail the fix we've made for not setting
+	  errno to ENOENT erroneously.  Push the setting of orig_errno down
+	  a bit.
+
+Wed Mar 05 04:57:44 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: -pedantic isn't actually very useful so just drop it
+	  rather than testing for known problem cases and risking unknown
+	  problem cases.
+
 Wed Mar 05 03:10:24 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* matcher/valuegepostlist.cc,matcher/valuegepostlist.h: Implement
@@ -509,7 +656,7 @@ Tue Jan 29 10:08:02 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 	  UnimplementedError.  Hook
 	  DatabaseMaster::write_changesets_to_fd() up to this, and
 	  implement it for flint databases (the code to send a copy of a
-	  database still needs work). 
+	  database still needs work).
 
 Tue Jan 29 10:01:39 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 

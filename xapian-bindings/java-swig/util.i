@@ -62,6 +62,9 @@
 %rename("getMSet") get_mset;
 %rename("getESet") get_eset;
 
+// Avoid collision with Object.clone
+%rename("cloneWeight") clone;
+
 // toString is more Java-esque and also matches what the old JNI bindings did.
 %rename("toString") get_description() const;
 
@@ -69,6 +72,11 @@
 // ExpandDecider.
 %rename("accept") Xapian::MatchDecider::operator();
 %rename("accept") Xapian::ExpandDecider::operator();
+
+// By default, valueno is wrapped as long and "(long, bool)" collides with
+// some of SWIG/Java's machinery, so for now we wrap valueno as int to avoid
+// this problem.
+%apply int { Xapian::valueno };
 
 %inline {
 namespace Xapian {

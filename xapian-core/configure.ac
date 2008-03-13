@@ -639,7 +639,6 @@ AC_DEFUN([XAPIAN_BACKEND_ENABLE],
 dnl When adding a new backend, update INSTALL too.
 XAPIAN_BACKEND_ENABLE(flint)
 XAPIAN_BACKEND_ENABLE(inmemory)
-XAPIAN_BACKEND_ENABLE(quartz)
 XAPIAN_BACKEND_ENABLE(remote)
 
 if test yes = "$enable_backend_flint" ; then
@@ -765,7 +764,6 @@ dnl Turn off compilation of anything that we don't have the requirements for
 
 dnl Set conditionals to specify what we compile
 
-AM_CONDITIONAL(BUILD_BACKEND_QUARTZ, test yes = "$enable_backend_quartz")
 AM_CONDITIONAL(BUILD_BACKEND_FLINT, test yes = "$enable_backend_flint")
 AM_CONDITIONAL(BUILD_BACKEND_INMEMORY, test yes = "$enable_backend_inmemory")
 AM_CONDITIONAL(BUILD_BACKEND_REMOTE, test yes = "$enable_backend_remote")
@@ -1010,33 +1008,6 @@ if test yes = "$GXX"; then
 
       XAPIAN_TEST_LINKER_FLAG([-Bsymbolic-functions], [symbolic_functions],
 	[XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $flag"])
-
-      dnl -pedantic causes a compilation failure on Mac OS X (at least, with
-      dnl XCode 2.2.1 on Tiger - which uses gcc version 4.0.1), so don't use
-      dnl -pedantic on that platform.  Otherwise, we add -pedantic to the
-      dnl flags.
-      AC_MSG_CHECKING([whether -pedantic causes problems with INFINITY])
-      AC_CACHE_VAL([xo_cv_pedantic_inf_fails],
-        [
-        SAVE_CXXFLAGS="$CXXFLAGS"
-        CXXFLAGS="$CXXFLAGS -pedantic"
-        AC_COMPILE_IFELSE([
-          AC_LANG_PROGRAM(
-	    [[
-#define _ISOC99_SOURCE
-#include <math.h>
-	    ]],
-	    [[double(INFINITY);]]
-	  )],
-	  xo_cv_pedantic_inf_fails=no,
-	  xo_cv_pedantic_inf_fails=yes
-	)
-	CXXFLAGS="$SAVE_CXXFLAGS"
-	])
-      AC_MSG_RESULT([$xo_cv_pedantic_inf_fails])
-      if test no = "$xo_cv_pedantic_inf_fails" ; then
-        AM_CXXFLAGS="$AM_CXXFLAGS -pedantic"
-      fi
     ])
 else
   dnl WARNING_CXXFLAGS is set above.
@@ -1137,7 +1108,7 @@ dnl Generate include/xapian/version.h:
 dnl MAIN_VERSION is VERSION without any _svn6789 suffix.
 MAIN_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$REVISION"
 cxxcpp_flags=-I.
-for backend in QUARTZ FLINT INMEMORY REMOTE ; do
+for backend in FLINT INMEMORY REMOTE ; do
   val=`eval echo "\\\$BUILD_BACKEND_${backend}_TRUE"`
   if test -z "$val" ; then
     cxxcpp_flags="$cxxcpp_flags -DXAPIAN_HAS_${backend}_BACKEND"

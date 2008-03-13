@@ -13,7 +13,7 @@ TESTS_ENVIRONMENT = ./runtest
 
 .PHONY: check-none check-inmemory check-multi \
         check-remote check-remoteprog check-remotetcp \
-        check-flint check-quartz
+        check-flint
 
 check-none: apitest$(EXEEXT) \
             internaltest$(EXEEXT) \
@@ -47,30 +47,12 @@ check-flint: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b flint
 endif
 
-if BUILD_BACKEND_QUARTZ
-check-quartz: btreetest$(EXEEXT) quartztest$(EXEEXT) apitest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./btreetest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./quartztest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b quartz
-
-quartz_check_programs = btreetest quartztest
-quartz_tests= btreetest$(EXEEXT) quartztest$(EXEEXT)
-
-# Only quartztest and btreetest need this, but if we put it in INCLUDES
-# then we can use the same objects for the testsuite harness for all
-# test programs.
-INCLUDES += -I$(top_srcdir)/backends/quartz
-endif
-
 ## Test programs to be run
-TESTS = $(quartz_tests) \
- apitest$(EXEEXT) internaltest$(EXEEXT) stemtest$(EXEEXT) \
- queryparsertest$(EXEEXT) \
- termgentest$(EXEEXT)
+TESTS = apitest$(EXEEXT) internaltest$(EXEEXT) stemtest$(EXEEXT) \
+ queryparsertest$(EXEEXT) termgentest$(EXEEXT)
 
 ## Programs to build
-check_PROGRAMS = $(quartz_check_programs) \
- apitest internaltest stemtest queryparsertest termgentest
+check_PROGRAMS = apitest internaltest stemtest queryparsertest termgentest
 
 # Make sure runtest is up to date before running tests
 check_SCRIPTS = runtest
@@ -96,14 +78,6 @@ stemtest_LDADD = ../libgetopt.la ../libxapian.la
 internaltest_SOURCES = internaltest.cc $(testharness_sources)
 internaltest_LDFLAGS = -no-install $(ldflags)
 internaltest_LDADD = ../libgetopt.la ../libxapian.la
-
-btreetest_SOURCES = btreetest.cc $(testharness_sources)
-btreetest_LDFLAGS = -no-install $(ldflags)
-btreetest_LDADD = ../libgetopt.la ../libquartzcheck.la ../libxapian.la
-
-quartztest_SOURCES = quartztest.cc $(testharness_sources)
-quartztest_LDFLAGS = -no-install $(ldflags)
-quartztest_LDADD = ../libgetopt.la ../libxapian.la
 
 queryparsertest_SOURCES = queryparsertest.cc $(testharness_sources)
 queryparsertest_LDFLAGS = -no-install $(ldflags)
@@ -167,10 +141,6 @@ EXTRA_DIST +=\
 	testdata/apitest_manydocs.txt \
 	testdata/apitest_sortrel.txt \
 	testdata/etext.txt \
-	testdata/btreetest_ord+ \
-	testdata/btreetest_ord- \
-	testdata/btreetest_ordnum+ \
-	testdata/btreetest_ordnum- \
 	testdata/flint-0.9.9/flicklock \
 	testdata/flint-0.9.9/iamflint \
 	testdata/flint-0.9.9/position.baseA \
@@ -205,6 +175,6 @@ EXTRA_DIST +=\
 	testdata/flint-1.0.2/termlist.DB
 
 clean-local:
-	rm -rf .flint .quartz .quartztmp .btreetmp .multi
+	rm -rf .flint .multi
 
 include harness/Makefile.mk

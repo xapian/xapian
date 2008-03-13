@@ -35,15 +35,16 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	MatchDecider.java\
 	MSet.java\
 	MSetIterator.java\
+	MultiValueSorter.java\
 	NumberValueRangeProcessor.java\
 	PositionIterator.java\
 	PostingIterator.java\
-	Quartz.java\
 	Query.java\
 	QueryParser.java\
 	Remote.java\
 	RSet.java\
 	SimpleStopper.java\
+	Sorter.java\
 	Stem.java\
 	Stopper.java\
 	StringValueRangeProcessor.java\
@@ -71,7 +72,8 @@ XAPIAN_SWIG_JAVA_EXTRA_CLASSES=\
 	Enquire*docid_order.class\
 	Query*op.class\
 	QueryParser*feature_flag.class\
-	QueryParser*stem_strategy.class
+	QueryParser*stem_strategy.class\
+	TermGenerator*flags.class
 
 noinst_DATA = built/xapian_jni.jar
 

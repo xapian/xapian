@@ -341,8 +341,7 @@ BackendManagerRemoteTcp::get_writable_database(const string & name,
     (void)getwritedb_flint(name, vector<string>(1, file));
     args += ".flint/";
 #else
-    (void)getwritedb_quartz(vector<string>(1, file));
-    args += ".quartz/";
+# error No local backend enabled
 #endif
     args += name;
 
@@ -360,7 +359,7 @@ BackendManagerRemoteTcp::get_remote_database(const vector<string> & files,
 #ifdef XAPIAN_HAS_FLINT_BACKEND
     args += createdb_flint(files);
 #else
-    args += createdb_quartz(files);
+# error No local backend enabled
 #endif
 
     int port = launch_xapian_tcpsrv(args);
@@ -374,7 +373,7 @@ BackendManagerRemoteTcp::get_writable_database_as_database()
 #ifdef XAPIAN_HAS_FLINT_BACKEND
     args += ".flint/";
 #else
-    args += ".quartz/";
+# error No local backend enabled
 #endif
     args += last_wdb_name;
 
@@ -389,7 +388,7 @@ BackendManagerRemoteTcp::get_writable_database_again()
 #ifdef XAPIAN_HAS_FLINT_BACKEND
     args += ".flint/";
 #else
-    args += ".quartz/";
+# error No local backend enabled
 #endif
     args += last_wdb_name;
 
