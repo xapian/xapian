@@ -335,19 +335,19 @@ Removed Language Feature name                 Upgrade suggestion and comments
         [#rswg]_
 ------- -------- ---------------------------- --------------------------------------------------------------------------------
 1.1.0   SWIG     xapian_version_string()      Use ``version_string()`` instead.
-        [#swig]_
+        [#rswg]_
 ------- -------- ---------------------------- --------------------------------------------------------------------------------
 1.1.0   SWIG     xapian_major_version()       Use ``major_version()`` instead.
-        [#swig]_
+        [#rswg]_
 ------- -------- ---------------------------- --------------------------------------------------------------------------------
 1.1.0   SWIG     xapian_minor_version()       Use ``minor_version()`` instead.
-        [#swig]_
+        [#rswg]_
 ------- -------- ---------------------------- --------------------------------------------------------------------------------
 1.1.0   SWIG     xapian_revision()            Use ``revision()`` instead.
-        [#swig]_
+        [#rswg]_
 ------- -------- ---------------------------- --------------------------------------------------------------------------------
 1.1.0   SWIG     ESetIterator::get_termname() Use ``ESetIterator::get_term()`` instead.  This change is intended to
-        [#swig]_                              bring the ESet iterators in line with other term iterators, which all
+        [#rswg]_                              bring the ESet iterators in line with other term iterators, which all
                                               support ``get_term()`` instead of ``get_termname()``.
       
 ------- -------- ---------------------------- --------------------------------------------------------------------------------
@@ -361,15 +361,15 @@ Removed Language Feature name                 Upgrade suggestion and comments
                                               rest of Python API.
 ------- -------- ---------------------------- --------------------------------------------------------------------------------
 1.1.0   SWIG     Error::get_errno()           Use ``Error::get_error_string()`` instead.
-        [#swig]_
+        [#rswg]_
 ------- -------- ---------------------------- --------------------------------------------------------------------------------
 1.1.0   SWIG     MSet::get_document_id()      Use ``MSet::get_docid()`` instead.
-        [#swg2]_
+        [#rsw2]_
 ======= ======== ============================ ================================================================================
 
 .. [#rswg] This affects all SWIG generated bindings (currently: Python, PHP, Ruby, Tcl8 and CSharp)
 
-.. [#swg2] This affects all SWIG-generated bindings except those for Ruby, support for which was added after the function waan-core.
+.. [#rsw2] This affects all SWIG-generated bindings except those for Ruby, support for which was added after the function waan-core.
 
 .. [#rsw3] This affects all SWIG generated bindings except those for Ruby, which was added after the function was deprecated in Xapian-core, and PHP, where empty is a reserved word (and therefore, the method remains "is_empty").
 

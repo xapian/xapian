@@ -1,3 +1,7 @@
+Thu Mar 13 00:49:27 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/deprecation.rst: Fix footnote ids after deprecation updates.
+
 Wed Mar 12 10:08:37 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/stemtest.cc: Remove support for OM_STEMTEST_SKIP_RANDOM,
