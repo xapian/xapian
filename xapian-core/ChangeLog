@@ -1,3 +1,8 @@
+Fri Mar 14 16:35:06 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/unicode.h: Correct typos in documentation
+	  comments.
+
 Thu Mar 13 01:58:18 GMT 2008  Olly Betts <olly@survex.com>
 
 	* common/stats.h,include/xapian/enquire.h,matcher/localmatch.cc,

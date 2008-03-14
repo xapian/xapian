@@ -283,7 +283,7 @@ inline category get_category(unsigned ch) {
     return Internal::get_category(Internal::get_character_info(ch));
 }
 
-/// Test is a given unicode character is a letter or number.
+/// Test if a given unicode character is a letter or number.
 inline bool is_wordchar(unsigned ch) {
     const unsigned int WORDCHAR_MASK =
 	    (1 << Xapian::Unicode::UPPERCASE_LETTER) |
@@ -298,7 +298,7 @@ inline bool is_wordchar(unsigned ch) {
     return ((WORDCHAR_MASK >> get_category(ch)) & 1);
 }
 
-/// Test is a given unicode character is a whitespace character.
+/// Test if a given unicode character is a whitespace character.
 inline bool is_whitespace(unsigned ch) {
     const unsigned int WHITESPACE_MASK =
 	    (1 << Xapian::Unicode::CONTROL) | // For TAB, CR, LF, FF.
@@ -308,7 +308,7 @@ inline bool is_whitespace(unsigned ch) {
     return ((WHITESPACE_MASK >> get_category(ch)) & 1);
 }
 
-/// Test is a given unicode character is a currency symbol.
+/// Test if a given unicode character is a currency symbol.
 inline bool is_currency(unsigned ch) {
     return (get_category(ch) == Xapian::Unicode::CURRENCY_SYMBOL);
 }
