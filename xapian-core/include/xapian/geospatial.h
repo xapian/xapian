@@ -32,7 +32,7 @@ namespace Xapian {
 
 /** Convert from miles to metres.
  */
-inline double
+inline XAPIAN_VISIBILITY_DEFAULT double
 miles_to_metres(double miles)
 {
     return 1609.344 * miles;
@@ -40,7 +40,7 @@ miles_to_metres(double miles)
 
 /** Convert from metres to miles.
  */
-inline double
+inline XAPIAN_VISIBILITY_DEFAULT double
 metres_to_miles(double metres)
 {
     return metres * (1.0 / 1609.344);
@@ -48,7 +48,7 @@ metres_to_miles(double metres)
 
 /** Convert from feet to metres.
  */
-inline double
+inline XAPIAN_VISIBILITY_DEFAULT double
 feet_to_metres(double feet)
 {
     return 0.3048 * feet;
@@ -56,7 +56,7 @@ feet_to_metres(double feet)
 
 /** Convert from metres to feet.
  */
-inline double
+inline XAPIAN_VISIBILITY_DEFAULT double
 metres_to_feet(double metres)
 {
     return metres * (1.0 / 0.3048);
@@ -64,7 +64,7 @@ metres_to_feet(double metres)
 
 /** Convert from nautical miles to metres.
  */
-inline double
+inline XAPIAN_VISIBILITY_DEFAULT double
 nautical_miles_to_metres(double nautical_miles)
 {
     return 1852.0 * nautical_miles;
@@ -72,38 +72,45 @@ nautical_miles_to_metres(double nautical_miles)
 
 /** Convert from metres to nautical miles.
  */
-inline double
+inline XAPIAN_VISIBILITY_DEFAULT double
 metres_to_nautical_miles(double metres)
 {
     return metres * (1.0 / 1852.0);
 }
 
-/** Convert from degrees, arcminutes and arcseconds to decimal degrees.
- */
-inline double
-deg_min_sec_to_decimal(double degrees, double arcminutes, double arcseconds)
-{
-    return degrees + arcminutes * (1.0 / 60.0) + arcseconds * (1.0 / 3600.0);
-}
-
 /** A latitude-longitude coordinate.
+ *
+ *  Note that latitude-longitude coordinates are only precisely meaningful if
+ *  the datum used to define them is specified.  This class ignores this
+ *  issue - it is up to the caller to ensure that the datum used for each
+ *  coordinate in a system is consistent.
  */
 struct XAPIAN_VISIBILITY_DEFAULT LatLongCoord {
+  public:
     /** A latitude, as decimal degrees.
-     *  Should be in the range -180 < latitude <= 180
+     *
+     *  Should be in the range -90 <= longitude <= 90
+     *
+     *  Postive latitudes represent the northern hemisphere.
      */
     double latitude;
 
     /** A longitude, as decimal degrees.
-     *  Should be in the range -90 <= longitude <= 90
+     *
+     *  Should be in the range -180 < latitude <= 180
+     *
+     *  Positive longitudes represent the eastern hemisphere.
      */
     double longitude;
 
     /** Construct a coordinate.
+     *
+     *  If the supplied longitude is out of range, an exception will be raised.
+     *
+     *  If the supplied latitude is out of range, it will be normalised to the
+     *  appropriate range.
      */
-    LatLongCoord(double latitude_, double longitude_)
-	    : latitude(latitude_), longitude(longitude_)
-    {}
+    LatLongCoord(double latitude_, double longitude_);
 
     /** Construct a coordinate by unserialising a string.
      *
@@ -113,10 +120,7 @@ struct XAPIAN_VISIBILITY_DEFAULT LatLongCoord {
      *  a valid serialised latitude-longitude pair, or contains extra data at
      *  the end of it.
      */
-    LatLongCoord(const std::string & serialised)
-    {
-	unserialise(serialised);
-    }
+    static LatLongCoord unserialise(const std::string & serialised);
 
     /** Construct a coordinate by unserialising a string.
      *
@@ -129,37 +133,42 @@ struct XAPIAN_VISIBILITY_DEFAULT LatLongCoord {
      *  @exception Xapian::InvalidArgumentError if the string does not contain
      *  a valid serialised latitude-longitude pair.
      */
-    LatLongCoord(const char ** ptr, const char * end)
-    {
-	unserialise(ptr, end);
-    }
-
-    /** Construct a coordinate by unserialising a string.
-     *
-     *  @param serialised the string to unserialise the coordinate from.
-     *
-     *  @exception Xapian::InvalidArgumentError if the string does not contain
-     *  a valid serialised latitude-longitude pair, or contains extra data at
-     *  the end of it.
-     */
-    void unserialise(const std::string & serialised);
-
-    /** Assign the value in a serialised string to the coordinate.
-     *
-     *  The string may contain further data after that for the coordinate.
-     *
-     *  @param ptr A pointer to the start of the string.  This will be updated
-     *  to point to the end of the data representing the coordinate.
-     *  @param end A pointer to the end of the string.
-     *
-     *  @exception Xapian::InvalidArgumentError if the string does not contain
-     *  a valid serialised latitude-longitude pair.
-     */
-    void unserialise(const char ** ptr, const char * end);
+    static LatLongCoord unserialise(const char ** ptr, const char * end);
 
     /** Return a serialised representation of the coordinate.
      */
     std::string serialise() const;
+
+    /** Parse a string representation of a latitude / longitude.
+     *
+     *  The latitude / longitude strings may be in any of the following forms:
+     *
+     *   - decimal degrees, optionally followed by a "degrees" symbol.
+     *     (eg: 10.51o)
+     *   - degrees and decimal minutes, optionally followed by "degrees" and
+     *     minutes symbols, optionally separated by whitespace.
+     *     (eg: 10o 30.6')
+     *   - sexagesimal degrees, minutes and seconds, optionally followed by
+     *     "degrees", "minutes" and "seconds" symbols, optionally separated by
+     *     whitespace.  (eg: 10o 30' 36")
+     *
+     *  
+     *
+     *  @exception Xapian::InvalidArgumentError if the string cannot be parsed
+     *  into a valid coordinate.
+     */
+    static LatLongCoord parse_latlong(const std::string & coord);
+
+    /** Parse two strings into latitude and longitude.
+     *
+     *  @param lat_string String holding the latitude.
+     *  @param long_string String holding the longitude.
+     *
+     *  @exception Xapian::InvalidArgumentError if the string cannot be parsed
+     *  into a valid coordinate.
+     */
+    static LatLongCoord parse_latlong(const std::string & lat_string,
+				      const std::string & long_string);
 
     /** Compare with another LatLongCoord.
      */
@@ -172,9 +181,40 @@ struct XAPIAN_VISIBILITY_DEFAULT LatLongCoord {
 
 /** A set of latitude-longitude coordinate.
  */
-struct XAPIAN_VISIBILITY_DEFAULT LatLongCoords {
+class XAPIAN_VISIBILITY_DEFAULT LatLongCoords {
     /// The coordinates.
     std::set<LatLongCoord> coords;
+
+  public:
+    std::set<LatLongCoord>::const_iterator begin() const
+    {
+	return coords.begin();
+    }
+
+    std::set<LatLongCoord>::const_iterator end() const
+    {
+	return coords.end();
+    }
+
+    size_t size() const
+    {
+	return coords.size();
+    }
+
+    size_t empty() const
+    {
+	return coords.empty();
+    }
+
+    void insert(const LatLongCoord & coord)
+    {
+	coords.insert(coord);
+    }
+
+    void erase(const LatLongCoord & coord)
+    {
+	coords.erase(coord);
+    }
 
     /// Construct an empty set of coordinates.
     LatLongCoords() : coords() {}
@@ -187,10 +227,7 @@ struct XAPIAN_VISIBILITY_DEFAULT LatLongCoords {
      *  a valid serialised latitude-longitude pair, or contains junk at the end
      *  of it.
      */
-    LatLongCoords(const std::string & serialised)
-    {
-	unserialise(serialised);
-    }
+    static LatLongCoords unserialise(const std::string & serialised);
 
     /** Construct a set of coordinates by unserialising a string.
      *
@@ -203,42 +240,41 @@ struct XAPIAN_VISIBILITY_DEFAULT LatLongCoords {
      *  @exception Xapian::InvalidArgumentError if the string does not contain
      *  a valid serialised latitude-longitude pair.
      */
-    LatLongCoords(const char ** ptr, const char * end)
-    {
-	unserialise(ptr, end);
-    }
-
-    /** Assign the value in a serialised string to the set of coordinates.
-     *
-     *  Overwrites any previous values in the set of coordinates.
-     *
-     *  @param serialised the string to unserialise the coordinates from.
-     *
-     *  @exception Xapian::InvalidArgumentError if the string does not contain
-     *  a valid serialised latitude-longitude pair, or contains junk at the end
-     *  of it.
-     */
-    void unserialise(const std::string & serialised);
-
-    /** Assign the value in a serialised string to the set of coordinates.
-     *
-     *  Overwrites any previous values in the set of coordinates.
-     *
-     *  The string may contain further data after the coordinates.
-     *
-     *  @param ptr A pointer to the start of the string.  This will be updated
-     *  to point to the end of the data representing the coordinates.
-     *  @param end A pointer to the end of the string.
-     *
-     *  @exception Xapian::InvalidArgumentError if the string does not contain
-     *  a valid serialised latitude-longitude pair.
-     */
-    void unserialise(const char ** ptr, const char * end);
+    static LatLongCoords unserialise(const char ** ptr, const char * end);
 
     /** Return a serialised form of the coordinate list.
      */
     std::string serialise() const;
 };
+
+
+/** Base class for converting coordinates from one datum to another.
+ */
+class XAPIAN_VISIBILITY_DEFAULT LatLongCoordTransform {
+  public:
+    /// Destructor.
+    virtual ~LatLongCoordTransform();
+
+    /** Convert a coordinate from one datum to another.
+     */
+    virtual LatLongCoord transform(const LatLongCoord & coord,
+				   const std::string & datum_in,
+				   const std::string & datum_out);
+
+    LatLongCoords transform(const LatLongCoords & coords,
+			    const std::string & datum_in,
+			    const std::string & datum_out)
+    {
+	LatLongCoords output;
+	std::set<LatLongCoord>::const_iterator i;
+	for (i = coords.begin(); i != coords.end(); ++i)
+	{
+	    output.insert(transform(*i, datum_in, datum_out));
+	}
+	return output;
+    }
+};
+
 
 /** Base class for calculating distances between two lat/long coordinates.
  */
@@ -336,7 +372,7 @@ class XAPIAN_VISIBILITY_DEFAULT HTMCalculator {
 				 const LatLongCoords & locations) const
     {
 	std::set<LatLongCoord>::const_iterator i;
-	for (i = locations.coords.begin(); i != locations.coords.end(); ++i)
+	for (i = locations.begin(); i != locations.end(); ++i)
 	{
 	    get_nodes_for_location(nodes, *i);
 	}
@@ -414,7 +450,7 @@ class XAPIAN_VISIBILITY_DEFAULT HTMCalculator {
 				    int desired_nodes) const
     {
 	std::set<LatLongCoord>::const_iterator i;
-	for (i = centres.coords.begin(); i != centres.coords.end(); ++i)
+	for (i = centres.begin(); i != centres.end(); ++i)
 	{
 	    get_nodes_covering_circle(nodes, *i, radius, metric, desired_nodes);
 	}
@@ -450,7 +486,7 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongRangeMatchDecider : public MatchDecider
 
   public:
     /** Construct a new match decider which returns only documents within
-     *  range
+     *  range of one of the central coordinates.
      */
     LatLongRangeMatchDecider(Xapian::valueno valno_,
 			     const LatLongCoords & centre_,
