@@ -1,3 +1,7 @@
+Sun Mar 16 11:37:16 GMT 2008  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: 1.0.6 definitely builds on atreus.
+
 Sun Mar 16 11:03:27 GMT 2008  Olly Betts <olly@survex.com>
 
 	* configure.ac: Update for 1.0.6.
