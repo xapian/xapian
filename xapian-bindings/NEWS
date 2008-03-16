@@ -1,9 +1,4 @@
-up to:
-Wed Mar 05 21:30:13 GMT 2008  Olly Betts <olly@survex.com>
-
-Xapian-bindings 1.0.8 (2008-03-??):
-
-Documentation:
+Xapian-bindings 1.0.6 (2008-03-17):
 
 General:
 
@@ -11,16 +6,6 @@ General:
   used with.
 
 * configure: Correct the required SWIG version given in an error message.
-
-Packaging:
-
-Portability:
-
-CSharp:
-
-Guile:
-
-Java:
 
 PHP:
 
