@@ -1,0 +1,9 @@
+<Directory>examples</Directory>
+
+<Description>
+This directory contains example programs which use the Xapian library.
+These programs are intended to be a good starting point for those trying
+to get acquainted with the Xapian API.  Some of them are really just
+toy programs, but others are actually useful utilities in their own
+right (for example: delve, quest, and copydatabase).
+</Description>

@@ -1,0 +1,8 @@
+<Directory>languages</Directory>
+
+<Description>
+Utilities for performing processing of text in various different languages.
+Current these comprise stemming algorithms.  In future language detection,
+character set normalisation, and other language related utilities will be
+added.
+</Description>

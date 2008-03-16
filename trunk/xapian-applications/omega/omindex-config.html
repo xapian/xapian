@@ -1,0 +1,62 @@
+<html>
+<head>
+<title>Xapian Indexer Configuration</title>
+</head>
+
+<body bgcolor=#ffffff text=#000000>
+<h1>Xapian Indexer Configuration for $host</h1>
+<hr>
+<form action="$cgi" method=post>
+<h2>Mappings</h2>
+<p>These enable you to specify how files on the local disk are accessible
+using URLs.  Enter pairs of the form <i>directory</i> = <i>URL</i>, one
+per line, for example:</p>
+<p>
+<tt>/home/httpd/html/ = http://www.mydom.com/</tt><br>
+<tt>/home/*/public_html/ = http://www.mydom.com/~*/</tt><br>
+</p>
+<p>Mappings to use:<br>
+<textarea cols=80 rows=4>$mappings</textarea></p>
+
+<h2>Files to index</h2>
+<p>Enter filename patterns of files to index, separated by new lines or semicolons.
+For example: <tt>*.html;*.htm;doc*.ps</tt></p>
+<p>File filters:<br>
+<textarea cols=80 rows=6>$filesinc</textarea></p>
+
+<h2>Files to exclude</h2>
+<p>Enter filename patterns of files to be excluded from indexing, separated by new lines
+or semicolons.</p>
+<p>File filters:<br>
+<textarea cols=80 rows=6>$filesexc</textarea></p>
+
+<h2>MIME type handlers</h2>
+<p>This allows custom processing of specified types of files for extraction of textual
+content to index.  Specify processing for each MIME type on a separate line in the form</p>
+<p><tt><i>mime-type</i> : <i>run-command</i> <i>load-file</i></tt></p>
+<p>where <tt><i>mime-type</i></tt> is the MIME type to handle specially,
+<tt><i>run-command</i></tt> is the command to run to process a file of the specified type
+and <tt><i>load-file</i></tt> is the file to load and index having run the command.
+<tt><i>load-file</i></tt> may be - (dash) to specify that the output should be read by
+a pipe from standard output of <tt><i>run-command</i></tt>.
+<tt><i>run-command</i></tt> and <tt><i>load-file</i></tt> must be enclosed in quotes (")
+if they consist of more than one word.</p>
+<p><tt><i>run-command</i></tt> may contain the specifiers <tt>%f</tt>, which will be
+substituted with the name of the file to load; and <tt>%t</tt>, which will be substituted
+for a temporary filename.  <tt><i>load-file</i></tt> may contain <tt>%t</tt> and also
+<tt>%b</tt>, which is like <tt>%f</tt> except the last extension on the filename is stripped.</p>
+<p>For example:</p>
+<p><tt>application/msword: "dump-word %f %t" "%t"</tt><br>
+<tt>application/wordperfect: "dump-wp %f" -</tt></p>
+<p>MIME type handling:<br>
+<textarea cols=80 rows=6>$mimetypes</textarea></p>
+
+<hr>
+<input type=submit value="Write $configfile"></input>
+<input type=button name=defaults value="Regenerate this page from $configfile"></input>
+<input type=button name=defaults value="Restore defaults (without writing $configfile)"></input>
+
+</form>
+
+</body>
+</html>

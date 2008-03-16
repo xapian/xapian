@@ -1,0 +1,8 @@
+<Directory>docs</Directory>
+
+<Description>
+Documentation, and scripts to automatically generate
+further documentation from the source code.  If you have the appropriate
+packages installed (currently, this means Perl), these scripts will be run
+by make.
+</Description>
