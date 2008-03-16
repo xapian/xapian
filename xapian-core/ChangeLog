@@ -1,3 +1,7 @@
+Sun Mar 16 11:03:27 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: Update for 1.0.6.
+
 Wed Mar 12 06:50:53 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk (not needed here, but is by Omega's
