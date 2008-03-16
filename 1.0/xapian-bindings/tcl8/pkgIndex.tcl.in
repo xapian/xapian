@@ -1,0 +1,1 @@
+package ifneeded xapian @VERSION_NO_SNAPSHOT@ [list load [file join $dir xapian[info sharedlibextension]]]

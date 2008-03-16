@@ -1,0 +1,10 @@
+<Directory>backends/quartz</Directory>
+
+<Description>
+This backend uses a custom written Btree management system to store
+posting lists and termlists.  This is a reasonably efficient
+backend, using compression to store the postlists.  Positional
+information and transactions are both supported.  Quartz is
+was the default backend prior to Xapian 1.0.  Its use is
+deprecated for new systems and it will eventually be retired.
+</Description>
