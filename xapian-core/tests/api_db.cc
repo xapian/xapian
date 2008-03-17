@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
  * Copyright 2006,2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -32,6 +32,8 @@
 #include <string>
 #include <vector>
 
+// We have to use the deprecated Quartz::open() method.
+#define XAPIAN_DEPRECATED(D) D
 #include <xapian.h>
 
 #include "backendmanager.h"
@@ -1167,6 +1169,99 @@ DEFINE_TESTCASE(consistency1, backend && !remote) {
 	// consistency1 is a long test - may timeout with the remote backend...
 	SKIP_TEST("Test taking too long");
     }
+    return true;
+}
+
+// tests that specifying a nonexistent input file throws an exception.
+DEFINE_TESTCASE(quartzdatabaseopeningerror1, quartz) {
+    mkdir(".quartz", 0755);
+
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+		   Xapian::Quartz::open(".quartz/nosuchdirectory"));
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+		   Xapian::Quartz::open(".quartz/nosuchdirectory", Xapian::DB_OPEN));
+
+    mkdir(".quartz/emptydirectory", 0700);
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+		   Xapian::Quartz::open(".quartz/emptydirectory"));
+
+    touch(".quartz/somefile");
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+	Xapian::Quartz::open(".quartz/somefile"));
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+	Xapian::Quartz::open(".quartz/somefile", Xapian::DB_OPEN));
+    TEST_EXCEPTION(Xapian::DatabaseCreateError,
+	Xapian::Quartz::open(".quartz/somefile", Xapian::DB_CREATE));
+    TEST_EXCEPTION(Xapian::DatabaseCreateError,
+	Xapian::Quartz::open(".quartz/somefile", Xapian::DB_CREATE_OR_OPEN));
+    TEST_EXCEPTION(Xapian::DatabaseCreateError,
+	Xapian::Quartz::open(".quartz/somefile", Xapian::DB_CREATE_OR_OVERWRITE));
+
+    return true;
+}
+
+/// Test opening of a quartz database
+DEFINE_TESTCASE(quartzdatabaseopen1, quartz) {
+    const char * dbdir = ".quartz/test_quartzdatabaseopen1";
+    mkdir(".quartz", 0755);
+
+    {
+	rm_rf(dbdir);
+	Xapian::WritableDatabase wdb =
+	    Xapian::Quartz::open(dbdir, Xapian::DB_CREATE);
+	TEST_EXCEPTION(Xapian::DatabaseLockError,
+	    Xapian::Quartz::open(dbdir, Xapian::DB_OPEN));
+	Xapian::Quartz::open(dbdir);
+    }
+
+    {
+	rm_rf(dbdir);
+	mkdir(dbdir, 0700);
+	Xapian::WritableDatabase wdb =
+	    Xapian::Quartz::open(dbdir, Xapian::DB_CREATE);
+	TEST_EXCEPTION(Xapian::DatabaseLockError,
+	    Xapian::Quartz::open(dbdir, Xapian::DB_OPEN));
+	Xapian::Quartz::open(dbdir);
+    }
+
+    {
+	rm_rf(dbdir);
+	Xapian::WritableDatabase wdb =
+	    Xapian::Quartz::open(dbdir, Xapian::DB_CREATE_OR_OPEN);
+	TEST_EXCEPTION(Xapian::DatabaseLockError,
+	    Xapian::Quartz::open(dbdir, Xapian::DB_CREATE_OR_OVERWRITE));
+	Xapian::Quartz::open(dbdir);
+    }
+
+    {
+	rm_rf(dbdir);
+	Xapian::WritableDatabase wdb =
+	    Xapian::Quartz::open(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+	TEST_EXCEPTION(Xapian::DatabaseLockError,
+	    Xapian::Quartz::open(dbdir, Xapian::DB_CREATE_OR_OPEN));
+	Xapian::Quartz::open(dbdir);
+    }
+
+    {
+	TEST_EXCEPTION(Xapian::DatabaseCreateError,
+	    Xapian::Quartz::open(dbdir, Xapian::DB_CREATE));
+	Xapian::WritableDatabase wdb =
+	    Xapian::Quartz::open(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+	Xapian::Quartz::open(dbdir);
+    }
+
+    {
+	Xapian::WritableDatabase wdb =
+	    Xapian::Quartz::open(dbdir, Xapian::DB_CREATE_OR_OPEN);
+	Xapian::Quartz::open(dbdir);
+    }
+
+    {
+	Xapian::WritableDatabase wdb =
+	    Xapian::Quartz::open(dbdir, Xapian::DB_OPEN);
+	Xapian::Quartz::open(dbdir);
+    }
+
     return true;
 }
 

@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2006,2007,2008 Olly Betts
+ * Copyright 2003,2004,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -38,6 +38,7 @@ using namespace std;
 #include "backendmanager_flint.h"
 #include "backendmanager_inmemory.h"
 #include "backendmanager_multi.h"
+#include "backendmanager_quartz.h"
 #include "backendmanager_remoteprog.h"
 #include "backendmanager_remotetcp.h"
 #include "utils.h"
@@ -76,12 +77,6 @@ Xapian::WritableDatabase
 get_named_writable_database(const std::string &name, const std::string &source)
 {
    return backendmanager->get_writable_database("dbw__" + name, source);
-}
-
-std::string
-get_named_writable_database_path(const std::string &name)
-{
-   return backendmanager->get_writable_database_path("dbw__" + name);
 }
 
 Xapian::Database
@@ -124,8 +119,7 @@ int main(int argc, char **argv)
 	bool backend = false, remote = false, transactions = false;
 	bool positional = false, writable = false, multi = false;
 	bool spelling = false, metadata = false;
-	bool replicas = false;
-	bool flint = false;
+	bool quartz = false, flint = false;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -139,8 +133,7 @@ int main(int argc, char **argv)
 	bool backend = true, remote = false, transactions = false;
 	bool positional = true, writable = true, multi = false;
 	bool spelling = false, metadata = false;
-	bool replicas = false;
-	bool flint = false;
+	bool quartz = false, flint = false;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -155,15 +148,14 @@ int main(int argc, char **argv)
 	bool backend = true, remote = false, transactions = true;
 	bool positional = true, writable = true, multi = false;
 	bool spelling = true, metadata = true;
-	bool replicas = true;
-	bool flint = true;
+	bool quartz = false, flint = true;
 #include "api_collated.h"
 
 	delete backendmanager;
     }
 #endif
 
-#if defined(XAPIAN_HAS_FLINT_BACKEND)
+#if defined(XAPIAN_HAS_FLINT_BACKEND) || defined(XAPIAN_HAS_QUARTZ_BACKEND)
     if (USE_BACKEND(backend_name, "multi")) {
 	backendmanager = new BackendManagerMulti;
 	backendmanager->set_datadir(srcdir + "/testdata/");
@@ -171,8 +163,22 @@ int main(int argc, char **argv)
 	bool backend = true, remote = false, transactions = false;
 	bool positional = true, writable = false, multi = true;
 	bool spelling = false, metadata = false;
-	bool replicas = false;
-	bool flint = false;
+	bool quartz = false, flint = false;
+#include "api_collated.h"
+
+	delete backendmanager;
+    }
+#endif
+
+#ifdef XAPIAN_HAS_QUARTZ_BACKEND
+    if (USE_BACKEND(backend_name, "quartz")) {
+	backendmanager = new BackendManagerQuartz;
+	backendmanager->set_datadir(srcdir + "/testdata/");
+
+	bool backend = true, remote = false, transactions = true;
+	bool positional = true, writable = true, multi = false;
+	bool spelling = false, metadata = false;
+	bool quartz = true, flint = false;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -187,8 +193,7 @@ int main(int argc, char **argv)
 	bool backend = true, remote = true, transactions = true;
 	bool positional = true, writable = true, multi = false;
 	bool spelling = false, metadata = false;
-	bool replicas = false;
-	bool flint = false;
+	bool quartz = false, flint = false;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -201,8 +206,7 @@ int main(int argc, char **argv)
 	bool backend = true, remote = true, transactions = true;
 	bool positional = true, writable = true, multi = false;
 	bool spelling = false, metadata = false;
-	bool replicas = false;
-	bool flint = false;
+	bool quartz = false, flint = false;
 #include "api_collated.h"
 
 	delete backendmanager;

@@ -37,8 +37,6 @@ Xapian::WritableDatabase get_writable_database(const std::string &db = "");
 
 Xapian::WritableDatabase get_named_writable_database(const std::string &name, const std::string &source = "");
 
-std::string get_named_writable_database_path(const std::string &name);
-
 Xapian::Database get_remote_database(const std::string &db, unsigned timeout);
 
 Xapian::Database get_writable_database_as_database();

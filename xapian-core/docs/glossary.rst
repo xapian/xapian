@@ -1,5 +1,5 @@
 .. Copyright (C) 2007 Jenny Black
-.. Copyright (C) 2007,2008 Olly Betts
+.. Copyright (C) 2007 Olly Betts
 .. Copyright (C) 2007 Deron Meranda
 
 ========
@@ -124,8 +124,10 @@ Retrieval, while others have a specific meaning in the context of Xapian.
  methods (the only exception is when a pure Boolean query is chosen)
 
 **Quartz**
- Quartz was the database format used by Xapian prior to version 1.0.  Support
- was dropped completely as of Xapian 1.1.0.
+ Quartz was the database format used by Xapian prior to version 1.0.  It is
+ now deprecated, and support will be dropped in some future Xapian release.
+ New installations should use Flint, and existing installations should consider
+ migrating to Flint.
 
 **Query**
  A query is the information need expressed in a form that an IR system can

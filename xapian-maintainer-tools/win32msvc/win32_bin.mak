@@ -20,10 +20,7 @@ PROGRAMS = "$(OUTDIR)\quartzcheck.exe" \
            "$(OUTDIR)\xapian-progsrv.exe" \
            "$(OUTDIR)\xapian-tcpsrv.exe" \
            "$(OUTDIR)\xapian-inspect.exe" \
-           "$(OUTDIR)\xapian-check.exe" \
-           "$(OUTDIR)\xapian-replicate.exe" \
-           "$(OUTDIR)\xapian-replicate-server.exe"
-
+           "$(OUTDIR)\xapian-check.exe"
 SRCS = \
 	"$(INTDIR)\quartzcheck.cc" \
 	"$(INTDIR)\quartzcompact.cc" \
@@ -32,9 +29,7 @@ SRCS = \
 	"$(INTDIR)\xapian-progsrv.cc" \
 	"$(INTDIR)\xapian-tcpsrv.cc" \
 	"$(INTDIR)\xapian-inspect.cc" \
-	"$(INTDIR)\xapian-check.cc" \
-    "$(INTDIR)\xapian-replicate.cc" \
-    "$(INTDIR)\xapian-replicate-server.cc"
+	"$(INTDIR)\xapian-check.cc"
 	   
 ALL : $(PROGRAMS)
 
@@ -54,11 +49,6 @@ XAPIAN_INSPECT_OBJS= "$(INTDIR)\xapian-inspect.obj"
 
 XAPIAN_CHECK_OBJS= "$(INTDIR)\xapian-check.obj" 
 
-XAPIAN_REPLICATE_OBJS= "$(INTDIR)\xapian-replicate.obj" 
-
-XAPIAN_REPLICATE_SERVER_OBJS= "$(INTDIR)\xapian-replicate-server.obj" 
-
-
 	
 CLEAN :
 	-@erase $(PROGRAMS)
@@ -70,8 +60,6 @@ CLEAN :
 	-@erase $(XAPIAN_TCPSRV_OBJS)
 	-@erase $(XAPIAN_INSPECT_OBJS)
 	-@erase $(XAPIAN_CHECK_OBJS)
-	-@erase $(XAPIAN_REPLICATE_OBJS)
-	-@erase $(XAPIAN_REPLICATE_SERVER_OBJS)
 	-@erase "$(INTDIR)\*.pdb"
 
 
@@ -88,7 +76,6 @@ CPP_SBRS=.
 ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS)
  
 PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS)
-
 
 
 "$(OUTDIR)\quartzcheck.exe" : "$(OUTDIR)" $(DEF_FILE) $(QUARTZCHECK_OBJS) \
@@ -137,18 +124,6 @@ PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS)
                              $(PROGRAM_DEPENDENCIES)
     $(LINK32) @<<
   $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\xapian-check.exe" $(DEF_FLAGS) $(XAPIAN_CHECK_OBJS) "$(OUTLIBDIR)\libflintbtreecheck.lib" 
-<<
-
-"$(OUTDIR)\xapian-replicate.exe" : "$(OUTDIR)" $(DEF_FILE) $(XAPIAN_REPLICATE_OBJS) \
-                      $(PROGRAM_DEPENDENCIES) 
-    $(LINK32) @<<
-  $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\xapian-replicate.exe" $(DEF_FLAGS) $(XAPIAN_REPLICATE_OBJS) 
-<<
-
-"$(OUTDIR)\xapian-replicate-server.exe" : "$(OUTDIR)" $(DEF_FILE) $(XAPIAN_REPLICATE_SERVER_OBJS) \
-                      $(PROGRAM_DEPENDENCIES) 
-    $(LINK32) @<<
-  $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\xapian-replicate-server.exe" $(DEF_FLAGS) $(XAPIAN_REPLICATE_SERVER_OBJS) 
 <<
 
 # inference rules, showing how to create one type of file from another with the same root name

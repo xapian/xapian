@@ -24,7 +24,7 @@ uses) and decompression is supposed to be about 20% faster than with 1.1.x.
 Compilers:
 ==========
 
-We aim to support compilation with any C++ compiler which conforms to ISO C++,
+We aim to support compilation with any C++ compiler which supports ISO C++,
 or a reasonable approximation to it.
 
 If you're using MS Visual C++, see the Xapian download page for a link to
@@ -67,6 +67,7 @@ Options to give to configure:
 
 --enable-backend-flint
 --enable-backend-inmemory
+--enable-backend-quartz
 --enable-backend-remote
 	These options enable (or disable if --disable-backend-XXX is specified)
 	the compiling of each backend (database access methods).  By default,

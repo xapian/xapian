@@ -74,11 +74,6 @@ string om_tostring(const void * a);
 XAPIAN_VISIBILITY_DEFAULT
 bool file_exists(const string &fname);
 
-/** Return true if the directory dirname exists.
- */
-XAPIAN_VISIBILITY_DEFAULT
-bool dir_exists(const string &dirname);
-
 /// Allow atoi to work directly on C++ strings.
 inline int atoi(const string &s) { return atoi(s.c_str()); }
 
@@ -100,53 +95,15 @@ inline int mkdir(const string &filename, mode_t mode) {
     return mkdir(filename.c_str(), mode);
 }
 
-/// Allow rmdir to work directly on C++ strings.
-inline int rmdir(const string &filename) {
-    return rmdir(filename.c_str());
-}
-
 /// Allow stat to work directly on C++ strings.
 inline int stat(const string &filename, struct stat *buf) {
     return stat(filename.c_str(), buf);
 }
-
-/** Remove a directory, and its contents.
- *
- *  Note - this doesn't currently cope with directories which contain
- *  subdirectories.
- */
-XAPIAN_VISIBILITY_DEFAULT
-void removedir(const string &dirname);
-
-/** Hex-encode a string.
- */
-XAPIAN_VISIBILITY_DEFAULT
-string hex_encode(const string &input);
-
-/** Hex-decode a string.
- */
-XAPIAN_VISIBILITY_DEFAULT
-string hex_decode(const string &input);
 
 namespace Xapian {
     namespace Internal {
 	bool within_DBL_EPSILON(double a, double b);
     }
 }
-
-/** A tiny class used to close a filehandle safely in the presence
- *  of exceptions.
- */
-class fdcloser {
-    public:
-	fdcloser(int fd_) : fd(fd_) {}
-	~fdcloser() {
-	    if (fd >= 0) {
-		(void)close(fd);
-	    }
-	}
-    private:
-	int fd;
-};
 
 #endif /* OM_HGUARD_UTILS_H */

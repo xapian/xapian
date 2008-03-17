@@ -30,7 +30,7 @@
 #include "safefcntl.h"
 
 #include "noreturn.h"
-#include "remoteconnection.h"
+#include "remoteserver.h"
 #include "utils.h"
 
 #ifdef __WIN32__
@@ -68,24 +68,28 @@ using namespace std;
 #endif
 
 /// The TcpServer constructor, taking a database and a listening port.
-TcpServer::TcpServer(const std::string & host, int port, bool tcp_nodelay,
+TcpServer::TcpServer(const vector<std::string> &dbpaths_, const std::string & host, int port,
+		     int msecs_active_timeout_,
+		     int msecs_idle_timeout_,
+		     bool writable_,
 		     bool verbose_)
-    :
+	: dbpaths(dbpaths_), writable(writable_),
 #if defined __CYGWIN__ || defined __WIN32__
-      mutex(NULL),
+	  mutex(NULL),
 #endif
-      listen_socket(get_listening_socket(host, port, tcp_nodelay
+	  listen_socket(get_listening_socket(host, port
 #if defined __CYGWIN__ || defined __WIN32__
-					 , mutex
+					     , mutex
 #endif
-					 )),
-      verbose(verbose_)
+					    )),
+	  msecs_active_timeout(msecs_active_timeout_),
+	  msecs_idle_timeout(msecs_idle_timeout_),
+	  verbose(verbose_)
 {
 }
 
 int
-TcpServer::get_listening_socket(const std::string & host, int port,
-				bool tcp_nodelay
+TcpServer::get_listening_socket(const std::string & host, int port
 #if defined __CYGWIN__ || defined __WIN32__
 				, HANDLE &mutex
 #endif
@@ -97,26 +101,23 @@ TcpServer::get_listening_socket(const std::string & host, int port,
 	throw Xapian::NetworkError("socket", socket_errno());
     }
 
-    int retval = 0;
+    int retval;
 
-    if (tcp_nodelay) {
+    {
 	int optval = 1;
 	// 4th argument might need to be void* or char* - cast it to char*
 	// since C++ allows implicit conversion to void* but not from void*.
 	retval = setsockopt(socketfd, IPPROTO_TCP, TCP_NODELAY,
 			    reinterpret_cast<char *>(&optval),
 			    sizeof(optval));
-    }
 
-    {
-	int optval = 1;
 #if defined __CYGWIN__ || defined __WIN32__
 	// Windows has screwy semantics for SO_REUSEADDR - it allows the user
 	// to bind to a port which is already bound and listening!  That's
-	// just not suitable as we don't want multiple processes listening on
-	// the same port, so we guard against that by using a named win32 mutex
-	// object (and we create it in the 'Global namespace' so that this
-	// still works in a Terminal Services environment).
+	// just not suitable as we don't want multiple xapian-tcpsrv processes
+	// listening on the same port, so we guard against that by using a named
+	// win32 mutex object (and we create it in the 'Global namespace' so
+	// that this still works in a Terminal Services environment).
 	char name[64];
 	sprintf(name, "Global\\xapian-tcpserver-listening-%d", port);
 	if ((mutex = CreateMutex(NULL, TRUE, name)) == NULL) {
@@ -130,9 +131,9 @@ TcpServer::get_listening_socket(const std::string & host, int port,
 	    mutex = NULL;
 	}
 	if (mutex == NULL) {
-	    cerr << "Server is already running on port " << port << endl;
-	    // 69 is EX_UNAVAILABLE.  Scripts can use this to detect if the
-	    // server failed to bind to the requested port.
+	    cerr << "xapian-tcpsrv is already running on port " << port << endl;
+	    // 69 is EX_UNAVAILABLE.  Scripts can use this to detect if
+	    // xapian-tcpsrv failed to bind to the requested port.
 	    exit(69); // FIXME: calling exit() here isn't ideal...
 	}
 #endif
@@ -202,8 +203,8 @@ TcpServer::get_listening_socket(const std::string & host, int port,
 	int saved_errno = socket_errno(); // note down in case close hits an error
 	if (saved_errno == EADDRINUSE) {
 	    cerr << host << ':' << port << " already in use" << endl;
-	    // 69 is EX_UNAVAILABLE.  Scripts can use this to detect if the
-	    // server failed to bind to the requested port.
+	    // 69 is EX_UNAVAILABLE.  Scripts can use this to detect if
+	    // xapian-tcpsrv failed to bind to the requested port.
 	    exit(69); // FIXME: calling exit() here isn't ideal...
 	}
 	CLOSESOCKET(socketfd);
@@ -262,6 +263,28 @@ TcpServer::~TcpServer()
 #endif
 }
 
+void
+TcpServer::handle_one_connection(int socket)
+{
+    try {
+	RemoteServer sserv(dbpaths, socket, socket,
+			   msecs_active_timeout, msecs_idle_timeout,
+			   writable);
+	sserv.run();
+	CLOSESOCKET(socket);
+    } catch (const Xapian::NetworkTimeoutError &e) {
+	CLOSESOCKET(socket);
+	if (verbose)
+	    cerr << "Connection timed out: " << e.get_description() << endl;
+    } catch (const Xapian::Error &e) {
+	CLOSESOCKET(socket);
+	cerr << "Got exception " << e.get_description() << endl;
+    } catch (...) {
+	CLOSESOCKET(socket);
+	// ignore other exceptions
+    }
+}
+
 #ifdef HAVE_FORK
 // A fork() based implementation.
 void
@@ -274,7 +297,6 @@ TcpServer::run_once()
 	close(listen_socket);
 
 	handle_one_connection(connected_socket);
-	close(connected_socket);
 
 	if (verbose) cout << "Closing connection." << endl;
 	exit(0);
@@ -413,7 +435,6 @@ run_thread(void * param_)
     int socket = param->connected_socket;
 
     param->server->handle_one_connection(socket);
-    closesocket(socket);
 
     delete param;
 
@@ -470,9 +491,7 @@ void
 TcpServer::run_once()
 {
     // Run a single request on the current thread.
-    int fd = accept_connection();
-    handle_one_connection(fd);
-    closesocket(fd);
+    handle_one_connection(accept_connection());
 }
 
 #else

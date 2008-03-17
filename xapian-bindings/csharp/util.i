@@ -1,7 +1,7 @@
 %{
 /* csharp/util.i: custom C# typemaps for xapian-bindings
  *
- * Copyright (c) 2005,2006,2008 Olly Betts
+ * Copyright (c) 2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,6 +34,7 @@
 %rename("GetTermPos") get_termpos;
 %rename("GetTermFreq") get_termfreq;
 %rename("GetTermWeight") get_termweight;
+%rename("GetTermName") get_termname;
 %rename("GetDocCount") get_doccount;
 %rename("GetDocId") get_docid;
 %rename("GetDocLength") get_doclength;

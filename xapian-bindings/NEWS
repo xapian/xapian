@@ -1,20 +1,4 @@
-up to:
-Wed Mar 05 21:30:13 GMT 2008  Olly Betts <olly@survex.com>
-
-HEAD only:
-
-	* configure.ac,generic/generic.mk: Use the new --swigheaders option
-	  in xapian-config to get the list of header files for the core,
-	  and add all of these as a dependency for the rules to run swig.
-	  This is currently an overly inclusive dependency, but it's hard
-	  to keep track of exactly which header files are being included,
-	  and the plan is to eventually include all of them.
-
-	* xapian.i: Include replication.h in the bindings.
-
-Xapian-bindings 1.0.8 (2008-03-??):
-
-Documentation:
+Xapian-bindings 1.0.6 (2008-03-17):
 
 General:
 
@@ -22,16 +6,6 @@ General:
   used with.
 
 * configure: Correct the required SWIG version given in an error message.
-
-Packaging:
-
-Portability:
-
-CSharp:
-
-Guile:
-
-Java:
 
 PHP:
 

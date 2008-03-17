@@ -1,7 +1,7 @@
 /** @file backendmanager_remoteprog.cc
  * @brief BackendManager subclass for remoteprog databases.
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -69,7 +69,8 @@ BackendManagerRemoteProg::get_writable_database(const string & name,
     (void)getwritedb_flint(name, files);
     args += ".flint/";
 #else
-# error No local backend enabled
+    (void)getwritedb_quartz(name, files);
+    args += ".quartz/";
 #endif
     args += name;
 
@@ -92,7 +93,7 @@ BackendManagerRemoteProg::get_remote_database(const vector<string> & files,
 #ifdef XAPIAN_HAS_FLINT_BACKEND
     args += createdb_flint(files);
 #else
-# error No local backend enabled
+    args += createdb_quartz(files);
 #endif
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {
@@ -110,7 +111,7 @@ BackendManagerRemoteProg::get_writable_database_as_database()
 #ifdef XAPIAN_HAS_FLINT_BACKEND
     args += ".flint/";
 #else
-# error No local backend enabled
+    args += ".quartz/";
 #endif
     args += last_wdb_name;
 
@@ -130,7 +131,7 @@ BackendManagerRemoteProg::get_writable_database_again()
 #ifdef XAPIAN_HAS_FLINT_BACKEND
     args += ".flint/";
 #else
-# error No local backend enabled
+    args += ".quartz/";
 #endif
     args += last_wdb_name;
 

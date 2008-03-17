@@ -69,7 +69,7 @@ class FlintSpellingTable : public FlintTable {
      *  @param readonly		true if we're opening read-only, else false.
      */
     FlintSpellingTable(std::string dbdir, bool readonly)
-	: FlintTable("spelling", dbdir + "/spelling.", readonly, Z_DEFAULT_STRATEGY, true) { }
+	: FlintTable(dbdir + "/spelling.", readonly, Z_DEFAULT_STRATEGY, true) { }
 
     // Merge in batched-up changes.
     void merge_changes();
@@ -99,9 +99,9 @@ class FlintSpellingTable : public FlintTable {
 	FlintTable::set_block_size(blocksize);
     }
 
-    void flush_db() {
+    void commit(flint_revision_number_t revision) {
 	merge_changes();
-	FlintTable::flush_db();
+	FlintTable::commit(revision);
     }
 
     void cancel() {

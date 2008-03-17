@@ -3,7 +3,6 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2004,2005,2008 Olly Betts
- * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -206,10 +205,9 @@ BtreeCheck::block_check(Cursor_ * C_, int j, int opts)
 }
 
 void
-BtreeCheck::check(const string & tablename, const string & path,
-		  int opts, ostream &out)
+BtreeCheck::check(const string & name, int opts, ostream &out)
 {
-    BtreeCheck B(tablename, path, false, out);
+    BtreeCheck B(name, false, out);
     B.open(); // throws exception if open fails
     Cursor_ * C = B.C;
 

@@ -109,9 +109,9 @@ Running test programs
 
 To run all tests, use ``make check``.  You can also run just the subset of
 tests which exercise the inmemory, remote progserver, remote TCP,
-multi-database, or flint backends using ``make check-inmemory``, ``make
-check-remoteprog``, ``make check-remotetcp``, ``make check-multi``, or
-``make check-flint`` respectively.
+multi-database, quartz, or flint backends using ``make check-inmemory``, ``make
+check-remoteprog``, ``make check-remotetcp``, ``make check-multi``,
+``make check-quartz``, or ``make check-flint`` respectively.
 
 Also, ``make check-remote`` will run the tests on both variants of the remote
 backend, and ``make check-none`` will run those tests which don't use any
@@ -924,11 +924,6 @@ to follow the style of the existing code.  In particular:
 * For standard ISO C++ headers, *always* use the ISO C++ form '#include <list>'
   (pre-ISO compilers used '#include <list.h>', but GCC has generated a warning
   for this form for years).
-
-* When passing an empty string to a method expecting ``const std::string &``
-  prefer ``std::string()`` to ``""`` or ``std::string("")`` as the first form
-  is more likely to directly use a special "empty string representation" (it
-  does with GCC at least).
 
 We will do our best to give credit where credit is due - if we have used
 patches from you, or received helpful reports or advice, we will add your name

@@ -63,9 +63,6 @@ class BackendManagerFlint : public BackendManager {
     Xapian::WritableDatabase get_writable_database(const std::string & name,
 						   const std::string & file);
 
-    /// Get the path of Flint Xapian::WritableDatabase instance.
-    std::string get_writable_database_path(const std::string & name);
-
     /// Create a Database object for the last opened WritableDatabase.
     Xapian::Database get_writable_database_as_database();
 

@@ -97,8 +97,7 @@ AM_LDFLAGS = $(ICONV_LDFLAGS)
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc\
  cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc loadfile.cc\
  utf8convert.cc datematchdecider.cc
-omega_LDADD = $(XAPIAN_LIBS) $(PCRE_LIBS)
-omega_INCLUDES = $(PCRE_CFLAGS)
+omega_LDADD = $(XAPIAN_LIBS) # -lpcre
 
 omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc\
  common/getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc md5.cc\

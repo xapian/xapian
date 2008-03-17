@@ -1,81 +1,43 @@
-Wed Mar 12 09:01:04 GMT 2008  Olly Betts <olly@survex.com>
+Sun Mar 16 11:42:21 GMT 2008  Olly Betts <olly@survex.com>
 
-	* java-swig/: Remove Quartz.* from svn:ignore.
+	* NEWS: Update for 1.0.6.
 
-Wed Mar 12 08:59:30 GMT 2008  Olly Betts <olly@survex.com>
+Sun Mar 16 11:05:21 GMT 2008  Olly Betts <olly@survex.com>
 
-	* python/Makefile.am: Clean up libtoolconfig.tmp after use.
+	* configure.ac: Update for 1.0.6.
 
-Wed Mar 12 08:57:55 GMT 2008  Olly Betts <olly@survex.com>
+Tue Mar 11 23:30:06 GMT 2008  Olly Betts <olly@survex.com>
 
-	* README,configure.ac,php/Makefile.am,php/docs/Makefile.am,
-	  php/docs/examples/simpleexpand.php4,
-	  php/docs/examples/simpleindex.php4,
-	  php/docs/examples/simplesearch.php4,php/docs/index.html,
-	  php/smoketest4.php,php/util.i,xapian-bindings.spec.in,xapian.i:
-	  Remove PHP4 support.
-
-Wed Mar 12 08:29:06 GMT 2008  Olly Betts <olly@survex.com>
-
-	* csharp/Makefile.am,csharp/SmokeTest.cs,csharp/util.i,
-	  java-swig/Makefile.am,java-swig/SmokeTest.java,
-	  java/native/Enquire.cc,java/native/Query.cc,
-	  java/native/org_xapian_XapianJNI.h,java/org/xapian/Enquire.java,
-	  java/org/xapian/Query.java,java/org/xapian/XapianJNI.java,php/util.i,
-	  python/,ruby/util.i,ruby/xapian.rb,xapian.i: Remove all deprecated
-	  features slated for removal in 1.1.0.
-
-Tue Mar 11 20:32:26 GMT 2008  Olly Betts <olly@survex.com>
-
+	* Backport changes from trunk:
+	* java-swig/Makefile.am: Add MultiValueSorter.java, Sorter.java, and
+	  TermGenerator$flags.class.
 	* java-swig/util.i: Xapian::weight::clone() collides with Java's
 	  Object.clone(), so rename to cloneWeight().  Wrap Xapian::valueno
 	  as Java type int to avoid a conflict with SWIG/Java's machinery.
 
-Tue Mar 11 04:51:00 GMT 2008  Olly Betts <olly@survex.com>
+Thu Mar 06 23:09:45 GMT 2008  Olly Betts <olly@survex.com>
 
-	* java-swig/Makefile.am: Add MultiValueSorter.java, Sorter.java, and
-	  TermGenerator$flags.class.
+	* Backport change from trunk:
+	* NEWS: Update from ChangeLog.
 
-Wed Mar 05 22:36:46 GMT 2008  Olly Betts <olly@survex.com>
+Wed Mar 05 07:47:44 GMT 2008  Olly Betts <olly@survex.com>
 
-	* NEWS: Update to HEAD with un-backported changes kept separate.
-
-Wed Mar 05 21:30:13 GMT 2008  Olly Betts <olly@survex.com>
-
-	* NEWS: Update to 1.0 branch point.
-
-Sun Feb 24 11:02:44 GMT 2008  Olly Betts <olly@survex.com>
-
+	* Backport change from trunk:
 	* java-swig/Makefile.am,php/Makefile.am,ruby/Makefile.am,
 	  tcl8/Makefile.am: Minor comment correction (we only remove a single
 	  file in each case).
 
-Sun Feb 24 01:11:25 GMT 2008  Olly Betts <olly@survex.com>
+Wed Mar 05 07:43:55 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport change from trunk:
 	* configure.ac,python/Makefile.am: The Python module now has the
 	  extension which Python expects, which fixes a failure on Mac OS X.
 	  PYTHON_PATHSEP is no longer required.
 
-Sat Feb 23 23:09:05 GMT 2008  Olly Betts <olly@survex.com>
+Wed Mar 05 07:39:09 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport change from trunk:
 	* configure.ac: Correct SWIG version in error message.
-
-Thu Feb 21 00:28:20 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* configure.ac,generic/generic.mk: Use the new --swigheaders option
-	  in xapian-config to get the list of header files for the core,
-	  and add all of these as a dependency for the rules to run swig.
-	  This is currently an overly inclusive dependency, but it's hard
-	  to keep track of exactly which header files are being included,
-	  and the plan is to eventually include all of them.
-
-Mon Jan 28 11:52:59 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* xapian.i: Ignore various unwanted bits of DatabaseReplica.
-
-Mon Jan 28 03:22:43 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* xapian.i: Include replication.h in the bindings.
 
 Wed Jan 09 22:41:24 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 

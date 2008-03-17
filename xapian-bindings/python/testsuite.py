@@ -1,7 +1,6 @@
 # Utility functions for running tests and reporting the results.
 #
 # Copyright (C) 2007 Lemur Consulting Ltd
-# Copyright (C) 2008 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -90,17 +89,17 @@ class TestRunner(object):
 
         """
 	expected = 'Xapian::Query(' + expected + ')'
-        desc = str(query)
+        desc = query.get_description()
         if self._verbose > 2:
             self._out.start_line()
-            self._out.write("Checking str(query): expecting %r ... " % expected)
+            self._out.write("Checking query.get_description(): expecting %r ... " % expected)
             self._out.flush()
         if desc != expected:
             if self._verbose > 2:
                 self._out.write_colour(" #red#failed##")
                 self._out.write(": got %r\n" % desc)
                 self._out.flush()
-            raise TestFail("Unexpected str(query): got %r, expected %r" % (desc, expected))
+            raise TestFail("Unexpected query.get_description(): got %r, expected %r" % (desc, expected))
         if self._verbose > 2:
             self._out.write_colour(" #green#ok##\n")
             self._out.flush()

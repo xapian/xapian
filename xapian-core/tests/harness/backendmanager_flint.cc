@@ -52,12 +52,6 @@ BackendManagerFlint::get_writable_database(const string & name,
     return getwritedb_flint(name, vector<string>(1, file));
 }
 
-string
-BackendManagerFlint::get_writable_database_path(const string & name)
-{
-    return getwritedb_flint_path(name);
-}
-
 Xapian::Database
 BackendManagerFlint::get_writable_database_as_database()
 {

@@ -110,7 +110,7 @@ main(int argc, char **argv)
 	table_name += '.';
 
     try {
-	FlintTable table("", table_name, true);
+	FlintTable table(table_name, true);
 	table.open();
 	if (table.get_entry_count() == 0) {
 	    cout << "No entries!" << endl;

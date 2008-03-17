@@ -6,7 +6,7 @@ dnl 2.57 fixes the annoying warnings from configure on FreeBSD
 dnl 2.58 is needed by automake 1.8.5
 dnl 2.59 was released the same day as 2.58 to fix a problem
 AC_PREREQ(2.59)
-AC_INIT(xapian-bindings, 1.0.5)dnl FIXME: bugreport addr as third argument
+AC_INIT(xapian-bindings, 1.0.6)dnl FIXME: bugreport addr as third argument
 dnl 1.9 reduces Makefile.in size, and 1.9.5 was in Debian sarge
 dnl But the RPM spec file runs autoreconf, and SLES 9 has 1.8.3.
 AM_INIT_AUTOMAKE([1.8.3 -Wportability tar-ustar])
@@ -145,8 +145,6 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   esac
   SWIG_FLAGS="`$XAPIAN_CONFIG --swigflags` -Werror"
   AC_SUBST(SWIG_FLAGS)
-  SWIG_COREHEADERS="`$XAPIAN_CONFIG --swigheaders`"
-  AC_SUBST(SWIG_COREHEADERS)
 
   dnl Need perl in maintainer mode to generate the except.i file for python.
   AC_PATH_PROGS(PERL, ["${PERL-perl}"], [])
@@ -290,6 +288,10 @@ if test no != "$with_php" ; then
     AC_MSG_CHECKING([$PHP_CONFIG version])
     version=`$PHP_CONFIG --version 2>/dev/null`
     case $version in
+    4.*)
+      AC_MSG_RESULT([$version])
+      PHP_MAJOR_VERSION=4
+      ;;
     5.*)
       AC_MSG_RESULT([$version])
       PHP_MAJOR_VERSION=5
@@ -297,7 +299,7 @@ if test no != "$with_php" ; then
     *)
       AC_MSG_RESULT([$version (not supported)])
       if test yes = "$with_php" ; then
-	AC_MSG_ERROR([Only PHP5 is supported ($PHP_CONFIG reports version $version)])
+	AC_MSG_ERROR([Only PHP4 and PHP5 are supported ($PHP_CONFIG reports version $version)])
       fi
       with_php=no
       ;;

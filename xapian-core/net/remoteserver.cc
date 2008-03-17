@@ -48,7 +48,7 @@ RemoteServer::RemoteServer(const std::vector<std::string> &dbpaths,
 			   Xapian::timeout active_timeout_,
 			   Xapian::timeout idle_timeout_,
 			   bool writable)
-    : RemoteConnection(fdin_, fdout_, std::string()),
+    : RemoteConnection(fdin_, fdout_, ""),
       db(NULL), wdb(NULL),
       active_timeout(active_timeout_), idle_timeout(idle_timeout_)
 {

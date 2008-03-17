@@ -1,3 +1,0 @@
-id : field=msgid hash boolean=Q unique=Q
-title : weight=3 index truncate=80 field=caption
-body : index truncate=200 field=sample

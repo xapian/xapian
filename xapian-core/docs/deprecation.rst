@@ -1,7 +1,7 @@
 .. This document was originally written by Richard Boulton.
 
 .. Copyright (C) 2007 Lemur Consulting Ltd
-.. Copyright (C) 2007,2008 Olly Betts
+.. Copyright (C) 2007 Olly Betts
 
 ===========
 Deprecation
@@ -21,7 +21,7 @@ requires a modification to the external interface.
 
 We aim to make such changes in a way that allows developers to work against a
 stable API, while avoiding the need for the Xapian developers to maintain too
-many old historical interface artefacts.  This document describes the process
+many old historical interface artifacts.  This document describes the process
 we use to deprecate old pieces of the API, lists parts of the API which are
 currently marked as deprecated, and also describes parts of the API which have
 been deprecated for some time, and are now removed from the Xapian library.
@@ -136,6 +136,30 @@ Native C++ API
 ========== ====== =================================== ========================================================================
 Deprecated Remove Feature name                        Upgrade suggestion and comments
 ========== ====== =================================== ========================================================================
+0.9.6      1.1.0  xapian_version_string()             Use ``version_string()`` instead.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+0.9.6      1.1.0  xapian_major_version()              Use ``major_version()`` instead.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+0.9.6      1.1.0  xapian_minor_version()              Use ``minor_version()`` instead.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+0.9.6      1.1.0  xapian_revision()                   Use ``revision()`` instead.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.0.0      1.1.0  Enquire::include_query_terms        Use ``Enquire::INCLUDE_QUERY_TERMS`` instead.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.0.0      1.1.0  Enquire::use_exact_termfreq         Use ``Enquire::USE_EXACT_TERMFREQ`` instead.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.0.0      1.1.0  Error::get_errno()                  Use ``Error::get_error_string()`` instead.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.0.0      1.1.0  The Quartz backend                  Use the Flint backend instead.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.0.0      1.1.0  Quartz::open()                      Use ``Flint::open()`` instead.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.0.0      1.1.0  quartzcheck                         Use ``xapian-check`` instead.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.0.0      1.1.0  quartzcompact                       Use ``xapian-compact`` instead.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.0.3      1.1.0  Enquire::register_match_decider()   This method didn't do anything, so just remove calls to it!
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
 1.0.3      1.2.0? ``Database::positionlist_begin()``  This check is quite expensive, and often you don't care.  If you
                   throwing ``RangeError`` if the      do it's easy to check - just open a ``TermListIterator`` for the
                   term specified doesn't index the    document and use ``skip_to()`` to check if the term is there.
@@ -145,6 +169,9 @@ Deprecated Remove Feature name                        Upgrade suggestion and com
                   throwing ``DocNotFoundError`` if    do, it's easy to check - just call ``Database::get_document()`` with the
                   the document specified doesn't      specified document ID.
                   exist.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.0.4      1.1.0  Query::Query(Query::op, Query)      This constructor isn't useful for any currently implemented
+                                                      ``Query::op``.
 ========== ====== =================================== ========================================================================
 
 
@@ -156,8 +183,43 @@ Bindings
 ========== ====== ======== ============================ ======================================================================
 Deprecated Remove Language Feature name                 Upgrade suggestion and comments
 ========== ====== ======== ============================ ======================================================================
+0.9.6      1.1.0  SWIG     xapian_version_string()      Use ``version_string()`` instead.
+                  [#swig]_
+---------- ------ -------- ---------------------------- ----------------------------------------------------------------------
+0.9.6      1.1.0  SWIG     xapian_major_version()       Use ``major_version()`` instead.
+                  [#swig]_
+---------- ------ -------- ---------------------------- ----------------------------------------------------------------------
+0.9.6      1.1.0  SWIG     xapian_minor_version()       Use ``minor_version()`` instead.
+                  [#swig]_
+---------- ------ -------- ---------------------------- ----------------------------------------------------------------------
+0.9.6      1.1.0  SWIG     xapian_revision()            Use ``revision()`` instead.
+                  [#swig]_
+---------- ------ -------- ---------------------------- ----------------------------------------------------------------------
+1.0.0      1.1.0  SWIG     ESet::get_termname()         Use ``ESet::get_term()`` instead.  This change is intended to bring
+                  [#swig]_                              the ESet iterators in line with other term iterators, which all
+                                                        support ``get_term()`` instead of ``get_termname()``.
+---------- ------ -------- ---------------------------- ----------------------------------------------------------------------
+1.0.0      1.1.0  Python   get_description()            All ``get_description()`` methods have been renamed to ``__str__()``,
+                                                        so the normal python ``str()`` function can be used.
+---------- ------ -------- ---------------------------- ----------------------------------------------------------------------
+1.0.0      1.1.0  Python   MSetItem.get_*()             All these methods are deprecated, in favour of properties.
+                                                        To convert, just change ``msetitem.get_FOO()`` to ``msetitem.FOO``
+---------- ------ -------- ---------------------------- ----------------------------------------------------------------------
+1.0.0      1.1.0  Python   Enquire.get_matching_terms   Replaced by ``Enquire.matching_terms``, for consistency with
+                                                        rest of Python API.
+---------- ------ -------- ---------------------------- ----------------------------------------------------------------------
+1.0.0      1.1.0  SWIG     Error::get_errno()           Use ``Error::get_error_string()`` instead.
+                  [#swig]_
+---------- ------ -------- ---------------------------- ----------------------------------------------------------------------
+0.9.6      1.1.0  SWIG     MSet::get_document_id()      Use ``MSet::get_docid()`` instead.
+                  [#swg2]_
+---------- ------ -------- ---------------------------- ----------------------------------------------------------------------
 1.0.4      1.2.0  Python   Non-pythonic iterators       Use the pythonic iterators instead.
 ========== ====== ======== ============================ ======================================================================
+
+.. [#swig] This affects all SWIG-generated bindings (currently: Python, PHP, Ruby, Tcl8 and CSharp)
+
+.. [#swg2] This affects all SWIG-generated bindings except those for Ruby, support for which was added after the function waan-core.
 
 Omega
 -----
@@ -167,6 +229,7 @@ Omega
 ========== ====== =================================== ========================================================================
 Deprecated Remove Feature name                        Upgrade suggestion and comments
 ========== ====== =================================== ========================================================================
+0.9.5      1.1.0  scriptindex index=nopos             Use ``indexnopos`` instead.
 ========== ====== =================================== ========================================================================
 
 Features removed from Xapian
@@ -249,35 +312,6 @@ Removed Feature name                        Upgrade suggestion and comments
         ``const char *`` exception.         ``get_msg()`` on the caught object.  If you need to build with either version,
                                             catch both (you'll need to compile the part which catches ``QueryParserError``
                                             conditionally, since this exception isn't present in the 0.9 release series).
-------- ----------------------------------- ----------------------------------------------------------------------------------
-1.1.0   xapian_version_string()             Use ``version_string()`` instead.
-------- ----------------------------------- ----------------------------------------------------------------------------------
-1.1.0   xapian_major_version()              Use ``major_version()`` instead.
-------- ----------------------------------- ----------------------------------------------------------------------------------
-1.1.0   xapian_minor_version()              Use ``minor_version()`` instead.
-------- ----------------------------------- ----------------------------------------------------------------------------------
-1.1.0   xapian_revision()                   Use ``revision()`` instead.
-------- ----------------------------------- ----------------------------------------------------------------------------------
-1.1.0   Enquire::include_query_terms        Use ``Enquire::INCLUDE_QUERY_TERMS`` instead.
-------- ----------------------------------- ----------------------------------------------------------------------------------
-1.1.0   Enquire::use_exact_termfreq         Use ``Enquire::USE_EXACT_TERMFREQ`` instead.
-------- ----------------------------------- ----------------------------------------------------------------------------------
-1.1.0   Error::get_errno()                  Use ``Error::get_error_string()`` instead.
-------- ----------------------------------- ----------------------------------------------------------------------------------
-1.1.0   Enquire::register_match_decider()   This method didn't do anything, so just remove calls to it!
-------- ----------------------------------- ----------------------------------------------------------------------------------
-1.1.0   Query::Query(Query::op, Query)      This constructor isn't useful for any currently implemented
-                                            ``Query::op``.
-------- ----------------------------------- ----------------------------------------------------------------------------------
-1.1.0   The Quartz backend                  Use the Flint backend instead.
-------- ----------------------------------- ----------------------------------------------------------------------------------
-1.1.0   Quartz::open()                      Use ``Flint::open()`` instead.
-------- ----------------------------------- ----------------------------------------------------------------------------------
-1.1.0   quartzcheck                         Use ``xapian-check`` instead.
-------- ----------------------------------- ----------------------------------------------------------------------------------
-1.1.0   quartzcompact                       Use ``xapian-compact`` instead.
-------- ----------------------------------- ----------------------------------------------------------------------------------
-1.1.0   quartzdump                          Use ``xapian-inspect`` instead.
 ======= =================================== ==================================================================================
 
 
@@ -333,43 +367,9 @@ Removed Language Feature name                 Upgrade suggestion and comments
 ------- -------- ---------------------------- --------------------------------------------------------------------------------
 1.0.0   SWIG     Stem::stem_word(word)        Use ``Stem::operator()(word)`` instead. [#callable]_
         [#rswg]_
-------- -------- ---------------------------- --------------------------------------------------------------------------------
-1.1.0   SWIG     xapian_version_string()      Use ``version_string()`` instead.
-        [#rswg]_
-------- -------- ---------------------------- --------------------------------------------------------------------------------
-1.1.0   SWIG     xapian_major_version()       Use ``major_version()`` instead.
-        [#rswg]_
-------- -------- ---------------------------- --------------------------------------------------------------------------------
-1.1.0   SWIG     xapian_minor_version()       Use ``minor_version()`` instead.
-        [#rswg]_
-------- -------- ---------------------------- --------------------------------------------------------------------------------
-1.1.0   SWIG     xapian_revision()            Use ``revision()`` instead.
-        [#rswg]_
-------- -------- ---------------------------- --------------------------------------------------------------------------------
-1.1.0   SWIG     ESetIterator::get_termname() Use ``ESetIterator::get_term()`` instead.  This change is intended to
-        [#rswg]_                              bring the ESet iterators in line with other term iterators, which all
-                                              support ``get_term()`` instead of ``get_termname()``.
-      
-------- -------- ---------------------------- --------------------------------------------------------------------------------
-1.1.0   Python   get_description()            All ``get_description()`` methods have been renamed to ``__str__()``,
-                                              so the normal python ``str()`` function can be used.
-------- -------- ---------------------------- --------------------------------------------------------------------------------
-1.1.0   Python   MSetItem.get_*()             All these methods are deprecated, in favour of properties.
-                                              To convert, just change ``msetitem.get_FOO()`` to ``msetitem.FOO``
-------- -------- ---------------------------- --------------------------------------------------------------------------------
-1.1.0   Python   Enquire.get_matching_terms   Replaced by ``Enquire.matching_terms``, for consistency with
-                                              rest of Python API.
-------- -------- ---------------------------- --------------------------------------------------------------------------------
-1.1.0   SWIG     Error::get_errno()           Use ``Error::get_error_string()`` instead.
-        [#rswg]_
-------- -------- ---------------------------- --------------------------------------------------------------------------------
-1.1.0   SWIG     MSet::get_document_id()      Use ``MSet::get_docid()`` instead.
-        [#rsw2]_
 ======= ======== ============================ ================================================================================
 
 .. [#rswg] This affects all SWIG generated bindings (currently: Python, PHP, Ruby, Tcl8 and CSharp)
-
-.. [#rsw2] This affects all SWIG-generated bindings except those for Ruby, support for which was added after the function waan-core.
 
 .. [#rsw3] This affects all SWIG generated bindings except those for Ruby, which was added after the function was deprecated in Xapian-core, and PHP, where empty is a reserved word (and therefore, the method remains "is_empty").
 
@@ -388,6 +388,4 @@ Removed Feature name                        Upgrade suggestion and comments
 1.0.0   scriptindex -u                      ``-u`` was ignored for compatibility with 0.7.5 and earlier, so just remove it.
 ------- ----------------------------------- ----------------------------------------------------------------------------------
 1.0.0   scriptindex -q                      ``-q`` was ignored for compatibility with 0.6.1 and earlier, so just remove it.
-------- ----------------------------------- ----------------------------------------------------------------------------------
-1.1.0   scriptindex index=nopos             Use ``indexnopos`` instead.
 ======= =================================== ==================================================================================

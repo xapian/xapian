@@ -72,7 +72,6 @@ _xapian$(PYTHON_SO): _xapian.la
 	$(LIBTOOL) --config > libtoolconfig.tmp
 	. ./libtoolconfig.tmp; module=yes; eval shlibext=$$shrext_cmds; \
 	  cp $$objdir/_xapian$$shlibext _xapian$(PYTHON_SO)
-	rm -f libtoolconfig.tmp
 
 CLEANFILES = _xapian$(PYTHON_SO) xapian.py xapian.pyc xapian.pyo testsuite.pyc
 

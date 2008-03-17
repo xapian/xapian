@@ -6,6 +6,7 @@ noinst_HEADERS +=\
 	harness/backendmanager.h\
 	harness/backendmanager_flint.h\
 	harness/backendmanager_inmemory.h\
+	harness/backendmanager_quartz.h\
 	harness/backendmanager_local.h\
 	harness/backendmanager_multi.h\
 	harness/backendmanager_remoteprog.h\
@@ -29,6 +30,10 @@ endif
 
 if BUILD_BACKEND_INMEMORY
 testharness_sources += harness/backendmanager_inmemory.cc
+endif
+
+if BUILD_BACKEND_QUARTZ
+testharness_sources += harness/backendmanager_quartz.cc
 endif
 
 if BUILD_BACKEND_REMOTE

@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2003,2004,2005,2006,2007 Olly Betts
  * Copyright 2006,2007,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -29,6 +29,7 @@
 #include <vector>
 
 #include <xapian/base.h>
+#include <xapian/deprecated.h>
 #include <xapian/types.h>
 #include <xapian/termiterator.h>
 #include <xapian/visibility.h>
@@ -167,6 +168,14 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	template <class Iterator>
 	Query(Query::op op_, Iterator qbegin, Iterator qend,
 	      Xapian::termcount parameter = 0);
+
+	/** Apply the specified operator to a single Xapian::Query object.
+	 *
+	 *  @deprecated This method is deprecated because it isn't useful,
+	 *  since none of the current query operators can be usefully
+	 *  applied to a single subquery with a parameter value.
+	 */
+	XAPIAN_DEPRECATED(Query(Query::op op_, Xapian::Query q));
 
 	/** Apply the specified operator to a single Xapian::Query object, with
 	 *  a double parameter.

@@ -1,6 +1,6 @@
 /* flint_lock.cc: database locking for flint backend.
  *
- * Copyright (C) 2005,2006,2007,2008 Olly Betts
+ * Copyright (C) 2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,6 +29,17 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/types.h>
+// FIXME:1.1: It's unclear why this workaround is needed here, yet not needed
+// in configure or the other files which include sys/socket.h and use
+// SOCKLEN_T.  The commit comment doesn't help, and there's no obvious related
+// email thread.  I think the way forward is to drop this in 1.1.0, and if it
+// is required, we can work out why this file is different and either fix that
+// or add a "safesyssocket.h" header to replace <sys/socket.h> uses with.
+#ifdef _NEWLIB_VERSION
+// Workaround bug in newlib (at least some versions) - socklen_t doesn't
+// get defined if you just "#include <sys/socket.h>".
+#include <netinet/in.h>
+#endif
 #include <sys/socket.h>
 #include <sys/wait.h>
 #include <signal.h>
@@ -41,7 +52,7 @@
 #endif
 
 FlintLock::reason
-FlintLock::lock(bool exclusive, std::string & explanation) {
+FlintLock::lock(bool exclusive) {
     // Currently we only support exclusive locks.
     (void)exclusive;
     Assert(exclusive);
@@ -57,7 +68,6 @@ FlintLock::lock(bool exclusive, std::string & explanation) {
 		       NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     if (hFile != INVALID_HANDLE_VALUE) return SUCCESS;
     if (GetLastError() == ERROR_ALREADY_EXISTS) return INUSE;
-    explanation = "";
     return UNKNOWN;
 #elif defined __EMX__
     APIRET rc;
@@ -68,36 +78,20 @@ FlintLock::lock(bool exclusive, std::string & explanation) {
 		 NULL);
     if (rc == NO_ERROR) return SUCCESS;
     if (rc == ERROR_ACCESS_DENIED) return INUSE;
-    explanation = "";
     return UNKNOWN;
 #else
     Assert(fd == -1);
     int lockfd = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0600);
-    if (lockfd < 0) {
-	// Couldn't open lockfile.
-	explanation = std::string("Couldn't open lockfile: ") + strerror(errno);
-	return UNKNOWN;
-    }
+    if (lockfd < 0) return UNKNOWN; // Couldn't open lockfile.
 
     int fds[2];
     if (socketpair(AF_UNIX, SOCK_STREAM, PF_UNSPEC, fds) < 0) {
 	// Couldn't create socketpair.
-	explanation = std::string("Couldn't create socketpair: ") + strerror(errno);
 	close(lockfd);
 	return UNKNOWN;
     }
 
     pid_t child = fork();
-
-    if (child == -1) {
-	// Couldn't fork.
-	explanation = std::string("Couldn't fork: ") + strerror(errno);
-	close(lockfd);
-	close(fds[0]);
-	close(fds[1]);
-	return UNKNOWN;
-    }
-
     if (child == 0) {
 	// Child process.
 	close(fds[0]);
@@ -151,6 +145,13 @@ FlintLock::lock(bool exclusive, std::string & explanation) {
 
     close(lockfd);
 
+    if (child == -1) {
+	// Couldn't fork.
+	close(fds[0]);
+	close(fds[1]);
+	return UNKNOWN;
+    }
+
     // Parent process.
     close(fds[1]);
     while (true) {
@@ -161,14 +162,10 @@ FlintLock::lock(bool exclusive, std::string & explanation) {
 	    if (why == SUCCESS) break; // Got the lock.
 	    close(fds[0]);
 	    return why;
-	} else if (n == 0) {
-	    // EOF means the lock failed.
-	    explanation = std::string("Got EOF reading from child process");
-	    close(fds[0]);
-	    return UNKNOWN;
-	} else if (errno != EINTR) {
-	    // Treat unexpected errors from read() as failure to get the lock.
-	    explanation = std::string("Error reading from child process: ") + strerror(errno);
+	}
+	if (n == 0 || errno != EINTR) {
+	    // EOF means the lock failed; we also treat unexpected errors from
+	    // read() the same way.
 	    close(fds[0]);
 	    return UNKNOWN;
 	}

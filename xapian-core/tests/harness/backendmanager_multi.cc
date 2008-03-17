@@ -1,7 +1,7 @@
 /** @file backendmanager_multi.cc
  * @brief BackendManager subclass for multi databases.
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -46,13 +46,12 @@ BackendManagerMulti::createdb_multi(const vector<string> & files)
 {
     create_dir_if_needed(".multi");
 
-    string dbname = "db";
+    string dbpath = ".multi/db";
     vector<string>::const_iterator i;
     for (i = files.begin(); i != files.end(); ++i) {
-	dbname += "__";
-	dbname += *i;
+	dbpath += "__";
+	dbpath += *i;
     }
-    string dbpath = ".multi/" + dbname;
 
     if (file_exists(dbpath)) return dbpath;
 
@@ -72,14 +71,15 @@ BackendManagerMulti::createdb_multi(const vector<string> & files)
     // multi-db combining them contains the documents in the expected order.
     Xapian::WritableDatabase dbs[NUMBER_OF_SUB_DBS];
     for (size_t n = 0; n < NUMBER_OF_SUB_DBS; ++n) {
-	string subdbdir = dbname;
+	string subdbdir = dbpath;
 	subdbdir += "___";
 	subdbdir += om_tostring(n);
 #ifdef XAPIAN_HAS_FLINT_BACKEND
-	dbs[n] = Xapian::Flint::open(".multi/" + subdbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+	dbs[n] = Xapian::Flint::open(subdbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 	out << "flint " << subdbdir << '\n';
 #else
-# error No local backend enabled
+	dbs[n] = Xapian::Quartz::open(subdbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+	out << "quartz " << subdbdir << '\n';
 #endif
     }
     out.close();

@@ -1,6 +1,6 @@
 /**
  Copyright (c) 2003, Technology Concepts & Design, Inc.
- Copyright (c) 2006,2008, Olly Betts
+ Copyright (c) 2006, Olly Betts
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -114,6 +114,10 @@ public class Enquire {
 
     public TermIterator getMatchingTerms(MSetIterator itr) throws XapianError {
         return new TermIterator(itr.getDocumentId(), XapianJNI.enquire_get_matching_terms_begin_by_msetiterator(id, itr.id), XapianJNI.enquire_get_matching_terms_end_by_msetiterator(id, itr.id));
+    }
+
+    public void registerMatchDecider(String name, MatchDecider md) throws XapianError {
+        XapianJNI.enquire_register_match_decider(id, name, md);
     }
 
     public String toString() {

@@ -85,11 +85,7 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable_base {
 	}
 
 	/** Write the btree base file to disk. */
-	void write_to_file(const std::string &filename,
-			   char base_letter,
-			   const std::string &tablename,
-			   int changes_fd,
-			   const std::string * changes_tail);
+	void write_to_file(const std::string &filename);
 
 	/* Methods dealing with the bitmap */
 	/** true iff block n was free at the start of the transaction on
@@ -100,12 +96,6 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable_base {
 	void free_block(uint4 n);
 
 	uint4 next_free_block();
-
-	/** Find the first changed block at or after position *n.
-	 *
-	 *  Returns true if such a block was found, or false otherwise.
-	 */
-	bool find_changed_block(uint4 * n);
 
 	bool block_free_now(uint4 n);
 

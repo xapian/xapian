@@ -1,7 +1,7 @@
 /** @file  remoteconnection.cc
  *  @brief RemoteConnection class used by the remote backend.
  */
-/* Copyright (C) 2006,2007,2008 Olly Betts
+/* Copyright (C) 2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,6 @@
 #include "safefcntl.h"
 #include "safeunistd.h"
 
-#include <algorithm>
 #include <string>
 
 #include "omassert.h"
@@ -34,18 +33,87 @@
 #include "omtime.h"
 #include "remoteconnection.h"
 #include "serialise.h"
-#include "socket_utils.h"
-#include "utils.h"
 
 #ifndef __WIN32__
 # include "safesysselect.h"
-#else
-# include "msvc_posix_wrapper.h"
 #endif
 
 using namespace std;
 
-#define CHUNKSIZE 4096
+#ifdef __WIN32__
+// __STDC_SECURE_LIB__ doesn't appear to be publicly documented, but appears
+// to be a good idea.  We cribbed this test from the python sources - see, for
+// example, http://svn.python.org/view?rev=47223&view=rev
+# if defined _MSC_VER && _MSC_VER >= 1400 && defined __STDC_SECURE_LIB__
+#  include <stdlib.h> // For _set_invalid_parameter_handler(), etc.
+#  include <crtdbg.h> // For _CrtSetReportMode, etc.
+
+/** A dummy invalid parameter handler which ignores the error. */
+static void dummy_handler(const wchar_t*,
+			  const wchar_t*,
+			  const wchar_t*,
+			  unsigned int,
+			  uintptr_t)
+{
+}
+
+// Recent versions of MSVC call an "_invalid_parameter_handler" if a
+// CRT function receives an invalid parameter.  However, there are cases
+// where this is totally reasonable.  To avoid the application dying,
+// you just need to instantiate the MSVCIgnoreInvalidParameter class in
+// the scope where you want MSVC to ignore invalid parameters.
+class MSVCIgnoreInvalidParameter {
+    _invalid_parameter_handler old_handler;
+    int old_report_mode;
+
+  public:
+    MSVCIgnoreInvalidParameter() {
+	// Install a dummy handler to avoid the program dying.
+	old_handler = _set_invalid_parameter_handler(dummy_handler);
+	// Make sure that no dialog boxes appear.
+	old_report_mode = _CrtSetReportMode(_CRT_ASSERT, 0);
+    }
+
+    ~MSVCIgnoreInvalidParameter() {
+	// Restore the previous settings.
+	_set_invalid_parameter_handler(old_handler);
+	_CrtSetReportMode(_CRT_ASSERT, old_report_mode);
+    }
+};
+# else
+// Mingw seems to be free of this insanity, so for this and older MSVC versions
+// define a dummy class to allow MSVCIgnoreInvalidParameter to be used
+// unconditionally.
+struct MSVCIgnoreInvalidParameter {
+    // Provide an explicit constructor so this isn't a POD struct - this seems
+    // to prevent GCC warning about an unused variable whenever we instantiate
+    // this class.
+    MSVCIgnoreInvalidParameter() { }
+};
+# endif
+
+/// Convert an fd (which might be a socket) to a WIN32 HANDLE.
+static HANDLE fd_to_handle(int fd) {
+    MSVCIgnoreInvalidParameter invalid_handle_value_is_ok;
+    HANDLE handle = (HANDLE)_get_osfhandle(fd);
+    // On WIN32, a socket fd isn't the same as a non-socket fd - in fact
+    // it's already a HANDLE!
+    return (handle != INVALID_HANDLE_VALUE ? handle : (HANDLE)fd);
+}
+
+/// Close an fd, which might be a socket.
+static void close_fd_or_socket(int fd) {
+    MSVCIgnoreInvalidParameter invalid_fd_value_is_ok;
+    if (close(fd) == -1 && errno == EBADF) {
+	// Bad file descriptor - probably because the fd is actually
+	// a socket.
+	closesocket(fd);
+    }
+}
+#else
+// There's no distinction between sockets and other fds on UNIX.
+inline void close_fd_or_socket(int fd) { close(fd); }
+#endif
 
 RemoteConnection::RemoteConnection(int fdin_, int fdout_,
 				   const string & context_)
@@ -78,14 +146,9 @@ RemoteConnection::read_at_least(size_t min_len, const OmTime & end_time)
     if (buffer.length() >= min_len) return;
 
 #ifdef __WIN32__
-    // FIXME: transforming handles this way isn't recommended. In particular
-    // file offsets are not preserved through subsequent ReadFile calls, so
-    // we have to do this manually (although this will only manifest when using 
-    // an actual file).
     HANDLE hin = fd_to_handle(fdin);
-    off_t ofs;
     do {
-	char buf[CHUNKSIZE];
+	char buf[4096];
 	DWORD received;
 	BOOL ok = ReadFile(hin, buf, sizeof(buf), &received, &overlapped);
 	if (!ok) {
@@ -109,12 +172,6 @@ RemoteConnection::read_at_least(size_t min_len, const OmTime & end_time)
 	    throw Xapian::NetworkError("Received EOF", context);
 
 	buffer.append(buf, received);
-
-	// We must move the offset in the OVERLAPPED structure manually.
-	ofs = (((off_t)overlapped.OffsetHigh)<<32) + overlapped.Offset + received;
-	overlapped.Offset = (DWORD)(ofs & 0xFFFFFFFF);
-	overlapped.OffsetHigh = (DWORD)(ofs >> 32);
-
     } while (buffer.length() < min_len);
 #else
     // If there's no end_time, just use blocking I/O.
@@ -124,7 +181,7 @@ RemoteConnection::read_at_least(size_t min_len, const OmTime & end_time)
     }
 
     while (true) {
-	char buf[CHUNKSIZE];
+	char buf[4096];
 	ssize_t received = read(fdin, buf, sizeof(buf));
 
 	if (received > 0) {
@@ -207,13 +264,8 @@ RemoteConnection::send_message(char type, const string &message, const OmTime & 
     header += encode_length(message.size());
 
 #ifdef __WIN32__
-    // FIXME: transforming handles this way isn't recommended. In particular
-    // file offsets are not preserved through subsequent WriteFile calls, so
-    // we have to do this manually (although this will only manifest when using 
-    // an actual file).
     HANDLE hout = fd_to_handle(fdout);
     const string * str = &header;
-    off_t ofs;
 
     size_t count = 0;
     while (true) {
@@ -237,12 +289,6 @@ RemoteConnection::send_message(char type, const string &message, const OmTime & 
 	}
 
 	count += n;
-
-	// We must move the offset in the OVERLAPPED structure manually.
-	ofs = (((off_t)overlapped.OffsetHigh)<<32) + overlapped.Offset + n;
-	overlapped.Offset = (DWORD)(ofs & 0xFFFFFFFF);
-	overlapped.OffsetHigh = (DWORD)(ofs >> 32);
-
 	if (count == str->size()) {
 	    if (str == &message || message.empty()) return;
 	    str = &message;
@@ -313,169 +359,6 @@ RemoteConnection::send_message(char type, const string &message, const OmTime & 
 #endif
 }
 
-void
-RemoteConnection::send_file(char type, const string &file, const OmTime & end_time)
-{
-    DEBUGCALL(REMOTE, void, "RemoteConnection::send_file",
-	      type << ", " << file << ", " << end_time);
-
-#ifdef __WIN32__
-    int fd = msvc_posix_open(file.c_str(), O_RDONLY);
-#else
-    int fd = open(file.c_str(), O_RDONLY);
-#endif
-    if (fd == -1) throw Xapian::NetworkError("File not found: " + file, errno);
-    fdcloser closefd(fd);
-
-    off_t size;
-    {
-	struct stat sb;
-	if (fstat(fd, &sb) == -1)
-	    throw Xapian::NetworkError("Couldn't stat file: " + file, errno);
-	size = sb.st_size;
-    }
-
-    char buf[CHUNKSIZE];
-    buf[0] = type;
-    size_t c = 1;
-    {
-	string enc_size = encode_length(size);
-	c += enc_size.size();
-	// An encoded length should be just a few bytes.
-	AssertRel(c, <=, sizeof(buf));
-	memcpy(buf + 1, enc_size.data(), enc_size.size());
-    }
-
-#ifdef __WIN32__
-    // FIXME: transforming handles this way isn't recommended. In particular
-    // file offsets are not preserved through subsequent WriteFile calls, so
-    // we have to do this manually (although this will only manifest when using 
-    // an actual file).
-    HANDLE hout = fd_to_handle(fdout);
-    off_t ofs;
-    size_t count = 0;
-    while (true) {
-	DWORD n;
-	BOOL ok = WriteFile(hout, buf + count, c - count, &n, &overlapped);
-	if (!ok) {
-	    int errcode = GetLastError();
-	    if (errcode != ERROR_IO_PENDING)
-		throw Xapian::NetworkError("write failed", context, -errcode);
-	    // Just wait for the data to be received, or a timeout.
-	    DWORD waitrc;
-	    waitrc = WaitForSingleObject(overlapped.hEvent, calc_read_wait_msecs(end_time));
-	    if (waitrc != WAIT_OBJECT_0) {
-		DEBUGLINE(REMOTE, "write: timeout has expired");
-		throw Xapian::NetworkTimeoutError("Timeout expired while trying to write", context);
-	    }
-	    // Get the final result.
-	    if (!GetOverlappedResult(hout, &overlapped, &n, FALSE))
-		throw Xapian::NetworkError("Failed to get overlapped result",
-					   context, -(int)GetLastError());
-	}
-
-	count += n;
-
-	// We must move the offset in the OVERLAPPED structure manually.
-	ofs = (((off_t)overlapped.OffsetHigh)<<32) + overlapped.Offset + n;
-	overlapped.Offset = (DWORD)(ofs & 0xFFFFFFFF);
-	overlapped.OffsetHigh = (DWORD)(ofs >> 32);
-
-	if (count == c) {
-	    if (size == 0) return;
-
-	    ssize_t res;
-	    do {
-		res = read(fd, buf, sizeof(buf));
-	    } while (res < 0 && errno == EINTR);
-	    if (res < 0) throw Xapian::NetworkError("read failed", errno);
-	    c = size_t(res);
-
-	    size -= c;
-	    count = 0;
-	}
-    }
-#else
-    // If there's no end_time, just use blocking I/O.
-    if (fcntl(fdout, F_SETFL, end_time.is_set() ? O_NONBLOCK : 0) < 0) {
-	throw Xapian::NetworkError("Failed to set fdout non-blocking-ness",
-				   context, errno);
-    }
-
-    fd_set fdset;
-    size_t count = 0;
-    while (true) {
-	// We've set write to non-blocking, so just try writing as there
-	// will usually be space.
-	ssize_t n = write(fdout, buf + count, c - count);
-
-	if (n >= 0) {
-	    count += n;
-	    if (count == c) {
-		if (size == 0) return;
-
-		ssize_t res;
-		do {
-		    res = read(fd, buf, sizeof(buf));
-		} while (res < 0 && errno == EINTR);
-		if (res < 0) throw Xapian::NetworkError("read failed", errno);
-		c = size_t(res);
-
-		size -= c;
-		count = 0;
-	    }
-	    continue;
-	}
-
-	DEBUGLINE(REMOTE, "write gave errno = " << strerror(errno));
-	if (errno == EINTR) continue;
-
-	if (errno != EAGAIN)
-	    throw Xapian::NetworkError("write failed", context, errno);
-
-	// Use select to wait until there is space or the timeout is reached.
-	FD_ZERO(&fdset);
-	FD_SET(fdout, &fdset);
-
-	OmTime time_diff(end_time - OmTime::now());
-	if (time_diff.sec < 0) {
-	    DEBUGLINE(REMOTE, "write: timeout has expired");
-	    throw Xapian::NetworkTimeoutError("Timeout expired while trying to write", context);
-	}
-
-	struct timeval tv;
-	tv.tv_sec = time_diff.sec;
-	tv.tv_usec = time_diff.usec;
-
-	int select_result = select(fdout + 1, 0, &fdset, &fdset, &tv);
-
-	if (select_result < 0) {
-	    if (errno == EINTR) {
-		// EINTR means select was interrupted by a signal.
-		// We could just retry the select, but it's easier to just
-		// retry the write.
-		continue;
-	    }
-	    throw Xapian::NetworkError("select failed during write", context, errno);
-	}
-
-	if (select_result == 0)
-	    throw Xapian::NetworkTimeoutError("Timeout expired while trying to write", context);
-    }
-#endif
-}
-
-char
-RemoteConnection::sniff_next_message_type(const OmTime & end_time)
-{
-    DEBUGCALL(REMOTE, char, "RemoteConnection::get_message",
-	      "[result], " << end_time);
-
-    read_at_least(1, end_time);
-    char type = buffer[0];
-    RETURN(type);
-}
-
 char
 RemoteConnection::get_message(string &result, const OmTime & end_time)
 {
@@ -513,162 +396,23 @@ RemoteConnection::get_message(string &result, const OmTime & end_time)
     RETURN(type);
 }
 
-char
-RemoteConnection::get_message_chunked(const OmTime & end_time)
-{
-    DEBUGCALL(REMOTE, char, "RemoteConnection::get_message_chunked", end_time);
-
-    read_at_least(2, end_time);
-    off_t len = static_cast<unsigned char>(buffer[1]);
-    if (len != 0xff) {
-	chunked_data_left = len;
-	char type = buffer[0];
-	buffer.erase(0, 2);
-	RETURN(type);
-    }
-    read_at_least(len + 2, end_time);
-    len = 0;
-    string::const_iterator i = buffer.begin() + 2;
-    unsigned char ch;
-    int shift = 0;
-    do {
-	// Allow a full 64 bits for message lengths - anything longer than that
-	// is almost certainly a corrupt value.
-	if (i == buffer.end() || shift > 63) {
-	    // Something is very wrong...
-	    throw Xapian::NetworkError("Insane message length specified!");
-	}
-	ch = *i++;
-	len |= off_t(ch & 0x7f) << shift;
-	shift += 7;
-    } while ((ch & 0x80) == 0);
-    len += 255;
-    chunked_data_left = len;
-    char type = buffer[0];
-    size_t header_len = (i - buffer.begin());
-    buffer.erase(0, header_len);
-    RETURN(type);
-}
-
-bool
-RemoteConnection::get_message_chunk(string &result, size_t at_least,
-				    const OmTime & end_time)
-{
-    DEBUGCALL(REMOTE, bool, "RemoteConnection::get_message_chunk",
-	      result << ", " << at_least << ", " << end_time);
-
-    if (at_least <= result.size()) RETURN(true);
-    at_least -= result.size();
-
-    bool read_enough = (off_t(at_least) <= chunked_data_left);
-    if (!read_enough) at_least = size_t(chunked_data_left);
-
-    read_at_least(at_least, end_time);
-
-    size_t retlen(size_t(min(off_t(buffer.size()), chunked_data_left)));
-    result.append(buffer, 0, retlen);
-    buffer.erase(0, retlen);
-    chunked_data_left -= retlen;
-
-    RETURN(read_enough);
-}
-
-/** Write n bytes from block pointed to by p to file descriptor fd. */
-static void write_all(int fd, const char * p, size_t n)
-{
-    while (n) {
-	int c = write(fd, p, n);
-	if (c < 0) {
-	    if (errno == EINTR) continue;
-	    throw Xapian::NetworkError("Error writing to file", errno);
-	}
-	p += c;
-	n -= c;
-    }
-}
-
-char
-RemoteConnection::receive_file(const string &file, const OmTime & end_time)
-{
-    DEBUGCALL(REMOTE, char, "RemoteConnection::receive_file",
-	      file << ", " << end_time);
-
-#ifdef __WIN32__
-    // Do we want to be able to delete the file during writing?
-    int fd = msvc_posix_open(file.c_str(), O_WRONLY|O_CREAT|O_TRUNC);
-#else
-    int fd = open(file.c_str(), O_WRONLY|O_CREAT|O_TRUNC, 0666);
-#endif
-    if (fd == -1) throw Xapian::NetworkError("Couldn't open file for writing: " + file, errno);
-    fdcloser closefd(fd);
-
-    read_at_least(2, end_time);
-    size_t len = static_cast<unsigned char>(buffer[1]);
-    read_at_least(len + 2, end_time);
-    if (len != 0xff) {
-	write_all(fd, buffer.data() + 2, len);
-	char type = buffer[0];
-	buffer.erase(0, len + 2);
-	RETURN(type);
-    }
-    len = 0;
-    string::const_iterator i = buffer.begin() + 2;
-    unsigned char ch;
-    int shift = 0;
-    do {
-	if (i == buffer.end() || shift > 28) {
-	    // Something is very wrong...
-	    throw Xapian::NetworkError("Insane message length specified!");
-	}
-	ch = *i++;
-	len |= size_t(ch & 0x7f) << shift;
-	shift += 7;
-    } while ((ch & 0x80) == 0);
-    len += 255;
-    size_t header_len = (i - buffer.begin());
-    size_t remainlen(min(buffer.size() - header_len, len));
-    write_all(fd, buffer.data() + header_len, remainlen);
-    len -= remainlen;
-    char type = buffer[0];
-    buffer.erase(0, header_len + remainlen);
-    while (len > 0) {
-	read_at_least(min(len, size_t(CHUNKSIZE)), end_time);
-	remainlen = min(buffer.size(), len);
-	write_all(fd, buffer.data(), remainlen);
-	len -= remainlen;
-	buffer.erase(0, remainlen);
-    }
-    RETURN(type);
-}
-
 void
 RemoteConnection::do_close()
 {
     DEBUGCALL(REMOTE, void, "RemoteConnection::do_close", "");
 
-    if (fdin == -1 && fdout == -1) return;
-
-    if (fdin >= 0) {
-	// We can be called from a destructor, so we can't throw an exception.
-	try {
-	    /* If we can't send the close-down message right away, then just
-	     * close the connection as the other end will cope.
-	     */
-	    send_message(MSG_SHUTDOWN, "", OmTime::now());
-	} catch (...) {
-	}
-	close_fd_or_socket(fdin);
-
-	// If the same fd is used in both directions, don't close it twice.
-	if (fdin == fdout) fdout = -1;
-
-	fdin = -1;
+    if (fdout == -1) return;
+    // We can be called from a destructor, so we can't throw an exception.
+    try {
+	/* If we can't send the close-down message right away, then just
+	 * close the connection as the other end will cope.
+	 */
+	send_message(MSG_SHUTDOWN, "", OmTime::now());
+    } catch (...) {
     }
-
-    if (fdout >= 0) {
-	close_fd_or_socket(fdout);
-	fdout = -1;
-    }
+    close_fd_or_socket(fdin);
+    if (fdin != fdout) close_fd_or_socket(fdout);
+    fdout = -1;
 }
 
 #ifdef __WIN32__

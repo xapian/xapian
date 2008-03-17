@@ -1,6 +1,6 @@
 README for Xapian/Visual C++ Tools
 ==================================
-2008-03-03
+2007-10-29
 
 Make files, some extra headers and associated tools for compiling Xapian on
 Win32 using the Microsoft Visual C++ compilers. This is particularly useful
@@ -103,6 +103,14 @@ After checking out the sources, copy the contents of the
 You will then need to edit "xapian\xapian-core\win32\config.mak" as
 described in step 4 in the previous section ("How do I get the released
 sources?").
+
+You will also need to build the makedepend.exe program as this is only included as a
+binary with the released sources. To do this, install the tools below and do the following
+(assuming the directory structure above):
+
+cd \xapian\xapian-maintainer-tools\win32msvc\makedepend
+nmake -f makedepend.mak
+copy makedepend.exe \xapian\xapian-core\win32
 
 What do I need to compile it?
 =============================
@@ -207,19 +215,9 @@ nmake DEBUG=1
 
 This affects some lines in config.mak.
 
-If you would like verbose Xapian debugging enabled, add -D XAPIAN_DEBUG_VERBOSE to the CPPFLAGS_EXTRA define in config.mak. You will also need to set up correct environment variables so the Xapian debugger knows where to write its log file. Type the following at a command prompt:
+It is also possible to manually create a project in the Visual C++ Express Edition IDE.
 
-set XAPIAN_DEBUG_LOG=c:/xap.log
-set XAPIAN_DEBUG_FLAGS=-1
 
-This will create a log file at c:/xap.log and set the debugging bitmask to show all possible messages. To filter out some of the messages, look at om_debug_types in omdebug.h and set XAPIAN_DEBUG_FLAGS accordingly. For example, to show only OM_DEBUG_REMOTE and OM_DEBUG_API messages, you will need a bitmask according to their position in the table: 1000001000000 in binary (4160 decimal), so:
-
-set XAPIAN_DEBUG_FLAGS=4160
-
-Using the Visual C++ IDE
-========================
-
-It is also possible to manually create a project in the Visual C++ Express Edition IDE. To build part of Xapian in the IDE you should add to the project all the .cc files in the api, backends, common, expand, languages, matcher, net, queryparser and unicode subfolders of xapian-core, then add the file containing the main loop for whatever you are building (for example if you're building xapian-check, add xapian-check.cc). You will need to examine config.mak to see what include paths to use and any other necessary compiler switches. 
 
 
 Please send any bugfixes to Charlie Hull at Lemur Consulting:

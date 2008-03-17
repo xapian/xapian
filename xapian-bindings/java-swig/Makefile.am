@@ -39,6 +39,7 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	NumberValueRangeProcessor.java\
 	PositionIterator.java\
 	PostingIterator.java\
+	Quartz.java\
 	Query.java\
 	QueryParser.java\
 	Remote.java\

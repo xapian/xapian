@@ -2,7 +2,7 @@
 /* python/extra.i: Xapian scripting python interface additional code.
  *
  * Copyright (C) 2003,2004,2005 James Aylett
- * Copyright (C) 2005,2006,2007,2008 Olly Betts
+ * Copyright (C) 2005,2006,2007 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -149,6 +149,29 @@ class MSetItem(_SequenceMixIn):
         if self._document is None:
             self._document = self._mset._get_hit_internal(self.rank - self._firstitem).get_document()
         return self._document
+
+    # Deprecated methods: to be removed in 1.1.0
+    def get_docid(self):
+        "Deprecated method: use the `docid` property instead."
+        return self.docid
+    def get_weight(self):
+        "Deprecated method: use the `weight` property instead."
+        return self.weight
+    def get_rank(self):
+        "Deprecated method: use the `rank` property instead."
+        return self.rank
+    def get_percent(self):
+        "Deprecated method: use the `percent` property instead."
+        return self.percent
+    def get_collapse_key(self):
+        "Deprecated method: use the `collapse_key` property instead."
+        return self.collapse_key
+    def get_collapse_count(self):
+        "Deprecated method: use the `collapse_count` property instead."
+        return self.collapse_count
+    def get_document(self):
+        "Deprecated method: use the `document` property instead."
+        return self.document
 
     document = property(_get_document, doc="The document object corresponding to this MSet item.")
 
@@ -495,6 +518,10 @@ def _enquire_gen_iter(self, which):
                     self.get_matching_terms_end(which),
                     return_strings=True)
 Enquire.matching_terms = _enquire_gen_iter
+
+# get_matching_terms() is deprecated, but does just the same as
+# matching_terms()
+Enquire.get_matching_terms = _enquire_gen_iter
 
 # Modify Query to add an "__iter__()" method.
 def _query_gen_iter(self):

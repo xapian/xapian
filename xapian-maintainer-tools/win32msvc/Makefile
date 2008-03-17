@@ -85,7 +85,6 @@ CLEAN: COPYMAKFILES
    -@erase ..\include\xapian\errordispatch.h
    -@erase $(XAPIAN_DEBUG_OR_RELEASE)\*.idb
    rmdir $(XAPIAN_DEBUG_OR_RELEASE)\ /s /q
-   -@erase makedepend.exe
    echo All Win32 parts have been cleaned!
 
 DISTCLEAN: CLEAN
@@ -123,10 +122,9 @@ COPYMAKFILES:
    if exist $(XAPIAN_APPLICATIONS) copy config.h.omega.win32 $(XAPIAN_APPLICATIONS)\omega\config.h
 
 # Test for tools that we MUST have   
-TESTFORTOOLS: makedepend.exe
+TESTFORTOOLS:
 # Perl is needed for header generation
    if not exist $(PERL_EXE) exit(1) 
-   
    
 # Header files generated automatically from various .in files
 MAKEHEADERS: ..\include\xapian\error.h ..\include\xapian\version.h
@@ -141,10 +139,4 @@ MAKEHEADERS: ..\include\xapian\error.h ..\include\xapian\version.h
 
 ..\include\xapian\version.h: version.h.in ..\configure.ac
     $(PERL_EXE) genversion.pl ..\configure.ac version.h.in ..\include\xapian\version.h
-    
-makedepend.exe: 
-    cd makedepend
-    nmake -f makedepend.mak
-    copy makedepend.exe ..
-    cd ..
 

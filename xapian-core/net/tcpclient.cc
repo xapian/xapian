@@ -1,8 +1,8 @@
-/* tcpclient.cc: Open a TCP connection to a server.
+/* tcpclient.cc: implementation of NetClient which connects to a remote server.
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2004,2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,13 +22,11 @@
 
 #include <config.h>
 
-#include "remoteconnection.h"
-#include "tcpclient.h"
-#include <xapian/error.h>
-
 #include "safeerrno.h"
 #include "safefcntl.h"
-#include "socket_utils.h"
+
+#include "tcpclient.h"
+#include <xapian/error.h>
 
 #include <string.h>
 #ifndef __WIN32__
@@ -39,15 +37,27 @@
 # include "safesysselect.h"
 #endif
 
+#include "utils.h"
+
+std::string
+TcpClient::get_tcpcontext(const std::string & hostname, int port)
+{
+    return "remote:tcp(" + hostname + ":" + om_tostring(port) + ")";
+}
+
 int
 TcpClient::open_socket(const std::string & hostname, int port,
-		       int msecs_timeout_connect, bool tcp_nodelay)
+		       int msecs_timeout_connect)
 {
+    // Note: can't use RemoteDatabase::timeout because it won't yet have
+    // been initialised.
+
     // FIXME: timeout on gethostbyname() ?
     struct hostent *host = gethostbyname(hostname.c_str());
 
     if (host == 0) {
 	throw Xapian::NetworkError(std::string("Couldn't resolve host ") + hostname,
+		get_tcpcontext(hostname, port),
 #ifdef __WIN32__
 		socket_errno()
 #else
@@ -64,7 +74,7 @@ TcpClient::open_socket(const std::string & hostname, int port,
     int socketfd = socket(PF_INET, SOCK_STREAM, 0);
 
     if (socketfd < 0) {
-	throw Xapian::NetworkError("Couldn't create socket", socket_errno());
+	throw Xapian::NetworkError("Couldn't create socket", get_tcpcontext(hostname, port), socket_errno());
     }
 
     struct sockaddr_in remaddr;
@@ -80,11 +90,11 @@ TcpClient::open_socket(const std::string & hostname, int port,
 #endif
     if (rc < 0) {
 	int saved_errno = socket_errno(); // note down in case close hits an error
-	close_fd_or_socket(socketfd);
-	throw Xapian::NetworkError("Couldn't set O_NDELAY", saved_errno);
+	close(socketfd);
+	throw Xapian::NetworkError("Couldn't set O_NDELAY", get_tcpcontext(hostname,  port), saved_errno);
     }
 
-    if (tcp_nodelay) {
+    {
 	int optval = 1;
 	// 4th argument might need to be void* or char* - cast it to char*
 	// since C++ allows implicit conversion to void* but not from void*.
@@ -92,8 +102,8 @@ TcpClient::open_socket(const std::string & hostname, int port,
 		       reinterpret_cast<char *>(&optval),
 		       sizeof(optval)) < 0) {
 	    int saved_errno = socket_errno(); // note down in case close hits an error
-	    close_fd_or_socket(socketfd);
-	    throw Xapian::NetworkError("Couldn't set TCP_NODELAY", saved_errno);
+	    close(socketfd);
+	    throw Xapian::NetworkError("Couldn't set TCP_NODELAY", get_tcpcontext(hostname,  port), saved_errno);
 	}
     }
 
@@ -107,8 +117,8 @@ TcpClient::open_socket(const std::string & hostname, int port,
 	if (socket_errno() != EINPROGRESS) {
 #endif
 	    int saved_errno = socket_errno(); // note down in case close hits an error
-	    close_fd_or_socket(socketfd);
-	    throw Xapian::NetworkError("Couldn't connect", saved_errno);
+	    close(socketfd);
+	    throw Xapian::NetworkError("Couldn't connect", get_tcpcontext(hostname, port), saved_errno);
 	}
 
 	// wait for input to be available.
@@ -123,8 +133,8 @@ TcpClient::open_socket(const std::string & hostname, int port,
 	retval = select(socketfd + 1, 0, &fdset, &fdset, &tv);
 
 	if (retval == 0) {
-	    close_fd_or_socket(socketfd);
-	    throw Xapian::NetworkTimeoutError("Couldn't connect", ETIMEDOUT);
+	    close(socketfd);
+	    throw Xapian::NetworkTimeoutError("Couldn't connect", get_tcpcontext(hostname, port), ETIMEDOUT);
 	}
 
 	int err = 0;
@@ -137,12 +147,12 @@ TcpClient::open_socket(const std::string & hostname, int port,
 
 	if (retval < 0) {
 	    int saved_errno = socket_errno(); // note down in case close hits an error
-	    close_fd_or_socket(socketfd);
-	    throw Xapian::NetworkError("Couldn't get socket options", saved_errno);
+	    close(socketfd);
+	    throw Xapian::NetworkError("Couldn't get socket options", get_tcpcontext(hostname, port), saved_errno);
 	}
 	if (err) {
-	    close_fd_or_socket(socketfd);
-	    throw Xapian::NetworkError("Couldn't connect", err);
+	    close(socketfd);
+	    throw Xapian::NetworkError("Couldn't connect", get_tcpcontext(hostname, port), err);
 	}
     }
 
@@ -153,4 +163,9 @@ TcpClient::open_socket(const std::string & hostname, int port,
     fcntl(socketfd, F_SETFL, 0);
 #endif
     return socketfd;
+}
+
+TcpClient::~TcpClient()
+{
+    do_close();
 }

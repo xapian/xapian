@@ -8,7 +8,7 @@ dnl 2.59 was released the same day as 2.58 to fix a problem
 AC_PREREQ(2.59)
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT(xapian-core, 1.0.5)dnl FIXME: bugreport addr as third argument
+AC_INIT(xapian-core, 1.0.6)dnl FIXME: bugreport addr as third argument
 dnl Extract from the libtool info manual:
 dnl
 dnl Here are a set of rules to help you update your library version information:
@@ -68,6 +68,7 @@ dnl 16:0:1 1.0.2 New QueryParser flags, etc
 dnl 17:0:2 1.0.3 Database::get_metadata(), etc
 dnl 18:0:3 1.0.4 New Query ctor for OP_SCALE_WEIGHT
 dnl 19:0:4 1.0.5 Enquire copyable/assignable + new methods; new Sorter class
+dnl 20:0:5 1.0.6 Unicode::toupper(); OP_VALUE_GE/OP_VALUE_LE
 LIBRARY_VERSION_INFO=19:0:4
 AC_SUBST(LIBRARY_VERSION_INFO)
 
@@ -639,6 +640,7 @@ AC_DEFUN([XAPIAN_BACKEND_ENABLE],
 dnl When adding a new backend, update INSTALL too.
 XAPIAN_BACKEND_ENABLE(flint)
 XAPIAN_BACKEND_ENABLE(inmemory)
+XAPIAN_BACKEND_ENABLE(quartz)
 XAPIAN_BACKEND_ENABLE(remote)
 
 if test yes = "$enable_backend_flint" ; then
@@ -764,6 +766,7 @@ dnl Turn off compilation of anything that we don't have the requirements for
 
 dnl Set conditionals to specify what we compile
 
+AM_CONDITIONAL(BUILD_BACKEND_QUARTZ, test yes = "$enable_backend_quartz")
 AM_CONDITIONAL(BUILD_BACKEND_FLINT, test yes = "$enable_backend_flint")
 AM_CONDITIONAL(BUILD_BACKEND_INMEMORY, test yes = "$enable_backend_inmemory")
 AM_CONDITIONAL(BUILD_BACKEND_REMOTE, test yes = "$enable_backend_remote")
@@ -1108,7 +1111,7 @@ dnl Generate include/xapian/version.h:
 dnl MAIN_VERSION is VERSION without any _svn6789 suffix.
 MAIN_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$REVISION"
 cxxcpp_flags=-I.
-for backend in FLINT INMEMORY REMOTE ; do
+for backend in QUARTZ FLINT INMEMORY REMOTE ; do
   val=`eval echo "\\\$BUILD_BACKEND_${backend}_TRUE"`
   if test -z "$val" ; then
     cxxcpp_flags="$cxxcpp_flags -DXAPIAN_HAS_${backend}_BACKEND"

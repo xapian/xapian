@@ -1,7 +1,6 @@
 # Tests of Python-specific parts of the xapian bindings.
 #
 # Copyright (C) 2007 Lemur Consulting Ltd
-# Copyright (C) 2008 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -168,11 +167,11 @@ def test_mset_iter():
                     context("testing hit %d with deprecated APIs for sub-mset from %d, maxitems %d" % (num, start, maxitems))
                     hit = submset.get_hit(num)
                     expect(len(item[:]), 5)
-                    expect(item[0], hit.docid)
-                    expect(item[1], hit.weight)
-                    expect(item[2], hit.rank)
-                    expect(item[3], hit.percent)
-                    expect(item[4].get_data(), hit.document.get_data())
+                    expect(item[0], hit.get_docid())
+                    expect(item[1], hit.get_weight())
+                    expect(item[2], hit.get_rank())
+                    expect(item[3], hit.get_percent())
+                    expect(item[4].get_data(), hit.get_document().get_data())
                     num += 1
 
             # Check that the right number of items exist in the mset.

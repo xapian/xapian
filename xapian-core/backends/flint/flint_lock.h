@@ -66,13 +66,7 @@ class FlintLock {
     // Release any lock held when we're destroyed.
     ~FlintLock() { release(); }
 
-    /** Attempt to obtain the lock.
-     *
-     *  If the attempt fails with code "UNKNOWN", the string supplied in the
-     *  explanation parameter will be set to contain any details available of
-     *  the reason for the failure.
-     */
-    reason lock(bool exclusive, std::string & explanation);
+    reason lock(bool exclusive);
     void release();
 };
 

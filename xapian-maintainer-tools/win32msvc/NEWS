@@ -39,8 +39,3 @@ Xapian-core 0.9.6 (2006-05-15)
  
  * add version information to bindings DLLs
  * add xapian-check compilation
- 
- Xapian-core HEAD
- 
- * add makedepend to make files so no need for separate compilation
- * make sure tests do MAKE CLEAN properly

@@ -1,7 +1,7 @@
 /* backendmanager.h
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -86,9 +86,16 @@ class BackendManager {
     /// Get a writable flint database instance.
     Xapian::WritableDatabase getwritedb_flint(const std::string & name,
 					      const std::vector<std::string> &files);
+#endif
 
-    /// Get the path of a writable flint database instance.
-    std::string getwritedb_flint_path(const std::string & name);
+#ifdef XAPIAN_HAS_QUARTZ_BACKEND
+  protected:
+    std::string createdb_quartz(const std::vector<std::string> &dbnames);
+
+  public:
+    /// Get a writable quartz database instance.
+    Xapian::WritableDatabase getwritedb_quartz(const std::string & name,
+					       const std::vector<std::string> &files);
 #endif
 
   public:
@@ -100,7 +107,7 @@ class BackendManager {
 
     /** Get the database type currently in use.
      *
-     *  Current possible return values are "inmemory", "flint",
+     *  Current possible return values are "inmemory", "flint", "quartz",
      *  "none", "remoteprog", and "remotetcp".
      */
     virtual const char * get_dbtype() const { return "none"; } // FIXME: move out of header
@@ -121,9 +128,6 @@ class BackendManager {
 
     /// Get a writable database instance.
     virtual Xapian::WritableDatabase get_writable_database(const std::string & name, const std::string & file);
-
-    /// Get the path of a writable database instance, if such a thing exists.
-    virtual std::string get_writable_database_path(const std::string & name);
 
     /// Get a remote database instance with the specified timeout.
     virtual Xapian::Database get_remote_database(const std::vector<std::string> & files, unsigned int timeout);

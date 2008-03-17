@@ -59,7 +59,7 @@ class FlintPostListTable : public FlintTable {
 	 *                          access.
 	 */
 	FlintPostListTable(string path_, bool readonly_)
-	    : FlintTable("postlist", path_ + "/postlist.", readonly_) { }
+	    : FlintTable(path_ + "/postlist.", readonly_) { }
 
 	/// Merge added, removed, and changed entries.
 	void merge_changes(

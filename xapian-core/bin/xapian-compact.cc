@@ -1,6 +1,6 @@
 /* xapian-compact.cc: Compact a flint database, or merge and compact several.
  *
- * Copyright (C) 2004,2005,2006,2007,2008 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -88,7 +88,7 @@ class PostlistCursor : private FlintCursor {
     Xapian::termcount tf, cf;
 
     PostlistCursor(FlintTable *in, Xapian::docid offset_)
-	: FlintCursor(in), offset(offset_), firstdid(0)
+	: FlintCursor(in), offset(offset_)
     {
 	find_entry("");
 	next();
@@ -152,15 +152,14 @@ class PostlistCursorGt {
 };
 
 static void
-merge_postlists(const string & tablename,
-		FlintTable * out, vector<Xapian::docid>::const_iterator offset,
+merge_postlists(FlintTable * out, vector<Xapian::docid>::const_iterator offset,
 		vector<string>::const_iterator b, vector<string>::const_iterator e,
 		Xapian::docid tot_off)
 {
     flint_totlen_t tot_totlen = 0;
     priority_queue<PostlistCursor *, vector<PostlistCursor *>, PostlistCursorGt> pq;
     for ( ; b != e; ++b, ++offset) {
-	FlintTable *in = new FlintTable(tablename, *b, true);
+	FlintTable *in = new FlintTable(*b, true);
 	in->open();
 	if (in->get_entry_count()) {
 	    // PostlistCursor takes ownership of FlintTable in and is
@@ -201,19 +200,15 @@ merge_postlists(const string & tablename,
     out->add(string("", 1), tag);
 
     string last_key;
-    while (!pq.empty()) {
-	PostlistCursor * cur = pq.top();
-	pq.pop();
-	const string& key = cur->key;
-	if (!is_user_metadata_key(key)) {
+    while (true) {
+	PostlistCursor * cur = NULL;
+	if (!pq.empty()) {
+	    cur = pq.top();
+	    pq.pop();
+	}
+	if (!is_user_metadata_key(cur->key)) {
 	    pq.push(cur);
 	    break;
-	}
-	if (key == last_key) {
-	    cerr << "Warning: duplicate user metadata key - picking arbitrary tag value" << endl;
-	} else {
-	    out->add(key, cur->tag);
-	    last_key = key;
 	}
 	if (cur->next()) {
 	    pq.push(cur);
@@ -381,14 +376,13 @@ struct PrefixCompressedStringItorGt {
 };
 
 static void
-merge_spellings(const string & tablename,
-		FlintTable * out,
+merge_spellings(FlintTable * out,
 		vector<string>::const_iterator b,
 		vector<string>::const_iterator e)
 {
     priority_queue<MergeCursor *, vector<MergeCursor *>, CursorGt> pq;
     for ( ; b != e; ++b) {
-	FlintTable *in = new FlintTable(tablename, *b, true, DONT_COMPRESS, true);
+	FlintTable *in = new FlintTable(*b, true, DONT_COMPRESS, true);
 	in->open();
 	if (in->get_entry_count()) {
 	    // The MergeCursor takes ownership of FlintTable in and is
@@ -544,14 +538,13 @@ struct ByteLengthPrefixedStringItorGt {
 };
 
 static void
-merge_synonyms(const string & tablename,
-	       FlintTable * out,
+merge_synonyms(FlintTable * out,
 	       vector<string>::const_iterator b,
 	       vector<string>::const_iterator e)
 {
     priority_queue<MergeCursor *, vector<MergeCursor *>, CursorGt> pq;
     for ( ; b != e; ++b) {
-	FlintTable *in = new FlintTable(tablename, *b, true, DONT_COMPRESS, true);
+	FlintTable *in = new FlintTable(*b, true, DONT_COMPRESS, true);
 	in->open();
 	if (in->get_entry_count()) {
 	    // The MergeCursor takes ownership of FlintTable in and is
@@ -631,8 +624,7 @@ merge_synonyms(const string & tablename,
 }
 
 static void
-multimerge_postlists(const string & tablename,
-		     FlintTable * out, const char * tmpdir,
+multimerge_postlists(FlintTable * out, const char * tmpdir,
 		     Xapian::docid tot_off,
 		     vector<string> tmp, vector<Xapian::docid> off)
 {
@@ -653,11 +645,11 @@ multimerge_postlists(const string & tablename,
 
 	    // Don't compress temporary tables, even if the final table would
 	    // be.
-	    FlintTable tmptab(tablename, dest, false);
+	    FlintTable tmptab(dest, false);
 	    // Use maximum blocksize for temporary tables.
 	    tmptab.create_and_open(65536);
 
-	    merge_postlists(tablename, &tmptab, off.begin() + i, tmp.begin() + i, tmp.begin() + j, 0);
+	    merge_postlists(&tmptab, off.begin() + i, tmp.begin() + i, tmp.begin() + j, 0);
 	    if (c > 0) {
 		for (unsigned int k = i; k < j; ++k) {
 		    unlink((tmp[k] + "DB").c_str());
@@ -666,13 +658,13 @@ multimerge_postlists(const string & tablename,
 		}
 	    }
 	    tmpout.push_back(dest);
-	    tmptab.commit(1, -1);
+	    tmptab.commit(1);
 	}
 	swap(tmp, tmpout);
 	swap(off, newoff);
 	++c;
     }
-    merge_postlists(tablename, out, off.begin(), tmp.begin(), tmp.end(), tot_off);
+    merge_postlists(out, off.begin(), tmp.begin(), tmp.end(), tot_off);
     if (c > 0) {
 	for (size_t k = 0; k < tmp.size(); ++k) {
 	    unlink((tmp[k] + "DB").c_str());
@@ -683,14 +675,13 @@ multimerge_postlists(const string & tablename,
 }
 
 static void
-merge_docid_keyed(const string & tablename,
-		  FlintTable *out, const vector<string> & inputs,
+merge_docid_keyed(FlintTable *out, const vector<string> & inputs,
 		  const vector<Xapian::docid> & offset, bool lazy)
 {
     for (size_t i = 0; i < inputs.size(); ++i) {
 	Xapian::docid off = offset[i];
 
-	FlintTable in(tablename, inputs[i], true, DONT_COMPRESS, lazy);
+	FlintTable in(inputs[i], true, DONT_COMPRESS, lazy);
 	in.open();
 	if (in.get_entry_count() == 0) continue;
 
@@ -914,7 +905,7 @@ main(int argc, char **argv)
 	    dest += t->name;
 	    dest += '.';
 
-	    FlintTable out(t->name, dest, false, t->compress_strategy, t->lazy);
+	    FlintTable out(dest, false, t->compress_strategy, t->lazy);
 	    if (!t->lazy) {
 		out.create_and_open(block_size);
 	    } else {
@@ -954,30 +945,28 @@ main(int argc, char **argv)
 	    switch (t->type) {
 		case POSTLIST:
 		    if (multipass && inputs.size() > 3) {
-			multimerge_postlists(t->name, &out, destdir, tot_off,
+			multimerge_postlists(&out, destdir, tot_off,
 					     inputs, offset);
 		    } else {
-			merge_postlists(t->name, &out, offset.begin(),
+			merge_postlists(&out, offset.begin(),
 					inputs.begin(), inputs.end(),
 					tot_off);
 		    }
 		    break;
 		case SPELLING:
-		    merge_spellings(t->name, &out,
-				    inputs.begin(), inputs.end());
+		    merge_spellings(&out, inputs.begin(), inputs.end());
 		    break;
 		case SYNONYM:
-		    merge_synonyms(t->name, &out,
-				   inputs.begin(), inputs.end());
+		    merge_synonyms(&out, inputs.begin(), inputs.end());
 		    break;
 		default:
 		    // Position, Record, Termlist, Value
-		    merge_docid_keyed(t->name, &out, inputs, offset, t->lazy);
+		    merge_docid_keyed(&out, inputs, offset, t->lazy);
 		    break;
 	    }
 
 	    // Commit as revision 1.
-	    out.commit(1, -1);
+	    out.commit(1);
 
 	    cout << '\r' << t->name << ": ";
 	    off_t out_size = 0;

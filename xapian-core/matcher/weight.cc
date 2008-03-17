@@ -1,7 +1,7 @@
 /** @file weight.cc
  * @brief Xapian::Weight base class
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,8 +20,6 @@
 
 #include <config.h>
 
-#include "autoptr.h"
-
 #include "xapian/enquire.h"
 #include "weightinternal.h"
 
@@ -29,18 +27,17 @@ namespace Xapian {
 
 /* Xapian::Weight */
 
-Weight::~Weight()
-{
-    delete internal;
-}
+// FIXME:1.1: delete internal here
+Weight::~Weight() { }
 
 Weight *
 Weight::create(const Internal * internal_, Xapian::doclength querysize_,
 	       Xapian::termcount wqf_, const std::string & tname_) const
 {
-    AutoPtr<const Internal> auto_internal(internal_);
+    // FIXME:1.1: put internal_ into an AutoPtr here, so that it won't get
+    // leaked if an exception occurs in clone().
     Weight * new_weight = clone();
-    new_weight->internal = auto_internal.release();
+    new_weight->internal = internal_;
     new_weight->querysize = querysize_;
     new_weight->wqf = wqf_;
     new_weight->tname = tname_;

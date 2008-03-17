@@ -23,4 +23,5 @@ endif
 include backends/flint/Makefile.mk
 include backends/inmemory/Makefile.mk
 include backends/multi/Makefile.mk
+include backends/quartz/Makefile.mk
 include backends/remote/Makefile.mk

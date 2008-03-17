@@ -3,7 +3,6 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2004,2005,2006,2008 Olly Betts
- * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,13 +31,11 @@
 
 class BtreeCheck : public FlintTable {
     public:
-	static void check(const std::string & tablename,
-			  const std::string & path, int opts,
+	static void check(const string & name, int opts,
 			  std::ostream &out = std::cout);
     private:
-	BtreeCheck(const std::string & tablename_, const std::string &path_,
-		   bool readonly, std::ostream &out_)
-	    : FlintTable(tablename_, path_, readonly), out(out_) { }
+	BtreeCheck(const std::string &name_, bool readonly, std::ostream &out_)
+	    : FlintTable(name_, readonly), out(out_) { }
 
 	void block_check(Cursor_ * C_, int j, int opts);
 	int block_usage(const byte * p) const;
