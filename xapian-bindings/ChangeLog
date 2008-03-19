@@ -1,3 +1,9 @@
+Wed Mar 19 01:06:31 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* ruby/docs/Makefile.am: Ship simplematchdecider.rb.
+	* tcl8/docs/Makefile.am: Ship simpleexpand.tcl.
+
 Sun Mar 16 11:42:21 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS: Update for 1.0.6.
