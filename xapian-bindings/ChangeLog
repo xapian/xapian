@@ -1,3 +1,8 @@
+Wed Mar 19 01:02:21 GMT 2008  Olly Betts <olly@survex.com>
+
+	* ruby/docs/Makefile.am: Ship simplematchdecider.rb.
+	* tcl8/docs/Makefile.am: Ship simpleexpand.tcl.
+
 Wed Mar 12 09:01:04 GMT 2008  Olly Betts <olly@survex.com>
 
 	* java-swig/: Remove Quartz.* from svn:ignore.
