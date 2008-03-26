@@ -1,3 +1,17 @@
+Wed Mar 26 23:44:03 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc: Throw InvalidArgumentError upon
+	  RSet::add_document(0).
+	* tests/api_nodb.cc: Add regression test for this.
+	* matcher/rset.cc: Add assertion that we don't see a zero docid when
+	  calculating rtermfreqs.
+	* api/omdocument.cc: Use RETURN not return so debug logging sees the
+	  return value.
+	* backends/inmemory/inmemory_database.cc,
+	  backends/remote/remote-database.cc: Change exception throwing for
+	  a zero docid to assertions since zero docids should be checked for
+	  before we get to here.
+
 Wed Mar 26 06:17:51 GMT 2008  Olly Betts <olly@survex.com>
 
 	* common/postlist.h: Decree that PostList::check() must be passed a

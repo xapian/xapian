@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
  * Copyright 2006 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -434,7 +434,7 @@ InMemoryDatabase::get_doclength(Xapian::docid did) const
 TermList *
 InMemoryDatabase::open_term_list(Xapian::docid did) const
 {
-    if (did == 0) throw Xapian::InvalidArgumentError("Docid 0 invalid");
+    Assert(did != 0);
     if (!doc_exists(did)) {
 	// FIXME: the docid in this message will be local, not global
 	throw Xapian::DocNotFoundError(string("Docid ") + om_tostring(did) +
@@ -447,8 +447,8 @@ InMemoryDatabase::open_term_list(Xapian::docid did) const
 Xapian::Document::Internal *
 InMemoryDatabase::open_document(Xapian::docid did, bool /*lazy*/) const
 {
+    Assert(did != 0);
     // we're never lazy so ignore that flag
-    if (did == 0) throw Xapian::InvalidArgumentError("Docid 0 invalid");
     if (!doc_exists(did)) {
 	// FIXME: the docid in this message will be local, not global
 	throw Xapian::DocNotFoundError(string("Docid ") + om_tostring(did) +

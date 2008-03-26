@@ -87,6 +87,7 @@ RSet::empty() const
 void
 RSet::add_document(Xapian::docid did)
 {
+    if (did == 0) throw Xapian::InvalidArgumentError("Docid 0 not valid");
     internal->items.insert(did);
 }
 

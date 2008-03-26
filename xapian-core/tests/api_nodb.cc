@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
  * Copyright 2006 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -386,5 +386,19 @@ DEFINE_TESTCASE(scaleweight4, !backend) {
     Xapian::Query foo_nearly1(Xapian::Query::OP_SCALE_WEIGHT, foo, nearly1);
     TEST_EQUAL(foo_nearly1.get_description(), "Xapian::Query(foo)");
 
+    return true;
+}
+
+// Regression test - before 1.1.0, you could add docid 0 to an RSet.
+DEFINE_TESTCASE(rset3, !backend) {
+    Xapian::RSet rset;
+    TEST_EXCEPTION(Xapian::InvalidArgumentError, rset.add_document(0));
+    TEST(rset.empty());
+    TEST_EQUAL(rset.size(), 0);
+    rset.add_document(1);
+    rset.add_document(static_cast<Xapian::docid>(-1));
+    TEST_EXCEPTION(Xapian::InvalidArgumentError, rset.add_document(0));
+    TEST(!rset.empty());
+    TEST_EQUAL(rset.size(), 2);
     return true;
 }

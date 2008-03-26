@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2007 Olly Betts
+ * Copyright 2003,2007,2008 Olly Betts
  * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -38,6 +38,7 @@ RSetI::calculate_stats()
     Assert(!calculated_reltermfreqs);
     std::set<Xapian::docid>::const_iterator doc;
     for (doc = documents.begin(); doc != documents.end(); doc++) {
+	Assert(*doc);
 	DEBUGLINE(WTCALC, "Counting reltermfreqs in document " << *doc << " [ ");
 	if (dbroot) {
 	    AutoPtr<TermList> tl =
