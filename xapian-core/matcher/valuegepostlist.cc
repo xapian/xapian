@@ -1,7 +1,7 @@
 /** @file valuegepostlist.cc
  * @brief Return document ids matching a range test on a specified doc value.
  */
-/* Copyright 2007 Olly Betts
+/* Copyright 2007,2008 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -21,11 +21,12 @@
 
 #include <config.h>
 
+#include "valuegepostlist.h"
+
 #include "autoptr.h"
 #include "omassert.h"
 #include "document.h"
 #include "utils.h"
-#include "valuegepostlist.h"
 
 using namespace std;
 
@@ -67,24 +68,11 @@ ValueGePostList::check(Xapian::docid did, Xapian::weight, bool &valid)
 	return NULL;
     }
     AssertParanoid(lastdocid == db->get_lastdocid());
-    if (did > lastdocid) {
-	db = NULL;
-	valid = true;
-	return NULL;
-    }
-    try {
-	current = did;
-	AutoPtr<Xapian::Document::Internal> doc(db->open_document(current, true));
-	string v = doc->get_value(valno);
-	if (v >= begin) {
-	    valid = true;
-	    return NULL;
-	}
-    } catch (const Xapian::DocNotFoundError &) {
-	// That document doesn't exist.
-	// FIXME: this could throw and catch a lot of exceptions!
-    }
-    valid = false;
+    AssertRel(did, <=, lastdocid);
+    current = did;
+    AutoPtr<Xapian::Document::Internal> doc(db->open_document(current, true));
+    string v = doc->get_value(valno);
+    valid = (v >= begin);
     return NULL;
 }
 

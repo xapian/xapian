@@ -1,3 +1,14 @@
+Wed Mar 26 06:17:51 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/postlist.h: Decree that PostList::check() must be passed a
+	  docid which actually exists in the database (which is always true
+	  currently and seems unlikely to be an onerous requirement).
+	* matcher/valuegepostlist.cc,matcher/valuerangepostlist.cc: Take
+	  advantage of this new precondition to simplify the code.
+	* matcher/valuegepostlist.cc,matcher/valuerangepostlist.cc: Move the
+	  corresponding header first as our header inclusion order guidelines
+	  recommend.
+
 Thu Mar 13 01:58:18 GMT 2008  Olly Betts <olly@survex.com>
 
 	* common/stats.h,include/xapian/enquire.h,matcher/localmatch.cc,

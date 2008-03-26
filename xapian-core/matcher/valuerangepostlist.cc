@@ -1,7 +1,7 @@
 /** @file valuerangepostlist.cc
  * @brief Return document ids matching a range test on a specified doc value.
  */
-/* Copyright 2007 Olly Betts
+/* Copyright 2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,11 +20,12 @@
 
 #include <config.h>
 
+#include "valuerangepostlist.h"
+
 #include "autoptr.h"
 #include "omassert.h"
 #include "document.h"
 #include "utils.h"
-#include "valuerangepostlist.h"
 
 using namespace std;
 
@@ -137,24 +138,11 @@ ValueRangePostList::check(Xapian::docid did, Xapian::weight, bool &valid)
 	return NULL;
     }
     AssertParanoid(lastdocid == db->get_lastdocid());
-    if (did > lastdocid) {
-	db = NULL;
-	valid = true;
-	return NULL;
-    }
-    try {
-	current = did;
-	AutoPtr<Xapian::Document::Internal> doc(db->open_document(current, true));
-	string v = doc->get_value(valno);
-	if (v >= begin && v <= end) {
-	    valid = true;
-	    return NULL;
-	}
-    } catch (const Xapian::DocNotFoundError &) {
-	// That document doesn't exist.
-	// FIXME: this could throw and catch a lot of exceptions!
-    }
-    valid = false;
+    AssertRel(did, <=, lastdocid);
+    current = did;
+    AutoPtr<Xapian::Document::Internal> doc(db->open_document(current, true));
+    string v = doc->get_value(valno);
+    valid = (v >= begin && v <= end);
     return NULL;
 }
 
