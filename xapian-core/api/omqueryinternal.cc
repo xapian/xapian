@@ -658,6 +658,7 @@ Xapian::Query::Internal::Internal(op_t op_, Xapian::valueno valno,
 	// Map '<value> >= ""' to MatchAll.
 	op = OP_LEAF;
 	parameter = 0;
+	term_pos = 0;
 	wqf = 1;
     }
     validate_query();

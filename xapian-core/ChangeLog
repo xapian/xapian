@@ -1,3 +1,8 @@
+Thu Mar 27 06:18:52 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc: Initialise term_pos in previous change to
+	  fix valgrind-detected error.
+
 Thu Mar 27 06:13:01 GMT 2008  Olly Betts <olly@survex.com>
 
 	* api/omqueryinternal.cc: Optimise Query(OP_VALUE_GE, <n>, "") to
