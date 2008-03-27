@@ -22,13 +22,13 @@
  */
 
 #include <config.h>
-#include <stdio.h>
+
+#include "inmemory_database.h"
 
 #include "omdebug.h"
 
 #include "emptypostlist.h"
 #include "expandweight.h"
-#include "inmemory_database.h"
 #include "inmemory_document.h"
 #include "inmemory_alltermslist.h"
 #include "utils.h"

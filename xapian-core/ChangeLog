@@ -1,3 +1,11 @@
+Thu Mar 27 04:34:40 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/inmemory/inmemory_document.cc,
+	  backends/inmemory/inmemory_document.h: Rename "doc" member to
+	  "data" since it actually holds the document data.
+	* backends/inmemory/inmemory_database.cc: Remove unused <stdio.h>.
+	  Include "inmemory_database.h" right after <config.h>.
+
 Wed Mar 26 23:44:03 GMT 2008  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc: Throw InvalidArgumentError upon
