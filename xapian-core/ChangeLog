@@ -1,3 +1,16 @@
+Thu Mar 27 23:54:39 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/valuesetmatchdecider.cc,include/xapian.h,
+	  include/xapian/valuesetmatchdecider.h: Add ValueSetMatchDecider,
+	  which is a matchdecider which is intended to be passed a set of
+	  values to look for in documents, and selects documents based on
+	  the presence of those values.
+	* tests/api_db.cc,tests/api_nodb.cc: Add tests for the
+	  ValueSetMatchDecider - both for calling it standalone, and when
+	  passed to get_mset().
+	* api/Makefile.mk,include/Makefile.mk: Tell build system about new
+	  files.
+
 Thu Mar 27 06:18:52 GMT 2008  Olly Betts <olly@survex.com>
 
 	* api/omqueryinternal.cc: Initialise term_pos in previous change to

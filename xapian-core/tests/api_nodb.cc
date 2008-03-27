@@ -409,3 +409,23 @@ DEFINE_TESTCASE(opvaluege1, !backend) {
     TEST_STRINGS_EQUAL(query.get_description(), Xapian::Query::MatchAll.get_description());
     return true;
 }
+
+// Direct test of ValueSetMatchDecider
+DEFINE_TESTCASE(valuesetmatchdecider1, !backend) {
+    Xapian::ValueSetMatchDecider vsmd1(0, true);
+    vsmd1.add_value("42");
+    Xapian::ValueSetMatchDecider vsmd2(0, false);
+    vsmd2.add_value("42");
+
+    Xapian::Document doc;
+    TEST(!vsmd1(doc));
+    TEST(vsmd2(doc));
+    doc.add_value(0, "42");
+    TEST(vsmd1(doc));
+    TEST(!vsmd2(doc));
+    doc.add_value(0, "blah");
+    TEST(!vsmd1(doc));
+    TEST(vsmd2(doc));
+
+    return true;
+}

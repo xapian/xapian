@@ -1625,3 +1625,24 @@ DEFINE_TESTCASE(matchall1, backend) {
 
     return true;
 }
+
+// Test using a ValueSetMatchDecider
+DEFINE_TESTCASE(valuesetmatchdecider2, backend && !remote) {
+    Xapian::Database db(get_database("apitest_phrase"));
+    Xapian::Enquire enq(db);
+    enq.set_query(Xapian::Query("leav"));
+
+    Xapian::ValueSetMatchDecider vsmd1(1, true);
+    vsmd1.add_value("n");
+    Xapian::ValueSetMatchDecider vsmd2(1, false);
+    vsmd2.add_value("n");
+
+    Xapian::MSet mymset = enq.get_mset(0, 20);
+    mset_expect_order(mymset, 8, 6, 4, 5, 7, 10, 12, 11, 13, 9, 14);
+    mymset = enq.get_mset(0, 20, 0, NULL, &vsmd1);
+    mset_expect_order(mymset, 6, 12);
+    mymset = enq.get_mset(0, 20, 0, NULL, &vsmd2);
+    mset_expect_order(mymset, 8, 4, 5, 7, 10, 11, 13, 9, 14);
+
+    return true;
+}

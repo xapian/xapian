@@ -48,6 +48,7 @@
 #include <xapian/query.h>
 #include <xapian/queryparser.h>
 #include <xapian/sorter.h>
+#include <xapian/valuesetmatchdecider.h>
 
 // Stemming
 #include <xapian/stem.h>
