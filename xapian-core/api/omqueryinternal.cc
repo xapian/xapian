@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
  * Copyright 2006,2007,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -36,6 +36,7 @@
 #include <xapian/version.h>
 #include "vectortermlist.h"
 
+#include <iostream>
 #include <vector>
 #include <set>
 #include <algorithm>
@@ -653,6 +654,12 @@ Xapian::Query::Internal::Internal(op_t op_, Xapian::valueno valno,
 {
     if (op != OP_VALUE_GE && op != OP_VALUE_LE)
 	throw Xapian::InvalidArgumentError("This constructor is only meaningful for OP_VALUE_GE or OP_VALUE_LE");
+    if (op == OP_VALUE_GE && value.empty()) {
+	// Map '<value> >= ""' to MatchAll.
+	op = OP_LEAF;
+	parameter = 0;
+	wqf = 1;
+    }
     validate_query();
 }
 
