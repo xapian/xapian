@@ -1,3 +1,8 @@
+Fri Mar 28 21:03:30 GMT 2008  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Avoid needless call to pl->get_termfreq_est()
+	  if we're using a matchdecider or matchspy.
+
 Fri Mar 28 10:28:51 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* matcher/multimatch.cc: Set matches_lower_bound to 0 before
