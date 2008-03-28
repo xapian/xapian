@@ -416,16 +416,27 @@ DEFINE_TESTCASE(valuesetmatchdecider1, !backend) {
     vsmd1.add_value("42");
     Xapian::ValueSetMatchDecider vsmd2(0, false);
     vsmd2.add_value("42");
+    Xapian::ValueSetMatchDecider vsmd3(0, true);
+    vsmd3.add_value("42");
+    vsmd3.add_value("blah");
 
     Xapian::Document doc;
     TEST(!vsmd1(doc));
     TEST(vsmd2(doc));
+    TEST(!vsmd3(doc));
     doc.add_value(0, "42");
     TEST(vsmd1(doc));
     TEST(!vsmd2(doc));
+    TEST(vsmd3(doc));
     doc.add_value(0, "blah");
     TEST(!vsmd1(doc));
     TEST(vsmd2(doc));
+    TEST(vsmd3(doc));
+
+    vsmd3.remove_value("blah");
+    TEST(!vsmd3(doc));
+    doc.add_value(0, "42");
+    TEST(vsmd3(doc));
 
     return true;
 }
