@@ -434,36 +434,24 @@ class Enquire {
     static const int INCLUDE_QUERY_TERMS = 1;
     static const int USE_EXACT_TERMFREQ = 2;
 
-#ifdef XAPIAN_SWIG_DIRECTORS
     MSet get_mset(doccount first,
-	    doccount maxitems,
-	    doccount checkatleast = 0,
-	    const RSet *omrset = 0,
-	    const MatchDecider *mdecider = 0) const;
-    MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
-		  Xapian::doccount checkatleast,
-		  const RSet * omrset,
-		  const MatchDecider * mdecider,
-		  const MatchDecider * matchspy) const;
+		  doccount maxitems,
+		  doccount checkatleast = 0,
+		  const RSet * omrset = 0,
+		  const MatchDecider * mdecider = 0,
+		  const MatchDecider * matchspy =0) const;
     MSet get_mset(doccount first,
-	    doccount maxitems,
-	    const RSet *omrset,
-	    const MatchDecider *mdecider = 0) const;
+		  doccount maxitems,
+		  const RSet *omrset,
+		  const MatchDecider *mdecider = 0) const;
 
+#ifdef XAPIAN_SWIG_DIRECTORS
     ESet get_eset(termcount maxitems,
 	    const RSet &omrset,
 	    int flags = 0, double k = 1.0,
 	    const ExpandDecider *edecider = 0) const;
     ESet get_eset(termcount maxitems, const RSet & omrset, const Xapian::ExpandDecider * edecider) const;
 #else
-    MSet get_mset(doccount first,
-	    doccount maxitems,
-	    doccount checkatleast = 0,
-	    const RSet *omrset = 0) const;
-    MSet get_mset(doccount first,
-	    doccount maxitems,
-	    const RSet *omrset) const;
-
     ESet get_eset(termcount maxitems,
 	    const RSet &omrset,
 	    int flags = 0, double k = 1.0) const;
@@ -862,6 +850,7 @@ class Query {
 %ignore Xapian::DatabaseReplica::operator=;
 %ignore Xapian::DatabaseReplica::DatabaseReplica(const DatabaseReplica &);
 %include <xapian/replication.h>
+%include <xapian/valuesetmatchdecider.h>
 
 namespace Xapian {
 

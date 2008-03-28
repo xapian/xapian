@@ -918,9 +918,31 @@ def test_weight_normalise():
             expect(item.weight <= 1, True)
 
 
+def test_valuesetmatchdecider():
+    """Simple tests of the ValueSetMatchDecider class
+
+    """
+    md = xapian.ValueSetMatchDecider(0, True)
+    doc = xapian.Document()
+    expect(md(doc), False)
+
+    md.add_value('foo')
+    doc.add_value(0, 'foo')
+    expect(md(doc), True)
+
+    md.remove_value('foo')
+    expect(md(doc), False)
+
+    md = xapian.ValueSetMatchDecider(0, False)
+    expect(md(doc), True)
+
+    md.add_value('foo')
+    expect(md(doc), False)
+
+
 # The legacy sequence API is only supported for Python >= 2.3 so don't try
 # testing it for Python 2.2.
-vinfo = sys.version_info    
+vinfo = sys.version_info
 test_legacy_sequence_api = vinfo[0] > 2 or (vinfo[0] == 2 and vinfo[1] >= 3)
 
 # Run all tests (ie, callables with names starting "test_").
