@@ -69,7 +69,7 @@ dnl 17:0:2 1.0.3 Database::get_metadata(), etc
 dnl 18:0:3 1.0.4 New Query ctor for OP_SCALE_WEIGHT
 dnl 19:0:4 1.0.5 Enquire copyable/assignable + new methods; new Sorter class
 dnl 20:0:5 1.0.6 Unicode::toupper(); OP_VALUE_GE/OP_VALUE_LE
-LIBRARY_VERSION_INFO=19:0:4
+LIBRARY_VERSION_INFO=20:0:5
 AC_SUBST(LIBRARY_VERSION_INFO)
 
 dnl Check the build directory doesn't contain a space, so we die early with
