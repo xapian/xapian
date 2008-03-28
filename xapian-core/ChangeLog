@@ -1,3 +1,7 @@
+Fri Mar 28 02:41:45 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: Update version info to match 1.0.6.
+
 Fri Mar 28 00:12:48 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/omenquire.cc,include/xapian/enquire.h: Merge two of the
