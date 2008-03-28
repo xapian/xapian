@@ -970,14 +970,6 @@ Enquire::set_sort_by_relevance_then_key(Xapian::Sorter * sorter, bool ascending)
 MSet
 Enquire::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		  Xapian::doccount check_at_least, const RSet *rset,
-		  const MatchDecider *mdecider) const
-{
-    return get_mset(first, maxitems, check_at_least, rset, mdecider, NULL);
-}
-
-MSet
-Enquire::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
-		  Xapian::doccount check_at_least, const RSet *rset,
 		  const MatchDecider *mdecider,
 		  const MatchDecider *matchspy) const
 {

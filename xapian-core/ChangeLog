@@ -1,3 +1,11 @@
+Fri Mar 28 00:12:48 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/omenquire.cc,include/xapian/enquire.h: Merge two of the
+	  get_mset() variants into one, with default arguments, which has
+	  exactly the same effect.  We added the two variants to preserve
+	  ABI compatibility, and now we're branched for 1.1 this is no
+	  longer necessary.
+
 Thu Mar 27 23:54:39 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/valuesetmatchdecider.cc,include/xapian.h,
