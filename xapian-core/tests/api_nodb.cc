@@ -415,6 +415,7 @@ DEFINE_TESTCASE(valuesetmatchdecider1, !backend) {
     Xapian::ValueSetMatchDecider vsmd1(0, true);
     vsmd1.add_value("42");
     Xapian::ValueSetMatchDecider vsmd2(0, false);
+    vsmd2.remove_value("nosuch"); // Test removing a value which isn't present.
     vsmd2.add_value("42");
     Xapian::ValueSetMatchDecider vsmd3(0, true);
     vsmd3.add_value("42");
@@ -433,9 +434,14 @@ DEFINE_TESTCASE(valuesetmatchdecider1, !backend) {
     TEST(vsmd2(doc));
     TEST(vsmd3(doc));
 
+    vsmd3.remove_value("nosuch"); // Test removing a value which isn't present.
     vsmd3.remove_value("blah");
+    TEST(!vsmd1(doc));
+    TEST(vsmd2(doc));
     TEST(!vsmd3(doc));
     doc.add_value(0, "42");
+    TEST(vsmd1(doc));
+    TEST(!vsmd2(doc));
     TEST(vsmd3(doc));
 
     return true;

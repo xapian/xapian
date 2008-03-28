@@ -1,3 +1,9 @@
+Fri Mar 28 21:37:27 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_nodb.cc: Test ValueSetMatchDecider::remove_value() for a
+	  value which isn't in the set.  Test that removing a value doesn't
+	  affect other values in the set.
+
 Fri Mar 28 21:03:30 GMT 2008  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: Avoid needless call to pl->get_termfreq_est()
