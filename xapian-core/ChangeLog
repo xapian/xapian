@@ -1,3 +1,13 @@
+Fri Mar 28 10:28:51 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/multimatch.cc: Set matches_lower_bound to 0 before
+	  starting the match process if there is a match decider or spy;
+	  previously, the lower_bound wasn't being reduced in the presence
+	  of a match decider unless all the potential results were
+	  retrieved.
+	* tests/api_db.cc: Extend matchfunctor1 to check the bounds and
+	  estimates returned; includes a regression test for the above.
+
 Fri Mar 28 09:09:54 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/api_nodb.cc: Extend tests to check ValueSetMatchDecider
