@@ -1,3 +1,10 @@
+Sat Mar 29 00:46:13 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_db.cc: Test matchfunctor bounds in combination with
+	  collapsing and percentage cutoff.  Also, range check
+	  get_matches_estimated rather than checking it's exactly the value
+	  currently returned.
+
 Fri Mar 28 21:37:27 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/api_nodb.cc: Test ValueSetMatchDecider::remove_value() for a

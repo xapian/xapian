@@ -287,7 +287,8 @@ DEFINE_TESTCASE(matchfunctor1, backend && !remote) {
     TEST_EQUAL(mymset.size(), 0);
     TEST_EQUAL(mymset.get_matches_lower_bound(), 0);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 6);
-    TEST_EQUAL(mymset.get_matches_estimated(), 6);
+    TEST(mymset.get_matches_estimated() > 0);
+    TEST(mymset.get_matches_estimated() <= 6);
 
     // Check that the bounds are appropriate if we ask for only one hit.
     // (Regression test - until SVN 10256, we didn't reduce the lower_bound
@@ -297,7 +298,8 @@ DEFINE_TESTCASE(matchfunctor1, backend && !remote) {
     TEST(mymset.get_matches_lower_bound() >= 1);
     TEST(mymset.get_matches_lower_bound() <= 3);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 6);
-    TEST_EQUAL(mymset.get_matches_estimated(), 6);
+    TEST(mymset.get_matches_estimated() > 0);
+    TEST(mymset.get_matches_estimated() <= 6);
 
     // Check that the other documents don't satisfy the condition.
     for (Xapian::docid did = 1; did < docid_checked.size(); ++did) {
@@ -305,6 +307,39 @@ DEFINE_TESTCASE(matchfunctor1, backend && !remote) {
 	    TEST(!myfunctor(db.get_document(did)));
 	}
     }
+
+    // Check that the bounds are appropriate if a collapse key is used.
+    // Use a value which is never set so we don't actually discard anything.
+    enquire.set_collapse_key(99);
+    mymset = enquire.get_mset(0, 1, 0, &myfunctor);
+    TEST_EQUAL(mymset.size(), 1);
+    TEST(mymset.get_matches_lower_bound() >= 1);
+    TEST(mymset.get_matches_lower_bound() <= 3);
+    TEST_EQUAL(mymset.get_matches_upper_bound(), 6);
+    TEST(mymset.get_matches_estimated() > 0);
+    TEST(mymset.get_matches_estimated() <= 6);
+
+    // Check that the bounds are appropriate if a percentage cutoff is in
+    // use.  Set a 1% threshold so we don't actually discard anything.
+    enquire.set_collapse_key(Xapian::BAD_VALUENO);
+    enquire.set_cutoff(1);
+    mymset = enquire.get_mset(0, 1, 0, &myfunctor);
+    TEST_EQUAL(mymset.size(), 1);
+    TEST(mymset.get_matches_lower_bound() >= 1);
+    TEST(mymset.get_matches_lower_bound() <= 3);
+    TEST_EQUAL(mymset.get_matches_upper_bound(), 6);
+    TEST(mymset.get_matches_estimated() > 0);
+    TEST(mymset.get_matches_estimated() <= 6);
+
+    // And now with both a collapse key and percentage cutoff.
+    enquire.set_collapse_key(99);
+    mymset = enquire.get_mset(0, 1, 0, &myfunctor);
+    TEST_EQUAL(mymset.size(), 1);
+    TEST(mymset.get_matches_lower_bound() >= 1);
+    TEST(mymset.get_matches_lower_bound() <= 3);
+    TEST_EQUAL(mymset.get_matches_upper_bound(), 6);
+    TEST(mymset.get_matches_estimated() > 0);
+    TEST(mymset.get_matches_estimated() <= 6);
 
     return true;
 }
