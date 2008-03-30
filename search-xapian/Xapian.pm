@@ -55,7 +55,10 @@ our %EXPORT_TAGS = (
                                   OP_NEAR
                                   OP_PHRASE
 				  OP_VALUE_RANGE
+				  OP_SCALE_WEIGHT
                                   OP_ELITE_SET
+				  OP_VALUE_GE
+				  OP_VALUE_LE
                                  ) ],
                     'db' => [ qw(
                                  DB_OPEN

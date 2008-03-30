@@ -21,20 +21,12 @@ new1weight(term, wqf, pos)
 	RETVAL
 
 Query *
-new2sv(op, subq)
+new3range(op, valno, limit)
     int		op
-    string	subq
+    valueno	valno
+    string	limit
     CODE:
-        RETVAL = new Query( (Query::op) op, subq );
-    OUTPUT:
-        RETVAL
-
-Query *
-new2obj(op, subq)
-    int		op
-    Query *	subq
-    CODE:
-        RETVAL = new Query( (Query::op) op, *subq );
+        RETVAL = new Query( (Query::op) op, valno, limit );
     OUTPUT:
         RETVAL
 
