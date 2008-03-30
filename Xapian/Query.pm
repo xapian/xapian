@@ -25,7 +25,7 @@ sub new {
     $query = new1(@_);
   } else {
     my $op = shift;
-    if( $op !~ /^[-+]?\d+$/ ) {
+    if( $op !~ /^\d+$/ ) {
       Carp::carp( "new()'s first argument must be an OP when called with more than one argument" );
     } elsif( $op == 8 ) { # FIXME: 8 is OP_VALUE_RANGE; eliminate hardcoded literal
       if( scalar(@_) != 3 ) {
@@ -33,20 +33,22 @@ sub new {
       } else {
 	$query = new4range( $op, @_ );
       }
+    } elsif( $op == 11 || $op == 12 ) { # FIXME: OP_VALUE_GE, OP_VALUE_LE; eliminate hardcoded literals
+      if( scalar(@_) != 2 ) {
+	Carp::carp( "new() must have 3 arguments when OP is OP_VALUE_GE or OP_VALUE_LE" );
+      } else {
+	$query = new3range( $op, @_ );
+      }
     } elsif( !_all_equal( map { ref } @_ ) ) {
       Carp::carp( "all of new()'s arguments after the first must be of identical type (either all search terms (scalars) or $class objects)");
     } else {
       # remaining arguments are scalars
       if( !ref($_[0]) ) {
-	scalar(@_) == 1 ?
-	  $query = new2sv($op, @_) :
-	    $query = newXsv($op, @_);
+	$query = newXsv($op, @_);
       }
-      # remaining arguments objects
+      # remaining arguments are objects
       elsif( ref($_[0]) eq $class ) {
-	scalar(@_) == 1 ?
-	  $query = new2obj($op, @_) :
-	    $query = newXobj($op, @_);
+	$query = newXobj($op, @_);
       }
       else {
 	Carp::carp( "all of new()'s arguments after the first must be search terms (scalars), or $class objects" );
@@ -54,7 +56,7 @@ sub new {
     }
   }
   unless( defined $query ) {
-    Carp::carp( "USAGE: $class->new('term'), $class->new(OP, \@terms), $class->new(OP, \@queries), or $class->new(OP_VALUE_RANGE, VALNO, START, END)" );
+    Carp::carp( "USAGE: $class->new('term'), $class->new(OP, \@terms), $class->new(OP, \@queries), $class->new(OP_VALUE_RANGE, VALNO, START, END), $class->new(OP_VALUE_[GL]E, VALNO, LIMIT)" );
     exit;
   }
   bless $query, $class;

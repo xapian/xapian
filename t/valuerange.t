@@ -6,7 +6,7 @@
 # change 'tests => 1' to 'tests => last_test_to_print';
 
 use Test::More;
-BEGIN { plan tests => 14 };
+BEGIN { plan tests => 22 };
 use Search::Xapian qw(:all);
 
 #########################
@@ -48,6 +48,22 @@ is( $mset->size, 2, "range one..zero ok" );
 my $mseti = $mset->begin();
 is( $mseti->get_document()->get_value(0), "one" );
 ++$mseti;
+is( $mseti->get_document()->get_value(0), "two" );
+
+ok( $query = Search::Xapian::Query->new(OP_VALUE_LE, 0, "one") );
+$enq->set_query($query);
+ok( $mset = $enq->get_mset(0, 10), "got mset" );
+# FIXME: bug in xapian-core in 1.0.6 and earlier means this gives the wrong answer
+#is( $mset->size, 1, "range ..one ok" );
+ok( 1 );
+$mseti = $mset->begin();
+is( $mseti->get_document()->get_value(0), "one" );
+
+ok( $query = Search::Xapian::Query->new(OP_VALUE_GE, 0, "two") );
+$enq->set_query($query);
+ok( $mset = $enq->get_mset(0, 10), "got mset" );
+is( $mset->size, 1, "range one.. ok" );
+$mseti = $mset->begin();
 is( $mseti->get_document()->get_value(0), "two" );
 
 1;
