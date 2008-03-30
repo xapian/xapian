@@ -2,6 +2,7 @@
  *  \brief MatchDecider subclass for filtering results by value.
  */
 /* Copyright 2008 Lemur Consulting Limited
+ * Copyright 2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,7 +37,6 @@ class Document;
  *  user-defined set.
  */
 class XAPIAN_VISIBILITY_DEFAULT ValueSetMatchDecider : public MatchDecider {
-  private:
     /** Set of values to test for. */
     std::set<std::string> testset;
 
@@ -51,7 +51,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueSetMatchDecider : public MatchDecider {
     bool inclusive;
 
   public:
-    /** Construct a ValueSetMatchDecider
+    /** Construct a ValueSetMatchDecider.
      *
      *  @param valuenum The value slot number to look in.
      *
@@ -62,7 +62,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueSetMatchDecider : public MatchDecider {
      */
     ValueSetMatchDecider(Xapian::valueno valuenum, bool inclusive);
 
-    /** Add a value to the test set
+    /** Add a value to the test set.
      *
      *  @param value The value to add to the test set.
      */
@@ -71,17 +71,13 @@ class XAPIAN_VISIBILITY_DEFAULT ValueSetMatchDecider : public MatchDecider {
 	testset.insert(value);
     }
 
-    /** Remove a value from the test set
+    /** Remove a value from the test set.
      *
      *  @param value The value to remove from the test set.
      */
     void remove_value(const std::string& value)
     {
-	std::set<std::string>::const_iterator it = testset.find(value);
-	if (it != testset.end())
-	{
-	    testset.erase(it);
-	}
+	testset.erase(value);
     }
 
     /** Decide whether we want this document to be in the MSet.
@@ -90,9 +86,6 @@ class XAPIAN_VISIBILITY_DEFAULT ValueSetMatchDecider : public MatchDecider {
      *  should be excluded from the MSet.
      */
     bool operator()(const Xapian::Document& doc) const;
-
-    /// Destructor.
-    virtual ~ValueSetMatchDecider() {}
 };
 
 }
