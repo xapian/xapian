@@ -21,6 +21,13 @@ new1weight(term, wqf, pos)
 	RETVAL
 
 Query *
+new3scale(int op, Query * query, double factor)
+    CODE:
+        RETVAL = new Query( (Query::op) op, *query, factor );
+    OUTPUT:
+        RETVAL
+
+Query *
 new3range(op, valno, limit)
     int		op
     valueno	valno
@@ -42,9 +49,9 @@ new4range(op, valno, start, end)
         RETVAL
 
 Query *
-newN(op, ...)
-    int		op
+newN(int op_, ...)
     CODE:
+	Query::op op = (Query::op)op_;
 	try {
 	    vector<Query> queries;
 	    queries.reserve(items - 1);
@@ -61,7 +68,7 @@ newN(op, ...)
 		    croak( "USAGE: Search::Xapian::Query->new(OP, @TERMS_OR_QUERY_OBJECTS)" );
 		}
 	    }
-            RETVAL = new Query((Query::op)op, queries.begin(), queries.end());
+            RETVAL = new Query(op, queries.begin(), queries.end());
         } catch (const Error &error) {
             croak( "Exception: %s", error.get_msg().c_str() );
         }
