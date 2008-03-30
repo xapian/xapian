@@ -1,6 +1,6 @@
 Revision history for Perl extension Search::Xapian.
 
-1.0.?.?  ???
+1.0.6.0  ???
 	[Changes contributed by Olly Betts]
 	- If the Search::Xapian and xapian-config versions don't match, and
 	  $ENV{AUTOMATED_TESTING} is true, then we need to unlink Makefile as
@@ -21,10 +21,8 @@ Revision history for Perl extension Search::Xapian.
 	- Don't accept values with a leading '-' or '+' for OP_* constants -
 	  users should be using the defined constants for these which are all
 	  positive without an explicit '+'.
-	- Wrap OP_SCALE_WEIGHT (FIXME: still need to wrap the corresponding
-	  Query constructor).
-	- Wrap OP_VALUE_GE and OP_VALUE_LE, and the corresponding Query
-	  constructor overload.
+	- Wrap OP_SCALE_WEIGHT, OP_VALUE_GE, OP_VALUE_LE, and the corresponding
+	  Query constructor overloads.
 	[Changes contributed by Matthew Somerville]
 	- Wrap optional prefix argument to WritableDatabase::allterms_begin()
 	  and WritableDatabase::allterms_end().
@@ -54,13 +52,13 @@ Revision history for Perl extension Search::Xapian.
 	  const char * - it stopped throwing const char * in Xapian 1.0.0
 	  (bug#221).
 	- Wrap TermGenerator methods: set_database() and set_flags().
-	[Changes contributed by Rusty Conover]        
+	[Changes contributed by Rusty Conover]
 	- Wrap QueryParser flags: FLAG_SPELLING_CORRECTION, FLAG_SYNONYM,
 	  FLAG_AUTO_SYNONYMS, and FLAG_AUTO_MULTIWORD_SYNONYMS.
 	- Wrap WritableDatabase methods: add_synonym(), remove_synonym(), and
 	  clear_synonyms().
 	- Wrap TermGenerator::FLAG_SPELLING and TermGenerator::set_database().
- 
+
 1.0.4.0  Wed Oct 31 23:18:02 GMT 2007
 	[Changes contributed by Olly Betts]
 	- Add all the POD pages to the "see also" on the main POD page.
@@ -123,7 +121,7 @@ Revision history for Perl extension Search::Xapian.
 	[Changes contributed by Olly Betts]
 	- Wrap new TermGenerator class.
 	- Wrap new QueryParser flags FLAG_PURE_NOT and FLAG_PARTIAL.
- 	- Wrap new Query op OP_VALUE_RANGE and associated constructor.
+	- Wrap new Query op OP_VALUE_RANGE and associated constructor.
 	- Wrap ValueRangeProcessor and subclasses, and
 	  QueryParser::add_valuerangeprocessor().
 	- Removed wrappers for deprecated features which have now been removed
@@ -149,7 +147,7 @@ Revision history for Perl extension Search::Xapian.
 	  Enquire::matches()
 	- Add tests for check_at_least and rset parameters of
 	  Enquire::get_mset()
-	- Avoid warning from MakeMaker when generating Makefile for linking 
+	- Avoid warning from MakeMaker when generating Makefile for linking
 	  against an uninstalled xapian-core tree.
 	- Correct several errors in the pod documentation for
 	  Search::Xapian::PositionIterator.

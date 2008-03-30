@@ -33,6 +33,11 @@ sub new {
 	Carp::croak( "USAGE: $class->new(OP_VALUE_RANGE, VALNO, START, END)" );
       }
       $query = new4range( @_ );
+    } elsif( $op == 9 ) { # FIXME: OP_SCALE_WEIGHT
+      if( @_ != 3 ) {
+        Carp::croak( "USAGE: $class->new(OP_SCALE_WEIGHT, QUERY, FACTOR)" );
+      }
+      $query = new3scale( @_ );
     } elsif( $op == 11 || $op == 12 ) { # FIXME: OP_VALUE_GE, OP_VALUE_LE; eliminate hardcoded literals
       if( @_ != 3 ) {
         Carp::croak( "USAGE: $class->new(OP_VALUE_[GL]E, VALNO, LIMIT)" );
