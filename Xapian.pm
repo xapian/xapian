@@ -4,7 +4,7 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '1.0.5.0';
+our $VERSION = '1.0.6.0';
 
 use Exporter 'import';
 
@@ -37,7 +37,7 @@ require DynaLoader;
 
 our @ISA = qw(DynaLoader);
 
-# Items to export into callers namespace by default. Note: do not export
+# Items to export into caller's namespace by default. Note: do not export
 # names by default without a very good reason. Use EXPORT_OK instead.
 # Do not simply export all your public functions/methods/constants.
 
@@ -314,8 +314,8 @@ Don't stem any terms.
 
 =item STEM_SOME
 
-Stem some terms, in a manner compatible with Omega (capitalised words aren't
-stemmed, and get an 'R' prefix).
+Stem some terms, in a manner compatible with Omega (capitalised words and those
+in phrases aren't stemmed).
 
 =back
 
