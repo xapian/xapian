@@ -42,47 +42,27 @@ new4range(op, valno, start, end)
         RETVAL
 
 Query *
-newXsv(op, ...)
+newN(op, ...)
     int		op
-    PREINIT:
-        vector<string> terms;
     CODE:
-        terms.reserve(items);
-        for( int i = 1; i <= items; i++ ) {
-            SV *sv = ST (i);
-	    if( SvOK(sv) && SvPOK(sv) ) {
-		STRLEN len;
-		const char * ptr = SvPV(sv, len);
-	        terms.push_back(string(ptr, len));
-	    }
-        }
 	try {
-            RETVAL = new Query( (Query::op) op, terms.begin(), terms.end() );
-        }
-        catch (const Error &error) {
-            croak( "Exception: %s", error.get_msg().c_str() );
-        }
-    OUTPUT:
-        RETVAL
-
-Query *
-newXobj(op, ...)
-    int		op
-    PREINIT:
-        vector<Query> queries;
-    CODE:
-        queries.reserve(items);
-        for( int i = 1; i <= items; i++ ) {
-            SV *sv = ST (i);
-	    if( sv_isobject(sv) ) {
-		Query *query = (Query*) SvIV((SV*) SvRV(sv));
-	        queries.push_back(*query);
+	    vector<Query> queries;
+	    queries.reserve(items - 1);
+	    for( int i = 1; i < items; i++ ) {
+		SV *sv = ST (i);
+		if (sv_isa(sv, "Search::Xapian::Query")) {
+		    Query *query = (Query*) SvIV((SV*) SvRV(sv));
+		    queries.push_back(*query);
+		} else if ( SvOK(sv) && SvPOK(sv) ) {
+		    STRLEN len;
+		    const char * ptr = SvPV(sv, len);
+		    queries.push_back(Query(string(ptr, len)));
+		} else {
+		    croak( "USAGE: Search::Xapian::Query->new(OP, @TERMS_OR_QUERY_OBJECTS)" );
+		}
 	    }
-        }
-	try {
-            RETVAL = new Query( (Query::op) op, queries.begin(), queries.end() );
-        }
-        catch (const Error &error) {
+            RETVAL = new Query((Query::op)op, queries.begin(), queries.end());
+        } catch (const Error &error) {
             croak( "Exception: %s", error.get_msg().c_str() );
         }
     OUTPUT:

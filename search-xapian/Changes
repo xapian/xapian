@@ -15,6 +15,9 @@ Revision history for Perl extension Search::Xapian.
 	  of Enquire.  This means we'll leak them, but that's better than
 	  having them garbage collected while the C++ code is still using them.
 	  This will be fixed properly in a future release.
+	- You can now construct a Query from a mixed list of Query objects and
+	  strings (previously the list had to be all Query objects or all
+	  strings).
 	- Don't accept values with a leading '-' or '+' for OP_* constants -
 	  users should be using the defined constants for these which are all
 	  positive without an explicit '+'.
