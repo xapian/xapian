@@ -1,3 +1,8 @@
+Sun Mar 30 13:47:50 BST 2008  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Drop explicit dtor for SimpleStopper
+	  which does nothing.
+
 Sun Mar 30 13:12:12 BST 2008  Olly Betts <olly@survex.com>
 
 	* include/xapian/valuesetmatchdecider.h: Don't bother checking if an
