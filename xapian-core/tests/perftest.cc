@@ -2,6 +2,7 @@
  *  \brief performance tests for Xapian.
  */
 /* Copyright 2008 Lemur Consulting Ltd
+ * Copyright 2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,11 +28,13 @@
 #include "perftest_all.h"
 #include "testrunner.h"
 #include "testsuite.h"
+#include "utils.h"
+
 #include <iostream>
 
-PerfTestLogger logger;
-
 using namespace std;
+
+PerfTestLogger logger;
 
 static string
 time_to_string(const OmTime & time)
