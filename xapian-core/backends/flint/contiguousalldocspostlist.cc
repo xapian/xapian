@@ -1,7 +1,7 @@
 /** @file contiguousalldocspostlist.cc
  * @brief Iterate all document ids when they form a contiguous range.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,8 +28,6 @@
 #include "utils.h"
 
 using namespace std;
-
-ContiguousAllDocsPostList::~ContiguousAllDocsPostList() { }
 
 Xapian::doccount
 ContiguousAllDocsPostList::get_termfreq() const

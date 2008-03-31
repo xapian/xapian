@@ -1,7 +1,7 @@
 /** @file contiguousalldocspostlist.h
  * @brief Iterate all document ids when they form a contiguous range.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,9 +48,6 @@ class ContiguousAllDocsPostList : public LeafPostList {
     ContiguousAllDocsPostList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> db_,
 			      Xapian::doccount doccount_)
 	: db(db_), did(0), doccount(doccount_) { }
-
-    /// Destructor.
-    ~ContiguousAllDocsPostList();
 
     /** Return the term frequency.
      *

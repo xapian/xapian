@@ -1,7 +1,7 @@
 /** @file flint_alldocspostlist.cc
  * @brief A PostList which iterates over all documents in a FlintDatabase.
  */
-/* Copyright (C) 2006,2007 Olly Betts
+/* Copyright (C) 2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,10 +28,6 @@
 #include "utils.h"
 
 using namespace std;
-
-FlintAllDocsPostList::~FlintAllDocsPostList()
-{
-}
 
 Xapian::doccount
 FlintAllDocsPostList::get_termfreq() const

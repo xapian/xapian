@@ -1,3 +1,7 @@
+Mon Mar 31 13:24:11 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/flint/: Remove unnecessary default dtors.
+
 Mon Mar 31 13:21:55 GMT 2008  Olly Betts <olly@survex.com>
 
 	* HACKING: Document to prefer "new SomeClass" to "new SomeClass()".
