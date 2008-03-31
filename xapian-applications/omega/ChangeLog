@@ -1,3 +1,7 @@
+Mon Mar 31 03:00:48 BST 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: Update version to 1.0.6 to match latest release.
+
 Wed Mar 12 07:04:56 GMT 2008  Olly Betts <olly@survex.com>
 
 	* scriptindex.cc: Make deprecated "index=nopos" an error.
