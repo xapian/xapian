@@ -1,3 +1,9 @@
+Mon Mar 31 05:55:59 BST 2008  Olly Betts <olly@survex.com>
+
+	* backends/remote/net_document.cc,backends/remote/net_document.h:
+	  Rename "doc" member to "data" since it actually holds the document
+	  data.
+
 Mon Mar 31 04:25:21 BST 2008  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_document.cc,backends/flint/flint_document.h:
