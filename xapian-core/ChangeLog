@@ -1,3 +1,9 @@
+Mon Mar 31 06:33:02 BST 2008  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_positionlist.cc: Reorder header includes to
+	  match our new standard more closely.  Indent class definitions to
+	  match our coding standards.
+
 Mon Mar 31 06:31:59 BST 2008  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_positionlist.h: Remove unnecessary default
