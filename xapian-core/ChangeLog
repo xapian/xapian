@@ -4,7 +4,7 @@ Mon Mar 31 08:13:21 GMT 2008  Olly Betts <olly@survex.com>
 	  command which produces the correct format timestamp for ChangeLog
 	  entries.
 
-Mon Mar 31 09:00:58 BST 2008  Olly Betts <olly@survex.com>
+Mon Mar 31 08:00:58 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_btreeutil.h: Fix some out-of-date comments.
 	* configure.ac: Use AC_CHECK_SIZEOF to define SIZEOF_INT and
@@ -14,36 +14,36 @@ Mon Mar 31 09:00:58 BST 2008  Olly Betts <olly@survex.com>
 	  (which is 64 bits on most 64 bit Unix platforms).  Drop int4 for
 	  the time being, as we don't actually use it.
 
-Mon Mar 31 07:34:20 BST 2008  Olly Betts <olly@survex.com>
+Mon Mar 31 06:34:20 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_positionlist.cc: Refactor BitWriter::encode()
 	  to have a single call to write_bits(), and don't include it inline
 	  in the class as it's really a bit big to inline (and write_bits()
 	  should now be inlined into it, or at least tail-called).
 
-Mon Mar 31 06:33:02 BST 2008  Olly Betts <olly@survex.com>
+Mon Mar 31 05:33:02 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_positionlist.cc: Reorder header includes to
 	  match our new standard more closely.  Indent class definitions to
 	  match our coding standards.
 
-Mon Mar 31 06:31:59 BST 2008  Olly Betts <olly@survex.com>
+Mon Mar 31 05:31:59 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_positionlist.h: Remove unnecessary default
 	  dtor.
 
-Mon Mar 31 05:55:59 BST 2008  Olly Betts <olly@survex.com>
+Mon Mar 31 04:55:59 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/remote/net_document.cc,backends/remote/net_document.h:
 	  Rename "doc" member to "data" since it actually holds the document
 	  data.
 
-Mon Mar 31 04:25:21 BST 2008  Olly Betts <olly@survex.com>
+Mon Mar 31 03:25:21 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_document.cc,backends/flint/flint_document.h:
 	  Remove unnecessary default dtor.
 
-Mon Mar 31 03:53:48 BST 2008  Olly Betts <olly@survex.com>
+Mon Mar 31 02:53:48 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/inmemory/inmemory_alltermslist.cc,
 	  backends/inmemory/inmemory_alltermslist.h: Remove unnecessary
@@ -51,17 +51,17 @@ Mon Mar 31 03:53:48 BST 2008  Olly Betts <olly@survex.com>
 	* backends/inmemory/inmemory_alltermslist.h: Fix bogus cut-and-pasted
 	  doxygen comment for ctor.
 
-Mon Mar 31 03:33:15 BST 2008  Olly Betts <olly@survex.com>
+Mon Mar 31 02:33:15 GMT 2008  Olly Betts <olly@survex.com>
 
 	* common/inmemory_positionlist.h: Remove unnecessary default
 	  destructor.  Fix comment type ("inemory" -> "inmemory").
 
-Sun Mar 30 13:47:50 BST 2008  Olly Betts <olly@survex.com>
+Sun Mar 30 12:47:50 GMT 2008  Olly Betts <olly@survex.com>
 
 	* include/xapian/queryparser.h: Drop explicit dtor for SimpleStopper
 	  which does nothing.
 
-Sun Mar 30 13:12:12 BST 2008  Olly Betts <olly@survex.com>
+Sun Mar 30 12:12:12 GMT 2008  Olly Betts <olly@survex.com>
 
 	* include/xapian/valuesetmatchdecider.h: Don't bother checking if an
 	  element is present before calling std::set::erase().  Don't bother
