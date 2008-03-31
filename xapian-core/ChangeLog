@@ -1,3 +1,8 @@
+Mon Mar 31 03:33:15 BST 2008  Olly Betts <olly@survex.com>
+
+	* common/inmemory_positionlist.h: Remove unnecessary default
+	  destructor.  Fix comment type ("inemory" -> "inmemory").
+
 Sun Mar 30 13:47:50 BST 2008  Olly Betts <olly@survex.com>
 
 	* include/xapian/queryparser.h: Drop explicit dtor for SimpleStopper
