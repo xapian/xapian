@@ -987,12 +987,14 @@ introduction to the Xapian test system in ``docs/tests.html``.
 4) Create a ChangeLog entry and commit
 --------------------------------------
 
- * Add an entry to the ChangeLog file at the top of the module.  The
-   text of this can be identical to the SVN commit message.  The datestamps in
-   our ChangeLog entries are as produced by the Unix date utility when invoked
-   as::
+ * We recommend using the ``svn-ci`` script which can be found in the
+   ``xapian-maintainer-tools`` repository top-level directory.  If you must
+   do this by hand, add an entry to the ChangeLog file at the top-level of the
+   module you have modified.  The text of this should generally be the same as
+   the SVN commit message.  The datestamps in our ChangeLog entries are as
+   produced by the GNU date utility when invoked as::
 
-     date "+%a %b %d %T %Z %Y"
+     date --utc "+%a %b %d %T GMT %Y"
 
  * Commit to the repository.
 

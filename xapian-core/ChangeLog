@@ -1,3 +1,9 @@
+Mon Mar 31 08:13:21 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Recommend using the "svn-ci" script.  Update the date
+	  command which produces the correct format timestamp for ChangeLog
+	  entries.
+
 Mon Mar 31 09:00:58 BST 2008  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_btreeutil.h: Fix some out-of-date comments.
