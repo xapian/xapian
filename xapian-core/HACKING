@@ -930,6 +930,10 @@ to follow the style of the existing code.  In particular:
   is more likely to directly use a special "empty string representation" (it
   does with GCC at least).
 
+* Prefer ``new SomeClass`` to ``new SomeClass()``, since the latter tends to
+  lead one to write ``SomeClass foo();` which is a function prototype, and not
+  equivalent to the variable definition ``SomeClass foo``.
+
 We will do our best to give credit where credit is due - if we have used
 patches from you, or received helpful reports or advice, we will add your name
 to the AUTHORS file (unless you specifically request us not to).  If you see we

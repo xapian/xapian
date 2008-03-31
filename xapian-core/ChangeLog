@@ -1,3 +1,12 @@
+Mon Mar 31 13:21:55 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Document to prefer "new SomeClass" to "new SomeClass()".
+	* api/omdocument.cc,api/omenquire.cc,backends/database.cc,
+	  backends/flint/flint_database.cc,
+	  backends/inmemory/inmemory_database.cc,matcher/multimatch.cc,
+	  matcher/queryoptimiser.cc,net/remoteserver.cc: Fix instances of
+	  the latter form to use the former form.
+
 Mon Mar 31 12:11:09 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/: Update svn:ignore property for perftest changes and remove

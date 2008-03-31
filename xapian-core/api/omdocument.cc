@@ -43,7 +43,7 @@ Document::Document(Document::Internal *internal_) : internal(internal_)
 {
 }
 
-Document::Document() : internal(new Xapian::Document::Internal())
+Document::Document() : internal(new Xapian::Document::Internal)
 {
 }
 

@@ -160,7 +160,7 @@ prepare_sub_matches(std::vector<Xapian::Internal::RefCntPtr<SubMatch> > & leaves
 		DEBUGLINE(EXCEPTION, "Calling error handler for prepare_match() on a SubMatch.");
 		(*errorhandler)(e);
 		// Continue match without this sub-match.
-		leaves[leaf] = new EmptySubMatch();
+		leaves[leaf] = new EmptySubMatch;
 		prepared[leaf] = true;
 		--unprepared;
 	    }
@@ -326,7 +326,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 			  "start_match() on a SubMatch.");
 		(*errorhandler)(e);
 		// Continue match without this sub-match.
-		*leaf = Xapian::Internal::RefCntPtr<SubMatch>(new EmptySubMatch());
+		*leaf = Xapian::Internal::RefCntPtr<SubMatch>(new EmptySubMatch);
 	    }
 	}
     }
@@ -367,7 +367,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    (*errorhandler)(e);
 	    // FIXME: check if *ALL* the remote servers have failed!
 	    // Continue match without this sub-match.
-	    leaves[i] = new EmptySubMatch();
+	    leaves[i] = new EmptySubMatch;
 	    pl = new EmptyPostList;
 	}
 	postlists.push_back(pl);

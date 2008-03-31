@@ -54,7 +54,7 @@ MatchDecider::~MatchDecider() { }
 
 // Methods for Xapian::RSet
 
-RSet::RSet() : internal(new RSet::Internal())
+RSet::RSet() : internal(new RSet::Internal)
 {
 }
 
@@ -151,7 +151,7 @@ MSetItem::get_description() const
 
 // Methods for Xapian::MSet
 
-MSet::MSet() : internal(new MSet::Internal())
+MSet::MSet() : internal(new MSet::Internal)
 {
 }
 
@@ -451,7 +451,7 @@ Xapian::Internal::ESetItem::get_description() const
 
 // Methods for Xapian::ESet
 
-ESet::ESet() : internal(new Internal()) { }
+ESet::ESet() : internal(new Internal) { }
 
 ESet::~ESet()
 {

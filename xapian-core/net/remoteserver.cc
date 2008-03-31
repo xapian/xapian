@@ -102,11 +102,11 @@ RemoteServer::RemoteServer(const std::vector<std::string> &dbpaths,
 
     // Register weighting schemes.
     Xapian::Weight * weight;
-    weight = new Xapian::BM25Weight();
+    weight = new Xapian::BM25Weight;
     wtschemes[weight->name()] = weight;
-    weight = new Xapian::BoolWeight();
+    weight = new Xapian::BoolWeight;
     wtschemes[weight->name()] = weight;
-    weight = new Xapian::TradWeight();
+    weight = new Xapian::TradWeight;
     wtschemes[weight->name()] = weight;
 }
 

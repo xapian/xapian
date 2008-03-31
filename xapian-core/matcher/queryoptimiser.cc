@@ -1,7 +1,7 @@
 /** @file queryoptimiser.cc
  * @brief Convert a Xapian::Query::Internal tree into an optimal PostList tree.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2008 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -56,7 +56,7 @@ QueryOptimiser::do_subquery(const Xapian::Query::Internal * query, double factor
 	      query << ", " << factor);
 
     // Handle QueryMatchNothing.
-    if (!query) RETURN(new EmptyPostList());
+    if (!query) RETURN(new EmptyPostList);
 
     switch (query->op) {
 	case Xapian::Query::Internal::OP_LEAF:
