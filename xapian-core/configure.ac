@@ -415,6 +415,9 @@ AC_TYPE_PID_T
 
 AC_TYPE_MODE_T
 
+AC_CHECK_SIZEOF([int])
+AC_CHECK_SIZEOF([long])
+
 dnl Check for a new streams implementation (GCC 2.95 only has streambuf.h).
 AC_CHECK_HEADERS(streambuf, [], [], [ ])
 

@@ -1,3 +1,13 @@
+Mon Mar 31 09:00:58 BST 2008  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_btreeutil.h: Fix some out-of-date comments.
+	* configure.ac: Use AC_CHECK_SIZEOF to define SIZEOF_INT and
+	  SIZEOF_LONG.
+	* backends/flint/flint_types.h: Use SIZEOF_INT and SIZEOF_LONG to
+	  determine the type of uint4 rather than always using unsigned long
+	  (which is 64 bits on most 64 bit Unix platforms).  Drop int4 for
+	  the time being, as we don't actually use it.
+
 Mon Mar 31 07:34:20 BST 2008  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_positionlist.cc: Refactor BitWriter::encode()
