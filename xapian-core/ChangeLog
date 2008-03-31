@@ -1,3 +1,10 @@
+Mon Mar 31 07:34:20 BST 2008  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_positionlist.cc: Refactor BitWriter::encode()
+	  to have a single call to write_bits(), and don't include it inline
+	  in the class as it's really a bit big to inline (and write_bits()
+	  should now be inlined into it, or at least tail-called).
+
 Mon Mar 31 06:33:02 BST 2008  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_positionlist.cc: Reorder header includes to

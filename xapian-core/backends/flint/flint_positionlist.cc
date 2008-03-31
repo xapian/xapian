@@ -72,30 +72,6 @@ class BitWriter {
     int n_bits;
     unsigned int acc;
 
-  public:
-    BitWriter() : n_bits(0), acc(0) { }
-
-    BitWriter(const string & seed) : buf(seed), n_bits(0), acc(0) { }
-
-    void encode(size_t value, size_t outof) {
-	Assert(value < outof);
-	size_t bits = my_fls(outof - 1);
-	const size_t spare = (1 << bits) - outof;
-	if (spare) {
-	    const size_t mid_start = (outof - spare) / 2;
-	    if (value < mid_start) {
-		write_bits(value, bits);
-	    } else if (value >= mid_start + spare) {
-		write_bits((value - (mid_start + spare)) | (1 << (bits - 1)), bits);
-	    } else {
-		--bits;
-		write_bits(value, bits);
-	    }
-	} else {
-	    write_bits(value, bits);
-	}
-    }
-
     void write_bits(int data, int count) {
 	if (count + n_bits > 32) {
 	    // We need to write more bits than there's empty room for in
@@ -117,6 +93,13 @@ class BitWriter {
 	}
     }
 
+  public:
+    BitWriter() : n_bits(0), acc(0) { }
+
+    BitWriter(const string & seed) : buf(seed), n_bits(0), acc(0) { }
+
+    void encode(size_t value, size_t outof);
+
     string & freeze() {
 	if (n_bits) {
 	    buf += char(acc);
@@ -126,6 +109,23 @@ class BitWriter {
 	return buf;
     }
 };
+
+void
+BitWriter::encode(size_t value, size_t outof)
+{
+    Assert(value < outof);
+    size_t bits = my_fls(outof - 1);
+    const size_t spare = (1 << bits) - outof;
+    if (spare) {
+	const size_t mid_start = (outof - spare) / 2;
+	if (value >= mid_start + spare) {
+	    value = (value - (mid_start + spare)) | (1 << (bits - 1));
+	} else if (value >= mid_start) {
+	    --bits;
+	}
+    }
+    write_bits(value, bits);
+}
 
 static void
 encode_interpolative(BitWriter & wr, const vector<Xapian::termpos> &pos, int j, int k)
