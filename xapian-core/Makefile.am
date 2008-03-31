@@ -52,6 +52,9 @@ check-flint:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-flint
 endif
 
+check-perf:
+	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-perf
+
 bin_SCRIPTS = xapian-config
 
 CLEANFILES = xapian-config

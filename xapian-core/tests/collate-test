@@ -1,7 +1,8 @@
 #!/usr/bin/perl -w
-# collate-apitest: Collate testcases for apitest from several source files.
+# collate-test: Collate testcases from several source files.
 #
 # Copyright (C) 2007 Olly Betts
+# Copyright (C) 2008 Lemur Consulting Ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -27,14 +28,11 @@ $devnull = 'nul' if $^O eq 'MSWin32';
 
 print "$generated_warning\n";
 
-print <<END;
-    cout << "Running tests with backend \\\"" << backendmanager->get_dbtype() << "\\\"..." << endl;
-END
-
 my %by_cond = ();
 my $srcdir = shift(@ARGV);
+my $allfile = shift(@ARGV);
 
-open ALL, ">api_all.h" or die $!;
+open ALL, ">$allfile" or die $!;
 
 print ALL $generated_warning;
 

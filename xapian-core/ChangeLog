@@ -1,3 +1,24 @@
+Mon Mar 31 09:22:35 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* Makefile.am,tests/,tests/harness/,tests/perftest.cc,tests/perftest.h,
+	  tests/perftest_matchdecider.cc: Rework the test collation
+	  mechanism slightly to allow it to be used by other testsuites:
+	  rename collate-apitest to collate-test, and add a parameter to it
+	  naming the output file.  Add new "testrunner.h" and
+	  "testrunner.cc" which are an equivalent to the old mechanism in
+	  apitest for running tests with various properties; the properties
+	  for each backend are now held as member variables of a TestRunner
+	  class, and testsuites (eg, apitest) subclass this and implement a
+	  "run()" method, which will be called for each backend with the
+	  appropriate properties set.  Move definition of DEFINE_TESTCASE
+	  macro into testsuite.h.  Add new testsuite "perftest", which is
+	  intended to contain potentially time consuming performance tests,
+	  logging the results to an XML file for later analysis.  Add a
+	  simple test of the ValueSetMatchDeciders to this testsuite.
+	  "perftest" isn't run by make check, because it is likely to take
+	  some hours to complete in future - instead, there's a new
+	  top-level target "check-perf" which builds and runs perftest.
+
 Mon Mar 31 08:13:21 GMT 2008  Olly Betts <olly@survex.com>
 
 	* HACKING: Recommend using the "svn-ci" script.  Update the date

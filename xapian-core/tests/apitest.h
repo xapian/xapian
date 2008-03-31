@@ -25,8 +25,6 @@
 
 #include "testsuite.h"
 
-#define DEFINE_TESTCASE(S,COND) bool test_##S()
-
 const char * get_dbtype();
 
 Xapian::Database get_database(const std::string &db);
