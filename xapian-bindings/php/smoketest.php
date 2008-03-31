@@ -262,5 +262,4 @@ if ($query_wqf->get_description() != 'Xapian::Query(wqf:(wqf=3))') {
     exit(1);
 }
 
-
 ?>
