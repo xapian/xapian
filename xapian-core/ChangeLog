@@ -1,3 +1,8 @@
+Mon Mar 31 06:31:59 BST 2008  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_positionlist.h: Remove unnecessary default
+	  dtor.
+
 Mon Mar 31 05:55:59 BST 2008  Olly Betts <olly@survex.com>
 
 	* backends/remote/net_document.cc,backends/remote/net_document.h:

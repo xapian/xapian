@@ -1,6 +1,6 @@
 /* flint_positionlist.h: A position list in a flint database.
  *
- * Copyright (C) 2005,2006 Olly Betts
+ * Copyright (C) 2005,2006,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -93,9 +93,6 @@ class FlintPositionList : public PositionList {
 		      const string & tname) {
 	(void)read_data(table, did, tname);
     }
-
-    /// Destructor.
-    ~FlintPositionList() { }
 
     /** Fill list with data, and move the position to the start.
      *
