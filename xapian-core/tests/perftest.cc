@@ -75,6 +75,10 @@ PerfTestLogger::open(const string & logpath)
 
     write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<testrun>\n");
 
+    // FIXME - write details of the machine running the test (possibly the
+    // output of uname, and some measurement of the memory available on the
+    // system).
+
     return true;
 }
 
@@ -154,7 +158,7 @@ PerfTestLogger::search_end(const Xapian::Query & query,
 	  "<size>" + om_tostring(mset.size()) + "</size>"
 	  "<lb>" + om_tostring(mset.get_matches_lower_bound()) + "</lb>"
 	  "<est>" + om_tostring(mset.get_matches_estimated()) + "</est>"
-	  "<ub>" + om_tostring(mset.get_matches_lower_bound()) + "</ub>"
+	  "<ub>" + om_tostring(mset.get_matches_upper_bound()) + "</ub>"
 	  "</mset>"
 	  "</search>\n");
     search_start();
@@ -215,8 +219,9 @@ PerfTestLogger::repetition_end()
     testcase_end();
     if (repetition_start_written) {
     	write("</repetition>\n");
-	repetition_started = false;
+	repetition_start_written = false;
     }
+    repetition_started = false;
 }
 
 
