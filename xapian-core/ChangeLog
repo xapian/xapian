@@ -1,3 +1,11 @@
+Tue Apr 01 00:12:38 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/ompostlistiterator.cc,include/xapian/postingiterator.h: Remove
+	  the method Xapian::PostingIterator::get_weight() which has been
+	  commented out almost forever.  Weight-handling isn't really
+	  appropriate here.
+	* api/ompostlistiterator.cc: Remove "\todo" since it's already done!
+
 Mon Mar 31 13:24:11 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/flint/: Remove unnecessary default dtors.
