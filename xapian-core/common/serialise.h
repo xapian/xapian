@@ -1,7 +1,7 @@
 /* @file serialise.h
  * @brief functions to convert classes to strings and back
  *
- * Copyright (C) 2006,2007 Olly Betts
+ * Copyright (C) 2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -123,14 +123,6 @@ std::string serialise_stats(const Stats &stats);
  *  @return	The unserialised Stats object.
  */
 Stats unserialise_stats(const std::string &s);
-
-/** Serialise a Xapian::MSet object for remote protocol < 30.5.
- *
- *  @param mset		The object to serialise.
- *
- *  @return		The serialisation of the Xapian::MSet object.
- */
-std::string serialise_mset_pre_30_5(const Xapian::MSet &mset);
 
 /** Serialise a Xapian::MSet object.
  *

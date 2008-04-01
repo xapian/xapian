@@ -1,3 +1,11 @@
+Tue Apr 01 02:23:27 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/remote/remote-database.cc,common/remoteprotocol.h,
+	  common/remoteserver.h,common/serialise.h,docs/remote_protocol.html,
+	  net/remoteserver.cc,net/serialise.cc: Update remote protocol to
+	  a new major version (31) and strip out all the gunk that's only
+	  there to keep it compatible with older version 30 clients.
+
 Tue Apr 01 00:12:38 GMT 2008  Olly Betts <olly@survex.com>
 
 	* api/ompostlistiterator.cc,include/xapian/postingiterator.h: Remove

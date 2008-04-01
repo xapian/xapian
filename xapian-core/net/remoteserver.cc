@@ -190,14 +190,13 @@ RemoteServer::run()
 		&RemoteServer::msg_update,
 		&RemoteServer::msg_adddocument,
 		&RemoteServer::msg_cancel,
-		&RemoteServer::msg_deletedocument_pre_30_2,
 		&RemoteServer::msg_deletedocumentterm,
 		&RemoteServer::msg_flush,
 		&RemoteServer::msg_replacedocument,
 		&RemoteServer::msg_replacedocumentterm,
-		NULL, // MSG_GETMSET - used during a conversation.
-		NULL, // MSG_SHUTDOWN - handled by get_message().
 		&RemoteServer::msg_deletedocument
+		// MSG_GETMSET - used during a conversation.
+		// MSG_SHUTDOWN - handled by get_message().
 	    };
 
 	    string message;
@@ -431,17 +430,11 @@ RemoteServer::msg_query(const string &message_in)
 #else
     char type = get_message(active_timeout, message);
     if (rare(type != MSG_GETMSET)) {
-	if (type != MSG_GETMSET_PRE_30_5 && type != MSG_GETMSET_PRE_30_3) {
-	    string errmsg("Expecting message type ");
-	    errmsg += om_tostring(MSG_GETMSET_PRE_30_3);
-	    errmsg += " or ";
-	    errmsg += om_tostring(MSG_GETMSET_PRE_30_5);
-	    errmsg += " or ";
-	    errmsg += om_tostring(MSG_GETMSET);
-	    errmsg += ", got ";
-	    errmsg += om_tostring(type);
-	    throw Xapian::NetworkError(errmsg);
-	}
+	string errmsg("Expecting message type ");
+	errmsg += om_tostring(MSG_GETMSET);
+	errmsg += ", got ";
+	errmsg += om_tostring(type);
+	throw Xapian::NetworkError(errmsg);
     }
 #endif
     p = message.c_str();
@@ -451,9 +444,7 @@ RemoteServer::msg_query(const string &message_in)
     Xapian::termcount maxitems = decode_length(&p, p_end, false);
 
     Xapian::termcount check_at_least = 0;
-    if (type != MSG_GETMSET_PRE_30_3) {
-	check_at_least = decode_length(&p, p_end, false);
-    }
+    check_at_least = decode_length(&p, p_end, false);
 
     message.erase(0, message.size() - (p_end - p));
     Stats total_stats(unserialise_stats(message));
@@ -461,11 +452,7 @@ RemoteServer::msg_query(const string &message_in)
     Xapian::MSet mset;
     match.get_mset(first, maxitems, check_at_least, mset, total_stats, 0, 0);
 
-    if (type == MSG_GETMSET_PRE_30_3 || type == MSG_GETMSET_PRE_30_5) {
-	send_message(REPLY_RESULTS_PRE_30_5, serialise_mset_pre_30_5(mset));
-    } else {
-	send_message(REPLY_RESULTS, serialise_mset(mset));
-    }
+    send_message(REPLY_RESULTS, serialise_mset(mset));
 }
 
 void
@@ -559,9 +546,8 @@ RemoteServer::msg_adddocument(const string & message)
     send_message(REPLY_ADDDOCUMENT, encode_length(did));
 }
 
-// FIXME: eliminate this method when we move to remote major 31.
 void
-RemoteServer::msg_deletedocument_pre_30_2(const string & message)
+RemoteServer::msg_deletedocument(const string & message)
 {
     if (!wdb)
 	throw Xapian::InvalidOperationError("Server is read-only");
@@ -571,12 +557,6 @@ RemoteServer::msg_deletedocument_pre_30_2(const string & message)
     Xapian::docid did = decode_length(&p, p_end, false);
 
     wdb->delete_document(did);
-}
-
-void
-RemoteServer::msg_deletedocument(const string & message)
-{
-    msg_deletedocument_pre_30_2(message);
 
     send_message(REPLY_DONE, "");
 }
