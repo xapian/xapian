@@ -1,3 +1,9 @@
+Tue Apr 01 04:27:43 GMT 2008  Olly Betts <olly@survex.com>
+
+	* java/native/Makefile.am,python/Makefile.am,ruby/Makefile.am: Use
+	  the libtool -shrext option to specify a different module extension
+	  rather than our own ugly bodge.
+
 Mon Mar 31 02:10:22 GMT 2008  Olly Betts <olly@survex.com>
 
 	* php/smoketest.php: Remove stray extra blank line.
