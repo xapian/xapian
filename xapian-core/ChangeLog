@@ -1,3 +1,10 @@
+Tue Apr 01 11:19:58 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_table.cc,backends/flint/flint_table.h:
+	  Gently rearrange where and how we check for overlong keys.
+	* tests/api_wrdb.cc: Extend termtoolong1 to test that the "term too
+	  long" exception messages contain the length correctly.
+
 Tue Apr 01 06:06:43 GMT 2008  Olly Betts <olly@survex.com>
 
 	* AUTHORS,HACKING,INSTALL,README,debian/control.in,debian/copyright,

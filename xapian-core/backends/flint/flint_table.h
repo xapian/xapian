@@ -23,6 +23,7 @@
 #ifndef OM_HGUARD_FLINT_TABLE_H
 #define OM_HGUARD_FLINT_TABLE_H
 
+#include <xapian/error.h>
 #include <xapian/visibility.h>
 
 #include <algorithm>
@@ -35,6 +36,9 @@ using std::string;
 #include "flint_cursor.h"
 #include "noreturn.h"
 
+#include "stringutils.h"
+#include "utils.h"
+
 #include <zlib.h>
 
 #define DONT_COMPRESS -1
@@ -44,7 +48,7 @@ using std::string;
  *  This gives the upper limit of the size of a key that may be stored in the
  *  B-tree (252 bytes with the present implementation).
  */
-const string::size_type FLINT_BTREE_MAX_KEY_LEN = 252;
+#define FLINT_BTREE_MAX_KEY_LEN 252
 
 // FIXME: This named constant probably isn't used everywhere it should be...
 #define BYTES_PER_BLOCK_NUMBER 4
@@ -198,10 +202,17 @@ public:
 	set_size(I2 + K1 + 4);  /* total length */
     }
     void form_key(const string & key_) {
-	Assert(key_.length() <= FLINT_BTREE_MAX_KEY_LEN);
-
-	// This just so it doesn't fall over horribly in non-debug builds.
-	string::size_type key_len = std::min(key_.length(), FLINT_BTREE_MAX_KEY_LEN);
+	string::size_type key_len = key_.length();
+	if (key_len > FLINT_BTREE_MAX_KEY_LEN) {
+	    // We check term length when a term is added to a document but
+	    // flint doubles zero bytes, so this can still happen for terms
+	    // which contain one or more zero bytes.
+	    string msg("Key too long: length was ");
+	    msg += om_tostring(key_len);
+	    msg += " bytes, maximum length of a key is "
+		   STRINGIZE(FLINT_BTREE_MAX_KEY_LEN) " bytes";
+	    throw Xapian::InvalidArgumentError(msg);
+	}
 
 	set_key_len(key_len + K1 + C2);
 	memmove(p + I2 + K1, key_.data(), key_len);

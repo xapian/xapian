@@ -1904,7 +1904,16 @@ DEFINE_TESTCASE(termtoolong1, writable) {
 	Xapian::Document doc;
 	string term(i, 'X');
 	doc.add_term(term);
-	TEST_EXCEPTION(Xapian::InvalidArgumentError, db.add_document(doc));
+	try {
+	    db.add_document(doc);
+	    TEST_AND_EXPLAIN(false, "Expecting exception InvalidArgumentError");
+	} catch (const Xapian::InvalidArgumentError &e) {
+	    // Check that the max length is correctly expressed in the
+	    // exception message - we've got this wrong in two different ways
+	    // in the past!
+	    tout << e.get_msg() << endl;
+	    TEST(e.get_msg().find("Term too long (> 245)") != string::npos);
+	}
     }
 
     for (Xapian::doccount j = 240; j <= 245; ++j) {
@@ -1916,6 +1925,23 @@ DEFINE_TESTCASE(termtoolong1, writable) {
     }
 
     db.flush();
+
+    {
+	// Currently flint doesn't allow
+	Xapian::Document doc;
+	doc.add_term(string(126, '\0'));
+	db.add_document(doc);
+	try {
+	    db.flush();
+	    TEST_AND_EXPLAIN(false, "Expecting exception InvalidArgumentError");
+	} catch (const Xapian::InvalidArgumentError &e) {
+	    // Check that the max length is correctly expressed in the
+	    // exception message - we've got this wrong in two different ways
+	    // in the past!
+	    tout << e.get_msg() << endl;
+	    TEST(e.get_msg().find(" is 252 bytes") != string::npos);
+	}
+    }
 
     return true;
 }
