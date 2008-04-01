@@ -1,3 +1,12 @@
+Tue Apr 01 03:44:32 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_record.cc,backends/flint/flint_values.cc,
+	  common/,docs/quickstartexpand.cc.html,docs/quickstartindex.cc.html,
+	  docs/quickstartsearch.cc.html,matcher/: Update the FSF address for
+	  the small number of files which still have the old one.  Remove the
+	  "START_LICENCE" and "END_LICENCE" markers from the small number of
+	  files which still have them.
+
 Tue Apr 01 02:23:27 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/remote/remote-database.cc,common/remoteprotocol.h,
