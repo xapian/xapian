@@ -1,3 +1,9 @@
+Tue Apr 01 06:06:43 GMT 2008  Olly Betts <olly@survex.com>
+
+	* AUTHORS,HACKING,INSTALL,README,debian/control.in,debian/copyright,
+	  docs/install.html,xapian-core.spec.in: Standardise URLs on our
+	  website to be xapian.org not www.xapian.org.
+
 Tue Apr 01 03:44:32 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_record.cc,backends/flint/flint_values.cc,

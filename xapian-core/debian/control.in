@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Olly Betts <olly@survex.com>
 Standards-Version: 3.7.3
 Build-Depends: debhelper (>= 4.1.22), autotools-dev, zlib1g-dev
-Homepage: http://www.xapian.org/
+Homepage: http://xapian.org/
 
 Package: libxapian@LIBXAPIAN_SOVERSION@
 Architecture: any

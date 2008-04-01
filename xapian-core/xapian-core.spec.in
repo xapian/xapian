@@ -9,9 +9,9 @@ Name: @PACKAGE@
 Version: @VERSION@
 Release: 1
 License: GPL
-Vendor: www.xapian.org
+Vendor: xapian.org
 Group: Applications/Databases
-URL: http://www.xapian.org/
+URL: http://xapian.org/
 Requires: %{name}-libs = %{version}
 Source: http://www.oligarchy.co.uk/xapian/%{version}/%{name}-%{version}.tar.gz
 BuildRequires: autoconf automake libtool gcc-c++ zlib-devel

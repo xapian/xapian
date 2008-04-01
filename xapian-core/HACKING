@@ -6,7 +6,7 @@ Instructions for hacking on Xapian
 This file is aimed to help developers get started with working on
 Xapian.  The documentation contains a section covering various internal
 aspects of the library - this can also be found on the Xapian website
-<http://www.xapian.org/>.
+<http://xapian.org/>.
 
 Extra options to give to configure:
 ===================================
@@ -837,7 +837,7 @@ Submitting Patches:
 If you have a patch to fix a problem in Xapian, or to add a new feature,
 please send it to us for inclusion.  Any major changes should be discussed
 on the xapian-devel mailing list first:
-<http://www.xapian.org/lists.php>
+<http://xapian.org/lists.php>
 
 We find patches in unified diff format easiest to read.  If you're using a
 SVN checkout just use "svn diff" to generate the diff.  If you're working
@@ -1100,7 +1100,7 @@ This is a (hopefully complete) list of the jobs which need doing:
   xapian-bindings), and the library version info in xapian-core's configure.ac
 
 * Move any bugs fixed by this release from "RESOLVED FIXED" -> "CLOSED"
-  http://www.xapian.org/cgi-bin/bugzilla/buglist.cgi?bug_status=RESOLVED&resolution=FIXED
+  http://xapian.org/cgi-bin/bugzilla/buglist.cgi?bug_status=RESOLVED&resolution=FIXED
   Make sure the submitters are mentioned in the "thanks" list in AUTHORS.
 
 * On ixion, svn tag the source trees for the new revision - use the
@@ -1112,12 +1112,12 @@ This is a (hopefully complete) list of the jobs which need doing:
   across to the website.
 
 * Add the new version to the list of versions in Bugzilla:
-  http://www.xapian.org/cgi-bin/bugzilla/editversions.cgi?product=Xapian&action=add
+  http://xapian.org/cgi-bin/bugzilla/editversions.cgi?product=Xapian&action=add
 
 * Update the 1.0.N tracker bug to track 1.0.N+1:
-  http://www.xapian.org/cgi-bin/bugzilla/show_bug.cgi?id=200
+  http://xapian.org/cgi-bin/bugzilla/show_bug.cgi?id=200
 
-* Update the website: version.php in the CVS module www.xapian.org contains the
+* Update the website: version.php in the CVS module xapian.org contains the
   latest version and the date it was released.
 
 * Run /u1/olly/xapian-website-update/update_website.sh
