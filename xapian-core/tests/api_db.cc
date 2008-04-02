@@ -297,7 +297,8 @@ DEFINE_TESTCASE(matchfunctor1, backend && !remote) {
     TEST_EQUAL(mymset.size(), 1);
     TEST(mymset.get_matches_lower_bound() >= 1);
     TEST(mymset.get_matches_lower_bound() <= 3);
-    TEST_EQUAL(mymset.get_matches_upper_bound(), 6);
+    TEST(mymset.get_matches_upper_bound() >= 3);
+    TEST(mymset.get_matches_upper_bound() <= 6);
     TEST(mymset.get_matches_estimated() > 0);
     TEST(mymset.get_matches_estimated() <= 6);
 
@@ -315,7 +316,8 @@ DEFINE_TESTCASE(matchfunctor1, backend && !remote) {
     TEST_EQUAL(mymset.size(), 1);
     TEST(mymset.get_matches_lower_bound() >= 1);
     TEST(mymset.get_matches_lower_bound() <= 3);
-    TEST_EQUAL(mymset.get_matches_upper_bound(), 6);
+    TEST(mymset.get_matches_upper_bound() >= 3);
+    TEST(mymset.get_matches_upper_bound() <= 6);
     TEST(mymset.get_matches_estimated() > 0);
     TEST(mymset.get_matches_estimated() <= 6);
 
@@ -327,7 +329,8 @@ DEFINE_TESTCASE(matchfunctor1, backend && !remote) {
     TEST_EQUAL(mymset.size(), 1);
     TEST(mymset.get_matches_lower_bound() >= 1);
     TEST(mymset.get_matches_lower_bound() <= 3);
-    TEST_EQUAL(mymset.get_matches_upper_bound(), 6);
+    TEST(mymset.get_matches_upper_bound() >= 3);
+    TEST(mymset.get_matches_upper_bound() <= 6);
     TEST(mymset.get_matches_estimated() > 0);
     TEST(mymset.get_matches_estimated() <= 6);
 
@@ -337,7 +340,8 @@ DEFINE_TESTCASE(matchfunctor1, backend && !remote) {
     TEST_EQUAL(mymset.size(), 1);
     TEST(mymset.get_matches_lower_bound() >= 1);
     TEST(mymset.get_matches_lower_bound() <= 3);
-    TEST_EQUAL(mymset.get_matches_upper_bound(), 6);
+    TEST(mymset.get_matches_upper_bound() >= 3);
+    TEST(mymset.get_matches_upper_bound() <= 6);
     TEST(mymset.get_matches_estimated() > 0);
     TEST(mymset.get_matches_estimated() <= 6);
 

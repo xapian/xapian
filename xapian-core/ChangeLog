@@ -1,3 +1,13 @@
+Wed Apr 02 07:00:36 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/multimatch.cc: Modify the estimate for the number of hits
+	  based on the rate at which a match decider has been denying
+	  documents.  Also, reduce the upper bound based on the number of
+	  documents denied.
+	* tests/api_db.cc: Check that the upper bound when a match decider
+	  is used is within the valid range, rather than a particular
+	  value.
+ 
 Tue Apr 01 22:40:19 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* configure.ac,tests/perftest.cc,tests/submitperftest.py.in,

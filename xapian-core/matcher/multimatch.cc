@@ -433,6 +433,11 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     Xapian::doccount duplicates_found = 0;
     Xapian::doccount documents_considered = 0;
 
+    // Number of documents considered by a decider or matchspy.
+    Xapian::doccount decider_considered = 0;
+    // Number of documents denied by the decider or matchspy.
+    Xapian::doccount decider_denied = 0;
+
     // We keep track of the number of null collapse values because this allows
     // us to provide a better value for matches_lower_bound if there are null
     // collapse values.
@@ -574,8 +579,16 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		    doc = temp;
 		}
 		Xapian::Document mydoc(doc.get());
-		if (matchspy && !matchspy->operator()(mydoc)) continue;
-		if (mdecider && !mdecider->operator()(mydoc)) continue;
+
+		++decider_considered;
+		if (matchspy && !matchspy->operator()(mydoc)) {
+		    ++decider_denied;
+		    continue;
+		}
+		if (mdecider && !mdecider->operator()(mydoc)) {
+		    ++decider_denied;
+		    continue;
+		}
 	    }
 	}
 
@@ -905,7 +918,29 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    // We can safely reduce the upper bound by the number of
 	    // duplicates we've seen.
 	    matches_upper_bound -= duplicates_found;
+	}
 
+	if (matchspy || mdecider) {
+	    matches_lower_bound = max(docs_matched, matches_lower_bound);
+
+	    // Modify the estimate for the number of hits based on the rate at
+	    // which the decider has been denying documents.
+	    if (decider_considered > 0) {
+		double decider_rate =
+			double(decider_denied) / double(decider_considered);
+		matches_estimated -=
+			Xapian::doccount(double(matches_estimated) *
+					 decider_rate);
+	    }
+
+	    // If a document is denied by a match decider, it is not possible
+	    // for it to found to be a duplicate, so it is safe to also reduce
+	    // the upper bound by the number of documents denied by a match
+	    // decider.
+	    matches_upper_bound -= decider_denied;
+	}
+
+	if (collapse_key != Xapian::BAD_VALUENO || matchspy || mdecider) {
 	    matches_estimated = max(matches_estimated, matches_lower_bound);
 	    matches_estimated = min(matches_estimated, matches_upper_bound);
 	} else if (!percent_cutoff) {
