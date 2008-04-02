@@ -111,7 +111,7 @@ def gen_svn_updated_valgrind_factory(baseURL):
     f.addStep(step.Compile)
 
     for target in ("check-none", "check-inmemory", "check-remoteprog",
-                   "check-flint", "check-quartz"):
+                   "check-flint"):
         f.addStep(step.Test, name=target, command=("make", target, "XAPIAN_TESTSUITE_OUTPUT=plain"), workdir='build/xapian-core')
 
     # Currently, valgrind incorrectly reports leaked memory for the remotetcp
