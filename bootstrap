@@ -190,9 +190,8 @@ for target in all install uninstall install-strip clean distclean mostlyclean ma
   for d in $dirs ; do
     if test swig = "$d" ; then
       case $target in
-	install*|uninstall|dist|check|distcheck)
-	  ;;
-	all)
+	install*|uninstall|dist|check|distcheck|all)
+	  # Need to ensure swig is built before "make dist", "make check", etc.
 	  echo "	cd $d && \$(MAKE)" >> Makefile.tmp ;;
 	mostlyclean)
 	  echo "	cd $d && \$(MAKE) clean" >> Makefile.tmp ;;
