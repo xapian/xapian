@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
  * Copyright 2006,2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -32,8 +32,6 @@
 #include <string>
 #include <vector>
 
-// We have to use the deprecated Quartz::open() method.
-#define XAPIAN_DEPRECATED(D) D
 #include <xapian.h>
 
 #include "backendmanager.h"
@@ -269,11 +267,40 @@ DEFINE_TESTCASE(matchfunctor1, backend && !remote) {
     Xapian::MSetIterator i = mymset.begin();
     TEST(i != mymset.end());
     TEST_EQUAL(mymset.size(), 3);
+    TEST_EQUAL(mymset.get_matches_lower_bound(), 3);
+    TEST_EQUAL(mymset.get_matches_upper_bound(), 3);
+    TEST_EQUAL(mymset.get_matches_estimated(), 3);
     for ( ; i != mymset.end(); ++i) {
 	const Xapian::Document doc(i.get_document());
 	TEST(myfunctor(doc));
 	docid_checked[*i] = true;
     }
+
+    // Check that there are some documents which aren't accepted by the match
+    // decider.
+    mymset = enquire.get_mset(0, 100);
+    TEST(mymset.size() > 3);
+
+    // Check that the bounds are appropriate even if we don't ask for any
+    // actual matches.
+    mymset = enquire.get_mset(0, 0, 0, &myfunctor);
+    TEST_EQUAL(mymset.size(), 0);
+    TEST_EQUAL(mymset.get_matches_lower_bound(), 0);
+    TEST_EQUAL(mymset.get_matches_upper_bound(), 6);
+    TEST(mymset.get_matches_estimated() > 0);
+    TEST(mymset.get_matches_estimated() <= 6);
+
+    // Check that the bounds are appropriate if we ask for only one hit.
+    // (Regression test - until SVN 10256, we didn't reduce the lower_bound
+    // appropriately, and returned 6 here.)
+    mymset = enquire.get_mset(0, 1, 0, &myfunctor);
+    TEST_EQUAL(mymset.size(), 1);
+    TEST(mymset.get_matches_lower_bound() >= 1);
+    TEST(mymset.get_matches_lower_bound() <= 3);
+    TEST(mymset.get_matches_upper_bound() >= 3);
+    TEST(mymset.get_matches_upper_bound() <= 6);
+    TEST(mymset.get_matches_estimated() > 0);
+    TEST(mymset.get_matches_estimated() <= 6);
 
     // Check that the other documents don't satisfy the condition.
     for (Xapian::docid did = 1; did < docid_checked.size(); ++did) {
@@ -281,6 +308,42 @@ DEFINE_TESTCASE(matchfunctor1, backend && !remote) {
 	    TEST(!myfunctor(db.get_document(did)));
 	}
     }
+
+    // Check that the bounds are appropriate if a collapse key is used.
+    // Use a value which is never set so we don't actually discard anything.
+    enquire.set_collapse_key(99);
+    mymset = enquire.get_mset(0, 1, 0, &myfunctor);
+    TEST_EQUAL(mymset.size(), 1);
+    TEST(mymset.get_matches_lower_bound() >= 1);
+    TEST(mymset.get_matches_lower_bound() <= 3);
+    TEST(mymset.get_matches_upper_bound() >= 3);
+    TEST(mymset.get_matches_upper_bound() <= 6);
+    TEST(mymset.get_matches_estimated() > 0);
+    TEST(mymset.get_matches_estimated() <= 6);
+
+    // Check that the bounds are appropriate if a percentage cutoff is in
+    // use.  Set a 1% threshold so we don't actually discard anything.
+    enquire.set_collapse_key(Xapian::BAD_VALUENO);
+    enquire.set_cutoff(1);
+    mymset = enquire.get_mset(0, 1, 0, &myfunctor);
+    TEST_EQUAL(mymset.size(), 1);
+    TEST(mymset.get_matches_lower_bound() >= 1);
+    TEST(mymset.get_matches_lower_bound() <= 3);
+    TEST(mymset.get_matches_upper_bound() >= 3);
+    TEST(mymset.get_matches_upper_bound() <= 6);
+    TEST(mymset.get_matches_estimated() > 0);
+    TEST(mymset.get_matches_estimated() <= 6);
+
+    // And now with both a collapse key and percentage cutoff.
+    enquire.set_collapse_key(99);
+    mymset = enquire.get_mset(0, 1, 0, &myfunctor);
+    TEST_EQUAL(mymset.size(), 1);
+    TEST(mymset.get_matches_lower_bound() >= 1);
+    TEST(mymset.get_matches_lower_bound() <= 3);
+    TEST(mymset.get_matches_upper_bound() >= 3);
+    TEST(mymset.get_matches_upper_bound() <= 6);
+    TEST(mymset.get_matches_estimated() > 0);
+    TEST(mymset.get_matches_estimated() <= 6);
 
     return true;
 }
@@ -1284,99 +1347,6 @@ DEFINE_TESTCASE(synonym2, backend) {
 }
 
 // tests that specifying a nonexistent input file throws an exception.
-DEFINE_TESTCASE(quartzdatabaseopeningerror1, quartz) {
-    mkdir(".quartz", 0755);
-
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-		   Xapian::Quartz::open(".quartz/nosuchdirectory"));
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-		   Xapian::Quartz::open(".quartz/nosuchdirectory", Xapian::DB_OPEN));
-
-    mkdir(".quartz/emptydirectory", 0700);
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-		   Xapian::Quartz::open(".quartz/emptydirectory"));
-
-    touch(".quartz/somefile");
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-	Xapian::Quartz::open(".quartz/somefile"));
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-	Xapian::Quartz::open(".quartz/somefile", Xapian::DB_OPEN));
-    TEST_EXCEPTION(Xapian::DatabaseCreateError,
-	Xapian::Quartz::open(".quartz/somefile", Xapian::DB_CREATE));
-    TEST_EXCEPTION(Xapian::DatabaseCreateError,
-	Xapian::Quartz::open(".quartz/somefile", Xapian::DB_CREATE_OR_OPEN));
-    TEST_EXCEPTION(Xapian::DatabaseCreateError,
-	Xapian::Quartz::open(".quartz/somefile", Xapian::DB_CREATE_OR_OVERWRITE));
-
-    return true;
-}
-
-/// Test opening of a quartz database
-DEFINE_TESTCASE(quartzdatabaseopen1, quartz) {
-    const char * dbdir = ".quartz/test_quartzdatabaseopen1";
-    mkdir(".quartz", 0755);
-
-    {
-	rm_rf(dbdir);
-	Xapian::WritableDatabase wdb =
-	    Xapian::Quartz::open(dbdir, Xapian::DB_CREATE);
-	TEST_EXCEPTION(Xapian::DatabaseLockError,
-	    Xapian::Quartz::open(dbdir, Xapian::DB_OPEN));
-	Xapian::Quartz::open(dbdir);
-    }
-
-    {
-	rm_rf(dbdir);
-	mkdir(dbdir, 0700);
-	Xapian::WritableDatabase wdb =
-	    Xapian::Quartz::open(dbdir, Xapian::DB_CREATE);
-	TEST_EXCEPTION(Xapian::DatabaseLockError,
-	    Xapian::Quartz::open(dbdir, Xapian::DB_OPEN));
-	Xapian::Quartz::open(dbdir);
-    }
-
-    {
-	rm_rf(dbdir);
-	Xapian::WritableDatabase wdb =
-	    Xapian::Quartz::open(dbdir, Xapian::DB_CREATE_OR_OPEN);
-	TEST_EXCEPTION(Xapian::DatabaseLockError,
-	    Xapian::Quartz::open(dbdir, Xapian::DB_CREATE_OR_OVERWRITE));
-	Xapian::Quartz::open(dbdir);
-    }
-
-    {
-	rm_rf(dbdir);
-	Xapian::WritableDatabase wdb =
-	    Xapian::Quartz::open(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
-	TEST_EXCEPTION(Xapian::DatabaseLockError,
-	    Xapian::Quartz::open(dbdir, Xapian::DB_CREATE_OR_OPEN));
-	Xapian::Quartz::open(dbdir);
-    }
-
-    {
-	TEST_EXCEPTION(Xapian::DatabaseCreateError,
-	    Xapian::Quartz::open(dbdir, Xapian::DB_CREATE));
-	Xapian::WritableDatabase wdb =
-	    Xapian::Quartz::open(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
-	Xapian::Quartz::open(dbdir);
-    }
-
-    {
-	Xapian::WritableDatabase wdb =
-	    Xapian::Quartz::open(dbdir, Xapian::DB_CREATE_OR_OPEN);
-	Xapian::Quartz::open(dbdir);
-    }
-
-    {
-	Xapian::WritableDatabase wdb =
-	    Xapian::Quartz::open(dbdir, Xapian::DB_OPEN);
-	Xapian::Quartz::open(dbdir);
-    }
-
-    return true;
-}
-
-// tests that specifying a nonexistent input file throws an exception.
 DEFINE_TESTCASE(flintdatabaseopeningerror1, flint) {
     mkdir(".flint", 0755);
 
@@ -1828,6 +1798,27 @@ DEFINE_TESTCASE(matchall1, backend) {
 				    Xapian::Query::MatchAll));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.get_matches_lower_bound(), db.get_doccount());
+
+    return true;
+}
+
+// Test using a ValueSetMatchDecider
+DEFINE_TESTCASE(valuesetmatchdecider2, backend && !remote) {
+    Xapian::Database db(get_database("apitest_phrase"));
+    Xapian::Enquire enq(db);
+    enq.set_query(Xapian::Query("leav"));
+
+    Xapian::ValueSetMatchDecider vsmd1(1, true);
+    vsmd1.add_value("n");
+    Xapian::ValueSetMatchDecider vsmd2(1, false);
+    vsmd2.add_value("n");
+
+    Xapian::MSet mymset = enq.get_mset(0, 20);
+    mset_expect_order(mymset, 8, 6, 4, 5, 7, 10, 12, 11, 13, 9, 14);
+    mymset = enq.get_mset(0, 20, 0, NULL, &vsmd1);
+    mset_expect_order(mymset, 6, 12);
+    mymset = enq.get_mset(0, 20, 0, NULL, &vsmd2);
+    mset_expect_order(mymset, 8, 4, 5, 7, 10, 11, 13, 9, 14);
 
     return true;
 }

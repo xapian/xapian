@@ -46,7 +46,7 @@ typedef Xapian::PositionIterator::Internal PositionList;
 
 namespace Xapian {
 
-class ReplicationInfo;
+struct ReplicationInfo;
 
 /** Base class for databases.
  */

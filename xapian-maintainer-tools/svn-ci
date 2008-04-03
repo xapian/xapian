@@ -176,7 +176,7 @@ if ($edit_cl) {
 	    die "No modified files found to commit!\n";
 	}
 	open CO, ">$tmp" or die $!;
-	print CO strftime("%a %h %d %H:%M:%S %Z %Y", localtime);
+	print CO strftime("%a %h %d %H:%M:%S GMT %Y", gmtime);
 	print CO "  $realname <$email>\n\n\t* ";
 	my $line = join ',', @newfiles;
 	while (length($line) >= 68 && $line =~ s/^(.{1,68},)//) {

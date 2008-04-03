@@ -1,6 +1,6 @@
 /* diritor.h: Iterator through entries in a directory.
  *
- * Copyright (C) 2007 Olly Betts
+ * Copyright (C) 2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,8 +22,11 @@
 
 #include <string>
 
-#include <dirent.h>
+#include "safedirent.h"
+#include "safeerrno.h"
 #include "safesysstat.h"
+
+#include "common/noreturn.h"
 
 class DirectoryIterator {
     std::string path;
@@ -55,12 +58,16 @@ class DirectoryIterator {
     //
     //  @return false if there are no more entries.
     bool next() {
+	errno = 0;
 	do {
 	    entry = readdir(dir);
 	} while (entry && entry->d_name[0] == '.');
 	statbuf_valid = false;
+	if (entry == NULL && errno != 0) next_failed();
 	return (entry != NULL);
     }
+
+    XAPIAN_NORETURN(void next_failed() const);
 
     const char * leafname() const { return entry->d_name; }
 

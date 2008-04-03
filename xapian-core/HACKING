@@ -6,7 +6,7 @@ Instructions for hacking on Xapian
 This file is aimed to help developers get started with working on
 Xapian.  The documentation contains a section covering various internal
 aspects of the library - this can also be found on the Xapian website
-<http://www.xapian.org/>.
+<http://xapian.org/>.
 
 Extra options to give to configure:
 ===================================
@@ -109,9 +109,9 @@ Running test programs
 
 To run all tests, use ``make check``.  You can also run just the subset of
 tests which exercise the inmemory, remote progserver, remote TCP,
-multi-database, quartz, or flint backends using ``make check-inmemory``, ``make
-check-remoteprog``, ``make check-remotetcp``, ``make check-multi``,
-``make check-quartz``, or ``make check-flint`` respectively.
+multi-database, or flint backends using ``make check-inmemory``, ``make
+check-remoteprog``, ``make check-remotetcp``, ``make check-multi``, or
+``make check-flint`` respectively.
 
 Also, ``make check-remote`` will run the tests on both variants of the remote
 backend, and ``make check-none`` will run those tests which don't use any
@@ -837,7 +837,7 @@ Submitting Patches:
 If you have a patch to fix a problem in Xapian, or to add a new feature,
 please send it to us for inclusion.  Any major changes should be discussed
 on the xapian-devel mailing list first:
-<http://www.xapian.org/lists.php>
+<http://xapian.org/lists.php>
 
 We find patches in unified diff format easiest to read.  If you're using a
 SVN checkout just use "svn diff" to generate the diff.  If you're working
@@ -925,6 +925,15 @@ to follow the style of the existing code.  In particular:
   (pre-ISO compilers used '#include <list.h>', but GCC has generated a warning
   for this form for years).
 
+* When passing an empty string to a method expecting ``const std::string &``
+  prefer ``std::string()`` to ``""`` or ``std::string("")`` as the first form
+  is more likely to directly use a special "empty string representation" (it
+  does with GCC at least).
+
+* Prefer ``new SomeClass`` to ``new SomeClass()``, since the latter tends to
+  lead one to write ``SomeClass foo();` which is a function prototype, and not
+  equivalent to the variable definition ``SomeClass foo``.
+
 We will do our best to give credit where credit is due - if we have used
 patches from you, or received helpful reports or advice, we will add your name
 to the AUTHORS file (unless you specifically request us not to).  If you see we
@@ -982,12 +991,14 @@ introduction to the Xapian test system in ``docs/tests.html``.
 4) Create a ChangeLog entry and commit
 --------------------------------------
 
- * Add an entry to the ChangeLog file at the top of the module.  The
-   text of this can be identical to the SVN commit message.  The datestamps in
-   our ChangeLog entries are as produced by the Unix date utility when invoked
-   as::
+ * We recommend using the ``svn-ci`` script which can be found in the
+   ``xapian-maintainer-tools`` repository top-level directory.  If you must
+   do this by hand, add an entry to the ChangeLog file at the top-level of the
+   module you have modified.  The text of this should generally be the same as
+   the SVN commit message.  The datestamps in our ChangeLog entries are as
+   produced by the GNU date utility when invoked as::
 
-     date "+%a %b %d %T %Z %Y"
+     date --utc "+%a %b %d %T GMT %Y"
 
  * Commit to the repository.
 
@@ -1089,7 +1100,7 @@ This is a (hopefully complete) list of the jobs which need doing:
   xapian-bindings), and the library version info in xapian-core's configure.ac
 
 * Move any bugs fixed by this release from "RESOLVED FIXED" -> "CLOSED"
-  http://www.xapian.org/cgi-bin/bugzilla/buglist.cgi?bug_status=RESOLVED&resolution=FIXED
+  http://xapian.org/cgi-bin/bugzilla/buglist.cgi?bug_status=RESOLVED&resolution=FIXED
   Make sure the submitters are mentioned in the "thanks" list in AUTHORS.
 
 * On ixion, svn tag the source trees for the new revision - use the
@@ -1101,12 +1112,12 @@ This is a (hopefully complete) list of the jobs which need doing:
   across to the website.
 
 * Add the new version to the list of versions in Bugzilla:
-  http://www.xapian.org/cgi-bin/bugzilla/editversions.cgi?product=Xapian&action=add
+  http://xapian.org/cgi-bin/bugzilla/editversions.cgi?product=Xapian&action=add
 
 * Update the 1.0.N tracker bug to track 1.0.N+1:
-  http://www.xapian.org/cgi-bin/bugzilla/show_bug.cgi?id=200
+  http://xapian.org/cgi-bin/bugzilla/show_bug.cgi?id=200
 
-* Update the website: version.php in the CVS module www.xapian.org contains the
+* Update the website: version.php in the CVS module xapian.org contains the
   latest version and the date it was released.
 
 * Run /u1/olly/xapian-website-update/update_website.sh

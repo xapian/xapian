@@ -1,6 +1,6 @@
 /* flint_positionlist.cc: A position list in a flint database.
  *
- * Copyright (C) 2004,2005,2006 Olly Betts
+ * Copyright (C) 2004,2005,2006,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,21 +14,22 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
 
 #include <config.h>
 
+#include "flint_positionlist.h"
+
 #include <xapian/types.h>
 
-#include "flint_positionlist.h"
 #include "flint_utils.h"
 #include "omdebug.h"
 
-#include <vector>
-#include <string>
 #include <cmath>
+#include <string>
+#include <vector>
 
 using namespace std;
 
@@ -67,60 +68,64 @@ inline int my_fls(unsigned mask)
 }
 
 class BitWriter {
-    private:
-	string buf;
-	int n_bits;
-	unsigned int acc;
-    public:
-	BitWriter() : n_bits(0), acc(0) { }
-	BitWriter(const string & seed) : buf(seed), n_bits(0), acc(0) { }
-	void encode(size_t value, size_t outof) {
-	    Assert(value < outof);
-	    size_t bits = my_fls(outof - 1);
-	    const size_t spare = (1 << bits) - outof;
-	    if (spare) {
-		const size_t mid_start = (outof - spare) / 2;
-		if (value < mid_start) {
-		    write_bits(value, bits);
-		} else if (value >= mid_start + spare) {
-		    write_bits((value - (mid_start + spare)) | (1 << (bits - 1)), bits);
-		} else {
-		    --bits;
-		    write_bits(value, bits);
-		}
-	    } else {
-		write_bits(value, bits);
-	    }
-	}
-	void write_bits(int data, int count) {
-	    if (count + n_bits > 32) {
-		// We need to write more bits than there's empty room for in
-		// the accumulator.  So we arrange to shift out 8 bits, then
-		// adjust things so we're adding 8 fewer bits.
-		Assert(count <= 32);
-		acc |= (data << n_bits);
-		buf += char(acc);
-		acc >>= 8;
-		data >>= 8;
-		count -= 8;
-	    }
+    string buf;
+    int n_bits;
+    unsigned int acc;
+
+    void write_bits(int data, int count) {
+	if (count + n_bits > 32) {
+	    // We need to write more bits than there's empty room for in
+	    // the accumulator.  So we arrange to shift out 8 bits, then
+	    // adjust things so we're adding 8 fewer bits.
+	    Assert(count <= 32);
 	    acc |= (data << n_bits);
-	    n_bits += count;
-	    while (n_bits >= 8) {
-		buf += char(acc);
-		acc >>= 8;
-		n_bits -= 8;
-	    }
+	    buf += char(acc);
+	    acc >>= 8;
+	    data >>= 8;
+	    count -= 8;
 	}
-	string & freeze() {
-	    if (n_bits) {
-		buf += char(acc);
-		n_bits = 0;
-		acc = 0;
-	    }
-	    return buf;
+	acc |= (data << n_bits);
+	n_bits += count;
+	while (n_bits >= 8) {
+	    buf += char(acc);
+	    acc >>= 8;
+	    n_bits -= 8;
 	}
+    }
+
+  public:
+    BitWriter() : n_bits(0), acc(0) { }
+
+    BitWriter(const string & seed) : buf(seed), n_bits(0), acc(0) { }
+
+    void encode(size_t value, size_t outof);
+
+    string & freeze() {
+	if (n_bits) {
+	    buf += char(acc);
+	    n_bits = 0;
+	    acc = 0;
+	}
+	return buf;
+    }
 };
+
+void
+BitWriter::encode(size_t value, size_t outof)
+{
+    Assert(value < outof);
+    size_t bits = my_fls(outof - 1);
+    const size_t spare = (1 << bits) - outof;
+    if (spare) {
+	const size_t mid_start = (outof - spare) / 2;
+	if (value >= mid_start + spare) {
+	    value = (value - (mid_start + spare)) | (1 << (bits - 1));
+	} else if (value >= mid_start) {
+	    --bits;
+	}
+    }
+    write_bits(value, bits);
+}
 
 static void
 encode_interpolative(BitWriter & wr, const vector<Xapian::termpos> &pos, int j, int k)
@@ -141,59 +146,62 @@ encode_interpolative(BitWriter & wr, const vector<Xapian::termpos> &pos, int j, 
 namespace Xapian {
 
 class BitReader {
-    private:
-	string buf;
-	size_t idx;
-	int n_bits;
-	unsigned int acc;
-    public:
-	BitReader(const string &buf_) : buf(buf_), idx(0), n_bits(0), acc(0) { }
-	Xapian::termpos decode(Xapian::termpos outof) {
-	    size_t bits = my_fls(outof - 1);
-	    const size_t spare = (1 << bits) - outof;
-	    const size_t mid_start = (outof - spare) / 2;
-	    Xapian::termpos p;
-	    if (spare) {
-		p = read_bits(bits - 1);
-		if (p < mid_start) {
-		    if (read_bits(1)) p += mid_start + spare;
-		}
-	    } else {
-		p = read_bits(bits);
+    string buf;
+    size_t idx;
+    int n_bits;
+    unsigned int acc;
+
+  public:
+    BitReader(const string &buf_) : buf(buf_), idx(0), n_bits(0), acc(0) { }
+
+    Xapian::termpos decode(Xapian::termpos outof) {
+	size_t bits = my_fls(outof - 1);
+	const size_t spare = (1 << bits) - outof;
+	const size_t mid_start = (outof - spare) / 2;
+	Xapian::termpos p;
+	if (spare) {
+	    p = read_bits(bits - 1);
+	    if (p < mid_start) {
+		if (read_bits(1)) p += mid_start + spare;
 	    }
-	    Assert(p < outof);
-	    return p;
+	} else {
+	    p = read_bits(bits);
 	}
-	unsigned int read_bits(int count) {
-	    unsigned int result;
-	    if (count > 25) {
-		// If we need more than 25 bits, read in two goes to ensure
-		// that we don't overflow acc.  This is a little more
-		// conservative than it needs to be, but such large values will
-		// inevitably be rare (because you can't fit very many of them
-		// into 2^32!)
-		Assert(count <= 32);
-		result = read_bits(16);
-		return result | (read_bits(count - 16) << 16);
-	    }
-	    while (n_bits < count) {
-		Assert(idx < buf.size());
-		acc |= static_cast<unsigned char>(buf[idx++]) << n_bits;
-		n_bits += 8;
-	    }
-	    result = acc & ((1u << count) - 1);
-	    acc >>= count;
-	    n_bits -= count;
-	    return result;
+	Assert(p < outof);
+	return p;
+    }
+
+    unsigned int read_bits(int count) {
+	unsigned int result;
+	if (count > 25) {
+	    // If we need more than 25 bits, read in two goes to ensure that we
+	    // don't overflow acc.  This is a little more conservative than it
+	    // needs to be, but such large values will inevitably be rare
+	    // (because you can't fit very many of them into 2^32!)
+	    Assert(count <= 32);
+	    result = read_bits(16);
+	    return result | (read_bits(count - 16) << 16);
 	}
-	// Check all the data has been read.  Because it'll be zero padded
-	// to fill a byte, the best we can actually do is check that
-	// there's less than a byte left and that all remaining bits are
-	// zero.
-	bool check_all_gone() const {
-	    return (idx == buf.size() && n_bits < 7 && acc == 0);
+	while (n_bits < count) {
+	    Assert(idx < buf.size());
+	    acc |= static_cast<unsigned char>(buf[idx++]) << n_bits;
+	    n_bits += 8;
 	}
-	void decode_interpolative(vector<Xapian::termpos> & pos, int j, int k);
+	result = acc & ((1u << count) - 1);
+	acc >>= count;
+	n_bits -= count;
+	return result;
+    }
+
+    // Check all the data has been read.  Because it'll be zero padded
+    // to fill a byte, the best we can actually do is check that
+    // there's less than a byte left and that all remaining bits are
+    // zero.
+    bool check_all_gone() const {
+	return (idx == buf.size() && n_bits < 7 && acc == 0);
+    }
+
+    void decode_interpolative(vector<Xapian::termpos> & pos, int j, int k);
 };
 
 void

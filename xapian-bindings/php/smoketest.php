@@ -212,6 +212,33 @@ $enquire->set_query(new XapianQuery("foo"));
     mset_expect_order($mset, array(1, 2, 3, 4, 5));
 }
 
+# Feature test for ValueSetMatchDecider:
+{
+    $md = new XapianValueSetMatchDecider(0, true);
+    $md->add_value("ABC");
+    $doc = new XapianDocument();
+    $doc->add_value(0, "ABCD");
+    if ($md->apply($doc)) {
+	print "Unexpected result from ValueSetMatchDecider->apply(); expected false\n";
+	exit(1);
+    }
+
+    $doc = new XapianDocument();
+    $doc->add_value(0, "ABC");
+    if (!$md->apply($doc)) {
+	print "Unexpected result from ValueSetMatchDecider->apply(); expected true\n";
+	exit(1);
+    }
+
+    $mset = $enquire->get_mset(0, 10, 0, null, $md, null);
+    mset_expect_order($mset, array(2));
+
+    $md = new XapianValueSetMatchDecider(0, false);
+    $md->add_value("ABC");
+    $mset = $enquire->get_mset(0, 10, 0, null, $md, null);
+    mset_expect_order($mset, array(1, 3, 4, 5));
+}
+
 function mset_expect_order($mset, $a) {
     if ($mset->size() != sizeof($a)) {
 	print "MSet has ".$mset->size()." entries, expected ".sizeof($a)."\n";

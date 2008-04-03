@@ -1,5 +1,5 @@
 
-.. Copyright (C) 2007 Olly Betts
+.. Copyright (C) 2007,2008 Olly Betts
 
 ==========================
 Xapian Spelling Correction
@@ -102,7 +102,7 @@ Backend Support
 Currently spelling correction is only supported for flint databases.  It
 works with a single database or multiple databases (use
 Database::add_database() as usual).  We've no plans to support it for the
-deprecated Quartz backend, nor for InMemory, but we do intend to support it for
+InMemory backend, but we do intend to support it for
 the remote backend in the future.
 
 Prefixed Terms

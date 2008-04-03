@@ -49,7 +49,6 @@ class XAPIAN_VISIBILITY_DEFAULT Stopper {
 
 /// Simple implementation of Stopper class - this will suit most users.
 class XAPIAN_VISIBILITY_DEFAULT SimpleStopper : public Stopper {
-  private:
     std::set<std::string> stop_words;
 
   public:
@@ -75,9 +74,6 @@ class XAPIAN_VISIBILITY_DEFAULT SimpleStopper : public Stopper {
     virtual bool operator()(const std::string & term) const {
 	return stop_words.find(term) != stop_words.end();
     }
-
-    /// Destructor.
-    virtual ~SimpleStopper() { }
 
     /// Return a string describing this object.
     virtual std::string get_description() const;

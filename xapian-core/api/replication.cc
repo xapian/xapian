@@ -407,11 +407,15 @@ DatabaseReplica::Internal::Internal(const string & path_)
 		string live_path = join_paths(path, live_name);
 		live_db.add_database(Flint::open(live_path, Xapian::DB_OPEN));
 	    } else {
-		throw FeatureUnavailableError("Database replication only works with flint databases.");
+		throw FeatureUnavailableError(
+		    "Database replication only works with flint databases.");
 	    }
 	}
 	if (live_db.internal.size() != 1) {
-	    throw Xapian::InvalidOperationError("DatabaseReplica needs to be pointed at exactly one subdatabase");
+	    throw Xapian::InvalidOperationError(
+		"DatabaseReplica needs to be reference exactly one subdatabase"
+		" - found " + om_tostring(live_db.internal.size()) +
+		" subdatabases.");
 	}
     }
 

@@ -1,7 +1,7 @@
 /* backendmanager.h
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -91,16 +91,6 @@ class BackendManager {
     std::string getwritedb_flint_path(const std::string & name);
 #endif
 
-#ifdef XAPIAN_HAS_QUARTZ_BACKEND
-  protected:
-    std::string createdb_quartz(const std::vector<std::string> &dbnames);
-
-  public:
-    /// Get a writable quartz database instance.
-    Xapian::WritableDatabase getwritedb_quartz(const std::string & name,
-					       const std::vector<std::string> &files);
-#endif
-
   public:
     /// Constructor - set up default state.
     BackendManager() { }
@@ -110,7 +100,7 @@ class BackendManager {
 
     /** Get the database type currently in use.
      *
-     *  Current possible return values are "inmemory", "flint", "quartz",
+     *  Current possible return values are "inmemory", "flint",
      *  "none", "remoteprog", and "remotetcp".
      */
     virtual const char * get_dbtype() const { return "none"; } // FIXME: move out of header

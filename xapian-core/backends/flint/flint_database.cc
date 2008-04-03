@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -884,7 +884,7 @@ FlintDatabase::open_position_list(Xapian::docid did, const string & term) const
 {
     Assert(did != 0);
 
-    AutoPtr<FlintPositionList> poslist(new FlintPositionList());
+    AutoPtr<FlintPositionList> poslist(new FlintPositionList);
     if (!poslist->read_data(&position_table, did, term)) {
 	// Check that term / document combination exists.
 	// If the doc doesn't exist, this will throw Xapian::DocNotFoundError:
@@ -1033,7 +1033,11 @@ FlintDatabase::process_changeset_chunk_base(const string & tablename,
 	flint_io_write(fd, buf.data(), base_size);
 	flint_io_sync(fd);
     }
+#if defined __WIN32__
+    if (msvc_posix_rename(tmp_path.c_str(), base_path.c_str()) < 0) {
+#else
     if (rename(tmp_path.c_str(), base_path.c_str()) < 0) {
+#endif
 	// With NFS, rename() failing may just mean that the server crashed
 	// after successfully renaming, but before reporting this, and then
 	// the retried operation fails.  So we need to check if the source

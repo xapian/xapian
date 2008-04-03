@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
  * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -54,7 +54,7 @@ MatchDecider::~MatchDecider() { }
 
 // Methods for Xapian::RSet
 
-RSet::RSet() : internal(new RSet::Internal())
+RSet::RSet() : internal(new RSet::Internal)
 {
 }
 
@@ -87,6 +87,7 @@ RSet::empty() const
 void
 RSet::add_document(Xapian::docid did)
 {
+    if (did == 0) throw Xapian::InvalidArgumentError("Docid 0 not valid");
     internal->items.insert(did);
 }
 
@@ -150,7 +151,7 @@ MSetItem::get_description() const
 
 // Methods for Xapian::MSet
 
-MSet::MSet() : internal(new MSet::Internal())
+MSet::MSet() : internal(new MSet::Internal)
 {
 }
 
@@ -450,7 +451,7 @@ Xapian::Internal::ESetItem::get_description() const
 
 // Methods for Xapian::ESet
 
-ESet::ESet() : internal(new Internal()) { }
+ESet::ESet() : internal(new Internal) { }
 
 ESet::~ESet()
 {
@@ -969,14 +970,6 @@ Enquire::set_sort_by_relevance_then_key(Xapian::Sorter * sorter, bool ascending)
 MSet
 Enquire::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		  Xapian::doccount check_at_least, const RSet *rset,
-		  const MatchDecider *mdecider) const
-{
-    return get_mset(first, maxitems, check_at_least, rset, mdecider, NULL);
-}
-
-MSet
-Enquire::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
-		  Xapian::doccount check_at_least, const RSet *rset,
 		  const MatchDecider *mdecider,
 		  const MatchDecider *matchspy) const
 {
@@ -1034,13 +1027,6 @@ Enquire::get_matching_terms_begin(Xapian::docid did) const
 	if (internal->errorhandler) (*internal->errorhandler)(e);
 	throw;
     }
-}
-
-void
-Enquire::register_match_decider(const string &name,
-				  const MatchDecider *mdecider)
-{
-    internal->register_match_decider(name, mdecider);
 }
 
 string

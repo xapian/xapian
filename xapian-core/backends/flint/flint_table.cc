@@ -1027,14 +1027,6 @@ FlintTable::add(const string &key, string tag, bool already_compressed)
 
     if (handle == -1) create_and_open(block_size);
 
-    if (key.size() > FLINT_BTREE_MAX_KEY_LEN) {
-	throw Xapian::InvalidArgumentError(
-		"Key too long: length was " +
-		om_tostring(key.size()) +
-		" bytes, maximum length of a key is " +
-		om_tostring(FLINT_BTREE_MAX_KEY_LEN) + " bytes");
-    }
-
     form_key(key);
 
     bool compressed = false;
@@ -1233,6 +1225,9 @@ FlintTable::find_tag(const string &key, string * tag) const
 {
     DEBUGCALL(DB, bool, "FlintTable::find_tag", key << ", &tag");
     if (handle == -1) RETURN(false);
+
+    // An oversized key can't exist, so attempting to search for it should fail.
+    if (key.size() > FLINT_BTREE_MAX_KEY_LEN) RETURN(false);
 
     form_key(key);
     if (!find(C)) RETURN(false);
@@ -1808,7 +1803,11 @@ FlintTable::commit(flint_revision_number_t revision, int changes_fd,
     basefile += "base";
     basefile += char(base_letter);
     base.write_to_file(tmp, base_letter, tablename, changes_fd, changes_tail);
+#if defined __WIN32__
+    if (msvc_posix_rename(tmp.c_str(), basefile.c_str()) < 0) {
+#else
     if (rename(tmp.c_str(), basefile.c_str()) < 0) {
+#endif
 	// With NFS, rename() failing may just mean that the server crashed
 	// after successfully renaming, but before reporting this, and then
 	// the retried operation fails.  So we need to check if the source

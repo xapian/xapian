@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
  * Copyright 2006 Richard Boulton
  * Copyright 2007 Lemur Consulting Ltd
  *
@@ -1420,11 +1420,8 @@ DEFINE_TESTCASE(crashrecovery1, writable) {
     if (dbtype == "flint") {
 	path = ".flint/dbw";
 	base_ext = ".baseB";
-    } else if (dbtype == "quartz") {
-	path = ".quartz/dbw";
-	base_ext = "_baseB";
     } else {
-	SKIP_TEST("Test only supported for flint and quartz backends");
+	SKIP_TEST("Test only supported for flint backends");
     }
 
     Xapian::Document doc;
@@ -1897,16 +1894,8 @@ DEFINE_TESTCASE(metadata4, metadata) {
 // Test that adding a document with a really long term gives an error on
 // add_document() rather than on flush().
 DEFINE_TESTCASE(termtoolong1, writable) {
-    // Quartz doesn't perform this check.
-    SKIP_TEST_FOR_BACKEND("quartz");
     // Inmemory doesn't impose a limit.
     SKIP_TEST_FOR_BACKEND("inmemory");
-#ifndef XAPIAN_HAS_FLINT_BACKEND
-    // If flint is disabled, remotetcp and remoteprog will use quartz
-    // which doesn't perform this check.
-    SKIP_TEST_FOR_BACKEND("remoteprog");
-    SKIP_TEST_FOR_BACKEND("remotetcp");
-#endif
 
     Xapian::WritableDatabase db = get_writable_database();
 
@@ -1915,7 +1904,16 @@ DEFINE_TESTCASE(termtoolong1, writable) {
 	Xapian::Document doc;
 	string term(i, 'X');
 	doc.add_term(term);
-	TEST_EXCEPTION(Xapian::InvalidArgumentError, db.add_document(doc));
+	try {
+	    db.add_document(doc);
+	    TEST_AND_EXPLAIN(false, "Expecting exception InvalidArgumentError");
+	} catch (const Xapian::InvalidArgumentError &e) {
+	    // Check that the max length is correctly expressed in the
+	    // exception message - we've got this wrong in two different ways
+	    // in the past!
+	    tout << e.get_msg() << endl;
+	    TEST(e.get_msg().find("Term too long (> 245)") != string::npos);
+	}
     }
 
     for (Xapian::doccount j = 240; j <= 245; ++j) {
@@ -1927,6 +1925,23 @@ DEFINE_TESTCASE(termtoolong1, writable) {
     }
 
     db.flush();
+
+    {
+	// Currently flint doesn't allow
+	Xapian::Document doc;
+	doc.add_term(string(126, '\0'));
+	db.add_document(doc);
+	try {
+	    db.flush();
+	    TEST_AND_EXPLAIN(false, "Expecting exception InvalidArgumentError");
+	} catch (const Xapian::InvalidArgumentError &e) {
+	    // Check that the max length is correctly expressed in the
+	    // exception message - we've got this wrong in two different ways
+	    // in the past!
+	    tout << e.get_msg() << endl;
+	    TEST(e.get_msg().find(" is 252 bytes") != string::npos);
+	}
+    }
 
     return true;
 }

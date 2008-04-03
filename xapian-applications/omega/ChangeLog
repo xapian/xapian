@@ -1,3 +1,30 @@
+Mon Mar 31 02:00:48 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: Update version to 1.0.6 to match latest release.
+
+Wed Mar 12 07:04:56 GMT 2008  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: Make deprecated "index=nopos" an error.
+
+Mon Mar 10 03:37:30 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Makefile.am,diritor.cc,diritor.h,omindex.cc: Check for readdir()
+	  failing.
+
+Thu Mar 06 23:43:11 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/: Update to latest revisions.
+	* Makefile.am,diritor.h: Use safedirent.h not dirent.h and build
+	  msvc_dirent.cc as part of omindex.
+
+Wed Mar 05 23:16:23 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Update to HEAD with un-backported changes kept separate.
+
+Wed Mar 05 19:05:12 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Update to 1.0 branch point.
+
 Sat Feb 02 22:46:40 GMT 2008  Olly Betts <olly@survex.com>
 
 	* query.cc: Add (C) notice for Thomas Viehmann.

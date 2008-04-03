@@ -13,7 +13,7 @@ TESTS_ENVIRONMENT = ./runtest
 
 .PHONY: check-none check-inmemory check-multi \
         check-remote check-remoteprog check-remotetcp \
-        check-flint check-quartz
+        check-flint
 
 check-none: apitest$(EXEEXT) \
             internaltest$(EXEEXT) \
@@ -47,37 +47,23 @@ check-flint: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b flint
 endif
 
-if BUILD_BACKEND_QUARTZ
-check-quartz: btreetest$(EXEEXT) quartztest$(EXEEXT) apitest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./btreetest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./quartztest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b quartz
-
-quartz_check_programs = btreetest quartztest
-quartz_tests= btreetest$(EXEEXT) quartztest$(EXEEXT)
-
-# Only quartztest and btreetest need this, but if we put it in INCLUDES
-# then we can use the same objects for the testsuite harness for all
-# test programs.
-INCLUDES += -I$(top_srcdir)/backends/quartz
-endif
+check-perf: perftest$(EXEEXT)
+	VALGRIND= $(TESTS_ENVIRONMENT) ./perftest$(EXEEXT)
 
 ## Test programs to be run
-TESTS = $(quartz_tests) \
- apitest$(EXEEXT) internaltest$(EXEEXT) stemtest$(EXEEXT) \
- queryparsertest$(EXEEXT) \
- termgentest$(EXEEXT)
+TESTS = apitest$(EXEEXT) internaltest$(EXEEXT) stemtest$(EXEEXT) \
+ queryparsertest$(EXEEXT) termgentest$(EXEEXT)
 
 ## Programs to build
-check_PROGRAMS = $(quartz_check_programs) \
- apitest internaltest stemtest queryparsertest termgentest
+check_PROGRAMS = apitest internaltest stemtest queryparsertest termgentest \
+ perftest
 
 # Make sure runtest is up to date before running tests
 check_SCRIPTS = runtest
 
 ## Sources:
 
-noinst_HEADERS = apitest.h
+noinst_HEADERS = apitest.h perftest.h
 
 collated_apitest_sources = api_anydb.cc api_db.cc api_generated.cc api_nodb.cc \
  api_posdb.cc api_replicate.cc api_sorting.cc api_transdb.cc api_unicode.cc \
@@ -97,14 +83,6 @@ internaltest_SOURCES = internaltest.cc $(testharness_sources)
 internaltest_LDFLAGS = -no-install $(ldflags)
 internaltest_LDADD = ../libgetopt.la ../libxapian.la
 
-btreetest_SOURCES = btreetest.cc $(testharness_sources)
-btreetest_LDFLAGS = -no-install $(ldflags)
-btreetest_LDADD = ../libgetopt.la ../libquartzcheck.la ../libxapian.la
-
-quartztest_SOURCES = quartztest.cc $(testharness_sources)
-quartztest_LDFLAGS = -no-install $(ldflags)
-quartztest_LDADD = ../libgetopt.la ../libxapian.la
-
 queryparsertest_SOURCES = queryparsertest.cc $(testharness_sources)
 queryparsertest_LDFLAGS = -no-install $(ldflags)
 queryparsertest_LDADD = ../libgetopt.la ../libxapian.la
@@ -113,13 +91,22 @@ termgentest_SOURCES = termgentest.cc $(testharness_sources)
 termgentest_LDFLAGS = -no-install $(ldflags)
 termgentest_LDADD = ../libgetopt.la ../libxapian.la
 
+collated_perftest_sources = perftest_matchdecider.cc
+
+perftest_SOURCES = perftest.cc $(collated_perftest_sources) \
+ perftest_all.h perftest_collated.h $(testharness_sources)
+perftest_LDFLAGS = -no-install $(ldflags)
+perftest_LDADD = ../libgetopt.la ../libxapian.la
+
 BUILT_SOURCES =
 
 if MAINTAINER_MODE
 BUILT_SOURCES += api_all.h api_collated.h $(collated_apitest_sources:.cc=.h) \
- api_generated.cc
+ api_generated.cc perftest_all.h perftest_collated.h \
+ $(collated_perftest_sources:.cc=.h)
 CLEANFILES = api_all.h api_collated.h $(collated_apitest_sources:.cc=.h) \
- api_generated.cc
+ api_generated.cc perftest_all.h perftest_collated.h \
+ $(collated_perftest_sources:.cc=.h)
 
 api_all.h api_collated.h $(collated_apitest_sources:.cc=.h): api_collated.stamp
 ## Recover from the removal of $@.  A full explanation of these rules is in the
@@ -135,9 +122,28 @@ api_all.h api_collated.h $(collated_apitest_sources:.cc=.h): api_collated.stamp
 	    test -f api_collated.stamp; exit $$?; \
 	  fi; \
 	fi
-api_collated.stamp: $(collated_apitest_sources) collate-apitest
-	$(PERL) "$(srcdir)/collate-apitest" "$(srcdir)" $(collated_apitest_sources) > api_collated.hT
+api_collated.stamp: $(collated_apitest_sources) collate-test
+	$(PERL) "$(srcdir)/collate-test" "$(srcdir)" "api_all.h" $(collated_apitest_sources) > api_collated.hT
 	mv api_collated.hT api_collated.h
+	touch $@
+
+perftest_all.h perftest_collated.h $(collated_perftest_sources:.cc=.h): perftest_collated.stamp
+## Recover from the removal of $@.  A full explanation of these rules is in the
+## automake manual under the heading "Multiple Outputs".
+	@if test -f $@; then :; else \
+	  trap 'rm -rf perftest_collated.lock perftest_collated.stamp' 1 2 13 15; \
+	  if mkdir perftest_collated.lock 2>/dev/null; then \
+	    rm -f perftest_collated.stamp; \
+	    $(MAKE) $(AM_MAKEFLAGS) perftest_collated.stamp; \
+	    rmdir perftest_collated.lock; \
+	  else \
+	    while test -d perftest_collated.lock; do sleep 1; done; \
+	    test -f perftest_collated.stamp; exit $$?; \
+	  fi; \
+	fi
+perftest_collated.stamp: $(collated_perftest_sources) collate-test
+	$(PERL) "$(srcdir)/collate-test" "$(srcdir)" "perftest_all.h" $(collated_perftest_sources) > perftest_collated.hT
+	mv perftest_collated.hT perftest_collated.h
 	touch $@
 
 api_generated.cc: generate-api_generated
@@ -145,8 +151,9 @@ api_generated.cc: generate-api_generated
 	mv api_generated.ccT api_generated.cc
 endif
 
-EXTRA_DIST = collate-apitest generate-api_generated api_all.h api_collated.h \
-	$(collated_apitest_sources:.cc=.h) dir_contents
+EXTRA_DIST = collate-test generate-api_generated api_all.h api_collated.h \
+	$(collated_apitest_sources:.cc=.h) dir_contents \
+	perftest_all.h perftest_collated.h $(collated_perftest_sources:.cc=.h)
 
 ## Distribute test data:
 EXTRA_DIST +=\
@@ -167,10 +174,6 @@ EXTRA_DIST +=\
 	testdata/apitest_manydocs.txt \
 	testdata/apitest_sortrel.txt \
 	testdata/etext.txt \
-	testdata/btreetest_ord+ \
-	testdata/btreetest_ord- \
-	testdata/btreetest_ordnum+ \
-	testdata/btreetest_ordnum- \
 	testdata/flint-0.9.9/flicklock \
 	testdata/flint-0.9.9/iamflint \
 	testdata/flint-0.9.9/position.baseA \
@@ -205,6 +208,6 @@ EXTRA_DIST +=\
 	testdata/flint-1.0.2/termlist.DB
 
 clean-local:
-	rm -rf .flint .quartz .quartztmp .btreetmp .multi
+	rm -rf .flint .multi
 
 include harness/Makefile.mk

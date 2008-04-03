@@ -27,7 +27,7 @@ extra_cleandirs =
 
 .PHONY: check-none check-inmemory check-multi \
         check-remote check-remoteprog check-remotetcp \
-        check-flint check-quartz
+        check-flint
 
 check-none:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-none
@@ -52,10 +52,8 @@ check-flint:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-flint
 endif
 
-if BUILD_BACKEND_QUARTZ
-check-quartz:
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-quartz
-endif
+check-perf:
+	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-perf
 
 bin_SCRIPTS = xapian-config
 

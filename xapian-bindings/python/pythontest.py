@@ -1,6 +1,7 @@
 # Tests of Python-specific parts of the xapian bindings.
 #
 # Copyright (C) 2007 Lemur Consulting Ltd
+# Copyright (C) 2008 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -167,11 +168,11 @@ def test_mset_iter():
                     context("testing hit %d with deprecated APIs for sub-mset from %d, maxitems %d" % (num, start, maxitems))
                     hit = submset.get_hit(num)
                     expect(len(item[:]), 5)
-                    expect(item[0], hit.get_docid())
-                    expect(item[1], hit.get_weight())
-                    expect(item[2], hit.get_rank())
-                    expect(item[3], hit.get_percent())
-                    expect(item[4].get_data(), hit.get_document().get_data())
+                    expect(item[0], hit.docid)
+                    expect(item[1], hit.weight)
+                    expect(item[2], hit.rank)
+                    expect(item[3], hit.percent)
+                    expect(item[4].get_data(), hit.document.get_data())
                     num += 1
 
             # Check that the right number of items exist in the mset.
@@ -917,9 +918,31 @@ def test_weight_normalise():
             expect(item.weight <= 1, True)
 
 
+def test_valuesetmatchdecider():
+    """Simple tests of the ValueSetMatchDecider class
+
+    """
+    md = xapian.ValueSetMatchDecider(0, True)
+    doc = xapian.Document()
+    expect(md(doc), False)
+
+    md.add_value('foo')
+    doc.add_value(0, 'foo')
+    expect(md(doc), True)
+
+    md.remove_value('foo')
+    expect(md(doc), False)
+
+    md = xapian.ValueSetMatchDecider(0, False)
+    expect(md(doc), True)
+
+    md.add_value('foo')
+    expect(md(doc), False)
+
+
 # The legacy sequence API is only supported for Python >= 2.3 so don't try
 # testing it for Python 2.2.
-vinfo = sys.version_info    
+vinfo = sys.version_info
 test_legacy_sequence_api = vinfo[0] > 2 or (vinfo[0] == 2 and vinfo[1] >= 3)
 
 # Run all tests (ie, callables with names starting "test_").

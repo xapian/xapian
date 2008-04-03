@@ -1,6 +1,6 @@
 /* xapian-compact.cc: Compact a flint database, or merge and compact several.
  *
- * Copyright (C) 2004,2005,2006,2007 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -74,7 +74,7 @@ is_metainfo_key(const string & key)
 }
 
 static inline bool
-is_user_metainfo_key(const string & key)
+is_user_metadata_key(const string & key)
 {
     return key.size() > 1 && key[0] == '\0' && key[1] != '\xff';
 }
@@ -88,7 +88,7 @@ class PostlistCursor : private FlintCursor {
     Xapian::termcount tf, cf;
 
     PostlistCursor(FlintTable *in, Xapian::docid offset_)
-	: FlintCursor(in), offset(offset_)
+	: FlintCursor(in), offset(offset_), firstdid(0)
     {
 	find_entry("");
 	next();
@@ -108,7 +108,7 @@ class PostlistCursor : private FlintCursor {
 	tag = current_tag;
 	tf = cf = 0;
 	if (is_metainfo_key(key)) return true;
-	if (is_user_metainfo_key(key)) return true;
+	if (is_user_metadata_key(key)) return true;
 	// Adjust key if this is *NOT* an initial chunk.
 	// key is: pack_string_preserving_sort(tname)
 	// plus optionally: pack_uint_preserving_sort(did)
@@ -201,15 +201,19 @@ merge_postlists(const string & tablename,
     out->add(string("", 1), tag);
 
     string last_key;
-    while (true) {
-	PostlistCursor * cur = NULL;
-	if (!pq.empty()) {
-	    cur = pq.top();
-	    pq.pop();
-	}
-	if (!is_user_metainfo_key(cur->key)) {
+    while (!pq.empty()) {
+	PostlistCursor * cur = pq.top();
+	pq.pop();
+	const string& key = cur->key;
+	if (!is_user_metadata_key(key)) {
 	    pq.push(cur);
 	    break;
+	}
+	if (key == last_key) {
+	    cerr << "Warning: duplicate user metadata key - picking arbitrary tag value" << endl;
+	} else {
+	    out->add(key, cur->tag);
+	    last_key = key;
 	}
 	if (cur->next()) {
 	    pq.push(cur);
@@ -226,7 +230,7 @@ merge_postlists(const string & tablename,
 	    cur = pq.top();
 	    pq.pop();
 	}
-	Assert(cur == NULL || !is_user_metainfo_key(cur->key));
+	Assert(cur == NULL || !is_user_metadata_key(cur->key));
 	if (cur == NULL || cur->key != last_key) {
 	    if (!tags.empty()) {
 		string first_tag = pack_uint(tf);

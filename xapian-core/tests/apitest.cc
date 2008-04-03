@@ -2,7 +2,8 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2006,2007 Olly Betts
+ * Copyright 2003,2004,2006,2007,2008 Olly Betts
+ * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,23 +30,13 @@
 #include <string>
 #include <vector>
 
-using namespace std;
-
-#include <xapian.h>
-#include "testsuite.h"
-#include "testutils.h"
-#include "backendmanager.h"
-#include "backendmanager_flint.h"
-#include "backendmanager_inmemory.h"
-#include "backendmanager_multi.h"
-#include "backendmanager_quartz.h"
-#include "backendmanager_remoteprog.h"
-#include "backendmanager_remotetcp.h"
-#include "utils.h"
-
 #include "api_all.h"
+#include "backendmanager.h"
+#include "testrunner.h"
+#include "testsuite.h"
+#include <xapian.h>
 
-static BackendManager * backendmanager;
+using namespace std;
 
 const char * get_dbtype()
 {
@@ -105,126 +96,18 @@ get_writable_database_again()
     return backendmanager->get_writable_database_again();
 }
 
-#define USE_BACKEND(B, S) ((B).empty() || (B) == (S))
+class ApiTestRunner : public TestRunner
+{
+  public:
+    int run() const {
+	int result = 0;
+#include "api_collated.h"
+	return result;
+    }
+};
 
 int main(int argc, char **argv)
 {
-    string backend_name;
-    test_driver::add_command_line_option("backend", 'b', &backend_name);
-
-    test_driver::parse_command_line(argc, argv);
-
-    string srcdir = test_driver::get_srcdir();
-
-    int result = 0;
-
-    if (USE_BACKEND(backend_name, "none")) {
-	backendmanager = new BackendManager;
-	backendmanager->set_datadir(srcdir + "/testdata/");
-
-	bool backend = false, remote = false, transactions = false;
-	bool positional = false, writable = false, multi = false;
-	bool spelling = false, metadata = false;
-	bool replicas = false;
-	bool quartz = false, flint = false;
-#include "api_collated.h"
-
-	delete backendmanager;
-    }
-
-#ifdef XAPIAN_HAS_INMEMORY_BACKEND
-    if (USE_BACKEND(backend_name, "inmemory")) {
-	backendmanager = new BackendManagerInMemory;
-	backendmanager->set_datadir(srcdir + "/testdata/");
-
-	bool backend = true, remote = false, transactions = false;
-	bool positional = true, writable = true, multi = false;
-	bool spelling = false, metadata = false;
-	bool replicas = false;
-	bool quartz = false, flint = false;
-#include "api_collated.h"
-
-	delete backendmanager;
-    }
-#endif
-
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-    if (USE_BACKEND(backend_name, "flint")) {
-	backendmanager = new BackendManagerFlint;
-	backendmanager->set_datadir(srcdir + "/testdata/");
-
-	bool backend = true, remote = false, transactions = true;
-	bool positional = true, writable = true, multi = false;
-	bool spelling = true, metadata = true;
-	bool replicas = true;
-	bool quartz = false, flint = true;
-#include "api_collated.h"
-
-	delete backendmanager;
-    }
-#endif
-
-#if defined(XAPIAN_HAS_FLINT_BACKEND) || defined(XAPIAN_HAS_QUARTZ_BACKEND)
-    if (USE_BACKEND(backend_name, "multi")) {
-	backendmanager = new BackendManagerMulti;
-	backendmanager->set_datadir(srcdir + "/testdata/");
-
-	bool backend = true, remote = false, transactions = false;
-	bool positional = true, writable = false, multi = true;
-	bool spelling = false, metadata = false;
-	bool replicas = false;
-	bool quartz = false, flint = false;
-#include "api_collated.h"
-
-	delete backendmanager;
-    }
-#endif
-
-#ifdef XAPIAN_HAS_QUARTZ_BACKEND
-    if (USE_BACKEND(backend_name, "quartz")) {
-	backendmanager = new BackendManagerQuartz;
-	backendmanager->set_datadir(srcdir + "/testdata/");
-
-	bool backend = true, remote = false, transactions = true;
-	bool positional = true, writable = true, multi = false;
-	bool spelling = false, metadata = false;
-	bool replicas = false;
-	bool quartz = true, flint = false;
-#include "api_collated.h"
-
-	delete backendmanager;
-    }
-#endif
-
-#ifdef XAPIAN_HAS_REMOTE_BACKEND
-    if (USE_BACKEND(backend_name, "remoteprog")) {
-	backendmanager = new BackendManagerRemoteProg;
-	backendmanager->set_datadir(srcdir + "/testdata/");
-
-	bool backend = true, remote = true, transactions = true;
-	bool positional = true, writable = true, multi = false;
-	bool spelling = false, metadata = false;
-	bool replicas = false;
-	bool quartz = false, flint = false;
-#include "api_collated.h"
-
-	delete backendmanager;
-    }
-
-    if (USE_BACKEND(backend_name, "remotetcp")) {
-	backendmanager = new BackendManagerRemoteTcp;
-	backendmanager->set_datadir(srcdir + "/testdata/");
-
-	bool backend = true, remote = true, transactions = true;
-	bool positional = true, writable = true, multi = false;
-	bool spelling = false, metadata = false;
-	bool replicas = false;
-	bool quartz = false, flint = false;
-#include "api_collated.h"
-
-	delete backendmanager;
-    }
-#endif
-
-    return result;
+    ApiTestRunner runner;
+    return runner.run_tests(argc, argv);
 }

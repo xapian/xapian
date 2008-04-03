@@ -1,7 +1,7 @@
 /** @file backendmanager_multi.cc
  * @brief BackendManager subclass for multi databases.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -79,8 +79,7 @@ BackendManagerMulti::createdb_multi(const vector<string> & files)
 	dbs[n] = Xapian::Flint::open(".multi/" + subdbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 	out << "flint " << subdbdir << '\n';
 #else
-	dbs[n] = Xapian::Quartz::open(".multi/" + subdbdir, Xapian::DB_CREATE_OR_OVERWRITE);
-	out << "quartz " << subdbdir << '\n';
+# error No local backend enabled
 #endif
     }
     out.close();

@@ -26,6 +26,523 @@ Tue Nov 27 08:40:51 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 	* tests/api_db.cc: Add basic test of synonyms (currently doesn't
 	  pass due to testcase shortcomings).
 
+Thu Apr 03 07:59:53 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/xapian-inspect.cc: Print top-bit-set characters as escaped
+	  hex forms as they often won't be valid UTF-8 sequences.
+
+Thu Apr 03 03:53:37 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/xapian-inspect.cc: Check for the user passing a database
+	  directory and issue a special error message since this is an obvious
+	  mistake to make.
+
+Wed Apr 02 07:00:36 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/multimatch.cc: Modify the estimate for the number of hits
+	  based on the rate at which a match decider has been denying
+	  documents.  Also, reduce the upper bound based on the number of
+	  documents denied.
+	* tests/api_db.cc: Check that the upper bound when a match decider
+	  is used is within the valid range, rather than a particular
+	  value.
+
+Tue Apr 01 22:40:19 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* configure.ac,tests/perftest.cc,tests/submitperftest.py.in,
+	  tests/urllib2_file.py: Fix display of upper bound on number of
+	  results of search (was showing lower bound).  Fix display of
+	  closing <repetition> tags.  Add script to submit the results of a
+	  performance test to a central server.
+
+Tue Apr 01 11:19:58 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_table.cc,backends/flint/flint_table.h:
+	  Gently rearrange where and how we check for overlong keys.
+	* tests/api_wrdb.cc: Extend termtoolong1 to test that the "term too
+	  long" exception messages contain the length correctly.
+
+Tue Apr 01 06:06:43 GMT 2008  Olly Betts <olly@survex.com>
+
+	* AUTHORS,HACKING,INSTALL,README,debian/control.in,debian/copyright,
+	  docs/install.html,xapian-core.spec.in: Standardise URLs on our
+	  website to be xapian.org not www.xapian.org.
+
+Tue Apr 01 03:44:32 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_record.cc,backends/flint/flint_values.cc,
+	  common/,docs/quickstartexpand.cc.html,docs/quickstartindex.cc.html,
+	  docs/quickstartsearch.cc.html,matcher/: Update the FSF address for
+	  the small number of files which still have the old one.  Remove the
+	  "START_LICENCE" and "END_LICENCE" markers from the small number of
+	  files which still have them.
+
+Tue Apr 01 02:23:27 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/remote/remote-database.cc,common/remoteprotocol.h,
+	  common/remoteserver.h,common/serialise.h,docs/remote_protocol.html,
+	  net/remoteserver.cc,net/serialise.cc: Update remote protocol to
+	  a new major version (31) and strip out all the gunk that's only
+	  there to keep it compatible with older version 30 clients.
+
+Tue Apr 01 00:12:38 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/ompostlistiterator.cc,include/xapian/postingiterator.h: Remove
+	  the method Xapian::PostingIterator::get_weight() which has been
+	  commented out almost forever.  Weight-handling isn't really
+	  appropriate here.
+	* api/ompostlistiterator.cc: Remove "\todo" since it's already done!
+
+Mon Mar 31 13:24:11 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/flint/: Remove unnecessary default dtors.
+
+Mon Mar 31 13:21:55 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Document to prefer "new SomeClass" to "new SomeClass()".
+	* api/omdocument.cc,api/omenquire.cc,backends/database.cc,
+	  backends/flint/flint_database.cc,
+	  backends/inmemory/inmemory_database.cc,matcher/multimatch.cc,
+	  matcher/queryoptimiser.cc,net/remoteserver.cc: Fix instances of
+	  the latter form to use the former form.
+
+Mon Mar 31 12:11:09 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/: Update svn:ignore property for perftest changes and remove
+	  quartz-related entries.
+	* tests/perftest.cc: Add missing '#include "utils.h"'.
+
+Mon Mar 31 09:22:35 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* Makefile.am,tests/,tests/harness/,tests/perftest.cc,tests/perftest.h,
+	  tests/perftest_matchdecider.cc: Rework the test collation
+	  mechanism slightly to allow it to be used by other testsuites:
+	  rename collate-apitest to collate-test, and add a parameter to it
+	  naming the output file.  Add new "testrunner.h" and
+	  "testrunner.cc" which are an equivalent to the old mechanism in
+	  apitest for running tests with various properties; the properties
+	  for each backend are now held as member variables of a TestRunner
+	  class, and testsuites (eg, apitest) subclass this and implement a
+	  "run()" method, which will be called for each backend with the
+	  appropriate properties set.  Move definition of DEFINE_TESTCASE
+	  macro into testsuite.h.  Add new testsuite "perftest", which is
+	  intended to contain potentially time consuming performance tests,
+	  logging the results to an XML file for later analysis.  Add a
+	  simple test of the ValueSetMatchDeciders to this testsuite.
+	  "perftest" isn't run by make check, because it is likely to take
+	  some hours to complete in future - instead, there's a new
+	  top-level target "check-perf" which builds and runs perftest.
+
+Mon Mar 31 08:13:21 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Recommend using the "svn-ci" script.  Update the date
+	  command which produces the correct format timestamp for ChangeLog
+	  entries.
+
+Mon Mar 31 08:00:58 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_btreeutil.h: Fix some out-of-date comments.
+	* configure.ac: Use AC_CHECK_SIZEOF to define SIZEOF_INT and
+	  SIZEOF_LONG.
+	* backends/flint/flint_types.h: Use SIZEOF_INT and SIZEOF_LONG to
+	  determine the type of uint4 rather than always using unsigned long
+	  (which is 64 bits on most 64 bit Unix platforms).  Drop int4 for
+	  the time being, as we don't actually use it.
+
+Mon Mar 31 06:34:20 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_positionlist.cc: Refactor BitWriter::encode()
+	  to have a single call to write_bits(), and don't include it inline
+	  in the class as it's really a bit big to inline (and write_bits()
+	  should now be inlined into it, or at least tail-called).
+
+Mon Mar 31 05:33:02 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_positionlist.cc: Reorder header includes to
+	  match our new standard more closely.  Indent class definitions to
+	  match our coding standards.
+
+Mon Mar 31 05:31:59 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_positionlist.h: Remove unnecessary default
+	  dtor.
+
+Mon Mar 31 04:55:59 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/remote/net_document.cc,backends/remote/net_document.h:
+	  Rename "doc" member to "data" since it actually holds the document
+	  data.
+
+Mon Mar 31 03:25:21 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_document.cc,backends/flint/flint_document.h:
+	  Remove unnecessary default dtor.
+
+Mon Mar 31 02:53:48 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/inmemory/inmemory_alltermslist.cc,
+	  backends/inmemory/inmemory_alltermslist.h: Remove unnecessary
+	  default dtor.
+	* backends/inmemory/inmemory_alltermslist.h: Fix bogus cut-and-pasted
+	  doxygen comment for ctor.
+
+Mon Mar 31 02:33:15 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/inmemory_positionlist.h: Remove unnecessary default
+	  destructor.  Fix comment type ("inemory" -> "inmemory").
+
+Sun Mar 30 12:47:50 GMT 2008  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Drop explicit dtor for SimpleStopper
+	  which does nothing.
+
+Sun Mar 30 12:12:12 GMT 2008  Olly Betts <olly@survex.com>
+
+	* include/xapian/valuesetmatchdecider.h: Don't bother checking if an
+	  element is present before calling std::set::erase().  Don't bother
+	  defining an explicit dtor which does nothing.
+
+Sat Mar 29 00:46:13 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_db.cc: Test matchfunctor bounds in combination with
+	  collapsing and percentage cutoff.  Also, range check
+	  get_matches_estimated rather than checking it's exactly the value
+	  currently returned.
+
+Fri Mar 28 21:37:27 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_nodb.cc: Test ValueSetMatchDecider::remove_value() for a
+	  value which isn't in the set.  Test that removing a value doesn't
+	  affect other values in the set.
+
+Fri Mar 28 21:03:30 GMT 2008  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Avoid needless call to pl->get_termfreq_est()
+	  if we're using a matchdecider or matchspy.
+
+Fri Mar 28 10:28:51 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/multimatch.cc: Set matches_lower_bound to 0 before
+	  starting the match process if there is a match decider or spy;
+	  previously, the lower_bound wasn't being reduced in the presence
+	  of a match decider unless all the potential results were
+	  retrieved.
+	* tests/api_db.cc: Extend matchfunctor1 to check the bounds and
+	  estimates returned; includes a regression test for the above.
+
+Fri Mar 28 09:09:54 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_nodb.cc: Extend tests to check ValueSetMatchDecider
+	  remove_value and also ValueSetMatchDeciders holding more than one
+	  value.
+
+Fri Mar 28 02:41:45 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: Update version info to match 1.0.6.
+
+Fri Mar 28 00:12:48 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/omenquire.cc,include/xapian/enquire.h: Merge two of the
+	  get_mset() variants into one, with default arguments, which has
+	  exactly the same effect.  We added the two variants to preserve
+	  ABI compatibility, and now we're branched for 1.1 this is no
+	  longer necessary.
+
+Thu Mar 27 23:54:39 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/valuesetmatchdecider.cc,include/xapian.h,
+	  include/xapian/valuesetmatchdecider.h: Add ValueSetMatchDecider,
+	  which is a matchdecider which is intended to be passed a set of
+	  values to look for in documents, and selects documents based on
+	  the presence of those values.
+	* tests/api_db.cc,tests/api_nodb.cc: Add tests for the
+	  ValueSetMatchDecider - both for calling it standalone, and when
+	  passed to get_mset().
+	* api/Makefile.mk,include/Makefile.mk: Tell build system about new
+	  files.
+
+Thu Mar 27 06:18:52 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc: Initialise term_pos in previous change to
+	  fix valgrind-detected error.
+
+Thu Mar 27 06:13:01 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc: Optimise Query(OP_VALUE_GE, <n>, "") to
+	  Query::MatchAll.
+	* tests/api_nodb.cc: Add testcase for this case.
+
+Thu Mar 27 04:34:40 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/inmemory/inmemory_document.cc,
+	  backends/inmemory/inmemory_document.h: Rename "doc" member to
+	  "data" since it actually holds the document data.
+	* backends/inmemory/inmemory_database.cc: Remove unused <stdio.h>.
+	  Include "inmemory_database.h" right after <config.h>.
+
+Wed Mar 26 23:44:03 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc: Throw InvalidArgumentError upon
+	  RSet::add_document(0).
+	* tests/api_nodb.cc: Add regression test for this.
+	* matcher/rset.cc: Add assertion that we don't see a zero docid when
+	  calculating rtermfreqs.
+	* api/omdocument.cc: Use RETURN not return so debug logging sees the
+	  return value.
+	* backends/inmemory/inmemory_database.cc,
+	  backends/remote/remote-database.cc: Change exception throwing for
+	  a zero docid to assertions since zero docids should be checked for
+	  before we get to here.
+
+Wed Mar 26 06:17:51 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/postlist.h: Decree that PostList::check() must be passed a
+	  docid which actually exists in the database (which is always true
+	  currently and seems unlikely to be an onerous requirement).
+	* matcher/valuegepostlist.cc,matcher/valuerangepostlist.cc: Take
+	  advantage of this new precondition to simplify the code.
+	* matcher/valuegepostlist.cc,matcher/valuerangepostlist.cc: Move the
+	  corresponding header first as our header inclusion order guidelines
+	  recommend.
+
+Thu Mar 13 01:58:18 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/stats.h,include/xapian/enquire.h,matcher/localmatch.cc,
+	  matcher/weight.cc: Untangle Xapian::Weight to just initialise
+	  internal to 0 in its ctor, which is an ABI change.  Resolves
+	  a load of FIXME:1.1 comments.
+
+Thu Mar 13 00:50:06 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_lock.cc: Remove workaround for newlib which we
+	  don't seem to need elsewhere and was marked "FIXME:1.1".
+
+Thu Mar 13 00:49:27 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/deprecation.rst: Fix footnote ids after deprecation updates.
+
+Wed Mar 12 10:08:37 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/stemtest.cc: Remove support for OM_STEMTEST_SKIP_RANDOM,
+	  OM_STEMTEST_LANGUAGES, and OM_STEMTEST_SEED.
+
+Wed Mar 12 08:30:48 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/deprecation.rst: Update for bindings removals for 1.1.0.
+
+Wed Mar 12 06:59:25 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/deprecation.rst: Update for Omega removals for 1.1.0.
+
+Wed Mar 12 05:11:53 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,api/omquery.cc,api/version.cc,docs/,
+	  generate-exceptions.in,include/xapian.h,include/xapian/enquire.h,
+	  include/xapian/query.h,tests/api_db.cc,tests/api_wrdb.cc,
+	  tests/apitest.cc,tests/harness/,tests/internaltest.cc: Remove all
+	  xapian-core features marked for removal in 1.1.0.
+
+Wed Mar 12 03:28:18 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING,INSTALL,Makefile.am,backends/Makefile.mk,
+	  backends/dir_contents,backends/quartz/,bin/,configure.ac,docs/,
+	  tests/,tests/harness/,tests/quartztest.cc,tests/testdata/,
+	  xapian-core.spec.in: Remove the quartz backend.
+
+Wed Mar 12 02:14:33 GMT 2008  Olly Betts <olly@survex.com>
+
+	* m4/xapian.m4: Improve wording of the error message when we can't
+	  find xapian-config.
+
+Wed Mar 12 02:13:32 GMT 2008  Olly Betts <olly@survex.com>
+
+	* INSTALL: Minor wording tweak.
+
+Wed Mar 12 01:44:42 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Initialise PostlistCursor member firstdid to
+	  avoid using it uninitialised when merging user metadata and the same
+	  key is present in more than one source database.  If the same user
+	  metadata key is present in more than one source database, copy an
+	  arbitrary tag value.
+
+Wed Mar 12 00:34:04 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Fix potential SEGV (which I think can occur
+	  when compacting database(s) with user metadata but no postings).
+
+Fri Mar 07 09:46:38 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/serialise.h: Add missing std:: before string.
+
+Fri Mar 07 00:47:06 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/replication.cc: Tidy up a line which was wider than 80
+	  columns, and improve the error message returned when a database
+	  replica doesn't contain exactly one subdatabase.
+
+Fri Mar 07 00:34:28 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/serialise.h,net/remoteconnection.cc,net/serialise.cc:
+	  Change encode_length() to a template, to allow the full range of
+	  off_t values to be encoded.  Also, adjust
+	  RemoteConnection::get_message_chunked() to allow the message
+	  length to be a 64 bit quantity.  Also, make a couple of type
+	  conversions to size_t explicit, to remove some warnings on
+	  windows.
+
+Thu Mar 06 01:57:04 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
+Thu Mar 06 01:44:07 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/xapian-check.cc: Fix terminology - "user metadata" not "user
+	  metainfo".  Fix bug - need to invoke is_user_metadata rather than
+	  using the function pointer as the if condition!
+
+Thu Mar 06 01:41:09 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Fix terminology - "user metadata" not "user
+	  metainfo".
+
+Wed Mar 05 21:17:02 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* net/remoteconnection.cc: Add some casts (in the windows-specific
+	  code) to fix some warnings from MSVC.
+
+Wed Mar 05 19:01:35 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Update to 1.0 branch point.
+
+Wed Mar 05 19:00:07 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/msvc_dirent.cc: Tweak to bring comment back into 80 columns.
+
+Wed Mar 05 16:35:33 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/msvc_dirent.cc: Fix sense of check for ENOENT after
+	  calling _findnext() - it should be checked for when an error code
+	  is returned, not when the call succeeds.
+	* tests/api_replicate.cc: Fix tiny capitalisation typo.
+
+Wed Mar 05 16:29:47 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/fileutils.cc: Check case where a backslash isn't found in
+	  calc_dirname, and don't replace slash with backslash in this
+	  case.
+
+Wed Mar 05 09:30:42 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* bin/xapian-check.cc: Add understanding of user metainfo keys in
+	  the postlist table.  Allow the METAINFO key to be absent if the
+	  table only contains user metainfo keys.
+
+Wed Mar 05 09:01:48 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/msvc_dirent.cc,common/msvc_dirent.h: Move licence boilerplate
+	  up front where we have it in every other file.  Move header guards
+	  to the usual location.  Detail the fix we've made for not setting
+	  errno to ENOENT erroneously.  Push the setting of orig_errno down
+	  a bit.
+
+Wed Mar 05 04:57:44 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: -pedantic isn't actually very useful so just drop it
+	  rather than testing for known problem cases and risking unknown
+	  problem cases.
+
+Wed Mar 05 03:10:24 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/valuegepostlist.cc,matcher/valuegepostlist.h: Implement
+	  skip_to method for ValueGePostList.  Previously, the
+	  ValueRangePostList::skip_to method was used, which would
+	  return incorrect documents.
+
+Wed Mar 05 02:54:27 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/fileutils.cc: Search for \ instead of / when looking for a
+	  backslash!
+
+Wed Mar 05 02:51:49 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/fileutils.cc: Fix incorrect docstring.
+
+Tue Mar 04 18:48:25 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/msvc_dirent.cc: Fix readdir() so that it doesn't change
+	  errno to ENOENT on reaching the end of the directory, as
+	  specified by POSIX.
+
+Tue Mar 04 17:54:56 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* net/remoteconnection.cc: Fix for a problem with windows.  Because
+	  we're using mixed styles of windows file IO, if a file descriptor
+	  which actually corresponds to a file was supplied to remote
+	  connection, the file pointer wasn't being adjusted after each
+	  call to ReadFile or WriteFile.  This manifested in the test case
+	  for replication, resulting in a (corrupt) 2048 byte changeset
+	  file being written (instead of a considerably longer changeset).
+	  To work around this, we explicitly move the file pointer
+	  ourselves.
+
+Tue Mar 04 17:41:38 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_replicate.cc: Close the replica before removing the
+	  temporary directory, to allow the rmdir to work on windows.
+
+Thu Feb 28 16:41:34 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/remoteconnection.h: Include safeunistd.h, to get correct
+	  typedef for off_t on windows - previously, the size of the
+	  RemoteConnection class was varying depending on the order in
+	  which header files were included, resulting in memory corruption.
+	* net/remoteserver.cc: Remove incorrect comment about what the
+	  problem was.
+
+Sat Feb 23 23:40:56 GMT 2008  Olly Betts <olly@survex.com>
+
+	* xapian-config.in: Use globbing rather than iterating over the output
+	  of ls.
+
+Sat Feb 23 23:33:39 GMT 2008  Olly Betts <olly@survex.com>
+
+	* xapian-config.in: Fix not to repeated headers in --swigheaders in a
+	  non-VPATH build.
+
+Fri Feb 22 17:20:19 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Add note about preferring std::string().
+
+Fri Feb 22 17:05:11 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* net/remoteserver.cc: Use std::string() instead of
+	  std::string(""), since it's a bit cleaner.
+
+Fri Feb 22 16:50:32 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* net/remoteserver.cc: Add workaround for bug in MSVC 2005.
+
+Fri Feb 22 14:39:03 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/flint/flint_database.cc,backends/flint/flint_table.cc,
+	  backends/quartz/btree.cc: Use msvc_posix_rename() instead of
+	  rename() when renaming base files, so that an error isn't
+	  returned if the destination already exists.
+
+Thu Feb 21 17:24:14 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/msvc_dirent.cc: Include msvc_dirent.h instead of dirent.h
+
+Thu Feb 21 17:09:01 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/database.h: ReplicationInfo is a struct, not a class, so
+	  forward declare it as such.
+
+Thu Feb 21 12:16:23 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/Makefile.mk: Add common/safedirent.h to distribution.
+
 Thu Feb 21 00:25:33 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* xapian-config.in: Add swigheaders option, listing the header
@@ -446,7 +963,7 @@ Tue Jan 29 10:08:02 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 	  UnimplementedError.  Hook
 	  DatabaseMaster::write_changesets_to_fd() up to this, and
 	  implement it for flint databases (the code to send a copy of a
-	  database still needs work). 
+	  database still needs work).
 
 Tue Jan 29 10:01:39 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 

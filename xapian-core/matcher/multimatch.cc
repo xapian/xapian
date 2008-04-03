@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
  * Copyright 2003 Orange PCS Ltd
  * Copyright 2003 Sam Liddicott
  * Copyright 2007 Lemur Consulting Ltd
@@ -160,7 +160,7 @@ prepare_sub_matches(std::vector<Xapian::Internal::RefCntPtr<SubMatch> > & leaves
 		DEBUGLINE(EXCEPTION, "Calling error handler for prepare_match() on a SubMatch.");
 		(*errorhandler)(e);
 		// Continue match without this sub-match.
-		leaves[leaf] = new EmptySubMatch();
+		leaves[leaf] = new EmptySubMatch;
 		prepared[leaf] = true;
 		--unprepared;
 	    }
@@ -326,7 +326,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 			  "start_match() on a SubMatch.");
 		(*errorhandler)(e);
 		// Continue match without this sub-match.
-		*leaf = Xapian::Internal::RefCntPtr<SubMatch>(new EmptySubMatch());
+		*leaf = Xapian::Internal::RefCntPtr<SubMatch>(new EmptySubMatch);
 	    }
 	}
     }
@@ -367,7 +367,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    (*errorhandler)(e);
 	    // FIXME: check if *ALL* the remote servers have failed!
 	    // Continue match without this sub-match.
-	    leaves[i] = new EmptySubMatch();
+	    leaves[i] = new EmptySubMatch;
 	    pl = new EmptyPostList;
 	}
 	postlists.push_back(pl);
@@ -407,18 +407,21 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     recalculate_w_max = false;
 
     Xapian::doccount matches_upper_bound = pl->get_termfreq_max();
-    Xapian::doccount matches_lower_bound = pl->get_termfreq_min();
+    Xapian::doccount matches_lower_bound = 0;
     Xapian::doccount matches_estimated   = pl->get_termfreq_est();
+
+    if (mdecider == NULL && matchspy == NULL) {
+	// If we have a matcher decider or match spy, the lower bound must be
+	// set to 0 as we could discard all hits.  Otherwise set it to the
+	// minimum number of entries which the postlist could return.
+	matches_lower_bound = pl->get_termfreq_min();
+    }
 
     // Check if any results have been asked for (might just be wanting
     // maxweight).
     if (check_at_least == 0) {
 	delete pl;
-	if (mdecider != NULL || matchspy != NULL) {
-	    // Lower bound must be set to 0 as the match decider could discard
-	    // all hits.
-	    matches_lower_bound = 0;
-	} else if (collapse_key != Xapian::BAD_VALUENO) {
+	if (collapse_key != Xapian::BAD_VALUENO) {
 	    // Lower bound must be set to no more than 1, since it's possible
 	    // that all hits will be collapsed to a single hit.
 	    if (matches_lower_bound > 1) matches_lower_bound = 1;
@@ -440,6 +443,11 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     // can be adjusted accordingly.
     Xapian::doccount duplicates_found = 0;
     Xapian::doccount documents_considered = 0;
+
+    // Number of documents considered by a decider or matchspy.
+    Xapian::doccount decider_considered = 0;
+    // Number of documents denied by the decider or matchspy.
+    Xapian::doccount decider_denied = 0;
 
     // We keep track of the number of null collapse values because this allows
     // us to provide a better value for matches_lower_bound if there are null
@@ -582,8 +590,16 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		    doc = temp;
 		}
 		Xapian::Document mydoc(doc.get());
-		if (matchspy && !matchspy->operator()(mydoc)) continue;
-		if (mdecider && !mdecider->operator()(mydoc)) continue;
+
+		++decider_considered;
+		if (matchspy && !matchspy->operator()(mydoc)) {
+		    ++decider_denied;
+		    continue;
+		}
+		if (mdecider && !mdecider->operator()(mydoc)) {
+		    ++decider_denied;
+		    continue;
+		}
 	    }
 	}
 
@@ -917,7 +933,29 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    // We can safely reduce the upper bound by the number of
 	    // duplicates we've seen.
 	    matches_upper_bound -= duplicates_found;
+	}
 
+	if (matchspy || mdecider) {
+	    matches_lower_bound = max(docs_matched, matches_lower_bound);
+
+	    // Modify the estimate for the number of hits based on the rate at
+	    // which the decider has been denying documents.
+	    if (decider_considered > 0) {
+		double decider_rate =
+			double(decider_denied) / double(decider_considered);
+		matches_estimated -=
+			Xapian::doccount(double(matches_estimated) *
+					 decider_rate);
+	    }
+
+	    // If a document is denied by a match decider, it is not possible
+	    // for it to found to be a duplicate, so it is safe to also reduce
+	    // the upper bound by the number of documents denied by a match
+	    // decider.
+	    matches_upper_bound -= decider_denied;
+	}
+
+	if (collapse_key != Xapian::BAD_VALUENO || matchspy || mdecider) {
 	    matches_estimated = max(matches_estimated, matches_lower_bound);
 	    matches_estimated = min(matches_estimated, matches_upper_bound);
 	} else if (!percent_cutoff) {

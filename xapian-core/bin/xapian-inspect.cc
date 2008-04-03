@@ -1,7 +1,7 @@
 /** @file xapian-inspect.cc
  * @brief Inspect the contents of a flint table for development or debugging.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,8 +52,8 @@ static void
 display_nicely(const string & data) {
     string::const_iterator i;
     for (i = data.begin(); i != data.end(); ++i) {
-	char ch = *i;
-	if (static_cast<unsigned char>(ch) < 32 || ch == 127) {
+	unsigned char ch = *i;
+	if (ch < 32 || ch >= 127) {
 	    switch (ch) {
 		case '\n': cout << "\\n"; break;
 		case '\r': cout << "\\r"; break;
@@ -104,10 +104,15 @@ main(int argc, char **argv)
 
     // Path to the table to inspect.
     string table_name(argv[optind]);
+    bool arg_is_directory = dir_exists(table_name);
     if (endswith(table_name, ".DB"))
 	table_name.resize(table_name.size() - 2);
     if (!endswith(table_name, '.'))
 	table_name += '.';
+    if (arg_is_directory && !file_exists(table_name + "DB")) {
+	cerr << argv[0] << ": You need to specify a single Btree table, not a database directory." << endl;
+	exit(1);
+    }
 
     try {
 	FlintTable table("", table_name, true);

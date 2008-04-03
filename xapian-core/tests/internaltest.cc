@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2006,2007 Olly Betts
+ * Copyright 2002,2003,2006,2007,2008 Olly Betts
  * Copyright 2006 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -23,8 +23,6 @@
 
 #include <config.h>
 
-// Need to call Error::get_errno() for testing.
-#define XAPIAN_DEPRECATED(D) D
 #include <xapian.h>
 
 #include <float.h>
@@ -471,7 +469,6 @@ static bool test_serialiseerror1()
     // get_description() if they hadn't already been converted.
     TEST_STRINGS_EQUAL(e.get_description(), "DatabaseOpeningError: Failed to open database (" + enoent_msg + ")");
 
-    TEST_EQUAL(e.get_errno(), ENOENT);
     TEST_STRINGS_EQUAL(e.get_error_string(), enoent_msg);
 
     string serialisation = serialise_error(e);
@@ -484,7 +481,6 @@ static bool test_serialiseerror1()
 	// unserialise_error throws an exception.
 	unserialise_error(serialisation, "", "");
     } catch (Xapian::Error & ecaught) {
-	TEST_EQUAL(ecaught.get_errno(), 0); // errno values aren't portable.
 	TEST_STRINGS_EQUAL(ecaught.get_error_string(), enoent_msg);
 	threw = true;
     }

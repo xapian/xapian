@@ -2,7 +2,7 @@
 
 include ../generic/generic.mk
 
-TESTS_ENVIRONMENT = PYTHONPATH=".libs$(PYTHON_PATHSEP)." $(PYTHON)
+TESTS_ENVIRONMENT = PYTHONPATH=. $(PYTHON)
 
 ## Test programs to be run
 TESTS = smoketest.py pythontest.py
@@ -34,14 +34,13 @@ install-data-hook:
 	rm -f $(DESTDIR)$(pylibdir)/_xapian.la
 
 # Because we don't install the .la file, "make uninstall" doesn't work and
-# we need to remove the files ourselves.
+# we need to remove the file ourselves.
 uninstall-local:
-	eval `grep '^dlname=' $(pylib_LTLIBRARIES)` ; \
-	  rm -f $(DESTDIR)$(pylibdir)/"$$dlname"
+	rm -f $(DESTDIR)$(pylibdir)/_xapian$(PYTHON_SO)
 
 AM_CPPFLAGS = -I$(PYTHON_INC)
 AM_CXXFLAGS = $(SWIG_CXXFLAGS) $(XAPIAN_CXXFLAGS)
-_xapian_la_LDFLAGS = -avoid-version -module $(NO_UNDEFINED)
+_xapian_la_LDFLAGS = -avoid-version -module -shrext "$(PYTHON_SO)" $(NO_UNDEFINED)
 _xapian_la_SOURCES = modern/xapian_wrap.cc
 _xapian_la_LIBADD = $(XAPIAN_LIBS) $(PYTHON_LIBS)
 
@@ -56,13 +55,18 @@ xapian.py: modern/xapian.py
 
 # We "import _xapian" first so that if we fail to import the glue library
 # we don't generate a broken xapian.pyc or xapian.pyo.
-xapian.pyc: xapian.py _xapian.la
-	PYTHONPATH=".$(PYTHON_PATHSEP).libs" $(PYTHON) -c "import _xapian;import xapian"
+xapian.pyc: xapian.py _xapian$(PYTHON_SO)
+	PYTHONPATH=. $(PYTHON) -c "import _xapian;import xapian"
 
-xapian.pyo: xapian.py _xapian.la
-	PYTHONPATH=".$(PYTHON_PATHSEP).libs" $(PYTHON) -O -c "import _xapian;import xapian"
+xapian.pyo: xapian.py _xapian$(PYTHON_SO)
+	PYTHONPATH=. $(PYTHON) -O -c "import _xapian;import xapian"
 
-CLEANFILES = xapian.py xapian.pyc xapian.pyo testsuite.pyc
+_xapian$(PYTHON_SO): _xapian.la
+	$(LIBTOOL) --config > libtoolconfig.tmp
+	. ./libtoolconfig.tmp; cp $$objdir/_xapian$(PYTHON_SO) .
+	rm -f libtoolconfig.tmp
+
+CLEANFILES = _xapian$(PYTHON_SO) xapian.py xapian.pyc xapian.pyo testsuite.pyc
 
 if MAINTAINER_MODE
 # We need to explicitly set -outdir because on Windows, SWIG splits paths at

@@ -14,9 +14,6 @@ jni_LTLIBRARIES = libxapian_jni.la
 # install-data, so that's where we need to hook.
 install-data-hook:
 	rm -f $(DESTDIR)$(jnidir)/libxapian_jni.la
-if NEED_JNILIB_EXT
-	mv $(DESTDIR)$(jnidir)/libxapian_jni.so $(DESTDIR)$(jnidir)/libxapian_jni.jnilib
-endif
 
 # Because we don't install the .la file, "make uninstall" doesn't work and
 # we need to remove the files ourselves.
@@ -33,7 +30,12 @@ libxapian_jni_la_SOURCES = Database.cc Document.cc ESet.cc ESetIterator.cc \
  Stem.cc TermIterator.cc WritableDatabase.cc org_xapian_XapianJNI.cc utils.cc \
  org_xapian_XapianJNI.h xapian_jni.h XapianObjectHolder.h
 
+if NEED_JNILIB_EXT
+SHREXT=-shrext .jnilib
+else
+SHREXT=
+endif
 AM_CXXFLAGS = $(JAVA_CXXFLAGS) $(XAPIAN_CXXFLAGS)
 AM_CPPFLAGS = $(JAVA_CPPFLAGS)
-libxapian_jni_la_LDFLAGS = -avoid-version -module $(NO_UNDEFINED)
+libxapian_jni_la_LDFLAGS = -avoid-version -module $(SHREXT) $(NO_UNDEFINED)
 libxapian_jni_la_LIBADD = $(XAPIAN_LIBS)

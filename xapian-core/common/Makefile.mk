@@ -36,6 +36,7 @@ noinst_HEADERS +=\
 	common/replicatetcpserver.h\
 	common/replicationprotocol.h\
 	common/rset.h\
+	common/safedirent.h\
 	common/safeerrno.h\
 	common/safefcntl.h\
 	common/safesysselect.h\

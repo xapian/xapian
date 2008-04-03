@@ -1,7 +1,7 @@
 # Simple test to ensure that we can load the xapian module and exercise basic
 # functionality successfully.
 #
-# Copyright (C) 2004,2005,2006,2007 Olly Betts
+# Copyright (C) 2004,2005,2006,2007,2008 Olly Betts
 # Copyright (C) 2007 Lemur Consulting Ltd
 #
 # This program is free software; you can redistribute it and/or
@@ -33,7 +33,7 @@ def test_all():
     expect(v2, v, "Unexpected version output")
 
     stem = xapian.Stem("english")
-    expect(stem.get_description(), "Xapian::Stem(english)", "Unexpected stem.get_description()")
+    expect(str(stem), "Xapian::Stem(english)", "Unexpected str(stem)")
 
     doc = xapian.Document()
     doc.set_data("a\0b")

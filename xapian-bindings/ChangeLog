@@ -8,6 +8,99 @@ Mon Dec 03 15:35:38 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 	* python/smoketest.py: Change expected query to match new output
 	  using the SYNONYM operator.
 
+Tue Apr 01 04:27:43 GMT 2008  Olly Betts <olly@survex.com>
+
+	* java/native/Makefile.am,python/Makefile.am,ruby/Makefile.am: Use
+	  the libtool -shrext option to specify a different module extension
+	  rather than our own ugly bodge.
+
+Mon Mar 31 02:10:22 GMT 2008  Olly Betts <olly@survex.com>
+
+	* php/smoketest.php: Remove stray extra blank line.
+
+Fri Mar 28 10:18:27 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* configure.ac: Bump version number to 1.0.6 to match xapian-core.
+
+Fri Mar 28 00:22:15 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* xapian.i: Modify wrapping of get_mset() to match the new
+	  definitions in xapian/enquire.h (though this shouldn't change
+	  user-visible behaviour in the bindings).  Also, allow a
+	  mdecider (and matchspy) parameter to be passed even for languages
+	  which don't have director support, now that we have a built-in
+	  match decider.  Also, wrap valuesetmatchdecider.h, so that the
+	  built-in match decider defined there can be used.
+	* php/smoketest.php,python/pythontest.py: Add tests that
+	  ValueSetMatchDecider works in python and PHP.
+
+Wed Mar 19 01:02:21 GMT 2008  Olly Betts <olly@survex.com>
+
+	* ruby/docs/Makefile.am: Ship simplematchdecider.rb.
+	* tcl8/docs/Makefile.am: Ship simpleexpand.tcl.
+
+Wed Mar 12 09:01:04 GMT 2008  Olly Betts <olly@survex.com>
+
+	* java-swig/: Remove Quartz.* from svn:ignore.
+
+Wed Mar 12 08:59:30 GMT 2008  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Clean up libtoolconfig.tmp after use.
+
+Wed Mar 12 08:57:55 GMT 2008  Olly Betts <olly@survex.com>
+
+		* README,configure.ac,php/Makefile.am,php/docs/Makefile.am,
+	  php/docs/examples/simpleexpand.php4,
+	  php/docs/examples/simpleindex.php4,
+	  php/docs/examples/simplesearch.php4,php/docs/index.html,
+	  php/smoketest4.php,php/util.i,xapian-bindings.spec.in,xapian.i:
+	  Remove PHP4 support.
+
+Wed Mar 12 08:29:06 GMT 2008  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,csharp/SmokeTest.cs,csharp/util.i,
+	  java-swig/Makefile.am,java-swig/SmokeTest.java,
+	  java/native/Enquire.cc,java/native/Query.cc,
+	  java/native/org_xapian_XapianJNI.h,java/org/xapian/Enquire.java,
+	  java/org/xapian/Query.java,java/org/xapian/XapianJNI.java,php/util.i,
+	  python/,ruby/util.i,ruby/xapian.rb,xapian.i: Remove all deprecated
+	  features slated for removal in 1.1.0.
+
+Tue Mar 11 20:32:26 GMT 2008  Olly Betts <olly@survex.com>
+
+	* java-swig/util.i: Xapian::weight::clone() collides with Java's
+	  Object.clone(), so rename to cloneWeight().  Wrap Xapian::valueno
+	  as Java type int to avoid a conflict with SWIG/Java's machinery.
+
+Tue Mar 11 04:51:00 GMT 2008  Olly Betts <olly@survex.com>
+
+	* java-swig/Makefile.am: Add MultiValueSorter.java, Sorter.java, and
+	  TermGenerator$flags.class.
+
+Wed Mar 05 22:36:46 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Update to HEAD with un-backported changes kept separate.
+
+Wed Mar 05 21:30:13 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Update to 1.0 branch point.
+
+Sun Feb 24 11:02:44 GMT 2008  Olly Betts <olly@survex.com>
+
+	* java-swig/Makefile.am,php/Makefile.am,ruby/Makefile.am,
+	  tcl8/Makefile.am: Minor comment correction (we only remove a single
+	  file in each case).
+
+Sun Feb 24 01:11:25 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac,python/Makefile.am: The Python module now has the
+	  extension which Python expects, which fixes a failure on Mac OS X.
+	  PYTHON_PATHSEP is no longer required.
+
+Sat Feb 23 23:09:05 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: Correct SWIG version in error message.
+
 Thu Feb 21 00:28:20 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* configure.ac,generic/generic.mk: Use the new --swigheaders option

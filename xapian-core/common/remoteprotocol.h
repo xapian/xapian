@@ -1,7 +1,7 @@
 /** @file remoteprotocol.h
  *  @brief Remote protocol version and message numbers
  */
-/* Copyright (C) 2006,2007 Olly Betts
+/* Copyright (C) 2006,2007,2008 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -39,19 +39,19 @@
 // 30.4: New query operator OP_SCALE_WEIGHT.
 // 30.5: New MSG_GETMSET which expects MSet's percent_factor to be returned.
 // 30.6: Support for OP_VALUE_GE and OP_VALUE_LE in query serialisation
-// 30.7: Add synonym queries (add operator to the serialised form of queries)
-#define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 30
-#define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 7
+// 31: Clean up for Xapian 1.1.0
+#define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 31
+#define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 0
 
 /* When we move to version 31:
- * + Remove MSG_DELETEDOCUMENT_PRE_30_2
- * + Remove MSG_GETMSET_PRE_30_3
- * + Remove MSG_GETMSET_PRE_30_5
- * + Remove REPLY_RESULTS_PRE_30_5
  * Include MSet::Internal::percent_factor in the MSet serialisation.
  */
 
-/// Message types (client -> server).
+/** Message types (client -> server).
+ *
+ *  When modifying this list, you probably need to update the array of function
+ *  pointers in net/remoteserver.cc too.
+ */
 enum message_type {
     MSG_ALLTERMS,		// All Terms
     MSG_COLLFREQ,		// Get Collection Frequency
@@ -68,16 +68,13 @@ enum message_type {
     MSG_UPDATE,			// Get Updated DocCount and AvLength
     MSG_ADDDOCUMENT,		// Add Document
     MSG_CANCEL,			// Cancel
-    MSG_DELETEDOCUMENT_PRE_30_2,// Delete Document for < 30.2.
     MSG_DELETEDOCUMENTTERM,	// Delete Document by term
     MSG_FLUSH,			// Flush
     MSG_REPLACEDOCUMENT,	// Replace Document
     MSG_REPLACEDOCUMENTTERM,	// Replace Document by term
-    MSG_GETMSET_PRE_30_3,	// Get MSet for < 30.3
-    MSG_SHUTDOWN,		// Shutdown
     MSG_DELETEDOCUMENT,		// Delete Document
-    MSG_GETMSET_PRE_30_5,	// Get MSet for < 30.5
     MSG_GETMSET,		// Get MSet
+    MSG_SHUTDOWN,		// Shutdown
     MSG_MAX
 };
 
@@ -93,7 +90,6 @@ enum reply_type {
     REPLY_TERMEXISTS,		// Term Exists
     REPLY_TERMFREQ,		// Get Term Frequency
     REPLY_DOCLENGTH,		// Get Doc Length
-    REPLY_RESULTS_PRE_30_5,	// Results (MSet) for < 30.5
     REPLY_STATS,		// Stats
     REPLY_TERMLIST,		// Get Termlist
     REPLY_POSITIONLIST,		// Get PositionList

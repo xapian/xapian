@@ -1,5 +1,5 @@
 /** @file fileutils.cc
- * @brief Replication support for Xapian databases.
+ *  @brief File and path manipulation routines.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
  *
@@ -30,8 +30,8 @@ calc_dirname(const string & filename)
 {
     string::size_type slash = filename.rfind('/');
 #ifdef __WIN32__
-    string::size_type backslash = filename.rfind('/');
-    if (backslash > slash) slash = backslash;
+    string::size_type backslash = filename.rfind('\\');
+    if (blackslash != string::npos && backslash > slash) slash = backslash;
 #endif
     if (slash == string::npos) return "./";
     return (filename.substr(0, slash) + "/");

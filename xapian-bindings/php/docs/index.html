@@ -9,9 +9,8 @@ API.  This document lists the differences and additions.
 </p>
 
 <p>
-These bindings can be built for either PHP4 or PHP5, though there are some
-differences in how the C++ API is wrapped for each version due to differences
-between PHP4 and PHP5.
+As of Xapian version 1.1.0, these bindings require PHP5 (PHP4 is no longer
+supported).
 </p>
 
 <p>
@@ -38,17 +37,10 @@ class and subclasses is wrapped as <code>clone_object()</code>.
 <p>
 The <code>examples</code> subdirectory contains examples showing how to use the
 PHP bindings based on the simple examples from <code>xapian-examples</code>:
-
-<ul>
-<li> PHP4:
-<a href="examples/simpleindex.php4">simpleindex.php4</a>,
-<a href="examples/simplesearch.php4">simplesearch.php4</a>,
-<a href="examples/simpleexpand.php4">simpleexpand.php4</a>.
-<li> PHP5:
 <a href="examples/simpleindex.php5">simpleindex.php5</a>,
 <a href="examples/simplesearch.php5">simplesearch.php5</a>,
 <a href="examples/simpleexpand.php5">simpleexpand.php5</a>.
-</ul>
+</p>
 
 Note that these examples are written to work with the command line (CLI)
 version of the PHP interpreter, not through a webserver.  Xapian's PHP
@@ -59,7 +51,7 @@ etc.
 <h2>Installation</h2>
 
 <p>
-Assuming you have a suitable version of PHP installed (PHP4 or PHP5), running
+Assuming you have a suitable version of PHP installed, running
 configure will automatically enable the PHP bindings, and
 <code>make install</code> will install the extension shared library in
 the location reported by <code>php-config --extension-dir</code>.
@@ -96,54 +88,21 @@ might have to use something insane-looking like:
 <code>dl('../../../../usr/lib/php5/20051025/xapian.so');</code>
 
 <p>
-If you're using PHP5, you also need to add <code>include&nbsp;"xapian.php"</code>
+You also need to add <code>include&nbsp;"xapian.php"</code>
 to your PHP scripts which use Xapian in order to get the PHP class wrappers.
-The PHP4 class wrappers are implementing by the module you load with
-<code>dl()</code>.
 </p>
 
 <h2>Exceptions</h2>
 
 <p>
-In PHP5, we translate exceptions thrown by Xapian into PHP Exception objects
+Exceptions thrown by Xapian are translated into PHP Exception objects
 which are thrown into the PHP script.
 </p>
-
-<p>
-Unfortunately, exception handling with <code>try</code> and <code>catch</code>
-isn't supported in PHP4, and there isn't really a good alternative approach.
-Most Xapian exceptions are converted to a PHP fatal error.
-However, for exceptions which might be commonly encountered we instead
-produce a PHP warning and the method returns <code>null</code>.  You can
-then check for and handle the exception like so:
-</p>
-
-<blockquote><pre>
-$old_error_reporting = error_reporting
-if ($old_error_reporting &amp; E_WARNING)
-    error_reporting($old_error_reporting ^ E_WARNING);
-$doc = $database-&gt;_get_document($docid);
-if ($doc != null) {
-    exit(1);
-}
-if ($old_error_reporting &amp; E_WARNING)
-    error_reporting($old_error_reporting);
-</pre></blockquote>
-
-<p>The following exceptions are currently handled like this (this is a
-fairly new feature, so feedback on exceptions which should and shouldn't
-be in this list is particularly welcome):</p>
-
-<ul>
-<li><code>DocNotFoundError</code>
-<li><code>FeatureUnavailableError</code>
-</ul>
 
 <h2>Object orientation</h2>
 
 <p>
-As of Xapian 0.9.7, the PHP bindings use a PHP object oriented style.  This
-is very similar for PHP4 and PHP5, but there are a few differences.
+As of Xapian 0.9.7, the PHP bindings use a PHP object oriented style.
 </p>
 
 <p>
@@ -217,20 +176,8 @@ when reading values back from Xapian.
 
 <h2>Database Factory Functions</h2>
 
-<p>For PHP4:</p>
-
-<ul>
-<li> <code>Xapian::Auto::open_stub(<i>file</i>)</code> is wrapped as <code>open_stub(<i>file</i>)</code>
-<li> <code>Xapian::Quartz::open(...)</code> is wrapped as <code>quartz_open(...)</code>
-<li> <code>Xapian::InMemory::open()</code> is wrapped as <code>inmemory_open()</code>
-<li> <code>Xapian::Remote::open(...)</code> is wrapped as <code>remote_open(...)</code>
-</ul>
-
-<p>For PHP5:</p>
-
 <ul>
 <li> <code>Xapian::Auto::open_stub(<i>file</i>)</code> is wrapped as <code>Xapian::auto_open_stub(<i>file</i>)</code>
-<li> <code>Xapian::Quartz::open(...)</code> is wrapped as <code>Xapian::quartz_open(...)</code>
 <li> <code>Xapian::InMemory::open()</code> is wrapped as <code>Xapian::inmemory_open()</code>
 <li> <code>Xapian::Remote::open(...)</code> is wrapped as <code>Xapian::remote_open(...)</code>
 </ul>
@@ -238,15 +185,7 @@ when reading values back from Xapian.
 <h2>Constants</h2>
 
 <p>
-   For PHP4, constants are wrapped in a similar way to class methods.
-   So <code>Xapian::DB_CREATE_OR_OPEN</code> is available as
-   <code>Xapian_DB_CREATE_OR_OPEN</code>, <code>Xapian::Query::OP_OR</code> is
-   available as <code>XapianQuery_OP_OR</code>, and so on.
-</p>
-
-<p>
-   For PHP5, constants are wrapped as <code>const</code> members of the
-   appropriate class.
+   Constants are wrapped as <code>const</code> members of the appropriate class.
    So <code>Xapian::DB_CREATE_OR_OPEN</code> is available as
    <code>Xapian::DB_CREATE_OR_OPEN</code>, <code>Xapian::Query::OP_OR</code> is
    available as <code>XapianQuery::OP_OR</code>, and so on.
@@ -255,10 +194,9 @@ when reading values back from Xapian.
 <h2>Functions</h2>
 
 <p>
-   For PHP5, non-class functions are wrapped in the natural way, so the C++
+   Non-class functions are wrapped in the natural way, so the C++
    function <code>Xapian::version_string</code> is wrapped under the same
-   name in PHP.  PHP4 doesn't allow this, so we wrap functions with a
-   <code>xapian_</code> prefix, e.g. <code>xapian_version_string</code>.
+   name in PHP.
 </p>
 
 <h2>Query</h2>
@@ -268,16 +206,7 @@ when reading values back from Xapian.
    start/end iterators specifying a number of terms or queries, plus an optional
    parameter.  In PHP, this is wrapped to accept an array listing the terms
    and/or queries (you can specify a mixture of terms and queries if you wish)
-   For example, for PHP4:
-</p>
-
-<pre>
-   $subq = new XapianQuery(XapianQuery_OP_AND, "hello", "world");
-   $q = new XapianQuery(XapianQuery_OP_AND, array($subq, "foo", new XapianQuery("bar", 2)));
-</pre>
-
-<p>
-   And for PHP5:
+   For example:
 </p>
 
 <pre>

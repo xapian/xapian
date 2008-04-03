@@ -146,6 +146,7 @@ CLEAN :
     if exist ".quartz" rmdir ".quartz" /s /q
     if exist ".quartztmp" rmdir ".quartztmp" /s /q
     if exist ".multi" rmdir ".multi" /s /q
+    if exist ".replicatmp" rmdir ".replicatmp" /s /q
     
     
     

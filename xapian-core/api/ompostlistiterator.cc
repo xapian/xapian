@@ -1,7 +1,7 @@
 /* ompostlistiterator.cc
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2004,2005 Olly Betts
+ * Copyright 2003,2004,2005,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -93,14 +93,6 @@ Xapian::PostingIterator::skip_to(Xapian::docid did)
     if (internal->at_end()) internal = 0;
 }    
 
-// need to set Xapian::Weight object for this to work
-//Xapian::weight
-//Xapian::PostingIterator::get_weight() const
-//{
-//    DEBUGAPICALL(Xapian::weight, "Xapian::PostingIterator::get_weight", "");
-//    RETURN(internal->get_weight());
-//}
-    
 Xapian::doclength
 Xapian::PostingIterator::get_doclength() const
 {
@@ -132,7 +124,6 @@ string
 Xapian::PostingIterator::get_description() const
 {
     DEBUGCALL(INTRO, string, "Xapian::PostingIterator::get_description", "");
-    /// \todo display contents of the object
     string desc = "Xapian::PostingIterator([pos=";
     if (internal.get() == 0) {
 	desc += "END";

@@ -1,5 +1,5 @@
 
-.. Copyright (C) 2007 Olly Betts
+.. Copyright (C) 2007,2008 Olly Betts
 
 ======================
 Xapian Synonym Support
@@ -73,6 +73,5 @@ Backend Support
 
 Currently synonyms are only supported by flint databases.  They work with a
 single database or multiple databases (use Database::add_database() as usual).
-We've no plans to support them for the deprecated Quartz backend, nor for
-InMemory, but we do intend to support them for the remote backend in the
-future.
+We've no plans to support them for the InMemory backend, but we do intend to
+support them for the remote backend in the future.

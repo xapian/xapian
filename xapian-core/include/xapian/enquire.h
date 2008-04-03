@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,7 +27,6 @@
 #include <string>
 
 #include <xapian/base.h>
-#include <xapian/deprecated.h>
 #include <xapian/sorter.h>
 #include <xapian/types.h>
 #include <xapian/termiterator.h>
@@ -883,12 +882,8 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		      Xapian::doccount checkatleast = 0,
 		      const RSet * omrset = 0,
-		      const MatchDecider * mdecider = 0) const;
-	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
-		      Xapian::doccount checkatleast,
-		      const RSet * omrset,
-		      const MatchDecider * mdecider,
-		      const MatchDecider * matchspy) const;
+		      const MatchDecider * mdecider = 0,
+		      const MatchDecider * matchspy = 0) const;
 	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		      const RSet * omrset,
 		      const MatchDecider * mdecider = 0) const {
@@ -897,18 +892,6 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 
 	static const int INCLUDE_QUERY_TERMS = 1;
 	static const int USE_EXACT_TERMFREQ = 2;
-#ifndef _MSC_VER
-	/// Deprecated in Xapian 1.0.0, use INCLUDE_QUERY_TERMS instead.
-	XAPIAN_DEPRECATED(static const int include_query_terms) = 1;
-	/// Deprecated in Xapian 1.0.0, use USE_EXACT_TERMFREQ instead.
-	XAPIAN_DEPRECATED(static const int use_exact_termfreq) = 2;
-#else
-	// Work around MSVC stupidity (you get a warning for deprecating a
-	// declaration).
-	static const int include_query_terms = 1;
-	static const int use_exact_termfreq = 2;
-#pragma deprecated("Xapian::Enquire::include_query_terms", "Xapian::Enquire::use_exact_termfreq")
-#endif
 
 	/** Get the expand set for the given rset.
 	 *
@@ -1020,22 +1003,6 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	    return TermIterator(NULL);
 	}
 
-	/** Register a MatchDecider.
-	 *
-	 * This is used to associate a name with a matchdecider.
-	 *
-	 * @deprecated This method is deprecated.  It was added long ago with
-	 * the intention that it would allow the remote backend to support
-	 * use of MatchDecider objects, but there's a better approach.
-	 *
-	 * @param name		The name to register this matchdecider as.
-	 * @param mdecider	The matchdecider.  If omitted, then remove
-	 *			any matchdecider registered with this name.
-	 */
-	XAPIAN_DEPRECATED(
-	void register_match_decider(const std::string &name,
-				    const MatchDecider *mdecider = NULL));
-
 	/// Return a string describing this object.
 	std::string get_description() const;
 };
@@ -1077,8 +1044,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 	std::string tname;
 
     public:
-	// FIXME:1.1: initialise internal to NULL here
-	Weight() { }
+	Weight() : internal(0) { }
 	virtual ~Weight();
 
 	/** Create a new weight object of the same type as this and initialise
