@@ -1,3 +1,9 @@
+Thu Apr 03 03:53:37 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/xapian-inspect.cc: Check for the user passing a database
+	  directory and issue a special error message since this is an obvious
+	  mistake to make.
+
 Wed Apr 02 07:00:36 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* matcher/multimatch.cc: Modify the estimate for the number of hits
@@ -7,7 +13,7 @@ Wed Apr 02 07:00:36 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 	* tests/api_db.cc: Check that the upper bound when a match decider
 	  is used is within the valid range, rather than a particular
 	  value.
- 
+
 Tue Apr 01 22:40:19 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* configure.ac,tests/perftest.cc,tests/submitperftest.py.in,
