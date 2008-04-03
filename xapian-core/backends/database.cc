@@ -22,9 +22,6 @@
 
 #include <config.h>
 
-// We have to use the deprecated Quartz::open() method.
-#define XAPIAN_DEPRECATED(D) D
-
 #include "database.h"
 #include "utils.h" // for om_tostring
 #include "fileutils.h"
@@ -41,30 +38,11 @@ using namespace std;
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
 #include "inmemory/inmemory_database.h"
 #endif
-#ifdef XAPIAN_HAS_QUARTZ_BACKEND
-#include "quartz/quartz_database.h"
-#endif
 #ifdef XAPIAN_HAS_FLINT_BACKEND
 #include "flint/flint_database.h"
 #endif
 
 namespace Xapian {
-
-#ifdef XAPIAN_HAS_QUARTZ_BACKEND
-Database
-Quartz::open(const string &dir) {
-    DEBUGAPICALL_STATIC(Database, "Quartz::open", dir);
-    return Database(new QuartzDatabase(dir));
-}
-
-WritableDatabase
-Quartz::open(const string &dir, int action, int block_size) {
-    DEBUGAPICALL_STATIC(WritableDatabase, "Quartz::open", dir << ", " <<
-			action << ", " << block_size);
-    return WritableDatabase(new QuartzWritableDatabase(dir, action,
-						       block_size));
-}
-#endif
 
 #ifdef XAPIAN_HAS_FLINT_BACKEND
 Database
@@ -124,11 +102,6 @@ open_stub(Database *db, const string &file)
 #ifdef XAPIAN_HAS_FLINT_BACKEND
 	} else if (type == "flint") {
 	    db->add_database(Flint::open(join_paths(stubdir, line)));
-	    ok = true;
-#endif
-#ifdef XAPIAN_HAS_QUARTZ_BACKEND
-	} else if (type == "quartz") {
-	    db->add_database(Quartz::open(join_paths(stubdir, line)));
 	    ok = true;
 #endif
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
@@ -202,12 +175,6 @@ Database::Database(const string &path)
 	return;
     }
 #endif
-#ifdef XAPIAN_HAS_QUARTZ_BACKEND
-    if (file_exists(path + "/record_DB")) {
-	internal.push_back(new QuartzDatabase(path));
-	return;
-    }
-#endif
 
     throw DatabaseOpeningError("Couldn't detect type of database");
 }
@@ -217,19 +184,9 @@ WritableDatabase::WritableDatabase(const std::string &path, int action)
 {
     DEBUGAPICALL(void, "WritableDatabase::WritableDatabase",
 		 path << ", " << action);
-#if defined XAPIAN_HAS_FLINT_BACKEND && defined XAPIAN_HAS_QUARTZ_BACKEND
-    // Both Flint and Quartz are enabled.
-    if (!file_exists(path + "/record_DB")) {
-	internal.push_back(new FlintWritableDatabase(path, action, 8192));
-    } else {
-	internal.push_back(new QuartzWritableDatabase(path, action, 8192));
-    }
-#elif defined XAPIAN_HAS_FLINT_BACKEND
+#ifdef XAPIAN_HAS_FLINT_BACKEND
     // Only Flint is enabled.
     internal.push_back(new FlintWritableDatabase(path, action, 8192));
-#elif defined XAPIAN_HAS_QUARTZ_BACKEND
-    // Only Quartz is enabled.
-    internal.push_back(new QuartzWritableDatabase(path, action, 8192));
 #else
     throw FeatureUnavailableError("No disk-based writable backend is enabled");
 #endif
