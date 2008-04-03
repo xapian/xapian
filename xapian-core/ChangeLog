@@ -1,3 +1,8 @@
+Thu Apr 03 07:59:53 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/xapian-inspect.cc: Print top-bit-set characters as escaped
+	  hex forms as they often won't be valid UTF-8 sequences.
+
 Thu Apr 03 03:53:37 GMT 2008  Olly Betts <olly@survex.com>
 
 	* bin/xapian-inspect.cc: Check for the user passing a database
