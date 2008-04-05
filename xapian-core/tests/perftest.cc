@@ -107,6 +107,7 @@ PerfTestLogger::indexing_begin(const string & dbname)
     indexing_addcount = 0;
     indexing_unlogged_changes = false;
     indexing_timer = OmTime::now();
+    last_indexlog_timer = indexing_timer;
     indexing_started = true;
 }
 
@@ -116,7 +117,8 @@ PerfTestLogger::indexing_log()
     Assert(indexing_started);
     if (!indexing_unlogged_changes)
 	return;
-    OmTime elapsed(OmTime::now() - indexing_timer);
+    last_indexlog_timer = OmTime::now();
+    OmTime elapsed(last_indexlog_timer - indexing_timer);
     write("<item>"
 	  "<time>" + time_to_string(elapsed) + "</time>"
 	  "<adds>" + om_tostring(indexing_addcount) + "</adds>"

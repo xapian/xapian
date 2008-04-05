@@ -41,6 +41,7 @@ class PerfTestLogger {
     Xapian::doccount indexing_addcount;
     bool indexing_unlogged_changes;
     OmTime indexing_timer;
+    OmTime last_indexlog_timer;
 
     bool searching_started;
     OmTime searching_timer;
@@ -75,8 +76,15 @@ class PerfTestLogger {
     void indexing_add() {
 	++indexing_addcount;
 	indexing_unlogged_changes = true;
-	if (indexing_addcount % 1000 == 0)
+	// Log every 1000 documents
+	if (indexing_addcount % 1000 == 0) {
 	    indexing_log();
+	} else {
+	    // Or after 5 seconds
+	    OmTime now(OmTime::now());
+	    if (now > last_indexlog_timer + OmTime(5, 0))
+		indexing_log();
+	}
     }
 
     /** Log the end of an indexing run.
