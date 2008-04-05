@@ -86,6 +86,7 @@ void
 PerfTestLogger::write(const string & text)
 {
     out.write(text.data(), text.size());
+    out.flush();
 }
 
 void
@@ -141,8 +142,8 @@ PerfTestLogger::searching_start(const string & description)
 {
     indexing_end();
     searching_end();
-    write("<searchrun>\n");
-    write("<description>" + escape_xml(description) + "</description>\n");
+    write("<searchrun>\n"
+	  "<description>" + escape_xml(description) + "</description>\n");
     searching_started = true;
     search_start();
 }

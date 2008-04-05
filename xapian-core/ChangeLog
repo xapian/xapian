@@ -1,3 +1,13 @@
+Sat Apr 05 21:07:38 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/perftest.cc: Flush after each write, so we can monitor
+	  progress of long running tests (we might need to remove this
+	  again later, if profiling shows it has a noticeable impact).  Fix
+	  two calls to write() to be a single call.
+	* tests/perftest_randomidx.cc: Add values to different slots; I'd
+	  added them all to slot 0 by mistake, so they were overwriting
+	  each other.
+
 Sat Apr 05 20:17:43 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/Makefile.am,tests/perftest_randomidx.cc: Add a new

@@ -123,7 +123,7 @@ DEFINE_TESTCASE(randomidx1, writable) {
 	    if (rand_01() < slot_probability) {
 		unsigned int len = rand_int(slotval_maxlen + 1 -
 				slotval_minlen) + slotval_minlen;
-		doc.add_value(0, gen_word(len, slot + 2));
+		doc.add_value(slot, gen_word(len, slot + 2));
 	    }
 	}
 
