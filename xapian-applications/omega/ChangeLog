@@ -1,3 +1,8 @@
+Sun Apr 06 09:05:58 GMT 2008  Olly Betts <olly@survex.com>
+
+	* freemem.cc: Fix latent compilation error on FreeBSD, pointed out by
+	  Richard Boulton.
+
 Mon Mar 31 02:00:48 GMT 2008  Olly Betts <olly@survex.com>
 
 	* configure.ac: Update version to 1.0.6 to match latest release.
