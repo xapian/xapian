@@ -1,3 +1,8 @@
+Mon Apr 07 07:28:14 GMT 2008  Olly Betts <olly@survex.com>
+
+	* README: Note that Tcl 8.3 and earlier are no longer supported by
+	  upstream.
+
 Tue Apr 01 04:27:43 GMT 2008  Olly Betts <olly@survex.com>
 
 	* java/native/Makefile.am,python/Makefile.am,ruby/Makefile.am: Use
