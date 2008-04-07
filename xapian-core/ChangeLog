@@ -1,3 +1,16 @@
+Mon Apr 07 06:20:42 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/error.cc,api/valuerangeproc.cc,backends/flint/flint_table.cc,
+	  backends/multi/multi_postlist.cc,backends/remote/net_termlist.cc,
+	  bin/xapian-inspect.cc,common/omdebug.cc,common/utils.cc,
+	  languages/stem.cc,languages/steminternal.cc,
+	  tests/harness/backendmanager_multi.cc,
+	  tests/harness/backendmanager_remotetcp.cc: Header inclusions tidying
+	  - remove a few redundant inclusions; prefer cstdio to stdio.h, etc
+	  in a few places; note why certain headers are required in cases
+	  where it's less obvious; in a .cc file, include the corresponding .h 
+	  second (after <config.h>).
+
 Mon Apr 07 04:23:30 GMT 2008  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix --enable-log=profile to be recognised.

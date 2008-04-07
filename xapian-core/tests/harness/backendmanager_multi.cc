@@ -25,7 +25,7 @@
 #include "index_utils.h"
 #include "utils.h"
 
-#include <cstdio>
+#include <cstdio> // For rename().
 #include <cstring>
 #include "safeerrno.h"
 

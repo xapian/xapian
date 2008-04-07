@@ -23,6 +23,8 @@
 
 #include <config.h>
 
+#include "flint_table.h"
+
 #include <xapian/error.h>
 
 #include "safeerrno.h"
@@ -60,12 +62,11 @@ PREAD_PROTOTYPE
 PWRITE_PROTOTYPE
 #endif
 
-#include <stdio.h>
+#include <stdio.h>    /* for rename */
 #include <string.h>   /* for memmove */
 #include <limits.h>   /* for CHAR_BIT */
 
 #include "flint_io.h"
-#include "flint_table.h"
 #include "flint_btreeutil.h"
 #include "flint_btreebase.h"
 #include "flint_cursor.h"

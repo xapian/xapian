@@ -25,7 +25,7 @@
 #include <xapian.h>
 
 #include "safeerrno.h"
-#include <stdio.h>
+#include <cstdio> // For fdopen().
 #include <cstring>
 
 #ifdef HAVE_FORK

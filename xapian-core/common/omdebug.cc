@@ -30,7 +30,7 @@
 
 OmDebug om_debug;
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "safefcntl.h"
