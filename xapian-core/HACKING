@@ -29,8 +29,12 @@ Xapian.
 	we haven't yet performed timings to measure the overhead...)
 
 --enable-log
-	This enables compiling into the system of code to generate verbose
+        This enables compiling code into the library which generates verbose
 	debugging messages.  See "Debugging Messages", below.
+
+--enable-log=profile
+        This enables compiling code into the library which reports to stderr
+        how long each method takes to execute.
 
 --enable-maintainer-mode
 	This tells configure to enable make dependencies for regenerating build

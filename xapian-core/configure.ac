@@ -880,9 +880,9 @@ AC_ARG_ENABLE(assertions,
   esac])
 
 AC_ARG_ENABLE(log,
-  [AS_HELP_STRING([--enable-log], [generate a log of methods called, etc [default=no]])],
+  [AS_HELP_STRING([--enable-log], [generate a log of methods called, etc (no|yes|profile) [default=no]])],
   [case $enableval in
-    yes|profiling|no) ;;
+    yes|profile|no) ;;
     *)
       AC_MSG_ERROR([Invalid option: '--enable-log=$enableval']) ;;
   esac])
