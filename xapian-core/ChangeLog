@@ -1,3 +1,7 @@
+Mon Apr 07 07:49:56 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_btreeutil.h: Use AssertRel rather than Assert.
+
 Mon Apr 07 06:20:42 GMT 2008  Olly Betts <olly@survex.com>
 
 	* api/error.cc,api/valuerangeproc.cc,backends/flint/flint_table.cc,

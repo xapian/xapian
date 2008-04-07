@@ -38,32 +38,32 @@
 inline int
 getint1(const byte *p, int c)
 {
-    Assert(c >= 0);
-    Assert(c < 65536);
+    AssertRel(c, >=, 0);;
+    AssertRel(c, <, 65536);
     return p[c];
 }
 
 inline void
 setint1(byte *p, int c, int x)
 {
-    Assert(c >= 0);
-    Assert(c < 65536);
+    AssertRel(c, >=, 0);;
+    AssertRel(c, <, 65536);
     p[c] = x;
 }
 
 inline int
 getint2(const byte *p, int c)
 {
-    Assert(c >= 0);
-    Assert(c < 65536 - 1);
+    AssertRel(c, >=, 0);;
+    AssertRel(c, <, 65536 - 1);
     return p[c] << 8 | p[c + 1];
 }
 
 inline void
 setint2(byte *p, int c, int x)
 {
-    Assert(c >= 0);
-    Assert(c < 65536 - 1);
+    AssertRel(c, >=, 0);;
+    AssertRel(c, <, 65536 - 1);
     p[c] = x >> 8;
     p[c + 1] = x;
 }
@@ -71,16 +71,16 @@ setint2(byte *p, int c, int x)
 inline int
 getint4(const byte *p, int c)
 {
-    Assert(c >= 0);
-    Assert(c < 65536 - 3);
+    AssertRel(c, >=, 0);;
+    AssertRel(c, <, 65536 - 3);
     return p[c] << 24 | p[c + 1] << 16 | p[c + 2] << 8 | p[c + 3];
 }
 
 inline void
 setint4(byte *p, int c, int x)
 {
-    Assert(c >= 0);
-    Assert(c < 65536 - 3);
+    AssertRel(c, >=, 0);;
+    AssertRel(c, <, 65536 - 3);
     p[c] = x >> 24;
     p[c + 1] = x >> 16;
     p[c + 2] = x >> 8;
