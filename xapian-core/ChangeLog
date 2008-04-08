@@ -1,3 +1,7 @@
+Tue Apr 08 15:27:09 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Fix missing line in old entry.
+
 Mon Apr 07 07:49:56 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_btreeutil.h: Use AssertRel rather than Assert.
