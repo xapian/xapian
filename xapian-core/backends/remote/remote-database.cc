@@ -21,6 +21,8 @@
 
 #include <config.h>
 
+#include "remote-database.h"
+
 #include "safeerrno.h"
 #include <signal.h>
 
