@@ -1,3 +1,11 @@
+Wed Apr 09 04:48:54 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/xapian-check.cc,bin/xapian-compact.cc: Fix check for user
+	  metadata key to not match other key types we may add in the future.
+	  When compacting, we can't assume how we should handle them.  When
+	  checking, they currently shouldn't be present, so we should flag
+	  an error for them.
+
 Tue Apr 08 15:27:09 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS: Fix missing line in old entry.

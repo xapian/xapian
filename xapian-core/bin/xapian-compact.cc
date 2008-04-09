@@ -76,7 +76,7 @@ is_metainfo_key(const string & key)
 static inline bool
 is_user_metadata_key(const string & key)
 {
-    return key.size() > 1 && key[0] == '\0' && key[1] != '\xff';
+    return key.size() > 1 && key[0] == '\0' && key[1] == '\xc0';
 }
 
 class PostlistCursor : private FlintCursor {
