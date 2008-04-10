@@ -660,7 +660,7 @@ FlintPostList::FlintPostList(Xapian::Internal::RefCntPtr<const FlintDatabase> th
 	  cursor(this_db->postlist_table.cursor_get()),
 	  is_at_end(false)
 {
-    DEBUGCALL(DB, void, "FlintPostList::ostList",
+    DEBUGCALL(DB, void, "FlintPostList::FlintPostList",
 	      this_db_.get() << ", " << tname_);
     string key = FlintPostListTable::make_key(tname);
     int found = cursor->find_entry(key);
