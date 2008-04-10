@@ -1,3 +1,10 @@
+Thu Apr 10 04:46:40 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/omassert.h: Add "compile-time assertion" macros:
+	  STATIC_ASSERT(COND), STATIC_ASSERT_UNSIGNED_TYPE(TYPE),
+	  STATIC_ASSERT_TYPE_DOMINATES(TYPE1, TYPE2).
+	* tests/internaltest.cc: Test these.
+
 Thu Apr 10 01:07:34 GMT 2008  Olly Betts <olly@survex.com>
 
 	* common/remoteprotocol.h,net/remoteserver.cc: Clean up a couple more
