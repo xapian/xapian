@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006 Olly Betts
+ * Copyright 2002,2003,2004,2006,2008 Olly Betts
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,17 +23,13 @@
 #ifndef OM_HGUARD_FLINT_UTILS_H
 #define OM_HGUARD_FLINT_UTILS_H
 
+#include "omassert.h"
+
 #include <xapian/types.h>
 
 #include <string>
 
 using namespace std;
-
-/// Compile time assert a condition.
-#define CASSERT(a) {char assert[(a) ? 1 : -1];(void)assert;}
-
-/// Compile time assert that type T is unsigned.
-#define CASSERT_TYPE_UNSIGNED(T) CASSERT(static_cast<T>(-1) > 0)
 
 typedef unsigned char       om_byte;
 typedef unsigned int        om_uint32;
@@ -70,10 +66,10 @@ unpack_uint(const char ** src,
 	    T * resultptr)
 {
     // Check unsigned
-    CASSERT_TYPE_UNSIGNED(T);
+    STATIC_ASSERT_UNSIGNED_TYPE(T);
 
     // Check byte is what it's meant to be
-    CASSERT(sizeof(om_byte) == 1);
+    STATIC_ASSERT(sizeof(om_byte) == 1);
 
     unsigned int shift = 0;
     T result = 0;
@@ -125,7 +121,7 @@ string
 pack_uint(T value)
 {
     // Check unsigned
-    CASSERT_TYPE_UNSIGNED(T);
+    STATIC_ASSERT_UNSIGNED_TYPE(T);
 
     if (value == 0) return string("", 1u);
     string result;
@@ -177,9 +173,9 @@ bool
 unpack_uint_last(const char ** src, const char * src_end, T * resultptr)
 {
     // Check unsigned
-    CASSERT_TYPE_UNSIGNED(T);
+    STATIC_ASSERT_UNSIGNED_TYPE(T);
     // Check byte is what it's meant to be
-    CASSERT(sizeof(om_byte) == 1);
+    STATIC_ASSERT(sizeof(om_byte) == 1);
 
     if (src_end - *src > int(sizeof(T))) {
 	// Would overflow
@@ -212,7 +208,7 @@ string
 pack_uint_last(T value)
 {
     // Check unsigned
-    CASSERT_TYPE_UNSIGNED(T);
+    STATIC_ASSERT_UNSIGNED_TYPE(T);
 
     string result;
     while (value) {
@@ -237,7 +233,7 @@ string
 pack_uint_preserving_sort(T value)
 {
     // Check unsigned
-    CASSERT_TYPE_UNSIGNED(T);
+    STATIC_ASSERT_UNSIGNED_TYPE(T);
 
     string result;
     while (value != 0) {
