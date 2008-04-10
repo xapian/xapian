@@ -425,18 +425,7 @@ RemoteServer::msg_query(const string &message_in)
     send_message(REPLY_STATS, serialise_stats(local_stats));
 
     string message;
-#if 0 // Reinstate this when major protocol version increases to 31.
     get_message(active_timeout, message, MSG_GETMSET);
-#else
-    char type = get_message(active_timeout, message);
-    if (rare(type != MSG_GETMSET)) {
-	string errmsg("Expecting message type ");
-	errmsg += om_tostring(MSG_GETMSET);
-	errmsg += ", got ";
-	errmsg += om_tostring(type);
-	throw Xapian::NetworkError(errmsg);
-    }
-#endif
     p = message.c_str();
     p_end = p + message.size();
 

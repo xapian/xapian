@@ -1,3 +1,8 @@
+Thu Apr 10 01:07:34 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/remoteprotocol.h,net/remoteserver.cc: Clean up a couple more
+	  things now we've moved to major protocol version 31.
+
 Wed Apr 09 06:50:44 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/remote/remote-database.cc: Add missing explicit include of
