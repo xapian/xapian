@@ -1,3 +1,8 @@
+Fri Apr 11 03:24:47 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am: "make up" in tests now does "make" in the
+	  top-level.
+
 Thu Apr 10 08:33:06 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_postlist.cc: Fix debug logging message: ostList
