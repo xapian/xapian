@@ -584,8 +584,8 @@ isn't (e.g. the --disable-backend-XXX options we already have are dubious,
 though being able to disable the remote backend can be useful when trying to
 get Xapian going on a platform).
 
-Makefile Portability:
-=====================
+Makefile Portability
+====================
 
 We don't want to force those building Xapian from the source distribution to
 have to use GNU make.  Requiring GNU make for "make dist" isn't such a problem
@@ -743,6 +743,21 @@ the use "make -s" to suppress the echoing of commands.
 Using @echo on a message sent to stdout or stderr is acceptable (since it
 avoids showing the message twice).  Otherwise don't use "@" - it makes it
 harder to track down problems in the makefiles.
+
+Naming of Scripts
+=================
+
+Scripts generally should *not* have an extension indicating the language they
+are currently implemented in (e.g. ``runtest`` rather than ``runtest.sh`` or
+``runtest.pl``).  The problem with such an extension is that if we decide
+to reimplement the script in a different language, we either have to rename
+the script (which is annoying as people will be used to the name, and may
+have embedded it in their own scripts), or we have a script with a confusing
+name (e.g. a Python script with extension ``.pl``).
+
+The above reasoning doesn't apply to scripts which have to be in a particular
+language for some reason, though for consistency they probably shouldn't get
+an extension either, unless there's a good reason to have one.
 
 Use of Assert
 =============
