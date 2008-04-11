@@ -31,7 +31,7 @@ calc_dirname(const string & filename)
     string::size_type slash = filename.rfind('/');
 #ifdef __WIN32__
     string::size_type backslash = filename.rfind('\\');
-    if (blackslash != string::npos && backslash > slash) slash = backslash;
+    if (backslash != string::npos && backslash > slash) slash = backslash;
 #endif
     if (slash == string::npos) return "./";
     return (filename.substr(0, slash) + "/");
