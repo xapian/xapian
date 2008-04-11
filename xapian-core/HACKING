@@ -370,24 +370,28 @@ Use of C++ Features:
     2.95.3 includes a backported version.  We aren't aware of any other
     compilers still in use which lack it.
 
-  * Non-".h" versions of C++ headers.  We assume that <iostream> is available
-    and that we don't ever have to use <iostream.h> instead.
+  * Non-".h" versions of standard ISO C++ headers (e.g. ``#include <list>``
+    rather than ``#include <list.h>``).  We aren't aware of any compiler still
+    in use which lacks these, and GCC 4.3 no longer has the old versions.  If
+    there are any, we could add a directory full of forwarding headers to work
+    around this issue.
 
 * RTTI (dynamic_cast<>, typeid, etc):  Needing to use RTTI features in the
   library most likely indicates a design flaw, and you should avoid use
   of these features.  Where necessary, you can use a technique similar to
   Database::as_networkdatabase() to replace dynamic_cast<>.
 
-* Exceptions:  In hindsight, throwing exceptions in the library seems to have
+* Exceptions: In hindsight, throwing exceptions in the library seems to have
   been a poor design decision.  GCC on Solaris can't cope with exceptions in
-  shared libraries, and we've also had test failures on other platforms which
-  only occur with shared libraries - possibly with a similar cause.  Exceptions
-  can also be a pain to handle elegantly in the bindings.  We intend to
-  investigate modifying the library to return error codes internally, and then
-  offering the user the choice of exception throwing or error code returning
-  API methods (with the exception being thrown by an inlined wrapper in the
-  externally visible header files).  With this in mind, please don't complicate
-  the internal handling of exceptions...
+  shared libraries (though it appears this may have been fixed in more recent
+  versions), and we've also had test failures on other platforms which only
+  occur with shared libraries - possibly with a similar cause.  Exceptions can
+  also be a pain to handle elegantly in the bindings.  We intend to investigate
+  modifying the library to return error codes internally, and then offering the
+  user the choice of exception throwing or error code returning API methods
+  (with the exception being thrown by an inlined wrapper in the externally
+  visible header files).  With this in mind, please don't complicate the
+  internal handling of exceptions...
 
 * "using namespace std;" and "using std::XXX;" - it's OK to use these in
   applications, library code, and internal library headers.  But in externally
@@ -927,7 +931,7 @@ to follow the style of the existing code.  In particular:
 
 * For standard ISO C++ headers, *always* use the ISO C++ form '#include <list>'
   (pre-ISO compilers used '#include <list.h>', but GCC has generated a warning
-  for this form for years).
+  for this form for years, and GCC 4.3 dropped support entirely).
 
 * When passing an empty string to a method expecting ``const std::string &``
   prefer ``std::string()`` to ``""`` or ``std::string("")`` as the first form
