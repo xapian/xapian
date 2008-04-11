@@ -21,11 +21,12 @@
 
 #include <config.h>
 
+#include "flint_cursor.h"
+
 #include "safeerrno.h"
 
 #include <xapian/error.h>
 
-#include "flint_cursor.h"
 #include "flint_table.h"
 #include "flint_btreeutil.h"
 #include "omassert.h"

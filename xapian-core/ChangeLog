@@ -1,3 +1,8 @@
+Fri Apr 11 12:44:25 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_cursor.cc: Include corresponding header right
+	  after config.h.
+
 Fri Apr 11 10:25:03 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_cursor.h: Fix filename in header comment.
