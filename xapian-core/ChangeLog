@@ -1,3 +1,8 @@
+Sun Apr 13 14:15:00 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_cursor.cc: Use RETURN() in a few places which
+	  weren't.
+
 Sun Apr 13 13:59:57 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/inmemory/inmemory_database.cc: Remove long-time commented

@@ -1,7 +1,7 @@
 /* flint_cursor.cc: Btree cursor implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -97,7 +97,7 @@ FlintCursor::prev()
 	while (true) {
 	    if (! B->prev(C, 0)) {
 		is_positioned = false;
-		return false;
+		RETURN(false);
 	    }
 	    if (Item_(C[0].p, C[0].c).component_of() == 1) {
 		break;
@@ -108,7 +108,7 @@ FlintCursor::prev()
     while (true) {
 	if (! B->prev(C, 0)) {
 	    is_positioned = false;
-	    return false;
+	    RETURN(false);
 	}
 	if (Item_(C[0].p, C[0].c).component_of() == 1) {
 	    break;
@@ -118,7 +118,7 @@ FlintCursor::prev()
     tag_status = UNREAD;
 
     DEBUGLINE(DB, "Moved to entry: key=`" << hex_display_encode(current_key) << "'");
-    return true;
+    RETURN(true);
 }
 
 bool
@@ -142,14 +142,14 @@ FlintCursor::next()
 
     if (!is_positioned) {
 	is_after_end = true;
-	return false;
+	RETURN(false);
     }
 
     get_key(&current_key);
     tag_status = UNREAD;
 
     DEBUGLINE(DB, "Moved to entry: key=`" << hex_display_encode(current_key) << "'");
-    return true;
+    RETURN(true);
 }
 
 bool
@@ -266,7 +266,7 @@ FlintCursor::read_tag(bool keep_compressed)
 
 	DEBUGLINE(DB, "tag=`" << hex_display_encode(current_tag) << "'");
     }
-    return (tag_status == COMPRESSED);
+    RETURN(tag_status == COMPRESSED);
 }
 
 bool
