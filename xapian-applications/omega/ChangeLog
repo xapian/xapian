@@ -1,3 +1,7 @@
+Sun Apr 13 11:19:49 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* freemem.h: Specify units of get_free_physical_memory().
+
 Sun Apr 06 09:05:58 GMT 2008  Olly Betts <olly@survex.com>
 
 	* freemem.cc: Fix latent compilation error on FreeBSD, pointed out by
