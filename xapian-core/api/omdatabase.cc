@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
  * Copyright 2006 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -88,6 +88,7 @@ Database::~Database()
 void
 Database::reopen()
 {
+    DEBUGAPICALL(void, "Database::reopen", "");
     vector<Xapian::Internal::RefCntPtr<Database::Internal> >::iterator i;
     for (i = internal.begin(); i != internal.end(); ++i) {
 	(*i)->reopen();
@@ -323,19 +324,21 @@ Database::get_document(Xapian::docid did) const
 bool
 Database::term_exists(const string & tname) const
 {
+    DEBUGAPICALL(bool, "Database::term_exists", tname);
     if (tname.empty()) {
-	return get_doccount() != 0;
+	RETURN(get_doccount() != 0);
     }
     vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); ++i) {
-	if ((*i)->term_exists(tname)) return true;
+	if ((*i)->term_exists(tname)) RETURN(true);
     }
-    return false;
+    RETURN(false);
 }
 
 void
 Database::keep_alive()
 {
+    DEBUGAPICALL(void, "Database::keep_alive", "");
     vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); ++i) {
 	(*i)->keep_alive();
@@ -358,8 +361,8 @@ string
 Database::get_spelling_suggestion(const string &word,
 				  unsigned max_edit_distance) const
 {
-    DEBUGLINE(SPELLING, "Database::get_spelling_suggestion(" << word << ", " <<
-			max_edit_distance << ")");
+    DEBUGAPICALL(string, "Database::get_spelling_suggestion",
+		 word << ", " << max_edit_distance);
     AutoPtr<TermList> merger;
     for (size_t i = 0; i < internal.size(); ++i) {
 	TermList * tl = internal[i]->open_spelling_termlist(word);
@@ -372,7 +375,7 @@ Database::get_spelling_suggestion(const string &word,
 	    }
 	}
     }
-    if (!merger.get()) return string();
+    if (!merger.get()) RETURN(string());
 
     // Convert word to UTF-32.
     vector<unsigned> utf32_word;
@@ -425,7 +428,7 @@ Database::get_spelling_suggestion(const string &word,
 	    DEBUGLINE(SPELLING, "Edit distance " << edist);
 	    // If we have an exact match, return an empty string since there's
 	    // no correction required.
-	    if (edist == 0) return string();
+	    if (edist == 0) RETURN(string());
 
 	    if (edist <= edist_best) {
 		Xapian::doccount freq = 0;
@@ -444,8 +447,7 @@ Database::get_spelling_suggestion(const string &word,
 	    }
 	}
     }
-    DEBUGLINE(SPELLING, "Suggesting \"" << result << "\"");
-    return result;
+    RETURN(result);
 }
 
 TermIterator

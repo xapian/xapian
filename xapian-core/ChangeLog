@@ -1,3 +1,10 @@
+Sun Apr 13 14:30:55 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc: Replace uses of DEBUGLINE(SPELLING, ...) in
+	  Database::get_spelling_suggestion() with standard
+	  DEBUGAPICALL/RETURN tracing.  Add DEBUGAPICALL/RETURN tracing to
+	  a few Database methods which were missing it.
+
 Sun Apr 13 14:15:00 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_cursor.cc: Use RETURN() in a few places which
