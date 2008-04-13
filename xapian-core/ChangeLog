@@ -1,3 +1,8 @@
+Sun Apr 13 11:23:56 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_database.cc: Include corresponding header right
+	  after config.h.
+
 Sun Apr 13 10:28:27 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_database.cc: Tweak brace formatting and wrap a

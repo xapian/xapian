@@ -24,6 +24,8 @@
 
 #include <config.h>
 
+#include "flint_database.h"
+
 #include <xapian/error.h>
 
 #include "safeerrno.h"
@@ -32,7 +34,6 @@
 #endif
 
 #include "flint_io.h"
-#include "flint_database.h"
 #include "utils.h"
 #include "omdebug.h"
 #include "autoptr.h"
