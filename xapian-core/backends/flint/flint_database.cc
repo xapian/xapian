@@ -694,16 +694,15 @@ FlintDatabase::write_changesets_to_fd(int fd,
 		get_changeset_revisions(changes_name,
 					&changeset_start_rev_num,
 					&changeset_end_rev_num);
-		if (changeset_start_rev_num != start_rev_num)
-		{
+		if (changeset_start_rev_num != start_rev_num) {
 		    throw Xapian::DatabaseError("Changeset start revision does not match changeset filename");
 		}
-		if (changeset_start_rev_num >= changeset_end_rev_num)
-		{
+		if (changeset_start_rev_num >= changeset_end_rev_num) {
 		    throw Xapian::DatabaseError("Changeset start revision is not less than end revision");
 		}
 		// FIXME - there is a race condition here - the file might get
-		// deleted between the file_exists() test and the access to send it.
+		// deleted between the file_exists() test and the access to
+		// send it.
 		conn.send_file(REPL_REPLY_CHANGESET, changes_name, end_time);
 		start_rev_num = changeset_end_rev_num;
 		if (info != NULL) {
