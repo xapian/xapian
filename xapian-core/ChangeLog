@@ -1,3 +1,7 @@
+Sun Apr 13 13:52:32 GMT 2008  Olly Betts <olly@survex.com>
+
+	* expand/expandweight.cc: Use DEBUGLINE() instead of DEBUGMSG().
+
 Sun Apr 13 11:23:56 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_database.cc: Include corresponding header right
