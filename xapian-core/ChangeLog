@@ -1,3 +1,11 @@
+Mon Apr 14 14:22:16 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/Makefile.mk,backends/flint/Makefile.mk,
+	  backends/flint/contiguousalldocspostlist.cc,
+	  backends/flint/contiguousalldocspostlist.h,common/Makefile.mk:
+	  The ContiguousAllDocsPostList class isn't flint-specific, so move
+	  it out of backends/flint.
+
 Mon Apr 14 13:56:51 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_database.cc: Removed duplicate

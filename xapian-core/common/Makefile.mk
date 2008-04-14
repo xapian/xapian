@@ -1,6 +1,7 @@
 noinst_HEADERS +=\
 	common/alltermslist.h\
 	common/autoptr.h\
+	common/contiguousalldocspostlist.h\
 	common/database.h\
 	common/document.h\
 	common/documentterm.h\

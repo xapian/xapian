@@ -11,6 +11,11 @@ libxapian_la_SOURCES +=\
 	backends/dbfactory_remote.cc
 endif
 
+if BUILD_BACKEND_FLINT
+libxapian_la_SOURCES +=\
+	backends/contiguousalldocspostlist.cc
+endif
+
 # Define backend libraries to include.  To add a new one:
 # i)   Add lines to configure.ac to define the automake conditional
 #      "BUILD_BACKEND_NEWONE"

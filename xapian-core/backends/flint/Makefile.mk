@@ -4,7 +4,6 @@ EXTRA_DIST +=\
 
 if BUILD_BACKEND_FLINT
 noinst_HEADERS +=\
-	backends/flint/contiguousalldocspostlist.h\
 	backends/flint/flint_alldocspostlist.h\
 	backends/flint/flint_alltermslist.h\
 	backends/flint/flint_btreebase.h\
@@ -32,7 +31,6 @@ noinst_HEADERS +=\
 	backends/flint/flint_version.h
 
 libxapian_la_SOURCES +=\
-	backends/flint/contiguousalldocspostlist.cc\
 	backends/flint/flint_alldocspostlist.cc\
 	backends/flint/flint_alltermslist.cc\
 	backends/flint/flint_btreebase.cc\
