@@ -1974,15 +1974,33 @@ DEFINE_TESTCASE(metadata5, metadata) {
     iter = db.metadata_keys_begin();
     TEST(iter != db.metadata_keys_end());
     TEST_EQUAL(*iter, "a");
+
+    // Skip to "" should move to the first key.
     iter.skip_to("");
     TEST(iter != db.metadata_keys_end());
     TEST_EQUAL(*iter, "a");
+
+    // This skip_to should skip the "foo" key.
     iter.skip_to("foo1");
     TEST(iter != db.metadata_keys_end());
     TEST_EQUAL(*iter, "foo1");
+
+    // Check that skip_to can move backwards.
+    iter.skip_to("");
+    TEST(iter != db.metadata_keys_end());
+    TEST_EQUAL(*iter, "a");
+
+    // Skip back to the foo1 key.
+    iter.skip_to("foo1");
+    TEST(iter != db.metadata_keys_end());
+    TEST_EQUAL(*iter, "foo1");
+
+    // Check that advancing after a skip_to() works correctly.
     ++iter;
     TEST(iter != db.metadata_keys_end());
     TEST_EQUAL(*iter, "foo2");
+
+    // Check that skipping to a key after the last key works.
     iter.skip_to("zoo");
     TEST(iter == db.metadata_keys_end());
 
