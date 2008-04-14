@@ -735,6 +735,19 @@ Here's an incomplete list of things to avoid:
   scripts have been checked (and fixed if required) as of 2003-07-10 (didn't
   check xapian-bindings).
 
+* Another robustness point - if you add a non-file target to a makefile, you
+  should also list it in ".PHONY".  Otherwise your target won't get remade
+  reliably if someone creates a file with the same name in their tree.  For
+  example:
+
+  .PHONY: hello goodbye
+
+  hello:
+        echo hello
+
+  goodbye:
+        echo goodbye
+
 And lastly a style point - using "@" to suppress echoing of commands being
 executed removes choice from the user - they may want to see what commands
 are being executed.  And if they don't want to, many versions of make support
