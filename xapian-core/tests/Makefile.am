@@ -97,7 +97,8 @@ termgentest_LDADD = ../libgetopt.la ../libxapian.la
 collated_perftest_sources = perftest_matchdecider.cc perftest_randomidx.cc
 
 perftest_SOURCES = perftest.cc $(collated_perftest_sources) \
- perftest_all.h perftest_collated.h $(testharness_sources)
+ perftest_all.h perftest_collated.h $(testharness_sources) \
+ freemem.cc freemem.h
 perftest_LDFLAGS = -no-install $(ldflags)
 perftest_LDADD = ../libgetopt.la ../libxapian.la
 

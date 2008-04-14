@@ -1,3 +1,11 @@
+Mon Apr 14 21:29:59 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/: Use copies of freemem.cc and freemem.h from omega to report
+	  the free physical memory at each stage of indexing.  Also, add a
+	  get_total_physical_memory() function to this, and report it's
+	  value at the top of the results file (only tested on Linux so
+	  far).
+
 Mon Apr 14 19:17:22 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/api_wrdb.cc: Make skip_to() test a bit more comprehensive.

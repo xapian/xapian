@@ -24,6 +24,7 @@
 #include "perftest.h"
 
 #include "backendmanager.h"
+#include "freemem.h"
 #include "omassert.h"
 #include "perftest_all.h"
 #include "testrunner.h"
@@ -73,7 +74,11 @@ PerfTestLogger::open(const string & logpath)
 	return false;
     }
 
-    write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<testrun>\n");
+    write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<testrun>\n"
+	  "<machineinfo>\n"
+	  "<physmem>" + om_tostring(get_total_physical_memory()) + "</physmem>\n"
+	  "</machineinfo>\n"
+	 );
 
     // FIXME - write details of the machine running the test (possibly the
     // output of uname, and some measurement of the memory available on the
@@ -123,6 +128,7 @@ PerfTestLogger::indexing_log()
     write("<item>"
 	  "<time>" + time_to_string(elapsed) + "</time>"
 	  "<adds>" + om_tostring(indexing_addcount) + "</adds>"
+	  "<freemem>" + om_tostring(get_free_physical_memory()) + "</freemem>"
 	  "</item>\n");
     indexing_unlogged_changes = false;
 }

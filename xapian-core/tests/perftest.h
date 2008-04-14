@@ -77,7 +77,7 @@ class PerfTestLogger {
 	++indexing_addcount;
 	indexing_unlogged_changes = true;
 	// Log every 1000 documents
-	if (indexing_addcount % 1000 == 0) {
+	if (indexing_addcount % 1000 == 0 || indexing_addcount == 1) {
 	    indexing_log();
 	} else {
 	    // Or after 5 seconds
