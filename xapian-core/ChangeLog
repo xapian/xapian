@@ -1,3 +1,7 @@
+Mon Apr 14 07:59:56 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/omdatabase.cc: Correct return type in a DEBUGAPICALL macro.
+
 Mon Apr 14 07:14:01 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/omdatabase.cc,backends/database.cc,backends/flint/,
