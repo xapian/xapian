@@ -1,3 +1,11 @@
+Mon Apr 14 13:56:51 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_database.cc: Removed duplicate
+	  '#include "flint_database.h"', ironically added by Richard's recent
+	  change.  Fix a couple of errors in alphabetical ordering, and
+	  move autoptr.h and the "safe" headers to where the standard headers
+	  they replace would go.
+
 Mon Apr 14 13:44:37 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Makefile.am,tests/Makefile.am: List check-perf in .PHONY.

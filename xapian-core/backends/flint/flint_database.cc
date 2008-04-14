@@ -23,15 +23,13 @@
  */
 
 #include <config.h>
-#include "flint_database.h"
 
 #include "flint_database.h"
 
 #include <xapian/error.h>
-#include <xapian/valueiterator.h>
 #include <xapian/replication.h>
+#include <xapian/valueiterator.h>
 
-#include "autoptr.h"
 #include "contiguousalldocspostlist.h"
 #include "flint_alldocspostlist.h"
 #include "flint_alltermslist.h"
@@ -49,10 +47,8 @@
 #include "flint_values.h"
 #include "omdebug.h"
 #include "omtime.h"
-#include "replicationprotocol.h"
 #include "remoteconnection.h"
-#include "safeerrno.h"
-#include "safesysstat.h"
+#include "replicationprotocol.h"
 #include "serialise.h"
 #include "stringutils.h"
 #include "utils.h"
@@ -61,7 +57,11 @@
 # include "msvc_posix_wrapper.h"
 #endif
 
+#include "safeerrno.h"
+#include "safesysstat.h"
 #include <sys/types.h>
+
+#include "autoptr.h"
 #include <list>
 #include <string>
 
