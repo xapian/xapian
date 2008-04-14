@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
- * Copyright 2006 Richard Boulton
+ * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -511,6 +511,13 @@ Database::get_metadata(const string & key) const
     if (key.empty())
 	throw InvalidArgumentError("Empty metadata keys are invalid");
     RETURN(internal[0]->get_metadata(key));
+}
+
+Xapian::TermIterator
+Database::metadata_keys_begin(const std::string &prefix) const
+{
+    DEBUGAPICALL(string, "Database::metadata_keys_begin", "");
+    RETURN(TermIterator(internal[0]->open_metadata_keylist(prefix)));
 }
 
 ///////////////////////////////////////////////////////////////////////////

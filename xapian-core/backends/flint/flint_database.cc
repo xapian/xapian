@@ -23,46 +23,45 @@
  */
 
 #include <config.h>
+#include "flint_database.h"
 
 #include "flint_database.h"
 
 #include <xapian/error.h>
+#include <xapian/valueiterator.h>
+#include <xapian/replication.h>
 
+#include "autoptr.h"
+#include "contiguousalldocspostlist.h"
+#include "flint_alldocspostlist.h"
+#include "flint_alltermslist.h"
+#include "flint_document.h"
+#include "flint_io.h"
+#include "flint_lock.h"
+#include "flint_metadata.h"
+#include "flint_modifiedpostlist.h"
+#include "flint_positionlist.h"
+#include "flint_postlist.h"
+#include "flint_record.h"
+#include "flint_spellingwordslist.h"
+#include "flint_termlist.h"
+#include "flint_utils.h"
+#include "flint_values.h"
+#include "omdebug.h"
+#include "omtime.h"
+#include "replicationprotocol.h"
+#include "remoteconnection.h"
 #include "safeerrno.h"
+#include "safesysstat.h"
+#include "serialise.h"
+#include "stringutils.h"
+#include "utils.h"
+
 #ifdef __WIN32__
 # include "msvc_posix_wrapper.h"
 #endif
 
-#include "flint_io.h"
-#include "utils.h"
-#include "omdebug.h"
-#include "autoptr.h"
-#include <xapian/error.h>
-#include <xapian/valueiterator.h>
-#include <xapian/replication.h>
-
-#include "contiguousalldocspostlist.h"
-#include "flint_modifiedpostlist.h"
-#include "flint_postlist.h"
-#include "flint_alldocspostlist.h"
-#include "flint_termlist.h"
-#include "flint_positionlist.h"
-#include "flint_utils.h"
-#include "flint_record.h"
-#include "flint_values.h"
-#include "flint_document.h"
-#include "flint_alltermslist.h"
-#include "flint_lock.h"
-#include "flint_spellingwordslist.h"
-#include "omtime.h"
-#include "replicationprotocol.h"
-#include "remoteconnection.h"
-#include "serialise.h"
-#include "stringutils.h"
-
 #include <sys/types.h>
-#include "safesysstat.h"
-
 #include <list>
 #include <string>
 
@@ -953,6 +952,16 @@ FlintDatabase::get_metadata(const string & key) const
     string tag;
     (void)postlist_table.get_exact_entry(btree_key, tag);
     RETURN(tag);
+}
+
+TermList *
+FlintDatabase::open_metadata_keylist(const std::string &prefix) const
+{
+    DEBUGCALL(DB, string, "FlintDatabase::open_metadata_keylist", "");
+    FlintCursor * cursor = postlist_table.cursor_get();
+    if (!cursor) return NULL;
+    return new FlintMetadataTermList(Xapian::Internal::RefCntPtr<const FlintDatabase>(this),
+				     cursor, prefix);
 }
 
 string
