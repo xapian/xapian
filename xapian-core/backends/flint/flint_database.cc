@@ -1120,7 +1120,7 @@ FlintDatabase::apply_changeset_from_conn(RemoteConnection & conn,
     
     char type = conn.get_message_chunked(end_time);
     (void) type; // Don't give warning about unused variable.
-    Assert(type == REPL_REPLY_CHANGESET);
+    AssertEq(type, REPL_REPLY_CHANGESET);
 
     string buf;
     // Read enough to be certain that we've got the header part of the
@@ -1128,8 +1128,7 @@ FlintDatabase::apply_changeset_from_conn(RemoteConnection & conn,
 
     conn.get_message_chunk(buf, REASONABLE_CHANGESET_SIZE, end_time);
     // Check the magic string.
-    if (buf.size() < 12 || buf.substr(0, 12) != CHANGES_MAGIC_STRING)
-    {
+    if (!startswith(buf, CHANGES_MAGIC_STRING)) {
 	throw Xapian::NetworkError("Invalid ChangeSet magic string");
     }
     buf.erase(0, 12);
@@ -1157,8 +1156,8 @@ FlintDatabase::apply_changeset_from_conn(RemoteConnection & conn,
 
     if (ptr == end)
 	throw Xapian::NetworkError("Unexpected end of changeset (1)");
-    unsigned char changes_type = ptr[0];
 
+    unsigned char changes_type = ptr[0];
     if (changes_type != 0) {
 	throw Xapian::NetworkError("Unsupported changeset type (got %d)",
 				   changes_type);
@@ -1170,8 +1169,7 @@ FlintDatabase::apply_changeset_from_conn(RemoteConnection & conn,
     buf.erase(0, ptr + 1 - buf.data());
 
     // Read the items from the changeset.
-    while (true)
-    {
+    while (true) {
 	conn.get_message_chunk(buf, REASONABLE_CHANGESET_SIZE, end_time);
 	ptr = buf.data();
 	end = ptr + buf.size();
@@ -1188,7 +1186,7 @@ FlintDatabase::apply_changeset_from_conn(RemoteConnection & conn,
 	string tablename;
 	if (!unpack_string(&ptr, end, tablename))
 	    throw Xapian::NetworkError("Unexpected end of changeset (3)");
-	if (tablename.size() == 0)
+	if (tablename.empty())
 	    throw Xapian::NetworkError("Missing tablename in changeset");
 	if (tablename.find_first_not_of("abcdefghijklmnopqrstuvwxyz") !=
 	    tablename.npos)

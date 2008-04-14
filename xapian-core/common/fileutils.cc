@@ -2,6 +2,7 @@
  *  @brief File and path manipulation routines.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
+ * Copyright (C) 2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,7 +60,7 @@ is_drive(const string &path)
 string
 join_paths(const string & path1, const string & path2)
 {
-    if (path1.size() == 0) return path2;
+    if (path1.empty()) return path2;
 #ifdef __WIN32__
     if (isabspath(path2)) {
 	// If path2 has a drive, just return it.
@@ -85,7 +86,7 @@ bool
 isabspath(const string & path)
 {
     // Empty paths are never absolute.
-    if (path.size() == 0) return false;
+    if (path.empty()) return false;
 #ifdef __WIN32__
     // On windows, paths may begin with a drive letter - but the part after the
     // drive letter may still be relative.

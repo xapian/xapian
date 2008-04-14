@@ -1,3 +1,11 @@
+Mon Apr 14 06:14:44 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/replication.cc,backends/database.cc,
+	  backends/flint/flint_database.cc,common/fileutils.cc,
+	  tests/queryparsertest.cc: Use empty() rather than comparing size()
+	  to 0.  Use startswith() in a couple of places.  Tweak an Assert
+	  to AssertEq.
+
 Sun Apr 13 14:30:55 GMT 2008  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc: Replace uses of DEBUGLINE(SPELLING, ...) in

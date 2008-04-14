@@ -88,7 +88,7 @@ open_stub(Database *db, const string &file)
     bool ok = false;
     while (getline(stub, line)) {
 	++line_no;
-	if (line.size() == 0 || line[0] == '#')
+	if (line.empty() || line[0] == '#')
 	    continue;
 	string::size_type space = line.find(' ');
 	if (space == string::npos)
