@@ -1,3 +1,10 @@
+Mon Apr 14 19:08:49 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/flint/flint_metadata.cc,backends/flint/flint_metadata.h:
+	  Fix a bug in the skip_to() implementation, and set the parameter
+	  name to "key" instead of "tname", since it's not a term.
+	* tests/api_wrdb.cc: Add a test of the metadata iterators.
+
 Mon Apr 14 14:22:16 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/Makefile.mk,backends/flint/Makefile.mk,

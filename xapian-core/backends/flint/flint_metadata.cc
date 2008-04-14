@@ -91,12 +91,12 @@ FlintMetadataTermList::next()
 }
 
 TermList *
-FlintMetadataTermList::skip_to(const string &tname)
+FlintMetadataTermList::skip_to(const string &key)
 {
-    DEBUGCALL(DB, TermList *, "FlintMetadataTermList::skip_to", tname);
+    DEBUGCALL(DB, TermList *, "FlintMetadataTermList::skip_to", key);
     Assert(!at_end());
 
-    if (!cursor->find_entry_ge(tname)) {
+    if (!cursor->find_entry_ge(string("\x00\xc0", 2) + key)) {
 	// The exact term we asked for isn't there, so check if the next
 	// term after it also has the right prefix.
 	if (!cursor->after_end() && !startswith(cursor->current_key, prefix)) {

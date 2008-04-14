@@ -87,8 +87,8 @@ class FlintMetadataTermList : public AllTermsList {
     /// Advance to the next term in the list.
     TermList * next();
 
-    /// Advance to the first term which is >= tname.
-    TermList * skip_to(const std::string &tname);
+    /// Advance to the first key which is >= key.
+    TermList * skip_to(const std::string &key);
 
     /// True if we're off the end of the list
     bool at_end() const;
