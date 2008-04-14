@@ -22,6 +22,7 @@
 #include <config.h>
 #include "fileutils.h"
 
+#include "stringutils.h"
 #include <string>
 
 using namespace std;
@@ -71,7 +72,7 @@ join_paths(const string & path1, const string & path2)
 	return path2;
     }
     if (has_drive(path2)) return path2;
-    if (path1[path1.size() - 1] == '/' || path1[path1.size() - 1] == '\\')
+    if (endswith(path, '/') || endswith(path, '\\'))
 	return path1 + path2;
     return path1 + "\\" + path2;
 #else
