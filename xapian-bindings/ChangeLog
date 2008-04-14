@@ -1,3 +1,10 @@
+Mon Apr 14 07:18:50 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/extra.i,xapian.i: Add support for
+	  Database.metadata_keys_begin() and Database.metadata_keys_end().
+	  For python, these are wrapped as simply "metadata_keys()".
+	* python/pythontest.py: Test Database.metadata_keys().
+
 Mon Apr 07 07:28:14 GMT 2008  Olly Betts <olly@survex.com>
 
 	* README: Note that Tcl 8.3 and earlier are no longer supported by

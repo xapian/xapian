@@ -597,6 +597,26 @@ def _database_gen_synonym_keys_iter(self, prefix=""):
                     return_strings=True)
 Database.synonym_keys = _database_gen_synonym_keys_iter
 
+# Modify Database to add a "metadata_keys()" method, instead of direct access
+# to metadata_keys_begin and metadata_keys_end.
+def _database_gen_metadata_keys_iter(self, prefix=""):
+    """Get an iterator which returns all the metadata keys.
+
+    The iterator will return string objects.
+
+    If `prefix` is non-empty, only metadata keys with this prefix are returned.
+
+    """
+    return TermIter(self._metadata_keys_begin(prefix),
+                    self._metadata_keys_end(prefix),
+                    return_strings=True)
+Database.metadata_keys = _database_gen_metadata_keys_iter
+Database._metadata_keys_begin = Database.metadata_keys_begin
+del Database.metadata_keys_begin
+Database._metadata_keys_end = Database.metadata_keys_end
+del Database.metadata_keys_end
+
+
 # Modify Document to add an "__iter__()" method and a "termlist()" method.
 def _document_gen_termlist_iter(self):
     """Get an iterator over all the terms in a document.
