@@ -104,8 +104,9 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	 *
 	 *  @param tname The term to look for.
 	 *
-	 *  @exception Xapian::InvalidArgumentError is thrown if the term was
-	 *	       not in the query.
+	 *  This is sometimes more efficient than asking the database directly
+	 *  for the term frequency - in particular, if the term was in the
+	 *  query, its frequency will usually be cached in the MSet.
 	 */
 	Xapian::doccount get_termfreq(const std::string &tname) const;
 

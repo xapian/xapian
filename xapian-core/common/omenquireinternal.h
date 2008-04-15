@@ -200,6 +200,8 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 	TermIterator get_matching_terms(Xapian::docid did) const;
 	TermIterator get_matching_terms(const Xapian::MSetIterator &it) const;
 
+	Xapian::doccount get_termfreq(const string &tname) const;
+
 	void register_match_decider(const string &name,
 				    const MatchDecider *mdecider);
 

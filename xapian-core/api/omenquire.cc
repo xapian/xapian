@@ -222,11 +222,10 @@ MSet::get_termfreq(const string &tname) const
     map<string, Internal::TermFreqAndWeight>::const_iterator i;
     Assert(internal.get() != 0);
     i = internal->termfreqandwts.find(tname);
-    if (i == internal->termfreqandwts.end()) {
-	throw InvalidArgumentError("Term frequency of `" + tname +
-				     "' not available.");
+    if (i != internal->termfreqandwts.end()) {
+	RETURN(i->second.termfreq);
     }
-    RETURN(i->second.termfreq);
+    RETURN(internal->enquire->get_termfreq(tname));
 }
 
 Xapian::weight
@@ -781,6 +780,12 @@ Enquire::Internal::get_matching_terms(const MSetIterator &it) const
     // FIXME: take advantage of MSetIterator to ensure that database
     // doesn't get modified underneath us.
     return get_matching_terms(*it);
+}
+
+Xapian::doccount
+Enquire::Internal::get_termfreq(const string &tname) const
+{
+    return db.get_termfreq(tname);
 }
 
 string
