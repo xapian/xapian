@@ -122,13 +122,10 @@ LocalSubMatch::make_synonym_postlist(PostList * or_pl, MultiMatch * matcher)
     AutoPtr<SynonymPostList> res(new SynonymPostList(or_pl, matcher));
     AutoPtr<Xapian::Weight> wt;
 
-    // FIXME:1.1: create the Xapian::Weight::Internal directly, and hold it in
-    // an AutoPtr until supplying it to wt_factory->create() in case of an
-    // exception.
-    Xapian::Weight::Internal * wt_internal(stats->create_weight_internal());
+    AutoPtr<Xapian::Weight::Internal> wt_internal(new Xapian::Weight::Internal(*stats));
     wt_internal->termfreq = or_pl->get_termfreq_est();
     wt_internal->reltermfreq = 0; // FIXME - calculate this.
-    wt = wt_factory->create(wt_internal, qlen, 1, "");
+    wt = wt_factory->create(wt_internal.release(), qlen, 1, "");
 
     res->set_weight(wt.release());
     RETURN(res.release());
