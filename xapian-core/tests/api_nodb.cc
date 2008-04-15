@@ -446,3 +446,11 @@ DEFINE_TESTCASE(valuesetmatchdecider1, !backend) {
 
     return true;
 }
+
+// Test that asking for the termfreq on an empty mset raises an exception.
+DEFINE_TESTCASE(emptymset1, !backend) {
+    Xapian::MSet emptymset;
+    TEST_EXCEPTION(Xapian::InvalidOperationError,
+		   emptymset.get_termfreq("foo"));
+    return true;
+}

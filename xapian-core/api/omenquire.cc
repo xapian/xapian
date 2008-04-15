@@ -225,6 +225,9 @@ MSet::get_termfreq(const string &tname) const
     if (i != internal->termfreqandwts.end()) {
 	RETURN(i->second.termfreq);
     }
+    if (internal->enquire.get() == 0) {
+	throw InvalidOperationError("Can't get termfreq from an MSet which is not derived from a query.");
+    }
     RETURN(internal->enquire->get_termfreq(tname));
 }
 
