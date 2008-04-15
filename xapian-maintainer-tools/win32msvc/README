@@ -19,7 +19,8 @@ www.lemurconsulting.com
 What works?
 ===========
 
-- The Python, PHP & Java-Swig bindings
+- The Python, PHP & Java-Swig bindings (note that the Java-Swig bindings
+  are still rather alpha, and may be subject to significant API change).
 - The quartz binaries quartzcheck, quartzcompact, quartzdump
 - The xapian-compact binary
 - The Xapian example binaries
