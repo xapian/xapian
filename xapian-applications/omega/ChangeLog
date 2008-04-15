@@ -1,3 +1,8 @@
+Tue Apr 15 23:44:10 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* query.cc: Catch only the specific error which indicates a need to
+	  repeat a get_termfreq() call on the database instead of the mset.
+
 Sun Apr 13 11:19:49 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* freemem.h: Specify units of get_free_physical_memory().
