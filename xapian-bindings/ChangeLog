@@ -1,3 +1,7 @@
+Thu Apr 17 22:54:37 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tcl8/Makefile.am: Remove bogus "../" from tcllibdir.
+
 Thu Apr 17 05:41:21 GMT 2008  Olly Betts <olly@survex.com>
 
 	* configure.ac: Add missing m4 quoting so that TCL_LIB is correctly
