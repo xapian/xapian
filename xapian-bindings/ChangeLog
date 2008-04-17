@@ -1,3 +1,8 @@
+Thu Apr 17 05:41:21 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: Add missing m4 quoting so that TCL_LIB is correctly
+	  determined.
+
 Tue Apr 15 09:38:07 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/docs/index.html,python/extra.i,python/pythontest.py:
