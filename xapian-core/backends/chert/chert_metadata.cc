@@ -93,7 +93,7 @@ ChertMetadataTermList::next()
 TermList *
 ChertMetadataTermList::skip_to(const string &key)
 {
-    DEBUGCALL(DB, TermList *, "ChertMetadataTermList::skip_to", tname);
+    DEBUGCALL(DB, TermList *, "ChertMetadataTermList::skip_to", key);
     Assert(!at_end());
 
     if (!cursor->find_entry_ge(string("\x00\xc0", 2) + key)) {

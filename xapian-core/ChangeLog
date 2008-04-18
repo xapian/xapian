@@ -1,3 +1,8 @@
+Fri Apr 18 10:26:18 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_metadata.cc: Fix renamed parameter in debug
+	  logging.
+
 Fri Apr 18 10:18:35 GMT 2008  Olly Betts <olly@survex.com>
 
 	* HACKING,INSTALL,Makefile.am,backends/Makefile.mk,backends/chert/,
