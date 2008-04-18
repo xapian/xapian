@@ -34,7 +34,7 @@ using namespace std;
 
 class FlintPositionListTable : public FlintTable {
     static string make_key(Xapian::docid did, const string & tname) {
-	return pack_uint_preserving_sort(did) + tname;
+	return F_pack_uint_preserving_sort(did) + tname;
     }
 
   public:

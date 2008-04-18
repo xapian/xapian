@@ -206,8 +206,8 @@ FlintDatabase::read_metainfo()
 
     const char * data = tag.data();
     const char * end = data + tag.size();
-    if (!unpack_uint(&data, end, &lastdocid) ||
-	!unpack_uint_last(&data, end, &total_length)) {
+    if (!F_unpack_uint(&data, end, &lastdocid) ||
+	!F_unpack_uint_last(&data, end, &total_length)) {
 	throw Xapian::DatabaseCorruptError("Meta information is corrupt.");
     }
 }
@@ -408,18 +408,18 @@ FlintDatabase::get_changeset_revisions(const string & path,
 	throw Xapian::DatabaseError("Changeset too short at " + path);
 
     unsigned int changes_version;
-    if (!unpack_uint(&start, end, &changes_version))
+    if (!F_unpack_uint(&start, end, &changes_version))
 	throw Xapian::DatabaseError("Couldn't read a valid version number for "
 				    "changeset at " + path);
     if (changes_version != CHANGES_VERSION)
 	throw Xapian::DatabaseError("Don't support version of changeset at "
 				    + path);
 
-    if (!unpack_uint(&start, end, startrev))
+    if (!F_unpack_uint(&start, end, startrev))
 	throw Xapian::DatabaseError("Couldn't read a valid start revision from "
 				    "changeset at " + path);
 
-    if (!unpack_uint(&start, end, endrev))
+    if (!F_unpack_uint(&start, end, endrev))
 	throw Xapian::DatabaseError("Couldn't read a valid end revision for "
 				    "changeset at " + path);
 }
@@ -461,12 +461,12 @@ FlintDatabase::set_revision_number(flint_revision_number_t new_revision)
 	    string buf;
 	    flint_revision_number_t old_revision = get_revision_number();
 	    buf += CHANGES_MAGIC_STRING;
-	    buf += pack_uint(CHANGES_VERSION);
-	    buf += pack_uint(old_revision);
-	    buf += pack_uint(new_revision);
+	    buf += F_pack_uint(CHANGES_VERSION);
+	    buf += F_pack_uint(old_revision);
+	    buf += F_pack_uint(new_revision);
 
-	    // FIXME - if DANGEROUS mode is in use, this should contain pack_uint(1u)
-	    buf += pack_uint(0u); // Changes can be applied to a live database.
+	    // FIXME - if DANGEROUS mode is in use, this should contain F_pack_uint(1u)
+	    buf += F_pack_uint(0u); // Changes can be applied to a live database.
 
 	    flint_io_write(changes_fd, buf.data(), buf.size());
 
@@ -493,7 +493,7 @@ FlintDatabase::set_revision_number(flint_revision_number_t new_revision)
 	string changes_tail; // Data to be appended to the changes file
 	if (changes_fd >= 0) {
 	    changes_tail += '\0';
-	    changes_tail += pack_uint(new_revision);
+	    changes_tail += F_pack_uint(new_revision);
 	}
 	record_table.commit(new_revision, changes_fd, &changes_tail);
 
@@ -555,7 +555,7 @@ FlintDatabase::send_whole_database(RemoteConnection & conn,
     string uuid = get_uuid();
     buf += encode_length(uuid.size());
     buf += uuid;
-    buf += pack_uint(get_revision_number());
+    buf += F_pack_uint(get_revision_number());
     conn.send_message(REPL_REPLY_DB_HEADER, buf, end_time);
 
     // Send all the tables.  The tables which we want to be cached best after
@@ -609,7 +609,7 @@ FlintDatabase::write_changesets_to_fd(int fd,
 
     const char * rev_ptr = revision.data();
     const char * rev_end = rev_ptr + revision.size();
-    if (!unpack_uint(&rev_ptr, rev_end, &start_rev_num)) {
+    if (!F_unpack_uint(&rev_ptr, rev_end, &start_rev_num)) {
 	need_whole_db = true;
     }
 
@@ -653,7 +653,7 @@ FlintDatabase::write_changesets_to_fd(int fd,
 
 		string buf;
 		needed_rev_num = get_revision_number();
-		buf += pack_uint(needed_rev_num);
+		buf += F_pack_uint(needed_rev_num);
 		conn.send_message(REPL_REPLY_DB_FOOTER, buf, end_time);
 		if (info != NULL && start_rev_num == needed_rev_num)
 		    info->changed = true;
@@ -667,7 +667,7 @@ FlintDatabase::write_changesets_to_fd(int fd,
 		// database transfer.
 
 		string buf;
-		buf += pack_uint(start_rev_num + 1);
+		buf += F_pack_uint(start_rev_num + 1);
 		conn.send_message(REPL_REPLY_DB_FOOTER, buf, end_time);
 		need_whole_db = true;
 	    }
@@ -969,7 +969,7 @@ FlintDatabase::get_revision_info() const
 {
     DEBUGCALL(DB, string, "FlintDatabase::get_revision_info", "");
     string buf;
-    buf += pack_uint(get_revision_number());
+    buf += F_pack_uint(get_revision_number());
     RETURN(buf);
 }
 
@@ -985,13 +985,13 @@ FlintDatabase::check_revision_at_least(const string & rev,
 
     const char * ptr = rev.data();
     const char * end = ptr + rev.size();
-    if (!unpack_uint(&ptr, end, &rev_val)) {
+    if (!F_unpack_uint(&ptr, end, &rev_val)) {
 	throw Xapian::NetworkError("Invalid revision string supplied to check_revision_at_least");
     }
 
     ptr = target.data();
     end = ptr + target.size();
-    if (!unpack_uint(&ptr, end, &target_val)) {
+    if (!F_unpack_uint(&ptr, end, &target_val)) {
 	throw Xapian::NetworkError("Invalid revision string supplied to check_revision_at_least");
     }
 
@@ -1018,7 +1018,7 @@ FlintDatabase::process_changeset_chunk_base(const string & tablename,
     if (ptr == end)
 	throw Xapian::NetworkError("Unexpected end of changeset (5)");
     string::size_type base_size;
-    if (!unpack_uint(&ptr, end, &base_size))
+    if (!F_unpack_uint(&ptr, end, &base_size))
 	throw Xapian::NetworkError("Invalid base file size in changeset");
 
     // Get the new base file into buf.
@@ -1075,7 +1075,7 @@ FlintDatabase::process_changeset_chunk_blocks(const string & tablename,
     const char *end = ptr + buf.size(); 
 
     unsigned int changeset_blocksize;
-    if (!unpack_uint(&ptr, end, &changeset_blocksize))
+    if (!F_unpack_uint(&ptr, end, &changeset_blocksize))
 	throw Xapian::NetworkError("Invalid blocksize in changeset");
     buf.erase(0, ptr - buf.data());
 
@@ -1094,7 +1094,7 @@ FlintDatabase::process_changeset_chunk_blocks(const string & tablename,
 	    end = ptr + buf.size(); 
 
 	    uint4 block_number;
-	    if (!unpack_uint(&ptr, end, &block_number))
+	    if (!F_unpack_uint(&ptr, end, &block_number))
 		throw Xapian::NetworkError("Invalid block number in changeset");
 	    buf.erase(0, ptr - buf.data());
 	    if (block_number == 0)
@@ -1145,7 +1145,7 @@ FlintDatabase::apply_changeset_from_conn(RemoteConnection & conn,
     const char *end = ptr + buf.size(); 
 
     unsigned int changes_version;
-    if (!unpack_uint(&ptr, end, &changes_version))
+    if (!F_unpack_uint(&ptr, end, &changes_version))
 	throw Xapian::NetworkError("Couldn't read a valid version number from changeset");
     if (changes_version != CHANGES_VERSION)
 	throw Xapian::NetworkError("Unsupported changeset version");
@@ -1153,9 +1153,9 @@ FlintDatabase::apply_changeset_from_conn(RemoteConnection & conn,
     flint_revision_number_t startrev;
     flint_revision_number_t endrev;
 
-    if (!unpack_uint(&ptr, end, &startrev))
+    if (!F_unpack_uint(&ptr, end, &startrev))
 	throw Xapian::NetworkError("Couldn't read a valid start revision from changeset");
-    if (!unpack_uint(&ptr, end, &endrev))
+    if (!F_unpack_uint(&ptr, end, &endrev))
 	throw Xapian::NetworkError("Couldn't read a valid end revision from changeset");
 
     if (startrev != get_revision_number())
@@ -1193,7 +1193,7 @@ FlintDatabase::apply_changeset_from_conn(RemoteConnection & conn,
 
 	// Get the tablename.
 	string tablename;
-	if (!unpack_string(&ptr, end, tablename))
+	if (!F_unpack_string(&ptr, end, tablename))
 	    throw Xapian::NetworkError("Unexpected end of changeset (3)");
 	if (tablename.empty())
 	    throw Xapian::NetworkError("Missing tablename in changeset");
@@ -1218,14 +1218,14 @@ FlintDatabase::apply_changeset_from_conn(RemoteConnection & conn,
 	}
     }
     flint_revision_number_t reqrev;
-    if (!unpack_uint(&ptr, end, &reqrev))
+    if (!F_unpack_uint(&ptr, end, &reqrev))
 	throw Xapian::NetworkError("Couldn't read a valid required revision from changeset");
     if (reqrev < endrev)
 	throw Xapian::NetworkError("Required revision in changeset is earlier than end revision");
     if (ptr != end)
 	throw Xapian::NetworkError("Junk found at end of changeset");
 
-    buf = pack_uint(reqrev);
+    buf = F_pack_uint(reqrev);
     RETURN(buf);
 }
 
@@ -1244,7 +1244,7 @@ FlintDatabase::get_uuid() const
 	throw Xapian::DatabaseError("Couldn't stat " + iamflint_path, errno);
     }
     unsigned int mtime = statbuf.st_mtime;
-    RETURN(pack_uint(mtime));
+    RETURN(F_pack_uint(mtime));
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -1289,8 +1289,8 @@ FlintWritableDatabase::flush_postlist_changes() const
     postlist_table.merge_changes(mod_plists, doclens, freq_deltas);
 
     // Update the total document length and last used docid.
-    string tag = pack_uint(lastdocid);
-    tag += pack_uint_last(total_length);
+    string tag = F_pack_uint(lastdocid);
+    tag += F_pack_uint_last(total_length);
     postlist_table.add(METAINFO_KEY, tag);
 
     freq_deltas.clear();

@@ -67,14 +67,13 @@ PWRITE_PROTOTYPE
 #include <limits.h>   /* for CHAR_BIT */
 
 #include "flint_io.h"
-#include "flint_btreeutil.h"
 #include "flint_btreebase.h"
 #include "flint_cursor.h"
 #include "flint_utils.h"
 
 #include "omassert.h"
 #include "omdebug.h"
-#include <xapian/error.h>
+#include "unaligned.h"
 #include "utils.h"
 
 #include <algorithm>  // for std::min()
@@ -1840,10 +1839,10 @@ FlintTable::write_changed_blocks(int changes_fd)
     if (faked_root_block) return;
 
     string buf;
-    buf += pack_uint(2u); // Indicate the item is a list of blocks
-    buf += pack_uint(tablename.size());
+    buf += F_pack_uint(2u); // Indicate the item is a list of blocks
+    buf += F_pack_uint(tablename.size());
     buf += tablename;
-    buf += pack_uint(block_size);
+    buf += F_pack_uint(block_size);
     flint_io_write(changes_fd, buf.data(), buf.size());
 
     // Compare the old and new bitmaps to find blocks which have changed, and
@@ -1853,7 +1852,7 @@ FlintTable::write_changed_blocks(int changes_fd)
     try {
 	base.calculate_last_block();
 	while (base.find_changed_block(&n)) {
-	    buf = pack_uint(n + 1);
+	    buf = F_pack_uint(n + 1);
 	    flint_io_write(changes_fd, buf.data(), buf.size());
 
 	    // Read block n.
@@ -1875,7 +1874,7 @@ FlintTable::write_changed_blocks(int changes_fd)
 	delete[] p;
 	throw;
     }
-    buf = pack_uint(0u);
+    buf = F_pack_uint(0u);
     flint_io_write(changes_fd, buf.data(), buf.size());
 }
 

@@ -13,7 +13,7 @@ TESTS_ENVIRONMENT = ./runtest
 
 .PHONY: check-none check-inmemory check-multi \
         check-remote check-remoteprog check-remotetcp \
-        check-flint check-perf up
+        check-chert check-flint check-perf up
 
 up:
 	cd .. && $(MAKE)
@@ -43,6 +43,11 @@ check-remoteprog: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remoteprog
 check-remotetcp: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp
+endif
+
+if BUILD_BACKEND_CHERT
+check-chert: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b chert
 endif
 
 if BUILD_BACKEND_FLINT

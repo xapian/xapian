@@ -1,4 +1,4 @@
-/* flint_btreeutil.h: common macros/functions in the Btree implementation.
+/* unaligned.h: Read/write unaligned 1, 2, 4 byte integers.
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002,2004,2008 Olly Betts
@@ -19,24 +19,15 @@
  * USA
  */
 
-#ifndef OM_HGUARD_FLINT_BTREEUTIL_H
-#define OM_HGUARD_FLINT_BTREEUTIL_H
+#ifndef XAPIAN_INCLUDED_UNALIGNED_ACCESS_H
+#define XAPIAN_INCLUDED_UNALIGNED_ACCESS_H
 
-#include "flint_types.h"
 #include "omassert.h"
 
-#include <string.h>  /* memset */
-
-/* The unit of access into the DB files is an unsigned char, which is defined
-   as 'byte' with a typedef in flint_types.h.
-
-   Other integer values are built up from these bytes, either in pairs or fours.
-   The code here currently assumes that int is at least a 32-bit type.
-*/
-
-// FIXME: 65536 in Asserts below should really be block_size
+// FIXME: 65536 in Asserts below is the max flint/chert block size.  We should
+// abstract this out, and use the current block_size to catch overruns better.
 inline int
-getint1(const byte *p, int c)
+getint1(const unsigned char *p, int c)
 {
     AssertRel(c, >=, 0);;
     AssertRel(c, <, 65536);
@@ -44,7 +35,7 @@ getint1(const byte *p, int c)
 }
 
 inline void
-setint1(byte *p, int c, int x)
+setint1(unsigned char *p, int c, int x)
 {
     AssertRel(c, >=, 0);;
     AssertRel(c, <, 65536);
@@ -52,7 +43,7 @@ setint1(byte *p, int c, int x)
 }
 
 inline int
-getint2(const byte *p, int c)
+getint2(const unsigned char *p, int c)
 {
     AssertRel(c, >=, 0);;
     AssertRel(c, <, 65536 - 1);
@@ -60,7 +51,7 @@ getint2(const byte *p, int c)
 }
 
 inline void
-setint2(byte *p, int c, int x)
+setint2(unsigned char *p, int c, int x)
 {
     AssertRel(c, >=, 0);;
     AssertRel(c, <, 65536 - 1);
@@ -69,7 +60,7 @@ setint2(byte *p, int c, int x)
 }
 
 inline int
-getint4(const byte *p, int c)
+getint4(const unsigned char *p, int c)
 {
     AssertRel(c, >=, 0);;
     AssertRel(c, <, 65536 - 3);
@@ -77,7 +68,7 @@ getint4(const byte *p, int c)
 }
 
 inline void
-setint4(byte *p, int c, int x)
+setint4(unsigned char *p, int c, int x)
 {
     AssertRel(c, >=, 0);;
     AssertRel(c, <, 65536 - 3);
@@ -87,4 +78,4 @@ setint4(byte *p, int c, int x)
     p[c + 3] = x;
 }
 
-#endif /* OM_HGUARD_FLINT_BTREEUTIL_H */
+#endif // XAPIAN_INCLUDED_UNALIGNED_ACCESS_H

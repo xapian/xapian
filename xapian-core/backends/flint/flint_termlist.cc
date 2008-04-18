@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -53,7 +53,7 @@ FlintTermList::FlintTermList(Xapian::Internal::RefCntPtr<const FlintDatabase> db
     }
 
     // Read doclen
-    if (!unpack_uint(&pos, end, &doclen)) {
+    if (!F_unpack_uint(&pos, end, &doclen)) {
 	const char *msg;
 	if (pos == 0) {
 	    msg = "Too little data for doclen in termlist";
@@ -64,7 +64,7 @@ FlintTermList::FlintTermList(Xapian::Internal::RefCntPtr<const FlintDatabase> db
     }
 
     // Read termlist_size
-    if (!unpack_uint(&pos, end, &termlist_size)) {
+    if (!F_unpack_uint(&pos, end, &termlist_size)) {
 	const char *msg;
 	if (pos == 0) {
 	    msg = "Too little data for list size in termlist";
@@ -157,7 +157,7 @@ FlintTermList::next()
     pos += append_len;
 
     // Read the wdf if it wasn't packed into the reuse byte.
-    if (!wdf_in_reuse && !unpack_uint(&pos, end, &current_wdf)) {
+    if (!wdf_in_reuse && !F_unpack_uint(&pos, end, &current_wdf)) {
 	const char *msg;
 	if (pos == 0) {
 	    msg = "Too little data for wdf in termlist";

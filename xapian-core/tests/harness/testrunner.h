@@ -2,6 +2,7 @@
  *  \brief Run multiple tests for different backends.
  */
 /* Copyright 2008 Lemur Consulting Ltd
+ * Copyright 2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,8 +33,7 @@ extern BackendManager * backendmanager;
 /** A test runner, which runs the tests (implemented by subclassing it) with
  *  a variety of backends.
  */
-class TestRunner
-{
+class TestRunner {
     /** Backend specified by the user (or empty if none was specified).
      */
     std::string user_backend;
@@ -81,6 +81,9 @@ class TestRunner
 
     /// True if the backend is the flint backend.
     bool flint;
+
+    /// True if the backend is the chert backend.
+    bool chert;
 
     /// Virtual destructor - needed for abstract class.
     virtual ~TestRunner() {}

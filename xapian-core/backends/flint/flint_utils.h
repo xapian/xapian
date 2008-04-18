@@ -61,7 +61,7 @@ typedef int                 om_int32;
  */
 template<class T>
 bool
-unpack_uint(const char ** src,
+F_unpack_uint(const char ** src,
 	    const char * src_end,
 	    T * resultptr)
 {
@@ -118,7 +118,7 @@ unpack_uint(const char ** src,
  */
 template<class T>
 string
-pack_uint(T value)
+F_pack_uint(T value)
 {
     // Check unsigned
     STATIC_ASSERT_UNSIGNED_TYPE(T);
@@ -146,7 +146,7 @@ pack_uint(T value)
  */
 template<>
 inline string
-pack_uint<bool>(bool value)
+F_pack_uint<bool>(bool value)
 {
     return string(1, static_cast<char>(value));
 }
@@ -170,7 +170,7 @@ pack_uint<bool>(bool value)
  */
 template<class T>
 bool
-unpack_uint_last(const char ** src, const char * src_end, T * resultptr)
+F_unpack_uint_last(const char ** src, const char * src_end, T * resultptr)
 {
     // Check unsigned
     STATIC_ASSERT_UNSIGNED_TYPE(T);
@@ -205,7 +205,7 @@ unpack_uint_last(const char ** src, const char * src_end, T * resultptr)
  */
 template<class T>
 string
-pack_uint_last(T value)
+F_pack_uint_last(T value)
 {
     // Check unsigned
     STATIC_ASSERT_UNSIGNED_TYPE(T);
@@ -230,7 +230,7 @@ pack_uint_last(T value)
  */
 template<class T>
 string
-pack_uint_preserving_sort(T value)
+F_pack_uint_preserving_sort(T value)
 {
     // Check unsigned
     STATIC_ASSERT_UNSIGNED_TYPE(T);
@@ -266,7 +266,7 @@ pack_uint_preserving_sort(T value)
  */
 template<class T>
 bool
-unpack_uint_preserving_sort(const char ** src,
+F_unpack_uint_preserving_sort(const char ** src,
 			    const char * src_end,
 			    T * resultptr)
 {
@@ -300,12 +300,12 @@ unpack_uint_preserving_sort(const char ** src,
 }
 
 inline bool
-unpack_string(const char ** src,
+F_unpack_string(const char ** src,
 	      const char * src_end,
 	      string & result)
 {
     string::size_type length;
-    if (!unpack_uint(src, src_end, &length)) {
+    if (!F_unpack_uint(src, src_end, &length)) {
     	return false;
     }
 
@@ -321,9 +321,9 @@ unpack_string(const char ** src,
 }
 
 inline string
-pack_string(string value)
+F_pack_string(string value)
 {
-    return pack_uint(value.size()) + value;
+    return F_pack_uint(value.size()) + value;
 }
 
 /** Pack a string into a representation which preserves sort order.
@@ -332,7 +332,7 @@ pack_string(string value)
  *  the end.
  */
 inline string
-pack_string_preserving_sort(string value)
+F_pack_string_preserving_sort(string value)
 {
     string::size_type i = 0, j;
     while ((j = value.find('\0', i)) != string::npos) {
@@ -344,7 +344,7 @@ pack_string_preserving_sort(string value)
 }
 
 inline bool
-unpack_string_preserving_sort(const char ** src,
+F_unpack_string_preserving_sort(const char ** src,
 			      const char * src_end,
 			      string & result)
 {
@@ -369,7 +369,7 @@ unpack_string_preserving_sort(const char ** src,
 }
 
 inline bool
-unpack_bool(const char ** src,
+F_unpack_bool(const char ** src,
 	    const char * src_end,
 	    bool * resultptr)
 {
@@ -390,7 +390,7 @@ unpack_bool(const char ** src,
 }
 
 inline string
-pack_bool(bool value)
+F_pack_bool(bool value)
 {
     return value ? "1" : "0";
 }
@@ -401,7 +401,7 @@ pack_bool(bool value)
 inline string
 flint_docid_to_key(Xapian::docid did)
 {
-    return pack_uint_preserving_sort(did);
+    return F_pack_uint_preserving_sort(did);
 }
 
 #endif /* OM_HGUARD_FLINT_UTILS_H */

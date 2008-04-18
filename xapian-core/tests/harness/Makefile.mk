@@ -4,6 +4,7 @@ EXTRA_DIST +=\
 
 noinst_HEADERS +=\
 	harness/backendmanager.h\
+	harness/backendmanager_chert.h\
 	harness/backendmanager_flint.h\
 	harness/backendmanager_inmemory.h\
 	harness/backendmanager_local.h\
@@ -24,6 +25,10 @@ testharness_sources =\
 	harness/testsuite.cc\
 	harness/testutils.cc\
 	harness/unixcmds.cc
+
+if BUILD_BACKEND_CHERT
+testharness_sources += harness/backendmanager_chert.cc
+endif
 
 if BUILD_BACKEND_FLINT
 testharness_sources += harness/backendmanager_flint.cc

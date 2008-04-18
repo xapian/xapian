@@ -27,7 +27,6 @@
 #include <xapian/visibility.h>
 
 #include "flint_types.h"
-#include "flint_btreeutil.h"
 
 class XAPIAN_VISIBILITY_DEFAULT FlintTable_base {
     public:
@@ -127,7 +126,7 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable_base {
 
 	void extend_bit_map();
 
-	/** Do most of the error handling from unpack_uint() */
+	/** Do most of the error handling from F_unpack_uint() */
 	bool do_unpack_uint(const char **start, const char *end,
 			    uint4 *dest, std::string &err_msg,
 			    const std::string &basename,

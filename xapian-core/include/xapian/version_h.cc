@@ -101,6 +101,11 @@ const char * dummy = {
 "#define XAPIAN_MINOR_VERSION ",MINOR_VERSION,
 "#define XAPIAN_REVISION ",REVISION,
 "",
+#ifdef XAPIAN_HAS_CHERT_BACKEND
+"#define XAPIAN_HAS_CHERT_BACKEND 1",
+#else
+"/* #undef XAPIAN_HAS_CHERT_BACKEND */",
+#endif
 #ifdef XAPIAN_HAS_FLINT_BACKEND
 "#define XAPIAN_HAS_FLINT_BACKEND 1",
 #else

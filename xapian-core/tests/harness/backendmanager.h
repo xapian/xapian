@@ -78,6 +78,19 @@ class BackendManager {
     Xapian::WritableDatabase getwritedb_remotetcp(const std::vector<std::string> &dbnames);
 #endif
 
+#ifdef XAPIAN_HAS_CHERT_BACKEND
+  protected:
+    std::string createdb_chert(const std::vector<std::string> &dbnames);
+
+  public:
+    /// Get a writable chert database instance.
+    Xapian::WritableDatabase getwritedb_chert(const std::string & name,
+					      const std::vector<std::string> &files);
+
+    /// Get the path of a writable chert database instance.
+    std::string getwritedb_chert_path(const std::string & name);
+#endif
+
 #ifdef XAPIAN_HAS_FLINT_BACKEND
   protected:
     std::string createdb_flint(const std::vector<std::string> &dbnames);
@@ -100,7 +113,7 @@ class BackendManager {
 
     /** Get the database type currently in use.
      *
-     *  Current possible return values are "inmemory", "flint",
+     *  Current possible return values are "inmemory", "chert", "flint",
      *  "none", "remoteprog", and "remotetcp".
      */
     virtual const char * get_dbtype() const { return "none"; } // FIXME: move out of header

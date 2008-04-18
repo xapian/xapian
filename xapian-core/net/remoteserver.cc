@@ -317,14 +317,6 @@ RemoteServer::msg_postlist(const string &message)
 	Xapian::docid newdocid = *i;
 	string reply = encode_length(newdocid - lastdocid - 1);
 	reply += encode_length(i.get_wdf());
-	// FIXME: get_doclength should always return an integer value, but
-	// Xapian::doclength is a double.  We could improve the compression
-	// here by casting to an int and serialising that instead, but it's
-	// probably not worth doing since the plan is to stop storing the
-	// document length in the posting lists anyway, at which point the
-	// remote protocol should stop passing it since it will be more
-	// expensive to do so.
-	reply += serialise_double(i.get_doclength());
 
 	send_message(REPLY_POSTLISTITEM, reply);
 	lastdocid = newdocid;

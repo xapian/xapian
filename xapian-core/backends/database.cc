@@ -24,6 +24,7 @@
 #include <config.h>
 
 #include "database.h"
+
 #include "utils.h" // for om_tostring
 #include "fileutils.h"
 #include <xapian/dbfactory.h>
@@ -36,14 +37,32 @@
 using namespace std;
 
 // Include headers for all the enabled database backends
-#ifdef XAPIAN_HAS_INMEMORY_BACKEND
-#include "inmemory/inmemory_database.h"
+#ifdef XAPIAN_HAS_CHERT_BACKEND
+#include "chert/chert_database.h"
 #endif
 #ifdef XAPIAN_HAS_FLINT_BACKEND
 #include "flint/flint_database.h"
 #endif
+#ifdef XAPIAN_HAS_INMEMORY_BACKEND
+#include "inmemory/inmemory_database.h"
+#endif
 
 namespace Xapian {
+
+#ifdef XAPIAN_HAS_CHERT_BACKEND
+Database
+Chert::open(const string &dir) {
+    DEBUGAPICALL_STATIC(Database, "Chert::open", dir);
+    return Database(new ChertDatabase(dir));
+}
+
+WritableDatabase
+Chert::open(const string &dir, int action, int block_size) {
+    DEBUGAPICALL_STATIC(WritableDatabase, "Chert::open", dir << ", " <<
+			action << ", " << block_size);
+    return WritableDatabase(new ChertWritableDatabase(dir, action, block_size));
+}
+#endif
 
 #ifdef XAPIAN_HAS_FLINT_BACKEND
 Database
@@ -73,7 +92,6 @@ InMemory::open() {
 static void
 open_stub(Database *db, const string &file)
 {
-
     // A stub database is a text file with one or more lines of this format:
     // <dbtype> <serialised db object>
     //
@@ -103,6 +121,11 @@ open_stub(Database *db, const string &file)
 #ifdef XAPIAN_HAS_FLINT_BACKEND
 	} else if (type == "flint") {
 	    db->add_database(Flint::open(join_paths(stubdir, line)));
+	    ok = true;
+#endif
+#ifdef XAPIAN_HAS_CHERT_BACKEND
+	} else if (type == "chert") {
+	    db->add_database(Chert::open(join_paths(stubdir, line)));
 	    ok = true;
 #endif
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
@@ -164,18 +187,25 @@ Database::Database(const string &path)
 	return;
     }
 
-    // Check for "stub directories".
-    if (file_exists(path + "/XAPIANDB")) {
-	open_stub(this, path + "/XAPIANDB");
-	return;
-    }
-
 #ifdef XAPIAN_HAS_FLINT_BACKEND
     if (file_exists(path + "/iamflint")) {
 	internal.push_back(new FlintDatabase(path));
 	return;
     }
 #endif
+
+#ifdef XAPIAN_HAS_CHERT_BACKEND
+    if (file_exists(path + "/iamchert")) {
+	internal.push_back(new ChertDatabase(path));
+	return;
+    }
+#endif
+
+    // Check for "stub directories".
+    if (file_exists(path + "/XAPIANDB")) {
+	open_stub(this, path + "/XAPIANDB");
+	return;
+    }
 
     throw DatabaseOpeningError("Couldn't detect type of database");
 }
@@ -186,10 +216,24 @@ WritableDatabase::WritableDatabase(const std::string &path, int action)
     DEBUGAPICALL(void, "WritableDatabase::WritableDatabase",
 		 path << ", " << action);
 #ifdef XAPIAN_HAS_FLINT_BACKEND
+# ifdef XAPIAN_HAS_CHERT_BACKEND
+    // Both Flint and Chert are enabled.
+    if (file_exists(path + "/iamflint")) {
+	internal.push_back(new FlintWritableDatabase(path, action, 8192));
+    } else {
+	internal.push_back(new ChertWritableDatabase(path, action, 8192));
+    }
+# else
     // Only Flint is enabled.
     internal.push_back(new FlintWritableDatabase(path, action, 8192));
+# endif
 #else
+# ifdef XAPIAN_HAS_CHERT_BACKEND
+    // Only Chert is enabled.
+    internal.push_back(new ChertWritableDatabase(path, action, 8192));
+# else
     throw FeatureUnavailableError("No disk-based writable backend is enabled");
+# endif
 #endif
 }
 

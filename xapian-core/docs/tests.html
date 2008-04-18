@@ -64,10 +64,10 @@ positional information required) and <code>api_db.cc</code> (everything else, wi
 lots of subgroups of tests). It's easiest to base a test on an
 existing one.
 
-<P>You'll notice in <code>apitest.cc</code> that it runs all appropriate test groups against
-each backend that is being built. The backends are inmemory,
-multi, flint, remote and remotetcp. If you need to create a new test group
-with different
+<P>You'll notice in <code>apitest.cc</code> that it runs all appropriate test
+groups against each backend that is being built. The backends are inmemory,
+multi, chert, flint, remoteprog and remotetcp. If you need to create a new test
+group with different
 requirements to any current ones, put it in the appropriate api_ file (or
 create a new one, and add it into Makefile.am) and remember to add the group to
 all pertinent backends in <code>apitest.cc</code>.

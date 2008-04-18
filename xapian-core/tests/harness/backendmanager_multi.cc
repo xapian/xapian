@@ -78,6 +78,9 @@ BackendManagerMulti::createdb_multi(const vector<string> & files)
 #ifdef XAPIAN_HAS_FLINT_BACKEND
 	dbs[n] = Xapian::Flint::open(".multi/" + subdbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 	out << "flint " << subdbdir << '\n';
+#elif defined XAPIAN_HAS_CHERT_BACKEND
+	dbs[n] = Xapian::Chert::open(".multi/" + subdbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+	out << "chert " << subdbdir << '\n';
 #else
 # error No local backend enabled
 #endif

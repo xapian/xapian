@@ -1,3 +1,14 @@
+Fri Apr 18 10:18:35 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING,INSTALL,Makefile.am,backends/Makefile.mk,backends/chert/,
+	  backends/database.cc,backends/flint/,backends/remote/net_postlist.cc,
+	  backends/remote/net_postlist.h,bin/,common/,configure.ac,docs/,
+	  include/xapian/dbfactory.h,include/xapian/version_h.cc,
+	  net/remoteserver.cc,tests/Makefile.am,tests/harness/: Start new
+	  development backend "chert".  Currently the change over flint is
+	  that in the postlist table, doclengths are stored once in a
+	  chunked postlist-like form, rather than once per posting.
+
 Tue Apr 15 23:24:39 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/omenquire.cc,tests/api_nodb.cc: Fix segfault introduced by

@@ -28,7 +28,6 @@
 #include <xapian/error.h>
 
 #include "flint_table.h"
-#include "flint_btreeutil.h"
 #include "omassert.h"
 #include "omdebug.h"
 
