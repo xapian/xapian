@@ -380,9 +380,6 @@ QueryOptimiser::do_synonym(const Xapian::Query::Internal *query, double factor)
 
     AssertEq(query->wqf, 0); // FIXME - should we be doing something with the wqf?
 
-    // Build a postlist tree which we'll use to get the frequencies.
-    AutoPtr<PostList> freq_pl(do_or_like(query, 0.0));
-
     RETURN(localsubmatch.make_synonym_postlist(do_or_like(query, 0.0),
 					       matcher));
 }
