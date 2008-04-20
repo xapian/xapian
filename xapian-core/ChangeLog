@@ -1,3 +1,11 @@
+Sun Apr 20 09:46:11 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc,common/: Stop describing get_description() as
+	  an "Introspection method" internal (matching earlier change to stop
+	  doing so externally).  This doesn't help to explain what it does,
+	  and get_description() doesn't actually fall under any of the formal
+	  definitions of "introspection" I can find.
+
 Fri Apr 18 10:26:18 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_metadata.cc: Fix renamed parameter in debug

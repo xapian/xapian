@@ -110,9 +110,7 @@ class OmDocumentTerm {
     /// Get the wdf
     Xapian::termcount get_wdf() { return wdf; }
 
-    /** Returns a string representing the OmDocumentTerm.
-     *  Introspection method.
-     */
+    /// Return a string describing this object.
     string get_description() const;
 };
 
