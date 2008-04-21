@@ -98,8 +98,7 @@ DatabaseMaster::write_changesets_to_fd(int fd,
 string
 DatabaseMaster::get_description() const
 {
-    DEBUGCALL(INTRO, string, "DatabaseMaster::get_description", "");
-    RETURN("DatabaseMaster(" + path + ")");
+    return "DatabaseMaster(" + path + ")";
 }
 
 /// Internal implementation of DatabaseReplica
@@ -298,8 +297,7 @@ DatabaseReplica::close()
 string
 DatabaseReplica::get_description() const
 {
-    DEBUGCALL(INTRO, string, "DatabaseReplica::get_description", "");
-    RETURN("DatabaseReplica(" + internal->get_description() + ")");
+    return "DatabaseReplica(" + internal->get_description() + ")";
 }
 
 // Methods of DatabaseReplica::Internal

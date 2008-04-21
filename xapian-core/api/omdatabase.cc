@@ -348,9 +348,8 @@ Database::keep_alive()
 string
 Database::get_description() const
 {
-    DEBUGCALL(INTRO, string, "Database::get_description", "");
     /// \todo display contents of the database
-    RETURN("Database()");
+    return "Database()";
 }
 
 // Word must have a trigram score at least this close to the best score seen
@@ -701,9 +700,8 @@ WritableDatabase::set_metadata(const string & key, const string & value)
 string
 WritableDatabase::get_description() const
 {
-    DEBUGCALL(INTRO, string, "WritableDatabase::get_description", "");
     /// \todo display contents of the writable database
-    RETURN("WritableDatabase()");
+    return "WritableDatabase()";
 }
 
 }

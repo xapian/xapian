@@ -55,7 +55,7 @@ enum om_debug_types {
      */
     OM_DEBUG_UNKNOWN,
 
-    /// @internal Was OM_DEBUG_LOCK - insert DUMMY to preserve numbers for now
+    /// @internal Was OM_DEBUG_LOCK - insert DUMMY to preserve numbers for now.
     OM_DEBUG_DUMMY,
 
     /** A debug message to do with a database backend.
@@ -95,10 +95,8 @@ enum om_debug_types {
      */
     OM_DEBUG_INDEXER,
 
-    /** Type for messages from methods performing introspection (eg,
-     *  get_description()).
-     */
-    OM_DEBUG_INTRO,
+    /// @internal Was OM_DEBUG_INTRO - insert DUMMY to preserve numbers for now.
+    OM_DEBUG_DUMMY2,
 
     /** Type for messages to do with the remote backend. */
     OM_DEBUG_REMOTE,
