@@ -27,7 +27,6 @@ libxapian_la_SOURCES +=\
 	api/sorter.cc\
 	api/termlist.cc\
 	api/valuerangeproc.cc\
-	api/valuerangeproccompat.cc\
 	api/valuesetmatchdecider.cc\
 	api/version.cc\
 	api/weightinternal.cc

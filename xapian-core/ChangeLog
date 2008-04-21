@@ -1,3 +1,10 @@
+Mon Apr 21 06:26:49 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/Makefile.mk,api/valuerangeproccompat.cc,
+	  include/xapian/queryparser.h: Remove the
+	  v102::NumberValueRangeProcessor ABI-preserving machinery since it's
+	  OK to change the ABI for 1.1.0.
+
 Mon Apr 21 04:42:52 GMT 2008  Olly Betts <olly@survex.com>
 
 	* api/,queryparser/queryparser.cc: Remove debug log tracing from
