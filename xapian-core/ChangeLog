@@ -1,3 +1,11 @@
+Mon Apr 21 07:04:12 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc,backends/chert/chert_check.cc,
+	  backends/flint/flint_check.cc,tests/: Remove various needless
+	  inclusions of headers (especially <iostream>).  Reorder headers.
+	  Wrap a couple of comments.  Append single characters to strings
+	  using character constants.
+
 Mon Apr 21 06:26:49 GMT 2008  Olly Betts <olly@survex.com>
 
 	* api/Makefile.mk,api/valuerangeproccompat.cc,

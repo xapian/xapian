@@ -22,13 +22,10 @@
 
 #include <xapian.h>
 
-#include <iostream>
-#include <string>
-#include <math.h>
-
 #include "stringutils.h"
-#include "unixcmds.h"
-#include "utils.h"
+
+#include <cmath>
+#include <string>
 
 using namespace std;
 

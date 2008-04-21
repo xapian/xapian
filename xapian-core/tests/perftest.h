@@ -23,7 +23,6 @@
 #define XAPIAN_INCLUDED_PERFTEST_H
 
 #include <fstream>
-#include <iostream>
 #include <string>
 #include <xapian.h>
 #include "omtime.h"
@@ -53,6 +52,7 @@ class PerfTestLogger {
     void repetition_write_start();
 
     void write(const std::string & text);
+
   public:
     PerfTestLogger();
     ~PerfTestLogger();

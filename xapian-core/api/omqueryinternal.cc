@@ -23,9 +23,9 @@
 
 #include <config.h>
 
-#include "autoptr.h"
-#include "omdebug.h"
 #include "omqueryinternal.h"
+
+#include "omdebug.h"
 #include "utils.h"
 #include "serialise.h"
 #include "serialise-double.h"
@@ -36,13 +36,13 @@
 #include <xapian/version.h>
 #include "vectortermlist.h"
 
-#include <iostream>
-#include <vector>
-#include <set>
 #include <algorithm>
-#include <math.h>
-#include <limits.h>
+#include "autoptr.h"
 #include <cfloat>
+#include <climits>
+#include <cmath>
+#include <set>
+#include <vector>
 
 using namespace std;
 
