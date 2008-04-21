@@ -43,8 +43,6 @@
 
 #include "apitest.h"
 
-#include <list>
-
 using namespace std;
 
 static Xapian::Query
@@ -908,7 +906,8 @@ DEFINE_TESTCASE(specialterms1, backend) {
     return true;
 }
 
-// test that terms with a special characters in appear correctly when iterating allterms
+// test that terms with a special characters in appear correctly when iterating
+// allterms
 DEFINE_TESTCASE(specialterms2, backend) {
     Xapian::Database db(get_database("apitest_space"));
 
