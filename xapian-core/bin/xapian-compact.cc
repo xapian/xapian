@@ -152,15 +152,14 @@ class PostlistCursorGt {
 };
 
 static void
-merge_postlists(const string & tablename,
-		FlintTable * out, vector<Xapian::docid>::const_iterator offset,
+merge_postlists(FlintTable * out, vector<Xapian::docid>::const_iterator offset,
 		vector<string>::const_iterator b, vector<string>::const_iterator e,
 		Xapian::docid tot_off)
 {
     flint_totlen_t tot_totlen = 0;
     priority_queue<PostlistCursor *, vector<PostlistCursor *>, PostlistCursorGt> pq;
     for ( ; b != e; ++b, ++offset) {
-	FlintTable *in = new FlintTable(tablename, *b, true);
+	FlintTable *in = new FlintTable("postlist", *b, true);
 	in->open();
 	if (in->get_entry_count()) {
 	    // PostlistCursor takes ownership of FlintTable in and is
@@ -201,20 +200,20 @@ merge_postlists(const string & tablename,
     out->add(string("", 1), tag);
 
     string last_key;
+    // Merge user metadata.
     while (!pq.empty()) {
 	PostlistCursor * cur = pq.top();
-	pq.pop();
 	const string& key = cur->key;
-	if (!is_user_metadata_key(key)) {
-	    pq.push(cur);
-	    break;
-	}
+	if (!is_user_metadata_key(key)) break;
+
 	if (key == last_key) {
 	    cerr << "Warning: duplicate user metadata key - picking arbitrary tag value" << endl;
 	} else {
 	    out->add(key, cur->tag);
 	    last_key = key;
 	}
+
+	pq.pop();
 	if (cur->next()) {
 	    pq.push(cur);
 	} else {
@@ -381,14 +380,13 @@ struct PrefixCompressedStringItorGt {
 };
 
 static void
-merge_spellings(const string & tablename,
-		FlintTable * out,
+merge_spellings(FlintTable * out,
 		vector<string>::const_iterator b,
 		vector<string>::const_iterator e)
 {
     priority_queue<MergeCursor *, vector<MergeCursor *>, CursorGt> pq;
     for ( ; b != e; ++b) {
-	FlintTable *in = new FlintTable(tablename, *b, true, DONT_COMPRESS, true);
+	FlintTable *in = new FlintTable("spelling", *b, true, DONT_COMPRESS, true);
 	in->open();
 	if (in->get_entry_count()) {
 	    // The MergeCursor takes ownership of FlintTable in and is
@@ -429,6 +427,7 @@ merge_spellings(const string & tablename,
 	    // current_tag members must remain valid while we're merging their
 	    // tags, but we need to call next() on them all afterwards.
 	    vector<MergeCursor *> vec;
+	    vec.reserve(pq.size());
 
 	    while (true) {
 		cur->read_tag();
@@ -544,14 +543,13 @@ struct ByteLengthPrefixedStringItorGt {
 };
 
 static void
-merge_synonyms(const string & tablename,
-	       FlintTable * out,
+merge_synonyms(FlintTable * out,
 	       vector<string>::const_iterator b,
 	       vector<string>::const_iterator e)
 {
     priority_queue<MergeCursor *, vector<MergeCursor *>, CursorGt> pq;
     for ( ; b != e; ++b) {
-	FlintTable *in = new FlintTable(tablename, *b, true, DONT_COMPRESS, true);
+	FlintTable *in = new FlintTable("synonym", *b, true, DONT_COMPRESS, true);
 	in->open();
 	if (in->get_entry_count()) {
 	    // The MergeCursor takes ownership of FlintTable in and is
@@ -631,8 +629,7 @@ merge_synonyms(const string & tablename,
 }
 
 static void
-multimerge_postlists(const string & tablename,
-		     FlintTable * out, const char * tmpdir,
+multimerge_postlists(FlintTable * out, const char * tmpdir,
 		     Xapian::docid tot_off,
 		     vector<string> tmp, vector<Xapian::docid> off)
 {
@@ -653,11 +650,11 @@ multimerge_postlists(const string & tablename,
 
 	    // Don't compress temporary tables, even if the final table would
 	    // be.
-	    FlintTable tmptab(tablename, dest, false);
+	    FlintTable tmptab("postlist", dest, false);
 	    // Use maximum blocksize for temporary tables.
 	    tmptab.create_and_open(65536);
 
-	    merge_postlists(tablename, &tmptab, off.begin() + i, tmp.begin() + i, tmp.begin() + j, 0);
+	    merge_postlists(&tmptab, off.begin() + i, tmp.begin() + i, tmp.begin() + j, 0);
 	    if (c > 0) {
 		for (unsigned int k = i; k < j; ++k) {
 		    unlink((tmp[k] + "DB").c_str());
@@ -666,13 +663,14 @@ multimerge_postlists(const string & tablename,
 		}
 	    }
 	    tmpout.push_back(dest);
+	    tmptab.flush_db();
 	    tmptab.commit(1);
 	}
 	swap(tmp, tmpout);
 	swap(off, newoff);
 	++c;
     }
-    merge_postlists(tablename, out, off.begin(), tmp.begin(), tmp.end(), tot_off);
+    merge_postlists(out, off.begin(), tmp.begin(), tmp.end(), tot_off);
     if (c > 0) {
 	for (size_t k = 0; k < tmp.size(); ++k) {
 	    unlink((tmp[k] + "DB").c_str());
@@ -954,21 +952,19 @@ main(int argc, char **argv)
 	    switch (t->type) {
 		case POSTLIST:
 		    if (multipass && inputs.size() > 3) {
-			multimerge_postlists(t->name, &out, destdir, tot_off,
+			multimerge_postlists(&out, destdir, tot_off,
 					     inputs, offset);
 		    } else {
-			merge_postlists(t->name, &out, offset.begin(),
+			merge_postlists(&out, offset.begin(),
 					inputs.begin(), inputs.end(),
 					tot_off);
 		    }
 		    break;
 		case SPELLING:
-		    merge_spellings(t->name, &out,
-				    inputs.begin(), inputs.end());
+		    merge_spellings(&out, inputs.begin(), inputs.end());
 		    break;
 		case SYNONYM:
-		    merge_synonyms(t->name, &out,
-				   inputs.begin(), inputs.end());
+		    merge_synonyms(&out, inputs.begin(), inputs.end());
 		    break;
 		default:
 		    // Position, Record, Termlist, Value
@@ -977,6 +973,7 @@ main(int argc, char **argv)
 	    }
 
 	    // Commit as revision 1.
+	    out.flush_db();
 	    out.commit(1);
 
 	    cout << '\r' << t->name << ": ";

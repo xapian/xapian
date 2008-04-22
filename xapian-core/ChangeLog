@@ -1,3 +1,12 @@
+Tue Apr 22 12:53:55 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Fix to work again (broken by the splitting of
+	  FlintTable::commit() into flush_db() and commit() in the replication
+	  changes).  Don't bother passing tablename to functions where it
+	  always has the same value.  Tweak the user-metadata copying loop to
+	  make it clearer.  Reserve the right size for the vector used for
+	  merging spellings.
+
 Tue Apr 22 12:28:17 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_table.h,backends/flint/flint_table.h,
