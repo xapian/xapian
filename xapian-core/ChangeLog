@@ -1,3 +1,20 @@
+Tue Apr 22 12:58:32 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* bin/xapian-compact.cc: Tweak the user-metadata copying loop to make
+	  it clearer.  Reserve the right size for the vector used for merging
+	  spellings.
+	* bin/xapian-compact.cc: Fix check for user metadata key to not match
+	  other key types we may add in the future.  When compacting, we can't
+	  assume how we should handle them.
+	* bin/xapian-compact.cc: Initialise PostlistCursor member firstdid to
+	  avoid using it uninitialised when merging user metadata and the same
+	  key is present in more than one source database.  If the same user
+	  metadata key is present in more than one source database, copy an
+	  arbitrary tag value.
+	* bin/xapian-compact.cc: Fix potential SEGV (which I think can occur
+	  when compacting database(s) with user metadata but no postings).
+
 Fri Mar 28 02:22:29 GMT 2008  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix LIBRARY_VERSION_INFO.

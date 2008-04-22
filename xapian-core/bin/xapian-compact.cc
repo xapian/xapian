@@ -1,6 +1,6 @@
 /* xapian-compact.cc: Compact a flint database, or merge and compact several.
  *
- * Copyright (C) 2004,2005,2006,2007 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -76,7 +76,7 @@ is_metainfo_key(const string & key)
 static inline bool
 is_user_metadata_key(const string & key)
 {
-    return key.size() > 1 && key[0] == '\0' && key[1] != '\xff';
+    return key.size() > 1 && key[0] == '\0' && key[1] == '\xc0';
 }
 
 class PostlistCursor : private FlintCursor {
@@ -88,7 +88,7 @@ class PostlistCursor : private FlintCursor {
     Xapian::termcount tf, cf;
 
     PostlistCursor(FlintTable *in, Xapian::docid offset_)
-	: FlintCursor(in), offset(offset_)
+	: FlintCursor(in), offset(offset_), firstdid(0)
     {
 	find_entry("");
 	next();
@@ -200,16 +200,20 @@ merge_postlists(FlintTable * out, vector<Xapian::docid>::const_iterator offset,
     out->add(string("", 1), tag);
 
     string last_key;
-    while (true) {
-	PostlistCursor * cur = NULL;
-	if (!pq.empty()) {
-	    cur = pq.top();
-	    pq.pop();
+    // Merge user metadata.
+    while (!pq.empty()) {
+	PostlistCursor * cur = pq.top();
+	const string& key = cur->key;
+	if (!is_user_metadata_key(key)) break;
+
+	if (key == last_key) {
+	    cerr << "Warning: duplicate user metadata key - picking arbitrary tag value" << endl;
+	} else {
+	    out->add(key, cur->tag);
+	    last_key = key;
 	}
-	if (!is_user_metadata_key(cur->key)) {
-	    pq.push(cur);
-	    break;
-	}
+
+	pq.pop();
 	if (cur->next()) {
 	    pq.push(cur);
 	} else {
@@ -423,6 +427,7 @@ merge_spellings(FlintTable * out,
 	    // current_tag members must remain valid while we're merging their
 	    // tags, but we need to call next() on them all afterwards.
 	    vector<MergeCursor *> vec;
+	    vec.reserve(pq.size());
 
 	    while (true) {
 		cur->read_tag();
@@ -881,7 +886,7 @@ main(int argc, char **argv)
 	};
 
 	static const table_list tables[] = {
-	    // name	    type		compress_strategy	lazy
+	    // name	    type	compress_strategy	lazy
 	    { "postlist",   POSTLIST,	DONT_COMPRESS,		false },
 	    { "record",	    RECORD,	Z_DEFAULT_STRATEGY,	false },
 	    { "termlist",   TERMLIST,	Z_DEFAULT_STRATEGY,	false },
