@@ -1,3 +1,8 @@
+Tue Apr 22 12:28:17 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_table.h,backends/flint/flint_table.h,
+	  bin/xapian-compact.cc: Default commit's changes_fd parameter to -1.
+
 Tue Apr 22 11:39:10 GMT 2008  Olly Betts <olly@survex.com>
 
 	* common/omassert.h: Fix comment typo.

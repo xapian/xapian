@@ -666,7 +666,7 @@ multimerge_postlists(const string & tablename,
 		}
 	    }
 	    tmpout.push_back(dest);
-	    tmptab.commit(1, -1);
+	    tmptab.commit(1);
 	}
 	swap(tmp, tmpout);
 	swap(off, newoff);
@@ -977,7 +977,7 @@ main(int argc, char **argv)
 	    }
 
 	    // Commit as revision 1.
-	    out.commit(1, -1);
+	    out.commit(1);
 
 	    cout << '\r' << t->name << ": ";
 	    off_t out_size = 0;

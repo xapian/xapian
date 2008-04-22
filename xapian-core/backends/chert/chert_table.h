@@ -353,10 +353,10 @@ class XAPIAN_VISIBILITY_DEFAULT ChertTable {
 	 *          get_latest_revision_number()), or an exception will be
 	 *          thrown.
 	 *
-	 *  @param changes_fd  The file descriptor to write changes to.  If -1,
-	 *          no changes will be written.
+	 *  @param changes_fd  The file descriptor to write changes to.
+	 *	    Defaults to -1, meaning no changes will be written.
 	 */
-	void commit(chert_revision_number_t revision, int changes_fd,
+	void commit(chert_revision_number_t revision, int changes_fd = -1,
 		    const std::string * changes_tail = NULL);
 
 	/** Append the list of blocks changed to a changeset file.
