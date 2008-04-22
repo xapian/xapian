@@ -262,4 +262,12 @@ if ($query_wqf->get_description() != 'Xapian::Query(wqf:(wqf=3))') {
     exit(1);
 }
 
+
+$query = new XapianQuery($op_value_ge, 0, "100");
+if ($query->get_description() != 'Xapian::Query(VALUE_GE 0 100)') {
+    print "Unexpected \$query->get_description():\n";
+    print $query->get_description() . "\n";
+    exit(1);
+}
+
 ?>
