@@ -1,3 +1,8 @@
+Tue Apr 22 10:54:35 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/queryparsertest.cc: Add "utils.h" back - needed for
+	  om_tostring() and mkdir().
+
 Mon Apr 21 07:48:45 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/api_db.cc: Don't need <list>.  Wrap comment.

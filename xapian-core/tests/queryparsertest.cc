@@ -23,6 +23,7 @@
 #include <xapian.h>
 
 #include "stringutils.h"
+#include "utils.h"
 
 #include <cmath>
 #include <string>
