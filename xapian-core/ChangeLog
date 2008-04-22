@@ -1,3 +1,7 @@
+Tue Apr 22 11:39:10 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/omassert.h: Fix comment typo.
+
 Tue Apr 22 10:54:35 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/queryparsertest.cc: Add "utils.h" back - needed for

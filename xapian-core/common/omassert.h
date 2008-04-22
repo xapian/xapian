@@ -52,7 +52,7 @@
 
 #include <xapian/error.h>
 
-#include "utils.h" // For om_to_string() and within_DBL_EPSILON().
+#include "utils.h" // For om_tostring() and within_DBL_EPSILON().
 
 #define XAPIAN_ASSERT_LOCATION__(LINE,MSG) __FILE__":"#LINE": "#MSG
 #define XAPIAN_ASSERT_LOCATION_(LINE,MSG) XAPIAN_ASSERT_LOCATION__(LINE,MSG)
