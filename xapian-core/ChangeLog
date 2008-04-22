@@ -1,3 +1,7 @@
+Tue Apr 22 23:30:50 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/utils.h: Stop exporting internal functions needlessly.
+
 Tue Apr 22 12:53:55 GMT 2008  Olly Betts <olly@survex.com>
 
 	* bin/xapian-compact.cc: Fix to work again (broken by the splitting of
