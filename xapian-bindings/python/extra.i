@@ -475,11 +475,9 @@ def _database_gen_termlist_iter(self, docid):
 
     """
     # Note: has_termfreq is set to LAZY because most databases don't store term
-    # frequencies in the termlist, so access to the term frequency requires a
-    # separate lookup.  Flint databases can store the term frequency in the
-    # termlist, but this can't be done efficiently except for statically built
-    # databases, and there doesn't seem to be support for it in xapian-compact,
-    # presently.
+    # frequencies in the termlist (because this would require updating many termlist
+    # entries for every document update), so access to the term frequency requires a
+    # separate lookup.
     return TermIter(self.termlist_begin(docid), self.termlist_end(docid),
                     has_termfreq=TermIter.LAZY,
                     has_wdf=TermIter.EAGER,

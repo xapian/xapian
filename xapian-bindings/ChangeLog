@@ -1,3 +1,7 @@
+Wed Apr 23 02:47:00 GMT 2008  Olly Betts <olly@survex.com>
+
+	* python/extra.i: Update comment.
+
 Wed Apr 23 00:25:46 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/doxy2swig.py.in: Fix build with --enable-maintainer-mode
