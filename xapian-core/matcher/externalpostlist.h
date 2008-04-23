@@ -42,7 +42,7 @@ class ExternalPostList : public PostList {
     PostList * update_after_advance();
 
   public:
-    ExternalPostList(Xapian::PostingSource *source_) : source(source_) { }
+    ExternalPostList(Xapian::PostingSource *source_) : source(source_), current(0) { }
 
     ~ExternalPostList();
 
