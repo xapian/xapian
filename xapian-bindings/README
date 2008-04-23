@@ -31,11 +31,11 @@ PHP		Requires PHP 5 (PHP 4 is no longer supported by the PHP
 		developers, so it doesn't make sense for us to continue to
 		support it).
 
-Python		Requires Python 2.2 or later.  Note that there is an issue
-		involving using the xapian bindings with Apache's
-		mod-python: be sure to read the documentation file for the
-		python bindings (section "Apache and Mod-Python") if you're
-		using mod-python.
+Python		Requires Python 2.3 or later.  If you still need support for
+		Python 2.2, see Xapian 1.0.x.  Note that there is an issue
+		involving using the xapian bindings with Apache's mod-python:
+		be sure to read the documentation file for the python bindings
+		(section "Apache and Mod-Python") if you're using mod-python.
 
 Ruby		Requires Ruby 1.8 or later (brief tests show the bindings
 		probably work with at least Ruby 1.6.8 too, but smoketest.rb

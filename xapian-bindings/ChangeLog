@@ -1,3 +1,7 @@
+Wed Apr 23 09:43:06 GMT 2008  Olly Betts <olly@survex.com>
+
+	* README: Note Python 2.3 or later is required.
+
 Wed Apr 23 09:21:57 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* configure.ac: Require python 2.3 or greater.  2.2 is essentially
