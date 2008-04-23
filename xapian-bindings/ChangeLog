@@ -1,3 +1,11 @@
+Wed Apr 23 08:39:18 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/doxy2swig.py.in: Revert earlier change, since it would
+	  result in the bindings varying massively depending on the version
+	  of python in use at maintainer-build time, which doesn't seem
+	  helpful.  python2.2 currently works with a non maintainer-mode
+	  build, so there's an easy workaround for the problem.
+
 Wed Apr 23 07:55:25 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* xapian-bindings.spec.in: Update RPM .spec file to reflect the new

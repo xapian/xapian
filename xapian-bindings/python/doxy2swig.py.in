@@ -25,19 +25,9 @@ output will be written (the file will be clobbered).
 from xml.dom import minidom
 import re
 import sys
+import textwrap
 import types
 import os.path
-
-try:
-    import textwrap
-except ImportError:
-    # textwrap isn't available in python 2.2, so make a dummy which passes the
-    # string through.  This leads to documentation strings which are very wide,
-    # but still comprehensible.
-    class textwrap:
-        def fill(txt):
-            return txt
-        fill = staticmethod(fill)
 
 def my_open_read(source):
     if hasattr(source, "read"):
