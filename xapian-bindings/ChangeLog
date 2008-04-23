@@ -1,3 +1,8 @@
+Wed Apr 23 07:55:25 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* xapian-bindings.spec.in: Update RPM .spec file to reflect the new
+	  location of the python packages, and the .pth file.
+
 Wed Apr 23 07:51:52 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* debian/changelog,debian/patch,debian/python-xapian.install:
