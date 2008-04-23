@@ -32,10 +32,12 @@ XAPIAN_SWIG_CS_SRCS=\
 	NumberValueRangeProcessor.cs \
 	PositionIterator.cs \
 	PostingIterator.cs \
+	PostingSource.cs \
 	Query.cs \
 	QueryParser.cs \
 	Remote.cs \
 	RSet.cs \
+	SWIGTYPE_p_bool.cs \
 	SWIGTYPE_p_std__string.cs \
 	SWIGTYPE_p_std__vectorTstd__string_t.cs \
 	SWIGTYPE_p_std__vectorTXapian__Query_t.cs \

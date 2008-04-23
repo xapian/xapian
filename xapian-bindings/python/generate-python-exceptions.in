@@ -4,7 +4,7 @@
 # generate-python-exceptions.in: generate error handling code for python
 # bindings
 #
-# Copyright (C) 2003,2004,2006,2007 Olly Betts
+# Copyright (C) 2003,2004,2006,2007,2008 Olly Betts
 # Copyright (C) 2007 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
@@ -28,6 +28,20 @@ my @allclasses = (@baseclasses, @classes);
 
 my @directorclasses = qw(
     MatchDecider ExpandDecider Stopper ValueRangeProcessor Sorter
+);
+
+my @posting_source_virtual_methods = qw(
+    get_termfreq_min 
+    get_termfreq_est
+    get_termfreq_max
+    get_maxweight
+    get_weight
+    next
+    skip_to
+    check
+    at_end
+    get_docid
+    get_description
 );
 
 open FD, ">except.i" or die $!;
@@ -142,6 +156,19 @@ EOF
 for my $class (@directorclasses) {
     print FD <<"EOF";
 %exception Xapian::${class}::operator() {
+    try {
+	\$action
+    } catch (...) {
+	XapianSetPythonException();
+	SWIG_fail;
+    }
+}
+EOF
+}
+
+for my $method (@posting_source_virtual_methods) {
+    print FD <<"EOF";
+%exception Xapian::PostingSource::${method} {
     try {
 	\$action
     } catch (...) {

@@ -1,3 +1,10 @@
+Wed Apr 23 11:02:45 GMT 2008  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,java-swig/Makefile.am,
+	  python/generate-python-exceptions.in,xapian.i: Only wrap
+	  PostingSource where we have directors.  Fix up various issues
+	  with the wrapping.
+
 Wed Apr 23 09:43:06 GMT 2008  Olly Betts <olly@survex.com>
 
 	* README: Note Python 2.3 or later is required.

@@ -40,6 +40,7 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	NumberValueRangeProcessor.java\
 	PositionIterator.java\
 	PostingIterator.java\
+	PostingSource.java\
 	Query.java\
 	QueryParser.java\
 	Remote.java\
@@ -49,6 +50,7 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	Stem.java\
 	Stopper.java\
 	StringValueRangeProcessor.java\
+	SWIGTYPE_p_bool.java\
 	SWIGTYPE_p_std__string.java\
 	TermGenerator.java\
 	TermIterator.java\

@@ -192,6 +192,13 @@ class ValueIterator {
 %ignore Xapian::Document::operator=;
 %include <xapian/document.h>
 
+#ifdef XAPIAN_SWIG_DIRECTORS
+%feature("director") Xapian::PostingSource;
+%include <xapian/postingsource.h>
+#else
+%ignore Xapian::Query(Xapian::PostingSource *);
+#endif
+
 namespace Xapian {
 
 // from xapian/enquire.h:
