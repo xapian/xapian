@@ -1,3 +1,8 @@
+Wed Apr 23 00:21:25 GMT 2008  Olly Betts <olly@survex.com>
+
+	* include/xapian.h: Fix misplaced comment.  Tweak doxygen comments for
+	  version functions to be more consistent with others.
+
 Wed Apr 23 00:16:14 GMT 2008  Olly Betts <olly@survex.com>
 
 	* matcher/queryoptimiser.cc: Remove bogus comment from cut-and-paste.
