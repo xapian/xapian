@@ -1,3 +1,9 @@
+Wed Apr 23 18:14:10 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/pythontest.py: Remove references to "flint" from test
+	  database names (use "db_" instead).  Add a simple test of the
+	  posting source stuff.
+
 Wed Apr 23 17:42:41 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/Makefile.am: Give up on MKDIR_P, and just use "-test -d

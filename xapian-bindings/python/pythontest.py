@@ -665,7 +665,7 @@ def test_synonyms_iter():
     """Test iterators over list of synonyms in a database.
 
     """
-    dbpath = 'flinttest_synonyms_iter'
+    dbpath = 'db_test_synonyms_iter'
     db = xapian.WritableDatabase(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
 
     db.add_synonym('hello', 'hi')
@@ -711,7 +711,7 @@ def test_metadata_keys_iter():
     """Test iterators over list of metadata keys in a database.
 
     """
-    dbpath = 'flinttest_metadata_iter'
+    dbpath = 'db_test_metadata_iter'
     db = xapian.WritableDatabase(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
 
     db.set_metadata('author', 'richard')
@@ -761,7 +761,7 @@ def test_spell():
     """Test basic spelling correction features.
 
     """
-    dbpath = 'flinttest_spell'
+    dbpath = 'db_test_spell'
     db = xapian.WritableDatabase(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
 
     db.add_spelling('hello')
@@ -902,6 +902,42 @@ def test_valuesetmatchdecider():
     md.add_value('foo')
     expect(md(doc), False)
 
+
+def test_postingsource():
+    """Simple test of the PostingSource class.
+
+    """
+    class OddPostingSource(xapian.PostingSource):
+        def __init__(self, max):
+            xapian.PostingSource.__init__(self)
+            self.max = max
+            self.current = -1
+
+        def get_termfreq_min(self): return 0
+        def get_termfreq_est(self): return self.max / 2
+        def get_termfreq_max(self): return self.max
+        def next(self, minweight):
+            self.current += 2
+        def at_end(self): return self.current > self.max
+        def get_docid(self): return self.current
+
+    dbpath = 'db_test_postingsource'
+    db = xapian.WritableDatabase(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
+    for id in xrange(10):
+        doc = xapian.Document()
+        db.add_document(doc)
+
+    source = OddPostingSource(10)
+    query = xapian.Query(source)
+
+    enquire = xapian.Enquire(db)
+    enquire.set_query(query)
+    mset = enquire.get_mset(0, 10)
+
+    expect([item.docid for item in mset], [1, 3, 5, 7, 9])
+
+    del db
+    shutil.rmtree(dbpath)
 
 # Run all tests (ie, callables with names starting "test_").
 if not runtests(globals(), sys.argv[1:]):
