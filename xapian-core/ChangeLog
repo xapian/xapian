@@ -1,3 +1,9 @@
+Wed Apr 23 00:30:34 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/Makefile.mk,api/omquery.cc,api/omqueryinternal.cc,
+	  include/Makefile.mk,include/xapian.h,include/xapian/query.h,matcher/,
+	  tests/api_db.cc: Add support for Xapian::PostingSource.
+
 Wed Apr 23 00:21:25 GMT 2008  Olly Betts <olly@survex.com>
 
 	* include/xapian.h: Fix misplaced comment.  Tweak doxygen comments for

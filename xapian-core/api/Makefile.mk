@@ -21,6 +21,7 @@ libxapian_la_SOURCES +=\
 	api/omqueryinternal.cc\
 	api/omtermlistiterator.cc\
 	api/omvalueiterator.cc\
+	api/postingsource.cc\
 	api/postlist.cc\
 	api/replication.cc\
 	api/sortable-serialise.cc\

@@ -43,6 +43,8 @@ struct SortPosName;
 
 namespace Xapian {
 
+class PostingSource;
+
 /** Class representing a query.
  *
  *  Queries are represented as a tree of objects.
@@ -202,6 +204,9 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 */
 	Query(Query::op op_, Xapian::valueno valno, const std::string &value);
 
+	/// Construct an external source query.
+	explicit Query(Xapian::PostingSource * external_source);
+
 	/** A query which matches all documents in the database. */
 	static Xapian::Query MatchAll;
 
@@ -274,6 +279,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
     friend class Query;
     public:
         static const int OP_LEAF = -1;
+        static const int OP_EXTERNAL_SOURCE = -2;
 
 	/// The container type for storing pointers to subqueries
 	typedef std::vector<Internal *> subquery_list;
@@ -313,6 +319,9 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 
 	/// Within query frequency of this term - leaf node only
 	Xapian::termcount wqf;
+
+	/// External posting source.
+	Xapian::PostingSource * external_source;
 
 	/** swap the contents of this with another Xapian::Query::Internal,
 	 *  in a way which is guaranteed not to throw.  This is
@@ -387,6 +396,9 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 	/** Construct a value greater-than-or-equal query on a document value.
 	 */
 	Internal(op_t op_, Xapian::valueno valno, const std::string &value);
+
+	/// Construct an external source query.
+	explicit Internal(Xapian::PostingSource * external_source_);
 
 	/** Destructor. */
 	~Internal();

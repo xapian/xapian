@@ -32,6 +32,7 @@
 
 #include <xapian/error.h>
 #include <xapian/enquire.h>
+#include <xapian/postingsource.h>
 #include <xapian/termiterator.h>
 #include <xapian/version.h>
 #include "vectortermlist.h"
@@ -52,6 +53,7 @@ static unsigned int
 get_min_subqs(Xapian::Query::Internal::op_t op)
 {
     switch (op) {
+	case Xapian::Query::Internal::OP_EXTERNAL_SOURCE:
 	case Xapian::Query::Internal::OP_LEAF:
 	case Xapian::Query::OP_AND:
 	case Xapian::Query::OP_OR:
@@ -79,6 +81,7 @@ static unsigned int
 get_max_subqs(Xapian::Query::Internal::op_t op)
 {
     switch (op) {
+	case Xapian::Query::Internal::OP_EXTERNAL_SOURCE:
 	case Xapian::Query::Internal::OP_LEAF:
 	case Xapian::Query::OP_VALUE_RANGE:
 	case Xapian::Query::OP_VALUE_GE:
@@ -142,6 +145,8 @@ Xapian::Query::Internal::serialise(Xapian::termpos & curpos) const
 	if (term_pos != curpos) result += '@' + om_tostring(term_pos);
 	if (wqf != 1) result += '#' + om_tostring(wqf);
 	++curpos;
+    } else if (op == Xapian::Query::Internal::OP_EXTERNAL_SOURCE) {
+	throw Xapian::UnimplementedError("Remote backend doesn't support PostingSource");
     } else {
 	result += "(";
 	for (subquery_list::const_iterator i = subqs.begin();
@@ -218,6 +223,8 @@ Xapian::Query::Internal::get_op_name(Xapian::Query::Internal::op_t op)
 {
     string name;
     switch (op) {
+	case Xapian::Query::Internal::OP_EXTERNAL_SOURCE:
+	    name = "EXTERNAL_SOURCE"; break;
 	case Xapian::Query::Internal::OP_LEAF:  name = "LEAF"; break;
 	case Xapian::Query::OP_AND:             name = "AND"; break;
 	case Xapian::Query::OP_OR:              name = "OR"; break;
@@ -255,7 +262,7 @@ Xapian::Query::Internal::get_description() const
     }
 
     switch (op) {
-	case Xapian::Query::OP_VALUE_RANGE: {
+	case Xapian::Query::OP_VALUE_RANGE:
 	    opstr = get_op_name(op);
 	    opstr += ' ';
 	    opstr += om_tostring(parameter);
@@ -264,22 +271,24 @@ Xapian::Query::Internal::get_description() const
 	    opstr += ' ';
 	    opstr += str_parameter;
 	    return opstr;
-	}
 	case Xapian::Query::OP_VALUE_GE:
-	case Xapian::Query::OP_VALUE_LE: {
+	case Xapian::Query::OP_VALUE_LE:
 	    opstr = get_op_name(op);
 	    opstr += ' ';
 	    opstr += om_tostring(parameter);
 	    opstr += ' ';
 	    opstr += tname;
 	    return opstr;
-	}
-	case Xapian::Query::OP_SCALE_WEIGHT: {
+	case Xapian::Query::OP_SCALE_WEIGHT:
 	    opstr += om_tostring(get_dbl_parameter());
 	    opstr += " * ";
 	    opstr += subqs[0]->get_description();
 	    return opstr;
-	}
+	case Xapian::Query::Internal::OP_EXTERNAL_SOURCE:
+	    opstr = "PostingSource(";
+	    opstr += external_source->get_description();
+	    opstr += ')';
+	    return opstr;
     }
 
     opstr = " " + get_op_name(op) + " ";
@@ -587,6 +596,7 @@ Xapian::Query::Internal::swap(Xapian::Query::Internal &other)
     std::swap(str_parameter, other.str_parameter);
     std::swap(term_pos, other.term_pos);
     std::swap(wqf, other.wqf);
+    std::swap(external_source, other.external_source);
 }
 
 Xapian::Query::Internal::Internal(const Xapian::Query::Internal &copyme)
@@ -597,7 +607,8 @@ Xapian::Query::Internal::Internal(const Xapian::Query::Internal &copyme)
 	  tname(copyme.tname),
 	  str_parameter(copyme.str_parameter),
 	  term_pos(copyme.term_pos),
-	  wqf(copyme.wqf)
+	  wqf(copyme.wqf),
+	  external_source(copyme.external_source)
 {
     for (subquery_list::const_iterator i = copyme.subqs.begin();
 	 i != copyme.subqs.end();
@@ -661,6 +672,13 @@ Xapian::Query::Internal::Internal(op_t op_, Xapian::valueno valno,
 	wqf = 1;
     }
     validate_query();
+}
+
+Xapian::Query::Internal::Internal(PostingSource * external_source_)
+    : op(OP_EXTERNAL_SOURCE), external_source(external_source_)
+{
+    if (!external_source)
+	throw Xapian::InvalidArgumentError("The external_source parameter can not be NULL");
 }
 
 Xapian::Query::Internal::~Internal()

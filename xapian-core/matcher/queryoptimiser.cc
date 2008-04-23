@@ -28,6 +28,7 @@
 #include "autoptr.h"
 #include "emptypostlist.h"
 #include "exactphrasepostlist.h"
+#include "externalpostlist.h"
 #include "multiandpostlist.h"
 #include "multimatch.h"
 #include "omassert.h"
@@ -61,6 +62,10 @@ QueryOptimiser::do_subquery(const Xapian::Query::Internal * query, double factor
     switch (query->op) {
 	case Xapian::Query::Internal::OP_LEAF:
 	    RETURN(do_leaf(query, factor));
+
+	case Xapian::Query::Internal::OP_EXTERNAL_SOURCE:
+	    Assert(query->external_source);
+	    RETURN(new ExternalPostList(query->external_source));
 
 	case Xapian::Query::OP_AND:
 	case Xapian::Query::OP_FILTER:

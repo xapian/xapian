@@ -161,6 +161,12 @@ Query::Query(Query::op op_, Xapian::valueno valno, const std::string &value)
 		 op_ << ", " << valno << ", " << value);
 }
 
+Query::Query(PostingSource * external_source)
+	: internal(new Query::Internal(external_source))
+{
+    DEBUGAPICALL(void, "Xapian::Query::Query", external_source);
+}
+
 // Copy constructor
 Query::Query(const Query & copyme)
 	: internal(copyme.internal)
