@@ -52,7 +52,7 @@ _xapian_la_LIBADD = $(XAPIAN_LIBS) $(PYTHON_LIBS)
 # the copy.  We also rename the copy to __init__.py so that it can be installed
 # in a "xapian" directory and be treated as a package.
 xapian/__init__.py: modern/xapian.py
-	@MKDIR_P@ xapian
+	$(MKDIR_P) xapian
 	cp `test -f modern/xapian.py || echo '$(srcdir)/'`modern/xapian.py xapian/__init__.py
 
 # We "import _xapian" first so that if we fail to import the glue library
@@ -66,7 +66,7 @@ xapian/__init__.pyo: xapian/__init__.py xapian/_xapian$(PYTHON_SO)
 	PYTHONPATH=. $(PYTHON) -O -c "import xapian"
 
 xapian/_xapian$(PYTHON_SO): _xapian.la
-	@MKDIR_P@ xapian
+	$(MKDIR_P) xapian
 	$(LIBTOOL) --config > libtoolconfig.tmp
 	. ./libtoolconfig.tmp; cp $$objdir/_xapian$(PYTHON_SO) xapian
 	rm -f libtoolconfig.tmp
