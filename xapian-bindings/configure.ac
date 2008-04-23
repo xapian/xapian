@@ -211,18 +211,17 @@ if test no != "$with_python" ; then
   AC_PATH_PROGS(PYTHON, ["${PYTHON-python}"], [])
   AC_ARG_VAR(PYTHON, [Python interpreter])
   if test -n "$PYTHON" ; then
-    dnl Require Python 2.2 or newer.  We need 2.2 to use SWIG's -modern option,
-    dnl for Pythonic iterator support, and it's now > 4.5 years since the last
-    dnl 2.1.x release and 2.5 is out.
+    dnl Require Python 2.3 or newer.  It's now > 4.5 years since the last
+    dnl 2.2.x release, so 2.2 is essentially unsupported upstream.
     AC_MSG_CHECKING([$PYTHON version])
     version=`$PYTHON -c 'import sys;print(sys.version[[:3]])' 2>/dev/null`
     case $version in
-    [2.[2-9]*|2.1[0-9]*|[3-9].*])
+    [2.[3-9]*|2.[12][0-9][0-9]*|[3-9].*])
       ;;
     *)
       AC_MSG_RESULT([$version (too old)])
       if test yes = "$with_python" ; then
-	AC_MSG_ERROR([Only python 2.2 or newer is supported ($python is $version)])
+	AC_MSG_ERROR([Only python 2.3 or newer is supported ($python is $version)])
       fi
       PYTHON=
       ;;
