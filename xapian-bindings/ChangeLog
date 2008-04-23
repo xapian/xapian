@@ -1,3 +1,9 @@
+Wed Apr 23 00:25:46 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/doxy2swig.py.in: Fix build with --enable-maintainer-mode
+	  and python 2.2, by providing fallback for the "textwrap" module,
+	  which isn't present by default in 2.2.
+
 Wed Apr 23 00:15:21 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/Makefile.am,python/xapian.pth: Change installation
