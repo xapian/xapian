@@ -27,6 +27,7 @@
 
 #include "testsuite.h"
 #include "testutils.h"
+#include "utils.h"
 
 using namespace std;
 
