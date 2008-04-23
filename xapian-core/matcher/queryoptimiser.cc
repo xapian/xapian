@@ -229,7 +229,6 @@ QueryOptimiser::do_and_like(const Xapian::Query::Internal *query, double factor,
     }
 }
 
-/// Comparison functor which orders PostList* by descending get_termfreq_est().
 /** Class providing an operator which sorts postlists to select max or terms.
  *  This returns true if a has a (strictly) greater termweight than b,
  *  unless a or b contain no documents, in which case the other one is

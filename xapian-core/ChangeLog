@@ -1,3 +1,7 @@
+Wed Apr 23 00:16:14 GMT 2008  Olly Betts <olly@survex.com>
+
+	* matcher/queryoptimiser.cc: Remove bogus comment from cut-and-paste.
+
 Wed Apr 23 00:14:30 GMT 2008  Olly Betts <olly@survex.com>
 
 	* common/omassert.h: Add AssertEqDoubleParanoid().
