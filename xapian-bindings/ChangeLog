@@ -1,3 +1,10 @@
+Wed Apr 23 07:51:52 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* debian/changelog,debian/patch,debian/python-xapian.install:
+	  Update debian packaging to remove the patch which is currently
+	  applied (since it's included in HEAD now), and to get the python
+	  packages from the new locations (and include the .pth file).
+
 Wed Apr 23 07:38:20 GMT 2008  Olly Betts <olly@survex.com>
 
 	* xapian.i: Use "%include <xapian/query.h>" to wrap Xapian::Query so
