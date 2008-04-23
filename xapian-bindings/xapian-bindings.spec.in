@@ -138,11 +138,10 @@ make install DESTDIR=%{buildroot}
 %if 0%{?!_without_python:1}
 %files python
 %defattr(-, root, root)
-%{_libdir}/python%{python_ver}/site-packages/xapian.pth
 %{_libdir}/python%{python_ver}/site-packages/xapian/_xapian.so
-%{_libdir}/python%{python_ver}/site-packages/xapian/xapian.py
-%{_libdir}/python%{python_ver}/site-packages/xapian/xapian.pyc
-%ghost %{_libdir}/python%{python_ver}/site-packages/xapian/xapian.pyo
+%{_libdir}/python%{python_ver}/site-packages/xapian/__init__.py
+%{_libdir}/python%{python_ver}/site-packages/xapian/__init__.pyc
+%ghost %{_libdir}/python%{python_ver}/site-packages/xapian/__init__.pyo
 %doc %{_datadir}/doc/%{name}-python-%{version}
 %endif
 

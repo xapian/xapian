@@ -1,3 +1,15 @@
+Wed Apr 23 15:23:03 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* debian/python-xapian.install,python/Makefile.am,python/xapian.pth,
+	  xapian-bindings.spec.in: Change way python bindings are installed
+	  again, hopefully more successfully this time.  We found a problem
+	  with the .pth method on some systems, so instead we now put all
+	  the python files in a subdirectory called xapian/, but rename the
+	  xapian.py file to __init__.py (and similarly for the .pyc and
+	  .pyo files).  This makes it into a python package, and seems to
+	  work well, and also hides the internal _xapian module from public
+	  view.
+
 Wed Apr 23 11:02:45 GMT 2008  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am,java-swig/Makefile.am,
