@@ -1,3 +1,10 @@
+Wed Apr 23 03:41:28 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Makefile.am,csharp/Makefile.am,java-swig/Makefile.am,
+	  tcl8/docs/index.html,xapian-head.i,xapian.i: Split the header chunk
+	  of xapian.i out into xapian-head.i.  Remove lingering references to
+	  quartz.  Wrap chert.
+
 Wed Apr 23 02:47:00 GMT 2008  Olly Betts <olly@survex.com>
 
 	* python/extra.i: Update comment.

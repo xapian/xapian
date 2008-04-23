@@ -24,59 +24,9 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
-
-// Disable any deprecation warnings for Xapian methods/functions/classes.
-#define XAPIAN_DEPRECATED(D) D
-#include <xapian.h>
-#include <xapian/replication.h>
-#include <string>
-#include <vector>
-
-using namespace std;
-
-// If a backend has been disabled in xapian-core (manually or automatically) we
-// include a stub definition here so the bindings can still be built.
-namespace Xapian {
-#ifndef XAPIAN_HAS_FLINT_BACKEND
-    namespace Flint {
-	static Database open() {
-	    throw FeatureUnavailableError("Flint backend not supported");
-	}
-	static WritableDatabase open(const string &, int, int = 8192) {
-	    throw FeatureUnavailableError("Flint backend not supported");
-	}
-    }
-#endif
-
-#ifndef XAPIAN_HAS_INMEMORY_BACKEND
-    namespace InMemory {
-	static WritableDatabase open() {
-	    throw FeatureUnavailableError("InMemory backend not supported");
-	}
-    }
-#endif
-
-#ifndef XAPIAN_HAS_REMOTE_BACKEND
-    namespace Remote {
-	static Database open(const string &, unsigned int, timeout = 0, timeout = 0) {
-	    throw FeatureUnavailableError("Remote backend not supported");
-	}
-
-	static WritableDatabase open_writable(const string &, unsigned int, timeout = 0, timeout = 0) {
-	    throw FeatureUnavailableError("Remote backend not supported");
-	}
-
-	static Database open(const string &, const string &, timeout = 0) {
-	    throw FeatureUnavailableError("Remote backend not supported");
-	}
-
-	static WritableDatabase open_writable(const string &, const string &, timeout = 0) {
-	    throw FeatureUnavailableError("Remote backend not supported");
-	}
-    }
-#endif
-}
 %}
+
+%include xapian-head.i
 
 using namespace std;
 
@@ -675,6 +625,17 @@ namespace Auto {
     Database open_stub(const string & file);
 }
 
+namespace Chert {
+    %rename(chert_open) open;
+    Database open(const std::string &dir);
+/* SWIG Tcl wrappers don't call destructors for classes returned by factory
+ * functions, so don't wrap them so users are forced to use the
+ * WritableDatabase ctor instead. */
+#ifndef SWIGTCL
+    WritableDatabase open(const std::string &dir, int action, int block_size = 8192);
+#endif
+}
+
 namespace Flint {
     %rename(flint_open) open;
     Database open(const std::string &dir);
@@ -715,6 +676,17 @@ class Auto {
   public:
     static
     Database open_stub(const string & file);
+};
+
+class Chert {
+  private:
+    Chert();
+    ~Chert();
+  public:
+    static
+    Database open(const std::string &dir);
+    static
+    WritableDatabase open(const std::string &dir, int action, int block_size = 8192);
 };
 
 class Flint {
