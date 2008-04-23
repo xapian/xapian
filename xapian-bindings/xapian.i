@@ -732,32 +732,20 @@ class Remote {
 };
 #endif
 
+}
+
 // xapian/query.h:
 
-class Query {
-    public:
-	enum op {
-	    OP_AND,
-	    OP_OR,
-	    OP_AND_NOT,
-	    OP_XOR,
-	    OP_AND_MAYBE,
-	    OP_FILTER,
-	    OP_NEAR,
-	    OP_PHRASE,
-	    OP_VALUE_RANGE,
-	    OP_SCALE_WEIGHT,
-	    OP_ELITE_SET = 10,
-	    OP_VALUE_GE,
-	    OP_VALUE_LE
-	};
-	Query(const string &tname, termcount wqf = 1, termpos term_pos = 0);
-	Query(Query::op op_, const Query & left, const Query & right);
-	Query(Query::op op_, const string & left, const string & right);
-	Query(const Query& copyme);
-	Query(Query::op op_, Xapian::valueno valno, const std::string &begin, const std::string &end);
-	Query(Query::op op_, Xapian::valueno valno, const std::string &value);
-	%extend {
+#ifdef SWIGPHP
+%apply int { Xapian::Query::op };
+#endif
+// FIXME: wrap MatchAll and MatchNothing
+%ignore Xapian::Query::MatchAll;
+%ignore Xapian::Query::MatchNothing;
+
+%ignore Xapian::Query::internal;
+%ignore Xapian::Query::operator=;
+%extend Xapian::Query {
 #ifndef XAPIAN_MIXED_VECTOR_QUERY_INPUT_TYPEMAP
 	    /* For some languages we handle strings in the vector<Query>
 	     * case, so we don't need to wrap this ctor. */
@@ -774,25 +762,8 @@ class Query {
 	    Query(Query::op op, const vector<Xapian::Query> & subqs, termcount param = 0) {
 		return new Xapian::Query(op, subqs.begin(), subqs.end(), param);
 	    }
-	}
-
-	/** Apply the specified operator to a single Xapian::Query object, with a parameter. */
-	Query(Query::op op_, Xapian::Query q, double parameter);
-
-	/** Constructs a new empty query object */
-	Query();
-
-	~Query();
-
-	termcount get_length() const;
-	TermIterator get_terms_begin() const;
-	TermIterator get_terms_end() const;
-	bool empty() const;
-
-	string get_description() const;
-};
-
 }
+%include <xapian/query.h>
 
 %feature("director") Xapian::Stopper;
 %feature("director") Xapian::ValueRangeProcessor;

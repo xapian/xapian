@@ -1,3 +1,9 @@
+Wed Apr 23 07:38:20 GMT 2008  Olly Betts <olly@survex.com>
+
+	* xapian.i: Use "%include <xapian/query.h>" to wrap Xapian::Query so
+	  we automatically pick up new features (in this case, the new
+	  PostingSource constructor).
+
 Wed Apr 23 03:41:28 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Makefile.am,csharp/Makefile.am,java-swig/Makefile.am,
