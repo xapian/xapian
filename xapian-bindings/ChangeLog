@@ -1,3 +1,12 @@
+Wed Apr 23 00:15:21 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/Makefile.am,python/xapian.pth: Change installation
+	  location for the python bindings to use a "xapian" subdirectory
+	  to hold the files, and use a "xapian.pth" file to ensure that the
+	  contents of this directory are on the path.  Seems to be the more
+	  usual way to install python extensions these days, and matches
+	  the way we need to install on windows.
+
 Tue Apr 22 16:16:55 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* php/smoketest.php,php/smoketest5.php: Add test that VALUE_GE

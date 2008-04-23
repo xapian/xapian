@@ -20,23 +20,26 @@ EXTRA_DIST = util.i extra.i extracomments.i except.i $(DOCCOMMENTS_I) \
 SUBDIRS = docs
 
 pylibdir = @PYTHON_LIB@
+pylib_DATA = xapian.pth
+
+pkgpylibdir = @PYTHON_LIB@/xapian
 
 # Install as _DATA rather than _SCRIPTS because we don't want to make these
 # executable (they don't have a #! line).
-pylib_DATA = xapian.py xapian.pyc xapian.pyo
+pkgpylib_DATA = xapian.py xapian.pyc xapian.pyo
 
-pylib_LTLIBRARIES = _xapian.la
+pkgpylib_LTLIBRARIES = _xapian.la
 
 # Remove the .la file - _xapian.la is never linked against (it's a module)
 # and Python doesn't use libltdl.  Note that the library gets installed by
 # install-data, so that's where we need to hook.
 install-data-hook:
-	rm -f $(DESTDIR)$(pylibdir)/_xapian.la
+	rm -f $(DESTDIR)$(pkgpylibdir)/_xapian.la
 
 # Because we don't install the .la file, "make uninstall" doesn't work and
 # we need to remove the file ourselves.
 uninstall-local:
-	rm -f $(DESTDIR)$(pylibdir)/_xapian$(PYTHON_SO)
+	rm -f $(DESTDIR)$(pkgpylibdir)/_xapian$(PYTHON_SO)
 
 AM_CPPFLAGS = -I$(PYTHON_INC)
 AM_CXXFLAGS = $(SWIG_CXXFLAGS) $(XAPIAN_CXXFLAGS)
