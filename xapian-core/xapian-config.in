@@ -32,13 +32,12 @@ show_usage() {
 Usage: $PROG_NAME OPTION...
 
 Options:
-  --cxxflags     output all preprocessor and C++ compiler flags
-  --libs         output all linker flags
-  --ltlibs       output linker flags for linking using GNU libtool
-  --swigflags    output preprocessor flags for use with SWIG
-  --swigheaders  output list of headers for use with SWIG
-  --help         output this help and exit
-  --version      output version information and exit
+  --cxxflags   output all preprocessor and C++ compiler flags
+  --libs       output all linker flags
+  --ltlibs     output linker flags for linking using GNU libtool
+  --swigflags  output preprocessor flags for use with SWIG
+  --help       output this help and exit
+  --version    output version information and exit
 EOF
 
     exit $1
@@ -102,30 +101,6 @@ set_I_for_uninstalled() {
     # in the include path if it's different to srcdir.
     [ "@abs_srcdir@" != "@abs_builddir@" ] && I="-I@abs_builddir@/include "
     I="$I-I@abs_srcdir@/include"
-}
-
-# Add any header files found in $1 to $H
-add_headers_in_HDIR_to_H() {
-    HDIR=$1
-    list=`echo "$HDIR"/*.h`
-    [ "$list" != "$HDIR/*.h" ] && H="$H$list "
-}
-
-# set $H to a list of header files.
-set_H_to_headers() {
-    H=
-    if is_uninstalled ; then
-        # Some header files are generated, so we need to look in builddir too.
-	add_headers_in_HDIR_to_H "@abs_builddir@/include"
-	add_headers_in_HDIR_to_H "@abs_builddir@/include/xapian"
-        if [ "@abs_srcdir@" != "@abs_builddir@" ] ; then
-	    add_headers_in_HDIR_to_H "@abs_srcdir@/include"
-	    add_headers_in_HDIR_to_H "@abs_srcdir@/include/xapian"
-	fi
-    else
-	add_headers_in_HDIR_to_H "@includedir@"
-	add_headers_in_HDIR_to_H "@includedir@/xapian"
-    fi
 }
 
 # Extract dlname from a libtool .la file.
@@ -222,11 +197,6 @@ while [ 0 != "$#" ] ; do
 	    I="-I@includedir@"
 	fi
 	echo "$I"
-	;;
-
-    --swigheaders)
-	set_H_to_headers
-	echo "$H"
 	;;
 
     --from-xo-lib-xapian)

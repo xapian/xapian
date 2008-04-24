@@ -1,3 +1,7 @@
+Thu Apr 24 02:16:08 GMT 2008  Olly Betts <olly@survex.com>
+
+	* xapian-config.in: Back out --swigheaders.
+
 Wed Apr 23 11:37:45 GMT 2008  Olly Betts <olly@survex.com>
 
 	* matcher/externalpostlist.h: Need to initialise current.
