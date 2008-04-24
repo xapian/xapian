@@ -28,10 +28,12 @@
 
 using namespace std;
 
-ExternalPostList::~ExternalPostList()
+ExternalPostList::ExternalPostList(Xapian::PostingSource *source_,
+				   double factor_)
+    : source(source_), current(0), factor(factor_)
 {
-    // FIXME: need to sort out ownership!
-//    delete source;
+    Assert(source);
+    source->reset();
 }
 
 Xapian::doccount

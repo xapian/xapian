@@ -68,7 +68,10 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
 
     virtual Xapian::docid get_docid() const = 0;
 
-    virtual std::string get_description() const = 0;
+    virtual void reset() = 0;
+
+    /// This default implementation returns a generic answer.
+    virtual std::string get_description() const;
 };
 
 }

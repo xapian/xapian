@@ -1,3 +1,12 @@
+Thu Apr 24 13:38:51 GMT 2008  Olly Betts <olly@survex.com>
+
+	* include/xapian/postingsource.h,matcher/externalpostlist.cc,
+	  matcher/externalpostlist.h,tests/api_db.cc: Add a default
+	  PostingSource::get_description() method so users who don't care
+	  aren't forced to define one.  Make PostingSource::reset() a standard
+	  method and call it automatically so that a PostingSource-using
+	  Query can be run more than once without extra work.
+
 Thu Apr 24 11:24:30 GMT 2008  Olly Betts <olly@survex.com>
 
 	* matcher/queryoptimiser.cc: Don't need <queue>.
