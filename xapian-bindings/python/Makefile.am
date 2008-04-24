@@ -75,7 +75,7 @@ CLEANFILES = xapian/_xapian$(PYTHON_SO) xapian/__init__.py xapian/__init__.pyc x
 
 # Clean the xapian directory which we created, if it's empty
 clean-local:
-	rmdir xapian || true
+	-rmdir xapian
 
 if MAINTAINER_MODE
 # We need to explicitly set -outdir because on Windows, SWIG splits paths at
