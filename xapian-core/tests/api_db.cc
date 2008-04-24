@@ -1889,5 +1889,24 @@ DEFINE_TESTCASE(externalsource3, backend && !remote && !multi) {
     mset = enq.get_mset(0, 10);
     mset_expect_order(mset, 5, 7, 11, 13, 9);
 
+    tout << "max possible weight = " << mset.get_max_possible() << endl;
+    TEST(mset.get_max_possible() > 1000);
+
+    src.reset();
+
+    enq.set_query(Xapian::Query(q.OP_SCALE_WEIGHT, Xapian::Query(&src), 0.5));
+    mset = enq.get_mset(0, 10);
+    TEST(mset.empty());
+
+    TEST_EQUAL(mset.get_max_possible(), 500);
+
+    src.reset();
+
+    enq.set_query(Xapian::Query(q.OP_SCALE_WEIGHT, Xapian::Query(&src), 2));
+    mset = enq.get_mset(0, 10);
+    mset_expect_order(mset, 1, 3, 5, 7, 9, 11, 13, 15, 17);
+
+    TEST_EQUAL(mset.get_max_possible(), 2000);
+
     return true;
 }

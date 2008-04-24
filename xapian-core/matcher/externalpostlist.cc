@@ -59,7 +59,8 @@ Xapian::weight
 ExternalPostList::get_maxweight() const
 {
     Assert(source);
-    return source->get_maxweight();
+    if (factor == 0.0) return factor;
+    return factor * source->get_maxweight();
 }
 
 Xapian::docid
@@ -73,7 +74,8 @@ Xapian::weight
 ExternalPostList::get_weight() const
 {
     Assert(source);
-    return source->get_weight();
+    if (factor == 0.0) return factor;
+    return factor * source->get_weight();
 }
 
 Xapian::doclength

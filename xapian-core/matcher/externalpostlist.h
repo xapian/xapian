@@ -28,10 +28,11 @@ namespace Xapian {
 }
 
 class ExternalPostList : public PostList {
-  protected:
     Xapian::PostingSource * source;
 
     Xapian::docid current;
+
+    double factor;
 
     /// Disallow copying.
     ExternalPostList(const ExternalPostList &);
@@ -42,7 +43,8 @@ class ExternalPostList : public PostList {
     PostList * update_after_advance();
 
   public:
-    ExternalPostList(Xapian::PostingSource *source_) : source(source_), current(0) { }
+    ExternalPostList(Xapian::PostingSource *source_, double factor_)
+	: source(source_), current(0), factor(factor_) { }
 
     ~ExternalPostList();
 

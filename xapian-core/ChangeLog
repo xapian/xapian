@@ -1,3 +1,12 @@
+Thu Apr 24 03:27:39 GMT 2008  Olly Betts <olly@survex.com>
+
+	* matcher/externalpostlist.cc,matcher/externalpostlist.h,
+	  matcher/queryoptimiser.cc: ExternalPostList now takes the
+	  factor into account, so works with OP_SCALE_WEIGHT, and
+	  doesn't call get_weight()/get_maxweight() for a boolean
+	  branch.
+	* tests/api_db.cc: Add tests for OP_SCALE_WEIGHT.
+
 Thu Apr 24 02:16:08 GMT 2008  Olly Betts <olly@survex.com>
 
 	* xapian-config.in: Back out --swigheaders.

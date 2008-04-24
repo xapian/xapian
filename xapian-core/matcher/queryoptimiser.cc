@@ -65,7 +65,7 @@ QueryOptimiser::do_subquery(const Xapian::Query::Internal * query, double factor
 
 	case Xapian::Query::Internal::OP_EXTERNAL_SOURCE:
 	    Assert(query->external_source);
-	    RETURN(new ExternalPostList(query->external_source));
+	    RETURN(new ExternalPostList(query->external_source, factor));
 
 	case Xapian::Query::OP_AND:
 	case Xapian::Query::OP_FILTER:
