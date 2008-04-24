@@ -1,3 +1,8 @@
+Thu Apr 24 04:50:43 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_db.cc: Add test that boolean branches of matches don't
+	  cause Xapian::PostingSource to be asked for weights.
+
 Thu Apr 24 03:27:39 GMT 2008  Olly Betts <olly@survex.com>
 
 	* matcher/externalpostlist.cc,matcher/externalpostlist.h,

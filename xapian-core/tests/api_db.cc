@@ -1910,3 +1910,91 @@ DEFINE_TESTCASE(externalsource3, backend && !remote && !multi) {
 
     return true;
 }
+
+class MyDontAskWeightPostingSource : public Xapian::PostingSource {
+    Xapian::doccount num_docs;
+
+    Xapian::doccount last_docid;
+
+    Xapian::docid did;
+
+  public:
+    MyDontAskWeightPostingSource(const Xapian::Database &db)
+	: num_docs(db.get_doccount()), last_docid(db.get_lastdocid()), did(0)
+    { }
+
+    void reset() { did = 0; }
+
+    Xapian::weight get_weight() const {
+	FAIL_TEST("MyDontAskWeightPostingSource::get_weight() called");
+    }
+
+    Xapian::weight get_maxweight() const {
+	FAIL_TEST("MyDontAskWeightPostingSource::get_maxweight() called");
+    }
+
+    // These bounds could be better, but that's not important here.
+    Xapian::doccount get_termfreq_min() const { return num_docs; }
+
+    Xapian::doccount get_termfreq_est() const { return num_docs; }
+
+    Xapian::doccount get_termfreq_max() const { return num_docs; }
+
+    void next(Xapian::weight wt) {
+	(void)wt;
+	++did;
+    }
+
+    void skip_to(Xapian::docid to_did, Xapian::weight wt) {
+	(void)wt;
+	did = to_did;
+    }
+
+    bool at_end() const {
+	// Doesn't work if last_docid is 2^32 - 1.
+	return did > last_docid;
+    }
+
+    Xapian::docid get_docid() const { return did; }
+
+    std::string get_description() const {
+	return "MyDontAskWeightPostingSource";
+    }
+};
+
+// Check that boolean use doesn't call get_weight() or get_maxweight().
+DEFINE_TESTCASE(externalsource4, backend && !remote && !multi) {
+    // FIXME: PostingSource doesn't currently work well with multi databases
+    // but we should try to resolve that issue.
+    Xapian::Database db(get_database("apitest_phrase"));
+    Xapian::Enquire enq(db);
+    MyDontAskWeightPostingSource src(db);
+
+    tout << "OP_SCALE_WEIGHT 0" << endl;
+    enq.set_query(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT, Xapian::Query(&src), 0));
+
+    Xapian::MSet mset = enq.get_mset(0, 5);
+    mset_expect_order(mset, 1, 2, 3, 4, 5);
+
+    src.reset();
+
+    tout << "OP_FILTER" << endl;
+    Xapian::Query q(Xapian::Query::OP_FILTER,
+		    Xapian::Query("leav"),
+		    Xapian::Query(&src));
+    enq.set_query(q);
+
+    mset = enq.get_mset(0, 5);
+    mset_expect_order(mset, 8, 6, 4, 5, 7);
+
+    src.reset();
+
+    tout << "BoolWeight" << endl;
+    enq.set_query(Xapian::Query(&src));
+    enq.set_weighting_scheme(Xapian::BoolWeight());
+
+    //mset = enq.get_mset(0, 5);
+    //mset_expect_order(mset, 1, 2, 3, 4, 5);
+
+    return true;
+}
