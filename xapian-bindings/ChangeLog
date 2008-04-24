@@ -1,3 +1,7 @@
+Thu Apr 24 02:18:46 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac,generic/generic.mk: Back out the --swigheaders change.
+
 Thu Apr 24 01:55:25 GMT 2008  Olly Betts <olly@survex.com>
 
 	* python/Makefile.am: Use "-rmdir" rather than "|| true" for
