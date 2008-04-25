@@ -33,4 +33,10 @@ PostingSource::check(Xapian::docid did, Xapian::weight w, bool & valid)
     skip_to(did, w);
 }
 
+std::string
+PostingSource::get_description() const
+{
+    return "Xapian::PostingSource subclass";
+}
+
 }

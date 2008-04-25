@@ -1,3 +1,7 @@
+Fri Apr 25 08:39:28 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/postingsource.cc: Missed change from last but one commit.
+
 Thu Apr 24 13:44:48 GMT 2008  Olly Betts <olly@survex.com>
 
 	* matcher/queryoptimiser.cc: Reserve size of postlists vector.
