@@ -8,6 +8,11 @@ Mon Dec 03 15:35:38 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 	* python/smoketest.py: Change expected query to match new output
 	  using the SYNONYM operator.
 
+Mon Apr 28 17:07:03 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/pythontest.py: Fix python test of PostingSource to include
+	  a reset() method.
+
 Mon Apr 28 02:31:42 GMT 2008  Olly Betts <olly@survex.com>
 
 	* python/generate-python-exceptions.in: Mark PostingSource::reset() as
