@@ -1,3 +1,19 @@
+Mon Apr 28 12:11:38 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/chert/chert_btreebase.cc,backends/chert/chert_table.cc,
+	  backends/flint/flint_btreebase.cc,backends/flint/flint_table.cc:
+	  Fix issue #259 - update the last_block value whenever allocating
+	  a new value, so that next_for_sequential doesn't give up too
+	  early.  Also, in both next_for_sequential and
+	  prev_for_sequential, for writable databases, check the built-in
+	  cursor at all levels for the new block rather than just reading
+	  from disk, since newly allocated blocks won't have been written
+	  to disk yet.  Also, test the return type of next() when reading
+	  subsequent parts of tags, and raise DatabaseCorruptError if it
+	  returns false; this prevents incorrect data being returned,
+	  leading to a zlib error.
+	* tests/api_wrdb.cc: Add regression test.
+
 Fri Apr 25 08:39:28 GMT 2008  Olly Betts <olly@survex.com>
 
 	* api/postingsource.cc: Missed change from last but one commit.

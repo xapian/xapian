@@ -2104,3 +2104,16 @@ DEFINE_TESTCASE(postlist7, writable) {
 
     return true;
 }
+
+/// Regression test of reading after writing but not flushing.
+DEFINE_TESTCASE(writeread1, writable && metadata) {
+    Xapian::WritableDatabase db_w = get_writable_database();
+    db_w.set_metadata("1", "2");
+    string longitem(20000, 'j');
+    db_w.set_metadata("2", longitem);
+
+    string readitem = db_w.get_metadata("2");
+    TEST_EQUAL(readitem, longitem);
+
+    return true;
+}
