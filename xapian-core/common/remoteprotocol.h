@@ -43,10 +43,6 @@
 #define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 31
 #define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 0
 
-/* When we move to version 31:
- * Include MSet::Internal::percent_factor in the MSet serialisation.
- */
-
 /** Message types (client -> server).
  *
  *  When modifying this list, you probably need to update the array of function

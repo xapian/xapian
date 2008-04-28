@@ -28,6 +28,7 @@
 #include "autoptr.h"
 #include "emptypostlist.h"
 #include "exactphrasepostlist.h"
+#include "externalpostlist.h"
 #include "multiandpostlist.h"
 #include "multimatch.h"
 #include "omassert.h"
@@ -43,7 +44,6 @@
 #include <algorithm>
 #include <list>
 #include <map>
-#include <queue>
 #include <string>
 #include <vector>
 
@@ -61,6 +61,10 @@ QueryOptimiser::do_subquery(const Xapian::Query::Internal * query, double factor
     switch (query->op) {
 	case Xapian::Query::Internal::OP_LEAF:
 	    RETURN(do_leaf(query, factor));
+
+	case Xapian::Query::Internal::OP_EXTERNAL_SOURCE:
+	    Assert(query->external_source);
+	    RETURN(new ExternalPostList(query->external_source, factor));
 
 	case Xapian::Query::OP_AND:
 	case Xapian::Query::OP_FILTER:
@@ -239,7 +243,6 @@ QueryOptimiser::do_and_like(const Xapian::Query::Internal *query, double factor,
     }
 }
 
-/// Comparison functor which orders PostList* by descending get_termfreq_est().
 /** Class providing an operator which sorts postlists to select max or terms.
  *  This returns true if a has a (strictly) greater termweight than b,
  *  unless a or b contain no documents, in which case the other one is
@@ -295,6 +298,8 @@ QueryOptimiser::do_or_like(const Xapian::Query::Internal *query, double factor)
     AssertRel(queries.size(), >=, 2);
 
     vector<PostList *> postlists;
+    postlists.reserve(queries.size());
+
     Xapian::Query::Internal::subquery_list::const_iterator q;
     for (q = queries.begin(); q != queries.end(); ++q) {
 	postlists.push_back(do_subquery(*q, factor));

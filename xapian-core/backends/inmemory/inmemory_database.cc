@@ -99,10 +99,8 @@ InMemoryPostList::get_termfreq() const
 Xapian::docid
 InMemoryPostList::get_docid() const
 {
-    //DebugMsg(tname << ".get_docid()");
     Assert(started);
     Assert(!at_end());
-    //DebugMsg(" = " << (*pos).did << endl);
     return (*pos).did;
 }
 
@@ -122,7 +120,6 @@ InMemoryPostList::next(Xapian::weight /*w_min*/)
 PostList *
 InMemoryPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 {
-    //DebugMsg(tname << ".skip_to(" << did << ")" << endl);
     // FIXME - see if we can make more efficient, perhaps using better
     // data structure.  Note, though, that a binary search of
     // the remaining list may NOT be a good idea (search time is then

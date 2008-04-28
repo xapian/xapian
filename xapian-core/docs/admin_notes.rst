@@ -2,6 +2,8 @@
 .. Copyright (C) 2006 Lemur Consulting Ltd
 .. Copyright (C) 2007,2008 Olly Betts
 
+.. FIXME: Once chert settles down, update this for chert
+
 ============================
 Xapian Administrator's Guide
 ============================

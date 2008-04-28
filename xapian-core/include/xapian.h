@@ -45,6 +45,7 @@
 // Searching
 #include <xapian/enquire.h>
 #include <xapian/expanddecider.h>
+#include <xapian/postingsource.h>
 #include <xapian/query.h>
 #include <xapian/queryparser.h>
 #include <xapian/sorter.h>
@@ -56,9 +57,10 @@
 // Unicode support
 #include <xapian/unicode.h>
 
-// Methods returning library version:
-
+// ELF visibility annotations for GCC.
 #include <xapian/visibility.h>
+
+// Functions returning library version:
 
 namespace Xapian {
 /** Report the version string of the library which the program is linked with.
@@ -70,6 +72,7 @@ XAPIAN_VISIBILITY_DEFAULT
 const char * version_string();
 
 /** Report the major version of the library which the program is linked to.
+ *
  * This may be different to the version compiled against (given by
  * XAPIAN_MAJOR_VERSION) if shared libraries are being used.
  */
@@ -77,6 +80,7 @@ XAPIAN_VISIBILITY_DEFAULT
 int major_version();
 
 /** Report the minor version of the library which the program is linked to.
+ *
  * This may be different to the version compiled against (given by
  * XAPIAN_MINOR_VERSION) if shared libraries are being used.
  */
@@ -84,6 +88,7 @@ XAPIAN_VISIBILITY_DEFAULT
 int minor_version();
 
 /** Report the revision of the library which the program is linked to.
+ *
  * This may be different to the version compiled against (given by
  * XAPIAN_REVISION) if shared libraries are being used.
  */

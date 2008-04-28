@@ -64,9 +64,7 @@ class ESetItem {
 	/// Term suggested.
 	string tname;
 
-	/** Returns a string representing the ESet item.
-	 *  Introspection method.
-	 */
+	/// Return a string describing this object.
 	string get_description() const;
 };
 
@@ -126,9 +124,7 @@ class MSetItem {
 	/* FIXME: why not just cache the Xapian::Document here!?! */
 	string sort_key;
 
-	/** Returns a string representing the MSet item.
-	 *  Introspection method.
-	 */
+	/// Return a string describing this object.
 	string get_description() const;
 };
 
@@ -199,6 +195,8 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 
 	TermIterator get_matching_terms(Xapian::docid did) const;
 	TermIterator get_matching_terms(const Xapian::MSetIterator &it) const;
+
+	Xapian::doccount get_termfreq(const string &tname) const;
 
 	void register_match_decider(const string &name,
 				    const MatchDecider *mdecider);
@@ -300,9 +298,7 @@ class MSet::Internal : public Xapian::Internal::RefCntBase {
 	/// Converts a weight to a percentage weight
 	percent convert_to_percent_internal(Xapian::weight wt) const;
 
-	/** Returns a string representing the MSet.
-	 *  Introspection method.
-	 */
+	/// Return a string describing this object.
 	string get_description() const;
 
 	/** Fetch items specified into the document cache.
@@ -327,9 +323,7 @@ class ESet::Internal : public Xapian::Internal::RefCntBase {
     public:
 	Internal() : ebound(0) {}
 
-	/** Returns a string representing the ESet.
-	 *  Introspection method.
-	 */
+	/// Return a string describing this object.
 	string get_description() const;
 };
 
@@ -342,9 +336,8 @@ class RSet::Internal : public Xapian::Internal::RefCntBase {
 
     public:
 	const set<Xapian::docid> & get_items() const { return items; }
-	/** Returns a string representing the rset.
-	 *  Introspection method.
-	 */
+
+	/// Return a string describing this object.
 	string get_description() const;
 };
 

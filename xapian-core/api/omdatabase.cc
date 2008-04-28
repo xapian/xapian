@@ -2,8 +2,8 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
- * Copyright 2006 Richard Boulton
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -88,6 +88,7 @@ Database::~Database()
 void
 Database::reopen()
 {
+    DEBUGAPICALL(void, "Database::reopen", "");
     vector<Xapian::Internal::RefCntPtr<Database::Internal> >::iterator i;
     for (i = internal.begin(); i != internal.end(); ++i) {
 	(*i)->reopen();
@@ -323,19 +324,21 @@ Database::get_document(Xapian::docid did) const
 bool
 Database::term_exists(const string & tname) const
 {
+    DEBUGAPICALL(bool, "Database::term_exists", tname);
     if (tname.empty()) {
-	return get_doccount() != 0;
+	RETURN(get_doccount() != 0);
     }
     vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); ++i) {
-	if ((*i)->term_exists(tname)) return true;
+	if ((*i)->term_exists(tname)) RETURN(true);
     }
-    return false;
+    RETURN(false);
 }
 
 void
 Database::keep_alive()
 {
+    DEBUGAPICALL(void, "Database::keep_alive", "");
     vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); ++i) {
 	(*i)->keep_alive();
@@ -345,9 +348,8 @@ Database::keep_alive()
 string
 Database::get_description() const
 {
-    DEBUGCALL(INTRO, string, "Database::get_description", "");
     /// \todo display contents of the database
-    RETURN("Database()");
+    return "Database()";
 }
 
 // Word must have a trigram score at least this close to the best score seen
@@ -358,8 +360,8 @@ string
 Database::get_spelling_suggestion(const string &word,
 				  unsigned max_edit_distance) const
 {
-    DEBUGLINE(SPELLING, "Database::get_spelling_suggestion(" << word << ", " <<
-			max_edit_distance << ")");
+    DEBUGAPICALL(string, "Database::get_spelling_suggestion",
+		 word << ", " << max_edit_distance);
     AutoPtr<TermList> merger;
     for (size_t i = 0; i < internal.size(); ++i) {
 	TermList * tl = internal[i]->open_spelling_termlist(word);
@@ -372,7 +374,7 @@ Database::get_spelling_suggestion(const string &word,
 	    }
 	}
     }
-    if (!merger.get()) return string();
+    if (!merger.get()) RETURN(string());
 
     // Convert word to UTF-32.
     vector<unsigned> utf32_word;
@@ -425,7 +427,7 @@ Database::get_spelling_suggestion(const string &word,
 	    DEBUGLINE(SPELLING, "Edit distance " << edist);
 	    // If we have an exact match, return an empty string since there's
 	    // no correction required.
-	    if (edist == 0) return string();
+	    if (edist == 0) RETURN(string());
 
 	    if (edist <= edist_best) {
 		Xapian::doccount freq = 0;
@@ -444,8 +446,7 @@ Database::get_spelling_suggestion(const string &word,
 	    }
 	}
     }
-    DEBUGLINE(SPELLING, "Suggesting \"" << result << "\"");
-    return result;
+    RETURN(result);
 }
 
 TermIterator
@@ -509,6 +510,13 @@ Database::get_metadata(const string & key) const
     if (key.empty())
 	throw InvalidArgumentError("Empty metadata keys are invalid");
     RETURN(internal[0]->get_metadata(key));
+}
+
+Xapian::TermIterator
+Database::metadata_keys_begin(const std::string &prefix) const
+{
+    DEBUGAPICALL(Xapian::TermIterator, "Database::metadata_keys_begin", "");
+    RETURN(TermIterator(internal[0]->open_metadata_keylist(prefix)));
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -692,9 +700,8 @@ WritableDatabase::set_metadata(const string & key, const string & value)
 string
 WritableDatabase::get_description() const
 {
-    DEBUGCALL(INTRO, string, "WritableDatabase::get_description", "");
     /// \todo display contents of the writable database
-    RETURN("WritableDatabase()");
+    return "WritableDatabase()";
 }
 
 }

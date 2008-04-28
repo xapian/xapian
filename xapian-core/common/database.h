@@ -2,8 +2,8 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
- * Copyright 2006 Richard Boulton
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -43,6 +43,9 @@ class RemoteDatabase;
 
 typedef Xapian::TermIterator::Internal TermList;
 typedef Xapian::PositionIterator::Internal PositionList;
+
+// Used by flint and chert.
+const int XAPIAN_DB_READONLY = 0;
 
 namespace Xapian {
 
@@ -315,6 +318,16 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *  See Database::get_metadata() for more information.
 	 */
 	virtual string get_metadata(const string & key) const;
+
+	/** Open a termlist returning each metadata key.
+	 *
+	 *  Only metadata keys which are associated with a non-empty value will
+	 *  be returned.
+	 *
+	 *  @param prefix   If non-empty, only keys with this prefix are
+	 *		    returned.
+	 */
+	virtual TermList * open_metadata_keylist(const std::string &prefix) const;
 
 	/** Set the metadata associated with a given key.
 	 *

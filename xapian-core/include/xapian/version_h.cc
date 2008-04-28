@@ -6,7 +6,7 @@ const char * dummy = {
 "// If using GCC, also check the C++ ABI version is compatible with that used",
 "// to build the library.",
 "//",
-"// Copyright (C) 2002,2004,2005,2006,2007 Olly Betts",
+"// Copyright (C) 2002,2004,2005,2006,2007,2008 Olly Betts",
 "//",
 "// This program is free software; you can redistribute it and/or",
 "// modify it under the terms of the GNU General Public License as",
@@ -101,15 +101,15 @@ const char * dummy = {
 "#define XAPIAN_MINOR_VERSION ",MINOR_VERSION,
 "#define XAPIAN_REVISION ",REVISION,
 "",
+#ifdef XAPIAN_HAS_CHERT_BACKEND
+"#define XAPIAN_HAS_CHERT_BACKEND 1",
+#else
+"/* #undef XAPIAN_HAS_CHERT_BACKEND */",
+#endif
 #ifdef XAPIAN_HAS_FLINT_BACKEND
 "#define XAPIAN_HAS_FLINT_BACKEND 1",
 #else
 "/* #undef XAPIAN_HAS_FLINT_BACKEND */",
-#endif
-#ifdef XAPIAN_HAS_QUARTZ_BACKEND
-"#define XAPIAN_HAS_QUARTZ_BACKEND 1",
-#else
-"/* #undef XAPIAN_HAS_QUARTZ_BACKEND */",
 #endif
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
 "#define XAPIAN_HAS_INMEMORY_BACKEND 1",

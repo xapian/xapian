@@ -29,6 +29,13 @@ Retrieval, while others have a specific meaning in the context of Xapian.
  Boolean style query can filter the retrieved documents, which are then ordered
  using a probabilistic ranking.
 
+**Chert**
+ Chert is the current "under development" database format used in Xapian.  We
+ try to keep it as stable as flint - the main difference is that incompatible
+ changes may be made which will require you to reindex - flint databases are
+ compatible between Xapian releases.  At some point (probably 1.2.0) we'll
+ declare chert "stable" and make it the default, deprecating flint.
+
 **Database**
  In Xapian (as opposed to a relational database system) a database consists of
  little more than indexed documents: this reflects the purpose of Xapian as an

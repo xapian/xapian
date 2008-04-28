@@ -25,16 +25,15 @@
 
 #include "apitest.h"
 
-#include <stdlib.h>
-#include <iostream>
-#include <string>
-#include <vector>
-
 #include "api_all.h"
 #include "backendmanager.h"
 #include "testrunner.h"
 #include "testsuite.h"
+
 #include <xapian.h>
+
+#include <string>
+#include <vector>
 
 using namespace std;
 

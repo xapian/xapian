@@ -24,6 +24,7 @@
 #include "perftest.h"
 
 #include "backendmanager.h"
+#include "freemem.h"
 #include "omassert.h"
 #include "perftest_all.h"
 #include "testrunner.h"
@@ -73,7 +74,11 @@ PerfTestLogger::open(const string & logpath)
 	return false;
     }
 
-    write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<testrun>\n");
+    write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<testrun>\n"
+	  "<machineinfo>\n"
+	  "<physmem>" + om_tostring(get_total_physical_memory()) + "</physmem>\n"
+	  "</machineinfo>\n"
+	 );
 
     // FIXME - write details of the machine running the test (possibly the
     // output of uname, and some measurement of the memory available on the
@@ -86,6 +91,7 @@ void
 PerfTestLogger::write(const string & text)
 {
     out.write(text.data(), text.size());
+    out.flush();
 }
 
 void
@@ -107,6 +113,7 @@ PerfTestLogger::indexing_begin(const string & dbname)
     indexing_addcount = 0;
     indexing_unlogged_changes = false;
     indexing_timer = OmTime::now();
+    last_indexlog_timer = indexing_timer;
     indexing_started = true;
 }
 
@@ -116,10 +123,12 @@ PerfTestLogger::indexing_log()
     Assert(indexing_started);
     if (!indexing_unlogged_changes)
 	return;
-    OmTime elapsed(OmTime::now() - indexing_timer);
+    last_indexlog_timer = OmTime::now();
+    OmTime elapsed(last_indexlog_timer - indexing_timer);
     write("<item>"
 	  "<time>" + time_to_string(elapsed) + "</time>"
 	  "<adds>" + om_tostring(indexing_addcount) + "</adds>"
+	  "<freemem>" + om_tostring(get_free_physical_memory()) + "</freemem>"
 	  "</item>\n");
     indexing_unlogged_changes = false;
 }
@@ -139,8 +148,8 @@ PerfTestLogger::searching_start(const string & description)
 {
     indexing_end();
     searching_end();
-    write("<searchrun>\n");
-    write("<description>" + escape_xml(description) + "</description>\n");
+    write("<searchrun>\n"
+	  "<description>" + escape_xml(description) + "</description>\n");
     searching_started = true;
     search_start();
 }

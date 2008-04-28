@@ -1,7 +1,7 @@
 /* flint_postlist.cc: Postlists in a flint database
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2007,2008 Olly Betts
  * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -63,15 +63,15 @@ FlintPostListTable::get_collection_freq(const string & term) const
 // Or indexing speed.  Or something...
 const unsigned int CHUNKSIZE = 2000;
 
-/** PostlistChunkWriter is a wrapper which acts roughly as an
+/** FlintPostlistChunkWriter is a wrapper which acts roughly as an
  *  output iterator on a postlist chunk, taking care of the
  *  messy details.  It's intended to be used with deletion and
  *  replacing of entries, not for adding to the end, when it's
  *  not really needed.
  */
-class PostlistChunkWriter {
+class FlintPostlistChunkWriter {
     public:
-	PostlistChunkWriter(const string &orig_key_,
+	FlintPostlistChunkWriter(const string &orig_key_,
 			    bool is_first_chunk_,
 			    const string &tname_,
 			    bool is_last_chunk_);
@@ -128,7 +128,7 @@ static void report_read_error(const char * position)
 static inline bool get_tname_from_key(const char **src, const char *end,
 			       string &tname)
 {
-    return unpack_string_preserving_sort(src, end, tname);
+    return F_unpack_string_preserving_sort(src, end, tname);
 }
 
 static inline bool
@@ -175,7 +175,7 @@ read_start_of_first_chunk(const char ** posptr,
 
     Xapian::docid did;
     // Read the docid of the first entry in the posting list.
-    if (!unpack_uint(posptr, end, &did))
+    if (!F_unpack_uint(posptr, end, &did))
 	report_read_error(*posptr);
     ++did;
     DEBUGLINE(DB, "doc_id = " << did);
@@ -187,7 +187,7 @@ static inline void read_did_increase(const char ** posptr,
 			      Xapian::docid * did_ptr)
 {
     Xapian::docid did_increase;
-    if (!unpack_uint(posptr, end, &did_increase)) report_read_error(*posptr);
+    if (!F_unpack_uint(posptr, end, &did_increase)) report_read_error(*posptr);
     *did_ptr += did_increase + 1;
 }
 
@@ -197,8 +197,8 @@ static inline void read_wdf_and_length(const char ** posptr,
 				Xapian::termcount * wdf_ptr,
 				flint_doclen_t * doclength_ptr)
 {
-    if (!unpack_uint(posptr, end, wdf_ptr)) report_read_error(*posptr);
-    if (!unpack_uint(posptr, end, doclength_ptr)) report_read_error(*posptr);
+    if (!F_unpack_uint(posptr, end, wdf_ptr)) report_read_error(*posptr);
+    if (!F_unpack_uint(posptr, end, doclength_ptr)) report_read_error(*posptr);
 }
 
 /// Read the start of a chunk.
@@ -215,14 +215,14 @@ read_start_of_chunk(const char ** posptr,
 		     reinterpret_cast<const void*>(is_last_chunk_ptr));
 
     // Read whether this is the last chunk
-    if (!unpack_bool(posptr, end, is_last_chunk_ptr))
+    if (!F_unpack_bool(posptr, end, is_last_chunk_ptr))
 	report_read_error(*posptr);
     if (is_last_chunk_ptr)
 	DEBUGLINE(DB, "is_last_chunk = " << *is_last_chunk_ptr);
 
     // Read what the final document ID in this chunk is.
     Xapian::docid increase_to_last;
-    if (!unpack_uint(posptr, end, &increase_to_last))
+    if (!F_unpack_uint(posptr, end, &increase_to_last))
 	report_read_error(*posptr);
     ++increase_to_last;
     Xapian::docid last_did_in_chunk = first_did_in_chunk + increase_to_last;
@@ -232,7 +232,7 @@ read_start_of_chunk(const char ** posptr,
 
 static string make_wdf_and_length(Xapian::termcount wdf, flint_doclen_t doclength)
 {
-    return pack_uint(wdf) + pack_uint(doclength);
+    return F_pack_uint(wdf) + F_pack_uint(doclength);
 }
 
 static void write_start_of_chunk(string & chunk,
@@ -248,24 +248,24 @@ static void write_start_of_chunk(string & chunk,
 
     chunk.replace(start_of_chunk_header,
 		  end_of_chunk_header - start_of_chunk_header,
-		  pack_bool(is_last_chunk) + pack_uint(increase_to_last - 1));
+		  F_pack_bool(is_last_chunk) + F_pack_uint(increase_to_last - 1));
     // FIXME - storing increase_to_last - 1 is bogus as this value is
     // -1 when a postlist chunk has a single entry!  Luckily the code
     // works despite this, but it's ugly.
 }
 
-/** PostlistChunkReader is essentially an iterator wrapper
+/** FlintPostlistChunkReader is essentially an iterator wrapper
  *  around a postlist chunk.  It simply iterates through the
  *  entries in a postlist.
  */
-class PostlistChunkReader {
+class FlintPostlistChunkReader {
     public:
 	/** Initialise the postlist chunk reader.
 	 *
 	 *  @param first_did  First document id in this chunk.
 	 *  @param data       The tag string with the header removed.
 	 */
-	PostlistChunkReader(Xapian::docid first_did, const string & data_)
+	FlintPostlistChunkReader(Xapian::docid first_did, const string & data_)
 	    : data(data_), pos(data.data()), end(pos + data.length()), at_end(data.empty()), did(first_did)
 	{
 	    if (!at_end) read_wdf_and_length(&pos, end, &wdf, &doclength);
@@ -278,7 +278,7 @@ class PostlistChunkReader {
 	    return wdf;
 	}
 	flint_doclen_t get_doclength() const {
-	    DEBUGCALL(DB, flint_doclen_t, "PostlistChunkReader::get_doclength", "");
+	    DEBUGCALL(DB, flint_doclen_t, "FlintPostlistChunkReader::get_doclength", "");
 	    RETURN(doclength);
 	}
 
@@ -304,7 +304,7 @@ class PostlistChunkReader {
 };
 
 void
-PostlistChunkReader::next()
+FlintPostlistChunkReader::next()
 {
     if (pos == end) {
 	at_end = true;
@@ -314,7 +314,7 @@ PostlistChunkReader::next()
     }
 }
 
-PostlistChunkWriter::PostlistChunkWriter(const string &orig_key_,
+FlintPostlistChunkWriter::FlintPostlistChunkWriter(const string &orig_key_,
 					 bool is_first_chunk_,
 					 const string &tname_,
 					 bool is_last_chunk_)
@@ -323,13 +323,13 @@ PostlistChunkWriter::PostlistChunkWriter(const string &orig_key_,
 	  is_last_chunk(is_last_chunk_),
 	  started(false)
 {
-    DEBUGCALL(DB, void, "PostlistChunkWriter::PostlistChunkWriter",
+    DEBUGCALL(DB, void, "FlintPostlistChunkWriter::FlintPostlistChunkWriter",
 	      orig_key_ << ", " << is_first_chunk_ << ", " << tname_ << ", " <<
 	      is_last_chunk_);
 }
 
 void
-PostlistChunkWriter::append(FlintTable * table, Xapian::docid did,
+FlintPostlistChunkWriter::append(FlintTable * table, Xapian::docid did,
 			    Xapian::termcount wdf, flint_doclen_t doclen)
 {
     if (!started) {
@@ -348,7 +348,7 @@ PostlistChunkWriter::append(FlintTable * table, Xapian::docid did,
 	    chunk = "";
 	    orig_key = FlintPostListTable::make_key(tname, first_did);
 	} else {
-	    chunk.append(pack_uint(did - current_did - 1));
+	    chunk.append(F_pack_uint(did - current_did - 1));
 	}
     }
     current_did = did;
@@ -362,7 +362,7 @@ make_start_of_first_chunk(Xapian::termcount entries,
 			  Xapian::termcount collectionfreq,
 			  Xapian::docid new_did)
 {
-    return pack_uint(entries) + pack_uint(collectionfreq) + pack_uint(new_did - 1);
+    return F_pack_uint(entries) + F_pack_uint(collectionfreq) + F_pack_uint(new_did - 1);
 }
 
 /** Make the data to go at the start of a standard chunk.
@@ -373,14 +373,14 @@ make_start_of_chunk(bool new_is_last_chunk,
 		    Xapian::docid new_final_did)
 {
     Assert(new_final_did >= new_first_did);
-    return pack_bool(new_is_last_chunk) +
-	    pack_uint(new_final_did - new_first_did - 1);
+    return F_pack_bool(new_is_last_chunk) +
+	    F_pack_uint(new_final_did - new_first_did - 1);
 }
 
 void
-PostlistChunkWriter::flush(FlintTable *table)
+FlintPostlistChunkWriter::flush(FlintTable *table)
 {
-    DEBUGCALL(DB, void, "PostlistChunkWriter::flush", table);
+    DEBUGCALL(DB, void, "FlintPostlistChunkWriter::flush", table);
 
     /* This is one of the more messy parts involved with updating posting
      * list chunks.
@@ -399,10 +399,10 @@ PostlistChunkWriter::flush(FlintTable *table)
 	 * If this was the first chunk, then the next chunk must
 	 * be transformed into the first chunk.  Messy!
 	 */
-	DEBUGLINE(DB, "PostlistChunkWriter::flush(): deleting chunk");
+	DEBUGLINE(DB, "FlintPostlistChunkWriter::flush(): deleting chunk");
 	Assert(!orig_key.empty());
 	if (is_first_chunk) {
-	    DEBUGLINE(DB, "PostlistChunkWriter::flush(): deleting first chunk");
+	    DEBUGLINE(DB, "FlintPostlistChunkWriter::flush(): deleting first chunk");
 	    if (is_last_chunk) {
 		/* This is the first and the last chunk, ie the only
 		 * chunk, so just delete the tag.
@@ -447,7 +447,7 @@ PostlistChunkWriter::flush(FlintTable *table)
 
 	    // Read the new first docid
 	    Xapian::docid new_first_did;
-	    if (!unpack_uint_preserving_sort(&kpos, kend,
+	    if (!F_unpack_uint_preserving_sort(&kpos, kend,
 					     &new_first_did)) {
 		report_read_error(kpos);
 	    }
@@ -478,7 +478,7 @@ PostlistChunkWriter::flush(FlintTable *table)
 	    return;
 	}
 
-	DEBUGLINE(DB, "PostlistChunkWriter::flush(): deleting secondary chunk");
+	DEBUGLINE(DB, "FlintPostlistChunkWriter::flush(): deleting secondary chunk");
 	/* This isn't the first chunk.  Check whether we're the last
 	 * chunk.
 	 */
@@ -487,7 +487,7 @@ PostlistChunkWriter::flush(FlintTable *table)
 	table->del(orig_key);
 
 	if (is_last_chunk) {
-	    DEBUGLINE(DB, "PostlistChunkWriter::flush(): deleting secondary last chunk");
+	    DEBUGLINE(DB, "FlintPostlistChunkWriter::flush(): deleting secondary last chunk");
 	    // Update the previous chunk's is_last_chunk flag.
 	    AutoPtr<FlintCursor> cursor(table->cursor_get());
 
@@ -518,7 +518,7 @@ PostlistChunkWriter::flush(FlintTable *table)
 		first_did_in_chunk = read_start_of_first_chunk(&tagpos, tagend,
 					  0, 0);
 	    } else {
-		if (!unpack_uint_preserving_sort(&keypos, keyend,
+		if (!F_unpack_uint_preserving_sort(&keypos, keyend,
 						 &first_did_in_chunk))
 		    report_read_error(keypos);
 	    }
@@ -539,7 +539,7 @@ PostlistChunkWriter::flush(FlintTable *table)
 	    table->add(cursor->current_key, tag);
 	}
     } else {
-	DEBUGLINE(DB, "PostlistChunkWriter::flush(): updating chunk which still has items in it");
+	DEBUGLINE(DB, "FlintPostlistChunkWriter::flush(): updating chunk which still has items in it");
 	/* The chunk still has some items in it.  Two major subcases:
 	 * a) This is the first chunk.
 	 * b) This isn't the first chunk.
@@ -555,7 +555,7 @@ PostlistChunkWriter::flush(FlintTable *table)
 	    /* The first chunk.  This is the relatively easy case,
 	     * and we just have to write this one back to disk.
 	     */
-	    DEBUGLINE(DB, "PostlistChunkWriter::flush(): rewriting the first chunk, which still has items in it");
+	    DEBUGLINE(DB, "FlintPostlistChunkWriter::flush(): rewriting the first chunk, which still has items in it");
 	    string key = FlintPostListTable::make_key(tname);
 	    bool ok = table->get_exact_entry(key, tag);
 	    (void)ok;
@@ -578,7 +578,7 @@ PostlistChunkWriter::flush(FlintTable *table)
 	    return;
 	}
 
-	DEBUGLINE(DB, "PostlistChunkWriter::flush(): updating secondary chunk which still has items in it");
+	DEBUGLINE(DB, "FlintPostlistChunkWriter::flush(): updating secondary chunk which still has items in it");
 	/* Not the first chunk.
 	 *
 	 * This has the easy sub-sub-case:
@@ -596,7 +596,7 @@ PostlistChunkWriter::flush(FlintTable *table)
 	    throw Xapian::DatabaseCorruptError("Have invalid key writing to postlist");
 	}
 	Xapian::docid initial_did;
-	if (!unpack_uint_preserving_sort(&keypos, keyend, &initial_did)) {
+	if (!F_unpack_uint_preserving_sort(&keypos, keyend, &initial_did)) {
 	    report_read_error(keypos);
 	}
 	string new_key;
@@ -628,9 +628,9 @@ void FlintPostList::read_number_of_entries(const char ** posptr,
 				   Xapian::doccount * number_of_entries_ptr,
 				   Xapian::termcount * collection_freq_ptr)
 {
-    if (!unpack_uint(posptr, end, number_of_entries_ptr))
+    if (!F_unpack_uint(posptr, end, number_of_entries_ptr))
 	report_read_error(*posptr);
-    if (!unpack_uint(posptr, end, collection_freq_ptr))
+    if (!F_unpack_uint(posptr, end, collection_freq_ptr))
 	report_read_error(*posptr);
 }
 
@@ -660,7 +660,7 @@ FlintPostList::FlintPostList(Xapian::Internal::RefCntPtr<const FlintDatabase> th
 	  cursor(this_db->postlist_table.cursor_get()),
 	  is_at_end(false)
 {
-    DEBUGCALL(DB, void, "FlintPostList::ostList",
+    DEBUGCALL(DB, void, "FlintPostList::FlintPostList",
 	      this_db_.get() << ", " << tname_);
     string key = FlintPostListTable::make_key(tname);
     int found = cursor->find_entry(key);
@@ -731,7 +731,7 @@ FlintPostList::next_chunk()
     }
 
     Xapian::docid newdid;
-    if (!unpack_uint_preserving_sort(&keypos, keyend, &newdid)) {
+    if (!F_unpack_uint_preserving_sort(&keypos, keyend, &newdid)) {
 	report_read_error(keypos);
     }
     if (newdid <= did) {
@@ -832,7 +832,7 @@ FlintPostList::move_to_chunk_containing(Xapian::docid desired_did)
 #endif
     } else {
 	// In normal chunk
-	if (!unpack_uint_preserving_sort(&keypos, keyend, &did)) {
+	if (!F_unpack_uint_preserving_sort(&keypos, keyend, &did)) {
 	    report_read_error(keypos);
 	}
     }
@@ -912,7 +912,7 @@ FlintPostList::get_description() const
 Xapian::docid
 FlintPostListTable::get_chunk(const string &tname,
 	  Xapian::docid did, bool adding,
-	  PostlistChunkReader ** from, PostlistChunkWriter **to)
+	  FlintPostlistChunkReader ** from, FlintPostlistChunkWriter **to)
 {
     // Get chunk containing entry
     string key = make_key(tname, did);
@@ -932,7 +932,7 @@ FlintPostListTable::get_chunk(const string &tname,
 	    throw Xapian::DatabaseCorruptError("Attempted to delete or modify an entry in a non-existent posting list for " + tname);
 
 	*from = NULL;
-	*to = new PostlistChunkWriter("", true, tname, true);
+	*to = new FlintPostlistChunkWriter("", true, tname, true);
 	return Xapian::docid(-1);
     }
 
@@ -947,7 +947,7 @@ FlintPostListTable::get_chunk(const string &tname,
     if (is_first_chunk) {
 	first_did_in_chunk = read_start_of_first_chunk(&pos, end, NULL, NULL);
     } else {
-	if (!unpack_uint_preserving_sort(&keypos, keyend,
+	if (!F_unpack_uint_preserving_sort(&keypos, keyend,
 					 &first_did_in_chunk)) {
 	    report_read_error(keypos);
 	}
@@ -956,7 +956,7 @@ FlintPostListTable::get_chunk(const string &tname,
     bool is_last_chunk;
     Xapian::docid last_did_in_chunk;
     last_did_in_chunk = read_start_of_chunk(&pos, end, first_did_in_chunk, &is_last_chunk);
-    *to = new PostlistChunkWriter(cursor->current_key, is_first_chunk, tname,
+    *to = new FlintPostlistChunkWriter(cursor->current_key, is_first_chunk, tname,
 				  is_last_chunk);
     if (did > last_did_in_chunk) {
 	// This is the shortcut.  Not very pretty, but I'll leave refactoring
@@ -966,7 +966,7 @@ FlintPostListTable::get_chunk(const string &tname,
 	(*to)->raw_append(first_did_in_chunk, last_did_in_chunk,
 			  string(pos, end)); 
     } else {
-	*from = new PostlistChunkReader(first_did_in_chunk, string(pos, end));
+	*from = new FlintPostlistChunkReader(first_did_in_chunk, string(pos, end));
     }
     if (is_last_chunk) return Xapian::docid(-1);
 
@@ -983,7 +983,7 @@ FlintPostListTable::get_chunk(const string &tname,
 
     // Read the new first docid
     Xapian::docid first_did_of_next_chunk;
-    if (!unpack_uint_preserving_sort(&kpos, kend, &first_did_of_next_chunk)) {
+    if (!F_unpack_uint_preserving_sort(&kpos, kend, &first_did_of_next_chunk)) {
 	report_read_error(kpos);
     }
     return first_did_of_next_chunk - 1;
@@ -1067,8 +1067,8 @@ FlintPostListTable::merge_changes(
 	Assert(j != i->second.end()); // This case is caught above.
 
 	Xapian::docid max_did;
-	PostlistChunkReader *from;
-	PostlistChunkWriter *to;
+	FlintPostlistChunkReader *from;
+	FlintPostlistChunkWriter *to;
 	max_did = get_chunk(tname, j->first, j->second.first == 'A',
 			    &from, &to);
 	for ( ; j != i->second.end(); ++j) {

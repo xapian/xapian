@@ -161,6 +161,12 @@ Query::Query(Query::op op_, Xapian::valueno valno, const std::string &value)
 		 op_ << ", " << valno << ", " << value);
 }
 
+Query::Query(PostingSource * external_source)
+	: internal(new Query::Internal(external_source))
+{
+    DEBUGAPICALL(void, "Xapian::Query::Query", external_source);
+}
+
 // Copy constructor
 Query::Query(const Query & copyme)
 	: internal(copyme.internal)
@@ -192,11 +198,10 @@ Query::~Query()
 std::string
 Query::get_description() const
 {
-    DEBUGCALL(INTRO, std::string, "Xapian::Query::get_description", "");
     std::string res("Xapian::Query(");
     if (internal.get()) res += internal->get_description();
     res += ")";
-    RETURN(res);
+    return res;
 }
 
 termcount Query::get_length() const
@@ -234,7 +239,7 @@ Query::Query(Query::op op_, const std::string & left, const std::string & right)
 }
 
 /* Define static members. */
-Xapian::Query Xapian::Query::MatchAll = Xapian::Query("");
+Xapian::Query Xapian::Query::MatchAll = Xapian::Query(string());
 Xapian::Query Xapian::Query::MatchNothing = Xapian::Query();
 
 }

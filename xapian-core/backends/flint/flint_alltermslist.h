@@ -1,6 +1,6 @@
 /* flint_alltermslist.h: A termlist containing all terms in a flint database.
  *
- * Copyright (C) 2005,2007 Olly Betts
+ * Copyright (C) 2005,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -90,7 +90,7 @@ class FlintAllTermsList : public AllTermsList {
 	if (prefix.empty()) {
 	    cursor->find_entry_lt(string("\x00\xff", 2));
 	} else {
-	    cursor->find_entry_lt(pack_string_preserving_sort(prefix));
+	    cursor->find_entry_lt(F_pack_string_preserving_sort(prefix));
 	}
     }
 

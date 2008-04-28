@@ -27,7 +27,7 @@ extra_cleandirs =
 
 .PHONY: check-none check-inmemory check-multi \
         check-remote check-remoteprog check-remotetcp \
-        check-flint
+        check-chert check-flint check-perftest
 
 check-none:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-none
@@ -45,6 +45,11 @@ check-remoteprog:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remoteprog
 check-remotetcp:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remotetcp
+endif
+
+if BUILD_BACKEND_CHERT
+check-chert:
+	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-chert
 endif
 
 if BUILD_BACKEND_FLINT

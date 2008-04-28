@@ -26,18 +26,17 @@
 #include <xapian/error.h>
 #include <xapian/visibility.h>
 
-#include <algorithm>
-#include <string>
-using std::string;
-
 #include "flint_types.h"
 #include "flint_btreebase.h"
-#include "flint_btreeutil.h"
 #include "flint_cursor.h"
-#include "noreturn.h"
 
+#include "noreturn.h"
 #include "stringutils.h"
+#include "unaligned.h"
 #include "utils.h"
+
+#include <algorithm>
+#include <string>
 
 #include <zlib.h>
 
@@ -98,7 +97,7 @@ class XAPIAN_VISIBILITY_DEFAULT Key_ {
 public:
     explicit Key_(const byte * p_) : p(p_) { }
     const byte * get_address() const { return p; }
-    void read(string * key) const {
+    void read(std::string * key) const {
 	key->assign(reinterpret_cast<const char *>(p + K1), length());
     }
     bool operator==(Key_ key2) const;
@@ -134,7 +133,7 @@ public:
 	return getint2(p, getK(p, I2) + I2);
     }
     Key_ key() const { return Key_(p + I2); }
-    void append_chunk(string * tag) const {
+    void append_chunk(std::string * tag) const {
 	/* number of bytes to extract from current component */
 	int cd = getK(p, I2) + I2 + C2;
 	int l = size() - cd;
@@ -201,13 +200,13 @@ public:
 	set_key_len(K1);        /* null key */
 	set_size(I2 + K1 + 4);  /* total length */
     }
-    void form_key(const string & key_) {
-	string::size_type key_len = key_.length();
+    void form_key(const std::string & key_) {
+	std::string::size_type key_len = key_.length();
 	if (key_len > FLINT_BTREE_MAX_KEY_LEN) {
 	    // We check term length when a term is added to a document but
 	    // flint doubles zero bytes, so this can still happen for terms
 	    // which contain one or more zero bytes.
-	    string msg("Key too long: length was ");
+	    std::string msg("Key too long: length was ");
 	    msg += om_tostring(key_len);
 	    msg += " bytes, maximum length of a key is "
 		   STRINGIZE(FLINT_BTREE_MAX_KEY_LEN) " bytes";
@@ -267,7 +266,7 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
         FlintTable & operator=(const FlintTable &);
 
 	/// The name of the table (used when writing changesets).
-	string tablename;
+	std::string tablename;
 
     public:
 	/** Create a new Btree object.
@@ -286,7 +285,7 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	 *  @param lazy		If true, don't create the table until it's
 	 *			needed.
 	 */
-	FlintTable(string tablename_, string path_, bool readonly_,
+	FlintTable(std::string tablename_, std::string path_, bool readonly_,
 		   int compress_strategy_ = DONT_COMPRESS, bool lazy = false);
 
 	/** Close the Btree.
@@ -354,11 +353,11 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	 *          get_latest_revision_number()), or an exception will be
 	 *          thrown.
 	 *
-	 *  @param changes_fd  The file descriptor to write changes to.  If -1,
-	 *          no changes will be written.
+	 *  @param changes_fd  The file descriptor to write changes to.
+	 *	    Defaults to -1, meaning no changes will be written.
 	 */
-	void commit(flint_revision_number_t revision, int changes_fd,
-		    const string * changes_tail = NULL);
+	void commit(flint_revision_number_t revision, int changes_fd = -1,
+		    const std::string * changes_tail = NULL);
 
 	/** Append the list of blocks changed to a changeset file.
 	 *
@@ -386,7 +385,7 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	 *  @return true if key is found in table,
 	 *          false if key is not found in table.
 	 */
-	bool get_exact_entry(const string & key, string & tag) const;
+	bool get_exact_entry(const std::string & key, std::string & tag) const;
 
 	/** Check if a key exists in the Btree.
 	 *
@@ -399,7 +398,7 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	 *  @return true if key is found in table,
 	 *          false if key is not found in table.
 	 */
-	bool key_exists(const string &key) const;
+	bool key_exists(const std::string &key) const;
 
 	/** Find a key in the Btree and read its tag.
 	 *
@@ -410,10 +409,10 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	 *
 	 *  e.g.
 	 *
-	 *    string t;
+	 *    std::string t;
 	 *    btree.find_tag("TODAY", &t); // get today's date
 	 */
-	bool find_tag(const string &key, string * tag) const;
+	bool find_tag(const std::string &key, std::string * tag) const;
 
 	/** Read the tag value for the key pointed to by cursor C_.
 	 *
@@ -423,7 +422,7 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	 *  @return	true if current_tag holds compressed data (always
 	 *		false if keep_compressed was false).
 	 */
-	bool read_tag(Cursor_ * C_, string *tag, bool keep_compressed) const;
+	bool read_tag(Cursor_ * C_, std::string *tag, bool keep_compressed) const;
 
 	/** Add a key/tag pair to the table, replacing any existing pair with
 	 *  the same key.
@@ -446,7 +445,7 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	 *  @return true if the operation completed successfully, false
 	 *          otherwise.
 	 */
-	bool add(const string &key, string tag, bool already_compressed = false);
+	bool add(const std::string &key, std::string tag, bool already_compressed = false);
 
 	/** Delete an entry from the table.
 	 *
@@ -465,7 +464,7 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	 *  @return true if the operation completed successfully, false
 	 *          otherwise.
 	 */
-	bool del(const string &key);
+	bool del(const std::string &key);
 
 	/// Erase this table from disk.
 	void erase();
@@ -601,7 +600,7 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	int add_kt(bool found);
 	void read_root();
 	void split_root(uint4 split_n);
-	void form_key(const string & key) const;
+	void form_key(const std::string & key) const;
 
 	/** revision number of the opened B-tree. */
 	flint_revision_number_t revision_number;
@@ -659,7 +658,7 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	char other_base_letter;
 
 	/// The path name of the B tree.
-	string name;
+	std::string name;
 
 	/** count of the number of successive instances of purely
 	 * sequential addition, starting at SEQ_START_POINT (neg) and

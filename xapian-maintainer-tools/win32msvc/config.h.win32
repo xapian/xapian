@@ -178,3 +178,11 @@
 /* Undefine rare() as we don't have this in MSVC (See the section "Branch Prediction Hints" in xapian-core/HACKING) */
 #define rare 
 
+/* Define sizes of types as this isn't done by Windows */
+
+/* The number of bytes in a int.  */
+#define SIZEOF_INT 4
+
+/* The number of bytes in a long.  */
+#define SIZEOF_LONG 4
+

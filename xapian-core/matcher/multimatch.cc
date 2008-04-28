@@ -276,7 +276,7 @@ MultiMatch::getorrecalc_maxweight(PostList *pl)
 	recalculate_w_max = false;
     } else {
 	wt = pl->get_maxweight();
-	AssertParanoid(fabs(wt - pl->recalc_maxweight()) < 1e-9);
+	AssertEqDoubleParanoid(wt, pl->recalc_maxweight());
     }
     DEBUGLINE(MATCH, "max possible doc weight = " << wt);
     RETURN(wt);

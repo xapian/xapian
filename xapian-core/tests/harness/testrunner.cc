@@ -2,6 +2,7 @@
  *  \brief Run multiple tests for different backends.
  */
 /* Copyright 2008 Lemur Consulting Ltd
+ * Copyright 2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,6 +26,7 @@
 
 #include "testsuite.h"
 #include "backendmanager.h"
+#include "backendmanager_chert.h"
 #include "backendmanager_flint.h"
 #include "backendmanager_inmemory.h"
 #include "backendmanager_multi.h"
@@ -36,7 +38,6 @@
 
 using namespace std;
 
-class BackendManager;
 BackendManager * backendmanager;
 
 /** A description of the properties which a particular backend supports.
@@ -51,6 +52,8 @@ struct BackendProperties {
 static BackendProperties backend_properties[] = {
     { "none", "" },
     { "inmemory", "backend,positional,writable" },
+    { "chert", "backend,transactions,positional,writable,spelling,metadata,"
+	       "chert" }, // FIXME: sort out replicas
     { "flint", "backend,transactions,positional,writable,spelling,metadata,"
 	       "replicas,flint" },
     { "multi", "backend,positional,multi" },
@@ -73,12 +76,12 @@ TestRunner::set_properties(const string & properties)
     metadata = false;
     replicas = false;
     flint = false;
+    chert = false;
 
     // Read the properties specified in the string
     string::size_type pos = 0;
     string::size_type comma = 0;
-    while (pos != string::npos)
-    {
+    while (pos != string::npos) {
 	comma = properties.find(',', pos + 1);
 	string propname = properties.substr(pos, comma - pos);
 
@@ -104,6 +107,8 @@ TestRunner::set_properties(const string & properties)
 	    replicas = true;
 	else if (propname == "flint")
 	    flint = true;
+	else if (propname == "chert")
+	    chert = true;
 	else
 	    throw Xapian::InvalidArgumentError("Unknown property '" + propname + "' found in proplist");
 
@@ -158,8 +163,15 @@ TestRunner::run_tests(int argc, char ** argv)
 	DO_TESTS_FOR_BACKEND("inmemory", BackendManagerInMemory);
 #endif
 
+#ifdef XAPIAN_HAS_CHERT_BACKEND
+	DO_TESTS_FOR_BACKEND("chert", BackendManagerChert);
+#endif
+
 #ifdef XAPIAN_HAS_FLINT_BACKEND
 	DO_TESTS_FOR_BACKEND("flint", BackendManagerFlint);
+#endif
+
+#if defined XAPIAN_HAS_FLINT_BACKEND || defined XAPIAN_HAS_CHERT_BACKEND
 	DO_TESTS_FOR_BACKEND("multi", BackendManagerMulti);
 #endif
 
@@ -168,7 +180,7 @@ TestRunner::run_tests(int argc, char ** argv)
 	DO_TESTS_FOR_BACKEND("remotetcp", BackendManagerRemoteTcp);
 #endif
     } catch (const Xapian::Error &e) {
-	cerr << "\nTest harness failed with " << e.get_description() << "\n";
+	cerr << "\nTest harness failed with " << e.get_description() << endl;
 	return false;
     }
     return result;

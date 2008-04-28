@@ -29,8 +29,12 @@ Xapian.
 	we haven't yet performed timings to measure the overhead...)
 
 --enable-log
-	This enables compiling into the system of code to generate verbose
+        This enables compiling code into the library which generates verbose
 	debugging messages.  See "Debugging Messages", below.
+
+--enable-log=profile
+        This enables compiling code into the library which reports to stderr
+        how long each method takes to execute.
 
 --enable-maintainer-mode
 	This tells configure to enable make dependencies for regenerating build
@@ -109,9 +113,9 @@ Running test programs
 
 To run all tests, use ``make check``.  You can also run just the subset of
 tests which exercise the inmemory, remote progserver, remote TCP,
-multi-database, or flint backends using ``make check-inmemory``, ``make
-check-remoteprog``, ``make check-remotetcp``, ``make check-multi``, or
-``make check-flint`` respectively.
+multi-database, chert, or flint backends using ``make check-inmemory``, ``make
+check-remoteprog``, ``make check-remotetcp``, ``make check-multi``, ``make
+check-chert``, or ``make check-flint`` respectively.
 
 Also, ``make check-remote`` will run the tests on both variants of the remote
 backend, and ``make check-none`` will run those tests which don't use any
@@ -366,24 +370,28 @@ Use of C++ Features:
     2.95.3 includes a backported version.  We aren't aware of any other
     compilers still in use which lack it.
 
-  * Non-".h" versions of C++ headers.  We assume that <iostream> is available
-    and that we don't ever have to use <iostream.h> instead.
+  * Non-".h" versions of standard ISO C++ headers (e.g. ``#include <list>``
+    rather than ``#include <list.h>``).  We aren't aware of any compiler still
+    in use which lacks these, and GCC 4.3 no longer has the old versions.  If
+    there are any, we could add a directory full of forwarding headers to work
+    around this issue.
 
 * RTTI (dynamic_cast<>, typeid, etc):  Needing to use RTTI features in the
   library most likely indicates a design flaw, and you should avoid use
   of these features.  Where necessary, you can use a technique similar to
   Database::as_networkdatabase() to replace dynamic_cast<>.
 
-* Exceptions:  In hindsight, throwing exceptions in the library seems to have
+* Exceptions: In hindsight, throwing exceptions in the library seems to have
   been a poor design decision.  GCC on Solaris can't cope with exceptions in
-  shared libraries, and we've also had test failures on other platforms which
-  only occur with shared libraries - possibly with a similar cause.  Exceptions
-  can also be a pain to handle elegantly in the bindings.  We intend to
-  investigate modifying the library to return error codes internally, and then
-  offering the user the choice of exception throwing or error code returning
-  API methods (with the exception being thrown by an inlined wrapper in the
-  externally visible header files).  With this in mind, please don't complicate
-  the internal handling of exceptions...
+  shared libraries (though it appears this may have been fixed in more recent
+  versions), and we've also had test failures on other platforms which only
+  occur with shared libraries - possibly with a similar cause.  Exceptions can
+  also be a pain to handle elegantly in the bindings.  We intend to investigate
+  modifying the library to return error codes internally, and then offering the
+  user the choice of exception throwing or error code returning API methods
+  (with the exception being thrown by an inlined wrapper in the externally
+  visible header files).  With this in mind, please don't complicate the
+  internal handling of exceptions...
 
 * "using namespace std;" and "using std::XXX;" - it's OK to use these in
   applications, library code, and internal library headers.  But in externally
@@ -576,8 +584,8 @@ isn't (e.g. the --disable-backend-XXX options we already have are dubious,
 though being able to disable the remote backend can be useful when trying to
 get Xapian going on a platform).
 
-Makefile Portability:
-=====================
+Makefile Portability
+====================
 
 We don't want to force those building Xapian from the source distribution to
 have to use GNU make.  Requiring GNU make for "make dist" isn't such a problem
@@ -727,6 +735,19 @@ Here's an incomplete list of things to avoid:
   scripts have been checked (and fixed if required) as of 2003-07-10 (didn't
   check xapian-bindings).
 
+* Another robustness point - if you add a non-file target to a makefile, you
+  should also list it in ".PHONY".  Otherwise your target won't get remade
+  reliably if someone creates a file with the same name in their tree.  For
+  example:
+
+  .PHONY: hello goodbye
+
+  hello:
+        echo hello
+
+  goodbye:
+        echo goodbye
+
 And lastly a style point - using "@" to suppress echoing of commands being
 executed removes choice from the user - they may want to see what commands
 are being executed.  And if they don't want to, many versions of make support
@@ -735,6 +756,21 @@ the use "make -s" to suppress the echoing of commands.
 Using @echo on a message sent to stdout or stderr is acceptable (since it
 avoids showing the message twice).  Otherwise don't use "@" - it makes it
 harder to track down problems in the makefiles.
+
+Naming of Scripts
+=================
+
+Scripts generally should *not* have an extension indicating the language they
+are currently implemented in (e.g. ``runtest`` rather than ``runtest.sh`` or
+``runtest.pl``).  The problem with such an extension is that if we decide
+to reimplement the script in a different language, we either have to rename
+the script (which is annoying as people will be used to the name, and may
+have embedded it in their own scripts), or we have a script with a confusing
+name (e.g. a Python script with extension ``.pl``).
+
+The above reasoning doesn't apply to scripts which have to be in a particular
+language for some reason, though for consistency they probably shouldn't get
+an extension either, unless there's a good reason to have one.
 
 Use of Assert
 =============
@@ -923,7 +959,7 @@ to follow the style of the existing code.  In particular:
 
 * For standard ISO C++ headers, *always* use the ISO C++ form '#include <list>'
   (pre-ISO compilers used '#include <list.h>', but GCC has generated a warning
-  for this form for years).
+  for this form for years, and GCC 4.3 dropped support entirely).
 
 * When passing an empty string to a method expecting ``const std::string &``
   prefer ``std::string()`` to ``""`` or ``std::string("")`` as the first form

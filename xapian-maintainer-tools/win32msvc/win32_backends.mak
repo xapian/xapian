@@ -12,11 +12,10 @@ OUTDIR=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 INTDIR=.\
 
 DEPLIBS = "$(OUTDIR)\libmulti.lib"  \
-	  "$(OUTDIR)\libinmemory.lib" \
-          "$(OUTDIR)\libquartz.lib" \
-          "$(OUTDIR)\libremote.lib" \
-          "$(OUTDIR)\libflint.lib" \
-          $(NULL)
+    "$(OUTDIR)\libinmemory.lib" \
+    "$(OUTDIR)\libremote.lib" \
+    "$(OUTDIR)\libflint.lib" \
+    $(NULL)
 
 OBJS= $(INTDIR)\database.obj $(INTDIR)\dbfactory_remote.obj $(INTDIR)\alltermslist.obj 
 SRCS= $(INTDIR)\database.cc $(INTDIR)\dbfactory_remote.cc $(INTDIR)\alltermslist.cc 
@@ -28,9 +27,7 @@ CLEAN :
 	-@erase "$(INTDIR)\*.pch"
 	-@erase "$(INTDIR)\*.pdb"
 	-@erase $(OBJS)
-	cd quartz
-	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
-	cd ..\flint
+	cd flint
 	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
 	cd ..\inmemory
 	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
@@ -55,11 +52,6 @@ CPP_SBRS=.
     $(LIB32) @<<
   $(LIB32_FLAGS) /out:"$(OUTDIR)\libbackend.lib" $(DEF_FLAGS) $(OBJS)
 <<
-
-"$(OUTDIR)\libquartz.lib":
-       cd quartz
-       nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
-       cd ..
 
 "$(OUTDIR)\libflint.lib":
        cd flint

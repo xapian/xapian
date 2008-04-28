@@ -23,6 +23,8 @@
 
 #include <config.h>
 
+#include "flint_table.h"
+
 #include <xapian/error.h>
 
 #include "safeerrno.h"
@@ -60,20 +62,18 @@ PREAD_PROTOTYPE
 PWRITE_PROTOTYPE
 #endif
 
-#include <stdio.h>
+#include <stdio.h>    /* for rename */
 #include <string.h>   /* for memmove */
 #include <limits.h>   /* for CHAR_BIT */
 
 #include "flint_io.h"
-#include "flint_table.h"
-#include "flint_btreeutil.h"
 #include "flint_btreebase.h"
 #include "flint_cursor.h"
 #include "flint_utils.h"
 
 #include "omassert.h"
 #include "omdebug.h"
-#include <xapian/error.h>
+#include "unaligned.h"
 #include "utils.h"
 
 #include <algorithm>  // for std::min()
@@ -1253,7 +1253,9 @@ FlintTable::read_tag(Cursor_ * C_, string *tag, bool keep_compressed) const
     bool compressed = item.get_compressed();
 
     for (int i = 2; i <= n; i++) {
-	next(C_, 0);
+	if (!next(C_, 0)) {
+	    throw Xapian::DatabaseCorruptError("Unexpected end of table when reading continuation of tag");
+	}
 	(void)Item_(C_[0].p, C_[0].c).append_chunk(tag);
     }
     // At this point the cursor is on the last item - calling next will move
@@ -1839,10 +1841,10 @@ FlintTable::write_changed_blocks(int changes_fd)
     if (faked_root_block) return;
 
     string buf;
-    buf += pack_uint(2u); // Indicate the item is a list of blocks
-    buf += pack_uint(tablename.size());
+    buf += F_pack_uint(2u); // Indicate the item is a list of blocks
+    buf += F_pack_uint(tablename.size());
     buf += tablename;
-    buf += pack_uint(block_size);
+    buf += F_pack_uint(block_size);
     flint_io_write(changes_fd, buf.data(), buf.size());
 
     // Compare the old and new bitmaps to find blocks which have changed, and
@@ -1852,7 +1854,7 @@ FlintTable::write_changed_blocks(int changes_fd)
     try {
 	base.calculate_last_block();
 	while (base.find_changed_block(&n)) {
-	    buf = pack_uint(n + 1);
+	    buf = F_pack_uint(n + 1);
 	    flint_io_write(changes_fd, buf.data(), buf.size());
 
 	    // Read block n.
@@ -1874,7 +1876,7 @@ FlintTable::write_changed_blocks(int changes_fd)
 	delete[] p;
 	throw;
     }
-    buf = pack_uint(0u);
+    buf = F_pack_uint(0u);
     flint_io_write(changes_fd, buf.data(), buf.size());
 }
 
@@ -2017,10 +2019,28 @@ FlintTable::prev_for_sequential(Cursor_ * C_, int /*dummy*/) const
 	while (true) {
 	    if (n == 0) return false;
 	    n--;
-	    // Check if the block is in the built-in cursor (potentially in
-	    // modified form).
-	    if (writable && n == C[0].n) {
-		memcpy(p, C[0].p, block_size);
+	    if (writable) {
+		if (n == C[0].n) {
+		    // Block is a leaf block in the built-in cursor
+		    // (potentially in modified form).
+		    memcpy(p, C[0].p, block_size);
+		} else {
+		    // Blocks in the built-in cursor may not have been written
+		    // to disk yet, so we have to check that the block number
+		    // isn't in the built-in cursor or we'll read an
+		    // uninitialised block (for which GET_LEVEL(p) will
+		    // probably return 0).
+		    int j;
+		    for (j = 1; j <= level; ++j) {
+			if (n == C[j].n) break;
+		    }
+		    if (j <= level) continue;
+
+		    // Block isn't in the built-in cursor, so the form on disk
+		    // is valid, so read it to check if it's the next level 0
+		    // block.
+		    read_block(n, p);
+		}
 	    } else {
 		read_block(n, p);
 	    }
@@ -2045,15 +2065,34 @@ FlintTable::next_for_sequential(Cursor_ * C_, int /*dummy*/) const
     Assert(p);
     int c = C_[0].c;
     c += D2;
+    Assert((unsigned)c < block_size);
     if (c == DIR_END(p)) {
 	uint4 n = C_[0].n;
 	while (true) {
 	    n++;
 	    if (n > base.get_last_block()) return false;
-	    // Check if the block is in the built-in cursor (potentially in
-	    // modified form).
-	    if (writable && n == C[0].n) {
-		memcpy(p, C[0].p, block_size);
+	    if (writable) {
+		if (n == C[0].n) {
+		    // Block is a leaf block in the built-in cursor
+		    // (potentially in modified form).
+		    memcpy(p, C[0].p, block_size);
+		} else {
+		    // Blocks in the built-in cursor may not have been written
+		    // to disk yet, so we have to check that the block number
+		    // isn't in the built-in cursor or we'll read an
+		    // uninitialised block (for which GET_LEVEL(p) will
+		    // probably return 0).
+		    int j;
+		    for (j = 1; j <= level; ++j) {
+			if (n == C[j].n) break;
+		    }
+		    if (j <= level) continue;
+
+		    // Block isn't in the built-in cursor, so the form on disk
+		    // is valid, so read it to check if it's the next level 0
+		    // block.
+		    read_block(n, p);
+		}
 	    } else {
 		read_block(n, p);
 	    }

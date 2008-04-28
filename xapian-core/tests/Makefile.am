@@ -13,7 +13,10 @@ TESTS_ENVIRONMENT = ./runtest
 
 .PHONY: check-none check-inmemory check-multi \
         check-remote check-remoteprog check-remotetcp \
-        check-flint
+        check-chert check-flint check-perf up
+
+up:
+	cd .. && $(MAKE)
 
 check-none: apitest$(EXEEXT) \
             internaltest$(EXEEXT) \
@@ -40,6 +43,11 @@ check-remoteprog: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remoteprog
 check-remotetcp: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp
+endif
+
+if BUILD_BACKEND_CHERT
+check-chert: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b chert
 endif
 
 if BUILD_BACKEND_FLINT
@@ -91,10 +99,11 @@ termgentest_SOURCES = termgentest.cc $(testharness_sources)
 termgentest_LDFLAGS = -no-install $(ldflags)
 termgentest_LDADD = ../libgetopt.la ../libxapian.la
 
-collated_perftest_sources = perftest_matchdecider.cc
+collated_perftest_sources = perftest_matchdecider.cc perftest_randomidx.cc
 
 perftest_SOURCES = perftest.cc $(collated_perftest_sources) \
- perftest_all.h perftest_collated.h $(testharness_sources)
+ perftest_all.h perftest_collated.h $(testharness_sources) \
+ freemem.cc freemem.h
 perftest_LDFLAGS = -no-install $(ldflags)
 perftest_LDADD = ../libgetopt.la ../libxapian.la
 

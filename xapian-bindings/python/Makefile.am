@@ -19,24 +19,24 @@ EXTRA_DIST = util.i extra.i extracomments.i except.i $(DOCCOMMENTS_I) \
 
 SUBDIRS = docs
 
-pylibdir = @PYTHON_LIB@
+pkgpylibdir = @PYTHON_LIB@/xapian
 
 # Install as _DATA rather than _SCRIPTS because we don't want to make these
 # executable (they don't have a #! line).
-pylib_DATA = xapian.py xapian.pyc xapian.pyo
+pkgpylib_DATA = xapian/__init__.py xapian/__init__.pyc xapian/__init__.pyo
 
-pylib_LTLIBRARIES = _xapian.la
+pkgpylib_LTLIBRARIES = _xapian.la
 
 # Remove the .la file - _xapian.la is never linked against (it's a module)
 # and Python doesn't use libltdl.  Note that the library gets installed by
 # install-data, so that's where we need to hook.
 install-data-hook:
-	rm -f $(DESTDIR)$(pylibdir)/_xapian.la
+	rm -f $(DESTDIR)$(pkgpylibdir)/_xapian.la
 
 # Because we don't install the .la file, "make uninstall" doesn't work and
 # we need to remove the file ourselves.
 uninstall-local:
-	rm -f $(DESTDIR)$(pylibdir)/_xapian$(PYTHON_SO)
+	rm -f $(DESTDIR)$(pkgpylibdir)/_xapian$(PYTHON_SO)
 
 AM_CPPFLAGS = -I$(PYTHON_INC)
 AM_CXXFLAGS = $(SWIG_CXXFLAGS) $(XAPIAN_CXXFLAGS)
@@ -49,24 +49,33 @@ _xapian_la_LIBADD = $(XAPIAN_LIBS) $(PYTHON_LIBS)
 # However, $(srcdir) might be shared between builds for different python
 # versions so we can't let the .pyc and .pyo files get written there.  Hence we
 # copy the .py file to the build directory from wherever it actually is and use
-# the copy.
-xapian.py: modern/xapian.py
-	cp `test -f modern/xapian.py || echo '$(srcdir)/'`modern/xapian.py .
+# the copy.  We also rename the copy to __init__.py so that it can be installed
+# in a "xapian" directory and be treated as a package.
+xapian/__init__.py: modern/xapian.py
+	-test -d xapian || mkdir xapian
+	cp `test -f modern/xapian.py || echo '$(srcdir)/'`modern/xapian.py xapian/__init__.py
 
 # We "import _xapian" first so that if we fail to import the glue library
-# we don't generate a broken xapian.pyc or xapian.pyo.
-xapian.pyc: xapian.py _xapian$(PYTHON_SO)
-	PYTHONPATH=. $(PYTHON) -c "import _xapian;import xapian"
+# we don't generate a broken __init__.pyc or __init__.pyo.
+xapian/__init__.pyc: xapian/__init__.py xapian/_xapian$(PYTHON_SO)
+	PYTHONPATH=xapian $(PYTHON) -c "import _xapian"
+	PYTHONPATH=. $(PYTHON) -c "import xapian"
 
-xapian.pyo: xapian.py _xapian$(PYTHON_SO)
-	PYTHONPATH=. $(PYTHON) -O -c "import _xapian;import xapian"
+xapian/__init__.pyo: xapian/__init__.py xapian/_xapian$(PYTHON_SO)
+	PYTHONPATH=xapian $(PYTHON) -O -c "import _xapian"
+	PYTHONPATH=. $(PYTHON) -O -c "import xapian"
 
-_xapian$(PYTHON_SO): _xapian.la
+xapian/_xapian$(PYTHON_SO): _xapian.la
+	-test -d xapian || mkdir xapian
 	$(LIBTOOL) --config > libtoolconfig.tmp
-	. ./libtoolconfig.tmp; cp $$objdir/_xapian$(PYTHON_SO) .
+	. ./libtoolconfig.tmp; cp $$objdir/_xapian$(PYTHON_SO) xapian
 	rm -f libtoolconfig.tmp
 
-CLEANFILES = _xapian$(PYTHON_SO) xapian.py xapian.pyc xapian.pyo testsuite.pyc
+CLEANFILES = xapian/_xapian$(PYTHON_SO) xapian/__init__.py xapian/__init__.pyc xapian/__init__.pyo testsuite.pyc
+
+# Clean the xapian directory which we created, if it's empty
+clean-local:
+	-rmdir xapian
 
 if MAINTAINER_MODE
 # We need to explicitly set -outdir because on Windows, SWIG splits paths at

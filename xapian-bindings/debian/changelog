@@ -2,6 +2,12 @@
     version >= the version of xapian-bindings being packaged (which is
     sometimes slightly too conservative, but simple to implement without
     manual maintenance).  Closes: #462106
+  * debian/patch: Remove patch for installation of Ruby RDocs as it is already
+    in the upstream sources.
+  * debian/patch: Remove patch to fix "make check" for PHP4 as it is already
+    in the upstream sources.
+  * debian/python-xapian.install: The xapian packages are now generated in a
+    subdirectory, so update the paths accordingly, and include the .pth file.
 
 xapian-bindings (1.0.5-1) unstable; urgency=low
 

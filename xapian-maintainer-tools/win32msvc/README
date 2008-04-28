@@ -1,6 +1,6 @@
 README for Xapian/Visual C++ Tools
 ==================================
-2008-03-03
+2008-04-07 for Xapian 1.0.6
 
 Make files, some extra headers and associated tools for compiling Xapian on
 Win32 using the Microsoft Visual C++ compilers. This is particularly useful
@@ -19,7 +19,8 @@ www.lemurconsulting.com
 What works?
 ===========
 
-- The Python & PHP bindings
+- The Python, PHP & Java-Swig bindings (note that the Java-Swig bindings
+  are still rather alpha, and may be subject to significant API change).
 - The quartz binaries quartzcheck, quartzcompact, quartzdump
 - The xapian-compact binary
 - The Xapian example binaries
@@ -42,6 +43,12 @@ What doesn't work?
   folder (and the files in the folder) containing the database.  We do not
   expect this restriction to be lifted in future releases - equally, we do
   not expect it to cause serious problems.
+  
+- To get round the fact that MSVC doesn't do dependency checking correctly,
+we use an external program 'makedepend'. The implementation we have chosen 
+has various faults - it generates a lot of spurious warnings, for example, and
+may not work with long INCLUDE paths due to buffer overflows -
+but is better than nothing.
   
 
 TODOS
@@ -123,7 +130,7 @@ You will need:
 Visual C++ Express Edition available without cost from:
 http://msdn.microsoft.com/vstudio/express/visualc/default.aspx 
 
-In this case you'll also need the Platforms SDK:
+In this case you'll also need the Platform SDK:
 http://www.microsoft.com/msdownload/platformsdk/sdkupdate/
 which contains headers, libs and NMAKE. Make sure once you have installed this that you create LIB and INCLUDE environment variables to point to the appropriate Platform SDK folders, and that the path to the SDK's BIN folder is in your PATH.
 
@@ -133,12 +140,6 @@ which contains headers, libs and NMAKE. Make sure once you have installed this t
 http://www.zlib.net/zlib123-dll.zip
 and make sure the path to where you downloaded it matches the path in config.mak (ZLIB_DIR).
 
-- SWIG can be useful for recompiling the bindings, but this is done by the Xapian
-core maintainers, so you shouldn't need to do this unless you are building from the development sources, in which 
-case you'll have to use the version of SWIG in the Xapian repository. To build this follow the instructions at
-http://www.swig.org/Doc1.3/Windows.html#swig_exe
-(you'll need to install MinGW).
-
 - To compile the Python bindings you need Python from www.python.org. Make sure the paths to this are set correctly in config.mak.
 
 - To compile the PHP bindings you need:
@@ -146,6 +147,14 @@ http://www.swig.org/Doc1.3/Windows.html#swig_exe
   a. the PHP sources from www.php.net (we have used PHP 4.4.6 & 5.2.1). 
   b. the built sources from a Windows binary distribution
   c. to edit config.mak to use the correct paths to PHP and to select the right version of PHP to build.
+
+- SWIG is used for recompiling the bindings, but this is done by the Xapian core maintainers, so you shouldn't need to do this unless you are building from the development sources, in which case you'll have to use the version of SWIG in the Xapian repository. To build this follow the instructions at
+http://www.swig.org/Doc1.3/Windows.html#swig_exe
+(you'll need to install MinGW).
+To make sure the bindings are rebuilt use the following when building in the bindings folders:
+
+nmake SWIGBUILD=1 
+
 
 How do I compile it?
 ====================
@@ -180,6 +189,8 @@ To build the bindings (do steps 1-5 above first to make sure you have Xapian bui
    - to build and run the test suite
 11b) nmake 
    - to just build.
+11c) nmake SWIGBUILD=1 
+   - to build from the development sources using SWIG (see above)
 
 To build Omega (do steps 1-5 above first to make sure you have Xapian built):
 

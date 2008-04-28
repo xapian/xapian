@@ -1,7 +1,7 @@
 /* omvalueiterator.cc
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2007 Olly Betts
+ * Copyright 2003,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -79,8 +79,7 @@ ValueIterator::get_valueno() const
 std::string
 ValueIterator::get_description() const
 {
-    DEBUGCALL(INTRO, std::string, "ValueIterator::get_description", "");
-    RETURN("ValueIterator(" + om_tostring(index) + ")");
+    return "ValueIterator(" + om_tostring(index) + ")";
 }
 
 }

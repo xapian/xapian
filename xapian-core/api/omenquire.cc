@@ -108,15 +108,13 @@ RSet::contains(Xapian::docid did) const
 string
 RSet::get_description() const
 {
-    DEBUGCALL(INTRO, string, "RSet::get_description", "");
-    RETURN("RSet(" + internal->get_description() + ")");
+    return "RSet(" + internal->get_description() + ")";
 }
 
 string
 RSet::Internal::get_description() const
 {
-    DEBUGCALL(INTRO, string, "RSet::get_description", "");
-    string description;
+    string description("RSet::Internal(");
 
     set<Xapian::docid>::const_iterator i;
     for (i = items.begin(); i != items.end(); ++i) {
@@ -126,7 +124,7 @@ RSet::Internal::get_description() const
 
     description = "RSet(" + description + ")";
 
-    RETURN(description);
+    return description;
 }
 
 namespace Internal {
@@ -136,7 +134,6 @@ namespace Internal {
 string
 MSetItem::get_description() const
 {
-    DEBUGCALL(INTRO, string, "Xapian::MSetItem::get_description", "");
     string description;
 
     description = om_tostring(did) + ", " + om_tostring(wt) + ", " +
@@ -144,7 +141,7 @@ MSetItem::get_description() const
 
     description = "Xapian::MSetItem(" + description + ")";
 
-    RETURN(description);
+    return description;
 }
 
 }
@@ -222,11 +219,13 @@ MSet::get_termfreq(const string &tname) const
     map<string, Internal::TermFreqAndWeight>::const_iterator i;
     Assert(internal.get() != 0);
     i = internal->termfreqandwts.find(tname);
-    if (i == internal->termfreqandwts.end()) {
-	throw InvalidArgumentError("Term frequency of `" + tname +
-				     "' not available.");
+    if (i != internal->termfreqandwts.end()) {
+	RETURN(i->second.termfreq);
     }
-    RETURN(i->second.termfreq);
+    if (internal->enquire.get() == 0) {
+	throw InvalidOperationError("Can't get termfreq from an MSet which is not derived from a query.");
+    }
+    RETURN(internal->enquire->get_termfreq(tname));
 }
 
 Xapian::weight
@@ -337,9 +336,8 @@ MSet::back() const
 string
 MSet::get_description() const
 {
-    DEBUGCALL(INTRO, string, "Xapian::MSet::get_description", "");
     Assert(internal.get() != 0);
-    RETURN("Xapian::MSet(" + internal->get_description() + ")");
+    return "Xapian::MSet(" + internal->get_description() + ")";
 }
 
 percent
@@ -445,8 +443,7 @@ MSet::Internal::read_docs() const
 string
 Xapian::Internal::ESetItem::get_description() const
 {
-    DEBUGCALL(INTRO, string, "Xapian::Internal::ESetItem::get_description", "");
-    RETURN("Xapian::Internal::ESetItem(" + tname + ", " + om_tostring(wt) + ")");
+    return "Xapian::Internal::ESetItem(" + tname + ", " + om_tostring(wt) + ")";
 }
 
 // Methods for Xapian::ESet
@@ -523,9 +520,8 @@ ESet::back() const
 string
 ESet::get_description() const
 {
-    DEBUGCALL(INTRO, string, "Xapian::ESet::get_description", "");
     Assert(internal.get() != 0);
-    RETURN("Xapian::ESet(" + internal->get_description() + ")");
+    return "Xapian::ESet(" + internal->get_description() + ")";
 }
 
 //////////////////////////////////
@@ -535,7 +531,6 @@ ESet::get_description() const
 string
 Xapian::ESet::Internal::get_description() const
 {
-    DEBUGCALL(INTRO, string, "Xapian::ESet::Internal::get_description", "");
     string description = "ebound=" + om_tostring(ebound);
 
     for (vector<Xapian::Internal::ESetItem>::const_iterator i = items.begin();
@@ -544,7 +539,7 @@ Xapian::ESet::Internal::get_description() const
 	description += ", " + i->get_description();
     }
 
-    RETURN("Xapian::ESet::Internal(" + description + ")");
+    return "Xapian::ESet::Internal(" + description + ")";
 }
 
 // Xapian::ESetIterator
@@ -781,6 +776,12 @@ Enquire::Internal::get_matching_terms(const MSetIterator &it) const
     // FIXME: take advantage of MSetIterator to ensure that database
     // doesn't get modified underneath us.
     return get_matching_terms(*it);
+}
+
+Xapian::doccount
+Enquire::Internal::get_termfreq(const string &tname) const
+{
+    return db.get_termfreq(tname);
 }
 
 string
@@ -1032,8 +1033,7 @@ Enquire::get_matching_terms_begin(Xapian::docid did) const
 string
 Enquire::get_description() const
 {
-    DEBUGCALL(INTRO, string, "Xapian::Enquire::get_description", "");
-    RETURN("Xapian::Enquire(" + internal->get_description() + ")");
+    return "Xapian::Enquire(" + internal->get_description() + ")";
 }
 
 }

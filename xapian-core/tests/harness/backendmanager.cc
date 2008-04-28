@@ -84,6 +84,58 @@ BackendManager::getwritedb_inmemory(const vector<string> &dbnames)
 }
 #endif
 
+#ifdef XAPIAN_HAS_CHERT_BACKEND
+string
+BackendManager::createdb_chert(const vector<string> &dbnames)
+{
+    string parent_dir = ".chert";
+    create_dir_if_needed(parent_dir);
+
+    string dbdir = parent_dir + "/db";
+    for (vector<string>::const_iterator i = dbnames.begin();
+	 i != dbnames.end(); i++) {
+	dbdir += '=';
+	dbdir += *i;
+    }
+    // If the database is readonly, we can reuse it if it exists.
+    if (create_dir_if_needed(dbdir)) {
+	// Directory was created, so do the indexing.
+	Xapian::WritableDatabase db(Xapian::Chert::open(dbdir, Xapian::DB_CREATE, 2048));
+	index_files_to_database(db, dbnames);
+    }
+    return dbdir;
+}
+
+Xapian::WritableDatabase
+BackendManager::getwritedb_chert(const string & name,
+				 const vector<string> & files)
+{
+    string dbdir = getwritedb_chert_path(name);
+
+    // For a writable database we need to start afresh each time.
+    rm_rf(dbdir);
+    (void)create_dir_if_needed(dbdir);
+
+    // directory was created, so do the indexing.
+    Xapian::WritableDatabase db(Xapian::Chert::open(dbdir, Xapian::DB_CREATE, 2048));
+    index_files_to_database(db, files);
+    return db;
+}
+
+std::string
+BackendManager::getwritedb_chert_path(const string & name)
+{
+    string parent_dir = ".chert";
+    create_dir_if_needed(parent_dir);
+
+    string dbdir = parent_dir;
+    dbdir += '/';
+    dbdir += name;
+    return dbdir;
+}
+
+#endif
+
 #ifdef XAPIAN_HAS_FLINT_BACKEND
 string
 BackendManager::createdb_flint(const vector<string> &dbnames)

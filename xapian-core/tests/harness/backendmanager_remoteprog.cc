@@ -60,14 +60,16 @@ BackendManagerRemoteProg::get_writable_database(const string & name,
 {
     last_wdb_name = name;
 
-    vector<string> files(1, file);
     // Default to a long (5 minute) timeout so that tests won't fail just
     // because the host is slow or busy.
     string args = "-t300000 --writable ";
 
 #ifdef XAPIAN_HAS_FLINT_BACKEND
-    (void)getwritedb_flint(name, files);
+    (void)getwritedb_flint(name, vector<string>(1, file));
     args += ".flint/";
+#elif XAPIAN_HAS_CHERT_BACKEND
+    (void)getwritedb_chert(name, vector<string>(1, file));
+    args += ".chert/";
 #else
 # error No local backend enabled
 #endif
@@ -91,6 +93,8 @@ BackendManagerRemoteProg::get_remote_database(const vector<string> & files,
     args += ' ';
 #ifdef XAPIAN_HAS_FLINT_BACKEND
     args += createdb_flint(files);
+#elif XAPIAN_HAS_CHERT_BACKEND
+    args += createdb_chert(files);
 #else
 # error No local backend enabled
 #endif
@@ -109,6 +113,8 @@ BackendManagerRemoteProg::get_writable_database_as_database()
     string args = "-t300000 ";
 #ifdef XAPIAN_HAS_FLINT_BACKEND
     args += ".flint/";
+#elif XAPIAN_HAS_CHERT_BACKEND
+    args += ".chert/";
 #else
 # error No local backend enabled
 #endif
@@ -129,6 +135,8 @@ BackendManagerRemoteProg::get_writable_database_again()
     string args = "-t300000 --writable ";
 #ifdef XAPIAN_HAS_FLINT_BACKEND
     args += ".flint/";
+#elif XAPIAN_HAS_CHERT_BACKEND
+    args += ".chert/";
 #else
 # error No local backend enabled
 #endif

@@ -28,75 +28,11 @@
 # how to format the documentation strings.
 __docformat__ = "restructuredtext en"
 
-class _SequenceMixIn(object):
-    """Simple mixin class which provides a sequence API to a class.
-
-    This is used to support the legacy API to iterators used for releases of
-    Xapian earlier than 1.0.  It will be removed once this legacy API is
-    removed in release 1.1.
-
-    """
-
-    __slots__ = ('_sequence_items', )
-    def __init__(self, *args):
-        """Initialise the sequence.
-
-        *args holds the list of properties or property names to be returned, in
-        the order they are returned by the sequence API.
-        
-        If an item in the list is a string, it is considered to be a property
-        name; otherwise, it is considered to be a property value, and is
-        returned without doing an attribute lookup.  (Yes, this is a nasty
-        hack.  No, I don't care, because this is only a temporary piece of
-        internal code.)
-
-        """
-        self._sequence_items = args
-
-    def __len__(self):
-        """Get the length of the sequence.
-
-        Doesn't evaluate any of the lazily evaluated properties.
-
-        """
-        return len(self._sequence_items)
-
-    def _get_single_item(self, index):
-        """Get a single item.
-
-        Used by __getitem__ to get individual items.
-
-        """
-        if not isinstance(index, basestring):
-             return index
-        return getattr(self, index)
-
-    def __getitem__(self, key):
-        """Get an item, or a slice of items, from the sequence.
-
-        If any of the items are lazily evaluated properties, they will be
-        evaluated here.
-
-        """
-        if isinstance(key, slice):
-            return [self._get_single_item(i) for i in self._sequence_items[key]]
-        return self._get_single_item(self._sequence_items[key])
-
-    def __iter__(self):
-        """Make an iterator for over the sequence.
-
-        This simply copies the items into a list, and returns an iterator over
-        it.  Any lazily evaluated properties will be evaluated here.
-
-        """
-        return iter(self[:])
-
-
 ##################################
 # Support for iteration of MSets #
 ##################################
 
-class MSetItem(_SequenceMixIn):
+class MSetItem(object):
     """An item returned from iteration of the MSet.
 
     The item supports access to the following attributes and properties:
@@ -143,7 +79,6 @@ class MSetItem(_SequenceMixIn):
         self.collapse_key = iter.get_collapse_key()
         self.collapse_count = iter.get_collapse_count()
         self._document = None
-        _SequenceMixIn.__init__(self, 'docid', 'weight', 'rank', 'percent', 'document')
 
     def _get_document(self):
         if self._document is None:
@@ -227,7 +162,7 @@ MSet.__contains__ = _mset_contains
 # Support for iteration of ESets #
 ##################################
 
-class ESetItem(_SequenceMixIn):
+class ESetItem(object):
     """An item returned from iteration of the ESet.
 
     The item supports access to the following attributes:
@@ -241,7 +176,6 @@ class ESetItem(_SequenceMixIn):
     def __init__(self, iter):
         self.term = iter.get_term()
         self.weight = iter.get_weight()
-        _SequenceMixIn.__init__(self, 'term', 'weight')
 
 class ESetIter(object):
     """An iterator over the items in an ESet.
@@ -284,7 +218,7 @@ ESet.__len__ = ESet.size
 # Support for iteration of term lists #
 #######################################
 
-class TermListItem(_SequenceMixIn):
+class TermListItem(object):
     """An item returned from iteration of a term list.
 
     The item supports access to the following attributes and properties:
@@ -319,7 +253,6 @@ class TermListItem(_SequenceMixIn):
             sequence[2] = 0
         if iter._has_positions == TermIter.INVALID:
             sequence[3] = PositionIter()
-        _SequenceMixIn.__init__(self, *sequence)
 
     def _get_wdf(self):
         """Get the within document frequency.
@@ -542,11 +475,9 @@ def _database_gen_termlist_iter(self, docid):
 
     """
     # Note: has_termfreq is set to LAZY because most databases don't store term
-    # frequencies in the termlist, so access to the term frequency requires a
-    # separate lookup.  Flint databases can store the term frequency in the
-    # termlist, but this can't be done efficiently except for statically built
-    # databases, and there doesn't seem to be support for it in xapian-compact,
-    # presently.
+    # frequencies in the termlist (because this would require updating many termlist
+    # entries for every document update), so access to the term frequency requires a
+    # separate lookup.
     return TermIter(self.termlist_begin(docid), self.termlist_end(docid),
                     has_termfreq=TermIter.LAZY,
                     has_wdf=TermIter.EAGER,
@@ -596,6 +527,26 @@ def _database_gen_synonym_keys_iter(self, prefix=""):
                     self.synonym_keys_end(prefix),
                     return_strings=True)
 Database.synonym_keys = _database_gen_synonym_keys_iter
+
+# Modify Database to add a "metadata_keys()" method, instead of direct access
+# to metadata_keys_begin and metadata_keys_end.
+def _database_gen_metadata_keys_iter(self, prefix=""):
+    """Get an iterator which returns all the metadata keys.
+
+    The iterator will return string objects.
+
+    If `prefix` is non-empty, only metadata keys with this prefix are returned.
+
+    """
+    return TermIter(self._metadata_keys_begin(prefix),
+                    self._metadata_keys_end(prefix),
+                    return_strings=True)
+Database.metadata_keys = _database_gen_metadata_keys_iter
+Database._metadata_keys_begin = Database.metadata_keys_begin
+del Database.metadata_keys_begin
+Database._metadata_keys_end = Database.metadata_keys_end
+del Database.metadata_keys_end
+
 
 # Modify Document to add an "__iter__()" method and a "termlist()" method.
 def _document_gen_termlist_iter(self):
@@ -664,7 +615,7 @@ QueryParser.unstemlist = _queryparser_gen_unstemlist_iter
 # Support for iteration of posting lists #
 ##########################################
 
-class PostingItem(_SequenceMixIn):
+class PostingItem(object):
     """An item returned from iteration of a posting list.
 
     The item supports access to the following attributes and properties:
@@ -692,7 +643,6 @@ class PostingItem(_SequenceMixIn):
         sequence = ['docid', 'doclength', 'wdf', 'positer']
         if not iter._has_positions:
             sequence[3] = PositionIter()
-        _SequenceMixIn.__init__(self, *sequence)
 
     def _get_positer(self):
         """Get a position list iterator.
@@ -836,7 +786,7 @@ Database.positionlist = _database_gen_positionlist_iter
 # Support for iteration of value lists #
 ########################################
 
-class ValueItem(_SequenceMixIn):
+class ValueItem(object):
     """An item returned from iteration of the values in a document.
 
     The item supports access to the following attributes:
@@ -851,7 +801,6 @@ class ValueItem(_SequenceMixIn):
     def __init__(self, num, value):
         self.num = num
         self.value = value
-        _SequenceMixIn.__init__(self, 'num', 'value')
 
 class ValueIter(object):
     """An iterator over all the values stored in a document.

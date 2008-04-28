@@ -1,9 +1,8 @@
 /* flint_values.cc: Values in flint databases
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005 Olly Betts
+ * Copyright 2002,2003,2004,2005,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -48,12 +47,12 @@ FlintValueTable::unpack_entry(const char ** pos,
 {
     DEBUGCALL_STATIC(DB, void, "FlintValueTable::unpack_entry",
 		     "[pos], [end], " << this_value_no << ", " << this_value);
-    if (!unpack_uint(pos, end, this_value_no)) {
+    if (!F_unpack_uint(pos, end, this_value_no)) {
 	if (*pos == 0) throw Xapian::DatabaseCorruptError("Incomplete item in value table");
 	else throw Xapian::RangeError("Value number in value table is too large");
     }
 
-    if (!unpack_string(pos, end, this_value)) {
+    if (!F_unpack_string(pos, end, this_value)) {
 	if (*pos == 0) throw Xapian::DatabaseCorruptError("Incomplete item in value table");
 	else throw Xapian::RangeError("Item in value table is too large");
     }
@@ -89,19 +88,19 @@ FlintValueTable::add_value(const string & value,
 	    DEBUGLINE(DB, "Adding value (number, value) = (" <<
 		      valueno << ", " << value << ")");
 	    have_added = true;
-	    newvalue += pack_uint(valueno);
-	    newvalue += pack_string(value);
+	    newvalue += F_pack_uint(valueno);
+	    newvalue += F_pack_string(value);
 	}
 
-	newvalue += pack_uint(this_value_no);
-	newvalue += pack_string(this_value);
+	newvalue += F_pack_uint(this_value_no);
+	newvalue += F_pack_string(this_value);
     }
     if (!have_added) {
 	DEBUGLINE(DB, "Adding value (number, value) = (" <<
 		  valueno << ", " << value << ")");
 	have_added = true;
-	newvalue += pack_uint(valueno);
-	newvalue += pack_string(value);
+	newvalue += F_pack_uint(valueno);
+	newvalue += F_pack_string(value);
     }
 
     add(key, newvalue);
