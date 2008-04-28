@@ -69,7 +69,7 @@ MSetDocumentSource::MSetDocumentSource(const MSet & mset_, doccount maxitems_)
 Document
 MSetDocumentSource::next_document()
 {
-    DEBUGAPICALL(void, "MSetDocumentSource::next_document", "");
+    DEBUGAPICALL(Document, "MSetDocumentSource::next_document", "");
     AssertRel(index, <, maxitems);
     RETURN(mset[index++].get_document());
 }
@@ -145,7 +145,7 @@ TermListGroup::add_documents(const Database & database,
 			     const ExpandDecider * decider)
 {
     DEBUGAPICALL(void, "TermListGroup::add_documents",
-		 source << ", " << decider);
+		 "source" << ", " << decider);
     while (!source.at_end()) {
 	add_document(database, source.next_document(), decider);
     }
