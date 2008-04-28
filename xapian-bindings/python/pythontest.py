@@ -977,6 +977,8 @@ def test_postingsource():
         def __init__(self, max):
             xapian.PostingSource.__init__(self)
             self.max = max
+
+        def reset(self):
             self.current = -1
 
         def get_termfreq_min(self): return 0

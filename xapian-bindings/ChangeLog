@@ -37,6 +37,11 @@ Mon Dec 10 10:28:25 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 	* python/pythontest.py: Add test_docsim(), to test document
 	  similarity calculations.
 
+Mon Apr 28 17:07:03 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/pythontest.py: Fix python test of PostingSource to include
+	  a reset() method.
+
 Mon Apr 28 02:31:42 GMT 2008  Olly Betts <olly@survex.com>
 
 	* python/generate-python-exceptions.in: Mark PostingSource::reset() as
