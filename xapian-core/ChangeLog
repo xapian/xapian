@@ -1,3 +1,12 @@
+Mon Apr 28 12:42:41 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* Backport changes from trunk:
+	* backends/flint/flint_btreebase.cc,backends/flint/flint_table.cc,
+	  backends/quartz/btree.cc,backends/quartz/btree_base.cc,
+	  tests/api_wrdb.cc: Fix issue #259, which caused zlib errors.
+	  Also, applied fix to quartz, where the problem manifested as
+	  incorrect data being returned.
+
 Tue Apr 22 12:58:32 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:

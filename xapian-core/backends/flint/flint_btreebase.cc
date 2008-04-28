@@ -424,6 +424,9 @@ FlintTable_base::next_free_block()
     while ((x & d) != 0) { d <<= 1; n++; }
     bit_map[i] |= d;   /* set as 'in use' */
     bit_map_low = i;
+    if (n > last_block) {
+	last_block = n;
+    }
     return n;
 }
 

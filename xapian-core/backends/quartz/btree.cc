@@ -1239,7 +1239,9 @@ Btree::read_tag(Cursor * C_, string *tag) const
     item.append_chunk(tag);
 
     for (int i = 2; i <= n; i++) {
-	next(C_, 0);
+	if (!next(C_, 0)) {
+	    throw Xapian::DatabaseCorruptError("Unexpected end of table when reading continuation of tag");
+	}
 	(void)Item(C_[0].p, C_[0].c).append_chunk(tag);
     }
     // At this point the cursor is on the last item - calling next will move
@@ -1822,10 +1824,28 @@ Btree::prev_for_sequential(Cursor * C_, int /*dummy*/) const
 	while (true) {
 	    if (n == 0) return false;
 	    n--;
-	    // Check if the block is in the built-in cursor (potentially in
-	    // modified form).
-	    if (writable && n == C[0].n) {
-		memcpy(p, C[0].p, block_size);
+	    if (writable) {
+		if (n == C[0].n) {
+		    // Block is a leaf block in the built-in cursor
+		    // (potentially in modified form).
+		    memcpy(p, C[0].p, block_size);
+		} else {
+		    // Blocks in the built-in cursor may not have been written
+		    // to disk yet, so we have to check that the block number
+		    // isn't in the built-in cursor or we'll read an
+		    // uninitialised block (for which GET_LEVEL(p) will
+		    // probably return 0).
+		    int j;
+		    for (j = 1; j <= level; ++j) {
+			if (n == C[j].n) break;
+		    }
+		    if (j <= level) continue;
+
+		    // Block isn't in the built-in cursor, so the form on disk
+		    // is valid, so read it to check if it's the next level 0
+		    // block.
+		    read_block(n, p);
+		}
 	    } else {
 		read_block(n, p);
 	    }
@@ -1855,10 +1875,28 @@ Btree::next_for_sequential(Cursor * C_, int /*dummy*/) const
 	while (true) {
 	    n++;
 	    if (n > base.get_last_block()) return false;
-	    // Check if the block is in the built-in cursor (potentially in
-	    // modified form).
-	    if (writable && n == C[0].n) {
-		memcpy(p, C[0].p, block_size);
+	    if (writable) {
+		if (n == C[0].n) {
+		    // Block is a leaf block in the built-in cursor
+		    // (potentially in modified form).
+		    memcpy(p, C[0].p, block_size);
+		} else {
+		    // Blocks in the built-in cursor may not have been written
+		    // to disk yet, so we have to check that the block number
+		    // isn't in the built-in cursor or we'll read an
+		    // uninitialised block (for which GET_LEVEL(p) will
+		    // probably return 0).
+		    int j;
+		    for (j = 1; j <= level; ++j) {
+			if (n == C[j].n) break;
+		    }
+		    if (j <= level) continue;
+
+		    // Block isn't in the built-in cursor, so the form on disk
+		    // is valid, so read it to check if it's the next level 0
+		    // block.
+		    read_block(n, p);
+		}
 	    } else {
 		read_block(n, p);
 	    }
