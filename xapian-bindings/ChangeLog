@@ -1,3 +1,8 @@
+Mon Apr 28 02:31:42 GMT 2008  Olly Betts <olly@survex.com>
+
+	* python/generate-python-exceptions.in: Mark PostingSource::reset() as
+	  a directed method.
+
 Thu Apr 24 02:18:46 GMT 2008  Olly Betts <olly@survex.com>
 
 	* configure.ac,generic/generic.mk: Back out the --swigheaders change.
