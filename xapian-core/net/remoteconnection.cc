@@ -20,6 +20,8 @@
 
 #include <config.h>
 
+#include "remoteconnection.h"
+
 #include <xapian/error.h>
 
 #include "safeerrno.h"
@@ -32,7 +34,6 @@
 #include "omassert.h"
 #include "omdebug.h"
 #include "omtime.h"
-#include "remoteconnection.h"
 #include "serialise.h"
 #include "socket_utils.h"
 #include "utils.h"
@@ -46,6 +47,16 @@
 using namespace std;
 
 #define CHUNKSIZE 4096
+
+#ifdef __WIN32__
+inline void
+update_overlapped_offset(WSAOVERLAPPED & overlapped, DWORD n)
+{
+    STATIC_ASSERT_UNSIGNED_TYPE(DWORD); // signed overflow is undefined.
+    overlapped.Offset += n;
+    if (overlapped.Offset < n) ++overlapped.OffsetHigh;
+}
+#endif
 
 RemoteConnection::RemoteConnection(int fdin_, int fdout_,
 				   const string & context_)
@@ -104,6 +115,9 @@ RemoteConnection::read_at_least(size_t min_len, const OmTime & end_time)
 	    throw Xapian::NetworkError("Received EOF", context);
 
 	buffer.append(buf, received);
+
+	// We must update the offset in the OVERLAPPED structure manually.
+	update_overlapped_offset(overlapped, received);
     } while (buffer.length() < min_len);
 #else
     // If there's no end_time, just use blocking I/O.
@@ -221,6 +235,10 @@ RemoteConnection::send_message(char type, const string &message, const OmTime & 
 	}
 
 	count += n;
+
+	// We must update the offset in the OVERLAPPED structure manually.
+	update_overlapped_offset(overlapped, n);
+
 	if (count == str->size()) {
 	    if (str == &message || message.empty()) return;
 	    str = &message;
@@ -326,7 +344,6 @@ RemoteConnection::send_file(char type, const string &file, const OmTime & end_ti
 
 #ifdef __WIN32__
     HANDLE hout = fd_to_handle(fdout);
-
     size_t count = 0;
     while (true) {
 	DWORD n;
@@ -349,6 +366,10 @@ RemoteConnection::send_file(char type, const string &file, const OmTime & end_ti
 	}
 
 	count += n;
+
+	// We must update the offset in the OVERLAPPED structure manually.
+	update_overlapped_offset(overlapped, n);
+
 	if (count == c) {
 	    if (size == 0) return;
 
@@ -500,7 +521,9 @@ RemoteConnection::get_message_chunked(const OmTime & end_time)
     unsigned char ch;
     int shift = 0;
     do {
-	if (i == buffer.end() || shift > 28) {
+	// Allow a full 64 bits for message lengths - anything longer than that
+	// is almost certainly a corrupt value.
+	if (i == buffer.end() || shift > 63) {
 	    // Something is very wrong...
 	    throw Xapian::NetworkError("Insane message length specified!");
 	}
@@ -527,11 +550,11 @@ RemoteConnection::get_message_chunk(string &result, size_t at_least,
     at_least -= result.size();
 
     bool read_enough = (off_t(at_least) <= chunked_data_left);
-    if (!read_enough) at_least = chunked_data_left;
+    if (!read_enough) at_least = size_t(chunked_data_left);
 
     read_at_least(at_least, end_time);
 
-    size_t retlen(min(off_t(buffer.size()), chunked_data_left));
+    size_t retlen(size_t(min(off_t(buffer.size()), chunked_data_left)));
     result.append(buffer, 0, retlen);
     buffer.erase(0, retlen);
     chunked_data_left -= retlen;

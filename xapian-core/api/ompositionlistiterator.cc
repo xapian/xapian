@@ -1,7 +1,7 @@
 /* ompositionlistiterator.cc
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2004 Olly Betts
+ * Copyright 2003,2004,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -87,7 +87,6 @@ Xapian::PositionIterator::skip_to(Xapian::termpos pos)
 std::string
 Xapian::PositionIterator::get_description() const
 {
-    DEBUGCALL(INTRO, std::string, "Xapian::PositionIterator::get_description", "");
     /// \todo display contents of the object
-    RETURN("Xapian::PositionIterator()");
+    return "Xapian::PositionIterator()";
 }

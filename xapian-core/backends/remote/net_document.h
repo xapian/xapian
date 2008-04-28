@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2006 Olly Betts
+ * Copyright 2003,2006,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,12 +28,12 @@
 class NetworkDocument : public Xapian::Document::Internal {
     friend class RemoteDatabase;
     private:
-	string doc;
+	string data;
 
 	map<Xapian::valueno, string> values;
 
 	NetworkDocument(const Xapian::Database::Internal *database_, Xapian::docid did_,
-			const string & doc_,
+			const string & data_,
 			const map<Xapian::valueno, string> &values_);
 
 	// Stop copying

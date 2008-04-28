@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
  * Copyright 2006 Richard Boulton
  * Copyright 2007 Lemur Consulting Ltd
  *
@@ -1420,11 +1420,8 @@ DEFINE_TESTCASE(crashrecovery1, writable) {
     if (dbtype == "flint") {
 	path = ".flint/dbw";
 	base_ext = ".baseB";
-    } else if (dbtype == "quartz") {
-	path = ".quartz/dbw";
-	base_ext = "_baseB";
     } else {
-	SKIP_TEST("Test only supported for flint and quartz backends");
+	SKIP_TEST("Test only supported for flint backends");
     }
 
     Xapian::Document doc;
@@ -1892,21 +1889,129 @@ DEFINE_TESTCASE(metadata4, metadata) {
     return true;
 }
 
+// Test metadata iterators.
+DEFINE_TESTCASE(metadata5, metadata) {
+    Xapian::WritableDatabase db = get_writable_database();
 
+    // Check that iterator on empty database returns nothing.
+    Xapian::TermIterator iter;
+    iter = db.metadata_keys_begin();
+    TEST_EQUAL(iter, db.metadata_keys_end());
+
+    // Check iterator on a database with only metadata items.
+    db.set_metadata("foo", "val");
+    db.flush();
+
+    iter = db.metadata_keys_begin();
+    TEST(iter != db.metadata_keys_end());
+    TEST_EQUAL(*iter, "foo");
+    ++iter;
+    TEST(iter == db.metadata_keys_end());
+
+    // Check iterator on a database with metadata items and documents.
+    Xapian::Document doc;
+    doc.add_posting("foo", 1);
+    db.add_document(doc);
+    db.flush();
+
+    iter = db.metadata_keys_begin();
+    TEST(iter != db.metadata_keys_end());
+    TEST_EQUAL(*iter, "foo");
+    ++iter;
+    TEST(iter == db.metadata_keys_end());
+
+    // Check iterator on a database with documents but no metadata.  Also
+    // checks that setting metadata to empty stops the iterator returning it.
+    db.set_metadata("foo", "");
+    db.flush();
+    iter = db.metadata_keys_begin();
+    TEST(iter == db.metadata_keys_end());
+
+    // Check use of a prefix, and skip_to.
+    db.set_metadata("a", "val");
+    db.set_metadata("foo", "val");
+    db.set_metadata("foo1", "val");
+    db.set_metadata("foo2", "val");
+    db.set_metadata("z", "val");
+    db.flush();
+
+    iter = db.metadata_keys_begin();
+    TEST(iter != db.metadata_keys_end());
+    TEST_EQUAL(*iter, "a");
+    ++iter;
+    TEST(iter != db.metadata_keys_end());
+    TEST_EQUAL(*iter, "foo");
+    ++iter;
+    TEST(iter != db.metadata_keys_end());
+    TEST_EQUAL(*iter, "foo1");
+    ++iter;
+    TEST(iter != db.metadata_keys_end());
+    TEST_EQUAL(*iter, "foo2");
+    ++iter;
+    TEST(iter != db.metadata_keys_end());
+    TEST_EQUAL(*iter, "z");
+    ++iter;
+    TEST(iter == db.metadata_keys_end());
+
+    iter = db.metadata_keys_begin("foo");
+    TEST(iter != db.metadata_keys_end("foo"));
+    TEST_EQUAL(*iter, "foo");
+    ++iter;
+    TEST(iter != db.metadata_keys_end("foo"));
+    TEST_EQUAL(*iter, "foo1");
+    ++iter;
+    TEST(iter != db.metadata_keys_end("foo"));
+    TEST_EQUAL(*iter, "foo2");
+    ++iter;
+    TEST(iter == db.metadata_keys_end("foo"));
+
+    iter = db.metadata_keys_begin("foo1");
+    TEST(iter != db.metadata_keys_end("foo1"));
+    TEST_EQUAL(*iter, "foo1");
+    ++iter;
+    TEST(iter == db.metadata_keys_end("foo1"));
+
+    iter = db.metadata_keys_begin();
+    TEST(iter != db.metadata_keys_end());
+    TEST_EQUAL(*iter, "a");
+
+    // Skip to "" should move to the first key.
+    iter.skip_to("");
+    TEST(iter != db.metadata_keys_end());
+    TEST_EQUAL(*iter, "a");
+
+    // This skip_to should skip the "foo" key.
+    iter.skip_to("foo1");
+    TEST(iter != db.metadata_keys_end());
+    TEST_EQUAL(*iter, "foo1");
+
+    // Check that skip_to can move backwards.
+    iter.skip_to("");
+    TEST(iter != db.metadata_keys_end());
+    TEST_EQUAL(*iter, "a");
+
+    // Skip back to the foo1 key.
+    iter.skip_to("foo1");
+    TEST(iter != db.metadata_keys_end());
+    TEST_EQUAL(*iter, "foo1");
+
+    // Check that advancing after a skip_to() works correctly.
+    ++iter;
+    TEST(iter != db.metadata_keys_end());
+    TEST_EQUAL(*iter, "foo2");
+
+    // Check that skipping to a key after the last key works.
+    iter.skip_to("zoo");
+    TEST(iter == db.metadata_keys_end());
+
+    return true;
+}
 
 // Test that adding a document with a really long term gives an error on
 // add_document() rather than on flush().
 DEFINE_TESTCASE(termtoolong1, writable) {
-    // Quartz doesn't perform this check.
-    SKIP_TEST_FOR_BACKEND("quartz");
     // Inmemory doesn't impose a limit.
     SKIP_TEST_FOR_BACKEND("inmemory");
-#ifndef XAPIAN_HAS_FLINT_BACKEND
-    // If flint is disabled, remotetcp and remoteprog will use quartz
-    // which doesn't perform this check.
-    SKIP_TEST_FOR_BACKEND("remoteprog");
-    SKIP_TEST_FOR_BACKEND("remotetcp");
-#endif
 
     Xapian::WritableDatabase db = get_writable_database();
 
@@ -1915,7 +2020,16 @@ DEFINE_TESTCASE(termtoolong1, writable) {
 	Xapian::Document doc;
 	string term(i, 'X');
 	doc.add_term(term);
-	TEST_EXCEPTION(Xapian::InvalidArgumentError, db.add_document(doc));
+	try {
+	    db.add_document(doc);
+	    TEST_AND_EXPLAIN(false, "Expecting exception InvalidArgumentError");
+	} catch (const Xapian::InvalidArgumentError &e) {
+	    // Check that the max length is correctly expressed in the
+	    // exception message - we've got this wrong in two different ways
+	    // in the past!
+	    tout << e.get_msg() << endl;
+	    TEST(e.get_msg().find("Term too long (> 245)") != string::npos);
+	}
     }
 
     for (Xapian::doccount j = 240; j <= 245; ++j) {
@@ -1927,6 +2041,23 @@ DEFINE_TESTCASE(termtoolong1, writable) {
     }
 
     db.flush();
+
+    {
+	// Currently flint doesn't allow
+	Xapian::Document doc;
+	doc.add_term(string(126, '\0'));
+	db.add_document(doc);
+	try {
+	    db.flush();
+	    TEST_AND_EXPLAIN(false, "Expecting exception InvalidArgumentError");
+	} catch (const Xapian::InvalidArgumentError &e) {
+	    // Check that the max length is correctly expressed in the
+	    // exception message - we've got this wrong in two different ways
+	    // in the past!
+	    tout << e.get_msg() << endl;
+	    TEST(e.get_msg().find(" is 252 bytes") != string::npos);
+	}
+    }
 
     return true;
 }
@@ -1970,6 +2101,19 @@ DEFINE_TESTCASE(postlist7, writable) {
     TEST_EQUAL(p.get_doclength(), 2);
     ++p;
     TEST(p == db_w.postlist_end("foo"));
+
+    return true;
+}
+
+/// Regression test of reading after writing but not flushing.
+DEFINE_TESTCASE(writeread1, writable && metadata) {
+    Xapian::WritableDatabase db_w = get_writable_database();
+    db_w.set_metadata("1", "2");
+    string longitem(20000, 'j');
+    db_w.set_metadata("2", longitem);
+
+    string readitem = db_w.get_metadata("2");
+    TEST_EQUAL(readitem, longitem);
 
     return true;
 }

@@ -16,35 +16,35 @@ BUILD_LIBRARIES = "$(OUTDIR)\libtest.lib"
 ALL : $(BUILD_LIBRARIES) 
 
 OBJS= \
-                $(INTDIR)\testsuite.obj \
-                $(INTDIR)\testutils.obj \
-                $(INTDIR)\backendmanager.obj \
-		$(INTDIR)\backendmanager_flint.obj \
-		$(INTDIR)\backendmanager_inmemory.obj \
-		$(INTDIR)\backendmanager_quartz.obj \
-		$(INTDIR)\backendmanager_multi.obj \
-		$(INTDIR)\backendmanager_remoteprog.obj \
-		$(INTDIR)\backendmanager_remotetcp.obj \
-                $(INTDIR)\index_utils.obj \
-		$(INTDIR)\unixcmds.obj
+        $(INTDIR)\testrunner.obj \
+        $(INTDIR)\testsuite.obj \
+        $(INTDIR)\testutils.obj \
+        $(INTDIR)\backendmanager.obj \
+        $(INTDIR)\backendmanager_flint.obj \
+        $(INTDIR)\backendmanager_inmemory.obj \
+        $(INTDIR)\backendmanager_multi.obj \
+        $(INTDIR)\backendmanager_remoteprog.obj \
+        $(INTDIR)\backendmanager_remotetcp.obj \
+        $(INTDIR)\index_utils.obj \
+        $(INTDIR)\unixcmds.obj
 
 SRCS= \
-                $(INTDIR)\testsuite.cc \
-                $(INTDIR)\testutils.cc \
-                $(INTDIR)\backendmanager.cc \
-		$(INTDIR)\backendmanager_flint.cc \
-		$(INTDIR)\backendmanager_inmemory.cc \
-		$(INTDIR)\backendmanager_quartz.cc \
+        $(INTDIR)\testrunner.cc \
+        $(INTDIR)\testsuite.cc \
+        $(INTDIR)\testutils.cc \
+        $(INTDIR)\backendmanager.cc \
+        $(INTDIR)\backendmanager_flint.cc \
+        $(INTDIR)\backendmanager_inmemory.cc \
         $(INTDIR)\backendmanager_multi.cc \
-		$(INTDIR)\backendmanager_remoteprog.cc \
-		$(INTDIR)\backendmanager_remotetcp.cc \
-                $(INTDIR)\index_utils.cc \
-		$(INTDIR)\unixcmds.cc
+        $(INTDIR)\backendmanager_remoteprog.cc \
+        $(INTDIR)\backendmanager_remotetcp.cc \
+        $(INTDIR)\index_utils.cc \
+        $(INTDIR)\unixcmds.cc
 
 CLEAN :
-	-@erase $(BUILD_LIBRARIES)
-	-@erase "*.pch"
-	-@erase "$(INTDIR)\*.pdb"
+        -@erase $(BUILD_LIBRARIES)
+        -@erase "*.pch"
+        -@erase "$(INTDIR)\*.pdb"
         -@erase $(OBJS)
 
 

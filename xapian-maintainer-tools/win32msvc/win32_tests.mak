@@ -16,20 +16,18 @@ INTDIR= ..\tests
 PROGRAM_APITEST= "$(OUTDIR)\apitest.exe" 
 PROGRAM_BTREETEST= "$(OUTDIR)\btreetest.exe" 
 PROGRAM_INTERNALTEST= "$(OUTDIR)\internaltest.exe" 
-PROGRAM_QUARTZTEST= "$(OUTDIR)\quartztest.exe" 
 PROGRAM_QUERYPARSERTEST= "$(OUTDIR)\queryparsertest.exe"
 PROGRAM_STEMTEST= "$(OUTDIR)\stemtest.exe"
 PROGRAM_TERMGENTEST= "$(OUTDIR)\termgentest.exe"
 
-ALL : HEADERS $(CLEAN_COLLATED_HEADERS) $(PROGRAM_APITEST) $(PROGRAM_BTREETEST) $(PROGRAM_INTERNALTEST) \
- $(PROGRAM_QUARTZTEST) $(PROGRAM_QUERYPARSERTEST) $(PROGRAM_STEMTEST) $(PROGRAM_TERMGENTEST)
+ALL : HEADERS $(CLEAN_COLLATED_HEADERS) $(PROGRAM_APITEST) $(PROGRAM_INTERNALTEST) \
+  $(PROGRAM_QUERYPARSERTEST) $(PROGRAM_STEMTEST) $(PROGRAM_TERMGENTEST)
  
  
 APITEST : $(PROGRAM_APITEST) 
 STEMTEST : $(PROGRAM_STEMTEST)  
 BTREETEST : $(PROGRAM_BTREETEST)  
 INTERNALTEST : $(PROGRAM_INTERNALTEST)  
-QUARTZTEST : $(PROGRAM_QUARTZTEST)  
 QUERYPARSERTEST : $(PROGRAM_QUERYPARSERTEST)  
 TERMGENTEST : $(PROGRAM_TERMGENTEST)  
 
@@ -38,9 +36,7 @@ DOTEST :
     set srcdir=.
     copy "$(ZLIB_BIN_DIR)\zlib1.dll"
     apitest -v
-    btreetest
     internaltest
-    quartztest
     queryparsertest
     stemtest
     termgentest
@@ -94,9 +90,7 @@ SRC = \
     "$(INTDIR)\api_generated.cc" \
     "$(INTDIR)\api_docsim.cc" \
     "$(INTDIR)\api_replicate.cc" \
-    "$(INTDIR)\btreetest.cc" \
     "$(INTDIR)\internaltest.cc" \
-    "$(INTDIR)\quartztest.cc" \
     "$(INTDIR)\queryparsertest.cc" \
     "$(INTDIR)\remotetest.cc" \
     "$(INTDIR)\termgentest.cc" 
@@ -118,19 +112,18 @@ COLLATED_APITEST_HEADERS=\
 
 CLEAN_COLLATED_HEADERS:
     -@erase api_collated.h
+    -@erase api_all.h
     -@erase $(COLLATED_APITEST_HEADERS)
 
 CLEAN : 
     -@erase $(PROGRAM_APITEST) 
     -@erase $(PROGRAM_BTREETEST)
     -@erase $(PROGRAM_INTERNALTEST) 
-     -@erase $(PROGRAM_QUARTZTEST) 
     -@erase $(PROGRAM_QUERYPARSERTEST) 
     -@erase $(PROGRAM_REMOTETEST)
     -@erase $(PROGRAM_STEMTEST)
     -@erase $(PROGRAM_TERMGENTEST)
     -@erase $(APITEST_OBJS)
-    -@erase $(BTREETEST_OBJS)
     -@erase $(INTERNALTEST_OBJS)
     -@erase $(QUARTZTEST_OBJS)
     -@erase $(QUERYPARSERTEST_OBJS)
@@ -149,6 +142,7 @@ CLEAN :
     if exist ".quartz" rmdir ".quartz" /s /q
     if exist ".quartztmp" rmdir ".quartztmp" /s /q
     if exist ".multi" rmdir ".multi" /s /q
+    if exist ".replicatmp" rmdir ".replicatmp" /s /q
     
     
     
@@ -159,9 +153,10 @@ CPP_PROJ=$(CPPFLAGS_EXTRA) \
 CPP_OBJS=..\win32\Tests$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
+api_all.h: api_collated.h
     
-api_collated.h: collate-apitest $(COLLATED_APITEST_SOURCES)
-    $(PERL_EXE) "$(INTDIR)/collate-apitest" "$(INTDIR)" $(COLLATED_APITEST_SOURCES) > api_collated.h
+api_collated.h: collate-test $(COLLATED_APITEST_SOURCES)
+    $(PERL_EXE) "$(INTDIR)/collate-test" "$(INTDIR)" "api_all.h" $(COLLATED_APITEST_SOURCES) > api_collated.h
     
 api_generated.cc: generate-api_generated
     $(PERL_EXE) "$(INTDIR)/generate-api_generated" > api_generated.cc
@@ -194,12 +189,6 @@ PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS) "$(OUTLIBDIR)\libtest.lib"
                       $(PROGRAM_DEPENDENCIES)
     $(LINK32) @<<
   $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\internaltest.exe" $(DEF_FLAGS) $(INTERNALTEST_OBJS)
-<<
-
-"$(OUTDIR)\quartztest.exe" : "$(OUTDIR)" $(DEF_FILE) $(QUARTZTEST_OBJS) \
-                      $(PROGRAM_DEPENDENCIES)
-    $(LINK32) @<<
-  $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\quartztest.exe" $(DEF_FLAGS) $(QUARTZTEST_OBJS)
 <<
 
 "$(OUTDIR)\queryparsertest.exe" : "$(OUTDIR)" $(DEF_FILE) $(QUERYPARSERTEST_OBJS) \

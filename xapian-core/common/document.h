@@ -166,9 +166,7 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	Xapian::docid get_docid() const { return did; }
 
-	/** Returns a string representing the object.
-	 *  Introspection method.
-	 */
+	/// Return a string describing this object.
 	string get_description() const;
 
 	/** Constructor.

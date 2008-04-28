@@ -1281,8 +1281,13 @@ DEFINE_TESTCASE(qterminfo1, backend) {
     // non-existent terms still have weight
     TEST_NOT_EQUAL(mymset1a.get_termweight(term3), 0);
 
+    TEST_EQUAL(mymset1a.get_termfreq(stemmer("banana")), 1);
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-		   mymset1a.get_termfreq("sponge"));
+		   mymset1a.get_termweight(stemmer("banana")));
+
+    TEST_EQUAL(mymset1a.get_termfreq("sponge"), 0);
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+		   mymset1a.get_termweight("sponge"));
 
     return true;
 }

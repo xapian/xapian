@@ -2,21 +2,7 @@ EXTRA_DIST +=\
 	bin/dir_contents\
 	bin/Makefile
 
-if BUILD_BACKEND_QUARTZ
-bin_PROGRAMS +=\
-	bin/quartzcheck\
-	bin/quartzcompact\
-	bin/quartzdump
-
-if !MAINTAINER_NO_DOCS
-dist_man_MANS +=\
-	bin/quartzcheck.1\
-	bin/quartzcompact.1\
-	bin/quartzdump.1
-endif
-endif
-
-if BUILD_BACKEND_FLINT
+## FIXME: if BUILD_BACKEND_FLINT
 bin_PROGRAMS +=\
 	bin/xapian-check\
 	bin/xapian-compact\
@@ -32,7 +18,7 @@ dist_man_MANS +=\
 	bin/xapian-replicate.1\
 	bin/xapian-replicate-server.1
 endif
-endif
+## endif
 
 if BUILD_BACKEND_REMOTE
 bin_PROGRAMS +=\
@@ -47,9 +33,6 @@ endif
 endif
 
 EXTRA_PROGRAMS +=\
-	bin/quartzcheck\
-	bin/quartzcompact\
-	bin/quartzdump\
 	bin/xapian-check\
 	bin/xapian-compact\
 	bin/xapian-inspect\
@@ -61,21 +44,12 @@ EXTRA_PROGRAMS +=\
 # We work around this with a clean-local: rule, in the top level Makefile.am
 extra_cleandirs += bin/.libs bin/_libs
 
-bin_quartzcheck_CXXFLAGS = -I$(top_srcdir)/backends/quartz
-bin_quartzcheck_SOURCES = bin/quartzcheck.cc
-bin_quartzcheck_LDADD = $(ldflags) libquartzcheck.la libxapian.la
-
-bin_quartzcompact_CXXFLAGS = -I$(top_srcdir)/backends/quartz
-bin_quartzcompact_SOURCES = bin/quartzcompact.cc
-bin_quartzcompact_LDADD = $(ldflags) libgetopt.la libxapian.la
-
-bin_quartzdump_CXXFLAGS = -I$(top_srcdir)/backends/quartz
-bin_quartzdump_SOURCES = bin/quartzdump.cc
-bin_quartzdump_LDADD = $(ldflags) libgetopt.la libxapian.la
-
-bin_xapian_check_CXXFLAGS = -I$(top_srcdir)/backends/flint
-bin_xapian_check_SOURCES = bin/xapian-check.cc
-bin_xapian_check_LDADD = $(ldflags) libflintcheck.la libxapian.la
+bin_xapian_check_CXXFLAGS = -I$(top_srcdir)/backends/flint -I$(top_srcdir)/backends/chert
+bin_xapian_check_SOURCES =\
+	bin/xapian-check.cc\
+	bin/xapian-check-flint.cc\
+	bin/xapian-check-flint.h
+bin_xapian_check_LDADD = $(ldflags) libchertcheck.la libflintcheck.la libxapian.la
 
 bin_xapian_compact_CXXFLAGS = -I$(top_srcdir)/backends/flint
 bin_xapian_compact_SOURCES = bin/xapian-compact.cc

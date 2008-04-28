@@ -1,3 +1,61 @@
+up to:
+Wed Mar 05 21:30:13 GMT 2008  Olly Betts <olly@survex.com>
+
+HEAD only:
+
+	* configure.ac,generic/generic.mk: Use the new --swigheaders option
+	  in xapian-config to get the list of header files for the core,
+	  and add all of these as a dependency for the rules to run swig.
+	  This is currently an overly inclusive dependency, but it's hard
+	  to keep track of exactly which header files are being included,
+	  and the plan is to eventually include all of them.
+
+	* xapian.i: Include replication.h in the bindings.
+
+Xapian-bindings 1.0.8 (2008-03-??):
+
+Documentation:
+
+General:
+
+* Wrap OP_VALUE_GE and OP_VALUE_LE and the new Query constructor which they are
+  used with.
+
+* configure: Correct the required SWIG version given in an error message.
+
+Packaging:
+
+Portability:
+
+CSharp:
+
+Guile:
+
+Java:
+
+PHP:
+
+* php/smoketest.php: Add note that this script should be run using 'make check'
+  in the build tree (rather than trying to copy it to a webserver as someone
+  recently tried to).
+
+* php/smoketest.php: Fix to work under PHP4.
+
+Python:
+
+* The Python module now always has the extension which Python expects, which
+  fixes a failure on Mac OS X.
+
+Ruby:
+
+* Automatically install/uninstall the Ruby rdoc-generated documentation along
+  with the ruby bindings.
+
+Tcl:
+
+* configure: Sort out the default value of TCL_LIB, which could end up being
+  under /usr/share in xapian-bindings 1.0.4 and 1.0.5.
+
 Xapian-bindings 1.0.5 (2007-12-21):
 
 General:

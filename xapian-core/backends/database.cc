@@ -2,7 +2,8 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,10 +23,8 @@
 
 #include <config.h>
 
-// We have to use the deprecated Quartz::open() method.
-#define XAPIAN_DEPRECATED(D) D
-
 #include "database.h"
+
 #include "utils.h" // for om_tostring
 #include "fileutils.h"
 #include <xapian/dbfactory.h>
@@ -38,31 +37,30 @@
 using namespace std;
 
 // Include headers for all the enabled database backends
-#ifdef XAPIAN_HAS_INMEMORY_BACKEND
-#include "inmemory/inmemory_database.h"
-#endif
-#ifdef XAPIAN_HAS_QUARTZ_BACKEND
-#include "quartz/quartz_database.h"
+#ifdef XAPIAN_HAS_CHERT_BACKEND
+#include "chert/chert_database.h"
 #endif
 #ifdef XAPIAN_HAS_FLINT_BACKEND
 #include "flint/flint_database.h"
 #endif
+#ifdef XAPIAN_HAS_INMEMORY_BACKEND
+#include "inmemory/inmemory_database.h"
+#endif
 
 namespace Xapian {
 
-#ifdef XAPIAN_HAS_QUARTZ_BACKEND
+#ifdef XAPIAN_HAS_CHERT_BACKEND
 Database
-Quartz::open(const string &dir) {
-    DEBUGAPICALL_STATIC(Database, "Quartz::open", dir);
-    return Database(new QuartzDatabase(dir));
+Chert::open(const string &dir) {
+    DEBUGAPICALL_STATIC(Database, "Chert::open", dir);
+    return Database(new ChertDatabase(dir));
 }
 
 WritableDatabase
-Quartz::open(const string &dir, int action, int block_size) {
-    DEBUGAPICALL_STATIC(WritableDatabase, "Quartz::open", dir << ", " <<
+Chert::open(const string &dir, int action, int block_size) {
+    DEBUGAPICALL_STATIC(WritableDatabase, "Chert::open", dir << ", " <<
 			action << ", " << block_size);
-    return WritableDatabase(new QuartzWritableDatabase(dir, action,
-						       block_size));
+    return WritableDatabase(new ChertWritableDatabase(dir, action, block_size));
 }
 #endif
 
@@ -87,14 +85,13 @@ Flint::open(const string &dir, int action, int block_size) {
 WritableDatabase
 InMemory::open() {
     DEBUGAPICALL_STATIC(Database, "InMemory::open", "");
-    return WritableDatabase(new InMemoryDatabase());
+    return WritableDatabase(new InMemoryDatabase);
 }
 #endif
 
 static void
 open_stub(Database *db, const string &file)
 {
-
     // A stub database is a text file with one or more lines of this format:
     // <dbtype> <serialised db object>
     //
@@ -110,7 +107,7 @@ open_stub(Database *db, const string &file)
     bool ok = false;
     while (getline(stub, line)) {
 	++line_no;
-	if (line.size() == 0 || line[0] == '#')
+	if (line.empty() || line[0] == '#')
 	    continue;
 	string::size_type space = line.find(' ');
 	if (space == string::npos)
@@ -126,9 +123,9 @@ open_stub(Database *db, const string &file)
 	    db->add_database(Flint::open(join_paths(stubdir, line)));
 	    ok = true;
 #endif
-#ifdef XAPIAN_HAS_QUARTZ_BACKEND
-	} else if (type == "quartz") {
-	    db->add_database(Quartz::open(join_paths(stubdir, line)));
+#ifdef XAPIAN_HAS_CHERT_BACKEND
+	} else if (type == "chert") {
+	    db->add_database(Chert::open(join_paths(stubdir, line)));
 	    ok = true;
 #endif
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
@@ -190,24 +187,25 @@ Database::Database(const string &path)
 	return;
     }
 
-    // Check for "stub directories".
-    if (file_exists(path + "/XAPIANDB")) {
-	open_stub(this, path + "/XAPIANDB");
-	return;
-    }
-
 #ifdef XAPIAN_HAS_FLINT_BACKEND
     if (file_exists(path + "/iamflint")) {
 	internal.push_back(new FlintDatabase(path));
 	return;
     }
 #endif
-#ifdef XAPIAN_HAS_QUARTZ_BACKEND
-    if (file_exists(path + "/record_DB")) {
-	internal.push_back(new QuartzDatabase(path));
+
+#ifdef XAPIAN_HAS_CHERT_BACKEND
+    if (file_exists(path + "/iamchert")) {
+	internal.push_back(new ChertDatabase(path));
 	return;
     }
 #endif
+
+    // Check for "stub directories".
+    if (file_exists(path + "/XAPIANDB")) {
+	open_stub(this, path + "/XAPIANDB");
+	return;
+    }
 
     throw DatabaseOpeningError("Couldn't detect type of database");
 }
@@ -217,21 +215,25 @@ WritableDatabase::WritableDatabase(const std::string &path, int action)
 {
     DEBUGAPICALL(void, "WritableDatabase::WritableDatabase",
 		 path << ", " << action);
-#if defined XAPIAN_HAS_FLINT_BACKEND && defined XAPIAN_HAS_QUARTZ_BACKEND
-    // Both Flint and Quartz are enabled.
-    if (!file_exists(path + "/record_DB")) {
+#ifdef XAPIAN_HAS_FLINT_BACKEND
+# ifdef XAPIAN_HAS_CHERT_BACKEND
+    // Both Flint and Chert are enabled.
+    if (file_exists(path + "/iamflint")) {
 	internal.push_back(new FlintWritableDatabase(path, action, 8192));
     } else {
-	internal.push_back(new QuartzWritableDatabase(path, action, 8192));
+	internal.push_back(new ChertWritableDatabase(path, action, 8192));
     }
-#elif defined XAPIAN_HAS_FLINT_BACKEND
+# else
     // Only Flint is enabled.
     internal.push_back(new FlintWritableDatabase(path, action, 8192));
-#elif defined XAPIAN_HAS_QUARTZ_BACKEND
-    // Only Quartz is enabled.
-    internal.push_back(new QuartzWritableDatabase(path, action, 8192));
+# endif
 #else
+# ifdef XAPIAN_HAS_CHERT_BACKEND
+    // Only Chert is enabled.
+    internal.push_back(new ChertWritableDatabase(path, action, 8192));
+# else
     throw FeatureUnavailableError("No disk-based writable backend is enabled");
+# endif
 #endif
 }
 
@@ -457,6 +459,14 @@ string
 Database::Internal::get_metadata(const string &) const
 {
     return string();
+}
+
+TermList *
+Database::Internal::open_metadata_keylist(const std::string &) const
+{
+    // Only implemented for some database backends - others will simply report
+    // there being no metadata keys.
+    return NULL;
 }
 
 void

@@ -24,7 +24,7 @@ NULL=nul
 # win32_applications_omega.mak
 # win32_bindings_python.mak
 # and any other bindings mak files
-XAPIAN_APPLICATIONS=..\..\xapian-applications
+XAPIAN_APPLICATIONS=..\..\xapian-applications\omega
 XAPIAN_BINDINGS=..\..\xapian-bindings
 
 #  ------------- Perl settings-------------
@@ -40,7 +40,7 @@ PERL_EXE=$(PERL_DIR)\perl.exe
 # binary distribution
 
 # Python folder
-PYTHON_DIR=c:\Program Files\Python25
+PYTHON_DIR=c:\Python25
 # Python executable
 PYTHON_EXE=$(PYTHON_DIR)\python.exe 
  #PYTHON_INCLUDE : Set this to the directory that contains python.h
@@ -86,6 +86,18 @@ PHP_DEBUG_OR_RELEASE= /D "ZEND_DEBUG=0"
 PHP_EXE=$(PHP_EXE_DIR)\PHP.exe 
 # ------------- end PHP settings-------------
 
+# ------------- Java settings ------------
+
+JAVA_DIR=C:\Program Files\Java\jdk1.6.0_05\bin
+JAVA_INCLUDE_DIR=C:\Program Files\Java\jdk1.6.0_05\include
+JAVA="$(JAVA_DIR)\java.exe"
+JAVAC="$(JAVA_DIR)\javac.exe"
+JAR="$(JAVA_DIR)\jar.exe"
+JAVA_PATHSEP=/
+
+# ------------- end Java settings-------------
+
+
 
 # ------------SWIG settings-------------
 # Swig executable
@@ -117,7 +129,7 @@ RSC=rc.exe
 MANIFEST=mt.exe /manifest
 
 # make sure inference rules work with all source files
-.SUFFIXES : .cc 
+.SUFFIXES : .cc .java
 
 # makedepend is a tool used to calculate header dependencies, we supply our own version
 DEPEND=makedepend.exe
@@ -147,7 +159,8 @@ XAPIAN_LIBS = \
  "$(OUTLIBDIR)\libcommon.lib"  \
  "$(OUTLIBDIR)\libbackend.lib"  \
  "$(OUTLIBDIR)\libexpand.lib"  \
- "$(OUTLIBDIR)\libquartz.lib" \
+# Quartz deprecated        
+# "$(OUTLIBDIR)\libquartz.lib" \
  "$(OUTLIBDIR)\libflint.lib" \
  "$(OUTLIBDIR)\libinmemory.lib" \
  "$(OUTLIBDIR)\libmulti.lib" \

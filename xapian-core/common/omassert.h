@@ -1,7 +1,7 @@
 /** @file omassert.h
  * @brief Various assertion macros.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,7 +52,7 @@
 
 #include <xapian/error.h>
 
-#include "utils.h" // For om_to_string() and within_DBL_EPSILON().
+#include "utils.h" // For om_tostring() and within_DBL_EPSILON().
 
 #define XAPIAN_ASSERT_LOCATION__(LINE,MSG) __FILE__":"#LINE": "#MSG
 #define XAPIAN_ASSERT_LOCATION_(LINE,MSG) XAPIAN_ASSERT_LOCATION__(LINE,MSG)
@@ -65,6 +65,7 @@
 # define AssertParanoid(COND) Assert(COND)
 # define AssertRelParanoid(A,REL,B) AssertRel(A,REL,B)
 # define AssertEqParanoid(A,B) AssertEq(A,B)
+# define AssertEqDoubleParanoid(A,B) AssertEqDouble(A,B)
 #endif
 
 /** Assert that condition COND is non-zero.
@@ -137,6 +138,47 @@
 # define AssertParanoid(COND) (void)0
 # define AssertRelParanoid(A,REL,B) (void)0
 # define AssertEqParanoid(A,B) (void)0
+# define AssertEqDoubleParanoid(A,B) (void)0
 #endif
+
+/** A "compile-time" assertion.
+ *
+ *  STATIC_ASSERT must be used inside a function (not at the top level, or
+ *  in a class definition).
+ *
+ *  COND must be a compile-time constant expression.
+ *
+ *  If COND is false, the compiler will try to compile an array with negative
+ *  length, which is invalid (we don't use 0 as the length, since GCC allows
+ *  zero length arrays as an extension).  We name the array
+ *  "xapian_static_assert_failed" since this won't clash with any sanely named
+ *  variable, and it's likely to appear in the compiler error message and so
+ *  indicate to the developer what went wrong.
+ */
+#define STATIC_ASSERT(COND) \
+    do { \
+	char xapian_static_assert_failed[(COND) ? 1 : -1]; \
+	(void)xapian_static_assert_failed; \
+    } while (0)
+
+/** Assert at compile-time that type TYPE is unsigned. */
+#define STATIC_ASSERT_UNSIGNED_TYPE(TYPE) \
+    STATIC_ASSERT(static_cast<TYPE>(-1) > 0)
+
+/** Assert at compile-time that integer type T1 can hold any value which
+ *  integer type T2 can.
+ *
+ *  NB Doesn't currently work reliably for type bool (which is typically
+ *  incorrectly treated as equivalent to unsigned char or unsigned int).
+ *
+ *  If T1 is unsigned, T2 must be unsigned and have no more bits.
+ *
+ *  If T1 is signed, then T2 must have no more bits (if also signed) or
+ *  fewer bits (if unsigned).
+ */
+#define STATIC_ASSERT_TYPE_DOMINATES(T1, T2) \
+    STATIC_ASSERT(static_cast<T1>(-1) > 0 ? \
+	(static_cast<T2>(-1) > 0 && sizeof(T1) >= sizeof(T2)) : \
+	(sizeof(T1) >= sizeof(T2) + (static_cast<T2>(-1) > 0)))
 
 #endif // XAPIAN_INCLUDED_OMASSERT_H

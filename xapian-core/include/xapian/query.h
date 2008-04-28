@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2003,2004,2005,2006,2007,2008 Olly Betts
  * Copyright 2006,2007,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -29,7 +29,6 @@
 #include <vector>
 
 #include <xapian/base.h>
-#include <xapian/deprecated.h>
 #include <xapian/types.h>
 #include <xapian/termiterator.h>
 #include <xapian/visibility.h>
@@ -43,6 +42,8 @@ class QueryOptimiser;
 struct SortPosName;
 
 namespace Xapian {
+
+class PostingSource;
 
 /** Class representing a query.
  *
@@ -169,14 +170,6 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	Query(Query::op op_, Iterator qbegin, Iterator qend,
 	      Xapian::termcount parameter = 0);
 
-	/** Apply the specified operator to a single Xapian::Query object.
-	 *
-	 *  @deprecated This method is deprecated because it isn't useful,
-	 *  since none of the current query operators can be usefully
-	 *  applied to a single subquery with a parameter value.
-	 */
-	XAPIAN_DEPRECATED(Query(Query::op op_, Xapian::Query q));
-
 	/** Apply the specified operator to a single Xapian::Query object, with
 	 *  a double parameter.
 	 */
@@ -210,6 +203,9 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 *  @param value The value to compare.
 	 */
 	Query(Query::op op_, Xapian::valueno valno, const std::string &value);
+
+	/// Construct an external source query.
+	explicit Query(Xapian::PostingSource * external_source);
 
 	/** A query which matches all documents in the database. */
 	static Xapian::Query MatchAll;
@@ -274,6 +270,8 @@ Query::Query(Query::op op_, Iterator qbegin, Iterator qend, termcount parameter)
     }
 }
 
+#ifndef SWIG // SWIG has no interest in the internal class, so hide it completely.
+
 /// @internal Internal class, implementing most of Xapian::Query.
 class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCntBase {
     friend class ::LocalSubMatch;
@@ -283,6 +281,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
     friend class Query;
     public:
         static const int OP_LEAF = -1;
+        static const int OP_EXTERNAL_SOURCE = -2;
 
 	/// The container type for storing pointers to subqueries
 	typedef std::vector<Internal *> subquery_list;
@@ -323,6 +322,9 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 	/// Within query frequency of this term - leaf node only
 	Xapian::termcount wqf;
 
+	/// External posting source.
+	Xapian::PostingSource * external_source;
+
 	/** swap the contents of this with another Xapian::Query::Internal,
 	 *  in a way which is guaranteed not to throw.  This is
 	 *  used with the assignment operator to make it exception
@@ -362,7 +364,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 	 */
 	static std::string get_op_name(Xapian::Query::Internal::op_t op);
 
-	/** Collapse the subqueryies together if appropriate.
+	/** Collapse the subqueries together if appropriate.
 	 */
 	void collapse_subqs();
 
@@ -396,6 +398,9 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 	/** Construct a value greater-than-or-equal query on a document value.
 	 */
 	Internal(op_t op_, Xapian::valueno valno, const std::string &value);
+
+	/// Construct an external source query.
+	explicit Internal(Xapian::PostingSource * external_source_);
 
 	/** Destructor. */
 	~Internal();
@@ -447,6 +452,8 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 	 */
 	TermIterator get_terms() const;
 };
+
+#endif // SWIG
 
 }
 

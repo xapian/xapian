@@ -61,6 +61,7 @@ CPP_PROJ=$(CPPFLAGS_EXTRA)  /GR \
 CPP_OBJS=$(XAPIAN_CORE_REL_PHP)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\
 CPP_SBRS=.
 
+!IF "$(SWIGBUILD)" == "1"
 php4/xapian_wrap.cc php4/php_xapian.h php4/xapian.php: ../xapian.i util.i
 	-erase /Q /s php4
 	-md php4
@@ -72,6 +73,7 @@ php5/xapian_wrap.cc php5/php_xapian.h php5/xapian.php: ../xapian.i util.i
 	-md php5
 	$(SWIG) -I"$(XAPIAN_CORE_REL_PHP)\include" $(SWIG_FLAGS) -c++ -php5 -prefix Xapian \
 	    -outdir php5 -o php5/xapian_wrap.cc $(srcdir)/../xapian.i
+!ENDIF
 
 ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS) $(PHP_LIB)
 

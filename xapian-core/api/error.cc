@@ -1,7 +1,7 @@
 /** @file error.cc
  *  @brief Xapian::Error base class.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,7 +20,7 @@
 
 #include <config.h>
 
-#include <new> // For std::bad_alloc.
+#include <xapian/error.h>
 
 #include "safeerrno.h"
 #ifdef __WIN32__
@@ -29,11 +29,8 @@
 # include <netdb.h>
 #endif
 
-#include <stdio.h> // For sprintf().
-#include <stdlib.h> // For free().
-#include <string.h> // For strdup().
-
-#include <xapian/error.h>
+#include <cstdio> // For sprintf().
+#include <cstring> // For strerror().
 
 #include "utils.h" // For om_tostring().
 

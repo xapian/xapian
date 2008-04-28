@@ -2,6 +2,7 @@
  * \brief Replication support for Xapian databases.
  */
 /* Copyright 2008 Lemur Consulting Ltd
+ * Copyright 2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,8 +24,8 @@
 #define XAPIAN_INCLUDED_REPLICATION_H
 
 #include <xapian/base.h>
-#include <xapian/database.h>
 #include <xapian/visibility.h>
+
 #include <string>
 
 namespace Xapian {
@@ -74,7 +75,7 @@ class XAPIAN_VISIBILITY_DEFAULT DatabaseMaster {
      *
      *  The changesets will be such that, if they are applied in order to a
      *  copy of the database at the start revision, a copy of the database
-     *  at the current revision (i.e. the revision which the FlintDatabase
+     *  at the current revision (i.e. the revision which the database
      *  object is currently open at) will be produced.
      *
      *  If suitable changesets have been stored in the database, this will
@@ -137,7 +138,6 @@ class XAPIAN_VISIBILITY_DEFAULT DatabaseReplica {
      *  created when an appropriate changeset is supplied to the replica.
      *
      *  @param path       The path to make the replica at.
-     *  @param remotename The remote database name that the replica is for.
      */
     DatabaseReplica(const std::string & path);
 
@@ -159,12 +159,11 @@ class XAPIAN_VISIBILITY_DEFAULT DatabaseReplica {
 
     /** Get a string describing the current revision of the replica.
      *
-     *  The revision information includes the remotename of the replica, and a
-     *  unique identifier for the master database that the replica is off, as
-     *  well as information about the exact revision of the master database
-     *  that the replica represents.  This information allows the master
-     *  database to send the appropriate changeset to mirror whatever changes
-     *  have been made on the master.
+     *  The revision information includes a unique identifier for the master
+     *  database that the replica is of, as well as information about the exact
+     *  revision of the master database that the replica represents.  This
+     *  information allows the master database to send the appropriate
+     *  changeset to mirror whatever changes have been made on the master.
      */
     std::string get_revision_info() const;
 
@@ -193,8 +192,8 @@ class XAPIAN_VISIBILITY_DEFAULT DatabaseReplica {
      *  the file descriptor shouldn't be accessed by any other external code,
      *  since it will be in an indeterminate state.
      *
-     *  Note that if this raises an exception (other than DatabaseCorrupt
-     *  error) the database will be left in a valid and consistent state.  It
+     *  Note that if this raises an exception (other than DatabaseCorruptError)
+     *  the database will be left in a valid and consistent state.  It
      *  may or may not be changed from its initial state, and may or may not be
      *  fully synchronised with the master database.
      *

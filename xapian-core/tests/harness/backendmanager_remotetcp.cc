@@ -25,7 +25,7 @@
 #include <xapian.h>
 
 #include "safeerrno.h"
-#include <stdio.h>
+#include <cstdio> // For fdopen().
 #include <cstring>
 
 #ifdef HAVE_FORK
@@ -340,9 +340,11 @@ BackendManagerRemoteTcp::get_writable_database(const string & name,
 #ifdef XAPIAN_HAS_FLINT_BACKEND
     (void)getwritedb_flint(name, vector<string>(1, file));
     args += ".flint/";
+#elif XAPIAN_HAS_CHERT_BACKEND
+    (void)getwritedb_chert(name, vector<string>(1, file));
+    args += ".chert/";
 #else
-    (void)getwritedb_quartz(vector<string>(1, file));
-    args += ".quartz/";
+# error No local backend enabled
 #endif
     args += name;
 
@@ -359,8 +361,10 @@ BackendManagerRemoteTcp::get_remote_database(const vector<string> & files,
     args += ' ';
 #ifdef XAPIAN_HAS_FLINT_BACKEND
     args += createdb_flint(files);
+#elif XAPIAN_HAS_CHERT_BACKEND
+    args += createdb_chert(files);
 #else
-    args += createdb_quartz(files);
+# error No local backend enabled
 #endif
 
     int port = launch_xapian_tcpsrv(args);
@@ -373,8 +377,10 @@ BackendManagerRemoteTcp::get_writable_database_as_database()
     string args = "-t300000 ";
 #ifdef XAPIAN_HAS_FLINT_BACKEND
     args += ".flint/";
+#elif XAPIAN_HAS_CHERT_BACKEND
+    args += ".chert/";
 #else
-    args += ".quartz/";
+# error No local backend enabled
 #endif
     args += last_wdb_name;
 
@@ -388,8 +394,10 @@ BackendManagerRemoteTcp::get_writable_database_again()
     string args = "-t300000 --writable ";
 #ifdef XAPIAN_HAS_FLINT_BACKEND
     args += ".flint/";
+#elif XAPIAN_HAS_CHERT_BACKEND
+    args += ".chert/";
 #else
-    args += ".quartz/";
+# error No local backend enabled
 #endif
     args += last_wdb_name;
 

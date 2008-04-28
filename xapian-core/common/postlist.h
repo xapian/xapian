@@ -1,7 +1,7 @@
 /** @file postlist.h
  * @brief Abstract base class for postlists.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -68,6 +68,9 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::RefCntBase {
 
     /// Return the length of current document.
     virtual Xapian::doclength get_doclength() const = 0;
+    /* FIXME: Once flint has been retired, we should probably strip out
+     * PostList::get_doclength() and just fetch it from the DB directly.
+     */
 
     /** Return the wdf for the document at the current position.
      *
@@ -142,6 +145,9 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::RefCntBase {
     virtual Internal * skip_to(Xapian::docid, Xapian::weight w_min) = 0;
 
     /** Check if the specified docid occurs in this postlist.
+     *
+     *  The caller is required to ensure that the specified @a docid actually
+     *  exists in the database.
      *
      *  This method acts like skip_to() if that can be done at little extra
      *  cost, and @a valid is set to true.

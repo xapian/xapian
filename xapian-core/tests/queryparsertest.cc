@@ -22,12 +22,11 @@
 
 #include <xapian.h>
 
-#include <iostream>
-#include <string>
-#include <math.h>
-
-#include "unixcmds.h"
+#include "stringutils.h"
 #include "utils.h"
+
+#include <cmath>
+#include <string>
 
 using namespace std;
 
@@ -1389,7 +1388,7 @@ struct AuthorValueRangeProcessor : public Xapian::ValueRangeProcessor {
     ~AuthorValueRangeProcessor() {}
 
     Xapian::valueno operator()(std::string &begin, std::string &end) {
-	if (begin.substr(0, 7) != "author:")
+	if (!startswith(begin, "author:"))
 	    return Xapian::BAD_VALUENO;
 	begin.erase(0, 7);
 	begin = Xapian::Unicode::tolower(begin);

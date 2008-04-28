@@ -1,40 +1,67 @@
 upto:
-Thu Jan 17 22:32:08 GMT 2008  Olly Betts <olly@survex.com>
+Thu Mar 06 01:44:07 GMT 2008  Olly Betts <olly@survex.com>
 
-	* backends/flint/flint_table.cc,backends/quartz/btree.cc: Fix more
-	  assertions to avoid overflowing int.
-	* backends/flint/flint_btreeutil.h: Fix assertions to not overflow
-	  int.
-	* backends/quartz/btree_util.h: Fix assertions to not overflow int.
+HEAD only:
 
-	* configure.ac: GCC warning flag overhaul.  Stop passing
-	  "-Wno-multichar" since any multi-character character literal is
-	  bound to be a typo (I believe we were only passing it after
-	  misinterpreting its sense!)  Pass "-Wformat-security",
-	  "-Wconversion", and "-pedantic" for all GCC versions.  Add
-	  "-Winit-self" and "-Wstrict-overflow=5" for GCC >= 4.2.  The
-	  latter may be too aggressive, but it's hard to know without
-	  trying it more widely.
+* database replication
 
-	* backends/flint/flint_check.h,backends/flint/flint_table.h,
-	  backends/quartz/btree.h,net/tcpserver.cc,tests/harness/testsuite.cc:
-	  Add XAPIAN_NORETURN() annotations to functions and non-virtual
-	  methods which don't return.
-	  
-	* net/remoteserver.cc: Assign bool variable using a comparison rather
-	  than subtraction, so the intent is clearer.
+* HACKING: Add note about preferring std::string().
 
-	* backends/flint/flint_check.cc: Tweak a comparison so all the
-	  constants are on the same side (micro-optimisation).
-	* backends/quartz/btreecheck.cc: Equivalent change for quartz.
+	* xapian-config.in: Add swigheaders option, listing the header
+	  files used by swig, so that we can add the appropriate
+	  dependencies to the makefiles in the bindings.
+	* xapian-config.in: Use globbing rather than iterating over the output
+	  of ls.
+	* xapian-config.in: Fix not to repeat headers in --swigheaders in a
+	  non-VPATH build.
 
-Xapian-core 1.0.6 (2008-0?-??):
+	* backends/flint/: Improve reporting of failures to obtain lock due
+	  to unexpected errors - the error messages included in the
+	  exceptions raised are now more verbose in many situations.  Also,
+	  if the lock can't be obtained when a database is being created,
+	  report the lock failure, not a DatabaseOpeningError - it's more
+	  useful to know that the lock attempt failed than that the
+	  database wasn't present before the attempt to create it.
 
+	* AUTHORS: Add Matthew Somerville for Search::Xapian patches.
+
+	* common/Makefile.mk,common/socket_utils.cc,common/socket_utils.h,
+	  net/remoteconnection.cc,net/tcpclient.cc: Move windows-specific
+	  socket handling code from remoteconnection.cc into a separate
+	  file, provides the inline close_fd_or_socket for unix in the
+	  header file.  Use this in tcpclient.cc instead of close to close
+	  sockets correctly on windows.
+
+	* tests/harness/backendmanager_multi.cc: Make the multi
+	  backendmanager use relative paths in its stub databases.
+	* backends/database.cc: Stub databases used to
+	  assume that any relative paths were relative to the current
+	  working directory.  They now assume that relative paths are
+	  relative to the directory holding the stub database file.
+	  Also, lines which begin with a '#' character are ignored, so we
+	  can place comments in the stub database files.  Also, recognise a
+	  new database type: a "stub directory", which is a directory
+	  containing a stub database file named "XAPIANDB".
+	* api/replication.cc: Replica databases are now created as
+	  directories containing a "XAPIANDB" stub file, so all the
+	  workings are internal.
+	* common/Makefile.mk,common/fileutils.cc,common/fileutils.h: Add
+	  new set of utilities to manipulate path names - extracting
+	  directory names, and joining paths.
+	* tests/api_replicate.cc: Enable test properly, now that
+	  it passes.  Test needs to be expanded to check that the database
+	  copy succeeded better.
+
+Thu Jan 24 13:31:20 GMT 2008  Olly Betts <olly@survex.com>
+
+Xapian-core 1.0.6 (2008-03-??):
 
 API:
 
 * Add new query operators OP_VALUE_LE and OP_VALUE_GE which perform "single
   ended" range checks, and a corresponding new Query constructor.
+
+* Add Unicode::toupper() to complement Unicode::tolower().
 
 * Xapian::Stem has been further optimised - stemtest now runs ~2.5% faster.
 
@@ -42,36 +69,74 @@ testsuite:
 
 * tests/runtest: Fixed to handle test programs with a ".exe" extension.
 
-	* tests/queryparsertest.cc: Add a couple of testcases I wrote for a
-	  reported problem which turned out to work correctly already.  Still,
-	  they add to our test coverage.
+* tests/queryparsertest: Add a couple more testcases which already work to
+  improve test coverage.
+
+* tests/apitest: Add caseconvert1 testcase to test Unicode::tolower() and
+  Unicode::toupper().
 
 flint backend:
 
+* xapian-check: Fix not to report an error for a database containing no
+  postings but some user metadata.
+
+* Update the base files atomically to avoid problems with reading processes
+  finding partially written ones.
+
+* Create lazy tables with the correct revision to avoid produce a database
+  which we later report as "corrupt" (bug#232).
+
+* xapian-compact: Fix compaction for database which contain user metadata keys.
 
 quartz backend:
 
+* Update the base files atomically to avoid problems with reading processes
+  finding partially written ones.
 
 remote backend:
 
 * The addition of OP_VALUE_LE and OP_VALUE_GE required an update to the Query
   serialisation, which required a minor remote protocol version bump.
 
+* Fix to actually set the writing half as the connection as non-blocking when
+  a timeout is specified.  This would have prevented timeouts from operating
+  correctly in some situations.
+
 inmemory backend:
 
 
 build system:
 
+* configure: GCC warning flag overhaul:  Stop passing "-Wno-multichar" since
+  any multi-character character literal is bound to be a typo (I believe we
+  were only passing it after misinterpreting its sense!)  Pass
+  "-Wformat-security", and "-Wconversion" for all GCC versions.  Add
+  "-Winit-self" and "-Wstrict-overflow=5" for GCC >= 4.2.  The latter might
+  prove too aggressive, but seems reasonable so far.  Fix some minor niggles
+  revealed by "-Wconversion" and "-Wstrict-overflow=5".
+
+* Add XAPIAN_NORETURN() annotations to functions and non-virtual methods which
+  don't return.
 
 documentation:
 
-	* docs/valueranges.rst: Fix example of using multiple VRPs to come out
-	  as a "program listing".
+* docs/intro_ir.html: Briefly mention how pure boolean retrieval is supported.
 
-	* PLATFORMS: Remove reports for 0.8.x as they're too old to be
-	  interesting.  Separate out 0.9.x reports.
-	* PLATFORMS: Add Solaris 9 and 10 success reports from James Aylett.
-	* PLATFORMS: Update from Debian buildd logs.
+* docs/valueranges.html: Fix example of using multiple VRPs to come out as a
+  "program listing".
+
+* include/xapian/queryparser.h: Fix incorrect example in doccomment.
+
+* docs/quickstart.html: Remove information covered by INSTALL since
+  there's no good reason to repeat it and two copies just risks one
+  getting out of date (as has happened here!)
+
+* docs/quickstart.html: Fix very out of date reference to MSet::items
+  (bug#237).
+
+* PLATFORMS: Remove reports for 0.8.x as they're too old to be interesting.
+  Separate out 0.9.x reports.  Add Solaris 9 and 10 success reports from James
+  Aylett.  Update from Debian buildd logs.
 
 examples:
 
@@ -601,6 +666,7 @@ API:
     but less tightly than "AND" (previously it bound just like "OR").
 
   + '+' and '-' have been fixed to work on bracketed subexpressions as
+    documented.
 
   + If the stemmer is "none", no longer put a Z prefix on terms; this now
     matches the output of TermGenerator.

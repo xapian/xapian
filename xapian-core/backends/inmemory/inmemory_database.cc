@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
  * Copyright 2006 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -22,13 +22,13 @@
  */
 
 #include <config.h>
-#include <stdio.h>
+
+#include "inmemory_database.h"
 
 #include "omdebug.h"
 
 #include "emptypostlist.h"
 #include "expandweight.h"
-#include "inmemory_database.h"
 #include "inmemory_document.h"
 #include "inmemory_alltermslist.h"
 #include "utils.h"
@@ -99,10 +99,8 @@ InMemoryPostList::get_termfreq() const
 Xapian::docid
 InMemoryPostList::get_docid() const
 {
-    //DebugMsg(tname << ".get_docid()");
     Assert(started);
     Assert(!at_end());
-    //DebugMsg(" = " << (*pos).did << endl);
     return (*pos).did;
 }
 
@@ -122,7 +120,6 @@ InMemoryPostList::next(Xapian::weight /*w_min*/)
 PostList *
 InMemoryPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 {
-    //DebugMsg(tname << ".skip_to(" << did << ")" << endl);
     // FIXME - see if we can make more efficient, perhaps using better
     // data structure.  Note, though, that a binary search of
     // the remaining list may NOT be a good idea (search time is then
@@ -366,13 +363,13 @@ InMemoryDatabase::open_post_list(const string & tname) const
 {
     if (tname.empty()) {
 	if (termlists.empty())
-	    return new EmptyPostList();
+	    return new EmptyPostList;
 	Xapian::Internal::RefCntPtr<const InMemoryDatabase> ptrtothis(this);
 	return new InMemoryAllDocsPostList(ptrtothis);
     }
     map<string, InMemoryTerm>::const_iterator i = postlists.find(tname);
     if (i == postlists.end() || i->second.term_freq == 0)
-	return new EmptyPostList();
+	return new EmptyPostList;
 
     Xapian::Internal::RefCntPtr<const InMemoryDatabase> ptrtothis(this);
     LeafPostList * pl = new InMemoryPostList(ptrtothis, i->second);
@@ -434,7 +431,7 @@ InMemoryDatabase::get_doclength(Xapian::docid did) const
 TermList *
 InMemoryDatabase::open_term_list(Xapian::docid did) const
 {
-    if (did == 0) throw Xapian::InvalidArgumentError("Docid 0 invalid");
+    Assert(did != 0);
     if (!doc_exists(did)) {
 	// FIXME: the docid in this message will be local, not global
 	throw Xapian::DocNotFoundError(string("Docid ") + om_tostring(did) +
@@ -447,8 +444,8 @@ InMemoryDatabase::open_term_list(Xapian::docid did) const
 Xapian::Document::Internal *
 InMemoryDatabase::open_document(Xapian::docid did, bool /*lazy*/) const
 {
+    Assert(did != 0);
     // we're never lazy so ignore that flag
-    if (did == 0) throw Xapian::InvalidArgumentError("Docid 0 invalid");
     if (!doc_exists(did)) {
 	// FIXME: the docid in this message will be local, not global
 	throw Xapian::DocNotFoundError(string("Docid ") + om_tostring(did) +

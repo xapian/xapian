@@ -24,11 +24,10 @@ output will be written (the file will be clobbered).
 
 from xml.dom import minidom
 import re
-import textwrap
 import sys
+import textwrap
 import types
 import os.path
-
 
 def my_open_read(source):
     if hasattr(source, "read"):

@@ -77,7 +77,7 @@ DatabaseMaster::write_changesets_to_fd(int fd,
     // Extract the UUID from start_revision and compare it to the database.
     bool need_whole_db = false;
     string revision(start_revision);
-    if (revision.size() == 0) {
+    if (revision.empty()) {
 	need_whole_db = true;
     } else {
 	const char * ptr = revision.data();
@@ -98,8 +98,7 @@ DatabaseMaster::write_changesets_to_fd(int fd,
 string
 DatabaseMaster::get_description() const
 {
-    DEBUGCALL(INTRO, string, "DatabaseMaster::get_description", "");
-    RETURN("DatabaseMaster(" + path + ")");
+    return "DatabaseMaster(" + path + ")";
 }
 
 /// Internal implementation of DatabaseReplica
@@ -298,8 +297,7 @@ DatabaseReplica::close()
 string
 DatabaseReplica::get_description() const
 {
-    DEBUGCALL(INTRO, string, "DatabaseReplica::get_description", "");
-    RETURN("DatabaseReplica(" + internal->get_description() + ")");
+    return "DatabaseReplica(" + internal->get_description() + ")";
 }
 
 // Methods of DatabaseReplica::Internal
@@ -395,7 +393,7 @@ DatabaseReplica::Internal::Internal(const string & path_)
 	ifstream stub(stub_path.c_str());
 	string line;
 	while (getline(stub, line)) {
-	    if (line.size() == 0 || line[0] == '#')
+	    if (line.empty() || line[0] == '#')
 		continue;
 	    string::size_type space = line.find(' ');
 	    if (space == string::npos)
@@ -407,11 +405,15 @@ DatabaseReplica::Internal::Internal(const string & path_)
 		string live_path = join_paths(path, live_name);
 		live_db.add_database(Flint::open(live_path, Xapian::DB_OPEN));
 	    } else {
-		throw FeatureUnavailableError("Database replication only works with flint databases.");
+		throw FeatureUnavailableError(
+		    "Database replication only works with flint databases.");
 	    }
 	}
 	if (live_db.internal.size() != 1) {
-	    throw Xapian::InvalidOperationError("DatabaseReplica needs to be pointed at exactly one subdatabase");
+	    throw Xapian::InvalidOperationError(
+		"DatabaseReplica needs to be reference exactly one subdatabase"
+		" - found " + om_tostring(live_db.internal.size()) +
+		" subdatabases.");
 	}
     }
 
@@ -464,7 +466,7 @@ DatabaseReplica::Internal::get_revision_info() const
 void
 DatabaseReplica::Internal::remove_offline_db()
 {
-    if (offline_name.size() == 0)
+    if (offline_name.empty())
 	return;
     string offline_path = join_paths(path, offline_name);
     // Close and then delete the database.
@@ -610,7 +612,7 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info)
 		}
 		break;
 	    case REPL_REPLY_CHANGESET:
-		if (offline_name.size() == 0) {
+		if (offline_name.empty()) {
 		    offline_needed_revision = (live_db.internal[0])->
 			    apply_changeset_from_conn(*conn, end_time);
 		    if (info != NULL) {

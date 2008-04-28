@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005,2006 Olly Betts
+ * Copyright 2003,2004,2005,2006,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,14 +22,15 @@
 
 #include <config.h>
 
+#include "omdebug.h"
+
 #ifdef XAPIAN_DEBUG_VERBOSE
 
-#include "omdebug.h"
 #include "utils.h"
 
 OmDebug om_debug;
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "safefcntl.h"
@@ -121,15 +122,11 @@ OmDebug::display_message(enum om_debug_types type, string msg)
 
 #ifdef XAPIAN_DEBUG_PROFILE
 
-#include "omdebug.h"
-
-#include <sys/time.h>
-
 struct timeval Xapian::Internal::Timer::paused;
 
 struct timeval * Xapian::Internal::Timer::pstart = NULL;
 
-list<Xapian::Internal::Timer *> Xapian::Internal::Timer::stack;
+std::list<Xapian::Internal::Timer *> Xapian::Internal::Timer::stack;
 
 int Xapian::Internal::Timer::depth = 0;
 

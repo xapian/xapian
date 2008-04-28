@@ -1,6 +1,6 @@
 /* xapian-compact.cc: Compact a flint database, or merge and compact several.
  *
- * Copyright (C) 2004,2005,2006,2007 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -74,9 +74,9 @@ is_metainfo_key(const string & key)
 }
 
 static inline bool
-is_user_metainfo_key(const string & key)
+is_user_metadata_key(const string & key)
 {
-    return key.size() > 1 && key[0] == '\0' && key[1] != '\xff';
+    return key.size() > 1 && key[0] == '\0' && key[1] == '\xc0';
 }
 
 class PostlistCursor : private FlintCursor {
@@ -88,7 +88,7 @@ class PostlistCursor : private FlintCursor {
     Xapian::termcount tf, cf;
 
     PostlistCursor(FlintTable *in, Xapian::docid offset_)
-	: FlintCursor(in), offset(offset_)
+	: FlintCursor(in), offset(offset_), firstdid(0)
     {
 	find_entry("");
 	next();
@@ -108,22 +108,22 @@ class PostlistCursor : private FlintCursor {
 	tag = current_tag;
 	tf = cf = 0;
 	if (is_metainfo_key(key)) return true;
-	if (is_user_metainfo_key(key)) return true;
+	if (is_user_metadata_key(key)) return true;
 	// Adjust key if this is *NOT* an initial chunk.
-	// key is: pack_string_preserving_sort(tname)
-	// plus optionally: pack_uint_preserving_sort(did)
+	// key is: F_pack_string_preserving_sort(tname)
+	// plus optionally: F_pack_uint_preserving_sort(did)
 	const char * d = key.data();
 	const char * e = d + key.size();
 	string tname;
-	if (!unpack_string_preserving_sort(&d, e, tname))
+	if (!F_unpack_string_preserving_sort(&d, e, tname))
 	    throw Xapian::DatabaseCorruptError("Bad postlist key");
 	if (d == e) {
 	    // This is an initial chunk for a term, so adjust tag header.
 	    d = tag.data();
 	    e = d + tag.size();
-	    if (!unpack_uint(&d, e, &tf) ||
-		!unpack_uint(&d, e, &cf) ||
-		!unpack_uint(&d, e, &firstdid)) {
+	    if (!F_unpack_uint(&d, e, &tf) ||
+		!F_unpack_uint(&d, e, &cf) ||
+		!F_unpack_uint(&d, e, &firstdid)) {
 		throw Xapian::DatabaseCorruptError("Bad postlist tag");
 	    }
 	    ++firstdid;
@@ -131,7 +131,7 @@ class PostlistCursor : private FlintCursor {
 	} else {
 	    // Not an initial chunk, so adjust key.
 	    size_t tmp = d - key.data();
-	    if (!unpack_uint_preserving_sort(&d, e, &firstdid) || d != e)
+	    if (!F_unpack_uint_preserving_sort(&d, e, &firstdid) || d != e)
 		throw Xapian::DatabaseCorruptError("Bad postlist key");
 	    key.erase(tmp);
 	}
@@ -152,15 +152,14 @@ class PostlistCursorGt {
 };
 
 static void
-merge_postlists(const string & tablename,
-		FlintTable * out, vector<Xapian::docid>::const_iterator offset,
+merge_postlists(FlintTable * out, vector<Xapian::docid>::const_iterator offset,
 		vector<string>::const_iterator b, vector<string>::const_iterator e,
 		Xapian::docid tot_off)
 {
     flint_totlen_t tot_totlen = 0;
     priority_queue<PostlistCursor *, vector<PostlistCursor *>, PostlistCursorGt> pq;
     for ( ; b != e; ++b, ++offset) {
-	FlintTable *in = new FlintTable(tablename, *b, true);
+	FlintTable *in = new FlintTable("postlist", *b, true);
 	in->open();
 	if (in->get_entry_count()) {
 	    // PostlistCursor takes ownership of FlintTable in and is
@@ -175,11 +174,11 @@ merge_postlists(const string & tablename,
 	    const char * data = cur->tag.data();
 	    const char * end = data + cur->tag.size();
 	    Xapian::docid dummy_did = 0;
-	    if (!unpack_uint(&data, end, &dummy_did)) {
+	    if (!F_unpack_uint(&data, end, &dummy_did)) {
 		throw Xapian::DatabaseCorruptError("Tag containing meta information is corrupt.");
 	    }
 	    flint_totlen_t totlen = 0;
-	    if (!unpack_uint_last(&data, end, &totlen)) {
+	    if (!F_unpack_uint_last(&data, end, &totlen)) {
 		throw Xapian::DatabaseCorruptError("Tag containing meta information is corrupt.");
 	    }
 	    tot_totlen += totlen;
@@ -196,21 +195,25 @@ merge_postlists(const string & tablename,
 	}
     }
 
-    string tag = pack_uint(tot_off);
-    tag += pack_uint_last(tot_totlen);
+    string tag = F_pack_uint(tot_off);
+    tag += F_pack_uint_last(tot_totlen);
     out->add(string("", 1), tag);
 
     string last_key;
-    while (true) {
-	PostlistCursor * cur = NULL;
-	if (!pq.empty()) {
-	    cur = pq.top();
-	    pq.pop();
+    // Merge user metadata.
+    while (!pq.empty()) {
+	PostlistCursor * cur = pq.top();
+	const string& key = cur->key;
+	if (!is_user_metadata_key(key)) break;
+
+	if (key == last_key) {
+	    cerr << "Warning: duplicate user metadata key - picking arbitrary tag value" << endl;
+	} else {
+	    out->add(key, cur->tag);
+	    last_key = key;
 	}
-	if (!is_user_metainfo_key(cur->key)) {
-	    pq.push(cur);
-	    break;
-	}
+
+	pq.pop();
 	if (cur->next()) {
 	    pq.push(cur);
 	} else {
@@ -226,12 +229,12 @@ merge_postlists(const string & tablename,
 	    cur = pq.top();
 	    pq.pop();
 	}
-	Assert(cur == NULL || !is_user_metainfo_key(cur->key));
+	Assert(cur == NULL || !is_user_metadata_key(cur->key));
 	if (cur == NULL || cur->key != last_key) {
 	    if (!tags.empty()) {
-		string first_tag = pack_uint(tf);
-		first_tag += pack_uint(cf);
-		first_tag += pack_uint(tags[0].first - 1);
+		string first_tag = F_pack_uint(tf);
+		first_tag += F_pack_uint(cf);
+		first_tag += F_pack_uint(tags[0].first - 1);
 		string tag = tags[0].second;
 		tag[0] = (tags.size() == 1) ? '1' : '0';
 		first_tag += tag;
@@ -240,7 +243,7 @@ merge_postlists(const string & tablename,
 		i = tags.begin();
 		while (++i != tags.end()) {
 		    string key = last_key;
-		    key += pack_uint_preserving_sort(i->first);
+		    key += F_pack_uint_preserving_sort(i->first);
 		    tag = i->second;
 		    tag[0] = (i + 1 == tags.end()) ? '1' : '0';
 		    out->add(key, tag);
@@ -377,14 +380,13 @@ struct PrefixCompressedStringItorGt {
 };
 
 static void
-merge_spellings(const string & tablename,
-		FlintTable * out,
+merge_spellings(FlintTable * out,
 		vector<string>::const_iterator b,
 		vector<string>::const_iterator e)
 {
     priority_queue<MergeCursor *, vector<MergeCursor *>, CursorGt> pq;
     for ( ; b != e; ++b) {
-	FlintTable *in = new FlintTable(tablename, *b, true, DONT_COMPRESS, true);
+	FlintTable *in = new FlintTable("spelling", *b, true, DONT_COMPRESS, true);
 	in->open();
 	if (in->get_entry_count()) {
 	    // The MergeCursor takes ownership of FlintTable in and is
@@ -425,6 +427,7 @@ merge_spellings(const string & tablename,
 	    // current_tag members must remain valid while we're merging their
 	    // tags, but we need to call next() on them all afterwards.
 	    vector<MergeCursor *> vec;
+	    vec.reserve(pq.size());
 
 	    while (true) {
 		cur->read_tag();
@@ -470,7 +473,7 @@ merge_spellings(const string & tablename,
 		Xapian::termcount freq;
 		const char * p = cur->current_tag.data();
 		const char * end = p + cur->current_tag.size();
-		if (!unpack_uint_last(&p, end, &freq) || freq == 0) {
+		if (!F_unpack_uint_last(&p, end, &freq) || freq == 0) {
 		    throw Xapian::DatabaseCorruptError("Bad spelling word freq");
 		}
 		tot_freq += freq;
@@ -483,7 +486,7 @@ merge_spellings(const string & tablename,
 		cur = pq.top();
 		pq.pop();
 	    }
-	    tag = pack_uint_last(tot_freq);
+	    tag = F_pack_uint_last(tot_freq);
 	}
 	out->add(key, tag);
     }
@@ -540,14 +543,13 @@ struct ByteLengthPrefixedStringItorGt {
 };
 
 static void
-merge_synonyms(const string & tablename,
-	       FlintTable * out,
+merge_synonyms(FlintTable * out,
 	       vector<string>::const_iterator b,
 	       vector<string>::const_iterator e)
 {
     priority_queue<MergeCursor *, vector<MergeCursor *>, CursorGt> pq;
     for ( ; b != e; ++b) {
-	FlintTable *in = new FlintTable(tablename, *b, true, DONT_COMPRESS, true);
+	FlintTable *in = new FlintTable("synonym", *b, true, DONT_COMPRESS, true);
 	in->open();
 	if (in->get_entry_count()) {
 	    // The MergeCursor takes ownership of FlintTable in and is
@@ -627,8 +629,7 @@ merge_synonyms(const string & tablename,
 }
 
 static void
-multimerge_postlists(const string & tablename,
-		     FlintTable * out, const char * tmpdir,
+multimerge_postlists(FlintTable * out, const char * tmpdir,
 		     Xapian::docid tot_off,
 		     vector<string> tmp, vector<Xapian::docid> off)
 {
@@ -649,11 +650,11 @@ multimerge_postlists(const string & tablename,
 
 	    // Don't compress temporary tables, even if the final table would
 	    // be.
-	    FlintTable tmptab(tablename, dest, false);
+	    FlintTable tmptab("postlist", dest, false);
 	    // Use maximum blocksize for temporary tables.
 	    tmptab.create_and_open(65536);
 
-	    merge_postlists(tablename, &tmptab, off.begin() + i, tmp.begin() + i, tmp.begin() + j, 0);
+	    merge_postlists(&tmptab, off.begin() + i, tmp.begin() + i, tmp.begin() + j, 0);
 	    if (c > 0) {
 		for (unsigned int k = i; k < j; ++k) {
 		    unlink((tmp[k] + "DB").c_str());
@@ -662,13 +663,14 @@ multimerge_postlists(const string & tablename,
 		}
 	    }
 	    tmpout.push_back(dest);
-	    tmptab.commit(1, -1);
+	    tmptab.flush_db();
+	    tmptab.commit(1);
 	}
 	swap(tmp, tmpout);
 	swap(off, newoff);
 	++c;
     }
-    merge_postlists(tablename, out, off.begin(), tmp.begin(), tmp.end(), tot_off);
+    merge_postlists(out, off.begin(), tmp.begin(), tmp.end(), tot_off);
     if (c > 0) {
 	for (size_t k = 0; k < tmp.size(); ++k) {
 	    unlink((tmp[k] + "DB").c_str());
@@ -700,13 +702,13 @@ merge_docid_keyed(const string & tablename,
 		Xapian::docid did;
 		const char * d = cur.current_key.data();
 		const char * e = d + cur.current_key.size();
-		if (!unpack_uint_preserving_sort(&d, e, &did)) {
+		if (!F_unpack_uint_preserving_sort(&d, e, &did)) {
 		    string msg = "Bad key in ";
 		    msg += inputs[i];
 		    throw Xapian::DatabaseCorruptError(msg);
 		}
 		did += off;
-		key = pack_uint_preserving_sort(did);
+		key = F_pack_uint_preserving_sort(did);
 		if (d != e) {
 		    // Copy over the termname for the position table.
 		    key.append(d, e - d);
@@ -886,7 +888,7 @@ main(int argc, char **argv)
 	};
 
 	static const table_list tables[] = {
-	    // name	    type		compress_strategy	lazy
+	    // name	    type	compress_strategy	lazy
 	    { "postlist",   POSTLIST,	DONT_COMPRESS,		false },
 	    { "record",	    RECORD,	Z_DEFAULT_STRATEGY,	false },
 	    { "termlist",   TERMLIST,	Z_DEFAULT_STRATEGY,	false },
@@ -950,21 +952,19 @@ main(int argc, char **argv)
 	    switch (t->type) {
 		case POSTLIST:
 		    if (multipass && inputs.size() > 3) {
-			multimerge_postlists(t->name, &out, destdir, tot_off,
+			multimerge_postlists(&out, destdir, tot_off,
 					     inputs, offset);
 		    } else {
-			merge_postlists(t->name, &out, offset.begin(),
+			merge_postlists(&out, offset.begin(),
 					inputs.begin(), inputs.end(),
 					tot_off);
 		    }
 		    break;
 		case SPELLING:
-		    merge_spellings(t->name, &out,
-				    inputs.begin(), inputs.end());
+		    merge_spellings(&out, inputs.begin(), inputs.end());
 		    break;
 		case SYNONYM:
-		    merge_synonyms(t->name, &out,
-				   inputs.begin(), inputs.end());
+		    merge_synonyms(&out, inputs.begin(), inputs.end());
 		    break;
 		default:
 		    // Position, Record, Termlist, Value
@@ -973,7 +973,8 @@ main(int argc, char **argv)
 	    }
 
 	    // Commit as revision 1.
-	    out.commit(1, -1);
+	    out.flush_db();
+	    out.commit(1);
 
 	    cout << '\r' << t->name << ": ";
 	    off_t out_size = 0;

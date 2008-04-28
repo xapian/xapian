@@ -1,7 +1,7 @@
 /** @file remote-database.cc
  *  @brief Remote backend database class
  */
-/* Copyright (C) 2006,2007 Olly Betts
+/* Copyright (C) 2006,2007,2008 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -20,6 +20,8 @@
  */
 
 #include <config.h>
+
+#include "remote-database.h"
 
 #include "safeerrno.h"
 #include <signal.h>
@@ -127,7 +129,7 @@ RemoteDatabase::keep_alive()
 TermList *
 RemoteDatabase::open_term_list(Xapian::docid did) const
 {
-    if (did == 0) throw Xapian::InvalidArgumentError("Docid 0 invalid");
+    Assert(did);
 
     // Ensure that avlength and doccount are up-to-date.
     if (!cached_stats_valid) update_stats();
@@ -272,7 +274,7 @@ RemoteDatabase::reopen()
 Xapian::Document::Internal *
 RemoteDatabase::open_document(Xapian::docid did, bool /*lazy*/) const
 {
-    if (did == 0) throw Xapian::InvalidArgumentError("Docid 0 invalid");
+    Assert(did);
 
     send_message(MSG_DOCUMENT, encode_length(did));
     string doc_data;
@@ -539,7 +541,6 @@ RemoteDatabase::delete_document(Xapian::docid did)
 {
     cached_stats_valid = false;
 
-//    send_message(MSG_DELETEDOCUMENT_PRE_30_2, encode_length(did));
     send_message(MSG_DELETEDOCUMENT, encode_length(did));
     string dummy;
     get_message(dummy, REPLY_DONE);

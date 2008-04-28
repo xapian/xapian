@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2003,2004,2005,2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -55,7 +55,7 @@ enum om_debug_types {
      */
     OM_DEBUG_UNKNOWN,
 
-    /// @internal Was OM_DEBUG_LOCK - insert DUMMY to preserve numbers for now
+    /// @internal Was OM_DEBUG_LOCK - insert DUMMY to preserve numbers for now.
     OM_DEBUG_DUMMY,
 
     /** A debug message to do with a database backend.
@@ -95,10 +95,8 @@ enum om_debug_types {
      */
     OM_DEBUG_INDEXER,
 
-    /** Type for messages from methods performing introspection (eg,
-     *  get_description()).
-     */
-    OM_DEBUG_INTRO,
+    /// @internal Was OM_DEBUG_INTRO - insert DUMMY to preserve numbers for now.
+    OM_DEBUG_DUMMY2,
 
     /** Type for messages to do with the remote backend. */
     OM_DEBUG_REMOTE,
@@ -253,10 +251,17 @@ using std::endl;
 #define DEBUGLINE(a,b) (void)0
 #define RETURN(A) return (A)
 
+#include <cstdio>  // For fprintf().
+#include <cstdlib> // For abort().
 #include <sys/time.h>
-#include <stdio.h>
 
-class Xapian::Internal::Timer {
+#include <list>
+#include <string>
+
+namespace Xapian {
+namespace Internal {
+
+class Timer {
     private:
 	std::string call;
 
@@ -278,7 +283,7 @@ class Xapian::Internal::Timer {
 	// pointer to start time so resume can start the clock
 	static struct timeval * pstart;
 
-	static list<Timer *> stack;
+	static std::list<Timer *> stack;
 
 	static int depth;
 
@@ -295,7 +300,7 @@ class Xapian::Internal::Timer {
 	~Timer() {
 	    gettimeofday(&paused, NULL);
 	    {
-		if (stack.empty()) abort();
+		if (stack.empty()) std::abort();
 		stack.pop_back();
 		depth--;
 
@@ -324,8 +329,8 @@ class Xapian::Internal::Timer {
 		    myu += 1000000;
 		    mys--;
 		}
-		fprintf(stderr, "% 5d.%06d % 5d.%06d %-*s%s\n", runs, runu,
-			mys, myu, depth, "", call.c_str());
+		std::fprintf(stderr, "% 5d.%06d % 5d.%06d %-*s%s\n",
+			     runs, runu, mys, myu, depth, "", call.c_str());
 	    }
 
 	    // subtract entry from start (dead time 1)
@@ -365,10 +370,13 @@ class Xapian::Internal::Timer {
 	}
 
 	static void resume() {
-	    if (pstart == NULL) abort();
+	    if (pstart == NULL) std::abort();
 	    gettimeofday(pstart, NULL);
 	}
 };
+
+}
+}
 
 /** Display a message indicating that a method has been called, and another
  *  message when the method ends.

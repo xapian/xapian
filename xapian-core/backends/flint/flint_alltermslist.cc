@@ -1,6 +1,6 @@
 /* flint_alltermslist.cc: A termlist containing all terms in a flint database.
  *
- * Copyright (C) 2005,2007 Olly Betts
+ * Copyright (C) 2005,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -101,7 +101,7 @@ FlintAllTermsList::next()
 
 	const char *p = cursor->current_key.data();
 	const char *pend = p + cursor->current_key.size();
-	if (!unpack_string_preserving_sort(&p, pend, current_term)) {
+	if (!F_unpack_string_preserving_sort(&p, pend, current_term)) {
 	    throw Xapian::DatabaseCorruptError("PostList table key has unexpected format");
 	}
 
@@ -129,7 +129,7 @@ FlintAllTermsList::skip_to(const string &term)
     // the current term.
     termfreq = 0;
 
-    if (cursor->find_entry_ge(pack_string_preserving_sort(term))) {
+    if (cursor->find_entry_ge(F_pack_string_preserving_sort(term))) {
 	// The exact term we asked for is there, so just copy it rather than
 	// wasting effort unpacking it from the key.
 	current_term = term;
@@ -141,7 +141,7 @@ FlintAllTermsList::skip_to(const string &term)
 
 	const char *p = cursor->current_key.data();
 	const char *pend = p + cursor->current_key.size();
-	if (!unpack_string_preserving_sort(&p, pend, current_term)) {
+	if (!F_unpack_string_preserving_sort(&p, pend, current_term)) {
 	    throw Xapian::DatabaseCorruptError("PostList table key has unexpected format");
 	}
     }

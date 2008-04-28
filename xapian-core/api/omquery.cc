@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2003,2004,2005,2006,2007,2008 Olly Betts
  * Copyright 2006,2007,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -120,18 +120,6 @@ Query::Query(Query::op op_, const Query &left, const Query &right)
     }
 }
 
-Query::Query(Query::op op_, Query q) : internal(0)
-{
-    try {
-	start_construction(op_, 0);
-	add_subquery(q);
-	end_construction();
-    } catch (...) {
-	abort_construction();
-	throw;
-    }
-}
-
 Query::Query(Query::op op_, Xapian::Query q, double parameter)
 {
     DEBUGAPICALL(void, "Xapian::Query::Query",
@@ -173,6 +161,12 @@ Query::Query(Query::op op_, Xapian::valueno valno, const std::string &value)
 		 op_ << ", " << valno << ", " << value);
 }
 
+Query::Query(PostingSource * external_source)
+	: internal(new Query::Internal(external_source))
+{
+    DEBUGAPICALL(void, "Xapian::Query::Query", external_source);
+}
+
 // Copy constructor
 Query::Query(const Query & copyme)
 	: internal(copyme.internal)
@@ -204,11 +198,10 @@ Query::~Query()
 std::string
 Query::get_description() const
 {
-    DEBUGCALL(INTRO, std::string, "Xapian::Query::get_description", "");
     std::string res("Xapian::Query(");
     if (internal.get()) res += internal->get_description();
     res += ")";
-    RETURN(res);
+    return res;
 }
 
 termcount Query::get_length() const
@@ -246,7 +239,7 @@ Query::Query(Query::op op_, const std::string & left, const std::string & right)
 }
 
 /* Define static members. */
-Xapian::Query Xapian::Query::MatchAll = Xapian::Query("");
+Xapian::Query Xapian::Query::MatchAll = Xapian::Query(string());
 Xapian::Query Xapian::Query::MatchNothing = Xapian::Query();
 
 }
