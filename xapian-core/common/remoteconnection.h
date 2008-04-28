@@ -24,6 +24,7 @@
 #include <string>
 
 #include "remoteprotocol.h"
+#include "safeunistd.h"
 
 #ifdef __WIN32__
 # include "safewinsock2.h"

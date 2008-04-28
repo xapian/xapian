@@ -22,12 +22,13 @@ libxapian_la_SOURCES +=\
 	api/omqueryinternal.cc\
 	api/omtermlistiterator.cc\
 	api/omvalueiterator.cc\
+	api/postingsource.cc\
 	api/postlist.cc\
 	api/replication.cc\
 	api/sortable-serialise.cc\
 	api/sorter.cc\
 	api/termlist.cc\
 	api/valuerangeproc.cc\
-	api/valuerangeproccompat.cc\
+	api/valuesetmatchdecider.cc\
 	api/version.cc\
 	api/weightinternal.cc

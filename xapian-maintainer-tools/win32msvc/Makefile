@@ -118,9 +118,12 @@ COPYMAKFILES:
    if exist $(XAPIAN_BINDINGS) copy version.rc.python $(XAPIAN_BINDINGS)\python\version.rc
    if exist $(XAPIAN_BINDINGS) copy win32_bindings_php.mak $(XAPIAN_BINDINGS)\php\Makefile
    if exist $(XAPIAN_BINDINGS) copy version.rc.php $(XAPIAN_BINDINGS)\php\version.rc
-   if exist $(XAPIAN_APPLICATIONS) copy win32_applications_omega.mak $(XAPIAN_APPLICATIONS)\omega\Makefile
-   if exist $(XAPIAN_APPLICATIONS) copy config.mak $(XAPIAN_APPLICATIONS)\omega
-   if exist $(XAPIAN_APPLICATIONS) copy config.h.omega.win32 $(XAPIAN_APPLICATIONS)\omega\config.h
+   if exist $(XAPIAN_BINDINGS) copy win32_bindings_java-swig.mak $(XAPIAN_BINDINGS)\java-swig\Makefile
+   if exist $(XAPIAN_BINDINGS) copy version.rc.java-swig $(XAPIAN_BINDINGS)\java-swig\version.rc
+   if exist $(XAPIAN_BINDINGS) copy MakeVersion.java $(XAPIAN_BINDINGS)\java-swig\MakeVersion.java
+   if exist $(XAPIAN_APPLICATIONS) copy win32_applications_omega.mak $(XAPIAN_APPLICATIONS)\Makefile
+   if exist $(XAPIAN_APPLICATIONS) copy config.mak $(XAPIAN_APPLICATIONS)
+   if exist $(XAPIAN_APPLICATIONS) copy config.h.omega.win32 $(XAPIAN_APPLICATIONS)\config.h
 
 # Test for tools that we MUST have   
 TESTFORTOOLS: makedepend.exe

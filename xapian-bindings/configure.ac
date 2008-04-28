@@ -6,7 +6,7 @@ dnl 2.57 fixes the annoying warnings from configure on FreeBSD
 dnl 2.58 is needed by automake 1.8.5
 dnl 2.59 was released the same day as 2.58 to fix a problem
 AC_PREREQ(2.59)
-AC_INIT(xapian-bindings, 1.0.5)dnl FIXME: bugreport addr as third argument
+AC_INIT(xapian-bindings, 1.0.6)dnl FIXME: bugreport addr as third argument
 dnl 1.9 reduces Makefile.in size, and 1.9.5 was in Debian sarge
 dnl But the RPM spec file runs autoreconf, and SLES 9 has 1.8.3.
 AM_INIT_AUTOMAKE([1.8.3 -Wportability tar-ustar])
@@ -135,7 +135,7 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   case $v in
     [1.3.[3-9][0-9]|1.3.[1-9][0-9][0-9][0-9]*|1.[4-9].*|2.*]) ;;
     *)
-      msg="SWIG >= 1.3.32 (SVN rev 10143 or later) required (you have ${v:-an unknown version})"
+      msg="SWIG >= 1.3.33 (SVN rev 10143 or later) required (you have ${v:-an unknown version})"
       if test -n "$swigoverridden" ; then
 	dnl If SWIG was explicitly set, make this a warning only.
 	AC_MSG_WARN([$msg])
@@ -145,8 +145,6 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   esac
   SWIG_FLAGS="`$XAPIAN_CONFIG --swigflags` -Werror"
   AC_SUBST(SWIG_FLAGS)
-  SWIG_COREHEADERS="`$XAPIAN_CONFIG --swigheaders`"
-  AC_SUBST(SWIG_COREHEADERS)
 
   dnl Need perl in maintainer mode to generate the except.i file for python.
   AC_PATH_PROGS(PERL, ["${PERL-perl}"], [])
@@ -211,18 +209,17 @@ if test no != "$with_python" ; then
   AC_PATH_PROGS(PYTHON, ["${PYTHON-python}"], [])
   AC_ARG_VAR(PYTHON, [Python interpreter])
   if test -n "$PYTHON" ; then
-    dnl Require Python 2.2 or newer.  We need 2.2 to use SWIG's -modern option,
-    dnl for Pythonic iterator support, and it's now > 4.5 years since the last
-    dnl 2.1.x release and 2.5 is out.
+    dnl Require Python 2.3 or newer.  It's now > 4.5 years since the last
+    dnl 2.2.x release, so 2.2 is essentially unsupported upstream.
     AC_MSG_CHECKING([$PYTHON version])
     version=`$PYTHON -c 'import sys;print(sys.version[[:3]])' 2>/dev/null`
     case $version in
-    [2.[2-9]*|2.1[0-9]*|[3-9].*])
+    [2.[3-9]*|2.[12][0-9][0-9]*|[3-9].*])
       ;;
     *)
       AC_MSG_RESULT([$version (too old)])
       if test yes = "$with_python" ; then
-	AC_MSG_ERROR([Only python 2.2 or newer is supported ($python is $version)])
+	AC_MSG_ERROR([Only python 2.3 or newer is supported ($python is $version)])
       fi
       PYTHON=
       ;;
@@ -253,10 +250,8 @@ if test no != "$with_python" ; then
 	fi
 	AC_MSG_RESULT([$PYTHON_LIB])
 	AC_ARG_VAR(PYTHON_LIB, [Directory to install python bindings in])
-	AC_MSG_CHECKING([for Python path separator])
-	PYTHON_PATHSEP=`$PYTHON -c 'import os;print(os.pathsep)'`
-	AC_MSG_RESULT([$PYTHON_PATHSEP])
-	AC_SUBST(PYTHON_PATHSEP)
+
+	AC_MSG_CHECKING([for python libraries to link against])
 	case $host_os in
 	mingw* | pw32*)
 	  PYTHON_LIBS=`$PYTHON -c 'import os,sys;print("-L"+os.path.join(sys.prefix,"libs").replace(os.sep,"/"),"-lpython"+sys.version[[:3]].replace(".",""))'` ;;
@@ -264,6 +259,14 @@ if test no != "$with_python" ; then
 	  PYTHON_LIBS= ;;
 	esac
 	AC_SUBST(PYTHON_LIBS)
+	AC_MSG_RESULT([$PYTHON_LIBS])
+
+	AC_MSG_CHECKING([for python module extension])
+	dnl Usually ".so", but for example, Mac OS X uses ".dylib".
+	PYTHON_SO=`$PYTHON -c 'import distutils.sysconfig;print(distutils.sysconfig.get_config_vars("SO")[[0]])'`
+	AC_SUBST(PYTHON_SO)
+	AC_MSG_RESULT([$PYTHON_SO])
+
 	BINDINGS="$BINDINGS python"
       else
 	AC_MSG_RESULT([no (install python-dev or python-devel package or similar)])
@@ -284,10 +287,6 @@ if test no != "$with_php" ; then
     AC_MSG_CHECKING([$PHP_CONFIG version])
     version=`$PHP_CONFIG --version 2>/dev/null`
     case $version in
-    4.*)
-      AC_MSG_RESULT([$version])
-      PHP_MAJOR_VERSION=4
-      ;;
     5.*)
       AC_MSG_RESULT([$version])
       PHP_MAJOR_VERSION=5
@@ -295,7 +294,7 @@ if test no != "$with_php" ; then
     *)
       AC_MSG_RESULT([$version (not supported)])
       if test yes = "$with_php" ; then
-	AC_MSG_ERROR([Only PHP4 and PHP5 are supported ($PHP_CONFIG reports version $version)])
+	AC_MSG_ERROR([Only PHP5 is supported ($PHP_CONFIG reports version $version)])
       fi
       with_php=no
       ;;
@@ -396,7 +395,7 @@ if test no != "$with_tcl" ; then
 
       AC_ARG_VAR(TCL_LIB, [Directory to install Tcl files into])
       if test -z "$TCL_LIB" ; then    
-	TCL_LIB=`echo 'foreach d $tcl_pkgPath {if {![regexp {/share(/|$)} $d]} {break}};puts $d'|$TCLSH`
+	[TCL_LIB=`echo 'foreach d $tcl_pkgPath {if {![regexp {/share(/|$)} $d]} {break}};puts $d'|$TCLSH`]
       fi
       AC_SUBST(TCL_LIB)
 

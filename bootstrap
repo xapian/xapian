@@ -2,7 +2,7 @@
 # bootstrap a xapian source tree obtained from SVN to produce a tree like
 # you'd get from unpacking the results of "make dist"
 #
-# Copyright (C) 2002,2003,2004,2005,2006,2007 Olly Betts
+# Copyright (C) 2002,2003,2004,2005,2006,2007,2008 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -16,7 +16,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 # USA
 
 trap 'echo "Bootstrap failed"' EXIT
@@ -36,11 +36,10 @@ srcdir=`echo "$0"|sed 's![^/]*$!!'`
 SWIG=""
 # Don't try to build xapian-applications/dbtools or xapview - they need work.
 # As does cvssearch.
-# We no longer snapshot xapian-applications/queryserver - we're overfilling the
-# partition and it hasn't seen a check-in for ages.  Also, ixion seems to be
-# increasingly loaded and this can't help.
+# We no longer snapshot xapian-applications/queryserver since it hasn't seen a
+# check-in for ages.
 modules=
-for module in swig xapian-core xapian-applications/omega xapian-bindings ; do
+for module in xapian-core xapian-applications/omega swig xapian-bindings ; do
   d=${srcdir}$module
   if test -f "$d/configure.in" -o -f "$d/configure.ac" ; then
     echo "Bootstrapping \`$module'"
@@ -114,7 +113,7 @@ cat <<'TOP_OF_CONFIGURE' > configure.tmp
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 # USA
 
 trap 'echo "configure failed"' EXIT
@@ -191,9 +190,8 @@ for target in all install uninstall install-strip clean distclean mostlyclean ma
   for d in $dirs ; do
     if test swig = "$d" ; then
       case $target in
-	install*|uninstall|dist|check|distcheck)
-	  ;;
-	all)
+	install*|uninstall|dist|check|distcheck|all)
+	  # Need to ensure swig is built before "make dist", "make check", etc.
 	  echo "	cd $d && \$(MAKE)" >> Makefile.tmp ;;
 	mostlyclean)
 	  echo "	cd $d && \$(MAKE) clean" >> Makefile.tmp ;;

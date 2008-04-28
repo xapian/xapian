@@ -1,6 +1,6 @@
 /* termgentest.cc: Tests of Xapian::TermGenerator
  *
- * Copyright (C) 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright (C) 2002,2003,2004,2005,2006,2007,2008 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -22,7 +22,7 @@
 #include <config.h>
 
 #include <xapian.h>
-#include <iostream>
+
 #include <string>
 
 #include "testsuite.h"
@@ -112,7 +112,8 @@ static test test_simple[] = {
 };
 
 #if 0
-// These are the queries from the main query parser test.  We'll gradually convert them into termgenerator test cases.
+// These are the queries from the main query parser test.  We'll gradually
+// convert them into termgenerator test cases.
     { "Mg2+ Cl-", "(mg2+:(pos=1) OR cl:(pos=2))" },
     { "\"c++ library\"", "(c++:(pos=1) PHRASE 2 library:(pos=2))" },
     { "A&L A&RMCO AD&D", "(a&l:(pos=1) OR a&rmco:(pos=2) OR ad&d:(pos=3))" },
@@ -606,14 +607,14 @@ static string format_doc_termlist(const Xapian::Document doc)
 {
     string output;
     Xapian::TermIterator it;
-    for (it = doc.termlist_begin(); it != doc.termlist_end(); ++it)
-    {
-	if (!output.empty()) output += " ";
+    for (it = doc.termlist_begin(); it != doc.termlist_end(); ++it) {
+	if (!output.empty()) output += ' ';
 	output += *it;
 	if (it.positionlist_count() != 0) {
-	    // If we've got a position list, only display the wdf if it's not the length of the positionlist.
+	    // If we've got a position list, only display the wdf if it's not
+	    // the length of the positionlist.
 	    if (it.get_wdf() != it.positionlist_count()) {
-	        output += ":";
+	        output += ':';
 		output += om_tostring(it.get_wdf());
 	    }
 	    char ch = '[';
@@ -623,10 +624,10 @@ static string format_doc_termlist(const Xapian::Document doc)
 		ch = ',';
 		output += om_tostring(*posit);
 	    }
-	    output += "]";
+	    output += ']';
 	} else if (it.get_wdf() != 0) {
 	    // If no position list, display any non-zero wdfs.
-	    output += ":";
+	    output += ':';
 	    output += om_tostring(it.get_wdf());
 	}
     }

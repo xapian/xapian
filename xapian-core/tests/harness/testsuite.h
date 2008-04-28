@@ -274,4 +274,6 @@ extern bool TEST_EQUAL_DOUBLE_(double a, double b);
 	"Expected `"STRINGIZE(a)"' to be less than than `"STRINGIZE(b)"':" \
 	" were " << (a) << " and " << (b))
 
+#define DEFINE_TESTCASE(S,COND) bool test_##S()
+
 #endif // OM_HGUARD_TESTSUITE_H

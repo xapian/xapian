@@ -9,9 +9,9 @@ Name: @PACKAGE@
 Version: @VERSION@
 Release: 1
 License: GPL
-Vendor: www.xapian.org
+Vendor: xapian.org
 Group: Applications/Databases
-URL: http://www.xapian.org/
+URL: http://xapian.org/
 Requires: %{name}-libs = %{version}
 Source: http://www.oligarchy.co.uk/xapian/%{version}/%{name}-%{version}.tar.gz
 BuildRequires: autoconf automake libtool gcc-c++ zlib-devel
@@ -80,9 +80,6 @@ cp AUTHORS ChangeLog ChangeLog.examples COPYING NEWS PLATFORMS README %{buildroo
 %defattr(-, root, root)
 %{_bindir}/xapian-tcpsrv
 %{_bindir}/xapian-progsrv
-%{_bindir}/quartzcheck
-%{_bindir}/quartzcompact
-%{_bindir}/quartzdump
 %{_bindir}/quest
 %{_bindir}/delve
 %{_bindir}/copydatabase
@@ -96,9 +93,6 @@ cp AUTHORS ChangeLog ChangeLog.examples COPYING NEWS PLATFORMS README %{buildroo
 # man pages may be gzipped, hence the trailing wildcard.
 %{_mandir}/man1/xapian-tcpsrv.1*
 %{_mandir}/man1/xapian-progsrv.1*
-%{_mandir}/man1/quartzcheck.1*
-%{_mandir}/man1/quartzcompact.1*
-%{_mandir}/man1/quartzdump.1*
 %{_mandir}/man1/quest.1*
 %{_mandir}/man1/delve.1*
 %{_mandir}/man1/copydatabase.1*

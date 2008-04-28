@@ -37,6 +37,7 @@ OBJS= \
     $(INTDIR)/termlist.obj \
     $(INTDIR)/valuerangeproc.obj \
     $(INTDIR)/valuerangeproccompat.obj \
+    $(INTDIR)/valuesetmatchdecider.obj \
     $(INTDIR)/version.obj\
     $(INTDIR)/weightinternal.obj\
     $(INTDIR)/replication.obj
@@ -63,6 +64,7 @@ SRCS= \
     $(INTDIR)/termlist.cc\
     $(INTDIR)/valuerangeproc.cc\
     $(INTDIR)/valuerangeproccompat.cc\
+    $(INTDIR)/valuesetmatchdecider.cc \
     $(INTDIR)/version.cc\
     $(INTDIR)/weightinternal.cc\
     $(INTDIR)/replication.cc

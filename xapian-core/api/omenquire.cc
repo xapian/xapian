@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
  * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -54,7 +54,7 @@ MatchDecider::~MatchDecider() { }
 
 // Methods for Xapian::RSet
 
-RSet::RSet() : internal(new RSet::Internal())
+RSet::RSet() : internal(new RSet::Internal)
 {
 }
 
@@ -87,6 +87,7 @@ RSet::empty() const
 void
 RSet::add_document(Xapian::docid did)
 {
+    if (did == 0) throw Xapian::InvalidArgumentError("Docid 0 not valid");
     internal->items.insert(did);
 }
 
@@ -107,15 +108,13 @@ RSet::contains(Xapian::docid did) const
 string
 RSet::get_description() const
 {
-    DEBUGCALL(INTRO, string, "RSet::get_description", "");
-    RETURN("RSet(" + internal->get_description() + ")");
+    return "RSet(" + internal->get_description() + ")";
 }
 
 string
 RSet::Internal::get_description() const
 {
-    DEBUGCALL(INTRO, string, "RSet::get_description", "");
-    string description;
+    string description("RSet::Internal(");
 
     set<Xapian::docid>::const_iterator i;
     for (i = items.begin(); i != items.end(); ++i) {
@@ -125,7 +124,7 @@ RSet::Internal::get_description() const
 
     description = "RSet(" + description + ")";
 
-    RETURN(description);
+    return description;
 }
 
 namespace Internal {
@@ -135,7 +134,6 @@ namespace Internal {
 string
 MSetItem::get_description() const
 {
-    DEBUGCALL(INTRO, string, "Xapian::MSetItem::get_description", "");
     string description;
 
     description = om_tostring(did) + ", " + om_tostring(wt) + ", " +
@@ -143,14 +141,14 @@ MSetItem::get_description() const
 
     description = "Xapian::MSetItem(" + description + ")";
 
-    RETURN(description);
+    return description;
 }
 
 }
 
 // Methods for Xapian::MSet
 
-MSet::MSet() : internal(new MSet::Internal())
+MSet::MSet() : internal(new MSet::Internal)
 {
 }
 
@@ -221,11 +219,13 @@ MSet::get_termfreq(const string &tname) const
     map<string, Internal::TermFreqAndWeight>::const_iterator i;
     Assert(internal.get() != 0);
     i = internal->termfreqandwts.find(tname);
-    if (i == internal->termfreqandwts.end()) {
-	throw InvalidArgumentError("Term frequency of `" + tname +
-				     "' not available.");
+    if (i != internal->termfreqandwts.end()) {
+	RETURN(i->second.termfreq);
     }
-    RETURN(i->second.termfreq);
+    if (internal->enquire.get() == 0) {
+	throw InvalidOperationError("Can't get termfreq from an MSet which is not derived from a query.");
+    }
+    RETURN(internal->enquire->get_termfreq(tname));
 }
 
 Xapian::weight
@@ -336,9 +336,8 @@ MSet::back() const
 string
 MSet::get_description() const
 {
-    DEBUGCALL(INTRO, string, "Xapian::MSet::get_description", "");
     Assert(internal.get() != 0);
-    RETURN("Xapian::MSet(" + internal->get_description() + ")");
+    return "Xapian::MSet(" + internal->get_description() + ")";
 }
 
 percent
@@ -444,13 +443,12 @@ MSet::Internal::read_docs() const
 string
 Xapian::Internal::ESetItem::get_description() const
 {
-    DEBUGCALL(INTRO, string, "Xapian::Internal::ESetItem::get_description", "");
-    RETURN("Xapian::Internal::ESetItem(" + tname + ", " + om_tostring(wt) + ")");
+    return "Xapian::Internal::ESetItem(" + tname + ", " + om_tostring(wt) + ")";
 }
 
 // Methods for Xapian::ESet
 
-ESet::ESet() : internal(new Internal()) { }
+ESet::ESet() : internal(new Internal) { }
 
 ESet::~ESet()
 {
@@ -522,9 +520,8 @@ ESet::back() const
 string
 ESet::get_description() const
 {
-    DEBUGCALL(INTRO, string, "Xapian::ESet::get_description", "");
     Assert(internal.get() != 0);
-    RETURN("Xapian::ESet(" + internal->get_description() + ")");
+    return "Xapian::ESet(" + internal->get_description() + ")";
 }
 
 //////////////////////////////////
@@ -534,7 +531,6 @@ ESet::get_description() const
 string
 Xapian::ESet::Internal::get_description() const
 {
-    DEBUGCALL(INTRO, string, "Xapian::ESet::Internal::get_description", "");
     string description = "ebound=" + om_tostring(ebound);
 
     for (vector<Xapian::Internal::ESetItem>::const_iterator i = items.begin();
@@ -543,7 +539,7 @@ Xapian::ESet::Internal::get_description() const
 	description += ", " + i->get_description();
     }
 
-    RETURN("Xapian::ESet::Internal(" + description + ")");
+    return "Xapian::ESet::Internal(" + description + ")";
 }
 
 // Xapian::ESetIterator
@@ -782,6 +778,12 @@ Enquire::Internal::get_matching_terms(const MSetIterator &it) const
     return get_matching_terms(*it);
 }
 
+Xapian::doccount
+Enquire::Internal::get_termfreq(const string &tname) const
+{
+    return db.get_termfreq(tname);
+}
+
 string
 Enquire::Internal::get_description() const
 {
@@ -969,14 +971,6 @@ Enquire::set_sort_by_relevance_then_key(Xapian::Sorter * sorter, bool ascending)
 MSet
 Enquire::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		  Xapian::doccount check_at_least, const RSet *rset,
-		  const MatchDecider *mdecider) const
-{
-    return get_mset(first, maxitems, check_at_least, rset, mdecider, NULL);
-}
-
-MSet
-Enquire::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
-		  Xapian::doccount check_at_least, const RSet *rset,
 		  const MatchDecider *mdecider,
 		  const MatchDecider *matchspy) const
 {
@@ -1036,18 +1030,10 @@ Enquire::get_matching_terms_begin(Xapian::docid did) const
     }
 }
 
-void
-Enquire::register_match_decider(const string &name,
-				  const MatchDecider *mdecider)
-{
-    internal->register_match_decider(name, mdecider);
-}
-
 string
 Enquire::get_description() const
 {
-    DEBUGCALL(INTRO, string, "Xapian::Enquire::get_description", "");
-    RETURN("Xapian::Enquire(" + internal->get_description() + ")");
+    return "Xapian::Enquire(" + internal->get_description() + ")";
 }
 
 }

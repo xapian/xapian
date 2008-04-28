@@ -115,17 +115,14 @@ inline int stat(const string &filename, struct stat *buf) {
  *  Note - this doesn't currently cope with directories which contain
  *  subdirectories.
  */
-XAPIAN_VISIBILITY_DEFAULT
 void removedir(const string &dirname);
 
 /** Hex-encode a string.
  */
-XAPIAN_VISIBILITY_DEFAULT
 string hex_encode(const string &input);
 
 /** Hex-decode a string.
  */
-XAPIAN_VISIBILITY_DEFAULT
 string hex_decode(const string &input);
 
 namespace Xapian {

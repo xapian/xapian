@@ -66,7 +66,7 @@ CPP_SBRS=.
 
 ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS) "/LIBPATH:$(PYTHON_LIB_DIR)" 
 
-
+!IF "$(SWIGBUILD)" == "1"
 modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: ../xapian.i util.i except.i doccomments.i extra.i extracomments.i
 	-erase /Q modern
 	-md modern
@@ -75,6 +75,7 @@ modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: ../xapian.i util.i 
 	$(PERL_EXE) -pe "s/class Error:/class Error(Exception):/" modern\xapian.py > modern\xapian_py.tmp
 	-erase modern\xapian.py
 	-rename modern\xapian_py.tmp xapian.py
+!ENDIF
 
 "$(OUTDIR)\_xapian$(PY_DEBUG_SUFFIX).pyd" : "$(OUTDIR)" $(DEF_FILE) $(LIB_XAPIAN_OBJS) 
                             

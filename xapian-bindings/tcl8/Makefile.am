@@ -11,7 +11,7 @@ TESTS = smoketest.tcl
 EXTRA_DIST = except.i util.i $(TESTS) $(BUILT_SOURCES) run-tcl-test runtest.tcl pkgIndex.tcl.in
 SUBDIRS = docs
 
-tcllibdir = @TCL_LIB@/../xapian@VERSION@
+tcllibdir = @TCL_LIB@/xapian@VERSION@
 
 tcllib_LTLIBRARIES = xapian.la
 tcllib_DATA = pkgIndex.tcl
@@ -23,7 +23,7 @@ install-data-hook:
 	rm -f $(DESTDIR)$(tcllibdir)/xapian.la
 
 # Because we don't install the .la file, "make uninstall" doesn't work and
-# we need to remove the files ourselves.
+# we need to remove the file ourselves.
 uninstall-local:
 	eval `grep '^dlname=' $(tcllib_LTLIBRARIES)` ; \
 	  rm -f $(DESTDIR)$(tcllibdir)/"$$dlname"

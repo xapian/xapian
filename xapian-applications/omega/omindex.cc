@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2005 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -549,77 +549,84 @@ index_directory(size_t depth_limit, const string &dir,
     DirectoryIterator d(follow_symlinks);
     try {
 	d.start(path);
-    } catch (const std::string & error) {
-	cout << error << " - skipping" << endl;
-	return;
-    }
-    while (d.next()) try {
-	string url = dir;
-	if (!url.empty() && url[url.size() - 1] != '/') url += '/';
-	url += d.leafname();
-	string file = root + indexroot + url;
-	switch (d.get_type()) {
-	    case DirectoryIterator::DIRECTORY:
-		if (depth_limit == 1) continue;
-		try {
-		    size_t new_limit = depth_limit;
-		    if (new_limit) --new_limit;
-		    index_directory(new_limit, url, mime_map);
-		} catch (...) {
-		    cout << "Caught unknown exception in index_directory, rethrowing" << endl;
-		    throw;
-		}
-		continue;
-	    case DirectoryIterator::REGULAR_FILE: {
-		string ext;
-		string::size_type dot = url.find_last_of('.');
-		if (dot != string::npos) ext = url.substr(dot + 1);
-
-		map<string,string>::iterator mt = mime_map.find(ext);
-		if (mt == mime_map.end()) {
-		    // If the extension isn't found, see if the lower-cased
-		    // version (if different) is found.
-		    bool changed = false;
-		    string::iterator i;
-		    for (i = ext.begin(); i != ext.end(); ++i) {
-			if (*i >= 'A' && *i <= 'Z') {
-			    *i = tolower(*i);
-			    changed = true;
-			}
-		    }
-		    if (changed) mt = mime_map.find(ext);
-		}
-		if (mt != mime_map.end()) {
-		    // Only check the file size if we recognise the extension
-		    // to avoid a call to stat()/lstat() for files we can't
-		    // handle when readdir() tells us the file type.
-		    off_t size = d.get_size();
-		    if (size == 0) {
-			cout << "Skipping empty file: \"" << file << "\"" << endl;
-			continue;
-		    }
-
-		    // It's in our MIME map so we know how to index it.
-		    const string & mimetype = mt->second;
+	while (d.next()) try {
+	    string url = dir;
+	    if (!url.empty() && url[url.size() - 1] != '/') url += '/';
+	    url += d.leafname();
+	    string file = root + indexroot + url;
+	    switch (d.get_type()) {
+		case DirectoryIterator::DIRECTORY:
+		    if (depth_limit == 1) continue;
 		    try {
-			time_t mtime = d.get_mtime();
-			index_file(indexroot + url, mimetype, mtime, size);
-		    } catch (NoSuchFilter) {
-			// FIXME: we ought to ignore by mime-type not extension.
-			cout << "Filter for \"" << mimetype << "\" not installed - ignoring extension \"" << ext << "\"" << endl;
-			mime_map.erase(mt);
+			size_t new_limit = depth_limit;
+			if (new_limit) --new_limit;
+			index_directory(new_limit, url, mime_map);
+		    } catch (...) {
+			cout << "Caught unknown exception in index_directory, rethrowing" << endl;
+			throw;
 		    }
-		} else {
-		    cout << "Unknown extension: \"" << file << "\" - skipping" << endl;
+		    continue;
+		case DirectoryIterator::REGULAR_FILE: {
+		    string ext;
+		    string::size_type dot = url.find_last_of('.');
+		    if (dot != string::npos) ext = url.substr(dot + 1);
+
+		    map<string,string>::iterator mt = mime_map.find(ext);
+		    if (mt == mime_map.end()) {
+			// If the extension isn't found, see if the lower-cased
+			// version (if different) is found.
+			bool changed = false;
+			string::iterator i;
+			for (i = ext.begin(); i != ext.end(); ++i) {
+			    if (*i >= 'A' && *i <= 'Z') {
+				*i = tolower(*i);
+				changed = true;
+			    }
+			}
+			if (changed) mt = mime_map.find(ext);
+		    }
+		    if (mt != mime_map.end()) {
+			// Only check the file size if we recognise the
+			// extension to avoid a call to stat()/lstat() for
+			// files we can't handle when readdir() tells us the
+			// file type.
+			off_t size = d.get_size();
+			if (size == 0) {
+			    cout << "Skipping empty file: \"" << file << "\""
+				 << endl;
+			    continue;
+			}
+
+			// It's in our MIME map so we know how to index it.
+			const string & mimetype = mt->second;
+			try {
+			    time_t mtime = d.get_mtime();
+			    index_file(indexroot + url, mimetype, mtime, size);
+			} catch (NoSuchFilter) {
+			    // FIXME: we ought to ignore by mime-type not
+			    // extension.
+			    cout << "Filter for \"" << mimetype
+				 << "\" not installed - ignoring extension \""
+				 << ext << "\"" << endl;
+			    mime_map.erase(mt);
+			}
+		    } else {
+			cout << "Unknown extension: \"" << file
+			     << "\" - skipping" << endl;
+		    }
+		    continue;
 		}
-		continue;
+		default:
+		    cout << "Not a regular file \"" << file
+			 << "\" - skipping" << endl;
 	    }
-	    default:
-		cout << "Not a regular file \"" << file << "\" - skipping\n";
+	} catch (const std::string & error) {
+	    cout << error << " - skipping" << endl;
+	    continue;
 	}
     } catch (const std::string & error) {
-	cout << error << " - skipping" << endl;
-	continue;
+	cout << error << " - skipping directory" << endl;
+	return;
     }
 }
 

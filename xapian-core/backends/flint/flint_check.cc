@@ -23,13 +23,11 @@
 
 #include <config.h>
 
-#include <limits.h>
+#include "flint_check.h"
 
-#include <iostream>
+#include <climits>
 
 using namespace std;
-
-#include "flint_check.h"
 
 #define REVISION(b)      static_cast<unsigned int>(getint4(b, 0))
 #define GET_LEVEL(b)     getint1(b, 4)

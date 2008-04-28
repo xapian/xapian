@@ -27,7 +27,7 @@ extra_cleandirs =
 
 .PHONY: check-none check-inmemory check-multi \
         check-remote check-remoteprog check-remotetcp \
-        check-flint check-quartz
+        check-chert check-flint check-perftest
 
 check-none:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-none
@@ -47,15 +47,18 @@ check-remotetcp:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remotetcp
 endif
 
+if BUILD_BACKEND_CHERT
+check-chert:
+	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-chert
+endif
+
 if BUILD_BACKEND_FLINT
 check-flint:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-flint
 endif
 
-if BUILD_BACKEND_QUARTZ
-check-quartz:
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-quartz
-endif
+check-perf:
+	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-perf
 
 bin_SCRIPTS = xapian-config
 

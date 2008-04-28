@@ -1,8 +1,8 @@
-.. This document was originally written by Richard Boulton, with funding
-.. provided by Enfold Systems.
 
 .. Copyright (C) 2006 Lemur Consulting Ltd
-.. Copyright (C) 2007 Olly Betts
+.. Copyright (C) 2007,2008 Olly Betts
+
+.. FIXME: Once chert settles down, update this for chert
 
 ============================
 Xapian Administrator's Guide
@@ -171,8 +171,7 @@ Which database format to use?
 -----------------------------
 
 As of release 1.0.0, you should use the flint format (which is now the
-default).  The quartz format is now deprecated and support is scheduled
-for removal in 1.1.0.
+default).  Support for the older quartz format was removed in 1.1.0.
 
 Can I put other files in the database directory?
 ------------------------------------------------
@@ -353,9 +352,10 @@ table: for example, this command will check the termlist table of database "foo"
 Converting a quartz database to a flint database
 ------------------------------------------------
 
-It is possible to convert a quartz database to a flint database using the
-"copydatabase" example program included with Xapian.  This is a lot slower to
-run than "quartzcompact" or "xapian-compact", since it has to perform the
+It is possible to convert a quartz database to a flint databaseby installing
+Xapian 1.0.x (since this has support for both quartz and flint)
+and using the "copydatabase" example program included with Xapian.  This is a
+lot slower to run than "xapian-compact", since it has to perform the
 sorting of the term occurrence data from scratch, but should be faster than a
 re-index from source data since it doesn't need to perform the tokenisation
 step.  It is also useful if you no longer have the source data available.

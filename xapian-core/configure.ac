@@ -8,7 +8,7 @@ dnl 2.59 was released the same day as 2.58 to fix a problem
 AC_PREREQ(2.59)
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT(xapian-core, 1.0.5)dnl FIXME: bugreport addr as third argument
+AC_INIT(xapian-core, 1.0.6)dnl FIXME: bugreport addr as third argument
 dnl Extract from the libtool info manual:
 dnl
 dnl Here are a set of rules to help you update your library version information:
@@ -68,7 +68,8 @@ dnl 16:0:1 1.0.2 New QueryParser flags, etc
 dnl 17:0:2 1.0.3 Database::get_metadata(), etc
 dnl 18:0:3 1.0.4 New Query ctor for OP_SCALE_WEIGHT
 dnl 19:0:4 1.0.5 Enquire copyable/assignable + new methods; new Sorter class
-LIBRARY_VERSION_INFO=19:0:4
+dnl 20:0:5 1.0.6 Unicode::toupper(); OP_VALUE_GE/OP_VALUE_LE
+LIBRARY_VERSION_INFO=20:0:5
 AC_SUBST(LIBRARY_VERSION_INFO)
 
 dnl Check the build directory doesn't contain a space, so we die early with
@@ -414,6 +415,9 @@ AC_TYPE_PID_T
 
 AC_TYPE_MODE_T
 
+AC_CHECK_SIZEOF([int])
+AC_CHECK_SIZEOF([long])
+
 dnl Check for a new streams implementation (GCC 2.95 only has streambuf.h).
 AC_CHECK_HEADERS(streambuf, [], [], [ ])
 
@@ -637,10 +641,18 @@ AC_DEFUN([XAPIAN_BACKEND_ENABLE],
   ])
 
 dnl When adding a new backend, update INSTALL too.
+XAPIAN_BACKEND_ENABLE(chert)
 XAPIAN_BACKEND_ENABLE(flint)
 XAPIAN_BACKEND_ENABLE(inmemory)
-XAPIAN_BACKEND_ENABLE(quartz)
 XAPIAN_BACKEND_ENABLE(remote)
+
+if test yes = "$enable_backend_chert" ; then
+  dnl We would need to implement a chert locking strategy for MSDOS before we
+  dnl could build chert there.
+  case $host_os in
+    *djgpp* | *msdos* ) enable_backend_chert=no ;;
+  esac
+fi
 
 if test yes = "$enable_backend_flint" ; then
   dnl We would need to implement a flint locking strategy for MSDOS before we
@@ -650,16 +662,15 @@ if test yes = "$enable_backend_flint" ; then
   esac
 fi
 
-if test yes = "$enable_backend_flint" ; then
-  dnl We use zlib for compressing tags in flint.  We could automatically
-  dnl disable support for flint, but overall that probably does more harm
-  dnl than good - it's most likely that someone just forgot to install the
-  dnl -dev package for zlib and flint is the default backend we want people
-  dnl to use. 
+if test yes = "$enable_backend_flint" -o yes = "$enable_backend_chert" ; then
+  dnl We use zlib for compressing tags in chert/flint.  We could automatically
+  dnl disable support if zlib isn't found, but overall that probably does more
+  dnl harm than good - it's most likely that someone just forgot to install the
+  dnl -dev package for zlib.
 
   dnl Check for zlib.h.
   AC_CHECK_HEADERS(zlib.h, [], [
-    AC_MSG_ERROR([zlib.h not found - required for flint (you may need to install the zlib1g-dev or zlib-devel package)])
+    AC_MSG_ERROR([zlib.h not found - required for chert and flint (you may need to install the zlib1g-dev or zlib-devel package)])
     ], [ ])
 
   dnl Check for zlibVersion in -lz.
@@ -667,7 +678,7 @@ if test yes = "$enable_backend_flint" ; then
   LIBS=
   dnl mingw build needs -lzlib or -lzdll.
   AC_SEARCH_LIBS([zlibVersion], [z zlib zdll], [], [
-    AC_MSG_ERROR([zlibVersion() not found in -lz - required for flint (you may need to install the zlib1g-dev or zlib-devel package)])
+    AC_MSG_ERROR([zlibVersion() not found in -lz - required for chert and flint (you may need to install the zlib1g-dev or zlib-devel package)])
     ])
   if test x != x"$LIBS" ; then
     XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $LIBS"
@@ -765,10 +776,11 @@ dnl Turn off compilation of anything that we don't have the requirements for
 
 dnl Set conditionals to specify what we compile
 
-AM_CONDITIONAL(BUILD_BACKEND_QUARTZ, test yes = "$enable_backend_quartz")
+AM_CONDITIONAL(BUILD_BACKEND_CHERT, test yes = "$enable_backend_chert")
 AM_CONDITIONAL(BUILD_BACKEND_FLINT, test yes = "$enable_backend_flint")
 AM_CONDITIONAL(BUILD_BACKEND_INMEMORY, test yes = "$enable_backend_inmemory")
 AM_CONDITIONAL(BUILD_BACKEND_REMOTE, test yes = "$enable_backend_remote")
+
 dnl Set a flag for AM when shared libraries are enabled.
 dnl AM_CONDITIONAL(ENABLE_SHARED, test yes = "$enable_shared")
 
@@ -878,9 +890,9 @@ AC_ARG_ENABLE(assertions,
   esac])
 
 AC_ARG_ENABLE(log,
-  [AS_HELP_STRING([--enable-log], [generate a log of methods called, etc [default=no]])],
+  [AS_HELP_STRING([--enable-log], [generate a log of methods called, etc (no|yes|profile) [default=no]])],
   [case $enableval in
-    yes|profiling|no) ;;
+    yes|profile|no) ;;
     *)
       AC_MSG_ERROR([Invalid option: '--enable-log=$enableval']) ;;
   esac])
@@ -1010,33 +1022,6 @@ if test yes = "$GXX"; then
 
       XAPIAN_TEST_LINKER_FLAG([-Bsymbolic-functions], [symbolic_functions],
 	[XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $flag"])
-
-      dnl -pedantic causes a compilation failure on Mac OS X (at least, with
-      dnl XCode 2.2.1 on Tiger - which uses gcc version 4.0.1), so don't use
-      dnl -pedantic on that platform.  Otherwise, we add -pedantic to the
-      dnl flags.
-      AC_MSG_CHECKING([whether -pedantic causes problems with INFINITY])
-      AC_CACHE_VAL([xo_cv_pedantic_inf_fails],
-        [
-        SAVE_CXXFLAGS="$CXXFLAGS"
-        CXXFLAGS="$CXXFLAGS -pedantic"
-        AC_COMPILE_IFELSE([
-          AC_LANG_PROGRAM(
-	    [[
-#define _ISOC99_SOURCE
-#include <math.h>
-	    ]],
-	    [[double(INFINITY);]]
-	  )],
-	  xo_cv_pedantic_inf_fails=no,
-	  xo_cv_pedantic_inf_fails=yes
-	)
-	CXXFLAGS="$SAVE_CXXFLAGS"
-	])
-      AC_MSG_RESULT([$xo_cv_pedantic_inf_fails])
-      if test no = "$xo_cv_pedantic_inf_fails" ; then
-        AM_CXXFLAGS="$AM_CXXFLAGS -pedantic"
-      fi
     ])
 else
   dnl WARNING_CXXFLAGS is set above.
@@ -1116,6 +1101,7 @@ AC_CONFIG_FILES([
  ])
 AC_CONFIG_FILES([tests/runtest], [chmod +x tests/runtest])
 AC_CONFIG_FILES([tests/runsrv], [chmod +x tests/runsrv])
+AC_CONFIG_FILES([tests/submitperftest], [chmod +x tests/submitperftest])
 AC_CONFIG_FILES([xapian-config], [chmod +x xapian-config])
 AC_CONFIG_FILES([makemanpage], [chmod +x makemanpage])
 AC_CONFIG_FILES([docs/gen_codestructure_doc], [chmod +x docs/gen_codestructure_doc])
@@ -1137,7 +1123,7 @@ dnl Generate include/xapian/version.h:
 dnl MAIN_VERSION is VERSION without any _svn6789 suffix.
 MAIN_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$REVISION"
 cxxcpp_flags=-I.
-for backend in QUARTZ FLINT INMEMORY REMOTE ; do
+for backend in CHERT FLINT INMEMORY REMOTE ; do
   val=`eval echo "\\\$BUILD_BACKEND_${backend}_TRUE"`
   if test -z "$val" ; then
     cxxcpp_flags="$cxxcpp_flags -DXAPIAN_HAS_${backend}_BACKEND"

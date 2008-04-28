@@ -1,7 +1,7 @@
 /** @file queryoptimiser.cc
  * @brief Convert a Xapian::Query::Internal tree into an optimal PostList tree.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2008 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -28,6 +28,7 @@
 #include "autoptr.h"
 #include "emptypostlist.h"
 #include "exactphrasepostlist.h"
+#include "externalpostlist.h"
 #include "multiandpostlist.h"
 #include "multimatch.h"
 #include "omassert.h"
@@ -43,7 +44,6 @@
 #include <algorithm>
 #include <list>
 #include <map>
-#include <queue>
 #include <string>
 #include <vector>
 
@@ -56,11 +56,15 @@ QueryOptimiser::do_subquery(const Xapian::Query::Internal * query, double factor
 	      query << ", " << factor);
 
     // Handle QueryMatchNothing.
-    if (!query) RETURN(new EmptyPostList());
+    if (!query) RETURN(new EmptyPostList);
 
     switch (query->op) {
 	case Xapian::Query::Internal::OP_LEAF:
 	    RETURN(do_leaf(query, factor));
+
+	case Xapian::Query::Internal::OP_EXTERNAL_SOURCE:
+	    Assert(query->external_source);
+	    RETURN(new ExternalPostList(query->external_source, factor));
 
 	case Xapian::Query::OP_AND:
 	case Xapian::Query::OP_FILTER:
@@ -229,7 +233,6 @@ QueryOptimiser::do_and_like(const Xapian::Query::Internal *query, double factor,
     }
 }
 
-/// Comparison functor which orders PostList* by descending get_termfreq_est().
 /** Class providing an operator which sorts postlists to select max or terms.
  *  This returns true if a has a (strictly) greater termweight than b,
  *  unless a or b contain no documents, in which case the other one is
@@ -279,6 +282,8 @@ QueryOptimiser::do_or_like(const Xapian::Query::Internal *query, double factor)
     AssertRel(queries.size(), >=, 2);
 
     vector<PostList *> postlists;
+    postlists.reserve(queries.size());
+
     Xapian::Query::Internal::subquery_list::const_iterator q;
     for (q = queries.begin(); q != queries.end(); ++q) {
 	postlists.push_back(do_subquery(*q, factor));
