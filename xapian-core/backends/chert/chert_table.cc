@@ -1858,12 +1858,7 @@ ChertTable::write_changed_blocks(int changes_fd)
 	    chert_io_write(changes_fd, buf.data(), buf.size());
 
 	    // Read block n.
-	    try {
-		read_block(n, p);
-	    } catch(Xapian::DatabaseError & e) {
-		printf("Error in %s: %s\n", tablename.c_str(), e.get_msg().c_str());
-		throw;
-	    }
+	    read_block(n, p);
 
 	    // Write block n to the file.
 	    chert_io_write(changes_fd, reinterpret_cast<const char *>(p),
