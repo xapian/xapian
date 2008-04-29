@@ -21,6 +21,7 @@ OBJS= \
         $(INTDIR)\testutils.obj \
         $(INTDIR)\backendmanager.obj \
         $(INTDIR)\backendmanager_flint.obj \
+        $(INTDIR)\backendmanager_chert.obj \
         $(INTDIR)\backendmanager_inmemory.obj \
         $(INTDIR)\backendmanager_multi.obj \
         $(INTDIR)\backendmanager_remoteprog.obj \
@@ -34,6 +35,7 @@ SRCS= \
         $(INTDIR)\testutils.cc \
         $(INTDIR)\backendmanager.cc \
         $(INTDIR)\backendmanager_flint.cc \
+        $(INTDIR)\backendmanager_chert.cc \
         $(INTDIR)\backendmanager_inmemory.cc \
         $(INTDIR)\backendmanager_multi.cc \
         $(INTDIR)\backendmanager_remoteprog.cc \
@@ -75,5 +77,5 @@ CPP_SBRS=.
 
 # Calculate any header dependencies and automatically insert them into this file
 HEADERS :
-            if exist ..\..\win32\$(DEPEND) ..\..\win32\$(DEPEND) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)"
+            if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) $(DEPEND_FLAGS) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)" 
 # DO NOT DELETE THIS LINE -- make depend depends on it.

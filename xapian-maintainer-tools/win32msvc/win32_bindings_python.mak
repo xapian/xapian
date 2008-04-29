@@ -10,6 +10,7 @@
 # Change this to match your environment
 
 XAPIAN_CORE_REL_PYTHON=..\..\xapian-core
+
 OUTLIBDIR=$(XAPIAN_CORE_REL_PYTHON)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 
 !INCLUDE $(XAPIAN_CORE_REL_PYTHON)\win32\config.mak
@@ -26,20 +27,14 @@ PY_DEBUG_SUFFIX=_d
 PY_DEBUG_SUFFIX=
 !endif
 
+PYTHON_PACKAGE=xapian
 
 ALL : "$(OUTDIR)\_xapian$(PY_DEBUG_SUFFIX).pyd" "$(OUTDIR)\xapian.py" "$(OUTDIR)\smoketest.py" "$(OUTDIR)\pythontest.py" "$(OUTDIR)\testsuite.py"
 
 CLEAN :
-	-@erase "$(OUTDIR)\_xapian$(PY_DEBUG_SUFFIX).pyd"
-	-@erase "$(OUTDIR)\_xapian$(PY_DEBUG_SUFFIX).exp"
-	-@erase "$(OUTDIR)\_xapian$(PY_DEBUG_SUFFIX).lib"
 	-@erase $(LIB_XAPIAN_OBJS)
-	-@erase "$(OUTDIR)\xapian.py"
-	-@erase "$(OUTDIR)\xapian.pyc"
-	-@erase "$(OUTDIR)\xapian.pyo"
-	-@erase "$(OUTDIR)\smoketest.py"
-	-@erase "$(OUTDIR)\smoketest.pyc"
-	-@erase "$(OUTDIR)\smoketest.pyo"
+	-@erase /Q /s "$(OUTDIR)\$(PYTHON_PACKAGE)"
+	-@erase /Q /s "$(OUTDIR)"
 	
 CLEANSWIG :	
 	-@erase /Q /s modern
@@ -54,8 +49,20 @@ DOTEST :
 	
 CHECK: ALL DOTEST	
 
+DISTUTILS: "$(OUTDIR)\$(PYTHON_PACKAGE)" "$(OUTDIR)\_xapian$(PY_DEBUG_SUFFIX).pyd" "$(OUTDIR)\xapian.py" 
+	copy "$(ZLIB_BIN_DIR)\zlib1.dll" "$(OUTDIR)\$(PYTHON_PACKAGE)"
+    copy "$(OUTDIR)\_xapian$(PY_DEBUG_SUFFIX).pyd" "$(OUTDIR)\$(PYTHON_PACKAGE)"
+    copy "$(OUTDIR)\xapian.py" "$(OUTDIR)\$(PYTHON_PACKAGE)\__init__.py"
+    copy setup.py "$(OUTDIR)"
+    cd "$(OUTDIR)"
+    "$(PYTHON_EXE)" setup.py bdist_wininst
+    
+
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
+    
+"$(OUTDIR)\$(PYTHON_PACKAGE)" : "$(OUTDIR)"
+    if not exist "$(OUTDIR)/$(PYTHON_PACKAGE)/$(NULL)" mkdir "$(OUTDIR)\$(PYTHON_PACKAGE)"
 
 CPP_PROJ=$(CPPFLAGS_EXTRA)  /GR \
  /I "$(XAPIAN_CORE_REL_PYTHON)" /I "$(XAPIAN_CORE_REL_PYTHON)\include" \
