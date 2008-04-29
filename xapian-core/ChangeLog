@@ -1,3 +1,12 @@
+Tue Apr 29 07:03:41 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* bin/xapian-check-flint.cc,bin/xapian-check-flint.h,common/,
+	  include/xapian/postingsource.h,matcher/externalpostlist.cc,
+	  matcher/externalpostlist.h,tests/freemem.cc,tests/freemem.h,
+	  tests/harness/backendmanager_chert.cc,
+	  tests/harness/backendmanager_chert.h,tests/perftest_randomidx.cc,
+	  tests/submitperftest.in: Add files from HEAD which were missed.
+
 Sun Apr 20 22:44:12 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* matcher/queryoptimiser.cc: Remove entirely unused postlist tree
