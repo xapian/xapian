@@ -182,3 +182,6 @@ int                     cppsetup(char *filename,
 extern void fatalerr(char *, ...);
 extern void warning(char *, ...);
 extern void warning1(char *, ...);
+
+/* BUFSIZ is used to size various buffers, in particular the one used to build a list of INCLUDE paths. We redefine it here (overriding stdio.h) to prevent overflow problems */
+#define BUFSIZ 4096
