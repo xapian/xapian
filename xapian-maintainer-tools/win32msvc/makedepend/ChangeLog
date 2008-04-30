@@ -14,3 +14,12 @@
 
 	* def.h: Redefined BUFSIZ to override the stdio.h value of 512 -
 	  this should reduce likelihood of overflow problems.
+      
+2008-04-30 Charlie Hull <charlie@lemurconsulting.com>
+
+	* def.h: use a new BUFFERSIZE define instead of redefining stdio's
+	  BUFSIZ.
+	* include.c, main.c, pr.c: attempt to check sizes to prevent
+	  overflows.
+	* add some #pragmas to prevent stupid MS compiler warnings
+
