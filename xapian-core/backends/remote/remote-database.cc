@@ -95,7 +95,7 @@ RemoteDatabase::RemoteDatabase(int fd, Xapian::timeout timeout_,
 	string errmsg("Unknown protocol version ");
 	errmsg += om_tostring(protocol_major);
 	errmsg += '.';
-	errmsg += om_tostring(int(*p));
+	errmsg += om_tostring(protocol_minor);
 	errmsg += " ("STRINGIZE(XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION)"."STRINGIZE(XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION)" supported)";
 	throw Xapian::NetworkError(errmsg, context);
     }
