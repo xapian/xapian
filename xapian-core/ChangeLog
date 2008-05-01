@@ -1,3 +1,9 @@
+Thu May 01 16:12:05 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/doxygen_api_conf.in,docs/doxygen_full_conf.in: Tell doxygen to
+	  expand XAPIAN_VISIBILITY_DEFAULT so it doesn't appear in collated
+	  API documentation.
+
 Wed Apr 30 10:57:53 GMT 2008  Olly Betts <olly@survex.com>
 
 	* HACKING: Update bugzilla references and URLs to reflect the move
