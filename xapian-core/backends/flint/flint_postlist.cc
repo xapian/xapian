@@ -447,8 +447,7 @@ FlintPostlistChunkWriter::flush(FlintTable *table)
 
 	    // Read the new first docid
 	    Xapian::docid new_first_did;
-	    if (!F_unpack_uint_preserving_sort(&kpos, kend,
-					     &new_first_did)) {
+	    if (!F_unpack_uint_preserving_sort(&kpos, kend, &new_first_did)) {
 		report_read_error(kpos);
 	    }
 
@@ -516,10 +515,10 @@ FlintPostlistChunkWriter::flush(FlintTable *table)
 	    Xapian::docid first_did_in_chunk;
 	    if (is_prev_first_chunk) {
 		first_did_in_chunk = read_start_of_first_chunk(&tagpos, tagend,
-					  0, 0);
+							       0, 0);
 	    } else {
 		if (!F_unpack_uint_preserving_sort(&keypos, keyend,
-						 &first_did_in_chunk))
+						   &first_did_in_chunk))
 		    report_read_error(keypos);
 	    }
 	    bool wrong_is_last_chunk;
@@ -948,7 +947,7 @@ FlintPostListTable::get_chunk(const string &tname,
 	first_did_in_chunk = read_start_of_first_chunk(&pos, end, NULL, NULL);
     } else {
 	if (!F_unpack_uint_preserving_sort(&keypos, keyend,
-					 &first_did_in_chunk)) {
+					   &first_did_in_chunk)) {
 	    report_read_error(keypos);
 	}
     }

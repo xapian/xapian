@@ -1867,7 +1867,7 @@ FlintTable::write_changed_blocks(int changes_fd)
 	}
 	delete[] p;
 	p = 0;
-    } catch(...) {
+    } catch (...) {
 	delete[] p;
 	throw;
     }

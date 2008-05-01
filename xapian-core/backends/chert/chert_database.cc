@@ -497,7 +497,7 @@ ChertDatabase::set_revision_number(chert_revision_number_t new_revision)
 	}
 	record_table.commit(new_revision, changes_fd, &changes_tail);
 
-    } catch(...) {
+    } catch (...) {
 	// Remove the changeset, if there was one.
 	if (changes_fd >= 0) {
 	    sys_unlink_if_exists(changes_name);

@@ -171,8 +171,7 @@ removedir(const string &dirname)
 string hex_encode(const string &input)
 {
     string buf;
-    for (string::size_type i = 0; i != input.size(); ++i)
-    {
+    for (string::size_type i = 0; i != input.size(); ++i) {
 	unsigned char ch = input[i];
 	buf += "0123456789abcdef"[ch / 16];
 	buf += "0123456789abcdef"[ch % 16];
@@ -183,8 +182,7 @@ string hex_encode(const string &input)
 string hex_decode(const string &input)
 {
     string buf;
-    for (string::size_type i = 0; i != input.size(); ++i)
-    {
+    for (string::size_type i = 0; i != input.size(); ++i) {
 	int val = 0;
 	unsigned char ch = input[i];
 	if (ch >= '0' && ch <= '9') {

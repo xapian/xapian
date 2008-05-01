@@ -62,7 +62,7 @@ DatabaseMaster::write_changesets_to_fd(int fd,
     Database db;
     try {
 	db = Database(path);
-    } catch(Xapian::DatabaseError & e) {
+    } catch (Xapian::DatabaseError & e) {
 	RemoteConnection conn(-1, fd, "");
 	OmTime end_time;
 	conn.send_message(REPL_REPLY_FAIL,
@@ -329,8 +329,7 @@ DatabaseReplica::Internal::write_parameters() const
     ofstream p_out(param_path.c_str());
 
     map<string, string>::const_iterator i;
-    for (i = parameters.begin(); i != parameters.end(); ++i)
-    {
+    for (i = parameters.begin(); i != parameters.end(); ++i) {
 	p_out << i->first << "=" << i->second << endl;
     }
 }
@@ -439,11 +438,8 @@ DatabaseReplica::Internal::get_parameter(const string & name) const
 {
     DEBUGCALL(API, string, "DatabaseReplica::Internal::get_parameter", name);
     map<string, string>::const_iterator i = parameters.find(name);
-    if (i == parameters.end()) {
-	RETURN("");
-    } else {
-	RETURN(i->second);
-    }
+    if (i == parameters.end()) RETURN(string(""));
+    RETURN(i->second);
 }
 
 string
@@ -589,7 +585,7 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info)
     }
     OmTime end_time;
 
-    while(true) {
+    while (true) {
 	char type;
 	type = conn->sniff_next_message_type(end_time);
 	switch(type)
@@ -602,7 +598,7 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info)
 		    apply_db_copy(end_time);
 		    if (info != NULL)
 			++(info->fullcopy_count);
-		} catch(...) {
+		} catch (...) {
 		    remove_offline_db();
 		    throw;
 		}
