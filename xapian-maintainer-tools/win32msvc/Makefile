@@ -113,7 +113,7 @@ COPYMAKFILES:
    copy  win32_testsuite.mak ..\tests\harness\Makefile
    if exist $(XAPIAN_BINDINGS) copy $(XAPIAN_BINDINGS)\xapian-version.h.in $(XAPIAN_BINDINGS)\xapian-version.h
    if exist $(XAPIAN_BINDINGS) copy win32_bindings_python.mak $(XAPIAN_BINDINGS)\python\Makefile
-   if not exist $(XAPIAN_BINDINGS)\python\doccomments.i copy doccomments.i $(XAPIAN_BINDINGS)\python
+   if exist $(XAPIAN_BINDINGS) copy doccomments.i $(XAPIAN_BINDINGS)\python
    if exist $(XAPIAN_BINDINGS) copy version.rc.python $(XAPIAN_BINDINGS)\python\version.rc
    if exist $(XAPIAN_BINDINGS) copy setup.py $(XAPIAN_BINDINGS)\python
    if exist $(XAPIAN_BINDINGS) copy win32_bindings_php.mak $(XAPIAN_BINDINGS)\php\Makefile

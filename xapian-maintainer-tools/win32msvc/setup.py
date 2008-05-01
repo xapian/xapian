@@ -10,7 +10,7 @@ Win32 MSVC build of Python %s Bindings for the Xapian Open Source Search Engine 
 
 setup(
     name = "xapian-python-bindings",
-    version = xapian.xapian_version_string(),
+    version = xapian.version_string(),
     url = 'http://www.lemurconsulting.com',
     maintainer = 'Charlie Hull (with thanks to Alexandre Gauthier)',
     maintainer_email = 'info@lemurconsulting.com',

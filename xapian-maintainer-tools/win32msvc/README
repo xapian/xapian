@@ -1,6 +1,6 @@
 README for Xapian/Visual C++ Tools
 ==================================
-2008-04-29 for Xapian 1.0.6
+2008-04-30 for Xapian 1.0.6
 
 Make files, some extra headers and associated tools for compiling Xapian on
 Win32 using the Microsoft Visual C++ compilers. This is particularly useful
@@ -99,6 +99,7 @@ xapian\xapian-core
 xapian\xapian-bindings
 xapian\xapian-applications
 xapian\xapian-maintainer-tools
+xapian\swig
 
 After checking out the sources, copy the contents of the
 "xapian\xapian-maintainer-tools\win32msvc" directory to a new directory named
@@ -153,14 +154,17 @@ and make sure the path to where you downloaded it matches the path in config.mak
   a. the PHP sources from www.php.net (we have used PHP 4.4.6 & 5.2.1). 
   b. the built sources from a Windows binary distribution
   c. to edit config.mak to use the correct paths to PHP and to select the right version of PHP to build.
+  
+- To compile the Java-swig bindings you need the Java SE Development Kit from http://java.sun.com/javase/downloads/index.jsp (we have used the 1.6.0_05 release). Make sure the paths to this are set correctly in config.mak (JAVA_DIR)
 
 - SWIG is used for recompiling the bindings, but this is done by the Xapian core maintainers, so you shouldn't need to do this unless you are building from the development sources, in which case you'll have to use the version of SWIG in the Xapian repository. To build this follow the instructions at
-http://www.swig.org/Doc1.3/Windows.html#swig_exe
+xapian\swig\Doc\Manual\Windows.html
 (you'll need to install MinGW).
 To make sure the bindings are rebuilt use the following when building in the bindings folders:
 
 nmake SWIGBUILD=1 
 
+Make sure the paths to this are set correctly in config.mak (SWIG)
 
 How do I compile it from a command prompt?
 ==========================================

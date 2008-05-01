@@ -35,11 +35,13 @@ CLEAN :
 	-@erase $(LIB_XAPIAN_OBJS)
 	-@erase /Q /s "$(OUTDIR)\$(PYTHON_PACKAGE)"
 	-@erase /Q /s "$(OUTDIR)"
+	-@erase *.pdb
 	
-CLEANSWIG :	
+CLEANSWIG : CLEAN
 	-@erase /Q /s modern
 	-@erase generate-python-exceptions
 	-@erase exception_data.pm 
+	-@erase except.i 
 		
 DOTEST :
 	cd "$(OUTDIR)"
@@ -74,11 +76,13 @@ CPP_SBRS=.
 ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS) "/LIBPATH:$(PYTHON_LIB_DIR)" 
 
 !IF "$(SWIGBUILD)" == "1"
-modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: ../xapian.i util.i except.i doccomments.i extra.i extracomments.i
-	-erase /Q modern
+modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: ../xapian.i ../xapian-head.i util.i except.i doccomments.i extra.i extracomments.i
+    -rd /s/q modern
 	-md modern
-	$(SWIG) -I"$(XAPIAN_CORE_REL_PYTHON)" -I"$(XAPIAN_CORE_REL_PYTHON)\include" -Werror -c++ -python -threads -shadow -modern \
-	    -outdir modern -o modern/xapian_wrap.cc ../xapian.i
+	$(SWIG) $(SWIG_FLAGS) -I$(XAPIAN_CORE_REL_PYTHON)\include \
+        -DDOCCOMMENTS_I_SOURCES -c++ -python -threads -shadow -modern -O -outdir modern \
+	    -o modern/xapian_wrap.cc ../xapian.i       
+        
 	$(PERL_EXE) -pe "s/class Error:/class Error(Exception):/" modern\xapian.py > modern\xapian_py.tmp
 	-erase modern\xapian.py
 	-rename modern\xapian_py.tmp xapian.py
@@ -90,7 +94,7 @@ modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: ../xapian.i util.i 
   $(ALL_LINK32_FLAGS) /DLL /out:"$(OUTDIR)\_xapian$(PY_DEBUG_SUFFIX).pyd" $(DEF_FLAGS) $(LIB_XAPIAN_OBJS)
 <<
 
-
+  
 except.i: generate-python-exceptions
 	-copy "$(XAPIAN_CORE_REL_PYTHON)\exception_data.pm" exception_data.pm 
 	$(PERL_EXE) generate-python-exceptions exception_data.pm 
