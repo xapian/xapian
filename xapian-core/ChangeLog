@@ -1,3 +1,7 @@
+Thu May 01 16:32:58 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/unaligned.h: Fix ";;" to ";" after AssertRel calls.
+
 Thu May 01 16:12:05 GMT 2008  Olly Betts <olly@survex.com>
 
 	* docs/doxygen_api_conf.in,docs/doxygen_full_conf.in: Tell doxygen to
