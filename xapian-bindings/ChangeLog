@@ -1,3 +1,10 @@
+Fri May 02 17:24:17 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* csharp/Makefile.am,guile/Makefile.am,java-swig/Makefile.am,
+	  php/Makefile.am,ruby/Makefile.am,tcl8/Makefile.am: Seemed to work
+	  for python, so use SWIG's -MD flag for all the other swig targets
+	  too.
+
 Fri May 02 15:21:41 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/Makefile.am: Use SWIG's -MD flag to generate dependencies.
