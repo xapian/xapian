@@ -1,3 +1,8 @@
+Fri May 02 15:51:29 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/ortermlist.h,expand/ortermlist.cc: Kill FreqAdderOrTermList's
+	  explicit empty dtor.
+
 Thu May 01 16:38:40 GMT 2008  Olly Betts <olly@survex.com>
 
 	* api/omqueryinternal.cc,api/replication.cc,backends/chert/,
