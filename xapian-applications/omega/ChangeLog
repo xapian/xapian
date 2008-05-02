@@ -1,3 +1,10 @@
+Fri May 02 14:08:39 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* configure.ac: Synchronise code for working out warning flags used
+	  for builds with that used for xapian-core.  Copes with different
+	  formats of version number output by "gcc --version" which should
+	  help to improve output.
+
 Tue Apr 15 23:44:10 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* query.cc: Catch only the specific error which indicates a need to
