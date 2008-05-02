@@ -1,3 +1,9 @@
+Fri May 02 15:55:24 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* configure.ac: If iconv isn't found, set with_iconv to "no", to
+	  prevent USE_ICONV being set.  Was previously only doing this if
+	  fink on OS X was found.
+
 Fri May 02 14:14:07 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* query.cc: Cast size to unsigned before division to avoid a
