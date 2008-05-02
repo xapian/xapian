@@ -1,3 +1,7 @@
+Fri May 02 15:21:22 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/extra.i: Correct typo in comment.
+
 Mon Apr 28 17:07:03 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/pythontest.py: Fix python test of PostingSource to include
