@@ -1,3 +1,8 @@
+Sat May 03 13:54:25 GMT 2008  Olly Betts <olly@survex.com>
+
+	* gnu_getopt.h: Remove old copy of file which is no longer used - we
+	  now share a copy with xapian-core via common/.
+
 Sat May 03 10:42:27 GMT 2008  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix header checks to pre-include <sys/types.h> which
