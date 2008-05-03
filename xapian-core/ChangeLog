@@ -1,3 +1,7 @@
+Sat May 03 10:17:05 GMT 2008  Olly Betts <olly@survex.com>
+
+	* matcher/rset.cc: Missing change from last commit.
+
 Sat May 03 09:25:29 GMT 2008  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,common/,expand/Makefile.mk,expand/esetinternal.cc,
