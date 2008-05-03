@@ -1,3 +1,8 @@
+Sat May 03 18:43:12 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/doxygen_api_conf.in: Disable header and directory relationship
+	  graphs in the API documentation as they aren't interesting to users.
+
 Sat May 03 18:12:30 GMT 2008  Olly Betts <olly@survex.com>
 
 	* docs/gen_codestructure_doc.in: Link to trac instead of viewvc.
