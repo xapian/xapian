@@ -1,3 +1,10 @@
+Sat May 03 18:10:04 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* configure.ac: Fix breakage introduced when I changed "print foo"
+	  to "print(foo)" - join strings in the print with + instead of ,.
+	  mingw builds can't have worked with this, though they may still
+	  not!
+
 Sat May 03 14:00:55 GMT 2008  Olly Betts <olly@survex.com>
 
 	* xapian-bindings.spec.in: Remove "www." from xapian.org and
