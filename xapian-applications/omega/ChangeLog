@@ -1,3 +1,8 @@
+Sat May 03 13:55:35 GMT 2008  Olly Betts <olly@survex.com>
+
+	* cgiparam.cc,htdig2omega,mbox2omega,omindex-config.cc: Update FSF
+	  address.
+
 Sat May 03 13:54:25 GMT 2008  Olly Betts <olly@survex.com>
 
 	* gnu_getopt.h: Remove old copy of file which is no longer used - we
