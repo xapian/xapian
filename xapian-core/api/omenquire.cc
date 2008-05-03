@@ -901,6 +901,7 @@ Enquire::set_sort_by_relevance()
 void
 Enquire::set_sort_by_value(Xapian::valueno sort_key, bool ascending)
 {
+    internal->sorter = NULL;
     internal->sort_key = sort_key;
     internal->sort_by = Internal::VAL;
     internal->sort_value_forward = ascending;
@@ -910,6 +911,7 @@ void
 Enquire::set_sort_by_value_then_relevance(Xapian::valueno sort_key,
 					  bool ascending)
 {
+    internal->sorter = NULL;
     internal->sort_key = sort_key;
     internal->sort_by = Internal::VAL_REL;
     internal->sort_value_forward = ascending;
@@ -919,6 +921,7 @@ void
 Enquire::set_sort_by_relevance_then_value(Xapian::valueno sort_key,
 					  bool ascending)
 {
+    internal->sorter = NULL;
     internal->sort_key = sort_key;
     internal->sort_by = Internal::REL_VAL;
     internal->sort_value_forward = ascending;

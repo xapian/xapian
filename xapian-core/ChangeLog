@@ -1,3 +1,9 @@
+Sat May 03 18:56:34 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/omenquire.cc: Reset the internal sorter pointer to NULL when
+	  changing to a sort by value. Fixes #256.
+	* tests/api_sorting.cc: Add regression test.
+
 Sat May 03 18:52:27 GMT 2008  Olly Betts <olly@survex.com>
 
 	* include/xapian/unicode.h: Mark internal functions as @internal.
