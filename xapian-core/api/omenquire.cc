@@ -33,11 +33,12 @@
 
 #include "vectortermlist.h"
 
-#include "rset.h"
-#include "multimatch.h"
-#include "expand.h"
 #include "database.h"
+#include "esetinternal.h"
+#include "expandweight.h"
+#include "multimatch.h"
 #include "omenquireinternal.h"
+#include "rset.h"
 #include "stats.h"
 #include "utils.h"
 
@@ -47,6 +48,8 @@
 #include <math.h>
 
 using namespace std;
+
+using Xapian::Internal::ExpandWeight;
 
 namespace Xapian {
 
@@ -438,14 +441,6 @@ MSet::Internal::read_docs() const
     requested_docs.clear();
 }
 
-// Methods for Xapian::Internal::ESetItem
-
-string
-Xapian::Internal::ESetItem::get_description() const
-{
-    return "Xapian::Internal::ESetItem(" + tname + ", " + om_tostring(wt) + ")";
-}
-
 // Methods for Xapian::ESet
 
 ESet::ESet() : internal(new Internal) { }
@@ -524,30 +519,12 @@ ESet::get_description() const
     return "Xapian::ESet(" + internal->get_description() + ")";
 }
 
-//////////////////////////////////
-// Methods for Xapian::ESet::Internal //
-//////////////////////////////////
-
-string
-Xapian::ESet::Internal::get_description() const
-{
-    string description = "ebound=" + om_tostring(ebound);
-
-    for (vector<Xapian::Internal::ESetItem>::const_iterator i = items.begin();
-	 i != items.end();
-	 i++) {
-	description += ", " + i->get_description();
-    }
-
-    return "Xapian::ESet::Internal(" + description + ")";
-}
-
 // Xapian::ESetIterator
 
 const string &
 ESetIterator::operator *() const
 {
-    return eset.internal->items[index].tname;
+    return eset.internal->items[index].term;
 }
 
 Xapian::weight
@@ -679,9 +656,16 @@ Enquire::Internal::get_eset(Xapian::termcount maxitems,
                     const RSet & rset, int flags, double k,
 		    const ExpandDecider * edecider) const
 {
-    ESet retval;
+    DEBUGCALL(API, ESet, "Enquire::Internal::get_eset", 
+	      maxitems << ", " << rset << ", " << flags << ", " <<
+	      k << ", " << edecider);
 
-    OmExpand expand(db);
+    if (maxitems == 0 || rset.empty()) {
+	// Either we were asked for no results, or wouldn't produce any
+	// because no documents were marked as relevant.
+	RETURN(ESet());
+    }
+
     RSetI rseti(db, rset);
 
     DEBUGLINE(API, "rset size is " << rset.size());
@@ -708,10 +692,12 @@ Enquire::Internal::get_eset(Xapian::termcount maxitems,
 	}
     }
 
-    expand.expand(maxitems, retval, &rseti, edecider,
-		  bool(flags & Enquire::USE_EXACT_TERMFREQ), k);
+    bool use_exact_termfreq(flags & Enquire::USE_EXACT_TERMFREQ);
+    ExpandWeight eweight(db, rseti.size(), use_exact_termfreq, k);
 
-    return retval;
+    Xapian::ESet eset;
+    eset.internal->expand(maxitems, db, rseti, edecider, eweight);
+    RETURN(eset);
 }
 
 class ByQueryIndexCmp {

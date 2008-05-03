@@ -7,6 +7,7 @@ noinst_HEADERS +=\
 	common/document.h\
 	common/documentterm.h\
 	common/emptypostlist.h\
+	common/esetinternal.h\
 	common/expand.h\
 	common/expandweight.h\
 	common/fileutils.h\

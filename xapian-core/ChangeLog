@@ -1,3 +1,13 @@
+Sat May 03 09:25:29 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,common/,expand/Makefile.mk,expand/esetinternal.cc,
+	  expand/expand.cc: Rewrite class ESet::Internal, incorporating the
+	  functionality which used to be in the internal OmExpand class.  The
+	  expand operation now uses a min heap rather than calling
+	  nth_element() repeatedly - this should reduce the complexity of the
+	  expand operation by a factor of n/log(n) where n is the requested
+	  ESet size.
+
 Fri May 02 15:51:29 GMT 2008  Olly Betts <olly@survex.com>
 
 	* common/ortermlist.h,expand/ortermlist.cc: Kill FreqAdderOrTermList's
