@@ -271,9 +271,19 @@ ChertDatabase::open_tables_consistent()
     // go back and open record_table again, until record_table has
     // the same revision as the last time we opened it.
 
-    version_file.read_and_check(readonly);
+    chert_revision_number_t cur_rev = record_table.get_open_revision_number();
+
+    // Check the version file unless we're reopening.
+    if (cur_rev == 0) version_file.read_and_check(readonly);
+
     record_table.open();
     chert_revision_number_t revision = record_table.get_open_revision_number();
+
+    if (cur_rev && cur_rev == revision) {
+	// We're reopening a database and the revision hasn't changed so we
+	// don't need to do anything.
+	return;
+    }
 
     // In case the position, value, synonym, and/or spelling tables don't
     // exist yet.
