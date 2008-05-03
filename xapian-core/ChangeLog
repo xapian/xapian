@@ -1,3 +1,7 @@
+Sat May 03 18:12:30 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/gen_codestructure_doc.in: Link to trac instead of viewvc.
+
 Sat May 03 17:25:02 GMT 2008  Olly Betts <olly@survex.com>
 
 	* docs/replication_protocol.rst: Fix a few typos.
