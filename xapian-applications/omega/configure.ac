@@ -64,10 +64,11 @@ AC_TRY_COMPILE([#include <stdint.h>],
   AC_DEFINE(HAVE_WORKING_STDINT_H, 1, [Define to 1 if you have the <stdint.h> header file and it can be used in C++ code.]))
 
 dnl Check for headers.
-AC_CHECK_HEADERS([netinet/in.h arpa/inet.h sys/wait.h strings.h sys/time.h]dnl
+AC_CHECK_HEADERS([strings.h], [], [], [ ])
+AC_CHECK_HEADERS([netinet/in.h arpa/inet.h sys/wait.h sys/time.h]dnl
 		 [sys/resource.h sys/socket.h sys/sysctl.h vm/vm_param.h]dnl
 		 [sys/vmmeter.h sys/sysmp.h sys/sysinfo.h sys/pstat.h],
-		 [], [], [ ])
+		 [], [], [#include <sys/types.h>])
 
 dnl mingw (for instance) lacks ssize_t
 AC_CHECK_TYPE(ssize_t, int)

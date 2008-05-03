@@ -1,3 +1,8 @@
+Sat May 03 10:42:27 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix header checks to pre-include <sys/types.h> which
+	  Mac OS X needs for some other headers to work.
+
 Sat May 03 10:41:18 GMT 2008  Olly Betts <olly@survex.com>
 
 	* configure.ac: Improve code which prevents probing for f77, etc.
