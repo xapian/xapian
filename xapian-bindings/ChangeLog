@@ -1,3 +1,8 @@
+Sat May 03 14:00:55 GMT 2008  Olly Betts <olly@survex.com>
+
+	* xapian-bindings.spec.in: Remove "www." from xapian.org and
+	  oligarchy.co.uk URLs.  Bump minimum required Python version to 2.3.
+
 Sat May 03 10:59:58 GMT 2008  Olly Betts <olly@survex.com>
 
 	* configure.ac: Improve code which prevents probing for f77, etc.
