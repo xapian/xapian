@@ -1,3 +1,7 @@
+Sat May 03 10:28:30 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: Improve code to prevent probing for f77, etc.
+
 Sat May 03 10:17:05 GMT 2008  Olly Betts <olly@survex.com>
 
 	* matcher/rset.cc: Missing change from last commit.
