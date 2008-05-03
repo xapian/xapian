@@ -1,3 +1,7 @@
+Sat May 03 18:52:27 GMT 2008  Olly Betts <olly@survex.com>
+
+	* include/xapian/unicode.h: Mark internal functions as @internal.
+
 Sat May 03 18:43:12 GMT 2008  Olly Betts <olly@survex.com>
 
 	* docs/doxygen_api_conf.in: Disable header and directory relationship
