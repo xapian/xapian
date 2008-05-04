@@ -1,3 +1,7 @@
+Sun May 04 19:12:08 GMT 2008  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Fix comment error regarding catdvi options.
+
 Sat May 03 14:02:02 GMT 2008  Olly Betts <olly@survex.com>
 
 	* xapian-omega.spec.in: Remove "www." from xapian.org and
