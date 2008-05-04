@@ -1,3 +1,10 @@
+Sun May 04 09:30:53 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_version.cc,backends/flint/flint_version.cc,
+	  common/stringutils.h: Move CONST_STRLEN() into stringutils.h.
+	* backends/chert/chert_database.cc,backends/flint/flint_database.cc:
+	  Use CONST_STRLEN().
+
 Sat May 03 18:56:34 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/omenquire.cc: Reset the internal sorter pointer to NULL when

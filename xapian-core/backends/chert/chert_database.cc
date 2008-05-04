@@ -408,12 +408,12 @@ ChertDatabase::get_changeset_revisions(const string & path,
     const char *end = buf + chert_io_read(changes_fd, buf,
 					  REASONABLE_CHANGESET_SIZE, 0);
     if (strncmp(start, CHANGES_MAGIC_STRING,
-		sizeof(CHANGES_MAGIC_STRING) - 1) != 0) {
+		CONST_STRLEN(CHANGES_MAGIC_STRING)) != 0) {
 	string message = string("Changeset at ")
 		+ path + " does not contain valid magic string";
 	throw Xapian::DatabaseError(message);
     }
-    start += sizeof(CHANGES_MAGIC_STRING) - 1;
+    start += CONST_STRLEN(CHANGES_MAGIC_STRING);
     if (start >= end)
 	throw Xapian::DatabaseError("Changeset too short at " + path);
 

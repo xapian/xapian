@@ -26,7 +26,7 @@
 
 #include "chert_io.h"
 #include "chert_version.h"
-#include "stringutils.h" // For STRINGIZE().
+#include "stringutils.h" // For STRINGIZE() and CONST_STRLEN().
 #include "utils.h"
 
 #ifdef __WIN32__
@@ -45,7 +45,6 @@ using std::string;
 
 #define MAGIC_STRING "IAmChert"
 
-#define CONST_STRLEN(S) (sizeof(S"")-1)
 #define MAGIC_LEN CONST_STRLEN(MAGIC_STRING)
 #define VERSIONFILE_SIZE (MAGIC_LEN + 4)
 
