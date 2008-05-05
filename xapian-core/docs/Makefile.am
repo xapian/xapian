@@ -21,8 +21,14 @@ EXTRA_DIST = doxygen_api_conf.in doxygen_full_conf.in \
 	doxygen_api_header.html_tmpl doxygen_api_footer.html_tmpl \
 	doxygen_full_header.html_tmpl doxygen_full_footer.html_tmpl \
 	$(RSTDOCS) \
-	apidoc/html/*.gif apidoc/html/*.png apidoc/html/*.css apidoc/html/*.html \
 	dir_contents
+
+# Other files which should be distributed
+dist-hook: doxygen_api_docs
+	test -d $(distdir) || mkdir $(distdir)
+	test -d $(distdir)/apidoc || mkdir $(distdir)/apidoc
+	test -d $(distdir)/apidoc/html || mkdir $(distdir)/apidoc/html
+	cp -p apidoc/html/*.gif apidoc/html/*.png apidoc/html/*.css apidoc/html/*.html $(distdir)/apidoc/html
 
 if !MAINTAINER_NO_DOCS
 # Build API docs with doxygen
@@ -30,7 +36,7 @@ all-local: doxygen_api_docs
 
 dist_doc_DATA = $(HTMLDOCS) $(RSTHTML) apidoc.pdf
 
-install-data-local:
+install-data-local: doxygen_api_docs
 	$(mkinstalldirs) $(DESTDIR)$(docdir)/apidoc/html
 	$(INSTALL_DATA) `test -f apidoc/html/index.html || echo $(srcdir)/`apidoc/html/*.gif $(DESTDIR)$(docdir)/apidoc/html
 	$(INSTALL_DATA) `test -f apidoc/html/index.html || echo $(srcdir)/`apidoc/html/*.png $(DESTDIR)$(docdir)/apidoc/html

@@ -1,3 +1,12 @@
+Mon May 05 13:18:19 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* docs/Makefile.am: Fix "make distcheck" by using dist-hook to
+	  install generated files, with the appropriate dependency, instead
+	  of wildcards in EXTRA_DIST which don't give the correct expansion
+	  unless the files happened to be generated already by another
+	  rule. Also, ensure that the documentation is generated before
+	  attempting to install it.
+
 Sun May 04 09:30:53 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_version.cc,backends/flint/flint_version.cc,
