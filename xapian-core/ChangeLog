@@ -1,3 +1,8 @@
+Mon May 05 14:52:34 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* docs/Makefile.am: Adapt the dist-check hook to work with a VPATH
+	  build in non-maintainer mode.
+
 Mon May 05 13:18:19 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* docs/Makefile.am: Fix "make distcheck" by using dist-hook to
