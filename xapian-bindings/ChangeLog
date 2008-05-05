@@ -1,3 +1,8 @@
+Mon May 05 11:03:52 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* csharp/Makefile.am: Change names of generated files to match
+	  those made by new SWIG version.
+
 Mon May 05 11:58:45 BST 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* ../swig: Update version of swig in use to current HEAD.  Causes

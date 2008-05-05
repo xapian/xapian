@@ -39,8 +39,8 @@ XAPIAN_SWIG_CS_SRCS=\
 	RSet.cs \
 	SWIGTYPE_p_bool.cs \
 	SWIGTYPE_p_std__string.cs \
-	SWIGTYPE_p_std__vectorTstd__string_t.cs \
-	SWIGTYPE_p_std__vectorTXapian__Query_t.cs \
+	SWIGTYPE_p_std__vectorT_std__string_t.cs \
+	SWIGTYPE_p_std__vectorT_Xapian__Query_t.cs \
 	SimpleStopper.cs \
 	Sorter.cs \
 	Stem.cs \
