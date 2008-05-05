@@ -1,3 +1,11 @@
+Mon May 05 15:20:42 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* Backport changes from trunk:
+  	* docs/Makefile.am: Fix "make distcheck" by using dist-hook to
+  	  install generated files from either srcdir or builddir, with the
+	  appropriate dependency to generate them automatically in
+	  maintainer mode builds.
+
 Wed Apr 30 10:41:43 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* Backport changes from trunk:
