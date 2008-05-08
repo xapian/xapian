@@ -1,3 +1,9 @@
+Thu May 08 16:41:59 GMT 2008  Olly Betts <olly@survex.com>
+
+	* include/xapian/postingsource.h: Add doxygen comments for
+	  Xapian::PostingSource.  Add private assignment operator and
+	  copy constructor to prevent copying.
+
 Thu May 08 16:40:49 GMT 2008  Olly Betts <olly@survex.com>
 
 	* common/postlist.h: Fix one doxygen comment and improve another.
