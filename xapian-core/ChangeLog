@@ -1,3 +1,8 @@
+Fri May 09 08:33:35 GMT 2008  Olly Betts <olly@survex.com>
+
+	* include/xapian/postingsource.h: Add a protected default ctor so that
+	  code subclassing PostingSource actually compiles!
+
 Thu May 08 16:41:59 GMT 2008  Olly Betts <olly@survex.com>
 
 	* include/xapian/postingsource.h: Add doxygen comments for

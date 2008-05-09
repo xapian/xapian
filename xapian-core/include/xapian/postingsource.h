@@ -36,6 +36,10 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
     /// Don't allow copying.
     PostingSource(const PostingSource &);
 
+  protected:
+    /// Allow subclasses to be instantiated.
+    PostingSource() { }
+
   public:
     // Destructor.
     virtual ~PostingSource();
