@@ -1,3 +1,8 @@
+Fri May 09 15:24:42 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/omdebug.h: Fix RETURN macro to work on GCC 2.95 for the case
+	  `RETURN(string())'.
+
 Fri May 09 08:33:35 GMT 2008  Olly Betts <olly@survex.com>
 
 	* include/xapian/postingsource.h: Add a protected default ctor so that
