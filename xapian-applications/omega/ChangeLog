@@ -1,3 +1,7 @@
+Fri May 09 19:27:21 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Fix handling of any -I options needed for PCRE.
+
 Sun May 04 19:12:08 GMT 2008  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Fix comment error regarding catdvi options.
