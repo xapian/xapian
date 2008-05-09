@@ -1,3 +1,8 @@
+Fri May 09 16:51:10 GMT 2008  Olly Betts <olly@survex.com>
+
+	* net/remoteconnection.cc: Remove pointless conversion to size_t which
+	  breaks GCC 2.95 build.
+
 Fri May 09 16:22:46 GMT 2008  Olly Betts <olly@survex.com>
 
 	* api/replication.cc: Needs <cstdio> for rename().
