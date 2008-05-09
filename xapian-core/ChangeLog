@@ -1,3 +1,8 @@
+Fri May 09 16:53:19 GMT 2008  Olly Betts <olly@survex.com>
+
+	* net/remoteserver.cc: No entries in dispatch[] are NULL, so there's
+	  no point testing for it.
+
 Fri May 09 16:51:10 GMT 2008  Olly Betts <olly@survex.com>
 
 	* net/remoteconnection.cc: Remove pointless conversion to size_t which
