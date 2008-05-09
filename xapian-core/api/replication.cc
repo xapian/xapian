@@ -20,6 +20,7 @@
  */
 
 #include <config.h>
+
 #include "xapian/replication.h"
 
 #include "xapian/base.h"
@@ -43,6 +44,7 @@
 #include "utils.h"
 
 #include <algorithm>
+#include <cstdio> // For rename().
 #include <fstream>
 #include <map>
 #include <string>

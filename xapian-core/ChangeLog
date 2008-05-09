@@ -1,3 +1,7 @@
+Fri May 09 16:22:46 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/replication.cc: Needs <cstdio> for rename().
+
 Fri May 09 15:41:08 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/harness/testutils.cc: No need for an explicit std::endl when
