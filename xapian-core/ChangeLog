@@ -1,3 +1,9 @@
+Fri May 09 15:38:22 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/replication.cc: Use '\n' rather than endl in the middle of
+	  writing stuff, since endl forces a flush which just adds useless
+	  overhead.
+
 Fri May 09 15:24:42 GMT 2008  Olly Betts <olly@survex.com>
 
 	* common/omdebug.h: Fix RETURN macro to work on GCC 2.95 for the case
