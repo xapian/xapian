@@ -291,11 +291,9 @@ static int yy_find_shift_action(
   int iLookAhead            /* The look-ahead token */
 ){
   int i;
-  /* if( pParser->yystack.empty() ) return YY_NO_ACTION;  */
   int stateno = pParser->yystack.back().stateno;
  
-  i = yy_shift_ofst[stateno];
-  if( i==YY_SHIFT_USE_DFLT ){
+  if( stateno>YY_SHIFT_MAX || (i = yy_shift_ofst[stateno])==YY_SHIFT_USE_DFLT ){
     return yy_default[stateno];
   }
   if( iLookAhead==YYNOCODE ){
@@ -334,8 +332,8 @@ static int yy_find_reduce_action(
   int i;
   /* int stateno = pParser->yystack.back().stateno; */
  
-  i = yy_reduce_ofst[stateno];
-  if( i==YY_REDUCE_USE_DFLT ){
+  if( stateno>YY_REDUCE_MAX ||
+      (i = yy_reduce_ofst[stateno])==YY_REDUCE_USE_DFLT ){
     return yy_default[stateno];
   }
   if( iLookAhead==YYNOCODE ){
