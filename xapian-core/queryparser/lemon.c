@@ -3567,6 +3567,7 @@ int mhflag;     /* Output in makeheaders format if true */
        lemp->wildcard->index); lineno++;
   }
   print_stack_union(out,lemp,&lineno,mhflag);
+  fprintf(out, "#ifndef YYSTACKDEPTH\n"); lineno++;
   if( lemp->stacksize ){
     if( atoi(lemp->stacksize)<=0 ){
       ErrorMsg(lemp->filename,0,
@@ -3579,6 +3580,7 @@ int mhflag;     /* Output in makeheaders format if true */
   }else{
     fprintf(out,"#define YYSTACKDEPTH 100\n");  lineno++;
   }
+  fprintf(out, "#endif\n"); lineno++;
   if( mhflag ){
     fprintf(out,"#if INTERFACE\n"); lineno++;
   }
