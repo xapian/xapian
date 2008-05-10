@@ -1,3 +1,7 @@
+Sat May 10 15:50:23 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Merge upstream "Check-in Number: 2208".
+
 Sat May 10 15:03:59 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/harness/testsuite.cc: Prefer `str.assign(ptr)' to `str =
