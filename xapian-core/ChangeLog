@@ -1,3 +1,8 @@
+Sat May 10 14:48:38 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/matchspy.cc,api/replication.cc: Prefer `str.assign(ptr, len)' to
+	  `str = string(ptr, len)'.
+
 Fri May 09 16:53:19 GMT 2008  Olly Betts <olly@survex.com>
 
 	* net/remoteserver.cc: No entries in dispatch[] are NULL, so there's

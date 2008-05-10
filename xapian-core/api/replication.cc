@@ -504,7 +504,7 @@ DatabaseReplica::Internal::apply_db_copy(const OmTime & end_time)
 	const char * ptr = buf.data();
 	const char * end = ptr + buf.size();
 	size_t uuid_length = decode_length(&ptr, end, true);
-	offline_uuid = string(ptr, uuid_length);
+	offline_uuid.assign(ptr, uuid_length);
 	buf.erase(0, ptr + uuid_length - buf.data());
     }
     offline_revision = buf;
