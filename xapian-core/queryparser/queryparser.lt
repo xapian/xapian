@@ -186,7 +186,7 @@ static const char *const yyRuleName[] = {
 ** value.
 */
 static const char *ParseTokenName(int tokenType){
-  if( tokenType>0 && size_t(tokenType)<(sizeof(yyTokenName)/sizeof(yyTokenName[0])) ){
+  if( tokenType>=0 && tokenType<(int)(sizeof(yyTokenName)/sizeof(yyTokenName[0])) ){
     return yyTokenName[tokenType];
   }
   return "Unknown";
@@ -197,7 +197,7 @@ static const char *ParseTokenName(int tokenType){
 ** value.
 */
 static const char *ParseRuleName(int ruleNum){
-  if( ruleNum>0 && size_t(ruleNum)<(sizeof(yyRuleName)/sizeof(yyRuleName[0])) ){
+  if( ruleNum>=0 && ruleNum<(int)(sizeof(yyRuleName)/sizeof(yyRuleName[0])) ){
     return yyRuleName[ruleNum];
   }
   return "Unknown";
@@ -288,7 +288,7 @@ static void ParseFree(
 */
 static int yy_find_shift_action(
   yyParser *pParser,        /* The parser */
-  int iLookAhead            /* The look-ahead token */
+  YYCODETYPE iLookAhead     /* The look-ahead token */
 ){
   int i;
   int stateno = pParser->yystack.back().stateno;
@@ -338,7 +338,7 @@ static int yy_find_shift_action(
 */
 static int yy_find_reduce_action(
   int stateno,              /* Current state number */
-  int iLookAhead            /* The look-ahead token */
+  YYCODETYPE iLookAhead     /* The look-ahead token */
 ){
   int i;
   /* int stateno = pParser->yystack.back().stateno; */
