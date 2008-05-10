@@ -43,7 +43,8 @@
 **                       This is typically a union of many types, one of
 **                       which is ParseTOKENTYPE.  The entry in the union
 **                       for base tokens is called "yy0".
-**    YYSTACKDEPTH       is the maximum depth of the parser's stack.
+**    YYSTACKDEPTH       is the maximum depth of the parser's stack.  If
+**                       zero the stack is dynamically sized using realloc()
 **    ParseARG_SDECL     A static variable declaration for the %extra_argument
 **    ParseARG_PDECL     A parameter declaration for the %extra_argument
 **    ParseARG_STORE     Code to store %extra_argument into yypParser
@@ -537,7 +538,6 @@ static void Parse(
 
   /* (re)initialize the parser, if necessary */
   if( yypParser->yystack.empty() ){
-    /* if( yymajor==0 ) return; // not sure why this was here... */
     yypParser->yystack.push_back(yyStackEntry());
     yypParser->yyerrcnt = -1;
   }
