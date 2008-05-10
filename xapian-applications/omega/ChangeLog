@@ -1,3 +1,9 @@
+Sat May 10 11:14:20 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Makefile.am: omega_CPPFLAGS overrides AM_CPPFLAGS, so we need to
+	  explicitly include AM_CPPFLAGS in omega_CPPFLAGS to get
+	  CONFIGFILE_SYSTEM defined when building omega.
+
 Fri May 09 19:27:21 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Fix handling of any -I options needed for PCRE.
