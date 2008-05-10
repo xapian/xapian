@@ -565,7 +565,9 @@ static void Parse(
          while(
           !yypParser->yystack.empty() &&
           yymx != YYERRORSYMBOL &&
-          (yyact = yy_find_shift_action(yypParser,YYERRORSYMBOL)) >= YYNSTATE
+          (yyact = yy_find_reduce_action(
+                        yypParser->yystack.back().stateno,
+                        YYERRORSYMBOL)) >= YYNSTATE
         ){
           yy_pop_parser_stack(yypParser);
         }
