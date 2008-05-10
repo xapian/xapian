@@ -509,7 +509,7 @@ static void Parse(
 
   /* (re)initialize the parser, if necessary */
   if( yypParser->yystack.empty() ){
-    if( yymajor==0 ) return;
+    /* if( yymajor==0 ) return; // not sure why this was here... */
     yypParser->yystack.push_back(yyStackEntry());
     yypParser->yyerrcnt = -1;
   }
