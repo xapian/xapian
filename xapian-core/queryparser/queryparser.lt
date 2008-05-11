@@ -456,7 +456,8 @@ static void yy_reduce(
   yyact = yy_find_reduce_action(yypParser->yystack.back().stateno,yygoto);
   if( yyact < YYNSTATE ){
     yy_shift(yypParser,yyact,yygoto,&yygotominor);
-  }else if( yyact == YYNSTATE + YYNRULE + 1 ){
+  }else{
+    Assert( yyact == YYNSTATE + YYNRULE + 1 );
     yy_accept(yypParser);
   }
 }
