@@ -1,3 +1,10 @@
+Sun May 11 23:49:07 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c,queryparser/queryparser.lt: Do a final sync by
+	  comparing our versions to the latest vanilla upstream.  Add a note
+	  to each file of the latest revision sync-ed against.
+	* queryparser/lemon.c: Enable '#define PRIVATE static'.
+
 Sun May 11 22:48:27 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS: Add a note of the speed-up that the recent QueryParser changes

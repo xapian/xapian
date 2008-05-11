@@ -8,6 +8,9 @@
 **
 ** Modified to add "-o" and "-h" command line options.  Olly Betts 2005-02-14
 ** Modified to fix a number of compiler warnings.  Olly Betts 2007-02-20
+**
+** Synced with upstream CVS rev 1.55:
+** http://www.sqlite.org/cvstrac/fileview?f=sqlite/tool/lemon.c&v=1.55
 */
 #include <stdio.h>
 #include <stdarg.h>
@@ -28,9 +31,7 @@ extern int access();
 #include <unistd.h>
 #endif
 
-
-/* #define PRIVATE static */
-#define PRIVATE
+#define PRIVATE static
 
 #ifdef TEST
 #define MAXRHS 5       /* Set low to exercise exception code */
@@ -73,7 +74,6 @@ struct s_options {
   char *label;
   void *arg;
   void(*func)();
-
   char *message;
 };
 int    OptInit(/* char**,struct s_options*,FILE* */);
@@ -595,7 +595,6 @@ struct lemon *xp;
           }
         }else if( sp->prec>=0 ){
           rp->precsym = rp->rhs[i];
-          break;
 	}
       }
     }
@@ -2742,6 +2741,7 @@ char *suffix;
 {
   char *name;
   char *cp;
+
   name = malloc( strlen(lemp->filename) + strlen(suffix) + 5 );
   if( name==0 ){
     fprintf(stderr,"Can't allocate space for a filename.\n");
