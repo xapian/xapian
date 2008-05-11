@@ -1,3 +1,8 @@
+Sun May 11 22:48:27 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Add a note of the speed-up that the recent QueryParser changes
+	  have given.
+
 Sun May 11 22:10:19 GMT 2008  Olly Betts <olly@survex.com>
 
 	* queryparser/lemon.c: Merge upstream "Check-in Number: 5053".
