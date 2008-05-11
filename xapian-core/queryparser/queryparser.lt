@@ -167,6 +167,7 @@ typedef struct yyParser yyParser;
 /* Prototype this here so we can call it from a rule action (ick). */
 static void yy_parse_failed(yyParser *);
 
+#include "omassert.h"
 #include "omdebug.h"
 
 #ifdef XAPIAN_DEBUG_VERBOSE
@@ -534,7 +535,9 @@ static void Parse(
   YYMINORTYPE yyminorunion;
   int yyact;            /* The parser action. */
   int yyendofinput;     /* True if we are at the end of input */
+#ifdef YYERRORSYMBOL
   int yyerrorhit = 0;   /* True if yymajor has invoked an error */
+#endif
 
   /* (re)initialize the parser, if necessary */
   if( yypParser->yystack.empty() ){
@@ -560,8 +563,11 @@ static void Parse(
       }
     }else if( yyact < YYNSTATE + YYNRULE ){
       yy_reduce(yypParser,yyact-YYNSTATE);
-    }else if( yyact == YY_ERROR_ACTION ){
+    }else{
+      Assert( yyact == YY_ERROR_ACTION );
+#ifdef YYERRORSYMBOL
       int yymx;
+#endif
       DEBUGLINE(QUERYPARSER, "Syntax Error!");
 #ifdef YYERRORSYMBOL
       /* A syntax error has occurred.
@@ -633,9 +639,6 @@ static void Parse(
       }
       yymajor = YYNOCODE;
 #endif
-    }else{
-      yy_accept(yypParser);
-      yymajor = YYNOCODE;
     }
   }while( yymajor!=YYNOCODE && !yypParser->yystack.empty() );
   return;

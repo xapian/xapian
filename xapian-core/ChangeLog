@@ -1,3 +1,10 @@
+Sun May 11 21:33:13 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c,queryparser/queryparser.lt: Merge upstream
+	  "Check-in Number: 4736".
+	* queryparser/lemon.c: Add %syntax_error directive since lemon has
+	  changed it's error recovery strategy if you don't have one.
+
 Sun May 11 20:54:31 GMT 2008  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: If we hit a syntax error, don't
