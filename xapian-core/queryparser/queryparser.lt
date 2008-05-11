@@ -436,7 +436,9 @@ static void yy_reduce(
   ** from wireshark this week.  Clearly they are stressing Lemon in ways
   ** that it has not been previously stressed...  (SQLite ticket #2172)
   */
-  memset(&yygotominor, 0, sizeof(yygotominor));
+  /* Later comments on ticket #2172 note that this is a bug in wireshark's
+   * grammar which lemon fails to diagnose, so commenting out for Xapian. */
+  /* memset(&yygotominor, 0, sizeof(yygotominor)); */
 
 
   switch( yyruleno ){

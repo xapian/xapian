@@ -1,3 +1,10 @@
+Sun May 11 21:47:03 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lt: Comment out memset() call added by
+	  one of the earlier merged upstream changes - a later comment on
+	  the ticket referred to notes that this was actually a bug in the
+	  grammar of the people who reported it.
+
 Sun May 11 21:44:46 GMT 2008  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lt: Merge upstream "Check-in Number: 4743".
