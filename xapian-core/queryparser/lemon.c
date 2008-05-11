@@ -4160,7 +4160,6 @@ int n;
 /* Allocate a new set */
 char *SetNew(){
   char *s;
-  int i;
   s = (char*)calloc( size, 1);
   if( s==0 ){
     extern void memory_error();

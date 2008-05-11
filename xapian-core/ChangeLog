@@ -1,3 +1,7 @@
+Sun May 11 21:52:30 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Merge upstream "Check-in Number: 4751".
+
 Sun May 11 21:51:18 GMT 2008  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lt: Merge upstream "Check-in Number: 4745".
