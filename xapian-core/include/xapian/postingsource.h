@@ -1,7 +1,8 @@
 /** @file postingsource.h
- *  @brief PostingSource class
+ *  @brief External sources of posting information
  */
 /* Copyright (C) 2007,2008 Olly Betts
+ * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +22,7 @@
 #ifndef XAPIAN_INCLUDED_POSTINGSOURCE_H
 #define XAPIAN_INCLUDED_POSTINGSOURCE_H
 
+#include <xapian/database.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
@@ -138,6 +140,39 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *  get_description() gives for their subclass).
      */
     virtual std::string get_description() const;
+};
+
+class XAPIAN_VISIBILITY_DEFAULT ValueWeightPostingSource : public PostingSource {
+    Xapian::Database db;
+    Xapian::valueno valno;
+    Xapian::docid current_docid;
+    Xapian::docid last_docid;
+    Xapian::doccount termfreq_min;
+    Xapian::doccount termfreq_est;
+    Xapian::doccount termfreq_max;
+    double current_value;
+    double max_value;
+  public:
+    ValueWeightPostingSource(Xapian::Database db_, Xapian::valueno valno_);
+
+    Xapian::doccount get_termfreq_min() const;
+    Xapian::doccount get_termfreq_est() const;
+    Xapian::doccount get_termfreq_max() const;
+
+    Xapian::weight get_maxweight() const;
+    Xapian::weight get_weight() const;
+
+    void next(Xapian::weight min_wt);
+    void skip_to(Xapian::docid min_docid, Xapian::weight min_wt);
+    void check(Xapian::docid min_docid, Xapian::weight min_wt, bool &valid);
+
+    bool at_end() const;
+
+    Xapian::docid get_docid() const;
+
+    void reset();
+
+    std::string get_description() const;
 };
 
 }
