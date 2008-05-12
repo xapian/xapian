@@ -56,7 +56,7 @@ InMemoryPositionList::get_position() const
 void
 InMemoryPositionList::next()
 {
-    if(iterating_in_progress) {
+    if (iterating_in_progress) {
 	Assert(!at_end());
 	mypos++;
     } else {

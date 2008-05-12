@@ -29,7 +29,7 @@
 inline int
 getint1(const unsigned char *p, int c)
 {
-    AssertRel(c, >=, 0);;
+    AssertRel(c, >=, 0);
     AssertRel(c, <, 65536);
     return p[c];
 }
@@ -37,7 +37,7 @@ getint1(const unsigned char *p, int c)
 inline void
 setint1(unsigned char *p, int c, int x)
 {
-    AssertRel(c, >=, 0);;
+    AssertRel(c, >=, 0);
     AssertRel(c, <, 65536);
     p[c] = x;
 }
@@ -45,7 +45,7 @@ setint1(unsigned char *p, int c, int x)
 inline int
 getint2(const unsigned char *p, int c)
 {
-    AssertRel(c, >=, 0);;
+    AssertRel(c, >=, 0);
     AssertRel(c, <, 65536 - 1);
     return p[c] << 8 | p[c + 1];
 }
@@ -53,7 +53,7 @@ getint2(const unsigned char *p, int c)
 inline void
 setint2(unsigned char *p, int c, int x)
 {
-    AssertRel(c, >=, 0);;
+    AssertRel(c, >=, 0);
     AssertRel(c, <, 65536 - 1);
     p[c] = x >> 8;
     p[c + 1] = x;
@@ -62,7 +62,7 @@ setint2(unsigned char *p, int c, int x)
 inline int
 getint4(const unsigned char *p, int c)
 {
-    AssertRel(c, >=, 0);;
+    AssertRel(c, >=, 0);
     AssertRel(c, <, 65536 - 3);
     return p[c] << 24 | p[c + 1] << 16 | p[c + 2] << 8 | p[c + 3];
 }
@@ -70,7 +70,7 @@ getint4(const unsigned char *p, int c)
 inline void
 setint4(unsigned char *p, int c, int x)
 {
-    AssertRel(c, >=, 0);;
+    AssertRel(c, >=, 0);
     AssertRel(c, <, 65536 - 3);
     p[c] = x >> 24;
     p[c + 1] = x >> 16;

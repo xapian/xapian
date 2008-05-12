@@ -563,7 +563,7 @@ QUnserial::readcompound() {
 		    throw Xapian::InvalidArgumentError("Invalid query string");
 	    }
         }
-    } catch(...) {
+    } catch (...) {
         vector<Xapian::Query::Internal *>::iterator i;
         for (i = subqs.begin(); i != subqs.end(); i++)
             delete *i;

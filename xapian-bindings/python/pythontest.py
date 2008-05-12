@@ -941,6 +941,31 @@ def test_postingsource():
     del db
     shutil.rmtree(dbpath)
 
+def test_postingsource():
+    """Simple test of the PostingSource class.
+
+    """
+    dbpath = 'db_test_postingsource'
+    db = xapian.WritableDatabase(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
+    vals = (6, 9, 4.5, 4.4, 4.6, 2, 1, 4, 3, 0)
+    for id in xrange(10):
+        doc = xapian.Document()
+        doc.add_value(1, xapian.sortable_serialise(vals[id]))
+        db.add_document(doc)
+
+    source = xapian.ValueWeightPostingSource(db, 1)
+    query = xapian.Query(source)
+    # del source # Check that query keeps a reference to it.
+
+    enquire = xapian.Enquire(db)
+    enquire.set_query(query)
+    mset = enquire.get_mset(0, 10)
+
+    expect([item.docid for item in mset], [2, 1, 5, 3, 4, 8, 9, 6, 7, 10])
+
+    del db
+    shutil.rmtree(dbpath)
+
 # Run all tests (ie, callables with names starting "test_").
 if not runtests(globals(), sys.argv[1:]):
     sys.exit(1)

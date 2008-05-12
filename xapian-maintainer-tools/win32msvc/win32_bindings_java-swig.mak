@@ -96,6 +96,11 @@ CLEAN :
     -@erase WriteJavaVersion.class
     -@erase version.res
     -@erase javaversion.h
+    
+CLEANSWIG:
+    -@erase xapian_wrap.cc
+    -@erase xapian_wrap.h
+    -@erase $(XAPIAN_SWIG_JAVA_SRCS)
 
 DOTEST: 
     copy SmokeTest.class "$(OUTDIR)\SmokeTest.class"
@@ -109,7 +114,7 @@ CHECK: ALL DOTEST
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
     
-$(OUTDIR)/xapian_jni.jar: "$(OUTDIR)" $(XAPIAN_SWIG_JAVA_CLASS)
+$(OUTDIR)/xapian_jni.jar: xapian_wrap.cc "$(OUTDIR)" $(XAPIAN_SWIG_JAVA_CLASS)
 	$(JAR) -cf $(OUTDIR)/xapian_jni.jar $(XAPIAN_SWIG_JAVA_CLASS) $(XAPIAN_SWIG_JAVA_EXTRA_CLASSES) 
     
 CPP_PROJ=$(CPPFLAGS_EXTRA)  /GR \
@@ -127,11 +132,16 @@ ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS)
 !IF "$(SWIGBUILD)" == "1"
 # FIXME: make this work properly with SWIG 
 xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_JAVA_SRCS): 
-	$(SWIG) $(SWIG_FLAGS) -c++ \
-	    -java -module Xapian \
-	    -o xapian_wrap.cc 
- # Insert code to automatically load the JNI library.
-	$(PERL_EXE) -pi -e 'print "    System.loadLibrary(\"xapian_jni\");\n" if /^\s*swig_module_init/' XapianJNI.java
+# Make sure that we don't package stale generated sources in the
+# case where SWIG changes its mind as to which files it generates.
+    -@erase $(XAPIAN_SWIG_JAVA_SRCS)
+	$(SWIG) $(SWIG_FLAGS) -I$(XAPIAN_CORE_REL_JAVA)\include -I..\generic \
+	    -c++ -java -module Xapian \
+	    -o xapian_wrap.cc ../xapian.i   
+# Insert code to automatically load the JNI library.
+	$(PERL_EXE) -pe "print \"    System.loadLibrary('xapian_jni'); \n\" if /^\s*swig_module_init/" XapianJNI.java >XapianJNI.java.tmp
+	-erase XapianJNI.java
+	-rename XapianJNI.java.tmp XapianJNI.java
 !ENDIF
 
 JAVAOPTS=-classpath $(INTDIR) -d $(INTDIR) 

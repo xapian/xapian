@@ -15,7 +15,7 @@ Protocol description
 ====================
 
 The protocol used to transfer the updates is based on the RemoteConnection
-system (also used for remote xapian databases).  This provides a "message"
+system (also used for remote Xapian databases).  This provides a "message"
 layer abstraction for the connections; so the communication is based on a set
 of messages, each with a type, and some associated data.
 
@@ -28,7 +28,7 @@ Client messages
 
 The client sends a single message type to the server: this is a message of type
 'R', and includes the name of a database to be replicated and a revision string
-for that database.  This message is send whenever the client wants to receive
+for that database.  This message is sent whenever the client wants to receive
 updates for a database.
 
 Server messages
@@ -36,7 +36,7 @@ Server messages
 
 The server can send a variety of messages.  The message types are currently
 defined in an enum in flint_database.cc (in which each type is preceded by
-REPL_REPLY):
+``REPL_REPLY_``):
 
  - END_OF_CHANGES: this indicates that no further changes are needed, and ends
    the response to the original request.  It contains no data.
@@ -47,7 +47,7 @@ REPL_REPLY):
    and may occur when any other messages are expected.
 
  - DB_HEADER: this indicates that an entire database copy is about to be sent.
-   It contains a string representing the uuid of the database which is about to
+   It contains a string representing the UUID of the database which is about to
    be sent, followed by a (packed) unsigned integer, representing the revision
    number of the copy which is about to be sent.
 
@@ -123,5 +123,5 @@ implementations of flint):
    changeset was created by copying parts of the database without a read lock,
    and modifications were made to the database while the copy was in progress,
    parts of the copy may contain later revisions than intended - in this
-   situation futher changesets will be needed to ensure that these parts of the
-   database are fully integrated.
+   situation further changesets will be needed to ensure that these parts of
+   the database are fully integrated.

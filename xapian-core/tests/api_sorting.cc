@@ -149,3 +149,40 @@ DEFINE_TESTCASE(sortfunctor2,writable && !remote) {
 
     return true;
 }
+
+class NeverUseMeSorter : public Xapian::Sorter {
+  public:
+    std::string operator() (const Xapian::Document &) const
+    {
+	FAIL_TEST("NeverUseMeSorter was called");
+    }
+};
+
+// Regression test for changing away from a sorter.
+DEFINE_TESTCASE(changesorter1, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_query(Xapian::Query("word"));
+    NeverUseMeSorter sorter;
+
+    enquire.set_sort_by_key(&sorter);
+    enquire.set_sort_by_value(0);
+    Xapian::MSet mset = enquire.get_mset(0, 25);
+    TEST_EQUAL(mset.size(), 2); // Check that search is still doing something.
+
+    enquire.set_sort_by_key(&sorter);
+    enquire.set_sort_by_value_then_relevance(0);
+    mset = enquire.get_mset(0, 25);
+    TEST_EQUAL(mset.size(), 2); // Check that search is still doing something.
+
+    enquire.set_sort_by_key(&sorter);
+    enquire.set_sort_by_relevance_then_value(0);
+    mset = enquire.get_mset(0, 25);
+    TEST_EQUAL(mset.size(), 2); // Check that search is still doing something.
+
+    enquire.set_sort_by_key(&sorter);
+    enquire.set_sort_by_relevance();
+    mset = enquire.get_mset(0, 25);
+    TEST_EQUAL(mset.size(), 2); // Check that search is still doing something.
+
+    return true;
+}

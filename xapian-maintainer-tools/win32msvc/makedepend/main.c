@@ -27,6 +27,12 @@ in this Software without prior written authorization from The Open Group.
 
 /* modified for standalone and MS-Windows compilation by Dirk Jagdmann <doj@cubic.org> 2004-04-20 */
 
+/* Disable MSVC warning about obsolete functions */
+#ifdef _MSC_VER
+# pragma warning(disable:4996)
+#endif
+#include <io.h>
+
 #include <errno.h>
 #include <string.h>
 
@@ -816,10 +822,13 @@ redirect(char *line, char *makefile)
 {
 	struct stat	st;
 	FILE	*fdin, *fdout;
-	char	backup[ BUFSIZ ],
-		buf[ BUFSIZ ];
+	char	backup[ BUFFERSIZE ],
+		buf[ BUFFERSIZE ];
 	boolean	found = FALSE;
 	int	len;
+
+	if( makefile && (strlen(makefile) > BUFFERSIZE))
+	    fatalerr("Potential buffer overflow, increase BUFFERSIZE\n");
 
 	/*
 	 * if makefile is "-" then let it pour onto stdout.
@@ -858,7 +867,7 @@ redirect(char *line, char *makefile)
 	if ((fdout = freopen(makefile, "w", stdout)) == NULL)
 		fatalerr("cannot open \"%s\"\n", backup);
 	len = strlen(line);
-	while (!found && fgets(buf, BUFSIZ, fdin)) {
+	while (!found && fgets(buf, BUFFERSIZE, fdin)) {
 		if (*buf == '#' && strncmp(line, buf, len) == 0)
 			found = TRUE;
 		fputs(buf, fdout);
@@ -869,7 +878,7 @@ redirect(char *line, char *makefile)
 			line);
 		puts(line); /* same as fputs(fdout); but with newline */
 	} else if (append) {
-	    while (fgets(buf, BUFSIZ, fdin)) {
+	    while (fgets(buf, BUFFERSIZE, fdin)) {
 		fputs(buf, fdout);
 	    }
 	}

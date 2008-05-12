@@ -18,12 +18,14 @@ AC_CONFIG_HEADERS(config.h)
 dnl We don't use Fortran, but libtool 1.5 insists on probing for f77 which just
 dnl makes configure take longer to run.  We force it not to using the method
 dnl suggested here (which also reduces configure size):
-dnl http://article.gmane.org/gmane.comp.gnu.libtool.general/8172
-m4_defun([_LT_AC_LANG_F77_CONFIG], [:])
+dnl http://article.gmane.org/gmane.comp.gnu.libtool.general/9281
+dnl This is apparently fixed in libtool 2.2, so once we require that, we can
+dnl drop this workaround.
+define([AC_LIBTOOL_LANG_F77_CONFIG], [:])
 dnl Eliminating the unused code for gcj and rc probes further reduces the size
 dnl of the generated configure script (by 29% in total):
-m4_defun([_LT_AC_LANG_GCJ_CONFIG], [:])
-m4_defun([_LT_AC_LANG_RC_CONFIG], [:])
+define([AC_LIBTOOL_LANG_GCJ_CONFIG], [:])
+define([AC_LIBTOOL_LANG_RC_CONFIG], [:])
 
 dnl Check for libxapian
 AC_PROG_LIBTOOL
@@ -62,10 +64,11 @@ AC_TRY_COMPILE([#include <stdint.h>],
   AC_DEFINE(HAVE_WORKING_STDINT_H, 1, [Define to 1 if you have the <stdint.h> header file and it can be used in C++ code.]))
 
 dnl Check for headers.
-AC_CHECK_HEADERS([netinet/in.h arpa/inet.h sys/wait.h strings.h sys/time.h]dnl
+AC_CHECK_HEADERS([strings.h], [], [], [ ])
+AC_CHECK_HEADERS([netinet/in.h arpa/inet.h sys/wait.h sys/time.h]dnl
 		 [sys/resource.h sys/socket.h sys/sysctl.h vm/vm_param.h]dnl
 		 [sys/vmmeter.h sys/sysmp.h sys/sysinfo.h sys/pstat.h],
-		 [], [], [ ])
+		 [], [], [#include <sys/types.h>])
 
 dnl mingw (for instance) lacks ssize_t
 AC_CHECK_TYPE(ssize_t, int)
@@ -187,8 +190,8 @@ AC_ARG_WITH(iconv,
 if test no != "$with_iconv" ; then
   ICONV_LDFLAGS=
   AC_SEARCH_LIBS(iconv, iconv, [], [
-    dnl For fink on OS X.
     if test -f "/sw/etc/fink.conf" ; then
+      dnl For fink on OS X.
       AC_CANONICAL_HOST
       case $host_os in
       darwin*)
@@ -196,15 +199,21 @@ if test no != "$with_iconv" ; then
 	SAVE_LDFLAGS=$LDFLAGS
 	LDFLAGS="$LDFLAGS $ICONV_LDFLAGS"
 	AC_CHECK_LIB(iconv, iconv, [], [
-	  if test yes = "$with_iconv" ; then
-	    AC_MSG_ERROR([iconv not found, but --with-iconv specified])
-	  fi
 	  ICONV_LDFLAGS=
-	  with_iconv=no
+	  with_iconv=bad-$with_iconv
 	])
-	LDFLAGS=$SAVE_LDFLAGS
+	LDFLAGS=$SAVE_LDFLAGS ;;
       esac
+    else
+      with_iconv=bad-$with_iconv
     fi
+
+    case $with_iconv in
+    bad-yes) 
+      AC_MSG_ERROR([iconv not found, but --with-iconv specified]) ;;
+    bad-*)
+      with_iconv=no ;;
+    esac
   ])
   AC_SUBST(ICONV_LDFLAGS)
 fi
@@ -341,6 +350,7 @@ dnl ******************************
 dnl * Set special compiler flags *
 dnl ******************************
 
+dnl Set flags to control warnings (enable more, or disable annoying ones).
 if test yes = "$GXX"; then
   dnl Intel's C++ compiler is identified as "GXX" by autoconf's test - check
   dnl which we actually have.
@@ -366,35 +376,52 @@ if test yes = "$GXX"; then
       dnl All these options were supported by g++ 2.95 and there's little
       dnl likelihood Xapian will build with any earlier version, so there's
       dnl not much point worrying about whether older versions had them or not.
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-multichar -Wno-long-long -fno-gnu-keywords"
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -Wconversion -fno-gnu-keywords"
 
       dnl GCC2 reports e.g. "2.7.2.3" or "2.95.4".  3.0 reports e.g. "3.0.4"
       dnl but somewhere in the 3.X series the output became more verbose
-      dnl (3.2 has the new style output - not sure about 3.1).  So we test
-      dnl for older version numbers where possible.
-      gxx_version=`$CXX --version 2>&1`
+      dnl (3.2 has the new style output - not sure about 3.1).  So we need to
+      dnl run the output through head and sed to extract the version number.
+      gxx_version=`$CXX --version 2>&1|head -1|${SED-sed} 's/^[[^ ]]* (GCC) //;s/ .*//'`
 
       case $gxx_version in
-      2.96) dnl Oddly Redhat's "2.96" doesn't support -Wundef, though real
-	    dnl GCC versions before and after it do!
-        ;;
-      [[12]].*) dnl GCC < 3
-        AM_CXXFLAGS="$AM_CXXFLAGS -Wundef" ;;
-      3.0*) dnl -Wshadow spews false positives with GCC 3.0.4
-        AM_CXXFLAGS="$AM_CXXFLAGS -Wundef" ;;
-      *)
+      2.96)
+	dnl Oddly Redhat's "2.96" doesn't support -Wundef, though real
+	dnl GCC versions before and after it do!
+	;;
+      [[012]].* | 3.0*) dnl GCC < 3.1, other than 2.96
+	dnl GCC 3.0 supports -Wshadow, but it spews false positives (at least
+	dnl with 3.0.4) so we don't use it.
+	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef" ;;
+      3.*)
 	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow" ;;
-      esac
+      *)
+	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow"
 
-      dnl Automatically add -Werror if maintainer mode is enabled and we're
-      dnl using GCC4 or newer.  We don't do this for older GCCs as GCC 2.95
-      dnl and some GCC 3.x compilers issue spurious warnings.
-      if test x$USE_MAINTAINER_MODE = xyes; then
+	dnl -Winit-self was added in GCC 3.4, but contrary to the documentation
+	dnl it is currently (tested with GCC 4.2) ignored by g++ which warns for
+	dnl this case with -Wunitialized (implied by -W).
+	dnl -Wstrict-overflow is new in GCC 4.2.
 	case $gxx_version in
-	[[123]].*) ;; dnl GCC < 4
-	*) AM_CXXFLAGS="$AM_CXXFLAGS -Werror" ;;
+	4.0*|4.1*) ;;
+	*) AM_CXXFLAGS="$AM_CXXFLAGS -Winit-self -Wstrict-overflow=5" ;;
 	esac
-      fi
+
+	if test no = "$enable_visibility"; then
+	  AC_DEFINE(XAPIAN_DISABLE_VISIBILITY, 1, [Define to disable use of visibility attributes])
+	else
+	  dnl Turn on visibility support for GCC >= 4.0.
+	  AM_CXXFLAGS="$AM_CXXFLAGS -fvisibility=hidden"
+	fi
+
+	dnl Automatically add -Werror if maintainer mode is enabled and we're
+	dnl using GCC4 or newer.  We don't do this for older GCCs as GCC 2.95
+	dnl and some GCC 3.x compilers issue spurious warnings.
+	if test x$USE_MAINTAINER_MODE = xyes; then
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
+	fi
+	;;
+      esac
     ])
 fi
 

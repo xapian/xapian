@@ -271,9 +271,19 @@ ChertDatabase::open_tables_consistent()
     // go back and open record_table again, until record_table has
     // the same revision as the last time we opened it.
 
-    version_file.read_and_check(readonly);
+    chert_revision_number_t cur_rev = record_table.get_open_revision_number();
+
+    // Check the version file unless we're reopening.
+    if (cur_rev == 0) version_file.read_and_check(readonly);
+
     record_table.open();
     chert_revision_number_t revision = record_table.get_open_revision_number();
+
+    if (cur_rev && cur_rev == revision) {
+	// We're reopening a database and the revision hasn't changed so we
+	// don't need to do anything.
+	return;
+    }
 
     // In case the position, value, synonym, and/or spelling tables don't
     // exist yet.
@@ -398,12 +408,12 @@ ChertDatabase::get_changeset_revisions(const string & path,
     const char *end = buf + chert_io_read(changes_fd, buf,
 					  REASONABLE_CHANGESET_SIZE, 0);
     if (strncmp(start, CHANGES_MAGIC_STRING,
-		sizeof(CHANGES_MAGIC_STRING) - 1) != 0) {
+		CONST_STRLEN(CHANGES_MAGIC_STRING)) != 0) {
 	string message = string("Changeset at ")
 		+ path + " does not contain valid magic string";
 	throw Xapian::DatabaseError(message);
     }
-    start += sizeof(CHANGES_MAGIC_STRING) - 1;
+    start += CONST_STRLEN(CHANGES_MAGIC_STRING);
     if (start >= end)
 	throw Xapian::DatabaseError("Changeset too short at " + path);
 
@@ -497,7 +507,7 @@ ChertDatabase::set_revision_number(chert_revision_number_t new_revision)
 	}
 	record_table.commit(new_revision, changes_fd, &changes_tail);
 
-    } catch(...) {
+    } catch (...) {
 	// Remove the changeset, if there was one.
 	if (changes_fd >= 0) {
 	    sys_unlink_if_exists(changes_name);

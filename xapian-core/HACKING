@@ -994,7 +994,8 @@ patch you'd like us to include.
 
  * The documentation comments don't give users a good overview, so we also
    need documentation which gives a good overview of how to achieve particular
-   tasks.
+   tasks.  In particularly, major new functionality should have its own "topic"
+   document, or extend an existing topic document if more appropriate.
 
  * Internal classes, etc should also be documented by documentation comments
    where they are declared.
@@ -1020,8 +1021,9 @@ introduction to the Xapian test system in ``docs/tests.html``.
    files you've altered. If there is no copyright statement, you may
    add one (there are a couple of Makefile.am's and similar that don't
    have copyright statements; anything that small doesn't really need
-   one anyway, so it's a judgement call).  If you've added files, they
-   should include the GPL boilerplate with your name only.
+   one anyway, so it's a judgement call).  If you've added files which
+   you've written from scratch, they should include the GPL boilerplate
+   with your name only.
  * If you're not in there, add yourself to the AUTHORS file.
 
 4) Create a ChangeLog entry and commit
@@ -1036,11 +1038,30 @@ introduction to the Xapian test system in ``docs/tests.html``.
 
      date --utc "+%a %b %d %T GMT %Y"
 
+ * If there's a trac ticket for the bug, mention it in the ChangeLog entry.
+
  * Commit to the repository.
 
-Then you can update any patch, bug or feature request items in Bugzilla
-to indicate that they've been dealt with.
+5) Consider backporting
+-----------------------
 
+ * If there's an active release branch, check if the bug is present in that
+   branch, and if the fix is appropriate to backport - if the fix breaks ABI
+   compatibility or is very invasive, you need to fix it in a different way
+   for the release branch, or decide not to backport the fix.
+
+5) Update trac
+--------------
+
+ * If there's a related trac ticket, update it (if the issue is completely
+   addressed by the changes you've made, then close it).
+
+ * Update the release notes for the most recent release with a copy of the
+   patch.  You should remove the ChangeLog diff from this patch, as that
+   will just conflict with any other changes.  If there are conflicts in
+   test cases which aren't easy to resolve, it is acceptable to just drop
+   those changes from the patch.
+ 
 API Structure Notes
 ===================
 
@@ -1135,8 +1156,9 @@ This is a (hopefully complete) list of the jobs which need doing:
 * Update the version in configure.ac for each module (xapian-core, omega, and
   xapian-bindings), and the library version info in xapian-core's configure.ac
 
-* Move any bugs fixed by this release from "RESOLVED FIXED" -> "CLOSED"
-  http://xapian.org/cgi-bin/bugzilla/buglist.cgi?bug_status=RESOLVED&resolution=FIXED
+* Update the status of bug reports fixed by this release from "fixed" to
+  "released":
+  http://trac.xapian.org/report/12
   Make sure the submitters are mentioned in the "thanks" list in AUTHORS.
 
 * On ixion, svn tag the source trees for the new revision - use the
@@ -1147,11 +1169,14 @@ This is a (hopefully complete) list of the jobs which need doing:
   This script also generates tarballs for the new release and copies them
   across to the website.
 
-* Add the new version to the list of versions in Bugzilla:
-  http://xapian.org/cgi-bin/bugzilla/editversions.cgi?product=Xapian&action=add
+* Add the new version to the list of versions in trac:
+  http://trac.xapian.org/admin/ticket/versions
 
-* Update the 1.0.N tracker bug to track 1.0.N+1:
-  http://xapian.org/cgi-bin/bugzilla/show_bug.cgi?id=200
+* Add a new milestone for the version after this one:
+  http://trac.xapian.org/admin/ticket/milestones
+
+  Check that any bugs with milestone set to the release being made are either
+  closed or updated to the milestone you just added.
 
 * Update the website: version.php in the CVS module xapian.org contains the
   latest version and the date it was released.
