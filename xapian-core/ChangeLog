@@ -1,3 +1,8 @@
+Mon May 12 16:51:01 GMT 2008  Olly Betts <olly@survex.com>
+
+	* include/xapian/postingsource.h: Clarify get_maxweight() if the
+	  maximum from now on.
+
 Mon May 12 06:51:53 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/postingsource.cc,include/xapian/postingsource.h,tests/api_db.cc,

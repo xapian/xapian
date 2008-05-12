@@ -59,7 +59,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
     /// A upper bound on the number of documents this object can return.
     virtual Xapian::doccount get_termfreq_max() const = 0;
 
-    /** Return an upper bound on what get_weight() can return.
+    /** Return an upper bound on what get_weight() can return from now  on.
      *
      *  This default implementation always returns 0, for convenience when
      *  implementing "weight-less" PostingSource subclasses.
