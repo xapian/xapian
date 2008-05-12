@@ -201,8 +201,7 @@ RemoteServer::run()
 
 	    string message;
 	    size_t type = get_message(idle_timeout, message);
-	    if (type >= sizeof(dispatch)/sizeof(dispatch[0]) ||
-		dispatch[type] == NULL) {
+	    if (type >= sizeof(dispatch)/sizeof(dispatch[0])) {
 		string errmsg("Unexpected message type ");
 		errmsg += om_tostring(type);
 		throw Xapian::InvalidArgumentError(errmsg);

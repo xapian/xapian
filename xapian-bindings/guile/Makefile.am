@@ -17,7 +17,10 @@ if MAINTAINER_MODE
 xapian_wrap.cc: $(SWIG_sources) util.i
 	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
 	    -guile \
-	    -o xapian_wrap.cc $(SWIG_mainsource)
+	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp $(SWIG_mainsource)
+	mv xapian_wrap_d.tmp xapian_wrap.d
+
+-include xapian_wrap.d
 
 CLEANFILES = $(BUILT_SOURCES)
 else

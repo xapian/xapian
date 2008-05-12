@@ -120,13 +120,18 @@ xapian_wrap.stamp: $(SWIG_sources) util.i
 	-rm -f $(XAPIAN_SWIG_JAVA_SRCS)
 	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
 	    -java -module Xapian \
-	    -o xapian_wrap.cc $(SWIG_mainsource)
+	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp $(SWIG_mainsource)
+	$(PERL) -pe 's!xapian_wrap.cc:!xapian_wrap.stamp:!' xapian_wrap_d.tmp > xapian_wrap_d2.tmp
+	mv xapian_wrap_d2.tmp xapian_wrap.d
+	rm xapian_wrap_d.tmp
 	: # -package org.xapian
 	: # Insert code to automatically load the JNI library.
 	$(PERL) -pi -e 'print "    System.loadLibrary(\"xapian_jni\");\n" if /^\s*swig_module_init/' XapianJNI.java
 	: # Check that all the sources we expected were generated.
 	ls $(XAPIAN_SWIG_JAVA_SRCS) > /dev/null
 	$(multitarget_end)
+
+-include xapian_wrap.d
 
 CLEANFILES += $(BUILT_SOURCES)
 else

@@ -42,8 +42,7 @@ DEFINE_TESTCASE(valuesetmatchdecider1, writable && !remote) {
     logger.indexing_begin(dbname);
     unsigned int runsize = 1000000;
     unsigned int i;
-    for (i = 0; i < runsize; ++i)
-    {
+    for (i = 0; i < runsize; ++i) {
 	unsigned int v = i % 100;
 	Xapian::Document doc;
 	doc.set_data("test document " + om_tostring(i));
@@ -76,8 +75,7 @@ DEFINE_TESTCASE(valuesetmatchdecider1, writable && !remote) {
 
     Xapian::ValueSetMatchDecider md(0, true);
 
-    for (i = 0; i < 100; ++i)
-    {
+    for (i = 0; i < 100; ++i) {
 	md.add_value(om_tostring(i));
 	logger.searching_start("Match decider accepting " + om_tostring(i + 1) + "%");
 	logger.search_start();

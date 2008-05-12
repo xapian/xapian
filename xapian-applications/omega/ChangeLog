@@ -1,3 +1,64 @@
+Sat May 10 11:14:20 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Makefile.am: omega_CPPFLAGS overrides AM_CPPFLAGS, so we need to
+	  explicitly include AM_CPPFLAGS in omega_CPPFLAGS to get
+	  CONFIGFILE_SYSTEM defined when building omega.
+
+Fri May 09 19:27:21 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Fix handling of any -I options needed for PCRE.
+
+Sun May 04 19:12:08 GMT 2008  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Fix comment error regarding catdvi options.
+
+Sat May 03 14:02:02 GMT 2008  Olly Betts <olly@survex.com>
+
+	* xapian-omega.spec.in: Remove "www." from xapian.org and
+	  oligarchy.co.uk URLs.
+
+Sat May 03 13:55:35 GMT 2008  Olly Betts <olly@survex.com>
+
+	* cgiparam.cc,htdig2omega,mbox2omega,omindex-config.cc: Update FSF
+	  address.
+
+Sat May 03 13:54:25 GMT 2008  Olly Betts <olly@survex.com>
+
+	* gnu_getopt.h: Remove old copy of file which is no longer used - we
+	  now share a copy with xapian-core via common/.
+
+Sat May 03 10:42:27 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix header checks to pre-include <sys/types.h> which
+	  Mac OS X needs for some other headers to work.
+
+Sat May 03 10:41:18 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: Improve code which prevents probing for f77, etc.
+
+Fri May 02 17:52:44 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix to fail if --with-iconv is specified and libiconv
+	  isn't, and we aren't using fink on Mac OS X.
+
+Fri May 02 15:55:24 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* configure.ac: If iconv isn't found, set with_iconv to "no", to
+	  prevent USE_ICONV being set.  Was previously only doing this if
+	  fink on OS X was found.
+
+Fri May 02 14:14:07 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* query.cc: Cast size to unsigned before division to avoid a
+	  warning about signed overflow.
+
+Fri May 02 14:08:39 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* configure.ac: Synchronise code for working out warning flags used
+	  for builds with that used for xapian-core.  Copes with different
+	  formats of version number output by "gcc --version" which should
+	  help to improve output.
+
 Tue Apr 15 23:44:10 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* query.cc: Catch only the specific error which indicates a need to

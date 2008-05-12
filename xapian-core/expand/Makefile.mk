@@ -3,6 +3,6 @@ EXTRA_DIST +=\
 	expand/Makefile
 
 libxapian_la_SOURCES +=\
-	expand/expand.cc\
+	expand/esetinternal.cc\
 	expand/expandweight.cc\
 	expand/ortermlist.cc

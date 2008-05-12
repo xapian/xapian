@@ -72,7 +72,7 @@ join_paths(const string & path1, const string & path2)
 	return path2;
     }
     if (has_drive(path2)) return path2;
-    if (endswith(path, '/') || endswith(path, '\\'))
+    if (endswith(path1, '/') || endswith(path1, '\\'))
 	return path1 + path2;
     return path1 + "\\" + path2;
 #else

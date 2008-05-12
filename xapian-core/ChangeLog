@@ -112,6 +112,360 @@ Fri Dec 07 14:19:00 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 	  calculation stuff from Yung-chung Lin; exactly as in his patch
 	  from 18 September 2007.
 
+Mon May 12 06:51:53 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/postingsource.cc,include/xapian/postingsource.h,tests/api_db.cc,
+	  tests/harness/index_utils.cc: Add ValueWeightPostingSource, which
+	  reads a value, applies sortable_unserialise() to it, and returns
+	  that as the weight for each document.
+
+Sun May 11 23:49:07 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c,queryparser/queryparser.lt: Do a final sync by
+	  comparing our versions to the latest vanilla upstream.  Add a note
+	  to each file of the latest revision sync-ed against.
+	* queryparser/lemon.c: Enable '#define PRIVATE static'.
+
+Sun May 11 22:48:27 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Add a note of the speed-up that the recent QueryParser changes
+	  have given.
+
+Sun May 11 22:10:19 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Merge upstream "Check-in Number: 5053".
+
+Sun May 11 22:01:48 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lt: Merge upstream "Check-in Number: 5052".
+
+Sun May 11 21:56:03 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lt: Fix a comment typo.
+
+Sun May 11 21:52:30 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Merge upstream "Check-in Number: 4751".
+
+Sun May 11 21:51:18 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lt: Merge upstream "Check-in Number: 4745".
+
+Sun May 11 21:47:03 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lt: Comment out memset() call added by
+	  one of the earlier merged upstream changes - a later comment on
+	  the ticket referred to notes that this was actually a bug in the
+	  grammar of the people who reported it.
+
+Sun May 11 21:44:46 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lt: Merge upstream "Check-in Number: 4743".
+
+Sun May 11 21:41:55 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lt: Merge upstream "Check-in Number: 4738".
+
+Sun May 11 21:33:13 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c,queryparser/queryparser.lt: Merge upstream
+	  "Check-in Number: 4736".
+	* queryparser/lemon.c: Add %syntax_error directive since lemon has
+	  changed it's error recovery strategy if you don't have one.
+
+Sun May 11 20:54:31 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: If we hit a syntax error, don't
+	  bother feeding further tokens to the parser!
+
+Sat May 10 21:42:44 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Merge upstream "Check-in Number: 4641".
+
+Sat May 10 21:33:10 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Merge upstream "Check-in Number: 4473".
+
+Sat May 10 21:31:25 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Merge upstream "Check-in Number: 4439".
+
+Sat May 10 21:28:27 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Merge upstream "Check-in Number: 4274".
+
+Sat May 10 21:25:35 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Merge upstream "Check-in Number: 4190".
+
+Sat May 10 21:20:16 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Merge upstream "Check-in Number: 4160".
+
+Sat May 10 21:07:15 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Merge upstream "Check-in Number: 3753".
+
+Sat May 10 21:03:19 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c,queryparser/queryparser.lt: Merge upstream
+	  "Check-in Number: 3738".
+
+Sat May 10 20:00:09 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Merge upstream "Check-in Number: 3654".
+
+Sat May 10 19:55:32 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Merge upstream "Check-in Number: 3594".
+
+Sat May 10 19:46:05 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Merge upstream "Check-in Number: 3593".
+
+Sat May 10 19:44:15 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Merge upstream "Check-in Number: 3591".
+
+Sat May 10 19:40:12 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Merge upstream "Check-in Number: 3528".
+
+Sat May 10 19:38:36 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Merge upstream "Check-in Number: 3476".
+
+Sat May 10 19:36:06 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Merge upstream "Check-in Number: 3333".
+
+Sat May 10 19:33:33 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lt: Merge upstream "Check-in Number: 3244".
+
+Sat May 10 19:29:18 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Merge upstream "Check-in Number: 3226".
+
+Sat May 10 19:19:48 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lt: Merge upstream "Check-in Number: 3224".
+
+Sat May 10 19:14:18 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c,queryparser/queryparser.lt: Merge upstream
+	  "Check-in Number: 3210".
+
+Sat May 10 18:56:50 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lt: Merge upstream "Check-in Number: 3181".
+
+Sat May 10 17:05:35 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Merge upstream "Check-in Number: 3126".
+
+Sat May 10 16:51:31 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Merge upstream "Check-in Number: 2764".
+
+Sat May 10 16:40:48 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c,queryparser/queryparser.lt: Merge upstream
+	  "Check-in Number: 2761".
+
+Sat May 10 16:32:45 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lt: Merge upstream "Check-in Number: 2458".
+
+Sat May 10 16:29:55 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Merge upstream "Check-in Number: 2345".
+
+Sat May 10 16:08:28 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lt: Merge upstream "Check-in Number: 2302".
+
+Sat May 10 15:50:23 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Merge upstream "Check-in Number: 2208".
+
+Sat May 10 15:03:59 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/harness/testsuite.cc: Prefer `str.assign(ptr)' to `str =
+	  string(ptr)'.
+
+Sat May 10 14:48:38 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/matchspy.cc,api/replication.cc: Prefer `str.assign(ptr, len)' to
+	  `str = string(ptr, len)'.
+
+Fri May 09 16:53:19 GMT 2008  Olly Betts <olly@survex.com>
+
+	* net/remoteserver.cc: No entries in dispatch[] are NULL, so there's
+	  no point testing for it.
+
+Fri May 09 16:51:10 GMT 2008  Olly Betts <olly@survex.com>
+
+	* net/remoteconnection.cc: Remove pointless conversion to size_t which
+	  breaks GCC 2.95 build.
+
+Fri May 09 16:22:46 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/replication.cc: Needs <cstdio> for rename().
+
+Fri May 09 15:41:08 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/harness/testutils.cc: No need for an explicit std::endl when
+	  calling TEST_AND_EXPLAIN().
+
+Fri May 09 15:38:22 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/replication.cc: Use '\n' rather than endl in the middle of
+	  writing stuff, since endl forces a flush which just adds useless
+	  overhead.
+
+Fri May 09 15:24:42 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/omdebug.h: Fix RETURN macro to work on GCC 2.95 for the case
+	  `RETURN(string())'.
+
+Fri May 09 08:33:35 GMT 2008  Olly Betts <olly@survex.com>
+
+	* include/xapian/postingsource.h: Add a protected default ctor so that
+	  code subclassing PostingSource actually compiles!
+
+Thu May 08 16:41:59 GMT 2008  Olly Betts <olly@survex.com>
+
+	* include/xapian/postingsource.h: Add doxygen comments for
+	  Xapian::PostingSource.  Add private assignment operator and
+	  copy constructor to prevent copying.
+
+Thu May 08 16:40:49 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/postlist.h: Fix one doxygen comment and improve another.
+
+Mon May 05 15:22:24 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/Makefile.am: Clean up .chert in clean-local.
+
+Mon May 05 14:52:34 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* docs/Makefile.am: Adapt the dist-check hook to work with a VPATH
+	  build in non-maintainer mode.
+
+Mon May 05 13:18:19 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* docs/Makefile.am: Fix "make distcheck" by using dist-hook to
+	  install generated files, with the appropriate dependency, instead
+	  of wildcards in EXTRA_DIST which don't give the correct expansion
+	  unless the files happened to be generated already by another
+	  rule. Also, ensure that the documentation is generated before
+	  attempting to install it.
+
+Sun May 04 09:30:53 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_version.cc,backends/flint/flint_version.cc,
+	  common/stringutils.h: Move CONST_STRLEN() into stringutils.h.
+	* backends/chert/chert_database.cc,backends/flint/flint_database.cc:
+	  Use CONST_STRLEN().
+
+Sat May 03 18:56:34 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/omenquire.cc: Reset the internal sorter pointer to NULL when
+	  changing to a sort by value. Fixes #256.
+	* tests/api_sorting.cc: Add regression test.
+
+Sat May 03 18:52:27 GMT 2008  Olly Betts <olly@survex.com>
+
+	* include/xapian/unicode.h: Mark internal functions as @internal.
+
+Sat May 03 18:43:12 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/doxygen_api_conf.in: Disable header and directory relationship
+	  graphs in the API documentation as they aren't interesting to users.
+
+Sat May 03 18:12:30 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/gen_codestructure_doc.in: Link to trac instead of viewvc.
+
+Sat May 03 17:25:02 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/replication_protocol.rst: Fix a few typos.
+
+Sat May 03 15:53:24 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/flint/flint_database.cc:
+	  If Database::reopen() is called and the database revision on disk
+	  hasn't changed, then do as little work as possible.  Even if it
+	  has changed, don't bother to recheck the version file (bug#261).
+
+Sat May 03 10:28:30 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: Improve code to prevent probing for f77, etc.
+
+Sat May 03 10:17:05 GMT 2008  Olly Betts <olly@survex.com>
+
+	* matcher/rset.cc: Missing change from last commit.
+
+Sat May 03 09:25:29 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,common/,expand/Makefile.mk,expand/esetinternal.cc,
+	  expand/expand.cc: Rewrite class ESet::Internal, incorporating the
+	  functionality which used to be in the internal OmExpand class.  The
+	  expand operation now uses a min heap rather than calling
+	  nth_element() repeatedly - this should reduce the complexity of the
+	  expand operation by a factor of n/log(n) where n is the requested
+	  ESet size.
+
+Fri May 02 15:51:29 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/ortermlist.h,expand/ortermlist.cc: Kill FreqAdderOrTermList's
+	  explicit empty dtor.
+
+Thu May 01 16:38:40 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc,api/replication.cc,backends/chert/,
+	  backends/flint/,backends/inmemory/inmemory_positionlist.cc,
+	  common/utils.cc,matcher/stats.cc,tests/perftest_matchdecider.cc,
+	  tests/perftest_randomidx.cc: Assorted formatting tweaks.
+
+Thu May 01 16:32:58 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/unaligned.h: Fix ";;" to ";" after AssertRel calls.
+
+Thu May 01 16:12:05 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/doxygen_api_conf.in,docs/doxygen_full_conf.in: Tell doxygen to
+	  expand XAPIAN_VISIBILITY_DEFAULT so it doesn't appear in collated
+	  API documentation.
+
+Wed Apr 30 10:57:53 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Update bugzilla references and URLs to reflect the move
+	  to trac.  Update the "fixing a bug" checklist to mention backporting
+	  and updating the release notes.
+
+Wed Apr 30 10:40:30 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/remote/remote-database.cc: Fix error message displayed
+	  when remote protocol version doesn't match to display the minor
+	  part of the version number supplied by the server correctly.
+
+Tue Apr 29 17:37:10 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* AUTHORS: Add Alexandre Gauthier, for supplying a method for doing
+	  python packaging for Windows.
+
+Tue Apr 29 16:20:47 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/fileutils.cc: Fix variable name for windows compilation.
+
+Tue Apr 29 06:50:53 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/chert/chert_table.cc,backends/flint/flint_table.cc:
+	  Remove some debugging code, left over from writing the
+	  replication code.
+
 Mon Apr 28 12:11:38 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* backends/chert/chert_btreebase.cc,backends/chert/chert_table.cc,

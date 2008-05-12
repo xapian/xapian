@@ -218,6 +218,6 @@ EXTRA_DIST +=\
 	testdata/flint-1.0.2/termlist.DB
 
 clean-local:
-	rm -rf .flint .multi
+	rm -rf .chert .flint .multi
 
 include harness/Makefile.mk

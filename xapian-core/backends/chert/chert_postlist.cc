@@ -453,8 +453,7 @@ PostlistChunkWriter::flush(ChertTable *table)
 
 	    // Read the new first docid
 	    Xapian::docid new_first_did;
-	    if (!unpack_uint_preserving_sort(&kpos, kend,
-					     &new_first_did)) {
+	    if (!unpack_uint_preserving_sort(&kpos, kend, &new_first_did)) {
 		report_read_error(kpos);
 	    }
 
@@ -520,10 +519,9 @@ PostlistChunkWriter::flush(ChertTable *table)
 	    Xapian::docid first_did_in_chunk;
 	    if (is_prev_first_chunk) {
 		first_did_in_chunk = read_start_of_first_chunk(&tagpos, tagend,
-					  0, 0);
+							       0, 0);
 	    } else {
-		if (!unpack_uint_preserving_sort(&keypos, keyend,
-						 &first_did_in_chunk))
+		if (!unpack_uint_preserving_sort(&keypos, keyend, &first_did_in_chunk))
 		    report_read_error(keypos);
 	    }
 	    bool wrong_is_last_chunk;
@@ -992,8 +990,7 @@ ChertPostListTable::get_chunk(const string &tname,
     if (is_first_chunk) {
 	first_did_in_chunk = read_start_of_first_chunk(&pos, end, NULL, NULL);
     } else {
-	if (!unpack_uint_preserving_sort(&keypos, keyend,
-					 &first_did_in_chunk)) {
+	if (!unpack_uint_preserving_sort(&keypos, keyend, &first_did_in_chunk)) {
 	    report_read_error(keypos);
 	}
     }
