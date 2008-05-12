@@ -59,7 +59,12 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
     /// A upper bound on the number of documents this object can return.
     virtual Xapian::doccount get_termfreq_max() const = 0;
 
-    /** Return an upper bound on what get_weight() can return from now  on.
+    /** Return an upper bound on what get_weight() can return from now on.
+     *
+     *  It is valid for the posting source to have returned a higher value from
+     *  get_weight() earlier in the iteration, but the posting source must not
+     *  return a higher value from get_weight() than this return value later in
+     *  the iteration (until reset() has been called).
      *
      *  This default implementation always returns 0, for convenience when
      *  implementing "weight-less" PostingSource subclasses.
@@ -142,17 +147,54 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
     virtual std::string get_description() const;
 };
 
+/** A posting source which reads weights from a value slot.
+ *
+ *  This returns entries for all documents in the given database which have a
+ *  non empty values in the specified slot.  It returns a weight calculated by
+ *  applying sortable_unserialise to the value stored in the slot (so the
+ *  values stored should probably have been calculated by applying
+ *  sortable_serialise to a floating point number at index time).
+ *
+ *  For efficiency, this posting source doesn't check that the stored values
+ *  are valid in any way, so it will never raise an exception due to invalid
+ *  stored values.  In particular, it doesn't ensure that the unserialised
+ *  values are positive, which is a requirement for weights.  The behaviour if
+ *  the slot contains values which unserialise to negative values is undefined.
+ */
 class XAPIAN_VISIBILITY_DEFAULT ValueWeightPostingSource : public PostingSource {
+    /// The database we're reading values from.
     Xapian::Database db;
+
+    /// The slot we're reading values from.
     Xapian::valueno valno;
+
+    /// The current document ID (0 to indicate that we haven't started yet).
     Xapian::docid current_docid;
+
+    /// The last document ID in the database.
     Xapian::docid last_docid;
+
+    /// A lower bound on the term frequency.
     Xapian::doccount termfreq_min;
+
+    /// An estimate of the term frequency.
     Xapian::doccount termfreq_est;
+
+    /// An upper bound on the term frequency.
     Xapian::doccount termfreq_max;
+
+    /// The value for the current
     double current_value;
+
+    /// An upper bound on the value returned.
     double max_value;
+
   public:
+    /** Construct a ValueWeightPostingSource.
+     *
+     *  @param db_ The database to read values from.
+     *  @param valno_ The value slot to read values from.
+     */
     ValueWeightPostingSource(Xapian::Database db_, Xapian::valueno valno_);
 
     Xapian::doccount get_termfreq_min() const;

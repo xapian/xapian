@@ -1,3 +1,9 @@
+Mon May 12 17:27:13 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/postingsource.h: Add documentation comments for
+	  ValueWeightPostingSource, and tweak
+	  PostingSource::get_maxweight() comment a bit more.
+
 Mon May 12 16:51:01 GMT 2008  Olly Betts <olly@survex.com>
 
 	* include/xapian/postingsource.h: Clarify get_maxweight() if the
