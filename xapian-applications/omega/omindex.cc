@@ -406,7 +406,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    return;
 	}
     } else if (mimetype == "application/x-dvi") {
-	// FIXME: -e2 means "UTF-8", but that results in "fi", "ff", "ffi", etc
+	// FIXME: -e0 means "UTF-8", but that results in "fi", "ff", "ffi", etc
 	// appearing as single ligatures.  For European languages, it's
 	// actually better to use -e2 (ISO-8859-1) and then convert, so let's
 	// do that for now until we handle Unicode "compatibility

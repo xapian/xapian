@@ -86,8 +86,6 @@ class FreqAdderOrTermList : public OrTermList {
 		: OrTermList(left_, right_)
 	{ }
 
-	~FreqAdderOrTermList();
-
 	Xapian::doccount get_termfreq() const;
 };
 

@@ -22,6 +22,7 @@ OBJS= \
     $(INTDIR)\branchpostlist.obj\
     $(INTDIR)\emptysubmatch.obj\
     $(INTDIR)\exactphrasepostlist.obj\
+    $(INTDIR)\externalpostlist.obj\
     $(INTDIR)\localmatch.obj\
     $(INTDIR)\mergepostlist.obj\
     $(INTDIR)\msetcmp.obj\
@@ -51,6 +52,7 @@ SRCS= \
     $(INTDIR)\branchpostlist.cc\
     $(INTDIR)\emptysubmatch.cc\
     $(INTDIR)\exactphrasepostlist.cc\
+    $(INTDIR)\externalpostlist.cc\
     $(INTDIR)\localmatch.cc\
     $(INTDIR)\mergepostlist.cc\
     $(INTDIR)\msetcmp.cc\
@@ -110,5 +112,5 @@ CPP_SBRS=.
 
 # Calculate any header dependencies and automatically insert them into this file
 HEADERS :
-            if exist ..\win32\$(DEPEND) ..\win32\$(DEPEND) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)"
+            if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) $(DEPEND_FLAGS) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)" 
 # DO NOT DELETE THIS LINE -- make depend depends on it.

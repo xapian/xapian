@@ -889,7 +889,7 @@ MultipleMatchDecider.append = _multiple_match_decider_append
 
 
 # Fix up ValueRangeProcessor by replacing its __call__ method (which doesn't
-# work) with its __call() method (which we define with an %extend in utils.i
+# work) with its __call() method (which we define with an %extend in util.i)
 ValueRangeProcessor.__call__ = ValueRangeProcessor.__call
 
 %}

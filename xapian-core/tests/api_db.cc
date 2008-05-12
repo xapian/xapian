@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
- * Copyright 2006,2007 Lemur Consulting Ltd
+ * Copyright 2006,2007,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -2033,6 +2033,41 @@ DEFINE_TESTCASE(externalsource4, backend && !remote && !multi) {
 
     //mset = enq.get_mset(0, 5);
     //mset_expect_order(mset, 1, 2, 3, 4, 5);
+
+    return true;
+}
+
+// Check that valueweightsource works correctly.
+DEFINE_TESTCASE(valueweightsource1, backend && !remote && !multi) {
+    // FIXME: PostingSource doesn't currently work well with multi databases
+    // but we should try to resolve that issue.
+    Xapian::Database db(get_database("apitest_phrase"));
+    Xapian::Enquire enq(db);
+    Xapian::ValueWeightPostingSource src(db, 11);
+
+    // Should be in descending order of length
+    tout << "RAW" << endl;
+    enq.set_query(Xapian::Query(&src));
+    Xapian::MSet mset = enq.get_mset(0, 5);
+    mset_expect_order(mset, 3, 1, 2, 8, 14);
+
+    // In relevance order
+    tout << "OP_FILTER" << endl;
+    Xapian::Query q(Xapian::Query::OP_FILTER,
+		    Xapian::Query("leav"),
+		    Xapian::Query(&src));
+    enq.set_query(q);
+    mset = enq.get_mset(0, 5);
+    mset_expect_order(mset, 8, 6, 4, 5, 7);
+
+    // Should be in descending order of length
+    tout << "OP_FILTER other way" << endl;
+    q = Xapian::Query(Xapian::Query::OP_FILTER,
+		      Xapian::Query(&src),
+		      Xapian::Query("leav"));
+    enq.set_query(q);
+    mset = enq.get_mset(0, 5);
+    mset_expect_order(mset, 8, 14, 9, 13, 7);
 
     return true;
 }

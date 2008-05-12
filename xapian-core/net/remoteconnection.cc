@@ -554,7 +554,7 @@ RemoteConnection::get_message_chunk(string &result, size_t at_least,
 
     read_at_least(at_least, end_time);
 
-    size_t retlen(size_t(min(off_t(buffer.size()), chunked_data_left)));
+    size_t retlen(min(off_t(buffer.size()), chunked_data_left));
     result.append(buffer, 0, retlen);
     buffer.erase(0, retlen);
     chunked_data_left -= retlen;

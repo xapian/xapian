@@ -136,6 +136,7 @@ CLEAN :
     -@erase $(COLLATED_APITEST_HEADERS)
     if exist ".btreetmp" rmdir ".btreetmp" /s /q
     if exist ".flint" rmdir ".flint" /s /q
+    if exist ".chert" rmdir ".chert" /s /q
     if exist ".quartz" rmdir ".quartz" /s /q
     if exist ".quartztmp" rmdir ".quartztmp" /s /q
     if exist ".multi" rmdir ".multi" /s /q
@@ -219,5 +220,5 @@ PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS) "$(OUTLIBDIR)\libtest.lib"
 
 # Calculate any header dependencies and automatically insert them into this file
 HEADERS :
-            if exist ..\win32\$(DEPEND) ..\win32\$(DEPEND) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)"
+            if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) $(DEPEND_FLAGS) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)" 
 # DO NOT DELETE THIS LINE -- make depend depends on it.

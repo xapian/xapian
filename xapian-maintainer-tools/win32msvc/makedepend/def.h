@@ -26,6 +26,12 @@ in this Software without prior written authorization from The Open Group.
 
 /* $Header: /code/makedepend/def.h,v 1.2 2004/04/20 19:50:26 doj Exp $ */
 
+
+/* Disable MSVC warning about obsolete functions */
+#ifdef _MSC_VER
+# pragma warning(disable:4996)
+#endif
+
 #ifndef STANDALONE
 #include "Xos.h"
 #include "Xfuncproto.h"
@@ -182,3 +188,6 @@ int                     cppsetup(char *filename,
 extern void fatalerr(char *, ...);
 extern void warning(char *, ...);
 extern void warning1(char *, ...);
+
+/* BUFFERSIZE is used to size various buffers, in particular the one used to build a list of INCLUDE paths.  */
+#define BUFFERSIZE 4096

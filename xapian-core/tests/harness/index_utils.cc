@@ -83,6 +83,7 @@ FileIndexer::next()
     for (Xapian::valueno i = min(para.length(), size_t(10)); i >= 1; --i) {
 	doc.add_value(i, para.substr(i, 1));
     }
+    doc.add_value(11, Xapian::sortable_serialise(para.size()));
 
     Xapian::termcount pos = 0;
     string::const_iterator word_end = para.begin();

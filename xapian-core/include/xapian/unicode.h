@@ -216,21 +216,25 @@ typedef enum {
 } category;
 
 namespace Internal {
-    /* Extract the information about a character from the Unicode character
-     * tables.
+    /** @internal Extract the information about a character from the Unicode
+     *  character tables.
      *
-     * ch must be a valid Unicode character value (i.e. < 0x110000)
+     *  ch must be a valid Unicode character value (i.e. < 0x110000)
      */
     XAPIAN_VISIBILITY_DEFAULT
     int get_character_info(unsigned ch);
 
-    /// Extract how to convert the case of a unicode character from its info.
+    /** @internal Extract how to convert the case of a unicode character from
+     *  its info.
+     */
     inline int get_case_type(int info) { return ((info & 0xe0) >> 5); }
 
-    /// Extract the category of a unicode character from its info.
+    /// @internal Extract the category of a unicode character from its info.
     inline category get_category(int info) { return static_cast<category>(info & 0x1f); }
 
-    /// Extract the delta to use for case conversion of a character from its info.
+    /** @internal Extract the delta to use for case conversion of a character
+     *  from its info.
+     */
     inline int get_delta(int info) {
 	/* It's implementation defined if sign extension happens on right shift
 	 * of a signed int, hence the conditional (hopefully the compiler will

@@ -656,7 +656,7 @@ test_driver::parse_command_line(int argc, char **argv)
 	    default: {
 		i = short_opts.find(c);
 		if (i != short_opts.end()) {
-		    *(i->second) = string(optarg);
+		    i->second->assign(optarg);
 		    break;
 		}
 		// -h or unrecognised option

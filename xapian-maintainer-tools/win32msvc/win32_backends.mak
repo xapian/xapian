@@ -15,19 +15,22 @@ DEPLIBS = "$(OUTDIR)\libmulti.lib"  \
     "$(OUTDIR)\libinmemory.lib" \
     "$(OUTDIR)\libremote.lib" \
     "$(OUTDIR)\libflint.lib" \
+    "$(OUTDIR)\libchert.lib" \
     $(NULL)
 
-OBJS= $(INTDIR)\database.obj $(INTDIR)\dbfactory_remote.obj $(INTDIR)\alltermslist.obj 
-SRCS= $(INTDIR)\database.cc $(INTDIR)\dbfactory_remote.cc $(INTDIR)\alltermslist.cc 
+OBJS= $(INTDIR)\database.obj $(INTDIR)\dbfactory_remote.obj $(INTDIR)\alltermslist.obj $(INTDIR)\contiguousalldocspostlist.obj
+SRCS= $(INTDIR)\database.cc $(INTDIR)\dbfactory_remote.cc $(INTDIR)\alltermslist.cc $(INTDIR)\contiguousalldocspostlist.cc
 	  
 ALL : $(DEPLIBS) "$(OUTDIR)\libbackend.lib" 
 
 CLEAN :
-	-@erase "$(OUTDIR)\libbackend.lib"
-	-@erase "$(INTDIR)\*.pch"
-	-@erase "$(INTDIR)\*.pdb"
-	-@erase $(OBJS)
-	cd flint
+	-@erase /q "$(OUTDIR)\libbackend.lib"
+	-@erase /q "$(INTDIR)\*.pch"
+	-@erase /q "$(INTDIR)\*.pdb"
+	-@erase /q $(OBJS)
+	cd chert
+	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
+	cd ..\flint
 	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
 	cd ..\inmemory
 	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
@@ -55,6 +58,11 @@ CPP_SBRS=.
 
 "$(OUTDIR)\libflint.lib":
        cd flint
+       nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
+       cd ..
+
+"$(OUTDIR)\libchert.lib":
+       cd chert
        nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
        cd ..
 
@@ -86,5 +94,5 @@ CPP_SBRS=.
 
 # Calculate any header dependencies and automatically insert them into this file
 HEADERS :
-            if exist ..\win32\$(DEPEND) ..\win32\$(DEPEND) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)"
+            if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) $(DEPEND_FLAGS) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)" 
 # DO NOT DELETE THIS LINE -- make depend depends on it.

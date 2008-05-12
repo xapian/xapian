@@ -233,7 +233,7 @@ class OmDebugCall {
     OmDebugCall omdebugapicall(OM_DEBUG_##t, omdebugapicall_method, omdebugapicall_str);
 
 #define RETURN(A) do { \
-    omdebugapicallreturn_t omdebugapicallreturn = (A); \
+    omdebugapicallreturn_t omdebugapicallreturn = A; \
     std::ostringstream os; \
     os << omdebugapicallreturn; \
     omdebugapicall.setreturnval(os.str()); \
@@ -249,7 +249,7 @@ using std::endl;
 
 #define DEBUGMSG(a,b) (void)0
 #define DEBUGLINE(a,b) (void)0
-#define RETURN(A) return (A)
+#define RETURN(A) return A
 
 #include <cstdio>  // For fprintf().
 #include <cstdlib> // For abort().
@@ -395,7 +395,7 @@ class Timer {
 
 #define DEBUGMSG(a,b) (void)0
 #define DEBUGLINE(a,b) (void)0
-#define RETURN(A) return (A)
+#define RETURN(A) return A
 
 #define DEBUGCALL(r,t,a,b) (void)0
 #define DEBUGCALL_STATIC(r,t,a,b) (void)0

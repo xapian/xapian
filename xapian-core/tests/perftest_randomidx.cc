@@ -70,8 +70,7 @@ static string
 gen_word(unsigned int length, unsigned int char_range)
 {
     string result;
-    for (unsigned int i = 0; i != length; ++i)
-    {
+    for (unsigned int i = 0; i != length; ++i) {
 	char ch = char('a' + rand_int(char_range));
 	result.append(1, ch);
     }
@@ -104,14 +103,12 @@ DEFINE_TESTCASE(randomidx1, writable) {
     srand(seed);
 
     unsigned int i;
-    for (i = 0; i < runsize; ++i)
-    {
+    for (i = 0; i < runsize; ++i) {
 	Xapian::Document doc;
 	doc.set_data("random document " + om_tostring(i));
 
 	unsigned int terms = rand_int(maxterms + 1 - minterms) + minterms;
-	for (unsigned int j = 0; j < terms; ++j)
-	{
+	for (unsigned int j = 0; j < terms; ++j) {
 	    unsigned int termlen = rand_int(mintermlen, maxtermlen);
 	    doc.add_term(gen_word(termlen, termcharrange));
 	}

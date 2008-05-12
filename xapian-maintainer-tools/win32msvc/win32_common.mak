@@ -22,8 +22,9 @@ OBJS= \
     $(INTDIR)\socket_utils.obj \
     $(INTDIR)\stringutils.obj \
     $(INTDIR)\safe.obj \
-    $(INTDIR)\fileutils.obj
-   
+    $(INTDIR)\fileutils.obj \
+    $(INTDIR)\bitstream.obj
+    
 SRCS= \
     $(INTDIR)\utils.cc \
     $(INTDIR)\getopt.cc \
@@ -34,7 +35,8 @@ SRCS= \
     $(INTDIR)\socket_utils.cc \
     $(INTDIR)\stringutils.cc \
     $(INTDIR)\safe.cc \
-    $(INTDIR)\fileutils.cc
+    $(INTDIR)\fileutils.cc \
+    $(INTDIR)\bitstream.cc
 
 CPP_PROJ=$(CPPFLAGS_EXTRA) -I..\win32\ -Fo"$(INTDIR)\\" -Tp$(INPUTNAME) 
 CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
@@ -70,5 +72,5 @@ CLEAN :
 
 # Calculate any header dependencies and automatically insert them into this file
 HEADERS :
-            if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)"
+            if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) $(DEPEND_FLAGS) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)" 
 # DO NOT DELETE THIS LINE -- make depend depends on it.

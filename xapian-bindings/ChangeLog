@@ -9,6 +9,62 @@ Mon Oct 29 03:03:57 GMT 2007  Olly Betts <olly@survex.com>
 	* NEWS,csharp/Makefile.am,python/extra.i,python/pythontest.py,
 	  python/util.i,xapian.i: Restore the changes.
 
+Mon May 12 06:51:43 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/pythontest.py: Add test of ValueWeightPostingSource.
+
+Mon May 05 16:02:03 GMT 2008  Olly Betts <olly@survex.com>
+
+	* php/except.i: Remove PHP4-specific stuff and tweak to maximise the
+	  amount of exception handling code which is in the helper function.
+	  Fix the copyright statements which were copied verbatim from
+	  xapian.i whereas the code here is all fairly recent.
+
+Mon May 05 11:03:52 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* csharp/Makefile.am: Change names of generated files to match
+	  those made by new SWIG version.
+
+Mon May 05 11:58:45 BST 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* ../swig: Update version of swig in use to current HEAD.  Causes
+	  few changes other than whitespace to the generated bindings, but
+	  makes new features in swig (such as better support for reference
+	  counted pointers) available.  Also only performs initialisation
+	  of swig wrapper once when there are multiple interpreters in use,
+	  which could possibly help a little with bug #185.
+
+Sat May 03 18:10:04 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* configure.ac: Fix breakage introduced when I changed "print foo"
+	  to "print(foo)" - join strings in the print with + instead of ,.
+	  mingw builds can't have worked with this, though they may still
+	  not!
+
+Sat May 03 14:00:55 GMT 2008  Olly Betts <olly@survex.com>
+
+	* xapian-bindings.spec.in: Remove "www." from xapian.org and
+	  oligarchy.co.uk URLs.  Bump minimum required Python version to 2.3.
+
+Sat May 03 10:59:58 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: Improve code which prevents probing for f77, etc.
+
+Fri May 02 17:24:17 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* csharp/Makefile.am,guile/Makefile.am,java-swig/Makefile.am,
+	  php/Makefile.am,ruby/Makefile.am,tcl8/Makefile.am: Seemed to work
+	  for python, so use SWIG's -MD flag for all the other swig targets
+	  too.
+
+Fri May 02 15:21:41 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/Makefile.am: Use SWIG's -MD flag to generate dependencies.
+
+Fri May 02 15:21:22 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/extra.i: Correct typo in comment.
+
 Mon Apr 28 17:07:03 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/pythontest.py: Fix python test of PostingSource to include

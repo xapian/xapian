@@ -86,7 +86,7 @@ F_unpack_uint(const char ** src,
 	// if new byte might cause overflow, and it does
 	if (((shift > (sizeof(T) - 1) * 8 + 1) &&
 	     ((part & 0x7f) << (shift % 8)) >= 0x100) ||
-	    (shift >= sizeof(T) * 8))  {
+	    (shift >= sizeof(T) * 8)) {
 	    // Overflowed - move to end of this integer
 	    while (true) {
 		if ((part & 0x80) == 0) return false;
