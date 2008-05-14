@@ -1,3 +1,13 @@
+Wed May 14 17:11:56 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/postingsource.cc,docs/postingsource.rst,
+	  include/xapian/postingsource.h,matcher/externalpostlist.cc:
+	  PostingSource::check() now returns the valid flag rather than
+	  passing it in by reference to be set.  Change "should" to "must"
+	  for the get_termfreq_est() requirement at Richard's suggestion.
+	  Add parameter names to PostingSource method prototypes and update
+	  documentation comments to match.
+
 Wed May 14 15:34:38 GMT 2008  Olly Betts <olly@survex.com>
 
 	* docs/Makefile.am,docs/index.html,docs/postingsource.rst: Add

@@ -49,18 +49,18 @@ PostingSource::get_weight() const
 }
 
 void
-PostingSource::skip_to(Xapian::docid did, Xapian::weight w)
+PostingSource::skip_to(Xapian::docid did, Xapian::weight min_wt)
 {
     while (!at_end() && get_docid() < did) {
-	next(w);
+	next(min_wt);
     }
 }
 
-void
-PostingSource::check(Xapian::docid did, Xapian::weight w, bool & valid)
+bool
+PostingSource::check(Xapian::docid did, Xapian::weight min_wt)
 {
-    valid = true;
-    skip_to(did, w);
+    skip_to(did, min_wt);
+    return true;
 }
 
 std::string
@@ -145,43 +145,36 @@ ValueWeightPostingSource::next(Xapian::weight min_wt)
 	if (value.empty())
 	    continue;
 	current_value = sortable_unserialise(value);
-	// Don't check that the value is in the specified range, since this could
-	// be a slow loop and isn't required.
+	// Don't check that the value is in the specified range, since this
+	// could be a slow loop and isn't required.
 	return;
     }
 }
 
 void
-ValueWeightPostingSource::skip_to(Xapian::docid min_docid, Xapian::weight min_wt)
+ValueWeightPostingSource::skip_to(Xapian::docid min_docid,
+				  Xapian::weight min_wt)
 {
     if (current_docid < min_docid)
 	current_docid = min_docid - 1;
     next(min_wt);
 }
 
-void
+bool
 ValueWeightPostingSource::check(Xapian::docid min_docid,
-				Xapian::weight min_wt,
-				bool &valid)
+				Xapian::weight min_wt)
 {
     current_docid = min_docid;
     std::string value;
     try {
 	Xapian::Document doc(db.get_document(current_docid));
 	value = doc.get_value(valno);
-	if (value.empty()) {
-	    valid = false;
-	    return;
-	}
+	if (value.empty()) return false;
     } catch (const Xapian::DocNotFoundError &) {
-	valid = false;
-	return;
+	return false;
     }
     current_value = sortable_unserialise(value);
-    if (current_value < min_wt)
-	valid = false;
-    else
-	valid = true;
+    return (current_value >= min_wt);
 }
 
 bool

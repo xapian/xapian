@@ -40,7 +40,7 @@ be returned, and an estimate of this number::
 These methods are pure-virtual in the base class, so you have to define
 them when deriving your subclass.
 
-It should always be true that::
+It must always be true that::
 
     get_termfreq_min() <= get_termfreq_est() <= get_termfreq_max()
 
@@ -69,7 +69,7 @@ position::
     virtual Xapian::docid get_docid() const = 0;
 
 There are three methods which advance the current position.  All of these take
-a Xapian::Weight parameter ``w_min``, which indicates the minimum weight
+a Xapian::Weight parameter ``min_wt``, which indicates the minimum weight
 contribution which the matcher is interested in.  The matcher still checks
 the weight of documents so it's OK to ignore this parameter completely, or to
 use it to discard only some documents.  But it can be useful for optimising
@@ -77,15 +77,15 @@ in some cases.
 
 The simplest of these three methods is ``next()``, which simply advances the
 iteration position to the next document (possibly skipping documents with
-weight contribution < w_min)::
+weight contribution < min_wt)::
 
-    virtual void next(Xapian::weight) = 0;
+    virtual void next(Xapian::weight min_wt) = 0;
 
 Then there's ``skip_to()``.  This advances the iteration position to the next
 document with document id >= that specified (possibly also skipping documents
-with weight contribution < w_min)::
+with weight contribution < min_wt)::
 
-    virtual void skip_to(Xapian::docid, Xapian::weight);
+    virtual void skip_to(Xapian::docid did, Xapian::weight min_wt);
 
 A default implementation of ``skip_to()`` is provided which just calls
 ``next()`` repeatedly.  This works but ``skip_to()`` can often be implemented
@@ -98,7 +98,7 @@ rather costly to implement (for example, it might require linear scanning
 of document ids).  To avoid this where possible, the ``check()`` method
 allows the matcher to just check if a given document matches::
 
-    virtual bool check(Xapian::docid did, Xapian::weight w_min);
+    virtual bool check(Xapian::docid did, Xapian::weight min_wt);
 
 The return value is ``true`` if the method leaves the iteration position valid, and ``false`` if it doesn't.  In the latter case, ``next()`` will advance to
 the first matching position after document id ``did``, and ``skip_to()`` will
@@ -106,7 +106,7 @@ act as it would if the iteration position was the first matching position
 after ``did``.
 
 The default implementation of ``check()`` is just a thin wrapper around
-``skip_to()`` which return true - you should use this if ``skip_to()`` incurs
+``skip_to()`` which returns true - you should use this if ``skip_to()`` incurs
 only a small extra cost.
 
 In order to cope with being used more than once, there needs to be a way to
