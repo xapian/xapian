@@ -27,10 +27,12 @@ if (scalar @ARGV && $ARGV[0] eq '--force') {
 }
 
 # Configuration:
-my $work = "/u1/olly/xapian-svn-snapshot";
-$ENV{PATH} = "/u1/olly/install/bin:/usr/bin:/bin";
-my $repourl = 'file:///usr/data/xapian-svn/xapian';
-my $repourl2 = 'file:///usr/data/xapian-svn/search-xapian';
+my $work = "/home/olly/tmp/xapian-svn-snapshot";
+# Add ccache's directory first so we'll use it if it is installed.
+$ENV{PATH} = "/usr/lib/ccache:/home/olly/install/bin:/usr/bin:/bin";
+my $repourl = 'file:///home/xapian-svn/xapian';
+my $repourl2 = 'file:///home/xapian-svn/search-xapian';
+my $webbase = '/srv/www';
 
 # Create the work directory first, since we need it to exist so we can create
 # the lockfile.
@@ -106,6 +108,7 @@ foreach my $tag (@ARGV) {
     my $lastlog;
     my $co_dir = "$tag/xapian";
     if (! -d "$co_dir/.svn") {
+	system "chmod", "-R", "+w", $co_dir if -d $co_dir;
         system "rm", "-rf", $co_dir;
 	# Check out the tag into a directory of the same name.
 	open SVN, "svn co --non-interactive \Q$repourl/$tag\E \Q$co_dir\E 2>&1|" or die $!;
@@ -162,6 +165,7 @@ foreach my $tag (@ARGV) {
 	}
     }
 
+    system "chmod", "-R", "+w", "$tag/build" if -d "$tag/build";
     system "rm", "-rf", "$tag/build";
     mkpath("$tag/build", 0, 0755) or die $!;
     chdir "$tag/build" or die $!;
@@ -176,7 +180,7 @@ foreach my $tag (@ARGV) {
     }
     $log = undef;
 
-    $log = `./configure CXXFLAGS=-O0 --enable-quiet --enable-maintainer-mode 2>&1`;
+    $log = `./configure --enable-quiet --enable-maintainer-mode 2>&1`;
     print LOG $log;
     if ($?) {
 	print "*** configure failed for '$tag':";
@@ -196,7 +200,7 @@ foreach my $tag (@ARGV) {
     }
     $log = undef;
 
-    $log = `make -s dist 2>&1`;
+    $log = `make -s distcheck VALGRIND= 2>&1`;
     print LOG $log;
     if ($?) {
 	print "*** make dist failed for '$tag':";
@@ -225,6 +229,7 @@ foreach my $tag (@ARGV) {
 	# We're in $tag/build and Search::Xapian must be bootstrapped in-tree.
 	my $co_dir = "search-xapian";
 	if (! -d "$co_dir/.svn") {
+	    system "chmod", "-R", "+w", $co_dir if -d $co_dir;
 	    system "rm", "-rf", $co_dir;
 	    # Check out the tag into a directory of the same name.
 	    open SVN, "svn co --non-interactive \Q$repourl2\E \Q$co_dir\E 2>&1|" or die $!;
@@ -315,9 +320,9 @@ foreach my $tag (@ARGV) {
 	chdir "../..";
     }
 
-    my $d = "/usr/data/www/oligarchy.co.uk/xapian/$tag";
+    my $d = "$webbase/oligarchy.co.uk/xapian/$tag";
     if ($tag =~ m!^tags/([\d.]+)$!) {
-	$d = "/usr/data/www/oligarchy.co.uk/xapian/$1";
+	$d = "$webbase/oligarchy.co.uk/xapian/$1";
     }
     if (! -d $d) {
 	mkpath($d, 0, 0755) or die $!;
@@ -326,11 +331,12 @@ foreach my $tag (@ARGV) {
 	close HTACCESS or die $!;
     } else {
 	if (-d "$d/old") {
+	    # Delete snapshots more than a week old, but leave at least one.
+	    my $num_of_days_to_keep = 7;
 	    my @o = glob "$d/old/*.tar.gz";
 	    my $n = scalar @o;
-	    @o = grep {-M $_ > 7} @o;
+	    @o = grep {-M $_ > $num_of_days_to_keep} @o;
 	    $n -= scalar @o;
-	    # Delete snapshots more than a week old, but leave at least one.
 	    unlink @o if $n > 0;
 	} else {
 	    mkdir "$d/old", 0755 or die $!;
