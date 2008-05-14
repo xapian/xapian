@@ -1,3 +1,7 @@
+Wed May 14 17:14:53 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/database.cc: Default to flint not chert for a new database.
+
 Wed May 14 17:11:56 GMT 2008  Olly Betts <olly@survex.com>
 
 	* api/postingsource.cc,docs/postingsource.rst,
