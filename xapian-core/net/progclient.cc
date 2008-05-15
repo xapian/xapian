@@ -112,7 +112,7 @@ ProgClient::run_program(const string &progname, const string &args
     if (pid != 0) {
 	// parent
 	// close the child's end of the socket
-	close(sv[1]);
+	::close(sv[1]);
 	return sv[0];
     }
 
@@ -122,15 +122,15 @@ ProgClient::run_program(const string &progname, const string &args
 
     // replace stdin and stdout with the socket
     // FIXME: check return values.
-    close(0);
-    close(1);
+    ::close(0);
+    ::close(1);
     dup2(sv[1], 0);
     dup2(sv[1], 1);
 
     // close unnecessary file descriptors
     // FIXME: Probably a bit excessive...
     for (int fd = 2; fd < 256; ++fd) {
-	close(fd);
+	::close(fd);
     }
 
     // Redirect stderr to /dev/null
@@ -141,7 +141,7 @@ ProgClient::run_program(const string &progname, const string &args
     if (stderrfd != 2) {
 	// Not sure why it wouldn't be 2, but handle the situation anyway.
 	dup2(stderrfd, 2);
-	close(stderrfd);
+	::close(stderrfd);
     }
 
     vector<string> argvec;
