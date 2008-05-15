@@ -1,3 +1,8 @@
+Thu May 15 09:00:26 GMT 2008  Olly Betts <olly@survex.com>
+
+	* java-swig/Makefile.am: Remove SWIGTYPE_p_bool.java as it is no
+	  longer generated.
+
 Thu May 15 08:11:04 GMT 2008  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am: Remove SWIGTYPE_p_bool.cs as it is no longer

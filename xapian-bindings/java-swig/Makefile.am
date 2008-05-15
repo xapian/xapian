@@ -50,7 +50,6 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	Stem.java\
 	Stopper.java\
 	StringValueRangeProcessor.java\
-	SWIGTYPE_p_bool.java\
 	SWIGTYPE_p_std__string.java\
 	TermGenerator.java\
 	TermIterator.java\
