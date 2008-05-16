@@ -62,6 +62,7 @@
 #include <sys/types.h>
 
 #include "autoptr.h"
+#include <cstdio> // For rename().
 #include <list>
 #include <string>
 
