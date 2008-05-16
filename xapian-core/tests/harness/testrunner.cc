@@ -51,7 +51,7 @@ struct BackendProperties {
  */
 static BackendProperties backend_properties[] = {
     { "none", "" },
-    { "inmemory", "backend,positional,writable" },
+    { "inmemory", "backend,positional,writable,inmemory" },
     { "chert", "backend,transactions,positional,writable,spelling,metadata,"
 	       "chert" }, // FIXME: sort out replicas
     { "flint", "backend,transactions,positional,writable,spelling,metadata,"
@@ -75,6 +75,7 @@ TestRunner::set_properties(const string & properties)
     spelling = false;
     metadata = false;
     replicas = false;
+    inmemory = false;
     flint = false;
     chert = false;
 
@@ -105,6 +106,8 @@ TestRunner::set_properties(const string & properties)
 	    metadata = true;
 	else if (propname == "replicas")
 	    replicas = true;
+	else if (propname == "inmemory")
+	    inmemory = true;
 	else if (propname == "flint")
 	    flint = true;
 	else if (propname == "chert")

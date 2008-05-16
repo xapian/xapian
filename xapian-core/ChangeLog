@@ -1,3 +1,12 @@
+Fri May 16 17:21:59 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/harness/testrunner.cc,tests/harness/testrunner.h: Add
+	  condition to test if the backend is "inmemory".
+	* tests/perftest_randomidx.cc: Change the run size from 1000
+	  documents to 1000000.  Disable this test for the inmemory
+	  backend, because it will quickly use up all the memory on the
+	  machine.
+
 Fri May 16 16:56:25 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* HACKING: Add note about some more PDF generation tools which are
