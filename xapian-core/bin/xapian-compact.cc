@@ -817,9 +817,10 @@ main(int argc, char **argv)
 	    }
 
 	    struct stat sb;
-	    if (stat(string(srcdir) + "/iamflint", &sb) != 0) {
+	    if (stat(string(srcdir) + "/iamflint", &sb) != 0 &&
+		stat(string(srcdir) + "/iamchert", &sb) != 0) {
 		cout << argv[0] << ": '" << srcdir
-		     << "' is not a flint database directory" << endl;
+		     << "' is not a flint or chert database directory" << endl;
 		exit(1);
 	    }
 
