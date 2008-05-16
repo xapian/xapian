@@ -334,11 +334,16 @@ doxygen (v1.5.2 is used for snapshots and releases; 1.4.6 produced incomplete
 dot (part of the graphviz package)
 perl 5
 pdflatex (on Debian/Ubuntu, tetex-extra is also required for fancyhdr.sty)
+ghostscript
+epstopdf (usually packaged with TeX)
 makeindex (usually packaged with TeX)
 help2man
 rst2html or rst2html.py (on Debian/Ubuntu, this is provided by the
         python-docutils package)
 pngcrush (optional - used to reduce the size of PNG files in the HTML apidocs)
+
+Note that pdflatex, epstopdf, gs, and makeindex must all currently be on the
+system PATH (as set by $PATH), since doxygen will look for them there.
 
 Building from SVN on Windows with MSVC:
 ---------------------------------------

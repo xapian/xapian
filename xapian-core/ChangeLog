@@ -1,3 +1,8 @@
+Fri May 16 16:56:25 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* HACKING: Add note about some more PDF generation tools which are
+	  needed, and that doxygen requires them to be on PATH.
+
 Fri May 16 16:38:40 GMT 2008  Olly Betts <olly@survex.com>
 
 	* HACKING: Ubuntu now needs tetex-extra too.
