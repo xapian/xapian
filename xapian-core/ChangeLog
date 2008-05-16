@@ -1,3 +1,7 @@
+Fri May 16 16:38:40 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Ubuntu now needs tetex-extra too.
+
 Fri May 16 10:05:30 GMT 2008  Olly Betts <olly@survex.com>
 
 	* bin/xapian-compact.cc: Fix to not reject chert databases during the
