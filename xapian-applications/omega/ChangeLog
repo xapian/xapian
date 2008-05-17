@@ -1,3 +1,8 @@
+Sat May 17 11:42:26 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.rst,docs/scriptindex.rst: Tweak mark-up so
+	  generated HTML gets a non-empty title.
+
 Sat May 10 11:14:20 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Makefile.am: omega_CPPFLAGS overrides AM_CPPFLAGS, so we need to
