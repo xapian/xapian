@@ -1,3 +1,7 @@
+Sat May 17 11:53:54 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/harness/testutils.h: Layout and macro parameter name tweaks.
+
 Fri May 16 20:42:05 GMT 2008  Olly Betts <olly@survex.com>
 
 	* bin/xapian-compact.cc: Check that all source databases are the same
