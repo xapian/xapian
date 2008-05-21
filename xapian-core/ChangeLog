@@ -1,3 +1,9 @@
+Wed May 21 19:48:54 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/harness/testutils.cc: No need for an explicit std::endl when
+	  calling TEST_AND_EXPLAIN().
+
 Wed May 21 19:43:52 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
