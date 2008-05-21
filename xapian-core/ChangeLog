@@ -1,3 +1,8 @@
+Wed May 21 23:06:22 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/remote_protocol.html: Remove spurious "i" at end of line.
+
 Wed May 21 23:05:39 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
