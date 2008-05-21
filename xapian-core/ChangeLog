@@ -1,3 +1,9 @@
+Wed May 21 14:44:18 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* common/ortermlist.h,expand/ortermlist.cc: Kill FreqAdderOrTermList's
+	  explicit empty dtor.
+
 Wed May 21 14:03:51 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
