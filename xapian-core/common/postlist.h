@@ -129,7 +129,7 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::RefCntBase {
     /** Skip forward to the specified docid.
      *
      *  If the specified docid isn't in the list, position ourselves on the
-     *  first term after it (or at_end() if no greater docids are present).
+     *  first document after it (or at_end() if no greater docids are present).
      *
      *  @param w_min	The minimum weight contribution that is needed (this is
      *			just a hint which PostList subclasses may ignore).
@@ -144,7 +144,7 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::RefCntBase {
     /** Check if the specified docid occurs in this postlist.
      *
      *  This method acts like skip_to() if that can be done at little extra
-     *  cost, and @a valid is set to true.
+     *  cost, in which case it then sets @a valid to true.
      *
      *  Otherwise it simply checks if a particular docid is present.  If it
      *  is, @a valid is set to true.  If it isn't, it sets @a valid to

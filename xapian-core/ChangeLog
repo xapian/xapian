@@ -1,3 +1,8 @@
+Wed May 21 19:37:49 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* common/postlist.h: Fix one doxygen comment and improve another.
+
 Wed May 21 19:22:16 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
