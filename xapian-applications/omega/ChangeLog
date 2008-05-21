@@ -1,3 +1,9 @@
+Wed May 21 23:51:45 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* xapian-omega.spec.in: Remove "www." from xapian.org and
+	  oligarchy.co.uk URLs.
+
 Wed May 21 23:51:06 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
