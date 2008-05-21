@@ -1,3 +1,9 @@
+Wed May 21 15:14:43 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/doxygen_api_conf.in: Disable header and directory relationship
+	  graphs in the API documentation as they aren't interesting to users.
+
 Wed May 21 14:56:04 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
