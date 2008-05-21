@@ -1,3 +1,8 @@
+Wed May 21 11:22:20 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/queryoptimiser.cc: Don't need <queue>.
+
 Wed May 21 11:21:39 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
