@@ -1,3 +1,9 @@
+Wed May 21 19:22:16 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/flint/flint_version.cc,common/stringutils.h: Move
+	  CONST_STRLEN() into stringutils.h.
+
 Wed May 21 17:54:43 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

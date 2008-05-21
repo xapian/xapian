@@ -1,7 +1,7 @@
 /** @file stringutils.h
  * @brief Various handy helpers which std::string really should provide.
  */
-/* Copyright (C) 2004,2005,2006,2007 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,6 +34,13 @@
 
 /// The STRINGIZE macro converts its parameter into a string constant.
 #define STRINGIZE(X) STRINGIZE_(X)
+
+/** Returns the length of a string constant.
+ *
+ *  We rely on concatenation of string literals to produce an error if this
+ *  macro is applied to something other than a string literal.
+ */
+#define CONST_STRLEN(S) (sizeof(S"") - 1)
 
 inline bool
 startswith(const std::string & s, char pfx)
