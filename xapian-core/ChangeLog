@@ -519,7 +519,8 @@ Wed Apr 23 02:16:53 GMT 2008  Olly Betts <olly@survex.com>
 
 Wed Apr 23 02:16:10 GMT 2008  Olly Betts <olly@survex.com>
 
-	* include/xapian/query.h: Fix doc comment typo (doesn't affect API docs).
+	* include/xapian/query.h: Fix doc comment typo (doesn't affect API
+	  docs).
 
 Wed Apr 23 00:59:40 GMT 2008  Olly Betts <olly@survex.com>
 
@@ -793,7 +794,7 @@ Thu Apr 10 05:47:37 GMT 2008  Olly Betts <olly@survex.com>
 	  being a problem with using _get_osfhandle() - ReadFile is documented
 	  to behave this way on MSDN.  Factor out update of Offset/OffsetHigh
 	  and tweak this code not to rely on off_t being 64 bits.
- 
+
 Thu Apr 10 05:24:11 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_record.cc,backends/flint/flint_utils.h: Use
@@ -843,7 +844,7 @@ Mon Apr 07 06:20:42 GMT 2008  Olly Betts <olly@survex.com>
 	  tests/harness/backendmanager_remotetcp.cc: Header inclusions tidying
 	  - remove a few redundant inclusions; prefer cstdio to stdio.h, etc
 	  in a few places; note why certain headers are required in cases
-	  where it's less obvious; in a .cc file, include the corresponding .h 
+	  where it's less obvious; in a .cc file, include the corresponding .h
 	  second (after <config.h>).
 
 Mon Apr 07 04:23:30 GMT 2008  Olly Betts <olly@survex.com>
