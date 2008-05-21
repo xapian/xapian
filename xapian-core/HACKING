@@ -1184,7 +1184,7 @@ This is a (hopefully complete) list of the jobs which need doing:
   Check that any bugs with milestone set to the release being made are either
   closed or updated to the milestone you just added.
 
-* Update the website: version.php in the CVS module xapian.org contains the
+* Update the website: version.php in the CVS module www.xapian.org contains the
   latest version and the date it was released.
 
 * Run /u1/olly/xapian-website-update/update_website.sh

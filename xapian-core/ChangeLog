@@ -1,3 +1,8 @@
+Wed May 21 13:21:08 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Fix search&replace error - the CVS module is still called
+	  www.xapian.org.
+
 Wed May 21 13:16:39 GMT 2008  Olly Betts <olly@survex.com>
 
 	* HACKING: Reword, since environmental variable PATH isn't "set by
