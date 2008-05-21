@@ -1,3 +1,34 @@
+Wed May 21 15:00:35 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* HACKING: Ubuntu now needs tetex-extra too.
+	* HACKING: Note that GCC 4.3 no longer supports pre-ISO forms of
+	  standard headers, such as <list.h>.  GCC on Solaris now seems
+	  to support throwing exceptions across shared library boundaries.
+	* HACKING: Add note about preferring std::string().
+	* HACKING: Recommend using the "svn-ci" script.  Update the date
+	  command which produces the correct format timestamp for ChangeLog
+	  entries.
+	* HACKING: Document to prefer "new SomeClass" to "new SomeClass()".
+	* AUTHORS,HACKING,INSTALL,README,debian/control.in,debian/copyright,
+	  docs/install.html,xapian-core.spec.in: Standardise URLs on our
+	  website to be xapian.org not www.xapian.org.
+	* HACKING: Actually document --enable-log=profile.
+	* HACKING: Document that scripts shouldn't generally have an
+	  extension, and the reason for this policy.
+	* HACKING: Document the need to list non-file targets in .PHONY.
+	* HACKING: Update bugzilla references and URLs to reflect the move
+	  to trac.  Update the "fixing a bug" checklist to mention backporting
+	  and updating the release notes.
+	* HACKING: Add note about some more PDF generation tools which are
+	  needed, and that doxygen requires them to be on PATH.
+	* HACKING: ixion -> atreus.
+	* HACKING: Reword, since environmental variable PATH isn't "set by
+	  $PATH".
+	* HACKING: Fix search&replace error - the CVS module is still called
+	  www.xapian.org.
+	* HACKING: Fix path for atreus.
+
 Wed May 21 11:32:11 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
