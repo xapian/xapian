@@ -1,3 +1,10 @@
+Wed May 21 17:54:43 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* api/omenquire.cc: Reset the internal sorter pointer to NULL when
+	  changing to a sort by value. Fixes #256.
+	* tests/api_sorting.cc: Add regression test.
+
 Wed May 21 15:21:41 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
