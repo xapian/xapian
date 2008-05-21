@@ -1,3 +1,9 @@
+Wed May 21 10:59:11 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian.h: Fix misplaced comment.  Tweak doxygen comments for
+	  version functions to be more consistent with others.
+
 Wed May 21 10:56:12 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
@@ -6,8 +12,8 @@ Wed May 21 10:56:12 GMT 2008  Olly Betts <olly@survex.com>
 Mon May 05 15:20:42 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* Backport change from trunk:
-  	* docs/Makefile.am: Fix "make distcheck" by using dist-hook to
-  	  install generated files from either srcdir or builddir, with the
+	* docs/Makefile.am: Fix "make distcheck" by using dist-hook to
+	  install generated files from either srcdir or builddir, with the
 	  appropriate dependency to generate them automatically in
 	  maintainer mode builds.
 
@@ -65,7 +71,7 @@ Wed Mar 12 06:50:53 GMT 2008  Olly Betts <olly@survex.com>
 	* Backport change from trunk (not needed here, but is by Omega's
 	  svn:externals copy of common):
 	* common/safedirent.h: Add "safedirent.h" header for easy inclusion of
-	  this implementation.  
+	  this implementation.
 
 Thu Mar 06 01:59:19 GMT 2008  Olly Betts <olly@survex.com>
 
