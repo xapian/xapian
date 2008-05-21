@@ -1187,7 +1187,7 @@ This is a (hopefully complete) list of the jobs which need doing:
 * Update the website: version.php in the CVS module www.xapian.org contains the
   latest version and the date it was released.
 
-* Run /u1/olly/xapian-website-update/update_website.sh
+* Run /home/olly/tmp/xapian-website-update/update_website.sh
 
 * Update the wiki:
 

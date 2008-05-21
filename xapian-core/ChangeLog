@@ -1,3 +1,7 @@
+Wed May 21 13:22:23 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Fix path for atreus.
+
 Wed May 21 13:21:08 GMT 2008  Olly Betts <olly@survex.com>
 
 	* HACKING: Fix search&replace error - the CVS module is still called
