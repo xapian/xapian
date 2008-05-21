@@ -1,3 +1,7 @@
+Wed May 21 19:33:12 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/Makefile.am: test == isn't portable - use test = instead.
+
 Wed May 21 13:22:23 GMT 2008  Olly Betts <olly@survex.com>
 
 	* HACKING: Fix path for atreus.
