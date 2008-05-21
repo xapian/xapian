@@ -1,5 +1,6 @@
-Index scripts:
-==============
+=============
+Index scripts
+=============
 
 The basic format is one or more field names followed by a colon, followed by
 one or more actions.  Some actions take an optional or required parameter.
