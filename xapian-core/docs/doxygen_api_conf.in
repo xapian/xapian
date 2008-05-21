@@ -1036,7 +1036,7 @@ PREDEFINED             = DOXYGEN
 # The macro definition that is found in the sources will be used. 
 # Use the PREDEFINED tag if you want to use a different macro definition.
 
-EXPAND_AS_DEFINED      = XAPIAN_DEPRECATED
+EXPAND_AS_DEFINED      = XAPIAN_DEPRECATED XAPIAN_VISIBILITY_DEFAULT
 
 # If the SKIP_FUNCTION_MACROS tag is set to YES (the default) then 
 # doxygen's preprocessor will remove all function-like macros that are alone 
