@@ -1,3 +1,8 @@
+Wed May 21 13:16:39 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Reword, since environmental variable PATH isn't "set by
+	  $PATH".
+
 Wed May 21 13:16:21 GMT 2008  Olly Betts <olly@survex.com>
 
 	* HACKING: ixion -> atreus.
