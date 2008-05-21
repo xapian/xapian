@@ -1,3 +1,11 @@
+Wed May 21 14:54:34 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/flint/flint_database.cc: If Database::reopen() is called
+	  and the database revision on disk hasn't changed, then do as little
+	  work as possible.  Even if it has changed, don't bother to recheck
+	  the version file (bug#261).
+
 Wed May 21 14:45:27 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
