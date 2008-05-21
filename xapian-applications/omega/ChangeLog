@@ -1,3 +1,9 @@
+Wed May 21 23:37:04 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* freemem.cc: Fix latent compilation error on FreeBSD, pointed out by
+	  Richard Boulton.
+
 Sun Mar 16 11:39:49 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS: Update for 1.0.6.
