@@ -1,3 +1,9 @@
+Wed May 21 23:46:06 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* query.cc: Cast size to unsigned before division to avoid a
+	  warning about signed overflow.
+
 Wed May 21 23:45:00 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

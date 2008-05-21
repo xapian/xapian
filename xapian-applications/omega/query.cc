@@ -1200,8 +1200,8 @@ eval(const string &fmt, const vector<string> &param)
 			    format = "%d.%cG";
 			}
 		    }
-		    intpart = size / 1024;
-		    fraction = size % 1024;
+		    intpart = unsigned(size) / 1024;
+		    fraction = unsigned(size) % 1024;
 		}
 		if (format) {
 		    char buf[200];
