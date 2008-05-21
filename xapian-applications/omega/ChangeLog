@@ -1,3 +1,8 @@
+Wed May 21 23:48:27 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Improve code which prevents probing for f77, etc.
+
 Wed May 21 23:47:39 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
