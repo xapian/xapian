@@ -362,7 +362,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 	 */
 	static std::string get_op_name(Xapian::Query::Internal::op_t op);
 
-	/** Collapse the subqueryies together if appropriate.
+	/** Collapse the subqueries together if appropriate.
 	 */
 	void collapse_subqs();
 

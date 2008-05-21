@@ -1,3 +1,9 @@
+Wed May 21 11:00:36 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/query.h: Fix doc comment typo (doesn't affect API
+	  docs).
+
 Wed May 21 10:59:11 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
