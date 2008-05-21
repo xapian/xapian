@@ -1,3 +1,9 @@
+Wed May 21 19:43:52 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* common/omdebug.h: Fix RETURN macro to work on GCC 2.95 for the case
+	  `RETURN(string())'.
+
 Wed May 21 19:37:49 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
