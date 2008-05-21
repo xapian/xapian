@@ -1166,7 +1166,7 @@ This is a (hopefully complete) list of the jobs which need doing:
   http://trac.xapian.org/report/12
   Make sure the submitters are mentioned in the "thanks" list in AUTHORS.
 
-* On ixion, svn tag the source trees for the new revision - use the
+* On atreus, svn tag the source trees for the new revision - use the
   svn-tag-release script, running it with the new version number, for example:
 
   xapian-maintainer-tools/svn-tag-release 0.9.0
@@ -1233,7 +1233,7 @@ updated as follows:
 
 * Use xapian-maintainer-tools/debian/make-source-packages to make and upload
   new source packages for the various Debian and Ubuntu versions we provide
-  packages for.  Currently this script must be run on ixion.
+  packages for.  Currently this script must be run on atreus.
 
 * Build debs for oldstable, stable, unstable, dapper, edgy, feisty, and gutsy.
   The scripts xapian-maintainer-tools/debian/create-chroot and
