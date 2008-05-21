@@ -277,6 +277,8 @@ QueryOptimiser::do_or_like(const Xapian::Query::Internal *query, double factor)
     AssertRel(queries.size(), >=, 2);
 
     vector<PostList *> postlists;
+    postlists.reserve(queries.size());
+
     Xapian::Query::Internal::subquery_list::const_iterator q;
     for (q = queries.begin(); q != queries.end(); ++q) {
 	postlists.push_back(do_subquery(*q, factor));

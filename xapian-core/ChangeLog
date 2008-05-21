@@ -1,3 +1,8 @@
+Wed May 21 11:32:11 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/queryoptimiser.cc: Reserve size of postlists vector.
+
 Wed May 21 11:22:20 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
