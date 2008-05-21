@@ -29,7 +29,7 @@ Wed May 21 14:03:51 GMT 2008  Olly Betts <olly@survex.com>
 	  expand XAPIAN_VISIBILITY_DEFAULT so it doesn't appear in collated
 	  API documentation.
 
-Wed May 21 15:00:35 GMT 2008  Olly Betts <olly@survex.com>
+Wed May 21 14:00:35 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
 	* HACKING: Ubuntu now needs tetex-extra too.
