@@ -1,3 +1,8 @@
+Wed May 21 14:56:04 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/gen_codestructure_doc.in: Link to trac instead of viewvc.
+
 Wed May 21 14:54:34 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
