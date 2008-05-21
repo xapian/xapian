@@ -1,3 +1,11 @@
+Wed May 21 23:45:00 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Synchronise code for working out warning flags used
+	  for builds with that used for xapian-core.  Copes with different
+	  formats of version number output by "gcc --version" which should
+	  help to improve output.
+
 Wed May 21 23:40:24 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
