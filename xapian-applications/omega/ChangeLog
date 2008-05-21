@@ -1,3 +1,9 @@
+Wed May 21 23:40:24 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* query.cc: Catch only the specific error which indicates a need to
+	  repeat a get_termfreq() call on the database instead of the mset.
+
 Wed May 21 23:38:14 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

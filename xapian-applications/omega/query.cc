@@ -1257,7 +1257,9 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_freq:
 		try {
 		    value = int_to_string(mset.get_termfreq(args[0]));
-		} catch (...) {
+		} catch (const Xapian::InvalidOperationError&) {
+		    // An mset will raise this error if it's empty and not associated with
+		    // a search.
 		    value = int_to_string(db.get_termfreq(args[0]));
 		}
 		break;
