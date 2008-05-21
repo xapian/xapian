@@ -579,7 +579,7 @@ main_lex_loop:
     enum {
 	DEFAULT, IN_QUOTES, IN_PREFIXED_QUOTES, IN_PHRASED_TERM, IN_GROUP
     } mode = DEFAULT;
-    while (it != end) {
+    while (it != end && !state.error) {
 	bool last_was_operator = false;
 	if (false) {
 just_had_operator:
@@ -1025,10 +1025,12 @@ phrased_term:
 	}
     }
 done:
-    // Implicitly close any unclosed quotes...
-    if (mode == IN_QUOTES || mode == IN_PREFIXED_QUOTES)
-	Parse(pParser, QUOTE, NULL, &state);
-    Parse(pParser, 0, NULL, &state);
+    if (!state.error) {
+	// Implicitly close any unclosed quotes...
+	if (mode == IN_QUOTES || mode == IN_PREFIXED_QUOTES)
+	    Parse(pParser, QUOTE, NULL, &state);
+	Parse(pParser, 0, NULL, &state);
+    }
     ParseFree(pParser);
 
     errmsg = state.error;

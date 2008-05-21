@@ -1,3 +1,9 @@
+Wed May 21 21:43:28 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* queryparser/queryparser.lemony: If we hit a syntax error, don't
+	  bother feeding further tokens to the parser!
+
 Wed May 21 21:40:38 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
