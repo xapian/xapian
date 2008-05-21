@@ -1,3 +1,7 @@
+Wed May 21 13:12:07 GMT 2008  Olly Betts <olly@survex.com>
+
+	* include/xapian/database.h: Improve documentation comment.
+
 Sun May 18 05:20:29 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* docs/remote_protocol.html: Remove spurious "i" at end of line.

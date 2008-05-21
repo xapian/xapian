@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -564,9 +564,11 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  This method removes any documents indexed by the specified term
 	 *  from the database.
 	 *
-	 *  The intended use is to allow UIDs from another system to easily
-	 *  be mapped to terms in Xapian, although this method probably has
-	 *  other uses.
+	 *  A major use is for convenience when UIDs from another system are
+	 *  mapped to terms in Xapian, although this method has other uses
+	 *  (for example, you could add a "deletion date" term to documents at
+	 *  index time and use this method to delete all documents due for
+	 *  deletion on a particular date).
 	 *
 	 *  @param unique_term     The term to remove references to.
 	 *
