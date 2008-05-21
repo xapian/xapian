@@ -1,3 +1,12 @@
+Wed May 21 23:47:39 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* configure.ac: If iconv isn't found, set with_iconv to "no", to
+	  prevent USE_ICONV being set.  Was previously only doing this if
+	  fink on OS X was found.
+	* configure.ac: Fix to fail if --with-iconv is specified and libiconv
+	  isn't, and we aren't using fink on Mac OS X.
+
 Wed May 21 23:46:06 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

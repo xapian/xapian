@@ -187,8 +187,8 @@ AC_ARG_WITH(iconv,
 if test no != "$with_iconv" ; then
   ICONV_LDFLAGS=
   AC_SEARCH_LIBS(iconv, iconv, [], [
-    dnl For fink on OS X.
     if test -f "/sw/etc/fink.conf" ; then
+      dnl For fink on OS X.
       AC_CANONICAL_HOST
       case $host_os in
       darwin*)
@@ -196,15 +196,21 @@ if test no != "$with_iconv" ; then
 	SAVE_LDFLAGS=$LDFLAGS
 	LDFLAGS="$LDFLAGS $ICONV_LDFLAGS"
 	AC_CHECK_LIB(iconv, iconv, [], [
-	  if test yes = "$with_iconv" ; then
-	    AC_MSG_ERROR([iconv not found, but --with-iconv specified])
-	  fi
 	  ICONV_LDFLAGS=
-	  with_iconv=no
+	  with_iconv=bad-$with_iconv
 	])
-	LDFLAGS=$SAVE_LDFLAGS
+	LDFLAGS=$SAVE_LDFLAGS ;;
       esac
+    else
+      with_iconv=bad-$with_iconv
     fi
+
+    case $with_iconv in
+    bad-yes) 
+      AC_MSG_ERROR([iconv not found, but --with-iconv specified]) ;;
+    bad-*)
+      with_iconv=no ;;
+    esac
   ])
   AC_SUBST(ICONV_LDFLAGS)
 fi
