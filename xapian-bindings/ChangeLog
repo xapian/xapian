@@ -1,3 +1,9 @@
+Thu May 22 00:35:19 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* php/smoketest.php,php/smoketest4.php,php/smoketest5.php: Add test
+	  that VALUE_GE works for PHP.
+
 Thu May 22 00:33:23 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

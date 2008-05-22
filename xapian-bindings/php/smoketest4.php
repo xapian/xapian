@@ -79,5 +79,6 @@ $op_phrase = XapianQuery_OP_PHRASE;
 $op_xor = XapianQuery_OP_XOR;
 $op_elite_set = XapianQuery_OP_ELITE_SET;
 $op_scale_weight = XapianQuery_OP_SCALE_WEIGHT;
+$op_value_ge = XapianQuery_OP_VALUE_GE;
 
 ?>
