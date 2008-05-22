@@ -1,3 +1,9 @@
+Thu May 22 00:30:04 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* README: Note that Tcl 8.3 and earlier are no longer supported by
+	  upstream.
+
 Thu May 22 00:29:33 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
