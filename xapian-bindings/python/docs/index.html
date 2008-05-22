@@ -111,7 +111,9 @@ iterate over terms in a Document object):
 
 <p>
 The pythonic iterators return Python objects, with properties available as
-attribute values, with lazy evaluation where appropriate.
+available as attribute values, with lazy evaluation where appropriate.  An
+exception is the <code>PositionIter</code> object returned by
+<code>Datbase.positionlist</code>, which returns an integer.
 </p>
 
 <p>

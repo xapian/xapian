@@ -1,3 +1,9 @@
+Thu May 22 09:39:05 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* python/docs/index.html: Note that PositionIter returns an integer
+	  not a Python object (part of r10341).
+
 Thu May 22 00:48:45 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
