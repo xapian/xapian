@@ -400,7 +400,7 @@ if test no != "$with_tcl" ; then
 
       AC_ARG_VAR(TCL_LIB, [Directory to install Tcl files into])
       if test -z "$TCL_LIB" ; then    
-	TCL_LIB=`echo 'foreach d $tcl_pkgPath {if {![regexp {/share(/|$)} $d]} {break}};puts $d'|$TCLSH`
+	[TCL_LIB=`echo 'foreach d $tcl_pkgPath {if {![regexp {/share(/|$)} $d]} {break}};puts $d'|$TCLSH`]
       fi
       AC_SUBST(TCL_LIB)
 
