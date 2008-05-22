@@ -1,6 +1,7 @@
 Thu May 22 11:53:23 GMT 2008  Olly Betts <olly@survex.com>
 
-	* tcl8/docs/index.html: The "program" version of Remote::open() *is*
+	* csharp/docs/index.html,php/docs/index.html,ruby/docs/index.html,
+	  tcl8/docs/index.html: The "program" version of Remote::open() *is*
 	  now wrapped, so update the documentation.
 
 Thu May 22 11:16:54 GMT 2008  Olly Betts <olly@survex.com>
