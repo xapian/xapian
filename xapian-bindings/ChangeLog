@@ -1,3 +1,10 @@
+Thu May 22 11:18:29 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* python/docs/index.html: Update documentation of pythonic iterators.
+	* python/extra.i: Correct documentation comment for
+	  Database.spellings().
+
 Thu May 22 09:39:05 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
