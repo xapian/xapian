@@ -1,3 +1,9 @@
+Thu May 22 11:54:38 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* python/docs/index.html: Fix typo (Database.synonym and synonym_begin
+	  should be synonyms and synonyms_begin).
+
 Thu May 22 11:21:11 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
