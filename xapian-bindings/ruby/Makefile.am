@@ -24,22 +24,15 @@ rubylibarch_LTLIBRARIES = _xapian.la
 # install-data, so that's where we need to hook.
 install-data-hook:
 	rm -f $(DESTDIR)$(rubylibarchdir)/_xapian.la
-## We need to rename the file to have the extension Ruby expects on certain
-## platforms (e.g. Mac OS X).
-	$(LIBTOOL) --config > libtoolconfig.tmp
-	. ./libtoolconfig.tmp; module=yes; eval shlibext=$$shrext_cmds; \
-	  test ".$(RUBY_DLEXT)" = "$$shlibext" || mv $(DESTDIR)$(rubylibarchdir)/_xapian$$shlibext $(DESTDIR)$(rubylibarchdir)/_xapian.$(RUBY_DLEXT)
-	rm -f libtoolconfig.tmp
 
 # Because we don't install the .la file, "make uninstall" doesn't work and
-# we need to remove the file ourselves.  Also, the extension may not match
-# what libtool expects.
+# we need to remove the file ourselves.
 uninstall-local:
 	rm -f $(DESTDIR)$(rubylibarchdir)/_xapian.$(RUBY_DLEXT)
 
 AM_CPPFLAGS = -I$(RUBY_INC)
 AM_CXXFLAGS = @SWIG_CXXFLAGS@ $(XAPIAN_CXXFLAGS)
-_xapian_la_LDFLAGS = -avoid-version -module $(NO_UNDEFINED)
+_xapian_la_LDFLAGS = -avoid-version -module -shrext ".$(RUBY_DLEXT)" $(NO_UNDEFINED)
 _xapian_la_SOURCES = xapian_wrap.cc xapian_wrap.h
 _xapian_la_LIBADD = $(XAPIAN_LIBS)
 

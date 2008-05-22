@@ -32,22 +32,15 @@ pylib_LTLIBRARIES = _xapian.la
 # install-data, so that's where we need to hook.
 install-data-hook:
 	rm -f $(DESTDIR)$(pylibdir)/_xapian.la
-## We need to rename the file to have the extension Python expects on certain
-## platforms (e.g. Mac OS X).
-	$(LIBTOOL) --config > libtoolconfig.tmp
-	. ./libtoolconfig.tmp; module=yes; eval shlibext=$$shrext_cmds; \
-	  test "$(PYTHON_SO)" = "$$shlibext" || mv $(DESTDIR)$(pylibdir)/_xapian$$shlibext $(DESTDIR)$(pylibdir)/_xapian$(PYTHON_SO)
-	rm -f libtoolconfig.tmp
 
 # Because we don't install the .la file, "make uninstall" doesn't work and
-# we need to remove the file ourselves.  Also, the extension may not match
-# what libtool expects.
+# we need to remove the file ourselves.
 uninstall-local:
 	rm -f $(DESTDIR)$(pylibdir)/_xapian$(PYTHON_SO)
 
 AM_CPPFLAGS = -I$(PYTHON_INC)
 AM_CXXFLAGS = $(SWIG_CXXFLAGS) $(XAPIAN_CXXFLAGS)
-_xapian_la_LDFLAGS = -avoid-version -module $(NO_UNDEFINED)
+_xapian_la_LDFLAGS = -avoid-version -module -shrext "$(PYTHON_SO)" $(NO_UNDEFINED)
 _xapian_la_SOURCES = modern/xapian_wrap.cc
 _xapian_la_LIBADD = $(XAPIAN_LIBS) $(PYTHON_LIBS)
 
@@ -70,8 +63,7 @@ xapian.pyo: xapian.py _xapian$(PYTHON_SO)
 
 _xapian$(PYTHON_SO): _xapian.la
 	$(LIBTOOL) --config > libtoolconfig.tmp
-	. ./libtoolconfig.tmp; module=yes; eval shlibext=$$shrext_cmds; \
-	  cp $$objdir/_xapian$$shlibext _xapian$(PYTHON_SO)
+	. ./libtoolconfig.tmp; cp $$objdir/_xapian$(PYTHON_SO) .
 	rm -f libtoolconfig.tmp
 
 CLEANFILES = _xapian$(PYTHON_SO) xapian.py xapian.pyc xapian.pyo testsuite.pyc
