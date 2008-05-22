@@ -1,3 +1,8 @@
+Thu May 22 00:44:14 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* python/extra.i: Correct typo in comment.
+
 Thu May 22 00:40:12 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
