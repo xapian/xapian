@@ -11,7 +11,7 @@ TESTS = smoketest.tcl
 EXTRA_DIST = except.i util.i $(TESTS) $(BUILT_SOURCES) run-tcl-test runtest.tcl pkgIndex.tcl.in
 SUBDIRS = docs
 
-tcllibdir = @TCL_LIB@/../xapian@VERSION@
+tcllibdir = @TCL_LIB@/xapian@VERSION@
 
 tcllib_LTLIBRARIES = xapian.la
 tcllib_DATA = pkgIndex.tcl

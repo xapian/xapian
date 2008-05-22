@@ -1,3 +1,8 @@
+Thu May 22 00:33:23 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tcl8/Makefile.am: Remove bogus "../" from tcllibdir.
+
 Thu May 22 00:32:50 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
