@@ -145,8 +145,10 @@ the 'Destructors' section above for an explanation).
 <li> <code>Xapian::Quartz::open()</code> is wrapped as <code>xapian::quartz_open</code> (but note that the WritableDatabase version isn't wrapped - see
 the 'Destructors' section above for an explanation).
 <li> <code>Xapian::InMemory::open()</code> is wrapped as <code>xapian::inmemory_open</code>
-<li> <code>Xapian::Remote::open()</code> is wrapped as <code>xapian::remote_open</code> (only
-the TCP version is currently wrapped, the "program" version isn't).
+<li> <code>Xapian::Remote::open()</code> is wrapped as <code>xapian::remote_open</code> (both
+the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to
+decide which to call).
+<li> <code>Xapian::Remote::open_writable()</code> is wrapped as <code>xapian::remote_open_writable</code>
 </ul>
 
 <h2>Constants</h2>

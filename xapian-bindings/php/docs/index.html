@@ -232,7 +232,9 @@ when reading values back from Xapian.
 <li> <code>Xapian::Auto::open_stub(<i>file</i>)</code> is wrapped as <code>Xapian::auto_open_stub(<i>file</i>)</code>
 <li> <code>Xapian::Quartz::open(...)</code> is wrapped as <code>Xapian::quartz_open(...)</code>
 <li> <code>Xapian::InMemory::open()</code> is wrapped as <code>Xapian::inmemory_open()</code>
-<li> <code>Xapian::Remote::open(...)</code> is wrapped as <code>Xapian::remote_open(...)</code>
+<li> <code>Xapian::Remote::open(...)</code> is wrapped as <code>Xapian::remote_open(...)</code> (both
+the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to
+decide which to call).
 </ul>
 
 <h2>Constants</h2>

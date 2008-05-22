@@ -1,3 +1,10 @@
+Thu May 22 11:56:58 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* csharp/docs/index.html,php/docs/index.html,ruby/docs/index.html,
+	  tcl8/docs/index.html: The "program" version of Remote::open() *is*
+	  now wrapped, so update the documentation.
+
 Thu May 22 11:54:38 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
