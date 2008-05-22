@@ -1,3 +1,8 @@
+Thu May 22 00:20:16 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* python/Makefile.am: Clean up libtoolconfig.tmp after use.
+
 Wed Mar 19 01:06:31 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
