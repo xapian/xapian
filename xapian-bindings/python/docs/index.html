@@ -258,8 +258,9 @@ ESetIterator. The members of the tuple are as follows.
 <li> <code>Xapian::Auto::open_stub()</code> is wrapped as <code>xapian.open_stub()</code>
 <li> <code>Xapian::Quartz::open()</code> is wrapped as <code>xapian.quartz_open()</code>
 <li> <code>Xapian::InMemory::open()</code> is wrapped as <code>xapian.inmemory_open()</code>
-<li> <code>Xapian::Remote::open()</code> is wrapped as <code>xapian.remote_open()</code> (only
-the TCP version is currently wrapped, the "program" version isn't).
+<li> <code>Xapian::Remote::open()</code> is wrapped as <code>xapian.remote_open()</code> (both
+the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to
+decide which to call).
 </ul>
 
 <h2>Query</h2>
