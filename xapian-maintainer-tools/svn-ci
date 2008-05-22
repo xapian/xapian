@@ -56,6 +56,13 @@ unless ($email) {
 }
 $realname ||= (split /,/, $passwd[6])[0];
 
+# Revert ChangeLog?
+my $revert_changelog = 0;
+if (scalar @ARGV && $ARGV[0] eq '--revert') {
+    shift @ARGV;
+    $revert_changelog = 1;
+}
+
 # Remove any trailing slashes on directories for consistency.
 @ARGV = map {s,/+$,,; $_} @ARGV;
 
@@ -87,10 +94,17 @@ my $add_diff = 1;
 # Searching down should check-in with the same message in each subdir
 # Searching up should check-in using the first changelog in a parent dir
 # but only files below this directory...
-open I, "<ChangeLog" or die "No ChangeLog found in this directory or a parent directory!\n";
+if (! -f "ChangeLog") {
+    die "No ChangeLog found in this directory or a parent directory!\n";
+}
+if ($revert_changelog) {
+    system("svn revert ChangeLog");
+}
+
+open I, "<ChangeLog" or die $!;
 while (<I>) {
     # conflicts, or diff fragments
-    if (/^[-<+]/) {
+    if (/^[-<>+]/) {
         $edit_cl = 1;
 	$add_diff = 0;
 	last;
