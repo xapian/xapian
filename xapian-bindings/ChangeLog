@@ -1,3 +1,11 @@
+Thu May 22 00:48:45 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Fix breakage introduced when I changed "print foo"
+	  to "print(foo)" - join strings in the print with + instead of ,.
+	  mingw builds can't have worked with this, though they may still
+	  not!
+
 Thu May 22 00:45:46 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
