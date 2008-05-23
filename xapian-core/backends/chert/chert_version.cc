@@ -33,11 +33,12 @@
 # include "msvc_posix_wrapper.h"
 #endif
 
+#include <cstdio> // For rename().
 #include <string>
 
 #include <string.h> // for memcmp
 
-using std::string;
+using namespace std;
 
 // YYYYMMDDX where X allows multiple format revisions in a day
 #define CHERT_VERSION 200804180

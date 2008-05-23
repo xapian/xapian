@@ -37,7 +37,6 @@ XAPIAN_SWIG_CS_SRCS=\
 	QueryParser.cs \
 	Remote.cs \
 	RSet.cs \
-	SWIGTYPE_p_bool.cs \
 	SWIGTYPE_p_std__string.cs \
 	SWIGTYPE_p_std__vectorT_std__string_t.cs \
 	SWIGTYPE_p_std__vectorT_Xapian__Query_t.cs \

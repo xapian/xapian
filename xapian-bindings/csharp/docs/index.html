@@ -129,8 +129,9 @@ member functions of abstract classes like so:
 <li> <code>Xapian::Auto::open_stub()</code> is wrapped as <code>Xapian.Auto.OpenStub()</code>
 <li> <code>Xapian::Quartz::open()</code> is wrapped as <code>Xapian.Quartz.Open()</code>
 <li> <code>Xapian::InMemory::open()</code> is wrapped as <code>Xapian.InMemory.Open()</code>
-<li> <code>Xapian::Remote::open()</code> is wrapped as <code>Xapian.Remote.Open()</code> (only
-the TCP version is currently wrapped, the "program" version isn't).
+<li> <code>Xapian::Remote::open()</code> is wrapped as <code>Xapian.Remote.Open()</code> (both
+the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to
+decide which to call).
 </ul>
 </ul>
 

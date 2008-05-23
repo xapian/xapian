@@ -141,7 +141,7 @@ ExternalPostList::check(Xapian::docid did, Xapian::weight w_min, bool &valid)
 	valid = true;
 	return NULL;
     }
-    source->check(did, w_min, valid);
+    valid = source->check(did, w_min);
     if (source->at_end()) {
 	source = NULL;
     } else {

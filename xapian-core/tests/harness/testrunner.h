@@ -79,6 +79,9 @@ class TestRunner {
     /// True if the backend is the multi backend.
     bool multi;
 
+    /// True if the backend is the inmemory backend.
+    bool inmemory;
+
     /// True if the backend is the flint backend.
     bool flint;
 

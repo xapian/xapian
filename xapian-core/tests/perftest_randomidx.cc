@@ -78,14 +78,14 @@ gen_word(unsigned int length, unsigned int char_range)
 }
 
 // Test the performance using randomly generated dat
-DEFINE_TESTCASE(randomidx1, writable) {
+DEFINE_TESTCASE(randomidx1, writable&!inmemory) {
     logger.testcase_begin("randomidx1");
 
     std::string dbname("1");
     Xapian::WritableDatabase dbw = backendmanager->get_writable_database(dbname, "");
     logger.indexing_begin(dbname);
 
-    unsigned int runsize = 1000;
+    unsigned int runsize = 1000000;
     unsigned int seed = 42;
 
     // Some parameters used to control generation of documents.

@@ -112,6 +112,129 @@ Fri Dec 07 14:19:00 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 	  calculation stuff from Yung-chung Lin; exactly as in his patch
 	  from 18 September 2007.
 
+Fri May 23 09:22:24 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/inmemory/inmemory_database.cc: Fix bug in inmemory
+	  database, which resulted in the values not being stored correctly
+	  if document IDs were sparse.
+	* matcher/valuerangepostlist.cc: Fix the next() method not to
+	  return document IDs which aren't present in the database - this
+	  used to happen if the document IDs were sparse.
+	* tests/api_anydb.cc: Add "valuerange2", a regression test for
+	  OP_VALUE_LE returning document IDs which aren't present in the
+	  database, and "alldocspl1", which does a generic test of an
+	  alldocs postlist in a sparse database (this passed before the
+	  above changes, but might as well be added anyway).
+
+Wed May 21 19:33:12 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/Makefile.am: test == isn't portable - use test = instead.
+
+Wed May 21 13:22:23 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Fix path for atreus.
+
+Wed May 21 13:21:08 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Fix search&replace error - the CVS module is still called
+	  www.xapian.org.
+
+Wed May 21 13:16:39 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Reword, since environmental variable PATH isn't "set by
+	  $PATH".
+
+Wed May 21 13:16:21 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: ixion -> atreus.
+
+Wed May 21 13:12:07 GMT 2008  Olly Betts <olly@survex.com>
+
+	* include/xapian/database.h: Improve documentation comment.
+
+Sun May 18 05:20:29 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* docs/remote_protocol.html: Remove spurious "i" at end of line.
+
+Sat May 17 11:53:54 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/harness/testutils.h: Layout and macro parameter name tweaks.
+
+Fri May 16 20:42:05 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Check that all source databases are the same
+	  type (flint or chert).  Copy over "iamchert" for chert.  Update
+	  terminology - the "meta file" is now called the "version file".
+
+Fri May 16 17:33:22 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/chert/chert_version.cc:
+	  Need <cstdio> for rename().
+
+Fri May 16 17:27:56 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc: Correct FIXME comment and mark
+	  as "FIXME:1.2.0".
+
+Fri May 16 17:21:59 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/harness/testrunner.cc,tests/harness/testrunner.h: Add
+	  condition to test if the backend is "inmemory".
+	* tests/perftest_randomidx.cc: Change the run size from 1000
+	  documents to 1000000.  Disable this test for the inmemory
+	  backend, because it will quickly use up all the memory on the
+	  machine.
+
+Fri May 16 16:56:25 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* HACKING: Add note about some more PDF generation tools which are
+	  needed, and that doxygen requires them to be on PATH.
+
+Fri May 16 16:38:40 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Ubuntu now needs tetex-extra too.
+
+Fri May 16 10:05:30 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Fix to not reject chert databases during the
+	  "up front" check.
+
+Thu May 15 20:20:14 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* net/progclient.cc: Set namespace for close methods (to avoid
+	  conflicting with the close method I'm working on adding to
+	  database internal).
+
+Wed May 14 17:14:53 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/database.cc: Default to flint not chert for a new database.
+
+Wed May 14 17:11:56 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/postingsource.cc,docs/postingsource.rst,
+	  include/xapian/postingsource.h,matcher/externalpostlist.cc:
+	  PostingSource::check() now returns the valid flag rather than
+	  passing it in by reference to be set.  Change "should" to "must"
+	  for the get_termfreq_est() requirement at Richard's suggestion.
+	  Add parameter names to PostingSource method prototypes and update
+	  documentation comments to match.
+
+Wed May 14 15:34:38 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/Makefile.am,docs/index.html,docs/postingsource.rst: Add
+	  topic document for PostingSource.
+
+Mon May 12 17:27:13 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/postingsource.h: Add documentation comments for
+	  ValueWeightPostingSource, and tweak
+	  PostingSource::get_maxweight() comment a bit more.
+
+Mon May 12 16:51:01 GMT 2008  Olly Betts <olly@survex.com>
+
+	* include/xapian/postingsource.h: Clarify get_maxweight() if the
+	  maximum from now on.
+
 Mon May 12 06:51:53 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/postingsource.cc,include/xapian/postingsource.h,tests/api_db.cc,
@@ -550,7 +673,8 @@ Wed Apr 23 02:16:53 GMT 2008  Olly Betts <olly@survex.com>
 
 Wed Apr 23 02:16:10 GMT 2008  Olly Betts <olly@survex.com>
 
-	* include/xapian/query.h: Fix doc comment typo (doesn't affect API docs).
+	* include/xapian/query.h: Fix doc comment typo (doesn't affect API
+	  docs).
 
 Wed Apr 23 00:59:40 GMT 2008  Olly Betts <olly@survex.com>
 
@@ -824,7 +948,7 @@ Thu Apr 10 05:47:37 GMT 2008  Olly Betts <olly@survex.com>
 	  being a problem with using _get_osfhandle() - ReadFile is documented
 	  to behave this way on MSDN.  Factor out update of Offset/OffsetHigh
 	  and tweak this code not to rely on off_t being 64 bits.
- 
+
 Thu Apr 10 05:24:11 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_record.cc,backends/flint/flint_utils.h: Use
@@ -874,7 +998,7 @@ Mon Apr 07 06:20:42 GMT 2008  Olly Betts <olly@survex.com>
 	  tests/harness/backendmanager_remotetcp.cc: Header inclusions tidying
 	  - remove a few redundant inclusions; prefer cstdio to stdio.h, etc
 	  in a few places; note why certain headers are required in cases
-	  where it's less obvious; in a .cc file, include the corresponding .h 
+	  where it's less obvious; in a .cc file, include the corresponding .h
 	  second (after <config.h>).
 
 Mon Apr 07 04:23:30 GMT 2008  Olly Betts <olly@survex.com>

@@ -1,7 +1,7 @@
 /* testutils.h: Xapian-specific test helper functions and macros.
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2007 Olly Betts
+ * Copyright 2002,2003,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,8 +29,7 @@
 // Useful display operators
 
 std::ostream &operator<<(std::ostream &os,
-                         const std::vector<unsigned int> &ints);
-
+			 const std::vector<unsigned int> &ints);
 
 // ######################################################################
 // Useful comparison operators
@@ -53,25 +52,27 @@ inline bool operator!=(const Xapian::MSet &first, const Xapian::MSet &second)
 }
 
 
-void
-mset_expect_order(const Xapian::MSet &A,
-		  Xapian::docid d1 = 0, Xapian::docid d2 = 0, Xapian::docid d3 = 0,
-		  Xapian::docid d4 = 0, Xapian::docid d5 = 0, Xapian::docid d6 = 0,
-		  Xapian::docid d7 = 0, Xapian::docid d8 = 0, Xapian::docid d9 = 0,
-		  Xapian::docid d10 = 0, Xapian::docid d11 = 0, Xapian::docid d12 = 0);
+void mset_expect_order(const Xapian::MSet &A,
+		       Xapian::docid d1 = 0, Xapian::docid d2 = 0,
+		       Xapian::docid d3 = 0, Xapian::docid d4 = 0,
+		       Xapian::docid d5 = 0, Xapian::docid d6 = 0,
+		       Xapian::docid d7 = 0, Xapian::docid d8 = 0,
+		       Xapian::docid d9 = 0, Xapian::docid d10 = 0,
+		       Xapian::docid d11 = 0, Xapian::docid d12 = 0);
 
-void test_mset_order_equal(const Xapian::MSet &mset1, const Xapian::MSet &mset2);
+void test_mset_order_equal(const Xapian::MSet &mset1,
+			   const Xapian::MSet &mset2);
 
 // ######################################################################
 // Useful test macros
 
-/// Check size of mset is as expected
-#define TEST_MSET_SIZE(a, b) TEST_AND_EXPLAIN(((a).size() == (b)), \
-	"MSet `"STRINGIZE(a)"' is not of expected size: was `" << \
-	(a).size() << "' expected `" << (b) << "':\n" << \
-	"Full mset was:\n" << (a))
+/// Check MSet M has size S.
+#define TEST_MSET_SIZE(M, S) TEST_AND_EXPLAIN(((M).size() == (S)), \
+	"MSet `"STRINGIZE(M)"' is not of expected size: was `" << \
+	(M).size() << "' expected `" << (S) << "':\n" << \
+	"Full mset was:\n" << (M))
 
-/// Check that a piece of code throws an expected exception
+/// Check that a piece of code throws an expected exception.
 #define TEST_EXCEPTION(a,b) do {\
 	expected_exception = STRINGIZE(a);\
 	if (strncmp(expected_exception, "Xapian::", 8) == 0)\
@@ -79,12 +80,12 @@ void test_mset_order_equal(const Xapian::MSet &mset1, const Xapian::MSet &mset2)
 	if (verbose)\
 	    tout << "Expecting exception " << expected_exception << endl;\
 	try {b;FAIL_TEST(TESTCASE_LOCN(Expected #a));}\
-	catch(const a &e){\
-	if (verbose)\
-	    tout << "Caught expected " << expected_exception << " exception: "\
-		 << e.get_description() << endl;\
+	catch (const a &e) {\
+	    if (verbose)\
+		tout << "Caught expected " << expected_exception\
+		     << " exception: " << e.get_description() << endl;\
 	}\
 	expected_exception = NULL;\
     } while (0)
 
-#endif  // OM_HGUARD_TESTUTILS_H
+#endif // OM_HGUARD_TESTUTILS_H

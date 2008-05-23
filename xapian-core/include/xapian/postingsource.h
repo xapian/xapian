@@ -51,7 +51,8 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
 
     /** An estimate of the number of documents this object can return.
      *
-     *  It should always be true that:
+     *  It must always be true that:
+     *
      *  get_termfreq_min() <= get_termfreq_est() <= get_termfreq_max()
      */
     virtual Xapian::doccount get_termfreq_est() const = 0;
@@ -59,7 +60,12 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
     /// A upper bound on the number of documents this object can return.
     virtual Xapian::doccount get_termfreq_max() const = 0;
 
-    /** Return an upper bound on what get_weight() can return.
+    /** Return an upper bound on what get_weight() can return from now on.
+     *
+     *  It is valid for the posting source to have returned a higher value from
+     *  get_weight() earlier in the iteration, but the posting source must not
+     *  return a higher value from get_weight() than this return value later in
+     *  the iteration (until reset() has been called).
      *
      *  This default implementation always returns 0, for convenience when
      *  implementing "weight-less" PostingSource subclasses.
@@ -79,45 +85,43 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *  must be called before any methods which need the context of
      *  the current position.
      *
-     *  @param w_min	The minimum weight contribution that is needed (this is
+     *  @param min_wt	The minimum weight contribution that is needed (this is
      *			just a hint which subclasses may ignore).
      */
-    virtual void next(Xapian::weight) = 0;
+    virtual void next(Xapian::weight min_wt) = 0;
 
     /** Skip forward to the specified docid.
      *
      *  If the specified docid isn't in the list, position ourselves on the
      *  first document after it (or at_end() if no greater docids are present).
      *
-     *  @param w_min	The minimum weight contribution that is needed (this is
+     *  @param min_wt	The minimum weight contribution that is needed (this is
      *			just a hint which subclasses may ignore).
      *
      *  The default implementation calls next() repeatedly, which works but
      *  skip_to() can often be implemented much more efficiently.
      */
-    virtual void skip_to(Xapian::docid, Xapian::weight);
+    virtual void skip_to(Xapian::docid did, Xapian::weight min_wt);
 
     /** Check if the specified docid occurs.
      *
-     *  The caller is required to ensure that the specified @a docid actually
-     *  exists in the database.
+     *  The caller is required to ensure that the specified document id
+     *  @a did actually exists in the database.
      *
      *  This method acts like skip_to() if that can be done at little extra
-     *  cost, in which case it then sets @a valid to true.
+     *  cost, in which case it then returns true.
      *
      *  Otherwise it simply checks if a particular docid is present.  If it
-     *  is, @a valid is set to true.  If it isn't, it sets @a valid to
-     *  false, and leaves the position unspecified (and hence the result of
-     *  calling methods which depends on the current position, such as
-     *  get_docid(), are also unspecified).  In this state, next() will
-     *  advance to the first matching position after @a docid, and skip_to()
-     *  will act as it would if the position was the first matching position
-     *  after @a docid.
+     *  is, it returns true.  If it isn't, it returns false, and leaves the
+     *  position unspecified (and hence the result of calling methods which
+     *  depends on the current position, such as get_docid(), are also
+     *  unspecified).  In this state, next() will advance to the first matching
+     *  position after document @a did, and skip_to() will act as it would if
+     *  the position was the first matching position after document @a did.
      *
-     *  The default implementation calls skip_to() and always sets valid to
-     *  true.
+     *  The default implementation calls skip_to() and always returns true.
      */
-    virtual void check(Xapian::docid, Xapian::weight, bool&);
+    virtual bool check(Xapian::docid did, Xapian::weight min_wt);
 
     /// Return true if the current position is past the last entry in this list.
     virtual bool at_end() const = 0;
@@ -142,17 +146,54 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
     virtual std::string get_description() const;
 };
 
+/** A posting source which reads weights from a value slot.
+ *
+ *  This returns entries for all documents in the given database which have a
+ *  non empty values in the specified slot.  It returns a weight calculated by
+ *  applying sortable_unserialise to the value stored in the slot (so the
+ *  values stored should probably have been calculated by applying
+ *  sortable_serialise to a floating point number at index time).
+ *
+ *  For efficiency, this posting source doesn't check that the stored values
+ *  are valid in any way, so it will never raise an exception due to invalid
+ *  stored values.  In particular, it doesn't ensure that the unserialised
+ *  values are positive, which is a requirement for weights.  The behaviour if
+ *  the slot contains values which unserialise to negative values is undefined.
+ */
 class XAPIAN_VISIBILITY_DEFAULT ValueWeightPostingSource : public PostingSource {
+    /// The database we're reading values from.
     Xapian::Database db;
+
+    /// The slot we're reading values from.
     Xapian::valueno valno;
+
+    /// The current document ID (0 to indicate that we haven't started yet).
     Xapian::docid current_docid;
+
+    /// The last document ID in the database.
     Xapian::docid last_docid;
+
+    /// A lower bound on the term frequency.
     Xapian::doccount termfreq_min;
+
+    /// An estimate of the term frequency.
     Xapian::doccount termfreq_est;
+
+    /// An upper bound on the term frequency.
     Xapian::doccount termfreq_max;
+
+    /// The value for the current
     double current_value;
+
+    /// An upper bound on the value returned.
     double max_value;
+
   public:
+    /** Construct a ValueWeightPostingSource.
+     *
+     *  @param db_ The database to read values from.
+     *  @param valno_ The value slot to read values from.
+     */
     ValueWeightPostingSource(Xapian::Database db_, Xapian::valueno valno_);
 
     Xapian::doccount get_termfreq_min() const;
@@ -164,7 +205,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueWeightPostingSource : public PostingSource 
 
     void next(Xapian::weight min_wt);
     void skip_to(Xapian::docid min_docid, Xapian::weight min_wt);
-    void check(Xapian::docid min_docid, Xapian::weight min_wt, bool &valid);
+    bool check(Xapian::docid min_docid, Xapian::weight min_wt);
 
     bool at_end() const;
 

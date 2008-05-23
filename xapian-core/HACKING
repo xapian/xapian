@@ -333,12 +333,18 @@ doxygen (v1.5.2 is used for snapshots and releases; 1.4.6 produced incomplete
 	 documentation for Xapian::Query).
 dot (part of the graphviz package)
 perl 5
-pdflatex (on Debian, tetex-extra is also required for fancyhdr.sty)
+pdflatex (on Debian/Ubuntu, tetex-extra is also required for fancyhdr.sty)
+ghostscript
+epstopdf (usually packaged with TeX)
 makeindex (usually packaged with TeX)
 help2man
 rst2html or rst2html.py (on Debian/Ubuntu, this is provided by the
         python-docutils package)
 pngcrush (optional - used to reduce the size of PNG files in the HTML apidocs)
+
+Note that pdflatex, epstopdf, gs, and makeindex must all currently be on the
+system path (as specified by the environmental variable PATH), since doxygen
+will look for them there.
 
 Building from SVN on Windows with MSVC:
 ---------------------------------------
@@ -1161,7 +1167,7 @@ This is a (hopefully complete) list of the jobs which need doing:
   http://trac.xapian.org/report/12
   Make sure the submitters are mentioned in the "thanks" list in AUTHORS.
 
-* On ixion, svn tag the source trees for the new revision - use the
+* On atreus, svn tag the source trees for the new revision - use the
   svn-tag-release script, running it with the new version number, for example:
 
   xapian-maintainer-tools/svn-tag-release 0.9.0
@@ -1178,10 +1184,10 @@ This is a (hopefully complete) list of the jobs which need doing:
   Check that any bugs with milestone set to the release being made are either
   closed or updated to the milestone you just added.
 
-* Update the website: version.php in the CVS module xapian.org contains the
+* Update the website: version.php in the CVS module www.xapian.org contains the
   latest version and the date it was released.
 
-* Run /u1/olly/xapian-website-update/update_website.sh
+* Run /home/olly/tmp/xapian-website-update/update_website.sh
 
 * Update the wiki:
 
@@ -1228,7 +1234,7 @@ updated as follows:
 
 * Use xapian-maintainer-tools/debian/make-source-packages to make and upload
   new source packages for the various Debian and Ubuntu versions we provide
-  packages for.  Currently this script must be run on ixion.
+  packages for.  Currently this script must be run on atreus.
 
 * Build debs for oldstable, stable, unstable, dapper, edgy, feisty, and gutsy.
   The scripts xapian-maintainer-tools/debian/create-chroot and

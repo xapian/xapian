@@ -486,9 +486,7 @@ Database.termlist = _database_gen_termlist_iter
 
 # Modify Database to add a "spellings()" method.
 def _database_gen_spellings_iter(self):
-    """Get an iterator which returns all the spellings for a given term.
-
-    The term to return spellings for is specified by the `term` parameter.
+    """Get an iterator which returns all the spelling correction targets
 
     The iterator will return TermListItem objects.  Only the term frequency is
     available; wdf and positions are not meaningful.

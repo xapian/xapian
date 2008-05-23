@@ -37,6 +37,39 @@ Mon Dec 10 10:28:25 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 	* python/pythontest.py: Add test_docsim(), to test document
 	  similarity calculations.
 
+Thu May 22 11:53:23 GMT 2008  Olly Betts <olly@survex.com>
+
+	* csharp/docs/index.html,php/docs/index.html,ruby/docs/index.html,
+	  tcl8/docs/index.html: The "program" version of Remote::open() *is*
+	  now wrapped, so update the documentation.
+
+Thu May 22 11:16:54 GMT 2008  Olly Betts <olly@survex.com>
+
+	* python/docs/index.html: Fix typo (Database.synonym and synonym_begin
+	  should be synonyms and synonyms_begin).
+
+Thu May 22 11:07:24 GMT 2008  Olly Betts <olly@survex.com>
+
+	* python/docs/index.html: The "program" version of Remote::open() *is*
+	  now wrapped, so update the documentation.
+
+Sun May 18 05:36:07 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/docs/index.html: Update documentation of pythonic
+	  iterators.
+	* python/extra.i: Correct documentation comment for
+	  Database.spellings().
+
+Thu May 15 09:00:26 GMT 2008  Olly Betts <olly@survex.com>
+
+	* java-swig/Makefile.am: Remove SWIGTYPE_p_bool.java as it is no
+	  longer generated.
+
+Thu May 15 08:11:04 GMT 2008  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Remove SWIGTYPE_p_bool.cs as it is no longer
+	  generated.
+
 Mon May 12 06:51:43 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/pythontest.py: Add test of ValueWeightPostingSource.
