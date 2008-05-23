@@ -516,10 +516,13 @@ InMemoryDatabase::open_position_list(Xapian::docid did,
 }
 
 void
-InMemoryDatabase::add_values(Xapian::docid /*did*/,
+InMemoryDatabase::add_values(Xapian::docid did,
 			     const map<Xapian::valueno, string> &values_)
 {
-    valuelists.push_back(values_);
+    if (did > valuelists.size()) {
+	valuelists.resize(did);
+    }
+    valuelists[did-1] = values_;
 }
 
 // We implicitly flush each modification right away, so nothing to do here.
