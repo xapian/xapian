@@ -105,15 +105,22 @@ ValueRangePostList::next(Xapian::weight)
 {
     Assert(db);
     AssertParanoid(lastdocid == db->get_lastdocid());
-    while (current < lastdocid) {
+    while (current < lastdocid && ++current != 0) {
+	// Wrap both calls to open_document in a try-catch block; in theory,
+	// only the call with lazy=false should raise the
+	// Xapian::DocNotFoundError, but the inmemory database ignores the lazy
+	// flag, so we need to catch the exception from the lazy=true call too.
 	try {
-	    if (++current == 0) break;
 	    AutoPtr<Xapian::Document::Internal> doc(db->open_document(current, true));
 	    string v = doc->get_value(valno);
-	    if (v >= begin && v <= end) return NULL;
+	    if (v >= begin && v <= end) {
+		if (v.empty()) {
+		    delete db->open_document(current, false);
+		}
+		return NULL;
+	    }
 	} catch (const Xapian::DocNotFoundError &) {
-	    // That document doesn't exist.
-	    // FIXME: this could throw and catch a lot of exceptions!
+	    continue;
 	}
     }
     db = NULL;
