@@ -1,3 +1,11 @@
+Sat May 24 19:53:41 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* api/omdatabase.cc: Replace uses of DEBUGLINE(SPELLING, ...) in
+	  Database::get_spelling_suggestion() with standard
+	  DEBUGAPICALL/RETURN tracing.  Add DEBUGAPICALL/RETURN tracing to
+	  a few Database methods which were missing it.
+
 Sat May 24 19:49:51 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
