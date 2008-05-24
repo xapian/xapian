@@ -1,3 +1,10 @@
+Sat May 24 19:01:38 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* AUTHORS: Add Matthew Somerville for Search::Xapian patches.
+	* AUTHORS: Add Alexandre Gauthier, for supplying a method for doing
+	  python packaging for Windows.
+
 Sat May 24 18:57:21 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
