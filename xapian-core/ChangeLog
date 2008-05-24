@@ -1,3 +1,11 @@
+Sat May 24 21:36:40 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* common/utils.cc,common/utils.h: Add "dir_exists" function, to
+	  check for presence of a directory at a given path.
+	* bin/xapian-inspect.cc: Add '#include "utils.h"' so previous
+	  backported change actually compiles (cough).
+
 Sat May 24 20:10:03 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

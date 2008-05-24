@@ -74,6 +74,11 @@ string om_tostring(const void * a);
 XAPIAN_VISIBILITY_DEFAULT
 bool file_exists(const string &fname);
 
+/** Return true if the directory dirname exists.
+ */
+XAPIAN_VISIBILITY_DEFAULT
+bool dir_exists(const string &dirname);
+
 /// Allow atoi to work directly on C++ strings.
 inline int atoi(const string &s) { return atoi(s.c_str()); }
 
