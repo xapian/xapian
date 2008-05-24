@@ -3,20 +3,9 @@ Thu Mar 06 01:44:07 GMT 2008  Olly Betts <olly@survex.com>
 
 HEAD only:
 
-QueryParser sped up (new very of lemon; stop parsing upon syntax error).
-queryparsertest runs 2.2% faster
+QueryParser sped up (new version of lemon); queryparsertest runs 2.2% faster
 
 * database replication
-
-* HACKING: Add note about preferring std::string().
-
-	* xapian-config.in: Add swigheaders option, listing the header
-	  files used by swig, so that we can add the appropriate
-	  dependencies to the makefiles in the bindings.
-	* xapian-config.in: Use globbing rather than iterating over the output
-	  of ls.
-	* xapian-config.in: Fix not to repeat headers in --swigheaders in a
-	  non-VPATH build.
 
 	* backends/flint/: Improve reporting of failures to obtain lock due
 	  to unexpected errors - the error messages included in the
@@ -55,9 +44,105 @@ queryparsertest runs 2.2% faster
 	  it passes.  Test needs to be expanded to check that the database
 	  copy succeeded better.
 
-Thu Jan 24 13:31:20 GMT 2008  Olly Betts <olly@survex.com>
+Xapian-core 1.0.7 (2008-0?-??):
 
-Xapian-core 1.0.6 (2008-03-??):
+API:
+
+* OP_VALUE_RANGE, OP_VALUE_GE, and OP_VALUE_LE could return document ids
+  which weren't present in the database (if there were gaps in the numbering).
+  This has been fixed.
+
+* Xapian::QueryParser now stops parsing when it hits a syntax error.  This
+  doesn't change behaviour, but does mean failing to parse queries is now
+  more efficient.
+
+* Setting sort by value was being ignored by a Xapian::Enquire object which had
+  previously had a Xapian::Sorter set (bug#256).
+
+testsuite:
+
+
+matcher:
+
+
+flint backend:
+
+* If Database::reopen() is called and the database revision on disk hasn't
+  changed, then do as little work as possible.  Even if it has changed, don't
+  bother to recheck the version file (bug#261).
+
+* xapian-compact:
+
+  + Fix check for user metadata key to not match other key types we may add in
+    the future.  When compacting, we can't assume how we should handle them.
+
+  + If the same user metadata key is present in more than one source database
+    with different tag values, issue a warning and copy an arbitrary tag value.
+
+  + Fix potential SEGV when compacting database(s) with user metadata but no
+    postings.
+
+* Fix cursor handling for a modified table which has previously only had
+  sequential updates which usually manifested as zlib errors (bug#259).
+
+quartz backend:
+
+* Fix cursor handling for a modified table which has previously only had
+  sequential updates which usually manifested as incorrect data being returned
+  (bug#259).
+
+remote backend:
+
+* When remote protocol version doesn't match, the error message displayed 
+  now shows the minor version number supplied by the server correctly.
+
+inmemory backend:
+
+* Fix bug which resulted in the values not being stored correctly when
+  replacing an existing document, or if there are gaps in the document id
+  numbering.
+
+build system:
+
+* Improve code to prevent pointlessly probing for f77, gcj, and rc.
+
+* Fix "make distcheck" by using dist-hook to install generated files from
+  either srcdir or builddir, with the appropriate dependency to generate them
+  automatically in maintainer mode builds.
+
+documentation:
+
+* The documentation now links to trac instead of bugzilla.  For links to the
+  main website, we now prefer xapian.org to www.xapian.org.
+
+* Doxygen-generated API documentation:
+
+  + Improved documentation in several places.
+
+  + The helper macro XAPIAN_VISIBILITY_DEFAULT no longer appears in the output.
+
+  + Header and directory relationship graphs are no longer generated as they
+    aren't actually informative here.
+
+* Several improvements to the doxygen-generated API documentation.
+
+* HACKING: Numerous updates and improvements.
+
+examples:
+
+
+portability:
+
+* Fix build with GCC 2.95.3.
+
+packaging:
+
+
+debug code:
+
+
+
+Xapian-core 1.0.6 (2008-03-17):
 
 API:
 
@@ -86,10 +171,11 @@ flint backend:
 * Update the base files atomically to avoid problems with reading processes
   finding partially written ones.
 
-* Create lazy tables with the correct revision to avoid produce a database
+* Create lazy tables with the correct revision to avoid producing a database
   which we later report as "corrupt" (bug#232).
 
-* xapian-compact: Fix compaction for database which contain user metadata keys.
+* xapian-compact: Fix compaction for databases which contain user metadata
+  keys.
 
 quartz backend:
 
@@ -104,9 +190,6 @@ remote backend:
 * Fix to actually set the writing half as the connection as non-blocking when
   a timeout is specified.  This would have prevented timeouts from operating
   correctly in some situations.
-
-inmemory backend:
-
 
 build system:
 
@@ -141,17 +224,11 @@ documentation:
   Separate out 0.9.x reports.  Add Solaris 9 and 10 success reports from James
   Aylett.  Update from Debian buildd logs.
 
-examples:
-
-
 portability:
 
 * Now builds on OS/2, thanks to a patch by Yuri Dario.
 
 * Fix testsuite to build on mingw (broken by changes in 1.0.5).
-
-packaging:
-
 
 debug code:
 
