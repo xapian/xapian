@@ -1,3 +1,10 @@
+Sat May 24 20:10:03 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* bin/xapian-inspect.cc: Check for the user passing a database
+	  directory and issue a special error message since this is an obvious
+	  mistake to make.
+
 Sat May 24 20:07:55 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
