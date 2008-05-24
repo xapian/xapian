@@ -1,3 +1,14 @@
+Sat May 24 22:38:49 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/multimatch.cc: Modify the estimate for the number of hits
+	  based on the rate at which a match decider has been denying
+	  documents.  Also, reduce the upper bound based on the number of
+	  documents denied.
+	* tests/api_db.cc: Check that the upper bound when a match decider
+	  is used is within the valid range, rather than a particular
+	  value.
+
 Sat May 24 22:17:10 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
