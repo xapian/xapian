@@ -197,9 +197,11 @@ merge_postlists(FlintTable * out, vector<Xapian::docid>::const_iterator offset,
 	}
     }
 
-    string tag = F_pack_uint(tot_off);
-    tag += F_pack_uint_last(tot_totlen);
-    out->add(string("", 1), tag);
+    {
+	string tag = F_pack_uint(tot_off);
+	tag += F_pack_uint_last(tot_totlen);
+	out->add(string("", 1), tag);
+    }
 
     string last_key;
     // Merge user metadata.

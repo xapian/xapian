@@ -1,3 +1,13 @@
+Sat May 24 12:14:55 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/Makefile.am: Put special -I options in foo_CPPFLAGS not
+	  foo_CXXFLAGS.  As well as being the more correct place, this also
+	  means that AM_CXXFLAGS is now used when compiling xapian-check and
+	  xapian-compact, which in particular enables compiler warnings.
+	* bin/xapian-check.cc,bin/xapian-compact.cc,bin/xapian-check-flint.cc:
+	  Fix warnings (one unused variable and a few cases of a variable
+	  masking another with the same name - none problematic in practice).
+
 Fri May 23 09:22:24 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* backends/inmemory/inmemory_database.cc: Fix bug in inmemory

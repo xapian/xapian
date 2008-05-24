@@ -642,13 +642,13 @@ check_flint_table(const string & tablename, string filename, int opts,
 		vector<Xapian::termpos>::const_iterator current_pos = positions.begin();
 		Xapian::termpos lastpos = *current_pos++;
 		while (current_pos != positions.end()) {
-		    Xapian::termpos pos = *current_pos++;
-		    if (pos <= lastpos) {
+		    Xapian::termpos termpos = *current_pos++;
+		    if (termpos <= lastpos) {
 			cout << tablename << " table: Positions not strictly monotonically increasing" << endl;
 			++errors;
 			break;
 		    }
-		    lastpos = pos;
+		    lastpos = termpos;
 		}
 	    }
 
