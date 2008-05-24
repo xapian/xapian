@@ -1,3 +1,8 @@
+Sat May 24 16:39:44 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* NEWS: Fix missing line in old entry.
+
 Sat May 24 16:26:55 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog for 1.0.7.

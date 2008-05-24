@@ -703,6 +703,7 @@ API:
     but less tightly than "AND" (previously it bound just like "OR").
 
   + '+' and '-' have been fixed to work on bracketed subexpressions as
+    documented.
 
   + If the stemmer is "none", no longer put a Z prefix on terms; this now
     matches the output of TermGenerator.
