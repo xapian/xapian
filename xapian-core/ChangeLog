@@ -1,3 +1,12 @@
+Sat May 24 19:42:59 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* api/omqueryinternal.cc,common/: Stop describing get_description() as
+	  an "Introspection method" internal (matching earlier change to stop
+	  doing so externally).  This doesn't help to explain what it does,
+	  and get_description() doesn't actually fall under any of the formal
+	  definitions of "introspection" I can find.
+
 Sat May 24 19:35:31 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:

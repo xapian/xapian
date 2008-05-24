@@ -235,7 +235,6 @@ Xapian::Query::Internal::get_op_name(Xapian::Query::Internal::op_t op)
     return name;
 }
 
-// Introspection
 string
 Xapian::Query::Internal::get_description() const
 {

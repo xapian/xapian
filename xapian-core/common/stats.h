@@ -84,9 +84,7 @@ class Stats {
 	 */
 	void set_reltermfreq(const string & tname, Xapian::doccount rtfreq);
 
-	/** Introspection method.
-	 *  @return  A string representing the Stats object.
-	 */
+	/// Return a string describing this object.
 	string get_description() const;
 
 
