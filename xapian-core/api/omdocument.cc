@@ -249,14 +249,13 @@ OmDocumentTerm::remove_position(Xapian::termpos tpos)
 string
 OmDocumentTerm::get_description() const
 {
-    DEBUGCALL(INTRO, string, "OmDocumentTerm::get_description", "");
     string description;
 
     description = "OmDocumentTerm(" + tname +
 	    ", wdf = " + om_tostring(wdf) +
 	    ", positions[" + om_tostring(positions.size()) + "]" +
 	    ")";
-    RETURN(description);
+    return description;
 }
 
 string

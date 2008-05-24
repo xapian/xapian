@@ -1,3 +1,16 @@
+Sat May 24 19:49:51 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* api/,queryparser/queryparser.cc: Remove debug log tracing from
+	  get_description() methods since the debug log call tracing *calls*
+	  get_description() methods on parameters, so logging these calls just
+	  makes for more confusing debug logs.  A get_description() method
+	  should have no side-effects so it's not very interesting even when
+	  explicitly called by the user.
+	* common/omdebug.h: Replace "OM_DEBUG_INTRO" class with dummy
+	  placeholder (to preserve numbering), to help prevent accidentally
+	  adding these back.
+
 Sat May 24 19:42:59 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

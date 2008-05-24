@@ -204,11 +204,10 @@ Query::~Query()
 std::string
 Query::get_description() const
 {
-    DEBUGCALL(INTRO, std::string, "Xapian::Query::get_description", "");
     std::string res("Xapian::Query(");
     if (internal.get()) res += internal->get_description();
     res += ")";
-    RETURN(res);
+    return res;
 }
 
 termcount Query::get_length() const
