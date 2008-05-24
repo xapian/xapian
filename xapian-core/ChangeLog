@@ -1,3 +1,11 @@
+Sat May 24 22:17:10 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/api_db.cc: Test matchfunctor bounds in combination with
+	  collapsing and percentage cutoff.  Also, range check
+	  get_matches_estimated rather than checking it's exactly the value
+	  currently returned.
+
 Sat May 24 21:42:08 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
