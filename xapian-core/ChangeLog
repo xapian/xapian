@@ -1,3 +1,9 @@
+Sat May 24 14:42:31 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* bin/xapian-compact.cc: Only warn about duplicate user metadata keys
+	  if the tags aren't the same.
+
 Sat May 24 14:40:49 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
