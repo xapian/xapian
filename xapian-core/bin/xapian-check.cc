@@ -776,14 +776,14 @@ check_table(string filename, int opts)
 		vector<Xapian::termpos>::const_iterator current_pos = positions.begin();
 		Xapian::termpos lastpos = *current_pos++;
 		while (current_pos != positions.end()) {
-		    Xapian::termpos pos = *current_pos++;
-		    if (pos <= lastpos) {
+		    Xapian::termpos termpos = *current_pos++;
+		    if (termpos <= lastpos) {
 			cout << tablename << " table: Positions not strictly monotonically increasing" << endl;
 			++errors;
 			cursor->next();
 			continue;
 		    }
-		    lastpos = pos;
+		    lastpos = termpos;
 		}
 	    }
 

@@ -57,27 +57,27 @@ EXTRA_PROGRAMS +=\
 # We work around this with a clean-local: rule, in the top level Makefile.am
 extra_cleandirs += bin/.libs bin/_libs
 
-bin_quartzcheck_CXXFLAGS = -I$(top_srcdir)/backends/quartz
+bin_quartzcheck_CPPFLAGS = -I$(top_srcdir)/backends/quartz
 bin_quartzcheck_SOURCES = bin/quartzcheck.cc
 bin_quartzcheck_LDADD = $(ldflags) libquartzcheck.la libxapian.la
 
-bin_quartzcompact_CXXFLAGS = -I$(top_srcdir)/backends/quartz
+bin_quartzcompact_CPPFLAGS = -I$(top_srcdir)/backends/quartz
 bin_quartzcompact_SOURCES = bin/quartzcompact.cc
 bin_quartzcompact_LDADD = $(ldflags) libgetopt.la libxapian.la
 
-bin_quartzdump_CXXFLAGS = -I$(top_srcdir)/backends/quartz
+bin_quartzdump_CPPFLAGS = -I$(top_srcdir)/backends/quartz
 bin_quartzdump_SOURCES = bin/quartzdump.cc
 bin_quartzdump_LDADD = $(ldflags) libgetopt.la libxapian.la
 
-bin_xapian_check_CXXFLAGS = -I$(top_srcdir)/backends/flint
+bin_xapian_check_CPPFLAGS = -I$(top_srcdir)/backends/flint
 bin_xapian_check_SOURCES = bin/xapian-check.cc
 bin_xapian_check_LDADD = $(ldflags) libflintcheck.la libxapian.la
 
-bin_xapian_compact_CXXFLAGS = -I$(top_srcdir)/backends/flint
+bin_xapian_compact_CPPFLAGS = -I$(top_srcdir)/backends/flint
 bin_xapian_compact_SOURCES = bin/xapian-compact.cc
 bin_xapian_compact_LDADD = $(ldflags) libgetopt.la libxapian.la
 
-bin_xapian_inspect_CXXFLAGS = -I$(top_srcdir)/backends/flint
+bin_xapian_inspect_CPPFLAGS = -I$(top_srcdir)/backends/flint
 bin_xapian_inspect_SOURCES = bin/xapian-inspect.cc
 bin_xapian_inspect_LDADD = $(ldflags) libgetopt.la libxapian.la
 

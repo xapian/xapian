@@ -1,3 +1,14 @@
+Sat May 24 14:40:49 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* bin/Makefile.am: Put special -I options in foo_CPPFLAGS not
+	  foo_CXXFLAGS.  As well as being the more correct place, this also
+	  means that AM_CXXFLAGS is now used when compiling xapian-check and
+	  xapian-compact, which in particular enables compiler warnings.
+	* bin/xapian-check.cc,bin/xapian-compact.cc: Fix warnings (a few cases
+	  of a variable masking another with the same name - none problematic
+	  in practice).
+
 Fri May 23 09:28:58 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* Backport change from trunk:
