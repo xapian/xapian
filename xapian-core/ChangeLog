@@ -1,3 +1,9 @@
+Sat May 24 18:57:21 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* bin/xapian-compact.cc: Update terminology - the "meta file" is now
+	  called the "version file".
+
 Sat May 24 16:39:44 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

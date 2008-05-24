@@ -1010,9 +1010,9 @@ main(int argc, char **argv)
 	    cout << endl;
 	}
 
-	// Copy the "iamflint" meta file over.
+	// Copy over the version file ("iamflint").
 	// FIXME: We may need to do something smarter that just copying an
-	// arbitrary meta file if the meta file format changes...
+	// arbitrary version file if the version file format changes...
 	string dest = destdir;
 	dest += "/iamflint.tmp";
 
@@ -1028,8 +1028,8 @@ main(int argc, char **argv)
 		     << strerror(errno) << endl;
 		exit(1);
 	    }
-	    // metafile should be about 12 bytes, not > 1024!
-	    cerr << argv[0] << ": metafile '" << src << "' too large!"
+	    // Version file should be about 12 bytes, not > 1024!
+	    cerr << argv[0] << ": version file '" << src << "' too large!"
 		 << endl;
 	    exit(1);
 	}
@@ -1041,11 +1041,11 @@ main(int argc, char **argv)
 	}
 	output.close();
 
-	string meta = destdir;
-	meta += "/iamflint";
-	if (rename(dest.c_str(), meta.c_str()) == -1) {
+	string version = destdir;
+	version += "/iamflint";
+	if (rename(dest.c_str(), version.c_str()) == -1) {
 	    cerr << argv[0] << ": cannot rename '" << dest << "' to '"
-		 << meta << "': " << strerror(errno) << endl;
+		 << version << "': " << strerror(errno) << endl;
 	    exit(1);
 	}
     } catch (const Xapian::Error &error) {
