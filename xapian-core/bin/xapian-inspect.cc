@@ -53,8 +53,8 @@ static void
 display_nicely(const string & data) {
     string::const_iterator i;
     for (i = data.begin(); i != data.end(); ++i) {
-	char ch = *i;
-	if (static_cast<unsigned char>(ch) < 32 || ch == 127) {
+	unsigned char ch = *i;
+	if (ch < 32 || ch >= 127) {
 	    switch (ch) {
 		case '\n': cout << "\\n"; break;
 		case '\r': cout << "\\r"; break;

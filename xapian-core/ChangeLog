@@ -1,3 +1,9 @@
+Sat May 24 21:42:08 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* bin/xapian-inspect.cc: Print top-bit-set characters as escaped
+	  hex forms as they often won't be valid UTF-8 sequences.
+
 Sat May 24 21:36:40 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
