@@ -941,11 +941,11 @@ def test_postingsource():
     del db
     shutil.rmtree(dbpath)
 
-def test_postingsource():
+def test_postingsource2():
     """Simple test of the PostingSource class.
 
     """
-    dbpath = 'db_test_postingsource'
+    dbpath = 'db_test_postingsource2'
     db = xapian.WritableDatabase(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
     vals = (6, 9, 4.5, 4.4, 4.6, 2, 1, 4, 3, 0)
     for id in xrange(10):

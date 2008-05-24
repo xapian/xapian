@@ -1,3 +1,8 @@
+Sat May 24 08:51:22 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/pythontest.py: Rename one of the two test_postingsource()
+	  functions, so that they both get run!
+
 Thu May 22 11:53:23 GMT 2008  Olly Betts <olly@survex.com>
 
 	* csharp/docs/index.html,php/docs/index.html,ruby/docs/index.html,
