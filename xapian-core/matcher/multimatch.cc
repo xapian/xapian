@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
  * Copyright 2003 Orange PCS Ltd
  * Copyright 2003 Sam Liddicott
  * Copyright 2007 Lemur Consulting Ltd
@@ -396,18 +396,21 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     recalculate_w_max = false;
 
     Xapian::doccount matches_upper_bound = pl->get_termfreq_max();
-    Xapian::doccount matches_lower_bound = pl->get_termfreq_min();
+    Xapian::doccount matches_lower_bound = 0;
     Xapian::doccount matches_estimated   = pl->get_termfreq_est();
+
+    if (mdecider == NULL && matchspy == NULL) {
+	// If we have a matcher decider or match spy, the lower bound must be
+	// set to 0 as we could discard all hits.  Otherwise set it to the
+	// minimum number of entries which the postlist could return.
+	matches_lower_bound = pl->get_termfreq_min();
+    }
 
     // Check if any results have been asked for (might just be wanting
     // maxweight).
     if (check_at_least == 0) {
 	delete pl;
-	if (mdecider != NULL || matchspy != NULL) {
-	    // Lower bound must be set to 0 as the match decider could discard
-	    // all hits.
-	    matches_lower_bound = 0;
-	} else if (collapse_key != Xapian::BAD_VALUENO) {
+	if (collapse_key != Xapian::BAD_VALUENO) {
 	    // Lower bound must be set to no more than 1, since it's possible
 	    // that all hits will be collapsed to a single hit.
 	    if (matches_lower_bound > 1) matches_lower_bound = 1;
