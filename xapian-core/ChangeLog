@@ -1,3 +1,8 @@
+Sat May 24 14:30:59 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Only warn about duplicate user metadata keys
+	  if the tags aren't the same.
+
 Sat May 24 12:14:55 GMT 2008  Olly Betts <olly@survex.com>
 
 	* bin/Makefile.am: Put special -I options in foo_CPPFLAGS not

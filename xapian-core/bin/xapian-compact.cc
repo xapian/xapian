@@ -204,24 +204,30 @@ merge_postlists(FlintTable * out, vector<Xapian::docid>::const_iterator offset,
     }
 
     string last_key;
-    // Merge user metadata.
-    while (!pq.empty()) {
-	PostlistCursor * cur = pq.top();
-	const string& key = cur->key;
-	if (!is_user_metadata_key(key)) break;
+    {
+	// Merge user metadata.
+	string last_tag;
+	while (!pq.empty()) {
+	    PostlistCursor * cur = pq.top();
+	    const string& key = cur->key;
+	    if (!is_user_metadata_key(key)) break;
 
-	if (key == last_key) {
-	    cerr << "Warning: duplicate user metadata key - picking arbitrary tag value" << endl;
-	} else {
-	    out->add(key, cur->tag);
-	    last_key = key;
-	}
+	    const string & tag = cur->tag;
+	    if (key == last_key) {
+		if (tag != last_tag)
+		    cerr << "Warning: duplicate user metadata key with different tag value - picking arbitrary tag value" << endl;
+	    } else {
+		out->add(key, tag);
+		last_key = key;
+		last_tag = tag;
+	    }
 
-	pq.pop();
-	if (cur->next()) {
-	    pq.push(cur);
-	} else {
-	    delete cur;
+	    pq.pop();
+	    if (cur->next()) {
+		pq.push(cur);
+	    } else {
+		delete cur;
+	    }
 	}
     }
 
