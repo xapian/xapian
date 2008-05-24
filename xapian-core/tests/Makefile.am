@@ -13,7 +13,10 @@ TESTS_ENVIRONMENT = ./runtest
 
 .PHONY: check-none check-inmemory check-multi \
         check-remote check-remoteprog check-remotetcp \
-        check-flint check-quartz
+        check-flint check-quartz up
+
+up:
+	cd .. && $(MAKE)
 
 check-none: apitest$(EXEEXT) \
             internaltest$(EXEEXT) \

@@ -1,3 +1,9 @@
+Sat May 24 19:56:07 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/Makefile.am: "make up" in tests now does "make" in the
+	  top-level.
+
 Sat May 24 19:53:41 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
