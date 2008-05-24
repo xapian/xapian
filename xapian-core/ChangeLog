@@ -1,3 +1,12 @@
+Sat May 24 23:32:27 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* api/omqueryinternal.cc: Optimise Query(OP_VALUE_GE, <n>, "") to
+	  Query::MatchAll.
+	* tests/api_nodb.cc: Add testcase for this case.
+	* api/omqueryinternal.cc: Initialise term_pos in previous change to
+	  fix valgrind-detected error.
+
 Sat May 24 22:38:49 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

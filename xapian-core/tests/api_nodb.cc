@@ -388,3 +388,10 @@ DEFINE_TESTCASE(scaleweight4, !backend) {
 
     return true;
 }
+
+// Check that Query(OP_VALUE_GE, 0, "") -> Query::MatchAll.
+DEFINE_TESTCASE(opvaluege1, !backend) {
+    Xapian::Query query(Xapian::Query::OP_VALUE_GE, 0, "");
+    TEST_STRINGS_EQUAL(query.get_description(), Xapian::Query::MatchAll.get_description());
+    return true;
+}
