@@ -1,5 +1,5 @@
 up to:
-Sat May 24 14:42:31 GMT 2008  Olly Betts <olly@survex.com>
+Sun May 25 00:26:38 GMT 2008  Olly Betts <olly@survex.com>
 
 Xapian-core 1.0.7 (2008-0?-??):
 
@@ -16,8 +16,19 @@ API:
 * Setting sort by value was being ignored by a Xapian::Enquire object which had
   previously had a Xapian::Sorter set (bug#256).
 
+* When using a MatchDecider, Enquire::get_mset() wasn't reducing
+  matches_lower_bound unless all the potential results were retrieved, which
+  led to the lower bound being incorrect in some such cases.
+
+* When using a MatchDecider, Enquire::get_mset() now tracks how many documents
+  were tested and were rejected, and sets matches_estimated based on this rate.
+  Also, matches_upper_bound is reduced by the number of rejected documents.
+
+* Optimise Query(OP_VALUE_GE, <n>, "") to Query::MatchAll.
+
 testsuite:
 
+* Improved test coverage in a couple of places.
 
 matcher:
 
@@ -39,14 +50,33 @@ flint backend:
   + Fix potential SEGV when compacting database(s) with user metadata but no
     postings.
 
+  + In error message, refer to "iamflint" as the "version file", not the
+    "meta file".
+
+* xapian-inspect:
+
+  + Print top-bit-set characters as escaped hex forms as they often won't be
+    valid UTF-8 sequences.
+
+  + If we're passed a database directory rather than a single table, issue a
+    special error message since this is an obvious mistake for users to make.
+
 * Fix cursor handling for a modified table which has previously only had
   sequential updates which usually manifested as zlib errors (bug#259).
+
+* Use 32 bit integers for most of flint's internal integer types on all
+  platforms for consistency (previously we used "long" everywhere, which is 64
+  bit on most 64 bit platforms, and 32 bits on other platforms).
 
 quartz backend:
 
 * Fix cursor handling for a modified table which has previously only had
   sequential updates which usually manifested as incorrect data being returned
   (bug#259).
+
+* Use 32 bit integers for most of quartz's internal integer types on all
+  platforms for consistency (previously we used "long" everywhere, which is 64
+  bit on most 64 bit platforms, and 32 bits on other platforms).
 
 remote backend:
 
@@ -60,6 +90,11 @@ inmemory backend:
   numbering.
 
 build system:
+
+* Fix configure to recognise --enable-log=profile and fix build problems when
+  this is enabled.
+
+* "make up" in the "tests" subdirectory now does "make" in the top-level.
 
 * Improve code to prevent pointlessly probing for f77, gcj, and rc.
 
@@ -97,7 +132,16 @@ packaging:
 
 debug code:
 
+* Database::get_spelling_suggestion() now debug logs with category APICALL
+  rather than SPELLING, for consistency with all other API methods.
 
+* Added APICALL logging to a few Database methods which didn't have it.
+
+* Remove debug log tracing from get_description() methods since logging for
+  other methods calls get_description() methods on parameters, so logging these
+  calls just makes for more confusing debug logs.  A get_description() method
+  should have no side-effects so it's not very interesting even when explicitly
+  called by the user.
 
 Xapian-core 1.0.6 (2008-03-17):
 
