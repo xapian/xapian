@@ -1,3 +1,11 @@
+Sun May 25 00:04:51 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/flint/flint_table.cc,backends/flint/flint_table.h:
+	  Gently rearrange where and how we check for overlong keys.
+	* tests/api_wrdb.cc: Extend termtoolong1 to test that the "term too
+	  long" exception messages contain the length correctly.
+
 Sat May 24 23:32:27 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
