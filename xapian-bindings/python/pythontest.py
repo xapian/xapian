@@ -751,7 +751,7 @@ def test_synonyms_iter():
     """Test iterators over list of synonyms in a database.
 
     """
-    dbpath = 'flinttest_synonyms_iter'
+    dbpath = 'db_test_synonyms_iter'
     db = xapian.WritableDatabase(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
 
     db.add_synonym('hello', 'hi')
@@ -797,7 +797,7 @@ def test_spell():
     """Test basic spelling correction features.
 
     """
-    dbpath = 'flinttest_spell'
+    dbpath = 'db_test_spell'
     db = xapian.WritableDatabase(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
 
     db.add_spelling('hello')

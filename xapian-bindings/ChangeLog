@@ -1,3 +1,9 @@
+Sun May 25 19:51:59 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* python/pythontest.py: Remove references to "flint" from test
+	  database names (use "db_" instead).
+
 Sun May 25 18:30:33 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
