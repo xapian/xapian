@@ -1,11 +1,122 @@
-upto:
-Thu Mar 06 01:44:07 GMT 2008  Olly Betts <olly@survex.com>
+up to:
+Sat May 24 16:38:49 GMT 2008  Olly Betts <olly@survex.com>
 
 HEAD only:
 
+	* api/omenquire.cc,common/,expand/Makefile.mk,expand/esetinternal.cc,
+	  expand/expand.cc: Rewrite class ESet::Internal, incorporating the
+	  functionality which used to be in the internal OmExpand class.  The
+	  expand operation now uses a min heap rather than calling
+	  nth_element() repeatedly - this should reduce the complexity of the
+	  expand operation by a factor of n/log(n) where n is the requested
+	  ESet size.
+
+	* tests/harness/testrunner.cc,tests/harness/testrunner.h: Add
+	  condition to test if the backend is "inmemory".
+	* tests/perftest_randomidx.cc: Change the run size from 1000
+	  documents to 1000000.  Disable this test for the inmemory
+	  backend, because it will quickly use up all the memory on the
+	  machine.
+
+	* api/Makefile.mk,api/omquery.cc,api/omqueryinternal.cc,
+	  include/Makefile.mk,include/xapian.h,include/xapian/query.h,matcher/,
+	  tests/api_db.cc: Add support for Xapian::PostingSource.
+	* docs/Makefile.am,docs/index.html,docs/postingsource.rst: Add
+	  topic document for PostingSource.
+	* api/postingsource.cc,include/xapian/postingsource.h,tests/api_db.cc,
+	  tests/harness/index_utils.cc: Add ValueWeightPostingSource, which
+	  reads a value, applies sortable_unserialise() to it, and returns
+	  that as the weight for each document.
+
+	* common/omassert.h: Add AssertEqDoubleParanoid().
+	* matcher/multimatch.cc: Use it instead of home-brewed version.
+
+* Start new development backend "chert".  Currently only the change over flint is
+	  that in the postlist table, doclengths are stored once in a
+	  chunked postlist-like form, rather than once per posting.
+
+* include/xapian/enquire.h: Change definition of MSet::get_termfreq()
+	  such that it will fall back to looking the term frequency up in
+	  the database rather than raising an exception if the term is not
+	  present in the mset.
+
+	* tests/: Use copies of freemem.cc and freemem.h from omega to report
+	  the free physical memory at each stage of indexing.  Also, add a
+	  get_total_physical_memory() function to this, and report its
+	  value at the top of the results file (only tested on Linux so
+	  far).
+
+	* api/omdatabase.cc,backends/database.cc,backends/flint/,
+	  common/database.h,include/xapian/database.h: Add
+	  metadata_keys_begin() and metadata_keys_end() methods to
+	  Database, to allow the complete list of metadata in a database to
+	  be retrieved.  Supports a prefix argument to obtain a limited
+	  subset of the keys, since that may be useful in some situations
+	  and is very easy to implement.  Only accesses the keys in the
+	  first database in a multidatabase situation (which corresponds
+	  with the current behaviour of get_metadata()).
+
+	* tests/perftest.cc,tests/perftest.h: Log indexing runs every 5
+	  seconds, as well as after every 1000 documents - gives useful
+	  information for slow index runs.
+	* tests/Makefile.am,tests/perftest_randomidx.cc: Add a new
+	  performance test which builds a randomly generated index, and
+	  times the index run.  Probably wants a bit more tweaking to make
+	  it slightly more representative, but should be a useful test to
+	  run on systems where downloading a large amount of data is
+	  impractical.
+	* tests/perftest.cc: Flush after each write, so we can monitor
+	  progress of long running tests (we might need to remove this
+	  again later, if profiling shows it has a noticeable impact).  Fix
+	  two calls to write() to be a single call.
+	* tests/perftest_randomidx.cc: Add values to different slots; I'd
+	  added them all to slot 0 by mistake, so they were overwriting
+	  each other.
+
+	* Makefile.am,tests/,tests/harness/,tests/perftest.cc,tests/perftest.h,
+	  tests/perftest_matchdecider.cc: Rework the test collation
+	  mechanism slightly to allow it to be used by other testsuites:
+	  rename collate-apitest to collate-test, and add a parameter to it
+	  naming the output file.  Add new "testrunner.h" and
+	  "testrunner.cc" which are an equivalent to the old mechanism in
+	  apitest for running tests with various properties; the properties
+	  for each backend are now held as member variables of a TestRunner
+	  class, and testsuites (eg, apitest) subclass this and implement a
+	  "run()" method, which will be called for each backend with the
+	  appropriate properties set.  Move definition of DEFINE_TESTCASE
+	  macro into testsuite.h.  Add new testsuite "perftest", which is
+	  intended to contain potentially time consuming performance tests,
+	  logging the results to an XML file for later analysis.  Add a
+	  simple test of the ValueSetMatchDeciders to this testsuite.
+	  "perftest" isn't run by make check, because it is likely to take
+	  some hours to complete in future - instead, there's a new
+	  top-level target "check-perf" which builds and runs perftest.
+	* configure.ac,tests/perftest.cc,tests/submitperftest.py.in,
+	  tests/urllib2_file.py: Fix display of upper bound on number of
+	  results of search (was showing lower bound).  Fix display of
+	  closing <repetition> tags.  Add script to submit the results of a
+	  performance test to a central server.
+
+	  Add ValueSetMatchDecider,
+	  which is a matchdecider which is intended to be passed a set of
+	  values to look for in documents, and selects documents based on
+	  the presence of those values.
+
+* Calling RSet:add_document() with argument 0 now throws InvalidArgumentError.
+
+* stemtest: No longer checks environment variables OM_STEMTEST_SKIP_RANDOM,
+  OM_STEMTEST_LANGUAGES, and OM_STEMTEST_SEED.
+
 QueryParser sped up (new version of lemon); queryparsertest runs 2.2% faster
 
-* database replication
+* All deprecated xapian-core features listed for removal in 1.1.0 have been
+  removed.  For details, and suggested updates, see deprecation.html.
+
+* The remote database protocol major version has been increased, allowing
+  a significant amount of compatibility code to be removed.  This change means
+  that new clients won't work with old servers, and old clients won't work
+  with new servers.  If upgrading a live system, you will need to take this
+  into account.
 
 	* backends/flint/: Improve reporting of failures to obtain lock due
 	  to unexpected errors - the error messages included in the
@@ -15,14 +126,14 @@ QueryParser sped up (new version of lemon); queryparsertest runs 2.2% faster
 	  useful to know that the lock attempt failed than that the
 	  database wasn't present before the attempt to create it.
 
-	* AUTHORS: Add Matthew Somerville for Search::Xapian patches.
-
 	* common/Makefile.mk,common/socket_utils.cc,common/socket_utils.h,
 	  net/remoteconnection.cc,net/tcpclient.cc: Move windows-specific
 	  socket handling code from remoteconnection.cc into a separate
 	  file, provides the inline close_fd_or_socket for unix in the
 	  header file.  Use this in tcpclient.cc instead of close to close
 	  sockets correctly on windows.
+
+* database replication
 
 	* tests/harness/backendmanager_multi.cc: Make the multi
 	  backendmanager use relative paths in its stub databases.

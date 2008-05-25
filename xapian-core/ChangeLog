@@ -1,3 +1,8 @@
+Sun May 25 00:24:09 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Start to update from ChangeLog, stripping out backported
+	  changes.
+
 Sat May 24 16:38:49 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update to match 1.0 branch.
