@@ -6,7 +6,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002,2003,2005 James Aylett
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
  * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -38,7 +38,7 @@ using namespace std;
 namespace Xapian {
 #ifndef XAPIAN_HAS_QUARTZ_BACKEND
     namespace Quartz {
-	static Database open() {
+	static Database open(const string &) {
 	    throw FeatureUnavailableError("Quartz backend not supported");
 	}
 	static WritableDatabase open(const string &, int, int = 8192) {
@@ -49,7 +49,7 @@ namespace Xapian {
 
 #ifndef XAPIAN_HAS_FLINT_BACKEND
     namespace Flint {
-	static Database open() {
+	static Database open(const string &) {
 	    throw FeatureUnavailableError("Flint backend not supported");
 	}
 	static WritableDatabase open(const string &, int, int = 8192) {

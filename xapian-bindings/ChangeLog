@@ -1,3 +1,9 @@
+Sun May 25 18:30:33 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* xapian.i: Fix dummy Chert and Flint Database factory functions, used
+	  when Chert and/or Flint are disabled.
+
 Thu May 22 11:56:58 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
