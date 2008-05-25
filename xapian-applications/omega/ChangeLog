@@ -1,3 +1,7 @@
+Sun May 25 14:56:41 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Synchronise with 1.0 branch, and update from ChangeLog.
+
 Sat May 17 11:42:26 GMT 2008  Olly Betts <olly@survex.com>
 
 	* docs/omegascript.rst,docs/scriptindex.rst: Tweak mark-up so
