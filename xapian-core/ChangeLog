@@ -1,3 +1,17 @@
+Sun May 25 00:26:38 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/flint/flint_btreeutil.h: Fix some out-of-date comments.
+	* configure.ac: Use AC_CHECK_SIZEOF to define SIZEOF_INT and
+	  SIZEOF_LONG.
+	* backends/flint/flint_types.h: Use SIZEOF_INT and SIZEOF_LONG to
+	  determine the type of uint4 rather than always using unsigned long
+	  (which is 64 bits on most 64 bit Unix platforms).  Drop int4 for
+	  the time being, as we don't actually use it.
+	* backends/quartz/quartz_types.h: Adapt flint change for quartz
+	  (required to avoid differing uint4 types which clash in
+	  backends/database.cc).
+
 Sun May 25 00:04:51 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

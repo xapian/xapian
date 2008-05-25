@@ -1,7 +1,7 @@
-/* btree_util.h: common macros/functions in the Btree implementation.
+/* flint_btreeutil.h: common macros/functions in the Btree implementation.
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2004 Olly Betts
+ * Copyright 2002,2004,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,19 +28,10 @@
 #include <string.h>  /* memset */
 
 /* The unit of access into the DB files is an unsigned char, which is defined
-   as 'byte' with a typedef.
+   as 'byte' with a typedef in flint_types.h.
 
    Other integer values are built up from these bytes, either in pairs or fours.
-   'int2' and 'int4' are signed types which will comfortably accommodate
-   all 2 byte and 4 byte ranges:
-*/
-
-/*
-   If a signed int cannot hold the full range of two bytes replace 'int' by
-   'long' throughout the code.
-
-   FIXME: surely if a signed int cannot hold the full range of two bytes,
-   then the compiler violates ANSI?  Or am I misunderstanding...
+   The code here currently assumes that int is at least a 32-bit type.
 */
 
 // FIXME: 65536 in Asserts below should really be block_size
