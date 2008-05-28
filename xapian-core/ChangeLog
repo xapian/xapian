@@ -1,3 +1,9 @@
+Wed May 28 23:23:43 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* common/omassert.h: Add AssertEqDoubleParanoid().
+	* matcher/multimatch.cc: Use it instead of home-brewed version.
+
 Wed May 28 20:54:47 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

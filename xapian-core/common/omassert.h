@@ -65,6 +65,7 @@
 # define AssertParanoid(COND) Assert(COND)
 # define AssertRelParanoid(A,REL,B) AssertRel(A,REL,B)
 # define AssertEqParanoid(A,B) AssertEq(A,B)
+# define AssertEqDoubleParanoid(A,B) AssertEqDouble(A,B)
 #endif
 
 /** Assert that condition COND is non-zero.
@@ -137,6 +138,7 @@
 # define AssertParanoid(COND) (void)0
 # define AssertRelParanoid(A,REL,B) (void)0
 # define AssertEqParanoid(A,B) (void)0
+# define AssertEqDoubleParanoid(A,B) (void)0
 #endif
 
 #endif // XAPIAN_INCLUDED_OMASSERT_H
