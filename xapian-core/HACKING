@@ -1056,7 +1056,7 @@ introduction to the Xapian test system in ``docs/tests.html``.
    compatibility or is very invasive, you need to fix it in a different way
    for the release branch, or decide not to backport the fix.
 
-5) Update trac
+6) Update trac
 --------------
 
  * If there's a related trac ticket, update it (if the issue is completely

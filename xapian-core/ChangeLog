@@ -1,3 +1,9 @@
+Wed May 28 20:54:47 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* HACKING: Fix numbering in checklist for developers so that it
+	  doesn't repeat section 5.
+
 Sun May 25 13:03:53 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
