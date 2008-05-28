@@ -1,3 +1,15 @@
+Wed May 28 21:47:37 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/valuegepostlist.cc,matcher/valuerangepostlist.cc,
+	  matcher/valuerangepostlist.h: Apply patch from ticket #270 to
+	  implement ValueRangePostList::next() by using an alldocs posting
+	  list, instead of trying docids in turn.  This is much more
+	  efficient if document IDs are sparse.  Since both methods require
+	  accessing the termlist table to check for the next document, and
+	  some cursory performance tests don't show a measurable difference
+	  in speed, I think this approach is at least safe, and probably
+	  superior.
+
 Wed May 28 21:28:38 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/perftest/perftest.cc: Log the flush threshold for indexing
