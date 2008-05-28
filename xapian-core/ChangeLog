@@ -1,3 +1,8 @@
+Wed May 28 20:42:56 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* HACKING: Fix numbering in checklist for developers so that it
+	  doesn't repeat section 5.
+
 Sun May 25 14:21:40 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS: Update to match 1.0 branch.
