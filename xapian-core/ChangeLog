@@ -1,3 +1,10 @@
+Wed May 28 21:28:38 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/perftest/perftest.cc: Log the flush threshold for indexing
+	  runs.
+	* tests/perftest/perftest_randomidx.cc: Set the run size back to a
+	  reasonably large value.
+
 Wed May 28 20:48:10 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* configure.ac,tests/,tests/perftest/,tests/perftest_matchdecider.cc,

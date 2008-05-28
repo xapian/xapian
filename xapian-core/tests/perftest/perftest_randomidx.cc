@@ -84,7 +84,7 @@ DEFINE_TESTCASE(randomidx1, writable && !inmemory) {
     std::string dbname("randomidx1");
     Xapian::WritableDatabase dbw = backendmanager->get_writable_database(dbname, "");
 
-    unsigned int runsize = 2000;
+    unsigned int runsize = 100000;
     unsigned int seed = 42;
 
     // Some parameters used to control generation of documents.

@@ -205,6 +205,17 @@ PerfTestLogger::indexing_begin(const string & dbname,
     for (i = params.begin(); i != params.end(); ++i) {
 	write("    <param name=\"" + i->first + "\">" + escape_xml(i->second) + "</param>\n");
     }
+    i = params.find("flush_threshold");
+    if (i == params.end()) {
+	Xapian::doccount flush_threshold = 0;
+	const char *p = getenv("XAPIAN_FLUSH_THRESHOLD");
+	if (p)
+	    flush_threshold = atoi(p);
+	if (flush_threshold == 0)
+	    flush_threshold = 10000;
+	write("    <param name=\"flush_threshold\">" +
+	      escape_xml(om_tostring(flush_threshold)) + "</param>\n");
+    }
     write("   </params>\n");
     indexing_addcount = 0;
     indexing_unlogged_changes = false;
