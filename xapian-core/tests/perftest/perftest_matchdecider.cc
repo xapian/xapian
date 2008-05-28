@@ -20,7 +20,7 @@
 
 #include <config.h>
 
-#include "perftest_matchdecider.h"
+#include "perftest/perftest_matchdecider.h"
 
 #include <xapian.h>
 
@@ -37,10 +37,15 @@ using namespace std;
 DEFINE_TESTCASE(valuesetmatchdecider1, writable && !remote) {
     logger.testcase_begin("valuesetmatchdecider1");
 
-    std::string dbname("1");
+    std::string dbname("valuesetmatchdecider1");
     Xapian::WritableDatabase dbw = backendmanager->get_writable_database(dbname, "");
-    logger.indexing_begin(dbname);
+
     unsigned int runsize = 1000000;
+
+    std::map<std::string, std::string> params;
+    params["runsize"] = om_tostring(runsize);
+    logger.indexing_begin(dbname, params);
+
     unsigned int i;
     for (i = 0; i < runsize; ++i) {
 	unsigned int v = i % 100;

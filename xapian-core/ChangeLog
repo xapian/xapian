@@ -1,3 +1,11 @@
+Wed May 28 20:48:10 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* configure.ac,tests/,tests/perftest/,tests/perftest_matchdecider.cc,
+	  tests/perftest_randomidx.cc: Move performance test source files
+	  into a subdirectory.  Modify output of performance tests to
+	  include some basic system information, and also to include
+	  details of the parameters used to perform indexing tests.
+
 Wed May 28 20:42:56 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* HACKING: Fix numbering in checklist for developers so that it

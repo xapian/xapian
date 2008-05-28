@@ -22,16 +22,15 @@
 #ifndef XAPIAN_INCLUDED_PERFTEST_H
 #define XAPIAN_INCLUDED_PERFTEST_H
 
-#include <fstream>
-#include <string>
 #include <xapian.h>
+#include <fstream>
+#include <map>
+#include <string>
 #include "omtime.h"
 
 class PerfTestLogger {
     std::ofstream out;
 
-    bool repetition_started;
-    bool repetition_start_written;
     int repetition_number;
 
     bool testcase_started;
@@ -48,8 +47,6 @@ class PerfTestLogger {
     /** Write a log entry for the current indexing run.
      */
     void indexing_log();
-
-    void repetition_write_start();
 
     void write(const std::string & text);
 
@@ -69,7 +66,8 @@ class PerfTestLogger {
 
     /** Log the start of an indexing run.
      */
-    void indexing_begin(const std::string & dbname);
+    void indexing_begin(const std::string & dbname,
+			const std::map<std::string, std::string> & params);
 
     /** Log the addition of a document in an indexing run.
      */
@@ -77,7 +75,7 @@ class PerfTestLogger {
 	++indexing_addcount;
 	indexing_unlogged_changes = true;
 	// Log every 1000 documents
-	if (indexing_addcount % 1000 == 0 || indexing_addcount == 1) {
+	if (indexing_addcount % 1000 == 0) {
 	    indexing_log();
 	} else {
 	    // Or after 5 seconds
