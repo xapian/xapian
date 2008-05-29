@@ -1,3 +1,9 @@
+Thu May 29 14:33:51 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/perftest/perftest.cc: Include the xapian version string in
+	  the test output.  For runs from SVN, also include the subversion
+	  revision number and branch in the output.
+
 Wed May 28 21:47:37 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* matcher/valuegepostlist.cc,matcher/valuerangepostlist.cc,

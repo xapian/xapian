@@ -145,6 +145,54 @@ string get_distro()
     return distro;
 }
 
+/// Get the subversion revision in use.
+string get_svnrev()
+{
+    string svnrev;
+    try {
+	svnrev = stdout_to_string("svn info --non-interactive -R $srcdir/.. 2>/dev/null | grep 'Revision: ' | sed 's/Revision: //' | sort -n | tail -n 1");
+    } catch (NoSuchProgram) {} catch (ReadError) {}
+
+    return svnrev;
+}
+
+/// Get the subversion revision in use.
+string get_svnbranch()
+{
+    string branch;
+    try {
+	string svnurl = stdout_to_string("svn info --non-interactive $srcdir/.. 2>/dev/null | grep 'URL: ' | sed 's/URL: //'");
+	string svnroot = stdout_to_string("svn info --non-interactive $srcdir/.. 2>/dev/null | grep 'Repository Root: ' | sed 's/Repository Root: //'");
+	string svnst = stdout_to_string("svn status --non-interactive -q --no-ignore $srcdir/.. 2>/dev/null");
+	svnurl = svnurl.substr(svnroot.size());
+
+	if (svnurl.size() > 0 && svnurl[0] == '/')
+	    svnurl = svnurl.substr(1);
+
+	// Append the name of the branch we're on
+	string::size_type i = svnurl.find('/');
+	if (i != svnurl.npos) {
+	    if (svnurl.substr(0, i) == "trunk") {
+		// On trunk.
+		branch = "trunk";
+	    } else if (svnurl.substr(0, i) == "branches") {
+		svnurl = svnurl.substr(i + 1);
+		printf("%s\n", svnurl.c_str());
+		i = svnurl.find('/');
+		if (i != svnurl.npos) {
+		    branch = svnurl.substr(0, i);
+		} else {
+		    branch = svnurl;
+		}
+	    }
+	}
+	if (!branch.empty() && !svnst.empty())
+	    branch += " (modified)";
+    } catch (NoSuchProgram) {} catch (ReadError) {}
+
+    return branch;
+}
+
 bool
 PerfTestLogger::open(const string & logpath)
 {
@@ -172,6 +220,17 @@ PerfTestLogger::open(const string & logpath)
 	write("  <distro>" + distro + "</distro>\n");
     write("  <physmem>" + om_tostring(get_total_physical_memory()) + "</physmem>\n");
     write(" </machineinfo>\n");
+
+    string svnrev = get_svnrev();
+    string svnbranch = get_svnbranch();
+
+    write(" <sourceinfo>\n");
+    if (!svnrev.empty())
+	write("  <svnrev>" + svnrev + "</svnrev>\n");
+    if (!svnbranch.empty())
+	write("  <svnbranch>" + svnbranch + "</svnbranch>\n");
+    write("  <version>" + string(Xapian::version_string()) + "</version>\n");
+    write(" </sourceinfo>\n");
 
 
     return true;
