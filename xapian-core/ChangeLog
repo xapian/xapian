@@ -1,3 +1,8 @@
+Sat May 31 00:55:03 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am,tests/perftest/Makefile.mk: Remove unnecessary
+	  quotes.
+
 Thu May 29 16:04:56 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/perftest/: Update svn:ignore property for perftest changes.

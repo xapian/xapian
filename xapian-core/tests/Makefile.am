@@ -118,7 +118,7 @@ api_all.h api_collated.h $(collated_apitest_sources:.cc=.h): api_collated.stamp
 	  fi; \
 	fi
 api_collated.stamp: $(collated_apitest_sources) collate-test
-	$(PERL) "$(srcdir)/collate-test" "$(srcdir)" "api_all.h" $(collated_apitest_sources) > api_collated.hT
+	$(PERL) "$(srcdir)/collate-test" "$(srcdir)" api_all.h $(collated_apitest_sources) > api_collated.hT
 	mv api_collated.hT api_collated.h
 	touch $@
 

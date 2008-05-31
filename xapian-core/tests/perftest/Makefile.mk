@@ -50,7 +50,7 @@ perftest/perftest_all.h perftest/perftest_collated.h $(collated_perftest_sources
 	  fi; \
 	fi
 perftest/perftest_collated.stamp: $(collated_perftest_sources) collate-test
-	$(PERL) "$(srcdir)/collate-test" "$(srcdir)" "perftest/perftest_all.h" $(collated_perftest_sources) > perftest/perftest_collated.hT
+	$(PERL) "$(srcdir)/collate-test" "$(srcdir)" perftest/perftest_all.h $(collated_perftest_sources) > perftest/perftest_collated.hT
 	mv perftest/perftest_collated.hT perftest/perftest_collated.h
 	touch $@
 endif
