@@ -154,55 +154,58 @@ TestRunner::set_properties_for_backend(const string & backend_name)
     set_properties(propstring);
 }
 
-// Don't bracket M since it may include parameterised arguments.
-#define DO_TESTS_FOR_BACKEND(B,M) if (use_backend(B)) { \
-    backendmanager = new M; \
-    backendmanager->set_datadir(srcdir + "/testdata/"); \
-    set_properties_for_backend(B); \
-    cout << "Running tests with backend \"" << backendmanager->get_dbtype() << "\"..." << endl; \
-    result = max(result, run()); \
-    delete backendmanager; \
+void
+TestRunner::do_tests_for_backend(BackendManager * manager)
+{
+    string backend_name = manager->get_dbtype();
+    if (use_backend(backend_name)) {
+	backendmanager = manager;
+	backendmanager->set_datadir(srcdir + "/testdata/");
+	set_properties_for_backend(backend_name);
+	cout << "Running tests with backend \"" << backendmanager->get_dbtype() << "\"..." << endl;
+	result_so_far = max(result_so_far, run());
+	delete backendmanager;
+    }
 }
 
 int
 TestRunner::run_tests(int argc, char ** argv)
 {
-    int result = 0;
+    result_so_far = 0;
     try {
 	test_driver::add_command_line_option("backend", 'b', &user_backend);
-	std::string all_arg;
 	test_driver::parse_command_line(argc, argv);
-	string srcdir = test_driver::get_srcdir();
+	srcdir = test_driver::get_srcdir();
 
-	DO_TESTS_FOR_BACKEND("none", BackendManager);
+	do_tests_for_backend(new BackendManager);
 
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
-	DO_TESTS_FOR_BACKEND("inmemory", BackendManagerInMemory);
+	do_tests_for_backend(new BackendManagerInMemory);
 #endif
 
 #ifdef XAPIAN_HAS_CHERT_BACKEND
-	DO_TESTS_FOR_BACKEND("chert", BackendManagerChert);
+	do_tests_for_backend(new BackendManagerChert);
 #endif
 
 #ifdef XAPIAN_HAS_FLINT_BACKEND
-	DO_TESTS_FOR_BACKEND("flint", BackendManagerFlint);
+	do_tests_for_backend(new BackendManagerFlint);
 #endif
 
 #ifdef XAPIAN_HAS_CHERT_BACKEND
-	DO_TESTS_FOR_BACKEND("multi_chert", BackendManagerMulti("chert"));
+	do_tests_for_backend(new BackendManagerMulti("chert"));
 #endif
 #ifdef XAPIAN_HAS_FLINT_BACKEND
-	DO_TESTS_FOR_BACKEND("multi_flint", BackendManagerMulti("flint"));
+	do_tests_for_backend(new BackendManagerMulti("flint"));
 #endif
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 #ifdef XAPIAN_HAS_CHERT_BACKEND
-	DO_TESTS_FOR_BACKEND("remoteprog_chert", BackendManagerRemoteProg("chert"));
-	DO_TESTS_FOR_BACKEND("remotetcp_chert", BackendManagerRemoteTcp("chert"));
+	do_tests_for_backend(new BackendManagerRemoteProg("chert"));
+	do_tests_for_backend(new BackendManagerRemoteTcp("chert"));
 #endif
 #ifdef XAPIAN_HAS_FLINT_BACKEND
-	DO_TESTS_FOR_BACKEND("remoteprog_flint", BackendManagerRemoteProg("flint"));
-	DO_TESTS_FOR_BACKEND("remotetcp_flint", BackendManagerRemoteTcp("flint"));
+	do_tests_for_backend(new BackendManagerRemoteProg("flint"));
+	do_tests_for_backend(new BackendManagerRemoteTcp("flint"));
 #endif
 #endif
     } catch (const Xapian::Error &e) {
@@ -212,5 +215,5 @@ TestRunner::run_tests(int argc, char ** argv)
 	cerr << "\nTest harness failed with \"" << e << "\"" << endl;
 	return false;
     }
-    return result;
+    return result_so_far;
 }
