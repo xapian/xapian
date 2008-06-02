@@ -2,6 +2,7 @@
  * @brief BackendManager subclass for remoteprog databases.
  */
 /* Copyright (C) 2007,2008 Olly Betts
+ * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,10 +35,10 @@ using namespace std;
 
 BackendManagerRemoteProg::~BackendManagerRemoteProg() { }
 
-const char *
+std::string
 BackendManagerRemoteProg::get_dbtype() const
 {
-    return "remoteprog";
+    return "remoteprog_" + remote_type;
 }
 
 Xapian::Database
@@ -58,22 +59,7 @@ Xapian::WritableDatabase
 BackendManagerRemoteProg::get_writable_database(const string & name,
 						const string & file)
 {
-    last_wdb_name = name;
-
-    // Default to a long (5 minute) timeout so that tests won't fail just
-    // because the host is slow or busy.
-    string args = "-t300000 --writable ";
-
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-    (void)getwritedb_flint(name, vector<string>(1, file));
-    args += ".flint/";
-#elif XAPIAN_HAS_CHERT_BACKEND
-    (void)getwritedb_chert(name, vector<string>(1, file));
-    args += ".chert/";
-#else
-# error No local backend enabled
-#endif
-    args += name;
+    string args = get_writable_database_args(name, file);
 
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {
@@ -88,16 +74,8 @@ Xapian::Database
 BackendManagerRemoteProg::get_remote_database(const vector<string> & files,
 					      unsigned int timeout)
 {
-    string args = "-t";
-    args += om_tostring(timeout);
-    args += ' ';
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-    args += createdb_flint(files);
-#elif XAPIAN_HAS_CHERT_BACKEND
-    args += createdb_chert(files);
-#else
-# error No local backend enabled
-#endif
+    string args = get_remote_database_args(files, timeout);
+
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {
 	args.insert(0, XAPIAN_PROGSRV" ");
@@ -110,15 +88,7 @@ BackendManagerRemoteProg::get_remote_database(const vector<string> & files,
 Xapian::Database
 BackendManagerRemoteProg::get_writable_database_as_database()
 {
-    string args = "-t300000 ";
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-    args += ".flint/";
-#elif XAPIAN_HAS_CHERT_BACKEND
-    args += ".chert/";
-#else
-# error No local backend enabled
-#endif
-    args += last_wdb_name;
+    string args = get_writable_database_as_database_args();
 
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {
@@ -132,15 +102,7 @@ BackendManagerRemoteProg::get_writable_database_as_database()
 Xapian::WritableDatabase
 BackendManagerRemoteProg::get_writable_database_again()
 {
-    string args = "-t300000 --writable ";
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-    args += ".flint/";
-#elif XAPIAN_HAS_CHERT_BACKEND
-    args += ".chert/";
-#else
-# error No local backend enabled
-#endif
-    args += last_wdb_name;
+    string args = get_writable_database_again_args();
 
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {

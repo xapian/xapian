@@ -1,3 +1,43 @@
+Mon Jun 02 09:44:34 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* rests/harness/: Make flint and chert subtypes for the remote and
+	  multi backend types.  These are specified (on the command line
+	  and elsewhere) by the main type (multi, remotetcp or remoteprog),
+	  followed by an underscore, followed by the subtype (flint or
+	  chert).  Change return type of BackendManager::get_dbtype() to a
+	  string instead of a const char *, to allow backend managers which
+	  have subtypes to generate the result dynamically.
+	* tests/harness/backendmanager_remote.cc,
+	  tests/harness/backendmanager_remote.h,
+	  tests/harness/backendmanager_remoteprog.cc,
+	  tests/harness/backendmanager_remoteprog.h,
+	  tests/harness/backendmanager_remotetcp.cc,
+	  tests/harness/backendmanager_remotetcp.h: Add new
+	  BackendManagerRemote class as a common base for the two remote
+	  backend managers, and move duplicated code into it.  Add
+	  parameter to its constructor, and to the constructors of the
+	  remote backend manager subclasses, to control the type of
+	  database to use at the remote end.
+	* tests/harness/backendmanager_multi.cc,
+	  tests/harness/backendmanager_multi.h: Add parameter to
+	  constructor of BackendManagerMulti, controlling the type of
+	  database to use for sub databases.  Put the generated database
+	  files in ".multiflint" and ".multichert" instead of ".multi".
+	* tests/harness/testrunner.cc: Update list of backend properties to
+	  contain the new subtypes.  Modify use_backend() to allow either
+	  the full backend type, or just the main part of the backend type,
+	  to be specified, so that, for example "-b multi" will run both
+	  the multi_chert and multi_flint tests.  Add test runs for all the
+	  subtypes now supported.  Catch string exceptions thrown by the
+	  test runner - these can currently occur when neither flint or
+	  chert are compiled in.
+	* tests/apitest.cc,tests/apitest.h: Adjust return type of
+	  get_dbtype(), implement skip_test_*_backend functions which just
+	  check the prefix of the type, and implement SKIP_TEST_*_BACKEND
+	  macros using these.
+	* tests/api_anydb.cc: Modify check for running on a multi backend
+	  to copy with getting a string back from get_dbtype().
+
 Sat May 31 00:55:03 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/Makefile.am,tests/perftest/Makefile.mk: Remove unnecessary

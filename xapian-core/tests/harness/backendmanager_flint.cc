@@ -26,7 +26,7 @@ using namespace std;
 
 BackendManagerFlint::~BackendManagerFlint() { }
 
-const char *
+std::string
 BackendManagerFlint::get_dbtype() const
 {
     return "flint";

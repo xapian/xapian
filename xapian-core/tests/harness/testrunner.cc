@@ -56,9 +56,12 @@ static BackendProperties backend_properties[] = {
 	       "chert" }, // FIXME: sort out replicas
     { "flint", "backend,transactions,positional,writable,spelling,metadata,"
 	       "replicas,flint" },
-    { "multi", "backend,positional,multi" },
-    { "remoteprog", "backend,remote,transactions,positional,writable" },
-    { "remotetcp", "backend,remote,transactions,positional,writable" },
+    { "multi_flint", "backend,positional,multi" },
+    { "multi_chert", "backend,positional,multi" },
+    { "remoteprog_flint", "backend,remote,transactions,positional,writable" },
+    { "remotetcp_flint", "backend,remote,transactions,positional,writable" },
+    { "remoteprog_chert", "backend,remote,transactions,positional,writable" },
+    { "remotetcp_chert", "backend,remote,transactions,positional,writable" },
     { NULL, NULL }
 };
 
@@ -124,7 +127,13 @@ TestRunner::set_properties(const string & properties)
 bool
 TestRunner::use_backend(const string & backend_name)
 {
-    return (user_backend.empty() || user_backend == backend_name);
+    if (user_backend.empty())
+	return true;
+    if (backend_name == user_backend)
+	return true;
+    if (backend_name.substr(0, user_backend.size() + 1) == user_backend + "_")
+	return true;
+    return false;
 }
 
 void
@@ -142,8 +151,9 @@ TestRunner::set_properties_for_backend(const string & backend_name)
     set_properties(propstring);
 }
 
+// Don't bracket M since it may include parameterised arguments.
 #define DO_TESTS_FOR_BACKEND(B,M) if (use_backend(B)) { \
-    backendmanager = new (M); \
+    backendmanager = new M; \
     backendmanager->set_datadir(srcdir + "/testdata/"); \
     set_properties_for_backend(B); \
     cout << "Running tests with backend \"" << backendmanager->get_dbtype() << "\"..." << endl; \
@@ -157,6 +167,7 @@ TestRunner::run_tests(int argc, char ** argv)
     int result = 0;
     try {
 	test_driver::add_command_line_option("backend", 'b', &user_backend);
+	std::string all_arg;
 	test_driver::parse_command_line(argc, argv);
 	string srcdir = test_driver::get_srcdir();
 
@@ -174,16 +185,28 @@ TestRunner::run_tests(int argc, char ** argv)
 	DO_TESTS_FOR_BACKEND("flint", BackendManagerFlint);
 #endif
 
-#if defined XAPIAN_HAS_FLINT_BACKEND || defined XAPIAN_HAS_CHERT_BACKEND
-	DO_TESTS_FOR_BACKEND("multi", BackendManagerMulti);
+#ifdef XAPIAN_HAS_CHERT_BACKEND
+	DO_TESTS_FOR_BACKEND("multi_chert", BackendManagerMulti("chert"));
+#endif
+#ifdef XAPIAN_HAS_FLINT_BACKEND
+	DO_TESTS_FOR_BACKEND("multi_flint", BackendManagerMulti("flint"));
 #endif
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-	DO_TESTS_FOR_BACKEND("remoteprog", BackendManagerRemoteProg);
-	DO_TESTS_FOR_BACKEND("remotetcp", BackendManagerRemoteTcp);
+#ifdef XAPIAN_HAS_CHERT_BACKEND
+	DO_TESTS_FOR_BACKEND("remoteprog_chert", BackendManagerRemoteProg("chert"));
+	DO_TESTS_FOR_BACKEND("remotetcp_chert", BackendManagerRemoteTcp("chert"));
+#endif
+#ifdef XAPIAN_HAS_FLINT_BACKEND
+	DO_TESTS_FOR_BACKEND("remoteprog_flint", BackendManagerRemoteProg("flint"));
+	DO_TESTS_FOR_BACKEND("remotetcp_flint", BackendManagerRemoteTcp("flint"));
+#endif
 #endif
     } catch (const Xapian::Error &e) {
 	cerr << "\nTest harness failed with " << e.get_description() << endl;
+	return false;
+    } catch (const std::string &e) {
+	cerr << "\nTest harness failed with \"" << e << "\"" << endl;
 	return false;
     }
     return result;

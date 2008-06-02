@@ -51,7 +51,7 @@ class BackendManagerFlint : public BackendManager {
     virtual ~BackendManagerFlint();
 
     /// Return a string representing the current database type.
-    const char * get_dbtype() const;
+    std::string get_dbtype() const;
 
     /// Create a Flint Xapian::Database object indexing multiple files.
     Xapian::Database get_database(const std::vector<std::string> & files);

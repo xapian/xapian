@@ -2,6 +2,7 @@
  * @brief BackendManager subclass for remotetcp databases.
  */
 /* Copyright (C) 2007 Olly Betts
+ * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,11 +23,12 @@
 #define XAPIAN_INCLUDED_BACKENDMANAGER_REMOTETCP_H
 
 #include "backendmanager.h"
+#include "backendmanager_remote.h"
 
 #include <string>
 
 /// BackendManager subclass for remotetcp databases.
-class BackendManagerRemoteTcp : public BackendManager {
+class BackendManagerRemoteTcp : public BackendManagerRemote {
     /// Don't allow assignment.
     void operator=(const BackendManagerRemoteTcp &);
 
@@ -37,7 +39,8 @@ class BackendManagerRemoteTcp : public BackendManager {
     std::string last_wdb_name;
 
   public:
-    BackendManagerRemoteTcp() { }
+    BackendManagerRemoteTcp(const std::string & remote_type_)
+	: BackendManagerRemote(remote_type_) { }
 
     /** We have virtual methods and want to be able to delete derived classes
      *  using a pointer to the base class, so we need a virtual destructor.
@@ -45,7 +48,7 @@ class BackendManagerRemoteTcp : public BackendManager {
     virtual ~BackendManagerRemoteTcp();
 
     /// Return a string representing the current database type.
-    const char * get_dbtype() const;
+    std::string get_dbtype() const;
 
     /// Create a RemoteTcp Xapian::Database object indexing multiple files.
     Xapian::Database get_database(const std::vector<std::string> & files);

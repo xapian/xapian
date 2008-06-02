@@ -112,11 +112,8 @@ class BackendManager {
     virtual ~BackendManager() { } // FIXME: move out of header
 
     /** Get the database type currently in use.
-     *
-     *  Current possible return values are "inmemory", "chert", "flint",
-     *  "none", "remoteprog", and "remotetcp".
      */
-    virtual const char * get_dbtype() const { return "none"; } // FIXME: move out of header
+    virtual std::string get_dbtype() const { return "none"; } // FIXME: move out of header
 
     /** Set the directory to store data in.
      */

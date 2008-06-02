@@ -2,6 +2,7 @@
  * @brief BackendManager subclass for multi databases.
  */
 /* Copyright (C) 2007 Olly Betts
+ * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,6 +34,9 @@
 
 /// BackendManager subclass for multi databases.
 class BackendManagerMulti : public BackendManager {
+    /// The type to use for the sub-databases.
+    std::string subtype;
+
     /// Don't allow assignment.
     void operator=(const BackendManagerMulti &);
 
@@ -42,7 +46,7 @@ class BackendManagerMulti : public BackendManager {
     std::string createdb_multi(const std::vector<std::string> & files);
 
   public:
-    BackendManagerMulti() { }
+    BackendManagerMulti(const std::string & subtype_);
 
     /** We have virtual methods and want to be able to delete derived classes
      *  using a pointer to the base class, so we need a virtual destructor.
@@ -50,7 +54,7 @@ class BackendManagerMulti : public BackendManager {
     virtual ~BackendManagerMulti();
 
     /// Return a string representing the current database type.
-    const char * get_dbtype() const;
+    std::string get_dbtype() const;
 
     /// Create a Multi Xapian::Database object indexing multiple files.
     Xapian::Database get_database(const std::vector<std::string> & files);
