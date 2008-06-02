@@ -51,17 +51,17 @@ struct BackendProperties {
  */
 static BackendProperties backend_properties[] = {
     { "none", "" },
-    { "inmemory", "backend,positional,writable,inmemory" },
+    { "inmemory", "backend,positional,writable,valuestats,inmemory" },
     { "chert", "backend,transactions,positional,writable,spelling,metadata,"
-	       "chert" }, // FIXME: sort out replicas
+	       "valuestats,chert" }, // FIXME: sort out replicas
     { "flint", "backend,transactions,positional,writable,spelling,metadata,"
 	       "replicas,flint" },
     { "multi_flint", "backend,positional,multi" },
-    { "multi_chert", "backend,positional,multi" },
+    { "multi_chert", "backend,positional,valuestats,multi" },
     { "remoteprog_flint", "backend,remote,transactions,positional,writable" },
     { "remotetcp_flint", "backend,remote,transactions,positional,writable" },
-    { "remoteprog_chert", "backend,remote,transactions,positional,writable" },
-    { "remotetcp_chert", "backend,remote,transactions,positional,writable" },
+    { "remoteprog_chert", "backend,remote,transactions,positional,valuestats,writable" },
+    { "remotetcp_chert", "backend,remote,transactions,positional,valuestats,writable" },
     { NULL, NULL }
 };
 
@@ -78,6 +78,7 @@ TestRunner::set_properties(const string & properties)
     spelling = false;
     metadata = false;
     replicas = false;
+    valuestats = false;
     inmemory = false;
     flint = false;
     chert = false;
@@ -109,6 +110,8 @@ TestRunner::set_properties(const string & properties)
 	    metadata = true;
 	else if (propname == "replicas")
 	    replicas = true;
+	else if (propname == "valuestats")
+	    valuestats = true;
 	else if (propname == "inmemory")
 	    inmemory = true;
 	else if (propname == "flint")

@@ -31,6 +31,8 @@
 
 using namespace std;
 
+struct ValueStats;
+
 class ChertValueTable : public ChertTable {
     private:
 	/** Read an entry from position.  Throw appropriate exceptions if
@@ -44,6 +46,10 @@ class ChertValueTable : public ChertTable {
 	/** Generate key representing docid/valueno pair.
 	 */
 	static void make_key(string & key, Xapian::docid did, Xapian::valueno valueno);
+
+	/** Generate a key for a value statistics item.
+	 */
+	static void make_valuestats_key(string & key, Xapian::valueno valueno);
 
     public:
 	/** Create a new table object.
@@ -65,7 +71,8 @@ class ChertValueTable : public ChertTable {
 	 *  value number already exists, it is overwritten by this.
 	 */
 	void add_value(const string & value, Xapian::docid did,
-		       Xapian::valueno valueno);
+		       Xapian::valueno valueno,
+		       map<Xapian::valueno, ValueStats> & stats);
 
 	/** Get a value.
 	 *
@@ -83,12 +90,30 @@ class ChertValueTable : public ChertTable {
 	void get_all_values(map<Xapian::valueno, string> & values,
 			    Xapian::docid did) const;
 
+	/** Get the statistics about a value slot.
+	 *
+	 *  @param stats A structure to be filled with the statistics.
+	 */
+	void get_value_stats(ValueStats & stats,
+			     Xapian::valueno valueno) const;
+
+	/** Set the statistics about a value slot.
+	 *
+	 *  If the @a freq member of the statistics supplied is 0, the
+	 *  statistics for that slot will be cleared.
+	 *
+	 *  @param stats The statistics to set.
+	 */
+	void set_value_stats(const ValueStats & stats,
+			     Xapian::valueno valueno);
+
 	/** Remove all values.
 	 *
 	 *  @param did	The document id for which to remove the values.
 	 *
 	 */
-	void delete_all_values(Xapian::docid did);
+	void delete_all_values(Xapian::docid did,
+			       map<Xapian::valueno, ValueStats> & stats);
 };
 
 #endif /* OM_HGUARD_CHERT_VALUES_H */

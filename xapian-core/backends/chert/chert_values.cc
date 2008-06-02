@@ -24,6 +24,7 @@
 #include "chert_values.h"
 #include "chert_utils.h"
 #include "utils.h"
+#include "valuestats.h"
 #include <xapian/error.h>
 using std::string;
 using std::make_pair;
@@ -37,6 +38,14 @@ ChertValueTable::make_key(string & key, Xapian::docid did, Xapian::valueno value
 		     key << ", " << did << ", " << valueno);
     (void)valueno; // no warning
     key = chert_docid_to_key(did);
+}
+
+void
+ChertValueTable::make_valuestats_key(string & key, Xapian::valueno valueno)
+{
+    DEBUGCALL_STATIC(DB, void, "ChertValueTable::make_valuestats_key",
+		     key << ", " << valueno);
+    key = "\xff" + chert_docid_to_key(valueno);
 }
 
 void
@@ -63,8 +72,9 @@ ChertValueTable::unpack_entry(const char ** pos,
 
 void
 ChertValueTable::add_value(const string & value,
-			      Xapian::docid did,
-			      Xapian::valueno valueno)
+			   Xapian::docid did,
+			   Xapian::valueno valueno,
+			   map<Xapian::valueno, ValueStats> & stats)
 {
     DEBUGCALL(DB, void, "ChertValueTable::add_value", value << ", " << did << ", " << valueno);
     string key;
@@ -104,6 +114,30 @@ ChertValueTable::add_value(const string & value,
     }
 
     add(key, newvalue);
+
+    // Update the statistics.
+    std::pair<map<Xapian::valueno, ValueStats>::iterator, bool> i;
+    i = stats.insert(make_pair(valueno, ValueStats()));
+    if (i.second) {
+	// There were no statistics stored already, so read them.
+	get_value_stats(i.first->second, valueno);
+    }
+
+    // Now, modify the stored statistics.
+    if ((i.first->second.freq)++ == 0) {
+	// If the value count was previously zero, set the upper and lower
+	// bounds to the newly added value.
+	i.first->second.lower_bound = value;
+	i.first->second.upper_bound = value;
+    } else {
+	// Otherwise, simply make sure they reflect the new value.
+	if (value < i.first->second.lower_bound) {
+	    i.first->second.lower_bound = value;
+	}
+	if (value > i.first->second.upper_bound) {
+	    i.first->second.upper_bound = value;
+	}
+    }
 }
 
 void
@@ -164,11 +198,90 @@ ChertValueTable::get_all_values(map<Xapian::valueno, string> & values,
     }
 }
 
+
 void
-ChertValueTable::delete_all_values(Xapian::docid did)
+ChertValueTable::get_value_stats(ValueStats & stats,
+				 Xapian::valueno valueno) const
+{
+    DEBUGCALL(DB, void, "ChertValueTable::get_value_stats", "stats, " << valueno);
+    stats.clear();
+    string key;
+    make_valuestats_key(key, valueno);
+    string tag;
+    if (get_exact_entry(key, tag)) {
+	const char * pos = tag.data();
+	const char * end = pos + tag.size();
+
+	if (!unpack_uint(&pos, end, &(stats.freq))) {
+	    if (*pos == 0) throw Xapian::DatabaseCorruptError("Incomplete stats item in value table");
+	    else throw Xapian::RangeError("Frequency statistic in value table is too large");
+	}
+	if (!unpack_string(&pos, end, stats.lower_bound)) {
+	    if (*pos == 0) throw Xapian::DatabaseCorruptError("Incomplete stats item in value table");
+	    else throw Xapian::RangeError("Lower bound in value table is too large");
+	}
+	if (!unpack_string(&pos, end, stats.upper_bound)) {
+	    if (*pos == 0) throw Xapian::DatabaseCorruptError("Incomplete stats item in value table");
+	    else throw Xapian::RangeError("Upper bound in value table is too large");
+	}
+	if (pos != end) {
+	    throw Xapian::DatabaseCorruptError("Junk found at end of value stats item");
+	}
+    }
+}
+
+void
+ChertValueTable::set_value_stats(const ValueStats & stats,
+				 Xapian::valueno valueno)
+{
+    DEBUGCALL(DB, void, "ChertValueTable::set_value_stats", "stats, " << valueno);
+    string key;
+    make_valuestats_key(key, valueno);
+
+    if (stats.freq != 0) {
+	string new_value;
+	new_value += pack_uint(stats.freq);
+	new_value += pack_string(stats.lower_bound);
+	new_value += pack_string(stats.upper_bound);
+	add(key, new_value);
+    } else {
+	del(key);
+    }
+}
+
+void
+ChertValueTable::delete_all_values(Xapian::docid did,
+				   map<Xapian::valueno, ValueStats> & stats)
 {
     DEBUGCALL(DB, void, "ChertValueTable::delete_all_values", did);
     string key;
     make_key(key, did, 0);
+    string tag;
+    bool found = get_exact_entry(key, tag);
+    if (!found) return;
+
+    // Read the tag to get the old value entries.
+    const char * pos = tag.data();
+    const char * end = pos + tag.size();
+    while (pos && pos != end) {
+	Xapian::valueno this_value_no;
+	string this_value;
+
+	unpack_entry(&pos, end, &this_value_no, this_value);
+	std::pair<map<Xapian::valueno, ValueStats>::iterator, bool> i;
+	i = stats.insert(make_pair(this_value_no, ValueStats()));
+	if (i.second) {
+	    // There were no statistics stored already, so read them.
+	    get_value_stats(i.first->second, this_value_no);
+	}
+
+	// Now, modify the stored statistics.
+	AssertRelParanoid(i->first->second.freq, >, 0);
+	if (--(i.first->second.freq) == 0) {
+	    i.first->second.lower_bound.resize(0);
+	    i.first->second.upper_bound.resize(0);
+	}
+    }
+
     del(key);
 }

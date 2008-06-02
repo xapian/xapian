@@ -157,6 +157,36 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	virtual Xapian::termcount get_collection_freq(const string & tname) const = 0;
 
+	/** Return the frequency of a given value slot.
+	 *
+	 *  This is the number of documents which have a (non-empty) value
+	 *  stored in the slot.
+	 *
+	 *  @param valno The value slot to examine.
+	 *
+	 *  @exception UnimplementedError The frequency of the value isn't
+	 *  available for this database type.
+	 */
+	virtual Xapian::doccount get_value_freq(Xapian::valueno valno) const;
+
+	/** Get a lower bound on the values stored in the given value slot.
+	 *
+	 *  If the lower bound isn't available for the given database type,
+	 *  this will return the lowest possible bound - the empty string.
+	 *
+	 *  @param valno The value slot to examine.
+	 */
+	virtual std::string get_value_lower_bound(Xapian::valueno valno) const;
+
+	/** Get an upper bound on the values stored in the given value slot.
+	 *
+	 *  @param valno The value slot to examine.
+	 *
+	 *  @exception UnimplementedError The upper bound of the values isn't
+	 *  available for this database type.
+	 */
+	virtual std::string get_value_upper_bound(Xapian::valueno valno) const;
+
 	/** Check whether a given term is in the database.
 	 *
 	 *  @param tname  The term whose presence is being checked.

@@ -76,6 +76,9 @@ class TestRunner {
     /// True if the backend supports replication.
     bool replicas;
 
+    /// True if the backend supports getting value statistics.
+    bool valuestats;
+
     /// True if the backend is the multi backend.
     bool multi;
 

@@ -52,6 +52,7 @@
 #include "serialise.h"
 #include "stringutils.h"
 #include "utils.h"
+#include "valuestats.h"
 
 #ifdef __WIN32__
 # include "msvc_posix_wrapper.h"
@@ -124,6 +125,7 @@ ChertDatabase::ChertDatabase(const string &chert_dir, int action,
 	  lock(db_dir + "/chertlock"),
 	  total_length(0),
 	  lastdocid(0),
+	  mru_valno(Xapian::BAD_VALUENO),
 	  max_changesets(0)
 {
     DEBUGCALL(DB, void, "ChertDatabase", chert_dir << ", " << action <<
@@ -524,6 +526,7 @@ ChertDatabase::reopen()
     DEBUGCALL(DB, void, "ChertDatabase::reopen", "");
     if (readonly) {
 	open_tables_consistent();
+	mru_valno = BAD_VALUENO;
     }
 }
 
@@ -833,6 +836,54 @@ ChertDatabase::get_collection_freq(const string & term) const
     DEBUGCALL(DB, Xapian::termcount, "ChertDatabase::get_collection_freq", term);
     Assert(!term.empty());
     RETURN(postlist_table.get_collection_freq(term));
+}
+
+Xapian::doccount
+ChertDatabase::get_value_freq(Xapian::valueno valno) const
+{
+    DEBUGCALL(DB, Xapian::doccount, "ChertDatabase::get_value_freq", valno);
+    if (mru_valno != valno) {
+	try {
+	    value_table.get_value_stats(mru_valstats, valno);
+	    mru_valno = valno;
+	} catch(...) {
+	    mru_valno = Xapian::BAD_VALUENO;
+	    throw;
+	}
+    }
+    RETURN(mru_valstats.freq);
+}
+
+std::string
+ChertDatabase::get_value_lower_bound(Xapian::valueno valno) const
+{
+    DEBUGCALL(DB, std::string, "ChertDatabase::get_value_lower_bound", valno);
+    if (mru_valno != valno) {
+	try {
+	    value_table.get_value_stats(mru_valstats, valno);
+	    mru_valno = valno;
+	} catch(...) {
+	    mru_valno = Xapian::BAD_VALUENO;
+	    throw;
+	}
+    }
+    RETURN(mru_valstats.lower_bound);
+}
+
+std::string
+ChertDatabase::get_value_upper_bound(Xapian::valueno valno) const
+{
+    DEBUGCALL(DB, std::string, "ChertDatabase::get_value_upper_bound", valno);
+    if (mru_valno != valno) {
+	try {
+	    value_table.get_value_stats(mru_valstats, valno);
+	    mru_valno = valno;
+	} catch(...) {
+	    mru_valno = Xapian::BAD_VALUENO;
+	    throw;
+	}
+    }
+    RETURN(mru_valstats.upper_bound);
 }
 
 bool
@@ -1293,6 +1344,12 @@ ChertWritableDatabase::flush()
     if (transaction_active())
 	throw Xapian::InvalidOperationError("Can't flush during a transaction");
     if (change_count) flush_postlist_changes();
+    if (!value_stats.empty()) {
+	map<Xapian::valueno, ValueStats>::const_iterator i;
+	for (i = value_stats.begin(); i != value_stats.end(); ++i) {
+	    value_table.set_value_stats(i->second, i->first);
+	}
+    }
     apply();
 }
 
@@ -1340,7 +1397,8 @@ ChertWritableDatabase::add_document_(Xapian::docid did,
 	    Xapian::ValueIterator value = document.values_begin();
 	    Xapian::ValueIterator value_end = document.values_end();
 	    for ( ; value != value_end; ++value) {
-		value_table.add_value(*value, did, value.get_valueno());
+		value_table.add_value(*value, did, value.get_valueno(),
+				      value_stats);
 	    }
 	}
 
@@ -1431,7 +1489,7 @@ ChertWritableDatabase::delete_document(Xapian::docid did)
 
     try {
 	// Remove the values
-	value_table.delete_all_values(did);
+	value_table.delete_all_values(did, value_stats);
 
 	// OK, now add entries to remove the postings in the underlying record.
 	Xapian::Internal::RefCntPtr<const ChertWritableDatabase> ptrtothis(this);
@@ -1563,15 +1621,15 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 	    for ( ; value != value_end; ++value) {
 		tmp.push_back(make_pair(*value, value.get_valueno()));
 	    }
-//	    value_table.add_value(*value, did, value.get_valueno());
 
 	    // Replace the values.
-	    value_table.delete_all_values(did);
+	    value_table.delete_all_values(did, value_stats);
 
 	    // Set the values.
 	    list<pair<string, Xapian::valueno> >::const_iterator i;
 	    for (i = tmp.begin(); i != tmp.end(); ++i) {
-		value_table.add_value(i->first, did, i->second);
+		value_table.add_value(i->first, did, i->second,
+				      value_stats);
 	    }
 	}
 
@@ -1688,6 +1746,45 @@ ChertWritableDatabase::get_collection_freq(const string & tname) const
     RETURN(collfreq);
 }
 
+Xapian::doccount
+ChertWritableDatabase::get_value_freq(Xapian::valueno valno) const
+{
+    DEBUGCALL(DB, Xapian::doccount, "ChertWritableDatabase::get_value_freq", valno);
+    map<Xapian::valueno, ValueStats>::const_iterator i;
+    i = value_stats.find(valno);
+    if (i != value_stats.end()) {
+	RETURN(i->second.freq);
+    } else {
+	RETURN(ChertDatabase::get_value_freq(valno));
+    }
+}
+
+std::string
+ChertWritableDatabase::get_value_lower_bound(Xapian::valueno valno) const
+{
+    DEBUGCALL(DB, std::string, "ChertWritableDatabase::get_value_lower_bound", valno);
+    map<Xapian::valueno, ValueStats>::const_iterator i;
+    i = value_stats.find(valno);
+    if (i != value_stats.end()) {
+	RETURN(i->second.lower_bound);
+    } else {
+	RETURN(ChertDatabase::get_value_lower_bound(valno));
+    }
+}
+
+std::string
+ChertWritableDatabase::get_value_upper_bound(Xapian::valueno valno) const
+{
+    DEBUGCALL(DB, std::string, "ChertWritableDatabase::get_value_upper_bound", valno);
+    map<Xapian::valueno, ValueStats>::const_iterator i;
+    i = value_stats.find(valno);
+    if (i != value_stats.end()) {
+	RETURN(i->second.upper_bound);
+    } else {
+	RETURN(ChertDatabase::get_value_upper_bound(valno));
+    }
+}
+
 bool
 ChertWritableDatabase::term_exists(const string & tname) const
 {
@@ -1738,6 +1835,7 @@ ChertWritableDatabase::cancel()
     freq_deltas.clear();
     doclens.clear();
     mod_plists.clear();
+    value_stats.clear();
     change_count = 0;
 }
 
