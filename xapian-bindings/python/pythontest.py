@@ -966,6 +966,33 @@ def test_postingsource2():
     del db
     shutil.rmtree(dbpath)
 
+def test_value_stats():
+    """Simple test of being able to get value statistics.
+
+    """
+    dbpath = 'db_test_value_stats'
+    db = xapian.chert_open(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
+
+    vals = (6, 9, 4.5, 4.4, 4.6, 2, 1, 4, 3, 0)
+    for id in xrange(10):
+        doc = xapian.Document()
+        doc.add_value(1, xapian.sortable_serialise(vals[id]))
+        db.add_document(doc)
+
+    expect(db.get_value_freq(0), 0)
+    expect(db.get_value_lower_bound(0), "")
+    expect(db.get_value_upper_bound(0), "")
+    expect(db.get_value_freq(1), 10)
+    expect(db.get_value_lower_bound(1), xapian.sortable_serialise(0))
+    expect(db.get_value_upper_bound(1), xapian.sortable_serialise(9))
+    expect(db.get_value_freq(2), 0)
+    expect(db.get_value_lower_bound(2), "")
+    expect(db.get_value_upper_bound(2), "")
+
+    del db
+    shutil.rmtree(dbpath)
+
+
 # Run all tests (ie, callables with names starting "test_").
 if not runtests(globals(), sys.argv[1:]):
     sys.exit(1)

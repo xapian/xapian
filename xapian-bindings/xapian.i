@@ -564,6 +564,9 @@ class Database {
 	doccount get_termfreq(const std::string &tname) const;
 	bool term_exists(const std::string &tname) const;
 	termcount get_collection_freq(const std::string &tname) const;
+	doccount get_value_freq(Xapian::valueno valno) const;
+	string get_value_lower_bound(Xapian::valueno valno) const;
+	string get_value_upper_bound(Xapian::valueno valno) const;
 	doclength get_doclength(docid docid) const;
 	void keep_alive();
 	Document get_document(docid did);
