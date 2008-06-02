@@ -113,7 +113,7 @@ class BackendManager {
 
     /** Get the database type currently in use.
      */
-    virtual std::string get_dbtype() const { return "none"; } // FIXME: move out of header
+    virtual std::string get_dbtype() const;
 
     /** Set the directory to store data in.
      */

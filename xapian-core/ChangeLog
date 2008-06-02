@@ -1,3 +1,8 @@
+Mon Jun 02 10:26:12 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/harness/backendmanager.cc,tests/harness/backendmanager.h:
+	  Move implementation of get_dbtype() method out of header.
+
 Mon Jun 02 09:44:34 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* rests/harness/: Make flint and chert subtypes for the remote and
