@@ -1986,9 +1986,10 @@ DEFINE_TESTCASE(externalsource4, backend && !remote && !multi) {
 }
 
 // Check that valueweightsource works correctly.
-DEFINE_TESTCASE(valueweightsource1, backend && !remote && !multi) {
+DEFINE_TESTCASE(valueweightsource1, backend && !remote) {
     // FIXME: PostingSource doesn't currently work well with multi databases
     // but we should try to resolve that issue.
+    SKIP_TEST_FOR_BACKEND("multi");
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::Enquire enq(db);
     Xapian::ValueWeightPostingSource src(db, 11);
@@ -2016,6 +2017,22 @@ DEFINE_TESTCASE(valueweightsource1, backend && !remote && !multi) {
     enq.set_query(q);
     mset = enq.get_mset(0, 5);
     mset_expect_order(mset, 8, 14, 9, 13, 7);
+
+    return true;
+}
+
+// Check that valueweightsource gives the correct bounds for those databases
+// which support value statistics.
+DEFINE_TESTCASE(valueweightsource2, backend && valuestats) {
+    // FIXME: PostingSource doesn't currently work well with multi databases
+    // but we should try to resolve that issue.
+    SKIP_TEST_FOR_BACKEND("multi");
+    Xapian::Database db(get_database("apitest_phrase"));
+    Xapian::ValueWeightPostingSource src(db, 11);
+    TEST_EQUAL(src.get_termfreq_min(), 17);
+    TEST_EQUAL(src.get_termfreq_est(), 17);
+    TEST_EQUAL(src.get_termfreq_max(), 17);
+    TEST_EQUAL(src.get_maxweight(), 135);
 
     return true;
 }
