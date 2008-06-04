@@ -1,3 +1,13 @@
+Wed Jun 04 21:32:11 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* queryparser/queryparser.lemony: Fix more O(N*N) scaling, this
+	  time in the way in which auto multiword synonyms are detected.
+	  Instead of trying all possible sub-sequences of terms for
+	  synonyms, use synonym_keys and the skip_to() method to check for
+	  synonyms which actually exist in the synonyms table.
+	* tests/queryparsertest.cc: Extend the scaling test to check this
+	  case.
+
 Wed Jun 04 12:42:32 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* queryparser/queryparser.lemony: Fix various cases where queries

@@ -1110,11 +1110,29 @@ TermGroup::as_group(State *state) const
 	vector<Query> subqs;
 	subqs.reserve(terms.size());
 	while (i != terms.end()) {
+	    TermIterator synkey(db.synonym_keys_begin((*i)->name));
+	    TermIterator synend(db.synonym_keys_end((*i)->name));
+	    if (synkey == synend) {
+		// No multi-synonym matches.
+		if (state->is_stopword(*i)) {
+		    state->add_to_stoplist(*i);
+		} else {
+		    subqs.push_back((*i)->get_query_with_auto_synonyms());
+		}
+		begin = ++i;
+		continue;
+	    }
+	    list<Term*>::const_iterator end_of_match = i;
 	    key.resize(0);
 	    while (i != terms.end()) {
 		if (!key.empty()) key += ' ';
 		key += (*i)->name;
 		++i;
+		synkey.skip_to(key);
+		if (synkey == synend ||
+		    (*synkey).substr(0, key.size()) > key) {
+		    break;
+		}
 	    }
 	    // Greedily try to match as many consecutive words as possible.
 	    TermIterator syn, end;
