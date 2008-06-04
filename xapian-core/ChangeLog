@@ -1,3 +1,15 @@
+Wed Jun 04 12:42:32 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* queryparser/queryparser.lemony: Fix various cases where queries
+	  were constructed pair-wise within a loop, which leads to O(N*N)
+	  scaling behaviour (because each intermediate query construction
+	  is O(M) where M is the size of that query, and there are N of
+	  them).
+	* tests/queryparsertest.cc: Add test to check that parsing of a
+	  query scales roughly linearly with query size.
+	* common/omtime.h: Add method to get an OmTime as a double - used
+	  by the new query parser test.
+
 Wed Jun 04 12:18:35 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/harness/testsuite.h: Fix TEST_LESSER_OR_EQUAL and

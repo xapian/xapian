@@ -333,40 +333,40 @@ Query *
 Term::as_wildcarded_query(State * state_) const
 {
     Database db = state_->get_database();
-    Query * q = new Query;
+    vector<Query> subqs;
     list<string>::const_iterator piter;
     for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
 	string root = *piter;
 	root += name;
 	TermIterator t = db.allterms_begin(root);
 	while (t != db.allterms_end(root)) {
-	    add_to_query(q, Query::OP_OR, Query(*t, 1, pos));
+	    subqs.push_back(Query(*t, 1, pos));
 	    ++t;
 	}
     }
     delete this;
-    return q;
+    return new Query(Query::OP_OR, subqs.begin(), subqs.end());
 }
 
 Query *
 Term::as_partial_query(State * state_) const
 {
     Database db = state_->get_database();
-    Query * q = new Query;
+    vector<Query> subqs;
     list<string>::const_iterator piter;
     for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
 	string root = *piter;
 	root += name;
 	TermIterator t = db.allterms_begin(root);
 	while (t != db.allterms_end(root)) {
-	    add_to_query(q, Query::OP_OR, Query(*t, 1, pos));
+	    subqs.push_back(Query(*t, 1, pos));
 	    ++t;
 	}
 	// Add the term, as it would normally be handled, as an alternative.
-	add_to_query(q, Query::OP_OR, Query(make_term(*piter), 1, pos));
+	subqs.push_back(Query(make_term(*piter), 1, pos));
     }
     delete this;
-    return q;
+    return new Query(Query::OP_OR, subqs.begin(), subqs.end());
 }
 
 inline bool
@@ -1107,6 +1107,8 @@ TermGroup::as_group(State *state) const
 	string key;
 	list<Term*>::const_iterator begin = terms.begin();
 	list<Term*>::const_iterator i = begin;
+	vector<Query> subqs;
+	subqs.reserve(terms.size());
 	while (i != terms.end()) {
 	    key.resize(0);
 	    while (i != terms.end()) {
@@ -1128,42 +1130,49 @@ TermGroup::as_group(State *state) const
 		if (state->is_stopword(*i)) {
 		    state->add_to_stoplist(*i);
 		} else {
-		    add_to_query(query, default_op,
-				 (*i)->get_query_with_auto_synonyms());
+		    subqs.push_back((*i)->get_query_with_auto_synonyms());
 		}
 		begin = ++i;
 		continue;
 	    }
 
-	    Query * q = NULL;
+	    vector<Query> subqs2;
 	    list<Term*>::const_iterator j;
 	    for (j = begin; j != i; ++j) {
 		if (state->is_stopword(*j)) {
 		    state->add_to_stoplist(*j);
 		} else {
-		    add_to_query(q, default_op, (*j)->get_query());
+		    subqs2.push_back((*j)->get_query());
 		}
 	    }
+	    Query q_original_terms(default_op, subqs2.begin(), subqs2.end());
+	    subqs2.clear();
 
 	    // Use the position of the first term for the synonyms.
 	    Xapian::termpos pos = (*begin)->pos;
 	    begin = i;
 	    while (syn != end) {
-		add_to_query(q, Query::OP_OR, Query(*syn, 1, pos));
+		subqs2.push_back(Query(*syn, 1, pos));
 		++syn;
 	    }
-	    add_to_query(query, default_op, q);
+	    Query q_synonym_terms(Query::OP_OR, subqs2.begin(), subqs2.end());
+	    subqs2.clear();
+	    subqs.push_back(Query(Query::OP_OR,
+				  q_original_terms, q_synonym_terms));
 	}
+	query = new Query(default_op, subqs.begin(), subqs.end());
     } else {
+	vector<Query> subqs;
+	subqs.reserve(terms.size());
 	list<Term*>::const_iterator i;
 	for (i = terms.begin(); i != terms.end(); ++i) {
 	    if (state->is_stopword(*i)) {
 		state->add_to_stoplist(*i);
 	    } else {
-		add_to_query(query, default_op,
-			     (*i)->get_query_with_auto_synonyms());
+	    	subqs.push_back((*i)->get_query_with_auto_synonyms());
 	    }
 	}
+	query = new Query(default_op, subqs.begin(), subqs.end());
     }
     delete this;
     return query;
