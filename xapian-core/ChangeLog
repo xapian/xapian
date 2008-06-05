@@ -1,3 +1,11 @@
+Thu Jun 05 21:38:01 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Use std::vector<Term *> rather than
+	  std::list<Term *> so that size() is O(1) with any (sane) compiler
+	  and because a list of pointers isn't space efficient (and we don't
+	  need to splice here).  Factor out common code in if branches in
+	  TermGroup::as_group().
+
 Thu Jun 05 17:04:23 GMT 2008  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Use "startswith()" to avoid creating

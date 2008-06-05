@@ -1,7 +1,7 @@
 %include {
 /* queryparser.lemony: build a Xapian::Query object from a user query string.
  *
- * Copyright (C) 2004,2005,2006,2007 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1065,7 +1065,7 @@ struct ProbQuery {
 };
 
 class TermGroup {
-    list<Term *> terms;
+    vector<Term *> terms;
 
   public:
     TermGroup() { }
@@ -1088,7 +1088,7 @@ class TermGroup {
      *  compile-time error - you must allocate this object with new.
      */
     ~TermGroup() {
-	list<Term*>::const_iterator i;
+	vector<Term*>::const_iterator i;
 	for (i = terms.begin(); i != terms.end(); ++i) {
 	    delete *i;
 	}
@@ -1098,17 +1098,16 @@ class TermGroup {
 Query *
 TermGroup::as_group(State *state) const
 {
-    Query * query = NULL;
     Query::op default_op = state->default_op();
+    vector<Query> subqs;
+    subqs.reserve(terms.size());
     if (state->flags & QueryParser::FLAG_AUTO_MULTIWORD_SYNONYMS) {
 	// Check for multi-word synonyms.
 	Database db = state->get_database();
 
 	string key;
-	list<Term*>::const_iterator begin = terms.begin();
-	list<Term*>::const_iterator i = begin;
-	vector<Query> subqs;
-	subqs.reserve(terms.size());
+	vector<Term*>::const_iterator begin = terms.begin();
+	vector<Term*>::const_iterator i = begin;
 	while (i != terms.end()) {
 	    TermIterator synkey(db.synonym_keys_begin((*i)->name));
 	    TermIterator synend(db.synonym_keys_end((*i)->name));
@@ -1151,7 +1150,7 @@ TermGroup::as_group(State *state) const
 	    }
 
 	    vector<Query> subqs2;
-	    list<Term*>::const_iterator j;
+	    vector<Term*>::const_iterator j;
 	    for (j = begin; j != i; ++j) {
 		if (state->is_stopword(*j)) {
 		    state->add_to_stoplist(*j);
@@ -1174,11 +1173,8 @@ TermGroup::as_group(State *state) const
 	    subqs.push_back(Query(Query::OP_OR,
 				  q_original_terms, q_synonym_terms));
 	}
-	query = new Query(default_op, subqs.begin(), subqs.end());
     } else {
-	vector<Query> subqs;
-	subqs.reserve(terms.size());
-	list<Term*>::const_iterator i;
+	vector<Term*>::const_iterator i;
 	for (i = terms.begin(); i != terms.end(); ++i) {
 	    if (state->is_stopword(*i)) {
 		state->add_to_stoplist(*i);
@@ -1186,14 +1182,13 @@ TermGroup::as_group(State *state) const
 	    	subqs.push_back((*i)->get_query_with_auto_synonyms());
 	    }
 	}
-	query = new Query(default_op, subqs.begin(), subqs.end());
     }
     delete this;
-    return query;
+    return new Query(default_op, subqs.begin(), subqs.end());
 }
 
 class TermList {
-    list<Term *> terms;
+    vector<Term *> terms;
     size_t window;
 
     /** Keep track of whether the terms added all have the same list of
@@ -1234,7 +1229,6 @@ class TermList {
     /// Convert to a query using the given operator and window size.
     Query * as_opwindow_query(Query::op op, Xapian::termcount w_delta) const {
 	Query * q = NULL;
-	// Call terms.size() just once since std::list::size() may be O(n).
 	size_t n_terms = terms.size();
 	Xapian::termcount w = w_delta + terms.size();
 	if (uniform_prefixes) {
@@ -1242,7 +1236,7 @@ class TermList {
 	    for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
 		vector<Query> subqs;
 		subqs.reserve(n_terms);
-		list<Term *>::const_iterator titer;
+		vector<Term *>::const_iterator titer;
 		for (titer = terms.begin(); titer != terms.end(); ++titer) {
 		    Term * t = *titer;
 		    subqs.push_back(Query(t->make_term(*piter), 1, t->pos));
@@ -1253,7 +1247,7 @@ class TermList {
 	} else {
 	    vector<Query> subqs;
 	    subqs.reserve(n_terms);
-	    list<Term *>::const_iterator titer;
+	    vector<Term *>::const_iterator titer;
 	    for (titer = terms.begin(); titer != terms.end(); ++titer) {
 		subqs.push_back((*titer)->get_query());
 	    }
@@ -1299,7 +1293,7 @@ class TermList {
      *  compile-time error - you must allocate this object with new.
      */
     ~TermList() {
-	list<Term *>::const_iterator t;
+	vector<Term *>::const_iterator t;
 	for (t = terms.begin(); t != terms.end(); ++t) {
 	    delete *t;
 	}
