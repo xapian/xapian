@@ -1,6 +1,6 @@
 README for Xapian/Visual C++ Tools
 ==================================
-2008-05-01 for Xapian 1.0.6
+2008-06-05 for Xapian 1.0.7
 
 Make files, some extra headers and associated tools for compiling Xapian on
 Win32 using the Microsoft Visual C++ compilers. This is particularly useful
@@ -21,8 +21,9 @@ What works?
 
 - The Python, PHP & Java-Swig bindings (note that the Java-Swig bindings
   are still rather alpha, and may be subject to significant API change).
-- The quartz binaries quartzcheck, quartzcompact, quartzdump
-- The xapian-compact binary
+- The xapian-compact, xapian-check, xapian-inspect binaries
+- The xapian-progsrv and xapian-tcpsrv binaries
+- The delve, quest and copydatabase binaries
 - The Xapian example binaries
 - The libtest.lib and libbtreecheck libraries
 - The various tests that use the above, which are run as part of the makefile

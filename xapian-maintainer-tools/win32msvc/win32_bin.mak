@@ -59,7 +59,7 @@ CLEAN :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 CPP_PROJ=$(CPPFLAGS_EXTRA)  \
- /I ".." /I "..\testsuite"  /I"..\backends\flint" /I"..\backends\chert" \
+ /I ".." /I "..\testsuite"  /I"..\backends\flint" /I"..\backends\quartz" \
  /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /Tp$(INPUTNAME)
 
 CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
