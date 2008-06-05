@@ -276,7 +276,7 @@ ChertValueTable::delete_all_values(Xapian::docid did,
 	}
 
 	// Now, modify the stored statistics.
-	AssertRelParanoid(i->first->second.freq, >, 0);
+	AssertRelParanoid(i.first->second.freq, >, 0);
 	if (--(i.first->second.freq) == 0) {
 	    i.first->second.lower_bound.resize(0);
 	    i.first->second.upper_bound.resize(0);
