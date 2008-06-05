@@ -23,3 +23,6 @@
 	  overflows.
 	* add some #pragmas to prevent stupid MS compiler warnings
 
+2008-06-05 Charlie Hull <charlie@lemurconsulting.com>
+
+	* Backport changes from trunk.
