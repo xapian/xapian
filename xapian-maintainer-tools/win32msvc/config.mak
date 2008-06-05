@@ -161,8 +161,6 @@ XAPIAN_LIBS = \
  "$(OUTLIBDIR)\libcommon.lib"  \
  "$(OUTLIBDIR)\libbackend.lib"  \
  "$(OUTLIBDIR)\libexpand.lib"  \
-# Quartz deprecated        
-# "$(OUTLIBDIR)\libquartz.lib" \
  "$(OUTLIBDIR)\libflint.lib" \
  "$(OUTLIBDIR)\libquartz.lib" \
  "$(OUTLIBDIR)\libinmemory.lib" \
