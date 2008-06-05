@@ -15,16 +15,16 @@ OBJS= \
              $(INTDIR)\remoteserver.obj  \
              $(INTDIR)\serialise.obj  \
              $(INTDIR)\tcpclient.obj  \
-             $(INTDIR)\tcpserver.obj  \
-             $(NULL)
+             $(INTDIR)\tcpserver.obj  
 
+             
 SRCS= \
              $(INTDIR)\progclient.cc \
              $(INTDIR)\remoteconnection.cc  \
              $(INTDIR)\remoteserver.cc  \
              $(INTDIR)\serialise.cc  \
              $(INTDIR)\tcpclient.cc  \
-             $(INTDIR)\tcpserver.cc
+             $(INTDIR)\tcpserver.cc 
 
 CLEAN :
 	-@erase "$(OUTDIR)\libnet.lib"
@@ -62,5 +62,5 @@ LIB32_FLAGS=/nologo  $(LIBFLAGS)
 
 # Calculate any header dependencies and automatically insert them into this file
 HEADERS :
-            if exist ..\win32\$(DEPEND) ..\win32\$(DEPEND) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)"
+            if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) $(DEPEND_FLAGS) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)" 
 # DO NOT DELETE THIS LINE -- make depend depends on it.

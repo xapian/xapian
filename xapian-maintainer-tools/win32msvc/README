@@ -1,6 +1,6 @@
 README for Xapian/Visual C++ Tools
 ==================================
-2007-10-29
+2008-05-01 for Xapian 1.0.6
 
 Make files, some extra headers and associated tools for compiling Xapian on
 Win32 using the Microsoft Visual C++ compilers. This is particularly useful
@@ -19,7 +19,8 @@ www.lemurconsulting.com
 What works?
 ===========
 
-- The Python & PHP bindings
+- The Python, PHP & Java-Swig bindings (note that the Java-Swig bindings
+  are still rather alpha, and may be subject to significant API change).
 - The quartz binaries quartzcheck, quartzcompact, quartzdump
 - The xapian-compact binary
 - The Xapian example binaries
@@ -42,6 +43,9 @@ What doesn't work?
   folder (and the files in the folder) containing the database.  We do not
   expect this restriction to be lifted in future releases - equally, we do
   not expect it to cause serious problems.
+  
+- To get round the fact that MSVC doesn't do dependency checking correctly,
+we use an external program 'makedepend'.
   
 
 TODOS
@@ -95,6 +99,7 @@ xapian\xapian-core
 xapian\xapian-bindings
 xapian\xapian-applications
 xapian\xapian-maintainer-tools
+xapian\swig
 
 After checking out the sources, copy the contents of the
 "xapian\xapian-maintainer-tools\win32msvc" directory to a new directory named
@@ -103,14 +108,6 @@ After checking out the sources, copy the contents of the
 You will then need to edit "xapian\xapian-core\win32\config.mak" as
 described in step 4 in the previous section ("How do I get the released
 sources?").
-
-You will also need to build the makedepend.exe program as this is only included as a
-binary with the released sources. To do this, install the tools below and do the following
-(assuming the directory structure above):
-
-cd \xapian\xapian-maintainer-tools\win32msvc\makedepend
-nmake -f makedepend.mak
-copy makedepend.exe \xapian\xapian-core\win32
 
 What do I need to compile it?
 =============================
@@ -128,12 +125,21 @@ You will need:
   OR...
   
 - You can also compile with 
-Visual C++ Express Edition available without cost from:
+Visual C++ 2005 Express Edition available without cost from:
 http://msdn.microsoft.com/vstudio/express/visualc/default.aspx 
 
-In this case you'll also need the Platforms SDK:
+  OR...
+  
+- You can also compile with 
+Visual C++ Toolkit 2003, if you can find it (Microsoft don't distribute this any more) and in this case you'll need the .NET 1.1 SDK:
+http://www.microsoft.com/downloads/details.aspx?FamilyID=9b3a2ca6-3647-4070-9f41-a333c6b9181d&displaylang=en
+and also to create or download msvcprt.lib, details on how to do this are here:
+http://root.cern.ch/root/Procedure/Procedure%20to%20install%20the%20free%20Microsoft%20Visual%20C.htm
+
+If you *don't* use Visual C++ 7.0 then you'll also need the Platform SDK:
 http://www.microsoft.com/msdownload/platformsdk/sdkupdate/
-which contains headers, libs and NMAKE. Make sure once you have installed this that you create LIB and INCLUDE environment variables to point to the appropriate Platform SDK folders, and that the path to the SDK's BIN folder is in your PATH.
+ the "Windows® Server 2003 SP1 Platform SDK" is recommended.
+which contains headers, libs and NMAKE. 
 
 - Perl is used to pre-build some of the source files. Install a Win32 binary from ActiveState (http://www.activestate.com/Products/ActivePerl/) and modify config.mak appropriately (PERL_DIR)
 
@@ -141,29 +147,46 @@ which contains headers, libs and NMAKE. Make sure once you have installed this t
 http://www.zlib.net/zlib123-dll.zip
 and make sure the path to where you downloaded it matches the path in config.mak (ZLIB_DIR).
 
-- SWIG can be useful for recompiling the bindings, but this is done by the Xapian
-core maintainers, so you shouldn't need to do this unless you are building from the development sources, in which 
-case you'll have to use the version of SWIG in the Xapian repository. To build this follow the instructions at
-http://www.swig.org/Doc1.3/Windows.html#swig_exe
-(you'll need to install MinGW).
-
-- To compile the Python bindings you need Python from www.python.org. Make sure the paths to this are set correctly in config.mak.
+- To compile the Python bindings you need Python from www.python.org. Make sure the paths to this are set correctly in config.mak (PYTHON_DIR)
 
 - To compile the PHP bindings you need:
 
   a. the PHP sources from www.php.net (we have used PHP 4.4.6 & 5.2.1). 
   b. the built sources from a Windows binary distribution
   c. to edit config.mak to use the correct paths to PHP and to select the right version of PHP to build.
+  
+- To compile the Java-swig bindings you need the Java SE Development Kit from http://java.sun.com/javase/downloads/index.jsp (we have used the 1.6.0_05 release). Make sure the paths to this are set correctly in config.mak (JAVA_DIR)
 
-How do I compile it?
-====================
+- SWIG is used for recompiling the bindings, but this is done by the Xapian core maintainers, so you shouldn't need to do this unless you are building from the development sources, in which case you'll have to use the version of SWIG in the Xapian repository. To build this follow the instructions at
+xapian\swig\Doc\Manual\Windows.html
+(you'll need to install MinGW).
+To make sure the bindings are rebuilt use the following when building in the bindings folders:
 
-1a) Run vcvars32.bat or equivalent for the C compiler. This may be listed as 'Command Prompt' in the Programs menu entry.
-This will set up the appropriate paths. 
+nmake SWIGBUILD=1 
 
---OR--
+Make sure the paths to this are set correctly in config.mak (SWIG)
 
-1b) Make sure you have the appropriate paths set up for your Visual C++ compiler. 
+How do I compile it from a command prompt?
+==========================================
+
+1a) Run SetEnv.cmd in the Platform SDK to make sure the SDK's paths are added to your environment. For the "Windows Server 2003 SP1 Platform SDK", installed to the default folder, use the following command:
+C:\Program Files\Microsoft Platform SDK\SetEnv.cmd" /RETAIL
+
+1b) Run vcvars32.bat or equivalent for the C compiler to make sure the paths to the compiler are added to your environment. This may be listed as 'Command Prompt' in the Programs menu entry.
+For Visual C++ 2005 Express Edition installed to the default folder, use the following command:
+C:\Program Files\Microsoft Visual Studio 8\Common7\Tools\vsvars32.bat
+
+1c) If you are using the Express compiler, you'll need to add an include path:
+set INCLUDE=%INCLUDE%;%MSSDK%\Include\mfc
+
+1d) If you are using the 2003 Toolkit compiler, and you've thus installed the .NET 1.1 SDK, you'll need to add a library path:
+set LIB=%LIB%;C:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\lib;
+
+--------
+NOTE: It's easiest to automate the preceding steps. To do this, put the commands above (or the equivalent on your system) into a text file with the .cmd extension (let's call it 'xapenv.cmd'). You could also add a 'cd' to wherever your xapian code is located. Then right-click on your desktop, select New, Shortcut, and find C:\Windows\System32\cmd.exe. Right-click on the new shortcut and select Properties. Edit the Target field to read:
+%SystemRoot%\system32\cmd.exe /a /k c:\xapenv "%1"
+You can now just run the shortcut to open a command line window ready for building Xapian.
+--------
 
 To build the Xapian core:
 
@@ -188,8 +211,13 @@ To build the bindings (do steps 1-5 above first to make sure you have Xapian bui
    - to build and run the test suite
 11b) nmake 
    - to just build.
+11c) nmake SWIGBUILD=1 
+   - to build from the development sources using SWIG (see above)
+11d) For Python only, use 
+    nmake DISTUTILS
+ to build packaged bindings - they will end up in xapian-core-1.x.y\win32\Release\Python\dist
 
-To build Omega (do steps 1-5 above first to make sure you have Xapian built):
+ To build Omega (do steps 1-5 above first to make sure you have Xapian built):
 
 12) edit win32_applications_omega.mak to suit your environment (XAPIAN_CORE_REL_OMEGA)
 13) nmake COPYMAKFILES 
@@ -200,12 +228,6 @@ To build Omega (do steps 1-5 above first to make sure you have Xapian built):
 
 The binaries end up in xapian-core-0.x.y\win32\Release or \Debug if you are building a Debug build (see below)
 
-NOTE: currently you will see various warnings of the form:
-
-..\win32\makedepend.exe: warning:  .\error.cc (reading C:/Program Files/Microsoft Visual Studio 8/VC/INCLUDE/sys/stat.h), line 23: #error ERROR: Only Win32 target supported!
-
-These are caused by the Makedepend program and can safely be ignored.
-
 Debug builds
 ===========
 
@@ -215,9 +237,19 @@ nmake DEBUG=1
 
 This affects some lines in config.mak.
 
-It is also possible to manually create a project in the Visual C++ Express Edition IDE.
+If you would like verbose Xapian debugging enabled, add -D XAPIAN_DEBUG_VERBOSE to the CPPFLAGS_EXTRA define in config.mak. You will also need to set up correct environment variables so the Xapian debugger knows where to write its log file. Type the following at a command prompt:
 
+set XAPIAN_DEBUG_LOG=c:/xap.log
+set XAPIAN_DEBUG_FLAGS=-1
 
+This will create a log file at c:/xap.log and set the debugging bitmask to show all possible messages. To filter out some of the messages, look at om_debug_types in omdebug.h and set XAPIAN_DEBUG_FLAGS accordingly. For example, to show only OM_DEBUG_REMOTE and OM_DEBUG_API messages, you will need a bitmask according to their position in the table: 1000001000000 in binary (4160 decimal), so:
+
+set XAPIAN_DEBUG_FLAGS=4160
+
+Using the Visual C++ IDE
+========================
+
+It is also possible to manually create a project in the Visual C++ Express Edition IDE. To build part of Xapian in the IDE you should add to the project all the .cc files in the api, backends, common, expand, languages, matcher, net, queryparser and unicode subfolders of xapian-core, then add the file containing the main loop for whatever you are building (for example if you're building xapian-check, add xapian-check.cc). You will need to examine config.mak to see what include paths to use and any other necessary compiler switches. 
 
 
 Please send any bugfixes to Charlie Hull at Lemur Consulting:

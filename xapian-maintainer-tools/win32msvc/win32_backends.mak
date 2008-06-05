@@ -12,11 +12,11 @@ OUTDIR=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 INTDIR=.\
 
 DEPLIBS = "$(OUTDIR)\libmulti.lib"  \
-	  "$(OUTDIR)\libinmemory.lib" \
-          "$(OUTDIR)\libquartz.lib" \
-          "$(OUTDIR)\libremote.lib" \
-          "$(OUTDIR)\libflint.lib" \
-          $(NULL)
+    "$(OUTDIR)\libinmemory.lib" \
+    "$(OUTDIR)\libremote.lib" \
+    "$(OUTDIR)\libflint.lib" \
+    "$(OUTDIR)\libquartz.lib" \
+    $(NULL)
 
 OBJS= $(INTDIR)\database.obj $(INTDIR)\dbfactory_remote.obj $(INTDIR)\alltermslist.obj 
 SRCS= $(INTDIR)\database.cc $(INTDIR)\dbfactory_remote.cc $(INTDIR)\alltermslist.cc 
@@ -24,10 +24,10 @@ SRCS= $(INTDIR)\database.cc $(INTDIR)\dbfactory_remote.cc $(INTDIR)\alltermslist
 ALL : $(DEPLIBS) "$(OUTDIR)\libbackend.lib" 
 
 CLEAN :
-	-@erase "$(OUTDIR)\libbackend.lib"
-	-@erase "$(INTDIR)\*.pch"
-	-@erase "$(INTDIR)\*.pdb"
-	-@erase $(OBJS)
+	-@erase /q "$(OUTDIR)\libbackend.lib"
+	-@erase /q "$(INTDIR)\*.pch"
+	-@erase /q "$(INTDIR)\*.pdb"
+	-@erase /q $(OBJS)
 	cd quartz
 	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
 	cd ..\flint
@@ -56,13 +56,13 @@ CPP_SBRS=.
   $(LIB32_FLAGS) /out:"$(OUTDIR)\libbackend.lib" $(DEF_FLAGS) $(OBJS)
 <<
 
-"$(OUTDIR)\libquartz.lib":
-       cd quartz
+"$(OUTDIR)\libflint.lib":
+       cd flint
        nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
        cd ..
 
-"$(OUTDIR)\libflint.lib":
-       cd flint
+"$(OUTDIR)\libquartz.lib":
+       cd quartz
        nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
        cd ..
 
@@ -94,5 +94,5 @@ CPP_SBRS=.
 
 # Calculate any header dependencies and automatically insert them into this file
 HEADERS :
-            if exist ..\win32\$(DEPEND) ..\win32\$(DEPEND) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)"
+            if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) $(DEPEND_FLAGS) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)" 
 # DO NOT DELETE THIS LINE -- make depend depends on it.

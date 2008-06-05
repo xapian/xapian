@@ -39,3 +39,18 @@ Xapian-core 0.9.6 (2006-05-15)
  
  * add version information to bindings DLLs
  * add xapian-check compilation
+ 
+ Xapian-core version 1.0.6 (2008-03-19)
+ 
+ * add makedepend to make files so no need for separate compilation
+ * make sure tests do MAKE CLEAN properly
+ 
+ Xapian-core version 1.0.6 updated (2008-05-01)
+ 
+ * add make files for Java Swig bindings
+ * added version information and Zlib dll to Java-Swig bindings
+ * tweaked some paths in config.mak to fit better the default installation paths
+ * added details of compatible compilers to README and a quick way to create a Xapian build command prompt
+ * prevented some spurious warnings from makedepend by adding some flags defined by the compiler itself
+ * added Alexandre Gauthier's method for packaging Python bindings
+ 
