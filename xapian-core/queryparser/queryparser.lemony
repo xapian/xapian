@@ -1128,10 +1128,7 @@ TermGroup::as_group(State *state) const
 		key += (*i)->name;
 		++i;
 		synkey.skip_to(key);
-		if (synkey == synend ||
-		    (*synkey).substr(0, key.size()) > key) {
-		    break;
-		}
+		if (synkey == synend || !startswith(*synkey, key)) break;
 	    }
 	    // Greedily try to match as many consecutive words as possible.
 	    TermIterator syn, end;

@@ -1,3 +1,8 @@
+Thu Jun 05 17:04:23 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Use "startswith()" to avoid creating
+	  a new string object.
+
 Thu Jun 05 09:09:54 GMT 2008  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Remove variable which is set but
