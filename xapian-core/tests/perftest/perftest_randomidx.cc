@@ -20,7 +20,7 @@
 
 #include <config.h>
 
-#include "perftest_randomidx.h"
+#include "perftest/perftest_randomidx.h"
 
 #include <stdlib.h>
 #include <string>
@@ -78,14 +78,13 @@ gen_word(unsigned int length, unsigned int char_range)
 }
 
 // Test the performance using randomly generated dat
-DEFINE_TESTCASE(randomidx1, writable) {
+DEFINE_TESTCASE(randomidx1, writable && !inmemory) {
     logger.testcase_begin("randomidx1");
 
-    std::string dbname("1");
+    std::string dbname("randomidx1");
     Xapian::WritableDatabase dbw = backendmanager->get_writable_database(dbname, "");
-    logger.indexing_begin(dbname);
 
-    unsigned int runsize = 1000;
+    unsigned int runsize = 100000;
     unsigned int seed = 42;
 
     // Some parameters used to control generation of documents.
@@ -101,6 +100,20 @@ DEFINE_TESTCASE(randomidx1, writable) {
     unsigned int termcharrange = 10;
 
     srand(seed);
+
+    std::map<std::string, std::string> params;
+    params["runsize"] = om_tostring(runsize);
+    params["seed"] = om_tostring(seed);
+    params["slots_used"] = om_tostring(slots_used);
+    params["slot_probability"] = om_tostring(slot_probability);
+    params["slotval_minlen"] = om_tostring(slotval_minlen);
+    params["slotval_maxlen"] = om_tostring(slotval_maxlen);
+    params["minterms"] = om_tostring(minterms);
+    params["maxterms"] = om_tostring(maxterms);
+    params["mintermlen"] = om_tostring(mintermlen);
+    params["maxtermlen"] = om_tostring(maxtermlen);
+    params["termcharrange"] = om_tostring(termcharrange);
+    logger.indexing_begin(dbname, params);
 
     unsigned int i;
     for (i = 0; i < runsize; ++i) {

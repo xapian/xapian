@@ -37,7 +37,7 @@
 
 using namespace std;
 
-const char * get_dbtype()
+std::string get_dbtype()
 {
     return backendmanager->get_dbtype();
 }
@@ -93,6 +93,24 @@ Xapian::WritableDatabase
 get_writable_database_again()
 {
     return backendmanager->get_writable_database_again();
+}
+
+void
+skip_test_unless_backend(const std::string & backend_prefix)
+{
+    std::string dbtype = get_dbtype();
+    if (dbtype.substr(0, backend_prefix.size()) != backend_prefix) {
+	SKIP_TEST("Test only supported for " + backend_prefix + " backend");
+    }
+}
+
+void
+skip_test_for_backend(const std::string & backend_prefix)
+{
+    std::string dbtype = get_dbtype();
+    if (dbtype.substr(0, backend_prefix.size()) == backend_prefix) {
+	SKIP_TEST("Test not supported for " + backend_prefix + " backend");
+    }
 }
 
 class ApiTestRunner : public TestRunner

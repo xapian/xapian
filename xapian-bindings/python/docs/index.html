@@ -99,12 +99,16 @@ iterate over terms in a Document object):
 <tr><td><code>ESet</code></td><td>default iterator</td><td><code>begin()</code></td><td><code>ESetIter</code></td></tr>
 <tr><td><code>Enquire</code></td><td><code>matching_terms()</code></td><td><code>get_matching_terms_begin()</code></td><td><code>TermIter</code></td></tr>
 <tr><td><code>Query</code></td><td>default iterator</td><td><code>get_terms_begin()</code></td><td><code>TermIter</code></td></tr>
-<tr><td><code>Database</code></td><td><code>allterms()</code></td><td><code>allterms_begin()</code> (also as default iterator)</td><td><code>TermIter</code></td></tr>
+<tr><td><code>Database</code></td><td><code>allterms()</code> (also as default iterator)</td><td><code>allterms_begin()</code></td><td><code>TermIter</code></td></tr>
 <tr><td><code>Database</code></td><td><code>postlist(tname)</code></td><td><code>postlist_begin(tname)</code></td><td><code>PostingIter</code></td></tr>
 <tr><td><code>Database</code></td><td><code>termlist(docid)</code></td><td><code>termlist_begin(docid)</code></td><td><code>TermIter</code></td></tr>
 <tr><td><code>Database</code></td><td><code>positionlist(docid, tname)</code></td><td><code>positionlist_begin(docid, tname)</code></td><td><code>PositionIter</code></td></tr>
+<tr><td><code>Database</code></td><td><code>metadata_keys()</code></td><td><code>metadata_keys(prefix)</code></td><td><code>TermIter</code></td></tr>
+<tr><td><code>Database</code></td><td><code>spellings()</code></td><td><code>spellings_begin(term)</code></td><td><code>TermIter</code></td></tr>
+<tr><td><code>Database</code></td><td><code>synonyms(term)</code></td><td><code>synonyms_begin(term)</code></td><td><code>TermIter</code></td></tr>
+<tr><td><code>Database</code></td><td><code>synonym_keys(prefix)</code></td><td><code>synonym_keys_begin(prefix)</code></td><td><code>TermIter</code></td></tr>
 <tr><td><code>Document</code></td><td><code>values()</code></td><td><code>values_begin()</code></td><td><code>ValueIter</code></td></tr>
-<tr><td><code>Document</code></td><td><code>termlist()</code></td><td><code>termlist_begin()</code> (also as default iterator)</td><td><code>TermIter</code></td></tr>
+<tr><td><code>Document</code></td><td><code>termlist()</code> (also as default iterator)</td><td><code>termlist_begin()</code></td><td><code>TermIter</code></td></tr>
 <tr><td><code>QueryParser</code></td><td><code>stoplist()</code></td><td><code>stoplist_begin()</code></td><td><code>TermIter</code></td></tr>
 <tr><td><code>QueryParser</code></td><td><code>unstemlist(tname)</code></td><td><code>unstem_begin(tname)</code></td><td><code>TermIter</code></td></tr>
 </table>
@@ -113,7 +117,7 @@ iterate over terms in a Document object):
 The pythonic iterators generally return Python objects, with properties
 available as attribute values, with lazy evaluation where appropriate.  An
 exception is the <code>PositionIter</code> object returned by
-<code>Datbase.positionlist</code>, which returns an integer.
+<code>Database.positionlist</code>, which returns an integer.
 </p>
 
 <p>
@@ -242,8 +246,9 @@ ESetIterator. The members of the tuple are as follows.
 <li> <code>Xapian::Auto::open_stub()</code> is wrapped as <code>xapian.open_stub()</code>
 <li> <code>Xapian::Quartz::open()</code> is wrapped as <code>xapian.quartz_open()</code>
 <li> <code>Xapian::InMemory::open()</code> is wrapped as <code>xapian.inmemory_open()</code>
-<li> <code>Xapian::Remote::open()</code> is wrapped as <code>xapian.remote_open()</code> (only
-the TCP version is currently wrapped, the "program" version isn't).
+<li> <code>Xapian::Remote::open()</code> is wrapped as <code>xapian.remote_open()</code> (both
+the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to
+decide which to call).
 </ul>
 
 <h2>Query</h2>

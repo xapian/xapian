@@ -51,7 +51,7 @@ class BackendManagerChert : public BackendManager {
     virtual ~BackendManagerChert();
 
     /// Return a string representing the current database type.
-    const char * get_dbtype() const;
+    std::string get_dbtype() const;
 
     /// Create a Chert Xapian::Database object indexing multiple files.
     Xapian::Database get_database(const std::vector<std::string> & files);

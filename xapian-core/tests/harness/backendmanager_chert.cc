@@ -26,7 +26,7 @@ using namespace std;
 
 BackendManagerChert::~BackendManagerChert() { }
 
-const char *
+std::string
 BackendManagerChert::get_dbtype() const
 {
     return "chert";

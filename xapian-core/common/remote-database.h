@@ -27,6 +27,7 @@
 #include "omqueryinternal.h"
 #include "omtime.h"
 #include "remoteconnection.h"
+#include "valuestats.h"
 
 namespace Xapian {
     class RSet;
@@ -68,6 +69,16 @@ class RemoteDatabase : public Xapian::Database::Internal {
     string context;
 
     mutable bool cached_stats_valid;
+
+    /** The most recently used value statistics.
+     */
+    mutable ValueStats mru_valstats;
+
+    /** The value number for the most recently used value statistics.
+     *
+     *  Set to BAD_VALUENO if no value statistics have yet been looked up.
+     */
+    mutable Xapian::valueno mru_valno;
 
     void update_stats(message_type msg_code = MSG_UPDATE) const;
 
@@ -187,6 +198,12 @@ class RemoteDatabase : public Xapian::Database::Internal {
     Xapian::doccount get_termfreq(const string & tname) const;
 
     Xapian::termcount get_collection_freq(const string & tname) const;
+
+    /// Read the value statistics for a value from a remote database.
+    void read_value_stats(Xapian::valueno valno) const;
+    Xapian::doccount get_value_freq(Xapian::valueno valno) const;
+    std::string get_value_lower_bound(Xapian::valueno valno) const;
+    std::string get_value_upper_bound(Xapian::valueno valno) const;
 
     void flush();
 

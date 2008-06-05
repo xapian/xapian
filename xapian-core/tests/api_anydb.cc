@@ -395,7 +395,7 @@ DEFINE_TESTCASE(expandweights2, backend) {
 
     Xapian::ESet eset = enquire.get_eset(3, myrset);
     TEST_EQUAL(eset.size(), 3);
-    if (strcmp(get_dbtype(), "multi") != 0) {
+    if (get_dbtype().substr(0, 5) != "multi") {
 	// For a single database, the weights should be the same with or
 	// without USE_EXACT_TERMFREQ.
 	TEST_EQUAL_DOUBLE(eset[0].get_weight(), 6.08904001099445);
@@ -1802,6 +1802,42 @@ DEFINE_TESTCASE(valuerange1, backend) {
 	    }
 	}
     }
+    return true;
+}
+
+// Regression test for Query::OP_VALUE_LE - used to return document IDs for
+// non-existent documents.
+DEFINE_TESTCASE(valuerange2, backend && writable) {
+    Xapian::WritableDatabase db = get_writable_database();
+    Xapian::Document doc;
+    doc.set_data("5");
+    doc.add_value(0, "5");
+    db.replace_document(5, doc);
+    Xapian::Enquire enq(db);
+
+    Xapian::Query query(Xapian::Query::OP_VALUE_LE, 0, "6");
+    enq.set_query(query);
+    Xapian::MSet mset = enq.get_mset(0, 20);
+
+    TEST_EQUAL(mset.size(), 1);
+    TEST_EQUAL(*(mset[0]), 5);
+    return true;
+}
+
+// Test for alldocs postlist with a sparse database.
+DEFINE_TESTCASE(alldocspl1, backend && writable) {
+    Xapian::WritableDatabase db = get_writable_database();
+    Xapian::Document doc;
+    doc.set_data("5");
+    doc.add_value(0, "5");
+    db.replace_document(5, doc);
+
+    Xapian::PostingIterator i = db.postlist_begin("");
+    TEST(i != db.postlist_end(""));
+    TEST_EQUAL(*i, 5);
+    ++i;
+    TEST(i == db.postlist_end(""));
+
     return true;
 }
 

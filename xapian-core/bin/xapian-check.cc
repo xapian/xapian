@@ -113,7 +113,6 @@ main(int argc, char **argv)
 	struct stat sb;
 	string dir(argv[1]);
 	if (stat((dir + "/iamflint").c_str(), &sb) == 0) {
-	    Xapian::doccount lastdocid_est = 0;
 	    // Check a whole flint database directory.
 	    try {
 		Xapian::Database db = Xapian::Flint::open(dir);
@@ -816,13 +815,13 @@ check_chert_table(const string & tablename, string filename, int opts,
 		vector<Xapian::termpos>::const_iterator current_pos = positions.begin();
 		Xapian::termpos lastpos = *current_pos++;
 		while (current_pos != positions.end()) {
-		    Xapian::termpos pos = *current_pos++;
-		    if (pos <= lastpos) {
+		    Xapian::termpos termpos = *current_pos++;
+		    if (termpos <= lastpos) {
 			cout << tablename << " table: Positions not strictly monotonically increasing" << endl;
 			++errors;
 			break;
 		    }
-		    lastpos = pos;
+		    lastpos = termpos;
 		}
 	    }
 

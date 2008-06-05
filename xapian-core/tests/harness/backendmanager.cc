@@ -188,6 +188,12 @@ BackendManager::getwritedb_flint_path(const string & name)
 
 #endif
 
+std::string
+BackendManager::get_dbtype() const
+{
+    return "none";
+}
+
 Xapian::Database
 BackendManager::get_database(const vector<string> &)
 {

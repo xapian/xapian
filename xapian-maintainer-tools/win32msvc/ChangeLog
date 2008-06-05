@@ -1,0 +1,16 @@
+Thu Jun 05 17:29:16 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* win32_expand.mak: Replace reference to expand.cc and expand.obj
+	  with esetinternal.cc and esetinternal.obj - expand.cc has now
+	  been removed, and esetinternal.cc added.
+
+Thu Jun 05 17:11:14 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* win32_bin.mak: Remove comments about the now removed quartz
+	  utilities, and a reference to them in the CLEAN rule.
+	* README: Remove trailing whitespace.  Clean up list of "what
+	  works".
+
+Thu Jun 05 17:04:26 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* Start of ChangeLog.

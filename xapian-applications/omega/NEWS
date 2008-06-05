@@ -1,7 +1,9 @@
 upto:
-Wed Mar 05 19:05:12 GMT 2008  Olly Betts <olly@survex.com>
+Sat May 17 11:42:26 GMT 2008  Olly Betts <olly@survex.com>
 
 HEAD only:
+
+	* scriptindex.cc: Make deprecated "index=nopos" an error.
 
 	* INSTALL: PCRE required.
 	* docs/omegascript.rst: $transform{} now enabled.  Fixes bug#231.
@@ -9,9 +11,52 @@ HEAD only:
 	  add $transform{} command (which has been in the code for ages but
 	  disabled).
 
-Omega 1.0.6 (2008-03-??):
+Omega 1.0.7 (2008-0?-??):
 
 general:
+
+documentation:
+
+omegascript.html,scriptindex.html: Fix empty titles.
+
+indexers:
+
+* omindex:
+
+* scriptindex:
+
+omega:
+
+templates:
+
+testsuite:
+
+build system:
+
+* configure: Synchronise code for working out warning flags used for builds
+  with that used for xapian-core, which in particular handles different
+  output formats from "gcc --version".
+
+* configure: Improve code to prevent pointlessly probing for f77, gcj, and rc.
+
+portability:
+
+* configure: Fix header checks to pre-include <sys/types.h> which Mac OS X
+  needs for some other headers to work.
+
+* configure: Fix probing for iconv to work better when iconv isn't found
+  (previously this only worked on Mac OS X with fink).
+
+* Fix compilation error on FreeBSD, introduced in 1.0.5.
+
+* In omega, cast size to unsigned before division to avoid a warning about
+  signed overflow.
+
+packaging:
+
+* xapian-omega.spec: Remove "www." from xapian.org and oligarchy.co.uk URLs.
+
+Omega 1.0.6 (2008-03-17):
 
 documentation:
 
@@ -23,25 +68,18 @@ indexers:
 
  + Add support for DjVu files.
 
-* scriptindex:
+ + If we get an error trying to read a directory entry, report it to the user
+   rather than ignoring it.
 
 omega:
 
 * OmegaScript commands $addfilter, $lower, $upper.
-
-templates:
-
-testsuite:
-
-build system:
 
 portability:
 
 * Check "defined HAVE_SYSMP" rather than just "HAVE_SYSMP".  This doesn't
   change behaviour, but fixes a compile warning on platforms other than Linux
   and IRIX.
-
-packaging:
 
 Omega 1.0.5 (2007-12-21):
 

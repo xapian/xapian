@@ -45,6 +45,346 @@ Tue Nov 27 08:40:51 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 	* tests/api_db.cc: Add basic test of synonyms (currently doesn't
 	  pass due to testcase shortcomings).
 
+Thu Jun 05 23:37:37 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/chert/chert_values.cc: Fix compile error in assertion in
+	  recently added code for calculating value statistics.
+
+Thu Jun 05 21:38:01 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Use std::vector<Term *> rather than
+	  std::list<Term *> so that size() is O(1) with any (sane) compiler
+	  and because a list of pointers isn't space efficient (and we don't
+	  need to splice here).  Factor out common code in if branches in
+	  TermGroup::as_group().
+
+Thu Jun 05 17:04:23 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Use "startswith()" to avoid creating
+	  a new string object.
+
+Thu Jun 05 09:09:54 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Remove variable which is set but
+	  never otherwise used.
+
+Thu Jun 05 09:08:22 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc: Don't call find() twice - reuse the result
+	  we just got.  Use AssertEq() rather than Assert() on an equality
+	  test.  Clarify a comment.
+
+Wed Jun 04 21:32:11 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* queryparser/queryparser.lemony: Fix more O(N*N) scaling, this
+	  time in the way in which auto multiword synonyms are detected.
+	  Instead of trying all possible sub-sequences of terms for
+	  synonyms, use synonym_keys and the skip_to() method to check for
+	  synonyms which actually exist in the synonyms table.
+	* tests/queryparsertest.cc: Extend the scaling test to check this
+	  case.
+
+Wed Jun 04 12:42:32 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* queryparser/queryparser.lemony: Fix various cases where queries
+	  were constructed pair-wise within a loop, which leads to O(N*N)
+	  scaling behaviour (because each intermediate query construction
+	  is O(M) where M is the size of that query, and there are N of
+	  them).
+	* tests/queryparsertest.cc: Add test to check that parsing of a
+	  query scales roughly linearly with query size.
+	* common/omtime.h: Add method to get an OmTime as a double - used
+	  by the new query parser test.
+
+Wed Jun 04 12:18:35 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/harness/testsuite.h: Fix TEST_LESSER_OR_EQUAL and
+	  TEST_LESSER macros to compare in the right direction (these
+	  macros are, so far, unused).
+
+Mon Jun 02 18:19:22 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/postingsource.cc: Make ValueWeightPostingSource use value
+	  statistics, if they're available, to return accurate term
+	  frequency statistics, and a better maxweight.
+	* tests/api_db.cc: Add valueweightsource2, to test the bounds and
+	  maxweight returned by a ValueWeightPostingSource for backends
+	  with valuestats support.  Replace !multi condition in
+	  valueweightsource1 with a SKIP_TEST_FOR_BACKEND invocation, since
+	  this is a shortcoming we should fix at some point.
+
+Mon Jun 02 18:16:52 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/harness/testrunner.cc,tests/harness/testrunner.h: Replace
+	  DO_TESTS_FOR_BACKEND macro with a do_tests_for_backend method;
+	  the method version takes a BackendManager * and gets the backend
+	  name from that, rather than requiring it to be specified.
+	  Requires addition of a couple of extra private members to the
+	  TestRunner class.
+
+Mon Jun 02 10:27:45 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/database.h: Add get_value_freq(),
+	  get_value_lower_bound() and get_value_upper_bound() methods to
+	  Database, to get statistics about the values stored in a slot.
+	* api/omdatabase.cc,backends/chert/,backends/database.cc,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h,
+	  backends/remote/remote-database.cc,common/,
+	  net/remoteserver.cc: Add support for the value statistics methods
+	  to chert, inmemory, multi and remote databases.
+	* tests/Makefile.am,tests/api_valuestats.cc,
+	  tests/harness/testrunner.cc,tests/harness/testrunner.h: Add test
+	  of the value statistics code, and a "valuestats" backend property
+	  to select only backends supporting this.
+
+Mon Jun 02 10:26:12 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/harness/backendmanager.cc,tests/harness/backendmanager.h:
+	  Move implementation of get_dbtype() method out of header.
+
+Mon Jun 02 09:44:34 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* rests/harness/: Make flint and chert subtypes for the remote and
+	  multi backend types.  These are specified (on the command line
+	  and elsewhere) by the main type (multi, remotetcp or remoteprog),
+	  followed by an underscore, followed by the subtype (flint or
+	  chert).  Change return type of BackendManager::get_dbtype() to a
+	  string instead of a const char *, to allow backend managers which
+	  have subtypes to generate the result dynamically.
+	* tests/harness/backendmanager_remote.cc,
+	  tests/harness/backendmanager_remote.h,
+	  tests/harness/backendmanager_remoteprog.cc,
+	  tests/harness/backendmanager_remoteprog.h,
+	  tests/harness/backendmanager_remotetcp.cc,
+	  tests/harness/backendmanager_remotetcp.h: Add new
+	  BackendManagerRemote class as a common base for the two remote
+	  backend managers, and move duplicated code into it.  Add
+	  parameter to its constructor, and to the constructors of the
+	  remote backend manager subclasses, to control the type of
+	  database to use at the remote end.
+	* tests/harness/backendmanager_multi.cc,
+	  tests/harness/backendmanager_multi.h: Add parameter to
+	  constructor of BackendManagerMulti, controlling the type of
+	  database to use for sub databases.  Put the generated database
+	  files in ".multiflint" and ".multichert" instead of ".multi".
+	* tests/harness/testrunner.cc: Update list of backend properties to
+	  contain the new subtypes.  Modify use_backend() to allow either
+	  the full backend type, or just the main part of the backend type,
+	  to be specified, so that, for example "-b multi" will run both
+	  the multi_chert and multi_flint tests.  Add test runs for all the
+	  subtypes now supported.  Catch string exceptions thrown by the
+	  test runner - these can currently occur when neither flint or
+	  chert are compiled in.
+	* tests/apitest.cc,tests/apitest.h: Adjust return type of
+	  get_dbtype(), implement skip_test_*_backend functions which just
+	  check the prefix of the type, and implement SKIP_TEST_*_BACKEND
+	  macros using these.
+	* tests/api_anydb.cc: Modify check for running on a multi backend
+	  to copy with getting a string back from get_dbtype().
+
+Sat May 31 00:55:03 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am,tests/perftest/Makefile.mk: Remove unnecessary
+	  quotes.
+
+Thu May 29 16:04:56 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/perftest/: Update svn:ignore property for perftest changes.
+
+Thu May 29 14:33:51 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/perftest/perftest.cc: Include the xapian version string in
+	  the test output.  For runs from SVN, also include the subversion
+	  revision number and branch in the output.
+
+Wed May 28 21:47:37 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/valuegepostlist.cc,matcher/valuerangepostlist.cc,
+	  matcher/valuerangepostlist.h: Apply patch from ticket #270 to
+	  implement ValueRangePostList::next() by using an alldocs posting
+	  list, instead of trying docids in turn.  This is much more
+	  efficient if document IDs are sparse.  Since both methods require
+	  accessing the termlist table to check for the next document, and
+	  some cursory performance tests don't show a measurable difference
+	  in speed, I think this approach is at least safe, and probably
+	  superior.
+
+Wed May 28 21:28:38 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/perftest/perftest.cc: Log the flush threshold for indexing
+	  runs.
+	* tests/perftest/perftest_randomidx.cc: Set the run size back to a
+	  reasonably large value.
+
+Wed May 28 20:48:10 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* configure.ac,tests/,tests/perftest/,tests/perftest_matchdecider.cc,
+	  tests/perftest_randomidx.cc: Move performance test source files
+	  into a subdirectory.  Modify output of performance tests to
+	  include some basic system information, and also to include
+	  details of the parameters used to perform indexing tests.
+
+Wed May 28 20:42:56 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* HACKING: Fix numbering in checklist for developers so that it
+	  doesn't repeat section 5.
+
+Sun May 25 14:21:40 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Update to match 1.0 branch.
+
+Sun May 25 00:24:09 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Start to update from ChangeLog, stripping out backported
+	  changes.
+
+Sat May 24 16:38:49 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update to match 1.0 branch.
+
+Sat May 24 16:33:19 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/termgentest.cc: Pass Xapian::Document by const reference.
+
+Sat May 24 14:30:59 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Only warn about duplicate user metadata keys
+	  if the tags aren't the same.
+
+Sat May 24 12:14:55 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/Makefile.am: Put special -I options in foo_CPPFLAGS not
+	  foo_CXXFLAGS.  As well as being the more correct place, this also
+	  means that AM_CXXFLAGS is now used when compiling xapian-check and
+	  xapian-compact, which in particular enables compiler warnings.
+	* bin/xapian-check.cc,bin/xapian-compact.cc,bin/xapian-check-flint.cc:
+	  Fix warnings (one unused variable and a few cases of a variable
+	  masking another with the same name - none problematic in practice).
+
+Fri May 23 09:22:24 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/inmemory/inmemory_database.cc: Fix bug in inmemory
+	  database, which resulted in the values not being stored correctly
+	  if document IDs were sparse.
+	* matcher/valuerangepostlist.cc: Fix the next() method not to
+	  return document IDs which aren't present in the database - this
+	  used to happen if the document IDs were sparse.
+	* tests/api_anydb.cc: Add "valuerange2", a regression test for
+	  OP_VALUE_LE returning document IDs which aren't present in the
+	  database, and "alldocspl1", which does a generic test of an
+	  alldocs postlist in a sparse database (this passed before the
+	  above changes, but might as well be added anyway).
+
+Wed May 21 19:33:12 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/Makefile.am: test == isn't portable - use test = instead.
+
+Wed May 21 13:22:23 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Fix path for atreus.
+
+Wed May 21 13:21:08 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Fix search&replace error - the CVS module is still called
+	  www.xapian.org.
+
+Wed May 21 13:16:39 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Reword, since environmental variable PATH isn't "set by
+	  $PATH".
+
+Wed May 21 13:16:21 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: ixion -> atreus.
+
+Wed May 21 13:12:07 GMT 2008  Olly Betts <olly@survex.com>
+
+	* include/xapian/database.h: Improve documentation comment.
+
+Sun May 18 05:20:29 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* docs/remote_protocol.html: Remove spurious "i" at end of line.
+
+Sat May 17 11:53:54 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/harness/testutils.h: Layout and macro parameter name tweaks.
+
+Fri May 16 20:42:05 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Check that all source databases are the same
+	  type (flint or chert).  Copy over "iamchert" for chert.  Update
+	  terminology - the "meta file" is now called the "version file".
+
+Fri May 16 17:33:22 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/chert/chert_version.cc:
+	  Need <cstdio> for rename().
+
+Fri May 16 17:27:56 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc: Correct FIXME comment and mark
+	  as "FIXME:1.2.0".
+
+Fri May 16 17:21:59 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/harness/testrunner.cc,tests/harness/testrunner.h: Add
+	  condition to test if the backend is "inmemory".
+	* tests/perftest_randomidx.cc: Change the run size from 1000
+	  documents to 1000000.  Disable this test for the inmemory
+	  backend, because it will quickly use up all the memory on the
+	  machine.
+
+Fri May 16 16:56:25 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* HACKING: Add note about some more PDF generation tools which are
+	  needed, and that doxygen requires them to be on PATH.
+
+Fri May 16 16:38:40 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Ubuntu now needs tetex-extra too.
+
+Fri May 16 10:05:30 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Fix to not reject chert databases during the
+	  "up front" check.
+
+Thu May 15 20:20:14 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* net/progclient.cc: Set namespace for close methods (to avoid
+	  conflicting with the close method I'm working on adding to
+	  database internal).
+
+Wed May 14 17:14:53 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/database.cc: Default to flint not chert for a new database.
+
+Wed May 14 17:11:56 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/postingsource.cc,docs/postingsource.rst,
+	  include/xapian/postingsource.h,matcher/externalpostlist.cc:
+	  PostingSource::check() now returns the valid flag rather than
+	  passing it in by reference to be set.  Change "should" to "must"
+	  for the get_termfreq_est() requirement at Richard's suggestion.
+	  Add parameter names to PostingSource method prototypes and update
+	  documentation comments to match.
+
+Wed May 14 15:34:38 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/Makefile.am,docs/index.html,docs/postingsource.rst: Add
+	  topic document for PostingSource.
+
+Mon May 12 17:27:13 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/postingsource.h: Add documentation comments for
+	  ValueWeightPostingSource, and tweak
+	  PostingSource::get_maxweight() comment a bit more.
+
+Mon May 12 16:51:01 GMT 2008  Olly Betts <olly@survex.com>
+
+	* include/xapian/postingsource.h: Clarify get_maxweight() if the
+	  maximum from now on.
+
 Mon May 12 06:51:53 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/postingsource.cc,include/xapian/postingsource.h,tests/api_db.cc,
@@ -483,7 +823,8 @@ Wed Apr 23 02:16:53 GMT 2008  Olly Betts <olly@survex.com>
 
 Wed Apr 23 02:16:10 GMT 2008  Olly Betts <olly@survex.com>
 
-	* include/xapian/query.h: Fix doc comment typo (doesn't affect API docs).
+	* include/xapian/query.h: Fix doc comment typo (doesn't affect API
+	  docs).
 
 Wed Apr 23 00:59:40 GMT 2008  Olly Betts <olly@survex.com>
 
@@ -757,7 +1098,7 @@ Thu Apr 10 05:47:37 GMT 2008  Olly Betts <olly@survex.com>
 	  being a problem with using _get_osfhandle() - ReadFile is documented
 	  to behave this way on MSDN.  Factor out update of Offset/OffsetHigh
 	  and tweak this code not to rely on off_t being 64 bits.
- 
+
 Thu Apr 10 05:24:11 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_record.cc,backends/flint/flint_utils.h: Use
@@ -807,7 +1148,7 @@ Mon Apr 07 06:20:42 GMT 2008  Olly Betts <olly@survex.com>
 	  tests/harness/backendmanager_remotetcp.cc: Header inclusions tidying
 	  - remove a few redundant inclusions; prefer cstdio to stdio.h, etc
 	  in a few places; note why certain headers are required in cases
-	  where it's less obvious; in a .cc file, include the corresponding .h 
+	  where it's less obvious; in a .cc file, include the corresponding .h
 	  second (after <config.h>).
 
 Mon Apr 07 04:23:30 GMT 2008  Olly Betts <olly@survex.com>

@@ -1,4 +1,4 @@
-/* xapian-compact.cc: Compact a flint database, or merge and compact several.
+/* xapian-compact.cc: Compact a flint or chert database, or merge and compact several.
  *
  * Copyright (C) 2004,2005,2006,2007,2008 Olly Betts
  *
@@ -31,6 +31,8 @@
 #include <sys/types.h>
 #include "utils.h"
 
+// FIXME: this current works for chert, but we are really going to need
+// separate versions eventually.
 #include "flint_table.h"
 #include "flint_cursor.h"
 #include "flint_utils.h"
@@ -42,7 +44,7 @@
 using namespace std;
 
 #define PROG_NAME "xapian-compact"
-#define PROG_DESC "Compact a flint database, or merge and compact several"
+#define PROG_DESC "Compact a flint or chert database, or merge and compact several"
 
 #define OPT_HELP 1
 #define OPT_VERSION 2
@@ -195,29 +197,37 @@ merge_postlists(FlintTable * out, vector<Xapian::docid>::const_iterator offset,
 	}
     }
 
-    string tag = F_pack_uint(tot_off);
-    tag += F_pack_uint_last(tot_totlen);
-    out->add(string("", 1), tag);
+    {
+	string tag = F_pack_uint(tot_off);
+	tag += F_pack_uint_last(tot_totlen);
+	out->add(string("", 1), tag);
+    }
 
     string last_key;
-    // Merge user metadata.
-    while (!pq.empty()) {
-	PostlistCursor * cur = pq.top();
-	const string& key = cur->key;
-	if (!is_user_metadata_key(key)) break;
+    {
+	// Merge user metadata.
+	string last_tag;
+	while (!pq.empty()) {
+	    PostlistCursor * cur = pq.top();
+	    const string& key = cur->key;
+	    if (!is_user_metadata_key(key)) break;
 
-	if (key == last_key) {
-	    cerr << "Warning: duplicate user metadata key - picking arbitrary tag value" << endl;
-	} else {
-	    out->add(key, cur->tag);
-	    last_key = key;
-	}
+	    const string & tag = cur->tag;
+	    if (key == last_key) {
+		if (tag != last_tag)
+		    cerr << "Warning: duplicate user metadata key with different tag value - picking arbitrary tag value" << endl;
+	    } else {
+		out->add(key, tag);
+		last_key = key;
+		last_tag = tag;
+	    }
 
-	pq.pop();
-	if (cur->next()) {
-	    pq.push(cur);
-	} else {
-	    delete cur;
+	    pq.pop();
+	    if (cur->next()) {
+		pq.push(cur);
+	    } else {
+		delete cur;
+	    }
 	}
     }
 
@@ -806,6 +816,8 @@ main(int argc, char **argv)
 	sources.reserve(argc - 1 - optind);
 	offset.reserve(argc - 1 - optind);
 	Xapian::docid tot_off = 0;
+	enum { UNKNOWN, FLINT, CHERT } backend = UNKNOWN;
+	const char * backend_names[] = { NULL, "flint", "chert" };
 	for (int i = optind; i < argc - 1; ++i) {
 	    const char *srcdir = argv[i];
 	    // Check destdir isn't the same as any source directory...
@@ -817,9 +829,29 @@ main(int argc, char **argv)
 	    }
 
 	    struct stat sb;
-	    if (stat(string(srcdir) + "/iamflint", &sb) != 0) {
+	    if (stat(string(srcdir) + "/iamflint", &sb) == 0) {
+		if (backend == UNKNOWN) {
+		    backend = FLINT;
+		} else if (backend != FLINT) {
+		    cout << argv[0] << ": All databases must be the same type.\n";
+		    cout << argv[0] << ": '" << argv[optind] << "' is "
+			 << backend_names[backend] << ", but "
+			 "'" << srcdir << "' is flint." << endl;
+		    exit(1);
+		}
+	    } else if (stat(string(srcdir) + "/iamchert", &sb) == 0) {
+		if (backend == UNKNOWN) {
+		    backend = CHERT;
+		} else if (backend != CHERT) {
+		    cout << argv[0] << ": All databases must be the same type.\n";
+		    cout << argv[0] << ": '" << argv[optind] << "' is "
+			 << backend_names[backend] << ", but "
+			 "'" << srcdir << "' is chert." << endl;
+		    exit(1);
+		}
+	    } else {
 		cout << argv[0] << ": '" << srcdir
-		     << "' is not a flint database directory" << endl;
+		     << "' is not a flint or chert database directory" << endl;
 		exit(1);
 	    }
 
@@ -1005,14 +1037,17 @@ main(int argc, char **argv)
 	    cout << endl;
 	}
 
-	// Copy the "iamflint" meta file over.
+	// Copy over the version file ("iamflint" or "iamchert").
 	// FIXME: We may need to do something smarter that just copying an
-	// arbitrary meta file if the meta file format changes...
+	// arbitrary version file if the version file format changes...
 	string dest = destdir;
-	dest += "/iamflint.tmp";
+	dest += "/iam";
+	dest += backend_names[backend];
+	dest += ".tmp";
 
 	string src(argv[optind]);
-	src += "/iamflint";
+	src += "/iam";
+	src += backend_names[backend];
 
 	ifstream input(src.c_str());
 	char buf[1024];
@@ -1023,8 +1058,8 @@ main(int argc, char **argv)
 		     << strerror(errno) << endl;
 		exit(1);
 	    }
-	    // metafile should be about 12 bytes, not > 1024!
-	    cerr << argv[0] << ": metafile '" << src << "' too large!"
+	    // Version file should be about 12 bytes, not > 1024!
+	    cerr << argv[0] << ": version file '" << src << "' too large!"
 		 << endl;
 	    exit(1);
 	}
@@ -1036,11 +1071,12 @@ main(int argc, char **argv)
 	}
 	output.close();
 
-	string meta = destdir;
-	meta += "/iamflint";
-	if (rename(dest.c_str(), meta.c_str()) == -1) {
+	string version = destdir;
+	version += "/iam";
+	version += backend_names[backend];
+	if (rename(dest.c_str(), version.c_str()) == -1) {
 	    cerr << argv[0] << ": cannot rename '" << dest << "' to '"
-		 << meta << "': " << strerror(errno) << endl;
+		 << version << "': " << strerror(errno) << endl;
 	    exit(1);
 	}
     } catch (const Xapian::Error &error) {

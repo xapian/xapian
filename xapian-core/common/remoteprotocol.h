@@ -54,6 +54,7 @@ enum message_type {
     MSG_DOCUMENT,		// Get Document
     MSG_TERMEXISTS,		// Term Exists?
     MSG_TERMFREQ,		// Get Term Frequency
+    MSG_VALUESTATS,		// Get value statistics
     MSG_KEEPALIVE,		// Keep-alive
     MSG_DOCLENGTH,		// Get Doc Length
     MSG_QUERY,			// Run Query
@@ -85,6 +86,7 @@ enum reply_type {
     REPLY_TERMDOESNTEXIST,	// Term Doesn't Exist
     REPLY_TERMEXISTS,		// Term Exists
     REPLY_TERMFREQ,		// Get Term Frequency
+    REPLY_VALUESTATS,		// Value statistics
     REPLY_DOCLENGTH,		// Get Doc Length
     REPLY_STATS,		// Stats
     REPLY_TERMLIST,		// Get Termlist

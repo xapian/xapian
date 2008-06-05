@@ -1,3 +1,16 @@
+Sun Jun 01 15:12:02 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: Update version to 1.0.7 to match 1.0 branch.
+
+Sun May 25 14:56:41 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Synchronise with 1.0 branch, and update from ChangeLog.
+
+Sat May 17 11:42:26 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.rst,docs/scriptindex.rst: Tweak mark-up so
+	  generated HTML gets a non-empty title.
+
 Sat May 10 11:14:20 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Makefile.am: omega_CPPFLAGS overrides AM_CPPFLAGS, so we need to
