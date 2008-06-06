@@ -1,3 +1,7 @@
+Fri Jun 06 08:26:49 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/Makefile.mk: Add valuestats.h to distribution.
+
 Thu Jun 05 23:37:37 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* backends/chert/chert_values.cc: Fix compile error in assertion in
