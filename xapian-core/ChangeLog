@@ -1,3 +1,10 @@
+Fri Jun 06 11:02:56 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* Makefile.am,tests/Makefile.am: Fix make check-* targets to match
+	  the current set of backends.  Add .multichert and .multiflint to
+	  the clean-local hook in tests/.  Leave .multi there for now, to
+	  clean up existing .multi directories in the automated build trees.
+
 Fri Jun 06 08:26:49 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* common/Makefile.mk: Add valuestats.h to distribution.
