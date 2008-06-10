@@ -1,3 +1,7 @@
+Tue Jun 10 17:38:07 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/harness/testrunner.cc: Use startswith().  Fix memory leak.
+
 Fri Jun 06 11:02:56 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* Makefile.am,tests/Makefile.am: Fix make check-* targets to match
