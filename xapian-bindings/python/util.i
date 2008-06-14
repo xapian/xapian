@@ -106,7 +106,13 @@ namespace Xapian {
 	int numitems = PySequence_Size($input);
 	for (int i = 0; i < numitems; ++i) {
 	    PyObject *obj = PySequence_GetItem($input, i);
-	    if (!PyUnicode_Check(obj) && !PyString_Check(obj) && !Xapian::get_py_query(obj)) {
+	    if (!PyUnicode_Check(obj) &&
+#if PY_VERSION_HEX >= 0x03000000
+		!PyBytes_Check(obj) &&
+#else
+		!PyString_Check(obj) &&
+#endif
+		!Xapian::get_py_query(obj)) {
 		$1 = 0;
 		break;
 	    }
@@ -130,11 +136,21 @@ namespace Xapian {
 	    Py_DECREF(obj);
 	    obj = strobj;
 	}
-	if (PyString_Check(obj)) {
+#if PY_VERSION_HEX >= 0x03000000
+	if (PyBytes_Check(obj))
+#else
+	if (PyString_Check(obj))
+#endif
+	{
 	    char * p;
 	    Py_ssize_t len;
+#if PY_VERSION_HEX >= 0x03000000
+	    /* We know this must be a bytes object, so this call can't fail. */
+	    (void)PyBytes_AsStringAndSize(obj, &p, &len);
+#else
 	    /* We know this must be a string, so this call can't fail. */
 	    (void)PyString_AsStringAndSize(obj, &p, &len);
+#endif
 	    v.push_back(Xapian::Query(string(p, len)));
 	} else {
 	    Xapian::Query *subqp = Xapian::get_py_query(obj);
@@ -156,7 +172,11 @@ namespace Xapian {
     }
 
     for (Xapian::TermIterator i = $1.first; i != $1.second; ++i) {
+#if PY_VERSION_HEX >= 0x03000000
 	PyObject * str = PyString_FromStringAndSize((*i).data(), (*i).size());
+#else
+	PyObject * str = PyBytes_FromStringAndSize((*i).data(), (*i).size());
+#endif
 	if (str == 0) return NULL;
 	if (PyList_Append($result, str) == -1) return NULL;
     }
@@ -214,7 +234,11 @@ PyObject *Xapian_ESet_items_get(Xapian::ESet *eset)
 	PyObject *t = PyTuple_New(2);
 	if (!t) return NULL;
 
+#if PY_VERSION_HEX >= 0x03000000
+	PyObject * str = PyBytes_FromStringAndSize((*i).data(), (*i).size());
+#else
 	PyObject * str = PyString_FromStringAndSize((*i).data(), (*i).size());
+#endif
 	if (str == 0) return NULL;
 	PyTuple_SetItem(t, ESET_TNAME, str);
 	PyTuple_SetItem(t, ESET_WT, PyFloat_FromDouble(i.get_weight()));
@@ -496,7 +520,11 @@ namespace Xapian {
     PyTuple_SetItem(newresult, 0, $result);
     $result = newresult;
 
+#if PY_VERSION_HEX >= 0x03000000
+    str = PyBytes_FromStringAndSize($1->data(), $1->size());
+#else
     str = PyString_FromStringAndSize($1->data(), $1->size());
+#endif
     if (str == 0) {
         Py_DECREF($result);
         $result = NULL;
@@ -507,7 +535,11 @@ namespace Xapian {
 %typemap(argout) std::string &vrpend {
     PyObject * str;
 
+#if PY_VERSION_HEX >= 0x03000000
+    str = PyBytes_FromStringAndSize($1->data(), $1->size());
+#else
     str = PyString_FromStringAndSize($1->data(), $1->size());
+#endif
     if (str == 0) {
         Py_DECREF($result);
         $result = NULL;
