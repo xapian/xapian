@@ -173,9 +173,9 @@ namespace Xapian {
 
     for (Xapian::TermIterator i = $1.first; i != $1.second; ++i) {
 #if PY_VERSION_HEX >= 0x03000000
-	PyObject * str = PyString_FromStringAndSize((*i).data(), (*i).size());
-#else
 	PyObject * str = PyBytes_FromStringAndSize((*i).data(), (*i).size());
+#else
+	PyObject * str = PyString_FromStringAndSize((*i).data(), (*i).size());
 #endif
 	if (str == 0) return NULL;
 	if (PyList_Append($result, str) == -1) return NULL;
