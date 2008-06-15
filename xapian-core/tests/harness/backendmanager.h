@@ -144,6 +144,9 @@ class BackendManager {
     /// Create a WritableDatabase object for the last opened WritableDatabase.
     virtual Xapian::WritableDatabase get_writable_database_again();
 
+    /// Called after each test, to perform any necessary cleanup.
+    virtual void posttest();
+
     /// Get the command line required to run xapian-progsrv.
     static const char * get_xapian_progsrv_command();
 };

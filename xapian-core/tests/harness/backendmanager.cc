@@ -245,6 +245,11 @@ BackendManager::get_writable_database_again()
     throw Xapian::InvalidOperationError(msg);
 }
 
+void
+BackendManager::posttest()
+{
+}
+
 const char *
 BackendManager::get_xapian_progsrv_command()
 {

@@ -23,6 +23,8 @@
 #include <config.h>
 
 #include "testsuite.h"
+#include "testrunner.h"
+#include "backendmanager.h"
 
 #ifdef HAVE_VALGRIND
 # include "safeerrno.h"
@@ -526,7 +528,9 @@ test_driver::do_run_tests(vector<string>::const_iterator b,
 	if (do_this_test) {
 	    out << "Running test: " << test->name << "...";
 	    out.flush();
-	    switch (runtest(test)) {
+	    test_driver::test_result test_res = runtest(test);
+	    backendmanager->posttest();
+	    switch (test_res) {
 		case PASS:
 		    ++res.succeeded;
 		    if (verbose || !use_cr) {

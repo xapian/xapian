@@ -39,8 +39,7 @@ class BackendManagerRemoteTcp : public BackendManagerRemote {
     std::string last_wdb_name;
 
   public:
-    BackendManagerRemoteTcp(const std::string & remote_type_)
-	: BackendManagerRemote(remote_type_) { }
+    BackendManagerRemoteTcp(const std::string & remote_type_);
 
     /** We have virtual methods and want to be able to delete derived classes
      *  using a pointer to the base class, so we need a virtual destructor.
@@ -69,6 +68,9 @@ class BackendManagerRemoteTcp : public BackendManagerRemote {
 
     /// Create a WritableDatabase object for the last opened WritableDatabase.
     Xapian::WritableDatabase get_writable_database_again();
+
+    /// Called after each test, to perform any necessary cleanup.
+    virtual void posttest();
 };
 
 #endif // XAPIAN_INCLUDED_BACKENDMANAGER_REMOTETCP_H
