@@ -529,7 +529,8 @@ test_driver::do_run_tests(vector<string>::const_iterator b,
 	    out << "Running test: " << test->name << "...";
 	    out.flush();
 	    test_driver::test_result test_res = runtest(test);
-	    backendmanager->posttest();
+	    if (backendmanager)
+		backendmanager->posttest();
 	    switch (test_res) {
 		case PASS:
 		    ++res.succeeded;
