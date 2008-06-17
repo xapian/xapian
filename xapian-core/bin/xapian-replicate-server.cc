@@ -27,6 +27,8 @@
 
 #include "gnu_getopt.h"
 
+#include <stdlib.h>
+
 #include <iostream>
 
 using namespace std;
