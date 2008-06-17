@@ -1,3 +1,8 @@
+Tue Jun 17 11:00:56 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/perftest/get_machine_info.in: Updates to hopefully get
+	  useful version information on windows.
+
 Mon Jun 16 12:13:48 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/harness/testsuite.cc: Don't call backendmanager->posttest()

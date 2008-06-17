@@ -120,8 +120,18 @@ if (lc $OS eq "linux") {
     $distro =~ s/ $//;
 }
 
-my ($version) = run_command("uname -r");
-my ($uname_m) = run_command("uname -m");
+my $version;
+my $uname_m;
+if (lc $OS eq "MSWin32") {
+    require Win32;
+    import Win32;
+    $distro = Win32::GetOSName();
+    $version = Win32::GetOSVersion();
+    $uname_m = '';
+} else {
+    $version = run_command("uname -r");
+    $uname_m = run_command("uname -m");
+}
 
 my $SERVER_BUILD_NAME;
 $SERVER_BUILD_NAME = "$OS $distro $version $uname_m";
