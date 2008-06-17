@@ -34,6 +34,11 @@
 
 #include <iostream>
 
+#ifdef __WIN32__
+#include "safewindows.h"
+#include "winsock2.h"
+#endif
+
 using namespace std;
 
 PerfTestLogger logger;
@@ -88,28 +93,54 @@ PerfTestLogger::~PerfTestLogger()
 string
 get_hostname()
 {
+#ifdef __WIN32__
+    char buf[256];
+    WORD        WSAVerReq = MAKEWORD(1,1);
+    WSADATA        WSAData;
+
+    if (WSAStartup(WSAVerReq, &WSAData) != 0)
+    {
+        // wrong winsock dlls?
+        return "";
+    }
+    int ret = gethostname(buf, 256);
+    WSACleanup();
+    if (ret == 0)
+        return buf;
+    else return "";
+#else
     string hostname;
     try {
 	hostname = stdout_to_string("uname -n 2>/dev/null");
     } catch (NoSuchProgram) {} catch (ReadError) {}
     return hostname;
+#endif
 }
 
 /// Get the load average.
 string
 get_loadavg()
 {
+#ifdef __WIN32__
+    return "";
+#else
     string loadavg;
     try {
 	loadavg = stdout_to_string("uptime 2>/dev/null | sed 's/.*: \\([0-9][0-9]*\\)/\\1/' | sed 's/, .*//'");
     } catch (NoSuchProgram) {} catch (ReadError) {}
     return loadavg;
+#endif
 }
 
 /// Get the number of processors.
 string get_ncpus()
 {
     string ncpus;
+#ifdef __WIN32__
+    SYSTEM_INFO siSysInfo;
+    GetSystemInfo(&siSysInfo); 
+    ncpus = om_tostring(siSysInfo.dwNumberOfProcessors);
+#else
     try {
 	// Works on Linux, at least back to kernel 2.2.26.
 	ncpus = stdout_to_string("getconf _NPROCESSORS_ONLN 2>/dev/null | grep -v '[^0-9]'");
@@ -131,6 +162,7 @@ string get_ncpus()
 	    // work as widely as getconf _NPROCESSORS_ONLN will.
 	    ncpus = stdout_to_string("grep -c processor /proc/cpuinfo 2>/dev/null");
 	} catch (NoSuchProgram) {} catch (ReadError) {}
+#endif
     return ncpus;
 }
 
@@ -138,10 +170,19 @@ string get_ncpus()
 string get_distro()
 {
     string distro;
+#ifdef __WIN32__    
+    OSVERSIONINFO osvi;
+    ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
+    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+    GetVersionEx(&osvi);
+    distro = "MSWin32 v" + om_tostring(osvi.dwMajorVersion) + "." +
+	    om_tostring(osvi.dwMinorVersion) + "." +
+	    om_tostring(osvi.dwBuildNumber);
+#else
     try {
 	distro = stdout_to_string("perftest/get_machine_info 2>/dev/null");
     } catch (NoSuchProgram) {} catch (ReadError) {}
-
+#endif
     return distro;
 }
 

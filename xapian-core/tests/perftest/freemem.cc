@@ -24,7 +24,9 @@
 
 #include <sys/types.h>
 #include <limits.h>
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 #ifdef HAVE_SYS_SYSCTL_H
 # include <sys/sysctl.h>
 #endif
@@ -44,13 +46,23 @@
 # include <sys/pstat.h>
 #endif
 
+#ifdef __WIN32__
+#include "safewindows.h"
+#endif 
+
 /* Tested on:
- * Linux, FreeBSD, IRIX, HP-UX.
+ * Windows, Linux, FreeBSD, IRIX, HP-UX.
  */
 
 long
 get_free_physical_memory()
 {
+#ifdef __WIN32__
+    MEMORYSTATUSEX statex;
+    statex.dwLength = sizeof (statex);
+    GlobalMemoryStatusEx (&statex);
+    return statex.ullAvailPhys;
+#else
     long pagesize = 1;
     long pages = -1;
 #if defined(_SC_PAGESIZE) && defined(_SC_AVPHYS_PAGES)
@@ -96,15 +108,22 @@ get_free_physical_memory()
 	return mem;
     }
     return -1;
+#endif
 }
 
 /* Tested on:
- * Linux.
+ * Windows, Linux.
  */
 
 long
 get_total_physical_memory()
 {
+#ifdef __WIN32__
+    MEMORYSTATUSEX statex;
+    statex.dwLength = sizeof (statex);
+    GlobalMemoryStatusEx (&statex);
+    return statex.ullTotalPhys;
+#else
     long pagesize = 1;
     long pages = -1;
 #if defined(_SC_PAGESIZE) && defined(_SC_AVPHYS_PAGES)
@@ -150,4 +169,5 @@ get_total_physical_memory()
 	return mem;
     }
     return -1;
+#endif
 }
