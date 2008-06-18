@@ -37,6 +37,8 @@ MAKEALL:
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\tests\harness
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
+   cd ..\tests\perftest
+   nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\..\bin
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\examples
@@ -70,6 +72,8 @@ CLEAN: COPYMAKFILES
    cd ..\unicode
    nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
    cd ..\tests\harness
+   nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
+   cd ..\tests\perftest
    nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
    cd ..\..\bin
    nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
@@ -111,6 +115,7 @@ COPYMAKFILES:
    copy  win32_queryparser.mak ..\queryparser\Makefile
    copy  win32_tests.mak ..\tests\Makefile
    copy  win32_testsuite.mak ..\tests\harness\Makefile
+   copy  win32_perftest.mak ..\tests\perftest\Makefile
    if exist $(XAPIAN_BINDINGS) copy $(XAPIAN_BINDINGS)\xapian-version.h.in $(XAPIAN_BINDINGS)\xapian-version.h
    if exist $(XAPIAN_BINDINGS) copy win32_bindings_python.mak $(XAPIAN_BINDINGS)\python\Makefile
    if exist $(XAPIAN_BINDINGS) copy doccomments.i $(XAPIAN_BINDINGS)\python
