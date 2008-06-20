@@ -72,6 +72,7 @@ enum message_type {
     MSG_DELETEDOCUMENT,		// Delete Document
     MSG_GETMSET,		// Get MSet
     MSG_SHUTDOWN,		// Shutdown
+    MSG_SHUTDOWNANDCONFIRM,	// Shutdown and send a confirmation message
     MSG_MAX
 };
 
@@ -97,6 +98,7 @@ enum reply_type {
     REPLY_VALUE,		// Document Value
     REPLY_ADDDOCUMENT,		// Add Document
     REPLY_RESULTS,		// Results (MSet)
+    REPLY_SHUTDOWNCONFIRMATION,	// Confirm a shutdown
     REPLY_MAX
 };
 

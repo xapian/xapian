@@ -1,3 +1,15 @@
+Fri Jun 20 08:28:12 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/remote/remote-database.cc,common/remoteconnection.h,
+	  common/remoteprotocol.h,docs/remote_protocol.html,
+	  net/remoteconnection.cc,net/remoteserver.cc,
+	  net/replicatetcpclient.cc: Add new message
+	  "MSG_SHUTDOWNANDCONFIRM" which causes a reply of
+	  "REPLY_SHUTDOWNCONFIRMATION" to be sent after the database has
+	  been closed.  Use this message when closing a writable database,
+	  to ensure that the destructor doesn't return until the lock on
+	  the database has been released.
+
 Tue Jun 17 14:28:46 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/perftest/freemem.cc,tests/perftest/perftest.cc: Patches

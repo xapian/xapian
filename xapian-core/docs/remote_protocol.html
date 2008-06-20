@@ -228,6 +228,17 @@ first document ID is encoded as its true value - 1 (since document IDs are alway
 No reply is sent - this message signals that the client has ended the session.
 </p>
 
+<ul>
+<li> <code>MSG_SHUTDOWNANDCONFIRM</code>
+<li> <code>REPLY_SHUTDOWNCONFIRMATION</code>
+</ul>
+
+<p>
+This is used when a <code>WritableDatabase</code> is closed.  The
+reply is sent only once the database lock has been released, so it is
+safe for a client to re-connect for writing.
+</p>
+
 <h2>Update</h2>
 
 <ul>

@@ -270,8 +270,16 @@ class RemoteConnection {
      */
     void send_file(char type, const std::string &file, const OmTime & end_time);
 
-    /// Shutdown the connection.
-    void do_close();
+    /** Shutdown the connection.
+     *
+     *  @param wait             If true, wait for a reply confirming that the
+     *                          remote end has shut down.
+     *  @param end_time		If this time is reached, then a timeout
+     *				exception will be thrown.  If
+     *				!end_time.is_set() then the operation will
+     *				never timeout.
+     */
+    void do_close(bool wait, const OmTime & end_time);
 };
 
 #endif // XAPIAN_INCLUDED_REMOTECONNECTION_H

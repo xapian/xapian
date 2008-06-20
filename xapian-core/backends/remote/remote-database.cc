@@ -472,11 +472,25 @@ RemoteDatabase::send_message(message_type type, const string &message) const
 void
 RemoteDatabase::do_close()
 {
-    // We should only really call dtor_called() if we're writable.  In the
-    // constructor, we set transaction_state to TRANSACTION_UNIMPLEMENTED
-    // if we aren't writable, so test that here.
-    if (transaction_state != TRANSACTION_UNIMPLEMENTED) dtor_called();
-    link.do_close();
+    if (transaction_state != TRANSACTION_UNIMPLEMENTED) {
+	// In the constructor, we set transaction_state to
+	// TRANSACTION_UNIMPLEMENTED if we aren't writable, so if we get here,
+	// we're writable.
+
+	// We should only really call dtor_called() if we're writable.
+	dtor_called();
+
+	// If we're writable, wait for a confirmation of the close, so we know
+	// the lock has been released.
+	OmTime end_time;
+	if (timeout) end_time = OmTime::now() + timeout;
+
+	link.do_close(true, end_time);
+    } else {
+	// If we're readonly, we don't need to wait for confirmation of the
+	// close, because there's no exclusive lock.
+	link.do_close(false, OmTime::now());
+    }
 }
 
 void
