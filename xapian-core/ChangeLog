@@ -1,3 +1,8 @@
+Sun Jun 22 09:30:44 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_anydb.cc: Expand tests for alldocspostlist, covering
+	  iteration of modified databases.
+
 Fri Jun 20 08:28:12 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* backends/remote/remote-database.cc,common/remoteconnection.h,
