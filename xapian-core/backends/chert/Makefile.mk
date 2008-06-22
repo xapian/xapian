@@ -4,6 +4,7 @@ EXTRA_DIST +=\
 
 if BUILD_BACKEND_CHERT
 noinst_HEADERS +=\
+	backends/chert/chert_alldocsmodifiedpostlist.h\
 	backends/chert/chert_alldocspostlist.h\
 	backends/chert/chert_alltermslist.h\
 	backends/chert/chert_btreebase.h\
@@ -30,6 +31,7 @@ noinst_HEADERS +=\
 	backends/chert/chert_version.h
 
 libxapian_la_SOURCES +=\
+	backends/chert/chert_alldocsmodifiedpostlist.cc\
 	backends/chert/chert_alldocspostlist.cc\
 	backends/chert/chert_alltermslist.cc\
 	backends/chert/chert_btreebase.cc\

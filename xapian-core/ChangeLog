@@ -1,3 +1,25 @@
+Sun Jun 22 23:44:46 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/chert/: Change ChertAllDocsPostList to inherit from
+	  ChertPostList and use the doclen list from the posting table
+	  rather than using the termlist table.  This helps towards making
+	  the termlist table optional, reduces the amount of data read in
+	  the process of iterating through an alldocs postlist, and can
+	  make a massive difference in performance: I've measured the time
+	  to iterate through all the documents in a 1000000 document
+	  database, and the patch speeds this operation up by a factor of
+	  6.
+
+	  Add `keep_reference` parameter to the ChertPostList constructor,
+	  instead of not keeping a reference if the term is empty.
+	  ChertAllDocsPostList uses this to keep a reference to the
+	  database while using an empty term.
+
+	  Add ChertAllDocsModifiedPostList class, inspired by
+	  ChertModifiedPostList, (with corresponding new source files) to
+	  handle alldocs postlist with modifications: this wasn't needed
+	  before since the termlist is updated immediately after changes.
+
 Sun Jun 22 21:37:00 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/harness/: Add "name" parameter to
