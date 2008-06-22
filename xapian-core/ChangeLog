@@ -1,3 +1,11 @@
+Sun Jun 22 21:37:00 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/harness/: Add "name" parameter to
+	  BackendManager::get_writable_database_as_database(), and
+	  BackendManager::get_writable_database_again(), (and subclasses)
+	  so that old databases can be revived.  Useful for the performance
+	  tests.
+
 Sun Jun 22 09:30:44 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/api_anydb.cc: Expand tests for alldocspostlist, covering
