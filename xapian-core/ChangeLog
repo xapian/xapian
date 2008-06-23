@@ -1,3 +1,11 @@
+Mon Jun 23 01:53:03 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: Cuddle braces after for loops for
+	  consistency with the rest of the code.  Use string::resize() to
+	  shrink a string rather than assigning the result of substr(0, x).
+	* HACKING: Explicitly document that braces should be cuddled after
+	  control flow structures.
+
 Mon Jun 23 01:34:39 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/perftest/perftest_matchdecider.cc: Reworked performance
