@@ -1,3 +1,9 @@
+Mon Jun 23 01:34:39 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/perftest/perftest_matchdecider.cc: Reworked performance
+	  test to include a test of an alldocspostingiterator, and to only
+	  rebuild the database involved if it's not up-to-date.
+
 Mon Jun 23 01:20:25 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* common/valuestats.h: Add missing #include.
