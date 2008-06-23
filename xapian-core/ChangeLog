@@ -1,3 +1,8 @@
+Mon Jun 23 01:10:19 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* bin/xapian-compact.cc: Add support for the valuestats which are
+	  now held in the value table for chert.
+
 Sun Jun 22 23:44:46 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* backends/chert/: Change ChertAllDocsPostList to inherit from
