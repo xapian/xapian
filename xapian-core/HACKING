@@ -916,8 +916,9 @@ to follow the style of the existing code.  In particular:
   "while", etc.  Don't put a space before the "(" in function calls.  So
   write "if (strlen(p) > 10)" not "if(strlen (p) > 10)".
 
-* When "if", "else", "for", "while", "try", or "catch" is followed by a block
-  enclosed in braces, the opening brace should be on the same line, like so::
+* When "if", "else", "for", "while", "do," "switch", "case", "default", "try",
+  or "catch" is followed by a block enclosed in braces, the opening brace
+  should be on the same line, like so::
 
     if (x > 12) {
         foo(x);
@@ -925,6 +926,9 @@ to follow the style of the existing code.  In particular:
     } else {
         bar(x);
     }
+
+  The rationale for this is that it conserves vertical space (allowing more
+  code to fit on screen) without reducing readability.
 
 * Prefer "++i;" to "i++;", "i += 1;", or "i = i + 1".  For simple integer
   variables these should generate equivalent (if not identical) code, but if i
