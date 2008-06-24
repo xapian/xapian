@@ -77,8 +77,7 @@ RemoteServer::RemoteServer(const std::vector<std::string> &dbpaths,
     } catch (const Xapian::Error &err) {
 	// Propagate the exception to the client.
 	send_message(REPLY_EXCEPTION, serialise_error(err));
-	// And rethrow it so our caller can log it and close the
-	// connection.
+	// And rethrow it so our caller can log it and close the connection.
 	throw;
     }
 
