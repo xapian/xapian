@@ -1,3 +1,8 @@
+Tue Jun 24 04:23:59 GMT 2008  Olly Betts <olly@survex.com>
+
+	* net/remoteconnection.cc: Fill in a guess at the __WIN32__ version of
+	  the code needed in RemoteConnection::do_close().
+
 Tue Jun 24 04:06:02 GMT 2008  Olly Betts <olly@survex.com>
 
 	* net/progclient.cc: Fix debug logging for __WIN32__.
