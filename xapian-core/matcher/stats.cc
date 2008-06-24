@@ -33,12 +33,10 @@ Stats::get_description() const
     result += ", rset_size=" + om_tostring(rset_size);
     result += ", average_length=" + om_tostring(average_length);
     std::map<string, Xapian::doccount>::const_iterator i;
-    for (i = termfreq.begin(); i != termfreq.end(); ++i)
-    {
+    for (i = termfreq.begin(); i != termfreq.end(); ++i) {
 	result += ", termfreq[" + i->first + "]=" + om_tostring(i->second);
     }
-    for (i = reltermfreq.begin(); i != reltermfreq.end(); ++i)
-    {
+    for (i = reltermfreq.begin(); i != reltermfreq.end(); ++i) {
 	result += ", reltermfreq[" + i->first + "]=" + om_tostring(i->second);
     }
     result += ")";

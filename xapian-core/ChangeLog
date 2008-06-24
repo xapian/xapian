@@ -1,3 +1,11 @@
+Tue Jun 24 05:17:12 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* api/omqueryinternal.cc,backends/flint/flint_btreebase.cc,
+	  backends/flint/flint_utils.h,
+	  backends/inmemory/inmemory_positionlist.cc,matcher/stats.cc:
+	  Assorted formatting tweaks.
+
 Wed May 28 23:23:43 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

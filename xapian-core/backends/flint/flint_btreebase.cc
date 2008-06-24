@@ -411,8 +411,7 @@ FlintTable_base::next_free_block()
 {
     uint4 i;
     int x;
-    for (i = bit_map_low;; i++)
-    {  
+    for (i = bit_map_low;; i++) {
 	if (i >= bit_map_size) {
 	    extend_bit_map();
 	}
