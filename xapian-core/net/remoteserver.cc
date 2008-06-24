@@ -136,20 +136,7 @@ RemoteServer::get_message(Xapian::timeout timeout, string & result,
     type = RemoteConnection::get_message(result, end_time);
 
     // Handle "shutdown connection" message here.
-    if (type == MSG_SHUTDOWN ||
-	type == MSG_SHUTDOWNANDCONFIRM) {
-	if (type == MSG_SHUTDOWNANDCONFIRM) {
-	    if (wdb) {
-		delete wdb;
-	    } else {
-		delete db;
-	    }
-	    wdb = NULL;
-	    db = NULL;
-	    send_message(REPLY_SHUTDOWNCONFIRMATION, "");
-	}
-	throw ConnectionClosed();
-    }
+    if (type == MSG_SHUTDOWN) throw ConnectionClosed();
     if (type >= MSG_MAX) {
 	string errmsg("Invalid message type ");
 	errmsg += om_tostring(type);

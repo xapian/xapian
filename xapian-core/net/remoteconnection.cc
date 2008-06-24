@@ -631,10 +631,9 @@ RemoteConnection::receive_file(const string &file, const OmTime & end_time)
 }
 
 void
-RemoteConnection::do_close(bool wait, const OmTime & end_time)
+RemoteConnection::do_close()
 {
-    DEBUGCALL(REMOTE, void, "RemoteConnection::do_close",
-	      (wait ? "true" : "false") << ", " << end_time);
+    DEBUGCALL(REMOTE, void, "RemoteConnection::do_close", "");
 
     if (fdin == -1 && fdout == -1) return;
 
@@ -644,16 +643,7 @@ RemoteConnection::do_close(bool wait, const OmTime & end_time)
 	    /* If we can't send the close-down message right away, then just
 	     * close the connection as the other end will cope.
 	     */
-	    if (wait) {
-		send_message(MSG_SHUTDOWNANDCONFIRM, "", end_time);
-		string result;
-
-		// Ignore the return type, because we can't throw an exception
-		// if it's wrong anyway.
-		get_message(result, end_time);
-	    } else {
-		send_message(MSG_SHUTDOWN, "", end_time);
-	    }
+	    send_message(MSG_SHUTDOWN, "", OmTime::now());
 	} catch (...) {
 	}
 	close_fd_or_socket(fdin);

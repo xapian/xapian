@@ -1,3 +1,11 @@
+Tue Jun 24 00:49:50 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/remote/remote-database.cc,common/remoteconnection.h,
+	  common/remoteprotocol.h,docs/remote_protocol.html,
+	  net/remoteconnection.cc,net/remoteserver.cc,
+	  net/replicatetcpclient.cc: Revert r10713 in preparation for applying
+	  an alternative fix.
+
 Mon Jun 23 21:51:42 GMT 2008  Olly Betts <olly@survex.com>
 
 	* HACKING: Expand list of keywords for brace cuddling.  Add rationale.
