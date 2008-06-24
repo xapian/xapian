@@ -1,3 +1,7 @@
+Tue Jun 24 04:31:10 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/harness/testsuite.cc: Use resize() to truncate a string.
+
 Tue Jun 24 04:23:59 GMT 2008  Olly Betts <olly@survex.com>
 
 	* net/remoteconnection.cc: Fill in a guess at the __WIN32__ version of

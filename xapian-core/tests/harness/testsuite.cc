@@ -520,8 +520,8 @@ test_driver::do_run_tests(vector<string>::const_iterator b,
 	    string t = test->name;
 	    string::size_type i;
 	    i = t.find_last_not_of("0123456789") + 1;
-	    if (i < t.length()) {
-		t = t.substr(0, i);
+	    if (i != string::npos) {
+		t.resize(i);
 		if (m.find(t) != m.end()) do_this_test = true;
 	    }
 	}
