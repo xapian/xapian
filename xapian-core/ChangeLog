@@ -1,3 +1,7 @@
+Tue Jun 24 04:06:02 GMT 2008  Olly Betts <olly@survex.com>
+
+	* net/progclient.cc: Fix debug logging for __WIN32__.
+
 Tue Jun 24 03:11:09 GMT 2008  Olly Betts <olly@survex.com>
 
 	* net/remoteserver.cc: Just delete the Database * pointer db.  The
