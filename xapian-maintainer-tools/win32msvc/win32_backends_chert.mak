@@ -15,6 +15,7 @@ LIBCHERTBTREECHECK_OBJS= \
                 $(INTDIR)\chert_check.obj
 
 OBJS= \
+                $(INTDIR)\chert_alldocsmodifiedpostlist.obj\
                 $(INTDIR)\chert_alldocspostlist.obj\
                 $(INTDIR)\chert_alltermslist.obj\
                 $(INTDIR)\chert_btreebase.obj\
@@ -38,6 +39,7 @@ OBJS= \
                 $(INTDIR)\chert_version.obj
 
 SRCS= \
+                $(INTDIR)\chert_alldocsmodifiedpostlist.cc\
                 $(INTDIR)\chert_alldocspostlist.cc\
                 $(INTDIR)\chert_alltermslist.cc\
                 $(INTDIR)\chert_btreebase.cc\

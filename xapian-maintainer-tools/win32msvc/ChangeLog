@@ -1,3 +1,9 @@
+Tue Jun 24 16:06:21 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* win32_backends_chert.mak: Add chert_alldocsmodifiedpostlist
+	  source files.
+	* win32_testsuite.mak: Add backendmanager_remote source file.
+
 Thu Jun 05 17:29:16 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* win32_expand.mak: Replace reference to expand.cc and expand.obj
