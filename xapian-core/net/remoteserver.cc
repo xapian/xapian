@@ -110,12 +110,8 @@ RemoteServer::RemoteServer(const std::vector<std::string> &dbpaths,
 
 RemoteServer::~RemoteServer()
 {
-    // wdb is either NULL or equal to db, so we shouldn't delete it.
-    if (wdb) {
-	delete wdb;
-    } else {
-	delete db;
-    }
+    delete db;
+    // wdb is either NULL or equal to db, so we shouldn't delete it too!
 
     map<string, Xapian::Weight*>::const_iterator i;
     for (i = wtschemes.begin(); i != wtschemes.end(); ++i) {

@@ -1,3 +1,9 @@
+Tue Jun 24 03:11:09 GMT 2008  Olly Betts <olly@survex.com>
+
+	* net/remoteserver.cc: Just delete the Database * pointer db.  The
+	  Database dtor is virtual, so it's fine to delete a WritableDatabase
+	  via a Database * pointer.
+
 Tue Jun 24 01:29:12 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/remote/remote-database.cc,common/remoteconnection.h,
