@@ -1,3 +1,8 @@
+Wed Jun 25 21:06:41 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/extra.i: Tidy up the documentation comments for
+	  TermListItem.
+
 Tue Jun 24 18:21:12 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/doxy2swig.py.in: Adjust to be compatible with python 3.0.
