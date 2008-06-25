@@ -1,7 +1,7 @@
 /** @file valuerangepostlist.h
  * @brief Return document ids matching a range test on a specified doc value.
  */
-/* Copyright 2007 Olly Betts
+/* Copyright 2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,9 +34,9 @@ class ValueRangePostList : public PostList {
 
     Xapian::docid current;
 
-    Xapian::doccount lastdocid;
-
     Xapian::doccount db_size;
+
+    LeafPostList * alldocs_pl;
 
     /// Disallow copying.
     ValueRangePostList(const ValueRangePostList &);
@@ -49,7 +49,9 @@ class ValueRangePostList : public PostList {
 		       Xapian::valueno valno_,
 		       const std::string &begin_, const std::string &end_)
 	: db(db_), valno(valno_), begin(begin_), end(end_), current(0),
-	  lastdocid(db->get_lastdocid()), db_size(db->get_doccount()) { }
+	  db_size(db->get_doccount()), alldocs_pl(0) { }
+
+    ~ValueRangePostList();
 
     Xapian::doccount get_termfreq_min() const;
 

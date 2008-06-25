@@ -1,3 +1,16 @@
+Wed Jun 25 09:50:19 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/valuegepostlist.cc,matcher/valuerangepostlist.cc,
+	  matcher/valuerangepostlist.h: Apply patch from ticket #270 to
+	  implement ValueRangePostList::next() by using an alldocs posting
+	  list, instead of trying docids in turn.  This is much more
+	  efficient if document IDs are sparse.  Since both methods require
+	  accessing the termlist table to check for the next document, and
+	  some cursory performance tests don't show a measurable difference
+	  in speed, I think this approach is at least safe, and probably
+	  superior.
+
 Wed Jun 25 09:49:23 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_alldocspostlist.cc: skip_to() needs to set
