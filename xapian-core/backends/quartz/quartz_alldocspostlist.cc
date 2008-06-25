@@ -237,12 +237,12 @@ QuartzAllDocsPostList::skip_to(Xapian::docid desired_did, Xapian::weight w_min)
     // Don't skip back, and don't need to do anything if already there.
     if (!have_started) {
         dociditer = docids.begin();
+        have_started = true;
     }
     if (dociditer == docids.end()) RETURN(NULL);
     if (desired_did <= *dociditer) RETURN(NULL);
 
-    while (dociditer != docids.end() && *dociditer < desired_did)
-    {
+    while (dociditer != docids.end() && *dociditer < desired_did) {
         ++dociditer;
     }
 

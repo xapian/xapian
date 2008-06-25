@@ -1,3 +1,8 @@
+Wed Jun 25 09:49:23 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_alldocspostlist.cc: skip_to() needs to set
+	  have_started if it isn't already set.
+
 Tue Jun 24 07:28:43 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
