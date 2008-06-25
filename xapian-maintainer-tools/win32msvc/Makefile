@@ -37,7 +37,7 @@ MAKEALL:
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\tests\harness
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
-   cd ..\tests\perftest
+   cd ..\perftest
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\..\bin
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
@@ -73,7 +73,7 @@ CLEAN: COPYMAKFILES
    nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
    cd ..\tests\harness
    nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
-   cd ..\tests\perftest
+   cd ..\perftest
    nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
    cd ..\..\bin
    nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
