@@ -1,3 +1,9 @@
+Thu Jun 26 21:53:39 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* ruby/docs/index.html: Document how database factory functions are
+	  wrapped.
+
 Thu Jun 26 21:28:01 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
