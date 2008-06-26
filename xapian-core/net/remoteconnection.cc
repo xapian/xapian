@@ -662,10 +662,6 @@ RemoteConnection::do_close(bool wait)
 		    res = select(fdin + 1, &fdset, 0, &fdset, NULL);
 		} while (res < 0 && errno == EINTR);
 #endif
-	    } else {
-		// If we can't send the close-down message right away, then
-		// just close the connection as the other end will cope.
-		send_message(MSG_SHUTDOWN, string(), OmTime::now());
 	    }
 	} catch (...) {
 	}

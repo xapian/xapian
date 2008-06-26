@@ -1,3 +1,8 @@
+Thu Jun 26 08:19:41 GMT 2008  Olly Betts <olly@survex.com>
+
+	* net/remoteconnection.cc: Don't bother to send MSG_SHUTDOWN for a
+	  read-only Database - just closing the connection is enough.
+
 Thu Jun 26 04:49:06 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_btreebase.cc: Don't need <string.h> as well as
