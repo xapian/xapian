@@ -1,3 +1,9 @@
+Thu Jun 26 08:34:45 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* net/remoteconnection.cc: Fill in a guess at the __WIN32__ version of
+	  the code needed in RemoteConnection::do_close().
+
 Thu Jun 26 08:30:14 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

@@ -406,7 +406,16 @@ RemoteConnection::do_close(bool wait)
     try {
 	if (wait) {
 	    send_message(MSG_SHUTDOWN, string(), OmTime());
-#ifndef __WIN32__
+#ifdef __WIN32__
+	    HANDLE hin = fd_to_handle(fdin);
+	    char dummy;
+	    DWORD received;
+	    BOOL ok = ReadFile(hin, &dummy, 1, &received, &overlapped);
+	    if (!ok && GetLastError() == ERROR_IO_PENDING) {
+		// Wait for asynchronous read to complete.
+		(void)WaitForSingleObject(overlapped.hEvent, INFINITE);
+	    }
+#else
 	    // Wait for the connection to be closed - when this happens
 	    // select() will report that a read won't block.
 	    fd_set fdset;
@@ -416,8 +425,6 @@ RemoteConnection::do_close(bool wait)
 	    do {
 		res = select(fdin + 1, &fdset, 0, &fdset, NULL);
 	    } while (res < 0 && errno == EINTR);
-#else
-# error FIXME : implement for __WIN32__
 #endif
 	} else {
 	    // If we can't send the close-down message right away, then
