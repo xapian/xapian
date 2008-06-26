@@ -1,3 +1,9 @@
+Thu Jun 26 06:43:08 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* net/remoteserver.cc: Kill a blank line.
+	* net/remoteserver.cc: Unwrap comment.
+
 Thu Jun 26 06:41:38 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
