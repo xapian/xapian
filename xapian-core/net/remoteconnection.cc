@@ -403,35 +403,31 @@ RemoteConnection::do_close(bool wait)
 
     if (fdout == -1) return;
     // We can be called from a destructor, so we can't throw an exception.
-    try {
-	if (wait) {
+    if (wait) {
+	try {
 	    send_message(MSG_SHUTDOWN, string(), OmTime());
-#ifdef __WIN32__
-	    HANDLE hin = fd_to_handle(fdin);
-	    char dummy;
-	    DWORD received;
-	    BOOL ok = ReadFile(hin, &dummy, 1, &received, &overlapped);
-	    if (!ok && GetLastError() == ERROR_IO_PENDING) {
-		// Wait for asynchronous read to complete.
-		(void)WaitForSingleObject(overlapped.hEvent, INFINITE);
-	    }
-#else
-	    // Wait for the connection to be closed - when this happens
-	    // select() will report that a read won't block.
-	    fd_set fdset;
-	    FD_ZERO(&fdset);
-	    FD_SET(fdin, &fdset);
-	    int res;
-	    do {
-		res = select(fdin + 1, &fdset, 0, &fdset, NULL);
-	    } while (res < 0 && errno == EINTR);
-#endif
-	} else {
-	    // If we can't send the close-down message right away, then
-	    // just close the connection as the other end will cope.
-	    send_message(MSG_SHUTDOWN, string(), OmTime::now());
+	} catch (...) {
 	}
-    } catch (...) {
+#ifdef __WIN32__
+	HANDLE hin = fd_to_handle(fdin);
+	char dummy;
+	DWORD received;
+	BOOL ok = ReadFile(hin, &dummy, 1, &received, &overlapped);
+	if (!ok && GetLastError() == ERROR_IO_PENDING) {
+	    // Wait for asynchronous read to complete.
+	    (void)WaitForSingleObject(overlapped.hEvent, INFINITE);
+	}
+#else
+	// Wait for the connection to be closed - when this happens
+	// select() will report that a read won't block.
+	fd_set fdset;
+	FD_ZERO(&fdset);
+	FD_SET(fdin, &fdset);
+	int res;
+	do {
+	    res = select(fdin + 1, &fdset, 0, &fdset, NULL);
+	} while (res < 0 && errno == EINTR);
+#endif
     }
     close_fd_or_socket(fdin);
     if (fdin != fdout) close_fd_or_socket(fdout);

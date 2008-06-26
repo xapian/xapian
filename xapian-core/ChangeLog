@@ -1,3 +1,9 @@
+Thu Jun 26 19:20:03 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* net/remoteconnection.cc: Shrink the try block to only cover the call
+	  to send_message().
+
 Thu Jun 26 08:36:37 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
