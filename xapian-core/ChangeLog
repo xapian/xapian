@@ -1,3 +1,9 @@
+Thu Jun 26 17:17:41 GMT 2008  Olly Betts <olly@survex.com>
+
+	* net/remoteconnection.cc: The "already done" check in do_close() is
+	  no longer useful, so remove it.  Shrink the try block to only cover
+	  the call to send_message().
+
 Thu Jun 26 08:19:41 GMT 2008  Olly Betts <olly@survex.com>
 
 	* net/remoteconnection.cc: Don't bother to send MSG_SHUTDOWN for a
