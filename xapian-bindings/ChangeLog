@@ -1,3 +1,9 @@
+Thu Jun 26 21:54:31 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* ruby/smoketest.rb: Test the version reporting functions.
+	* ruby/smoketest.rb: Update copyright notice for previous change.
+
 Thu Jun 26 21:53:39 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
