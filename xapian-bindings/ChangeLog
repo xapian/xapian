@@ -1,3 +1,7 @@
+Thu Jun 26 00:02:30 GMT 2008  Olly Betts <olly@survex.com>
+
+	* ruby/smoketest.rb: Test the version reporting functions.
+
 Wed Jun 25 21:35:49 GMT 2008  Olly Betts <olly@survex.com>
 
 	* ruby/docs/index.html: Document how database factory functions are
