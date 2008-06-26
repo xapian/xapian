@@ -1,3 +1,10 @@
+Thu Jun 26 04:49:06 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_btreebase.cc: Don't need <string.h> as well as
+	  <cstring>.
+	* backends/flint/flint_btreebase.cc,bin/xapian-replicate-server.cc:
+	  Prefer <cXXX> to <XXX.h>.
+
 Tue Jun 24 04:31:10 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/harness/testsuite.cc: Use resize() to truncate a string.

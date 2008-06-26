@@ -34,7 +34,6 @@
 #include "omassert.h"
 
 #include <limits.h>
-#include <string.h>
 
 #include <algorithm>
 #include <cstring>
