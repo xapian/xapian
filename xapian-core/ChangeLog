@@ -1,3 +1,13 @@
+Thu Jun 26 06:41:38 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* tests/queryparsertest.cc: Cuddle braces after for loops for
+	  consistency with the rest of the code.  Use string::resize() to
+	  shrink a string rather than assigning the result of substr(0, x).
+	* HACKING: Explicitly document that braces should be cuddled after
+	  control flow structures.
+	* HACKING: Expand list of keywords for brace cuddling.  Add rationale.
+
 Thu Jun 26 05:50:29 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

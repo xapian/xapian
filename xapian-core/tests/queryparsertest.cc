@@ -1774,19 +1774,17 @@ static bool test_qp_stem_scale1()
     int repetitions = 2000; 
     q2.reserve(q1.size() * repetitions);
     q2b.reserve(q1b.size() * repetitions);
-    for (int i = repetitions; i != 0; --i)
-    {
+    for (int i = repetitions; i != 0; --i) {
 	q2 += q1;
 	q2b += q1b;
     }
 
     // A long multiword synonym.
     string syn;
-    for (int j = 60; j != 0; --j)
-    {
+    for (int j = 60; j != 0; --j) {
 	syn += q1;
     }
-    syn = syn.substr(0, syn.size() - 1);
+    syn.resize(syn.size() - 1);
 
     double time1, time2;
     unsigned defflags =
