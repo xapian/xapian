@@ -1,6 +1,8 @@
 Thu Jun 26 19:20:03 GMT 2008  Olly Betts <olly@survex.com>
 
-	* Backport change from trunk:
+	* Backport changes from trunk:
+	* net/remoteconnection.cc: Don't bother to send MSG_SHUTDOWN for a
+	  read-only Database - just closing the connection is enough.
 	* net/remoteconnection.cc: Shrink the try block to only cover the call
 	  to send_message().
 
