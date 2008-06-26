@@ -1,3 +1,10 @@
+Thu Jun 26 03:30:41 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* api/omqueryinternal.cc: Don't call find() twice - reuse the result
+	  we just got.  Use AssertEq() rather than Assert() on an equality
+	  test.  Clarify a comment.
+
 Thu Jun 26 03:28:17 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
