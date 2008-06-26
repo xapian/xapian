@@ -1,3 +1,9 @@
+Thu Jun 26 21:55:25 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* java/native/: Make passing string from Java to C++ zero-byte safe.
+	  It doesn't appear to be simple to make C++ to Java work though.
+
 Thu Jun 26 21:54:31 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:

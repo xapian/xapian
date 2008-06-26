@@ -1,5 +1,6 @@
 /**
  Copyright (c) 2003, Technology Concepts & Design, Inc.
+ Copyright (c) 2008, Olly Betts
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -61,7 +62,8 @@ JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_document_1add_1value (JNIEnv *e
     TRY
         Document *doc = _document->get(docid);
         const char *c_value = env->GetStringUTFChars(value, 0);
-        doc->add_value(value_index, c_value);
+	string cpp_value(c_value, env->GetStringUTFLength(value));
+        doc->add_value(value_index, cpp_value);
         env->ReleaseStringUTFChars(value, c_value);
     CATCH(;)
 }
@@ -91,7 +93,8 @@ JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_document_1set_1data (JNIEnv *en
     TRY
         Document *doc = _document->get(docid);
         const char *c_data = env->GetStringUTFChars(data, 0);
-        doc->set_data(c_data);
+	string cpp_data(c_data, env->GetStringUTFLength(data));
+        doc->set_data(cpp_data);
         env->ReleaseStringUTFChars(data, c_data);
     CATCH(;)
 }
@@ -100,7 +103,8 @@ JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_document_1add_1posting (JNIEnv 
     TRY
         Document *doc = _document->get(docid);
         const char *c_term = env->GetStringUTFChars(term, 0);
-        doc->add_posting(c_term, position);
+	string cpp_term(c_term, env->GetStringUTFLength(term));
+        doc->add_posting(cpp_term, position);
         env->ReleaseStringUTFChars(term, c_term);
     CATCH(;)
 }
@@ -109,7 +113,8 @@ JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_document_1add_1term (JNIEnv *en
     TRY
         Document *doc = _document->get(docid);
         const char *c_term = env->GetStringUTFChars(term, 0);
-        doc->add_term(c_term);
+	string cpp_term(c_term, env->GetStringUTFLength(term));
+        doc->add_term(cpp_term);
         env->ReleaseStringUTFChars(term, c_term);
     CATCH(;)
 }
@@ -118,7 +123,8 @@ JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_document_1remove_1posting (JNIE
     TRY
         Document *doc = _document->get(docid);
         const char *c_term = env->GetStringUTFChars(term, 0);
-        doc->remove_posting(c_term, position);
+	string cpp_term(c_term, env->GetStringUTFLength(term));
+        doc->remove_posting(cpp_term, position);
         env->ReleaseStringUTFChars(term, c_term);
     CATCH(;)
 }
@@ -127,7 +133,8 @@ JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_document_1remove_1term (JNIEnv 
     TRY
         Document *doc = _document->get(docid);
         const char *c_term = env->GetStringUTFChars(term, 0);
-        doc->remove_term(c_term);
+	string cpp_term(c_term, env->GetStringUTFLength(term));
+        doc->remove_term(cpp_term);
         env->ReleaseStringUTFChars(term, c_term);
     CATCH(;)
 }

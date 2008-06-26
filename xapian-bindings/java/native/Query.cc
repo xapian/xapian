@@ -53,7 +53,7 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__ (JNIEnv *env, jcl
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__Ljava_lang_String_2 (JNIEnv *env, jclass clazz, jstring term) {
     TRY
         const char *c_term = env->GetStringUTFChars(term, 0);
-        Query *q = new Query(c_term);
+        Query *q = new Query(string(c_term, env->GetStringUTFLength(term)));
         env->ReleaseStringUTFChars(term, c_term);
         return _query->put(q);
     CATCH(-1)
@@ -62,7 +62,8 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__Ljava_lang_String_
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__Ljava_lang_String_2I (JNIEnv *env, jclass clazz, jstring term, jint wqf) {
     TRY
         const char *c_term = env->GetStringUTFChars(term, 0);
-        Query *q = new Query(c_term, wqf);
+        Query *q;
+	q = new Query(string(c_term, env->GetStringUTFLength(term)), wqf);
         env->ReleaseStringUTFChars(term, c_term);
         return _query->put(q);
     CATCH(-1)
@@ -71,7 +72,8 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__Ljava_lang_String_
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__Ljava_lang_String_2II (JNIEnv *env, jclass clazz, jstring term, jint wqf, jint pos) {
     TRY
         const char *c_term = env->GetStringUTFChars(term, 0);
-        Query *q = new Query(c_term, wqf, pos);
+        Query *q;
+	q = new Query(string(c_term, env->GetStringUTFLength(term)), wqf, pos);
         env->ReleaseStringUTFChars(term, c_term);
         return _query->put(q);
     CATCH(-1)
@@ -90,7 +92,9 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__ILjava_lang_String
     TRY
         const char *c_left = env->GetStringUTFChars(strleft, 0);
         const char *c_right = env->GetStringUTFChars(strright, 0);
-        Query *q = new Query(op_table[op-1], string(c_left), string(c_right));
+        Query *q = new Query(op_table[op-1],
+	    string(c_left, env->GetStringUTFLength(strleft)),
+	    string(c_right, env->GetStringUTFLength(strright)));
         env->ReleaseStringUTFChars(strleft, c_left);
         env->ReleaseStringUTFChars(strright, c_right);
         return _query->put(q);
