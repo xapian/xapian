@@ -1,3 +1,9 @@
+Thu Jun 26 05:50:29 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/api_anydb.cc: Expand tests for alldocspostlist, covering
+	  iteration of modified databases.
+
 Thu Jun 26 05:14:26 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_btreebase.cc: Add explicit '#include <cstring>'
