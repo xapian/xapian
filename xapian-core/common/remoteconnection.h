@@ -176,8 +176,12 @@ class RemoteConnection {
      */
     void send_message(char type, const std::string & s, const OmTime & end_time);
 
-    /// Shutdown the connection.
-    void do_close();
+    /** Shutdown the connection.
+     *
+     *  @param wait	If true, wait for the remote end to close the
+     *			connection before returning.
+     */
+    void do_close(bool wait);
 };
 
 #endif // XAPIAN_INCLUDED_REMOTECONNECTION_H

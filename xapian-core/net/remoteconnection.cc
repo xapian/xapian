@@ -397,17 +397,33 @@ RemoteConnection::get_message(string &result, const OmTime & end_time)
 }
 
 void
-RemoteConnection::do_close()
+RemoteConnection::do_close(bool wait)
 {
-    DEBUGCALL(REMOTE, void, "RemoteConnection::do_close", "");
+    DEBUGCALL(REMOTE, void, "RemoteConnection::do_close", wait);
 
     if (fdout == -1) return;
     // We can be called from a destructor, so we can't throw an exception.
     try {
-	/* If we can't send the close-down message right away, then just
-	 * close the connection as the other end will cope.
-	 */
-	send_message(MSG_SHUTDOWN, "", OmTime::now());
+	if (wait) {
+	    send_message(MSG_SHUTDOWN, string(), OmTime());
+#ifndef __WIN32__
+	    // Wait for the connection to be closed - when this happens
+	    // select() will report that a read won't block.
+	    fd_set fdset;
+	    FD_ZERO(&fdset);
+	    FD_SET(fdin, &fdset);
+	    int res;
+	    do {
+		res = select(fdin + 1, &fdset, 0, &fdset, NULL);
+	    } while (res < 0 && errno == EINTR);
+#else
+# error FIXME : implement for __WIN32__
+#endif
+	} else {
+	    // If we can't send the close-down message right away, then
+	    // just close the connection as the other end will cope.
+	    send_message(MSG_SHUTDOWN, string(), OmTime::now());
+	}
     } catch (...) {
     }
     close_fd_or_socket(fdin);
