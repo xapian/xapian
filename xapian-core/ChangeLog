@@ -1,3 +1,23 @@
+Thu Jun 26 03:28:17 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* queryparser/queryparser.lemony: Fix various cases where queries
+	  were constructed pair-wise within a loop, which leads to O(N*N)
+	  scaling behaviour (because each intermediate query construction
+	  is O(M) where M is the size of that query, and there are N of
+	  them).
+	* tests/queryparsertest.cc: Add test to check that parsing of a
+	  query scales roughly linearly with query size.
+	* common/omtime.h: Add method to get an OmTime as a double - used
+	  by the new query parser test.
+	* queryparser/queryparser.lemony: Fix more O(N*N) scaling, this
+	  time in the way in which auto multiword synonyms are detected.
+	  Instead of trying all possible sub-sequences of terms for
+	  synonyms, use synonym_keys and the skip_to() method to check for
+	  synonyms which actually exist in the synonyms table.
+	* tests/queryparsertest.cc: Extend the scaling test to check this
+	  case.
+
 Thu Jun 26 03:16:15 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
