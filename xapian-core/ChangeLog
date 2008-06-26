@@ -1,3 +1,12 @@
+Thu Jun 26 03:37:36 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* queryparser/queryparser.lemony: Use std::vector<Term *> rather than
+	  std::list<Term *> so that size() is O(1) with any (sane) compiler
+	  and because a list of pointers isn't space efficient (and we don't
+	  need to splice here).  Factor out common code in if branches in
+	  TermGroup::as_group().
+
 Thu Jun 26 03:35:17 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
