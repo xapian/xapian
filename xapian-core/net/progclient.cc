@@ -167,8 +167,8 @@ ProgClient::run_program(const string &progname, const string &args
     return 0;
 #endif
 #elif defined __WIN32__
-    DEBUGCALL(DB, void, "ProgClient::get_spawned_socket", progname << ", " <<
-	      args);
+    DEBUGCALL_STATIC(DB, int, "ProgClient::run_program", progname << ", " <<
+		     args);
 
     static unsigned int pipecount = 0;
     char pipename[256];
