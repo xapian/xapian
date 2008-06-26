@@ -265,12 +265,12 @@ extern bool TEST_EQUAL_DOUBLE_(double a, double b);
 	" were " << (a) << " and " << (b))
 
 /// Test for one thing being <= another.
-#define TEST_LESSER_OR_EQUAL(a, b) TEST_AND_EXPLAIN(((a) >= (b)), \
+#define TEST_LESSER_OR_EQUAL(a, b) TEST_AND_EXPLAIN(((a) <= (b)), \
 	"Expected `"STRINGIZE(a)"' to be less than or equal to `"STRINGIZE(b)"':" \
 	" were " << (a) << " and " << (b))
 
 /// Test for one thing being < another.
-#define TEST_LESSER(a, b) TEST_AND_EXPLAIN(((a) > (b)), \
+#define TEST_LESSER(a, b) TEST_AND_EXPLAIN(((a) < (b)), \
 	"Expected `"STRINGIZE(a)"' to be less than than `"STRINGIZE(b)"':" \
 	" were " << (a) << " and " << (b))
 

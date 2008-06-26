@@ -1,3 +1,10 @@
+Thu Jun 26 03:16:15 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/harness/testsuite.h: Fix TEST_LESSER_OR_EQUAL and
+	  TEST_LESSER macros to compare in the right direction (these
+	  macros are, so far, unused).
+
 Wed Jun 25 09:50:19 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
