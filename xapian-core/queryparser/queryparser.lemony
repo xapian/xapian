@@ -1122,17 +1122,13 @@ TermGroup::as_group(State *state) const
 		begin = ++i;
 		continue;
 	    }
-	    list<Term*>::const_iterator end_of_match = i;
 	    key.resize(0);
 	    while (i != terms.end()) {
 		if (!key.empty()) key += ' ';
 		key += (*i)->name;
 		++i;
 		synkey.skip_to(key);
-		if (synkey == synend ||
-		    (*synkey).substr(0, key.size()) > key) {
-		    break;
-		}
+		if (synkey == synend || !startswith(*synkey, key)) break;
 	    }
 	    // Greedily try to match as many consecutive words as possible.
 	    TermIterator syn, end;

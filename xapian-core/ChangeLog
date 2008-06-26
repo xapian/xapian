@@ -1,3 +1,11 @@
+Thu Jun 26 03:35:17 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* queryparser/queryparser.lemony: Use "startswith()" to avoid creating
+	  a new string object.
+	* queryparser/queryparser.lemony: Remove variable which is set but
+	  never otherwise used.
+
 Thu Jun 26 03:30:41 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
