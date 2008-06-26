@@ -132,15 +132,31 @@ you can use 'each' to iterate through them.
 
 -->
 
-<h2>Database Factory Functions</h2>
+<h2>Non-Class Functions</h2>
+
+<p>The C++ API contains a few non-class functions (the Database factory
+functions, and some functions reporting version information), which are
+wrapped like so for Ruby:
+<ul>
+<ul>
+<li> <code>Xapian::version_string()</code> is wrapped as <code>Xapian::version_string()</code>
+<li> <code>Xapian::major_version()</code> is wrapped as <code>Xapian::major_version()</code>
+<li> <code>Xapian::minor_version()</code> is wrapped as <code>Xapian::minor_version()</code>
+<li> <code>Xapian::revision()</code> is wrapped as <code>Xapian::revision()</code>
+</ul>
 
 <ul>
 <li> <code>Xapian::Auto::open_stub()</code> is wrapped as <code>Xapian::open_stub()</code>
-<li> <code>Xapian::Quartz::open()</code> is wrapped as <code>Xapian::quartz_open()</code>
+<li> <code>Xapian::Flint::open()</code> is wrapped as <code>Xapian::flint_open()</code>
 <li> <code>Xapian::InMemory::open()</code> is wrapped as <code>Xapian::inmemory_open()</code>
+<li> <code>Xapian::Quartz::open()</code> is wrapped as <code>Xapian::quartz_open()</code>
 <li> <code>Xapian::Remote::open()</code> is wrapped as <code>Xapian::remote_open()</code> (both
 the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to
 decide which to call).
+<li> <code>Xapian::Remote::open_writable()</code> is wrapped as <code>Xapian::remote_open_writable()</code> (both
+the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to
+decide which to call).
+</ul>
 </ul>
 
 <h2>Query</h2>

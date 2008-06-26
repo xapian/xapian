@@ -1,3 +1,11 @@
+Thu Jun 26 22:01:59 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* csharp/docs/index.html,php/docs/index.html,python/docs/index.html,
+	  ruby/docs/index.html,tcl8/docs/index.html: Document all the database
+	  factory functions for all languages.  Document the library version
+	  functions for all languages.
+
 Thu Jun 26 21:55:25 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
