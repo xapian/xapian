@@ -31,11 +31,11 @@ Thu Jun 26 07:21:42 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
 	* backends/remote/remote-database.cc,common/remoteconnection.h,
-	  net/remoteconnection.cc,net/replicatetcpclient.cc: Wait for the
-	  connection to close rather than using a different shutdown message
-	  which requires a reply.  Mostly this is more backport-friendly, but
-	  it also avoids a message reply (albeit it not in a performance
-	  sensitive situation).  Needs implementing for __WIN32__.
+	  net/remoteconnection.cc: Wait for the connection to close rather
+	  than using a different shutdown message which requires a reply.
+	  Mostly this is more backport-friendly, but it also avoids a message
+	  reply (albeit it not in a performance sensitive situation).  Needs
+	  implementing for __WIN32__.
 
 Thu Jun 26 06:43:08 GMT 2008  Olly Betts <olly@survex.com>
 
