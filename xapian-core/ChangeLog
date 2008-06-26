@@ -1,3 +1,8 @@
+Thu Jun 26 08:36:37 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/harness/testsuite.cc: Use resize() to truncate a string.
+
 Thu Jun 26 08:34:45 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
