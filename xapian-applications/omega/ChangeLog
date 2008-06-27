@@ -1,3 +1,9 @@
+Fri Jun 27 04:43:18 GMT 2008  Olly Betts <olly@survex.com>
+
+	* query.cc: Overhaul the $highlight colour combinations since some
+	  were rather unreadable.  Reported by Joey Hess in Debian bug
+	  #484456.
+
 Sun Jun 01 15:12:02 GMT 2008  Olly Betts <olly@survex.com>
 
 	* configure.ac: Update version to 1.0.7 to match 1.0 branch.
