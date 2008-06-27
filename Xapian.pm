@@ -111,7 +111,7 @@ foreach (@{ $EXPORT_TAGS{'ops'} }) {
 }
 
 our @DB_NAMES;
-foreach (@{ $EXPORT_TAGS{'dbs'} }) {
+foreach (@{ $EXPORT_TAGS{'db'} }) {
   $DB_NAMES[eval $_] = $_;
 }
 

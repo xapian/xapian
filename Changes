@@ -5,6 +5,7 @@ Revision history for Perl extension Search::Xapian.
 	- Handle exceptions from Xapian::Stem constructor (reported by Joey
 	  Hess in Debian BTS #486138).
 	- Fix testcase in t/parser.t for improved behaviour of xapian-core.
+	- Actually fill in @Search::Xapian::DB_NAMES.
 
 1.0.6.0  Sun Mar 30 10:20:58 GMT 2008
 	[Changes contributed by Olly Betts]
