@@ -1,17 +1,28 @@
 up to:
-Sun May 25 00:26:38 GMT 2008  Olly Betts <olly@survex.com>
+Thu Jun 26 19:20:03 GMT 2008  Olly Betts <olly@survex.com>
 
-Xapian-core 1.0.7 (2008-0?-??):
+Xapian-core 1.0.7 (2008-06-2?):
 
 API:
 
-* OP_VALUE_RANGE, OP_VALUE_GE, and OP_VALUE_LE could return document ids
-  which weren't present in the database (if there were gaps in the numbering).
-  This has been fixed.
+* OP_VALUE_RANGE, OP_VALUE_GE, and OP_VALUE_LE:
 
-* Xapian::QueryParser now stops parsing when it hits a syntax error.  This
-  doesn't change behaviour, but does mean failing to parse queries is now
-  more efficient.
+  + If there were gaps in the document id numbering, these operators could
+    return document ids which weren't present in the database.  This has been
+    fixed.
+
+  + These operators are now more efficient when there are a lot of "missing"
+    document ids (bug#270).
+
+  + Optimise Query(OP_VALUE_GE, <n>, "") to Query::MatchAll.
+
+* Xapian::QueryParser:
+
+  + QueryParser now stops parsing immediately when it hits a syntax error.
+    This doesn't change behaviour, but does mean failing to parse queries is
+    now more efficient.
+
+  + Cases of O(N*N) behaviour have been fixed.
 
 * Setting sort by value was being ignored by a Xapian::Enquire object which had
   previously had a Xapian::Sorter set (bug#256).
@@ -23,8 +34,6 @@ API:
 * When using a MatchDecider, Enquire::get_mset() now tracks how many documents
   were tested and were rejected, and sets matches_estimated based on this rate.
   Also, matches_upper_bound is reduced by the number of rejected documents.
-
-* Optimise Query(OP_VALUE_GE, <n>, "") to Query::MatchAll.
 
 testsuite:
 
@@ -74,6 +83,9 @@ quartz backend:
   sequential updates which usually manifested as incorrect data being returned
   (bug#259).
 
+* Calling skip_to() as the first operation on an all-documents PostingIterator
+  now works correctly.
+
 * Use 32 bit integers for most of quartz's internal integer types on all
   platforms for consistency (previously we used "long" everywhere, which is 64
   bit on most 64 bit platforms, and 32 bits on other platforms).
@@ -82,6 +94,13 @@ remote backend:
 
 * When remote protocol version doesn't match, the error message displayed 
   now shows the minor version number supplied by the server correctly.
+
+* We now wait for the connection to close after sending MSG_SHUTDOWN for a
+  WritableDatabase, which ensures that changes have been written to disk
+  and the lock released.
+
+* We no longer ever send MSG_SHUTDOWN for a read-only Database - just closing
+  the connection is enough (and is protocol compatible).
 
 inmemory backend:
 
@@ -96,7 +115,7 @@ build system:
 
 * "make up" in the "tests" subdirectory now does "make" in the top-level.
 
-* Improve code to prevent pointlessly probing for f77, gcj, and rc.
+* configure: Improve code to prevent pointlessly probing for f77, gcj, and rc.
 
 * Fix "make distcheck" by using dist-hook to install generated files from
   either srcdir or builddir, with the appropriate dependency to generate them
@@ -126,6 +145,8 @@ examples:
 portability:
 
 * Fix build with GCC 2.95.3.
+
+* Fix build with GCC 4.3.
 
 packaging:
 
