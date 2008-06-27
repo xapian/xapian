@@ -6,7 +6,7 @@
 # change 'tests => 1' to 'tests => last_test_to_print';
 
 use Test::More;
-BEGIN { plan tests => 76 };
+BEGIN { plan tests => 77 };
 use Search::Xapian qw(:standard);
 
 #########################
@@ -85,5 +85,12 @@ foreach my $backend ("inmemory", "auto") {
   is( $database->get_metadata( "nothing" ), "" );
   is( $database->get_metadata( "foo" ), "bar" );
 }
+
+# Check that trying to create an invalid stemmer gives an exception, not an
+# abort.
+eval {
+  my $badstem = Search::Xapian::Stem->new( 'gibberish' );
+};
+ok( $@ =~ /^Exception: Language code gibberish unknown at \S+ line \d+\.$/ );
 
 1;
