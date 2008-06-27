@@ -1,3 +1,10 @@
+Fri Jun 27 07:12:29 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* query.cc: Overhaul the $highlight colour combinations since some
+	  were rather unreadable.  Reported by Joey Hess in Debian bug
+	  #484456.
+
 Sun Jun 01 15:08:20 GMT 2008  Olly Betts <olly@survex.com>
 
 	* configure.ac: Update version to 1.0.7.

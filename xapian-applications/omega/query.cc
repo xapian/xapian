@@ -654,11 +654,17 @@ html_highlight(const string &s, const string &list,
 		res += bra;
 	    } else {
 		static const char * colours[] = {
-		    "ffff66", "66ffff", "ff66ff", "6666ff", "ff6666",
-		    "66ff66", "ffaa33", "33ffaa", "aa33ff", "33aaff"
+		    "ffff66", "99ff99", "99ffff", "ff66ff", "ff9999",
+		    "990000", "009900", "996600", "006699", "990099"
 		};
-		res += "<b style=\"color:black;background-color:#";
-		res += colours[match % (sizeof(colours) / sizeof(colours[0]))];
+		size_t idx = match % (sizeof(colours) / sizeof(colours[0]));
+		const char * bg = colours[idx];
+		if (strchr(bg, 'f')) {
+		    res += "<b style=\"color:black;background-color:#";
+		} else {
+		    res += "<b style=\"color:white;background-color:#";
+		}
+		res += bg;
 		res += "\">";
 	    }
 	    word = string(first.raw(), j.raw() - first.raw());
