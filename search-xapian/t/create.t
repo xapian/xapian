@@ -3,32 +3,26 @@
 
 #########################
 
-# change 'tests => 1' to 'tests => last_test_to_print';
-
-use Test;
-use Devel::Peek;
-BEGIN { plan tests => 3 };
+use Test::More;
+BEGIN { plan tests => 4 };
 use Search::Xapian qw(:standard);
+
 ok(1); # If we made it this far, we're ok.
 
 #########################
 
-# Insert your test code below, the Test module is use()ed here so read
-# its man page ( perldoc Test ) for help writing this test script.
-
-# first create database dir, if it doesn't exist;
 my $db_dir = 'testdb';
 
-if( (! -e $db_dir) or (! -d $db_dir) ) {
-  mkdir( $db_dir );
+# Delete contents of database dir, if it exists.
+if (opendir( DB_DIR, $db_dir )) {
+  while( defined( my $file = readdir( DB_DIR ) ) ) {
+    next if $file =~ /^\.+$/;
+    unlink( "$db_dir/$file" ) or die "Could not delete '$db_dir/$file': $!";
+  }
+  closedir( DB_DIR );
 }
 
-opendir( DB_DIR, $db_dir );
-while( defined( my $file = readdir( DB_DIR ) ) ) {
-  next if $file =~ /^\.+$/;
-  unlink( "$db_dir/$file" ) or die "Could not delete '$db_dir/$file': $!";
-}
-closedir( DB_DIR );
+is( $Search::Xapian::DB_NAMES[Search::Xapian::DB_CREATE], "DB_CREATE" );
 
 my $database;
 ok( $database = Search::Xapian::WritableDatabase->new( $db_dir, Search::Xapian::DB_CREATE ) );
