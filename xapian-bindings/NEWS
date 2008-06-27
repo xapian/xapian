@@ -1,7 +1,18 @@
 Up to:
-Sun May 25 17:15:43 GMT 2008  Olly Betts <olly@survex.com>
+Thu Jun 26 03:08:06 GMT 2008  Olly Betts <olly@survex.com>
 
 HEAD only:
+
+	* python/doxy2swig.py.in: Adjust to be compatible with python 3.0.
+	  Fortunately, this can be done without breaking it for python 2.x.
+
+	* python/util.i: Fixes for compilation with python 3.0;
+	  conditionally replace PyString_ methods with PyBytes_ methods.
+
+	* xapian.i: Add support for the new Database methods,
+	  get_value_freq(), get_value_lower_bound() and
+	  get_value_upper_bound().
+	* python/pythontest.py: Add test of these methods.
 
 * Wrap Replication API.
 
@@ -97,11 +108,22 @@ HEAD only:
 	  ValueSetMatchDecider works in python and PHP.
 
 Up to:
-Sun May 25 19:51:59 GMT 2008  Olly Betts <olly@survex.com>
+Thu Jun 26 22:01:59 GMT 2008  Olly Betts <olly@survex.com>
 
-Xapian-bindings 1.0.7 (2008-0?-??):
+Xapian-bindings 1.0.7 (2008-06-2?):
 
 Documentation:
+
+	* ruby/docs/index.html: Document how database factory functions are
+	  wrapped.
+
+	* python/extra.i: Tidy up the documentation comments for
+	  TermListItem.
+
+	* csharp/docs/index.html,php/docs/index.html,python/docs/index.html,
+	  ruby/docs/index.html,tcl8/docs/index.html: Document all the database
+	  factory functions for all languages.  Document the library version
+	  functions for all languages.
 
 General:
 
@@ -127,6 +149,9 @@ Guile:
 
 Java:
 
+	* java/native/: Make passing string from Java to C++ zero-byte safe.
+	  It doesn't appear to be simple to make C++ to Java work though.
+
 PHP:
 
 * Add test that OP_VALUE_GE works for PHP.
@@ -141,6 +166,7 @@ Ruby:
 
 * Include simplematchdecider.rb example.
 
+	* ruby/smoketest.rb: Test the version reporting functions.
 Tcl:
 
 * Include simpleexpand.tcl example.

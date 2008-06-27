@@ -1,3 +1,7 @@
+Fri Jun 27 00:40:54 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog and against 1.0 branch.
+
 Thu Jun 26 03:08:06 GMT 2008  Olly Betts <olly@survex.com>
 
 	* csharp/docs/index.html,php/docs/index.html,python/docs/index.html,
