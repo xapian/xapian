@@ -135,7 +135,7 @@ foreach $pair (
 # called.
 $qp = Search::Xapian::QueryParser->new;
 eval {
-    $qp->parse_query('foo other* this AND more', FLAG_BOOLEAN|FLAG_WILDCARD);
+    $qp->parse_query('other* AND', FLAG_BOOLEAN|FLAG_WILDCARD);
 };
 ok( $@ =~ /^Exception: Syntax: <expression> AND <expression> at \S+ line \d+\.$/ );
 
