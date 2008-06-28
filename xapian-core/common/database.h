@@ -289,7 +289,7 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 
 	/** Add a synonym for a term.
 	 *
-	 *  If @synonym is already a synonym for @a term, then no action is
+	 *  If @a synonym is already a synonym for @a term, then no action is
 	 *  taken.
 	 */
 	virtual void add_synonym(const string & term, const string & synonym) const;

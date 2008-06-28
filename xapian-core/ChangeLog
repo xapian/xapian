@@ -1,3 +1,8 @@
+Sat Jun 28 21:33:48 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* common/: Fix typos in doxygen comments.
+
 Sat Jun 28 10:42:23 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
