@@ -251,10 +251,12 @@ DEFINE_TESTCASE(singlesubq1, !backend) {
 }
 
 DEFINE_TESTCASE(stemlangs1, !backend) {
-    unsigned lang_count = 0;
     string langs = Xapian::Stem::get_available_languages();
     tout << "available languages '" << langs << "'" << endl;
     TEST(!langs.empty());
+
+    // Also test the language codes.
+    langs += " da nl en fi fr de hu it no pt ro ru es sv tr";
 
     string::size_type i = 0;
     while (true) {
@@ -262,8 +264,6 @@ DEFINE_TESTCASE(stemlangs1, !backend) {
 	// The only spaces in langs should be a single one between each pair
 	// of language names.
 	TEST_NOT_EQUAL(i, spc);
-
-	++lang_count;
 
 	// Try making a stemmer for this language.  We should be able to create
 	// it without an exception being thrown.
@@ -275,11 +275,11 @@ DEFINE_TESTCASE(stemlangs1, !backend) {
 	i = spc + 1;
     }
 
-    // Check that we actually had some languages to test.
-    TEST(lang_count > 0);
-
     // Check that we get an exception for a bogus language name.
     TEST_EXCEPTION(Xapian::InvalidArgumentError, Xapian::Stem stemmer("bogus"));
+
+    // Stem("") should give an object which doesn't change any input.
+    Xapian::Stem stem_nothing = Xapian::Stem("");
 
     return true;
 }

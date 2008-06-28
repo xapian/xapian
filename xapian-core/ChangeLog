@@ -1,3 +1,12 @@
+Sat Jun 28 10:42:23 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* languages/stem.cc: Add "nl" for selecting the Dutch stemmer, which
+	  was accidentally missing from the list of language codes recognised.
+	  Reported by Joey Hess in Debian bug #484458.
+	* tests/api_nodb.cc: Extend stemlangs1 to check that all the language
+	  codes work, and so does Stem("").
+
 Thu Jun 26 00:07:49 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
