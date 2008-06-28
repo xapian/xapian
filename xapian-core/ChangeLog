@@ -1,3 +1,7 @@
+Sat Jun 28 21:32:21 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/: Fix typos in doxygen comments.
+
 Sat Jun 28 10:33:06 GMT 2008  Olly Betts <olly@survex.com>
 
 	* languages/stem.cc: Add "nl" for selecting the Dutch stemmer, which
