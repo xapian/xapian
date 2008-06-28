@@ -1,3 +1,9 @@
+Sat Jun 28 21:51:42 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/doxygen_api_conf.in,docs/doxygen_full_conf.in: Disable
+	  "JAVADOC_AUTOBRIEF" since we always try to write a brief
+	  description explicitly, and it causes problems in some cases.
+
 Sat Jun 28 21:32:21 GMT 2008  Olly Betts <olly@survex.com>
 
 	* common/: Fix typos in doxygen comments.
