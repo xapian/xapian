@@ -455,7 +455,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     // Minimum weight an item must have to be worth considering.
     Xapian::weight min_weight = weight_cutoff;
 
-    Xapian::weight percent_factor = percent_cutoff / 100.0;
+    // Factor to multiply maximum weight seen by to get the cutoff weight.
+    Xapian::weight percent_cutoff_factor = percent_cutoff / 100.0;
 
     // Table of keys which have been seen already, for collapsing.
     map<string, pair<Xapian::Internal::MSetItem,Xapian::weight> > collapse_tab;
@@ -744,7 +745,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	if (wt > greatest_wt) {
 	    greatest_wt = wt;
 	    if (percent_cutoff) {
-		Xapian::weight w = wt * percent_factor;
+		Xapian::weight w = wt * percent_cutoff_factor;
 		if (w > min_weight) {
 		    min_weight = w;
 		    if (!is_heap) {
@@ -828,7 +829,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    // Or we could just use a linear scan here instead.
 
 	    // trim the mset to the correct answer...
-	    Xapian::weight min_wt = percent_factor / percent_scale;
+	    Xapian::weight min_wt = percent_cutoff_factor / percent_scale;
 	    if (!is_heap) {
 		is_heap = true;
 		make_heap<vector<Xapian::Internal::MSetItem>::iterator,
@@ -878,11 +879,11 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    = docs_matched;
     } else {
 	if (percent_cutoff) {
-	    // another approach: Xapian::doccount new_est = items.size() * (1 - percent_factor) / (1 - min_weight / greatest_wt);
+	    // another approach: Xapian::doccount new_est = items.size() * (1 - percent_cutoff_factor) / (1 - min_weight / greatest_wt);
 	    Xapian::doccount new_est;
-	    new_est = Xapian::doccount((1 - percent_factor) * matches_estimated);
+	    new_est = Xapian::doccount((1 - percent_cutoff_factor) * matches_estimated);
 	    matches_estimated = max(size_t(new_est), items.size());
-	    // and another: items.size() + (1 - greatest_wt * percent_factor / min_weight) * (matches_estimated - items.size());
+	    // and another: items.size() + (1 - greatest_wt * percent_cutoff_factor / min_weight) * (matches_estimated - items.size());
 
 	    // Very likely an underestimate, but we can't really do better
 	    // without checking further matches...  Only possibility would be
@@ -997,7 +998,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	!collapse_tab.empty()) {
 	// Nicked this formula from above, but for some reason percent_scale
 	// has since been multiplied by 100 so we take that into account
-	Xapian::weight min_wt = percent_factor / (percent_scale / 100);
+	Xapian::weight min_wt = percent_cutoff_factor / (percent_scale / 100);
 	vector<Xapian::Internal::MSetItem>::iterator i;
 	for (i = items.begin(); i != items.end() && !collapse_tab.empty(); ++i) {
 	    // Is this a collapsed hit?
