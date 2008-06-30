@@ -1,3 +1,9 @@
+Mon Jun 30 19:56:48 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/util.i: Fix #if PY_VERSION_HEX statements which aren't
+	  inside %{ %} to be %#if.  Similarly for the corresponding #else
+	  and #endifs.
+
 Fri Jun 27 00:40:54 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog and against 1.0 branch.
