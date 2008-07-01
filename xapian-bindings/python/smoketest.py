@@ -145,7 +145,7 @@ def test_all():
     term.skip_to('n')
     while True:
         try:
-            x = term.next()
+            x = next(term)
         except StopIteration:
             break
         if x.term < 'n':
@@ -194,7 +194,7 @@ def test_all():
     eset = enquire.get_eset(10, rset, xapian.Enquire.USE_EXACT_TERMFREQ, 1.0, testexpanddecider())
     eset_terms = [term[xapian.ESET_TNAME] for term in eset.items]
     expect(len(eset_terms), eset.size(), "Unexpected number of terms returned by expand")
-    if filter(lambda t: t.startswith('a'), eset_terms):
+    if [t for t in eset_terms if t.startswith('a')]:
         raise TestFail("ExpandDecider was not used")
 
     # Check QueryParser parsing error.

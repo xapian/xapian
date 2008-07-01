@@ -93,8 +93,8 @@ def test_mset_iter():
     expect(items[2].document.get_data(), 'was it warm? three')
 
     # Check iterators for sub-msets against the whole mset.
-    for start in xrange(0, 6):
-        for maxitems in xrange(0, 6):
+    for start in range(0, 6):
+        for maxitems in range(0, 6):
             context("checking iterators for sub-mset from %d, maxitems %d" % (start, maxitems))
             submset = enquire.get_mset(start, maxitems)
             num = 0
@@ -144,7 +144,7 @@ def test_mset_iter():
             # Check that the item contents remain valid when the iterator has
             # moved on.
             saved_items = [item for item in submset]
-            for num in xrange(len(saved_items)):
+            for num in range(len(saved_items)):
                 item = saved_items[num]
                 context("comparing iterator item %d for sub-mset mset from %d, maxitems %d against saved item" % (num, start, maxitems))
                 expect(submset[num].docid, item.docid)
@@ -332,17 +332,17 @@ def test_allterms_iter():
         termitems.append(termitem)
 
     expect(len(termitems), len(terms))
-    for i in xrange(len(termitems)):
+    for i in range(len(termitems)):
         expect(termitems[i].term, terms[i])
 
     expect(len(termitems), len(freqs))
-    for i in xrange(len(termitems)):
+    for i in range(len(termitems)):
         expect_exception(xapian.InvalidOperationError, 'Iterator has moved, and does not support random access', getattr, termitem, 'termfreq')
 
     context("checking that restricting the terms iterated with a prefix works")
     prefix_terms = []
     prefix_freqs = []
-    for i in xrange(len(terms)):
+    for i in range(len(terms)):
         if terms[i][0] == 't':
             prefix_terms.append(terms[i])
             prefix_freqs.append(freqs[i])
@@ -394,7 +394,7 @@ def test_termlist_iter():
             [pos for pos in termitem.positer]), ('two', 2, 3, []))
 
     # next() after a skip_to(), should return next item.
-    termitem = tliter.next()
+    termitem = next(tliter)
     expect((termitem.term, termitem.wdf, termitem.termfreq,
             [pos for pos in termitem.positer]), ('warm', 1, 4, [3]))
 
@@ -411,7 +411,7 @@ def test_termlist_iter():
     # skip backwards (should still return StopIteration).
     expect_exception(StopIteration, '', tliter.skip_to, 'a')
     # next should continue to return StopIteration.
-    expect_exception(StopIteration, '', tliter.next)
+    expect_exception(StopIteration, '', next, tliter)
 
 
     # Make a list of the terms (so we can test if they're still valid
@@ -421,21 +421,21 @@ def test_termlist_iter():
         termitems.append(termitem)
 
     expect(len(termitems), len(terms))
-    for i in xrange(len(termitems)):
+    for i in range(len(termitems)):
         expect(termitems[i].term, terms[i])
 
     expect(len(termitems), len(wdfs))
-    for i in xrange(len(termitems)):
+    for i in range(len(termitems)):
         expect(termitems[i].wdf, wdfs[i])
 
     expect(len(termitems), len(freqs))
-    for i in xrange(len(termitems)):
+    for i in range(len(termitems)):
         expect_exception(xapian.InvalidOperationError,
                          'Iterator has moved, and does not support random access',
                          getattr, termitem, 'termfreq')
 
     expect(len(termitems), len(freqs))
-    for i in xrange(len(termitems)):
+    for i in range(len(termitems)):
         expect_exception(xapian.InvalidOperationError,
                          'Iterator has moved, and does not support random access',
                          getattr, termitem, 'positer')
@@ -471,21 +471,21 @@ def test_dbdocument_iter():
         termitems.append(termitem)
 
     expect(len(termitems), len(terms))
-    for i in xrange(len(termitems)):
+    for i in range(len(termitems)):
         expect(termitems[i].term, terms[i])
 
     expect(len(termitems), len(wdfs))
-    for i in xrange(len(termitems)):
+    for i in range(len(termitems)):
         expect(termitems[i].wdf, wdfs[i])
 
     expect(len(termitems), len(freqs))
-    for i in xrange(len(termitems)):
+    for i in range(len(termitems)):
         expect_exception(xapian.InvalidOperationError,
                          'Iterator has moved, and does not support random access',
                          getattr, termitem, 'termfreq')
 
     expect(len(termitems), len(freqs))
-    for i in xrange(len(termitems)):
+    for i in range(len(termitems)):
         expect_exception(xapian.InvalidOperationError,
                          'Iterator has moved, and does not support random access',
                          getattr, termitem, 'positer')
@@ -525,20 +525,20 @@ def test_newdocument_iter():
         termitems.append(termitem)
 
     expect(len(termitems), len(terms))
-    for i in xrange(len(termitems)):
+    for i in range(len(termitems)):
         expect(termitems[i].term, terms[i])
 
     expect(len(termitems), len(wdfs))
-    for i in xrange(len(termitems)):
+    for i in range(len(termitems)):
         expect(termitems[i].wdf, wdfs[i])
 
-    for i in xrange(len(termitems)):
+    for i in range(len(termitems)):
         expect_exception(xapian.InvalidOperationError,
                          'Iterator has moved, and does not support random access',
                          getattr, termitems[i], 'termfreq')
 
     expect(len(termitems), len(positers))
-    for i in xrange(len(termitems)):
+    for i in range(len(termitems)):
         expect_exception(xapian.InvalidOperationError,
                          'Iterator has moved, and does not support random access',
                          getattr, termitems[i], 'positer')
@@ -584,7 +584,7 @@ def test_postinglist_iter():
             [pos for pos in posting.positer]), (3, 5, 1, [2]))
 
     # next() after a skip_to(), should return next item.
-    posting = pliter.next()
+    posting = next(pliter)
     expect((posting.docid, posting.doclength, posting.wdf,
             [pos for pos in posting.positer]), (4, 8, 1, [2]))
 
@@ -603,7 +603,7 @@ def test_postinglist_iter():
     # skip backwards (should still return StopIteration).
     expect_exception(StopIteration, '', pliter.skip_to, 6)
     # next should continue to return StopIteration.
-    expect_exception(StopIteration, '', pliter.next)
+    expect_exception(StopIteration, '', next, pliter)
 
 
     # Make a list of the postings (so we can test if they're still valid once
@@ -613,19 +613,19 @@ def test_postinglist_iter():
         postings.append(posting)
 
     expect(len(postings), len(docids))
-    for i in xrange(len(postings)):
+    for i in range(len(postings)):
         expect(postings[i].docid, docids[i])
 
     expect(len(postings), len(doclengths))
-    for i in xrange(len(postings)):
+    for i in range(len(postings)):
         expect(postings[i].doclength, doclengths[i])
 
     expect(len(postings), len(wdfs))
-    for i in xrange(len(postings)):
+    for i in range(len(postings)):
         expect(postings[i].wdf, wdfs[i])
 
     expect(len(postings), len(positers))
-    for i in xrange(len(postings)):
+    for i in range(len(postings)):
         expect_exception(xapian.InvalidOperationError,
                          'Iterator has moved, and does not support random access',
                          getattr, postings[i], 'positer')
@@ -652,7 +652,7 @@ def test_value_iter():
     db = setup_database()
     doc = db.get_document(5)
 
-    items = [item for item in doc.values()]
+    items = list(doc.values())
     expect(len(items), 3)
     expect(items[0].num, 0)
     expect(items[0].value, 'zero')
@@ -925,7 +925,7 @@ def test_postingsource():
 
     dbpath = 'db_test_postingsource'
     db = xapian.WritableDatabase(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
-    for id in xrange(10):
+    for id in range(10):
         doc = xapian.Document()
         db.add_document(doc)
 
@@ -948,7 +948,7 @@ def test_postingsource2():
     dbpath = 'db_test_postingsource2'
     db = xapian.WritableDatabase(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
     vals = (6, 9, 4.5, 4.4, 4.6, 2, 1, 4, 3, 0)
-    for id in xrange(10):
+    for id in range(10):
         doc = xapian.Document()
         doc.add_value(1, xapian.sortable_serialise(vals[id]))
         db.add_document(doc)
@@ -974,7 +974,7 @@ def test_value_stats():
     db = xapian.chert_open(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
 
     vals = (6, 9, 4.5, 4.4, 4.6, 2, 1, 4, 3, 0)
-    for id in xrange(10):
+    for id in range(10):
         doc = xapian.Document()
         doc.add_value(1, xapian.sortable_serialise(vals[id]))
         db.add_document(doc)
