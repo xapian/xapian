@@ -6,7 +6,7 @@
 # change 'tests => 1' to 'tests => last_test_to_print';
 
 use Test::More;
-BEGIN { plan tests => 108 };
+BEGIN { plan tests => 109 };
 use Search::Xapian qw(:ops);
 
 #########################
@@ -157,5 +157,9 @@ ok( "$alltermit" eq 'test' );
 ok( ++$alltermit != $db->allterms_end('t') );
 ok( "$alltermit" eq 'two' );
 ok( ++$alltermit == $db->allterms_end('t') );
+
+# Check that non-string scalars get coerced.
+my $numberquery = Search::Xapian::Query->new( OP_OR, (12, "34", .5) );
+is( $numberquery->get_description(), "Xapian::Query((12 OR 34 OR 0.5))" );
 
 1;
