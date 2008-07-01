@@ -60,7 +60,7 @@ newN(int op_, ...)
 		if (sv_isa(sv, "Search::Xapian::Query")) {
 		    Query *query = (Query*) SvIV((SV*) SvRV(sv));
 		    queries.push_back(*query);
-		} else if ( SvOK(sv) && SvPOK(sv) ) {
+		} else if ( SvOK(sv) ) {
 		    STRLEN len;
 		    const char * ptr = SvPV(sv, len);
 		    queries.push_back(Query(string(ptr, len)));

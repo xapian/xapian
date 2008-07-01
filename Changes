@@ -6,6 +6,9 @@ Revision history for Perl extension Search::Xapian.
 	  Hess in Debian BTS #486138).
 	- Fix testcase in t/parser.t for improved behaviour of xapian-core.
 	- Actually fill in @Search::Xapian::DB_NAMES.
+	- Search::Xapian::Query->new(<OP>, <TERMS>) now allows integers and
+	  numbers as terms - these are coerced to strings as with standard
+	  Perl parameter passing.
 
 1.0.6.0  Sun Mar 30 10:20:58 GMT 2008
 	[Changes contributed by Olly Betts]
