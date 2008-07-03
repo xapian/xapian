@@ -1,3 +1,7 @@
+Thu Jul 03 01:30:56 GMT 2008  Olly Betts <olly@survex.com>
+
+	* examples/quest.cc: Output get_description() of the parsed query.
+
 Sun Jun 29 18:56:06 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* matcher/multimatch.cc: Rename percent_factor variable, used here
