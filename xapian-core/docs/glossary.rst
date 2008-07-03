@@ -137,6 +137,8 @@ Retrieval, while others have a specific meaning in the context of Xapian.
 **Query Expansion**
  Modifying a query in an attempt to broaden the search results.
 
+.. _rset:
+
 **RSet (Relevance Set)**
  The Relevance Set (RSet) is the set of documents which have been marked by the
  user as relevant.  They can be used to suggest terms that the user may want to

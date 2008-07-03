@@ -1,3 +1,9 @@
+Thu Jul 03 03:19:01 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/glossary.rst,docs/intro_ir.html: Improve intro_ir a bit, and
+	  link to the definition of RSet in the glossary.
+
 Thu Jul 03 01:32:49 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
