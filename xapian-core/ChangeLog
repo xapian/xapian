@@ -1,3 +1,8 @@
+Thu Jul 03 03:17:42 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/glossary.rst,docs/intro_ir.html: Improve intro_ir a bit, and
+	  link to the definition of RSet in the glossary.
+
 Thu Jul 03 01:30:56 GMT 2008  Olly Betts <olly@survex.com>
 
 	* examples/quest.cc: Output get_description() of the parsed query.
