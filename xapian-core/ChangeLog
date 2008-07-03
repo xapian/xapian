@@ -1,3 +1,8 @@
+Thu Jul 03 01:32:49 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* examples/quest.cc: Output get_description() of the parsed query.
+
 Sat Jun 28 21:33:48 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
