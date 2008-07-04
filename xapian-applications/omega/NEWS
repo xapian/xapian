@@ -24,7 +24,7 @@ indexers:
 omega:
 
 * Overhaul the $highlight colour combinations since some were rather
-  unreadable.
+  unreadable (Debian bug 484456).
 
 templates:
 
