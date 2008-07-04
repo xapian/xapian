@@ -1800,7 +1800,7 @@ DEFINE_TESTCASE(synonymitor1, writable) {
     return true;
 }
 
-DEFINE_TESTCASE(matchspy1, writable)
+DEFINE_TESTCASE(matchspy1, writable && !remote)
 {
     if (get_dbtype() == "remotetcp" || get_dbtype() == "remoteprog") {
 	SKIP_TEST("Test not supported for remote backend");
@@ -1898,7 +1898,7 @@ DEFINE_TESTCASE(matchspy1, writable)
     return true;
 }
 
-DEFINE_TESTCASE(matchspy2, writable)
+DEFINE_TESTCASE(matchspy2, writable && !remote)
 {
     if (get_dbtype() == "remotetcp" || get_dbtype() == "remoteprog") {
 	SKIP_TEST("Test not supported for remote backend");
@@ -1988,7 +1988,7 @@ DEFINE_TESTCASE(matchspy2, writable)
     return true;
 }
 
-DEFINE_TESTCASE(matchspy3, writable)
+DEFINE_TESTCASE(matchspy3, writable && !remote)
 {
     if (get_dbtype() == "remotetcp" || get_dbtype() == "remoteprog") {
 	SKIP_TEST("Test not supported for remote backend");

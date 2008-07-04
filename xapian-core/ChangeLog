@@ -1,3 +1,7 @@
+Fri Jul 04 13:45:58 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_wrdb.cc: Disable matchspy tests for remote databases.
+
 Wed Nov 28 08:29:59 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/matchspy.cc: Ignore empty facet values when building numeric
