@@ -1,3 +1,12 @@
+Fri Jul 04 02:39:50 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Bootstrap with newer versions of the autotools:
+	  + autoconf 2.61 -> 2.62: faster
+	  + automake 1.10 -> 1.10.1: "make clean" cleans all .libs
+	    directories.
+	  + libtool 1.5.24 -> 1.5.26: Improved support for Mac OS X Leopard;
+	    Support for AIX 6.1.
+
 Thu Jul 03 03:19:01 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
