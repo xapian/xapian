@@ -59,8 +59,8 @@ issymbolic(char *dir, char *component)
 	struct stat	st;
 	char	buf[ BUFFERSIZE ], **pp;
 
-	if( dir && component && ((strlen(component)+(strlen(dir)+2) > BUFFERSIZE))
-	    fatalerr("Buffer overflow, increase BUFFERSIZE\n");
+	if (strlen(component) + strlen(dir) + 1 >= BUFFERSIZE)
+		fatalerr("Buffer overflow, increase BUFFERSIZE\n");
 
 	sprintf(buf, "%s%s%s", dir, *dir ? "/" : "", component);
 	for (pp=notdotdot; *pp; pp++)
@@ -90,8 +90,8 @@ remove_dotdot(char *path)
 		newpath[ BUFFERSIZE ];
 	boolean		component_copied;
 
-	if( path && (strlen(path) > BUFFERSIZE))
-	    fatalerr("Potential buffer overflow, increase BUFFERSIZE\n");
+	if (strlen(path) >= BUFFERSIZE)
+		fatalerr("Potential buffer overflow, increase BUFFERSIZE\n");
 
 	/*
 	 * slice path up into components.
@@ -262,8 +262,8 @@ inc_path(char *file, char *include, int type)
 	register struct inclist	*ip;
 	struct stat		st;
 
-	if( include && (strlen(include) > BUFFERSIZE))
-	    fatalerr("Potential buffer overflow, increase BUFFERSIZE\n");
+	if (strlen(include) >= BUFFERSIZE)
+		fatalerr("Potential buffer overflow, increase BUFFERSIZE\n");
 
 	/*
 	 * Check all previously found include files for a path that

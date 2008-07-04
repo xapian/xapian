@@ -134,7 +134,18 @@ if [catch {
 <tr><td><code>mset get_docid index</code></td><td><code>[mset get_hit index] get_docid</code></td></tr>
 </table>
 
-<h2>Database Factory Functions</h2>
+<h2>Non-Class Functions</h2>
+
+<p>The C++ API contains a few non-class functions (the Database factory
+functions, and some functions reporting version information), which are
+wrapped like so for Tcl:
+<ul>
+<ul>
+<li> <code>Xapian::version_string()</code> is wrapped as <code>xapian::version_string</code>
+<li> <code>Xapian::major_version()</code> is wrapped as <code>xapian::major_version</code>
+<li> <code>Xapian::minor_version()</code> is wrapped as <code>xapian::minor_version</code>
+<li> <code>Xapian::revision()</code> is wrapped as <code>xapian::revision</code>
+</ul>
 
 <ul>
 <li> <code>Xapian::Auto::open_stub()</code> is wrapped as <code>xapian::open_stub</code>
@@ -143,8 +154,13 @@ the 'Destructors' section above for an explanation).
 <li> <code>Xapian::Flint::open()</code> is wrapped as <code>xapian::flint_open</code> (but note that the WritableDatabase version isn't wrapped - see
 the 'Destructors' section above for an explanation).
 <li> <code>Xapian::InMemory::open()</code> is wrapped as <code>xapian::inmemory_open</code>
-<li> <code>Xapian::Remote::open()</code> is wrapped as <code>xapian::remote_open</code>
-<li> <code>Xapian::Remote::open_writable()</code> is wrapped as <code>xapian::remote_open_writable</code>
+<li> <code>Xapian::Remote::open()</code> is wrapped as <code>xapian::remote_open</code> (both
+the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to
+decide which to call).
+<li> <code>Xapian::Remote::open_writable()</code> is wrapped as <code>xapian::remote_open_writable</code> (both
+the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to
+decide which to call).
+</ul>
 </ul>
 
 <h2>Constants</h2>

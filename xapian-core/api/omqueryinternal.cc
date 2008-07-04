@@ -891,14 +891,14 @@ Xapian::Query::Internal::collapse_subqs()
 	if (is_leaf((*sq)->op)) {
 	    Assert((*sq)->subqs.empty());
 	    subqtable::iterator s = sqtab.find(*sq);
-	    if (sqtab.find(*sq) == sqtab.end()) {
+	    if (s == sqtab.end()) {
 		sqtab.insert(*sq);
 		++sq;
 	    } else {
-		Assert((*s)->tname == (*sq)->tname);
-		Assert((*s)->term_pos == (*sq)->term_pos);
+		AssertEq((*s)->tname, (*sq)->tname);
+		AssertEq((*s)->term_pos, (*sq)->term_pos);
 		(*s)->wqf += (*sq)->wqf;
-		// Rather than incrementing, delete the current
+		// Rather than incrementing sq, delete the current
 		// element, as it has been merged into the other
 		// equivalent term.
 		delete *sq;

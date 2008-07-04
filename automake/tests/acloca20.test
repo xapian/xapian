@@ -1,0 +1,57 @@
+#! /bin/sh
+# Copyright (C) 2006, 2008  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Make sure aclocal does not write into symlinked aclocal.m4.
+
+. ./defs || exit 1
+
+set -e
+
+cat >foo.m4 <<'END'
+m4_define([FOO], [echo wrong foo])
+END
+
+cat >doit.in <<'END'
+@LN_S@ foo.m4 aclocal.m4
+END
+
+cat >configure.in <<'END'
+AC_INIT([acloca20], [1.0])
+AC_PROG_LN_S
+dnl FOO
+AC_CONFIG_FILES([doit], [chmod +x doit])
+AC_OUTPUT
+END
+
+$AUTOCONF
+./configure
+./doit
+grep 'wrong foo' aclocal.m4
+
+cat >acinclude.m4 <<'END'
+m4_define([FOO], [echo right foo])
+END
+sed 's/dnl //' <configure.in >configure.int
+mv -f configure.int configure.in
+
+$ACLOCAL
+$AUTOCONF --force
+./configure | grep 'right foo'
+grep 'wrong foo' foo.m4

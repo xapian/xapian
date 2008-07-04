@@ -9,6 +9,7 @@ noinst_HEADERS +=\
 	harness/backendmanager_inmemory.h\
 	harness/backendmanager_local.h\
 	harness/backendmanager_multi.h\
+	harness/backendmanager_remote.h\
 	harness/backendmanager_remoteprog.h\
 	harness/backendmanager_remotetcp.h\
 	harness/index_utils.h\
@@ -40,6 +41,7 @@ endif
 
 if BUILD_BACKEND_REMOTE
 testharness_sources +=\
+	harness/backendmanager_remote.cc\
 	harness/backendmanager_remoteprog.cc\
 	harness/backendmanager_remotetcp.cc
 endif

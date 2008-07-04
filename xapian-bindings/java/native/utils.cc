@@ -1,6 +1,6 @@
 /**
  Copyright (c) 2003, Technology Concepts & Design, Inc.
- Copyright (c) 2006, Olly Betts
+ Copyright (c) 2006,2008, Olly Betts
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -44,7 +44,7 @@ string *toArray(JNIEnv *env, jobjectArray j_array, int len) {
     for (int x=0; x<len; x++) {
         jstring term = (jstring) env->GetObjectArrayElement(j_array, x);
         const char *c_term = env->GetStringUTFChars(term, 0);
-        array[x] = c_term;
+        array[x].assign(c_term, env->GetStringUTFLength(term));
         env->ReleaseStringUTFChars(term, c_term);
     }
     return array;

@@ -1,0 +1,66 @@
+#! /bin/sh
+# Copyright (C) 2002, 2003  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Check for subdir Texinfo in $(srcdir).
+# (Similar to txinfo13.test, plus DISTCLEANFILES.)
+
+required='makeinfo tex texi2dvi-o'
+. ./defs || exit 1
+
+set -e
+
+echo AC_OUTPUT >> configure.in
+
+cat > Makefile.am << 'END'
+DISTCLEANFILES = subdir/*.info*
+info_TEXINFOS = subdir/main.texi
+subdir_main_TEXINFOS = subdir/inc.texi
+
+installcheck-local:
+	test -f $(infodir)/main.info
+END
+
+mkdir subdir
+
+cat > subdir/main.texi << 'END'
+\input texinfo
+@setfilename main.info
+@settitle main
+@node Top
+Hello walls.
+@include version.texi
+@include inc.texi
+@bye
+END
+
+cat > subdir/inc.texi << 'END'
+I'm included.
+END
+
+
+$ACLOCAL
+$AUTOMAKE --add-missing
+$AUTOCONF
+
+mkdir build
+cd build
+../configure
+$MAKE distcheck
+test -f subdir/main.info

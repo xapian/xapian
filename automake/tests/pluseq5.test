@@ -1,0 +1,62 @@
+#! /bin/sh
+# Copyright (C) 1999, 2001, 2002, 2003  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Test for another `+=' problem.  Report from Brian Jones.
+
+. ./defs || exit 1
+
+set -e
+
+echo 'AM_CONDITIONAL(CHECK, true)' >> configure.in
+
+cat > Makefile.am << 'END'
+if CHECK
+INCLUDES = abc
+endif
+INCLUDES += def
+END
+
+$ACLOCAL
+AUTOMAKE_fails
+
+# We expect the following diagnostic:
+#
+# Makefile.am:4: Cannot apply `+=' because `INCLUDES' is not defined in
+# Makefile.am:4: the following conditions:
+# Makefile.am:4:   !CHECK
+# Makefile.am:4: Either define `INCLUDES' in these conditions, or use
+# Makefile.am:4: `+=' in the same conditions as the definitions.
+
+# Is !CHECK mentioned?
+grep ':.*!CHECK$' stderr
+# Is there only one missing condition?
+test `grep ':  ' stderr | wc -l` = 1
+
+# By the way, Automake should suggest using AM_CPPFLAGS,
+# because INCLUDES is an obsolete name.
+grep AM_CPPFLAGS stderr
+
+# A way to suppress the obsolete warning is to use
+# -Wno-obsolete:
+echo 'AUTOMAKE_OPTIONS = -Wno-obsolete' >> Makefile.am
+AUTOMAKE_fails
+grep AM_CPPFLAGS stderr && exit 1
+# !CHECK should still be mentioned.
+grep ':.*!CHECK$' stderr

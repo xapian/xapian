@@ -58,3 +58,4 @@ Xapian-core 0.9.6 (2006-05-15)
  * tweaked some paths in config.mak to fit better the default installation paths
  * added details of compatible compilers to README and a quick way to create a Xapian build command prompt
  * prevented some spurious warnings from makedepend by adding some flags defined by the compiler itself
+ * fixed Java-Swig makefiles to build from scratch using SWIG

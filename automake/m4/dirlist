@@ -1,0 +1,4 @@
+# This file is used by the testsuite (dirlist*.test)
+# it should not be installed
+./dirlist-test
+./dirlist2*-test

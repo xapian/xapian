@@ -48,7 +48,7 @@ class BackendManagerInMemory : public BackendManager {
     virtual ~BackendManagerInMemory();
 
     /// Return a string representing the current database type.
-    const char * get_dbtype() const;
+    std::string get_dbtype() const;
 
     /// Create a InMemory Xapian::Database object indexing multiple files.
     Xapian::Database get_database(const std::vector<std::string> & files);

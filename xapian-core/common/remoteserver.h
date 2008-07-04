@@ -92,6 +92,9 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
     // get termfreq
     void msg_termfreq(const std::string & message);
 
+    // get value statistics
+    void msg_valuestats(const string & message);
+
     // keep alive
     void msg_keepalive(const std::string & message);
 

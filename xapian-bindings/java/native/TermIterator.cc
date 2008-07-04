@@ -1,5 +1,6 @@
 /**
  Copyright (c) 2003, Technology Concepts & Design, Inc.
+ Copyright (c) 2008, Olly Betts
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -79,7 +80,8 @@ JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_termiterator_1skip_1to (JNIEnv 
     TRY
         TermIterator *itr = _termiterator->get(termiteratorid);
         const char *c_term = env->GetStringUTFChars(term, 0);
-        itr->skip_to(c_term);
+	string cpp_term(c_term, env->GetStringUTFLength(term));
+        itr->skip_to(cpp_term);
         env->ReleaseStringUTFChars(term, c_term);
     CATCH(;)
 }

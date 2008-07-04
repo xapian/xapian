@@ -1,0 +1,59 @@
+#! /bin/sh
+# Copyright (C) 2002, 2003, 2004  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Regression test for a bug reported by Andrew Suffield.
+# (Automake goes wild and try to rerun itself more than two time
+# to fix the Makefiles.)
+
+required='libtoolize'
+. ./defs || exit 1
+
+set -e
+
+cat > configure.in << 'END'
+AC_INIT([req2], [1.0])
+AC_CONFIG_AUX_DIR([autoconf])
+AM_INIT_AUTOMAKE
+AC_CONFIG_FILES([Makefile])
+AC_PROG_CC
+AM_PROG_LIBTOOL
+AC_CONFIG_FILES([autoconf/Makefile main/Makefile])
+AC_OUTPUT
+END
+
+mkdir autoconf
+mkdir main
+
+: > autoconf/Makefile.am
+echo 'SUBDIRS = autoconf main' >Makefile.am
+
+cat >main/Makefile.am <<'END'
+lib_LTLIBRARIES = lib0.la
+lib0_la_SOURCES = 0.c
+END
+
+libtoolize --force --copy
+$ACLOCAL
+$AUTOCONF
+
+test -f autoconf/ltmain.sh # Sanity check.
+rm -f autoconf/ltmain.sh
+AUTOMAKE_fails --add-missing --copy
+grep 'autoconf/ltmain.sh' stderr

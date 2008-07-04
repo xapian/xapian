@@ -1,0 +1,135 @@
+#! /bin/sh
+# quote.test - make sure that shell metacharacters do not blow up libtool
+#
+#   Copyright (C) 2003, 2004, 2005, 2008 Free Software Foundation, Inc.
+#   Written by Gary V. Vaughan, 2003
+#
+#   This file is part of GNU Libtool.
+#
+# GNU Libtool is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of
+# the License, or (at your option) any later version.
+#
+# GNU Libtool is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU Libtool; see the file COPYING.  If not, a copy
+# can be downloaded from  http://www.gnu.org/licenses/gpl.html,
+# or obtained by writing to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+####
+
+. tests/defs || exit 1
+
+# Do the torture test.
+status=$EXIT_SUCCESS
+
+case $1 in
+  --no-reexec)
+    ;;
+  *)
+    func_get_config "SHELL" "$LIBTOOL --config"
+    exec $SHELL "$0" --no-reexec ${1+"$@"}
+    ;;
+esac
+
+func_get_config "ECHO wl" "$LIBTOOL --config"
+
+for mode in compile link install; do
+  $ECHO "== $mode mode"
+
+  # Unfortunately, without an array data type, it is nearly impossible
+  # to protect libtool from metacharacters in filenames.  So, we just
+  # try metacharacters in the options it needs to pass to other programs.
+
+  # preargs and postargs need to go through libtool unmodified.
+  case "$mode" in
+  compile)
+    preargs="$CC -c"
+    preflag=
+    match_preflag=
+    flag="-DVAR="
+    postargs="foo.c"
+    ;;
+
+  link)
+    preargs="$CC -o hell -g -O"
+    preflag=-Wl,
+    match_preflag="$wl"
+    flag="-someflag="
+    postargs="foo.o"
+    ;;
+
+  install)
+    preargs="install -c"
+    preflag=
+    match_preflag=
+    flag="--something="
+    postargs="hell /usr/local/bin/hell"
+    ;;
+  esac
+
+  # Trivial.
+  $ECHO "= trying: no quoting"
+  result=`$LIBTOOL -n --mode=$mode $preargs ${preflag}"${flag}test" $postargs` || status=$EXIT_FAILURE
+  # We used to have the contents of $match in the case statement,
+  # without an intermediate variable, but it would fail on at least
+  # Solaris' and HP-UX's /bin/sh.  Ugh!
+  # We must not attempt to match $preargs in the output, because libtool
+  # may modify them.  For example, on Cygwin, ``libtool --mode=link gcc -o
+  # foo foo.o''  becomes ``gcc -o foo.exe foo.o''.
+  match="${match_preflag}${flag}test "
+  case "$result" in
+  *"$match"*)
+    $ECHO "= passed: $result"
+    ;;
+  *)
+    $ECHO "= failed: $result"
+    status=$EXIT_FAILURE
+    ;;
+  esac
+
+  # Metacharacters that should be backslashified.
+  for mchar in \\ \" \` \$; do
+    $ECHO "= trying: \\$mchar quoting"
+    result=`$LIBTOOL -n --mode=$mode $preargs ${preflag}"${flag}${mchar}test${mchar}" $postargs` || status=$EXIT_FAILURE
+    match="${match_preflag}${flag}\\${mchar}test\\${mchar} "
+    alt_match="${match_preflag}\"${flag}\\${mchar}test\\${mchar}\" "
+    case "$result" in
+    *"$match"*)
+      $ECHO "= passed: $result"
+      ;;
+    *"$alt_match"*)
+      $ECHO "= passed (harmless ksh bug): $result"
+      ;;
+    *)
+      $ECHO "= failed: $result"
+      status=$EXIT_FAILURE
+      ;;
+    esac
+  done
+
+  # Metacharacters that should be double quoted.
+  for mchar in "[" "]" "~" "#" "^" "&" "*" "(" ")" "{" "}" "|" ";" "<" ">" "?" \
+      "'" " " "	"; do
+
+    $ECHO "= trying: \"$mchar\" quoting"
+    result=`$LIBTOOL -n --mode=$mode $preargs ${preflag}"${flag}${mchar}test${mchar}" $postargs` || status=$EXIT_FAILURE
+    match="${match_preflag}\"${flag}${mchar}test${mchar}\" "
+    case "$result" in
+    *"$match"*)
+      $ECHO "= passed: $result"
+      ;;
+    *)
+      $ECHO "= failed: $result"
+      status=$EXIT_FAILURE
+      ;;
+    esac
+  done
+done
+
+exit $status

@@ -1,0 +1,1296 @@
+2003-12-31  Scott James Remnant  <scott@netsplit.com>
+
+	* ltmain.sh: Infer tagged configuration for link mode with the
+	full compiler arguments available rather than only the first.
+
+2003-12-31  Alexandre Duret-Lutz  <adl@gnu.org>
+
+	* ltmain.sh: Quote $exec_cmd before it is eval'ed, so that
+	libtool --mode=execute echo '4 * 5' does not expand the `*'.
+
+2003-11-28  Peter O'Gorman  <peter@pogma.com>
+
+	* m4/libtool.m4: Move things around so that "setopt NO_GLOB_SUBST"
+	to make zsh behave wrt \ escapes happens early in config.status.
+
+2003-11-27  Gary V. Vaughan  <gary@gnu.org>
+
+	* libltdl/configure.ac: Removed.
+	* configure.ac (AC_CONFIG_HEADERS): Merged from
+	libltdl/configure.ac.
+	(AC_LIB_LTDL): Ditto.
+	(AC_CONFIG_FILES): Add libltdl/Makefile.
+	(AC_CONFIG_SUBDIRS): Removed.
+	(AC_CONFIG_COMMANDS): Remove generation of libltdl/ltmain.sh.
+	* libltdl/Makefile.am (libtool): Removed references, since we now
+	share $(top_builddir)/libtool.
+	* NEWS: Updated.
+
+2003-11-26  Gary V. Vaughan  <gary@gnu.org>
+
+	* Makefile.am (vcl.tmp): Be careful of VPATH builds.
+
+	* Makefile.am (EXTRA_DIST): Add stamp-vcl, or we go back to a
+	double configure run from a distributed tarball :-?
+
+2003-11-26  Gary V. Vaughan  <gary@gnu.org>
+
+	Okay, the problem I am trying to solve is that when a change (say,
+	bumping the version to 1.6 for the next release) is committed, the
+	timestamp in ChangeLog is updated, but ltmain.sh and libtoolize
+	inherit the pre-commit build number from config.status.  This
+	delta notes the change in build number in the unstamped ChangeLog
+	and forces a rerun of configure etc. to roll a new ltmain.sh with
+	the correct TIMESTAMP:
+
+	* Makefile.am (stamp-vcl): We actually need a new config.status to
+	force the correct timestamp into libtoolize and ltmain.sh,
+	rerunning autoconf has no effect at all if configure.ac hasn't
+	changed.
+
+2003-11-26  Gary V. Vaughan  <gary@gnu.org>
+
+	* Makefile.am (stamp-vcl): New rules to force libtool and
+	libtoolize scripts to update when the TIMESTAMP changes in
+	ChangeLog, but the file modification time doesn't (e.g in cvs
+	commit).  Otherwise we'll carry on releasing tarballs with the
+	wrong version numbers in the tools!
+
+	* config/mkstamp: Change output format to ` $rev $date'.
+	* configure.ac: Make the banner more like suggestions in
+	http://www.gnu.org/prep/standards_toc.html Section 4.6.
+	* libtoolize.in: Make --version output conform to the GNU
+	standard.
+	* ltmain.in: Ditto. And tweak the generated file headers to
+	match.
+
+2003-11-25  Gary V. Vaughan  <gary@gnu.org>
+
+	* Makefile.am (config.status): Removed.  Rebuilding config.status
+	isn't enough, because the TIMESTAMP in configure is still out
+	of date.
+	(configure): We actually need a new configure to force the
+	correct timestamp into ltmain.sh.
+
+	* Makefile.am (config/ltmain.sh): Removed.  Rebuilding ltmain.sh
+	isn't enough, because the TIMESTAMP in config.status is still out
+	of date.
+	(config.status): We actually need a new config.status to force the
+	correct timestamp into ltmain.sh.
+
+	* Makefile.am (config/ltmain.sh): Note the dependency on the
+	timestamp in ChangeLog so we don't ship libtools that report the
+	wrong version number :-/
+
+	* bootstrap: Explain automake and autoconf version dependencies
+	truthfully, and the difference between bootstrap and user
+	dependencies.
+	* configure.ac (AM_INIT_AUTOMAKE): List AUTOMAKE_OPTIONS here.
+	* Makefile.am, doc/Makefile.am, tests/Makefile.am
+	(AUTOMAKE_OPTIONS): Removed from here.
+
+2003-11-24  Gary V. Vaughan  <gary@gnu.org>
+
+	* tests/defs (func_configure): cdemo, demo and mdemo are shows
+	signs of indeterminacy for some users.  Be more verbose during
+	failure to help track down the cause.
+
+2003-11-22  Peter O'Gorman  <peter@pogma.com>
+
+	* ltmain.in: Check for module_cmds if max_cmd_len is exceeded too.
+
+	* ltmain.in: Move eval to after command separation to allow ~ in paths.
+
+	* tests/demo-hardcode.test: Call ./libtool not libtool.
+
+	* ltmain.in: Test $old_striplib before using it, not $striplib.
+
+2003-11-22  Gary V. Vaughan  <gary@gnu.org>
+
+	* configure.ac (LASTRELEASE): Calculate it as best as we can from
+	AC_PACKAGE_VERSION.
+	* Makefile.am (distdir): Remove dependency on timestamps so that
+	it is possible to roll a dist without contacting the cvs server.
+	Use `make cvs-release' for that.
+	(cvs-news): Extracted from cvs-dist.
+	(cvs-dist): Depend on cvs-news.
+	(CHECK_LASTRELEASE): Check LASTRELEASE has been set.
+	(prev-tarball): New rule.  Use LASTRELEASE to make sure the
+	previous release tarball is present.
+	(cvs-diff): Use CHECK_LASTRELEASE.
+	(xdelta): Ditto.
+	(cvs-release): Depend on prev-tarball, timestamps, cvs-news and
+	fetch. Provided you set LASTRELEASE appropriately, making a full
+	cvs release is just a matter of `make cvs-release', and submitting
+	the files to ftp-upload.
+
+2003-11-19  Gary V. Vaughan  <gary@gnu.org>
+
+	* m4/libtool.m4 (_LT_PROG_LTMAIN): Ensure config.status has a
+	value for `ac_aux_dir' when automake is not used.
+	Reported by Patrick Welche <prlw1@newn.cam.ac.uk>.
+
+	* configure.ac (AC_PREREQ): AS_HELP_STRING was introduced after
+	autoconf-2.57 was released.
+
+2003-11-18  Gary V. Vaughan  <gary@gnu.org>
+
+	* libltdl/ltdl.c (lt_dlhandle_find): New function to find a handle
+	by module name.
+	* libltdl/ltdl.h (lt_dlhandle_find): Declare it.
+	* doc/libtool.texi (User defined module data): Document it.
+	* NEWS: Updated.
+
+2003-11-17  Gary V. Vaughan  <gary@gnu.org>
+
+	* m4/libtool.m4 (AC_LIBTOOL_SETUP): Uncomment call to
+	_LT_CONFIG_COMMANDS.
+	(_LT_AC_TAG_CONFIG, AC_LIBTOOL_CONFIG): Accumulate tag generation
+	for `config.status' using _LT_CONFIG_SAVE_COMMANDS.  Remove
+	AC_MSG_NOTICE noise now that libtool is generated by a single
+	config.status tag.
+	* Makefile.am (libtool): Specify CONFIG_COMMANDS properly now that
+	libtool is generated in one pass.
+
+	* configure.ac (CONF_SUBDIRS): Make these relative to
+	tests/Makefile.am.
+	(DIST_MAKEFILE_LIST): Adjust to compensate for having removed the
+	`tests/' part in CONF_SUBDIRS.
+	* tests/Makefile.am (DIST_SUBDIRS): Distribute these directories.
+	(SUBDIRS): Set to `.', a NOP, to workaround an automake bug which
+	ignores DIST_SUBDIRS unless SUBDIRS is also set.
+	* Makefile.am (DIST_SUBDIRS): Don't try to distribute the tests
+	subdirectories from here, since the recursive automake dist rule
+	only works with direct child directories.  Defer to
+	tests/Makefile.am in this case.
+
+2003-11-15  Scott James Remnant  <scott@netsplit.com>
+
+	* ltmain.in: In compile mode, delay parsing of -shared, -static,
+	-prefer-pic and -prefer-non-pic until after tagged configuration
+	has been read.  In link mode, read tagged configuration before
+	parsing any arguments.  These arguments will now work when using
+	a non-C compiler.
+
+2003-11-14  Gary V. Vaughan  <gary@gnu.org>
+
+	* NEWS: Mention AC_LIBTOOL_TAGS.
+
+	* Makefile.am (EXTRA_DIST): List ChangeLog files correctly.
+
+	* tests/cdemo/configure.ac, tests/demo/configure.ac,
+	tests/depdemo/configure.ac, tests/f77demo/configure.ac,
+	tests/mdemo/configure.ac, tests/mdemo2/configure.ac,
+	tests/pdemo/configure.ac, tests/tagdemo/configure.ac: Declare just
+	the tags we need using AC_LIBTOOL_TAGS, reducing the size of the
+	configure script by 50% in most cases.
+
+2003-11-14  Marius Vollmer  <mvo@zagadka.de>
+
+	* doc/libtool.texi (Libltdl interface): libltdl does in fact load
+	dependency libs for lt_dlopen()ed modules.
+
+2003-11-14  Gary V. Vaughan  <gary@gnu.org>
+
+	Run our configure.ac files through Autoconf 2.59's autoupdate, and
+	then tweak the results by hand:
+
+	* m4/libtool.m4 (AC_PROG_LD): In common with all the other
+	AC_PROG_ macros, AC_SUBST the discovered LD.
+	(AC_PROG_NM): Similarly for NM.
+	(LT_AC_PROG_SED): Similarly for SED.
+	* configure.ac: No need to SUBST NM and LD manually any more.
+	(AC_PREREQ): Conservatively downgrade from 2.59 to 2.54.
+	* tests/cdemo/configure.ac, tests/demo/configure.ac,
+	tests/depdemo/configure.ac, tests/f77demo/configure.ac,
+	tests/mdemo/configure.ac, tests/mdemo2/configure.ac,
+	tests/pdemo/configure.ac, tests/tagdemo/configure.ac: Ditto.
+	* m4/libtool.m4 (AM_PROG_LIBTOOL, AM_ENABLE_SHARED,
+	AM_ENABLE_STATIC, AM_DISABLE_SHARED, AM_DISABLE_STATIC,
+	AM_PROG_LD, AM_PROG_NM): AU_DEFUN these macros so autoupdate can
+	use the newer definitions.
+
+2003-11-12  Gary V. Vaughan  <gary@gnu.org>
+
+	The rules for uploading releases to gnu.org have been updated, and
+	are in fact now rather complicated.  This delta updates the
+	release instructions to the describe the new process, and updates
+	the maintainer rules to help automate many of the steps:
+
+	* README-alpha: Updated release instructions.
+	* Makefile.am (GPG): Name of the program for generating signatures
+	for files to be uploaded.
+	(XDELTA, XDELTA_OPTIONS): Invocation of xdelta.
+	(cvs-dist): Run distcheck before tagging the cvs tree incase
+	distcheck fails, and then generate the gpg signature files.
+	(cvs-diff): Generate the gpg signature files for the diff.
+	(xdelta): New rule for generating the xdelta diffs and associated
+	gpg signature files.
+	(cvs-release): New rule to do all of the above, if you don't mind
+	typing your gpg passphrase over and over again. :-)
+	(fetch): New rule inspired by automakes similar rule for updating
+	files maintained outside the project.
+	* config/config.guess, config/config.sub: Updated with the new
+	fetch rule.
+
+2003-11-11  Gary V. Vaughan  <gary@gnu.org>
+
+	* libltdl/ltdl.c (lt_dlinit): Save a function call for each loader
+	added to the list, in exchange for appending loaders to the list
+	with O(N) rather than O(1).  The longest the loader list can ever
+	get is 4 (on cygwin with dld installed) so it probably constitutes
+	a small speedup, in addition to making the code much more readable.
+
+	* m4/libtool.m4 (AC_LIBTOOL_SETUP): Don't define the value for
+	ltmain unconditionally.
+	(_LT_PROG_LTMAIN): New macro to ensure that the
+	shell variable `ltmain' actually points at a suitable `ltmain.sh'.
+	(_AC_PROG_LIBTOOL): Require it.
+	(AC_LIBTOOL_CONFIG, _LT_AC_TAG_CONFIG): Invoke it.
+	* Makefile.am (libtool): ltmain.sh is in the build tree.
+	* libltdl/configure.ac: Ditto.
+
+2003-11-10  Scott James Remnant  <scott@netsplit.com>
+
+	* ltmain.in: Add -pthread and similar to $deplibs ($compile_deplibs
+	and $finalize_deplibs for programs) when found on the command line
+	or in a .la file's dependency_libs (but don't place them there) so
+	they are honoured when linking both programs and libraries.
+
+2003-11-10  Scott James Remnant  <scott@netsplit.com>
+
+	* m4/libtool.m4  (AC_LIBTOOL_SYS_DYNAMIC_LINKER) [linux]: Include
+	directories found in /etc/ld.so.conf in sys_lib_dlsearch_path_spec.
+
+2003-11-09  Peter O'Gorman  <peter@pogma.com>
+
+	* ltmain.in (linkalldeplibs,darwin): Fix a bug reported by Idar
+	Tollefsen where a dir could be added to the link line with no '-L'
+	on darwin.
+
+2003-11-07  Gary V. Vaughan  <gary@gnu.org>
+
+	* tests/cdemo/configure.ac, tests/demo/configure.ac,
+	tests/depdemo/configure.ac, tests/f77demo/configure.ac,
+	tests/mdemo/configure.ac, tests/mdemo2/configure.ac,
+	tests/pdemo/configure.ac, tests/tagdemo/configure.ac:
+	s/AM_PROG_LIBTOOL/AC_PROG_LIBTOOL/. Marching boldly into the 21th
+	century :-$
+
+	* m4/libtool.m4 (AC_LIBTOOL_TAGS, AC_ENABLE_SHARED,
+	AC_DISABLE_SHARED, AC_ENABLE_STATIC, AC_DISABLE_STATIC,
+	AC_ENABLE_FAST_INSTALL, AC_DISABLE_FAST_INSTALL, AM_PROG_LIBTOOL,
+	AM_ENABLE_SHARED, AM_ENABLE_STATIC, AM_DISABLE_SHARED,
+	AM_DISABLE_STATIC): These macros must be AC_DEFUNed after all,
+	otherwise aclocal can't find them when it tries to construct
+	`aclocal.m4'.
+
+	* Makefile.am (install-data-local): Wipe out old installation
+	pkgdatadir before installing new files.
+	* NEWS: Updated.
+
+	* libtoolize.in (func_scan_files): If libtoolize is run before
+	automake has created install-sh and configure.ac does not mention
+	AC_CONFIG_AUX_DIR, fall back to the current directory for auxdir.
+
+2003-11-07  Robert Millan  <zeratul2@wanadoo.es>
+
+	* m4/libtool.m4 (AC_DEPLIBS_CHECK_METHOD) [GNU/KNetBSD]: Detect
+	inter-library dependencies.
+
+2003-11-06  Gary V. Vaughan  <gary@gnu.org>
+
+	* m4/libtool.m4 (_LT_AC_FILE_LTDLL_C): Removed; no longer in use.
+
+	* m4/libtool.m4: s/ifelse(/m4_if(/g
+	(_LT_AC_SYS_LIBPATH_AIX, _LT_AC_SHELL_INIT,
+	_LT_AC_PROG_ECHO_BACKSLASH, AC_LIBTOOL_LINKER_OPTION,
+	AC_LIBTOOL_TAGS, _LT_AC_TAG_CHECK, _LT_AC_TAG_CONFIG,
+	AC_ENABLE_SHARED, AC_DISABLE_SHARED, AC_ENABLE_STATIC,
+	AC_DISABLE_STATIC, AC_ENABLE_FAST_INSTALL,
+	AC_DISABLE_FAST_INSTALL, _LT_AC_LANG_C_CONFIG,
+	_LT_AC_LANG_GCJ_CONFIG, _LT_AC_LANG_RC_CONFIG, AC_LIBTOOL_CONFIG,
+	_LT_AC_TAGVAR, AM_PROG_LIBTOOL, AM_ENABLE_SHARED,
+	AM_ENABLE_STATIC, AM_DISABLE_SHARED, AM_DISABLE_STATIC): Use
+	m4_define instead of AC_DEFUN for internal macros that do not
+	AC_PROVIDE or AC_REQUIRE, and documented user macros that cannot
+	be AC_REQUIREd because they need arguments, or because that would
+	violate the documented API.
+
+	* m4/libtool.m4 (AC_LIBTOOL_SETUP): Add a new
+	delay_single_quote_subst sed script to quote single quotes in
+	variables that are copied to `config.status'.
+	(_LT_CONFIG_STATUS_DECLARE): New macro to apply
+	delay_single_quote_subst to a named variable.
+	(AC_LIBTOOL_CONFIG): Use _LT_CONFIG_STATUS_DECLARE to declare all
+	`configure' variables that are copied to `config.status'.
+	(AC_LIBTOOL_PROG_COMPILER_PIC): Fix a quoting bug exposed by
+	_LT_CONFIG_STATUS_DECLARE using the null quadrigraph in the
+	rvalues of lt_prog_compiler_pic.
+
+2003-11-06  Owen Taylor  <otaylor@redhat.com>
+
+	* m4/libtool.m4 (AC_LIBTOOL_SYS_GLOBAL_SYMBOL_PIPE): Recognise the
+	'R' symbol type so read-only symbols can be exported when combining
+	GCC and Solaris LD.
+
+2003-11-06  James Henstridge  <james@daa.com.au>,
+	Scott James Remnant  <scott@netsplit.com>
+
+	* m4/libtool.m4 (AC_LIBTOOL_PROG_LD_SHLIBS) [Linux]: Fix the
+	-export-symbols and -export-symbols-regex options.
+
+2003-11-06  Scott James Remnant  <scott@netsplit.com>
+
+	* tests/demo-nopic.test: Skip test on hppa, which don't like
+	non-PIC shared libraries.
+
+2003-11-06  Charles Wilson  <cwilson@ece.gatech.edu>
+
+	* tests/depdemo/configure.ac, tests/mdemo/configure.ac,
+	tests/mdemo2/configure.ac: process 'libtool --features'
+	from Makefile, not configure -- because libtool doesn't
+	exist at configure time.
+
+	* ltmain.in (find_executable, check_executable) [cygwin*, mingw*]:
+	binary wrapper used with uninstalled executables breaks when
+	invoked via execlp/execvp (that is, via $PATH).  Handle that case.
+	(fnqualify): Subsumed into find_executable.
+
+	* m4/libtool.m4 (AC_LIBTOOL_PROG_LD_SHLIBS) [cygwin*, mingw*]:
+	when extracting symbols from an import lib (occurs if
+	--enable-shared --disable-static), the output of
+	$global_symbol_pipe is not the same as 	when extracting from a
+	static library (the default case). Add extra filters to
+	$export_symbols_cmds to process this sort of output in addition to
+	'normal' static-lib output.
+	* NEWS: Updated.
+
+2003-11-06  Charles Wilson  <cwilson@ece.gatech.edu>,
+	Gary V. Vaughan  <gary@gnu.org>
+
+	* libltdl/ltdl.c (LT_USE_POSIX_DIRENT): Factored out.
+	(LT_USE_WINDOWS_DIRENT_EMULATION): Move to after include "ltdl.h",
+	as they are affected by __WINDOWS__ definition.
+	(LT_READTEXT_MODE): Use textmode to read .la files.
+	(lt_dlinit): Use LoadLibrary loader as a fallback on cygwin.
+
+2003-11-06  Gary V. Vaughan  <gary@gnu.org>
+
+	* libltdl/ltdl.h (__WINDOWS__): Define this if _WIN32 or WIN32 are
+	defined, unless __CYGWIN__ or __CYGWIN32__ are defined.
+	(LT_SCOPE): Now set without reference to __CYGWIN__ definition,
+	since __WINDOWS__ now implies !__CYGWIN__ after canonicalisation.
+	(LT_PARAMS, lt_ptr): Use canonicalised __WINDOWS__ to determine
+	which values to set these macros to.
+
+2003-11-05  Gary V. Vaughan  <gary@gnu.org>
+
+	* README-alpha: Mention autotools-announce@gnu.org, and update release
+	note templates.
+
+2003-11-01  Scott James Remnant  <scott@netsplit.com>
+
+	* ltmain.in: When relinking, place the -L parameter containing
+	the installation prefix directory after the intended destination,
+	so we don't accidentally link against an older installed library.
+
+2003-11-01  Peter O'Gorman  <peter@pogma.com>
+
+	* tests/mdemo2/Makefile.am: Let mdemo2 find ltdl.h again.
+
+2003-10-30  Peter O'Gorman  <peter@pogma.com>
+
+	* m4/libtool.m4 (Darwin): Fix stupidities for darwin tags support.
+	Makes it work again if AC_LIBTOOL_TAGS is specified in configure.ac.
+	Bug reported by Joe Orton and Christian Schaffner.
+
+2003-10-21  Gary V. Vaughan  <gary@gnu.org>
+
+	Start to eliminate the double run of configure in a fresh CVS
+	checkout by generating ltmain.sh, using that to create libtool,
+	and then adding the tags to that, all from config.status.
+
+	* configure.ac (AC_CONFIG_FILES): Make config/ltmain.sh, and copy
+	it to libltdl.
+	* Makefile.am ($(srcdir)/config/ltmain.sh): This file is now
+	created by config.status.  Adjust this rule.
+	(libtoolize): Set CONFIG_COMMANDS to empty to prevent regenerating
+	the libtool script as a side effect of running this rule.
+	* libtool.m4: Bump serial number.  Fix comment typos.
+	(_LT_CONFIG_LIBTOOL_INIT, _LT_CONFIG_LIBTOOL,
+	_LT_CONFIG_SAVE_COMMANDS, _LT_CONFIG_COMMANDS: New macros.  They
+	don't work for some reason - the variable value quoting in the
+	init section is all wrong.  Not used at the moment.
+	(AC_LIBTOOL_CONFIG): Generate libtool from config.status.
+	(_LT_AC_TAG_CONFIG): Add the tags in config.status.
+	(compiler_DEFAULT): Save the compiler value for the DEFAULT tag,
+	or it gets overwritten by the other macros.
+	(EOF): Globally replace with _LT_EOF to avoid namespace pollution.
+	* tests/demo/configure.ac (STATIC): Check $enable_static instead
+	of running ./libtool which doesn't exist yet.
+	(BINARY_HELLDL): Check $lt_cv_sys_global_symbol_pipe with case
+	instead of grepping ./libtool which doesn't exist yet.
+	* tests/pdemo/configure.ac (STATIC, BINARY_HELLDL): Ditto.
+	* doc/libtool.texi (AC_PROG_LIBTOOL): Add some notes about trying
+	to get config details from `libtool --config'.
+	* NEWS: Updated.
+
+2003-10-21  Gary V. Vaughan  <gary@gnu.org>
+
+	* ChangeLog, ChangeLog.0, ChangeLog.1: Refactored...
+	* ChangeLog, ChangeLog.2002, ChangeLog.2001, ChangeLog.2000,
+	ChangeLog.1999, ChangeLog.1998, ChangeLog.1997, ChangeLog.1996:
+	...into entries by year for easier copyright confirmation.
+
+	* configure.ac, libltdl/configure.ac, tests/cdemo/configure.ac,
+	tests/demo/configure.ac, tests/depdemo/configure.ac,
+	tests/f77demo/configure.ac, tests/mdemo/configure.ac,
+	tests/mdemo2/configure.ac, tests/pdemo/configure.ac,
+	tests/tagdemo/configure.ac (AM_INIT_AUTOMAKE): Remove redundant
+	arguments.
+	* libltdl/configure.ac: Use quadrigraphs to escape macronames.
+
+	* bootstrap (reconfdirs): Same as yesterday, only with portable
+	bourne shell syntax.  :-/
+
+2003-10-20  Gary V. Vaughan  <gary@gnu.org>
+
+	* bootstrap (reconfdirs): Overridable top dirs for bootstrap, for
+	those times when you don't want to wait for all of the test
+	directories to be rebootstrapped!
+
+2003-10-19  Kevin P. Fleming  <kpfleming@backtobasicsmgmt.com>
+	Charles Wilson <cygwin@cwilson.fastmail.fm>
+
+	* ltmain.in: include --tag options, if specified, in the
+	relink_command in uninstalled .la files.  Also, preserve --silent,
+	--debug options when libtool re-execs itself.
+	* NEWS: Updated.
+
+2003-10-19  Charles Wilson  <cygwin@cwilson.fastmail.fm>
+
+	* libtoolize.in: protect sed expression against
+	AC_CONFIG_AUX_DIR_DEFAULT.
+
+2003-10-16  Bob Friesenhahn  <bfriesen@simple.dallas.tx.us>
+
+	* m4/libtool.m4 (AC_DEPLIBS_CHECK_METHOD): For MinGW, reverted DLL
+	check method back to a working objdump-based test.  This is not as
+	concrete a test as using the 'file' command, but it does not
+	require that the 'file' command be available.
+
+2003-10-15  Bob Friesenhahn  <bfriesen@simple.dallas.tx.us>
+
+	* doc/libtool.texi (AC_LIBTOOL_TAGS): Incorporate documentation
+	for AC_LIBTOOL_TAGS macro to specifify libtool tags. The now
+	defunct --with-tags option was never documented.
+
+2003-10-15  Albert Chin-A-Young  <china@thewrittenword.com>
+
+	* m4/libtool.m4: Restrict the list of tags that can be created
+	with a new AC_LIBTOOL_TAGS([tag1 tag2 ...]) macro. Deprecate
+	--with-tags.
+
+2003-10-15  Gary V. Vaughan  <gary@gnu.org>
+
+	* libtoolize.in: Typo when copying config.sub.
+	From Patrick Welche <prlw1@newn.cam.ac.uk>
+
+	* demo/Makefile.am (libhell0_a_SOURCES): Do not name sources
+	already built with libtool...
+	(libhell0_a_LIBADD): ...instead name the objects directly.  This
+	prevents a long standing warning from automake 1.7+.
+	* pdemo/Makefile.am (libhell0_a_SOURCES, libhell0_a_LIBADD):
+	Ditto.
+
+	* bootstrap: Make the fake files valid shell scripts with a
+	comment incase they get left around.
+	(LIBTOOLIZE): Use a dummy script to prevent the installed
+	`libtoolize' from trashing the distributed libtool.m4,
+	config.guess and config.sub.
+
+	* configure.ac (AC_CONFIG_TESTDIR, AC_CONFIG_TESTFILES): Comment
+	this out for now, the autotest testsuite rewrite is not ready
+	yet.
+
+	* tests/cdemo/Makefile.am, tests/demo/Makefile.am,
+	tests/depdemo/Makefile.am, tests/f77demo/Makefile.am,
+	tests/mdemo/Makefile.am, tests/mdemo2/Makefile.am,
+	tests/pdemo/Makefile.am, tests/tagdemo/Makefile.am (top_distdir):
+	Removed. `autoreconf' needs literals in ACLOCAL_AMFLAGS.
+
+2003-10-14  Gary V. Vaughan  <gary@gnu.org>
+
+	* libtoolize.in (func_mkdir_p): Synch with tests/defs; if there
+	are no more directories in the stack, break out of the loop.
+
+	* tests/Makefile.am (COMMON_TESTS): Remove pdemo-unst.test, which
+	isn't a real test.
+
+2003-10-14  Gary V. Vaughan  <gary@gnu.org>
+
+	Refactor all the test case common code into shell functions in
+	tests/defs, and move the various demo directories out of
+	$top_srcdir, and into tests too.  The refactoring showed up a
+	number of inconsistencies and latent bugs, as well as fixing (I
+	think!!) the long-standing annoyance with some of the tests giving
+	spurious failures intermittently.  While I was here, emacs kindly
+	removed a lot of bogus whitespace and added copyright notices for
+	us:
+
+	* cdemo, demo, depdemo, f77demo, mdemo, mdemo2, pdemo, tagdemo:
+	Moved from here...
+	* tests/cdemo, tests/demo, tests/depdemo, tests/f77demo,
+	tests/mdemo, tests/mdemo2, tests/pdemo, tests/tagdemo: ...to
+	here.
+	* tests/defs: Factor much common functionality from the test
+	scripts into shell functions.  Added a copyright notice.
+	* tests/assign.test, tests/cdemo-conf.test, tests/cdemo-exec.test,
+	tests/cdemo-make.test, tests/cdemo-shared.test,
+	tests/cdemo-static.test, tests/demo-conf.test,
+	tests/demo-deplibs.test, tests/demo-exec.test,
+	tests/demo-inst.test, tests/demo-make.test,
+	tests/demo-nofast.test, tests/demo-nopic.test,
+	tests/demo-pic.test, tests/demo-shared.test,
+	tests/demo-static.test, tests/demo-unst.test,
+	tests/depdemo-conf.test, tests/depdemo-exec.test,
+	tests/depdemo-inst.test, tests/depdemo-make.test,
+	tests/depdemo-nofast.test, tests/depdemo-shared.test,
+	tests/depdemo-static.test, tests/depdemo-unst.test,
+	tests/f77demo-conf.test, tests/f77demo-exec.test,
+	tests/f77demo-make.test, tests/f77demo-shared.test,
+	tests/f77demo-static.test, tests/link-2.test, tests/link.test,
+	tests/mdemo-conf.test, tests/mdemo-exec.test,
+	tests/mdemo-inst.test, tests/mdemo-make.test,
+	tests/mdemo-shared.test, tests/mdemo-static.test,
+	tests/mdemo-unst.test, tests/mdemo2-conf.test,
+	tests/mdemo2-exec.test, tests/mdemo2-make.test, tests/nomode.test,
+	tests/pdemo-conf.test, tests/pdemo-exec.test,
+	tests/pdemo-inst.test, tests/pdemo-make.test,
+	tests/pdemo-unst.test, tests/quote.test, tests/sh.test,
+	tests/suffix.test, tests/tagdemo-conf.test,
+	tests/tagdemo-exec.test, tests/tagdemo-make.test,
+	tests/tagdemo-shared.test, tests/tagdemo-static.test: Refactored
+	to use new functions in tests/defs.  Added a copyright notice.
+	* tests/hardcode.test, noinst-link.test,
+	tests/relink.test, tests/relink.test,
+	tests/mdryrun.test: Ditto.  Moved from here...
+	* tests/demo-hardcode.test, demo-noinst-link.test,
+	tests/demo-relink.test, tests/depdemo-relink.test,
+	tests/mdemo-dryrun.test: ...to here respectively.
+	* Makefile.am: Added a copyright notice.
+	* tests/sh.test: Check libtoolize.in for non-portabilities too.
+	* libtoolize.in: Fix non-portabilities found by tests/sh.test.
+
+2003-10-12  Peter O'Gorman <peter@pogma.com>
+
+	* m4/libtool.m4: Speed up max_cmd_len check.
+
+2003-10-08  Gary V. Vaughan  <gary@gnu.org>
+
+	* libtoolize.in: AC_CONFIG_M4_DIR has landed in CVS autoconf.
+	Only it's called AC_CONFIG_MACRO_DIR.  Search and replace.
+	Grumble. ;-)
+
+2003-10-08  Scott James Remnant  <scott@netsplit.com>
+
+	* libltdl/ltdl.c (lt_dlerror): change return value when
+	no error has occured to NULL to match documentation.
+	(Debian Bug #157229)
+
+2003-10-07  Gary V. Vaughan  <gary@gnu.org>
+
+	* ltmain.in: Don't suppress output of PIC mode compile if
+	-no-suppress option is given.
+	* doc/libtool.texi (Invoking libtool): Document it.
+	* NEWS: Updated.
+
+2003-10-07  Marcus Comstedt  <marcus@mc.pp.se>
+
+	* m4/libtool.m4 [amigaos-ppc, amigaos-m68k]: Differentiate between
+	amigaos on ppc and m68k.
+	* NEWS: Updated.
+
+2003-10-07  Ralph Schleicher  <rs@nunatak.allgaeu.org>
+
+	* ltmain.in: Do not create `.o' objects when `-shared' is
+	specified in compile mode.
+	Do not make a static library when `-shared' is specified in link
+	mode.
+	* doc/libtool.texi (Compile mode): Document it.
+	* NEWS: Updated.
+
+	* doc/libtool.texi (Compile mode): Be more specific about the
+	effect of `-static'.
+	* ltmain.in: Do not create `.lo' objects when `-static' is
+	specified.
+	* NEWS: Updated.
+
+2003-10-07  Gary V. Vaughan  <gary@gnu.org>
+
+	* doc/libtool.texi (Invoking libtool): Updated.
+	* ltmain.in: Add missing clean and finish modes to the shorthand
+	options.
+
+	* ltmain.in: Typo in the --mode shorthand.
+
+2003-10-07  Scott James Remnant  <scott@netsplit.com>
+
+	* m4/libtool.m4 (AC_DEPLIBS_CHECK_METHOD): Remove dead code
+	for platforms that have been using pass_all for some time now.
+
+2003-10-07  Gary V. Vaughan  <gary@gnu.org>
+
+	* libtoolize.in: Completely rewritten.
+	* Makefile.am (AUTOMAKE_OPTIONS): Reduced to 1.7.  The 1.8
+	requirement just made the distribution much smaller due to
+	m4_includes.  1.7 will bootstrap libtool just fine.
+	* NEWS: Updated.
+
+2003-10-05  Peter O'Gorman <peter@pogma.com>,
+	Gary V. Vaughan  <gary@gnu.org>
+
+	* ltmain.in: Remove inferrence of mode, add shorthand for mode
+	choice.
+
+	* ltmain.in: Specifying -allow-undefined is now an error.
+
+2003-09-29  Scott James Remnant  <scott@netsplit.com>
+
+	* m4/libtool.m4 (AC_DEPLIBS_CHECK_METHOD): Use pass_all for linux*
+	solving many build problems on ARM, and hopefully preventing any
+	future ones.
+	(Debian Bug #191133 and #190569)
+
+2003-09-29  Bob Friesenhahn <bfriesen@simple.dallas.tx.us>,
+	Dalibor Topic <robilad@kaffe.org>
+
+	* libltdl/ltdl.c: Only include malloc.h if stdlib.h can not be
+	found.
+
+2003-09-26  Alfred M. Szmidt  <ams@kemisten.nu>
+
+	* mdemo2/Makefile.am (INCLUDES): Include `$(top_srcdir)/../libltdl'
+	instead of `../libltdl'.
+
+2003-09-24  Gary V. Vaughan  <gary@gnu.org>
+
+	* bootstrap: Rewritten to use autoreconf.
+	* config.guess, config.sub, mkstamp:  Moved from here...
+	* config/config.guess, config/config.sub, config/mkstamp: ...to
+	here, respectively.
+	* libtool.m4, ltdl.m4: Moved from here...
+	* m4/libtool.m4, m4/ltdl.m4: ...to here, respectively.
+	* configure.ac: Removed various acinclude.m4 hackery, as these
+	files are no longer needed with automake 1.8.
+	* Makefile.am: Removed various acinclude.m4 hackery, as these
+	files are no longer needed with automake 1.8.
+	(AUTOMAKE_OPTIONS): Require CVS automake.
+	(CONF_SUBDIRS, CFLAGS, CPPFLAGS, LDFLAGS, LIBS, FFLAGS, FLIBS):
+	Automake now makes a Make variable from every AC_SUBST, so these
+	are NOP.
+	(aclocal_macros): These files are now in their own m4 subdir.
+	Changed all clients.
+	(EXTRA_DIST): mkstamp has moved to the new config subdir.  Changed
+	all clients.
+	(pkgdata_SCRIPTS): Ditto wrt config.guess and config.sub.
+	(pkgdata_DATA): Ditto wrt ltmain.sh.
+	* f77demo/configure.ac, libltdl/configure.ac (AM_CONFIG_HEADER):
+	Is deprecated in favour of AC_CONFIG_HEADERS.  Updated to the
+	latter.
+	* Makefile.am, cdemo/Makefile.am, demo/Makefile.am,
+	depdemo/Makefile.am, f77demo/Makefile.am, mdemo/Makefile.am,
+	mdemo2/Makefile.am, pdemo/Makefile.am, tagdemo/Makefile.am
+	(EXTRA_DIST): Remove acinclude.m4.
+	(ACLOCAL_AMFLAGS): Search new `m4' macro directory.
+	* configure.ac, cdemo/configure.ac, demo/configure.ac,
+	depdemo/configure.ac, f77demo/configure.ac, mdemo/configure.ac,
+	mdemo2/configure.ac, pdemo/configure.ac, tagdemo/configure.ac
+	(AC_CONFIG_AUX_DIR): Declare that config helper	scripts are now
+	kept in the new config subdir.
+	* libltdl/configure.ac (AC_CONFIG_AUX_DIR): Removed.  Defaults to
+	`.' anyway.
+
+2003-09-21  Robert Millan  <robertmh@gnu.org>
+
+	* libtool.m4: Add GNU/KNetBSD support.
+	* ltdl.m4: Likewise.
+
+2003-09-13  Scott James Remnant  <scott@netsplit.com>
+
+	* libtool.m4: allow STRIP to contain spaces and additional
+	arguments.  (Debian Bug #183055)
+	* ltmain.in: include newline in "sensible default" for IFS.
+	(Debian Bug #98492 and #95447)
+
+2003-09-11  Peter O'Gorman  <peter@pogma.com>
+
+	* AUTHORS, THANKS: Added myself to AUTHORS, removed from THANKS.
+
+2003-09-10  Peter O'Gorman  <peter@pogma.com>
+
+	* mdemo2/configure.ac: Use AC_LIBTOOL_DLOPEN.
+	* mdemo2/main.c: Use LTDL_SET_PRELOADED_SYMBOLS().
+	* mdemo2/Makefile.am: Set INCLUDES properly and add -dlopen force
+	to make sure the symbols file is included in the link line.
+
+	* ltmain.in: Accept -framework for darwin and put it in
+	dependency_libs. For non-installed .la's try to avoid having
+	./.libs/.libs/libfoo.so on the link line.
+
+2003-09-10  Arne Woerner  <woerner@mediabase-gmbh.de>
+
+	* libtool.m4 [openbsd]: openbsd 3.x needs versioning information.
+
+2003-08-29  Gary V. Vaughan  <gary@gnu.org>
+
+	* bootstrap: Typo.
+
+2003-08-29  Alexandre Duret-Lutz  <adl@gnu.org>
+
+	* libtool.m4 (_LT_AC_LANG_C_CONFIG): Fix unquoted call to
+	_LT_AC_LANG_C_CONFIG.
+	(AC_PROG_EGREP): Remove, now that Libtool requires Autoconf 2.56.
+	* bootstrap: Issue an upgrade warning.
+
+2003-08-27  Gary V. Vaughan  <gary@gnu.org>
+
+	* libtool.m4 (_LT_AC_CHECK_DLFCN): Use the interrim new
+	AC_CHECK_HEADER with compiler rather than preprocessor.
+	(AC_LIBTOOL_SETUP): ...which was introduced in autoconf-2.56, so
+	we AC_PREREQ that version.
+	* ltdl.m4 (AC_WITH_LTDL, AC_LIB_LTDL, AC_LTDL_FUNC_ARGZ): Ditto.
+
+2003-08-27  Gary V. Vaughan  <gary@gnu.org>
+
+	Work around a bug in AU_ALIAS in CVS Autoconf that inserts a
+	newline just before AC_FD_CC, by hand updating:
+
+	* ltdl.m4 (AC_LTDL_SYMBOL_USCORE): s/AC_FD_CC/AS_MESSAGE_LOG_FD/g.
+
+2003-08-05  Jim Pick <jim@kaffe.org>,
+	Ito Kazumitsu <kaz@maczuka.gcd.org>,
+	Gary V. Vaughan  <gary@gnu.org>
+
+	Much as we have tried not to make it the callers' responsibility
+	to maintain an lt_dlrealloc function pointer, it is too difficult
+	to implement realloc as malloc/memcpy/free without knowing the
+	size of the original block.  rpl_realloc has been deprecated since
+	2002-10-30, but kaffe has real failures with that so it's time to
+	bite the bullet.  Caller gets to maintain lt_dlrealloc:
+
+	* NEWS (1.5.1): Updated.
+	* libltdl/ltdl.c (LT_DLREALLOC): Use lt_dlrealloc so the user can
+	update the function pointer to match lt_dlmalloc.
+	(lt_emalloc): Use lt_dlrealloc rather than hardcoding realloc.
+	* doc/libtool.texi (Libltdl interface): Describe lt_dlrealloc now
+	that it too has become part of the exported interface to libltdl.
+
+2003-08-01  Peter O'Gorman  <peter@pogma.com>
+
+	* libtool.m4 (darwin): Use "-undefined dynamic_lookup" if the
+	user set MACOSX_DEPLOYMENT_TARGET to 10.3 or greater.
+	* libltdl/ltdl.c (dyld): Save the error from the first lookup
+	to report in lt_dlerror(). Otherwise the error is always
+	"Symbol _foo not in /usr/lib/libSystem.dylib".
+	Thanks to Chris Zubrzycki for reporting this.
+
+2003-08-01  Robert Boehne  <rboehne@gnu.org>
+
+	* libltdl/ltdl.h: Tweak the header to support visual studio.
+
+2003-07-31  Greg Eisenhauer  <eisen@cc.gatech.edu>
+
+	* ltmain.in: Provide absolute paths for dlopen and dlpreopen
+	files in generating uninstalled libtool libraries.
+	* mdemo2/main.c, mdemo2/Makefile.am, mdemo2/README,
+	mdemo2/configure.ac, mdemo2/.cvsignore, mdemo/mlib.c,
+	tests/mdemo2-conf.test, tests/mdemo2-exec.test,
+	tests/mdemo2-make.test: New files for testing above feature.
+	* configure.ac, bootstrap, tests/Makefile.am: Accomodate new
+	test directory.
+	* mdemo/Makefile.am: Build libmlib.la for mdemo2 tests.
+
+2003-07-30  Tony Wyatt <wyattaw@optushome.com.au>
+
+	* libtool.m4: Remove parentheses around finish_eval part which
+	broke on amigaos pdksh.
+
+2003-07-30  Christiaan Welvaart  <cjw@daneel.dyndns.org>
+
+	* tests/dryrun.test: Ignore any 'total' line from "ls -l" output.
+
+2003-07-30  Albert Chin-A-Young  <china@thewrittenword.com>
+
+	* libtool.m4 (AC_LIBTOOL_PROG_CC_C_O): Correctly remove IRIX C++
+	template files.
+
+2003-07-24  Robert Millan  <robertmh@gnu.org>
+
+	* libtool.m4: More fixes for the new GNU/FreeBSD triplet.
+
+2003-07-14  Bob Friesenhahn  <bfriesen@simple.dallas.tx.us>
+
+	* config.guess, config.sub: Synchronized from ftp.gnu.org since
+	Robert Millan's patch requires it.
+
+2003-07-14  Robert Millan  <zeratul2@wanadoo.es>
+
+	* libtool.m4: Fixed to use the new GNU/FreeBSD triplet.
+	* ltdl.m4: Fixed to use the new GNU/FreeBSD triplet.
+	* ltmain.in: Remove GNU/FreeBSD cases, which are no longer needed.
+
+2003-07-14  Andreas Schwab  <schwab@suse.de>
+
+	* libtool.m4 (_LT_AC_LOCK): Also match powerpc64-*linux* in
+	addition to ppc64-*linux*.  From Markus Meissner
+	<meissner@bogus.example.com>.
+
+2003-07-14  Dalibor Topic  <robilad@yahoo.com>
+
+	* libtool.m4 (AC_LIBTOOL_SYS_MAX_CMD_LEN): For AmigaOS with pdksh,
+	set the maximum command line length to 8K since otherwise the test
+	takes over an hour to run.
+
+2003-06-25  Alexandre Oliva  <aoliva@redhat.com>, Tim Waugh  <twaugh@redhat.com>
+
+	* libtool.m4: Replace mis-uses of path with pathname.
+	(AC_PROG_LD_GNU): Don't quote $LD when running it.
+	(_LT_AC_LANG_CXX_CONFIG): Use -nostdlib also when linking with g++
+	and non-GNU ld.
+
+2003-06-11  Gary V. Vaughan  <gary@gnu.org>
+
+	* libtool.m4 (AC_LIBTOOL_COMPILER_OPTION): Require LT_AC_PROG_SED to
+	ensure $SED is set by the time it is used.
+
+	* ChangeLog: Restore missing entries from 2003-04-22.
+
+	* NEWS: Sychronised from branch-1-5.
+
+2003-06-03  Benjamin Reed  <ranger@befunk.com>
+
+	* ltmain.in: search libraries in the order of preference, rather
+	than picking .la's even if they're in a less preferred directory.
+
+2003-06-03  Robert Millan <rmh@debian.org>
+
+	* ltdl.m4: Add support for GNU/FreeBSD.
+	* ltmain.in: Add support for GNU/FreeBSD.
+
+2003-06-03  Albert Chin-A-Young  <china@thewrittenword.com>
+
+	* libtool.m4: No need to use sed to remove leading comma when
+	appending to $tagnames.
+
+2003-06-03  Albert Chin-A-Young  <china@thewrittenword.com>
+
+	* tests/defs, tests/demo-conf.test, tests/demo-nofast.test,
+	tests/demo-nopic.test, tests/demo-pic.test,
+	tests/demo-shared.test, tests/demo-static.test,
+	tests/depdemo-conf.test, tests/depdemo-nofast.test,
+	tests/depdemo-shared.test, tests/depdemo-static.test:
+	Pass build system type to tests to support environment
+	where default system type not equal to build system type
+	(eg. 64-bit HP-UX).
+
+2003-06-03  Peter O'Gorman  <peter@pogma.com>
+
+	* libtool.m4 (darwin): Remove checks for Apple-specific gcc.
+	* libltdl/ltdl.c (HAVE_MACH_O_DYLD_H): #define
+	__private_extern__ for fsf gcc.
+	* ltmain.in (darwin): Only add new paths to newlib_search_path.
+
+2003-06-03  Max Bowsher  <maxb@ukf.net>
+
+	* libtool.m4 (AC_LIBTOOL_SYS_DYNAMIC_LINKER): Reorder cygwin's
+	system library search path.
+
+2003-06-01  Robert Boehne  <rboehne@gnu.org>
+
+	* libtool.m4 (AC_LIBTOOL_SYS_DYNAMIC_LINKER): Match all qnx-nto
+	as recent config.guess returns a slightly different string.
+	* ltmain.in: Replace use of "od" with tr.
+
+2003-05-30  Gary V. Vaughan  <gary@gnu.org>
+
+	* libltdl/ltdl.c (argz_insert): Corrected an off by one error when
+	checking that before is not out of range.
+
+2003-05-29  Gary V. Vaughan  <gary@gnu.org>
+
+	* libltdl/ltdl.c (lt_int_dyld_lib_install_name): Removed unused
+	variable mh1.
+	(sys_dyld_close): Removed unused variable size.
+
+2003-05-21  Bruno Haible  <bruno@clisp.org>
+
+	* libtool.m4 (AC_LIBTOOL_SYS_DYNAMIC_LINKER): Add support for
+	GNU/FreeBSD.
+
+2003-04-22  Alexandre Oliva  <aoliva@redhat.com>
+
+	* libtool.m4 (lt_cv_deplibs_check_method): Use pass_all on all
+	mips*-linux* variants.
+
+2003-04-22  Samuel Meder  <meder@mcs.anl.gov>
+
+	* libtool.m4 Switch on $CC and add paterns to cases.
+
+2003-04-22  Peter O'Gorman  <peter@pogma.com>
+
+	* libtool.m4: Move the AC_LIBTOOL_SYS_DYNAMIC_LINKER check
+	to be before AC_LIBTOOL_PROG_LD_HARDCODE_LIBPATH, becuase the
+	value of shlibpath_overrides_runpath is used in the HARDCODE
+	test and is set in the DYNAMIC_LINKER test.
+	* ltmain.in [darwin]: We never need to relink on darwin.
+
+2003-04-22  Samuel Meder  <meder@mcs.anl.gov>
+
+	* libtool.m4: Switch on $CC and add patterns to cases.
+
+2003-04-21  Richard Dawe  <rich@phekda.freeserve.co.uk>
+
+	* doc/libtool.texi: Use @ifnottex instead of @ifinfo,
+	to allow production of HTML documentation using makeinfo.
+
+2003-04-14  Robert Boehne  <rboehne@gnu.org>
+
+	* NEWS: Updated.
+	* configure.ac: Bumped version to 1.5a.
+
+	GNU libtool 1.5 was released.
+
+	* configure.ac: Bumped version to 1.5.
+	* NEWS: updated.
+	* README-alpha: Updated upload instructions.
+	* README: Changed typo in version description.
+	* config.guess, config.sub, texinfo.tex:  Synchronized from
+	ftp.gnu.org.
+
+
+2003-04-10  Alexandre Oliva  <aoliva@redhat.com>
+
+	* libtool.m4 (lt_cv_deplibs_check_method): Use pass_all on all
+	mips*-linux* variants.
+
+2003-04-09  Samuel Meder  <meder@mcs.anl.gov>
+
+	* libtool.m4 Switch on $CC and add paterns to cases.
+
+2003-04-09  Peter O'Gorman  <peter@pogma.com>
+
+	* libtool.m4: Move the AC_LIBTOOL_SYS_DYNAMIC_LINKER check
+	to be before AC_LIBTOOL_PROG_LD_HARDCODE_LIBPATH, becuase the
+	value of shlibpath_overrides_runpath is used in the HARDCODE
+	test and is set in the DYNAMIC_LINKER test.
+	* ltmain.in(darwin): We never need to relink on darwin.
+
+2003-04-09  Samuel Meder  <meder@mcs.anl.gov>
+
+	* libtool.m4 Switch on `basename $CC` not $CC
+
+2003-04-05  Peter O'Gorman  <peter@pogma.com>
+
+	* libtool.m4: if ZSH_VERSION is set then setopt NO_GLOB_SUBST so
+	libtool works. Remove zsh echo test code, don't bother checking
+	for zsh anymore in the darwin archive_expsym_cmds.
+
+2003-04-05  Allan Sandfeld Jensen  <snowwolf@one2one-networks.com>
+
+	* libtool.m4: Switch on $CC not $cc_basename.
+
+2003-04-02  Robert Boehne  <rboehne@gnu.org>
+
+	* tests/defs: Quote $DJGPP to prevent problems with some shells.
+	Pointed out by Albert Chin <libtool@thewrittenword.com>
+
+2003-04-01  Peter O'Gorman  <peter@pogma.com>
+
+	* libtool.m4: Fix the echo test which I broke earlier.
+	* ltmain.in: Make DESTDIR work on darwin, don't use otool.
+
+2003-03-31  Keith Packard  <keithp@keithp.com>
+
+	* ltmain.in: New flag -version-number to be used for maintaining
+	compatability with a previously non-Libtool versioning scheme.
+	* doc/libtool.texi: Document it.
+
+2003-03-31  Naofumi Yasufuku  <naofumi@yasufuku.net>
+
+	* ltmain.in (win32_libid): Fixed sed expression error in
+	win32_nmres evaluation.
+
+2003-03-31  Albert Chin  <libtool@thewrittenword.com>
+
+	* ltmain.in: Don't pass -R flags found in a .la's dependency_libs
+	variable directly down to the linker.
+	Reported by Tim Mooney <mooney@dogbert.cc.ndsu.nodak.edu>.
+
+2003-03-28  Richard Dawe  <rich@phekda.freeserve.co.uk>
+
+	* Makefile.am: Define CONF_SUBDIRS.
+	* tests/defs: Set CONFIG_SITE to /nonexistent, except on DJGPP,
+	which requires its config.site, to work correctly.
+	* tests/cdemo-conf.test, tests/cdemo-shared.test,
+	tests/cdemo-static.test, tests/demo-conf.test,
+	tests/demo-nofast.test, tests/demo-nopic.test,
+	tests/demo-pic.test, tests/demo-shared.test,
+	tests/demo-static.test, tests/depdemo-conf.test,
+	tests/depdemo-nofast.test, tests/depdemo-shared.test,
+	tests/depdemo-static.test, tests/f77demo-conf.test,
+	tests/f77demo-shared.test, tests/f77demo-static.test,
+	tests/mdemo-conf.test, tests/mdemo-shared.test,
+	tests/mdemo-static.test, tests/pdemo-conf.test,
+	tests/tagdemo-conf.test, tests/tagdemo-shared.test,
+	tests/tagdemo-static.test: Don't set CONFIG_SITE, now that
+	tests/defs sets it.
+	* tests/cdemo-exec.test, tests/demo-exec.test,
+	tests/demo-inst.test, tests/depdemo-exec.test,
+	tests/depdemo-inst.test, tests/f77demo-exec.test,
+	tests/mdemo-exec.test, tests/mdemo-inst.test,
+	tests/pdemo-exec.test, tests/pdemo-inst.test,
+	tests/tagdemo-exec.test: When checking for the existence
+	of executables, use the executable file extension from $EXEEXT.
+
+2003-03-28  Peter O'Gorman  <peter@pogma.com>
+
+	* libltdl/ltdl.c (dyld): Remove some debug printf's, fix a bug.
+	* ltmain.in (darwin): Only link against shared libraries when doing
+	link_all_deplibs.
+
+2003-03-25  Robert Boehne  <rboehne@gnu.org>
+
+	* bootstrap: Add f77demo to the directories that AUTOHEADER
+	is run in.
+
+2003-03-21  Wesley W. Terpstra <terpstra@ito.tu-darmstadt.de>
+
+	* ltmain.in: Don't accumulate directory information in clean mode.
+	Include properly pathed wrapper script.
+
+2003-03-21  Peter O'Gorman  <peter@pogma.com>
+
+	* README: Remove "Important" information about patching automake.
+	* configure.ac: Fix misapplied patch in last commit
+	* libtool.m4 (darwin): Check compiler is apple gcc, add -single_module
+	support so that dyloading c++ shared libraries will work.
+	* libtool.m4 (_LT_AC_TAGCONFIG): Add test -n to the tests so that
+	it will work outside of libtool.
+	* doc/PLATFORMS: Add darwin
+	* f77demo/configure.ac: Add config.h which was misapplied previously.
+
+2003-03-20  Peter O'Gorman  <peter@pogma.com>
+
+	* ltmain.in: Always use $echo not echo for consistency.
+	Changes for darwin building. Warn if linking against libs linked
+	with -module. Use module_cmds if available and building a module,
+	move convenience double lib check,
+	* libltdl/ltdl.c: ltdl support for darwin (first blush)
+	* libltdl/README: note that darwin is supported
+	* ltdl.m4: Changes for darwin, and for new shrext
+	* libtool.m4: Changed the way darwin builds stuff (make check passes)
+	added module_cmds, module_expsym_cmds and hardcode_automatic and put
+	them in the libtool script. check for zsh's removal of escapes. Allow
+	libraries to be stripped on darwin.
+	* TODO: Remove the todo about zsh's removal of excapes. note that zsh
+	echo works perfectly well, eval is screwed up. Seems to be fixed in
+	latest zsh.
+	* THANKS: added self :)
+	* f77demo/configure.ac: Use config.h or it doesn't work.
+
+2003-03-19  Robert Boehne  <rboehne@gnu.org>
+
+	* libtool.m4 (_LT_AC_TAGCONFIG): Add test around the macro that
+	adds tags to the libtool script so that they won't run when not
+	needed.
+	* configure.ac: Set F77 to no when no Fortran compiler is found.
+
+2003-03-16  Charles Wilson  <cwilson@ece.gatech.edu>
+
+	* ltmain.in (win32_libid): use $SED, not head.
+
+2003-03-02  Alexandre Oliva  <aoliva@redhat.com>
+
+	* libtool.m4 (AC_PROG_LD): Use $CC instead of GCC.
+	(_LT_AC_LANG_CXX_CONFIG): Preserve variables used by AC_PROG_LD,
+	and reset them for a C++ environment.  Use the with_gnu_ld setting
+	from AC_PROG_LD.
+
+2003-02-28  Ralph Schleicher  <rs@nunatak.allgaeu.org>
+
+	* ltmain.in: Only append a dot to the wrapper script when
+	building on cygwin/MSYS (check for $build, not $host).
+
+2003-02-27  Samuel Meder  <meder@mcs.anl.gov>
+
+	* libtool.m4 (ia64): Add support for Intel compiler (ecc) on IA64
+	Linux.
+
+2003-02-27  Benjamin Reed <ranger@befunk.com>
+
+	* THANKS: Added people who have submitted 3 or more patches
+	to libtool to the THANKS file.
+	* README: Added notes about the Darwin (MacOSX) support.
+
+2003-02-25  Bob McElrath  <bob+libtool@mcelrath.org>
+
+	* libtool.m4 (AC_LIBTOOL_PROG_COMPILER_PIC): Add support for
+	the Compaq C compiler for Alpha Linux.
+
+2003-02-25  Benjamin Reed  <ranger@befunk.com>
+
+	* libtool.m4 (darwin): Disable hardcoding library paths to
+	make relinking unnecessary.
+
+2003-02-24  Robert Boehne  <rboehne@gnu.org>
+
+	* libltdl/configure.ac: Use AC_CONFIG_AUX_DIR([.]) to place
+	auxilary files in the libltdl directory.
+	* Makefile.am: Add to the ltmain.sh rule to copy it into the
+	libltdl subdirectory.
+	* bootstrap: Explicitly handle ltmain.sh in libltdl, and pass
+	--copy to automake.
+
+2003-02-24  Ralph Schleicher  <rs@nunatak.allgaeu.org>
+
+	* libtool.m4 (AC_LIBTOOL_SETUP): Check for ar.
+
+2003-02-23  Peter O'Gorman  <peter@pogma.com>
+
+	* libtool.m4 (darwin): Revamp darwin platform support.
+	* ltdl.m4 (darwin): Support dlcompat if found.
+	* ltmain.in: Make sure ranlib is run if needed when piecewise
+	linking.
+
+2003-02-23  Alexandre Duret-Lutz  <adl@gnu.org>
+
+	* ltmain.in (--help): Show mailing-address for bug reports.
+	(--version): Mention only the most recent copyright year.
+	* libtoolize.in (--help): Show mailing-address for bug reports.
+	(--version): Mention only the most recent copyright year.
+
+2003-02-19  Alexandre Oliva  <aoliva@redhat.com>
+
+	* libtool.m4 (AC_PROG_LD): Use $CC instead of GCC.
+	(_LT_AC_LANG_CXX_CONFIG): Preserve variables used by AC_PROG_LD,
+	and reset them for a C++ environment.  Use the with_gnu_ld setting
+	from AC_PROG_LD.
+
+	* libtool.m4: Replace $linker_flags with $compiler_flags wherever
+	it is used as argument to $CC.
+
+	* libtool.m4: Use linux version_type on IRIX with GNU ld.
+	Prefix -soname, -set_version and their arguments with ${wl}.  Add
+	-melf* linker scripts to LD, and use them to determine libsuff,
+	shlibsuff and libmagic.
+
+2003-02-17  Allan Sandfeld Jensen  <snowwolf@one2one-networks.com>
+
+	* libtool.m4: Intel icc fixups for version 7.0.
+
+2003-02-17  Ralph Schleicher  <rs@nunatak.allgaeu.org>
+
+	* libtool.m4 (AC_LIBTOOL_SYS_DYNAMIC_LINKER): Prepend a dot to
+	the value of the shrext (aka shared_ext) variable and delete it
+	from the library_names_spec and soname_spec definitions.  That
+	way the user can omit the shared library suffix by setting it
+	to the empty string.
+	(AC_LIBTOOL_LANG_CXX_CONFIG): Strengthen renaming commands for
+	the KCC compiler.
+	* doc/libtool.texi (Link mode): Update the manual.
+
+2003-02-17  Charles Wilson  <cwilson@ece.gatech.edu>
+
+	* ltmain.in (win32_libid): Rewritten to improve speed.
+
+2003-02-11  Richard Dawe  <rich@phekda.freeserve.co.uk>
+
+	* libtoolize.in: Use the program found by AC_PROG_LN_S
+	to create symlinks.
+
+2003-02-08  Jan Kratochvil  <project-libtool@jankratochvil.net>
+
+	* ltmain.in: Handle duplicate object file names when performing
+	piecewise archive linking by renaming object files when needed.
+
+2003-02-05  Robert Boehne  <rboehne@gnu.org>
+
+	* libtool.m4 (AC_CHECK_LIBM): Search for a real symbol in
+	the math library rather than 'main', it causes problems for
+	C++ compilers with certain Auto* tools.
+	(AC_LIBLTDL_INSTALLABLE): ditto.
+
+2003-02-05  Christian Cornelssen  <ccorn@cs.tu-berlin.de>
+
+	* libtool.m4 (_LT_AC_LANG_CXX_CONFIG)
+	(AC_LIBTOOL_PROG_LD_SHLIBS): Rewrite printf commands so
+	that the format string cannot be mistaken as an option.
+	Reported by Martin MOKREJS.
+
+2003-02-05  Robert Boehne  <rboehne@gnu.org>
+
+	* libtool.m4: Modify the sys_lib_search_path_spec to allow
+	for either native sed or GNU sed to be used.
+
+2003-02-04  Nick Hudson  <skrll@netbsd.org>
+
+	* libtool.m4: don't use -nodefaultlibs in archive_commands
+	or archive_expsym_commands on NetBSD.
+
+2003-02-04  Albert Chin-A-Young  <china@thewrittenword.com>
+
+	* libtool.m4: Change setting of archive_cmds_need_lc
+	so that it doesn't overwrite the previous setting.
+
+2003-01-28  Albert Chin-A-Young  <china@thewrittenword.com>
+
+	* libtool.m4: Allow compiler variable, CC, CXX, etc. to
+	be a program name with arguments. Original version stripped
+	arguments for CC.
+
+2003-01-28  Charles Wilson  <cwilson@ece.gatech.edu>
+
+	* ltmain.in: add code for a binary wrapper
+	to use with uninstalled executables on cygwin/mingw.
+	Make sure that --mode=clean gets shell wrapper and
+	binary wrapper.  When sourcing the shell wrapper,
+	invoke using a terminal `.' on cygwin/mingw to
+	avoid the automatic append-.exe behavior.
+
+2003-01-28  Albert Chin-A-Young  <china@thewrittenword.com>
+
+	* libtool.m4: Hardcode library paths into libraries on IRIX.
+
+2003-01-18  Robert Boehne  <rboehne@gnu.org>
+
+	* libtool.m4 (AC_LIBTOOL_PROG_COMPILER_PIC): Don't add -DPIC
+	for languages other than C and C++.
+
+2003-01-13  Albert Chin-A-Young  <china@thewrittenword.com>
+
+	* libtool.m4, ltmain.in: Add support for hppa*64* based on
+	a patch by Ross Alexander <ross.alexander@uk.neceur.com>.
+	Credit to Ross! Use +b to hardcode library runtime path.
+	Add new variable, $hardcode_libdir_flag_spec_ld, that
+	is equivalent to $hardcode_libdir_flag_spec but is used
+	when ld is used for linking. This works around having to
+	set wl=''.
+
+2003-01-12  Robert Boehne  <rboehne@gnu.org>
+
+	* libtool.m4 (AC_LIBTOOL_SYS_DYNAMIC_LINKER): Revert an
+	accidental rearranging of dylib and so for darwin.
+
+2003-01-10  Robert Boehne  <rboehne@gnu.org>
+
+	* libtool.m4 (AC_LIBTOOL_SYS_DYNAMIC_LINKER): Modify the
+	"-shrext" option so that is works properly under Darwin.
+	Modify the processing of 'gcc -print-search-dirs' under
+	Darwin to make it behave like GNU gcc does.
+	(AC_LIBTOOL_CONFIG): Single quote $shrext.
+	* ltimain.in: Expand shared_ext just before it is used
+	so that it can be conditional on the value of $module.
+
+Continued in ChangeLog.2002

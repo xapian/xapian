@@ -2,6 +2,7 @@
  * @brief A PostList which iterates over all documents in a ChertDatabase.
  */
 /* Copyright (C) 2006,2007,2008 Olly Betts
+ * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,120 +23,63 @@
 
 #include <string>
 
-#include "chert_database.h"
 #include "chert_alldocspostlist.h"
+#include "chert_database.h"
 
 #include "utils.h"
 
 using namespace std;
 
+ChertAllDocsPostList::ChertAllDocsPostList(Xapian::Internal::RefCntPtr<const ChertDatabase> db_,
+					   Xapian::doccount doccount_)
+	: ChertPostList(db_, string(), true),
+	  doccount(doccount_)
+{
+    DEBUGCALL(DB, void, "ChertAllDocsPostList::ChertAllDocsPostList", db_.get() << ", " << doccount_);
+}
+
 Xapian::doccount
 ChertAllDocsPostList::get_termfreq() const
 {
-    return doccount;
-}
-
-Xapian::docid
-ChertAllDocsPostList::get_docid() const
-{
-    return current_did;
+    DEBUGCALL(DB, Xapian::doccount, "ChertAllDocsPostList::get_termfreq", "");
+    RETURN(doccount);
 }
 
 Xapian::doclength
 ChertAllDocsPostList::get_doclength() const
 {
     DEBUGCALL(DB, Xapian::doclength, "ChertAllDocsPostList::get_doclength", "");
-    Assert(current_did);
 
-    cursor->read_tag();
-
-    if (cursor->current_tag.empty()) RETURN(0);
-
-    const char * pos = cursor->current_tag.data();
-    const char * end = pos + cursor->current_tag.size();
-
-    chert_doclen_t doclen;
-    if (!unpack_uint(&pos, end, &doclen)) {
-	const char *msg;
-	if (pos == 0) {
-	    msg = "Too little data for doclen in termlist";
-	} else {
-	    msg = "Overflowed value for doclen in termlist";
-	}
-	throw Xapian::DatabaseCorruptError(msg);
-    }
-
-    RETURN(doclen);
+    RETURN(ChertPostList::get_wdf());
 }
 
 Xapian::termcount
 ChertAllDocsPostList::get_wdf() const
 {
     DEBUGCALL(DB, Xapian::termcount, "ChertAllDocsPostList::get_wdf", "");
-    Assert(current_did);
+    AssertParanoid(!at_end());
     RETURN(1);
 }
 
-PostList *
-ChertAllDocsPostList::read_did_from_current_key()
+PositionList *
+ChertAllDocsPostList::read_position_list()
 {
-    DEBUGCALL(DB, PostList *, "ChertAllDocsPostList::read_did_from_current_key",
-	      "");
-    const string & key = cursor->current_key;
-    const char * pos = key.data();
-    const char * end = pos + key.size();
-    if (!unpack_uint_preserving_sort(&pos, end, &current_did)) {
-	const char *msg;
-	if (pos == 0) {
-	    msg = "Too little data in termlist key";
-	} else {
-	    msg = "Overflowed value in termlist key";
-	}
-	throw Xapian::DatabaseCorruptError(msg);
-    }
-
-    // Return NULL to help the compiler tail-call optimise our callers.
-    RETURN(NULL);
+    DEBUGCALL(DB, Xapian::termcount, "ChertAllDocsPostList::read_position_list", "");
+    throw Xapian::InvalidOperationError("ChertAllDocsPostList::read_position_list() not meaningful");
 }
 
-PostList *
-ChertAllDocsPostList::next(Xapian::weight /*w_min*/)
+PositionList *
+ChertAllDocsPostList::open_position_list() const
 {
-    DEBUGCALL(DB, PostList *, "ChertAllDocsPostList::next", "/*w_min*/");
-    Assert(!at_end());
-    if (!cursor->next()) RETURN(NULL);
-    RETURN(read_did_from_current_key());
-}
-
-PostList *
-ChertAllDocsPostList::skip_to(Xapian::docid did, Xapian::weight /*w_min*/)
-{
-    DEBUGCALL(DB, PostList *, "ChertAllDocsPostList::skip_to",
-	      did << ", /*w_min*/");
-
-    if (did <= current_did || at_end()) RETURN(NULL);
-
-    if (cursor->find_entry_ge(pack_uint_preserving_sort(did))) {
-	// The exact docid that was asked for exists.
-	current_did = did;
-	RETURN(NULL);
-    }
-    if (cursor->after_end()) RETURN(NULL);
-
-    RETURN(read_did_from_current_key());
-}
-
-bool
-ChertAllDocsPostList::at_end() const {
-    DEBUGCALL(DB, bool, "ChertAllDocsPostList::at_end", "");
-    RETURN(cursor->after_end());
+    DEBUGCALL(DB, Xapian::termcount, "ChertAllDocsPostList::open_position_list", "");
+    throw Xapian::InvalidOperationError("ChertAllDocsPostList::open_position_list() not meaningful");
 }
 
 string
 ChertAllDocsPostList::get_description() const
 {
     string desc = "ChertAllDocsPostList(did=";
-    desc += om_tostring(current_did);
+    desc += om_tostring(get_docid());
     desc += ",doccount=";
     desc += om_tostring(doccount);
     desc += ')';

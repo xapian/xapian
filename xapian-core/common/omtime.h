@@ -94,6 +94,10 @@ class OmTime {
 
 	bool is_set() const { return sec != 0 || usec != 0; }
 
+	double as_double() const {
+	    return double(sec) + (double(usec) / 1000000.0);
+	}
+
 	long int sec;
 	long int usec;
 };

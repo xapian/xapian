@@ -2,6 +2,7 @@
  * @brief A PostList which iterates over all documents in a ChertDatabase.
  */
 /* Copyright (C) 2006,2007,2008 Olly Betts
+ * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,51 +25,31 @@
 #include <string>
 
 #include "leafpostlist.h"
+#include "chert_postlist.h"
 
-class ChertAllDocsPostList : public LeafPostList {
+class ChertAllDocsPostList : public ChertPostList {
     /// Don't allow assignment.
     void operator=(const ChertAllDocsPostList &);
 
     /// Don't allow copying.
     ChertAllDocsPostList(const ChertAllDocsPostList &);
 
-    /// Set @a current_did from @a cursor->current_key.
-    PostList * read_did_from_current_key();
-
-    /// The database we're iterating over.
-    Xapian::Internal::RefCntPtr<const ChertDatabase> db;
-
     /// The number of documents in the database.
     Xapian::doccount doccount;
 
-    /// Cursor running over termlist table keys.
-    AutoPtr<ChertCursor> cursor;
-
-    /// The current document id.
-    Xapian::docid current_did;
-
   public:
     ChertAllDocsPostList(Xapian::Internal::RefCntPtr<const ChertDatabase> db_,
-			 Xapian::doccount doccount_)
-      : db(db_), doccount(doccount_), cursor(db->termlist_table.cursor_get()),
-	current_did(0)
-    {
-	cursor->find_entry("");
-    }
+			 Xapian::doccount doccount_);
 
     Xapian::doccount get_termfreq() const;
-
-    Xapian::docid get_docid() const;
 
     Xapian::doclength get_doclength() const;
 
     Xapian::termcount get_wdf() const;
 
-    PostList * next(Xapian::weight w_min);
+    PositionList *read_position_list();
 
-    PostList * skip_to(Xapian::docid desired_did, Xapian::weight w_min);
-
-    bool at_end() const;
+    PositionList *open_position_list() const;
 
     std::string get_description() const;
 };

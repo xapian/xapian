@@ -1,0 +1,62 @@
+#! /bin/sh
+# Copyright (C) 2004  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Ensure DESTDIR is not included in byte-compiled files.
+
+required=python
+. ./defs || exit 1
+
+set -e
+
+cat >>configure.in <<'EOF'
+AM_PATH_PYTHON
+AC_OUTPUT
+EOF
+
+cat >Makefile.am <<'END'
+mydir = $(datadir)/my
+my_PYTHON = my.py
+
+my.py:
+	echo 'def my(): return 1' >$@
+END
+
+$ACLOCAL
+$AUTOCONF
+$AUTOMAKE --add-missing
+
+rm -rf inst build
+mkdir inst
+instdir=`pwd`/inst
+mkdir build
+cd build
+../configure --prefix="/usr"
+DESTDIR=$instdir $MAKE -e install
+
+# Perfunctory test that the files were created
+test -f "$instdir/usr/share/my/my.py"
+test -f "$instdir/usr/share/my/my.pyc"
+test -f "$instdir/usr/share/my/my.pyo"
+
+# If DESTDIR has made it into the byte compiled files, fail the test
+$FGREP "$instdir" "$instdir/usr/share/my/my.pyo" \
+                  "$instdir/usr/share/my/my.pyc" && exit 1
+
+:

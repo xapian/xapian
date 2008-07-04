@@ -25,9 +25,15 @@
 #include "autoptr.h"
 #include "omassert.h"
 #include "document.h"
+#include "leafpostlist.h"
 #include "utils.h"
 
 using namespace std;
+
+ValueRangePostList::~ValueRangePostList()
+{
+    delete alldocs_pl;
+}
 
 Xapian::doccount
 ValueRangePostList::get_termfreq_min() const
@@ -104,17 +110,14 @@ PostList *
 ValueRangePostList::next(Xapian::weight)
 {
     Assert(db);
-    AssertParanoid(lastdocid == db->get_lastdocid());
-    while (current < lastdocid) {
-	try {
-	    if (++current == 0) break;
-	    AutoPtr<Xapian::Document::Internal> doc(db->open_document(current, true));
-	    string v = doc->get_value(valno);
-	    if (v >= begin && v <= end) return NULL;
-	} catch (const Xapian::DocNotFoundError &) {
-	    // That document doesn't exist.
-	    // FIXME: this could throw and catch a lot of exceptions!
-	}
+    if (!alldocs_pl) alldocs_pl = db->open_post_list(string());
+    alldocs_pl->skip_to(current + 1);
+    while (!alldocs_pl->at_end()) {
+	current = alldocs_pl->get_docid();
+	AutoPtr<Xapian::Document::Internal> doc(db->open_document(current, true));
+	string v = doc->get_value(valno);
+	if (v >= begin && v <= end) return NULL;
+	alldocs_pl->next();
     }
     db = NULL;
     return NULL;
@@ -137,8 +140,7 @@ ValueRangePostList::check(Xapian::docid did, Xapian::weight, bool &valid)
 	valid = true;
 	return NULL;
     }
-    AssertParanoid(lastdocid == db->get_lastdocid());
-    AssertRel(did, <=, lastdocid);
+    AssertRelParanoid(did, <=, db->get_lastdocid());
     current = did;
     AutoPtr<Xapian::Document::Internal> doc(db->open_document(current, true));
     string v = doc->get_value(valno);

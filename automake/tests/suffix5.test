@@ -1,0 +1,48 @@
+#! /bin/sh
+# Copyright (C) 2001, 2002  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+required=libtool
+
+# Test to make sure Automake include libtool objects resulting
+# from user-defined implicit rules.
+# Based on a report from Arkadiusz Miskiewicz <misiek@pld.ORG.PL>.
+
+. ./defs || exit 1
+
+cat >> configure.in << 'END'
+AC_PROG_LIBTOOL
+END
+
+cat > Makefile.am << 'END'
+.k.lo:
+	echo $< > $@
+
+noinst_LTLIBRARIES = libfoo.la
+libfoo_la_SOURCES = foo.k
+END
+
+: > ltmain.sh
+: > config.guess
+: > config.sub
+
+$ACLOCAL || exit 1
+$AUTOMAKE || exit 1
+grep '_OBJECTS.*foo.lo' Makefile.in || exit 1
+exit 0

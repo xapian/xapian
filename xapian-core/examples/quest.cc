@@ -1,6 +1,6 @@
 /* quest.cc - Command line search tool using Xapian::QueryParser.
  *
- * Copyright (C) 2004,2005,2006,2007 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -127,12 +127,15 @@ main(int argc, char **argv)
 	    parser.set_stemmer(stemmer);
 	    parser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
 	    parser.set_stopper(&mystopper);
-	    enquire.set_query(parser.parse_query(argv[optind]));
+	    Xapian::Query query = parser.parse_query(argv[optind]);
+	    cout << "Query: " << query.get_description() << endl;
+	    enquire.set_query(query);
 	} catch (const char * error_msg) {
 	    cout << "Couldn't parse query: " << error_msg << endl;
 	    exit(1);
 	}
 
+	cout << "MSet:" << endl;
 	Xapian::MSet mset = enquire.get_mset(0, msize);
 	for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); i++) {
 	    Xapian::Document doc = i.get_document();

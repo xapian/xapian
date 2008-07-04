@@ -1,0 +1,57 @@
+#!/bin/sh
+# Copyright (C) 2003  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Check that many conditions do not lead to combinatorial explosion.
+# (This is related to PR/352.)
+#
+# On this test, Automake 1.7.x would compute all 2**22 = 4194304
+# possible combinations of conditionals (it would do this five times,
+# to define a01_DEPENDENCIES, a02_DEPENDENCIES, a03_OBJECTS,
+# a04_OBJECTS, and to rewrite bin_PROGRAM), eating all memory, swap,
+# or cpu time it can found.  Although this test won't print `FAIL' if
+# it fails, it will take long enough so it can't go unnoticed.
+
+. ./defs
+
+set -e
+
+echo AC_PROG_CC >>configure.in
+
+cat >Makefile.am <<EOF
+bin_PROGRAMS = a
+a02_LDADD =
+a03_SOURCES =
+EOF
+
+for i in 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22; do
+cat >>Makefile.am <<EOF
+if C$i
+bin_PROGRAMS += a$i
+a01_LDADD = foo${i}.o
+a02_LDADD += bar${i}.o
+a03_SOURCES += baz${i}.c
+a04_SOURCES = quux${i}.c
+endif C$i
+EOF
+echo "AM_CONDITIONAL([C$i], [:])" >>configure.in
+done
+
+$ACLOCAL
+$AUTOMAKE

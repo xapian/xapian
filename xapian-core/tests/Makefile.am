@@ -11,9 +11,12 @@ INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include \
 
 TESTS_ENVIRONMENT = ./runtest
 
-.PHONY: check-none check-inmemory check-multi \
-        check-remote check-remoteprog check-remotetcp \
-        check-chert check-flint check-perf up
+.PHONY: check-none check-inmemory \
+        check-multi check-multi-chert check-multi-flint \
+        check-remote \
+	check-remoteprog check-remoteprog-chert check-remoteprog-flint\
+	check-remotetcp check-remotetcp-chert check-remotetcp-flint\
+        check-chert check-flint up
 
 up:
 	cd .. && $(MAKE)
@@ -43,39 +46,51 @@ check-remoteprog: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remoteprog
 check-remotetcp: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp
+if BUILD_BACKEND_CHERT
+check-remoteprog-chert: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remoteprog_chert
+check-remotetcp-chert: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp_chert
+endif
+if BUILD_BACKEND_FLINT
+check-remoteprog-flint: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remoteprog_flint
+check-remotetcp-flint: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp_flint
+endif
 endif
 
 if BUILD_BACKEND_CHERT
+check-multi-chert: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b multi_chert
 check-chert: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b chert
 endif
 
 if BUILD_BACKEND_FLINT
+check-multi-flint: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b multi_flint
 check-flint: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b flint
 endif
-
-check-perf: perftest$(EXEEXT)
-	VALGRIND= $(TESTS_ENVIRONMENT) ./perftest$(EXEEXT)
 
 ## Test programs to be run
 TESTS = apitest$(EXEEXT) internaltest$(EXEEXT) stemtest$(EXEEXT) \
  queryparsertest$(EXEEXT) termgentest$(EXEEXT)
 
 ## Programs to build
-check_PROGRAMS = apitest internaltest stemtest queryparsertest termgentest \
- perftest
+check_PROGRAMS = apitest internaltest stemtest queryparsertest termgentest
 
 # Make sure runtest is up to date before running tests
 check_SCRIPTS = runtest
 
 ## Sources:
 
-noinst_HEADERS = apitest.h perftest.h
+noinst_HEADERS = apitest.h
 
 collated_apitest_sources = api_anydb.cc api_db.cc api_generated.cc api_nodb.cc \
  api_posdb.cc api_replicate.cc api_sorting.cc api_transdb.cc api_unicode.cc \
- api_wrdb.cc
+ api_valuestats.cc api_wrdb.cc
 
 apitest_SOURCES = apitest.cc $(collated_apitest_sources) \
  api_all.h api_collated.h $(testharness_sources)
@@ -99,23 +114,13 @@ termgentest_SOURCES = termgentest.cc $(testharness_sources)
 termgentest_LDFLAGS = -no-install $(ldflags)
 termgentest_LDADD = ../libgetopt.la ../libxapian.la
 
-collated_perftest_sources = perftest_matchdecider.cc perftest_randomidx.cc
-
-perftest_SOURCES = perftest.cc $(collated_perftest_sources) \
- perftest_all.h perftest_collated.h $(testharness_sources) \
- freemem.cc freemem.h
-perftest_LDFLAGS = -no-install $(ldflags)
-perftest_LDADD = ../libgetopt.la ../libxapian.la
-
 BUILT_SOURCES =
 
 if MAINTAINER_MODE
 BUILT_SOURCES += api_all.h api_collated.h $(collated_apitest_sources:.cc=.h) \
- api_generated.cc perftest_all.h perftest_collated.h \
- $(collated_perftest_sources:.cc=.h)
+ api_generated.cc
 CLEANFILES = api_all.h api_collated.h $(collated_apitest_sources:.cc=.h) \
- api_generated.cc perftest_all.h perftest_collated.h \
- $(collated_perftest_sources:.cc=.h)
+ api_generated.cc
 
 api_all.h api_collated.h $(collated_apitest_sources:.cc=.h): api_collated.stamp
 ## Recover from the removal of $@.  A full explanation of these rules is in the
@@ -132,27 +137,8 @@ api_all.h api_collated.h $(collated_apitest_sources:.cc=.h): api_collated.stamp
 	  fi; \
 	fi
 api_collated.stamp: $(collated_apitest_sources) collate-test
-	$(PERL) "$(srcdir)/collate-test" "$(srcdir)" "api_all.h" $(collated_apitest_sources) > api_collated.hT
+	$(PERL) "$(srcdir)/collate-test" "$(srcdir)" api_all.h $(collated_apitest_sources) > api_collated.hT
 	mv api_collated.hT api_collated.h
-	touch $@
-
-perftest_all.h perftest_collated.h $(collated_perftest_sources:.cc=.h): perftest_collated.stamp
-## Recover from the removal of $@.  A full explanation of these rules is in the
-## automake manual under the heading "Multiple Outputs".
-	@if test -f $@; then :; else \
-	  trap 'rm -rf perftest_collated.lock perftest_collated.stamp' 1 2 13 15; \
-	  if mkdir perftest_collated.lock 2>/dev/null; then \
-	    rm -f perftest_collated.stamp; \
-	    $(MAKE) $(AM_MAKEFLAGS) perftest_collated.stamp; \
-	    rmdir perftest_collated.lock; \
-	  else \
-	    while test -d perftest_collated.lock; do sleep 1; done; \
-	    test -f perftest_collated.stamp; exit $$?; \
-	  fi; \
-	fi
-perftest_collated.stamp: $(collated_perftest_sources) collate-test
-	$(PERL) "$(srcdir)/collate-test" "$(srcdir)" "perftest_all.h" $(collated_perftest_sources) > perftest_collated.hT
-	mv perftest_collated.hT perftest_collated.h
 	touch $@
 
 api_generated.cc: generate-api_generated
@@ -161,8 +147,7 @@ api_generated.cc: generate-api_generated
 endif
 
 EXTRA_DIST = collate-test generate-api_generated api_all.h api_collated.h \
-	$(collated_apitest_sources:.cc=.h) dir_contents \
-	perftest_all.h perftest_collated.h $(collated_perftest_sources:.cc=.h)
+	$(collated_apitest_sources:.cc=.h) dir_contents
 
 ## Distribute test data:
 EXTRA_DIST +=\
@@ -217,6 +202,7 @@ EXTRA_DIST +=\
 	testdata/flint-1.0.2/termlist.DB
 
 clean-local:
-	rm -rf .chert .flint .multi
+	rm -rf .chert .flint .multi .multichert .multiflint
 
+include perftest/Makefile.mk
 include harness/Makefile.mk

@@ -1,0 +1,71 @@
+#! /bin/sh
+# Copyright (C) 2003, 2004, 2006  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Make sure automake -Woverride suggests using TARGET-local instead
+# of TARGET when possible.
+
+. ./defs || exit 1
+
+set -e
+
+cat >> configure.in << 'END'
+AM_CONDITIONAL([COND], [:])
+END
+
+cat > Makefile.am << 'END'
+install:
+	:
+installcheck:
+	:
+html:
+	:
+clean-am:
+	:
+
+if COND
+ps: mine
+	:
+endif
+END
+
+$ACLOCAL
+$AUTOMAKE -Wno-override
+AUTOMAKE_fails
+grep ':.*install-local' stderr && exit 1 # There is no such thing as install-local
+grep ':.*installcheck-local' stderr
+grep ':.*html-local' stderr
+# Make sure overriding *-am targets suggest using *-local, not *-am.
+grep ':.*clean-am-local' stderr && exit 1
+grep ':.*clean-local' stderr
+
+# Conditional overrides ought to be diagnosed, but it can't be done yet.
+# See the FIXME in Automake::Rule::define.  Once this is fixed, the grep below
+# will fail.  If you see the failure, it means you fixed Automake.  Well done!
+# Just strip out the next '&& exit 1' and this comment.
+grep ':.*overrides.*ps' stderr && exit 1
+
+# Test for another issue.  Overriding html: should cause only one
+# html: rule to be output.
+test `grep '^html:' Makefile.in | wc -l` = 1
+
+# ps: should be output in two conditions
+test `grep '[^-]ps:' Makefile.in | wc -l` = 2
+grep '@COND_TRUE@ps: mine' Makefile.in
+grep '@COND_FALSE@ps: ps-am' Makefile.in

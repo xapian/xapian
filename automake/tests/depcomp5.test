@@ -1,0 +1,72 @@
+#! /bin/sh
+# Copyright (C) 2003, 2004  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Check icc's dependency mode.
+
+required='icc'
+. ./defs || exit 1
+
+# Automake supports icc since version 7.0 through a dedicated depcomp mode.
+# icc 8.0 and greater understand gcc options, so depmode is set to gcc.
+if icc -V -help 2>&1 | grep 'Version 7'; then
+  expect='depmode=icc'
+else
+  expect='depmode=gcc'
+fi
+
+set -e
+
+cat >> configure.in << 'END'
+AC_PROG_CC
+AM_PROG_CC_C_O
+AC_OUTPUT
+END
+
+cat > Makefile.am << 'END'
+AUTOMAKE_OPTIONS = subdir-objects
+check_PROGRAMS = prg
+prg_SOURCES = src/sub.c src/foo.h
+
+grepdeps:
+	grep 'src/sub.$(OBJEXT).*:' src/$(DEPDIR)/sub.Po
+
+END
+
+mkdir src
+
+touch src/foo.h
+
+cat >src/sub.c <<EOF
+#include "foo.h"
+int
+main ()
+{
+   return 0;
+}
+EOF
+
+$ACLOCAL
+$AUTOCONF
+$AUTOMAKE -a
+
+./configure
+grep "$expect" Makefile
+$MAKE check
+$MAKE grepdeps

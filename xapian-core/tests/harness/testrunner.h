@@ -38,6 +38,16 @@ class TestRunner {
      */
     std::string user_backend;
 
+    /** Result of running tests so far.
+     *
+     *  Actually, the maximum value returned by run() so far.
+     */
+    int result_so_far;
+
+    /** The source directory, read from the test driver.
+     */
+    std::string srcdir;
+
     /** Set the properties in use from a comma separated list.
      */
     void set_properties(const std::string & properties);
@@ -49,6 +59,10 @@ class TestRunner {
     /** Set the property flags to those for the named backend.
      */
     void set_properties_for_backend(const std::string & backend_name);
+
+    /** Run the tests with the specified backend.
+     */
+    void do_tests_for_backend(BackendManager * manager);
 
   public:
 
@@ -76,8 +90,14 @@ class TestRunner {
     /// True if the backend supports replication.
     bool replicas;
 
+    /// True if the backend supports getting value statistics.
+    bool valuestats;
+
     /// True if the backend is the multi backend.
     bool multi;
+
+    /// True if the backend is the inmemory backend.
+    bool inmemory;
 
     /// True if the backend is the flint backend.
     bool flint;

@@ -1,0 +1,74 @@
+#! /bin/sh
+# Copyright (C) 2003  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Check for support for colon separated input files in AC_CONFIG_FILES
+
+required=GNUmake
+. ./defs || exit 1
+
+set -e
+
+cat > configure.in << END
+AC_INIT([$me], [1.0])
+AM_INIT_AUTOMAKE
+AC_CONFIG_FILES(foo:a.in:b.in:c.in:d.in)
+AC_OUTPUT
+END
+
+cat >a.in <<'EOF'
+a = A
+b = A
+c = A
+d = A
+EOF
+
+cat >b.in <<'EOF'
+b = B
+c = B
+d = B
+EOF
+
+cat >c.am <<'EOF'
+c = C
+d = C
+
+print:
+	@echo $a$b$c$d
+EOF
+
+echo 'd = D' > d.in
+
+
+$ACLOCAL
+$AUTOCONF
+$AUTOMAKE
+./configure
+$MAKE -f foo print | grep 'ABCD'
+
+$sleep
+cat >b.in <<'EOF'
+a = G
+b = F
+c = F
+d = F
+EOF
+
+# This involves the rebuild rule, hence it requires GNUmake
+$MAKE -f foo print | grep 'GFCD'

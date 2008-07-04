@@ -1,0 +1,75 @@
+#! /bin/sh
+# Copyright (C) 2000, 2001, 2002  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Test for PR automake/87.
+
+required=gcc
+. ./defs || exit 1
+
+subdirs="foo bar"
+
+for i in $subdirs; do
+    mkdir $i
+    cat >$i/$i.c <<EOF
+int main() { return 0; }
+EOF
+    cat >$i/Makefile.am <<EOF
+bin_PROGRAMS = $i
+${i}_SOURCES = $i.c
+EOF
+done
+
+echo "SUBDIRS = $subdirs" > Makefile.am
+cat >configure.in <<EOF
+AC_INIT(`echo $subdirs | sed 's|\([a-z][a-z]*\).*|\1/\1.c|'`)
+AC_CONFIG_AUX_DIR(.)
+AM_INIT_AUTOMAKE(test_am, 1.0)
+AC_PROG_CC
+AC_OUTPUT(Makefile `echo $subdirs | sed 's|\([a-z][a-z]*\)|\1/Makefile|g'`)
+EOF
+
+# Ignore user CFLAGS.
+CFLAGS=
+export CFLAGS
+
+touch README NEWS AUTHORS ChangeLog
+
+mkdir build
+
+# We use gcc and not gcc -traditional as the latter fails on some
+# Linux boxes (Red Hat 5.1 in particular).
+$ACLOCAL \
+   && $AUTOCONF \
+   && $AUTOMAKE -a || exit 1
+
+# Regression test for bug where `.c.o:' is followed by blank line.
+(while read line; do
+    if test "$line" = ".c.o:"; then
+       read next
+       if test -z "$next"; then
+	  exit 1
+       fi
+       break
+    fi
+ done) < foo/Makefile.in || exit 1
+
+cd build \
+   && ../configure \
+   && $MAKE distcheck || exit 1

@@ -2,6 +2,7 @@
  * @brief BackendManager subclass for remoteprog databases.
  */
 /* Copyright (C) 2007 Olly Betts
+ * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,6 +23,7 @@
 #define XAPIAN_INCLUDED_BACKENDMANAGER_REMOTEPROG_H
 
 #include "backendmanager.h"
+#include "backendmanager_remote.h"
 
 #include <string>
 
@@ -32,7 +34,7 @@
 #include "positionlist.h"
 
 /// BackendManager subclass for remoteprog databases.
-class BackendManagerRemoteProg : public BackendManager {
+class BackendManagerRemoteProg : public BackendManagerRemote {
     /// Don't allow assignment.
     void operator=(const BackendManagerRemoteProg &);
 
@@ -43,7 +45,8 @@ class BackendManagerRemoteProg : public BackendManager {
     std::string last_wdb_name;
 
   public:
-    BackendManagerRemoteProg() { }
+    BackendManagerRemoteProg(const std::string & remote_type_)
+	: BackendManagerRemote(remote_type_) { }
 
     /** We have virtual methods and want to be able to delete derived classes
      *  using a pointer to the base class, so we need a virtual destructor.
@@ -51,7 +54,7 @@ class BackendManagerRemoteProg : public BackendManager {
     virtual ~BackendManagerRemoteProg();
 
     /// Return a string representing the current database type.
-    const char * get_dbtype() const;
+    std::string get_dbtype() const;
 
     /// Create a RemoteProg Xapian::Database object indexing multiple files.
     Xapian::Database get_database(const std::vector<std::string> & files);
@@ -68,10 +71,10 @@ class BackendManagerRemoteProg : public BackendManager {
 					 unsigned int timeout);
 
     /// Create a Database object for the last opened WritableDatabase.
-    Xapian::Database get_writable_database_as_database();
+    Xapian::Database get_writable_database_as_database(const std::string & name = "");
 
     /// Create a WritableDatabase object for the last opened WritableDatabase.
-    Xapian::WritableDatabase get_writable_database_again();
+    Xapian::WritableDatabase get_writable_database_again(const std::string & name = "");
 };
 
 #endif // XAPIAN_INCLUDED_BACKENDMANAGER_REMOTEPROG_H

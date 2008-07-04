@@ -15,13 +15,12 @@ ALL : "$(OUTDIR)\libexpand.lib"
 
 OBJS= \
                  $(INTDIR)\ortermlist.obj \
-                 $(INTDIR)\expandweight.obj \
-                 $(INTDIR)\expand.obj \
-                 $(NULL)
+                 $(INTDIR)\esetinternal.obj \
+                 $(INTDIR)\expandweight.obj
 SRCS= \
                  $(INTDIR)\ortermlist.cc \
-                 $(INTDIR)\expandweight.cc \
-                 $(INTDIR)\expand.cc
+                 $(INTDIR)\esetinternal.cc \
+                 $(INTDIR)\expandweight.cc
 		 
 CLEAN :
 	-@erase "$(OUTDIR)\libexpand.lib"

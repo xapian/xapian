@@ -12,7 +12,7 @@ HTMLDOCS = index.html internals.html install.html intro_ir.html overview.html \
  quickstartexpand.cc.html quickstartindex.cc.html quickstartsearch.cc.html
 
 RSTDOCS = admin_notes.rst categorisation.rst deprecation.rst glossary.rst \
- replication.rst replication_protocol.rst \
+ postingsource.rst replication.rst replication_protocol.rst \
  sorting.rst spelling.rst synonyms.rst termgenerator.rst valueranges.rst
 RSTHTML = $(RSTDOCS:.rst=.html)
 
@@ -28,21 +28,21 @@ dist-hook: doxygen_api_docs
 	test -d $(distdir) || mkdir $(distdir)
 	test -d $(distdir)/apidoc || mkdir $(distdir)/apidoc
 	test -d $(distdir)/apidoc/html || mkdir $(distdir)/apidoc/html
-	test "`echo $(srcdir)/apidoc/html/*.gif`" == "$(srcdir)/apidoc/html/*.gif" || \
+	test "`echo $(srcdir)/apidoc/html/*.gif`" = "$(srcdir)/apidoc/html/*.gif" || \
 	  cp -p $(srcdir)/apidoc/html/*.gif $(distdir)/apidoc/html
-	test "`echo apidoc/html/*.gif`" == "apidoc/html/*.gif" || \
+	test "`echo apidoc/html/*.gif`" = "apidoc/html/*.gif" || \
 	  cp -p apidoc/html/*.gif $(distdir)/apidoc/html
-	test "`echo $(srcdir)/apidoc/html/*.png`" == "$(srcdir)/apidoc/html/*.png" || \
+	test "`echo $(srcdir)/apidoc/html/*.png`" = "$(srcdir)/apidoc/html/*.png" || \
 	  cp -p $(srcdir)/apidoc/html/*.png $(distdir)/apidoc/html
-	test "`echo apidoc/html/*.png`" == "apidoc/html/*.png" || \
+	test "`echo apidoc/html/*.png`" = "apidoc/html/*.png" || \
 	  cp -p apidoc/html/*.png $(distdir)/apidoc/html
-	test "`echo $(srcdir)/apidoc/html/*.css`" == "$(srcdir)/apidoc/html/*.css" || \
+	test "`echo $(srcdir)/apidoc/html/*.css`" = "$(srcdir)/apidoc/html/*.css" || \
 	  cp -p $(srcdir)/apidoc/html/*.css $(distdir)/apidoc/html
-	test "`echo apidoc/html/*.css`" == "apidoc/html/*.css" || \
+	test "`echo apidoc/html/*.css`" = "apidoc/html/*.css" || \
 	  cp -p apidoc/html/*.css $(distdir)/apidoc/html
-	test "`echo $(srcdir)/apidoc/html/*.html`" == "$(srcdir)/apidoc/html/*.html" || \
+	test "`echo $(srcdir)/apidoc/html/*.html`" = "$(srcdir)/apidoc/html/*.html" || \
 	  cp -p $(srcdir)/apidoc/html/*.html $(distdir)/apidoc/html
-	test "`echo apidoc/html/*.html`" == "apidoc/html/*.html" || \
+	test "`echo apidoc/html/*.html`" = "apidoc/html/*.html" || \
 	  cp -p apidoc/html/*.html $(distdir)/apidoc/html
 
 if !MAINTAINER_NO_DOCS

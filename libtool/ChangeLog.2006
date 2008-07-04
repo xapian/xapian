@@ -1,0 +1,813 @@
+2006-12-14  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* tests/link-order2.at: Define our override `sin' function with
+	C binding even if $CC is a C++ compiler.  Skip the test with g++
+	as its command line driver reorders `-lm'.
+	* tests/search-path.at: Declare `inflate' with C binding.
+	* tests/stresstest.at: Avoid unused variable warnings.
+
+2006-11-07  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* tests/link-order2.at: Simplify logic to be a bit more self
+	documenting.  Suggested by Gary V. Vaughan.
+
+2006-10-28  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* tests/link-order2.at: Add missing $bindir setting.  Prevent
+	compiler optimization of sqrt call.  Fix logic inversion and
+	add some comments about this stunt.  Add a test with reversed
+	library link order that should fail if the system has a libm.
+	Report by Patrick Welche.
+
+2006-10-26  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	Assume presence of a config header in all files, to provoke
+	test failures on all systems.
+	* libltdl/lt__alloc.c: Likewise.
+	* libltdl/libltdl/lt__dirent.h: Likewise.
+	* libltdl/libltdl/lt__glibc.h: Likewise.
+	* libltdl/libltdl/lt__private.h: Likewise.
+	* libltdl/libltdl/lt__strl.h: Likewise.
+	* tests/recursive.at: Use AC_CONFIG_HEADERS.
+	* tests/nonrecursive.at: Likewise.  Invoke autoheader.
+	* HACKING: Adjust.
+	Report by Patrick Welche.
+
+2006-10-24  Paul Eggert  <eggert@cs.ucla.edu>,
+	    Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* doc/libtool.texi (Distributing libltdl): In recursive and
+	nonrecursive mode, a config header is now required.
+	* libltdl/argz.c: Remove check for HAVE_CONFIG_H, to conform
+	to gnulib's policy of including config.h unconditionally.
+
+2006-10-24  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* tests/link-order2.at: New test to show one case where ordering
+	of depdepls on the command line matters.
+	* Makefile.am: Adjust.
+
+	* tests/tagtrace.test: SKIP if `autoconf --trace' exits 63 or 1,
+	for various possible (valid) error cases.  Also output stderr,
+	to help with analysis.
+
+	* NEWS: Account for recent multilib fix.
+	* tests/search-path.at: New test, to provide at least a weak
+	test.
+	* Makefile.am: Update.
+
+	* libtoolize.m4sh (func_fixup_Makefile): Fix missing
+	substitution for nonrecursive mode.  Remove otherwise-empty
+	continuation lines in the output file.
+	Report by Bob Friesenhahn.
+
+2006-10-22  Peter O'Gorman  <peter@pogma.com>
+
+	* libltdl/config/ltmain.m4sh: Add -F* to flags that are passed
+	to the linker.
+	Reported by SIGOURE Benoit <sigoure.benoit@lrde.epita.fr>
+
+2006-10-19  Peter O'Gorman  <peter@pogma.com>
+
+	* libltdl/m4/libtool.m4 (_LT_SYS_DYNAMIC_LINKER): Improve
+	multilib support.
+	Reported by Kate Minola <kate01123@gmail.com> and others.
+
+2006-10-13  Eric Blake  <ebb9@byu.net>
+
+	* libltdl/ltdl.c (load_deplibs): Avoid memory leak on failure.
+	(unload_deplibs): Avoid memory leak on cleanup.
+
+2006-09-20  Ralf Wildenhues <Ralf.Wildenhues@gmx.de>
+
+	* libltdl/m4/libtool.m4 (func_mode_compile): Accept files with
+	extension `.f9?'.
+	* tests/suffix.test: Test `f95'.
+
+	* libltdl/config/ltmain.m4sh (func_mode_uninstall): Use
+	`func_source' consistently.
+
+2006-09-18  Ralf Wildenhues <Ralf.Wildenhues@gmx.de>
+
+	* libltdl/m4/libtool.m4 (_LT_SYS_DYNAMIC_LINKER) [ linux ]
+	[k*bsd*-gnu ]: Fix brown paper bag: save and restore `libdir'.
+
+2006-09-17  Ralf Wildenhues <Ralf.Wildenhues@gmx.de>
+
+	* tests/duplicate_deps.at: New file.  Test circular depending
+	convenience archives (currently failing).
+	* Makefile.am: Update.
+	Report by Stefan Traby <stefan@hello-penguin.com>.
+
+	* libltdl/m4/libtool.m4 (_LT_LINKER_SHLIBS, _LT_LANG_CXX_CONFIG)
+	[ openbsd ]: Set `hardcode_direct_absolute', to prefer rpath
+	over putting absolute file names in NEEDED entries.
+	* NEWS: Update.
+	Reported by Jake Meuser and others.
+
+	* libltdl/m4/libtool.m4 (_LT_SYS_DYNAMIC_LINKER) [ linux ]
+	[ k*bsd*-gnu ]: Test if ld sets DT_RUNPATH; in that case, set
+	shlib_overrides_runpath to `yes'.  Fixes test failure of new
+	test on Gentoo GNU/Linux.
+
+	* tests/shlibpath.at: New file, with...
+	(shlibpath_overrides_runpath): ...new test.
+	* Makefile.am: Update.
+
+2006-09-12  Ralf Wildenhues <Ralf.Wildenhues@gmx.de>
+
+	* tests/destdir.at: New file.
+	* Makefile.am: Adjust.
+
+2006-09-11  Ralf Wildenhues <Ralf.Wildenhues@gmx.de>
+
+	* tests/inherited_flags.at: Drop `${parameter}' for `$parameter'
+	where appropriate, for improved `testsuite -x' output.
+
+2006-09-04  Ralf Wildenhues <Ralf.Wildenhues@gmx.de>
+
+	* libltdl/ltdl.c: Move LT__UNUSED before parameter name, for g++
+	3.2.3 (on MinGW).
+	* libltdl/loaders/dld_link.c, libltdl/loaders/dlopen.c,
+	libltdl/loaders/load_add_on.c, libltdl/loaders/loadlibrary.c,
+	libltdl/loaders/preopen.c, libltdl/loaders/shl_load.c: Likewise.
+
+2006-09-04  George Bosilca <bosilca@cs.utk.edu>
+	and Ralf Wildenhues <Ralf.Wildenhues@gmx.de>
+
+	Make libltdl work when compiled with a C++ compiler.
+
+	* libltdl/lt__alloc.c, libltdl/lt_dlloader.c, libltdl/ltdl.c,
+	libltdl/slist.c, libltdl/libltdl/lt__alloc.h,
+	libltdl/libltdl/lt_error.h, libltdl/libltdl/slist.h,
+	libltdl/loaders/dld_link.c, libltdl/loaders/dlopen.c,
+	libltdl/loaders/dyld.c, libltdl/loaders/load_add_on.c,
+	libltdl/loaders/loadlibrary.c, libltdl/loaders/preopen.c,
+	libltdl/loaders/shl_load.c, tests/stresstest.at,
+	tests/testsuite.at, tests/f77demo/foo.h, tests/fcdemo/foo.h,
+	tests/mdemo/foo.h, tests/mdemo/foo1.c, tests/mdemo/foo2.c,
+	tests/mdemo/main.c: Allow sources to be compiled by a C++
+	compiler: Cast appropriately, add C linkage for `get_vtable'
+	functions, do not use C++ keyword `delete'.
+
+	* libltdl/config/ltmain.m4sh (func_mode_link): In the dlsym
+	file, define a type for the symbol list, and declare the list
+	`extern', so that it is extern even if compiled by a C++
+	compiler.  The type definition helps avoid a compiler warning
+	against anonymous extern struct.
+	* libltdl/libltdl/lt_system.h: Add `extern' to `LT_SCOPE' for
+	the same reason.
+
+	* libltdl/argz_.h: It's __cplusplus, not _cplusplus.
+	* libltdl/libltdl/slist.h: Likewise.
+
+	* libltdl/libltdl/lt__glibc.h: Wrap included argz.h in
+	`extern "C"', for broken headers on Cygwin.
+
+2006-09-03  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* tests/testsuite.at: Test `unset' on a set variable; older
+	bash versions return 1 if the variable was not set.
+
+	* tests/am-subdir.at, tests/early-libtool.at: Fix the LF vs.
+	CRLF related failures on MinGW by grepping for good output
+	instead of using AT_CHECK's `expout'.
+
+2006-09-01  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	Drop K&R support from testsuite in favor of C89.
+
+	* tests/duplicate_members.at: provide declarations of used
+	functions.
+	* tests/testsuite.at: Drop unneeded arguments.
+	* tests/cdemo/main.c: Assume C89.
+	* tests/demo/dlmain.c: Likewise.
+	* tests/demo/main.c: Likewise.
+	* tests/depdemo/main.c: Likewise.
+	* tests/depdemo/l1/l1.c: Likewise.
+	* tests/depdemo/l2/l2.c: Likewise.
+	* tests/depdemo/l3/l3.c: Likewise.
+	* tests/depdemo/l4/l4.c: Likewise.
+	* tests/f77demo/cprogram.c: Likewise.
+	* tests/fcdemo/cprogram.c: Likewise.
+	* tests/mdemo/mlib.c: Likewise.
+	* tests/mdemo2/main.c: Likewise.
+	* tests/pdemo/longer_file_name_dlmain.c: Likewise.
+	* tests/pdemo/longer_file_name_main.c: Likewise.
+	* tests/fcdemo/fooc.c: Reformat.
+	* tests/mdemo/sub.c: Likewise.
+
+2006-08-31  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* tests/mdemo/main.c: Fix bogus line in last patch.
+
+2006-08-31  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	Avoid mixing functions and data pointers in callback functions.
+
+	* libltdl/ltdl.c (file_worker_func): New type.
+	(lt_dlforeachfile): Instead of passing a function pointer as a
+	data pointer, pass a pointer to a file_worker_func pointer.
+	(foreach_callback_func): Adjust.
+	* tests/mdemo/main.c: Assume C89. Exercise lt_dlforeachfile.
+	(callback, try_iterate, my_dirname): New functions.
+	* tests/mdemo-exec.test: Check for its output.
+
+2006-08-30  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* libltdl/libltdl/lt__private.h (__attribute__, LT__UNUSED):
+	New macros.
+	* libltdl/loaders/dld_link.c: Use LT__UNUSED where
+	appropriate.
+	* libltdl/loaders/dlopen.c, libltdl/loaders/load_add_on.c,
+	libltdl/loaders/loadlibrary.c, libltdl/loaders/preopen.c,
+	libltdl/loaders/shl_load.c: Likewise.
+	* libltdl/ltdl.c: Likewise.
+	(find_file_callback): Fix declaration names to match definition.
+	(load_deplibs) [!LTDL_DLOPEN_DEPLIBS]: Use separate definition
+	for less preprocessor clutter.
+
+	* Makefile.am (check-local, installcheck-local): Use
+	`TESTSUITEFLAGS' rather than `TESTSUITE_FLAGS', like Autoconf.
+	* HACKING, README, README.alpha: All uses changed.
+
+2006-08-28  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* libltdl/argz.c: Use `#ifdef HAVE_CONFIG_H', to facilitate code
+	sharing with gnulib.  Report by Eric Blake.
+	* libltdl/lt__alloc.c, libltdl/libltdl/lt__dirent.h,
+	libltdl/libltdl/lt__glibc.h, libltdl/libltdl/lt__private.h,
+	libltdl/libltdl/lt__strl.h: Likewise.
+	* HACKING: Update.
+
+2006-08-25  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* libltdl/config/ltmain.m4sh (func_mode_link): Pass through
+	`--coverage' and `-pg', for GCC.  Report by Rainer Keller
+	<keller@hlrs.de> and Tor Lillqvist <tml@iki.fi>.
+
+2006-08-25  Kurt Roeckx <kurt@roeckx.be>,
+	    Aurelien Jarno <aurel32@debian.org>
+
+	* libltdl/m4/libtool.m4 (_LT_SYS_DYNAMIC_LINKER)
+	(_LT_CHECK_MAGIC_METHOD, _LT_COMPILER_PIC, _LT_LINKER_SHLIBS)
+	(_LT_LANG_CXX_CONFIG) [k*bsd*-gnu]: kfreebsd*-gnu and
+	knetbsd*-gnu behave like linux-gnu.
+	* libltdl/m4/ltdl.m4 (LT_SYS_DLOPEN_DEPLIBS): Likewise.
+	* libltdl/m4/libtool.m4 (_LT_ENABLE_LOCK)
+	[x86_64-*kfreebsd*-gnu]: Add 32/64 bit bi-arch support.
+	* NEWS: Update.
+
+2006-08-25  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* libltdl/m4/libtool.m4 (_LT_CHECK_MAGIC_METHOD) [ mingw,pw32 ]:
+	If `file' is present, use `func_win32_libid' rather than
+	`objdump -f', to facilitate cross-compilation.
+	Reported by Pierre Ossman <ossman@cendio.se>.
+
+2006-08-23  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* libltdl/config/ltmain.m4sh (func_mode_link): In GNU ld script,
+	do not quote object file names, for Intel icc 9.0 IPO link.
+
+2006-08-22  Eric Blake  <ebb9@byu.net>
+
+	* libltdl/m4/ltdl.m4 (LTDL_INIT): Avoid macros marked obsolete in
+	latest autoconf.
+	* libltdl/m4/libtool.m4 (_lt_cv_sys_global_symbol_pipe): Work in
+	spite of -Wmissing-prototypes.
+	* libltdl/libltdl/lt__dirent.h: Rewrite to accomodate loss of
+	AC_HEADER_DIRENT.
+
+	* libltdl/m4/libtool.m4: Avoid space-tab.
+
+2006-08-07  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* libltdl/config/ltmain.m4sh (func_mode_execute): Also search
+	the directory above `$objdir' for the argument of "-dlopen", as
+	mentioned in the error message.
+
+2006-08-03  Ralf Menzel  <menzel@ls6.cs.uni-dortmund.de>
+
+	* libltdl/m4/libtool.m4 (_LT_SYS_HIDDEN_LIBDEPS): Fix issues
+	with previous patch. for ... do' line is superflous. Need
+	_LT_TAGVAR not _LT_AC_TAGVAR, should be for both linux and
+	solaris with Sun compiler.
+
+2006-08-01  Albert Chin <china@thewrittenword.com>
+
+	* libltdl/m4/libtool.m4 (_LT_SYS_HIDDEN_LIBDEPS) [ solaris ]:
+	Don't set $postdeps to "-lCstd -lCrun" if
+	"-library=stlport4" set in CXXFLAGS as stlport4 C++
+	library incompatible with Cstd C++ library. Use
+	'-library=Cstd -library=Crun' instead of '-lCstd -lCrun'.
+
+2006-07-28  Eric Blake  <ebb9@byu.net>
+
+	* libltdl/m4/libtool.m4 (_LT_CHECK_MAGIC_METHOD, LT_OUTPUT):
+	s/recognise/recognize/.
+
+2006-07-22  Eric Blake  <ebb9@byu.net>
+
+	* libltdl/ltdl.c (loader_init_callback) [HAVE_LIBDLLOADER]:
+	Protect definition to avoid compiler warnings about unused
+	function.
+
+2006-07-21  Eric Blake  <ebb9@byu.net>
+
+	* libltdl/m4/ltdl.m4 (LT_LIB_DLLOAD): Search for dlopen without
+	depending on -ldl, required by cygwin 1.5.20.
+
+2006-06-24  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* libltdl/m4/libtool.m4 (_LT_COMPILER_BOILERPLATE)
+	( _LT_LINKER_BOILERPLATE): Rewrite to not use unchecked
+	`printf', for old systems like SunOS 4.1.
+	(_LT_COMPILER_OPTION, _LT_LINKER_OPTION)
+	(_LT_COMPILER_C_O, _LT_LINKER_SHLIBS): Likewise.
+	(_LT_LANG_C_CONFIG): Adjust: use literal newlines in
+	`lt_simple_compile_test_code' and `lt_simple_link_test_code'.
+	(_LT_LANG_CXX_CONFIG, _LT_LANG_F77_CONFIG, _LT_LANG_FC_CONFIG)
+	(_LT_LANG_GCJ_CONFIG, _LT_LANG_RC_CONFIG): Likewise.
+	Bug report by Bruce Becker and Mark Andrews.
+
+2006-06-13  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	Fix the bugs where libtoolize needs to use `dir/file' instead of
+	`./dir/file', where ltdldir is `.', so that libtoolize correctly
+	checks for (and suggests) `config' and `m4' instead of
+	`./config' and `./m4' as auxiliary resp. macro directories.
+	The change is necessary for unambiguous naming, the chosen way
+	plays better with non-GNU make in VPATH builds.
+
+	* libtoolize.m4sh (ltdlprefix): New variable, to use as prefix
+	instead of `$ltdldir/'.
+	(func_check_macros): Use it.  Bug report by Eric Blake.
+
+2006-06-12  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	Fix several libtoolize-related bugs:
+	- Do not symlink aclocal.m4, to work around a bug in aclocal
+	overwriting the linked-to file instead of removing the symlink.
+	- Have `libtoolize --copy' cause current time stamps, so that
+	dependents will be rebuilt; for this, install files in order.
+	- Fix list of distribution files for (non)recursive libltdl.
+	- Fix some failure cases.
+
+	* libtoolize.m4sh (func_copy_cb):
+	If `$opt_link', still copy `aclocal.m4', so a subsequent
+	`aclocal' will not overwrite the symlink target.
+	In `--copy' mode, do `cp -p' and `touch' for each file, so
+	timestamps are updated but permissions preserved.
+	(main): Reorder installing of files to match logical order
+	and timestamp requirements.
+	(func_fixup_Makefile_inc): Renamed to
+	(func_fixup_Makefile): this.  Add sed scriptlet to remove
+	non-existent files from EXTRA_DIST, for either nonrecursive
+	or recursive mode.
+	(main): call it to mangle also in recursive mode.
+	* tests/libtoolize.at (expout): Adjusted.
+	* tests/testsuite.at (tst_dist): Default to `dist'.
+
+2006-06-10  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	Fix libltdl to always have all generated files up to date.
+
+	* Makefile.am (all-local): Depend on all generated files in
+	libltdl, namely...
+	(libltdl/aclocal.m4, libltdl/configure, libltdl/config-h.in):
+	...these.  List explicitly, including dependencies and
+	rebuilding rules, using...
+	(sub_aclocal_m4_deps, sub_configure_deps): ...these new
+	variables.
+	Report by Dan Lacher <Dan.Lacher@Sun.Com>.
+
+2006-06-09  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* Makefile.am (install-data-local): Do not use $(INSTALL_DATA)
+	from another directory: it may use a relative path to
+	`install-sh'.
+	Bug report by Dan Lacher <Daniel.Lacher@Sun.COM>.
+
+2006-06-08  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* libltdl/config/ltmain.m4sh (func_mode_link): Honor `-threads',
+	similar to `-mt'.
+	Report by Eric Paire <eric.paire@st.com>.
+
+2006-06-01  Charles Wilson  <libtool@cwilson.fastmail.fm>
+
+	* libltdl/m4/libtool.m4 (_LT_COMPILER_PIC) [ cygwin ]:
+	define DLL_EXPORT for PIC objects on cygwin.
+
+2006-05-24  Albert Chin  <china@thewrittenword.com>
+
+	* libltdl/m4/libtool.m4 (_LT_LANG_CXX_CONFIG)
+	[ aix4*, aix5*, hpux10*, hpux11* ]: Set hardcode_direct_absolute
+	for CXX tag too!
+
+2006-05-19  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* libltdl/config/ltmain.m4sh (func_mode_link, shell wrapper):
+	Do not put `"$@"' in argument to $ECHO.
+
+2006-05-18  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* libltdl/m4/libtool.m4: Bump serial, necessary because of
+	_LT_CHECK_SHELL_FEATURES changes.
+
+2006-05-18  Albert Chin-A-Young <china@thewrittenword.com>
+
+	* tests/early-libtool.at: Pass $CPPFLAGS and $CFLAGS to
+	compiler when compiling for extra flags that might be
+	needed for ANSI-compliance, 64-bit, etc. The environment
+	we compile with should match the environment libtool was
+	compiled with.
+
+2006-05-18  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	Fix mode=compile time regression of CVS HEAD over branch-1-5.
+
+	* libltdl/m4/libtool.m4 (_LT_CHECK_XSI_SHELL): Rename to...
+	(_LT_CHECK_SHELL_FEATURES): ...this.
+	(_LT_SETUP): Adjust caller.
+	(_LT_CHECK_XSI_SHELL): New libtool variables `lt_unset',
+	`SP2NL', `NL2SP', to contain results from tests for unset,
+	taken from AS_BOURNE_COMPATIBLE, and ASCII vs EBCDIC, taken...
+	* libltdl/config/general.m4sh: ...from here, and used...
+	* libltdl/config/ltmain.m4sh: ...here everywhere now.
+	* (AS_SHELL_SANITIZE): Replace by faster, actually necessary
+	part of its expansion, taken from current Autoconf CVS.  Do not
+	save and set all locale variables any more, but only LANG,
+	LC_ALL, LC_CTYPE, LC_COLLATE, LC_MESSAGES.
+	(func_mode_execute): Adjust.
+	* libltdl/m4/libtool.m4 (_LT_CONFIG): No need to unset CDPATH
+	here any more.
+	* libtoolize.m4sh: Compute `SP2NL' and `NL2SP' here, too.
+
+2006-05-17  Gary V. Vaughan  <gary@gnu.org>
+
+	* libltdl/config/ltmain.m4sh, libltdl/m4/libtool.m4
+	(_LT_LINKER_SHLIBS, _LT_LANG_CXX_CONFIG, _LT_LANG_F77_CONFIG,
+	_LT_LANG_FC_CONFIG), tests/link-order.at
+	[ aix4*, aix5*, hpux10*, hpux11* ]: rename
+	hardcode_direct_static to hardcode_direct_absolute.
+	* doc/libtool.texi (libtool script contents): Adjust.
+
+	* libltdl/ltdl.c (lt_dlhandle_fetch): Arguments to
+	lt_dlhandle_iterate were in the wrong order.
+
+2006-05-17  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* libltdl/m4/libtool.m4 (_LT_LINKER_OPTION): Require
+	_LT_DECL_SED.
+	(_LT_CMD_GLOBAL_SYMBOLS, _LT_LINKER_SHLIBS): Likewise.
+	* libltdl/m4/ltdl.m4 (LTDL_INIT): Likewise.
+	(_LT_DECL_SED): Set $Xsed here, using $SED.  Moved from...
+	(_LT_SETUP): ...here.
+	Report by Eric Blake.
+
+2006-05-17  Gary V. Vaughan  <gary@gnu.org>
+
+	* doc/libtool.texi (libtool script contents): Document new
+	hardcode_direct_static variable.
+
+	* tests/link-order.at: Be careful about usage of shrext_cmds.
+
+	* libltdl/m4/libtool.m4 (LT_AC_PROG_SED):  Declarations for
+	compatibility with old versions of libtool, and old versions
+	of aclocal.
+
+2006-05-17  Albert Chin-A-Young  <china@thewrittenword.com>
+
+	* libltdl/config/ltmain.m4sh, libltdl/m4/libtool.m4
+	(_LT_LINKER_SHLIBS, _LT_LANG_CXX_CONFIG, _LT_LANG_F77_CONFIG,
+	_LT_LANG_FC_CONFIG) [ aix4*, aix5*, hpux10*, hpux11* ]:
+	Introduce a new variable, hardcode_direct_static, which
+	would ignore hardcode_direct=yes if the result would create a
+	static library dependency. Static library dependencies are
+	immune to $shlibpath_var.
+	* tests/link-order.at: Take hardcode_direct and
+	hardcode_direct_static into consideration when testing
+	link order.
+
+2006-05-17  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	Eliminate quadratic scaling in argument parsing loop, for
+	shells that understand `var+=value', such as Bash-3.1, or Zsh.
+
+	* libltdl/m4/libtool.m4 (_LT_CHECK_XSI_SHELL): Test whether
+	the shell understands `var+=value'.
+	(_LT_PROG_XSI_SHELLFNS): Define `func_append' based on this.
+	* config/ltmain.m4sh (func_mode_link): Use `func_append' for
+	compile_command, finalize_command, libtool_args, libobjs,
+	non_pic_objects.
+
+2006-05-15  Bruno Haible  <bruno@clisp.org>,
+	    Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* libltdl/m4/libtool.m4 (_LT_COMPILER_PIC, _LT_LINKER_SHLIBS)
+	(_LT_LANG_CXX_CONFIG, _LT_SYS_HIDDEN_LIBDEPS) [ linux ]:
+	Add support for Sun C 5.9, Sun C++ 5.9, and Sun Fortran 8.3 on
+	GNU/Linux.
+	* NEWS: Update.
+
+2006-05-15  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* Makefile.am (check-local): Move `$(TESTS_ENVIRONMENT)' and
+	`$(BUILDCHECK_ENVIRONMENT)' to be arguments of `testsuite', so
+	that reruns will remember it; set enviroment variable
+	`CONFIG_SHELL' so the suite will know which shell it was started
+	with.
+	(installcheck-local): Likewise, for `$(TESTS_ENVIRONMENT)' and
+	`$(INSTALLCHECK_ENVIRONMENT)'.
+	* tests/testsuite.at (LT_AT_TAG): Do not set the compiler
+	variable here.
+
+2006-05-14  Albert Chin-A-Young  <china@thewrittenword.com>
+
+	* libltdl/m4/libtool.m4 (_LT_LINKER_SHLIBS, _LT_LANG_CXX_CONFIG)
+	[ aix ]: $hardcode_direct is set twice.
+
+2005-05-14  John Bowler  <jbowler@acm.org>
+
+	* libltdl/config/ltmain.m4sh (func_mode_link): For version_type
+	`none', we still need to set `current', `age', and `revision',
+	so that our checks don't barf.  The values won't be used later.
+	Apparently reported by several people, several times, for BeOS.
+	* NEWS, THANKS: Update.
+
+2006-05-13  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* tests/fail.at: Use "test -x" if available, for testing of
+	executables; code modified from Autoconf's AS_EXECUTABLE_P.
+	Reported by Albert Chin <china@thewrittenword.com>.
+
+2006-04-22  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* libltdl/config/ltmain.m4sh (func_write_libtool_object):
+	New function, factored out from..
+	(func_mode_compile): .. here.  Call it to generate the libtool
+	object file (the `.lo' file) in one step.
+
+2006-04-03  Peter O'Gorman  <peter@pogma.com>
+
+	* libltdl/loaders/preopen.c: Don't allow lt_dlopen if the
+	module has no symbols.
+
+2006-03-28  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* libltdl/m4/libtool.m4 (_LT_SYS_DYNAMIC_LINKER) [ linux ]:
+	Avoid warning when "parsing" `/etc/ld.so.conf' and empty
+	`/etc/ld.so.conf.d'.
+	Reported by Orion Poplawski <orion@cora.nwra.com>.
+
+2006-03-27  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* bootstrap: Actually use the correct version of the last patch.
+
+2006-03-25  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* bootstrap: Enable `WORKING_LIBOBJ_SUPPORT' if we detect
+	Autoconf-2.60+ and Automake-1.10+, or CVS versions.
+
+	* libltdl/m4/argz.m4 (gl_FUNC_ARGZ): Sync with gnulib:  If we
+	define `error_t', also define `__error_t_defined', so argp.h
+	will not typedef the former.
+
+2006-03-23  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* libltdl/m4/ltdl.m4 (LT_SYS_DLOPEN_DEPLIBS) [ freebsd ]
+	[ dragonfly ]: Set libltdl_cv_sys_dlopen_deplibs to yes.
+	Fixes excessive lt_dlopen times on these systems.
+	* NEWS, THANKS: Update.
+	Bug reported by Peter Jeremy <peterjeremy@optushome.com.au>,
+	patch by Joerg Sonnenberger <joerg@netbsd.org>.
+
+2006-03-20  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* tests/static.at: New tests for comprehensive test exposure of
+	all current and proposed static linking flags for programs.
+	* Makefile.am: Updated.
+
+	* libltdl/config/ltmain.m4sh (func_mode_link)
+	< -static-libtool-libs >: New option.
+	* doc/libtool.texi (Link mode, Distributing libltdl):
+	Document it.
+	Suggested by Gary Kumfert <kumfert@llnl.gov>.
+
+2006-03-17  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* tests/tagdemo/foo.cpp, tests/tagdemo/main.cpp [ hpux ] <aCC>:
+	The HPPA C++ compiler has namespace support but provides no
+	`std' namespace; just provide it with a dummy.
+
+	* libltdl/m4/libtool.m4 (AC_PROG_SED): Do not forget to reset
+	IFS even in case of empty `$PATH'.
+
+2006-03-16  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* libltdl/config/ltmain.m4sh (func_mode_link): Comment out the
+	code to remove uninstalled paths, as it is wrong here.  Change
+	the wrong shell quoting that kept it from "working" before.
+	* THANKS: Updated.
+
+	* libltdl/m4/libtool.m4 (AC_LIBTOOL_SYS_DYNAMIC_LINKER)
+	[ freebsd, dragonfly ]: Fix 1.5.22 regression caused by too
+	strict $host_os match that stopped DragonFly from working.
+	* THANKS: Updated.
+	Reported by Jeremy C. Reed <reed@reedmedia.net>,
+	patch by Todd Vierling <tv@duh.org>.
+
+2006-02-24  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* libltdl/config/ltmain.m4sh (startup): save all locale specific
+	environment, variables:, LANG, LANGUAGE, LC_ADDRESS, LC_ALL
+	LC_COLLATE, LC_CTYPE, LC_IDENTIFICATION, LC_MEASUREMENT,
+	LC_MESSAGES LC_MONETARY, LC_NAME, LC_NUMERIC, LC_PAPER,
+	LC_TELEPHONE, LC_TIME.
+	(func_mode_execute): Restore them.
+
+2006-02-15  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* doc/libtool.texi (Tags): Mention `FC'.
+	(libtool script contents) <CC>: Specify more precisely as the
+	compiler of the current tag.
+	<LTCC, LTCFLAGS, build, build_alias, build_os, host_alias,
+	host_os, macro_version, macro_revision, max_cmd_len>:
+	Document these variables.
+
+2006-02-15  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* doc/libtool.texi: Update copyright years.
+
+	* libltdl/config/getopt.m4sh (func_help): Substitute `$host'.
+	* libltdl/config/ltmain.m4sh (help message): Use $host not
+	@host_triplet@, as the `@..@' substitution is done at bootstrap
+	time already.
+	Reported by Julien Lecomte <julien@famille-lecomte.net>.
+
+	* doc/libtool.texi (Implementation issues):  Note that both
+	prefix and suffix of a library may differ.
+	(Using libtool, Creating object files, Linking libraries):
+	Remove last documentation traces of the age when `foo.lo' was
+	the PIC object file and not the `libtool object' text file.
+	(libtool script contents) <compiler_o_lo>: Remove description
+	of this variable.  It was removed from libtool in 1.5 times.
+
+2006-02-13  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* libltdl/config/ltmain.m4sh (func_mode_link) [ linux ]:
+	PGI: for `reload_cmds', we not only need to get rid of `$wl',
+	but also turn comma into space so $LD understands
+	whole_archive_flag_spec correctly.
+
+	* libltdl/config/ltmain.m4sh (func_mode_link) <shell wrapper>:
+	Add _AS_BOURNE_COMPATIBLE code from Autoconf, to fix issues
+	with zsh and other shells.
+	Reported by David Gómez Espinosa <david@pleyades.net>.
+
+2006-02-09  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* libltdl/m4/libtool.m4 (AC_PROG_SED): m4_defun this rather
+	than AC_DEFUN, so that old aclocal does not pick this up.
+
+	* Makefile.am ($(TESTSUITE)): Also depend on `Makefile.am'.
+	Write to temporary file and rename.
+
+2006-02-05  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* Makefile.am (EXTRA_DIST): Add `$(srcdir)/' to all generated
+	files so that non-GNU make programs will use the rebuilding
+	rules.
+
+	* tests/testsuite.at: Add new keyword `libtoolize' for tests
+	that exercise the `libtoolize' script that is generated at build
+	time.
+	* HACKING: Update testsuite mention, explain keywords.
+
+	* libltdl/config/ltmain.m4sh (extracted_archives)
+	(extracted_serial): New globals.
+	(func_extract_archives): Use them to rename extraction archives
+	for linking against multiple convenience libraries with the same
+	name.
+	* tests/duplicate_conv.at: New tests.
+	* Makefile.am: Adjusted.
+	Reported by Carlo Contavalli <ccontavalli@commedia.it>.
+
+	* libltdl/config/ltmain.m4sh (func_mode_link) < test_compile >:
+	Fix a couple of instances where `test .. -ne ..' would possibly
+	compare non-numbers.  Clean up a bit.
+
+	* tests/convenience.at, tests/deplibs-ident.at: Add new keyword
+	`libtool' for tests that exercise the unmodified `libtool'
+	script that is generated at build time.
+	* tests/duplicate_members.at, tests/fail.at: Likewise.
+	* tests/inherited_flags.at, tests/link-order.at: Likewise.
+	* tests/stresstest.at, tests/template.at: Likewise.
+
+2006-02-03  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* tests/fail.at: Also pass a bogus object file to the linker so
+	it fails more reliably; AIX and IRIX linkers ignore duplicate
+	symbol definitions.
+
+	* libltdl/m4/libtool.m4 [ solaris ] (_LT_LINKER_SHLIBS)
+	(_LT_LANG_CXX_CONFIG) < whole_archive_flag_spec >:
+	Fix this once and for all, for both the SUN compiler suite
+	(cc/CC/f77/f90/f95) and GCC.
+	Reported by Yuri Pukhalsky <pooh@cryptopro.ru>.
+
+	* tests/cdemo/Makefile.am: Remove broken use of undocumented
+	Automake variable `$(OBJECTS)'.
+	* tests/demo/Makefile.am, tests/depdemo/Makefile.am: Likewise.
+	* tests/f77demo/Makefile.am, tests/fcdemo/Makefile.am: Likewise.
+	* tests/mdemo/Makefile.am, tests/mdemo2/Makefile.am: Likewise.
+	* tests/pdemo/Makefile.am, tests/tagdemo/Makefile.am: Likewise.
+
+	* libltdl/config/ltmain.m4sh (func_mode_link): Fix logic for
+	adding run paths to also add paths for installed libtool
+	libraries in case `-static' is used.
+
+2006-02-01  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* Makefile.am (TESTSUITE_AT): List testsuite files in the order
+	in which they are to be expanded in the suite.
+	(tests/TESTSUITE): Rebuild by passing all $(TESTSUITE_AT) files,
+	with their path suitably adjusted.  This enables us to..
+	* tests/testsuite.at: ..get rid of their redundant mention here.
+
+2006-01-30  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* doc/libtool.texi (titlepage): Remove superfluous word.
+
+	* libltdl/config/ltmain.m4sh (func_mode_link): Fix matching
+	duplicate run path entries with the correct separator.
+
+	* tests/testsuite.at (PREPARE_TESTS): Escape `^' for some older
+	shells.
+
+	* ChangeLog, HACKING, README, README.alpha,
+	libltdl/config/ltmain.m4sh:  Add vi(m) modelines, to match emacs
+	formatting variables.
+
+2006-01-24  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* Makefile.am (libltdl/Makefile.am): Fixup sed script.
+	Reported by Bob Friesenhahn <bfriesen@simple.dallas.tx.us>.
+
+2006-01-23  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* Makefile.am, bootstrap, clcommit.m4sh,
+	libltdl/config/getopt.m4sh, libltdl/config/mailnotify.m4sh,
+	tests/sh.test, tests/testsuite.at: Bump copyright years.
+
+2006-01-21  Eric Blake  <ebb9@byu.net>
+
+	* THANKS: Move myself to contributor.
+
+2006-01-21  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* bootstrap: Don't use semicolons inside { } in sed scripts, as
+	Posix says it's not portable.
+	* Makefile.am (libltdl/Makefile.am): Likewise.
+	* libtoolize.m4sh (all over the map): Likewise.
+	* libltdl/config/getopt.m4sh (func_version, func_usage)
+	(func_help): Likewise.
+	* libltdl/config/ltmain.m4sh (func_win32_libid): Likewise.
+	* libltdl/m4/libtool.m4 (_LT_SYS_MODULE_PATH_AIX): Likewise.
+	* clcommit.m4sh, libltdl/config/mailnotify.m4sh: Likewise.
+	* tests/sh.test, tests/testsuite.at (LT_AT_TAG): Likewise.
+	Noted by Paul Eggert <eggert@cs.ucla.edu>.
+
+	* libltdl/config/ltmain.m4sh (func_mode_compile): Also transform
+	`.obj' correctly.
+	Reported by George Bosilca <bosilca@cs.utk.edu>.
+
+2006-01-13  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* libltdl/m4/libtool.m4 (_LT_COMPILER_PIC): Fix my forward port
+	error of last commit.
+
+2006-01-12  Leif Ekblad  <leif@rdos.net>
+
+	* libltdl/m4/libtool.m4 (_LT_SYS_DYNAMIC_LINKER)
+	(_LT_CHECK_MAGIC_METHOD, _LT_COMPILER_PIC): Added support for
+	RDOS.
+	* NEWS: Updated.
+
+2006-01-11  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* libtoolize.m4sh, libltdl/config/general.m4sh,
+	libltdl/config/getopt.m4sh, libltdl/config/ltmain.m4sh,
+	libltdl/m4/libtool.m4: Bump copyright years.
+
+2006-01-03  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
+
+	* Makefile.am (EXTRA_DIST): Add ChangeLog.2005.
+
+	* README, README.alpha: Adjust copyright years.
+	* ChangeLog.2005: New, rotated, from..
+	* ChangeLog: ..here.
+
+Continued in ChangeLog.2005

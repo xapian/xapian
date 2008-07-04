@@ -1,0 +1,194 @@
+GNU Libtool
+***********
+
+1. Introduction
+===============
+
+This is GNU Libtool, a generic library support script.  Libtool hides
+the complexity of using shared libraries behind a consistent, portable
+interface.
+
+To use Libtool, add the new generic library building commands to your
+Makefile, Makefile.in, or Makefile.am.  See the documentation for
+details.
+
+Libtool's home page is:
+
+  http://www.gnu.org/software/libtool/libtool.html
+
+See the file NEWS for a description of recent changes to Libtool.
+
+See the file INSTALL for generic instructions on how to build and install
+Libtool.  Please see the file doc/notes.txt for some platform-specific
+information.  Please note that you need GNU make to build Libtool.
+
+See the info node (libtool)Tested Platforms. (or the file
+doc/PLATFORMS) for a list of platforms that Libtool supports.
+
+
+2. Reporting Bugs
+=================
+
+If you have any suggestions or bug reports, or you wish to port Libtool
+to a new platform, please send electronic mail to the libtool mailing
+list <libtool@gnu.org> or bug reports to <bug-libtool@gnu.org>.  Be sure
+to send us your information from the end of the help message given by
+`./libtool --help'.
+
+
+3. The Test Suites
+==================
+
+Libtool comes with two integrated sets of tests to check that your build
+is sane.  You can run both test suites like this, assuming that `gmake'
+refers to GNU make:
+
+  gmake -k check
+
+If you want to run the old testsuite only, do it like this:
+
+  gmake check TESTSUITEFLAGS=-V
+
+If you want to run the new testsuite only, do it like this:
+
+  gmake check-local
+
+The tests of the old test suite run in groups in the various demo
+subdirectories, so if one of the tests early in a group FAILs, the rest
+of the tests in that group will be SKIPped.  If you see a FAIL further
+into a group, even if a test with the same name PASSes in another test
+group, you need to take note of the name of the first test in the group
+if you want to rerun the group with FAILures to get verbose output.
+
+To run a test group of the old test suite in isolation (say, you think
+you have fixed a bug, but don't want to rerun the entire suite), you can
+do it like this:
+
+  gmake check TESTS="tests/cdemo-static.test tests/cdemo-make.test \
+                     tests/cdemo-exec.test" \
+              TESTSUITEFLAGS=-V
+
+Providing that you have a FAIL from the most recent group from a
+particular demo directory (like the cdemo-static.test group above), you
+can explore the state of the directory to help with debugging.
+
+If you wish to report a test group failure to the libtool list, you need
+to send the verbose output of the FAILing group, along with the
+information from the end of `$(top_builddir)/libtool --help' to the bug
+report mailing list, <bug-libtool@gnu.org> with a subject line that
+includes the string `[TEST FAILURE]'.  From a Bourne compatible shell,
+you can generate verbose test output like this:
+
+  VERBOSE=yes gmake check \
+  TESTS="tests/cdemo-static.test tests/cdemo-make.test tests/cdemo-exec.test" \
+  TESTSUITEFLAGS=-V | tee cdemo-static-group.log
+
+In order to enable debug shell tracing, use VERBOSE=debug instead of
+VERBOSE=yes.
+
+
+In the long run, Libtool will move to using only the new,
+Autotest-driven testsuite.  Its usage is documented in
+
+  info Autoconf 'testsuite Invocation'
+
+but simple help may also be obtained through
+
+  gmake check-local TESTSUITEFLAGS='--help'
+
+For verbose output, add the flag `-v', for running only a subset of the
+independent tests, merely specify them by number or by keyword, both of
+which are displayed with the `--list' flag.  For example, the `libtool'
+keyword is used for the tests that exercise only this script.  So it is
+possible to test an installed script, possibly from a different Libtool
+release, with
+  gmake check-local TESTSUITEFLAGS="-k libtool LIBTOOL=/path/to/libtool"
+
+If you wish to report test failures to the libtool list, you need to
+send the file `tests/testsuite.log' to the bug report mailing list,
+<bug-libtool@gnu.org>.
+
+4. Version Numbering
+====================
+
+People have complained that they find the version numbering scheme under
+which libtool is released confusing... so we've changed it!
+
+It works like this:
+
+	<major-number>.<minor-number>
+
+Releases with a <major-number> less than 1 were not yet feature
+complete.  Releases with a <major-number> of 1 used the old numbering
+scheme that everyone disliked so much.  Releases with a <major-number>
+of 2 us the new scheme described here.  If libtool ever undergoes a
+major rewrite or substantial restructuring, the <major-number> will be
+incremented again.
+
+If we make a patch release to fix bugs in a stable release, we use a
+third number, so:
+
+      <major-number>.<minor-number>.<micro-number>
+
+Version numbers are chosen to make it easy for users to decide two
+things:
+
+  Q: How `developed' is this release?
+  A: The higher the number, the better!
+  Q: How `stable' is this release?
+  A: - If the <minor-number> is even, it is a stable release, `2.0'.
+     - If the <minor-number> is odd, it is a development version with
+       new features compared to the last stable release, `2.1a'.
+     - If it has an `odd'[1] letter after the version number,  it is a
+       snapshot direct from CVS, `2.1a'.
+     - If it has an `even'[1] letter after the version number, it is an
+       alpha quality release, `2.1b'.
+     - If it has three numbers in the version, it is a patch release,
+       fixing bugs from the stable release (with no new features), `2.0.1'.
+
+[1] We always increment the letter in the repository before *and* after
+    making a release tarball.  This means that "odd" letters
+    (a,c,e,g...) only exist in the repository, and "even" letters are
+    used instantaneously for an alpha release.  Since the odd lettered
+    version numbers cover many states of the tree, we also qualify them
+    by adding the cvs version of the ChangeLog:
+
+    $ libtool --version
+    ltmain.sh (GNU libtool 1.1603 2004/09/12 22:02:07) 2.1a
+
+    Copyright (C) 2004  Free Software Foundation, Inc.
+    This is free software; see the source for copying conditions.  There is NO
+    warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+For more details about version numbers, see:
+
+    http://www.gnu.org/software/libtool/contribute.html
+
+-- 
+  Copyright (C) 2004, 2005, 2006, 2007, 2008  Free Software Foundation, Inc.
+  Written by Gary V. Vaughan, 2004
+
+  This file is part of GNU Libtool.
+
+GNU Libtool is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+GNU Libtool is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with GNU Libtool; see the file COPYING.  If not, a copy
+can be downloaded from http://www.gnu.org/licenses/gpl.html, or
+obtained by writing to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
+
+
+Local Variables:
+mode: text
+fill-column: 72
+End:
+vim:tw=72

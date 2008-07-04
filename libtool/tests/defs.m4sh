@@ -1,0 +1,361 @@
+m4_define([_m4_divert(SCRIPT)], 100)
+m4_divert_push([SCRIPT])# @configure_input@
+# defs -- Defines for Libtool testing environment.
+#
+#   Copyright (C) 2003, 2004, 2005, 2007, 2008 Free Software
+#   Foundation, Inc.
+#   Written by Gord Matzigkeit, 1996
+#   Rewritten by Gary V. Vaughan, 2003
+#
+#   This file is part of GNU Libtool.
+#
+# GNU Libtool is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of
+# the License, or (at your option) any later version.
+#
+# GNU Libtool is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU Libtool; see the file COPYING.  If not, a copy
+# can be downloaded from  http://www.gnu.org/licenses/gpl.html,
+# or obtained by writing to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+####
+
+AS_SHELL_SANITIZE
+$as_unset CDPATH
+
+m4_include([general.m4sh])
+
+M4SH_VERBATIM([[
+: ${AUTOCONF="autoconf"}
+: ${AUTORECONF="autoreconf"}
+: ${LIBTOOL="./libtool"}
+
+# Sed that helps us avoid accidentally triggering echo(1) options like -n.
+Xsed="$SED -e 1s/^X//"
+
+# Disable usage of config.site for autoconf, unless DJGPP is present.
+# The DJGPP port of autoconf requires config.site, to work correctly.
+if test -z "$DJGPP"; then
+    CONFIG_SITE=/nonexistent
+fi
+
+# How verbose should we be?  Default is no test output.
+# Setting VERBOSE=yes enables test output.
+# Setting VERBOSE=debug also puts the shell in debug mode.
+opt_debug=:
+test "${VERBOSE+set}" != "set" && VERBOSE=no
+case "$VERBOSE" in
+NO | no | 0 | "")
+  exec > /dev/null 2>&1
+  ;;
+DEBUG | debug )
+  opt_debug='set -x'
+  $opt_debug
+  ;;
+esac
+
+if test -z "$srcdir"; then
+  srcdir=`$ECHO "X$0" | $Xsed -e "$dirname"`
+  test "$srcdir" = "$0" && srcdir=.
+fi
+
+# func_msg arg...
+# Echo message with prefix.
+func_msg ()
+{
+    func_echo "=== " ${1+"$@"}
+}
+
+# func_skip arg...
+# Echo message to standard error, and skip the rest of this test.
+func_skip ()
+{
+    func_error ${1+"$@"}
+    exit $EXIT_SKIP
+}
+
+# func_fail arg...
+# Echo message to standard error, and fail this test.
+func_fail ()
+{
+    func_fatal_error ${1+"$@"}
+}
+
+# func_get_config varname_list src [failp] [regex]
+func_get_config ()
+{
+  $opt_debug
+  my_varname_list="$1"
+  my_src="$2"
+  my_failp="false";  test -z "$3" || my_failp=:
+  my_regex="$4"
+
+  my_exitp=false
+  if test -z "$my_regex"; then
+    my_regex="^("
+    my_build_regex=:
+  else
+    my_build_regex=false
+  fi
+  my_first=:
+  
+  for my_varname in $my_varname_list; do
+    if $my_build_regex; then
+      $my_first || my_regex="$my_regex|"
+      my_first=false
+      my_regex="$my_regex$my_varname"
+    fi
+    eval $my_varname=NONE
+  done
+  $my_build_regex && my_regex="$my_regex)="
+  eval `eval "$my_src" | eval "$EGREP \"$my_regex\""`
+
+  for my_varname in $my_varname_list; do
+    if eval test x\"\$$my_varname\" = xNONE; then
+      func_error "$my_varname not set in \`$my_src'"
+      $my_failp && my_exitp=:
+    fi
+  done
+
+  $my_exitp && exit $EXIT_FAILURE
+}
+
+
+# Extract some variables from the libtool configuration.
+func_get_config "objext
+objdir
+CC
+host
+host_alias
+build
+build_alias" "$LIBTOOL --config" ": fatal"
+
+
+# func_mkprefixdir
+func_mkprefixdir ()
+{
+    $opt_debug
+    # An absolute path to a test installation directory.
+    func_mkdir_p "$prefix"
+    prefix=`cd $prefix && pwd`
+}
+
+# func_rmprefixdir
+func_rmprefixdir ()
+{
+    $opt_debug
+    test -d $prefix && rm -rf $prefix
+    prefix=NONE
+}
+
+# func_cd dir
+# Make sure a directory exists, and then change to it.
+func_cd ()
+{
+    $opt_debug
+    my_dir="$1"
+
+    # Maybe we have a VPATH build, in which case, create a new subdir.
+    func_mkdir_p "$my_dir"
+
+    # Change to our build directory.
+    cd "$my_dir" || func_fatal_error "couldn't cd to \`$my_dir'"
+}
+
+
+# func_require prereq file [...]
+# If FILE does not exist, give a fatal error regarding running PREREQ first.
+func_require ()
+{
+    $opt_debug
+    my_prereq="$1"; shift
+    my_files=${1+"$@"}
+
+    for my_file in $my_files; do
+      test -f "$my_file" \
+        || func_skip "You must run ${my_prereq}.test before running $0"
+    done
+}
+
+# func_configure_nofail [args ...]
+# Configure the demonstration.
+func_configure_nofail ()
+{
+    $opt_debug
+    my_args=${1+"$@"}
+    my_dir=`pwd | $SED "$basename"`
+    my_testdir="$srcdir/tests/$my_dir"
+    conf_status=$EXIT_FAILURE
+
+    test -n "$my_args" && my_args=" $my_args"
+    my_args="--srcdir="\""$my_testdir"\"" --prefix="\""$prefix"\""$my_args"
+    test -n "$host_alias" && my_args="$my_args --host=\"$host_alias\""
+    test -n "$build_alias" && my_args="$my_args --build=\"$build_alias\""
+
+    func_msg "Configuring in $my_dir"
+
+    test -f "$my_testdir/configure" || ${AUTORECONF} --force --install $my_testdir
+    if test -f "$my_testdir/configure"; then
+
+      eval func_msg $SHELL "$my_testdir/configure" $my_args
+      if eval $SHELL "$my_testdir/configure" $my_args; then
+	conf_status=$EXIT_SUCCESS
+      else
+	func_msg "FAILED: Configuring in $my_testdir"
+	ls -ltr $my_testdir
+      fi
+    fi
+}
+
+# func_configure [args ...]
+# Configure the demonstration, fail on error.
+func_configure ()
+{
+    func_configure_nofail ${1+"$@"}
+    if test "$conf_status" -eq "$EXIT_FAILURE"; then
+      exit $EXIT_FAILURE
+    fi
+}
+
+# func_check_static_shared staticp sharedp
+# Determine whether the generated libtool script is configured properly
+# for the expected STATICP and SHAREDP library building
+func_check_static_shared ()
+{
+    $opt_debug
+    my_staticp="$1"
+    my_sharedp="$2"
+
+    if func_grep "^build_old_libs=$staticp" libtool &&
+       func_grep "^build_libtool_libs=$sharedp" libtool; then :
+    else
+      rm -f Makefile
+      exit $EXIT_FAIL
+    fi
+}
+
+
+# func_make [args ...]
+# Do the actual build.
+func_make ()
+{
+    $opt_debug
+    my_args=${1+"$@"}
+    my_dir=`pwd | $SED "$basename"`
+
+    func_msg "Running \`$MAKE $my_args' in $my_dir"
+
+    eval $MAKE $my_args || exit $EXIT_FAIL
+}
+
+
+# func_distclean
+# Possibly clean up the distribution.
+func_make_distclean ()
+{
+    $opt_debug
+    if test -f Makefile; then
+      func_make distclean
+    fi
+    rm -rf autom4te.cache config.cache
+}
+
+
+# func_make_uninstall
+# See that there were no files leftover in $prefix.
+# Ignore dotfiles, so that .nfsXXX files don't screw up the test.
+func_make_uninstall ()
+{
+    $opt_debug
+    func_make uninstall
+
+    leftovers=`find $prefix ! -type d ! -name '.*' -print`
+    if test -n "$leftovers"; then
+      func_msg "Leftover after make uninstall:"
+      ls -l $leftovers
+      exit 1
+    fi
+}
+
+
+# func_exec_init mode
+func_exec_init ()
+{
+    $opt_debug
+    func_msg "Executing $1 programs in $my_dir"
+
+    # Windows hosts search for dlls in the command path
+    PATH=$prefix/lib:$PATH
+
+    exec_status=$EXIT_SUCCESS
+}
+
+# func_exec_check program [msg ...]
+# Check to see if PROGRAM was built. If not display MSG.
+func_exec_check ()
+{
+    $opt_debug
+    my_program="$1"
+
+    if test -f "$my_program"; then :
+    else
+      shift
+      func_error "$0: $my_program did not build ${1+$@}"
+      exec_status=$EXIT_FAILURE
+    fi
+}
+
+# func_exec program [exp_output] [msg ...]
+# Check to see if PROGRAM really runs, and produces EXP_OUTPUT if given.
+# If not display MSG.
+func_exec ()
+{
+    $opt_debug
+    my_program="$1"
+    my_exp_output="$2"
+    my_dir=`pwd | $SED "$basename"`
+
+    test -n "$my_exp_output" \
+      && my_exp_output="| $EGREP -e "\""$my_exp_output"\"
+
+    if eval $my_program $my_exp_output; then :
+    else
+      shift
+      test "x$1" = x || shift
+      func_error "$0: cannot execute $my_program ${1+$@}"
+
+      if test "$build" != "$host"; then
+        func_msg "This may be ok since you seem to be cross-compiling."
+	exec_status=$EXIT_SKIP
+      else
+	# Simple check to see if they are superuser.
+	if test $exec_status = $EXIT_FAILURE || test -w /; then :
+	else
+	  func_msg "You may need to run $0 as the superuser."
+	fi
+	exec_status=$EXIT_FAILURE
+      fi
+    fi
+}
+
+# Shared global variables for test scripts
+prefix="./_inst"
+srcdir=`cd $srcdir && pwd`
+m4dir=$srcdir/libltdl/m4
+auxdir=$srcdir/libltdl/config
+scripts="$auxdir/ltmain.sh ./libtoolize"
+
+func_msg "Running $progname"
+
+# Local Variables:
+# mode:shell-script
+# sh-indentation:2
+# End:
+]])
+

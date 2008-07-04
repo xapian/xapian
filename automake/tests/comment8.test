@@ -1,0 +1,53 @@
+#! /bin/sh
+# Copyright (C) 2004  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Make sure += does not append to a comment.
+# Report from Stepan Kasal.
+
+. ./defs || exit 1
+
+set -e
+
+cat >> configure.in <<'EOF'
+AM_CONDITIONAL([COND1], [true])
+AM_CONDITIONAL([COND2], [true])
+AC_OUTPUT
+EOF
+
+cat > Makefile.am << 'EOF'
+VAR = valA# comA ## com C
+VAR += valB # comB
+if COND1
+  VAR += val1 # com1
+endif COND1
+VAR += valC
+if COND2
+  VAR += val2 # com2
+endif COND2
+
+test:
+	test "`echo $(VAR)`" = 'valA valB val1 valC val2'
+EOF
+
+$ACLOCAL
+$AUTOCONF
+$AUTOMAKE
+./configure
+$MAKE test

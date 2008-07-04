@@ -1,0 +1,75 @@
+#! /bin/sh
+# Copyright (C) 2003, 2005  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Make sure changes to m4_included files also cause aclocal.m4 to change.
+
+. ./defs || exit 1
+
+set -e
+
+cat >> configure.in << 'END'
+m4_include([somefile.m4])
+AC_OUTPUT
+END
+
+cat >Makefile.am <<'EOF'
+check-local:
+	test -f "$(srcdir)/somefile.m4"
+	test -f "$(srcdir)/m4/version1.m4"
+	test -f "$(srcdir)/m4/otherfile.m4"
+EOF
+
+mkdir m4
+
+echo MACRO1 >somefile.m4
+echo 'AC_PREREQ([2.58])' >m4/otherfile.m4
+
+cat >m4/version1.m4 <<EOF
+AC_DEFUN([MACRO1])
+AC_DEFUN([MACRO2])
+m4_sinclude(m4/otherfile.m4)
+EOF
+
+cat >m4/version2.m4 <<EOF
+AC_DEFUN([MACRO1])
+EOF
+
+$ACLOCAL -I m4
+grep version2 aclocal.m4
+grep version1 aclocal.m4 && exit 1
+
+$sleep
+echo MACRO2 >somefile.m4
+
+$ACLOCAL -I m4
+grep version2 aclocal.m4 && exit 1
+grep version1 aclocal.m4
+
+$sleep
+# aclocal.m4 should change if we touch otherfile.m4
+touch m4/otherfile.m4
+$sleep
+$ACLOCAL -I m4
+test `ls -1t aclocal.m4 m4/otherfile.m4 | sed 1q` = aclocal.m4
+
+$AUTOCONF
+$AUTOMAKE
+./configure
+$MAKE distcheck

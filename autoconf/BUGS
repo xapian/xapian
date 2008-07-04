@@ -1,0 +1,31 @@
+-*- outline -*-
+
+This file lists the bugs you must be aware of.  Be sure to check this
+file before using Autoconf, and especially git versions of Autoconf.
+
+	Copyright (C) 2000-2002, 2006-2008 Free Software Foundation, Inc.
+
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+Autoconf must not be used in production if there are ``Serious'' bugs,
+and use with caution an Autoconf with ``Important bugs''.
+
+* Status
+
+                    /*--------------------------.
+                    | Sane for full scale use.  |
+                    `--------------------------*/
+
+* No known serious or important bugs.

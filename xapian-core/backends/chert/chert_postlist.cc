@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002,2003,2004,2005,2007,2008 Olly Betts
- * Copyright 2007 Lemur Consulting Ltd
+ * Copyright 2007,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -61,7 +61,9 @@ Xapian::termcount
 ChertPostListTable::get_doclength(Xapian::docid did,
 				  Xapian::Internal::RefCntPtr<const ChertDatabase> db) const {
     if (!doclen_pl.get()) {
-	doclen_pl.reset(new ChertPostList(db, string()));
+	// Don't keep a reference back to the database, since this
+	// would make a reference loop.
+	doclen_pl.reset(new ChertPostList(db, string(), false));
     }
     if (!doclen_pl->jump_to(did))
 	throw Xapian::DocNotFoundError("Document " + om_tostring(did) + " not found");
@@ -655,18 +657,20 @@ void ChertPostList::read_number_of_entries(const char ** posptr,
  *  first document, then has the header of a standard chunk.
  */
 ChertPostList::ChertPostList(Xapian::Internal::RefCntPtr<const ChertDatabase> this_db_,
-			     const string & tname_)
-	: this_db(tname_.empty() ? NULL : this_db_), // Don't keep a reference if this is a "doclen postlist".
+			     const string & tname_,
+			     bool keep_reference)
+	: this_db(keep_reference ? this_db_ : NULL),
 	  tname(tname_),
 	  have_started(false),
 	  cursor(this_db_->postlist_table.cursor_get()),
 	  is_at_end(false)
 {
     DEBUGCALL(DB, void, "ChertPostList::ChertPostList",
-	      this_db_.get() << ", " << tname_);
+	      this_db_.get() << ", " << tname_ << ", " << keep_reference);
     string key = ChertPostListTable::make_key(tname);
     int found = cursor->find_entry(key);
     if (!found) {
+	DEBUGLINE(DB, "postlist for term not found");
 	number_of_entries = 0;
 	is_at_end = true;
 	pos = 0;
@@ -684,6 +688,7 @@ ChertPostList::ChertPostList(Xapian::Internal::RefCntPtr<const ChertDatabase> th
     last_did_in_chunk = read_start_of_chunk(&pos, end, first_did_in_chunk,
 					    &is_last_chunk);
     read_wdf(&pos, end, &wdf);
+    DEBUGLINE(DB, "Initial docid " << did);
 }
 
 ChertPostList::~ChertPostList()

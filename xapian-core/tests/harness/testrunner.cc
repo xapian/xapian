@@ -51,14 +51,17 @@ struct BackendProperties {
  */
 static BackendProperties backend_properties[] = {
     { "none", "" },
-    { "inmemory", "backend,positional,writable" },
+    { "inmemory", "backend,positional,writable,valuestats,inmemory" },
     { "chert", "backend,transactions,positional,writable,spelling,metadata,"
-	       "chert" }, // FIXME: sort out replicas
+	       "valuestats,chert" }, // FIXME: sort out replicas
     { "flint", "backend,transactions,positional,writable,spelling,metadata,"
 	       "replicas,flint" },
-    { "multi", "backend,positional,multi" },
-    { "remoteprog", "backend,remote,transactions,positional,writable" },
-    { "remotetcp", "backend,remote,transactions,positional,writable" },
+    { "multi_flint", "backend,positional,multi" },
+    { "multi_chert", "backend,positional,valuestats,multi" },
+    { "remoteprog_flint", "backend,remote,transactions,positional,writable" },
+    { "remotetcp_flint", "backend,remote,transactions,positional,writable" },
+    { "remoteprog_chert", "backend,remote,transactions,positional,valuestats,writable" },
+    { "remotetcp_chert", "backend,remote,transactions,positional,valuestats,writable" },
     { NULL, NULL }
 };
 
@@ -75,6 +78,8 @@ TestRunner::set_properties(const string & properties)
     spelling = false;
     metadata = false;
     replicas = false;
+    valuestats = false;
+    inmemory = false;
     flint = false;
     chert = false;
 
@@ -105,6 +110,10 @@ TestRunner::set_properties(const string & properties)
 	    metadata = true;
 	else if (propname == "replicas")
 	    replicas = true;
+	else if (propname == "valuestats")
+	    valuestats = true;
+	else if (propname == "inmemory")
+	    inmemory = true;
 	else if (propname == "flint")
 	    flint = true;
 	else if (propname == "chert")
@@ -121,7 +130,13 @@ TestRunner::set_properties(const string & properties)
 bool
 TestRunner::use_backend(const string & backend_name)
 {
-    return (user_backend.empty() || user_backend == backend_name);
+    if (user_backend.empty())
+	return true;
+    if (backend_name == user_backend)
+	return true;
+    if (startswith(backend_name, user_backend + "_"))
+	return true;
+    return false;
 }
 
 void
@@ -139,49 +154,66 @@ TestRunner::set_properties_for_backend(const string & backend_name)
     set_properties(propstring);
 }
 
-#define DO_TESTS_FOR_BACKEND(B,M) if (use_backend(B)) { \
-    backendmanager = new (M); \
-    backendmanager->set_datadir(srcdir + "/testdata/"); \
-    set_properties_for_backend(B); \
-    cout << "Running tests with backend \"" << backendmanager->get_dbtype() << "\"..." << endl; \
-    result = max(result, run()); \
-    delete backendmanager; \
+void
+TestRunner::do_tests_for_backend(BackendManager * manager)
+{
+    string backend_name = manager->get_dbtype();
+    if (use_backend(backend_name)) {
+	backendmanager = manager;
+	backendmanager->set_datadir(srcdir + "/testdata/");
+	set_properties_for_backend(backend_name);
+	cout << "Running tests with backend \"" << backendmanager->get_dbtype() << "\"..." << endl;
+	result_so_far = max(result_so_far, run());
+    }
+    delete manager;
 }
 
 int
 TestRunner::run_tests(int argc, char ** argv)
 {
-    int result = 0;
+    result_so_far = 0;
     try {
 	test_driver::add_command_line_option("backend", 'b', &user_backend);
 	test_driver::parse_command_line(argc, argv);
-	string srcdir = test_driver::get_srcdir();
+	srcdir = test_driver::get_srcdir();
 
-	DO_TESTS_FOR_BACKEND("none", BackendManager);
+	do_tests_for_backend(new BackendManager);
 
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
-	DO_TESTS_FOR_BACKEND("inmemory", BackendManagerInMemory);
+	do_tests_for_backend(new BackendManagerInMemory);
 #endif
 
 #ifdef XAPIAN_HAS_CHERT_BACKEND
-	DO_TESTS_FOR_BACKEND("chert", BackendManagerChert);
+	do_tests_for_backend(new BackendManagerChert);
 #endif
 
 #ifdef XAPIAN_HAS_FLINT_BACKEND
-	DO_TESTS_FOR_BACKEND("flint", BackendManagerFlint);
+	do_tests_for_backend(new BackendManagerFlint);
 #endif
 
-#if defined XAPIAN_HAS_FLINT_BACKEND || defined XAPIAN_HAS_CHERT_BACKEND
-	DO_TESTS_FOR_BACKEND("multi", BackendManagerMulti);
+#ifdef XAPIAN_HAS_CHERT_BACKEND
+	do_tests_for_backend(new BackendManagerMulti("chert"));
+#endif
+#ifdef XAPIAN_HAS_FLINT_BACKEND
+	do_tests_for_backend(new BackendManagerMulti("flint"));
 #endif
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-	DO_TESTS_FOR_BACKEND("remoteprog", BackendManagerRemoteProg);
-	DO_TESTS_FOR_BACKEND("remotetcp", BackendManagerRemoteTcp);
+#ifdef XAPIAN_HAS_CHERT_BACKEND
+	do_tests_for_backend(new BackendManagerRemoteProg("chert"));
+	do_tests_for_backend(new BackendManagerRemoteTcp("chert"));
+#endif
+#ifdef XAPIAN_HAS_FLINT_BACKEND
+	do_tests_for_backend(new BackendManagerRemoteProg("flint"));
+	do_tests_for_backend(new BackendManagerRemoteTcp("flint"));
+#endif
 #endif
     } catch (const Xapian::Error &e) {
 	cerr << "\nTest harness failed with " << e.get_description() << endl;
 	return false;
+    } catch (const std::string &e) {
+	cerr << "\nTest harness failed with \"" << e << "\"" << endl;
+	return false;
     }
-    return result;
+    return result_so_far;
 }

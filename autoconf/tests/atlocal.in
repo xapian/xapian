@@ -1,0 +1,54 @@
+# -*- shell-script -*-
+# @configure_input@
+# Configurable variable values for Autoconf test suite.
+
+# Copyright (C) 2000, 2001, 2005, 2008 Free Software Foundation, Inc.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+
+PERL='@PERL@'
+GREP='@GREP@'
+EGREP='@EGREP@'
+SED='@SED@'
+
+# We need to know if sh -n is ok.
+ac_cv_sh_n_works='@ac_cv_sh_n_works@'
+
+# Check whether the underlying system can manage some unusual
+# symbols in file names.
+unsupported_fs_chars=
+for c in '\\' '"' '<' '>' '*' '?' '|'
+do
+  touch "t${c}t" 2>/dev/null
+  test -f "t${c}t" && rm -f "t${c}t" && continue
+  # $c cannot be used in a file name.
+  unsupported_fs_chars=$unsupported_fs_chars$c
+done
+if test -z "$unsupported_fs_chars"; then
+  func_sanitize_file_name () { echo "$@"; }
+else
+  func_sanitize_file_name () { echo "$@" | tr -d "$unsupported_fs_chars"; }
+fi
+
+# Can we create directories with trailing whitespaces in their name?
+rm -rf 'tdir /'
+mkdir 'tdir ' && touch 'tdir /tfile' 2>/dev/null
+if test -f 'tdir /tfile'; then
+  func_sanitize_dir_name () { echo "$@"; }
+else
+  func_sanitize_dir_name () { echo "$@" | sed 's/  *$//'; }
+fi
+rm -rf 'tdir /'

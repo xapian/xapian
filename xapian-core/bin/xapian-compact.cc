@@ -1,4 +1,4 @@
-/* xapian-compact.cc: Compact a flint database, or merge and compact several.
+/* xapian-compact.cc: Compact a flint or chert database, or merge and compact several.
  *
  * Copyright (C) 2004,2005,2006,2007,2008 Olly Betts
  *
@@ -24,13 +24,17 @@
 
 #include <fstream>
 #include <iostream>
+#include <map>
 #include <queue>
 
 #include <stdio.h> // for rename()
 #include <string.h>
 #include <sys/types.h>
 #include "utils.h"
+#include "valuestats.h"
 
+// FIXME: this current works for chert, but we are really going to need
+// separate versions eventually.
 #include "flint_table.h"
 #include "flint_cursor.h"
 #include "flint_utils.h"
@@ -42,7 +46,7 @@
 using namespace std;
 
 #define PROG_NAME "xapian-compact"
-#define PROG_DESC "Compact a flint database, or merge and compact several"
+#define PROG_DESC "Compact a flint or chert database, or merge and compact several"
 
 #define OPT_HELP 1
 #define OPT_VERSION 2
@@ -195,29 +199,37 @@ merge_postlists(FlintTable * out, vector<Xapian::docid>::const_iterator offset,
 	}
     }
 
-    string tag = F_pack_uint(tot_off);
-    tag += F_pack_uint_last(tot_totlen);
-    out->add(string("", 1), tag);
+    {
+	string tag = F_pack_uint(tot_off);
+	tag += F_pack_uint_last(tot_totlen);
+	out->add(string("", 1), tag);
+    }
 
     string last_key;
-    // Merge user metadata.
-    while (!pq.empty()) {
-	PostlistCursor * cur = pq.top();
-	const string& key = cur->key;
-	if (!is_user_metadata_key(key)) break;
+    {
+	// Merge user metadata.
+	string last_tag;
+	while (!pq.empty()) {
+	    PostlistCursor * cur = pq.top();
+	    const string& key = cur->key;
+	    if (!is_user_metadata_key(key)) break;
 
-	if (key == last_key) {
-	    cerr << "Warning: duplicate user metadata key - picking arbitrary tag value" << endl;
-	} else {
-	    out->add(key, cur->tag);
-	    last_key = key;
-	}
+	    const string & tag = cur->tag;
+	    if (key == last_key) {
+		if (tag != last_tag)
+		    cerr << "Warning: duplicate user metadata key with different tag value - picking arbitrary tag value" << endl;
+	    } else {
+		out->add(key, tag);
+		last_key = key;
+		last_tag = tag;
+	    }
 
-	pq.pop();
-	if (cur->next()) {
-	    pq.push(cur);
-	} else {
-	    delete cur;
+	    pq.pop();
+	    if (cur->next()) {
+		pq.push(cur);
+	    } else {
+		delete cur;
+	    }
 	}
     }
 
@@ -681,6 +693,100 @@ multimerge_postlists(FlintTable * out, const char * tmpdir,
 }
 
 static void
+merge_chert_values(const string & tablename,
+		   FlintTable *out, const vector<string> & inputs,
+		   const vector<Xapian::docid> & offset, bool lazy)
+{
+    map<Xapian::valueno, ValueStats> stats;
+
+    for (size_t i = 0; i < inputs.size(); ++i) {
+	Xapian::docid off = offset[i];
+
+	FlintTable in(tablename, inputs[i], true, DONT_COMPRESS, lazy);
+	in.open();
+	if (in.get_entry_count() == 0) continue;
+
+	FlintCursor cur(&in);
+	cur.find_entry("");
+
+	string key;
+	while (cur.next()) {
+	    const char * d = cur.current_key.data();
+	    const char * e = d + cur.current_key.size();
+	    if (d != e && *d == '\xff') {
+		Xapian::valueno valno;
+		++d;
+		if (!F_unpack_uint_preserving_sort(&d, e, &valno)) {
+		    string msg = "Bad key in ";
+		    msg += inputs[i];
+		    throw Xapian::DatabaseCorruptError(msg);
+		}
+
+		cur.read_tag(true);
+		d = cur.current_tag.data();
+		e = d + cur.current_tag.size();
+		ValueStats newstats;
+		if (!F_unpack_uint(&d, e, &(newstats.freq))) {
+		    string msg = "Bad freq valuestats in ";
+		    msg += inputs[i];
+		    throw Xapian::DatabaseCorruptError(msg);
+		}
+		if (!F_unpack_string(&d, e, newstats.lower_bound)) {
+		    string msg = "Bad lower_bound valuestats in ";
+		    msg += inputs[i];
+		    throw Xapian::DatabaseCorruptError(msg);
+		}
+		if (!F_unpack_string(&d, e, newstats.upper_bound)) {
+		    string msg = "Bad upper_bound valuestats in ";
+		    msg += inputs[i];
+		    throw Xapian::DatabaseCorruptError(msg);
+		}
+		ValueStats & oldstats = stats[valno];
+		if (oldstats.upper_bound.empty()) {
+		    oldstats.freq = newstats.freq;
+		    oldstats.lower_bound = newstats.lower_bound;
+		    oldstats.upper_bound = newstats.upper_bound;
+		} else {
+		    oldstats.freq += newstats.freq;
+		    oldstats.lower_bound = min(oldstats.lower_bound, newstats.lower_bound);
+		    oldstats.upper_bound = max(oldstats.upper_bound, newstats.upper_bound);
+		}
+		continue;
+	    }
+	    // Adjust the key if this isn't the first database.
+	    if (off) {
+		Xapian::docid did;
+		if (!F_unpack_uint_preserving_sort(&d, e, &did)) {
+		    string msg = "Bad key in ";
+		    msg += inputs[i];
+		    throw Xapian::DatabaseCorruptError(msg);
+		}
+		did += off;
+		key = F_pack_uint_preserving_sort(did);
+		if (d != e) {
+		    // Copy over the termname for the position table.
+		    key.append(d, e - d);
+		}
+	    } else {
+		key = cur.current_key;
+	    }
+	    bool compressed = cur.read_tag(true);
+	    out->add(key, cur.current_tag, compressed);
+	}
+    }
+
+    map<Xapian::valueno, ValueStats>::const_iterator stats_it;
+    for (stats_it = stats.begin(); stats_it != stats.end(); ++stats_it) {
+	string key = "\xff" + F_pack_uint_preserving_sort(stats_it->first);
+	string new_value;
+	new_value += F_pack_uint(stats_it->second.freq);
+	new_value += F_pack_string(stats_it->second.lower_bound);
+	new_value += F_pack_string(stats_it->second.upper_bound);
+	out->add(key, new_value);
+    }
+}
+
+static void
 merge_docid_keyed(const string & tablename,
 		  FlintTable *out, const vector<string> & inputs,
 		  const vector<Xapian::docid> & offset, bool lazy)
@@ -806,6 +912,8 @@ main(int argc, char **argv)
 	sources.reserve(argc - 1 - optind);
 	offset.reserve(argc - 1 - optind);
 	Xapian::docid tot_off = 0;
+	enum { UNKNOWN, FLINT, CHERT } backend = UNKNOWN;
+	const char * backend_names[] = { NULL, "flint", "chert" };
 	for (int i = optind; i < argc - 1; ++i) {
 	    const char *srcdir = argv[i];
 	    // Check destdir isn't the same as any source directory...
@@ -817,9 +925,29 @@ main(int argc, char **argv)
 	    }
 
 	    struct stat sb;
-	    if (stat(string(srcdir) + "/iamflint", &sb) != 0) {
+	    if (stat(string(srcdir) + "/iamflint", &sb) == 0) {
+		if (backend == UNKNOWN) {
+		    backend = FLINT;
+		} else if (backend != FLINT) {
+		    cout << argv[0] << ": All databases must be the same type.\n";
+		    cout << argv[0] << ": '" << argv[optind] << "' is "
+			 << backend_names[backend] << ", but "
+			 "'" << srcdir << "' is flint." << endl;
+		    exit(1);
+		}
+	    } else if (stat(string(srcdir) + "/iamchert", &sb) == 0) {
+		if (backend == UNKNOWN) {
+		    backend = CHERT;
+		} else if (backend != CHERT) {
+		    cout << argv[0] << ": All databases must be the same type.\n";
+		    cout << argv[0] << ": '" << argv[optind] << "' is "
+			 << backend_names[backend] << ", but "
+			 "'" << srcdir << "' is chert." << endl;
+		    exit(1);
+		}
+	    } else {
 		cout << argv[0] << ": '" << srcdir
-		     << "' is not a flint database directory" << endl;
+		     << "' is not a flint or chert database directory" << endl;
 		exit(1);
 	    }
 
@@ -966,6 +1094,12 @@ main(int argc, char **argv)
 		case SYNONYM:
 		    merge_synonyms(&out, inputs.begin(), inputs.end());
 		    break;
+		case VALUE:
+		    if (backend == CHERT)
+			merge_chert_values(t->name, &out, inputs, offset, t->lazy);
+		    else
+			merge_docid_keyed(t->name, &out, inputs, offset, t->lazy);
+		    break;
 		default:
 		    // Position, Record, Termlist, Value
 		    merge_docid_keyed(t->name, &out, inputs, offset, t->lazy);
@@ -1005,14 +1139,17 @@ main(int argc, char **argv)
 	    cout << endl;
 	}
 
-	// Copy the "iamflint" meta file over.
+	// Copy over the version file ("iamflint" or "iamchert").
 	// FIXME: We may need to do something smarter that just copying an
-	// arbitrary meta file if the meta file format changes...
+	// arbitrary version file if the version file format changes...
 	string dest = destdir;
-	dest += "/iamflint.tmp";
+	dest += "/iam";
+	dest += backend_names[backend];
+	dest += ".tmp";
 
 	string src(argv[optind]);
-	src += "/iamflint";
+	src += "/iam";
+	src += backend_names[backend];
 
 	ifstream input(src.c_str());
 	char buf[1024];
@@ -1023,8 +1160,8 @@ main(int argc, char **argv)
 		     << strerror(errno) << endl;
 		exit(1);
 	    }
-	    // metafile should be about 12 bytes, not > 1024!
-	    cerr << argv[0] << ": metafile '" << src << "' too large!"
+	    // Version file should be about 12 bytes, not > 1024!
+	    cerr << argv[0] << ": version file '" << src << "' too large!"
 		 << endl;
 	    exit(1);
 	}
@@ -1036,11 +1173,12 @@ main(int argc, char **argv)
 	}
 	output.close();
 
-	string meta = destdir;
-	meta += "/iamflint";
-	if (rename(dest.c_str(), meta.c_str()) == -1) {
+	string version = destdir;
+	version += "/iam";
+	version += backend_names[backend];
+	if (rename(dest.c_str(), version.c_str()) == -1) {
 	    cerr << argv[0] << ": cannot rename '" << dest << "' to '"
-		 << meta << "': " << strerror(errno) << endl;
+		 << version << "': " << strerror(errno) << endl;
 	    exit(1);
 	}
     } catch (const Xapian::Error &error) {

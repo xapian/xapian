@@ -1,0 +1,80 @@
+#! /bin/sh
+# Copyright (C) 2001, 2002, 2003  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Make sure distclean and maintainer-clean erase the right files.
+
+. ./defs || exit 1
+
+set -e
+
+cat >> configure.in << 'END'
+AC_CONFIG_FILES(bar)
+AC_OUTPUT
+END
+
+cat > Makefile.am <<'END'
+noinst_DATA = foo.c
+
+foo.c:
+	touch foo.c
+
+MAINTAINERCLEANFILES = foo.c
+
+END
+
+touch bar.in
+
+$ACLOCAL
+$AUTOCONF
+$AUTOMAKE
+
+# Users can disable autom4te.cache.
+if test -d autom4te.cache; then
+  test_cache='test -d autom4te.cache'
+else
+  test_cache=:
+fi
+
+# Since we don't require Yacc, make sure it's not used.
+./configure YACC=false
+test -f bar
+
+$MAKE
+test -f foo.c
+
+$MAKE distclean
+test ! -f bar
+test ! -f Makefile
+test ! -f config.status
+test -f foo.c
+$test_cache
+
+./configure
+test -f bar
+
+$MAKE foo.c
+test -f foo.c
+
+$MAKE maintainer-clean
+test ! -f bar
+test ! -f foo.c
+test ! -f Makefile
+test ! -f config.status
+test ! -d autom4te.cache

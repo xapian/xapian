@@ -32,6 +32,7 @@
 #include "inmemory_document.h"
 #include "inmemory_alltermslist.h"
 #include "utils.h"
+#include "valuestats.h"
 
 #include <string>
 #include <vector>
@@ -400,6 +401,42 @@ InMemoryDatabase::get_collection_freq(const string &tname) const
 }
 
 Xapian::doccount
+InMemoryDatabase::get_value_freq(Xapian::valueno valno) const
+{
+    map<Xapian::valueno, ValueStats>::const_iterator i
+	    = valuestats.find(valno);
+    if (i != valuestats.end()) {
+	return i->second.freq;
+    } else {
+	return 0;
+    }
+}
+
+std::string
+InMemoryDatabase::get_value_lower_bound(Xapian::valueno valno) const
+{
+    map<Xapian::valueno, ValueStats>::const_iterator i
+	    = valuestats.find(valno);
+    if (i != valuestats.end()) {
+	return i->second.lower_bound;
+    } else {
+	return "";
+    }
+}
+
+std::string
+InMemoryDatabase::get_value_upper_bound(Xapian::valueno valno) const
+{
+    map<Xapian::valueno, ValueStats>::const_iterator i
+	    = valuestats.find(valno);
+    if (i != valuestats.end()) {
+	return i->second.upper_bound;
+    } else {
+	return "";
+    }
+}
+
+Xapian::doccount
 InMemoryDatabase::get_doccount() const
 {
     return totdocs;
@@ -513,10 +550,36 @@ InMemoryDatabase::open_position_list(Xapian::docid did,
 }
 
 void
-InMemoryDatabase::add_values(Xapian::docid /*did*/,
+InMemoryDatabase::add_values(Xapian::docid did,
 			     const map<Xapian::valueno, string> &values_)
 {
-    valuelists.push_back(values_);
+    if (did > valuelists.size()) {
+	valuelists.resize(did);
+    }
+    valuelists[did-1] = values_;
+
+    // Update the statistics.
+    map<Xapian::valueno, string>::const_iterator j;
+    for (j = values_.begin(); j != values_.end(); ++j) {
+	std::pair<map<Xapian::valueno, ValueStats>::iterator, bool> i;
+	i = valuestats.insert(make_pair(j->first, ValueStats()));
+
+	// Now, modify the stored statistics.
+	if ((i.first->second.freq)++ == 0) {
+	    // If the value count was previously zero, set the upper and lower
+	    // bounds to the newly added value.
+	    i.first->second.lower_bound = j->second;
+	    i.first->second.upper_bound = j->second;
+	} else {
+	    // Otherwise, simply make sure they reflect the new value.
+	    if (j->second < i.first->second.lower_bound) {
+		i.first->second.lower_bound = j->second;
+	    }
+	    if (j->second > i.first->second.upper_bound) {
+		i.first->second.upper_bound = j->second;
+	    }
+	}
+    }
 }
 
 // We implicitly flush each modification right away, so nothing to do here.
@@ -540,7 +603,17 @@ InMemoryDatabase::delete_document(Xapian::docid did)
     }
     termlists[did-1].is_valid = false;
     doclists[did-1] = "";
+    map<Xapian::valueno, string>::const_iterator j;
+    for (j = valuelists[did-1].begin(); j != valuelists[did-1].end(); ++j) {
+	map<Xapian::valueno, ValueStats>::iterator i;
+	i = valuestats.find(j->first);
+	if (--(i->second.freq) == 0) {
+	    i->second.lower_bound.resize(0);
+	    i->second.upper_bound.resize(0);
+	}
+    }
     valuelists[did-1].clear();
+
     totlen -= doclengths[did-1];
     doclengths[did-1] = 0;
     totdocs--;
@@ -577,7 +650,17 @@ InMemoryDatabase::replace_document(Xapian::docid did,
 
     if (doc_exists(did)) { 
 	doclists[did - 1] = "";
+	map<Xapian::valueno, string>::const_iterator j;
+	for (j = valuelists[did-1].begin(); j != valuelists[did-1].end(); ++j) {
+	    map<Xapian::valueno, ValueStats>::iterator i;
+	    i = valuestats.find(j->first);
+	    if (--(i->second.freq) == 0) {
+		i->second.lower_bound.resize(0);
+		i->second.upper_bound.resize(0);
+	    }
+	}
 	valuelists[did - 1].clear();
+
 	totlen -= doclengths[did - 1];
 	totdocs--;
     } else if (did > termlists.size()) {

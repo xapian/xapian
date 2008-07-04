@@ -30,8 +30,10 @@ in this Software without prior written authorization from The Open Group.
 /* Disable MSVC warning about obsolete functions */
 #ifdef _MSC_VER
 # pragma warning(disable:4996)
+# include <io.h>
+#else
+# include <unistd.h>
 #endif
-#include <io.h>
 
 #include <errno.h>
 #include <string.h>
@@ -827,9 +829,6 @@ redirect(char *line, char *makefile)
 	boolean	found = FALSE;
 	int	len;
 
-	if( makefile && (strlen(makefile) > BUFFERSIZE))
-	    fatalerr("Potential buffer overflow, increase BUFFERSIZE\n");
-
 	/*
 	 * if makefile is "-" then let it pour onto stdout.
 	 */
@@ -853,6 +852,10 @@ redirect(char *line, char *makefile)
 	    stat(makefile, &st);
 	if ((fdin = fopen(makefile, "r")) == NULL)
 		fatalerr("cannot open \"%s\"\n", makefile);
+
+	if (strlen(makefile) + 4 >= BUFFERSIZE)
+		fatalerr("Buffer overflow, increase BUFFERSIZE\n");
+
 	sprintf(backup, "%s.bak", makefile);
 	unlink(backup);
 #if defined(WIN32) || defined(__UNIXOS2__) || defined(__CYGWIN__)

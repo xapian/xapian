@@ -380,7 +380,7 @@ DEFINE_TESTCASE(matchfunctor2, backend && !remote) {
 }
 
 // Test builtin match deciders
-DEFINE_TESTCASE(matchfunctor3, backend && !remote)
+DEFINE_TESTCASE(matchfunctor4, backend && !remote)
 {
     Xapian::Database db(get_database("apitest_simpledata"));
     Xapian::Enquire enquire(db);
@@ -428,6 +428,49 @@ DEFINE_TESTCASE(matchfunctor3, backend && !remote)
     TEST(vals2.size() == 1);
     TEST(vals2.find("h") != vals2.end());
     TEST(vals2.find("h")->second == 3);
+    return true;
+}
+
+class myMatchDecider2 : public Xapian::MatchDecider {
+    public:
+	bool operator()(const Xapian::Document &doc) const {
+	    // Note that this is not recommended usage of get_data()
+	    return doc.get_data().find("We produce") == string::npos;
+	}
+};
+
+
+// Regression test for lower bound using functor, sorting and collapsing.
+DEFINE_TESTCASE(matchfunctor3, backend) {
+    Xapian::Database db(get_database("etext"));
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query(""));
+    enquire.set_collapse_key(12);
+    enquire.set_sort_by_value(11);
+
+    myMatchDecider2 myfunctor;
+
+    Xapian::MSet mymset1 = enquire.get_mset(0, 2, 0, NULL, &myfunctor);
+    Xapian::MSet mymset2 = enquire.get_mset(0, 1000, 0, NULL, &myfunctor);
+
+    // mymset2 should contain all the hits, so the statistics should be exact.
+    TEST_EQUAL(mymset2.get_matches_estimated(),
+	       mymset2.size());
+    TEST_EQUAL(mymset2.get_matches_lower_bound(),
+	       mymset2.get_matches_estimated());
+    TEST_EQUAL(mymset2.get_matches_estimated(),
+	       mymset2.get_matches_upper_bound());
+
+    // Check that the lower bound in mymset1 is not greater than the known
+    // number of hits.  This failed until revision 10811.
+    TEST_LESSER_OR_EQUAL(mymset1.get_matches_lower_bound(),
+			 mymset2.size());
+
+    // Check that the bounds for mymset1 make sense
+    TEST_LESSER_OR_EQUAL(mymset1.get_matches_lower_bound(), mymset1.get_matches_estimated());
+    TEST_LESSER_OR_EQUAL(mymset1.size(), mymset1.get_matches_upper_bound());
+    TEST_LESSER_OR_EQUAL(mymset1.get_matches_estimated(), mymset1.get_matches_upper_bound());
+
     return true;
 }
 
@@ -2038,9 +2081,10 @@ DEFINE_TESTCASE(externalsource4, backend && !remote && !multi) {
 }
 
 // Check that valueweightsource works correctly.
-DEFINE_TESTCASE(valueweightsource1, backend && !remote && !multi) {
+DEFINE_TESTCASE(valueweightsource1, backend && !remote) {
     // FIXME: PostingSource doesn't currently work well with multi databases
     // but we should try to resolve that issue.
+    SKIP_TEST_FOR_BACKEND("multi");
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::Enquire enq(db);
     Xapian::ValueWeightPostingSource src(db, 11);
@@ -2068,6 +2112,22 @@ DEFINE_TESTCASE(valueweightsource1, backend && !remote && !multi) {
     enq.set_query(q);
     mset = enq.get_mset(0, 5);
     mset_expect_order(mset, 8, 14, 9, 13, 7);
+
+    return true;
+}
+
+// Check that valueweightsource gives the correct bounds for those databases
+// which support value statistics.
+DEFINE_TESTCASE(valueweightsource2, backend && valuestats) {
+    // FIXME: PostingSource doesn't currently work well with multi databases
+    // but we should try to resolve that issue.
+    SKIP_TEST_FOR_BACKEND("multi");
+    Xapian::Database db(get_database("apitest_phrase"));
+    Xapian::ValueWeightPostingSource src(db, 11);
+    TEST_EQUAL(src.get_termfreq_min(), 17);
+    TEST_EQUAL(src.get_termfreq_est(), 17);
+    TEST_EQUAL(src.get_termfreq_max(), 17);
+    TEST_EQUAL(src.get_maxweight(), 135);
 
     return true;
 }

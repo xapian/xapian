@@ -49,7 +49,7 @@ class XAPIAN_VISIBILITY_DEFAULT ReplicateTcpClient SOCKET_INITIALIZER_MIXIN {
     /** Attempt to open a TCP/IP socket connection to a replication server.
      *
      *  Connect to replication server running on port @a port of host @a hostname.
-     *  Give up trying to connect after @msecs_timeout_connect milliseconds.
+     *  Give up trying to connect after @a msecs_timeout_connect milliseconds.
      *
      *  Note: this method is called early on during class construction before
      *  any member variables or even the base class have been initialised.
@@ -63,7 +63,7 @@ class XAPIAN_VISIBILITY_DEFAULT ReplicateTcpClient SOCKET_INITIALIZER_MIXIN {
     /** Constructor.
      *
      *  Connect to replication server running on port @a port of host @a hostname.
-     *  Give up trying to connect after @msecs_timeout_connect milliseconds.
+     *  Give up trying to connect after @a msecs_timeout_connect milliseconds.
      *
      *  @param msecs_timeout_connect	 Timeout for trying to connect (in
      *					 milliseconds).

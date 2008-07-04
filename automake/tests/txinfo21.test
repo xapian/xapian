@@ -1,0 +1,180 @@
+#! /bin/sh
+# Copyright (C) 2003, 2004, 2006  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Test support for building HTML documentation, and the many
+# install-DOC flavors.
+
+required='makeinfo-html tex'
+. ./defs || exit 1
+
+set -e
+
+cat >>configure.in <<\EOF
+AC_CONFIG_FILES([rec/Makefile])
+
+# At the time of writing, Autoconf does not supplies any of these
+# definitions (and those below are purposedly not those of the standard).
+AC_SUBST([dvidir],  ['${datadir}/${PACKAGE}/dvi'])
+AC_SUBST([htmldir], ['${datadir}/${PACKAGE}/html'])
+AC_SUBST([pdfdir],  ['${datadir}/${PACKAGE}/pdf'])
+AC_SUBST([psdir],   ['${datadir}/${PACKAGE}/ps'])
+
+AC_OUTPUT
+EOF
+
+cat > Makefile.am << 'END'
+SUBDIRS = rec
+info_TEXINFOS = main.texi sub/main2.texi
+END
+
+cat > main.texi << 'END'
+\input texinfo
+@setfilename main.info
+@settitle main
+@node Top
+Hello walls.
+@bye
+END
+
+mkdir sub
+cat > sub/main2.texi << 'END'
+\input texinfo
+@setfilename main2.info
+@settitle main2
+@node Top
+Hello walls.
+@bye
+END
+
+mkdir rec
+cat > rec/main3.texi << 'END'
+\input texinfo
+@setfilename main3.info
+@settitle main3
+@node Top
+Hello walls.
+@bye
+END
+
+cat > rec/Makefile.am << 'END'
+info_TEXINFOS = main3.texi
+
+install-pdf-local:
+	@$(MKDIR_P) "$(pdfdir)"
+	:> "$(pdfdir)/hello"
+uninstall-local:
+	rm -f "$(pdfdir)/hello"
+END
+
+$ACLOCAL
+$AUTOMAKE --add-missing
+$AUTOCONF
+
+./configure
+
+$MAKE
+
+$sleep
+# Test production of split-per-node HTML.
+$MAKE html
+test -d main.html
+test -d sub/main2.html
+test -d rec/main3.html
+
+# Rebuilding main.html should cause its timestamp to be updated.
+test `ls -1td main.texi main.html | sed 1q` = main.html
+$sleep
+touch main.texi
+$MAKE html
+test `ls -1td main.texi main.html | sed 1q` = main.html
+
+$MAKE clean
+test ! -d main.html
+test ! -d sub/main2.html
+test ! -d rec/main3.html
+
+# Test production of a single HTML file.
+MAKEINFOFLAGS=--no-split $MAKE -e html
+test -f main.html
+test -f sub/main2.html
+test -f rec/main3.html
+$MAKE clean
+test ! -f main.html
+test ! -f sub/main2.html
+test ! -f rec/main3.html
+
+# Make sure AM_MAKEINFOHTMLFLAGS is supported, and override AM_MAKEINFO.
+cat >>Makefile.am <<\EOF
+AM_MAKEINFOHTMLFLAGS=--no-split
+AM_MAKEINFOFLAGS=--unsupported-option
+EOF
+$AUTOMAKE
+./configure --prefix "`pwd`"
+$MAKE html
+test -f main.html
+test -f sub/main2.html
+test -d rec/main3.html
+$MAKE clean
+test ! -f main.html
+test ! -f sub/main2.html
+test ! -d rec/main3.html
+
+$MAKE install-html
+test -f share/txinfo21/html/main.html
+test -f share/txinfo21/html/main2.html
+test -d share/txinfo21/html/main3.html
+$MAKE uninstall
+test ! -f share/txinfo21/html/main.html
+test ! -f share/txinfo21/html/main2.html
+test ! -d share/txinfo21/html/main3.html
+
+$MAKE install-dvi
+test -f share/txinfo21/dvi/main.dvi
+test -f share/txinfo21/dvi/main2.dvi
+test -f share/txinfo21/dvi/main3.dvi
+$MAKE uninstall
+test ! -f share/txinfo21/dvi/main.dvi
+test ! -f share/txinfo21/dvi/main2.dvi
+test ! -f share/txinfo21/dvi/main3.dvi
+
+(dvips --help 2>/dev/null >/dev/null) || exit 77
+
+$MAKE install-ps
+test -f share/txinfo21/ps/main.ps
+test -f share/txinfo21/ps/main2.ps
+test -f share/txinfo21/ps/main3.ps
+$MAKE uninstall
+test ! -f share/txinfo21/ps/main.ps
+test ! -f share/txinfo21/ps/main2.ps
+test ! -f share/txinfo21/ps/main3.ps
+
+(pdfetex --help 2>/dev/null >/dev/null) ||
+  (pdftex --help 2>/dev/null >/dev/null) || exit 77
+
+$MAKE install-pdf
+test -f share/txinfo21/pdf/main.pdf
+test -f share/txinfo21/pdf/main2.pdf
+test -f share/txinfo21/pdf/main3.pdf
+test -f share/txinfo21/pdf/hello
+$MAKE uninstall
+test ! -f share/txinfo21/pdf/main.pdf
+test ! -f share/txinfo21/pdf/main2.pdf
+test ! -f share/txinfo21/pdf/main3.pdf
+test ! -f share/txinfo21/pdf/hello

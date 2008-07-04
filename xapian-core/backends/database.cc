@@ -217,11 +217,12 @@ WritableDatabase::WritableDatabase(const std::string &path, int action)
 		 path << ", " << action);
 #ifdef XAPIAN_HAS_FLINT_BACKEND
 # ifdef XAPIAN_HAS_CHERT_BACKEND
-    // Both Flint and Chert are enabled.
-    if (file_exists(path + "/iamflint")) {
-	internal.push_back(new FlintWritableDatabase(path, action, 8192));
-    } else {
+    // Both Flint and Chert are enabled - default to flint unless a Chert
+    // database already exists in path.
+    if (file_exists(path + "/iamchert")) {
 	internal.push_back(new ChertWritableDatabase(path, action, 8192));
+    } else {
+	internal.push_back(new FlintWritableDatabase(path, action, 8192));
     }
 # else
     // Only Flint is enabled.
@@ -252,6 +253,25 @@ void
 Database::Internal::keep_alive()
 {
     // For the normal case of local databases, nothing needs to be done.
+}
+
+
+Xapian::doccount
+Database::Internal::get_value_freq(Xapian::valueno) const
+{
+    throw Xapian::UnimplementedError("This backend doesn't support get_value_freq");
+}
+
+std::string
+Database::Internal::get_value_lower_bound(Xapian::valueno) const
+{
+    return "";
+}
+
+std::string
+Database::Internal::get_value_upper_bound(Xapian::valueno) const
+{
+    throw Xapian::UnimplementedError("This backend doesn't support get_value_upper_bound");
 }
 
 // Discard any exceptions - we're called from the destructors of derived

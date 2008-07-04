@@ -34,8 +34,8 @@
 #include "chert_values.h"
 #include "chert_version.h"
 #include "chert_lock.h"
-
 #include "chert_types.h"
+#include "valuestats.h"
 
 #include <map>
 
@@ -114,6 +114,16 @@ class ChertDatabase : public Xapian::Database::Internal {
 
 	/** Highest document ID ever allocated by this database. */
 	mutable Xapian::docid lastdocid;
+
+	/** The most recently used value statistics.
+	 */
+	mutable ValueStats mru_valstats;
+
+	/** The value number for the most recently used value statistics.
+	 *
+	 *  Set to BAD_VALUENO if no value statistics have yet been looked up.
+	 */
+	mutable Xapian::valueno mru_valno;
 
 	/** The maximum number of changesets which should be kept in the
 	 *  database. */
@@ -259,6 +269,9 @@ class ChertDatabase : public Xapian::Database::Internal {
 	Xapian::doclength get_doclength(Xapian::docid did) const;
 	Xapian::doccount get_termfreq(const string & tname) const;
 	Xapian::termcount get_collection_freq(const string & tname) const;
+	Xapian::doccount get_value_freq(Xapian::valueno valno) const;
+	std::string get_value_lower_bound(Xapian::valueno valno) const;
+	std::string get_value_upper_bound(Xapian::valueno valno) const;
 	bool term_exists(const string & tname) const;
 	bool has_positions() const;
 
@@ -305,6 +318,8 @@ class ChertWritableDatabase : public ChertDatabase {
 	/// Modifications to posting lists.
 	mutable map<string, map<Xapian::docid,
 				pair<char, Xapian::termcount> > > mod_plists;
+
+	mutable map<Xapian::valueno, ValueStats> value_stats;
 
 	/** The number of documents added, deleted, or replaced since the last
 	 *  flush.
@@ -362,6 +377,9 @@ class ChertWritableDatabase : public ChertDatabase {
 	Xapian::doclength get_doclength(Xapian::docid did) const;
 	Xapian::doccount get_termfreq(const string & tname) const;
 	Xapian::termcount get_collection_freq(const string & tname) const;
+	Xapian::doccount get_value_freq(Xapian::valueno valno) const;
+	std::string get_value_lower_bound(Xapian::valueno valno) const;
+	std::string get_value_upper_bound(Xapian::valueno valno) const;
 	bool term_exists(const string & tname) const;
 
 	LeafPostList * open_post_list(const string & tname) const;

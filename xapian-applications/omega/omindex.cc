@@ -227,9 +227,23 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	md5_string(text, md5);
     } else if (mimetype == "text/plain") {
 	try {
-	    // Currently we assume that text files are UTF-8.
-	    // FIXME: What charset is the file?  Look for BOM?  Look at contents?
+	    // Currently we assume that text files are UTF-8 unless they have a
+	    // byte-order mark.
 	    dump = file_to_string(file);
+
+	    // Look for Byte-Order Mark (BOM).
+	    if (startswith(dump, "\xfe\xff") || startswith(dump, "\xff\xfe")) {
+		// UTF-16 in big-endian/little-endian order - we just convert
+		// it as "UTF-16" and let the conversion handle the BOM as that
+		// way we avoid the copying overhead of erasing 2 bytes from
+		// the start of dump.
+		convert_to_utf8(dump, "UTF-16");
+	    } else if (startswith(dump, "\xef\xbb\xbf")) {
+		// UTF-8 with stupid Windows not-the-byte-order mark.
+		dump.erase(0, 3);
+	    } else {
+		// FIXME: What charset is the file?  Look at contents?
+	    }
 	} catch (ReadError) {
 	    cout << "can't read \"" << file << "\" - skipping\n";
 	    return;
