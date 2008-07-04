@@ -363,7 +363,7 @@ Term::as_partial_query(State * state_) const
 	    subqs2.push_back(Query(*t, 1, pos));
 	    ++t;
 	}
-	subqs.push_back(Query(Query::OP_OR, subqs2.begin(), subqs2.end()));
+	subqs.push_back(Query(Query::OP_SYNONYM, subqs2.begin(), subqs2.end()));
 	// Add the term, as it would normally be handled, as an alternative.
 	subqs.push_back(Query(make_term(*piter), 1, pos));
     }
@@ -1172,7 +1172,7 @@ TermGroup::as_group(State *state) const
 	    }
 	    Query q_synonym_terms(Query::OP_SYNONYM, subqs2.begin(), subqs2.end());
 	    subqs2.clear();
-	    subqs.push_back(Query(Query::OP_OR,
+	    subqs.push_back(Query(Query::OP_SYNONYM,
 				  q_original_terms, q_synonym_terms));
 	}
     } else {

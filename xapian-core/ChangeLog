@@ -1,3 +1,9 @@
+Fri Jul 04 14:59:12 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* queryparser/queryparser.lemony: Use OP_SYNONYM to join the
+	  original terms into the synonym group - was using OP_OR due to a
+	  mistake in a previous merge.
+
 Tue Apr 29 07:03:41 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* bin/xapian-check-flint.cc,bin/xapian-check-flint.h,common/,
