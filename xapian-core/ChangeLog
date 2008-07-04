@@ -1,3 +1,11 @@
+Fri Jul 04 04:35:19 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Bootstrap with newer versions of the autotools:
+	  + autoconf 2.61 -> 2.62: faster
+	  + automake 1.10 -> 1.10.1: "make clean" cleans all .libs
+	    directories.
+	  + libtool 1.5.24 -> 2.2.4: many improvements; faster.
+
 Thu Jul 03 03:17:42 GMT 2008  Olly Betts <olly@survex.com>
 
 	* docs/glossary.rst,docs/intro_ir.html: Improve intro_ir a bit, and
