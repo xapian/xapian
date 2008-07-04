@@ -36,7 +36,7 @@ Sat Jun 28 10:42:23 GMT 2008  Olly Betts <olly@survex.com>
 	* tests/api_nodb.cc: Extend stemlangs1 to check that all the language
 	  codes work, and so does Stem("").
 
-Thu Jun 26 00:07:49 GMT 2008  Olly Betts <olly@survex.com>
+Thu Jun 27 00:07:49 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
 
