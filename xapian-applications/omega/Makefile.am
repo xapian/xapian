@@ -63,8 +63,8 @@ pkglibbin_PROGRAMS = omega
 bin_PROGRAMS = omindex scriptindex
 dist_bin_SCRIPTS = dbi2omega htdig2omega mbox2omega
 
-check_PROGRAMS = htmlparsetest md5test
-TESTS = htmlparsetest$(EXEEXT) md5test$(EXEEXT)
+check_PROGRAMS = htmlparsetest md5test utf8converttest
+TESTS = htmlparsetest$(EXEEXT) md5test$(EXEEXT) utf8converttest$(EXEEXT)
 
 omegadatadir = $(datadir)/omega
 dist_omegadata_DATA = htdig2omega.script mbox2omega.script
@@ -118,6 +118,9 @@ htmlparsetest_SOURCES = htmlparsetest.cc myhtmlparse.cc htmlparse.cc\
 htmlparsetest_LDADD = $(XAPIAN_LIBS)
 
 md5test_SOURCES = md5test.cc md5wrap.cc md5.cc
+
+utf8converttest_SOURCES = utf8converttest.cc utf8convert.cc
+utf8converttest_LDADD = $(XAPIAN_LIBS)
 
 if !MAINTAINER_NO_DOCS
 dist_man_MANS = omindex.1 scriptindex.1

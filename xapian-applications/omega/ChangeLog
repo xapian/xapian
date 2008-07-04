@@ -1,3 +1,15 @@
+Fri Jul 04 08:20:11 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* omindex.cc: Handle UCS-2 and UTF-16 text files with a byte-order
+	  mark (BOM).  Ignore any UTF-8 "byte-order" mark.
+	* utf8convert.cc: Handle UCS-2/UTF-16 and explicit BE and LE forms in
+	  the non-iconv code.
+	* Makefile.am,utf8converttest.cc: Add unit tests of convert_to_utf8().
+	* utf8convert.cc,utf8converttest.cc: UTF-16 with no BOM is meant to be
+	  assumed to be big-endian.  GNU libiconv doesn't handle some examples
+	  as expected, so disable them when using iconv() for now.
+
 Fri Jun 27 07:12:29 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
