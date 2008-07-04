@@ -1,5 +1,5 @@
 upto:
-Sat May 17 11:42:26 GMT 2008  Olly Betts <olly@survex.com>
+Fri Jul 04 08:15:03 GMT 2008  Olly Betts <olly@survex.com>
 
 HEAD only:
 
@@ -11,21 +11,30 @@ HEAD only:
 	  add $transform{} command (which has been in the code for ages but
 	  disabled).
 
-Omega 1.0.7 (2008-0?-??):
+Omega 1.0.7 (2008-07-??):
 
 general:
 
 documentation:
 
-omegascript.html,scriptindex.html: Fix empty titles.
+* omegascript.html,scriptindex.html: Fix empty titles.
 
 indexers:
 
 * omindex:
 
+  + When indexing text files, handle UCS-2 and UTF-16 text files with a
+    byte-order mark (BOM), and ignore any UTF-8 "byte-order" mark.
+
+  + The built-in conversion code (used when iconv isn't available) now handles
+    UCS-2/UTF-16 with and without a BOM, and also the explicit BE and LE forms.
+
 * scriptindex:
 
 omega:
+
+* Overhaul the $highlight colour combinations since some were rather
+  unreadable (Debian bug 484456).
 
 templates:
 
@@ -73,7 +82,7 @@ indexers:
 
 omega:
 
-* OmegaScript commands $addfilter, $lower, $upper.
+* New OmegaScript commands $addfilter, $lower, $upper.
 
 portability:
 
