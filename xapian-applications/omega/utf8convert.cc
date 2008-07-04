@@ -93,19 +93,24 @@ convert_to_utf8(string & text, const string & charset)
     }
 
     if (utf16) {
-	bool big_endian = false;
+	if (text.size() < 2) return;
+
+	bool big_endian = true;
 	string::const_iterator i = text.begin();
 	if (*p == '\0') {
-	    if (text.size() < 2) return;
 	    if (startswith(text, "\xfe\xff")) {
-		big_endian = true;
-	    } else if (!startswith(text, "\xff\xfe")) {
-		return;
+		i += 2;
+	    } else if (startswith(text, "\xff\xfe")) {
+		big_endian = false;
+		i += 2;
 	    }
-	    i += 2;
-	} else if (strcasecmp(p, "BE") == 0) {
-	    big_endian = true;
-	} else if (!(strcasecmp(p, "LE") == 0)) {
+	    // UTF-16 with no BOM is meant to be assumed to be BE.  Strictly
+	    // speaking, we're not meant to assume anything for UCS-2 with
+	    // no BOM, but we've got to do something, so we might as well
+	    // assume it's UTF-16 mislabelled, which is easy and sane.
+	} else if (strcasecmp(p, "LE") == 0) {
+	    big_endian = false;
+	} else if (!(strcasecmp(p, "BE") == 0)) {
 	    return;
 	}
 

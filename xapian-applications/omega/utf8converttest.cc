@@ -47,10 +47,19 @@ static const testcase tests[] = {
     { "UTF16", "\xfe\xff\0T\0e\0s\0t", 10, "Test" },
     { "UTF16LE", "T\0e\0s\0t\0", 8, "Test" },
     { "UTF16", "\xff\xfeT\0e\0s\0t\0", 10, "Test" },
-    { "UCS2BE", "\xdb\xff\xdf\xfd", 0, "\xf4\x8f\xbf\xbd" },
-    { "UCS2", "\xfe\xff\xdb\xff\xdf\xfd", 0, "\xf4\x8f\xbf\xbd" },
-    { "UCS2LE", "\xff\xdb\xfd\xdf", 0, "\xf4\x8f\xbf\xbd" },
-    { "UCS2", "\xff\xfe\xff\xdb\xfd\xdf", 0, "\xf4\x8f\xbf\xbd" },
+    { "UCS-2BE", "\0T\0e\0s\0t", 8, "Test" },
+    { "UCS-2LE", "T\0e\0s\0t\0", 8, "Test" },
+    { "UTF16BE", "\xdb\xff\xdf\xfd", 0, "\xf4\x8f\xbf\xbd" },
+    { "UTF16", "\xfe\xff\xdb\xff\xdf\xfd", 0, "\xf4\x8f\xbf\xbd" },
+    { "UTF16LE", "\xff\xdb\xfd\xdf", 0, "\xf4\x8f\xbf\xbd" },
+    { "UTF16", "\xff\xfe\xff\xdb\xfd\xdf", 0, "\xf4\x8f\xbf\xbd" },
+// GNU libiconv doesn't seem to handle these as expected:
+#ifndef USE_ICONV
+    { "UCS-2", "\xfe\xff\0T\0e\0s\0t", 10, "Test" },
+    { "UCS-2", "\xff\xfeT\0e\0s\0t\0", 10, "Test" },
+    // If there's no BOM, we're supposed to assume BE.
+    { "UTF16", "\xdb\xff\xdf\xfd", 0, "\xf4\x8f\xbf\xbd" },
+#endif
     { 0, 0, 0, 0 }
 };
 

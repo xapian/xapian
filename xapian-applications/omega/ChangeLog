@@ -1,3 +1,9 @@
+Fri Jul 04 08:15:03 GMT 2008  Olly Betts <olly@survex.com>
+
+	* utf8convert.cc,utf8converttest.cc: UTF-16 with no BOM is meant to be
+	  assumed to be big-endian.  GNU libiconv doesn't handle some examples
+	  as expected, so disable them when using iconv() for now.
+
 Fri Jul 04 06:39:20 GMT 2008  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Handle UCS-2 and UTF-16 text files with a byte-order
