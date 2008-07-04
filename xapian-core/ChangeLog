@@ -1,3 +1,7 @@
+Fri Jul 04 23:31:14 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* NEWS: Swap two words to make a sentence make sense.
+
 Fri Jul 04 11:40:13 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* matcher/multimatch.cc: Fix calculation of lower bound when

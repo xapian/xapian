@@ -142,7 +142,7 @@ HEAD only:
 	* common/omassert.h: Add AssertEqDoubleParanoid().
 	* matcher/multimatch.cc: Use it instead of home-brewed version.
 
-* Start new development backend "chert".  Currently only the change over flint is
+* Start new development backend "chert".  Currently the only change over flint is
 	  that in the postlist table, doclengths are stored once in a
 	  chunked postlist-like form, rather than once per posting.
 
