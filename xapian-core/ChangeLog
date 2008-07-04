@@ -1,3 +1,10 @@
+Fri Jul 04 10:26:21 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* Makefile.am,bin/Makefile.mk,examples/Makefile.mk: Remove
+	  extra_cleandirs as automake 1.10.1 fixes the bug which it was working
+	  around.
+
 Fri Jul 04 09:02:35 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
