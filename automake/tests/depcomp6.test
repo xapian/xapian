@@ -1,0 +1,103 @@
+#! /bin/sh
+# Copyright (C) 2006  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Check dependency generation (non libtool case).
+
+. ./defs || exit 1
+
+set -e
+
+cat >> configure.in << 'END'
+AC_PROG_CC
+AM_PROG_CC_C_O
+AC_PROG_RANLIB
+AC_CONFIG_FILES(sub2/Makefile)
+AC_OUTPUT
+END
+
+mkdir sub sub2 sub2/sub3
+
+cat >Makefile.am <<'END'
+SUBDIRS = sub2
+bin_PROGRAMS = foo
+foo_SOURCES = foo.c sub/bar.c foo.h sub/bar.h
+foo_LDADD = sub2/libbaz.a
+END
+
+cat >sub2/Makefile.am <<'END'
+AUTOMAKE_OPTIONS = subdir-objects
+noinst_LIBRARIES = libbaz.a
+libbaz_a_SOURCES = baz.c sub3/ba3.c baz.h sub3/ba3.h
+END
+
+cat >foo.c <<'END'
+#include "foo.h"
+#include "sub2/baz.h"
+#include <stdlib.h>
+int main() { printf("foo"); return bar() + baz(); }
+END
+
+cat >foo.h <<'END'
+#include <stdio.h>
+#include "sub/bar.h"
+END
+
+cat >sub/bar.c <<'END'
+#include "sub/bar.h"
+int bar() { return 0; }
+END
+
+touch sub2/sub3/ba3.h
+
+cat >sub/bar.h <<'END'
+#include <stdio.h>
+extern int bar();
+END
+
+cat >sub2/baz.c <<'END'
+#include "baz.h"
+int baz() { return 0; }
+END
+
+cat >sub2/baz.h <<'END'
+extern int baz();
+END
+
+cat >sub2/sub3/ba3.c <<'END'
+#include "ba3.h"
+int ba3() { return 0; }
+END
+
+$ACLOCAL
+$AUTOCONF
+$AUTOMAKE -a
+
+./configure --enable-dependency-tracking
+$MAKE 
+
+# check that dependency tracking works
+if grep 'depmode=none' Makefile; then :
+else
+  cd sub2
+  $sleep
+  echo 'choke me' > sub3/ba3.h
+  if $MAKE; then exit 1; fi
+fi
+:

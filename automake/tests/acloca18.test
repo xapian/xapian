@@ -1,0 +1,117 @@
+#! /bin/sh
+# Copyright (C) 2005, 2006  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Test for --install with #serial numbers.
+
+. ./defs || exit 1
+
+set -e
+
+cat >> configure.in << 'END'
+AM_MACRO1
+AM_MACRO2
+END
+
+mkdir 1 2 3 4
+
+cat >1/m1.m4 <<EOF
+#serial 1.8.1230.9
+AC_DEFUN([AM_MACRO1], [echo macro11 >> foo])
+AC_DEFUN([AM_MACRO2], [echo macro21 >> foo])
+EOF
+
+cat >2/m1.m4 <<EOF
+#serial 1.8.1231.9
+AC_DEFUN([AM_MACRO1], [echo macro12 >> foo])
+EOF
+
+cat >3/m2.m4 <<EOF
+#serial 13
+AC_DEFUN([AM_MACRO2], [echo macro23 >> foo])
+EOF
+
+cat >3/m1.m4 <<EOF
+#serial 1.8.1230.1
+AC_DEFUN([AM_MACRO1], [echo macro13 >> foo])
+EOF
+
+cat >4/mumble.m4 <<EOF
+#serial 0
+AC_DEFUN([AM_MACRO1], [echo macro14 >> foo])
+EOF
+
+
+ACLOCAL_TESTSUITE_FLAGS='-I 1 -I 2 -I 3 -I 4'
+
+$ACLOCAL
+$AUTOCONF
+./configure
+grep macro11 foo
+grep macro21 foo
+
+rm -f foo
+$ACLOCAL --install
+$AUTOCONF
+./configure
+grep macro12 foo
+grep macro23 foo
+
+ACLOCAL_TESTSUITE_FLAGS='-I 4 -I 1 -I 2 -I 3'
+rm -f foo
+$ACLOCAL --install --dry-run
+$AUTOCONF
+./configure
+grep macro12 foo
+grep macro23 foo
+
+rm -f foo
+$ACLOCAL --install
+$AUTOCONF
+./configure
+grep macro14 foo
+grep macro23 foo
+
+ACLOCAL_TESTSUITE_FLAGS='-I 4 -I 1 -I 2'
+rm -f foo
+$ACLOCAL --install 2>stderr && exit 1
+grep AM_MACRO2 stderr
+
+ACLOCAL_TESTSUITE_FLAGS='-I 4 -I 1'
+rm -f foo
+$ACLOCAL --install
+$AUTOCONF
+./configure
+grep macro14 foo
+grep macro21 foo
+
+
+mkdir dirlist-test
+cat >dirlist-test/m1.m4 <<EOF
+#serial 456
+AC_DEFUN([AM_MACRO1], [echo macro1d >> foo])
+AC_DEFUN([AM_MACRO2], [echo macro2d >> foo])
+EOF
+rm -f foo
+$ACLOCAL --diff=diff >output 2>stderr
+cat stderr
+cat output
+grep '#serial 456' output
+test ! -f 4/m1.m4
+grep 'installing.*4/m1.m4' stderr

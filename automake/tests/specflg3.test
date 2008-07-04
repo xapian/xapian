@@ -1,0 +1,52 @@
+#! /bin/sh
+# Copyright (C) 1999, 2001, 2002, 2004  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Test exe-specific flags with dependency tracking.
+
+. ./defs || exit 1
+
+cat > configure.in << 'END'
+AC_INIT
+AM_INIT_AUTOMAKE(test, 0.1)
+AC_PROG_CC
+AM_PROG_CC_C_O
+AC_OUTPUT(Makefile)
+END
+
+cat > Makefile.am << 'END'
+AUTOMAKE_OPTIONS = foreign
+bin_PROGRAMS = foo
+foo_SOURCES = foo.c
+foo_CFLAGS = -DFOO
+END
+
+: > compile
+
+$ACLOCAL || exit 1
+$AUTOMAKE || exit 1
+
+$FGREP -e '-o foo-foo' Makefile.in || exit 1
+
+$FGREP 'foo.o.o' Makefile.in                       && exit 1
+$FGREP 'foo.$(OBJEXT).$(OBJEXT)' Makefile.in       && exit 1
+
+$FGREP '$(foo_CFLAGS)' Makefile.in || exit 1
+
+exit 0

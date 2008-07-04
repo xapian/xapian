@@ -1,0 +1,69 @@
+#! /bin/sh
+# Copyright (C) 2005  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Make sure an AC_CONFIG_FILES ignore filenames with shell variables.
+
+. ./defs || exit 1
+
+set -e
+
+cat >> configure.in << \END
+AC_SUBST([FOO], [foo])
+file1=this.in
+echo @FOO@ >$file1
+file2=that
+file3=mumble
+file4=foo
+AC_CONFIG_FILES([this:$file1],, [file1=$file1])
+AC_CONFIG_FILES([sub/this:$file1])
+AC_CONFIG_FILES([${file2}:this],, [file2=$file2])
+AC_CONFIG_FILES([$file3],, [file3=$file3])
+AC_CONFIG_FILES([$file4:foo.in],, [file4=$file4])
+AC_CONFIG_FILES([sub/Makefile])
+AC_OUTPUT
+END
+
+mkdir sub
+
+cat >Makefile.am <<\EOF
+SUBDIRS = sub
+EXTRA_DIST = mumble.in
+DISTCLEANFILES = this.in that mumble foo
+dist-hook:
+	test -f $(distdir)/foo.in
+	test ! -f $(distdir)/this
+EOF
+
+echo @FOO@ >mumble.in
+echo @FOO@ >foo.in
+: >sub/Makefile.am
+
+$ACLOCAL
+$AUTOCONF
+$AUTOMAKE
+
+$FGREP ' $file' Makefile.in sub/Makefile.in && exit 1
+
+./configure
+$MAKE distcheck
+cd sub
+rm -f this
+$MAKE this
+grep foo this

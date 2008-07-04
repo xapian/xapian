@@ -1,0 +1,191 @@
+#! /bin/sh
+# Copyright (C) 2004, 2005  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Check that installation to directory with shell metacharacters succeed.
+# Original report from James Amundson about file names with spaces.
+# Other characters added by Paul Eggert.
+
+# This is mostly the same input as nobase.test, but we do not use
+# libtool libraries, because Libtool does not preserve space in
+# file names (Issue observed with ltmain.sh (GNU libtool) 1.5a (1.1323
+# 2003/11/10 21:06:47))
+
+
+required='gcc'
+. ./defs || exit 1
+
+set -e
+
+# Set up files that won't change each time through the loop.
+
+cat >> configure.in <<'EOF'
+AC_PROG_CC
+AC_PROG_RANLIB
+AC_OUTPUT
+EOF
+
+mkdir sub
+
+: > sub/base.h
+: > sub/nobase.h
+: > sub/base.dat
+: > sub/nobase.dat
+: > sub/base.sh
+: > sub/nobase.sh
+
+cat >source.c <<'EOF'
+int
+main (int argc, char **argv)
+{
+  return 0;
+}
+EOF
+cp source.c source2.c
+
+cat > Makefile.am << 'EOF'
+foodir = $(prefix)/foo
+fooexecdir = $(prefix)/foo
+
+foo_HEADERS = sub/base.h
+nobase_foo_HEADERS = sub/nobase.h
+
+dist_foo_DATA = sub/base.dat
+nobase_dist_foo_DATA = sub/nobase.dat
+
+dist_fooexec_SCRIPTS = sub/base.sh
+nobase_dist_fooexec_SCRIPTS = sub/nobase.sh
+
+fooexec_PROGRAMS = sub/base
+nobase_fooexec_PROGRAMS = sub/nobase
+sub_base_SOURCES = source.c
+sub_nobase_SOURCES = source.c
+
+fooexec_LIBRARIES = sub/libbase.a
+nobase_fooexec_LIBRARIES = sub/libnobase.a
+sub_libbase_a_SOURCES = source.c
+sub_libnobase_a_SOURCES = source.c
+
+test-install-sep: install
+	test   -f '$(DESTDIR)/$(file)-prefix/foo/sub/nobase.h'
+	test ! -f '$(DESTDIR)/$(file)-prefix/foo/nobase.h'
+	test   -f '$(DESTDIR)/$(file)-prefix/foo/base.h'
+	test   -f '$(DESTDIR)/$(file)-prefix/foo/sub/nobase.dat'
+	test ! -f '$(DESTDIR)/$(file)-prefix/foo/nobase.dat'
+	test   -f '$(DESTDIR)/$(file)-prefix/foo/base.dat'
+	test   -f '$(DESTDIR)/$(file)-prefix/foo/sub/nobase.sh'
+	test ! -f '$(DESTDIR)/$(file)-prefix/foo/nobase.sh'
+	test   -f '$(DESTDIR)/$(file)-prefix/foo/base.sh'
+	test   -f '$(DESTDIR)/$(file)-prefix/foo/sub/nobase$(EXEEXT)'
+	test ! -f '$(DESTDIR)/$(file)-prefix/foo/nobase$(EXEEXT)'
+	test   -f '$(DESTDIR)/$(file)-prefix/foo/base$(EXEEXT)'
+	test   -f '$(DESTDIR)/$(file)-prefix/foo/sub/libnobase.a'
+	test ! -f '$(DESTDIR)/$(file)-prefix/foo/libnobase.a'
+	test   -f '$(DESTDIR)/$(file)-prefix/foo/libbase.a'
+EOF
+
+$ACLOCAL
+$AUTOCONF
+$AUTOMAKE -a
+
+# Some control characters that are white space:
+# back space, carriage return, form feed, horizontal tab, line feed, space
+bs=''
+cr=''
+ff=''
+ht='	'
+lf='
+'
+sp=' '
+
+build_failures=
+install_failures=
+
+for file in \
+  '!' '"' '#' '$' '%' '&' \' '(' ')' '*' '+' ',' '-' ':' ';' \
+  '<' '=' '>' '?' '@' '[' '\' ']' '^' '`' '{' '|' '}' '~' \
+  "$bs" "$cr" "$ff" "$ht" "$lf" "$sp" \
+  '@<:@' '@:>@' '@S|@' '@%:@' '@&t@' \
+  "a${sp}b" "a${sp}${sp}b" "a${lf}b" ... a:
+do
+  for test in build install; do
+    case $test in
+    build)
+      build=$file
+      dest=`pwd`/sub1;;
+    install)
+      build=sub1
+      dest=`pwd`/$file;;
+    esac
+
+    # Make sure this system supports this character in file names.
+    mkdir sub1 "./$file" || exit 77
+
+    cd "$build"
+
+    ../configure --prefix "/$file-prefix" &&
+    $MAKE &&
+    DESTDIR=$dest file=$file $MAKE -e test-install-sep ||
+      eval "${test}_failures=\"\$${test}_failures$lf\$file\""
+
+    cd ..
+
+    rm -fr sub1 "./$file"
+  done
+done
+
+# The list of the above file names that cannot be used as a build directory
+# on a POSIX host.  This list should be empty, but is not due to limitations
+# in Autoconf, Automake, Make, M4, or the shell.
+expected_build_failures='
+"
+#
+$
+&
+'\''
+\
+`
+'"$lf"'
+@&t@
+a'"${lf}"'b'
+
+# Similarly, the list of file names that cannot be used as an install directory
+# on a POSIX host.  This list should also be empty.
+expected_install_failures='
+"
+#
+$
+'\''
+`
+'"$lf"'
+a'"${lf}"'b'
+
+fail=0
+for test in build install; do
+  eval failures=\$${test}_failures
+  case $failures in
+  ?*)
+    cat >&2 <<EOF
+$0: $test test failed for the following file names:$failures
+EOF
+    eval test \"\$failures\" = \"\$expected_${test}_failures\" || fail=1
+  esac
+done
+
+exit $fail

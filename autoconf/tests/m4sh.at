@@ -1,0 +1,799 @@
+#							-*- Autotest -*-
+
+AT_BANNER([M4sh.])
+
+# Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
+# Free Software Foundation, Inc.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+
+## ---------------- ##
+## LINENO support.  ##
+## ---------------- ##
+
+AT_SETUP([LINENO])
+
+# We cannot unset LINENO with Zsh, yet this test case relies on
+# unsetting LINENO to compare its result when (i) LINENO is supported
+# and when (ii) it is not.
+# So just skip if the shell is ZSH.
+AT_CHECK([test -n "${ZSH_VERSION+set}" && exit 77], ignore)
+
+# AT_DATA_LINENO(FILE-NAME,
+#                UNSET-LINENO = true | false, COUNTER, COUNTER-RE)
+# ----------------------------------------------------------------
+# Produce the FILE-NAME M4sh script which uses the COUNTER LINENO or
+# _oline_, which we can recognized via COUNTER-RE.  Unset LINENO is
+# UNSET-LINENO.
+#
+# Use COUNTER, COUNTER-RE = [__LINENO__], [LINENO]
+#  or                     = [__OLINE__],  [_oline__]
+#
+# instead of the obvious $LINENO and __oline__, because they would
+# be replaced in the test suite itself, even before creating these
+# scripts.  For the same reason, grep for LINENO and _oline__ (sic).
+#
+# UNSET-LINENO is a shell condition to make sure the scripts have the
+# same number of lines in the output, so that their outputs be identical.
+m4_define([AT_DATA_LINENO],
+[AT_DATA([$1.tas],
+[[AS@&t@_INIT
+if $2; then
+  AS@&t@_UNSET([LINENO])
+fi
+_AS@&t@_PREPARE
+echo "Line: $3"
+grep 'Line: .*$4' "$[0]" >/dev/null ||
+  AS@&t@_ERROR([cannot find original script])
+exit 0
+]])
+# If occurrences of $LINENO or __oline__ were wanted, create them.
+sed 's/__LINENO__/$''LINENO/g;s/__OLINE__/__''oline__/g' $1.tas >$1.as
+AT_CHECK([autom4te -l m4sh $1.as -o $1])
+])# AT_DATA_LINENO
+
+# `_oline_', once processed and ran, produces our reference.
+# We check that we find ourselves by looking at a string which is
+# available only in the original script: `_oline_'.
+AT_DATA_LINENO([reference], [false], [__OLINE__], [_oline__])
+AT_CHECK([./reference], 0, [stdout])
+
+# The reference:
+mv stdout expout
+
+# Now using a maybe-functioning LINENO, with different call conventions.
+# Be sure to be out of the PATH.
+AT_CHECK([mkdir test || exit 77])
+
+AT_DATA_LINENO([test/test-1], [false], [__LINENO__], [LINENO])
+AT_CHECK([./test/test-1],                          0, [expout])
+AT_CHECK([(PATH=test$PATH_SEPARATOR$PATH; export PATH; exec test-1)],
+						   0, [expout])
+AT_CHECK([sh ./test/test-1],                       0, [expout])
+
+# Now using a disabled LINENO, with different call conventions.
+AT_DATA_LINENO([test/test-2], [true], [__LINENO__], [LINENO])
+AT_CHECK([./test/test-2],                          0, [expout])
+AT_CHECK([(PATH=test$PATH_SEPARATOR$PATH; export PATH; exec test-2)],
+						   0, [expout])
+AT_CHECK([sh ./test/test-2],                       0, [expout])
+
+AT_CLEANUP
+
+
+
+## ------------ ##
+## AS_DIRNAME.  ##
+## ------------ ##
+
+# Build nested dirs.
+AT_SETUP([AS@&t@_DIRNAME])
+
+AT_DATA_M4SH([script.as],
+[[AS_INIT
+
+# The EXPR variant is allowed to fail if `expr' was considered as too
+# weak for us, in which case `as_expr=false'.
+m4_define([DIRNAME_TEST],
+[dir=`AS_DIRNAME([$1])`
+test "$dir" = "$2" || (test -n "$3" && test "$dir" = "$3") ||
+  echo "dirname($1) = $dir instead of $2" >&2
+
+if test "$as_expr" != false; then
+  dir=`_AS_DIRNAME_EXPR([$1])`
+  test "$dir" = "$2" || (test -n "$3" && test "$dir" = "$3") ||
+    echo "dirname_expr($1) = $dir instead of $2" >&2
+fi
+
+dir=`_AS_DIRNAME_SED([$1])`
+test "$dir" = "$2" || (test -n "$3" && test "$dir" = "$3") ||
+  echo "dirname_sed($1) = $dir instead of $2" >&2])
+
+DIRNAME_TEST([/],		[/])
+DIRNAME_TEST([//],		[//],	[/])
+DIRNAME_TEST([///],		[/])
+DIRNAME_TEST([//1],		[//],	[/])
+DIRNAME_TEST([/1],		[/])
+DIRNAME_TEST([./1],		[.])
+DIRNAME_TEST([../../2],		[../..])
+DIRNAME_TEST([//1/],		[//],	[/])
+DIRNAME_TEST([/1/],		[/])
+DIRNAME_TEST([./1/],		[.])
+DIRNAME_TEST([../../2],		[../..])
+DIRNAME_TEST([//1/3],		[//1])
+DIRNAME_TEST([/1/3],		[/1])
+DIRNAME_TEST([./1/3],		[./1])
+DIRNAME_TEST([../../2/3],	[../../2])
+DIRNAME_TEST([//1/3///],	[//1])
+DIRNAME_TEST([/1/3///],		[/1])
+DIRNAME_TEST([./1/3///],	[./1])
+DIRNAME_TEST([../../2/3///],	[../../2])
+DIRNAME_TEST([//1//3/],		[//1])
+DIRNAME_TEST([/1//3/],		[/1])
+DIRNAME_TEST([./1//3/],		[./1])
+DIRNAME_TEST([../../2//3/],	[../../2])
+AS_EXIT(0)
+]])
+
+AT_CHECK_M4SH
+AT_CHECK([./script])
+
+AT_CLEANUP
+
+
+
+## --------- ##
+## AS_ECHO.  ##
+## --------- ##
+
+# Build nested dirs.
+AT_SETUP([AS@&t@_ECHO and AS@&t@_ECHO_N])
+
+AT_DATA_M4SH([script.as],
+[[AS_INIT
+
+m4_define([ECHO_TEST],
+[echo=`AS_ECHO(['$1'])`
+test "X$echo" = 'X$1' ||
+  echo "AS@&t@_ECHO('"'$1'"') outputs '$echo'" >&2
+
+echo=`AS_ECHO_N(['$1'])`
+test "X$echo" = 'X$1' ||
+  echo "AS@&t@_ECHO_N('"'$1'"') outputs '$echo'" >&2])
+
+ECHO_TEST([-])
+ECHO_TEST([--])
+ECHO_TEST([---...---])
+ECHO_TEST([	 ])
+ECHO_TEST([-e])
+ECHO_TEST([-E])
+ECHO_TEST([-n])
+ECHO_TEST([-n -n])
+ECHO_TEST([-e -n])
+ECHO_TEST([ab\ncd])
+ECHO_TEST([abcd\c])
+ECHO_TEST([\a\b\c\f\n\r\t\v\"\])
+ECHO_TEST([ab
+cd
+e])
+ECHO_TEST([
+ ])
+ECHO_TEST([
+\c])
+AS_EXIT(0)
+]])
+
+AT_CHECK_M4SH
+AT_CHECK([./script])
+
+AT_CLEANUP
+
+
+
+## ------------- ##
+## AS_BASENAME.  ##
+## ------------- ##
+
+# Build nested dirs.
+AT_SETUP([AS@&t@_BASENAME])
+
+AT_DATA_M4SH([script.as],
+[[AS_INIT
+
+m4_define([BASENAME_TEST],
+[base=`AS_BASENAME([$1])`
+test "$base" = "$2" ||
+  echo "basename($1) = $base instead of $2" >&2
+
+base=`_AS_BASENAME_SED([$1])`
+test "$base" = "$2" ||
+  echo "basename_sed($1) = $base instead of $2" >&2])
+
+BASENAME_TEST([//1],             [1])
+BASENAME_TEST([/1],              [1])
+BASENAME_TEST([./1],             [1])
+BASENAME_TEST([../../2],         [2])
+BASENAME_TEST([//1/],            [1])
+BASENAME_TEST([/1/],             [1])
+BASENAME_TEST([./1/],            [1])
+BASENAME_TEST([../../2],         [2])
+BASENAME_TEST([//1/3],           [3])
+BASENAME_TEST([/1/3],            [3])
+BASENAME_TEST([./1/3],           [3])
+BASENAME_TEST([../../2/3],       [3])
+BASENAME_TEST([//1/3///],        [3])
+BASENAME_TEST([/1/3///],         [3])
+BASENAME_TEST([./1/3///],        [3])
+BASENAME_TEST([../../2/3///],    [3])
+BASENAME_TEST([//1//3/],         [3])
+BASENAME_TEST([/1//3/],          [3])
+BASENAME_TEST([./1//3/],         [3])
+BASENAME_TEST([a.c],             [a.c])
+BASENAME_TEST([a.c/],            [a.c])
+BASENAME_TEST([/a.c/],           [a.c])
+BASENAME_TEST([/1/a.c],          [a.c])
+BASENAME_TEST([/1/a.c/],         [a.c])
+BASENAME_TEST([/1/../a.c],       [a.c])
+BASENAME_TEST([/1/../a.c/],      [a.c])
+BASENAME_TEST([./1/a.c],         [a.c])
+BASENAME_TEST([./1/a.c/],        [a.c])
+AS_EXIT(0)
+]])
+
+AT_CHECK_M4SH
+AT_CHECK([./script])
+
+AT_CLEANUP
+
+
+
+## ------------ ##
+## AS_MKDIR_P.  ##
+## ------------ ##
+
+# Build nested dirs.
+AT_SETUP([AS@&t@_MKDIR_P])
+
+AT_DATA_M4SH([script.as],
+[[AS_INIT
+
+pwd=`pwd`
+set -e
+# Absolute
+AS_MKDIR_P(["$pwd/1/2/3/4/5/6"])
+test -d "$pwd/1/2/3/4/5/6" ||
+  AS_ERROR([$pwd/1/2/3/4/5/6 has not been properly created])
+# Relative
+AS_MKDIR_P(["a/b/c/d/e/f"])
+test -d a/b/c/d/e/f ||
+  AS_ERROR([a/b/c/d/e/f has not been properly created])
+AS_EXIT(0)
+]])
+
+AT_CHECK_M4SH
+AT_CHECK([./script])
+
+AT_CLEANUP
+
+
+
+
+## -------------------- ##
+## AS_VERSION_COMPARE.  ##
+## -------------------- ##
+
+# Build nested dirs.
+AT_SETUP([AS@&t@_VERSION_COMPARE])
+
+AT_DATA_M4SH([script.as],
+[[AS_INIT
+
+m4_define([VERSION_COMPARE_TEST],
+[AS_VERSION_COMPARE([$1], [$3], [result='<'], [result='='], [result='>'])
+test "X$result" = "X$2" ||
+  AS_ERROR([version $1 $result $3; should be $1 $2 $3])
+m4_if([$1], <,
+[AS_VERSION_COMPARE([$3], [$1], [result='<'], [result='='], [result='>'])
+test "X$result" = "X>" ||
+  AS_ERROR([version $3 $result $1; should be $3 > $1])])])
+
+VERSION_COMPARE_TEST([], =, [])
+VERSION_COMPARE_TEST([1.0], =, [1.0])
+VERSION_COMPARE_TEST([alpha-1.0], =, [alpha-1.0])
+
+# These tests are taken from libc/string/tst-svc.expect.
+tst_svc_expect='
+  000 001 00 00a 01 01a 0 0a 2.8 2.8-0.4 20 21 22 212 CP037 CP345 CP1257
+  foo foo-0.4 foo-0.4a foo-0.4b foo-0.5 foo-0.10.5 foo-3.01 foo-3.0
+  foo-3.0.0 foo-3.0.1 foo-3.2 foo-3.10 foo00 foo0
+'
+test1=''
+for test2 in $tst_svc_expect; do
+  VERSION_COMPARE_TEST([$test1], <, [$test2])
+  test1=$test2
+done
+
+AS_EXIT(0)
+]])
+
+AT_CHECK_M4SH
+AT_CHECK([./script])
+
+AT_CLEANUP
+
+
+
+
+## ----------------------------- ##
+## Negated classes in globbing.  ##
+## ----------------------------- ##
+
+# It is known that `[^...]' is not universally supported, but it is
+# unknown for `[!...]'.
+
+AT_SETUP([Negated classes in globbing])
+
+AT_DATA_M4SH([script.as],
+[[AS_INIT
+
+case 'with!two!bangs' in
+  *[[!a-z]]*) ;;
+           *) AS_ERROR([[`*[!a-z]*' didn't match `with!two!bangs']]);;
+esac
+
+case without in
+  *[[!a-z]]*) AS_ERROR([[`*[!a-z]*' matched `without']]);;
+esac
+]])
+
+AT_CHECK_M4SH
+AT_CHECK([./script])
+
+AT_CLEANUP
+
+
+
+
+## ------------------- ##
+## Functions Support.  ##
+## ------------------- ##
+
+# Hypothesis: the shell we are running, after having checked for
+# $LINENO support, supports functions.
+
+AT_SETUP([Functions Support])
+
+AT_DATA_M4SH([script.as],
+[[AS_INIT
+_AS_LINENO_PREPARE
+
+func_return () {
+  (exit $1)
+}
+
+func_success () {
+  func_return 0
+}
+
+func_failure () {
+  func_return 1
+}
+
+if func_success; then
+  if func_failure; then
+    AS_ERROR([func_failure passed])
+  fi
+else
+  AS_ERROR([func_success failed])
+fi
+]])
+
+AT_CHECK_M4SH
+AT_CHECK([./script])
+
+AT_CLEANUP
+
+
+
+
+## ------------------------------ ##
+## Functions and return Support.  ##
+## ------------------------------ ##
+
+# Hypothesis: the shell we are running, after having checked for
+# $LINENO support, supports functions, and the `return' keyword.
+
+AT_SETUP([Functions and return Support])
+
+AT_DATA_M4SH([script.as],
+[[AS_INIT
+_AS_LINENO_PREPARE
+
+func_success () {
+  return 0
+}
+
+func_failure () {
+  return 1
+}
+
+if func_success; then
+  if func_failure; then
+    AS_ERROR([func_failure passed])
+  fi
+else
+  AS_ERROR([func_success failed])
+fi
+]])
+
+AT_CHECK_M4SH
+AT_CHECK([./script])
+
+AT_CLEANUP
+
+
+## ------------------------------------ ##
+## AS_REQUIRE_SHELL_FN and m4_require.  ##
+## ------------------------------------ ##
+
+# Hypothesis: M4sh expands the requirements of AS_REQUIRE_SHELL_FN
+# in the main diversion, and not in M4SH-INIT.
+
+AT_SETUP([AS@&t@_REQUIRE_SHELL_FN and m4@&t@_require])
+
+AT_DATA_M4SH([script.as], [[dnl
+AS_INIT
+
+m4_defun([in_m4_sh_init], still_in_m4sh_init=yes)
+m4_defun([not_in_m4_sh_init], still_in_m4sh_init=no)
+
+m4_defun([error_if_emitted_in_m4sh_init], [
+  if test x$still_in_m4sh_init = xyes; then
+    AS_ERROR([requirement emitted in M4SH-INIT])
+  fi
+])
+
+m4_defun([TEST_FUNC_BODY], [
+m4_require([error_if_emitted_in_m4sh_init])
+: echo in shell function, with parameter = [$]1
+])
+
+
+m4_defun([test_init], [
+AS_REQUIRE([in_m4_sh_init])
+AS_REQUIRE_SHELL_FN([test_func], [TEST_FUNC_BODY])
+AS_REQUIRE([not_in_m4_sh_init])
+])
+
+test_init
+test_func parameter1
+]])
+
+AT_CHECK_M4SH
+AT_CHECK([./script])
+
+AT_CLEANUP
+
+
+## -------------- ##
+## AS_HELP_STRING ##
+## -------------- ##
+
+AT_SETUP([AS@&t@_HELP_STRING])
+AT_KEYWORDS([m4@&t@_text_wrap m4@&t@_expand])
+
+AT_DATA_M4SH([script.as],
+[[AS_INIT
+_AS_LINENO_PREPARE
+
+echo "AS_HELP_STRING([--an-option],[some text])"
+echo "AS_HELP_STRING([--another-much-longer-option],
+[some other text which should wrap at our default of 80 characters.])"
+echo "AS_HELP_STRING([--fooT=barT], [foo bar])"
+echo "AS_HELP_STRING([--foo@<][:@=bar@:][>@], [foo bar])"
+echo "AS_HELP_STRING([--foo@<][:@=bar@:][>@123456789], [foo bar])"
+echo "AS_HELP_STRING([--foo@<][:@=bar@:][>@1234567890], [foo bar])"
+echo "AS_HELP_STRING([--foo@<][:@=bar@:][>@12345678901], [foo bar])"
+echo "AS_HELP_STRING([--foo@<][:@=bar@:][>@123456789012], [foo bar])"
+echo "AS_HELP_STRING([--foo@<][:@=bar@:][>@1234567890123], [foo bar])"
+echo "AS_HELP_STRING([--foo@<][:@=bar@:][>@],
+[some other text which should wrap at our default of 80 characters.])"
+echo "AS_HELP_STRING([--foo@<][:@=bar@:][>@123456789],
+[some other text which should wrap at our default of 80 characters.])"
+echo "AS_HELP_STRING([--foo@<][:@=bar@:][>@1234567890],
+[some other text which should wrap at our default of 80 characters.])"
+echo "AS_HELP_STRING([--foo@<][:@=bar@:][>@12345678901],
+[some other text which should wrap at our default of 80 characters.])"
+echo "AS_HELP_STRING([--foo@<][:@=bar@:][>@123456789012],
+[some other text which should wrap at our default of 80 characters.])"
+echo "AS_HELP_STRING([--foo@<][:@=bar@:][>@1234567890123],
+[some other text which should wrap at our default of 80 characters.])"
+echo "AS_HELP_STRING([--foo@<][:@=bar@:][>@],
+[some other @<][:@ex@:][>@ which should wrap at our default of 80 characters.])"
+echo "AS_HELP_STRING([--foo@<][:@=bar@:][>@123456789],
+[some other @<][:@ex@:][>@ which should wrap at our default of 80 characters.])"
+echo "AS_HELP_STRING([--foo@<][:@=bar@:][>@1234567890],
+[some other @<][:@ex@:][>@ which should wrap at our default of 80 characters.])"
+echo "AS_HELP_STRING([--foo@<][:@=bar@:][>@12345678901],
+[some other @<][:@ex@:][>@ which should wrap at our default of 80 characters.])"
+echo "AS_HELP_STRING([--foo@<][:@=bar@:][>@123456789012],
+[some other @<][:@ex@:][>@ which should wrap at our default of 80 characters.])"
+echo "AS_HELP_STRING([--foo@<][:@=bar@:][>@1234567890123],
+[some other @<][:@ex@:][>@ which should wrap at our default of 80 characters.])"
+echo "AS_HELP_STRING([[--foo[=bar]]],
+[some other t[]t which should wrap at our default of 80 characters.])"
+echo "AS_HELP_STRING([[--foo[=bar]123456789]],
+[some other t[]t which should wrap at our default of 80 characters.])"
+echo "AS_HELP_STRING([[--foo[=bar]1234567890]],
+[some other t[]t which should wrap at our default of 80 characters.])"
+echo "AS_HELP_STRING([[--foo[=bar]12345678901]],
+[some other t[]t which should wrap at our default of 80 characters.])"
+echo "AS_HELP_STRING([[--foo[=bar]123456789012]],
+[some other t[]t which should wrap at our default of 80 characters.])"
+echo "AS_HELP_STRING([[--foo[=bar]1234567890123]],
+[some other t[]t which should wrap at our default of 80 characters.])"
+m4_define([mac], [MACRO])dnl
+echo "AS_HELP_STRING([--mac], [mac])"
+echo "AS_HELP_STRING([--o1, --o2], [two
+options,	one  description])"
+echo "AS_HELP_STRING([[[--o3, --o4]]], [comma inside literal quoting])"
+echo "AS_HELP_STRING([--tune1], [check out the tuned formatting],
+[            ])"
+echo "AS_HELP_STRING([--tune2], [check out the tuned formatting],
+[12])"
+echo "AS_HELP_STRING([--tune3], [check out the tuned formatting],
+[], [40])"
+echo "AS_HELP_STRING([--tune4], [check out the tuned formatting],
+[12], [40])"
+]])
+
+AT_CHECK_M4SH
+AT_CHECK([./script], [0],
+[[  --an-option             some text
+  --another-much-longer-option
+                          some other text which should wrap at our default of
+                          80 characters.
+  --fooT=barT             foo bar
+  --foo[=bar]             foo bar
+  --foo[=bar]123456789    foo bar
+  --foo[=bar]1234567890   foo bar
+  --foo[=bar]12345678901  foo bar
+  --foo[=bar]123456789012 foo bar
+  --foo[=bar]1234567890123
+                          foo bar
+  --foo[=bar]             some other text which should wrap at our default of
+                          80 characters.
+  --foo[=bar]123456789    some other text which should wrap at our default of
+                          80 characters.
+  --foo[=bar]1234567890   some other text which should wrap at our default of
+                          80 characters.
+  --foo[=bar]12345678901  some other text which should wrap at our default of
+                          80 characters.
+  --foo[=bar]123456789012 some other text which should wrap at our default of
+                          80 characters.
+  --foo[=bar]1234567890123
+                          some other text which should wrap at our default of
+                          80 characters.
+  --foo[=bar]             some other [ex] which should wrap at our default of
+                          80 characters.
+  --foo[=bar]123456789    some other [ex] which should wrap at our default of
+                          80 characters.
+  --foo[=bar]1234567890   some other [ex] which should wrap at our default of
+                          80 characters.
+  --foo[=bar]12345678901  some other [ex] which should wrap at our default of
+                          80 characters.
+  --foo[=bar]123456789012 some other [ex] which should wrap at our default of
+                          80 characters.
+  --foo[=bar]1234567890123
+                          some other [ex] which should wrap at our default of
+                          80 characters.
+  --foo[=bar]             some other t[]t which should wrap at our default of
+                          80 characters.
+  --foo[=bar]123456789    some other t[]t which should wrap at our default of
+                          80 characters.
+  --foo[=bar]1234567890   some other t[]t which should wrap at our default of
+                          80 characters.
+  --foo[=bar]12345678901  some other t[]t which should wrap at our default of
+                          80 characters.
+  --foo[=bar]123456789012 some other t[]t which should wrap at our default of
+                          80 characters.
+  --foo[=bar]1234567890123
+                          some other t[]t which should wrap at our default of
+                          80 characters.
+  --MACRO                 mac
+  --o1, --o2              two options, one description
+  [--o3, --o4]            comma inside literal quoting
+  --tune1   check out the tuned formatting
+  --tune2   check out the tuned formatting
+  --tune3                 check out the
+                          tuned
+                          formatting
+  --tune4   check out the tuned
+            formatting
+]])
+
+AT_CLEANUP
+
+
+## ------------------- ##
+## AS_IF and AS_CASE.  ##
+## ------------------- ##
+
+AT_SETUP([AS@&t@_IF and AS@&t@_CASE])
+
+AT_DATA_M4SH([script.as], [[dnl
+AS_INIT
+# Syntax checks: cope with empty arguments.
+AS_IF([:], [], [echo wrong])
+AS_IF([:], [echo one], [echo wrong])
+AS_IF([false], [echo wrong], [echo two])
+AS_IF([false], [echo wrong])
+# n-ary version
+AS_IF([false], [echo wrong],
+      [:], [echo three])
+AS_IF([false], [echo wrong],
+      [:], [echo four],
+      [echo wrong])
+AS_IF([false], [echo wrong],
+      [false], [echo wrong])
+AS_IF([false], [echo wrong],
+      [false], [echo wrong],
+      [echo five])
+AS_IF([false], [echo wrong],
+      [false], [echo wrong],
+      [:], [echo six],
+      [echo wrong])
+AS_CASE([foo])
+AS_CASE([foo], [echo seven])
+AS_CASE([foo],
+        [foo], [echo eight],
+        [echo wrong])
+AS_CASE([foo],
+        [foo], [echo nine],
+        [*],   [echo wrong])
+AS_CASE([foo],
+        [bar], [echo wrong],
+        [foo], [echo ten],
+        [*],   [echo wrong])
+
+# check that require works correctly
+m4_for([n], 1, 9, [],
+[m4_defun([FOO]n, [foo]n[=]n)dnl
+m4_defun([BAR]n,
+	 [m4_require([FOO]]n[)dnl
+bar]n[=]n)[]dnl
+])
+
+AS_IF([:], [BAR1])
+echo "foo1=$foo1 bar1=$bar1"
+AS_IF([:], [], [BAR2])
+echo "foo2=$foo2 bar2=$bar2"
+AS_IF([false], [BAR3])
+echo "foo3=$foo3 bar3=$bar3"
+AS_IF([false], [], [BAR4])
+echo "foo4=$foo4 bar4=$bar4"
+AS_CASE([x], [x], [BAR5])
+echo "foo5=$foo5 bar5=$bar5"
+AS_CASE([x], [y], [BAR6])
+echo "foo6=$foo6 bar6=$bar6"
+AS_CASE([x],
+	[x], [:],
+	[BAR7])
+echo "foo7=$foo7 bar7=$bar7"
+AS_CASE([x],
+	[y], [:],
+	[BAR8])
+echo "foo8=$foo8 bar8=$bar8"
+AS_CASE([x],
+	[y], [:],
+	[x], [BAR9])
+echo "foo9=$foo9 bar9=$bar9"
+]])
+
+AT_CHECK_M4SH
+AT_CHECK([./script], [0], [[one
+two
+three
+four
+five
+six
+seven
+eight
+nine
+ten
+foo1=1 bar1=1
+foo2=2 bar2=
+foo3=3 bar3=
+foo4=4 bar4=4
+foo5=5 bar5=5
+foo6=6 bar6=
+foo7=7 bar7=
+foo8=8 bar8=8
+foo9=9 bar9=9
+]])
+
+AT_CLEANUP
+
+
+## --------------- ##
+## AS_LITERAL_IF.  ##
+## --------------- ##
+
+AT_SETUP([AS@&t@_LITERAL_IF])
+
+AT_DATA_M4SH([script.as], [[dnl
+AS_INIT
+echo AS_LITERAL_IF([lit], [ok], [ERR]) 1
+echo AS_LITERAL_IF([l$it], [ERR], [ok]) 2
+echo AS_LITERAL_IF([l``it], [ERR], [ok]) 3
+m4_define([mac], [lit])
+echo AS_LITERAL_IF([mac], [ok], [ERR]) 4
+echo AS_LITERAL_IF([mac($, ``)], [ok], [ERR]) 5
+m4_define([mac], [l$it])
+echo AS_LITERAL_IF([mac], [ERR], [ok]) 6
+m4_define([mac], [l`it])
+echo AS_LITERAL_IF([mac], [ERR], [ok]) 7
+]])
+
+AT_CHECK_M4SH
+AT_CHECK([./script], [],
+[[ok 1
+ok 2
+ok 3
+ok 4
+ok 5
+ok 6
+ok 7
+]])
+
+AT_CLEANUP
+
+
+## ----------------- ##
+## AS_INIT cleanup.  ##
+## ----------------- ##
+
+AT_SETUP([AS@&t@_INIT cleanup])
+
+AT_KEYWORDS([m4@&t@_wrap m4@&t@_wrap_lifo])
+
+AT_DATA_M4SH([script.as], [[dnl
+dnl Registered before AS_INIT's cleanups
+m4_wrap([echo cleanup 1
+])
+AS_INIT
+dnl Registered after AS_INIT's cleanups, thus goes to KILL diversion
+m4_wrap([echo cleanup 2
+dnl However, nested wraps and diversions can still be used
+dnl Also, test wrapping text that looks like parameter reference
+m4_wrap([echo cleanup 3
+m4_divert_text([M4SH-INIT], [m4_define([foo], [$1])dnl
+echo prep foo([4])
+])])])
+dnl Registered before AS_INIT's cleanups
+m4_wrap_lifo([echo cleanup 5
+])
+echo body
+]])
+
+AT_CHECK_M4SH
+AT_CHECK([./script], [], [[prep 4
+body
+cleanup 5
+cleanup 1
+]])
+
+AT_CLEANUP

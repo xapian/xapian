@@ -1,0 +1,72 @@
+#!/bin/sh
+# Copyright (C) 2004  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Check for _DEPDENDENCIES definition with conditional _LDADD.
+# Report from Elena A. Vengerova
+
+. ./defs
+
+set -e
+
+cat >>configure.in <<'EOF'
+AM_CONDITIONAL([TWO], test -n "$two")
+AC_PROG_CC
+AC_OUTPUT
+EOF
+
+cat >>Makefile.am <<'EOF'
+OBJEXT=z
+
+bin_PROGRAMS = test1 test2
+
+if TWO
+  test1_LDADD = two.$(OBJEXT)
+  test2_LDADD = two.$(OBJEXT)
+  test2_DEPENDENCIES = $(test2_LDADD) somethingelse.a
+else !TWO
+  test1_LDADD = one.$(OBJEXT)
+  test2_LDADD = three.$(OBJEXT)
+endif !TWO
+
+test1_DEPENDENCIES = $(test1_LDADD) somethingelse.a
+
+dep-test1:
+	echo BEG: $(test1_DEPENDENCIES) :END
+dep-test2:
+	echo BEG: $(test2_DEPENDENCIES) :END
+
+EOF
+
+:> test.c
+
+$ACLOCAL
+$AUTOCONF
+$AUTOMAKE
+./configure
+$MAKE dep-test1 >out
+grep 'BEG: one.z somethingelse.a :END' out
+$MAKE dep-test2 >out
+grep 'BEG: three.z :END' out
+
+./configure two=2
+$MAKE dep-test1 >out
+grep 'BEG: two.z somethingelse.a :END' out
+$MAKE dep-test2 >out
+grep 'BEG: two.z somethingelse.a :END' out

@@ -1,0 +1,54 @@
+#! /bin/sh
+# Copyright (C) 2001, 2002, 2003, 2004  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Test that substitutions in variables work.
+# From Lars J. Aas.
+
+. ./defs || exit 1
+
+set -e
+
+cat > configure.in << 'END'
+AC_INIT(fakelib.c)
+AM_INIT_AUTOMAKE(fakelib,0.0)
+AC_PROG_CC
+RANLIB=:
+AC_SUBST(RANLIB)
+SUBST=hei
+AC_SUBST(SUBST)
+AC_OUTPUT(Makefile)
+END
+
+cat > Makefile.am << 'END'
+noinst_LIBRARIES = libfake@SUBST@.a
+
+libfake@SUBST@_a_SOURCES = abra.c kadabra.c
+
+# then we override the target rule:
+libfake@SUBST@.a: Makefile $(libfake@SUBST@_a_OBJECTS) $(libfake@SUBST@_a_DEPENDENCIES)
+	@echo here we do some custom stuff, instead of invoking the linker
+END
+
+$ACLOCAL
+AUTOMAKE_fails
+grep 'overrid.*libfake@SUBST@.a' stderr
+$AUTOMAKE -Wno-override
+num=`grep '^libfake@SUBST@.a:' Makefile.in | wc -l`
+test $num -eq 1

@@ -1,0 +1,586 @@
+We should arrange so that install-%DIR%%PRIMARY% is run conditionally
+when %DIR%_%PRIMARY% is defined conditionally.  Currently it is always
+run, and that will therefore always create %DIR% (unless %DIR%dir is
+also defined conditionally).  Likewise, installdirs should not
+create %DIR% in conditions were no %DIR%_%PRIMARY% is enabled.
+
+check should depend on all
+  from ben elliston
+
+the new YFLAGS code doesn't correctly handle srcdir
+
+allow foo_NAME to rename an object (library or program)
+at build/install time
+
+remove _LTLIBRARIES and just use _LIBRARIES
+then use this for zip/jar as well
+
+for 1.5
+investigate problems with conditionally defined libraries
+
+add an error if the user makefile.am violates our
+   namespace rules
+
+we need a document describing automake from the end user's point of view
+eg describe INSTALL_HEADER there, among other things
+
+* maintainer-clean
+
+Akim:
+> @@ -31,5 +31,9 @@
+>  DISTCLEAN	-test -z "$(DISTCLEANFILES)" || rm -f $(DISTCLEANFILES)
+>
+>  maintainer-clean-generic:
+> +## FIXME: shouldn't we really print these messages before running
+> +## the dependencies?
+> +	@echo "This command is intended for maintainers to use"
+> +	@echo "it deletes files that may require special tools to rebuild."
+> 	  -rm -f Makefile.in
+
+Tom:
+> I'd like to eventually fix the FIXME comment by having
+> maintainer-clean look like:
+>
+>     maintainer-clean:
+> 	  @echo ...
+> 	  $(MAKE) whatever
+>
+> We're left with the question of whether we should repeat them in every
+> subdir.
+
+*
+Alexandre Oliva:
+> Hmm...  Interesting.  It must have been a side effect of the enabling
+> of forced `relink' on GNU/Linux/x86.  Anyway, on platforms that
+> actually require relinking, this problem remains, and I see no way to
+> overcome it other than arranging for automake to install libraries
+> before executables, as you suggest.  This shouldn't be a big problem,
+> anyway.
+>
+> A bigger problem could show up if two libraries in the same directory,
+> one dependent on the other, are installed concurrently.  If relinking
+> is needed for the dependent library, we have a problem.  It appears to
+> me that user will have to live without `make -j install', in this
+> case.
+
+Alex Hornby
+> Here's an Automake patch and changelog entry allow make -j install on
+> such degenerate systems (and Linux with buggy libtool <g>)
+>
+> If you install to locations other that bin_ and lib_ then a larger fix
+> is necessary, but this should fix the 90% case.
+
+* think about how per-object flags should work.  in particular:
+  * how should they be specified?
+    using the object name is confusing when .lo/.obj in use
+    however, the object name provides a nice interaction with
+    per-exe flags
+  * how should they interact with per-executable flags?
+  [ this is probably a feature in search of a problem ]
+
+* cross-compilation support:
+  programs built and used by the build process need to be
+  built for CC_FOR_BUILD
+  introduce a new prefxi for this, e.g. `build_PROGRAMS'
+  [ we can do this in an automatic way I think.
+    unfortunately it isn't that useful until autoconf has support
+    for this sort of thing as well ]
+
+* distcheck should make sure that each file that uses _() is
+  listed in POTFILES.in
+  From Jim Meyering:
+    # Verify that all source files using _() are listed in po/POTFILES.in.
+    po-check:
+	    grep -E -v '^(#|$$)' po/POTFILES.in | sort > $@-1
+	    grep -E -l '\b_\(' lib/*.c src/*.c | sort > $@-2
+	    diff -u $@-1 $@-2
+	    rm -f $@-1 $@-2
+
+* one performance enhancement would be to have autoconf write
+  a single file containing all the macro assignments.
+  then read this file via `include'
+  unfortunately this can't be done because of conditionals
+  -- but it could be made to work if we also changed:
+    * automake to rewrite @FOO@ to $(FOO), and
+    * the implementation of conditionals to rely on some new
+      config.status magic
+
+* support prog_LIBS as override for LIBS
+
+* Test subdir-objects option with yacc, lex, ansi2knr
+  Our locking scheme won't prevent a parallel make from losing
+  if there are two `bar.o' files and the timing is just right
+  This only happens with parallel make and no-`-c -o' compiler,
+  so it probably isn't very important
+  `-c -o' when doing libtool
+  try to find a losing compiler and see if it really works.
+  (actually: hack config.cache and do it)
+
+* per-exe flags
+** LIBOBJS shouldn't be used when there are per-exe flags (?)
+
+* Allow creation of Java .zip/.jar files in natural way
+  If you are building a compiled Java library, then the .zip/.jar
+  ought to be made automatically.
+
+* Run automake before libtool.  It will report an error but
+  still won't put the file into the disty.  This is wrong.
+  From Mark H Wilkinson <mhw@kremvax.demon.co.uk>
+
+* examine possibility of using any character in a macro name
+  and rewriting names automatically.  this means we must rewrite
+  all references as well.
+  [ this is a 2.0-style feature ]
+
+* `distcheck' and `dist' should depend on `all'
+
+* Add code to generate foo-config script like gnome, gtk
+
+* document user namespace for macro/target names
+  adopt some conventions and use uniformly
+    [ this is a good thing for the rewrite ]
+
+* distclean must remove config.status
+  can't this cause problems for maintainer-clean?
+  shouldn't maintainer-clean print the message before running
+  any part of the make?  (just to slow things down long enough
+  for the user to stop it)
+  (maybe doesn't matter since people who even know about
+  maintainer-clean already have a clue)
+
+* reintroduce AM_FUNC_FNMATCH which sets LIBOBJS
+  Then have automake know about fnmatch.h.
+    [ probably should wait for autoconf to get right functionality ]
+
+* "make diff" capability
+  look at gcc's Makefile.in to see what to do
+  or look at maint program
+
+* in --cygnus, clean-info not generated at top level
+
+* what if an element of a scanned variable looks like
+	$(FOO).$(BAR)  ?
+  or some other arbitrary thing?
+  right now we try to cope, but not very well
+    [ this is only of theoretical interest for now ]
+    [ We now have an 'inner_expand' option to traverse_recursively,
+      but it is not yet used. ]
+
+* make sure every variable that is used is also defined
+    [ we don't really look at variable uses in detail.
+      2.0 thing ]
+
+* make sure `missing' defines are generated
+
+* missing should handle install -d and rmdir -p (for uninstall)
+
+* NORMAL_INSTALL / NORMAL_UNINSTALL -vs- recursive rules
+  [ requires changes to the standard ]
+
+* should not put texiname_TEXINFOS into distribution
+  should rename this macro anyway, to foo_texi_DEPENDENCIES
+
+* For now I guess I'll just have automake give an error if it encounters
+non-C source in a libtool library specification.
+
+* must split $obj into two parts: one for libtool and one for
+  deansification.  Otherwise .S files will be deansified!
+
+* ansi2knr must currently appear in a directory that has some source
+
+* if program has the same name as a target, do something sensible:
+  - if the target is internal, rename it
+  - if the target is mandated (eg, "info"), tell the user
+    consider auto-modifying the program name to work around this
+
+* should separate actual options from strictness levels
+  strictness should only cover requirements
+  You should be able to pick and choose options
+
+* rewrite in guile (RMS request)
+at the same time, consider adding a GUI
+could use the same parsing code for the GUI and the standalone version
+that means figuring out a better representation of internal state
+[ that's easy -- anything is better than what we have now ]
+
+having just one Makefile for a project would give a big speed increase
+for a project with many directories, eg glibc.  ideally (?) you'd
+still be able to have a Makefile.am in each directory somehow; this
+might make editing conceptually easier.
+
+* finish up TAGS work
+
+* only remove libtool at top level?
+
+* clean up source directory by moving stuff into subdirs
+
+* consider adding other variables similar to pkglibexecdir?
+  requests for pkg-dirs with version included
+
+Avoid loops when installing; instead unroll them in automake
+[ Impossible when @AC_SUBST@ values are used. ]
+
+Some long-term projects:
+* if $(FOO) is used somewhere, ensure FOO is defined, either by
+  user or by automake if possible
+
+[ include, += support ]
+* even better would be allowing targets in different included
+  fragments to be merged.  e.g., `install-local'.
+
+consider putting all check-* targets onto @check?
+
+take diff-n-query code from libit
+
+Per Bothner says:
+Per> 1) Being able to build a set of non-source programs
+Per> from source programs, without necessarily linking them together.
+Per> I.e. one should be able to say something like:
+Per> 	dummy_SOURCES=foo.c bar.c
+Per> and automake should realize that it needs to build foo.o and bar.o.
+Per> 2) Being intelligent about new kinds of suffixes.
+Per> If it sees:
+Per> 	SUFFIXES = .class .java
+Per> and a suffix rule of the form:
+Per> 	.java.class:
+Per> then it should be able to realize it can build .class files from
+Per> .java files, and thus be able to generate a list of
+Per> .class files from a list of .java source files.
+[What Per wanted here was a way to have automate automatically follow
+suffix rules.  So for instance if you had a `.x.y:' rule, and automake
+saw a `.x' file, it would automatically build and install the
+corresponding `.y' file.]
+
+Jim's idea: should look for @setfilename and warn if filenames too long
+* guess split size
+
+from joerg-martin schwarz:
+ -- If Makefile.am contains $(CC), $(COMPILE), $(YLWRAP), ....
+    in an explicitly written rule,  you should emit the corresponding
+    Makefile variables automatically.
+
+Configuring in the large:
+* allow hierarchy of dirs to share one aclocal.m4
+  How?
+
+consider printing full file name of Makefile.am or configure.in when
+giving error.  This would help for very large trees with many
+configure.in scripts
+
+From the GNU Standards.  These things could be checked, and probably
+should be if --gnu.
+*    Make sure that the directory into which the distribution unpacks (as
+well as any subdirectories) are all world-writable (octal mode 777).
+*   Make sure that no file name in the distribution is more than 14
+characters long.
+*    Don't include any symbolic links in the distribution itself.
+     (ditto hard links)
+*    Make sure that all the files in the distribution are world-readable.
+* standards no longer prohibit ANSI C.  What does this imply
+  for the de-ansi-fication feature? [ must keep it -- some users rely on it ]
+
+should be able to determine what is built by looking at rules (and
+configure.in).  Then built man pages (eg) could automatically be
+omitted from the distribution.
+
+Consider: "cvs" option adds some cvs-specific rules?
+
+Right now, targets generated internally (eg "install") are not
+overridable by user code.  This should probably be possible, even
+though it isn't very important.  This could be done by generating all
+internal rules via a function call instead of just appending to
+$output_rules.
+ [ this will be harder to implement when scanning a rule like all-recursive
+   from subdirs.am ]
+
+Other priorities:
+* Must rewrite am_install_var.  Should break into multiple functions.
+  This will allow the callers to be a little smarter.
+* Rewrite clean targets.
+* Fix up require_file junk.
+
+djm wants ``LINKS'' variable; list of things to link together after
+install.  In BSD environment, use:
+	LINKS = from1 to1 from2 to2 ...
+
+Need way to say there are no suffixes in a Makefile (Franc,ois'
+"override" idea suffices here)
+
+Check to make sure various scripts are executable (IE when looking for
+them in a directory)
+
+Handle dist-zoo.  Generally add more DOS support.  Maybe run "doschk"
+(why isn't this merged with "pathchk"?) when doing a dist.  Do
+whatever else François says here...
+
+Add support for html via an option.  Use texi2html.  Use
+"html_TEXINFOS", and htmldir = .../html.  Include html files in
+distribution.  Also allow "html_DATA", for raw .html files.
+  [ when will texinfo directly support html? ]
+
+uninstall and pkg-dirs should rm -rf the dir.
+
+In general most .am files should be merged into automake.  For
+instance all the "clean" targets could be merged by keeping lists of
+things to be removed.  This would be a lot nicer looking.  Note that
+the install targets probably should not be merged; it is sometimes
+useful to only install a small part.
+
+* Clean up the output:
+** Order rules sensibly
+** Ensure every line has a purpose.  Omit unused stuff
+** Eliminate extraneous rules when possible (eg 'install-am' stuff)
+** Make sure vertical spacing is correct
+Omit program transform vars from header if no program installed.  This
+is currently pretty hard to do.  (But with beautification code it
+would probably be easy)
+
+* Lex, yacc support:
+** It would be nice to automatically support using bison's better features
+  to rename the output files.  This requires autoconf support
+** Consider supporting syntax from autoconf "derived:source", eg:
+	y.tab.c:perly.y
+  for yacc and lex source
+** what if you use flex and the option to avoid -lfl?
+  should support this?
+
+* Multi-language support:
+** should have mapping of file extensions to languages
+** should automatically handle the linking issue (special-case C++)
+** must get compile rules for various languages; FORTRAN probably
+  most important unimplemented language
+This should be integrated in some way with Per's idea.
+Eg .f.o rules should be recognized & auto-handled in _SOURCES
+That way any random language can be treated with C/C++ on a first-class
+basis (maybe)
+
+It might be cool to generate .texi dependencies by grepping for
+@include.  (If done, it should be done the same way C dependencies are
+done)
+[ Ask Karl Berry for a -M option to makeinfo and texi2dvi? ]
+
+It would be good to check some parts of GNU standards.  Already check
+for install-sh and mkinstalldirs.  What else is required to be in
+package by GNU standards or by automake?
+Some things for --strictness=gnits:
+* "cd $(foo); something" is an error in a rule.  Should be:
+  "cd $(foo) && something"
+* Look for 'ln -s' and warn about using $(LN_S) and AC_PROG_LN_S
+* Look for $(LN_S) and require AC_PROG_LN_S
+
+Auto-distribute "ChangeLog.[0-9]+"?  "ChangeLog.[a-z]+"?
+
+Internationalize. [ gettext doesn't have the necessary machinery yet ]
+am_error should use printf-style arguments (for eventual gettext scheme)
+
+François says the ordering of files in a distribution should be as follows:
+* README
+* source files
+* derived files
+I agree, but I don't see how to implement this yet.
+It might be easier if "derived files" is limited to those that
+Automake itself knows about, eg output of yacc.
+
+Check all source files to make sure that FSF address is up-to-date.
+--gnits or --gnu only.
+
+Merge each -vars.am file with corresponding ".am" file.  Can do this
+because of changes to &file_contents.
+
+Should libexec programs have the name transform done on them?
+
+Order the output rules sensibly, so FOO_SOURCES and FOO_OBJECTS are
+together and rules are in the usual order.
+
+Make the output minimal: only output definitions for variables that
+are used.
+
+djm says:
+David> To avoid comments like the one about subdirs getting buried in
+David> the middle of a Makefile.in, how about pushing comments that
+David> start with ### to the top of the Makefile.in (in order)?  Sort
+David> of like how Autoconf uses diversions to force initialization
+David> code to the top of configure.
+
+Karl Berry says:
+Karl> 2) Your Makefile variable names are generally uppercase, but GNU
+Karl> generally uses lowercase. Not that it matters :-).
+
+================================================================
+
+Stuff for aclocal:
+
+probably should put each group of m4 files into a subdir owned by the
+containing application.
+
+================================================================
+
+Document:
+
+AM_MISSING_PROG
+
+how to use the generated makefiles
+ - standard targets
+ - required targets
+ - NORMAL_INSTALL junk
+
+rationale for avoiding
+	make CFLAGS="$CFLAGS" ...
+in subdirs make rule
+
+write example of using automake with dejagnu
+follow calc example in dejagnu docs
+
+document which variables are actually scanned and which are not.
+
+Document customary ordering of Makefile.am.  From François.
+
+Should include extended version of diagram from Autoconf (suggested by
+Greg Woods)
+
+Make a definition of the term "source"
+
+document how to use Automake with CVS.  Idea from Mark Galassi.  Also
+include Greg Woods' more sophisticated "cvs-dist" target.
+
+-- must document all variables that are supposed
+   to be public knowledge
+
+must document the targets required for integration with
+non-automake-using subdirs
+
+document the "make SHELL='/bin/sh -x'" trick for debugging
+
+section on relationship to GNU make.  include notes on parallel makes
+
+add a concept index
+
+move discussion of cygwin32, etags, mkid under other gnu tools
+
+CCLD, CXXLD, FLD
+
+================================================================
+
+Libraries:
+
+* Should support standalone library along with subdir library in same
+  Makefile.am.  Maybe: turn off "standalone" mode if library's Makefile.am
+  is not only one specd? [ add an option for this ]
+
+================================================================
+
+Longer term:
+
+Would it be useful to integrate in some way with the Debian package
+building utility?  Must check.  maybe it would be possible to deal
+with all the different package utilities somehow.  Lately I've been
+hearing good things about the RedHat packaging utilities.  Why are
+there so many of these?  Are they fun to write or something?
+The RedHat package utility is called RPM; see
+	ftp://ftp.redhat.com/pub/code/rpm
+It actually has problems, like no configure script and no documentation.
+
+For Cygnus it would probably be good to be able to handle the native
+package utility on each platform.  There are probably 3 or 4 of these
+(sysv, solaris?, aix?)
+
+tcl/unix/Makefile.in has some code to generate a Solaris package.
+
+Automake probably can't do all of this on its own.  A new tool might
+be a better idea
+
+I have some notes from a Debian developer on how the integration
+should work
+
+================================================================
+
+A tool to guess what the local Makefile.am should look like:
+(see Gord's Maint program!)
+
+* Probably integrate with autoscan
+* Use various simple rules to determine what to do:
+  * get name of top directory, sans version info
+  * search for .c files with 'main' in them
+    * if in main.c, use directory name for program
+    * if in more than one, generate multiple programs
+    * if not found, generate a library named after directory
+  * order subdir searches correctly: lib first, src last
+  * assume 'testsuite' dir means we are using dejagnu
+* maybe be smart about reading existing Makefile.am, so tool
+  can be run for incremental changes?  You could imagine:
+
+	Makefile.am:
+		autoproject --incremental
+
+================================================================
+
+Stuff NOT to do, and why:
+
+consider auto-including any file that matches "*.in".
+  [ no: po/Makefile.in shouldn't be included ]
+
+must look at mkid to see how it works (for subdir usage)
+  [ right now, it doesn't.  i don't see a simple fix right now ]
+
+if configure.in not found, move up a directory and try again?  This
+could eliminate a common source of problems.
+  [ this is just a bad idea ]
+
+* scripts are installed in $exec_prefix/bin, not $prefix/bin
+  Bug or feature?
+  [ the consensus on Gnits is that this isn't required.
+    doubters can work around it anyway ]
+
+Scan source directories and warn about missing files, eg .c/.h files
+that aren't mentioned?
+  [ distcheck makes this less useful ]
+
+* quoting bugs
+  - how to install file with a space in its name?
+  [ don't bother with this -- make is just too losing ]
+
+* notice when a .c file is a target somewhere, and auto-add it to
+    BUILT_SOURCES
+  [ BUILT_SOURCES are for files that need to be built before anything
+    else because of hidden dependencies (something .c files are
+    unlikely to be) ]
+
+* Scan multiple input files when Makefile is generated?
+  This would provide flexibility for large projects; subsumes
+  the "Makefile.tmpl" idea
+ [ can't do this.  must explain why in manual.
+   basically, solving all the problems is too hard
+   like: how to remove redundancies between generated .in files
+   instead should implement `include' directive for Makefile.am ]
+
+* Should be a way to have "nobuild_PROGRAMS" which aren't even built,
+  but which could be by running the magic make command.
+  [ We already have EXTRA_PROGRAMS for this. ]
+
+
+* copyright notice
+
+Copyright 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002,
+2007  Free Software Foundation, Inc.
+
+This file is part of GNU Automake.
+
+GNU Automake is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2, or (at your option)
+any later version.
+
+GNU Automake is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with autoconf; see the file COPYING.  If not, write to
+the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+Boston, MA 02110-1301, USA.
+
+
+Local Variables:
+mode: outline
+End:

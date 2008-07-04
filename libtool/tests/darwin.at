@@ -1,0 +1,96 @@
+# darwin.at - tests specific to Mac OS X
+#
+#   Copyright (C) 2008 Free Software Foundation, Inc.
+#   Written by Peter O'Gorman, 2008
+#
+#   This file is part of GNU Libtool.
+#
+# GNU Libtool is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of
+# the License, or (at your option) any later version.
+#
+# GNU Libtool is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU Libtool; see the file COPYING.  If not, a copy
+# can be downloaded from  http://www.gnu.org/licenses/gpl.html,
+# or obtained by writing to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+####
+
+AT_BANNER([Mac OS X tests])
+AT_SETUP([darwin fat compile])
+noskip=:
+case "$host_os" in
+darwin*) ;;
+*) noskip=false ;;
+esac
+
+AT_DATA([foo.c],[[
+int x=0;
+]])
+
+$noskip && {
+$CC $CPPFLAGS $CFLAGS -arch ppc -arch i386 -c -o foo.o foo.c 2>&1 > /dev/null || noskip=false
+rm -f foo.o
+}
+
+AT_CHECK([$noskip || (exit 77)])
+
+AT_DATA([baz.c],[[
+int y=0;
+]])
+
+AT_DATA([bar.c],[[
+extern int x;
+int bar(void);
+int bar() { return x;}
+]])
+
+AT_DATA([main.c],[[
+extern int x;
+extern int y;
+
+int main() {
+return x+y;
+}
+]])
+
+mkdir bin
+AT_DATA([bin/basename],[[
+#! /bin/sh
+
+usage="usage: $0 argument"
+if test $# != 1; then
+                  echo $usage >&2
+                  exit 1
+fi
+
+echo $1 | sed "s,^.*/,,"
+]])
+
+chmod +x bin/basename
+save_PATH=$PATH
+PATH=`pwd`/bin:$PATH
+export PATH
+
+AT_CHECK([$LIBTOOL --mode=compile --tag=CC $CC -c -o foo.lo $CPPFLAGS $CFLAGS -arch ppc -arch i386 foo.c],[0],[ignore],[ignore])
+
+AT_CHECK([$LIBTOOL --mode=compile --tag=CC $CC -c -o baz.lo $CPPFLAGS $CFLAGS -arch ppc -arch i386 baz.c],[0],[ignore],[ignore])
+
+AT_CHECK([$LIBTOOL --mode=link --tag=CC $CC -o libfoo.la $CPPFLAGS $CFLAGS $LDFLAGS -arch ppc -arch i386 foo.lo baz.lo],[0],[ignore],[ignore])
+
+AT_CHECK([$LIBTOOL --mode=compile --tag=CC $CC -c -o bar.lo $CPPFLAGS $CFLAGS -arch ppc -arch i386 bar.c],[0],[ignore],[ignore])
+
+AT_CHECK([$LIBTOOL --mode=link --tag=CC $CC  -o libbar.la $CPPFLAGS $CFLAGS $LDFLAGS -arch ppc -arch i386 bar.lo libfoo.la -rpath /nonexistent],[0],[ignore],[ignore])
+
+AT_CHECK([$LIBTOOL --mode=compile --tag=CC $CC -c -o main.lo $CPPFLAGS $CFLAGS -arch ppc -arch i386 main.c],[0],[ignore],[ignore])
+
+AT_CHECK([$LIBTOOL --mode=link --tag=CC $CC  -o main $CPPFLAGS $CFLAGS $LDFLAGS -arch ppc -arch i386 main.lo libbar.la],[0],[ignore],[ignore])
+
+PATH=$save_PATH
+AT_CLEANUP

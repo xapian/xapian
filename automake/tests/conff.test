@@ -1,0 +1,99 @@
+#! /bin/sh
+# Copyright (C) 2003  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Make sure rebuild rules work even when AC_CONFIG_FILES uses colons.
+# Report from Alexander Turbov.
+
+required=GNUmake
+. ./defs || exit 1
+
+set -e
+
+cat >> configure.in << 'END'
+AC_CONFIG_FILES([bar/Makefile:bar/Makefile.in:Makefile.bot])
+AC_OUTPUT
+END
+
+cat > Makefile.am << 'END'
+SUBDIRS = bar
+EXTRA_DIST = Makefile.bot
+END
+
+mkdir bar
+cat > bar/Makefile.am << 'END'
+top-rule:
+	@echo 'top rule'
+END
+
+cat > Makefile.bot << 'END'
+bot-rule:
+	@echo 'bot rule'
+END
+
+$ACLOCAL
+$AUTOCONF
+$AUTOMAKE
+./configure
+$MAKE
+
+cd bar
+$MAKE top-rule >stdout
+cat stdout
+grep 'top rule' stdout
+$MAKE bot-rule >stdout
+cat stdout
+grep 'bot rule' stdout
+cd ..
+
+$sleep
+
+cat > bar/Makefile.am << 'END'
+top-rule:
+	@echo 'top2 rule'
+END
+$MAKE
+
+cd bar
+$MAKE top-rule >stdout
+cat stdout
+grep 'top2 rule' stdout
+$MAKE bot-rule >stdout
+cat stdout
+grep 'bot rule' stdout
+cd ..
+
+$sleep
+
+cat > Makefile.bot << 'END'
+bot-rule:
+	@echo 'bot2 rule'
+END
+$MAKE
+
+cd bar
+$MAKE top-rule >stdout
+cat stdout
+grep 'top2 rule' stdout
+$MAKE bot-rule >stdout
+cat stdout
+grep 'bot2 rule' stdout
+cd ..
+
+$MAKE distcheck

@@ -1,0 +1,48 @@
+#! /bin/sh
+# Copyright (C) 2004  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Make sure `compile' preserves spaces in its arguments.
+
+. ./defs || exit 1
+
+set -e
+
+cp $testsrcdir/../lib/compile .
+
+# -o 'a  c' should not be stripped because 'a  c' is not an object
+# (it does not matter whether touch creates ./-- or not)
+./compile touch a.o -- -o 'a  c' a.c
+test -f 'a  c'
+test -f ./-o
+test -f a.o
+test -f a.c
+
+rm -f 'a  c' ./-o a.o a.c
+
+./compile touch a.o -- -o 'a  c.o' a.c
+test -f 'a  c.o'
+test ! -f ./-o
+test ! -f a.o
+test -f a.c
+
+# Make sure `compile' works for .obj too.
+./compile touch a.obj -- -o ac.obj a.c
+test ! -f a.obj
+test ac.obj

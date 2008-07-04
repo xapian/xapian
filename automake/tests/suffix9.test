@@ -1,0 +1,65 @@
+#! /bin/sh
+# Copyright (C) 2002  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Make sure that Automake choose the shorter route between suffixes
+# (related to PR/37)
+
+. ./defs || exit 1
+
+set -e
+
+echo AC_PROG_CC >>configure.in
+
+#  x_ -> y -> c -> o
+#   \________/
+#
+# Automake should follow the bottom route: x_ -> c -> o because
+# it is shorter.
+#
+# It should not take the "-> y ->" route.  We use `y' here so that
+# then Automake will complains that YACC is not defined and the test will
+# fail when this happens.
+
+cat >Makefile.am << 'END'
+bin_PROGRAMS = foo
+foo_SOURCES = foo.x_
+
+.x_.y:
+	cp $< $@
+.x_.c:
+	cp $< $@
+END
+
+$ACLOCAL
+$AUTOMAKE -a
+
+# Idem with the rules the another order.
+
+cat >Makefile.am << 'END'
+bin_PROGRAMS = foo
+foo_SOURCES = foo.x_
+
+.x_.c:
+	cp $< $@
+.x_.y:
+	cp $< $@
+END
+
+$AUTOMAKE -a

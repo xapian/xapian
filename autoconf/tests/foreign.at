@@ -1,0 +1,93 @@
+#							-*- Autotest -*-
+
+AT_BANNER([Compatibility with other tools.])
+
+# Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007 Free
+# Software Foundation, Inc.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+
+
+## --------- ##
+## Libtool.  ##
+## --------- ##
+
+AT_SETUP([Libtool])
+
+# Skip this test if there is no libtoolize.
+AT_CHECK([libtoolize --version || exit 77],
+	 ignore, ignore, ignore)
+# CVS Autoconf probably does not work with too old Libtools.
+AT_CHECK([[
+case `libtoolize --version |
+      sed -n '/^.* \([0-9][0-9.a-z]*\)$/{
+		s//\1/
+		p
+		q
+	}'` in
+  0.*          ) exit 77;;
+  1.[0123]*    ) exit 77;;
+esac]],
+	 ignore, ignore, ignore)
+
+# FIXME: Once Libtool `configure.ac' aware, change this.
+# Using a configure.in, have libtoolize confess where libtool.m4 is.
+AT_DATA([configure.in],
+[[AC_INIT
+# State that we explicitly want auxiliary files here, so libtoolize
+# won't pollute files outside the test directory.
+AC_CONFIG_AUX_DIR(.)
+AC_PROG_LIBTOOL
+]])
+# Some libtoolize complain if you don't have an aclocal.m4.
+AT_CHECK([touch aclocal.m4])
+AT_CHECK([libtoolize], 0, [stdout], ignore)
+
+# Some broken libtoolize fail to install a functional config.guess.
+AT_CHECK([./config.guess || exit 77], [], [ignore], [ignore])
+
+# Make sure at-path contains something valid, and let the test suite
+# display it when verbose.  And fail, skipping would too easily hide
+# problems.
+AT_CHECK([sed -n ["s,^.*\`\\(/[^']*\\)'.*,\\1,p"] stdout], 0, [stdout])
+AT_CHECK([test -f "`cat stdout`"])
+
+# libtoolize installed everything but install-sh...
+touch install-sh
+
+# Build the concatenation of libtool.m4 and configure.ac.
+cp `cat stdout` configure.in
+cat >>configure.in <<_EOF
+AC_INIT
+AC_CONFIG_AUX_DIR(.)
+AC_CANONICAL_SYSTEM
+AC_PROG_LIBTOOL
+_EOF
+
+# FIXME: Once Libtool really fixed, stop ignoring stderr.
+AT_CHECK_AUTOCONF([], [], [], [ignore])
+
+# Ignore stderr, because ltconfig always loads the cache, which is
+# /dev/null, and some shells choke on this.  For instance with Bash
+# 2.05, you get:
+#
+#   loading cache /dev/null within ltconfig
+#   ./ltconfig: .: /dev/null: not a regular file
+#
+# But the script executes properly.
+AT_CHECK_CONFIGURE([], [], [], [ignore])
+
+AT_CLEANUP

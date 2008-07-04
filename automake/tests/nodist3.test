@@ -1,0 +1,41 @@
+#! /bin/sh
+# Copyright (C) 2003, 2004  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Test to make sure no-dist option works.
+
+. ./defs || exit 1
+
+echo AC_PROG_CC >> configure.in
+
+cat > Makefile.am << 'END'
+AUTOMAKE_OPTIONS = no-dist
+bin_PROGRAMS = eyeball
+eyeball_SOURCES = a.c
+END
+
+: > a.c
+
+$ACLOCAL || exit 1
+$AUTOMAKE || exit 1
+
+grep '^dist:' Makefile.in && exit 1
+grep '^DIST_SOURCES =' Makefile.in && exit 1
+
+exit 0

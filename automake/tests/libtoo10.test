@@ -1,0 +1,63 @@
+#! /bin/sh
+# Copyright (C) 2007  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Make sure .libs directories are removed for _PROGRAMS.
+# Report from Guillermo Ontañón.
+
+required=libtoolize
+. ./defs || exit 1
+set -e
+
+cat >> configure.in << 'END'
+AC_PROG_LIBTOOL
+AC_OUTPUT
+END
+
+cat > Makefile.am << 'END'
+lib_LTLIBRARIES = lib/libfoo.la
+lib_libfoo_la_SOURCES = foo.c
+bin_PROGRAMS = src/main
+check_PROGRAMS = check/test
+src_main_SOURCES = main.c
+check_test_SOURCES = main.c
+LDADD = lib/libfoo.la
+END
+
+mkdir lib src check
+cat > foo.c << 'END'
+int foo () { return 0; }
+END
+
+cat > main.c << 'END'
+extern int foo ();
+int main () { return foo (); }
+END
+
+libtoolize
+$ACLOCAL
+$AUTOMAKE --add-missing
+$AUTOCONF
+./configure
+$MAKE all check clean
+test ! -d src/.libs
+test ! -d src/_libs
+test ! -d check/.libs
+test ! -d check/_libs
+$MAKE distcheck

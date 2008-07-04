@@ -1,0 +1,70 @@
+#! /bin/sh
+# Copyright (C) 2002, 2004  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Like the true/false example from the manual,
+# with one extra indirection in the sources (PR/315), and
+# use of _CPPFLAGS (PR/337).
+
+required=gcc
+. ./defs || exit 1
+
+set -e
+
+cat >> configure.in << 'END'
+AC_PROG_CC
+AM_PROG_CC_C_O
+AC_OUTPUT
+END
+
+# Using a separate variable to hold all the sources for a program is
+# common when building many flavors of this program, each with
+# different flags.
+
+cat > Makefile.am << 'END'
+FALSESOURCE = false.c
+bin_PROGRAMS = false true
+true_SOURCES = $(FALSESOURCE)
+true_CPPFLAGS = -DAM_TRUE
+false_SOURCES = $(FALSESOURCE)
+false_CPPFLAGS = -DAM_FALSE
+END
+
+cat > false.c << 'END'
+#include <stdio.h>
+int
+main (int argc, char *argv[])
+{
+#ifdef AM_TRUE
+   puts ("true");
+#else
+   puts ("false");
+#endif
+   return 0;
+}
+END
+
+$ACLOCAL
+$AUTOCONF
+$AUTOMAKE -a
+
+./configure
+$MAKE
+./true | grep true
+./false | grep false
