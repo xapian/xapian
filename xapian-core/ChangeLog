@@ -1,3 +1,7 @@
+Fri Jul 04 09:02:35 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
 Fri Jul 04 02:55:21 GMT 2008  Olly Betts <olly@survex.com>
 
 	* HACKING: Fix mangled line (which is correct in trunk).

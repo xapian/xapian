@@ -1,7 +1,7 @@
 up to:
-Thu Jun 26 19:20:03 GMT 2008  Olly Betts <olly@survex.com>
+Fri Jul 04 02:55:21 GMT 2008  Olly Betts <olly@survex.com>
 
-Xapian-core 1.0.7 (2008-06-2?):
+Xapian-core 1.0.7 (2008-07-??):
 
 API:
 
@@ -23,6 +23,8 @@ API:
     now more efficient.
 
   + Cases of O(N*N) behaviour have been fixed.
+
+* Xapian::Stem now recognises "nl" as an alias for "dutch" (debian bug 484458).
 
 * Setting sort by value was being ignored by a Xapian::Enquire object which had
   previously had a Xapian::Sorter set (bug#256).
@@ -110,6 +112,10 @@ inmemory backend:
 
 build system:
 
+* This release now uses newer versions of the autotools (autoconf 2.61 ->
+  2.62; automake 1.10 -> 1.10.1; libtool 1.5.24 -> 1.5.26).  The newer
+  autoconf reportedly results in a faster configure script.
+
 * Fix configure to recognise --enable-log=profile and fix build problems when
   this is enabled.
 
@@ -123,6 +129,8 @@ build system:
 
 documentation:
 
+* intro_ir.html: Improve wording a bit.
+
 * The documentation now links to trac instead of bugzilla.  For links to the
   main website, we now prefer xapian.org to www.xapian.org.
 
@@ -135,18 +143,20 @@ documentation:
   + Header and directory relationship graphs are no longer generated as they
     aren't actually informative here.
 
-* Several improvements to the doxygen-generated API documentation.
-
 * HACKING: Numerous updates and improvements.
 
 examples:
 
+* quest: Output get_description() of the parsed query.
 
 portability:
 
 * Fix build with GCC 2.95.3.
 
 * Fix build with GCC 4.3.
+
+* Newer libtool features improved support for Mac OS X Leopard and added
+  support for AIX 6.1.
 
 packaging:
 
