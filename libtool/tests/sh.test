@@ -1,0 +1,134 @@
+#! /bin/sh
+# sh.test - check for some nonportable or dubious or undesired shell
+#           constructs in shell scripts.
+#
+#   Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008 Free Software
+#   Foundation, Inc.
+#   Written by Gary V. Vaughan, 2003
+#
+#   This file is part of GNU Libtool.
+#
+# GNU Libtool is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of
+# the License, or (at your option) any later version.
+#
+# GNU Libtool is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU Libtool; see the file COPYING.  If not, a copy
+# can be downloaded from  http://www.gnu.org/licenses/gpl.html,
+# or obtained by writing to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+####
+
+. tests/defs || exit 1
+
+# Check all the "portable" shell scripts.
+status=$EXIT_SUCCESS
+
+# Check for bad binary operators.
+if $EGREP -n -e 'if[ 	]+["'\'']?\\$[^ 	]+[ 	]+(=|-[lg][te]|-eq|-ne)' $scripts; then
+  echo "use \`if test \$something =' instead of \`if \$something ='"
+  status=$EXIT_FAILURE
+fi
+
+# Check for bad unary operators.
+if $EGREP -n -e 'if[ 	]+-' $scripts; then
+  echo "use \`if test -X' instead of \`if -X'"
+  status=$EXIT_FAILURE
+fi
+
+# Check for using `[' instead of `test'.
+if $EGREP -n -e 'if[ 	]+\[' $scripts; then
+  echo "use \`if test' instead of \`if ['"
+  status=$EXIT_FAILURE
+fi
+
+# Check for using test X... instead of test "X...
+if $EGREP -n -e 'test[ 	]+(![ 	])?(-.[ 	]+)?X' $scripts; then
+  echo "use \`test \"X...\"' instead of \`test X'"
+  status=$EXIT_FAILURE
+fi
+
+# Check for using test $... instead of test "$...
+if $EGREP -n -e 'test[ 	]+(![ 	])?(-.[ 	]+)?X?\$' $scripts; then
+  echo "use \`test \"\$...\"' instead of \`test \$'"
+  status=$EXIT_FAILURE
+fi
+
+# Never use test -e.
+if $EGREP -n -e 'test[ 	]+(![ 	])?-e' $scripts; then
+  echo "use \`test -f' instead of \`test -e'"
+  status=$EXIT_FAILURE
+fi
+
+# Check for uses of Xsed without corresponding echo "X
+if $EGREP -n -e '\$Xsed' $scripts | $EGREP -v -n -e '\$ECHO \\*"X'; then
+  echo "occurrences of \`\$Xsed\' without \`echo \"X\' on the same line"
+  status=$EXIT_FAILURE
+fi
+
+# Check for quotes within backquotes within quotes "`"bar"`"
+if $EGREP -n -e '"[^`"]*`[^"`]*"[^"`]*".*`[^`"]*"' $scripts | \
+   $EGREP -v "### testsuite: skip nested quoting test$"; then
+  echo "nested quotes are dangerous"
+  status=$EXIT_FAILURE
+fi
+
+# Check for using set -- instead of set dummy
+if $EGREP -n -e 'set[ 	]+--[ 	]+' $scripts; then
+  echo "use \`set dummy ...' instead of \`set -- ...'"
+  status=$EXIT_FAILURE
+fi
+
+# Check for using shift after set dummy (same or following line).
+for s in $scripts
+do
+  if $SED -n '
+      /set[ 	][ 	]*dummy/{
+	  /set.*dummy.*;.*shift/d
+	  N
+	  /\n.*shift/D
+	  p
+      }' "$s" | $EGREP .; then
+    echo "use \`shift' after \`set dummy' in $s"
+    status=$EXIT_FAILURE
+  fi
+done
+
+# Check for opening brace on next line in shell function definition.
+# redirect stderr so we also barf when sed issues diagnostics.
+for s in $scripts
+do
+  if $SED -n '
+      /^func_.*(/{
+	  N
+	  /^func_[^ 	]* ()\n{$/d
+	  p
+      }' "$s" 2>&1 | $EGREP .; then
+    echo "Function definitions should look like this in $s:
+func_foo ()
+{
+  # ...
+}"
+    status=$EXIT_FAILURE
+  fi
+done
+
+# Check for correct usage of $cc_basename.
+# redirect stderr so we also barf when sed issues diagnostics.
+for s in "$m4dir/libtool.m4"
+do
+  if $SED -n '/case \$cc_basename in/,/esac/ {
+	      /^[ 	]*[a-zA-Z][a-zA-Z0-9+]*[^*][ 	]*)/p
+  	      }'  $s 2>&1 | $EGREP .; then
+    echo "\$cc_basename matches should include a trailing \`*' in $s."
+    status=$EXIT_FAILURE
+  fi
+done
+
+exit $status

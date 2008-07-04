@@ -1,0 +1,122 @@
+#! /bin/sh
+# Copyright (C) 2003, 2006  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Make sure aclocal does not overwrite aclocal.m4 needlessly.
+# Also make sure automake --no-force does not overwrite Makefile.in needlessly.
+
+. ./defs || exit 1
+
+set -e
+
+cat >> configure.in << 'END'
+SOME_DEFS
+AC_CONFIG_FILES([sub/Makefile])
+END
+
+mkdir sub
+: > sub/Makefile.am
+
+cat >> Makefile.am << 'END'
+SUBDIRS = sub
+include fragment.inc
+END
+
+: > fragment.inc
+
+mkdir m4
+echo 'AC_DEFUN([SOME_DEFS], [])' > m4/somedefs.m4
+
+$sleep
+
+$ACLOCAL -I m4
+
+# Automake will take aclocal.m4 to be newer if it has the same timestamp
+# as Makefile.in.  Avoid the confusing by sleeping.
+$sleep
+
+$AUTOMAKE --no-force
+
+$sleep
+
+touch foo
+$ACLOCAL -I m4
+$AUTOMAKE --no-force
+
+# aclocal.m4 and Makefile.in should not have been updated, so `foo'
+# should be younger
+test `ls -1t aclocal.m4 Makefile.in sub/Makefile.in foo | sed 1q` = foo
+
+$sleep
+$ACLOCAL -I m4 --force
+test `ls -1t aclocal.m4 foo | sed 1q` = aclocal.m4
+# We still use --no-force for automake, but since aclocal.m4 has
+# changed all Makefile.ins should be updated.
+$sleep
+$AUTOMAKE --no-force
+test `ls -1t Makefile.in foo | sed 1q` = Makefile.in
+test `ls -1t sub/Makefile.in foo | sed 1q` = sub/Makefile.in
+
+touch m4/somedefs.m4
+$sleep
+touch foo
+$sleep
+$ACLOCAL -I m4
+$sleep
+$AUTOMAKE --no-force
+
+# aclocal.m4 should have been updated, although its contents haven't changed.
+test `ls -1t aclocal.m4 foo | sed 1q` = aclocal.m4
+test `ls -1t Makefile.in foo | sed 1q` = Makefile.in
+test `ls -1t sub/Makefile.in foo | sed 1q` = sub/Makefile.in
+
+touch fragment.inc
+$sleep
+touch foo
+$sleep
+$ACLOCAL -I m4
+$AUTOMAKE --no-force
+# Only ./Makefile.in should change.
+test `ls -1t aclocal.m4 foo | sed 1q` = foo
+test `ls -1t Makefile.in foo | sed 1q` = Makefile.in
+test `ls -1t sub/Makefile.in foo | sed 1q` = foo
+
+grep README Makefile.in && exit 1
+
+: > README
+$sleep
+touch foo
+$sleep
+$AUTOMAKE --no-force
+# Even if no dependency change, the content changed.
+test `ls -1t Makefile.in foo | sed 1q` = Makefile.in
+test `ls -1t sub/Makefile.in foo | sed 1q` = foo
+
+grep README Makefile.in
+
+: > sub/Makefile.in
+$sleep
+touch foo
+$sleep
+$ACLOCAL -I m4
+$AUTOMAKE --no-force
+# Only sub/Makefile.in should change.
+test `ls -1t aclocal.m4 foo | sed 1q` = foo
+test `ls -1t Makefile.in foo | sed 1q` = foo
+test `ls -1t sub/Makefile.in foo | sed 1q` = sub/Makefile.in

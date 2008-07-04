@@ -1,0 +1,60 @@
+#! /bin/sh
+# demo-noinst-link.test - make sure we do not link with an installed
+#                         library when an uninstalled one is to be used
+#
+#   Copyright (C) 2003, 2004 Free Software Foundation, Inc.
+#   Written by Gary V. Vaughan, 2003
+#
+#   This file is part of GNU Libtool.
+#
+# GNU Libtool is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of
+# the License, or (at your option) any later version.
+#
+# GNU Libtool is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU Libtool; see the file COPYING.  If not, a copy
+# can be downloaded from  http://www.gnu.org/licenses/gpl.html,
+# or obtained by writing to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+####
+
+. tests/defs || exit 1
+
+func_restore_files ()
+{
+    mv -f "$objdir"/temp/libs/* "$objdir"
+    mv -f "$objdir/temp/libhello.la" "$objdir/temp/hell$EXEEXT" .
+    rm -rf "$objdir/temp"
+}
+
+func_save_files ()
+{
+    func_mkdir_p "$objdir/temp/libs"
+    cp -f libhello.la "hell$EXEEXT" "$objdir/temp"
+    cp -f "$objdir"/* "$objdir"/temp/libs
+    trap "func_restore_files" 0 1 2 13 15
+}
+
+func_require "demo-inst" "$prefix/lib/libhello.la"
+
+func_mkprefixdir
+func_cd "tests/demo"
+func_save_files
+
+func_msg "removing \`libhello.la' and \`hell' from demo"
+rm -f libhello.la "hell$EXEEXT"
+
+status=$EXIT_SUCCESS
+func_msg "linking \`hell' with a broken \`demo/libhello.la'"
+if $MAKE "hell$EXEEXT" libhello_la_OBJECTS=hello.lo; then
+  func_msg "Succeeded: this means the installed library was used, which is wrong"
+  status=$EXIT_FAILURE
+fi
+
+exit $status

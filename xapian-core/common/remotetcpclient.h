@@ -43,7 +43,7 @@ class RemoteTcpClient : SOCKET_INITIALIZER_MIXIN public RemoteDatabase {
     /** Attempt to open a TCP/IP socket connection to xapian-tcpsrv.
      *
      *  Connect to xapian-tcpsrv running on port @a port of host @a hostname.
-     *  Give up trying to connect after @msecs_timeout_connect milliseconds.
+     *  Give up trying to connect after @a msecs_timeout_connect milliseconds.
      *
      *  Note: this method is called early on during class construction before
      *  any member variables or even the base class have been initialised.

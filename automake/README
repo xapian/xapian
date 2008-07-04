@@ -1,0 +1,57 @@
+This is Automake, a Makefile generator.  It was inspired by the 4.4BSD
+make and include files, but aims to be portable and to conform to the
+GNU Coding Standards for Makefile variables and targets.
+
+Automake is a Perl script.  The input files are called Makefile.am.
+The output files are called Makefile.in; they are intended for use
+with Autoconf.  Automake requires certain things to be done in your
+configure.ac.
+
+Variable assignment lines in Makefile.am pull in defaults from various
+little *.am files.
+
+To use Automake, replace your Makefile.in files with Makefile.am
+files.  Read the documentation to see what to do.
+
+This package also includes the "aclocal" program.  aclocal is a
+program to generate an `aclocal.m4' based on the contents of
+`configure.ac'.  It is useful as an extensible, maintainable mechanism
+for augmenting autoconf.  It is intended that other package authors
+will write m4 macros which can be automatically used by aclocal.
+
+Automake has a page on the web.  See:
+
+	http://sources.redhat.com/automake/
+
+The mailing list automake@gnu.org is for discussion of Automake and
+its interactions with other configuration/portability tools like
+Autoconf or Libtool.  Write to automake-request@gnu.org if you want to
+join.
+
+Mail suggestions and bug reports to bug-automake@gnu.org, patches
+to automake-patches@gnu.org.
+
+New releases are announced to autotools-announce@gnu.org.  Write to
+autotools-announce-request@gnu.org if you want to receive them.
+
+-----
+
+Copyright (C) 1994, 1995, 1996, 1997, 1998, 2001, 2003
+  Free Software Foundation, Inc.
+
+This file is part of GNU Automake.
+
+GNU Automake is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2, or (at your option)
+any later version.
+
+GNU Automake is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with autoconf; see the file COPYING.  If not, write to
+the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+Boston, MA 02110-1301, USA.

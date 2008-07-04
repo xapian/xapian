@@ -1,0 +1,59 @@
+#! /bin/sh
+# Copyright (C) 1996, 1998, 2000, 2001, 2002, 2003
+#   Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Make sure ":" works with files automake generates.
+# This test is for multiple ":"s.
+
+. ./defs || exit 1
+
+set -e
+
+cat > configure.in << 'END'
+AC_INIT
+AM_INIT_AUTOMAKE(nonesuch, nonesuch)
+AC_OUTPUT(Makefile:zardoz.in:two.in:three.in)
+END
+
+: > zardoz.am
+: > two.in
+: > three.in
+
+$ACLOCAL
+$AUTOMAKE
+
+# We actually check several things here.
+# Automake should have created zardoz.in.
+test -f zardoz.in
+
+# The generated file should refer to zardoz.in and zardoz.am, but
+# never just "zardoz".
+echo Grep1
+grep zardoz zardoz.in | $FGREP -v 'zardoz.in' | $FGREP -v 'zardoz.am' > O || :
+# We cat the output file so we see in when verbose.
+cat O
+test -z "`cat O`"
+
+# Makefile should depend on two.in.
+echo Grep2
+grep '^Makefile:.* \$(srcdir)/two.in' zardoz.in
+# Likewise three.in.
+echo Grep3
+grep '^Makefile:.* \$(srcdir)/three.in' zardoz.in

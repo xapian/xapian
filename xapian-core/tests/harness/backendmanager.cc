@@ -188,6 +188,12 @@ BackendManager::getwritedb_flint_path(const string & name)
 
 #endif
 
+std::string
+BackendManager::get_dbtype() const
+{
+    return "none";
+}
+
 Xapian::Database
 BackendManager::get_database(const vector<string> &)
 {
@@ -222,7 +228,7 @@ BackendManager::get_remote_database(const vector<string> &, unsigned int)
 }
 
 Xapian::Database
-BackendManager::get_writable_database_as_database()
+BackendManager::get_writable_database_as_database(const string &)
 {
     string msg = "Backend ";
     msg += get_dbtype();
@@ -231,12 +237,17 @@ BackendManager::get_writable_database_as_database()
 }
 
 Xapian::WritableDatabase
-BackendManager::get_writable_database_again()
+BackendManager::get_writable_database_again(const string &)
 {
     string msg = "Backend ";
     msg += get_dbtype();
     msg += " doesn't support get_writable_database_again()";
     throw Xapian::InvalidOperationError(msg);
+}
+
+void
+BackendManager::posttest()
+{
 }
 
 const char *

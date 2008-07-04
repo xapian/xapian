@@ -1,0 +1,63 @@
+#! /bin/sh
+# Copyright (C) 2002, 2003, 2004  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Check dirlist support.
+# This test relies on m4/dirlist
+
+. ./defs || exit 1
+
+set -e
+
+cat > configure.in <<EOF
+AC_INIT
+AM_INIT_GUILE_MODULE
+EOF
+
+mkdir dirlist-test
+
+cat >dirlist-test/dirlist-check.m4 <<'END'
+AC_DEFUN([AM_INIT_GUILE_MODULE],[
+. $srcdir/../GUILE-VERSION
+AM_INIT_AUTOMAKE($PACKAGE, $VERSION)
+AC_CONFIG_AUX_DIR(..)
+module=[$1]
+AC_SUBST(module)])
+END
+
+cat >dirlist-test/init.m4 <<EOF
+AC_DEFUN([AM_INIT_AUTOMAKE], [I should not be included])
+EOF
+
+$ACLOCAL
+$AUTOCONF
+
+# there should be no m4_include in aclocal.m4, even tho m4/dirlist contains
+# `./dirlist-test' as a relative directory.  Only -I directories are subject
+# to file inclusion.
+grep m4_include aclocal.m4 && exit 1
+
+grep 'GUILE-VERSION' configure
+
+# This bug can occur only when we do a VPATH build of Automake
+# (because of the `-I' passed to aclocal in tests/defs/aclocal.in) but
+# it's OK because VPATH builds are done by `make distcheck'.
+grep 'I should not be included' configure && exit 1
+
+:

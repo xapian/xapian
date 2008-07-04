@@ -74,12 +74,10 @@ RemoteServer::RemoteServer(const std::vector<std::string> &dbpaths,
 	    context += ' ';
 	    context += *i;
 	}
-
     } catch (const Xapian::Error &err) {
 	// Propagate the exception to the client.
 	send_message(REPLY_EXCEPTION, serialise_error(err));
-	// And rethrow it so our caller can log it and close the
-	// connection.
+	// And rethrow it so our caller can log it and close the connection.
 	throw;
     }
 
@@ -112,12 +110,8 @@ RemoteServer::RemoteServer(const std::vector<std::string> &dbpaths,
 
 RemoteServer::~RemoteServer()
 {
-    // wdb is either NULL or equal to db, so we shouldn't delete it.
-    if (wdb) {
-	delete wdb;
-    } else {
-	delete db;
-    }
+    delete db;
+    // wdb is either NULL or equal to db, so we shouldn't delete it too!
 
     map<string, Xapian::Weight*>::const_iterator i;
     for (i = wtschemes.begin(); i != wtschemes.end(); ++i) {
@@ -180,6 +174,7 @@ RemoteServer::run()
 		&RemoteServer::msg_document,
 		&RemoteServer::msg_termexists,
 		&RemoteServer::msg_termfreq,
+		&RemoteServer::msg_valuestats,
 		&RemoteServer::msg_keepalive,
 		&RemoteServer::msg_doclength,
 		&RemoteServer::msg_query,
@@ -479,6 +474,26 @@ void
 RemoteServer::msg_termfreq(const string &term)
 {
     send_message(REPLY_TERMFREQ, encode_length(db->get_termfreq(term)));
+}
+
+void
+RemoteServer::msg_valuestats(const string & message)
+{
+    const char *p = message.data();
+    const char *p_end = p + message.size();
+    while (p != p_end) {
+	Xapian::valueno valno = decode_length(&p, p_end, false);
+	string message_out;
+	message_out += encode_length(db->get_value_freq(valno));
+	string bound = db->get_value_lower_bound(valno);
+	message_out += encode_length(bound.size());
+	message_out += bound;
+	bound = db->get_value_upper_bound(valno);
+	message_out += encode_length(bound.size());
+	message_out += bound;
+
+	send_message(REPLY_VALUESTATS, message_out);
+    }
 }
 
 void

@@ -1,0 +1,138 @@
+#! /bin/sh
+# Copyright (C) 2001, 2002, 2003, 2006  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Test of basic preprocessed assembly functionality
+
+. ./defs || exit 1
+
+set -e
+
+cat > Makefile.am << 'END'
+noinst_PROGRAMS = maude
+maude_SOURCES = maude.S
+END
+
+: > maude.s
+
+# Should fail because we need CC and CCAS.
+echo 1
+cat > configure.in << 'END'
+AC_INIT
+AM_INIT_AUTOMAKE(nonesuch, nonesuch)
+AC_SUBST(CCASFLAGS)
+AC_OUTPUT(Makefile)
+END
+
+$ACLOCAL
+AUTOMAKE_fails
+grep AM_PROG_AS stderr
+
+# On fast machines the autom4te.cache created during the above run of
+# $AUTOMAKE is likely to have the same time stamp as the configure.in
+# created below; thus causing traces for the old configure.in to be
+# used.  We could do `$sleep', but it's faster to erase the
+# directory.  (Erase autom4te*.cache, not autom4te.cache, because some
+# bogus installations of Autoconf use a versioned cache.)
+rm -rf autom4te*.cache
+
+# We still need CCAS.
+echo 2
+cat > configure.in << 'END'
+AC_INIT
+AM_INIT_AUTOMAKE(nonesuch, nonesuch)
+AC_PROG_CC
+AC_SUBST(CCASFLAGS)
+AC_OUTPUT(Makefile)
+END
+
+$ACLOCAL
+AUTOMAKE_fails
+grep CCAS stderr
+grep AM_PROG_AS stderr
+
+rm -rf autom4te*.cache
+
+# We need CCASFLAGS.
+echo 3
+cat > configure.in << 'END'
+AC_INIT
+AM_INIT_AUTOMAKE(nonesuch, nonesuch)
+CCAS='$(CC)'
+AC_SUBST(CCAS)
+AC_PROG_CC
+AC_OUTPUT(Makefile)
+END
+
+$ACLOCAL
+AUTOMAKE_fails
+grep CCASFLAGS stderr
+grep AM_PROG_AS stderr
+
+rm -rf autom4te*.cache
+
+# We need dependency tracking.
+echo 4
+cat > configure.in << 'END'
+AC_INIT
+AM_INIT_AUTOMAKE(nonesuch, nonesuch)
+CCAS='$(CC)'
+AC_SUBST(CCAS)
+AC_PROG_CC
+AC_SUBST(CCASFLAGS)
+AC_OUTPUT(Makefile)
+END
+
+$ACLOCAL
+AUTOMAKE_fails
+grep AM_PROG_AS stderr
+
+rm -rf autom4te*.cache
+
+# We have every needed, expect a success.
+echo 5
+cat > configure.in << 'END'
+AC_INIT
+AM_INIT_AUTOMAKE(nonesuch, nonesuch)
+CCAS='$(CC)'
+AC_SUBST(CCAS)
+AC_PROG_CC
+_AM_DEPENDENCIES(CCAS)
+AC_SUBST(CCASFLAGS)
+AC_OUTPUT(Makefile)
+END
+
+$ACLOCAL
+$AUTOMAKE
+
+rm -rf autom4te*.cache
+
+# We have every needed, expect a success.
+echo 6
+cat > configure.in << 'END'
+AC_INIT
+AM_INIT_AUTOMAKE(nonesuch, nonesuch)
+AM_PROG_AS
+AC_OUTPUT(Makefile)
+END
+
+$ACLOCAL
+$AUTOMAKE
+
+exit 0

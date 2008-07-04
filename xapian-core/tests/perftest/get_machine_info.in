@@ -1,0 +1,142 @@
+#!@PERL@
+BEGIN{$^W = 1} # equivalent of -w
+# -*- Mode: perl; indent-tabs-mode: nil -*-
+
+# This script does not need to run under taint perl.
+
+# This script is derived from a generic build script for tinderbox.  It will
+# display, on stdout, details of the OS and distribution in use.
+
+# The contents of this file are subject to the Mozilla Public
+# License Version 1.1 (the "License"); you may not use this file
+# except in compliance with the License. You may obtain a copy of
+# the License at http://www.mozilla.org/NPL/
+#
+# Software distributed under the License is distributed on an "AS
+# IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
+# implied. See the License for the specific language governing
+# rights and limitations under the License.
+#
+# The Original Code is the Tinderbox build tool.
+#
+# The Initial Developer of the Original Code is Netscape Communications
+# Corporation. Portions created by Netscape are
+# Copyright (C) 1998 Netscape Communications Corporation. All
+# Rights Reserved.
+
+# complete rewrite by Ken Estes, Mail.com (kestes@staff.mail.com).
+# Contributor(s): 
+
+# $Revision: 1.14 $
+# $Date: 2002/01/02 18:09:59 $
+# $Author: kestes%walrus.com $
+# $Name:  $ 
+
+use strict;
+
+sub run_command {
+    my $cmd;
+    if (scalar @_ == 1) {
+        $cmd = $_[0];
+    } else {
+        my %a = @_;
+        $cmd = $a{String};
+    }
+    my $out = `$cmd`;
+    chomp $out;
+    return wantarray ? split /\n/, $out : $out;
+}
+
+my $OS = $^O;
+
+my $distro = '';
+if (lc $OS eq "linux") {
+    if (open F, "/etc/debian_version") {
+        # e.g. "3.0"
+        chomp($_ = <F>);
+        $distro = "Debian $_";
+        if (open F, "/etc/lsb-release") {
+            # For Ubuntu (derived from Debian)
+            my ($id, $release, $codename, $desc);
+            while (<F>) {
+                if (/^DISTRIB_ID=(.+)/) {
+                    $id = $1;
+                } elsif (/^DISTRIB_RELEASE=(.+)/) {
+                    $release = $1;
+                } elsif (/^DISTRIB_CODENAME=(.+)/) {
+                    $codename = $1;
+                } elsif (/^DISTRIB_DESCRIPTION=(.+)/) {
+                    $desc = $1;
+                }
+            }
+            if (defined $id) {
+                $distro = $id;
+                if (defined $codename) {
+                    $distro .= " $codename";
+                } elsif (defined $release) {
+                    $distro .= " $release";
+                } elsif (defined $codename) {
+                    $distro = $codename;
+                }
+            }
+        }
+    } elsif (open F, "/etc/redhat-release") { 
+        # e.g. "Red Hat Linux release 7.2 (Enigma)"
+        # or "Red Hat Enterprise Linux AS release 3 (Taroon Update 1)"
+        # or "Red Hat Enterprise Linux ES release 3 (Taroon Update 3)"
+        chomp($_ = <F>);
+        if (/^Red Hat Enterprise Linux ([AE]S) release ([0-9]\S*)\b/) {
+            $distro = "RHEL_$1 $2";
+        } elsif (/^Fedora Core release ([0-9]\S*)\b/) {
+            $distro = "FC $1";
+        } elsif (/^(.+) release ([0-9]\S*)\b/) {
+            $distro = "$1 $2";
+        } else {
+            /(\b[0-9]\S*)/;
+            $distro = "RH $1";
+        }
+    } elsif (open F, "/etc/SuSE-release") {
+        # e.g. "SuSE Linux 8.1 (i386)" "VERSION = 8.1" 
+        <F>;
+        chomp($_ = <F>);
+        /VERSION *= *(.*)/;
+        $distro = "SuSE $1";
+    } elsif (open F, "/etc/gentoo-release") {
+        # e.g. "Gentoo Base System version 1.4.2.8"
+        chomp($_ = <F>);
+        /(\b[0-9]\S*)/;
+        $distro = "Gentoo $1";
+    } elsif (open F, "/etc/slackware-version") {
+        # e.g. "Slackware 9.1.0"
+        chomp($_ = <F>);
+        /(\b[0-9]\S*)/;
+        $distro = "Slackware $1";
+    }
+    close F;
+} elsif (lc $OS eq "darwin") {
+    $distro = join(' ', run_command("/usr/bin/sw_vers 2>/dev/null|sed 's/^Product[A-Za-z]*: *//p;d'"));
+    $distro =~ s/\s+/ /g;
+    $distro =~ s/^ //;
+    $distro =~ s/ $//;
+}
+
+my $version;
+my $uname_m;
+if (lc $OS eq "MSWin32") {
+    require Win32;
+    import Win32;
+    $distro = Win32::GetOSName();
+    $version = Win32::GetOSVersion();
+    $uname_m = '';
+} else {
+    $version = run_command("uname -r");
+    $uname_m = run_command("uname -m");
+}
+
+my $SERVER_BUILD_NAME;
+$SERVER_BUILD_NAME = "$OS $distro $version $uname_m";
+$SERVER_BUILD_NAME =~ s/\n/ /g;
+$SERVER_BUILD_NAME =~ s/^ +//;
+$SERVER_BUILD_NAME =~ s/ +$//;
+$SERVER_BUILD_NAME =~ s!/!_!g; # tinderbox doesn't like /
+print $SERVER_BUILD_NAME;

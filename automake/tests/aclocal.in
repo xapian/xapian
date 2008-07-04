@@ -1,0 +1,18 @@
+#!/bin/sh
+# @configure_input@
+
+# Be Bourne compatible
+if test -n "${ZSH_VERSION+set}" && (emulate sh) >/dev/null 2>&1; then
+  emulate sh
+  NULLCMD=:
+  # Zsh 3.x and 4.x performs word splitting on ${1+"$@"}, which
+  # is contrary to our usage.  Disable this feature.
+  alias -g '${1+"$@"}'='"$@"'
+fi
+
+perllibdir="@abs_top_builddir@/lib@PATH_SEPARATOR@@abs_top_srcdir@/lib"
+export perllibdir
+# Most of the files are in $srcdir/../m4.  However amversion.m4 is
+# generated in ../m4, so we include that directory in the search path too.
+exec @abs_top_builddir@/aclocal $ACLOCAL_TESTSUITE_FLAGS \
+     -I @abs_top_builddir@/m4 --acdir=@abs_top_srcdir@/m4 ${1+"$@"}

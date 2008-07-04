@@ -1,0 +1,58 @@
+#! /bin/sh
+# Copyright (C) 2003  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Check AC_CONFIG_FILES support for files starting with `../'.
+# Report from Bruno Haible.
+
+. ./defs || exit 1
+
+set -e
+
+mkdir testdir
+cd testdir
+
+mv ../configure.in .
+cat >> configure.in << END
+AC_CONFIG_FILES([a/foo.sh:../testdir/a/foo.sh.in])
+AC_CONFIG_FILES([a/Makefile])
+AC_OUTPUT
+END
+
+mkdir a
+
+echo SUBDIRS = a >Makefile.am
+: >a/Makefile.am
+
+echo foo >a/foo.sh.in
+
+$ACLOCAL
+$AUTOCONF
+$AUTOMAKE --add-missing
+
+./configure
+$MAKE
+test "`cat a/foo.sh`" = foo
+
+$sleep
+echo 'bar' >a/foo.sh.in
+
+cd a
+$MAKE foo.sh
+test "`cat foo.sh`" = bar

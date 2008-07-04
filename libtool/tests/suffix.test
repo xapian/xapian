@@ -1,0 +1,52 @@
+#! /bin/sh
+# suffix.test - check that libtool knows how to transform source suffices.
+#
+#   Copyright (C) 2003, 2004, 2007, 2008  Free Software Foundation, Inc.
+#   Written by Gary V. Vaughan, 2003
+#
+#   This file is part of GNU Libtool.
+#
+# GNU Libtool is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of
+# the License, or (at your option) any later version.
+#
+# GNU Libtool is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU Libtool; see the file COPYING.  If not, a copy
+# can be downloaded from  http://www.gnu.org/licenses/gpl.html,
+# or obtained by writing to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+####
+
+# Extensions taken from the ones that Automake recognizes, plus Objective C,
+# and GNU Ada.  Also test that multiple dots are handled correctly.
+extensions="C F S ada adb ads asm c c++ cc cpp cxx f f90 F90 f95 F95 f03 F03 for m s sx ada.ada"
+bad_names="foo."
+
+. tests/defs || exit 1
+
+status=$EXIT_SUCCESS
+for ext in $extensions; do
+  # Try a sample compile command.
+  if ($LIBTOOL -n --mode=compile compiler -c foo.$ext 2>&1; exit 0) | grep 'cannot'; then
+    status=$EXIT_FAILURE
+  else
+    echo "recognized foo.$ext as a valid source file"
+  fi
+done
+
+# Make sure that invalid suffixes are not recognized.
+for name in $bad_names; do
+  if ($LIBTOOL -n --mode=compile compiler -c $name 2>&1; exit 0) | grep 'cannot'; then :
+  else
+    echo "incorrectly recognized $name as a valid source file"
+    status=$EXIT_FAILURE
+  fi
+done
+
+exit $status

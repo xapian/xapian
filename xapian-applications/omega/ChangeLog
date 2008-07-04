@@ -1,3 +1,35 @@
+Fri Jul 04 08:29:47 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Synchronise with 1.0 branch.
+
+Fri Jul 04 08:15:03 GMT 2008  Olly Betts <olly@survex.com>
+
+	* utf8convert.cc,utf8converttest.cc: UTF-16 with no BOM is meant to be
+	  assumed to be big-endian.  GNU libiconv doesn't handle some examples
+	  as expected, so disable them when using iconv() for now.
+
+Fri Jul 04 06:39:20 GMT 2008  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Handle UCS-2 and UTF-16 text files with a byte-order
+	  mark (BOM).  Ignore any UTF-8 "byte-order" mark.
+	* utf8convert.cc: Handle UCS-2/UTF-16 and explicit BE and LE forms in
+	  the non-iconv code.
+	* Makefile.am,utf8converttest.cc: Add unit tests of convert_to_utf8().
+
+Fri Jun 27 04:43:18 GMT 2008  Olly Betts <olly@survex.com>
+
+	* query.cc: Overhaul the $highlight colour combinations since some
+	  were rather unreadable.  Reported by Joey Hess in Debian bug
+	  #484456.
+
+Sun Jun 01 15:12:02 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: Update version to 1.0.7 to match 1.0 branch.
+
+Sun May 25 14:56:41 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Synchronise with 1.0 branch, and update from ChangeLog.
+
 Sat May 17 11:42:26 GMT 2008  Olly Betts <olly@survex.com>
 
 	* docs/omegascript.rst,docs/scriptindex.rst: Tweak mark-up so

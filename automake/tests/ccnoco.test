@@ -1,0 +1,101 @@
+#! /bin/sh
+# Copyright (C) 2001, 2002, 2008  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Test to make sure we can compile when the compiler doesn't
+# understand `-c -o'.
+
+required=gcc
+. ./defs || exit 1
+
+cat > configure.1 << 'END'
+AC_INIT(a.c)
+AM_INIT_AUTOMAKE(nonesuch, 0.23)
+AC_PROG_CC
+AM_PROG_CC_C_O
+AC_OUTPUT(Makefile)
+END
+
+# This one makes sure that $CC can be used after AM_PROG_CC_C_O.
+cat > configure.3 << 'END'
+AC_INIT(a.c)
+AM_INIT_AUTOMAKE(nonesuch, 0.23)
+AC_PROG_CC
+AM_PROG_CC_C_O
+$CC -v > Hi 2>&1 || exit 1
+AC_OUTPUT(Makefile)
+END
+
+cat > Makefile.am << 'END'
+bin_PROGRAMS = wish
+wish_SOURCES = a.c
+# Make sure we need something strange.
+wish_CFLAGS = -g
+END
+
+cat > a.c << 'END'
+#include <stdio.h>
+
+int main ()
+{
+   printf ("hi\n");
+}
+END
+
+cat > Mycomp << 'END'
+#!/bin/sh
+
+case " "$* in
+ *\ -c*\ -o* | *\ -o*\ -c*)
+    exit 1
+    ;;
+esac
+
+exec gcc "$@"
+END
+
+chmod +x Mycomp
+
+set -e
+
+
+# Ignore user CFLAGS.
+CFLAGS=
+export CFLAGS
+
+for conf in configure.1 configure.3; do
+   cp $conf configure.in
+
+   $ACLOCAL
+   $AUTOCONF
+   $AUTOMAKE --copy --add-missing
+
+   rm -rf build
+   mkdir build
+   cd build
+
+   # Make sure the compiler doesn't understand `-c -o'
+   CC=`pwd`/../Mycomp
+   export CC
+
+   ../configure
+   $MAKE
+
+   cd ..
+done

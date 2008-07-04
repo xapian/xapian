@@ -1,0 +1,85 @@
+#! /bin/sh
+# Copyright (C) 2002, 2004, 2005  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Test for PR 312.
+
+required='libtoolize g++'
+. ./defs || exit 1
+
+cat > configure.in << 'END'
+AC_INIT(x, 0, x)
+AM_INIT_AUTOMAKE([foreign subdir-objects])
+
+AC_PROG_CXX
+AM_PROG_LIBTOOL
+
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT
+END
+
+cat > Makefile.am << 'END'
+noinst_LTLIBRARIES = libfoo.la
+libfoo_la_SOURCES = src/foo.cc .//src/bar.cc  # the `.//' is meant.
+
+print:
+	@echo BEG1: "$(LTCXXCOMPILE)" :1END
+	@echo BEG2: "$(CXXLINK)" :2END
+END
+
+mkdir src
+cat > src/foo.cc << 'END'
+int doit2 (void);
+int doit (void)
+{
+   return doit2();
+}
+END
+
+cat > src/bar.cc << 'END'
+int doit2 (void)
+{
+   return 23;
+}
+END
+
+set -e
+
+libtoolize --force
+$ACLOCAL
+$AUTOCONF
+$AUTOMAKE -a
+
+# Skip this test on configure errors (e.g., broken C++ compilers).
+./configure || exit 77
+
+# opportunistically check that --tag=CXX is used when supported
+if test -n "`./libtool --help | grep tag=TAG`"; then
+  $MAKE print >stdout
+  cat stdout
+  grep 'BEG1: .*--tag=CXX.*--mode=compile.* :1END' stdout
+  grep 'BEG2: .*--tag=CXX.*--mode=link.* :2END' stdout
+fi
+
+$MAKE
+$MAKE distcheck 2>&1 | tee out
+# GNU Make used to complain that the Makefile contained two rules
+# for `src/.dirstamp' and `.//src/.dirstamp'.
+grep 'overriding commands' out && exit 1
+:

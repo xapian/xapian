@@ -247,7 +247,7 @@ writing, we require the following versions:
 		2.57 fixes the annoying chmod warning on FreeBSD.  automake
 		1.8.5 needs at least 2.58, and 2.59 was released the same day
 		as 2.58 to fix a problem.  Currently snapshots and release
-		tarballs are generated with autoconf 2.61 but this isn't yet a
+		tarballs are generated with autoconf 2.62 but this isn't yet a
 		hard requirement (because the spec file for building RPMs
 		currently runs autoreconf to avoid a libtool bug with setting
 		rpath for /usr/lib64, and such platforms may still only have
@@ -268,20 +268,22 @@ writing, we require the following versions:
 		smaller Makefile.ins amongst other things.
 
 		automake 1.10 requires autoconf 2.60.  Currently snapshots and
-		release tarballs are generated with automake 1.10, but this
+		release tarballs are generated with automake 1.10.1, but this
 		isn't a hard requirement - configure.ac requires at least
 		1.8.3, but only because this is the version which SLES 9 had
 		and the RPM spec file runs autoreconf (RHEL 4 had 1.9.2; Debian
-		sarge had 1.9.5).  Please use a newer version (1.9.x or 1.10)
+		sarge had 1.9.5).  Please use a newer version (1.9.x or 1.10.x)
 		for development if at all possible.
 
-	GNU libtool 1.5.24
+	GNU libtool 2.2.4
 		libtool 1.5 was the first version to properly support linking
-		C++ libraries, and 1.5.24 is largely 1.5 plus bug fixes and
-		portability enhancements.  (Note: nothing actually enforces
-		the requirement for 1.5.24, but this is the version which
-		snapshots and release tarballs are currently bootstrapped
-		with).
+		C++ libraries.
+
+                libtool 2.2 fixes some long-standing issues and is significantly
+                faster, and 2.2.4 includes several bug-fixes.  (Note: nothing
+                actually enforces the requirement for 2.2.4, but this is the
+                version which snapshots and release tarballs are currently
+                bootstrapped with).
 
 Please tell us if you find that older or newer versions of any of these
 tools work or fail to work.
@@ -916,6 +918,20 @@ to follow the style of the existing code.  In particular:
   "while", etc.  Don't put a space before the "(" in function calls.  So
   write "if (strlen(p) > 10)" not "if(strlen (p) > 10)".
 
+* When "if", "else", "for", "while", "do," "switch", "case", "default", "try",
+  or "catch" is followed by a block enclosed in braces, the opening brace
+  should be on the same line, like so::
+
+    if (x > 12) {
+        foo(x);
+        x = 12;
+    } else {
+        bar(x);
+    }
+
+  The rationale for this is that it conserves vertical space (allowing more
+  code to fit on screen) without reducing readability.
+
 * Prefer "++i;" to "i++;", "i += 1;", or "i = i + 1".  For simple integer
   variables these should generate equivalent (if not identical) code, but if i
   is an iterator object then the pre-increment form can be more efficient in
@@ -932,7 +948,7 @@ to follow the style of the existing code.  In particular:
   the "empty()" form makes the intent of the test more explicit.
 
 * Prefer not to use "else" when the control flow is diverted elsewhere at the
-  end of the "if" block (e.g. by "return", "continue", "break").  This
+  end of the "if" block (e.g. by "return", "continue", "break", "throw").  This
   eliminates a level of indentation from the code in the "else" block, and
   typically makes the control flow logic clearer.  For example::
 
@@ -1056,7 +1072,7 @@ introduction to the Xapian test system in ``docs/tests.html``.
    compatibility or is very invasive, you need to fix it in a different way
    for the release branch, or decide not to backport the fix.
 
-5) Update trac
+6) Update trac
 --------------
 
  * If there's a related trac ticket, update it (if the issue is completely

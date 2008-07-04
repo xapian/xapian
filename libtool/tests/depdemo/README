@@ -1,0 +1,11 @@
+This is depdemo, an example package that uses GNU libtool with an
+Automake-generated environment to build many interdependent libraries
+and a test program.
+
+There are four libraries: l1, l2, l3 and l4.
+l1 depends on nothing.
+l2 depends on l1.
+l3 depends on l1 and l2.
+l4 depends on l3 and libm.
+
+The test program uses l1, l2 and l4.

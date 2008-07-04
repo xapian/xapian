@@ -255,6 +255,25 @@ Database::Internal::keep_alive()
     // For the normal case of local databases, nothing needs to be done.
 }
 
+
+Xapian::doccount
+Database::Internal::get_value_freq(Xapian::valueno) const
+{
+    throw Xapian::UnimplementedError("This backend doesn't support get_value_freq");
+}
+
+std::string
+Database::Internal::get_value_lower_bound(Xapian::valueno) const
+{
+    return "";
+}
+
+std::string
+Database::Internal::get_value_upper_bound(Xapian::valueno) const
+{
+    throw Xapian::UnimplementedError("This backend doesn't support get_value_upper_bound");
+}
+
 // Discard any exceptions - we're called from the destructors of derived
 // classes so we can't safely throw.
 void

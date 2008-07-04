@@ -255,7 +255,10 @@ class TermListItem(object):
             sequence[3] = PositionIter()
 
     def _get_wdf(self):
-        """Get the within document frequency.
+        """Get the within-document-frequency of the current term.
+
+        This will raise a InvalidOperationError exception if the iterator this
+        item came from doesn't support within-document-frequencies.
 
         """
         if self._wdf is None:
@@ -279,6 +282,9 @@ class TermListItem(object):
         This is the number of documents in the collection which are indexed by
         the term.
 
+        This will raise a InvalidOperationError exception if the iterator this
+        item came from doesn't support term frequencies.
+
         """
         if self._termfreq is None:
             if self._iter._has_termfreq == TermIter.INVALID:
@@ -289,6 +295,9 @@ class TermListItem(object):
         return self._termfreq
     termfreq = property(_get_termfreq, doc=
     """The term frequency of the current term (if meaningful).
+
+    This is the number of documents in the collection which are indexed by the
+    term.
 
     This will raise a InvalidOperationError exception if the iterator
     this item came from doesn't support term frequencies.

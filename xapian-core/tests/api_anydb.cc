@@ -395,7 +395,7 @@ DEFINE_TESTCASE(expandweights2, backend) {
 
     Xapian::ESet eset = enquire.get_eset(3, myrset);
     TEST_EQUAL(eset.size(), 3);
-    if (strcmp(get_dbtype(), "multi") != 0) {
+    if (get_dbtype().substr(0, 5) != "multi") {
 	// For a single database, the weights should be the same with or
 	// without USE_EXACT_TERMFREQ.
 	TEST_EQUAL_DOUBLE(eset[0].get_weight(), 6.08904001099445);
@@ -1835,8 +1835,92 @@ DEFINE_TESTCASE(alldocspl1, backend && writable) {
     Xapian::PostingIterator i = db.postlist_begin("");
     TEST(i != db.postlist_end(""));
     TEST_EQUAL(*i, 5);
+    TEST_EQUAL(i.get_doclength(), 0);
+    TEST_EQUAL(i.get_wdf(), 1);
     ++i;
     TEST(i == db.postlist_end(""));
+
+    return true;
+}
+
+// Test reading and writing a modified alldocspostlist.
+DEFINE_TESTCASE(alldocspl2, backend && writable) {
+    Xapian::PostingIterator i, end;
+    {
+	Xapian::WritableDatabase db = get_writable_database();
+	Xapian::Document doc;
+	doc.set_data("5");
+	doc.add_value(0, "5");
+	db.replace_document(5, doc);
+
+	// Test iterating before flushing the changes.
+	i = db.postlist_begin("");
+	end = db.postlist_end("");
+	TEST(i != end);
+	TEST_EQUAL(*i, 5);
+	TEST_EQUAL(i.get_doclength(), 0);
+	TEST_EQUAL(i.get_wdf(), 1);
+	++i;
+	TEST(i == end);
+
+	db.flush();
+
+	// Test iterating after flushing the changes.
+	i = db.postlist_begin("");
+	end = db.postlist_end("");
+	TEST(i != end);
+	TEST_EQUAL(*i, 5);
+	TEST_EQUAL(i.get_doclength(), 0);
+	TEST_EQUAL(i.get_wdf(), 1);
+	++i;
+	TEST(i == end);
+
+	// Add another document.
+	doc = Xapian::Document();
+	doc.set_data("5");
+	doc.add_value(0, "7");
+	db.replace_document(7, doc);
+
+	// Test iterating through before flushing the changes.
+	i = db.postlist_begin("");
+	end = db.postlist_end("");
+	TEST(i != end);
+	TEST_EQUAL(*i, 5);
+	TEST_EQUAL(i.get_doclength(), 0);
+	TEST_EQUAL(i.get_wdf(), 1);
+	++i;
+	TEST(i != end);
+	TEST_EQUAL(*i, 7);
+	TEST_EQUAL(i.get_doclength(), 0);
+	TEST_EQUAL(i.get_wdf(), 1);
+	++i;
+	TEST(i == end);
+
+	// Delete the first document.
+	db.delete_document(5);
+
+	// Test iterating through before flushing the changes.
+	i = db.postlist_begin("");
+	end = db.postlist_end("");
+	TEST(i != end);
+	TEST_EQUAL(*i, 7);
+	TEST_EQUAL(i.get_doclength(), 0);
+	TEST_EQUAL(i.get_wdf(), 1);
+	++i;
+	TEST(i == end);
+
+	// Test iterating through after flushing the changes, and dropping the reference to the main DB.
+	db.flush();
+	i = db.postlist_begin("");
+	end = db.postlist_end("");
+    }
+
+    TEST(i != end);
+    TEST_EQUAL(*i, 7);
+    TEST_EQUAL(i.get_doclength(), 0);
+    TEST_EQUAL(i.get_wdf(), 1);
+    ++i;
+    TEST(i == end);
 
     return true;
 }

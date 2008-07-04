@@ -39,7 +39,7 @@ setint1(unsigned char *p, int c, int x)
 {
     AssertRel(c, >=, 0);
     AssertRel(c, <, 65536);
-    p[c] = x;
+    p[c] = static_cast<unsigned char>(x);
 }
 
 inline int
@@ -55,8 +55,8 @@ setint2(unsigned char *p, int c, int x)
 {
     AssertRel(c, >=, 0);
     AssertRel(c, <, 65536 - 1);
-    p[c] = x >> 8;
-    p[c + 1] = x;
+    p[c] = static_cast<unsigned char>(x >> 8);
+    p[c + 1] = static_cast<unsigned char>(x);
 }
 
 inline int
@@ -72,10 +72,10 @@ setint4(unsigned char *p, int c, int x)
 {
     AssertRel(c, >=, 0);
     AssertRel(c, <, 65536 - 3);
-    p[c] = x >> 24;
-    p[c + 1] = x >> 16;
-    p[c + 2] = x >> 8;
-    p[c + 3] = x;
+    p[c] = static_cast<unsigned char>(x >> 24);
+    p[c + 1] = static_cast<unsigned char>(x >> 16);
+    p[c + 2] = static_cast<unsigned char>(x >> 8);
+    p[c + 3] = static_cast<unsigned char>(x);
 }
 
 #endif // XAPIAN_INCLUDED_UNALIGNED_ACCESS_H

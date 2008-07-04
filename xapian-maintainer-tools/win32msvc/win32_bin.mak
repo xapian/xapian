@@ -4,7 +4,7 @@
 # www.lemurconsulting.com
 # 17th March 2006
 
-# Will build quartzcheck.exe, quartzcompact.exe, quartdump.exe and xapian_compact.exe
+# Will build various utility and server executables.
 
 
 !INCLUDE ..\win32\config.mak
@@ -52,9 +52,6 @@ XAPIAN_REPLICATE_SERVER_OBJS= "$(INTDIR)\xapian-replicate-server.obj"
 	
 CLEAN :
 	-@erase $(PROGRAMS)
-	-@erase $(QUARTZCHECK_OBJS)
-	-@erase $(QUARTZCOMPACT_OBJS)
-	-@erase $(QUARTZDUMP_OBJS)
 	-@erase $(XAPIAN_COMPACT_OBJS)
 	-@erase $(XAPIAN_PROGSRV_OBJS)
 	-@erase $(XAPIAN_TCPSRV_OBJS)

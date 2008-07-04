@@ -1,0 +1,152 @@
+#							-*- Autotest -*-
+
+AT_BANNER([Low level compiling/preprocessing macros.])
+
+# Copyright (C) 2000, 2001, 2003, 2005, 2006, 2007 Free Software
+# Foundation, Inc.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+
+
+# Since the macros which compile are required by most tests, check
+# them first.  But remember that looking for a compiler is even more
+# primitive, so check those first.
+
+
+## ------------------------------------- ##
+## AC_LANG, AC_LANG_PUSH & AC_LANG_POP.  ##
+## ------------------------------------- ##
+
+AT_SETUP([[AC_LANG, AC_LANG_PUSH & AC_LANG_POP]])
+
+AT_DATA([configure.ac],
+[[AC_INIT
+# C
+AC_LANG(C)
+# C
+AC_LANG_PUSH(C)
+# C C
+AC_LANG_PUSH(C++)
+# C++ C C
+AC_LANG(C++)
+# C++ C C
+AC_LANG_PUSH(Fortran 77)
+# F77 C++ C C
+AC_LANG_POP(Fortran 77)
+# C++ C C
+AC_LANG(C++)
+# C++ C C
+AC_LANG_POP(C++)
+# C C
+AC_LANG_POP(C)
+# C
+]])
+
+AT_CHECK_AUTOCONF
+AT_CHECK([sed -n 's/^ac_ext=//p' configure], 0,
+[c
+c
+c
+cpp
+cpp
+f
+cpp
+cpp
+c
+c
+])
+
+AT_CLEANUP
+
+
+## ---------------------- ##
+## AC_REQUIRE & AC_LANG.  ##
+## ---------------------- ##
+
+AT_SETUP([AC_REQUIRE & AC_LANG])
+
+AT_DATA([configure.ac],
+[[AC_DEFUN([AC_F77_1],
+[AC_LANG_PUSH([Fortran 77])
+if test $ac_ext != f; then
+  AC_MSG_ERROR([F77_1: current shell language is $ac_ext, expected Fortran])
+fi
+AC_LANG_POP
+])
+
+
+AC_DEFUN([AC_F77_2],
+[AC_LANG_PUSH([Fortran 77])
+AC_REQUIRE([AC_F77_1])
+if test $ac_ext != f; then
+  AC_MSG_ERROR([F77_2: current shell language is $ac_ext, expected Fortran])
+fi
+AC_LANG_POP
+])
+
+AC_INIT
+AC_F77_2
+AS_EXIT(0)
+]])
+
+AT_CHECK_AUTOCONF
+AT_CHECK_CONFIGURE
+
+AT_CLEANUP
+
+
+## --------------- ##
+## AC_RUN_IFELSE.  ##
+## --------------- ##
+
+AT_SETUP([AC_RUN_IFELSE])
+
+AT_DATA([configure.ac],
+[[AC_INIT
+
+AC_RUN_IFELSE([AC_LANG_PROGRAM([], [return 0])],
+	      [],
+	      [AC_MSG_ERROR([saw `return 0' as a failure])])
+
+AC_RUN_IFELSE([AC_LANG_PROGRAM([], [return 2])],
+	      [AC_MSG_ERROR([saw `return 2' as a success])],
+	      [status=$?
+test $status != 2 &&
+  AC_MSG_ERROR([did not get as 2 exit status: $status])])
+
+# The old stinky one.
+AC_TRY_RUN([int main () { return 3; }],
+	   [AC_MSG_ERROR([saw `return 3' as a success])],
+	   [status=$?
+test $status != 3 &&
+  AC_MSG_ERROR([did not get 3 as exit status: $status])])
+
+]])
+
+AT_CHECK_AUTOCONF
+AT_CHECK_CONFIGURE([-q])
+
+AT_CLEANUP
+
+## ------------------ ##
+## AC_TRY_LINK_FUNC.  ##
+## ------------------ ##
+
+AT_CHECK_MACRO([AC_TRY_LINK_FUNC],
+[AC_TRY_LINK_FUNC(printf,,
+		  [AC_MSG_ERROR([cannot find `printf'])])
+AC_TRY_LINK_FUNC(Be_doomed_if_your_libc_has_a_function_named_like_this,
+		 [AC_MSG_ERROR([found a nonexistent function])])])

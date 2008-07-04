@@ -116,6 +116,10 @@ Stem::Stem(const std::string &language) : internal(0) {
 	    }
 	    break;
 	case 'n':
+	    if (language == "nl") {
+		internal = new InternalStemDutch;
+		return;
+	    }
 	    if (language == "no" || language == "norwegian") {
 		internal = new InternalStemNorwegian;
 		return;

@@ -1,22 +1,233 @@
-upto:
-Thu Mar 06 01:44:07 GMT 2008  Olly Betts <olly@survex.com>
+up to:
+Mon Jun 23 01:34:39 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 HEAD only:
 
-QueryParser sped up (new very of lemon; stop parsing upon syntax error).
-queryparsertest runs 2.2% faster
+	* backends/chert/: Change ChertAllDocsPostList to inherit from
+	  ChertPostList and use the doclen list from the posting table
+	  rather than using the termlist table.  This helps towards making
+	  the termlist table optional, reduces the amount of data read in
+	  the process of iterating through an alldocs postlist, and can
+	  make a massive difference in performance: I've measured the time
+	  to iterate through all the documents in a 1000000 document
+	  database, and the patch speeds this operation up by a factor of
+	  6.
+	  Add `keep_reference` parameter to the ChertPostList constructor,
+	  instead of not keeping a reference if the term is empty.
+	  ChertAllDocsPostList uses this to keep a reference to the
+	  database while using an empty term.
+	  Add ChertAllDocsModifiedPostList class, inspired by
+	  ChertModifiedPostList, (with corresponding new source files) to
+	  handle alldocs postlist with modifications: this wasn't needed
+	  before since the termlist is updated immediately after changes.
 
-* database replication
+	* tests/harness/: Add "name" parameter to
+	  BackendManager::get_writable_database_as_database(), and
+	  BackendManager::get_writable_database_again(), (and subclasses)
+	  so that old databases can be revived.  Useful for the performance
+	  tests.
 
-* HACKING: Add note about preferring std::string().
+	* tests/harness/: Wait for subprocesses to finish at end of tests,
+	  with remotetcp backend, to avoid test failures due to final flush
+	  of a subprocess writing to the database used for the next test.
 
-	* xapian-config.in: Add swigheaders option, listing the header
-	  files used by swig, so that we can add the appropriate
-	  dependencies to the makefiles in the bindings.
-	* xapian-config.in: Use globbing rather than iterating over the output
-	  of ls.
-	* xapian-config.in: Fix not to repeat headers in --swigheaders in a
-	  non-VPATH build.
+	* Makefile.am,tests/Makefile.am: Fix make check-* targets to match
+	  the current set of backends.  Add .multichert and .multiflint to
+	  the clean-local hook in tests/.  Leave .multi there for now, to
+	  clean up existing .multi directories in the automated build trees.
+
+	* api/postingsource.cc: Make ValueWeightPostingSource use value
+	  statistics, if they're available, to return accurate term
+	  frequency statistics, and a better maxweight.
+	* tests/api_db.cc: Add valueweightsource2, to test the bounds and
+	  maxweight returned by a ValueWeightPostingSource for backends
+	  with valuestats support.  Replace !multi condition in
+	  valueweightsource1 with a SKIP_TEST_FOR_BACKEND invocation, since
+	  this is a shortcoming we should fix at some point.
+
+	* tests/harness/testrunner.cc,tests/harness/testrunner.h: Replace
+	  DO_TESTS_FOR_BACKEND macro with a do_tests_for_backend method;
+	  the method version takes a BackendManager * and gets the backend
+	  name from that, rather than requiring it to be specified.
+	  Requires addition of a couple of extra private members to the
+	  TestRunner class.
+
+	* include/xapian/database.h: Add get_value_freq(),
+	  get_value_lower_bound() and get_value_upper_bound() methods to
+	  Database, to get statistics about the values stored in a slot.
+	* api/omdatabase.cc,backends/chert/,backends/database.cc,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h,
+	  backends/remote/remote-database.cc,common/,
+	  net/remoteserver.cc: Add support for the value statistics methods
+	  to chert, inmemory, multi and remote databases.
+	* tests/Makefile.am,tests/api_valuestats.cc,
+	  tests/harness/testrunner.cc,tests/harness/testrunner.h: Add test
+	  of the value statistics code, and a "valuestats" backend property
+	  to select only backends supporting this.
+
+	* rests/harness/: Make flint and chert subtypes for the remote and
+	  multi backend types.  These are specified (on the command line
+	  and elsewhere) by the main type (multi, remotetcp or remoteprog),
+	  followed by an underscore, followed by the subtype (flint or
+	  chert).  Change return type of BackendManager::get_dbtype() to a
+	  string instead of a const char *, to allow backend managers which
+	  have subtypes to generate the result dynamically.
+	* tests/harness/backendmanager_remote.cc,
+	  tests/harness/backendmanager_remote.h,
+	  tests/harness/backendmanager_remoteprog.cc,
+	  tests/harness/backendmanager_remoteprog.h,
+	  tests/harness/backendmanager_remotetcp.cc,
+	  tests/harness/backendmanager_remotetcp.h: Add new
+	  BackendManagerRemote class as a common base for the two remote
+	  backend managers, and move duplicated code into it.  Add
+	  parameter to its constructor, and to the constructors of the
+	  remote backend manager subclasses, to control the type of
+	  database to use at the remote end.
+	* tests/harness/backendmanager_multi.cc,
+	  tests/harness/backendmanager_multi.h: Add parameter to
+	  constructor of BackendManagerMulti, controlling the type of
+	  database to use for sub databases.  Put the generated database
+	  files in ".multiflint" and ".multichert" instead of ".multi".
+	* tests/harness/testrunner.cc: Update list of backend properties to
+	  contain the new subtypes.  Modify use_backend() to allow either
+	  the full backend type, or just the main part of the backend type,
+	  to be specified, so that, for example "-b multi" will run both
+	  the multi_chert and multi_flint tests.  Add test runs for all the
+	  subtypes now supported.  Catch string exceptions thrown by the
+	  test runner - these can currently occur when neither flint or
+	  chert are compiled in.
+	* tests/apitest.cc,tests/apitest.h: Adjust return type of
+	  get_dbtype(), implement skip_test_*_backend functions which just
+	  check the prefix of the type, and implement SKIP_TEST_*_BACKEND
+	  macros using these.
+	* tests/api_anydb.cc: Modify check for running on a multi backend
+	  to copy with getting a string back from get_dbtype().
+
+	* tests/perftest/perftest.cc: Include the xapian version string in
+	  the test output.  For runs from SVN, also include the subversion
+	  revision number and branch in the output.
+
+	* configure.ac,tests/,tests/perftest/,tests/perftest_matchdecider.cc,
+	  tests/perftest_randomidx.cc: Move performance test source files
+	  into a subdirectory.  Modify output of performance tests to
+	  include some basic system information, and also to include
+	  details of the parameters used to perform indexing tests.
+
+	* api/omenquire.cc,common/,expand/Makefile.mk,expand/esetinternal.cc,
+	  expand/expand.cc: Rewrite class ESet::Internal, incorporating the
+	  functionality which used to be in the internal OmExpand class.  The
+	  expand operation now uses a min heap rather than calling
+	  nth_element() repeatedly - this should reduce the complexity of the
+	  expand operation by a factor of n/log(n) where n is the requested
+	  ESet size.
+
+	* tests/harness/testrunner.cc,tests/harness/testrunner.h: Add
+	  condition to test if the backend is "inmemory".
+	* tests/perftest_randomidx.cc: Change the run size from 1000
+	  documents to 1000000.  Disable this test for the inmemory
+	  backend, because it will quickly use up all the memory on the
+	  machine.
+
+	* api/Makefile.mk,api/omquery.cc,api/omqueryinternal.cc,
+	  include/Makefile.mk,include/xapian.h,include/xapian/query.h,matcher/,
+	  tests/api_db.cc: Add support for Xapian::PostingSource.
+	* docs/Makefile.am,docs/index.html,docs/postingsource.rst: Add
+	  topic document for PostingSource.
+	* api/postingsource.cc,include/xapian/postingsource.h,tests/api_db.cc,
+	  tests/harness/index_utils.cc: Add ValueWeightPostingSource, which
+	  reads a value, applies sortable_unserialise() to it, and returns
+	  that as the weight for each document.
+
+	* common/omassert.h: Add AssertEqDoubleParanoid().
+	* matcher/multimatch.cc: Use it instead of home-brewed version.
+
+* Start new development backend "chert".  Currently only the change over flint is
+	  that in the postlist table, doclengths are stored once in a
+	  chunked postlist-like form, rather than once per posting.
+
+* include/xapian/enquire.h: Change definition of MSet::get_termfreq()
+	  such that it will fall back to looking the term frequency up in
+	  the database rather than raising an exception if the term is not
+	  present in the mset.
+
+	* tests/: Use copies of freemem.cc and freemem.h from omega to report
+	  the free physical memory at each stage of indexing.  Also, add a
+	  get_total_physical_memory() function to this, and report its
+	  value at the top of the results file (only tested on Linux so
+	  far).
+
+	* api/omdatabase.cc,backends/database.cc,backends/flint/,
+	  common/database.h,include/xapian/database.h: Add
+	  metadata_keys_begin() and metadata_keys_end() methods to
+	  Database, to allow the complete list of metadata in a database to
+	  be retrieved.  Supports a prefix argument to obtain a limited
+	  subset of the keys, since that may be useful in some situations
+	  and is very easy to implement.  Only accesses the keys in the
+	  first database in a multidatabase situation (which corresponds
+	  with the current behaviour of get_metadata()).
+
+	* tests/perftest.cc,tests/perftest.h: Log indexing runs every 5
+	  seconds, as well as after every 1000 documents - gives useful
+	  information for slow index runs.
+	* tests/Makefile.am,tests/perftest_randomidx.cc: Add a new
+	  performance test which builds a randomly generated index, and
+	  times the index run.  Probably wants a bit more tweaking to make
+	  it slightly more representative, but should be a useful test to
+	  run on systems where downloading a large amount of data is
+	  impractical.
+	* tests/perftest.cc: Flush after each write, so we can monitor
+	  progress of long running tests (we might need to remove this
+	  again later, if profiling shows it has a noticeable impact).  Fix
+	  two calls to write() to be a single call.
+	* tests/perftest_randomidx.cc: Add values to different slots; I'd
+	  added them all to slot 0 by mistake, so they were overwriting
+	  each other.
+
+	* Makefile.am,tests/,tests/harness/,tests/perftest.cc,tests/perftest.h,
+	  tests/perftest_matchdecider.cc: Rework the test collation
+	  mechanism slightly to allow it to be used by other testsuites:
+	  rename collate-apitest to collate-test, and add a parameter to it
+	  naming the output file.  Add new "testrunner.h" and
+	  "testrunner.cc" which are an equivalent to the old mechanism in
+	  apitest for running tests with various properties; the properties
+	  for each backend are now held as member variables of a TestRunner
+	  class, and testsuites (eg, apitest) subclass this and implement a
+	  "run()" method, which will be called for each backend with the
+	  appropriate properties set.  Move definition of DEFINE_TESTCASE
+	  macro into testsuite.h.  Add new testsuite "perftest", which is
+	  intended to contain potentially time consuming performance tests,
+	  logging the results to an XML file for later analysis.  Add a
+	  simple test of the ValueSetMatchDeciders to this testsuite.
+	  "perftest" isn't run by make check, because it is likely to take
+	  some hours to complete in future - instead, there's a new
+	  top-level target "check-perf" which builds and runs perftest.
+	* configure.ac,tests/perftest.cc,tests/submitperftest.py.in,
+	  tests/urllib2_file.py: Fix display of upper bound on number of
+	  results of search (was showing lower bound).  Fix display of
+	  closing <repetition> tags.  Add script to submit the results of a
+	  performance test to a central server.
+
+	  Add ValueSetMatchDecider,
+	  which is a matchdecider which is intended to be passed a set of
+	  values to look for in documents, and selects documents based on
+	  the presence of those values.
+
+* Calling RSet:add_document() with argument 0 now throws InvalidArgumentError.
+
+* stemtest: No longer checks environment variables OM_STEMTEST_SKIP_RANDOM,
+  OM_STEMTEST_LANGUAGES, and OM_STEMTEST_SEED.
+
+QueryParser sped up (new version of lemon); queryparsertest runs 2.2% faster
+
+* All deprecated xapian-core features listed for removal in 1.1.0 have been
+  removed.  For details, and suggested updates, see deprecation.html.
+
+* The remote database protocol major version has been increased, allowing
+  a significant amount of compatibility code to be removed.  This change means
+  that new clients won't work with old servers, and old clients won't work
+  with new servers.  If upgrading a live system, you will need to take this
+  into account.
 
 	* backends/flint/: Improve reporting of failures to obtain lock due
 	  to unexpected errors - the error messages included in the
@@ -26,14 +237,14 @@ queryparsertest runs 2.2% faster
 	  useful to know that the lock attempt failed than that the
 	  database wasn't present before the attempt to create it.
 
-	* AUTHORS: Add Matthew Somerville for Search::Xapian patches.
-
 	* common/Makefile.mk,common/socket_utils.cc,common/socket_utils.h,
 	  net/remoteconnection.cc,net/tcpclient.cc: Move windows-specific
 	  socket handling code from remoteconnection.cc into a separate
 	  file, provides the inline close_fd_or_socket for unix in the
 	  header file.  Use this in tcpclient.cc instead of close to close
 	  sockets correctly on windows.
+
+* database replication
 
 	* tests/harness/backendmanager_multi.cc: Make the multi
 	  backendmanager use relative paths in its stub databases.
@@ -55,9 +266,170 @@ queryparsertest runs 2.2% faster
 	  it passes.  Test needs to be expanded to check that the database
 	  copy succeeded better.
 
-Thu Jan 24 13:31:20 GMT 2008  Olly Betts <olly@survex.com>
+Xapian-core 1.0.7 (2008-06-2?):
 
-Xapian-core 1.0.6 (2008-03-??):
+API:
+
+* OP_VALUE_RANGE, OP_VALUE_GE, and OP_VALUE_LE:
+
+  + If there were gaps in the document id numbering, these operators could
+    return document ids which weren't present in the database.  This has been
+    fixed.
+
+  + These operators are now more efficient when there are a lot of "missing"
+    document ids (bug#270).
+
+  + Optimise Query(OP_VALUE_GE, <n>, "") to Query::MatchAll.
+
+* Xapian::QueryParser:
+
+  + QueryParser now stops parsing immediately when it hits a syntax error.
+    This doesn't change behaviour, but does mean failing to parse queries is
+    now more efficient.
+
+  + Cases of O(N*N) behaviour have been fixed.
+
+* Setting sort by value was being ignored by a Xapian::Enquire object which had
+  previously had a Xapian::Sorter set (bug#256).
+
+* When using a MatchDecider, Enquire::get_mset() wasn't reducing
+  matches_lower_bound unless all the potential results were retrieved, which
+  led to the lower bound being incorrect in some such cases.
+
+* When using a MatchDecider, Enquire::get_mset() now tracks how many documents
+  were tested and were rejected, and sets matches_estimated based on this rate.
+  Also, matches_upper_bound is reduced by the number of rejected documents.
+
+testsuite:
+
+* Improved test coverage in a couple of places.
+
+matcher:
+
+
+flint backend:
+
+* If Database::reopen() is called and the database revision on disk hasn't
+  changed, then do as little work as possible.  Even if it has changed, don't
+  bother to recheck the version file (bug#261).
+
+* xapian-compact:
+
+  + Fix check for user metadata key to not match other key types we may add in
+    the future.  When compacting, we can't assume how we should handle them.
+
+  + If the same user metadata key is present in more than one source database
+    with different tag values, issue a warning and copy an arbitrary tag value.
+
+  + Fix potential SEGV when compacting database(s) with user metadata but no
+    postings.
+
+  + In error message, refer to "iamflint" as the "version file", not the
+    "meta file".
+
+* xapian-inspect:
+
+  + Print top-bit-set characters as escaped hex forms as they often won't be
+    valid UTF-8 sequences.
+
+  + If we're passed a database directory rather than a single table, issue a
+    special error message since this is an obvious mistake for users to make.
+
+* Fix cursor handling for a modified table which has previously only had
+  sequential updates which usually manifested as zlib errors (bug#259).
+
+* Use 32 bit integers for most of flint's internal integer types on all
+  platforms for consistency (previously we used "long" everywhere, which is 64
+  bit on most 64 bit platforms, and 32 bits on other platforms).
+
+quartz backend:
+
+* Fix cursor handling for a modified table which has previously only had
+  sequential updates which usually manifested as incorrect data being returned
+  (bug#259).
+
+* Calling skip_to() as the first operation on an all-documents PostingIterator
+  now works correctly.
+
+* Use 32 bit integers for most of quartz's internal integer types on all
+  platforms for consistency (previously we used "long" everywhere, which is 64
+  bit on most 64 bit platforms, and 32 bits on other platforms).
+
+remote backend:
+
+* When remote protocol version doesn't match, the error message displayed 
+  now shows the minor version number supplied by the server correctly.
+
+* We now wait for the connection to close after sending MSG_SHUTDOWN for a
+  WritableDatabase, which ensures that changes have been written to disk
+  and the lock released.
+
+* We no longer ever send MSG_SHUTDOWN for a read-only Database - just closing
+  the connection is enough (and is protocol compatible).
+
+inmemory backend:
+
+* Fix bug which resulted in the values not being stored correctly when
+  replacing an existing document, or if there are gaps in the document id
+  numbering.
+
+build system:
+
+* Fix configure to recognise --enable-log=profile and fix build problems when
+  this is enabled.
+
+* "make up" in the "tests" subdirectory now does "make" in the top-level.
+
+* configure: Improve code to prevent pointlessly probing for f77, gcj, and rc.
+
+* Fix "make distcheck" by using dist-hook to install generated files from
+  either srcdir or builddir, with the appropriate dependency to generate them
+  automatically in maintainer mode builds.
+
+documentation:
+
+* The documentation now links to trac instead of bugzilla.  For links to the
+  main website, we now prefer xapian.org to www.xapian.org.
+
+* Doxygen-generated API documentation:
+
+  + Improved documentation in several places.
+
+  + The helper macro XAPIAN_VISIBILITY_DEFAULT no longer appears in the output.
+
+  + Header and directory relationship graphs are no longer generated as they
+    aren't actually informative here.
+
+* Several improvements to the doxygen-generated API documentation.
+
+* HACKING: Numerous updates and improvements.
+
+examples:
+
+
+portability:
+
+* Fix build with GCC 2.95.3.
+
+* Fix build with GCC 4.3.
+
+packaging:
+
+
+debug code:
+
+* Database::get_spelling_suggestion() now debug logs with category APICALL
+  rather than SPELLING, for consistency with all other API methods.
+
+* Added APICALL logging to a few Database methods which didn't have it.
+
+* Remove debug log tracing from get_description() methods since logging for
+  other methods calls get_description() methods on parameters, so logging these
+  calls just makes for more confusing debug logs.  A get_description() method
+  should have no side-effects so it's not very interesting even when explicitly
+  called by the user.
+
+Xapian-core 1.0.6 (2008-03-17):
 
 API:
 
@@ -86,10 +458,11 @@ flint backend:
 * Update the base files atomically to avoid problems with reading processes
   finding partially written ones.
 
-* Create lazy tables with the correct revision to avoid produce a database
+* Create lazy tables with the correct revision to avoid producing a database
   which we later report as "corrupt" (bug#232).
 
-* xapian-compact: Fix compaction for database which contain user metadata keys.
+* xapian-compact: Fix compaction for databases which contain user metadata
+  keys.
 
 quartz backend:
 
@@ -104,9 +477,6 @@ remote backend:
 * Fix to actually set the writing half as the connection as non-blocking when
   a timeout is specified.  This would have prevented timeouts from operating
   correctly in some situations.
-
-inmemory backend:
-
 
 build system:
 
@@ -141,17 +511,11 @@ documentation:
   Separate out 0.9.x reports.  Add Solaris 9 and 10 success reports from James
   Aylett.  Update from Debian buildd logs.
 
-examples:
-
-
 portability:
 
 * Now builds on OS/2, thanks to a patch by Yuri Dario.
 
 * Fix testsuite to build on mingw (broken by changes in 1.0.5).
-
-packaging:
-
 
 debug code:
 

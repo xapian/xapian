@@ -1,0 +1,67 @@
+#! /bin/sh
+# Copyright (C) 2003  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Make sure an AC_CONFIG_FILES can have an AC_CONFIG_FILES output as input.
+# This is comparable to output9.test, but testing Makefile rules.
+# PR/411
+
+. ./defs || exit 1
+
+set -e
+
+cat >> configure.in << END
+AC_SUBST([FOO], [top])
+AC_SUBST([BAR], [bot])
+AC_CONFIG_FILES([a/top])
+AC_CONFIG_FILES([a/bot])
+AC_CONFIG_FILES([b/Makefile:a/top:b/Makefile.in:a/bot])
+AC_OUTPUT
+END
+
+mkdir a
+mkdir b
+
+cat >Makefile.am <<\EOF
+SUBDIRS = b
+dist-hook:
+	test ! -f $(distdir)/a/top
+	test ! -f $(distdir)/a/bot
+EOF
+
+cat >b/Makefile.am <<\EOF
+output:
+	echo $(TOP)$(BOT) > ok
+EOF
+
+echo TOP=@FOO@ >a/top.in
+echo BOT=@BAR@ >a/bot.in
+
+$ACLOCAL
+$AUTOCONF
+$AUTOMAKE
+
+mkdir build
+cd build
+../configure
+cd b
+$MAKE output
+grep topbot ok
+cd ..
+$MAKE distcheck

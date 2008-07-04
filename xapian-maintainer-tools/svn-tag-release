@@ -16,9 +16,9 @@ case "$version" in
 esac
 
 # Check that we've not already done this version.
-if [ -d "/usr/data/www/oligarchy.co.uk/xapian/$version" ] ; then
+if [ -d "/srv/www/oligarchy.co.uk/xapian/$version" ] ; then
     echo "Version $version already has a download directory:"
-    echo "  /usr/data/www/oligarchy.co.uk/xapian/$version"
+    echo "  /srv/www/oligarchy.co.uk/xapian/$version"
     exit 1
 fi
 
@@ -30,7 +30,7 @@ fi
 svn cp -m"$version release." svn+userv:///xapian/trunk svn+userv:///xapian/tags/"$version"
 
 # Create a directory so the snapshotter will build this.
-D=/u1/olly/xapian-svn-snapshot/tags
+D=/home/olly/tmp/xapian-svn-snapshot/tags
 test -d $D || mkdir $D
 mkdir $D/"$version"
 

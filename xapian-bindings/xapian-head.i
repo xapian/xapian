@@ -35,7 +35,7 @@ using namespace std;
 namespace Xapian {
 #ifndef XAPIAN_HAS_CHERT_BACKEND
     namespace Chert {
-	static Database open() {
+	static Database open(const string &) {
 	    throw FeatureUnavailableError("Chert backend not supported");
 	}
 	static WritableDatabase open(const string &, int, int = 8192) {
@@ -46,7 +46,7 @@ namespace Xapian {
 
 #ifndef XAPIAN_HAS_FLINT_BACKEND
     namespace Flint {
-	static Database open() {
+	static Database open(const string &) {
 	    throw FeatureUnavailableError("Flint backend not supported");
 	}
 	static WritableDatabase open(const string &, int, int = 8192) {

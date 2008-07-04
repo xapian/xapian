@@ -1,0 +1,359 @@
+#							-*- Autotest -*-
+
+AT_BANNER([Autoconf base layer.])
+
+# Copyright (C) 2000, 2001, 2003, 2005, 2006, 2007 Free Software
+# Foundation, Inc.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+
+
+## ------------------------------- ##
+## AC_REQUIRE: topological sort..  ##
+## ------------------------------- ##
+
+# Check that dependencies are always properly honored.
+
+AT_SETUP([AC_REQUIRE: topological sort])
+
+AT_DATA([configure.ac],
+[[define([REQUIRE_AND_CHECK],
+[AC_REQUIRE([$1])
+test -z "$m4@&t@_translit([$1], [A-Z], [a-z])" && AS_EXIT(1)])
+
+AC_DEFUN([TEST1],
+[REQUIRE_AND_CHECK([TEST2a])
+REQUIRE_AND_CHECK([TEST2b])
+test1=set])
+
+AC_DEFUN([TEST2a],
+[test2a=set])
+
+AC_DEFUN([TEST2b],
+[REQUIRE_AND_CHECK([TEST3])
+test2b=set])
+
+AC_DEFUN([TEST3],
+[REQUIRE_AND_CHECK([TEST2a])
+test3=set])
+
+AS@&t@_INIT
+
+TEST1
+test -z "$test1" &&
+  AC_MSG_ERROR([\$test1 is empty])
+AS_EXIT(0)
+]])
+
+AT_CHECK_AUTOCONF
+AT_CHECK_CONFIGURE
+
+AT_CLEANUP
+
+
+## --------------------------- ##
+## AC_REQUIRE: error message.  ##
+## --------------------------- ##
+
+# Check that the message mentions AC_DEFUN, not m4_defun.
+
+AT_SETUP([AC_REQUIRE: error message])
+AT_DATA([configure.ac],
+[[AC_REQUIRE([AC_PROG_CC])
+]])
+
+AT_CHECK_AUTOCONF([], [1], [],
+[[configure.ac:1: error: AC_REQUIRE(AC_PROG_CC): cannot be used outside of an AC_DEFUN'd macro
+configure.ac:1: the top level
+autom4te: m4 failed with exit status: 1
+]])
+AT_CLEANUP
+
+
+## ----------------------------------------------- ##
+## AC_REQUIRE and AC_DEFUN_ONCE: Require, expand.  ##
+## ----------------------------------------------- ##
+
+AT_SETUP([AC_REQUIRE & AC_DEFUN_ONCE: [Require, expand]])
+
+AT_DATA([configure.ac],
+[[AC_DEFUN([TEST],
+[AC_REQUIRE([MULTI_TEST])
+AC_REQUIRE([SINGLE_TEST])])
+
+AC_DEFUN([MULTI_TEST],
+[multi_test=".$multi_test"])
+
+AC_DEFUN_ONCE([SINGLE_TEST],
+[single_test=".$single_test"])
+
+AS@&t@_INIT
+
+TEST
+TEST
+MULTI_TEST
+MULTI_TEST
+SINGLE_TEST
+SINGLE_TEST
+
+case $multi_test:$single_test in
+  ...:. ) AS_EXIT(0);;
+  ...:* ) AC_MSG_ERROR([DEFUN_ONCE is broken]);;
+  *:.   ) AC_MSG_ERROR([DEFUN is broken (Wow, congrats!)]);;
+esac
+]])
+
+AT_CHECK_AUTOCONF([], 0, [],
+[configure.ac:17: warning: SINGLE_TEST invoked multiple times
+configure.ac:18: warning: SINGLE_TEST invoked multiple times
+])
+
+AT_CHECK_CONFIGURE
+
+AT_CLEANUP
+
+
+
+## ----------------------------------------------- ##
+## AC_REQUIRE and AC_DEFUN_ONCE: Expand, require.  ##
+## ----------------------------------------------- ##
+
+AT_SETUP([AC_REQUIRE & AC_DEFUN_ONCE: [Expand, require]])
+
+AT_DATA([configure.ac],
+[[AC_DEFUN([TEST],
+[AC_REQUIRE([MULTI_TEST])
+AC_REQUIRE([SINGLE_TEST])])
+
+AC_DEFUN([MULTI_TEST],
+[multi_test=".$multi_test"])
+
+AC_DEFUN_ONCE([SINGLE_TEST],
+[single_test=".$single_test"])
+
+AS@&t@_INIT
+
+MULTI_TEST
+MULTI_TEST
+SINGLE_TEST
+SINGLE_TEST
+TEST
+TEST
+
+case $multi_test:$single_test in
+  ..:. ) AS_EXIT(0);;
+  ..:* ) AC_MSG_ERROR([DEFUN_ONCE is broken]);;
+  *:.  ) AC_MSG_ERROR([DEFUN is broken (Wow, congrats!)]);;
+     * ) AC_MSG_ERROR([received `$multi_test:$single_test']);;
+esac
+]])
+
+AT_CHECK_AUTOCONF([], 0, [],
+[configure.ac:16: warning: SINGLE_TEST invoked multiple times
+])
+AT_CHECK_CONFIGURE
+
+AT_CLEANUP
+
+
+
+## ------------------------- ##
+## AC_REQUIRE & AC_PROVIDE.  ##
+## ------------------------- ##
+
+AT_SETUP([AC_REQUIRE & AC_PROVIDE])
+
+AT_DATA([configure.ac],
+[[AC_DEFUN([TEST],
+[AC_REQUIRE([INNER_TEST])])
+
+AC_DEFUN([INNER_TEST],
+[inner_test=".$inner_test"])
+
+AS@&t@_INIT
+
+AC_PROVIDE([INNER_TEST])
+TEST
+
+case $inner_test in
+  "" ) AS_EXIT(0);;
+  *  ) AC_MSG_ERROR([received `$inner_test']);;
+esac
+]])
+
+AT_CHECK_AUTOCONF
+AT_CHECK_CONFIGURE
+
+AT_CLEANUP
+
+
+## ---------------- ##
+## AC_CACHE_CHECK.  ##
+## ---------------- ##
+
+# Make sure AC_CACHE_CHECK is silent with -q.
+# Also make sure we warn about cache id's not named with `_cv_'.
+
+AT_SETUP([AC_CACHE_CHECK])
+
+AT_DATA([configure.ac],
+[[AC_INIT
+# m4_define([ac_nothing], [ac_cv_absolutely_nothing])
+AC_CACHE_CHECK([for nothing],
+	       [ac_nothing],
+	       [ac_nothing=found])
+]])
+
+AT_CHECK_AUTOCONF([], [], [], [stderr])
+AT_CHECK([grep 'must contain _cv_ to be cached' stderr], [], [ignore])
+
+# Do not warn about defines:
+sed 's/^# //' configure.ac > t
+mv -f t configure.ac
+AT_CHECK_AUTOCONF
+AT_CHECK_CONFIGURE([-q])
+
+sed '/m4_define/d; s/ac_nothing/ac_cv_nothing/' configure.ac > t
+mv -f t configure.ac
+AT_CHECK_AUTOCONF
+AT_CHECK_CONFIGURE([-q])
+
+AT_CLEANUP
+
+
+## ---------------- ##
+## AC_COMPUTE_INT.  ##
+## ---------------- ##
+
+# Make sure AC_COMPUTE_INT fails properly.
+
+AT_SETUP([AC_COMPUTE_INT])
+
+AT_DATA([configure.ac],
+[[AC_INIT
+AC_COMPUTE_INT([invalid_expression],
+	       [**0**],
+	       [],
+	       [invalid_expression=failed])
+test "$invalid_expression" = failed ||
+  AC_MSG_ERROR([**0** evaluated to $invalid_expression instead of failing])
+]])
+
+AT_CHECK_AUTOCONF
+AT_CHECK_CONFIGURE
+
+AT_CLEANUP
+
+
+## ---------------- ##
+## AC_TRY_COMMAND.  ##
+## ---------------- ##
+
+AT_SETUP([AC_TRY_COMMAND])
+
+AT_DATA([configure.ac],
+[[AC_INIT
+
+if AC_TRY_COMMAND([(echo "The Cat in the Hat";
+		    echo "The Hat in the Cat" >&2) |
+		   grep \^The\ Cat\ in\ the\ Hat\$ >/dev/null]); then
+  :
+else
+  AC_MSG_ERROR([Didn't see the Cat in the Hat!])
+fi
+
+if AC_TRY_COMMAND([(echo "The Cat in the Hat";
+		    echo "The Hat in the Cat" >&2) |
+		   grep \^The\ Hat\ in\ the\ Cat\$ >/dev/null]); then
+  AC_MSG_ERROR([Saw the Hat in the Cat!])
+fi
+]])
+
+AT_CHECK_AUTOCONF
+AT_CHECK_CONFIGURE([-q])
+
+AT_CLEANUP
+
+
+## ------------ ##
+## Input/Output ##
+## ------------ ##
+
+AT_SETUP([Input/Output])
+
+m4_pattern_allow([^AS_(MESSAGE|ORIGINAL_STDIN)_FD$])
+AT_DATA([configure.ac],
+[[AC_INIT
+cat <&AS_ORIGINAL_STDIN_FD >&AS_MESSAGE_FD
+]])
+AT_CHECK_AUTOCONF
+AT_CHECK([echo Hello | ./configure | grep -v 'configure: loading site script '],, [Hello
+])
+AT_CHECK([echo Hello | ./configure --silent])
+
+AT_CLEANUP
+
+
+## ------------------- ##
+## configure arguments ##
+## ------------------- ##
+
+AT_SETUP([configure arguments])
+
+AT_DATA([configure.ac],
+[[AC_INIT
+echo "$@"
+]])
+
+AT_CHECK_AUTOCONF
+AT_CHECK_CONFIGURE([FOO=bar --enable-baz --without-zork --silent], [0], [stdout], [ignore])
+AT_CHECK([grep 'FOO=bar --enable-baz --without-zork --silent' stdout], [0], [ignore], [ignore])
+
+AT_CLEANUP
+
+
+## --------------------- ##
+## configure directories ##
+## --------------------- ##
+
+AT_SETUP([configure directories])
+
+AT_DATA([foo.in],
+[[prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+]])
+
+AT_DATA([configure.ac],
+[[AC_INIT
+AC_CONFIG_FILES([foo])
+AC_OUTPUT
+]])
+
+AT_CHECK_AUTOCONF
+dnl check that relative paths are rejected
+AT_CHECK_CONFIGURE([--libdir=.], [1], [ignore], [stderr])
+AT_CHECK([grep 'expected an absolute directory name for --libdir: \.' stderr],
+	 [0], [ignore])
+
+dnl check that extra slashes are stripped, and that defaults are not expanded
+AT_CHECK_CONFIGURE([--prefix=/usr//])
+AT_CHECK([cat foo], [0], [[prefix=/usr
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+]])
+
+AT_CLEANUP

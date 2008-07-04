@@ -26,7 +26,7 @@ using namespace std;
 
 BackendManagerChert::~BackendManagerChert() { }
 
-const char *
+std::string
 BackendManagerChert::get_dbtype() const
 {
     return "chert";
@@ -59,13 +59,17 @@ BackendManagerChert::get_writable_database_path(const string & name)
 }
 
 Xapian::Database
-BackendManagerChert::get_writable_database_as_database()
+BackendManagerChert::get_writable_database_as_database(const string & name)
 {
-    return Xapian::Chert::open(".chert/" + last_wdb_name);
+    if (name.empty())
+	return Xapian::Chert::open(".chert/" + last_wdb_name);
+    return Xapian::Chert::open(".chert/" + name);
 }
 
 Xapian::WritableDatabase
-BackendManagerChert::get_writable_database_again()
+BackendManagerChert::get_writable_database_again(const string & name)
 {
-    return Xapian::Chert::open(".chert/" + last_wdb_name, Xapian::DB_OPEN);
+    if (name.empty())
+	return Xapian::Chert::open(".chert/" + last_wdb_name, Xapian::DB_OPEN);
+    return Xapian::Chert::open(".chert/" + name, Xapian::DB_OPEN);
 }

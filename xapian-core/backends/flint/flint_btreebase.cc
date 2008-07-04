@@ -36,6 +36,7 @@
 #include <limits.h>
 
 #include <algorithm>
+#include <cstring>
 
 using namespace std;
 

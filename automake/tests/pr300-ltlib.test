@@ -1,0 +1,73 @@
+#! /bin/sh
+# Copyright (C) 2002  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Make sure that installing subdirectory libtool libraries works.
+# PR/300
+
+required='libtoolize gcc'
+. ./defs || exit 1
+
+set -e
+
+cat >> configure.in << 'END'
+AC_PROG_CC
+AC_PROG_LIBTOOL
+AC_OUTPUT
+END
+
+cat > Makefile.am << 'END'
+lib_LTLIBRARIES = subdir/liba.la
+subdir_liba_la_SOURCES = a.c
+
+nobase_lib_LTLIBRARIES = subdir/libb.la
+subdir_libb_la_SOURCES = a.c
+END
+
+cat > a.c << 'END'
+int i = 3;
+END
+
+## A rule in the Makefile should create subdir
+# mkdir subdir
+
+libtoolize
+$ACLOCAL
+$AUTOCONF
+$AUTOMAKE --copy --add-missing
+./configure --prefix `pwd`/inst
+$MAKE
+
+test -f subdir/liba.la
+test -f subdir/libb.la
+
+$MAKE install
+
+test -f inst/lib/liba.la
+test -f inst/lib/subdir/libb.la
+
+$MAKE uninstall
+
+test -f inst/lib/liba.la && exit 1
+test -f inst/lib/subdir/libb.la && exit 1
+
+$MAKE install-strip
+
+test -f inst/lib/liba.la
+test -f inst/lib/subdir/libb.la

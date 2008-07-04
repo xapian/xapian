@@ -1,0 +1,67 @@
+#! /bin/sh
+# Copyright (C) 2003  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Make sure COPYING is not overwritten, even with -a -f.
+
+required=makeinfo
+. ./defs || exit 1
+
+set -e
+
+echo AC_OUTPUT >>configure.in
+cat >Makefile.am <<\EOF
+test1: distdir
+	grep 'GNU GENERAL PUBLIC LICENSE' $(distdir)/COPYING
+test2: distdir
+	grep 'MY-OWN-LICENSE' $(distdir)/COPYING
+test3: distdir
+	test ! -f $(distdir)/COPYING
+	grep 'MY-OWN-LICENSE' $(distdir)/COPYING.LIB
+EOF
+
+:> NEWS
+:> AUTHORS
+:> ChangeLog
+:> README
+
+test ! -f COPYING
+
+$ACLOCAL
+$AUTOCONF
+$AUTOMAKE --gnu --add-missing
+
+./configure
+$MAKE test1
+
+# rm before echo, because COPYING is likely to be a symlink to
+# the real COPYING...
+rm -f COPYING
+echo 'MY-OWN-LICENSE' >COPYING
+$MAKE test2
+
+$AUTOMAKE --gnu --add-missing --force-missing
+./configure
+$MAKE test2
+
+rm -f COPYING
+echo 'MY-OWN-LICENSE' >COPYING.LIB
+$AUTOMAKE --gnu --add-missing --force-missing
+./configure
+$MAKE test3

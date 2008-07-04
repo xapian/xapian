@@ -112,11 +112,8 @@ class BackendManager {
     virtual ~BackendManager() { } // FIXME: move out of header
 
     /** Get the database type currently in use.
-     *
-     *  Current possible return values are "inmemory", "chert", "flint",
-     *  "none", "remoteprog", and "remotetcp".
      */
-    virtual const char * get_dbtype() const { return "none"; } // FIXME: move out of header
+    virtual std::string get_dbtype() const;
 
     /** Set the directory to store data in.
      */
@@ -142,10 +139,13 @@ class BackendManager {
     virtual Xapian::Database get_remote_database(const std::vector<std::string> & files, unsigned int timeout);
 
     /// Create a Database object for the last opened WritableDatabase.
-    virtual Xapian::Database get_writable_database_as_database();
+    virtual Xapian::Database get_writable_database_as_database(const std::string & name = "");
 
     /// Create a WritableDatabase object for the last opened WritableDatabase.
-    virtual Xapian::WritableDatabase get_writable_database_again();
+    virtual Xapian::WritableDatabase get_writable_database_again(const std::string & name = "");
+
+    /// Called after each test, to perform any necessary cleanup.
+    virtual void posttest();
 
     /// Get the command line required to run xapian-progsrv.
     static const char * get_xapian_progsrv_command();

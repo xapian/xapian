@@ -39,23 +39,18 @@ EXTRA_PROGRAMS +=\
 	bin/xapian-progsrv\
 	bin/xapian-tcpsrv
 
-# Automake (up to version 1.10, at least) has a bug causing it to miss the
-# generated files in .libs/ due to bin_PROGRAMS from the clean target.
-# We work around this with a clean-local: rule, in the top level Makefile.am
-extra_cleandirs += bin/.libs bin/_libs
-
-bin_xapian_check_CXXFLAGS = -I$(top_srcdir)/backends/flint -I$(top_srcdir)/backends/chert
+bin_xapian_check_CPPFLAGS = -I$(top_srcdir)/backends/flint -I$(top_srcdir)/backends/chert
 bin_xapian_check_SOURCES =\
 	bin/xapian-check.cc\
 	bin/xapian-check-flint.cc\
 	bin/xapian-check-flint.h
 bin_xapian_check_LDADD = $(ldflags) libchertcheck.la libflintcheck.la libxapian.la
 
-bin_xapian_compact_CXXFLAGS = -I$(top_srcdir)/backends/flint
+bin_xapian_compact_CPPFLAGS = -I$(top_srcdir)/backends/flint
 bin_xapian_compact_SOURCES = bin/xapian-compact.cc
 bin_xapian_compact_LDADD = $(ldflags) libgetopt.la libxapian.la
 
-bin_xapian_inspect_CXXFLAGS = -I$(top_srcdir)/backends/flint
+bin_xapian_inspect_CPPFLAGS = -I$(top_srcdir)/backends/flint
 bin_xapian_inspect_SOURCES = bin/xapian-inspect.cc
 bin_xapian_inspect_LDADD = $(ldflags) libgetopt.la libxapian.la
 

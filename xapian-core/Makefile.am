@@ -23,7 +23,6 @@ DISTCLEANFILES =
 MAINTAINERCLEANFILES =
 bin_PROGRAMS =
 EXTRA_PROGRAMS =
-extra_cleandirs =
 
 .PHONY: check-none check-inmemory check-multi \
         check-remote check-remoteprog check-remotetcp \
@@ -45,14 +44,30 @@ check-remoteprog:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remoteprog
 check-remotetcp:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remotetcp
+if BUILD_BACKEND_CHERT
+check-remoteprog-chert:
+	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remoteprog-chert
+check-remotetcp-chert: apitest$(EXEEXT)
+	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remotetcp-chert
+endif
+if BUILD_BACKEND_FLINT
+check-remoteprog-flint:
+	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remoteprog-flint
+check-remotetcp-flint: apitest$(EXEEXT)
+	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remotetcp-flint
+endif
 endif
 
 if BUILD_BACKEND_CHERT
+check-multi-chert:
+	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-multi-chert
 check-chert:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-chert
 endif
 
 if BUILD_BACKEND_FLINT
+check-multi-flint:
+	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-multi-flint
 check-flint:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-flint
 endif
@@ -123,8 +138,3 @@ CLEANFILES += $(dist_man_MANS)
 xapian-config.1: xapian-config makemanpage
 	./makemanpage ./xapian-config xapian-config xapian-config.1
 endif
-
-# Work around for files which Automake misses its clean target.
-clean-local:
-	-rm -rf $(extra_cleandirs)
-

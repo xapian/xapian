@@ -1,0 +1,82 @@
+#! /bin/sh
+# Copyright (C) 2003  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Make sure info files survive makeinfo errors.
+
+required=makeinfo
+. ./defs || exit 1
+
+set -e
+
+echo AC_OUTPUT >> configure.in
+
+cat > Makefile.am << 'END'
+info_TEXINFOS = main.texi sub/main.texi
+END
+
+mkdir sub
+
+cat > main.texi << 'END'
+\input texinfo
+@setfilename main
+@settitle main
+@node Top
+Hello walls.
+@bye
+END
+
+cp main.texi sub/main.texi
+
+$ACLOCAL
+$AUTOMAKE --add-missing
+$AUTOCONF
+
+./configure
+$MAKE
+
+# Feign more info files.
+: > main-1
+: > sub/main-1
+
+# Break main.texi
+$sleep
+cp main.texi main.old
+cat > main.texi << 'END'
+\input texinfo
+@setfilename main
+@settitle main
+@node Top
+@unknown_macro{Hello walls.}
+@bye
+END
+
+# makeinfo will bail out, but we should conserve the old info files.
+$MAKE && exit 1
+test -f main
+test -f main-1
+
+# Restore main.texi, and break sub/main.texi
+cp main.texi sub/main.texi
+mv main.old main.texi
+$MAKE && exit 1
+test -f main
+test ! -f main-1
+test -f sub/main
+test -f sub/main-1

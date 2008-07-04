@@ -1,0 +1,93 @@
+#! /bin/sh
+# Copyright (C) 2001, 2002, 2003  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Test to make sure `.' in an exe name doesn't fool us.
+# Report from Robert Collins.
+# Also make sure we rewrite conditionals variables.
+# Also check for PR/352.
+# Also make sure the old definitions of bin_PROGRAMS and friend
+# aren't left around.  Report from Jim Meyering.
+
+. ./defs || exit 1
+
+cat >> configure.in << 'END'
+AC_PROG_CC
+AM_CONDITIONAL([WANT_MT], [test -z "$revert"])
+AM_CONDITIONAL([WANT_RMT], [test -z "$revert"])
+AC_OUTPUT
+END
+
+cat > Makefile.am << 'END'
+## Use a different dir for each to make grep easy.
+bin_PROGRAMS = maude
+sbin_PROGRAMS = maude.static
+## We don't define this one for now.  Probably it is an error.
+## noinst_PROGRAMS = maude2.exe
+check_PROGRAMS = maude3$(EXEEXT)
+
+if WANT_MT
+  bin_PROGRAMS += mt
+endif
+if WANT_RMT
+  libexec_PROGRAMS = rmt
+endif
+
+print:
+	@echo 1BEG: $(bin_PROGRAMS) :END1
+	@echo 2BEG: $(sbin_PROGRAMS) :END2
+	@echo 3BEG: $(check_PROGRAMS) :END3
+	@echo 4BEG: $(libexec_PROGRAMS) :END4
+END
+
+set -e
+
+$ACLOCAL
+$AUTOCONF
+$AUTOMAKE
+
+grep '^maude$(EXEEXT):' Makefile.in
+grep '^maude\.static$(EXEEXT):' Makefile.in
+grep '^maude3$(EXEEXT):' Makefile.in
+grep '^mt$(EXEEXT):' Makefile.in
+grep '^rmt$(EXEEXT):' Makefile.in
+test `grep '^bin_PROGRAMS =' Makefile.in | wc -l` = 1
+
+# Make sure $(EXEEXT) gets stripped before canonicalization.
+grep 'maude3__EXEEXT__OBJECTS' Makefile.in && exit 1
+
+./configure
+
+EXEEXT=.foo $MAKE -e print > stdout
+cat stdout
+
+grep '1BEG: maude.foo mt.foo :END1' stdout
+grep '2BEG: maude.static.foo :END2' stdout
+grep '3BEG: maude3.foo :END3' stdout
+grep '4BEG: rmt.foo :END4' stdout
+
+./configure revert=yes
+
+EXEEXT=.foo $MAKE -e print > stdout
+cat stdout
+
+grep '1BEG: maude.foo :END1' stdout
+grep '2BEG: maude.static.foo :END2' stdout
+grep '3BEG: maude3.foo :END3' stdout
+grep '4BEG: :END4' stdout

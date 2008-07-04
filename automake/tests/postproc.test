@@ -1,0 +1,51 @@
+#! /bin/sh
+# Copyright (C) 2002, 2004  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Check to make sure we recognize a Makefile.in, even if post-processed
+# and renamed.
+
+. ./defs || exit 1
+
+cat >configure.in <<'END'
+AC_INIT([mumble], [0.1])
+AM_INIT_AUTOMAKE
+AC_PROG_CC
+AC_CONFIG_FILES([myMakefile])
+AC_OUTPUT
+END
+
+cat > myMakefile.am << 'END'
+bin_PROGRAMS = fred
+fred_SOURCES = fred.c
+END
+
+$ACLOCAL || exit 1
+$AUTOCONF || exit 1
+$AUTOMAKE -- myMakefile || exit 1
+
+mv myMakefile.in myMakefile.old
+echo '# Post-processed by post-processor 3.14.' > myMakefile.in
+cat myMakefile.old >> myMakefile.in
+
+./configure || exit 1
+
+test -f .deps/fred.Po || test -f _deps/fred.Po || exit 1
+
+:

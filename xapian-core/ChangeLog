@@ -112,6 +112,482 @@ Fri Dec 07 14:19:00 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 	  calculation stuff from Yung-chung Lin; exactly as in his patch
 	  from 18 September 2007.
 
+Fri Jul 04 11:40:13 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/multimatch.cc: Fix calculation of lower bound when
+	  collapsing and match deciders are used.  (Only tended to manifest
+	  when the collapsing threw away a lot of documents, and when also
+	  using a custom sort order, but I don't think that was required.)
+	  Also, perform the adjustments due to percentage cutoffs after the
+	  other adjustments, to avoid the lower bound setting for
+	  collapsing overriding the lower bound from the percentage cutoff.
+	* tests/harness/index_utils.cc: Add a value to value slot 12, which
+	  only has 5 different values, for testing this bug.
+	* tests/api_db.cc: Add regression test for calculation of the lower
+	  bound.
+
+Fri Jul 04 10:24:16 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Makefile.am,bin/Makefile.mk,examples/Makefile.mk: Remove
+	  extra_cleandirs as automake 1.10.1 fixes the bug which it was working
+	  around.
+
+Fri Jul 04 04:36:59 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Synchronise tiny change from branches/1.0 which isn't
+	  on trunk for some reason.
+
+Fri Jul 04 04:35:19 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Bootstrap with newer versions of the autotools:
+	  + autoconf 2.61 -> 2.62: faster
+	  + automake 1.10 -> 1.10.1: "make clean" cleans all .libs
+	    directories.
+	  + libtool 1.5.24 -> 2.2.4: many improvements; faster.
+
+Thu Jul 03 03:17:42 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/glossary.rst,docs/intro_ir.html: Improve intro_ir a bit, and
+	  link to the definition of RSet in the glossary.
+
+Thu Jul 03 01:30:56 GMT 2008  Olly Betts <olly@survex.com>
+
+	* examples/quest.cc: Output get_description() of the parsed query.
+
+Sun Jun 29 18:56:06 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/multimatch.cc: Rename percent_factor variable, used here
+	  as part of the percent_cutoff mechanism, to make its purpose
+	  clearer, and to avoid confusing it with percent_scale in this
+	  file, and percent_factor used elsewhere in matcher/.
+
+Sat Jun 28 21:51:42 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/doxygen_api_conf.in,docs/doxygen_full_conf.in: Disable
+	  "JAVADOC_AUTOBRIEF" since we always try to write a brief
+	  description explicitly, and it causes problems in some cases.
+
+Sat Jun 28 21:32:21 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/: Fix typos in doxygen comments.
+
+Sat Jun 28 10:33:06 GMT 2008  Olly Betts <olly@survex.com>
+
+	* languages/stem.cc: Add "nl" for selecting the Dutch stemmer, which
+	  was accidentally missing from the list of language codes recognised.
+	  Reported by Joey Hess in Debian bug #484458.
+	* tests/api_nodb.cc: Extend stemlangs1 to check that all the language
+	  codes work, and so does Stem("").
+
+Fri Jun 27 00:27:31 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog and against 1.0 branch.
+
+Thu Jun 26 17:17:41 GMT 2008  Olly Betts <olly@survex.com>
+
+	* net/remoteconnection.cc: The "already done" check in do_close() is
+	  no longer useful, so remove it.  Shrink the try block to only cover
+	  the call to send_message().
+
+Thu Jun 26 08:19:41 GMT 2008  Olly Betts <olly@survex.com>
+
+	* net/remoteconnection.cc: Don't bother to send MSG_SHUTDOWN for a
+	  read-only Database - just closing the connection is enough.
+
+Thu Jun 26 04:49:06 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_btreebase.cc: Don't need <string.h> as well as
+	  <cstring>.
+	* backends/flint/flint_btreebase.cc,bin/xapian-replicate-server.cc:
+	  Prefer <cXXX> to <XXX.h>.
+
+Tue Jun 24 04:31:10 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/harness/testsuite.cc: Use resize() to truncate a string.
+
+Tue Jun 24 04:23:59 GMT 2008  Olly Betts <olly@survex.com>
+
+	* net/remoteconnection.cc: Fill in a guess at the __WIN32__ version of
+	  the code needed in RemoteConnection::do_close().
+
+Tue Jun 24 04:06:02 GMT 2008  Olly Betts <olly@survex.com>
+
+	* net/progclient.cc: Fix debug logging for __WIN32__.
+
+Tue Jun 24 03:11:09 GMT 2008  Olly Betts <olly@survex.com>
+
+	* net/remoteserver.cc: Just delete the Database * pointer db.  The
+	  Database dtor is virtual, so it's fine to delete a WritableDatabase
+	  via a Database * pointer.
+
+Tue Jun 24 01:29:12 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/remote/remote-database.cc,common/remoteconnection.h,
+	  net/remoteconnection.cc,net/replicatetcpclient.cc: Wait for the
+	  connection to close rather than using a different shutdown message
+	  which requires a reply.  Mostly this is more backport-friendly, but
+	  it also avoids a message reply (albeit it not in a performance
+	  sensitive situation).  Needs implementing for __WIN32__.
+
+Tue Jun 24 01:07:16 GMT 2008  Olly Betts <olly@survex.com>
+
+	* net/remoteserver.cc: Unwrap comment.
+
+Tue Jun 24 00:52:02 GMT 2008  Olly Betts <olly@survex.com>
+
+	* net/remoteserver.cc: Kill a blank line.
+
+Tue Jun 24 00:49:50 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/remote/remote-database.cc,common/remoteconnection.h,
+	  common/remoteprotocol.h,docs/remote_protocol.html,
+	  net/remoteconnection.cc,net/remoteserver.cc,
+	  net/replicatetcpclient.cc: Revert r10713 in preparation for applying
+	  an alternative fix.
+
+Mon Jun 23 21:51:42 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Expand list of keywords for brace cuddling.  Add rationale.
+
+Mon Jun 23 01:53:03 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: Cuddle braces after for loops for
+	  consistency with the rest of the code.  Use string::resize() to
+	  shrink a string rather than assigning the result of substr(0, x).
+	* HACKING: Explicitly document that braces should be cuddled after
+	  control flow structures.
+
+Mon Jun 23 01:34:39 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/perftest/perftest_matchdecider.cc: Reworked performance
+	  test to include a test of an alldocspostingiterator, and to only
+	  rebuild the database involved if it's not up-to-date.
+
+Mon Jun 23 01:20:25 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/valuestats.h: Add missing #include.
+
+Mon Jun 23 01:10:19 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* bin/xapian-compact.cc: Add support for the valuestats which are
+	  now held in the value table for chert.
+
+Sun Jun 22 23:44:46 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/chert/: Change ChertAllDocsPostList to inherit from
+	  ChertPostList and use the doclen list from the posting table
+	  rather than using the termlist table.  This helps towards making
+	  the termlist table optional, reduces the amount of data read in
+	  the process of iterating through an alldocs postlist, and can
+	  make a massive difference in performance: I've measured the time
+	  to iterate through all the documents in a 1000000 document
+	  database, and the patch speeds this operation up by a factor of
+	  6.
+
+	  Add `keep_reference` parameter to the ChertPostList constructor,
+	  instead of not keeping a reference if the term is empty.
+	  ChertAllDocsPostList uses this to keep a reference to the
+	  database while using an empty term.
+
+	  Add ChertAllDocsModifiedPostList class, inspired by
+	  ChertModifiedPostList, (with corresponding new source files) to
+	  handle alldocs postlist with modifications: this wasn't needed
+	  before since the termlist is updated immediately after changes.
+
+Sun Jun 22 21:37:00 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/harness/: Add "name" parameter to
+	  BackendManager::get_writable_database_as_database(), and
+	  BackendManager::get_writable_database_again(), (and subclasses)
+	  so that old databases can be revived.  Useful for the performance
+	  tests.
+
+Sun Jun 22 09:30:44 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_anydb.cc: Expand tests for alldocspostlist, covering
+	  iteration of modified databases.
+
+Fri Jun 20 08:28:12 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/remote/remote-database.cc,common/remoteconnection.h,
+	  common/remoteprotocol.h,docs/remote_protocol.html,
+	  net/remoteconnection.cc,net/remoteserver.cc,
+	  net/replicatetcpclient.cc: Add new message
+	  "MSG_SHUTDOWNANDCONFIRM" which causes a reply of
+	  "REPLY_SHUTDOWNCONFIRMATION" to be sent after the database has
+	  been closed.  Use this message when closing a writable database,
+	  to ensure that the destructor doesn't return until the lock on
+	  the database has been released.
+
+Tue Jun 17 14:28:46 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/perftest/freemem.cc,tests/perftest/perftest.cc: Patches
+	  from Charlie to allow perftest to compile on windows.
+
+Tue Jun 17 13:23:18 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/chert/chert_btreebase.cc,backends/chert/chert_lock.cc,
+	  backends/flint/flint_btreebase.cc,backends/flint/flint_lock.cc,
+	  bin/xapian-replicate-server.cc: Add some missing includes, needed
+	  for GCC 4.3.
+
+Tue Jun 17 11:00:56 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/perftest/get_machine_info.in: Updates to hopefully get
+	  useful version information on windows.
+
+Mon Jun 16 12:13:48 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/harness/testsuite.cc: Don't call backendmanager->posttest()
+	  if no backendmanager is in use.
+
+Sun Jun 15 02:19:03 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/harness/: Wait for subprocesses to finish at end of tests,
+	  with remotetcp backend, to avoid test failures due to final flush
+	  of a subprocess writing to the database used for the next test.
+
+Thu Jun 12 09:09:44 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/unaligned.h: Add some casts to make GCC 4.3.0 happy.
+
+Thu Jun 12 09:06:21 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/chert/chert_btreebase.cc: Add missing #include (needed
+	  for compilation with GCC 4.3.0).
+
+Tue Jun 10 17:38:07 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/harness/testrunner.cc: Use startswith().  Fix memory leak.
+
+Fri Jun 06 11:02:56 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* Makefile.am,tests/Makefile.am: Fix make check-* targets to match
+	  the current set of backends.  Add .multichert and .multiflint to
+	  the clean-local hook in tests/.  Leave .multi there for now, to
+	  clean up existing .multi directories in the automated build trees.
+
+Fri Jun 06 08:26:49 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/Makefile.mk: Add valuestats.h to distribution.
+
+Thu Jun 05 23:37:37 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/chert/chert_values.cc: Fix compile error in assertion in
+	  recently added code for calculating value statistics.
+
+Thu Jun 05 21:38:01 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Use std::vector<Term *> rather than
+	  std::list<Term *> so that size() is O(1) with any (sane) compiler
+	  and because a list of pointers isn't space efficient (and we don't
+	  need to splice here).  Factor out common code in if branches in
+	  TermGroup::as_group().
+
+Thu Jun 05 17:04:23 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Use "startswith()" to avoid creating
+	  a new string object.
+
+Thu Jun 05 09:09:54 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Remove variable which is set but
+	  never otherwise used.
+
+Thu Jun 05 09:08:22 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc: Don't call find() twice - reuse the result
+	  we just got.  Use AssertEq() rather than Assert() on an equality
+	  test.  Clarify a comment.
+
+Wed Jun 04 21:32:11 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* queryparser/queryparser.lemony: Fix more O(N*N) scaling, this
+	  time in the way in which auto multiword synonyms are detected.
+	  Instead of trying all possible sub-sequences of terms for
+	  synonyms, use synonym_keys and the skip_to() method to check for
+	  synonyms which actually exist in the synonyms table.
+	* tests/queryparsertest.cc: Extend the scaling test to check this
+	  case.
+
+Wed Jun 04 12:42:32 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* queryparser/queryparser.lemony: Fix various cases where queries
+	  were constructed pair-wise within a loop, which leads to O(N*N)
+	  scaling behaviour (because each intermediate query construction
+	  is O(M) where M is the size of that query, and there are N of
+	  them).
+	* tests/queryparsertest.cc: Add test to check that parsing of a
+	  query scales roughly linearly with query size.
+	* common/omtime.h: Add method to get an OmTime as a double - used
+	  by the new query parser test.
+
+Wed Jun 04 12:18:35 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/harness/testsuite.h: Fix TEST_LESSER_OR_EQUAL and
+	  TEST_LESSER macros to compare in the right direction (these
+	  macros are, so far, unused).
+
+Mon Jun 02 18:19:22 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/postingsource.cc: Make ValueWeightPostingSource use value
+	  statistics, if they're available, to return accurate term
+	  frequency statistics, and a better maxweight.
+	* tests/api_db.cc: Add valueweightsource2, to test the bounds and
+	  maxweight returned by a ValueWeightPostingSource for backends
+	  with valuestats support.  Replace !multi condition in
+	  valueweightsource1 with a SKIP_TEST_FOR_BACKEND invocation, since
+	  this is a shortcoming we should fix at some point.
+
+Mon Jun 02 18:16:52 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/harness/testrunner.cc,tests/harness/testrunner.h: Replace
+	  DO_TESTS_FOR_BACKEND macro with a do_tests_for_backend method;
+	  the method version takes a BackendManager * and gets the backend
+	  name from that, rather than requiring it to be specified.
+	  Requires addition of a couple of extra private members to the
+	  TestRunner class.
+
+Mon Jun 02 10:27:45 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/database.h: Add get_value_freq(),
+	  get_value_lower_bound() and get_value_upper_bound() methods to
+	  Database, to get statistics about the values stored in a slot.
+	* api/omdatabase.cc,backends/chert/,backends/database.cc,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h,
+	  backends/remote/remote-database.cc,common/,
+	  net/remoteserver.cc: Add support for the value statistics methods
+	  to chert, inmemory, multi and remote databases.
+	* tests/Makefile.am,tests/api_valuestats.cc,
+	  tests/harness/testrunner.cc,tests/harness/testrunner.h: Add test
+	  of the value statistics code, and a "valuestats" backend property
+	  to select only backends supporting this.
+
+Mon Jun 02 10:26:12 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/harness/backendmanager.cc,tests/harness/backendmanager.h:
+	  Move implementation of get_dbtype() method out of header.
+
+Mon Jun 02 09:44:34 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* rests/harness/: Make flint and chert subtypes for the remote and
+	  multi backend types.  These are specified (on the command line
+	  and elsewhere) by the main type (multi, remotetcp or remoteprog),
+	  followed by an underscore, followed by the subtype (flint or
+	  chert).  Change return type of BackendManager::get_dbtype() to a
+	  string instead of a const char *, to allow backend managers which
+	  have subtypes to generate the result dynamically.
+	* tests/harness/backendmanager_remote.cc,
+	  tests/harness/backendmanager_remote.h,
+	  tests/harness/backendmanager_remoteprog.cc,
+	  tests/harness/backendmanager_remoteprog.h,
+	  tests/harness/backendmanager_remotetcp.cc,
+	  tests/harness/backendmanager_remotetcp.h: Add new
+	  BackendManagerRemote class as a common base for the two remote
+	  backend managers, and move duplicated code into it.  Add
+	  parameter to its constructor, and to the constructors of the
+	  remote backend manager subclasses, to control the type of
+	  database to use at the remote end.
+	* tests/harness/backendmanager_multi.cc,
+	  tests/harness/backendmanager_multi.h: Add parameter to
+	  constructor of BackendManagerMulti, controlling the type of
+	  database to use for sub databases.  Put the generated database
+	  files in ".multiflint" and ".multichert" instead of ".multi".
+	* tests/harness/testrunner.cc: Update list of backend properties to
+	  contain the new subtypes.  Modify use_backend() to allow either
+	  the full backend type, or just the main part of the backend type,
+	  to be specified, so that, for example "-b multi" will run both
+	  the multi_chert and multi_flint tests.  Add test runs for all the
+	  subtypes now supported.  Catch string exceptions thrown by the
+	  test runner - these can currently occur when neither flint or
+	  chert are compiled in.
+	* tests/apitest.cc,tests/apitest.h: Adjust return type of
+	  get_dbtype(), implement skip_test_*_backend functions which just
+	  check the prefix of the type, and implement SKIP_TEST_*_BACKEND
+	  macros using these.
+	* tests/api_anydb.cc: Modify check for running on a multi backend
+	  to copy with getting a string back from get_dbtype().
+
+Sat May 31 00:55:03 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am,tests/perftest/Makefile.mk: Remove unnecessary
+	  quotes.
+
+Thu May 29 16:04:56 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/perftest/: Update svn:ignore property for perftest changes.
+
+Thu May 29 14:33:51 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/perftest/perftest.cc: Include the xapian version string in
+	  the test output.  For runs from SVN, also include the subversion
+	  revision number and branch in the output.
+
+Wed May 28 21:47:37 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/valuegepostlist.cc,matcher/valuerangepostlist.cc,
+	  matcher/valuerangepostlist.h: Apply patch from ticket #270 to
+	  implement ValueRangePostList::next() by using an alldocs posting
+	  list, instead of trying docids in turn.  This is much more
+	  efficient if document IDs are sparse.  Since both methods require
+	  accessing the termlist table to check for the next document, and
+	  some cursory performance tests don't show a measurable difference
+	  in speed, I think this approach is at least safe, and probably
+	  superior.
+
+Wed May 28 21:28:38 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/perftest/perftest.cc: Log the flush threshold for indexing
+	  runs.
+	* tests/perftest/perftest_randomidx.cc: Set the run size back to a
+	  reasonably large value.
+
+Wed May 28 20:48:10 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* configure.ac,tests/,tests/perftest/,tests/perftest_matchdecider.cc,
+	  tests/perftest_randomidx.cc: Move performance test source files
+	  into a subdirectory.  Modify output of performance tests to
+	  include some basic system information, and also to include
+	  details of the parameters used to perform indexing tests.
+
+Wed May 28 20:42:56 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* HACKING: Fix numbering in checklist for developers so that it
+	  doesn't repeat section 5.
+
+Sun May 25 14:21:40 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Update to match 1.0 branch.
+
+Sun May 25 00:24:09 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Start to update from ChangeLog, stripping out backported
+	  changes.
+
+Sat May 24 16:38:49 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update to match 1.0 branch.
+
+Sat May 24 16:33:19 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/termgentest.cc: Pass Xapian::Document by const reference.
+
+Sat May 24 14:30:59 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Only warn about duplicate user metadata keys
+	  if the tags aren't the same.
+
+Sat May 24 12:14:55 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/Makefile.am: Put special -I options in foo_CPPFLAGS not
+	  foo_CXXFLAGS.  As well as being the more correct place, this also
+	  means that AM_CXXFLAGS is now used when compiling xapian-check and
+	  xapian-compact, which in particular enables compiler warnings.
+	* bin/xapian-check.cc,bin/xapian-compact.cc,bin/xapian-check-flint.cc:
+	  Fix warnings (one unused variable and a few cases of a variable
+	  masking another with the same name - none problematic in practice).
+
 Fri May 23 09:22:24 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* backends/inmemory/inmemory_database.cc: Fix bug in inmemory

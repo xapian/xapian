@@ -603,7 +603,8 @@ static test test_simple[] = {
     { "waarom \"~\" in directorynaam", "(Zwaarom:(pos=1) OR Zin:(pos=2) OR Zdirectorynaam:(pos=3))" },
 #endif
 
-static string format_doc_termlist(const Xapian::Document doc)
+static string
+format_doc_termlist(const Xapian::Document & doc)
 {
     string output;
     Xapian::TermIterator it;

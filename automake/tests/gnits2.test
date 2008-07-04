@@ -1,0 +1,114 @@
+#! /bin/sh
+# Copyright (C) 2002, 2003, 2004  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Test to ensure std-options checking is correct.
+
+required=gcc
+. ./defs || exit 1
+
+cat >> configure.in << 'END'
+AC_PROG_CC
+AC_OUTPUT
+END
+
+cat > Makefile.am << 'END'
+AUTOMAKE_OPTIONS = gnits
+noinst_PROGRAMS = fubar2
+bin_PROGRAMS = fubar sub/fine
+nobase_bin_PROGRAMS = sub/fubar3
+fubar_SOURCES = fubar.c
+fubar2_SOURCES = fubar.c
+sub_fubar3_SOURCES = fubar.c
+sub_fine_SOURCES = fine.c
+bin_SCRIPTS = sub/scriptok.sh sub/scriptnok.sh
+
+grep-stderr:
+	grep 'pfubar$(EXEEXT) does not support' stderr
+	grep 'pfubar3$(EXEEXT) does not support' stderr
+	grep 'pscriptnok.sh does not support' stderr
+## Only three failures please.
+	test `grep 'does not support --help' stderr | wc -l` = 3
+	test `grep 'does not support --version' stderr | wc -l` = 3
+
+test-install: install
+	test -f ../inst-dir/bin/pfine$(EXEEXT)
+	test ! -f ../inst-dir/bin/fine$(EXEEXT)
+END
+
+echo 'int main () { return 0; }' > fubar.c
+
+cat > fine.c << 'END'
+#include <stdio.h>
+int
+main ()
+{
+  puts ("Which version? Which usage?");
+  return 0;
+}
+END
+
+mkdir sub
+
+cat >sub/scriptok.sh <<EOF
+#!/bin/sh
+echo "Which version? Which usage?"
+EOF
+
+# Not only does this script not support --help/--version, but
+# it will also hang when run without input.
+cat >sub/scriptnok.sh <<EOF
+#!/bin/sh
+cat
+EOF
+
+chmod +x sub/scriptok.sh
+chmod +x sub/scriptnok.sh
+
+# Files required by Gnits.
+: > INSTALL
+: > NEWS
+: > README
+: > COPYING
+: > AUTHORS
+: > ChangeLog
+: > THANKS
+
+# The following file should not be distributed.
+# (alpha.test checks the case where it must be distributed.)
+: > README-alpha
+
+set -e
+
+$ACLOCAL
+$AUTOCONF
+$AUTOMAKE -a
+
+grep README-alpha Makefile.in && exit 1
+
+mkdir build
+cd build
+
+# Use --program-prefix to make sure the std-options check honors it.
+../configure --prefix=`pwd`/../inst-dir --program-prefix=p
+$MAKE all
+$MAKE test-install
+$MAKE -k installcheck 2>stderr || : # Never trust the exit status of make -k.
+cat stderr
+$MAKE grep-stderr
