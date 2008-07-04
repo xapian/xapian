@@ -948,7 +948,7 @@ to follow the style of the existing code.  In particular:
   the "empty()" form makes the intent of the test more explicit.
 
 * Prefer not to use "else" when the control flow is diverted elsewhere at the
-  end of the "if" block (e.g. by "return", "continue", "break").  This
+  end of the "if" block (e.g. by "return", "continue", "break", "throw").  This
   eliminates a level of indentation from the code in the "else" block, and
   typically makes the control flow logic clearer.  For example::
 

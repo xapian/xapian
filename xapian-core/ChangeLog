@@ -1,3 +1,8 @@
+Fri Jul 04 04:36:59 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Synchronise tiny change from branches/1.0 which isn't
+	  on trunk for some reason.
+
 Fri Jul 04 04:35:19 GMT 2008  Olly Betts <olly@survex.com>
 
 	* HACKING: Bootstrap with newer versions of the autotools:
