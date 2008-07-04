@@ -1,3 +1,8 @@
+Fri Jul 04 13:04:43 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* docsim/docsim_cosine.cc: Fix compilation with debug logging
+	  again.
+
 Mon Apr 28 13:19:03 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* docsim/cluster.cc: Fix compilation with debug logging.

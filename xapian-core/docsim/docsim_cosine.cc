@@ -125,6 +125,5 @@ Xapian::DocSimCosine::similarity(TermIterator a_begin,
 std::string
 Xapian::DocSimCosine::get_description() const
 {
-    DEBUGCALL(INTRO, string, "Xapian::DocSimCosine::get_description", "");
-    RETURN("Xapian::DocSimCosine()");
+    return "Xapian::DocSimCosine()";
 }
