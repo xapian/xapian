@@ -1,3 +1,9 @@
+Fri Jul 04 10:24:16 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Makefile.am,bin/Makefile.mk,examples/Makefile.mk: Remove
+	  extra_cleandirs as automake 1.10.1 fixes the bug which it was working
+	  around.
+
 Fri Jul 04 04:36:59 GMT 2008  Olly Betts <olly@survex.com>
 
 	* HACKING: Synchronise tiny change from branches/1.0 which isn't
