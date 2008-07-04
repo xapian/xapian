@@ -31,6 +31,7 @@
 #include <xapian/valueiterator.h>
 
 #include "contiguousalldocspostlist.h"
+#include "chert_alldocsmodifiedpostlist.h"
 #include "chert_alldocspostlist.h"
 #include "chert_alltermslist.h"
 #include "chert_document.h"
@@ -914,7 +915,7 @@ ChertDatabase::open_post_list(const string& term) const
 	RETURN(new ChertAllDocsPostList(ptrtothis, doccount));
     }
 
-    RETURN(new ChertPostList(ptrtothis, term));
+    RETURN(new ChertPostList(ptrtothis, term, true));
 }
 
 TermList *
@@ -1803,7 +1804,11 @@ ChertWritableDatabase::open_post_list(const string& tname) const
 	if (lastdocid == doccount) {
 	    RETURN(new ContiguousAllDocsPostList(ptrtothis, doccount));
 	}
-	RETURN(new ChertAllDocsPostList(ptrtothis, doccount));
+	if (doclens.empty()) {
+	    RETURN(new ChertAllDocsPostList(ptrtothis, doccount));
+	} else {
+	    RETURN(new ChertAllDocsModifiedPostList(ptrtothis, doccount, doclens));
+	}
     }
 
     map<string, map<docid, pair<char, termcount> > >::const_iterator j;
@@ -1814,7 +1819,7 @@ ChertWritableDatabase::open_post_list(const string& tname) const
 	RETURN(new ChertModifiedPostList(ptrtothis, tname, j->second));
     }
 
-    RETURN(new ChertPostList(ptrtothis, tname));
+    RETURN(new ChertPostList(ptrtothis, tname, true));
 }
 
 TermList *

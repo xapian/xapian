@@ -27,7 +27,7 @@ namespace TcpClient {
     /** Attempt to open a TCP/IP socket connection to a server.
      *
      *  Connect to the server running on port @a port of host @a hostname.
-     *  Give up trying to connect after @msecs_timeout_connect milliseconds.
+     *  Give up trying to connect after @a msecs_timeout_connect milliseconds.
      */
     int open_socket(const std::string & hostname, int port,
 		    int msecs_timeout_connect, bool tcp_nodelay);

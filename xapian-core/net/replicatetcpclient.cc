@@ -70,5 +70,5 @@ ReplicateTcpClient::update_from_master(const std::string & path,
 
 ReplicateTcpClient::~ReplicateTcpClient()
 {
-    remconn.do_close();
+    remconn.do_close(true);
 }

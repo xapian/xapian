@@ -1,0 +1,15 @@
+#!/bin/sh
+# @configure_input@
+
+# Be Bourne compatible
+if test -n "${ZSH_VERSION+set}" && (emulate sh) >/dev/null 2>&1; then
+  emulate sh
+  NULLCMD=:
+  # Zsh 3.x and 4.x performs word splitting on ${1+"$@"}, which
+  # is contrary to our usage.  Disable this feature.
+  alias -g '${1+"$@"}'='"$@"'
+fi
+
+perllibdir="@abs_top_builddir@/lib@PATH_SEPARATOR@@abs_top_srcdir@/lib"
+export perllibdir
+exec @abs_top_builddir@/automake --libdir=@abs_top_srcdir@/lib ${1+"$@"}

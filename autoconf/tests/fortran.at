@@ -1,0 +1,77 @@
+#							-*- Autotest -*-
+
+AT_BANNER([Fortran low level compiling/preprocessing macros.])
+
+# Copyright (C) 2000, 2001, 2003 Free Software Foundation, Inc.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+
+
+# Since the macros which compile are required by most tests, check
+# them first.  But remember that looking for a compiler is even more
+# primitive, so check those first.
+
+
+## --------------------- ##
+## Fortran 77 Compiler.  ##
+## --------------------- ##
+
+
+AT_CHECK_MACRO([GNU Fortran 77],
+[[AC_LANG(Fortran 77)
+AC_LANG_COMPILER
+
+if AC_TRY_COMMAND([$F77 --version | grep GNU >&2]); then
+  # Be sure to remove files which might be created by compilers that
+  # don't support --version.
+  rm -f a.exe a.out
+  # Has GNU in --version.
+  test "$G77" != yes &&
+    AC_MSG_ERROR([failed to recognize GNU Fortran 77 compiler])
+else
+  # Be sure to remove files which might be created by compilers that
+  # don't support --version.
+  rm -f a.exe a.out
+  # Has not.
+  test "$G77" = yes &&
+    AC_MSG_ERROR([incorrectly recognized a GNU Fortran 77 compiler])
+fi
+]])
+
+
+
+## ------------------ ##
+## Fortran Compiler.  ##
+## ------------------ ##
+
+
+AT_CHECK_MACRO([GNU Fortran],
+[[AC_LANG(Fortran)
+AC_LANG_COMPILER
+
+# No Fortran compiler is known not to support "*.f".
+AC_FC_SRCEXT([f])
+
+# GNU Fortran is known to support freeform.
+AC_FC_FREEFORM([],
+               [AC_MSG_WARN([Fortran does not accept free-form source])])
+if test "$ac_compiler_gnu" = yes; then
+  case $FCFLAGS in
+   *-ffree-form*) ;;
+   *) AC_MSG_ERROR([failed to recognize GNU Fortran's -ffree-form option.]);;
+  esac
+fi
+]])

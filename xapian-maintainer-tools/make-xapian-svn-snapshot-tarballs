@@ -170,10 +170,10 @@ foreach my $tag (@ARGV) {
     mkpath("$tag/build", 0, 0755) or die $!;
     chdir "$tag/build" or die $!;
 
-    $log = `../xapian/bootstrap 2>&1`;
+    $log = `../xapian/bootstrap-with-autotools 2>&1`;
     print LOG $log;
     if ($?) {
-	print "*** bootstrap failed for '$tag':";
+	print "*** bootstrap-with-autotools failed for '$tag':";
 	print $log;
 	$status = 1;
 	next;

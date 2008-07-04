@@ -1,5 +1,6 @@
 /**
  Copyright (c) 2003, Technology Concepts & Design, Inc.
+ Copyright (c) 2008, Olly Betts
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -39,7 +40,8 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_database_1new__ (JNIEnv *env, 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_database_1new__Ljava_lang_String_2 (JNIEnv *env, jclass clazz, jstring path) {
     TRY
         const char *c_path = env->GetStringUTFChars(path, 0);
-        Database *db = new Database(c_path);
+	string cpp_path(c_path, env->GetStringUTFLength(path));
+        Database *db = new Database(cpp_path);
         env->ReleaseStringUTFChars(path, c_path);
         return _database->put(db);
     CATCH(-1)
@@ -103,8 +105,9 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_database_1positionlist_1begin 
     TRY
         Database *db = (Database *) _database->get(dbid);
         const char *c_term = env->GetStringUTFChars(term, 0);
+	string cpp_term(c_term, env->GetStringUTFLength(term));
         PositionIterator *itr;
-        itr = new PositionIterator(db->positionlist_begin(dbdocid, c_term));
+        itr = new PositionIterator(db->positionlist_begin(dbdocid, cpp_term));
         env->ReleaseStringUTFChars(term, c_term);
         return _positioniterator->put(itr);
     CATCH(-1)
@@ -114,7 +117,8 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_database_1positionlist_1end (J
     TRY
         Database *db = (Database *) _database->get(dbid);
         const char *c_term = env->GetStringUTFChars(term, 0);
-        PositionIterator *itr = new PositionIterator (db->positionlist_end(dbdocid, c_term));
+	string cpp_term(c_term, env->GetStringUTFLength(term));
+        PositionIterator *itr = new PositionIterator (db->positionlist_end(dbdocid, cpp_term));
         env->ReleaseStringUTFChars(term, c_term);
         return _positioniterator->put(itr);
     CATCH(-1)
@@ -161,7 +165,8 @@ JNIEXPORT jint JNICALL Java_org_xapian_XapianJNI_database_1get_1termfreq (JNIEnv
     TRY
         Database *db = (Database *) _database->get(dbid);
         const char *c_term = env->GetStringUTFChars(term, 0);
-        int freq = db->get_termfreq(c_term);
+	string cpp_term(c_term, env->GetStringUTFLength(term));
+        int freq = db->get_termfreq(cpp_term);
         env->ReleaseStringUTFChars(term, c_term);
         return freq;
     CATCH(-1)
@@ -171,7 +176,8 @@ JNIEXPORT jboolean JNICALL Java_org_xapian_XapianJNI_database_1term_1exists (JNI
     TRY
         Database *db = (Database *) _database->get(dbid);
         const char *c_term = env->GetStringUTFChars(term, 0);
-        bool exists = db->term_exists(c_term);
+	string cpp_term(c_term, env->GetStringUTFLength(term));
+        bool exists = db->term_exists(cpp_term);
         env->ReleaseStringUTFChars(term, c_term);
         return exists;
     CATCH(0)
@@ -181,7 +187,8 @@ JNIEXPORT jint JNICALL Java_org_xapian_XapianJNI_database_1get_1collection_1freq
     TRY
         Database *db = (Database *) _database->get(dbid);
         const char *c_term = env->GetStringUTFChars(term, 0);
-        int freq = db->get_collection_freq(c_term);
+	string cpp_term(c_term, env->GetStringUTFLength(term));
+        int freq = db->get_collection_freq(cpp_term);
         env->ReleaseStringUTFChars(term, c_term);
         return freq;
     CATCH(-1)

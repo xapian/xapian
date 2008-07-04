@@ -134,7 +134,7 @@ TestRunner::use_backend(const string & backend_name)
 	return true;
     if (backend_name == user_backend)
 	return true;
-    if (backend_name.substr(0, user_backend.size() + 1) == user_backend + "_")
+    if (startswith(backend_name, user_backend + "_"))
 	return true;
     return false;
 }
@@ -164,8 +164,8 @@ TestRunner::do_tests_for_backend(BackendManager * manager)
 	set_properties_for_backend(backend_name);
 	cout << "Running tests with backend \"" << backendmanager->get_dbtype() << "\"..." << endl;
 	result_so_far = max(result_so_far, run());
-	delete backendmanager;
     }
+    delete manager;
 }
 
 int

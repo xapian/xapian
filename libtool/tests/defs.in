@@ -1,0 +1,900 @@
+# @configure_input@
+# defs -- Defines for Libtool testing environment.
+#
+#   Copyright (C) 2003, 2004, 2005, 2007, 2008 Free Software
+#   Foundation, Inc.
+#   Written by Gord Matzigkeit, 1996
+#   Rewritten by Gary V. Vaughan, 2003
+#
+#   This file is part of GNU Libtool.
+#
+# GNU Libtool is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of
+# the License, or (at your option) any later version.
+#
+# GNU Libtool is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU Libtool; see the file COPYING.  If not, a copy
+# can be downloaded from  http://www.gnu.org/licenses/gpl.html,
+# or obtained by writing to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+####
+
+## --------------------- ##
+## M4sh Initialization.  ##
+## --------------------- ##
+
+# Be more Bourne compatible
+DUALCASE=1; export DUALCASE # for MKS sh
+if test -n "${ZSH_VERSION+set}" && (emulate sh) >/dev/null 2>&1; then
+  emulate sh
+  NULLCMD=:
+  # Pre-4.2 versions of Zsh do word splitting on ${1+"$@"}, which
+  # is contrary to our usage.  Disable this feature.
+  alias -g '${1+"$@"}'='"$@"'
+  setopt NO_GLOB_SUBST
+else
+  case `(set -o) 2>/dev/null` in
+  *posix*) set -o posix ;;
+esac
+
+fi
+
+
+
+
+# PATH needs CR
+# Avoid depending upon Character Ranges.
+as_cr_letters='abcdefghijklmnopqrstuvwxyz'
+as_cr_LETTERS='ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+as_cr_Letters=$as_cr_letters$as_cr_LETTERS
+as_cr_digits='0123456789'
+as_cr_alnum=$as_cr_Letters$as_cr_digits
+
+as_nl='
+'
+export as_nl
+# Printing a long string crashes Solaris 7 /usr/bin/printf.
+as_echo='\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\'
+as_echo=$as_echo$as_echo$as_echo$as_echo$as_echo
+as_echo=$as_echo$as_echo$as_echo$as_echo$as_echo$as_echo
+if (test "X`printf %s $as_echo`" = "X$as_echo") 2>/dev/null; then
+  as_echo='printf %s\n'
+  as_echo_n='printf %s'
+else
+  if test "X`(/usr/ucb/echo -n -n $as_echo) 2>/dev/null`" = "X-n $as_echo"; then
+    as_echo_body='eval /usr/ucb/echo -n "$1$as_nl"'
+    as_echo_n='/usr/ucb/echo -n'
+  else
+    as_echo_body='eval expr "X$1" : "X\\(.*\\)"'
+    as_echo_n_body='eval
+      arg=$1;
+      case $arg in
+      *"$as_nl"*)
+	expr "X$arg" : "X\\(.*\\)$as_nl";
+	arg=`expr "X$arg" : ".*$as_nl\\(.*\\)"`;;
+      esac;
+      expr "X$arg" : "X\\(.*\\)" | tr -d "$as_nl"
+    '
+    export as_echo_n_body
+    as_echo_n='sh -c $as_echo_n_body as_echo'
+  fi
+  export as_echo_body
+  as_echo='sh -c $as_echo_body as_echo'
+fi
+
+# The user is always right.
+if test "${PATH_SEPARATOR+set}" != set; then
+  PATH_SEPARATOR=:
+  (PATH='/bin;/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 && {
+    (PATH='/bin:/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 ||
+      PATH_SEPARATOR=';'
+  }
+fi
+
+# Support unset when possible.
+if ( (MAIL=60; unset MAIL) || exit) >/dev/null 2>&1; then
+  as_unset=unset
+else
+  as_unset=false
+fi
+
+
+# IFS
+# We need space, tab and new line, in precisely that order.  Quoting is
+# there to prevent editors from complaining about space-tab.
+# (If _AS_PATH_WALK were called with IFS unset, it would disable word
+# splitting by setting IFS to empty value.)
+IFS=" ""	$as_nl"
+
+# Find who we are.  Look in the path if we contain no directory separator.
+case $0 in
+  *[\\/]* ) as_myself=$0 ;;
+  *) as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  test -r "$as_dir/$0" && as_myself=$as_dir/$0 && break
+done
+IFS=$as_save_IFS
+
+     ;;
+esac
+# We did not find ourselves, most probably we were run as `sh COMMAND'
+# in which case we are not to be found in the path.
+if test "x$as_myself" = x; then
+  as_myself=$0
+fi
+if test ! -f "$as_myself"; then
+  $as_echo "$as_myself: error: cannot find myself; rerun with an absolute file name" >&2
+  { (exit 1); exit 1; }
+fi
+
+# Work around bugs in pre-3.0 UWIN ksh.
+for as_var in ENV MAIL MAILPATH
+do ($as_unset $as_var) >/dev/null 2>&1 && $as_unset $as_var
+done
+PS1='$ '
+PS2='> '
+PS4='+ '
+
+# NLS nuisances.
+LC_ALL=C
+export LC_ALL
+LANGUAGE=C
+export LANGUAGE
+
+# Required to use basename.
+if expr a : '\(a\)' >/dev/null 2>&1 &&
+   test "X`expr 00001 : '.*\(...\)'`" = X001; then
+  as_expr=expr
+else
+  as_expr=false
+fi
+
+if (basename -- /) >/dev/null 2>&1 && test "X`basename -- / 2>&1`" = "X/"; then
+  as_basename=basename
+else
+  as_basename=false
+fi
+
+
+# Name of the executable.
+as_me=`$as_basename -- "$0" ||
+$as_expr X/"$0" : '.*/\([^/][^/]*\)/*$' \| \
+	 X"$0" : 'X\(//\)$' \| \
+	 X"$0" : 'X\(/\)' \| . 2>/dev/null ||
+$as_echo X/"$0" |
+    sed '/^.*\/\([^/][^/]*\)\/*$/{
+	    s//\1/
+	    q
+	  }
+	  /^X\/\(\/\/\)$/{
+	    s//\1/
+	    q
+	  }
+	  /^X\/\(\/\).*/{
+	    s//\1/
+	    q
+	  }
+	  s/.*/./; q'`
+
+# CDPATH.
+$as_unset CDPATH
+
+$as_unset CDPATH
+
+
+
+
+: ${CP="cp -f"}
+: ${ECHO="echo"}
+: ${EGREP="@EGREP@"}
+: ${FGREP="@FGREP@"}
+: ${GREP="@GREP@"}
+: ${LN_S="@LN_S@"}
+: ${MAKE="make"}
+: ${MKDIR="mkdir"}
+: ${MV="mv -f"}
+: ${RM="rm -f"}
+: ${SED="@SED@"}
+: ${SHELL="${CONFIG_SHELL-/bin/sh}"}
+: ${Xsed="$SED -e 1s/^X//"}
+
+# Global variables:
+EXIT_SUCCESS=0
+EXIT_FAILURE=1
+EXIT_MISMATCH=63  # $? = 63 is used to indicate version mismatch to missing.
+EXIT_SKIP=77	  # $? = 77 is used to indicate a skipped test to automake.
+
+exit_status=$EXIT_SUCCESS
+
+# Make sure IFS has a sensible default
+lt_nl='
+'
+IFS=" 	$lt_nl"
+
+dirname="s,/[^/]*$,,"
+basename="s,^.*/,,"
+
+# func_dirname_and_basename file append nondir_replacement
+# perform func_basename and func_dirname in a single function
+# call:
+#   dirname:  Compute the dirname of FILE.  If nonempty,
+#             add APPEND to the result, otherwise set result
+#             to NONDIR_REPLACEMENT.
+#             value returned in "$func_dirname_result"
+#   basename: Compute filename of FILE.
+#             value retuned in "$func_basename_result"
+# Implementation must be kept synchronized with func_dirname
+# and func_basename. For efficiency, we do not delegate to
+# those functions but instead duplicate the functionality here.
+func_dirname_and_basename ()
+{
+  # Extract subdirectory from the argument.
+  func_dirname_result=`$ECHO "X${1}" | $Xsed -e "$dirname"`
+  if test "X$func_dirname_result" = "X${1}"; then
+    func_dirname_result="${3}"
+  else
+    func_dirname_result="$func_dirname_result${2}"
+  fi
+  func_basename_result=`$ECHO "X${1}" | $Xsed -e "$basename"`
+}
+
+# Generated shell functions inserted here.
+
+# Work around backward compatibility issue on IRIX 6.5. On IRIX 6.4+, sh
+# is ksh but when the shell is invoked as "sh" and the current value of
+# the _XPG environment variable is not equal to 1 (one), the special
+# positional parameter $0, within a function call, is the name of the
+# function.
+progpath="$0"
+
+# The name of this program:
+# In the unlikely event $progname began with a '-', it would play havoc with
+# func_echo (imagine progname=-n), so we prepend ./ in that case:
+func_dirname_and_basename "$progpath"
+progname=$func_basename_result
+case $progname in
+  -*) progname=./$progname ;;
+esac
+
+# Make sure we have an absolute path for reexecution:
+case $progpath in
+  [\\/]*|[A-Za-z]:\\*) ;;
+  *[\\/]*)
+     progdir=$func_dirname_result
+     progdir=`cd "$progdir" && pwd`
+     progpath="$progdir/$progname"
+     ;;
+  *)
+     save_IFS="$IFS"
+     IFS=:
+     for progdir in $PATH; do
+       IFS="$save_IFS"
+       test -x "$progdir/$progname" && break
+     done
+     IFS="$save_IFS"
+     test -n "$progdir" || progdir=`pwd`
+     progpath="$progdir/$progname"
+     ;;
+esac
+
+# Sed substitution that helps us do robust quoting.  It backslashifies
+# metacharacters that are still active within double-quoted strings.
+Xsed="${SED}"' -e 1s/^X//'
+sed_quote_subst='s/\([`"$\\]\)/\\\1/g'
+
+# Same as above, but do not quote variable references.
+double_quote_subst='s/\(["`\\]\)/\\\1/g'
+
+# Re-`\' parameter expansions in output of double_quote_subst that were
+# `\'-ed in input to the same.  If an odd number of `\' preceded a '$'
+# in input to double_quote_subst, that '$' was protected from expansion.
+# Since each input `\' is now two `\'s, look for any number of runs of
+# four `\'s followed by two `\'s and then a '$'.  `\' that '$'.
+bs='\\'
+bs2='\\\\'
+bs4='\\\\\\\\'
+dollar='\$'
+sed_double_backslash="\
+  s/$bs4/&\\
+/g
+  s/^$bs2$dollar/$bs&/
+  s/\\([^$bs]\\)$bs2$dollar/\\1$bs2$bs$dollar/g
+  s/\n//g"
+
+# Standard options:
+opt_dry_run=false
+opt_help=false
+opt_quiet=false
+opt_verbose=false
+opt_warning=:
+
+# func_echo arg...
+# Echo program name prefixed message, along with the current mode
+# name if it has been set yet.
+func_echo ()
+{
+    $ECHO "$progname${mode+: }$mode: $*"
+}
+
+# func_verbose arg...
+# Echo program name prefixed message in verbose mode only.
+func_verbose ()
+{
+    $opt_verbose && func_echo ${1+"$@"}
+
+    # A bug in bash halts the script if the last line of a function
+    # fails when set -e is in force, so we need another command to
+    # work around that:
+    :
+}
+
+# func_error arg...
+# Echo program name prefixed message to standard error.
+func_error ()
+{
+    $ECHO "$progname${mode+: }$mode: "${1+"$@"} 1>&2
+}
+
+# func_warning arg...
+# Echo program name prefixed warning message to standard error.
+func_warning ()
+{
+    $opt_warning && $ECHO "$progname${mode+: }$mode: warning: "${1+"$@"} 1>&2
+
+    # bash bug again:
+    :
+}
+
+# func_fatal_error arg...
+# Echo program name prefixed message to standard error, and exit.
+func_fatal_error ()
+{
+    func_error ${1+"$@"}
+    exit $EXIT_FAILURE
+}
+
+# func_fatal_help arg...
+# Echo program name prefixed message to standard error, followed by
+# a help hint, and exit.
+func_fatal_help ()
+{
+    func_error ${1+"$@"}
+    func_fatal_error "$help"
+}
+help="Try \`$progname --help' for more information."  ## default
+
+
+# func_grep expression filename
+# Check whether EXPRESSION matches any line of FILENAME, without output.
+func_grep ()
+{
+    $GREP "$1" "$2" >/dev/null 2>&1
+}
+
+
+# func_mkdir_p directory-path
+# Make sure the entire path to DIRECTORY-PATH is available.
+func_mkdir_p ()
+{
+    my_directory_path="$1"
+    my_dir_list=
+
+    if test -n "$my_directory_path" && test "$opt_dry_run" != ":"; then
+
+      # Protect directory names starting with `-'
+      case $my_directory_path in
+        -*) my_directory_path="./$my_directory_path" ;;
+      esac
+
+      # While some portion of DIR does not yet exist...
+      while test ! -d "$my_directory_path"; do
+        # ...make a list in topmost first order.  Use a colon delimited
+	# list incase some portion of path contains whitespace.
+        my_dir_list="$my_directory_path:$my_dir_list"
+
+        # If the last portion added has no slash in it, the list is done
+        case $my_directory_path in */*) ;; *) break ;; esac
+
+        # ...otherwise throw away the child directory and loop
+        my_directory_path=`$ECHO "X$my_directory_path" | $Xsed -e "$dirname"`
+      done
+      my_dir_list=`$ECHO "X$my_dir_list" | $Xsed -e 's,:*$,,'`
+
+      save_mkdir_p_IFS="$IFS"; IFS=':'
+      for my_dir in $my_dir_list; do
+	IFS="$save_mkdir_p_IFS"
+        # mkdir can fail with a `File exist' error if two processes
+        # try to create one of the directories concurrently.  Don't
+        # stop in that case!
+        $MKDIR "$my_dir" 2>/dev/null || :
+      done
+      IFS="$save_mkdir_p_IFS"
+
+      # Bail out if we (or some other process) failed to create a directory.
+      test -d "$my_directory_path" || \
+        func_fatal_error "Failed to create \`$1'"
+    fi
+}
+
+
+# func_mktempdir [string]
+# Make a temporary directory that won't clash with other running
+# libtool processes, and avoids race conditions if possible.  If
+# given, STRING is the basename for that directory.
+func_mktempdir ()
+{
+    my_template="${TMPDIR-/tmp}/${1-$progname}"
+
+    if test "$opt_dry_run" = ":"; then
+      # Return a directory name, but don't create it in dry-run mode
+      my_tmpdir="${my_template}-$$"
+    else
+
+      # If mktemp works, use that first and foremost
+      my_tmpdir=`mktemp -d "${my_template}-XXXXXXXX" 2>/dev/null`
+
+      if test ! -d "$my_tmpdir"; then
+        # Failing that, at least try and use $RANDOM to avoid a race
+        my_tmpdir="${my_template}-${RANDOM-0}$$"
+
+        save_mktempdir_umask=`umask`
+        umask 0077
+        $MKDIR "$my_tmpdir"
+        umask $save_mktempdir_umask
+      fi
+
+      # If we're not in dry-run mode, bomb out on failure
+      test -d "$my_tmpdir" || \
+        func_fatal_error "cannot create temporary directory \`$my_tmpdir'"
+    fi
+
+    $ECHO "X$my_tmpdir" | $Xsed
+}
+
+
+# func_quote_for_eval arg
+# Aesthetically quote ARG to be evaled later.
+# This function returns two values: FUNC_QUOTE_FOR_EVAL_RESULT
+# is double-quoted, suitable for a subsequent eval, whereas
+# FUNC_QUOTE_FOR_EVAL_UNQUOTED_RESULT has merely all characters
+# which are still active within double quotes backslashified.
+func_quote_for_eval ()
+{
+    case $1 in
+      *[\\\`\"\$]*)
+	func_quote_for_eval_unquoted_result=`$ECHO "X$1" | $Xsed -e "$sed_quote_subst"` ;;
+      *)
+        func_quote_for_eval_unquoted_result="$1" ;;
+    esac
+
+    case $func_quote_for_eval_unquoted_result in
+      # Double-quote args containing shell metacharacters to delay
+      # word splitting, command substitution and and variable
+      # expansion for a subsequent eval.
+      # Many Bourne shells cannot handle close brackets correctly
+      # in scan sets, so we specify it separately.
+      *[\[\~\#\^\&\*\(\)\{\}\|\;\<\>\?\'\ \	]*|*]*|"")
+        func_quote_for_eval_result="\"$func_quote_for_eval_unquoted_result\""
+        ;;
+      *)
+        func_quote_for_eval_result="$func_quote_for_eval_unquoted_result"
+    esac
+}
+
+
+# func_quote_for_expand arg
+# Aesthetically quote ARG to be evaled later; same as above,
+# but do not quote variable references.
+func_quote_for_expand ()
+{
+    case $1 in
+      *[\\\`\"]*)
+	my_arg=`$ECHO "X$1" | $Xsed \
+	    -e "$double_quote_subst" -e "$sed_double_backslash"` ;;
+      *)
+        my_arg="$1" ;;
+    esac
+
+    case $my_arg in
+      # Double-quote args containing shell metacharacters to delay
+      # word splitting and command substitution for a subsequent eval.
+      # Many Bourne shells cannot handle close brackets correctly
+      # in scan sets, so we specify it separately.
+      *[\[\~\#\^\&\*\(\)\{\}\|\;\<\>\?\'\ \	]*|*]*|"")
+        my_arg="\"$my_arg\""
+        ;;
+    esac
+
+    func_quote_for_expand_result="$my_arg"
+}
+
+
+# func_show_eval cmd [fail_exp]
+# Unless opt_silent is true, then output CMD.  Then, if opt_dryrun is
+# not true, evaluate CMD.  If the evaluation of CMD fails, and FAIL_EXP
+# is given, then evaluate it.
+func_show_eval ()
+{
+    my_cmd="$1"
+    my_fail_exp="${2-:}"
+
+    ${opt_silent-false} || {
+      func_quote_for_expand "$my_cmd"
+      eval "func_echo $func_quote_for_expand_result"
+    }
+
+    if ${opt_dry_run-false}; then :; else
+      eval "$my_cmd"
+      my_status=$?
+      if test "$my_status" -eq 0; then :; else
+	eval "(exit $my_status); $my_fail_exp"
+      fi
+    fi
+}
+
+
+# func_show_eval_locale cmd [fail_exp]
+# Unless opt_silent is true, then output CMD.  Then, if opt_dryrun is
+# not true, evaluate CMD.  If the evaluation of CMD fails, and FAIL_EXP
+# is given, then evaluate it.  Use the saved locale for evaluation.
+func_show_eval_locale ()
+{
+    my_cmd="$1"
+    my_fail_exp="${2-:}"
+
+    ${opt_silent-false} || {
+      func_quote_for_expand "$my_cmd"
+      eval "func_echo $func_quote_for_expand_result"
+    }
+
+    if ${opt_dry_run-false}; then :; else
+      eval "$lt_user_locale
+	    $my_cmd"
+      my_status=$?
+      eval "$lt_safe_locale"
+      if test "$my_status" -eq 0; then :; else
+	eval "(exit $my_status); $my_fail_exp"
+      fi
+    fi
+}
+
+
+
+
+
+: ${AUTOCONF="autoconf"}
+: ${AUTORECONF="autoreconf"}
+: ${LIBTOOL="./libtool"}
+
+# Sed that helps us avoid accidentally triggering echo(1) options like -n.
+Xsed="$SED -e 1s/^X//"
+
+# Disable usage of config.site for autoconf, unless DJGPP is present.
+# The DJGPP port of autoconf requires config.site, to work correctly.
+if test -z "$DJGPP"; then
+    CONFIG_SITE=/nonexistent
+fi
+
+# How verbose should we be?  Default is no test output.
+# Setting VERBOSE=yes enables test output.
+# Setting VERBOSE=debug also puts the shell in debug mode.
+opt_debug=:
+test "${VERBOSE+set}" != "set" && VERBOSE=no
+case "$VERBOSE" in
+NO | no | 0 | "")
+  exec > /dev/null 2>&1
+  ;;
+DEBUG | debug )
+  opt_debug='set -x'
+  $opt_debug
+  ;;
+esac
+
+if test -z "$srcdir"; then
+  srcdir=`$ECHO "X$0" | $Xsed -e "$dirname"`
+  test "$srcdir" = "$0" && srcdir=.
+fi
+
+# func_msg arg...
+# Echo message with prefix.
+func_msg ()
+{
+    func_echo "=== " ${1+"$@"}
+}
+
+# func_skip arg...
+# Echo message to standard error, and skip the rest of this test.
+func_skip ()
+{
+    func_error ${1+"$@"}
+    exit $EXIT_SKIP
+}
+
+# func_fail arg...
+# Echo message to standard error, and fail this test.
+func_fail ()
+{
+    func_fatal_error ${1+"$@"}
+}
+
+# func_get_config varname_list src [failp] [regex]
+func_get_config ()
+{
+  $opt_debug
+  my_varname_list="$1"
+  my_src="$2"
+  my_failp="false";  test -z "$3" || my_failp=:
+  my_regex="$4"
+
+  my_exitp=false
+  if test -z "$my_regex"; then
+    my_regex="^("
+    my_build_regex=:
+  else
+    my_build_regex=false
+  fi
+  my_first=:
+
+  for my_varname in $my_varname_list; do
+    if $my_build_regex; then
+      $my_first || my_regex="$my_regex|"
+      my_first=false
+      my_regex="$my_regex$my_varname"
+    fi
+    eval $my_varname=NONE
+  done
+  $my_build_regex && my_regex="$my_regex)="
+  eval `eval "$my_src" | eval "$EGREP \"$my_regex\""`
+
+  for my_varname in $my_varname_list; do
+    if eval test x\"\$$my_varname\" = xNONE; then
+      func_error "$my_varname not set in \`$my_src'"
+      $my_failp && my_exitp=:
+    fi
+  done
+
+  $my_exitp && exit $EXIT_FAILURE
+}
+
+
+# Extract some variables from the libtool configuration.
+func_get_config "objext
+objdir
+CC
+host
+host_alias
+build
+build_alias" "$LIBTOOL --config" ": fatal"
+
+
+# func_mkprefixdir
+func_mkprefixdir ()
+{
+    $opt_debug
+    # An absolute path to a test installation directory.
+    func_mkdir_p "$prefix"
+    prefix=`cd $prefix && pwd`
+}
+
+# func_rmprefixdir
+func_rmprefixdir ()
+{
+    $opt_debug
+    test -d $prefix && rm -rf $prefix
+    prefix=NONE
+}
+
+# func_cd dir
+# Make sure a directory exists, and then change to it.
+func_cd ()
+{
+    $opt_debug
+    my_dir="$1"
+
+    # Maybe we have a VPATH build, in which case, create a new subdir.
+    func_mkdir_p "$my_dir"
+
+    # Change to our build directory.
+    cd "$my_dir" || func_fatal_error "couldn't cd to \`$my_dir'"
+}
+
+
+# func_require prereq file [...]
+# If FILE does not exist, give a fatal error regarding running PREREQ first.
+func_require ()
+{
+    $opt_debug
+    my_prereq="$1"; shift
+    my_files=${1+"$@"}
+
+    for my_file in $my_files; do
+      test -f "$my_file" \
+        || func_skip "You must run ${my_prereq}.test before running $0"
+    done
+}
+
+# func_configure_nofail [args ...]
+# Configure the demonstration.
+func_configure_nofail ()
+{
+    $opt_debug
+    my_args=${1+"$@"}
+    my_dir=`pwd | $SED "$basename"`
+    my_testdir="$srcdir/tests/$my_dir"
+    conf_status=$EXIT_FAILURE
+
+    test -n "$my_args" && my_args=" $my_args"
+    my_args="--srcdir="\""$my_testdir"\"" --prefix="\""$prefix"\""$my_args"
+    test -n "$host_alias" && my_args="$my_args --host=\"$host_alias\""
+    test -n "$build_alias" && my_args="$my_args --build=\"$build_alias\""
+
+    func_msg "Configuring in $my_dir"
+
+    test -f "$my_testdir/configure" || ${AUTORECONF} --force --install $my_testdir
+    if test -f "$my_testdir/configure"; then
+
+      eval func_msg $SHELL "$my_testdir/configure" $my_args
+      if eval $SHELL "$my_testdir/configure" $my_args; then
+	conf_status=$EXIT_SUCCESS
+      else
+	func_msg "FAILED: Configuring in $my_testdir"
+	ls -ltr $my_testdir
+      fi
+    fi
+}
+
+# func_configure [args ...]
+# Configure the demonstration, fail on error.
+func_configure ()
+{
+    func_configure_nofail ${1+"$@"}
+    if test "$conf_status" -eq "$EXIT_FAILURE"; then
+      exit $EXIT_FAILURE
+    fi
+}
+
+# func_check_static_shared staticp sharedp
+# Determine whether the generated libtool script is configured properly
+# for the expected STATICP and SHAREDP library building
+func_check_static_shared ()
+{
+    $opt_debug
+    my_staticp="$1"
+    my_sharedp="$2"
+
+    if func_grep "^build_old_libs=$staticp" libtool &&
+       func_grep "^build_libtool_libs=$sharedp" libtool; then :
+    else
+      rm -f Makefile
+      exit $EXIT_FAIL
+    fi
+}
+
+
+# func_make [args ...]
+# Do the actual build.
+func_make ()
+{
+    $opt_debug
+    my_args=${1+"$@"}
+    my_dir=`pwd | $SED "$basename"`
+
+    func_msg "Running \`$MAKE $my_args' in $my_dir"
+
+    eval $MAKE $my_args || exit $EXIT_FAIL
+}
+
+
+# func_distclean
+# Possibly clean up the distribution.
+func_make_distclean ()
+{
+    $opt_debug
+    if test -f Makefile; then
+      func_make distclean
+    fi
+    rm -rf autom4te.cache config.cache
+}
+
+
+# func_make_uninstall
+# See that there were no files leftover in $prefix.
+# Ignore dotfiles, so that .nfsXXX files don't screw up the test.
+func_make_uninstall ()
+{
+    $opt_debug
+    func_make uninstall
+
+    leftovers=`find $prefix ! -type d ! -name '.*' -print`
+    if test -n "$leftovers"; then
+      func_msg "Leftover after make uninstall:"
+      ls -l $leftovers
+      exit 1
+    fi
+}
+
+
+# func_exec_init mode
+func_exec_init ()
+{
+    $opt_debug
+    func_msg "Executing $1 programs in $my_dir"
+
+    # Windows hosts search for dlls in the command path
+    PATH=$prefix/lib:$PATH
+
+    exec_status=$EXIT_SUCCESS
+}
+
+# func_exec_check program [msg ...]
+# Check to see if PROGRAM was built. If not display MSG.
+func_exec_check ()
+{
+    $opt_debug
+    my_program="$1"
+
+    if test -f "$my_program"; then :
+    else
+      shift
+      func_error "$0: $my_program did not build ${1+$@}"
+      exec_status=$EXIT_FAILURE
+    fi
+}
+
+# func_exec program [exp_output] [msg ...]
+# Check to see if PROGRAM really runs, and produces EXP_OUTPUT if given.
+# If not display MSG.
+func_exec ()
+{
+    $opt_debug
+    my_program="$1"
+    my_exp_output="$2"
+    my_dir=`pwd | $SED "$basename"`
+
+    test -n "$my_exp_output" \
+      && my_exp_output="| $EGREP -e "\""$my_exp_output"\"
+
+    if eval $my_program $my_exp_output; then :
+    else
+      shift
+      test "x$1" = x || shift
+      func_error "$0: cannot execute $my_program ${1+$@}"
+
+      if test "$build" != "$host"; then
+        func_msg "This may be ok since you seem to be cross-compiling."
+	exec_status=$EXIT_SKIP
+      else
+	# Simple check to see if they are superuser.
+	if test $exec_status = $EXIT_FAILURE || test -w /; then :
+	else
+	  func_msg "You may need to run $0 as the superuser."
+	fi
+	exec_status=$EXIT_FAILURE
+      fi
+    fi
+}
+
+# Shared global variables for test scripts
+prefix="./_inst"
+srcdir=`cd $srcdir && pwd`
+m4dir=$srcdir/libltdl/m4
+auxdir=$srcdir/libltdl/config
+scripts="$auxdir/ltmain.sh ./libtoolize"
+
+func_msg "Running $progname"
+
+# Local Variables:
+# mode:shell-script
+# sh-indentation:2
+# End:
+
+

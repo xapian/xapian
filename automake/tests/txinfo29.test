@@ -1,0 +1,65 @@
+#! /bin/sh
+# Copyright (C) 2004  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Make sure that INFO_DEPS can be overridden.
+# Report from Bruce Korb.
+
+. ./defs || exit 1
+
+set -e
+
+cat > Makefile.am << 'END'
+INFO_DEPS = foo.info
+info_TEXINFOS = bar.texi
+END
+
+echo '@setfilename baz.info' > bar.texi
+
+$ACLOCAL
+AUTOMAKE_fails --add-missing
+grep '^Makefile.am:1:.*user variable.*INFO_DEPS' stderr
+grep 'overrides Automake variable.*INFO_DEPS' stderr
+
+$AUTOMAKE -Wno-override
+
+# There is only one definition of INFO_DEPS
+test 1 = `grep '^INFO_DEPS.*=' Makefile.in | wc -l`
+# and it is the right one.
+grep '^INFO_DEPS = foo.info$' Makefile.in
+
+
+# Likewise with AC_SUBST.
+
+cat > Makefile.am << 'END'
+info_TEXINFOS = bar.texi
+END
+echo 'AC_SUBST([INFO_DEPS])' >>configure.in
+rm -rf autom4te.cache # Make sure autoconf sees the configure.in update.
+AUTOMAKE_fails
+
+grep '^configure.in:4:.*user variable.*INFO_DEPS' stderr
+grep 'overrides Automake variable.*INFO_DEPS' stderr
+
+$AUTOMAKE -Wno-override
+
+# There is only one definition of INFO_DEPS
+test 1 = `grep '^INFO_DEPS.*=' Makefile.in | wc -l`
+# and it is the right one.
+grep '^INFO_DEPS = @INFO_DEPS@$' Makefile.in

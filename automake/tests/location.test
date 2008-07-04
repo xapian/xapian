@@ -1,0 +1,77 @@
+#! /bin/sh
+# Copyright (C) 2002, 2003  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Test for locations in error messages.
+
+. ./defs || exit 1
+
+set -e
+
+cat >> configure.in << 'END'
+AM_CONDITIONAL([COND1], [true])
+AM_CONDITIONAL([COND2], [true])
+AC_PROG_CC
+AC_PROG_RANLIB
+END
+
+cat > Makefile.am << 'END'
+bin_PROGRAMS = libfoo.a
+if COND2
+  lib_LIBRARIES = libfoo.a
+endif
+if COND1
+  bin_PROGRAMS += ctags
+endif
+VAR = 1 \
+      2 \
+      3
+
+VAR = 1 \
+      2 \
+      3
+END
+
+$ACLOCAL
+AUTOMAKE_fails
+
+# Smash the useless difference of lib file locations.
+sed 's,^.*lib/am/\([a-z]*\.am\),\1,' stderr >observed
+cat >expected <<\EOF
+Makefile.am:12: VAR multiply defined in condition TRUE ...
+Makefile.am:8: ... `VAR' previously defined here
+automake: libfoo_a_OBJECTS should not be defined
+Makefile.am:3:   while processing library `libfoo.a'
+automake: use `libfoo_a_LDADD', not `libfoo_a_LIBADD'
+Makefile.am:3:   while processing library `libfoo.a'
+library.am: deprecated feature: target `libfoo.a' overrides `libfoo.a$(EXEEXT)'
+library.am: change your target to read `libfoo.a$(EXEEXT)'
+Makefile.am:3:   while processing library `libfoo.a'
+program.am: target `libfoo.a$(EXEEXT)' was defined here
+Makefile.am:1:   while processing program `libfoo.a'
+program.am: redefinition of `libfoo.a$(EXEEXT)'...
+Makefile.am:1:   while processing program `libfoo.a'
+library.am: ... `libfoo.a' previously defined here
+Makefile.am:3:   while processing library `libfoo.a'
+tags.am: redefinition of `ctags'...
+program.am: ... `ctags$(EXEEXT)' previously defined here
+Makefile.am:6:   while processing program `ctags'
+EOF
+
+diff expected observed || exit 1

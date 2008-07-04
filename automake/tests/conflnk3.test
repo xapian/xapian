@@ -1,0 +1,96 @@
+#! /bin/sh
+# Copyright (C) 2003, 2004  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Test to make sure that AC_CONFIG_LINKS using a variable source
+# is not broken.
+
+. ./defs || exit 1
+
+set -e
+
+# Skip platforms where `test -e' does not work.  (Note that Changing
+# all `test -e' into `test -h' will not work when AC_CONFIG_LINKS
+# copies or hardlinks files.)
+(test -e configure.in) >/dev/null 2>&1 || exit 77
+
+cat > Makefile.am << 'END'
+SUBDIRS = sdir
+test: distdir
+	test ! -e $(distdir)/sdir/dest3
+	test ! -e $(distdir)/sdir/dest2
+	test ! -e $(distdir)/dest3
+	test ! -e $(distdir)/dest2
+	test -f $(distdir)/src2
+## src3 cannot be distributed, Automake knows nothing about it
+	test ! -e $(distdir)/sdir/src3
+	test ! -e $(distdir)/src3
+END
+
+: > src
+: > src2
+mkdir sdir
+: > sdir/Makefile.am
+: > sdir/src3
+
+cat >>configure.in << 'EOF'
+AC_CONFIG_FILES(sdir/Makefile)
+my_src_dir=sdir
+my_dest=dest
+AC_CONFIG_LINKS(sdir/dest2:src2 sdir/dest3:$my_src_dir/src3)
+AC_CONFIG_LINKS($my_dest:src)
+# the following is a link whose source is itself a link
+AC_CONFIG_LINKS(dest4:sdir/dest2)
+# Some package prefer to compute links.
+cmplink='dest5:src';
+AC_CONFIG_LINKS($cmplink)
+AC_OUTPUT
+EOF
+
+$ACLOCAL
+$AUTOCONF
+$AUTOMAKE
+
+# $my_src_dir and $my_dest are variables local to configure, they should
+# not appear in Makefile.
+grep my_src_dir Makefile.in && exit 1
+grep my_dest Makefile.in && exit 1
+
+./configure
+test -e sdir/dest2
+test -e sdir/dest3
+test -e dest
+test -e dest4
+test -e dest5
+$MAKE test
+
+$MAKE distclean
+test ! -e sdir/dest2
+test ! -e sdir/dest3
+test -e dest  # Should still exist, Automake knows nothing about it.
+test -e dest5 # ditto
+rm -f dest dest5
+test ! -e dest4
+
+## Cannot do the following, because at the time of writing Autoconf
+## (2.59) does not support AC_CONFIG_LINKS source in the build tree.
+# mkdir build
+# cd build
+# ../configure
+# $MAKE test

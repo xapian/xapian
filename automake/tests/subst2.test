@@ -1,0 +1,57 @@
+#! /bin/sh
+# Copyright (C) 2003, 2006  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Make sure a multi-line definition cannot be terminated by an empty
+# line (when there are @substitutions@ inside).
+. ./defs || exit 1
+
+set -e
+
+cat >> configure.in << 'END'
+AC_PROG_CC
+AC_SUBST([ABCDEFGHIJKLMNOPQRSTUVWX])
+AC_SUBST([ABCDEFGHIJKLMNOPQRSTUVWXY])
+AC_SUBST([ABCDEFGHIJKLMNOPQRSTUVWXYZ])
+AC_OUTPUT
+END
+
+cat >Makefile.am <<'END'
+bin_PROGRAMS = x @ABCDEFGHIJKLMNOPQRSTUVWX@ @ABCDEFGHIJKLMNOPQRSTUVWXY@ @ABCDEFGHIJKLMNOPQRSTUVWXYZ@
+EXTRA_PROGRAMS =
+
+EXEEXT = .bin
+
+print-programs:
+	@echo BEG: $(bin_PROGRAMS) :END
+END
+
+$ACLOCAL
+$AUTOCONF
+$AUTOMAKE
+./configure
+EXEEXT=.bin $MAKE print-programs >foo
+cat foo
+grep 'BEG: x.bin :END' foo
+EXEEXT=.bin am__empty=X $MAKE -e print-programs >foo
+cat foo
+grep 'BEG: x.bin X :END' foo
+
+# Test for another bug, where EXTRA_PROGRAMS was removed because it was empty.
+grep EXTRA_PROGRAMS Makefile.in

@@ -6,6 +6,7 @@
 # Originally based on smoketest.php from the PHP4 bindings.
 #
 # Copyright (C) 2006 Networked Knowledge Systems, Inc.
+# Copyright (C) 2008 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -50,6 +51,14 @@ class XapianSmoketest < Test::Unit::TestCase
 
     @enq = Xapian::Enquire.new(@db)
   end # setup
+
+  def test_version
+    # Test the version number reporting functions give plausible results.
+    @v = sprintf("%d.%d.%d", Xapian::major_version(), Xapian::minor_version(),
+                 Xapian::revision())
+    @v2 = Xapian::version_string()
+    assert_equal(@v2, @v)
+  end # test_version
 
   def test_stem
     assert_equal("Xapian::Stem(english)", @stem.description())    

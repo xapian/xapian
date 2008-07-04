@@ -1,0 +1,55 @@
+#! /bin/sh
+# Copyright (C) 2002  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Make sure that derivations work with .lo too.
+# (related to PR/37)
+
+required='libtoolize bison'
+. ./defs || exit 1
+
+set -e
+
+cat >>configure.in <<EOF
+AC_PROG_CC
+AC_PROG_YACC
+AC_PROG_LIBTOOL
+AC_OUTPUT
+EOF
+
+
+cat >Makefile.am << 'END'
+lib_LTLIBRARIES = libfoo.la
+libfoo_la_SOURCES = foo.x_
+
+.x_.y:
+	cp $< $@
+
+print:
+	echo BEGIN: $(libfoo_la_OBJECTS) :END
+END
+
+libtoolize --force
+$ACLOCAL
+$AUTOCONF
+$AUTOMAKE --add-missing
+./configure
+$MAKE print >stdout
+cat stdout
+grep 'BEGIN: foo.lo :END' stdout

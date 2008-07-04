@@ -1,0 +1,104 @@
+#! /bin/sh
+# Copyright (C) 2003, 2004, 2007  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Make sure we allow Libtool's -dlopen/-dlpreopen
+# Also check basic support for AM_LIBTOOLFLAGS/LIBTOOLFLAGS
+
+required='libtoolize gcc'
+. ./defs || exit 1
+
+set -e
+
+cat >> configure.in << 'END'
+AC_PROG_CC
+AC_LIBTOOL_DLOPEN
+AM_PROG_LIBTOOL
+AC_OUTPUT
+END
+
+cat > Makefile.am << 'END'
+AUTOMAKE_OPTIONS = subdir-objects
+AM_LIBTOOLFLAGS = --silent
+lib_LTLIBRARIES = libmod1.la mod2.la
+libmod1_la_SOURCES = sub/mod1.c
+libmod1_la_LDFLAGS = -module
+libmod1_la_LIBADD = -dlopen mod2.la
+mod2_la_SOURCES = mod2.c
+mod2_la_LDFLAGS = -module
+mod2_la_LIBTOOLFLAGS =
+
+bin_PROGRAMS = prg
+prg_SOURCES = prg.c
+prg_LDADD = -dlopen libmod1.la -dlpreopen mod2.la
+
+print:
+	@echo 1BEG: $(prg_DEPENDENCIES) :END1
+	@echo 2BEG: $(libmod1_la_DEPENDENCIES) :END2
+	@echo 3BEG: $(LTCOMPILE) :END3
+END
+
+mkdir sub liba
+
+cat > sub/mod1.c << 'END'
+int
+mod1 ()
+{
+   return 1;
+}
+END
+
+cat > mod2.c << 'END'
+int
+mod2 ()
+{
+   return 2;
+}
+END
+
+cat > prg.c << 'END'
+int
+main ()
+{
+   return 0;
+}
+END
+
+libtoolize --force --copy
+$ACLOCAL
+$AUTOCONF
+$AUTOMAKE --add-missing --copy
+
+./configure --prefix=`pwd`/_inst
+env LIBTOOLFLAGS=--silent $MAKE print >output 2>&1
+cat output
+grep '1BEG: libmod1.la mod2.la :END1' output
+grep '2BEG: mod2.la :END2' output
+grep '3BEG: .*silent.*silent.* :END3' output
+test 2 -le `grep mod2_la_LIBTOOLFLAGS Makefile | wc -l`
+$MAKE
+
+env LIBTOOLFLAGS=--silent $MAKE install >output 2>&1
+cat output
+grep 'silent.*silent.*prg' output
+grep 'silent.*silent.*libmod1' output
+
+env LIBTOOLFLAGS=--silent $MAKE uninstall >output 2>&1
+cat output
+grep 'silent.*silent.*libmod1' output

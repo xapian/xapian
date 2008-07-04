@@ -139,10 +139,13 @@ class BackendManager {
     virtual Xapian::Database get_remote_database(const std::vector<std::string> & files, unsigned int timeout);
 
     /// Create a Database object for the last opened WritableDatabase.
-    virtual Xapian::Database get_writable_database_as_database();
+    virtual Xapian::Database get_writable_database_as_database(const std::string & name = "");
 
     /// Create a WritableDatabase object for the last opened WritableDatabase.
-    virtual Xapian::WritableDatabase get_writable_database_again();
+    virtual Xapian::WritableDatabase get_writable_database_again(const std::string & name = "");
+
+    /// Called after each test, to perform any necessary cleanup.
+    virtual void posttest();
 
     /// Get the command line required to run xapian-progsrv.
     static const char * get_xapian_progsrv_command();

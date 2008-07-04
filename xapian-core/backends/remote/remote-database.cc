@@ -472,11 +472,19 @@ RemoteDatabase::send_message(message_type type, const string &message) const
 void
 RemoteDatabase::do_close()
 {
-    // We should only really call dtor_called() if we're writable.  In the
-    // constructor, we set transaction_state to TRANSACTION_UNIMPLEMENTED
-    // if we aren't writable, so test that here.
-    if (transaction_state != TRANSACTION_UNIMPLEMENTED) dtor_called();
-    link.do_close();
+    // In the constructor, we set transaction_state to
+    // TRANSACTION_UNIMPLEMENTED if we aren't writable so that we can check
+    // it here.
+    bool writable = (transaction_state != TRANSACTION_UNIMPLEMENTED);
+
+    // Only call dtor_called() if we're writable.
+    if (writable) dtor_called();
+
+    // If we're writable, wait for a confirmation of the close, so we know that
+    // changes have been written and flushed, and the database write lock
+    // released.  For the non-writable case, there's no need to wait, so don't
+    // slow down searching by waiting here.
+    link.do_close(writable);
 }
 
 void

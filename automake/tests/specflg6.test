@@ -1,0 +1,58 @@
+#! /bin/sh
+# Copyright (C) 2001, 2002, 2004  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Regression test for multiple rules being generated for each target when
+# conditionals are present.
+# From Richard Boulton
+
+. ./defs || exit 1
+
+cat >> configure.in << 'END'
+AC_PROG_CC
+AM_PROG_CC_C_O
+AM_CONDITIONAL(BAR, true)
+END
+
+cat > Makefile.am << 'END'
+if BAR
+BAR_SRCS = bar.c
+endif
+
+bin_PROGRAMS = foo
+foo_CFLAGS = -DFOO
+foo_SOURCES = foo.c
+END
+
+: > compile
+
+$ACLOCAL || exit 1
+$AUTOMAKE || exit 1
+
+uncondval=`$FGREP 'foo-foo.o: foo.c' Makefile.in`
+
+cat >> Makefile.am << 'END'
+foo_SOURCES += $(BAR_SRCS)
+END
+
+$AUTOMAKE || exit 1
+
+condval=`$FGREP 'foo-foo.o: foo.c' Makefile.in`
+
+test "x$uncondval" = "x$condval"

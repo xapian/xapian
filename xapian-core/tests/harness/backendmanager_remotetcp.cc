@@ -306,6 +306,16 @@ try_next_port:
 # error Neither HAVE_FORK nor __WIN32__ is defined
 #endif
 
+BackendManagerRemoteTcp::BackendManagerRemoteTcp(const std::string & remote_type_)
+	: BackendManagerRemote(remote_type_)
+{
+#ifdef HAVE_FORK
+    for (unsigned i = 0; i < sizeof(pid_to_fd) / sizeof(pid_fd); ++i) {
+	pid_to_fd[i].pid = -1;
+    }
+#endif
+}
+
 BackendManagerRemoteTcp::~BackendManagerRemoteTcp() { }
 
 std::string
@@ -347,17 +357,34 @@ BackendManagerRemoteTcp::get_remote_database(const vector<string> & files,
 }
 
 Xapian::Database
-BackendManagerRemoteTcp::get_writable_database_as_database()
+BackendManagerRemoteTcp::get_writable_database_as_database(const string & name)
 {
-    string args = get_writable_database_as_database_args();
+    string args = get_writable_database_as_database_args(name);
     int port = launch_xapian_tcpsrv(args);
     return Xapian::Remote::open(LOCALHOST, port);
 }
 
 Xapian::WritableDatabase
-BackendManagerRemoteTcp::get_writable_database_again()
+BackendManagerRemoteTcp::get_writable_database_again(const string & name)
 {
-    string args = get_writable_database_again_args();
+    string args = get_writable_database_again_args(name);
     int port = launch_xapian_tcpsrv(args);
     return Xapian::Remote::open_writable(LOCALHOST, port);
+}
+
+void
+BackendManagerRemoteTcp::posttest()
+{
+#ifdef HAVE_FORK
+    while(true) {
+	bool no_subpids = true;
+	for (unsigned i = 0; i < sizeof(pid_to_fd) / sizeof(pid_fd); ++i) {
+	    if (pid_to_fd[i].pid != -1) {
+		no_subpids = false;
+	    }
+	}
+	if (no_subpids) break;
+	sleep(1);
+    }
+#endif
 }

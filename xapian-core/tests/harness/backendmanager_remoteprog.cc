@@ -86,9 +86,9 @@ BackendManagerRemoteProg::get_remote_database(const vector<string> & files,
 }
 
 Xapian::Database
-BackendManagerRemoteProg::get_writable_database_as_database()
+BackendManagerRemoteProg::get_writable_database_as_database(const string & name)
 {
-    string args = get_writable_database_as_database_args();
+    string args = get_writable_database_as_database_args(name);
 
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {
@@ -100,9 +100,9 @@ BackendManagerRemoteProg::get_writable_database_as_database()
 }
 
 Xapian::WritableDatabase
-BackendManagerRemoteProg::get_writable_database_again()
+BackendManagerRemoteProg::get_writable_database_again(const string & name)
 {
-    string args = get_writable_database_again_args();
+    string args = get_writable_database_again_args(name);
 
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {

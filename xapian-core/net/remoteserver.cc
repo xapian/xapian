@@ -74,12 +74,10 @@ RemoteServer::RemoteServer(const std::vector<std::string> &dbpaths,
 	    context += ' ';
 	    context += *i;
 	}
-
     } catch (const Xapian::Error &err) {
 	// Propagate the exception to the client.
 	send_message(REPLY_EXCEPTION, serialise_error(err));
-	// And rethrow it so our caller can log it and close the
-	// connection.
+	// And rethrow it so our caller can log it and close the connection.
 	throw;
     }
 
@@ -112,12 +110,8 @@ RemoteServer::RemoteServer(const std::vector<std::string> &dbpaths,
 
 RemoteServer::~RemoteServer()
 {
-    // wdb is either NULL or equal to db, so we shouldn't delete it.
-    if (wdb) {
-	delete wdb;
-    } else {
-	delete db;
-    }
+    delete db;
+    // wdb is either NULL or equal to db, so we shouldn't delete it too!
 
     map<string, Xapian::Weight*>::const_iterator i;
     for (i = wtschemes.begin(); i != wtschemes.end(); ++i) {

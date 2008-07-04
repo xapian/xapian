@@ -1,0 +1,65 @@
+#!/bin/sh
+# Copyright (C) 2004  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Check rules output for parser defined conditionally.
+
+required='flex bison gcc'
+. ./defs
+
+set -e
+
+cat >>configure.in <<'EOF'
+AM_CONDITIONAL([CASE_A], test -z "$case_B")
+AC_PROG_CC
+AM_PROG_LEX
+AC_PROG_YACC
+AC_OUTPUT
+EOF
+
+cat >>Makefile.am <<'EOF'
+AM_YFLAGS               =       -d
+
+BUILT_SOURCES           =       tparse.h
+
+if CASE_A
+bin_PROGRAMS            =       ta
+ta_SOURCES              =       ta.c tparse.h tscan.l tparse.y
+ta_LDADD                =       $(LEXLIB)
+else
+bin_PROGRAMS            =       tb
+tb_SOURCES              =       tb.c tparse.h tscan.l tparse.y
+tb_LDADD                =       $(LEXLIB)
+tparse.h: tparce.c
+	echo whatever
+endif
+EOF
+
+$ACLOCAL
+
+# Presently Automake doesn't fully support partially overriden rules
+# and should complain.
+AUTOMAKE_fails --add-missing
+grep 'tparse.h.*already defined' stderr
+$AUTOMAKE -Wno-error
+
+# Still and all, it should generate two rules.
+test `grep tparse.h: Makefile.in | wc -l` = 2
+grep '@CASE_A_TRUE@tparse.h:' Makefile.in
+grep '@CASE_A_FALSE@tparse.h:' Makefile.in

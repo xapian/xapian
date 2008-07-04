@@ -89,7 +89,7 @@ class TestRunner(object):
         """Check that the description of a query is as expected.
 
         """
-	expected = 'Xapian::Query(' + expected + ')'
+        expected = 'Xapian::Query(' + expected + ')'
         desc = str(query)
         if self._verbose > 2:
             self._out.start_line()
@@ -162,7 +162,7 @@ class TestRunner(object):
             lines = open(filepath).readlines()
             startline = max(linenum - 3, 0)
             endline = min(linenum + 2, len(lines))
-            for num in xrange(startline, endline):
+            for num in range(startline, endline):
                 if num + 1 == linenum:
                     self._out.write('->')
                 else:
@@ -235,7 +235,7 @@ class TestRunner(object):
                 if name.startswith('test_'):
                     fn = namedict[name]
                     name = name[5:]
-                    if callable(fn):
+                    if hasattr(fn, '__call__'):
                         tests.append((name, fn))
             tests.sort()
         else:
@@ -313,7 +313,7 @@ class OutProxy(object):
         #colourname# will change the text colour, ## will change the colour back.
 
         """
-        for colour, val in self._colours.iteritems():
+        for colour, val in self._colours.items():
             msg = msg.replace('#%s#' % colour, val)
         return msg
 
@@ -383,3 +383,7 @@ runtests = _runner.runtests
 
 __all__ = ('context', 'expect', 'expect_query', 'expect_exception', 'runtests')
 
+if _sys.version_info < (3, 0, 0):
+    def next(iterator):
+        return iterator.next()
+    __all__ = __all__ + ('next',)

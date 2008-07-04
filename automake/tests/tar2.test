@@ -1,0 +1,44 @@
+#! /bin/sh
+# Copyright (C) 2004  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Check the tar-pax option.
+
+. ./defs || exit 1
+
+set -e
+
+cat > configure.in << 'END'
+AC_INIT([tar2], [1.0])
+AM_INIT_AUTOMAKE([tar-pax])
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT
+END
+
+: > Makefile.am
+
+$ACLOCAL
+$AUTOCONF
+$AUTOMAKE
+./configure
+
+grep 'am__tar.*false' Makefile && exit 77
+
+$MAKE distcheck
+test -f tar2-1.0.tar.gz

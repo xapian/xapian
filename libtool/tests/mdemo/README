@@ -1,0 +1,17 @@
+This is mdemo, an example package that uses GNU libtool with an
+Automake-generated environment to build two simple modules and 
+a program.
+
+It demonstrates how to build both dynamic and static libraries
+that can be dlopened. mdemo uses libtool's portable dlopen
+wrapper called "libltdl". 
+All exported symbols are prefixed with "libname_LTX_" to avoid
+symbols conflicts, especially when linking statically.
+libltdl will automatically cut the prefix off to get the real name.
+
+Note that on Windows, for the purposes of illustrating ltdl, the
+libraries *are* built as dll's, but do not have the __declspec
+machinery to make them suitable for loading at link time.  This is
+only for clarity inside this example, look at the example in ../demo
+to see how the __declspec macros should be set up.
+

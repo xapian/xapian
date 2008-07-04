@@ -11,8 +11,11 @@ INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include \
 
 TESTS_ENVIRONMENT = ./runtest
 
-.PHONY: check-none check-inmemory check-multi \
-        check-remote check-remoteprog check-remotetcp \
+.PHONY: check-none check-inmemory \
+        check-multi check-multi-chert check-multi-flint \
+        check-remote \
+	check-remoteprog check-remoteprog-chert check-remoteprog-flint\
+	check-remotetcp check-remotetcp-chert check-remotetcp-flint\
         check-chert check-flint up
 
 up:
@@ -43,14 +46,30 @@ check-remoteprog: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remoteprog
 check-remotetcp: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp
+if BUILD_BACKEND_CHERT
+check-remoteprog-chert: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remoteprog_chert
+check-remotetcp-chert: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp_chert
+endif
+if BUILD_BACKEND_FLINT
+check-remoteprog-flint: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remoteprog_flint
+check-remotetcp-flint: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp_flint
+endif
 endif
 
 if BUILD_BACKEND_CHERT
+check-multi-chert: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b multi_chert
 check-chert: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b chert
 endif
 
 if BUILD_BACKEND_FLINT
+check-multi-flint: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b multi_flint
 check-flint: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b flint
 endif
@@ -183,7 +202,7 @@ EXTRA_DIST +=\
 	testdata/flint-1.0.2/termlist.DB
 
 clean-local:
-	rm -rf .chert .flint .multi
+	rm -rf .chert .flint .multi .multichert .multiflint
 
 include perftest/Makefile.mk
 include harness/Makefile.mk

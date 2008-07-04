@@ -24,12 +24,14 @@
 
 #include <fstream>
 #include <iostream>
+#include <map>
 #include <queue>
 
 #include <stdio.h> // for rename()
 #include <string.h>
 #include <sys/types.h>
 #include "utils.h"
+#include "valuestats.h"
 
 // FIXME: this current works for chert, but we are really going to need
 // separate versions eventually.
@@ -691,6 +693,100 @@ multimerge_postlists(FlintTable * out, const char * tmpdir,
 }
 
 static void
+merge_chert_values(const string & tablename,
+		   FlintTable *out, const vector<string> & inputs,
+		   const vector<Xapian::docid> & offset, bool lazy)
+{
+    map<Xapian::valueno, ValueStats> stats;
+
+    for (size_t i = 0; i < inputs.size(); ++i) {
+	Xapian::docid off = offset[i];
+
+	FlintTable in(tablename, inputs[i], true, DONT_COMPRESS, lazy);
+	in.open();
+	if (in.get_entry_count() == 0) continue;
+
+	FlintCursor cur(&in);
+	cur.find_entry("");
+
+	string key;
+	while (cur.next()) {
+	    const char * d = cur.current_key.data();
+	    const char * e = d + cur.current_key.size();
+	    if (d != e && *d == '\xff') {
+		Xapian::valueno valno;
+		++d;
+		if (!F_unpack_uint_preserving_sort(&d, e, &valno)) {
+		    string msg = "Bad key in ";
+		    msg += inputs[i];
+		    throw Xapian::DatabaseCorruptError(msg);
+		}
+
+		cur.read_tag(true);
+		d = cur.current_tag.data();
+		e = d + cur.current_tag.size();
+		ValueStats newstats;
+		if (!F_unpack_uint(&d, e, &(newstats.freq))) {
+		    string msg = "Bad freq valuestats in ";
+		    msg += inputs[i];
+		    throw Xapian::DatabaseCorruptError(msg);
+		}
+		if (!F_unpack_string(&d, e, newstats.lower_bound)) {
+		    string msg = "Bad lower_bound valuestats in ";
+		    msg += inputs[i];
+		    throw Xapian::DatabaseCorruptError(msg);
+		}
+		if (!F_unpack_string(&d, e, newstats.upper_bound)) {
+		    string msg = "Bad upper_bound valuestats in ";
+		    msg += inputs[i];
+		    throw Xapian::DatabaseCorruptError(msg);
+		}
+		ValueStats & oldstats = stats[valno];
+		if (oldstats.upper_bound.empty()) {
+		    oldstats.freq = newstats.freq;
+		    oldstats.lower_bound = newstats.lower_bound;
+		    oldstats.upper_bound = newstats.upper_bound;
+		} else {
+		    oldstats.freq += newstats.freq;
+		    oldstats.lower_bound = min(oldstats.lower_bound, newstats.lower_bound);
+		    oldstats.upper_bound = max(oldstats.upper_bound, newstats.upper_bound);
+		}
+		continue;
+	    }
+	    // Adjust the key if this isn't the first database.
+	    if (off) {
+		Xapian::docid did;
+		if (!F_unpack_uint_preserving_sort(&d, e, &did)) {
+		    string msg = "Bad key in ";
+		    msg += inputs[i];
+		    throw Xapian::DatabaseCorruptError(msg);
+		}
+		did += off;
+		key = F_pack_uint_preserving_sort(did);
+		if (d != e) {
+		    // Copy over the termname for the position table.
+		    key.append(d, e - d);
+		}
+	    } else {
+		key = cur.current_key;
+	    }
+	    bool compressed = cur.read_tag(true);
+	    out->add(key, cur.current_tag, compressed);
+	}
+    }
+
+    map<Xapian::valueno, ValueStats>::const_iterator stats_it;
+    for (stats_it = stats.begin(); stats_it != stats.end(); ++stats_it) {
+	string key = "\xff" + F_pack_uint_preserving_sort(stats_it->first);
+	string new_value;
+	new_value += F_pack_uint(stats_it->second.freq);
+	new_value += F_pack_string(stats_it->second.lower_bound);
+	new_value += F_pack_string(stats_it->second.upper_bound);
+	out->add(key, new_value);
+    }
+}
+
+static void
 merge_docid_keyed(const string & tablename,
 		  FlintTable *out, const vector<string> & inputs,
 		  const vector<Xapian::docid> & offset, bool lazy)
@@ -997,6 +1093,12 @@ main(int argc, char **argv)
 		    break;
 		case SYNONYM:
 		    merge_synonyms(&out, inputs.begin(), inputs.end());
+		    break;
+		case VALUE:
+		    if (backend == CHERT)
+			merge_chert_values(t->name, &out, inputs, offset, t->lazy);
+		    else
+			merge_docid_keyed(t->name, &out, inputs, offset, t->lazy);
 		    break;
 		default:
 		    // Position, Record, Termlist, Value

@@ -1,0 +1,70 @@
+#! /bin/sh
+# Copyright (C) 2005, 2006  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Test mkinstalldirs with spaces in directory names.
+
+. ./defs || exit 1
+
+set -e
+
+# Make sure the directory we will create can be created...
+mkdir '~a b' || exit 77
+mkdir '~a b/-x  y' || exit 77
+rm -rf '~a b'
+
+cp "$testsrcdir/../lib/mkinstalldirs" .
+
+# Test mkinstalldirs with the installed mkdir.
+
+./mkinstalldirs '~a b/-x  y'
+test -d '~a b/-x  y'
+rm -rf '~a b'
+
+# Trick mkinstalldirs into thinking mkdir does not support -p.
+
+mkdir bin
+cat >bin/mkdir <<'EOF'
+#!/bin/sh
+for arg
+do
+  case $arg in
+  -p) exit 1;;
+  esac
+done
+PATH=$AM_PATH
+export PATH
+exec mkdir "$@"
+EOF
+
+chmod +x bin/mkdir
+AM_PATH=$PATH
+export AM_PATH
+PATH=`pwd`/bin:$PATH
+export PATH
+
+# Test mkinstalldirs without mkdir -p.
+
+./mkinstalldirs '~a b/-x  y'
+test -d '~a b/-x  y'
+rm -rf '~a b'
+
+./mkinstalldirs "`pwd`///~a b//-x  y"
+test -d "`pwd`/~a b/-x  y"
+rm -rf '~a b'

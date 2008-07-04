@@ -1,0 +1,52 @@
+#! /bin/sh
+# Copyright (C) 2004  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Check the tar options diagnostics.
+
+. ./defs || exit 1
+
+set -e
+
+cat > configure.in << 'END'
+AC_INIT([tar2], [1.0])
+AM_INIT_AUTOMAKE([tar-pax tar-v7])
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT
+END
+
+: > Makefile.am
+
+$ACLOCAL
+AUTOMAKE_fails
+grep 'configure.in:2:.*mutually exclusive' stderr
+
+rm -rf autom4te.cache
+
+cat > configure.in << 'END'
+AC_INIT([tar2], [1.0])
+AM_INIT_AUTOMAKE
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT
+END
+
+echo 'AUTOMAKE_OPTIONS = tar-pax' > Makefile.am
+
+AUTOMAKE_fails
+grep 'Makefile.am:1:.*tar-pax.*AM_INIT_AUTOMAKE' stderr

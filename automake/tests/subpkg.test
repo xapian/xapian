@@ -1,0 +1,132 @@
+#! /bin/sh
+# Copyright (C) 2002, 2003, 2004, 2006  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Check subpackage handling.
+
+required='gcc bison'
+. ./defs || exit 1
+
+set -e
+
+mkdir m4
+
+cat >m4/foo.m4 <<'EOF'
+AC_DEFUN([FOO],[
+  AC_PROG_CC
+  AC_OUTPUT
+])
+EOF
+
+cat >>configure.in <<'END'
+AC_CONFIG_SUBDIRS([lib])
+FOO
+END
+
+cat >Makefile.am <<'EOF'
+SUBDIRS = lib
+# Yes, This program is named LDADD.  So what?
+bin_PROGRAMS = LDADD
+LDADD_LDADD = lib/liblib.a
+
+# It's ok to override distdir.
+distdir = subpack-1
+
+# Make sure $(distdir) and $(top_distdir) work as expected.
+dist-hook:
+	test -f $(distdir)/LDADD.c
+	test -f $(top_distdir)/LDADD.c
+
+ACLOCAL_AMFLAGS = -I m4
+EOF
+
+cat >LDADD.c <<'EOF'
+int lib ();
+
+int
+main ()
+{
+  return lib ();
+}
+EOF
+
+mkdir lib
+mkdir lib/src
+
+cat >lib/configure.ac <<'EOF'
+AC_INIT([lib], [2.3])
+AM_INIT_AUTOMAKE
+AC_PROG_RANLIB
+AC_PROG_YACC
+AC_CONFIG_HEADERS([config.h:config.hin])
+AC_CONFIG_FILES([Makefile])
+FOO
+EOF
+
+cat >lib/Makefile.am <<'EOF'
+noinst_LIBRARIES = liblib.a
+liblib_a_SOURCES = src/x.c foo.y
+EXTRA_liblib_a_SOURCES = bar.y
+
+dist-hook:
+	test ! -f $(distdir)/LDADD.c
+	test -f $(top_distdir)/LDADD.c
+	test -f $(distdir)/src/x.c
+	test ! -f $(top_distdir)/src/x.c
+	test -f $(YLWRAP)
+
+ACLOCAL_AMFLAGS = -I ../m4
+EOF
+
+cat > lib/foo.y << 'END'
+%{
+int yylex () {return 0;}
+void yyerror (char *s) {}
+%}
+%%
+foobar : 'f' 'o' 'o' 'b' 'a' 'r' {};
+END
+
+cp lib/foo.y lib/bar.y
+
+cat >lib/src/x.c <<'EOF'
+#include <config.h>
+int lib ()
+{
+  return 0;
+}
+EOF
+
+$ACLOCAL -I m4
+$AUTOCONF
+$AUTOMAKE -Wno-override
+
+cd lib
+$ACLOCAL -I ../m4
+$FGREP 'm4_include([../m4/foo.m4])' aclocal.m4
+$AUTOCONF
+$AUTOHEADER
+$AUTOMAKE -Wno-override --add-missing
+cd ..
+
+./configure
+$MAKE
+$MAKE distcheck
+test ! -d subpack-1		# make sure distcheck cleans up after itself
+test -f subpack-1.tar.gz

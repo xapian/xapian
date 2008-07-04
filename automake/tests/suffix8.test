@@ -1,0 +1,80 @@
+#! /bin/sh
+# Copyright (C) 2002, 2003  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Test to make sure Automake supports multiple derivations for the same suffix.
+# PR/37
+
+required='gcc libtoolize'
+. ./defs || exit 1
+
+set -e
+
+cat >>configure.in <<'END'
+AM_PROG_LIBTOOL
+AC_OUTPUT
+END
+
+cat >Makefile.am << 'END'
+bin_PROGRAMS = foo
+lib_LTLIBRARIES = libfoo.la
+
+foo_SOURCES = foo.x_
+libfoo_la_SOURCES = bar.x_
+
+.x_.y_:
+	cp $< $@
+
+.y_.o:
+	cp $< $@
+
+.y_.z_:
+	cp $< $@
+
+.z_.lo:
+	cp $< $@
+
+# Add explicit dependencies to help make implementations that
+# don't otherwise chain implicit rules (e.g., Sun make).
+foo.$(OBJEXT): foo.y_
+bar.lo: bar.z_
+bar.z_: bar.y_
+
+print:
+	@echo BEGIN: $(foo_OBJECTS) :END
+	@echo BEGIN: $(libfoo_la_OBJECTS) :END
+
+test: $(foo_OBJECTS) $(libfoo_la_OBJECTS)
+	test -f foo.$(OBJEXT)
+	test -f bar.lo
+END
+
+echo 'int main() { return 0; }' > foo.x_
+cp foo.x_ bar.x_
+
+libtoolize
+$ACLOCAL
+$AUTOCONF
+$AUTOMAKE -a
+./configure
+env OBJEXT=foo $MAKE -e print >stdout
+cat stdout
+grep 'BEGIN: foo.foo :END' stdout
+grep 'BEGIN: bar.lo :END' stdout
+$MAKE test

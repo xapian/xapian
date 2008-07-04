@@ -1,0 +1,100 @@
+#! /bin/sh
+# Copyright (C) 2002  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Check that AM_INSTALLCHECK_STD_OPTIONS_EXEMPT works.
+
+required=gcc
+. ./defs || exit 1
+
+cat >> configure.in << 'END'
+AC_PROG_CC
+AC_OUTPUT
+END
+
+# We use the same basename for all targets on purpose.  This way
+# we make sure that `AM_INSTALLCHECK_STD_OPTIONS_EXEMPT = nok'
+# will not match anything containing `nok'.
+cat > Makefile.am << 'END'
+AUTOMAKE_OPTIONS = gnits
+
+nobase_bin_PROGRAMS = nok sub/nok
+nok_SOURCES = nok.c
+sub_nok_SOURCES = nok.c
+
+nobase_bin_SCRIPTS = nok.sh sub/nok.sh
+
+AM_INSTALLCHECK_STD_OPTIONS_EXEMPT = nok$(EXEEXT) nok.sh
+
+grep-stderr:
+	grep 'sub/pnok$(EXEEXT) does not support' stderr
+	grep 'sub/pnok.sh does not support' stderr
+## Only two failures please.
+	test `grep 'does not support --help' stderr | wc -l` = 2
+	test `grep 'does not support --version' stderr | wc -l` = 2
+END
+
+echo 'int main () { return 0; }' > nok.c
+
+mkdir sub
+
+cat >nok.sh <<EOF
+#!/bin/sh
+echo "Which version? Which usage?"
+exit 1
+EOF
+
+cp nok.sh sub/nok.sh
+
+chmod +x nok.sh
+chmod +x sub/nok.sh
+
+# Files required by Gnits.
+: > INSTALL
+: > NEWS
+: > README
+: > COPYING
+: > AUTHORS
+: > ChangeLog
+: > THANKS
+
+set -e
+
+$ACLOCAL
+$AUTOCONF
+$AUTOMAKE -a
+
+mkdir build
+cd build
+
+# Use --program-prefix to make sure the std-options check honors it.
+../configure --prefix=`pwd`/../inst-dir --program-prefix=p
+$MAKE
+$MAKE install
+$MAKE -k installcheck 2>stderr || : # Never trust the exit status of make -k.
+cat stderr
+$MAKE grep-stderr
+
+# Make sure there is no more error when all targets are exempted.
+cd ..
+echo 'AM_INSTALLCHECK_STD_OPTIONS_EXEMPT += sub/nok$(EXEEXT) sub/nok.sh' >> Makefile.am
+$AUTOMAKE
+cd build
+./config.status  # Don't rely on the rebuild rules (they need GNU make).
+$MAKE installcheck

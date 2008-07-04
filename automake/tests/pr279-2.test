@@ -1,0 +1,50 @@
+#! /bin/sh
+# Copyright (C) 2001, 2002  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Another test related to PR 279.
+
+. ./defs || exit 1
+
+cat > configure.in << 'END'
+AC_INIT(foo, 0.1, dev@null)
+AM_INIT_AUTOMAKE($PACKAGE, $VERSION)
+AC_PROG_CC
+AM_CONDITIONAL(FOOTEST, false)
+AC_CONFIG_FILES(Makefile)
+AC_OUTPUT
+END
+
+cat > Makefile.am << 'END'
+AUTOMAKE_OPTIONS = foreign
+
+if FOOTEST
+foo_LDADD = zardoz
+else
+foo_LDADD = maude
+endif
+
+bin_PROGRAMS = foo
+END
+
+$ACLOCAL || exit 1
+$AUTOMAKE || exit 1
+
+grep '@foo_DEPENDENCIES = zardoz' Makefile.in || exit 1
+grep '@foo_DEPENDENCIES = maude' Makefile.in || exit 1

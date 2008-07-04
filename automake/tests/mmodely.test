@@ -1,0 +1,83 @@
+#! /bin/sh
+# Copyright (C) 2004, 2006  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Verify that intermediate files are only built from Yacc and Lex
+# sources in maintainer mode.
+# From Derek R. Price.
+
+required=gcc
+. ./defs || exit 1
+
+set -e
+
+cat >> configure.in << 'END'
+AM_MAINTAINER_MODE
+AC_PROG_CC
+AM_PROG_LEX
+AC_PROG_YACC
+AC_OUTPUT
+END
+
+cat > Makefile.am <<'END'
+YACC = false
+LEX = false
+bin_PROGRAMS = zardoz
+zardoz_SOURCES = zardoz.y joe.l
+LDADD = @LEXLIB@
+END
+
+# The point of this test is that it is not dependant on a working lex or yacc.
+cat > joe.c <<EOF
+int joe (int arg)
+{
+    return arg * 2;
+}
+EOF
+cat > zardoz.c <<EOF
+int joe (int arg);
+int main (int argc, char **argv)
+{
+    exit (joe (argc));
+}
+EOF
+
+# Ensure a later timestamp for our Lex & Yacc sources.
+$sleep
+: > joe.l
+: > zardoz.y
+
+$ACLOCAL
+$AUTOCONF
+$AUTOMAKE -a
+
+./configure
+$MAKE
+
+echo 'echo "$@" >y.tab.c' > myyacc.sh
+echo 'echo "$@" >lex.yy.c' > mylex.sh
+
+# make maintainer-clean; ./configure; make should always work,
+# per GNU Standard.
+$MAKE maintainer-clean
+./configure
+YACC="$SHELL `pwd`/myyacc.sh" LEX="$SHELL `pwd`/mylex.sh" \
+   LEX_OUTPUT_ROOT='lex.yy' $MAKE -e zardoz.c joe.c
+grep zardoz.y zardoz.c
+grep joe.l joe.c

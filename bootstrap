@@ -140,9 +140,15 @@ srcdir_abs=`cd "${srcdir-.}"&&pwd`
 cat <<MIDDLE_OF_CONFIGURE >> configure.tmp
 srcdir="$srcdir_abs"
 modules="$modules"
-test -z "$SWIG" || : \${SWIG="$SWIG"}
-export SWIG
 MIDDLE_OF_CONFIGURE
+
+for tool in SWIG AUTORECONF AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE ACLOCAL LIBTOOLIZE ; do
+  eval "val=\$$tool"
+  if [ -n "$val" ] ; then
+     echo ': ${'"$tool=$val"'}' >> configure.tmp
+     echo "export $tool" >> configure.tmp
+  fi
+done
 
 cat <<'END_OF_CONFIGURE' >> configure.tmp
 dirs=

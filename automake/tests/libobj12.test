@@ -1,0 +1,73 @@
+#! /bin/sh
+# Copyright (C) 2002, 2003  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+
+# Test if a file can be mentioned in LIBOBJS and explicitly.
+# (See libobj13.test for the LTLIBRARIES check.)
+
+. ./defs || exit 1
+set -e
+
+cat >> configure.in << 'END'
+AC_PROG_CC
+AC_PROG_RANLIB
+AC_LIBOBJ([foo])
+AC_LIBOBJ([bar])
+AC_OUTPUT
+END
+
+cat > Makefile.am << 'END'
+noinst_LIBRARIES = libfoo.a libbar.a
+noinst_PROGRAMS = p1 p2
+
+libfoo_a_SOURCES =
+libfoo_a_LIBADD = @LIBOBJS@
+
+libbar_a_SOURCES = foo.c
+
+p1_SOURCES =
+p1_LDADD = @LIBOBJS@
+
+p2_SOURCES = bar.c
+END
+
+: > foo.c
+: > bar.c
+
+$ACLOCAL
+$AUTOMAKE
+
+# This however should be diagnosed, since foo.c and bar.c are in @LIBOBJS@.
+echo 'libfoo_a_SOURCES += foo.c' >> Makefile.am
+echo 'p1_SOURCES += bar.c' >> Makefile.am
+AUTOMAKE_fails
+$FGREP foo.c stderr
+$FGREP bar.c stderr
+
+# Global `LDADD' can also come into play.
+cat > Makefile.am << 'END'
+noinst_PROGRAMS = a b
+LDADD = @LIBOBJS@
+END
+$AUTOMAKE
+grep 'a_DEPENDENCIES.*LIBOBJS' Makefile.in
+echo 'a_SOURCES = foo.c' >> Makefile.am
+AUTOMAKE_fails
+$FGREP foo.c stderr

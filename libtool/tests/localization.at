@@ -1,0 +1,57 @@
+# localization.at -- libtool and locales                -*- Autotest -*-
+#
+#   Copyright (C) 2008 Free Software Foundation, Inc.
+#   Written by Ralf Wildenhues, 2008
+#
+#   This file is part of GNU Libtool.
+#
+# GNU Libtool is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of
+# the License, or (at your option) any later version.
+#
+# GNU Libtool is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU Libtool; see the file COPYING.  If not, a copy
+# can be downloaded from  http://www.gnu.org/licenses/gpl.html,
+# or obtained by writing to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+####
+
+AT_SETUP([localized compiler messages])
+AT_KEYWORDS([libtool])
+
+# Let's try German locale.  :-)
+LANG=de_DE
+LANGUAGE=de_DE
+LC_ALL=de_DE
+export LANG LANGUAGE LC_ALL
+
+AT_DATA([a.c],
+[[int x[-1];
+]])
+AT_DATA([b.c],
+[[int y;
+]])
+
+AT_CHECK([$CC $CPPFLAGS $CFLAGS -c a.c || exit 1], [1], [stdout], [stderr])
+mv -f stdout expected-stdout
+mv -f stderr expected-stderr
+AT_CHECK([$LIBTOOL --mode=compile --tag=CC $CC $CPPFLAGS $CFLAGS -c a.c || exit 1],
+	 [1], [stdout], [stderr])
+AT_CHECK([diff expected-stderr stderr])
+LTBASE=`$ECHO "$LIBTOOL" | sed 's,^.*/,,'`
+AT_CHECK([grep -v "^$LTBASE: compile" stdout | diff expected-stdout -])
+
+# check that we get our quoting right.
+LANGUAGE='a; nosuchprogram " '\''  & $x /#+*(){}|,:`\ !%'
+export LANGUAGE
+AT_CHECK([$LIBTOOL --mode=compile --tag=CC $CC $CPPFLAGS $CFLAGS -c b.c],
+	 [0], [stdout], [stderr])
+AT_CHECK([grep nosuchprogram stdout stderr], [1])
+
+AT_CLEANUP
