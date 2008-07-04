@@ -1,3 +1,11 @@
+Fri Jul 04 06:39:20 GMT 2008  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Handle UCS-2 and UTF-16 text files with a byte-order
+	  mark (BOM).  Ignore any UTF-8 "byte-order" mark.
+	* utf8convert.cc: Handle UCS-2/UTF-16 and explicit BE and LE forms in
+	  the non-iconv code.
+	* Makefile.am,utf8converttest.cc: Add unit tests of convert_to_utf8().
+
 Fri Jun 27 04:43:18 GMT 2008  Olly Betts <olly@survex.com>
 
 	* query.cc: Overhaul the $highlight colour combinations since some
