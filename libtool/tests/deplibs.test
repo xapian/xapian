@@ -1,0 +1,34 @@
+#! /bin/sh
+# deplibs.test - check whether the shared library check method is OK
+
+# Test script header.
+need_prefix=yes
+if test -z "$srcdir"; then
+  srcdir=`echo "$0" | sed 's%/[^/]*$%%'`
+  test "$srcdir" = "$0" && srcdir=.
+  test "${VERBOSE+set}" != "set" && VERBOSE=yes
+fi
+. $srcdir/defs || exit 1
+
+# Check that things are built.
+if test -f ../demo/libhello.la && cd ../demo; then :
+else
+  echo "You must run demo-conf.test before $0" 1>&2
+  exit 77
+fi
+
+echo "linking a shared library against a static library"
+if $make deplibs-check && test -f hell0; then :
+else
+  echo "= cannot build the test program, check your deplibs_check_method"
+  status=1
+fi
+
+echo "executing the test program"
+if ./hell0; then :
+else
+  echo "= cannot execute the test program, check your deplibs_check_method"
+  status=1
+fi
+
+exit $status

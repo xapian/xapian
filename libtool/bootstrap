@@ -1,0 +1,56 @@
+#! /bin/sh
+
+# helps bootstrapping libtool, when checked out from CVS
+# requires at least GNU autoconf 2.50 and GNU automake1.4-p5
+
+rm -rf `find . -path './{arch}' -prune -o \( -name autom4te.cache -o -name libtool \) -print`
+
+# Delete stale acinclude.m4 from previous libtool versions.
+rm -f acinclude.m4
+
+: ${ACLOCAL=aclocal}
+: ${AUTOMAKE=automake}
+: ${AUTOCONF=autoconf}
+: ${AUTOHEADER=autoheader}
+
+# fake the libtool scripts
+touch ltmain.sh
+touch libtoolize
+(cd libltdl && touch ltmain.sh)
+
+for sub in . libltdl cdemo demo depdemo mdemo mdemo2 pdemo tagdemo f77demo; do
+  case $sub in
+  .)
+    top_srcdir=.
+    acfiles="$top_srcdir/libtool.m4"
+    AUTOMAKE_FLAGS="--gnu --add-missing --copy"
+    ;;
+  libltdl)
+    top_srcdir=..
+    acfiles="$top_srcdir/libtool.m4 $top_srcdir/ltdl.m4"
+    AUTOMAKE_FLAGS="--gnits --add-missing --copy"
+    ;;
+  *)
+    top_srcdir=..
+    acfiles="$top_srcdir/libtool.m4"
+    AUTOMAKE_FLAGS="--gnits --add-missing"
+    ;;
+  esac
+
+  cd $sub
+  rm -f acinclude.m4 aclocal.m4 Makefile configure
+  for file in $acfiles; do
+    cat $file >> ./acinclude.m4
+  done
+
+  $ACLOCAL
+  test $sub = libltdl && $AUTOHEADER
+  test $sub = f77demo && $AUTOHEADER
+  eval $AUTOMAKE $AUTOMAKE_FLAGS
+  $AUTOCONF
+  cd $top_srcdir
+done
+
+rm -f ltmain.sh libtoolize libltdl/ltmain.sh
+
+exit 0

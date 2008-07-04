@@ -1,0 +1,41 @@
+#! /bin/sh
+# demo-exec.test - check that programs in the ../demo subdirectory are viable
+
+# Test script header.
+need_prefix=no
+if test -z "$srcdir"; then
+  srcdir=`echo "$0" | sed 's%/[^/]*$%%'`
+  test "$srcdir" = "$0" && srcdir=.
+  test "${VERBOSE+set}" != "set" && VERBOSE=yes
+fi
+. $srcdir/defs || exit 1
+
+if test -f ../demo/hell$EXEEXT; then :
+else
+  echo "You must run demo-make.test before running $0" 1>&2
+  exit 77
+fi
+
+# Check to see if the programs really run.
+echo "Executing uninstalled programs in ../demo"
+
+status=0
+if ../demo/hell_static| grep 'Welcome to GNU Hell'; then :
+else
+  echo "$0: cannot execute ../demo/hell_static" 1>&2
+  status=1
+fi
+
+if ../demo/hell | grep 'Welcome to GNU Hell'; then :
+else
+  echo "$0: cannot execute ../demo/hell" 1>&2
+  status=1
+fi
+
+if ../demo/helldl | $EGREP -e '(Welcome to .*GNU Hell|unsupported)'; then :
+else
+  echo "$0: cannot execute ../demo/helldl" 1>&2
+  status=1
+fi
+
+exit $status

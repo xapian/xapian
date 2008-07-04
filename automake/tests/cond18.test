@@ -1,0 +1,74 @@
+#! /bin/sh
+# Copyright (C) 2001, 2002  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Regression test for substitution references to conditional variables.
+# Report from Richard Boulton
+
+required='GNUmake gcc'
+. ./defs || exit 1
+
+cat > configure.in << 'END'
+AC_INIT(Makefile.am)
+AM_INIT_AUTOMAKE(hello,0.23)
+AC_PROG_CC
+AM_CONDITIONAL(COND1, true)
+AM_CONDITIONAL(COND2, true)
+AC_OUTPUT(Makefile)
+END
+
+cat > Makefile.am << 'END'
+
+var1 = dlmain
+
+if COND1
+var2 = $(var1:=.c) foo.cc
+else
+var2 = $(var1:=.c)
+endif
+
+if COND2
+var3 = $(var2:.cc=.c)
+else
+var3 = $(var2:.cc=.c)
+endif
+
+helldl_SOURCES = $(var3)
+
+echorule:
+	@echo $(helldl_SOURCES) $(helldl_OBJECTS)
+
+bin_PROGRAMS = helldl
+END
+
+# Ignore user CFLAGS.
+CFLAGS=
+export CFLAGS
+
+set -e
+
+$ACLOCAL
+$AUTOCONF
+$AUTOMAKE -a
+
+./configure
+
+val=`$MAKE --no-print-directory echorule`;
+echo $val
+test "x$val" = "xdlmain.c foo.c dlmain.o foo.o"

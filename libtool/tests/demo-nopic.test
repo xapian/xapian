@@ -1,0 +1,42 @@
+#! /bin/sh
+# demo-nopic.test - try configuring the ../demo subdirectory
+
+# Test script header.
+need_prefix=no
+if test -z "$srcdir"; then
+  srcdir=`echo "$0" | sed 's%/[^/]*$%%'`
+  test "$srcdir" = "$0" && srcdir=.
+  test "${VERBOSE+set}" != "set" && VERBOSE=yes
+fi
+. $srcdir/defs || exit 1
+
+# This doesn't work on hppa
+case "$host" in
+hppa*|x86_64*|s390*)
+        echo "Not running on $host, it doesn't like non-PIC shared libs" 2>&1
+        exit 77
+	;;
+*-solaris*|*-sunos*)
+	echo "libtool does not build non-PIC shared libs on $host" 2>&1
+	exit 77
+	;;
+esac
+
+# Maybe we have a VPATH build, in which case, create a new subdir.
+test -d ../demo || mkdir ../demo
+
+# Change to our build directory.
+cd ../demo || exit 1
+
+# Possibly clean up the distribution.
+if test -f Makefile; then
+  echo "= Running $make distclean in ../demo"
+  $make distclean
+fi
+rm -f config.cache
+
+# Configure the demonstration.
+echo "= Configuring in ../demo (prefix=$prefix) with --without-pic"
+${CONFIG_SHELL-/bin/sh} $srcdir/../demo/configure --srcdir=$srcdir/../demo --prefix=$prefix --build=$host --with-pic=no || exit 1
+
+exit 0

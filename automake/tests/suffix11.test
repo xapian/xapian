@@ -1,0 +1,63 @@
+#! /bin/sh
+# Copyright (C) 2002, 2003  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Tests that Automake understands multiple suffix rules on the same line.
+# PR/371 and PR/372: Reported by Duncan Gibson.
+# We also check for suffixes containing `-'.
+
+. ./defs || exit 1
+
+set -e
+
+cat >>configure.in <<EOF
+AC_PROG_CC
+AC_OUTPUT
+EOF
+
+cat >Makefile.am << 'END'
+bin_PROGRAMS = foo bar baz
+foo_SOURCES = foo.x_
+bar_SOURCES = bar.y-z
+baz_SOURCES = baz1.x_ baz2.y-z
+.y-z.c .x_.c:
+	cp $< $@
+  .z_.c   .w_.x_ :
+	cp $< $@
+
+
+print:
+	@echo BEGIN: $(foo_OBJECTS) :END
+	@echo BEGIN: $(bar_OBJECTS) :END
+	@echo BEGIN: $(baz_OBJECTS) :END
+END
+
+$ACLOCAL
+$AUTOCONF
+# What we do is not portable.  Automake should warn.
+AUTOMAKE_fails -a
+grep 'Inference rules can have only one target before the colon' stderr
+# But this should work anyway.
+$AUTOMAKE -a -Wno-portability
+./configure
+env OBJEXT=foo $MAKE -e print >stdout
+cat stdout
+grep 'BEGIN: foo.foo :END' stdout
+grep 'BEGIN: bar.foo :END' stdout
+grep 'BEGIN: baz1.foo baz2.foo :END' stdout

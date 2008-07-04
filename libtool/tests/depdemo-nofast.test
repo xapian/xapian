@@ -1,0 +1,34 @@
+#! /bin/sh
+# depdemo-conf.test - try configuring the ./depdemo subdirectory
+
+# Test script header.
+need_prefix=yes
+if test -z "$srcdir"; then
+  srcdir=`echo "$0" | sed 's%/[^/]*$%%'`
+  test "$srcdir" = "$0" && srcdir=.
+  test "${VERBOSE+set}" != "set" && VERBOSE=yes
+fi
+. $srcdir/defs || exit 1
+
+# Maybe we have a VPATH build, in which case, create a new subdir.
+test -d ../depdemo || mkdir ../depdemo
+
+# Change to our build directory.
+cd ../depdemo || exit 1
+
+# Possibly clean up the distribution.
+if test -f Makefile; then
+  echo "= Running $make distclean in ../depdemo"
+  $make distclean
+fi
+rm -f config.cache
+
+# Configure the demonstration.
+echo "= Configuring in ../depdemo (prefix=$prefix)"
+${CONFIG_SHELL-/bin/sh} $srcdir/../depdemo/configure --srcdir=$srcdir/../depdemo --prefix=$prefix --build=$host --enable-fast-install=no || exit 1
+
+if grep '^hardcode_action=relink' libtool > /dev/null; then
+  rm -f Makefile && exit 77
+fi
+
+exit 0

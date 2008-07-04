@@ -1,0 +1,84 @@
+#! /bin/sh
+# Copyright (C) 2006  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# PR 507: Check the filename-length-max=99 option
+# in conjunction with AC_CONFIG_SUBDIRS.
+
+. ./defs || exit 1
+
+set -e
+
+# The name is so that 99 is exactly hit (including final \0).
+subdirname='cnfsubdir'
+
+cat >>configure.in <<END
+AC_CONFIG_SUBDIRS([${subdirname}])
+AC_OUTPUT
+END
+
+cat >Makefile.am <<END
+AUTOMAKE_OPTIONS = filename-length-max=99
+SUBDIRS = ${subdirname}
+END
+
+mkdir ${subdirname} || exit 1
+
+cat >> ${subdirname}/configure.in <<EOF
+AC_INIT([${subdirname}], [1.0])
+AM_INIT_AUTOMAKE
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT
+EOF
+
+cat >${subdirname}/Makefile.am <<'END'
+AUTOMAKE_OPTIONS = filename-length-max=99
+EXTRA_DIST = 12345678
+END
+
+(cd ${subdirname}; for i in 1 2 3 4 5 6 7 8
+do
+  mkdir -p 12345678 || exit 77
+  cd 12345678
+  touch x
+done)
+
+for init_dir in ${subdirname} .; do
+	(
+		cd ${init_dir} || exit 1
+		$ACLOCAL
+		$AUTOCONF
+		$AUTOMAKE
+	) || exit 1
+done
+./configure
+$MAKE distcheck
+
+(cd ${subdirname}; for i in 1 2 3 4 5 6 7 8 9
+do
+  mkdir -p 12345678 || exit 77
+  cd 12345678
+  touch x
+done)
+
+$MAKE dist 2>stderr && exit 1
+cat stderr
+grep 'filenames are too long' stderr
+test 1 = `grep 12345678 stderr | wc -l`
+:

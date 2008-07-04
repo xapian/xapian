@@ -1,0 +1,4569 @@
+1999-03-15  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* configure.in, libtool.spec, NEWS: bump to 1.3a
+	* Branched for release 1.3 (branch-1-3)
+	* configure.in, libtool.spec, NEWS: bump to 1.2g
+
+	* configure.in, libtool.spec: bump to 1.2f
+	* doc/PLATFORMS: ditto
+	* NEWS: libtool 1.2f released
+
+	* ltmain.in: silence ``unbug'' :-) detected by sh.test
+
+1999-03-14  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* TODO: we now use full pathnames for `file'
+
+1999-03-14  Thomas Tanner  <tanner@gmx.de>
+
+	* TODO: libltdl is now documented
+	* doc/libltdl.texi (linking with installed libtool libraries):
+	  fixed typo
+	* doc/libltdl.texi (libltdl): added documentation for building
+	  libtool modules and examples how to embed libltdl
+	* ltmain.in: don't ignore user-specified run-paths (fixed it
+	  at the right place)
+
+1999-03-14  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* ltmain.in (deplibs_check_method=none): discard -L and -R
+	switches when testing whether deplibs contains some library
+
+1999-03-14  Erez Zadok  <ezk@cs.columbia.edu>
+
+	* config.sub: recognize hppa2.0w, yet to be installed at GNU
+
+	* config.guess: minor update for FreeBSD-elf, yet to be installed
+	at GNU
+
+1999-03-14  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* ltconfig.in (bsdi4*, sys_lib_search_path_spec,
+	sys_lib_dlsearch_path_spec): fix thinko in variable names; add
+	standard directories
+
+	* ltmain.in (exclude_expsyms): exclude symbols before sorting,
+	otherwise only the sorted list will have them excluded
+
+	* ltconfig.in (file_magic_cmd, file_magic_test_file, freebsd-elf*, 
+	bsdi4*): use full pathnames when possible
+
+	* Makefile.am (all-recursive): depend on ACINCLUDE_M4_LIST
+	(all-local, check-local): remove, unused
+
+	* doc/PLATFORMS: updated platforms tested on 1.2f-pre; clean up;
+	reorder; untabify
+
+	* config.guess, config.sub: updated from GNU common
+
+	* doc/libtool.texi: notes on thread-safety problems of
+	libltdl/dlopen on GNU/Linux and FreeBSD
+
+	* ltconfig.in (aix3*, aix4*): GNU ld on AIX is very broken: it
+	cannot create working shared libraries.  Print a warning
+	suggesting the user not to use it and disable shared libraries.
+
+1999-03-13  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* ltconfig.in (global_symbol_to_cdecl): was reset before trying
+	`symprfx=_', rendering the test with `_' useless
+
+	* doc/libtool.texi (AM_PROG_LIBTOOL): eliminate overfull boxes
+	
+	* doc/libtool.texi: complete dlopening/libltdl documentation
+
+	* ltconfig.in (osf3*, osf4*, deplibs_check_method): pass_all does
+	not really work; use file_magic instead.
+	(osf3*, osf4*): customize sys_lib_[dl]search_path_spec 
+
+	* ltconfig.in (file_magic_test_file): new variable; if set, it
+	will be used as an argument for $file_magic_cmd to test whether
+	the regex in deplibs_check_method matches its output
+	(file_magic_cmd): use full pathnames whenever possible
+
+	* ltconfig.in (sys_lib_dlsearch_path_spec): new variable, that
+	lists the system *run-time* search path.  Listed directories are
+	not implicitly hard-coded into executables.
+	* ltmain.in: use it, but *never* discard -R flags
+	* doc/libtool.texi: document it
+	* NEWS: ditto
+	Reported by Bob Friesenhahn <bfriesen@simple.dallas.tx.us>
+
+	* tests/sh.test: look for `$Xsed' without `$echo "X...' 
+	* ltconfig.in, ltmain.in: fixed a few such occurrences
+
+	* ltmain.in (-static, -all-static): revert March 11's patch, I was 
+	barking up the wrong tree
+
+1999-03-12  Thomas Tanner  <tanner@gmx.de>
+
+	* libltdl/ltdl.c: removed FILENAME_MAX since LTDL_FILENAME_MAX
+	  is sufficient and doesn't break HP/UX
+
+1999-03-11  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* ltconfig.in: (global_symbol_pipe) extract symbol tag from the
+	output of NM too
+	(global_symbol_to_cdecl): new variable; convert the output of
+	global_symbol_pipe to valid C declarations; on HP/UX, convert
+	text symbols to function declarations
+	* libtool.m4: similar modifications
+	* doc/libtool.texi: document new variable
+	* ltmain.in: use global_symbol_to_cdecl to generate lt_dlpreopened 
+	symbols; avoid extracting symbol lists from dlpreopened files
+	twice; do not filter symbols from dlpreopened libraries
+	* TODO: fixed HP/UX dlpreopening problem
+
+	* ltmain.in (-static, -all-static): set dlopen_self to
+	$dlopen_self_static regardless of link_static_flag or pic_flag
+
+	* ltmain.in: FreeBSD bug that needs symbol table compiled with
+	-fPIC is fixed in release 3.1; use it only for 2.* and 3.0
+
+1999-03-11  Thomas Tanner  <tanner@gmx.de>
+
+	* ltmain.in: when building a library it doesn't make 
+	  sense to remove a relinked program ("lt-" prefix)
+	  
+1999-03-11  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* mdemo/main.c (main, test_dl, test_dlself): propagate error
+	conditions better, to avoid false positives
+
+	* */configure.in: AC_SUBST(LIBTOOL_DEPS)
+	* */Makefile.am $(OBJECTS): depend on libtool
+	(libtool): rebuild automatically
+
+	* ltconfig.in: set dlopen_* variables to unknown when appropriate
+	* ltmain.in: only emit warning about lack of AC_LIBTOOL_DLOPEN if
+	*all* dlopen_* variables are set to unknown
+
+1999-03-11  Thomas Tanner  <tanner@gmx.de>
+
+	* ltmain.in: delete the old output files (incl. the relinked binary)
+	  before linking.
+
+	* ltconfig.in: replaced `configure' with $progname and all
+	  line numbers with @LINENO@
+	
+1999-03-11  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* libltdl/ltdl.c (strdup): cannot return str when it's NULL
+	because of const correctness
+
+1999-03-10  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* libltdl/ltdl.c (strdup): always use our own, because the
+	standard strdup won't use lt_dlmalloc
+
+	* ltconfig.in (dlfcn.h): function definition may cause warnings;
+	define variable instead
+
+	* ltmain.in: properly create an export file for a program,
+	avoiding error messages about not finding it
+
+	* TODO: need to document AC_LIBLTDL_*; static self dlopening
+	problem fixed
+
+	* libtool.m4 (AC_LIBTOOL_DLOPEN): just set lt_dlopen=yes
+	(AC_LIBTOOL_SETUP): if lt_dlopen=yes, add --enable-dlopen to
+	libtool_flags; drop --enable-dlopen-self
+	* ltconfig.in: perform all the dirty work of testing for dlopening 
+	support, because we need platform-dependent equivalents for
+	-export-dynamic, for self dlopening, and -static, for static self
+	dlopening
+	(dlopen_self_static): new configuration variable that is set to
+	yes only if static programs can dlopen themselves
+	* ltmain.in (-static, -all-static): dlopen_self=dlopen_self_static
+
+	* libltdl/configure.in (libltdl_cv_need_uscore): do not assume
+	dlfcn.h and LTDL_LAZY exist; use LTDL_GLOBAL and LTDL_LAZY_OR_NOW.
+	This test is likely to fail if self-dlopening does not work,
+	especially because we do not link the program with
+	-export-dynamic.  Let's just hope that platforms whose symbol
+	names start with underscores will also accept underscores for
+	dlopen.  We should probably use libtool to compile and link this
+	test, so that we can use -export-dynamic.
+
+	* mdemo/Makefile.am (@LIBLTDL@): depend on ../libltdl/config.h
+
+	* configure.in: fix AC_OUTPUT_COMMANDS for ltconfig and ltmain.sh
+	so that they work if srcdir is relative too
+	
+	* libtool.m4 (AC_LIBLTDL_INSTALLABLE, AC_LIBLTDL_CONVENIENCE): 
+	avoid introducing multiple --enable options when re-running
+	config.status
+	* libltdl/configure.in: if enable_ltdl_* is not set, assume no
+	* configure.in: if enable_ltdl_install is not set, enable it
+
+	* libltdl/configure.in: only assume implicit installation if
+	libltdl was libtoolized.  If not, print a warning message
+	suggesting the use of --enable-ltdl-install or of one of the
+	AC_LIBLTDL_* macros.
+
+	* libtool.m4 (AC_LIBTOOL_SETUP): new macro, that does all the
+	configure-work that AC_PROG_LIBTOOL used to do; add
+	--cache-file=$cache_file to libtool_flags
+	(AC_PROG_LIBTOOL): call AC_LIBTOOL_SETUP, save the cache, run
+	ltconfig and reload the cache
+	* configure.in: run AC_LIBTOOL_SETUP, then set LIBTOOL_FLAGS to
+	libtool_flags
+	* ltconfig.in: support --cache-file switch.  If it is used, load
+	the cache in the beginning and save it just before terminating
+
+	* tests/Makefile.am (TESTS): run demo-nofast before demo-shared
+
+	* configure.in: create ltconfig and ltmain.sh at the end of
+	config.status, if they do not exist.  This fixes the bootstrap
+	problem reported by Erez Zadok <ezk@cs.columbia.edu>
+
+1999-03-10  Thomas Tanner  <tanner@gmx.de>
+
+	* NEWS: sorted by importance
+	* Makefile.am: set LIBTOOL_FLAGS when generating libtool
+	* configure.in: check for dlopen support and set LIBTOOL_FLAGS
+	  accordingly
+	  
+	* configure.in: fix spacing for --disable-ltdl-install,
+	  always configure libltdl, add libltdl/acinclude.m4 to 
+	  ACINCLUDE_M4_LIST, disable installation of libltdl if necessary
+	* libltdl/Makefile.am: set version info for libltdl.la
+	* libltdl/configure.in: don't check whether 
+	  enable_ltdl_convenience/install was set so that libltdl
+	  can be used as independent package (libltdl.tar.gz) without
+	  the need to use --enable-ltdl*
+	* libltdl/ltdl.c: minor cleanups, allocate the line cache
+	  dynamically (lt_dlopen)
+	
+1999-03-10  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* libltdl/ltdl.c (lt_dlopen): some preprocessors choke if the `#'
+	of `#define' is not in column 1; let's go back to fortran! :-)
+	Add #undefs too, to avoid potential warnings or errors.
+
+1999-03-09  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* libtool.m4 (AC_LIBLTDL_INSTALLABLE, AC_LIBLTDL_CONVENIENCE):
+	renamed convenience libltdl, dropped toinst hack for installable
+	* libltdl/Makefile.am: ditto
+	* libltdl/configure.in: ditto; abort if none of the macros is used
+
+	* ltmain.in: $output_objdir/$objdir/ -> $output_objdir/lt-
+
+1999-03-09  Thomas Tanner  <tanner@gmx.de>
+
+	* libltdl/ltdl.c (lt_dlopen): don't hardcode the length of the
+	  constant strings
+
+1999-03-09  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* Makefile.am (install-data-hook): install libltdl as a directory, 
+	not as a tar-file, so that we do not modify the build tree at make 
+	install time
+	* libtoolize.in (ltdl, ltdl_tar): update
+
+	* configure.in, Makefile.am, NEWS: install libltdl by default
+
+	* libtool.m4 (AC_LIBLTDL_INSTALLABLE, AC_LIBLTDL_CONVENIENCE):
+	new macros
+	* NEWS: ditto
+	* libltdl/configure.in: if none of the new macros or configure
+	arguments are used, warn and build convenience library only
+	* libltdl/Makefile.am: conditionally build convenience libltdl.la
+	* mdemo/configure.in: use AC_LIBLTDL_CONVENIENCE
+	* mdemo/Makefile.am: refer to @LIBLTDL@
+
+1999-03-09  Gary V. Vaughan <gvv@techie.com>
+
+	* NEWS: updated.
+
+1999-03-08  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* ltmain.in: extract symbols from program objects to nlist first,
+	then translate them to the export_symbols format.  Now it works,
+	but it appears to be needlessly extracting the symbol list from
+	dlpreopened libraries twice
+	
+	* ltmain.in: temporarily disable dlopen_self when linking with
+	-static or -all-static, until we figure out how to test whether it
+	works at configure time
+
+	* TODO: remember to fix this later
+
+	* tests/build-relink.test: when hell is expected to fail, run it
+	within a subshell and redirect stderr to stdout, so that dynamic
+	linker errors are only printed in verbose mode
+
+	* ltmain.in (hardcode_libdir_separator, compile_rpath,
+	finalize_rpath): only substitute hardcode_libdir_flag_spec if
+	hardcode_libdirs is non-empty
+
+	* libtool.m4 (AC_LIBTOOL_DLOPEN): do not depend on the existence
+	of dlfcn.h nor on the definition of RTLD_LAZY
+
+	* tests/build-relink.test: hellT was renamed to lt-hell
+
+	* libltdl/Makefile.am (@TOINST@/libltdl.la): do not hide the
+	command that creates the TOINST directory; remove `-o $@' from the 
+	LINK command, $(LINK) already contains it.
+
+1999-03-08  Thomas Tanner  <tanner@gmx.de>
+
+	* doc/libtool.texi (tests): documented demo-nofast.test and
+	  renamed cdemo* to demo*
+
+1999-03-08  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* libltdl/Makefile.am, libltdl/configure.in, mdemo/Makefile.am:
+	libltdl must not be renamed; if there's a problem with the install 
+	option, let's fix it, not just work around it by breaking code of 
+	users of the convenience library
+
+	* tests/build-relink.test: link broken libhello.la with at least
+	one libtool object
+
+1999-03-08  Thomas Tanner  <tanner@gmx.de>
+
+	* TODO: updated (libltdl build problem fixed)
+	* doc/libtool.texi (libltdl interface): removed the line which
+	  promised that lt_dlopen will return NULL if it can't resolve all
+	  symbols
+	* libltdl/Makefile.am, libltdl/configure.in: fixed build problem:
+	  renamed the convenience library to libltdlc.la and the 
+	  installed version to libltdl.la
+	* ltmain.in (wrapper script): replaced the "T" suffix of the program
+	  file name with a "lt-" prefix
+	* mdemo/Makefile.am: use libltdlc.la
+	* tests/Makefile.am, tests/demo-nofast.test: added demo to
+	  test --enable-fast-install=no
+		
+1999-03-07  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* tests/Makefile.am (TESTS): run hardcode before build-relink
+	trashes libhello.la
+	* tests/hardcode.test (need_prefix): set to yes so that _inst is
+	not removed
+
+	* ltmain.in (compile_command): append finalize search path to
+	compile search path
+
+	* tests/build-relink.test: new; check shlibpath_overrides_runpath
+	* tests/Makefile.am (TESTS): add build-relink.test; remove
+	hardcode.test duplicates
+	* doc/libtool.texi: document it
+
+	* ltmain.in (relink_command): do not prepend cd `pwd` to it, the
+	scripts already enters the correct directory, and expanding the
+	pathname would prevent the build tree from moving
+	
+	* ltconfig.in (enable_fast_install): force it to no only if we
+	need relink; in the other cases, set it to needless
+	* ltmain.in (fast_install): if needless, set relink_command empty
+	* doc/libtool.texi (fast_install, shlibpath_overrides_runpath):
+	document the new behavior
+
+	* ltconfig.in (enable_fast_install): test whether it can be forced 
+	off after shlibpath_overrides_runpath and enable_shared are set
+
+1999-03-07  Thomas Tanner  <tanner@gmx.de>
+
+	* TODO: updated
+	* NEWS: updated
+
+	* TODO: scheduled some items for next release/future
+	* demo/configure.in: use AC_LIBTOOL_DLOPEN
+	* libtool.m4: added AC_ENABLE/DISABLE_FAST_INSTALL macro
+	* ltconfig.in: added --disable-fast-install flag
+	* ltmain.in: partially reverted Alexandre's patch and implemented
+	  on-demand linking in such a way that the old developer-friendly
+	  linking style is optional,
+	  don't hardcode library paths that are in the system search path,
+	  fixed a typo in lib_search_path,
+	  implemented -export-symbols-regex for programs
+
+1999-03-06  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* libltdl/ltdl.c (LTDL_LAZY_OR_NOW): renamed from LTDL_NOW; prefer 
+	LAZY loading because it's much faster and NOW is apparently
+	partially broken on FreeBSD
+	Reported by Archie Cobbs <archie@whistle.com>
+
+	* ltconfig.in (archive_expsym_cmds, solaris, without_gnu_ld):
+	$lib.exp already starts with $objdir/
+	Reported by Godmar Back <gback@cs.utah.edu>
+
+	* ltmain.in (freebsd): compile symbol table file with pic_flag
+	only on FreeBSD and when not static linking; it's been causing
+	trouble on platforms such as OpenBSD.
+
+1999-02-26  Gary V. Vaughan  <gvv@techie.com>
+
+	* libtool.m4 (cygwin): s/\\(mingw\\|cygwin\\)32/\\1/g.  Must've
+	missed this file when I changed to cygnus' new sanction name.
+
+	* ltconfig.in (sub_uncdrive): removed.  This won't work with
+	the next version of cygwin.
+	(sub_uncdir): removed. We use <drive>:/path/to/executable now.
+	* libtool.m4 (AC_PROG_LD): removed sub_uncdrive and sub_uncdir.
+
+1999-02-25  Thomas Tanner  <tanner@gmx.de>
+
+	* TODO: added items for next alpha release, ILD etc.
+	* libltdl/ltdl.c: removed unnecessary check from presym_sym, 
+	  fixed bug in lt_dlclose, allow lt_dlopenext(NULL),
+	  set deplibs for lt_dlopen(NULL)
+
+1999-02-24  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* ltmain.in (file_magic_regex): sed `10q' is faster than `11,$d'
+
+1999-02-22  Thomas Tanner  <tanner@gmx.de>
+
+	* ltconfig.in (dlopen, dlopen_self): default is unknown
+	* ltmain.in: fixed -dlopen self, print a warning
+	  if -dlopen is used without AC_LIBTOOL_DLOPEN 
+	* mdemo/Makefile.am: use -dlopen self
+
+1999-02-22  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* ltmain.in: added missing mkdir $progdir for on-demand executable
+
+	* ltmain.in: create on-demand executable as $progdir/$$-$program,
+	and rename it to $progdir/$program only when it's finished, to
+	avoid race conditions.  We can still get the program linked
+	multiple times, if multiple instances are started simultaneously
+	and the program does not exist, but they are very unlikely to
+	interfere with each other.  There's still a possibility that one
+	process removes the $program another has just created, and doesn't 
+	replace it before the other tries to run it, in a system whose
+	`mv' is not atomic, so it will $rm then $mv, but so what? :-)
+	Locking files have been avoided to prevent dead-locks in case they 
+	are left over after a reboot or crash.
+
+	* TODO: removed ILD, soon to be merged, and added convenience
+	libraries docs
+
+	* ltconfig.in (irix5*, irix6*, shlibpath_overides_runpath): yes
+
+	* ltmain.in: remove on-demand executable in the proper place, and
+	just warn if it can't be removed; add wrapper code to test whether 
+	the install-executable is newer than the build-executable, to
+	relink it when it appears to be out-of-date
+
+	* libltdl/configure.in: check for dld.h
+	* libltdl/ltdl.c: include dld.h
+	(dld_open) it's spelled memory_error, not no_memory_error
+	Reported by Stefan Burstroem <f94sbu@efd.lth.se>
+	
+	* ltmain.in: fix typos in my last change (s/ocmpile/compile/)
+
+1999-02-21  Thomas Tanner  <tanner@gmx.de>
+
+	* libltdl/ltdl.c (lt_dlopen): use newhandle instead of handle
+	  when dlopening the executable
+	* libtool.m4 (AC_LIBTOOL_DLOPEN): removed the redundant "yes: "
+	  prefix for lt_cv_dlopen, renamed lt_cv_dlopen_LIBS 
+	  to lt_cv_dlopen_libs (more consistent)
+	* ltmain.in: implemented -dl[pre]open self, necessary for 
+	  lt_dlopen(NULL), generation of exported symbols was broken
+
+1999-02-20  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* ltmain.in: avoid duplication of -L switches, it sometimes breaks
+	IRIX 5.2's linker
+
+	* ltconfig.in (freebsd*, finish_cmds): expand objformat here
+	Reported by Vladimir Kushnir <kushn@mail.kar.net>
+
+1999-02-20  Vladimir Kushnir <kushn@mail.kar.net>
+
+	* ltconfig.in (freebsd-elf*, need_version, need_lib_prefix): no
+	(freebsd-elf*, library_names_spec): add $libname.so instead of
+	$libname.so$versuffix; add $libname$release.so
+
+1999-02-20  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* doc/libtool.texi: remove ticks from menu items; it breaks TeX
+	Reported by Erez Zadok <ezk@cs.columbia.edu>
+
+	* ltmain.in: fixes for export-symbols dry-run
+
+	* ltconfig.in (shlibpath_overrides_runpath): new variable;
+	determines whether LD_LIBRARY_PATH or equivalent can be used to
+	override a hard-coded library search path; default to unknown
+	(linux-gnu*): set it to no
+	(solaris*, sunos4*): set it to yes
+	* ltmain.in (build_libdirs_flags, build_libdirs, build_rpath): if
+	shlibpath_overrides_runpath is not yes, arrange that wrapper
+	scripts create, on demand, programs that use uninstalled libraries
+
+	* doc/libtool.texi: document it
+	
+	* libtool.m4 (AC_LIBTOOL_DLOPEN): check for dlopen in libc before
+	trying in dl.  Add the actual dlopening type to lt_cv_dlopen, and
+	add any needed libraries to lt_cv_dlopen_LIBS.  Add test for
+	MS-Windows' LoadLibrary.  Check whether a program can dlopen
+	itself only if we really have dlopen(), not some equivalent
+	function, but leave room for testing with other mechanisms.
+	(AC_PROG_LIBTOOL): assume some form of dlopen, but not
+	dlopen(NULL), is available if AC_LIBTOOL_DLOPEN is not used, for
+	backward compatibility.
+
+1999-02-20  Archie Cobbs  <archie@whistle.com>
+
+	* libltdl/ltdl.c (lt_dlopen): use newhandle instead of handle
+	where appropriate, when dlopening a non-libtool library
+
+1999-02-19  Gary V. Vaughan  <gvv@techie.com>
+
+	* ltconfig.in (export_symbols_cmds): renamed from
+	export_symbols_cmd.
+	(cygwin, mingw): Be sure to compile the ltdll.c object before
+	extracting the exported symbol list.  Extract only the names
+	of the exported symbols from the def file [otherwise we might
+	run into trouble with -export-symbols-regex].
+	(archive_expsym_cmds): Regenerate the def file from the symbol
+	export list.
+	(delay_variable_subst): New sed expression to allow us to delay
+	evaluation of $foo in a double_quote_subst evaluated variable by
+	using \$.
+	* ltmain.in (export_symbols_cmds): evaluate each ~ delimitted cmd
+	separately.
+	* doc/libtool.texi (libtool script contents): new paragraph to
+	explain the difference between _cmd and _cmds suffixes for
+	variable names.
+	(export_symbols_cmds): renamed from export_symbols_cmd.
+	
+1999-02-18  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* ltconfig.in (ld_shlibs): move -soname and similar flags to the
+	end of archive_cmds and archive_expsym_cmds, so as to prevent
+	gcc's collect2 from inserting an object file between -soname and
+	the library name
+
+	* ltconfig.in (openbsd*, netbsd*, library_names_spec): append
+	alternate name without ${release}, otherwise build fails when
+	-release is used
+
+1999-02-18  Gary V. Vaughan  <gvv@techie.com>
+
+	* ltconfig.in (archive{,_sym}_commands): Be careful not to
+	re-export the dll entry points DllMain@12, _cygwin_dll_entry@12 and
+	_cygwin_noncygwin_dll_entry@12 to avoid bugs with the wrong entry
+	function being called with inter-dll dependencies.
+	Reported by DJ Delorie <dj@delorie.com>
+	* THANKS: Added DJ Delorie, since his code inspired the impgen.c
+	program and because he has patiently answered all of the
+	irritating dll and win32 questions I have fired at him.
+	
+	* ltmain.in (version_type):  Oops.  Irix versioning implies that
+	major version numbers are 1 based (not zero based).  Fixed.
+	
+	* ltmain.in (version_type): Implement irix versioning.
+	* ltconfig.in (irix{5,6}*): Use new irix shared object versioning.
+	* TODO: remove irix versioning from TODO list.
+
+	* ltmain.in (impgen.c): Added a new embedded C file that can be
+	used under win32 to extract a def file (symbol export list) from a
+	dll that has none.  Code to use it might need to wait for the ILD
+	merge before it will be useful...
+	
+1999-02-18  Thomas Tanner  <tanner@gmx.de>
+
+	* TODO: updated
+	* autogen: only libltdl needs autoheader 
+	* doc/libtool.texi (link mode): documented -export-symbols-regex
+	  and updated -export-symbols
+	* doc/libtool.texi (script contents): documented 
+	  always_export_symbols, export_symbols_cmd, exclude_expsyms, 
+	  include_expsyms, dlopen and dlopen_self
+	  more detailed description of need_lib_prefix
+	* ltconfig.in: a "'" was missing in the default value 
+	  of export_symbols_cmd
+	* ltmain.in: implemented -export-symbols-regex
+	
+1999-02-17  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* ltconfig.in: (freebsd2*, sunos4*, exclude_expsyms): exclude
+	_GLOBAL_OFFSET_TABLE_
+	* ltmain.in: implement exclude_expsyms with egrep
+
+	* libltdl/ltdl.c (lt_dlmalloc, lt_dlfree): SunOS' cc can't cope
+	with argument lists, we __P even in the definition
+
+1999-02-15  Thomas Tanner  <tanner@gmx.de>
+
+	* cdemo/Makefile.am: renamed *foo1 to *foo, removed $(MATH_LIB)
+	* cdemo/foo1.c: renamed to foo.c
+	* libltdl/ltdl.c: eliminated lt_dltype, in presym_open():
+	  search for @PROGRAM@ if filename == 0, in lt_dlopen():
+	  fixed bug for filename == 0
+	* libltdl/ltdl.h: use __P macro for lt_dlmalloc/free
+	* libtool.m4: new macro AC_LIBTOOL_DLOPEN: checks for dlopen
+	  and dlopen(NULL) support
+	* ltconfig.in: added new variables dlopen and dlopen_self,
+	  --enable-dlopen[-self] flags for AC_LIBTOOL_DLOPEN
+	* ltmain.in: use dlopen[_self], dlpreopen files if there's no
+	  dlopen support, build lt_preloaded_symbols only if
+	  -dl[pre]open was used, include program symbols if -export-dynamic
+	  was specified and there's no dlopen(NULL) support
+	* mdemo/configure.in: use AC_LIBTOOL_DLOPEN
+	* mdemo/main.c: demonstrate lt_dlopen(0)
+	  	  
+1999-02-15  Gary V. Vaughan  <gvv@techie.com>
+
+	* demo/dlmain.c (_WIN32): The lt_symlist structure is now const,
+	so my original horrible temporary win32 hack no longer worked.
+	Here is a new horrible temporary hack to prevent helldl from SEGVing
+	on win32.  I will fix this properly when we figure out how to do
+	data exports from dlls.
+
+1999-02-14  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* libtool.m4 (AC_CHECK_LIBM): do not set MATHLIB or AC_SUBST it,
+	this has a negative side-effect of causing automake to add MATHLIB 
+	to every single Makefile.  Let's use plain AC_CHECK_LIB, so that
+	LIBS get set, until we find a better alternative
+	* *demo/Makefile.am: remove $(MATHLIB)
+
+	* libltdl/configure.in: add a DESCRIPTION argument to AC_DEFINEs
+	where appropriate, so as to get rid of acconfig.h
+	* libltdl/acconfig.h: removed
+
+1999-02-13  Thomas Tanner  <tanner@gmx.de>
+
+	* *demo/Makefile.am: use $(MATHLIB)
+	* *demo/configure.in: use AC_CHECK_LIBM
+	* doc/libtool.texi: renamed file_magic_command to file_magic_cmd,
+	  renamed archive_sym_cmds to archive_expsym_cmds
+	* ltconfig.in: ditto
+	* ltmain.in: ditto
+	* libltdl/ltdl.c: use lt_dlmalloc/free
+	* libltdl/ltdl.h: define lt_dlmalloc/free
+	* libtool.m4: added AC_CHECK_LIBM macro
+	* ltconfig.in: renamed archive_sym_cmds to archive_expsym_cmds,
+	  added always_export_symbols, export_symbols_cmd, exclude_expsyms,
+	  include_expsyms, removed archive_cmds for cygwin/mingw and AIX,
+	  on Solaris store the exported symbols list in objdir
+	* ltmain.in: allow -export-symbols for modules, use thread_safe flag,
+	  add include_expsyms to the exported symbols
+
+1999-02-12  Gary V. Vaughan  <gvv@techie.com>
+
+	* libltdl/ltdl.h (_LTDLL_EXTERN): libltdl is no longer linked as a
+	shared library, so the _declspec's were preventing the linker from
+	resolving symbols on win32.  They have been removed now.
+
+1999-02-12  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* ltmain.in: don't try to read objdir/libname.la before it is
+	created!
+
+	* ltmain.in: create libname.lai at link time, not at install time,
+ 	but still create it at install time if it is missing
+	Reported by Akim Demaille <demaille@inf.enst.fr>
+
+	* libltdl/ltdl.c (tryall_dlopen): strcmp filenames was reversed
+
+1999-02-11  Thomas Tanner  <tanner@gmx.de>
+
+	* autogen: libltdl needs autoheader
+	* demo/Makefile.am: renamed hell.debug to hell.static
+	  (we're demonstrating static linking, not debugging)
+	* tests/demo*: ditto
+	* doc/libtool.texi (libltdl): documented new lt_dlopen(NULL)
+	  feature
+	* libltdl/acconfig.h: required for config.h
+	* libltdl/configure.in: use config.h
+	* libltdl/ltdl.c: use config.h, support lt_dlopen(NULL)
+	  (returns a handle for the program itself)
+	* ltconfig.in: minor reformatting
+	* ltmain.in: in lt_preloaded_symbols always define
+	  the program's symbols first, for -export-dynamic list all
+	  program symbols together, -export-symbols was broken for
+	  programs, minor reformatting
+	* mdemo/Makefile.am: renamed mdemo.debug to mdemo.static
+	* tests/mdemo*: ditto, mdemo.test was completely broken
+	
+1999-02-10  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* ltconfig.in (irix5*, irix6*, osf3*, osf4*): do not use
+	-set_version in archive_cmds if verstring is empty
+	(irix6*, shlibpath_var, sys_lib_search_path-spec,
+	deplibs_check_method): set appropriate values depending on
+	selected ABI, -32, -n32 or -64, as set in LD by libtool.m4
+	(uts4*): remove dot between .so and versuffix
+
+1999-02-08  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* ltconfig.in (irix5*, irix6*, deplibs_check_method): use
+	file_magic for inter-library dependency tracking
+	
+	* ltconfig.in (irix5*, hardcode_libdir_separator): set it to a
+	colon, because on IRIX 5 only the last -rpath switch prevails, and 
+	it can be a list of colon-separated directories.  This change will 
+	affect irix6 too, but that's not a problem.
+
+	* ltconfig.in (irix5*, library_names_spec): add soname_spec,
+	otherwise we can't dlopen
+
+1999-02-08  Thomas Tanner  <tanner@gmx.de>
+
+	* ltconfig.in: according to Marcus Sundberg <mackan@stacken.kth.se>
+	  HP/UX, IRIX, OpenBSD, Digital Unix and SunOS support
+	  need_version=no and need_lib_prefix=no,
+	  fixed a bug in Solaris' archive_sym_cmds
+
+1999-02-04  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* libtool.m4 (ac_cv_sys_global_symbol_pipe): accept TAB in
+	addition to space as separator, and allow more than one space
+	between the symbol code and the symbol name; HP/UX's nm, for
+	example, uses two spaces
+	* ltconfig.in (global_symbol_pipe): ditto
+	(bsdi4, deplibs_check_method): variable name was misspelled
+	* libltdl/configure.in (libltdl_cv_preloaded_symbols): rewrite
+	test, so as not to depend on the way global_symbol_pipe is
+	initialized; the current test would get false positives, as
+	global_symbol_pipe was initialized `x=""', not `x='
+
+	* libltdl/ltdl.c (find_module): initialize filename if dir is NULL 
+	Reported by Godmar Back <gback@cs.utah.edu>
+
+1999-02-04  Godmar Back  <gback@cs.utah.edu>
+
+	* libltdl/ltdl.c (lt_dlopenext): missing space for terminator when
+	allocating memory for shlib_ext
+
+1999-02-03  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* libltdl/ltdl.c (lt_dlopenext): tmp would be trashed if shlib_ext
+ 	was longer than 3 characters
+
+1999-02-02  Gary V. Vaughan  <gvv@techie.com>
+
+	* ltconfig.in: new config.guess returns *-*-cygwin now instead of
+	*-*-cygwin32.  sed -e 's%\(cygwin\|mingw\)32%\1%g' ltconfig.in
+	* ltmain.in:   sed -e 's%\(cygwin\|mingw\)32%\1%g' ltmain.in
+
+	* ltconfig.in (hardcode_libdir_flag_spec, allow_undefined_flag,
+	archive_cmds, archive_sym_cmds, old_archive_from_new_cmds):
+	removed duplication of config by assuming that `test $with_gcc =
+	yes' implies gnu ld, otherwise MSVC++ (which I haven't tested
+	since I inheritted the code from Ian Lance Taylor btw!) is implied.
+	
+1999-01-28  Gary V. Vaughan  <gvv@techie.com>
+
+	* ltmain.in: Reverted this change of Alexandre's from the
+	1999-01-25; "don't try to use .o instead of .lo just because
+	there's no PIC flag.  It loses if --disable-static, and there's
+	not much point if we're referring to the same file anyway...",
+	because not all linkers will accept .lo object names.
+	* ltmain.in: In the case where --disable-static is specified (as
+	noted in Alexandre's log entry), we just link some .o files to
+	prevent the original error.
+	Reported by Andrey Slepuhin <pooh@msu.ru>
+
+1999-01-27  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* libtoolize.in: search for A[MC]_PROG_LIBTOOL, not
+	AM_PROG_LIBTOOL
+	Reported by Jeff Garzik <jgarzik@pobox.com>
+
+1999-01-27  Gary V. Vaughan  <gvv@techie.com>
+
+	* THANKS: Now that we have a policy, applied it to the existing
+	list.  This in no way demeans the work of those people removed
+	from the THANKS file, who are still credited in the ChangeLogs and
+	without who's work, libtool would not work so well on many
+	platforms, but serves to highlight the outstanding and continued
+	contribution the remaining people have made.  And I quote, "We
+	reserve THANKS for people who have made major contributions, and
+	leave the credit to the others for the ChangeLog only."
+	
+	* THANKS: added Sam Vilain.
+	* ltconfig.in ($echo):  When using printf to replace echo the shell
+	expands %s\n to %sn.  Changed to use "%s\n" (with quotes).
+	Reported by Sam Vilain <sam.vilain@nz.unisys.com>
+
+1999-01-27  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* libltdl/ltdl.c (find_file): fix endless loop condition
+	(find_module): filename allocation was off by 1
+
+	* libltdl/Makefile.am (distclean-local): renamed from
+	distclean-hook, that didn't work
+
+	* libltdl/ltdl.c (lt_dlopen, non-.la): find_file now returns 0 on
+	failure
+
+	* Makefile.am (ltconfig, ltmain.sh): some broken makes don't like
+	macros in targets; replace $(srcdir) with @srcdir@
+	* configure.in (ACINCLUDE_M4_LIST): same problem; expand $srcdir
+
+	* libltdl/Makefile.am (@TOINST@/libltdl.la): if installation is
+	enabled, create to-be-installed libltdl.la within @TOINST@
+	directory
+	(noinst_LTLIBRARIES): even if installation is enabled, build
+	convenience libltdl.la, otherwise builds of random packages may
+	fail if the user happens to enable installation
+	(distclean-hook): wipe out $(TOINST)
+	* libltdl/configure.in: set TOINST and LIBLIBS as appropriate;
+	don't set NOINSTLIBS any more
+	* mdemo/Makefile.am: use libltdl.la
+
+	* libltdl/ltdl.c (find_file): oops, filenamesize was miscomputed
+
+	* libltdl/ltdl.c (find_file): allocate filename dynamically
+
+	* libltdl/configure.in (AC_PROG_LIBTOOL): automake does not
+	recognize it and fail, better keep using AM_PROG_LIBTOOL until the
+	next release of automake
+	* demo/configure.in, cdemo/configure.in: ditto
+	* depdemo/configure.in, mdemo/configure.in: ditto
+
+	* libltdl/ltdl.c: make all global strings char[], not char*; check 
+	that all calls to malloc() are properly cast
+	(strdup, strchr, strrchr, trim, free_vars): declare as inline
+	(find_module): allocate filename dynamically; support null dir
+	(free_vars): free dir and name only if non-null
+	(lt_dlopen): keep dir as NULL if not given; fix expression that
+	calculated the size of name; only free and name if non-null
+	(lt_dlopenext): allocate tmp dynamically
+
+	* configure.in (pkgdatadir): expand ${PACKAGE} at configure-time,
+	just like automake does
+
+	* configure.in (pkgdatadir): define pkgdatadir explicitly, and
+ 	comment that automake does not need it, but libtoolize does
+
+	* Makefile.am (aclocaldir): do not set it explicitly, automake
+	does already
+
+	* configure.in (TIMESTAMP): use mkstamp here too
+
+1999-01-27  Thomas Tanner  <tanner@gmx.de>
+
+	* cdemo/configure.in: renamed AM_PROG_LIBTOOL to AC_PROG_LIBTOOL
+	* demo/configure.in: likewise
+	* depdemo/configure.in: likewise
+	* libltdl/configure.in: likewise
+	* mdemo/configure.in: likewise
+	* libltdl/ltdl.c: in find_module() check whether libdir is defined,
+	  tryall_dlopen(): move deallocation of an already opened handle
+	  to lt_dlopen(), allocate the directory in lt_dlopen() dynamically,
+	  minor cleanups, fixed memory leak (name)
+	* libtool.m4: renamed all AM_ macros to AC_ and added aliases for
+	  compatibilty, updated AC_SYS_NM_PARSE (no undefined symbols,
+	  don't count the symbols)
+	* ltconfig.in: added thread_safe_flag_spec (not used yet),
+	  added generic variable for linker options "linkopts" in
+	  all archive_cmds
+	* ltmain.in: added -thread-safe flag (unused)
+	  
+1999-01-26  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* ltconfig.in (LTCONFIG_VERSION): damn!, adding TIMESTAMP doesn't
+ 	always work, because then different ChangeLog timestamps fail to
+ 	pass the version test.  Instead of forcing both ltconfig and
+	ltmain.sh to be updated every time ChangeLog changes, better
+	revert it
+	
+	* ltconfig.in (LTCONFIG_VERSION): add TIMESTAMP, remove
+	explicit quotes and add it to the list of variables to quote
+
+	* ltmain.in: reworded `dropped inter-library dependencies'
+	message, and added a warning about inter-library dependencies even 
+	for non-module builds
+
+1999-01-26  Gary V. Vaughan  <gvv@techie.com>
+
+	* Makefile.am (install-data-hook): Don't show the if expression
+	that tests for gzip with a conditional error message; just do it
+	quietly and show the error if it fails, or the next action if it
+	succeeds.
+	
+	* configure.in:  It seems Alexandre accidentally removed the
+	AC_SUBST(pkgdatadir) line recently which breaks libtoolize.
+	Reverted that small change.
+
+1999-01-25  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* libltdl/ltdl.c (find_module): test old_name and dlname for NULL, 
+	not len==0
+
+	* libltdl/configure.in (libltdl_cv_objdir): yes, appending the "/" 
+	in configure.in was much simpler
+	* libltdl/ltdl.c (objdir): ditto
+
+	* libltdl/ltdl.c (objdir): string collation isn't portable; strcat 
+	"/" explicitly.  Or should this be moved to configure.in?
+
+1999-01-25  Thomas Tanner  <tanner@gmx.de>
+
+	* libltdl/ltdl.c: allocate the variables in lt_dlopen() dynamically
+	  
+1999-01-25  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* ltmain.in (file_magic): use egrep instead of expr to support
+	more general regular expressions
+	(file_regex): remove it; the name is misleading, it's not used
+ 	anywhere, and probably will never be
+	* ltconfig.in, doc/libtool.texi: ditto
+	* ltconfig.in (linux-gnu*, deplibs_check_method): extend regex to 
+	support `LSB dynamic lib' in the output of `file'
+	Reported by Scott D. Heavner <sdh@po.cwru.edu>
+	
+	* ltmain.in (dependency_libs, xrpath): add -R switches to
+	dependency_libs only just before creating the .la file; they
+	should not be passed to the C compiler or linker at
+	library-creation time, since we don't know whether it is supported
+
+	* ltconfig.in (freebsd2.2*, hardcode_minus_L): for FreeBSD 2.2.6,
+	this must be `no'
+
+	* mkstamp: move the sed script to extract revision and date
+	information into a separate shell-script, so that we can break
+	lines between commands; FreeBSD's sed doesn't like `;' after `t'
+	Reported by Axel Thimm <Axel.Thimm@physik.fu-berlin.de>
+	* Makefile.am: use mkstamp
+	* THANKS: added Axel Thimm
+	
+	* ltmain.in: don't try to use .o instead of .lo just because
+	there's no PIC flag.  It loses if --disable-static, and there's
+	not much point if we're referring to the same file anyway...
+
+	* ltmain.in (pass_all=none, droppeddeps): set only if deplibs was
+	non-empty
+
+1999-01-24  Thomas Tanner  <tanner@gmx.de>
+
+	* libltdl/ltdl.c: minor bugfixes, append a "/" the search 
+	  directory only if necessary
+	* ltconfig.in: added support for FreeBSD >= 3.0
+	  (patch from Kurt D. Zeilenga)
+	* THANKS: added Kurt D. Zeilenga
+
+1999-01-24  Thomas Tanner  <tanner@gmx.de>
+
+	* doc/libtool.texi (libltdl): list supported dlopen mechanisms,
+	  added function lt_dlopenext(), removed reference to 
+	  LTDL_PRELOADED_SYMBOLS in LTDL_SET_PRELOADED_SYMBOLS
+	* libltdl/ltdl.c: partially reverted Alexandre's dynamic string
+	  allocation change (it was not necessary and the code was unreadable),
+	  cleanups, removed usr_search_path_size, renamed usr_search_path
+	  to user_search_path, in find_module() also check for moved
+	  modules, merged find_file() and find_library(),
+	  added lt_dlopenext(), in lt_dladdsearchdir() no longer reset
+	  the search path if 'search_dir' == NULL and don't use realloc()
+	  (might not be available on all platforms),
+	  removed __P((void)) in the declaration of lt_dlgetsearchpath()
+	* libltdl/ltdl.h: added lt_dlopenext()
+	* ltconfig.in: AIX archive commands were broken,
+	  fixed a MAJOR bug in global_symbol_pipe which caused
+	  "demo-shared.test;demo-make.test" to fail (libtool must not extract
+	  undefined symbols of libraries, i.e. symcode must not contain 'U')
+	* tests/Makefile.am (clean-local): "make distclean" in cdemo, too
+
+1999-01-22  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* Makefile.am (ltconfig, ltmain.sh): add ChangeLog Revision to
+	TIMESTAMP
+	* configure.in: get values of PACKAGE and VERSION set by
+	AM_INIT_AUTOMAKE, and extract only TIMESTAMP from the ChangeLog
+
+	* libltdl/ltdl.c (lt_dlopen): if we're reusing a previously opened
+	handle, don't reset its name nor add it to the list, and free the
+	name we have allocated
+	Reported by Edouard G. Parmelan <Edouard.Parmelan@France.NCR.COM>
+
+	* Makefile.am (ltconfig, ltmain.sh, TIMESTAMP): let's not assume
+	anything about the format of the date, just that it does not
+	contain `$'
+
+1999-01-22  Gary V. Vaughan  <gvv@techie.com>
+
+	* configure.in (date): echo the version number during
+	configuration, and show $date for cvs versions.
+
+	* Makefile.am ($(srcdir)/ltconfig): Oops.  cvs co keyword
+	expansion ate the sed expression! Changed sed separator to '%'
+	because there are '/' in the date.  Added missing '\(' to search
+	expression.  Inserted a null string to stop cvs from expanding it
+	next time =)O|
+	($(srcdir)/ltmain.sh): ditto.
+
+1999-01-22  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* Makefile.am (TSDEPS_DIST): dist-time dependencies for timestamps
+	(timestamps, update-timestamps): check whether TSDEPS_DIST are
+	up-to-date and update ltconfig and ltmain.sh if needed
+	(ltconfig, ltmain.sh): depend on TSDEPS; replace @TIMESTAMP@ with
+	the Date tag in the ChangeLog
+	(TSDEPS): empty unless overridden by update-timestamps
+	* ltconfig.in, ltmain.in (TIMESTAMP): append timestamp to most
+	references to VERSION
+
+1999-01-22  Gary V. Vaughan  <gvv@techie.com>
+
+	* ltmain.in (ild): Revert the change which allowed libtool to
+	link libraries with dependencies on .la libs.
+	* NEWS: Removed reference to win32, incase 1.3 ships before
+	ild is ready.
+	* doc/PLATFORMS: Removed i686-pc-cygwin32, for the same reason.
+	* doc/libtool.texi: Removed win32 refs, for the same reason.
+
+1999-01-22  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* ltmain.in (Xsed): add 1 to Xsed definition that goes into
+	temporary wrapper scripts
+	* libtool.m4: we don't have Xsed here, expand it manually
+	Reported by Pavel Roskin <pavel_roskin@geocities.com>
+
+1999-01-22  Edouard G. Parmelan  <Edouard.Parmelan@France.NCR.COM>
+
+	* ltmain.in (finalize_hardcode_libdirs, finalize_rpath): in
+	platforms that use -rpath, programs must be finalized at
+	installation time, otherwise build-tree programs will
+	prefer installed libraries over build-tree ones
+
+1999-01-22  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* mdemo/Makefile.am (../libltdl/libtool): if it does not exist,
+	the sub-make for libltdlc.la will take care of it, but we must at
+	least provide an empty rule for it, otherwise the sub-make will
+	never run
+
+	* demo/configure.in, demo/Makefile.am (DLPREOPEN): reverted; it
+	didn't make any difference.
+
+1999-01-21  Gary V. Vaughan  <gvv@techie.com>
+
+	* THANKS: Added Chris Laas <golem@MIT.EDU>
+	
+	From Chris Laas <golem@MIT.EDU>
+	* ltmain.in (compile):  corrected a typo in compile mode which
+	caused "gcc: unrecognized option -c-fPIC" errors due to a missing
+	space.
+
+1999-01-21  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* libltdl/configure.in: reintroduce code to detect native library
+	extension
+	* libltdl/ltdl.c (lt_dlopen): if a .la file name is given, that's
+	all.  Otherwise, lt_dlopen now tries to append .la first.  If this 
+	fails, it tries the given filename, and, at last, tries to append
+	the native library extension to the given filename.
+	* doc/libtool.texi (lt_dlopen): explain new lookup strategy
+
+	* libltdl/ltdl.c: major rewrite to avoid almost all fixed-size
+	buffers; only `tmp' in lt_dlopen remained.  But the code got ugly
+	:-(
+
+	* ltconfig.in (linux-gnu*, finish_cmds): remove erroneous backslash
+
+	* demo/configure.in: set DLPREOPEN to -dlopen if we don't have
+	shared libraries
+	* demo/Makefile.am (DLPREOPEN): use instead of -dlpreopen
+	(STATIC): use $(STATIC), not @STATIC@
+	* mdemo/Makefile.am (STATIC): ditto
+
+	* tests/demo-shared.test, tests/demo-static.test: new tests
+	* tests/mdemo-shared.test, tests/mdemo-static.test: ditto
+	* tests/Makefile.am: ditto
+	* doc/libtool.texi: document them
+	* demo/Makefile.am, mdemo/Makefile.am (STATIC): do not use
+	-static unconditionally, it can't work with --disable-static
+	* demo/configure.in, mdemo/configure.in: check whether libtool was 
+	configured to build static libraries and, if not, set STATIC to an 
+	empty string
+
+1999-01-20  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* ltmain.in (module, droppeddeps): if libtool could not satisfy
+	all dependencies of a module, it will only build a static version
+	of it, and display a warning message
+
+1999-01-20  Erez Zadok <ezk@shekel.mcl.cs.columbia.edu>
+
+	* ltconfig.in (aix4*, with_gcc, archive_cmds): fix typo in Andrey
+	Slepuhin's last patch
+
+1999-01-20  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* Makefile.am (@DIST_MAKEFILE_LIST@): work around Ultrix /bin/sh bug
+	* tests/nomode.test (must specify a MODE): ditto
+	Reported by Rainer Orth <ro@TechFak.Uni-Bielefeld.DE>
+	* THANKS: Added Rainer Orth
+
+1999-01-20  Rainer Orth  <ro@TechFak.Uni-Bielefeld.DE>
+
+	* ltconfig.in: No known version of Solaris 2 hardcoded -L paths.
+
+1999-01-20  Erez Zadok <ezk@shekel.mcl.cs.columbia.edu>
+
+	* ltmain.in: s/n\'t/ not/
+	* doc/PLATFORMS: updates for sunos4/m68k and aix
+
+1999-01-20  Andrey Slepuhin  <pooh@msu.ru>
+
+	* ltconfig.in (aix4*): check for reworked collect2, always pass
+	-bnoentry option to linker when building a shared library
+
+1999-01-20  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* ltmain.in (file_magic): follow soft-links before running `file'
+	on the candidate library; try to avoid entering endless loop
+	Suggested by Nix <nix@esperi.demon.co.uk>
+	
+	* ltconfig.in (linux*, solaris*, bsdi4*, sys_lib_search_path):
+	remove expansion of $LD_LIBRARY_PATH
+	* ltmain.in (lib_search_path): append the expansion of $shlibpath_var
+	* doc/libtool.texi: document it
+
+	* THANKS: Added Steven Schultz
+
+1999-01-20  Steven M. Schultz <sms@wlv.iipo.gtegsc.com>
+
+	* ltconfig.in (bsdi4*, check_shared_deplibs_method): file_magic
+	(bsdi4*, sys_lib_search_path): add /shlib and other dirs
+
+1999-01-20  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* cdemo/main.c (main): use K&R definition syntax
+	* mdemo/main.c (test_dl, main): ditto
+	(test_dl): casts return value of lt_dlsym to appropriate types
+
+	* ltmain.in (dlsyms): #define const to nothing if not __STDC__
+
+	* ltconfig.in (global_symbol_pipe): #define const to nothing if
+	not __STDC__
+
+	* demo/dlmain.c (main): cast s->address to the appropriate pointer
+ 	types, otherwise StunOS4's cc refuses to compile it
+
+	* ltconfig.in (sunos4*, without_gnu_ld, with_gcc, archive_cmds):
+ 	add -fPIC, because libgcc is multilibbed, and we want the PIC
+ 	version of it for shared libraries, otherwise ld complains
+
+	* demo/dlmain.c (main): add missing const to declaration of name
+
+	* libltdl/ltdl.c (find_module): remove the libdir argument, and
+	try to  open library only as old_name and dir/dlname
+	(lt_dlopen): use `installed' variable in .la file to decide
+	whether to use libdir or objdir
+	
+	* demo/configure.in (AC_C_CONST): added, for portability
+	* mdemo/configure.in (AC_C_CONST): ditto
+	* libltdl/configure.in (AC_C_CONST, AC_C_INLINE): ditto
+	* libltdl/ltdl.c (LTDL_FILENAME_MAX): use FILENAME_MAX if defined
+	(FILENAME_MAX): replace all explicit uses with LTDL_FILENAME_MAX
+	(presym_free_symlists, trim): don't return void, for portability
+	(lt_dlgetsearchpath): replace (void) with __P((void))
+
+	* ltmain.in (compile): when compiling both PIC and non-PIC, write
+ 	the PIC object to .libs/.lo and only rename it to .lo after
+ 	compiling the .o, to avoid fooling make dependencies
+
+	* mdemo/main.c (LTDL_PREOPENED_SYMBOLS): remove
+
+1999-01-20  Gary V. Vaughan  <gvv@techie.com>
+
+	* TODO: Added inter-library deps for ltlibs.
+
+	* THANKS: Added Vladimir Kushnir.
+	
+1999-01-20  Vladimir Kushnir  <kushn@mail.kar.net>
+	
+	* ltconfig.in (freebsd3*): Define `deplibs_check_method' and
+	`file_magic_command' for freebsd-elf.
+
+1999-01-20  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* TODO: should we also build a `static' copy of a convenience
+ 	library out of .o files?
+
+	* ltconfig.in (bsdi4*, netbsd*, uts4*, library_names_spec,
+	soname_spec): removed duplicate dot before $major
+	Reported by Steven M. Schultz <sms@wlv.iipo.gtegsc.com> (bsdi4*)
+
+	* THANKS: added Manfred Weichel
+
+1999-01-20  Manfred Weichel  <Manfred.Weichel@pdb.siemens.de>
+
+	* ltconfig.in (sysv5*): same as sysv4.3*
+
+1999-01-20  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* libltdl/ltdl.c (lt_dlopen): properly detect error condition when
+	full pathname of non-libtool library is provided
+	
+	* libltdl/configure.in (libltdl_cv_preloaded_symbols,
+	HAVE_PRELOADED_SYMBOLS): test whether we support -dl*open
+	* libltdl/ltdl.c (!HAVE_PRELOADED_SYMBOLS, lt_preloaded_symbols):
+	define it to an empty list if libtool won't generate it, so as to
+	avoid link errors.  This will cause silent dlopening failures, but 
+	maybe this is better than failing to link the program...
+
+	* libltdl/ltdl.h (LTDL_PRELOADED_SYMBOLS): remove it; better to
+	declare lt_preloaded_symbols
+	* doc/libtool.texi (LTDL_PRELOADED_SYMBOLS): ditto
+
+	* ltmain.in (dlpredeps): removed, reverting 1999-01-17's change
+
+1999-01-19  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* libltdl/Makefile.am (Makefile): depend on libtool
+
+	* ltmain.in (lt_preloaded_setup): function added to symbol list
+	source file to work around FreeBSD problem
+
+	* Makefile.am (check-local): depend on libltdl/Makefile
+
+	* mdemo/Makefile.am (mdemo_LDFLAGS, mdemo_LDADD): moved -dlopen
+	flags to LDADD
+	* doc/libtool.texi (Using Automake): how to add -dlopen to LDADD
+
+1999-01-19  Gary V. Vaughan  <gvv@techie.com>
+
+	From Andrey Slepuhin <pooh@msu.ru>
+	* ltmain.in (hardcode_action) Oops, misapplied the patch!
+	
+	* ltconfig.in (compile_dependencylbs): removed this
+	variable and pick up the library dependencies from $deplibs.
+	* ltmain.in (compile_dependencylibs): removed this
+	variable, use deplibs to hold these dependencies.
+
+	From Andrey Slepuhin <pooh@msu.ru>
+	* ltmain.in (hardcode_action) make sure deplibs is set to include
+	all the	extra libs added to compile_command.
+
+1999-01-18  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* libtool.m4 (LIBTOOL_DEPS): set it
+	* libltdl/configure.in (LIBTOOL_DEPS): AC_SUBST it
+	* libltdl/Makefile.am (libtool): use it
+	* doc/libtool.texi (AM_PROG_LIBTOOL): document it
+
+	* Makefile.am (libltdl.tar.gz): don't create it as part of the
+	build, since it is likely to become stale if we do
+	(install-data-hook): create and install libltdl.tar.gz, without
+	depending on GNU tar
+	Reported by Manfred Weichel <Manfred.Weichel@pdb.siemens.de>
+
+1999-01-17  Thomas Tanner  <tanner@gmx.de>
+
+	* Makefile.am: added libltdl.tar.gz to CLEANFILES
+	* ChangeLog: some reformatting
+	* TODO: documentation updates
+	* doc/libtool.texi: added preliminary libltdl documentation,
+	  updated dlopen and -module documentation,
+	  renamed -avoid-versioning to -avoid-version
+	  documented the libtool script variables compiler_c_o, 
+	  compiler_o_lo, need_locks, old_postuninstall_cmds, 
+	  postuninstall_cmds, sys_lib_search_path_spec,
+	  fix_srcfile_path, objdir, objext, libext,
+	  documented the two new flags (--ltdl[-tar]) of libtoolize
+	* libltdl/Makefile.am: incremented the version, removed
+	  libtool dependency so that it can be build independently
+	* libltdl/configure.in: removed LTDL_SHLIB_EXT hack, 
+	  set version to 1.0, use AM_MAINTAINER_MODE, 
+	  DLPREOPEN is always supported, check for libtool's objdir variable
+	  (LTDL_OBJDIR)
+	* libltdl/ltdl.c: some cleanups (moved constants to the beginning
+	  of the file and prefixed all of them with LTDL_, minor optimizations 
+	  in find_file() and find_module()), renamed lt_dlpreopen* to
+	  lt_dlpreload* for consistency, removed LTDL_SHLIB_EXT hack,
+	  we don't need unistd.h, DLPREOPEN is _always_ supported,
+	  reverted Alexandre's lt_dlpreopen_default_ change, 
+	  try to open the not-installed module before the installed one,
+	  replaced lt_dlsearchpath() with lt_dladdsearchdir(),
+	  lt_dlsetsearchpath() and lt_dlgetsearchpath()
+	* libltdl/ltdl.h: renamed lt_dlpreopen* to lt_dlpreload* 
+	  for consistency, removed the declaration of lt_preloaded_symbols
+	  (should be imported by programs),
+	  reverted Alexandre's lt_dlpreopen_default_ change and added
+	  two new macros LTDL_PRELOADED_SYMBOLS and 
+	  LTDL_SET_PRELOADED_SYMBOLS(),
+	  added lt_dladdsearchdir(), lt_dlsetsearchpath() and 
+	  lt_dlgetsearchpath()
+	* libtool.m4: some reformatting
+	* libtoolize.in: implemented --ltdl, bugfix when checking for
+	  the libtool package directory
+	* ltconfig.in: removed $thread_safe_flags from Andrey Slepuhin's
+	  AIX patch, renamed sys_lib_search_path to sys_lib_search_path_spec,
+	  some reformatting, fixed typo in deplibs_check_method (unkwnon)
+	* ltmain.in: documented -o for compile mode, some reformatting,
+	  renamed -avoid-versioning to -avoid-version
+	  renamed sys_lib_search_path to sys_lib_search_path_spec
+	* mdemo/Makefile.am: use -avoid-version
+	* mdemo/main.c: use LTDL_PRELOADED_SYMBOLS and 
+	  LTDL_SET_PRELOADED_SYMBOLS()
+
+1999-01-17  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* ltconfig.in (wlarc): set to either '${wl}' or an empty string,
+ 	depending on whether archive_cmds runs CC or LD
+	(gnu_ld=yes, whole_archive_flag_spec): "$wlarc" instead of '${wl}'
+
+	* mdemo/Makefile.am (../libltdl/libltdlc.la): depend on
+	../libtool, because ../libltdl/libtool depends on it
+	(mdemo_debug_*): copy from mdemo_*, adding -static to LDFLAGS
+
+	* ltmain.in (dlpredeps): append dependencies from dlopened modules 
+	(but not dlpreopened ones) after all explicitly linked libraries
+
+	* ltconfig.in (need_lib_prefix, need_version,
+ 	deplibs_check_method): default to unknown, so that we're
+ 	remembered that this needs porting; unknown is interpreted as yes,
+ 	yes and none, respectively
+	(freebsd2*, freebsd3*, sunos4*, need_version): set to yes
+	(freebsd2*, freebsd3*, library_names_spec): libraries without a
+	version number are not used by `ld'; add $versuffix;
+	Reported by Ben Jackson <ben@ben.com>
+	* ltmain.in (deplibs_check_method): alias unknown to none
+	(need_version): if vinfo was not provided and release info was,
+	zero out versuffix only if we don't need_version.
+	* doc/libtool.texi: document what `unknown' means
+
+	* libltdl/ltdl.h (lt_dlpreopen_default): reverted to a macro
+	without arguments, that calls lt_dlpreopen_default_ with
+	lt_dlpreloaded_symbols
+	* libltdl/ltdl.c (lt_dlpreopen_default_): renamed from
+	lt_dlpreopen_default
+	(find_module) tryall_dlopen old_name first, so that we don't
+ 	override statically linked symbols with dlopened ones
+
+1999-01-15  Gary V. Vaughan  <gvv@techie.com>
+
+	From Andrey Slepuhin <pooh@msu.ru>
+	* libtoolize.in (cd $pkgdatadir): Make sure we return the the
+	working directory when this is done.
+
+	From Andrey Slepuhin <pooh@msu.ru>
+	* ltconfig.in (aix): Use shared library support correctly on
+	aix4*, and tweak the config for aix3.
+	* NEWS: added aix3 and aix4 to list of hosts with improved
+	support.
+	* THANKS: added Andrey Slepuhin <pooh@msu.ru>.
+
+1999-01-15  Thomas Tanner  <tanner@gmx.de>
+
+	* Makefile.am (@DIST_MAKEFILE_LIST@): added a second '$' 
+	  before abs_scrdir, removed ltconfig and ltmain.sh from
+	  EXTRA_DIST (automake distributes them by default)
+	
+1999-01-14  Thomas Tanner  <tanner@gmx.de>
+
+	* autogen: moved faking of the libtool scripts before
+	  the call of automake, so that ltconfig and ltmain.sh
+	  are included in the distribution
+	* ltconfig.in: when checking whether PIC is supported assume
+	  only on HP/UX that warnings during compilation mean that
+	  PIC is not supported (Thanks to Ron O'Hara)
+	* THANKS: added Ron O'Hara
+	  
+1999-01-14  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* Makefile.am: Moved ltconfig and ltmain.sh back into srcdir, and
+	add them to the distribution.  Added work-around if `mv -f' fails.
+	fix @AINCLUDE_M4_LIST@ and @DIST_MAKEFILE_LIST@ for relative and
+	absolute specifications of srcdir
+
+1999-01-14  Thomas Tanner  <tanner@gmx.de>
+
+	* libltdl/ltdl.c: added variable symbol prefix, added user-defined
+	  library search path (can be set using lt_dlsearchpath()),
+	  added default_preloaded_symbols which are independent of
+	  lt_dlinit/exit
+	* libltdl/ltdl.h: added lt_dlsearchpath() and
+	  lt_dlpreopen_default()
+	* mdemo/Makefile.am: use -export-dynamic until libtool 
+	  and libltdl are able to handle module dependencies
+	  
+1999-01-14  Gary V. Vaughan  <gvv@techie.com>
+
+	* THANKS: added Mark Elbrecht.
+	* ltconfig.in (PATH_SEPARATOR): new variable to hold valid $PATH
+	separator characters for the build host, to support DJGPP
+	environment.
+	* ltconfig.in: Use PATH_SEPARATOR instead of hardcoded `:'.
+	Reported by Mark Elbrecht <snowball3@usa.net>
+
+	* cdemo/README: typo: mdemo->cdemo
+
+1999-01-14  Thomas Tanner  <tanner@gmx.de>
+
+	* autogen: fake the libtool scripts to help fixing
+	  the bootstrapping problem
+	* Makefile.am: always configure libltdl, however after building
+	  the libtool scripts, 
+	  build the libtool scripts in builddir, not srcdir
+	  (unfortunately this breaks building when srcdir!=objdir, 
+	   but it was just plain wrong - needs to be fixed),
+	  build and install libltdl.tar.gz,
+	  copy acinclude.m4 instead of linking them, so that we 
+	  can 'make dist' in libltdl,
+	  fixed configuring of subdirectories
+	* configure.in: removed --enable-ltdl-install - libltdl is supposed
+	  to be installed by packages, not by libtool itself
+	* libtoolize.in: new flags --ltdl and --ltdl-tar to install libltdl
+	  in packages (--ltdl doesn't work yet),
+	  install only the necessary libtool scripts, not just all 
+	  files in pkgdatadir
+	* mdemo/Makefile.am: removed the rule for libltdl configuration
+			
+1999-01-13  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* mdemo/Makefile.am (../libltdl/libtool): mkdir and configure
+	../libltdl
+
+1999-01-13  Thomas Tanner  <tanner@gmx.de>
+
+	* demo/dlmain.c, libltdl/ltdl.c, ltconfig.in, ltmain.in, 
+	  doc/libtool.texi: renamed dld_preloaded_symbols to 
+	  lt_preloaded_symbols, symbol lists are 'const'
+	* cdemo/configure.in: don't check for string.h
+	* demo/dlmain.c: renamed dld_symlist to lt_symlist,
+	  preloaded symbols are 'const', use lt_ptr_t instead of void*
+	* demo/foo.h: define lt_ptr_t
+	* doc/libtool.texi: document lt_preloaded_symbols correctly
+	* libltdl/Makefile.am, mdemo/Makefile.am: renamed libtest to libltdlc
+	* libltdl/ltdl.c: fixed some minor typos, renamed dldpre to presym,
+	  bugfix: search in search_path only if we have no directory 
+	  and a search_path, in lt_dlsym() check whether symbol != 0
+	* libltdl/ltdl.h: removed lt_dlpreopen_default()
+	* ltconfig.in (dlpreopen): removed dld_preloaded_symbol_count
+	* ltmain.in: added help for -avoid-versioning, -export-symbols,
+	  -module, add @SYMFILE@ if one of -export-dynamic, -dlopen or
+	  -dlpreopen is used
+	* mail/deplibs.html: added Gordon Matzigkeit's inter-library
+	  dependencies article
+	* mdemo/Makefile.am: removed -export-dynamic from LDFLAGS
+	  (no longer necessary, since libtool defines lt_preloaded_symbols
+	  when -dlopen is used), initialize with lt_preloaded_symbols
+	
+1999-01-13  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* doc/libtool.texi (Test descriptions): cdemo-static works, thanks 
+	to Edouard Parmelan!
+
+	* THANKS: added Sebastian Wilhelmi
+
+	* ltconfig.in (solaris): define `need_version' to no
+
+1999-01-13  Sebastian Wilhelmi  <wilhelmi@ira.uka.de>
+
+	* ltconfig.in (solaris): Define `deplibs_check_method',
+	`file_magic_command', `need_lib_prefix' and `sys_lib_search_path'
+	* ltmain.in (file_magic_regex): Add space before matching pattern,
+	such that it works on solaris (solaris has a tab between the
+	library name (including the colon) and the `ELF' and such the
+	`ELF' will never be matched).
+
+1999-01-13  Edouard G. Parmelan  <Edouard.Parmelan@France.NCR.COM>
+
+	* ltconfig.in (NM): PATH search was not updated like in
+	libtool.m4, in last Alexandre Oliva's change to it
+	(sysv4*, ncr): pass all library dependencies
+	* ltmain.in (dependency_libs, -R): use `deplib' instead of `arg' to
+	iterate, otherwise we'd overwrite `arg'
+	(convenience, old_libs): if --disable-shared, convenience
+	libraries are just old archives, as .lo's are of no use
+	* tests/cdemo-static.test: print --disable-shared here
+
+1999-01-13  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* libltdl/configure.in (libltdl_cv_shlibext, LTDL_SHLIB_EXT):
+	system-dependent extension of shared libraries
+	(libltdl_cv_shlibpath_var, LTDL_SHLIBPATH_VAR): system-dependent
+	run-time shared library search path
+	* libltdl/ltdl.c (dldpre_init, dldpre_exit): unrelate init/exit
+	from add/remove symlists, so one may add dld_preloaded_symbols
+	from main(), when only a library will call dldpre_init
+	(lt_dlopen): use LTDL_SHLIBPATH_VAR, if defined, as secondary
+	search path.  Also, if a requested .la file cannot be found, try
+	with the LTDL_SHLIB_EXTension instead.
+
+	* ltmain.in (old_archives, oldobjs): use find to SYMDEF here too
+
+	* Makefile.am (@DIST_MAKEFILE_LIST@): `$' must be doubled
+
+	* configure.in (AC_CONFIG_DIRS): configure only libltdl, and then,
+	only if --enable-ltdl-install
+	(CONF_SUBDIRS): list directories that are configured on demand,
+	but that must be included in the distribution
+	(ACINCLUDE_M4_LIST, DIST_MAKEFILE_LIST): generated from CONF_SUBDIRS
+	* Makefile.am (AUTOMAKE_OPTIONS): added version 1.3e and
+	readme-alpha, to handle README-alpha automatically
+	(EXTRA_DIST): removed README-alpha
+	(BUILD_SUBDIRS): subdirectories that are always built
+	(SUBDIRS): BUILD_SUBDIRS plus BUILD_LTDL
+	(DIST_SUBDIRS): BUILD_SUBDIRS plus CONF_SUBDIRS, from configure
+	(all-local, check-local): depend on $(ACINCLUDE_M4_LIST), from
+	configure, and libtool, so that it is built before subdirs
+	(configure-subdirs): new target
+	(configure-subdirs, distdir): depend on $(DIST_MAKEFILE_LIST),
+	from configure
+	(@DIST_MAKEFILE_LIST@): create subdir if needed, then run
+	configure.
+	On-demand configuration of subdirs at distribution time was
+	suggested by Gary V. Vaughan <gvv@techie.com>
+
+	* libtool.m4, ltconfig.in (NM): search for NM in PATH before
+	/usr/ccs/bin, /usr/ucb and /bin.  However, if the found one isn't
+	BSD-compat keep searching.  If no BSD-compat is found, use the
+	first we found.
+
+	* THANKS: added Raffaele Sena
+
+1999-01-13  Raffaele Sena  <raff@aromatic.com>
+
+	* libltdl/ltdl.c: replaced RTDL with RTLD
+
+1999-01-13  Manish Singh  <yosh@gimp.org>
+
+	* ltconfig.in (osf3*, osf4*, irix6*): include
+	${libname}{release}.so for library_names_spec
+
+1999-01-13  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* configure.in (AC_CONFIG_SUBDIRS): added cdemo
+	* Makefile.am (DIST_SUBDIRS): ditto
+	(ACINCLUDE_M4_LIST): ditto
+	* tests/Makefile.am (TESTS): added cdemo-shared.test
+	* tests/cdemo-static.test: disable shared libraries here
+	* tests/cdemo-shared.test: disable static libraries here
+	* doc/libtool.texi (Test descriptions): added cdemo tests
+	* THANKS: added Edouard G. Parmelan
+
+1999-01-13  Edouard G. Parmelan  <Edouard.Parmelan@France.NCR.COM>
+
+	* ltmain.in: fix convenience libraries when static libraries
+	are disables.
+	* cdemo/README, cdemo/Makefile.am, cdemo/configure.in, cdemo/foo.h,
+	cdemo/foo1.c, cdemo/main.c, cdemo/.cvsignore, test/cdemo-conf.test,
+	test/cdemo-make.test, test/cdemo-exec.test, test/cdemo-static.test:
+	new tests for convenience libraries.
+	* autogen, Makefile.am, test/Makefile.am: ditto.
+
+	* ltconfig.in, doc/PLATFORMS: Added support for NCR MP-RAS
+	(i586-ncr-sysv4.3*) with native compiler.
+	* README, doc/libtool.texi: Added note for NCR MP-RAS compiler.
+
+1999-01-12  Thomas Tanner  <tanner@gmx.de>
+
+	* ltmain.in: before using LN_S remove the symlink
+	* libltdl/ltdl.c: support multiple symbol lists, moved library-
+	  and file searching to separate functions, renamed "preload_libs"
+	  to "dl_dependency_libs", set the LT_SYMBOL_OVERHEAD to the correct
+	  value (7), fix to support lt_dlsym() for not-libtool modules again,
+	  check for invalid handles, when using strdup() check whether
+	  it fails
+	* libltdl/ltdl.h: declare the lt_dlsymlist type for lt_dlpreopen()
+	* mdemo/README: rewritten
+	* mdemo/configure.in: check only for math.h (string.h is no longer
+	  necessary)
+
+1999-01-12  Gary V. Vaughan  <gvv@techie.com>
+
+	* configure.in (ltdl-install): Fixed up the indentation so that
+	`configure --help' is pretty again.
+
+1999-01-11  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* ltmain.in, NEWS, doc/libtool.texi: Added support for -R flag
+	* ltmain.in, doc/libtool.texi: documented that -rpath is the same
+	as -R for programs
+	* ltmain.in: softened the instructions for linking with installed
+	libraries, and noted that libtool can be used to link with them;
+	documented that -rpath is not required for convenience libraries
+
+	* ltconfig.in (symxfrm): don't print $pipe_works twice, once for
+	each $ac_symprfx
+	Reported by Godmar Back <gback@cs.utah.edu>
+
+	* ltmain.in (convenience, libobjs): get only .o and .lo files from 
+	the files extract from the convenience library.  Some systems,
+	such as FreeBSD2, will add a SYMDEF file, that is not an object
+	file, and therefore should not be fed to the linker
+
+	* libtool.m4 (AM_SYS_NM_PARSE): while we are at it, we may well
+	cache the value of ac_cv_sys_symbol_underscore
+
+	* libtool.m4 (AM_SYS_NM_PARSE): need for underscore prefix is now
+	auto-detected, by trying first without, then with it.  
+	
+	* ltconfig.in: ditto
+
+1999-01-10  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* configure.in (AC_CONFIG_SUBDIRS): add libltdl, demo, mdemo and
+	depdemo commented out, so that `dist' works before `check'
+	(BUILD_LTDL): will contain libltdl if --enable-ltdl-install
+	* Makefile.am (DIST_SUBDIRS): expand SUBDIRS and add depdemo,
+	commented out
+	(SUBDIRS): add $(BUILT_LTDL)
+	* libltdl/Makefile.am (EXTRA_LTLIBRARIES): add libtest.la, the
+	same as libltdl but always a convenience library.  Not built by
+	default.  Both libraries now depend on the libtool script, that
+	depends on ../libtool and is rebuilt when needed
+	* mdemo/Makefile.am (mdemo, mdemo.debug): depend on and link with
+	../libltdl/libtest.la, that is rebuilt if needed
+	(mdemo_LDADD): removed $(LIBADD_M), to avoid silent failures
+	(foo1.la): renamed from libfoo1.la; test removing the lib prefix
+	* mdemo/foo1.c: renamed libfoo1_LTX symbols to foo1_LTX
+	* mdemo/main.c: don't include string.h nor math.h, nor refer to
+	sin nor cos
+	* tests/mdemo-exec.test: renamed libfoo1.la to foo1.la
+	* tests/mdemo-inst.test: ditto
+
+	* libltdl/ltdl.c (FILENAME_MAX): use it instead of MAX_FILENAME,
+	and don't redefine it if already defined; default to 1024, as on
+	most systems
+	(LT_SYMBOL_LENGTH): renamed from MAX_SYMBOL_LENGTH
+	(LT_SYMBOL_OVERHEAD): new macro, that accounts for the size of
+	the _LTX_ separator and the initial underscore
+	(lt_dlsym): sym now points to a stack buffer (lsym) if possible,
+	or is dynamically allocated.  If allocation fails, a
+	buffer_overflow_error is returned.
+
+1999-01-10  Thomas Tanner  <tanner@gmx.de>
+
+	* ltmain.in: define dld_preloaded_symbols if at least one of
+	  -export-dynamic, -dlopen or -dlpreopen was specified,
+	  do not include program objects in the symbol list
+	  if -export-dynamic was not enabled
+	* libltdl/ltdl.c: limit symbols to max. 256 bytes
+	* mdemo/Makefile.am: build libltdl in a subdirectory,
+	  do not use -export-dynamic for mdemo and mdemo.debug
+	* tests/mdemo-conf.test,tests/mdemo-make.test,tests/mdemo-inst.test:
+	  do not check for libltdl
+	
+1999-01-09  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* libltdl/ltdl.c (lt_dlopen): missing strlen in bound test
+
+1999-01-09  Thomas Tanner  <tanner@gmx.de>
+
+	* NEWS: support for BSD/OS 4.x was not documented
+	* demo/Makefile.am: link against libm only if available
+	* mdemo/Makefile.am: likewise, use -avoid-versioning flag
+	  instead of -avoid-version (typo)
+	* demo/configure.in: check for libm, string.h and math.h
+	* mdemo/configure.in: likewise
+	* depdemo/configure.in: check for libm and math.h
+	* libltdl/configure.in: check for dlerror
+	* libltdl/ltdl.c: check for buffer overflows, implemented
+	  dlerror, fixed a severe bug which occured when opening 
+	  non-libtool modules, dlopen with the flags GLOBAL and NOW
+	* mdemo/main.c: report the error using lt_dlerror()
+	
+1999-01-08  Gary V. Vaughan  <gvv@techie.com>
+
+	* doc/libtool.texi (old_archive_from_new_commands): Documented
+	this ltcofig variable.
+
+1999-01-07  Gary V. Vaughan  <gvv@techie.com>
+
+	* ltmain.sh (cygwin, allow_undefined): Unfortunately, there are
+	problems with this variable when trying to make a dll which has
+	undefined symbols, in which case not even a static library is
+	built.  For now, we need to specify -no-undefined on the libtool
+	link line when we can be certain that all symbols are satisfied,
+	otherwise we get a static library.
+
+1999-01-06  Thomas Tanner  <tanner@gmx.de>
+
+	* ChangeLog: merged in tests/ChangeLog
+	* tests/ChangeLog: deleted
+	* libltdl/ltdl.c: assigned copyright to the FSF
+	* libltdl/ltdl.h, mdemo/foo*,main.c: likewise
+	
+1999-01-06  Gary V. Vaughan  <gvv@techie.com>
+	
+	* ltmain.in (dllsearchpath): add absolute directory paths to
+	dllsearchpath so that the wrapper scripts can be called from any
+	directory (e.g. tests) on cygwin.
+
+	* ltconfig.in (cygwin, library_names_spec): revert Alexandre's
+	change from yesterday to use `-dll.a' suffix.  That change caused
+	$libname-dll.a to be a symlink to $soname, which isn't even an
+	`ar' archive.  Before the import library suffix can be changed, we
+	need to figure out how to handle building objects differently for
+	linking with an import library versus an equivalent static library.
+
+	* TODO: Added details of a Linux wrapper script bug.
+	Reported by Jeff Garzik <jgarzik@pobox.com>.
+
+1999-01-05  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* ltmain.in (libobjs_save, oldobjs): when building an
+	old-fashioned archive, use a copy of libobjs saved before
+	convenience libraries are appended
+
+	* libltdl/ltdl.h (_LTDLL_EXPORT, _LTDLL_IMPORT): use cygwin or
+	unix library import/export primitives; this may be convenient for
+	people willing to create DLLs
+	(_LTDLL_EXTERN): select _LTDLL_EXPORT or _LTDLL_IMPORT depending
+	on _LTDL_COMPILE_
+	* libltdl/ltdl.h, libltdl/ltdl.c (lt_dlpreopen): new function,
+	that replaces the current preloaded_symbols list with its
+	argument, and returns the old value, initially NULL
+	(dldpre_init): don't refer to dld_preloaded_symbols any more
+	(dldpre_open, dldpre_sym): search preloaded_symbols
+	(lt_dlpreopen_default): call lt_dlpreopen with
+	dld_preloaded_symbols, that is declared as extern; it should be
+	called from the main program or from some static library without
+	-no-undefined
+	(lt_dlerror): new function, that returns the error message for the 
+	last error occurred; the error message is kept in the static
+	variable last_error
+	* libltdl/configure.in (enable-ltdl-install): moved back from
+	enable-install; other packages might use enable-install already,
+	better have fine grained control over this.
+	* libltdl/Makefile.am (libltdls.la): discarded
+
+1999-01-05  Thomas Tanner  <tanner@gmx.de>
+
+	* configure.in: do not configure libltdl by default
+	* Makefile.am: do not build libltdl by default
+	* libltdl/Makefile.am: ltdls.lo depends on libtool
+	* tests/Makefile.am: before starting the tests 
+	  make sure that libtool was build
+	* tests/mdemo-conf.test: configure libltdl
+	* tests/mdemo-make.test: build libltdl
+		
+1999-01-05  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* ltmain.in (SP2NL, NL2SP): Don't delete empty lines, as this
+	would lose for files with embedded blanks.
+	
+	* ltconfig.in (cygwin, archive_cmds, archive_sym_cmds): Moved
+	ltdll.c into ltmain.in, to avoid its duplication, and added a sed
+	script to extract it.  Also, create def and base files in $objdir,
+	and don't remove them after the compilation.
+	(cygwin, library_names_spec): Create static part of the dll with
+	suffix -dll.a, to avoid conflicts with actual static libraries.
+	* ltmain.in: Added ltdll.c, as commented out text
+
+1999-01-01  Thomas Tanner  <tanner@gmx.de>
+
+	* NEWS: new BeOS support
+	* THANKS: added Joseph Beckenbach
+	* libltdl/ltdl.h: use dllimport/export on Win32
+	
+1998-12-31  Joseph Beckenbach III <jrb3@best.com>
+
+	* ltconfig.in: added support for BeOS
+	* ltmain.in (shlibpath_var): added a workaround for 
+	  an odd bug in the BeOS R4 sed
+	
+1998-12-31  Thomas Tanner  <tanner@gmx.de>
+
+	* verified all copyright notices 
+	  and updated them to 1999
+	* TODO: added some things that need to documented
+	* doc/libtool.texi: -export-symbols is not 
+	  supported on all platforms
+	* doc/PLATFORMS: added a few new platforms
+	
+1998-12-30  Thomas Tanner  <tanner@gmx.de>
+
+	* NEWS: updated
+	* THANKS: added Todd Vierling <tv@pobox.com>
+	
+1998-12-30  Todd Vierling  <tv@pobox.com>
+
+	* ltconfig.in: improved shared object handling on both
+	  a.out and ELF platforms for NetBSD
+
+1998-12-29  Thomas Tanner  <tanner@gmx.de>
+
+	* ltconfig.in: do not rely on a leading space when concatenating
+	  variables as suggested by Erez Zadok
+	* ltmain.in: likewise
+	* doc/PLATFORMS: updated and reformatted 
+	  (thanks to Erez Zadok for the testing)
+	
+1998-12-27  Thomas Tanner  <tanner@gmx.de>
+
+	* THANKS: added Erez Zadok <ezk@shekel.mcl.cs.columbia.edu>
+	
+1998-12-26  Erez Zadok  <ezk@shekel.mcl.cs.columbia.edu>
+
+	* ltconfig.in: support i486-ncr-sysv4.3.03
+	shared libraries.
+
+	* ltmain.in: before every ln -s, remove the link name
+
+1998-12-25  Thomas Tanner  <tanner@gmx.de>
+
+	* depdemo/configure.in: removed last relics of demo
+	* depdemo/sysdep.h: ditto
+	* mdemo/Makefile.am: ditto
+	* libltdl/Makefile.am: fixed the version number, build libltdls if
+	  -enable-install and -enable-dlpreopen are enabled
+	* libltdl/configure.in: libltdl is version 0.1, not 1.0,
+	  renamed -enable-ltdl-install to -enable-install,
+	  conditionals for libltdls, check for strchr and index,
+	  replaced NULL with 0
+	* libltdl/ltdl.c: replaced NULL with 0, dlpreopen only if
+	  USE_DLPREOPEN was defined, integrated shl_load code from GModule
+	  (still untested)
+
+1998-12-24  Gary V. Vaughan  <gvv@techie.com>
+
+	* libltdl/configure.in: fixup spacing in --enable-ltdl-install
+	help string so that it lines up nicely for configure --help.
+
+	* ltmain.in (dllsearchpath): keep track of what the dll search path
+	will need to be in the wrapper scripts as deplibs are calculated.
+	Make sure the wrapper script doesn't end in `.exr', which makes
+	win32 try to execute it as a binary!
+	Add the contents of dllsearchpath to $PATH in the wrapper script.
+	Use the relative path to the wrapped program so that the dll
+	search path is calculated properly by win32 OSes.
+	* TODO: removed the item for making wrapper scripts work on win32.
+
+	* TODO: removed the reference to making libltdl and demo work on
+	win32.  They *do* work now that wrapper scripts are functioning.
+	
+	* ltmain.in (file_magic_command): It turns out that if the
+	file_magic_command generates huge output (e.g. running `objdump
+	-f' over a large import lib [say libX11.a]) the expr to check it
+	against the file_magic_regex blows up.  There is now an optimistic
+	heuristic, to save only the first 10 lines of running
+	file_magic_command which (at risk of sounding like Bill) should be
+	enough for anyone =)O|.
+
+	* ltmain.in: Set the compile_dependencylibs and	dllsearchpath for
+	non-libtool libs, or else libdeps only works between ltlibs for
+	cygwin32.
+
+1998-12-23  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* ltmain.in (SP2NL, NL2SP): use `tr' magic to avoid passing very
+	long lines to sed
+	* doc/libtool.texi (sed): very long lines are no longer a problem
+
+	* libltdl/Makefile.am: install libltdl conditionally...
+	* libltdl/configure.in: ... if --enable-ltdl-install is issued
+	* libltdl/ltdl.c: removed #ifdef DEBUG
+	* mdemo/Makefile.am (mdemo_debug_LDADD, mdemo_debug_DEPENDENCIES): 
+	use libltdl.la
+
+1998-12-23  Gary V. Vaughan  <gvv@techie.com>
+
+	* doc/PLATFORMS: added my cygwin32 box (i686-pc-cygwin32).
+
+	* TODO: remind myself of the win32 tasks remaining.
+	
+	* ltconfig.in (archive_cmds, archive_sym_cmds,
+	old_archive_from_new_cmds): Fixed a bug which left an a.exe in the
+	build directory.  Fixed a bug where $soname-def was never deleted.
+
+	* ltconfig.in (file_magic_command): new variable holds the command
+	(including any args) to run to generate the string to match
+	against the regex in $file_magic.  Use the variable where
+	necessary. Added to libtool header output.
+	(deplibs_check_method): use file_magic for win32, but compare the
+	output of `objdump -f' with the regex (see below).
+	(archive_cmds, archive_sym_cmds): use compile_dependencylibs for
+	each $CC invokation (see below).
+
+	* ltmain.in: Set allow_undefined to `no' for win32 variants by
+	default, otherwise it is impossible to link a dll without forcing
+	the makefile maintainer to figure out whether to pass
+	--no-undefined at every libtool invokation.
+	(compile_dependencylibs): save the list of dependency library
+	flags needed for a deplib build on win32.
+	(link_against_libtool_libs): commented out the check for this;  if
+	it is left in, then ltlibs (i.e. *.la files) cannot be deplibs for
+	subsequent links.
+	Don't add -lc to the deplibs line for win32 platforms (which don't
+	have a libc as such).
+	(file_magic_command): use this to get some output to compare with
+	the file_magic regex (instead of hardcoding `file' which doesn't
+	exist on win32.
+	* doc/libtool.texi (Porting inter-library dependencies): Updated
+	to document the changes above.
+	
+	* ltconfig.in (deplibs_check_method): Changed the file_magic regex
+	to match more linux variants.  This is less lenient than Thomas
+	Tanner's commit to fix the same problem below.
+	Reported by Joel Klecker <espy@debian.org>
+	* THANKS: added Joel Klecker <espy@debian.org>
+
+1998-12-23  Thomas Tanner  <tanner@gmx.de>
+
+	* ltconfig.in: fixed file-magic for Linux shared libraries
+	* ltmain.in: removed the unused -force-static flag
+	* libltdl/ltdl.c: added strchr, search modules in LTDL_LIBRARY_PATH,
+	  check whether actual module was already dlopened, 
+	  read in preload_libs rather than dependency_libs
+
+1998-12-23  Thomas Tanner  <tanner@gmx.de>
+
+	* libltdl/Makefile.am: build two versions of libltdl: 
+	  libltdl (support native dlopen if available, otherwise dlpreopen), 
+	  libltdls (like libltdl, but always support for dlpreopen)
+	* libltdl/ltdl.c: ditto
+	* libltdl/configure.in: warn if dlopen is not supported
+	* mdemo/Makefile.am (mdemo.debug): use libltdls
+
+1998-12-22  Gary V. Vaughan  <gvv@techie.com>
+
+	* ltconfig.in: revert Thomas Tanners change to create all
+	libraries without the `lib' prefix on win32, otherwise `gcc foo.c
+	-lbar' can't find libbar.a.
+
+1998-12-22  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* Makefile.am (SUBDIRS): prepend `.' to avoid am-recursive
+	dependency hack
+
+1998-12-21  Thomas Tanner  <tanner@gmx.de>
+
+	* ltconfig.in: indentation is now 8 character wide tabs 
+	* ltmain.in: ditto
+	* ChangeLog: ditto
+	* ltmain.in: renamed check_shared_deplibs_method to 
+	  deplibs_check_method (we_dont_want_too_long_variable_names :)
+	* doc/libtool.texi (Porting inter-library dependencies): ditto
+	* depdemo/.cvsignore: renamed hell* to depdemo*, added *.lo,*.la
+	* mdemo/.cvsignore: ditto
+	
+1998-12-21  Gary V. Vaughan  <gvv@techie.com>
+
+	* libtool.m4 (AM_SYS_NM_PARSE): apparently  __ptr_t is predefined
+	on some systems - use lt_ptr_t instead.
+	* ltconfig.in: ditto.
+	* ltmain.in: ditto.
+
+	* libtool.m4 (AM_SYS_SYMBOL_UNDERSCORE): use an AC_SUBST to pass
+	the result of this into the compile rather than AC_DEFINE which
+	breaks when building with older versions of autoconf.
+	* ltconfig.in (symxfrm): Don't put the leading underscore back
+	with the global_symbol_pipe.
+	* demo/dlmain.c (main): No need to specialcase underscores in
+	dld_preloaded_symbols - it is fixed by symxfrm above!
+	* libltdl/configure.in: use AM_SYS_SYMBOL_UNDERSCORE from
+	libtool.m4 rather than reinvent the wheel here =)O|
+
+	* ltmain.in:  Fix deplibs methods to not rely on a.out (cygwin
+	uses a.exe!).
+
+	* libltdl/configure.in: Cleanups - fix header comment and emacs
+	local-vars.
+	
+	* demo/dlmain.c (win32_force_data_import_address): a nasty hack
+	to force the address of imported data symbols into
+	dld_preloaded_symbols on win32, which does data imports
+	differently to function imports (sheesh!).  This functionality
+	needs to be moved into the dld_preloaded_symbols generation code.
+	demo/helldl with static linking is broken on win32 by this change,
+	probably until after libtool-1.3 =(O|
+	* demo/foo.h: make sure __CYGWIN32__ is always defined on cygwin32
+	systems.  Use the correct __declspec macro for lib exports/imports
+	on cygwin32.
+	* demo/foo.c, demo/hello.c: Make sure we tell foo.h that these
+	sources are inside libfoo, and want to export symbols.
+	
+1998-12-20  Thomas Tanner  <tanner@gmx.de>
+
+	* autogen: configure demo, depdemo, libltdl and mdemo
+	* tests/mdemo-exec.test: renamed hell* to mdemo*
+	* tests/mdemo-inst.test: ditto
+	
+1998-12-19  Thomas Tanner  <tanner@gmx.de>
+
+	* libltdl/Makefile.am: build a normal libtool library
+	* libltdl/ltdl.c: get LTDL_LIBRARY_PATH but don't make use of it yet,
+	  some reformatting
+	* ltmain.in: fixed a bug which listed symbols in 
+	  dld_preloaded_symbols twice
+	* TODO: removed symbol export lists and deplibs
+
+1998-12-18  Thomas Tanner  <tanner@gmx.de>
+
+	* ltconfig.in: added need_lib_prefix and need_version,
+	  which determine whether we must prefix modules with 'lib'
+	  and whether versioning is required for libraries.
+	* ltmain.in: allow modules names without 'lib' prefix, 
+	  new -avoid-versioning option
+	* doc/libtool.texi (link flags): updated documentation for -module,
+	  added -avoid-versioning
+	* doc/libtool.texi (libtool script contents): 
+	  documented the two new flags and archive_sym_cmds
+	* doc/libtool.texi (tests): 
+	  added (partially very short) documentation for assign.test, 
+	  nomode.test, quote.test, sh.test
+	* libltdl/ltdl.c: canonicalize module names, 
+	  some cleanups and bugfixes,  __ptr_t is predefined on 
+	  some systems - use lt_ptr_t instead
+	* mdemo/: renamed hell* to mdemo* (hell is already used in
+	  demo), updated the documentation, import sin and cos in main
+	  program rather than linking libfoo1 statically
+
+1998-12-17  Gary V. Vaughan  <gvv@techie.com>
+
+	* libtool.m4 (AM_PROG_LIBTOOL): Added AC_PREREQ(2.12) to prevent
+	people using libtool with old autoconfs that don't provide the
+	features we need.
+
+1998-12-16  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* NEWS, configure.in, libtool.spec: Bumped to 1.2e for CVS
+	
+	* NEWS, configure.in, libtool.spec: Bumped to 1.2d for release
+
+	* Makefile.am (cvs-dist): our release tags are in lower case
+	(cvs-diff): ditto
+	(EXTRA_DIST): added README-alpha
+	* README-alpha: minor adaptations
+	* demo/Makefile.am, mdemo/Makefile.am, depdemo/Makefile.am:
+	removed comment about special needs for distribution
+	* depdemo/Makefile.am: don't generate dependencies
+	* depdemo/configure.in: modified version number
+
+	* ltmain.in (-force-static, force_static): removed
+	* libltdl/Makefile.am (CFLAGS): ditto
+	* libltdl/configure.in: check for memory.h, rindex() and
+	dlpreopening.  Fixed NEED_USCORE caching policy.
+	* libltdl/ltdl.h (lt_dlsym): make the name argument const
+	* libltdl/ltdl.c (types): new variable: head of list of available
+	dlopening mechanisms
+	(lt_dltype_t): interface of a dlopening mechanism, with pointers
+	to functions for init, exit, open, close and sym
+	(lt_dlhandle_t): added pointer to interface type
+	(strdup): don't name it strdup; it can be troublesome
+	(strrchr): ditto; use rindex if available
+	(LIBTOOL_STATIC): check HAVE_DLPREOPEN instead, and move to the
+	end of the file, so that it becomes the header of the list
+	(all): renamed all interface-implementation functions, to avoid
+	name clashes, and created lt_dltype_t nodes for all of them
+	(lt_dlinit): initialize all available interfaces; remove those
+	that fail from the list.  Return failure only if no interfaces
+	could be initialized.
+	(lt_dlexit): return number of failures
+	(tryall_dlopen): try to open the library with all available
+	interfaces
+	(lt_dlopen): use tryall_dlopen; increased size of fixed buffers.
+	We should probably make these bound-checked or dynamically
+	allocated for the final release!  Fix bug when filename did not
+	contain slashes; should we check for `\\' too?  Try old_library if 
+	everything else fails.
+	(lt_dlclose): use the interface type for closing
+	(lt_dlsym): make `symbol' const, use interface type for looking up 
+	* mdemo/Makefile.am: moved mdemo/modules/* back into mdemo
+	(SUBDIRS): removed
+	(libfoo2_la_LDFLAGS): added -static; nice test.  However, since it 
+	causes -lm to linked into hell*, it causes tests that should fail
+	to pass
+	(noinst_HEADERS): no need to install foo.h
+	* mdemo/configure.in: remove modules/Makefile
+	tests/mdemo-exec.test: updated accordingly
+
+	* NEWS: Added Thomas Tanner and Gary V. Vaughan to the list of new 
+	maintainers.  Detailed expected failures of libltdl+mdemo.  Listed 
+	recent ports.  Added full URL for the home page.  Note that
+	libtool C program is unusable.
+
+1998-12-16  Bruno Haible  <haible@ilog.fr>
+
+	* doc/libtool.texi (Tested platforms): broken `sed' programs
+
+1998-12-16  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* THANKS: added Stephan Kulow; removed Gary V. Vaughan and Thomas
+	Tanner, now that they're AUTHORS
+
+1998-12-16  Stephan Kulow  <coolo@kde.org>
+
+	* ltmain.in (freebsd-aout, freebsd-elf): added missing dot to
+	versuffix
+
+1998-12-16  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* libltdl/Makefile.am (EXTRA_DIST): removed, nothing needed
+	(libtool): automatically update
+
+	* libltdl/configure.in (stdlib.h, unistd.h, stdio.h): check
+	* libltdl/ltdl.c: include them
+
+	* demo/configure.in (BINARY_HELLDL): test whether dlopen is
+	supported at configure time
+	* demo/Makefile.am (helldl): use automake conditionals to build
+	helldl as a script or as a binary program
+
+	* tests/Makefile.am (EXTRA_DIST): remove ltdl-*.test
+	(clean-local): don't clean libltdl any more
+	* tests/ltdl-conf.test: removed
+	* tests/ltdl-inst.test: ditto
+	* tests/ltdl-make.test: ditto
+	* tests/ltdl-unst.test: ditto
+	* tests/mdemo-make.test: updated accordingly
+	* tests/mdemo-inst.test: ditto
+	* tests/mdemo-unst.test: ditto
+	* doc/libtool.texi: ditto
+
+	* ltmain.in (-DSTATIC): changed to -DLIBTOOL_STATIC, and defined
+	only for -force-static; it should be removed soon, before people
+	start to use it
+
+	* configure.in (AC_CONFIG_SUBDIRS): added libltdl
+	* Makefile.am (SUBDIRS): build libltdl by default
+	(DIST_SUBDIRS): simplify distribution of demo and mdemo
+	(libtool, clibtool, libtoolize, ltconfig, ltmain.sh): add
+	srcdir where appropriate
+	(ACINCLUDE_M4_LIST): new rule for maintaining links from
+	acinclude.m4 to libtool.m4
+	(*demo/Makefile.in): don't update autoconf/automake files any
+	more; make check is needed
+
+1998-12-14  Gary V. Vaughan  <gvv@techie.com>
+
+	* ltconfig.in (archive_cmds): tweaked for cygwin b18->b20.1
+	compatibility and fixed a bug with generating the export
+	definitions file.  This is only tested on b20.1, but should
+	work back to b18 at least.
+
+1998-12-11  Thomas Tanner  <tanner@gmx.de>
+
+	* ltmain.in: -module implies now -export-dynamic,
+	  dlpreopen files if we're linking statically
+	* doc/libtool.texi (link flags): added documentation for -module
+	  and the tests for mdemo and libltdl
+	* mdemo/Makefile.am: replaced -dlpreopen with -dlopen
+
+1998-12-09  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* PORTING: removed the text Akim Demaille converted to .texi
+
+1998-12-09  Akim Demaille  <demaille@inf.enst.fr>
+
+	* doc/libtool.texi: converted inter-library dependencies
+	instructions from PORTING
+
+1998-12-09  Alexandre Oliva  <oliva@dcc.unicamp.br>
+	
+	* ltmain.in (convenience, deplibs): propagate dependencies
+	* libltdl/Makefile.am (noinst_HEADERS): don't install ltdl.h yet
+	(noinst_LTLIBRARIES): ditto for libltdl.la
+
+1998-12-08  Gary V. Vaughan  <gvv@techie.com>
+
+	* README-alpha: adapted the release procedure from
+	  automake/HACKING.
+	* Makefile.am: adapted the cvs-dist and cvs-diff rules from
+	  automake/Makefile.am.  I guess this is probably safe to use
+	  already, but I didn't test it as it tags the CVS tree.  If
+	  it needs tweaking, we'll find out come 1.2d.
+
+1998-12-08  Thomas Tanner  <tanner@gmx.de>
+
+	* ltconfig.in: fixed some typos in archive_sym_cmds
+	* ltmain.in: replaced basename with a sed expression
+
+1998-12-07  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* configure.in: we no longer use PRCS
+
+	* doc/libtool.texi (author): listed all the AUTHORS
+	(Dlopen issues): added reference to libltdl, still undocumented
+	(C++ libraries): it's not *that* simple, after all :-(
+	(Inter-library dependencies): they're back!
+
+1998-12-04  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* libtool.m4 (ac_cv_sys_symbol_underscore): `test a == b' doesn't
+	work, use `test a = b' instead
+
+	* Makefile.am (mdemo_distfiles): libfoo[12].sym no longer exist
+
+	* ltconfig.in (solaris): do not use $CC for linking if GNU ld is
+	not available
+
+1998-12-04  Manfred Weichel  <Manfred.Weichel@pdb.siemens.de>
+
+	* ltconfig.in: Port to SCO UnixWare 7.x.
+
+1998-12-03  Thomas Tanner  <tanner@gmx.de>
+
+	* ChangeLog: converted CR/LF back to CR format
+	* ltconfig.in: new variable sys_lib_search_path for searching
+	of installed libraries, export archive_sym_cmds and 
+	sys_lib_search_path
+	* ltmain.in: use sys_lib_search_path, removed extradeplibs
+	(they're not portable)
+	
+1998-12-02  Gary V. Vaughan  <gvv@techie.com>
+
+	* libltdl/configure.in: look for string.h or else strings.h, and
+	also check for ANSI strrchr() function.  Fix `undescore before
+	symbols' macro to not rely on a.out (cygwin uses a.exe!).  Fix
+	`underscore for dlsym' to set cache variable properly, not just in
+	environment of AC_DEFINE(NEED_USCORE).
+	* libltdl/ltdl.h (__ptr_t): for K&R compatibility using char*.
+	* libltdl/ltdl.c (strrchr): fallback function incase none is
+	defined in libc.
+	(trim, ltdlopen): replace rindex with ANSI strrchr.
+	Add static function declarations so that we get type checking with
+	ANSI compilers.  Use __ptr_t instead of void*.
+
+1998-12-01  Thomas Tanner  <tanner@gmx.de>
+
+	* ltconfig.in: added -export-symbols support for GNU ld and
+	Solaris (untested), archive_sym_cmds for -export-symbols
+	* doc/libtool.texi, ltmain.in: -export-symbols is now
+	independent from -export-dynamic and does not work for modules 
+	anymore
+	* ltmain.in: added some checks for -export-symbols
+	* mdemo/modules/Makefile.am: replaced -export-symbols with 
+	-export-dynamic since it doesn't work for modules
+	
+1998-12-01  Gary V. Vaughan  <gvv@techie.com>
+
+	* README: Updated homepage pointer to gnu libtool page.
+
+	* ltconfig.in (ltdll.c): update the ltdll.c file for cygwinb20.
+	Based on code from Mumit Khan <khan@xraylith.wisc.edu>.
+	(archive_cmds): correct typo libtool.c->ltdll.c.  Update shell
+	commands for cygwin32.
+
+	* libtool.m4 (AM_SYS_SYMBOL_UNDERSCORE): New macro; find out
+	whether compiled symbols have an extra leading underscore.
+	(AM_SYS_NM_PARSE): New macro (converted to m4 from ltconfig.in);
+	find a sed expression to parse global symbols from the output of
+	$NM.
+	(AM_PROG_LIBTOOL): require AM_SYS_NM_PARSE and
+	AM_SYS_SYMBOL_UNDERSCORE.
+	* demo/dlmain.c (main): Remove a single	leading underscore from
+	compiled symbol names if necessary.
+
+1998-12-01  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* config.guess, config.sub: imported from autoconf pre-2.13
+
+1998-11-27  Gary V. Vaughan  <gvv@techie.com>
+
+	* libtool (AM_PROG_LD): Oops... we need to know the host_os for
+	the changes below.  I'm not sure whether mingw32 and os2 support
+	UNC paths, if they did we wouldn't need the check, we could use
+	UNC paths on all three; or if the bug with $LD not being
+	shell-meta escaped was fixed, we could use '\\' separators on all
+	three. AC_REQUIRE'ed AC_CANONICAL_HOST.
+	
+	* libtool.m4 (AM_PROG_LD): Cannonicalize the absolute path for the
+	ld program;  The order is funny to provide canonicalization to
+	paths with '\\' separators as well as '/'.
+	* ltconfig.in: ditto.
+
+	* AUTHORS: Added myself as a co-maintainer.
+
+	* ltconfig.in (archive_cmds): The `;\' in a compound statement is
+	expanded wrongly for cygwin32, mingw32, aix3 and aix4. Changed to
+	`;'.
+
+1998-11-25  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* libtool.spec (URL): point to www.gnu.org
+	(Source): point to ftp.gnu.org
+
+	* Makefile.am (EXTRA_DIST): removed libtool.prj
+	Reported by Akim Demaille <demaille@inf.enst.fr>
+
+1998-11-24  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* ltconfig.in (echo): avoid shell error messages when we're
+	testing for large command line support
+	Reported by Axel Thimm <Axel.Thimm@physik.fu-berlin.de>
+
+	* doc/PLATFORMS: updated last-tested release for platforms I've
+	got access to
+
+	* THANKS: added Chris P. Ross
+
+1998-11-24  Chris P. Ross  <cross@eng.us.uu.net>
+
+	* ltconfig.in: added recognition of the dynamic linker on BSD/OS 4.x
+	* README: added BSD/OS 4.x to the list of supported platforms
+	* doc/PLATFORMS: added BSD/OS 4.x support for various host id's
+
+1998-11-24  David Heine  <dlheine@truffle.Stanford.EDU>
+
+	* ltmain.in (pass_all): actively pass the flags
+
+1998-11-24  Thomas Tanner  <tanner@gmx.de>
+
+	* depdemo: added inter-library dependencies demo (doesn't work yet!)
+	* AUTHORS: added myself to the list of maintainers
+
+1998-11-22  Thomas Tanner  <tanner@gmx.de>
+
+	* libltdl: added support for .la files, LGPL license,
+	K&R compatibility, some API changes and bugfixes
+	* ltmain.in: renamed -module flag (for compiling) to -force-static,
+	define -DSTATIC when compiling static .o files,
+	do not include directories in dld_preloaded_symbols
+	* mdemo: modified mdemo to work with the new libltdl
+	* tests/mdemo-exec.test, tests/mdemo-inst.test: use .la files
+	
+1998-11-21  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* libltdl/ltdl.c: replace NULL with 0, so that we don't depend on
+	header files defining it.
+
+	* ltconfig.in (archive_cmds, osf3, osf4, solaris, sunos4): create
+	libraries with gcc -shared if using gcc without GNU ld.
+
+	* ltconfig.in: replaced occurrences of solaris2 with solaris, to
+	prepare for Solaris 7
+
+1998-11-19  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* mdemo/Makefile.am (hell_debug_LDFLAGS): -dlpreopen -> -dlopen
+	(hell_LDFLAGS): added -export-dynamic and -dlopen
+	(SUBDIRS, INCLUDES): added modules directory
+	(foo1.c, foo2.c, foo.h, libfoo1.sym, libfoo2.sym): moved to modules
+	* Makefile.am: ditto
+	* tests/mdemo-exec.test, tests/mdemo-inst.test: libraries moved
+	* mdemo/modules/Makefile.am: new file
+
+	* */Makefile.am (AUTOMAKE_OPTIONS): added no-dependencies
+
+	* ltmain.in: missing `test' between `&&' and `"$module"'
+
+	* ltconfig.in (echo_test_string): the whole ltconfig script was
+	too much for DU4.0's ksh, but the first 50 lines will be enough.
+
+	* ltmain.in (installed): new variable defined within a .la file,
+	so that libtool can now link already-installed libraries into a
+	program.
+	* NEWS: ditto
+	* doc/libtool.texi (Linking executables): document it
+
+	* ltmain.in (output_objdir): compute it from $output, not $arg
+
+	* tests/mdemo-inst.test (libltdl): install it
+	* tests/mdemo-unst.test (libltdl): uninstall it
+	* tests/Makefile.am (TESTS): list ltdl-unst.test before mdemo-conf.test
+
+1998-11-18  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* NEWS: -module and libltdl
+	* mdemo/Makefile.am: ../libltdl is within $(srcdir)
+
+1998-11-18  Thomas Tanner  <tanner@gmx.de>
+
+	* libltdl, Makefile.am: added libltdl (a system independent 
+	dlopen wrapper library extracted from mdemo)
+	* ltmain.in: added -module flag for compiling and linking of
+	modules. If enabled it compiles always both .o (with -DLT_RENAME)
+	and .lo files
+	* mdemo: modified mdemo to work with libltdl
+	* tests/ltdl*: added tests for libltdl
+
+1998-11-16  Steve Price  <sprice@hiwaay.net>
+
+	* ltconfig.in: when $host_os is freebsd[23]* determine whether
+	the current linker format is a.out or ELF
+	* ltmain.in: add two new $version_type's, freebsd-aout and
+	freebsd-elf, to support above change
+
+1998-11-16  Stephan Kulow  <coolo@kde.org>
+
+	* ltconfig.in: extent no_builtin_flag to contain -fno-rtti and
+	-fno-exceptions in case we compile with a gcc, that supports
+	this options (egcs and gcc >= 2.8)
+
+1998-11-16  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* ltmain.in (C_compiler): copy $CC before it is overwritten with
+	command-line compiler, so that we can use it to compile C sources
+	generated during the build.  This fixes the problem that showed up 
+	with -export-dynamic of C++ programs in egcs 1.1.
+	* NEWS: ditto
+
+1998-11-12  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* PORTING: Porting instructions are in the libtool manual already
+
+	* NEWS: Mention -export-symbols and new dlpreopen
+
+1998-11-11  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* ltmain.in (IFS): revert Gary's patch when parsing version
+	information; we still use `:' here :-)
+
+	* NEWS: updated
+	* PORTING: new file, with general instructions and inter-library
+	dependencies tips
+
+1998-11-11  Gary V. Vaughan  <gvv@techie.com>
+
+	* ltconfig.in: make use of '~' field separator in reload_cmds,
+	old_archive_from_new_cmds, old_archive_cmds, archive_cmds,
+	old_postinstall_cmds, postinstall_cmds, old_postuninstall_cmds,
+	postuninstall_cmds and finish_cmds, so that the semi-colons inside
+	if/then/else/fi and for/do/done etc. do not break the eval loop in
+	ltmain.in (below).
+	* ltmain.in: changed all of the eval loops to use an IFS of `~',
+	to allow differentiation between the end-of-statement-;
+	(now `~' is used) and end-of-substatement-; (still `;').  This
+	fixes AIX and win32 at least.
+
+1998-11-11  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* ltconfig.in (sunos*, sympat, symxfrm): remove underscore
+	prepended by the compiler
+
+1998-11-10  Toshio Kuratomi  <badger@prtr-13.ucsc.edu>
+
+	* ltconfig.in: re-enable deplibs
+	* ltmain.in: support deplibs, at least for GNU/Linux/x86
+	Updated to current libtool by Thomas Tanner  <tanner@gmx.de>
+
+1998-11-10  Gordon Matzigkeit  <gord@trick.fig.org>
+
+	* ltmain.in (link): Make the relink warning less harsh.
+
+1998-11-07  William M. Perry  <wmperry@aventail.com>
+
+	* ltconfig.in (aix3, aix4): uniquify symbol names in archive_cmds
+
+1998-11-07  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* ltconfig.in: add --falback-echo, to be used if everything else
+	fails.  The tests now check the behavior of $echo for very large
+	strings, because some echo commands would just core dump (e.g.,
+	Solaris' printf).  If too large strings fail, smaller ones are
+	tested.
+	(ltecho): arrange that, if the --fallback-echo method is selected,
+	echo will be defined in the libtool script so as to re-run itself,
+	not ltconfig
+	* ltmain.in: add --fallback-echo
+	(qecho) ensure that, if --falback-echo is being used, qecho is
+	defined with the full pathname of the libtool script
+
+	* tests/sh.test (test X): ensure that the double-quote supposed to be
+	reported is really reported
+
+1998-11-07  Thomas Tanner  <tanner@gmx.de>
+
+	* mdemo/main.c: removed hardcoded library names; link against -lm
+	* tests/mdemo-exec, tests/mdemo-inst: pass the library names
+	to the program
+
+1998-11-07  Marc J. Fraioli  <fraioli@dg-rtp.dg.com>
+
+	* README: Added DG/UX
+	* doc/PLATFORMS: ditto
+
+1998-11-04  Michael Tiemann  <tiemann@cygnus.com>
+
+	* ltconfig.in (irix6): it's a little bit different from irix5
+
+1998-11-04  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* THANKS: Added Thomas Tanner and Gary V. Vaughan
+
+	* ltconfig.in, ltmain.in: updated and fixed the patches below
+
+1998-11-04  Thomas Tanner  <tanner@gmx.de>
+
+	* mdemo/*: added new demo to demonstrate building of dlopenend
+	modules
+	* tests/Makefile.am, tests/mdemo*: added some tests for mdemo
+
+1998-11-04  Gary V. Vaughan  <gvv@techie.com>
+
+	* demo/configure.in: added AC_EXEEXT macro so that the tests can
+	work on cywin32/mingw32 hosts.  This requires the current CVS
+	autoconf
+
+1998-11-04  Thomas Tanner  <tanner@gmx.de>
+
+	* ltmain.in: New flag -export-symbols; new dlpreopen system
+	* demo/dlmain.c: removed dld_preloaded_symbol_count
+
+1998-11-04  Ian Lance Taylor  <ian@cygnus.com>
+
+	* ltmain.in: On installation, don't get confused if the same name
+	appears more than once in the list of library names.
+
+1998-11-04  Ian Lance Taylor  <ian@cygnus.com>
+
+	* ltconfig.in: Add objext and libext variables.  Check for object
+	suffix.  Check for mingw32* as well as cygwin32*.  Use objext when
+	testing compiler.  Add support for Visual C++ on cygwin32 when not
+	using gcc.  Add objext, libext, and fix_srcfile_path to generated
+	libtool script.
+	* ltmain.in: Use .${objext} rather than .o.  Use fix_srcfile_path
+	if it is set.  Check for .obj as well as for .o, and for .lib as
+	well as for .a.  Use .${libext} rather than .a when creating old
+	libraries.
+	* libtoolize.in: Change initial /bin/sh to @SHELL@.
+	* libtool.m4 (AM_PROG_LIBTOOL): Add AC_REQUIRE for
+	AC_CANONICAL_BUILD, so that autoconf doesn't get mixed up by the
+	AC_REQUIRE in AC_CHECK_TOOL.
+
+1998-11-04  Ian Lance Taylor  <ian@cygnus.com>
+
+	* ltconfig.in: Look in the right directory for libtool.c in
+	archive_cmds for cygwin32.
+
+1998-11-04  Ian Lance Taylor  <ian@cygnus.com>
+
+	* ltconfig.in: Fix cygwin32 support to avoid using a double
+	extension, to delete the def file, to set version_type to windows,
+	and to include versuffix in the DLL name.
+	* ltmain.in: Add support for a version_type of windows.
+
+1998-11-04  Ian Lance Taylor  <ian@cygnus.com>
+
+	* ltconfig.in: Add cygwin32 support.
+	* libtool.m4 (AM_PROG_LIBTOOL): Call AM_SYS_LIBTOOL_CYGWIN32 on a
+	cygwin32 host.  Pass DLLTOOL and AS to ltconfig.
+	(AM_SYS_LIBTOOL_CYGWIN32): New macro.
+
+1998-11-04  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* libtool.m4 (sco): fix typo
+
+1998-11-04  Ian Lance Taylor  <ian@cygnus.com>
+
+	* ltconfig.in: On AIX, don't treat GNU ld specially.
+
+1998-11-04  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* ltconfig.in (hardcode_minus_L): Revert Ian's patch for
+	ltconfig.in.  Although -L hardcoding is not used with GNU ld, it
+	does happen, so hardcode_minus_L must be set to yes.
+
+	* ltconfig.in (compiler_o_lo): check whether we can write directly
+	to a .lo
+
+	* ltmain.in (compiler_o_lo): if not, write to .o and rename it
+
+1998-11-04  Ian Lance Taylor  <ian@cygnus.com>
+
+	* ltconfig.in: For sunos4 using GNU ld, set hardcode_minus_L to
+	no.
+	* ltmain.in: Add some hacks to make SunOS --enable-shared work
+	when using GNU ld.
+
+1998-11-04  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* THANKS: Added Marc J. Fraioli
+
+1998-11-04  Marc J. Fraioli  <fraioli@dg-rtp.dg.com>
+
+	* ltconfig.in (dgux): new supported platforms
+
+1998-11-04  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* ltconfig.in (need_locks): if neither `-c -o' nor hard links are
+	available, fallback to not so safe mechanism, by setting
+	need_locks to warn
+	* ltmain.in (need_locks): when need_locks is set to warn, use the
+	lockfile to try to fail in case of incorrect concurrent builds
+
+	* THANKS: Added Eric Estievenart
+
+1998-11-04  Eric Estievenart  <eric@via.ecp.fr>
+
+	* doc/libtool.texi (Compile mode): Document that -o is fully
+	supported.
+
+	* libtool.m4 (libtool-lock): new ARG_ENABLE; sets (need_locks)
+	* ltconfig.in (disable-lock): control need_locks
+	(hard_links): check whether hard-links can be used for locking
+	* ltmain.in (need_locks): use $output_obj.lock for locking
+
+1998-11-03  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* ltmain.in: correctly create libraries and programs with
+	directory components in their names
+
+1998-11-03  Eric Estievenart <eric@via.ecp.fr>
+
+	* ltmain.in (output_obj): typo
+
+1998-11-02  Ian Lance Taylor  <ian@cygnus.com>
+
+	* ltconfig.in: For sunos4, add ${libname}.so$versuffix to
+	library_names_spec.
+	* ltmain.in: For version_type of sunos, set versuffix even if
+	-version-info was not used.
+
+1998-11-02  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* ltmain.in (libobj): default value must not contain directory
+	components
+
+1998-11-02  Eric Estievenart <eric@via.ecp.fr>
+
+	* ltconfig.in (compiler): detect if the compiler supports
+	-c and -o flags, create a variable compiler_c_o. Also issue
+	a big warning if it is not supported
+
+	* ltmain.in (compile): enable the -o option as input for libtool.
+	The objects are not moved if the compiler supports -o with -c.
+	Sources and objects can contain relative directories.
+	(link): enable the linking of executables into relative directories
+
+1998-11-02  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* AUTHORS: added myself as a co-maintainer
+	* THANKS: and removed my name from here
+
+	* autogen: new script; run it to bootstrap libtool after checking
+	it out from CVS
+
+	* libtool.m4 (CFLAGS): check whether -belf is needed on SCO, as
+	suggested by Robert Lipe <robertl@dgii.com>
+
+1998-10-31  Gordon Matzigkeit  <gord@trick.fig.org>
+
+	* demo/Makefile.am (hc-libpath): Use parameters from the libtool
+	in the top build directory, since the one in the demo directory is
+	not guaranteed to exist.
+
+1998-10-27  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* demo/Makefile.am (objdir): there are no longer quotes around
+	objdir in the libtool script
+
+1998-10-27  Gordon Matzigkeit  <gord@trick.fig.org>
+
+	* ltconfig.in (dynamic_linker): Echo the result to fd 6, so that
+	--silent works correctly.  From William M. Perry.
+
+1998-09-24  Gordon Matzigkeit  <gord@trick.fig.org>
+
+	* ltmain.in (link): Fix problems when building only static
+	libraries.  From Owen Taylor.
+
+1998-08-20  Gordon Matzigkeit  <gord@trick.fig.org>
+
+	* ltmain.in (install): When library_names_spec has redundancies,
+	avoid deleting the main library when installing symlinks.  From
+	Jeff Dairiki.
+	(link): Get rid of backticks in a here doc comment.
+	This causes segfaults on Solaris 2.  From Aleksandar Bakic.
+	(finish): Don't display messages
+
+	* ltconfig.in (archive_cmds): On HP-UX 9, make sure we don't try
+	to move a file to itself.  From Jeff Dairiki.
+
+1998-08-19  Gordon Matzigkeit  <gord@trick.fig.org>
+
+	* ltconfig.in: Make changes to accomodate ltmain.c.
+
+	* Makefile.am (clibtool): New target for the C version of libtool.
+
+	* ltmain.c: Experimental C version of libtool.
+
+1998-07-10  Ian Lance Taylor  <ian@cygnus.com>
+
+	* ltmain.in (install): Test against both $SHELL and /bin/sh.
+
+1998-06-30  Gordon Matzigkeit  <gord@trick.fig.org>
+
+	* ltmain.in: Convenience archive support.  From Ulrich Drepper.
+
+	* ltconfig.in (postinstall_commands): Change libraries to be
+	executable on Solaris in order to prevent ldd from moaning.  From
+	Julian Gosnell.
+	(whole_archive_flag_spec): New variable to shortcut convenience
+	archive expansion.  From Ulrich Drepper.
+
+1998-06-11  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* ltconfig.in, ltmain.in: Change globs to accept forward slashes
+	in absolute directory names used on DOS-like systems.  From Robert
+	S. Maier.
+
+Thu May 28 18:59:08 1998  Ian Lance Taylor  <ian@cygnus.com>
+
+	* ltconfig.in: Use $SHELL when invoking shell scripts.
+
+1998-05-21  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* ltmain.in (compile): Don't have `-static' turn off libtool
+	libraries, so that people can use it just to guarantee that `.o'
+	files exist.  Suggested by David Mosberger-Tang.
+
+1998-05-18  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* ltmain.in (link): Possibly reexec the shell from within the
+	wrapper script.
+	Allow `-version-info' and `-release' to coexist again.  If people
+	want to shoot themselves in the foot, I'd better let them do so,
+	so that people who are smart enough not to can squeeze out another
+	ounce of functionality.  From Tim Janik.
+	(version_vars): Delete dead variable.
+
+	* ltconfig.in (hardcode_minus_L): FreeBSD 3.0 doesn't hardcode, at
+	last.  Reported by Jason Nordwick.
+
+	* libtoolize.in, ltconfig.in, ltmain.in: Change a bunch of `if
+	test ...; then : ; else ...' constructs to `if test ! ...; then
+	...', for clarity.
+
+1998-05-17  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* ltmain.in (LC_ALL, LANG): Save these values and restore them
+	during execute mode.  From Pavel Kankovsky.
+	(mode): Accept strace and truss as programs that throw us into
+	execute mode.  From Pavel Kankovsky.
+
+1998-05-07  Ian Lance Taylor  <ian@cygnus.com>
+
+	* ltconfig.in: Don't use .$versuffix or .$major.  Instead, assume
+	the variable will include any required prefix.
+	* ltmain.in: If no -version-info option was used, produce empty
+	version strings rather than 0.0.0.  When making library symlinks,
+	avoid making a symlink if the name would be the same.
+
+1998-04-27  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* ltmain.in (link): Support `unsupported' as a hardcode_action.
+	Reported by Lars Hecking.
+	(lib_linked): Do some sanity checking to make sure that we
+	actually do link libtool libraries into the program to prevent the
+	above problem from happening again.
+
+1998-04-20  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* ltmain.in: Maybe reexec under $SHELL, if $echo doesn't work.
+	Reported by Lars Hecking.
+
+1998-04-19  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* Makefile.am (maintainer-rekey): New rule to force us to change
+	Project-Version after we make a release.  This keeps all version
+	numbers in sync, rather than branching just before the release.
+	(maintainer-release, maintainer-checkin): Use maintainer-rekey.
+
+	* ltmain.in (finish): Notice when a finish command fails, so that
+	we can add it to the list of recommendations.
+
+1998-04-17  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* libtool.m4 (AM_PROG_LIBTOOL): Append file descriptor 5 to
+	config.log, so that configure doesn't clobber the messages that
+	ltconfig put there.  From David Taylor.
+
+1998-04-15  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* ltconfig.in (archive_cmds): Try using `$CC -shared' when
+	configuring for GCC under irix5 and irix6.  From Wolfram Gloger.
+	(ofile): Add `--output' flag to change the name of the generated
+	libtool.  Suggested by Wolfram Gloger.
+
+1998-04-14  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* ltmain.in: Remove all hardcoded references to ltmain.in in
+	favour of $PACKAGE and $PROGRAM.
+	(install): Compute the installation name for programs, in case we
+	install a relinked file which has a different name.  Reported by
+	Pieter Schoenmakers.
+
+	* ltconfig.in (echo): Try using the ksh(1) `print -r' builtin
+	command, before reverting to printf(1).
+
+	* Makefile.am (libtool): Use $(SHELL) when invoking ltconfig.
+
+	* ltconfig.in (echo): Rewrite the test for a working echo so that
+	we win on Solaris by avoiding printf(1), if possible.
+
+	* tests/quote.test (echo): Update the echo test from ../ltconfig.in.
+
+1998-04-13  Ian Lance Taylor  <ian@cygnus.com>
+
+	* libtool.m4 (AM_PROG_NM): Don't override NM in the environment.
+
+1998-04-13  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* ltmain.in: New `--config' flag to print out all configured
+	variables.
+
+	* libtool.m4: Pass ltconfig the undocumented --no-reexec flag,
+	since we call it explicitly using CONFIG_SHELL.
+
+	* ltconfig.in: Restart the script under a different shell if
+	CONFIG_SHELL is not /bin/sh.  This way, people can use Bash if
+	they don't have a working echo program.
+
+	* ltmain.in, ltconfig.in: Use $SHELL instead of /bin/sh when
+	generating executable scripts.
+
+	* libtoolize.in, ltconfig.in, ltmain.in: Implement the `--debug'
+	flag to begin shell tracing.
+
+	* ltconfig.in (archive_cmds): Don't use `gcc -shared', even if we
+	have GNU ld.  Reported by Robert S. Maier.
+
+1998-04-06  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* ltconfig.in (pic_flag): Create more than just a null C file, so
+	that the SunPRO 4.2 cc doesn't complain.  From Bob Friesenhahn.
+	(gnu_ld_acts_native): Delete this variable.  There is just too
+	much version skew to try to pretend GNU ld is the same as the
+	system ld.  Reported by Ian Lance Taylor.
+	(hardcode_action): Don't bother relinking or aborting on systems
+	that are too dynamic to have a consistent hardcode method.
+	Reported by Doug Winterburn.
+
+1998-03-24  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* doc/libtool.texi: A little proofreading.  From Albert
+	Chin-A-Young.
+
+1998-03-23  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* ltconfig.in: Treat HP-UX 11 just like HP-UX 10.  From Jeff Law.
+
+1998-03-21  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* ltconfig.in (reload_flag): Correct a tiny bug where `--silent'
+	would still print out the reload flag.  From Stephan Kulow.
+
+1998-03-20  Ian Lance Taylor  <ian@cygnus.com>
+
+	* libtool.m4: Use changequote to avoid problems with square
+	bracket patterns.
+
+1998-03-20  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* Release 1.2.
+
+1998-03-18  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* ltmain.in: Rearrange some of the echos to make them more
+	consistent.
+
+1998-03-14  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* ltmain.in: Break up an echo command that causes Solaris printf
+	to dump core.  Apparently the Solaris people hardcoded a 2110-byte
+	buffer into their printf(1).  Feh.  From John Judge.
+
+1998-03-11  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* ltconfig.in: Change the test for the PIC compiler flag so that
+	we assume it doesn't work if there are any warning messages.  This
+	fixes a bug using old GCC's on HP-UX.  Reported by Akim Demaille.
+
+1998-03-10  Andreas Schwab  <schwab@issan.informatik.uni-dortmund.de>
+
+	* Makefile.am ($(srcdir)/ltconfig): Remove bogus command to create
+	a file ltconfig in the build directory.
+
+1998-03-09  Andreas Schwab  <schwab@issan.informatik.uni-dortmund.de>
+
+	* ltmain.in: Avoid unnecessary use of command substitution,
+	replacing foo=`eval \\$echo \"$mumble\"` by eval foo=\"$mumble\".
+
+	(link): Use ${1+"$@"} in wrapper scripts in order to pass
+	arguments safely to a program.
+
+	* ltconfig.in: Use -fpic instead of -fPIC if $host_cpu matches
+	m68*.
+
+1998-03-08  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* Release 1.1.
+
+	* ltmain.in: <sigh> I like `here documents' a lot, but apparently
+	they are so badly handled by old and buggy /bin/sh's, that
+	replacing `cat <<EOF ... EOF' by `$echo "..."' improves libtool's
+	speed by a factor of 5.  So, I've eliminated here docs from the
+	all-important ltmain.in.  From Tom Lane.
+
+	* tests/tlibtool: Eliminate from distribution.
+
+	* tests/defs (libtool): Don't use tlibtool anymore, since we can now use
+	the generated libtool directly.
+
+1998-03-07  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* ltconfig.in: Copy the contents of ltmain.sh into the generated
+	libtool.  This should more than halve the execution times on old
+	or buggy /bin/sh systems, such as HP-UX 9 and SunOS 4.1.4.  From
+	Tom Lane.
+
+1998-03-05  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* libtool.m4 (AM_ENABLE_SHARED, AM_ENABLE_STATIC): Add support for
+	the `default' package, so that people can control unnamed
+	packages.
+	(LD): Only add an ABI flag under IRIX 6.x, since IRIX 5.x doesn't
+	support them.  From Alexandre Oliva.
+
+1998-03-01  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* ltconfig.in: Port to UnixWare 2.x.  From Christopher Olsen.
+
+1998-02-25  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* ltmain.in (compile): For consistency, honour the `-static' flag
+	during compilation.
+
+1998-02-23  Brendan Kehoe  <brendan@cygnus.com>
+
+	* libtool.m4 (AM_ENABLE_SHARED, AM_ENABLE_STATIC): For
+	--enable-shared, heed the value of $PACKAGE from AM_INIT_AUTOMAKE
+	if given as the argument for the library to be built shared.
+
+1998-02-20  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* libtool.m4, ltconfig.in (NM): Fix up a typo confusion between
+	$ac_dir and $dir.  Reported by Akim Demaille.
+
+	* ltmain.in (link): Don't allow both `-version-info' and
+	`-release'.  Reported by Danny Backx.
+
+1998-02-18  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* Makefile.am (noinst_SCRIPTS): Remove lineno from distribution.
+
+	* lineno: Remove from distribution, as it is no longer needed.
+
+	* Makefile.am ($(srcdir)/ltconfig.in, $(srcdir)/ltmain.sh):
+	Rewrite these rules not to use config.status or lineno.  This
+	makes things simpler, and reduces dependencies, so that the
+	scripts are rebuilt and installed in srcdir only when necessary.
+	Reported by Stephan Kulow.
+
+	* tests/sh.test (scripts): Remove the lineno script, since it is no
+	longer distributed.
+
+	* tests/assign.test, if.test, test-e.test: Even though 15 tests looks
+	impressive, these are now redundant.  Remove them from the
+	distribution.
+
+	* tests/sh.test: Do what assign.test, if.test, and test-e.test used to
+	do.
+
+1998-02-16  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* libtool.m4, ltmain.in, ltconfig.in: Correctly identify absolute
+	directory names on MS-DOS.  Suggested by Bob Friesenhahn.
+
+	* ltconfig.in, ltmain.in, libtool.m4: Change a bunch of `sed N!d'
+	commands to `sed Nq', for efficiency.
+
+	* ltmain.in: Only egrep the first few lines of files in order to
+	determine if they were libtool-generated.  This prevents egrep(1)
+	from taking forever to look at a 10MB binary on Solaris.  From
+	Stephan Kulow.
+
+	* tests/defs: Correctly identify absolute directory names on MS-DOS.
+	Suggested by Bob Friesenhahn.
+
+1998-02-11  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* ltconfig.in (no_undefined_flag): Add a flag to declare under
+	Solaris that the library should not have any undefined
+	references.  Suggested by Bob Friesenhahn.
+
+	* ltmain.in (mkdir): Fix one more mkdir race.  From H.J. Lu.
+
+1998-02-08  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* ltconfig.in, ltmain.in (striplib, old_striplib): Ditto.
+
+	* ltconfig.in (profile_flag_pattern): Get rid of dead code.
+
+1998-02-07  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* libtool.m4 (AM_ENABLE_SHARED, AM_ENABLE_STATIC): New macros to
+	modify the `--enable-shared' and `--enable-static' defaults in the
+	configure script.  This works a lot better than the old
+	`enable_shared' and `enable_static' variables did.  Reported by
+	Bob Friesenhahn.
+
+	* tests/suffix.test (extensions): Added GNAT (GNU Ada Translator)
+	suffices, `.ada', `.ads', `.adb'.  From Samuel Tardieu.
+
+1998-02-07  Samuel Tardieu  <sam@inf.enst.fr>
+
+	* ltmain.in: Recognize .ada, .ads and .adb as known suffixes (they
+	are used by GNAT, the GNU Ada compiler).
+
+1998-02-06  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* ltconfig.in: Turn on IRIX shared libraries again!
+
+	* libtool.m4 (LD): Use file(1) to discover which ABI we're using
+	on IRIX, and propagate the correct linker flag.  From Jim Wilson.
+
+	* ltconfig.in, ltmain.in (Xsed): `arg=-n; echo "$arg" | sed ...'
+	gives problems, because the `-n' is interpreted as an option to
+	echo(1).  So, use `echo "X$arg" | sed -e 's/^X//' ...' everywhere,
+	via the $Xsed convenience variable.  Suggested by H.J. Lu.
+
+1998-02-02  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* ltconfig.in: Turn off IRIX shared library support until 32-bit
+	and 64-bit ABI differences can be resolved.
+
+1998-01-28  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* libtool.m4 (LD): Reverse yesterday's change because `-old_ld'
+	isn't accepted by GCC.
+
+1998-01-27  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* ltconfig.in (soname_spec): Add in user-specified release numbers
+	for every host system that supports an soname that differs from
+	the linkname.
+
+	* libtool.m4 (LD): Add `-old_ld' to the list of flags that need to
+	be passed through on SGI.  Reported by Chris Lee.
+
+	* ltmain.in (release): Prepend a hyphen to the release number, and
+	fix a typo because `-version-info' takes only 3 args.  From
+	H.J. Lu.
+
+1998-01-25  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* ltconfig.in (library_names_spec): On Linux, use the
+	user-specified release.
+
+	* ltmain.in (link): Allow the user to specify a release number for
+	the library using the `-release' flag.  Suggested by H.J. Lu and
+	Ian Lance Taylor.
+
+1998-01-23  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* tests/Makefile.am (TESTS_ENVIRONMENT): Export some important
+	environment variables.  Reported by Ian Haggard.
+
+1998-01-19  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* ltconfig.in (old_postuninstall_cmds): Reorder so that chmod
+	happens after ranlib.  From Markus F.X.J. Oberhumer.
+
+	* ltmain.in (mode): Added `gcc*' and `*-gcc*' to the patterns that
+	recognize compilers.  From Pieter Schoenmakers.
+	(link): Recognize `.a' files again.  Suggested by Pieter
+	Schoenmakers.
+
+1998-01-18  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* ltmain.in (compile): Recognize `.asm' extension, for use with
+	the nasm assembler.  From Markus F.X.J. Oberhumer.
+
+	* tests/suffix.test (extensions): Recognize `.asm'.  From Markus
+	F.X.J. Oberhumer.
+
+1998-01-12  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* ltconfig.in (runpath_var): Use instead of
+	`hardcode_runpath_var'.
+
+1998-01-11  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* ltmain.in (finish): Add a better --finish message.  Suggested by
+	Kenneth Albanowski.
+
+	* ltconfig.in, ltmain.in: Fix a few typos.
+
+1998-01-03  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* ltmain.in (link): Quote the definition of $echo in the wrapper
+	script.
+
+	* ltconfig.in (export_dynamic_flag_spec): Use `--export-dynamic'
+	instead of `-export-dynamic', which is not accepted by all GNU
+	ld's.  From Eiichi Takamori.
+
+	* ltmain.in (install): Don't print silly `library stripping'
+	warnings.  Reported by François Pinard.
+
+1997-12-19  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* ltmain.in: Don't forget to quote the CDPATH substitution.  From
+	Tor Lillqvist.
+
+1997-12-18  Gordon Matzigkeit  <gord@profitpress.com>
+
+	* ltconfig.in, ltmain.in (CDPATH): Unset this environment variable
+	so that HP-UX shells, at least, don't print out the directory name
+	after a `cd' command.  From Tor Lillqvist.
+
+1997-12-10  Gordon Matzigkeit  <gord@gnu.org>
+
+	* demo/Makefile.am (hardcode): Change a bunch of references to
+	`$(LIBS)' to `-lm', since we no longer put -lm in LIBS.
+
+	* demo/configure.in: Delete the test for libm, since it is
+	standard on every system.
+
+	* demo/Makefile.am (libhello_la_LDFLAGS): Change to include -lm,
+	in accordance with new inter-library dependency code.
+
+	* ltmain.in (dependency_libs): Added to help people link programs
+	without having to explicitly specify inter-library dependencies.
+
+	* ltconfig.in (COLLECT_NAMES): Oops... I forgot to apply the AIX 3
+	restriction to the generated libtool script.  Reported by Stefan
+	Westerfeld.
+
+1997-12-05  Gordon Matzigkeit  <gord@gnu.org>
+
+	* ltconfig.in (thisdir): Quote $echo in the generated libtool
+	script for HP-UX.  From Markus F.X.J. Oberhumer.
+
+	* ltmain.in (link): Recognize the `.s' suffix.  From Markus
+	F.X.J. Oberhumer.
+
+	* ltconfig.in (link_static_flag): Don't quote ${wl} on HP-UX
+	because link_static_flag is never evaled.  From Eric Backus.
+
+	* tests/suffix.test (extensions): Recognize `.s'.  From Markus
+	F.X.J. Oberhumer.
+
+1997-12-01  Gordon Matzigkeit  <gord@gnu.org>
+
+	* demo/Makefile.am (helldl_DEPENDENCIES): Add `libhello.la' to our
+	dependencies so that parallel builds work correctly.  From Jim
+	Meyering.
+
+	* Makefile.am ($(srcdir)/ltconfig, $(srcdir)/ltmain.sh): Rewrite
+	these rules so that they are parallelizable.  Reported by Jim
+	Meyering.
+
+	* ltconfig.in (ltecho): We need special handling to quote the
+	`echo' variable itself.  From Alexandre Oliva.
+
+1997-11-29  Gordon Matzigkeit  <gord@gnu.org>
+
+	* ltconfig.in (COLLECT_NAMES): Enable this workaround for a broken
+	collect2 only on AIX 3.  This avoids problems on other AIX
+	versions.  Reported by Stefan Westerfeld.
+
+	* ltmain.in, ltconfig.in (finish_eval): Variable like finish_cmds,
+	except it is a single command which is evaled, and not shown.
+
+	* ltconfig.in: Port to AmigaOS.  From Joop van de Wege.
+
+	* ltmain.in (echo): Delete preamble to check for a working echo,
+	since we just use the one included in the generated libtool.
+
+	* ltconfig.in (echo): Include this definition in the generated
+	libtool script.
+
+1997-11-28  Gordon Matzigkeit  <gord@gnu.org>
+
+	* ltconfig.in, libtool.m4 (NM): Add /usr/ccs/bin to the PATH
+	before checking.  From Kaveh R. Ghazi.
+	(NM): Delete an extraneous egrep from ltconfig.
+
+	* ltconfig.in (finish_cmds): Change back to using `ldconfig -n'.
+	This makes Linux behave like other systems, which is more in line
+	with what libtool needs.
+
+1997-11-27  Gordon Matzigkeit  <gord@gnu.org>
+
+	* ltmain.in: Change a whole bunch of `progname' variables to
+	`modename'.  This is for clarity, and to fix a tiny typo in finish
+	mode.
+
+	* libtool.spec (Name, Version): Ditto.
+
+	* configure.in (AM_INIT_AUTOMAKE): Use PRCS to automatically generate
+	the proper package name and version number.
+
+	* ltconfig.in (gnu_ld_acts_native): Treat GNU ld like the native
+	linker on SunOS 4.x.  Suggested by Alexandre Oliva.
+	(deplibs): Change the defaults all over, since most systems cannot
+	handle inter-library dependencies.
+
+	* libtool.m4, ltconfig.in (NM): Only look at the first line of the
+	output from NM when determining whether it supports a command line
+	option.  This prevents false positives on OSes which ignore
+	invalid flags, like HP-UX, which prints `nm: unknown option "B"
+	ignored'.  Reported by Kaveh R. Ghazi.
+
+	* ltconfig.in (finish_cmds): On Linux, update ld.so.cache by
+	removing the `-n' flag from ldconfig.  Suggested by Kenneth
+	Albanowski.
+
+	* Makefile.am (maintainer-checkin, maintainer-release): New
+	commands to reap the full benefit of using PRCS to maintain
+	libtool version numbers.
+
+	* ltconfig.in, ltmain.in (global_symbol_pipe): Explicitly cast all
+	addresses to __ptr_t.  This fixes a bug due to a strict IRIX
+	compiler.  Suggested by Kaveh R. Ghazi.
+
+1997-11-23  Gordon Matzigkeit  <gord@gnu.org>
+
+	* ltmain.in (echo): For aesthetics, avoid using `$echo' when
+	`echo' will do *exactly* the same thing.  This prevents ugly
+	`printf %s\n timestamp > some.lo' commands from appearing in the
+	libtool output.
+	(link): Delete the `-allow-undefined' flag because it is now the
+	default.  Make `-no-undefined' in order for people to declare that
+	a library is entirely self-contained.  This prevents maintainers
+	from accidentally creating shared libraries that won't work on
+	AIX.  Reported by Stefan Westerfeld and Danny Backx.
+
+	* ltconfig.in (echo): Use an echo variable, just as in ltmain.in,
+	because we need it for quoting substitutions.  For most of the
+	script, though, use the default echo, just like Autoconf does.
+	Without this patch, character \001 ends up in global_symbol_pipe.
+	Reported by Lars Hecking and Jürgen Fluk.
+
+	* ltmain.in (echo): Set default to `echo=echo'.  Ooops.  That's
+	what you get for testing obscure code paths and forgetting to
+	revert to the original version.  Reported by Danny Backx.
+
+1997-11-14  Gordon Matzigkeit  <gord@gnu.org>
+
+	* ltconfig.in (hardcode_libdir_flag_spec): Set to `-R' for FreeBSD
+	2.2.  From Sean Kelly.
+	(postuninstall_cmds, old_postuninstall_cmds): Commands to run
+	after uninstall mode deletes the libraries.  Suggested by Joop van
+	de Wege.
+	(export_dynamic_flag_spec): On HP-UX, add the `${wl}-E'
+	export_dynamic_flag_spec.  Reported by Matthias Hoelzer.
+
+1997-11-11  Gordon Matzigkeit  <gord@gnu.org>
+
+	* ltconfig.in, ltmain.in (sed_quote_subst): Oops.  We forgot to
+	quote backticks.  Reported by Joop van de Wege.
+
+	* tests/quote.test: Add backticks to the backslashify test.
+
+1997-11-09  Gordon Matzigkeit  <gord@gnu.org>
+
+	* ltconfig.in (symcode): On IRIX, don't extract undefined
+	symbols.  When a function is inlined by G++, references to it are
+	still marked as undefined in the object file.  This means that our
+	symbol file causes undefined references, because there are
+	actually no matching global symbols.  Reported by Paul Kendall.
+
+1997-11-08  Gordon Matzigkeit  <gord@gnu.org>
+
+	* ltconfig.in: Don't forget to redirect the COLLECT_NAMES libtool
+	script fragment to the generated libtool, rather than to stdout.
+
+1997-11-07  Gordon Matzigkeit  <gord@gnu.org>
+
+	* libtool.m4 (LD): Add a more sophisticated test to determine the
+	ABI flag on IRIX 6.  Suggested by Lars Hecking and Ian Lance
+	Taylor.
+
+	* ltconfig.in, ltmain.in (COLLECT_NAMES): Only export this
+	variable if we are running under AIX.  Otherwise, we tickle a g++
+	bug under IRIX.  From Paul Kendall.
+
+	* Change bug reporting address to <bug-libtool@gnu.org>.
+
+	* ltconfig.in (allow_undefined_flag): OSF/1 3.x also requires a
+	wildcard argument to `-expect_unresolved'.  From Stephan Kulow.
+
+1997-11-06  Gordon Matzigkeit  <gord@gnu.org>
+
+	* ltmain.in (link): Use libname_spec.
+
+	* ltconfig.in (pic_flag): Somehow, the HP-UX pic_flag (`+Z') was
+	dropped between libtool-1.0 and now.  Add it back in.  Reported by
+	Akim Demaille.
+	Integrated more patches for OS/2.  From Jeff Freedman.
+	(libname_spec): New variable for OSes that don't require their
+	libraries to look like `libNAME.a'.
+
+	* ltmain.in (link): Only use global_symbol_pipe if it has been
+	defined.  From Stephan Kulow.
+
+	* ltconfig.in (global_symbol_pipe): Protect C fragment under C++
+	compilers.  From Stephan Kulow.
+
+	* Makefile.am ($(srcdir)/acinclude.m4,
+	$(srcdir)/demo/acinclude.m4): Change rules to use LN_S so that
+	they can be run on any system.
+
+	* ltconfig.in (archive_cmds): For NetBSD, don't include deplibs.
+	From Dieter Baron.
+
+	* ltmain.in (mkdir): Check that the directory doesn't exist before
+	we exit with error, so that we don't get races during parallel
+	builds.  From H.J. Lu.
+	(fbsd_hideous_sh_bug): Apparently, some FreeBSD /bin/sh's have a
+	bug that will empty base_compile unless we do this dummy
+	assignment.  From Marc van Kempen.
+
+1997-10-22  Gordon Matzigkeit  <gord@gnu.org>
+
+	* libtool.m4 (libtool_shared, libtool_static): Fixed logic error
+	to reenable override of libtool's defaults by setting
+	enable_shared or enable_static in configure.in.  Reported by Tom
+	Tromey and Stephan Kulow.
+
+	* ltmain.in (link): Add explicit support for compiler options that
+	begin with `+'.  Reported by Aubert Pierre.
+
+1997-10-20  Gordon Matzigkeit  <gord@gnu.org>
+
+	* ltmain.in: Silly me.  Change a bunch of occurances of "* $dir *"
+	into *" $dir "*.
+
+	* ltconfig.in (pic_flag): PIC is the default for AIX.  From Mark
+	Kettenis.  It is also the default for OSF/1.
+
+	* demo/Makefile.am (objdir): Quote double-quotes.  From Mark
+	Kettenis.
+
+	* ltconfig.in (global_symbol_pipe): This variable is not
+	double-evaled, so it should not be double quoted.  From Mark
+	Kettenis.
+
+1997-10-19  Gordon Matzigkeit  <gord@gnu.org>
+
+	* ltconfig.in (LD): Same as below.
+
+	* libtool.m4 (LD): Set LD if we discover an absolute path to GNU
+	ld.  This prevents breakage when `$CC -print-prog-name=ld' returns
+	an absolute directory name.  Reported by Ulrich Drepper.
+
+	* ltconfig.in: Port to OS/2 using EMX.  From Jeff Freedman.
+
+	* ltmain.in (link): Use old_archive_from_new_cmds.
+
+	* ltconfig.in (old_archive_from_new_cmds): New variable to
+	support DLL libraries.
+
+	* ltmain.in (link): Only `eval' export_dynamic_flag_spec if it is
+	not empty.  Reported by Stephan Kulow.
+
+1997-10-18  Gordon Matzigkeit  <gord@gnu.org>
+
+	* ltconfig.in (objdir): Use the .libs directory on all systems for
+	which that name is valid, and _libs on the others (like MS-DOS).
+	Suggested by Juergen Erhard.
+
+1997-10-14  Gordon Matzigkeit  <gord@gnu.org>
+
+	* ltmain.in (link): Added a bit more inter-language support to the
+	symbol file generation process.
+	Instead of complaining about unrecognized argument suffices, pass
+	them to the linker.  This prevents libtool from barfing on
+	mandatory arguments to linker flags.  Reported by Michael
+	Tiemann.
+
+1997-10-09  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.in (link): Change the wrapper script to follow symlinks
+	in order to find thisdir.  This should put the final nail in the
+	coffin for problems with wrapper scripts.  From Ian Lance Taylor.
+
+1997-10-07  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.in: Change a few `$echo' commands into `$show' to make
+	--silent mode behave as advertised.
+
+	* ltconfig.in (allow_undefined_flag): On OSF/1 4.x, use
+	`-expect_unresolved \*'.  From Christian Mondrup.
+
+	* ltmain.in (install): Change install mode to allow a specified
+	/bin/sh argument at the beginning of the install_prog.  Also,
+	specify the shell to run when invoking libtool recursively for
+	finish mode.  From Chris Provenzano.
+
+	* libtool.m4 (LIBTOOL): Change definition to include $(SHELL).
+	From Chris Provenzano.
+
+	* ltconfig.in: Port to UTS 4.x.  From Alistair Crooks.
+
+	* demo/Makefile.am (hc-libflag): Add rules to make this binary for
+	hardcode.test.
+
+	* tests/hardcode.test (hardcode_libdir_flag_spec): Check the hardcoding
+	properties of the flag_spec, too.
+
+1997-09-24  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltconfig.in (LD): As with libtool.m4, don't override LD.
+	Do a whole bunch of ac_t quoting.
+
+1997-09-24  Ian Lance Taylor  <ian@cygnus.com>
+
+	* libtool.m4 (AM_PROG_LD): Don't override LD in the environment.
+
+1997-09-21  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* libtool.m4, ltconfig.in (NM): Arguments to the for loop must be
+	whitespace separated.  This fixes a bug under FreeBSD's /bin/sh.
+	From George Scott.
+
+	* tests/defs, tests/Makefile.am (clean-local): Change =inst to 
+	_inst to fix portability on MS-DOS.  From Robert Hoehne.
+
+1997-09-20  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.in (deplibs): When building shared libraries, always add
+	-lc to deplibs.  Reported by Andreas Jellinghaus.
+
+1997-09-15  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltconfig.in, ltmain.in (COLLECT_NAMES): If the COLLECT_NAMES
+	environment variable has not been set, set it to empty.  This
+	apparently fixes the AIX bug with GCC's collect2.  Reported by
+	Mark Kettenis.
+
+	* demo/Makefile.am, ltmain.in, tests/hardcode.test (objdir):
+	Changed objdir variable .libs to _libs.  This is another MS-DOS
+	portability fix.  Suggested by Robert Hoehne.
+
+	* tests/hardcode.test (objdir): New variable to simplify change from
+	.libs to _libs (MS-DOS portability fix).
+
+1997-09-13  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltconfig.in, ltmain.in (hardcode_minusL): Fix typo by renaming
+	hardcode_minusL to hardcode_minus_L.  Also add FreeBSD
+	hardcode_libdir_flag_spec. From Paul Traina.
+
+	* ltmain.in (link): Honour multiple `-rpath' flags when linking
+	programs.  Suggested by Bengt Martensson.
+	Quote appearances of $echo in the wrapper script.  From Alexandre
+	Oliva.
+
+	* Makefile.am, configure.in, tests/tlibtool: Use ltmain.in instead
+	of ltmain.sh.in.
+
+	* ltmain.in: Rename ltmain.sh.in to ltmain.in.  This fixes a
+	portability problem (on MS-DOS, of all places!).  From Robert
+	Hoehne.
+
+1997-09-11  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in (link): Do not transform libtool objects to regular
+	objects if we did not build old libs.  Reported by Tomas Hiller.
+
+1997-09-05  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* demo/Makefile.am (hell_debug_LDFLAGS): Change hell.static to
+	hell.debug in order to reflect the new static linking semantics.
+
+	* ltmain.sh.in (link): Add new `-all-static' flag to prevent all
+	dynamic linking.  The old `-static' flag just prevents dynamic
+	linking against libtool libraries.  Suggested by Bengt
+	Martensson.
+
+	* ltconfig.in (with_gnu_ld): Add a test to make sure that we are
+	actually using GNU ld.  This fixes an inconsistency when running
+	ltconfig without using libtool.m4.  Reported by Ulrich Drepper.
+	(global_symbol_pipe): Delete symbols that are not valid C
+	identifiers.  Reported by Johan Danielsson and Bengt Martensson.
+
+	* tests/demo-exec.test, tests/demo-inst.test: Change references from
+	hell.static to hell.debug.
+
+	* tests/quote.test (echo): Add the same Digital Unix echo test fixes as
+	the ones to ltmain.sh.in from Todd Kover.
+
+	* tests/if.test, tests/test-e.test (scripts): Add ../lineno to 
+	the scripts we check.
+	* tests/if.test: Check for accidental use of test X$something rather
+	than test "X$something".
+
+1997-09-04  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in (echo): Quote all the uses of `echo' in all eval
+	statements.  Reported by Bengt Martensson and Alexandre Oliva.
+	(echo): Need to surround test args with double quotes, or the echo
+	test fails on Digital Unix 4.0.  From Todd Kover.
+
+1997-08-28  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in (echo): Change test to one that uses printf.
+	This works on AIX, which has the same problems that Solaris does,
+	but no working echo program.
+
+	* tests/quote.test (echo): Change test to version that uses printf.
+	Be less strict about return results.
+
+1997-08-27  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in (link): Make sure that compile_command and
+	finalize_command are always evaled.  Quote any unknown linker
+	flags we need to pass through.
+	(compile): Use quoting for flags we pass.
+	(echo): I hate Sun!  The /usr/bin/echo on Solaris handles
+	backslash sequences, which makes it impossible to do backslash
+	quoting using echo and sed.  So, we search for an echo that obeys
+	the `echo '\t'` = '\t' equality.  Then we use `$echo' everywhere
+	in ltmain.sh.
+	Put tabs back into the ${IFS=	} sequences.  Emacs untabify is
+	libtool bane.
+
+	* ltconfig.in: Quote all variable values that may contain
+	metacharacters creating the libtool script.  This provides
+	complete protection, so that even single-quotes may appear inside
+	a libtool variable value.
+
+	* ltmain.sh.in (link): Quote finalize_command before putting it in
+	the wrapper script.
+
+	* tests/quote.test (echo): Add the test for a non-backslash-mangling
+	echo.
+
+1997-08-26  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in (sed_quote_subst): Change the quoting procedure
+	again.  I think that the new one is robust for *all* characters,
+	including whitespace and metacharacters.
+
+	* tests/quote.test: New torture test for libtool metacharacter quoting.
+
+1997-08-25  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in: Change quoting procedure because some shells
+	cannot handle `]' in scan sets.  From Ian Dall.
+
+1997-08-22  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in (execute): Added -dlopen flag handling.  Suggested
+	by Alexandre Oliva.
+
+1997-08-21  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in (link): Change executable wrapper to fix up value
+	of thisdir, as well as progdir, if the $0 path doesn't work.  This
+	guarantees that shlibpath_var is set correctly.  Add support for
+	execute mode.
+
+	* ltmain.sh.in (execute): New mode to automatically set
+	shlibpath_var, which allows easy debugging of uninstalled
+	executables and libraries.  Suggested by Kenneth Albanowski.
+
+1997-08-20  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* Makefile.am ($(srcdir)/ltconfig): Use lineno.
+
+	* configure.in: Add AM_PROG_AWK for lineno.
+
+	* lineno: New program to automatically put line numbers in
+	ltconfig.
+
+	* libtool.m4, ltconfig.in (AM_PROG_LD): Yet Another Rewrite, which
+	incorporates the results of `gcc -print-program-name=ld'.
+	Suggested by Alexandre Oliva.
+
+1997-08-14  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in: Accept `--quiet' and `--silent' flags to turn off
+	command echoing.  From Juergen A. Erhard.
+
+	(compile): Recognize the Objective C `.m' extension.  From Juergen
+	A. Erhard.
+
+	(compile): Suppress error output from the second compilation (if
+	any) so that we don't get those frustrating duplicate error
+	messages.
+
+	* tests/suffix.test (extensions): Added Objective C extension, `.m'.
+
+1997-08-12  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltconfig.in: Added messages to config.log to describe what sort
+	of test we are running.
+	(pic_flag): Added a sanity check for pic_flag.  This should fix
+	bugs reported using the cc bundled with HP-UX 10.  Suggested by
+	Bruno Haible and Akim Demaille.
+
+1997-08-01  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in (link): Add -dlopen and -dlpreopen support for
+	libtool objects.  This means that dlopened modules no longer need
+	to be shared libraries.
+
+	* ltconfig.in (pic_flag): GCC on IRIX 6 always builds PIC.
+	Reported by Ian Lance Taylor.
+
+	* libtool.m4 (LD): Always add `-n32' to the linker if we are using
+	GCC on IRIX 6.  Reported by Ian Lance Taylor.
+
+1997-07-30  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* libtool.m4 (AM_PROG_LIBTOOL): Explicitly check enable_shared and
+	enable_static rather than just enableval.  This allows
+	configure.in scripts to set their own defaults.  Suggested by
+	Tommy Reilly.
+
+1997-07-29  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in: Add NLS environment variable handling copied from
+	ltconfig.in.  Reported by Akim Demaille.
+	(link): If allow_undefined_flag is not supported, then turn on old
+	libraries.  Reported by Akim Demaille.
+
+	* demo/dlmain.c (main): Use dld_preloaded_symbol_count to display
+	a message about the sortedness of the symbol table.
+
+	* ltconfig.in (nlist): Use an nlist convenience variable, so that
+	code can be shared directly with ltmain.sh.in.
+
+	* ltconfig.in, ltmain.sh.in (dld_preloaded_symbol_count): Count up
+	the number of symbols in the dld_preloaded_symbols.  Set to `-1'
+	if the list wasn't both sorted and counted.  This allows
+	applications to do a quick binary search, if they are so inclined.
+
+1997-07-25  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in (link): Remove code for `-version-file', since it
+	has been long-deprecated.
+
+	Disable static linking if hardcode_direct is unsupported and there
+	is no working link_static_flag.  This provides correct behaviour
+	for all cases on AIX 3, regardless of whether collect2 is broken
+	or not.  Reported by Mark Kettenis.
+
+	* ltconfig.in: Fix typo in test polarity.  From Mark Kettenis.
+
+1997-07-24  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltconfig.in (hardcode_direct): Set to `unsupported' if aix3 uses
+	a broken collect2.  Adapted out of test results from Mark
+	Kettenis.
+	(link_static_flag): Make sure the link_static_flag actually works
+	with a trivial binary.
+
+	* ltmain.sh.in, ltconfig.in (export_dynamic_flag_spec): Renamed
+	from export_dynamic_flag because we eval it in ltmain.sh.
+
+	* ltmain.sh.in (link_static): Don't eval link_static_flag.
+
+	* demo/dlmain.c (main): Change function prototype to be KNR
+	compatible.  From Kaveh R. Ghazi.
+
+	* ltmain.sh.in (link): Use no_builtin_flag.  This works around
+	conflicting definitions of builtin functions with at least GCC.
+	Reported by Kazuhiro Sasayama.
+
+	* ltconfig.in (no_builtin_flag): New flag to turn off builtin
+	functions when compiling an object file.
+	(pipe_works): Use it.
+
+	* tests/demo-exec.test (status): Use status variables so that we try to
+	execute all the programs.
+
+1997-07-23  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltconfig.in (pic_flag): According to the libg++ 2.7.2 configure
+	script, DEC alpha CPUs are PIC-only, as well.  Reported by Kevin
+	Jacobs.
+
+1997-07-21  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltconfig.in, ltmain.sh.in: Replace all occurances of "sed 'X;
+	Y'" with "sed -e 'X' -e 'Y'".
+
+	* ltmain.sh.in (link): Finish full integration for `-dlopen' and
+	`-dlpreopen'.
+
+	Fix two silly typos where I used a compile_command in place of a
+	finalize_command, and vice versa.
+
+	Change the wrapper script to check a hardcoded path only if the
+	argv[0] method fails.  This is a compromise for the previous two
+	patches, and should solve the majority of problems with wrapper
+	scripts.  From Kenneth Albanowski.
+
+	(link): Change a reference to hardcode_libdir_colon_separated to
+	use the new hardcode_libdir_separator variable.
+
+	* demo/Makefile.am (helldl_LDFLAGS): Add `-export-dynamic' and
+	`-dlpreopen' for building helldl.
+
+	* demo/dlmain.c (main): Succeed, even if none of the libhello
+	symbols have been preloaded.
+
+1997-07-20  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltconfig.in (global_symbol_pipe): Add `U' to the accepted global
+	symbol types.  This means that we will get duplicate symbols, but
+	we'll also be sure to get all global symbols used by the program.
+
+	* ltconfig.in (pipe_works), ltmain.sh.in (link): Sort and make
+	symbol output unique.
+
+1997-07-19  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltconfig.in (pipe_works): Check to make sure our guessed
+	global_symbol_pipe actually works.
+
+	* ltmain.sh.in (link): Revert change from Kenneth Albanowski.  The
+	wrapper scripts are more reliable when they just use the argv[0]
+	value.  Generally, when the argv[0] method doesn't work, the user
+	is trying to do something weird with an uninstalled binary, and
+	should try a different approach.
+
+	* ltconfig.in, ltmain.sh.in (CC): Always use `$CC' instead of
+	`$cc'.  This fixes a FreeBSD bug.  Reported by Chuck Robey, and
+	others.
+
+1997-07-14  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in (link): In wrapper scripts, hardcode the current
+	directory to prevent phony argv[0] values from screwing up our
+	program.  From Kenneth Albanowski.
+
+1997-07-13  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* Makefile.am (demo_distfiles): Add demo/dlmain.c to the
+	distribution.
+
+1997-07-12  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* demo/Makefile.am: Add helldl, made from dlmain.c, to demostrate
+	`-dlopen' usage.
+
+	* demo/dlmain.c: New file to demonstrate preloaded modules.
+
+	* ltmain.sh.in (link): Add `-dlopen' flag to preload dynamic
+	modules, even on static platforms.  Use `$NM' and
+	`$global_symbol_cmd' to extract symbols from required files.
+	(dlname): Delete dlname mode entirely.  It is rendered obsolete
+	because the `.la' file format is now a public interface.
+
+	* ltconfig.in (NM): New variable for BSD-compatible nm program.
+	(global_symbol_cmd): Pipeline to extract global symbols from the
+	nm output.
+
+	* ltmain.sh.in: The .la file header should depend on `ltmain.sh',
+	not `$PROGRAM'.
+	(link): Make sure $export_dynamic_flag is eval'ed before it is
+	used.
+
+	* tests/demo-exec.test, tests/demo-inst.test: Check the new 
+	helldl program,	too.
+
+1997-07-11  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* libtool.spec: New Red Hat Package Manager specification file in
+	order to help people prepare distributions of libtool for Linux.
+
+	* ltmain.sh.in: Eliminate two accidental uses of the NONE magic
+	value.  These were breaking libtool's behaviour when no mode is
+	specified.
+
+	* tests/nomode.test: New test to make sure there is correct behaviour
+	when we don't specify a mode.
+
+1997-07-08  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* Release 1.0.
+
+	* ltconfig.in: On SunOS, append /usr/etc to the PATH before
+	running ldconfig; on *BSD, append /sbin.  This was done in line
+	with the Linux change suggested by Kenneth Albanowski.
+
+	* demo/Makefile.am (hardcode_tests): Aesthetic change to
+	alphabetize order of compiling the hardcode tests.
+
+	* Makefile.am (EXTRA_DIST): Delete README-automake.
+
+	* README-automake: Remove from distribution.
+
+1997-07-02  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in (link): In the executable wrapper, strip trailing
+	colons from the shlibpath_var because some ld.so's, notably
+	OpenBSD 2.0's (!), don't parse colon-terminated values correctly.
+	From Tim Pierce.
+
+1997-07-01  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in, ltconfig.in: Eliminate uses of the NONE magic
+	variable value.  Use an empty variable instead.
+
+	* ltconfig.in (with_gcc, with_gnu_ld): Do the tests for the C
+	compiler and linker if the variables are unset, or if they are not
+	GNU C and ld.
+	(RANLIB): Eliminate redundant `if' statement.
+
+	* configure.in: Use AM_PROG_LD.
+
+	* libtool.m4 (AM_PROG_LD_GNU): New macro to determine if LD is GNU
+	ld.
+	(AM_PROG_LD): Rename AM_PATH_PROG_LD to AM_PROG_LD.  Parameterize
+	so that the user can specify `--with-gnu-ld' or `--without-gnu-ld'
+	to indicate his preference.
+	(AM_PROG_LIBTOOL): Use it.
+
+1997-06-30  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltconfig.in: Append /sbin to the path before running ldconfig on
+	Linux.  This helps superusers who haven't set their PATH
+	correctly.  Suggested by Kenneth Albanowski.
+
+	* tests/if.test: New test to make sure that we haven't forgotten to
+	follow an `if' statement with a `test' command.  This should avoid
+	the majority of hard-to-track bugs.
+
+1997-06-29  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in: Change all the `eval "$run ..."' sequences to
+	`$run "eval ..."'.
+
+	Change all `$ln_s ...' sequences to use `(cd /dir && $LN_S ...)'.
+	This is the sequence recommended by the Autoconf manual, and
+	should avoid any problems on older machines.  Eliminate all uses
+	of `cp -p'.  Reported by Akim Demaille.
+
+	(install): Use `test $# -gt 0' instead of `test -n "$1"'.
+
+	* ltconfig.in (LN_S): Add test to see if `ln -s' works.
+
+	* libtool.m4: Increment serial number, and require AC_PROG_LN_S.
+
+1997-06-26  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in (link): Add missing `test' statement.  Reported by
+	Akim Demaille.
+
+1997-06-24  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* libtool.m4 (LD): Consistently use ac_cv_path_ld instead of
+	am_cv_path_ld.  From Tim Pierce.
+
+1997-06-20  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in: Redo two robustness fixes.  Alexandre had the
+	correct approach, but I botched them.
+
+	* ltconfig.in (dynamic_linker): Disable shared libraries on
+	MkLinux unless GNU libc is in use.  Reported by Akim Demaille.
+
+1997-06-19  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in (install): Add a missing `test' command.  Reported
+	by Joel Weber.
+	Miscellaneous fixes to improve robustness.  From Alexandre Oliva.
+
+	* tests/demo-conf.test (CONFIG_SITE): Set to /dev/null, so that the
+	config.site file doesn't mess up our prefix.  Reported by Joel
+	Weber.
+
+	* tests/demo-inst.test: Always run both hell.static and hell.
+
+	* tests/demo-conf.test: Always remove the local config.cache, but run
+	`make distclean' only if the Makefile exists.  Otherwise, the demo
+	directory is not cleaned up if a user uses their own config.cache.
+	Reported by Joel Weber.
+
+1997-06-14  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in (link): Create invalid libtool objects when partial
+	linking if we don't have PIC.  From Jeff Dairiki.
+	(install): Fix bug if libtool object is installed to a file name
+	without directory components.  From Jeff Dairiki.
+
+1997-06-13  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* Makefile.am (demo/configure): Fix up rules to run autoconf.
+	(aclocal.m4): Now we depend on our own libtool.m4.
+
+	* configure.in (AM_PATH_PROG_LD): Use it.
+
+	* libtool.m4 (AM_PATH_PROG_LD): New macro to find the linker used
+	by the C compiler.
+	(AM_PROG_LIBTOOL): Use it.
+
+	* ltmain.sh.in (install, uninstall): Support installing and
+	uninstalling `.lo' files.  From Jeff Dairiki.
+
+1997-06-11  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* Makefile.am (ltconfig, ltmain.sh): Only move if $(srcdir) is not
+	the current directory.  Don't regenerate every time the package is
+	reconfigured.  Reported by Tom Tromey.
+	(MAINTAINERCLEANFILES): Added ltconfig, ltmain.sh, so that
+	$(srcdir) is not messed with during a regular clean.
+
+1997-06-10  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* Makefile.am (ltconfig, ltmain.sh): Be sure to move these files
+	into $(srcdir) once they are created.
+
+	* ltmain.sh.in (link): Disable building static libraries.
+	People should use their favourite AR and RANLIB commands.
+	Disable building old-style objects if `--disable-static' is
+	given.  Suggested by Tom Lees and Stephan Kulow.
+
+1997-06-08  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltconfig.in (host_cpu, host_vendor, host_os): Patch up
+	definitions, to allow for the fact that the host_os may contain
+	hyphens (as in linux-gnu).  From Scott Goehring.
+
+	* ltmain.sh.in (link): Move the `dlname' setting closer to the top
+	of the file.  Suggested by David Mosberger-Tang.
+	Symlink the libtool archive into the `.libs' directory so that it
+	can be found by programs that want to find a library's dlname by
+	searching LD_LIBRARY_PATH.  Reported by David Mosberger-Tang.
+
+1997-06-06  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* Tell people to report bugs to the new libtool mailing list,
+	<bug-libtool@gnu.ai.mit.edu>.
+
+1997-06-05  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltconfig.in (allow_undefined_flag): New variable that implements
+	`-allow-undefined'.
+	(archive_cmds): Enable C++ constructors for FreeBSD 2.2.  From
+	David Nugent.
+
+	* ltmain.sh.in (link): Accept new `-allow-undefined' flag when
+	building libtool libraries.  This tells libtool to allow
+	unresolved symbols to exist in shared libraries.  Basically, this
+	turns off shared libraries on AIX.  Suggested by Ian Lance Taylor.
+
+1997-05-26  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* libtool.m4 (LD): On at least IRIX, many different flags need to
+	be propagated to the linker if they are part of the compiler
+	command line.  Reported by Anthony Green.
+
+1997-05-10  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltconfig.in: Trivial port to FreeBSD 3.  From David Nugent.
+
+1997-04-25  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in (link): Remove all traces of `-whole-archive',
+	`-no-whole-archive', and libtool convenience libraries.  They were
+	more trouble than they're worth.  If these are ever reimplemented,
+	they need more careful attention to make portable.
+
+	* libtool.m4, ltconfig.in: Added a `--disable-static' flag to turn
+	off static library creation.  From Tom Lees (who finally convinced
+	me that it was the Right Thing to do).
+
+1997-04-22  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in (hardcode_runpath_var, runpath_var): Use them, if
+	the linker has no -rpath flag.
+	Quote the values we use to set runpath_var and shlibpath_var.
+	(link): Use libobjlibs for libtool convenience libraries.
+
+	* ltconfig.in (hardcode_runpath_var, runpath_var): Add new
+	variables to describe linkers that honour `LD_RUN_PATH'.
+	(host_cpu, host_os): Use these more specific variables, rather
+	than the full canonical host system name.
+
+	* ltmain.sh.in (dlname): Distinguish between missing
+	`-export-dynamic' and when the library is only statically linked.
+
+1997-04-21  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltconfig.in: Trivial port to OpenBSD by making it an alias for
+	NetBSD.  From Tim Pierce.
+
+1997-04-16  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltconfig.in: Temporary measures to check for a broken collect2
+	program.  Right now, we just see if we're using GCC on AIX 3.
+
+	* tests/hardcode.test: AIX also has arbitrary limits on the line length
+	of input to fgrep(1), so we need to translate NUL characters to
+	newlines in order to properly detect embedded `.libs'.  From Bruno
+	Haible.
+	Also redirect stderr to /dev/null, so that AIX users don't get
+	worried by `fgrep: Maximum line length of 2048 exceeded.'.
+
+1997-04-13  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in (mode): Use `egrep -e' when inferring the operation
+	mode.
+
+1997-04-12  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltconfig.in (linker): Some GNU ld's don't accept `--version',
+	but do accept `-v'.  From Jukka Honkela.
+	(ld_shlibs): AIX lossage may be settling down.  AIX 3.2.5 ld does
+	*not* hardcode direct libraries, but AIX 4.1.[45] ld does.
+
+1997-04-07  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltconfig.in (hardcode_action): Fix silly logic error.  From
+	Bruno Haible.
+
+1997-04-05  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in (install): Relink if hardcode_action is `relink',
+	rather than using complex conditionals based on the other
+	hardcode variables.
+
+	* ltconfig.in (hardcode_action): Set to `relink', not `immediate',
+	if we can only hardcode existing directories.  Rearrange
+	conditionals to make the intent clearer, otherwise this can be one
+	hellish piece of code for the already-dizzy libtool maintainer.
+
+1997-04-02  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* replfunc.m4: Delete from the distribution.  Documentation now
+	describes how to set LTALLOCA and LTLIBOBJS in your own
+	configure.in.
+
+	* ltmain.sh.in (link): Make sure a libtool library only counts as
+	a shared library if its library_names are non-null.
+	Use timestamps for .lo's when PIC is turned off, rather than
+	symlinking to the real object.  This helps invalid mixtures of PIC
+	and non-PIC to fail.
+
+1997-04-01  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* Makefile.am (EXTRA_DIST): Distribute libtool.prj.
+
+	* Shameless plug: Changed source code management system from CVS
+	to PRCS.
+
+	* libtool.scm: Initial Guile implementation of libtool.
+
+	* ltmain.sh.in: An unexpected inconsistency in my whole approach
+	to shared libraries has proven that libtool needs to be completely
+	rewritten if I'm going to give full shared library support for
+	platforms that don't use the GNU C library version 2 (which to my
+	knowledge currently only works on GNU Hurd and Linux/GNU systems).
+	Porting the GNU C library should not be difficult, though.
+
+	Platforms that don't have the dlopen(3) family of functions will
+	need to install GNU DLD version 4 in order to build any kind of
+	libraries at all.  Unfortunately, DLD 4 won't be released for a
+	while, because I maintain it, and I'm too busy working on libtool.
+
+	I'll keep the old ltconfig/ltmain.sh implementation around for as
+	long as I can, and continue applying bug fixes, so that I'll have
+	a reasonable starting point for this new libtool implementation.
+
+	It looks like this implementation will be even more complex than
+	the original (pre-0.7) libtool.  Initial estimates show that it
+	may be up to 3 times slower, and 5 times larger than libtool-0.9.
+	I'll probably have to rewrite it in Guile to get reasonable
+	performance, which will severely limit its portability for a
+	while.
+
+	That will also introduce a bootstrapping issue, since the next
+	release of Guile will use libtool to build shared libraries.  So,
+	if users want to have shared Guile libraries, they will have to
+	configure Guile with `--disable-shared', compile it, install it,
+	then reconfigure Guile with `--enable-shared' and repeat.
+
+	I was hoping to get libtool 1.0 out the door by early April, but
+	now it looks like it will take at least another year before it'll
+	be usable by the public at large.  April fools.  libtool.scm
+	doesn't exist yet, either.
+
+	* ltconfig.in (verify_host): Remove redundant `Transform *-*-linux*
+	to *-*-linux-gnu*'.  From Bruno Haible.
+
+	* tests/hardcode.test: AIX 3 doesn't have strings(1) so we need to do a
+	funny tr and pipe the output to fgrep.  From Bruno Haible.
+
+1997-03-31  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* Makefile.am: Use the new AUTOMAKE and ACLOCAL variables.
+
+	* ltmain.sh.in (link): Only fail if a convenience library doesn't
+	exist, and the user specified -whole-archive.
+	Fix shell quoting that was breaking @OUTPUT@ substitution.
+
+1997-03-28  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in (link): Use the hardcode_libdir_separator.
+	Convenience libraries are libtool objects if we're not building
+	libtool libs.
+
+	* ltconfig.in (hardcode_libdir_separator): Added in case the
+	linker only honours the last of the -rpath flags (but it can
+	contain multiple colon-separated directories), such as on OSF/1.
+	Reported by Carl D. Roth.
+
+	* ltmain.sh.in (link): Set the dlname if -export-dynamic is given.
+	(install, uninstall): Handle the dlname file separately.
+
+	* ltconfig.in (export_dynamic_flag): Added to allow programs to
+	use reflexive dlopens.
+
+	* ltmain.sh.in: Include the mode name in any help messages.
+	(dlname): New mode to give the name to be used with dlopen(3).
+
+	* ltconfig.in (AR): Allow AR to be set by the user, and export it
+	to ltmain.sh.
+
+	* ltmain.sh.in: Remove broken profiled library support.
+	Added `-whole-archive' and `-no-whole-archive' to manipulate
+	convenience libraries.
+
+1997-03-27  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in (link): Allow the creation of static convenience
+	libraries made of libtool objects.  Suggested by David
+	Mosberger-Tang.
+
+1997-03-25  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltconfig.in: On AIX, libtool also needs to look for `B' symbols
+	in nm output.  These are global variable definitions.
+
+	* ltmain.sh.in: Linking with -static should link against the
+	linklib if old_library is empty (like it is on AIX).
+
+	* ltconfig.in: Change the order of OS detection, so that
+	linux-gnu* is detected before gnu*.
+
+	* Makefile.am (libtool): Use the correct CC, RANLIB, LD, when
+	generating libtool.  From Carl D. Roth.
+
+	* configure.in: Find out the user-supplied CC, LD, RANLIB.  From
+	Carl D. Roth.
+
+1997-03-24  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in: Linking with -static should link against the old
+	library, not linklib.
+
+	* README-automake: Updated to point to Automake 1.1m.
+
+1997-03-15  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* demo/main.c: Use it.
+
+	* demo/foo.h: Declare it.
+
+	* demo/foo.c: Added definition of `nothing' so that we have an
+	global variable definition, as well as functions.
+
+1997-03-12  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltconfig.in: Make sure either enable_shared or enable_static is
+	configured.  Reported by Tom Tromey.
+
+	* ltmain.sh.in: Bomb out if no library types are configured.
+
+1997-02-22  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltconfig.in, ltmain.sh.in (hardcode_libdir_flag_spec): Renamed
+	from `hardcode_libdir_flag'.
+	(library_names_spec): Renamed from `lib_names'.
+
+	* ltconfig.in, ltmain.sh.in (hardcode_action): Change value from
+	`rpath' to `immediate'.
+
+	* replfunc.m4: Add AM_FUNC_ALLOCA, AM_FUNC_MEMCMP, and
+	AM_STRUCT_ST_BLOCKS.
+
+1997-02-18  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltconfig.in: Transform *-*-linux* to *-*-linux-gnu* to support
+	old-style config.guess scripts.
+
+1997-02-17  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in: Create objdir *before* linking a program into it.
+
+1997-02-12  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltconfig.in: Any ld --version that returns GNU is probably a GNU
+	ld.  From Marcus Daniels.
+
+	* libtool.m4: Added AM_REPLACE_FUNCS.
+
+1997-02-11  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltconfig.in: Trivial port to *-*-osf4.  From Bruno Haible.
+
+1997-02-10  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltconfig.in: AIX 3 and 4 ld only hardcodes LIBPATH if -L is not
+	specified.  This behaviour is the same with both xlc and gcc.
+
+1997-02-07  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* doc/platforms.texi: Yaay!  We found a workaround for HP-UX
+	/bin/sh buffer overflows.  From Eric Backus.
+
+1997-02-03  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* Release 0.9.
+
+	* PLATFORMS, doc/platforms.texi, Makefile.am, doc/Makefile.am:
+	Move PLATFORMS to doc/platforms.texi.
+
+	* ltmain.sh.in (link): Use hardcode_libdir_flag to get a library
+	directory into the resulting binary.
+	Use hardcode_action, and make many simplifying changes to have
+	compilation and finalization be consistent with each other.
+
+	* ltconfig.in: Not so amazing!  It's AIX cc that hardcodes direct
+	libraries... gcc doesn't, though.
+	(link_rpath_flag): Change link_rpath_flag to be
+	hardcode_libdir_flag.
+	(hardcode_action): New variable to simplify ltmain.sh.
+
+	* tests/Makefile.am (TESTS): Do the full make sequence with
+	--disable-shared, then without.
+
+	* tests/demo-sttc.test: Configure the demo directory with
+	--disable-shared.
+
+1997-01-29  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in: Change to take advantage of linkers that don't
+	hardcode direct libraries.
+
+	* ltconfig.in: Amazing!  AIX 3 linker doesn't hardcode direct
+	libraries, which makes it less buggy than AIX 4.  Reported by Mark
+	Kettenis.
+
+	* demo/configure.in: Check for the math library.
+
+	* demo/foo.c (foo): Change to use the `cos' function, so that we
+	need to link against another library.
+
+	* tests/hardcode.test: Rewrite to use fgrep on output from ``strings
+	-a'' if using fgrep directly on the binary files fails.  From Mark
+	Kettenis.
+
+1997-01-28  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in (link): Export the PATH variable in order to find
+	the program, rather than giving a full path.  This helps give the
+	program a less confusing value for argv[0].
+
+	* tests/hardcode.test: Make sure that ../demo/libhello.la really is a
+	shared library before running hardcoding tests.
+
+1997-01-26  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* Release 0.8.
+
+1997-01-24  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* Makefile.am (demo_distfiles): Add demo/acinclude.m4 to the
+	distribution.
+
+1997-01-22  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* libtool.m4: For IRIX 6, ld needs -n32 if cc uses it.  Reported
+	by Bruno Haible.
+
+	* ltconfig.in: IRIX ld does not hardcode direct libraries.
+	Reported by Bruno Haible.
+
+1997-01-18  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltconfig.in, ltmain.sh.in (hardcode_shlibpath_var): Allow new
+	value, `unsupported', since most linkers do not allow you to use
+	shlibpath_var for initial linking.
+
+	* ltconfig.in: Lots of bug fixes from Bruno Haible.  Set wl on
+	OSF/1, fix definitions of hardcode_* variables.
+	(archive_cmds): Fix not to use +h on HP-UX 9.x.  Reported by Bruno
+	Haible.
+
+	* tests/demo-conf.test: Use the CONFIG_SHELL environment variable when
+	running configure in the demo directory.  From Bruno Haible.
+
+	* tests/Makefile.am (clean-local): Make distclean in the demo directory,
+	so that ``make clean; env CC=cc make check'' works as one would
+	expect.
+
+	* tests/demo-make.test: Fix typo (use $make instead of make).  Reported
+	by Akim Demaille.
+
+1997-01-17  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* libtoolize.in: Handle explicit AC_CONFIG_AUX_DIR settings.
+	Suggested by Akim Demaille.
+
+	* libtool.m4: Change ltconfig line to use $CONFIG_SHELL when it is
+	specified.  Reported by Bruno Haible.
+
+1997-01-16  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* demo/Makefile.am (hc-direct): Do better searching for the proper
+	name to do a direct link.
+	(hc-libpath): Make allowances if shlibpath_var cannot be used
+	to find libraries at link time, such as on AIX.
+
+	* Makefile.am (demo_distfiles): Remove ansi2knr.1 and ansi2knr.c.
+
+	* demo/foo.c, demo/hello.c, demo/main.c: Change ANSI prototypes to
+	KNR form, for better portability, and less ansi2knr hair.
+
+	* demo/configure.in: Remove AM_FUNC_PROTOTYPES.
+
+	* demo/Makefile.am: Remove ansi2knr from the AUTOMAKE_OPTIONS.
+
+	* demo/ansi2knr.1, demo/ansi2knr.c: Removed these files.
+
+	* ltmain.sh.in: Use 1>&2 consistently to direct errors and
+	warnings to stderr.
+	(compile): Fix missing single quote.
+
+	* ltconfig.in (hardcode_direct): On Solaris at least, using
+	DIR/libNAME.so does not hardcode DIR, so introduce a new hardcode
+	variable to reflect that.
+
+	* ltmain.sh.in (link): If linking with $link_static_flag fails,
+	then retry without it, but still use the .a versions of
+	uninstalled libtool archives.
+
+	* tests/tlibtool: Rewrote to grab all the settings from the generated
+	libtool script.
+
+	* tests/hardcode.test: Make allowances if shlibpath_var cannot be used
+	to find libraries at link time, such as on AIX.
+
+1997-01-15  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in (link): Eval $link_static_flag.  Reported by Bruno
+	Haible.
+
+	* PLATFORMS: Add to distribution.  Suggested by Bruno Haible.
+
+1997-01-14  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* tests/demo-conf.test, tests/demo-inst.test, tests/demo-unst.test, 
+	tests/hardcode.test:
+	Use $make instead of make.
+
+	* tests/defs (make): Add definition of $make that uses the $MAKE
+	environment variable, if set.  Suggested by Bruno Haible.
+
+	* tests/demo-unst.test (leftovers): Change the find command to ignore
+	files beginning with a dot, as egrep -v doesn't seem to do the
+	trick.  Reported by Bruno Haible.
+
+1997-01-13  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltconfig.in: Add support for SCO OpenServer 5.x.  From
+	Christopher Olsen.
+
+	(can_build_shared): Initialize at the top of the file, so that
+	shared libraries aren't built on platforms that don't support
+	them.
+
+	* tests/hardcode.test: Added a test to make sure that libtool's idea of
+	hardcoding system linkers is correct.
+
+1997-01-11  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in, ltconfig.in, libtoolize.in, doc/libtool.texi:
+	Update the copyright completion years.
+
+1997-01-08  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltconfig.in: Port to IRIX 5.3, 6.2.
+
+1997-01-06  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltconfig.in: HP-UX 9 support is the same as HP-UX 10, so the
+	port is trivial.
+
+	* libtoolize.in: Add --dry-run option, -n for short.
+
+1997-01-03  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in (link): On at least SunOS, /bin/sh doesn't
+	understand "export something=val".  From Bruno Haible.
+
+	* tests/Makefile.am (distclean-local): Remove all files that the tests
+	may have created.  Reported by Bruno Haible.
+
+	* For all tests, discover srcdir when running from the command
+	line.
+
+	* tests/demo-unst.test: Don't fail if make uninstall doesn't delete
+	files beginning with a dot, since spurious .nfsXXX files may be
+	present when running NFS.  Reported by Bruno Haible.
+
+1997-01-02  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in (compile): Recognize valid source file suffixes for
+	Fortran and C++.
+
+	* tests/suffix.test: New test to guarantee that libtool compile
+	recognizes valid source file suffices.
+
+1996-12-17  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in (link): Don't allow *._o and *.l_o to be valid
+	object type suffixes, in spite of Automake's current ansi2knr
+	implementation.  Not all compilers allow non-`.o' suffixes.
+
+1996-12-16  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in (link): Delete the `libtool' version type.
+
+1996-12-12  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltconfig.in: Use the full autoconf syntax when checking for GNU
+	C.  Delete library stripping program, until we have a correct
+	test.
+
+1996-12-11  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltconfig.in: On AIX 3, use /usr/ucb/nm, not /ucb/nm.  From Mark
+	Kettenis.
+
+1996-12-09  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	Reported by Charles Kerr:
+	* doc/libtool.texi (Creating Object Files): Doc fix independant ->
+	independent.
+
+	* ltconfig.in (ld_shlibs): SunOS 4 doesn't support shared library
+	dependencies.
+
+1996-12-08  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* Release 0.7.
+
+	* Makefile.am (EXTRA_DIST): Add README-automake to the
+	distribution.
+
+	* ltmain.sh.in (link): When linking libtool libraries, use
+	standard objects if they are PIC.  This prevents spurious warnings
+	about invalid suffixes on AIX.
+
+	* demo/Makefile.am: Rename libhell to libhello, so that we're not
+	quite as offensive.
+
+	* ltconfig.in: Remove unnecessary host validity checking.
+
+	* ltmain.sh.in: Don't force people to use libNAME.la: SOMETHING.la
+	is good enough (for consistency with *.a handling).
+
+	* tests/demo.test: Break up into demo-conf.test, demo-make.test,
+	demo-exec.test, demo-inst.test, and demo-unst.test, so that passes
+	and failures are reported more quickly.
+
+	* tests/link-2.test: Test to make sure that .lo files don't get built
+	directly into programs.
+
+1996-12-07  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in (link): Accept files ending in .a as standard
+	object files.  Reported by Ulrich Drepper.
+	Remove support for creating profiled libraries (for now).
+	Transform all library objects into standard objects when linking a
+	program.
+
+	* ltconfig.in (thisdir): How embarrassing!  An error in the regexp
+	for finding the directory component of the script path.
+
+	* tests/tlibtool: A typically-configured libtool script, that uses
+	../ltmain.sh.in for its backend.
+
+	* tests/link.test: Make sure that it is legal to link against .a files.
+
+1996-12-05  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in (compile): Support `.S' (preprocessed assembler)
+	files.  Reported by Anthony Green.
+
+	* libtoolize.in: Give clearer instrutions for how to update
+	aclocal.m4.
+
+	* ltconfig.in, ltmain.sh.in (link): Add support for creating
+	reloadable objects.
+
+1996-12-04  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in (install): Fix passing -n flag to `libtool
+	--finish'.
+	(compile): Compile `.lo' and `.o' objects at the same time so that
+	non-PIC objects (if they are available) can be used for linking
+	into programs and creating static archives.  Suggested by Ulrich
+	Drepper.
+
+1996-12-03  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in (link): Give the full path to the libtool library
+	when sourcing it.
+
+	* ltconfig.in (old_striplib): Do a configuration test to determine
+	if old-style libraries actually can be stripped or not.
+
+1996-12-02  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* tests/demo.test: Try compiling the ../demo subdirectory, with no
+	special options.
+
+	* test-e.test: Check that we haven't used `test -e' anywhere in
+	our portable shell scripts.
+
+1996-12-02  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltconfig.in: Delete reference to ABOUT-LIBS.
+
+	* tests: Added new subdirectory.
+
+	* doc/libtool.texi: Doc fixes, and finished up the Configuring
+	chapter.
+
+	* ltmain.sh.in (link): Allow *._o and *.l_o to be valid object
+	file suffixes, for Automake's ansi2knr implementation.
+	New option -version-info replaces -version-file.
+
+	[help]: Give a pointer to mode-specific help when appropriate.
+
+	* ltconfig.in: Changed messages to correspond to AM_PROG_CC_STDC.
+
+	* demo: Also test Automake's ansi2knr support.
+
+1996-11-19  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltconfig.in: Bug fixes for AIX 4, and for static platforms.
+
+	* ltmain.sh.in (install): Fix for loops over arguments.
+	Need to quote ${IFS= } -> "${IFS= }".
+	(link): Fix soname_spec bug.  Create objdir whether or not we have
+	shared libraries.
+
+	* ltconfig.in: Check for library stripping program.
+	Use test -f instead of test -e.
+
+1996-11-18  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltconfig.in: Don't run the RANLIB test unless RANLIB wasn't
+	set.
+	Be verbose about the environment variables we were configured
+	with.
+
+	* ltmain.sh.in (objdir): change to .libs.
+
+1996-11-16  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in (install): Just plunge ahead with the
+	installation... don't try to enforce dependencies.
+
+1996-11-15  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh.in: Fix up $libdir to be $dest in install mode.
+
+1996-11-10  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* ltmain.sh: Finished rewrite of compile, link, and install
+	modes.
+
+	* New ChangeLog file for libtool-0.7, since I've totally rewritten
+	libtool.
+
+1996-03-15  Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+
+	* For historical reasons: this is when I started writing libtool.

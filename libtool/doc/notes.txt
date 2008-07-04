@@ -1,0 +1,60 @@
+   * Note that Sun C++ compiler versions before 5.6 may need some
+     special setup to link properly against shared versions of the C++
+     standard libraries.  See
+     `http://lists.gnu.org/archive/html/libtool/2005-08/msg00088.html'
+     for more information.
+
+   * On AIX there are two different styles of shared linking, one in
+     which symbols are bound at link-time and one in which symbols are
+     bound at runtime only, similar to ELF.  In case of doubt use
+     `LDFLAGS=-Wl,-brtl' for the latter style.
+
+   * On AIX, native tools are to be preferred over binutils; especially
+     for C++ code, if using the AIX Toolbox GCC 4.0 and binutils,
+     configure with `AR=/usr/bin/ar LD=/usr/bin/ld NM='/usr/bin/nm -B''.
+
+   * On AIX, the `/bin/sh' is very slow due to its inefficient handling
+     of here-documents.  A modern shell is preferable:
+          CONFIG_SHELL=/bin/bash; export $CONFIG_SHELL
+          $CONFIG_SHELL ./configure [...]
+
+   * Note in some cases you might need to put ABI-changing compiler
+     flags into the compiler name.  For example, use of
+            configure CC='gcc -m32'
+     rather than
+            configure CC=gcc CFLAGS=-m32 LDFLAGS=-m32
+     might help with this Libtool release.
+
+   * The default shell on UNICOS 9, a ksh 88e variant, is too buggy to
+     correctly execute the libtool script.  Users are advised to
+     install a modern shell such as GNU bash.
+
+   * Some HP-UX `sed' programs are horribly broken, and cannot handle
+     libtool's requirements, so users may report unusual problems.
+     There is no workaround except to install a working `sed' (such as
+     GNU sed) on these systems.
+
+   * The vendor-distributed NCR MP-RAS `cc' programs emits copyright on
+     standard error that confuse tests on size of `conftest.err'.  The
+     workaround is to specify `CC' when run configure with `CC='cc
+     -Hnocopyr''.
+
+   * Any earlier DG/UX system with ELF executables, such as R3.10 or
+     R4.10, is also likely to work, but hasn't been explicitly tested.
+
+   * On Reliant Unix libtool has only been tested with the Siemens
+     C-compiler and an old version of `gcc' provided by Marco Walther.
+
+   * `libtool.m4', `ltdl.m4' and the `configure.ac' files are marked to
+     use autoconf-mode, which is distributed with GNU Emacs 21,
+     Autoconf itself, and all recent releases of XEmacs.
+
+   * When building on some linux systems for multilib targets `libtool'
+     sometimes guesses the wrong paths that the linker and dynamic
+     linker search by default. If this occurs, you may override
+     libtool's guesses at `configure' time by setting the `autoconf'
+     cache variables `lt_cv_sys_lib_search_path_spec' and
+     `lt_cv_sys_lib_dlsearch_path_spec' respectively to the correct
+     search paths.
+
+

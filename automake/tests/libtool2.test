@@ -1,0 +1,56 @@
+#! /bin/sh
+# Copyright (C) 2001, 2002  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Make sure libtool clean targets exist.
+# Report from Eric Magnien.
+required=libtoolize
+. ./defs || exit 1
+
+cat > configure.in << 'END'
+AC_INIT
+AM_INIT_AUTOMAKE(mypackage,0.1)
+
+AC_PROG_CC
+AC_PROG_LIBTOOL
+
+AC_CONFIG_FILES([
+  sub/Makefile
+  Makefile
+])
+AC_OUTPUT
+END
+
+cat > Makefile.am << 'END'
+SUBDIR = subdir
+lib_LTLIBRARIES = libfoo.la
+libfoo_la_SOURCES = foo.c
+END
+
+mkdir sub
+cat > sub/Makefile.am << 'END'
+lib_LTLIBRARIES = libfoo.la
+libfoo_la_SOURCES = foo.c
+END
+
+$ACLOCAL || exit 1
+: > ltmain.sh
+$AUTOMAKE -a || exit 1
+
+grep 'rm -f .*\.lo' sub/Makefile.in

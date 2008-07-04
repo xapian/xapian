@@ -1,0 +1,71 @@
+#!/bin/sh
+# Copyright (C) 2005  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Check conditional variable ordering.
+# Report from Ed Hartnett.
+
+. ./defs
+
+set -e
+
+cat >>configure.in <<'EOF'
+AM_CONDITIONAL([CASE_A], :)
+AM_CONDITIONAL([CASE_B], :)
+AC_OUTPUT
+EOF
+
+cat >>Makefile.am <<'EOF'
+SUBDIRS = a
+if CASE_A
+SUBDIRS += b
+endif
+SUBDIRS += c
+if CASE_A
+SUBDIRS += d
+if CASE_B
+SUBDIRS += e
+endif
+SUBDIRS += f
+endif
+SUBDIRS += g
+if CASE_B
+SUBDIRS += h
+endif
+if CASE_B
+SUBDIRS += iXYZ
+SUBDIRS += jZYX
+endif
+print:
+	@echo BEG: $(SUBDIRS) :END
+EOF
+
+mkdir a b c d e f g h iXYZ jZYX
+
+$ACLOCAL
+$AUTOCONF
+$AUTOMAKE
+
+./configure
+$MAKE print >stdout
+cat stdout
+# Check good ordering
+grep 'BEG: a b c d e f g h iXYZ jZYX :END' stdout
+# Make sure no extra variable was created for the last 3 items.
+grep 'append.*=.* h iXYZ jZYX' Makefile

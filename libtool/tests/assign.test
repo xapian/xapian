@@ -1,0 +1,20 @@
+#! /bin/sh
+# assign.test - check that we don't put break or continue on the same
+#               line as an assignment
+
+# Test script header.
+need_prefix=no
+if test -z "$srcdir"; then
+  srcdir=`echo "$0" | sed 's%/[^/]*$%%'`
+  test "$srcdir" = "$0" && srcdir=.
+  test "${VERBOSE+set}" != "set" && VERBOSE=yes
+fi
+. $srcdir/defs || exit 1
+
+# Check that test -e isn't used in our portable shell scripts.
+if $EGREP -n '[^	 ]=[^	 ].*(break|continue)' $srcdir/../ltmain.sh; then
+  echo "cannot use \`break' or \`continue' on the same line as an assignment"
+  exit 1
+fi
+
+exit 0

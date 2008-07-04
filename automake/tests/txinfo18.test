@@ -1,0 +1,69 @@
+#! /bin/sh
+# Copyright (C) 2002  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Make sure we clean index files, even if they are not used at the top-level.
+# Only *new* indexes need to be declared at the top-level.
+# PR/375.
+
+required='makeinfo tex'
+. ./defs || exit 1
+
+set -e
+
+echo AC_OUTPUT >> configure.in
+
+cat > Makefile.am << 'END'
+info_TEXINFOS = main.texi
+main_TEXINFOS = sub.texi
+END
+
+cat > main.texi << 'END'
+\input texinfo
+@setfilename main.info
+@settitle main
+@defindex au
+@defindex sa
+@defindex sb
+@synindex sa sb
+@node Top
+Hello walls.
+@include sub.texi
+@bye
+END
+
+cat > sub.texi << 'END'
+@cindex foo
+foo
+@pindex bar
+bar
+@auindex baz
+baz
+@saindex sa
+sa
+@sbindex sb
+sb
+END
+
+$ACLOCAL
+$AUTOMAKE --add-missing
+$AUTOCONF
+
+./configure
+$MAKE distcheck

@@ -1,0 +1,58 @@
+#! /bin/sh
+# pdemo-inst.test - try installing from the ../pdemo subdirectory
+
+# Test script header.
+need_prefix=yes
+if test -z "$srcdir"; then
+  srcdir=`echo "$0" | sed 's%/[^/]*$%%'`
+  test "$srcdir" = "$0" && srcdir=.
+  test "${VERBOSE+set}" != "set" && VERBOSE=yes
+fi
+. $srcdir/defs || exit 1
+
+# Check that things are built.
+if test -f ../pdemo/hell$EXEEXT; then :
+else
+  echo "You must run pdemo-make.test before $0" 1>&2
+  exit 77
+fi
+
+# Change to our build directory.
+cd ../pdemo || exit 1
+
+echo "= Running $make install in ../pdemo"
+$make install || exit 1
+
+echo "= Executing installed programs"
+status=0
+if $prefix/bin/hell_static | grep 'Welcome to GNU Hell'; then :
+else
+  echo "$0: cannot execute $prefix/bin/hell_static" 1>&2
+  status=1
+fi
+
+if $prefix/bin/hell | grep 'Welcome to GNU Hell'; then :
+else
+  echo "$0: cannot execute $prefix/bin/hell" 1>&2
+
+  # Simple check to see if they are superuser.
+  if test -w /; then :
+  else
+    echo "You may need to run $0 as the superuser."
+  fi
+  status=1
+fi
+
+if $prefix/bin/helldl | $EGREP -e '(Welcome to .*GNU Hell|unsupported)'; then :
+else
+  echo "$0: cannot execute $prefix/bin/helldl" 1>&2
+
+  # Simple check to see if they are superuser.
+  if test -w /; then :
+  else
+    echo "You may need to run $0 as the superuser."
+  fi
+  status=1
+fi
+
+exit $status

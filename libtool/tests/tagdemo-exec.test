@@ -1,0 +1,28 @@
+#! /bin/sh
+# tagdemo-exec.test - check that programs in the ../tagdemo subdirectory are viable
+
+# Test script header.
+need_prefix=no
+if test -z "$srcdir"; then
+  srcdir=`echo "$0" | sed 's%/[^/]*$%%'`
+  test "$srcdir" = "$0" && srcdir=.
+  test "${VERBOSE+set}" != "set" && VERBOSE=yes
+fi
+. $srcdir/defs || exit 1
+
+if test -f ../tagdemo/tagdemo$EXEEXT; then :
+else
+  echo "You must run tagdemo-make.test before running $0" 1>&2
+  exit 77
+fi
+
+# Check to see if the programs really run.
+echo "Executing uninstalled programs in ../tagdemo"
+
+if ../tagdemo/tagdemo; then :
+else
+  echo "$0: cannot execute ../tagdemo/tagdemo" 1>&2
+  status=1
+fi
+
+exit $status

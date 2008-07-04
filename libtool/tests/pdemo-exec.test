@@ -1,0 +1,41 @@
+#! /bin/sh
+# pdemo-exec.test - check that programs in the ../pdemo subdirectory are viable
+
+# Test script header.
+need_prefix=no
+if test -z "$srcdir"; then
+  srcdir=`echo "$0" | sed 's%/[^/]*$%%'`
+  test "$srcdir" = "$0" && srcdir=.
+  test "${VERBOSE+set}" != "set" && VERBOSE=yes
+fi
+. $srcdir/defs || exit 1
+
+if test -f ../pdemo/hell$EXEEXT; then :
+else
+  echo "You must run pdemo-make.test before running $0" 1>&2
+  exit 77
+fi
+
+# Check to see if the programs really run.
+echo "Executing uninstalled programs in ../pdemo"
+
+status=0
+if ../pdemo/hell_static| grep 'Welcome to GNU Hell'; then :
+else
+  echo "$0: cannot execute ../pdemo/hell_static" 1>&2
+  status=1
+fi
+
+if ../pdemo/hell | grep 'Welcome to GNU Hell'; then :
+else
+  echo "$0: cannot execute ../pdemo/hell" 1>&2
+  status=1
+fi
+
+if ../pdemo/helldl | $EGREP -e '(Welcome to .*GNU Hell|unsupported)'; then :
+else
+  echo "$0: cannot execute ../pdemo/helldl" 1>&2
+  status=1
+fi
+
+exit $status

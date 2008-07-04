@@ -1,0 +1,87 @@
+#! /bin/sh
+# Copyright (C) 2002  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Check that Automake warns about variables containing spaces
+# and other non-POSIX characters.
+
+. ./defs || exit 1
+
+set -e
+
+cat >Makefile.am <<'EOF'
+L01 = $(shell echo *)
+L02 = $$(not an error)
+L03 = $$(this is)$${ok too}
+L04 = $(nextvariableisbad)$(addsuffix .a, $(A))
+L05 = "$(bad boy)"
+L06 = $(this:is= ok)
+L07 = ${three errors}${on this} $(long line)
+L08$(o u c h): $(wildcard *.c)
+	${another error}
+	echo $${ok-this is}
+L11: $(thisis) $(ok)
+	${here}
+EOF
+
+$ACLOCAL
+# Make sure this warning is print in the `portability' category.
+$AUTOMAKE --warnings=no-error,none,portability 2>stderr
+cat stderr
+
+# Lines number are printed in error message.
+# Use them to make sure errors are diagnosed against the right lines.
+
+# No error expected for these lines.
+grep 1: stderr
+grep 2: stderr && exit 1
+grep 3: stderr && exit 1
+grep 4: stderr
+grep 5: stderr
+grep 6: stderr && exit 1
+grep 7: stderr
+grep 8: stderr
+grep 9: stderr
+grep 10: stderr && exit 1
+grep 11: stderr && exit 1
+grep 12: stderr && exit 1
+
+# Now check some individual values.
+grep 'shell echo' stderr
+grep 'nextvariableisbad' stderr && exit 1
+grep 'addsuffix' stderr
+grep 'bad boy' stderr
+grep 'ok' stderr && exit 1
+grep 'three errors' stderr
+grep 'on this' stderr
+grep 'long line' stderr
+grep 'o u c h' stderr
+grep 'wildcard' stderr
+grep 'another error' stderr
+grep 'thisis' stderr && exit 1
+grep 'here' stderr && exit 1
+
+# None of these errors be diagnosed with -Wno-portability
+$AUTOMAKE -Wno-portability
+
+# Likewise if we add this in the Makefile.am
+# (although this makes some difference internally: AUTOMAKE_OPTIONS is
+# processed far later).
+echo 'AUTOMAKE_OPTIONS = -Wno-portability' >> Makefile.am
+$AUTOMAKE

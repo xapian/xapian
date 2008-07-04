@@ -1,0 +1,27 @@
+#! /bin/sh
+# nomode.test - check that we can actually get help
+
+# Test script header.
+need_prefix=no
+if test -z "$srcdir"; then
+  srcdir=`echo "$0" | sed 's%/[^/]*$%%'`
+  test "$srcdir" = "$0" && srcdir=.
+  test "${VERBOSE+set}" != "set" && VERBOSE=yes
+fi
+. $srcdir/defs || exit 1
+
+status=0
+if $libtool --help 2>&1 | grep '^Usage:' >/dev/null; then :
+else
+  echo "cannot get top-level help"
+  status=1
+fi
+
+# The emoticon below works around a nasty bug in Ultrix /bin/sh
+if ($libtool 2>&1; :) | grep 'you must specify a MODE' >/dev/null; then :
+else
+  echo "invalid error when no mode is specified"
+  status=1
+fi
+
+exit $status

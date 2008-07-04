@@ -1,0 +1,2211 @@
+2000-12-29  Derek Price  <derek.price@openavenue.com>
+
+	* automake.in (handle_dependencies): Switched the DEP_FILES
+	definition to be conditional on @AMDEP@.
+
+2001-02-03  Ville Laurikari  <vlaurika@hutcs.cs.hut.fi>
+
+	* depcomp (aix): New side-effect dependency tracking mode, for
+	the C for AIX compiler.
+	* m4/depend.m4 (AM_DEPENDENCIES): Recreate `conftest.c' and
+	`conftest.h' for each test.
+
+2001-02-03  Tom Tromey  <tromey@redhat.com>
+
+	* automake.texi (Dist): Updated to mention caveat of putting
+	directory in EXTRA_DIST and also providing a nice example of
+	removing the CVS dir.
+	From Ganesan Rajagopal.
+
+	* m4/depend.m4 (depcpp): Run tests in a subdir.  Fixes report from
+	Bob Proulx.
+
+	* automake.in (scan_one_autoconf_file): Disable warning about
+	AM_PROG_LIBTOOL.
+
+	* automake.in (handle_configure): Don't modify variable which
+	aliases list element.  Don't push @inputs onto the dist list.
+	Fixes colon7.test.
+	(initialize_per_input) [dist_dirs]: New variable.
+	(handle_dist_worker): Use global dist_dirs.
+	(handle_configure): Set dist_dirs entries at toplevel.
+
+2001-02-02  Gordon Sadler  <gbsadler1@lcisp.com>
+
+	* automake.texi (Java Support): Added index, @section.
+
+2001-02-02  Pavel Roskin  <proski@gnu.org>
+
+	* automake.in (scan_autoconf_traces): Restore trace messages.
+
+	* automake.in (handle_aclocal_m4): Fix stripping of the initial
+	"./" from the dependencies of aclocal.m4.
+	Reported by Ralf Corsepius.
+
+2001-02-01  Pavel Roskin  <proski@gnu.org>
+
+	* aclocal.in: Rename "verbosity" to "verbose". Always prepend
+	"aclocal: " to the verbose output.
+
+	* automake.in: Remove all debugging messages.
+
+2001-01-31  Akim Demaille  <akim@epita.fr>
+
+	* automake.in (add_depend2): Quote properly $obj and $source.
+
+2001-01-31  Akim Demaille  <akim@epita.fr>
+
+	* depend2.am: Instead of replacing @PFX@ in $(@PFX@COMPILE), and
+	then replacing `$(@PFX@COMPILE)' for the files that need some
+	special flags, use only @COMPILE@.  Similarly for @LTCOMPILE@.
+	Try to document this file.
+	* automake.in (add_depend2): Adjust to these changes.
+
+2001-01-31  Akim Demaille  <akim@epita.fr>
+
+	* automake.in (%factored_dependencies): New.
+	(file_contents): Use it.
+	(handle_phony): Rename as...
+	(handle_factored_dependencies): this.
+	* subdirs.am: No need for convolved syntax to declare .PHONY.
+
+2001-01-31  Akim Demaille  <akim@epita.fr>
+
+	* automake.in: maintainer-check fixes.
+
+2001-01-31  Akim Demaille  <akim@epita.fr>
+
+	* automake.in (file_contents): Rewrite: instead of trying to parse
+	it line by line, first swallow it completely into $CONTENTS,
+	*then*, parse it *paragraph* by paragraph.
+
+2001-01-30  Akim Demaille  <akim@epita.fr>
+
+	* automake.in (file_contents): Remove.
+	(file_contents_with_transform): Swap the order of the arguments,
+	and rename as...
+	(file_contents): this.
+	Adjust all uses.
+
+2001-01-30  Tom Tromey  <tromey@redhat.com>
+
+	* automake.in (scan_one_autoconf_file): Don't mention
+	omit_dependencies.
+
+2001-01-29  Akim Demaille  <akim@epita.fr>
+
+	* automake.in (&scan_autoconf_config_files): Extract from
+	&scan_one_autoconf_file.
+	(&scan_one_autoconf_file): Use it.
+	(&scan_autoconf_traces): New.
+	($scan_autoconf_files): Use it.
+
+2001-01-29  Akim Demaille  <akim@epita.fr>
+
+	* texinfos.am, tags.am, subdirs.am, multilib.am, mans.am: Add a
+	.PHONY target.
+	* automake.in (handle_texinfo, handle_man_pages, handle_multilib)
+	(handle_etags, handle_subdirs): Don't push into @phony.
+
+2001-01-29  Akim Demaille  <akim@epita.fr>
+
+	* automake.in (scan_one_autoconf_file): Correctly recognize
+	configure.ac.
+
+2001-01-29  Akim Demaille  <akim@epita.fr>
+
+	* automake.in (handle_tests_dejagnu): New, extracted from...
+	(handle_tests): here.  Use `.PHONY:'.
+
+2001-01-29  Akim Demaille  <akim@epita.fr>
+
+	* automake.in (handle_phony): Sort.
+	(file_contents_with_transform): Catch `.PHONY:'.
+	(handle_tests): Instead dumping the hard coded target check-TESTS
+	and registering its .PHONYsm, get them from...
+	* check.am: here, new file.
+
+2001-01-29  Akim Demaille  <akim@epita.fr>
+
+	* automake.in (add_depend2): Use &transform.
+
+2001-01-29  Akim Demaille  <akim@epita.fr>
+
+	* automake.in (handle_tags): Use &transform.
+	(am_error, am_line_error, am_conf_error, read_am_file): Use
+	directly arrays in strings, no need for &join.
+	Require Perl 5.
+	* Makefile.am (maintainer-check): Use grep -w when looking for
+	words.
+
+2001-01-29  Akim Demaille  <akim@epita.fr>
+
+	* automake.in (prog_error): New.
+	Spread its use.
+
+2001-01-29  Akim Demaille  <akim@epita.fr>
+
+	* automake.in (handle_single_transform_list): if (@list) { foreach
+	(@list) ...} can be written as a simple `foreach' loop.
+
+2001-01-29  Akim Demaille  <akim@epita.fr>
+
+	* automake.in (define_standard_variables): Use &transform instead
+	of build_rx.
+
+2001-01-29  Akim Demaille  <akim@epita.fr>
+
+	* automake.in (handle_texinfo): Use the new $texinfodir instead of
+	the removed $texinfo_tex.
+
+2001-01-29  Akim Demaille  <akim@epita.fr>
+
+	* automake.in (handle_libraries, handle_ltlibraries): Use
+	&transform.
+
+2001-01-29  Akim Demaille  <akim@epita.fr>
+
+	* automake.in (handle_programs) <xexe>: Remove, replaced by
+	`exeext'.
+	Use it, and &transform.
+
+2001-01-29  Akim Demaille  <akim@epita.fr>
+
+	* automake.in (get_object_extension) <$default_includes>: New.
+	Use it and &transform.
+
+2001-01-28  Tom Tromey  <tromey@redhat.com>
+
+	* automake.in (variable_value_as_list_worker): Handle entries in
+	%am_var_defs.  Fixes listval.test.
+
+2001-01-26  Akim Demaille  <akim@epita.fr>
+
+	* automake.in (handle_texinfo): Don't use $conf_pat, just
+	$conf_dir to transform MDDIR since now &transform handles the
+	escaping of RE special characters by itself.
+
+2001-01-24  Akim Demaille  <akim@epita.fr>
+
+	* m4/depend.m4 (AM_DEPENDENCIES): Don't leave `AC_PROG_CC' etc. in
+	clear.
+	* m4/init.m4: Likewise.
+	* m4/sanity.m4: s/conftestfile/conftest.file/.
+
+2001-01-24  Tom Tromey  <tromey@redhat.com>
+
+	* automake.in (handle_libraries): Use $configure_ac; typo fix.
+
+	* automake.in (transform): Quote substitution.
+
+2001-01-21  Alexandre Duret-Lutz  <duret_g@epita.fr>
+	    Tom Tromey  <tromey@redhat.com>
+
+	* automake.in (obsolete_rx): Match whole macro names, not
+	substrings.
+	* aclocal.in (obsolete_rx): Likewise.
+
+2001-01-21  Tom Tromey  <tromey@redhat.com>
+
+	* automake.texi: Changed dir category.
+
+2001-01-18  Akim Demaille  <akim@epita.fr>
+
+	* automake.in (handle_texinfo): Use &transform, and transform
+	CONFIGURE_AC.
+	Reported by Lars Hecking, and diagnosed by Raja R Harinath.
+
+2001-01-16  Akim Demaille  <akim@epita.fr>
+
+	Let Automake support `configure.ac'.
+
+	* automake.in: In the comments, prefer `configure.ac' to
+	`configure.in'.
+	When using &am_conf_error, don't repeat `in configure.in', since
+	the function already reports it.
+	When referring to `configure.in' use `$configure_ac' instead.
+	(configure_ac): New global variable.
+	(scan_configure, scan_one_configure_file): Rename as...
+	(scan_autoconf_files, scan_one_autoconf_file): this.
+	(scan_autoconf_files): Compute $configure_ac.
+	(transform): New function.
+	(handle_configure): Use it to transform CONFIGURE_AC in
+	`remake.am' and in `remake-hdr.am'.
+	(common_files): Also consider `configure.ac'.
+	Use consistently single quotes.
+	* aclocal.in (configure_ac): New variable.
+	Use it.
+	* texi-vers.am: Depend on CONFIGURE_AC not configure.in.
+	* remake.am: Likewise.
+	* remake-hdr.am: Likewise.
+
+2001-01-16  Akim Demaille  <akim@epita.fr>
+
+	* m4/multi.m4: Remove the hairy useless quotation of `$'.
+	Simplify `ifelse([$2],,,[$2])' into... `$2'!
+	* m4/minuso.m4: Don't use changequote!
+	* m4/cond.m4: Fix quotation.
+	* m4/sanity.m4: Follow the Autoconf coding style.
+	* m4/missing.m4 (AM_MISSING_INSTALL_SH): Use a for loop.
+	* m4/depend.m4 (AM_DEPENDENCIES): Fix quotation issues.
+	Use AC_CACHE_CHECK.
+
+2001-01-15  Tom Tromey  <tromey@redhat.com>
+
+	* automake.in (handle_single_transform_list): Don't print rule
+	here when source is in subdir and object is not.  Fixes
+	subobj4.test.
+
+	* automake.in (handle_single_transform_list): Correctly compute
+	$nonansi_obj.  Fixes cxxansi.test.
+
+	* automake.texi (Man pages): Updated to account for man1_MANS,
+	etc.
+
+2001-01-13  Steve Robbins  <smr@debian.org>
+	    Tom Tromey  <tromey@redhat.com>
+
+	* aclocal.in (scan_configure): Don't recognize macro assignments
+	or AC_SUBSTs.
+	(add_file): Likewise.
+
+2001-01-13  Kevin Ryde  <user42@zip.com.au>
+
+	* automake.in (handle_ltlibraries): Omit -rpath from
+	check_LTLIBRARIES, as per noinst_LTLIBRARIES.
+
+2001-01-11  Tom Tromey  <tromey@redhat.com>
+
+	* depcomp (case gcc3): Use -MD, not -M.
+
+2001-01-10  Tom Tromey  <tromey@redhat.com>
+
+	* depcomp: Handle gcc 3.
+
+2000-12-23  Tom Tromey  <tromey@redhat.com>
+
+	* configure.in: Updated to 1.4c for cvs.
+
+	* configure.in: Updated to 1.4b and released.
+
+	* config.guess, config.sub, texinfo.tex: New versions.
+
+	* automake.in (handle_dist_worker): Always define DIST_SUBDIRS.
+	Re-fixes pr87.test.
+
+	* subdirs.am (maintainer-clean-recursive): Use DIST_SUBDIRS for
+	distclean and maintainer-clean.
+	* automake.texi (Top level): Document use of DIST_SUBDIRS.
+
+	From Rusty Ballinger:
+	* automake.in (handle_java): Don't skip `noinst' prefix.
+
+	* automake.texi (Invoking aclocal): Mention ## comments.
+
+2000-12-22  Tom Tromey  <tromey@redhat.com>
+
+	From Raja R Harinath:
+	* automake.in (libtoolize_sometimes): New global.
+	(initialize_global_constants): Added libtoolize_sometimes to
+	common_files.
+
+	* m4/depend.m4 (AM_SET_DEPDIR): Ignore errors when running rmdir.
+
+	* m4/depend.m4 (AM_SET_DEPDIR): Remove .deps directory when done.
+
+2000-12-21  Tom Tromey  <tromey@redhat.com>
+
+	* automake.texi (Tags): Document GTAGS target.
+	* tags.am (GTAGS): New target.
+
+	* automake.in (libtoolize_files): Removed ltconfig.
+	(initialize_global_constants): Added ltconfig to common_files.
+
+2000-12-21  Kevin Ryde  <user42@zip.com.au>
+
+	* automake.in (handle_footer): Generate .SUFFIXES target when user
+	defines suffixes but automake does not.
+
+2000-12-20  Marc Espie  <espie@openbsd.org>
+
+	* automake.in (handle_texinfo): Make path of $vtexi explicit in
+	dependency.
+	* texi-vers.am: Likewise.
+
+2000-12-20  Tom Tromey  <tromey@redhat.com>
+
+	From Kevin Ryde:
+	* automake.in (handle_footer): Always push user suffixes at the
+	start of .SUFFIXES:.
+	* automake.texi (Suffixes): Updated to reflect new suffix
+	handling.
+
+2000-12-18  Tom Tromey  <tromey@redhat.com>
+
+	* automake.in (handle_built_sources): Removed.
+	(handle_merge_targets): Handle BUILT_SOURCES.
+	* automake.texi (Sources): Updated documentation of
+	BUILT_SOURCES.
+
+2000-12-17  Tom Tromey  <tromey@redhat.com>
+
+	* m4/protos.m4: Always do header checks.
+
+	* automake.in (handle_ltlibraries): Check for LDFLAGS variables
+	before using values.
+
+	* automake.in (handle_ltlibraries): Allow _LDFLAGS to be
+	conditionally defined.  Fixes PR automake/77 and ldflags.test.
+
+2000-11-25  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in (file_contents_with_transform): Added file name and
+	line number to error report.
+	(MACRO_PATTERN, BOGUS_MACRO_PATTERN): Leading spaces are ok.
+
+2000-11-23  Pavel Roskin  <proski@gnu.org>
+
+	* m4/regex.m4 (AM_WITH_REGEX): This macro was broken because
+	of M4 underquoting.
+	* m4/ccstdc.m4 (AC_PROG_CC_STDC): Added some M4 quotes.
+	* m4/dmalloc.m4 (AM_WITH_DMALLOC): Likewise.
+	* m4/lispdir.m4 (AM_PATH_LISPDIR): Likewise.
+	* m4/maintainer.m4 (AM_MAINTAINER_MODE): Likewise.
+	* m4/multi.m4 (AM_WITH_DMALLOC): Likewise.
+	* m4/python.m4 (AM_PATH_PYTHON): Likewise.
+	* m4/strtod.m4 (AM_FUNC_STRTOD): Likewise.
+
+2000-11-23  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in (require_file_internal): Pass $file as second
+	argument to maybe_push_required_file.  Fixes PR automake/87.
+
+2000-11-18  Tom Tromey  <tromey@cygnus.com>
+
+	* m4/depend.m4 (AM_DEPENDENCIES): Redirect `$am_depcomp' stdout to
+	/dev/null.  From Paul Martinolich.
+
+2000-11-16  Morten Eriksen  <mortene@sim.no>
+
+	* aclocal.in (write_aclocal): Set ``binmode'' after file has been
+	opened, otherwise it has no effect.
+
+2000-10-23  Morten Eriksen  <mortene@sim.no>
+
+	* aclocal.in (write_aclocal): Don't write aclocal.m4 with
+	CRLFs. This circumvents a bug in Cygwin bash.
+
+	* automake.in (generate_makefile): Don't write Makefile.in
+	files with CRLFs, as it causes problems for the dependency-file
+	extraction in AM_OUTPUT_DEPENDENCY_COMMANDS.
+
+2000-10-19  Alex Hornby  <alex@anvil.co.uk>
+
+	* automake.in (handle_merge_targets): Allow parallel install
+	with forced relink.
+
+2000-10-19  Akim Demaille  <akim@epita.fr>
+
+	* subdir4.test (depcomp): Don't create it, defs does.
+
+2000-10-17  Pavel Roskin  <proski@gnu.org>
+
+	* automake.in (handle_aclocal_m4): exclude aclocal.m4 and
+	acinclude.m4 from the dependencies of aclocal.m4 to avoid
+	circular and duplicated dependencies. Strip "./" from the
+	dependencies.
+
+2000-10-17  Lars J. Aas  <larsa@sim.no>
+
+	* aclocal.in (write_aclocal): Set up aclocal.m4 header with
+	normal comments (#) instead of m4 dnl-type comments.
+
+2000-10-17  Alex Hornby  <alex@anvil.com>
+
+	* depcomp: Altered sed clause to strip of inclusion depth
+	numbers generated by cpp. Also output in gcc style.
+
+2000-10-16  Morten Eriksen  <mortene@sim.no>
+
+	* depcomp (msvisualcpp): New dependency tracking mode, for
+	Microsoft Visual C++.
+
+2000-10-16  Morten Eriksen  <mortene@sim.no>
+
+	* depcomp: Fix a bug in SGI dependency tracking mode with source
+	files which do not dependend on any other source files.
+
+2000-10-16  Rodney Brown  <RodneyBrown@mynd.com>
+
+	* aclocal.in, aclocal.m4: Standardize FSF Copyright statements.
+	* automake.in, automake.texi: Likewise.
+	* clean-kr.am, clean.am: Likewise.
+	* comp-vars.am: Likewise.
+	* compile, compile.am: Likewise.
+	* data-clean.am: Likewise.
+	* data.am: Likewise.
+	* dejagnu.am: Likewise.
+	* depcomp: Likewise.
+	* depend.am, depend2.am: Likewise.
+	* dist-vars.am, dist.am: Likewise.
+	* elisp-comp: Likewise.
+	* footer.am: Likewise.
+	* header-vars.am, header.am: Likewise.
+	* java-clean.am java.am: Likewise.
+	* kr-extra.am: Likewise.
+	* library.am: Likewise.
+	* libs-clean.am, libs.am: Likewise.
+	* libtool.am: Likewise.
+	* lisp-clean.am lisp.am: Likewise.
+	* ltlib-clean.am ltlib.am: Likewise.
+	* ltlibrary.am: Likewise.
+	* m4/Makefile.in: Likewise.
+	* m4/strtod.m4: Likewise.
+	* mans-vars.am, mans.am: Likewise.
+	* mdate-sh: Likewise.
+	* missing: Likewise.
+	* multilib.am: Likewise.
+	* program.am: Likewise.
+	* progs-clean.am, progs.am: Likewise.
+	* python-clean.am, python.am: Likewise.
+	* remake-hdr.am, remake.am: Likewise.
+	* scripts.am: Likewise.
+	* subdirs.am: Likewise.
+	* tags-clean.am, tags.am: Likewise.
+	* texi-vers.am: Likewise.
+	* texinfos.am: Likewise.
+	* ylwrap: Likewise.
+
+2000-10-09  Pavel Roskin  <proski@gnu.org>
+
+	* m4/init.m4 (AM_INIT_AUTOMAKE): Don't rely on variable
+	assignments changing $? - it's broken in ash-0.2.
+	* m4/missing.m4 (AM_MISSING_HAS_RUN): Likewise.
+
+	* automake.in (handle_aclocal_m4): If ACLOCAL_M4_SOURCES is
+	defined use it as the list of M4 files aclocal.m4 depends on.
+
+2000-10-06  Alexandre Duret-Lutz  <duret_g@epita.fr>
+
+	* aclocal.in (add_file): Strip comments while scanning for
+	macro dependencies.
+
+2000-09-15  Alexandre Duret-Lutz  <duret_g@epita.fr>
+
+	* automake.in (initialize_global_constants): End the
+	result of dist-bzip2 with tar.bz2, not bz2.
+
+2000-08-30  Tom Tromey  <tromey@cygnus.com>
+
+	Fix for PR automake/72:
+	* automake.in (initialize_per_input): Define `need_link'.
+	(finish_languages): Use need_link.
+	(handle_source_transform): Set need_link if required.
+
+2000-08-28  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in (yacc, yaccxx, lex, lexxx): Set `derived-autodep'
+	key.
+	(register_language): Default the `derived-autodep' option.
+	(handle_single_transform_list): Add to %dep_files if language has
+	`derived-autodep' set.  Re-fixes lex4.test.
+
+2000-08-27  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in (handle_single_transform_list): Only add to
+	%dep_files if language is found and supports automatic dependency
+	tracking.  Fixes PR automake/75.
+
+	* automake.in (am_primary_prefixes): Don't set `valid' for
+	configure variables that don't satisfy the other constraints.
+	Fixes PR automake/68.
+
+2000-04-14  Victor V. Vengerov  <vvv@oktet.ru>
+
+	Fix for PR automake/67.
+	* automake.in (handle_multilib): remove .am suffix in fragment
+	name passed to file_contents.
+	* m4/multi.m4: Add missing ')' in AC_ARG_ENABLE invocation.
+	Remove external quotes in first arg of AC_OUTPUT_COMMANDS.
+	Remove unnecessary "rel-to-top-srcdir" before config-ml.in.
+
+2000-08-26  Tom Tromey  <tromey@cygnus.com>
+
+	* subdirs.am (maintainer-clean-recursive): Always run clean rules
+	in `.' after all subdirs.  Fixes PR automake/3 and PR automake/24.
+
+	* automake.in (handle_man_pages): Generate install targets for man
+	even if man_MANS not defined.  From `danpb'.  Fixes PR automake/73.
+
+	* m4/depend.m4 (depcpp): Use `-o conftest.o'.
+	Fix for PR automake/74.  From js pendry.
+
+2000-08-20  Eli Zaretskii  <eliz@is.elta.co.il>
+
+	* depcomp (gcc): Support DOS-style absolute file names with drive
+	letters.
+
+2000-08-06  Jim Meyering  <meyering@lucent.com>
+
+	* automake.in (handle_dependencies): Set $require_file_found{'depcomp'}
+	if the depcomp file exists, before calling require_config_file on
+	`depcomp'.  This makes require_file_internal skip its buggy existence
+	test that would make automake fail (with `required file `lib/depcomp'
+	not found') when AC_CONFIG_AUX_DIR is not set.
+
+	This change change does not fix the existing bug where, if `depcomp'
+	is not present in the build directory (at the top level), automake
+	still gives the inaccurate diagnostic about *lib*/depcomp rather
+	than ./depcomp.
+
+2000-08-05  Jim Meyering  <meyering@lucent.com>
+
+	* m4/header.m4 (AM_CONFIG_HEADER): Fix typo in last change:
+	add missing closing bracket and closing parenthesis.
+	Don't quote the first argument to AC_OUTPUT_COMMANDS.
+	Backslash-escape the backquotes and `$' in `am_indx'-incrementing stmt.
+
+2000-08-04  Tom Tromey  <tromey@cygnus.com>
+
+	Idea from Nicolas Thiery:
+	* automake.texi (Tests): Document DEJATOOL as a list.
+	* dejagnu.am (RUNTESTDEFAULTFLAGS): Use $$tool, not $(DEJATOOL).
+	(check-DEJAGNU): Run runtest in a loop.
+
+2000-08-02  Akim Demaille  <akim@epita.fr>
+
+	* m4: Quote properly the name of the macros being defined.
+	Use `#' instead of `dnl' where appropriate.
+	* m4/header.m4 (AM_CONFIG_HEADER): Get rid of changequote, just
+	quote.
+	Don't quote passive characters.
+	Pull the AC_PREREQ outside the macro.
+	* m4/init.m4: Pull the AC_PREREQ outside the macro.
+
+2000-07-28  Tom Tromey  <tromey@cygnus.com>
+
+	* lisp.am (uninstall-@DIR@LISP): Prefix file with $(DESTDIR).
+	From Bruno Haible.
+
+2000-07-13  Kevin Ryde  <user42@zip.com.au>
+
+	* automake.in (am_install_var): Apply the $(EXEEXT) hack to
+	EXTRA_PROGRAMS as well as other _PROGRAMS.
+
+2000-07-02  Jim Meyering  <meyering@lucent.com>
+
+	* automake.in (scan_one_configure_file): Recognize AC_LIBOBJ.
+
+2000-06-19  Paolo Bonzini    <bonzini@gnu.org>
+
+	* texi-vers.am: define UPDATED-MONTH variable (for an example, see
+	GNU make's manual)
+
+2000-06-02  Morten Eriksen  <mortene@sim.no>
+
+	* depcomp: workaround for problem with SGI IRIX sed (it can only
+	handle lines of up to 8192 characters, the rest of the line will
+	be mangled).
+
+2000-05-31  Morten Eriksen  <mortene@sim.no>
+
+	* depcomp: tell SGI MIPSpro compilers to generate dependencies
+	through the pre-processor (only CVS libtool has the -Wc option
+	yet).
+
+2000-05-15  Brendan O'Dea  <bod@compusol.com.au>
+
+	* missing: Add support for `help2man'.
+
+2000-05-11  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in (handle_tests): Work correctly if TESTS is empty;
+	print nothing if it is.  From Kevin Ryde.
+
+2000-05-08  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.texi (Texinfo): Mention vers*.texi.
+
+2000-05-04  Akim Demaille  <akim@epita.fr>
+
+	AM_INIT_AUTOMAKE is no longer optional, so don't look for
+	`VERSION=' and `PACKAGE='.
+	* automake.in (seen_package, seen_version): Remove initializations of
+	unnecessary variables.
+	(scan_one_configure_file): Don't set them.
+	(scan_configure): Don't use them.
+
+2000-05-01  Akim Demaille  <akim@epita.fr>
+
+	* m4/init.m4 (AC_PROVIDE_IFELSE): If it is not defined, do it.
+	(AM_INIT_AUTOMAKE): Update the writing conventions.
+	Quote the arguments properly.
+	Add a few missing `dnl'.
+	Use AC_PROVIDE_IFELSE.
+
+2000-04-26  Jim Meyering  <meyering@lucent.com>
+
+	* automake.in (scan_one_configure_file): Handle the AC_CONFIG_FILES
+	macro.  Based on a patch from Harlan Stenn.
+
+2000-04-13  Akim Demaille  <akim@epita.fr>
+
+	* compile: Remove unnecessary double quotes in assignments.
+
+2000-04-13  Akim Demaille  <demaille@epita.fr>
+
+	* automake.in (scan_one_configure_file): Also recognize
+	AC_CONFIG_HEADERS.
+	Remove trailing blanks.
+
+2000-04-05  Tom Tromey  <tromey@cygnus.com>
+
+	* header-vars.am (DESTDIR): Commented out definition.
+
+	* automake.in (require_file_internal): Pass --copy to libtoolize
+	if automake was run with `--copy'.
+
+2000-03-22  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.texi (Uniform): Fix definition of pkglibdir.
+	From thi <ttn@revel.glug.org>.
+
+2000-03-19  Tom Tromey  <tromey@cygnus.com>
+
+	* aclocal.in (parse_arguments): Copyright 2000.
+	(write_aclocal): Likewise.
+	* automake.in (parse_arguments): Copyright 2000.
+	(initialize_global_constants): Likewise.
+
+	* automake.in (generate_makefile): Call handle_dist after
+	handle_dependencies and handle_tests.  Fixes subobj3.test and
+	pr19.test regressions.
+
+2000-03-19  Gordon Matzigkeit  <gord@fig.org>
+
+	* depend2.am (@EXT@.o): Look for the source file in srcdir as well
+	as the current directory.
+	(@EXT@.lo): Likewise.
+
+2000-03-19  OKUJI Yoshinori  <okuji@kuicr.kyoto-u.ac.jp>
+
+	* automake.in (handle_data): Pass -candist instead of
+	-defaultdist, for the compatibility.
+
+2000-03-19  Tom Tromey  <tromey@cygnus.com>
+
+	Fix for test nodepcomp.test:
+	* automake.in (require_file_internal): Use readlink on symlinks.
+	Only unlink file if we are going to try to add it again.
+	(handle_dependencies): Require `depcomp' here.
+	(scan_configure): Don't require `depcomp'.
+
+2000-03-16  OKUJI Yoshinori  <okuji@kuicr.kyoto-u.ac.jp>
+
+	* automake.in (handle_configure): Remove $(BUILT_SOURCES) from
+	the rule to remake Makefile, whether $use_dependencies is true
+	or not. This was a historical one and doesn't make sense any
+	longer.
+
+2000-03-19  Tom Tromey  <tromey@cygnus.com>
+
+	More for PR automake/38:
+	* automake.texi (Invoking Automake): Document --force-missing.
+	* automake.in (force_missing): New global.
+	(parse_arguments): Recognize --force-missing.
+	(initialize_global_constants): Document --force-missing.
+	(require_file_internal): Handle --force-missing.
+
+	Fix for PR automake/38:
+	* automake.in (require_file_internal): Check for and handle
+	dangling symlinks.  Fixes symlink2.test.
+
+	Fix for PR automake/45:
+	* automake.texi (configure): Mention requirement to run
+	AM_INIT_AUTOMAKE.
+	(Requirements): Removed most text.
+	* automake.in (seen_init_automake): New global.
+	(scan_configure): Error if AM_INIT_AUTOMAKE not seen.
+	(scan_one_configure_file): Don't support AM_INIT_GUILE_MODULE.
+	Set seen_init_automake if needed.
+
+	Fix for PR automake/41:
+	* automake.in (require_file_found): New global.
+	(require_file_internal): Set require_file_found entry.
+	(handle_texinfo): Require file any number of times.
+
+	* automake.in (handle_dist_worker): Exit if `cp' fails.  Fixes
+	install2.test.
+
+	* tags.am: Don't reference $$here.  Report from Sven Verdoolaege.
+
+2000-03-13  Alexandre Oliva  <oliva@lsd.ic.unicamp.br>
+
+	* m4/missing.m4: Print the backtick in a way that won't cause
+	autoconf CVS to emit any warnings.
+
+2000-03-01  Jim Meyering  <meyering@lucent.com>
+
+	* automake.in (handle_dist_worker) [generating rules for distdir]:
+	Don't use `ln' (which was just a space optimization anyway) to
+	populate $(distdir).  Otherwise, the dist rules that change
+	permissions would end up affecting the master sources.
+	* texinfos.am (dist-info): Likewise.
+
+2000-02-13  Jim Meyering  <meyering@lucent.com>
+
+	* automake.in (generate_makefile): Detect write/close failure.
+
+2000-02-02  Assar Westerlund  <assar@sics.se>
+
+	* automake.in (handle_single_transform_list): do not use $< which
+	is not handled by all non-GNU makes.  Instead do explicit sh code
+	testing for the file in this directory and srcdir.  Based on a
+	suggestion by Alexandre Oliva <oliva@lsd.ic.unicamp.br>
+
+2000-01-12  Tom Tromey  <tromey@cygnus.com>
+
+	* m4/lispdir.m4: Added --with-lispdir argument processing.
+	From Kevin Dalley.
+
+2000-01-06  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in (handle_configure): Don't check for
+	AC_PROG_MAKE_SET.
+	(scan_configure): Check for AC_PROG_MAKE_SET.
+
+	* header-vars.am (@SET_MAKE@): Added.
+	* subdirs.am (@SET_MAKE@): Removed.  Report from Motoyuki
+	Kasahara.
+
+1999-12-19  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in (handle_dist_worker): Expand DIST_COMMON under all
+	conditions.
+	(require_file_internal): Corrected arguments to second invocation
+	of maybe_push_required_file.
+
+	Fix for PR automake/9:
+	* automake.in (make_dirs, make_dirs_set): New globals.
+	(is_make_dir): New function.
+	(handle_configure): Use it.
+	(require_file_internal): Push file if there is no Makefile in its
+	directory.
+	(initialize_per_input): Initialize handle_dist_run.
+	(push_dist_common): Inspect handle_dist_run.
+	(handle_dist): Set handle_dist_run.  Push items from
+	configure_dist_common onto dist_common if appropriate.
+	(configure_dist_common): New global.
+	(scan_configure): Set it.
+	(maybe_push_required_file): New function.
+	(require_file_internal): Use it.
+
+	* automake.in (handle_dist_worker): Scan DIST_COMMON to see if
+	more subdirs are defined.  From Axel Belinfante.  Fixes
+	PR automake/2.
+
+1999-12-18  Tom Tromey  <tromey@cygnus.com>
+
+	Partial fix for PR automake/40:
+	* lisp.am (install-@DIR@LISP): Handle nobase_ case.
+	(uninstall-@DIR@LISP): Likewise.
+	* header.am (install-@DIR@HEADERS): Handle nobase_ case.
+	(uninstall-@DIR@HEADERS): Likewise.
+	* data.am (install-@DIR@DATA): Handle nobase_ case.
+	(uninstall-@DIR@DATA): Likewise.
+	* automake.in (am_primary_prefixes): Recognize `nobase_' prefix.
+	(am_install_var): Recognize and handle `nobase_' prefix.
+
+1999-12-17  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in (get_object_extension): Added space before `-I.'.
+	Report from Ralf Corsepius.
+
+1999-12-15  Tom Tromey  <tromey@cygnus.com>
+
+	* aclocal.in: Don't pass $acdir to scan_m4_files.
+	(parse_arguments): Push $acdir on end of dirlist.
+	(scan_file): Don't warn if duplicate macro seen.
+
+1999-12-13  Tom Tromey  <tromey@cygnus.com>
+
+	Fix for PR automake/30 and PR automake/23.  Fixes test
+	suffix3.test.
+	* automake.in (initialize_per_input): Initialize
+	source_suffix_pattern.
+	(derive_suffix): New function.
+	(handle_single_transform_list): Call it.
+
+	* automake.in (add_depend2): Handle the no-dependency-tracking
+	case.  Fixes test suffix2.test.
+
+	* depcomp (tmpdepfile): [case sgi] Added missing `fi'.
+
+	* automake.in (get_object_extension): Fixed quoting on
+	-I$(srcdir).
+
+	* depend2.am: Removed erroneous comment.
+
+	* automake.texi (Program variables): Document nostdinc.
+	(Options): Likewise.
+	* automake.in (get_object_extension): Respect nostdinc option.
+	(handle_options): Recognize nostdinc.
+	* comp-vars.am (DEFS): Use @DEFAULT_INCLUDES@ as sole
+	substitution.
+
+	* automake.in (read_am_file): Allow conditional includes.  Fixes
+	test condincl.test.
+
+	* depcomp: Handle case on SGI when libtool is `yes'.
+	* depend2.am (@EXT@.o): Set libtool.
+	(@EXT@.lo): Likewise.
+	(@EXT@.obj): Likewise.
+
+	* depcomp: Unify dashmstdout and dashXmstdout cases.  Move hp case
+	after gcc case.
+
+1999-12-13  Pavel Roskin  <pavel_roskin@geocities.com>
+
+	* automake.in (add_depend2): substitute $rule in the rules
+	for individual files.  Fixes test specflags5.test.
+
+1999-12-12  Tom Tromey  <tromey@cygnus.com>
+
+	* m4/depout.m4 (AM_OUTPUT_DEPENDENCY_COMMANDS): Run mkinstalldirs
+	to create directories.  Fixes test subobj3.test.
+
+1999-12-10  Tom Tromey  <tromey@cygnus.com>
+
+	* m4/depout.m4 (AM_OUTPUT_DEPENDENCY_COMMANDS): Don't print
+	message when creating .deps files.
+
+	* automake.in (initialize_global_constants): If unreadable by
+	owner, make it readable by owner regardless of number of links.
+	Fixes more of install2.test.
+
+	* missing: Try to see if gnutar or gtar exist before invoking
+	them.
+
+	* m4/missing.m4 (AM_MISSING_INSTALL_SH): Remove ${SHELL} from
+	install_sh value.  Look for install-sh and install.sh in a
+	somewhat more sensible way.  Fixes test install2.test.  Partially
+	from Jim Meyering.
+
+1999-12-09  Pavel Roskin  <pavel_roskin@geocities.com>
+
+	* m4/missing.m4: remove redundant backquote
+
+1999-11-23  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in (initialize_global_constants): Use `bzip2 -9', not
+	`bzip --best'  Report from Jim Meyering.
+
+1999-11-22  Tom Tromey  <tromey@cygnus.com>
+
+	* m4/missing.m4 (AM_MISSING_INSTALL_SH): Don't take argument.
+	* m4/init.m4 (AM_INIT_AUTOMAKE): Don't pass argument to
+	AM_MISSING_INSTALL_SH.
+	* automake.in (scan_one_configure_file): Reverted previous
+	change.
+
+	* automake.in (scan_one_configure_file): Define `install_sh'
+	configure variable when AM_INIT_AUTOMAKE seen.  Report from Jim
+	Meyering.
+
+	* automake.in (handle_single_transform_list): Generate explicit
+	rule for subdir objects.  Fixes new addition to subobj.test.
+
+	* automake.in (handle_lib_objects_cond): Allow LIBOBJS to be
+	defined by AC_SUBST.  Fixes ltlibobjs.test.
+
+	Fix for sourcesub.test:
+	* automake.in (handle_single_transform_list): Added `var'
+	argument.  If config sub found, give error.
+	(handle_source_transform): Updated for new
+	handle_source_transform.
+
+	* py-compile: New file.
+	* m4/Makefile.am (m4data_DATA): Added python.m4.
+	* m4/python.m4: New file.
+	* automake.texi (Uniform): Mention PYTHON.
+	(Python): New node.
+	* Makefile.am (amfiles): Added python.am, python-clean.am.
+	(dist_script_DATA): Added py-compile.
+	* python.am: New file.
+	* python-clean.am: New file.
+	* automake.in (seen_pythondir): New global.
+	(generate_makefile): Call handle_python.
+	(handle_python): New function.
+	(scan_one_configure_file): Set seen_pythondir if AM_PATH_PYTHON
+	seen.
+	(am_install_var): Special-case PYTHON like JAVA.
+	(scan_configure): Check for py-compile.
+	(initialize_global_constants): Added py-compile to @common_files.
+
+	* ltlib.am (install-@DIR@LTLIBRARIES): Added missing space.
+
+1999-11-21  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in (finish_languages): Only generate suffix rule when
+	not doing dependency tracking.
+
+	* m4/init.m4 (AM_INIT_AUTOMAKE): Use AM_MISSING_INSTALL_SH.
+	* m4/missing.m4 (AM_MISSING_INSTALL_SH): New macro.
+
+	* depend2.am: Use @SOURCE@, @OBJ@, @LTOBJ@, @OBJOBJ@, and @BASE@.
+	Always use `-o'.
+
+1999-11-19  Tom Tromey  <tromey@cygnus.com>
+
+	* dist.am: Set `CDPATH=:' to avoid problems.  Merged from
+	Alexandre's change on branch.
+
+1999-10-02  Alexandre Oliva  <oliva@lsd.ic.unicamp.br>
+
+	* Makefile.am (maintainer-check): Look for occurrences of ``cd'
+	without `CDPATH'.
+	* dejagnu.am: Set CDPATH before cd.
+	* Makefile.in: Rebuilt.
+
+	* automake.in (handle_single_transform_list): Change `\1' for `$1'
+	in `s///' replacement.
+
+	* automake.in (handle_dist): Set CDPATH before cd.
+	* dejagnu.am (check-DEJAGNU): Likewise.
+	* texinfos.am (install-info-am, dist-info): Likewise.
+	* m4/init.m4 (AM_INIT_AUTOMAKE): Likewise.
+	* m4/missing.m4 (AM_MISSING_HAS_RUN): Likewise.
+	* aclocal.m4, configure, Makefile.in: Rebuilt.
+
+	* AUTHORS: Added myself.
+
+1999-09-14  Alexandre Oliva  <oliva@lsd.ic.unicamp.br>
+
+	* m4/missing.m4: Support relative srcdir and ac_aux_dir.
+	Reported by Tim Wilkinson <tim@transvirtual.com>
+	* aclocal.m4, configure: Rebuilt.
+
+1999-08-17  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* m4/lex.m4 (AM_PROG_LEX): Require AM_MISSING_HAS_RUN and, if no
+	LEX program is found, use `${am_missing_run}flex'.
+
+1999-08-16  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* automake.in (handle_single_transform_list): Replace `$(OBJEXT)'
+	with `o' in depfile.
+
+	* automake.in (handle_lib_objects_cond): Remove second dot from
+	dependency file names.
+
+	* depend2.am (OBJEXT@EXT@.obj): Dependency file should be .Po,
+	regardless of OBJEXT.
+
+	* automake.in (handle_dependencies): Add blank line after depend2.
+	(handle_dependencies): Start DEP_FILES with `@AMDEP@'.  Output
+	blank line before `include's, not after them.
+	(scan_one_configure_file): Do not special-case `DEP_' any more.
+
+	* m4/depout.m4 (AM_OUTPUT_DEPENDENCY_COMMANDS): Run for loop only
+	if AMDEP is empty.
+	* aclocal.m4, configure: Rebuilt.
+
+	* m4/depend.m4 (AMDEPBACKSLASH): Define.
+	* depend2.am (@EXT@.o, @EXT@.lo, @EXT@.obj): Use AMDEPBACKSLASH.
+
+	* automake.in (handle_dependencies): Generate `include's for
+	dependency files after `@AMDEP@'.
+
+	* m4/missing.m4: Use eval, instead of a sub-shell, to test for
+	--run support in the missing script, since SHELL is not exported.
+	Reported by job bogan <job@piquin.uchicago.edu>
+	* aclocal.m4, configure: Rebuilt.
+
+1999-08-15  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* aclocal.m4, configure: Rebuilt with itself.
+	* Makefile.in, m4/Makefile.in, tests/Makefile.in: Likewise.
+
+	* m4/missing.m4 (AM_MISSING_PROG): Remove DIRECTORY argument.
+	Require AM_MISSING_HAS_RUN.  Use am_missing_run, defined by...
+	(AM_MISSING_HAS_RUN): New macro.
+	* m4/init.m4: Remove missing_dir from calls to AM_MISSING_PROG.
+	* automake.texi (Requirements): Likewise.
+	* version.texi, stamp-vti: Rebuilt.
+
+1999-07-28  Tom Tromey  <tromey@cygnus.com>
+
+	* depcomp: Handle the `hp' mode.
+
+1999-07-06  Tom Tromey  <tromey@cygnus.com>
+
+	* depcomp: Work around HP-UX 10.20 sed bug.
+
+1999-07-05  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in (handle_dependencies): Generate a separate include
+	for each dep file.  Report from Alexandre Oliva.
+	* depend.am: Don't include DEP_FILES.
+
+1999-06-01  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* depend.am: Add @AMDEP@ before `include', so that dependency
+	tracking can be disabled.
+	* depend2.am: Ditto, before all lines related with dependency
+	tracking.
+	* m4/depend.m4 (AM_DEP_TRACK): New macro, that documents
+	--enable/disable-dependency-tracking and sets AMDEP accordingly.
+	It is implicitly disabled if depcomp is missing.
+	(AM_DEPENDENCIES): Disable dependency tracking unless it can be
+	generated by side-effect.
+	* m4/init.m4 (AM_INIT_AUTOMAKE): Require AM_DEP_TRACK.
+	* automake.in (handle_dependencies): Add @AMDEP@ before the value
+	of DEP_FILES.
+	* m4/depout.m4 (AM_OUTPUT_DEPENDENCY_COMMANDS): Handle DEP_FILES
+	starting with `#'.
+
+	* depcomp: Support -xM for dependency generation, for Sun CC.
+	Reported by Alex Hornby <alex@anvil.co.uk>
+	* m4/depend.m4: Extract the list of supported dependency-tracking
+	mechanisms from the depcomp script and use it to test each one.
+	* THANKS: Added Alex Hornby.
+
+	* depend2.am: Move $(depcomp) to the line of $(...DEPMODE), so as
+	to leave $(...COMPILE) in a line by itself.
+
+	* THANKS: Added Miles Bader.
+
+1999-06-01  Miles Bader  <miles@ccs.mt.nec.co.jp>
+
+	* m4/depend.m4 (AM_DEPENDENCIES): Add check for `makedepend'.
+	Fix `dashmstdout' to ignore non-dependency-generating uses of the
+	-M flag.
+	* depcomp (makedepend): New dependency-generating method.
+
+1999-06-01  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* missing: If given `--run' as first argument, try to run the
+	given program before falling back to the ``emulated'' behavior.
+	Add support for `tar'.
+	* automake.in: Use new `tar' support for `dist'.
+	* m4/missing.m4 (AM_MISSING_PROG): Instead of checking for the
+	program, prepend `missing --run' to the given program name.
+	* m4/init.m4: Remove AMTAR-related stuff.
+	* NEWS: Updated.
+
+	* m4/depout.m4: Instead of `find'ing Makefiles, just iterate on
+	CONFIG_FILES.  Do not use temporary variable for list of
+	dependency files, it breaks Cygwin.
+
+1999-04-27  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* depcomp (gcc): Imported comments removed from depend2.am, so
+	that we don't lose them.
+
+	* m4/depout.m4 (AM_OUTPUT_DEPENDENCY_COMMANDS): Avoid sed s/$U//
+	when not using ansi2knr.
+
+1999-04-26  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* m4/depend.m4 (AM_DEPENDENCIES): Test for depcc -E support.
+	* depcomp (cpp): Extract dependencies from `# nnn "..."' lines.
+
+1999-04-25  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* m4/depend.m4 (AM_DEPENDENCIES): Add a definition to conftest.h,
+	so as not to compile an empty source; some compilers fail on this.
+	Redirect stderr of depcc to /dev/null.  Test for -M with -o,
+	because some compilers will output the rules to the output file.
+	* depcomp (dashmstdout): Add --silent before --mode=compile, so
+	that we don't get libtool output mixed up with make rules.
+
+	* m4/init.m4 (AM_INIT_AUTOMAKE): Require AM_SET_DEPDIR.
+	* depend2.am: Set tmpdepfile too, to speed up depcomp.  Always use
+	-o for libtool, otherwise it may try to deduce the object name
+	from the dependency-generation flag.
+	* depcomp: Assume depdir exists.  Preserve depfile on unsuccessful
+	compilations.
+
+	* libtool.am: Do not emit .c.lo here...
+	* depend2.am: ... emit .*.lo here, only when using libtool.
+	* automake.in (get_object_extension): No more @MINUSO@ here.
+	(handle_single_transform_list): Set $depfile from $object.
+	(handle_dependencies): Emit depend2.am for all used languages,
+	regardless of $use_dependencies; the setting of depcomp makes the
+	difference.
+	(lang_cxx_finish): Do not emit compilation rules.
+	(lang_objc_finish): Likewise.
+	(lang_java_finish): Likewise.
+
+1999-04-21  Tom Tromey  <tromey@cygnus.com>
+
+	* m4/depout.m4 (AM_OUTPUT_DEPENDENCY_COMMANDS): Correctly
+	interpolate DEPDIR in DEP_FILES expansion.
+
+1999-04-20  Lee Iverson  <leei@Canada.AI.SRI.COM>
+
+	* m4/depend.m4 (AM_DEPENDENCIES): Fix up test for SGI-style
+	dependency updating.
+	* m4/depout.m4 (AM_OUTPUT_DEPENDENCY_COMMANDS): Fix sed script to
+	handle multi-line dependency lists.
+
+1999-11-12  Tom Tromey  <tromey@cygnus.com>
+
+	Fix for PR automake/14:
+	* aclocal.in: Added `ud_GNU_GETTEXT'.  Updated to mention
+	AC_CYGWIN.
+	* automake.in: Mention AC_CYGWIN, not AC_CYGWIN32.
+
+	* m4/multi.m4: Added missing `]'.  From Akim Demaille.
+
+	* Makefile.am (path-check): Make sure distdir is writeable before
+	removing it.
+	* automake.in (handle_texinfo): Added `cm' and `ov' extensions.
+	(handle_dist_worker): Make sure distdir is writeable before
+	removing it.
+	(initialize_global_constants [$dist_trailer]): Make sure distdir
+	is writeable before removing it.
+	* dist.am (distcheck): Make the new source tree read-only before
+	compiling.  Idea from Karl Berry.
+
+	* automake.texi (Gnits): Allow COPYING.LIB again.
+	* automake.in (check_gnits_standards): Allow COPYING.LIB again.
+
+1999-11-11  Jim Meyering  <meyering@ascend.com>
+
+	* dist.am (distcheck): Remove $(distdir).tar.gz before counting
+	files.
+
+1999-11-09  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in (handle_dist): Typo fix.  From Jim Meyering.
+
+1999-11-09  Jim Meyering  <meyering@ascend.com>
+
+	* automake.in (handle_dist): Remove the DISTHOOK and GETTEXT
+	markers, no matter what.
+
+1999-11-08  Tom Tromey  <tromey@cygnus.com>
+
+	* dist.am (distcheck): Put `&&' at the start of the distcheck-hook
+	line.
+
+	* automake.in (handle_dist_worker): Use `cp -R', not `cp -r'.
+	From Jim Meyering.  Also, don't mention file name in `cp'
+	destination.  From Olly Betts.
+
+1999-10-27  Miodrag Vallat  <miodrag@ifrance.com>
+
+	* texinfos.am (uninstall-info): Use installed info file, not one
+	from srcdir or builddir.
+
+1999-11-07  Tom Tromey  <tromey@cygnus.com>
+
+	* clean.am (maintainer-clean-generic): Remove Makefile.in.  From
+	Jeff Bailey
+
+	Fix for PR automake/18:
+	* automake.in (handle_dist): Add contents of dist.am to the output
+	rules.
+	* Makefile.am (amfiles): Added dist.am.
+	* dist.am: New file.
+	(distcheck): Added uninstall and distclean checks.
+
+	* automake.in (PATH_PATTERN): Added `-' as allowable character.
+	Fixes PR automake/20.  From Matthew D. Langston.
+
+	* automake.in (SUFFIX_RULE_PATTERN): Add `0-9' as characters
+	allowed in suffixes.  Fixes PR 22.  From Matthias Clasen.
+
+1999-10-03  Alexandre Oliva  <oliva@lsd.ic.unicamp.br>
+
+	* m4/lispdir.m4: -batch must come before -q.
+	* elisp-comp: Likewise.
+	Reported by Lars Hecking <lhecking@nmrc.ucc.ie>
+	* THANKS: Added Lars.
+
+1999-08-15  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in (get_object_extension): Fixed quoting bug.  Fixes
+	ansi4.test.
+
+1999-07-27  Tom Tromey  <tromey@cygnus.com>
+
+	* config.guess, config.sub: New versions from autoconf.
+
+1999-07-13  Tom Tromey  <tromey@cygnus.com>
+
+	Work around losing `awk'.  Report from Harlan Stenn.
+	* m4/init.m4 (AM_INIT_AUTOMAKE): Require AC_PROG_AWK.
+	* tags.am (ID, TAGS): Use $(AWK), not `awk'.
+
+	* automake.in (handle_source_transform): Mark prefix as seen if
+	corresponding _SOURCES variable exists.  Fixes empty2.test.
+
+1999-06-25  OKUJI Yoshinori  <okuji@kuicr.kyoto-u.ac.jp>
+
+	* configure.in (ACLOCAL): Do not prepend the variable SRCDIR to
+	m4.
+	(AUTOMAKE): Set --amdir to current directory.
+
+1999-06-20  Tom Tromey  <tromey@cygnus.com>
+
+	* Makefile.am (TAGS_FILES): New macro.
+	(ETAGS_ARGS): Moved files into TAGS_FILES.
+	(TAGS_DEPENDENCIES): Likewise.
+	(ETAGS_ARGS): Removed.
+	(TAGS_DEPENDENCIES): Removed duplicate definition.
+
+	* tags.am (ID): Handle VPATH correctly.  Use TAGS_FILES.  Report
+	from Ganesan Rajagopal.
+	(TAGS): Likewise.
+
+1999-06-18  Thomas Tanner  <tanner@ffii.org>
+
+	* automake.in (handle_ltlibraries): Check for -module in LDFLAGS,
+	too.
+
+1999-06-20 Mark Elbrecht <snowball3@bigfoot.com>
+
+	* ylwrap: Handle filenames output by the DOS version of Bison.
+
+1999-06-20  Tom Tromey  <tromey@cygnus.com>
+
+	* ylwrap: Be less strict when recognizing DOS paths.  From Mark
+	Elbrecht.
+
+1999-06-19  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in (handle_dist_worker): Remove redundant entries from
+	DIST_SUBDIRS.
+
+	* automake.in (handle_lib_objects_cond): Better error message when
+	unrecognized option passed in LDADD.
+
+1999-06-08  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* configure.in (ACLOCAL, AUTOMAKE): Use our own scripts, with
+	appropriate --acdir and --amdir arguments.
+
+1999-06-07  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* automake.in (dist_header): Avoid changing permissions of files
+	in the source tree, trying a complex `find/chmod' command before
+	falling back to plain chmod.
+	(handle_dist_worker): Do not create directories with mode 777, the
+	find above will take care of that.
+	* m4/init.m4: Set install_sh for find/chmod above.
+
+	* THANKS: Added Shuhei Amakawa.
+
+1999-06-07  Shuhei Amakawa <sa264@cam.ac.uk>
+
+	* mans.am: Strip dirname from given filename.
+
+1999-06-07  Jim Meyering  <meyering@ascend.com>
+
+	* automake.in (handle_dist): Change emitted rules so that a failure
+	in `$(MAKE) distcheck-hook' propagates to the outer make.
+
+1999-05-27  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in (handle_single_transform_list): Replace AM_FLAG and
+	not FLAG in compilation rule.
+	(add_depend2): Likewise.
+
+	* ltlib.am (install-@DIR@LTLIBRARIES): Pass INSTALL_STRIP_FLAG to
+	libtool.
+
+	* m4/dmalloc.m4: Updated dmalloc site information.
+
+1999-05-19  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in (handle_single_transform_list): Push object name
+	without extension onto lang_specific_files.  Fixes
+	specflags4.test.
+
+	* automake.in (handle_single_transform_list): Added missing
+	space.  Fixes specflags.test.
+
+1999-05-05  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in: Disabled dependency tracking for Java.
+
+1999-05-04  Tom Tromey  <tromey@cygnus.com>
+
+	* library.am (@LIBRARY@): Use $(@XLIBRARY@_AR).
+	* automake.in (handle_libraries): Recognize _AR variable.
+
+1999-04-30  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in (finish_languages): Always use `-o $@' with
+	libtool.  Define ltcompile and ltlink at outermost scope in
+	function.
+	* libtool.am (.c.lo): Removed.
+
+	* automake.in (finish_languages): Put `.' before extension in
+	suffix list, `.obj' rule, and `.lo' rule.  Look at `-flags', not
+	`-flag'.  From Pavel Roskin.
+
+1999-04-28  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in (finish_languages): Fixed scoping of ltcompile and
+	ltlink.  From Pavel Roskin.
+
+1999-04-27  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in (read_main_am_file): Don't start macro definition
+	with backslash-newline.  Instead, append newline at the end if
+	required.
+
+	* automake.in (read_am_file): Insert a backslash before a trailing
+	newline.  Fixes pluseq8.test.
+
+	* automake.in (MACRO_PATTERN): Allow digits and `_' to start a
+	macro name.
+	(check_canonical_spelling): Don't insert `AM' before macro name
+	(reverts Alexandre's 1999-04-27 patch).
+	* automake.texi: Reverted documentation change for `AM' patch.
+
+	* automake.in (handle_lib_objects_cond): Prefer `$1' over `\1'.
+	Minor rewrite for clarity.
+	(check_canonical_spelling): Prefer `$1' over `\1'.
+
+	* depend2.am (@OBJ@): Renamed.  Use @SOURCE@, @COMPILE@.  Always
+	use `-o $@'.
+	(@LTOBJ@): Likewise.
+	* automake.in (handle_single_transform_list): Don't print rule if
+	doing dependency tracking and the file's language supports it.
+	(initialize_per_input): Initialize lang_specific_files.
+	(add_depend2): New function.
+	(handle_dependencies): Use it.
+
+	* automake.in (lang_ppf77_finish): Use lang_f77_finish.
+	ratfor compiler name is `RCOMPILE'.  ppf77 compiler name changed
+	to `PPF77COMPILE' to allow use of f77 and ppf77 in the same
+	directory.
+	(lang_ratfor_finish): Use lang_f77_finish.
+
+	* compile.am (NOTDEPEND.c.o): Removed.
+	(OBJEXT.c.obj): Likewise.
+	* automake.in: Added `flags' attribute to all relevant languages.
+	(handle_single_transform_list): Handle per-derived-object flags.
+	Changed interface and all callers.
+	(handle_built_sources): Don't call handle_single_transform_list.
+	Added `compile' and `compiler-name' attribute to all relevant
+	languages.
+	(finish_languages): Define compiler variables here.
+	(lang_cxx_finish): Don't call define_compiler_variable.  Don't
+	define flag variable or .o rules.  Don't add to @suffixes.
+	(lang_f77_finish): Likewise.
+	(lang_ppf77_finish): Likewise.
+	(lang_objc_finish): Likewise.
+	(lang_java_finish): Likewise.
+	(finish_languages): Define flag variable here.
+	Added `output-arg' attribute to all relevant languages.
+	(finish_languages): Define `.o' rules here.
+	(finish_languages): Put extension on @suffixes.
+	(get_object_extension): Don't transform NOTDEPEND or MINUSO.
+
+1999-04-27  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* automake.in (initialize_global_constants): Invoke gzip for
+	dist-shar just like in plain dist, i.e., pass it GZIP_ENV and -c.
+
+	* automake.in (initialize_global_constants): Remove zip file
+	before re-creating it.
+	Reported by Bob Friesenhahn <bfriesen@simple.dallas.tx.us>
+
+	* texinfos.am (uninstall-info): Look for info file in srcdir, just
+	like in install-info-am.
+	Reported by Tudor Hulubei <tudor@cs.unh.edu>
+
+	* automake.in (handle_lib_objects_cond): \Q doesn't work either.
+	Let's use the good ol' substitution, then.
+	Reported by Russ Allbery <rra@stanford.edu>
+
+	* automake.in (check_canonical_spelling): Insert AM before names
+	starting with non-letters.
+
+	* automake.texi: Document it.
+
+1999-04-26  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* automake.in (handle_lib_objects_cond): Do not use quotemeta, it
+	doesn't work on perl4.  Maybe \Q and \E do.
+
+1999-04-24  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in: Treat `.zip' and `.jar' files as Java.
+
+	* automake.in (generate_makefile): Define `subdir' after reading
+	.am file.
+	(read_main_am_file): Give programming error if variable defined
+	before invocation.
+
+1999-04-22  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in (generate_makefile): Define `subdir' variable.
+	(handle_dist): Don't define `subdir'.
+
+	* automake.in (handle_texinfo): Change numbering scheme for
+	stamp-vti files, to avoid problems with DOS.
+	From Michel de Ruiter.
+
+	* automake.texi: Don't mention AM_FUNC_MKTIME.
+	* aclocal.in (obsolete_macros): Mention AM_FUNC_MKTIME.
+	* automake.in (scan_one_configure_file): Recognize
+	AC_FUNC_MKTIME, not AM_FUNC_MKTIME.
+	(obsolete_macros): Mention AM_FUNC_MKTIME.
+	* m4/Makefile.am (m4data_DATA): Removed mktime.m4.
+	* m4/mktime.m4: Removed.
+
+1999-04-20  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.texi (Top level): Don't recommend substing SUBDIRS.
+
+1999-04-20  Brian Ford <ford@vss.fsi.com>
+
+	* scripts.am: Change else if's to elif.
+
+1999-04-20  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* automake.in (handle_lib_objects_cond): Only require the source
+	of a LIBOBJ if it's not in BUILT_SOURCES.
+	Reported by Erez Zadok.
+
+1999-04-19  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in: Treat `.class' files as Java source.
+	(lang_java_finish): Handle `.class' files.
+
+1999-04-18  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* m4/lispdir.m4: Match only `/(share|lib)/x?emacs/site-lisp/*$'.
+
+	* m4/lispdir.m4: Do not override lispdir if it's already defined.
+	Run some emacs-lisp to find out the site-lisp directory, but
+	relocate it into prefix.
+
+1999-04-17  Paul Eggert  <eggert@twinsun.com>
+
+	* m4/mktime.m4 (bigtime_test, main): Move alarm from
+	bigtime_test to main, since Solaris 7 (64-bit) mktime loops
+	even outside of bigtime_test.  Use a time limit of 60 seconds
+	for the whole test, not 10 seconds per iteration.
+
+1999-04-17  Erez Zadok  <ezk@cs.columbia.edu>
+
+	* automake.in: Create stamps for headers in appropriate
+	directories, even if the input file lives in a different place.
+	* remake-hdr.am: Likewise.
+
+1999-04-16  Tom Tromey  <tromey@cygnus.com>
+
+	From Brian Ford:
+	* progs.am (install-@DIR@PROGRAMS, uninstall-@DIR@PROGRAMS):
+	Invoke `sed' only once per program.
+	* scripts.am (install-@DIR@SCRIPTS, uninstall-@DIR@SCRIPTS):
+	Invoke `sed' only once per program.
+
+1999-04-13  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in (handle_subdirs): Make `install-recursive' phony.
+	From Michel de Ruiter.
+
+	* automake.in (handle_ltlibraries): Added missing `check'.
+
+1999-04-12  Tom Tromey  <tromey@cygnus.com>
+
+	* ansi2knr.c: New version from Pavel Roskin (via ansi2knr.c
+	maintainer).
+
+1999-04-11  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in (handle_dist): Use AMTAR.
+	(initialize_global_constants): Likewise.
+	* m4/init.m4 (AM_INIT_AUTOMAKE): Use AMTAR, not TAR.
+
+	* automake.in (lang_sub_obj): New function.
+	(lang_cxx_rewrite): Use it.
+	(lang_asm_rewrite): Likewise.
+	(lang_objc_rewrite): Likewise.
+	(lang_cxx_finish): Add `-o $@' to all C++ rules.
+	(lang_asm_finish): Add `-o' to suffix rules when appropriate.
+	(lang_objc_finish): Add `-o $@' to all ObjC rules.
+	(lang_java_finish): Likewise.
+
+	* automake.in: Only register `asm' once.
+	(lang_asm_finish): Put assembly suffixes on @suffixes.
+
+	* libtool.am (.s.lo): Removed.
+	(.S.lo): Likewise.
+	* automake.in (lang_asm_finish): Handle libtool.
+
+	* libtool.am (.c.o): Always pass -c to libtool.
+
+	* automake.in (lang_yacc_rewrite): Handle sources in subdirs.
+	(lang_yaccxx_rewrite): Likewise.
+	(lang_lex_rewrite): Likewise.
+	(lang_lexxx_rewrite): Likewise.
+
+	Assembly code no longer included by default:
+	* compile.am (.s.o): Removed.
+	(.S.o): Likewise.
+	* automake.in: Register `asm' language.
+	(lang_asm_finish): Generate suffix rules for assembly.
+	(get_object_extension): Don't add `.s' or `.S' to suffix list.
+
+	* automake.in (get_object_extension): Substitute @MINUSO@ when
+	including compile.am.
+	* compile.am (.c.o): Added @MINUSO@.
+	(.c.obj): Likewise.
+
+	First cut at allowing objects in subdirectories:
+	* m4/Makefile.am (m4data_DATA): Added minuso.m4.
+	* Makefile.am (dist_script_DATA): Added compile.
+	* m4/minuso.m4: New file.
+	* automake.in (initialize_global_constants): Added compile to
+	common_files.
+	(seen_cc_c_o): New global.
+	(scan_one_configure_file): Set it when AM_PROG_CC_C_O seen.
+	(handle_options): Recognize `subdir-objects' option.
+	(lang_c_rewrite): Added directory argument.
+	(lang_yacc_rewrite): Likewise.
+	(lang_yaccxx_rewrite): Likewise.
+	(lang_lex_rewrite): Likewise.
+	(lang_lexxx_rewrite): Likewise.
+	(handle_single_transform_list): Pass directory to _rewrite
+	function.  Generate dependencies for dirstamp files for each .o;
+	it is just the rules we want to create once.
+	(lang_c_rewrite): Handle `subdir-objects' option.
+	(lang_c_rewrite): Require `compile' program.
+	* compile: New file.
+
+	* automake.in (initialize_per_input): Initialize %directory_map.
+	(handle_single_transform_list): Only create .dirstamp rules once
+	per directory.
+
+	* m4/gcj.m4 (AM_PROG_GCJ): Use AC_CHECK_PROGS, not AC_CHECK_PROG.
+
+	Fix for confh.test:
+	* automake.in (configure_input_files): New global.
+	(scan_configure): Set it.
+	(handle_configure): Use configure_input_files when determining
+	which subdirs have a Makefile.am.  Fixes confh.test.
+	(handle_configure): Only recognize acconfig.h in top srcdir.
+
+1999-04-10  Tom Tromey  <tromey@cygnus.com>
+
+	* depend2.am (%.o): Use `$(*D)/$(*F)', not just `$(*F)'.
+	(%.lo): Likewise.
+
+	* automake.in (am_install_var): Remove redundancies from the
+	result.  Fixes test cond8.test.
+
+	* automake.in (handle_single_transform_list): Handle dependency
+	tracking when files are created in subdirs.  Error if object in
+	subdir has `..' component.
+
+	* automake.in (initialize_global_constants): Use $(TAR), not tar.
+
+	* automake.in (handle_ltlibraries): Allow check_LTLIBRARIES.
+
+	* automake.in (lang_yacc_finish): Added missing `&'.
+
+1999-04-10  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* automake.in (handle_configure): Replace multiple occurrences of
+	@STAMP@ in the same line; completes the patch for remake-hdr.am
+	below.
+
+	* automake.in (handle_dependencies): Fix test for `autodep'
+	support.
+
+	* automake.in (handle_source_transform): Add a pfx to used_pfx
+	only if it's conditional or non-empty, to reduce the number of
+	empty variables.  Emit _OBJECS variable based on program name if
+	no SOURCES were explicitly specified.
+
+	* remake-hdr.am: Create the stamp file before the header file,
+	and just rename it after, so that the timestamps will be correct.
+	Reported by Marc Horowitz <marc@mit.edu>
+
+	* automake.in (lang_yacc_finish): Generate and dist a `.h' for a
+	`.y' iff YFLAGS or AM_YFLAGS contain `-d'.
+	Reported by Jim Meyering <meyering@ascend.com>
+
+	* automake.in (lang_yacc_finish): $hname must not contain a `.'.
+
+1999-04-10  Tom Tromey  <tromey@cygnus.com>
+
+	* Makefile.am (EXTRA_DIST): New macro.
+	* ChangeLog.1996, ChangeLog.1998: New files.
+
+1999-04-09  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in (handle_source_transform): Handle dist and nodist
+	prefixes.
+	(initialize_per_input): Initialize dist_sources.
+	(check_libobjs_sources): Handle dist and nodist prefixes.
+	(generate_makefile): Define DIST_SOURCES.
+	* dist-vars.am (DISTFILES): Reference DIST_SOURCES, not SOURCES.
+
+	* automake.texi (Macros): Mention AM_PROG_GCJ.
+	(Java Support): New node.
+	(Dist): Documented dist_ and nodist_ prefixes.
+
+	* m4/gcj.m4 (AM_PROG_GCJ): Renamed from AC_PROG_GCJ.
+
+	* automake.in (lang_java_finish): Generate .lo rule for `.java'
+	files, not `.gcj' files.
+
+	* m4/gcj.m4: New file.
+	* m4/Makefile.am (m4data_DATA): Added gcj.m4.
+
+	* automake.in: Register the `java' language.
+	(resolve_linker): Handle GCJLINK.
+	(lang_java_rewrite): New function.
+	(LANG_IGNORE, LANG_PROCESS, LANG_SUBDIR): New constants.
+	(lang_c_rewrite): Use new constants.
+	(lang_cxx_rewrite): Likewise.
+	(lang_header_rewrite): Likewise.
+	(lang_yacc_rewrite): Likewise.
+	(lang_yaccxx_rewrite): Likewise.
+	(lang_lex_rewrite): Likewise.
+	(lang_lexxx_rewrite): Likewise.
+	(lang_asm_rewrite): Likewise.
+	(lang_f77_rewrite): Likewise.
+	(lang_ppf77_rewrite): Likewise.
+	(lang_ratfor_rewrite): Likewise.
+	(lang_objc_rewrite): Likewise.
+	(handle_single_transform_list): Likewise.  Handle LANG_SUBDIR
+	return from rewrite function.
+	(lang_java_finish): New function.
+	(register_language): Changed interface and all calls.  Added
+	`autodep' settings to various languages.
+	(handle_dependencies): Use `autodep' property of language when
+	including dependency-tracking code.
+
+1999-04-07  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in (handle_texinfo): Indentation fixes.
+
+1999-04-07  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* automake.in (value_to_list): Skip *only* trailing backslashes.
+
+1999-04-07  Pavel Roskin  <pavel_roskin@geocities.com>
+
+	* automake.in (value_to_list): Skip trailing backslashes.
+
+1999-04-07  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* automake.in (handle_texinfo): Add texinfo.tex to config_aux_dir
+	when appropriate.
+	Reported by Per Cederqvist <ceder@lysator.liu.se>
+	(handle_texinfo): Do not define texinfo_tex='.', use
+	'$(srcdir)/texinfo.tex' instead; the directory name will be
+	properly extracted.
+	(require_conf_file_with_line): Fixed typo.
+
+1999-04-03  Raja R Harinath  <harinath@cs.umn.edu>
+
+	* automake.in (handle_tests): Test `dir=./' before `dir=', so that
+	we do not depend on PATH starting with `.'.
+
+1999-03-31  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in (quote_cond_val): Quote \n.
+	(unquote_cond_val): Unquote \n.
+	(read_am_file): If line ends with `\', preserve it and add a
+	newline.
+	(read_main_am_file): In conditional case, put conditional text at
+	beginning of each generated line.
+
+1999-03-31  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* automake.in (handle_tests): support XFAIL_TEST
+	* automake.texi: document it
+
+1999-04-12  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* End of merge from trunk.
+
+1999-04-12  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* automake.in (cmdline_use_dependencies): Reintroduce it.
+	(--ignore-deps): Set cmdline_use_dependencies again.
+	(handle_dependencies): If use_dependencies is not set, define
+	depcomp as empty.
+	(handle_configure): Pass --ignore-deps to generated Makefile.ins.
+	(scan_configure): Do not require depcomp when ignoring
+	dependencies.
+	(initialize_global_constants): Reintroduce --ignore-deps.
+
+1999-04-10  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* depcomp: New file.
+	* Makefile.am (dist_script_DATA): Added depcomp.
+	* automake.in (cmdline_use_dependencies, omit_dependencies,
+	dependency_macros): Removed.
+	(--ignore-deps): Just ignore.
+	(handle_single_transform_list, dep_files): Named dependency files
+	as \$(DEPDIR)/$base.P$obj
+	(handle_lib_objects_cond): Likewise.
+	(generate_dependency_code): Do not check for AM_*_DEPENDENCIES.
+	(scan_one_configure_file): Likewise.
+	(handle_dependencies): Always enable auto-dep.  Define `depcomp'.
+	Ignore OMIT_DEPENDENCIES.
+	(handle_configure): Do not pass --ignore-deps.
+	(scan_configure): Require `depcomp'.
+	(initialize_global_constants): Make `depcomp' common.  Remove
+	`--ignore-deps' from usage.
+	(get_object_extension): No more NOTDEPEND in compile nor libtool.
+	* compile.am: Remove rules for .c.o and .c.obj
+	* depend.am (distclean-depend): Wipe out $(DEPDIR)
+	* depend2.am (@FPFX@DEPMODE): Define from config.status.
+	Use it and depcomp in suffix rules.
+	* libtool.m4: Likewise.
+	* m4/ccdepend.m4, m4/cxxdepend.m4: Removed.
+	* m4/depvars.m4, m4/objcdepend.m4: Likewise.
+	* m4/Makefile.am (dist_m4data_DATA): Likewise.
+	* m4/depout.m4 (AM_OUTPUT_DEPENDENCY_COMMANDS): Extract DEPDIR
+	from the Makefile and subst it in deps.  Report creation of deps
+	files (for now).  Replace $U with `_' and the empty string.  Write
+	a comment to each created file.
+	* m4/depend.m4 (AM_SET_DEPDIR): Select a valid deps dir name.
+	(AM_DEPENDENCIES): Accept CC, CXX and OBJC.  Just determine the
+	dependency mode and AC_SUBST [$1]DEPMODE.
+	* m4/init.m4 (AM_INIT_AUTOMAKE): Automatically call
+	AM_DEPENDENCIES for CC and CXX, if the corresponding AC_PROG
+	appears in configure.in, before or after AM_INIT_AUTOMAKE.
+
+1999-04-02  Raja R Harinath  <harinath@cs.umn.edu>
+
+	* depout.m4: Fix sed expression for extracting `dirpart'.
+
+1999-03-29  Tom Tromey  <tromey@cygnus.com>
+
+	* depend2.am (DEP_@FPFX@COMPILE): Use `!=' and not `-ne'.
+
+	* compile.am (.c.obj): Also disabled when dependency tracking
+	enabled.
+	* depend2.am (@EXT@.obj): New target.
+	* automake.in (get_object_extension): Added explanatory comment.
+	(generate_dependency_code): Handle $seen_objext.
+
+	* depend.am: Removed obsolete comment.
+	* depend2.am: Minor formatting fix.
+
+1999-03-28  Tom Tromey  <tromey@cygnus.com>
+
+	* m4/Makefile.am (dist_m4data_DATA): Renamed, and added new
+	files.
+	(EXTRA_DIST): Removed.
+	* automake.in (dependency_macros): New global.
+	(scan_one_configure_file): Recognize new dependency tracking
+	macros, and define new resulting configure variables.
+	(generate_dependency_code): New sub.
+	(handle_dependencies): Use it.
+	* depend2.am (DEP_@FPFX@COMPILE): New macro.
+	(@EXT@.o): Use it.
+	(@EXT@.lo): Likewise.
+	* m4/depvars.m4: New file.
+	* m4/objcdepend.m4: New file.
+	* m4/cxxdepend.m4: New file.
+	* m4/init.m4: Moved dependency handling code into depout.m4.
+	* m4/depout.m4: New file.
+	* m4/ccdepend.m4: New file.
+	* m4/depend.m4: New file.
+
+	* depend2.am (@EXT@.o): Renamed to be old-style suffix pattern.
+	(@EXT@.lo): Likewise.
+	* m4/init.m4 (AM_INIT_AUTOMAKE): Don't create `.deps/.P'; it is no
+	longer needed.
+
+	* m4/init.m4 (AM_INIT_AUTOMAKE): Add code to config.status which
+	will create the required .P files for dependency tracking.
+	* automake.in (scan_dependency_file): Removed.
+	(handle_dependencies): Never call scan_dependency_file.
+	(generate_deps): Removed.
+	(parse_arguments): Don't recognize --generate-deps, --build-dir,
+	--srcdir-name, or --include-deps.  Do recognize --ignore-deps.
+	(srcdir_name): Removed.
+	(build_directory): Removed.
+	(initialize_global_constants): Changed $USAGE to reflect argument
+	parsing changes.
+	(handle_dist_worker): Never run automake in `dist' rule.
+	(handle_configure): Use --ignore-deps, not --include-deps.
+	* depend.am (DEPS_MAGIC): Removed.
+	(DEP_FILES): Unconditionally include.
+
+1999-03-27  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in (saw_sources_p): Correctly count header extensions
+	seen.
+	(handle_headers): Fixed order of arguments to am_install_var.
+
+	* automake.in (am_install_var): Don't error if EXTRA_foo is
+	defined uselessly.
+
+	* scripts.am (install-@DIR@SCRIPTS): Use NDIR when appropriate.
+	(uninstall-@DIR@SCRIPTS): Likewise.
+	* progs.am (install-@DIR@PROGRAMS): Use NDIR when appropriate.
+	(uninstall-@DIR@PROGRAMS): Likewise.
+	* ltlib.am (install-@DIR@LTLIBRARIES): Use NDIR when appropriate.
+	(uninstall-@DIR@LTLIBRARIES): Likewise.
+	* lisp.am (install-@DIR@LISP): Use NDIR when appropriate.
+	(uninstall-@DIR@LISP): Likewise.
+	* libs.am (install-@DIR@LIBRARIES): Use NDIR when appropriate.
+	(uninstall-@DIR@LIBRARIES): Likewise.
+	* java.am (install-@DIR@JAVA): Use NDIR when appropriate.
+	(uninstall-@DIR@JAVA): Likewise.
+	* header.am (install-@DIR@HEADERS): Use NDIR when appropriate.
+	(uninstall-@DIR@HEADERS): Likewise.
+	* data.am (install-@DIR@DATA): Use NDIR when appropriate.
+	(uninstall-@DIR@DATA): Likewise.
+	* Makefile.in: Rebuilt.
+	* Makefile.am (dist_pkgdata_DATA): Renamed.
+	(EXTRA_DIST): Removed.
+	(install-data-hook): Added POST_INSTALL; print commands as they
+	are run; respect DESTDIR.
+	* dist-vars.am (DISTFILES): Removed $(HEADERS).
+	* automake.in (am_install_var): Accept `-candist' and
+	`-defaultdist' options.  Handle `dist_' and `nodist_' prefixes.
+	(am_primary_prefixes): Added can_dist argument.  Recognize `dist_'
+	and `nodist_' prefixes.
+	(handle_scripts): Pass -candist to am_install_var.
+	(handle_data): Pass -defaultdist to am_install_var.
+	(handle_headers): Likewise.
+	(handle_emacs_lisp): Pass -candist to am_install_var.
+	(handle_java): Pass -candist to am_install_var.
+
+1999-03-26  Tom Tromey  <tromey@cygnus.com>
+
+	* m4/init.m4: Fixed typo when invoking SHELL.
+
+	* automake.in (lang_yacc_finish): Always use `.h' as suffix for
+	yacc header file.  From Ralf Corsepius.
+
+	* Makefile.in: Rebuilt.
+	* Makefile.am: Updated to reflect removal of TAR subst.
+	* automake.texi (Options): Document dist-bzip2.
+	* automake.in (TAR): Removed global.
+	(initialize_global_constants): Changed `dist' to use pipe with
+	gzip; work with non-GNU tar.
+	(handle_dist): Handle non-GNU tar.  Don't define TAR.
+	(initialize_global_constants): Added `dist-bzip2' entry.
+	(handle_options): Recognize dist-bzip2 option.
+	(handle_dist): Likewise.
+	* configure: Rebuilt.
+	* configure.in: Don't check for tar.
+	* m4/init.m4 (AM_INIT_AUTOMAKE): Check for `tar'.  Substitute
+	AMTARFLAGS.
+
+	* automake.in (am_install_var): Removed obsolete comment.
+
+	* texinfos.am (uninstall-info): Don't print loop but instead print
+	commands.  Simplified pre-uninstall loop.
+	* scripts.am (uninstall-@DIR@SCRIPTS): Don't print loop but
+	instead print commands.
+	* progs.am (uninstall-@DIR@PROGRAMS): Don't print loop but instead
+	print commands.
+	* ltlib.am (uninstall-@DIR@LTLIBRARIES): Don't print loop but
+	instead print commands.
+	* lisp.am (install-@DIR@LISP): Strip subdir from file name.
+	(uninstall-@DIR@LISP): Likewise.  Also, don't print loop but
+	instead print commands.
+	* libs.am (uninstall-@DIR@LIBRARIES): Don't print loop but instead
+	print commands.
+	* java.am (uninstall-@DIR@JAVA): Don't print loop but instead
+	print commands.
+	* header.am (install-@DIR@HEADERS): Strip subdir from file name.
+	(uninstall-@DIR@HEADERS): Likewise.  Also, don't print loop but
+	instead print commands.
+	* data.am (install-@DIR@DATA): Strip subdir from file name.
+	(uninstall-@DIR@DATA): Likewise.  Also, don't print loop but
+	instead print commands.
+
+	* automake.in (handle_merge_targets): `install-strip' is a phony
+	target.  From Michel de Ruiter.
+
+1999-03-25  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in (define_compiler_variable): Don't define variable
+	with trailing `_'.
+
+1999-03-25  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* automake.in (LDADD): accept -dlopen and -dlpreopen here
+	* automake.texi: ditto
+
+1999-03-25  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* automake.in (TESTS): make from Solaris 7/x86 loses if srcdir
+	is absolute and != objdir.  dir="" or "$(srcdir)/" fixes it
+
+1999-03-24  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in (define_compiler_variable): New sub.
+	(finish_languages): Use it.
+	(lang_cxx_finish): Likewise.
+	(lang_f77_finish): Likewise.
+	(lang_ppf77_finish): Likewise.
+	(lang_ratfor_finish): Likewise.
+	(lang_objc_finish): Likewise.
+
+1999-03-23  Tom Tromey  <tromey@cygnus.com>
+
+	* progs.am (install-@DIR@PROGRAMS): Use `-e' instead of multiple
+	sed invocations.  From Elrond.
+	(uninstall-@DIR@PROGRAMS): Likewise.
+
+	* automake.in (lang_lex_finish): Rewrite `l', not `y', to `c'.
+	From Ralf Corsepius.
+
+1999-02-01  Thomas Tanner  <tanner@gmx.de>
+
+	* automake.in: accept both A(C|M)_PROG_LIBTOOL, print a
+	warning when AM_PROG_LIBTOOL was found
+	* automake.texi: renamed AM_PROG_LIBTOOL to AC_PROG_LIBTOOL
+
+1999-03-22  Tom Tromey  <tromey@cygnus.com>
+
+	Made `+=' more robust.  Fixes pluseq6.test and pluseq7.test.
+	* automake.in (define_standard_variables): New sub.
+	(read_main_am_file): Use two passes to scan standard variables.
+	(read_am_file): Don't special-case configure variables with `+='.
+	(initialize_per_input): Initialize %var_was_plus_eq.
+	(read_am_file): Set var_was_plus_eq element correctly.
+	(define_variable): Give error if variable assigned with `+=' is
+	internally defined.
+	(initialize_per_input): Initialize %am_var_defs.
+	(file_contents_with_transform): Set element in %am_var_defs.
+	(read_am_file): Use %am_var_defs.
+
+1999-03-21  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in (initialize_per_input): Initialize %object_map.
+	(handle_single_transform_list): Allow source files in
+	subdirectories.
+
+1999-03-21  Jim Meyering  <meyering@na-net.ornl.gov>
+
+	* automake.in (handle_dist): Add missing newline after the first
+	semicolon.
+
+1999-03-11  Tom Tromey  <tromey@cygnus.com>
+
+	* m4/error.m4, m4/mktime.m4, m4/obstack.m4, m4/regex.m4,
+	m4/strtod.m4: Use $ac_objext, not `.o'.  From Jim Meyering.
+
+	From Jim Meyering:
+	* automake.in (handle_dist): Add `;\' to end of distcheck-hook
+	line.
+	(scan_one_configure_file): In LIBOBJS, recognize `$ac_objext' as
+	legitimate ending.  Fixes libobj9.test.
+
+	From Ralf Corsepius.  Fixes lex3.test.
+	* automake.in (lang_yacc_finish): Include `.' in name pushed onto
+	maintainer-clean list.
+	(lang_lex_finish): Likewise.
+
+1999-03-02  Tom Tromey  <tromey@cygnus.com>
+
+	* subdirs.am (maintainer-clean-recursive): Changed "&&" into "if"
+	construct to work around FreeBSD make/sh problem.  From Rich Wales.
+
+1999-03-01  Tom Tromey  <tromey@cygnus.com>
+
+	Fixes from Pavel Roskin:
+	* automake.in (variable_conditions_sub): Sort list passed to
+	variable_conditions_permutations.
+	(variable_conditions): Sort list before returning.
+
+1999-02-27  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in (lang_extensions): New sub.
+	(handle_dependencies): Use it.
+	(cxx_extensions): Removed.
+	(lang_cxx_finish): Use lang_extensions.
+	(f77_extensions): Removed.
+	(lang_f77_finish): Use lang_extensions.
+	(objc_extensions): Removed.
+	(lang_ppf77_finish): Put `.' before extension.  Fixes ext.test.
+	Report from Dave Morrison.
+	(lang_ratfor_finish): Likewise.
+
+1999-02-26  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in (finish_languages): Added AM_LDFLAGS.
+	(lang_cxx_finish): Likewise.
+	(lang_f77_finish): Likewise.
+	(lang_ppf77_finish): Likewise.
+	(lang_ratfor_finish): Likewise.
+	(lang_objc_finish): Likewise.
+
+1999-02-11  Tom Tromey  <tromey@cygnus.com>
+
+	* aclocal.in (obsolete_macros): Copied from automake.in.
+	(obsolete_rx): Use only keys of obsolete_macros.
+	(scan_configure): Report replacement macro for an obsolete macro.
+	* automake.in (obsolete_macros): Added ud_GNU_GETTEXT.
+
+	* automake.in (obsolete_macros): Corrected typo in AM_EXEEXT
+	entry.  Fixes obsolete2.test.
+
+	* automake.in (obsolete_macros): Use empty string to indicate no
+	substitution.
+	(scan_one_configure_file): Likewise.
+
+1999-02-07  Paul Eggert  <eggert@twinsun.com>
+
+	* m4/ccstdc.m4 (AM_PROG_CC_STDC): Prefer -Ae to -Aa
+	-D_HPUX_SOURCE, since -Ae allows `long long' and this is
+	needed by some programs.
+
+1999-02-10  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in (handle_texinfo): Added `pgs' to list of
+	extensions.  From NISHIDA Keisuke.
+
+1999-02-04  Akim Demaille  <demaille@inf.enst.fr>
+
+	* automake.in (handle_texinfo): remove texinfo.tex from
+	TEXINFODIR.
+
+1999-02-02  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in (handle_merge_targets): Use INSTALL_STRIP_FLAG.
+	* progs.am (install-@DIR@PROGRAMS): Added INSTALL_STRIP_FLAG.
+	* header-vars.am (INSTALL_PROGRAM): Removed
+	AM_INSTALL_PROGRAM_FLAGS.
+	(INSTALL_STRIP_FLAG): New macro.
+
+	* automake.in: Handle `ypp' as C++ yacc source and `lpp' as C++
+	lex source.
+	(lang_yacc_finish): Likewise.
+	(lang_lex_finish): Likewise.
+
+1999-02-01  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in (handle_dist_worker): Correctly find find in $$d,
+	not $$.  From Bill Davidson.
+
+	* automake.in (finish_languages): Use "&", not "do".  From Pavel
+	Roskin.
+	(handle_single_transform_list): Likewise.
+
+1999-01-29  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in (handle_configure): Removed unused variable.  From
+	Pavel Roskin.
+
+	* ansi2knr.c: New version from L. Peter Deutsch.
+
+1999-01-22  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in (require_file_internal): Correctly examine return
+	value of `system'.  From Andris Pavenis.  Fixes copy.test.
+
+	* m4/init.m4 (AM_INIT_AUTOMAKE): Require autoconf 2.13.
+
+	* automake.in (lang_ppf77_rewrite): New function.  From Jochen
+	Kuepper.  Fixes ppf77.test.
+	(lang_ratfor_rewrite): New function
+
+	* automake.in (handle_configure): Use `&' before sub calls (Perl 4
+	fix).  From Erez Zadok.
+
+1999-01-15  Tom Tromey  <tromey@cygnus.com>
+
+	* configure.in: Version 1.4a (oops).
+
+	* configure.in: Updated version to 1.5a.
+
+1999-01-14  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in (handle_configure): Compute $header_dir based on
+	$one_name, not $one_hdr.  Reported by Erez Zadok.  Fixes
+	confh2.test.
+	(handle_configure): Compute relative path to input header
+	correctly in all cases.
+
+	* automake.in (handle_tests): Avoid error messages from dejagnu
+	test rules.  From Karl Heuer.
+
+	* automake.in (handle_texinfo): Add `/' to end of $conf_dir.
+
+	* Makefile.am (AUTOMAKE_OPTIONS): Added `1.4'.
+
+	* texi-vers.am ($(srcdir)/stamp-@VTI@): Find @TEXI@ in srcdir.
+	From Alexandre Oliva and Erez Zadok.
+
+	* automake.in (create): Renamed from touch.
+	(handle_configure): Use create, not touch.
+
+	* config.sub, config.guess: New versions from autoconf.
+
+	* mkinstalldirs: New version from autoconf.
+
+1999-01-12  Tom Tromey  <tromey@cygnus.com>
+
+	* config.sub, config.guess, COPYING, texinfo.tex: New versions
+	from FSF.
+
+1999-01-11  Marcus G. Daniels  <mgd@chama.santafe.edu>
+
+	* automake.in (PATH_PATTERN): New variable:
+	(INCLUDE_PATTERN): Use it.  Ignore all include commands using
+	symbols besides $(top_srcdir) and $(srcdir).
+
+1999-01-11  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* automake.in (handle_dist_worker): avoid failure in `make dist'
+	if last file is a builddir-only file
+
+1999-01-11  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* missing (autoheader): `s' was missing from sed script; grr
+
+1999-01-11  Tom Tromey  <tromey@cygnus.com>
+
+	* remake-hdr.am (@STAMP@): Reverted timestamp change.
+	($(srcdir)/@STAMP@.in): Likewise.
+
+1999-01-10  Tom Tromey  <tromey@cygnus.com>
+
+	* Makefile.am (scriptdir): New macro.
+	(script_DATA): Likewise.
+	(install-data-hook): Use them.
+	(EXTRA_DIST): Added script_DATA.
+	(installcheck-local): Use script_DATA.
+
+	* Makefile.am (pkgdata_DATA): Removed duplicate definition.
+
+1999-01-10  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* missing (autoheader): accept multiple header files
+	(automake): simplify sed processing
+
+1999-01-10  Alexandre Oliva  <oliva@dcc.unicamp.br>
+
+	* automake.in (handle_configure, stamp_dir): create only one stamp
+	file per header, instead of one in the top-level directory and one
+	in the directory that contains the header.
+
+1999-01-10  Tom Tromey  <tromey@cygnus.com>
+
+	* automake.in (lang_objc_finish): Formatting fix.
+
+	* automake.in (objc_extensions): New sub.
+	(handle_dependencies): Only generate dependency-tracking code for
+	ObjC when ObjC source seen.
+
+-----
+
+Copyright 1999, 2000 Free Software Foundation, Inc.
+
+Copying and distribution of this file, with or without modification, are
+permitted provided the copyright notice and this notice are preserved.

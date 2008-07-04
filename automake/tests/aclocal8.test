@@ -1,0 +1,46 @@
+#! /bin/sh
+# Copyright (C) 2003, 2004  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Make sure aclocal does not require unused macros.
+
+. ./defs || exit 1
+
+set -e
+
+cat >> configure.in << 'END'
+SOME_DEFS
+END
+
+mkdir m4
+cat >m4/somedefs.m4 <<EOF
+AC_DEFUN([SOME_DEFS], [
+  m4_if([a], [a], [MACRO1], [MACRO2])
+])
+EOF
+
+echo 'AC_DEFUN([MACRO1],)' >m4/macro1.m4
+echo 'AC_DEFUN([MACRO2], [AC_REQUIRE([AM_UNUSED_MACRO])])' >m4/macro2.m4
+
+$ACLOCAL -I m4 >output 2>&1
+cat output
+test 0 = `wc -l <output`
+grep macro1.m4 aclocal.m4
+grep macro2.m4 aclocal.m4 && exit 1
+:

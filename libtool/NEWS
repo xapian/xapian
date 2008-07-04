@@ -1,0 +1,578 @@
+NEWS - list of user-visible changes between releases of GNU Libtool
+
+New in 1.5.26: 2008-02-01; CVS version 1.5.25a, Libtool team:
+* Improved support for Mac OS X Leopard.
+* More robust parsing of mangled `.la' files inside libltdl, fixing a
+  possible overrun and a crash due to memory exhaustion.
+* Fix compile command line for gcj on MinGW.
+* Some configure variables have been renamed to fix caching:
+  lt_prog_compiler_pic_works to lt_cv_prog_compiler_pic_works
+  lt_prog_compiler_static_works to lt_cv_prog_compiler_static_works.
+* Support for AIX 6.1.
+* Bug Fixes.
+
+New in 1.5.24: 2007-06-17; CVS version 1.5.23c, Libtool team:
+* Initial support for Interix newer than version 3.
+* Use getconf ARG_MAX to find the max command line length.
+* Bug Fixes.
+
+New in 1.5.23b: 2007-02-17; CVS version 1.5.23a, Libtool team:
+* New link flag `-static-libtool-libs' to provide the semantics that
+  `-static' had between 1.5 and before 1.5.22.
+* Initial support for RDOS.
+* Fix regression on DragonFly that disabled library hardcoding.
+* Fix regression on OpenBSD, NetBSD, DragonFly, and other systems
+  with hardcode_direct=yes that wrongly removed paths to uninstalled
+  libraries during link mode.
+* Let libltdl know that FreeBSD and DragonFly dlopen causes dependent
+  modules to be loaded.  This fixes excessive load times for modules
+  with large library dependency graphs.
+* Fix error with -version-info on systems with version_type=none, such
+  as BeOS.
+* Initial support for the Sun compiler suite on GNU/Linux.
+* Improved support for GNU/kFreeBSD and GNU/NetBSD.
+* Search paths with GCC on multilib systems like x86_64 have been fixed.
+* The libtool --tag argument which has been supported since version 1.5
+  is documented now.
+* Fix regression in libltdl symbol exports on Cygwin. Side effect:
+  LT_GLOBAL_DATA and LT_SCOPE are now explicitly defined as
+  declspec(dllexport), bypassing auto-export logic on Cygwin.
+  This tracks existing behavior on MinGW.
+* Bug Fixes.
+
+New in 1.5.22: 2005-12-18; CVS version 1.5.21a, Libtool team:
+* Fix 1.5 regression that caused linking a program `-static' to also
+  link statically against installed libtool libraries, contrary to
+  documented (and actual 1.4.x) behavior.
+* Fix file ownership for BSD `ranlib'.
+* Initial support for Beos/C++.
+* Fixed detection of link_static_flag, and self-dlopening.
+* Fixed setting of shlibpath variables (LD_LIBRARY_PATH and similar)
+  and order of link search paths for creating and testing of uninstalled
+  libraries.
+* Fix silent failure of `libtoolize --ltdl' if libltdl files not present.
+* Fixed command line settings for non-GCC compilers, Solaris/64bit.
+* Support for Interix 3 (Windows SFU).
+* If non-pic objects were not compiled, and libtool is called in link
+  mode, libtool no longer silently creates an empty archive, but rather
+  falls back to pic objects.
+* Fix potential denial of service by malicious other users for tmpdir
+  directory creation at relink time.
+* Bug Fixes, among others for AIX, Cygwin, Darwin, FreeBSD, HPUX, MinGW,
+  OpenBSD, UnixWare.
+
+New in 1.5.20: 2005-08-31; CVS version 1.5.19a, Libtool team:
+* Fix long-standing Solaris CC limitation failing with -no-undefined.
+* Fix yet another regression with ownership of libltdl data files.
+* Work around breakage on Tru64 due to shell bugs.
+* Fix regression with spurious object name conflicts against installed
+  static libraries which were erronously treated as convenience libraries.
+* Fix building of packages on cygwin managed mounts.
+* Bug Fixes.
+
+New in 1.5.18: 2005-05-16; CVS version 1.5.17a, Libtool team:
+* Fix regression in 1.5.16 to not install libltdl data files from
+  `libtoolize --ltdl'ed software packages.
+* Bug Fixes.
+
+New in 1.5.16: 2005-04-24; CVS version 1.5.15a, Libtool team:
+* Allow shell special characters like `$' in source file names, but not
+  in object names, to enhance GCJ support.
+* Detection of compiler wrappers like distcc/ccache and $host_alias prefix.
+* More robust tests for PIC flag, `-c -o', in presence of warnings.
+* Bug Fixes, among others for convenience archives regression on Solaris
+  and timestamp-preserving `libtoolize --copy --ltdl'.
+
+New in 1.5.14: 2005-02-12; CVS version 1.5.13a, Libtool team:
+* Make -pthread work when building executabless too.
+* Bug Fixes.
+
+New in 1.5.12: 2004-02-05; CVS version 1.5.11a, Libtool team:
+* Support for Portland Group compiler on GNU/Linux.
+* Support (mostly) for DragonFly BSD.
+* Updated support for Intel compilers on GNU/Linux.
+* Makes use of $datarootdir, which is necessary for Autoconf >= 2.60.
+* Fix for a buffer overrun in the opendir/readdir replacement code.
+  This code was used by older versions of MinGW only.
+* Some compiler/linker flags commonly used to select ABI features are allowed
+  through in link mode.  This fixes some 64bit build failures and Darwin's
+  -framework.
+* Handling of archives that have multiple members with the same name on Darwin.
+* Relaxed copyright permissions for the .m4 macro files.
+* Bug Fixes, among others for: GNU/Linux search path parsing, a Tru64
+  kernel panic, UNICOS, linking of dependent libraries.
+
+New in 1.5.10: 2004-09-19; CVS version 1.5.9a, Libtool team:
+* GNU/linux ia64 fixes.
+* Works on platforms with no c++ compiler.
+* Bug Fixes.
+
+New in 1.5.8: 2004-08-07; CVS version 1.5.7a, Libtool team:
+* Support for Intel C++ version 8.0.
+* Improved support for OpenBSD.
+* Support for xlc on Mac OS X.
+* Better support for zsh as /bin/sh.
+* Much faster check for command line length on all BSD systems.
+* Better Mac OS X/darwin support.
+* Bug Fixes.
+
+New in 1.5.6: 2004-04-11; CVS version 1.5.5a, Libtool team:
+* Installs libltdl files properly in $prefix/share/libtool/libltdl. 1.5.4
+  did not install them at all.
+* libltdl correctly guesses the extension for loadable modules again.
+
+New in 1.5.4: 2004-04-03; CVS version 1.5.3a, Libtool team:
+* Bug fixes.
+
+New in 1.5.2: 2004-01-25; CVS version 1.5.0a, Libtool team:
+* lt_dlrealloc is an official part of the libltdl API.
+* --tag, --silent and --debug options are preserved and reused when libtool
+  calls itself for relinking etc.
+* `-pthread' and similar options are honoured when linking shared libraries.
+* -no-suppress in compile mode shows compiler output for both PIC and non-PIC
+  object compilation.
+* New link mode option `-precious-files-regex' to prevent accidental removal
+  of files you want to keep, such as test coverage data, from the temporary
+  output directory.
+* Directories specified in /etc/ld.so.conf are no longer hardcoded on GNU/Linux.
+* Recognises the 'R' symbol type on Solaris so read-only symbols can be
+  exported.
+* Bug fixes.
+
+New in 1.5: 2003-04-14; CVS version 1.4e, Libtool team:
+* First stable release of multi-language architecture.
+* libtool and libltdl support for Mac OS/X.
+* libltdl will now use cygwins dlopen API instead of always forcing
+  LoadLibrary.
+* Support auto-import patch to binutils on cygwin for much improved dll
+  support.
+* Bug fixes.
+
+New in 1.4.3: 2002-10-13; CVS version 1.4.2a, Robert Boehne:
+* The libltdl subdirectory now bootstraps correctly with Automake 1.5.
+* srcdir != builddir builds with Automake 1.5 work correctly.
+* Support for mips-compaq-nonstopux.
+* New command line argument, --preserve-dup-deps prevents removal of
+  duplicate dependent libraries.
+
+New in 1.4d: 2002-01-07; CVS version 1.4c, Libtool team:
+* Help strings display correctly again.
+* Better error messages when library linking fails.
+* Better error messages from libltdl when loading fails.
+* Better search path management in libltdl with `lt_dlinsertsearchdir' call.
+* Support /lib/w32api in recent cygwin releases.
+* Support cross compilation to mingw.
+* Support for .rc files (Windows resource compiler).
+* Improved handling of mingw gcc.
+* Improved handling of $PATH with entries containing spaces.
+* Improved support for linking with gcc on aix4* and aix5*.
+* Improved support for GCC 3.0.
+* Initial support for QNX RTOS, UnixWare 7 and OpenUNIX 8.
+* Bug fixes to the OpenBSD port.
+* Bug fixes.
+
+New in 1.4.2: 2001-09-11; CVS version 1.4.1a, Gary V. Vaughan:
+* libltdl now builds on solaris again
+* diagnose and warn about not-quite-working combinations of gcc and
+  ld on solaris.
+* Improved OpenBSD support.
+* Improved cygwin support.
+* Bugfixes.
+
+New in 1.4.1: 2001-09-03; CVS version 1.4.0a, Libtool team:
+* Better error messages from libltdl when loading fails.
+* Don't leave here-doc files behind.
+* Improved support for OpenBSD.
+* Libtool will build with autoconf-2.50 and higher.
+* Plug memory management bugs in libltdl.
+* Prefer shl_load to dlopen for better operation on HP-UX.
+
+New in 1.4b: 2001-07-09; CVS version 1.4a, Libtool team:
+* Now bootstraps with autoconf-2.50 and automake-1.4-p4.
+* Always try to build at least a static lib, even if both static and
+  shared libs were disabled.
+* Full support for C++ compiler.
+* Support for GNU gcj compiler.
+* libltdl can now load all modules in a given path according to user
+  supplied criteria with `lt_dlforeachfile' call.
+* Improved support for AIX ia64, djgpp, HPUX, hurd, OpenBSD, sco3.2*.
+* Internal mutex handling no longer has namespace clashes on NCR MP-RAS.
+* New pdemo and tagdemo tests.
+* Bug fixes.
+
+New in 1.4: 2001-04-25; CVS version 1.3e, Libtool team:
+* Support for aix5*.
+* Bugfixes.
+
+New in 1.3d: 2001-04-02; CVS version 1.3c, Libtool team:
+* ltconfig is no more.  Generation of libtool happens directly from
+  the configure file.
+* Multithread safe with lt_dlmutex_register callback registration.
+* New -no-install flag to avoid the use of executable wrapper scripts.
+* New --with-pic, -prefer-pic and -prefer-non-pic flags to control
+  the generation of PIC/non-PIC code.
+* Support for hardcoding run-time paths (-R) into libraries.
+* Support -dlopen and -dlpreopen for libraries.
+* Libtool now allows you to link shared libraries against static code.
+* New functions in libltdl:
+  lt_dlgetinfo, lt_dlhandle_next and lt_dlforeach provide access to module
+  specific data in handles.
+  lt_dlcaller_register, lt_dlcaller_set_data and lt_dlcaller_get_data provide
+  management for user storage of per module data.
+  lt_dlloader_next, lt_dlloader_name, lt_dlloader_find, lt_dlloader_add and
+  lt_dlloader_remove can be used for adding new types of module loaders.
+  lt_dladderror, lt_dlseterror integrate user module loaders with lt_dlerror.
+* "-Xcompiler" and "-Wc," does now work in compile mode, too.
+* Support recent dlltool formats.
+* Start of support code for cross-compiling to win32.
+* libltdl can now be built as a dll with win32.
+* m4 macros needed to configure libltdl split out into libltdl/ltdl.m4.
+* New port to NEWS-OS Release 6.
+* Improved support for darwin (rhapsody), mingw32, NetBSD, Compaq Tru64 V5.0
+  and Digital Unix V4.*.
+* Initial support for ia64 linux.
+* Initial support for a.out freebsd shared libs.
+* Initial support for Paul Sokolovsky's pw32 POSIX over win32 layer.
+* Many bugfixes (especially in libltdl)
+
+New in 1.3b: 1999-07-02; CVS version 1.3a, Libtool team:
+* Complete inter-library dependencies support. It's now possible
+  to link libtool libraries against other libtool libraries.
+* Libtool is able to find already-installed libtool libraries,
+  even if they were moved out of their installation directory.
+* New "-Wc,flag" and "-Xcompiler flag" flags to pass flags
+  directly to the compiler
+* New "-Wl,flag" and "-Xlinker flag" flags to pass flags
+  directly to the linker
+* New "-no-fast-install" flag to selectively disable fast-install mode.
+* Support for installing stripped libraries using GNU strip (install -s).
+  Automake >= 1.5 will install stripped libraries with "make install-strip".
+* Allow linking shared libraries against static ones
+  on FreeBSD, GNU/Linux, GNU Hurd and Solaris
+* Support for linking DLLs on Win32
+* New `clean' mode to delete uninstalled files.
+* New demos and tests
+* Various bugfixes
+
+New in 1.3.5: 2000-05-27, CVS version 1.3.4a, Libtool team:
+* Support for mac OS X (rhapsody).
+* Support for *-sequent-sysv4.
+* Support for Cygwin-1.1.0.
+* Support recent dlltool formats.
+* Bugfixes.
+
+New in 1.3.4: 1999-12-08, CVS version 1.3.3a, Libtool team:
+* Support for Compaq Tru64 V5.0.
+* Improved support for Digital Unix V4.*.
+* Improved support for NetBSD, FreeBSD and Unixware.
+* Many fine bugfixes.
+
+New in 1.3.3: 1999-07-02, CVS version 1.3.2a, Libtool team:
+* New `-dlpreopen force' flag to ensure that
+  lt_preloaded_symbols is always defined.
+* Work around self-dlclose bug in FreeBSD 3.1.
+* Expand convenience libraries when creating reloadable objects.
+* Do not forget to import -L flags of convenience libraries.
+* Do not pass -whole-archive or equivalent to symbol extractor.
+* Create directory to expand convenience libraries only when needed.
+* Improved support for Cygwin, DJGPP and NetBSD
+* Various bugfixes
+
+New in 1.3.2: 1999-05-26, CVS version 1.3.1a, Libtool team:
+* Avoid circular links of objects and libraries.
+* Look for dlerror when dlopen was found in -ldl (typo).
+* Disable shared libraries with broken GNU ld on Solaris.
+
+New in 1.3.1: 1999-05-21, CVS version 1.3.0a, Libtool team:
+* Documentation improvements; recommend automake users to insert libtool.m4
+  in acinclude.m4
+* AC_LIBLTDL_CONVENIENCE and AC_LIBLTDL_INSTALLABLE now set INCLTDL.
+* New port to NEC UX/4800.
+* cygwin-b20.1 passes all tests.
+* Slightly improved BeOS support.
+* Many AIX 4.3.2 test failures have gone.
+* Pass unknown -L arguments through to the linker (for -LANG:* support).
+* Close a security hole with mode 777 directory during libltdl installation.
+* Fixed the infamous ``ifelse'' bug in libtool.m4
+
+New in 1.3: 1999-04-29, Libtool team:
+* This is just a summary of the changes since 1.2.
+  See the news of intermediate alpha releases below for details.
+* Support for convenience archives.
+* New maintainers.  Anonymous CVS and home page at gnu.org.
+* Portable dlopening interface with libltdl, new -module flag.
+* Correctly link installed libtool libraries into programs and other
+  libtool libraries.  Linking of uninstalled libtool libraries into
+  libraries is under development for 1.4.
+* Do not drop library dependencies on platforms that allow them.
+* Linking with uninstalled libraries no longer picks installed ones by
+  mistake.
+* Use libraries from the build tree when running uninstalled
+  executables (may require double linking).
+* Allow developers to optimize for build-tree executions.
+* Support -export-symbols-regex for controlled symbol exporting.
+* Support -R to hardcode directories in library search paths.
+* New ports, demos and tests.  Lots of improvements and bug fixes.
+
+New in CVS version 1.2g, Libtool team:
+* AM_PROG_LIBTOOL is smaller and faster
+* AC_LIBTL_L_WIN32_DLL is required in configure.in for libtool to
+  attempt to build dlls on win32 hosts
+* Shared libraries on AmigaOS up to version 4 are now disabled
+  since they don't meet libtool's requirements for shared libraries
+* -L supports now relative directories
+* Libltdl has a new license: LGPL with a special exception
+* Libltdl can be used as stand-alone package
+* dlopen support for BeOS
+* Partial support for Motorola System V 4
+* Improved support for AIX, BeOS, Cygwin, DJGPP, DU, IRIX and HP/UX
+* Documentation updates
+* New tests
+* Bugfixes
+
+New in 1.2f: 1999-03-15; CVS version 1.2e, Libtool team:
+* libtool will correctly link uninstalled libraries into programs
+  and prefer uninstalled libraries to installed ones
+* Library paths that are in the system default run-time search path
+  are no longer hardcoded into executables.
+* New fast installation mode, which links the final executable
+  in order to avoid relinking during installation.
+  Programs in the build-tree are relinked when executed.
+* New AC_DISABLE_FAST_INSTALL macro to set the default for
+  the fast-install mode to disabled
+* New -export-symbols-regex flag, to export symbols selectively by
+  a regular expression
+* Support -R for specifying run-time path of programs and library dependencies
+* New -avoid-version option to avoid versioning for libraries
+* libtool module names no longer need to have a "lib" prefix
+  (requires automake 1.4).
+* New -thread-safe flag, to build thread-safe libraries
+* Major improvements in libltdl: API documentation, installable version,
+  support for module search paths, support for lt_dlopen(0),
+  can be embedded into packages as a tar file (libltdl.tar.gz),
+  dynamic buffer allocation and buffer overflow checks,
+  new macro LTDL_SET_PRELOADED_SYMBOLS() which must be used in the
+  main program, dynamic memory allocation functions are user-defineable
+* New AC_LIBLTDL_CONVENIENCE and AC_LIBLTDL_INSTALLABLE macros, to select
+  convenience and/or installable versions of libltdl.
+* libltdl is now built and installed unless --disable-ltdl-install
+* New "-dlopen self" flag for dlopening the executable itself
+* New AC_LIBTOOL_DLOPEN macro to check for dlopen support,
+  required if you use -dlopen or -dlpreopen
+* If libtool could not satisfy all dependencies of a module
+  it will only build a static version of it
+* dld_preloaded_symbols was renamed to lt_preloaded_symbols
+* Support for BeOS
+* Improved support for FreeBSD, AIX, IRIX, OSF, SysV 4.3, HP/UX, DJGPP
+  BSD/OS 4.x and NetBSD
+* In order for libtool to attempt to link a shared library (dll) on win32
+  platforms, you must pass the -no-undefined flag to libtool in link mode.
+* The path to GNU ld now works on cygwin-b18 to cygwin-b20.2 at least.
+* Support for IRIX library versioning.
+* New demos and tests
+* Various bugfixes
+
+New in 1.2d: 1998-12-16; CVS version 1.2c, Libtool team:
+* libtool will correctly link already-installed libraries into programs.
+* New -module flag, to create loadable modules.
+* New libltdl, a small library for portable dlopening of modules.
+  It is still undocumented, but you can already find some examples in:
+* New mdemo directory, with tests of -module and dlopening examples.
+  Be aware that libltdl is only known to work on a few platforms such as
+  GNU/Linux and Solaris2.  Some mdemo tests are known to FAIL on several
+  other platforms; please ignore these failures by now (or work to fix
+  them :-).
+* Inter-library dependencies patch finally integrated, but there's
+  still much porting to do.  See PORTING for details (some plans for the
+  future in mail/deplibs in the CVS tree).
+* New option -export-symbols to control symbol exporting when possible.
+* Fixed -export-dynamic problem with C++ programs in egcs 1.1.
+* New dlpreopen structure.
+* libtool now supports `-c -o' and subdirectories in sources and
+  target object names even in platforms whose compilers do not support
+  this.  In this case, file locking occurs to avoid problems with
+  parallel builds.
+* New `echo' variant that should fix most problems with long command
+  lines and broken printf programs.
+* Support for DG/UX, UnixWare 7.x and FreeBSD 3.0, and improved
+  support for Microsoft Windows
+* Various bugfixes
+* We now have anonymous CVS access to GNU libtool.  CVSROOT is
+  :pserver:anoncvs@anoncvs.gnu.org:/gd/gnu/anoncvsroot.  The password
+  is empty.  The directory is libtool.  Check our home-page at
+  http://www.gnu.org/software/libtool/libtool.html for details.
+* Alexandre Oliva, Thomas Tanner and Gary V. Vaughan have taken over
+  the maintenance of libtool.
+* Arguments to ltconfig have been changed to allow creation of a
+  libtool C program, totally unusable as of this release.
+
+New in 1.2b - 1998-07-01, Gordon Matzigkeit:
+* Libtool needs a new maintainer, since Gordon Matzigkeit has quit.
+  If you think you can do the job, send mail to bug-libtool@gnu.org.
+* Bug fixes.
+* Support for libtool convenience archives.
+
+New in 1.2a - 1998-04-19, Gordon Matzigkeit:
+* Bug fixes.
+* ltconfig accepts an `--output' option to specify the name of the
+  generated libtool.
+* New `--debug' flag to turn on shell script tracing for libtool,
+  libtoolize, and ltconfig.
+* Added `libtool --config' to print out all configuration variables.
+* Support for *-*-hpux11*.
+
+New in 1.2 - 1998-03-20, Gordon Matzigkeit:
+* Minor bug fixes to provide a stable public release.
+* Libtool no longer cseses Solaris printf to barf due to silly
+  2110-byte static buffers.
+
+New in 1.1 - 1998-03-08, Gordon Matzigkeit:
+* Bug fixes.
+* http://www.profitpress.com/libtool/ is libtool's homepage.
+* `AM_PROG_LIBTOOL' supports turning shared or static libraries off
+  with the `--enable-shared=PKGS' and `--enable-static=PKGS' configure
+  flags.  See (libtool)AM_PROG_LIBTOOL.
+* Use the `AM_DISABLE_SHARED' or `AM_DISABLE_STATIC' macros if you
+  wish to modify the default behaviour of `AM_PROG_LIBTOOL' for your
+  package.
+* New rules for `AM_PROG_LD' to use gcc's `-print-prog-name' flag in
+  order to find ld, if possible.
+* Suppress duplicate compiler output during `compile' mode.
+* Deleted `dlname' mode.  Dlopen applications should only use the
+  runtime search method described in (libtool)Finding the dlname.
+* Experimental support for dynamically loaded modules, even on
+  static-only platforms, via new `-dlopen' and `-dlpreopen' link
+  flags.
+* `compile' mode honours the `-static' flag to prevent libtool
+  from building PIC objects.
+* New `execute' mode to support debugging uninstalled libtool
+  libraries and executables.
+* `-allow-undefined' is now the default.  You can use `-no-undefined'
+  to declare that a shared library is completely self-contained.
+* Inter-library dependencies are automatically handled when linking
+  against an uninstalled `.la' file.
+* New `-all-static' flag to prevent any dynamic linking.  The regular
+  `-static' flag now just prevents dynamic linking of libtool libraries.
+* New `-release' flag to encode release numbers into libtool
+  libraries.  This breaks binary compatibility, but is useful for
+  libraries whose interfaces change very frequently.  See
+  (libtool)Versioning.
+* The `-rpath' flag can be used to hardcode absolute directories when
+  linking executables using libtool.
+* New robust quoting code to handle any metacharacters passed in
+  arguments to libtool commands.
+* Full support for broken collect2 on AIX 3.  Shared libraries
+  can now be built with all working versions of GCC on AIX.
+* Shell script speed optimizations for old and buggy /bin/sh systems,
+  such as HP-UX 9 and SunOS 4.1.4.
+* Maybe use `_libs' as a temporary libtool directory instead of `.libs'
+  in order to cope with MS-DOS filenames.
+* Portability fixes for Windows NT.
+* Refuse to create libtool libraries that don't begin with `lib'.
+  This allows us to correctly handle OSes that don't have the `lib'
+  prefix by default, such as OS/2.
+* Support for *-*-amigaos*, *-*-os2*, *-*-sysv4.2uw2*, and *-*-uts4*.
+
+New in 1.0 - 1997-07-08, Gordon Matzigkeit:
+* Bug fixes.
+* Better configuration test to find the system linker.  The old test
+  was failing because people frequently install GNU ld, but don't
+  necessarily configure GCC to use it.
+* Automake support for Libtool now uses the LTLIBRARIES primary.  See
+  the Automake documentation for more information.
+* Added new `--disable-static' flag to disable building static
+  libraries on platforms that have shared libs.
+* New `-allow-undefined' link flag to build shared libs that contain
+  references to unresolved symbols.
+* Removed all support for creating static-only libraries.
+* Basic support for dynamically loaded modules: new `-export-dynamic'
+  linking flag and corresponding `dlname' mode.
+* New `--features' flag to display configured libtool attributes.
+* Added support for installing libtool objects, both in absolute and
+  relative directories.
+* Support *-*-linux-gnu* as an alias for *-*-linux*.
+* Support for *-*-openbsd* and *-*-freebsd3*.
+
+New in 0.9 - 1997-02-03, Gordon Matzigkeit:
+* Bug fixes.
+* The libtool demo now uses the libm cos(3) function, to demonstrate
+  inter-library dependencies.
+* The PLATFORMS file has been moved to doc/platforms.texi.
+
+New in 0.8 - 1997-01-26, Gordon Matzigkeit:
+* Bug fixes, and more documentation.
+* Basic support for other language compilers (C++, Fortran, and
+  preprocessed assembler).
+* Libtool is now more persistent when linking with the `-static'
+  flag fails.
+* New test for hardcoding system linkers, to verify that libtool
+  neither creates incorrect binaries, nor takes unnecessary
+  precautions while linking against uninstalled shared libraries.
+* For clarity, the demo subdirectory no longer uses ansi2knr, and has
+  been rewritten to avoid ANSI-only constructs.
+* Support for *-*-irix5, *-*-irix6*, and *-*-sco3.2v5*.
+
+New in 0.7 - 1996-12-08, Gordon Matzigkeit:
+* Total rewrite of libtool, along with a new model for library building.
+* Completely rewritten documentation for the new paradigm.
+* Sane handling of broken system linkers, such as the ones on AIX
+  and HP-UX.
+* configure mode is now a separate program, `ltconfig'
+* The libinfo helper script has been incorporated into the main
+  libtool program.
+* Automatic mode guessing, based on the command line.
+* Full support for Automake 1.2 (including ansi2knr features).
+* Support to create reloadable objects using link mode.
+* Support for new `-static' linking flag.
+* Support for stripping libraries during installation.
+* Library version information is now passed on the command line, not
+  through a version file.
+
+Version 0.6 was never released.
+
+New in 0.5:
+* Disabled install-progs until next version, when it will be correctly
+  implemented.
+* Clearer library versioning documentation.  See (libtool)Versioning.
+* Renamed gm_PROG_LIBTOOL to AM_PROG_LIBTOOL
+* Libtool now creates pseudo-objects named foo.lo and pseudo-archives named
+  libfoo.la instead of foo.o and libfoo.a.  See the documentation.
+* libtool compile doesn't interfere with user CFLAGS if they don't
+  conflict with the current objtype.  From Karl Berry.
+* Created new libinfo helper script.
+* libversion.in files are obsolete -- libtool uses libinfo to read the
+  new LIBINFO files.
+* Libtool is better at finding its config file and helper scripts.
+* Support for *-*-gnu*
+
+New in 0.4:
+* Bug fixes and new regression tests
+* On unsupported configurations, ``libtool configure'' demotes OBJTYPES to
+  `standard' instead of aborting
+* Added new object type, `t', for tcov(1) support
+* Support for *-*-aix3*, *-*-aix4*, *-*-hpux10*, *-*-osf3*, and *-*-solaris2*
+
+New in 0.3:
+* Bug fixes and new regression tests
+* Added new uninstall-libs mode
+* Added a host argument to configure mode
+* Fixed debugging/hyper-optimizing flags conflict (from Karl Berry)
+* Support for --no-whole-archive when needed by GNU ld (from Ulrich Drepper)
+* Implementation of --enable-linktype, --enable-profile, --enable-shared,
+  --enable-static in gm_PROG_LIBTOOL macro
+* New `libtoolize' program (modeled after GNU gettext's `gettextize') to help
+  conversion to libtool
+* New ABOUT-LIBS document for inclusion with libtool-supported packages
+
+New in 0.2:
+* Support for *-*-linux
+* Better checking for GNU ld
+* Reimplemented the config file so that it corresponds more closely to the
+  variables listed in (libtool)Porting Libtool.
+* Reimplemented the shared library version scheme.  See (libtool)Versioning.
+* Replaced `--config-file' and `--version-file' options with `--confdir'
+* Added new install-libs and install-progs modes
+
+New in 0.1:
+* First release of libtool
+* Support for: *-*-freebsd*, *-*-netbsd*, *-*-sunos4*, *-*-ultrix4*

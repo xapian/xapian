@@ -1,0 +1,113 @@
+#! /bin/sh
+# link-order.test - make sure that library linking order matches
+
+# Test script header.
+need_prefix=no
+if test -z "$srcdir"; then
+  srcdir=`echo "$0" | sed 's%/[^/]*$%%'`
+  test "$srcdir" = "$0" && srcdir=.
+  test "${VERBOSE+set}" != "set" && VERBOSE=yes
+fi
+. $srcdir/defs || exit 1
+
+retcode=0
+
+eval `$libtool --config | $EGREP '^(hardcode_direct|shrext_cmds)='`
+module=no
+eval shared_ext=\"$shrext_cmds\"
+
+rm -rf linkorder.dir
+mkdir linkorder.dir
+top_dir=`pwd`/linkorder.dir
+prefix_old=$top_dir/old
+prefix_new=$top_dir/new
+srcdir=linkorder.dir/src
+mkdir $srcdir $prefix_old $prefix_new $prefix_old/lib $prefix_new/lib
+
+cat >$srcdir/c.c <<EOF
+int c = 1;
+EOF
+
+$libtool --mode=compile $CC $CFLAGS -c $srcdir/c.c -o $srcdir/c.lo
+$libtool --mode=link $CC $CFLAGS $LDFLAGS -o $srcdir/libcee.la $srcdir/c.lo \
+    -rpath $prefix_old/lib
+$libtool --mode=install cp $srcdir/libcee.la $prefix_old/lib/libcee.la
+
+for i in old new; do
+  rm -rf $srcdir
+  mkdir $srcdir
+
+  cat >$srcdir/a_$i.c <<EOF
+extern int c;
+extern int b_$i();
+int a_$i() { return c + b_$i(); }
+EOF
+
+  cat >$srcdir/b_$i.c <<EOF
+extern int c;
+int b_$i() { return 1 + c; }
+EOF
+
+  prefix=`eval echo \\$prefix_$i`
+  $libtool --mode=compile $CC $CFLAGS -c $srcdir/a_$i.c -o $srcdir/a.lo
+  $libtool --mode=compile $CC $CFLAGS -c $srcdir/b_$i.c -o $srcdir/b.lo
+  $libtool --mode=link $CC $CFLAGS $LDFLAGS -o $srcdir/libb.la $srcdir/b.lo \
+      -L$prefix_old/lib -lcee -rpath $prefix/lib
+  $libtool --mode=link $CC $CFLAGS -o $srcdir/liba.la $srcdir/a.lo \
+      $srcdir/libb.la -L$prefix_old/lib -lcee -rpath $prefix/lib
+  $libtool --mode=install cp $srcdir/libb.la $prefix/lib/libb.la
+  $libtool --mode=install cp $srcdir/liba.la $prefix/lib/liba.la \
+      >$srcdir/stdout 2>$srcdir/stderr || retcode=1
+  cat $srcdir/stdout
+  cat $srcdir/stderr >&2
+done
+
+case $host in
+*-*-aix* | *-*-interix*) ;; # These systems have different path syntax
+*)
+  # Do not error if we do not relink (e.g. static-only systems)
+  case $hardcode_direct in
+  yes)
+    if $EGREP relinking $srcdir/stderr; then
+      if $EGREP " .*\/new\/lib/libb$shared_ext .*\/old\/lib/libcee$shared_ext" $srcdir/stdout; then :; else
+        echo "$0: wrong link order" 1>&2
+        retcode=1
+      fi
+    fi
+    ;;
+  *)
+    if $EGREP relinking $srcdir/stderr; then
+      if $EGREP ' -L.*\/new\/lib -lb -L.*\/old\/lib -lcee' $srcdir/stdout; then :; else
+        echo "$0: wrong link order" 1>&2
+        retcode=1
+      fi
+    fi
+    ;;
+  esac
+  ;;
+esac
+
+for i in old new; do
+  cat >$srcdir/main_$i.c <<EOF
+extern int a_$i();
+int main(void) { return a_$i() != 3; }
+EOF
+
+  prefix=`eval echo \\$prefix_$i`
+  $libtool --mode=compile $CC $CFLAGS -c $srcdir/main_$i.c -o $srcdir/main_$i.lo
+  $libtool --mode=link $CC $CFLAGS $LDFLAGS -o $srcdir/main_$i $srcdir/main_$i.lo \
+      -L$prefix/lib -la || retcode=1
+  if $srcdir/main_$i; then :
+  else
+    echo "$0: cannot execute $srcdir/main_$i" 1>&2
+    if test "X$host" != "X$build"; then
+      echo "This may be ok since you seem to be cross-compiling." 1>&2
+      retcode=77
+    else
+      retcode=1
+    fi
+  fi
+done
+
+rm -rf $top_dir
+exit $retcode

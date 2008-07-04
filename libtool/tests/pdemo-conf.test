@@ -1,0 +1,48 @@
+#! /bin/sh
+# pdemo-conf.test - try configuring the ../pdemo subdirectory
+
+# Test script header.
+need_prefix=yes
+if test -z "$srcdir"; then
+  srcdir=`echo "$0" | sed 's%/[^/]*$%%'`
+  test "$srcdir" = "$0" && srcdir=.
+  test "${VERBOSE+set}" != "set" && VERBOSE=yes
+fi
+. $srcdir/defs || exit 1
+
+# Maybe we have a VPATH build, in which case, create a new subdir.
+test -d ../pdemo || mkdir ../pdemo
+
+# Change to our build directory.
+cd ../pdemo || exit 1
+
+# Possibly clean up the distribution.
+if test -f Makefile; then
+  echo "= Running $make distclean in ../pdemo"
+  $make distclean
+fi
+rm -f config.cache
+
+# Configure the demonstration.
+echo "= Configuring in ../pdemo (prefix=$prefix)"
+${CONFIG_SHELL-/bin/sh} $srcdir/../pdemo/configure --srcdir=$srcdir/../pdemo --prefix=$prefix || exit 1
+
+if grep '^build_old_libs=yes' libtool > /dev/null &&
+   grep '^build_libtool_libs=yes' libtool > /dev/null; then :
+else rm -f Makefile && exit 77
+fi
+
+if test -f ./libtool ; then
+  sed 's/^max_cmd_len=*/max_cmd_len=24 # /g' ./libtool > ltnew
+else
+  exit 1
+fi
+
+if test -f ./ltnew ; then
+  rm -f libtool
+  mv ltnew libtool
+else
+  exit 1
+fi
+
+exit 0

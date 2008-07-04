@@ -1,0 +1,78 @@
+#! /bin/sh
+# Copyright (C) 2002, 2003, 2004  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Make sure that we can enable or disable warnings on a per-file basis.
+
+. ./defs || exit 1
+
+set -e
+
+cat >>configure.in <<END
+AC_CONFIG_FILES([sub/Makefile])
+AC_OUTPUT
+END
+
+mkdir sub
+
+# These two Makefile contain the same errors, but have different
+# warnings disabled.
+
+cat >Makefile.am <<END
+AUTOMAKE_OPTIONS = -Wno-obsolete
+INCLUDES = -Ifoo
+foo_SOURCES = unused
+SUBDIRS = sub
+END
+
+cat >sub/Makefile.am <<END
+AUTOMAKE_OPTIONS = -Wno-syntax
+INCLUDES = -Ifoo
+foo_SOURCES = unused
+END
+
+$ACLOCAL
+AUTOMAKE_fails
+# The expected diagnostic is
+#   Makefile.am:3: unused variable: `foo_SOURCES'
+#   sub/Makefile.am:2: `INCLUDES' is the old name for `AM_CPPFLAGS'
+grep '^Makefile.am:.*foo_SOURCES' stderr
+grep '^sub/Makefile.am:.*INCLUDES' stderr
+grep '^sub/Makefile.am:.*foo_SOURCES' stderr && exit 1
+grep '^Makefile.am:.*INCLUDES' stderr && exit 1
+# Only three lines of warnings.
+test `wc -l < stderr` = 3
+
+# On fast machines the autom4te.cache created during the above run of
+# $AUTOMAKE is likely to have the same time stamp as the configure.in
+# created below; thus causing traces for the old configure.in to be
+# used.  We could do `$sleep', but it's faster to erase the
+# directory.  (Erase autom4te*.cache, not autom4te.cache, because some
+# bogus installations of Autoconf use a versioned cache.)
+rm -rf autom4te*.cache
+
+# If we add a global -Wnone, all warnings should disappear.
+cat >configure.in <<END
+AC_INIT([warnopts], [1.0])
+AM_INIT_AUTOMAKE([-Wnone])
+AC_CONFIG_FILES([Makefile sub/Makefile])
+AC_OUTPUT
+END
+$ACLOCAL
+$AUTOMAKE

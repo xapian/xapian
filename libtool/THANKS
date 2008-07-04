@@ -1,0 +1,137 @@
+* GNU Libtool could not be what it is today without the invaluable help of
+  the people named in this file.
+
+
+* The following people have made sufficiently significant code contributions
+  to Libtool that an exchange of legal papers with the FSF was warranted:
+
+  Gord Matzigkeit		gord@gnu.org			  1996-07-11
+  Kean Johnston			jkj@sco.com			  1997-08-26
+  Gary V. Vaughan		gary@gnu.org			  1998-11-24
+  Alexandre Oliva		oliva@dcc.unicamp.br		  1999-03-26
+  Thomas Tanner			tanner@ffii.org			  1999-06-23
+  Pavel Roskin			pavel_roskin@geocities.com	  1999-07-20
+  Ossama Othman			ossama@debian.org		  1999-12-06
+  Lars J. Aas			lars@sim.no			  2000-07-07
+  Morten Eriksen		morten@sim.no			  2000-07-07
+  Robert Boehne			rboehne@gnu.org			  2000-09-25
+  Stepan Kasal			kasal@ucw.cz			  2000-04-12
+  Paul Sokolovsky		Paul.Sokolovsky@technologist.com  2000-05-06
+  Daniel P. McNichol		mcnichol@austin.ibm.com		  2000-12-08
+  Bruce Korb			bkorb@gnu.org			  2000-10-11
+  Tim Van Holder		tim.van.holder@pandora.be	  2001-02-20
+  Derek R. Price		dprice@collab.net		  2001-03-12
+  Edward M. Lee			tailbert@yahoo.com		  2001-03-22
+  Erik Lindahl			erik@theophys.kth.se		  2001-08-22
+  Carsten Griwodz		griff@ifi.uio.no		  2001-08-29
+  Hans-Peter Nilsson		hp@bitrange.com			  2001-10-24
+  Akim Demaille			akim@freefriends.org		  2001-11-01
+  Francis James Franklin	fjf@alinameridon.com		  2001-11-15
+  Robert Collins		rbtcollins@hotmail.com		  2001-12-27
+  Michael Elizabeth Chastain	mec@shout.net			  2001-12-27
+  Nishio Futoshi		fut_nis@d3.dion.ne.jp		  2002-01-23
+  Trevor Forbes			trevorf@idl.com.au		  2002-04-26
+  Charles S. Wilson		cwilson@ece.gatech.edu		  2002-05-23
+  Federico G. Schwindt		fgsch@openbsd.org		  2002-05-21
+  Greg McGary			greg@mcgary.org			  2002-06-05
+  Robert J. Friesenhahn		bfriesen@simple.dallas.tx.us	  2002-06-27
+  Assar Westerlund		assar@kth.se			  2002-09-13
+  Allan Sandfeld Jensen		snowwolf@one2one-networks.com	  2002-10-07
+  Ross Douglas Alexander	ross.alexander@uk.neceur.com	  2002-10-29
+  Alexandre Duret-Lutz		duret_g@lrde.epita.fr		  2002-11-06
+  Christian Cornelssen		ccorn@cs.tu-berlin.de		  2002-11-05
+  Jan Kratochvil		project-libtool@jankratochvil.net 2003-01-28
+  Raja R. Harinath		harinath@acm.org		  2003-02-25
+  Richard Nicholas Somer Dawe	rich@phekda.freeserve.co.uk	  2003-03-12
+  Peter O'Gorman		peter@pogma.com			  2003-03-14
+  Ralph Schleicher		rs@nunatak.allgaeu.org		  2003-03-13
+  Keith Packard			keithp@keithp.com		  2003-03-12
+  Felix Lee			felix.1@canids.net		  2003-03-31
+  Bernardo Innocenti		bernie@develer.com		  2003-07-31
+  Albert Chin-A-Young		china@thewrittenword.com	  2003-08-02
+  Scott Remnant			scott@netsplit.com		  2003-10-04
+  Robert Millan Hernandez	robertmh@gnu.org		  2003-10-16
+  Kevin Fleming			kpfleming@backtobasicsmgmt.com	  2003-11-17
+  Benjamin Reed			ranger@befunk.com		  2004-02-08
+  Ralf Wildenhues		Ralf.Wildenhues@gmx.de		  2004-02-12
+  Nick Hudson			skrll@netbsd.org		  2004-03-29
+  Paolo Bonzini			bonzini@gnu.org			  2003-03-01
+  Noah Jeffrey Misch		noah@cs.caltech.edu		  2004-07-05
+  Thorsten Glaser		tg@66h.42h.de			  2004-10-11
+  Peter Rosin			peda@lysator.liu.se		  2005-04-12
+  Tim Rice			tim@multitalents.net		  2005-11-10
+  Eric Blake			ebb9@byu.net			  2006-01-18
+
+
+* The following additional people made especially gracious contributions of
+  their time and energy in helping to track down bugs, port to new systems,
+  and generally assist in the libtool maintainership process:
+
+  Andreas Schwab		schwab@suse.de
+  Andrey Slepuhin		pooh@msu.ru
+  Aneesh Kumar K.V		kvaneesh@hotmail.com
+  Brad Smith			brad@comstyle.com
+  Brian Barrett			brbarret@osl.iu.edu
+  Bruno Haible			haible@ilog.fr
+  Carl D. Roth			roth@cse.ucsc.edu
+  Chris P. Ross			cross@eng.us.uu.net
+  Christian Biesinger		cbiesinger@web.de
+  Christoph Egger		Christoph_Egger@gmx.de
+  Christopher Hulbert		cchgroupmail@gmail.com
+  Dalibor Topic			robilad@kaffe.org
+  Daniel Reed			n@ml.org
+  DJ Delorie			dj@delorie.com
+  Edouard G. Parmelan		Edouard.Parmelan@France.NCR.COM
+  Erez Zadok			ezk@shekel.mcl.cs.columbia.edu
+  Eric Estievenart		eric@via.ecp.fr
+  Frank Ch. Eigler		fche@cygnus.com
+  Fred Cox			sailorfred@yahoo.com
+  H.J. Lu			hjl@gnu.org
+  Howard Chu			hyc@highlandsun.com
+  Ian Lance Taylor		ian@cygnus.com
+  Jacob Meuser			jakemsr@jakemsr.com
+  James Su			james.su@gmail.com
+  Jeff Squyres			jsquyres@lam-mpi.org
+  Jeremy C. Reed		reed@reedmedia.net
+  Jim Meyering			jim@meyering.net
+  Joel N. Weber II		devnull@gnu.org
+  Joerg Sonnenberger		joerg@netbsd.org
+  John Bowler			jbowler@acm.org
+  Joseph Beckenbach III		jrb3@best.com
+  Kenneth Albanowski		kjahds@kjahds.com
+  Kevin Ryde			user42@zip.com.au
+  Kurt D. Zeilenga		Kurt@OpenLDAP.Org
+  Maciej W. Rozycki		macro@linux-mips.org
+  Manfred Weichel		Manfred.Weichel@pdb.siemens.de
+  Marc Espie			espie@nerim.net
+  Marc J. Fraioli		fraioli@dg-rtp.dg.com
+  Mark Kettenis			kettenis@phys.uva.nl
+  Olly Betts			olly@muscat.co.uk
+  Patrick Welche		prlw1@newn.cam.ac.uk
+  Paul Eggert			eggert@twinsun.com
+  Peter Eisentraut		peter_e@gmx.net
+  Peter Jeremy			peterjeremy@optushome.com.au
+  Rainer Orth			ro@TechFak.Uni-Bielefeld.DE
+  Rainer Tammer			tammer@tammer.net
+  Ralf Menzel			menzel@ls6.cs.uni-dortmund.de
+  Robert Ögren			lists@roboros.com
+  Sebastian Wilhelmi		wilhelmi@ira.uka.de
+  Simon Josefsson		jas@extundo.com
+  Stephan Kulow			coolo@kde.org
+  Steve Ellcey			sje@cup.hp.com
+  Steven M. Schultz		sms@wlv.iipo.gtegsc.com
+  Sven Verdoolaege		skimo@liacs.nl
+  Terry D. Dontje		Terry.Dontje@Sun.COM
+  Tim Mooney			mooney@dogbert.cc.ndsu.NoDak.edu
+  Todd Vierling			tv@pobox.com
+  Tom Tromey			tromey@cygnus.com
+  Tor Lillqvist			tml@iki.fi
+  Ulrich Drepper		drepper@ipd.info.uni-karlsruhe.de
+  Xavier Pianet			xavier@xingo.com
+  Юрий Андреевич Пухальский	pooh@cryptopro.ru
+
+
+* And, not forgetting everyone that was kind enough to spend time testing
+  libtool, use it in their packages and report bugs, all of whom are too
+  numerous to mention here.  Many people who have kindly submitted bug reports
+  and small patches are credited for their contributions in the ChangeLogs.

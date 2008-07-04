@@ -1,0 +1,34 @@
+#! /bin/sh
+# f77demo-exec.test - check that programs in the ../f77demo subdirectory are viable
+
+# Test script header.
+need_prefix=no
+if test -z "$srcdir"; then
+  srcdir=`echo "$0" | sed 's%/[^/]*$%%'`
+  test "$srcdir" = "$0" && srcdir=.
+  test "${VERBOSE+set}" != "set" && VERBOSE=yes
+fi
+. $srcdir/defs || exit 1
+
+if test -f ../f77demo/fprogram$EXEEXT && test -f ../f77demo/cprogram$EXEEXT; then :
+else
+  echo "You must run f77demo-make.test before running $0" 1>&2
+  exit 77
+fi
+
+# Check to see if the programs really run.
+echo "Executing uninstalled programs in ../f77demo"
+
+if ../f77demo/fprogram ; then :
+else
+  echo "$0: cannot execute ../f77demo/fprogram" 1>&2
+  status=1
+fi
+
+if ../f77demo/cprogram ; then :
+else
+  echo "$0: cannot execute ../f77demo/cprogram" 1>&2
+  status=1
+fi
+
+exit $status

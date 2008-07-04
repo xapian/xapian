@@ -1,0 +1,80 @@
+#! /bin/sh
+# Copyright (C) 2002, 2005  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Check for use of = and += in different conditions.
+
+. ./defs || exit 1
+
+cat >> configure.in << 'END'
+AC_PROG_CC
+AM_CONDITIONAL(COND1, true)
+AM_CONDITIONAL(COND2, true)
+AM_CONDITIONAL(COND3, true)
+AC_OUTPUT
+END
+
+cat > Makefile.am << 'END'
+
+FOO = foo
+if COND1
+  FOO += foo1
+else
+  FOO += foon1
+endif
+if COND2
+  FOO += foo2
+else
+  FOO += foon2
+endif
+if COND1
+  FOO += foo1b
+else
+  FOO += foon1b
+endif
+
+if COND1
+if COND2
+  BAR = bar12
+else
+  BAR = bar1n2
+endif
+else
+  BAR = barn1
+endif
+
+BAR += bar
+
+if COND3
+  BAR += bar3
+endif
+
+test:
+	@echo BAR: $(BAR) :BAR
+	@echo FOO: $(FOO) :FOO
+END
+
+set -e
+
+$ACLOCAL
+$AUTOCONF
+$AUTOMAKE -a
+./configure
+$MAKE test | $FGREP 'BAR: bar12 bar bar3 :BAR'
+$MAKE test | $FGREP 'FOO: foo foo1 foo2 foo1b :FOO'

@@ -1,0 +1,51 @@
+#! /bin/sh
+# Copyright (C) 2001, 2002, 2004  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Test of names in tar file.
+# From Rainer Orth
+
+. ./defs || exit 1
+
+cat > configure.in << 'END'
+AC_INIT(a.c)
+AM_INIT_AUTOMAKE(nonesuch, 0.23)
+AC_PROG_CC
+AM_PROG_CC_C_O
+AC_OUTPUT(Makefile)
+END
+
+cat > Makefile.am << 'END'
+bin_PROGRAMS = wish
+wish_SOURCES = a.c
+END
+
+: > a.c
+
+set -e
+
+$ACLOCAL
+$AUTOCONF
+$AUTOMAKE --include-deps --copy --add-missing
+./configure
+$MAKE dist
+
+gunzip nonesuch-0.23.tar.gz
+(tar tf nonesuch-0.23.tar | $FGREP './nonesuch-0.23/a.c') && exit 1
+exit 0

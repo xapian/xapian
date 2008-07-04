@@ -1,0 +1,126 @@
+#! /bin/sh
+# build-relink2.test - check to see whether shlibpath overrides runpath
+
+# Test script header.
+need_prefix=yes
+if test -z "$srcdir"; then
+  srcdir=`echo "$0" | sed 's%/[^/]*$%%'`
+  test "$srcdir" = "$0" && srcdir=.
+  test "${VERBOSE+set}" != "set" && VERBOSE=yes
+fi
+. $srcdir/defs || exit 1
+
+# Check that things are built.
+if (test -f $prefix/lib/extra/libl3.la || test -f $prefix/lib/libl3.la) \
+    && cd ../depdemo && test -f l3/libl3.la; then :
+else
+  echo "You must run depdemo-inst.test before $0" 1>&2
+  exit 77
+fi
+
+# Check to make sure we have a dynamic library.
+library_names=NONE
+eval `grep '^library_names=' ./l3/libl3.la 2>/dev/null`
+
+if test "$library_names" = NONE; then
+  echo "library_names not set in ../depdemo/l3/libl3.la" 1>&2
+  exit 1
+elif test -z "$library_names"; then
+  echo "= Exiting: ../depdemo/l3/libl3.la is not a shared library"
+  exit 77
+fi
+
+# Unfortunately, we need access to libtool internals for this test.
+objdir=NONE
+eval `grep '^objdir=' ./libtool 2>/dev/null`
+if test "$objdir" = NONE; then
+  echo "objdir not set in ../depdemo/libtool" 1>&2
+  exit 1
+fi
+
+shlibpath_overrides_runpath=NONE
+eval `grep '^shlibpath_overrides_runpath=' ./libtool 2>/dev/null`
+if test "$shlibpath_overrides_runpath" = NONE; then
+  echo "shlibpath_overrides_runpath not set in ../depdemo/libtool" 1>&2
+  exit 1
+fi
+
+hardcode_action=NONE
+eval `grep '^hardcode_action=' ./libtool 2>/dev/null`
+if test "$hardcode_action" = NONE; then
+  echo "hardcode_action not set in ../depdemo/libtool" 1>&2
+  exit 1
+fi
+
+hardcode_direct=NONE
+eval `grep '^hardcode_direct=' ./libtool 2>/dev/null`
+if test "$hardcode_direct" = NONE; then
+  echo "hardcode_direct not set in ../depdemo/libtool" 1>&2
+  exit 1
+fi
+
+hardcode_into_libs=NONE
+eval `grep '^hardcode_into_libs=' ./libtool 2>/dev/null`
+if test "$hardcode_into_libs" = NONE; then
+  echo "hardcode_into_libs not set in ../depdemo/libtool" 1>&2
+  exit 1
+fi
+
+./depdemo # so that it links on-demand if needed
+
+echo "removing libl3.la from ../depdemo/l3"
+rm -rf l3/libl3.la l3/$objdir
+
+echo "running ../depdemo/depdemo"
+if ./depdemo ||
+   # On AIX 4.1, when the installed copy of libl3 is loaded, it brings
+   # with it the installed copies of libl1 and libl2, with disjoint
+   # counters var_l1 and var_l2.  This is arguably acceptable behavior,
+   # but it's definitely not enough of a reason for the test to fail.
+   ./depdemo -alt; then
+  :
+elif test "x,$hardcode_action,$hardcode_direct" = x,relink,yes; then
+  echo "Ok, uninstalled programs fail after uninstalled libraries are removed"
+  echo "This works in other configurations, but not in this particular one"
+else
+  echo "= Exiting: ../depdemo/depdemo does not run, maybe libl3 was not installed"
+  exit 1
+fi
+
+echo "linking a broken ../depdemo/l3/libl3.la"
+if (cd l3; $make libl3.la libl3_la_OBJECTS=../l2/l2.lo); then
+  :
+else
+  echo "= Exiting: cannot link broken libl3.la"
+  exit 1
+fi
+rm -f l3/libl3.la
+
+echo "running ../depdemo/depdemo with broken libl3.la"
+if (./depdemo) 2>&1; then
+  echo "= Exiting: ../depdemo/depdemo runs even though libl3.la is incomplete"
+  echo "shlibpath_overrides_runpath should be set to no"
+  exit 1
+else
+  echo "Failed, as expected"
+fi
+
+if test "x$hardcode_action" = xrelink; then
+  echo "= Exiting: install-time relinking is required"
+  exit 0
+fi
+
+if test "$shlibpath_overrides_runpath" != yes; then
+  rm -f $objdir/lt-depdemo || exit 1
+  cp $objdir/depdemo $objdir/lt-depdemo || exit 1
+  echo "running ../depdemo/depdemo with installed libl3.la"
+  if ./depdemo; then
+    echo "Worked, as expected"
+  else
+    echo "shlibpath_overrides_runpath should be set to yes"
+    status=1
+  fi
+  rm -f $objdir/lt-depdemo
+fi
+
+exit $status

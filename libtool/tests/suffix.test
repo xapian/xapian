@@ -1,0 +1,37 @@
+#! /bin/sh
+# suffix.test - check that libtool knows how to transform source suffices.
+
+# Extensions taken from the ones that Automake recognizes, plus Objective C,
+# and GNU Ada.
+extensions="C F S ada adb ads asm c c++ cc cpp cxx f f90 F90 f95 F95 f03 F03 for m s sx"
+bad_names="foo."
+
+# Test script header.
+need_prefix=no
+if test -z "$srcdir"; then
+  srcdir=`echo "$0" | sed 's%/[^/]*$%%'`
+  test "$srcdir" = "$0" && srcdir=.
+  test "${VERBOSE+set}" != "set" && VERBOSE=yes
+fi
+. $srcdir/defs || exit 1
+
+status=0
+for ext in $extensions; do
+  # Try a sample compile command.
+  if ($libtool -n --mode=compile compiler -c foo.$ext 2>&1; exit 0) | grep 'cannot'; then
+    status=1
+  else
+    echo "recognized foo.$ext as a valid source file"
+  fi
+done
+
+# Make sure that invalid suffixes are not recognized.
+for name in $bad_names; do
+  if ($libtool -n --mode=compile compiler -c $name 2>&1; exit 0) | grep 'cannot'; then :
+  else
+    echo "incorrectly recognized $name as a valid source file"
+    status=1
+  fi
+done
+
+exit $status

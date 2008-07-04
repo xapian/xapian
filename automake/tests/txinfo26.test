@@ -1,0 +1,64 @@
+#! /bin/sh
+# Copyright (C) 2003  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Make sure Texinfo installation works when absolute --srcdir is used.
+# PR/408
+
+required='makeinfo'
+. ./defs || exit 1
+
+set -e
+
+echo AC_OUTPUT >> configure.in
+
+cat > Makefile.am << 'END'
+info_TEXINFOS = main.texi
+END
+
+
+cat > main.texi << 'END'
+\input texinfo
+@setfilename main.info
+@settitle main
+@node Top
+Hello walls.
+@include version.texi
+@bye
+END
+
+
+$ACLOCAL
+$AUTOMAKE --add-missing
+$AUTOCONF
+
+./configure
+$MAKE
+$MAKE distclean
+mkdir build
+cd build
+../configure --srcdir=`pwd`/.. --prefix=`pwd`/_inst --infodir=`pwd`/_inst/info
+$MAKE install
+test -f ../main.info
+test ! -f ./main.info
+test -f _inst/info/main.info
+
+$MAKE uninstall
+test ! -f _inst/info/main.info
+test -f ../main.info

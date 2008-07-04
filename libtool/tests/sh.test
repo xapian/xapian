@@ -1,0 +1,87 @@
+#! /bin/sh
+# sh.test - check that we haven't forgotten a `test' command
+
+# Test script header.
+need_prefix=no
+if test -z "$srcdir"; then
+  srcdir=`echo "$0" | sed 's%/[^/]*$%%'`
+  test "$srcdir" = "$0" && srcdir=.
+  test "${VERBOSE+set}" != "set" && VERBOSE=yes
+fi
+. $srcdir/defs || exit 1
+
+# Check all the "portable" shell scripts.
+status=0
+scripts="$srcdir/../ltmain.sh"
+
+# Check for bad binary operators.
+if $EGREP -n -e "if[ 	]+[\"']?\\$.*(=|-[lg][te]|-eq|-ne)" $scripts; then
+  echo "use \`if test \$something =' instead of \`if \$something ='"
+  status=1
+fi
+
+# Check for bad unary operators.
+if $EGREP -n -e 'if[ 	]+-' $scripts; then
+  echo "use \`if test -X' instead of \`if -X'"
+  status=1
+fi
+
+# Check for using `[' instead of `test'.
+if $EGREP -n -e 'if[ 	]+\[' $scripts; then
+  echo "use \`if test' instead of \`if ['"
+  status=1
+fi
+
+if $EGREP -n -e 'test[ 	]+(![ 	])?(-.[ 	]+)?"?[.,_x]' $scripts; then
+  echo "use \`test \"X...\"' instead of \`test \"x...\"'"
+  status=1
+fi
+
+# Check for using test X... instead of test "X...
+if $EGREP -n -e 'test[ 	]+(![ 	])?(-.[ 	]+)?X' $scripts; then
+  echo "use \`test \"X...\"' instead of \`test X'"
+  status=1
+fi
+
+# Check for using test $... instead of test "$...
+if $EGREP -n -e 'test[ 	]+(![ 	])?(-.[ 	]+)?X?\$' $scripts; then
+  echo "use \`test \"\$...\"' instead of \`test \$'"
+  status=1
+fi
+
+# Never use test -e.
+if $EGREP -n -e 'test[ 	]+(![ 	])?-e' $scripts; then
+  echo "use \`test -f' instead of \`test -e'"
+  status=1
+fi
+
+# Check for problems with variable assignments.
+if $EGREP -n -e '[^	 ]=[^	 ].*(break|continue)' $scripts; then
+  echo "assignments on the same line as a \`break' or \`continue' may have no effect"
+  status=1
+fi
+
+# Check for uses of Xsed without corresponding echo "X
+if $EGREP -n -e '\$Xsed' $scripts | $EGREP -v -n -e '\$echo \\*"X'; then
+  echo "occurrences of \`\$Xsed\' without \`echo \"X\' on the same line"
+  status=1
+fi
+
+# Check for quotes within backquotes within quotes "`"bar"`"
+if $EGREP -n -e '"[^`"]*`[^"`]*"[^"`]*".*`[^`"]*"' $scripts | \
+   $EGREP -v "### testsuite: skip nested quoting test$"; then
+  echo "nested quotes are dangerous"
+  status=1
+fi
+
+for s in "$srcdir/../libtool.m4"
+do
+  if $SED -n '/case \$cc_basename in/,/esac/ {
+	      /^[ 	]*[a-zA-Z][a-zA-Z0-9+]*[^*][ 	]*)/p
+  	      };'  $s | $EGREP .; then
+    echo "\$cc_basename matches should include a trailing \`*' in $s."
+    status=$EXIT_FAILURE
+  fi
+done
+
+exit $status

@@ -1,0 +1,58 @@
+#! /bin/sh
+# duplicate members
+
+need_prefix=no
+if test -z "$srcdir"; then
+  srcdir=`echo "$0" | sed 's%/[^/]*$%%'`
+  test "$srcdir" = "$0" && srcdir=.
+  test "${VERBOSE+set}" != "set" && VERBOSE=yes
+fi
+. $srcdir/defs || exit 1
+
+test -d duplicate_members.dir && rm -rf duplicate_members.dir
+mkdir duplicate_members.dir
+# we don't want to use whole_archive_flag_spec, even if available
+sed -e 's|^whole_archive_flag_spec=.*|whole_archive_flag_spec=|g' < $libtool > duplicate_members.dir/libtool
+
+cd duplicate_members.dir
+chmod +x ./libtool
+
+for a in 1 2 3 4 5 6
+do
+  mkdir $a
+  echo "int foo$a() {return $a;}" > $a/a.c
+done
+eval `./libtool --config | grep ^CC`
+
+for a in 1 2 3 4 5 6
+do
+  ./libtool --mode=compile --tag=CC $CC -c $CFLAGS -o $a/a.lo $a/a.c
+done
+./libtool --mode=link --tag=CC $CC $CFLAGS $LDFLAGS -o libc0.la 6/a.lo
+./libtool --mode=link --tag=CC $CC $CFLAGS $LDFLAGS -o libconv.la 1/a.lo 2/a.lo 3/a.lo 4/a.lo 5/a.lo libc0.la
+
+cat <<EOF > bar.c
+int bar() {
+    int result=foo1() +foo2() +foo3() +foo4() +foo5() +foo6();
+    return result;
+}
+EOF
+
+./libtool --mode=compile --tag=CC $CC -c $CFLAGS -o bar.lo bar.c
+./libtool --mode=link --tag=CC $CC $CFLAGS $LDFLAGS -o libbar.la bar.lo libconv.la -rpath /notexist
+
+cat <<EOF > main.c
+int bar();
+int main()
+{
+if (bar() == 21) return 0;
+return 1;
+}
+EOF
+./libtool --mode=compile --tag=CC $CC -c $CFLAGS -o main.lo main.c
+./libtool --mode=link --tag=CC $CC $CFLAGS $LDFLAGS -o main main.lo ./libbar.la
+./main
+retcode=$?
+cd ..
+rm -rf duplicate_members.dir
+exit $retcode

@@ -1,0 +1,31 @@
+#! /bin/sh
+# mdemo2-make.test - try building in the ../mdemo2 subdirectory
+
+# Test script header.
+need_prefix=no
+if test -z "$srcdir"; then
+  srcdir=`echo "$0" | sed 's%/[^/]*$%%'`
+  test "$srcdir" = "$0" && srcdir=.
+  test "${VERBOSE+set}" != "set" && VERBOSE=yes
+fi
+. $srcdir/defs || exit 1
+
+if test -f ../mdemo2/Makefile; then :
+else
+  echo "You must run mdemo2-conf.test before running $0" 1>&2
+  exit 77
+fi
+
+if test -f ../mdemo/libmlib.la; then :
+else
+  echo "You must run mdemo-make.test before running $0" 1>&2
+  exit 77
+fi
+
+# Change to our build directory.
+cd ../mdemo2 || exit 1
+
+# Do the actual build.
+echo "Making in ../mdemo2"
+$make || exit 1
+exit 0

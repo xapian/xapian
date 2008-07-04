@@ -1,0 +1,35 @@
+#! /bin/sh
+# cdemo-conf.test - try configuring the ../cdemo subdirectory
+
+# Test script header.
+need_prefix=yes
+if test -z "$srcdir"; then
+  srcdir=`echo "$0" | sed 's%/[^/]*$%%'`
+  test "$srcdir" = "$0" && srcdir=.
+  test "${VERBOSE+set}" != "set" && VERBOSE=yes
+fi
+. $srcdir/defs || exit 1
+
+# Maybe we have a VPATH build, in which case, create a new subdir.
+test -d ../cdemo || mkdir ../cdemo
+
+# Change to our build directory.
+cd ../cdemo || exit 1
+
+# Possibly clean up the distribution.
+if test -f Makefile; then
+  echo "= Running $make distclean in ../demo"
+  $make distclean
+fi
+rm -f config.cache
+
+# Configure the demonstration.
+echo "= Configuring in ../cdemo (prefix=$prefix)"
+${CONFIG_SHELL-/bin/sh} $srcdir/../cdemo/configure --srcdir=$srcdir/../cdemo --prefix=$prefix || exit 1
+
+if grep '^build_old_libs=yes' libtool > /dev/null &&
+   grep '^build_libtool_libs=yes' libtool > /dev/null; then :
+else rm -f Makefile && exit 77
+fi
+
+exit 0

@@ -1,0 +1,28 @@
+* GNU Libtool was conceived, designed and implemented by:
+
+    Gordon Matzigkeit		gord@gnu.org
+
+* GNU Libtool's Dynamic Loader library (libltdl) was conceived,
+  designed and implemented by:
+
+    Thomas Tanner		tanner@ffii.org
+
+* GNU Libtool and libltdl have previously been maintained, enhanced,
+  ported and otherwise advanced by:
+
+    Alexandre Oliva		oliva@dcc.unicamp.br
+    Ossama Othman		ossama@debian.org
+    Robert Boehne		rboehne@ricardo-us.com
+    Scott James Remnant		scott@netsplit.com
+
+* GNU Libtool and libltdl are currently being cajoled, bullied,
+  rewritten and otherwise dragged into the future by:
+
+    Gary V. Vaughan		gary@gnu.org
+    Bob Friesenhahn		bfriesen@simple.dallas.tx.us
+    Peter O'Gorman		peter@pogma.com
+    Ralf Wildenhues		Ralf.Wildenhues@gmx.de
+
+* The following people also enjoy write access under the given rules:
+
+    Peter Ekberg		peda@lysator.liu.se

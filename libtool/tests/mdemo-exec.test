@@ -1,0 +1,34 @@
+#! /bin/sh
+# mdemo-exec.test - check that programs in the ../mdemo subdirectory are viable
+
+# Test script header.
+need_prefix=no
+if test -z "$srcdir"; then
+  srcdir=`echo "$0" | sed 's%/[^/]*$%%'`
+  test "$srcdir" = "$0" && srcdir=.
+  test "${VERBOSE+set}" != "set" && VERBOSE=yes
+fi
+. $srcdir/defs || exit 1
+
+if test -f ../mdemo/mdemo$EXEEXT; then :
+else
+  echo "You must run mdemo-make.test before running $0" 1>&2
+  exit 77
+fi
+
+# Check to see if the programs really run.
+echo "Executing uninstalled programs in ../mdemo"
+
+status=0
+for binary in ../mdemo/mdemo_static ../mdemo/mdemo; do
+  for args in "../mdemo/foo1.la ../mdemo/libfoo2.la" \
+              "\"`pwd`/../mdemo/foo1.la\" \"`pwd`/../mdemo/libfoo2.la\""; do
+    if eval "$binary $args"; then :
+    else
+      echo "$0: execution of $binary $args failed" 1>&2
+      status=1
+    fi
+  done
+done
+
+exit $status

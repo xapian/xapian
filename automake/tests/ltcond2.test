@@ -1,0 +1,81 @@
+#! /bin/sh
+# Copyright (C) 2003, 2004  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Test for bug in conditionals.
+
+required='libtoolize gcc'
+. ./defs || exit 1
+
+set -e
+
+cat >> configure.in << 'END'
+AC_PROG_CC
+AC_PROG_LIBTOOL
+AC_SUBST([HELLO_SYSTEM], [hello-generic.lo])
+AM_CONDITIONAL([LINUX], true)
+AC_OUTPUT
+END
+
+cat > Makefile.am << 'END'
+lib_LTLIBRARIES = libhello.la
+libhello_la_SOURCES = hello-common.c
+EXTRA_libhello_la_SOURCES = hello-linux.c hello-generic.c
+libhello_la_LIBADD = $(HELLO_SYSTEM)
+libhello_la_DEPENDENCIES = $(HELLO_SYSTEM)
+
+lib_LTLIBRARIES += libhello2.la
+libhello2_la_SOURCES = hello-common.c
+if LINUX
+libhello2_la_SOURCES += hello-linux.c
+else
+libhello2_la_SOURCES += hello-generic.c
+endif
+
+bin_PROGRAMS = hello hello2
+hello_SOURCES = main.c
+hello_LDADD = libhello.la
+hello2_SOURCES = main.c
+hello2_LDADD = libhello2.la
+
+check-local:
+	./hello$(EXEEXT) | grep hello-generic
+	./hello2$(EXEEXT) | grep hello-linux
+	: > check-ok
+END
+
+echo 'char* str() { return "hello-linux"; }' >hello-linux.c
+echo 'char* str() { return "hello-generic"; }' >hello-generic.c
+cat >hello-common.c <<'END'
+#include <stdio.h>
+char* str();
+void print()
+{
+  puts (str ());
+}
+END
+echo 'int main() { print(); return 0; }' >main.c
+
+libtoolize
+$ACLOCAL
+$AUTOCONF
+$AUTOMAKE --add-missing
+./configure
+$MAKE check
+test -f check-ok

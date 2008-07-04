@@ -1,0 +1,81 @@
+#! /bin/sh
+# Copyright (C) 1998, 2001, 2002  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Another sources-in-conditional test.  Report from Tim Goodwin.
+
+required='GNUmake gcc'
+. ./defs || exit 1
+
+cat > configure.in << 'END'
+AC_INIT(Makefile.am)
+AM_INIT_AUTOMAKE(foo,0.0)
+AC_PROG_CC
+AM_CONDITIONAL(ONE, test "x$CONDITION1" = "xtrue")
+AM_CONDITIONAL(TWO, test "x$CONDITION2" = "xtrue")
+AC_OUTPUT(Makefile)
+END
+
+cat > Makefile.am << 'END'
+bin_PROGRAMS = targ
+
+if ONE
+OPT1 = one.c
+endif
+
+if TWO
+OPT2 = two.c
+endif
+
+targ_SOURCES = main.c $(OPT1) $(OPT2)
+
+echo-objects:
+	@echo $(targ_OBJECTS)
+END
+
+$ACLOCAL || exit 1
+$AUTOMAKE || exit 1
+
+# We should not output useless definitions.
+test "`grep '^@TWO_FALSE@' Makefile.in | wc -l`" -eq 0 || exit 1
+
+$AUTOCONF || exit 1
+
+# Ignore user CFLAGS.
+CFLAGS=
+export CFLAGS
+
+CONDITION1=true CONDITION2=true ./configure || exit 1
+msgtt=`$MAKE --no-print-directory echo-objects`
+CONDITION1=true CONDITION2=false ./configure || exit 1
+msgtf=`$MAKE --no-print-directory echo-objects`
+CONDITION1=false CONDITION2=true ./configure || exit 1
+msgft=`$MAKE --no-print-directory echo-objects`
+CONDITION1=false CONDITION2=false ./configure || exit 1
+msgff=`$MAKE --no-print-directory echo-objects`
+
+echo $msgtt
+echo $msgtf
+echo $msgft
+echo $msgff
+
+test "$msgtt" = "main.o one.o two.o" || exit 1
+test "$msgtf" = "main.o one.o" || exit 1
+test "$msgft" = "main.o two.o" || exit 1
+test "$msgff" = "main.o" || exit 1

@@ -1,0 +1,120 @@
+#! /bin/sh
+# build-relink.test - check to see whether shlibpath overrides runpath
+
+# Test script header.
+need_prefix=yes
+if test -z "$srcdir"; then
+  srcdir=`echo "$0" | sed 's%/[^/]*$%%'`
+  test "$srcdir" = "$0" && srcdir=.
+  test "${VERBOSE+set}" != "set" && VERBOSE=yes
+fi
+. $srcdir/defs || exit 1
+
+# Check that things are built.
+if test -f $prefix/lib/libhello.la && cd ../demo && test -f libhello.la; then :
+else
+  echo "You must run demo-inst.test before $0" 1>&2
+  exit 77
+fi
+
+# Check to make sure we have a dynamic library.
+library_names=NONE
+eval `grep '^library_names=' ./libhello.la 2>/dev/null`
+
+if test "$library_names" = NONE; then
+  echo "library_names not set in ../demo/libhello.la" 1>&2
+  exit 1
+elif test -z "$library_names"; then
+  echo "= Exiting: ../demo/libhello.la is not a shared library"
+  exit 77
+fi
+
+# Unfortunately, we need access to libtool internals for this test.
+objdir=NONE
+eval `grep '^objdir=' ./libtool 2>/dev/null`
+if test "$objdir" = NONE; then
+  echo "objdir not set in ../demo/libtool" 1>&2
+  exit 1
+fi
+
+shlibpath_overrides_runpath=NONE
+eval `grep '^shlibpath_overrides_runpath=' ./libtool 2>/dev/null`
+if test "$shlibpath_overrides_runpath" = NONE; then
+  echo "shlibpath_overrides_runpath not set in ../demo/libtool" 1>&2
+  exit 1
+fi
+
+hardcode_action=NONE
+eval `grep '^hardcode_action=' ./libtool 2>/dev/null`
+if test "$hardcode_action" = NONE; then
+  echo "hardcode_action not set in ../demo/libtool" 1>&2
+  exit 1
+fi
+
+hardcode_direct=NONE
+eval `grep '^hardcode_direct=' ./libtool 2>/dev/null`
+if test "$hardcode_direct" = NONE; then
+  echo "hardcode_direct not set in ../demo/libtool" 1>&2
+  exit 1
+fi
+
+hardcode_into_libs=NONE
+eval `grep '^hardcode_into_libs=' ./libtool 2>/dev/null`
+if test "$hardcode_into_libs" = NONE; then
+  echo "hardcode_into_libs not set in ../demo/libtool" 1>&2
+  exit 1
+fi
+
+./hell # so that it links on-demand if needed
+
+echo "removing libhello.la from ../demo"
+rm -f libhello.la $objdir/libhello.*
+
+echo "running ../demo/hell"
+if ./hell; then
+  :
+elif test "x,$hardcode_action,$hardcode_direct" = x,relink,yes; then
+  echo "Ok, uninstalled programs fail after uninstalled libraries are removed"
+  echo "This works in other configurations, but not in this particular one"
+else
+  echo "= Exiting: ../demo/hell does not run, maybe libhello was not installed"
+  exit 1
+fi
+
+echo "linking a broken ../demo/libhello.la"
+if $make libhello.la libhello_la_OBJECTS=hello.lo; then
+  :
+else
+  echo "= Exiting: cannot link broken libhello.la"
+  exit 1
+fi
+rm -f libhello.la
+
+echo "running ../demo/hell with broken libhello.la"
+if (./hell) 2>&1; then
+  echo "= Exiting: ../demo/hell runs even though libhello.la is incomplete"
+  echo "shlibpath_overrides_runpath should be set to no"
+  exit 1
+else
+  echo "Failed, as expected"
+fi
+
+if test "x$hardcode_action" = xrelink; then
+  echo "= Exiting: install-time relinking is required"
+  exit 0
+fi
+
+if test "$shlibpath_overrides_runpath" != yes; then
+  rm -f $objdir/lt-hell$EXEEXT || exit 1
+  cp $objdir/hell$EXEEXT $objdir/lt-hell$EXEEXT || exit 1
+  echo "running ../demo/hell with installed libhello.la"
+  if ./hell; then
+    echo "Worked, as expected"
+  else
+    echo "shlibpath_overrides_runpath should be set to yes"
+    status=1
+  fi
+  rm -f $objdir/lt-hell$EXEEXT
+fi
+
+exit $status

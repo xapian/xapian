@@ -1,0 +1,25 @@
+#! /bin/sh
+# depdemo-make.test - try building in the ../depdemo subdirectory
+
+# Test script header.
+need_prefix=no
+if test -z "$srcdir"; then
+  srcdir=`echo "$0" | sed 's%/[^/]*$%%'`
+  test "$srcdir" = "$0" && srcdir=.
+  test "${VERBOSE+set}" != "set" && VERBOSE=yes
+fi
+. $srcdir/defs || exit 1
+
+if test -f ../depdemo/Makefile; then :
+else
+  echo "You must run depdemo-conf.test before running $0" 1>&2
+  exit 77
+fi
+
+# Change to our build directory.
+cd ../depdemo || exit 1
+
+# Do the actual build.
+echo "Making in ../depdemo"
+$make || exit 1
+exit 0

@@ -1,0 +1,166 @@
+In the near future:
+********************
+
+* Port the migration of all code from ltconfig into libtool.m4 to the
+multi-language-branch, so that CVS automake can remove its references
+to ltconfig.
+
+* Fix the following bugs in libltdl:
+ - error reporting of tryall_dlopen():
+   if the file actually doesn't exist (stat() fails or it wasn't dlpreopened)
+   -> report `file not found'
+   if it cannot be loaded (e.g. due to missing dependencies)
+   -> report dlerror
+    open question: which error should be reported if all dlloaders fail
+    or if a specific module type can only be loaded by one of them, how report its dlerror?
+   Also report dlerror() for dlclose and dlsym if available
+ - Make sure that the dependency_libs of a dlpreopened module won't be loaded.
+ 
+* Check whether the version of libtool.m4 is compatible with
+ltconfig/ltmain.sh.  Meanwhile, the recommended approach for
+developers using automake is to insert libtool.m4 in acinclude.m4.
+
+* We could have an option to hardcode paths into libraries, as well as
+binaries: `... -Wl,-soname -Wl,/tmp/libtest.so.0 ...'.  This is not
+possible on all platforms, and is in part obviated by the ability of
+linking libtool libraries specified with -lname, but it might still
+be desirable.
+
+* Lists of exported symbols should be stored in the pseudo library
+so that the size of lt_preloaded_symbols can be reduced.
+
+* Have some option to tell libtool not to include -L flags that point
+into a certain tree in the dependence list of an installed library.
+For example: -L-$top_builddir would let one link with libtool
+libraries in sibling subdirectories within a project, using the -L
+notation, without getting builddir pathnames ever mentioned in .la
+files that get installed.
+
+* Eric Lemings <elemings@cyberia.lemings.com> writes:
+  Because of a growing number of config scripts for packages in GNOME 1.2
+  (e.g. glib-config, xml-config, orbit-config. etc), development of GNOME
+  2.0 spawned a separate tool called pkg-config that allows all packages
+  to use one tool rather than several different scripts to query compile
+  flags, link flags, and other configuration data.
+
+  The functionality of pkg-config seems to me to have a lot of overlap
+  with the goals of libtool.  I was wondering if anyone had considered
+  adding an eighth mode to libtool that just queries the installed
+  library for the same information that pkg-config provides.  Since
+  most packages that use pkg-config also use libtool, I think this
+  would be a good way to reduce maintainer and developer dependencies.
+
+
+In the future:
+**************
+
+* The definitions for AC_LTDL_SHLIBEXT, AC_LTDL_SHLIBPATH and
+AC_LTDL_SYSSEARCHPATH  should not rely on the _LT_AC_LTCONFIG_HACK
+macro.  This involves moving the code which sets the variables
+library_names_spec, shlibpath_var and sys_lib_dlsearch_path_spec from
+into a separate macro, and AC_REQUIRING the newly extracted macro in the
+respective ltdl.m4 macros.
+
+* Godmar Back writes:
+  libltdl uses such stdio functions as fopen, fgets, feof, fclose, and others.
+  These functions are not async-signal-safe. While this does not make 
+  libltdl unusable, it restricts its usefulness and puts an 
+  unnecessary burden on the user.
+
+  As a remedy, I'd recommend to replace those functions with functions
+  that POSIX says are async-signal-safe, such as open, read, close.
+  This will require you to handle interrupted system calls and implement
+  fgets, but the former isn't hard and there's plenty of implementations
+  out from which you can steal the latter.
+
+  I believe relying on async-signal-safe functions to the greatest extent
+  possible would greatly improve libltdl's ability to be embedded in and 
+  used by other systems.
+
+* Arrange that EXEEXT suffixes are stripped from wrapper script names
+only when needed, and that a timestamp file or a wrapper program is
+created with the EXEEXT suffix, so that `make' doesn't build it every
+time.
+
+* Figure out how to use data items in dlls with win32.
+The difficult part is compiling each object which will be linked with an
+import lib differently than if it will be linked with a static lib.  This will
+almost definitely require that automake pass some hints about linkage in to
+each object compilation line.
+
+* jeffdb@goodnet.com writes
+	all you need to do for mutually dependent
+	.dll's is to create an implib from a .def file
+so it appears that we might need to detect and handle mutual dependencies
+specially on win32 =(O|
+
+* If not cross-compiling, have the static flag test run the resulting
+binary to make sure everything works.
+
+* Implement full multi-language support.  Currently, this is only for
+C++, but there are beginnings of this in the manual (Other Languages).
+This includes writing libtool not to be so dependent on the compiler
+used to configure it.
+
+We especially need this for C++ linking, for which libtool currently
+does not handle static constructors properly, even on operating
+systems that support them.  ``Don't use static constructors'' is no
+longer a satisfactory answer.
+
+* Another form of convenience library is to have undocumented utility
+libraries, where only the shared version is installed.
+
+* We could use libtool object convenience libraries that resolve
+symbols to be included in a libtool archive.  This would require some
+sort of -whole-archive option, as well.
+
+* Currently, convenience libraries (.al) are built from .lo objects,
+except when --disable-shared.  When we can build both shared and
+static libraries, we should probably create a .al out of .lo objects
+and also a .a out of .o objects.  The .al would only be used to create
+shared libraries, whereas the .a would be used for creating static
+libraries and programs.  We could also explicitly support `empty'
+convenience libraries, that behave as macros that expand to a set of
+-Rs, -Ls and -ls switches.
+
+* We should include tests with convenience libraries and reloadable
+objects in the testsuite.
+
+* Try to find a work-around for -[all-]static and libltdl on platforms
+that will fail to find dlopening functions in this case.  Maybe
+creating an alternate libltdl that provides only for dlpreopening, or
+creating an additional static library to provide dummy implementations
+of the functions that can't be linked statically.  This could hardly
+be made completely transparent, though.
+
+* Need to finalize the documentation, and give a specification of
+`.la' files so that people can depend on their format.  This would be
+a good thing to put before the maintainance notes.
+
+* Filenames containing shell meta-characters are not properly handled
+by libtool.  Compiling a file named "a;b.c", for example, fails.
+
+* We could introduce a mechanism to allow for soname rewriting, to
+ease multi-libc support.  Installers could specify a prefix, suffix or
+sed command to modify the soname, and libtool would create the
+corresponding link.  This would allow for rebuilding a library with
+the same version number, but depending on different versions of libc,
+for example.  In the future, we might even have an option to encode
+the sonames of all dependencies of a library into its soname.
+
+* The current implementation of libltdl in a subdirectory doesn't work
+properly with AC_CONFIG_AUX_DIR using projects.
+
+Things to think about:
+**********************
+
+* Maybe implement full support for other orthogonal library types
+(libhello_g, libhello_p, 64 vs 32-bit ABI's, etc).  Make these types
+configurable.
+
+* Perhaps the iuse of libltdl could be made cleaner by allowing
+registration of hook functions to call at various points.  This would
+hopefully free the user from having to maintain a parallel module
+list with user data.  This would likely involve being able to carry
+additional per user module data in the lt_dlmodule structure -- perhaps
+in the form of an associative array keyed by user name?

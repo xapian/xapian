@@ -1,0 +1,95 @@
+#! /bin/sh
+# Copyright (C) 2003  Free Software Foundation, Inc.
+#
+# This file is part of GNU Automake.
+#
+# GNU Automake is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU Automake is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Automake; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+# Make sure aclocal.m4 is rebuilt whenever a configure
+# dependency changes.  Test for acinclude.m4 and VPATH too.
+
+required='GNUmake'
+. ./defs || exit 1
+
+set -e
+
+cat >> configure.in << 'END'
+SOME_DEFS
+AC_CONFIG_FILES([sub/Makefile])
+AC_OUTPUT
+END
+
+cat > Makefile.am << 'END'
+SUBDIRS = sub
+ACLOCAL_AMFLAGS = -I m4
+END
+
+mkdir sub
+: > sub/Makefile.am
+
+mkdir m4
+echo 'AC_DEFUN([SOME_DEFS], [])' > m4/somedefs.m4
+echo 'AC_DEFUN([MORE_DEFS], [AC_SUBST([GREPME])])' > m4/moredefs.m4
+
+$ACLOCAL -I m4
+$AUTOCONF
+$AUTOMAKE --copy --add-missing
+
+# Users can disable autom4te.cache.
+if test -d autom4te.cache; then
+  test_cache='test -d'
+else
+  test_cache=:
+fi
+
+mkdir build
+cd build
+
+../configure
+$MAKE
+
+# Update an aclocal.m4 dependency, then make sure all Makefiles
+# are updated, even from a sub-directory.
+echo 'AC_DEFUN([SOME_DEFS], [MORE_DEFS])' > ../m4/somedefs.m4
+# Because aclocal will run again, it should also pick up acinclude.m4.
+echo 'AC_SUBST([METOO])' > ../acinclude.m4
+
+cd sub
+$MAKE
+cd ..
+grep GREPME Makefile
+grep GREPME sub/Makefile
+grep GREPME sub/Makefile
+grep METOO Makefile
+grep METOO sub/Makefile
+grep METOO sub/Makefile
+
+# Make sure configure dependencies are distributed.
+$MAKE distdir
+test -f aclocal6-1.0/m4/moredefs.m4
+test -f aclocal6-1.0/m4/somedefs.m4
+test -f aclocal6-1.0/acinclude.m4
+
+# Make sure maintainer-clean works in VPATH builds.
+# (This is unrelated to the rest of this test.)
+$MAKE clean
+$test_cache ../autom4te.cache
+test -f Makefile
+test -f sub/Makefile
+$MAKE maintainer-clean
+test ! -d ../autom4te.cache
+test ! -f Makefile
+test ! -f sub/Makefile

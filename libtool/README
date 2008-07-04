@@ -1,0 +1,85 @@
+GNU Libtool
+***********
+
+Introduction
+============
+
+This is GNU Libtool, a generic library support script.  Libtool hides
+the complexity of using shared libraries behind a consistent, portable
+interface.
+
+To use libtool, add the new generic library building commands to your
+Makefile, Makefile.in, or Makefile.am.  See the documentation for
+details.
+
+See the info node (libtool)Tested Platforms. (or the file
+doc/PLATFORMS) for a list of platforms that libtool supports.
+
+Libtool's home page is:
+
+  http://www.gnu.org/software/libtool/libtool.html
+
+See the file NEWS for a description of recent changes to libtool.
+
+See the file INSTALL for instructions on how to build and install
+libtool.
+
+Version Numbering
+=================
+
+Note the version numbers in the libtool-1.5.x series are a little strange,
+the micro version (x) jumps by two on each release. The version in cvs always
+has an odd micro version, while only released versions have even micro versions.
+This will change again in the future. For more information about version
+numbers see:
+
+    http://www.gnu.org/software/libtool/contribute.html
+    
+
+Reporting Bugs
+==============
+
+If you have any suggestions or bug reports, or you wish to port
+libtool to a new platform, please send electronic mail to the libtool
+mailing list <libtool@gnu.org> or bug reports to <bug-libtool@gnu.org>.
+Be sure to include the version of libtool that you are using - you can find
+out with `./libtool --version'. Also give as much information as necessary on
+your OS, compiler and other build tools.
+
+
+The Test Suite
+==============
+
+Libtool comes with an integrated set of tests to check that your build
+is sane.  You can run the entire suite like this:
+
+  make check
+
+The tests run in groups in the various demo subdirectories, so if one
+of the tests early in a group FAILs, the rest of the tests in that
+group will be SKIPPED.  If you see a FAIL further into a group, even
+if a test with the same name PASSes in another test group, you need to
+take note of the name of the first test in the group if you want to
+rerun the group with FAILures to get verbose output.
+
+To run a test group in isolation (say, you think you have fixed a bug,
+but don't want to rerun the entire suite), you can do it like this:
+
+  env TESTS='cdemo-static.test cdemo-make.test cdemo-exec.test' \
+  make -e check
+
+Providing that you have a FAIL from the most recent group from a
+particular demo directory (like the cdemo-static.test group above), you
+can explore the state of the directory to help with debugging.
+
+If you wish to report a test group failure to the libtool list, you
+need to send the verbose output of the FAILing group, along with
+information such as the host OS, compiler tools, shell etc. to the
+bug report mailing list, <bug-libtool@gnu.org>.  You can generate verbose
+test output like this:
+
+  env VERBOSE=1 TESTS='cdemo-static.test cdemo-make.test cdemo-exec.test' \
+  make -e check
+
+Alternatively, because each test is a shell script, in a non VPATH build,
+you can simply execute the tests, they will be verbose.

@@ -1,0 +1,35 @@
+#! /bin/sh
+# tagdemo-conf.test - try configuring the ../tagdemo subdirectory
+
+# Test script header.
+need_prefix=yes
+if test -z "$srcdir"; then
+  srcdir=`echo "$0" | sed 's%/[^/]*$%%'`
+  test "$srcdir" = "$0" && srcdir=.
+  test "${VERBOSE+set}" != "set" && VERBOSE=yes
+fi
+. $srcdir/defs || exit 1
+
+# Maybe we have a VPATH build, in which case, create a new subdir.
+test -d ../tagdemo || mkdir ../tagdemo
+
+# Change to our build directory.
+cd ../tagdemo || exit 1
+
+# Possibly clean up the distribution.
+if test -f Makefile; then
+  echo "= Running $make distclean in ../tagdemo"
+  $make distclean
+fi
+rm -f config.cache
+
+# Configure the demonstration.
+echo "= Configuring in ../tagdemo (prefix=$prefix) with --disable-shared"
+${CONFIG_SHELL-/bin/sh} $srcdir/../tagdemo/configure --srcdir=$srcdir/../tagdemo --prefix=$prefix --disable-shared || exit 1
+
+if grep '^build_old_libs=yes' libtool > /dev/null &&
+   grep '^build_libtool_libs=no' libtool > /dev/null; then :
+else rm -f Makefile && exit 77
+fi
+
+exit 0

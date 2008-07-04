@@ -1,0 +1,67 @@
+# -*- sh -*-
+# Defines for Libtool testing environment.
+# Gord Matzigkeit <gord@gnu.ai.mit.edu>, 1996
+
+# See if we are running on zsh, and set the options which allow our
+# commands through without removal of \ escapes.
+if test -n "${ZSH_VERSION+set}" ; then
+  setopt NO_GLOB_SUBST
+fi
+
+# Check that srcdir is set to an absolute path.
+case "$srcdir" in
+/* | [A-Za-z]:\\*) ;;
+*) srcdir=`cd $srcdir && pwd` ;;
+esac
+
+progname=`echo "$0" | sed 's%^.*/%%'`
+
+libtool="../libtool"
+make="${MAKE-make}"
+SHELL="${CONFIG_SHELL-/bin/sh}"
+: ${SED=sed}
+
+if echo a | (grep -E '(a|b)') >/dev/null 2>&1; then
+  EGREP='grep -E'
+else
+  EGREP='egrep'
+fi
+if echo 'ab*c' | (grep -F 'ab*c') >/dev/null 2>&1; then
+  FGREP='grep -F'
+else
+  FGREP='fgrep'
+fi
+
+prefix="./_inst"
+if test "$need_prefix" = yes; then
+  # An absolute path to a test installation directory.
+  test -d $prefix || mkdir $prefix
+  prefix=`cd $prefix && pwd`
+else
+  test -d $prefix && rm -rf $prefix
+  prefix=NONE
+fi
+
+# Extract CC from the libtool configuration
+eval `$libtool --config | grep '^CC='`
+
+# Extract host from the libtool configuration
+eval `$libtool --config | grep '^host='`
+
+# Extract build from the libtool configuration
+eval `$libtool --config | grep '^build='`
+
+# Disable usage of config.site for autoconf, unless DJGPP is present.
+# The DJGPP port of autoconf requires config.site, to work correctly.
+if test -z "$DJGPP"; then
+    CONFIG_SITE=/nonexistent
+fi
+
+# See how redirections should work.
+case "$VERBOSE" in
+NO | no | 0 | "")
+  exec > /dev/null 2>&1
+  ;;
+esac
+
+echo "=== Running $progname"
