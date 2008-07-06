@@ -46,11 +46,13 @@ mset_range_is_same(const Xapian::MSet &mset1, unsigned int first1,
 {
     TEST_AND_EXPLAIN(mset1.size() >= first1 + count - 1,
 		     "mset1 is too small: expected at least " <<
-		     (first1 + count - 1) << " items.");
+		     (first1 + count - 1) << " items, got " <<
+		     mset1.size() << ".");
 
     TEST_AND_EXPLAIN(mset2.size() >= first2 + count - 1,
 		     "mset2 is too small: expected at least " <<
-		     (first2 + count - 1) << " items.");
+		     (first2 + count - 1) << " items, got " <<
+		     mset1.size() << ".");
 
     Xapian::MSetIterator i = mset1[first1];
     Xapian::MSetIterator j = mset2[first2];
@@ -72,17 +74,47 @@ mset_range_is_same_weights(const Xapian::MSet &mset1, unsigned int first1,
 {
     TEST_AND_EXPLAIN(mset1.size() >= first1 + count - 1,
 		     "mset1 is too small: expected at least " <<
-		     (first1 + count - 1) << " items.");
+		     (first1 + count - 1) << " items, got " <<
+		     mset1.size() << ".");
 
     TEST_AND_EXPLAIN(mset2.size() >= first2 + count - 1,
 		     "mset2 is too small: expected at least " <<
-		     (first2 + count - 1) << " items.");
+		     (first2 + count - 1) << " items, got " <<
+		     mset1.size() << ".");
 
     Xapian::MSetIterator i = mset1[first1];
     Xapian::MSetIterator j = mset2[first2];
 
     for (unsigned int l = 0; l < count; ++l) {
 	if (i.get_weight() != j.get_weight()) {
+	    return false;
+	}
+	++i;
+	++j;
+    }
+    return true;
+}
+
+bool
+mset_range_is_same_percents(const Xapian::MSet &mset1, unsigned int first1,
+			    const Xapian::MSet &mset2, unsigned int first2,
+			    unsigned int count)
+{
+    TEST_AND_EXPLAIN(mset1.size() >= first1 + count - 1,
+		     "mset1 is too small: expected at least " <<
+		     (first1 + count - 1) << " items, got " <<
+		     mset1.size() << ".");
+
+    TEST_AND_EXPLAIN(mset2.size() >= first2 + count - 1,
+		     "mset2 is too small: expected at least " <<
+		     (first2 + count - 1) << " items, got " <<
+		     mset1.size() << ".");
+
+    Xapian::MSetIterator i = mset1[first1];
+    Xapian::MSetIterator j = mset2[first2];
+
+    for (unsigned int l = 0; l < count; ++l) {
+	if (i.get_percent() != j.get_percent()) {
 	    return false;
 	}
 	++i;
