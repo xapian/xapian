@@ -1,3 +1,12 @@
+Sun Jul 06 22:55:17 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/omenquire.cc: When calculating percentages, round to the
+	  nearest integer, rather than rounding down.  There was a FIXME
+	  about this, but no explanation of why it hadn't already been
+	  done, and I can see no bad side effects so far.  The most obvious
+	  positive effect is that queries which should get precisely 100%
+	  will no longer be assigned 99% due to rounding errors.
+
 Sun Jul 06 22:48:30 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/api_anydb.cc: Add new test, topercent2, checking the
