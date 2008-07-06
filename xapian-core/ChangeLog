@@ -1,3 +1,13 @@
+Sun Jul 06 22:48:30 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_anydb.cc: Add new test, topercent2, checking the
+	  percentage values returned by standard searches, both against
+	  known current values for some of the hits, and against a search
+	  with a "local" backend.  Also, in rsetmultidb1, test the return
+	  value of mset_range_is_same_weights().
+	* tests/api_db.cc: In rsetmultidb2, test the return value of
+	  mset_range_is_same_weights().
+
 Sun Jul 06 22:46:23 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/harness/testutils.cc,tests/harness/testutils.h: Add
