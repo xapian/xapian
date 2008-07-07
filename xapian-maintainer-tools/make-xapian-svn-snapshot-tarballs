@@ -180,7 +180,7 @@ foreach my $tag (@ARGV) {
     }
     $log = undef;
 
-    $log = `./configure --enable-quiet --enable-maintainer-mode 2>&1`;
+    $log = `../xapian/configure --enable-quiet --enable-maintainer-mode 2>&1`;
     print LOG $log;
     if ($?) {
 	print "*** configure failed for '$tag':";
