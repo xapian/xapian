@@ -1,7 +1,58 @@
 up to:
-Mon Jun 23 01:34:39 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+Mon Jul 07 12:40:20 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING,NEWS: Update to reflect the autotools now being in the SVN
+	  tree, and the versions we are now bootstrapping with.
+	* NEWS: Update from ChangeLog.
+
+	* matcher/multimatch.cc,matcher/remotesubmatch.cc,
+	  matcher/remotesubmatch.h: Apply patch from ticker #279 to improve
+	  performance of matches with multiple remote databases.  This adds
+	  a special case for the top match being from a remote database, to
+	  avoid accessing the termlist to calculate the percentage scaling
+	  factor.
+
+	* api/omenquire.cc: When calculating percentages, round to the
+	  nearest integer, rather than rounding down.  There was a FIXME
+	  about this, but no explanation of why it hadn't already been
+	  done, and I can see no bad side effects so far.  The most obvious
+	  positive effect is that queries which should get precisely 100%
+	  will no longer be assigned 99% due to rounding errors.
+
+	* tests/api_anydb.cc: Add new test, topercent2, checking the
+	  percentage values returned by standard searches, both against
+	  known current values for some of the hits, and against a search
+	  with a "local" backend.  Also, in rsetmultidb1, test the return
+	  value of mset_range_is_same_weights().
+	* tests/api_db.cc: In rsetmultidb2, test the return value of
+	  mset_range_is_same_weights().
+
+	* tests/harness/testutils.cc,tests/harness/testutils.h: Add
+	  function to test if two mset ranges have the same percentages,
+	  and slightly improve the messages on failure of the mset range
+	  comparison tests.
+
+	* matcher/multimatch.cc: Fix calculation of lower bound when
+	  collapsing and match deciders are used.  (Only tended to manifest
+	  when the collapsing threw away a lot of documents, and when also
+	  using a custom sort order, but I don't think that was required.)
+	  Also, perform the adjustments due to percentage cutoffs after the
+	  other adjustments, to avoid the lower bound setting for
+	  collapsing overriding the lower bound from the percentage cutoff.
+	* tests/harness/index_utils.cc: Add a value to value slot 12, which
+	  only has 5 different values, for testing this bug.
+	* tests/api_db.cc: Add regression test for calculation of the lower
+	  bound.
+
+	* Makefile.am,bin/Makefile.mk,examples/Makefile.mk: Remove
+	  extra_cleandirs as automake 1.10.1 fixes the bug which it was working
+	  around.
 
 HEAD only:
+
+	* docs/doxygen_api_conf.in,docs/doxygen_full_conf.in: Disable
+	  "JAVADOC_AUTOBRIEF" since we always try to write a brief
+	  description explicitly, and it causes problems in some cases.
 
 	* backends/chert/: Change ChertAllDocsPostList to inherit from
 	  ChertPostList and use the doclen list from the posting table
@@ -266,7 +317,7 @@ QueryParser sped up (new version of lemon); queryparsertest runs 2.2% faster
 	  it passes.  Test needs to be expanded to check that the database
 	  copy succeeded better.
 
-Xapian-core 1.0.7 (2008-06-2?):
+Xapian-core 1.0.7 (2008-07-??):
 
 API:
 
@@ -288,6 +339,8 @@ API:
     now more efficient.
 
   + Cases of O(N*N) behaviour have been fixed.
+
+* Xapian::Stem now recognises "nl" as an alias for "dutch" (debian bug 484458).
 
 * Setting sort by value was being ignored by a Xapian::Enquire object which had
   previously had a Xapian::Sorter set (bug#256).
@@ -375,6 +428,10 @@ inmemory backend:
 
 build system:
 
+* This release now uses newer versions of the autotools (autoconf 2.61 ->
+  2.62; automake 1.10 -> 1.10.1; libtool 1.5.24 -> 1.5.26).  The newer
+  autoconf reportedly results in a faster configure script.
+
 * Fix configure to recognise --enable-log=profile and fix build problems when
   this is enabled.
 
@@ -388,6 +445,8 @@ build system:
 
 documentation:
 
+* intro_ir.html: Improve wording a bit.
+
 * The documentation now links to trac instead of bugzilla.  For links to the
   main website, we now prefer xapian.org to www.xapian.org.
 
@@ -400,18 +459,20 @@ documentation:
   + Header and directory relationship graphs are no longer generated as they
     aren't actually informative here.
 
-* Several improvements to the doxygen-generated API documentation.
-
 * HACKING: Numerous updates and improvements.
 
 examples:
 
+* quest: Output get_description() of the parsed query.
 
 portability:
 
 * Fix build with GCC 2.95.3.
 
 * Fix build with GCC 4.3.
+
+* Newer libtool features improved support for Mac OS X Leopard and added
+  support for AIX 6.1.
 
 packaging:
 
