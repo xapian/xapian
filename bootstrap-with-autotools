@@ -22,8 +22,15 @@ trap 'echo "$0 failed"' EXIT
 set -e
 
 curdir=`pwd`
-srcdir=`echo "$0"|sed 's![^/]*$!!'`
-test -z "$srcdir" || cd "$srcdir"
+
+# cd to srcdir if we aren't already there.
+srcdir=`echo "$0"|sed 's!/*[^/]*$!!'`
+case $srcdir in
+  ""|.)
+    srcdir=. ;;
+  *)
+    cd "$srcdir" ;;
+esac
 
 rm -rf INST BUILD
 mkdir INST BUILD
