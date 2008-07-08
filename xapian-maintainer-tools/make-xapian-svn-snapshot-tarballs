@@ -151,8 +151,8 @@ foreach my $tag (@ARGV) {
     if ($tag !~ m!^tags/!) {
 	# Modify configure.ac files to insert $revision into version string.
 	foreach my $configure_ac
-	    (glob("\Q$co_dir\E/*/configure.ac"),
-	     glob("\Q$co_dir\E/*/*/configure.ac")) {
+	    (glob("\Q$co_dir\E/xapian*/configure.ac"),
+	     glob("\Q$co_dir\E/xapian*/*/configure.ac")) {
 	    open OUT, ">", "tmp.out" or die $!;
 	    open IN, "<", $configure_ac or die $!;
 	    while (<IN>) {
