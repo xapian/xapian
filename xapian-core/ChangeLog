@@ -1,3 +1,7 @@
+Wed Jul 09 06:37:21 GMT 2008  Olly Betts <olly@survex.com>
+
+	* acinclude.m4: Remove reference to definedir.m4.
+
 Wed Jul 09 05:32:24 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Makefile.am,m4/dir_contents,m4/xapian.m4,xapian.m4: Move xapian.m4
