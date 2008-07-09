@@ -62,8 +62,9 @@ Xapian::weight
 ExternalPostList::get_maxweight() const
 {
     DEBUGCALL(MATCH, Xapian::weight, "ExternalPostList::get_maxweight", "");
-    Assert(source);
-    if (factor == 0.0) RETURN(factor);
+    // source will be NULL here if we've reached the end.
+    if (source == NULL) RETURN(0.0);
+    if (factor == 0.0) RETURN(0.0);
     RETURN(factor * source->get_maxweight());
 }
 
