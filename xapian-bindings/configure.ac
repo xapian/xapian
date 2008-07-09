@@ -13,7 +13,7 @@ AM_INIT_AUTOMAKE([1.8.3 -Wportability tar-ustar])
 
 AC_CONFIG_SRCDIR(xapian.i)
 
-AM_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADERS(config.h)
 
 AC_CONFIG_MACRO_DIR([m4])
 
