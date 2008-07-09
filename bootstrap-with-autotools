@@ -68,7 +68,7 @@ do_build_if_required() {
       [ "$f" = "$tarball" ] || rm -rf "$f"
     done
 
-    bzip2 -dc "$tarball"| tar xvf -
+    bzip2 -dc "$tarball"| tar xf -
 
     cd "$basename"
     ./configure --prefix="$instdir"
