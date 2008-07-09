@@ -1,3 +1,10 @@
+Wed Jul 09 23:02:02 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Revert dist-hook fix - that problem is caused by using
+	  libtool 1.5.x and we now require 2.2.x.
+	* configure.ac: Add "LT_PREREQ([2.2.4])" to enforce this requirement.
+	  Use LT_INIT instead of now deprecated AC_PROG_LIBTOOL.
+
 Wed Jul 09 14:52:54 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* Makefile.am: Add $(distdir) to directory names in dist-hook rule

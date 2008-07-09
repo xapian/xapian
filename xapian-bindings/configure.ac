@@ -5,7 +5,10 @@ dnl 2.54 needed for automake 1.6
 dnl 2.57 fixes the annoying warnings from configure on FreeBSD
 dnl 2.58 is needed by automake 1.8.5
 dnl 2.59 was released the same day as 2.58 to fix a problem
-AC_PREREQ(2.59)
+AC_PREREQ([2.59])
+dnl 2.2 is required; 2.2.4 includes useful bug-fixes.
+LT_PREREQ([2.2.4])
+
 AC_INIT(xapian-bindings, 1.0.7)dnl FIXME: bugreport addr as third argument
 dnl 1.9 reduces Makefile.in size, and 1.9.5 was in Debian sarge
 dnl But the RPM spec file runs autoreconf, and SLES 9 has 1.8.3.
@@ -50,8 +53,7 @@ AM_CONDITIONAL(NEED_JNILIB_EXT, test yes = "$NEED_JNILIB_EXT")
 
 dnl Use libtool to manage our libraries, but don't build static libraries as
 dnl the bindings only have a use for dynamic ones.
-AC_DISABLE_STATIC
-AC_PROG_LIBTOOL
+LT_INIT([disable-static])
 
 dnl -no-undefined causes problems on Mac OS X with at least some
 dnl MACOSX_DEPLOYMENT_TARGET settings, so only pass -no-undefined on
