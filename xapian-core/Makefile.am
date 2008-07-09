@@ -90,7 +90,7 @@ include docsource.mk
 
 # xapian.m4 contains the XO_LIB_XAPIAN autoconf macro.
 m4datadir = $(datadir)/aclocal
-dist_m4data_DATA = m4/xapian.m4
+dist_m4data_DATA = xapian.m4
 
 lib_LTLIBRARIES = libxapian.la
 
