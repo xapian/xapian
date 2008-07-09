@@ -1,4 +1,0 @@
-This is cdemo, an example package that uses GNU libtool with an
-Automake-generated environment to build two simple libraries and programs.
-
-It demonstrates how to build convenience libraries
