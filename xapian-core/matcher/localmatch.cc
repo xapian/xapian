@@ -114,10 +114,11 @@ LocalSubMatch::get_postlist_and_term_info(MultiMatch * matcher,
 }
 
 PostList *
-LocalSubMatch::make_synonym_postlist(PostList * or_pl, MultiMatch * matcher)
+LocalSubMatch::make_synonym_postlist(PostList * or_pl, MultiMatch * matcher,
+				     double factor)
 {
     DEBUGCALL(MATCH, PostList *, "LocalSubMatch::make_synonym_postlist",
-	      "[or_pl]");
+	      "[or_pl], [matcher], " << factor);
     DEBUGLINE(MATCH, "or_pl->get_termfreq() = " << or_pl->get_termfreq_est());
     AutoPtr<SynonymPostList> res(new SynonymPostList(or_pl, matcher));
     AutoPtr<Xapian::Weight> wt;
@@ -126,6 +127,9 @@ LocalSubMatch::make_synonym_postlist(PostList * or_pl, MultiMatch * matcher)
     wt_internal->termfreq = or_pl->get_termfreq_est();
     wt_internal->reltermfreq = 0; // FIXME - calculate this.
     wt = wt_factory->create(wt_internal.release(), qlen, 1, "");
+    if (fabs(factor - 1.0) > DBL_EPSILON) {
+	wt = new ScaleWeight(wt.release(), factor);
+    }
 
     res->set_weight(wt.release());
     RETURN(res.release());

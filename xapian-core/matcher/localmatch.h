@@ -88,7 +88,8 @@ class LocalSubMatch : public SubMatch {
 
     /** Convert a postlist into a synonym postlist.
      */
-    PostList * make_synonym_postlist(PostList * or_pl, MultiMatch * matcher);
+    PostList * make_synonym_postlist(PostList * or_pl, MultiMatch * matcher,
+				     double factor);
 
     /** Convert an OP_LEAF query to a PostList.
      *
