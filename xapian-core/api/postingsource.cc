@@ -91,6 +91,29 @@ ValueWeightPostingSource::ValueWeightPostingSource(Xapian::Database db_,
     }
 }
 
+ValueWeightPostingSource::ValueWeightPostingSource(Xapian::Database db_,
+						   Xapian::valueno valno_,
+						   double max_weight_)
+	: db(db_),
+	  valno(valno_),
+	  current_docid(0),
+	  last_docid(db.get_lastdocid()),
+	  current_value(0.0),
+	  max_value(max_weight_)
+{
+    try {
+	termfreq_max = db.get_value_freq(valno);
+	termfreq_est = termfreq_max;
+	termfreq_min = termfreq_max;
+	max_value = std::min(max_value,
+			     sortable_unserialise(db.get_value_upper_bound(valno)));
+    } catch (const Xapian::UnimplementedError &) {
+	termfreq_max = db.get_doccount();
+	termfreq_est = termfreq_max / 2;
+	termfreq_min = 0;
+    }
+}
+
 Xapian::doccount
 ValueWeightPostingSource::get_termfreq_min() const
 {

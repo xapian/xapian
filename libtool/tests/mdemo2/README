@@ -1,5 +1,0 @@
-This is mdemo2, an example package that attempts to use GNU libtool to
-link with a library that itself does dlopening of libtool modules.
-
-This demo depends upon the libraries generated in ../mdemo.
-

@@ -122,6 +122,8 @@ AC_CONFIG_SRCDIR(matcher/andpostlist.cc)
 
 AC_CONFIG_HEADERS(config.h)
 
+AC_CONFIG_MACRO_DIR([m4])
+
 dnl We don't use Fortran, but libtool 1.5 insists on probing for f77 which just
 dnl makes configure take longer to run.  We force it not to using the method
 dnl suggested here (which also reduces configure size by 12%):
@@ -444,11 +446,6 @@ AC_ARG_ENABLE(documentation,
 test -z "$enable_documentation" && enable_documentation=$USE_MAINTAINER_MODE
 AM_CONDITIONAL(DOCUMENTATION_RULES, test x"$enable_documentation" = xyes)
 AM_CONDITIONAL(MAINTAINER_NO_DOCS, test x"$USE_MAINTAINER_MODE$enable_documentation" = xyesno)
-
-dnl Make DATADIR available to the library
-dnl This isn't currently used.  If we reenable it, it needs to be renamed
-dnl to avoid a clash with a mingw header.
-dnl AC_DEFINE_DIR(DATADIR, datadir, [Location of platform independent support files])
 
 if test x"$enable_documentation" = xyes ; then
   dnl Checks for dot.  (Diagrams in the documentation)

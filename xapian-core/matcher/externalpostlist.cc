@@ -25,6 +25,7 @@
 #include <xapian/postingsource.h>
 
 #include "omassert.h"
+#include "omdebug.h"
 
 using namespace std;
 
@@ -60,24 +61,27 @@ ExternalPostList::get_termfreq_max() const
 Xapian::weight
 ExternalPostList::get_maxweight() const
 {
+    DEBUGCALL(MATCH, Xapian::weight, "ExternalPostList::get_maxweight", "");
     Assert(source);
-    if (factor == 0.0) return factor;
-    return factor * source->get_maxweight();
+    if (factor == 0.0) RETURN(factor);
+    RETURN(factor * source->get_maxweight());
 }
 
 Xapian::docid
 ExternalPostList::get_docid() const
 {
+    DEBUGCALL(MATCH, Xapian::docid, "ExternalPostList::get_docid", "");
     Assert(current);
-    return current;
+    RETURN(current);
 }
 
 Xapian::weight
 ExternalPostList::get_weight() const
 {
+    DEBUGCALL(MATCH, Xapian::weight, "ExternalPostList::get_weight", "");
     Assert(source);
-    if (factor == 0.0) return factor;
-    return factor * source->get_weight();
+    if (factor == 0.0) RETURN(factor);
+    RETURN(factor * source->get_weight());
 }
 
 Xapian::doclength
@@ -107,53 +111,62 @@ ExternalPostList::open_position_list() const
 
 PostList *
 ExternalPostList::update_after_advance() {
+    DEBUGCALL(MATCH, PostList *, "ExternalPostList::update_after_advance", "");
     Assert(source);
     if (source->at_end()) {
+	DEBUGLINE(MATCH, "ExternalPostList now at end");
 	source = NULL;
     } else {
 	current = source->get_docid();
     }
-    return NULL;
+    RETURN(NULL);
 }
 
 PostList *
 ExternalPostList::next(Xapian::weight w_min)
 {
+    DEBUGCALL(MATCH, PostList *, "ExternalPostList::next", w_min);
     Assert(source);
     source->next(w_min);
-    return update_after_advance();
+    RETURN(update_after_advance());
 }
 
 PostList *
 ExternalPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 {
+    DEBUGCALL(MATCH, PostList *, "ExternalPostList::skip_to",
+	      did << ", " << w_min);
     Assert(source);
-    if (did <= current) return NULL;
+    if (did <= current) RETURN(NULL);
     source->skip_to(did, w_min);
-    return update_after_advance();
+    RETURN(update_after_advance());
 }
 
 PostList *
 ExternalPostList::check(Xapian::docid did, Xapian::weight w_min, bool &valid)
 {
+    DEBUGCALL(MATCH, PostList *, "ExternalPostList::check",
+	      did << ", " << w_min << ", <valid>");
     Assert(source);
     if (did <= current) {
 	valid = true;
-	return NULL;
+	RETURN(NULL);
     }
     valid = source->check(did, w_min);
     if (source->at_end()) {
+	DEBUGLINE(MATCH, "ExternalPostList now at end");
 	source = NULL;
     } else {
 	current = valid ? source->get_docid() : current;
     }
-    return NULL;
+    RETURN(NULL);
 }
 
 bool
 ExternalPostList::at_end() const
 {
-    return (source == NULL);
+    DEBUGCALL(MATCH, bool, "ExternalPostList::at_end", "");
+    RETURN(source == NULL);
 }
 
 string

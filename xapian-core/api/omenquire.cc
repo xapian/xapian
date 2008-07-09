@@ -349,8 +349,7 @@ MSet::Internal::convert_to_percent_internal(Xapian::weight wt) const
     DEBUGAPICALL(Xapian::percent, "Xapian::MSet::Internal::convert_to_percent", wt);
     if (percent_factor == 0) RETURN(100);
 
-    // FIXME: + 0.5 ???
-    Xapian::percent pcent = static_cast<Xapian::percent>(wt * percent_factor);
+    Xapian::percent pcent = static_cast<Xapian::percent>(wt * percent_factor + 0.5);
     DEBUGLINE(API, "wt = " << wt << ", max_possible = "
 	      << max_possible << " =>  pcent = " << pcent);
     if (pcent > 100) pcent = 100;

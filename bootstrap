@@ -32,7 +32,15 @@ case `${LIBTOOLIZE-libtoolize} --version` in
   exit 1 ;;
 esac
 
-srcdir=`echo "$0"|sed 's![^/]*$!!'`
+# cd to srcdir if we aren't already there.
+srcdir=`echo "$0"|sed 's!/*[^/]*$!!'`
+case $srcdir in
+  ""|.)
+    srcdir=. ;;
+  *)
+    cd "$srcdir" ;;
+esac
+
 SWIG=""
 # Don't try to build xapian-applications/dbtools or xapview - they need work.
 # As does cvssearch.
@@ -40,7 +48,7 @@ SWIG=""
 # check-in for ages.
 modules=
 for module in xapian-core xapian-applications/omega swig xapian-bindings ; do
-  d=${srcdir}$module
+  d=$module
   if test -f "$d/configure.in" -o -f "$d/configure.ac" ; then
     echo "Bootstrapping \`$module'"
     test -f "$d/preautoreconf" && "$d/preautoreconf"
@@ -134,8 +142,8 @@ done
 here=`pwd`
 TOP_OF_CONFIGURE
 
-# Produce an absolute version of srcdir.
-srcdir_abs=`cd "${srcdir-.}"&&pwd`
+# Produce an absolute path to srcdir.
+srcdir_abs=`pwd`
 # This section is unquoted so we can substitute variables.
 cat <<MIDDLE_OF_CONFIGURE >> configure.tmp
 srcdir="$srcdir_abs"
@@ -223,4 +231,4 @@ chmod +x configure.tmp
 mv -f configure.tmp configure
 
 trap - EXIT
-echo "Bootstrapped successfully - now run \"./configure\" and \"${MAKE-make}\""
+echo "Bootstrapped successfully - now run \"$srcdir/configure\" and \"${MAKE-make}\""
