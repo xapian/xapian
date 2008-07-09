@@ -1,3 +1,8 @@
+Wed Jul 09 10:17:57 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac: Add support for "--enable-quiet" like
+	  xapian-core and omega have.
+
 Wed Jul 09 10:14:47 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.ac: Use AC_CONFIG_MACRO_DIR and
