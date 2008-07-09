@@ -124,18 +124,6 @@ AC_CONFIG_HEADERS(config.h)
 
 AC_CONFIG_MACRO_DIR([m4])
 
-dnl We don't use Fortran, but libtool 1.5 insists on probing for f77 which just
-dnl makes configure take longer to run.  We force it not to using the method
-dnl suggested here (which also reduces configure size by 12%):
-dnl http://article.gmane.org/gmane.comp.gnu.libtool.general/9281
-dnl This is apparently fixed in libtool 2.2, so once we require that, we can
-dnl drop this workaround.
-define([AC_LIBTOOL_LANG_F77_CONFIG], [:])
-dnl Eliminating the unused code for gcj and rc probes reduces the size of the
-dnl generated configure script by a further 15%!
-define([AC_LIBTOOL_LANG_GCJ_CONFIG], [:])
-define([AC_LIBTOOL_LANG_RC_CONFIG], [:])
-
 dnl Use libtool to manage our libraries
 AC_PROG_LIBTOOL
 
