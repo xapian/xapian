@@ -122,6 +122,8 @@ AC_CONFIG_SRCDIR(matcher/andpostlist.cc)
 
 AC_CONFIG_HEADERS(config.h)
 
+AC_CONFIG_MACRO_DIR([m4])
+
 dnl We don't use Fortran, but libtool 1.5 insists on probing for f77 which just
 dnl makes configure take longer to run.  We force it not to using the method
 dnl suggested here (which also reduces configure size by 12%):

@@ -1,3 +1,8 @@
+Wed Jul 09 07:17:38 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac: Use AC_CONFIG_MACRO_DIR and
+	  ACLOCAL_AMFLAGS as libtoolize 2.2.4 recommends.
+
 Wed Jul 09 06:37:21 GMT 2008  Olly Betts <olly@survex.com>
 
 	* acinclude.m4: Remove reference to definedir.m4.

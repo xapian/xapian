@@ -1,6 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
 AUTOMAKE_OPTIONS = 1.5 subdir-objects
+ACLOCAL_AMFLAGS = -I m4
 
 # `make QUIET=' overrides `./configure --enable-quiet'.
 # `make QUIET=y' overrides `./configure' without `--enable-quiet'.
