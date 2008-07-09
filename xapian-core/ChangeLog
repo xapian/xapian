@@ -1,3 +1,14 @@
+Wed Jul 09 08:03:11 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* Makefile.am,m4/dir_contents,xapian.m4: Move xapian.m4 back into
+	  the m4 subdirectory.  For uninstalled builds, we need xapian.m4
+	  to be in a directory without any other .m4 files, or we'll be
+	  likely to pull in the wrong versions of other macros.  The top
+	  level directory contains aclocal.m4 and acinclude.m4, so isn't
+	  suitable for this.  Also, the xapian-bindings and omega
+	  compilations hadn't been updated with the new xapian.m4 location,
+	  so this fixes the build for them.
+
 Wed Jul 09 07:17:38 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.ac: Use AC_CONFIG_MACRO_DIR and
