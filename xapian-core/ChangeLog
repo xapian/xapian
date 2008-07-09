@@ -1,3 +1,8 @@
+Wed Jul 09 15:35:58 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_db.cc: Add test that OP_SCALE_WEIGHT works with
+	  OP_SYNONYM.
+
 Fri Jul 04 14:59:12 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* queryparser/queryparser.lemony: Use OP_SYNONYM to join the

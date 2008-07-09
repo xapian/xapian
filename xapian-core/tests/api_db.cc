@@ -1385,6 +1385,15 @@ DEFINE_TESTCASE(synonym2, backend) {
     Xapian::MSet mset = enquire.get_mset(0, 10);
     tout << mset.get_description() << endl;
 
+    // Regression test that OP_SCALE_WEIGHT works with OP_SYNONYM
+    double maxposs = mset.get_max_possible();
+    query = Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT, query, 10.0);
+    enquire.set_query(query);
+    mset = enquire.get_mset(0, 10);
+    double maxposs2 = mset.get_max_possible();
+
+    TEST_EQUAL_DOUBLE(maxposs * 10.0, maxposs2);
+
     return true;
 }
 
