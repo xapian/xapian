@@ -1,3 +1,10 @@
+Wed Jul 09 10:30:16 GMT 2008  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,guile/Makefile.am,java-swig/Makefile.am,
+	  java/Makefile.am,java/native/Makefile.am,php/Makefile.am,
+	  python/Makefile.am,ruby/Makefile.am,tcl8/Makefile.am: More changes
+	  neeed for --enable-quiet support.
+
 Wed Jul 09 10:19:38 GMT 2008  Olly Betts <olly@survex.com>
 
 	* configure.ac: Replace AM_CONFIG_HEADER with the more modern
