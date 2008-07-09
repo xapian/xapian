@@ -1,3 +1,8 @@
+Wed Jul 09 14:52:54 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* Makefile.am: Add $(distdir) to directory names in dist-hook rule
+	  to make it actually work.
+
 Wed Jul 09 14:31:25 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* Makefile.am: Add dist-hook rule to ensure that the m4 directory
