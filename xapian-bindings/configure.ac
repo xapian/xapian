@@ -15,6 +15,8 @@ AC_CONFIG_SRCDIR(xapian.i)
 
 AM_CONFIG_HEADER(config.h)
 
+AC_CONFIG_MACRO_DIR([m4])
+
 dnl Mac OS X needs MACOSX_DEPLOYMENT_TARGET set to 10.3 (or higher) to
 dnl successfully link the SWIG generated modules.  The link always fails
 dnl on earlier versions of Mac OS X (10.1.4 and 10.2.8 tested), so always
