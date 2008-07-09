@@ -89,10 +89,10 @@ for module in xapian-core xapian-applications/omega swig xapian-bindings ; do
     modules="$modules $module"
 
     if test xapian-core = "$module" ; then
-      if test -d "$d/m4" ; then
+      if test -d "$d/m4-macros" ; then
 	# Pass extra option to ACLOCAL so xapian.m4 can be found by other
 	# modules.
-	aclocal_dir=`cd "$d/m4" && pwd`
+	aclocal_dir=`cd "$d/m4-macros" && pwd`
 	ACLOCAL="${ACLOCAL-aclocal} -I $aclocal_dir"
 	export ACLOCAL
       fi

@@ -8,6 +8,45 @@ Mon Dec 03 15:35:38 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 	* python/smoketest.py: Change expected query to match new output
 	  using the SYNONYM operator.
 
+Wed Jul 09 14:52:54 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* Makefile.am: Add $(distdir) to directory names in dist-hook rule
+	  to make it actually work.
+
+Wed Jul 09 14:31:25 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* Makefile.am: Add dist-hook rule to ensure that the m4 directory
+	  exists; if it doesn't, autoreconf reports "couldn't open
+	  directory `m4'".
+
+Wed Jul 09 10:46:36 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: The workaround to avoid probe code for F77, GCJ, and
+	  RC being added to configure is no longer required now that we're
+	  using libtool 2.2 so remove it.
+
+Wed Jul 09 10:30:16 GMT 2008  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,guile/Makefile.am,java-swig/Makefile.am,
+	  java/Makefile.am,java/native/Makefile.am,php/Makefile.am,
+	  python/Makefile.am,ruby/Makefile.am,tcl8/Makefile.am: More changes
+	  neeed for --enable-quiet support.
+
+Wed Jul 09 10:19:38 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: Replace AM_CONFIG_HEADER with the more modern
+	  AC_CONFIG_HEADERS.
+
+Wed Jul 09 10:17:57 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac: Add support for "--enable-quiet" like
+	  xapian-core and omega have.
+
+Wed Jul 09 10:14:47 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac: Use AC_CONFIG_MACRO_DIR and
+	  ACLOCAL_AMFLAGS as libtoolize 2.2.4 recommends.
+
 Tue Jul 01 21:05:48 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/pythontest.py,python/smoketest.py,python/testsuite.py:

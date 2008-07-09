@@ -13,7 +13,9 @@ AM_INIT_AUTOMAKE([1.8.3 -Wportability tar-ustar])
 
 AC_CONFIG_SRCDIR(xapian.i)
 
-AM_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADERS(config.h)
+
+AC_CONFIG_MACRO_DIR([m4])
 
 dnl Mac OS X needs MACOSX_DEPLOYMENT_TARGET set to 10.3 (or higher) to
 dnl successfully link the SWIG generated modules.  The link always fails
@@ -45,18 +47,6 @@ if test -n "$OVERRIDE_MACOSX_DEPLOYMENT_TARGET" ; then
   MACOSX_DEPLOYMENT_TARGET=$OVERRIDE_MACOSX_DEPLOYMENT_TARGET
 fi
 AM_CONDITIONAL(NEED_JNILIB_EXT, test yes = "$NEED_JNILIB_EXT")
-
-dnl We don't use Fortran, but libtool 1.5 insists on probing for f77 which just
-dnl makes configure take longer to run.  We force it not to using the method
-dnl suggested here (which also reduces configure size):
-dnl http://article.gmane.org/gmane.comp.gnu.libtool.general/9281
-dnl This is apparently fixed in libtool 2.2, so once we require that, we can
-dnl drop this workaround.
-define([AC_LIBTOOL_LANG_F77_CONFIG], [:])
-dnl Eliminating the unused code for gcj and rc probes further reduces the size
-dnl of the generated configure script (by 29% in total):
-define([AC_LIBTOOL_LANG_GCJ_CONFIG], [:])
-define([AC_LIBTOOL_LANG_RC_CONFIG], [:])
 
 dnl Use libtool to manage our libraries, but don't build static libraries as
 dnl the bindings only have a use for dynamic ones.
@@ -100,6 +90,13 @@ dnl We only need to set docdir for compatibility with autoconf < 2.60 - this
 dnl code can be removed once we move to requiring autoconf 2.60 or newer.
 test -n "$docdir" || docdir='${datadir}/doc/${PACKAGE_TARNAME}'
 AC_SUBST(docdir)
+
+AC_ARG_ENABLE(quiet,
+  [AS_HELP_STRING([--enable-quiet], [enable quiet building [default=no]])],
+  [case ${enableval} in
+    yes|no) ;;
+    *) AC_MSG_ERROR([bad value ${enableval} for --enable-quiet]) ;;
+  esac])
 
 dnl Only probe for SWIG and enable SWIG rules in makefiles if
 dnl configure --enable-maintainer-mode is used.
