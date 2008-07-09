@@ -1,5 +1,5 @@
 #!/bin/sh
-# build autotools and bootstrap a Xapian SVN tree with them.
+# download and build autotools and bootstrap a Xapian SVN tree with them.
 #
 # Copyright (C) 2008 Olly Betts
 #
@@ -32,22 +32,71 @@ case $srcdir in
     cd "$srcdir" ;;
 esac
 
-rm -rf INST BUILD
-mkdir INST BUILD
+if [ "$1" = "--clean" ] ; then
+  rm -rf INST BUILD
+fi
 
+test -d INST || mkdir INST
 instdir=`pwd`/INST
-for subdir in autoconf automake libtool ; do
-    mkdir BUILD/"$subdir"
-    cd BUILD/"$subdir"
-    ../../"$subdir"/configure --prefix="$instdir"
+
+test -d BUILD || mkdir BUILD
+cd BUILD
+
+do_build_if_required() {
+  package=$1
+  basename=$package-$2
+  checksum=$3
+  tarball=$basename.tar.bz2
+  if [ "$basename" = "libtool-1.5.26" ] ; then
+    tarball=$basename.tar.gz
+  fi
+  stamp=$package.stamp
+
+  # Download the tarball if required.
+  if [ ! -f "$tarball" ] ; then
+    wget "ftp://ftp.gnu.org/gnu/$package/$tarball"
+  fi
+
+  if [ -f "$stamp" ] ; then
+    find_stdout=`find "$stamp" -newer "$tarball" -print`
+  else
+    find_stdout=
+  fi
+
+  if [ -z "$find_stdout" ] ; then
+    # Verify tarball's checksum.
+    echo "$checksum  $tarball"|sha1sum -c
+
+    for f in "$package"-* ; do
+      [ "$f" = "$tarball" ] || rm -rf "$f"
+    done
+
+    case $tarball in
+    *.bz2)
+      bzip2 -dc "$tarball"| tar xf - ;;
+    *)
+      gzip -dc "$tarball"| tar xf - ;;
+    esac
+
+    cd "$basename"
+    ./configure --prefix="$instdir"
     make
     make install
-    cd ../..
-done
+    cd ..
+    rm -rf "$basename"
 
-for tool in autoreconf autoconf autoheader autom4te automake aclocal libtoolize ; do
-   var=`echo "$tool"|tr a-z A-Z`
-   eval "$var=\"\$instdir\"/bin/$tool;export $var"
+    touch "$stamp"
+  fi
+}
+
+do_build_if_required autoconf 2.62 de2b6f57da07427794c56e25844e31f35fc46755
+do_build_if_required automake 1.10.1 cd2e0f7054d4edc75cbf87cd8a92962b3b417b74
+do_build_if_required libtool 1.5.26 4c1738351736562a951a345e24f233d00953ec0a
+
+for t in autoreconf autoconf autoheader autom4te automake aclocal libtoolize
+do
+   var=`echo "$t"|tr a-z A-Z`
+   eval "$var=\"\$instdir\"/bin/$t;export $var"
 done
 
 trap - EXIT
