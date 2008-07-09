@@ -1,3 +1,9 @@
+Wed Jul 09 10:44:37 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: The workaround to avoid probe code for F77, GCJ, and
+	  RC being added to configure is no longer required now that we're
+	  using libtool 2.2 so remove it.
+
 Wed Jul 09 10:13:18 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.ac: Use AC_CONFIG_MACRO_DIR and
