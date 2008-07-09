@@ -1,4 +1,4 @@
-<Directory>m4</Directory>
+<Directory>m4-macros</Directory>
 
 <Description>
 M4 macros to be installed with Xapian.

@@ -1,3 +1,10 @@
+Wed Jul 09 09:02:08 GMT 2008  Olly Betts <olly@survex.com>
+
+	* m4-macros/dir_contents,m4-macros/xapian.m4,m4/dir_contents,m4/xapian.m4:
+	  Move xapain.m4 to a new subdirectory (m4-macros) since libtoolize
+	  now installs m4 files into subdirectory m4 which we don't really want
+	  picking up by applications building against an uninstalled xapian-core.
+
 Wed Jul 09 08:03:11 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* Makefile.am,m4/dir_contents,xapian.m4: Move xapian.m4 back into
