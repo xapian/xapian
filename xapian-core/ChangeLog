@@ -1,3 +1,12 @@
+Wed Jul 09 09:40:43 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Makefile.am,acinclude.m4,autoconf/dir_contents,
+	  autoconf/rjb_find_stlport.m4,autoconf/type_socklen_t.m4,
+	  m4/dir_contents,m4/rjb_find_stlport.m4,m4/type_socklen_t.m4: Move
+	  the m4 macros which we ship for building configure from into the m4
+	  subdirectory and remove acinclude.m4 - now aclocal will pull in the
+	  required macros automatically.
+
 Wed Jul 09 09:14:31 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Update for m4 -> m4-macros change.
@@ -13,10 +22,11 @@ Wed Jul 09 09:11:45 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 Wed Jul 09 09:02:08 GMT 2008  Olly Betts <olly@survex.com>
 
-	* m4-macros/dir_contents,m4-macros/xapian.m4,m4/dir_contents,m4/xapian.m4:
-	  Move xapain.m4 to a new subdirectory (m4-macros) since libtoolize
-	  now installs m4 files into subdirectory m4 which we don't really want
-	  picking up by applications building against an uninstalled xapian-core.
+	* m4-macros/dir_contents,m4-macros/xapian.m4,m4/dir_contents,
+	  m4/xapian.m4: Move xapain.m4 to a new subdirectory (m4-macros) since
+	  libtoolize now installs m4 files into subdirectory m4 which we don't
+	  really want picking up by applications building against an
+	  uninstalled xapian-core.
 
 Wed Jul 09 08:03:11 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 

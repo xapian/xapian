@@ -81,7 +81,7 @@ bin_SCRIPTS = xapian-config
 CLEANFILES = xapian-config
 
 EXTRA_DIST = ChangeLog ChangeLog.examples HACKING PLATFORMS xapian-core.spec \
- autoconf/rjb_find_stlport.m4 autoconf/type_socklen_t.m4 \
+ m4/rjb_find_stlport.m4 m4/type_socklen_t.m4 \
  include/xapian/error.h include/xapian/errordispatch.h exception_data.pm \
  preautoreconf dir_contents
 
