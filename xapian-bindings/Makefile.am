@@ -14,6 +14,10 @@ DISTCLEANFILES = xapian-version.h
 SUBDIRS = @BINDINGS@
 DIST_SUBDIRS = python php java-swig java ruby tcl8 csharp # guile
 
+# Ensure that the m4 directory is present, to avoid autoreconf failing.
+dist-hook:
+	-test -d m4 || mkdir m4
+
 DISTCHECK_CONFIGURE_FLAGS = XAPIAN_CONFIG="$(XAPIAN_CONFIG)" \
 	PYTHON_LIB="`pwd`/../_inst/tmp_pylib" \
 	PHP_EXTENSION_DIR="`pwd`/../_inst/tmp_phpext" \
