@@ -1,3 +1,13 @@
+Thu Jul 10 22:21:46 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/postingsource.cc: Fix skip_to() so that it doesn't advance if
+	  it's already in a suitable position.
+	* include/xapian/postingsource.h: Specify that skip_to() should
+	  stay in the same position if the current position is equal to
+	  the docid argument of skip_to().
+	* tests/api_db.cc: Add valueweightsource3 to check that skip_to()
+	  stays in the same position in this case.
+
 Thu Jul 10 13:14:14 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/postingsource.cc: Performance improvement - open documents

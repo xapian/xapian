@@ -95,6 +95,14 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *  If the specified docid isn't in the list, position ourselves on the
      *  first document after it (or at_end() if no greater docids are present).
      *
+     *  If the current position is already the specified docid, this method will
+     *  leave the position unmodified.
+     *
+     *  If the specified docid is earlier than the current position, the
+     *  behaviour is unspecified.  A sensible behaviour would be to leave the
+     *  current position unmodified, but it is also reasonable to move to the
+     *  specified docid.
+     *
      *  @param min_wt	The minimum weight contribution that is needed (this is
      *			just a hint which subclasses may ignore).
      *

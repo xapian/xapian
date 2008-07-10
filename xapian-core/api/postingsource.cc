@@ -190,9 +190,10 @@ void
 ValueWeightPostingSource::skip_to(Xapian::docid min_docid,
 				  Xapian::weight min_wt)
 {
-    if (current_docid < min_docid)
+    if (current_docid < min_docid) {
 	current_docid = min_docid - 1;
-    next(min_wt);
+	next(min_wt);
+    }
 }
 
 bool

@@ -2079,3 +2079,21 @@ DEFINE_TESTCASE(valueweightsource2, backend && valuestats) {
 
     return true;
 }
+
+// Check that valueweightsource skip_to() can stay in the same position.
+DEFINE_TESTCASE(valueweightsource3, backend && valuestats) {
+    // FIXME: PostingSource doesn't currently work well with multi databases
+    // but we should try to resolve that issue.
+    SKIP_TEST_FOR_BACKEND("multi");
+    Xapian::Database db(get_database("apitest_phrase"));
+    Xapian::ValueWeightPostingSource src(db, 11);
+    TEST(!src.at_end());
+    src.skip_to(8, 0.0);
+    TEST(!src.at_end());
+    TEST_EQUAL(src.get_docid(), 8);
+    src.skip_to(8, 0.0);
+    TEST(!src.at_end());
+    TEST_EQUAL(src.get_docid(), 8);
+
+    return true;
+}
