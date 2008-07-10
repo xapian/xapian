@@ -1,3 +1,7 @@
+Thu Jul 10 10:47:50 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: LT_PREREQ seems to need to be just before LT_INIT.
+
 Wed Jul 09 23:02:02 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Revert dist-hook fix - that problem is caused by using
