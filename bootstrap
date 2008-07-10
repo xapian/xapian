@@ -27,6 +27,8 @@ fi
 trap 'echo "Bootstrap failed"' EXIT
 set -e
 
+FETCH_URL_TOOL=
+
 lazy_build() {
   package=$1
   basename=$package-$2
@@ -37,7 +39,19 @@ lazy_build() {
 
   # Download the tarball if required.
   if [ ! -f "$tarball" ] ; then
-    wget "ftp://ftp.gnu.org/gnu/$package/$tarball"
+    if [ -z "$FETCH_URL_TOOL" ] ; then
+      if ${WGET-wget} --version > /dev/null 2>&1 ; then
+	FETCH_URL_TOOL=${WGET-wget}
+      elif ${CURL-curl} --version > /dev/null 2>&1 || [ "$?" = 2 ] ; then
+	# curl --version exists with code 2.
+	FETCH_URL_TOOL=${CURL-curl}
+      else
+	echo "Neither wget nor curl found - set WGET or CURL to the full path," >&2
+	echo "or download $url to directory `pwd` by hand and return this script." >&2
+	exit 1
+      fi
+    fi
+    $FETCH_URL_TOOL "ftp://ftp.gnu.org/gnu/$package/$tarball"
   fi
 
   if [ -f "$stamp" ] ; then
@@ -91,10 +105,10 @@ else
     rm -rf INST BUILD
   fi
 
-  test -d INST || mkdir INST
+  [ -d INST ] || mkdir INST
   instdir=`pwd`/INST
 
-  test -d BUILD || mkdir BUILD
+  [ -d BUILD ] || mkdir BUILD
   cd BUILD
 
   lazy_build autoconf 2.62 tar.bz2 de2b6f57da07427794c56e25844e31f35fc46755
@@ -126,7 +140,7 @@ esac
 
 ACLOCAL="${ACLOCAL-aclocal} -I `pwd`/xapian-core/m4-macros"
 
-SWIG=""
+SWIG=
 # Don't try to build xapian-applications/dbtools or xapview - they need work.
 # As does cvssearch.
 # We no longer snapshot xapian-applications/queryserver since it hasn't seen a
@@ -134,14 +148,14 @@ SWIG=""
 modules=
 for module in xapian-core xapian-applications/omega swig xapian-bindings ; do
   d=$module
-  if test -f "$d/configure.ac" -o -f "$d/configure.in" ; then
+  if [ -f "$d/configure.ac" -o -f "$d/configure.in" ] ; then
     echo "Bootstrapping \`$module'"
-    test -f "$d/preautoreconf" && "$d/preautoreconf"
+    [ -f "$d/preautoreconf" ] && "$d/preautoreconf"
 
     # If we have a custom INSTALL file, preserve it since autoreconf insists on
     # replacing INSTALL with "generic installation instructions" when --force
     # is used.  Be careful to replace it if autoreconf fails.
-    if test -f "$d/INSTALL" ; then
+    if [ -f "$d/INSTALL" ] ; then
       if grep 'generic installation instructions' "$d/INSTALL" >/dev/null 2>&1 ; then
 	:
       else
@@ -150,7 +164,7 @@ for module in xapian-core xapian-applications/omega swig xapian-bindings ; do
     fi
 
     autoreconf_rc=
-    if test swig = "$module" ; then
+    if [ swig = "$module" ] ; then
       # SWIG provides its own bootstrapping script.
       curdir=`pwd`
       cd "$d"
@@ -166,10 +180,10 @@ for module in xapian-core xapian-applications/omega swig xapian-bindings ; do
       # has been upgraded.
       ${AUTORECONF-autoreconf} --install --force "$d" || autoreconf_rc=$?
     fi
-    if test -f "$d/INSTALL.preserved-by-bootstrap" ; then
+    if [ -f "$d/INSTALL.preserved-by-bootstrap" ] ; then
       mv -f "$d/INSTALL.preserved-by-bootstrap" "$d/INSTALL"
     fi
-    if test -n "$autoreconf_rc" ; then
+    if [ -n "$autoreconf_rc" ] ; then
       exit $autoreconf_rc
     fi
     modules="$modules $module"
@@ -238,15 +252,15 @@ cat <<'END_OF_CONFIGURE' >> configure.tmp
 dirs=
 XAPIAN_CONFIG=$here/xapian-core/xapian-config
 for d in $modules ; do
-  if test "$here" = "$srcdir" ; then
+  if [ "$here" = "$srcdir" ] ; then
     configure=./configure
   else
     configure=$srcdir/$d/configure
   fi
-  if test -f "$configure" ; then
-    if test -d "$d" ; then : ; else
+  if [ -f "$configure" ] ; then
+    if [ -d "$d" ] ; then : ; else
       case $d in
-      xapian-applications/*) test -d xapian-applications || mkdir xapian-applications ;;
+      xapian-applications/*) [ -d xapian-applications ] || mkdir xapian-applications ;;
       esac
       mkdir "$d"
     fi
