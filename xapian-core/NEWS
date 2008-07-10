@@ -114,7 +114,8 @@ build system:
 
 * This release now uses newer versions of the autotools (autoconf 2.61 ->
   2.62; automake 1.10 -> 1.10.1; libtool 1.5.24 -> 1.5.26).  The newer
-  autoconf reportedly results in a faster configure script.
+  autoconf reportedly results in a faster configure script, and warns about
+  use of unrecognised configure options.
 
 * Fix configure to recognise --enable-log=profile and fix build problems when
   this is enabled.
