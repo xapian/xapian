@@ -120,6 +120,8 @@ case `${LIBTOOLIZE-libtoolize} --version` in
   exit 1 ;;
 esac
 
+ACLOCAL="${ACLOCAL-aclocal} -I `pwd`/xapian-core/m4"
+
 SWIG=""
 # Don't try to build xapian-applications/dbtools or xapview - they need work.
 # As does cvssearch.
@@ -131,12 +133,7 @@ for module in xapian-core xapian-applications/omega swig xapian-bindings ; do
   if test -f "$d/configure.ac" -o -f "$d/configure.in" ; then
     echo "Bootstrapping \`$module'"
     test -f "$d/preautoreconf" && "$d/preautoreconf"
-    # Use --install as debian's autoconf wrapper uses 2.5X if it sees it
-    # (but it doesn't check for -i).
-    #
-    # Use --force so that we update files if autoconf, automake, or libtool
-    # has been upgraded.
-    #
+
     # If we have a custom INSTALL file, preserve it since autoreconf insists on
     # replacing INSTALL with "generic installation instructions" when --force
     # is used.  Be careful to replace it if autoreconf fails.
@@ -147,6 +144,7 @@ for module in xapian-core xapian-applications/omega swig xapian-bindings ; do
 	mv -f "$d/INSTALL" "$d/INSTALL.preserved-by-bootstrap"
       fi
     fi
+
     autoreconf_rc=
     if test swig = "$module" ; then
       # SWIG provides its own bootstrapping script.
@@ -157,6 +155,11 @@ for module in xapian-core xapian-applications/omega swig xapian-bindings ; do
       # Use the uninstalled wrapper for the in-tree copy of SWIG.
       SWIG="\$here/swig/preinst-swig"
     else
+      # Use --install as debian's autoconf wrapper uses 2.5X if it sees it
+      # (but it doesn't check for -i).
+      #
+      # Use --force so that we update files if autoconf, automake, or libtool
+      # has been upgraded.
       ${AUTORECONF-autoreconf} --install --force "$d" || autoreconf_rc=$?
     fi
     if test -f "$d/INSTALL.preserved-by-bootstrap" ; then
@@ -230,7 +233,6 @@ done
 cat <<'END_OF_CONFIGURE' >> configure.tmp
 dirs=
 XAPIAN_CONFIG=$here/xapian-core/xapian-config
-ACLOCAL="${ACLOCAL-aclocal} -I $srcdir/xapian-core/m4"
 for d in $modules ; do
   if test "$here" = "$srcdir" ; then
     configure=./configure
@@ -256,7 +258,7 @@ for d in $modules ; do
       cd "$d" && "$configure" --enable-maintainer-mode --cache-file="$here/config.cache" ${1+"$@"}
       ;;
     *)
-      cd "$d" && "$configure" --enable-maintainer-mode --cache-file="$here/config.cache" XAPIAN_CONFIG="$XAPIAN_CONFIG" ACLOCAL="$ACLOCAL" ${1+"$@"}
+      cd "$d" && "$configure" --enable-maintainer-mode --cache-file="$here/config.cache" XAPIAN_CONFIG="$XAPIAN_CONFIG" ${1+"$@"}
       ;;
     esac
     cd "$here"
