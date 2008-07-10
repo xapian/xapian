@@ -1,3 +1,11 @@
+Thu Jul 10 13:14:14 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/postingsource.cc: Performance improvement - open documents
+	  lazily (using the internal interface) so that we don't access
+	  the record table for each one - we now just access the value
+	  table.  Leads to considerable speed up for me (of the order of 5
+	  times faster).
+
 Thu Jul 10 09:49:39 GMT 2008  Olly Betts <olly@survex.com>
 
 	* HACKING: Overhaul the sections on building from SVN.  Remove ':'
