@@ -1,3 +1,11 @@
+Thu Jul 10 10:28:58 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* HACKING: Update to reflect the autotools now being in the SVN
+	  tree, and the versions we are now bootstrapping with.
+	* HACKING: Overhaul the sections on building from SVN.  Remove ':'
+	  from the end of headings.
+
 Fri Jul 04 10:26:21 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
