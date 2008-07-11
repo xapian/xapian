@@ -1,3 +1,18 @@
+Fri Jul 11 14:04:21 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/multimatch.cc: Fix calculation of lower bound when
+	  collapsing and match deciders are used.  (Only tended to manifest
+	  when the collapsing threw away a lot of documents, and when also
+	  using a custom sort order, but I don't think that was required.)
+	  Also, perform the adjustments due to percentage cutoffs after the
+	  other adjustments, to avoid the lower bound setting for
+	  collapsing overriding the lower bound from the percentage cutoff.
+	* tests/harness/index_utils.cc: Add a value to value slot 12, which
+	  only has 5 different values, for testing this bug.
+	* tests/api_db.cc: Add regression test for calculation of the lower
+	  bound.
+
 Thu Jul 10 23:57:42 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
