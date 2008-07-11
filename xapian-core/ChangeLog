@@ -1,3 +1,9 @@
+Fri Jul 11 12:21:11 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_anydb.cc: Add testcase for percent cutoff plus collapsing
+	  which most likely would have failed before Richard's recent fix
+	  for the lower bound with collapsing and a matchdecider.
+
 Fri Jul 11 05:30:02 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/database.cc: Add support for XAPIAN_PREFER_CHERT
