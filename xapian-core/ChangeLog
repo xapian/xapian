@@ -1,3 +1,9 @@
+Fri Jul 11 13:04:41 GMT 2008  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Collect up all the scaling factors we apply
+	  to the estimated number of matches and apply them in one go to avoid
+	  rounding the result more than once.
+
 Fri Jul 11 12:21:11 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/api_anydb.cc: Add testcase for percent cutoff plus collapsing
