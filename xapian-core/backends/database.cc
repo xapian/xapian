@@ -217,12 +217,22 @@ WritableDatabase::WritableDatabase(const std::string &path, int action)
 		 path << ", " << action);
 #ifdef XAPIAN_HAS_FLINT_BACKEND
 # ifdef XAPIAN_HAS_CHERT_BACKEND
-    // Both Flint and Chert are enabled - default to flint unless a Chert
-    // database already exists in path.
-    if (file_exists(path + "/iamchert")) {
-	internal.push_back(new ChertWritableDatabase(path, action, 8192));
+    bool use_flint = true;
+    if (file_exists(path + "/iamflint")) {
+	// Existing flint DB.
+    } else if (file_exists(path + "/iamchert")) {
+	// Existing chert DB.
+	use_flint = false;
     } else {
+	// If $XAPIAN_PREFER_CHERT is set to a non-empty value, prefer chert.
+	const char *p = getenv("XAPIAN_PREFER_CHERT");
+	if (p && *p) use_flint = false;
+    }
+
+    if (use_flint) {
 	internal.push_back(new FlintWritableDatabase(path, action, 8192));
+    } else {
+	internal.push_back(new ChertWritableDatabase(path, action, 8192));
     }
 # else
     // Only Flint is enabled.

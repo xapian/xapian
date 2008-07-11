@@ -1,3 +1,8 @@
+Fri Jul 11 05:30:02 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/database.cc: Add support for XAPIAN_PREFER_CHERT
+	  environmental variable.
+
 Thu Jul 10 22:21:46 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/postingsource.cc: Fix skip_to() so that it doesn't advance if
