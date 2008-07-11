@@ -1,3 +1,7 @@
+Fri Jul 11 13:44:56 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/harness/testutils.cc: Fix typos in recent improved output.
+
 Fri Jul 11 13:04:41 GMT 2008  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: Collect up all the scaling factors we apply
