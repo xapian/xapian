@@ -30,6 +30,7 @@
 #include <string>
 
 #include <xapian.h>
+#include "backendmanager_local.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include "utils.h"
@@ -488,6 +489,56 @@ DEFINE_TESTCASE(topercent1, backend) {
         TEST_AND_EXPLAIN(pct <= last_pct, "percentage increased down mset");
 	last_pct = pct;
     }
+    return true;
+}
+
+// tests the percentage values returned
+DEFINE_TESTCASE(topercent2, backend) {
+    BackendManagerLocal local_manager;
+    local_manager.set_datadir(test_driver::get_srcdir() + "/testdata/");
+    Xapian::Enquire localenq(local_manager.get_database("apitest_simpledata"));
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+
+    int pct;
+
+    // First, test a search in which the top document scores 100%.
+    enquire.set_query(query("this"));
+    localenq.set_query(query("this"));
+    Xapian::MSet mymset = enquire.get_mset(0, 20);
+    Xapian::MSet localmset = localenq.get_mset(0, 20);
+
+    Xapian::MSetIterator i = mymset.begin();
+    TEST(i != mymset.end());
+    pct = mymset.convert_to_percent(i);
+    TEST_EQUAL(pct, 100);
+
+    TEST_EQUAL(mymset, localmset);
+    TEST(mset_range_is_same_percents(mymset, 0, localmset, 0, mymset.size()));
+
+    // A search in which the top document doesn't have 100%
+    Xapian::Query q = query(Xapian::Query::OP_OR,
+			    "this", "line", "paragraph", "rubbish");
+    enquire.set_query(q);
+    localenq.set_query(q);
+    mymset = enquire.get_mset(0, 20);
+    localmset = localenq.get_mset(0, 20);
+
+    i = mymset.begin();
+    TEST(i != mymset.end());
+    pct = mymset.convert_to_percent(i);
+    TEST_GREATER(pct, 65);
+    TEST_LESSER(pct, 75);
+
+    ++i;
+
+    TEST(i != mymset.end());
+    pct = mymset.convert_to_percent(i);
+    TEST_GREATER(pct, 40);
+    TEST_LESSER(pct, 50);
+
+    TEST_EQUAL(mymset, localmset);
+    TEST(mset_range_is_same_percents(mymset, 0, localmset, 0, mymset.size()));
+
     return true;
 }
 
@@ -1037,8 +1088,8 @@ DEFINE_TESTCASE(rsetmultidb1, backend && !multi) {
     mset_expect_order(mymset2a, 1, 2);
     mset_expect_order(mymset2b, 2, 1);
 
-    mset_range_is_same_weights(mymset1a, 0, mymset2a, 0, 2);
-    mset_range_is_same_weights(mymset1b, 0, mymset2b, 0, 2);
+    TEST(mset_range_is_same_weights(mymset1a, 0, mymset2a, 0, 2));
+    TEST(mset_range_is_same_weights(mymset1b, 0, mymset2b, 0, 2));
     TEST_NOT_EQUAL(mymset1a, mymset1b);
     TEST_NOT_EQUAL(mymset2a, mymset2b);
 

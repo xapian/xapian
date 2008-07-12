@@ -1,3 +1,11 @@
+Sat Jul 12 06:37:15 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/harness/testutils.cc,tests/harness/testutils.h: Add
+	  function to test if two mset ranges have the same percentages,
+	  and slightly improve the messages on failure of the mset range
+	  comparison tests.
+
 Sat Jul 12 06:30:45 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
