@@ -1,10 +1,13 @@
 Sat Jul 12 06:37:15 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
-	* tests/harness/testutils.cc,tests/harness/testutils.h: Add
-	  function to test if two mset ranges have the same percentages,
-	  and slightly improve the messages on failure of the mset range
-	  comparison tests.
+	* tests/api_anydb.cc: Add new test, topercent2, checking the
+	  percentage values returned by standard searches, both against
+	  known current values for some of the hits, and against a search
+	  with a "local" backend.  Also, in rsetmultidb1, test the return
+	  value of mset_range_is_same_weights().
+	* tests/api_db.cc: In rsetmultidb2, test the return value of
+	  mset_range_is_same_weights().
 
 Sat Jul 12 06:30:45 GMT 2008  Olly Betts <olly@survex.com>
 
