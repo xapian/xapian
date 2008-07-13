@@ -2452,7 +2452,7 @@ struct pstate *psp;
   }
 }
 
-/* Run the proprocessor over the input file text.  The global variables
+/* Run the preprocessor over the input file text.  The global variables
 ** azDefine[0] through azDefine[nDefine-1] contains the names of all defined
 ** macros.  This routine looks for "%ifdef" and "%ifndef" and "%endif" and
 ** comments them out.  Text in between is also commented out as appropriate.
