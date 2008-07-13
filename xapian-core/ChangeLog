@@ -1,3 +1,8 @@
+Sun Jul 13 13:04:58 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Update note of upstream version we're synced
+	  against.
+
 Sun Jul 13 12:56:58 GMT 2008  Olly Betts <olly@survex.com>
 
 	* queryparser/lemon.c: Tweak previous merged patch so that we still
