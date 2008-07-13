@@ -1,3 +1,16 @@
+Sun Jul 13 06:19:54 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* matcher/multimatch.cc,matcher/remotesubmatch.cc,
+	  matcher/remotesubmatch.h: Apply patch from ticker #279 to improve
+	  performance of matches with multiple remote databases.  This adds
+	  a special case for the top match being from a remote database, to
+	  avoid accessing the termlist to calculate the percentage scaling
+	  factor.
+	* matcher/multimatch.cc: Tweak layout (makes the backport diff
+	  much smaller and clearer, and reduces indentation by a level for a
+	  chunk of code).
+
 Sat Jul 12 06:37:15 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

@@ -5,7 +5,7 @@
  * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
  * Copyright 2003 Orange PCS Ltd
  * Copyright 2003 Sam Liddicott
- * Copyright 2007 Lemur Consulting Ltd
+ * Copyright 2007,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -780,7 +780,17 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	vector<Xapian::Internal::MSetItem>::const_iterator best;
 	best = min_element(items.begin(), items.end(), mcmp);
 
-	if (termfreqandwts.size() > 1) {
+	unsigned int multiplier = db.internal.size();
+	Assert(multiplier != 0);
+	Xapian::doccount n = (best->did - 1) % multiplier; // which actual database
+	// If the top result is from a remote database, then we can
+	// just use the percentage scaling calculated for that
+	// database.
+	if (is_remote[n]) {
+	    RemoteSubMatch * rem_match;
+	    rem_match = static_cast<RemoteSubMatch*>(leaves[n].get());
+	    percent_scale = rem_match->get_percent_factor();
+	} else if (termfreqandwts.size() > 1) {
 	    Xapian::termcount matching_terms = 0;
 	    map<string,
 		Xapian::MSet::Internal::TermFreqAndWeight>::const_iterator i;
