@@ -1,3 +1,8 @@
+Sun Jul 13 11:33:33 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Makefile.am: No need to explicitly list m4/*.m4 in EXTRA_DIST as
+	  automake will automatically ship any such files which are needed.
+
 Sun Jul 13 09:15:34 GMT 2008  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc: Back out the rounding of percentages change (at
