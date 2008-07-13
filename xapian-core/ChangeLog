@@ -1,3 +1,9 @@
+Sun Jul 13 12:54:03 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Merge upstream "Check-in Number: 5335".
+	  Reduces the size of the stripped object file for
+	  queryparser_internal.cc by about 0.5%.
+
 Sun Jul 13 12:32:06 GMT 2008  Olly Betts <olly@survex.com>
 
 	* queryparser/lemon.c: Fix typo in comment.
