@@ -1,3 +1,18 @@
+Sun Jul 13 12:09:40 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac,HACKING: Hard require autoconf 2.62 and automake 1.10.1.
+	  Move all information about particular autoconf and automake versions
+	  to HACKING.
+	* configure.ac: Use LT_INIT in preference to AC_PROG_LIBTOOL.  On
+	  Linux and k*bsd-gnu, override libtool's link_all_deplibs_CXX to
+	  "no".  On Linux, override libtool's sys_lib_dlsearch_path_spec to a
+	  list generated in a more reliable way which includes *all* the
+	  default directories.  Remove workaround which sets docdir for
+	  autoconf < 2.60 since we now require 2.62.
+	* xapian-core.spec.in: We no longer need to run autoreconf to work
+	  around libtool's incomplete sys_lib_dlsearch_path_spec or to pick
+	  up distro-specific patches for link_all_deplibs.
+
 Sun Jul 13 11:33:33 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Makefile.am: No need to explicitly list m4/*.m4 in EXTRA_DIST as
