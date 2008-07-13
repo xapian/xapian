@@ -319,8 +319,8 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
 	/** Get the rank of the document at the current position.
 	 *
 	 *  The rank is the position that this document is at in the ordered
-	 *  list of results of the query.  The document judged "most relevant"
-	 *  will have rank of 0.
+	 *  list of results of the query.  The result is 0-based - i.e. the
+	 *  top-ranked document has a rank of 0.
 	 */
 	Xapian::doccount get_rank() const {
 	    return mset.get_firstitem() + index;

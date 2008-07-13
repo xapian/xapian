@@ -1,3 +1,9 @@
+Sun Jul 13 07:01:02 GMT 2008  Olly Betts <olly@survex.com>
+
+	* include/xapian/enquire.h: Fix documentation comment for
+	  MSet::get_rank() - the 'document judged "most relevant" will have
+	  rank of 0' only when ordering primarily by relevance.
+
 Sun Jul 13 06:17:13 GMT 2008  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: Tweak layout (makes the backport diff
