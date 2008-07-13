@@ -1,3 +1,10 @@
+Sun Jul 13 13:38:02 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* Makefile.am,autoconf/definedir.m4,configure.ac: AC_DEFINE_DIR()
+	  hasn't been used for years so remove it.
+	* acinclude.m4: Remove reference to definedir.m4.
+
 Sun Jul 13 06:19:54 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
