@@ -699,6 +699,32 @@ DEFINE_TESTCASE(pctcutoff2, backend) {
     return true;
 }
 
+// Test that the percent cutoff option returns all the answers it should.
+DEFINE_TESTCASE(pctcutoff3, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_query(Xapian::Query("this"));
+    Xapian::MSet mset1 = enquire.get_mset(0, 10);
+
+    if (verbose) {
+	tout << "Original mset pcts:";
+	print_mset_percentages(mset1);
+	tout << "\n";
+    }
+
+    int percent = 100;
+    for (Xapian::MSetIterator i = mset1.begin(); i != mset1.end(); ++i) {
+	int new_percent = mset1.convert_to_percent(i);
+	if (new_percent != percent) {
+	    enquire.set_cutoff(percent);
+	    Xapian::MSet mset2 = enquire.get_mset(0, 10);
+	    TEST_EQUAL(mset2.size(), i.get_rank());
+	    percent = new_percent;
+	}
+    }
+
+    return true;
+}
+
 // tests the cutoff option
 DEFINE_TESTCASE(cutoff1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));

@@ -1,3 +1,9 @@
+Sun Jul 13 09:15:34 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc: Back out the rounding of percentages change (at
+	  least for now), as it makes percentage cut-offs work inconsistently.
+	* tests/api_anydb.cc: Add test pctcutoff3 which demonstrates the issue.
+
 Sun Jul 13 07:01:02 GMT 2008  Olly Betts <olly@survex.com>
 
 	* include/xapian/enquire.h: Fix documentation comment for
