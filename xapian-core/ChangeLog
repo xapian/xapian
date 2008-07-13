@@ -1,3 +1,8 @@
+Sun Jul 13 12:30:38 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Merge upstream "Check-in Number: 5334".  No
+	  change to the generated code in our case.
+
 Sun Jul 13 12:24:13 GMT 2008  Olly Betts <olly@survex.com>
 
 	* configure.ac: Add missing hard requirement for libtool 2.2.4.
