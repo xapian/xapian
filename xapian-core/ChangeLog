@@ -1,3 +1,9 @@
+Sun Jul 13 06:17:13 GMT 2008  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Tweak layout (makes the backport diff
+	  much smaller and clearer, and reduces indentation by a level for a
+	  chunk of code).
+
 Fri Jul 11 13:44:56 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/harness/testutils.cc: Fix typos in recent improved output.
