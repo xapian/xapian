@@ -2370,8 +2370,8 @@ struct pstate *psp;
         }
         nOld = strlen(zOld);
         n = nOld + nNew + 20;
-        if( psp->insertLineMacro && psp->decllinenoslot
-            && psp->decllinenoslot[0] ){
+        if( psp->insertLineMacro
+            && (!psp->decllinenoslot || psp->decllinenoslot[0]) ){
           for(z=psp->filename, nBack=0; *z; z++){
             if( *z=='\\' ) nBack++;
           }
@@ -2381,8 +2381,8 @@ struct pstate *psp;
         }
         *psp->declargslot = zBuf = realloc(*psp->declargslot, n);
         zBuf += nOld;
-        if( psp->insertLineMacro && psp->decllinenoslot
-            && psp->decllinenoslot[0] ){
+        if( psp->insertLineMacro
+            && (!psp->decllinenoslot || psp->decllinenoslot[0]) ){
           if( nOld && zBuf[-1]!='\n' ){
             *(zBuf++) = '\n';
           }

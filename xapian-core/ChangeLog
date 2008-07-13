@@ -1,3 +1,8 @@
+Sun Jul 13 12:56:58 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Tweak previous merged patch so that we still
+	  get #line directives for code in %include directives.
+
 Sun Jul 13 12:54:03 GMT 2008  Olly Betts <olly@survex.com>
 
 	* queryparser/lemon.c: Merge upstream "Check-in Number: 5335".
