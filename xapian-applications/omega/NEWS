@@ -1,9 +1,4 @@
-Up to:
-Fri Jul 04 08:20:11 GMT 2008  Olly Betts <olly@survex.com>
-
-Omega 1.0.7 (2008-07-??):
-
-general:
+Omega 1.0.7 (2008-07-14):
 
 documentation:
 
@@ -19,24 +14,16 @@ indexers:
   + The built-in conversion code (used when iconv isn't available) now handles
     UCS-2/UTF-16 with and without a BOM, and also the explicit BE and LE forms.
 
-* scriptindex:
-
 omega:
 
 * Overhaul the $highlight colour combinations since some were rather
   unreadable (Debian bug 484456).
-
-templates:
-
-testsuite:
 
 build system:
 
 * configure: Synchronise code for working out warning flags used for builds
   with that used for xapian-core, which in particular handles different
   output formats from "gcc --version".
-
-* configure: Improve code to prevent pointlessly probing for f77, gcj, and rc.
 
 portability:
 
