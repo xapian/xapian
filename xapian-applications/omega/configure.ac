@@ -1,15 +1,9 @@
 dnl Process this file with autoconf to produce a configure script.
 
-dnl Need autoconf 2.50 or later for many features
-dnl automake 1.6.3 requires autoconf 2.54
-dnl autoconf 2.59 is what xapian-core requires, so be consistent
-AC_PREREQ(2.59)
 AC_INIT(xapian-omega, 1.0.7)dnl FIXME: bugreport addr as third argument
-dnl Need 1.5 for AM_CXXFLAGS, etc; 1.6.3 for AM_INIT_AUTOMAKE with no args
-dnl 1.8.5 contains a lot of fixes over 1.6.3
-dnl 1.9 reduces Makefile.in size, and 1.9.5 was in Debian sarge
-dnl But the RPM spec file runs autoreconf, and SLES 9 has 1.8.3.
-AM_INIT_AUTOMAKE([1.8.3 -Wportability tar-ustar])
+dnl See HACKING document for details of the reasons for required versions.
+AC_PREREQ([2.59])
+AM_INIT_AUTOMAKE([1.9 -Wportability tar-ustar])
 
 AC_CONFIG_SRCDIR(omega.cc)
 
