@@ -1,7 +1,4 @@
-up to:
-Fri Jul 04 02:55:21 GMT 2008  Olly Betts <olly@survex.com>
-
-Xapian-core 1.0.7 (2008-07-??):
+Xapian-core 1.0.7 (2008-07-14):
 
 API:
 
@@ -29,20 +26,29 @@ API:
 * Setting sort by value was being ignored by a Xapian::Enquire object which had
   previously had a Xapian::Sorter set (bug#256).
 
-* When using a MatchDecider, Enquire::get_mset() wasn't reducing
-  matches_lower_bound unless all the potential results were retrieved, which
-  led to the lower bound being incorrect in some such cases.
-
-* When using a MatchDecider, Enquire::get_mset() now tracks how many documents
-  were tested and were rejected, and sets matches_estimated based on this rate.
-  Also, matches_upper_bound is reduced by the number of rejected documents.
-
 testsuite:
 
-* Improved test coverage in a couple of places.
+* Improved test coverage in a few places.
 
 matcher:
 
+* When using a MatchDecider, we weren't reducing matches_lower_bound unless
+  all the potential results were retrieved, which led to the lower bound
+  being too high in some such cases.
+
+* We now track how many documents were tested by a MatchDecider and how many
+  of those it rejected, and set matches_estimated based on this rate.  Also,
+  matches_upper_bound is reduced by the number of rejected documents.
+
+* Fixed matches_upper_bound in some cases when collapsing and using a
+  MatchDecider.
+
+* Fixed matches_lower_bound when collapsing and using a percentage cutoff.
+
+* When using two or more of a MatchDecider, collapsing, or a percentage
+  cutoff, we now only round the scaled estimate once, and we also round it to
+  the nearest rather than always rounding down.  Hopefully this should
+  improve the estimate a little in such cases.
 
 flint backend:
 
@@ -75,10 +81,6 @@ flint backend:
 * Fix cursor handling for a modified table which has previously only had
   sequential updates which usually manifested as zlib errors (bug#259).
 
-* Use 32 bit integers for most of flint's internal integer types on all
-  platforms for consistency (previously we used "long" everywhere, which is 64
-  bit on most 64 bit platforms, and 32 bits on other platforms).
-
 quartz backend:
 
 * Fix cursor handling for a modified table which has previously only had
@@ -88,11 +90,10 @@ quartz backend:
 * Calling skip_to() as the first operation on an all-documents PostingIterator
   now works correctly.
 
-* Use 32 bit integers for most of quartz's internal integer types on all
-  platforms for consistency (previously we used "long" everywhere, which is 64
-  bit on most 64 bit platforms, and 32 bits on other platforms).
-
 remote backend:
+
+* Improve performance of matches with multiple databases at least one of which is
+  remote, and when the top hit is from a remote database (bug#279).
 
 * When remote protocol version doesn't match, the error message displayed 
   now shows the minor version number supplied by the server correctly.
@@ -121,8 +122,6 @@ build system:
   this is enabled.
 
 * "make up" in the "tests" subdirectory now does "make" in the top-level.
-
-* configure: Improve code to prevent pointlessly probing for f77, gcj, and rc.
 
 * Fix "make distcheck" by using dist-hook to install generated files from
   either srcdir or builddir, with the appropriate dependency to generate them
@@ -158,9 +157,6 @@ portability:
 
 * Newer libtool features improved support for Mac OS X Leopard and added
   support for AIX 6.1.
-
-packaging:
-
 
 debug code:
 
