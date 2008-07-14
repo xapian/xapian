@@ -1,3 +1,10 @@
+Mon Jul 14 06:05:36 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/api_anydb.cc: Add testcase for percent cutoff plus collapsing
+	  which most likely would have failed before Richard's recent fix
+	  for the lower bound with collapsing and a matchdecider.
+
 Mon Jul 14 05:46:46 GMT 2008  Olly Betts <olly@survex.com>
 
 	* HACKING,configure.ac: Align comments/documentation of required

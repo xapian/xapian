@@ -670,6 +670,35 @@ DEFINE_TESTCASE(pctcutoff1, backend) {
     return true;
 }
 
+// Tests the percent cutoff option combined with collapsing
+DEFINE_TESTCASE(pctcutoff2, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_query(Xapian::Query("this"));
+    enquire.set_query(Xapian::Query(Xapian::Query::OP_AND_NOT, Xapian::Query("this"), Xapian::Query("banana")));
+    Xapian::MSet mset = enquire.get_mset(0, 100);
+
+    if (verbose) {
+	tout << "Original mset pcts:";
+	print_mset_percentages(mset);
+	tout << "\n";
+    }
+
+    TEST(mset.size() >= 2);
+    TEST(mset[0].get_percent() - mset[1].get_percent() >= 2);
+
+    Xapian::percent cutoff = mset[0].get_percent() + mset[1].get_percent();
+    cutoff /= 2;
+
+    enquire.set_cutoff(cutoff);
+    enquire.set_collapse_key(1234); // Value which is always empty.
+
+    mset = enquire.get_mset(0, 1);
+    TEST_EQUAL(mset.size(), 1);
+    TEST_EQUAL(mset.get_matches_lower_bound(), 1);
+
+    return true;
+}
+
 // tests the cutoff option
 DEFINE_TESTCASE(cutoff1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
