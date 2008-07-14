@@ -330,27 +330,42 @@ rpath for /usr/lib64, and such platforms may not have the versions we recommend.
 
 * autoconf 2.62 is recommended; 2.59 is a hard minimum requirement.
 
-  2.57 fixes the annoying chmod warning on FreeBSD.  automake 1.8.5 needs at
-  least 2.58, and 2.59 was released the same day as 2.58 to fix a problem.
+  autoconf 2.57 fixes the annoying chmod warnings on FreeBSD.
 
-* automake 1.10.1 is recommended; 1.8.3 is a hard minimum requirement.
+  autoconf 2.58 is required by automake 1.8.5, and 2.59 was released the same
+  day as 2.58 to fix a problem.
 
-  automake 1.5 adds support for AM_CXXFLAGS, but doesn't work with "make check"
-  with Solaris make - the problem is with the rules to build tests/internaltest
-  (perhaps no longer relevant as those rules are simpler now).
+  autoconf 2.60 is required for docdir support, but we have a workaround in place
+  which allows us to work with older versions.
 
-  Note that automake 1.6 has a bug which causes it to emit spurious warnings:
-  this is fixed in automake 1.6.1.
+  autoconf 2.62 generates faster configure scripts and warns about unrecognised
+  options passed to configure.
 
-  automake 1.7 and 1.8 work too (we required 1.8.5 for ages).
+* automake 1.10.1 is recommended; 1.9 is a hard minimum requirement.
 
-  automake 1.9's NEWS file suggests it will benefit us with
-  smaller Makefile.ins amongst other things.
+  In 1.0.6 and earlier, the specified hard minimum requirement was 1.8.3 (for
+  SLES 9), but since 1.0.3 we've been using option "tar-ustar" which actually
+  requires 1.9.  Since nobody has complained to us, or elsewhere on the
+  internet that we can see, we've made the hard minimum requirement 1.9 as of
+  1.0.7.  If you need to run autoreconf with automake < 1.9, then you'll need
+  to patch configure.ac to lower the required automake version and remove option
+  tar-ustar (which is irrelevant unless you run "make dist", which packaging
+  scripts aren't likely to need to do).
 
-  automake 1.10 requires autoconf 2.60.
+  automake 1.7 adds support for per-program and per-library _CPPFLAGS.
+
+  automake 1.9 is required for option "tar-ustar".  It also reduces Makefile.in
+  size.
+
+  automake 1.9.5 was in Debian sarge.
+
+  automake 1.10 requires autoconf 2.60 and Perl 5.6.
+
+  automake 1.10.1 fixes "make clean" to remove .libs from bin/ and examples/, but
+  we have a workaround in place to allow us to work with older versions.
   
 * libtool 1.5.26 is recommended; there is no hard minimum requirement, except that
-  bootstrap reject libtool 1.4.x.
+  bootstrap rejects libtool 1.4.x.
 
   libtool 1.5 was the first version to properly support linking C++ libraries.
   1.5.26 is largely 1.5 plus bug fixes and portability enhancements.

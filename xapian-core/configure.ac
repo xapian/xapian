@@ -1,14 +1,10 @@
 dnl Process this file with autoconf to produce a configure script.
 
-dnl Need autoconf 2.50 or later for many features
-dnl 2.54 needed for automake 1.6
-dnl 2.57 fixes the annoying warnings from configure on FreeBSD
-dnl 2.58 is needed by automake 1.8.5
-dnl 2.59 was released the same day as 2.58 to fix a problem
-AC_PREREQ(2.59)
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
 AC_INIT(xapian-core, 1.0.7)dnl FIXME: bugreport addr as third argument
+dnl See HACKING document for details of the reasons for required versions.
+AC_PREREQ([2.59])
 dnl Extract from the libtool info manual:
 dnl
 dnl Here are a set of rules to help you update your library version information:
@@ -112,12 +108,8 @@ elif test -n "$CCC" ; then
   original_CXX="CCC=$CCC"
 fi
 
-dnl Need 1.5 for AM_CXXFLAGS, etc; also so generated files in EXTRA_DIST work
-dnl Need 1.6.3 for tests/internaltest to build with Solaris make
-dnl 1.8.5 contains a lot of fixes over 1.6.3
-dnl 1.9 reduces Makefile.in size, and 1.9.5 was in Debian sarge
-dnl But the RPM spec file runs autoreconf, and SLES 9 has 1.8.3.
-AM_INIT_AUTOMAKE([1.8.3 -Wportability tar-ustar])
+dnl See HACKING document for details of the reasons for required versions.
+AM_INIT_AUTOMAKE([1.9 -Wportability tar-ustar])
 AC_CONFIG_SRCDIR(matcher/andpostlist.cc)
 
 AC_CONFIG_HEADERS(config.h)
@@ -134,7 +126,7 @@ dnl generated configure script by a further 15%!
 define([AC_LIBTOOL_LANG_GCJ_CONFIG], [:])
 define([AC_LIBTOOL_LANG_RC_CONFIG], [:])
 
-dnl Use libtool to manage our libraries
+dnl Use libtool to manage our libraries.
 AC_PROG_LIBTOOL
 
 AM_CXXFLAGS=

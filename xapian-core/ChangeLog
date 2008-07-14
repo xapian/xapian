@@ -1,3 +1,10 @@
+Mon Jul 14 05:46:46 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING,configure.ac: Align comments/documentation of required
+	  autotools versions with trunk as far as possible.  Raise hard
+	  requirement for automake from 1.8.3 to 1.9 because we've been
+	  using a feature added in 1.9 since Xapian 1.0.3!
+
 Mon Jul 14 02:58:43 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Makefile.am,acinclude.m4,autoconf/,m4/,m4-macros/: Rename m4/ to
