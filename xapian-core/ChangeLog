@@ -1,3 +1,7 @@
+Mon Jul 14 01:14:41 GMT 2008  Olly Betts <olly@survex.com>
+
+	* autoconf/definedir.m4: Remove file missed in previous backport.
+
 Sun Jul 13 13:38:02 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
