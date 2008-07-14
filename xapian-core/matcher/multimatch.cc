@@ -891,6 +891,11 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	Assert(matches_estimated >= matches_lower_bound);
 	Assert(matches_estimated <= matches_upper_bound);
 
+	// We can end up scaling the estimate more than once, so collect
+	// the scale factors and apply them in one go to avoid rounding
+	// more than once.
+	double estimate_scale = 1.0;
+
 	if (collapse_key != Xapian::BAD_VALUENO) {
 	    // Lower bound must be set to no more than the number of null
 	    // collapse values seen plus the number of unique non-null collapse
@@ -901,38 +906,37 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
 	    // The estimate for the number of hits can be modified by
 	    // multiplying it by the rate at which we've been finding
-	    // duplicates.
+	    // unique documents.
 	    if (documents_considered > 0) {
-		double collapse_rate =
-			double(duplicates_found) / double(documents_considered);
-		matches_estimated -=
-			Xapian::doccount(double(matches_estimated) *
-					   collapse_rate);
+		double unique = double(documents_considered - duplicates_found);
+		double unique_rate = unique / double(documents_considered);
+		estimate_scale *= unique_rate;
 	    }
 
 	    // We can safely reduce the upper bound by the number of
 	    // duplicates we've seen.
 	    matches_upper_bound -= duplicates_found;
+
 	    DEBUGLINE(MATCH, "matches_lower_bound=" << matches_lower_bound <<
 		      ", matches_estimated=" << matches_estimated <<
+		      "*" << estimate_scale <<
 		      ", matches_upper_bound=" << matches_upper_bound);
 	}
 
 	if (matchspy || mdecider) {
-	    if (collapse_key == Xapian::BAD_VALUENO) {
-		// If we're collapsing, the lower bound may be lower than
-		// docs_matched.
+	    if (collapse_key == Xapian::BAD_VALUENO && !percent_cutoff) {
+		// We're not collapsing or doing a percentage cutoff, so
+		// docs_matched is a lower bound on the total number of matches.
 		matches_lower_bound = max(docs_matched, matches_lower_bound);
 	    }
 
-	    // Modify the estimate for the number of hits based on the rate at
-	    // which the decider has been denying documents.
+	    // The estimate for the number of hits can be modified by
+	    // multiplying it by the rate at which the match decider has
+	    // been accepting documents.
 	    if (decider_considered > 0) {
-		double decider_rate =
-			double(decider_denied) / double(decider_considered);
-		matches_estimated -=
-			Xapian::doccount(double(matches_estimated) *
-					 decider_rate);
+		double accept = double(decider_considered - decider_denied);
+		double accept_rate = accept / double(decider_considered);
+		estimate_scale *= accept_rate;
 	    }
 
 	    // If a document is denied by a match decider, it is not possible
@@ -941,12 +945,11 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    // decider.
 	    matches_upper_bound -= decider_denied;
 	}
-	
+
 	if (percent_cutoff) {
-	    // another approach: Xapian::doccount new_est = items.size() * (1 - percent_cutoff_factor) / (1 - min_weight / greatest_wt);
-	    Xapian::doccount new_est;
-	    new_est = Xapian::doccount((1 - percent_cutoff_factor) * matches_estimated);
-	    matches_estimated = max(size_t(new_est), items.size());
+	    estimate_scale *= (1.0 - percent_cutoff_factor);
+	    // another approach:
+	    // Xapian::doccount new_est = items.size() * (1 - percent_cutoff_factor) / (1 - min_weight / greatest_wt);
 	    // and another: items.size() + (1 - greatest_wt * percent_cutoff_factor / min_weight) * (matches_estimated - items.size());
 
 	    // Very likely an underestimate, but we can't really do better
@@ -961,6 +964,13 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		      percent_cutoff << "): now have matches_estimated=" <<
 		      matches_estimated << ", matches_lower_bound=" <<
 		      matches_lower_bound);
+	}
+
+	if (estimate_scale != 1.0) {
+	    matches_estimated =
+		Xapian::doccount(matches_estimated * estimate_scale + 0.5);
+	    if (matches_estimated < matches_lower_bound)
+	       	matches_estimated = matches_lower_bound;
 	}
 
 	if (collapse_key != Xapian::BAD_VALUENO || matchspy || mdecider) {
