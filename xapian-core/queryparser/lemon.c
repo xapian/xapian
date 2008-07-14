@@ -988,7 +988,7 @@ struct lemon *lemp;
   }
   for(rp=lemp->rule; rp; rp=rp->next){
     if( rp->canReduce ) continue;
-    ErrorMsg(lemp->filename,rp->ruleline,"This rule can not be reduced.\n");
+    ErrorMsg(lemp->filename,rp->ruleline,"This rule can not be reduced.");
     lemp->errorcnt++;
   }
 }
@@ -2035,7 +2035,7 @@ struct pstate *psp;
       }else if( x[0]=='{' ){
         if( psp->prevrule==0 ){
           ErrorMsg(psp->filename,psp->tokenlineno,
-"There is not prior rule opon which to attach the code "
+"There is not prior rule upon which to attach the code "
 "fragment which begins on this line.");
           psp->errorcnt++;
 	}else if( psp->prevrule->code!=0 ){
@@ -2102,7 +2102,7 @@ struct pstate *psp;
         psp->state = LHS_ALIAS_2;
       }else{
         ErrorMsg(psp->filename,psp->tokenlineno,
-          "\"%s\" is not a valid alias for the LHS \"%s\"\n",
+          "\"%s\" is not a valid alias for the LHS \"%s\"",
           x,psp->lhs->name);
         psp->errorcnt++;
         psp->state = RESYNC_AFTER_RULE_ERROR;
@@ -2311,7 +2311,7 @@ struct pstate *psp;
     case WAITING_FOR_DESTRUCTOR_SYMBOL:
       if( !isalpha(x[0]) ){
         ErrorMsg(psp->filename,psp->tokenlineno,
-          "Symbol name missing after %destructor keyword");
+          "Symbol name missing after %%destructor keyword");
         psp->errorcnt++;
         psp->state = RESYNC_AFTER_DECL_ERROR;
       }else{
@@ -2325,7 +2325,7 @@ struct pstate *psp;
     case WAITING_FOR_DATATYPE_SYMBOL:
       if( !isalpha(x[0]) ){
         ErrorMsg(psp->filename,psp->tokenlineno,
-          "Symbol name missing after %destructor keyword");
+          "Symbol name missing after %%destructor keyword");
         psp->errorcnt++;
         psp->state = RESYNC_AFTER_DECL_ERROR;
       }else{

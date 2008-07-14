@@ -1,3 +1,9 @@
+Mon Jul 14 05:13:55 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Fix a typo, remove "\n" from the end of
+	  ErrorMsg() calls since it will get stripped anyway, and escape
+	  literal '%' in ErrorMsg() third arguments.
+
 Sun Jul 13 13:04:58 GMT 2008  Olly Betts <olly@survex.com>
 
 	* queryparser/lemon.c: Update note of upstream version we're synced
