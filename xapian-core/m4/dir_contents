@@ -1,7 +1,7 @@
 <Directory>m4</Directory>
 
 <Description>
-M4 macros to be installed with Xapian.
-This currently just contains the macro for finding the parameters for
-linking and including headers for an installed version.
+M4 macros needed to create configure.  The automake program aclocal scans these
+files and includes the required ones from the generated aclocal.m4 in the
+top-level directory.
 </Description>

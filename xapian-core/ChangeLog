@@ -1,3 +1,18 @@
+Mon Jul 14 02:58:43 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Makefile.am,acinclude.m4,autoconf/,m4/,m4-macros/: Rename m4/ to
+	  m4-macros/ and then autoconf/ to m4/ to match changes on trunk and
+	  make backporting future patches which touch these files easier.
+
+Mon Jul 14 02:57:17 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* m4-macros/dir_contents,m4-macros/xapian.m4,m4/dir_contents,m4/xapian.m4:
+	  Move xapain.m4 to a new subdirectory (m4-macros) since libtoolize
+	  now installs m4 files into subdirectory m4 which we don't really want
+	  picking up by applications building against an uninstalled xapian-core.
+	* Makefile.am: Update for m4 -> m4-macros change.
+
 Mon Jul 14 01:14:41 GMT 2008  Olly Betts <olly@survex.com>
 
 	* autoconf/definedir.m4: Remove file missed in previous backport.
