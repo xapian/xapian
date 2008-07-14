@@ -1,3 +1,9 @@
+Mon Jul 14 14:30:17 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: Remove comments about autotools versions as we now
+	  document that in HACKING.  Raise automake enforced minimum
+	  requirement to 1.9 since we use option tar-ustar which requires 1.9.
+
 Mon Jul 14 14:27:55 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS: Update for 1.0.7.
