@@ -145,7 +145,7 @@ case `${LIBTOOLIZE-libtoolize} --version` in
   exit 1 ;;
 esac
 
-ACLOCAL="${ACLOCAL-aclocal} -I `pwd`/xapian-core/m4"
+ACLOCAL="${ACLOCAL-aclocal} -I `pwd`/xapian-core/m4-macros"
 
 SWIG=
 # Don't try to build xapian-applications/dbtools or xapview - they need work.
