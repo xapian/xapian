@@ -1,20 +1,9 @@
-Up to:
-Thu Jun 26 22:01:59 GMT 2008  Olly Betts <olly@survex.com>
-
-Xapian-bindings 1.0.7 (2008-06-2?):
+Xapian-bindings 1.0.7 (2008-07-14):
 
 Documentation:
 
-	* ruby/docs/index.html: Document how database factory functions are
-	  wrapped.
-
-	* python/extra.i: Tidy up the documentation comments for
-	  TermListItem.
-
-	* csharp/docs/index.html,php/docs/index.html,python/docs/index.html,
-	  ruby/docs/index.html,tcl8/docs/index.html: Document all the database
-	  factory functions for all languages.  Document the library version
-	  functions for all languages.
+* Document how all the database factory functions and library version functions
+  are wrapped for all languages.
 
 General:
 
@@ -22,8 +11,6 @@ General:
 
 * The "program" version of Remote::open() has been wrapped for some time, so
   update the documentation which said it wasn't.
-
-* configure: Improve code to prevent pointlessly probing for f77, gcj, and rc.
 
 Packaging:
 
@@ -34,14 +21,10 @@ Portability:
 * For Java, Python, and Ruby, use the libtool -shrext option to specify a
   different module extension rather than our own ugly bodge.
 
-CSharp:
-
-Guile:
-
 Java:
 
-	* java/native/: Make passing string from Java to C++ zero-byte safe.
-	  It doesn't appear to be simple to make C++ to Java work though.
+* Make passing string from Java to C++ zero-byte safe.  It doesn't appear to be
+  simple to make C++ to Java work though.
 
 PHP:
 
@@ -57,7 +40,8 @@ Ruby:
 
 * Include simplematchdecider.rb example.
 
-	* ruby/smoketest.rb: Test the version reporting functions.
+* smoketest.rb: Test the version reporting functions.
+
 Tcl:
 
 * Include simpleexpand.tcl example.
