@@ -1,0 +1,43 @@
+#!/usr/bin/perl -w
+# htdig2omega - dump an htdig database into a form suitable for indexing
+# into a Xapian database using scriptindex.
+#
+# Copyright 2002,2003,2004 Olly Betts
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
+# USA
+
+use strict;
+
+$#ARGV == 0 or die "Syntax: $0 HTDIGDIR\nTypical usage: $0 HTDIGDIR|scriptindex XAPIANDB htdig2omega.script\n";
+
+my $dir = shift @ARGV;
+
+# dump the document database (-w suppresses dumping the word database)
+system "htdump", "-w", $dir;
+open DOCS, "$dir/db.docs" or die $!;
+while (<DOCS>) {
+    my ($id, @x) = split /\t/;
+    my %f;
+    for (@x) {
+	unless (s/^([a-zA-Z])://) {
+	    print STDERR "Bad field: $_\n";
+	    next;
+	}
+        $f{$1} = $_;
+    }
+    print "url=$f{'u'}\ncaption=$f{'t'}\nlastmod=$f{'m'}\nsize=$f{'s'}\ntext=$f{'H'}\nmetadesc=$f{'h'}\n\n";
+}
+close DOCS;

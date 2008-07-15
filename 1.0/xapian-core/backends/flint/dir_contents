@@ -1,0 +1,10 @@
+<Directory>backends/flint</Directory>
+
+<Description>
+Flint is the default Xapian backend as of Xapian 1.0.
+It uses a custom written Btree management system to store
+posting lists and termlists.  This is a highly efficient
+backend, using compression to store the postlists, and supporting the
+full range of indexing functionality (positional information, transactions,
+etc).
+</Description>

@@ -1,0 +1,8 @@
+<hr>
+<address><small>
+Documentation for Xapian (version $projectnumber).<br>
+Generated on $date by
+<a href="http://www.doxygen.org/">Doxygen $doxygenversion</a>.
+</small></address>
+</body>
+</html>
