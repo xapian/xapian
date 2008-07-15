@@ -50,11 +50,13 @@ x86   |=Linux 2.6 RHELServer5 GCC 4.1.1| 1.0.4 |Passed| (td185)
 x86   |=Linux 2.6 SuSE 10 GCC 4.1.0    | 1.0.4 |Passed| (td186)
 x86   |=Linux 2.6 SuSE 10 IntelC++ 9.1 | 1.0.1 |Passed| (td186)
 x86   | Linux 2.6 Ubuntu 6.06 GCC 4.0.3| 1.0.4 |Passed| linux-i686-earlgrey
+x86   | Linux 2.6 Ubuntu 6.06 GCC 4.0.3| 1.0.4 |Passed| linux-i686-earlgrey
+x86   | Linux 2.6 Ubuntu 8.04 GCC 4.2.3| 1.0.7 |Passed| from Olly Betts
 x86   |=FreeBSD 6.2 GCC 3.4.6          | 1.0.4 |Passed| (td152)
 x86   |:kFreeBSD 6.2 Debian GCC 4.1.3  | 1.0.2 |Passed| core testsuite not run
 x86   |:kFreeBSD 6.2 Debian GCC 4.2.1  | 1.0.4 |Passed| core testsuite not run
 x86   |:Hurd 0.3 Debian sid GCC 4.1.3  | 1.0.4 |Passed| core+omega; no tests run
-x86_64|&Linux 2.6 Debian 4.0 GCC 4.1.2 | 1.0.6 |Passed| (atreus)
+x86_64|&Linux 2.6 Debian 4.0 GCC 4.1.2 | 1.0.7 |Passed| (atreus)
 x86_64|#Linux 2.6 RHEL AS4 GCC 3.2.3   | 1.0.0 |Passed| (was td189)
 x86_64|=Linux 2.6 RHEL AS4 GCC 3.4.6   | 1.0.1 |Passed| (td189)
 x86_64|=Linux 2.6 RHEL AS4 GCC 4.1.0   | 1.0.1 |Passed| (td189)
@@ -62,6 +64,7 @@ x86_64|=Linux 2.6 RHELServer5 GCC 4.1.1| 1.0.4 |Passed| (td159,163,165)
 x86_64|=Linux 2.6 SuSE 10 GCC 4.1.0    | 1.0.4 |Passed| (td162,166,179)
 x86_64|%Linux 2.6 SuSE 10 GCC 4.1.2    | 1.0.5 |Passed| (iceland.sgi.com)
 x86_64|=Linux 2.6 SuSE 10 IntelC++ 9.1 | 1.0.4 |Passed| (td162)
+x86_64| Linux 2.6 Ubuntu 8.04 GCC 4.2.3| 1.0.7 |Passed| from Olly Betts
 x86_64|:kFreeBSD 6.2 Debian GCC 4.1.3  | 1.0.2 |Passed| core testsuite not run
 x86_64|:kFreeBSD 6.2 Debian GCC 4.2.1  | 1.0.4 |Passed| core testsuite not run
 alpha |:Linux 2.6 Debian sid GCC 4.1.3 | 1.0.2 |Passed| core testsuite not run
