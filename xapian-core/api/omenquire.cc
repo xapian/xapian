@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
  * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -44,6 +44,7 @@
 #include <vector>
 #include "autoptr.h"
 #include <algorithm>
+#include <cfloat>
 #include <math.h>
 
 using namespace std;
@@ -340,11 +341,12 @@ MSet::get_description() const
 percent
 MSet::Internal::convert_to_percent_internal(Xapian::weight wt) const
 {
-    DEBUGAPICALL(Xapian::percent, "Xapian::MSet::Internal::convert_to_percent", wt);
+    DEBUGAPICALL(Xapian::percent, "Xapian::MSet::Internal::convert_to_percent_internal", wt);
     if (percent_factor == 0) RETURN(100);
 
-    // FIXME: + 0.5 ???
-    Xapian::percent pcent = static_cast<Xapian::percent>(wt * percent_factor);
+    // Excess precision on x86 can result in a difference here.
+    double v = wt * percent_factor + 100.0 * DBL_EPSILON;
+    Xapian::percent pcent = static_cast<Xapian::percent>(v);
     DEBUGLINE(API, "wt = " << wt << ", max_possible = "
 	      << max_possible << " =>  pcent = " << pcent);
     if (pcent > 100) pcent = 100;

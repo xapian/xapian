@@ -1,3 +1,9 @@
+Tue Jul 15 12:56:07 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc: Fix percentage calculation to cope with excess
+	  precision on x86.  Fix method name for convert_to_percent_internal
+	  in debug logging.
+
 Mon Jul 14 13:30:22 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS: Update for 1.0.7.
