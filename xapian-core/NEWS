@@ -1,4 +1,4 @@
-Xapian-core 1.0.7 (2008-07-14):
+Xapian-core 1.0.7 (2008-07-15):
 
 API:
 
@@ -49,6 +49,9 @@ matcher:
   cutoff, we now only round the scaled estimate once, and we also round it to
   the nearest rather than always rounding down.  Hopefully this should
   improve the estimate a little in such cases.
+
+* Fix problem on x86 with the top match getting 99% rather than 100% (caused
+  by excess precision in intermediate value).
 
 flint backend:
 
