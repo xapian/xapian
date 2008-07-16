@@ -1,3 +1,12 @@
+Wed Jul 16 10:10:32 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/perftest/perftest.cc: Use uname() or gethostname() to get the
+	  hostname on Unix, rather than piping output from uname -n.  Use
+	  startswith() where appropriate.  Prefer resize() and erase() to
+	  assigning a string a substring of itself.  Make internal functions
+	  static.  Prefer string() to "".  Fold sed | sed and grep | sed into
+	  single sed invocations.
+
 Wed Jul 16 05:16:00 GMT 2008  Olly Betts <olly@survex.com>
 
 	* queryparser/lemon.c,queryparser/queryparser.lt: Merge upstream
