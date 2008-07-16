@@ -49,40 +49,6 @@ def gen_svn_updated_factory(baseURL):
     f.addStep(step.Test, name="check", command=("make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="))
     return f
 
-def gen_svn_updated_factory2(baseURL):
-    """
-    Make a factory for doing HEAD build from SVN, but without cleaning
-    first.  This build is intended to catch commonly made mistakes quickly.
-    This factory also runs audit.py and publishes the result.
-    """
-    f = factory.BuildFactory()
-    f.addStep(step.SVN, baseURL=baseURL, defaultBranch='trunk', mode="update")
-    f.addStep(step.ShellCommand, command = ["python", 'audit.py'], workdir='build/xapian-maintainer-tools')
-    f.addStep(step.ShellCommand, command = ["mv", 'copyright.csv', 'fixmes.csv', '/home/xapian-buildbot/pub/http/'], workdir='build/xapian-maintainer-tools')
-    f.addStep(step.ShellCommand, command = ["chmod", '644', '/home/xapian-buildbot/pub/http/fixmes.csv', '/home/xapian-buildbot/pub/http/copyright.csv'])
-    f.addStep(Bootstrap)
-    f.addStep(step.Configure)
-    f.addStep(step.Compile)
-    f.addStep(step.Test, name="check", command=("make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="))
-    return f
-
-def gen_svn_updated_factory3(baseURL):
-    """
-    Make a factory for doing HEAD build from SVN, but without cleaning
-    first.  This build is intended to catch commonly made mistakes quickly.
-    This build runs with --disable-documentation, so the documentation building
-    tools aren't required.
-    """
-    f = factory.BuildFactory()
-    f.addStep(step.SVN, baseURL=baseURL, defaultBranch='trunk', mode="update")
-    f.addStep(Bootstrap)
-    f.addStep(step.Configure, command=("sh", "configure",
-                                       "--disable-documentation",))
-    f.addStep(step.Compile)
-    f.addStep(step.Test, name="check", command=("make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="))
-    return f
-
-
 def gen_svn_gccsnapshot_updated_factory(baseURL):
     """
     Make a factory for doing HEAD build from SVN, but without cleaning
@@ -145,7 +111,7 @@ def gen_svn_updated_valgrind_factory(baseURL):
     f.addStep(step.Compile)
 
     for target in ("check-none", "check-inmemory", "check-remoteprog",
-                   "check-flint"):
+                   "check-flint", "check-quartz"):
         f.addStep(step.Test, name=target, command=("make", target, "XAPIAN_TESTSUITE_OUTPUT=plain"), workdir='build/xapian-core')
 
     # Currently, valgrind incorrectly reports leaked memory for the remotetcp

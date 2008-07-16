@@ -19,11 +19,8 @@ OBJS= \
     $(INTDIR)\serialise-double.obj \
     $(INTDIR)\msvc_dirent.obj \
     $(INTDIR)\msvc_posix_wrapper.obj \
-    $(INTDIR)\socket_utils.obj \
     $(INTDIR)\stringutils.obj \
-    $(INTDIR)\safe.obj \
-    $(INTDIR)\fileutils.obj \
-    $(INTDIR)\bitstream.obj
+    $(INTDIR)\safe.obj 
     
 SRCS= \
     $(INTDIR)\utils.cc \
@@ -32,11 +29,8 @@ SRCS= \
     $(INTDIR)\serialise-double.cc \
     $(INTDIR)\msvc_dirent.cc \
     $(INTDIR)\msvc_posix_wrapper.cc \
-    $(INTDIR)\socket_utils.cc \
     $(INTDIR)\stringutils.cc \
-    $(INTDIR)\safe.cc \
-    $(INTDIR)\fileutils.cc \
-    $(INTDIR)\bitstream.cc
+    $(INTDIR)\safe.cc 
 
 CPP_PROJ=$(CPPFLAGS_EXTRA) -I..\win32\ -Fo"$(INTDIR)\\" -Tp$(INPUTNAME) 
 CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)

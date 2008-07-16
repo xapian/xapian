@@ -4,7 +4,7 @@ dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
 AC_INIT(xapian-core, 1.0.7)dnl FIXME: bugreport addr as third argument
 dnl See HACKING document for details of the reasons for required versions.
-AC_PREREQ([2.62])
+AC_PREREQ([2.59])
 dnl Extract from the libtool info manual:
 dnl
 dnl Here are a set of rules to help you update your library version information:
@@ -109,16 +109,25 @@ elif test -n "$CCC" ; then
 fi
 
 dnl See HACKING document for details of the reasons for required versions.
-AM_INIT_AUTOMAKE([1.10.1 -Wportability tar-ustar])
+AM_INIT_AUTOMAKE([1.9 -Wportability tar-ustar])
 AC_CONFIG_SRCDIR(matcher/andpostlist.cc)
 
 AC_CONFIG_HEADERS(config.h)
 
-AC_CONFIG_MACRO_DIR([m4])
+dnl We don't use Fortran, but libtool 1.5 insists on probing for f77 which just
+dnl makes configure take longer to run.  We force it not to using the method
+dnl suggested here (which also reduces configure size by 12%):
+dnl http://article.gmane.org/gmane.comp.gnu.libtool.general/9281
+dnl This is apparently fixed in libtool 2.2, so once we require that, we can
+dnl drop this workaround.
+define([AC_LIBTOOL_LANG_F77_CONFIG], [:])
+dnl Eliminating the unused code for gcj and rc probes reduces the size of the
+dnl generated configure script by a further 15%!
+define([AC_LIBTOOL_LANG_GCJ_CONFIG], [:])
+define([AC_LIBTOOL_LANG_RC_CONFIG], [:])
 
 dnl Use libtool to manage our libraries.
-LT_PREREQ([2.2.4])
-LT_INIT
+AC_PROG_LIBTOOL
 
 AM_CXXFLAGS=
 
@@ -153,22 +162,6 @@ AM_MAINTAINER_MODE
 
 dnl Checks for programs.
 AC_PROG_CXX
-
-case $host_os in
-  linux* | k*bsd*-gnu)
-    dnl Vanilla libtool sets this to "unknown" which it then handles as "yes".
-    link_all_deplibs_CXX=no
-    ;;
-esac
-
-case $host_os in
-  linux*)
-    dnl Extract search path from ldconfig which is more reliable than the way
-    dnl vanilla libtool extracts them from ld.so.conf.
-    d=`/sbin/ldconfig -N -X -v 3>/dev/null|$SED 's,^\(/.*\):\( (.*)\)\?$,\1,p;d'|tr '\n' ' '`
-    test -z "$d" || sys_lib_dlsearch_path_spec=$d
-    ;;
-esac
 
 dnl For reasons which are beyond me, if autoconf can't find a C++ compiler
 dnl it will set CXX to g++ (which obviously won't work) rather than actually
@@ -429,6 +422,11 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   test -z "$PERL" && AC_MSG_ERROR([perl is required in maintainer mode])
 fi
 
+dnl We only need to set docdir for compatibility with autoconf < 2.60 - this
+dnl code can be removed once we move to requiring autoconf 2.60 or newer.
+test -n "$docdir" || docdir='${datadir}/doc/${PACKAGE_TARNAME}'
+AC_SUBST(docdir)
+
 AC_ARG_ENABLE(documentation,
   [AS_HELP_STRING([--enable-documentation], [enable make rules to rebuild documentation [default=maintainer-mode]])],
   [case ${enableval} in
@@ -633,18 +631,10 @@ AC_DEFUN([XAPIAN_BACKEND_ENABLE],
   ])
 
 dnl When adding a new backend, update INSTALL too.
-XAPIAN_BACKEND_ENABLE(chert)
 XAPIAN_BACKEND_ENABLE(flint)
 XAPIAN_BACKEND_ENABLE(inmemory)
+XAPIAN_BACKEND_ENABLE(quartz)
 XAPIAN_BACKEND_ENABLE(remote)
-
-if test yes = "$enable_backend_chert" ; then
-  dnl We would need to implement a chert locking strategy for MSDOS before we
-  dnl could build chert there.
-  case $host_os in
-    *djgpp* | *msdos* ) enable_backend_chert=no ;;
-  esac
-fi
 
 if test yes = "$enable_backend_flint" ; then
   dnl We would need to implement a flint locking strategy for MSDOS before we
@@ -654,15 +644,16 @@ if test yes = "$enable_backend_flint" ; then
   esac
 fi
 
-if test yes = "$enable_backend_flint" -o yes = "$enable_backend_chert" ; then
-  dnl We use zlib for compressing tags in chert/flint.  We could automatically
-  dnl disable support if zlib isn't found, but overall that probably does more
-  dnl harm than good - it's most likely that someone just forgot to install the
-  dnl -dev package for zlib.
+if test yes = "$enable_backend_flint" ; then
+  dnl We use zlib for compressing tags in flint.  We could automatically
+  dnl disable support for flint, but overall that probably does more harm
+  dnl than good - it's most likely that someone just forgot to install the
+  dnl -dev package for zlib and flint is the default backend we want people
+  dnl to use. 
 
   dnl Check for zlib.h.
   AC_CHECK_HEADERS(zlib.h, [], [
-    AC_MSG_ERROR([zlib.h not found - required for chert and flint (you may need to install the zlib1g-dev or zlib-devel package)])
+    AC_MSG_ERROR([zlib.h not found - required for flint (you may need to install the zlib1g-dev or zlib-devel package)])
     ], [ ])
 
   dnl Check for zlibVersion in -lz.
@@ -670,7 +661,7 @@ if test yes = "$enable_backend_flint" -o yes = "$enable_backend_chert" ; then
   LIBS=
   dnl mingw build needs -lzlib or -lzdll.
   AC_SEARCH_LIBS([zlibVersion], [z zlib zdll], [], [
-    AC_MSG_ERROR([zlibVersion() not found in -lz - required for chert and flint (you may need to install the zlib1g-dev or zlib-devel package)])
+    AC_MSG_ERROR([zlibVersion() not found in -lz - required for flint (you may need to install the zlib1g-dev or zlib-devel package)])
     ])
   if test x != x"$LIBS" ; then
     XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $LIBS"
@@ -768,11 +759,10 @@ dnl Turn off compilation of anything that we don't have the requirements for
 
 dnl Set conditionals to specify what we compile
 
-AM_CONDITIONAL(BUILD_BACKEND_CHERT, test yes = "$enable_backend_chert")
+AM_CONDITIONAL(BUILD_BACKEND_QUARTZ, test yes = "$enable_backend_quartz")
 AM_CONDITIONAL(BUILD_BACKEND_FLINT, test yes = "$enable_backend_flint")
 AM_CONDITIONAL(BUILD_BACKEND_INMEMORY, test yes = "$enable_backend_inmemory")
 AM_CONDITIONAL(BUILD_BACKEND_REMOTE, test yes = "$enable_backend_remote")
-
 dnl Set a flag for AM when shared libraries are enabled.
 dnl AM_CONDITIONAL(ENABLE_SHARED, test yes = "$enable_shared")
 
@@ -1093,8 +1083,6 @@ AC_CONFIG_FILES([
  ])
 AC_CONFIG_FILES([tests/runtest], [chmod +x tests/runtest])
 AC_CONFIG_FILES([tests/runsrv], [chmod +x tests/runsrv])
-AC_CONFIG_FILES([tests/submitperftest], [chmod +x tests/submitperftest])
-AC_CONFIG_FILES([tests/perftest/get_machine_info], [chmod +x tests/perftest/get_machine_info])
 AC_CONFIG_FILES([xapian-config], [chmod +x xapian-config])
 AC_CONFIG_FILES([makemanpage], [chmod +x makemanpage])
 AC_CONFIG_FILES([docs/gen_codestructure_doc], [chmod +x docs/gen_codestructure_doc])
@@ -1116,7 +1104,7 @@ dnl Generate include/xapian/version.h:
 dnl MAIN_VERSION is VERSION without any _svn6789 suffix.
 MAIN_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$REVISION"
 cxxcpp_flags=-I.
-for backend in CHERT FLINT INMEMORY REMOTE ; do
+for backend in QUARTZ FLINT INMEMORY REMOTE ; do
   val=`eval echo "\\\$BUILD_BACKEND_${backend}_TRUE"`
   if test -z "$val" ; then
     cxxcpp_flags="$cxxcpp_flags -DXAPIAN_HAS_${backend}_BACKEND"

@@ -866,6 +866,14 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__I_3J
 
 /*
  * Class:     org_xapian_XapianJNI
+ * Method:    query_new
+ * Signature: (IJ)J
+ */
+JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__IJ
+  (JNIEnv *, jclass, jint, jlong);
+
+/*
+ * Class:     org_xapian_XapianJNI
  * Method:    query_get_description
  * Signature: (J)Ljava/lang/String;
  */
@@ -1034,6 +1042,14 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_enquire_1get_1matching_1terms_
  */
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_enquire_1get_1matching_1terms_1end_1by_1msetiterator
   (JNIEnv *, jclass, jlong, jlong);
+
+/*
+ * Class:     org_xapian_XapianJNI
+ * Method:    enquire_register_match_decider
+ * Signature: (JLjava/lang/String;Lorg/xapian/MatchDecider;)V
+ */
+JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_enquire_1register_1match_1decider
+  (JNIEnv *, jclass, jlong, jstring, jobject);
 
 /*
  * Class:     org_xapian_XapianJNI

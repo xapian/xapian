@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005,2007,2008 Olly Betts
+ * Copyright 2003,2004,2005,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,12 +24,7 @@
 
 #include "utils.h"
 
-#include "xapian/error.h"
-#include "safedirent.h"
-#include "safeerrno.h"
-
-#include <cstdio> // For sprintf()/snprintf().
-#include <sys/types.h>
+#include <stdio.h>
 #include <cfloat>
 #include <cmath>
 
@@ -107,6 +102,8 @@ om_tostring(bool val)
     return val ? "1" : "0";
 }
 
+/** Return true if the file fname exists
+ */
 bool
 file_exists(const string &fname)
 {
@@ -115,93 +112,14 @@ file_exists(const string &fname)
     return stat(fname, &sbuf) == 0 && S_ISREG(sbuf.st_mode);
 }
 
+/** Return true if the file fname exists
+ */
 bool
 dir_exists(const string &fname)
 {
     struct stat sbuf;
     // exists && is a directory
     return stat(fname, &sbuf) == 0 && S_ISDIR(sbuf.st_mode);
-}
-
-class dircloser {
-    DIR * dir;
-  public:
-    dircloser(DIR * dir_) : dir(dir_) {}
-    ~dircloser() {
-	if (dir != NULL) {
-	    closedir(dir);
-	    dir = NULL;
-	}
-    }
-};
-
-void
-removedir(const string &dirname)
-{
-    DIR * dir;
-
-    dir = opendir(dirname.c_str());
-    if (dir == NULL) {
-	throw Xapian::DatabaseError("Cannot open directory '" + dirname + "'", errno);
-    }
-
-    {
-	dircloser dc(dir);
-	while (true) {
-	    errno = 0;
-	    struct dirent * entry = readdir(dir);
-	    if (entry == NULL) {
-		if (errno == 0)
-		    break;
-		throw Xapian::DatabaseError("Cannot read entry from directory at '" + dirname + "'", errno);
-	    }
-	    string name(entry->d_name);
-	    if (name == "." || name == "..")
-		continue;
-	    if (unlink(dirname + "/" + name)) {
-		throw Xapian::DatabaseError("Cannot remove file '" + string(entry->d_name) + "'", errno);
-	    }
-	}
-    }
-    if (rmdir(dirname)) {
-	throw Xapian::DatabaseError("Cannot remove directory '" + dirname + "'", errno);
-    }
-}
-
-string hex_encode(const string &input)
-{
-    string buf;
-    for (string::size_type i = 0; i != input.size(); ++i) {
-	unsigned char ch = input[i];
-	buf += "0123456789abcdef"[ch / 16];
-	buf += "0123456789abcdef"[ch % 16];
-    }
-    return buf;
-}
-
-string hex_decode(const string &input)
-{
-    string buf;
-    for (string::size_type i = 0; i != input.size(); ++i) {
-	int val = 0;
-	unsigned char ch = input[i];
-	if (ch >= '0' && ch <= '9') {
-	    val += (ch - '0') * 16;
-	} else {
-	    val += (10 + (ch - 'a')) * 16;
-	}
-	++i;
-	if (i == input.size())
-	    return buf;
-	ch = input[i];
-	if (ch >= '0' && ch <= '9') {
-	    val += ch - '0';
-	} else {
-	    val += 10 + (ch - 'a');
-	}
-	buf += char(val);
-    }
-    return buf;
 }
 
 namespace Xapian {

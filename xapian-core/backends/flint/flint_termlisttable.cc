@@ -1,7 +1,7 @@
 /** @file flint_termlisttable.cc
  * @brief Subclass of FlintTable which holds termlists.
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@ FlintTermListTable::set_termlist(Xapian::docid did,
     DEBUGCALL(DB, void, "FlintTermListTable::set_termlist",
 	      did << ", " << doc << ", " << doclen);
 
-    string tag = F_pack_uint(doclen);
+    string tag = pack_uint(doclen);
 
     Xapian::doccount termlist_size = doc.termlist_count();
     if (termlist_size == 0) {
@@ -56,11 +56,11 @@ FlintTermListTable::set_termlist(Xapian::docid did,
 
     Xapian::TermIterator t = doc.termlist_begin();
     if (t != doc.termlist_end()) {
-	tag += F_pack_uint(termlist_size);
+	tag += pack_uint(termlist_size);
 	string prev_term = *t;
 
 	// Previous database versions encoded a boolean here, which was
-	// always false (and F_pack_bool() encodes false as a '0').  We can
+	// always false (and pack_bool() encodes false as a '0').  We can
 	// just omit this and successfully read old and new termlists
 	// except in the case where the next byte is a '0' - in this case
 	// we need keep the '0' so that the decoder can just skip any '0'
@@ -73,7 +73,7 @@ FlintTermListTable::set_termlist(Xapian::docid did,
 
 	tag += prev_term.size();
 	tag += prev_term;
-	tag += F_pack_uint(t.get_wdf());
+	tag += pack_uint(t.get_wdf());
 	--termlist_size;
 
 	while (++t != doc.termlist_end()) {
@@ -109,7 +109,7 @@ FlintTermListTable::set_termlist(Xapian::docid did,
 		tag.append(term.data() + reuse, term.size() - reuse);
 		// FIXME: pack wdf after reuse next time we rejig the format
 		// incompatibly.
-		tag += F_pack_uint(wdf);
+		tag += pack_uint(wdf);
 	    }
 
 	    prev_term = *t;
@@ -136,7 +136,7 @@ FlintTermListTable::get_doclength(Xapian::docid did) const
     const char * end = pos + tag.size();
 
     flint_doclen_t doclen;
-    if (!F_unpack_uint(&pos, end, &doclen)) {
+    if (!unpack_uint(&pos, end, &doclen)) {
 	const char *msg;
 	if (pos == 0) {
 	    msg = "Too little data for doclen in termlist";

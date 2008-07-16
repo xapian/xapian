@@ -1,21 +1,25 @@
 dnl Process this file with autoconf to produce a configure script.
 
-dnl Need autoconf 2.50 or later for many features
-dnl automake 1.6.3 requires autoconf 2.54
-dnl autoconf 2.59 is what xapian-core requires, so be consistent
-AC_PREREQ(2.59)
 AC_INIT(xapian-omega, 1.0.7)dnl FIXME: bugreport addr as third argument
-dnl Need 1.5 for AM_CXXFLAGS, etc; 1.6.3 for AM_INIT_AUTOMAKE with no args
-dnl 1.8.5 contains a lot of fixes over 1.6.3
-dnl 1.9 reduces Makefile.in size, and 1.9.5 was in Debian sarge
-dnl But the RPM spec file runs autoreconf, and SLES 9 has 1.8.3.
-AM_INIT_AUTOMAKE([1.8.3 -Wportability tar-ustar])
+dnl See HACKING document for details of the reasons for required versions.
+AC_PREREQ([2.59])
+AM_INIT_AUTOMAKE([1.9 -Wportability tar-ustar])
 
 AC_CONFIG_SRCDIR(omega.cc)
 
 AC_CONFIG_HEADERS(config.h)
 
-AC_CONFIG_MACRO_DIR([m4])
+dnl We don't use Fortran, but libtool 1.5 insists on probing for f77 which just
+dnl makes configure take longer to run.  We force it not to using the method
+dnl suggested here (which also reduces configure size):
+dnl http://article.gmane.org/gmane.comp.gnu.libtool.general/9281
+dnl This is apparently fixed in libtool 2.2, so once we require that, we can
+dnl drop this workaround.
+define([AC_LIBTOOL_LANG_F77_CONFIG], [:])
+dnl Eliminating the unused code for gcj and rc probes further reduces the size
+dnl of the generated configure script (by 29% in total):
+define([AC_LIBTOOL_LANG_GCJ_CONFIG], [:])
+define([AC_LIBTOOL_LANG_RC_CONFIG], [:])
 
 dnl Check for libxapian
 AC_PROG_LIBTOOL
@@ -269,29 +273,6 @@ if test x"$enable_documentation" = xyes; then
   AC_PATH_PROGS(RST2HTML, [rst2html rst2html.py], [])
   test -z "$RST2HTML" && AC_MSG_ERROR([rst2html is required to build documentation])
 fi
-
-AC_ARG_VAR(PCRE_CONFIG, [Location of pcre-config])
-AC_PATH_PROG(PCRE_CONFIG, pcre-config)
-if test -z "$PCRE_CONFIG" ; then
-  dnl Simple check to see if the problem is likely to be that we're using a
-  dnl "packaged" pcre but only have the runtime package installed.
-  for sfx in '' 32 64 ; do
-    set /usr/lib$sfx/libpcre*.so.*
-    if test "/usr/lib$sfx/libpcre?.so.*" != "$1" ; then
-      if test -r /etc/debian_version ; then
-	pkg="libpcre3-dev"
-      else
-	pkg="pcre-devel"
-      fi
-      AC_MSG_ERROR([Can't find pcre-config, although the PCRE runtime library seems to be installed.  If you've installed PCRE from a package, you probably need to install an extra package called something like $pkg in order to be able to build $PACKAGE_NAME.])
-    fi
-  done
-  AC_MSG_ERROR([Can't find pcre-config.  If the PCRE library is installed, you need to add PCRE_CONFIG=/path/to/pcre-config to your configure command.])
-fi
-PCRE_CFLAGS=`$PCRE_CONFIG --cflags`
-PCRE_LIBS=`$PCRE_CONFIG --libs`
-AC_SUBST(PCRE_CFLAGS)
-AC_SUBST(PCRE_LIBS)
 
 dnl Disabled XML stuff as we don't currently build omindex-config
 dnl dnl Check for libxml or libxml2.  We do this by looking for xml-config.

@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
  * Copyright 2006 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -389,68 +389,9 @@ DEFINE_TESTCASE(scaleweight4, !backend) {
     return true;
 }
 
-// Regression test - before 1.1.0, you could add docid 0 to an RSet.
-DEFINE_TESTCASE(rset3, !backend) {
-    Xapian::RSet rset;
-    TEST_EXCEPTION(Xapian::InvalidArgumentError, rset.add_document(0));
-    TEST(rset.empty());
-    TEST_EQUAL(rset.size(), 0);
-    rset.add_document(1);
-    rset.add_document(static_cast<Xapian::docid>(-1));
-    TEST_EXCEPTION(Xapian::InvalidArgumentError, rset.add_document(0));
-    TEST(!rset.empty());
-    TEST_EQUAL(rset.size(), 2);
-    return true;
-}
-
 // Check that Query(OP_VALUE_GE, 0, "") -> Query::MatchAll.
 DEFINE_TESTCASE(opvaluege1, !backend) {
     Xapian::Query query(Xapian::Query::OP_VALUE_GE, 0, "");
     TEST_STRINGS_EQUAL(query.get_description(), Xapian::Query::MatchAll.get_description());
-    return true;
-}
-
-// Direct test of ValueSetMatchDecider
-DEFINE_TESTCASE(valuesetmatchdecider1, !backend) {
-    Xapian::ValueSetMatchDecider vsmd1(0, true);
-    vsmd1.add_value("42");
-    Xapian::ValueSetMatchDecider vsmd2(0, false);
-    vsmd2.remove_value("nosuch"); // Test removing a value which isn't present.
-    vsmd2.add_value("42");
-    Xapian::ValueSetMatchDecider vsmd3(0, true);
-    vsmd3.add_value("42");
-    vsmd3.add_value("blah");
-
-    Xapian::Document doc;
-    TEST(!vsmd1(doc));
-    TEST(vsmd2(doc));
-    TEST(!vsmd3(doc));
-    doc.add_value(0, "42");
-    TEST(vsmd1(doc));
-    TEST(!vsmd2(doc));
-    TEST(vsmd3(doc));
-    doc.add_value(0, "blah");
-    TEST(!vsmd1(doc));
-    TEST(vsmd2(doc));
-    TEST(vsmd3(doc));
-
-    vsmd3.remove_value("nosuch"); // Test removing a value which isn't present.
-    vsmd3.remove_value("blah");
-    TEST(!vsmd1(doc));
-    TEST(vsmd2(doc));
-    TEST(!vsmd3(doc));
-    doc.add_value(0, "42");
-    TEST(vsmd1(doc));
-    TEST(!vsmd2(doc));
-    TEST(vsmd3(doc));
-
-    return true;
-}
-
-// Test that asking for the termfreq on an empty mset raises an exception.
-DEFINE_TESTCASE(emptymset1, !backend) {
-    Xapian::MSet emptymset;
-    TEST_EXCEPTION(Xapian::InvalidOperationError,
-		   emptymset.get_termfreq("foo"));
     return true;
 }

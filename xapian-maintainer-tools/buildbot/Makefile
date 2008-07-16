@@ -14,7 +14,7 @@ start: stop
 
 stop:
 	cd /home/xapian-buildbot/master && \
-	if test -e twistd.pid; then kill `cat twistd.pid` || true; fi
+	if test -e twistd.pid; then kill `cat twistd.pid`; fi
 
 reconfig:
 	cd /home/xapian-buildbot/master && \

@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
- * Copyright 2006,2008 Lemur Consulting Ltd
+ * Copyright 2006 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -294,51 +294,6 @@ Database::get_collection_freq(const string & tname) const
     RETURN(cf);
 }
 
-Xapian::doccount
-Database::get_value_freq(Xapian::valueno valno) const
-{
-    DEBUGAPICALL(Xapian::doccount, "Database::get_value_freq", valno);
-
-    Xapian::doccount vf = 0;
-    vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
-    for (i = internal.begin(); i != internal.end(); i++) {
-	vf += (*i)->get_value_freq(valno);
-    }
-    RETURN(vf);
-}
-
-std::string
-Database::get_value_lower_bound(Xapian::valueno valno) const
-{
-    DEBUGAPICALL(std::string, "Database::get_value_lower_bound", valno);
-
-    std::string full_lb;
-    vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
-    for (i = internal.begin(); i != internal.end(); i++) {
-	std::string lb = (*i)->get_value_lower_bound(valno);
-	if (full_lb.empty())
-	    full_lb = lb;
-	else if (lb < full_lb)
-	    full_lb = lb;
-    }
-    RETURN(full_lb);
-}
-
-std::string
-Database::get_value_upper_bound(Xapian::valueno valno) const
-{
-    DEBUGAPICALL(std::string, "Database::get_value_upper_bound", valno);
-
-    std::string full_ub;
-    vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
-    for (i = internal.begin(); i != internal.end(); i++) {
-	std::string ub = (*i)->get_value_upper_bound(valno);
-	if (full_ub < ub)
-	    full_ub = ub;
-    }
-    RETURN(full_ub);
-}
-
 Xapian::doclength
 Database::get_doclength(Xapian::docid did) const
 {
@@ -555,13 +510,6 @@ Database::get_metadata(const string & key) const
     if (key.empty())
 	throw InvalidArgumentError("Empty metadata keys are invalid");
     RETURN(internal[0]->get_metadata(key));
-}
-
-Xapian::TermIterator
-Database::metadata_keys_begin(const std::string &prefix) const
-{
-    DEBUGAPICALL(Xapian::TermIterator, "Database::metadata_keys_begin", "");
-    RETURN(TermIterator(internal[0]->open_metadata_keylist(prefix)));
 }
 
 ///////////////////////////////////////////////////////////////////////////

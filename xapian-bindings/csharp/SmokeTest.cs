@@ -1,6 +1,6 @@
 // Simple test that we can load the xapian module and run a simple test
 //
-// Copyright (C) 2004,2005,2006,2007,2008 Olly Betts
+// Copyright (C) 2004,2005,2006,2007 Olly Betts
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -123,7 +123,7 @@ class SmokeTest {
 	    // wrong value in C#).
 	    try {
 		Xapian.Query foo = new Xapian.Query(Xapian.Query.op.OP_OR, "hello", "world");
-		Xapian.Query foo2 = new Xapian.Query(Xapian.Query.op.OP_ELITE_SET, foo, foo);
+		Xapian.Query foo2 = new Xapian.Query(Xapian.Query.op.OP_ELITE_SET, foo);
 		foo = foo2; // Avoid "unused variable" warning.
 	    } catch (System.Exception e) {
 		System.Console.WriteLine("Using OP_ELITE_SET cause exception '" + e.Message + "'");

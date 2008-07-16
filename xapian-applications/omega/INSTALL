@@ -1,10 +1,6 @@
 Omega Installation
 ==================
 
-You'll need to ensure that PCRE <http://www.pcre.org/> is installed before
-building Omega.  If you install PCRE from a package, make sure you install the
-corresponding -dev or -devel package as well.
-
 The simplest way to compile this package is:
 
   1. `cd' to the directory containing the package's source code and type

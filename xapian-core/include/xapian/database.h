@@ -3,8 +3,8 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
- * Copyright 2006,2008 Lemur Consulting Ltd
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2006 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -210,42 +210,6 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 */
 	Xapian::termcount get_collection_freq(const std::string & tname) const;
 
-	/** Return the frequency of a given value slot.
-	 *
-	 *  This is the number of documents which have a (non-empty) value
-	 *  stored in the slot.
-	 *
-	 *  @param valno The value slot to examine.
-	 *
-	 *  @exception UnimplementedError The frequency of the value isn't
-	 *  available for this database type.
-	 */
-	Xapian::doccount get_value_freq(Xapian::valueno valno) const;
-
-	/** Get a lower bound on the values stored in the given value slot.
-	 *
-	 *  If there are no values stored in the given value slot, this will
-	 *  return an empty string.
-	 *
-	 *  If the lower bound isn't available for the given database type,
-	 *  this will return the lowest possible bound - the empty string.
-	 *
-	 *  @param valno The value slot to examine.
-	 */
-	std::string get_value_lower_bound(Xapian::valueno valno) const;
-
-	/** Get an upper bound on the values stored in the given value slot.
-	 *
-	 *  If there are no values stored in the given value slot, this will
-	 *  return an empty string.
-	 *
-	 *  @param valno The value slot to examine.
-	 *
-	 *  @exception UnimplementedError The upper bound of the values isn't
-	 *  available for this database type.
-	 */
-	std::string get_value_upper_bound(Xapian::valueno valno) const;
-
 	/** Get the length of a document.
 	 */
 	Xapian::doclength get_doclength(Xapian::docid did) const;
@@ -346,22 +310,6 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *	       metadata.
 	 */
 	std::string get_metadata(const std::string & key) const;
-
-	/** An iterator which returns all user-specified metadata keys.
-	 *
-	 *  When invoked on a Xapian::Database object representing multiple
-	 *  databases, currently only the metadata for the first is considered
-	 *  but this behaviour may change in the future.
-	 *
-	 *  @param prefix   If non-empty, only keys with this prefix are
-	 *		    returned.
-	 */
-	Xapian::TermIterator metadata_keys_begin(const std::string &prefix = "") const;
-
-	/// Corresponding end iterator to metadata_keys_begin().
-	Xapian::TermIterator metadata_keys_end(const std::string & = "") const {
-	    return Xapian::TermIterator(NULL);
-	}
 };
 
 /** This class provides read/write access to a database.

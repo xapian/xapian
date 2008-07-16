@@ -142,7 +142,7 @@ class BuildBotConfig(object):
     def add_status_html_waterfall(self,
                                   hostname=None,
                                   http_port=8010,
-                                  public_port=80,
+                                  public_port=None,
                                   **kwargs):
         """Add an HTML Waterfall status target.
 

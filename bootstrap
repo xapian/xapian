@@ -124,7 +124,7 @@ else
   # The last field is the SHA1 checksum of the tarball.
   lazy_build autoconf 2.62 tar.bz2 de2b6f57da07427794c56e25844e31f35fc46755
   lazy_build automake 1.10.1 tar.bz2 cd2e0f7054d4edc75cbf87cd8a92962b3b417b74
-  lazy_build libtool 2.2.4 tar.bz2 bc485fd07c8b12820234240e9ef41dba693af2b7
+  lazy_build libtool 1.5.26 tar.gz 4c1738351736562a951a345e24f233d00953ec0a
 
   for t in autoreconf autoconf autoheader autom4te automake aclocal libtoolize
   do
@@ -140,11 +140,7 @@ case `${LIBTOOLIZE-libtoolize} --version` in
   echo "${LIBTOOLIZE-libtoolize} not found"
   exit 1 ;;
 "libtoolize (GNU libtool) 1.4.*")
-  echo "${LIBTOOLIZE-libtoolize} is from libtool 1.4 which is too old - libtool 2.2 is required."
-  echo "If you have both installed, set LIBTOOLIZE to point to the correct version."
-  exit 1 ;;
-"libtoolize (GNU libtool) 1.5.*")
-  echo "${LIBTOOLIZE-libtoolize} is from libtool 1.5 which is too old - libtool 2.2 is required."
+  echo "${LIBTOOLIZE-libtoolize} is from libtool 1.4 which is too old - libtool 1.5 is required."
   echo "If you have both installed, set LIBTOOLIZE to point to the correct version."
   exit 1 ;;
 esac

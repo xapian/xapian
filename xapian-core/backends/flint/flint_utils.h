@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2008 Olly Betts
+ * Copyright 2002,2003,2004,2006 Olly Betts
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,13 +23,17 @@
 #ifndef OM_HGUARD_FLINT_UTILS_H
 #define OM_HGUARD_FLINT_UTILS_H
 
-#include "omassert.h"
-
 #include <xapian/types.h>
 
 #include <string>
 
 using namespace std;
+
+/// Compile time assert a condition.
+#define CASSERT(a) {char assert[(a) ? 1 : -1];(void)assert;}
+
+/// Compile time assert that type T is unsigned.
+#define CASSERT_TYPE_UNSIGNED(T) CASSERT(static_cast<T>(-1) > 0)
 
 typedef unsigned char       om_byte;
 typedef unsigned int        om_uint32;
@@ -61,15 +65,15 @@ typedef int                 om_int32;
  */
 template<class T>
 bool
-F_unpack_uint(const char ** src,
+unpack_uint(const char ** src,
 	    const char * src_end,
 	    T * resultptr)
 {
     // Check unsigned
-    STATIC_ASSERT_UNSIGNED_TYPE(T);
+    CASSERT_TYPE_UNSIGNED(T);
 
     // Check byte is what it's meant to be
-    STATIC_ASSERT(sizeof(om_byte) == 1);
+    CASSERT(sizeof(om_byte) == 1);
 
     unsigned int shift = 0;
     T result = 0;
@@ -118,10 +122,10 @@ F_unpack_uint(const char ** src,
  */
 template<class T>
 string
-F_pack_uint(T value)
+pack_uint(T value)
 {
     // Check unsigned
-    STATIC_ASSERT_UNSIGNED_TYPE(T);
+    CASSERT_TYPE_UNSIGNED(T);
 
     if (value == 0) return string("", 1u);
     string result;
@@ -146,7 +150,7 @@ F_pack_uint(T value)
  */
 template<>
 inline string
-F_pack_uint<bool>(bool value)
+pack_uint<bool>(bool value)
 {
     return string(1, static_cast<char>(value));
 }
@@ -170,12 +174,12 @@ F_pack_uint<bool>(bool value)
  */
 template<class T>
 bool
-F_unpack_uint_last(const char ** src, const char * src_end, T * resultptr)
+unpack_uint_last(const char ** src, const char * src_end, T * resultptr)
 {
     // Check unsigned
-    STATIC_ASSERT_UNSIGNED_TYPE(T);
+    CASSERT_TYPE_UNSIGNED(T);
     // Check byte is what it's meant to be
-    STATIC_ASSERT(sizeof(om_byte) == 1);
+    CASSERT(sizeof(om_byte) == 1);
 
     if (src_end - *src > int(sizeof(T))) {
 	// Would overflow
@@ -205,10 +209,10 @@ F_unpack_uint_last(const char ** src, const char * src_end, T * resultptr)
  */
 template<class T>
 string
-F_pack_uint_last(T value)
+pack_uint_last(T value)
 {
     // Check unsigned
-    STATIC_ASSERT_UNSIGNED_TYPE(T);
+    CASSERT_TYPE_UNSIGNED(T);
 
     string result;
     while (value) {
@@ -230,10 +234,10 @@ F_pack_uint_last(T value)
  */
 template<class T>
 string
-F_pack_uint_preserving_sort(T value)
+pack_uint_preserving_sort(T value)
 {
     // Check unsigned
-    STATIC_ASSERT_UNSIGNED_TYPE(T);
+    CASSERT_TYPE_UNSIGNED(T);
 
     string result;
     while (value != 0) {
@@ -266,7 +270,7 @@ F_pack_uint_preserving_sort(T value)
  */
 template<class T>
 bool
-F_unpack_uint_preserving_sort(const char ** src,
+unpack_uint_preserving_sort(const char ** src,
 			    const char * src_end,
 			    T * resultptr)
 {
@@ -300,12 +304,12 @@ F_unpack_uint_preserving_sort(const char ** src,
 }
 
 inline bool
-F_unpack_string(const char ** src,
+unpack_string(const char ** src,
 	      const char * src_end,
 	      string & result)
 {
     string::size_type length;
-    if (!F_unpack_uint(src, src_end, &length)) {
+    if (!unpack_uint(src, src_end, &length)) {
     	return false;
     }
 
@@ -321,9 +325,9 @@ F_unpack_string(const char ** src,
 }
 
 inline string
-F_pack_string(string value)
+pack_string(string value)
 {
-    return F_pack_uint(value.size()) + value;
+    return pack_uint(value.size()) + value;
 }
 
 /** Pack a string into a representation which preserves sort order.
@@ -332,7 +336,7 @@ F_pack_string(string value)
  *  the end.
  */
 inline string
-F_pack_string_preserving_sort(string value)
+pack_string_preserving_sort(string value)
 {
     string::size_type i = 0, j;
     while ((j = value.find('\0', i)) != string::npos) {
@@ -344,7 +348,7 @@ F_pack_string_preserving_sort(string value)
 }
 
 inline bool
-F_unpack_string_preserving_sort(const char ** src,
+unpack_string_preserving_sort(const char ** src,
 			      const char * src_end,
 			      string & result)
 {
@@ -369,7 +373,7 @@ F_unpack_string_preserving_sort(const char ** src,
 }
 
 inline bool
-F_unpack_bool(const char ** src,
+unpack_bool(const char ** src,
 	    const char * src_end,
 	    bool * resultptr)
 {
@@ -390,7 +394,7 @@ F_unpack_bool(const char ** src,
 }
 
 inline string
-F_pack_bool(bool value)
+pack_bool(bool value)
 {
     return value ? "1" : "0";
 }
@@ -401,7 +405,7 @@ F_pack_bool(bool value)
 inline string
 flint_docid_to_key(Xapian::docid did)
 {
-    return F_pack_uint_preserving_sort(did);
+    return pack_uint_preserving_sort(did);
 }
 
 #endif /* OM_HGUARD_FLINT_UTILS_H */

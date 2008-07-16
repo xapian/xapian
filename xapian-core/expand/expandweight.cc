@@ -82,12 +82,12 @@ ExpandWeight::get_weight(TermList * merger, const std::string &tname) const
 	}
     }
 
-    DEBUGLINE(EXPAND, "ExpandWeight::get_weight: "
-	      "N=" << dbsize << ", "
-	      "n=" << termfreq << ", "
-	      "R=" << rsize << ", "
-	      "r=" << rtermfreq << ", "
-	      "mult=" << stats.multiplier);
+    DEBUGMSG(EXPAND, "ExpandWeight::get_weight: "
+	     "N=" << dbsize << ", "
+	     "n=" << termfreq << ", "
+	     "R=" << rsize << ", "
+	     "r=" << rtermfreq << ", "
+	     "mult=" << stats.multiplier);
 
     Xapian::weight tw;
     tw = (rtermfreq + 0.5) * (dbsize - rsize - termfreq + rtermfreq + 0.5) /

@@ -2,7 +2,6 @@
  * @brief BackendManager subclass for remotetcp databases.
  */
 /* Copyright (C) 2006,2007,2008 Olly Betts
- * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,7 +25,7 @@
 #include <xapian.h>
 
 #include "safeerrno.h"
-#include <cstdio> // For fdopen().
+#include <stdio.h>
 #include <cstring>
 
 #ifdef HAVE_FORK
@@ -306,22 +305,12 @@ try_next_port:
 # error Neither HAVE_FORK nor __WIN32__ is defined
 #endif
 
-BackendManagerRemoteTcp::BackendManagerRemoteTcp(const std::string & remote_type_)
-	: BackendManagerRemote(remote_type_)
-{
-#ifdef HAVE_FORK
-    for (unsigned i = 0; i < sizeof(pid_to_fd) / sizeof(pid_fd); ++i) {
-	pid_to_fd[i].pid = -1;
-    }
-#endif
-}
-
 BackendManagerRemoteTcp::~BackendManagerRemoteTcp() { }
 
-std::string
+const char *
 BackendManagerRemoteTcp::get_dbtype() const
 {
-    return "remotetcp_" + remote_type;
+    return "remotetcp";
 }
 
 Xapian::Database
@@ -342,7 +331,21 @@ Xapian::WritableDatabase
 BackendManagerRemoteTcp::get_writable_database(const string & name,
 					       const string & file)
 {
-    string args = get_writable_database_args(name, file);
+    last_wdb_name = name;
+
+    // Default to a long (5 minute) timeout so that tests won't fail just
+    // because the host is slow or busy.
+    string args = "-t300000 --writable ";
+
+#ifdef XAPIAN_HAS_FLINT_BACKEND
+    (void)getwritedb_flint(name, vector<string>(1, file));
+    args += ".flint/";
+#else
+    (void)getwritedb_quartz(vector<string>(1, file));
+    args += ".quartz/";
+#endif
+    args += name;
+
     int port = launch_xapian_tcpsrv(args);
     return Xapian::Remote::open_writable(LOCALHOST, port);
 }
@@ -351,40 +354,45 @@ Xapian::Database
 BackendManagerRemoteTcp::get_remote_database(const vector<string> & files,
 					     unsigned int timeout)
 {
-    string args = get_remote_database_args(files, timeout);
+    string args = "-t";
+    args += om_tostring(timeout);
+    args += ' ';
+#ifdef XAPIAN_HAS_FLINT_BACKEND
+    args += createdb_flint(files);
+#else
+    args += createdb_quartz(files);
+#endif
+
     int port = launch_xapian_tcpsrv(args);
     return Xapian::Remote::open(LOCALHOST, port);
 }
 
 Xapian::Database
-BackendManagerRemoteTcp::get_writable_database_as_database(const string & name)
+BackendManagerRemoteTcp::get_writable_database_as_database()
 {
-    string args = get_writable_database_as_database_args(name);
+    string args = "-t300000 ";
+#ifdef XAPIAN_HAS_FLINT_BACKEND
+    args += ".flint/";
+#else
+    args += ".quartz/";
+#endif
+    args += last_wdb_name;
+
     int port = launch_xapian_tcpsrv(args);
     return Xapian::Remote::open(LOCALHOST, port);
 }
 
 Xapian::WritableDatabase
-BackendManagerRemoteTcp::get_writable_database_again(const string & name)
+BackendManagerRemoteTcp::get_writable_database_again()
 {
-    string args = get_writable_database_again_args(name);
+    string args = "-t300000 --writable ";
+#ifdef XAPIAN_HAS_FLINT_BACKEND
+    args += ".flint/";
+#else
+    args += ".quartz/";
+#endif
+    args += last_wdb_name;
+
     int port = launch_xapian_tcpsrv(args);
     return Xapian::Remote::open_writable(LOCALHOST, port);
-}
-
-void
-BackendManagerRemoteTcp::posttest()
-{
-#ifdef HAVE_FORK
-    while(true) {
-	bool no_subpids = true;
-	for (unsigned i = 0; i < sizeof(pid_to_fd) / sizeof(pid_fd); ++i) {
-	    if (pid_to_fd[i].pid != -1) {
-		no_subpids = false;
-	    }
-	}
-	if (no_subpids) break;
-	sleep(1);
-    }
-#endif
 }

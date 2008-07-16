@@ -1,7 +1,7 @@
 /* flint_cursor.cc: Btree cursor implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,19 +21,19 @@
 
 #include <config.h>
 
-#include "flint_cursor.h"
-
 #include "safeerrno.h"
 
 #include <xapian/error.h>
 
+#include "flint_cursor.h"
 #include "flint_table.h"
+#include "flint_btreeutil.h"
 #include "omassert.h"
 #include "omdebug.h"
 
 #ifdef XAPIAN_DEBUG_VERBOSE
 static string
-hex_display_encode(const string & input)
+hex_encode(const string & input)
 {
     const char * table = "0123456789abcdef";
     string result;
@@ -96,7 +96,7 @@ FlintCursor::prev()
 	while (true) {
 	    if (! B->prev(C, 0)) {
 		is_positioned = false;
-		RETURN(false);
+		return false;
 	    }
 	    if (Item_(C[0].p, C[0].c).component_of() == 1) {
 		break;
@@ -107,7 +107,7 @@ FlintCursor::prev()
     while (true) {
 	if (! B->prev(C, 0)) {
 	    is_positioned = false;
-	    RETURN(false);
+	    return false;
 	}
 	if (Item_(C[0].p, C[0].c).component_of() == 1) {
 	    break;
@@ -116,8 +116,8 @@ FlintCursor::prev()
     get_key(&current_key);
     tag_status = UNREAD;
 
-    DEBUGLINE(DB, "Moved to entry: key=`" << hex_display_encode(current_key) << "'");
-    RETURN(true);
+    DEBUGLINE(DB, "Moved to entry: key=`" << hex_encode(current_key) << "'");
+    return true;
 }
 
 bool
@@ -141,14 +141,14 @@ FlintCursor::next()
 
     if (!is_positioned) {
 	is_after_end = true;
-	RETURN(false);
+	return false;
     }
 
     get_key(&current_key);
     tag_status = UNREAD;
 
-    DEBUGLINE(DB, "Moved to entry: key=`" << hex_display_encode(current_key) << "'");
-    RETURN(true);
+    DEBUGLINE(DB, "Moved to entry: key=`" << hex_encode(current_key) << "'");
+    return true;
 }
 
 bool
@@ -193,7 +193,7 @@ done:
 	get_key(&current_key);
     tag_status = UNREAD;
 
-    DEBUGLINE(DB, "Found entry: key=`" << hex_display_encode(current_key) << "'");
+    DEBUGLINE(DB, "Found entry: key=`" << hex_encode(current_key) << "'");
     RETURN(found);
 }
 
@@ -232,7 +232,7 @@ FlintCursor::find_entry_ge(const string &key)
     }
     tag_status = UNREAD;
 
-    DEBUGLINE(DB, "Found entry: key=`" << hex_display_encode(current_key) << "'");
+    DEBUGLINE(DB, "Found entry: key=`" << hex_encode(current_key) << "'");
     RETURN(found);
 }
 
@@ -263,9 +263,9 @@ FlintCursor::read_tag(bool keep_compressed)
 	// cursor ends up on the next key.
 	is_positioned = B->next(C, 0);
 
-	DEBUGLINE(DB, "tag=`" << hex_display_encode(current_tag) << "'");
+	DEBUGLINE(DB, "tag=`" << hex_encode(current_tag) << "'");
     }
-    RETURN(tag_status == COMPRESSED);
+    return (tag_status == COMPRESSED);
 }
 
 bool

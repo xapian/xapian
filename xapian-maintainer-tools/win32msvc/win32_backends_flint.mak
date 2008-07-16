@@ -17,6 +17,7 @@ LIBFLINTBTREECHECK_OBJS= \
                 $(INTDIR)\flint_check.obj
 
 OBJS= \
+                $(INTDIR)\contiguousalldocspostlist.obj\
                 $(INTDIR)\flint_alldocspostlist.obj\
                 $(INTDIR)\flint_alltermslist.obj\
                 $(INTDIR)\flint_btreebase.obj\
@@ -25,7 +26,6 @@ OBJS= \
                 $(INTDIR)\flint_document.obj\
                 $(INTDIR)\flint_io.obj\
                 $(INTDIR)\flint_lock.obj\
-                $(INTDIR)\flint_metadata.obj\
                 $(INTDIR)\flint_modifiedpostlist.obj\
                 $(INTDIR)\flint_positionlist.obj\
                 $(INTDIR)\flint_postlist.obj\
@@ -40,6 +40,7 @@ OBJS= \
                 $(INTDIR)\flint_version.obj
 
 SRCS= \
+                $(INTDIR)\contiguousalldocspostlist.cc\
                 $(INTDIR)\flint_alldocspostlist.cc\
                 $(INTDIR)\flint_alltermslist.cc\
                 $(INTDIR)\flint_btreebase.cc\
@@ -48,7 +49,6 @@ SRCS= \
                 $(INTDIR)\flint_document.cc\
                 $(INTDIR)\flint_io.cc\
                 $(INTDIR)\flint_lock.cc\
-                $(INTDIR)\flint_metadata.cc\
                 $(INTDIR)\flint_modifiedpostlist.cc\
                 $(INTDIR)\flint_positionlist.cc\
                 $(INTDIR)\flint_postlist.cc\

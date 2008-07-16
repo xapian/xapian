@@ -1,7 +1,7 @@
 /* stats.h: Handling of statistics needed for the search.
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2005,2007,2008 Olly Betts
+ * Copyright 2002,2003,2005,2007 Olly Betts
  * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -27,6 +27,10 @@
 #include "omassert.h"
 #include <string>
 #include <map>
+
+#include "autoptr.h" // FIXME:1.1: remove this
+#include "weightinternal.h" // FIXME:1.1: remove this
+#include <list> // FIXME:1.1: remove this
 
 using namespace std;
 
@@ -82,6 +86,69 @@ class Stats {
 
 	/// Return a string describing this object.
 	string get_description() const;
+
+
+	/** A list of all the Xapian::Weight::Internals allocated.
+	 *
+	 *  These will be deleted by the destructor.
+	 *
+	 *  FIXME:1.1: this should be removed for the 1.1 release.  In 1.0, the
+	 *  constructor of Xapian::Weight doesn't initialise its "internal"
+	 *  member to NULL.  This means that we can't delete the object pointed
+	 *  to by "internal" in the destructor, because it may not be
+	 *  initialised.  Therefore, we have to register the objects somewhere
+	 *  else, and delete them another way.  We use the Stats object for
+	 *  this purpose, since they're related to it.
+	 */
+	mutable list<Xapian::Weight::Internal *> weight_internals;
+
+	/** Destructor - delete the internals registered.
+	 *
+	 *  FIXME:1.1: remove this - just use the default.
+	 */
+	~Stats() {
+	    list<Xapian::Weight::Internal *>::const_iterator i;
+	    for (i = weight_internals.begin(); i != weight_internals.end(); ++i)
+	    {
+		delete *i;
+	    }
+	}
+
+	/** Create and return a Weight::Internal object with global statistics.
+	 *
+	 *  FIXME:1.1: remove this method - just create it directly.
+	 *
+	 *  All term-specific statistics will be set to 0.
+	 *
+	 *  The caller must NOT delete the returned object after use - it is
+	 *  owned by the Stats object.
+	 *
+	 *  @param stats Object containing the statistics to use.
+	 */
+	Xapian::Weight::Internal * create_weight_internal() const
+	{
+	    AutoPtr<Xapian::Weight::Internal> wti(new Xapian::Weight::Internal(*this));
+	    weight_internals.push_back(wti.get());
+	    return wti.release();
+	}
+
+	/** Create and return a Weight::Internal object with global and term
+	 *  statistics.
+	 *
+	 *  FIXME:1.1: remove this method - just create it directly.
+	 *
+	 *  The caller must NOT delete the returned object after use - it is
+	 *  owned by the Stats object.
+	 *
+	 *  @param stats Object containing the statistics to use.
+	 *  @param tname The term to read the term-specific statistics for.
+	 */
+	Xapian::Weight::Internal * create_weight_internal(const string & tname) const
+	{
+	    AutoPtr<Xapian::Weight::Internal> wti(new Xapian::Weight::Internal(*this, tname));
+	    weight_internals.push_back(wti.get());
+	    return wti.release();
+	}
 };
 
 /////////////////////////////////////////

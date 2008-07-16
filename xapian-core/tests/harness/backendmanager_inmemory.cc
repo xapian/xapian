@@ -26,7 +26,7 @@ using namespace std;
 
 BackendManagerInMemory::~BackendManagerInMemory() { }
 
-std::string
+const char *
 BackendManagerInMemory::get_dbtype() const
 {
     return "inmemory";

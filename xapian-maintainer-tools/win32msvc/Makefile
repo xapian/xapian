@@ -37,8 +37,6 @@ MAKEALL:
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\tests\harness
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
-   cd ..\perftest
-   nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\..\bin
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\examples
@@ -73,8 +71,6 @@ CLEAN: COPYMAKFILES
    nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
    cd ..\tests\harness
    nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
-   cd ..\perftest
-   nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
    cd ..\..\bin
    nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
    cd ..\examples
@@ -99,7 +95,7 @@ COPYMAKFILES:
    copy  win32_api.mak ..\api\Makefile
    copy  win32_backends.mak ..\backends\Makefile
    copy  win32_backends_flint.mak ..\backends\flint\Makefile
-   copy  win32_backends_chert.mak ..\backends\chert\Makefile
+   copy  win32_backends_quartz.mak ..\backends\quartz\Makefile
    copy  win32_backends_inmemory.mak ..\backends\inmemory\Makefile
    copy  win32_backends_multi.mak ..\backends\multi\Makefile
    copy  win32_backends_remote.mak ..\backends\remote\Makefile
@@ -115,7 +111,6 @@ COPYMAKFILES:
    copy  win32_queryparser.mak ..\queryparser\Makefile
    copy  win32_tests.mak ..\tests\Makefile
    copy  win32_testsuite.mak ..\tests\harness\Makefile
-   copy  win32_perftest.mak ..\tests\perftest\Makefile
    if exist $(XAPIAN_BINDINGS) copy $(XAPIAN_BINDINGS)\xapian-version.h.in $(XAPIAN_BINDINGS)\xapian-version.h
    if exist $(XAPIAN_BINDINGS) copy win32_bindings_python.mak $(XAPIAN_BINDINGS)\python\Makefile
    if exist $(XAPIAN_BINDINGS) copy doccomments.i $(XAPIAN_BINDINGS)\python

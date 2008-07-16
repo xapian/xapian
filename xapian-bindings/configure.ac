@@ -1,22 +1,13 @@
 dnl Process this file with autoconf to produce a configure script.
 
-dnl Need autoconf 2.50 or later for many features
-dnl 2.54 needed for automake 1.6
-dnl 2.57 fixes the annoying warnings from configure on FreeBSD
-dnl 2.58 is needed by automake 1.8.5
-dnl 2.59 was released the same day as 2.58 to fix a problem
-AC_PREREQ([2.59])
-
 AC_INIT(xapian-bindings, 1.0.7)dnl FIXME: bugreport addr as third argument
-dnl 1.9 reduces Makefile.in size, and 1.9.5 was in Debian sarge
-dnl But the RPM spec file runs autoreconf, and SLES 9 has 1.8.3.
-AM_INIT_AUTOMAKE([1.8.3 -Wportability tar-ustar])
+dnl See HACKING document for details of the reasons for required versions.
+AC_PREREQ([2.59])
+AM_INIT_AUTOMAKE([1.9 -Wportability tar-ustar])
 
 AC_CONFIG_SRCDIR(xapian.i)
 
-AC_CONFIG_HEADERS(config.h)
-
-AC_CONFIG_MACRO_DIR([m4])
+AM_CONFIG_HEADER(config.h)
 
 dnl Mac OS X needs MACOSX_DEPLOYMENT_TARGET set to 10.3 (or higher) to
 dnl successfully link the SWIG generated modules.  The link always fails
@@ -49,11 +40,22 @@ if test -n "$OVERRIDE_MACOSX_DEPLOYMENT_TARGET" ; then
 fi
 AM_CONDITIONAL(NEED_JNILIB_EXT, test yes = "$NEED_JNILIB_EXT")
 
-dnl 2.2 is required; 2.2.4 includes useful bug-fixes.
-LT_PREREQ([2.2.4])
+dnl We don't use Fortran, but libtool 1.5 insists on probing for f77 which just
+dnl makes configure take longer to run.  We force it not to using the method
+dnl suggested here (which also reduces configure size):
+dnl http://article.gmane.org/gmane.comp.gnu.libtool.general/9281
+dnl This is apparently fixed in libtool 2.2, so once we require that, we can
+dnl drop this workaround.
+define([AC_LIBTOOL_LANG_F77_CONFIG], [:])
+dnl Eliminating the unused code for gcj and rc probes further reduces the size
+dnl of the generated configure script (by 29% in total):
+define([AC_LIBTOOL_LANG_GCJ_CONFIG], [:])
+define([AC_LIBTOOL_LANG_RC_CONFIG], [:])
+
 dnl Use libtool to manage our libraries, but don't build static libraries as
 dnl the bindings only have a use for dynamic ones.
-LT_INIT([disable-static])
+AC_DISABLE_STATIC
+AC_PROG_LIBTOOL
 
 dnl -no-undefined causes problems on Mac OS X with at least some
 dnl MACOSX_DEPLOYMENT_TARGET settings, so only pass -no-undefined on
@@ -92,13 +94,6 @@ dnl We only need to set docdir for compatibility with autoconf < 2.60 - this
 dnl code can be removed once we move to requiring autoconf 2.60 or newer.
 test -n "$docdir" || docdir='${datadir}/doc/${PACKAGE_TARNAME}'
 AC_SUBST(docdir)
-
-AC_ARG_ENABLE(quiet,
-  [AS_HELP_STRING([--enable-quiet], [enable quiet building [default=no]])],
-  [case ${enableval} in
-    yes|no) ;;
-    *) AC_MSG_ERROR([bad value ${enableval} for --enable-quiet]) ;;
-  esac])
 
 dnl Only probe for SWIG and enable SWIG rules in makefiles if
 dnl configure --enable-maintainer-mode is used.
@@ -210,17 +205,18 @@ if test no != "$with_python" ; then
   AC_PATH_PROGS(PYTHON, ["${PYTHON-python}"], [])
   AC_ARG_VAR(PYTHON, [Python interpreter])
   if test -n "$PYTHON" ; then
-    dnl Require Python 2.3 or newer.  It's now > 4.5 years since the last
-    dnl 2.2.x release, so 2.2 is essentially unsupported upstream.
+    dnl Require Python 2.2 or newer.  We need 2.2 to use SWIG's -modern option,
+    dnl for Pythonic iterator support, and it's now > 4.5 years since the last
+    dnl 2.1.x release and 2.5 is out.
     AC_MSG_CHECKING([$PYTHON version])
     version=`$PYTHON -c 'import sys;print(sys.version[[:3]])' 2>/dev/null`
     case $version in
-    [2.[3-9]*|2.[12][0-9][0-9]*|[3-9].*])
+    [2.[2-9]*|2.1[0-9]*|[3-9].*])
       ;;
     *)
       AC_MSG_RESULT([$version (too old)])
       if test yes = "$with_python" ; then
-	AC_MSG_ERROR([Only python 2.3 or newer is supported ($python is $version)])
+	AC_MSG_ERROR([Only python 2.2 or newer is supported ($python is $version)])
       fi
       PYTHON=
       ;;
@@ -288,6 +284,10 @@ if test no != "$with_php" ; then
     AC_MSG_CHECKING([$PHP_CONFIG version])
     version=`$PHP_CONFIG --version 2>/dev/null`
     case $version in
+    4.*)
+      AC_MSG_RESULT([$version])
+      PHP_MAJOR_VERSION=4
+      ;;
     5.*)
       AC_MSG_RESULT([$version])
       PHP_MAJOR_VERSION=5
@@ -295,7 +295,7 @@ if test no != "$with_php" ; then
     *)
       AC_MSG_RESULT([$version (not supported)])
       if test yes = "$with_php" ; then
-	AC_MSG_ERROR([Only PHP5 is supported ($PHP_CONFIG reports version $version)])
+	AC_MSG_ERROR([Only PHP4 and PHP5 are supported ($PHP_CONFIG reports version $version)])
       fi
       with_php=no
       ;;

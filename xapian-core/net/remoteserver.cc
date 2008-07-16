@@ -48,7 +48,7 @@ RemoteServer::RemoteServer(const std::vector<std::string> &dbpaths,
 			   Xapian::timeout active_timeout_,
 			   Xapian::timeout idle_timeout_,
 			   bool writable)
-    : RemoteConnection(fdin_, fdout_, std::string()),
+    : RemoteConnection(fdin_, fdout_, ""),
       db(NULL), wdb(NULL),
       active_timeout(active_timeout_), idle_timeout(idle_timeout_)
 {
@@ -100,11 +100,11 @@ RemoteServer::RemoteServer(const std::vector<std::string> &dbpaths,
 
     // Register weighting schemes.
     Xapian::Weight * weight;
-    weight = new Xapian::BM25Weight;
+    weight = new Xapian::BM25Weight();
     wtschemes[weight->name()] = weight;
-    weight = new Xapian::BoolWeight;
+    weight = new Xapian::BoolWeight();
     wtschemes[weight->name()] = weight;
-    weight = new Xapian::TradWeight;
+    weight = new Xapian::TradWeight();
     wtschemes[weight->name()] = weight;
 }
 
@@ -174,7 +174,6 @@ RemoteServer::run()
 		&RemoteServer::msg_document,
 		&RemoteServer::msg_termexists,
 		&RemoteServer::msg_termfreq,
-		&RemoteServer::msg_valuestats,
 		&RemoteServer::msg_keepalive,
 		&RemoteServer::msg_doclength,
 		&RemoteServer::msg_query,
@@ -185,18 +184,20 @@ RemoteServer::run()
 		&RemoteServer::msg_update,
 		&RemoteServer::msg_adddocument,
 		&RemoteServer::msg_cancel,
+		&RemoteServer::msg_deletedocument_pre_30_2,
 		&RemoteServer::msg_deletedocumentterm,
 		&RemoteServer::msg_flush,
 		&RemoteServer::msg_replacedocument,
 		&RemoteServer::msg_replacedocumentterm,
+		NULL, // MSG_GETMSET - used during a conversation.
+		NULL, // MSG_SHUTDOWN - handled by get_message().
 		&RemoteServer::msg_deletedocument
-		// MSG_GETMSET - used during a conversation.
-		// MSG_SHUTDOWN - handled by get_message().
 	    };
 
 	    string message;
 	    size_t type = get_message(idle_timeout, message);
-	    if (type >= sizeof(dispatch)/sizeof(dispatch[0])) {
+	    if (type >= sizeof(dispatch)/sizeof(dispatch[0]) ||
+		dispatch[type] == NULL) {
 		string errmsg("Unexpected message type ");
 		errmsg += om_tostring(type);
 		throw Xapian::InvalidArgumentError(errmsg);
@@ -311,6 +312,14 @@ RemoteServer::msg_postlist(const string &message)
 	Xapian::docid newdocid = *i;
 	string reply = encode_length(newdocid - lastdocid - 1);
 	reply += encode_length(i.get_wdf());
+	// FIXME: get_doclength should always return an integer value, but
+	// Xapian::doclength is a double.  We could improve the compression
+	// here by casting to an int and serialising that instead, but it's
+	// probably not worth doing since the plan is to stop storing the
+	// document length in the posting lists anyway, at which point the
+	// remote protocol should stop passing it since it will be more
+	// expensive to do so.
+	reply += serialise_double(i.get_doclength());
 
 	send_message(REPLY_POSTLISTITEM, reply);
 	lastdocid = newdocid;
@@ -411,7 +420,24 @@ RemoteServer::msg_query(const string &message_in)
     send_message(REPLY_STATS, serialise_stats(local_stats));
 
     string message;
+#if 0 // Reinstate this when major protocol version increases to 31.
     get_message(active_timeout, message, MSG_GETMSET);
+#else
+    char type = get_message(active_timeout, message);
+    if (rare(type != MSG_GETMSET)) {
+	if (type != MSG_GETMSET_PRE_30_5 && type != MSG_GETMSET_PRE_30_3) {
+	    string errmsg("Expecting message type ");
+	    errmsg += om_tostring(MSG_GETMSET_PRE_30_3);
+	    errmsg += " or ";
+	    errmsg += om_tostring(MSG_GETMSET_PRE_30_5);
+	    errmsg += " or ";
+	    errmsg += om_tostring(MSG_GETMSET);
+	    errmsg += ", got ";
+	    errmsg += om_tostring(type);
+	    throw Xapian::NetworkError(errmsg);
+	}
+    }
+#endif
     p = message.c_str();
     p_end = p + message.size();
 
@@ -419,7 +445,9 @@ RemoteServer::msg_query(const string &message_in)
     Xapian::termcount maxitems = decode_length(&p, p_end, false);
 
     Xapian::termcount check_at_least = 0;
-    check_at_least = decode_length(&p, p_end, false);
+    if (type != MSG_GETMSET_PRE_30_3) {
+	check_at_least = decode_length(&p, p_end, false);
+    }
 
     message.erase(0, message.size() - (p_end - p));
     Stats total_stats(unserialise_stats(message));
@@ -427,7 +455,11 @@ RemoteServer::msg_query(const string &message_in)
     Xapian::MSet mset;
     match.get_mset(first, maxitems, check_at_least, mset, total_stats, 0, 0);
 
-    send_message(REPLY_RESULTS, serialise_mset(mset));
+    if (type == MSG_GETMSET_PRE_30_3 || type == MSG_GETMSET_PRE_30_5) {
+	send_message(REPLY_RESULTS_PRE_30_5, serialise_mset_pre_30_5(mset));
+    } else {
+	send_message(REPLY_RESULTS, serialise_mset(mset));
+    }
 }
 
 void
@@ -477,26 +509,6 @@ RemoteServer::msg_termfreq(const string &term)
 }
 
 void
-RemoteServer::msg_valuestats(const string & message)
-{
-    const char *p = message.data();
-    const char *p_end = p + message.size();
-    while (p != p_end) {
-	Xapian::valueno valno = decode_length(&p, p_end, false);
-	string message_out;
-	message_out += encode_length(db->get_value_freq(valno));
-	string bound = db->get_value_lower_bound(valno);
-	message_out += encode_length(bound.size());
-	message_out += bound;
-	bound = db->get_value_upper_bound(valno);
-	message_out += encode_length(bound.size());
-	message_out += bound;
-
-	send_message(REPLY_VALUESTATS, message_out);
-    }
-}
-
-void
 RemoteServer::msg_doclength(const string &message)
 {
     const char *p = message.data();
@@ -541,8 +553,9 @@ RemoteServer::msg_adddocument(const string & message)
     send_message(REPLY_ADDDOCUMENT, encode_length(did));
 }
 
+// FIXME: eliminate this method when we move to remote major 31.
 void
-RemoteServer::msg_deletedocument(const string & message)
+RemoteServer::msg_deletedocument_pre_30_2(const string & message)
 {
     if (!wdb)
 	throw Xapian::InvalidOperationError("Server is read-only");
@@ -552,6 +565,12 @@ RemoteServer::msg_deletedocument(const string & message)
     Xapian::docid did = decode_length(&p, p_end, false);
 
     wdb->delete_document(did);
+}
+
+void
+RemoteServer::msg_deletedocument(const string & message)
+{
+    msg_deletedocument_pre_30_2(message);
 
     send_message(REPLY_DONE, "");
 }

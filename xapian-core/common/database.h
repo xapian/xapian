@@ -2,8 +2,8 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
- * Copyright 2006,2008 Lemur Consulting Ltd
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2006 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,19 +37,12 @@
 using namespace std;
 
 class LeafPostList;
-class OmTime;
-class RemoteConnection;
 class RemoteDatabase;
 
 typedef Xapian::TermIterator::Internal TermList;
 typedef Xapian::PositionIterator::Internal PositionList;
 
-// Used by flint and chert.
-const int XAPIAN_DB_READONLY = 0;
-
 namespace Xapian {
-
-struct ReplicationInfo;
 
 /** Base class for databases.
  */
@@ -156,36 +149,6 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *                requested.
 	 */
 	virtual Xapian::termcount get_collection_freq(const string & tname) const = 0;
-
-	/** Return the frequency of a given value slot.
-	 *
-	 *  This is the number of documents which have a (non-empty) value
-	 *  stored in the slot.
-	 *
-	 *  @param valno The value slot to examine.
-	 *
-	 *  @exception UnimplementedError The frequency of the value isn't
-	 *  available for this database type.
-	 */
-	virtual Xapian::doccount get_value_freq(Xapian::valueno valno) const;
-
-	/** Get a lower bound on the values stored in the given value slot.
-	 *
-	 *  If the lower bound isn't available for the given database type,
-	 *  this will return the lowest possible bound - the empty string.
-	 *
-	 *  @param valno The value slot to examine.
-	 */
-	virtual std::string get_value_lower_bound(Xapian::valueno valno) const;
-
-	/** Get an upper bound on the values stored in the given value slot.
-	 *
-	 *  @param valno The value slot to examine.
-	 *
-	 *  @exception UnimplementedError The upper bound of the values isn't
-	 *  available for this database type.
-	 */
-	virtual std::string get_value_upper_bound(Xapian::valueno valno) const;
 
 	/** Check whether a given term is in the database.
 	 *
@@ -349,16 +312,6 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	virtual string get_metadata(const string & key) const;
 
-	/** Open a termlist returning each metadata key.
-	 *
-	 *  Only metadata keys which are associated with a non-empty value will
-	 *  be returned.
-	 *
-	 *  @param prefix   If non-empty, only keys with this prefix are
-	 *		    returned.
-	 */
-	virtual TermList * open_metadata_keylist(const std::string &prefix) const;
-
 	/** Set the metadata associated with a given key.
 	 *
 	 *  See WritableDatabase::set_metadata() for more information.
@@ -449,35 +402,6 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 
 	virtual Xapian::Document::Internal * collect_document(Xapian::docid did) const;
 	//@}
-
-	/** Write a set of changesets to a file descriptor.
-	 *
-	 *  This call may reopen the database, leaving it pointing to a more
-	 *  recent version of the database.
-	 */
-	virtual void write_changesets_to_fd(int fd,
-					    const std::string & start_revision,
-					    bool need_whole_db,
-					    Xapian::ReplicationInfo * info);
-
-	/// Get a string describing the current revision of the database.
-	virtual string get_revision_info() const;
-
-	/// Check if the revision of the database is at least that supplied.
-	virtual bool check_revision_at_least(const string & rev,
-					     const string & target) const;
-
-	/// Read and apply the next changeset.
-	virtual string apply_changeset_from_conn(RemoteConnection & conn,
-						 const OmTime & end_time);
-
-	/** Get a UUID for the database.
-	 *
-	 *  Replicas (eg, made with the replication protocol, or by copying all
-	 *  the database files) will have the same UUID.  However, copies (made
-	 *  with copydatabase, or xapian-compact) will have different UUIDs.
-	 */
-	virtual string get_uuid() const;
 
 	//////////////////////////////////////////////////////////////////
 	// Introspection methods:

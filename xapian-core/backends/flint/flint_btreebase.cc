@@ -1,7 +1,7 @@
 /* flint_btreebase.cc: Btree base file implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2006,2008 Olly Betts
+ * Copyright 2002,2003,2004,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -40,12 +40,27 @@
 
 using namespace std;
 
+/** A tiny class used to close a filehandle safely in the presence
+ *  of exceptions.
+ */
+class fdcloser {
+    public:
+	fdcloser(int fd_) : fd(fd_) {}
+	~fdcloser() {
+	    if (fd >= 0) {
+		(void)close(fd);
+	    }
+	}
+    private:
+	int fd;
+};
+
 /************ Base file parameters ************/
 
 /** This is the current description of the base file format:
  *
  * Numbers are (unless mentioned otherwise) stored in the variable
- * length format used by F_pack_uint() - that is 7 bits at a time in
+ * length format used by pack_uint() - that is 7 bits at a time in
  * a byte, starting with lower-order bits, and setting the high bit
  * on all bytes before the last one.
  *
@@ -143,7 +158,7 @@ FlintTable_base::do_unpack_uint(const char **start, const char *end,
 			   const string &basename,
 			   const char *varname)
 {
-    bool result = F_unpack_uint(start, end, dest);
+    bool result = unpack_uint(start, end, dest);
     if (!result) {
 	err_msg += "Unable to read " + string(varname) + " from " +
 		    basename + "\n";
@@ -256,7 +271,7 @@ FlintTable_base::read(const string & name, char ch, string &err_msg)
     end += flint_io_read(h, buf + n, REASONABLE_BASE_SIZE - n, 0);
 
     uint4 revision3;
-    if (!F_unpack_uint(&start, end, &revision3)) {
+    if (!unpack_uint(&start, end, &revision3)) {
 	err_msg += "Couldn't read revision3 from base file " +
 	basename + "\n";
 	return false;
@@ -278,30 +293,26 @@ FlintTable_base::read(const string & name, char ch, string &err_msg)
 }
 
 void
-FlintTable_base::write_to_file(const string &filename,
-			       char base_letter,
-			       const string &tablename,
-			       int changes_fd,
-			       const string * changes_tail)
+FlintTable_base::write_to_file(const string &filename)
 {
     calculate_last_block();
 
     string buf;
-    buf += F_pack_uint(revision);
-    buf += F_pack_uint(CURR_FORMAT);
-    buf += F_pack_uint(block_size);
-    buf += F_pack_uint(static_cast<uint4>(root));
-    buf += F_pack_uint(static_cast<uint4>(level));
-    buf += F_pack_uint(static_cast<uint4>(bit_map_size));
-    buf += F_pack_uint(static_cast<uint4>(item_count));
-    buf += F_pack_uint(static_cast<uint4>(last_block));
-    buf += F_pack_uint(have_fakeroot);
-    buf += F_pack_uint(sequential);
-    buf += F_pack_uint(revision);
+    buf += pack_uint(revision);
+    buf += pack_uint(CURR_FORMAT);
+    buf += pack_uint(block_size);
+    buf += pack_uint(static_cast<uint4>(root));
+    buf += pack_uint(static_cast<uint4>(level));
+    buf += pack_uint(static_cast<uint4>(bit_map_size));
+    buf += pack_uint(static_cast<uint4>(item_count));
+    buf += pack_uint(static_cast<uint4>(last_block));
+    buf += pack_uint(have_fakeroot);
+    buf += pack_uint(sequential);
+    buf += pack_uint(revision);
     if (bit_map_size > 0) {
 	buf.append(reinterpret_cast<const char *>(bit_map), bit_map_size);
     }
-    buf += F_pack_uint(revision);  // REVISION2
+    buf += pack_uint(revision);  // REVISION2
 
 #ifdef __WIN32__
     int h = msvc_posix_open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);
@@ -314,21 +325,6 @@ FlintTable_base::write_to_file(const string &filename,
 	throw Xapian::DatabaseOpeningError(message);
     }
     fdcloser closefd(h);
-
-    if (changes_fd >= 0) {
-	string changes_buf;
-	changes_buf += F_pack_uint(1u); // Indicate the item is a base file.
-	changes_buf += F_pack_string(tablename);
-	changes_buf += base_letter; // The base file letter.
-	changes_buf += F_pack_uint(buf.size());
-	flint_io_write(changes_fd, changes_buf.data(), changes_buf.size());
-	flint_io_write(changes_fd, buf.data(), buf.size());
-	if (changes_tail != NULL) {
-	    flint_io_write(changes_fd, changes_tail->data(), changes_tail->size());
-	    // changes_tail is only specified for the final table, so sync.
-	    flint_io_sync(changes_fd);
-	}
-    }
 
     flint_io_write(h, buf.data(), buf.size());
     flint_io_sync(h);
@@ -432,24 +428,6 @@ FlintTable_base::next_free_block()
 	last_block = n;
     }
     return n;
-}
-
-bool
-FlintTable_base::find_changed_block(uint4 * n)
-{
-    // Search for a block which was free at the start of the transaction, but
-    // isn't now.
-    while ((*n) <= last_block) {
-	size_t offset = (*n) / CHAR_BIT;
-	int bit = 0x1 << (*n) % CHAR_BIT;
-
-	if (((bit_map0[offset] & bit) == 0) && ((bit_map[offset] & bit) != 0)) {
-	    return true;
-	}
-	++(*n);
-    }
-    
-    return false;
 }
 
 bool

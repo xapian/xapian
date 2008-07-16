@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -45,6 +45,28 @@ class ErrorHandler;
 class TermIterator;
 
 namespace Internal {
+
+/** An item in the ESet.
+ *  This item contains the termname, and the weight calculated for
+ *  the document.
+ */
+class ESetItem {
+    public:
+	ESetItem(Xapian::weight wt_, string tname_) : wt(wt_), tname(tname_) { }
+
+	void swap(ESetItem & o) {
+	    std::swap(wt, o.wt);
+	    std::swap(tname, o.tname);
+	}
+
+	/// Weight calculated.
+	Xapian::weight wt;
+	/// Term suggested.
+	string tname;
+
+	/// Return a string describing this object.
+	string get_description() const;
+};
 
 /** An item resulting from a query.
  *  This item contains the document id, and the weight calculated for
@@ -174,8 +196,6 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 	TermIterator get_matching_terms(Xapian::docid did) const;
 	TermIterator get_matching_terms(const Xapian::MSetIterator &it) const;
 
-	Xapian::doccount get_termfreq(const string &tname) const;
-
 	void register_match_decider(const string &name,
 				    const MatchDecider *mdecider);
 
@@ -282,6 +302,27 @@ class MSet::Internal : public Xapian::Internal::RefCntBase {
 	/** Fetch items specified into the document cache.
 	 */
 	void fetch_items(Xapian::doccount first, Xapian::doccount last) const;
+};
+
+class ESet::Internal : public Xapian::Internal::RefCntBase {
+    friend class ESet;
+    friend class ESetIterator;
+    friend class ::OmExpand;
+    private:
+	/// A list of items comprising the (selected part of the) ESet.
+	vector<Xapian::Internal::ESetItem> items;
+
+	/** A lower bound on the number of terms which are in the full
+	 *  set of results of the expand.  This will be greater than or
+	 *  equal to items.size()
+	 */
+	Xapian::termcount ebound;
+
+    public:
+	Internal() : ebound(0) {}
+
+	/// Return a string describing this object.
+	string get_description() const;
 };
 
 class RSet::Internal : public Xapian::Internal::RefCntBase {

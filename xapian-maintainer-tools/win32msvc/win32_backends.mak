@@ -15,11 +15,11 @@ DEPLIBS = "$(OUTDIR)\libmulti.lib"  \
     "$(OUTDIR)\libinmemory.lib" \
     "$(OUTDIR)\libremote.lib" \
     "$(OUTDIR)\libflint.lib" \
-    "$(OUTDIR)\libchert.lib" \
+    "$(OUTDIR)\libquartz.lib" \
     $(NULL)
 
-OBJS= $(INTDIR)\database.obj $(INTDIR)\dbfactory_remote.obj $(INTDIR)\alltermslist.obj $(INTDIR)\contiguousalldocspostlist.obj
-SRCS= $(INTDIR)\database.cc $(INTDIR)\dbfactory_remote.cc $(INTDIR)\alltermslist.cc $(INTDIR)\contiguousalldocspostlist.cc
+OBJS= $(INTDIR)\database.obj $(INTDIR)\dbfactory_remote.obj $(INTDIR)\alltermslist.obj 
+SRCS= $(INTDIR)\database.cc $(INTDIR)\dbfactory_remote.cc $(INTDIR)\alltermslist.cc 
 	  
 ALL : $(DEPLIBS) "$(OUTDIR)\libbackend.lib" 
 
@@ -28,7 +28,7 @@ CLEAN :
 	-@erase /q "$(INTDIR)\*.pch"
 	-@erase /q "$(INTDIR)\*.pdb"
 	-@erase /q $(OBJS)
-	cd chert
+	cd quartz
 	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
 	cd ..\flint
 	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
@@ -61,8 +61,8 @@ CPP_SBRS=.
        nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
        cd ..
 
-"$(OUTDIR)\libchert.lib":
-       cd chert
+"$(OUTDIR)\libquartz.lib":
+       cd quartz
        nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
        cd ..
 

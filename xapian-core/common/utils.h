@@ -100,50 +100,15 @@ inline int mkdir(const string &filename, mode_t mode) {
     return mkdir(filename.c_str(), mode);
 }
 
-/// Allow rmdir to work directly on C++ strings.
-inline int rmdir(const string &filename) {
-    return rmdir(filename.c_str());
-}
-
 /// Allow stat to work directly on C++ strings.
 inline int stat(const string &filename, struct stat *buf) {
     return stat(filename.c_str(), buf);
 }
-
-/** Remove a directory, and its contents.
- *
- *  Note - this doesn't currently cope with directories which contain
- *  subdirectories.
- */
-void removedir(const string &dirname);
-
-/** Hex-encode a string.
- */
-string hex_encode(const string &input);
-
-/** Hex-decode a string.
- */
-string hex_decode(const string &input);
 
 namespace Xapian {
     namespace Internal {
 	bool within_DBL_EPSILON(double a, double b);
     }
 }
-
-/** A tiny class used to close a filehandle safely in the presence
- *  of exceptions.
- */
-class fdcloser {
-    public:
-	fdcloser(int fd_) : fd(fd_) {}
-	~fdcloser() {
-	    if (fd >= 0) {
-		(void)close(fd);
-	    }
-	}
-    private:
-	int fd;
-};
 
 #endif /* OM_HGUARD_UTILS_H */

@@ -1,6 +1,6 @@
 /**
  Copyright (c) 2003, Technology Concepts & Design, Inc.
- Copyright (c) 2006,2008, Olly Betts
+ Copyright (c) 2006, Olly Betts
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -354,6 +354,8 @@ public class XapianJNI {
     public static native long enquire_get_matching_terms_begin_by_msetiterator(long eid, long msetiteratorid) throws XapianError;
 
     public static native long enquire_get_matching_terms_end_by_msetiterator(long eid, long msetiteratorid) throws XapianError;
+
+    public static native void enquire_register_match_decider(long eid, String name, MatchDecider md) throws XapianError;
 
     public static native String enquire_get_description(long eid) throws XapianError;
 

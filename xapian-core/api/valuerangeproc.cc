@@ -1,7 +1,7 @@
 /** @file valuerangeproc.cc
  * @brief Standard ValueRangeProcessor subclass implementations
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,8 +22,8 @@
 
 #include <xapian/queryparser.h>
 
-#include <cstdio> // For sprintf().
-#include <cstdlib> // For atoi().
+#include <stdio.h>
+#include <stdlib.h>
 #include "safeerrno.h"
 
 #include <string>

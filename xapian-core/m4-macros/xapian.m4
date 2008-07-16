@@ -42,7 +42,7 @@ AC_DEFUN([XO_LIB_XAPIAN],
 	    AC_MSG_ERROR([Can't find xapian-config, although the xapian-core runtime library seems to be installed.  If you've installed xapian-core from a package, you probably need to install an extra package called something like $pkg in order to be able to build code using the Xapian library.])
 	  fi
 	done
-	AC_MSG_ERROR([Can't find xapian-config.  If you have installed the Xapian library, you need to add XAPIAN_CONFIG=/path/to/xapian-config to your configure command.])],
+	AC_MSG_ERROR([Can't find Xapian library])],
 	:)],
       [$2])
   else

@@ -23,11 +23,12 @@
 #include <iomanip>
 #include <iostream>
 #include <string>
-#include <cstdio> // For sprintf().
+#include <stdio.h>
 
 #include "flint_table.h"
 #include "flint_cursor.h"
 #include "stringutils.h"
+#include "utils.h"
 
 #include <xapian.h>
 
@@ -115,7 +116,7 @@ main(int argc, char **argv)
     }
 
     try {
-	FlintTable table("", table_name, true);
+	FlintTable table(table_name, true);
 	table.open();
 	if (table.get_entry_count() == 0) {
 	    cout << "No entries!" << endl;

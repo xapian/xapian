@@ -1,6 +1,6 @@
 /**
  Copyright (c) 2003, Technology Concepts & Design, Inc.
- Copyright (c) 2006,2008, Olly Betts
+ Copyright (c) 2006, Olly Betts
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -98,11 +98,21 @@ public class Query {
         _left = left;
         _right = right;
 
-        if (left == null)
-	    throw new XapianError("Left side of query is null");
-        if (right == null)
-	    throw new XapianError("Right side of query is null");
-	id = XapianJNI.query_new(operator, left.id, right.id);
+        if (right == null) {
+            if (left.getLength() == 0)
+                throw new XapianError ("Left side of query is empty");
+            id = XapianJNI.query_new(operator, left.id);
+        } else if (left == null) {
+            if (right.getLength() == 0)
+                throw new XapianError ("Right side of query is empty");
+            id = XapianJNI.query_new(operator, right.id);
+        } else {
+            if (left.getLength() == 0)
+                throw new XapianError ("Left side of query is empty");
+            else if (right.getLength() == 0)
+                throw new XapianError ("Right side of query is empty");
+            id = XapianJNI.query_new(operator, left.id, right.id);
+        }
     }
 
     public Query(int operator, String left, String right) throws XapianError {
@@ -122,6 +132,12 @@ public class Query {
     public Query(int operator, String[] terms) throws XapianError {
         validateOperator(operator);
         id = XapianJNI.query_new(operator, terms);
+    }
+
+    public Query(int operator, Query q) throws XapianError {
+        validateOperator(operator);
+        _right = q;
+        id = XapianJNI.query_new(operator, q.id);
     }
 
 /*

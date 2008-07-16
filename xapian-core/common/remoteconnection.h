@@ -1,7 +1,7 @@
 /** @file  remoteconnection.h
  *  @brief RemoteConnection class used by the remote backend.
  */
-/* Copyright (C) 2006,2007,2008 Olly Betts
+/* Copyright (C) 2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@
 #include <string>
 
 #include "remoteprotocol.h"
-#include "safeunistd.h"
 
 #ifdef __WIN32__
 # include "safewinsock2.h"
@@ -100,26 +99,14 @@ class RemoteConnection {
     /// Don't allow copying.
     RemoteConnection(const RemoteConnection &);
 
-    /** The file descriptor used for reading.
-     *
-     *  If this is -1, the connection is unidirection and write-only.
-     *  If both fdin and fdout are -1, then the connection has been closed.
-     */
+    /// The file descriptor used for reading.
     int fdin;
 
-    /** The file descriptor used for writing.
-     *
-     *  If this is -1, the connection is unidirection and read-only.
-     *  If both fdin and fdout are -1, then the connection has been closed.
-     *  It is valid for fdout to be the same as fdin.
-     */
+    /// The file descriptor used for writing.
     int fdout;
 
     /// Buffer to hold unprocessed input.
     std::string buffer;
-
-    /// Remaining bytes of message data still to come over fdin for a chunked read.
-    off_t chunked_data_left;
 
     /** Read until there are at least min_len bytes in buffer.
      *
@@ -166,24 +153,6 @@ class RemoteConnection {
      */
     bool ready_to_read() const;
 
-    /** Check what the next message type is.
-     *
-     *  This must not be called after a call to get_message_chunked() until
-     *  get_message_chunk() has returned fales to indicate the message.
-     *
-     *  Other than that restriction, this may be called at any time to
-     *  determine what the next message waiting to be processed is: it will not
-     *  affect subsequent calls which read messages.
-
-     *  @param end_time		If this time is reached, then a timeout
-     *				exception will be thrown.  If
-     *				!end_time.is_set() then the operation will
-     *				never timeout.
-     *
-     *  @return			Message type code.
-     */
-    char sniff_next_message_type(const OmTime & end_time);
-
     /** Read one message from fdin.
      *
      *  @param[out] result	Message data.
@@ -196,58 +165,6 @@ class RemoteConnection {
      */
     char get_message(std::string &result, const OmTime & end_time);
 
-    /** Prepare to read one message from fdin in chunks.
-     *
-     *  Sometimes a message can be sufficiently large that you don't want to
-     *  read it all into memory before processing it.  Also, it may be more
-     *  efficient to process it as you go.
-     *
-     *  This method doesn't actually return any message data - call
-     *  get_message_chunk() to do that.
-     *
-     *  @param end_time		If this time is reached, then a timeout
-     *				exception will be thrown.  If
-     *				!end_time.is_set() then the operation will
-     *				never timeout.
-     *
-     *  @return			Message type code.
-     */
-    char get_message_chunked(const OmTime & end_time);
-
-    /** Read a chunk of a message from fdin.
-     *
-     *  You must call get_message_chunked() before calling this method.
-     *
-     *  @param[inout] result	Message data.  This is appended to, so if you read
-     *				more than needed the previous time, leave the excess
-     *				in result.
-     *	@param at_least		Return at least this many bytes in result, unless
-     *				there isn't enough data left in the message (in
-     *				which case all remaining data is read and false is
-     *				returned).
-     *  @param end_time		If this time is reached, then a timeout
-     *				exception will be thrown.  If
-     *				!end_time.is_set() then the operation will
-     *				never timeout.
-     *
-     *  @return			true if at least at_least bytes are now in result.
-     */
-    bool get_message_chunk(std::string &result, size_t at_least,
-			   const OmTime & end_time);
-
-    /** Save the contents of a message as a file.
-     *
-     *  @param file		Path to file to save the message data into.  If
-     *				the file exists it will be overwritten.
-     *  @param end_time		If this time is reached, then a timeout
-     *				exception will be thrown.  If
-     *				!end_time.is_set() then the operation will
-     *				never timeout.
-     *
-     *  @return			Message type code.
-     */
-    char receive_file(const std::string &file, const OmTime & end_time);
-
     /** Send a message.
      *
      *  @param type		Message type code.
@@ -258,17 +175,6 @@ class RemoteConnection {
      *				never timeout.
      */
     void send_message(char type, const std::string & s, const OmTime & end_time);
-
-    /** Send the contents of a file as a message.
-     *
-     *  @param type		Message type code.
-     *  @param file		Path to file containing the Message data.
-     *  @param end_time		If this time is reached, then a timeout
-     *				exception will be thrown.  If
-     *				!end_time.is_set() then the operation will
-     *				never timeout.
-     */
-    void send_file(char type, const std::string &file, const OmTime & end_time);
 
     /** Shutdown the connection.
      *

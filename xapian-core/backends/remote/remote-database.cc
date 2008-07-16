@@ -1,7 +1,7 @@
 /** @file remote-database.cc
  *  @brief Remote backend database class
  */
-/* Copyright (C) 2006,2007,2008 Olly Betts
+/* Copyright (C) 2006,2007 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -20,8 +20,6 @@
  */
 
 #include <config.h>
-
-#include "remote-database.h"
 
 #include "safeerrno.h"
 #include <signal.h>
@@ -51,8 +49,6 @@ RemoteDatabase::RemoteDatabase(int fd, Xapian::timeout timeout_,
 	: link(fd, fd, context_),
 	  context(context_),
 	  cached_stats_valid(),
-	  mru_valstats(),
-	  mru_valno(Xapian::BAD_VALUENO),
 	  timeout(timeout_)
 {
 #ifndef __WIN32__
@@ -131,7 +127,7 @@ RemoteDatabase::keep_alive()
 TermList *
 RemoteDatabase::open_term_list(Xapian::docid did) const
 {
-    Assert(did);
+    if (did == 0) throw Xapian::InvalidArgumentError("Docid 0 invalid");
 
     // Ensure that avlength and doccount are up-to-date.
     if (!cached_stats_valid) update_stats();
@@ -265,7 +261,6 @@ void
 RemoteDatabase::reopen()
 {
     update_stats(MSG_REOPEN);
-    mru_valno = Xapian::BAD_VALUENO;
 }
 
 // Currently lazy is only used in three cases, all in multimatch.cc.  One is
@@ -277,7 +272,7 @@ RemoteDatabase::reopen()
 Xapian::Document::Internal *
 RemoteDatabase::open_document(Xapian::docid did, bool /*lazy*/) const
 {
-    Assert(did);
+    if (did == 0) throw Xapian::InvalidArgumentError("Docid 0 invalid");
 
     send_message(MSG_DOCUMENT, encode_length(did));
     string doc_data;
@@ -376,51 +371,6 @@ RemoteDatabase::get_collection_freq(const string & tname) const
     const char * p = message.data();
     const char * p_end = p + message.size();
     return decode_length(&p, p_end, false);
-}
-
-
-void
-RemoteDatabase::read_value_stats(Xapian::valueno valno) const
-{
-    if (mru_valno != valno) {
-	send_message(MSG_VALUESTATS, encode_length(valno));
-	string message;
-	get_message(message, REPLY_VALUESTATS);
-	const char * p = message.data();
-	const char * p_end = p + message.size();
-	mru_valno = valno;
-	mru_valstats.freq = decode_length(&p, p_end, false);
-	size_t len = decode_length(&p, p_end, true);
-	mru_valstats.lower_bound = string(p, len);
-	p += len;
-	len = decode_length(&p, p_end, true);
-	mru_valstats.upper_bound = string(p, len);
-	p += len;
-	if (p != p_end) {
-	    throw Xapian::NetworkError("Bad REPLY_VALUESTATS message received", context);
-	}
-    }
-}
-
-Xapian::doccount
-RemoteDatabase::get_value_freq(Xapian::valueno valno) const
-{
-    read_value_stats(valno);
-    return mru_valstats.freq;
-}
-
-std::string
-RemoteDatabase::get_value_lower_bound(Xapian::valueno valno) const
-{
-    read_value_stats(valno);
-    return mru_valstats.lower_bound;
-}
-
-std::string
-RemoteDatabase::get_value_upper_bound(Xapian::valueno valno) const
-{
-    read_value_stats(valno);
-    return mru_valstats.upper_bound;
 }
 
 Xapian::doclength
@@ -573,7 +523,6 @@ void
 RemoteDatabase::cancel()
 {
     cached_stats_valid = false;
-    mru_valno = Xapian::BAD_VALUENO;
 
     send_message(MSG_CANCEL, "");
 }
@@ -582,7 +531,6 @@ Xapian::docid
 RemoteDatabase::add_document(const Xapian::Document & doc)
 {
     cached_stats_valid = false;
-    mru_valno = Xapian::BAD_VALUENO;
 
     send_message(MSG_ADDDOCUMENT, serialise_document(doc));
 
@@ -598,8 +546,8 @@ void
 RemoteDatabase::delete_document(Xapian::docid did)
 {
     cached_stats_valid = false;
-    mru_valno = Xapian::BAD_VALUENO;
 
+//    send_message(MSG_DELETEDOCUMENT_PRE_30_2, encode_length(did));
     send_message(MSG_DELETEDOCUMENT, encode_length(did));
     string dummy;
     get_message(dummy, REPLY_DONE);
@@ -609,7 +557,6 @@ void
 RemoteDatabase::delete_document(const std::string & unique_term)
 {
     cached_stats_valid = false;
-    mru_valno = Xapian::BAD_VALUENO;
 
     send_message(MSG_DELETEDOCUMENTTERM, unique_term);
 }
@@ -619,7 +566,6 @@ RemoteDatabase::replace_document(Xapian::docid did,
 				 const Xapian::Document & doc)
 {
     cached_stats_valid = false;
-    mru_valno = Xapian::BAD_VALUENO;
 
     string message = encode_length(did);
     message += serialise_document(doc);
@@ -632,7 +578,6 @@ RemoteDatabase::replace_document(const std::string & unique_term,
 				 const Xapian::Document & doc)
 {
     cached_stats_valid = false;
-    mru_valno = Xapian::BAD_VALUENO;
 
     string message = encode_length(unique_term.size());
     message += unique_term;

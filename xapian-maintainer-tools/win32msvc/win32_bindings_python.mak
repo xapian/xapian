@@ -76,7 +76,7 @@ CPP_SBRS=.
 ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS) "/LIBPATH:$(PYTHON_LIB_DIR)" 
 
 !IF "$(SWIGBUILD)" == "1"
-modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: ../xapian.i ../xapian-head.i util.i except.i doccomments.i extra.i extracomments.i
+modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: ../xapian.i util.i except.i doccomments.i extra.i extracomments.i
     -rd /s/q modern
 	-md modern
 	$(SWIG) $(SWIG_FLAGS) -I$(XAPIAN_CORE_REL_PYTHON)\include \

@@ -22,7 +22,6 @@ OBJS= \
     $(INTDIR)\branchpostlist.obj\
     $(INTDIR)\emptysubmatch.obj\
     $(INTDIR)\exactphrasepostlist.obj\
-    $(INTDIR)\externalpostlist.obj\
     $(INTDIR)\localmatch.obj\
     $(INTDIR)\mergepostlist.obj\
     $(INTDIR)\msetcmp.obj\
@@ -52,7 +51,6 @@ SRCS= \
     $(INTDIR)\branchpostlist.cc\
     $(INTDIR)\emptysubmatch.cc\
     $(INTDIR)\exactphrasepostlist.cc\
-    $(INTDIR)\externalpostlist.cc\
     $(INTDIR)\localmatch.cc\
     $(INTDIR)\mergepostlist.cc\
     $(INTDIR)\msetcmp.cc\

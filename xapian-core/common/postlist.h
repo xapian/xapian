@@ -68,9 +68,6 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::RefCntBase {
 
     /// Return the length of current document.
     virtual Xapian::doclength get_doclength() const = 0;
-    /* FIXME: Once flint has been retired, we should probably strip out
-     * PostList::get_doclength() and just fetch it from the DB directly.
-     */
 
     /** Return the wdf for the document at the current position.
      *
@@ -96,9 +93,6 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::RefCntBase {
      *
      *  If the tree has pruned, get_maxweight() may use cached values.  Calling
      *  this method instead forces a full recalculation.
-     *
-     *  Note that this method may be called after the postlist has reached the
-     *  end.  In this situation, the method should return 0.
      */
     virtual Xapian::weight recalc_maxweight() = 0;
 

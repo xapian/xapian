@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
  * Copyright 2006 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -22,17 +22,16 @@
  */
 
 #include <config.h>
-
-#include "inmemory_database.h"
+#include <stdio.h>
 
 #include "omdebug.h"
 
 #include "emptypostlist.h"
 #include "expandweight.h"
+#include "inmemory_database.h"
 #include "inmemory_document.h"
 #include "inmemory_alltermslist.h"
 #include "utils.h"
-#include "valuestats.h"
 
 #include <string>
 #include <vector>
@@ -100,8 +99,10 @@ InMemoryPostList::get_termfreq() const
 Xapian::docid
 InMemoryPostList::get_docid() const
 {
+    //DebugMsg(tname << ".get_docid()");
     Assert(started);
     Assert(!at_end());
+    //DebugMsg(" = " << (*pos).did << endl);
     return (*pos).did;
 }
 
@@ -121,6 +122,7 @@ InMemoryPostList::next(Xapian::weight /*w_min*/)
 PostList *
 InMemoryPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 {
+    //DebugMsg(tname << ".skip_to(" << did << ")" << endl);
     // FIXME - see if we can make more efficient, perhaps using better
     // data structure.  Note, though, that a binary search of
     // the remaining list may NOT be a good idea (search time is then
@@ -364,13 +366,13 @@ InMemoryDatabase::open_post_list(const string & tname) const
 {
     if (tname.empty()) {
 	if (termlists.empty())
-	    return new EmptyPostList;
+	    return new EmptyPostList();
 	Xapian::Internal::RefCntPtr<const InMemoryDatabase> ptrtothis(this);
 	return new InMemoryAllDocsPostList(ptrtothis);
     }
     map<string, InMemoryTerm>::const_iterator i = postlists.find(tname);
     if (i == postlists.end() || i->second.term_freq == 0)
-	return new EmptyPostList;
+	return new EmptyPostList();
 
     Xapian::Internal::RefCntPtr<const InMemoryDatabase> ptrtothis(this);
     LeafPostList * pl = new InMemoryPostList(ptrtothis, i->second);
@@ -398,42 +400,6 @@ InMemoryDatabase::get_collection_freq(const string &tname) const
     map<string, InMemoryTerm>::const_iterator i = postlists.find(tname);
     if (i == postlists.end()) return 0;
     return i->second.collection_freq;
-}
-
-Xapian::doccount
-InMemoryDatabase::get_value_freq(Xapian::valueno valno) const
-{
-    map<Xapian::valueno, ValueStats>::const_iterator i
-	    = valuestats.find(valno);
-    if (i != valuestats.end()) {
-	return i->second.freq;
-    } else {
-	return 0;
-    }
-}
-
-std::string
-InMemoryDatabase::get_value_lower_bound(Xapian::valueno valno) const
-{
-    map<Xapian::valueno, ValueStats>::const_iterator i
-	    = valuestats.find(valno);
-    if (i != valuestats.end()) {
-	return i->second.lower_bound;
-    } else {
-	return "";
-    }
-}
-
-std::string
-InMemoryDatabase::get_value_upper_bound(Xapian::valueno valno) const
-{
-    map<Xapian::valueno, ValueStats>::const_iterator i
-	    = valuestats.find(valno);
-    if (i != valuestats.end()) {
-	return i->second.upper_bound;
-    } else {
-	return "";
-    }
 }
 
 Xapian::doccount
@@ -468,7 +434,7 @@ InMemoryDatabase::get_doclength(Xapian::docid did) const
 TermList *
 InMemoryDatabase::open_term_list(Xapian::docid did) const
 {
-    Assert(did != 0);
+    if (did == 0) throw Xapian::InvalidArgumentError("Docid 0 invalid");
     if (!doc_exists(did)) {
 	// FIXME: the docid in this message will be local, not global
 	throw Xapian::DocNotFoundError(string("Docid ") + om_tostring(did) +
@@ -481,8 +447,8 @@ InMemoryDatabase::open_term_list(Xapian::docid did) const
 Xapian::Document::Internal *
 InMemoryDatabase::open_document(Xapian::docid did, bool /*lazy*/) const
 {
-    Assert(did != 0);
     // we're never lazy so ignore that flag
+    if (did == 0) throw Xapian::InvalidArgumentError("Docid 0 invalid");
     if (!doc_exists(did)) {
 	// FIXME: the docid in this message will be local, not global
 	throw Xapian::DocNotFoundError(string("Docid ") + om_tostring(did) +
@@ -557,29 +523,6 @@ InMemoryDatabase::add_values(Xapian::docid did,
 	valuelists.resize(did);
     }
     valuelists[did-1] = values_;
-
-    // Update the statistics.
-    map<Xapian::valueno, string>::const_iterator j;
-    for (j = values_.begin(); j != values_.end(); ++j) {
-	std::pair<map<Xapian::valueno, ValueStats>::iterator, bool> i;
-	i = valuestats.insert(make_pair(j->first, ValueStats()));
-
-	// Now, modify the stored statistics.
-	if ((i.first->second.freq)++ == 0) {
-	    // If the value count was previously zero, set the upper and lower
-	    // bounds to the newly added value.
-	    i.first->second.lower_bound = j->second;
-	    i.first->second.upper_bound = j->second;
-	} else {
-	    // Otherwise, simply make sure they reflect the new value.
-	    if (j->second < i.first->second.lower_bound) {
-		i.first->second.lower_bound = j->second;
-	    }
-	    if (j->second > i.first->second.upper_bound) {
-		i.first->second.upper_bound = j->second;
-	    }
-	}
-    }
 }
 
 // We implicitly flush each modification right away, so nothing to do here.
@@ -603,17 +546,7 @@ InMemoryDatabase::delete_document(Xapian::docid did)
     }
     termlists[did-1].is_valid = false;
     doclists[did-1] = "";
-    map<Xapian::valueno, string>::const_iterator j;
-    for (j = valuelists[did-1].begin(); j != valuelists[did-1].end(); ++j) {
-	map<Xapian::valueno, ValueStats>::iterator i;
-	i = valuestats.find(j->first);
-	if (--(i->second.freq) == 0) {
-	    i->second.lower_bound.resize(0);
-	    i->second.upper_bound.resize(0);
-	}
-    }
     valuelists[did-1].clear();
-
     totlen -= doclengths[did-1];
     doclengths[did-1] = 0;
     totdocs--;
@@ -650,17 +583,7 @@ InMemoryDatabase::replace_document(Xapian::docid did,
 
     if (doc_exists(did)) { 
 	doclists[did - 1] = "";
-	map<Xapian::valueno, string>::const_iterator j;
-	for (j = valuelists[did-1].begin(); j != valuelists[did-1].end(); ++j) {
-	    map<Xapian::valueno, ValueStats>::iterator i;
-	    i = valuestats.find(j->first);
-	    if (--(i->second.freq) == 0) {
-		i->second.lower_bound.resize(0);
-		i->second.upper_bound.resize(0);
-	    }
-	}
 	valuelists[did - 1].clear();
-
 	totlen -= doclengths[did - 1];
 	totdocs--;
     } else if (did > termlists.size()) {

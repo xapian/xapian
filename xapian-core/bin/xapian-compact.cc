@@ -1,4 +1,4 @@
-/* xapian-compact.cc: Compact a flint or chert database, or merge and compact several.
+/* xapian-compact.cc: Compact a flint database, or merge and compact several.
  *
  * Copyright (C) 2004,2005,2006,2007,2008 Olly Betts
  *
@@ -24,17 +24,13 @@
 
 #include <fstream>
 #include <iostream>
-#include <map>
 #include <queue>
 
 #include <stdio.h> // for rename()
 #include <string.h>
 #include <sys/types.h>
 #include "utils.h"
-#include "valuestats.h"
 
-// FIXME: this current works for chert, but we are really going to need
-// separate versions eventually.
 #include "flint_table.h"
 #include "flint_cursor.h"
 #include "flint_utils.h"
@@ -46,7 +42,7 @@
 using namespace std;
 
 #define PROG_NAME "xapian-compact"
-#define PROG_DESC "Compact a flint or chert database, or merge and compact several"
+#define PROG_DESC "Compact a flint database, or merge and compact several"
 
 #define OPT_HELP 1
 #define OPT_VERSION 2
@@ -114,20 +110,20 @@ class PostlistCursor : private FlintCursor {
 	if (is_metainfo_key(key)) return true;
 	if (is_user_metadata_key(key)) return true;
 	// Adjust key if this is *NOT* an initial chunk.
-	// key is: F_pack_string_preserving_sort(tname)
-	// plus optionally: F_pack_uint_preserving_sort(did)
+	// key is: pack_string_preserving_sort(tname)
+	// plus optionally: pack_uint_preserving_sort(did)
 	const char * d = key.data();
 	const char * e = d + key.size();
 	string tname;
-	if (!F_unpack_string_preserving_sort(&d, e, tname))
+	if (!unpack_string_preserving_sort(&d, e, tname))
 	    throw Xapian::DatabaseCorruptError("Bad postlist key");
 	if (d == e) {
 	    // This is an initial chunk for a term, so adjust tag header.
 	    d = tag.data();
 	    e = d + tag.size();
-	    if (!F_unpack_uint(&d, e, &tf) ||
-		!F_unpack_uint(&d, e, &cf) ||
-		!F_unpack_uint(&d, e, &firstdid)) {
+	    if (!unpack_uint(&d, e, &tf) ||
+		!unpack_uint(&d, e, &cf) ||
+		!unpack_uint(&d, e, &firstdid)) {
 		throw Xapian::DatabaseCorruptError("Bad postlist tag");
 	    }
 	    ++firstdid;
@@ -135,7 +131,7 @@ class PostlistCursor : private FlintCursor {
 	} else {
 	    // Not an initial chunk, so adjust key.
 	    size_t tmp = d - key.data();
-	    if (!F_unpack_uint_preserving_sort(&d, e, &firstdid) || d != e)
+	    if (!unpack_uint_preserving_sort(&d, e, &firstdid) || d != e)
 		throw Xapian::DatabaseCorruptError("Bad postlist key");
 	    key.erase(tmp);
 	}
@@ -163,7 +159,7 @@ merge_postlists(FlintTable * out, vector<Xapian::docid>::const_iterator offset,
     flint_totlen_t tot_totlen = 0;
     priority_queue<PostlistCursor *, vector<PostlistCursor *>, PostlistCursorGt> pq;
     for ( ; b != e; ++b, ++offset) {
-	FlintTable *in = new FlintTable("postlist", *b, true);
+	FlintTable *in = new FlintTable(*b, true);
 	in->open();
 	if (in->get_entry_count()) {
 	    // PostlistCursor takes ownership of FlintTable in and is
@@ -178,11 +174,11 @@ merge_postlists(FlintTable * out, vector<Xapian::docid>::const_iterator offset,
 	    const char * data = cur->tag.data();
 	    const char * end = data + cur->tag.size();
 	    Xapian::docid dummy_did = 0;
-	    if (!F_unpack_uint(&data, end, &dummy_did)) {
+	    if (!unpack_uint(&data, end, &dummy_did)) {
 		throw Xapian::DatabaseCorruptError("Tag containing meta information is corrupt.");
 	    }
 	    flint_totlen_t totlen = 0;
-	    if (!F_unpack_uint_last(&data, end, &totlen)) {
+	    if (!unpack_uint_last(&data, end, &totlen)) {
 		throw Xapian::DatabaseCorruptError("Tag containing meta information is corrupt.");
 	    }
 	    tot_totlen += totlen;
@@ -200,8 +196,8 @@ merge_postlists(FlintTable * out, vector<Xapian::docid>::const_iterator offset,
     }
 
     {
-	string tag = F_pack_uint(tot_off);
-	tag += F_pack_uint_last(tot_totlen);
+	string tag = pack_uint(tot_off);
+	tag += pack_uint_last(tot_totlen);
 	out->add(string("", 1), tag);
     }
 
@@ -244,9 +240,9 @@ merge_postlists(FlintTable * out, vector<Xapian::docid>::const_iterator offset,
 	Assert(cur == NULL || !is_user_metadata_key(cur->key));
 	if (cur == NULL || cur->key != last_key) {
 	    if (!tags.empty()) {
-		string first_tag = F_pack_uint(tf);
-		first_tag += F_pack_uint(cf);
-		first_tag += F_pack_uint(tags[0].first - 1);
+		string first_tag = pack_uint(tf);
+		first_tag += pack_uint(cf);
+		first_tag += pack_uint(tags[0].first - 1);
 		string tag = tags[0].second;
 		tag[0] = (tags.size() == 1) ? '1' : '0';
 		first_tag += tag;
@@ -255,7 +251,7 @@ merge_postlists(FlintTable * out, vector<Xapian::docid>::const_iterator offset,
 		i = tags.begin();
 		while (++i != tags.end()) {
 		    string key = last_key;
-		    key += F_pack_uint_preserving_sort(i->first);
+		    key += pack_uint_preserving_sort(i->first);
 		    tag = i->second;
 		    tag[0] = (i + 1 == tags.end()) ? '1' : '0';
 		    out->add(key, tag);
@@ -398,7 +394,7 @@ merge_spellings(FlintTable * out,
 {
     priority_queue<MergeCursor *, vector<MergeCursor *>, CursorGt> pq;
     for ( ; b != e; ++b) {
-	FlintTable *in = new FlintTable("spelling", *b, true, DONT_COMPRESS, true);
+	FlintTable *in = new FlintTable(*b, true, DONT_COMPRESS, true);
 	in->open();
 	if (in->get_entry_count()) {
 	    // The MergeCursor takes ownership of FlintTable in and is
@@ -485,7 +481,7 @@ merge_spellings(FlintTable * out,
 		Xapian::termcount freq;
 		const char * p = cur->current_tag.data();
 		const char * end = p + cur->current_tag.size();
-		if (!F_unpack_uint_last(&p, end, &freq) || freq == 0) {
+		if (!unpack_uint_last(&p, end, &freq) || freq == 0) {
 		    throw Xapian::DatabaseCorruptError("Bad spelling word freq");
 		}
 		tot_freq += freq;
@@ -498,7 +494,7 @@ merge_spellings(FlintTable * out,
 		cur = pq.top();
 		pq.pop();
 	    }
-	    tag = F_pack_uint_last(tot_freq);
+	    tag = pack_uint_last(tot_freq);
 	}
 	out->add(key, tag);
     }
@@ -561,7 +557,7 @@ merge_synonyms(FlintTable * out,
 {
     priority_queue<MergeCursor *, vector<MergeCursor *>, CursorGt> pq;
     for ( ; b != e; ++b) {
-	FlintTable *in = new FlintTable("synonym", *b, true, DONT_COMPRESS, true);
+	FlintTable *in = new FlintTable(*b, true, DONT_COMPRESS, true);
 	in->open();
 	if (in->get_entry_count()) {
 	    // The MergeCursor takes ownership of FlintTable in and is
@@ -662,7 +658,7 @@ multimerge_postlists(FlintTable * out, const char * tmpdir,
 
 	    // Don't compress temporary tables, even if the final table would
 	    // be.
-	    FlintTable tmptab("postlist", dest, false);
+	    FlintTable tmptab(dest, false);
 	    // Use maximum blocksize for temporary tables.
 	    tmptab.create_and_open(65536);
 
@@ -675,7 +671,6 @@ multimerge_postlists(FlintTable * out, const char * tmpdir,
 		}
 	    }
 	    tmpout.push_back(dest);
-	    tmptab.flush_db();
 	    tmptab.commit(1);
 	}
 	swap(tmp, tmpout);
@@ -693,108 +688,13 @@ multimerge_postlists(FlintTable * out, const char * tmpdir,
 }
 
 static void
-merge_chert_values(const string & tablename,
-		   FlintTable *out, const vector<string> & inputs,
-		   const vector<Xapian::docid> & offset, bool lazy)
-{
-    map<Xapian::valueno, ValueStats> stats;
-
-    for (size_t i = 0; i < inputs.size(); ++i) {
-	Xapian::docid off = offset[i];
-
-	FlintTable in(tablename, inputs[i], true, DONT_COMPRESS, lazy);
-	in.open();
-	if (in.get_entry_count() == 0) continue;
-
-	FlintCursor cur(&in);
-	cur.find_entry("");
-
-	string key;
-	while (cur.next()) {
-	    const char * d = cur.current_key.data();
-	    const char * e = d + cur.current_key.size();
-	    if (d != e && *d == '\xff') {
-		Xapian::valueno valno;
-		++d;
-		if (!F_unpack_uint_preserving_sort(&d, e, &valno)) {
-		    string msg = "Bad key in ";
-		    msg += inputs[i];
-		    throw Xapian::DatabaseCorruptError(msg);
-		}
-
-		cur.read_tag(true);
-		d = cur.current_tag.data();
-		e = d + cur.current_tag.size();
-		ValueStats newstats;
-		if (!F_unpack_uint(&d, e, &(newstats.freq))) {
-		    string msg = "Bad freq valuestats in ";
-		    msg += inputs[i];
-		    throw Xapian::DatabaseCorruptError(msg);
-		}
-		if (!F_unpack_string(&d, e, newstats.lower_bound)) {
-		    string msg = "Bad lower_bound valuestats in ";
-		    msg += inputs[i];
-		    throw Xapian::DatabaseCorruptError(msg);
-		}
-		if (!F_unpack_string(&d, e, newstats.upper_bound)) {
-		    string msg = "Bad upper_bound valuestats in ";
-		    msg += inputs[i];
-		    throw Xapian::DatabaseCorruptError(msg);
-		}
-		ValueStats & oldstats = stats[valno];
-		if (oldstats.upper_bound.empty()) {
-		    oldstats.freq = newstats.freq;
-		    oldstats.lower_bound = newstats.lower_bound;
-		    oldstats.upper_bound = newstats.upper_bound;
-		} else {
-		    oldstats.freq += newstats.freq;
-		    oldstats.lower_bound = min(oldstats.lower_bound, newstats.lower_bound);
-		    oldstats.upper_bound = max(oldstats.upper_bound, newstats.upper_bound);
-		}
-		continue;
-	    }
-	    // Adjust the key if this isn't the first database.
-	    if (off) {
-		Xapian::docid did;
-		if (!F_unpack_uint_preserving_sort(&d, e, &did)) {
-		    string msg = "Bad key in ";
-		    msg += inputs[i];
-		    throw Xapian::DatabaseCorruptError(msg);
-		}
-		did += off;
-		key = F_pack_uint_preserving_sort(did);
-		if (d != e) {
-		    // Copy over the termname for the position table.
-		    key.append(d, e - d);
-		}
-	    } else {
-		key = cur.current_key;
-	    }
-	    bool compressed = cur.read_tag(true);
-	    out->add(key, cur.current_tag, compressed);
-	}
-    }
-
-    map<Xapian::valueno, ValueStats>::const_iterator stats_it;
-    for (stats_it = stats.begin(); stats_it != stats.end(); ++stats_it) {
-	string key = "\xff" + F_pack_uint_preserving_sort(stats_it->first);
-	string new_value;
-	new_value += F_pack_uint(stats_it->second.freq);
-	new_value += F_pack_string(stats_it->second.lower_bound);
-	new_value += F_pack_string(stats_it->second.upper_bound);
-	out->add(key, new_value);
-    }
-}
-
-static void
-merge_docid_keyed(const string & tablename,
-		  FlintTable *out, const vector<string> & inputs,
+merge_docid_keyed(FlintTable *out, const vector<string> & inputs,
 		  const vector<Xapian::docid> & offset, bool lazy)
 {
     for (size_t i = 0; i < inputs.size(); ++i) {
 	Xapian::docid off = offset[i];
 
-	FlintTable in(tablename, inputs[i], true, DONT_COMPRESS, lazy);
+	FlintTable in(inputs[i], true, DONT_COMPRESS, lazy);
 	in.open();
 	if (in.get_entry_count() == 0) continue;
 
@@ -808,13 +708,13 @@ merge_docid_keyed(const string & tablename,
 		Xapian::docid did;
 		const char * d = cur.current_key.data();
 		const char * e = d + cur.current_key.size();
-		if (!F_unpack_uint_preserving_sort(&d, e, &did)) {
+		if (!unpack_uint_preserving_sort(&d, e, &did)) {
 		    string msg = "Bad key in ";
 		    msg += inputs[i];
 		    throw Xapian::DatabaseCorruptError(msg);
 		}
 		did += off;
-		key = F_pack_uint_preserving_sort(did);
+		key = pack_uint_preserving_sort(did);
 		if (d != e) {
 		    // Copy over the termname for the position table.
 		    key.append(d, e - d);
@@ -912,8 +812,6 @@ main(int argc, char **argv)
 	sources.reserve(argc - 1 - optind);
 	offset.reserve(argc - 1 - optind);
 	Xapian::docid tot_off = 0;
-	enum { UNKNOWN, FLINT, CHERT } backend = UNKNOWN;
-	const char * backend_names[] = { NULL, "flint", "chert" };
 	for (int i = optind; i < argc - 1; ++i) {
 	    const char *srcdir = argv[i];
 	    // Check destdir isn't the same as any source directory...
@@ -925,29 +823,9 @@ main(int argc, char **argv)
 	    }
 
 	    struct stat sb;
-	    if (stat(string(srcdir) + "/iamflint", &sb) == 0) {
-		if (backend == UNKNOWN) {
-		    backend = FLINT;
-		} else if (backend != FLINT) {
-		    cout << argv[0] << ": All databases must be the same type.\n";
-		    cout << argv[0] << ": '" << argv[optind] << "' is "
-			 << backend_names[backend] << ", but "
-			 "'" << srcdir << "' is flint." << endl;
-		    exit(1);
-		}
-	    } else if (stat(string(srcdir) + "/iamchert", &sb) == 0) {
-		if (backend == UNKNOWN) {
-		    backend = CHERT;
-		} else if (backend != CHERT) {
-		    cout << argv[0] << ": All databases must be the same type.\n";
-		    cout << argv[0] << ": '" << argv[optind] << "' is "
-			 << backend_names[backend] << ", but "
-			 "'" << srcdir << "' is chert." << endl;
-		    exit(1);
-		}
-	    } else {
+	    if (stat(string(srcdir) + "/iamflint", &sb) != 0) {
 		cout << argv[0] << ": '" << srcdir
-		     << "' is not a flint or chert database directory" << endl;
+		     << "' is not a flint database directory" << endl;
 		exit(1);
 	    }
 
@@ -1040,7 +918,7 @@ main(int argc, char **argv)
 	    dest += t->name;
 	    dest += '.';
 
-	    FlintTable out(t->name, dest, false, t->compress_strategy, t->lazy);
+	    FlintTable out(dest, false, t->compress_strategy, t->lazy);
 	    if (!t->lazy) {
 		out.create_and_open(block_size);
 	    } else {
@@ -1094,20 +972,13 @@ main(int argc, char **argv)
 		case SYNONYM:
 		    merge_synonyms(&out, inputs.begin(), inputs.end());
 		    break;
-		case VALUE:
-		    if (backend == CHERT)
-			merge_chert_values(t->name, &out, inputs, offset, t->lazy);
-		    else
-			merge_docid_keyed(t->name, &out, inputs, offset, t->lazy);
-		    break;
 		default:
 		    // Position, Record, Termlist, Value
-		    merge_docid_keyed(t->name, &out, inputs, offset, t->lazy);
+		    merge_docid_keyed(&out, inputs, offset, t->lazy);
 		    break;
 	    }
 
 	    // Commit as revision 1.
-	    out.flush_db();
 	    out.commit(1);
 
 	    cout << '\r' << t->name << ": ";
@@ -1139,17 +1010,14 @@ main(int argc, char **argv)
 	    cout << endl;
 	}
 
-	// Copy over the version file ("iamflint" or "iamchert").
+	// Copy over the version file ("iamflint").
 	// FIXME: We may need to do something smarter that just copying an
 	// arbitrary version file if the version file format changes...
 	string dest = destdir;
-	dest += "/iam";
-	dest += backend_names[backend];
-	dest += ".tmp";
+	dest += "/iamflint.tmp";
 
 	string src(argv[optind]);
-	src += "/iam";
-	src += backend_names[backend];
+	src += "/iamflint";
 
 	ifstream input(src.c_str());
 	char buf[1024];
@@ -1174,8 +1042,7 @@ main(int argc, char **argv)
 	output.close();
 
 	string version = destdir;
-	version += "/iam";
-	version += backend_names[backend];
+	version += "/iamflint";
 	if (rename(dest.c_str(), version.c_str()) == -1) {
 	    cerr << argv[0] << ": cannot rename '" << dest << "' to '"
 		 << version << "': " << strerror(errno) << endl;

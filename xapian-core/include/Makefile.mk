@@ -20,10 +20,8 @@ xapianinclude_HEADERS =\
 	include/xapian/expanddecider.h\
 	include/xapian/positioniterator.h\
 	include/xapian/postingiterator.h\
-	include/xapian/postingsource.h\
 	include/xapian/query.h\
 	include/xapian/queryparser.h\
-	include/xapian/replication.h\
 	include/xapian/sorter.h\
 	include/xapian/stem.h\
 	include/xapian/termgenerator.h\
@@ -31,7 +29,6 @@ xapianinclude_HEADERS =\
 	include/xapian/types.h\
 	include/xapian/unicode.h\
 	include/xapian/valueiterator.h\
-	include/xapian/valuesetmatchdecider.h\
 	include/xapian/visibility.h
 
 nodist_xapianinclude_HEADERS =\

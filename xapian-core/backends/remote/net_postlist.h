@@ -2,7 +2,7 @@
  *  @brief Postlists for remote databases
  */
 /* Copyright (C) 2007 Lemur Consulting Ltd
- * Copyright (C) 2007,2008 Olly Betts
+ * Copyright (C) 2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -46,6 +46,7 @@ class NetworkPostList : public LeafPostList {
 
     Xapian::docid lastdocid;
     Xapian::termcount lastwdf;
+    Xapian::doclength lastdoclen;
     Xapian::Internal::RefCntPtr<PositionList> lastposlist;
 
     Xapian::doccount termfreq;
@@ -62,7 +63,7 @@ class NetworkPostList : public LeafPostList {
     NetworkPostList(Xapian::Internal::RefCntPtr<const RemoteDatabase> db_,
 		    const string & term_)
 	: db(db_), term(term_), started(false), pos(NULL), pos_end(NULL),
-	  lastdocid(0), lastwdf(0), termfreq(0)
+	  lastdocid(0), lastwdf(0), lastdoclen(0), termfreq(0)
     {
 	termfreq = db->read_post_list(term, *this);
     }

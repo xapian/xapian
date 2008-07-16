@@ -1,7 +1,7 @@
 /** @file flint_spelling.h
  * @brief Spelling correction data for a flint database.
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,14 +31,14 @@
 #include <string>
 #include <string.h> // For memcpy() and memcmp().
 
-struct F_fragment {
+struct fragment {
     char data[4];
 
     // Default constructor.
-    F_fragment() { }
+    fragment() { }
 
     // Allow implicit conversion.
-    F_fragment(char data_[4]) { memcpy(data, data_, 4); }
+    fragment(char data_[4]) { memcpy(data, data_, 4); }
 
     char & operator[] (unsigned i) { return data[i]; }
     const char & operator[] (unsigned i) const { return data[i]; }
@@ -48,16 +48,16 @@ struct F_fragment {
     }
 };
 
-inline bool operator<(const F_fragment &a, const F_fragment &b) {
+inline bool operator<(const fragment &a, const fragment &b) {
     return memcmp(a.data, b.data, 4) < 0;
 }
 
 class FlintSpellingTable : public FlintTable {
-    void add_fragment(F_fragment frag, const string & word);
-    void remove_fragment(F_fragment frag, const string & word);
+    void add_fragment(fragment frag, const string & word);
+    void remove_fragment(fragment frag, const string & word);
 
     std::map<std::string, Xapian::termcount> wordfreq_changes;
-    std::map<F_fragment, std::set<std::string> > termlist_deltas;
+    std::map<fragment, std::set<std::string> > termlist_deltas;
 
   public:
     /** Create a new FlintSpellingTable object.
@@ -69,7 +69,7 @@ class FlintSpellingTable : public FlintTable {
      *  @param readonly		true if we're opening read-only, else false.
      */
     FlintSpellingTable(std::string dbdir, bool readonly)
-	: FlintTable("spelling", dbdir + "/spelling.", readonly, Z_DEFAULT_STRATEGY, true) { }
+	: FlintTable(dbdir + "/spelling.", readonly, Z_DEFAULT_STRATEGY, true) { }
 
     // Merge in batched-up changes.
     void merge_changes();
@@ -99,9 +99,9 @@ class FlintSpellingTable : public FlintTable {
 	FlintTable::set_block_size(blocksize);
     }
 
-    void flush_db() {
+    void commit(flint_revision_number_t revision) {
 	merge_changes();
-	FlintTable::flush_db();
+	FlintTable::commit(revision);
     }
 
     void cancel() {

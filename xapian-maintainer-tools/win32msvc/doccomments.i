@@ -1,6 +1,32 @@
 
 // File: index.xml
 
+// File: classXapian_1_1AssertionError.xml
+%feature("docstring") Xapian::AssertionError "
+
+AssertionError is thrown if a logical assertion inside Xapian fails.
+
+In a debug build of Xapian, a failed assertion in the core library
+code will cause AssertionError to be thrown.
+
+This represents a bug in Xapian (either an invariant, precondition,
+etc has been violated, or the assertion is incorrect!) ";
+
+%feature("docstring")  Xapian::AssertionError::AssertionError "
+
+General purpose constructor which allows setting errno.
+
+Xapian::AssertionError::AssertionError(const std::string &msg_, const
+std::string &context_=\"\", int errno_=0) ";
+
+%feature("docstring")  Xapian::AssertionError::AssertionError "
+
+Construct from message and errno value.
+
+Xapian::AssertionError::AssertionError(const std::string &msg_, int
+errno_) ";
+
+
 // File: classXapian_1_1BM25Weight.xml
 %feature("docstring") Xapian::BM25Weight "
 
@@ -700,235 +726,170 @@ empty.
 Xapian::UnimplementedError:  will be thrown if the database backend in
 use doesn't support user- specified metadata. ";
 
-%feature("docstring")  Xapian::Database::metadata_keys_begin "
 
-An iterator which returns all user-specified metadata keys.
+// File: classXapian_1_1DatabaseCorruptError.xml
+%feature("docstring") Xapian::DatabaseCorruptError "
 
-Xapian::TermIterator Xapian::Database::metadata_keys_begin(const
-std::string &prefix=\"\") const
+DatabaseCorruptError indicates database corruption was detected. ";
 
-When invoked on a Xapian::Database object representing multiple
-databases, currently only the metadata for the first is considered but
-this behaviour may change in the future.
+%feature("docstring")
+Xapian::DatabaseCorruptError::DatabaseCorruptError "
 
-Parameters:
------------
+General purpose constructor which allows setting errno.
 
-prefix:  If non-empty, only keys with this prefix are returned. ";
+Xapian::DatabaseCorruptError::DatabaseCorruptError(const std::string
+&msg_, const std::string &context_=\"\", int errno_=0) ";
 
-%feature("docstring")  Xapian::Database::metadata_keys_end "
+%feature("docstring")
+Xapian::DatabaseCorruptError::DatabaseCorruptError "
 
-Corresponding end iterator to metadata_keys_begin().
+Construct from message and errno value.
 
-Xapian::TermIterator Xapian::Database::metadata_keys_end(const
-std::string &=\"\") const ";
+Xapian::DatabaseCorruptError::DatabaseCorruptError(const std::string
+&msg_, int errno_) ";
 
 
-// File: classXapian_1_1DatabaseMaster.xml
-%feature("docstring") Xapian::DatabaseMaster "
+// File: classXapian_1_1DatabaseCreateError.xml
+%feature("docstring") Xapian::DatabaseCreateError "
 
-Access to a master database for replication. ";
+DatabaseCreateError indicates a failure to create a database. ";
 
-%feature("docstring")  Xapian::DatabaseMaster::DatabaseMaster "
+%feature("docstring")
+Xapian::DatabaseCreateError::DatabaseCreateError "
 
-Create a new DatabaseMaster for the database at the specified path.
+General purpose constructor which allows setting errno.
 
-Xapian::DatabaseMaster::DatabaseMaster(const std::string &path_)
+Xapian::DatabaseCreateError::DatabaseCreateError(const std::string
+&msg_, const std::string &context_=\"\", int errno_=0) ";
 
-The database isn't actually opened until a set of changesets is
-requested. ";
+%feature("docstring")
+Xapian::DatabaseCreateError::DatabaseCreateError "
 
-%feature("docstring")  Xapian::DatabaseMaster::write_changesets_to_fd
-"
+Construct from message and errno value.
 
-Write a set of changesets for upgrading the database to a file.
+Xapian::DatabaseCreateError::DatabaseCreateError(const std::string
+&msg_, int errno_) ";
 
-void Xapian::DatabaseMaster::write_changesets_to_fd(int fd, const
-std::string &start_revision, ReplicationInfo *info) const
 
-The changesets will be such that, if they are applied in order to a
-copy of the database at the start revision, a copy of the database at
-the current revision (i.e. the revision which the database object is
-currently open at) will be produced.
+// File: classXapian_1_1DatabaseError.xml
+%feature("docstring") Xapian::DatabaseError "
 
-If suitable changesets have been stored in the database, this will
-write the appropriate changesets, in order. If suitable changesets are
-not available, this will write a copy of sufficient blocks of the
-database to reconstruct the current revision.
+DatabaseError indicates some sort of database related error. ";
 
-This will therefore potentially write a very large amount of data to
-the file descriptor.
+%feature("docstring")  Xapian::DatabaseError::DatabaseError "
 
-Parameters:
------------
+General purpose constructor which allows setting errno.
 
-fd:  An open file descriptor to write the changes to.
+Xapian::DatabaseError::DatabaseError(const std::string &msg_, const
+std::string &context_=\"\", int errno_=0) ";
 
-start_revision:  The starting revision of the database that the
-changesets are to be applied to. Specify an empty string to get a
-\"creation\" changeset, which includes the creation of the database.
-The revision will include the unique identifier for the database, if
-one is available.
+%feature("docstring")  Xapian::DatabaseError::DatabaseError "
 
-info:  If non-NULL, the supplied structure will be updated to reflect
-the changes written to the file descriptor. ";
+Construct from message and errno value.
 
-%feature("docstring")  Xapian::DatabaseMaster::get_description "
+Xapian::DatabaseError::DatabaseError(const std::string &msg_, int
+errno_) ";
 
-Return a string describing this object.
 
-std::string Xapian::DatabaseMaster::get_description() const ";
+// File: classXapian_1_1DatabaseLockError.xml
+%feature("docstring") Xapian::DatabaseLockError "
 
+DatabaseLockError indicates failure to lock a database. ";
 
-// File: classXapian_1_1DatabaseReplica.xml
-%feature("docstring") Xapian::DatabaseReplica "
+%feature("docstring")  Xapian::DatabaseLockError::DatabaseLockError "
 
-Access to a database replica, for applying replication to it. ";
+General purpose constructor which allows setting errno.
 
-%feature("docstring")  Xapian::DatabaseReplica::DatabaseReplica "
+Xapian::DatabaseLockError::DatabaseLockError(const std::string &msg_,
+const std::string &context_=\"\", int errno_=0) ";
 
-Copying is allowed (and is cheap).
+%feature("docstring")  Xapian::DatabaseLockError::DatabaseLockError "
 
-Xapian::DatabaseReplica::DatabaseReplica(const DatabaseReplica &other)
-";
+Construct from message and errno value.
 
-%feature("docstring")  Xapian::DatabaseReplica::DatabaseReplica "
+Xapian::DatabaseLockError::DatabaseLockError(const std::string &msg_,
+int errno_) ";
 
-Default constructor - for declaring an uninitialised replica.
 
-Xapian::DatabaseReplica::DatabaseReplica() ";
+// File: classXapian_1_1DatabaseModifiedError.xml
+%feature("docstring") Xapian::DatabaseModifiedError "
 
-%feature("docstring")  Xapian::DatabaseReplica::~DatabaseReplica "
+DatabaseModifiedError indicates a database was modified.
 
-Destructor.
+To recover after catching this error, you need to call
+Xapian::Database::reopen() on the Database and repeat the operation
+which failed. ";
 
-Xapian::DatabaseReplica::~DatabaseReplica() ";
+%feature("docstring")
+Xapian::DatabaseModifiedError::DatabaseModifiedError "
 
-%feature("docstring")  Xapian::DatabaseReplica::DatabaseReplica "
+General purpose constructor which allows setting errno.
 
-Open a DatabaseReplica for the database at the specified path.
+Xapian::DatabaseModifiedError::DatabaseModifiedError(const std::string
+&msg_, const std::string &context_=\"\", int errno_=0) ";
 
-Xapian::DatabaseReplica::DatabaseReplica(const std::string &path)
+%feature("docstring")
+Xapian::DatabaseModifiedError::DatabaseModifiedError "
 
-The path should either point to a database previously created by a
-DatabaseReplica, or to a path which doesn't yet exist.
+Construct from message and errno value.
 
-The path should always be in a directory which exists.
+Xapian::DatabaseModifiedError::DatabaseModifiedError(const std::string
+&msg_, int errno_) ";
 
-If the specified path does not contain a database, a database will be
-created when an appropriate changeset is supplied to the replica.
 
-Parameters:
------------
+// File: classXapian_1_1DatabaseOpeningError.xml
+%feature("docstring") Xapian::DatabaseOpeningError "
 
-path:  The path to make the replica at. ";
+DatabaseOpeningError indicates failure to open a database. ";
 
-%feature("docstring")  Xapian::DatabaseReplica::set_parameter "
+%feature("docstring")
+Xapian::DatabaseOpeningError::DatabaseOpeningError "
 
-Set a parameter for the replica.
+General purpose constructor which allows setting errno.
 
-void Xapian::DatabaseReplica::set_parameter(const std::string &name,
-const std::string &value)
+Xapian::DatabaseOpeningError::DatabaseOpeningError(const std::string
+&msg_, const std::string &context_=\"\", int errno_=0) ";
 
-This allows the parameters which were used to create the replica to be
-stored, so that they can be reused in future.
+%feature("docstring")
+Xapian::DatabaseOpeningError::DatabaseOpeningError "
 
-Parameters:
------------
+Construct from message and errno value.
 
-name:  The name of the parameter to set.
+Xapian::DatabaseOpeningError::DatabaseOpeningError(const std::string
+&msg_, int errno_) ";
 
-value:  The value to set the parameter to. ";
 
-%feature("docstring")  Xapian::DatabaseReplica::get_parameter "
+// File: classXapian_1_1DatabaseVersionError.xml
+%feature("docstring") Xapian::DatabaseVersionError "
 
-Get a parameter from the replica.
+DatabaseVersionError indicates that a database is in an unsupported
+format.
 
-std::string Xapian::DatabaseReplica::get_parameter(const std::string
-&name) const
+From time to time, new versions of Xapian will require the database
+format to be changed, to allow new information to be stored or new
+optimisations to be performed. Backwards compatibility will sometimes
+be maintained, so that new versions of Xapian can open old databases,
+but in some cases Xapian will be unable to open a database because it
+is in too old (or new) a format. This can be resolved either be
+upgrading or downgrading the version of Xapian in use, or by
+rebuilding the database from scratch with the current version of
+Xapian. ";
 
-Parameters:
------------
+%feature("docstring")
+Xapian::DatabaseVersionError::DatabaseVersionError "
 
-name:  The name of the parameter to get. ";
+General purpose constructor which allows setting errno.
 
-%feature("docstring")  Xapian::DatabaseReplica::get_revision_info "
+Xapian::DatabaseVersionError::DatabaseVersionError(const std::string
+&msg_, const std::string &context_=\"\", int errno_=0) ";
 
-Get a string describing the current revision of the replica.
+%feature("docstring")
+Xapian::DatabaseVersionError::DatabaseVersionError "
 
-std::string Xapian::DatabaseReplica::get_revision_info() const
+Construct from message and errno value.
 
-The revision information includes a unique identifier for the master
-database that the replica is of, as well as information about the
-exact revision of the master database that the replica represents.
-This information allows the master database to send the appropriate
-changeset to mirror whatever changes have been made on the master. ";
-
-%feature("docstring")  Xapian::DatabaseReplica::set_read_fd "
-
-Set the file descriptor to read changesets from.
-
-void Xapian::DatabaseReplica::set_read_fd(int fd)
-
-This will be remembered in the DatabaseReplica, but the caller is
-still responsible for closing it after it is finished with.
-
-Parameters:
------------
-
-fd:  The file descriptor to read the changeset from. ";
-
-%feature("docstring")  Xapian::DatabaseReplica::apply_next_changeset "
-
-Read and apply the next changeset.
-
-bool Xapian::DatabaseReplica::apply_next_changeset(ReplicationInfo
-*info)
-
-If no changesets are found on the file descriptor, returns false
-immediately.
-
-If any changesets are found on the file descriptor, exactly one of
-them is applied.
-
-A common way to use this method is to call it repeatedly until it
-returns false, with an appropriate gap between each call.
-
-Information beyond the end of the next changeset may be read from the
-file descriptor and cached in the DatabaseReplica object. Therefore,
-the file descriptor shouldn't be accessed by any other external code,
-since it will be in an indeterminate state.
-
-Note that if this raises an exception (other than
-DatabaseCorruptError) the database will be left in a valid and
-consistent state. It may or may not be changed from its initial state,
-and may or may not be fully synchronised with the master database.
-
-Parameters:
------------
-
-info:  If non-NULL, the supplied structure will be updated to reflect
-the changes read from the file descriptor.
-
-true if there are more changesets to apply on the file descriptor,
-false otherwise. ";
-
-%feature("docstring")  Xapian::DatabaseReplica::close "
-
-Close the DatabaseReplica.
-
-void Xapian::DatabaseReplica::close()
-
-After this has been called, there will no longer be a write lock on
-the database created by the DatabaseReplica, and if any of the methods
-of this object which access the database are called, they will throw
-an InvalidOperationError. ";
-
-%feature("docstring")  Xapian::DatabaseReplica::get_description "
-
-Return a string describing this object.
-
-std::string Xapian::DatabaseReplica::get_description() const ";
+Xapian::DatabaseVersionError::DatabaseVersionError(const std::string
+&msg_, int errno_) ";
 
 
 // File: classXapian_1_1DateValueRangeProcessor.xml
@@ -962,6 +923,27 @@ epoch_year_:  Year to use as the epoch for dates with 2 digit years
 %feature("docstring") Xapian::DocIDWrapper "";
 
 %feature("docstring")  Xapian::DocIDWrapper::DocIDWrapper "Xapian::DocIDWrapper::DocIDWrapper(docid did_) ";
+
+
+// File: classXapian_1_1DocNotFoundError.xml
+%feature("docstring") Xapian::DocNotFoundError "
+
+Indicates an attempt to access a document not present in the database.
+";
+
+%feature("docstring")  Xapian::DocNotFoundError::DocNotFoundError "
+
+General purpose constructor which allows setting errno.
+
+Xapian::DocNotFoundError::DocNotFoundError(const std::string &msg_,
+const std::string &context_=\"\", int errno_=0) ";
+
+%feature("docstring")  Xapian::DocNotFoundError::DocNotFoundError "
+
+Construct from message and errno value.
+
+Xapian::DocNotFoundError::DocNotFoundError(const std::string &msg_,
+int errno_) ";
 
 
 // File: classXapian_1_1Document.xml
@@ -1522,8 +1504,7 @@ Get (a portion of) the match set for the current query.
 
 MSet Xapian::Enquire::get_mset(Xapian::doccount first,
 Xapian::doccount maxitems, Xapian::doccount checkatleast=0, const RSet
-*omrset=0, const MatchDecider *mdecider=0, const MatchDecider
-*matchspy=0) const
+*omrset=0, const MatchDecider *mdecider=0) const
 
 Parameters:
 -----------
@@ -1559,6 +1540,11 @@ Parameters:
 -----------
 
 Xapian::InvalidArgumentError:  See class documentation. ";
+
+%feature("docstring")  Xapian::Enquire::get_mset "MSet
+Xapian::Enquire::get_mset(Xapian::doccount first, Xapian::doccount
+maxitems, Xapian::doccount checkatleast, const RSet *omrset, const
+MatchDecider *mdecider, const MatchDecider *matchspy) const ";
 
 %feature("docstring")  Xapian::Enquire::get_mset "MSet
 Xapian::Enquire::get_mset(Xapian::doccount first, Xapian::doccount
@@ -1709,11 +1695,96 @@ End iterator corresponding to get_matching_terms_begin().
 TermIterator Xapian::Enquire::get_matching_terms_end(const
 MSetIterator &) const ";
 
+%feature("docstring")  Xapian::Enquire::register_match_decider "
+
+Register a MatchDecider.
+
+void Xapian::Enquire::register_match_decider(const std::string &name,
+const MatchDecider *mdecider=NULL)
+
+This is used to associate a name with a matchdecider.
+
+Deprecated This method is deprecated. It was added long ago with the
+intention that it would allow the remote backend to support use of
+MatchDecider objects, but there's a better approach.
+
+Parameters:
+-----------
+
+name:  The name to register this matchdecider as.
+
+mdecider:  The matchdecider. If omitted, then remove any matchdecider
+registered with this name. ";
+
 %feature("docstring")  Xapian::Enquire::get_description "
 
 Return a string describing this object.
 
 std::string Xapian::Enquire::get_description() const ";
+
+
+// File: classXapian_1_1Error.xml
+%feature("docstring") Xapian::Error "
+
+All exceptions thrown by Xapian are subclasses of Xapian::Error.
+
+This class can not be instantiated directly - instead a subclass
+should be used. ";
+
+%feature("docstring")  Xapian::Error::get_type "
+
+The type of this error (e.g. \"DocNotFoundError\".).
+
+const char* Xapian::Error::get_type() const ";
+
+%feature("docstring")  Xapian::Error::get_msg "
+
+Message giving details of the error, intended for human consumption.
+
+const std::string& Xapian::Error::get_msg() const ";
+
+%feature("docstring")  Xapian::Error::get_context "
+
+Optional context information.
+
+const std::string& Xapian::Error::get_context() const
+
+This context is intended for use by Xapian::ErrorHandler (for example
+so it can know which remote server is unreliable and report the
+problem and remove that server from those being searched). But it's
+typically a plain-text string, and so also fit for human consumption.
+";
+
+%feature("docstring")  Xapian::Error::get_error_string "
+
+Returns any system error string associated with this exception.
+
+const char* Xapian::Error::get_error_string() const
+
+The system error string may come from errno, h_errno (on UNIX), or
+GetLastError() (on MS Windows). If there is no associated system error
+string, NULL is returned. ";
+
+%feature("docstring")  Xapian::Error::get_errno "
+
+Optional value of 'errno' associated with this error.
+
+int Xapian::Error::get_errno() const
+
+If no 'errno' value is associated, returns 0. If the returned value is
+negative, it's a platform-specific error code (on UNIX, -h_errno; on
+MS Windows, -GetLastError()).
+
+Deprecated This method is deprecated, because errno values aren't
+portable between platforms, so we can't serialise them when passing
+exceptions from a remote server to a client. Use the
+get_error_string() method instead. ";
+
+%feature("docstring")  Xapian::Error::get_description "
+
+Return a string describing this object.
+
+std::string Xapian::Error::get_description() const ";
 
 
 // File: classXapian_1_1ErrorHandler.xml
@@ -1918,6 +1989,107 @@ reject_begin and reject_end can be any input_iterator type which
 returns std::string or char * (e.g. TermIterator or char **). ";
 
 
+// File: classXapian_1_1FeatureUnavailableError.xml
+%feature("docstring") Xapian::FeatureUnavailableError "
+
+Indicates an attempt to use a feature which is unavailable.
+
+Typically a feature is unavailable because it wasn't compiled in, or
+because it requires other software or facilities which aren't
+available. ";
+
+%feature("docstring")
+Xapian::FeatureUnavailableError::FeatureUnavailableError "
+
+General purpose constructor which allows setting errno.
+
+Xapian::FeatureUnavailableError::FeatureUnavailableError(const
+std::string &msg_, const std::string &context_=\"\", int errno_=0) ";
+
+%feature("docstring")
+Xapian::FeatureUnavailableError::FeatureUnavailableError "
+
+Construct from message and errno value.
+
+Xapian::FeatureUnavailableError::FeatureUnavailableError(const
+std::string &msg_, int errno_) ";
+
+
+// File: classXapian_1_1InternalError.xml
+%feature("docstring") Xapian::InternalError "
+
+InternalError indicates a runtime problem of some sort. ";
+
+%feature("docstring")  Xapian::InternalError::InternalError "
+
+General purpose constructor which allows setting errno.
+
+Xapian::InternalError::InternalError(const std::string &msg_, const
+std::string &context_=\"\", int errno_=0) ";
+
+%feature("docstring")  Xapian::InternalError::InternalError "
+
+Construct from message and errno value.
+
+Xapian::InternalError::InternalError(const std::string &msg_, int
+errno_) ";
+
+
+// File: classXapian_1_1InvalidArgumentError.xml
+%feature("docstring") Xapian::InvalidArgumentError "
+
+InvalidArgumentError indicates an invalid parameter value was passed
+to the API. ";
+
+%feature("docstring")
+Xapian::InvalidArgumentError::InvalidArgumentError "
+
+General purpose constructor which allows setting errno.
+
+Xapian::InvalidArgumentError::InvalidArgumentError(const std::string
+&msg_, const std::string &context_=\"\", int errno_=0) ";
+
+%feature("docstring")
+Xapian::InvalidArgumentError::InvalidArgumentError "
+
+Construct from message and errno value.
+
+Xapian::InvalidArgumentError::InvalidArgumentError(const std::string
+&msg_, int errno_) ";
+
+
+// File: classXapian_1_1InvalidOperationError.xml
+%feature("docstring") Xapian::InvalidOperationError "
+
+InvalidOperationError indicates the API was used in an invalid way. ";
+
+%feature("docstring")
+Xapian::InvalidOperationError::InvalidOperationError "
+
+General purpose constructor which allows setting errno.
+
+Xapian::InvalidOperationError::InvalidOperationError(const std::string
+&msg_, const std::string &context_=\"\", int errno_=0) ";
+
+%feature("docstring")
+Xapian::InvalidOperationError::InvalidOperationError "
+
+Construct from message and errno value.
+
+Xapian::InvalidOperationError::InvalidOperationError(const std::string
+&msg_, int errno_) ";
+
+
+// File: classXapian_1_1LogicError.xml
+%feature("docstring") Xapian::LogicError "
+
+The base class for exceptions indicating errors in the program logic.
+
+A subclass of LogicError will be thrown if Xapian detects a violation
+of a class invariant or a logical precondition or postcondition, etc.
+";
+
+
 // File: classXapian_1_1MatchDecider.xml
 %feature("docstring") Xapian::MatchDecider "
 
@@ -2022,9 +2194,11 @@ Parameters:
 
 tname:  The term to look for.
 
-This is sometimes more efficient than asking the database directly for
-the term frequency - in particular, if the term was in the query, its
-frequency will usually be cached in the MSet. ";
+Parameters:
+-----------
+
+Xapian::InvalidArgumentError:  is thrown if the term was not in the
+query. ";
 
 %feature("docstring")  Xapian::MSet::get_termweight "
 
@@ -2310,6 +2484,49 @@ forward=true) ";
 %feature("docstring")  Xapian::MultiValueSorter::~MultiValueSorter "virtual Xapian::MultiValueSorter::~MultiValueSorter() ";
 
 
+// File: classXapian_1_1NetworkError.xml
+%feature("docstring") Xapian::NetworkError "
+
+Indicates a problem communicating with a remote database. ";
+
+%feature("docstring")  Xapian::NetworkError::NetworkError "
+
+General purpose constructor which allows setting errno.
+
+Xapian::NetworkError::NetworkError(const std::string &msg_, const
+std::string &context_=\"\", int errno_=0) ";
+
+%feature("docstring")  Xapian::NetworkError::NetworkError "
+
+Construct from message and errno value.
+
+Xapian::NetworkError::NetworkError(const std::string &msg_, int
+errno_) ";
+
+
+// File: classXapian_1_1NetworkTimeoutError.xml
+%feature("docstring") Xapian::NetworkTimeoutError "
+
+Indicates a timeout expired while communicating with a remote
+database. ";
+
+%feature("docstring")
+Xapian::NetworkTimeoutError::NetworkTimeoutError "
+
+General purpose constructor which allows setting errno.
+
+Xapian::NetworkTimeoutError::NetworkTimeoutError(const std::string
+&msg_, const std::string &context_=\"\", int errno_=0) ";
+
+%feature("docstring")
+Xapian::NetworkTimeoutError::NetworkTimeoutError "
+
+Construct from message and errno value.
+
+Xapian::NetworkTimeoutError::NetworkTimeoutError(const std::string
+&msg_, int errno_) ";
+
+
 // File: classXapian_1_1NumberValueRangeProcessor.xml
 %feature("docstring") Xapian::NumberValueRangeProcessor "
 
@@ -2485,71 +2702,6 @@ Return a string describing this object.
 std::string Xapian::PostingIterator::get_description() const ";
 
 
-// File: classXapian_1_1PostingSource.xml
-%feature("docstring") Xapian::PostingSource "
-
-Base class which provides an \"external\" source of postings. ";
-
-%feature("docstring")  Xapian::PostingSource::~PostingSource "virtual
-Xapian::PostingSource::~PostingSource() ";
-
-%feature("docstring")  Xapian::PostingSource::get_termfreq_min "virtual Xapian::doccount Xapian::PostingSource::get_termfreq_min()
-const =0 ";
-
-%feature("docstring")  Xapian::PostingSource::get_termfreq_est "virtual Xapian::doccount Xapian::PostingSource::get_termfreq_est()
-const =0 ";
-
-%feature("docstring")  Xapian::PostingSource::get_termfreq_max "virtual Xapian::doccount Xapian::PostingSource::get_termfreq_max()
-const =0 ";
-
-%feature("docstring")  Xapian::PostingSource::get_maxweight "
-
-This default implementation always returns 0, for convenience when
-implementing \"weight-less\" PostingSource subclasses.
-
-virtual Xapian::weight Xapian::PostingSource::get_maxweight() const ";
-
-%feature("docstring")  Xapian::PostingSource::get_weight "
-
-This default implementation always returns 0, for convenience when
-implementing \"weight-less\" PostingSource subclasses.
-
-virtual Xapian::weight Xapian::PostingSource::get_weight() const ";
-
-%feature("docstring")  Xapian::PostingSource::next "virtual void
-Xapian::PostingSource::next(Xapian::weight)=0 ";
-
-%feature("docstring")  Xapian::PostingSource::skip_to "
-
-This default implementation calls next() repeatedly.
-
-virtual void Xapian::PostingSource::skip_to(Xapian::docid,
-Xapian::weight) ";
-
-%feature("docstring")  Xapian::PostingSource::check "
-
-This default implementation calls skip_to() and always sets valid to
-true.
-
-virtual void Xapian::PostingSource::check(Xapian::docid,
-Xapian::weight, bool &) ";
-
-%feature("docstring")  Xapian::PostingSource::at_end "virtual bool
-Xapian::PostingSource::at_end() const =0 ";
-
-%feature("docstring")  Xapian::PostingSource::get_docid "virtual
-Xapian::docid Xapian::PostingSource::get_docid() const =0 ";
-
-%feature("docstring")  Xapian::PostingSource::reset "virtual void
-Xapian::PostingSource::reset()=0 ";
-
-%feature("docstring")  Xapian::PostingSource::get_description "
-
-This default implementation returns a generic answer.
-
-virtual std::string Xapian::PostingSource::get_description() const ";
-
-
 // File: classXapian_1_1Query.xml
 %feature("docstring") Xapian::Query "
 
@@ -2622,6 +2774,16 @@ For ELITE_SET, the elite set size can be specified in parameter. ";
 
 %feature("docstring")  Xapian::Query::Query "
 
+Apply the specified operator to a single Xapian::Query object.
+
+Xapian::Query::Query(Query::op op_, Xapian::Query q)
+
+Deprecated This method is deprecated because it isn't useful, since
+none of the current query operators can be usefully applied to a
+single subquery with a parameter value. ";
+
+%feature("docstring")  Xapian::Query::Query "
+
 Apply the specified operator to a single Xapian::Query object, with a
 double parameter.
 
@@ -2671,12 +2833,6 @@ OP_VALUE_GE or OP_VALUE_LE.
 valno:  The slot number to get the value from.
 
 value:  The value to compare. ";
-
-%feature("docstring")  Xapian::Query::Query "
-
-Construct an external source query.
-
-Xapian::Query::Query(Xapian::PostingSource *external_source) ";
 
 %feature("docstring")  Xapian::Query::get_length "
 
@@ -2751,12 +2907,6 @@ Construct a value greater-than-or-equal query on a document value.
 
 Xapian::Query::Internal(op_t op_, Xapian::valueno valno, const
 std::string &value) ";
-
-%feature("docstring")  Xapian::Query::Internal "
-
-Construct an external source query.
-
-Xapian::Query::Internal(Xapian::PostingSource *external_source_) ";
 
 %feature("docstring")  Xapian::Query::~Internal "
 
@@ -2956,7 +3106,7 @@ specify the default_prefix parameter to  parse_query(), then the
 default_prefix parameter will override.
 
 If you call  add_prefix() and  add_boolean_prefix() for the same value
-of field, a Xapian::InvalidOperationError exception will be thrown.
+of field, a  Xapian::InvalidOperationError exception will be thrown.
 
 In 1.0.3 and earlier, subsequent calls to this method with the same
 value of field had no effect.
@@ -3005,7 +3155,7 @@ Calling this method with an empty string for field will cause a
 Xapian::InvalidArgumentError.
 
 If you call  add_prefix() and  add_boolean_prefix() for the same value
-of field, a Xapian::InvalidOperationError exception will be thrown.
+of field, a  Xapian::InvalidOperationError exception will be thrown.
 
 In 1.0.3 and earlier, subsequent calls to this method with the same
 value of field had no effect.
@@ -3062,6 +3212,46 @@ Return a string describing this object.
 std::string Xapian::QueryParser::get_description() const ";
 
 
+// File: classXapian_1_1QueryParserError.xml
+%feature("docstring") Xapian::QueryParserError "
+
+Indicates a query string can't be parsed. ";
+
+%feature("docstring")  Xapian::QueryParserError::QueryParserError "
+
+General purpose constructor which allows setting errno.
+
+Xapian::QueryParserError::QueryParserError(const std::string &msg_,
+const std::string &context_=\"\", int errno_=0) ";
+
+%feature("docstring")  Xapian::QueryParserError::QueryParserError "
+
+Construct from message and errno value.
+
+Xapian::QueryParserError::QueryParserError(const std::string &msg_,
+int errno_) ";
+
+
+// File: classXapian_1_1RangeError.xml
+%feature("docstring") Xapian::RangeError "
+
+RangeError indicates an attempt to access outside the bounds of a
+container. ";
+
+%feature("docstring")  Xapian::RangeError::RangeError "
+
+General purpose constructor which allows setting errno.
+
+Xapian::RangeError::RangeError(const std::string &msg_, const
+std::string &context_=\"\", int errno_=0) ";
+
+%feature("docstring")  Xapian::RangeError::RangeError "
+
+Construct from message and errno value.
+
+Xapian::RangeError::RangeError(const std::string &msg_, int errno_) ";
+
+
 // File: classXapian_1_1Internal_1_1RefCntBase.xml
 %feature("docstring") Xapian::Internal::RefCntBase "";
 
@@ -3098,17 +3288,6 @@ pointer to itself.) ";
 
 %feature("docstring")  Xapian::Internal::RefCntPtr::RefCntPtr "Xapian::Internal::RefCntPtr< T >::RefCntPtr(const RefCntPtr< U >
 &other) ";
-
-
-// File: structXapian_1_1ReplicationInfo.xml
-%feature("docstring") Xapian::ReplicationInfo "
-
-Information about the steps involved in performing a replication. ";
-
-%feature("docstring")  Xapian::ReplicationInfo::ReplicationInfo "Xapian::ReplicationInfo::ReplicationInfo() ";
-
-%feature("docstring")  Xapian::ReplicationInfo::clear "void
-Xapian::ReplicationInfo::clear() ";
 
 
 // File: classXapian_1_1RSet.xml
@@ -3192,6 +3371,18 @@ Return a string describing this object.
 std::string Xapian::RSet::get_description() const ";
 
 
+// File: classXapian_1_1RuntimeError.xml
+%feature("docstring") Xapian::RuntimeError "
+
+The base class for exceptions indicating errors only detectable at
+runtime.
+
+A subclass of RuntimeError will be thrown if Xapian detects an error
+which is exception derived from RuntimeError is thrown when an error
+is caused by problems with the data or environment rather than a
+programming mistake. ";
+
+
 // File: classXapian_1_1SimpleStopper.xml
 %feature("docstring") Xapian::SimpleStopper "
 
@@ -3214,6 +3405,12 @@ Xapian::SimpleStopper::SimpleStopper(Iterator begin, Iterator end) ";
 Add a single stop word.
 
 void Xapian::SimpleStopper::add(const std::string &word) ";
+
+%feature("docstring")  Xapian::SimpleStopper::~SimpleStopper "
+
+Destructor.
+
+virtual Xapian::SimpleStopper::~SimpleStopper() ";
 
 %feature("docstring")  Xapian::SimpleStopper::get_description "
 
@@ -3924,6 +4121,29 @@ return false if the weight object doesn't need doclength
 bool Xapian::TradWeight::get_sumpart_needs_doclength() const ";
 
 
+// File: classXapian_1_1UnimplementedError.xml
+%feature("docstring") Xapian::UnimplementedError "
+
+UnimplementedError indicates an attempt to use an unimplemented
+feature. ";
+
+%feature("docstring")  Xapian::UnimplementedError::UnimplementedError
+"
+
+General purpose constructor which allows setting errno.
+
+Xapian::UnimplementedError::UnimplementedError(const std::string
+&msg_, const std::string &context_=\"\", int errno_=0) ";
+
+%feature("docstring")  Xapian::UnimplementedError::UnimplementedError
+"
+
+Construct from message and errno value.
+
+Xapian::UnimplementedError::UnimplementedError(const std::string
+&msg_, int errno_) ";
+
+
 // File: classXapian_1_1Utf8Iterator.xml
 %feature("docstring") Xapian::Utf8Iterator "
 
@@ -4153,54 +4373,6 @@ Xapian::ValueRangeProcessor::~ValueRangeProcessor "
 Destructor.
 
 virtual Xapian::ValueRangeProcessor::~ValueRangeProcessor() ";
-
-
-// File: classXapian_1_1ValueSetMatchDecider.xml
-%feature("docstring") Xapian::ValueSetMatchDecider "
-
-MatchDecider filtering results based on whether document values are in
-a user- defined set. ";
-
-%feature("docstring")
-Xapian::ValueSetMatchDecider::ValueSetMatchDecider "
-
-Construct a ValueSetMatchDecider.
-
-Xapian::ValueSetMatchDecider::ValueSetMatchDecider(Xapian::valueno
-valuenum, bool inclusive)
-
-Parameters:
------------
-
-valuenum:  The value slot number to look in.
-
-inclusive:  If true, match decider accepts documents which have a
-value in the specified slot which is a member of the test set; if
-false, match decider accepts documents which do not have a value in
-the specified slot. ";
-
-%feature("docstring")  Xapian::ValueSetMatchDecider::add_value "
-
-Add a value to the test set.
-
-void Xapian::ValueSetMatchDecider::add_value(const std::string &value)
-
-Parameters:
------------
-
-value:  The value to add to the test set. ";
-
-%feature("docstring")  Xapian::ValueSetMatchDecider::remove_value "
-
-Remove a value from the test set.
-
-void Xapian::ValueSetMatchDecider::remove_value(const std::string
-&value)
-
-Parameters:
------------
-
-value:  The value to remove from the test set. ";
 
 
 // File: classXapian_1_1Weight.xml
@@ -4872,6 +5044,15 @@ XAPIAN_VISIBILITY_DEFAULT const char* Xapian::version_string()
 This may be different to the version compiled against (given by
 XAPIAN_VERSION) if shared libraries are being used. ";
 
+%feature("docstring")  Xapian::Auto::xapian_version_string "
+
+For compatibility with Xapian 0.9.5 and earlier.
+
+XAPIAN_VISIBILITY_DEFAULT const char* Xapian::xapian_version_string()
+
+Deprecated This function is now deprecated, use
+Xapian::version_string() instead. ";
+
 %feature("docstring")  Xapian::Auto::major_version "
 
 Report the major version of the library which the program is linked
@@ -4881,6 +5062,15 @@ XAPIAN_VISIBILITY_DEFAULT int Xapian::major_version()
 
 This may be different to the version compiled against (given by
 XAPIAN_MAJOR_VERSION) if shared libraries are being used. ";
+
+%feature("docstring")  Xapian::Auto::xapian_major_version "
+
+For compatibility with Xapian 0.9.5 and earlier.
+
+XAPIAN_VISIBILITY_DEFAULT int Xapian::xapian_major_version()
+
+Deprecated This function is now deprecated, use
+Xapian::major_version() instead. ";
 
 %feature("docstring")  Xapian::Auto::minor_version "
 
@@ -4892,6 +5082,15 @@ XAPIAN_VISIBILITY_DEFAULT int Xapian::minor_version()
 This may be different to the version compiled against (given by
 XAPIAN_MINOR_VERSION) if shared libraries are being used. ";
 
+%feature("docstring")  Xapian::Auto::xapian_minor_version "
+
+For compatibility with Xapian 0.9.5 and earlier.
+
+XAPIAN_VISIBILITY_DEFAULT int Xapian::xapian_minor_version()
+
+Deprecated This function is now deprecated, use
+Xapian::minor_version() instead. ";
+
 %feature("docstring")  Xapian::Auto::revision "
 
 Report the revision of the library which the program is linked to.
@@ -4900,6 +5099,15 @@ XAPIAN_VISIBILITY_DEFAULT int Xapian::revision()
 
 This may be different to the version compiled against (given by
 XAPIAN_REVISION) if shared libraries are being used. ";
+
+%feature("docstring")  Xapian::Auto::xapian_revision "
+
+For compatibility with Xapian 0.9.5 and earlier.
+
+XAPIAN_VISIBILITY_DEFAULT int Xapian::xapian_revision()
+
+Deprecated This function is now deprecated, use Xapian::revision()
+instead. ";
 
 
 // File: namespaceXapian_1_1Auto.xml
@@ -4917,49 +5125,6 @@ Parameters:
 -----------
 
 file:  pathname of the stub database file. ";
-
-
-// File: namespaceXapian_1_1Chert.xml
-%feature("docstring")  Xapian::Chert::open "
-
-Construct a Database object for read-only access to a Chert database.
-
-XAPIAN_VISIBILITY_DEFAULT Database Xapian::Chert::open(const
-std::string &dir)
-
-Parameters:
------------
-
-dir:  pathname of the directory containing the database. ";
-
-%feature("docstring")  Xapian::Chert::open "
-
-Construct a Database object for update access to a Chert database.
-
-XAPIAN_VISIBILITY_DEFAULT WritableDatabase Xapian::Chert::open(const
-std::string &dir, int action, int block_size=8192)
-
-Parameters:
------------
-
-dir:  pathname of the directory containing the database.
-
-action:  determines handling of existing/non-existing database:
-Xapian::DB_CREATE fail if database already exist, otherwise create new
-database.
-
-Xapian::DB_CREATE_OR_OPEN open existing database, or create new
-database if none exists.
-
-Xapian::DB_CREATE_OR_OVERWRITE overwrite existing database, or create
-new database if none exists.
-
-Xapian::DB_OPEN open existing database, failing if none exists.
-
-block_size:  the Btree blocksize to use (in bytes), which must be a
-power of two between 2048 and 65536 (inclusive). The default (also
-used if an invalid value if passed) is 8192 bytes. This parameter is
-ignored when opening an existing database. ";
 
 
 // File: namespaceXapian_1_1Flint.xml
@@ -5016,6 +5181,53 @@ A new, empty database is created for each call. ";
 
 
 // File: namespaceXapian_1_1Internal.xml
+
+
+// File: namespaceXapian_1_1Quartz.xml
+%feature("docstring")  Xapian::Quartz::open "
+
+Construct a Database object for read-only access to a Quartz database.
+
+XAPIAN_VISIBILITY_DEFAULT Database Xapian::Quartz::open(const
+std::string &dir)
+
+The Quartz backend is deprecated - use the Flint backend instead.
+
+Parameters:
+-----------
+
+dir:  pathname of the directory containing the database. ";
+
+%feature("docstring")  Xapian::Quartz::WritableDatabaseopen "
+
+Construct a Database object for update access to a Quartz database.
+
+XAPIAN_VISIBILITY_DEFAULT Xapian::Quartz::WritableDatabaseopen(const
+std::string &dir, int action, int block_size=8192)
+
+The Quartz backend is deprecated - use the Flint backend instead.
+
+Parameters:
+-----------
+
+dir:  pathname of the directory containing the database.
+
+action:  determines handling of existing/non-existing database:
+Xapian::DB_CREATE fail if database already exist, otherwise create new
+database.
+
+Xapian::DB_CREATE_OR_OPEN open existing database, or create new
+database if none exists.
+
+Xapian::DB_CREATE_OR_OVERWRITE overwrite existing database, or create
+new database if none exists.
+
+Xapian::DB_OPEN open existing database, failing if none exists.
+
+block_size:  the Btree blocksize to use (in bytes), which must be a
+power of two between 2048 and 65536 (inclusive). The default (also
+used if an invalid value if passed) is 8192 bytes. This parameter is
+ignored when opening an existing database. ";
 
 
 // File: namespaceXapian_1_1Remote.xml
@@ -5254,6 +5466,12 @@ int Xapian::Unicode::Internal::get_delta(int info) ";
 // File: enquire_8h.xml
 
 
+// File: error_8h.xml
+
+
+// File: errordispatch_8h.xml
+
+
 // File: errorhandler_8h.xml
 
 
@@ -5269,16 +5487,10 @@ int Xapian::Unicode::Internal::get_delta(int info) ";
 // File: postingiterator_8h.xml
 
 
-// File: postingsource_8h.xml
-
-
 // File: query_8h.xml
 
 
 // File: queryparser_8h.xml
-
-
-// File: replication_8h.xml
 
 
 // File: sorter_8h.xml
@@ -5302,14 +5514,17 @@ int Xapian::Unicode::Internal::get_delta(int info) ";
 // File: valueiterator_8h.xml
 
 
-// File: valuesetmatchdecider_8h.xml
+// File: version_8h.xml
 
 
 // File: visibility_8h.xml
 
 
-// File: dir_8311af467e29f3ec02f9ddc6e3a07394.xml
+// File: deprecated.xml
 
 
-// File: dir_0d07fe9acb0f4c634dfecfcad5a6d6f3.xml
+// File: dir_90595f44a918334a40360bb16a3f238d.xml
+
+
+// File: dir_5449299c4ba3318270e8de668ff5afc3.xml
 

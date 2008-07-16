@@ -50,6 +50,10 @@ test_stemrandom()
     static const char wordchars[] =
 	"abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz0123456789^\0";
 
+    // FIXME:1.1: remove check for OM_STEMTEST_SKIP_RANDOM
+    if (getenv("OM_STEMTEST_SKIP_RANDOM"))
+	SKIP_TEST("OM_STEMTEST_SKIP_RANDOM set");
+
     tout << "Stemming random text... (seed " << seed << ")" << endl;
     srand(seed);
 
@@ -83,6 +87,10 @@ test_stemrandom()
 static bool
 test_stemjunk()
 {
+    // FIXME:1.1: remove check for OM_STEMTEST_SKIP_RANDOM
+    if (getenv("OM_STEMTEST_SKIP_RANDOM"))
+	SKIP_TEST("OM_STEMTEST_SKIP_RANDOM set");
+
     tout << "Stemming random junk... (seed " << seed << ")" << endl;
     srand(seed);
 
@@ -162,11 +170,27 @@ test_desc tests[] = {
 
 int main(int argc, char **argv)
 {
-    string langs = Xapian::Stem::get_available_languages();
+    string langs, seed_str;
+    // Backward compatibility
+    char * val;
+    // FIXME:1.1: remove check for OM_STEMTEST_LANGUAGES
+    val = getenv("OM_STEMTEST_LANGUAGES");
+    if (val && *val)
+	langs = val;
+    else
+	langs = Xapian::Stem::get_available_languages();
     test_driver::add_command_line_option("languages", 'l', &langs);
 
     seed = 42;
-    string seed_str;
+    // FIXME:1.1: remove check for OM_STEMTEST_SEED
+    // Backward compatibility
+    val = getenv("OM_STEMTEST_SEED");
+    if (val && *val) {
+	seed_str = val;
+    } else {
+	// FIXME hash hostname like stemtest.pl did???
+	//$seed = unpack("%32L*", `hostname`);
+    }
     test_driver::add_command_line_option("seed", 's', &seed_str);
 
     test_driver::parse_command_line(argc, argv);

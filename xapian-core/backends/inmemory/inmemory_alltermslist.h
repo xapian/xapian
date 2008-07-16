@@ -1,7 +1,8 @@
 /* inmemory_alltermslist.h
  *
+ * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2008 Olly Betts
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,8 +16,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA
+ * -----END-LICENCE-----
  */
 
 #ifndef OM_HGUARD_INMEMORY_ALLTERMSLIST_H
@@ -45,10 +47,13 @@ class InMemoryAllTermsList : public AllTermsList
 
 	string prefix;
     public:
-	/// Constructor.
+	/// Standard constructor for base class.
 	InMemoryAllTermsList(const std::map<string, InMemoryTerm> *tmap_,
 			     Xapian::Internal::RefCntPtr<const InMemoryDatabase> database_,
 			     const string & prefix);
+
+	/// Standard destructor for base class.
+	~InMemoryAllTermsList();
 
         // Gets size of termlist
 	Xapian::termcount get_approx_size() const;

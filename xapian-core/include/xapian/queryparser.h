@@ -49,6 +49,7 @@ class XAPIAN_VISIBILITY_DEFAULT Stopper {
 
 /// Simple implementation of Stopper class - this will suit most users.
 class XAPIAN_VISIBILITY_DEFAULT SimpleStopper : public Stopper {
+  private:
     std::set<std::string> stop_words;
 
   public:
@@ -74,6 +75,9 @@ class XAPIAN_VISIBILITY_DEFAULT SimpleStopper : public Stopper {
     virtual bool operator()(const std::string & term) const {
 	return stop_words.find(term) != stop_words.end();
     }
+
+    /// Destructor.
+    virtual ~SimpleStopper() { }
 
     /// Return a string describing this object.
     virtual std::string get_description() const;
@@ -147,6 +151,21 @@ class XAPIAN_VISIBILITY_DEFAULT DateValueRangeProcessor : public ValueRangeProce
     Xapian::valueno operator()(std::string &begin, std::string &end);
 };
 
+// Xapian 1.0.0 and 1.0.1 had a conceptually broken implementation of
+// NumberValueRangeProcessor which we quickly told people to avoid using.  But
+// to keep ABI compatibility, we should keep it around until the next
+// incompatible ABI change (probably 1.1.0).  So we put the new
+// NumberValueRangeProcessor in a subnamespace and then pull it into this one
+// with "using v102::NumberValueRangeProcessor".  The old
+// NumberValueRangeProcessor still exists with default visibility, but isn't
+// declared in an external or internal header, so will only be used when
+// dynamically linking with application code built against Xapian 1.0.0 or
+// 1.0.1.
+#ifndef DOXYGEN
+// Hide the v102 namespace from Doxygen as it isn't user-visible.
+namespace v102 {
+#endif
+
 /** Handle a number range.
  *
  *  This class must be used on values which have been encoded using
@@ -214,6 +233,14 @@ class XAPIAN_VISIBILITY_DEFAULT NumberValueRangeProcessor : public ValueRangePro
      */
     Xapian::valueno operator()(std::string &begin, std::string &end);
 };
+
+#ifndef DOXYGEN
+}
+
+# ifndef XAPIAN_NO_V102_NUMBER_VRP
+using v102::NumberValueRangeProcessor;
+# endif
+#endif
 
 /// Build a Xapian::Query object from a user query string.
 class XAPIAN_VISIBILITY_DEFAULT QueryParser {

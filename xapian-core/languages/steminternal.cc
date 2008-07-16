@@ -5,7 +5,7 @@
  *
  * Copyright (c) 2001, Dr Martin Porter
  * Copyright (c) 2004,2005, Richard Boulton
- * Copyright (c) 2006,2007,2008 Olly Betts
+ * Copyright (c) 2006,2007 Olly Betts
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,14 +53,16 @@
 
 #include <config.h>
 
-#include "steminternal.h"
-
 #include <xapian/error.h>
 
 #include "omassert.h"
+#include "steminternal.h"
 
-#include <cstdlib>
-#include <cstring>
+#if 0
+#include <stdio.h>
+#endif
+#include <stdlib.h>
+#include <string.h>
 
 #include <string>
 

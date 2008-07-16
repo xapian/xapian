@@ -1,7 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
 AUTOMAKE_OPTIONS = 1.5 subdir-objects
-ACLOCAL_AMFLAGS = -I m4
 
 # `make QUIET=' overrides `./configure --enable-quiet'.
 # `make QUIET=y' overrides `./configure' without `--enable-quiet'.
@@ -27,7 +26,7 @@ EXTRA_PROGRAMS =
 
 .PHONY: check-none check-inmemory check-multi \
         check-remote check-remoteprog check-remotetcp \
-        check-chert check-flint check-perftest
+        check-flint check-quartz
 
 check-none:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-none
@@ -45,42 +44,24 @@ check-remoteprog:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remoteprog
 check-remotetcp:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remotetcp
-if BUILD_BACKEND_CHERT
-check-remoteprog-chert:
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remoteprog-chert
-check-remotetcp-chert: apitest$(EXEEXT)
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remotetcp-chert
-endif
-if BUILD_BACKEND_FLINT
-check-remoteprog-flint:
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remoteprog-flint
-check-remotetcp-flint: apitest$(EXEEXT)
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remotetcp-flint
-endif
-endif
-
-if BUILD_BACKEND_CHERT
-check-multi-chert:
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-multi-chert
-check-chert:
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-chert
 endif
 
 if BUILD_BACKEND_FLINT
-check-multi-flint:
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-multi-flint
 check-flint:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-flint
 endif
 
-check-perf:
-	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-perf
+if BUILD_BACKEND_QUARTZ
+check-quartz:
+	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-quartz
+endif
 
 bin_SCRIPTS = xapian-config
 
 CLEANFILES = xapian-config
 
 EXTRA_DIST = ChangeLog ChangeLog.examples HACKING PLATFORMS xapian-core.spec \
+ m4/rjb_find_stlport.m4 m4/type_socklen_t.m4 \
  include/xapian/error.h include/xapian/errordispatch.h exception_data.pm \
  preautoreconf dir_contents
 

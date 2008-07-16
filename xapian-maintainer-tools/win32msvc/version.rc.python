@@ -21,7 +21,7 @@ BEGIN
             VALUE "ProductName", "Xapian"
             VALUE "ProductVersion", XAPIAN_VERSION
             VALUE "FileDescription", "Xapian " XAPIAN_VERSION " bindings for Python " PYTHON_VERSION
-            VALUE "LegalCopyright", "Consult source code for copyright information"
+            VALUE "LegalCopyright", "Copyright (C) 2007 Xapian"
             VALUE "FileVersion", XAPIAN_VERSION
             VALUE "URL", "http://www.xapian.org/"
             VALUE "LegalTrademarks", "Xapian is an Open Source Search Engine Library released under the GPL."

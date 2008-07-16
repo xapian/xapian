@@ -396,7 +396,7 @@ DEFINE_TESTCASE(expandweights2, backend) {
 
     Xapian::ESet eset = enquire.get_eset(3, myrset);
     TEST_EQUAL(eset.size(), 3);
-    if (get_dbtype().substr(0, 5) != "multi") {
+    if (strcmp(get_dbtype(), "multi") != 0) {
 	// For a single database, the weights should be the same with or
 	// without USE_EXACT_TERMFREQ.
 	TEST_EQUAL_DOUBLE(eset[0].get_weight(), 6.08904001099445);
@@ -695,32 +695,6 @@ DEFINE_TESTCASE(pctcutoff2, backend) {
     mset = enquire.get_mset(0, 1);
     TEST_EQUAL(mset.size(), 1);
     TEST_EQUAL(mset.get_matches_lower_bound(), 1);
-
-    return true;
-}
-
-// Test that the percent cutoff option returns all the answers it should.
-DEFINE_TESTCASE(pctcutoff3, backend) {
-    Xapian::Enquire enquire(get_database("apitest_simpledata"));
-    enquire.set_query(Xapian::Query("this"));
-    Xapian::MSet mset1 = enquire.get_mset(0, 10);
-
-    if (verbose) {
-	tout << "Original mset pcts:";
-	print_mset_percentages(mset1);
-	tout << "\n";
-    }
-
-    int percent = 100;
-    for (Xapian::MSetIterator i = mset1.begin(); i != mset1.end(); ++i) {
-	int new_percent = mset1.convert_to_percent(i);
-	if (new_percent != percent) {
-	    enquire.set_cutoff(percent);
-	    Xapian::MSet mset2 = enquire.get_mset(0, 10);
-	    TEST_EQUAL(mset2.size(), i.get_rank());
-	    percent = new_percent;
-	}
-    }
 
     return true;
 }
@@ -1387,13 +1361,8 @@ DEFINE_TESTCASE(qterminfo1, backend) {
     // non-existent terms still have weight
     TEST_NOT_EQUAL(mymset1a.get_termweight(term3), 0);
 
-    TEST_EQUAL(mymset1a.get_termfreq(stemmer("banana")), 1);
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-		   mymset1a.get_termweight(stemmer("banana")));
-
-    TEST_EQUAL(mymset1a.get_termfreq("sponge"), 0);
-    TEST_EXCEPTION(Xapian::InvalidArgumentError,
-		   mymset1a.get_termweight("sponge"));
+		   mymset1a.get_termfreq("sponge"));
 
     return true;
 }

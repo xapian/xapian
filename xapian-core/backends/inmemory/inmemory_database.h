@@ -36,8 +36,6 @@
 
 using namespace std;
 
-class ValueStats;
-
 // Class representing a posting (a term/doc pair, and
 // all the relevant positional information, is a single posting)
 class InMemoryPosting {
@@ -237,7 +235,6 @@ class InMemoryDatabase : public Xapian::Database::Internal {
     vector<InMemoryDoc> termlists;
     vector<std::string> doclists;
     vector<std::map<Xapian::valueno, string> > valuelists;
-    std::map<Xapian::valueno, ValueStats> valuestats;
 
     vector<Xapian::doclength> doclengths;
 
@@ -307,9 +304,6 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 
     Xapian::doccount get_termfreq(const string & tname) const;
     Xapian::termcount get_collection_freq(const string & tname) const;
-    Xapian::doccount get_value_freq(Xapian::valueno valno) const;
-    std::string get_value_lower_bound(Xapian::valueno valno) const;
-    std::string get_value_upper_bound(Xapian::valueno valno) const;
     bool term_exists(const string & tname) const;
     bool has_positions() const;
 

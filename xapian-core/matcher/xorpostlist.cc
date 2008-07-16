@@ -263,9 +263,6 @@ Xapian::weight
 XorPostList::recalc_maxweight()
 {
     DEBUGCALL(MATCH, Xapian::weight, "XorPostList::recalc_maxweight", "");
-    // l and r cannot be NULL here, because the only place where they get set
-    // to NULL is when the tree is decaying, and the XorPostList is then
-    // immediately replaced.
     lmax = l->recalc_maxweight();
     rmax = r->recalc_maxweight();
     minmax = std::min(lmax, rmax);

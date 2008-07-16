@@ -1,7 +1,7 @@
 /** @file flint_alldocspostlist.cc
  * @brief A PostList which iterates over all documents in a FlintDatabase.
  */
-/* Copyright (C) 2006,2007,2008 Olly Betts
+/* Copyright (C) 2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,10 @@
 
 using namespace std;
 
+FlintAllDocsPostList::~FlintAllDocsPostList()
+{
+}
+
 Xapian::doccount
 FlintAllDocsPostList::get_termfreq() const
 {
@@ -55,7 +59,7 @@ FlintAllDocsPostList::get_doclength() const
     const char * end = pos + cursor->current_tag.size();
 
     flint_doclen_t doclen;
-    if (!F_unpack_uint(&pos, end, &doclen)) {
+    if (!unpack_uint(&pos, end, &doclen)) {
 	const char *msg;
 	if (pos == 0) {
 	    msg = "Too little data for doclen in termlist";
@@ -84,7 +88,7 @@ FlintAllDocsPostList::read_did_from_current_key()
     const string & key = cursor->current_key;
     const char * pos = key.data();
     const char * end = pos + key.size();
-    if (!F_unpack_uint_preserving_sort(&pos, end, &current_did)) {
+    if (!unpack_uint_preserving_sort(&pos, end, &current_did)) {
 	const char *msg;
 	if (pos == 0) {
 	    msg = "Too little data in termlist key";
@@ -115,7 +119,7 @@ FlintAllDocsPostList::skip_to(Xapian::docid did, Xapian::weight /*w_min*/)
 
     if (did <= current_did || at_end()) RETURN(NULL);
 
-    if (cursor->find_entry_ge(F_pack_uint_preserving_sort(did))) {
+    if (cursor->find_entry_ge(pack_uint_preserving_sort(did))) {
 	// The exact docid that was asked for exists.
 	current_did = did;
 	RETURN(NULL);

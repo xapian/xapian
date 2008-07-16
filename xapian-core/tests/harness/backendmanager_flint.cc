@@ -26,7 +26,7 @@ using namespace std;
 
 BackendManagerFlint::~BackendManagerFlint() { }
 
-std::string
+const char *
 BackendManagerFlint::get_dbtype() const
 {
     return "flint";
@@ -52,24 +52,14 @@ BackendManagerFlint::get_writable_database(const string & name,
     return getwritedb_flint(name, vector<string>(1, file));
 }
 
-string
-BackendManagerFlint::get_writable_database_path(const string & name)
-{
-    return getwritedb_flint_path(name);
-}
-
 Xapian::Database
-BackendManagerFlint::get_writable_database_as_database(const string & name)
+BackendManagerFlint::get_writable_database_as_database()
 {
-    if (name.empty())
-	return Xapian::Flint::open(".flint/" + last_wdb_name);
-    return Xapian::Flint::open(".flint/" + name);
+    return Xapian::Flint::open(".flint/" + last_wdb_name);
 }
 
 Xapian::WritableDatabase
-BackendManagerFlint::get_writable_database_again(const string & name)
+BackendManagerFlint::get_writable_database_again()
 {
-    if (name.empty())
-	return Xapian::Flint::open(".flint/" + last_wdb_name, Xapian::DB_OPEN);
-    return Xapian::Flint::open(".flint/" + name, Xapian::DB_OPEN);
+    return Xapian::Flint::open(".flint/" + last_wdb_name, Xapian::DB_OPEN);
 }

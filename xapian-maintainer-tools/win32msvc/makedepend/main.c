@@ -35,6 +35,12 @@ in this Software without prior written authorization from The Open Group.
 # include <unistd.h>
 #endif
 
+/* Disable MSVC warning about obsolete functions */
+#ifdef _MSC_VER
+# pragma warning(disable:4996)
+#endif
+#include <io.h>
+
 #include <errno.h>
 #include <string.h>
 

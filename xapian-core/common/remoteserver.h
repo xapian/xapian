@@ -1,7 +1,7 @@
 /** @file remoteserver.h
  *  @brief Xapian remote backend server base class
  */
-/* Copyright (C) 2006,2007,2008 Olly Betts
+/* Copyright (C) 2006,2007 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -92,9 +92,6 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
     // get termfreq
     void msg_termfreq(const std::string & message);
 
-    // get value statistics
-    void msg_valuestats(const string & message);
-
     // keep alive
     void msg_keepalive(const std::string & message);
 
@@ -127,6 +124,9 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
 
     // add document
     void msg_adddocument(const std::string & message);
+
+    // delete document for compatiblity with protocol < 30.2
+    void msg_deletedocument_pre_30_2(const std::string & message);
 
     // delete document
     void msg_deletedocument(const std::string & message);

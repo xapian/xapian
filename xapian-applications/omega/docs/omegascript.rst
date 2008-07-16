@@ -448,6 +448,8 @@ $transform{REGEXP,SUBST,STRING}
          $string =~ s/REGEXP/SUBST/;
          print $string;
 
+	[Disabled currently - will be enabled in Xapian 1.1.0]
+
 $uniq{LIST}
 	remove duplicates from a sorted list
 

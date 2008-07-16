@@ -1,229 +1,92 @@
-Mon Jul 14 05:13:55 GMT 2008  Olly Betts <olly@survex.com>
+Tue Jul 15 13:36:24 GMT 2008  Olly Betts <olly@survex.com>
 
-	* queryparser/lemon.c: Fix a typo, remove "\n" from the end of
-	  ErrorMsg() calls since it will get stripped anyway, and escape
-	  literal '%' in ErrorMsg() third arguments.
+	* PLATFORMS: Update with a few test builds of 1.0.7.
 
-Sun Jul 13 13:04:58 GMT 2008  Olly Betts <olly@survex.com>
+Tue Jul 15 13:00:01 GMT 2008  Olly Betts <olly@survex.com>
 
-	* queryparser/lemon.c: Update note of upstream version we're synced
-	  against.
+	* NEWS: Update for previous change - probably the last change for
+	  1.0.7.
 
-Sun Jul 13 12:56:58 GMT 2008  Olly Betts <olly@survex.com>
+Tue Jul 15 12:56:07 GMT 2008  Olly Betts <olly@survex.com>
 
-	* queryparser/lemon.c: Tweak previous merged patch so that we still
-	  get #line directives for code in %include directives.
+	* api/omenquire.cc: Fix percentage calculation to cope with excess
+	  precision on x86.  Fix method name for convert_to_percent_internal
+	  in debug logging.
 
-Sun Jul 13 12:54:03 GMT 2008  Olly Betts <olly@survex.com>
+Mon Jul 14 13:30:22 GMT 2008  Olly Betts <olly@survex.com>
 
-	* queryparser/lemon.c: Merge upstream "Check-in Number: 5335".
-	  Reduces the size of the stripped object file for
-	  queryparser_internal.cc by about 0.5%.
+	* NEWS: Update for 1.0.7.
 
-Sun Jul 13 12:32:06 GMT 2008  Olly Betts <olly@survex.com>
+Mon Jul 14 06:25:56 GMT 2008  Olly Betts <olly@survex.com>
 
-	* queryparser/lemon.c: Fix typo in comment.
-
-Sun Jul 13 12:30:38 GMT 2008  Olly Betts <olly@survex.com>
-
-	* queryparser/lemon.c: Merge upstream "Check-in Number: 5334".  No
-	  change to the generated code in our case.
-
-Sun Jul 13 12:24:13 GMT 2008  Olly Betts <olly@survex.com>
-
-	* configure.ac: Add missing hard requirement for libtool 2.2.4.
-
-Sun Jul 13 12:09:40 GMT 2008  Olly Betts <olly@survex.com>
-
-	* configure.ac,HACKING: Hard require autoconf 2.62 and automake 1.10.1.
-	  Move all information about particular autoconf and automake versions
-	  to HACKING.
-	* configure.ac: Use LT_INIT in preference to AC_PROG_LIBTOOL.  On
-	  Linux and k*bsd-gnu, override libtool's link_all_deplibs_CXX to
-	  "no".  On Linux, override libtool's sys_lib_dlsearch_path_spec to a
-	  list generated in a more reliable way which includes *all* the
-	  default directories.  Remove workaround which sets docdir for
-	  autoconf < 2.60 since we now require 2.62.
-	* xapian-core.spec.in: We no longer need to run autoreconf to work
-	  around libtool's incomplete sys_lib_dlsearch_path_spec or to pick
-	  up distro-specific patches for link_all_deplibs.
-
-Sun Jul 13 11:33:33 GMT 2008  Olly Betts <olly@survex.com>
-
-	* Makefile.am: No need to explicitly list m4/*.m4 in EXTRA_DIST as
-	  automake will automatically ship any such files which are needed.
-
-Sun Jul 13 09:15:34 GMT 2008  Olly Betts <olly@survex.com>
-
-	* api/omenquire.cc: Back out the rounding of percentages change (at
-	  least for now), as it makes percentage cut-offs work inconsistently.
-	* tests/api_anydb.cc: Add test pctcutoff3 which demonstrates the issue.
-
-Sun Jul 13 07:01:02 GMT 2008  Olly Betts <olly@survex.com>
-
+	* Backport change from trunk:
 	* include/xapian/enquire.h: Fix documentation comment for
 	  MSet::get_rank() - the 'document judged "most relevant" will have
 	  rank of 0' only when ordering primarily by relevance.
 
-Sun Jul 13 06:17:13 GMT 2008  Olly Betts <olly@survex.com>
+Mon Jul 14 06:20:06 GMT 2008  Olly Betts <olly@survex.com>
 
-	* matcher/multimatch.cc: Tweak layout (makes the backport diff
-	  much smaller and clearer, and reduces indentation by a level for a
-	  chunk of code).
-
-Fri Jul 11 13:44:56 GMT 2008  Olly Betts <olly@survex.com>
-
-	* tests/harness/testutils.cc: Fix typos in recent improved output.
-
-Fri Jul 11 13:04:41 GMT 2008  Olly Betts <olly@survex.com>
-
+	* Backport change from trunk:
 	* matcher/multimatch.cc: Collect up all the scaling factors we apply
 	  to the estimated number of matches and apply them in one go to avoid
 	  rounding the result more than once.
 
-Fri Jul 11 12:21:11 GMT 2008  Olly Betts <olly@survex.com>
+Mon Jul 14 06:05:36 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport change from trunk:
 	* tests/api_anydb.cc: Add testcase for percent cutoff plus collapsing
 	  which most likely would have failed before Richard's recent fix
 	  for the lower bound with collapsing and a matchdecider.
 
-Fri Jul 11 05:30:02 GMT 2008  Olly Betts <olly@survex.com>
+Mon Jul 14 05:46:46 GMT 2008  Olly Betts <olly@survex.com>
 
-	* backends/database.cc: Add support for XAPIAN_PREFER_CHERT
-	  environmental variable.
+	* HACKING,configure.ac: Align comments/documentation of required
+	  autotools versions with trunk as far as possible.  Raise hard
+	  requirement for automake from 1.8.3 to 1.9 because we've been
+	  using a feature added in 1.9 since Xapian 1.0.3!
 
-Thu Jul 10 22:21:46 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+Mon Jul 14 02:58:43 GMT 2008  Olly Betts <olly@survex.com>
 
-	* api/postingsource.cc: Fix skip_to() so that it doesn't advance if
-	  it's already in a suitable position.
-	* include/xapian/postingsource.h: Specify that skip_to() should
-	  stay in the same position if the current position is equal to
-	  the docid argument of skip_to().
-	* tests/api_db.cc: Add valueweightsource3 to check that skip_to()
-	  stays in the same position in this case.
+	* Makefile.am,acinclude.m4,autoconf/,m4/,m4-macros/: Rename m4/ to
+	  m4-macros/ and then autoconf/ to m4/ to match changes on trunk and
+	  make backporting future patches which touch these files easier.
 
-Thu Jul 10 13:14:14 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+Mon Jul 14 02:57:17 GMT 2008  Olly Betts <olly@survex.com>
 
-	* api/postingsource.cc: Performance improvement - open documents
-	  lazily (using the internal interface) so that we don't access
-	  the record table for each one - we now just access the value
-	  table.  Leads to considerable speed up for me (of the order of 5
-	  times faster).
-
-Thu Jul 10 09:49:39 GMT 2008  Olly Betts <olly@survex.com>
-
-	* HACKING: Overhaul the sections on building from SVN.  Remove ':'
-	  from the end of headings.
-
-Wed Jul 09 10:43:01 GMT 2008  Olly Betts <olly@survex.com>
-
-	* configure.ac: The workaround to avoid probe code for F77, GCJ, and
-	  RC being added to configure is no longer required now that we're
-	  using libtool 2.2 so remove it.
-
-Wed Jul 09 09:40:43 GMT 2008  Olly Betts <olly@survex.com>
-
-	* Makefile.am,acinclude.m4,autoconf/dir_contents,
-	  autoconf/rjb_find_stlport.m4,autoconf/type_socklen_t.m4,
-	  m4/dir_contents,m4/rjb_find_stlport.m4,m4/type_socklen_t.m4: Move
-	  the m4 macros which we ship for building configure from into the m4
-	  subdirectory and remove acinclude.m4 - now aclocal will pull in the
-	  required macros automatically.
-
-Wed Jul 09 09:14:31 GMT 2008  Olly Betts <olly@survex.com>
-
+	* Backport changes from trunk:
+	* m4-macros/dir_contents,m4-macros/xapian.m4,m4/dir_contents,m4/xapian.m4:
+	  Move xapain.m4 to a new subdirectory (m4-macros) since libtoolize
+	  now installs m4 files into subdirectory m4 which we don't really want
+	  picking up by applications building against an uninstalled xapian-core.
 	* Makefile.am: Update for m4 -> m4-macros change.
 
-Wed Jul 09 09:11:45 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+Mon Jul 14 01:14:41 GMT 2008  Olly Betts <olly@survex.com>
 
-	* matcher/externalpostlist.cc: Fix segfault if get_maxweight() is
-	  called when the postlist has reached end.  This happens if the
-	  end is reached during decay of an AND_MAYBE postlist to an AND.
-	* common/postlist.h,matcher/: Add comments documenting that
-	  recalc_maxweight() may be called after the postlist has reached
-	  the end, and noting why this is safe in various cases.
+	* autoconf/definedir.m4: Remove file missed in previous backport.
 
-Wed Jul 09 09:02:08 GMT 2008  Olly Betts <olly@survex.com>
+Sun Jul 13 13:38:02 GMT 2008  Olly Betts <olly@survex.com>
 
-	* m4-macros/dir_contents,m4-macros/xapian.m4,m4/dir_contents,
-	  m4/xapian.m4: Move xapain.m4 to a new subdirectory (m4-macros) since
-	  libtoolize now installs m4 files into subdirectory m4 which we don't
-	  really want picking up by applications building against an
-	  uninstalled xapian-core.
-
-Wed Jul 09 08:03:11 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* Makefile.am,m4/dir_contents,xapian.m4: Move xapian.m4 back into
-	  the m4 subdirectory.  For uninstalled builds, we need xapian.m4
-	  to be in a directory without any other .m4 files, or we'll be
-	  likely to pull in the wrong versions of other macros.  The top
-	  level directory contains aclocal.m4 and acinclude.m4, so isn't
-	  suitable for this.  Also, the xapian-bindings and omega
-	  compilations hadn't been updated with the new xapian.m4 location,
-	  so this fixes the build for them.
-
-Wed Jul 09 07:17:38 GMT 2008  Olly Betts <olly@survex.com>
-
-	* Makefile.am,configure.ac: Use AC_CONFIG_MACRO_DIR and
-	  ACLOCAL_AMFLAGS as libtoolize 2.2.4 recommends.
-
-Wed Jul 09 06:37:21 GMT 2008  Olly Betts <olly@survex.com>
-
-	* acinclude.m4: Remove reference to definedir.m4.
-
-Wed Jul 09 05:32:24 GMT 2008  Olly Betts <olly@survex.com>
-
-	* Makefile.am,m4/dir_contents,m4/xapian.m4,xapian.m4: Move xapian.m4
-	  to the top level rather than devoting a whole directory to a single
-	  file.
-
-Wed Jul 09 05:23:02 GMT 2008  Olly Betts <olly@survex.com>
-
+	* Backport changes from trunk:
 	* Makefile.am,autoconf/definedir.m4,configure.ac: AC_DEFINE_DIR()
 	  hasn't been used for years so remove it.
+	* acinclude.m4: Remove reference to definedir.m4.
 
-Wed Jul 09 02:32:38 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+Sun Jul 13 06:19:54 GMT 2008  Olly Betts <olly@survex.com>
 
-	* api/postingsource.cc,include/xapian/postingsource.h: Add an
-	  alternative constructor for ValueWeightPostingSource which allows
-	  the upper bound on the weights stored to be specified manually.
-	  This is useful for database formats like flint which don't have
-	  an upper bound available.  It could conceivably also be useful if
-	  you know that a query will only be accessing a subset of
-	  documents for which you know a more precise upper bound than the
-	  database-wide upper bound.
-
-Wed Jul 09 01:59:56 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* matcher/externalpostlist.cc: Add DEBUGCALL macros to enable
-	  easier debugging.
-
-Mon Jul 07 12:40:20 GMT 2008  Olly Betts <olly@survex.com>
-
-	* HACKING,NEWS: Update to reflect the autotools now being in the SVN
-	  tree, and the versions we are now bootstrapping with.
-	* NEWS: Update from ChangeLog.
-
-Sun Jul 06 22:59:04 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
+	* Backport changes from trunk:
 	* matcher/multimatch.cc,matcher/remotesubmatch.cc,
 	  matcher/remotesubmatch.h: Apply patch from ticker #279 to improve
 	  performance of matches with multiple remote databases.  This adds
 	  a special case for the top match being from a remote database, to
 	  avoid accessing the termlist to calculate the percentage scaling
 	  factor.
+	* matcher/multimatch.cc: Tweak layout (makes the backport diff
+	  much smaller and clearer, and reduces indentation by a level for a
+	  chunk of code).
 
-Sun Jul 06 22:55:17 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+Sat Jul 12 06:37:15 GMT 2008  Olly Betts <olly@survex.com>
 
-	* api/omenquire.cc: When calculating percentages, round to the
-	  nearest integer, rather than rounding down.  There was a FIXME
-	  about this, but no explanation of why it hadn't already been
-	  done, and I can see no bad side effects so far.  The most obvious
-	  positive effect is that queries which should get precisely 100%
-	  will no longer be assigned 99% due to rounding errors.
-
-Sun Jul 06 22:48:30 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
+	* Backport change from trunk:
 	* tests/api_anydb.cc: Add new test, topercent2, checking the
 	  percentage values returned by standard searches, both against
 	  known current values for some of the hits, and against a search
@@ -232,19 +95,18 @@ Sun Jul 06 22:48:30 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 	* tests/api_db.cc: In rsetmultidb2, test the return value of
 	  mset_range_is_same_weights().
 
-Sun Jul 06 22:46:23 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+Sat Jul 12 06:30:45 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport changes from trunk:
 	* tests/harness/testutils.cc,tests/harness/testutils.h: Add
 	  function to test if two mset ranges have the same percentages,
 	  and slightly improve the messages on failure of the mset range
 	  comparison tests.
+	* tests/harness/testutils.cc: Fix typos in recent improved output.
 
-Fri Jul 04 23:31:14 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+Fri Jul 11 14:04:21 GMT 2008  Olly Betts <olly@survex.com>
 
-	* NEWS: Swap two words to make a sentence make sense.
-
-Fri Jul 04 11:40:13 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
+	* Backport change from trunk:
 	* matcher/multimatch.cc: Fix calculation of lower bound when
 	  collapsing and match deciders are used.  (Only tended to manifest
 	  when the collapsing threw away a lot of documents, and when also
@@ -257,292 +119,175 @@ Fri Jul 04 11:40:13 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 	* tests/api_db.cc: Add regression test for calculation of the lower
 	  bound.
 
-Fri Jul 04 10:24:16 GMT 2008  Olly Betts <olly@survex.com>
+Thu Jul 10 23:57:42 GMT 2008  Olly Betts <olly@survex.com>
 
-	* Makefile.am,bin/Makefile.mk,examples/Makefile.mk: Remove
-	  extra_cleandirs as automake 1.10.1 fixes the bug which it was working
-	  around.
-
-Fri Jul 04 04:36:59 GMT 2008  Olly Betts <olly@survex.com>
-
-	* HACKING: Synchronise tiny change from branches/1.0 which isn't
-	  on trunk for some reason.
-
-Fri Jul 04 04:35:19 GMT 2008  Olly Betts <olly@survex.com>
-
-	* HACKING: Bootstrap with newer versions of the autotools:
-	  + autoconf 2.61 -> 2.62: faster
-	  + automake 1.10 -> 1.10.1: "make clean" cleans all .libs
-	    directories.
-	  + libtool 1.5.24 -> 2.2.4: many improvements; faster.
-
-Thu Jul 03 03:17:42 GMT 2008  Olly Betts <olly@survex.com>
-
-	* docs/glossary.rst,docs/intro_ir.html: Improve intro_ir a bit, and
-	  link to the definition of RSet in the glossary.
-
-Thu Jul 03 01:30:56 GMT 2008  Olly Betts <olly@survex.com>
-
-	* examples/quest.cc: Output get_description() of the parsed query.
-
-Sun Jun 29 18:56:06 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
+	* Backport change from trunk:
 	* matcher/multimatch.cc: Rename percent_factor variable, used here
 	  as part of the percent_cutoff mechanism, to make its purpose
 	  clearer, and to avoid confusing it with percent_scale in this
 	  file, and percent_factor used elsewhere in matcher/.
 
-Sat Jun 28 21:51:42 GMT 2008  Olly Betts <olly@survex.com>
+Thu Jul 10 23:43:11 GMT 2008  Olly Betts <olly@survex.com>
 
-	* docs/doxygen_api_conf.in,docs/doxygen_full_conf.in: Disable
-	  "JAVADOC_AUTOBRIEF" since we always try to write a brief
-	  description explicitly, and it causes problems in some cases.
+	* NEWS: autoconf upgrade means we now warn about unrecognised
+	  configure options.
 
-Sat Jun 28 21:32:21 GMT 2008  Olly Betts <olly@survex.com>
+Thu Jul 10 10:28:58 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport changes from trunk:
+	* HACKING: Update to reflect the autotools now being in the SVN
+	  tree, and the versions we are now bootstrapping with.
+	* HACKING: Overhaul the sections on building from SVN.  Remove ':'
+	  from the end of headings.
+
+Fri Jul 04 10:26:21 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* Makefile.am,bin/Makefile.mk,examples/Makefile.mk: Remove
+	  extra_cleandirs as automake 1.10.1 fixes the bug which it was working
+	  around.
+
+Fri Jul 04 09:02:35 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
+Fri Jul 04 02:55:21 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Fix mangled line (which is correct in trunk).
+
+Fri Jul 04 02:39:50 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Bootstrap with newer versions of the autotools:
+	  + autoconf 2.61 -> 2.62: faster
+	  + automake 1.10 -> 1.10.1: "make clean" cleans all .libs
+	    directories.
+	  + libtool 1.5.24 -> 1.5.26: Improved support for Mac OS X Leopard;
+	    Support for AIX 6.1.
+
+Thu Jul 03 03:19:01 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/glossary.rst,docs/intro_ir.html: Improve intro_ir a bit, and
+	  link to the definition of RSet in the glossary.
+
+Thu Jul 03 01:32:49 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* examples/quest.cc: Output get_description() of the parsed query.
+
+Sat Jun 28 21:33:48 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
 	* common/: Fix typos in doxygen comments.
 
-Sat Jun 28 10:33:06 GMT 2008  Olly Betts <olly@survex.com>
+Sat Jun 28 10:42:23 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport change from trunk:
 	* languages/stem.cc: Add "nl" for selecting the Dutch stemmer, which
 	  was accidentally missing from the list of language codes recognised.
 	  Reported by Joey Hess in Debian bug #484458.
 	* tests/api_nodb.cc: Extend stemlangs1 to check that all the language
 	  codes work, and so does Stem("").
 
-Fri Jun 27 00:27:31 GMT 2008  Olly Betts <olly@survex.com>
+Thu Jun 27 00:07:49 GMT 2008  Olly Betts <olly@survex.com>
 
-	* NEWS: Update from ChangeLog and against 1.0 branch.
+	* NEWS: Update from ChangeLog.
 
-Thu Jun 26 17:17:41 GMT 2008  Olly Betts <olly@survex.com>
+Thu Jun 26 19:20:03 GMT 2008  Olly Betts <olly@survex.com>
 
-	* net/remoteconnection.cc: The "already done" check in do_close() is
-	  no longer useful, so remove it.  Shrink the try block to only cover
-	  the call to send_message().
-
-Thu Jun 26 08:19:41 GMT 2008  Olly Betts <olly@survex.com>
-
+	* Backport changes from trunk:
 	* net/remoteconnection.cc: Don't bother to send MSG_SHUTDOWN for a
 	  read-only Database - just closing the connection is enough.
+	* net/remoteconnection.cc: Shrink the try block to only cover the call
+	  to send_message().
 
-Thu Jun 26 04:49:06 GMT 2008  Olly Betts <olly@survex.com>
+Thu Jun 26 08:36:37 GMT 2008  Olly Betts <olly@survex.com>
 
-	* backends/chert/chert_btreebase.cc: Don't need <string.h> as well as
-	  <cstring>.
-	* backends/flint/flint_btreebase.cc,bin/xapian-replicate-server.cc:
-	  Prefer <cXXX> to <XXX.h>.
-
-Tue Jun 24 04:31:10 GMT 2008  Olly Betts <olly@survex.com>
-
+	* Backport change from trunk:
 	* tests/harness/testsuite.cc: Use resize() to truncate a string.
 
-Tue Jun 24 04:23:59 GMT 2008  Olly Betts <olly@survex.com>
+Thu Jun 26 08:34:45 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport change from trunk:
 	* net/remoteconnection.cc: Fill in a guess at the __WIN32__ version of
 	  the code needed in RemoteConnection::do_close().
 
-Tue Jun 24 04:06:02 GMT 2008  Olly Betts <olly@survex.com>
+Thu Jun 26 08:30:14 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport change from trunk:
 	* net/progclient.cc: Fix debug logging for __WIN32__.
 
-Tue Jun 24 03:11:09 GMT 2008  Olly Betts <olly@survex.com>
+Thu Jun 26 08:23:54 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport change from trunk:
 	* net/remoteserver.cc: Just delete the Database * pointer db.  The
 	  Database dtor is virtual, so it's fine to delete a WritableDatabase
 	  via a Database * pointer.
 
-Tue Jun 24 01:29:12 GMT 2008  Olly Betts <olly@survex.com>
+Thu Jun 26 07:21:42 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport change from trunk:
 	* backends/remote/remote-database.cc,common/remoteconnection.h,
-	  net/remoteconnection.cc,net/replicatetcpclient.cc: Wait for the
-	  connection to close rather than using a different shutdown message
-	  which requires a reply.  Mostly this is more backport-friendly, but
-	  it also avoids a message reply (albeit it not in a performance
-	  sensitive situation).  Needs implementing for __WIN32__.
+	  net/remoteconnection.cc: Wait for the connection to close rather
+	  than using a different shutdown message which requires a reply.
+	  Mostly this is more backport-friendly, but it also avoids a message
+	  reply (albeit it not in a performance sensitive situation).  Needs
+	  implementing for __WIN32__.
 
-Tue Jun 24 01:07:16 GMT 2008  Olly Betts <olly@survex.com>
+Thu Jun 26 06:43:08 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport changes from trunk:
+	* net/remoteserver.cc: Kill a blank line.
 	* net/remoteserver.cc: Unwrap comment.
 
-Tue Jun 24 00:52:02 GMT 2008  Olly Betts <olly@survex.com>
+Thu Jun 26 06:41:38 GMT 2008  Olly Betts <olly@survex.com>
 
-	* net/remoteserver.cc: Kill a blank line.
-
-Tue Jun 24 00:49:50 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/remote/remote-database.cc,common/remoteconnection.h,
-	  common/remoteprotocol.h,docs/remote_protocol.html,
-	  net/remoteconnection.cc,net/remoteserver.cc,
-	  net/replicatetcpclient.cc: Revert r10713 in preparation for applying
-	  an alternative fix.
-
-Mon Jun 23 21:51:42 GMT 2008  Olly Betts <olly@survex.com>
-
-	* HACKING: Expand list of keywords for brace cuddling.  Add rationale.
-
-Mon Jun 23 01:53:03 GMT 2008  Olly Betts <olly@survex.com>
-
+	* Backport changes from trunk:
 	* tests/queryparsertest.cc: Cuddle braces after for loops for
 	  consistency with the rest of the code.  Use string::resize() to
 	  shrink a string rather than assigning the result of substr(0, x).
 	* HACKING: Explicitly document that braces should be cuddled after
 	  control flow structures.
+	* HACKING: Expand list of keywords for brace cuddling.  Add rationale.
 
-Mon Jun 23 01:34:39 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+Thu Jun 26 05:50:29 GMT 2008  Olly Betts <olly@survex.com>
 
-	* tests/perftest/perftest_matchdecider.cc: Reworked performance
-	  test to include a test of an alldocspostingiterator, and to only
-	  rebuild the database involved if it's not up-to-date.
-
-Mon Jun 23 01:20:25 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* common/valuestats.h: Add missing #include.
-
-Mon Jun 23 01:10:19 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* bin/xapian-compact.cc: Add support for the valuestats which are
-	  now held in the value table for chert.
-
-Sun Jun 22 23:44:46 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* backends/chert/: Change ChertAllDocsPostList to inherit from
-	  ChertPostList and use the doclen list from the posting table
-	  rather than using the termlist table.  This helps towards making
-	  the termlist table optional, reduces the amount of data read in
-	  the process of iterating through an alldocs postlist, and can
-	  make a massive difference in performance: I've measured the time
-	  to iterate through all the documents in a 1000000 document
-	  database, and the patch speeds this operation up by a factor of
-	  6.
-
-	  Add `keep_reference` parameter to the ChertPostList constructor,
-	  instead of not keeping a reference if the term is empty.
-	  ChertAllDocsPostList uses this to keep a reference to the
-	  database while using an empty term.
-
-	  Add ChertAllDocsModifiedPostList class, inspired by
-	  ChertModifiedPostList, (with corresponding new source files) to
-	  handle alldocs postlist with modifications: this wasn't needed
-	  before since the termlist is updated immediately after changes.
-
-Sun Jun 22 21:37:00 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* tests/harness/: Add "name" parameter to
-	  BackendManager::get_writable_database_as_database(), and
-	  BackendManager::get_writable_database_again(), (and subclasses)
-	  so that old databases can be revived.  Useful for the performance
-	  tests.
-
-Sun Jun 22 09:30:44 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
+	* Backport change from trunk:
 	* tests/api_anydb.cc: Expand tests for alldocspostlist, covering
 	  iteration of modified databases.
 
-Fri Jun 20 08:28:12 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+Thu Jun 26 05:14:26 GMT 2008  Olly Betts <olly@survex.com>
 
-	* backends/remote/remote-database.cc,common/remoteconnection.h,
-	  common/remoteprotocol.h,docs/remote_protocol.html,
-	  net/remoteconnection.cc,net/remoteserver.cc,
-	  net/replicatetcpclient.cc: Add new message
-	  "MSG_SHUTDOWNANDCONFIRM" which causes a reply of
-	  "REPLY_SHUTDOWNCONFIRMATION" to be sent after the database has
-	  been closed.  Use this message when closing a writable database,
-	  to ensure that the destructor doesn't return until the lock on
-	  the database has been released.
-
-Tue Jun 17 14:28:46 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* tests/perftest/freemem.cc,tests/perftest/perftest.cc: Patches
-	  from Charlie to allow perftest to compile on windows.
-
-Tue Jun 17 13:23:18 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* backends/chert/chert_btreebase.cc,backends/chert/chert_lock.cc,
-	  backends/flint/flint_btreebase.cc,backends/flint/flint_lock.cc,
-	  bin/xapian-replicate-server.cc: Add some missing includes, needed
+	* backends/flint/flint_btreebase.cc: Add explicit '#include <cstring>'
 	  for GCC 4.3.
 
-Tue Jun 17 11:00:56 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+Thu Jun 26 03:37:36 GMT 2008  Olly Betts <olly@survex.com>
 
-	* tests/perftest/get_machine_info.in: Updates to hopefully get
-	  useful version information on windows.
-
-Mon Jun 16 12:13:48 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* tests/harness/testsuite.cc: Don't call backendmanager->posttest()
-	  if no backendmanager is in use.
-
-Sun Jun 15 02:19:03 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* tests/harness/: Wait for subprocesses to finish at end of tests,
-	  with remotetcp backend, to avoid test failures due to final flush
-	  of a subprocess writing to the database used for the next test.
-
-Thu Jun 12 09:09:44 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* common/unaligned.h: Add some casts to make GCC 4.3.0 happy.
-
-Thu Jun 12 09:06:21 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* backends/chert/chert_btreebase.cc: Add missing #include (needed
-	  for compilation with GCC 4.3.0).
-
-Tue Jun 10 17:38:07 GMT 2008  Olly Betts <olly@survex.com>
-
-	* tests/harness/testrunner.cc: Use startswith().  Fix memory leak.
-
-Fri Jun 06 11:02:56 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* Makefile.am,tests/Makefile.am: Fix make check-* targets to match
-	  the current set of backends.  Add .multichert and .multiflint to
-	  the clean-local hook in tests/.  Leave .multi there for now, to
-	  clean up existing .multi directories in the automated build trees.
-
-Fri Jun 06 08:26:49 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* common/Makefile.mk: Add valuestats.h to distribution.
-
-Thu Jun 05 23:37:37 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* backends/chert/chert_values.cc: Fix compile error in assertion in
-	  recently added code for calculating value statistics.
-
-Thu Jun 05 21:38:01 GMT 2008  Olly Betts <olly@survex.com>
-
+	* Backport change from trunk:
 	* queryparser/queryparser.lemony: Use std::vector<Term *> rather than
 	  std::list<Term *> so that size() is O(1) with any (sane) compiler
 	  and because a list of pointers isn't space efficient (and we don't
 	  need to splice here).  Factor out common code in if branches in
 	  TermGroup::as_group().
 
-Thu Jun 05 17:04:23 GMT 2008  Olly Betts <olly@survex.com>
+Thu Jun 26 03:35:17 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport changes from trunk:
 	* queryparser/queryparser.lemony: Use "startswith()" to avoid creating
 	  a new string object.
-
-Thu Jun 05 09:09:54 GMT 2008  Olly Betts <olly@survex.com>
-
 	* queryparser/queryparser.lemony: Remove variable which is set but
 	  never otherwise used.
 
-Thu Jun 05 09:08:22 GMT 2008  Olly Betts <olly@survex.com>
+Thu Jun 26 03:30:41 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport change from trunk:
 	* api/omqueryinternal.cc: Don't call find() twice - reuse the result
 	  we just got.  Use AssertEq() rather than Assert() on an equality
 	  test.  Clarify a comment.
 
-Wed Jun 04 21:32:11 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+Thu Jun 26 03:28:17 GMT 2008  Olly Betts <olly@survex.com>
 
-	* queryparser/queryparser.lemony: Fix more O(N*N) scaling, this
-	  time in the way in which auto multiword synonyms are detected.
-	  Instead of trying all possible sub-sequences of terms for
-	  synonyms, use synonym_keys and the skip_to() method to check for
-	  synonyms which actually exist in the synonyms table.
-	* tests/queryparsertest.cc: Extend the scaling test to check this
-	  case.
-
-Wed Jun 04 12:42:32 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
+	* Backport changes from trunk:
 	* queryparser/queryparser.lemony: Fix various cases where queries
 	  were constructed pair-wise within a loop, which leads to O(N*N)
 	  scaling behaviour (because each intermediate query construction
@@ -552,111 +297,24 @@ Wed Jun 04 12:42:32 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 	  query scales roughly linearly with query size.
 	* common/omtime.h: Add method to get an OmTime as a double - used
 	  by the new query parser test.
+	* queryparser/queryparser.lemony: Fix more O(N*N) scaling, this
+	  time in the way in which auto multiword synonyms are detected.
+	  Instead of trying all possible sub-sequences of terms for
+	  synonyms, use synonym_keys and the skip_to() method to check for
+	  synonyms which actually exist in the synonyms table.
+	* tests/queryparsertest.cc: Extend the scaling test to check this
+	  case.
 
-Wed Jun 04 12:18:35 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+Thu Jun 26 03:16:15 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport change from trunk:
 	* tests/harness/testsuite.h: Fix TEST_LESSER_OR_EQUAL and
 	  TEST_LESSER macros to compare in the right direction (these
 	  macros are, so far, unused).
 
-Mon Jun 02 18:19:22 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+Wed Jun 25 09:50:19 GMT 2008  Olly Betts <olly@survex.com>
 
-	* api/postingsource.cc: Make ValueWeightPostingSource use value
-	  statistics, if they're available, to return accurate term
-	  frequency statistics, and a better maxweight.
-	* tests/api_db.cc: Add valueweightsource2, to test the bounds and
-	  maxweight returned by a ValueWeightPostingSource for backends
-	  with valuestats support.  Replace !multi condition in
-	  valueweightsource1 with a SKIP_TEST_FOR_BACKEND invocation, since
-	  this is a shortcoming we should fix at some point.
-
-Mon Jun 02 18:16:52 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* tests/harness/testrunner.cc,tests/harness/testrunner.h: Replace
-	  DO_TESTS_FOR_BACKEND macro with a do_tests_for_backend method;
-	  the method version takes a BackendManager * and gets the backend
-	  name from that, rather than requiring it to be specified.
-	  Requires addition of a couple of extra private members to the
-	  TestRunner class.
-
-Mon Jun 02 10:27:45 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* include/xapian/database.h: Add get_value_freq(),
-	  get_value_lower_bound() and get_value_upper_bound() methods to
-	  Database, to get statistics about the values stored in a slot.
-	* api/omdatabase.cc,backends/chert/,backends/database.cc,
-	  backends/inmemory/inmemory_database.cc,
-	  backends/inmemory/inmemory_database.h,
-	  backends/remote/remote-database.cc,common/,
-	  net/remoteserver.cc: Add support for the value statistics methods
-	  to chert, inmemory, multi and remote databases.
-	* tests/Makefile.am,tests/api_valuestats.cc,
-	  tests/harness/testrunner.cc,tests/harness/testrunner.h: Add test
-	  of the value statistics code, and a "valuestats" backend property
-	  to select only backends supporting this.
-
-Mon Jun 02 10:26:12 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* tests/harness/backendmanager.cc,tests/harness/backendmanager.h:
-	  Move implementation of get_dbtype() method out of header.
-
-Mon Jun 02 09:44:34 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* rests/harness/: Make flint and chert subtypes for the remote and
-	  multi backend types.  These are specified (on the command line
-	  and elsewhere) by the main type (multi, remotetcp or remoteprog),
-	  followed by an underscore, followed by the subtype (flint or
-	  chert).  Change return type of BackendManager::get_dbtype() to a
-	  string instead of a const char *, to allow backend managers which
-	  have subtypes to generate the result dynamically.
-	* tests/harness/backendmanager_remote.cc,
-	  tests/harness/backendmanager_remote.h,
-	  tests/harness/backendmanager_remoteprog.cc,
-	  tests/harness/backendmanager_remoteprog.h,
-	  tests/harness/backendmanager_remotetcp.cc,
-	  tests/harness/backendmanager_remotetcp.h: Add new
-	  BackendManagerRemote class as a common base for the two remote
-	  backend managers, and move duplicated code into it.  Add
-	  parameter to its constructor, and to the constructors of the
-	  remote backend manager subclasses, to control the type of
-	  database to use at the remote end.
-	* tests/harness/backendmanager_multi.cc,
-	  tests/harness/backendmanager_multi.h: Add parameter to
-	  constructor of BackendManagerMulti, controlling the type of
-	  database to use for sub databases.  Put the generated database
-	  files in ".multiflint" and ".multichert" instead of ".multi".
-	* tests/harness/testrunner.cc: Update list of backend properties to
-	  contain the new subtypes.  Modify use_backend() to allow either
-	  the full backend type, or just the main part of the backend type,
-	  to be specified, so that, for example "-b multi" will run both
-	  the multi_chert and multi_flint tests.  Add test runs for all the
-	  subtypes now supported.  Catch string exceptions thrown by the
-	  test runner - these can currently occur when neither flint or
-	  chert are compiled in.
-	* tests/apitest.cc,tests/apitest.h: Adjust return type of
-	  get_dbtype(), implement skip_test_*_backend functions which just
-	  check the prefix of the type, and implement SKIP_TEST_*_BACKEND
-	  macros using these.
-	* tests/api_anydb.cc: Modify check for running on a multi backend
-	  to copy with getting a string back from get_dbtype().
-
-Sat May 31 00:55:03 GMT 2008  Olly Betts <olly@survex.com>
-
-	* tests/Makefile.am,tests/perftest/Makefile.mk: Remove unnecessary
-	  quotes.
-
-Thu May 29 16:04:56 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* tests/perftest/: Update svn:ignore property for perftest changes.
-
-Thu May 29 14:33:51 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* tests/perftest/perftest.cc: Include the xapian version string in
-	  the test output.  For runs from SVN, also include the subversion
-	  revision number and branch in the output.
-
-Wed May 28 21:47:37 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
+	* Backport change from trunk:
 	* matcher/valuegepostlist.cc,matcher/valuerangepostlist.cc,
 	  matcher/valuerangepostlist.h: Apply patch from ticket #270 to
 	  implement ValueRangePostList::next() by using an alldocs posting
@@ -667,60 +325,225 @@ Wed May 28 21:47:37 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 	  in speed, I think this approach is at least safe, and probably
 	  superior.
 
-Wed May 28 21:28:38 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+Wed Jun 25 09:49:23 GMT 2008  Olly Betts <olly@survex.com>
 
-	* tests/perftest/perftest.cc: Log the flush threshold for indexing
-	  runs.
-	* tests/perftest/perftest_randomidx.cc: Set the run size back to a
-	  reasonably large value.
+	* backends/quartz/quartz_alldocspostlist.cc: skip_to() needs to set
+	  have_started if it isn't already set.
 
-Wed May 28 20:48:10 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+Tue Jun 24 07:28:43 GMT 2008  Olly Betts <olly@survex.com>
 
-	* configure.ac,tests/,tests/perftest/,tests/perftest_matchdecider.cc,
-	  tests/perftest_randomidx.cc: Move performance test source files
-	  into a subdirectory.  Modify output of performance tests to
-	  include some basic system information, and also to include
-	  details of the parameters used to perform indexing tests.
+	* Backport change from trunk:
+	* common/postlist.h: Decree that PostList::check() must be passed a
+	  docid which actually exists in the database (which is always true
+	  currently and seems unlikely to be an onerous requirement).
+	* matcher/valuegepostlist.cc,matcher/valuerangepostlist.cc: Take
+	  advantage of this new precondition to simplify the code.
+	* matcher/valuegepostlist.cc,matcher/valuerangepostlist.cc: Move the
+	  corresponding header first as our header inclusion order guidelines
+	  recommend.
 
-Wed May 28 20:42:56 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+Tue Jun 24 05:37:02 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport change from trunk:
+	* tests/termgentest.cc: Pass Xapian::Document by const reference.
+
+Tue Jun 24 05:17:12 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* api/omqueryinternal.cc,backends/flint/flint_btreebase.cc,
+	  backends/flint/flint_utils.h,
+	  backends/inmemory/inmemory_positionlist.cc,matcher/stats.cc:
+	  Assorted formatting tweaks.
+
+Wed May 28 23:23:43 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* common/omassert.h: Add AssertEqDoubleParanoid().
+	* matcher/multimatch.cc: Use it instead of home-brewed version.
+
+Wed May 28 20:54:47 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
 	* HACKING: Fix numbering in checklist for developers so that it
 	  doesn't repeat section 5.
 
-Sun May 25 14:21:40 GMT 2008  Olly Betts <olly@survex.com>
+Sun May 25 13:03:53 GMT 2008  Olly Betts <olly@survex.com>
 
-	* NEWS: Update to match 1.0 branch.
+	* NEWS: Update from ChangeLog.
 
-Sun May 25 00:24:09 GMT 2008  Olly Betts <olly@survex.com>
+Sun May 25 00:26:38 GMT 2008  Olly Betts <olly@survex.com>
 
-	* NEWS: Start to update from ChangeLog, stripping out backported
-	  changes.
+	* Backport change from trunk:
+	* backends/flint/flint_btreeutil.h: Fix some out-of-date comments.
+	* configure.ac: Use AC_CHECK_SIZEOF to define SIZEOF_INT and
+	  SIZEOF_LONG.
+	* backends/flint/flint_types.h: Use SIZEOF_INT and SIZEOF_LONG to
+	  determine the type of uint4 rather than always using unsigned long
+	  (which is 64 bits on most 64 bit Unix platforms).  Drop int4 for
+	  the time being, as we don't actually use it.
+	* backends/quartz/quartz_types.h: Adapt flint change for quartz
+	  (required to avoid differing uint4 types which clash in
+	  backends/database.cc).
 
-Sat May 24 16:38:49 GMT 2008  Olly Betts <olly@survex.com>
+Sun May 25 00:04:51 GMT 2008  Olly Betts <olly@survex.com>
 
-	* NEWS,configure.ac: Update to match 1.0 branch.
+	* Backport change from trunk:
+	* backends/flint/flint_table.cc,backends/flint/flint_table.h:
+	  Gently rearrange where and how we check for overlong keys.
+	* tests/api_wrdb.cc: Extend termtoolong1 to test that the "term too
+	  long" exception messages contain the length correctly.
 
-Sat May 24 16:33:19 GMT 2008  Olly Betts <olly@survex.com>
+Sat May 24 23:32:27 GMT 2008  Olly Betts <olly@survex.com>
 
-	* tests/termgentest.cc: Pass Xapian::Document by const reference.
+	* Backport changes from trunk:
+	* api/omqueryinternal.cc: Optimise Query(OP_VALUE_GE, <n>, "") to
+	  Query::MatchAll.
+	* tests/api_nodb.cc: Add testcase for this case.
+	* api/omqueryinternal.cc: Initialise term_pos in previous change to
+	  fix valgrind-detected error.
 
-Sat May 24 14:30:59 GMT 2008  Olly Betts <olly@survex.com>
+Sat May 24 22:38:49 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport change from trunk:
+	* matcher/multimatch.cc: Modify the estimate for the number of hits
+	  based on the rate at which a match decider has been denying
+	  documents.  Also, reduce the upper bound based on the number of
+	  documents denied.
+	* tests/api_db.cc: Check that the upper bound when a match decider
+	  is used is within the valid range, rather than a particular
+	  value.
+
+Sat May 24 22:17:10 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/api_db.cc: Test matchfunctor bounds in combination with
+	  collapsing and percentage cutoff.  Also, range check
+	  get_matches_estimated rather than checking it's exactly the value
+	  currently returned.
+
+Sat May 24 21:42:08 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* bin/xapian-inspect.cc: Print top-bit-set characters as escaped
+	  hex forms as they often won't be valid UTF-8 sequences.
+
+Sat May 24 21:36:40 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* common/utils.cc,common/utils.h: Add "dir_exists" function, to
+	  check for presence of a directory at a given path.
+	* bin/xapian-inspect.cc: Add '#include "utils.h"' so previous
+	  backported change actually compiles (cough).
+
+Sat May 24 20:10:03 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* bin/xapian-inspect.cc: Check for the user passing a database
+	  directory and issue a special error message since this is an obvious
+	  mistake to make.
+
+Sat May 24 20:07:55 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Fix --enable-log=profile to be recognised.
+	* common/omdebug.cc,common/omdebug.h: Fix build with
+	  --enable-log=profile.
+
+Sat May 24 19:56:07 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/Makefile.am: "make up" in tests now does "make" in the
+	  top-level.
+
+Sat May 24 19:53:41 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* api/omdatabase.cc: Replace uses of DEBUGLINE(SPELLING, ...) in
+	  Database::get_spelling_suggestion() with standard
+	  DEBUGAPICALL/RETURN tracing.  Add DEBUGAPICALL/RETURN tracing to
+	  a few Database methods which were missing it.
+
+Sat May 24 19:49:51 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* api/,queryparser/queryparser.cc: Remove debug log tracing from
+	  get_description() methods since the debug log call tracing *calls*
+	  get_description() methods on parameters, so logging these calls just
+	  makes for more confusing debug logs.  A get_description() method
+	  should have no side-effects so it's not very interesting even when
+	  explicitly called by the user.
+	* common/omdebug.h: Replace "OM_DEBUG_INTRO" class with dummy
+	  placeholder (to preserve numbering), to help prevent accidentally
+	  adding these back.
+
+Sat May 24 19:42:59 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* api/omqueryinternal.cc,common/: Stop describing get_description() as
+	  an "Introspection method" internal (matching earlier change to stop
+	  doing so externally).  This doesn't help to explain what it does,
+	  and get_description() doesn't actually fall under any of the formal
+	  definitions of "introspection" I can find.
+
+Sat May 24 19:35:31 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* matcher/multimatch.cc: Set matches_lower_bound to 0 before
+	  starting the match process if there is a match decider or spy;
+	  previously, the lower_bound wasn't being reduced in the presence
+	  of a match decider unless all the potential results were
+	  retrieved.
+	* tests/api_db.cc: Extend matchfunctor1 to check the bounds and
+	  estimates returned; includes a regression test for the above.
+	* matcher/multimatch.cc: Avoid needless call to pl->get_termfreq_est()
+	  if we're using a matchdecider or matchspy.
+
+Sat May 24 19:01:38 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* AUTHORS: Add Matthew Somerville for Search::Xapian patches.
+	* AUTHORS: Add Alexandre Gauthier, for supplying a method for doing
+	  python packaging for Windows.
+
+Sat May 24 18:57:21 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* bin/xapian-compact.cc: Update terminology - the "meta file" is now
+	  called the "version file".
+
+Sat May 24 16:39:44 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* NEWS: Fix missing line in old entry.
+
+Sat May 24 16:26:55 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog for 1.0.7.
+
+Sat May 24 16:26:31 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: Update in preparation for 1.0.7.
+
+Sat May 24 14:42:31 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
 	* bin/xapian-compact.cc: Only warn about duplicate user metadata keys
 	  if the tags aren't the same.
 
-Sat May 24 12:14:55 GMT 2008  Olly Betts <olly@survex.com>
+Sat May 24 14:40:49 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport change from trunk:
 	* bin/Makefile.am: Put special -I options in foo_CPPFLAGS not
 	  foo_CXXFLAGS.  As well as being the more correct place, this also
 	  means that AM_CXXFLAGS is now used when compiling xapian-check and
 	  xapian-compact, which in particular enables compiler warnings.
-	* bin/xapian-check.cc,bin/xapian-compact.cc,bin/xapian-check-flint.cc:
-	  Fix warnings (one unused variable and a few cases of a variable
-	  masking another with the same name - none problematic in practice).
+	* bin/xapian-check.cc,bin/xapian-compact.cc: Fix warnings (a few cases
+	  of a variable masking another with the same name - none problematic
+	  in practice).
 
-Fri May 23 09:22:24 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+Fri May 23 09:28:58 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
+	* Backport change from trunk:
 	* backends/inmemory/inmemory_database.cc: Fix bug in inmemory
 	  database, which resulted in the values not being stored correctly
 	  if document IDs were sparse.
@@ -733,2074 +556,373 @@ Fri May 23 09:22:24 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 	  alldocs postlist in a sparse database (this passed before the
 	  above changes, but might as well be added anyway).
 
-Wed May 21 19:33:12 GMT 2008  Olly Betts <olly@survex.com>
+Wed May 21 23:18:13 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport change from trunk:
 	* docs/Makefile.am: test == isn't portable - use test = instead.
 
-Wed May 21 13:22:23 GMT 2008  Olly Betts <olly@survex.com>
+Wed May 21 23:06:51 GMT 2008  Olly Betts <olly@survex.com>
 
-	* HACKING: Fix path for atreus.
-
-Wed May 21 13:21:08 GMT 2008  Olly Betts <olly@survex.com>
-
-	* HACKING: Fix search&replace error - the CVS module is still called
-	  www.xapian.org.
-
-Wed May 21 13:16:39 GMT 2008  Olly Betts <olly@survex.com>
-
-	* HACKING: Reword, since environmental variable PATH isn't "set by
-	  $PATH".
-
-Wed May 21 13:16:21 GMT 2008  Olly Betts <olly@survex.com>
-
-	* HACKING: ixion -> atreus.
-
-Wed May 21 13:12:07 GMT 2008  Olly Betts <olly@survex.com>
-
+	* Backport change from trunk:
 	* include/xapian/database.h: Improve documentation comment.
 
-Sun May 18 05:20:29 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+Wed May 21 23:06:22 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport change from trunk:
 	* docs/remote_protocol.html: Remove spurious "i" at end of line.
 
-Sat May 17 11:53:54 GMT 2008  Olly Betts <olly@survex.com>
+Wed May 21 23:05:39 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport change from trunk:
 	* tests/harness/testutils.h: Layout and macro parameter name tweaks.
 
-Fri May 16 20:42:05 GMT 2008  Olly Betts <olly@survex.com>
+Wed May 21 21:43:28 GMT 2008  Olly Betts <olly@survex.com>
 
-	* bin/xapian-compact.cc: Check that all source databases are the same
-	  type (flint or chert).  Copy over "iamchert" for chert.  Update
-	  terminology - the "meta file" is now called the "version file".
-
-Fri May 16 17:33:22 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/chert/chert_database.cc,backends/chert/chert_version.cc:
-	  Need <cstdio> for rename().
-
-Fri May 16 17:27:56 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/chert/chert_database.cc: Correct FIXME comment and mark
-	  as "FIXME:1.2.0".
-
-Fri May 16 17:21:59 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* tests/harness/testrunner.cc,tests/harness/testrunner.h: Add
-	  condition to test if the backend is "inmemory".
-	* tests/perftest_randomidx.cc: Change the run size from 1000
-	  documents to 1000000.  Disable this test for the inmemory
-	  backend, because it will quickly use up all the memory on the
-	  machine.
-
-Fri May 16 16:56:25 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* HACKING: Add note about some more PDF generation tools which are
-	  needed, and that doxygen requires them to be on PATH.
-
-Fri May 16 16:38:40 GMT 2008  Olly Betts <olly@survex.com>
-
-	* HACKING: Ubuntu now needs tetex-extra too.
-
-Fri May 16 10:05:30 GMT 2008  Olly Betts <olly@survex.com>
-
-	* bin/xapian-compact.cc: Fix to not reject chert databases during the
-	  "up front" check.
-
-Thu May 15 20:20:14 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* net/progclient.cc: Set namespace for close methods (to avoid
-	  conflicting with the close method I'm working on adding to
-	  database internal).
-
-Wed May 14 17:14:53 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/database.cc: Default to flint not chert for a new database.
-
-Wed May 14 17:11:56 GMT 2008  Olly Betts <olly@survex.com>
-
-	* api/postingsource.cc,docs/postingsource.rst,
-	  include/xapian/postingsource.h,matcher/externalpostlist.cc:
-	  PostingSource::check() now returns the valid flag rather than
-	  passing it in by reference to be set.  Change "should" to "must"
-	  for the get_termfreq_est() requirement at Richard's suggestion.
-	  Add parameter names to PostingSource method prototypes and update
-	  documentation comments to match.
-
-Wed May 14 15:34:38 GMT 2008  Olly Betts <olly@survex.com>
-
-	* docs/Makefile.am,docs/index.html,docs/postingsource.rst: Add
-	  topic document for PostingSource.
-
-Mon May 12 17:27:13 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* include/xapian/postingsource.h: Add documentation comments for
-	  ValueWeightPostingSource, and tweak
-	  PostingSource::get_maxweight() comment a bit more.
-
-Mon May 12 16:51:01 GMT 2008  Olly Betts <olly@survex.com>
-
-	* include/xapian/postingsource.h: Clarify get_maxweight() if the
-	  maximum from now on.
-
-Mon May 12 06:51:53 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* api/postingsource.cc,include/xapian/postingsource.h,tests/api_db.cc,
-	  tests/harness/index_utils.cc: Add ValueWeightPostingSource, which
-	  reads a value, applies sortable_unserialise() to it, and returns
-	  that as the weight for each document.
-
-Sun May 11 23:49:07 GMT 2008  Olly Betts <olly@survex.com>
-
-	* queryparser/lemon.c,queryparser/queryparser.lt: Do a final sync by
-	  comparing our versions to the latest vanilla upstream.  Add a note
-	  to each file of the latest revision sync-ed against.
-	* queryparser/lemon.c: Enable '#define PRIVATE static'.
-
-Sun May 11 22:48:27 GMT 2008  Olly Betts <olly@survex.com>
-
-	* NEWS: Add a note of the speed-up that the recent QueryParser changes
-	  have given.
-
-Sun May 11 22:10:19 GMT 2008  Olly Betts <olly@survex.com>
-
-	* queryparser/lemon.c: Merge upstream "Check-in Number: 5053".
-
-Sun May 11 22:01:48 GMT 2008  Olly Betts <olly@survex.com>
-
-	* queryparser/queryparser.lt: Merge upstream "Check-in Number: 5052".
-
-Sun May 11 21:56:03 GMT 2008  Olly Betts <olly@survex.com>
-
-	* queryparser/queryparser.lt: Fix a comment typo.
-
-Sun May 11 21:52:30 GMT 2008  Olly Betts <olly@survex.com>
-
-	* queryparser/lemon.c: Merge upstream "Check-in Number: 4751".
-
-Sun May 11 21:51:18 GMT 2008  Olly Betts <olly@survex.com>
-
-	* queryparser/queryparser.lt: Merge upstream "Check-in Number: 4745".
-
-Sun May 11 21:47:03 GMT 2008  Olly Betts <olly@survex.com>
-
-	* queryparser/queryparser.lt: Comment out memset() call added by
-	  one of the earlier merged upstream changes - a later comment on
-	  the ticket referred to notes that this was actually a bug in the
-	  grammar of the people who reported it.
-
-Sun May 11 21:44:46 GMT 2008  Olly Betts <olly@survex.com>
-
-	* queryparser/queryparser.lt: Merge upstream "Check-in Number: 4743".
-
-Sun May 11 21:41:55 GMT 2008  Olly Betts <olly@survex.com>
-
-	* queryparser/queryparser.lt: Merge upstream "Check-in Number: 4738".
-
-Sun May 11 21:33:13 GMT 2008  Olly Betts <olly@survex.com>
-
-	* queryparser/lemon.c,queryparser/queryparser.lt: Merge upstream
-	  "Check-in Number: 4736".
-	* queryparser/lemon.c: Add %syntax_error directive since lemon has
-	  changed it's error recovery strategy if you don't have one.
-
-Sun May 11 20:54:31 GMT 2008  Olly Betts <olly@survex.com>
-
+	* Backport change from trunk:
 	* queryparser/queryparser.lemony: If we hit a syntax error, don't
 	  bother feeding further tokens to the parser!
 
-Sat May 10 21:42:44 GMT 2008  Olly Betts <olly@survex.com>
+Wed May 21 21:40:38 GMT 2008  Olly Betts <olly@survex.com>
 
-	* queryparser/lemon.c: Merge upstream "Check-in Number: 4641".
-
-Sat May 10 21:33:10 GMT 2008  Olly Betts <olly@survex.com>
-
-	* queryparser/lemon.c: Merge upstream "Check-in Number: 4473".
-
-Sat May 10 21:31:25 GMT 2008  Olly Betts <olly@survex.com>
-
-	* queryparser/lemon.c: Merge upstream "Check-in Number: 4439".
-
-Sat May 10 21:28:27 GMT 2008  Olly Betts <olly@survex.com>
-
-	* queryparser/lemon.c: Merge upstream "Check-in Number: 4274".
-
-Sat May 10 21:25:35 GMT 2008  Olly Betts <olly@survex.com>
-
-	* queryparser/lemon.c: Merge upstream "Check-in Number: 4190".
-
-Sat May 10 21:20:16 GMT 2008  Olly Betts <olly@survex.com>
-
-	* queryparser/lemon.c: Merge upstream "Check-in Number: 4160".
-
-Sat May 10 21:07:15 GMT 2008  Olly Betts <olly@survex.com>
-
-	* queryparser/lemon.c: Merge upstream "Check-in Number: 3753".
-
-Sat May 10 21:03:19 GMT 2008  Olly Betts <olly@survex.com>
-
-	* queryparser/lemon.c,queryparser/queryparser.lt: Merge upstream
-	  "Check-in Number: 3738".
-
-Sat May 10 20:00:09 GMT 2008  Olly Betts <olly@survex.com>
-
-	* queryparser/lemon.c: Merge upstream "Check-in Number: 3654".
-
-Sat May 10 19:55:32 GMT 2008  Olly Betts <olly@survex.com>
-
-	* queryparser/lemon.c: Merge upstream "Check-in Number: 3594".
-
-Sat May 10 19:46:05 GMT 2008  Olly Betts <olly@survex.com>
-
-	* queryparser/lemon.c: Merge upstream "Check-in Number: 3593".
-
-Sat May 10 19:44:15 GMT 2008  Olly Betts <olly@survex.com>
-
-	* queryparser/lemon.c: Merge upstream "Check-in Number: 3591".
-
-Sat May 10 19:40:12 GMT 2008  Olly Betts <olly@survex.com>
-
-	* queryparser/lemon.c: Merge upstream "Check-in Number: 3528".
-
-Sat May 10 19:38:36 GMT 2008  Olly Betts <olly@survex.com>
-
-	* queryparser/lemon.c: Merge upstream "Check-in Number: 3476".
-
-Sat May 10 19:36:06 GMT 2008  Olly Betts <olly@survex.com>
-
-	* queryparser/lemon.c: Merge upstream "Check-in Number: 3333".
-
-Sat May 10 19:33:33 GMT 2008  Olly Betts <olly@survex.com>
-
-	* queryparser/queryparser.lt: Merge upstream "Check-in Number: 3244".
-
-Sat May 10 19:29:18 GMT 2008  Olly Betts <olly@survex.com>
-
-	* queryparser/lemon.c: Merge upstream "Check-in Number: 3226".
-
-Sat May 10 19:19:48 GMT 2008  Olly Betts <olly@survex.com>
-
-	* queryparser/queryparser.lt: Merge upstream "Check-in Number: 3224".
-
-Sat May 10 19:14:18 GMT 2008  Olly Betts <olly@survex.com>
-
-	* queryparser/lemon.c,queryparser/queryparser.lt: Merge upstream
-	  "Check-in Number: 3210".
-
-Sat May 10 18:56:50 GMT 2008  Olly Betts <olly@survex.com>
-
-	* queryparser/queryparser.lt: Merge upstream "Check-in Number: 3181".
-
-Sat May 10 17:05:35 GMT 2008  Olly Betts <olly@survex.com>
-
-	* queryparser/lemon.c: Merge upstream "Check-in Number: 3126".
-
-Sat May 10 16:51:31 GMT 2008  Olly Betts <olly@survex.com>
-
-	* queryparser/lemon.c: Merge upstream "Check-in Number: 2764".
-
-Sat May 10 16:40:48 GMT 2008  Olly Betts <olly@survex.com>
-
-	* queryparser/lemon.c,queryparser/queryparser.lt: Merge upstream
-	  "Check-in Number: 2761".
-
-Sat May 10 16:32:45 GMT 2008  Olly Betts <olly@survex.com>
-
-	* queryparser/queryparser.lt: Merge upstream "Check-in Number: 2458".
-
-Sat May 10 16:29:55 GMT 2008  Olly Betts <olly@survex.com>
-
-	* queryparser/lemon.c: Merge upstream "Check-in Number: 2345".
-
-Sat May 10 16:08:28 GMT 2008  Olly Betts <olly@survex.com>
-
-	* queryparser/queryparser.lt: Merge upstream "Check-in Number: 2302".
-
-Sat May 10 15:50:23 GMT 2008  Olly Betts <olly@survex.com>
-
-	* queryparser/lemon.c: Merge upstream "Check-in Number: 2208".
-
-Sat May 10 15:03:59 GMT 2008  Olly Betts <olly@survex.com>
-
+	* Backport change from trunk:
 	* tests/harness/testsuite.cc: Prefer `str.assign(ptr)' to `str =
 	  string(ptr)'.
 
-Sat May 10 14:48:38 GMT 2008  Olly Betts <olly@survex.com>
+Wed May 21 19:48:54 GMT 2008  Olly Betts <olly@survex.com>
 
-	* api/matchspy.cc,api/replication.cc: Prefer `str.assign(ptr, len)' to
-	  `str = string(ptr, len)'.
-
-Fri May 09 16:53:19 GMT 2008  Olly Betts <olly@survex.com>
-
-	* net/remoteserver.cc: No entries in dispatch[] are NULL, so there's
-	  no point testing for it.
-
-Fri May 09 16:51:10 GMT 2008  Olly Betts <olly@survex.com>
-
-	* net/remoteconnection.cc: Remove pointless conversion to size_t which
-	  breaks GCC 2.95 build.
-
-Fri May 09 16:22:46 GMT 2008  Olly Betts <olly@survex.com>
-
-	* api/replication.cc: Needs <cstdio> for rename().
-
-Fri May 09 15:41:08 GMT 2008  Olly Betts <olly@survex.com>
-
+	* Backport change from trunk:
 	* tests/harness/testutils.cc: No need for an explicit std::endl when
 	  calling TEST_AND_EXPLAIN().
 
-Fri May 09 15:38:22 GMT 2008  Olly Betts <olly@survex.com>
+Wed May 21 19:43:52 GMT 2008  Olly Betts <olly@survex.com>
 
-	* api/replication.cc: Use '\n' rather than endl in the middle of
-	  writing stuff, since endl forces a flush which just adds useless
-	  overhead.
-
-Fri May 09 15:24:42 GMT 2008  Olly Betts <olly@survex.com>
-
+	* Backport change from trunk:
 	* common/omdebug.h: Fix RETURN macro to work on GCC 2.95 for the case
 	  `RETURN(string())'.
 
-Fri May 09 08:33:35 GMT 2008  Olly Betts <olly@survex.com>
+Wed May 21 19:37:49 GMT 2008  Olly Betts <olly@survex.com>
 
-	* include/xapian/postingsource.h: Add a protected default ctor so that
-	  code subclassing PostingSource actually compiles!
-
-Thu May 08 16:41:59 GMT 2008  Olly Betts <olly@survex.com>
-
-	* include/xapian/postingsource.h: Add doxygen comments for
-	  Xapian::PostingSource.  Add private assignment operator and
-	  copy constructor to prevent copying.
-
-Thu May 08 16:40:49 GMT 2008  Olly Betts <olly@survex.com>
-
+	* Backport change from trunk:
 	* common/postlist.h: Fix one doxygen comment and improve another.
 
-Mon May 05 15:22:24 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+Wed May 21 19:22:16 GMT 2008  Olly Betts <olly@survex.com>
 
-	* tests/Makefile.am: Clean up .chert in clean-local.
+	* Backport change from trunk:
+	* backends/flint/flint_version.cc,common/stringutils.h: Move
+	  CONST_STRLEN() into stringutils.h.
 
-Mon May 05 14:52:34 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+Wed May 21 17:54:43 GMT 2008  Olly Betts <olly@survex.com>
 
-	* docs/Makefile.am: Adapt the dist-check hook to work with a VPATH
-	  build in non-maintainer mode.
-
-Mon May 05 13:18:19 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* docs/Makefile.am: Fix "make distcheck" by using dist-hook to
-	  install generated files, with the appropriate dependency, instead
-	  of wildcards in EXTRA_DIST which don't give the correct expansion
-	  unless the files happened to be generated already by another
-	  rule. Also, ensure that the documentation is generated before
-	  attempting to install it.
-
-Sun May 04 09:30:53 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/chert/chert_version.cc,backends/flint/flint_version.cc,
-	  common/stringutils.h: Move CONST_STRLEN() into stringutils.h.
-	* backends/chert/chert_database.cc,backends/flint/flint_database.cc:
-	  Use CONST_STRLEN().
-
-Sat May 03 18:56:34 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
+	* Backport change from trunk:
 	* api/omenquire.cc: Reset the internal sorter pointer to NULL when
 	  changing to a sort by value. Fixes #256.
 	* tests/api_sorting.cc: Add regression test.
 
-Sat May 03 18:52:27 GMT 2008  Olly Betts <olly@survex.com>
+Wed May 21 15:21:41 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport change from trunk:
 	* include/xapian/unicode.h: Mark internal functions as @internal.
 
-Sat May 03 18:43:12 GMT 2008  Olly Betts <olly@survex.com>
+Wed May 21 15:14:43 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport change from trunk:
 	* docs/doxygen_api_conf.in: Disable header and directory relationship
 	  graphs in the API documentation as they aren't interesting to users.
 
-Sat May 03 18:12:30 GMT 2008  Olly Betts <olly@survex.com>
+Wed May 21 14:56:04 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport change from trunk:
 	* docs/gen_codestructure_doc.in: Link to trac instead of viewvc.
 
-Sat May 03 17:25:02 GMT 2008  Olly Betts <olly@survex.com>
+Wed May 21 14:54:34 GMT 2008  Olly Betts <olly@survex.com>
 
-	* docs/replication_protocol.rst: Fix a few typos.
+	* Backport change from trunk:
+	* backends/flint/flint_database.cc: If Database::reopen() is called
+	  and the database revision on disk hasn't changed, then do as little
+	  work as possible.  Even if it has changed, don't bother to recheck
+	  the version file (bug#261).
 
-Sat May 03 15:53:24 GMT 2008  Olly Betts <olly@survex.com>
+Wed May 21 14:45:27 GMT 2008  Olly Betts <olly@survex.com>
 
-	* backends/chert/chert_database.cc,backends/flint/flint_database.cc:
-	  If Database::reopen() is called and the database revision on disk
-	  hasn't changed, then do as little work as possible.  Even if it
-	  has changed, don't bother to recheck the version file (bug#261).
-
-Sat May 03 10:28:30 GMT 2008  Olly Betts <olly@survex.com>
-
+	* Backport change from trunk:
 	* configure.ac: Improve code to prevent probing for f77, etc.
 
-Sat May 03 10:17:05 GMT 2008  Olly Betts <olly@survex.com>
+Wed May 21 14:44:18 GMT 2008  Olly Betts <olly@survex.com>
 
-	* matcher/rset.cc: Missing change from last commit.
-
-Sat May 03 09:25:29 GMT 2008  Olly Betts <olly@survex.com>
-
-	* api/omenquire.cc,common/,expand/Makefile.mk,expand/esetinternal.cc,
-	  expand/expand.cc: Rewrite class ESet::Internal, incorporating the
-	  functionality which used to be in the internal OmExpand class.  The
-	  expand operation now uses a min heap rather than calling
-	  nth_element() repeatedly - this should reduce the complexity of the
-	  expand operation by a factor of n/log(n) where n is the requested
-	  ESet size.
-
-Fri May 02 15:51:29 GMT 2008  Olly Betts <olly@survex.com>
-
+	* Backport change from trunk:
 	* common/ortermlist.h,expand/ortermlist.cc: Kill FreqAdderOrTermList's
 	  explicit empty dtor.
 
-Thu May 01 16:38:40 GMT 2008  Olly Betts <olly@survex.com>
+Wed May 21 14:03:51 GMT 2008  Olly Betts <olly@survex.com>
 
-	* api/omqueryinternal.cc,api/replication.cc,backends/chert/,
-	  backends/flint/,backends/inmemory/inmemory_positionlist.cc,
-	  common/utils.cc,matcher/stats.cc,tests/perftest_matchdecider.cc,
-	  tests/perftest_randomidx.cc: Assorted formatting tweaks.
-
-Thu May 01 16:32:58 GMT 2008  Olly Betts <olly@survex.com>
-
-	* common/unaligned.h: Fix ";;" to ";" after AssertRel calls.
-
-Thu May 01 16:12:05 GMT 2008  Olly Betts <olly@survex.com>
-
+	* Backport change from trunk:
 	* docs/doxygen_api_conf.in,docs/doxygen_full_conf.in: Tell doxygen to
 	  expand XAPIAN_VISIBILITY_DEFAULT so it doesn't appear in collated
 	  API documentation.
 
-Wed Apr 30 10:57:53 GMT 2008  Olly Betts <olly@survex.com>
+Wed May 21 14:00:35 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport changes from trunk:
+	* HACKING: Ubuntu now needs tetex-extra too.
+	* HACKING: Note that GCC 4.3 no longer supports pre-ISO forms of
+	  standard headers, such as <list.h>.  GCC on Solaris now seems
+	  to support throwing exceptions across shared library boundaries.
+	* HACKING: Add note about preferring std::string().
+	* HACKING: Recommend using the "svn-ci" script.  Update the date
+	  command which produces the correct format timestamp for ChangeLog
+	  entries.
+	* HACKING: Document to prefer "new SomeClass" to "new SomeClass()".
+	* AUTHORS,HACKING,INSTALL,README,debian/control.in,debian/copyright,
+	  docs/install.html,xapian-core.spec.in: Standardise URLs on our
+	  website to be xapian.org not www.xapian.org.
+	* HACKING: Actually document --enable-log=profile.
+	* HACKING: Document that scripts shouldn't generally have an
+	  extension, and the reason for this policy.
+	* HACKING: Document the need to list non-file targets in .PHONY.
 	* HACKING: Update bugzilla references and URLs to reflect the move
 	  to trac.  Update the "fixing a bug" checklist to mention backporting
 	  and updating the release notes.
+	* HACKING: Add note about some more PDF generation tools which are
+	  needed, and that doxygen requires them to be on PATH.
+	* HACKING: ixion -> atreus.
+	* HACKING: Reword, since environmental variable PATH isn't "set by
+	  $PATH".
+	* HACKING: Fix search&replace error - the CVS module is still called
+	  www.xapian.org.
+	* HACKING: Fix path for atreus.
 
-Wed Apr 30 10:40:30 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+Wed May 21 11:32:11 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport change from trunk:
+	* matcher/queryoptimiser.cc: Reserve size of postlists vector.
+
+Wed May 21 11:22:20 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/queryoptimiser.cc: Don't need <queue>.
+
+Wed May 21 11:21:39 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* api/omquery.cc: Prefer string() to "".
+
+Wed May 21 11:00:36 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/query.h: Fix doc comment typo (doesn't affect API
+	  docs).
+
+Wed May 21 10:59:11 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian.h: Fix misplaced comment.  Tweak doxygen comments for
+	  version functions to be more consistent with others.
+
+Wed May 21 10:56:12 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/queryoptimiser.cc: Remove bogus comment from cut-and-paste.
+
+Mon May 05 15:20:42 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* Backport change from trunk:
+	* docs/Makefile.am: Fix "make distcheck" by using dist-hook to
+	  install generated files from either srcdir or builddir, with the
+	  appropriate dependency to generate them automatically in
+	  maintainer mode builds.
+
+Wed Apr 30 10:41:43 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* Backport change from trunk:
 	* backends/remote/remote-database.cc: Fix error message displayed
 	  when remote protocol version doesn't match to display the minor
 	  part of the version number supplied by the server correctly.
 
-Tue Apr 29 17:37:10 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* AUTHORS: Add Alexandre Gauthier, for supplying a method for doing
-	  python packaging for Windows.
-
-Tue Apr 29 16:20:47 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* common/fileutils.cc: Fix variable name for windows compilation.
-
-Tue Apr 29 06:50:53 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* backends/chert/chert_table.cc,backends/flint/flint_table.cc:
-	  Remove some debugging code, left over from writing the
-	  replication code.
-
-Mon Apr 28 12:11:38 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* backends/chert/chert_btreebase.cc,backends/chert/chert_table.cc,
-	  backends/flint/flint_btreebase.cc,backends/flint/flint_table.cc:
-	  Fix issue #259 - update the last_block value whenever allocating
-	  a new value, so that next_for_sequential doesn't give up too
-	  early.  Also, in both next_for_sequential and
-	  prev_for_sequential, for writable databases, check the built-in
-	  cursor at all levels for the new block rather than just reading
-	  from disk, since newly allocated blocks won't have been written
-	  to disk yet.  Also, test the return type of next() when reading
-	  subsequent parts of tags, and raise DatabaseCorruptError if it
-	  returns false; this prevents incorrect data being returned,
-	  leading to a zlib error.
-	* tests/api_wrdb.cc: Add regression test.
-
-Fri Apr 25 08:39:28 GMT 2008  Olly Betts <olly@survex.com>
-
-	* api/postingsource.cc: Missed change from last but one commit.
-
-Thu Apr 24 13:44:48 GMT 2008  Olly Betts <olly@survex.com>
-
-	* matcher/queryoptimiser.cc: Reserve size of postlists vector.
-
-Thu Apr 24 13:38:51 GMT 2008  Olly Betts <olly@survex.com>
-
-	* include/xapian/postingsource.h,matcher/externalpostlist.cc,
-	  matcher/externalpostlist.h,tests/api_db.cc: Add a default
-	  PostingSource::get_description() method so users who don't care
-	  aren't forced to define one.  Make PostingSource::reset() a standard
-	  method and call it automatically so that a PostingSource-using
-	  Query can be run more than once without extra work.
-
-Thu Apr 24 11:24:30 GMT 2008  Olly Betts <olly@survex.com>
-
-	* matcher/queryoptimiser.cc: Don't need <queue>.
-
-Thu Apr 24 04:50:43 GMT 2008  Olly Betts <olly@survex.com>
-
-	* tests/api_db.cc: Add test that boolean branches of matches don't
-	  cause Xapian::PostingSource to be asked for weights.
-
-Thu Apr 24 03:27:39 GMT 2008  Olly Betts <olly@survex.com>
-
-	* matcher/externalpostlist.cc,matcher/externalpostlist.h,
-	  matcher/queryoptimiser.cc: ExternalPostList now takes the
-	  factor into account, so works with OP_SCALE_WEIGHT, and
-	  doesn't call get_weight()/get_maxweight() for a boolean
-	  branch.
-	* tests/api_db.cc: Add tests for OP_SCALE_WEIGHT.
-
-Thu Apr 24 02:16:08 GMT 2008  Olly Betts <olly@survex.com>
-
-	* xapian-config.in: Back out --swigheaders.
-
-Wed Apr 23 11:37:45 GMT 2008  Olly Betts <olly@survex.com>
-
-	* matcher/externalpostlist.h: Need to initialise current.
-
-Wed Apr 23 07:57:35 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* tests/termgentest.cc: Put the inclusion of "utils.h" back; needed
-	  for om_tostring().
-
-Wed Apr 23 04:20:55 GMT 2008  Olly Betts <olly@survex.com>
-
-	* include/xapian/replication.h: Eliminate reference to FlintDatabase
-	  from doc comment since it's not user-visible, and chert supports
-	  replication too.  No need for '#include <xapian/database.h>' so
-	  remove.  Remove references to non-existent parameter 'remotename'.
-	  'DatabaseCorrupt error' -> 'DatabaseCorruptError'.
-
-Wed Apr 23 04:19:53 GMT 2008  Olly Betts <olly@survex.com>
-
-	* include/xapian/query.h: Wrap Xapian::Query::Internal class
-	  definition in "#ifndef SWIG" ... "#endif" in preparation for getting
-	  SWIG to directly parse it.
-
-Wed Apr 23 02:16:53 GMT 2008  Olly Betts <olly@survex.com>
-
-	* api/omquery.cc: Prefer string() to "".
-
-Wed Apr 23 02:16:10 GMT 2008  Olly Betts <olly@survex.com>
-
-	* include/xapian/query.h: Fix doc comment typo (doesn't affect API
-	  docs).
-
-Wed Apr 23 00:59:40 GMT 2008  Olly Betts <olly@survex.com>
-
-	* api/postingsource.cc: Another missing file.
-
-Wed Apr 23 00:34:34 GMT 2008  Olly Betts <olly@survex.com>
-
-	* include/xapian/postingsource.h: New file missing from previous
-	  commit.
-
-Wed Apr 23 00:30:34 GMT 2008  Olly Betts <olly@survex.com>
-
-	* api/Makefile.mk,api/omquery.cc,api/omqueryinternal.cc,
-	  include/Makefile.mk,include/xapian.h,include/xapian/query.h,matcher/,
-	  tests/api_db.cc: Add support for Xapian::PostingSource.
-
-Wed Apr 23 00:21:25 GMT 2008  Olly Betts <olly@survex.com>
-
-	* include/xapian.h: Fix misplaced comment.  Tweak doxygen comments for
-	  version functions to be more consistent with others.
-
-Wed Apr 23 00:16:14 GMT 2008  Olly Betts <olly@survex.com>
-
-	* matcher/queryoptimiser.cc: Remove bogus comment from cut-and-paste.
-
-Wed Apr 23 00:14:30 GMT 2008  Olly Betts <olly@survex.com>
-
-	* common/omassert.h: Add AssertEqDoubleParanoid().
-	* matcher/multimatch.cc: Use it instead of home-brewed version.
-
-Tue Apr 22 23:30:50 GMT 2008  Olly Betts <olly@survex.com>
-
-	* common/utils.h: Stop exporting internal functions needlessly.
-
-Tue Apr 22 12:53:55 GMT 2008  Olly Betts <olly@survex.com>
-
-	* bin/xapian-compact.cc: Fix to work again (broken by the splitting of
-	  FlintTable::commit() into flush_db() and commit() in the replication
-	  changes).  Don't bother passing tablename to functions where it
-	  always has the same value.  Tweak the user-metadata copying loop to
-	  make it clearer.  Reserve the right size for the vector used for
-	  merging spellings.
-
-Tue Apr 22 12:28:17 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/chert/chert_table.h,backends/flint/flint_table.h,
-	  bin/xapian-compact.cc: Default commit's changes_fd parameter to -1.
-
-Tue Apr 22 11:39:10 GMT 2008  Olly Betts <olly@survex.com>
-
-	* common/omassert.h: Fix comment typo.
-
-Tue Apr 22 10:54:35 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* tests/queryparsertest.cc: Add "utils.h" back - needed for
-	  om_tostring() and mkdir().
-
-Mon Apr 21 07:48:45 GMT 2008  Olly Betts <olly@survex.com>
-
-	* tests/api_db.cc: Don't need <list>.  Wrap comment.
-
-Mon Apr 21 07:04:12 GMT 2008  Olly Betts <olly@survex.com>
-
-	* api/omqueryinternal.cc,backends/chert/chert_check.cc,
-	  backends/flint/flint_check.cc,tests/: Remove various needless
-	  inclusions of headers (especially <iostream>).  Reorder headers.
-	  Wrap a couple of comments.  Append single characters to strings
-	  using character constants.
-
-Mon Apr 21 06:26:49 GMT 2008  Olly Betts <olly@survex.com>
-
-	* api/Makefile.mk,api/valuerangeproccompat.cc,
-	  include/xapian/queryparser.h: Remove the
-	  v102::NumberValueRangeProcessor ABI-preserving machinery since it's
-	  OK to change the ABI for 1.1.0.
-
-Mon Apr 21 04:42:52 GMT 2008  Olly Betts <olly@survex.com>
-
-	* api/,queryparser/queryparser.cc: Remove debug log tracing from
-	  get_description() methods since the debug log call tracing *calls*
-	  get_description() methods on parameters, so logging these calls just
-	  makes for more confusing debug logs.  A get_description() method
-	  should have no side-effects so it's not very interesting even when
-	  explicitly called by the user.
-	* common/omdebug.h: Replace "OM_DEBUG_INTRO" class with dummy
-	  placeholder (to preserve numbering), to help prevent accidentally
-	  adding these back.
-
-Sun Apr 20 09:46:11 GMT 2008  Olly Betts <olly@survex.com>
-
-	* api/omqueryinternal.cc,common/: Stop describing get_description() as
-	  an "Introspection method" internal (matching earlier change to stop
-	  doing so externally).  This doesn't help to explain what it does,
-	  and get_description() doesn't actually fall under any of the formal
-	  definitions of "introspection" I can find.
-
-Fri Apr 18 10:26:18 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/chert/chert_metadata.cc: Fix renamed parameter in debug
-	  logging.
-
-Fri Apr 18 10:18:35 GMT 2008  Olly Betts <olly@survex.com>
-
-	* HACKING,INSTALL,Makefile.am,backends/Makefile.mk,backends/chert/,
-	  backends/database.cc,backends/flint/,backends/remote/net_postlist.cc,
-	  backends/remote/net_postlist.h,bin/,common/,configure.ac,docs/,
-	  include/xapian/dbfactory.h,include/xapian/version_h.cc,
-	  net/remoteserver.cc,tests/Makefile.am,tests/harness/: Start new
-	  development backend "chert".  Currently the change over flint is
-	  that in the postlist table, doclengths are stored once in a
-	  chunked postlist-like form, rather than once per posting.
-
-Tue Apr 15 23:24:39 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* api/omenquire.cc,tests/api_nodb.cc: Fix segfault introduced by
-	  previous change when asking for the termfreq on an empty mset.
-	  Include a regression test.
-
-Tue Apr 15 06:02:12 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* include/xapian/enquire.h: Change definition of MSet::get_termfreq
-	  such that it will fall back to looking the term frequency up in
-	  the database rather than raising an exception if the term is not
-	  present in the mset.
-	* api/omenquire.cc,common/omenquireinternal.h: Implementation of
-	  the above.
-	* tests/api_anydb.cc: Test the above.
-
-Mon Apr 14 21:29:59 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* tests/: Use copies of freemem.cc and freemem.h from omega to report
-	  the free physical memory at each stage of indexing.  Also, add a
-	  get_total_physical_memory() function to this, and report it's
-	  value at the top of the results file (only tested on Linux so
-	  far).
-
-Mon Apr 14 19:17:22 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* tests/api_wrdb.cc: Make skip_to() test a bit more comprehensive.
-
-Mon Apr 14 19:08:49 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* backends/flint/flint_metadata.cc,backends/flint/flint_metadata.h:
-	  Fix a bug in the skip_to() implementation, and set the parameter
-	  name to "key" instead of "tname", since it's not a term.
-	* tests/api_wrdb.cc: Add a test of the metadata iterators.
-
-Mon Apr 14 14:22:16 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/Makefile.mk,backends/flint/Makefile.mk,
-	  backends/flint/contiguousalldocspostlist.cc,
-	  backends/flint/contiguousalldocspostlist.h,common/Makefile.mk:
-	  The ContiguousAllDocsPostList class isn't flint-specific, so move
-	  it out of backends/flint.
-
-Mon Apr 14 13:56:51 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/flint/flint_database.cc: Removed duplicate
-	  '#include "flint_database.h"', ironically added by Richard's recent
-	  change.  Fix a couple of errors in alphabetical ordering, and
-	  move autoptr.h and the "safe" headers to where the standard headers
-	  they replace would go.
-
-Mon Apr 14 13:44:37 GMT 2008  Olly Betts <olly@survex.com>
-
-	* Makefile.am,tests/Makefile.am: List check-perf in .PHONY.
-	* HACKING: Document the need to list non-file targets in .PHONY.
-
-Mon Apr 14 07:59:56 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* api/omdatabase.cc: Correct return type in a DEBUGAPICALL macro.
-
-Mon Apr 14 07:14:01 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* api/omdatabase.cc,backends/database.cc,backends/flint/,
-	  common/database.h,include/xapian/database.h: Add
-	  metadata_keys_begin() and metadata_keys_end() methods to
-	  Database, to allow the complete list of metadata in a database to
-	  be retrieved.  Supports a prefix argument to obtain a limited
-	  subset of the keys, since that may be useful in some situations
-	  and is very easy to implement.  Only accesses the keys in the
-	  first database in a multidatabase situation (which corresponds
-	  with the current behaviour of get_metadata()).
-	  Also, reorder the includes in flint_database.cc to be largely
-	  alphabetical, and remove a duplicated #include of
-	  <xapian/error.h>.
-
-Mon Apr 14 06:51:48 GMT 2008  Olly Betts <olly@survex.com>
-
-	* common/fileutils.cc: Use endswith().
-
-Mon Apr 14 06:14:44 GMT 2008  Olly Betts <olly@survex.com>
-
-	* api/replication.cc,backends/database.cc,
-	  backends/flint/flint_database.cc,common/fileutils.cc,
-	  tests/queryparsertest.cc: Use empty() rather than comparing size()
-	  to 0.  Use startswith() in a couple of places.  Tweak an Assert
-	  to AssertEq.
-
-Sun Apr 13 14:30:55 GMT 2008  Olly Betts <olly@survex.com>
-
-	* api/omdatabase.cc: Replace uses of DEBUGLINE(SPELLING, ...) in
-	  Database::get_spelling_suggestion() with standard
-	  DEBUGAPICALL/RETURN tracing.  Add DEBUGAPICALL/RETURN tracing to
-	  a few Database methods which were missing it.
-
-Sun Apr 13 14:15:00 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/flint/flint_cursor.cc: Use RETURN() in a few places which
-	  weren't.
-
-Sun Apr 13 13:59:57 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/inmemory/inmemory_database.cc: Remove long-time commented
-	  out uses of DebugMsg.
-
-Sun Apr 13 13:52:32 GMT 2008  Olly Betts <olly@survex.com>
-
-	* expand/expandweight.cc: Use DEBUGLINE() instead of DEBUGMSG().
-
-Sun Apr 13 11:23:56 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/flint/flint_database.cc: Include corresponding header right
-	  after config.h.
-
-Sun Apr 13 10:28:27 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/flint/flint_database.cc: Tweak brace formatting and wrap a
-	  comment.
-
-Fri Apr 11 16:18:14 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* common/fileutils.cc: Fix typo in windows specific code.
-
-Fri Apr 11 12:44:25 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/flint/flint_cursor.cc: Include corresponding header right
-	  after config.h.
-
-Fri Apr 11 10:25:03 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/flint/flint_cursor.h: Fix filename in header comment.
-
-Fri Apr 11 04:49:03 GMT 2008  Olly Betts <olly@survex.com>
-
-	* configure.ac,tests/submitperftest.in,tests/submitperftest.py.in:
-	  Rename submitperftest.py to submitperftest.
-	* HACKING: Document that scripts shouldn't generally have an
-	  extension, and the reason for this policy.
-
-Fri Apr 11 04:32:15 2008  Olly Betts <olly@survex.com>
-
-	* HACKING: Note that GCC 4.3 no longer supports pre-ISO forms of
-	  standard headers, such as <list.h>.  GCC on Solaris now seems
-	  to support throwing exceptions across shared library boundaries.
-
-Fri Apr 11 03:24:47 GMT 2008  Olly Betts <olly@survex.com>
-
-	* tests/Makefile.am: "make up" in tests now does "make" in the
-	  top-level.
-
-Thu Apr 10 08:33:06 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/flint/flint_postlist.cc: Fix debug logging message: ostList
-	  -> FlintPostList.
-
-Thu Apr 10 05:47:37 GMT 2008  Olly Betts <olly@survex.com>
-
-	* net/remoteconnection.cc: Remove erroneous FIXME comments talking
-	  about ReadFile() not updating WSAOVERLAPPED's Offset/OffsetHigh
-	  being a problem with using _get_osfhandle() - ReadFile is documented
-	  to behave this way on MSDN.  Factor out update of Offset/OffsetHigh
-	  and tweak this code not to rely on off_t being 64 bits.
-
-Thu Apr 10 05:24:11 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/flint/flint_record.cc,backends/flint/flint_utils.h: Use
-	  the new STATIC_ASSERT family of macros instead of CASSERT and
-	  CASSERT_TYPE_UNSIGNED.
-
-Thu Apr 10 04:46:40 GMT 2008  Olly Betts <olly@survex.com>
-
-	* common/omassert.h: Add "compile-time assertion" macros:
-	  STATIC_ASSERT(COND), STATIC_ASSERT_UNSIGNED_TYPE(TYPE),
-	  STATIC_ASSERT_TYPE_DOMINATES(TYPE1, TYPE2).
-	* tests/internaltest.cc: Test these.
-
-Thu Apr 10 01:07:34 GMT 2008  Olly Betts <olly@survex.com>
-
-	* common/remoteprotocol.h,net/remoteserver.cc: Clean up a couple more
-	  things now we've moved to major protocol version 31.
-
-Wed Apr 09 06:50:44 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/remote/remote-database.cc: Add missing explicit include of
-	  remote-database.h.
-
-Wed Apr 09 04:48:54 GMT 2008  Olly Betts <olly@survex.com>
-
-	* bin/xapian-check.cc,bin/xapian-compact.cc: Fix check for user
-	  metadata key to not match other key types we may add in the future.
-	  When compacting, we can't assume how we should handle them.  When
-	  checking, they currently shouldn't be present, so we should flag
-	  an error for them.
-
-Tue Apr 08 15:27:09 GMT 2008  Olly Betts <olly@survex.com>
-
-	* NEWS: Fix missing line in old entry.
-
-Mon Apr 07 07:49:56 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/flint/flint_btreeutil.h: Use AssertRel rather than Assert.
-
-Mon Apr 07 06:20:42 GMT 2008  Olly Betts <olly@survex.com>
-
-	* api/error.cc,api/valuerangeproc.cc,backends/flint/flint_table.cc,
-	  backends/multi/multi_postlist.cc,backends/remote/net_termlist.cc,
-	  bin/xapian-inspect.cc,common/omdebug.cc,common/utils.cc,
-	  languages/stem.cc,languages/steminternal.cc,
-	  tests/harness/backendmanager_multi.cc,
-	  tests/harness/backendmanager_remotetcp.cc: Header inclusions tidying
-	  - remove a few redundant inclusions; prefer cstdio to stdio.h, etc
-	  in a few places; note why certain headers are required in cases
-	  where it's less obvious; in a .cc file, include the corresponding .h
-	  second (after <config.h>).
-
-Mon Apr 07 04:23:30 GMT 2008  Olly Betts <olly@survex.com>
-
-	* configure.ac: Fix --enable-log=profile to be recognised.
-	* common/omdebug.cc,common/omdebug.h: Fix build with
-	  --enable-log=profile.
-	* HACKING: Actually document --enable-log=profile.
-
-Sat Apr 05 21:07:38 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* tests/perftest.cc: Flush after each write, so we can monitor
-	  progress of long running tests (we might need to remove this
-	  again later, if profiling shows it has a noticeable impact).  Fix
-	  two calls to write() to be a single call.
-	* tests/perftest_randomidx.cc: Add values to different slots; I'd
-	  added them all to slot 0 by mistake, so they were overwriting
-	  each other.
-
-Sat Apr 05 20:17:43 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* tests/Makefile.am,tests/perftest_randomidx.cc: Add a new
-	  performance test which builds a randomly generated index, and
-	  times the index run.  Probably wants a bit more tweaking to make
-	  it slightly more representative, but should be a useful test to
-	  run on systems where downloading a large amount of data is
-	  impractical.
-	* ChangeLog: Add missing log message for last commit.
-
-Sat Apr 05 20:16:58 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* tests/perftest.cc,tests/perftest.h: Log indexing runs every 5
-	  seconds, as well as after every 1000 documents - gives useful
-	  information for slow index runs.
-
-Thu Apr 03 20:58:31 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/database.cc,include/xapian/dbfactory.h,
-	  include/xapian/version_h.cc: Remove lingering traces of quartz.
-
-Thu Apr 03 07:59:53 GMT 2008  Olly Betts <olly@survex.com>
-
-	* bin/xapian-inspect.cc: Print top-bit-set characters as escaped
-	  hex forms as they often won't be valid UTF-8 sequences.
-
-Thu Apr 03 03:53:37 GMT 2008  Olly Betts <olly@survex.com>
-
-	* bin/xapian-inspect.cc: Check for the user passing a database
-	  directory and issue a special error message since this is an obvious
-	  mistake to make.
-
-Wed Apr 02 07:00:36 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* matcher/multimatch.cc: Modify the estimate for the number of hits
-	  based on the rate at which a match decider has been denying
-	  documents.  Also, reduce the upper bound based on the number of
-	  documents denied.
-	* tests/api_db.cc: Check that the upper bound when a match decider
-	  is used is within the valid range, rather than a particular
-	  value.
-
-Tue Apr 01 22:40:19 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* configure.ac,tests/perftest.cc,tests/submitperftest.py.in,
-	  tests/urllib2_file.py: Fix display of upper bound on number of
-	  results of search (was showing lower bound).  Fix display of
-	  closing <repetition> tags.  Add script to submit the results of a
-	  performance test to a central server.
-
-Tue Apr 01 11:19:58 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/flint/flint_table.cc,backends/flint/flint_table.h:
-	  Gently rearrange where and how we check for overlong keys.
-	* tests/api_wrdb.cc: Extend termtoolong1 to test that the "term too
-	  long" exception messages contain the length correctly.
-
-Tue Apr 01 06:06:43 GMT 2008  Olly Betts <olly@survex.com>
-
-	* AUTHORS,HACKING,INSTALL,README,debian/control.in,debian/copyright,
-	  docs/install.html,xapian-core.spec.in: Standardise URLs on our
-	  website to be xapian.org not www.xapian.org.
-
-Tue Apr 01 03:44:32 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/flint/flint_record.cc,backends/flint/flint_values.cc,
-	  common/,docs/quickstartexpand.cc.html,docs/quickstartindex.cc.html,
-	  docs/quickstartsearch.cc.html,matcher/: Update the FSF address for
-	  the small number of files which still have the old one.  Remove the
-	  "START_LICENCE" and "END_LICENCE" markers from the small number of
-	  files which still have them.
-
-Tue Apr 01 02:23:27 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/remote/remote-database.cc,common/remoteprotocol.h,
-	  common/remoteserver.h,common/serialise.h,docs/remote_protocol.html,
-	  net/remoteserver.cc,net/serialise.cc: Update remote protocol to
-	  a new major version (31) and strip out all the gunk that's only
-	  there to keep it compatible with older version 30 clients.
-
-Tue Apr 01 00:12:38 GMT 2008  Olly Betts <olly@survex.com>
-
-	* api/ompostlistiterator.cc,include/xapian/postingiterator.h: Remove
-	  the method Xapian::PostingIterator::get_weight() which has been
-	  commented out almost forever.  Weight-handling isn't really
-	  appropriate here.
-	* api/ompostlistiterator.cc: Remove "\todo" since it's already done!
-
-Mon Mar 31 13:24:11 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/flint/: Remove unnecessary default dtors.
-
-Mon Mar 31 13:21:55 GMT 2008  Olly Betts <olly@survex.com>
-
-	* HACKING: Document to prefer "new SomeClass" to "new SomeClass()".
-	* api/omdocument.cc,api/omenquire.cc,backends/database.cc,
-	  backends/flint/flint_database.cc,
-	  backends/inmemory/inmemory_database.cc,matcher/multimatch.cc,
-	  matcher/queryoptimiser.cc,net/remoteserver.cc: Fix instances of
-	  the latter form to use the former form.
-
-Mon Mar 31 12:11:09 GMT 2008  Olly Betts <olly@survex.com>
-
-	* tests/: Update svn:ignore property for perftest changes and remove
-	  quartz-related entries.
-	* tests/perftest.cc: Add missing '#include "utils.h"'.
-
-Mon Mar 31 09:22:35 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* Makefile.am,tests/,tests/harness/,tests/perftest.cc,tests/perftest.h,
-	  tests/perftest_matchdecider.cc: Rework the test collation
-	  mechanism slightly to allow it to be used by other testsuites:
-	  rename collate-apitest to collate-test, and add a parameter to it
-	  naming the output file.  Add new "testrunner.h" and
-	  "testrunner.cc" which are an equivalent to the old mechanism in
-	  apitest for running tests with various properties; the properties
-	  for each backend are now held as member variables of a TestRunner
-	  class, and testsuites (eg, apitest) subclass this and implement a
-	  "run()" method, which will be called for each backend with the
-	  appropriate properties set.  Move definition of DEFINE_TESTCASE
-	  macro into testsuite.h.  Add new testsuite "perftest", which is
-	  intended to contain potentially time consuming performance tests,
-	  logging the results to an XML file for later analysis.  Add a
-	  simple test of the ValueSetMatchDeciders to this testsuite.
-	  "perftest" isn't run by make check, because it is likely to take
-	  some hours to complete in future - instead, there's a new
-	  top-level target "check-perf" which builds and runs perftest.
-
-Mon Mar 31 08:13:21 GMT 2008  Olly Betts <olly@survex.com>
-
-	* HACKING: Recommend using the "svn-ci" script.  Update the date
-	  command which produces the correct format timestamp for ChangeLog
-	  entries.
-
-Mon Mar 31 08:00:58 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/flint/flint_btreeutil.h: Fix some out-of-date comments.
-	* configure.ac: Use AC_CHECK_SIZEOF to define SIZEOF_INT and
-	  SIZEOF_LONG.
-	* backends/flint/flint_types.h: Use SIZEOF_INT and SIZEOF_LONG to
-	  determine the type of uint4 rather than always using unsigned long
-	  (which is 64 bits on most 64 bit Unix platforms).  Drop int4 for
-	  the time being, as we don't actually use it.
-
-Mon Mar 31 06:34:20 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/flint/flint_positionlist.cc: Refactor BitWriter::encode()
-	  to have a single call to write_bits(), and don't include it inline
-	  in the class as it's really a bit big to inline (and write_bits()
-	  should now be inlined into it, or at least tail-called).
-
-Mon Mar 31 05:33:02 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/flint/flint_positionlist.cc: Reorder header includes to
-	  match our new standard more closely.  Indent class definitions to
-	  match our coding standards.
-
-Mon Mar 31 05:31:59 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/flint/flint_positionlist.h: Remove unnecessary default
-	  dtor.
-
-Mon Mar 31 04:55:59 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/remote/net_document.cc,backends/remote/net_document.h:
-	  Rename "doc" member to "data" since it actually holds the document
-	  data.
-
-Mon Mar 31 03:25:21 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/flint/flint_document.cc,backends/flint/flint_document.h:
-	  Remove unnecessary default dtor.
-
-Mon Mar 31 02:53:48 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/inmemory/inmemory_alltermslist.cc,
-	  backends/inmemory/inmemory_alltermslist.h: Remove unnecessary
-	  default dtor.
-	* backends/inmemory/inmemory_alltermslist.h: Fix bogus cut-and-pasted
-	  doxygen comment for ctor.
-
-Mon Mar 31 02:33:15 GMT 2008  Olly Betts <olly@survex.com>
-
-	* common/inmemory_positionlist.h: Remove unnecessary default
-	  destructor.  Fix comment type ("inemory" -> "inmemory").
-
-Sun Mar 30 12:47:50 GMT 2008  Olly Betts <olly@survex.com>
-
-	* include/xapian/queryparser.h: Drop explicit dtor for SimpleStopper
-	  which does nothing.
-
-Sun Mar 30 12:12:12 GMT 2008  Olly Betts <olly@survex.com>
-
-	* include/xapian/valuesetmatchdecider.h: Don't bother checking if an
-	  element is present before calling std::set::erase().  Don't bother
-	  defining an explicit dtor which does nothing.
-
-Sat Mar 29 00:46:13 GMT 2008  Olly Betts <olly@survex.com>
-
-	* tests/api_db.cc: Test matchfunctor bounds in combination with
-	  collapsing and percentage cutoff.  Also, range check
-	  get_matches_estimated rather than checking it's exactly the value
-	  currently returned.
-
-Fri Mar 28 21:37:27 GMT 2008  Olly Betts <olly@survex.com>
-
-	* tests/api_nodb.cc: Test ValueSetMatchDecider::remove_value() for a
-	  value which isn't in the set.  Test that removing a value doesn't
-	  affect other values in the set.
-
-Fri Mar 28 21:03:30 GMT 2008  Olly Betts <olly@survex.com>
-
-	* matcher/multimatch.cc: Avoid needless call to pl->get_termfreq_est()
-	  if we're using a matchdecider or matchspy.
-
-Fri Mar 28 10:28:51 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* matcher/multimatch.cc: Set matches_lower_bound to 0 before
-	  starting the match process if there is a match decider or spy;
-	  previously, the lower_bound wasn't being reduced in the presence
-	  of a match decider unless all the potential results were
-	  retrieved.
-	* tests/api_db.cc: Extend matchfunctor1 to check the bounds and
-	  estimates returned; includes a regression test for the above.
-
-Fri Mar 28 09:09:54 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* tests/api_nodb.cc: Extend tests to check ValueSetMatchDecider
-	  remove_value and also ValueSetMatchDeciders holding more than one
-	  value.
-
-Fri Mar 28 02:41:45 GMT 2008  Olly Betts <olly@survex.com>
-
-	* configure.ac: Update version info to match 1.0.6.
-
-Fri Mar 28 00:12:48 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* api/omenquire.cc,include/xapian/enquire.h: Merge two of the
-	  get_mset() variants into one, with default arguments, which has
-	  exactly the same effect.  We added the two variants to preserve
-	  ABI compatibility, and now we're branched for 1.1 this is no
-	  longer necessary.
-
-Thu Mar 27 23:54:39 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* api/valuesetmatchdecider.cc,include/xapian.h,
-	  include/xapian/valuesetmatchdecider.h: Add ValueSetMatchDecider,
-	  which is a matchdecider which is intended to be passed a set of
-	  values to look for in documents, and selects documents based on
-	  the presence of those values.
-	* tests/api_db.cc,tests/api_nodb.cc: Add tests for the
-	  ValueSetMatchDecider - both for calling it standalone, and when
-	  passed to get_mset().
-	* api/Makefile.mk,include/Makefile.mk: Tell build system about new
-	  files.
-
-Thu Mar 27 06:18:52 GMT 2008  Olly Betts <olly@survex.com>
-
-	* api/omqueryinternal.cc: Initialise term_pos in previous change to
-	  fix valgrind-detected error.
-
-Thu Mar 27 06:13:01 GMT 2008  Olly Betts <olly@survex.com>
-
-	* api/omqueryinternal.cc: Optimise Query(OP_VALUE_GE, <n>, "") to
-	  Query::MatchAll.
-	* tests/api_nodb.cc: Add testcase for this case.
-
-Thu Mar 27 04:34:40 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/inmemory/inmemory_document.cc,
-	  backends/inmemory/inmemory_document.h: Rename "doc" member to
-	  "data" since it actually holds the document data.
-	* backends/inmemory/inmemory_database.cc: Remove unused <stdio.h>.
-	  Include "inmemory_database.h" right after <config.h>.
-
-Wed Mar 26 23:44:03 GMT 2008  Olly Betts <olly@survex.com>
-
-	* api/omenquire.cc: Throw InvalidArgumentError upon
-	  RSet::add_document(0).
-	* tests/api_nodb.cc: Add regression test for this.
-	* matcher/rset.cc: Add assertion that we don't see a zero docid when
-	  calculating rtermfreqs.
-	* api/omdocument.cc: Use RETURN not return so debug logging sees the
-	  return value.
-	* backends/inmemory/inmemory_database.cc,
-	  backends/remote/remote-database.cc: Change exception throwing for
-	  a zero docid to assertions since zero docids should be checked for
-	  before we get to here.
-
-Wed Mar 26 06:17:51 GMT 2008  Olly Betts <olly@survex.com>
-
-	* common/postlist.h: Decree that PostList::check() must be passed a
-	  docid which actually exists in the database (which is always true
-	  currently and seems unlikely to be an onerous requirement).
-	* matcher/valuegepostlist.cc,matcher/valuerangepostlist.cc: Take
-	  advantage of this new precondition to simplify the code.
-	* matcher/valuegepostlist.cc,matcher/valuerangepostlist.cc: Move the
-	  corresponding header first as our header inclusion order guidelines
-	  recommend.
-
-Thu Mar 13 01:58:18 GMT 2008  Olly Betts <olly@survex.com>
-
-	* common/stats.h,include/xapian/enquire.h,matcher/localmatch.cc,
-	  matcher/weight.cc: Untangle Xapian::Weight to just initialise
-	  internal to 0 in its ctor, which is an ABI change.  Resolves
-	  a load of FIXME:1.1 comments.
-
-Thu Mar 13 00:50:06 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/flint/flint_lock.cc: Remove workaround for newlib which we
-	  don't seem to need elsewhere and was marked "FIXME:1.1".
-
-Thu Mar 13 00:49:27 GMT 2008  Olly Betts <olly@survex.com>
-
-	* docs/deprecation.rst: Fix footnote ids after deprecation updates.
-
-Wed Mar 12 10:08:37 GMT 2008  Olly Betts <olly@survex.com>
-
-	* tests/stemtest.cc: Remove support for OM_STEMTEST_SKIP_RANDOM,
-	  OM_STEMTEST_LANGUAGES, and OM_STEMTEST_SEED.
-
-Wed Mar 12 08:30:48 GMT 2008  Olly Betts <olly@survex.com>
-
-	* docs/deprecation.rst: Update for bindings removals for 1.1.0.
-
-Wed Mar 12 06:59:25 GMT 2008  Olly Betts <olly@survex.com>
-
-	* docs/deprecation.rst: Update for Omega removals for 1.1.0.
-
-Wed Mar 12 05:11:53 GMT 2008  Olly Betts <olly@survex.com>
-
-	* api/omenquire.cc,api/omquery.cc,api/version.cc,docs/,
-	  generate-exceptions.in,include/xapian.h,include/xapian/enquire.h,
-	  include/xapian/query.h,tests/api_db.cc,tests/api_wrdb.cc,
-	  tests/apitest.cc,tests/harness/,tests/internaltest.cc: Remove all
-	  xapian-core features marked for removal in 1.1.0.
-
-Wed Mar 12 03:28:18 GMT 2008  Olly Betts <olly@survex.com>
-
-	* HACKING,INSTALL,Makefile.am,backends/Makefile.mk,
-	  backends/dir_contents,backends/quartz/,bin/,configure.ac,docs/,
-	  tests/,tests/harness/,tests/quartztest.cc,tests/testdata/,
-	  xapian-core.spec.in: Remove the quartz backend.
-
-Wed Mar 12 02:14:33 GMT 2008  Olly Betts <olly@survex.com>
-
-	* m4/xapian.m4: Improve wording of the error message when we can't
-	  find xapian-config.
-
-Wed Mar 12 02:13:32 GMT 2008  Olly Betts <olly@survex.com>
-
-	* INSTALL: Minor wording tweak.
-
-Wed Mar 12 01:44:42 GMT 2008  Olly Betts <olly@survex.com>
-
+Mon Apr 28 12:42:41 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* Backport changes from trunk:
+	* backends/flint/flint_btreebase.cc,backends/flint/flint_table.cc,
+	  backends/quartz/btree.cc,backends/quartz/btree_base.cc,
+	  tests/api_wrdb.cc: Fix issue #259, which caused zlib errors.
+	  Also, applied fix to quartz, where the problem manifested as
+	  incorrect data being returned.
+
+Tue Apr 22 12:58:32 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* bin/xapian-compact.cc: Tweak the user-metadata copying loop to make
+	  it clearer.  Reserve the right size for the vector used for merging
+	  spellings.
+	* bin/xapian-compact.cc: Fix check for user metadata key to not match
+	  other key types we may add in the future.  When compacting, we can't
+	  assume how we should handle them.
 	* bin/xapian-compact.cc: Initialise PostlistCursor member firstdid to
 	  avoid using it uninitialised when merging user metadata and the same
 	  key is present in more than one source database.  If the same user
 	  metadata key is present in more than one source database, copy an
 	  arbitrary tag value.
-
-Wed Mar 12 00:34:04 GMT 2008  Olly Betts <olly@survex.com>
-
 	* bin/xapian-compact.cc: Fix potential SEGV (which I think can occur
 	  when compacting database(s) with user metadata but no postings).
 
-Fri Mar 07 09:46:38 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+Fri Mar 28 02:22:29 GMT 2008  Olly Betts <olly@survex.com>
 
-	* common/serialise.h: Add missing std:: before string.
+	* configure.ac: Fix LIBRARY_VERSION_INFO.
 
-Fri Mar 07 00:47:06 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+Sun Mar 16 11:38:32 GMT 2008  Olly Betts <olly@survex.com>
 
-	* api/replication.cc: Tidy up a line which was wider than 80
-	  columns, and improve the error message returned when a database
-	  replica doesn't contain exactly one subdatabase.
+	* NEWS: Update for 1.0.6.
 
-Fri Mar 07 00:34:28 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+Sun Mar 16 11:37:16 GMT 2008  Olly Betts <olly@survex.com>
 
-	* common/serialise.h,net/remoteconnection.cc,net/serialise.cc:
-	  Change encode_length() to a template, to allow the full range of
-	  off_t values to be encoded.  Also, adjust
-	  RemoteConnection::get_message_chunked() to allow the message
-	  length to be a 64 bit quantity.  Also, make a couple of type
-	  conversions to size_t explicit, to remove some warnings on
-	  windows.
+	* PLATFORMS: 1.0.6 definitely builds on atreus.
 
-Thu Mar 06 01:57:04 GMT 2008  Olly Betts <olly@survex.com>
+Sun Mar 16 11:03:27 GMT 2008  Olly Betts <olly@survex.com>
 
+	* configure.ac: Update for 1.0.6.
+
+Wed Mar 12 06:50:53 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk (not needed here, but is by Omega's
+	  svn:externals copy of common):
+	* common/safedirent.h: Add "safedirent.h" header for easy inclusion of
+	  this implementation.
+
+Thu Mar 06 01:59:19 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
 	* NEWS: Update from ChangeLog.
 
-Thu Mar 06 01:44:07 GMT 2008  Olly Betts <olly@survex.com>
+Thu Mar 06 01:49:26 GMT 2008  Olly Betts <olly@survex.com>
 
-	* bin/xapian-check.cc: Fix terminology - "user metadata" not "user
-	  metainfo".  Fix bug - need to invoke is_user_metadata rather than
-	  using the function pointer as the if condition!
-
-Thu Mar 06 01:41:09 GMT 2008  Olly Betts <olly@survex.com>
-
-	* bin/xapian-compact.cc: Fix terminology - "user metadata" not "user
-	  metainfo".
-
-Wed Mar 05 21:17:02 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* net/remoteconnection.cc: Add some casts (in the windows-specific
-	  code) to fix some warnings from MSVC.
-
-Wed Mar 05 19:01:35 GMT 2008  Olly Betts <olly@survex.com>
-
-	* NEWS: Update to 1.0 branch point.
-
-Wed Mar 05 19:00:07 GMT 2008  Olly Betts <olly@survex.com>
-
-	* common/msvc_dirent.cc: Tweak to bring comment back into 80 columns.
-
-Wed Mar 05 16:35:33 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* common/msvc_dirent.cc: Fix sense of check for ENOENT after
-	  calling _findnext() - it should be checked for when an error code
-	  is returned, not when the call succeeds.
-	* tests/api_replicate.cc: Fix tiny capitalisation typo.
-
-Wed Mar 05 16:29:47 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* common/fileutils.cc: Check case where a backslash isn't found in
-	  calc_dirname, and don't replace slash with backslash in this
-	  case.
-
-Wed Mar 05 09:30:42 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
+	* Backport change from trunk:
 	* bin/xapian-check.cc: Add understanding of user metainfo keys in
 	  the postlist table.  Allow the METAINFO key to be absent if the
 	  table only contains user metainfo keys.
+	* bin/xapian-check.cc: Fix terminology - "user metadata" not "user
+	  metainfo".  Fix bug - need to invoke is_user_metadata rather than
+	  using the function pointer as the if condition!
+	* bin/xapian-compact.cc: Fix terminology - "user metadata" not "user
+	  metainfo".
 
-Wed Mar 05 09:01:48 GMT 2008  Olly Betts <olly@survex.com>
+Thu Mar 06 01:30:46 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport change from trunk:
+	* common/msvc_dirent.cc: Fix sense of check for ENOENT after
+	  calling _findnext() - it should be checked for when an error code
+	  is returned, not when the call succeeds.
+	* common/msvc_dirent.cc: Tweak to bring comment back into 80 columns.
+
+Wed Mar 05 09:11:48 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
 	* common/msvc_dirent.cc,common/msvc_dirent.h: Move licence boilerplate
 	  up front where we have it in every other file.  Move header guards
 	  to the usual location.  Detail the fix we've made for not setting
 	  errno to ENOENT erroneously.  Push the setting of orig_errno down
 	  a bit.
 
-Wed Mar 05 04:57:44 GMT 2008  Olly Betts <olly@survex.com>
+Wed Mar 05 09:10:37 GMT 2008  Olly Betts <olly@survex.com>
 
-	* configure.ac: -pedantic isn't actually very useful so just drop it
-	  rather than testing for known problem cases and risking unknown
-	  problem cases.
-
-Wed Mar 05 03:10:24 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
+	* Backport change from trunk:
 	* matcher/valuegepostlist.cc,matcher/valuegepostlist.h: Implement
 	  skip_to method for ValueGePostList.  Previously, the
 	  ValueRangePostList::skip_to method was used, which would
 	  return incorrect documents.
 
-Wed Mar 05 02:54:27 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+Wed Mar 05 07:36:25 GMT 2008  Olly Betts <olly@survex.com>
 
-	* common/fileutils.cc: Search for \ instead of / when looking for a
-	  backslash!
+	* Backport change from trunk:
+	* backends/flint/flint_table.cc,backends/quartz/btree.cc: Use
+	  msvc_posix_rename() instead of rename() when renaming base files, so
+	  that an error isn't returned if the destination already exists.
 
-Wed Mar 05 02:51:49 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+Wed Mar 05 06:51:25 GMT 2008  Olly Betts <olly@survex.com>
 
-	* common/fileutils.cc: Fix incorrect docstring.
-
-Tue Mar 04 18:48:25 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* common/msvc_dirent.cc: Fix readdir() so that it doesn't change
-	  errno to ENOENT on reaching the end of the directory, as
-	  specified by POSIX.
-
-Tue Mar 04 17:54:56 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* net/remoteconnection.cc: Fix for a problem with windows.  Because
-	  we're using mixed styles of windows file IO, if a file descriptor
-	  which actually corresponds to a file was supplied to remote
-	  connection, the file pointer wasn't being adjusted after each
-	  call to ReadFile or WriteFile.  This manifested in the test case
-	  for replication, resulting in a (corrupt) 2048 byte changeset
-	  file being written (instead of a considerably longer changeset).
-	  To work around this, we explicitly move the file pointer
-	  ourselves.
-
-Tue Mar 04 17:41:38 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* tests/api_replicate.cc: Close the replica before removing the
-	  temporary directory, to allow the rmdir to work on windows.
-
-Thu Feb 28 16:41:34 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* common/remoteconnection.h: Include safeunistd.h, to get correct
-	  typedef for off_t on windows - previously, the size of the
-	  RemoteConnection class was varying depending on the order in
-	  which header files were included, resulting in memory corruption.
-	* net/remoteserver.cc: Remove incorrect comment about what the
-	  problem was.
-
-Sat Feb 23 23:40:56 GMT 2008  Olly Betts <olly@survex.com>
-
-	* xapian-config.in: Use globbing rather than iterating over the output
-	  of ls.
-
-Sat Feb 23 23:33:39 GMT 2008  Olly Betts <olly@survex.com>
-
-	* xapian-config.in: Fix not to repeated headers in --swigheaders in a
-	  non-VPATH build.
-
-Fri Feb 22 17:20:19 GMT 2008  Olly Betts <olly@survex.com>
-
-	* HACKING: Add note about preferring std::string().
-
-Fri Feb 22 17:05:11 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* net/remoteserver.cc: Use std::string() instead of
-	  std::string(""), since it's a bit cleaner.
-
-Fri Feb 22 16:50:32 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* net/remoteserver.cc: Add workaround for bug in MSVC 2005.
-
-Fri Feb 22 14:39:03 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* backends/flint/flint_database.cc,backends/flint/flint_table.cc,
-	  backends/quartz/btree.cc: Use msvc_posix_rename() instead of
-	  rename() when renaming base files, so that an error isn't
-	  returned if the destination already exists.
-
-Thu Feb 21 17:24:14 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* common/msvc_dirent.cc: Include msvc_dirent.h instead of dirent.h
-
-Thu Feb 21 17:09:01 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* common/database.h: ReplicationInfo is a struct, not a class, so
-	  forward declare it as such.
-
-Thu Feb 21 12:16:23 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* common/Makefile.mk: Add common/safedirent.h to distribution.
-
-Thu Feb 21 00:25:33 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* xapian-config.in: Add swigheaders option, listing the header
-	  files used by swig, so that we can add the appropriate
-	  dependencies to the makefiles in the bindings.
-
-Wed Feb 20 20:59:55 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* include/xapian/replication.h: Add a ReplicationInfo structure,
-	  and use it to return information about what has been done when
-	  the replication methods are called.
-	* api/replication.cc,backends/database.cc,
-	  backends/flint/flint_database.cc,backends/flint/flint_database.h,
-	  common/database.h,common/replicatetcpclient.h,
-	  common/replicatetcpserver.h,net/replicatetcpclient.cc,
-	  net/replicatetcpserver.cc: Populate a ReplicationInfo structure
-	  when updating a replica, or sending changes to a file descriptor.
-	  Also, fix a bug with reading the replication parameters from a
-	  file, which caused a full database copy to be performed on every
-	  replication request on a newly opened DatabaseReplica object.
-	* bin/xapian-replicate.cc: When doing verbose logging, display the
-	  number of database copies and changesets applied, and whether the
-	  live database has been updated.
-	* tests/api_replicate.cc: Check that the information returned by
-	  the replication methods is as is should be, and add a regression
-	  test for always copying the database.
-
-Wed Feb 20 11:20:55 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* backends/flint/: Improve reporting of failures to obtain lock due
-	  to unexpected errors - the error messages included in the
-	  exceptions raised are now more verbose in many situations.  Also,
-	  if the lock can't be obtained when a database is being created,
-	  report the lock failure, not a DatabaseOpeningError - it's more
-	  useful to know that the lock attempt failed than that the
-	  database wasn't present before the attempt to create it.
-
-Tue Feb 19 11:58:22 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* bin/xapian-compact.cc: Fix compaction for database which contain
+	* Backport change from trunk:
+	* bin/xapian-compact.cc: Fix compaction for database which contains
 	  user metadata keys.
 
-Sat Feb 16 19:53:44 GMT 2008  Olly Betts <olly@survex.com>
+Wed Mar 05 06:29:08 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport change from trunk:
 	* include/xapian/queryparser.h: Fix incorrect example in doccomment.
 
-Sat Feb 16 14:46:08 GMT 2008  Olly Betts <olly@survex.com>
+Wed Mar 05 06:27:43 GMT 2008  Olly Betts <olly@survex.com>
 
-	* AUTHORS: Add Matthew Somerville for Search::Xapian patches.
-
-Tue Feb 12 16:34:52 GMT 2008  Olly Betts <olly@survex.com>
-
+	* Backport change from trunk:
 	* docs/quickstart.html: Remove information covered by INSTALL since
 	  there's no good reason to repeat it and two copies just risks one
 	  getting out of date (as has happened here!)
 
-Tue Feb 12 16:27:30 GMT 2008  Olly Betts <olly@survex.com>
+Wed Mar 05 06:26:58 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport change from trunk:
 	* AUTHORS: Add David Spencer for reporting bug#237.
 
-Tue Feb 12 16:25:00 GMT 2008  Olly Betts <olly@survex.com>
+Wed Mar 05 06:26:00 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport change from trunk:
 	* docs/quickstart.html: Fix very out of date reference to MSet::items
 	  (bug#237).
 
-Tue Feb 12 12:40:47 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+Wed Mar 05 06:12:02 GMT 2008  Olly Betts <olly@survex.com>
 
-	* bin/xapian-compact.cc: Fix incorrect parameters passed to
-	  FlintTable constructor.
+	* Backport change from trunk:
+	* common/Makefile.mk: Add msvc_dirent.cc and msvc_dirent.h.
 
-Sat Feb 09 11:56:40 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+Wed Mar 05 05:56:45 GMT 2008  Olly Betts <olly@survex.com>
 
-	* common/socket_utils.h,net/remoteconnection.cc: More fixes for
-	  windows.
+	* Backport change from trunk:
+	* configure.ac: -pedantic isn't actually very useful and causes
+	  problems on Mac OS X, so just drop it rather than testing for known
+	  problem cases and risking unknown problem cases.
 
-Sat Feb 09 11:31:30 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+Wed Mar 05 04:43:12 GMT 2008  Olly Betts <olly@survex.com>
 
-	* common/msvc_dirent.cc,common/msvc_dirent.h: Hopefully this is a
-	  better implementation of dirent functions.
-
-Sat Feb 09 10:59:50 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* common/: Add implementation of dirent.h for use with MSVC; this
-	  is copied from the mingw implementation, which has been placed in
-	  the public domain.  Add "safedirent.h" header for easy inclusion
-	  of this implementation.
-
-Sat Feb 09 10:43:49 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* tests/api_replicate.cc: Use _putenv instead of setenv on windows.
-
-Sat Feb 09 09:56:08 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* common/socket_utils.cc,common/socket_utils.h: More fixes for
-	  windows.
-
-Fri Feb 08 16:40:56 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* common/Makefile.mk,common/socket_utils.cc,common/socket_utils.h,
-	  net/remoteconnection.cc,net/tcpclient.cc: Move windows-specific
-	  socket handling code from remoteconnection.cc into a separate
-	  file, provides the inline close_fd_or_socket for unix in the
-	  header file.  Use this in tcpclient.cc instead of close to close
-	  sockets correctly on windows.
-
-Fri Feb 08 16:40:29 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* common/fileutils.cc,common/replicatetcpclient.h: Correct typos in
-	  windows only sections of code.
-
-Fri Feb 08 15:29:28 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* net/remoteconnection.cc: Fixes for windows - always include
-	  "safesysselect.h", and include <io.h> on windows.
-	  Also, remove definition of an unused variable (probably due to a
-	  copy and paste error).
-
-Wed Feb 06 13:45:59 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* bin/xapian-replicate.cc: Include "safeunistd.h" - needed for
-	  sleep, if nothing else.
-
-Tue Feb 05 18:10:23 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* configure.ac: Set -pedantic in CXXFLAGS not AM_CXXFLAGS when
-	  testing for problem with it - AM_CXXFLAGS is an automake thing,
-	  and isn't used by the autoconf test.
-
-Tue Feb 05 17:50:55 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* configure.ac: Cleaner patch for the test of compilation with
-	  -pedantic - cache the result using AC_CACHE_VAL().
-
-Tue Feb 05 17:32:11 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* configure.ac: Check whether compilation of a cast of INFINITY to
-	  a double, and comparison with HUGE_VAL, causes a problem if
-	  -pedantic is specified (which it does on at least some Mac OSX
-	  versions).  If so, don't use the -pedantic compiler flag.
-
-Tue Feb 05 09:24:36 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* backends/flint/flint_cursor.cc,backends/flint/flint_database.cc,
-	  backends/quartz/bcursor.cc: More fixes for debug logging - rename
-	  the "hex_encode" functions used for logging to
-	  "hex_display_encode" to avoid name clash.  Fix return type
-	  declared in flint_database.cc's DEBUGCALL macro.
-
-Tue Feb 05 09:18:29 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* api/replication.cc: Fix for logging compiles: don't check return
-	  value of a void function.
-
-Tue Feb 05 09:14:34 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* api/replication.cc: Reopen database after replication, to fix bug
-	  with applying a chain of changesets.
-	* backends/flint/flint_database.cc: Don't use O_TRUNC (or O_CREAT)
-	  when modifying the DB files!
-	* tests/api_replicate.cc: Don't call function from inside
-	  TEST_EQUAL, because that's a macro and the function will be
-	  double-evaluated.
-
-Tue Feb 05 02:07:08 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* api/replication.cc,backends/database.cc,backends/flint/,
-	  common/database.h: Many fixes to the replication code.  Now
-	  parses replication changesets correctly and applies them to the
-	  databases.  Also, correct one bug with the generation of
-	  changesets.
-	* docs/replication.rst,docs/replication_protocol.rst: Update.
-	* tests/api_replicate.cc: Add test of two changesets being applied
-	  at once.
-
-Sun Feb 03 13:31:10 GMT 2008  Olly Betts <olly@survex.com>
-
+	* Backport change from trunk:
 	* backends/quartz/btree.cc: Backport atomic base update fix from
 	  flint.
 
-Sat Feb 02 22:47:56 GMT 2008  Olly Betts <olly@survex.com>
+Wed Mar 05 04:31:07 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport change from trunk:
 	* AUTHORS: Add Thomas Viehmann.
 
-Sat Feb 02 03:39:33 GMT 2008  Olly Betts <olly@survex.com>
+Wed Mar 05 03:56:45 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport change from trunk:
 	* backends/flint/flint_table.cc: Update the base files atomically to
 	  avoid problems with reading processes finding partially written
 	  ones.
 
-Sat Feb 02 03:38:00 GMT 2008  Olly Betts <olly@survex.com>
+Wed Mar 05 03:32:28 GMT 2008  Olly Betts <olly@survex.com>
 
-	* api/replication.cc: Don't leak the RemoteConnection object.
-
-Fri Feb 01 23:15:38 GMT 2008  Olly Betts <olly@survex.com>
-
+	* Backport change from trunk:
 	* backends/flint/flint_btreebase.cc,backends/flint/flint_btreebase.h:
 	  Fix assorted comment errors.
 
-Fri Feb 01 20:20:23 GMT 2008  Olly Betts <olly@survex.com>
+Wed Mar 05 02:59:41 GMT 2008  Olly Betts <olly@survex.com>
 
-	* bin/xapian-replicate.cc: Fix comment.
+	* Backport change from trunk:
+	* net/remoteconnection.cc: Fix the call to fcntl() in send_message()
+	  to use fdout instead of fdin.  This has probably been stopping
+	  timeouts working very well.
 
-Fri Feb 01 20:13:23 GMT 2008  Olly Betts <olly@survex.com>
+Wed Mar 05 02:38:57 GMT 2008  Olly Betts <olly@survex.com>
 
-	* bin/xapian-replicate.cc: Document the default interval in --help.
-
-Fri Feb 01 20:05:08 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* bin/xapian-replicate.cc: Remove the "return 0;" I added at the
-	  end of the function - I didn't realise this, but in C++ it's not
-	  necessary to have a return at the end of main().  Tidier without
-	  it, so it's gone.
-
-Fri Feb 01 19:44:05 GMT 2008  Olly Betts <olly@survex.com>
-
+	* Backport change from trunk:
 	* include/xapian/unicode.h: Add Unicode::toupper() to complement
 	  Unicode::tolower().
 	* tests/api_unicode.cc: Add caseconvert1 testcase to test
 	  Unicode::tolower() and Unicode::toupper().
 
-Fri Feb 01 19:36:47 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+Wed Mar 05 02:32:02 GMT 2008  Olly Betts <olly@survex.com>
 
-	* bin/xapian-replicate.cc: Add one-shot and verbose options to
-	  replication client.
-
-Fri Feb 01 17:52:36 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* api/replication.cc,backends/flint/flint_database.cc,
-	  include/xapian/replication.h,net/replicatetcpclient.cc,
-	  tests/api_replicate.cc: Keep the RemoteConnection in the
-	  DatabaseReplica object, so that any data which is read ahead
-	  doesn't get lost.  If an error occurs opening the database on
-	  the server, send a FAIL message over the connection, rather than
-	  just shutting it.
-
-Fri Feb 01 16:51:05 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
+	* Backport change from trunk:
 	* backends/flint/flint_table.cc: Fix a database corruption bug: see
 	  bugzilla entry #232.  Was caused by lazy tables not being created
 	  at the right revision.
 	* tests/api_wrdb.cc: Regression test for bug.
-
-Fri Feb 01 15:10:23 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* api/replication.cc,backends/database.cc,
-	  backends/flint/flint_database.cc,backends/flint/flint_database.h,
-	  common/database.h,docs/replication_protocol.rst,
-	  tests/api_replicate.cc: Add the UUID of the new database to the
-	  DB_HEADER message, and move the code which compares UUIDs out of
-	  flint_database.cc and into replication.cc.  Fix testcase which
-	  missed incorrect comparison of UUIDs.  Store the UUID of the
-	  live database which has been replicated in the config file - this
-	  isn't an ideal place, but will do until the UUID is stored in the
-	  iamflint file, and we can parse it from there.  Remove debug
-	  printfs.
-
-Fri Feb 01 15:09:12 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* bin/quartzdump.cc: Rename hex_encode() to hex_display_encode() to
-	  avoid collision.  (The hex encoding produced by this doesn't
-	  encode spaces, so isn't quite the same as the functions just
-	  added to utils.cc).
-
-Fri Feb 01 15:08:06 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* common/utils.cc,common/utils.h: Add utility functions to
-	  hex-encode and decode a string, so we can store UUIDs in the
-	  config file in replicated DB directories.
-
-Fri Feb 01 12:49:34 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* tests/harness/backendmanager_multi.cc: Make the multi
-	  backendmanager use relative paths in its stub databases.
-
-Fri Feb 01 12:17:38 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* common/Makefile.mk: Add replicationprotocol.h to distribution.
-
-Fri Feb 01 12:10:19 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* backends/database.cc: Stub databases used to
-	  assume that any relative paths were relative to the current
-	  working directory.  They now assume that relative paths are
-	  relative to the directory holding the stub database file.
-	  Also, lines which begin with a '#' character are ignored, so we
-	  can place comments in the stub database files.  Also, recognise a
-	  new database type: a "stub directory", which is a directory
-	  containing a stub database file named "XAPIANDB".
-	* api/replication.cc: Replica databases are now created as
-	  directories containing a "XAPIANDB" stub file, so all the
-	  workings are internal.
-	* common/Makefile.mk,common/fileutils.cc,common/fileutils.h: Add
-	  new set of utilities to manipulate path names - extracting
-	  directory names, and joining paths.
-	* tests/api_replicate.cc: Enable test properly, now that
-	  it passes.  Test needs to be expanded to check that the database
-	  copy succeeded better.
-
-Fri Feb 01 09:47:00 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* backends/flint/flint_database.cc: Fix warning about unused
-	  variable.
-
-Fri Feb 01 03:49:56 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* api/replication.cc,backends/database.cc,
-	  backends/flint/flint_database.cc,backends/flint/flint_database.h,
-	  common/database.h,common/replicationprotocol.h: Move replication
-	  protocol definition into a separate file.  Add (virtual) support
-	  methods for applying changesets to Database::Internal.  Sort out
-	  atomic swapping of old database for new after a database copy.
-
-Fri Feb 01 03:49:09 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* tests/quartztest.cc: Rename removedir to removedir_recursive() to
-	  avoid conflict with my new function.
-
-Fri Feb 01 03:09:45 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* docs/replication_protocol.rst: Specify (though not in much
-	  detail) what we mean by "packed" strings and integers.
-
-Fri Feb 01 03:09:06 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* include/xapian/replication.h: Be more precise in documentation
-	  comment.
-
-Fri Feb 01 03:07:29 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* net/remoteconnection.cc: Remove debug printfs()
-
-Fri Feb 01 03:03:59 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* common/utils.cc,common/utils.h: Add overloaded rmdir() which
-	  works directly on C++ strings.  Add removedir() method which
-	  removes a directory and its contents (as long as the directory
-	  only contains files, not subdirectories).
-
-Fri Feb 01 01:51:22 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* common/remoteconnection.h,net/remoteconnection.cc: Add
-	  "sniff_next_message_type" method to RemoteConnection, and replace
-	  the hardcoded "4096" size of the chunks used for the remote
-	  connection confersation with a #define.  Fix file mode when
-	  creating a file with receive_file(), and bugs with writing too
-	  much data to the file.
-
-Thu Jan 31 03:41:42 GMT 2008  Olly Betts <olly@survex.com>
-
-	* bin/Makefile.mk,bin/xapian-replicate-server.cc,
-	  common/replicatetcpserver.h: Add xapian-replicate-server server
-	  program.
-
-Thu Jan 31 02:46:38 GMT 2008  Olly Betts <olly@survex.com>
-
-	* bin/Makefile.mk,bin/xapian-replicate.cc,common/replicatetcpclient.h,
-	  net/replicatetcpclient.cc,net/replicatetcpserver.cc: Add
-	  xapian-replicate client program.
-
-Wed Jan 30 19:13:08 GMT 2008  Olly Betts <olly@survex.com>
-
-	* include/xapian/replication.h: Correct name of parameter in doxygen
-	  comment.
-
-Wed Jan 30 15:58:44 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* api/replication.cc,backends/database.cc,
-	  backends/flint/flint_database.cc,backends/flint/flint_database.h,
-	  common/database.h: Hook up the apply_changeset function from the
-	  API through to flint.  (The flint layer currently doesn't work,
-	  though.)  Also, implement the get_uuid() function for flint, by
-	  using the mtime of the iamflint file.
-	* tests/api_replicate.cc: Finish implementation of the "replicate"
-	  function, and add a test of a replication of a database using
-	  this.  The return value test is commented out for now, because
-	  the flint layer doesn't work, but this puts the machinery needed
-	  to test this in place.
-
-Wed Jan 30 15:10:37 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* backends/flint/flint_database.cc: Implement sending of the whole
-	  database copy.
-
-Wed Jan 30 14:45:01 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* tests/,tests/harness/: Add new testcase file (api_replicate.cc)
-	  to hold tests of the replication functionality.  Currently has
-	  one partially written test.  Also, add new function to apitest.h:
-	  get_named_writable_database_path(), which allows the path to a
-	  writable database to be obtained; throws an exception for those
-	  backend types for which that isn't meaningful.  Add a new
-	  variable for use in the conditions for tests: "replicas", which
-	  should be set to true for all backends which support replication.
-
-Wed Jan 30 14:42:26 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* net/remoteconnection.cc: Fix the calls to fcntl() in
-	  send_message() and send_file() to use fdout instead of fdin.
-	  This has probably been stopping timeouts working very well.
-
-Tue Jan 29 15:05:09 GMT 2008  Olly Betts <olly@survex.com>
-
-	* common/remoteconnection.h,net/remoteconnection.cc: Add
-	  receive_file() method.
-
-Tue Jan 29 14:37:36 GMT 2008  Olly Betts <olly@survex.com>
-
-	* common/remoteconnection.h,net/remoteconnection.cc: Add the ability
-	  to read a message in chunks.
-
-Tue Jan 29 10:08:02 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* include/xapian/replication.h: Expand documentation comment.
-	* api/replication.cc,backends/database.cc,
-	  backends/flint/flint_database.cc,backends/flint/flint_database.h,
-	  common/database.h: Add a write_changesets_to_fd() function to
-	  Database::Internal, with a default implementation to raise an
-	  UnimplementedError.  Hook
-	  DatabaseMaster::write_changesets_to_fd() up to this, and
-	  implement it for flint databases (the code to send a copy of a
-	  database still needs work).
-
-Tue Jan 29 10:01:39 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* docs/replication_protocol.rst: Document that a FAIL message ends
-	  the conversation.
-
-Tue Jan 29 09:59:01 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* docs/replication_protocol.rst: Document the protocol used to
-	  transfer the updates.
-
-Tue Jan 29 09:57:14 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* net/remoteconnection.cc: Fix typo.
-
-Tue Jan 29 09:48:15 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* net/remoteconnection.cc: For win32, use msvc_posix_open() to open
-	  the file descriptor, so other things can delete the file while
-	  the sending is in progress.
-
-Tue Jan 29 01:23:19 GMT 2008  Olly Betts <olly@survex.com>
-
-	* net/remoteconnection.cc: Add an assertion.
-
-Tue Jan 29 01:14:07 GMT 2008  Olly Betts <olly@survex.com>
-
-	* common/remoteconnection.h,net/remoteconnection.cc: Add send_file()
-	  method to RemoteConnection to allow the contents of a file to be
-	  sent as a message.
-
-Tue Jan 29 00:28:18 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* api/replication.cc,include/xapian/replication.h: Add methods to
-	  allow parameters to be stored associated with a DatabaseReplica.
-
-Tue Jan 29 00:16:42 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* backends/flint/flint_database.cc,backends/flint/flint_database.h:
-	  Change write_changesets_to_fd() to take the revision information
-	  as a string - it now includes a UUID.  Add get_uuid() method to
-	  FlintDatabase - currently always returns "FIXME", but will
-	  eventually return an ID for the database.
-
-Mon Jan 28 19:07:20 GMT 2008  Olly Betts <olly@survex.com>
-
-	* common/Makefile.mk,common/replicatetcpclient.h,net/Makefile.mk,
-	  net/replicatetcpclient.cc,net/replicatetcpserver.cc: Add
-	  ReplicateTcpClient class implementing a replication client over
-	  TCP/IP.
-
-Mon Jan 28 17:13:09 GMT 2008  Olly Betts <olly@survex.com>
-
-	* common/Makefile.mk,common/replicatetcpserver.h,net/Makefile.mk,
-	  net/replicatetcpserver.cc: Add ReplicateTcpServer class implementing
-	  a replication server over TCP/IP.
-
-Mon Jan 28 17:01:02 GMT 2008  Olly Betts <olly@survex.com>
-
-	* common/remoteconnection.h,net/remoteconnection.cc: Minor tweaks
-	  to allow unidirectional connections.
-
-Mon Jan 28 16:26:22 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* api/replication.cc: Fix overly hasty commit - add
-	  get_description() method for internal class, and use that instead
-	  of trying to access a private member.
-
-Mon Jan 28 16:22:18 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* api/replication.cc,common/output.h,include/xapian/replication.h:
-	  Add get_description() methods to DatabaseMaster and
-	  DatabaseReplica, and add XAPIAN_OUTPUT_FUNCTION methods for them
-	  so that they can be displayed in debugging methods.  Should fix
-	  build with logging enabled.
-
-Mon Jan 28 11:52:24 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* api/replication.cc,include/xapian/replication.h: Add
-	  DatabaseReplica::close() method, to allow the write lock to be
-	  released easily.
-
-Mon Jan 28 11:21:36 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* api/replication.cc,include/xapian/replication.h: Change
-	  DatabaseReplica into a PIMPL style class, now that it has more
-	  than one member.  Add visibility annotations to DatabaseMaster
-	  and DatabaseReplica.
-
-Mon Jan 28 10:44:51 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* api/replication.cc,include/xapian/replication.h: Add code to swap
-	  stub database files over atomically, and to track the current
-	  real database path.
-
-Mon Jan 28 04:52:12 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* api/replication.cc,backends/database.cc,
-	  backends/flint/flint_changesetapplier.h,
-	  backends/flint/flint_database.cc,backends/flint/flint_database.h,
-	  common/database.h: Implement opening of the database underlying
-	  DatabaseReplica objects, and hook up the get_revision_info()
-	  method for it.
-
-Mon Jan 28 04:17:21 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* common/utils.cc,common/utils.h: Add "dir_exists" function, to
-	  check for presence of a directory at a given path.
-
-Mon Jan 28 03:48:46 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* backends/flint/flint_table.cc: Change a "+= 1" to ++ - this isn't
-	  Python!
-
-Mon Jan 28 03:08:45 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* api/Makefile.mk,api/replication.cc,include/Makefile.mk,
-	  include/xapian/replication.h: Add interface to replication
-	  functionality.  (Currently just unimplemented stubs.)
-
-Mon Jan 28 02:01:02 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* backends/flint/flint_btreebase.h: Add a missing std::
-
-Mon Jan 28 01:59:55 GMT 2008  Olly Betts <olly@survex.com>
-
-	* common/remotetcpserver.h: Fix typo in doxygen comment: `@port' ->
-	  `@param port'.  Update comment - socket is no longer closed by
-	  handle_one_connection().
-
-Mon Jan 28 01:28:00 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* backends/flint/: Add support for recording the changes made to a
-	  database in "changeset" files.  These are currently not produced
-	  by default - for now, the "XAPIAN_MAX_CHANGESETS" environment
-	  variable can be set to control production of them.  As part of
-	  these changes, the FlintTable constructor now takes the
-	  tablename, so that this can be stored in changesets produced from
-	  the table.
-	* bin/xapian-check.cc,bin/xapian-compact.cc,bin/xapian-inspect.cc:
-	  Update to match changes in FlintTable constructor.
-	* docs/Makefile.am,docs/replication.rst,docs/replication_protocol.rst:
-	  Add basic documentation of the replication protocol (though this
-	  isn't yet definitive, since the protocol isn't finished!)
-
-Sun Jan 27 21:10:24 GMT 2008  Olly Betts <olly@survex.com>
-
-	* net/remotetcpserver.cc,net/tcpserver.cc: The job of closing the
-	  socket connected to the client more naturally belongs to the
-	  framework TcpServer class.
-
-Sun Jan 27 20:32:55 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/flint/flint_table.cc: Call flint_io_sync() in commit()
-	  rather than flush_db(), as that gives more time for written blocks
-	  to get written to disk before we block on waiting for them to be.
-	  This should tend to speed up WritableDatabase::flush() in I/O bound
-	  situations.
-
-Sun Jan 27 19:35:08 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* backends/flint/flint_spelling.h,backends/flint/flint_synonym.h:
-	  Merge changes to the spelling and synonym tables just before
-	  calling FlintTable::flush_db(), rather than just before calling
-	  FlintTable::commit(), so that they don't get forgotten.
-
-Sun Jan 27 14:29:30 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* backends/flint/flint_database.cc,backends/flint/flint_table.cc,
-	  backends/flint/flint_table.h: Separate step which flushes
-	  modified blocks from cursors to the DB file from the rest of
-	  commit.  This will allow me to insert the changeset writing code
-	  between the two steps, so it can assume that the DB file is fully
-	  up-to-date.  Also remove an out-of-date FIXME about trying to
-	  avoid updating the value and position tables if they're not used:
-	  these tables are now lazily created anyway.
-
-Sun Jan 27 12:53:51 GMT 2008  Olly Betts <olly@survex.com>
-
-	* net/tcpserver.cc: Change explicit references to xapian-tcpsrv.
-
-Sun Jan 27 12:26:24 GMT 2008  Olly Betts <olly@survex.com>
-
-	* common/tcpclient.h,common/tcpserver.h,net/: Make use of TCP_NODELAY
-	  optional at the class level.  No user-visible changes.
-
-Sat Jan 26 17:18:09 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/dbfactory_remote.cc,common/Makefile.mk,
-	  common/remotetcpclient.h,common/tcpclient.h,net/Makefile.mk,
-	  net/remotetcpclient.cc,net/tcpclient.cc: Split out the "open
-	  a connection" part of TcpClient and rename the rest to
-	  RemoteTcpClient.
-
-Sat Jan 26 14:01:34 GMT 2008  Olly Betts <olly@survex.com>
-
-	* bin/xapian-tcpsrv.cc,common/Makefile.mk,common/remotetcpserver.h,
-	  common/tcpserver.h,net/Makefile.mk,net/remotetcpserver.cc,
-	  net/tcpserver.cc: Split TcpServer into a generic TCP server
-	  class (TcpServer) and a subclass of this which implements the
-	  remote backend TCP server (RemoteTcpServer).
-
-Sat Jan 26 11:06:30 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* backends/flint/flint_btreebase.cc,backends/quartz/btree_util.h,
-	  common/utils.h: Move fdcloser into utils.h, since it's generally
-	  useful, and it's better not to have multiple copies of it
-	  scattered through the code.
-
-Fri Jan 25 15:06:30 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
-	* backends/flint/flint_table.cc,backends/quartz/btree.cc: Use
-	  msvc_posix_unlink() on windows in sys_unlink_if_exists()
-	  functions, so that they will work even if the file is still open.
-	  This probably changes no behaviour, because
-	  sys_unlink_if_exists() is probably never called in such a
-	  situation, but this may not be true in future.
 
 Thu Jan 24 13:31:20 GMT 2008  Olly Betts <olly@survex.com>
 

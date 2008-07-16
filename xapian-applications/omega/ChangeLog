@@ -1,177 +1,167 @@
-Wed Jul 09 10:44:37 GMT 2008  Olly Betts <olly@survex.com>
+Mon Jul 14 13:46:00 GMT 2008  Olly Betts <olly@survex.com>
 
-	* configure.ac: The workaround to avoid probe code for F77, GCJ, and
-	  RC being added to configure is no longer required now that we're
-	  using libtool 2.2 so remove it.
+	* NEWS: Update for 1.0.7.
 
-Wed Jul 09 10:13:18 GMT 2008  Olly Betts <olly@survex.com>
+Mon Jul 14 13:43:21 GMT 2008  Olly Betts <olly@survex.com>
 
-	* Makefile.am,configure.ac: Use AC_CONFIG_MACRO_DIR and
-	  ACLOCAL_AMFLAGS as libtoolize 2.2.4 recommends.
+	* configure.ac: Remove comments about autotools versions as we now
+	  document that in HACKING.  Raise automake enforced minimum
+	  requirement to 1.9 since we use option tar-ustar which requires 1.9.
 
-Fri Jul 04 08:29:47 GMT 2008  Olly Betts <olly@survex.com>
+Fri Jul 04 08:29:12 GMT 2008  Olly Betts <olly@survex.com>
 
-	* NEWS: Synchronise with 1.0 branch.
+	* NEWS: Note debian bug number.
 
-Fri Jul 04 08:15:03 GMT 2008  Olly Betts <olly@survex.com>
+Fri Jul 04 08:25:47 GMT 2008  Olly Betts <olly@survex.com>
 
-	* utf8convert.cc,utf8converttest.cc: UTF-16 with no BOM is meant to be
-	  assumed to be big-endian.  GNU libiconv doesn't handle some examples
-	  as expected, so disable them when using iconv() for now.
+	* NEWS: Update from ChangeLog.
 
-Fri Jul 04 06:39:20 GMT 2008  Olly Betts <olly@survex.com>
+Fri Jul 04 08:20:11 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport changes from trunk:
 	* omindex.cc: Handle UCS-2 and UTF-16 text files with a byte-order
 	  mark (BOM).  Ignore any UTF-8 "byte-order" mark.
 	* utf8convert.cc: Handle UCS-2/UTF-16 and explicit BE and LE forms in
 	  the non-iconv code.
 	* Makefile.am,utf8converttest.cc: Add unit tests of convert_to_utf8().
+	* utf8convert.cc,utf8converttest.cc: UTF-16 with no BOM is meant to be
+	  assumed to be big-endian.  GNU libiconv doesn't handle some examples
+	  as expected, so disable them when using iconv() for now.
 
-Fri Jun 27 04:43:18 GMT 2008  Olly Betts <olly@survex.com>
+Fri Jun 27 07:12:29 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport change from trunk:
 	* query.cc: Overhaul the $highlight colour combinations since some
 	  were rather unreadable.  Reported by Joey Hess in Debian bug
 	  #484456.
 
-Sun Jun 01 15:12:02 GMT 2008  Olly Betts <olly@survex.com>
+Sun Jun 01 15:08:20 GMT 2008  Olly Betts <olly@survex.com>
 
-	* configure.ac: Update version to 1.0.7 to match 1.0 branch.
+	* configure.ac: Update version to 1.0.7.
 
-Sun May 25 14:56:41 GMT 2008  Olly Betts <olly@survex.com>
+Sun Jun 01 10:17:11 GMT 2008  Olly Betts <olly@survex.com>
 
-	* NEWS: Synchronise with 1.0 branch, and update from ChangeLog.
+	* ./: Update common SVN rev in svn:externals so the files are in
+	  sync with xapian-core.
 
-Sat May 17 11:42:26 GMT 2008  Olly Betts <olly@survex.com>
+Sun May 25 14:55:32 GMT 2008  Olly Betts <olly@survex.com>
 
+	* NEWS: Update from ChangeLog.
+
+Wed May 21 23:54:29 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
 	* docs/omegascript.rst,docs/scriptindex.rst: Tweak mark-up so
 	  generated HTML gets a non-empty title.
 
-Sat May 10 11:14:20 GMT 2008  Olly Betts <olly@survex.com>
+Wed May 21 23:53:16 GMT 2008  Olly Betts <olly@survex.com>
 
-	* Makefile.am: omega_CPPFLAGS overrides AM_CPPFLAGS, so we need to
-	  explicitly include AM_CPPFLAGS in omega_CPPFLAGS to get
-	  CONFIGFILE_SYSTEM defined when building omega.
-
-Fri May 09 19:27:21 GMT 2008  Olly Betts <olly@survex.com>
-
-	* Makefile.am: Fix handling of any -I options needed for PCRE.
-
-Sun May 04 19:12:08 GMT 2008  Olly Betts <olly@survex.com>
-
+	* Backport change from trunk:
 	* omindex.cc: Fix comment error regarding catdvi options.
 
-Sat May 03 14:02:02 GMT 2008  Olly Betts <olly@survex.com>
+Wed May 21 23:51:45 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport change from trunk:
 	* xapian-omega.spec.in: Remove "www." from xapian.org and
 	  oligarchy.co.uk URLs.
 
-Sat May 03 13:55:35 GMT 2008  Olly Betts <olly@survex.com>
+Wed May 21 23:51:06 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport change from trunk:
 	* cgiparam.cc,htdig2omega,mbox2omega,omindex-config.cc: Update FSF
 	  address.
 
-Sat May 03 13:54:25 GMT 2008  Olly Betts <olly@survex.com>
+Wed May 21 23:49:21 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport change from trunk:
 	* gnu_getopt.h: Remove old copy of file which is no longer used - we
 	  now share a copy with xapian-core via common/.
 
-Sat May 03 10:42:27 GMT 2008  Olly Betts <olly@survex.com>
+Wed May 21 23:48:46 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport change from trunk:
 	* configure.ac: Fix header checks to pre-include <sys/types.h> which
 	  Mac OS X needs for some other headers to work.
 
-Sat May 03 10:41:18 GMT 2008  Olly Betts <olly@survex.com>
+Wed May 21 23:48:27 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport change from trunk:
 	* configure.ac: Improve code which prevents probing for f77, etc.
 
-Fri May 02 17:52:44 GMT 2008  Olly Betts <olly@survex.com>
+Wed May 21 23:47:39 GMT 2008  Olly Betts <olly@survex.com>
 
-	* configure.ac: Fix to fail if --with-iconv is specified and libiconv
-	  isn't, and we aren't using fink on Mac OS X.
-
-Fri May 02 15:55:24 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
-
+	* Backport changes from trunk:
 	* configure.ac: If iconv isn't found, set with_iconv to "no", to
 	  prevent USE_ICONV being set.  Was previously only doing this if
 	  fink on OS X was found.
+	* configure.ac: Fix to fail if --with-iconv is specified and libiconv
+	  isn't, and we aren't using fink on Mac OS X.
 
-Fri May 02 14:14:07 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+Wed May 21 23:46:06 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport change from trunk:
 	* query.cc: Cast size to unsigned before division to avoid a
 	  warning about signed overflow.
 
-Fri May 02 14:08:39 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+Wed May 21 23:45:00 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport change from trunk:
 	* configure.ac: Synchronise code for working out warning flags used
 	  for builds with that used for xapian-core.  Copes with different
 	  formats of version number output by "gcc --version" which should
 	  help to improve output.
 
-Tue Apr 15 23:44:10 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+Wed May 21 23:40:24 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport change from trunk:
 	* query.cc: Catch only the specific error which indicates a need to
 	  repeat a get_termfreq() call on the database instead of the mset.
 
-Sun Apr 13 11:19:49 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+Wed May 21 23:38:14 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport change from trunk:
 	* freemem.h: Specify units of get_free_physical_memory().
 
-Sun Apr 06 09:05:58 GMT 2008  Olly Betts <olly@survex.com>
+Wed May 21 23:37:04 GMT 2008  Olly Betts <olly@survex.com>
 
+	* Backport change from trunk:
 	* freemem.cc: Fix latent compilation error on FreeBSD, pointed out by
 	  Richard Boulton.
 
-Mon Mar 31 02:00:48 GMT 2008  Olly Betts <olly@survex.com>
+Sun Mar 16 11:39:49 GMT 2008  Olly Betts <olly@survex.com>
 
-	* configure.ac: Update version to 1.0.6 to match latest release.
+	* NEWS: Update for 1.0.6.
 
-Wed Mar 12 07:04:56 GMT 2008  Olly Betts <olly@survex.com>
+Sun Mar 16 11:04:19 GMT 2008  Olly Betts <olly@survex.com>
 
-	* scriptindex.cc: Make deprecated "index=nopos" an error.
+	* configure.ac: Update for 1.0.6.
 
-Mon Mar 10 03:37:30 GMT 2008  Olly Betts <olly@survex.com>
+Wed Mar 12 08:04:58 GMT 2008  Olly Betts <olly@survex.com>
 
+	* NEWS: Update.
+	* common/: Update to latest xapian-core on branch to pick up
+	  safedirent.h and fix the build.
+
+Mon Mar 10 03:53:20 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* Makefile.am,diritor.h: Use safedirent.h not dirent.h and build
+	  msvc_dirent.cc as part of omindex.
 	* Makefile.am,diritor.cc,diritor.h,omindex.cc: Check for readdir()
 	  failing.
 
-Thu Mar 06 23:43:11 GMT 2008  Olly Betts <olly@survex.com>
+Thu Mar 06 23:08:16 GMT 2008  Olly Betts <olly@survex.com>
 
-	* common/: Update to latest revisions.
-	* Makefile.am,diritor.h: Use safedirent.h not dirent.h and build
-	  msvc_dirent.cc as part of omindex.
+	* Backport change from trunk:
+	* NEWS: Update from ChangeLog.
 
-Wed Mar 05 23:16:23 GMT 2008  Olly Betts <olly@survex.com>
+Wed Mar 05 04:28:49 GMT 2008  Olly Betts <olly@survex.com>
 
-	* NEWS: Update to HEAD with un-backported changes kept separate.
-
-Wed Mar 05 19:05:12 GMT 2008  Olly Betts <olly@survex.com>
-
-	* NEWS: Update to 1.0 branch point.
-
-Sat Feb 02 22:46:40 GMT 2008  Olly Betts <olly@survex.com>
-
-	* query.cc: Add (C) notice for Thomas Viehmann.
-
-Sat Feb 02 22:46:14 GMT 2008  Olly Betts <olly@survex.com>
-
-	* omindex.cc: Back out random change committed by accident.
-
-Sat Feb 02 21:23:07 GMT 2008  Olly Betts <olly@survex.com>
-
+	* Backport change from trunk:
 	* omindex.cc,query.cc: New OmegaScript commands $addfilter, $lower,
 	  $upper.
 	* docs/omegascript.rst: Document.  Improve formatting.
-
-Fri Feb 01 01:45:26 GMT 2008  Olly Betts <olly@survex.com>
-
-	* INSTALL: PCRE required.
-	* docs/omegascript.rst: $transform{} now enabled.  Fixes bug#231.
-
-Fri Feb 01 01:35:58 GMT 2008  Olly Betts <olly@survex.com>
-
-	* Makefile.am,configure.ac,query.cc: Add PCRE as a requirement and
-	  add $transform{} command (which has been in the code for ages but
-	  disabled).
+	* query.cc: Add (C) notice for Thomas Viehmann.
 
 Sat Jan 19 02:01:02 GMT 2008  Olly Betts <olly@survex.com>
 

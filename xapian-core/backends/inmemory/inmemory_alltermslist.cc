@@ -1,7 +1,7 @@
 /* inmemoryalltermslist.cc
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2004,2007,2008 Olly Betts
+ * Copyright 2003,2004,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,6 +28,10 @@ InMemoryAllTermsList::InMemoryAllTermsList(const std::map<string, InMemoryTerm> 
 					   Xapian::Internal::RefCntPtr<const InMemoryDatabase> database_,
 					   const string & prefix_)
 	: tmap(tmap_), database(database_), started(false), prefix(prefix_)
+{
+}
+
+InMemoryAllTermsList::~InMemoryAllTermsList()
 {
 }
 

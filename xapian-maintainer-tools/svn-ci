@@ -56,23 +56,6 @@ unless ($email) {
 }
 $realname ||= (split /,/, $passwd[6])[0];
 
-# Revert ChangeLog?
-my $revert_changelog = 0;
-if (scalar @ARGV && $ARGV[0] eq '--revert') {
-    shift @ARGV;
-    $revert_changelog = 1;
-}
-
-# Backport?
-my $backport = 0;
-if (scalar @ARGV && $ARGV[0] eq '--backport') {
-    shift @ARGV;
-    if (! -f 'ChangeLog.rej') {
-	die "--backport specified, but no ChangeLog.rej\n";
-    }
-    $backport = 1;
-}
-
 # Remove any trailing slashes on directories for consistency.
 @ARGV = map {s,/+$,,; $_} @ARGV;
 
@@ -104,17 +87,10 @@ my $add_diff = 1;
 # Searching down should check-in with the same message in each subdir
 # Searching up should check-in using the first changelog in a parent dir
 # but only files below this directory...
-if (! -f "ChangeLog") {
-    die "No ChangeLog found in this directory or a parent directory!\n";
-}
-if ($revert_changelog) {
-    system("svn revert ChangeLog");
-}
-
-open I, "<ChangeLog" or die $!;
+open I, "<ChangeLog" or die "No ChangeLog found in this directory or a parent directory!\n";
 while (<I>) {
     # conflicts, or diff fragments
-    if (/^[-<>+]/) {
+    if (/^[-<+]/) {
         $edit_cl = 1;
 	$add_diff = 0;
 	last;
@@ -154,30 +130,7 @@ if (!$edit_cl) {
 }
 
 if ($edit_cl) {
-    if ($backport) {
-	open CHANGELOGREJ, 'ChangeLog.rej' or die $!;
-	my $entry = '';
-	my $change_count = 0;
-	while (<CHANGELOGREJ>) {
-	    next unless s/^\+ //;
-	    if (/^[A-Z]/) {
-		++$change_count;
-		next;
-	    }
-	    next if /^$/;
-	    $entry .= $_;
-	}
-	close CHANGELOGREJ;
-	if ($change_count == 0) {
-	    die "No entries found in ChangeLog.rej!\n";
-	}
-	if ($change_count > 1) {
-	    $entry = "\t* Backport changes from trunk:\n".$entry;
-	} else {
-	    $entry = "\t* Backport change from trunk:\n".$entry;
-	}
-	add_new_changelog_entry($entry);
-    } elsif ($add_diff) {
+    if ($add_diff) {
 	# ChangeLog unchanged - add diff to top
 	open CI, "svn diff ".join(" ", map quotemeta, @ARGV)."|";
 	my @files;
@@ -222,13 +175,23 @@ if ($edit_cl) {
 	if (scalar @newfiles == 0) {
 	    die "No modified files found to commit!\n";
 	}
-	my $filelist = "\t* ";
+	open CO, ">$tmp" or die $!;
+	print CO strftime("%a %h %d %H:%M:%S %Z %Y", localtime);
+	print CO "  $realname <$email>\n\n\t* ";
 	my $line = join ',', @newfiles;
 	while (length($line) >= 68 && $line =~ s/^(.{1,68},)//) {
-	    $filelist .= "$1\n\t  ";
+	    print CO "$1\n\t  ";
 	}
-	$diff = "$filelist$line:\n\n\n$diff";
-	add_new_changelog_entry($diff);
+	print CO "$line:\n\n\n";
+	print CO $diff;
+	print CO "\n";
+	open CI, "<ChangeLog" or die $!;
+	while (<CI>) {
+	    print CO;
+	}
+	close CI;
+	close CO;
+	rename $tmp, "ChangeLog";
     }
     system(($ENV{VISUAL}||$ENV{EDITOR}||'vi'), "ChangeLog");
     ($? >> 8 == 0) || die "$?\n";
@@ -269,21 +232,6 @@ close M;
 # limits on command line length.
 system("svn", "ci", "-F", $newclentry, @ARGV);
 unlink $newclentry;
-
-sub add_new_changelog_entry {
-    my ($entry) = @_;
-    open CO, ">$tmp" or die $!;
-    print CO strftime("%a %h %d %H:%M:%S GMT %Y", gmtime);
-    print CO "  $realname <$email>\n\n";
-    print CO "$entry\n";
-    open CI, "<ChangeLog" or die $!;
-    while (<CI>) {
-	print CO;
-    }
-    close CI;
-    close CO;
-    rename $tmp, "ChangeLog";
-}
 
 sub bad_cl {
     if (/^</) {

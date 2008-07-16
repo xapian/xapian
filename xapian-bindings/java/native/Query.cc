@@ -1,6 +1,6 @@
 /**
  Copyright (c) 2003, Technology Concepts & Design, Inc.
- Copyright (c) 2006,2008, Olly Betts
+ Copyright (c) 2006, Olly Betts
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -97,6 +97,14 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__ILjava_lang_String
 	    string(c_right, env->GetStringUTFLength(strright)));
         env->ReleaseStringUTFChars(strleft, c_left);
         env->ReleaseStringUTFChars(strright, c_right);
+        return _query->put(q);
+    CATCH(-1)
+}
+
+JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__IJ (JNIEnv *env, jclass clazz, jint op, jlong qid) {
+    TRY
+        Query *existing = _query->get(qid);
+        Query *q = new Query(op_table[op-1], *existing);
         return _query->put(q);
     CATCH(-1)
 }

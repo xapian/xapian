@@ -31,15 +31,12 @@ OBJS= \
     $(INTDIR)/omtermlistiterator.obj \
     $(INTDIR)/omvalueiterator.obj \
     $(INTDIR)/postlist.obj \
-    $(INTDIR)/postingsource.obj \
     $(INTDIR)/sortable-serialise.obj \
     $(INTDIR)/sorter.obj \
     $(INTDIR)/termlist.obj \
     $(INTDIR)/valuerangeproc.obj \
-    $(INTDIR)/valuesetmatchdecider.obj \
     $(INTDIR)/version.obj\
-    $(INTDIR)/weightinternal.obj\
-    $(INTDIR)/replication.obj
+    $(INTDIR)/weightinternal.obj
     
 SRCS= \
     $(INTDIR)/editdistance.cc\
@@ -57,15 +54,12 @@ SRCS= \
     $(INTDIR)/omtermlistiterator.cc\
     $(INTDIR)/omvalueiterator.cc\
     $(INTDIR)/postlist.cc\
-    $(INTDIR)/postingsource.cc \
     $(INTDIR)/sortable-serialise.cc\
     $(INTDIR)/sorter.cc\
     $(INTDIR)/termlist.cc\
     $(INTDIR)/valuerangeproc.cc\
-    $(INTDIR)/valuesetmatchdecider.cc \
     $(INTDIR)/version.cc\
-    $(INTDIR)/weightinternal.cc\
-    $(INTDIR)/replication.cc
+    $(INTDIR)/weightinternal.cc
 
 	     
 CLEAN :

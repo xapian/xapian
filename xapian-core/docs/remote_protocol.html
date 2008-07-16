@@ -7,12 +7,11 @@
 <h1>Remote Backend Protocol</h1>
 
 <p>
-This document describes <em>version 31.0</em> of the protocol used by Xapian's
-remote backend.  The major protocol version increased to 31 in Xapian 1.1.0.
-Clients and servers must support matching major protocol versions and the
-client's minor protocol version must be the same or lower.  This means that for
-a minor protocol version change, you can upgrade first servers and then clients
-and everything should work during the upgrades.
+This document describes <em>version 30.5</em> of the protocol used by Xapian's
+remote backend.  Clients and servers must support matching major protocol versions
+and the client's minor protocol version must be the same or lower.  This means that
+for a minor protocol version change, you can upgrade first servers and then
+clients and everything should work during the upgrades.
 </p>
 
 <p>
@@ -171,6 +170,31 @@ I&lt;sort key number&gt; &lt;sort by&gt; B&lt;sort value forward&gt;
 <li> <code>REPLY_RESULTS &lt;serialised Xapian::MSet object&gt; &lt;percent_factor&gt;</code>
 </ul>
 
+<p>
+(Instead of MSG_GETMSET and REPLY_RESULTS, clients running protocol 30.3 or
+30.4 have:
+</p>
+
+<ul>
+<li> <code>MSG_GETMSET_PRE_30_5 I&lt;first&gt; I&lt;max items&gt; I&lt;check at least&gt;
+&lt;serialised global Stats object&gt;</code>
+<li> <code>REPLY_RESULTS_PRE_30_5 &lt;serialised Xapian::MSet object&gt;</code>
+</li>
+</ul>
+
+<p>
+and clients running protocol 30.2 or earlier send:
+</p>
+
+<ul>
+<li> <code>MSG_GETMSET_PRE_30_3 I&lt;first&gt; I&lt;max items&gt;
+&lt;serialised global Stats object&gt;</code>
+<li> <code>REPLY_RESULTS_PRE_30_5 &lt;serialised Xapian::MSet object&gt;</code>
+</li>
+</ul>
+
+<p>).</p>
+
 <p>docid order is <code>'0'</code>, <code>'1'</code> or <code>'2'</code>.</p>
 
 <p>sort by is <code>'0'</code>, <code>'1'</code>, <code>'2'</code> or <code>'3'</code>.</p>
@@ -253,6 +277,12 @@ and they don't change if the database can't change).
 <ul>
 <li> <code>MSG_DELETEDOCUMENT I&lt;document id&gt;</code>
 <li> <code>REPLY_DONE</code>
+</ul>
+
+<h2>Delete document (for compatibility with clients using protocols &lt; 30.2)</h2>
+
+<ul>
+<li> <code>MSG_DELETEDOCUMENT_PRE_30_2 I&lt;document id&gt;</code>
 </ul>
 
 <h2>Delete document by term</h2>

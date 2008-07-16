@@ -1,16 +1,12 @@
 noinst_HEADERS +=\
 	common/alltermslist.h\
 	common/autoptr.h\
-	common/bitstream.h\
-	common/contiguousalldocspostlist.h\
 	common/database.h\
 	common/document.h\
 	common/documentterm.h\
 	common/emptypostlist.h\
-	common/esetinternal.h\
 	common/expand.h\
 	common/expandweight.h\
-	common/fileutils.h\
 	common/gnu_getopt.h\
 	common/inmemory_positionlist.h\
 	common/leafpostlist.h\
@@ -33,13 +29,7 @@ noinst_HEADERS +=\
 	common/remote-database.h\
 	common/remoteprotocol.h\
 	common/remoteserver.h\
-	common/remotetcpclient.h\
-	common/remotetcpserver.h\
-	common/replicatetcpclient.h\
-	common/replicatetcpserver.h\
-	common/replicationprotocol.h\
 	common/rset.h\
-	common/safedirent.h\
 	common/safeerrno.h\
 	common/safefcntl.h\
 	common/safesysselect.h\
@@ -49,16 +39,13 @@ noinst_HEADERS +=\
 	common/safewinsock2.h\
 	common/serialise-double.h\
 	common/serialise.h\
-	common/socket_utils.h\
 	common/stats.h\
 	common/stringutils.h\
 	common/submatch.h\
 	common/tcpclient.h\
 	common/tcpserver.h\
 	common/termlist.h\
-	common/unaligned.h\
 	common/utils.h\
-	common/valuestats.h\
 	common/vectortermlist.h\
 	common/weightinternal.h
 
@@ -67,14 +54,11 @@ EXTRA_DIST +=\
 	common/Makefile
 
 libxapian_la_SOURCES +=\
-	common/bitstream.cc\
-	common/fileutils.cc\
 	common/msvc_dirent.cc\
 	common/msvc_posix_wrapper.cc\
 	common/omdebug.cc\
 	common/safe.cc\
 	common/serialise-double.cc\
-	common/socket_utils.cc\
 	common/stringutils.cc\
 	common/utils.cc
 

@@ -3,7 +3,7 @@
 #
 # generate-exceptions.in: details of the exception heirarchy used by Xapian.
 #
-# Copyright (C) 2003,2004,2006,2007,2008 Olly Betts
+# Copyright (C) 2003,2004,2006,2007 Olly Betts
 # Copyright (C) 2007 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
@@ -44,6 +44,7 @@ print HDR <<'EOF';
 #define XAPIAN_INCLUDED_ERROR_H
 
 #include <string>
+#include <xapian/deprecated.h>
 #include <xapian/visibility.h>
 
 namespace Xapian {
@@ -140,9 +141,24 @@ class XAPIAN_VISIBILITY_DEFAULT Error {
      */
     const char * get_error_string() const;
 
+    /** Optional value of 'errno' associated with this error.
+     *
+     *  If no 'errno' value is associated, returns 0.  If the returned value
+     *  is negative, it's a platform-specific error code (on UNIX, -h_errno;
+     *  on MS Windows, -GetLastError()).
+     *
+     *  @deprecated This method is deprecated, because errno values aren't
+     *  portable between platforms, so we can't serialise them when passing
+     *  exceptions from a remote server to a client.  Use the
+     *  get_error_string() method instead.
+     */
+    XAPIAN_DEPRECATED(int get_errno() const);
+
     /// Return a string describing this object.
     std::string get_description() const;
 };
+
+inline int Xapian::Error::get_errno() const { return my_errno; }
 EOF
 
 print DISPATCH <<'EOF';

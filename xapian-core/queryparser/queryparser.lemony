@@ -1325,10 +1325,6 @@ class TermList {
     if (!state->error) state->error = "parse error";
 }
 
-%syntax_error {
-    yy_parse_failed(yypParser);
-}
-
 // Operators, grouped in order of increasing precedence:
 %nonassoc ERROR.
 %left OR.

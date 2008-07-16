@@ -4,7 +4,7 @@
  * Copyright (C) 1999,2000,2001 BrightStation PLC
  * Copyright (C) 2002 Ananova Ltd
  * Copyright (C) 2002,2003 James Aylett
- * Copyright (C) 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright (C) 2002,2003,2004,2005,2006,2007 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -39,8 +39,31 @@
 %include typemaps.i
 %include stl.i
 
-/* Wrap get_description() methods as str(). */
+/* For the 1.0 series, we support get_description() as a deprecated method.
+ * This will be removed in release 1.1.0
+ */
+namespace Xapian {
+    %extend Database { std::string get_description() const { return self->get_description(); } }
+    %extend Document { std::string get_description() const { return self->get_description(); } }
+    %extend ESet { std::string get_description() const { return self->get_description(); } }
+    %extend ESetIterator { std::string get_description() const { return self->get_description(); } }
+    %extend Enquire { std::string get_description() const { return self->get_description(); } }
+    %extend MSet { std::string get_description() const { return self->get_description(); } }
+    %extend MSetIterator { std::string get_description() const { return self->get_description(); } }
+    %extend PositionIterator { std::string get_description() const { return self->get_description(); } }
+    %extend PostingIterator { std::string get_description() const { return self->get_description(); } }
+    %extend Query { std::string get_description() const { return self->get_description(); } }
+    %extend QueryParser { std::string get_description() const { return self->get_description(); } }
+    %extend RSet { std::string get_description() const { return self->get_description(); } }
+    %extend Stem { std::string get_description() const { return self->get_description(); } }
+    %extend Stopper { std::string get_description() const { return self->get_description(); } }
+    %extend TermIterator { std::string get_description() const { return self->get_description(); } }
+    %extend ValueIterator { std::string get_description() const { return self->get_description(); } }
+    %extend WritableDatabase { std::string get_description() const { return self->get_description(); } }
+}
+/* Use get_description() methods for str(). */
 %rename(__str__) get_description;
+
 
 %{
 namespace Xapian {
@@ -106,13 +129,7 @@ namespace Xapian {
 	int numitems = PySequence_Size($input);
 	for (int i = 0; i < numitems; ++i) {
 	    PyObject *obj = PySequence_GetItem($input, i);
-	    if (!PyUnicode_Check(obj) &&
-%#if PY_VERSION_HEX >= 0x03000000
-		!PyBytes_Check(obj) &&
-%#else
-		!PyString_Check(obj) &&
-%#endif
-		!Xapian::get_py_query(obj)) {
+	    if (!PyUnicode_Check(obj) && !PyString_Check(obj) && !Xapian::get_py_query(obj)) {
 		$1 = 0;
 		break;
 	    }
@@ -136,21 +153,11 @@ namespace Xapian {
 	    Py_DECREF(obj);
 	    obj = strobj;
 	}
-%#if PY_VERSION_HEX >= 0x03000000
-	if (PyBytes_Check(obj))
-%#else
-	if (PyString_Check(obj))
-%#endif
-	{
+	if (PyString_Check(obj)) {
 	    char * p;
 	    Py_ssize_t len;
-%#if PY_VERSION_HEX >= 0x03000000
-	    /* We know this must be a bytes object, so this call can't fail. */
-	    (void)PyBytes_AsStringAndSize(obj, &p, &len);
-%#else
 	    /* We know this must be a string, so this call can't fail. */
 	    (void)PyString_AsStringAndSize(obj, &p, &len);
-%#endif
 	    v.push_back(Xapian::Query(string(p, len)));
 	} else {
 	    Xapian::Query *subqp = Xapian::get_py_query(obj);
@@ -172,11 +179,7 @@ namespace Xapian {
     }
 
     for (Xapian::TermIterator i = $1.first; i != $1.second; ++i) {
-%#if PY_VERSION_HEX >= 0x03000000
-	PyObject * str = PyBytes_FromStringAndSize((*i).data(), (*i).size());
-%#else
 	PyObject * str = PyString_FromStringAndSize((*i).data(), (*i).size());
-%#endif
 	if (str == 0) return NULL;
 	if (PyList_Append($result, str) == -1) return NULL;
     }
@@ -234,11 +237,7 @@ PyObject *Xapian_ESet_items_get(Xapian::ESet *eset)
 	PyObject *t = PyTuple_New(2);
 	if (!t) return NULL;
 
-#if PY_VERSION_HEX >= 0x03000000
-	PyObject * str = PyBytes_FromStringAndSize((*i).data(), (*i).size());
-#else
 	PyObject * str = PyString_FromStringAndSize((*i).data(), (*i).size());
-#endif
 	if (str == 0) return NULL;
 	PyTuple_SetItem(t, ESET_TNAME, str);
 	PyTuple_SetItem(t, ESET_WT, PyFloat_FromDouble(i.get_weight()));
@@ -520,11 +519,7 @@ namespace Xapian {
     PyTuple_SetItem(newresult, 0, $result);
     $result = newresult;
 
-%#if PY_VERSION_HEX >= 0x03000000
-    str = PyBytes_FromStringAndSize($1->data(), $1->size());
-%#else
     str = PyString_FromStringAndSize($1->data(), $1->size());
-%#endif
     if (str == 0) {
         Py_DECREF($result);
         $result = NULL;
@@ -535,11 +530,7 @@ namespace Xapian {
 %typemap(argout) std::string &vrpend {
     PyObject * str;
 
-%#if PY_VERSION_HEX >= 0x03000000
-    str = PyBytes_FromStringAndSize($1->data(), $1->size());
-%#else
     str = PyString_FromStringAndSize($1->data(), $1->size());
-%#endif
     if (str == 0) {
         Py_DECREF($result);
         $result = NULL;

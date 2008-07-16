@@ -1,7 +1,7 @@
-/** @file tcpserver.h
- *  @brief Generic TCP/IP socket based server base class.
+/** @file tcpclient.h
+ *  @brief TCP/IP socket based server for RemoteDatabase.
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,6 +21,9 @@
 #ifndef XAPIAN_INCLUDED_TCPSERVER_H
 #define XAPIAN_INCLUDED_TCPSERVER_H
 
+#include <xapian/database.h>
+#include <xapian/visibility.h>
+
 #ifdef __WIN32__
 # include "remoteconnection.h"
 # define SOCKET_INITIALIZER_MIXIN : private WinsockInitializer
@@ -31,10 +34,6 @@
 #if defined __CYGWIN__ || defined __WIN32__
 # include "safewindows.h" // Only for HANDLE!
 #endif
-
-#include <xapian/visibility.h>
-
-#include <string>
 
 /** TCP/IP socket based server for RemoteDatabase.
  *
@@ -47,6 +46,15 @@ class XAPIAN_VISIBILITY_DEFAULT TcpServer SOCKET_INITIALIZER_MIXIN {
     /// Don't allow copying.
     TcpServer(const TcpServer &);
 
+    /** Paths to the databases we will open.
+     *
+     *  Contains exactly one entry if writable, and at least one if not.
+     */
+    const std::vector<std::string> dbpaths;
+
+    /** Is this a WritableDatabase? */
+    bool writable;
+
 #if defined __CYGWIN__ || defined __WIN32__
     /// Mutex to stop two TcpServers running on the same port.
     HANDLE mutex;
@@ -55,42 +63,55 @@ class XAPIAN_VISIBILITY_DEFAULT TcpServer SOCKET_INITIALIZER_MIXIN {
     /** The socket we're listening on. */
     int listen_socket;
 
+    /** Timeout between messages during a single operation (in milliseconds). */
+    int msecs_active_timeout;
+
+    /** Timeout between operations (in milliseconds). */
+    int msecs_idle_timeout;
+
+    /** Should we produce output when connections are made or lost? */
+    bool verbose;
+
     /** Create a listening socket ready to accept connections.
      *
      *  @param host	hostname or address to listen on or an empty string to
      *			accept connections on any interface.
      *  @param port	TCP port to listen on.
-     *  @param tcp_nodelay	If true, enable TCP_NODELAY option.
      */
-    static int get_listening_socket(const std::string & host, int port,
-				    bool tcp_nodelay
+    static int get_listening_socket(const std::string & host, int port
 #if defined __CYGWIN__ || defined __WIN32__
 				    , HANDLE &mutex
 #endif
 	    );
 
-  protected:
-    /** Should we produce output when connections are made or lost? */
-    bool verbose;
-
     /** Accept a connection and return the filedescriptor for it. */
     int accept_connection();
 
   public:
-    /** Construct a TcpServer and start listening for connections.
+    /** Construct a TcpServer for a Database and start listening for
+     *  connections.
      *
+     *  @param dbpaths_	The path(s) to the database(s) we should open.
      *  @param host	The hostname or address for the interface to listen on
      *			(or "" to listen on all interfaces).
-     *  @param port	The TCP port number to listen on.
-     *  @param tcp_nodelay	If true, enable TCP_NODELAY option.
-     *	@param verbose	Should we produce output when connections are
-     *			made or lost?
+     *  @port		The TCP port number to listen on.
+     *  @param msecs_active_timeout	Timeout between messages during a
+     *					single operation (in milliseconds).
+     *  @param msecs_idle_timeout	Timeout between operations (in
+     *					milliseconds).
+     *	@param writable		Should we open the DB for writing?
+     *	@param verbose		Should we produce output when connections are
+     *				made or lost?
      */
-    TcpServer(const std::string &host, int port, bool tcp_nodelay,
+    TcpServer(const std::vector<std::string> &dbpaths_,
+	      const std::string &host, int port,
+	      int msecs_active_timeout,
+	      int msecs_idle_timeout,
+	      bool writable,
 	      bool verbose);
 
     /** Destructor. */
-    virtual ~TcpServer();
+    ~TcpServer();
 
     /** Accept connections and service requests indefinitely.
      *
@@ -103,8 +124,12 @@ class XAPIAN_VISIBILITY_DEFAULT TcpServer SOCKET_INITIALIZER_MIXIN {
     /** Accept a single connection, service requests on it, then stop.  */
     void run_once();
 
-    /// Handle a single connection on an already connected socket.
-    virtual void handle_one_connection(int socket) = 0;
+    /** Handle a single connection on an already connected socket.
+     *
+     *  @a socket will be closed before returning.  This method may be called
+     *  by multiple threads.
+     */
+    void handle_one_connection(int socket);
 };
 
 #endif  // XAPIAN_INCLUDED_TCPSERVER_H

@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Sam Liddicott
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -294,13 +294,16 @@ parse_index_script(const string &filename)
 			if (val == "nopos") {
 			    // INDEX used to take an optional argument which
 			    // could be "nopos" to mean the same that
-			    // INDEXNOPOS now does.  FIXME: remove this
-			    // error eventually (1.2.0?)
-			    cerr << filename << ':' << line_no
-				 << ": Support for '" << action
-				 << '=' << val << "' has been removed - "
-				    "use 'indexnopos' instead" << endl;
-			    exit(1);
+			    // INDEXNOPOS now does.
+			    cout << filename << ':' << line_no
+				 << ": Warning: Index action '" << action
+				 << '=' << val << "' is deprecated - "
+				    "use action 'indexnopos' instead" << endl;
+			    // Translate this to allow older scripts to work
+			    // (this is safe to do since nopos isn't a sane
+			    // prefix value).
+			    code = Action::INDEXNOPOS;
+			    val = "";
 			}
 			/* FALLTHRU */
 		    case Action::INDEXNOPOS:

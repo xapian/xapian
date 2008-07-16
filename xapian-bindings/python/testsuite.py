@@ -1,7 +1,6 @@
 # Utility functions for running tests and reporting the results.
 #
 # Copyright (C) 2007 Lemur Consulting Ltd
-# Copyright (C) 2008 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -89,18 +88,18 @@ class TestRunner(object):
         """Check that the description of a query is as expected.
 
         """
-        expected = 'Xapian::Query(' + expected + ')'
-        desc = str(query)
+	expected = 'Xapian::Query(' + expected + ')'
+        desc = query.get_description()
         if self._verbose > 2:
             self._out.start_line()
-            self._out.write("Checking str(query): expecting %r ... " % expected)
+            self._out.write("Checking query.get_description(): expecting %r ... " % expected)
             self._out.flush()
         if desc != expected:
             if self._verbose > 2:
                 self._out.write_colour(" #red#failed##")
                 self._out.write(": got %r\n" % desc)
                 self._out.flush()
-            raise TestFail("Unexpected str(query): got %r, expected %r" % (desc, expected))
+            raise TestFail("Unexpected query.get_description(): got %r, expected %r" % (desc, expected))
         if self._verbose > 2:
             self._out.write_colour(" #green#ok##\n")
             self._out.flush()
@@ -162,7 +161,7 @@ class TestRunner(object):
             lines = open(filepath).readlines()
             startline = max(linenum - 3, 0)
             endline = min(linenum + 2, len(lines))
-            for num in range(startline, endline):
+            for num in xrange(startline, endline):
                 if num + 1 == linenum:
                     self._out.write('->')
                 else:
@@ -235,7 +234,7 @@ class TestRunner(object):
                 if name.startswith('test_'):
                     fn = namedict[name]
                     name = name[5:]
-                    if hasattr(fn, '__call__'):
+                    if callable(fn):
                         tests.append((name, fn))
             tests.sort()
         else:
@@ -313,7 +312,7 @@ class OutProxy(object):
         #colourname# will change the text colour, ## will change the colour back.
 
         """
-        for colour, val in self._colours.items():
+        for colour, val in self._colours.iteritems():
             msg = msg.replace('#%s#' % colour, val)
         return msg
 
@@ -383,7 +382,3 @@ runtests = _runner.runtests
 
 __all__ = ('context', 'expect', 'expect_query', 'expect_exception', 'runtests')
 
-if _sys.version_info < (3, 0, 0):
-    def next(iterator):
-        return iterator.next()
-    __all__ = __all__ + ('next',)

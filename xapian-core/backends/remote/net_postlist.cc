@@ -2,7 +2,7 @@
  *  @brief Postlists for remote databases
  */
 /* Copyright (C) 2007 Lemur Consulting Ltd
- * Copyright (C) 2007,2008 Olly Betts
+ * Copyright (C) 2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -43,7 +43,7 @@ NetworkPostList::get_docid() const
 Xapian::doclength
 NetworkPostList::get_doclength() const
 {
-    return db->get_doclength(lastdocid);
+    return lastdoclen;
 }
 
 Xapian::termcount
@@ -80,6 +80,7 @@ NetworkPostList::next(Xapian::weight)
     } else {
 	lastdocid += decode_length(&pos, pos_end, false) + 1;
 	lastwdf = decode_length(&pos, pos_end, false);
+	lastdoclen = unserialise_double(&pos, pos_end);
     }
 
     return NULL;

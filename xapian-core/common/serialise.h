@@ -1,7 +1,7 @@
 /* @file serialise.h
  * @brief functions to convert classes to strings and back
  *
- * Copyright (C) 2006,2007,2008 Olly Betts
+ * Copyright (C) 2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,28 +45,8 @@ class Stats;
  *
  *  @return	The encoded length.
  */
-template<class T>
-std::string
-encode_length(T len)
-{
-    std::string result;
-    if (len < 255) {
-	result += static_cast<unsigned char>(len);
-    } else {
-	result += '\xff';
-	len -= 255;
-	while (true) {
-	    unsigned char byte = static_cast<unsigned char>(len & 0x7f);
-	    len >>= 7;
-	    if (!len) {
-		result += (byte | static_cast<unsigned char>(0x80));
-		break;
-	    }
-	    result += byte;
-	}
-    }
-    return result;
-}
+XAPIAN_VISIBILITY_DEFAULT
+std::string encode_length(size_t len);
 
 /** Decode a length encoded by encode_length.
  *
@@ -123,6 +103,14 @@ std::string serialise_stats(const Stats &stats);
  *  @return	The unserialised Stats object.
  */
 Stats unserialise_stats(const std::string &s);
+
+/** Serialise a Xapian::MSet object for remote protocol < 30.5.
+ *
+ *  @param mset		The object to serialise.
+ *
+ *  @return		The serialisation of the Xapian::MSet object.
+ */
+std::string serialise_mset_pre_30_5(const Xapian::MSet &mset);
 
 /** Serialise a Xapian::MSet object.
  *

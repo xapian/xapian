@@ -83,11 +83,6 @@ FileIndexer::next()
     for (Xapian::valueno i = min(para.length(), size_t(10)); i >= 1; --i) {
 	doc.add_value(i, para.substr(i, 1));
     }
-    // Value 11 is useful for tests of sorting
-    doc.add_value(11, Xapian::sortable_serialise(para.size()));
-
-    // Value 12 is useful for tests of collapsing
-    doc.add_value(12, Xapian::sortable_serialise(para.size() % 5));
 
     Xapian::termcount pos = 0;
     string::const_iterator word_end = para.begin();

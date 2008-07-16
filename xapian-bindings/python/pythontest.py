@@ -1,7 +1,6 @@
 # Tests of Python-specific parts of the xapian bindings.
 #
 # Copyright (C) 2007 Lemur Consulting Ltd
-# Copyright (C) 2008 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -92,9 +91,16 @@ def test_mset_iter():
     expect(items[2].collapse_count, 0)
     expect(items[2].document.get_data(), 'was it warm? three')
 
+    if test_legacy_sequence_api:
+        context("testing deprecated sequence API")
+        expect(len(items[2][:]), 5)
+        expect(items[2][0], 4)
+        expect(items[2][2], 2)
+        expect(items[2][3], 86)
+
     # Check iterators for sub-msets against the whole mset.
-    for start in range(0, 6):
-        for maxitems in range(0, 6):
+    for start in xrange(0, 6):
+        for maxitems in xrange(0, 6):
             context("checking iterators for sub-mset from %d, maxitems %d" % (start, maxitems))
             submset = enquire.get_mset(start, maxitems)
             num = 0
@@ -144,7 +150,7 @@ def test_mset_iter():
             # Check that the item contents remain valid when the iterator has
             # moved on.
             saved_items = [item for item in submset]
-            for num in range(len(saved_items)):
+            for num in xrange(len(saved_items)):
                 item = saved_items[num]
                 context("comparing iterator item %d for sub-mset mset from %d, maxitems %d against saved item" % (num, start, maxitems))
                 expect(submset[num].docid, item.docid)
@@ -153,6 +159,20 @@ def test_mset_iter():
                 expect(submset[num].document.get_data(), item.document.get_data())
                 expect(submset[num].collapse_key, item.collapse_key)
                 expect(submset[num].collapse_count, item.collapse_count)
+
+            if test_legacy_sequence_api:
+                # Test deprecated sequence API.
+                num = 0
+                for item in submset:
+                    context("testing hit %d with deprecated APIs for sub-mset from %d, maxitems %d" % (num, start, maxitems))
+                    hit = submset.get_hit(num)
+                    expect(len(item[:]), 5)
+                    expect(item[0], hit.get_docid())
+                    expect(item[1], hit.get_weight())
+                    expect(item[2], hit.get_rank())
+                    expect(item[3], hit.get_percent())
+                    expect(item[4].get_data(), hit.get_document().get_data())
+                    num += 1
 
             # Check that the right number of items exist in the mset.
             context("checking length of sub-mset from %d, maxitems %d" % (start, maxitems))
@@ -191,6 +211,15 @@ def test_eset_iter():
     context("comparing eset weights with a query to those without")
     expect(items2[0].weight, items[0].weight)
     expect(items2[1].weight, items[2].weight)
+
+    if test_legacy_sequence_api:
+        context("checking legacy sequence API for eset items")
+        expect(items2[0][0], items[0].term)
+        expect(items2[1][0], items[2].term)
+        expect(items2[0][1], items[0].weight)
+        expect(items2[1][1], items[2].weight)
+        expect(items2[0][:], [items[0].term, items[0].weight])
+        expect(items2[1][:], [items[2].term, items[2].weight])
 
 def test_matchingterms_iter():
     """Test Enquire.matching_terms iterator.
@@ -326,23 +355,34 @@ def test_allterms_iter():
         freqs.append(termitem.termfreq)
         expect_exception(xapian.InvalidOperationError, 'Iterator does not support position lists', getattr, termitem, 'positer')
 
+    if test_legacy_sequence_api:
+        context("checking legacy sequence API for all terms iterator items")
+        i = 0
+        for termitem in db:
+            termitem = termitem[:]
+            expect(termitem[0], terms[i])
+            expect(termitem[1], 0)
+            expect(termitem[2], freqs[i])
+            expect([pos for pos in termitem[3]], [])
+            i += 1
+
     context("checking that items are no longer valid once the iterator has moved on");
     termitems = []
     for termitem in db:
         termitems.append(termitem)
 
     expect(len(termitems), len(terms))
-    for i in range(len(termitems)):
+    for i in xrange(len(termitems)):
         expect(termitems[i].term, terms[i])
 
     expect(len(termitems), len(freqs))
-    for i in range(len(termitems)):
+    for i in xrange(len(termitems)):
         expect_exception(xapian.InvalidOperationError, 'Iterator has moved, and does not support random access', getattr, termitem, 'termfreq')
 
     context("checking that restricting the terms iterated with a prefix works")
     prefix_terms = []
     prefix_freqs = []
-    for i in range(len(terms)):
+    for i in xrange(len(terms)):
         if terms[i][0] == 't':
             prefix_terms.append(terms[i])
             prefix_freqs.append(freqs[i])
@@ -375,6 +415,17 @@ def test_termlist_iter():
     expect(freqs, [5, 3, 4, 4])
     expect(positers, [[2], [], [3], [1]])
 
+    if test_legacy_sequence_api:
+        # Test legacy sequence API.
+        i = 0
+        for termitem in db.termlist(3):
+            termitem = termitem[:]
+            expect(termitem[0], terms[i])
+            expect(termitem[1], wdfs[i])
+            expect(termitem[2], freqs[i])
+            expect([pos for pos in termitem[3]], positers[i])
+            i += 1
+
     # Test skip_to().
     tliter = db.termlist(3)
 
@@ -394,7 +445,7 @@ def test_termlist_iter():
             [pos for pos in termitem.positer]), ('two', 2, 3, []))
 
     # next() after a skip_to(), should return next item.
-    termitem = next(tliter)
+    termitem = tliter.next()
     expect((termitem.term, termitem.wdf, termitem.termfreq,
             [pos for pos in termitem.positer]), ('warm', 1, 4, [3]))
 
@@ -411,7 +462,7 @@ def test_termlist_iter():
     # skip backwards (should still return StopIteration).
     expect_exception(StopIteration, '', tliter.skip_to, 'a')
     # next should continue to return StopIteration.
-    expect_exception(StopIteration, '', next, tliter)
+    expect_exception(StopIteration, '', tliter.next)
 
 
     # Make a list of the terms (so we can test if they're still valid
@@ -421,21 +472,21 @@ def test_termlist_iter():
         termitems.append(termitem)
 
     expect(len(termitems), len(terms))
-    for i in range(len(termitems)):
+    for i in xrange(len(termitems)):
         expect(termitems[i].term, terms[i])
 
     expect(len(termitems), len(wdfs))
-    for i in range(len(termitems)):
+    for i in xrange(len(termitems)):
         expect(termitems[i].wdf, wdfs[i])
 
     expect(len(termitems), len(freqs))
-    for i in range(len(termitems)):
+    for i in xrange(len(termitems)):
         expect_exception(xapian.InvalidOperationError,
                          'Iterator has moved, and does not support random access',
                          getattr, termitem, 'termfreq')
 
     expect(len(termitems), len(freqs))
-    for i in range(len(termitems)):
+    for i in xrange(len(termitems)):
         expect_exception(xapian.InvalidOperationError,
                          'Iterator has moved, and does not support random access',
                          getattr, termitem, 'positer')
@@ -464,6 +515,17 @@ def test_dbdocument_iter():
     expect(freqs, [5, 3, 4, 4])
     expect(positers, [[2], [], [3], [1]])
 
+    if test_legacy_sequence_api:
+        # Test legacy sequence API.
+        i = 0
+        for termitem in doc:
+            termitem = termitem[:]
+            expect(termitem[0], terms[i])
+            expect(termitem[1], wdfs[i])
+            expect(termitem[2], freqs[i])
+            expect([pos for pos in termitem[3]], positers[i])
+            i += 1
+
     # Make a list of the terms (so we can test if they're still valid
     # once the iterator has moved on).
     termitems = []
@@ -471,21 +533,21 @@ def test_dbdocument_iter():
         termitems.append(termitem)
 
     expect(len(termitems), len(terms))
-    for i in range(len(termitems)):
+    for i in xrange(len(termitems)):
         expect(termitems[i].term, terms[i])
 
     expect(len(termitems), len(wdfs))
-    for i in range(len(termitems)):
+    for i in xrange(len(termitems)):
         expect(termitems[i].wdf, wdfs[i])
 
     expect(len(termitems), len(freqs))
-    for i in range(len(termitems)):
+    for i in xrange(len(termitems)):
         expect_exception(xapian.InvalidOperationError,
                          'Iterator has moved, and does not support random access',
                          getattr, termitem, 'termfreq')
 
     expect(len(termitems), len(freqs))
-    for i in range(len(termitems)):
+    for i in xrange(len(termitems)):
         expect_exception(xapian.InvalidOperationError,
                          'Iterator has moved, and does not support random access',
                          getattr, termitem, 'positer')
@@ -518,6 +580,15 @@ def test_newdocument_iter():
     expect(wdfs, [1, 2, 1, 1])
     expect(positers, [[2], [], [3], [1]])
 
+    if test_legacy_sequence_api:
+        # Test legacy sequence API.
+        i = 0
+        for termitem in doc:
+            expect(termitem[0], terms[i])
+            expect(termitem[1], wdfs[i])
+            expect([pos for pos in termitem[3]], positers[i])
+            i += 1
+
     # Make a list of the terms (so we can test if they're still valid
     # once the iterator has moved on).
     termitems = []
@@ -525,20 +596,20 @@ def test_newdocument_iter():
         termitems.append(termitem)
 
     expect(len(termitems), len(terms))
-    for i in range(len(termitems)):
+    for i in xrange(len(termitems)):
         expect(termitems[i].term, terms[i])
 
     expect(len(termitems), len(wdfs))
-    for i in range(len(termitems)):
+    for i in xrange(len(termitems)):
         expect(termitems[i].wdf, wdfs[i])
 
-    for i in range(len(termitems)):
+    for i in xrange(len(termitems)):
         expect_exception(xapian.InvalidOperationError,
                          'Iterator has moved, and does not support random access',
                          getattr, termitems[i], 'termfreq')
 
     expect(len(termitems), len(positers))
-    for i in range(len(termitems)):
+    for i in xrange(len(termitems)):
         expect_exception(xapian.InvalidOperationError,
                          'Iterator has moved, and does not support random access',
                          getattr, termitems[i], 'positer')
@@ -565,6 +636,17 @@ def test_postinglist_iter():
     expect(wdfs, [1, 1, 1, 1, 8])
     expect(positers, [[1], [2], [2], [2], [2, 7]])
 
+    if test_legacy_sequence_api:
+        # Test legacy sequence API.
+        i = 0
+        for posting in db.postlist('it'):
+            posting = posting[:]
+            expect(posting[0], docids[i])
+            expect(posting[1], doclengths[i])
+            expect(posting[2], wdfs[i])
+            expect([pos for pos in posting[3]], positers[i])
+            i += 1
+
     # Test skip_to().
     pliter = db.postlist('it')
 
@@ -584,7 +666,7 @@ def test_postinglist_iter():
             [pos for pos in posting.positer]), (3, 5, 1, [2]))
 
     # next() after a skip_to(), should return next item.
-    posting = next(pliter)
+    posting = pliter.next()
     expect((posting.docid, posting.doclength, posting.wdf,
             [pos for pos in posting.positer]), (4, 8, 1, [2]))
 
@@ -603,7 +685,7 @@ def test_postinglist_iter():
     # skip backwards (should still return StopIteration).
     expect_exception(StopIteration, '', pliter.skip_to, 6)
     # next should continue to return StopIteration.
-    expect_exception(StopIteration, '', next, pliter)
+    expect_exception(StopIteration, '', pliter.next)
 
 
     # Make a list of the postings (so we can test if they're still valid once
@@ -613,19 +695,19 @@ def test_postinglist_iter():
         postings.append(posting)
 
     expect(len(postings), len(docids))
-    for i in range(len(postings)):
+    for i in xrange(len(postings)):
         expect(postings[i].docid, docids[i])
 
     expect(len(postings), len(doclengths))
-    for i in range(len(postings)):
+    for i in xrange(len(postings)):
         expect(postings[i].doclength, doclengths[i])
 
     expect(len(postings), len(wdfs))
-    for i in range(len(postings)):
+    for i in xrange(len(postings)):
         expect(postings[i].wdf, wdfs[i])
 
     expect(len(postings), len(positers))
-    for i in range(len(postings)):
+    for i in xrange(len(postings)):
         expect_exception(xapian.InvalidOperationError,
                          'Iterator has moved, and does not support random access',
                          getattr, postings[i], 'positer')
@@ -652,14 +734,18 @@ def test_value_iter():
     db = setup_database()
     doc = db.get_document(5)
 
-    items = list(doc.values())
-    expect(len(items), 3)
-    expect(items[0].num, 0)
-    expect(items[0].value, 'zero')
-    expect(items[1].num, 5)
-    expect(items[1].value, 'five')
-    expect(items[2].num, 9)
-    expect(items[2].value, 'nine')
+    if test_legacy_sequence_api:
+        items = [item for item in doc.values()]
+        expect(len(items), 3)
+        expect(items[0].num, 0)
+        expect(items[0].value, 'zero')
+        expect(items[0][:], [0, 'zero'])
+        expect(items[1].num, 5)
+        expect(items[1].value, 'five')
+        expect(items[1][:], [5, 'five'])
+        expect(items[2].num, 9)
+        expect(items[2].value, 'nine')
+        expect(items[2][:], [9, 'nine'])
 
 def test_synonyms_iter():
     """Test iterators over list of synonyms in a database.
@@ -702,56 +788,6 @@ def test_synonyms_iter():
     expect([item for item in dbr.synonym_keys('foo')], [])
     expect([item for item in dbr.synonym_keys('he')], ['hello'])
     expect([item for item in dbr.synonym_keys('hello')], ['hello'])
-
-    del db
-    del dbr
-    shutil.rmtree(dbpath)
-
-def test_metadata_keys_iter():
-    """Test iterators over list of metadata keys in a database.
-
-    """
-    dbpath = 'db_test_metadata_iter'
-    db = xapian.WritableDatabase(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
-
-    db.set_metadata('author', 'richard')
-    db.set_metadata('item1', 'hello')
-    db.set_metadata('item1', 'hi')
-    db.set_metadata('item2', 'howdy')
-    db.set_metadata('item3', '')
-    db.set_metadata('item4', 'goodbye')
-    db.set_metadata('item4', '')
-    db.set_metadata('type', 'greeting')
-
-    expect([item for item in db.metadata_keys()],
-           ['author', 'item1', 'item2', 'type'])
-    expect([item for item in db.metadata_keys('foo')], [])
-    expect([item for item in db.metadata_keys('item')], ['item1', 'item2'])
-    expect([item for item in db.metadata_keys('it')], ['item1', 'item2'])
-    expect([item for item in db.metadata_keys('type')], ['type'])
-
-    dbr=xapian.Database(dbpath)
-    expect([item for item in dbr.metadata_keys()], [])
-    expect([item for item in dbr.metadata_keys('foo')], [])
-    expect([item for item in dbr.metadata_keys('item')], [])
-    expect([item for item in dbr.metadata_keys('it')], [])
-    expect([item for item in dbr.metadata_keys('type')], [])
-
-    db.flush()
-    expect([item for item in db.metadata_keys()],
-           ['author', 'item1', 'item2', 'type'])
-    expect([item for item in db.metadata_keys('foo')], [])
-    expect([item for item in db.metadata_keys('item')], ['item1', 'item2'])
-    expect([item for item in db.metadata_keys('it')], ['item1', 'item2'])
-    expect([item for item in db.metadata_keys('type')], ['type'])
-
-    dbr=xapian.Database(dbpath)
-    expect([item for item in dbr.metadata_keys()],
-           ['author', 'item1', 'item2', 'type'])
-    expect([item for item in dbr.metadata_keys('foo')], [])
-    expect([item for item in dbr.metadata_keys('item')], ['item1', 'item2'])
-    expect([item for item in dbr.metadata_keys('it')], ['item1', 'item2'])
-    expect([item for item in dbr.metadata_keys('type')], ['type'])
 
     del db
     del dbr
@@ -881,117 +917,10 @@ def test_weight_normalise():
             expect(item.weight <= 1, True)
 
 
-def test_valuesetmatchdecider():
-    """Simple tests of the ValueSetMatchDecider class
-
-    """
-    md = xapian.ValueSetMatchDecider(0, True)
-    doc = xapian.Document()
-    expect(md(doc), False)
-
-    md.add_value('foo')
-    doc.add_value(0, 'foo')
-    expect(md(doc), True)
-
-    md.remove_value('foo')
-    expect(md(doc), False)
-
-    md = xapian.ValueSetMatchDecider(0, False)
-    expect(md(doc), True)
-
-    md.add_value('foo')
-    expect(md(doc), False)
-
-
-def test_postingsource():
-    """Simple test of the PostingSource class.
-
-    """
-    class OddPostingSource(xapian.PostingSource):
-        def __init__(self, max):
-            xapian.PostingSource.__init__(self)
-            self.max = max
-
-        def reset(self):
-            self.current = -1
-
-        def get_termfreq_min(self): return 0
-        def get_termfreq_est(self): return self.max / 2
-        def get_termfreq_max(self): return self.max
-        def next(self, minweight):
-            self.current += 2
-        def at_end(self): return self.current > self.max
-        def get_docid(self): return self.current
-
-    dbpath = 'db_test_postingsource'
-    db = xapian.WritableDatabase(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
-    for id in range(10):
-        doc = xapian.Document()
-        db.add_document(doc)
-
-    source = OddPostingSource(10)
-    query = xapian.Query(source)
-
-    enquire = xapian.Enquire(db)
-    enquire.set_query(query)
-    mset = enquire.get_mset(0, 10)
-
-    expect([item.docid for item in mset], [1, 3, 5, 7, 9])
-
-    del db
-    shutil.rmtree(dbpath)
-
-def test_postingsource2():
-    """Simple test of the PostingSource class.
-
-    """
-    dbpath = 'db_test_postingsource2'
-    db = xapian.WritableDatabase(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
-    vals = (6, 9, 4.5, 4.4, 4.6, 2, 1, 4, 3, 0)
-    for id in range(10):
-        doc = xapian.Document()
-        doc.add_value(1, xapian.sortable_serialise(vals[id]))
-        db.add_document(doc)
-
-    source = xapian.ValueWeightPostingSource(db, 1)
-    query = xapian.Query(source)
-    # del source # Check that query keeps a reference to it.
-
-    enquire = xapian.Enquire(db)
-    enquire.set_query(query)
-    mset = enquire.get_mset(0, 10)
-
-    expect([item.docid for item in mset], [2, 1, 5, 3, 4, 8, 9, 6, 7, 10])
-
-    del db
-    shutil.rmtree(dbpath)
-
-def test_value_stats():
-    """Simple test of being able to get value statistics.
-
-    """
-    dbpath = 'db_test_value_stats'
-    db = xapian.chert_open(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
-
-    vals = (6, 9, 4.5, 4.4, 4.6, 2, 1, 4, 3, 0)
-    for id in range(10):
-        doc = xapian.Document()
-        doc.add_value(1, xapian.sortable_serialise(vals[id]))
-        db.add_document(doc)
-
-    expect(db.get_value_freq(0), 0)
-    expect(db.get_value_lower_bound(0), "")
-    expect(db.get_value_upper_bound(0), "")
-    expect(db.get_value_freq(1), 10)
-    expect(db.get_value_lower_bound(1), xapian.sortable_serialise(0))
-    expect(db.get_value_upper_bound(1), xapian.sortable_serialise(9))
-    expect(db.get_value_freq(2), 0)
-    expect(db.get_value_lower_bound(2), "")
-    expect(db.get_value_upper_bound(2), "")
-
-    del db
-    shutil.rmtree(dbpath)
-
+# The legacy sequence API is only supported for Python >= 2.3 so don't try
+# testing it for Python 2.2.
+vinfo = sys.version_info    
+test_legacy_sequence_api = vinfo[0] > 2 or (vinfo[0] == 2 and vinfo[1] >= 3)
 
 # Run all tests (ie, callables with names starting "test_").
 if not runtests(globals(), sys.argv[1:]):

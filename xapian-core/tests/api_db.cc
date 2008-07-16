@@ -2,8 +2,8 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
- * Copyright 2006,2007,2008 Lemur Consulting Ltd
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2006,2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,6 +32,8 @@
 #include <string>
 #include <vector>
 
+// We have to use the deprecated Quartz::open() method.
+#define XAPIAN_DEPRECATED(D) D
 #include <xapian.h>
 
 #include "backendmanager.h"
@@ -42,6 +44,8 @@
 #include "utils.h"
 
 #include "apitest.h"
+
+#include <list>
 
 using namespace std;
 
@@ -949,8 +953,7 @@ DEFINE_TESTCASE(specialterms1, backend) {
     return true;
 }
 
-// test that terms with a special characters in appear correctly when iterating
-// allterms
+// test that terms with a special characters in appear correctly when iterating allterms
 DEFINE_TESTCASE(specialterms2, backend) {
     Xapian::Database db(get_database("apitest_space"));
 
@@ -1274,6 +1277,99 @@ DEFINE_TESTCASE(consistency1, backend && !remote) {
 	// consistency1 is a long test - may timeout with the remote backend...
 	SKIP_TEST("Test taking too long");
     }
+    return true;
+}
+
+// tests that specifying a nonexistent input file throws an exception.
+DEFINE_TESTCASE(quartzdatabaseopeningerror1, quartz) {
+    mkdir(".quartz", 0755);
+
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+		   Xapian::Quartz::open(".quartz/nosuchdirectory"));
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+		   Xapian::Quartz::open(".quartz/nosuchdirectory", Xapian::DB_OPEN));
+
+    mkdir(".quartz/emptydirectory", 0700);
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+		   Xapian::Quartz::open(".quartz/emptydirectory"));
+
+    touch(".quartz/somefile");
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+	Xapian::Quartz::open(".quartz/somefile"));
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+	Xapian::Quartz::open(".quartz/somefile", Xapian::DB_OPEN));
+    TEST_EXCEPTION(Xapian::DatabaseCreateError,
+	Xapian::Quartz::open(".quartz/somefile", Xapian::DB_CREATE));
+    TEST_EXCEPTION(Xapian::DatabaseCreateError,
+	Xapian::Quartz::open(".quartz/somefile", Xapian::DB_CREATE_OR_OPEN));
+    TEST_EXCEPTION(Xapian::DatabaseCreateError,
+	Xapian::Quartz::open(".quartz/somefile", Xapian::DB_CREATE_OR_OVERWRITE));
+
+    return true;
+}
+
+/// Test opening of a quartz database
+DEFINE_TESTCASE(quartzdatabaseopen1, quartz) {
+    const char * dbdir = ".quartz/test_quartzdatabaseopen1";
+    mkdir(".quartz", 0755);
+
+    {
+	rm_rf(dbdir);
+	Xapian::WritableDatabase wdb =
+	    Xapian::Quartz::open(dbdir, Xapian::DB_CREATE);
+	TEST_EXCEPTION(Xapian::DatabaseLockError,
+	    Xapian::Quartz::open(dbdir, Xapian::DB_OPEN));
+	Xapian::Quartz::open(dbdir);
+    }
+
+    {
+	rm_rf(dbdir);
+	mkdir(dbdir, 0700);
+	Xapian::WritableDatabase wdb =
+	    Xapian::Quartz::open(dbdir, Xapian::DB_CREATE);
+	TEST_EXCEPTION(Xapian::DatabaseLockError,
+	    Xapian::Quartz::open(dbdir, Xapian::DB_OPEN));
+	Xapian::Quartz::open(dbdir);
+    }
+
+    {
+	rm_rf(dbdir);
+	Xapian::WritableDatabase wdb =
+	    Xapian::Quartz::open(dbdir, Xapian::DB_CREATE_OR_OPEN);
+	TEST_EXCEPTION(Xapian::DatabaseLockError,
+	    Xapian::Quartz::open(dbdir, Xapian::DB_CREATE_OR_OVERWRITE));
+	Xapian::Quartz::open(dbdir);
+    }
+
+    {
+	rm_rf(dbdir);
+	Xapian::WritableDatabase wdb =
+	    Xapian::Quartz::open(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+	TEST_EXCEPTION(Xapian::DatabaseLockError,
+	    Xapian::Quartz::open(dbdir, Xapian::DB_CREATE_OR_OPEN));
+	Xapian::Quartz::open(dbdir);
+    }
+
+    {
+	TEST_EXCEPTION(Xapian::DatabaseCreateError,
+	    Xapian::Quartz::open(dbdir, Xapian::DB_CREATE));
+	Xapian::WritableDatabase wdb =
+	    Xapian::Quartz::open(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+	Xapian::Quartz::open(dbdir);
+    }
+
+    {
+	Xapian::WritableDatabase wdb =
+	    Xapian::Quartz::open(dbdir, Xapian::DB_CREATE_OR_OPEN);
+	Xapian::Quartz::open(dbdir);
+    }
+
+    {
+	Xapian::WritableDatabase wdb =
+	    Xapian::Quartz::open(dbdir, Xapian::DB_OPEN);
+	Xapian::Quartz::open(dbdir);
+    }
+
     return true;
 }
 
@@ -1723,377 +1819,12 @@ DEFINE_TESTCASE(matchall1, backend) {
     Xapian::MSet mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.get_matches_lower_bound(), db.get_doccount());
 
+
     enquire.set_query(Xapian::Query(Xapian::Query::OP_OR,
 				    Xapian::Query("nosuchterm"),
 				    Xapian::Query::MatchAll));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.get_matches_lower_bound(), db.get_doccount());
-
-    return true;
-}
-
-// Test using a ValueSetMatchDecider
-DEFINE_TESTCASE(valuesetmatchdecider2, backend && !remote) {
-    Xapian::Database db(get_database("apitest_phrase"));
-    Xapian::Enquire enq(db);
-    enq.set_query(Xapian::Query("leav"));
-
-    Xapian::ValueSetMatchDecider vsmd1(1, true);
-    vsmd1.add_value("n");
-    Xapian::ValueSetMatchDecider vsmd2(1, false);
-    vsmd2.add_value("n");
-
-    Xapian::MSet mymset = enq.get_mset(0, 20);
-    mset_expect_order(mymset, 8, 6, 4, 5, 7, 10, 12, 11, 13, 9, 14);
-    mymset = enq.get_mset(0, 20, 0, NULL, &vsmd1);
-    mset_expect_order(mymset, 6, 12);
-    mymset = enq.get_mset(0, 20, 0, NULL, &vsmd2);
-    mset_expect_order(mymset, 8, 4, 5, 7, 10, 11, 13, 9, 14);
-
-    return true;
-}
-
-class MyOddPostingSource : public Xapian::PostingSource {
-    Xapian::doccount num_docs;
-
-    Xapian::doccount last_docid;
-
-    Xapian::docid did;
-
-  public:
-    MyOddPostingSource(const Xapian::Database &db)
-	: num_docs(db.get_doccount()), last_docid(db.get_lastdocid()), did(0)
-    { }
-
-    void reset() { did = 0; }
-
-    // These bounds could be better, but that's not important here.
-    Xapian::doccount get_termfreq_min() const { return 0; }
-
-    Xapian::doccount get_termfreq_est() const { return num_docs / 2; }
-
-    Xapian::doccount get_termfreq_max() const { return num_docs; }
-
-    void next(Xapian::weight wt) {
-	(void)wt;
-	++did;
-	if (did % 2 == 0) ++did;
-    }
-
-    void skip_to(Xapian::docid to_did, Xapian::weight wt) {
-	(void)wt;
-	did = to_did;
-	if (did % 2 == 0) ++did;
-    }
-
-    bool at_end() const {
-	// Doesn't work if last_docid is 2^32 - 1.
-	return did > last_docid;
-    }
-
-    Xapian::docid get_docid() const { return did; }
-
-    std::string get_description() const { return "MyOddPostingSource"; }
-};
-
-DEFINE_TESTCASE(externalsource1, backend && !remote && !multi) {
-    // FIXME: PostingSource doesn't currently work well with multi databases
-    // but we should try to resolve that issue.
-    Xapian::Database db(get_database("apitest_phrase"));
-    Xapian::Enquire enq(db);
-    MyOddPostingSource src(db);
-
-    // Check that passing NULL is rejected as intended.
-    TEST_EXCEPTION(Xapian::InvalidArgumentError, Xapian::Query bad(NULL));
-    Xapian::PostingSource * nullsrc = NULL;
-    TEST_EXCEPTION(Xapian::InvalidArgumentError, Xapian::Query bad(nullsrc));
-		
-    enq.set_query(Xapian::Query(&src));
-
-    Xapian::MSet mset = enq.get_mset(0, 10);
-    mset_expect_order(mset, 1, 3, 5, 7, 9, 11, 13, 15, 17);
-
-    Xapian::Query q(Xapian::Query::OP_FILTER,
-		    Xapian::Query("leav"),
-		    Xapian::Query(&src));
-    enq.set_query(q);
-
-    mset = enq.get_mset(0, 10);
-    mset_expect_order(mset, 5, 7, 11, 13, 9);
-
-    return true;
-}
-
-// Test that trying to use PostingSource with the remote backend throws
-// Xapian::UnimplementedError as intended.
-DEFINE_TESTCASE(externalsource2, remote) {
-    Xapian::Database db(get_database("apitest_phrase"));
-    Xapian::Enquire enq(db);
-    MyOddPostingSource src(db);
-
-    enq.set_query(Xapian::Query(&src));
-
-    TEST_EXCEPTION(Xapian::UnimplementedError,
-		   Xapian::MSet mset = enq.get_mset(0, 10));
-
-    Xapian::Query q(Xapian::Query::OP_FILTER,
-		    Xapian::Query("leav"),
-		    Xapian::Query(&src));
-    enq.set_query(q);
-
-    TEST_EXCEPTION(Xapian::UnimplementedError,
-		   Xapian::MSet mset = enq.get_mset(0, 10));
-
-    return true;
-}
-
-class MyOddWeightingPostingSource : public Xapian::PostingSource {
-    Xapian::doccount num_docs;
-
-    Xapian::doccount last_docid;
-
-    Xapian::docid did;
-
-  public:
-    MyOddWeightingPostingSource(const Xapian::Database &db)
-	: num_docs(db.get_doccount()), last_docid(db.get_lastdocid()), did(0)
-    { }
-
-    void reset() { did = 0; }
-
-    Xapian::weight get_weight() const {
-	return (did % 2) ? 1000 : 0.001;
-    }
-
-    Xapian::weight get_maxweight() const {
-	return 1000;
-    }
-
-    // These bounds could be better, but that's not important here.
-    Xapian::doccount get_termfreq_min() const { return 0; }
-
-    Xapian::doccount get_termfreq_est() const { return num_docs / 2; }
-
-    Xapian::doccount get_termfreq_max() const { return num_docs; }
-
-    void next(Xapian::weight wt) {
-	(void)wt;
-	++did;
-    }
-
-    void skip_to(Xapian::docid to_did, Xapian::weight wt) {
-	(void)wt;
-	did = to_did;
-    }
-
-    bool at_end() const {
-	// Doesn't work if last_docid is 2^32 - 1.
-	return did > last_docid;
-    }
-
-    Xapian::docid get_docid() const { return did; }
-
-    std::string get_description() const {
-	return "MyOddWeightingPostingSource";
-    }
-};
-
-// Like externalsource1, except we use the weight to favour odd documents.
-DEFINE_TESTCASE(externalsource3, backend && !remote && !multi) {
-    // FIXME: PostingSource doesn't currently work well with multi databases
-    // but we should try to resolve that issue.
-    Xapian::Database db(get_database("apitest_phrase"));
-    Xapian::Enquire enq(db);
-    MyOddWeightingPostingSource src(db);
-
-    enq.set_query(Xapian::Query(&src));
-
-    Xapian::MSet mset = enq.get_mset(0, 10);
-    mset_expect_order(mset, 1, 3, 5, 7, 9, 11, 13, 15, 17, 2);
-
-    Xapian::Query q(Xapian::Query::OP_OR,
-		    Xapian::Query("leav"),
-		    Xapian::Query(&src));
-    enq.set_query(q);
-
-    mset = enq.get_mset(0, 5);
-    mset_expect_order(mset, 5, 7, 11, 13, 9);
-
-    tout << "max possible weight = " << mset.get_max_possible() << endl;
-    TEST(mset.get_max_possible() > 1000);
-
-    enq.set_cutoff(0, 1000.001);
-    mset = enq.get_mset(0, 10);
-    mset_expect_order(mset, 5, 7, 11, 13, 9);
-
-    tout << "max possible weight = " << mset.get_max_possible() << endl;
-    TEST(mset.get_max_possible() > 1000);
-
-    enq.set_query(Xapian::Query(q.OP_SCALE_WEIGHT, Xapian::Query(&src), 0.5));
-    mset = enq.get_mset(0, 10);
-    TEST(mset.empty());
-
-    TEST_EQUAL(mset.get_max_possible(), 500);
-
-    enq.set_query(Xapian::Query(q.OP_SCALE_WEIGHT, Xapian::Query(&src), 2));
-    mset = enq.get_mset(0, 10);
-    mset_expect_order(mset, 1, 3, 5, 7, 9, 11, 13, 15, 17);
-
-    TEST_EQUAL(mset.get_max_possible(), 2000);
-
-    return true;
-}
-
-class MyDontAskWeightPostingSource : public Xapian::PostingSource {
-    Xapian::doccount num_docs;
-
-    Xapian::doccount last_docid;
-
-    Xapian::docid did;
-
-  public:
-    MyDontAskWeightPostingSource(const Xapian::Database &db)
-	: num_docs(db.get_doccount()), last_docid(db.get_lastdocid()), did(0)
-    { }
-
-    void reset() { did = 0; }
-
-    Xapian::weight get_weight() const {
-	FAIL_TEST("MyDontAskWeightPostingSource::get_weight() called");
-    }
-
-    Xapian::weight get_maxweight() const {
-	FAIL_TEST("MyDontAskWeightPostingSource::get_maxweight() called");
-    }
-
-    // These bounds could be better, but that's not important here.
-    Xapian::doccount get_termfreq_min() const { return num_docs; }
-
-    Xapian::doccount get_termfreq_est() const { return num_docs; }
-
-    Xapian::doccount get_termfreq_max() const { return num_docs; }
-
-    void next(Xapian::weight wt) {
-	(void)wt;
-	++did;
-    }
-
-    void skip_to(Xapian::docid to_did, Xapian::weight wt) {
-	(void)wt;
-	did = to_did;
-    }
-
-    bool at_end() const {
-	// Doesn't work if last_docid is 2^32 - 1.
-	return did > last_docid;
-    }
-
-    Xapian::docid get_docid() const { return did; }
-
-    std::string get_description() const {
-	return "MyDontAskWeightPostingSource";
-    }
-};
-
-// Check that boolean use doesn't call get_weight() or get_maxweight().
-DEFINE_TESTCASE(externalsource4, backend && !remote && !multi) {
-    // FIXME: PostingSource doesn't currently work well with multi databases
-    // but we should try to resolve that issue.
-    Xapian::Database db(get_database("apitest_phrase"));
-    Xapian::Enquire enq(db);
-    MyDontAskWeightPostingSource src(db);
-
-    tout << "OP_SCALE_WEIGHT 0" << endl;
-    enq.set_query(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT, Xapian::Query(&src), 0));
-
-    Xapian::MSet mset = enq.get_mset(0, 5);
-    mset_expect_order(mset, 1, 2, 3, 4, 5);
-
-    tout << "OP_FILTER" << endl;
-    Xapian::Query q(Xapian::Query::OP_FILTER,
-		    Xapian::Query("leav"),
-		    Xapian::Query(&src));
-    enq.set_query(q);
-
-    mset = enq.get_mset(0, 5);
-    mset_expect_order(mset, 8, 6, 4, 5, 7);
-
-    tout << "BoolWeight" << endl;
-    enq.set_query(Xapian::Query(&src));
-    enq.set_weighting_scheme(Xapian::BoolWeight());
-
-    //mset = enq.get_mset(0, 5);
-    //mset_expect_order(mset, 1, 2, 3, 4, 5);
-
-    return true;
-}
-
-// Check that valueweightsource works correctly.
-DEFINE_TESTCASE(valueweightsource1, backend && !remote) {
-    // FIXME: PostingSource doesn't currently work well with multi databases
-    // but we should try to resolve that issue.
-    SKIP_TEST_FOR_BACKEND("multi");
-    Xapian::Database db(get_database("apitest_phrase"));
-    Xapian::Enquire enq(db);
-    Xapian::ValueWeightPostingSource src(db, 11);
-
-    // Should be in descending order of length
-    tout << "RAW" << endl;
-    enq.set_query(Xapian::Query(&src));
-    Xapian::MSet mset = enq.get_mset(0, 5);
-    mset_expect_order(mset, 3, 1, 2, 8, 14);
-
-    // In relevance order
-    tout << "OP_FILTER" << endl;
-    Xapian::Query q(Xapian::Query::OP_FILTER,
-		    Xapian::Query("leav"),
-		    Xapian::Query(&src));
-    enq.set_query(q);
-    mset = enq.get_mset(0, 5);
-    mset_expect_order(mset, 8, 6, 4, 5, 7);
-
-    // Should be in descending order of length
-    tout << "OP_FILTER other way" << endl;
-    q = Xapian::Query(Xapian::Query::OP_FILTER,
-		      Xapian::Query(&src),
-		      Xapian::Query("leav"));
-    enq.set_query(q);
-    mset = enq.get_mset(0, 5);
-    mset_expect_order(mset, 8, 14, 9, 13, 7);
-
-    return true;
-}
-
-// Check that valueweightsource gives the correct bounds for those databases
-// which support value statistics.
-DEFINE_TESTCASE(valueweightsource2, backend && valuestats) {
-    // FIXME: PostingSource doesn't currently work well with multi databases
-    // but we should try to resolve that issue.
-    SKIP_TEST_FOR_BACKEND("multi");
-    Xapian::Database db(get_database("apitest_phrase"));
-    Xapian::ValueWeightPostingSource src(db, 11);
-    TEST_EQUAL(src.get_termfreq_min(), 17);
-    TEST_EQUAL(src.get_termfreq_est(), 17);
-    TEST_EQUAL(src.get_termfreq_max(), 17);
-    TEST_EQUAL(src.get_maxweight(), 135);
-
-    return true;
-}
-
-// Check that valueweightsource skip_to() can stay in the same position.
-DEFINE_TESTCASE(valueweightsource3, backend && valuestats) {
-    // FIXME: PostingSource doesn't currently work well with multi databases
-    // but we should try to resolve that issue.
-    SKIP_TEST_FOR_BACKEND("multi");
-    Xapian::Database db(get_database("apitest_phrase"));
-    Xapian::ValueWeightPostingSource src(db, 11);
-    TEST(!src.at_end());
-    src.skip_to(8, 0.0);
-    TEST(!src.at_end());
-    TEST_EQUAL(src.get_docid(), 8);
-    src.skip_to(8, 0.0);
-    TEST(!src.at_end());
-    TEST_EQUAL(src.get_docid(), 8);
 
     return true;
 }

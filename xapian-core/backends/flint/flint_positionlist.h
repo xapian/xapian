@@ -1,6 +1,6 @@
 /* flint_positionlist.h: A position list in a flint database.
  *
- * Copyright (C) 2005,2006,2008 Olly Betts
+ * Copyright (C) 2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,7 +34,7 @@ using namespace std;
 
 class FlintPositionListTable : public FlintTable {
     static string make_key(Xapian::docid did, const string & tname) {
-	return F_pack_uint_preserving_sort(did) + tname;
+	return pack_uint_preserving_sort(did) + tname;
     }
 
   public:
@@ -47,7 +47,7 @@ class FlintPositionListTable : public FlintTable {
      *  @param readonly		true if we're opening read-only, else false.
      */
     FlintPositionListTable(string dbdir, bool readonly)
-	: FlintTable("position", dbdir + "/position.", readonly, DONT_COMPRESS, true) { }
+	: FlintTable(dbdir + "/position.", readonly, DONT_COMPRESS, true) { }
 
     /// Set the position list for term tname in document did.
     void set_positionlist(Xapian::docid did, const string & tname,
@@ -93,6 +93,9 @@ class FlintPositionList : public PositionList {
 		      const string & tname) {
 	(void)read_data(table, did, tname);
     }
+
+    /// Destructor.
+    ~FlintPositionList() { }
 
     /** Fill list with data, and move the position to the start.
      *

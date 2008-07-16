@@ -1,7 +1,7 @@
 /** @file matchspy.cc
  * @brief MatchDecider subclasses for use as "match spies".
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -73,7 +73,7 @@ StringListUnserialiser::read_next()
     // FIXME - decode_length will throw a NetworkError if the length is too
     // long - should be a more appropriate error.
     size_t currlen = decode_length(&pos, serialised.data() + serialised.size(), true);
-    curritem.assign(pos, currlen);
+    curritem = std::string(pos, currlen);
     pos += currlen;
 }
 

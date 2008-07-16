@@ -2,8 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
- * Copyright 2008 Lemur Consulting Ltd
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,8 +21,6 @@
  */
 
 #include <config.h>
-
-#include "flint_table.h"
 
 #include <xapian/error.h>
 
@@ -62,18 +59,20 @@ PREAD_PROTOTYPE
 PWRITE_PROTOTYPE
 #endif
 
-#include <stdio.h>    /* for rename */
+#include <stdio.h>
 #include <string.h>   /* for memmove */
 #include <limits.h>   /* for CHAR_BIT */
 
 #include "flint_io.h"
+#include "flint_table.h"
+#include "flint_btreeutil.h"
 #include "flint_btreebase.h"
 #include "flint_cursor.h"
 #include "flint_utils.h"
 
 #include "omassert.h"
 #include "omdebug.h"
-#include "unaligned.h"
+#include <xapian/error.h>
 #include "utils.h"
 
 #include <algorithm>  // for std::min()
@@ -1587,10 +1586,9 @@ FlintTable::do_open_to_write(bool revision_supplied,
     return true;
 }
 
-FlintTable::FlintTable(string tablename_, string path_, bool readonly_,
+FlintTable::FlintTable(string path_, bool readonly_,
 		       int compress_strategy_, bool lazy_)
-	: tablename(tablename_),
-	  revision_number(0),
+	: revision_number(0),
 	  item_count(0),
 	  block_size(0),
 	  latest_revision_number(0),
@@ -1633,11 +1631,7 @@ FlintTable::exists() const {
 static void
 sys_unlink_if_exists(const string & filename)
 {
-#ifdef __WIN32__
-    if (msvc_posix_unlink(filename.c_str()) == -1) {
-#else
     if (unlink(filename) == -1) {
-#endif
 	if (errno == ENOENT) return;
 	throw Xapian::DatabaseError("Can't delete file: `" + filename +
 			      "': " + strerror(errno));
@@ -1689,7 +1683,7 @@ FlintTable::create_and_open(unsigned int block_size_)
     base_.set_block_size(block_size_);
     base_.set_have_fakeroot(true);
     base_.set_sequential(true);
-    base_.write_to_file(name + "baseA", 'A', "", -1, NULL);
+    base_.write_to_file(name + "baseA");
 
     /* remove the alternative base file, if any */
     sys_unlink_if_exists(name + "baseB");
@@ -1727,29 +1721,9 @@ void FlintTable::close() {
 }
 
 void
-FlintTable::flush_db()
+FlintTable::commit(flint_revision_number_t revision)
 {
-    DEBUGCALL(DB, void, "FlintTable::flush_db", "");
-    Assert(writable);
-    if (handle == -1) return;
-
-    for (int j = level; j >= 0; j--) {
-	if (C[j].rewrite) {
-	    write_block(C[j].n, C[j].p);
-	}
-    }
-
-    if (Btree_modified) {
-	faked_root_block = false;
-    }
-}
-
-void
-FlintTable::commit(flint_revision_number_t revision, int changes_fd,
-		   const string * changes_tail)
-{
-    DEBUGCALL(DB, void, "FlintTable::commit",
-	      revision << ", " << changes_fd << ", " << changes_tail);
+    DEBUGCALL(DB, void, "FlintTable::commit", revision);
     Assert(writable);
 
     if (revision <= revision_number) {
@@ -1759,6 +1733,28 @@ FlintTable::commit(flint_revision_number_t revision, int changes_fd,
     if (handle == -1) {
 	latest_revision_number = revision_number = revision;
 	return;
+    }
+
+    // FIXME: this doesn't work (probably because the table revisions get
+    // out of step) but it's wasteful to keep applying changes to value
+    // and position if they're never used...
+    //
+    // if (!Btree_modified) return;
+
+    for (int j = level; j >= 0; j--) {
+	if (C[j].rewrite) {
+	    write_block(C[j].n, C[j].p);
+	}
+    }
+
+    if (!flint_io_sync(handle)) {
+	(void)::close(handle);
+	handle = -1;
+	throw Xapian::DatabaseError("Can't commit new revision - failed to flush DB to disk");
+    }
+
+    if (Btree_modified) {
+	faked_root_block = false;
     }
 
     if (faked_root_block) {
@@ -1790,13 +1786,6 @@ FlintTable::commit(flint_revision_number_t revision, int changes_fd,
 	C[i].rewrite = false;
     }
 
-    // Do this as late as possible to allow maximum time for writes to be committed.
-    if (!flint_io_sync(handle)) {
-	(void)::close(handle);
-	handle = -1;
-	throw Xapian::DatabaseError("Can't commit new revision - failed to flush DB to disk");
-    }
-
     // Save to "<table>.tmp" and then rename to "<table>.base<letter>" so that
     // a reader can't try to read a partially written base file.
     string tmp = name;
@@ -1804,7 +1793,7 @@ FlintTable::commit(flint_revision_number_t revision, int changes_fd,
     string basefile = name;
     basefile += "base";
     basefile += char(base_letter);
-    base.write_to_file(tmp, base_letter, tablename, changes_fd, changes_tail);
+    base.write_to_file(tmp);
 #if defined __WIN32__
     if (msvc_posix_rename(tmp.c_str(), basefile.c_str()) < 0) {
 #else
@@ -1831,48 +1820,6 @@ FlintTable::commit(flint_revision_number_t revision, int changes_fd,
     changed_n = 0;
     changed_c = DIR_START;
     seq_count = SEQ_START_POINT;
-}
-
-void
-FlintTable::write_changed_blocks(int changes_fd)
-{
-    Assert(changes_fd >= 0);
-    if (handle == -1) return;
-    if (faked_root_block) return;
-
-    string buf;
-    buf += F_pack_uint(2u); // Indicate the item is a list of blocks
-    buf += F_pack_uint(tablename.size());
-    buf += tablename;
-    buf += F_pack_uint(block_size);
-    flint_io_write(changes_fd, buf.data(), buf.size());
-
-    // Compare the old and new bitmaps to find blocks which have changed, and
-    // write them to the file descriptor.
-    uint4 n = 0;
-    byte * p = new byte[block_size];
-    try {
-	base.calculate_last_block();
-	while (base.find_changed_block(&n)) {
-	    buf = F_pack_uint(n + 1);
-	    flint_io_write(changes_fd, buf.data(), buf.size());
-
-	    // Read block n.
-	    read_block(n, p);
-
-	    // Write block n to the file.
-	    flint_io_write(changes_fd, reinterpret_cast<const char *>(p),
-			   block_size);
-	    ++n;
-	}
-	delete[] p;
-	p = 0;
-    } catch (...) {
-	delete[] p;
-	throw;
-    }
-    buf = F_pack_uint(0u);
-    flint_io_write(changes_fd, buf.data(), buf.size());
 }
 
 void

@@ -101,7 +101,7 @@ JAVA_PATHSEP=/
 
 # ------------SWIG settings-------------
 # Swig executable
-SWIG=\work\tools\swigwin-1.3.31\swig.exe
+SWIG=\work\xapian\xapian-svn\swig\swig.exe
 SWIG_FLAGS= -Werror -noproxy
 # ------------end SWIG settings-------------
 
@@ -161,10 +161,8 @@ XAPIAN_LIBS = \
  "$(OUTLIBDIR)\libcommon.lib"  \
  "$(OUTLIBDIR)\libbackend.lib"  \
  "$(OUTLIBDIR)\libexpand.lib"  \
-# Quartz deprecated        
-# "$(OUTLIBDIR)\libquartz.lib" \
  "$(OUTLIBDIR)\libflint.lib" \
- "$(OUTLIBDIR)\libchert.lib" \
+ "$(OUTLIBDIR)\libquartz.lib" \
  "$(OUTLIBDIR)\libinmemory.lib" \
  "$(OUTLIBDIR)\libmulti.lib" \
  "$(OUTLIBDIR)\libmatcher.lib"  \

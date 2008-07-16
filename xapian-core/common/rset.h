@@ -1,7 +1,7 @@
 /* rset.h
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2005,2006,2008 Olly Betts
+ * Copyright 2003,2005,2006 Olly Betts
  * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -77,10 +77,7 @@ class RSetI {
 	void contribute_stats(Stats & stats);
 
 	/// Get the number of documents in the RSet.
-	Xapian::doccount size() const { return documents.size(); }
-
-	/// Is this RSet empty?
-	bool empty() const { return documents.empty(); }
+	Xapian::doccount get_rsize() const;
 };
 
 ///////////////////////////////
@@ -107,6 +104,12 @@ inline void
 RSetI::will_want_reltermfreq(string tname)
 {
     reltermfreqs[tname] = 0;
+}
+
+inline Xapian::doccount
+RSetI::get_rsize() const
+{
+    return documents.size();
 }
 
 #endif /* OM_HGUARD_RSET_H */

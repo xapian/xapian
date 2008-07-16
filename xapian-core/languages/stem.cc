@@ -1,7 +1,7 @@
 /** @file stem.cc
  *  @brief Implementation of Xapian::Stem API class.
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,9 +20,8 @@
 
 #include <config.h>
 
-#include <xapian/stem.h>
-
 #include <xapian/error.h>
+#include <xapian/stem.h>
 
 #include "steminternal.h"
 

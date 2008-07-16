@@ -1,8 +1,7 @@
 /** @file backendmanager_remoteprog.cc
  * @brief BackendManager subclass for remoteprog databases.
  */
-/* Copyright (C) 2007,2008 Olly Betts
- * Copyright (C) 2008 Lemur Consulting Ltd
+/* Copyright (C) 2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,10 +34,10 @@ using namespace std;
 
 BackendManagerRemoteProg::~BackendManagerRemoteProg() { }
 
-std::string
+const char *
 BackendManagerRemoteProg::get_dbtype() const
 {
-    return "remoteprog_" + remote_type;
+    return "remoteprog";
 }
 
 Xapian::Database
@@ -59,7 +58,21 @@ Xapian::WritableDatabase
 BackendManagerRemoteProg::get_writable_database(const string & name,
 						const string & file)
 {
-    string args = get_writable_database_args(name, file);
+    last_wdb_name = name;
+
+    vector<string> files(1, file);
+    // Default to a long (5 minute) timeout so that tests won't fail just
+    // because the host is slow or busy.
+    string args = "-t300000 --writable ";
+
+#ifdef XAPIAN_HAS_FLINT_BACKEND
+    (void)getwritedb_flint(name, files);
+    args += ".flint/";
+#else
+    (void)getwritedb_quartz(name, files);
+    args += ".quartz/";
+#endif
+    args += name;
 
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {
@@ -74,8 +87,14 @@ Xapian::Database
 BackendManagerRemoteProg::get_remote_database(const vector<string> & files,
 					      unsigned int timeout)
 {
-    string args = get_remote_database_args(files, timeout);
-
+    string args = "-t";
+    args += om_tostring(timeout);
+    args += ' ';
+#ifdef XAPIAN_HAS_FLINT_BACKEND
+    args += createdb_flint(files);
+#else
+    args += createdb_quartz(files);
+#endif
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {
 	args.insert(0, XAPIAN_PROGSRV" ");
@@ -86,9 +105,15 @@ BackendManagerRemoteProg::get_remote_database(const vector<string> & files,
 }
 
 Xapian::Database
-BackendManagerRemoteProg::get_writable_database_as_database(const string & name)
+BackendManagerRemoteProg::get_writable_database_as_database()
 {
-    string args = get_writable_database_as_database_args(name);
+    string args = "-t300000 ";
+#ifdef XAPIAN_HAS_FLINT_BACKEND
+    args += ".flint/";
+#else
+    args += ".quartz/";
+#endif
+    args += last_wdb_name;
 
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {
@@ -100,9 +125,15 @@ BackendManagerRemoteProg::get_writable_database_as_database(const string & name)
 }
 
 Xapian::WritableDatabase
-BackendManagerRemoteProg::get_writable_database_again(const string & name)
+BackendManagerRemoteProg::get_writable_database_again()
 {
-    string args = get_writable_database_again_args(name);
+    string args = "-t300000 --writable ";
+#ifdef XAPIAN_HAS_FLINT_BACKEND
+    args += ".flint/";
+#else
+    args += ".quartz/";
+#endif
+    args += last_wdb_name;
 
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {

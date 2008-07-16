@@ -4,7 +4,6 @@
 # Original version by Paul Legato (plegato@nks.net), 4/20/06.
 #
 # Copyright (C) 2006 Networked Knowledge Systems, Inc.
-# Copyright (C) 2008 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -196,8 +195,8 @@ module Xapian
       Xapian._safelyIterate(self._begin(), 
                             self._end()) { |item|
 	# note: in the ExpandTerm wrapper, we implicitly rename
-	# ESetIterator#term() (defined in xapian.i) to ExpandTerm#term()
-        Xapian::ExpandTerm.new(item.term, item.weight)
+	# ESetIterator#termname() (defined in xapian.i) to ExpandTerm#term()
+        Xapian::ExpandTerm.new(item.termname, item.weight)
       }
 
     end # terms

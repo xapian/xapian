@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2007 Olly Betts
  * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -41,8 +41,8 @@ using namespace std;
 class FlintCursor;
 class FlintDatabase;
 
-class FlintPostlistChunkReader;
-class FlintPostlistChunkWriter;
+class PostlistChunkReader;
+class PostlistChunkWriter;
 
 class FlintPostListTable : public FlintTable {
     public:
@@ -59,7 +59,7 @@ class FlintPostListTable : public FlintTable {
 	 *                          access.
 	 */
 	FlintPostListTable(string path_, bool readonly_)
-	    : FlintTable("postlist", path_ + "/postlist.", readonly_) { }
+	    : FlintTable(path_ + "/postlist.", readonly_) { }
 
 	/// Merge added, removed, and changed entries.
 	void merge_changes(
@@ -69,18 +69,18 @@ class FlintPostListTable : public FlintTable {
 
 	Xapian::docid get_chunk(const string &tname,
 		Xapian::docid did, bool adding,
-		FlintPostlistChunkReader ** from, FlintPostlistChunkWriter **to);
+		PostlistChunkReader ** from, PostlistChunkWriter **to);
 
 	/// Compose a key from a termname and docid.
 	static string make_key(const string & term, Xapian::docid did) {
-	    string key = F_pack_string_preserving_sort(term);
-	    key += F_pack_uint_preserving_sort(did);
+	    string key = pack_string_preserving_sort(term);
+	    key += pack_uint_preserving_sort(did);
 	    return key;
 	}
 
 	/// Compose a key from a termname.
 	static string make_key(const string & term) {
-	    return F_pack_string_preserving_sort(term);
+	    return pack_string_preserving_sort(term);
 	}
 
 	bool term_exists(const string & term) const {

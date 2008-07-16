@@ -1,6 +1,6 @@
 // Simple test that we can use xapian from java
 //
-// Copyright (C) 2005,2006,2007,2008 Olly Betts
+// Copyright (C) 2005,2006,2007 Olly Betts
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -124,11 +124,6 @@ public class SmokeTest {
 	    RSet rset = new RSet();
 	    rset.addDocument(1);
 	    ESet eset = enq.getESet(10, rset, new MyExpandDecider());
-	    if (0 == eset.size()) {
-		System.err.println("ESet.size() was 0");
-		System.exit(1);
-	    }
-
 /*
 	    ESetIterator eit = eset.iterator();
 	    int count = 0;
