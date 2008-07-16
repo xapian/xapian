@@ -2035,7 +2035,7 @@ struct pstate *psp;
       }else if( x[0]=='{' ){
         if( psp->prevrule==0 ){
           ErrorMsg(psp->filename,psp->tokenlineno,
-"There is not prior rule upon which to attach the code "
+"There is no prior rule upon which to attach the code "
 "fragment which begins on this line.");
           psp->errorcnt++;
 	}else if( psp->prevrule->code!=0 ){
@@ -2359,6 +2359,7 @@ struct pstate *psp;
       if( x[0]=='{' || x[0]=='\"' || isalnum(x[0]) ){
         char *zOld, *zNew, *zBuf, *z;
         int nOld, n, nLine, nNew, nBack;
+        int addLineMacro;
         char zLine[50];
         zNew = x;
         if( zNew[0]=='"' || zNew[0]=='{' ) zNew++;
@@ -2370,8 +2371,9 @@ struct pstate *psp;
         }
         nOld = strlen(zOld);
         n = nOld + nNew + 20;
-        if( psp->insertLineMacro
-            && (!psp->decllinenoslot || psp->decllinenoslot[0]) ){
+        addLineMacro = psp->insertLineMacro &&
+                        (psp->decllinenoslot==0 || psp->decllinenoslot[0]!=0);
+        if( addLineMacro ){
           for(z=psp->filename, nBack=0; *z; z++){
             if( *z=='\\' ) nBack++;
           }
@@ -2381,8 +2383,7 @@ struct pstate *psp;
         }
         *psp->declargslot = zBuf = realloc(*psp->declargslot, n);
         zBuf += nOld;
-        if( psp->insertLineMacro
-            && (!psp->decllinenoslot || psp->decllinenoslot[0]) ){
+        if( addLineMacro ){
           if( nOld && zBuf[-1]!='\n' ){
             *(zBuf++) = '\n';
           }

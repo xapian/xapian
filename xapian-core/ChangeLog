@@ -1,3 +1,8 @@
+Wed Jul 16 05:16:00 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c,queryparser/queryparser.lt: Merge upstream
+	  "Check-in Number: 5404" and "5405".
+
 Wed Jul 16 04:48:45 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS: Sync with 1.0.7 release.  Start to clean up ChangeLog entry
