@@ -1,3 +1,8 @@
+Wed Jul 16 04:48:45 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Sync with 1.0.7 release.  Start to clean up ChangeLog entry
+	  pile.
+
 Mon Jul 14 05:13:55 GMT 2008  Olly Betts <olly@survex.com>
 
 	* queryparser/lemon.c: Fix a typo, remove "\n" from the end of
