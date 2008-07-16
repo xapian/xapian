@@ -1,3 +1,8 @@
+Wed Jul 16 04:27:06 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Wrap an overlong line, and tweak wording in a couple of
+	  entries for 1.0.7 (too late for the release, sadly).
+
 Tue Jul 15 13:36:24 GMT 2008  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Update with a few test builds of 1.0.7.

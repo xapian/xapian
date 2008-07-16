@@ -51,7 +51,7 @@ matcher:
   improve the estimate a little in such cases.
 
 * Fix problem on x86 with the top match getting 99% rather than 100% (caused
-  by excess precision in intermediate value).
+  by excess precision in an ntermediate value).
 
 flint backend:
 
@@ -95,15 +95,16 @@ quartz backend:
 
 remote backend:
 
-* Improve performance of matches with multiple databases at least one of which is
-  remote, and when the top hit is from a remote database (bug#279).
+* Improve performance of matches with multiple databases at least one of which
+  is remote, and when the top hit is from a remote database (bug#279).
 
 * When remote protocol version doesn't match, the error message displayed 
   now shows the minor version number supplied by the server correctly.
 
 * We now wait for the connection to close after sending MSG_SHUTDOWN for a
   WritableDatabase, which ensures that changes have been written to disk
-  and the lock released.
+  and the lock released before the WritableDatabase destructor returns
+  (as is the case with a local database).
 
 * We no longer ever send MSG_SHUTDOWN for a read-only Database - just closing
   the connection is enough (and is protocol compatible).
