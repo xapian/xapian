@@ -26,7 +26,7 @@ xapian-core (1.0.7-1) unstable; urgency=low
   * debian/xapian-doc.doc-base.xapian-intro: Section "Apps/Programming" is no
     longer valid - use section "Programming" instead.
 
- -- Olly Betts <olly@survex.com>  Thu, 17 Jul 2008 10:09:20 +0100
+ -- Olly Betts <olly@survex.com>  Thu, 17 Jul 2008 11:05:53 +0100
 
 xapian-core (1.0.5-1) unstable; urgency=low
 
