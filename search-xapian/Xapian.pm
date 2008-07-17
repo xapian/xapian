@@ -4,7 +4,7 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '1.0.6.0';
+our $VERSION = '1.0.7.0';
 
 use Exporter 'import';
 
@@ -160,7 +160,7 @@ more 'perlish' interface to some common operations, as demonstrated above.
 
 There are some gaps in the POD documentation for wrapped classes, but you
 can read the Xapian C++ API documentation at
-L<http://www.xapian.org/docs/apidoc/html/annotated.html> for details of
+L<http://xapian.org/docs/apidoc/html/annotated.html> for details of
 these.  Alternatively, take a look at the code in the examples and tests.
 
 If you want to use Search::Xapian and the threads module together, make
@@ -171,7 +171,7 @@ destroyed more than once.
 
 If you encounter problems, or have any comments, suggestions, patches, etc
 please email the Xapian-discuss mailing list (details of which can be found at
-L<http://www.xapian.org/lists.php>).
+L<http://xapian.org/lists>).
 
 =head2 EXPORT
 
@@ -391,7 +391,7 @@ advice, bugfixes, and wrapper code for the more obscure classes.
 Alex Bowley E<lt>kilinrax@cpan.orgE<gt>
 
 Please report any bugs/suggestions to E<lt>xapian-discuss@lists.xapian.orgE<gt>
-or use the Xapian bug tracker L<http://www.xapian.org/bugs/>.  Please do
+or use the Xapian bug tracker L<http://xapian.org/bugs>.  Please do
 NOT use the CPAN bug tracker or mail any of the authors individually.
 
 =head1 SEE ALSO
@@ -413,6 +413,6 @@ L<Search::Xapian::ValueIterator>,
 L<Search::Xapian::Weight>,
 L<Search::Xapian::WritableDatabase>,
 and
-L<http://www.xapian.org/>.
+L<http://xapian.org/>.
 
 =cut
