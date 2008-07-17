@@ -1,3 +1,9 @@
+Thu Jul 17 13:00:55 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_table.cc,backends/chert/chert_table.h:
+	  Eliminate other_base_letter member of ChertTable - its value can
+	  always be easily determined from base_letter.
+
 Thu Jul 17 12:24:19 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_database.cc: Add space after catch for
