@@ -1,10 +1,32 @@
+xapian-core (1.0.7-1) unstable; urgency=low
+
+  * New upstream release.
+    + Add "nl" for selecting the Dutch stemmer, which was accidentally missing
+      from the list of language codes recognised.  Reported by Joey Hess.
+      Closes: #484458
   * debian/copyright: Update for 2008 and a few other minor changes.
-  * debian/control.in: Move libxapianNN-dev from "Depends" to "Recommends",
-    since it's needed to run the built examples, but not just to look at the
-    source code.
   * debian/control.in: Add "${shlibs:Depends}, ${misc:Depends}" to "Depends"
     to fix a policy violation (dependencies will pull them in anyway so this
     hasn't caused problems in practice).  Omission noticed by Niko Tyni.
+  * debian/control.in: Move libxapianNN-dev from "Depends" to "Recommends"
+    for xapian-examples since it's not actually needed to run the built
+    examples.
+  * debian/rules: Add support for parallel=<n> in DEB_BUILD_OPTIONS, as
+    recommended by policy 3.8.0.  Use $(filter ...) instead of $(find ...)
+    to check for noopt in DEB_BUILD_OPTIONS to avoid false matches on
+    substrings of non-standard options (e.g. snooptables).
+  * debian/rules: Run the xapian-core testsuite unless nocheck is specified
+    in DEB_BUILD_OPTIONS.  It takes 3.5 minutes on x86-64, so hopefully
+    shouldn't be too painful for slower architectures.
+  * debian/control.in: Standards-Version: 3.8.0
+  * debian/watch: Add watch file.  Not useful for me as I make the upstream
+    releases, but DEHS, etc find it useful.
+  * debian/xapian-doc.doc-base.apidocs: Section "Apps/Programming" is no
+    longer valid - use section "Programming/C++" instead.
+  * debian/xapian-doc.doc-base.xapian-intro: Section "Apps/Programming" is no
+    longer valid - use section "Programming" instead.
+
+ -- Olly Betts <olly@survex.com>  Thu, 17 Jul 2008 10:09:20 +0100
 
 xapian-core (1.0.5-1) unstable; urgency=low
 

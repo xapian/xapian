@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 #
 # Copyright (C) 2004,2005,2006 Lemur Consulting Ltd
-# Copyright (C) 2006,2007 Olly Betts
+# Copyright (C) 2006,2007,2008 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -49,15 +49,25 @@ export DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 export DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 
 ifeq ($(DEB_BUILD_GNU_TYPE), $(DEB_HOST_GNU_TYPE))
-	confflags += --build $(DEB_HOST_GNU_TYPE)
+    confflags += --build $(DEB_HOST_GNU_TYPE)
 else
-	confflags += --build $(DEB_BUILD_GNU_TYPE) --host $(DEB_HOST_GNU_TYPE)
+    confflags += --build $(DEB_BUILD_GNU_TYPE) --host $(DEB_HOST_GNU_TYPE)
 endif
 
-ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
-	confflags += CFLAGS="-O0" CXXFLAGS="-O0"
+# Handle DEB_BUILD_OPTIONS.  Note that dh_strip handles nostrip for us.
+ifneq (,$(filter noopt,$(DEB_BUILD_OPTIONS)))
+    confflags += CFLAGS=-O0 CXXFLAGS=-O0
 else
-	confflags += CFLAGS="-O2" CXXFLAGS="-O2"
+    confflags += CFLAGS=-O2 CXXFLAGS=-O2
+endif
+ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+    NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+    MAKEFLAGS += -j$(NUMJOBS)
+endif
+ifneq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
+    CHECKTARGET =
+else
+    CHECKTARGET = check
 endif
 
 commonconfflags := \
@@ -124,7 +134,7 @@ configure-stamp:
 build: configure build-stamp
 build-stamp:
 	dh_testdir
-	$(MAKE) -C build
+	$(MAKE) -C build all $(CHECKTARGET)
 	touch $@
 
 install: DH_OPTIONS=
