@@ -32,10 +32,20 @@ else
 	confflags += --build $(DEB_BUILD_GNU_TYPE) --host $(DEB_HOST_GNU_TYPE)
 endif
 
-ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
-	confflags += CFLAGS="-O0" CXXFLAGS="-O0"
+# Handle DEB_BUILD_OPTIONS.  Note that dh_strip handles nostrip for us.
+ifneq (,$(filter noopt,$(DEB_BUILD_OPTIONS)))
+    confflags += CFLAGS=-O0 CXXFLAGS=-O0
 else
-	confflags += CFLAGS="-O2" CXXFLAGS="-O2"
+    confflags += CFLAGS=-O2 CXXFLAGS=-O2
+endif
+ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+    NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+    MAKEFLAGS += -j$(NUMJOBS)
+endif
+ifneq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
+    CHECKTARGET =
+else
+    CHECKTARGET = check
 endif
 
 BUILD_DEPS := debhelper (>= 4.1.22),
@@ -83,7 +93,7 @@ configure-stamp:
 build: configure build-stamp
 build-stamp:
 	dh_testdir
-	$(MAKE) -C build
+	$(MAKE) -C build all $(CHECKTARGET)
 	touch $@
 
 install: DH_OPTIONS=

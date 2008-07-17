@@ -1,9 +1,26 @@
+xapian-omega (1.0.7-1) unstable; urgency=low
+
+  * New upstream release.
+    + Overhaul the $highlight colour combinations since some were rather
+      unreadable.  Reported by Joey Hess.  Closes #484456
+  * debian/copyright: Update for 2008 and a few other minor changes.
   * debian/control.in: Add "djvulibre-bin" to "Suggests:" as omindex can now
     make use of it to index DjVu files.
   * debian/rules: The dependency on libxapianN is now versioned.  We require a
     version >= the version of xapian-omega being packaged (which is sometimes
     slightly too conservative, but simple to implement without manual
     maintenance).
+  * debian/rules: Add support for parallel=<n> in DEB_BUILD_OPTIONS, as
+    recommended by policy 3.8.0.  Use $(filter ...) instead of $(find ...)
+    to check for noopt in DEB_BUILD_OPTIONS to avoid false matches on
+    substrings of non-standard options (e.g. snooptables).
+  * debian/rules: Run the xapian-omega testsuite unless nocheck is specified
+    in DEB_BUILD_OPTIONS.  Takes less than a second to run on x86-64.
+  * debian/control.in: Standards-Version: 3.8.0
+  * debian/watch: Add watch file.  Not useful for me as I make the upstream
+    releases, but DEHS, etc find it useful.
+
+ -- Olly Betts <olly@survex.com>  Thu, 17 Jul 2008 10:31:54 +0100
 
 xapian-omega (1.0.5-1) unstable; urgency=low
 

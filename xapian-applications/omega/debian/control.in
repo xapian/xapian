@@ -3,7 +3,7 @@ Section: web
 Priority: optional
 Maintainer: Olly Betts <olly@survex.com>
 Build-Depends: @BUILD_DEPS@ autotools-dev
-Standards-Version: 3.7.3
+Standards-Version: 3.8.0
 Homepage: http://www.xapian.org/
 
 Package: xapian-omega
