@@ -847,7 +847,7 @@ ChertDatabase::get_value_freq(Xapian::valueno valno) const
 	try {
 	    value_table.get_value_stats(mru_valstats, valno);
 	    mru_valno = valno;
-	} catch(...) {
+	} catch (...) {
 	    mru_valno = Xapian::BAD_VALUENO;
 	    throw;
 	}
@@ -863,7 +863,7 @@ ChertDatabase::get_value_lower_bound(Xapian::valueno valno) const
 	try {
 	    value_table.get_value_stats(mru_valstats, valno);
 	    mru_valno = valno;
-	} catch(...) {
+	} catch (...) {
 	    mru_valno = Xapian::BAD_VALUENO;
 	    throw;
 	}
@@ -879,7 +879,7 @@ ChertDatabase::get_value_upper_bound(Xapian::valueno valno) const
 	try {
 	    value_table.get_value_stats(mru_valstats, valno);
 	    mru_valno = valno;
-	} catch(...) {
+	} catch (...) {
 	    mru_valno = Xapian::BAD_VALUENO;
 	    throw;
 	}

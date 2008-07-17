@@ -1,3 +1,8 @@
+Thu Jul 17 12:24:19 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc: Add space after catch for
+	  consistency.
+
 Thu Jul 17 11:51:57 GMT 2008  Olly Betts <olly@survex.com>
 
 	* examples/copydatabase.cc: Use C++ forms of C headers.  Only treat
