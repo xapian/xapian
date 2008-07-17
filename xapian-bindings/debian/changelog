@@ -1,7 +1,21 @@
+xapian-bindings (1.0.7-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/copyright: Update for 2008 and a few other minor changes.
   * debian/rules: The dependency on libxapianN is now versioned.  We require a
     version >= the version of xapian-bindings being packaged (which is
     sometimes slightly too conservative, but simple to implement without
     manual maintenance).  Closes: #462106
+  * debian/rules: Add support for parallel=<n> in DEB_BUILD_OPTIONS, as
+    recommended by policy 3.8.0.  Use $(filter ...) instead of $(find ...)
+    to check for noopt in DEB_BUILD_OPTIONS to avoid false matches on
+    substrings of non-standard options (e.g. snooptables).  Add support
+    for nocheck in DEB_BUILD_OPTIONS.
+  * debian/control.in: Standards-Version: 3.8.0
+  * debian/watch: Add watch file.  Not useful for me as I make the upstream
+    releases, but DEHS, etc find it useful.
+
+ -- Olly Betts <olly@survex.com>  Sun, 23 Dec 2007 01:30:45 +0000
 
 xapian-bindings (1.0.5-1) unstable; urgency=low
 
