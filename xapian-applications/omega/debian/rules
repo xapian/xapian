@@ -27,9 +27,11 @@ export DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 export DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 
 ifeq ($(DEB_BUILD_GNU_TYPE), $(DEB_HOST_GNU_TYPE))
-	confflags += --build $(DEB_HOST_GNU_TYPE)
+    confflags += --build $(DEB_HOST_GNU_TYPE)
 else
-	confflags += --build $(DEB_BUILD_GNU_TYPE) --host $(DEB_HOST_GNU_TYPE)
+    confflags += --build $(DEB_BUILD_GNU_TYPE) --host $(DEB_HOST_GNU_TYPE)
+    # Disable the testsuite when cross-compiling.
+    DEB_BUILD_OPTIONS += nocheck
 endif
 
 # Handle DEB_BUILD_OPTIONS.  Note that dh_strip handles nostrip for us.
