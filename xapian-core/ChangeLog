@@ -1,3 +1,10 @@
+Thu Jul 17 11:51:57 GMT 2008  Olly Betts <olly@survex.com>
+
+	* examples/copydatabase.cc: Use C++ forms of C headers.  Only treat
+	  '\' as a directory separator on platforms where it is.  Update
+	  counter every 13 counting up to the end so that the digits all
+	  "rotate" and the counter ends up on the exact total.
+
 Wed Jul 16 10:10:32 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/perftest/perftest.cc: Use uname() or gethostname() to get the
