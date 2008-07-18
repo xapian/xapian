@@ -1495,8 +1495,6 @@ DEFINE_TESTCASE(nomoredocids1, writable) {
 
 // Test basic spelling correction features.
 DEFINE_TESTCASE(spell1, spelling) {
-    SKIP_TEST_UNLESS_BACKEND("flint");
-
     Xapian::WritableDatabase db = get_writable_database();
 
     // Check that the more frequent term is chosen.
@@ -1569,8 +1567,6 @@ DEFINE_TESTCASE(spell1, spelling) {
 
 // Test spelling correction for Unicode.
 DEFINE_TESTCASE(spell2, spelling) {
-    SKIP_TEST_UNLESS_BACKEND("flint");
-
     Xapian::WritableDatabase db = get_writable_database();
 
     // Check that a UTF-8 sequence counts as a single character.
@@ -1596,8 +1592,6 @@ DEFINE_TESTCASE(spell2, spelling) {
 
 // Test spelling correction with multi databases
 DEFINE_TESTCASE(spell3, spelling) {
-    SKIP_TEST_UNLESS_BACKEND("flint");
-
     Xapian::WritableDatabase db1 = get_writable_database();
     // We can't just call get_writable_database() since it would delete db1
     // which doesn't work at all under __WIN32__ and will go wrong elsewhere if
@@ -1655,8 +1649,6 @@ DEFINE_TESTCASE(spell3, spelling) {
 
 // Regression test - check that appending works correctly.
 DEFINE_TESTCASE(spell4, spelling) {
-    SKIP_TEST_UNLESS_BACKEND("flint");
-
     Xapian::WritableDatabase db = get_writable_database();
 
     db.add_spelling("check");
@@ -1672,8 +1664,6 @@ DEFINE_TESTCASE(spell4, spelling) {
 
 // Regression test - used to segfault with some input values.
 DEFINE_TESTCASE(spell5, spelling) {
-    SKIP_TEST_UNLESS_BACKEND("flint");
-
     const char * target = "\xe4\xb8\x80\xe4\xba\x9b";
 
     Xapian::WritableDatabase db = get_writable_database();
@@ -1687,9 +1677,7 @@ DEFINE_TESTCASE(spell5, spelling) {
 }
 
 // Test synonym iterators.
-DEFINE_TESTCASE(synonymitor1, writable) {
-    SKIP_TEST_UNLESS_BACKEND("flint");
-
+DEFINE_TESTCASE(synonymitor1, writable && synonyms) {
     Xapian::WritableDatabase db = get_writable_database();
 
     // Test iterators for terms which aren't there.
@@ -1826,7 +1814,6 @@ DEFINE_TESTCASE(metadata1, writable) {
 
 // Test that metadata gets applied at same time as other changes.
 DEFINE_TESTCASE(metadata2, metadata) {
-    SKIP_TEST_UNLESS_BACKEND("flint");
     Xapian::WritableDatabase db = get_writable_database();
     Xapian::Database dbr = get_writable_database_as_database();
 

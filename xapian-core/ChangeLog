@@ -1,3 +1,11 @@
+Fri Jul 18 02:38:22 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_wrdb.cc,tests/harness/testrunner.cc,
+	  tests/harness/testrunner.h: Add "synonyms" test backend property
+	  and use it to decide where to run synonym tests so they get run on
+	  chert too.  Move virtual TestRunner destructor out of the header.
+	  Don't skip all the spelling tests on chert.
+
 Fri Jul 18 00:56:17 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/api_wrdb.cc: Eliminate literal top-bit-set characters.
