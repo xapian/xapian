@@ -2121,27 +2121,20 @@ DEFINE_TESTCASE(lazytablebug1, writable && (flint || chert)) {
 	db.add_document(doc);
 	db.flush();
 
+	string synonym(255, 'x');
 	char buf[] = " iamafish!!!!!!!!!!";
-	for (int i = 0; i < 16; ++i) {
-	    db.add_spelling(buf, 1);
+	for (int i = 33; i < 120; ++i) {
+	    db.add_synonym(buf, synonym);
 	    ++buf[0];
 	}
 
 	db.flush();
     }
 
-    string in = get_named_writable_database_path("lazytablebug1");
-    string out = in + "-compacted";
-    rm_rf(out);
-
-    string cmd = "../bin/xapian-compact " + in + " " + out;
-#ifndef __WIN32__
-    cmd += " > /dev/null";
-#else
-    cmd += " > nul";
-#endif
-    int r = system(cmd.c_str());
-    TEST_EQUAL(WEXITSTATUS(r), 0);
+    Xapian::Database db = get_writable_database_as_database();
+    for (Xapian::TermIterator t = db.synonym_keys_begin(); t != db.synonym_keys_end(); ++t) {
+	tout << *t << endl;
+    }
 
     return true;
 }

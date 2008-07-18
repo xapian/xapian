@@ -1,3 +1,8 @@
+Fri Jul 18 13:24:43 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_wrdb.cc: Rewrite lazytablebug1 testcase to avoid having
+	  to run xapian-compact.
+
 Fri Jul 18 11:59:42 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_table.cc: Fix handling of a table created
