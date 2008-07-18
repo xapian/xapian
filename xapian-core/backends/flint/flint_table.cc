@@ -1617,7 +1617,9 @@ FlintTable::FlintTable(string tablename_, string path_, bool readonly_,
 	  compress_strategy(compress_strategy_),
 	  lazy(lazy_)
 {
-    DEBUGCALL(DB, void, "FlintTable::Btree", path_ << ", " << readonly_);
+    DEBUGCALL(DB, void, "FlintTable::FlintTable", 
+	      tablename_ << "," << path_ << ", " << readonly_ << ", " <<
+	      compress_strategy_ << ", " << lazy_);
 }
 
 bool
@@ -2039,7 +2041,9 @@ FlintTable::prev_for_sequential(Cursor_ * C_, int /*dummy*/) const
 	    } else {
 		read_block(n, p);
 	    }
-	    if (REVISION(p) > 1) {
+	    
+	    if (writable) AssertEq(revision_number, latest_revision_number);
+	    if (REVISION(p) > revision_number + writable) {
 		set_overwritten();
 		return false;
 	    }
@@ -2091,7 +2095,8 @@ FlintTable::next_for_sequential(Cursor_ * C_, int /*dummy*/) const
 	    } else {
 		read_block(n, p);
 	    }
-	    if (REVISION(p) > 1) {
+	    if (writable) AssertEq(revision_number, latest_revision_number);
+	    if (REVISION(p) > revision_number + writable) {
 		set_overwritten();
 		return false;
 	    }

@@ -27,19 +27,20 @@
 
 #include "api_wrdb.h"
 
-#include <algorithm>
-#include <map>
-#include <string>
-
 #include <xapian.h>
 #include "testsuite.h"
 #include "testutils.h"
 #include "utils.h"
+#include "unixcmds.h"
 
 #include "apitest.h"
 
+#include <algorithm>
 #include <cmath>
+#include <cstdlib>
 #include <list>
+#include <map>
+#include <string>
 
 using namespace std;
 
@@ -2107,6 +2108,40 @@ DEFINE_TESTCASE(writeread1, writable && metadata) {
 
     string readitem = db_w.get_metadata("2");
     TEST_EQUAL(readitem, longitem);
+
+    return true;
+}
+
+DEFINE_TESTCASE(lazytablebug1, writable && (flint || chert)) {
+    {
+	Xapian::WritableDatabase db = get_named_writable_database("lazytablebug1", string());
+
+	Xapian::Document doc;
+	doc.add_term("foo");
+	db.add_document(doc);
+	db.flush();
+
+	char buf[] = " iamafish!!!!!!!!!!";
+	for (int i = 0; i < 16; ++i) {
+	    db.add_spelling(buf, 1);
+	    ++buf[0];
+	}
+
+	db.flush();
+    }
+
+    string in = get_named_writable_database_path("lazytablebug1");
+    string out = in + "-compacted";
+    rm_rf(out);
+
+    string cmd = "../bin/xapian-compact " + in + " " + out;
+#ifndef __WIN32__
+    cmd += " > /dev/null";
+#else
+    cmd += " > nul";
+#endif
+    int r = system(cmd.c_str());
+    TEST_EQUAL(WEXITSTATUS(r), 0);
 
     return true;
 }

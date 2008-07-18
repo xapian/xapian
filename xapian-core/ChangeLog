@@ -1,3 +1,11 @@
+Fri Jul 18 11:59:42 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_table.cc: Fix handling of a table created
+	  lazily after the database has had commits, and which is then
+	  cursored while still in sequential mode.
+	* backends/flint/flint_table.cc: Backport fix to flint.
+	* tests/api_wrdb.cc: Add testcase lazytablebug1.
+
 Fri Jul 18 02:52:55 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/api_wrdb.cc: Enable test crashrecovery1 for chert.  Finish off
