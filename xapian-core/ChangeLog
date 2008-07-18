@@ -1,3 +1,7 @@
+Fri Jul 18 00:56:17 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_wrdb.cc: Eliminate literal top-bit-set characters.
+
 Fri Jul 18 00:40:06 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_values.cc: Kill superfluous else tokens.

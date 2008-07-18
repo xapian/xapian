@@ -1674,12 +1674,14 @@ DEFINE_TESTCASE(spell4, spelling) {
 DEFINE_TESTCASE(spell5, spelling) {
     SKIP_TEST_UNLESS_BACKEND("flint");
 
-    Xapian::WritableDatabase db = get_writable_database();
+    const char * target = "\xe4\xb8\x80\xe4\xba\x9b";
 
-    db.add_spelling("一些");
+    Xapian::WritableDatabase db = get_writable_database();
+    db.add_spelling(target);
     db.flush();
 
-    TEST_EQUAL(db.get_spelling_suggestion("不", strlen("不")), "一些");
+    string s = db.get_spelling_suggestion("\xe4\xb8\x8d", 3);
+    TEST_EQUAL(s, target);
 
     return true;
 }
