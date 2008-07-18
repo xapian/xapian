@@ -1420,8 +1420,11 @@ DEFINE_TESTCASE(crashrecovery1, writable) {
     if (dbtype == "flint") {
 	path = ".flint/dbw";
 	base_ext = ".baseB";
+    } else if (dbtype == "chert") {
+	path = ".chert/dbw";
+	base_ext = ".baseB";
     } else {
-	SKIP_TEST("Test only supported for flint backends");
+	SKIP_TEST("Test only supported for flint and chert backends");
     }
 
     Xapian::Document doc;
@@ -2032,7 +2035,8 @@ DEFINE_TESTCASE(termtoolong1, writable) {
     db.flush();
 
     {
-	// Currently flint doesn't allow
+	// Currently flint and chert escape zero byte from terms in keys for
+	// some tables, so a term with 126 zero bytes won't work either.
 	Xapian::Document doc;
 	doc.add_term(string(126, '\0'));
 	db.add_document(doc);
