@@ -1,3 +1,7 @@
+Fri Jul 18 00:40:06 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_values.cc: Kill superfluous else tokens.
+
 Thu Jul 17 13:00:55 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_table.cc,backends/chert/chert_table.h:

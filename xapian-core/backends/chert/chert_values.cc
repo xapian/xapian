@@ -58,12 +58,12 @@ ChertValueTable::unpack_entry(const char ** pos,
 		     "[pos], [end], " << this_value_no << ", " << this_value);
     if (!unpack_uint(pos, end, this_value_no)) {
 	if (*pos == 0) throw Xapian::DatabaseCorruptError("Incomplete item in value table");
-	else throw Xapian::RangeError("Value number in value table is too large");
+	throw Xapian::RangeError("Value number in value table is too large");
     }
 
     if (!unpack_string(pos, end, this_value)) {
 	if (*pos == 0) throw Xapian::DatabaseCorruptError("Incomplete item in value table");
-	else throw Xapian::RangeError("Item in value table is too large");
+	throw Xapian::RangeError("Item in value table is too large");
     }
 
     DEBUGLINE(DB, "ChertValueTable::unpack_entry(): value no " <<
@@ -214,15 +214,15 @@ ChertValueTable::get_value_stats(ValueStats & stats,
 
 	if (!unpack_uint(&pos, end, &(stats.freq))) {
 	    if (*pos == 0) throw Xapian::DatabaseCorruptError("Incomplete stats item in value table");
-	    else throw Xapian::RangeError("Frequency statistic in value table is too large");
+	    throw Xapian::RangeError("Frequency statistic in value table is too large");
 	}
 	if (!unpack_string(&pos, end, stats.lower_bound)) {
 	    if (*pos == 0) throw Xapian::DatabaseCorruptError("Incomplete stats item in value table");
-	    else throw Xapian::RangeError("Lower bound in value table is too large");
+	    throw Xapian::RangeError("Lower bound in value table is too large");
 	}
 	if (!unpack_string(&pos, end, stats.upper_bound)) {
 	    if (*pos == 0) throw Xapian::DatabaseCorruptError("Incomplete stats item in value table");
-	    else throw Xapian::RangeError("Upper bound in value table is too large");
+	    throw Xapian::RangeError("Upper bound in value table is too large");
 	}
 	if (pos != end) {
 	    throw Xapian::DatabaseCorruptError("Junk found at end of value stats item");
