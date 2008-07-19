@@ -27,6 +27,7 @@
 #include <string>
 
 #include <xapian/types.h>
+#include <xapian/valueiterator.h>
 #include "chert_table.h"
 
 using namespace std;
@@ -42,14 +43,6 @@ class ChertValueTable : public ChertTable {
 				 const char * end,
 				 Xapian::valueno * this_value_no,
 				 string & this_value);
-
-	/** Generate key representing docid/valueno pair.
-	 */
-	static void make_key(string & key, Xapian::docid did, Xapian::valueno valueno);
-
-	/** Generate a key for a value statistics item.
-	 */
-	static void make_valuestats_key(string & key, Xapian::valueno valueno);
 
     public:
 	/** Create a new table object.
@@ -67,12 +60,17 @@ class ChertValueTable : public ChertTable {
 	ChertValueTable(string path_, bool readonly_)
 	    : ChertTable("value", path_ + "/value.", readonly_, DONT_COMPRESS, true) { }
 
-	/** Store a value.  If a value of the same document ID and
-	 *  value number already exists, it is overwritten by this.
+	/** Encode values as a string ready to add to the table.
+	 *
+	 *  Also updates value statistics in @a stats.
 	 */
-	void add_value(const string & value, Xapian::docid did,
-		       Xapian::valueno valueno,
-		       map<Xapian::valueno, ValueStats> & stats);
+	void encode_values(string & s,
+			   Xapian::ValueIterator it,
+			   const Xapian::ValueIterator & end,
+			   map<Xapian::valueno, ValueStats> & stats);
+
+	/** Set values for document @a did encoded as a string. */
+	void set_encoded_values(Xapian::docid did, const string & enc);
 
 	/** Get a value.
 	 *
