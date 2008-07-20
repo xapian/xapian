@@ -60,8 +60,8 @@ static void show_usage() {
 "      "PROG_NAME" /var/lib/xapian/data/default/postlist fbv" << endl;
 }
 
-static size_t check_chert_table(const string & tablename, string table,
-				int opts, std::vector<Xapian::termcount> & doclens);
+static size_t check_chert_table(const char * tablename, string table, int opts,
+				std::vector<Xapian::termcount> & doclens);
 
 static inline bool
 is_user_metadata_key(const string & key)
@@ -217,9 +217,11 @@ main(int argc, char **argv)
 	    }
 
 	    if (flint) {
-		errors = check_flint_table(tablename, filename, opts, doclens);
+		errors = check_flint_table(tablename.c_str(), filename, opts,
+				 	   doclens);
 	    } else {
-		errors = check_chert_table(tablename, filename, opts, doclens);
+		errors = check_chert_table(tablename.c_str(), filename, opts,
+				 	   doclens);
 	    }
 	}
 	if (errors > 0) {
@@ -240,7 +242,7 @@ main(int argc, char **argv)
 }
 
 static size_t
-check_chert_table(const string & tablename, string filename, int opts,
+check_chert_table(const char * tablename, string filename, int opts,
 		  vector<Xapian::termcount> & doclens)
 {
     filename += '.';

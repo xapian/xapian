@@ -1,3 +1,9 @@
+Sun Jul 20 07:09:38 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/,bin/xapian-check.cc: Store the tablename in
+	  ChertTable as a const char * - it's a constant string and
+	  std::string adds a needless space overhead.
+
 Sat Jul 19 14:19:58 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_database.cc,backends/chert/chert_values.cc,

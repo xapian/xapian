@@ -1582,7 +1582,7 @@ ChertTable::do_open_to_write(bool revision_supplied,
     return true;
 }
 
-ChertTable::ChertTable(string tablename_, string path_, bool readonly_,
+ChertTable::ChertTable(const char * tablename_, string path_, bool readonly_,
 		       int compress_strategy_, bool lazy_)
 	: tablename(tablename_),
 	  revision_number(0),
@@ -1835,7 +1835,7 @@ ChertTable::write_changed_blocks(int changes_fd)
 
     string buf;
     buf += pack_uint(2u); // Indicate the item is a list of blocks
-    buf += pack_uint(tablename.size());
+    buf += pack_uint(strlen(tablename));
     buf += tablename;
     buf += pack_uint(block_size);
     chert_io_write(changes_fd, buf.data(), buf.size());

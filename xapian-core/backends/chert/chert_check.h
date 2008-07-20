@@ -32,12 +32,11 @@
 
 class ChertTableCheck : public ChertTable {
     public:
-	static void check(const std::string & tablename,
-			  const std::string & path, int opts,
-			  std::ostream &out = std::cout);
+	static void check(const char * tablename, const std::string & path,
+			  int opts, std::ostream &out = std::cout);
     private:
-	ChertTableCheck(const std::string & tablename_, const std::string &path_,
-		   bool readonly, std::ostream &out_)
+	ChertTableCheck(const char * tablename_, const std::string &path_,
+		        bool readonly, std::ostream &out_)
 	    : ChertTable(tablename_, path_, readonly), out(out_) { }
 
 	void block_check(Cursor * C_, int j, int opts);
