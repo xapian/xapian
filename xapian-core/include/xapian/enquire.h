@@ -255,8 +255,6 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
 	 */
 	MSetIterator() : index(0), mset() { }
 
-	~MSetIterator() { }
-
 	/// Copying is allowed (and is cheap).
 	MSetIterator(const MSetIterator &other) {
 	    index = other.index;
@@ -457,8 +455,6 @@ class XAPIAN_VISIBILITY_DEFAULT ESetIterator {
 	 *  convenient syntactically.
 	 */
 	ESetIterator() : index(0), eset() { }
-
-	~ESetIterator() { }
 
 	/// Copying is allowed (and is cheap).
 	ESetIterator(const ESetIterator &other) {
@@ -1186,7 +1182,6 @@ class XAPIAN_VISIBILITY_DEFAULT BM25Weight : public Weight {
 		       weight_calculated(false) { }
 
 	BM25Weight * clone() const;
-	~BM25Weight() { }
 	std::string name() const;
 	std::string serialise() const;
 	BM25Weight * unserialise(const std::string & s) const;
@@ -1242,7 +1237,6 @@ class XAPIAN_VISIBILITY_DEFAULT TradWeight : public Weight {
 	TradWeight() : param_k(1.0), weight_calculated(false) { }
 
 	TradWeight * clone() const;
-	~TradWeight() { }
 	std::string name() const;
 	std::string serialise() const;
 	TradWeight * unserialise(const std::string & s) const;

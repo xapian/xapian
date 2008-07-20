@@ -1,7 +1,7 @@
 /** @file matchspy.h
  *  @brief MatchDecider subclasses for use as "match spies"
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2008 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -130,9 +130,6 @@ class XAPIAN_VISIBILITY_DEFAULT StringListUnserialiser {
     {
 	read_next();
     }
-
-    /// Destructor - nothing special to release
-    ~StringListUnserialiser() {}
 
     /// Copy constructor
     StringListUnserialiser(const StringListUnserialiser & other)

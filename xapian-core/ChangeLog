@@ -1,3 +1,9 @@
+Sun Jul 20 11:35:35 GMT 2008  Olly Betts <olly@survex.com>
+
+	* include/xapian/enquire.h,include/xapian/matchspy.h,
+	  include/xapian/valueiterator.h: Remove explicit empty non-virtual
+	  destructors since the compiler will create them by default anyway.
+
 Sun Jul 20 10:18:52 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
