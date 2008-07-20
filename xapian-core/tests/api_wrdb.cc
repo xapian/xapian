@@ -27,19 +27,20 @@
 
 #include "api_wrdb.h"
 
-#include <algorithm>
-#include <map>
-#include <string>
-
 #include <xapian.h>
 #include "testsuite.h"
 #include "testutils.h"
 #include "utils.h"
+#include "unixcmds.h"
 
 #include "apitest.h"
 
+#include <algorithm>
 #include <cmath>
+#include <cstdlib>
 #include <list>
+#include <map>
+#include <string>
 
 using namespace std;
 
@@ -2011,6 +2012,33 @@ DEFINE_TESTCASE(writeread1, writable && metadata) {
 
     string readitem = db_w.get_metadata("2");
     TEST_EQUAL(readitem, longitem);
+
+    return true;
+}
+
+DEFINE_TESTCASE(lazytablebug1, writable && (flint || chert)) {
+    {
+	Xapian::WritableDatabase db = get_named_writable_database("lazytablebug1", string());
+
+	Xapian::Document doc;
+	doc.add_term("foo");
+	db.add_document(doc);
+	db.flush();
+
+	string synonym(255, 'x');
+	char buf[] = " iamafish!!!!!!!!!!";
+	for (int i = 33; i < 120; ++i) {
+	    db.add_synonym(buf, synonym);
+	    ++buf[0];
+	}
+
+	db.flush();
+    }
+
+    Xapian::Database db = get_writable_database_as_database();
+    for (Xapian::TermIterator t = db.synonym_keys_begin(); t != db.synonym_keys_end(); ++t) {
+	tout << *t << endl;
+    }
 
     return true;
 }

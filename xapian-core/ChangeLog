@@ -1,3 +1,13 @@
+Sun Jul 20 15:12:15 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* backends/flint/flint_table.cc: Fix handling of a table created
+	  lazily after the database has had commits, and which is then
+	  cursored while still in sequential mode.
+	* tests/api_wrdb.cc: Add testcase lazytablebug1.
+	* tests/api_wrdb.cc: Rewrite lazytablebug1 testcase to avoid having
+	  to run xapian-compact.
+
 Sun Jul 20 14:59:54 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
