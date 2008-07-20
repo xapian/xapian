@@ -1,3 +1,10 @@
+Sun Jul 20 10:09:36 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Forward-port change from branches/1.0:
+	* api/omenquire.cc: Fix percentage calculation to cope with excess
+	  precision on x86.  Fix method name for convert_to_percent_internal
+	  in debug logging.
+
 Sun Jul 20 09:13:32 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/flint/,bin/xapian-check-flint.cc,bin/xapian-check-flint.h,
