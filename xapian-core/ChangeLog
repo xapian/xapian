@@ -1,3 +1,8 @@
+Sun Jul 20 09:10:49 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/xapian-check.cc: Follow-on fix for last change - we need to use
+	  strcmp() to compare C strings.
+
 Sun Jul 20 07:09:38 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/chert/,bin/xapian-check.cc: Store the tablename in
