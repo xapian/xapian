@@ -1587,7 +1587,7 @@ FlintTable::do_open_to_write(bool revision_supplied,
     return true;
 }
 
-FlintTable::FlintTable(string tablename_, string path_, bool readonly_,
+FlintTable::FlintTable(const char * tablename_, string path_, bool readonly_,
 		       int compress_strategy_, bool lazy_)
 	: tablename(tablename_),
 	  revision_number(0),
@@ -1844,7 +1844,7 @@ FlintTable::write_changed_blocks(int changes_fd)
 
     string buf;
     buf += F_pack_uint(2u); // Indicate the item is a list of blocks
-    buf += F_pack_uint(tablename.size());
+    buf += F_pack_uint(strlen(tablename));
     buf += tablename;
     buf += F_pack_uint(block_size);
     flint_io_write(changes_fd, buf.data(), buf.size());

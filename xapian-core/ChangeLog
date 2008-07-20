@@ -1,3 +1,10 @@
+Sun Jul 20 09:13:32 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/flint/,bin/xapian-check-flint.cc,bin/xapian-check-flint.h,
+	  bin/xapian-compact.cc: Store the tablename in FlintTable as a const
+	  char * - it's a constant string and std::string adds a needless
+	  space overhead.
+
 Sun Jul 20 09:10:49 GMT 2008  Olly Betts <olly@survex.com>
 
 	* bin/xapian-check.cc: Follow-on fix for last change - we need to use
