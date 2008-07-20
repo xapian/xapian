@@ -1,3 +1,13 @@
+Sun Jul 20 15:24:34 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/flint/flint_database.cc,backends/flint/flint_values.cc,
+	  backends/flint/flint_values.h: Fix WritableDatabase::add_document()
+	  and replace_document() not to be O(n*n) in the number of values in
+	  the new document.
+	* tests/api_wrdb.cc: Add testcase bigoaddvalue to make sure we don't
+	  regress to O(n*n) (or worse!)
+
 Sun Jul 20 15:12:15 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:

@@ -32,12 +32,11 @@ using std::make_pair;
 
 #include "omdebug.h"
 
-void
-FlintValueTable::make_key(string & key, Xapian::docid did, Xapian::valueno valueno)
+/** Generate key for document @a docid's values. */
+inline void
+make_key(string & key, Xapian::docid did)
 {
-    DEBUGCALL_STATIC(DB, void, "FlintValueTable::make_key",
-		     key << ", " << did << ", " << valueno);
-    (void)valueno; // no warning
+    DEBUGCALL_STATIC(DB, void, "make_key", key << ", " << did);
     key = flint_docid_to_key(did);
 }
 
@@ -64,48 +63,25 @@ FlintValueTable::unpack_entry(const char ** pos,
 }
 
 void
-FlintValueTable::add_value(const string & value,
-			      Xapian::docid did,
-			      Xapian::valueno valueno)
+FlintValueTable::encode_values(string & s,
+			       Xapian::ValueIterator it,
+			       const Xapian::ValueIterator & end)
 {
-    DEBUGCALL(DB, void, "FlintValueTable::add_value", value << ", " << did << ", " << valueno);
+    DEBUGCALL(DB, void, "FlintValueTable::encode_values", "[&s], " << it << ", " << end);
+    while (it != end) {
+	s += pack_uint(it.get_valueno());
+	s += pack_string(*it);
+	++it;
+    }
+}
+ 
+void
+FlintValueTable::set_encoded_values(Xapian::docid did, const string & enc)
+{
+    DEBUGCALL(DB, void, "FlintValueTable::set_encoded_values", did << ", " << enc);
     string key;
-    make_key(key, did, valueno);
-    string tag;
-    (void)get_exact_entry(key, tag);
-    string newvalue;
-
-    const char * pos = tag.data();
-    const char * end = pos + tag.size();
-
-    bool have_added = false;
-    
-    while (pos && pos != end) {
-	Xapian::valueno this_value_no;
-	string this_value;
-
-	unpack_entry(&pos, end, &this_value_no, this_value);
-
-	if (this_value_no > valueno && !have_added) {
-	    DEBUGLINE(DB, "Adding value (number, value) = (" <<
-		      valueno << ", " << value << ")");
-	    have_added = true;
-	    newvalue += pack_uint(valueno);
-	    newvalue += pack_string(value);
-	}
-
-	newvalue += pack_uint(this_value_no);
-	newvalue += pack_string(this_value);
-    }
-    if (!have_added) {
-	DEBUGLINE(DB, "Adding value (number, value) = (" <<
-		  valueno << ", " << value << ")");
-	have_added = true;
-	newvalue += pack_uint(valueno);
-	newvalue += pack_string(value);
-    }
-
-    add(key, newvalue);
+    make_key(key, did);
+    add(key, enc);
 }
 
 void
@@ -115,7 +91,7 @@ FlintValueTable::get_value(string & value,
 {
     DEBUGCALL(DB, void, "FlintValueTable::get_value", value << ", " << did << ", " << valueno);
     string key;
-    make_key(key, did, valueno);
+    make_key(key, did);
     string tag;
     bool found = get_exact_entry(key, tag);
 
@@ -147,7 +123,7 @@ FlintValueTable::get_all_values(map<Xapian::valueno, string> & values,
 {
     DEBUGCALL(DB, void, "FlintValueTable::get_all_values", "[values], " << did);
     string key;
-    make_key(key, did, 0);
+    make_key(key, did);
     string tag;
     bool found = get_exact_entry(key, tag);
 
@@ -171,6 +147,6 @@ FlintValueTable::delete_all_values(Xapian::docid did)
 {
     DEBUGCALL(DB, void, "FlintValueTable::delete_all_values", did);
     string key;
-    make_key(key, did, 0);
+    make_key(key, did);
     del(key);
 }

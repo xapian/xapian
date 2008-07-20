@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,6 +27,7 @@
 #include <string>
 
 #include <xapian/types.h>
+#include <xapian/valueiterator.h>
 #include "flint_table.h"
 
 using namespace std;
@@ -40,10 +41,6 @@ class FlintValueTable : public FlintTable {
 				 const char * end,
 				 Xapian::valueno * this_value_no,
 				 string & this_value);
-
-	/** Generate key representing docid/valueno pair.
-	 */
-	static void make_key(string & key, Xapian::docid did, Xapian::valueno valueno);
 
     public:
 	/** Create a new table object.
@@ -61,11 +58,14 @@ class FlintValueTable : public FlintTable {
 	FlintValueTable(string path_, bool readonly_)
 	    : FlintTable(path_ + "/value.", readonly_, DONT_COMPRESS, true) { }
 
-	/** Store a value.  If a value of the same document ID and
-	 *  value number already exists, it is overwritten by this.
+	/** Encode values as a string ready to add to the table.
 	 */
-	void add_value(const string & value, Xapian::docid did,
-		       Xapian::valueno valueno);
+	void encode_values(string & s,
+			   Xapian::ValueIterator it,
+			   const Xapian::ValueIterator & end);
+
+	/** Set values for document @a did encoded as a string. */
+	void set_encoded_values(Xapian::docid did, const string & enc);
 
 	/** Get a value.
 	 *
