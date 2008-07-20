@@ -1,3 +1,7 @@
+Sun Jul 20 10:11:28 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Fix typo.
+
 Wed Jul 16 04:27:06 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS: Wrap an overlong line, and tweak wording in a couple of

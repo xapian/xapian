@@ -51,7 +51,7 @@ matcher:
   improve the estimate a little in such cases.
 
 * Fix problem on x86 with the top match getting 99% rather than 100% (caused
-  by excess precision in an ntermediate value).
+  by excess precision in an intermediate value).
 
 flint backend:
 
