@@ -1,23 +1,96 @@
 up to:
-Mon Jul 14 05:13:55 GMT 2008  Olly Betts <olly@survex.com>
+Sun Jul 20 10:09:36 GMT 2008  Olly Betts <olly@survex.com>
+
+Potential backport fodder:
+
+Sun Jul 20 09:13:32 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/flint/,bin/xapian-check-flint.cc,bin/xapian-check-flint.h,
+	  bin/xapian-compact.cc: Store the tablename in FlintTable as a const
+	  char * - it's a constant string and std::string adds a needless
+	  space overhead.
+
+Sun Jul 20 09:10:49 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/xapian-check.cc: Follow-on fix for last change - we need to use
+	  strcmp() to compare C strings.
+
+Sat Jul 19 14:19:58 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/chert/chert_values.cc,
+	  backends/chert/chert_values.h: Fix WritableDatabase::add_document()
+	  and replace_document() not to be O(n*n) in the number of values in
+	  the new document.
+	* backends/flint/flint_database.cc,backends/flint/flint_values.cc,
+	  backends/flint/flint_values.h: Backport fix to flint.
+	* tests/api_wrdb.cc: Add testcase bigoaddvalue to make sure we don't
+	  regress to O(n*n) (or worse!)
+
+Fri Jul 18 13:24:43 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_wrdb.cc: Rewrite lazytablebug1 testcase to avoid having
+	  to run xapian-compact.
+
+Fri Jul 18 11:59:42 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_table.cc: Fix handling of a table created
+	  lazily after the database has had commits, and which is then
+	  cursored while still in sequential mode.
+	* backends/flint/flint_table.cc: Backport fix to flint.
+	* tests/api_wrdb.cc: Add testcase lazytablebug1.
+
+Fri Jul 18 02:38:22 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_wrdb.cc,tests/harness/testrunner.cc,
+	  tests/harness/testrunner.h: Add "synonyms" test backend property
+	  and use it to decide where to run synonym tests so they get run on
+	  chert too.  Move virtual TestRunner destructor out of the header.
+	  Don't skip all the spelling tests on chert.
+
+Fri Jul 18 00:56:17 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_wrdb.cc: Eliminate literal top-bit-set characters.
+
+Fri Jul 18 00:40:06 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_values.cc: Kill superfluous else tokens.
+
+Thu Jul 17 13:00:55 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_table.cc,backends/chert/chert_table.h:
+	  Eliminate other_base_letter member of ChertTable - its value can
+	  always be easily determined from base_letter.
+
+Thu Jul 17 12:24:19 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc: Add space after catch for
+	  consistency.
+
+Thu Jul 17 11:51:57 GMT 2008  Olly Betts <olly@survex.com>
+
+	* examples/copydatabase.cc: Use C++ forms of C headers.  Only treat
+	  '\' as a directory separator on platforms where it is.  Update
+	  counter every 13 counting up to the end so that the digits all
+	  "rotate" and the counter ends up on the exact total.
 
 HEAD only:
 
-	* configure.ac,HACKING: Hard require autoconf 2.62 and automake 1.10.1.
 	  Move all information about particular autoconf and automake versions
 	  to HACKING.
 	* configure.ac: Use LT_INIT in preference to AC_PROG_LIBTOOL.  On
 	  Linux and k*bsd-gnu, override libtool's link_all_deplibs_CXX to
 	  "no".  On Linux, override libtool's sys_lib_dlsearch_path_spec to a
 	  list generated in a more reliable way which includes *all* the
-	  default directories.  Remove workaround which sets docdir for
+	  default directories.
+	* configure.ac: The workaround to avoid probe code for F77, GCJ, and
+	  RC being added to configure is no longer required now that we're
+	  using libtool 2.2 so remove it.
+	* configure.ac,HACKING: Hard require autoconf 2.62 and automake 1.10.1.
+	  Remove workaround which sets docdir for
 	  autoconf < 2.60 since we now require 2.62.
 	* xapian-core.spec.in: We no longer need to run autoreconf to work
 	  around libtool's incomplete sys_lib_dlsearch_path_spec or to pick
 	  up distro-specific patches for link_all_deplibs.
-	* configure.ac: The workaround to avoid probe code for F77, GCJ, and
-	  RC being added to configure is no longer required now that we're
-	  using libtool 2.2 so remove it.
 	* Makefile.am,acinclude.m4,autoconf/dir_contents,
 	  autoconf/rjb_find_stlport.m4,autoconf/type_socklen_t.m4,
 	  m4/dir_contents,m4/rjb_find_stlport.m4,m4/type_socklen_t.m4: Move
@@ -31,13 +104,6 @@ HEAD only:
 	  uninstalled xapian-core.
 	* Makefile.am,configure.ac: Use AC_CONFIG_MACRO_DIR and
 	  ACLOCAL_AMFLAGS as libtoolize 2.2.4 recommends.
-
-	* matcher/externalpostlist.cc: Fix segfault if get_maxweight() is
-	  called when the postlist has reached end.  This happens if the
-	  end is reached during decay of an AND_MAYBE postlist to an AND.
-	* common/postlist.h,matcher/: Add comments documenting that
-	  recalc_maxweight() may be called after the postlist has reached
-	  the end, and noting why this is safe in various cases.
 
 	* api/postingsource.cc,include/xapian/postingsource.h: Add an
 	  alternative constructor for ValueWeightPostingSource which allows
@@ -135,16 +201,6 @@ HEAD only:
 	* tests/api_anydb.cc: Modify check for running on a multi backend
 	  to copy with getting a string back from get_dbtype().
 
-	* tests/perftest/perftest.cc: Include the xapian version string in
-	  the test output.  For runs from SVN, also include the subversion
-	  revision number and branch in the output.
-
-	* configure.ac,tests/,tests/perftest/,tests/perftest_matchdecider.cc,
-	  tests/perftest_randomidx.cc: Move performance test source files
-	  into a subdirectory.  Modify output of performance tests to
-	  include some basic system information, and also to include
-	  details of the parameters used to perform indexing tests.
-
 	* api/omenquire.cc,common/,expand/Makefile.mk,expand/esetinternal.cc,
 	  expand/expand.cc: Rewrite class ESet::Internal, incorporating the
 	  functionality which used to be in the internal OmExpand class.  The
@@ -152,13 +208,6 @@ HEAD only:
 	  nth_element() repeatedly - this should reduce the complexity of the
 	  expand operation by a factor of n/log(n) where n is the requested
 	  ESet size.
-
-	* tests/harness/testrunner.cc,tests/harness/testrunner.h: Add
-	  condition to test if the backend is "inmemory".
-	* tests/perftest_randomidx.cc: Change the run size from 1000
-	  documents to 1000000.  Disable this test for the inmemory
-	  backend, because it will quickly use up all the memory on the
-	  machine.
 
 	* api/Makefile.mk,api/omquery.cc,api/omqueryinternal.cc,
 	  include/Makefile.mk,include/xapian.h,include/xapian/query.h,matcher/,
@@ -196,12 +245,6 @@ HEAD only:
 	  the database rather than raising an exception if the term is not
 	  present in the mset.
 
-	* tests/: Use copies of freemem.cc and freemem.h from omega to report
-	  the free physical memory at each stage of indexing.  Also, add a
-	  get_total_physical_memory() function to this, and report its
-	  value at the top of the results file (only tested on Linux so
-	  far).
-
 	* api/omdatabase.cc,backends/database.cc,backends/flint/,
 	  common/database.h,include/xapian/database.h: Add
 	  metadata_keys_begin() and metadata_keys_end() methods to
@@ -211,23 +254,6 @@ HEAD only:
 	  and is very easy to implement.  Only accesses the keys in the
 	  first database in a multidatabase situation (which corresponds
 	  with the current behaviour of get_metadata()).
-
-	* tests/perftest.cc,tests/perftest.h: Log indexing runs every 5
-	  seconds, as well as after every 1000 documents - gives useful
-	  information for slow index runs.
-	* tests/Makefile.am,tests/perftest_randomidx.cc: Add a new
-	  performance test which builds a randomly generated index, and
-	  times the index run.  Probably wants a bit more tweaking to make
-	  it slightly more representative, but should be a useful test to
-	  run on systems where downloading a large amount of data is
-	  impractical.
-	* tests/perftest.cc: Flush after each write, so we can monitor
-	  progress of long running tests (we might need to remove this
-	  again later, if profiling shows it has a noticeable impact).  Fix
-	  two calls to write() to be a single call.
-	* tests/perftest_randomidx.cc: Add values to different slots; I'd
-	  added them all to slot 0 by mistake, so they were overwriting
-	  each other.
 
 	* Makefile.am,tests/,tests/harness/,tests/perftest.cc,tests/perftest.h,
 	  tests/perftest_matchdecider.cc: Rework the test collation
@@ -364,7 +390,7 @@ matcher:
   improve the estimate a little in such cases.
 
 * Fix problem on x86 with the top match getting 99% rather than 100% (caused
-  by excess precision in intermediate value).
+  by excess precision in an intermediate value).
 
 flint backend:
 
@@ -408,15 +434,16 @@ quartz backend:
 
 remote backend:
 
-* Improve performance of matches with multiple databases at least one of which is
-  remote, and when the top hit is from a remote database (bug#279).
+* Improve performance of matches with multiple databases at least one of which
+  is remote, and when the top hit is from a remote database (bug#279).
 
 * When remote protocol version doesn't match, the error message displayed 
   now shows the minor version number supplied by the server correctly.
 
 * We now wait for the connection to close after sending MSG_SHUTDOWN for a
   WritableDatabase, which ensures that changes have been written to disk
-  and the lock released.
+  and the lock released before the WritableDatabase destructor returns
+  (as is the case with a local database).
 
 * We no longer ever send MSG_SHUTDOWN for a read-only Database - just closing
   the connection is enough (and is protocol compatible).
