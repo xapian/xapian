@@ -1,3 +1,10 @@
+Mon Jul 21 12:22:02 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: Put the bug report URL as the third parameter to
+	  AC_INIT.  Add proper m4 quoting in a few places (nowhere that
+	  should actually change behaviour).  Use "dnl" comments in preference
+	  to "#" comments to help reduce the size of the configure script.
+
 Wed Jul 16 17:45:42 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/: Rename test files to end with ...2.py, and add versions
