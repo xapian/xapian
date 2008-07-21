@@ -1,3 +1,7 @@
+Mon Jul 21 12:33:54 GMT 2008  Olly Betts <olly@survex.com>
+
+	* xapian-config.in: Add bug report URL to xapian-config --help output.
+
 Mon Jul 21 11:55:18 GMT 2008  Olly Betts <olly@survex.com>
 
 	* configure.ac: Put the bug report URL as the third parameter to
