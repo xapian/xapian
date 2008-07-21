@@ -1,36 +1,26 @@
 dnl Process this file with autoconf to produce a configure script.
 
-dnl Need autoconf 2.50 or later for many features
-dnl automake 1.6.3 requires autoconf 2.54
-dnl autoconf 2.59 is what xapian-core requires, so be consistent
-AC_PREREQ(2.59)
-AC_INIT(xapian-omega, 1.0.7)dnl FIXME: bugreport addr as third argument
-dnl Need 1.5 for AM_CXXFLAGS, etc; 1.6.3 for AM_INIT_AUTOMAKE with no args
-dnl 1.8.5 contains a lot of fixes over 1.6.3
-dnl 1.9 reduces Makefile.in size, and 1.9.5 was in Debian sarge
-dnl But the RPM spec file runs autoreconf, and SLES 9 has 1.8.3.
-AM_INIT_AUTOMAKE([1.8.3 -Wportability tar-ustar])
+AC_INIT([xapian-omega], [1.0.7], [http://xapian.org/bugs])
+AC_PREREQ([2.62])
+AM_INIT_AUTOMAKE([1.10.1 -Wportability tar-ustar])
 
-AC_CONFIG_SRCDIR(omega.cc)
+AC_CONFIG_SRCDIR([omega.cc])
 
-AC_CONFIG_HEADERS(config.h)
+AC_CONFIG_HEADERS([config.h])
 
 AC_CONFIG_MACRO_DIR([m4])
 
-dnl Check for libxapian
-AC_PROG_LIBTOOL
+LT_PREREQ([2.2.4])
+LT_INIT
+
+dnl Check for xapian-core.
 XO_LIB_XAPIAN
-dnl We want XAPIAN_CXXFLAGS to be used for configure tests
+dnl We want XAPIAN_CXXFLAGS to be used for configure tests.
 CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"
 
 dnl disable "maintainer only" rules by default
 AM_MAINTAINER_MODE
 
-dnl We only need to set docdir for compatibility with autoconf < 2.60 - this
-dnl code can be removed once we move to requiring autoconf 2.60 or newer.
-test -n "$docdir" || docdir='${datadir}/doc/${PACKAGE_TARNAME}'
-AC_SUBST(docdir)
- 
 AC_ARG_ENABLE(documentation,
   [AS_HELP_STRING([--enable-documentation], [enable make rules to rebuild documentation [default=maintainer-mode]])],
   [case ${enableval} in
