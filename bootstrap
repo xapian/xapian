@@ -27,6 +27,10 @@ fi
 trap 'echo "Bootstrap failed"' EXIT
 set -e
 
+# The variables which specify the autotools to use.
+autotools="AUTORECONF AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE ACLOCAL LIBTOOLIZE"
+
+# Tool for downloading a file from a URL (currently wget or curl).
 FETCH_URL_TOOL=
 
 lazy_build() {
@@ -35,8 +39,8 @@ lazy_build() {
   ext=$3
   checksum=$4
   tarball=$basename.$ext
-  # Create the stamp file in INST so that rerunning bootstrap after "rm -rf INST"
-  # recovers nicely.
+  # Create the stamp file in INST so that rerunning bootstrap after
+  # "rm -rf INST" recovers nicely.
   stamp=../INST/$package.stamp
 
   # Temporary measure to "upgrade" from having the stamp file in BUILD.  Doing
@@ -55,7 +59,7 @@ lazy_build() {
 	FETCH_URL_TOOL=${CURL-curl}
       else
 	echo "Neither wget nor curl found - set WGET or CURL to the full path," >&2
-	echo "or download $url to directory `pwd` by hand and return this script." >&2
+	echo "or download $url to directory `pwd` by hand and rerun this script." >&2
 	exit 1
       fi
     fi
@@ -126,10 +130,9 @@ else
   lazy_build automake 1.10.1 tar.bz2 cd2e0f7054d4edc75cbf87cd8a92962b3b417b74
   lazy_build libtool 2.2.4 tar.bz2 bc485fd07c8b12820234240e9ef41dba693af2b7
 
-  for t in autoreconf autoconf autoheader autom4te automake aclocal libtoolize
-  do
-     var=`echo "$t"|tr a-z A-Z`
-     eval "$var=\"\$instdir\"/bin/$t;export $var"
+  for v in $autotools ; do
+     tool=`echo "$v"|tr A-Z a-z`
+     eval "$v=\"\$instdir\"/bin/$tool;export $v"
   done
 
   cd ..
@@ -151,7 +154,7 @@ esac
 
 ACLOCAL="${ACLOCAL-aclocal} -I `pwd`/xapian-core/m4-macros"
 
-SWIG=
+intree_swig=no
 # Don't try to build xapian-applications/dbtools or xapview - they need work.
 # As does cvssearch.
 # We no longer snapshot xapian-applications/queryserver since it hasn't seen a
@@ -182,7 +185,7 @@ for module in xapian-core xapian-applications/omega swig xapian-bindings ; do
       ./autogen.sh || autoreconf_rc=$?
       cd "$curdir"
       # Use the uninstalled wrapper for the in-tree copy of SWIG.
-      SWIG="\$here/swig/preinst-swig"
+      intree_swig=yes
     else
       # Use --install as debian's autoconf wrapper uses 2.5X if it sees it
       # (but it doesn't check for -i).
@@ -251,13 +254,31 @@ srcdir="$srcdir_abs"
 modules="$modules"
 MIDDLE_OF_CONFIGURE
 
-for tool in SWIG AUTORECONF AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE ACLOCAL LIBTOOLIZE ; do
+vars=
+if [ yes = "$intree_swig" ] ; then
+  # We want the path to SWIG to point into srcdir, which isn't known until
+  # configure-time, so we need to expand $here in configure.  We can't just set
+  # SWIG here and let the case below handle it as that would escape the value
+  # such that $here didn't get expanded at all.
+  echo ': ${SWIG="$here/swig/preinst-swig"}' >> configure.tmp
+  echo "export SWIG" >> configure.tmp
+  vars=' SWIG=$here/swig/preinst-swig'
+  # Kill any existing setting of SWIG so that we don't try to handle it again
+  # below.
+  SWIG=
+fi
+for tool in SWIG $autotools ; do
   eval "val=\$$tool"
   if [ -n "$val" ] ; then
-     echo ': ${'"$tool=$val"'}' >> configure.tmp
-     echo "export $tool" >> configure.tmp
+    echo ': ${'"$tool=\"$val\""'}' >> configure.tmp
+    echo "export $tool" >> configure.tmp
+    vars="$vars $tool='"`echo "$val"|sed 's/\(['"\\'"']\)/\\\1/g'`"'"
   fi
 done
+if [ -n "$vars" ] ; then
+  # $vars will always have a leading space.
+  echo "set$vars "'"$@"' >> configure.tmp
+fi
 
 cat <<'END_OF_CONFIGURE' >> configure.tmp
 dirs=
