@@ -2018,7 +2018,7 @@ DEFINE_TESTCASE(writeread1, writable && metadata) {
     return true;
 }
 
-DEFINE_TESTCASE(lazytablebug1, writable && (flint || chert)) {
+DEFINE_TESTCASE(lazytablebug1, writable && flint) {
     {
 	Xapian::WritableDatabase db = get_named_writable_database("lazytablebug1", string());
 

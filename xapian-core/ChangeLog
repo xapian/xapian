@@ -1,3 +1,8 @@
+Mon Jul 21 11:47:42 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_wrdb.cc: Fix lazytablebug1 patch backport not to mention
+	  chert in the testcase.
+
 Sun Jul 20 15:24:34 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
