@@ -118,6 +118,10 @@ class ApiTestRunner : public TestRunner
     int run() const {
 	int result = 0;
 #include "api_collated.h"
+	test_driver::report(test_driver::subtotal,
+			    "backend " + backendmanager->get_dbtype());
+	test_driver::total += test_driver::subtotal;
+	test_driver::subtotal.reset();
 	return result;
     }
 };

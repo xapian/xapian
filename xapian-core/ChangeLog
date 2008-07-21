@@ -1,3 +1,9 @@
+Mon Jul 21 01:03:12 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/apitest.cc,tests/harness/testsuite.cc,
+	  tests/harness/testsuite.h: Report subtotals per backend, rather than
+	  per testgroup per backend to make the output much clearer to scan.
+
 Mon Jul 21 00:36:07 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/apitest.cc: Use startswith().
