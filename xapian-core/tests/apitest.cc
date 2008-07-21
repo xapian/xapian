@@ -27,6 +27,7 @@
 
 #include "api_all.h"
 #include "backendmanager.h"
+#include "stringutils.h"
 #include "testrunner.h"
 #include "testsuite.h"
 
@@ -98,8 +99,7 @@ get_writable_database_again()
 void
 skip_test_unless_backend(const std::string & backend_prefix)
 {
-    std::string dbtype = get_dbtype();
-    if (dbtype.substr(0, backend_prefix.size()) != backend_prefix) {
+    if (!startswith(get_dbtype(), backend_prefix)) {
 	SKIP_TEST("Test only supported for " + backend_prefix + " backend");
     }
 }
@@ -107,8 +107,7 @@ skip_test_unless_backend(const std::string & backend_prefix)
 void
 skip_test_for_backend(const std::string & backend_prefix)
 {
-    std::string dbtype = get_dbtype();
-    if (dbtype.substr(0, backend_prefix.size()) == backend_prefix) {
+    if (startswith(get_dbtype(), backend_prefix)) {
 	SKIP_TEST("Test not supported for " + backend_prefix + " backend");
     }
 }
