@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT(xapian-core, 1.0.7)dnl FIXME: bugreport addr as third argument
+AC_INIT([xapian-core], [1.0.7], [http://xapian.org/bugs])
 dnl See HACKING document for details of the reasons for required versions.
 AC_PREREQ([2.62])
 dnl Extract from the libtool info manual:
@@ -110,9 +110,9 @@ fi
 
 dnl See HACKING document for details of the reasons for required versions.
 AM_INIT_AUTOMAKE([1.10.1 -Wportability tar-ustar])
-AC_CONFIG_SRCDIR(matcher/andpostlist.cc)
+AC_CONFIG_SRCDIR([matcher/andpostlist.cc])
 
-AC_CONFIG_HEADERS(config.h)
+AC_CONFIG_HEADERS([config.h])
 
 AC_CONFIG_MACRO_DIR([m4])
 
