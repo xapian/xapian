@@ -1,6 +1,6 @@
 /* commonhelp.cc: handle command line help common to omindex and scriptindex
  *
- * Copyright (C) 2005,2006 Olly Betts
+ * Copyright (C) 2005,2006,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -51,6 +51,6 @@ void print_help_and_version_help(const char * spaces, char short_version) {
     cout << "  -h, --help          " << spaces << "display this help and exit\n"
 	    "  -" << short_version << ", --version       " << spaces << "output version information and exit\n"
 	    "\n"
-	    "Please report bugs using bugzilla:\n"
-	    "http://www.xapian.org/bugs.php" << endl;
+	    "Please report bugs at:\n"
+	    PACKAGE_BUGREPORT << endl;
 }

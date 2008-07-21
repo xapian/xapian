@@ -1,3 +1,9 @@
+Mon Jul 21 12:27:48 GMT 2008  Olly Betts <olly@survex.com>
+
+	* commonhelp.cc: Use PACKAGE_BUGREPORT instead of hardcoding the bug
+	  report URL.  Remove reference to "bugzilla" as we now use trac
+	  instead.
+
 Mon Jul 21 11:58:25 GMT 2008  Olly Betts <olly@survex.com>
 
 	* configure.ac: Put the bug report URL as the third parameter to
