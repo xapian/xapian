@@ -319,7 +319,8 @@ for target in all install uninstall install-strip clean distclean mostlyclean ma
     esac
   done
   case $target in
-    distclean|maintainer-clean) echo "	rm -f Makefile configure config.cache" >> Makefile.tmp ;;
+    distclean) echo "	rm -f Makefile config.cache" >> Makefile.tmp ;;
+    maintainer-clean) echo "	rm -f Makefile configure config.cache" >> Makefile.tmp ;;
   esac
 done
 mv -f Makefile.tmp Makefile
