@@ -80,9 +80,7 @@ PWRITE_PROTOTYPE
 #include <string>
 #include <vector>
 
-using std::min;
-using std::string;
-using std::vector;
+using namespace std;
 
 // Only try to compress tags longer than this many bytes.
 const size_t COMPRESS_MIN = 4;
@@ -289,7 +287,7 @@ FlintTable::write_block(uint4 n, const byte * p) const
 
     if (both_bases) {
 	// Delete the old base before modifying the database.
-	sys_unlink(name + "base" + other_base_letter);
+	sys_unlink(name + "base" + other_base_letter());
 	both_bases = false;
 	latest_revision_number = revision_number;
     }
@@ -1577,9 +1575,6 @@ FlintTable::do_open_to_write(bool revision_supplied,
 
     buffer = zeroed_new(block_size);
 
-    // swap for writing
-    other_base_letter = base_letter == 'A' ? 'B' : 'A';
-
     changed_n = 0;
     changed_c = DIR_START;
     seq_count = SEQ_START_POINT;
@@ -1604,7 +1599,6 @@ FlintTable::FlintTable(const char * tablename_, string path_, bool readonly_,
 	  kt(0),
 	  buffer(0),
 	  base(),
-	  other_base_letter(0),
 	  name(path_),
 	  seq_count(0),
 	  changed_n(0),
@@ -1775,11 +1769,8 @@ FlintTable::commit(flint_revision_number_t revision, int changes_fd,
     base.set_have_fakeroot(faked_root_block);
     base.set_sequential(sequential);
 
-    {
-	int tmp = base_letter;
-	base_letter = other_base_letter;
-	other_base_letter = tmp;
-    }
+    base_letter = other_base_letter();
+
     both_bases = true;
     latest_revision_number = revision_number = revision;
     root = C[level].n;
