@@ -29,11 +29,12 @@ if [ x"$1" = x--help ] ; then
   exit 0
 fi
 
-SVNROOT=`svn info|sed 's/Repository Root: //p;d'`
+SVNROOT=`svn info|sed 's/^Repository Root: //p;d'`
 if [ -z "$SVNROOT" ] ; then
   echo "Not in SVN tree"
   exit 1
 fi
+SVNBASE=`svn info|sed 's/^URL: //p;d'`
 
 force=
 if [ x"$1" = x--force ] ; then
@@ -45,15 +46,14 @@ fi
 for module in ${*:-xapian-core xapian-bindings xapian-omega}
 do
   MODULE_NAME=$module
-  if [ xapian-omega = "$module" ]
-  then
+  if [ xapian-omega = "$module" ] ; then
     MODULE_NAME=xapian-applications/omega
   fi
 
   ERRLOG=`mktemp /tmp/svn-tag-debs.XXXXXXXXXX` || exit 1
 
-  VERSION=`svn cat $SVNROOT/trunk/$MODULE_NAME/debian/changelog 2>> "$ERRLOG" | head -n 1 | sed 's/^.*(\([^)]*\).*$/\1/'`
-  DEBTAG="${DEBTAG_BASE}${VERSION}"
+  VERSION=`svn cat "$SVNBASE/$MODULE_NAME/debian/changelog" 2>> "$ERRLOG" | head -n 1 | sed 's/^.*(\([^)]*\).*$/\1/'`
+  DEBTAG=${DEBTAG_BASE}${VERSION}
 
   if [ -z "$VERSION" ] ; then
     cat "$ERRLOG"
@@ -65,20 +65,20 @@ do
 
   echo "Tagging $MODULE_NAME as $DEBTAG"
 
-  svn ls $SVNROOT/tags/$DEBTAG/ >/dev/null 2>&1 || \
+  svn ls "$SVNROOT/tags/$DEBTAG/" >/dev/null 2>&1 || \
     svn mkdir -m "Tag for $DEBTAG release." \
-            $SVNROOT/tags/$DEBTAG/
+      "$SVNROOT/tags/$DEBTAG/"
 
   if [ -n "$force" ] ; then
     svn rm -m "Retagging $module for $DEBTAG release." \
-      $SVNROOT/tags/"$DEBTAG"/$module/
+      "$SVNROOT/tags/$DEBTAG/$module/"
     svn cp -m "Retagging $module for $DEBTAG release." \
-      $SVNROOT/trunk/$MODULE_NAME/debian \
-      $SVNROOT/tags/"$DEBTAG"/$module/
+      "$SVNBASE/$MODULE_NAME/debian" \
+      "$SVNROOT/tags/$DEBTAG/$module/"
   else
-    svn ls $SVNROOT/tags/$DEBTAG/$module/ >/dev/null 2>&1 || \
+    svn ls "$SVNROOT/tags/$DEBTAG/$module/" >/dev/null 2>&1 || \
       svn cp -m "Tagging $module for $DEBTAG release." \
-	$SVNROOT/trunk/$MODULE_NAME/debian \
-	$SVNROOT/tags/"$DEBTAG"/$module/
+	"$SVNBASE/$MODULE_NAME/debian" \
+	"$SVNROOT/tags/$DEBTAG/$module/"
   fi
 done
