@@ -1,9 +1,8 @@
 /* quartz_values.h: Values in quartz databases
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #ifndef OM_HGUARD_QUARTZ_VALUES_H
@@ -29,6 +27,7 @@
 #include <string>
 
 #include <xapian/types.h>
+#include <xapian/valueiterator.h>
 #include "btree.h"
 
 using namespace std;
@@ -42,10 +41,6 @@ class QuartzValueTable : public Btree {
 				 const char * end,
 				 Xapian::valueno * this_value_no,
 				 string & this_value);
-
-	/** Generate key representing docid/valueno pair.
-	 */
-	static void make_key(string & key, Xapian::docid did, Xapian::valueno valueno);
 
     public:
 	/** Create a new table object.
@@ -65,11 +60,14 @@ class QuartzValueTable : public Btree {
 	QuartzValueTable(string path_, bool readonly_)
 	    : Btree(path_ + "/value_", readonly_) { }
 
-	/** Store a value.  If a value of the same document ID and
-	 *  value number already exists, it is overwritten by this.
+	/** Encode values as a string ready to add to the table.
 	 */
-	void add_value(const string & value, Xapian::docid did,
-		       Xapian::valueno valueno);
+	void encode_values(string & s,
+			   Xapian::ValueIterator it,
+			   const Xapian::ValueIterator & end);
+
+	/** Set values for document @a did encoded as a string. */
+	void set_encoded_values(Xapian::docid did, const string & enc);
 
 	/** Get a value.
 	 *

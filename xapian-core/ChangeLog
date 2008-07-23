@@ -1,3 +1,10 @@
+Wed Jul 23 07:18:52 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_database.cc,backends/quartz/quartz_values.cc,
+	  backends/quartz/quartz_values.h: Backport fix from flint for
+	  WritableDatabase::add_document() and replace_document() not to be
+	  O(n*n) in the number of values in the new document.
+
 Mon Jul 21 11:47:42 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/api_wrdb.cc: Fix lazytablebug1 patch backport not to mention

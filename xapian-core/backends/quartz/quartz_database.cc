@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
  * Copyright 2006 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -741,10 +741,9 @@ QuartzWritableDatabase::add_document_(Xapian::docid did,
 	{
 	    Xapian::ValueIterator value = document.values_begin();
 	    Xapian::ValueIterator value_end = document.values_end();
-	    for ( ; value != value_end; ++value) {
-		database_ro.value_table.add_value(*value, did,
-						  value.get_valueno());
-	    }
+	    string s;
+	    database_ro.value_table.encode_values(s, value, value_end);
+	    database_ro.value_table.set_encoded_values(did, s);
 	}
 
 	quartz_doclen_t new_doclen = 0;
@@ -959,22 +958,14 @@ QuartzWritableDatabase::replace_document(Xapian::docid did,
 	// they come from where they're going!  Better to ask Document
 	// nicely and shortcut in this case!
 	{
-	    list<pair<string, Xapian::valueno> > tmp;
 	    Xapian::ValueIterator value = document.values_begin();
 	    Xapian::ValueIterator value_end = document.values_end();
-	    for ( ; value != value_end; ++value) {
-		tmp.push_back(make_pair(*value, value.get_valueno()));
-	    }
-//	    database_ro.value_table.add_value(*value, did, value.get_valueno());
+	    string s;
+	    database_ro.value_table.encode_values(s, value, value_end);
 
 	    // Replace the values.
 	    database_ro.value_table.delete_all_values(did);
-
-	    // Set the values.
-	    list<pair<string, Xapian::valueno> >::const_iterator i;
-	    for (i = tmp.begin(); i != tmp.end(); ++i) {
-		database_ro.value_table.add_value(i->first, did, i->second);
-	    }
+	    database_ro.value_table.set_encoded_values(did, s);
 	}
 
 	quartz_doclen_t new_doclen = 0;
