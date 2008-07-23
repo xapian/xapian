@@ -25,10 +25,8 @@ xapian-core (1.0.7-1) unstable; urgency=low
     longer valid - use section "Programming/C++" instead.
   * debian/xapian-doc.doc-base.xapian-intro: Section "Apps/Programming" is no
     longer valid - use section "Programming" instead.
-  * debian/rules,debian/control.in: Don't include the "${" and "}" in the
-    @BINARY_VERSION@ to avoid sed headaches.
 
- -- Olly Betts <olly@survex.com>  Thu, 17 Jul 2008 11:05:53 +0100
+ -- Olly Betts <olly@survex.com>  Wed, 23 Jul 2008 10:30:49 +0100
 
 xapian-core (1.0.5-1) unstable; urgency=low
 
