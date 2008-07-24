@@ -23,7 +23,11 @@
 CODENAME ?= $(shell cat debian/codename 2>/dev/null||echo sid)
 
 # Version without the "-N" suffix.
-XAPIAN_VERSION = $(shell sed 's/.*(\([^-]*\)\(-.*\)*).*/\1/;q' debian/changelog)
+XAPIAN_VERSION := $(shell sed 's/.*(\([^-]*\)\(-.*\)*).*/\1/;q' debian/changelog)
+
+# The next incompatible version - i.e. the first release of the next release
+# branch.  So for XAPIAN_VERSION "1.0.<n>", this should be "1.1.0".
+XAPIAN_VERSION_CEILING := $(shell echo '$(XAPIAN_VERSION)'|awk -F. '{print $$1"."$$2+1".0"}')
 
 # `--exclude=.EXT' arguments to pass dh_install
 DH_INSTALL_EXCLUDE := --exclude=.pyc --exclude=.pyo
@@ -150,7 +154,7 @@ RUBY_LIB_ARCH=$(shell $(RUBY) -rrbconfig -e 'puts Config::CONFIG["archdir"]')
 
 # We need a versioned build dependency on libxapian-dev.
 BUILD_DEPS += libxapian-dev (>= $(XAPIAN_VERSION)),# NB Trailing ',' required here!
-BUILD_DEPS += libxapian-dev (<= $(XAPIAN_VERSION)-9999),# NB Trailing ',' required here!
+BUILD_DEPS += libxapian-dev (<< $(XAPIAN_VERSION_CEILING)),# NB Trailing ',' required here!
 
 commonconfflags := \
 	$(confflags) \
