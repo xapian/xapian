@@ -1,7 +1,7 @@
 #!/bin/bash
 # Build packages in a chroot.
 #
-# Copyright (C) 2006,2007 Olly Betts
+# Copyright (C) 2006,2007,2008 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -22,7 +22,6 @@ set -e
 REPO_URL=http://www.xapian.org/debian-tmp
 
 LINTIAN_FLAGS="-l0 -I"
-LINDA_FLAGS="-t E,W,X,I"
 
 if [ x"$1" = x--help -o "$#" -lt 3 ] ; then
   echo "Usage: $0 CODENAME ARCH VERSION [PACKAGES...]"
@@ -132,4 +131,3 @@ else
 fi
 
 lintian $LINTIAN_FLAGS *.dsc "$POOL"/*.deb
-#linda $LINDA_FLAGS *.dsc "$POOL"/*.deb
