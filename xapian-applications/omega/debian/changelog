@@ -2,7 +2,7 @@ xapian-omega (1.0.7-1) unstable; urgency=low
 
   * New upstream release.
     + Overhaul the $highlight colour combinations since some were rather
-      unreadable.  Reported by Joey Hess.  Closes #484456
+      unreadable.  Reported by Joey Hess.  Closes: #484456
   * debian/copyright: Update for 2008 and a few other minor changes.
   * debian/control.in: Add "djvulibre-bin" to "Suggests:" as omindex can now
     make use of it to index DjVu files.
@@ -23,7 +23,7 @@ xapian-omega (1.0.7-1) unstable; urgency=low
     1.1.0 currently) and use that as the upper bound on the libxapian-dev
     build dependency).
 
- -- Olly Betts <olly@survex.com>  Thu, 24 Jul 2008 05:09:53 +0100
+ -- Olly Betts <olly@survex.com>  Fri, 25 Jul 2008 01:44:06 +0100
 
 xapian-omega (1.0.5-1) unstable; urgency=low
 
