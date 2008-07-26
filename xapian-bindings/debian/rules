@@ -223,7 +223,7 @@ debian/configure-stamp:
 	cd build-tcl-and-ruby && ../configure $(commonconfflags) \
 	    --with-tcl TCLSH=$(TCLSH) TCL_LIB=/usr/lib/tcltk \
 	    --with-ruby RUBY=$(RUBY) RUBY_LIB=$(RUBY_LIB) RUBY_LIB_ARCH=$(RUBY_LIB_ARCH)
-	$(FORCE_LINK_ALL_DEPLIBS_NO)
+	cd build-tcl-and-ruby && $(FORCE_LINK_ALL_DEPLIBS_NO)
 
 	touch $@
 
