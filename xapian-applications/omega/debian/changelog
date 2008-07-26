@@ -22,8 +22,10 @@ xapian-omega (1.0.7-1) unstable; urgency=low
   * debian/rules: Calculate the version starting the next release branch (so
     1.1.0 currently) and use that as the upper bound on the libxapian-dev
     build dependency).
+  * debian/rules: Force link_all_deplibs=no so libtool doesn't try to
+    explicitly link with -lz.
 
- -- Olly Betts <olly@survex.com>  Fri, 25 Jul 2008 01:44:06 +0100
+ -- Olly Betts <olly@survex.com>  Sat, 26 Jul 2008 12:04:33 +0100
 
 xapian-omega (1.0.5-1) unstable; urgency=low
 
