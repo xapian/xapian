@@ -95,7 +95,8 @@ configure-stamp:
 
 	# Force link_all_deplibs=no so libtool doesn't try to explicitly link
 	# with -lz.
-	perl -pi -e 's/^link_all_deplibs=unknown/link_all_deplibs=no/' libtool
+	perl -pi -e 's/^link_all_deplibs=unknown/link_all_deplibs=no/' \
+	    build/libtool
 
 	# Touch the stamp file, to avoid repeating the configure step.
 	touch $@
