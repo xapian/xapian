@@ -2261,7 +2261,7 @@ Tue Mar 04 17:41:38 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 Thu Feb 28 16:41:34 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
-	* common/remoteconnection.h: Include safeunistd.h, to get correct
+	* common/remoteconnection.h: Include safeunistd.h, to get correct
 	  typedef for off_t on windows - previously, the size of the
 	  RemoteConnection class was varying depending on the order in
 	  which header files were included, resulting in memory corruption.
@@ -7256,7 +7256,7 @@ Mon May 21 10:26:01 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 Mon May 21 10:09:34 BST 2007  Olly Betts <olly@survex.com>
 
-	* tests/harness/testsuite.h: Put quotes around strings when reporting
+	* tests/harness/testsuite.h: Put quotes around strings when reporting
 	  a failure in TEST_STRINGS_EQUAL().
 
 Mon May 21 10:08:18 BST 2007  Olly Betts <olly@survex.com>
