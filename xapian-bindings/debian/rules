@@ -203,7 +203,7 @@ debian/configure-stamp:
 	    cd build-$$python; \
 	    ../configure $(commonconfflags) --with-python \
 		PYTHON=/usr/bin/$$python; \
-	    $(FORCE_LINK_ALL_DEPLIBS_NO) \
+	    $(FORCE_LINK_ALL_DEPLIBS_NO); \
 	    cd ..; \
 	done
 
@@ -214,7 +214,7 @@ debian/configure-stamp:
 		mkdir -p build-php$$v; \
 		cd build-php$$v; \
 		../configure $(commonconfflags) --with-php PHP_CONFIG=$$c; \
-		$(FORCE_LINK_ALL_DEPLIBS_NO) \
+		$(FORCE_LINK_ALL_DEPLIBS_NO); \
 		cd ..; \
 	    fi \
 	done
