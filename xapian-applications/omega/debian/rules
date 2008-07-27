@@ -89,14 +89,13 @@ configure-stamp:
 	ln -s /usr/share/misc/config.sub config.sub
 	ln -s /usr/share/misc/config.guess config.guess
 
+	# Use Debian's patched libtool to avoid trying to explicitly link with
+	# -lz.  Just forcing link_all_deplibs=no doesn't help here.
+	libtoolize --automake --force
+
 	# Configure in a subdirectory, for neatness.
 	mkdir -p build
 	cd build && ../configure $(commonconfflags)
-
-	# Force link_all_deplibs=no so libtool doesn't try to explicitly link
-	# with -lz.
-	perl -pi -e 's/^link_all_deplibs=unknown/link_all_deplibs=no/' \
-	    build/libtool
 
 	# Touch the stamp file, to avoid repeating the configure step.
 	touch $@
