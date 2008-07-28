@@ -64,6 +64,9 @@ commonconfflags := \
 	--prefix=/usr \
 	--sysconfdir=/etc
 
+# Needed for dapper where we end up using automake1.9
+commonconfflags += --mandir=/usr/share/man
+
 # With GCC3 and later this won't make a huge difference, but it'll save
 # a bit of time and diskspace while building.
 commonconfflags += --disable-dependency-tracking
