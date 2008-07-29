@@ -111,8 +111,8 @@ debian/libxapian$(libxapian_dev_soversion)-dev.install: debian/rules debian/libx
 	cp -f debian/libxapianVERSION-dev.install debian/libxapian$(libxapian_dev_soversion)-dev.install
 
 
-configure: debian/control configure-stamp
-configure-stamp:
+configure: configure-stamp
+configure-stamp: debian/control
 	dh_testdir
 
 	# Use the latest config.sub and config.guess from the autotools-dev
@@ -133,8 +133,8 @@ configure-stamp:
 	# Touch the stamp file, to avoid repeating the configure step.
 	touch $@
 
-build: configure build-stamp
-build-stamp:
+build: build-stamp
+build-stamp: configure
 	dh_testdir
 	$(MAKE) -C build all $(CHECKTARGET)
 	touch $@
