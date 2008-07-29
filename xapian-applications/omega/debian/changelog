@@ -1,3 +1,9 @@
+xapian-omega (1.0.7-2) unstable; urgency=low
+
+  * debian/rules: Fix build rule to be parallel make safe.
+
+ -- Olly Betts <olly@survex.com>  Tue, 29 Jul 2008 01:36:59 +0100
+
 xapian-omega (1.0.7-1) unstable; urgency=low
 
   * New upstream release.

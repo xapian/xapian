@@ -103,8 +103,8 @@ configure-stamp:
 	# Touch the stamp file, to avoid repeating the configure step.
 	touch $@
 
-build: configure build-stamp
-build-stamp:
+build: build-stamp
+build-stamp: configure
 	dh_testdir
 	$(MAKE) -C build all $(CHECKTARGET)
 	touch $@
