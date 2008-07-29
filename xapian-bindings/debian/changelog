@@ -1,8 +1,11 @@
 xapian-bindings (1.0.7-2) unstable; urgency=low
 
   * debian/rules: Fix build rule to be parallel make safe.
+  * debian/rules: Back out link_all_deplibs=no change made in 1.0.7-1 since
+    the bindings shared objects weren't getting an explicit dependency on zlib
+    anyway.
 
- -- Olly Betts <olly@survex.com>  Tue, 29 Jul 2008 01:38:50 +0100
+ -- Olly Betts <olly@survex.com>  Tue, 29 Jul 2008 15:25:56 +0100
 
 xapian-bindings (1.0.7-1) unstable; urgency=low
 
