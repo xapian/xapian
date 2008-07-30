@@ -1,3 +1,7 @@
+Wed Jul 30 14:42:04 GMT 2008  Olly Betts <olly@survex.com>
+
+	* generate-exceptions.in: Use std::string() in preference to "".
+
 Tue Jul 29 23:55:21 GMT 2008  Olly Betts <olly@survex.com>
 
 	* AUTHORS: Add Henrik Brix Andersen.
