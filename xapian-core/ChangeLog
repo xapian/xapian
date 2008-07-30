@@ -1,3 +1,9 @@
+Wed Jul 30 23:10:19 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/database.cc: Bad lines in a stub file were being ignored
+	  after we'd seen a good entry.
+	* tests/api_db.cc: Add regression test.
+
 Wed Jul 30 14:42:04 GMT 2008  Olly Betts <olly@survex.com>
 
 	* generate-exceptions.in: Use std::string() in preference to "".

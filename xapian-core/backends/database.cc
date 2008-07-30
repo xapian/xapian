@@ -113,6 +113,7 @@ open_stub(Database *db, const string &file)
 	if (space == string::npos)
 	    continue;
 
+	ok = false;
 	string type = line.substr(0, space);
 	line.erase(0, space + 1);
 	if (type == "auto") {

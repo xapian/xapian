@@ -99,6 +99,29 @@ DEFINE_TESTCASE(stubdb1, flint) {
     return true;
 }
 
+// Regression test - bad entries were ignored after a good entry prior to 1.0.8.
+DEFINE_TESTCASE(stubdb2, flint) {
+    {
+	// Create the database needed; this is why we require the flint backend.
+	(void) get_database("apitest_simpledata");
+    }
+    ofstream out("stubdb2");
+    TEST(out.is_open());
+    out << "auto .flint/db=apitest_simpledata\n"
+	   "bad line here\n";
+    out.close();
+
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+	Xapian::Database db = Xapian::Auto::open_stub("stubdb2"));
+
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+	Xapian::Database db("stubdb2"));
+
+    unlink("stubdb2");
+
+    return true;
+}
+
 #if 0 // the "force error" mechanism is no longer in place...
 class MyErrorHandler : public Xapian::ErrorHandler {
     public:
