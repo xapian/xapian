@@ -1,3 +1,8 @@
+Thu Jul 31 09:36:41 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_replicate.cc: This is a new file, so use <cstdlib> rather
+	  than <stdlib.h>.
+
 Wed Jul 30 23:10:19 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/database.cc: Bad lines in a stub file were being ignored
