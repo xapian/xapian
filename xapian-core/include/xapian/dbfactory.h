@@ -45,14 +45,25 @@ namespace Auto {
 XAPIAN_VISIBILITY_DEFAULT
 Database open_stub(const std::string &file);
 
+/** Construct a WritableDatabase object for a stub database file.
+ *
+ * The stub database file must contain serialised parameters for exactly one
+ * database.
+ *
+ * @param file  pathname of the stub database file.
+ */
+XAPIAN_VISIBILITY_DEFAULT
+WritableDatabase open_stub(const std::string &file, int action);
+
 }
 
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
 namespace InMemory {
 
-/** Construct a Database object for update access to an InMemory database.
+/** Construct a WritableDatabase object for a new, empty InMemory database.
  *
- * A new, empty database is created for each call.
+ *  Only a writable InMemory database can be created, since a read-only one
+ *  would always remain empty.
  */
 XAPIAN_VISIBILITY_DEFAULT
 WritableDatabase open();

@@ -72,9 +72,8 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 
 	bool transaction_active() const { return int(transaction_state) > 0; }
 
-	/** Create a database - called only by derived classes.
-	 */
-	Internal();
+	/** Create a database - called only by derived classes. */
+	Internal() : transaction_state(TRANSACTION_NONE) { }
 
 	/** Internal method to perform cleanup when a writable database is
 	 *  destroyed with unflushed changes.

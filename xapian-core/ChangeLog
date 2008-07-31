@@ -1,3 +1,21 @@
+Thu Jul 31 13:13:30 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/Makefile.mk,backends/database.cc,backends/dbfactory.cc,
+	  common/database.h,include/xapian/dbfactory.h: Add new
+	  Auto::open_stub() overload which opens a stub database file
+	  containing a single entry as a WritableDatabase.  Move the
+	  non-remote database factory API functions from backends/database.cc
+	  to new file backends/dbfactory.cc, leaving the former solely for
+	  methods of Database::Internal.  A stub database file is now allowed
+	  to contain no database entries, which results in an empty Database
+	  object (this avoids user code having to special case to handle "0 or
+	  more" databases).
+	* tests/api_nodb.cc: Tidy up #include directives.  Enhance nosuchdb1
+	  to check that we get a reasonable error message - previously we
+	  got "Couldn't detect type of database".
+	* include/xapian/dbfactory.h: Improve doxygen comment for
+	  InMemory::open().
+
 Thu Jul 31 09:36:41 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/api_replicate.cc: This is a new file, so use <cstdlib> rather
