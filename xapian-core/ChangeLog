@@ -1,3 +1,7 @@
+Sat Aug 02 04:36:48 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/apitest.h: Use std::string() in preference to "".
+
 Sat Aug 02 04:35:13 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/dbfactory.cc: Fix handling of new "inmemory" type in stub
