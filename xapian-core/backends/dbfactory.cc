@@ -112,6 +112,7 @@ open_stub(Database &db, const string &file)
 
 	string type(line, 0, space);
 	line.erase(0, space + 1);
+
 	if (type == "auto") {
 	    db.add_database(Database(join_paths(stubdir, line)));
 	    continue;
@@ -158,7 +159,7 @@ open_stub(Database &db, const string &file)
 	}
 #endif
 
-	if (line == "inmemory") {
+	if (type == "inmemory" && line.empty()) {
 	    db.add_database(InMemory::open());
 	    continue;
 	}
@@ -210,6 +211,7 @@ open_stub(WritableDatabase &db, const string &file, int action)
 
 	string type(line, 0, space);
 	line.erase(0, space + 1);
+
 	if (type == "auto") {
 	    db.add_database(WritableDatabase(join_paths(stubdir, line),
 					     action));
@@ -257,7 +259,7 @@ open_stub(WritableDatabase &db, const string &file, int action)
 	}
 #endif
 
-	if (line == "inmemory") {
+	if (type == "inmemory" && line.empty()) {
 	    db.add_database(InMemory::open());
 	    continue;
 	}
