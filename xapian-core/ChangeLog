@@ -1,3 +1,13 @@
+Sat Aug 02 04:43:45 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_db.cc,tests/apitest.cc: Make use of new
+	  BackendManager::get_database_path() to eliminate knowledge of
+	  BackendManagerFlint's implementation from test stubdb1.  Put the
+	  stubdb files in a .stub subdirectory and don't remove them after
+	  each test to aid debugging failing tests.  Also now run stubdb tests
+	  under chert and multi backends.  Add more stubdb tests for the
+	  recently added features.
+
 Sat Aug 02 04:39:08 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/harness/: Adjust the BackendManager interface to reduce code

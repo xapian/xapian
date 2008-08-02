@@ -58,6 +58,12 @@ get_database(const string &dbname, const string &dbname2)
     return backendmanager->get_database(dbnames);
 }
 
+string
+get_database_path(const string &dbname)
+{
+    return backendmanager->get_database_path(dbname);
+}
+
 Xapian::WritableDatabase
 get_writable_database(const string &dbname)
 {
