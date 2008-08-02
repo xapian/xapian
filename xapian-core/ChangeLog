@@ -1,3 +1,9 @@
+Sat Aug 02 01:49:35 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am: Remove the cached test databases in before
+	  running the testsuite by making check-local do the same as
+	  clean-local.
+
 Sat Aug 02 01:42:36 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/dbfactory.cc: Add support for "inmemory" to stub database
