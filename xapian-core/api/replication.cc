@@ -462,11 +462,8 @@ DatabaseReplica::Internal::remove_offline_db()
 {
     if (offline_name.empty())
 	return;
-    string offline_path = join_paths(path, offline_name);
-    // Close and then delete the database.
-    if (dir_exists(offline_path)) {
-	removedir(offline_path);
-    }
+    // Delete the database.
+    removedir(join_paths(path, offline_name));
     offline_name.resize(0);
 }
 
@@ -489,9 +486,7 @@ DatabaseReplica::Internal::apply_db_copy(const OmTime & end_time)
 	offline_name = live_name.substr(0, live_name.size() - 1) + "0";
     }
     string offline_path = join_paths(path, offline_name);
-    if (dir_exists(offline_path)) {
-	removedir(offline_path);
-    }
+    removedir(offline_path);
     if (mkdir(offline_path, 0777)) {
 	throw Xapian::DatabaseError("Cannot make directory '" +
 				    offline_path + "'", errno);

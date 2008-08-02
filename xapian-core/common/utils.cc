@@ -142,6 +142,7 @@ removedir(const string &dirname)
 
     dir = opendir(dirname.c_str());
     if (dir == NULL) {
+	if (errno == ENOENT) return;
 	throw Xapian::DatabaseError("Cannot open directory '" + dirname + "'", errno);
     }
 
