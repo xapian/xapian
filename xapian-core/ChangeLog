@@ -1,3 +1,9 @@
+Sat Aug 02 01:42:36 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/dbfactory.cc: Add support for "inmemory" to stub database
+	  files (it's useful now they can be writable).  Don't just ignore
+	  lines with no spaces in in stub database files.
+
 Thu Jul 31 13:13:30 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/Makefile.mk,backends/database.cc,backends/dbfactory.cc,

@@ -95,8 +95,7 @@ open_stub(Database &db, const string &file)
     // A stub database is a text file with one or more lines of this format:
     // <dbtype> <serialised db object>
     //
-    // Lines which start with a "#" character, and lines which have no spaces
-    // in them, are ignored.
+    // Lines which start with a "#" character are ignored.
     //
     // Any paths specified in stub database files which are relative will be
     // considered to be relative to the directory containing the stub database.
@@ -109,8 +108,7 @@ open_stub(Database &db, const string &file)
 	if (line.empty() || line[0] == '#')
 	    continue;
 	string::size_type space = line.find(' ');
-	if (space == string::npos)
-	    continue;
+	if (space == string::npos) space = line.size();
 
 	string type(line, 0, space);
 	line.erase(0, space + 1);
@@ -160,6 +158,11 @@ open_stub(Database &db, const string &file)
 	}
 #endif
 
+	if (line == "inmemory") {
+	    db.add_database(InMemory::open());
+	    continue;
+	}
+
 	// Don't include the line itself - that might help an attacker
 	// by revealing part of a sensitive file's contents if they can
 	// arrange for it to be read as a stub database via infelicities in
@@ -203,8 +206,7 @@ open_stub(WritableDatabase &db, const string &file, int action)
 	if (line.empty() || line[0] == '#')
 	    continue;
 	string::size_type space = line.find(' ');
-	if (space == string::npos)
-	    continue;
+	if (space == string::npos) space = line.size();
 
 	string type(line, 0, space);
 	line.erase(0, space + 1);
@@ -254,6 +256,11 @@ open_stub(WritableDatabase &db, const string &file, int action)
 	    continue;
 	}
 #endif
+
+	if (line == "inmemory") {
+	    db.add_database(InMemory::open());
+	    continue;
+	}
 
 	// Don't include the line itself - that might help an attacker
 	// by revealing part of a sensitive file's contents if they can
