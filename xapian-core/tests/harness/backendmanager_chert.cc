@@ -32,16 +32,10 @@ BackendManagerChert::get_dbtype() const
     return "chert";
 }
 
-Xapian::Database
-BackendManagerChert::get_database(const vector<string> & files)
+string
+BackendManagerChert::do_get_database_path(const vector<string> & files)
 {
-    return Xapian::Chert::open(createdb_chert(files));
-}
-
-Xapian::Database
-BackendManagerChert::get_database(const string & file)
-{
-    return Xapian::Chert::open(createdb_chert(vector<string>(1, file)));
+    return createdb_chert(files);
 }
 
 Xapian::WritableDatabase

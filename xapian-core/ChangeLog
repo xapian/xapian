@@ -1,3 +1,11 @@
+Sat Aug 02 04:39:08 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/harness/: Adjust the BackendManager interface to reduce code
+	  duplication in subclasses - for backends where the concept of a
+	  path to the database makes sense, we now support a
+	  get_database_path() method and use this in the default
+	  implementation of get_database() in the base class.
+
 Sat Aug 02 04:36:48 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/apitest.h: Use std::string() in preference to "".

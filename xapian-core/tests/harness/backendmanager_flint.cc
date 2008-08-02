@@ -32,16 +32,10 @@ BackendManagerFlint::get_dbtype() const
     return "flint";
 }
 
-Xapian::Database
-BackendManagerFlint::get_database(const vector<string> & files)
+string
+BackendManagerFlint::do_get_database_path(const vector<string> & files)
 {
-    return Xapian::Flint::open(createdb_flint(files));
-}
-
-Xapian::Database
-BackendManagerFlint::get_database(const string & file)
-{
-    return Xapian::Flint::open(createdb_flint(vector<string>(1, file)));
+    return createdb_flint(files);
 }
 
 Xapian::WritableDatabase
