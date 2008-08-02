@@ -352,7 +352,7 @@ table: for example, this command will check the termlist table of database "foo"
 Converting a quartz database to a flint database
 ------------------------------------------------
 
-It is possible to convert a quartz database to a flint databaseby installing
+It is possible to convert a quartz database to a flint database by installing
 Xapian 1.0.x (since this has support for both quartz and flint)
 and using the "copydatabase" example program included with Xapian.  This is a
 lot slower to run than "xapian-compact", since it has to perform the

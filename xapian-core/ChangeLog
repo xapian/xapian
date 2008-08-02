@@ -1,3 +1,7 @@
+Sat Aug 02 14:16:24 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* docs/admin_notes.rst: Fix a typo.
+
 Sat Aug 02 14:06:37 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_cursor.cc,backends/flint/flint_cursor.cc:
