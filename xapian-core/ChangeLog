@@ -1,3 +1,11 @@
+Sat Aug 02 13:04:05 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_cursor.cc,backends/flint/flint_cursor.cc: Fix
+	  FlintCursor::del() and ChertCursor::del() to leave the cursor on the
+	  next key when iterating over the unflushed revision (previously the
+	  cursor would end up an extra key along in this case).  (Bug#287)
+	* tests/api_wrdb.cc: Add regression test cursordelbug1.
+
 Sat Aug 02 05:09:38 GMT 2008  Olly Betts <olly@survex.com>
 
 	* api/replication.cc,common/utils.cc,common/utils.h: Change
