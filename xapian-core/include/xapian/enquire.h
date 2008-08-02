@@ -198,7 +198,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	/** Swap the MSet we point to with another */
 	void swap(MSet & other);
 
-	/** Iterator for the terms in this MSet */
+	/** Iterator for the items in this MSet */
 	MSetIterator begin() const;
 
 	/** End iterator corresponding to begin() */
