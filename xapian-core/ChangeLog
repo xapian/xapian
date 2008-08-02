@@ -1,3 +1,12 @@
+Sat Aug 02 13:49:42 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/flint/flint_cursor.cc: Fix FlintCursor::del() to leave the
+	  cursor on the next key when iterating over the unflushed revision
+	  (previously the cursor would end up an extra key along in this
+	  case).  (Bug#287)
+	* tests/api_wrdb.cc: Add regression test cursordelbug1.
+
 Wed Jul 23 07:18:52 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_database.cc,backends/quartz/quartz_values.cc,

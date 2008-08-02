@@ -2079,3 +2079,37 @@ DEFINE_TESTCASE(bigoaddvalue, writable) {
 
     return true;
 }
+
+/// Regression test for bug #287 for flint.
+DEFINE_TESTCASE(cursordelbug1, flint) {
+    static const int terms[] = { 219, 221, 222, 223, 224, 225, 226 };
+    static const int copies[] = { 74, 116, 199, 21, 45, 155, 189 };
+
+    Xapian::WritableDatabase db;
+    db = get_named_writable_database("cursordelbug1", string());
+
+    for (size_t i = 0; i < sizeof(terms) / sizeof(terms[0]); ++i) {
+	Xapian::Document doc;
+	doc.add_term("XC" + om_tostring(terms[i]));
+	doc.add_term("XTabc");
+	doc.add_term("XAdef");
+	doc.add_term("XRghi");
+	doc.add_term("XYabc");
+	size_t c = copies[i];
+	while (c--) db.add_document(doc);
+    }
+
+    db.flush();
+
+    for (size_t i = 0; i < sizeof(terms) / sizeof(terms[0]); ++i) {
+	db.delete_document("XC" + om_tostring(terms[i]));
+    }
+
+    db.flush();
+
+    string cmd = "../bin/xapian-check .flint/dbw__cursordelbug1 >/dev/null";
+    if (system(cmd.c_str()) != 0)
+	return false;
+
+    return true;
+}
