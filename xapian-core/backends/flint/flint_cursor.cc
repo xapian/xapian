@@ -275,7 +275,7 @@ FlintCursor::del()
 
     B->del(current_key);
 
-    // If we're iterating an older revision of the tree, then the dletion
+    // If we're iterating an older revision of the tree, then the deletion
     // happens in a new (uncommitted) revision and the cursor still sees
     // the deleted key.  But if we're iterating the new uncommitted revision
     // then the deleted key is no longer visible.  We need to handle both

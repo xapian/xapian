@@ -1,3 +1,8 @@
+Sat Aug 02 14:06:37 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_cursor.cc,backends/flint/flint_cursor.cc:
+	  Fix comment typo in previous commit.
+
 Sat Aug 02 13:04:05 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_cursor.cc,backends/flint/flint_cursor.cc: Fix
