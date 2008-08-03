@@ -1,3 +1,8 @@
+Sun Aug 03 14:34:31 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/replication.cc: Track the replica numbers using an int rather
+	  than two strings.  Eliminate two racey uses of file_exists().
+
 Sun Aug 03 11:37:06 GMT 2008  Olly Betts <olly@survex.com>
 
 	* docs/replication.rst: Add section on backend support.  Make FIXME a

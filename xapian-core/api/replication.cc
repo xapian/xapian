@@ -44,7 +44,6 @@
 #include "serialise.h"
 #include "utils.h"
 
-#include <algorithm>
 #include <cstdio> // For rename().
 #include <fstream>
 #include <map>
@@ -120,18 +119,18 @@ class DatabaseReplica::Internal : public Xapian::Internal::RefCntBase {
     /// The path to the replica directory.
     string path;
 
-    /// The name of the currently live database in the replica.
-    string live_name;
+    /// The id of the currently live database in the replica (0 or 1).
+    int live_id;
 
     /// The live database being replicated.
     WritableDatabase live_db;
 
-    /** The name of the secondary database being built.
+    /** Do we have an offline database currently?
      *
-     *  This is used when we're building a new copy of the database, which
-     *  can't yet be made live.
+     *  The offline database is a new copy of the database we're bringing up
+     *  to the required revision, which can't yet be made live.
      */
-    string offline_name;
+    bool have_offline_db;
 
     /** The revision that the secondary database has been updated to.
      */
@@ -163,13 +162,10 @@ class DatabaseReplica::Internal : public Xapian::Internal::RefCntBase {
      *  The stub database file is created at a separate path, and then
      *  atomically moved into place to replace the old stub database.  This
      *  should allow searches to continue uninterrupted.
-     *
-     *  @param db_path The path to the database.
      */
-    void update_stub_database(const string & db_path) const;
+    void update_stub_database() const;
 
-    /** If there's an offline database, discard it.
-     */
+    /** Delete the offline database. */
     void remove_offline_db();
 
     /** Apply a set of DB copy messages from the connection.
@@ -189,6 +185,13 @@ class DatabaseReplica::Internal : public Xapian::Internal::RefCntBase {
      *  @return true iff the offline database is made live
      */
     bool possibly_make_offline_live();
+
+    string get_replica_path(int id) const {
+	string p = path;
+	p += "/replica_";
+	p += char('0' + id);
+	return p;
+    }
 
   public:
     /// Open a new DatabaseReplica::Internal for the specified path.
@@ -317,8 +320,8 @@ DatabaseReplica::Internal::read_parameters()
     parameters.clear();
 
     string param_path = join_paths(path, "params");
-    if (file_exists(param_path)) {
-	ifstream p_in(param_path.c_str());
+    ifstream p_in(param_path.c_str());
+    if (p_in.is_open()) {
 	string line;
 	while (getline(p_in, line)) {
 	    string::size_type eq = line.find('=');
@@ -342,7 +345,7 @@ DatabaseReplica::Internal::write_parameters() const
 }
 
 void
-DatabaseReplica::Internal::update_stub_database(const string & dbpath) const
+DatabaseReplica::Internal::update_stub_database() const
 {
     string stub_path = join_paths(path, "XAPIANDB");
     string tmp_path = stub_path;
@@ -350,7 +353,7 @@ DatabaseReplica::Internal::update_stub_database(const string & dbpath) const
     {
 	ofstream stub(tmp_path.c_str());
 	stub << REPLICA_STUB_BANNER
-		"auto " << dbpath << endl;
+		"auto replica_" << live_id << endl;
     }
     int result;
 #ifdef __WIN32__
@@ -366,43 +369,46 @@ DatabaseReplica::Internal::update_stub_database(const string & dbpath) const
 }
 
 DatabaseReplica::Internal::Internal(const string & path_)
-	: path(path_), live_name(), live_db(),
-	  offline_name(), offline_revision(), offline_needed_revision(),
+	: path(path_), live_id(0), live_db(), have_offline_db(false),
+	  offline_revision(), offline_needed_revision(),
 	  parameters(), conn(NULL)
 {
     DEBUGCALL(API, void, "DatabaseReplica::Internal::Internal", path_);
 #if ! defined XAPIAN_HAS_FLINT_BACKEND && ! defined XAPIAN_HAS_CHERT_BACKEND
     throw FeatureUnavailableError("Replication requires the Flint or Chert backend to be enabled");
 #else
-    if (file_exists(path)) {
-	throw InvalidOperationError("Replica path should not be a file");
-    }
-    if (!dir_exists(path)) {
+    if (mkdir(path, 0777) == 0) {
 	// The database doesn't already exist - make a directory, containing a
 	// stub database, and point it to a new database.
-	mkdir(path, 0777);
-	live_name = "replica_0";
-	string live_path = join_paths(path, live_name);
-	// Create an empty flint database for now - if the master is chert then
-	// the replica will become chert automatically.
-	live_db = Flint::open(live_path, Xapian::DB_CREATE);
-	update_stub_database(live_name);
+	//
+	// Create an empty database - the backend doesn't matter as if the
+	// master is a different type, then the replica will become that type
+	// automatically.
+	live_db = WritableDatabase(get_replica_path(live_id),
+				   Xapian::DB_CREATE);
+	update_stub_database();
     } else {
-	live_db = Auto::open_stub(path + "/XAPIANDB", Xapian::DB_OPEN);
-	// FIXME: simplify all this
-	string stub_path = join_paths(path, "XAPIANDB");
+	if (errno != EEXIST) {
+	    throw DatabaseOpeningError("Couldn't create directory '" + path + "'", errno);
+	}
+	if (!dir_exists(path)) {
+	    throw DatabaseOpeningError("Replica path must be a directory");
+	}
+	string stub_path = path;
+	stub_path += "/XAPIANDB";
+	live_db = Auto::open_stub(stub_path, Xapian::DB_OPEN);
+	// FIXME: simplify all this?
 	ifstream stub(stub_path.c_str());
 	string line;
 	while (getline(stub, line)) {
 	    if (!line.empty() && line[0] != '#') {
-		string::size_type space = line.find(' ');
-		live_name.assign(line, space + 1, string::npos);
+		live_id = line[line.size() - 1] - '0';
 		break;
 	    }
 	}
-    }
 
-    read_parameters();
+	read_parameters();
+    }
 #endif
 }
 
@@ -449,55 +455,42 @@ DatabaseReplica::Internal::get_revision_info() const
 void
 DatabaseReplica::Internal::remove_offline_db()
 {
-    if (offline_name.empty())
-	return;
-    // Delete the database.
-    removedir(join_paths(path, offline_name));
-    offline_name.resize(0);
+    // Delete the offline database.
+    removedir(get_replica_path(live_id ^ 1));
+    have_offline_db = false;
 }
 
 void
 DatabaseReplica::Internal::apply_db_copy(const OmTime & end_time)
 {
+    have_offline_db = true;
+    string offline_path = get_replica_path(live_id ^ 1);
     // If there's already an offline database, discard it.  This happens if one
     // copy of the database was sent, but further updates were needed before it
     // could be made live, and the remote end was then unable to send those
     // updates (probably due to not having changesets available, or the remote
     // database being replaced by a new database).
-    remove_offline_db();
-
-    // Work out new path to make an offline database at.
-    offline_name = live_name;
-    if (live_name.size() < 2 || live_name[live_name.size() - 2] != '_') {
-	offline_name += "_0";
-    } else {
-	size_t last = offline_name.size() - 1;
-	offline_name[last] = (offline_name[last] == '0') ? '1' : '0';
-    }
-
-    string offline_path = join_paths(path, offline_name);
     removedir(offline_path);
     if (mkdir(offline_path, 0777)) {
 	throw Xapian::DatabaseError("Cannot make directory '" +
 				    offline_path + "'", errno);
     }
 
-    string buf;
-    char type = conn->get_message(buf, end_time);
-    check_message_type(type, REPL_REPLY_DB_HEADER);
     {
+	string buf;
+	char type = conn->get_message(buf, end_time);
+	check_message_type(type, REPL_REPLY_DB_HEADER);
 	const char * ptr = buf.data();
 	const char * end = ptr + buf.size();
 	size_t uuid_length = decode_length(&ptr, end, true);
 	offline_uuid.assign(ptr, uuid_length);
-	buf.erase(0, ptr + uuid_length - buf.data());
+	offline_revision.assign(buf, ptr + uuid_length - buf.data(), buf.npos);
     }
-    offline_revision = buf;
 
     // Now, read the files for the database from the connection and create it.
     while (true) {
 	string filename;
-	type = conn->sniff_next_message_type(end_time);
+	char type = conn->sniff_next_message_type(end_time);
 	if (type == REPL_REPLY_FAIL)
 	    return;
 	if (type == REPL_REPLY_DB_FOOTER)
@@ -520,7 +513,7 @@ DatabaseReplica::Internal::apply_db_copy(const OmTime & end_time)
 	type = conn->receive_file(filepath, end_time);
 	check_message_type(type, REPL_REPLY_DB_FILEDATA);
     }
-    type = conn->get_message(offline_needed_revision, end_time);
+    char type = conn->get_message(offline_needed_revision, end_time);
     check_message_type(type, REPL_REPLY_DB_FOOTER);
 }
 
@@ -540,11 +533,11 @@ DatabaseReplica::Internal::possibly_make_offline_live()
     if (!live_db.internal[0]->check_revision_at_least(offline_revision,
 						      offline_needed_revision))
 	return false;
-    string offline_path = join_paths(path, offline_name);
-    live_db = WritableDatabase(offline_path, Xapian::DB_OPEN);
-    update_stub_database(offline_name);
+
+    live_id ^= 1;
+    update_stub_database();
+    live_db = WritableDatabase(get_replica_path(live_id), Xapian::DB_OPEN);
     set_parameter("uuid", hex_encode(offline_uuid));
-    swap(live_name, offline_name);
     remove_offline_db();
     return true;
 }
@@ -589,26 +582,24 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info)
 		}
 		break;
 	    case REPL_REPLY_CHANGESET:
-		if (offline_name.empty()) {
+		if (!have_offline_db) {
 		    offline_needed_revision = (live_db.internal[0])->
 			    apply_changeset_from_conn(*conn, end_time);
 		    if (info != NULL) {
 			++(info->changeset_count);
 			info->changed = true;
 		    }
-		    string livedb_path = join_paths(path, live_name);
-		    // FIXME: Sometimes we seem to update live_db to the
-		    // same database it already has open, so we need to
-		    // close it first.  However, sometimes we do need to
-		    // open it here.  This doesn't seem very sane...
+		    // FIXME: We currently close and reopen the database for
+		    // each applied delta.  It would be nice to avoid doing so.
 		    live_db = WritableDatabase();
-		    live_db = WritableDatabase(livedb_path, Xapian::DB_OPEN);
+		    live_db = WritableDatabase(get_replica_path(live_id),
+					       Xapian::DB_OPEN);
 		    RETURN(true);
 		}
 
 		{
-		    string offline_path = join_paths(path, offline_name);
-		    WritableDatabase offline_db(offline_path, Xapian::DB_OPEN);
+		    WritableDatabase offline_db(get_replica_path(live_id ^ 1),
+						Xapian::DB_OPEN);
 		    offline_needed_revision = (offline_db.internal[0])->
 			    apply_changeset_from_conn(*conn, end_time);
 		}
