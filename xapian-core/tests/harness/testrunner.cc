@@ -53,7 +53,7 @@ static BackendProperties backend_properties[] = {
     { "none", "" },
     { "inmemory", "backend,positional,writable,valuestats,inmemory" },
     { "chert", "backend,transactions,positional,writable,spelling,metadata,"
-	       "synonyms,valuestats,chert" }, // FIXME: sort out replicas
+	       "synonyms,replicas,valuestats,chert" },
     { "flint", "backend,transactions,positional,writable,spelling,metadata,"
 	       "synonyms,replicas,flint" },
     { "multi_flint", "backend,positional,multi" },
