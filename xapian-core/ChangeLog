@@ -1,3 +1,8 @@
+Sun Aug 03 11:37:06 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/replication.rst: Add section on backend support.  Make FIXME a
+	  comment.  Fix erroneous reference to '"-h" parameter'.
+
 Sun Aug 03 11:28:27 GMT 2008  Olly Betts <olly@survex.com>
 
 	* api/replication.cc,tests/harness/testrunner.cc: Make replication
