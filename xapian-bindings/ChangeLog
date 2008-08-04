@@ -1,3 +1,7 @@
+Mon Aug 04 05:06:46 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Sync against 1.0.7 release.
+
 Wed Jul 30 01:13:43 GMT 2008  Olly Betts <olly@survex.com>
 
 	* python/generate-python-exceptions.in: Fix tiny comment typo.
