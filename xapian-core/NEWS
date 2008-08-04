@@ -1,3 +1,73 @@
+Mon Aug 04 01:53:26 GMT 2008  Olly Betts <olly@survex.com>
+
+Xapian-core 1.0.8 (2008-08-??):
+
+API:
+
+
+testsuite:
+
+
+matcher:
+
+
+flint backend:
+
+	* Backport change from trunk:
+	* backends/flint/flint_database.cc,backends/flint/flint_values.cc,
+	  backends/flint/flint_values.h: Fix WritableDatabase::add_document()
+	  and replace_document() not to be O(n*n) in the number of values in
+	  the new document.
+	* tests/api_wrdb.cc: Add testcase bigoaddvalue to make sure we don't
+	  regress to O(n*n) (or worse!)
+
+	* Backport changes from trunk:
+	* backends/flint/flint_table.cc: Fix handling of a table created
+	  lazily after the database has had commits, and which is then
+	  cursored while still in sequential mode.
+	* tests/api_wrdb.cc: Add testcase lazytablebug1.
+	* tests/api_wrdb.cc: Rewrite lazytablebug1 testcase to avoid having
+	  to run xapian-compact.
+
+	* backends/flint/flint_cursor.cc: Fix FlintCursor::del() to leave the
+	  cursor on the next key when iterating over the unflushed revision
+	  (previously the cursor would end up an extra key along in this
+	  case).  (Bug#287)
+	* tests/api_wrdb.cc: Add regression test cursordelbug1.
+
+quartz backend:
+
+	* backends/quartz/quartz_database.cc,backends/quartz/quartz_values.cc,
+	  backends/quartz/quartz_values.h: Backport fix from flint for
+	  WritableDatabase::add_document() and replace_document() not to be
+	  O(n*n) in the number of values in the new document.
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+
+documentation:
+
+	* docs/admin_notes.rst: Fix a typo.
+
+examples:
+
+
+portability:
+
+	* Backport change from trunk:
+	* tests/api_wrdb.cc: Eliminate literal top-bit-set characters.
+
+packaging:
+
+
+debug code:
+
 Xapian-core 1.0.7 (2008-07-15):
 
 API:

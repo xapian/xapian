@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT(xapian-core, 1.0.7)dnl FIXME: bugreport addr as third argument
+AC_INIT(xapian-core, 1.0.8)dnl FIXME: bugreport addr as third argument
 dnl See HACKING document for details of the reasons for required versions.
 AC_PREREQ([2.59])
 dnl Extract from the libtool info manual:
@@ -66,7 +66,8 @@ dnl 18:0:3 1.0.4 New Query ctor for OP_SCALE_WEIGHT
 dnl 19:0:4 1.0.5 Enquire copyable/assignable + new methods; new Sorter class
 dnl 20:0:5 1.0.6 Unicode::toupper(); OP_VALUE_GE/OP_VALUE_LE
 dnl 20:1:5 1.0.7 No API changes
-LIBRARY_VERSION_INFO=20:1:5
+dnl 20:2:5 1.0.8 No API changes
+LIBRARY_VERSION_INFO=20:2:5
 AC_SUBST(LIBRARY_VERSION_INFO)
 
 dnl Check the build directory doesn't contain a space, so we die early with
