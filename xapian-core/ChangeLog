@@ -1,3 +1,8 @@
+Mon Aug 04 12:16:54 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_version.cc: Make exception messages more
+	  consistent.
+
 Mon Aug 04 12:15:14 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_database.cc,backends/chert/chert_version.cc,

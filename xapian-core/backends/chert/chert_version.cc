@@ -87,8 +87,8 @@ ChertVersion::read_and_check()
     int fd = ::open(filename.c_str(), O_RDONLY|O_BINARY);
 
     if (fd < 0) {
-	string msg("Failed to open chert version file for reading: ");
-	msg += filename;
+	string msg = filename;
+	msg += ": Failed to open chert version file for reading";
 	throw Xapian::DatabaseOpeningError(msg, errno);
     }
 
@@ -104,16 +104,16 @@ ChertVersion::read_and_check()
     (void)close(fd);
 
     if (size != VERSIONFILE_SIZE) {
-	string msg("Chert version file ");
-	msg += filename;
-	msg += " should be "STRINGIZE(VERSIONFILE_SIZE)" bytes, actually ";
+	string msg = filename;
+	msg += ": Chert version file should be "STRINGIZE(VERSIONFILE_SIZE)
+	       " bytes, actually ";
 	msg += om_tostring(size);
 	throw Xapian::DatabaseCorruptError(msg);
     }
 
     if (memcmp(buf, MAGIC_STRING, MAGIC_LEN) != 0) {
-	string msg("Chert version file doesn't contain the right magic string: ");
-	msg += filename;
+	string msg = filename;
+	msg += ": Chert version file doesn't contain the right magic string";
 	throw Xapian::DatabaseCorruptError(msg);
     }
 
@@ -121,9 +121,8 @@ ChertVersion::read_and_check()
     v = reinterpret_cast<const unsigned char *>(buf) + MAGIC_LEN;
     unsigned int version = v[0] | (v[1] << 8) | (v[2] << 16) | (v[3] << 24);
     if (version != CHERT_VERSION) {
-	string msg("Chert version file ");
-	msg += filename;
-	msg += " is version ";
+	string msg = filename;
+	msg += ": Chert version file is version ";
 	msg += om_tostring(version);
 	msg += " but I only understand "STRINGIZE(CHERT_VERSION);
 	throw Xapian::DatabaseVersionError(msg);
