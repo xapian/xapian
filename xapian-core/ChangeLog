@@ -1,3 +1,8 @@
+Mon Aug 04 01:53:26 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/admin_notes.rst: Fix a typo.
+
 Sat Aug 02 14:07:21 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_cursor.cc: Fix comment typo in previous commit.
