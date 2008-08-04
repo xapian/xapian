@@ -31,20 +31,19 @@ using std::make_pair;
 
 #include "omdebug.h"
 
-void
-ChertValueTable::make_key(string & key, Xapian::docid did, Xapian::valueno valueno)
+/** Generate key for document @a docid's values. */
+inline void
+make_key(string & key, Xapian::docid did)
 {
-    DEBUGCALL_STATIC(DB, void, "ChertValueTable::make_key",
-		     key << ", " << did << ", " << valueno);
-    (void)valueno; // no warning
+    DEBUGCALL_STATIC(DB, void, "make_key", key << ", " << did);
     key = chert_docid_to_key(did);
 }
 
-void
-ChertValueTable::make_valuestats_key(string & key, Xapian::valueno valueno)
+/** Generate a key for a value statistics item. */
+inline void
+make_valuestats_key(string & key, Xapian::valueno valueno)
 {
-    DEBUGCALL_STATIC(DB, void, "ChertValueTable::make_valuestats_key",
-		     key << ", " << valueno);
+    DEBUGCALL_STATIC(DB, void, "make_valuestats_key", key << ", " << valueno);
     key = "\xff" + chert_docid_to_key(valueno);
 }
 
@@ -58,12 +57,12 @@ ChertValueTable::unpack_entry(const char ** pos,
 		     "[pos], [end], " << this_value_no << ", " << this_value);
     if (!unpack_uint(pos, end, this_value_no)) {
 	if (*pos == 0) throw Xapian::DatabaseCorruptError("Incomplete item in value table");
-	else throw Xapian::RangeError("Value number in value table is too large");
+	throw Xapian::RangeError("Value number in value table is too large");
     }
 
     if (!unpack_string(pos, end, this_value)) {
 	if (*pos == 0) throw Xapian::DatabaseCorruptError("Incomplete item in value table");
-	else throw Xapian::RangeError("Item in value table is too large");
+	throw Xapian::RangeError("Item in value table is too large");
     }
 
     DEBUGLINE(DB, "ChertValueTable::unpack_entry(): value no " <<
@@ -71,73 +70,54 @@ ChertValueTable::unpack_entry(const char ** pos,
 }
 
 void
-ChertValueTable::add_value(const string & value,
-			   Xapian::docid did,
-			   Xapian::valueno valueno,
-			   map<Xapian::valueno, ValueStats> & stats)
+ChertValueTable::encode_values(string & s,
+			       Xapian::ValueIterator it,
+			       const Xapian::ValueIterator & end,
+			       map<Xapian::valueno, ValueStats> & stats)
 {
-    DEBUGCALL(DB, void, "ChertValueTable::add_value", value << ", " << did << ", " << valueno);
-    string key;
-    make_key(key, did, valueno);
-    string tag;
-    (void)get_exact_entry(key, tag);
-    string newvalue;
+    DEBUGCALL(DB, void, "ChertValueTable::encode_values", "[&s], " << it << ", " << end << ", [stats]");
+    while (it != end) {
+	Xapian::valueno valueno = it.get_valueno();
+	string value = *it;
 
-    const char * pos = tag.data();
-    const char * end = pos + tag.size();
+	s += pack_uint(valueno);
+	s += pack_string(value);
 
-    bool have_added = false;
-    
-    while (pos && pos != end) {
-	Xapian::valueno this_value_no;
-	string this_value;
-
-	unpack_entry(&pos, end, &this_value_no, this_value);
-
-	if (this_value_no > valueno && !have_added) {
-	    DEBUGLINE(DB, "Adding value (number, value) = (" <<
-		      valueno << ", " << value << ")");
-	    have_added = true;
-	    newvalue += pack_uint(valueno);
-	    newvalue += pack_string(value);
+	// Update the statistics.
+	std::pair<map<Xapian::valueno, ValueStats>::iterator, bool> i;
+	i = stats.insert(make_pair(valueno, ValueStats()));
+	if (i.second) {
+	    // There were no statistics stored already, so read them.
+	    get_value_stats(i.first->second, valueno);
 	}
 
-	newvalue += pack_uint(this_value_no);
-	newvalue += pack_string(this_value);
-    }
-    if (!have_added) {
-	DEBUGLINE(DB, "Adding value (number, value) = (" <<
-		  valueno << ", " << value << ")");
-	have_added = true;
-	newvalue += pack_uint(valueno);
-	newvalue += pack_string(value);
-    }
-
-    add(key, newvalue);
-
-    // Update the statistics.
-    std::pair<map<Xapian::valueno, ValueStats>::iterator, bool> i;
-    i = stats.insert(make_pair(valueno, ValueStats()));
-    if (i.second) {
-	// There were no statistics stored already, so read them.
-	get_value_stats(i.first->second, valueno);
-    }
-
-    // Now, modify the stored statistics.
-    if ((i.first->second.freq)++ == 0) {
-	// If the value count was previously zero, set the upper and lower
-	// bounds to the newly added value.
-	i.first->second.lower_bound = value;
-	i.first->second.upper_bound = value;
-    } else {
-	// Otherwise, simply make sure they reflect the new value.
-	if (value < i.first->second.lower_bound) {
+	// Now, modify the stored statistics.
+	if ((i.first->second.freq)++ == 0) {
+	    // If the value count was previously zero, set the upper and lower
+	    // bounds to the newly added value.
 	    i.first->second.lower_bound = value;
-	}
-	if (value > i.first->second.upper_bound) {
 	    i.first->second.upper_bound = value;
+	} else {
+	    // Otherwise, simply make sure they reflect the new value.
+	    if (value < i.first->second.lower_bound) {
+		i.first->second.lower_bound = value;
+	    }
+	    if (value > i.first->second.upper_bound) {
+		i.first->second.upper_bound = value;
+	    }
 	}
+
+	++it;
     }
+}
+
+void
+ChertValueTable::set_encoded_values(Xapian::docid did, const string & enc)
+{
+    DEBUGCALL(DB, void, "ChertValueTable::set_encoded_values", did << ", " << enc);
+    string key;
+    make_key(key, did);
+    add(key, enc);
 }
 
 void
@@ -147,7 +127,7 @@ ChertValueTable::get_value(string & value,
 {
     DEBUGCALL(DB, void, "ChertValueTable::get_value", value << ", " << did << ", " << valueno);
     string key;
-    make_key(key, did, valueno);
+    make_key(key, did);
     string tag;
     bool found = get_exact_entry(key, tag);
 
@@ -179,7 +159,7 @@ ChertValueTable::get_all_values(map<Xapian::valueno, string> & values,
 {
     DEBUGCALL(DB, void, "ChertValueTable::get_all_values", "[values], " << did);
     string key;
-    make_key(key, did, 0);
+    make_key(key, did);
     string tag;
     bool found = get_exact_entry(key, tag);
 
@@ -214,15 +194,15 @@ ChertValueTable::get_value_stats(ValueStats & stats,
 
 	if (!unpack_uint(&pos, end, &(stats.freq))) {
 	    if (*pos == 0) throw Xapian::DatabaseCorruptError("Incomplete stats item in value table");
-	    else throw Xapian::RangeError("Frequency statistic in value table is too large");
+	    throw Xapian::RangeError("Frequency statistic in value table is too large");
 	}
 	if (!unpack_string(&pos, end, stats.lower_bound)) {
 	    if (*pos == 0) throw Xapian::DatabaseCorruptError("Incomplete stats item in value table");
-	    else throw Xapian::RangeError("Lower bound in value table is too large");
+	    throw Xapian::RangeError("Lower bound in value table is too large");
 	}
 	if (!unpack_string(&pos, end, stats.upper_bound)) {
 	    if (*pos == 0) throw Xapian::DatabaseCorruptError("Incomplete stats item in value table");
-	    else throw Xapian::RangeError("Upper bound in value table is too large");
+	    throw Xapian::RangeError("Upper bound in value table is too large");
 	}
 	if (pos != end) {
 	    throw Xapian::DatabaseCorruptError("Junk found at end of value stats item");
@@ -255,7 +235,7 @@ ChertValueTable::delete_all_values(Xapian::docid did,
 {
     DEBUGCALL(DB, void, "ChertValueTable::delete_all_values", did);
     string key;
-    make_key(key, did, 0);
+    make_key(key, did);
     string tag;
     bool found = get_exact_entry(key, tag);
     if (!found) return;

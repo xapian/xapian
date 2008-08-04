@@ -90,7 +90,8 @@ const char * expected_exception = NULL;
 std::ostringstream tout;
 
 int test_driver::runs = 0;
-test_driver::result test_driver::total = {0, 0, 0};
+test_driver::result test_driver::subtotal;
+test_driver::result test_driver::total;
 string test_driver::argv0;
 string test_driver::opt_help;
 map<int, string *> test_driver::short_opts;
@@ -508,7 +509,7 @@ test_driver::do_run_tests(vector<string>::const_iterator b,
     set<string> m(b, e);
     bool check_name = !m.empty();
 
-    test_driver::result res = {0, 0, 0};
+    test_driver::result res;
 
     for (const test_desc *test = tests; test->name; test++) {
 	bool do_this_test = !check_name;
@@ -568,9 +569,22 @@ test_driver::usage()
     exit(1);
 }
 
+/* Needs C linkage so we can pass it to atexit() without problems. */
+extern "C" {
+// Call upon program exit if there's more than one test run.
+static void
+report_totals(void)
+{
+    test_driver::report(test_driver::total, "total");
+}
+}
+
 void
 test_driver::report(const test_driver::result &r, const string &desc)
 {
+    // Report totals at the end if we reported two or more subtotals.
+    if (++runs == 2) atexit(report_totals);
+
     if (r.succeeded != 0 || r.failed != 0) {
 	cout << argv0 << " " << desc << ": ";
 
@@ -589,16 +603,6 @@ test_driver::report(const test_driver::result &r, const string &desc)
 	    cout << "." << endl;
 	}
     }
-}
-
-/* Needs C linkage so we can pass it to atexit() without problems. */
-extern "C" {
-// Call upon program exit if there's more than one test run.
-static void
-report_totals(void)
-{
-    test_driver::report(test_driver::total, "total");
-}
 }
 
 void
@@ -705,21 +709,12 @@ test_driver::parse_command_line(int argc, char **argv)
 int
 test_driver::run(const test_desc *tests)
 {
-    // If we're running more than one batch of tests, report the totals
-    // at the end.
-    if (runs == 1) atexit(report_totals);
-    ++runs;
-
     test_driver driver(tests);
 
     test_driver::result myresult;
     myresult = driver.run_tests(test_names.begin(), test_names.end());
 
-    report(myresult, "completed test run");
-
-    total.succeeded += myresult.succeeded;
-    total.failed += myresult.failed;
-    total.skipped += myresult.skipped;
+    subtotal += myresult;
 
     return bool(myresult.failed); // if 0, then everything passed
 }

@@ -42,17 +42,11 @@ BackendManagerRemoteProg::get_dbtype() const
 }
 
 Xapian::Database
-BackendManagerRemoteProg::get_database(const vector<string> & files)
+BackendManagerRemoteProg::do_get_database(const vector<string> & files)
 {
     // Default to a long (5 minute) timeout so that tests won't fail just
     // because the host is slow or busy.
     return BackendManagerRemoteProg::get_remote_database(files, 300000);
-}
-
-Xapian::Database
-BackendManagerRemoteProg::get_database(const string & file)
-{
-    return BackendManagerRemoteProg::get_database(vector<string>(1, file));
 }
 
 Xapian::WritableDatabase

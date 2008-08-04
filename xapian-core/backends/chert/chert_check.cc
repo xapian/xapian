@@ -204,8 +204,8 @@ ChertTableCheck::block_check(Cursor * C_, int j, int opts)
 }
 
 void
-ChertTableCheck::check(const string & tablename, const string & path,
-		  int opts, ostream &out)
+ChertTableCheck::check(const char * tablename, const string & path, int opts,
+		       ostream &out)
 {
     ChertTableCheck B(tablename, path, false, out);
     B.open(); // throws exception if open fails

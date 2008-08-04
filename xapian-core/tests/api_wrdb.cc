@@ -27,19 +27,22 @@
 
 #include "api_wrdb.h"
 
-#include <algorithm>
-#include <map>
-#include <string>
-
 #include <xapian.h>
+
+#include "omtime.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include "utils.h"
+#include "unixcmds.h"
 
 #include "apitest.h"
 
+#include <algorithm>
 #include <cmath>
+#include <cstdlib>
 #include <list>
+#include <map>
+#include <string>
 
 using namespace std;
 
@@ -1420,8 +1423,11 @@ DEFINE_TESTCASE(crashrecovery1, writable) {
     if (dbtype == "flint") {
 	path = ".flint/dbw";
 	base_ext = ".baseB";
+    } else if (dbtype == "chert") {
+	path = ".chert/dbw";
+	base_ext = ".baseB";
     } else {
-	SKIP_TEST("Test only supported for flint backends");
+	SKIP_TEST("Test only supported for flint and chert backends");
     }
 
     Xapian::Document doc;
@@ -1495,8 +1501,6 @@ DEFINE_TESTCASE(nomoredocids1, writable) {
 
 // Test basic spelling correction features.
 DEFINE_TESTCASE(spell1, spelling) {
-    SKIP_TEST_UNLESS_BACKEND("flint");
-
     Xapian::WritableDatabase db = get_writable_database();
 
     // Check that the more frequent term is chosen.
@@ -1569,8 +1573,6 @@ DEFINE_TESTCASE(spell1, spelling) {
 
 // Test spelling correction for Unicode.
 DEFINE_TESTCASE(spell2, spelling) {
-    SKIP_TEST_UNLESS_BACKEND("flint");
-
     Xapian::WritableDatabase db = get_writable_database();
 
     // Check that a UTF-8 sequence counts as a single character.
@@ -1596,8 +1598,6 @@ DEFINE_TESTCASE(spell2, spelling) {
 
 // Test spelling correction with multi databases
 DEFINE_TESTCASE(spell3, spelling) {
-    SKIP_TEST_UNLESS_BACKEND("flint");
-
     Xapian::WritableDatabase db1 = get_writable_database();
     // We can't just call get_writable_database() since it would delete db1
     // which doesn't work at all under __WIN32__ and will go wrong elsewhere if
@@ -1655,8 +1655,6 @@ DEFINE_TESTCASE(spell3, spelling) {
 
 // Regression test - check that appending works correctly.
 DEFINE_TESTCASE(spell4, spelling) {
-    SKIP_TEST_UNLESS_BACKEND("flint");
-
     Xapian::WritableDatabase db = get_writable_database();
 
     db.add_spelling("check");
@@ -1672,22 +1670,20 @@ DEFINE_TESTCASE(spell4, spelling) {
 
 // Regression test - used to segfault with some input values.
 DEFINE_TESTCASE(spell5, spelling) {
-    SKIP_TEST_UNLESS_BACKEND("flint");
+    const char * target = "\xe4\xb8\x80\xe4\xba\x9b";
 
     Xapian::WritableDatabase db = get_writable_database();
-
-    db.add_spelling("一些");
+    db.add_spelling(target);
     db.flush();
 
-    TEST_EQUAL(db.get_spelling_suggestion("不", strlen("不")), "一些");
+    string s = db.get_spelling_suggestion("\xe4\xb8\x8d", 3);
+    TEST_EQUAL(s, target);
 
     return true;
 }
 
 // Test synonym iterators.
-DEFINE_TESTCASE(synonymitor1, writable) {
-    SKIP_TEST_UNLESS_BACKEND("flint");
-
+DEFINE_TESTCASE(synonymitor1, writable && synonyms) {
     Xapian::WritableDatabase db = get_writable_database();
 
     // Test iterators for terms which aren't there.
@@ -1824,7 +1820,6 @@ DEFINE_TESTCASE(metadata1, writable) {
 
 // Test that metadata gets applied at same time as other changes.
 DEFINE_TESTCASE(metadata2, metadata) {
-    SKIP_TEST_UNLESS_BACKEND("flint");
     Xapian::WritableDatabase db = get_writable_database();
     Xapian::Database dbr = get_writable_database_as_database();
 
@@ -2043,7 +2038,8 @@ DEFINE_TESTCASE(termtoolong1, writable) {
     db.flush();
 
     {
-	// Currently flint doesn't allow
+	// Currently flint and chert escape zero byte from terms in keys for
+	// some tables, so a term with 126 zero bytes won't work either.
 	Xapian::Document doc;
 	doc.add_term(string(126, '\0'));
 	db.add_document(doc);
@@ -2114,6 +2110,108 @@ DEFINE_TESTCASE(writeread1, writable && metadata) {
 
     string readitem = db_w.get_metadata("2");
     TEST_EQUAL(readitem, longitem);
+
+    return true;
+}
+
+DEFINE_TESTCASE(lazytablebug1, writable && (flint || chert)) {
+    {
+	Xapian::WritableDatabase db = get_named_writable_database("lazytablebug1", string());
+
+	Xapian::Document doc;
+	doc.add_term("foo");
+	db.add_document(doc);
+	db.flush();
+
+	string synonym(255, 'x');
+	char buf[] = " iamafish!!!!!!!!!!";
+	for (int i = 33; i < 120; ++i) {
+	    db.add_synonym(buf, synonym);
+	    ++buf[0];
+	}
+
+	db.flush();
+    }
+
+    Xapian::Database db = get_writable_database_as_database();
+    for (Xapian::TermIterator t = db.synonym_keys_begin(); t != db.synonym_keys_end(); ++t) {
+	tout << *t << endl;
+    }
+
+    return true;
+}
+
+static double
+bigoaddvalue_helper(size_t num_values)
+{
+    Xapian::WritableDatabase db = get_writable_database();
+
+    Xapian::Document doc;
+    for (size_t i = 0; i < num_values; ++i) {
+	doc.add_value(i, "moo");
+    }
+
+    OmTime start = OmTime::now();
+
+    db.add_document(doc);
+    db.flush();
+
+    return (OmTime::now() - start).as_double();
+}
+
+DEFINE_TESTCASE(bigoaddvalue, writable) {
+    const size_t N = 5000;
+    double time_N = bigoaddvalue_helper(N);
+    tout << "Adding a document with " << N << " values took " << time_N
+	 << " seconds" << endl;
+    double time_10N = bigoaddvalue_helper(10 * N);
+    tout << "Adding a document with " << 10 * N << " values took " << time_10N
+	 << " seconds" << endl;
+
+    // O(n*n) is bad, but we don't require linearity - O(n*log(n)) is
+    // acceptable, so put the threshold halfway between.
+    const double ALLOWED_FACTOR = (100.0 + 10 * 2.71828) / 2.0;
+    TEST_LESSER(time_10N, time_N * ALLOWED_FACTOR);
+
+    return true;
+}
+
+/** Regression test for bug #287 for flint.
+ *
+ *  Chert also has the same duff code but this testcase doesn't actually 
+ *  tickle the bug there.
+ */
+DEFINE_TESTCASE(cursordelbug1, flint || chert) {
+    static const int terms[] = { 219, 221, 222, 223, 224, 225, 226 };
+    static const int copies[] = { 74, 116, 199, 21, 45, 155, 189 };
+
+    Xapian::WritableDatabase db;
+    db = get_named_writable_database("cursordelbug1", string());
+
+    for (size_t i = 0; i < sizeof(terms) / sizeof(terms[0]); ++i) {
+	Xapian::Document doc;
+	doc.add_term("XC" + om_tostring(terms[i]));
+	doc.add_term("XTabc");
+	doc.add_term("XAdef");
+	doc.add_term("XRghi");
+	doc.add_term("XYabc");
+	size_t c = copies[i];
+	while (c--) db.add_document(doc);
+    }
+
+    db.flush();
+
+    for (size_t i = 0; i < sizeof(terms) / sizeof(terms[0]); ++i) {
+	db.delete_document("XC" + om_tostring(terms[i]));
+    }
+
+    db.flush();
+
+    string cmd = "../bin/xapian-check ";
+    cmd += get_named_writable_database_path("cursordelbug1");
+    cmd += " >/dev/null";
+    if (system(cmd.c_str()) != 0)
+	return false;
 
     return true;
 }

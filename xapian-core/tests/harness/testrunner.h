@@ -84,6 +84,9 @@ class TestRunner {
     /// True if the backend supports spelling corrections.
     bool spelling;
 
+    /// True if the backend supports synonyms.
+    bool synonyms;
+
     /// True if the backend supports metadata.
     bool metadata;
 
@@ -106,7 +109,7 @@ class TestRunner {
     bool chert;
 
     /// Virtual destructor - needed for abstract class.
-    virtual ~TestRunner() {}
+    virtual ~TestRunner();
 
     /** Run all the tests.
      *

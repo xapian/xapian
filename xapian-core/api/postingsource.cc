@@ -23,6 +23,10 @@
 
 #include "xapian/postingsource.h"
 
+#include "autoptr.h"
+
+#include "database.h"
+#include "document.h"
 #include "xapian/document.h"
 #include "xapian/error.h"
 #include "xapian/queryparser.h" // For sortable_unserialise
@@ -156,14 +160,25 @@ ValueWeightPostingSource::next(Xapian::weight min_wt)
     while (current_docid <= last_docid) {
 	++current_docid;
 	std::string value;
+
+	// Open document lazily so that we don't waste time checking for
+	// its existence.
+
+	unsigned int multiplier = db.internal.size();
+	Assert(multiplier != 0);
+	Xapian::doccount n = (current_docid - 1) % multiplier; // which actual database
+	Xapian::docid m = (current_docid - 1) / multiplier + 1; // real docid in that database
+
 	try {
-	    Xapian::Document doc(db.get_document(current_docid));
-	    value = doc.get_value(valno);
+	    AutoPtr<Xapian::Document::Internal> doc;
+	    doc = db.internal[n]->open_document(m, true);
+	    value = doc->get_value(valno);
+	    if (value.empty())
+		continue;
 	} catch (const Xapian::DocNotFoundError &) {
 	    continue;
 	}
-	if (value.empty())
-	    continue;
+
 	current_value = sortable_unserialise(value);
 	// Don't check that the value is in the specified range, since this
 	// could be a slow loop and isn't required.
@@ -175,9 +190,10 @@ void
 ValueWeightPostingSource::skip_to(Xapian::docid min_docid,
 				  Xapian::weight min_wt)
 {
-    if (current_docid < min_docid)
+    if (current_docid < min_docid) {
 	current_docid = min_docid - 1;
-    next(min_wt);
+	next(min_wt);
+    }
 }
 
 bool
@@ -187,9 +203,16 @@ ValueWeightPostingSource::check(Xapian::docid min_docid,
     current_docid = min_docid;
     std::string value;
     try {
-	Xapian::Document doc(db.get_document(current_docid));
-	value = doc.get_value(valno);
-	if (value.empty()) return false;
+	unsigned int multiplier = db.internal.size();
+	Assert(multiplier != 0);
+	Xapian::doccount n = (current_docid - 1) % multiplier; // which actual database
+	Xapian::docid m = (current_docid - 1) / multiplier + 1; // real docid in that database
+
+	AutoPtr<Xapian::Document::Internal> doc;
+	doc = db.internal[n]->open_document(m, true);
+	value = doc->get_value(valno);
+	if (value.empty())
+	    return false;
     } catch (const Xapian::DocNotFoundError &) {
 	return false;
     }

@@ -28,15 +28,21 @@
 #include "omassert.h"
 #include "perftest/perftest_all.h"
 #include "runprocess.h"
+#include "stringutils.h"
 #include "testrunner.h"
 #include "testsuite.h"
 #include "utils.h"
 
 #include <iostream>
 
+#include "safeunistd.h"
+#ifdef HAVE_SYS_UTSNAME_H
+# include <sys/utsname.h>
+#endif
+
 #ifdef __WIN32__
-#include "safewindows.h"
-#include "winsock2.h"
+# include "safewindows.h"
+# include "safewinsock2.h"
 #endif
 
 using namespace std;
@@ -90,50 +96,58 @@ PerfTestLogger::~PerfTestLogger()
 }
 
 /// Get the hostname.
-string
+static string
 get_hostname()
 {
 #ifdef __WIN32__
     char buf[256];
-    WORD        WSAVerReq = MAKEWORD(1,1);
-    WSADATA        WSAData;
+    WORD WSAVerReq = MAKEWORD(1,1);
+    WSADATA WSAData;
 
-    if (WSAStartup(WSAVerReq, &WSAData) != 0)
-    {
+    if (WSAStartup(WSAVerReq, &WSAData) != 0) {
         // wrong winsock dlls?
-        return "";
+        return string();
     }
-    int ret = gethostname(buf, 256);
+    if (gethostname(buf, sizeof(buf)) != 0) {
+	*buf = '\0';
+    }
     WSACleanup();
-    if (ret == 0)
-        return buf;
-    else return "";
+    return buf;
+#elif defined HAVE_SYS_UTSNAME_H
+    struct utsname uname_buf;
+    if (uname(&uname_buf) != 0) {
+	uname_buf.nodename[0] = '\0';
+    }
+    return uname_buf.nodename;
+#elif defined HAVE_GETHOSTNAME
+    char buf[256];
+    if (gethostname(buf, sizeof(buf)) != 0) {
+	*buf = '\0';
+    }
+    return buf;
 #else
-    string hostname;
-    try {
-	hostname = stdout_to_string("uname -n 2>/dev/null");
-    } catch (NoSuchProgram) {} catch (ReadError) {}
-    return hostname;
+    return string();
 #endif
 }
 
 /// Get the load average.
-string
+static string
 get_loadavg()
 {
 #ifdef __WIN32__
-    return "";
+    return string();
 #else
     string loadavg;
     try {
-	loadavg = stdout_to_string("uptime 2>/dev/null | sed 's/.*: \\([0-9][0-9]*\\)/\\1/' | sed 's/, .*//'");
+	loadavg = stdout_to_string("uptime 2>/dev/null | sed 's/.*: \\([0-9][0-9]*\\)/\\1/;s/, .*//'");
     } catch (NoSuchProgram) {} catch (ReadError) {}
     return loadavg;
 #endif
 }
 
 /// Get the number of processors.
-string get_ncpus()
+static string
+get_ncpus()
 {
     string ncpus;
 #ifdef __WIN32__
@@ -167,7 +181,8 @@ string get_ncpus()
 }
 
 /// Get details of the OS and distribution.
-string get_distro()
+static string
+get_distro()
 {
     string distro;
 #ifdef __WIN32__    
@@ -187,38 +202,39 @@ string get_distro()
 }
 
 /// Get the subversion revision in use.
-string get_svnrev()
+static string
+get_svnrev()
 {
     string svnrev;
     try {
-	svnrev = stdout_to_string("svn info --non-interactive -R $srcdir/.. 2>/dev/null | grep 'Revision: ' | sed 's/Revision: //' | sort -n | tail -n 1");
+	svnrev = stdout_to_string("svn info --non-interactive -R $srcdir/.. 2>/dev/null | sed 's/^Revision: //p;d' | sort -rn | head -n 1");
     } catch (NoSuchProgram) {} catch (ReadError) {}
 
     return svnrev;
 }
 
 /// Get the subversion revision in use.
-string get_svnbranch()
+static string
+get_svnbranch()
 {
     string branch;
     try {
-	string svnurl = stdout_to_string("svn info --non-interactive $srcdir/.. 2>/dev/null | grep 'URL: ' | sed 's/URL: //'");
-	string svnroot = stdout_to_string("svn info --non-interactive $srcdir/.. 2>/dev/null | grep 'Repository Root: ' | sed 's/Repository Root: //'");
+	string svnurl = stdout_to_string("svn info --non-interactive $srcdir/.. 2>/dev/null | sed 's/^URL: //p;d'");
+	string svnroot = stdout_to_string("svn info --non-interactive $srcdir/.. 2>/dev/null | sed 's/^Repository Root: //p;d'");
 	string svnst = stdout_to_string("svn status --non-interactive -q --no-ignore $srcdir/.. 2>/dev/null");
-	svnurl = svnurl.substr(svnroot.size());
+	svnurl.erase(0, svnroot.size());
 
-	if (svnurl.size() > 0 && svnurl[0] == '/')
-	    svnurl = svnurl.substr(1);
+	if (startswith(svnurl, '/'))
+	    svnurl.erase(0, 1);
 
 	// Append the name of the branch we're on
 	string::size_type i = svnurl.find('/');
 	if (i != svnurl.npos) {
-	    if (svnurl.substr(0, i) == "trunk") {
+	    if (i == CONST_STRLEN("trunk") && startswith(svnurl, "trunk")) {
 		// On trunk.
 		branch = "trunk";
-	    } else if (svnurl.substr(0, i) == "branches") {
-		svnurl = svnurl.substr(i + 1);
-		printf("%s\n", svnurl.c_str());
+	    } else if (i == CONST_STRLEN("branches") && startswith(svnurl, "branches")) {
+		svnurl.erase(0, i + 1);
 		i = svnurl.find('/');
 		if (i != svnurl.npos) {
 		    branch = svnurl.substr(0, i);
@@ -239,7 +255,7 @@ PerfTestLogger::open(const string & logpath)
 {
     out.open(logpath.c_str(), ios::out | ios::binary | ios::trunc);
     if (!out.is_open()) {
-	cerr << "Couldn't open output logfile '" << logpath << "'\n";
+	cerr << "Couldn't open output logfile '" << logpath << "'" << endl;
 	return false;
     }
 

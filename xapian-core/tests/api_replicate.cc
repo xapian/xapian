@@ -33,7 +33,7 @@
 #include "utils.h"
 #include "unixcmds.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 
 using namespace std;

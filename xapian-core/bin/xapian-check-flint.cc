@@ -46,7 +46,7 @@ is_user_metadata_key(const string & key)
 }
 
 size_t
-check_flint_table(const string & tablename, string filename, int opts,
+check_flint_table(const char * tablename, string filename, int opts,
 		  vector<Xapian::termcount> & doclens)
 {
     filename += '.';
@@ -64,7 +64,7 @@ check_flint_table(const string & tablename, string filename, int opts,
     cursor->find_entry("");
     cursor->next(); // Skip the empty entry.
 
-    if (tablename == "postlist") {
+    if (strcmp(tablename, "postlist") == 0) {
 	// Now check the structure of each postlist in the table.
 	string current_term;
 	Xapian::docid lastdid = 0;
@@ -396,7 +396,7 @@ check_flint_table(const string & tablename, string filename, int opts,
 		 << endl;
 	    ++errors;
 	}
-    } else if (tablename == "record") {
+    } else if (strcmp(tablename, "record") == 0) {
 	// Now check the contents of the record table.  Any data is valid as
 	// the tag so we don't check the tags.
 	while (!cursor->after_end()) {
@@ -417,7 +417,7 @@ check_flint_table(const string & tablename, string filename, int opts,
 
 	    cursor->next();
 	}
-    } else if (tablename == "termlist") {
+    } else if (strcmp(tablename, "termlist") == 0) {
 	// Now check the contents of the termlist table.
 	while (!cursor->after_end()) {
 	    string & key = cursor->current_key;
@@ -537,7 +537,7 @@ check_flint_table(const string & tablename, string filename, int opts,
 
 	    cursor->next();
 	}
-    } else if (tablename == "value") {
+    } else if (strcmp(tablename, "value") == 0) {
 	// Now check the contents of the value table.
 	while (!cursor->after_end()) {
 	    string & key = cursor->current_key;
@@ -595,7 +595,7 @@ check_flint_table(const string & tablename, string filename, int opts,
 
 	    cursor->next();
 	}
-    } else if (tablename == "position") {
+    } else if (strcmp(tablename, "position") == 0) {
 	// Now check the contents of the position table.
 	while (!cursor->after_end()) {
 	    string & key = cursor->current_key;

@@ -32,11 +32,10 @@
 
 class BtreeCheck : public FlintTable {
     public:
-	static void check(const std::string & tablename,
-			  const std::string & path, int opts,
-			  std::ostream &out = std::cout);
+	static void check(const char * tablename, const std::string & path,
+			  int opts, std::ostream &out = std::cout);
     private:
-	BtreeCheck(const std::string & tablename_, const std::string &path_,
+	BtreeCheck(const char * tablename_, const std::string &path_,
 		   bool readonly, std::ostream &out_)
 	    : FlintTable(tablename_, path_, readonly), out(out_) { }
 

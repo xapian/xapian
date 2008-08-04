@@ -1,6 +1,7 @@
-/** @file xapian-check-flint.h: Check a flint table.
- *
- * Copyright (C) 2008 Olly Betts
+/** @file xapian-check-flint.h
+ * @brief Check a flint table.
+ */
+/* Copyright (C) 2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,6 +27,7 @@
 #include <string>
 #include <vector>
 
-size_t check_flint_table(const std::string & tablename, std::string table, int opts, std::vector<Xapian::termcount> & doclens);
+size_t check_flint_table(const char * tablename, std::string table, int opts,
+			 std::vector<Xapian::termcount> & doclens);
 
 #endif // XAPIAN_INCLUDED_XAPIAN_CHECK_FLINT_H

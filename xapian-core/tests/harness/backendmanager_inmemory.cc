@@ -33,15 +33,9 @@ BackendManagerInMemory::get_dbtype() const
 }
 
 Xapian::Database
-BackendManagerInMemory::get_database(const vector<string> & files)
+BackendManagerInMemory::do_get_database(const vector<string> & files)
 {
     return getwritedb_inmemory(files);
-}
-
-Xapian::Database
-BackendManagerInMemory::get_database(const string & file)
-{
-    return getwritedb_inmemory(vector<string>(1, file));
 }
 
 Xapian::WritableDatabase

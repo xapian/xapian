@@ -42,6 +42,10 @@ class BackendManagerChert : public BackendManager {
     /// The path of the last writable database used.
     std::string last_wdb_name;
 
+  private:
+    /// Get the path of Chert Xapian::Database instance.
+    std::string do_get_database_path(const std::vector<std::string> & files);
+
   public:
     BackendManagerChert() { }
 
@@ -53,12 +57,6 @@ class BackendManagerChert : public BackendManager {
     /// Return a string representing the current database type.
     std::string get_dbtype() const;
 
-    /// Create a Chert Xapian::Database object indexing multiple files.
-    Xapian::Database get_database(const std::vector<std::string> & files);
-
-    /// Create a Chert Xapian::Database object indexing a single file.
-    Xapian::Database get_database(const std::string & file);
-
     /// Create a Chert Xapian::WritableDatabase object indexing a single file.
     Xapian::WritableDatabase get_writable_database(const std::string & name,
 						   const std::string & file);
@@ -67,10 +65,10 @@ class BackendManagerChert : public BackendManager {
     std::string get_writable_database_path(const std::string & name);
 
     /// Create a Database object for the last opened WritableDatabase.
-    Xapian::Database get_writable_database_as_database(const std::string & name = "");
+    Xapian::Database get_writable_database_as_database(const std::string & name = std::string());
 
     /// Create a WritableDatabase object for the last opened WritableDatabase.
-    Xapian::WritableDatabase get_writable_database_again(const std::string & name = "");
+    Xapian::WritableDatabase get_writable_database_again(const std::string & name = std::string());
 };
 
 #endif // XAPIAN_INCLUDED_BACKENDMANAGER_CHERT_H

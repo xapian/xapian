@@ -52,7 +52,7 @@ mset_range_is_same(const Xapian::MSet &mset1, unsigned int first1,
     TEST_AND_EXPLAIN(mset2.size() >= first2 + count - 1,
 		     "mset2 is too small: expected at least " <<
 		     (first2 + count - 1) << " items, got " <<
-		     mset1.size() << ".");
+		     mset2.size() << ".");
 
     Xapian::MSetIterator i = mset1[first1];
     Xapian::MSetIterator j = mset2[first2];
@@ -80,7 +80,7 @@ mset_range_is_same_weights(const Xapian::MSet &mset1, unsigned int first1,
     TEST_AND_EXPLAIN(mset2.size() >= first2 + count - 1,
 		     "mset2 is too small: expected at least " <<
 		     (first2 + count - 1) << " items, got " <<
-		     mset1.size() << ".");
+		     mset2.size() << ".");
 
     Xapian::MSetIterator i = mset1[first1];
     Xapian::MSetIterator j = mset2[first2];
@@ -108,7 +108,7 @@ mset_range_is_same_percents(const Xapian::MSet &mset1, unsigned int first1,
     TEST_AND_EXPLAIN(mset2.size() >= first2 + count - 1,
 		     "mset2 is too small: expected at least " <<
 		     (first2 + count - 1) << " items, got " <<
-		     mset1.size() << ".");
+		     mset2.size() << ".");
 
     Xapian::MSetIterator i = mset1[first1];
     Xapian::MSetIterator j = mset2[first2];
