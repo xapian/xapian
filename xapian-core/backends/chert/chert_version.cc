@@ -49,7 +49,8 @@ using namespace std;
 #define MAGIC_LEN CONST_STRLEN(MAGIC_STRING)
 #define VERSIONFILE_SIZE (MAGIC_LEN + 4)
 
-void ChertVersion::create()
+void
+ChertVersion::create()
 {
     char buf[VERSIONFILE_SIZE] = MAGIC_STRING;
     unsigned char *v = reinterpret_cast<unsigned char *>(buf) + MAGIC_LEN;
@@ -80,7 +81,8 @@ void ChertVersion::create()
     }
 }
 
-void ChertVersion::read_and_check(bool readonly)
+void
+ChertVersion::read_and_check()
 {
     int fd = ::open(filename.c_str(), O_RDONLY|O_BINARY);
 
@@ -118,27 +120,6 @@ void ChertVersion::read_and_check(bool readonly)
     const unsigned char *v;
     v = reinterpret_cast<const unsigned char *>(buf) + MAGIC_LEN;
     unsigned int version = v[0] | (v[1] << 8) | (v[2] << 16) | (v[3] << 24);
-    if (version >= 200704230 && version < 200709120) {
-	if (readonly) return;
-	// Upgrade the database to the current version since any changes we
-	// make won't be compatible with older versions of Xapian.
-	string filename_save = filename;
-	filename += ".tmp";
-	create();
-	int result;
-#ifdef __WIN32__
-	result = msvc_posix_rename(filename.c_str(), filename_save.c_str());
-#else
-	result = rename(filename.c_str(), filename_save.c_str());
-#endif
-	filename = filename_save;
-	if (result == -1) {
-	    string msg("Failed to update chert version file: ");
-	    msg += filename;
-	    throw Xapian::DatabaseOpeningError(msg);
-	}
-	return;
-    }
     if (version != CHERT_VERSION) {
 	string msg("Chert version file ");
 	msg += filename;

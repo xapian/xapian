@@ -278,7 +278,7 @@ ChertDatabase::open_tables_consistent()
     chert_revision_number_t cur_rev = record_table.get_open_revision_number();
 
     // Check the version file unless we're reopening.
-    if (cur_rev == 0) version_file.read_and_check(readonly);
+    if (cur_rev == 0) version_file.read_and_check();
 
     record_table.open();
     chert_revision_number_t revision = record_table.get_open_revision_number();
@@ -344,7 +344,7 @@ void
 ChertDatabase::open_tables(chert_revision_number_t revision)
 {
     DEBUGCALL(DB, void, "ChertDatabase::open_tables", revision);
-    version_file.read_and_check(readonly);
+    version_file.read_and_check();
     record_table.open(revision);
 
     // In case the position, value, synonym, and/or spelling tables don't

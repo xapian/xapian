@@ -1,3 +1,10 @@
+Mon Aug 04 12:15:14 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/chert/chert_version.cc,
+	  backends/chert/chert_version.h: Remove the code to handle upgrading
+	  flint versions >= 200704230 and < 200709120 as it's just dead code
+	  for chert.
+
 Sun Aug 03 14:34:31 GMT 2008  Olly Betts <olly@survex.com>
 
 	* api/replication.cc: Track the replica numbers using an int rather

@@ -41,11 +41,9 @@ class ChertVersion {
 
     /** Read the version file and check it's a version we understand.
      *
-     *  @param readonly    true if the database is being opened readonly.
-     * 
      *  On failure, an exception is thrown.
      */
-    void read_and_check(bool readonly);
+    void read_and_check();
 };
 
 #endif
