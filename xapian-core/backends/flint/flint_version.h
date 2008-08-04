@@ -1,7 +1,7 @@
 /** @file flint_version.h
  * @brief FlintVersion class
  */
-/* Copyright (C) 2006,2007 Olly Betts
+/* Copyright (C) 2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,10 @@
 #ifndef OM_HGUARD_FLINT_VERSION_H
 #define OM_HGUARD_FLINT_VERSION_H
 
+#include <cstring>
 #include <string>
+
+#include <uuid/uuid.h>
 
 /** The FlintVersion class manages the "iamflint" file.
  *
@@ -29,7 +32,14 @@
  *  that this is a flint database and a database format version number.
  */
 class FlintVersion {
+    /// The filename of the version file.
     std::string filename;
+
+    /// The UUID of this database.
+    mutable uuid_t uuid;
+
+    /// Generate a UUID if we don't already have one.
+    void ensure_uuid() const;
 
   public:
     FlintVersion(const std::string & dbdir) : filename(dbdir) {
@@ -46,6 +56,30 @@ class FlintVersion {
      *  On failure, an exception is thrown.
      */
     void read_and_check(bool readonly);
+
+    /// Return pointer to 16 byte UUID.
+    const char * get_uuid() const { ensure_uuid(); return (const char *)uuid; }
+
+    /// Return UUID in the standard 36 character string format.
+    std::string get_uuid_string() const {
+	char buf[37];
+	ensure_uuid();
+	uuid_unparse_lower(uuid, buf);
+	return std::string(buf, 36);
+    }
+
+    /// Set the UUID from 16 byte binary value @a data.
+    void set_uuid(void * data) {
+	std::memcpy(uuid, data, 16);
+    }
+
+    /** Set the UUID from the standard 36 character string format.
+     *
+     *  @return true if @a s was successfully parsed; false otherwise.
+     */
+    bool set_uuid_string(const std::string & s) {
+	return uuid_parse(s.c_str(), uuid);
+    }
 };
 
 #endif

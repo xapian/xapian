@@ -1,3 +1,12 @@
+Mon Aug 04 14:58:21 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_database.cc,backends/flint/flint_version.cc,
+	  backends/flint/flint_version.h: Generate a UUID when a new flint
+	  database is created, and lazily generate one for existing flint
+	  databases which don't have one.  Store the UUID in a new "uuid"
+	  file in the database directory to avoid having to change the
+	  flint database format incompatibly.
+
 Mon Aug 04 14:13:53 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_database.cc,backends/chert/chert_version.cc,
