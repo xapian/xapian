@@ -27,6 +27,7 @@
 
 #include "api_all.h"
 #include "backendmanager.h"
+#include "stringutils.h"
 #include "testrunner.h"
 #include "testsuite.h"
 
@@ -55,6 +56,12 @@ get_database(const string &dbname, const string &dbname2)
     dbnames.push_back(dbname);
     dbnames.push_back(dbname2);
     return backendmanager->get_database(dbnames);
+}
+
+string
+get_database_path(const string &dbname)
+{
+    return backendmanager->get_database_path(dbname);
 }
 
 Xapian::WritableDatabase
@@ -98,8 +105,7 @@ get_writable_database_again()
 void
 skip_test_unless_backend(const std::string & backend_prefix)
 {
-    std::string dbtype = get_dbtype();
-    if (dbtype.substr(0, backend_prefix.size()) != backend_prefix) {
+    if (!startswith(get_dbtype(), backend_prefix)) {
 	SKIP_TEST("Test only supported for " + backend_prefix + " backend");
     }
 }
@@ -107,8 +113,7 @@ skip_test_unless_backend(const std::string & backend_prefix)
 void
 skip_test_for_backend(const std::string & backend_prefix)
 {
-    std::string dbtype = get_dbtype();
-    if (dbtype.substr(0, backend_prefix.size()) == backend_prefix) {
+    if (startswith(get_dbtype(), backend_prefix)) {
 	SKIP_TEST("Test not supported for " + backend_prefix + " backend");
     }
 }
@@ -119,6 +124,10 @@ class ApiTestRunner : public TestRunner
     int run() const {
 	int result = 0;
 #include "api_collated.h"
+	test_driver::report(test_driver::subtotal,
+			    "backend " + backendmanager->get_dbtype());
+	test_driver::total += test_driver::subtotal;
+	test_driver::subtotal.reset();
 	return result;
     }
 };

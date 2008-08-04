@@ -275,8 +275,11 @@ ChertCursor::del()
 
     B->del(current_key);
 
-    // The deletion happens in a new (uncommitted) revision of the tree, but
-    // the cursor is running over the previous revision, so it can still see
-    // the deleted key.
+    // If we're iterating an older revision of the tree, then the deletion
+    // happens in a new (uncommitted) revision and the cursor still sees
+    // the deleted key.  But if we're iterating the new uncommitted revision
+    // then the deleted key is no longer visible.  We need to handle both
+    // cases - either find_entry_ge() finds the deleted key or not.
+    if (!find_entry_ge(current_key)) return is_positioned;
     return next();
 }

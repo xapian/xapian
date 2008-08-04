@@ -80,9 +80,7 @@ PWRITE_PROTOTYPE
 #include <string>
 #include <vector>
 
-using std::min;
-using std::string;
-using std::vector;
+using namespace std;
 
 // Only try to compress tags longer than this many bytes.
 const size_t COMPRESS_MIN = 4;
@@ -289,7 +287,7 @@ ChertTable::write_block(uint4 n, const byte * p) const
 
     if (both_bases) {
 	// Delete the old base before modifying the database.
-	sys_unlink(name + "base" + other_base_letter);
+	sys_unlink(name + "base" + other_base_letter());
 	both_bases = false;
 	latest_revision_number = revision_number;
     }
@@ -1577,9 +1575,6 @@ ChertTable::do_open_to_write(bool revision_supplied,
 
     buffer = zeroed_new(block_size);
 
-    // swap for writing
-    other_base_letter = base_letter == 'A' ? 'B' : 'A';
-
     changed_n = 0;
     changed_c = DIR_START;
     seq_count = SEQ_START_POINT;
@@ -1587,7 +1582,7 @@ ChertTable::do_open_to_write(bool revision_supplied,
     return true;
 }
 
-ChertTable::ChertTable(string tablename_, string path_, bool readonly_,
+ChertTable::ChertTable(const char * tablename_, string path_, bool readonly_,
 		       int compress_strategy_, bool lazy_)
 	: tablename(tablename_),
 	  revision_number(0),
@@ -1604,7 +1599,6 @@ ChertTable::ChertTable(string tablename_, string path_, bool readonly_,
 	  kt(0),
 	  buffer(0),
 	  base(),
-	  other_base_letter(0),
 	  name(path_),
 	  seq_count(0),
 	  changed_n(0),
@@ -1617,7 +1611,9 @@ ChertTable::ChertTable(string tablename_, string path_, bool readonly_,
 	  compress_strategy(compress_strategy_),
 	  lazy(lazy_)
 {
-    DEBUGCALL(DB, void, "ChertTable::Btree", path_ << ", " << readonly_);
+    DEBUGCALL(DB, void, "ChertTable::ChertTable",
+	      tablename_ << "," << path_ << ", " << readonly_ << ", " <<
+	      compress_strategy_ << ", " << lazy_);
 }
 
 bool
@@ -1773,11 +1769,8 @@ ChertTable::commit(chert_revision_number_t revision, int changes_fd,
     base.set_have_fakeroot(faked_root_block);
     base.set_sequential(sequential);
 
-    {
-	int tmp = base_letter;
-	base_letter = other_base_letter;
-	other_base_letter = tmp;
-    }
+    base_letter = other_base_letter();
+
     both_bases = true;
     latest_revision_number = revision_number = revision;
     root = C[level].n;
@@ -1842,7 +1835,7 @@ ChertTable::write_changed_blocks(int changes_fd)
 
     string buf;
     buf += pack_uint(2u); // Indicate the item is a list of blocks
-    buf += pack_uint(tablename.size());
+    buf += pack_uint(strlen(tablename));
     buf += tablename;
     buf += pack_uint(block_size);
     chert_io_write(changes_fd, buf.data(), buf.size());
@@ -2039,7 +2032,8 @@ ChertTable::prev_for_sequential(Cursor * C_, int /*dummy*/) const
 	    } else {
 		read_block(n, p);
 	    }
-	    if (REVISION(p) > 1) {
+	    if (writable) AssertEq(revision_number, latest_revision_number);
+	    if (REVISION(p) > revision_number + writable) {
 		set_overwritten();
 		return false;
 	    }
@@ -2091,7 +2085,8 @@ ChertTable::next_for_sequential(Cursor * C_, int /*dummy*/) const
 	    } else {
 		read_block(n, p);
 	    }
-	    if (REVISION(p) > 1) {
+	    if (writable) AssertEq(revision_number, latest_revision_number);
+	    if (REVISION(p) > revision_number + writable) {
 		set_overwritten();
 		return false;
 	    }

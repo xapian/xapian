@@ -847,7 +847,7 @@ ChertDatabase::get_value_freq(Xapian::valueno valno) const
 	try {
 	    value_table.get_value_stats(mru_valstats, valno);
 	    mru_valno = valno;
-	} catch(...) {
+	} catch (...) {
 	    mru_valno = Xapian::BAD_VALUENO;
 	    throw;
 	}
@@ -863,7 +863,7 @@ ChertDatabase::get_value_lower_bound(Xapian::valueno valno) const
 	try {
 	    value_table.get_value_stats(mru_valstats, valno);
 	    mru_valno = valno;
-	} catch(...) {
+	} catch (...) {
 	    mru_valno = Xapian::BAD_VALUENO;
 	    throw;
 	}
@@ -879,7 +879,7 @@ ChertDatabase::get_value_upper_bound(Xapian::valueno valno) const
 	try {
 	    value_table.get_value_stats(mru_valstats, valno);
 	    mru_valno = valno;
-	} catch(...) {
+	} catch (...) {
 	    mru_valno = Xapian::BAD_VALUENO;
 	    throw;
 	}
@@ -1397,10 +1397,9 @@ ChertWritableDatabase::add_document_(Xapian::docid did,
 	{
 	    Xapian::ValueIterator value = document.values_begin();
 	    Xapian::ValueIterator value_end = document.values_end();
-	    for ( ; value != value_end; ++value) {
-		value_table.add_value(*value, did, value.get_valueno(),
-				      value_stats);
-	    }
+	    string s;
+	    value_table.encode_values(s, value, value_end, value_stats);
+	    value_table.set_encoded_values(did, s);
 	}
 
 	chert_doclen_t new_doclen = 0;
@@ -1616,22 +1615,14 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 	// they come from where they're going!  Better to ask Document
 	// nicely and shortcut in this case!
 	{
-	    list<pair<string, Xapian::valueno> > tmp;
 	    Xapian::ValueIterator value = document.values_begin();
 	    Xapian::ValueIterator value_end = document.values_end();
-	    for ( ; value != value_end; ++value) {
-		tmp.push_back(make_pair(*value, value.get_valueno()));
-	    }
+	    string s;
+	    value_table.encode_values(s, value, value_end, value_stats);
 
 	    // Replace the values.
 	    value_table.delete_all_values(did, value_stats);
-
-	    // Set the values.
-	    list<pair<string, Xapian::valueno> >::const_iterator i;
-	    for (i = tmp.begin(); i != tmp.end(); ++i) {
-		value_table.add_value(i->first, did, i->second,
-				      value_stats);
-	    }
+	    value_table.set_encoded_values(did, s);
 	}
 
 	chert_doclen_t new_doclen = 0;

@@ -2,7 +2,7 @@
  *  @brief SubMatch class for a remote database.
  */
 /* Copyright (C) 2006,2007 Olly Betts
- * Copyright (C) 2007 Lemur Consulting Ltd
+ * Copyright (C) 2007,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,6 +44,9 @@ class RemoteSubMatch : public SubMatch {
      */
     bool decreasing_relevance;
 
+    /// The factor to use to convert weights to percentages.
+    double percent_factor;
+
   public:
     /// Constructor.
     RemoteSubMatch(RemoteDatabase *db_, bool decreasing_relevance_);
@@ -60,6 +63,9 @@ class RemoteSubMatch : public SubMatch {
     /// Get PostList and term info.
     PostList * get_postlist_and_term_info(MultiMatch *matcher,
 	map<string, Xapian::MSet::Internal::TermFreqAndWeight> *termfreqandwts);
+
+    /// Get percentage factor - only valid after get_postlist_and_term_info().
+    double get_percent_factor() const { return percent_factor; }
 
     /// Short-cut for single remote match.
     void get_mset(Xapian::MSet & mset) { db->get_mset(mset); }

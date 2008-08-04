@@ -198,7 +198,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	/** Swap the MSet we point to with another */
 	void swap(MSet & other);
 
-	/** Iterator for the terms in this MSet */
+	/** Iterator for the items in this MSet */
 	MSetIterator begin() const;
 
 	/** End iterator corresponding to begin() */
@@ -254,8 +254,6 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
 	 *  convenient syntactically.
 	 */
 	MSetIterator() : index(0), mset() { }
-
-	~MSetIterator() { }
 
 	/// Copying is allowed (and is cheap).
 	MSetIterator(const MSetIterator &other) {
@@ -319,8 +317,8 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
 	/** Get the rank of the document at the current position.
 	 *
 	 *  The rank is the position that this document is at in the ordered
-	 *  list of results of the query.  The document judged "most relevant"
-	 *  will have rank of 0.
+	 *  list of results of the query.  The result is 0-based - i.e. the
+	 *  top-ranked document has a rank of 0.
 	 */
 	Xapian::doccount get_rank() const {
 	    return mset.get_firstitem() + index;
@@ -457,8 +455,6 @@ class XAPIAN_VISIBILITY_DEFAULT ESetIterator {
 	 *  convenient syntactically.
 	 */
 	ESetIterator() : index(0), eset() { }
-
-	~ESetIterator() { }
 
 	/// Copying is allowed (and is cheap).
 	ESetIterator(const ESetIterator &other) {
@@ -1186,7 +1182,6 @@ class XAPIAN_VISIBILITY_DEFAULT BM25Weight : public Weight {
 		       weight_calculated(false) { }
 
 	BM25Weight * clone() const;
-	~BM25Weight() { }
 	std::string name() const;
 	std::string serialise() const;
 	BM25Weight * unserialise(const std::string & s) const;
@@ -1242,7 +1237,6 @@ class XAPIAN_VISIBILITY_DEFAULT TradWeight : public Weight {
 	TradWeight() : param_k(1.0), weight_calculated(false) { }
 
 	TradWeight * clone() const;
-	~TradWeight() { }
 	std::string name() const;
 	std::string serialise() const;
 	TradWeight * unserialise(const std::string & s) const;

@@ -202,8 +202,10 @@ EXTRA_DIST +=\
 	testdata/flint-1.0.2/termlist.baseA \
 	testdata/flint-1.0.2/termlist.DB
 
-clean-local:
-	rm -rf .chert .flint .multi .multichert .multiflint
+# Remove the cached databases before "make check" to avoid issues with missing
+# bugs in database creation when we reuse databases from a previous test run.
+check-local clean-local:
+	rm -rf .chert .flint .multi .multichert .multiflint .stub
 
 include perftest/Makefile.mk
 include harness/Makefile.mk

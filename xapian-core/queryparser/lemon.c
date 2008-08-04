@@ -9,8 +9,8 @@
 ** Modified to add "-o" and "-h" command line options.  Olly Betts 2005-02-14
 ** Modified to fix a number of compiler warnings.  Olly Betts 2007-02-20
 **
-** Synced with upstream CVS rev 1.55:
-** http://www.sqlite.org/cvstrac/fileview?f=sqlite/tool/lemon.c&v=1.55
+** Synced with upstream CVS rev 1.57:
+** http://www.sqlite.org/cvstrac/fileview?f=sqlite/tool/lemon.c&v=1.57
 */
 #include <stdio.h>
 #include <stdarg.h>
@@ -140,6 +140,7 @@ struct symbol {
   int useCnt;              /* Number of times used */
   char *destructor;        /* Code which executes whenever this symbol is
                            ** popped from the stack during error processing */
+  int destLineno;          /* Line number for start of destructor */
   char *datatype;          /* The data type of information held by this
                            ** object. Only used if type==NONTERMINAL */
   int dtnum;               /* The data type number.  In the parser, the value
@@ -987,7 +988,7 @@ struct lemon *lemp;
   }
   for(rp=lemp->rule; rp; rp=rp->next){
     if( rp->canReduce ) continue;
-    ErrorMsg(lemp->filename,rp->ruleline,"This rule can not be reduced.\n");
+    ErrorMsg(lemp->filename,rp->ruleline,"This rule can not be reduced.");
     lemp->errorcnt++;
   }
 }
@@ -1999,6 +2000,7 @@ struct pstate {
   char *declkeyword;         /* Keyword of a declaration */
   char **declargslot;        /* Where the declaration argument should be put */
   int insertLineMacro;       /* Add #line before declaration insert */
+  int *decllinenoslot;       /* Where to write declaration line number */
   enum e_assoc declassoc;    /* Assign this association to decl arguments */
   int preccounter;           /* Assign this precedence to decl arguments */
   struct rule *firstrule;    /* Pointer to first rule in the grammar */
@@ -2033,7 +2035,7 @@ struct pstate *psp;
       }else if( x[0]=='{' ){
         if( psp->prevrule==0 ){
           ErrorMsg(psp->filename,psp->tokenlineno,
-"There is not prior rule opon which to attach the code "
+"There is no prior rule upon which to attach the code "
 "fragment which begins on this line.");
           psp->errorcnt++;
 	}else if( psp->prevrule->code!=0 ){
@@ -2100,7 +2102,7 @@ struct pstate *psp;
         psp->state = LHS_ALIAS_2;
       }else{
         ErrorMsg(psp->filename,psp->tokenlineno,
-          "\"%s\" is not a valid alias for the LHS \"%s\"\n",
+          "\"%s\" is not a valid alias for the LHS \"%s\"",
           x,psp->lhs->name);
         psp->errorcnt++;
         psp->state = RESYNC_AFTER_RULE_ERROR;
@@ -2232,6 +2234,7 @@ struct pstate *psp;
       if( isalpha(x[0]) ){
         psp->declkeyword = x;
         psp->declargslot = 0;
+        psp->decllinenoslot = 0;
         psp->insertLineMacro = 1;
         psp->state = WAITING_FOR_DECL_ARG;
         if( strcmp(x,"name")==0 ){
@@ -2308,12 +2311,13 @@ struct pstate *psp;
     case WAITING_FOR_DESTRUCTOR_SYMBOL:
       if( !isalpha(x[0]) ){
         ErrorMsg(psp->filename,psp->tokenlineno,
-          "Symbol name missing after %destructor keyword");
+          "Symbol name missing after %%destructor keyword");
         psp->errorcnt++;
         psp->state = RESYNC_AFTER_DECL_ERROR;
       }else{
         struct symbol *sp = Symbol_new(x);
         psp->declargslot = &sp->destructor;
+        psp->decllinenoslot = &sp->destLineno;
         psp->insertLineMacro = 1;
         psp->state = WAITING_FOR_DECL_ARG;
       }
@@ -2321,7 +2325,7 @@ struct pstate *psp;
     case WAITING_FOR_DATATYPE_SYMBOL:
       if( !isalpha(x[0]) ){
         ErrorMsg(psp->filename,psp->tokenlineno,
-          "Symbol name missing after %destructor keyword");
+          "Symbol name missing after %%destructor keyword");
         psp->errorcnt++;
         psp->state = RESYNC_AFTER_DECL_ERROR;
       }else{
@@ -2355,6 +2359,7 @@ struct pstate *psp;
       if( x[0]=='{' || x[0]=='\"' || isalnum(x[0]) ){
         char *zOld, *zNew, *zBuf, *z;
         int nOld, n, nLine, nNew, nBack;
+        int addLineMacro;
         char zLine[50];
         zNew = x;
         if( zNew[0]=='"' || zNew[0]=='{' ) zNew++;
@@ -2366,7 +2371,9 @@ struct pstate *psp;
         }
         nOld = strlen(zOld);
         n = nOld + nNew + 20;
-        if( psp->insertLineMacro ){
+        addLineMacro = psp->insertLineMacro &&
+                        (psp->decllinenoslot==0 || psp->decllinenoslot[0]!=0);
+        if( addLineMacro ){
           for(z=psp->filename, nBack=0; *z; z++){
             if( *z=='\\' ) nBack++;
           }
@@ -2376,7 +2383,7 @@ struct pstate *psp;
         }
         *psp->declargslot = zBuf = realloc(*psp->declargslot, n);
         zBuf += nOld;
-        if( psp->insertLineMacro ){
+        if( addLineMacro ){
           if( nOld && zBuf[-1]!='\n' ){
             *(zBuf++) = '\n';
           }
@@ -2391,6 +2398,9 @@ struct pstate *psp;
           }
           *(zBuf++) = '"';
           *(zBuf++) = '\n';
+        }
+        if( psp->decllinenoslot && psp->decllinenoslot[0]==0 ){
+          psp->decllinenoslot[0] = psp->tokenlineno;
         }
         memcpy(zBuf, zNew, nNew);
         zBuf += nNew;
@@ -2452,7 +2462,7 @@ struct pstate *psp;
   }
 }
 
-/* Run the proprocessor over the input file text.  The global variables
+/* Run the preprocessor over the input file text.  The global variables
 ** azDefine[0] through azDefine[nDefine-1] contains the names of all defined
 ** macros.  This routine looks for "%ifdef" and "%ifndef" and "%endif" and
 ** comments them out.  Text in between is also commented out as appropriate.
@@ -3180,6 +3190,7 @@ int *lineno;
  }else if( sp->destructor ){
    cp = sp->destructor;
    fprintf(out,"{\n"); (*lineno)++;
+   tplt_linedir(out,sp->destLineno,lemp->outname); (*lineno)++;
  }else if( lemp->vardest ){
    cp = lemp->vardest;
    if( cp==0 ) return;
@@ -3455,6 +3466,10 @@ int mhflag;                 /* True if generating makeheaders output */
     while( *cp ) stddt[j++] = *cp++;
     while( j>0 && isspace(stddt[j-1]) ) j--;
     stddt[j] = 0;
+    if( strcmp(stddt, lemp->tokentype)==0 ){
+      sp->dtnum = 0;
+      continue;
+    }
     hash = 0;
     for(j=0; stddt[j]; j++){
       hash = hash*53 + stddt[j];
@@ -3881,9 +3896,14 @@ int mhflag;     /* Output in makeheaders format if true */
   ** (In other words, generate the %destructor actions)
   */
   if( lemp->tokendest ){
+    int once = 1;
     for(i=0; i<lemp->nsymbol; i++){
       struct symbol *sp = lemp->symbols[i];
       if( sp==0 || sp->type!=TERMINAL ) continue;
+      if( once ){
+        fprintf(out, "      /* TERMINAL Destructor */\n"); lineno++;
+        once = 0;
+      }
       fprintf(out,"    case %d: /* %s */\n",
               sp->index, sp->name); lineno++;
     }
@@ -3895,18 +3915,23 @@ int mhflag;     /* Output in makeheaders format if true */
   }
   if( lemp->vardest ){
     struct symbol *dflt_sp = 0;
+    int once = 1;
     for(i=0; i<lemp->nsymbol; i++){
       struct symbol *sp = lemp->symbols[i];
       if( sp==0 || sp->type==TERMINAL ||
           sp->index<=0 || sp->destructor!=0 ) continue;
+      if( once ){
+        fprintf(out, "      /* Default NON-TERMINAL Destructor */\n"); lineno++;
+        once = 0;
+      }
       fprintf(out,"    case %d: /* %s */\n",
               sp->index, sp->name); lineno++;
       dflt_sp = sp;
     }
     if( dflt_sp!=0 ){
       emit_destructor_code(out,dflt_sp,lemp,&lineno);
-      fprintf(out,"      break;\n"); lineno++;
     }
+    fprintf(out,"      break;\n"); lineno++;
   }
   for(i=0; i<lemp->nsymbol; i++){
     struct symbol *sp = lemp->symbols[i];
@@ -4401,6 +4426,7 @@ char *x;
     sp->firstset = 0;
     sp->lambda = LEMON_FALSE;
     sp->destructor = 0;
+    sp->destLineno = 0;
     sp->datatype = 0;
     sp->useCnt = 0;
     Symbol_insert(sp,sp->name);

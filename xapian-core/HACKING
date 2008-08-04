@@ -8,8 +8,8 @@ Xapian.  The documentation contains a section covering various internal
 aspects of the library - this can also be found on the Xapian website
 <http://xapian.org/>.
 
-Extra options to give to configure:
-===================================
+Extra options to give to configure
+==================================
 
 Note: Non-developer configure options are described in INSTALL
 
@@ -168,8 +168,8 @@ which you might find useful:
     other value forces the use of colour.  Colour output is always disabled on
     Microsoft Windows, so XAPIAN_TESTSUITE_OUTPUT has no effect there.
 
-Using various debugging, profiling, and leak-finding tools:
-===========================================================
+Using various debugging, profiling, and leak-finding tools
+==========================================================
 
 If you're using GCC 3.4 or newer, you can turn on debugging iterators, etc in
 the GNU C++ STL by defining _GLIBCXX_DEBUG:
@@ -215,106 +215,73 @@ To use Insure (another proprietary tool):
 If you have runes for using other tools, please add them above, or send them
 to us so we can.
 
-Building from SVN:
-==================
+SVN Snapshots
+=============
 
-If you're building code from SVN, you'll want to configure with:
+If you want to try unreleased Xapian code, you can fetch it from our SVN
+repository.  For convenience, we also provide bootstrapped tarballs (much like
+the sourcecode download for any release version) which get built every 20
+minutes if there have been any changes checked in.  These tarballs need to
+pass "make distcheck" to be automatically uploaded, so using them will help
+to assure that you don't pick a "bad" version.  The snapshots are available
+from the "Bleeding Edge" page of the Xapian website.
 
-./configure --enable-maintainer-mode
+Building from SVN
+=================
 
-This will be done for you if you use the top-level bootstrap script and then
-run the top-level configure this produces (see below for more information about
-this).  If you don't enable maintainer mode, then rules to rebuild generated
-sources are disabled (and similarly rules to build documentation are only
-enabled by --enable-documentation, or --enable-maintainer-mode without
---disable-documentation).
+When building from an SVN checkout, we *strongly* recommend that you use the
+``bootstrap`` script in the top level directory to set up the tree ready for
+building.  This script will check what directories you have checked out, so you
+can bootstrap a partial tree.
+
+You will need the following tools installed to build from SVN:
+
+* GNU m4 (for autoconf)
+* perl 5 (for automake; also for various maintainer scripts)
+* python >= 2.3 (for generating the Python bindings)
+* GNU make (or another make which support VPATH for explicit rules)
 
 The SVN repository does not contain any automatically generated files
-(such as configure, Makefile.in, Lemon generated sources, etc) because
-experience shows it's best to keep these out of version control.  This
-means that if you check the sources out of SVN, before you can successfully
-run the normal build process you'll need to have several programs installed
-so these files can be generated.  Note that you can avoid needing to have
-these programs installed by using the SVN snapshots available from the
-"Bleeding Edge" page of the Xapian website.  These snapshots are bootstrapped
-tarballs much like any release version.
+(such as configure, Makefile.in, Snowball-generated stemmers, Lemon-generated
+parsers, SWIG-generated code, etc) because experience shows it's best to keep
+these out of version control.  To avoid requiring you to install the correct
+versions of the tools required, we either include the source to these tools in
+the SVN repo directly (in the case of Snowball and Lemon), or pull them in to
+an SVN checkout using svn:externals (SWIG), or the bootstrap script will lazily
+download, build, and install them within the source tree (autoconf, automake,
+and libtool).  To download the source tarballs for these, bootstrap will use
+wget or curl if installed.  If not, it will give an error telling you the
+URL to download from by hand and where to copy the file to.
 
-At the time of writing, these programs are autoconf, automake, and libtool.
-Some older versions of these programs may not work correctly at the time of
-writing, we require the following versions:
+Bootstrap will then run autoreconf on each of the checked-out subdirectories,
+and generate a top-level configure script.  This configure script allows you to
+configure xapian-core and any other modules you've checked out with single
+simple command, such that the other modules link against the uninstalled
+xapian-core (which is very handy for development work and a bit fiddly to set
+up by hand).  It automatically passes --enable-maintainer-mode to the
+subprojects so that the autotools will be rerun if configure.ac, Makefile.am,
+etc are modified.
 
-	autoconf (GNU Autoconf) 2.59
-		2.57 fixes the annoying chmod warning on FreeBSD.  automake
-		1.8.5 needs at least 2.58, and 2.59 was released the same day
-		as 2.58 to fix a problem.  Currently snapshots and release
-		tarballs are generated with autoconf 2.62 but this isn't yet a
-		hard requirement (because the spec file for building RPMs
-		currently runs autoreconf to avoid a libtool bug with setting
-		rpath for /usr/lib64, and such platforms may still only have
-		autoconf 2.59).
-
-	automake (GNU automake) 1.8.3
-		automake 1.5 adds support for AM_CXXFLAGS, but doesn't work
-		with "make check" with Solaris make - the problem is with the
-		rules to build tests/internaltest (perhaps no longer relevant
-		as those rules are simpler now).
-
-		Note that automake 1.6 has a bug which causes it to emit
-		spurious warnings: this is fixed in automake 1.6.1.
-
-		automake 1.7 and 1.8 work too (we required 1.8.5 for ages).
-
-		automake 1.9's NEWS file suggests it will benefit us with
-		smaller Makefile.ins amongst other things.
-
-		automake 1.10 requires autoconf 2.60.  Currently snapshots and
-		release tarballs are generated with automake 1.10.1, but this
-		isn't a hard requirement - configure.ac requires at least
-		1.8.3, but only because this is the version which SLES 9 had
-		and the RPM spec file runs autoreconf (RHEL 4 had 1.9.2; Debian
-		sarge had 1.9.5).  Please use a newer version (1.9.x or 1.10.x)
-		for development if at all possible.
-
-	GNU libtool 2.2.4
-		libtool 1.5 was the first version to properly support linking
-		C++ libraries.
-
-                libtool 2.2 fixes some long-standing issues and is significantly
-                faster, and 2.2.4 includes several bug-fixes.  (Note: nothing
-                actually enforces the requirement for 2.2.4, but this is the
-                version which snapshots and release tarballs are currently
-                bootstrapped with).
-
-Please tell us if you find that older or newer versions of any of these
-tools work or fail to work.
-
-We have provided a simple script (bootstrap) to run these programs for you
-on all the xapian modules you've checked out of SVN to produce a source tree
-like that you'd get from unpacking the result of "make dist".  bootstrap is
-in SVN in the level above xapian-core, etc.  Running bootstrap generates
-a configure script in the top level which allows you to configure xapian-core
-and any other modules you've checked out with one command.
-
-The bootstrap script should be run from its source directory (ie, from the
-directory containing it).  The configure script generated by it supports
-building in a separate directory to the sources: simply create the directory
-you want to build in, and then run the configure script from inside that
-directory.  For example, to build in a directory called "build" (starting in
-the top level source directory)::
+The bootstrap script doesn't care what the current directory is.  The top-level
+configure script generated by it supports building in a separate directory to
+the sources: simply create the directory you want to build in, and then run the
+configure script from inside that directory.  For example, to build in a
+directory called "build" (starting in the top level source directory)::
 
   ./bootstrap
   mkdir build
   cd build
   ../configure
 
-When running bootstrap, you may need to add extra macro directories to the path
-searched by aclocal (which is part of automake) - you can do this by specifying
-these in the ACLOCAL_FLAGS environment variable, e.g.::
+When running bootstrap, if you need to add any extra macro directories to the
+path searched by aclocal (which is part of automake), you can do this by
+specifying these in the ACLOCAL_FLAGS environment variable, e.g.::
 
   ACLOCAL_FLAGS=-I/extra/macro/directory ./bootstrap
 
-There is a good GNU autotools tutorial at
-<http://www-src.lip6.fr/homepages/Alexandre.Duret-Lutz/autotools.html>.
+If you wish to prevent bootstrap from downloading and building the autotools
+pass the --without-autotools option.  You can force it to delete the downloaded
+and installed versions by passing --clean.
 
 If you are tracking development in SVN, there will sometimes be changes to the
 build system sources which require regeneration of the generated makefiles and
@@ -323,40 +290,86 @@ the necessary files, but in the event that a build fails after an update, it
 may be worth re-running the bootstrap script to regenerate the build system
 from scratch, before looking for the cause of the error elsewhere.
 
+Tools required to build documentation
+-------------------------------------
+
 If you want to be able to build distribution tarballs (with "make dist") then
-you'll also need some further tools.  The build system is designed to fail with
-a suitable message if you lack any of the required tools (the alternative is to
-build a tarball with various bits missing, which is best avoided - better to be
-told to install pdflatex than to upload a tarball with no PDF manual).
+you'll also need some further tools.  If you don't want to have to install all
+these tools, then pass --disable-documentation to configure to disable these
+rules (the default state of this follows the setting of
+--enable-maintainer-mode, so in a non-maintainer-mode tree, you can pass
+--enable-documentation to enable these rules).  Without the documentation,
+"make dist" will fail (to prevent accidentally distributing tarballs without
+documentation), but you can configure and build.
 
-These tools are:
+The documentation tools are:
 
-doxygen (v1.5.2 is used for snapshots and releases; 1.4.6 produced incomplete
-	 documentation for Xapian::Query).
-dot (part of the graphviz package)
-perl 5
-pdflatex (on Debian/Ubuntu, tetex-extra is also required for fancyhdr.sty)
-ghostscript
-epstopdf (usually packaged with TeX)
-makeindex (usually packaged with TeX)
-help2man
-rst2html or rst2html.py (on Debian/Ubuntu, this is provided by the
-        python-docutils package)
-pngcrush (optional - used to reduce the size of PNG files in the HTML apidocs)
+* doxygen (v1.5.2 is used for snapshots and releases; 1.4.6 produced incomplete
+  documentation for Xapian::Query).
+* dot (part of the graphviz package)
+* pdflatex (on Debian/Ubuntu, tetex-extra is also required for fancyhdr.sty)
+* ghostscript
+* epstopdf (usually packaged with TeX)
+* makeindex (usually packaged with TeX)
+* help2man
+* rst2html or rst2html.py (on Debian/Ubuntu, this is provided by the
+  python-docutils package)
+* pngcrush (optional - used to reduce the size of PNG files in the HTML
+  apidocs)
 
 Note that pdflatex, epstopdf, gs, and makeindex must all currently be on the
 system path (as specified by the environmental variable PATH), since doxygen
 will look for them there.
 
-Building from SVN on Windows with MSVC:
----------------------------------------
+Autotools versions
+------------------
+
+* autoconf 2.62 is recommended and a hard minimum requirement.
+
+  autoconf 2.57 fixes the annoying chmod warnings on FreeBSD.
+
+  autoconf 2.58 is required by automake 1.8.5, and 2.59 was released the same
+  day as 2.58 to fix a problem.
+
+  autoconf 2.60 is required for docdir support.
+
+  autoconf 2.62 generates faster configure scripts and warns about unrecognised
+  options passed to configure.
+
+* automake 1.10.1 is recommended and a hard minimum requirement.
+
+  automake 1.7 adds support for per-program and per-library _CPPFLAGS.
+
+  automake 1.9 is required for option "tar-ustar".  It also reduces Makefile.in
+  size.
+
+  automake 1.10 requires autoconf 2.60 and Perl 5.6.
+
+  automake 1.10.1 fixes "make clean" to remove .libs from bin/ and examples/.
+  
+* libtool 2.2.4 is recommended and a hard minimum requirement.
+
+  libtool 2.2 is required for use to be able to override link_all_deplibs_CXX
+  and sys_lib_dlsearch_path_spec in configure.  It also fixes some
+  long-standing issues and is significantly faster.
+  
+  libtool 2.2.4 includes several bug-fixes over 2.2.
+
+Please tell us if you find that older or newer versions of any of these
+tools work or fail to work.
+
+There is a good GNU autotools tutorial at
+<http://www-src.lip6.fr/homepages/Alexandre.Duret-Lutz/autotools.html>.
+
+Building from SVN on Windows with MSVC
+--------------------------------------
 
 The windows build process is maintained in the xapian-maintainer-tools
 directory in the subversion repository.  See the win32msvc/README file in that
 directory for details of how to build from subversion.
 
-Use of C++ Features:
-====================
+Use of C++ Features
+===================
 
 * STL:  We decided early on to embrace the C++ STL.  Some older compilers
   don't include full support for this.  Often we can work around this, for
@@ -428,11 +441,11 @@ Use of C++ Features:
   Just put the declaration in the header file, and put the definition in a .cc
   file with the same basename.
 
-Miscellaneous Portability Issues:
-=================================
+Miscellaneous Portability Issues
+================================
 
-Web Resources:
---------------
+Web Resources
+-------------
 
 The "C++ FAQ Lite" covers many frequently asked C++ questions:
 http://www.parashift.com/c++-faq-lite/
@@ -511,8 +524,8 @@ problems from this, we specify a particular revision to import, but this does
 mean we need to monitor changes to xapian-core and decide when to update omega.
 The release checklist includes a reminder to check this.
 
-Warning Free Compilation:
--------------------------
+Warning Free Compilation
+------------------------
 
 Compiling without warnings on every platform is our goal, though it's not
 always possible to achieve.  For example, GCC 2.95 produces a few bogus

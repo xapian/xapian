@@ -693,7 +693,7 @@ multimerge_postlists(FlintTable * out, const char * tmpdir,
 }
 
 static void
-merge_chert_values(const string & tablename,
+merge_chert_values(const char * tablename,
 		   FlintTable *out, const vector<string> & inputs,
 		   const vector<Xapian::docid> & offset, bool lazy)
 {
@@ -787,7 +787,7 @@ merge_chert_values(const string & tablename,
 }
 
 static void
-merge_docid_keyed(const string & tablename,
+merge_docid_keyed(const char * tablename,
 		  FlintTable *out, const vector<string> & inputs,
 		  const vector<Xapian::docid> & offset, bool lazy)
 {

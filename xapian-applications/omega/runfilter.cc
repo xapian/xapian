@@ -22,11 +22,10 @@
 #include <iostream>
 #include <string>
 
-#include "safeerrno.h"
 #include <sys/types.h>
-#include <stdio.h>
+#include "safeerrno.h"
 #include "safefcntl.h"
-
+#include <stdio.h>
 #ifdef HAVE_SYS_TIME_H
 # include <sys/time.h>
 #endif
@@ -40,6 +39,10 @@
 # include <sys/socket.h>
 #endif
 #include "safeunistd.h"
+
+#if defined HAVE_FORK && defined HAVE_SOCKETPAIR && defined HAVE_SETRLIMIT
+# include <signal.h>
+#endif
 
 #include "freemem.h"
 #include "runfilter.h"

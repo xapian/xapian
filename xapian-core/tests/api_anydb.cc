@@ -30,6 +30,7 @@
 #include <string>
 
 #include <xapian.h>
+#include "backendmanager_local.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include "utils.h"
@@ -491,6 +492,56 @@ DEFINE_TESTCASE(topercent1, backend) {
     return true;
 }
 
+// tests the percentage values returned
+DEFINE_TESTCASE(topercent2, backend) {
+    BackendManagerLocal local_manager;
+    local_manager.set_datadir(test_driver::get_srcdir() + "/testdata/");
+    Xapian::Enquire localenq(local_manager.get_database("apitest_simpledata"));
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+
+    int pct;
+
+    // First, test a search in which the top document scores 100%.
+    enquire.set_query(query("this"));
+    localenq.set_query(query("this"));
+    Xapian::MSet mymset = enquire.get_mset(0, 20);
+    Xapian::MSet localmset = localenq.get_mset(0, 20);
+
+    Xapian::MSetIterator i = mymset.begin();
+    TEST(i != mymset.end());
+    pct = mymset.convert_to_percent(i);
+    TEST_EQUAL(pct, 100);
+
+    TEST_EQUAL(mymset, localmset);
+    TEST(mset_range_is_same_percents(mymset, 0, localmset, 0, mymset.size()));
+
+    // A search in which the top document doesn't have 100%
+    Xapian::Query q = query(Xapian::Query::OP_OR,
+			    "this", "line", "paragraph", "rubbish");
+    enquire.set_query(q);
+    localenq.set_query(q);
+    mymset = enquire.get_mset(0, 20);
+    localmset = localenq.get_mset(0, 20);
+
+    i = mymset.begin();
+    TEST(i != mymset.end());
+    pct = mymset.convert_to_percent(i);
+    TEST_GREATER(pct, 65);
+    TEST_LESSER(pct, 75);
+
+    ++i;
+
+    TEST(i != mymset.end());
+    pct = mymset.convert_to_percent(i);
+    TEST_GREATER(pct, 40);
+    TEST_LESSER(pct, 50);
+
+    TEST_EQUAL(mymset, localmset);
+    TEST(mset_range_is_same_percents(mymset, 0, localmset, 0, mymset.size()));
+
+    return true;
+}
+
 class myExpandFunctor : public Xapian::ExpandDecider {
     public:
 	bool operator()(const string & tname) const {
@@ -615,6 +666,61 @@ DEFINE_TESTCASE(pctcutoff1, backend) {
 		     (mymset2.convert_to_percent(mymset2[num_items]) == my_pct &&
 		      mymset2.convert_to_percent(mymset2.back()) == my_pct),
 		     "Match with % cutoff returned too many items");
+
+    return true;
+}
+
+// Tests the percent cutoff option combined with collapsing
+DEFINE_TESTCASE(pctcutoff2, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_query(Xapian::Query("this"));
+    enquire.set_query(Xapian::Query(Xapian::Query::OP_AND_NOT, Xapian::Query("this"), Xapian::Query("banana")));
+    Xapian::MSet mset = enquire.get_mset(0, 100);
+
+    if (verbose) {
+	tout << "Original mset pcts:";
+	print_mset_percentages(mset);
+	tout << "\n";
+    }
+
+    TEST(mset.size() >= 2);
+    TEST(mset[0].get_percent() - mset[1].get_percent() >= 2);
+
+    Xapian::percent cutoff = mset[0].get_percent() + mset[1].get_percent();
+    cutoff /= 2;
+
+    enquire.set_cutoff(cutoff);
+    enquire.set_collapse_key(1234); // Value which is always empty.
+
+    mset = enquire.get_mset(0, 1);
+    TEST_EQUAL(mset.size(), 1);
+    TEST_EQUAL(mset.get_matches_lower_bound(), 1);
+
+    return true;
+}
+
+// Test that the percent cutoff option returns all the answers it should.
+DEFINE_TESTCASE(pctcutoff3, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_query(Xapian::Query("this"));
+    Xapian::MSet mset1 = enquire.get_mset(0, 10);
+
+    if (verbose) {
+	tout << "Original mset pcts:";
+	print_mset_percentages(mset1);
+	tout << "\n";
+    }
+
+    int percent = 100;
+    for (Xapian::MSetIterator i = mset1.begin(); i != mset1.end(); ++i) {
+	int new_percent = mset1.convert_to_percent(i);
+	if (new_percent != percent) {
+	    enquire.set_cutoff(percent);
+	    Xapian::MSet mset2 = enquire.get_mset(0, 10);
+	    TEST_EQUAL(mset2.size(), i.get_rank());
+	    percent = new_percent;
+	}
+    }
 
     return true;
 }
@@ -1037,8 +1143,8 @@ DEFINE_TESTCASE(rsetmultidb1, backend && !multi) {
     mset_expect_order(mymset2a, 1, 2);
     mset_expect_order(mymset2b, 2, 1);
 
-    mset_range_is_same_weights(mymset1a, 0, mymset2a, 0, 2);
-    mset_range_is_same_weights(mymset1b, 0, mymset2b, 0, 2);
+    TEST(mset_range_is_same_weights(mymset1a, 0, mymset2a, 0, 2));
+    TEST(mset_range_is_same_weights(mymset1b, 0, mymset2b, 0, 2));
     TEST_NOT_EQUAL(mymset1a, mymset1b);
     TEST_NOT_EQUAL(mymset2a, mymset2b);
 

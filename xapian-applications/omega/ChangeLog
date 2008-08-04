@@ -1,3 +1,34 @@
+Tue Jul 29 23:48:31 GMT 2008  Olly Betts <olly@survex.com>
+
+	* runfilter.cc: Add missing <signal.h>, noted on FreeBSD by Henrik
+	  Brix Andersen.
+
+Mon Jul 21 12:27:48 GMT 2008  Olly Betts <olly@survex.com>
+
+	* commonhelp.cc: Use PACKAGE_BUGREPORT instead of hardcoding the bug
+	  report URL.  Remove reference to "bugzilla" as we now use trac
+	  instead.
+
+Mon Jul 21 11:58:25 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: Put the bug report URL as the third parameter to
+	  AC_INIT.  Add proper m4 quoting in a few places (nowhere that
+	  should actually change behaviour).  Add hard autotools version
+	  requirements to match xapian-core, and remove the version
+	  justification since HACKING now covers that.  Drop docdir workaround
+	  for autoconf < 2.60.
+
+Wed Jul 09 10:44:37 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: The workaround to avoid probe code for F77, GCJ, and
+	  RC being added to configure is no longer required now that we're
+	  using libtool 2.2 so remove it.
+
+Wed Jul 09 10:13:18 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac: Use AC_CONFIG_MACRO_DIR and
+	  ACLOCAL_AMFLAGS as libtoolize 2.2.4 recommends.
+
 Fri Jul 04 08:29:47 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS: Synchronise with 1.0 branch.

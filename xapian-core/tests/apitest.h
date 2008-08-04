@@ -31,9 +31,11 @@ Xapian::Database get_database(const std::string &db);
 
 Xapian::Database get_database(const std::string &db1, const std::string &db2);
 
-Xapian::WritableDatabase get_writable_database(const std::string &db = "");
+std::string get_database_path(const std::string &db);
 
-Xapian::WritableDatabase get_named_writable_database(const std::string &name, const std::string &source = "");
+Xapian::WritableDatabase get_writable_database(const std::string &db = std::string());
+
+Xapian::WritableDatabase get_named_writable_database(const std::string &name, const std::string &source = std::string());
 
 std::string get_named_writable_database_path(const std::string &name);
 

@@ -265,9 +265,6 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	/// Assignment not allowed
         FlintTable & operator=(const FlintTable &);
 
-	/// The name of the table (used when writing changesets).
-	std::string tablename;
-
     public:
 	/** Create a new Btree object.
 	 *
@@ -285,7 +282,7 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	 *  @param lazy		If true, don't create the table until it's
 	 *			needed.
 	 */
-	FlintTable(std::string tablename_, std::string path_, bool readonly_,
+	FlintTable(const char * tablename_, std::string path_, bool readonly_,
 		   int compress_strategy_ = DONT_COMPRESS, bool lazy = false);
 
 	/** Close the Btree.
@@ -602,6 +599,13 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	void split_root(uint4 split_n);
 	void form_key(const std::string & key) const;
 
+	/// The name of the table (used when writing changesets).
+	const char * tablename;
+
+	char other_base_letter() const {
+	   return (base_letter == 'A') ? 'B' : 'A';
+	}
+
 	/** revision number of the opened B-tree. */
 	flint_revision_number_t revision_number;
 
@@ -623,7 +627,7 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	mutable bool both_bases;
 
 	/** the value 'A' or 'B' of the current base */
-	int base_letter;
+	char base_letter;
 
 	/** true if the root block is faked (not written to disk).
 	 * false otherwise.  This is true when the btree hasn't been
@@ -653,9 +657,6 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 
 	/// For writing back as file baseA or baseB.
 	FlintTable_base base;
-
-	/// The base letter ('B' or 'A') of the next base.
-	char other_base_letter;
 
 	/// The path name of the B tree.
 	std::string name;

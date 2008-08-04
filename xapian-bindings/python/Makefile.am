@@ -1,5 +1,9 @@
 ## Process this file with automake to produce Makefile.in
 
+# `make QUIET=' overrides `./configure --enable-quiet'.
+# `make QUIET=y' overrides `./configure' without `--enable-quiet'.
+LIBTOOL = @LIBTOOL@ $(QUIET:y=--quiet)
+
 include ../generic/generic.mk
 
 TESTS_ENVIRONMENT = PYTHONPATH=. $(PYTHON)
@@ -15,7 +19,8 @@ DOCCOMMENTS_I_FLAGS=-DDOCCOMMENTS_I_SOURCES
 endif
 
 EXTRA_DIST = util.i extra.i extracomments.i except.i $(DOCCOMMENTS_I) \
-	testsuite.py $(TESTS) $(BUILT_SOURCES)
+	testsuite.py smoketest2.py smoketest3.py \
+	pythontest2.py pythontest3.py $(TESTS) $(BUILT_SOURCES)
 
 SUBDIRS = docs
 

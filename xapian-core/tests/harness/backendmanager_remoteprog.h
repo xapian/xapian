@@ -44,6 +44,10 @@ class BackendManagerRemoteProg : public BackendManagerRemote {
     /// The path of the last writable database used.
     std::string last_wdb_name;
 
+  private:
+    /// Create a Xapian::Database object indexing multiple files.
+    Xapian::Database do_get_database(const std::vector<std::string> & files);
+
   public:
     BackendManagerRemoteProg(const std::string & remote_type_)
 	: BackendManagerRemote(remote_type_) { }
@@ -56,12 +60,6 @@ class BackendManagerRemoteProg : public BackendManagerRemote {
     /// Return a string representing the current database type.
     std::string get_dbtype() const;
 
-    /// Create a RemoteProg Xapian::Database object indexing multiple files.
-    Xapian::Database get_database(const std::vector<std::string> & files);
-
-    /// Create a RemoteProg Xapian::Database object indexing a single file.
-    Xapian::Database get_database(const std::string & file);
-
     /// Create a RemoteProg Xapian::WritableDatabase object indexing a single file.
     Xapian::WritableDatabase get_writable_database(const std::string & name,
 						   const std::string & file);
@@ -71,10 +69,10 @@ class BackendManagerRemoteProg : public BackendManagerRemote {
 					 unsigned int timeout);
 
     /// Create a Database object for the last opened WritableDatabase.
-    Xapian::Database get_writable_database_as_database(const std::string & name = "");
+    Xapian::Database get_writable_database_as_database(const std::string & name = std::string());
 
     /// Create a WritableDatabase object for the last opened WritableDatabase.
-    Xapian::WritableDatabase get_writable_database_again(const std::string & name = "");
+    Xapian::WritableDatabase get_writable_database_again(const std::string & name = std::string());
 };
 
 #endif // XAPIAN_INCLUDED_BACKENDMANAGER_REMOTEPROG_H

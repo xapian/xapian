@@ -5,15 +5,18 @@ dnl 2.54 needed for automake 1.6
 dnl 2.57 fixes the annoying warnings from configure on FreeBSD
 dnl 2.58 is needed by automake 1.8.5
 dnl 2.59 was released the same day as 2.58 to fix a problem
-AC_PREREQ(2.59)
-AC_INIT(xapian-bindings, 1.0.7)dnl FIXME: bugreport addr as third argument
+AC_PREREQ([2.59])
+
+AC_INIT([xapian-bindings], [1.0.7], [http://xapian.org/bugs])
 dnl 1.9 reduces Makefile.in size, and 1.9.5 was in Debian sarge
 dnl But the RPM spec file runs autoreconf, and SLES 9 has 1.8.3.
 AM_INIT_AUTOMAKE([1.8.3 -Wportability tar-ustar])
 
-AC_CONFIG_SRCDIR(xapian.i)
+AC_CONFIG_SRCDIR([xapian.i])
 
-AM_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADERS([config.h])
+
+AC_CONFIG_MACRO_DIR([m4])
 
 dnl Mac OS X needs MACOSX_DEPLOYMENT_TARGET set to 10.3 (or higher) to
 dnl successfully link the SWIG generated modules.  The link always fails
@@ -46,22 +49,11 @@ if test -n "$OVERRIDE_MACOSX_DEPLOYMENT_TARGET" ; then
 fi
 AM_CONDITIONAL(NEED_JNILIB_EXT, test yes = "$NEED_JNILIB_EXT")
 
-dnl We don't use Fortran, but libtool 1.5 insists on probing for f77 which just
-dnl makes configure take longer to run.  We force it not to using the method
-dnl suggested here (which also reduces configure size):
-dnl http://article.gmane.org/gmane.comp.gnu.libtool.general/9281
-dnl This is apparently fixed in libtool 2.2, so once we require that, we can
-dnl drop this workaround.
-define([AC_LIBTOOL_LANG_F77_CONFIG], [:])
-dnl Eliminating the unused code for gcj and rc probes further reduces the size
-dnl of the generated configure script (by 29% in total):
-define([AC_LIBTOOL_LANG_GCJ_CONFIG], [:])
-define([AC_LIBTOOL_LANG_RC_CONFIG], [:])
-
+dnl 2.2 is required; 2.2.4 includes useful bug-fixes.
+LT_PREREQ([2.2.4])
 dnl Use libtool to manage our libraries, but don't build static libraries as
 dnl the bindings only have a use for dynamic ones.
-AC_DISABLE_STATIC
-AC_PROG_LIBTOOL
+LT_INIT([disable-static])
 
 dnl -no-undefined causes problems on Mac OS X with at least some
 dnl MACOSX_DEPLOYMENT_TARGET settings, so only pass -no-undefined on
@@ -100,6 +92,13 @@ dnl We only need to set docdir for compatibility with autoconf < 2.60 - this
 dnl code can be removed once we move to requiring autoconf 2.60 or newer.
 test -n "$docdir" || docdir='${datadir}/doc/${PACKAGE_TARNAME}'
 AC_SUBST(docdir)
+
+AC_ARG_ENABLE(quiet,
+  [AS_HELP_STRING([--enable-quiet], [enable quiet building [default=no]])],
+  [case ${enableval} in
+    yes|no) ;;
+    *) AC_MSG_ERROR([bad value ${enableval} for --enable-quiet]) ;;
+  esac])
 
 dnl Only probe for SWIG and enable SWIG rules in makefiles if
 dnl configure --enable-maintainer-mode is used.
@@ -387,9 +386,9 @@ if test no != "$with_tcl" ; then
   AC_PATH_PROGS(TCLSH, ["${TCLSH-tclsh}"], [])
   AC_ARG_VAR(TCLSH, [Tcl interpreter])
   if test -n "$TCLSH" ; then
-    # We need Tcl 8.1 or later for TCL_STUBS.
-    # Note: The bindings can easily be made to work with Tcl 8.0 (just
-    # don't pass -DUSE_TCL_STUBS when compiling) should you need that.
+    dnl We need Tcl 8.1 or later for TCL_STUBS.
+    dnl Note: The bindings can easily be made to work with Tcl 8.0 (just
+    dnl don't pass -DUSE_TCL_STUBS when compiling) should you need that.
     AC_MSG_CHECKING([$TCLSH version])
     if echo 'if {$tcl_version < 8.1 } { exit 1 }'|$TCLSH 2> /dev/null ; then
       tcl_version=`echo 'puts "$tcl_version"'|$TCLSH`
@@ -475,9 +474,10 @@ if test no != "$with_csharp" ; then
     if test -z "$CSC" ; then
       dnl csc is the Microsoft CSharp compiler.
       AC_PATH_PROGS(CSC, [csc], [])
-      # Chicken (the Scheme-to-C compiler) includes a tool called csc so we check
-      # if the output from "csc -version" includes the word chicken which is
-      # sufficient to distinguish Chicken's csc from Microsoft's csc.exe.
+      dnl Chicken (the Scheme-to-C compiler) includes a tool called csc so we
+      dnl check if the output from "csc -version" includes the word chicken
+      dnl which is sufficient to distinguish Chicken's csc from Microsoft's
+      dnl csc.exe.
       AC_MSG_CHECKING([whether $CSC is for CSharp])
       csc_tmp=`$CSC -version 2>/dev/null|grep chicken`
       if test -z "$csc_tmp" ; then
@@ -492,9 +492,9 @@ if test no != "$with_csharp" ; then
       dnl mcs is the Mono CSharp compiler.
       AC_PATH_PROGS(CSC, [mcs], [])
       if test -n "$CSC" ; then
-	# There are other tools called mcs (such as /usr/bin/mcs on Tru64),
-	# so we check that the mcs we found understands --version which is
-	# sufficient to distinguish mono's mcs from the Tru64 one.
+	dnl There are other tools called mcs (such as /usr/bin/mcs on Tru64),
+	dnl so we check that the mcs we found understands --version which is
+	dnl sufficient to distinguish mono's mcs from the Tru64 one.
 	AC_MSG_CHECKING([whether $CSC is from GNU Mono])
 	if (exec >&5 2>&5;$CSC --version </dev/null;exit $?) ; then
 	  AC_MSG_RESULT(yes)

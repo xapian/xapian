@@ -204,8 +204,8 @@ BtreeCheck::block_check(Cursor_ * C_, int j, int opts)
 }
 
 void
-BtreeCheck::check(const string & tablename, const string & path,
-		  int opts, ostream &out)
+BtreeCheck::check(const char * tablename, const string & path, int opts,
+		  ostream &out)
 {
     BtreeCheck B(tablename, path, false, out);
     B.open(); // throws exception if open fails
