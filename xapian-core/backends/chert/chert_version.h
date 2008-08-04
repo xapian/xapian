@@ -21,7 +21,10 @@
 #ifndef OM_HGUARD_CHERT_VERSION_H
 #define OM_HGUARD_CHERT_VERSION_H
 
+#include <cstring>
 #include <string>
+
+#include <uuid/uuid.h>
 
 /** The ChertVersion class manages the "iamchert" file.
  *
@@ -29,7 +32,11 @@
  *  that this is a chert database and a database format version number.
  */
 class ChertVersion {
+    /// The filename of the version file.
     std::string filename;
+
+    /// The UUID of this database.
+    uuid_t uuid;
 
   public:
     ChertVersion(const std::string & dbdir) : filename(dbdir) {
@@ -44,6 +51,29 @@ class ChertVersion {
      *  On failure, an exception is thrown.
      */
     void read_and_check();
+
+    /// Return pointer to 16 byte UUID.
+    const char * get_uuid() const { return (const char *)uuid; }
+
+    /// Return UUID in the standard 36 character string format.
+    std::string get_uuid_string() const {
+	char buf[37];
+	uuid_unparse_lower(uuid, buf);
+	return std::string(buf, 36);
+    }
+
+    /// Set the UUID from 16 byte binary value @a data.
+    void set_uuid(void * data) {
+	std::memcpy(uuid, data, 16);
+    }
+
+    /** Set the UUID from the standard 36 character string format.
+     *
+     *  @return true if @a s was successfully parsed; false otherwise.
+     */
+    bool set_uuid_string(const std::string & s) {
+	return uuid_parse(s.c_str(), uuid);
+    }
 };
 
 #endif

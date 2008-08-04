@@ -1298,18 +1298,7 @@ string
 ChertDatabase::get_uuid() const
 {
     DEBUGCALL(DB, string, "ChertDatabase::get_uuid", "");
-    // Currently, we generate the uuid simply by getting the mtime of the
-    // "iamchert" file, and packing it.
-    // FIXME - a better uuid should be generated whenever a database is
-    // created, and stored in the database somewhere.
-
-    struct stat statbuf;
-    string iamchert_path = db_dir + "/iamchert";
-    if (stat(iamchert_path, &statbuf) != 0) {
-	throw Xapian::DatabaseError("Couldn't stat " + iamchert_path, errno);
-    }
-    unsigned int mtime = statbuf.st_mtime;
-    RETURN(pack_uint(mtime));
+    RETURN(version_file.get_uuid_string());
 }
 
 ///////////////////////////////////////////////////////////////////////////

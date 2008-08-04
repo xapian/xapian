@@ -1,3 +1,9 @@
+Mon Aug 04 14:13:53 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/chert/chert_version.cc,
+	  backends/chert/chert_version.h,configure.ac: Generate a UUID when
+	  a chert database is created, and store it in the version file.
+
 Mon Aug 04 12:16:54 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_version.cc: Make exception messages more

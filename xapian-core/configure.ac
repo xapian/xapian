@@ -670,7 +670,25 @@ if test yes = "$enable_backend_flint" -o yes = "$enable_backend_chert" ; then
   LIBS=
   dnl mingw build needs -lzlib or -lzdll.
   AC_SEARCH_LIBS([zlibVersion], [z zlib zdll], [], [
-    AC_MSG_ERROR([zlibVersion() not found in -lz - required for chert and flint (you may need to install the zlib1g-dev or zlib-devel package)])
+    AC_MSG_ERROR([zlibVersion() not found in -lz, -lzlib, or -lzdll - required for chert and flint (you may need to install the zlib1g-dev or zlib-devel package)])
+    ])
+  if test x != x"$LIBS" ; then
+    XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $LIBS"
+  fi
+  LIBS=$SAVE_LIBS
+
+  dnl Find the UUID library (from e2fsprogs, not the OSSP one).
+
+  dnl Check for uuid/uuid.h.
+  AC_CHECK_HEADERS(uuid/uuid.h, [], [
+    AC_MSG_ERROR([uuid/uuid.h not found - required for chert and flint (you may need to install the uuid-dev or libuuid-devel package)])
+    ], [ ])
+
+  dnl Check for uuid_generate in -luuid.
+  SAVE_LIBS=$LIBS
+  LIBS=
+  AC_SEARCH_LIBS([uuid_generate], [uuid], [], [
+    AC_MSG_ERROR([uuid_generate() not found in -luuid - required for chert and flint (you may need to install the uuid-dev or libuuid-devel package)])
     ])
   if test x != x"$LIBS" ; then
     XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $LIBS"
@@ -1075,6 +1093,7 @@ AC_SYS_LARGEFILE
 dnl Libtool sets this (to yes|no|unknown) and we use it in xapian-config.
 AC_SUBST(link_all_deplibs_CXX)
 
+dnl Split up the version number into "MAJOR.MINOR.REVISION".
 MAJOR_VERSION=`echo "$VERSION"|sed 's/\..*//'`
 [MINOR_VERSION=`echo "$VERSION"|sed 's/[^.]*\.//;s/\..*//'`]
 [REVISION=`echo "$VERSION"|sed 's/.*\.//;s/_svn[0-9]*$//'`]
