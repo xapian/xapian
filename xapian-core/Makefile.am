@@ -1,6 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
 AUTOMAKE_OPTIONS = 1.5 subdir-objects
+ACLOCAL_AMFLAGS = -I m4
 
 # `make QUIET=' overrides `./configure --enable-quiet'.
 # `make QUIET=y' overrides `./configure' without `--enable-quiet'.
@@ -80,7 +81,6 @@ bin_SCRIPTS = xapian-config
 CLEANFILES = xapian-config
 
 EXTRA_DIST = ChangeLog ChangeLog.examples HACKING PLATFORMS xapian-core.spec \
- autoconf/rjb_find_stlport.m4 autoconf/definedir.m4 autoconf/type_socklen_t.m4 \
  include/xapian/error.h include/xapian/errordispatch.h exception_data.pm \
  preautoreconf dir_contents
 
@@ -90,7 +90,7 @@ include docsource.mk
 
 # xapian.m4 contains the XO_LIB_XAPIAN autoconf macro.
 m4datadir = $(datadir)/aclocal
-dist_m4data_DATA = m4/xapian.m4
+dist_m4data_DATA = m4-macros/xapian.m4
 
 lib_LTLIBRARIES = libxapian.la
 

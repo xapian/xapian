@@ -120,16 +120,10 @@ BackendManagerMulti::createdb_multi(const vector<string> & files)
     return dbpath;
 }
 
-Xapian::Database
-BackendManagerMulti::get_database(const vector<string> & files)
+string
+BackendManagerMulti::do_get_database_path(const vector<string> & files)
 {
-    return Xapian::Auto::open_stub(createdb_multi(files));
-}
-
-Xapian::Database
-BackendManagerMulti::get_database(const string & file)
-{
-    return BackendManagerMulti::get_database(vector<string>(1, file));
+    return createdb_multi(files);
 }
 
 Xapian::WritableDatabase

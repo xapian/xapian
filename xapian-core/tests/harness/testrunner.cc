@@ -53,9 +53,9 @@ static BackendProperties backend_properties[] = {
     { "none", "" },
     { "inmemory", "backend,positional,writable,valuestats,inmemory" },
     { "chert", "backend,transactions,positional,writable,spelling,metadata,"
-	       "valuestats,chert" }, // FIXME: sort out replicas
+	       "synonyms,replicas,valuestats,chert" },
     { "flint", "backend,transactions,positional,writable,spelling,metadata,"
-	       "replicas,flint" },
+	       "synonyms,replicas,flint" },
     { "multi_flint", "backend,positional,multi" },
     { "multi_chert", "backend,positional,valuestats,multi" },
     { "remoteprog_flint", "backend,remote,transactions,positional,writable" },
@@ -64,6 +64,8 @@ static BackendProperties backend_properties[] = {
     { "remotetcp_chert", "backend,remote,transactions,positional,valuestats,writable" },
     { NULL, NULL }
 };
+
+TestRunner::~TestRunner() { }
 
 void
 TestRunner::set_properties(const string & properties)
@@ -76,6 +78,7 @@ TestRunner::set_properties(const string & properties)
     writable = false;
     multi = false;
     spelling = false;
+    synonyms = false;
     metadata = false;
     replicas = false;
     valuestats = false;
@@ -106,6 +109,8 @@ TestRunner::set_properties(const string & properties)
 	    multi = true;
 	else if (propname == "spelling")
 	    spelling = true;
+	else if (propname == "synonyms")
+	    synonyms = true;
 	else if (propname == "metadata")
 	    metadata = true;
 	else if (propname == "replicas")

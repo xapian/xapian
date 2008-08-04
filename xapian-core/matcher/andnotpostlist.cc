@@ -151,6 +151,8 @@ Xapian::weight
 AndNotPostList::recalc_maxweight()
 {
     DEBUGCALL(MATCH, Xapian::weight, "AndNotPostList::recalc_maxweight", "");
+    // l cannot be NULL here because it is only set to NULL when the tree
+    // decays, so this can never be called at that point.
     RETURN(l->recalc_maxweight());
 }
 

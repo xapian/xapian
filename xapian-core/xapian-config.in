@@ -38,6 +38,8 @@ Options:
   --swigflags  output preprocessor flags for use with SWIG
   --help       output this help and exit
   --version    output version information and exit
+
+Report bugs to <@PACKAGE_BUGREPORT@>.
 EOF
 
     exit $1

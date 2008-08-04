@@ -96,6 +96,9 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::RefCntBase {
      *
      *  If the tree has pruned, get_maxweight() may use cached values.  Calling
      *  this method instead forces a full recalculation.
+     *
+     *  Note that this method may be called after the postlist has reached the
+     *  end.  In this situation, the method should return 0.
      */
     virtual Xapian::weight recalc_maxweight() = 0;
 

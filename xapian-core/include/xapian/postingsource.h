@@ -95,6 +95,14 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *  If the specified docid isn't in the list, position ourselves on the
      *  first document after it (or at_end() if no greater docids are present).
      *
+     *  If the current position is already the specified docid, this method will
+     *  leave the position unmodified.
+     *
+     *  If the specified docid is earlier than the current position, the
+     *  behaviour is unspecified.  A sensible behaviour would be to leave the
+     *  current position unmodified, but it is also reasonable to move to the
+     *  specified docid.
+     *
      *  @param min_wt	The minimum weight contribution that is needed (this is
      *			just a hint which subclasses may ignore).
      *
@@ -195,6 +203,19 @@ class XAPIAN_VISIBILITY_DEFAULT ValueWeightPostingSource : public PostingSource 
      *  @param valno_ The value slot to read values from.
      */
     ValueWeightPostingSource(Xapian::Database db_, Xapian::valueno valno_);
+
+    /** Construct a ValueWeightPostingSource.
+     *
+     *  @param db_ The database to read values from.
+     *  @param valno_ The value slot to read values from.
+     *  @param max_weight_ An upper bound on the weights which are stored in
+     *  the value slot.  Note that for the chert database format, information
+     *  about an upper bound is already stored in the database, so this
+     *  constructor need only be used if more accurate information is
+     *  available.
+     */
+    ValueWeightPostingSource(Xapian::Database db_, Xapian::valueno valno_,
+			     double max_weight_);
 
     Xapian::doccount get_termfreq_min() const;
     Xapian::doccount get_termfreq_est() const;

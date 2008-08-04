@@ -58,8 +58,8 @@ licenses = [
 ]
 
 fixmes = [
-    r'''[fF][iI][xX][mM][eE]:(?P<milestone>[\d.]+)''',
-    r'''[fF][iI][xX][mM][eE]''',
+    r'''FIXME:(?P<milestone>[\d.]+)''',
+    r'''FIXME''',
 ]
 
 whitespace_re = re.compile(r'\s+')

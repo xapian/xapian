@@ -25,10 +25,6 @@
 
 #include "api_nodb.h"
 
-#include <string>
-#include <vector>
-#include "autoptr.h"
-
 #include <xapian.h>
 
 #include "apitest.h"
@@ -36,7 +32,10 @@
 #include "testutils.h"
 #include "utils.h"
 
+#include "autoptr.h"
 #include <list>
+#include <string>
+#include <vector>
 
 using namespace std;
 
@@ -322,8 +321,14 @@ DEFINE_TESTCASE(weight1, !backend) {
 // Regression test.
 DEFINE_TESTCASE(nosuchdb1, !backend) {
     // This is a "nodb" test because it doesn't test a particular backend.
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-		   Xapian::Database db("NOsuChdaTabASe"));
+    try {
+	Xapian::Database db("NOsuChdaTabASe");
+    } catch (const Xapian::DatabaseOpeningError & e) {
+	// We don't really require this exact message, but in Xapian <= 1.1.0
+	// this gave "Couldn't detect type of database".
+	TEST_STRINGS_EQUAL(e.get_msg(), "Couldn't stat 'NOsuChdaTabASe'");
+    }
+
     return true;
 }
 

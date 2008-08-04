@@ -68,34 +68,156 @@ DEFINE_TESTCASE(termstats, backend) {
     return true;
 }
 
-// check that stubdbs work
-DEFINE_TESTCASE(stubdb1, flint) {
-    {
-	// Create the database needed; this is why we require the flint backend.
-	(void) get_database("apitest_simpledata");
-    }
-    ofstream out("stubdb1");
+// Check that stub databases work.
+DEFINE_TESTCASE(stubdb1, flint || chert || multi) {
+    mkdir(".stub", 0755);
+    const char * dbpath = ".stub/stubdb1";
+    ofstream out(dbpath);
     TEST(out.is_open());
-    // FIXME: not very reliable...
-    out << "remote :" << BackendManager::get_xapian_progsrv_command()
-	<< " .flint/db=apitest_simpledata\n";
+    out << "auto ../" << get_database_path("apitest_simpledata") << endl;
     out.close();
 
     {
-	Xapian::Database db = Xapian::Auto::open_stub("stubdb1");
+	Xapian::Database db = Xapian::Auto::open_stub(dbpath);
 	Xapian::Enquire enquire(db);
 	enquire.set_query(Xapian::Query("word"));
 	enquire.get_mset(0, 10);
     }
     {
-	Xapian::Database db("stubdb1");
+	Xapian::Database db(dbpath);
 	Xapian::Enquire enquire(db);
 	enquire.set_query(Xapian::Query("word"));
 	enquire.get_mset(0, 10);
     }
 
-    unlink("stubdb1");
+    return true;
+}
 
+// Check that stub databases work remotely.
+DEFINE_TESTCASE(stubdb2, flint || chert || multi) {
+    mkdir(".stub", 0755);
+    const char * dbpath = ".stub/stubdb2";
+    ofstream out(dbpath);
+    TEST(out.is_open());
+    out << "remote :" << BackendManager::get_xapian_progsrv_command()
+	<< ' ' << get_database_path("apitest_simpledata") << endl;
+    out.close();
+
+    {
+	Xapian::Database db = Xapian::Auto::open_stub(dbpath);
+	Xapian::Enquire enquire(db);
+	enquire.set_query(Xapian::Query("word"));
+	enquire.get_mset(0, 10);
+    }
+    {
+	Xapian::Database db(dbpath);
+	Xapian::Enquire enquire(db);
+	enquire.set_query(Xapian::Query("word"));
+	enquire.get_mset(0, 10);
+    }
+
+    return true;
+}
+
+// Regression test - bad entries were ignored after a good entry prior to 1.0.8.
+DEFINE_TESTCASE(stubdb3, flint || chert || multi) {
+    mkdir(".stub", 0755);
+    const char * dbpath = ".stub/stubdb3";
+    ofstream out(dbpath);
+    TEST(out.is_open());
+    out << "auto ../" << get_database_path("apitest_simpledata") << "\n"
+	   "bad line here\n";
+    out.close();
+
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+	Xapian::Database db = Xapian::Auto::open_stub(dbpath));
+
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+	Xapian::Database db(dbpath));
+
+    return true;
+}
+
+// Test a stub database with just a bad entry.
+DEFINE_TESTCASE(stubdb4, flint || chert || multi) {
+    mkdir(".stub", 0755);
+    const char * dbpath = ".stub/stubdb4";
+    ofstream out(dbpath);
+    TEST(out.is_open());
+    out << "bad line here\n";
+    out.close();
+
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+	Xapian::Database db = Xapian::Auto::open_stub(dbpath));
+
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+	Xapian::Database db(dbpath));
+
+    return true;
+}
+
+// Test a stub database with a bad entry with no spaces (prior to 1.1.0 this
+// was deliberately allowed, though not documented.
+DEFINE_TESTCASE(stubdb5, flint || chert || multi) {
+    mkdir(".stub", 0755);
+    const char * dbpath = ".stub/stubdb5";
+    ofstream out(dbpath);
+    TEST(out.is_open());
+    out << "bad\n"
+	   "auto ../" << get_database_path("apitest_simpledata") << endl;
+    out.close();
+
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+	Xapian::Database db = Xapian::Auto::open_stub(dbpath));
+
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+	Xapian::Database db(dbpath));
+
+    return true;
+}
+
+// Test a stub database with an inmemory database (new feature in 1.1.0).
+DEFINE_TESTCASE(stubdb6, flint || chert || multi) {
+    mkdir(".stub", 0755);
+    const char * dbpath = ".stub/stubdb6";
+    ofstream out(dbpath);
+    TEST(out.is_open());
+    out << "inmemory\n";
+    out.close();
+
+    // Read-only tests:
+    {
+	Xapian::Database db = Xapian::Auto::open_stub(dbpath);
+	TEST_EQUAL(db.get_doccount(), 0);
+	Xapian::Enquire enquire(db);
+	enquire.set_query(Xapian::Query("word"));
+	Xapian::MSet mset = enquire.get_mset(0, 10);
+	TEST(mset.empty());
+    }
+    {
+	Xapian::Database db(dbpath);
+	TEST_EQUAL(db.get_doccount(), 0);
+	Xapian::Enquire enquire(db);
+	enquire.set_query(Xapian::Query("word"));
+	Xapian::MSet mset = enquire.get_mset(0, 10);
+	TEST(mset.empty());
+    }
+
+    // Writable tests:
+    {
+	Xapian::WritableDatabase db;
+        db = Xapian::Auto::open_stub(dbpath, Xapian::DB_OPEN);
+	TEST_EQUAL(db.get_doccount(), 0);
+	db.add_document(Xapian::Document());
+	TEST_EQUAL(db.get_doccount(), 1);
+    }
+    {
+	Xapian::WritableDatabase db(dbpath, Xapian::DB_OPEN);
+	TEST_EQUAL(db.get_doccount(), 0);
+	db.add_document(Xapian::Document());
+	TEST_EQUAL(db.get_doccount(), 1);
+    }
+ 
     return true;
 }
 
@@ -1059,8 +1181,8 @@ DEFINE_TESTCASE(rsetmultidb2, backend && !multi) {
     mset_expect_order(mymset2a, 2, 5);
     mset_expect_order(mymset2b, 2, 5);
 
-    mset_range_is_same_weights(mymset1a, 0, mymset2a, 0, 2);
-    mset_range_is_same_weights(mymset1b, 0, mymset2b, 0, 2);
+    TEST(mset_range_is_same_weights(mymset1a, 0, mymset2a, 0, 2));
+    TEST(mset_range_is_same_weights(mymset1b, 0, mymset2b, 0, 2));
     TEST_NOT_EQUAL(mymset1a, mymset1b);
     TEST_NOT_EQUAL(mymset2a, mymset2b);
 
@@ -2128,6 +2250,24 @@ DEFINE_TESTCASE(valueweightsource2, backend && valuestats) {
     TEST_EQUAL(src.get_termfreq_est(), 17);
     TEST_EQUAL(src.get_termfreq_max(), 17);
     TEST_EQUAL(src.get_maxweight(), 135);
+
+    return true;
+}
+
+// Check that valueweightsource skip_to() can stay in the same position.
+DEFINE_TESTCASE(valueweightsource3, backend && valuestats) {
+    // FIXME: PostingSource doesn't currently work well with multi databases
+    // but we should try to resolve that issue.
+    SKIP_TEST_FOR_BACKEND("multi");
+    Xapian::Database db(get_database("apitest_phrase"));
+    Xapian::ValueWeightPostingSource src(db, 11);
+    TEST(!src.at_end());
+    src.skip_to(8, 0.0);
+    TEST(!src.at_end());
+    TEST_EQUAL(src.get_docid(), 8);
+    src.skip_to(8, 0.0);
+    TEST(!src.at_end());
+    TEST_EQUAL(src.get_docid(), 8);
 
     return true;
 }

@@ -1,9 +1,0 @@
-This is GNU hell, an example package that uses GNU libtool with an
-Automake-generated environment to build a simple library and program.
-
-Admittedly, it would be better if this was a more realistic example,
-say, a program that actually did something useful, but we can't have
-everything.
-
-Send bug reports and comments about GNU hell to the libtool mailing
-list <bug-libtool@gnu.org>.

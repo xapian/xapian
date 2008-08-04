@@ -2,7 +2,7 @@
  *  @brief SubMatch class for a remote database.
  */
 /* Copyright (C) 2006,2007 Olly Betts
- * Copyright (C) 2007 Lemur Consulting Ltd
+ * Copyright (C) 2007,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -63,6 +63,7 @@ RemoteSubMatch::get_postlist_and_term_info(MultiMatch *,
 	      "[matcher], " << (void*)termfreqandwts);
     Xapian::MSet mset;
     db->get_mset(mset);
+    percent_factor = mset.internal->percent_factor;
     if (termfreqandwts) *termfreqandwts = mset.internal->termfreqandwts;
     return new MSetPostList(mset, decreasing_relevance);
 }

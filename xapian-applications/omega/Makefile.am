@@ -4,6 +4,8 @@
 # `make QUIET=y' overrides `./configure' without `--enable-quiet'.
 LIBTOOL = @LIBTOOL@ $(QUIET:y=--quiet)
 
+ACLOCAL_AMFLAGS = -I m4
+
 SUBDIRS = . docs
 
 INCLUDES = -I$(top_srcdir)/common

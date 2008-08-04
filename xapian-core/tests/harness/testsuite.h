@@ -1,7 +1,7 @@
 /* testsuite.h: a generic test suite engine
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2005,2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,6 +28,7 @@
 
 #include "stringutils.h" // For STRINGIZE().
 
+#include <iomanip>
 #include <map>
 #include <sstream>
 #include <string>
@@ -104,6 +105,21 @@ class test_driver {
 
 	    /// The number of tests which were skipped
 	    unsigned int skipped;
+
+	    result() : succeeded(0), failed(0), skipped(0) { }
+
+	    result & operator+=(const result & o) {
+		succeeded += o.succeeded;
+		failed += o.failed;
+		skipped += o.skipped;
+		return *this;
+	    }
+
+	    void reset() {
+		succeeded = 0;
+		failed = 0;
+		skipped = 0;
+	    }
 	};
 
 	/** Add a test-specific command line option.
@@ -148,7 +164,10 @@ class test_driver {
 	 */
 	static std::string get_srcdir();
 
-	// running total for a test run
+	// Running subtotal for current backend.
+	static result subtotal;
+
+	// Running total for the whole test run.
 	static result total;
 
 	/// Print summary of tests passed, failed, and skipped.
