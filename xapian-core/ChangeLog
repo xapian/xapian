@@ -1,3 +1,7 @@
+Tue Aug 05 12:44:58 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/alltermslist.h: Fix parameter name in doxygen comment.
+
 Tue Aug 05 06:28:15 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_database.cc,backends/flint/flint_database.cc:
