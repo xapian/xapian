@@ -1,3 +1,8 @@
+Tue Aug 05 09:32:33 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/: Fix a few typos and improve wording in a few places.
+
 Mon Jul 14 13:46:00 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS: Update for 1.0.7.

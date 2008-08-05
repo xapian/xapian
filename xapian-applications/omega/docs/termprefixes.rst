@@ -118,7 +118,7 @@ You can also use a select tag::
 
 You can also allow the user to restrict a search with a boolean filter
 specified in text query (e.g. sex:f -> XGENDERf) by adding this to the
-start of your omegascript template::
+start of your OmegaScript template::
 
     $setmap{boolprefix,sex,XGENDER}
 
@@ -144,7 +144,7 @@ adding "index=S" to the scriptindex rule like so::
     title : field=title index=S
 
 You then need to tell Xapian::QueryParser that "title:" maps to an "S" prefix.
-If you're using Omega, then you do so by adding this to your omegascript
+If you're using Omega, then you do so by adding this to your OmegaScript
 template (at the start is best)::
 
     $setmap{prefix,title,S}
