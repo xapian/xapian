@@ -1,3 +1,10 @@
+Tue Aug 05 03:07:11 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/replication.cc,include/xapian/replication.h: Remove
+	  DatabaseReplica::get_parameter() and set_parameter() as they're no
+	  longer used for storing the database UUID, and Richard said the
+	  thinking behind wanting them was "flawed".
+
 Tue Aug 05 02:03:24 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_version.cc: Comment tweak.
