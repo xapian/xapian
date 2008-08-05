@@ -34,7 +34,7 @@
 #endif
 
 #include <cstdio> // For rename().
-#include <cstring> // for memcmp() and memcpy().
+#include <cstring> // For memcmp() and memcpy().
 #include <string>
 
 #include <uuid/uuid.h>

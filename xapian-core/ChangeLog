@@ -1,3 +1,7 @@
+Tue Aug 05 02:03:24 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_version.cc: Comment tweak.
+
 Tue Aug 05 02:02:29 GMT 2008  Olly Betts <olly@survex.com>
 
 	* api/replication.cc,backends/flint/flint_database.cc,common/utils.cc,
