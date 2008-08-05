@@ -1,3 +1,9 @@
+Tue Aug 05 23:50:19 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am: Fix "make clean" to remove cached databases again
+	  and "make check" to remove cached databases like the previous change
+	  aimed to do.
+
 Tue Aug 05 23:48:52 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/api_db.cc: Use TEST_EQUAL(a, b) rather than TEST(a == b).

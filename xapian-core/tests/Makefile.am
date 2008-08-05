@@ -16,7 +16,7 @@ TESTS_ENVIRONMENT = ./runtest
         check-remote \
 	check-remoteprog check-remoteprog-chert check-remoteprog-flint\
 	check-remotetcp check-remotetcp-chert check-remotetcp-flint\
-        check-chert check-flint up
+        check-chert check-flint up remove-cached-databases
 
 up:
 	cd .. && $(MAKE)
@@ -201,10 +201,14 @@ EXTRA_DIST +=\
 	testdata/flint-1.0.2/termlist.baseA \
 	testdata/flint-1.0.2/termlist.DB
 
+remove-cached-databases:
+	rm -rf .chert .flint .multi .multichert .multiflint .stub
+
+clean-local: remove-cached-databases
+
 # Remove the cached databases before "make check" to avoid issues with missing
 # bugs in database creation when we reuse databases from a previous test run.
-check-local clean-local:
-	rm -rf .chert .flint .multi .multichert .multiflint .stub
+check-local: remove-cached-databases
 
 include perftest/Makefile.mk
 include harness/Makefile.mk
