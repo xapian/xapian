@@ -589,6 +589,7 @@ FlintDatabase::send_whole_database(RemoteConnection & conn,
 	filenames.push_back(string(*tablenameptr) + ".baseB");
     };
     filenames.push_back("iamflint");
+    filenames.push_back("uuid");
 
     for (list<string>::const_iterator i = filenames.begin();
 	 i != filenames.end(); ++i) {

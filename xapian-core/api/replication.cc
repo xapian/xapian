@@ -83,20 +83,20 @@ DatabaseMaster::write_changesets_to_fd(int fd,
 
     // Extract the UUID from start_revision and compare it to the database.
     bool need_whole_db = false;
-    string revision(start_revision);
-    if (revision.empty()) {
+    string revision;
+    if (start_revision.empty()) {
 	need_whole_db = true;
     } else {
-	const char * ptr = revision.data();
-	const char * end = ptr + revision.size();
+	const char * ptr = start_revision.data();
+	const char * end = ptr + start_revision.size();
 	size_t uuid_length = decode_length(&ptr, end, true);
 	string request_uuid(ptr, uuid_length);
+	ptr += uuid_length;
 	string db_uuid = db.internal[0]->get_uuid();
 	if (request_uuid != db_uuid) {
 	    need_whole_db = true;
 	}
-
-	revision.erase(0, ptr + uuid_length - revision.data());
+	revision.assign(ptr, end - ptr);
     }
 
     db.internal[0]->write_changesets_to_fd(fd, revision, need_whole_db, info);
@@ -442,11 +442,8 @@ DatabaseReplica::Internal::get_revision_info() const
     if (live_db.internal.size() != 1) {
 	throw Xapian::InvalidOperationError("DatabaseReplica needs to be pointed at exactly one subdatabase");
     }
-    string buf;
-    string uuid = hex_decode(get_parameter("uuid"));
-    // FIXME - when uuids are actually stored in databases, use the following:
-    // string uuid = (live_db.internal[0])->get_uuid();
-    buf += encode_length(uuid.size());
+    string uuid = (live_db.internal[0])->get_uuid();
+    string buf = encode_length(uuid.size());
     buf += uuid;
     buf += (live_db.internal[0])->get_revision_info();
     RETURN(buf);
@@ -537,7 +534,6 @@ DatabaseReplica::Internal::possibly_make_offline_live()
     live_id ^= 1;
     update_stub_database();
     live_db = WritableDatabase(get_replica_path(live_id), Xapian::DB_OPEN);
-    set_parameter("uuid", hex_encode(offline_uuid));
     remove_offline_db();
     return true;
 }
