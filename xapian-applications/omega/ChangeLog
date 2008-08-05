@@ -1,3 +1,7 @@
+Tue Aug 05 09:24:33 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/: Fix a few typos and improve wording in a few places.
+
 Tue Aug 05 09:19:56 GMT 2008  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Tweak to use string::assign() instead of assigning the

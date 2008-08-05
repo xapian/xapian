@@ -29,7 +29,7 @@ Documents within an omega database are stored with two types of terms:
 those used for probabilistic searching (the CGI parameter 'P'), and
 those used for boolean filtering (the CGI parameter 'B'). Boolean
 terms start with an initial capital letter denoting the 'group' of the
-term (eg: 'M' for MIME type), while probabilistic terms are all
+term (e.g. 'M' for MIME type), while probabilistic terms are all
 lower-case, and are also stemmed before adding to the
 database.
 
@@ -68,7 +68,7 @@ be the query, and the weighting scheme is set to boolean.  This has
 the effect of applying the boolean filter to the whole database.
 
 In order to add more boolean prefixes, you will need to alter the
-``index_file()`` function in omindex.cc. Current omindex adds several
+``index_file()`` function in omindex.cc. Currently omindex adds several
 useful ones, detailed below.
 
 Probabilistic terms are constructed from the title, body and keywords
@@ -113,7 +113,7 @@ group of them), or omit such terms to search everyone's pages.
 
 Note that the site specified when you index is used to build the
 complete URL that the results page links to. Thus while sites will
-typically want to be relative to the hostname part of the URL (eg
+typically want to be relative to the hostname part of the URL (e.g.
 '/site' rather than '\http://example.com/site'), you can use them
 to have a single search across several different hostnames. This will
 still work if you actually store each distinct hostname in a different
@@ -275,7 +275,7 @@ database with a new one by indexing this file, and 'duplicate' means
 to index this file as a new document, leaving the previous one in the
 database as well. The last strategy is very fast, but is liable to do
 strange things to your results set. In general, 'ignore' is useful for
-completely static documents (eg: archive sites), while 'replace' is
+completely static documents (e.g. archive sites), while 'replace' is
 the most generally useful.
 
 With 'replace', omindex will remove any document it finds in the
@@ -305,7 +305,7 @@ H
         hostname of site (if supplied - this term won't exist if you index a
         site with base URL '/press', for instance)
 P	
-        path of site (ie: the rest of the site base URL)
+        path of site (i.e. the rest of the site base URL)
 U	
         full URL of indexed document - if the resulting term would be > 240
 	characters, a hashing scheme is used to prevent omindex overflowing
@@ -341,7 +341,7 @@ various locations:
    to is not present), the file "omega.conf" in the same directory as
    the Omega CGI is used.
  - Next (if neither of the previous steps found a file), the file
-   "${sysconfdir}/omega.conf" (eg, /etc/omega.conf on Linux systems)
+   "${sysconfdir}/omega.conf" (e.g. /etc/omega.conf on Linux systems)
    is used.
  - Finally, if no configuration file is found, default values are used.
 
@@ -352,7 +352,7 @@ is a '#', omega treats the line as a comment and ignores it.
 
 The current options are 'database_dir' (the directory containing all the
 Omega databases), 'template_dir' (the directory containing the OmegaScript
-templates), and 'log_dir' (the directory which the omegascript $log command
+templates), and 'log_dir' (the directory which the OmegaScript $log command
 writes log files to).
 
 The default values (used if no configuration file is found) are::
@@ -388,7 +388,7 @@ There are also "helper fragments" used by the templates above:
    by default as a drop down box.
  * inc/anyallradio - Provides a choice of matching "any" or "all" terms
    by default as radio buttons.
- * toptermsjs - Provides some Javascript used by the topterms template.
+ * toptermsjs - Provides some JavaScript used by the topterms template.
 
 Document data construction
 ==========================
