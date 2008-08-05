@@ -1,3 +1,8 @@
+Tue Aug 05 06:00:11 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_replicate.cc: Remove "sleep(1);" from testcase replicate1
+	  which is no longer required now we generate proper UUIDs.
+
 Tue Aug 05 03:07:11 GMT 2008  Olly Betts <olly@survex.com>
 
 	* api/replication.cc,include/xapian/replication.h: Remove
