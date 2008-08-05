@@ -1,3 +1,8 @@
+Tue Aug 05 09:19:56 GMT 2008  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Tweak to use string::assign() instead of assigning the
+	  result of string::substr().
+
 Tue Jul 29 23:48:31 GMT 2008  Olly Betts <olly@survex.com>
 
 	* runfilter.cc: Add missing <signal.h>, noted on FreeBSD by Henrik
