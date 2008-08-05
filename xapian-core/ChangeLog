@@ -1,3 +1,12 @@
+Tue Aug 05 06:28:15 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/flint/flint_database.cc:
+	  Don't generate a changeset file for the first revision of a database
+	  (since we might as well just send the whole database) - addresses
+	  part of bug#278.  Clean up exceptions to pass errno in the errno
+	  parameter rather than incorporating strerror(errno) in the message
+	  parameter.
+
 Tue Aug 05 06:00:11 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/api_replicate.cc: Remove "sleep(1);" from testcase replicate1

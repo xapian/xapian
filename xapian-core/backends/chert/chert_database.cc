@@ -102,8 +102,8 @@ sys_unlink_if_exists(const string & filename)
     if (unlink(filename) == -1) {
 #endif
 	if (errno == ENOENT) return;
-	throw Xapian::DatabaseError("Can't delete file: `" + filename +
-			      "': " + strerror(errno));
+	throw Xapian::DatabaseError("Can't delete file: `" + filename + "'",
+				    errno);
     }
 }
 
@@ -456,16 +456,19 @@ ChertDatabase::set_revision_number(chert_revision_number_t new_revision)
 
     if (max_changesets > 0) {
 	chert_revision_number_t old_revision = get_revision_number();
-	changes_name = db_dir + "/changes" + om_tostring(old_revision);
+	if (old_revision) {
+	    // Don't generate a changeset for the first revision.
+	    changes_name = db_dir + "/changes" + om_tostring(old_revision);
 #ifdef __WIN32__
-	changes_fd = msvc_posix_open(changes_name.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);
+	    changes_fd = msvc_posix_open(changes_name.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);
 #else
-	changes_fd = open(changes_name.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
+	    changes_fd = open(changes_name.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
 #endif
-	if (changes_fd < 0) {
-	    string message = string("Couldn't open changeset ")
-		    + changes_name + " to write: " + strerror(errno);
-	    throw Xapian::DatabaseOpeningError(message);
+	    if (changes_fd < 0) {
+		string message = string("Couldn't open changeset ")
+			+ changes_name + " to write";
+		throw Xapian::DatabaseError(message, errno);
+	    }
 	}
     }
 
@@ -1120,10 +1123,10 @@ ChertDatabase::process_changeset_chunk_base(const string & tablename,
 	int saved_errno = errno;
 	if (unlink(tmp_path) == 0 || errno != ENOENT) {
 	    string msg("Couldn't update base file ");
-	    msg += tablename + ".base" + letter;
-	    msg += ": ";
-	    msg += strerror(saved_errno);
-	    throw Xapian::DatabaseError(msg);
+	    msg += tablename;
+	    msg += ".base";
+	    msg += letter;
+	    throw Xapian::DatabaseError(msg, saved_errno);
 	}
     }
 
@@ -1173,9 +1176,9 @@ ChertDatabase::process_changeset_chunk_blocks(const string & tablename,
 	    // Write the block.
 	    // FIXME - should use pwrite if that's available.
 	    if (lseek(fd, (off_t)changeset_blocksize * block_number, SEEK_SET) == -1) {
-		string message = "Error seeking to block: ";
-		message += strerror(errno);
-		throw Xapian::DatabaseError(message);
+		string msg = "Failed to seek to block ";
+		msg += om_tostring(block_number);
+		throw Xapian::DatabaseError(msg, errno);
 	    }
 	    chert_io_write(fd, buf.data(), changeset_blocksize);
 
