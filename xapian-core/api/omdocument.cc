@@ -480,7 +480,8 @@ Xapian::Document::Internal::need_values() const
 {
     if (!values_here) {
 	if (database) {
-	    values = do_get_all_values();
+	    Assert(values.empty());
+	    do_get_all_values(values);
 	    value_nos.clear();
 	}
 	values_here = true;

@@ -39,10 +39,10 @@ InMemoryDocument::do_get_value(Xapian::valueno valueid) const
     return k->second;
 }
 
-map<Xapian::valueno, string>
-InMemoryDocument::do_get_all_values() const
+void
+InMemoryDocument::do_get_all_values(map<Xapian::valueno, string> & values_) const
 {
-    return values;
+    values_ = values;
 }
 
 string

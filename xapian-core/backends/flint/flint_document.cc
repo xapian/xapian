@@ -60,13 +60,11 @@ FlintDocument::do_get_value(Xapian::valueno valueid) const
 
 /** Retrieve all value values from the database
  */
-map<Xapian::valueno, string>
-FlintDocument::do_get_all_values() const
+void
+FlintDocument::do_get_all_values(map<Xapian::valueno, string> & values_) const
 {
-    DEBUGCALL(DB, void, "FlintDocument::do_get_all_values", "");
-    map<Xapian::valueno, string> value_map;
-    value_table->get_all_values(value_map, did);
-    return value_map;
+    DEBUGCALL(DB, void, "FlintDocument::do_get_all_values", "[values_]");
+    value_table->get_all_values(values_, did);
 }
 
 /** Retrieve the document data from the database

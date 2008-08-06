@@ -1,3 +1,15 @@
+Wed Aug 06 11:27:29 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omdocument.cc,backends/chert/chert_document.cc,
+	  backends/chert/chert_document.h,backends/flint/flint_document.cc,
+	  backends/flint/flint_document.h,
+	  backends/inmemory/inmemory_document.cc,
+	  backends/inmemory/inmemory_document.h,
+	  backends/remote/net_document.cc,backends/remote/net_document.h,
+	  common/document.h: Change do_get_all_values() to pass a reference
+	  to the std::map to return the result in rather than returning the
+	  std::map.
+
 Wed Aug 06 07:39:08 GMT 2008  Olly Betts <olly@survex.com>
 
 	* docs/replication.rst: Adding missing (C) for new section addded
