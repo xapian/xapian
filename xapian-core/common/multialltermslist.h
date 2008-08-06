@@ -50,9 +50,6 @@ class MultiAllTermsList : public AllTermsList {
     /// Destructor.
     ~MultiAllTermsList();
 
-    /// Return approximate size of this termlist.
-    Xapian::termcount get_approx_size() const;
-
     /// Return the termname at the current position.
     std::string get_termname() const;
 

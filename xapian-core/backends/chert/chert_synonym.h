@@ -158,12 +158,6 @@ class ChertSynonymTermList : public AllTermsList {
     /// Destructor.
     ~ChertSynonymTermList();
 
-    /** Returns the approximate size of the list.
-     *
-     *  This may be unused for this class.
-     */
-    Xapian::termcount get_approx_size() const;
-
     /** Returns the current termname.
      *
      *  Either next() or skip_to() must have been called before this

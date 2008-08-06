@@ -137,9 +137,6 @@ class ChertSpellingTermList : public TermList {
     ChertSpellingTermList(const std::string & data_)
 	: data(data_), p(0) { }
 
-    /// Destructor.
-    ~ChertSpellingTermList();
-
     Xapian::termcount get_approx_size() const;
 
     std::string get_termname() const;

@@ -64,22 +64,6 @@ MultiAllTermsList::~MultiAllTermsList()
     for_each(termlists.begin(), termlists.end(), delete_ptr<TermList>());
 }
 
-// FIXME: should we calculate this before we start deleting termlists which
-// have reached their end?
-Xapian::termcount 
-MultiAllTermsList::get_approx_size() const
-{
-    throw Xapian::AssertionError("got here!");
-    Xapian::termcount total_size = 0;
-
-    vector<TermList *>::const_iterator i;
-    for (i = termlists.begin(); i != termlists.end(); ++i) {
-	total_size += (*i)->get_approx_size();
-    }
-
-    return total_size;
-}
-
 string
 MultiAllTermsList::get_termname() const
 {

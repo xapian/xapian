@@ -1,7 +1,7 @@
 /** @file flint_metadata.h
  * @brief Access to metadata for a flint database.
  */
-/* Copyright (C) 2004,2005,2006,2007 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -44,13 +44,6 @@ FlintMetadataTermList::~FlintMetadataTermList()
 {
     DEBUGCALL(DB, void, "~FlintMetadataTermList", "");
     delete cursor;
-}
-
-Xapian::termcount
-FlintMetadataTermList::get_approx_size() const
-{
-    DEBUGCALL(DB, Xapian::termcount, "FlintMetadataTermList::get_approx_size", "");
-    throw Xapian::UnimplementedError("FlintMetadataTermList::get_approx_size() not implemented");
 }
 
 string

@@ -1,6 +1,7 @@
-/* alltermslist.cc: Base class for iterating all terms in a database.
- *
- * Copyright (C) 2007 Olly Betts
+/** @file alltermslist.cc
+ * @brief Abstract base class for iterating all terms in a database.
+ */
+/* Copyright (C) 2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,9 +20,10 @@
 
 #include <config.h>
 
+#include "alltermslist.h"
+
 #include <xapian/error.h>
 
-#include "alltermslist.h"
 #include "omassert.h"
 
 #include <string>
@@ -29,6 +31,14 @@
 using namespace std;
 
 AllTermsList::~AllTermsList() { }
+
+Xapian::termcount
+AllTermsList::get_approx_size() const
+{
+    // We should never use get_approx_size() on AllTermsList subclasses.
+    Assert(false);
+    return 0;
+}
 
 Xapian::termcount
 AllTermsList::get_wdf() const

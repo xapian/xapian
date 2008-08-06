@@ -1,3 +1,16 @@
+Wed Aug 06 06:27:59 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/alltermslist.cc,backends/chert/,backends/flint/,
+	  backends/inmemory/inmemory_alltermslist.cc,
+	  backends/inmemory/inmemory_alltermslist.h,
+	  backends/multi/multi_alltermslist.cc,common/alltermslist.h,
+	  common/multialltermslist.h: Add a default "not implemented"
+	  implementation of AllTermsList::get_approx_size() and remove the
+	  "not implemented" versions in all the subclasses.  Remove empty
+	  destructors for ChertSpellingTermList, and FlintSpellingTermList.
+	* api/maptermlist.h,api/omdocument.cc: MapTermList::get_approx_size()
+	  should never be used, so make it "Assert(false); return 0;".
+
 Wed Aug 06 02:24:48 GMT 2008  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc,backends/multi/multi_alltermslist.cc,

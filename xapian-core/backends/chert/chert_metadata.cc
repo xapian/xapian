@@ -46,13 +46,6 @@ ChertMetadataTermList::~ChertMetadataTermList()
     delete cursor;
 }
 
-Xapian::termcount
-ChertMetadataTermList::get_approx_size() const
-{
-    DEBUGCALL(DB, Xapian::termcount, "ChertMetadataTermList::get_approx_size", "");
-    throw Xapian::UnimplementedError("ChertMetadataTermList::get_approx_size() not implemented");
-}
-
 string
 ChertMetadataTermList::get_termname() const
 {

@@ -171,13 +171,6 @@ ChertSynonymTermList::~ChertSynonymTermList()
     delete cursor;
 }
 
-Xapian::termcount
-ChertSynonymTermList::get_approx_size() const
-{
-    DEBUGCALL(DB, Xapian::termcount, "ChertSynonymTermList::get_approx_size", "");
-    RETURN(size);
-}
-
 string
 ChertSynonymTermList::get_termname() const
 {
