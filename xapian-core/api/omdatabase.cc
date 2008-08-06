@@ -180,14 +180,7 @@ Database::allterms_begin(const std::string & prefix) const
     if (internal.size() == 1)
 	RETURN(TermIterator(internal[0]->open_allterms(prefix)));
 
-    vector<TermList *> lists;
-
-    vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
-    for (i = internal.begin(); i != internal.end(); ++i) {
-	lists.push_back((*i)->open_allterms(prefix));
-    }
-
-    RETURN(TermIterator(new MultiAllTermsList(lists)));
+    RETURN(TermIterator(new MultiAllTermsList(internal, prefix)));
 }
 
 bool

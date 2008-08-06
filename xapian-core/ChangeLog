@@ -1,3 +1,11 @@
+Wed Aug 06 02:24:48 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,backends/multi/multi_alltermslist.cc,
+	  common/multialltermslist.h: Reimplement MultiAllTermsList to use a
+	  heap rather than linearly scanning - operations during iteration
+	  should now be O(log(n)) rather than O(n) where n is the number of
+	  databases.
+
 Tue Aug 05 23:50:19 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/Makefile.am: Fix "make clean" to remove cached databases again
