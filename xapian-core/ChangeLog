@@ -1,3 +1,8 @@
+Wed Aug 06 07:39:08 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/replication.rst: Adding missing (C) for new section addded
+	  recently.
+
 Wed Aug 06 06:27:59 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/alltermslist.cc,backends/chert/,backends/flint/,

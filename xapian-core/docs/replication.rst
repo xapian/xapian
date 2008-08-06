@@ -1,4 +1,5 @@
 .. Copyright (C) 2008 Lemur Consulting Ltd
+.. Copyright (C) 2008 Olly Betts
 
 =======================================
 Xapian Database Replication Users Guide
