@@ -249,6 +249,12 @@ install: build
 	    $(MAKE) -C build-$$python DESTDIR=$(CURDIR)/debian/tmp install; \
 	done
 
+	# Install xapian.php in /usr/share/php for PHP5 so that it's in the
+	# PHP include_path, but for the PHP4 backport put it in /usr/share/php4
+	# to avoid a file conflict with the php5-xapian package.  The file won't
+	# be automatically found there, but it isn't vital for the PHP4 bindings
+	# while it is for the PHP5 ones.
+	#
 	# Always install /etc/xapian/phpN/conf.d/xapian.ini, even for backports
 	# to suites where PHP doesn't support it - the extra file is harmless,
 	# and it means we'll work nicely with backported PHP packages too.
@@ -256,7 +262,8 @@ install: build
 	    c=/usr/bin/php-config$$v; \
 	    if test -x $$c ; then \
 		set -e; \
-		$(MAKE) -C build-php$$v DESTDIR=$(CURDIR)/debian/tmp install; \
+		$(MAKE) -C build-php$$v DESTDIR=$(CURDIR)/debian/tmp \
+		    phpincdir=/usr/share/php`echo $$v|tr -d 5` install; \
 		install -d -m 755 debian/tmp/etc/php$$v/conf.d; \
 		install -m 644 debian/etc-php-conf.d-xapian.ini debian/tmp/etc/php$$v/conf.d/xapian.ini; \
 	    fi \
