@@ -1,3 +1,14 @@
+xapian-core (1.0.7-3) unstable; urgency=low
+
+  * debian/rules: Run "make all" and "make check" as separate commands to
+    avoid hitting parallel building bugs.  Closes: #493390
+  * debian/patch: Backport fixes for upstream bug #287 (which can cause
+    database corruption), and a bug without a ticket which causes problems
+    iterating over tables created lazily after the database has had commits
+    which are still in sequential mode.
+
+ -- Olly Betts <olly@survex.com>  Fri,  8 Aug 2008 04:52:44 +0100
+
 xapian-core (1.0.7-2) unstable; urgency=low
 
   * debian/rules: Fix configure and build rules to be parallel make safe

@@ -74,9 +74,9 @@ ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
     MAKEFLAGS += -j$(NUMJOBS)
 endif
 ifneq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
-    CHECKTARGET =
+    MAKE_CHECK := :
 else
-    CHECKTARGET = check
+    MAKE_CHECK := $(MAKE) check
 endif
 
 commonconfflags := \
@@ -143,7 +143,8 @@ configure-stamp: debian/control
 build: build-stamp
 build-stamp: configure
 	dh_testdir
-	$(MAKE) -C build all $(CHECKTARGET)
+	$(MAKE) -C build all
+	$(MAKE_CHECK) -C build
 	touch $@
 
 install: DH_OPTIONS=
