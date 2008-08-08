@@ -49,9 +49,9 @@ ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
     MAKEFLAGS += -j$(NUMJOBS)
 endif
 ifneq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
-    CHECKTARGET =
+    MAKE_CHECK := :
 else
-    CHECKTARGET = check
+    MAKE_CHECK := make check
 endif
 
 BUILD_DEPS := debhelper (>= 4.1.22),
@@ -106,7 +106,8 @@ configure-stamp:
 build: build-stamp
 build-stamp: configure
 	dh_testdir
-	$(MAKE) -C build all $(CHECKTARGET)
+	$(MAKE) -C build all
+	$(MAKE_CHECK) -C build
 	touch $@
 
 install: DH_OPTIONS=
