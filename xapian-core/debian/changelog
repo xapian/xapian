@@ -7,7 +7,7 @@ xapian-core (1.0.7-3) unstable; urgency=low
     iterating over tables created lazily after the database has had commits
     which are still in sequential mode.
 
- -- Olly Betts <olly@survex.com>  Fri,  8 Aug 2008 08:24:59 +0100
+ -- Olly Betts <olly@survex.com>  Fri,  8 Aug 2008 09:46:20 +0100
 
 xapian-core (1.0.7-2) unstable; urgency=low
 

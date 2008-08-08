@@ -1,7 +1,7 @@
-Index: /branches/1.0/xapian-core/backends/flint/flint_cursor.cc
+Index: backends/flint/flint_cursor.cc
 ===================================================================
---- /branches/1.0/xapian-core/backends/flint/flint_cursor.cc (revision 9463)
-+++ /branches/1.0/xapian-core/backends/flint/flint_cursor.cc (revision 11051)
+--- backends/flint/flint_cursor.cc (revision 9463)
++++ backends/flint/flint_cursor.cc (revision 11051)
 @@ -276,7 +276,10 @@
      B->del(current_key);
  
