@@ -1,0 +1,40 @@
+Index: backends/flint/flint_cursor.cc
+===================================================================
+--- backends/flint/flint_cursor.cc (revision 9463)
++++ backends/flint/flint_cursor.cc (revision 11051)
+@@ -276,7 +276,10 @@
+     B->del(current_key);
+ 
+-    // The deletion happens in a new (uncommitted) revision of the tree, but
+-    // the cursor is running over the previous revision, so it can still see
+-    // the deleted key.
++    // If we're iterating an older revision of the tree, then the deletion
++    // happens in a new (uncommitted) revision and the cursor still sees
++    // the deleted key.  But if we're iterating the new uncommitted revision
++    // then the deleted key is no longer visible.  We need to handle both
++    // cases - either find_entry_ge() finds the deleted key or not.
++    if (!find_entry_ge(current_key)) return is_positioned;
+     return next();
+ }
+Index: backends/flint/flint_table.cc
+===================================================================
+--- backends/flint/flint_table.cc	(revision 10953)
++++ backends/flint/flint_table.cc	(revision 10954)
+@@ -1986,7 +1988,7 @@
+ 	    } else {
+ 		read_block(n, p);
+ 	    }
+-	    if (REVISION(p) > 1) {
++	    if (REVISION(p) > revision_number + writable) {
+ 		set_overwritten();
+ 		return false;
+ 	    }
+@@ -2038,7 +2041,7 @@
+ 	    } else {
+ 		read_block(n, p);
+ 	    }
+-	    if (REVISION(p) > 1) {
++	    if (REVISION(p) > revision_number + writable) {
+ 		set_overwritten();
+ 		return false;
+ 	    }
