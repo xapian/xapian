@@ -107,9 +107,9 @@ ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
     MAKEFLAGS += -j$(NUMJOBS)
 endif
 ifneq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
-    CHECKTARGET =
+    MAKE_CHECK := :
 else
-    CHECKTARGET = check
+    MAKE_CHECK := make check
 endif
 
 # Python versions which had packages before the Python policy transition.
@@ -165,8 +165,6 @@ commonconfflags := \
 # With GCC3 and later this won't make a huge difference, but it'll save
 # a bit of time and diskspace while building.
 commonconfflags += --disable-dependency-tracking
-
-buildtargets := all $(CHECKTARGET)
 
 maint: debian/control
 
@@ -225,15 +223,18 @@ debian/build-stamp: configure
 	dh_testdir
 	for python in $(PYTHON_VERSIONS); do \
 	    set -e; \
-	    $(MAKE) -C build-$$python $(buildtargets) ; \
+	    $(MAKE) -C build-$$python ; \
+	    $(MAKE_CHECK) -C build-$$python ; \
 	done
 	for v in $(PHP_VERSIONS); do \
 	    if test -x /usr/bin/php-config$$v ; then \
 		set -e; \
-		$(MAKE) -C build-php$$v $(buildtargets) ; \
+		$(MAKE) -C build-php$$v ; \
+		$(MAKE_CHECK) -C build-php$$v ; \
 	    fi \
 	done
-	$(MAKE) -C build-tcl-and-ruby $(buildtargets)
+	$(MAKE) -C build-tcl-and-ruby
+	$(MAKE_CHECK) -C build-tcl-and-ruby
 	touch $@
 
 install: DH_OPTIONS=

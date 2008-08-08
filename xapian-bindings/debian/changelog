@@ -4,8 +4,10 @@ xapian-bindings (1.0.7-3) unstable; urgency=low
     the file is ignored unless it has extensions ".ini".  Closes: #493941
   * Install xapian.php in /usr/share/php not /usr/share/php5 so that it is in
     the default PHP include_path.  Closes: #493944
+  * debian/rules: Run "make all" and "make check" as separate commands to
+    avoid hitting parallel building bugs.  Closes: #494247
 
- -- Olly Betts <olly@survex.com>  Fri,  8 Aug 2008 08:13:31 +0100
+ -- Olly Betts <olly@survex.com>  Fri,  8 Aug 2008 08:18:52 +0100
 
 xapian-bindings (1.0.7-2) unstable; urgency=low
 
