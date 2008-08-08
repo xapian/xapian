@@ -106,7 +106,7 @@ configure-stamp:
 build: build-stamp
 build-stamp: configure
 	dh_testdir
-	$(MAKE) -C build all
+	$(MAKE) -C build
 	$(MAKE_CHECK) -C build
 	touch $@
 

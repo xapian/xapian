@@ -4,7 +4,7 @@ xapian-omega (1.0.7-3) unstable; urgency=low
     avoid hitting parallel building bugs.  Related to #493390 and
     #494247.
 
- -- Olly Betts <olly@survex.com>  Fri,  8 Aug 2008 04:55:39 +0100
+ -- Olly Betts <olly@survex.com>  Fri,  8 Aug 2008 08:23:01 +0100
 
 xapian-omega (1.0.7-2) unstable; urgency=low
 
