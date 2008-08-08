@@ -1,3 +1,10 @@
+xapian-bindings (1.0.7-3) unstable; urgency=low
+
+  * Install /etc/php5/conf.d/xapian.ini instead of /etc/php5/conf.d/xapian as
+    the file is ignored unless it has extensions ".ini".  Closes: #493941
+
+ -- Olly Betts <olly@survex.com>  Fri,  8 Aug 2008 05:29:29 +0100
+
 xapian-bindings (1.0.7-2) unstable; urgency=low
 
   * debian/rules: Fix build rule to be parallel make safe.
