@@ -1337,12 +1337,6 @@ ChertWritableDatabase::flush()
     if (transaction_active())
 	throw Xapian::InvalidOperationError("Can't flush during a transaction");
     if (change_count) flush_postlist_changes();
-    if (!value_stats.empty()) {
-	map<Xapian::valueno, ValueStats>::const_iterator i;
-	for (i = value_stats.begin(); i != value_stats.end(); ++i) {
-	    value_table.set_value_stats(i->second, i->first);
-	}
-    }
     apply();
 }
 
@@ -1360,6 +1354,16 @@ ChertWritableDatabase::flush_postlist_changes() const
     doclens.clear();
     mod_plists.clear();
     change_count = 0;
+}
+
+void
+ChertWritableDatabase::apply()
+{
+    map<Xapian::valueno, ValueStats>::const_iterator i;
+    for (i = value_stats.begin(); i != value_stats.end(); ++i) {
+	value_table.set_value_stats(i->second, i->first);
+    }
+    ChertDatabase::apply();
 }
 
 Xapian::docid

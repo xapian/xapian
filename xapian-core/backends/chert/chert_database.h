@@ -332,6 +332,9 @@ class ChertWritableDatabase : public ChertDatabase {
 	/// Flush any unflushed postlist changes, but don't commit them.
 	void flush_postlist_changes() const;
 
+	/// Apply changes.
+	void apply();
+
 	//@{
 	/** Implementation of virtual methods: see Database::Internal for
 	 *  details.

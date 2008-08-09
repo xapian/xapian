@@ -1,3 +1,9 @@
+Sat Aug 09 06:10:49 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/chert/chert_database.h:
+	  Write cached valuestats changes to disk when we automatically flush
+	  changes due to the number of documents indexed.
+
 Wed Aug 06 11:27:29 GMT 2008  Olly Betts <olly@survex.com>
 
 	* api/omdocument.cc,backends/chert/chert_document.cc,
