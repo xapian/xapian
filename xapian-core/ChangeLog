@@ -1,3 +1,8 @@
+Mon Aug 11 03:03:19 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/postingsource.cc: Always initialise max_value in the constructor
+	  body for consistency.
+
 Sat Aug 09 09:56:06 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/api_valuestats.cc: Add valuestats4 as a regression test for
