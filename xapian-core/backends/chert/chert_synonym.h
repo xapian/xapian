@@ -87,7 +87,7 @@ class ChertSynonymTable : public ChertTable {
     /** Override methods of ChertTable.
      *
      *  NB: these aren't virtual, but we always call them on the subclass in
-     *  cases where it matters).
+     *  cases where it matters.
      *  @{
      */
 

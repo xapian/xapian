@@ -1,3 +1,8 @@
+Mon Aug 11 03:06:10 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_spelling.h,backends/chert/chert_synonym.h:
+	  Remove random closing bracket from a couple of comments.
+
 Mon Aug 11 03:03:19 GMT 2008  Olly Betts <olly@survex.com>
 
 	* api/postingsource.cc: Always initialise max_value in the constructor
