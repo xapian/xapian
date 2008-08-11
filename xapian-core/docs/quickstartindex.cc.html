@@ -1,0 +1,67 @@
+<HTML>
+<HEAD>
+<TITLE>quickstartindex.cc.html</TITLE>
+</HEAD>
+<BODY BGcolor=#ffffff TEXT=#000000>
+<PRE>
+<FONT color=#0000ff>/* quickstartindex.cc: Simplest possible indexer
+ *
+ * ----START-LICENCE----
+ * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2003,2004 Olly Betts
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
+ * USA
+ */</FONT>
+
+<FONT color=#a020f0>#include </FONT><FONT color=#ff00ff>&lt;xapian.h&gt;</FONT>
+<FONT color=#a020f0>#include </FONT><FONT color=#ff00ff>&lt;iostream&gt;</FONT>
+<B><FONT color=#a52a2a>using namespace </FONT></B>std;
+
+<B><FONT color=#2e8b57>int</FONT></B> main(<B><FONT color=#2e8b57>int</FONT></B> argc, <B><FONT color=#2e8b57>char</FONT></B> **argv)
+{
+    <FONT color=#0000ff>// Simplest possible options parsing: we just require three or more
+    // parameters.</FONT>
+    <B><FONT color=#a52a2a>if</FONT></B>(argc &lt; <FONT color=#ff00ff>4</FONT>) {
+        cout &lt;&lt; <FONT color=#ff00ff>&quot;usage: &quot;</FONT> &lt;&lt; argv[<FONT color=#ff00ff>0</FONT>] &lt;&lt;
+                <FONT color=#ff00ff>&quot; &lt;path to database&gt; &lt;document data&gt; &lt;document terms&gt;&quot;</FONT> &lt;&lt; endl;
+        exit(<FONT color=#ff00ff>1</FONT>);
+    }
+
+    <FONT color=#0000ff>// Catch any Xapian::Error exceptions thrown</FONT>
+    <B><FONT color=#a52a2a>try</FONT></B> {
+        <FONT color=#0000ff>// Make the database</FONT>
+        Xapian::WritableDatabase database(argv[<FONT color=#ff00ff>1</FONT>], Xapian::DB_CREATE_OR_OPEN);
+
+        <FONT color=#0000ff>// Make the document</FONT>
+        Xapian::Document newdocument;
+
+        <FONT color=#0000ff>// Put the data in the document</FONT>
+        newdocument.set_data(string(argv[<FONT color=#ff00ff>2</FONT>]));
+
+        <FONT color=#0000ff>// Put the terms into the document</FONT>
+        <B><FONT color=#a52a2a>for</FONT></B> (<B><FONT color=#2e8b57>int</FONT></B> i = <FONT color=#ff00ff>3</FONT>; i &lt; argc; ++i) {
+            newdocument.add_posting(argv[i], i - <FONT color=#ff00ff>2</FONT>);
+        }
+
+        <FONT color=#0000ff>// Add the document to the database</FONT>
+        database.add_document(newdocument);
+    } <B><FONT color=#a52a2a>catch</FONT></B>(const Xapian::Error &amp;error) {
+        cout &lt;&lt; <FONT color=#ff00ff>&quot;Exception: &quot;</FONT>  &lt;&lt; error.get_msg() &lt;&lt; endl;
+    }
+}
+</PRE>
+</BODY>
+</HTML>

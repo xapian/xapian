@@ -1,0 +1,37 @@
+Sun Jun 29 06:53:28 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* version.rc.java-swig,version.rc.php,version.rc.python: Change
+	  "Copyright ... Xapian" messages to a note to consult the source
+	  code - Xapian isn't a legal entity, so nothing can be "(C)
+	  Xapian".
+
+Wed Jun 25 13:18:50 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* Makefile: Patch from Charlie to fix some paths for "cd".
+
+Tue Jun 24 16:06:57 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* NEWS: Add note about Java-SWIG makefiles.
+
+Tue Jun 24 16:06:21 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* win32_backends_chert.mak: Add chert_alldocsmodifiedpostlist
+	  source files.
+	* win32_testsuite.mak: Add backendmanager_remote source file.
+
+Thu Jun 05 17:29:16 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* win32_expand.mak: Replace reference to expand.cc and expand.obj
+	  with esetinternal.cc and esetinternal.obj - expand.cc has now
+	  been removed, and esetinternal.cc added.
+
+Thu Jun 05 17:11:14 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* win32_bin.mak: Remove comments about the now removed quartz
+	  utilities, and a reference to them in the CLEAN rule.
+	* README: Remove trailing whitespace.  Clean up list of "what
+	  works".
+
+Thu Jun 05 17:04:26 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* Start of ChangeLog.

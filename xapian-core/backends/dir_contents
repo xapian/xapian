@@ -1,0 +1,13 @@
+<Directory>backends</Directory>
+
+<Description>
+This directory contains a subdirectory for each of the available database
+backends.  Each backend corresponds to a different underlying file
+structure.  For example, the inmemory backend holds its databases
+entirely in RAM, and the flint backend is a fully featured disk based
+backend.
+
+The directory also contains the implementation of Xapian::Database::Internal
+(the base class for each backend database class) and the factory functions
+which are the public interface for instantiating the database backend classes.
+</Description>
