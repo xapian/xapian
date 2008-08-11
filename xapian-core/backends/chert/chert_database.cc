@@ -126,7 +126,6 @@ ChertDatabase::ChertDatabase(const string &chert_dir, int action,
 	  lock(db_dir + "/chertlock"),
 	  total_length(0),
 	  lastdocid(0),
-	  mru_valno(Xapian::BAD_VALUENO),
 	  max_changesets(0)
 {
     DEBUGCALL(DB, void, "ChertDatabase", chert_dir << ", " << action <<
@@ -528,10 +527,7 @@ void
 ChertDatabase::reopen()
 {
     DEBUGCALL(DB, void, "ChertDatabase::reopen", "");
-    if (readonly) {
-	open_tables_consistent();
-	mru_valno = BAD_VALUENO;
-    }
+    if (readonly) open_tables_consistent();
 }
 
 void
@@ -846,48 +842,21 @@ Xapian::doccount
 ChertDatabase::get_value_freq(Xapian::valueno valno) const
 {
     DEBUGCALL(DB, Xapian::doccount, "ChertDatabase::get_value_freq", valno);
-    if (mru_valno != valno) {
-	try {
-	    value_table.get_value_stats(mru_valstats, valno);
-	    mru_valno = valno;
-	} catch (...) {
-	    mru_valno = Xapian::BAD_VALUENO;
-	    throw;
-	}
-    }
-    RETURN(mru_valstats.freq);
+    RETURN(value_table.get_value_freq(valno));
 }
 
 std::string
 ChertDatabase::get_value_lower_bound(Xapian::valueno valno) const
 {
     DEBUGCALL(DB, std::string, "ChertDatabase::get_value_lower_bound", valno);
-    if (mru_valno != valno) {
-	try {
-	    value_table.get_value_stats(mru_valstats, valno);
-	    mru_valno = valno;
-	} catch (...) {
-	    mru_valno = Xapian::BAD_VALUENO;
-	    throw;
-	}
-    }
-    RETURN(mru_valstats.lower_bound);
+    RETURN(value_table.get_value_lower_bound(valno));
 }
 
 std::string
 ChertDatabase::get_value_upper_bound(Xapian::valueno valno) const
 {
     DEBUGCALL(DB, std::string, "ChertDatabase::get_value_upper_bound", valno);
-    if (mru_valno != valno) {
-	try {
-	    value_table.get_value_stats(mru_valstats, valno);
-	    mru_valno = valno;
-	} catch (...) {
-	    mru_valno = Xapian::BAD_VALUENO;
-	    throw;
-	}
-    }
-    RETURN(mru_valstats.upper_bound);
+    RETURN(value_table.get_value_upper_bound(valno));
 }
 
 bool
@@ -1359,10 +1328,7 @@ ChertWritableDatabase::flush_postlist_changes() const
 void
 ChertWritableDatabase::apply()
 {
-    map<Xapian::valueno, ValueStats>::const_iterator i;
-    for (i = value_stats.begin(); i != value_stats.end(); ++i) {
-	value_table.set_value_stats(i->second, i->first);
-    }
+    value_table.set_value_stats(value_stats);
     ChertDatabase::apply();
 }
 
@@ -1390,13 +1356,7 @@ ChertWritableDatabase::add_document_(Xapian::docid did,
 	record_table.replace_record(document.get_data(), did);
 
 	// Set the values.
-	{
-	    Xapian::ValueIterator value = document.values_begin();
-	    Xapian::ValueIterator value_end = document.values_end();
-	    string s;
-	    value_table.encode_values(s, value, value_end, value_stats);
-	    value_table.set_encoded_values(did, s);
-	}
+	value_table.add_document(did, document, value_stats);
 
 	chert_doclen_t new_doclen = 0;
 	{
@@ -1484,8 +1444,8 @@ ChertWritableDatabase::delete_document(Xapian::docid did)
     record_table.delete_record(did);
 
     try {
-	// Remove the values
-	value_table.delete_all_values(did, value_stats);
+	// Remove the values.
+	value_table.delete_document(did, value_stats);
 
 	// OK, now add entries to remove the postings in the underlying record.
 	Xapian::Internal::RefCntPtr<const ChertWritableDatabase> ptrtothis(this);
@@ -1607,19 +1567,8 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 	// Replace the record
 	record_table.replace_record(document.get_data(), did);
 
-	// FIXME: we read the values delete them and then replace in case
-	// they come from where they're going!  Better to ask Document
-	// nicely and shortcut in this case!
-	{
-	    Xapian::ValueIterator value = document.values_begin();
-	    Xapian::ValueIterator value_end = document.values_end();
-	    string s;
-	    value_table.encode_values(s, value, value_end, value_stats);
-
-	    // Replace the values.
-	    value_table.delete_all_values(did, value_stats);
-	    value_table.set_encoded_values(did, s);
-	}
+	// Replace the values.
+	value_table.replace_document(did, document, value_stats);
 
 	chert_doclen_t new_doclen = 0;
 	{
@@ -1740,11 +1689,8 @@ ChertWritableDatabase::get_value_freq(Xapian::valueno valno) const
     DEBUGCALL(DB, Xapian::doccount, "ChertWritableDatabase::get_value_freq", valno);
     map<Xapian::valueno, ValueStats>::const_iterator i;
     i = value_stats.find(valno);
-    if (i != value_stats.end()) {
-	RETURN(i->second.freq);
-    } else {
-	RETURN(ChertDatabase::get_value_freq(valno));
-    }
+    if (i != value_stats.end()) RETURN(i->second.freq);
+    RETURN(ChertDatabase::get_value_freq(valno));
 }
 
 std::string
@@ -1753,11 +1699,8 @@ ChertWritableDatabase::get_value_lower_bound(Xapian::valueno valno) const
     DEBUGCALL(DB, std::string, "ChertWritableDatabase::get_value_lower_bound", valno);
     map<Xapian::valueno, ValueStats>::const_iterator i;
     i = value_stats.find(valno);
-    if (i != value_stats.end()) {
-	RETURN(i->second.lower_bound);
-    } else {
-	RETURN(ChertDatabase::get_value_lower_bound(valno));
-    }
+    if (i != value_stats.end()) RETURN(i->second.lower_bound);
+    RETURN(ChertDatabase::get_value_lower_bound(valno));
 }
 
 std::string
@@ -1766,11 +1709,8 @@ ChertWritableDatabase::get_value_upper_bound(Xapian::valueno valno) const
     DEBUGCALL(DB, std::string, "ChertWritableDatabase::get_value_upper_bound", valno);
     map<Xapian::valueno, ValueStats>::const_iterator i;
     i = value_stats.find(valno);
-    if (i != value_stats.end()) {
-	RETURN(i->second.upper_bound);
-    } else {
-	RETURN(ChertDatabase::get_value_upper_bound(valno));
-    }
+    if (i != value_stats.end()) RETURN(i->second.upper_bound);
+    RETURN(ChertDatabase::get_value_upper_bound(valno));
 }
 
 bool

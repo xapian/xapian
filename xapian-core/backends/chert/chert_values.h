@@ -1,13 +1,13 @@
-/* chert_values.h: Values in chert databases
+/** @file chert_values.h
+ * @brief ChertValueTable class
+ */
+/* Copyright (C) 2008 Olly Betts
+ * Copyright (C) 2008 Lemur Consulting Ltd
  *
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2008 Olly Betts
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -16,102 +16,141 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef OM_HGUARD_CHERT_VALUES_H
-#define OM_HGUARD_CHERT_VALUES_H
+#ifndef XAPIAN_INCLUDED_CHERT_VALUES_H
+#define XAPIAN_INCLUDED_CHERT_VALUES_H
+
+#include "chert_chunkedlisttable.h"
+
+#include "valuestats.h"
+
+#include "xapian/types.h"
 
 #include <map>
 #include <string>
 
-#include <xapian/types.h>
-#include <xapian/valueiterator.h>
-#include "chert_table.h"
-
-using namespace std;
+namespace Xapian {
+    class Document;
+}
 
 struct ValueStats;
 
-class ChertValueTable : public ChertTable {
-    private:
-	/** Read an entry from position.  Throw appropriate exceptions if
-	 *  data runs out.
-	 */
-	static void unpack_entry(const char ** pos,
-				 const char * end,
-				 Xapian::valueno * this_value_no,
-				 string & this_value);
+class ChertValueTable : public ChertChunkedListTable {
+    /** The value number for the most recently used value statistics.
+     *
+     *  Set to Xapian::BAD_VALUENO if no value statistics are currently
+     *  cached.
+     */
+    mutable Xapian::valueno mru_valno;
 
-    public:
-	/** Create a new table object.
-	 *
-	 *  This does not create the table on disk - the create() method must
-	 *  be called before the table is created on disk
-	 *
-	 *  This also does not open the table - the open() method must be
-	 *  called before use is made of the table.
-	 *
-	 *  @param path_          - Path at which the table is stored.
-	 *  @param readonly_      - whether to open the table for read only
-	 *                          access.
-	 */
-	ChertValueTable(string path_, bool readonly_)
-	    : ChertTable("value", path_ + "/value.", readonly_, DONT_COMPRESS, true) { }
+    /** The most recently used value statistics. */
+    mutable ValueStats mru_valstats;
 
-	/** Encode values as a string ready to add to the table.
-	 *
-	 *  Also updates value statistics in @a stats.
-	 */
-	void encode_values(string & s,
-			   Xapian::ValueIterator it,
-			   const Xapian::ValueIterator & end,
-			   map<Xapian::valueno, ValueStats> & stats);
+    std::map<Xapian::docid, std::string> slots;
 
-	/** Set values for document @a did encoded as a string. */
-	void set_encoded_values(Xapian::docid did, const string & enc);
+    std::map<Xapian::valueno, std::map<Xapian::docid, std::string> > changes;
 
-	/** Get a value.
-	 *
-	 *  @return The value if found, a null value otherwise.
-	 */
-	void get_value(string & value, Xapian::docid did,
-		       Xapian::valueno valueno) const;
+    void add_value(Xapian::docid did, Xapian::valueno slot, const string & val);
 
-	/** Get all values.
-	 *
-	 *  @param values  A map to be filled with all the values
-	 *                     for the specified document.
-	 *
-	 */
-	void get_all_values(map<Xapian::valueno, string> & values,
-			    Xapian::docid did) const;
+    void remove_value(Xapian::docid did, Xapian::valueno slot);
 
-	/** Get the statistics about a value slot.
-	 *
-	 *  @param stats A structure to be filled with the statistics.
-	 */
-	void get_value_stats(ValueStats & stats,
-			     Xapian::valueno valueno) const;
+    Xapian::docid get_chunk_containing_did(Xapian::valueno slot,
+					   Xapian::docid did,
+					   string &chunk) const;
 
-	/** Set the statistics about a value slot.
-	 *
-	 *  If the @a freq member of the statistics supplied is 0, the
-	 *  statistics for that slot will be cleared.
-	 *
-	 *  @param stats The statistics to set.
-	 */
-	void set_value_stats(const ValueStats & stats,
-			     Xapian::valueno valueno);
+    /** Get the statistics for value slot @a slot. */
+    void get_value_stats(Xapian::valueno slot) const;
 
-	/** Remove all values.
-	 *
-	 *  @param did	The document id for which to remove the values.
-	 *
-	 */
-	void delete_all_values(Xapian::docid did,
-			       map<Xapian::valueno, ValueStats> & stats);
+    void get_value_stats(Xapian::valueno slot, ValueStats & stats) const;
+
+  public:
+    /** Create a new ChertValueTable object.
+     *
+     *  This method does not create or open the table on disk - you
+     *  must call the create() or open() methods respectively!
+     *
+     *  @param dbdir	    The directory the chert database is stored in.
+     *  @param readonly	    true if we're opening read-only, else false.
+     */
+    ChertValueTable(const std::string & dbdir, bool readonly)
+	: ChertChunkedListTable("value", "/value.", dbdir, readonly,
+				DONT_COMPRESS, true),
+	  mru_valno(Xapian::BAD_VALUENO) { }
+
+    // Merge in batched-up changes.
+    void merge_changes();
+
+    void add_document(Xapian::docid did, const Xapian::Document &doc,
+		      std::map<Xapian::valueno, ValueStats> & value_stats);
+
+    void delete_document(Xapian::docid did,
+			 std::map<Xapian::valueno, ValueStats> & value_stats);
+
+    void replace_document(Xapian::docid did, const Xapian::Document &doc,
+			  std::map<Xapian::valueno, ValueStats> & value_stats);
+
+    std::string get_value(Xapian::docid did, Xapian::valueno slot) const;
+
+    void get_all_values(std::map<Xapian::valueno, std::string> & values,
+			Xapian::docid did) const;
+
+    Xapian::doccount get_value_freq(Xapian::valueno slot) const {
+	if (mru_valno != slot) get_value_stats(slot);
+	return mru_valstats.freq;
+    }
+
+    std::string get_value_lower_bound(Xapian::valueno slot) const {
+	if (mru_valno != slot) get_value_stats(slot);
+	return mru_valstats.lower_bound;
+    }
+
+    std::string get_value_upper_bound(Xapian::valueno slot) const {
+	if (mru_valno != slot) get_value_stats(slot);
+	return mru_valstats.upper_bound;
+    }
+
+    /** Write the updated statistics to the table.
+     *
+     *  If the @a freq member of the statistics for a particular slot is 0, the
+     *  statistics for that slot will be cleared.
+     *
+     *  @param value_stats The statistics to set.
+     */
+    void set_value_stats(std::map<Xapian::valueno, ValueStats> & value_stats);
+
+    /** Override methods of ChertTable.
+     *
+     *  NB: these aren't virtual, but we always call them on the subclass in
+     *  cases where it matters.
+     *  @{
+     */
+
+    bool open(chert_revision_number_t revision_) {
+	/// Ignore any old cached valuestats if we're reopening.
+	mru_valno = Xapian::BAD_VALUENO;
+	return ChertTable::open(revision_);
+    }
+
+    bool is_modified() const {
+	return !changes.empty() || ChertTable::is_modified();
+    }
+
+    void flush_db() {
+	merge_changes();
+	ChertTable::flush_db();
+    }
+
+    void cancel() {
+	// Discard batched-up changes.
+	slots.clear();
+	changes.clear();
+
+	ChertTable::cancel();
+    }
+
+    // @}
 };
 
-#endif /* OM_HGUARD_CHERT_VALUES_H */
+#endif // XAPIAN_INCLUDED_CHERT_VALUES_H

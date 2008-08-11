@@ -53,9 +53,7 @@ string
 ChertDocument::do_get_value(Xapian::valueno valueid) const
 {
     DEBUGCALL(DB, string, "ChertDocument::do_get_value", valueid);
-    string retval;
-    value_table->get_value(retval, did, valueid);
-    RETURN(retval);
+    RETURN(value_table->get_value(did, valueid));
 }
 
 /** Retrieve all value values from the database
