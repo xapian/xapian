@@ -1196,13 +1196,19 @@ FlintTable::del(const string &key)
 bool
 FlintTable::get_exact_entry(const string &key, string & tag) const
 {
-    DEBUGCALL(DB, bool, "FlintTable::get_exact_entry", key << ", " << tag);
+    DEBUGCALL(DB, bool, "FlintTable::get_exact_entry", key << ", [&tag]");
     Assert(!key.empty());
+
+    if (handle == -1) RETURN(false);
 
     // An oversized key can't exist, so attempting to search for it should fail.
     if (key.size() > FLINT_BTREE_MAX_KEY_LEN) RETURN(false);
 
-    RETURN(find_tag(key, &tag));
+    form_key(key);
+    if (!find(C)) RETURN(false);
+
+    (void)read_tag(C, &tag, false);
+    RETURN(true);
 }
 
 bool
@@ -1216,22 +1222,6 @@ FlintTable::key_exists(const string &key) const
 
     form_key(key);
     RETURN(find(C));
-}
-
-bool
-FlintTable::find_tag(const string &key, string * tag) const
-{
-    DEBUGCALL(DB, bool, "FlintTable::find_tag", key << ", &tag");
-    if (handle == -1) RETURN(false);
-
-    // An oversized key can't exist, so attempting to search for it should fail.
-    if (key.size() > FLINT_BTREE_MAX_KEY_LEN) RETURN(false);
-
-    form_key(key);
-    if (!find(C)) RETURN(false);
-
-    (void)read_tag(C, tag, false);
-    RETURN(true);
 }
 
 bool
