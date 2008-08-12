@@ -372,9 +372,10 @@ class XAPIAN_VISIBILITY_DEFAULT ChertTable {
 	/** Read an entry from the table, if and only if it is exactly that
 	 *  being asked for.
 	 *
-	 *  If the key is found in the table, the tag will be filled with
-	 *  the data associated with the key.  If the key is not found,
-	 *  the tag will be unmodified.
+	 *  If the key is found in the table, then the tag is copied to @a
+	 *  tag.  If the key is not found tag is left unchanged.
+	 * 
+	 *  The result is true iff the specified key is found in the Btree.
 	 *
 	 *  @param key  The key to look for in the table.
 	 *  @param tag  A tag object to fill with the value if found.
@@ -396,20 +397,6 @@ class XAPIAN_VISIBILITY_DEFAULT ChertTable {
 	 *          false if key is not found in table.
 	 */
 	bool key_exists(const std::string &key) const;
-
-	/** Find a key in the Btree and read its tag.
-	 *
-	 *  If the key is found the tag is copied to tag.  If the key is not
-	 *  found tag is left unchanged.
-	 * 
-	 *  The result is true iff the specified key is found in the Btree.
-	 *
-	 *  e.g.
-	 *
-	 *    std::string t;
-	 *    btree.find_tag("TODAY", &t); // get today's date
-	 */
-	bool find_tag(const std::string &key, std::string * tag) const;
 
 	/** Read the tag value for the key pointed to by cursor C_.
 	 *

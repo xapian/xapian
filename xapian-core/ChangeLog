@@ -1,3 +1,9 @@
+Tue Aug 12 04:10:41 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_table.cc,backends/chert/chert_table.h:
+	  ChertTable::find_tag() is only used by ChertTable::get_exact_entry()
+	  so remove the former folding its code into the latter.
+
 Mon Aug 11 03:06:10 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_spelling.h,backends/chert/chert_synonym.h:
