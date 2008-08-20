@@ -1,3 +1,7 @@
+Wed Aug 20 05:50:26 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/valueranges.rst: Expand on some sections.
+
 Wed Aug 20 04:43:07 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/api_nodb.cc: Clarify in comments that this affected 1.0.7.

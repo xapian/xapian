@@ -62,17 +62,27 @@ This class allows you to implement date range searches.  As well as the value
 number to search, you can tell it whether to prefer US-style month/day/year
 or European-style day/month/year, and specify the epoch year to use for
 interpreting 2 digit years (the default is day/month/year with an epoch of
-1970).
+1970).  The best choice of settings depends on the expectations of your users.
+As these settings are only applied at search time, you can also easily offer
+different versions of your search front-end with different settings if that is
+useful.
 
-For example, this specifies to prefer US-style dates and that the epoch year
-is 1930 (so 02/01/29 is February 1st 2029 while 02/01/30 is February 1st 1930)::
+For example, if your users are American and the dates present in your database
+can extend a decade or so into the future, you might use something like this
+which specifies to prefer US-style dates and that the epoch year is 1930 (so
+02/01/29 is February 1st 2029 while 02/01/30 is February 1st 1930)::
 
     Xapian::QueryParser qp;
     Xapian::DateValueRangeProcessor date_proc(0, true, 1930);
     qp.add_valuerangeprocessor(&date_proc);
 
-The dates are converted to the format YYYYMMDD, so the values need to also be
-in this format.
+The dates are converted to the format YYYYMMDD, so the values you index also
+need to also be in this format - for example, if ``doc_time`` is a ``time_t``::
+
+    char buf[9];
+    if (strftime(buf, sizeof(buf), "%Y%m%d", gmtime(&doc_time))) {
+        doc.add_value(0, buf);
+    }
 
 NumberValueRangeProcessor
 =========================
