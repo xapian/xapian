@@ -98,15 +98,13 @@ RSet::add_document(Xapian::docid did)
 void
 RSet::remove_document(Xapian::docid did)
 {
-    set<Xapian::docid>::iterator i = internal->items.find(did);
-    if (i != internal->items.end()) internal->items.erase(i);
+    internal->items.erase(did);
 }
 
 bool
 RSet::contains(Xapian::docid did) const
 {
-    set<Xapian::docid>::iterator i = internal->items.find(did);
-    return i != internal->items.end();
+    return internal->items.find(did) != internal->items.end();
 }
 
 string
@@ -122,11 +120,11 @@ RSet::Internal::get_description() const
 
     set<Xapian::docid>::const_iterator i;
     for (i = items.begin(); i != items.end(); ++i) {
-	if (!description.empty()) description += ", ";
+	if (i != items.begin()) description += ", ";
 	description += om_tostring(*i);
     }
 
-    description = "RSet(" + description + ")";
+    description += ')';
 
     return description;
 }

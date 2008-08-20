@@ -1,3 +1,10 @@
+Wed Aug 20 04:33:22 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc: Simplify RSet::remove_document() and
+	  RSet::contains() a little.  Fix output of RSet::get_description().
+	* tests/api_nodb.cc: Add regression test rset4 for
+	  RSet::get_description() fix.
+
 Wed Aug 20 02:45:04 GMT 2008  Olly Betts <olly@survex.com>
 
 	* common/omdebug.h: Remove DebugMsg() macro which is no longer used.
