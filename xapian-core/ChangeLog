@@ -1,3 +1,8 @@
+Wed Aug 20 06:11:31 GMT 2008  Olly Betts <olly@survex.com>
+
+	* examples/quest.cc: Fix to catch QueryParserError instead of const
+	  char * which Xapian < 1.0.0 threw instead.
+
 Wed Aug 20 05:50:26 GMT 2008  Olly Betts <olly@survex.com>
 
 	* docs/valueranges.rst: Expand on some sections.
