@@ -1,3 +1,7 @@
+Wed Aug 20 03:37:02 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_values.cc: Streams are now chunked.
+
 Mon Aug 11 04:59:21 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/chert/: Initial commit of streamed values.  Currently each

@@ -52,6 +52,26 @@ make_key(Xapian::valueno slot, Xapian::docid did)
     RETURN(string(1, '\x01') + pack_uint(slot) + pack_uint_preserving_sort(did));
 }
 
+inline Xapian::docid
+docid_from_key(Xapian::valueno required_slot, const string & key)
+{
+    DEBUGCALL_STATIC(DB, Xapian::docid, "docid_from_key", required_slot << ", " << key);
+    // FIXME: sort out exactly what the key format is.
+    const char * p = key.data();
+    const char * end = p + key.length();
+    // Fail if not a value chunk key.
+    if (p == end || *p++ != '\x01') RETURN(0);
+    Xapian::valueno slot;
+    if (!unpack_uint(&p, end, &slot))
+       	throw Xapian::DatabaseCorruptError("bad value key");
+    // Fail if for a different slot.
+    if (slot != required_slot) RETURN(0);
+    Xapian::docid did;
+    if (!unpack_uint_preserving_sort(&p, end, &did))
+       	throw Xapian::DatabaseCorruptError("bad value key");
+    RETURN(did);
+}
+
 /** Generate a key for the "used slots" data. */
 inline string
 make_slot_key(Xapian::docid did)
@@ -79,13 +99,18 @@ class ValueChunkReader {
     string value;
 
   public:
-    ValueChunkReader(const char * p_, size_t len, Xapian::docid did_)
-	: p(p_), end(p_ + len), did(did_)
-    {
-	//if (!unpack_string(&p, end, value))
-	//    throw Xapian::DatabaseCorruptError("Failed to unpack first value");
-	value.assign(p, len);
-	p = end;
+    ValueChunkReader() : p(NULL) { }
+
+    ValueChunkReader(const char * p_, size_t len, Xapian::docid did_) {
+	assign(p_, len, did_);
+    }
+
+    void assign(const char * p_, size_t len, Xapian::docid did_) {
+	p = p_;
+	end = p_ + len;
+	did = did_;
+	if (!unpack_string(&p, end, value))
+	    throw Xapian::DatabaseCorruptError("Failed to unpack first value");
     }
 
     bool at_end() const { return p == NULL; }
@@ -143,32 +168,139 @@ ChertValueTable::get_chunk_containing_did(Xapian::valueno slot,
 					  Xapian::docid did,
 					  string &chunk) const
 {
+    DEBUGCALL(DB, Xapian::docid, "ChertValueTable::get_chunk_containing_did", slot << ", " << did << "[chunk]");
     AutoPtr<ChertCursor> cursor(cursor_get());
-    if (!cursor.get() || !cursor->find_entry(make_key(slot, did))) {
-	return 0;
-    }
+    if (!cursor.get()) return 0;
 
-    const char * p = cursor->current_key.data();
-    const char * end = p + cursor->current_key.size();
+    bool exact = cursor->find_entry(make_key(slot, did));
+    if (!exact) {
+	// If we didn't find a chunk starting with docid did, then we need
+	// to check that the chunk:
+	const char * p = cursor->current_key.data();
+	const char * end = p + cursor->current_key.size();
 
-    if (*p++ != '\x01') return 0;
+	// Check that it is a value stream chunk.
+	if (*p++ != '\x01') return 0;
 
-    Xapian::valueno v;
-    if (!unpack_uint(&p, end, &v)) {
-	throw Xapian::DatabaseCorruptError("Bad value key");
-    }
-    if (v != slot) return 0;
+	// Check that it's for the right value slot.
+	Xapian::valueno v;
+	if (!unpack_uint(&p, end, &v)) {
+	    throw Xapian::DatabaseCorruptError("Bad value key");
+	}
+	if (v != slot) return 0;
 
-    Xapian::docid first_did;
-    if (!unpack_uint_preserving_sort(&p, end, &first_did) || p != end) {
-	throw Xapian::DatabaseCorruptError("Bad value key");
+	// And get the first docid for the chunk so we can return it.
+	if (!unpack_uint_preserving_sort(&p, end, &did) || p != end) {
+	    throw Xapian::DatabaseCorruptError("Bad value key");
+	}
     }
 
     cursor->read_tag();
     swap(chunk, cursor->current_tag);
 
-    return first_did;
+    return did;
 }
+
+const size_t CHUNK_SIZE_THRESHOLD = 2000;
+
+class ValueUpdater {
+    ChertValueTable * table;
+
+    Xapian::valueno slot;
+
+    string ctag;
+
+    ValueChunkReader reader;
+
+    string tag;
+
+    Xapian::docid prev_did;
+
+    Xapian::docid first_did;
+
+    Xapian::docid new_first_did;
+
+    Xapian::docid last_allowed_did;
+
+    void append_to_stream(Xapian::docid did, const string & value) {
+	if (tag.empty())
+	    new_first_did = did;
+	else
+	    tag += pack_uint(did - prev_did - 1);
+	prev_did = did;
+	tag += pack_string(value);
+	if (tag.size() >= CHUNK_SIZE_THRESHOLD) write_tag();
+    }
+
+    void write_tag() {
+	// If the first docid has changed, delete the old entry.
+	if (first_did && new_first_did != first_did) {
+	    table->del(make_key(slot, first_did));
+	}
+	if (!tag.empty()) {
+	    table->add(make_key(slot, new_first_did), tag);
+	}
+	first_did = 0;
+	tag.resize(0);
+    }
+
+  public:
+    ValueUpdater(ChertValueTable * table_, Xapian::valueno slot_)
+       	: table(table_), slot(slot_), first_did(0) { }
+
+    ~ValueUpdater() {
+	while (!reader.at_end()) {
+	    // FIXME: use skip_to and some splicing magic instead?
+	    append_to_stream(reader.get_docid(), reader.get_value());
+	    reader.next();
+	}
+	if (first_did) write_tag();
+    }
+
+    void update(Xapian::docid did, const string & value) {
+	if (first_did && did > last_allowed_did) write_tag();
+	if (first_did == 0) {
+	    AutoPtr<ChertCursor> cursor(table->cursor_get());
+	    bool exact = cursor->find_entry(make_key(slot, did));
+	    if (!cursor->current_key.empty()) {
+		if (!exact)
+		    first_did = docid_from_key(slot, cursor->current_key);
+		if (exact || first_did) {
+		    cursor->read_tag();
+		    if (cursor->current_tag.size() < CHUNK_SIZE_THRESHOLD) {
+			swap(cursor->current_tag, ctag);
+		    } else {
+			first_did = did;
+		    }
+		} else {
+		    first_did = did;
+		}
+		if (!ctag.empty()) {
+		    reader.assign(ctag.data(), ctag.size(), first_did);
+		}
+		last_allowed_did = static_cast<Xapian::docid>(-1);
+		if (cursor->next()) {
+		    Xapian::docid next_first_did;
+		    next_first_did = docid_from_key(slot, cursor->current_key);
+		    if (next_first_did) last_allowed_did = next_first_did - 1;
+		}
+	    } else {
+		first_did = did;
+	    }
+	}
+	while (!reader.at_end() && reader.get_docid() <= did) {
+	    if (reader.get_docid() != did) {
+		// FIXME: use skip_to and some splicing magic instead?
+		append_to_stream(reader.get_docid(), reader.get_value());
+	    }
+	    reader.next();
+	}
+	if (!value.empty()) {
+	    // Add/update entry for did.
+	    append_to_stream(did, value);
+	}
+    }
+};
 
 void
 ChertValueTable::merge_changes()
@@ -185,11 +317,11 @@ ChertValueTable::merge_changes()
 	map<Xapian::valueno, map<Xapian::docid, string> >::const_iterator i;
 	for (i = changes.begin(); i != changes.end(); ++i) {
 	    Xapian::valueno slot = i->first;
+	    ValueUpdater updater(this, slot);
 	    const map<Xapian::docid, string> & slot_changes = i->second;
 	    map<Xapian::docid, string>::const_iterator j;
 	    for (j = slot_changes.begin(); j != slot_changes.end(); ++j) {
-		// FIXME: but in chunks...
-		add(make_key(slot, j->first), j->second);
+		updater.update(j->first, j->second);
 	    }
 	}
 	changes.clear();
