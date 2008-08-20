@@ -157,7 +157,7 @@ and make sure the path to where you downloaded it matches the path in config.mak
 
 - To compile the Java-swig bindings you need the Java SE Development Kit from http://java.sun.com/javase/downloads/index.jsp (we have used the 1.6.0_05 release). Make sure the paths to this are set correctly in config.mak (JAVA_DIR)
 
-- To compile the Ruby bindings you will need the one-click installer for Ruby 1.8.6 from http://www.ruby-lang.org/en/downloads/ - config.mak has settings that will work if this is installed at the default location of c:\ruby. Note that you will have to change the "!=" in the first line of c:\ruby\lib\ruby\1.8\i386-mswin32\config.h 
+- To compile the Ruby bindings you will need the one-click installer for Ruby 1.8.6 from http://www.ruby-lang.org/en/downloads/ - config.mak has settings that will work if this is installed at the default location of c:\ruby. Note that you will have to change the "!=" in the first line of c:\ruby\lib\ruby\1.8\i386-mswin32\config.h
 to "<=" if using a Visual C++ older than 5.0.
 
 - SWIG is used for recompiling the bindings, but this is done by the Xapian core maintainers, so you shouldn't need to do this unless you are building from the development sources, in which case you'll have to use the version of SWIG in the Xapian repository. To build this follow the instructions at
@@ -220,7 +220,7 @@ To build the bindings (do steps 1-5 above first to make sure you have Xapian bui
     nmake DISTUTILS
  to build packaged bindings - they will end up in xapian-core-1.x.y\win32\Release\Python\dist
 11e) For Ruby only, use
-    nmake INSTALL 
+    nmake INSTALL
  to install the bindings to the standard Ruby library folder.
 
  To build Omega (do steps 1-5 above first to make sure you have Xapian built):
