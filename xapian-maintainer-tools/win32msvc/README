@@ -1,6 +1,6 @@
 README for Xapian/Visual C++ Tools
 ==================================
-2008-04-30 for Xapian 1.0.6
+2008-08-14 for Xapian 1.0.7 (revised)
 
 Make files, some extra headers and associated tools for compiling Xapian on
 Win32 using the Microsoft Visual C++ compilers. This is particularly useful
@@ -19,10 +19,13 @@ www.lemurconsulting.com
 What works?
 ===========
 
-- The Python, PHP & Java-Swig bindings (note that the Java-Swig bindings
-  are still experimental, and may be subject to significant API change).
-- The Xapian example binaries (delve, quest, etc).
-- xapian-compact, xapian-check and several other utilities.
+- The Python, PHP, Ruby & Java-Swig bindings (note that the Java-Swig bindings
+  are still rather alpha, and may be subject to significant API change).
+- The xapian-compact, xapian-check, xapian-inspect binaries
+- The xapian-progsrv and xapian-tcpsrv binaries
+- The delve, quest and copydatabase binaries
+- The Xapian example binaries
+- The libtest.lib and libbtreecheck libraries
 - The various tests that use the above, which are run as part of the makefile
   in tests/
 - omega, omindex and scriptindex (although these may have difficulty parsing
@@ -44,7 +47,6 @@ What doesn't work?
 
 - To get round the fact that MSVC doesn't do dependency checking correctly,
 we use an external program 'makedepend'.
-
 
 TODOS
 =====
@@ -155,6 +157,9 @@ and make sure the path to where you downloaded it matches the path in config.mak
 
 - To compile the Java-swig bindings you need the Java SE Development Kit from http://java.sun.com/javase/downloads/index.jsp (we have used the 1.6.0_05 release). Make sure the paths to this are set correctly in config.mak (JAVA_DIR)
 
+- To compile the Ruby bindings you will need the one-click installer for Ruby 1.8.6 from http://www.ruby-lang.org/en/downloads/ - config.mak has settings that will work if this is installed at the default location of c:\ruby. Note that you will have to change the "!=" in the first line of c:\ruby\lib\ruby\1.8\i386-mswin32\config.h 
+to "<=" if using a Visual C++ older than 5.0.
+
 - SWIG is used for recompiling the bindings, but this is done by the Xapian core maintainers, so you shouldn't need to do this unless you are building from the development sources, in which case you'll have to use the version of SWIG in the Xapian repository. To build this follow the instructions at
 xapian\swig\Doc\Manual\Windows.html
 (you'll need to install MinGW).
@@ -214,6 +219,9 @@ To build the bindings (do steps 1-5 above first to make sure you have Xapian bui
 11d) For Python only, use
     nmake DISTUTILS
  to build packaged bindings - they will end up in xapian-core-1.x.y\win32\Release\Python\dist
+11e) For Ruby only, use
+    nmake INSTALL 
+ to install the bindings to the standard Ruby library folder.
 
  To build Omega (do steps 1-5 above first to make sure you have Xapian built):
 
