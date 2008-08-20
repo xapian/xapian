@@ -28,7 +28,7 @@ What works?
 - The libtest.lib and libbtreecheck libraries
 - The various tests that use the above, which are run as part of the makefile
   in tests/
-- Omega, Omindex and Scriptindex (although these may have difficulty parsing
+- omega, omindex and scriptindex (although these may have difficulty parsing
   Windows directory paths).
 
 What doesn't work?
