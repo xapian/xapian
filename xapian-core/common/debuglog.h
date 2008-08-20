@@ -23,7 +23,6 @@
 
 #ifdef XAPIAN_DEBUG_VERBOSE
 
-#include "omtime.h"
 #include "output.h"
 
 #include <sstream>
