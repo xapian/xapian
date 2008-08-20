@@ -1,3 +1,7 @@
+Wed Aug 20 02:45:04 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/omdebug.h: Remove DebugMsg() macro which is no longer used.
+
 Tue Aug 12 05:03:34 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_table.cc,backends/flint/flint_table.h:

@@ -403,6 +403,5 @@ class Timer {
 
 #define DEBUGAPICALL(r,a,b) DEBUGCALL(APICALL,r,a,b)
 #define DEBUGAPICALL_STATIC(r,a,b) DEBUGCALL_STATIC(APICALL,r,a,b)
-#define DebugMsg(a) DEBUGMSG(UNKNOWN, a)
 
 #endif /* OM_HGUARD_OMDEBUG_H */
