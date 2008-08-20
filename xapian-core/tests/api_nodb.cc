@@ -408,12 +408,11 @@ DEFINE_TESTCASE(rset3, !backend) {
     return true;
 }
 
-// Regression test - RSet::get_description() gave a malformed answer in some
-// versions (FIXME: which?  did this bug exist in any release?)
+// Regression test - RSet::get_description() gave a malformed answer in 1.0.7.
 DEFINE_TESTCASE(rset4, !backend) {
     Xapian::RSet rset;
     rset.add_document(1);
-    // This used to give: RSet(RSet(RSet::Internal(, 1))
+    // In 1.0.7 this gave: RSet(RSet(RSet::Internal(, 1))
     TEST_STRINGS_EQUAL(rset.get_description(), "RSet(RSet::Internal(1))");
     return true;
 }
