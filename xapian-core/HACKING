@@ -67,19 +67,30 @@ mechanism to allow you to select where to store the log and which types of
 message you're interested by setting environment variables.  You can:
 
  * set XAPIAN_DEBUG_LOG to be the path to a file that you would like debugging
-   output to be stored in (to override the default of stderr).  The first
-   occurrence of %% in the name will be replaced with the process-id.
+   output to be stored in.  Unless XAPIAN_DEBUG_LOG is set, no debug logging
+   will be performed.  Occurrences of %p in XAPIAN_DEBUG_LOG will be replaced
+   with the current process-id.
 
- * set XAPIAN_DEBUG_FLAGS to the decimal value of a bitmap indicating the types
-   of debugging message you would like to display (the default value is 0,
-   which disables all debug messages).  To turn on message type N, bitwise OR
-   XAPIAN_DEBUG_FLAGS with (1<<N) - e.g. for message type 3, OR with 8.  To
-   turn on all types, set XAPIAN_DEBUG_FLAGS to -1 (which is all bits set in
-   two's complement binary representation).  Each message gives its numerical
-   type in the debug log output.
+ * set XAPIAN_DEBUG_FLAGS to a string of capital letters indicating the types
+   of debugging message you would like to display (the default value is to log
+   calls to API functions and methods).  These letters are show in the first
+   column of the log output, and are also listed in ``common/debuglog.h``.
+   If the first character is ``-``, then the letters indicate those categories
+   of message *not* be shown instead.
 
 These environment variables only have any effect if you ran configure with the
 --enable-log option.
+
+The format is::
+
+<message type> <pid> [<this>] <message>
+
+For example::
+
+A 16747 [0x57ad1e0] void Xapian::Query::Internal::validate_query()
+
+Each nested call adds another space before the ``[`` so you can see which
+function call and return messages pair more easily.
 
 Debugging memory allocations
 ============================
