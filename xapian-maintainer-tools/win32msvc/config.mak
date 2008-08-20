@@ -86,6 +86,25 @@ PHP_DEBUG_OR_RELEASE= /D "ZEND_DEBUG=0"
 PHP_EXE=$(PHP_EXE_DIR)\PHP.exe 
 # ------------- end PHP settings-------------
 
+# -------------Ruby settings-------------
+# Tested with ruby 1.8.6 (the one that is installed using the one click installer 'ruby186-26.exe').
+# You have to change the "!=" in first line of RUBY_DIR\lib\ruby\1.8\i386-mswin32\config.h
+# to "<=" if using a Visual C++ older than 5.0
+
+# Ruby folder
+RUBY_DIR=c:\Ruby
+# Ruby executable
+RUBY_EXE=$(RUBY_DIR)\bin\ruby.exe 
+# RUBY_INCLUDE : Set this to the directory that contains ruby.h
+RUBY_INCLUDE=$(RUBY_DIR)\lib\ruby\1.8\i386-mswin32
+# RUBY_SO_DIR : Where to install the dll file
+RUBY_SO_DIR=$(RUBY_INCLUDE)
+# RUBY_RB_DIR : Where to install the .rb file
+RUBY_RB_DIR=$(RUBY_INCLUDE)\..
+# RUBY_LIB_DIR : Set this to the directory containing msvcrt-ruby18*.lib
+RUBY_LIB_DIR=$(RUBY_DIR)\lib
+# -------------end Ruby settings-------------
+
 # ------------- Java settings ------------
 
 JAVA_DIR=C:\Program Files\Java\jdk1.6.0_05\bin
@@ -96,7 +115,6 @@ JAR="$(JAVA_DIR)\jar.exe"
 JAVA_PATHSEP=/
 
 # ------------- end Java settings-------------
-
 
 
 # ------------SWIG settings-------------
