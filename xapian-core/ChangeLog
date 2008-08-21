@@ -1,3 +1,10 @@
+Thu Aug 21 04:15:41 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: Remove code which checks for --enable-debug and
+	  --enable-debug-verbose (deprecated since 1.0.0) and gives an error
+	  pointing to the replacements.
+	* docs/deprecation.rst: Document the replacements here.
+
 Thu Aug 21 00:57:52 GMT 2008  Olly Betts <olly@survex.com>
 
 	* common/omdebug.h: Remove DEBUGLINE completely.

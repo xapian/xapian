@@ -278,6 +278,16 @@ Removed Feature name                        Upgrade suggestion and comments
 1.1.0   quartzcompact                       Use ``xapian-compact`` instead.
 ------- ----------------------------------- ----------------------------------------------------------------------------------
 1.1.0   quartzdump                          Use ``xapian-inspect`` instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.1.0   configure --enable-debug            configure --enable-assertions
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.1.0   configure --enable-debug=full       configure --enable-assertions --enable-log
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.1.0   configure --enable-debug=partial    configure --enable-assertions=partial
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.1.0   configure --enable-debug=profile    configure --enable-log=profile
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.1.0   configure --enable-debug-verbose    configure --enable-log
 ======= =================================== ==================================================================================
 
 
@@ -349,7 +359,7 @@ Removed Language Feature name                 Upgrade suggestion and comments
 1.1.0   SWIG     ESetIterator::get_termname() Use ``ESetIterator::get_term()`` instead.  This change is intended to
         [#rswg]_                              bring the ESet iterators in line with other term iterators, which all
                                               support ``get_term()`` instead of ``get_termname()``.
-      
+
 ------- -------- ---------------------------- --------------------------------------------------------------------------------
 1.1.0   Python   get_description()            All ``get_description()`` methods have been renamed to ``__str__()``,
                                               so the normal python ``str()`` function can be used.

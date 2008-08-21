@@ -907,29 +907,6 @@ AC_ARG_ENABLE(log,
       AC_MSG_ERROR([Invalid option: '--enable-log=$enableval']) ;;
   esac])
 
-dnl Provide errors for old options which direct the user to the new ones.
-
-AC_ARG_ENABLE(debug,
-  [AS_HELP_STRING([--enable-debug], [Deprecated (use --enable-assertions and/or --enable-log instead)])],
-  [case $enableval in
-    full)
-      AC_MSG_ERROR(['--enable-debug=full' is no longer supported, use '--enable-debug --enable-log' instead.]) ;;
-    profile)
-      AC_MSG_ERROR(['--enable-debug=profile' is no longer supported, use '--enable-log=profile' instead.]) ;;
-    yes)
-      AC_MSG_ERROR(['--enable-debug' is no longer supported, use '--enable-assertions' instead.]) ;;
-    partial)
-      AC_MSG_ERROR(['--enable-debug=partial' is no longer supported, use '--enable-assertions=partial' instead.]) ;;
-    no)
-      AC_MSG_ERROR(['--disable-debug' is no longer supported, use '--disable-assertions' instead.]) ;;
-    *)
-      AC_MSG_ERROR([Invalid option: '--enable-debug=$enableval']) ;;
-  esac])
-
-AC_ARG_ENABLE(debug-verbose,
-  [AS_HELP_STRING([--enable-debug-verbose], [Deprecated (use --enable-log instead)])],
-  [AC_MSG_ERROR(['--enable-debug-verbose' is no longer supported, use '--enable-log' instead.])])
-
 dnl Set defines according to the --enable-assertions and --enable-log options
 dnl given.
 
