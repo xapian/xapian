@@ -260,7 +260,7 @@ static int yy_pop_parser_stack(yyParser *pParser){
   if( pParser->yystack.empty() ) return 0;
   yyStackEntry *yytos = &pParser->yystack.back();
 
-  DEBUGLINE(QUERYPARSER, "Popping " << ParseTokenName(yytos->major));
+  LOGLINE(QUERYPARSER, "Popping " << ParseTokenName(yytos->major));
   yymajor = (YYCODETYPE)yytos->major;
   yy_destructor( yymajor, &yytos->minor);
   pParser->yystack.pop_back();
@@ -309,9 +309,9 @@ static int yy_find_shift_action(
       int iFallback;            /* Fallback token */
       if( iLookAhead<sizeof(yyFallback)/sizeof(yyFallback[0])
              && (iFallback = yyFallback[iLookAhead])!=0 ){
-        DEBUGLINE(QUERYPARSER,
-		  "FALLBACK " << ParseTokenName(iLookAhead) << " => " <<
-		  ParseTokenName(iFallback));
+        LOGLINE(QUERYPARSER,
+		"FALLBACK " << ParseTokenName(iLookAhead) << " => " <<
+		ParseTokenName(iFallback));
         return yy_find_shift_action(pParser, iFallback);
       }
 #endif
@@ -319,9 +319,9 @@ static int yy_find_shift_action(
       {
         int j = i - iLookAhead + YYWILDCARD;
         if( j>=0 && j<YY_SZ_ACTTAB && yy_lookahead[j]==YYWILDCARD ){
-	  DEBUGLINE(QUERYPARSER,
-		    "WILDCARD " << ParseTokenName(iLookAhead) << " => " <<
-		    ParseTokenName(YYWILDCARD));
+	  LOGLINE(QUERYPARSER,
+		  "WILDCARD " << ParseTokenName(iLookAhead) << " => " <<
+		  ParseTokenName(YYWILDCARD));
 	  return yy_action[j];
 	}
       }
@@ -386,13 +386,13 @@ static void yy_shift(
 #endif
 #ifdef XAPIAN_DEBUG_VERBOSE
   unsigned i;
-  DEBUGLINE(QUERYPARSER, "Shift " << yyNewState);
+  LOGLINE(QUERYPARSER, "Shift " << yyNewState);
   string stack("Stack:");
   for (i = 0; i < yypParser->yystack.size(); i++) {
     stack += ' ';
     stack += ParseTokenName(yypParser->yystack[i].major);
   }
-  DEBUGLINE(QUERYPARSER, stack);
+  LOGLINE(QUERYPARSER, stack);
 #endif
   yypParser->yystack.push_back(yyStackEntry(yyNewState, yyMajor, *yypMinor));
 }
@@ -425,7 +425,7 @@ static void yy_reduce(
   ParseARG_FETCH;
   yymsp = &yypParser->yystack.back();
 #ifdef XAPIAN_DEBUG_VERBOSE
-  DEBUGLINE(QUERYPARSER, "Reduce [" << ParseRuleName(yyruleno) << "].");
+  LOGLINE(QUERYPARSER, "Reduce [" << ParseRuleName(yyruleno) << "].");
 #endif
 
   /* Silence complaints from purify about yygotominor being uninitialized
@@ -477,7 +477,7 @@ static void yy_parse_failed(
   yyParser *yypParser           /* The parser */
 ){
   ParseARG_FETCH;
-  DEBUGLINE(QUERYPARSER, "Fail!");
+  LOGLINE(QUERYPARSER, "Fail!");
   while( !yypParser->yystack.empty() ) yy_pop_parser_stack(yypParser);
   /* Here code is inserted which will be executed whenever the
   ** parser fails */
@@ -508,7 +508,7 @@ static void yy_accept(
   yyParser *yypParser           /* The parser */
 ){
   ParseARG_FETCH;
-  DEBUGLINE(QUERYPARSER, "Accept!");
+  LOGLINE(QUERYPARSER, "Accept!");
   while( !yypParser->yystack.empty() ) yy_pop_parser_stack(yypParser);
   /* Here code is inserted which will be executed whenever the
   ** parser accepts */
@@ -557,8 +557,8 @@ static void Parse(
   yyendofinput = (yymajor==0);
   ParseARG_STORE;
 
-  DEBUGLINE(QUERYPARSER, "Input " << ParseTokenName(yymajor) << " " <<
-	    (yyminor ? yyminor->name : "<<null>>"));
+  LOGLINE(QUERYPARSER, "Input " << ParseTokenName(yymajor) << " " <<
+	  (yyminor ? yyminor->name : "<<null>>"));
 
   do{
     yyact = yy_find_shift_action(yypParser,yymajor);
@@ -574,7 +574,7 @@ static void Parse(
 #ifdef YYERRORSYMBOL
       int yymx;
 #endif
-      DEBUGLINE(QUERYPARSER, "Syntax Error!");
+      LOGLINE(QUERYPARSER, "Syntax Error!");
 #ifdef YYERRORSYMBOL
       /* A syntax error has occurred.
       ** The response to an error depends upon whether or not the
@@ -600,7 +600,7 @@ static void Parse(
       }
       yymx = yypParser->yystack.back().major;
       if( yymx==YYERRORSYMBOL || yyerrorhit ){
-	DEBUGLINE(QUERYPARSER, "Discard input token " << ParseTokenName(yymajor));
+	LOGLINE(QUERYPARSER, "Discard input token " << ParseTokenName(yymajor));
         yy_destructor((YYCODETYPE)yymajor,&yyminorunion);
         yymajor = YYNOCODE;
       }else{

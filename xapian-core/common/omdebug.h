@@ -37,8 +37,6 @@ operator<<(std::ostream & os, const OmTime & om_time) {
     return os << om_time.sec << '.' << std::setw(6) << std::setfill('0') << om_time.usec;
 }
 
-#define DEBUGLINE(a,b) LOGLINE(a,b)
-
 /** Display a message indicating that a method has been called, and another
  *  message when the method ends.
  */
@@ -49,7 +47,7 @@ operator<<(std::ostream & os, const OmTime & om_time) {
 
 #elif defined(XAPIAN_DEBUG_PROFILE)
 
-#define DEBUGLINE(a,b) (void)0
+#define LOGLINE(a,b) (void)0
 #define RETURN(A) return A
 
 #include <cstdio>  // For fprintf().
@@ -193,8 +191,6 @@ class Timer {
     Xapian::Internal::Timer::resume();
 
 #else
-
-#define DEBUGLINE(a,b) (void)0
 
 #define DEBUGCALL(r,t,a,b) (void)0
 #define DEBUGCALL_STATIC(r,t,a,b) (void)0

@@ -1,3 +1,10 @@
+Thu Aug 21 00:57:52 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/omdebug.h: Remove DEBUGLINE completely.
+	* backends/flint/flint_table.cc,backends/inmemory/inmemory_database.cc,
+	  queryparser/queryparser.lt: Replace remaining DEBUGLINE uses.
+	* backends/inmemory/inmemory_database.cc: Don't need <list>.
+
 Thu Aug 21 00:37:08 GMT 2008  Olly Betts <olly@survex.com>
 
 	* common/debuglog.h,common/omdebug.h: Define LOGLINE, etc to no-op

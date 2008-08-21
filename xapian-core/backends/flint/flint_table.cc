@@ -1946,7 +1946,7 @@ void
 FlintTable::open()
 {
     DEBUGCALL(DB, void, "FlintTable::open", "");
-    DEBUGLINE(DB, "opening at path " << name);
+    LOGLINE(DB, "opening at path " << name);
     close();
 
     if (!writable) {
@@ -1963,7 +1963,7 @@ bool
 FlintTable::open(flint_revision_number_t revision)
 {
     DEBUGCALL(DB, bool, "FlintTable::open", revision);
-    DEBUGLINE(DB, "opening for particular revision at path " << name);
+    LOGLINE(DB, "opening for particular revision at path " << name);
     close();
 
     if (!writable) {

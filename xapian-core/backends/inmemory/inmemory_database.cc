@@ -37,7 +37,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <xapian/error.h>
 #include <xapian/valueiterator.h>
@@ -645,8 +644,7 @@ void
 InMemoryDatabase::replace_document(Xapian::docid did,
 				   const Xapian::Document & document)
 {
-    DEBUGLINE(DB, "InMemoryDatabase::replace_document(): replacing doc "
-	          << did);
+    DEBUGCALL(DB, void, "InMemoryDatabase::replace_document", did << ", " << document);
 
     if (doc_exists(did)) { 
 	doclists[did - 1] = "";
@@ -700,13 +698,13 @@ InMemoryDatabase::replace_document(Xapian::docid did,
 Xapian::docid
 InMemoryDatabase::add_document(const Xapian::Document & document)
 {
-    Xapian::docid did = make_doc(document.get_data());
+    DEBUGCALL(DB, Xapian::docid, "InMemoryDatabase::add_document", document);
 
-    DEBUGLINE(DB, "InMemoryDatabase::add_document(): adding doc " << did);
+    Xapian::docid did = make_doc(document.get_data());
 
     finish_add_doc(did, document);
 
-    return did;
+    RETURN(did);
 }
 
 void
@@ -718,8 +716,8 @@ InMemoryDatabase::finish_add_doc(Xapian::docid did, const Xapian::Document &docu
 	Xapian::ValueIterator k_end = document.values_end();
 	for ( ; k != k_end; ++k) {
 	    values.insert(make_pair(k.get_valueno(), *k));
-	    DEBUGLINE(DB, "InMemoryDatabase::add_document(): adding value "
-		      << k.get_valueno() << " -> " << *k);
+	    LOGLINE(DB, "InMemoryDatabase::add_document(): adding value " <<
+			k.get_valueno() << " -> " << *k);
 	}
 	add_values(did, values);
     }
@@ -730,8 +728,7 @@ InMemoryDatabase::finish_add_doc(Xapian::docid did, const Xapian::Document &docu
     for ( ; i != i_end; ++i) {
 	make_term(*i);
 
-	DEBUGLINE(DB, "InMemoryDatabase::add_document(): adding term "
-		  << *i);
+	LOGLINE(DB, "InMemoryDatabase::add_document(): adding term " << *i);
 	Xapian::PositionIterator j = i.positionlist_begin();
 	Xapian::PositionIterator j_end = i.positionlist_end();
 
