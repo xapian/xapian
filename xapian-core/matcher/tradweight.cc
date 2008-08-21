@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006 Olly Betts
+ * Copyright 2002,2003,2004,2006,2008 Olly Betts
  * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -66,14 +66,14 @@ TradWeight::calc_termweight() const
 
     Xapian::doccount termfreq = internal->termfreq;
 
-    DEBUGLINE(WTCALC, "Statistics: N=" << internal->collection_size <<
-	      " n_t=" << termfreq << " lenpart=" << lenpart);
+    LOGLINE(WTCALC, "Statistics: N=" << internal->collection_size <<
+		    " n_t=" << termfreq << " lenpart=" << lenpart);
 
     Xapian::weight tw = 0;
     if (internal->rset_size != 0) {
 	Xapian::doccount rtermfreq = internal->reltermfreq;
 
-	DEBUGLINE(WTCALC, " R=" << internal->rset_size << " r_t=" << rtermfreq);
+	LOGLINE(WTCALC, " R=" << internal->rset_size << " r_t=" << rtermfreq);
 
 	// termfreq must be at least rtermfreq since there are at least
 	// rtermfreq documents indexed by this term.  And it can't be more than
@@ -100,10 +100,9 @@ TradWeight::calc_termweight() const
     if (tw < 2) {
 	tw = tw / 2 + 1;
     }
-    tw = log(tw);
 
-    DEBUGLINE(WTCALC, " => termweight = " << tw);
-    termweight = tw;
+    termweight = log(tw);
+    LOGVALUE(WTCALC, termweight);
     weight_calculated = true;
 }
 

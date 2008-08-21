@@ -307,6 +307,19 @@ class DebugLogFunc {
 /** Log the value of variable or expression @a b. */
 #define LOGVALUE(a,b) LOGLINE_(DEBUGLOG_CATEGORY_##a, #b" = " << b)
 
+#else
+
+#define LOGCALL(CATEGORY, TYPE, FUNC, PARAMS) (void)0
+#define LOGCALL_VOID(CATEGORY, FUNC, PARAMS) (void)0
+#define LOGCALL_CTOR(CATEGORY, FUNC, PARAMS) (void)0
+#define LOGCALL_DTOR(CATEGORY, FUNC) (void)0
+#define LOGCALL_STATIC(CATEGORY, TYPE, FUNC, PARAMS) (void)0
+#define LOGCALL_STATIC_VOID(CATEGORY, FUNC, PARAMS) (void)0
+#define RETURN(A) return A
+#define RETURN_VOID return
+#define LOGLINE(a,b) (void)0
+#define LOGVALUE(a,b) (void)0
+
 #endif
 
 #endif // XAPIAN_INCLUDED_DEBUGLOG_H

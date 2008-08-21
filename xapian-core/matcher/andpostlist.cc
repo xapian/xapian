@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2007 Olly Betts
+ * Copyright 2003,2004,2007,2008 Olly Betts
  * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -34,42 +34,43 @@ AndPostList::process_next_or_skip_to(Xapian::weight w_min, PostList *ret)
 	      w_min << ", " << ret);
     head = 0;
     handle_prune(r, ret);
-    DEBUGLINE(MATCH, "r at_end = " << r->at_end());
+    LOGVALUE(MATCH, r->at_end());
     if (r->at_end()) return;
 
     // r has just been advanced by next or skip_to so must be > head
     // (and head is the current position of l)
     Xapian::docid rhead = r->get_docid();
-    DEBUGLINE(MATCH, "rhead " << rhead);
-    DEBUGLINE(MATCH, "w_min " << w_min << " rmax " << rmax);
+    LOGVALUE(MATCH, rhead);
+    LOGVALUE(MATCH, w_min);
+    LOGVALUE(MATCH, rmax);
     skip_to_handling_prune(l, rhead, w_min - rmax, matcher);
-    DEBUGLINE(MATCH, "l at_end = " << l->at_end());
+    LOGVALUE(MATCH, l->at_end());
     if (l->at_end()) return;
 
     Xapian::docid lhead = l->get_docid();
-    DEBUGLINE(MATCH, "lhead " << lhead);
+    LOGVALUE(MATCH, lhead);
 
     while (lhead != rhead) {
 	if (lhead < rhead) {
 	    // FIXME: CSE these w_min values?
 	    // But note that lmax and rmax may change on recalc_maxweight...
 	    skip_to_handling_prune(l, rhead, w_min - rmax, matcher);
-	    DEBUGLINE(MATCH, "l at_end = " << l->at_end());
+	    LOGVALUE(MATCH, l->at_end());
 	    if (l->at_end()) {
 		head = 0;
 		return;
 	    }
 	    lhead = l->get_docid();
-	    DEBUGLINE(MATCH, "lhead " << lhead);
+	    LOGVALUE(MATCH, lhead);
 	} else {
 	    skip_to_handling_prune(r, lhead, w_min - lmax, matcher);
-	    DEBUGLINE(MATCH, "r at_end = " << r->at_end());
+	    LOGVALUE(MATCH, r->at_end());
 	    if (r->at_end()) {
 		head = 0;
 		return;
 	    }
 	    rhead = r->get_docid();
-	    DEBUGLINE(MATCH, "rhead " << rhead);
+	    LOGVALUE(MATCH, rhead);
 	}
     }
 
@@ -198,7 +199,7 @@ AndPostList::get_doclength() const
 {
     DEBUGCALL(MATCH, Xapian::doclength, "AndPostList::get_doclength", "");
     Xapian::doclength doclength = l->get_doclength();
-    DEBUGLINE(MATCH, "docid=" << head);
+    LOGLINE(MATCH, "docid=" << head);
     AssertEqDouble(l->get_doclength(), r->get_doclength());
     RETURN(doclength);
 }

@@ -23,6 +23,8 @@
 #ifndef OM_HGUARD_OMDEBUG_H
 #define OM_HGUARD_OMDEBUG_H
 
+#include "debuglog.h"
+
 #ifdef XAPIAN_DEBUG_VERBOSE
 
 #include "omtime.h"
@@ -34,8 +36,6 @@ inline std::ostream &
 operator<<(std::ostream & os, const OmTime & om_time) {
     return os << om_time.sec << '.' << std::setw(6) << std::setfill('0') << om_time.usec;
 }
-
-#include "debuglog.h"
 
 #define DEBUGLINE(a,b) LOGLINE(a,b)
 
@@ -195,7 +195,6 @@ class Timer {
 #else
 
 #define DEBUGLINE(a,b) (void)0
-#define RETURN(A) return A
 
 #define DEBUGCALL(r,t,a,b) (void)0
 #define DEBUGCALL_STATIC(r,t,a,b) (void)0

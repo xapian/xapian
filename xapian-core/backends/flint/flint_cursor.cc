@@ -116,7 +116,7 @@ FlintCursor::prev()
     get_key(&current_key);
     tag_status = UNREAD;
 
-    DEBUGLINE(DB, "Moved to entry: key=`" << hex_display_encode(current_key) << "'");
+    LOGLINE(DB, "Moved to entry: key=" << hex_display_encode(current_key));
     RETURN(true);
 }
 
@@ -147,7 +147,7 @@ FlintCursor::next()
     get_key(&current_key);
     tag_status = UNREAD;
 
-    DEBUGLINE(DB, "Moved to entry: key=`" << hex_display_encode(current_key) << "'");
+    LOGLINE(DB, "Moved to entry: key=" << hex_display_encode(current_key));
     RETURN(true);
 }
 
@@ -193,7 +193,7 @@ done:
 	get_key(&current_key);
     tag_status = UNREAD;
 
-    DEBUGLINE(DB, "Found entry: key=`" << hex_display_encode(current_key) << "'");
+    LOGLINE(DB, "Found entry: key=" << hex_display_encode(current_key));
     RETURN(found);
 }
 
@@ -232,7 +232,7 @@ FlintCursor::find_entry_ge(const string &key)
     }
     tag_status = UNREAD;
 
-    DEBUGLINE(DB, "Found entry: key=`" << hex_display_encode(current_key) << "'");
+    LOGLINE(DB, "Found entry: key=" << hex_display_encode(current_key));
     RETURN(found);
 }
 
@@ -263,7 +263,7 @@ FlintCursor::read_tag(bool keep_compressed)
 	// cursor ends up on the next key.
 	is_positioned = B->next(C, 0);
 
-	DEBUGLINE(DB, "tag=`" << hex_display_encode(current_tag) << "'");
+	LOGLINE(DB, "tag=" << hex_display_encode(current_tag));
     }
     RETURN(tag_status == COMPRESSED);
 }

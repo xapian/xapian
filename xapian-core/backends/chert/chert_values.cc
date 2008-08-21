@@ -65,8 +65,8 @@ ChertValueTable::unpack_entry(const char ** pos,
 	throw Xapian::RangeError("Item in value table is too large");
     }
 
-    DEBUGLINE(DB, "ChertValueTable::unpack_entry(): value no " <<
-	      this_value_no << " is `" << this_value << "'");
+    LOGLINE(DB, "ChertValueTable::unpack_entry(): value no " <<
+	    this_value_no << " is `" << this_value << "'");
 }
 
 void

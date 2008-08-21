@@ -183,8 +183,8 @@ InMemoryTermList::InMemoryTermList(Xapian::Internal::RefCntPtr<const InMemoryDat
 	: pos(doc.terms.begin()), end(doc.terms.end()), terms(doc.terms.size()),
 	  started(false), db(db_), did(did_)
 {
-    DEBUGLINE(DB, "InMemoryTermList::InMemoryTermList(): " <<
-	          terms << " terms starting from " << pos->tname);
+    LOGLINE(DB, "InMemoryTermList::InMemoryTermList(): " <<
+	        terms << " terms starting from " << pos->tname);
     document_length = len;
 }
 

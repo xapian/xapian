@@ -1,3 +1,14 @@
+Thu Aug 21 00:37:08 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/debuglog.h,common/omdebug.h: Define LOGLINE, etc to no-op
+	  versions when XAPIAN_DEBUG_VERBOSE isn't defined.
+	* api/,backends/chert/,backends/flint/,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/multi/multi_postlist.cc,backends/multi/multi_termlist.cc,
+	  expand/esetinternal.cc,expand/expandweight.cc,matcher/,
+	  net/remoteconnection.cc: Use LOGLINE or LOGVALUE instead of
+	  DEBUGLINE.
+
 Wed Aug 20 13:33:56 GMT 2008  Olly Betts <olly@survex.com>
 
 	* common/debuglog.h: Don't need omtime.h.

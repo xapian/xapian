@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2007 Olly Betts
+ * Copyright 2003,2004,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -60,10 +60,10 @@ ExpandWeight::get_weight(TermList * merger, const std::string &tname) const
     if (stats.dbsize != dbsize) {
 	if (!use_exact_termfreq) {
 	    termfreq *= double(dbsize) / stats.dbsize;
-	    DEBUGLINE(EXPAND, "Approximating termfreq of `" << tname << "': " <<
-		      stats.termfreq << " * " << dbsize << " / " <<
-		      stats.dbsize << " = " << termfreq << " (true value is:" <<
-		      db.get_termfreq(tname) << ")");
+	    LOGLINE(EXPAND, "Approximating termfreq of `" << tname << "': " <<
+		    stats.termfreq << " * " << dbsize << " / " <<
+		    stats.dbsize << " = " << termfreq << " (true value is:" <<
+		    db.get_termfreq(tname) << ")");
 	    // termfreq must be at least rtermfreq since there are at least
 	    // rtermfreq documents indexed by this term.  And it can't be
 	    // more than (dbsize - rsize + rtermfreq) since the number
@@ -77,17 +77,17 @@ ExpandWeight::get_weight(TermList * merger, const std::string &tname) const
 	    }
 	} else {
 	    termfreq = db.get_termfreq(tname);
-	    DEBUGLINE(EXPAND, "Asked database for termfreq of `" << tname <<
-		      "': " << termfreq);
+	    LOGLINE(EXPAND, "Asked database for termfreq of `" << tname <<
+			    "': " << termfreq);
 	}
     }
 
-    DEBUGLINE(EXPAND, "ExpandWeight::get_weight: "
-	      "N=" << dbsize << ", "
-	      "n=" << termfreq << ", "
-	      "R=" << rsize << ", "
-	      "r=" << rtermfreq << ", "
-	      "mult=" << stats.multiplier);
+    LOGLINE(EXPAND, "ExpandWeight::get_weight: "
+		    "N=" << dbsize << ", "
+		    "n=" << termfreq << ", "
+		    "R=" << rsize << ", "
+		    "r=" << rtermfreq << ", "
+		    "mult=" << stats.multiplier);
 
     Xapian::weight tw;
     tw = (rtermfreq + 0.5) * (dbsize - rsize - termfreq + rtermfreq + 0.5) /
@@ -103,8 +103,8 @@ ExpandWeight::get_weight(TermList * merger, const std::string &tname) const
     }
     tw = log(tw);
 
-    DEBUGLINE(EXPAND, " => Term weight = " << tw <<
-	      " Expand weight = " << stats.multiplier * tw);
+    LOGLINE(EXPAND, " => Term weight = " << tw <<
+		    " Expand weight = " << stats.multiplier * tw);
 
     //RETURN(rtermfreq * tw);
     RETURN(stats.multiplier * tw);

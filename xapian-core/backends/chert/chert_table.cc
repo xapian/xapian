@@ -1290,7 +1290,7 @@ ChertTable::read_tag(Cursor * C_, string *tag, bool keep_compressed) const
 	stream.avail_out = (uInt)sizeof(buf);
 	err = inflate(&stream, Z_SYNC_FLUSH);
 	if (err == Z_BUF_ERROR && stream.avail_in == 0) {
-	    DEBUGLINE(DB, "Z_BUF_ERROR - faking checksum of " << stream.adler);
+	    LOGLINE(DB, "Z_BUF_ERROR - faking checksum of " << stream.adler);
 	    Bytef header2[4];
 	    setint4(header2, 0, stream.adler);
 	    stream.next_in = header2;
@@ -1416,11 +1416,11 @@ ChertTable::basic_open(bool revision_supplied, chert_revision_number_t revision_
 	ChertTable_base *other_base = 0;
 
 	for (size_t i = 0; i < BTREE_BASES; ++i) {
-	    DEBUGLINE(UNKNOWN, "Checking (ch == " << ch << ") against "
-		      "basenames[" << i << "] == " << basenames[i]);
-	    DEBUGLINE(UNKNOWN, "bases[" << i << "].get_revision() == " <<
-		      bases[i].get_revision());
-	    DEBUGLINE(UNKNOWN, "base_ok[" << i << "] == " << base_ok[i]);
+	    LOGLINE(DB, "Checking (ch == " << ch << ") against "
+		    "basenames[" << i << "] == " << basenames[i]);
+	    LOGLINE(DB, "bases[" << i << "].get_revision() == " <<
+		    bases[i].get_revision());
+	    LOGLINE(DB, "base_ok[" << i << "] == " << base_ok[i]);
 	    if (ch == basenames[i]) {
 		basep = &bases[i];
 
@@ -1946,7 +1946,7 @@ void
 ChertTable::open()
 {
     DEBUGCALL(DB, void, "ChertTable::open", "");
-    DEBUGLINE(DB, "opening at path " << name);
+    LOGLINE(DB, "opening at path " << name);
     close();
 
     if (!writable) {
@@ -1963,7 +1963,7 @@ bool
 ChertTable::open(chert_revision_number_t revision)
 {
     DEBUGCALL(DB, bool, "ChertTable::open", revision);
-    DEBUGLINE(DB, "opening for particular revision at path " << name);
+    LOGLINE(DB, "opening for particular revision at path " << name);
     close();
 
     if (!writable) {

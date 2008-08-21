@@ -441,7 +441,7 @@ Xapian::Document::Internal::need_terms() const
 Xapian::valueno
 Xapian::Document::Internal::values_count() const
 {
-    DEBUGLINE(UNKNOWN, "Xapian::Document::Internal::values_count() called");
+    LOGLINE(API, "Xapian::Document::Internal::values_count() called");
     need_values();
     Assert(values_here);
     return values.size();
