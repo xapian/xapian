@@ -886,7 +886,7 @@ AC_ARG_ENABLE(debug,
   [AS_HELP_STRING([--enable-debug], [Deprecated (use --enable-assertions and/or --enable-log instead)])],
   [case $enableval in
     full)
-      AC_MSG_ERROR(['--enable-debug=full' is no longer supported, use '--enable-debug --enable-log' instead.]) ;;
+      AC_MSG_ERROR(['--enable-debug=full' is no longer supported, use '--enable-assertions --enable-log' instead.]) ;;
     profile)
       AC_MSG_ERROR(['--enable-debug=profile' is no longer supported, use '--enable-log=profile' instead.]) ;;
     yes)

@@ -1,3 +1,9 @@
+Thu Aug 21 04:33:08 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix deprecation error for --enable-debug=full to say
+	  to instead use '--enable-assertions --enable-log' not
+	  '--enable-debug --enable-log'.
+
 Mon Aug 04 02:06:11 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.0.8.
