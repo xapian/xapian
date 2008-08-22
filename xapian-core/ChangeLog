@@ -1,3 +1,10 @@
+Fri Aug 22 00:44:14 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c,queryparser/queryparser.lt: Merge upstream
+	  "Check-in Number: 5488" and "5563".
+	* queryparser/queryparser.lt: Fix compilation for previous merge
+	  (I fixed it in the generated file before!)
+
 Fri Aug 22 00:07:22 GMT 2008  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lt: Merge upstream "Check-in Number: 5472".

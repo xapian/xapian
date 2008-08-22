@@ -9,8 +9,8 @@
 ** Modified to add "-o" and "-h" command line options.  Olly Betts 2005-02-14
 ** Modified to fix a number of compiler warnings.  Olly Betts 2007-02-20
 **
-** Synced with upstream CVS rev 1.57:
-** http://www.sqlite.org/cvstrac/fileview?f=sqlite/tool/lemon.c&v=1.57
+** Synced with upstream CVS rev 1.61:
+** http://www.sqlite.org/cvstrac/fileview?f=sqlite/tool/lemon.c&v=1.61
 */
 #include <stdio.h>
 #include <stdarg.h>
@@ -3190,7 +3190,7 @@ int *lineno;
  }else if( sp->destructor ){
    cp = sp->destructor;
    fprintf(out,"{\n"); (*lineno)++;
-   tplt_linedir(out,sp->destLineno,lemp->outname); (*lineno)++;
+   tplt_linedir(out,sp->destLineno,lemp->filename); (*lineno)++;
  }else if( lemp->vardest ){
    cp = lemp->vardest;
    if( cp==0 ) return;
@@ -3358,7 +3358,7 @@ PRIVATE void translate_code(struct lemon *lemp, struct rule *rp){
       lemp->errorcnt++;
     }else if( rp->rhsalias[i]==0 ){
       if( has_destructor(rp->rhs[i],lemp) ){
-        append_str("  yy_destructor(%d,&yymsp[%d].minor);\n", 0,
+        append_str("  yy_destructor(yypParser,%d,&yymsp[%d].minor);\n", 0,
            rp->rhs[i]->index,i-rp->nrhs+1);
       }else{
         /* No destructor defined for this term */

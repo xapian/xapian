@@ -141,16 +141,17 @@ static const YYCODETYPE yyFallback[] = {
 **      It is sometimes called the "minor" token.
 */
 struct yyStackEntry {
-  yyStackEntry()
-    : stateno(0), major(0)
-  {
+  yyStackEntry() {
+    stateno = 0;
+    major = 0;
   }
-  yyStackEntry(YYACTIONTTYPE stateno_, YYCODETYPE major_, YYMINORTYPE minor_)
-    : stateno(stateno_), major(major_), minor(minor_)
-  {
+  yyStackEntry(YYACTIONTYPE stateno_, YYCODETYPE major_, YYMINORTYPE minor_) {
+    stateno = stateno_;
+    major = major_;
+    minor = minor_;
   }
-  YYACTIONTTYPE stateno;  /* The state-number */
-  YYCODETYPE major        /* The major token value.  This is the code
+  YYACTIONTYPE stateno;  /* The state-number */
+  YYCODETYPE major;       /* The major token value.  This is the code
                           ** number for the token at this stack level */
   YYMINORTYPE minor;      /* The user-supplied minor token value.  This
                           ** is the value of the token  */
@@ -228,7 +229,12 @@ static yyParser *ParseAlloc(){
 ** "yymajor" is the symbol code, and "yypminor" is a pointer to
 ** the value.
 */
-static void yy_destructor(YYCODETYPE yymajor, YYMINORTYPE *yypminor){
+static void yy_destructor(
+  yyParser *yypParser,    /* The parser */
+  YYCODETYPE yymajor,     /* Type code for object to destroy */
+  YYMINORTYPE *yypminor   /* The object to be destroyed */
+){
+  ParseARG_FETCH;
   switch( yymajor ){
     /* Here is inserted the actions which take place when a
     ** terminal or non-terminal is destroyed.  This can happen
@@ -243,6 +249,7 @@ static void yy_destructor(YYCODETYPE yymajor, YYMINORTYPE *yypminor){
 %%
     default:  break;   /* If no destructor action specified: do nothing */
   }
+  ParseARG_STORE; /* Suppress warning about unused %extra_argument variable */
 }
 
 /*
@@ -260,7 +267,7 @@ static int yy_pop_parser_stack(yyParser *pParser){
 
   LOGLINE(QUERYPARSER, "Popping " << ParseTokenName(yytos->major));
   yymajor = (YYCODETYPE)yytos->major;
-  yy_destructor( yymajor, &yytos->minor);
+  yy_destructor(pParser, yymajor, &yytos->minor);
   pParser->yystack.pop_back();
   return yymajor;
 }
@@ -599,7 +606,7 @@ static void Parse(
       yymx = yypParser->yystack.back().major;
       if( yymx==YYERRORSYMBOL || yyerrorhit ){
 	LOGLINE(QUERYPARSER, "Discard input token " << ParseTokenName(yymajor));
-        yy_destructor((YYCODETYPE)yymajor,&yyminorunion);
+        yy_destructor(yypParser, (YYCODETYPE)yymajor,&yyminorunion);
         yymajor = YYNOCODE;
       }else{
          while(
@@ -612,7 +619,7 @@ static void Parse(
           yy_pop_parser_stack(yypParser);
         }
         if( yypParser->yystack.empty() || yymajor==0 ){
-          yy_destructor((YYCODETYPE)yymajor,&yyminorunion);
+          yy_destructor(yypParser, (YYCODETYPE)yymajor,&yyminorunion);
           yy_parse_failed(yypParser);
           yymajor = YYNOCODE;
         }else if( yymx!=YYERRORSYMBOL ){
@@ -637,7 +644,7 @@ static void Parse(
         yy_syntax_error(yypParser,yymajor,yyminorunion);
       }
       yypParser->yyerrcnt = 3;
-      yy_destructor((YYCODETYPE)yymajor,&yyminorunion);
+      yy_destructor(yypParser,(YYCODETYPE)yymajor,&yyminorunion);
       if( yyendofinput ){
         yy_parse_failed(yypParser);
       }
