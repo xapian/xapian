@@ -3001,7 +3001,7 @@ struct lemon *lemp;
 }
 
 /* Search for the file "name" which is in the same directory as
-** the exacutable */
+** the executable */
 PRIVATE char *pathsearch(argv0,name,modemask)
 char *argv0;
 char *name;

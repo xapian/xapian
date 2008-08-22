@@ -1,3 +1,7 @@
+Fri Aug 22 01:00:15 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Fix comment typo.
+
 Fri Aug 22 00:55:26 GMT 2008  Olly Betts <olly@survex.com>
 
 	* queryparser/lemon.c: Merge upstream "Check-in Number: 5564".
