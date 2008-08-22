@@ -1,8 +1,8 @@
 /* Driver template for the LEMON parser generator.
 ** The author disclaims copyright to this source code.
 **
-** Synced with upstream CVS rev 1.33:
-** http://www.sqlite.org/cvstrac/fileview?f=sqlite/tool/lempar.c&v=1.33
+** Synced with upstream CVS rev 1.35:
+** http://www.sqlite.org/cvstrac/fileview?f=sqlite/tool/lempar.c&v=1.35
 */
 /* First off, code is included that follows the "include" declaration
 ** in the input grammar file. */
@@ -141,21 +141,19 @@ static const YYCODETYPE yyFallback[] = {
 **      It is sometimes called the "minor" token.
 */
 struct yyStackEntry {
-  yyStackEntry() {
-    stateno = 0;
-    major = 0;
-  }
-  yyStackEntry(int stateno_, int major_, YYMINORTYPE minor_)
+  yyStackEntry()
+    : stateno(0), major(0)
   {
-    stateno = stateno_;
-    major = major_;
-    minor = minor_;
   }
-  int stateno;       /* The state-number */
-  int major;         /* The major token value.  This is the code
-                     ** number for the token at this stack level */
-  YYMINORTYPE minor; /* The user-supplied minor token value.  This
-                     ** is the value of the token  */
+  yyStackEntry(YYACTIONTTYPE stateno_, YYCODETYPE major_, YYMINORTYPE minor_)
+    : stateno(stateno_), major(major_), minor(minor_)
+  {
+  }
+  YYACTIONTTYPE stateno;  /* The state-number */
+  YYCODETYPE major        /* The major token value.  This is the code
+                          ** number for the token at this stack level */
+  YYMINORTYPE minor;      /* The user-supplied minor token value.  This
+                          ** is the value of the token  */
 };
 
 /* The state of the parser is completely contained in an instance of
