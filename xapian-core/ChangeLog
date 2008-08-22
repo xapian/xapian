@@ -1,3 +1,8 @@
+Fri Aug 22 01:02:57 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lt: Merge upstream "Check-in Number: 5571"
+	  (no code changes in our modified version).
+
 Fri Aug 22 01:00:15 GMT 2008  Olly Betts <olly@survex.com>
 
 	* queryparser/lemon.c: Fix comment typo.
