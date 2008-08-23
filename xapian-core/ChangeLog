@@ -1,3 +1,8 @@
+Sat Aug 23 00:48:40 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/collate-test: Only update files which have changed to avoid
+	  rebuilding all apitest's source files when only one has changed.
+
 Fri Aug 22 01:02:57 GMT 2008  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lt: Merge upstream "Check-in Number: 5571"
