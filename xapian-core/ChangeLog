@@ -1,3 +1,7 @@
+Sun Aug 24 11:42:21 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/Makefile.mk: Fix build with --enable-log=profile.
+
 Sun Aug 24 12:41:22 BST 2008  Olly Betts <olly@survex.com>
 
 	* HACKING: Add a bit of discussion of --enable-log=profile.  Tweak

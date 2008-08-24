@@ -73,6 +73,7 @@ libxapian_la_SOURCES +=\
 	common/fileutils.cc\
 	common/msvc_dirent.cc\
 	common/msvc_posix_wrapper.cc\
+	common/omdebug.cc\
 	common/safe.cc\
 	common/serialise-double.cc\
 	common/socket_utils.cc\
