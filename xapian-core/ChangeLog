@@ -1,3 +1,8 @@
+Sun Aug 24 12:41:22 BST 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Add a bit of discussion of --enable-log=profile.  Tweak
+	  formatting in one place and wording in another.
+
 Sat Aug 23 00:48:40 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/collate-test: Only update files which have changed to avoid

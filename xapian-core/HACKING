@@ -34,7 +34,13 @@ Xapian.
 
 --enable-log=profile
         This enables compiling code into the library which reports to stderr
-        how long each method takes to execute.
+        how long each method takes to execute.  The profiling machinery tries
+        to discount time spent in itself, but it will affect code generation
+        and cache use, and this feature is implemented by using the logging
+        macros so it only knows about functions and methods which have them, so
+        it is probably more invasive and the output less helpful than dedicated
+        profiling tools.  However, it may be useful and isn't much extra code
+        to maintain, so we've kept it around for now.
 
 --enable-maintainer-mode
 	This tells configure to enable make dependencies for regenerating build
@@ -47,7 +53,7 @@ Xapian.
 	need a non-cross-compiling C compiler for compiling the Lemon parser
 	generator and the Snowball stemming algorithm compiler.  The configure
 	script will attempt to locate one, but you can override the
-	autodetection by passing CC_FOR_BUILD on the command line like so:
+	autodetection by passing CC_FOR_BUILD on the command line like so::
 
 	./configure CC_FOR_BUILD=/opt/bin/gcc
 
@@ -89,8 +95,8 @@ For example::
 
 A 16747 [0x57ad1e0] void Xapian::Query::Internal::validate_query()
 
-Each nested call adds another space before the ``[`` so you can see which
-function call and return messages pair more easily.
+Each nested call adds another space before the ``[`` so you can easily see
+which function call and return messages correspond.
 
 Debugging memory allocations
 ============================
