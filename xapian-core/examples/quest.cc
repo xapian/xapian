@@ -33,6 +33,7 @@ using namespace std;
 #define PROG_NAME "quest"
 #define PROG_DESC "Xapian command line search tool"
 
+// Stopwords:
 static const char * sw[] = {
     "a", "about", "an", "and", "are", "as", "at",
     "be", "by",
@@ -118,31 +119,31 @@ main(int argc, char **argv)
 	    exit(1);
 	}
 
-	Xapian::Enquire enquire(db);
+	Xapian::QueryParser parser;
+	parser.set_database(db);
+	parser.set_default_op(Xapian::Query::OP_OR);
+	parser.set_stemmer(stemmer);
+	parser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
+	parser.set_stopper(&mystopper);
 
-	try {
-	    Xapian::QueryParser parser;
-	    parser.set_database(db);
-	    parser.set_default_op(Xapian::Query::OP_OR);
-	    parser.set_stemmer(stemmer);
-	    parser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
-	    parser.set_stopper(&mystopper);
-	    Xapian::Query query = parser.parse_query(argv[optind]);
-	    cout << "Query: " << query.get_description() << endl;
-	    enquire.set_query(query);
-	} catch (const char * error_msg) {
-	    cout << "Couldn't parse query: " << error_msg << endl;
-	    exit(1);
-	}
+	Xapian::Query query = parser.parse_query(argv[optind]);
+	cout << "Query: " << query.get_description() << endl;
+
+	Xapian::Enquire enquire(db);
+	enquire.set_query(query);
+
+	Xapian::MSet mset = enquire.get_mset(0, msize);
 
 	cout << "MSet:" << endl;
-	Xapian::MSet mset = enquire.get_mset(0, msize);
 	for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); i++) {
 	    Xapian::Document doc = i.get_document();
 	    string data = doc.get_data();
 	    cout << *i << " [" << i.get_percent() << "%]\n" << data << "\n";
 	}
 	cout << flush;
+    } catch (const Xapian::QueryParserError & e) {
+	cout << "Couldn't parse query: " << e.get_msg() << endl;
+	exit(1);
     } catch (const Xapian::Error & err) {
 	cout << err.get_description() << endl;
 	exit(1);

@@ -73,7 +73,7 @@ Database::operator=(const Database &other)
 {
     DEBUGAPICALL(void, "Database::operator=", "Database");
     if (this == &other) {
-	DEBUGLINE(API, "Database assigned to itself");
+	LOGLINE(API, "Database assigned to itself");
 	return;
     }
 
@@ -100,9 +100,8 @@ Database::add_database(const Database & database)
 {
     DEBUGAPICALL(void, "Database::add_database", "Database");
     if (this == &database) {
-	DEBUGLINE(API, "Database added to itself");
-	throw Xapian::InvalidArgumentError("Can't add an Database to itself");
-	return;
+	LOGLINE(API, "Database added to itself");
+	throw Xapian::InvalidArgumentError("Can't add a Database to itself");
     }
     vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
     for (i = database.internal.begin(); i != database.internal.end(); ++i) {
@@ -252,8 +251,8 @@ Database::get_avlength() const
 	docs += db_doccount;
 	totlen += (*i)->get_avlength() * db_doccount;
     }
-    DEBUGLINE(UNKNOWN, "get_avlength() = " << totlen << " / " << docs <<
-	      " (from " << internal.size() << " dbs)");
+    LOGLINE(UNKNOWN, "get_avlength() = " << totlen << " / " << docs <<
+	    " (from " << internal.size() << " dbs)");
 
     if (docs == 0) RETURN(0.0);
     RETURN(totlen / docs);
@@ -403,7 +402,7 @@ Database::get_spelling_suggestion(const string &word,
     AutoPtr<TermList> merger;
     for (size_t i = 0; i < internal.size(); ++i) {
 	TermList * tl = internal[i]->open_spelling_termlist(word);
-	DEBUGLINE(SPELLING, "Sub db " << i << " tl = " << (void*)tl);
+	LOGLINE(SPELLING, "Sub db " << i << " tl = " << (void*)tl);
 	if (tl) {
 	    if (merger.get()) {
 		merger = new OrTermList(merger.release(), tl);
@@ -433,7 +432,7 @@ Database::get_spelling_suggestion(const string &word,
 	string term = merger->get_termname();
 	Xapian::termcount score = merger->get_wdf();
 
-	DEBUGLINE(SPELLING, "Term \"" << term << "\" ngram score " << score);
+	LOGLINE(SPELLING, "Term \"" << term << "\" ngram score " << score);
 	if (score + TRIGRAM_SCORE_THRESHOLD >= best) {
 	    if (score > best) best = score;
 
@@ -444,7 +443,7 @@ Database::get_spelling_suggestion(const string &word,
 	    // First check the length of the encoded UTF-8 version of term.
 	    // Each UTF-32 character is 1-4 bytes in UTF-8.
 	    if (abs((long)term.size() - (long)word.size()) > edist_best * 4) {
-		DEBUGLINE(SPELLING, "Lengths much too different");
+		LOGLINE(SPELLING, "Lengths much too different");
 		continue;
 	    }
 
@@ -454,7 +453,7 @@ Database::get_spelling_suggestion(const string &word,
 
 	    if (abs((long)utf32_term.size() - (long)utf32_word.size())
 		    > edist_best) {
-		DEBUGLINE(SPELLING, "Lengths too different");
+		LOGLINE(SPELLING, "Lengths too different");
 		continue;
 	    }
 
@@ -462,7 +461,7 @@ Database::get_spelling_suggestion(const string &word,
 					       utf32_term.size(),
 					       &utf32_word[0],
 					       utf32_word.size());
-	    DEBUGLINE(SPELLING, "Edit distance " << edist);
+	    LOGLINE(SPELLING, "Edit distance " << edist);
 	    // If we have an exact match, return an empty string since there's
 	    // no correction required.
 	    if (edist == 0) RETURN(string());
@@ -472,11 +471,10 @@ Database::get_spelling_suggestion(const string &word,
 		for (size_t j = 0; j < internal.size(); ++j)
 		    freq += internal[j]->get_spelling_frequency(term);
 
-		DEBUGLINE(SPELLING, "Freq " << freq << " best " << freq_best);
+		LOGLINE(SPELLING, "Freq " << freq << " best " << freq_best);
 		if (edist < edist_best || freq > freq_best) {
-		    DEBUGLINE(SPELLING, "Best so far: \"" << term <<
-					"\" edist " << edist << " freq " <<
-					freq);
+		    LOGLINE(SPELLING, "Best so far: \"" << term <<
+				      "\" edist " << edist << " freq " << freq);
 		    result = term;
 		    edist_best = edist;
 		    freq_best = freq;

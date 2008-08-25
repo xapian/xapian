@@ -1,3 +1,15 @@
+Mon Aug 25 12:39:48 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING,api/,backends/chert/,backends/flint/,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/multi/multi_postlist.cc,backends/multi/multi_termlist.cc,
+	  common/Makefile.mk,common/omdebug.cc,common/omdebug.h,configure.ac,
+	  docs/deprecation.rst,docs/valueranges.rst,examples/quest.cc,
+	  expand/esetinternal.cc,expand/expandweight.cc,matcher/,
+	  net/remoteconnection.cc,queryparser/lemon.c,
+	  queryparser/queryparser.lt,tests/api_nodb.cc,tests/collate-test,
+	  tests/harness/testsuite.cc: Merge from trunk.
+
 Wed Aug 20 03:37:02 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_values.cc: Streams are now chunked.

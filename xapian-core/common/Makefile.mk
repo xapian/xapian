@@ -4,6 +4,7 @@ noinst_HEADERS +=\
 	common/bitstream.h\
 	common/contiguousalldocspostlist.h\
 	common/database.h\
+	common/debuglog.h\
 	common/document.h\
 	common/documentterm.h\
 	common/emptypostlist.h\
@@ -68,6 +69,7 @@ EXTRA_DIST +=\
 
 libxapian_la_SOURCES +=\
 	common/bitstream.cc\
+	common/debuglog.cc\
 	common/fileutils.cc\
 	common/msvc_dirent.cc\
 	common/msvc_posix_wrapper.cc\

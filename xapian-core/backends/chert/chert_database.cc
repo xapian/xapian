@@ -1396,7 +1396,7 @@ ChertWritableDatabase::add_document_(Xapian::docid did,
 		}
 	    }
 	}
-	DEBUGLINE(DB, "Calculated doclen for new document " << did << " as " << new_doclen);
+	LOGLINE(DB, "Calculated doclen for new document " << did << " as " << new_doclen);
 
 	// Set the termlist
 	termlist_table.set_termlist(did, document, new_doclen);
@@ -1618,7 +1618,7 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 		}
 	    }
 	}
-	DEBUGLINE(DB, "Calculated doclen for replacement document " << did << " as " << new_doclen);
+	LOGLINE(DB, "Calculated doclen for replacement document " << did << " as " << new_doclen);
 
 	// Set the termlist
 	termlist_table.set_termlist(did, document, new_doclen);
