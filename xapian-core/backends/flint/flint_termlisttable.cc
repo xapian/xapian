@@ -43,8 +43,6 @@ FlintTermListTable::set_termlist(Xapian::docid did,
     DEBUGCALL(DB, void, "FlintTermListTable::set_termlist",
 	      did << ", " << doc << ", " << doclen);
 
-    string tag = F_pack_uint(doclen);
-
     Xapian::doccount termlist_size = doc.termlist_count();
     if (termlist_size == 0) {
 	// doclen is sum(wdf) so should be zero if there are no terms.
@@ -53,6 +51,8 @@ FlintTermListTable::set_termlist(Xapian::docid did,
 	add(flint_docid_to_key(did), string());
 	return;
     }
+
+    string tag = F_pack_uint(doclen);
 
     Xapian::TermIterator t = doc.termlist_begin();
     if (t != doc.termlist_end()) {
@@ -67,11 +67,9 @@ FlintTermListTable::set_termlist(Xapian::docid did,
 	// it sees in this position (this shouldn't be a common case - 48
 	// character terms aren't very common, and the first term
 	// alphabetically is likely to be shorter than average).
-	// FIXME: If we have an incompatible database version bump we should
-	// drop this completely.
 	if (prev_term.size() == '0') tag += '0';
 
-	tag += prev_term.size();
+	tag += char(prev_term.size());
 	tag += prev_term;
 	tag += F_pack_uint(t.get_wdf());
 	--termlist_size;

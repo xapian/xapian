@@ -1,3 +1,10 @@
+Mon Aug 25 12:03:36 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_termlisttable.cc: Remove FIXME about dropping
+	  something if we make an incompatible database version bump - that's
+	  not going to happen now for flint.  Avoid packing doclen for an
+	  empty termlist.  Add explicit cast for char for prev_term.size().
+
 Sun Aug 24 11:42:21 GMT 2008  Olly Betts <olly@survex.com>
 
 	* common/Makefile.mk: Fix build with --enable-log=profile.
