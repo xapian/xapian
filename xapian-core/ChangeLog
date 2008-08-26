@@ -1,3 +1,8 @@
+Tue Aug 26 07:34:16 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Document explicitly that XAPIAN_DEBUG_FLAGS=- gives you all
+	  debug messages.
+
 Tue Aug 26 00:57:32 GMT 2008  Olly Betts <olly@survex.com>
 
 	* bin/xapian-check.cc: Fix reversed check for whether a table is in a

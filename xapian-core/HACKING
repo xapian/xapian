@@ -82,7 +82,8 @@ message you're interested by setting environment variables.  You can:
    calls to API functions and methods).  These letters are show in the first
    column of the log output, and are also listed in ``common/debuglog.h``.
    If the first character is ``-``, then the letters indicate those categories
-   of message *not* be shown instead.
+   of message *not* be shown instead.  As a consequence of this, setting
+   ``XAPIAN_DEBUG_FLAGS=-`` will give you all debugging messages.
 
 These environment variables only have any effect if you ran configure with the
 --enable-log option.
