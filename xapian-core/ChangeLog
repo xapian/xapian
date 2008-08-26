@@ -1,3 +1,13 @@
+Tue Aug 26 09:26:49 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/debuglog.h: Handle logging from ctor, dtor, and
+	  void-returning functions/methods with a separate class
+	  (DebugLogFuncVoid).  Fix outdent handling for non-logged message
+	  types.  Fix detection of active exceptions to check if the exception
+	  was already active when we entered the current function.  This
+	  probably means that "RETURN_VOID" is no longer needed, so comment
+	  it out.
+
 Tue Aug 26 07:34:16 GMT 2008  Olly Betts <olly@survex.com>
 
 	* HACKING: Document explicitly that XAPIAN_DEBUG_FLAGS=- gives you all
