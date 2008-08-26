@@ -209,7 +209,7 @@ main(int argc, char **argv)
 #endif
 	    if (p == string::npos) p = 0; else ++p;
 
-	    bool flint = !file_exists(filename.substr(0, p) + "iamflint");
+	    bool flint = !file_exists(filename.substr(0, p) + "iamchert");
 
 	    string tablename;
 	    while (p != filename.size()) {

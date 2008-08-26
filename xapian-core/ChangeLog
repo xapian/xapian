@@ -1,3 +1,8 @@
+Tue Aug 26 00:57:32 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/xapian-check.cc: Fix reversed check for whether a table is in a
+	  flint or chert database.
+
 Mon Aug 25 12:03:36 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_termlisttable.cc: Remove FIXME about dropping
