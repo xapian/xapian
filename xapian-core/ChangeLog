@@ -1,3 +1,9 @@
+Fri Aug 29 16:19:13 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/matchspy.cc: Don't count terms as having the right prefix if
+	  the next character is in A-Z - such terms are actually from a
+	  different, longer, prefix.
+
 Fri Jul 04 13:45:58 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/api_wrdb.cc: Disable matchspy tests for remote databases.

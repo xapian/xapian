@@ -198,6 +198,11 @@ TermCountMatchSpy::operator()(const Document &doc) const
 	TermIterator j = doc.termlist_begin();
 	j.skip_to(prefix);
 	for (; j != doc.termlist_end() && startswith((*j), prefix); ++j) {
+	    if ((*j).size() <= prefix.size())
+		continue;
+	    char firstchar = (*j)[prefix.size()];
+	    if (firstchar >= 'A' && firstchar <= 'Z')
+		continue;
 	    ++tally[(*j).substr(prefix.size())];
 	    ++terms_seen;
 	}
