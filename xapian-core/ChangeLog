@@ -1,3 +1,11 @@
+Tue Sep 02 11:40:43 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* configure.ac: Put the bug report URL as the third parameter to
+	  AC_INIT.  Add proper m4 quoting in a few places (nowhere that
+	  should actually change behaviour).
+	* xapian-config.in: Add bug report URL to xapian-config --help output.
+
 Tue Sep 02 11:29:05 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
