@@ -1,3 +1,11 @@
+Tue Sep 02 04:16:57 GMT 2008  Olly Betts <olly@survex.com>
+
+	* stemming/romanian/: Split out the romanian stemming test data into
+	  the vanilla files taken from Snowball and supplemental files with
+	  our extra data.  Our voc.txt and output.txt files now exactly match
+	  Snowball's.
+	* stemming/README: Update to document the new scheme.
+
 Tue Sep 02 02:59:00 GMT 2008  Olly Betts <olly@survex.com>
 
 	* stemming/: Rename all the stemming data files to match those in the
