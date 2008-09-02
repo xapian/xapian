@@ -1,3 +1,8 @@
+Tue Sep 02 10:41:46 GMT 2008  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Remove FIXME for pushing check_at_least
+	  handling into the remote backend, which was done for 1.0.2.
+
 Tue Sep 02 06:48:50 GMT 2008  Olly Betts <olly@survex.com>
 
 	* bin/xapian-inspect.cc: Show the help message on start-up.  Correct

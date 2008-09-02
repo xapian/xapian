@@ -316,8 +316,6 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	vector<Xapian::Internal::RefCntPtr<SubMatch> >::iterator leaf;
 	for (leaf = leaves.begin(); leaf != leaves.end(); ++leaf) {
 	    try {
-		// FIXME: look if we can push the "check_at_least" stuff
-		// into the remote match handling too.
 		(*leaf)->start_match(0, first + maxitems,
 				     first + check_at_least, stats);
 	    } catch (Xapian::Error & e) {
