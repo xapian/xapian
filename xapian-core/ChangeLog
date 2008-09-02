@@ -1,3 +1,8 @@
+Tue Sep 02 11:15:36 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/api_db.cc: Use TEST_EQUAL(a, b) rather than TEST(a == b).
+
 Tue Sep 02 11:00:44 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
