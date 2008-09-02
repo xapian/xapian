@@ -155,8 +155,7 @@ esac
 ACLOCAL="${ACLOCAL-aclocal} -I `pwd`/xapian-core/m4-macros"
 
 intree_swig=no
-# Don't try to build xapian-applications/dbtools or xapview - they need work.
-# As does cvssearch.
+# Don't try to build cvssearch - it needs work.
 # We no longer snapshot xapian-applications/queryserver since it hasn't seen a
 # check-in for ages.
 modules=
