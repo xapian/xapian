@@ -1,3 +1,8 @@
+Tue Sep 02 02:59:00 GMT 2008  Olly Betts <olly@survex.com>
+
+	* stemming/: Rename all the stemming data files to match those in the
+	  Snowball sources, to make maintenance easier.
+
 Tue Sep 02 02:46:36 GMT 2008  Olly Betts <olly@survex.com>
 
 	* README: Reword.  Drop author attribution, as it's not relevant who

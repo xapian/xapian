@@ -5,5 +5,5 @@ for a language we include some from another source.
 
 There are 2 files for each language:
 
- <language>.voc -- A list of words, one per line.
- <language>.st  -- The result of stemming each word.
+ <language>/voc.txt    -- A list of words, one per line.
+ <language>/output.txt -- The result of stemming each word.
