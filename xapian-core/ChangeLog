@@ -1,3 +1,11 @@
+Tue Sep 02 12:33:51 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* examples/copydatabase.cc: Use C++ forms of C headers.  Only treat
+	  '\' as a directory separator on platforms where it is.  Update
+	  counter every 13 counting up to the end so that the digits all
+	  "rotate" and the counter ends up on the exact total.
+
 Tue Sep 02 12:06:26 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
