@@ -1,3 +1,7 @@
+Tue Sep 02 03:05:10 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/stemtest.cc: Update for new xapian-data directory structure.
+
 Tue Aug 26 09:26:49 GMT 2008  Olly Betts <olly@survex.com>
 
 	* common/debuglog.h: Handle logging from ctor, dtor, and

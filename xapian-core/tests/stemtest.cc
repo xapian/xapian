@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2007 Olly Betts
+ * Copyright 2002,2003,2004,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -117,15 +117,15 @@ test_stemdict()
 {
     string dir = srcdir + "/../../xapian-data/stemming/";
 
-    ifstream txt((dir + language + ".voc").c_str());
+    ifstream txt((dir + language + "/voc.txt").c_str());
     if (!txt.is_open()) {
-	SKIP_TEST(language + ".voc not found");
+	SKIP_TEST(language + "/voc.txt not found");
     }
 
-    ifstream st((dir + language + ".st").c_str());
+    ifstream st((dir + language + "/output.txt").c_str());
     if (!st.is_open()) {
 	txt.close();
-	SKIP_TEST(language + ".st not found");
+	SKIP_TEST(language + "/output.txt not found");
     }
 
     int wordcount = 0;
