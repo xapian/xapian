@@ -1,3 +1,9 @@
+Tue Sep 02 10:45:08 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/multimatch.cc: Remove FIXME for pushing check_at_least
+	  handling into the remote backend, which was done for 1.0.2.
+
 Tue Sep 02 07:52:27 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
