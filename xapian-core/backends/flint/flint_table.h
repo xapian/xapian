@@ -581,6 +581,10 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	void split_root(uint4 split_n);
 	void form_key(const string & key) const;
 
+	char other_base_letter() const {
+	   return (base_letter == 'A') ? 'B' : 'A';
+	}
+
 	/** revision number of the opened B-tree. */
 	flint_revision_number_t revision_number;
 
@@ -602,7 +606,7 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	mutable bool both_bases;
 
 	/** the value 'A' or 'B' of the current base */
-	int base_letter;
+	char base_letter;
 
 	/** true if the root block is faked (not written to disk).
 	 * false otherwise.  This is true when the btree hasn't been
@@ -632,9 +636,6 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 
 	/// For writing back as file baseA or baseB.
 	FlintTable_base base;
-
-	/// The base letter ('B' or 'A') of the next base.
-	char other_base_letter;
 
 	/// The path name of the B tree.
 	string name;

@@ -1,3 +1,10 @@
+Tue Sep 02 11:29:05 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/flint/flint_table.cc,backends/flint/flint_table.h:
+	  Eliminate other_base_letter member of FlintTable - its value can
+	  always be easily determined from base_letter.
+
 Tue Sep 02 11:15:36 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
