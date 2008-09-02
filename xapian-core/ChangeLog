@@ -1,3 +1,10 @@
+Tue Sep 02 07:52:27 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* bin/xapian-inspect.cc: Show the help message on start-up.  Correct
+	  the alias for next from ' ' to ''.  Avoid reading outside of input
+	  string when it is empty.  Bug#286.
+
 Fri Aug 22 07:02:51 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
