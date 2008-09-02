@@ -1,3 +1,9 @@
+Tue Sep 02 10:46:57 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/collate-apitest: Only update files which have changed to avoid
+	  rebuilding all apitest's source files when only one has changed.
+
 Tue Sep 02 10:45:08 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
