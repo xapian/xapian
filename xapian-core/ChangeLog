@@ -1,3 +1,7 @@
+Tue Sep 02 04:19:34 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/stemtest.cc: Handle the new supplemental stemming data.
+
 Tue Sep 02 03:05:10 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/stemtest.cc: Update for new xapian-data directory structure.

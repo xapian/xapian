@@ -117,33 +117,47 @@ test_stemdict()
 {
     string dir = srcdir + "/../../xapian-data/stemming/";
 
-    ifstream txt((dir + language + "/voc.txt").c_str());
-    if (!txt.is_open()) {
+    ifstream voc((dir + language + "/voc.txt").c_str());
+    if (!voc.is_open()) {
 	SKIP_TEST(language + "/voc.txt not found");
     }
 
     ifstream st((dir + language + "/output.txt").c_str());
     if (!st.is_open()) {
-	txt.close();
-	SKIP_TEST(language + "/output.txt not found");
+	voc.close();
+	FAIL_TEST(language + "/output.txt not found");
     }
 
-    int wordcount = 0;
+    tout << "Testing " << language << " with Snowball dictionary..." << endl;
 
-    tout << "Testing " << language << " with fixed dictionary..." << endl;
+    int pass = 1;
+    while (true) {
+	string word, stem, expect;
+	while (!voc.eof() && !st.eof()) {
+	    getline(voc, word);
+	    getline(st, expect);
 
-    string word, stem, expect;
-    while (!txt.eof() && !st.eof()) {
-	getline(txt, word);
-	getline(st, expect);
+	    stem = stemmer(word);
 
-	stem = stemmer(word);
+	    TEST_EQUAL(stem, expect);
+	}
+	voc.close();
+	st.close();
 
-	TEST_EQUAL(stem, expect);
-	++wordcount;
+	if (pass == 2) break;
+
+	voc.open((dir + language + "/voc2.txt").c_str());
+	if (!voc.is_open()) break;
+
+	st.open((dir + language + "/output2.txt").c_str());
+	if (!st.is_open()) {
+	    voc.close();
+	    FAIL_TEST(language + "/output2.txt not found");
+	}
+	tout << "Testing " << language << " with supplemental dictionary..."
+	     << endl;
+	++pass;
     }
-    txt.close();
-    st.close();
 
     return true;
 }
