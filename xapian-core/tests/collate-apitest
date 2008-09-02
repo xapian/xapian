@@ -24,10 +24,6 @@ my $generated_warning =
 
 print "$generated_warning\n";
 
-print <<END;
-    cout << "Running tests with backend \\\"" << backendmanager->get_dbtype() << "\\\"..." << endl;
-END
-
 my %by_cond = ();
 my $srcdir = shift(@ARGV);
 
@@ -84,6 +80,13 @@ END
 
 close ALL or die $!;
 update_if_required($allfile);
+
+print <<END;
+    test_driver::report(test_driver::subtotal,
+			string("backend ") + backendmanager->get_dbtype());
+    test_driver::total += test_driver::subtotal;
+    test_driver::subtotal.reset();
+END
 
 # If $file.tmp is different to $file, rename it over the top.  Otherwise
 # just delete it to avoid needlessly updating $file's timestamp.
