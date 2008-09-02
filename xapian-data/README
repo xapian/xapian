@@ -1,5 +1,2 @@
-This module contains data useful when developing Xapian, but
-unnecessary for developing /with/ it (eg: test data).
-
-James
-tartarus@users.sourceforge.net
+This module contains data useful when developing Xapian, but not required
+for developing *with* it or using it (e.g. large test data files).

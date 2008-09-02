@@ -1,3 +1,8 @@
+Tue Sep 02 02:46:36 GMT 2008  Olly Betts <olly@survex.com>
+
+	* README: Reword.  Drop author attribution, as it's not relevant who
+	  wrote this two line note.
+
 Thu Oct 18 18:11:07 BST 2007  Olly Betts <olly@survex.com>
 
 	* stemming/turkish.st,stemming/turkish.voc: Append new Snowball
