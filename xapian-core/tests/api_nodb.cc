@@ -389,6 +389,15 @@ DEFINE_TESTCASE(scaleweight4, !backend) {
     return true;
 }
 
+// Regression test - RSet::get_description() gave a malformed answer in 1.0.7.
+DEFINE_TESTCASE(rset4, !backend) {
+    Xapian::RSet rset;
+    rset.add_document(1);
+    // In 1.0.7 this gave: RSet(RSet(RSet::Internal(, 1))
+    TEST_STRINGS_EQUAL(rset.get_description(), "RSet(RSet::Internal(1))");
+    return true;
+}
+
 // Check that Query(OP_VALUE_GE, 0, "") -> Query::MatchAll.
 DEFINE_TESTCASE(opvaluege1, !backend) {
     Xapian::Query query(Xapian::Query::OP_VALUE_GE, 0, "");

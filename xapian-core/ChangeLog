@@ -1,3 +1,12 @@
+Tue Sep 02 10:53:21 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* api/omenquire.cc: Simplify RSet::remove_document() and
+	  RSet::contains() a little.  Fix output of RSet::get_description().
+	* tests/api_nodb.cc: Add regression test rset4 for
+	  RSet::get_description() fix.
+	* tests/api_nodb.cc: Clarify in comments that this affected 1.0.7.
+
 Tue Sep 02 10:46:57 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
