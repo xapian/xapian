@@ -72,6 +72,17 @@ display_nicely(const string & data) {
     }
 }
 
+static void
+show_help()
+{
+    cout << "Commands:\n"
+	    "next   : Next entry (alias 'n' or '')\n"
+	    "prev   : Previous entry (alias 'p')\n"
+	    "goto X : Goto entry X (alias 'g')\n"
+	    "help   : Show this (alias 'h' or '?')\n"
+	    "quit   : Quit this utility (alias 'q')" << endl;
+}
+
 int
 main(int argc, char **argv)
 {
@@ -123,8 +134,11 @@ main(int argc, char **argv)
 	}
 
 	FlintCursor cursor(&table);
-	cursor.find_entry("");
+	cursor.find_entry(string());
 	cursor.next();
+
+	show_help();
+	cout << endl;
 
 	while (!cin.eof()) {
 	    cout << "Key: ";
@@ -140,10 +154,10 @@ wait_for_input:
 	    getline(cin, input);
 	    if (cin.eof()) break;
 
-	    if (input[input.size() - 1] == '\r')
+	    if (endswith(input, '\r'))
 		input.resize(input.size() - 1);
 
-	    if (input == "" || input == "n" || input == "next") {
+	    if (input.empty() || input == "n" || input == "next") {
 		if (cursor.after_end() || !cursor.next()) {
 		    cout << "At end already." << endl;
 		    goto wait_for_input;
@@ -171,12 +185,7 @@ wait_for_input:
 	    } else if (input == "q" || input == "quit") {
 		break;
 	    } else if (input == "h" || input == "help" || input == "?") {
-		cout << "Commands:\n"
-			"next   : Next entry (alias 'n' or ' ')\n"
-			"prev   : Previous entry (alias 'p')\n"
-			"goto X : Goto entry X (alias 'g')\n"
-			"help   : Show this (alias 'h' or '?')\n"
-			"quit   : Quit this utility (alias 'q')" << endl;
+		show_help();
 		goto wait_for_input;
 	    } else {
 		cout << "Unknown command." << endl;
