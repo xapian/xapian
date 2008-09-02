@@ -66,7 +66,7 @@ class AllTermsList : public TermList {
     /** Skip forward to the specified term.
      *
      *  If the specified term isn't in the list, position ourselves on the
-     *  first term after tname (or at_end() if no terms after tname exist).
+     *  first term after @a term (or at_end() if no terms after @a term exist).
      */
     virtual TermList *skip_to(const std::string &term) = 0;
 

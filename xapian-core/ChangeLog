@@ -1,3 +1,8 @@
+Tue Sep 02 11:00:44 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* common/alltermslist.h: Fix parameter name in doxygen comment.
+
 Tue Sep 02 10:57:15 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
