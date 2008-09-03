@@ -1,3 +1,12 @@
+Wed Sep 03 14:53:56 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* python/generate-python-exceptions.in: Use our own
+	  XapianDirectorException, to avoid the unwanted side effects of
+	  the default SWIG mechanism.  Fixes ticket #289.
+	* python/pythontest.py: Add test_director_exception(), which tests the
+	  fix for ticket #289.
+
 Wed Sep 03 14:40:26 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
