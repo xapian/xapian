@@ -1,3 +1,9 @@
+Wed Sep 03 07:58:29 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/multimatch.cc: Adjust min_weight values calculated for
+	  percent_cutoff in the same manner as in omenquire.cc, to allow
+	  for excess precision in the same way.
+
 Wed Sep 03 07:15:49 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* backends/chert/chert_version.cc: Display numerical value of
