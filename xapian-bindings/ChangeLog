@@ -1,3 +1,13 @@
+Wed Sep 03 14:40:26 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* python/util.i: Fix memory leaks in query constructor typemaps.
+	  Also, remove old, commented out, code which almost certainly had
+	  similar memory leaks - I don't think we're going to want this
+	  code, but if we do, rewriting it by copying the maintained and
+	  working code for the query constructor is less likely to lead to
+	  subtle errors.
+
 Wed Sep 03 14:26:50 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
