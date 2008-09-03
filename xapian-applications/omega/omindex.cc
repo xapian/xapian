@@ -157,7 +157,7 @@ get_pdf_metainfo(const string & safefile, string &title, string &keywords)
 		if (pdfinfo[end - 1] == '\r') --end;
 		end -= idx;
 	    }
-	    title = pdfinfo.substr(idx, end);
+	    title.assign(pdfinfo, idx, end);
 	}
 
 	if (strncmp(pdfinfo.c_str(), "Keywords:", 9) == 0) {
@@ -173,7 +173,7 @@ get_pdf_metainfo(const string & safefile, string &title, string &keywords)
 		if (pdfinfo[end - 1] == '\r') --end;
 		end -= idx;
 	    }
-	    keywords = pdfinfo.substr(idx, end);
+	    keywords.assign(pdfinfo, idx, end);
 	}
     } catch (ReadError) {
 	// It's probably best to index the document even if pdfinfo fails.
