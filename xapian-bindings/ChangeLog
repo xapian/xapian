@@ -1,3 +1,12 @@
+Wed Sep 03 05:22:09 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/util.i: Fix memory leaks in query constructor typemaps.
+	  Also, remove old, commented out, code which almost certainly had
+	  similar memory leaks - I don't think we're going to want this
+	  code, but if we do, rewriting it by copying the maintained and
+	  working code for the query constructor is less likely to lead to
+	  subtle errors.
+
 Mon Aug 04 05:06:46 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS: Sync against 1.0.7 release.
