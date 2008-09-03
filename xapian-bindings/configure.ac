@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(xapian-bindings, 1.0.7)dnl FIXME: bugreport addr as third argument
+AC_INIT([xapian-bindings], [1.0.7], [http://xapian.org/bugs])
 dnl See HACKING document for details of the reasons for required versions.
 AC_PREREQ([2.59])
 AM_INIT_AUTOMAKE([1.9 -Wportability tar-ustar])
@@ -386,9 +386,9 @@ if test no != "$with_tcl" ; then
   AC_PATH_PROGS(TCLSH, ["${TCLSH-tclsh}"], [])
   AC_ARG_VAR(TCLSH, [Tcl interpreter])
   if test -n "$TCLSH" ; then
-    # We need Tcl 8.1 or later for TCL_STUBS.
-    # Note: The bindings can easily be made to work with Tcl 8.0 (just
-    # don't pass -DUSE_TCL_STUBS when compiling) should you need that.
+    dnl We need Tcl 8.1 or later for TCL_STUBS.
+    dnl Note: The bindings can easily be made to work with Tcl 8.0 (just
+    dnl don't pass -DUSE_TCL_STUBS when compiling) should you need that.
     AC_MSG_CHECKING([$TCLSH version])
     if echo 'if {$tcl_version < 8.1 } { exit 1 }'|$TCLSH 2> /dev/null ; then
       tcl_version=`echo 'puts "$tcl_version"'|$TCLSH`
@@ -474,9 +474,10 @@ if test no != "$with_csharp" ; then
     if test -z "$CSC" ; then
       dnl csc is the Microsoft CSharp compiler.
       AC_PATH_PROGS(CSC, [csc], [])
-      # Chicken (the Scheme-to-C compiler) includes a tool called csc so we check
-      # if the output from "csc -version" includes the word chicken which is
-      # sufficient to distinguish Chicken's csc from Microsoft's csc.exe.
+      dnl Chicken (the Scheme-to-C compiler) includes a tool called csc so we
+      dnl check if the output from "csc -version" includes the word chicken
+      dnl which is sufficient to distinguish Chicken's csc from Microsoft's
+      dnl csc.exe.
       AC_MSG_CHECKING([whether $CSC is for CSharp])
       csc_tmp=`$CSC -version 2>/dev/null|grep chicken`
       if test -z "$csc_tmp" ; then
@@ -491,9 +492,9 @@ if test no != "$with_csharp" ; then
       dnl mcs is the Mono CSharp compiler.
       AC_PATH_PROGS(CSC, [mcs], [])
       if test -n "$CSC" ; then
-	# There are other tools called mcs (such as /usr/bin/mcs on Tru64),
-	# so we check that the mcs we found understands --version which is
-	# sufficient to distinguish mono's mcs from the Tru64 one.
+	dnl There are other tools called mcs (such as /usr/bin/mcs on Tru64),
+	dnl so we check that the mcs we found understands --version which is
+	dnl sufficient to distinguish mono's mcs from the Tru64 one.
 	AC_MSG_CHECKING([whether $CSC is from GNU Mono])
 	if (exec >&5 2>&5;$CSC --version </dev/null;exit $?) ; then
 	  AC_MSG_RESULT(yes)

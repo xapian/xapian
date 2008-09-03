@@ -1,3 +1,11 @@
+Wed Sep 03 14:26:00 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Put the bug report URL as the third parameter to
+	  AC_INIT.  Add proper m4 quoting in a few places (nowhere that
+	  should actually change behaviour).  Use "dnl" comments in preference
+	  to "#" comments to help reduce the size of the configure script.
+
 Mon Jul 14 14:30:17 GMT 2008  Olly Betts <olly@survex.com>
 
 	* configure.ac: Remove comments about autotools versions as we now
