@@ -125,7 +125,7 @@ print FD <<'EOF';
 %}
 
 /* Note that we have to re-acquire the GIL in the catch() here, because
- * XapianSetPythonException accesses Python datastructures.  */
+ * XapianSetPythonException accesses Python data structures. */
 %exception {
     try {
 	$action
