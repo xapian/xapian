@@ -1,3 +1,10 @@
+Wed Sep 03 13:33:24 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Put the bug report URL as the third parameter to
+	  AC_INIT.  Add proper m4 quoting in a few places (nowhere that
+	  should actually change behaviour).
+
 Tue Aug 05 09:32:33 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

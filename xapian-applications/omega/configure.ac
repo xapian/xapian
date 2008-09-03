@@ -1,13 +1,13 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(xapian-omega, 1.0.7)dnl FIXME: bugreport addr as third argument
+AC_INIT([xapian-omega], [1.0.7], [http://xapian.org/bugs])
 dnl See HACKING document for details of the reasons for required versions.
 AC_PREREQ([2.59])
 AM_INIT_AUTOMAKE([1.9 -Wportability tar-ustar])
 
-AC_CONFIG_SRCDIR(omega.cc)
+AC_CONFIG_SRCDIR([omega.cc])
 
-AC_CONFIG_HEADERS(config.h)
+AC_CONFIG_HEADERS([config.h])
 
 dnl We don't use Fortran, but libtool 1.5 insists on probing for f77 which just
 dnl makes configure take longer to run.  We force it not to using the method
@@ -24,7 +24,7 @@ define([AC_LIBTOOL_LANG_RC_CONFIG], [:])
 dnl Check for libxapian
 AC_PROG_LIBTOOL
 XO_LIB_XAPIAN
-dnl We want XAPIAN_CXXFLAGS to be used for configure tests
+dnl We want XAPIAN_CXXFLAGS to be used for configure tests.
 CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"
 
 dnl disable "maintainer only" rules by default
