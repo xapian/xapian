@@ -1,3 +1,12 @@
+Wed Sep 03 15:23:54 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/Makefile.am,tests/api_percentages.cc: Add new test file for
+	  tests related to percentage weights (there are a few around which
+	  could be moved here, and there's another one in the patch in
+	  ticket #216).  Add test in this file which uses a PostingSource
+	  with carefully constructed weights to check the rounding
+	  behaviour for percentage cutoffs.
+
 Wed Sep 03 07:58:29 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* matcher/multimatch.cc: Adjust min_weight values calculated for

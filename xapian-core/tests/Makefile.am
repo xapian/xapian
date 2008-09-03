@@ -88,9 +88,19 @@ check_SCRIPTS = runtest
 
 noinst_HEADERS = apitest.h
 
-collated_apitest_sources = api_anydb.cc api_db.cc api_generated.cc api_nodb.cc \
- api_posdb.cc api_replicate.cc api_sorting.cc api_transdb.cc api_unicode.cc \
- api_valuestats.cc api_wrdb.cc
+collated_apitest_sources = \
+ api_anydb.cc \
+ api_db.cc \
+ api_generated.cc \
+ api_nodb.cc \
+ api_percentages.cc \
+ api_posdb.cc \
+ api_replicate.cc \
+ api_sorting.cc \
+ api_transdb.cc \
+ api_unicode.cc \
+ api_valuestats.cc \
+ api_wrdb.cc
 
 apitest_SOURCES = apitest.cc $(collated_apitest_sources) \
  api_all.h api_collated.h $(testharness_sources)
@@ -166,6 +176,7 @@ EXTRA_DIST +=\
 	testdata/apitest_allterms4.txt \
 	testdata/apitest_poslist.txt \
 	testdata/apitest_manydocs.txt \
+	testdata/apitest_sortconsist.txt \
 	testdata/apitest_sortrel.txt \
 	testdata/etext.txt \
 	testdata/flint-0.9.9/flicklock \
