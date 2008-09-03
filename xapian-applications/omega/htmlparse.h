@@ -1,7 +1,7 @@
 /* htmlparse.h: simple HTML parser for omega indexer
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2006 Olly Betts
+ * Copyright 2002,2006,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,15 +29,17 @@ using std::string;
 using std::map;
 
 class HtmlParser {
+	map<string, string> parameters;
     protected:
 	void decode_entities(string &s);
 	bool in_script;
 	string charset;
 	static map<string, unsigned int> named_ents;
+
+	bool get_parameter(const string & param, string & value);
     public:
 	virtual void process_text(const string &/*text*/) { }
-	virtual void opening_tag(const string &/*tag*/,
-				 const map<string,string> &/*p*/) { }
+	virtual void opening_tag(const string &/*tag*/) { }
 	virtual void closing_tag(const string &/*tag*/) { }
 	virtual void parse_html(const string &text);
 	HtmlParser();
