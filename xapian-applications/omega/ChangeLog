@@ -1,3 +1,10 @@
+Wed Sep 03 13:37:24 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* commonhelp.cc: Use PACKAGE_BUGREPORT instead of hardcoding the bug
+	  report URL.  Remove reference to "bugzilla" as we now use trac
+	  instead.
+
 Wed Sep 03 13:33:24 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
