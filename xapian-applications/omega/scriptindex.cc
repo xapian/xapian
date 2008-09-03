@@ -534,7 +534,12 @@ index_file(const char *fname, istream &stream,
 		    case Action::UNHTML: {
 			MyHtmlParser p;
 			try {
-			    p.parse_html(value);
+			    // Default HTML character set is latin 1, though
+			    // not specifying one is deprecated these days.
+			    p.parse_html(value, "iso-8859-1", false);
+			} catch (const string & newcharset) {
+			    p.reset();
+			    p.parse_html(value, newcharset, true);
 			} catch (bool) {
 			    // MyHtmlParser throws a bool to abandon parsing at
 			    // </body> or when indexing is disallowed

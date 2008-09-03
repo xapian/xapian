@@ -1,3 +1,20 @@
+Wed Sep 03 12:26:58 GMT 2008  Olly Betts <olly@survex.com>
+
+	* htmlparse.cc,htmlparse.h,htmlparsetest.cc,myhtmlparse.cc,
+	  myhtmlparse.h,omindex.cc,scriptindex.cc,xmlparse.h: If the character
+	  encoding is specified using <meta http-equiv=...> in an HTML
+	  document then reparse the document if it isn't the encoding we're
+	  already using so that any preceding <title> is converted correctly
+	  (bug#292).
+	  
+	  Convert text from meta tag parameters to UTF-8 (bug#293).
+
+	  Handle <meta charset="..."> (new in HTML 5).
+	  
+	  Fix bug in parameter parsing which was probably just a small
+	  performance penalty in real world cases, but could perhaps result in
+	  parsing bogus extra parameters in carefully contrived situations.
+
 Tue Aug 05 09:24:33 GMT 2008  Olly Betts <olly@survex.com>
 
 	* docs/: Fix a few typos and improve wording in a few places.

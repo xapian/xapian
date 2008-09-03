@@ -1,6 +1,6 @@
 /* xmlparse.h: subclass of HtmlParser for parsing XML.
  *
- * Copyright (C) 2006 Olly Betts
+ * Copyright (C) 2006,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,10 @@ class XmlParser : public MyHtmlParser {
     XmlParser() : MyHtmlParser() { }
     void opening_tag(const string &tag, const map<string,string> &p);
     void closing_tag(const string &tag);
+    void parse_html(const string &text) {
+	// Ignore overriding charsets in meta tags.
+	MyHtmlParser::parse_html(text, "utf-8", true);
+    }
 };
 
 #endif // OMEGA_INCLUDED_XMLPARSE_H

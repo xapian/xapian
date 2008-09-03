@@ -1,6 +1,6 @@
 /* htmlparsetest.cc: test the MyHtmlParser class
  *
- * Copyright (C) 2006 Olly Betts
+ * Copyright (C) 2006,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -47,6 +47,11 @@ static const testcase tests[] = {
     { "<b>not</b>\n<b>able</b>", "not able", "", "", "" },
     // Check that whitespace is handled as intended.
     { " <b>not </b>\n<b>\table\t</b>\r\n", "not able", "", "", "" },
+    { "<html><head><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc3\x82\xc2\xa3", "\xc3\x82\xc2\xae", "", "" },
+    { "<html><head><meta http-equiv=Content-Type content=\"text/html;charset=iso-8859-1\"><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc3\x82\xc2\xa3", "\xc3\x82\xc2\xae", "", "" },
+    { "<html><head><meta http-equiv=Content-Type content=\"text/html;charset=utf-8\"><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
+    { "<html><head><meta charset='utf-8'><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
+    { "<html><head><title>\xc2\xae</title><meta charset=\"utf-8\"></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
     { 0, 0, 0, 0, 0 }
 };
 
@@ -56,7 +61,13 @@ main()
     for (size_t i = 0; tests[i].html; ++i) {
 	MyHtmlParser p;
 	try {
-	    p.parse_html(tests[i].html);
+	    p.parse_html(tests[i].html, "iso-8859-1", false);
+	} catch (const string &newcharset) {
+	    p.reset();
+	    try {
+		p.parse_html(tests[i].html, newcharset, true);
+	    } catch (bool) {
+	    }
 	} catch (bool) {
 	    // MyHtmlParser throws a bool to abandon parsing at </body> or when
 	    // indexing is disallowed

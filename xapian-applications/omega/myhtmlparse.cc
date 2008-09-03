@@ -1,7 +1,7 @@
 /* myhtmlparse.cc: subclass of HtmlParser for extracting text.
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,6 +23,8 @@
 
 #include "myhtmlparse.h"
 
+#include "utf8convert.h"
+
 #include <ctype.h>
 #include <string.h>
 
@@ -35,11 +37,11 @@ lowercase_string(string &str)
 }
 
 void
-MyHtmlParser::parse_html(const string &text)
+MyHtmlParser::parse_html(const string &text, const string &charset_,
+			 bool charset_from_meta_)
 {
-    // Default HTML character set is latin 1, though not specifying one is
-    // deprecated these days.
-    charset = "ISO-8859-1";
+    charset = charset_;
+    charset_from_meta = charset_from_meta_;
     HtmlParser::parse_html(text);
 }
 
@@ -64,16 +66,8 @@ MyHtmlParser::process_text(const string &text)
 }
 
 void
-MyHtmlParser::opening_tag(const string &tag, const map<string,string> &p)
+MyHtmlParser::opening_tag(const string &tag)
 {
-#if 0
-    cout << "<" << tag;
-    map<string, string>::const_iterator x;
-    for (x = p.begin(); x != p.end(); x++) {
-	cout << " " << x->first << "=\"" << x->second << "\"";
-    }
-    cout << ">\n";
-#endif
     if (tag.empty()) return;
     switch (tag[0]) {
 	case 'a':
@@ -81,7 +75,7 @@ MyHtmlParser::opening_tag(const string &tag, const map<string,string> &p)
 	    break;
 	case 'b':
 	    if (tag == "body") {
-		dump = "";
+		dump.resize(0);
 		break;
 	    }
 	    if (tag == "blockquote" || tag == "br") pending_space = true;
@@ -117,46 +111,49 @@ MyHtmlParser::opening_tag(const string &tag, const map<string,string> &p)
 	    break;
 	case 'm':
 	    if (tag == "meta") {
-		map<string, string>::const_iterator i, j;
-		if ((i = p.find("content")) != p.end()) {
-		    if ((j = p.find("name")) != p.end()) {
-			string name = j->second;
+		string content;
+		if (get_parameter("content", content)) {
+		    string name;
+		    if (get_parameter("name", name)) {
 			lowercase_string(name);
 			if (name == "description") {
 			    if (sample.empty()) {
-				sample = i->second;
+				swap(sample, content);
+				convert_to_utf8(sample, charset);
 				decode_entities(sample);
 			    }
 			} else if (name == "keywords") {
 			    if (!keywords.empty()) keywords += ' ';
-			    string tmp = i->second;
-			    decode_entities(tmp);
-			    keywords += tmp;
+			    convert_to_utf8(content, charset);
+			    decode_entities(content);
+			    keywords += content;
 			} else if (name == "robots") {
-			    string val = i->second;
-			    decode_entities(val);
-			    lowercase_string(val);
-			    if (val.find("none") != string::npos ||
-				val.find("noindex") != string::npos) {
+			    decode_entities(content);
+			    lowercase_string(content);
+			    if (content.find("none") != string::npos ||
+				content.find("noindex") != string::npos) {
 				indexing_allowed = false;
 				throw true;
 			    }
 			}
+			break;
 		    }
-		    if ((j = p.find("http-equiv")) != p.end()) {
-			string hdr = j->second;
+		    // If the current charset came from a meta tag, don't
+		    // force reparsing again!
+		    if (charset_from_meta) break;
+		    string hdr;
+		    if (get_parameter("http-equiv", hdr)) {
 			lowercase_string(hdr);
 			if (hdr == "content-type") {
-			    string value = i->second;
-			    lowercase_string(value);
-			    size_t start = value.find("charset=");
+			    lowercase_string(content);
+			    size_t start = content.find("charset=");
 			    if (start == string::npos) break;
 			    start += 8;
-			    if (start == value.size()) break;
+			    if (start == content.size()) break;
 			    size_t end = start;
-			    if (value[start] != '"') {
-				while (end < value.size()) {
-				    unsigned char ch = value[end];
+			    if (content[start] != '"') {
+				while (end < content.size()) {
+				    unsigned char ch = content[end];
 				    if (ch <= 32 || ch >= 127 ||
 					strchr(";()<>@,:\\\"/[]?={}", ch))
 					break;
@@ -165,15 +162,28 @@ MyHtmlParser::opening_tag(const string &tag, const map<string,string> &p)
 			    } else {
 				++start;
 				++end;
-				while (end < value.size()) {
-				    unsigned char ch = value[end];
+				while (end < content.size()) {
+				    unsigned char ch = content[end];
 				    if (ch == '"') break;
-				    if (ch == '\\') value.erase(end, 1);
+				    if (ch == '\\') content.erase(end, 1);
 				    ++end;
 				}
 			    }
-			    charset = value.substr(start, end - start);
+			    string newcharset(content, start, end - start);
+			    if (charset != newcharset) {
+				throw newcharset;
+			    }
 			}
+		    }
+		    break;
+		}
+		if (charset_from_meta) break;
+		string newcharset;
+		if (get_parameter("charset", newcharset)) {
+		    // HTML5 added: <meta charset="...">
+		    lowercase_string(newcharset);
+		    if (charset != newcharset) {
+			throw newcharset;
 		    }
 		}
 		break;
@@ -276,10 +286,7 @@ MyHtmlParser::closing_tag(const string &tag)
 	    break;
 	case 't':
 	    if (tag == "title") {
-		if (title.empty()) {
-		    title = dump;
-		    dump = "";
-		}
+		if (title.empty()) swap(title, dump);
 		break;
 	    }
 	    if (tag == "table" || tag == "td" || tag == "textarea" ||
