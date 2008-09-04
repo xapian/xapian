@@ -202,6 +202,11 @@ for module in xapian-core xapian-applications/omega swig xapian-bindings ; do
   fi
 done
 
+# Search::Xapian doesn't use autotools.
+if [ -f "search-xapian/Makefile.PL" ] ; then
+  modules="$modules search-xapian"
+fi
+
 # Generate the top-level configure script.
 rm -f configure.tmp
 cat <<'TOP_OF_CONFIGURE' > configure.tmp
@@ -305,6 +310,17 @@ for d in $modules ; do
     xapian-core)
       cd "$d" && "$configure" --enable-maintainer-mode --cache-file="$here/config.cache" ${1+"$@"}
       ;;
+    search-xapian)
+      # Extract any CXX=... argument from those passed to us.
+      unset cxxarg
+      for arg
+      do
+      	case $arg in
+	  CXX=*) cxxarg=$arg ;;
+	esac
+      done
+      cd "$d" && perl Makefile.PL XAPIAN_CONFIG="$XAPIAN_CONFIG" ${cxxarg+"$cxxarg"}
+      ;;
     *)
       cd "$d" && "$configure" --enable-maintainer-mode --cache-file="$here/config.cache" XAPIAN_CONFIG="$XAPIAN_CONFIG" ${1+"$@"}
       ;;
@@ -325,10 +341,14 @@ for target in all install uninstall install-strip clean distclean mostlyclean ma
     swig,install*|swig,uninstall|swig,dist|swig,check|swig,distcheck|swig,all)
       # Need to ensure swig is built before "make dist", "make check", etc.
       echo "	cd $d && \$(MAKE)" >> Makefile.tmp ;;
-    swig,mostlyclean)
+    swig,mostlyclean|search-xapian,mostlyclean)
       echo "	cd $d && \$(MAKE) clean" >> Makefile.tmp ;;
-    swig,*)
-      echo "	cd $d && \$(MAKE) $target" >> Makefile.tmp ;;
+    search-xapian,install-strip)
+      echo "	cd $d && \$(MAKE) install" >> Makefile.tmp ;;
+    search-xapian,maintainer-clean)
+      echo "	cd $d && \$(MAKE) realclean" >> Makefile.tmp ;;
+    search-xapian,distcheck)
+      echo "	cd $d && \$(MAKE) disttest" >> Makefile.tmp ;;
     xapian-bindings,distcheck)
       # FIXME: distcheck doesn't currently work for xapian-bindings because
       # xapian-core isn't installed.
