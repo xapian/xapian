@@ -25,7 +25,7 @@ Basic instructions
     example /var/lib/omega/templates (this should contain an OmegaScript
     template called 'query' which is used by default).
 
-  * log_dir - the directory which the omegascript $log command writes log files
+  * log_dir - the directory which the OmegaScript $log command writes log files
     to, for example /var/log/omega .
 
 3. Test omega from the command line::

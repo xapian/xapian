@@ -47,13 +47,6 @@ ChertAllTermsList::~ChertAllTermsList()
     delete cursor;
 }
 
-Xapian::termcount
-ChertAllTermsList::get_approx_size() const
-{
-    DEBUGCALL(DB, Xapian::termcount, "ChertAllTermsList::get_approx_size", "");
-    RETURN(approx_size);
-}
-
 string
 ChertAllTermsList::get_termname() const
 {

@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
  * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -75,14 +75,14 @@ BM25Weight::calc_termweight() const
 
     Xapian::doccount termfreq = internal->termfreq;
 
-    DEBUGLINE(WTCALC, "Statistics: N=" << internal->collection_size <<
-	      " n_t=" << termfreq << " lenpart=" << lenpart);
+    LOGLINE(WTCALC, "Statistics: N=" << internal->collection_size <<
+		    " n_t=" << termfreq << " lenpart=" << lenpart);
 
     Xapian::weight tw = 0;
     if (internal->rset_size != 0) {
 	Xapian::doccount rtermfreq = internal->reltermfreq;
 
-	DEBUGLINE(WTCALC, " R=" << internal->rset_size << " r_t=" << rtermfreq);
+	LOGLINE(WTCALC, " R=" << internal->rset_size << " r_t=" << rtermfreq);
 
 	// termfreq must be at least rtermfreq since there are at least
 	// rtermfreq documents indexed by this term.  And it can't be more than
@@ -109,7 +109,7 @@ BM25Weight::calc_termweight() const
 
     tw *= (k3 + 1) * wqf / (k3 + wqf);
 
-    DEBUGLINE(WTCALC, " => termweight = " << tw);
+    LOGLINE(WTCALC, " => termweight = " << tw);
     termweight = tw;
     weight_calculated = true;
 }
@@ -130,12 +130,12 @@ BM25Weight::get_sumpart(Xapian::termcount wdf, Xapian::doclength len) const
     } else {
 	wt = 0;
     }
-    DEBUGLINE(WTCALC, "(wdf,len,lenpart) = (" << wdf << "," << len << "," <<
-	      lenpart << ") => wtadj = " << wt);
+    LOGLINE(WTCALC, "(wdf,len,lenpart) = (" << wdf << "," << len << "," <<
+		    lenpart << ") => wtadj = " << wt);
 
     wt *= termweight;
 
-    DEBUGLINE(WTCALC, " => sumpart = " << wt);
+    LOGLINE(WTCALC, " => sumpart = " << wt);
 
     RETURN(wt);
 }
@@ -161,8 +161,8 @@ BM25Weight::get_sumextra(Xapian::doclength len) const
     Xapian::doclength normlen = len * lenpart;
     if (normlen < min_normlen) normlen = min_normlen;
     Xapian::weight extra = 2 * k2 * querysize / (1 + normlen);
-    DEBUGLINE(WTCALC, "len = " << len << " querysize = " << querysize <<
-	      " => normlen = " << normlen << " => sumextra = " << extra);
+    LOGLINE(WTCALC, "len = " << len << " querysize = " << querysize <<
+		    " => normlen = " << normlen << " => sumextra = " << extra);
     RETURN(extra);
 }
 
@@ -171,8 +171,8 @@ BM25Weight::get_maxextra() const
 {
     DEBUGCALL(MATCH, Xapian::weight, "BM25Weight::get_maxextra", "");
     Xapian::weight maxextra = 2 * k2 * querysize;
-    DEBUGLINE(WTCALC, "querysize = " << querysize <<
-	      " => maxextra = " << maxextra);
+    LOGLINE(WTCALC, "querysize = " << querysize <<
+		    " => maxextra = " << maxextra);
     RETURN(maxextra);
 }
 

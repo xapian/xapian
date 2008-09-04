@@ -133,11 +133,11 @@ static void report_read_error(const char * position)
 {
     if (position == 0) {
 	// data ran out
-	DEBUGLINE(DB, "ChertPostList data ran out");
+	LOGLINE(DB, "ChertPostList data ran out");
 	throw Xapian::DatabaseCorruptError("Data ran out unexpectedly when reading posting list.");
     }
     // overflow
-    DEBUGLINE(DB, "ChertPostList value too large");
+    LOGLINE(DB, "ChertPostList value too large");
     throw Xapian::RangeError("Value in posting list too large.");
 }
 
@@ -188,16 +188,16 @@ read_start_of_first_chunk(const char ** posptr,
     ChertPostList::read_number_of_entries(posptr, end,
 			   number_of_entries_ptr, collection_freq_ptr);
     if (number_of_entries_ptr)
-	DEBUGLINE(DB, "number_of_entries = " << *number_of_entries_ptr);
+	LOGVALUE(DB, *number_of_entries_ptr);
     if (collection_freq_ptr)
-	DEBUGLINE(DB, "collection_freq = " << *collection_freq_ptr);
+	LOGVALUE(DB, *collection_freq_ptr);
 
     Xapian::docid did;
     // Read the docid of the first entry in the posting list.
     if (!unpack_uint(posptr, end, &did))
 	report_read_error(*posptr);
     ++did;
-    DEBUGLINE(DB, "doc_id = " << did);
+    LOGVALUE(DB, did);
     RETURN(did);
 }
 
@@ -234,14 +234,14 @@ read_start_of_chunk(const char ** posptr,
     if (!unpack_bool(posptr, end, is_last_chunk_ptr))
 	report_read_error(*posptr);
     if (is_last_chunk_ptr)
-	DEBUGLINE(DB, "is_last_chunk = " << *is_last_chunk_ptr);
+	LOGVALUE(DB, *is_last_chunk_ptr);
 
     // Read what the final document ID in this chunk is.
     Xapian::docid increase_to_last;
     if (!unpack_uint(posptr, end, &increase_to_last))
 	report_read_error(*posptr);
     Xapian::docid last_did_in_chunk = first_did_in_chunk + increase_to_last;
-    DEBUGLINE(DB, "last_did_in_chunk = " << last_did_in_chunk);
+    LOGVALUE(DB, last_did_in_chunk);
     RETURN(last_did_in_chunk);
 }
 
@@ -400,10 +400,10 @@ PostlistChunkWriter::flush(ChertTable *table)
 	 * If this was the first chunk, then the next chunk must
 	 * be transformed into the first chunk.  Messy!
 	 */
-	DEBUGLINE(DB, "PostlistChunkWriter::flush(): deleting chunk");
+	LOGLINE(DB, "PostlistChunkWriter::flush(): deleting chunk");
 	Assert(!orig_key.empty());
 	if (is_first_chunk) {
-	    DEBUGLINE(DB, "PostlistChunkWriter::flush(): deleting first chunk");
+	    LOGLINE(DB, "PostlistChunkWriter::flush(): deleting first chunk");
 	    if (is_last_chunk) {
 		/* This is the first and the last chunk, ie the only
 		 * chunk, so just delete the tag.
@@ -485,14 +485,14 @@ PostlistChunkWriter::flush(ChertTable *table)
 	    return;
 	}
 
-	DEBUGLINE(DB, "PostlistChunkWriter::flush(): deleting secondary chunk");
+	LOGLINE(DB, "PostlistChunkWriter::flush(): deleting secondary chunk");
 	/* This isn't the first chunk.  Check whether we're the last chunk. */
 
 	// Delete this chunk
 	table->del(orig_key);
 
 	if (is_last_chunk) {
-	    DEBUGLINE(DB, "PostlistChunkWriter::flush(): deleting secondary last chunk");
+	    LOGLINE(DB, "PostlistChunkWriter::flush(): deleting secondary last chunk");
 	    // Update the previous chunk's is_last_chunk flag.
 	    AutoPtr<ChertCursor> cursor(table->cursor_get());
 
@@ -543,7 +543,7 @@ PostlistChunkWriter::flush(ChertTable *table)
 	    table->add(cursor->current_key, tag);
 	}
     } else {
-	DEBUGLINE(DB, "PostlistChunkWriter::flush(): updating chunk which still has items in it");
+	LOGLINE(DB, "PostlistChunkWriter::flush(): updating chunk which still has items in it");
 	/* The chunk still has some items in it.  Two major subcases:
 	 * a) This is the first chunk.
 	 * b) This isn't the first chunk.
@@ -559,7 +559,7 @@ PostlistChunkWriter::flush(ChertTable *table)
 	    /* The first chunk.  This is the relatively easy case,
 	     * and we just have to write this one back to disk.
 	     */
-	    DEBUGLINE(DB, "PostlistChunkWriter::flush(): rewriting the first chunk, which still has items in it");
+	    LOGLINE(DB, "PostlistChunkWriter::flush(): rewriting the first chunk, which still has items in it");
 	    string key = ChertPostListTable::make_key(tname);
 	    bool ok = table->get_exact_entry(key, tag);
 	    (void)ok;
@@ -582,7 +582,7 @@ PostlistChunkWriter::flush(ChertTable *table)
 	    return;
 	}
 
-	DEBUGLINE(DB, "PostlistChunkWriter::flush(): updating secondary chunk which still has items in it");
+	LOGLINE(DB, "PostlistChunkWriter::flush(): updating secondary chunk which still has items in it");
 	/* Not the first chunk.
 	 *
 	 * This has the easy sub-sub-case:
@@ -670,7 +670,7 @@ ChertPostList::ChertPostList(Xapian::Internal::RefCntPtr<const ChertDatabase> th
     string key = ChertPostListTable::make_key(tname);
     int found = cursor->find_entry(key);
     if (!found) {
-	DEBUGLINE(DB, "postlist for term not found");
+	LOGLINE(DB, "postlist for term not found");
 	number_of_entries = 0;
 	is_at_end = true;
 	pos = 0;
@@ -688,7 +688,7 @@ ChertPostList::ChertPostList(Xapian::Internal::RefCntPtr<const ChertDatabase> th
     last_did_in_chunk = read_start_of_chunk(&pos, end, first_did_in_chunk,
 					    &is_last_chunk);
     read_wdf(&pos, end, &wdf);
-    DEBUGLINE(DB, "Initial docid " << did);
+    LOGLINE(DB, "Initial docid " << did);
 }
 
 ChertPostList::~ChertPostList()
@@ -797,9 +797,11 @@ ChertPostList::next(Xapian::weight w_min)
 	if (!next_in_chunk()) next_chunk();
     }
 
-    DEBUGLINE(DB, string("Moved to ") <<
-	      (is_at_end ? string("end.") : string("docid, wdf = ") +
-	       om_tostring(did) + ", " + om_tostring(wdf)));
+    if (is_at_end) {
+	LOGLINE(DB, "Moved to end");
+    } else {
+	LOGLINE(DB, "Moved to docid " << did << ", wdf = " << wdf);
+    }
 
     RETURN(NULL);
 }
@@ -912,9 +914,11 @@ ChertPostList::skip_to(Xapian::docid desired_did, Xapian::weight w_min)
     (void)have_document;
 #endif
 
-    DEBUGLINE(DB, string("Skipped to ") <<
-	      (is_at_end ? string("end.") : string("docid, wdf = ") +
-	       om_tostring(did) + ", " + om_tostring(wdf)));
+    if (is_at_end) {
+	LOGLINE(DB, "Skipped to end");
+    } else {
+	LOGLINE(DB, "Skipped to docid " << did << ", wdf = " << wdf);
+    }
 
     RETURN(NULL);
 }
@@ -986,7 +990,7 @@ ChertPostListTable::get_chunk(const string &tname,
     // See if we're appending - if so we can shortcut by just copying
     // the data part of the chunk wholesale.
     bool is_first_chunk = (keypos == keyend);
-    DEBUGLINE(DB, "is_first_chunk = " << is_first_chunk);
+    LOGVALUE(DB, is_first_chunk);
 
     cursor->read_tag();
     const char * pos = cursor->current_tag.data();
@@ -1044,12 +1048,12 @@ ChertPostListTable::merge_changes(
 {
     DEBUGCALL(DB, void, "ChertPostListTable::merge_changes", "mod_plists, doclens, freq_deltas");
 
-    DEBUGLINE(DB, doclens.size() << " doclens");
+    LOGVALUE(DB, doclens.size());
     if (!doclens.empty()) {
 	// Ensure there's a first chunk.
 	string current_key = make_key(string());
 	if (!key_exists(current_key)) {
-	    DEBUGLINE(DB, "Adding dummy first chunk");
+	    LOGLINE(DB, "Adding dummy first chunk");
 	    string newtag = make_start_of_first_chunk(0, 0, 0);
 	    newtag += make_start_of_chunk(true, 0, 0);
 	    add(current_key, newtag);
@@ -1063,12 +1067,12 @@ ChertPostListTable::merge_changes(
 	PostlistChunkReader *from;
 	PostlistChunkWriter *to;
 	max_did = get_chunk(string(), j->first, true, &from, &to);
-	DEBUGLINE(DB, "max_did = " << max_did);
+	LOGVALUE(DB, max_did);
 	for ( ; j != doclens.end(); ++j) {
 	    Xapian::docid did = j->first;
 
 next_doclen_chunk:
-	    DEBUGLINE(DB, "Updating doclens, did=" << did);
+	    LOGLINE(DB, "Updating doclens, did=" << did);
 	    if (from) while (!from->is_at_end()) {
 		Xapian::docid copy_did = from->get_docid();
 		if (copy_did >= did) {
@@ -1182,7 +1186,7 @@ next_doclen_chunk:
 	    Xapian::docid did = j->first;
 
 next_chunk:
-	    DEBUGLINE(DB, "Updating tname=" << tname << ", did=" << did);
+	    LOGLINE(DB, "Updating tname=" << tname << ", did=" << did);
 	    if (from) while (!from->is_at_end()) {
 		Xapian::docid copy_did = from->get_docid();
 		if (copy_did >= did) {

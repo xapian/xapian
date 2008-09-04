@@ -141,22 +141,6 @@ class XAPIAN_VISIBILITY_DEFAULT DatabaseReplica {
      */
     DatabaseReplica(const std::string & path);
 
-    /** Set a parameter for the replica.
-     *
-     *  This allows the parameters which were used to create the replica to be
-     *  stored, so that they can be reused in future.
-     *
-     *  @param name  The name of the parameter to set.
-     *  @param value The value to set the parameter to.
-     */
-    void set_parameter(const std::string & name, const std::string & value);
-
-    /** Get a parameter from the replica.
-     *
-     *  @param name The name of the parameter to get.
-     */
-    std::string get_parameter(const std::string & name) const;
-
     /** Get a string describing the current revision of the replica.
      *
      *  The revision information includes a unique identifier for the master

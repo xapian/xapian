@@ -59,12 +59,6 @@ class ChertMetadataTermList : public AllTermsList {
 
     ~ChertMetadataTermList();
 
-    /** Returns the approximate size of the list.
-     *
-     *  Currently unused, and unimplemented.
-     */
-    Xapian::termcount get_approx_size() const;
-
     /** Returns the current termname.
      *
      *  Either next() or skip_to() must have been called before this

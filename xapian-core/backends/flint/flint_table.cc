@@ -1196,13 +1196,19 @@ FlintTable::del(const string &key)
 bool
 FlintTable::get_exact_entry(const string &key, string & tag) const
 {
-    DEBUGCALL(DB, bool, "FlintTable::get_exact_entry", key << ", " << tag);
+    DEBUGCALL(DB, bool, "FlintTable::get_exact_entry", key << ", [&tag]");
     Assert(!key.empty());
+
+    if (handle == -1) RETURN(false);
 
     // An oversized key can't exist, so attempting to search for it should fail.
     if (key.size() > FLINT_BTREE_MAX_KEY_LEN) RETURN(false);
 
-    RETURN(find_tag(key, &tag));
+    form_key(key);
+    if (!find(C)) RETURN(false);
+
+    (void)read_tag(C, &tag, false);
+    RETURN(true);
 }
 
 bool
@@ -1216,22 +1222,6 @@ FlintTable::key_exists(const string &key) const
 
     form_key(key);
     RETURN(find(C));
-}
-
-bool
-FlintTable::find_tag(const string &key, string * tag) const
-{
-    DEBUGCALL(DB, bool, "FlintTable::find_tag", key << ", &tag");
-    if (handle == -1) RETURN(false);
-
-    // An oversized key can't exist, so attempting to search for it should fail.
-    if (key.size() > FLINT_BTREE_MAX_KEY_LEN) RETURN(false);
-
-    form_key(key);
-    if (!find(C)) RETURN(false);
-
-    (void)read_tag(C, tag, false);
-    RETURN(true);
 }
 
 bool
@@ -1300,7 +1290,7 @@ FlintTable::read_tag(Cursor_ * C_, string *tag, bool keep_compressed) const
 	stream.avail_out = (uInt)sizeof(buf);
 	err = inflate(&stream, Z_SYNC_FLUSH);
 	if (err == Z_BUF_ERROR && stream.avail_in == 0) {
-	    DEBUGLINE(DB, "Z_BUF_ERROR - faking checksum of " << stream.adler);
+	    LOGLINE(DB, "Z_BUF_ERROR - faking checksum of " << stream.adler);
 	    Bytef header2[4];
 	    setint4(header2, 0, stream.adler);
 	    stream.next_in = header2;
@@ -1426,11 +1416,11 @@ FlintTable::basic_open(bool revision_supplied, flint_revision_number_t revision_
 	FlintTable_base *other_base = 0;
 
 	for (size_t i = 0; i < BTREE_BASES; ++i) {
-	    DEBUGLINE(UNKNOWN, "Checking (ch == " << ch << ") against "
-		      "basenames[" << i << "] == " << basenames[i]);
-	    DEBUGLINE(UNKNOWN, "bases[" << i << "].get_revision() == " <<
-		      bases[i].get_revision());
-	    DEBUGLINE(UNKNOWN, "base_ok[" << i << "] == " << base_ok[i]);
+	    LOGLINE(DB, "Checking (ch == " << ch << ") against "
+		    "basenames[" << i << "] == " << basenames[i]);
+	    LOGLINE(DB, "bases[" << i << "].get_revision() == " <<
+		    bases[i].get_revision());
+	    LOGLINE(DB, "base_ok[" << i << "] == " << base_ok[i]);
 	    if (ch == basenames[i]) {
 		basep = &bases[i];
 
@@ -1956,7 +1946,7 @@ void
 FlintTable::open()
 {
     DEBUGCALL(DB, void, "FlintTable::open", "");
-    DEBUGLINE(DB, "opening at path " << name);
+    LOGLINE(DB, "opening at path " << name);
     close();
 
     if (!writable) {
@@ -1973,7 +1963,7 @@ bool
 FlintTable::open(flint_revision_number_t revision)
 {
     DEBUGCALL(DB, bool, "FlintTable::open", revision);
-    DEBUGLINE(DB, "opening for particular revision at path " << name);
+    LOGLINE(DB, "opening for particular revision at path " << name);
     close();
 
     if (!writable) {

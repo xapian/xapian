@@ -35,13 +35,6 @@ ChertSpellingWordsList::~ChertSpellingWordsList()
     delete cursor;
 }
 
-Xapian::termcount
-ChertSpellingWordsList::get_approx_size() const
-{
-    DEBUGCALL(DB, Xapian::termcount, "ChertSpellingWordsList::get_approx_size", "");
-    throw Xapian::UnimplementedError("ChertSpellingWordsList::get_approx_size() not implemented");
-}
-
 string
 ChertSpellingWordsList::get_termname() const
 {

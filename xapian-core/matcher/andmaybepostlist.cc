@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005 Olly Betts
+ * Copyright 2003,2004,2005,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -58,7 +58,7 @@ AndMaybePostList::next(Xapian::weight w_min)
     if (w_min > lmax) {
 	// we can replace the AND MAYBE with an AND
 	PostList *ret;
-	DEBUGLINE(MATCH, "AND MAYBE -> AND");
+	LOGLINE(MATCH, "AND MAYBE -> AND");
 	ret = new AndPostList(l, r, matcher, dbsize, true);
 	l = r = NULL;
 	skip_to_handling_prune(ret, std::max(lhead, rhead) + 1, w_min, matcher);
@@ -74,7 +74,7 @@ AndMaybePostList::skip_to(Xapian::docid did, Xapian::weight w_min)
     if (w_min > lmax) {
 	// we can replace the AND MAYBE with an AND
 	PostList *ret;
-	DEBUGLINE(MATCH, "AND MAYBE -> AND (in skip_to)");
+	LOGLINE(MATCH, "AND MAYBE -> AND (in skip_to)");
 	ret = new AndPostList(l, r, matcher, dbsize, true);
 	did = std::max(did, std::max(lhead, rhead));
 	l = r = NULL;

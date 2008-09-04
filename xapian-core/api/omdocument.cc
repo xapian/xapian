@@ -298,7 +298,7 @@ Xapian::Document::Internal::open_term_list() const
 {
     DEBUGCALL(MATCH, TermList *, "Document::Internal::open_term_list", "");
     if (terms_here) {
-	RETURN(new MapTermList(terms.begin(), terms.end(), terms.size()));
+	RETURN(new MapTermList(terms.begin(), terms.end()));
     }
     if (!database) RETURN(NULL);
     RETURN(database->open_term_list(did));
@@ -441,7 +441,7 @@ Xapian::Document::Internal::need_terms() const
 Xapian::valueno
 Xapian::Document::Internal::values_count() const
 {
-    DEBUGLINE(UNKNOWN, "Xapian::Document::Internal::values_count() called");
+    LOGLINE(API, "Xapian::Document::Internal::values_count() called");
     need_values();
     Assert(values_here);
     return values.size();
@@ -480,7 +480,8 @@ Xapian::Document::Internal::need_values() const
 {
     if (!values_here) {
 	if (database) {
-	    values = do_get_all_values();
+	    Assert(values.empty());
+	    do_get_all_values(values);
 	    value_nos.clear();
 	}
 	values_here = true;

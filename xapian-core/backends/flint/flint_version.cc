@@ -1,7 +1,7 @@
 /** @file flint_version.cc
  * @brief FlintVersion class
  */
-/* Copyright (C) 2006,2007 Olly Betts
+/* Copyright (C) 2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,9 +33,11 @@
 # include "msvc_posix_wrapper.h"
 #endif
 
+#include <cstdio> // For rename().
+#include <cstring> // For memcmp() and memcpy().
 #include <string>
 
-#include <string.h> // for memcmp
+#include <uuid/uuid.h>
 
 using std::string;
 
@@ -86,6 +88,9 @@ void FlintVersion::create()
 	msg += filename;
 	throw Xapian::DatabaseOpeningError(msg, errno);
     }
+
+    uuid_clear(uuid);
+    ensure_uuid();
 }
 
 void FlintVersion::read_and_check(bool readonly)
@@ -154,5 +159,68 @@ void FlintVersion::read_and_check(bool readonly)
 	msg += om_tostring(version);
 	msg += " but I only understand "STRINGIZE(FLINT_VERSION);
 	throw Xapian::DatabaseVersionError(msg);
+    }
+
+    string f = filename;
+    f.resize(f.size() - CONST_STRLEN("iamflint"));
+    f += "uuid";
+    fd = ::open(f.c_str(), O_RDONLY|O_BINARY);
+
+    if (fd < 0) {
+	uuid_clear(uuid);
+	return;
+    }
+
+    try {
+	(void)flint_io_read(fd, (char*)uuid, 16, 16);
+    } catch (...) {
+	uuid_clear(uuid);
+	(void)close(fd);
+	throw;
+    }
+    (void)close(fd);
+}
+
+void
+FlintVersion::ensure_uuid() const
+{
+    if (uuid_is_null(uuid)) {
+	string f = filename;
+	f.resize(f.size() - CONST_STRLEN("iamflint"));
+	f += "uuid";
+	int fd = ::open(f.c_str(), O_WRONLY|O_CREAT|O_TRUNC|O_BINARY, 0666);
+
+	// Might be read-only, so don't error, but instead fall back to
+	// using the mtime of the version file.
+	if (fd < 0) {
+	    struct stat statbuf;
+	    if (stat(filename, &statbuf) != 0) {
+		throw Xapian::DatabaseError("Couldn't stat " + filename, errno);
+	    }
+	    unsigned long mtime = statbuf.st_mtime;
+	    // This isn't a validly generated UUID, but it'll do for the
+	    // purpose of identifying a database master for replication
+	    // while we transition to "real" UUIDs.
+	    unsigned char *v = reinterpret_cast<unsigned char *>(uuid);
+	    v[0] = static_cast<unsigned char>(mtime & 0xff);
+	    v[1] = static_cast<unsigned char>((mtime >> 8) & 0xff);
+	    v[2] = static_cast<unsigned char>((mtime >> 16) & 0xff);
+	    v[3] = static_cast<unsigned char>((mtime >> 24) & 0xff);
+	    return;
+	}
+
+	uuid_generate(uuid);
+	try {
+	    flint_io_write(fd, (const char*)uuid, 16);
+	} catch (...) {
+	    (void)close(fd);
+	    throw;
+	}
+
+	if (close(fd) != 0) {
+	    string msg("Failed to create flint uuid file: ");
+	    msg += f;
+	    throw Xapian::DatabaseError(msg, errno);
+	}
     }
 }

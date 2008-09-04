@@ -98,15 +98,13 @@ RSet::add_document(Xapian::docid did)
 void
 RSet::remove_document(Xapian::docid did)
 {
-    set<Xapian::docid>::iterator i = internal->items.find(did);
-    if (i != internal->items.end()) internal->items.erase(i);
+    internal->items.erase(did);
 }
 
 bool
 RSet::contains(Xapian::docid did) const
 {
-    set<Xapian::docid>::iterator i = internal->items.find(did);
-    return i != internal->items.end();
+    return internal->items.find(did) != internal->items.end();
 }
 
 string
@@ -122,11 +120,11 @@ RSet::Internal::get_description() const
 
     set<Xapian::docid>::const_iterator i;
     for (i = items.begin(); i != items.end(); ++i) {
-	if (!description.empty()) description += ", ";
+	if (i != items.begin()) description += ", ";
 	description += om_tostring(*i);
     }
 
-    description = "RSet(" + description + ")";
+    description += ')';
 
     return description;
 }
@@ -353,8 +351,8 @@ MSet::Internal::convert_to_percent_internal(Xapian::weight wt) const
     // Excess precision on x86 can result in a difference here.
     double v = wt * percent_factor + 100.0 * DBL_EPSILON;
     Xapian::percent pcent = static_cast<Xapian::percent>(v);
-    DEBUGLINE(API, "wt = " << wt << ", max_possible = "
-	      << max_possible << " =>  pcent = " << pcent);
+    LOGLINE(API, "wt = " << wt << ", max_possible = " << max_possible <<
+		 " =>  pcent = " << pcent);
     if (pcent > 100) pcent = 100;
     if (pcent < 0) pcent = 0;
     if (pcent == 0 && wt > 0) pcent = 1;
@@ -437,7 +435,7 @@ MSet::Internal::read_docs() const
     set<Xapian::doccount>::const_iterator i;
     for (i = requested_docs.begin(); i != requested_docs.end(); ++i) {
 	indexeddocs[*i] = enquire->read_doc(items[*i - firstitem]);
-	DEBUGLINE(API, "stored doc at index " << *i << " is " << indexeddocs[*i]);
+	LOGLINE(API, "stored doc at index " << *i << " is " << indexeddocs[*i]);
     }
     /* Clear list of requested but not fetched documents. */
     requested_docs.clear();
@@ -670,7 +668,7 @@ Enquire::Internal::get_eset(Xapian::termcount maxitems,
 
     RSetI rseti(db, rset);
 
-    DEBUGLINE(API, "rset size is " << rset.size());
+    LOGVALUE(API, rset.size());
 
     /* The AutoPtrs will clean up any dynamically allocated
      * expand deciders automatically.

@@ -87,7 +87,7 @@ class ChertSynonymTable : public ChertTable {
     /** Override methods of ChertTable.
      *
      *  NB: these aren't virtual, but we always call them on the subclass in
-     *  cases where it matters).
+     *  cases where it matters.
      *  @{
      */
 
@@ -157,12 +157,6 @@ class ChertSynonymTermList : public AllTermsList {
 
     /// Destructor.
     ~ChertSynonymTermList();
-
-    /** Returns the approximate size of the list.
-     *
-     *  This may be unused for this class.
-     */
-    Xapian::termcount get_approx_size() const;
 
     /** Returns the current termname.
      *

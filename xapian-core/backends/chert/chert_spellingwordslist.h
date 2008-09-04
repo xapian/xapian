@@ -65,10 +65,6 @@ class ChertSpellingWordsList : public AllTermsList {
     /// Destructor.
     ~ChertSpellingWordsList();
 
-    /** Returns the approximate size of the list.
-     */
-    Xapian::termcount get_approx_size() const;
-
     /** Returns the current termname.
      *
      *  Either next() or skip_to() must have been called before this

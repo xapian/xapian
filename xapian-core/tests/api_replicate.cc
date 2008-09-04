@@ -142,12 +142,6 @@ DEFINE_TESTCASE(replicate1, replicas) {
     orig.add_document(doc1);
     orig.flush();
 
-    // Wait for a second to ensure that the uuid isn't the same by chance
-    //
-    // FIXME - remove the sleep when we generate uuids better than just from
-    // the creation time for the database.
-    sleep(1);
-
     // Apply the replication - we don't have changesets stored, so this should
     // just do a database copy, and return a count of 1.
     int count = replicate(master, replica, tempdir, 0, 1, 1);

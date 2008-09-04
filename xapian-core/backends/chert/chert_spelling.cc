@@ -497,8 +497,6 @@ ChertSpellingTable::get_word_frequency(const string & word) const
 
 ///////////////////////////////////////////////////////////////////////////
 
-ChertSpellingTermList::~ChertSpellingTermList() { }
-
 Xapian::termcount
 ChertSpellingTermList::get_approx_size() const
 {
