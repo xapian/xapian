@@ -1,3 +1,7 @@
+Thu Sep 04 03:28:23 GMT 2008  Olly Betts <olly@survex.com>
+
+	* AUTHORS: Add Henrik Brix Andersen for FreeBSD portability fix.
+
 Thu Sep 04 03:25:29 GMT 2008  Olly Betts <olly@survex.com>
 
 	* AUTHORS: Thank recent bug reporters, and also Wookey for debian
@@ -5,7 +9,7 @@ Thu Sep 04 03:25:29 GMT 2008  Olly Betts <olly@survex.com>
 
 Thu Sep 04 03:12:57 GMT 2008  Olly Betts <olly@survex.com>
 
-	* NEWS: Update for  1.0.8.
+	* NEWS: Update for 1.0.8.
 
 Tue Sep 02 12:33:51 GMT 2008  Olly Betts <olly@survex.com>
 
