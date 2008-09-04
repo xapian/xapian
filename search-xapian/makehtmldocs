@@ -1,0 +1,97 @@
+#!/usr/bin/perl -W
+use strict;
+
+-d "html" and system("rm -rf html");
+mkdir "html", 0777 or die $!;
+mkdir "html/Search", 0777 or die $!;
+
+my %pages = ();
+pod2html('Xapian.pm', 'html/Search/Xapian.html');
+mkdir "html/Search/Xapian", 0777 or die $!;
+for my $f (<Xapian/*.pm>) {
+    my $o = $f;
+    $o =~ s/\.pm$/.html/;
+    pod2html($f, "html/Search/$o");
+}
+
+for (sort keys %pages) {
+    my $v = $pages{$_};
+    if ($v eq 'Y') {
+        print "$_ has a POD but is never linked to\n";
+    } elsif ($v =~ /^N=/) {
+        print "$_ has no POD but is linked to\n";
+    } elsif ($v eq 'N') {
+#        print "$_ has no POD (but no links)\n";
+    }
+}
+
+sub pod2html {
+    my ($in, $out) = @_;
+    my $tmp = 'pod2html.tmp';
+    my $root = $out;
+    $root =~ s![^/]+!..!g;
+    $root =~ s!\.\./!!;
+    $root =~ s!\.\./!!;
+
+    my $is_pod;
+    open POD, $in or die $!;
+    while (<POD>) {
+        if (/^=/) {
+	    $is_pod = 1;
+	    last;
+	}
+    }
+    close POD;
+
+    my $class = $in;
+    $class =~ s!\.pm$!!;
+    $class =~ s!/!::!g;
+    $class = "Search::$class";
+
+    open HTML, ">$out" or die $!;
+    if (!$is_pod) {
+	$pages{$class} = 'N' . ($pages{$class} || '');
+	print HTML <<EOT;
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>$class</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made"  />
+</head>
+
+<body style="background-color: white">
+
+<p>No Perl-specific documentation currently exists for class
+<code>$class</code> - please refer to the
+<a href="http://xapian.org/docs/apidoc/html/annotated.html">C++
+API documentation</a> for now.
+</body>
+
+</html>
+EOT
+    } else {
+	$pages{$class} = 'Y' . ($pages{$class} || '');
+
+	system('pod2html', '--htmlroot', $root, '--infile', $in, '--outfile', $tmp) == 0
+	    or die $!;
+	if ($?) { die $?; }
+
+	open TMP, $tmp or die $!;
+
+	while (<TMP>) {
+	    s!>the (.*?) manpage<!>$1<!g;
+	    s!\bhref="mailto:.*?@.*?"!!g;
+	    while (m!\bhref="(?:../)*(Search/Xapian[^.]*)!g) {
+		my $class = $1;
+		$class =~ s!/!::!g;
+		$pages{$class} = ($pages{$class} || '') . '=';
+	    }
+	    print HTML $_;
+	}
+	close TMP;
+	unlink $tmp;
+    }
+    close HTML or die $!;
+}
