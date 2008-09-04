@@ -31,7 +31,6 @@ my $work = "/home/olly/tmp/xapian-svn-snapshot";
 # Add ccache's directory first so we'll use it if it is installed.
 $ENV{PATH} = "/usr/lib/ccache:/home/olly/install/bin:/usr/bin:/bin";
 my $repourl = 'file:///home/xapian-svn/xapian';
-my $repourl2 = 'file:///home/xapian-svn/search-xapian';
 my $webbase = '/srv/www';
 
 # Create the work directory first, since we need it to exist so we can create
@@ -156,13 +155,14 @@ foreach my $tag (@ARGV) {
 	    open OUT, ">", "tmp.out" or die $!;
 	    open IN, "<", $configure_ac or die $!;
 	    while (<IN>) {
-		s/(^AC_INIT\([^,]*,.*?)(\s*[),])/$1_svn$revision$2/g;
+		s/(^AC_INIT\([^,]*,.*?)(\s*[),\]])/$1_svn$revision$2/g;
 		print OUT;
 	    }
 	    close IN or die $!;
 	    close OUT or die $!;
 	    rename "tmp.out", $configure_ac;
 	}
+	# FIXME: do the equivalent for Search::Xapian...
     }
 
     system "chmod", "-R", "+w", "$tag/build" if -d "$tag/build";
@@ -203,7 +203,7 @@ foreach my $tag (@ARGV) {
     $log = `make -s distcheck VALGRIND= 2>&1`;
     print LOG $log;
     if ($?) {
-	print "*** make dist failed for '$tag':";
+	print "*** make distcheck failed for '$tag':";
 	print $log;
 	$status = 1;
 	next;
@@ -222,102 +222,6 @@ foreach my $tag (@ARGV) {
 	print $log;
 	$status = 1;
 	next;
-    }
-
-    # Snapshots of Search::Xapian.
-    if ($tag eq 'trunk') {
-	# We're in $tag/build and Search::Xapian must be bootstrapped in-tree.
-	my $co_dir = "search-xapian";
-	if (! -d "$co_dir/.svn") {
-	    system "chmod", "-R", "+w", $co_dir if -d $co_dir;
-	    system "rm", "-rf", $co_dir;
-	    # Check out the tag into a directory of the same name.
-	    open SVN, "svn co --non-interactive \Q$repourl2\E \Q$co_dir\E 2>&1|" or die $!;
-	    while (<SVN>) {
-		$log .= $_;
-		$lastlog = $_;
-	    }
-	    close SVN or die $!;
-	} else {
-	    # Revert any local changes.
-	    $log = "svn revert:\n".`svn revert -R \Q$co_dir\E 2>&1`."svn up:\n";
-	    open SVN, "svn up --non-interactive \Q$co_dir\E 2>&1|" or die $!;
-	    my $lines = 0;
-	    while (<SVN>) {
-		$log .= $_;
-		$lastlog = $_;
-		++$lines;
-		if (/^C. / || /^.C /) {
-		    # But we just reverted any local changes!
-		    die "A conflict?!  That should be impossible!\n";    
-		}
-	    }
-	    close SVN or die $!;
-#	    next if ($lines <= 1);
-	}
-	my ($revision) = ($lastlog =~ /\b(\d+)\b/);
-
-	open LOG2, ">", "../search-xapian.snapshot.log.$revision" or die $!;
-	# Flush output after every print.
-	my $old_fh = select(LOG2);
-	$| = 1;
-	select($old_fh);
-
-	print LOG2 $log;
-	$log = undef;
-
-#	if ($tag !~ m!^tags/!) {
-#	    # Modify configure.ac files to insert $revision into version string.
-#	    foreach my $configure_ac
-#		(glob("\Q$tag\E/xapian/*/configure.ac"),
-#		 glob("\Q$tag\E/xapian/*/*/configure.ac")) {
-#		open OUT, ">", "tmp.out" or die $!;
-#		open IN, "<", $configure_ac or die $!;
-#		while (<IN>) {
-#		    s/(^AC_INIT\([^,]*,.*?)(\s*[),])/$1_svn$revision$2/g;
-#		    print OUT;
-#		}
-#		close IN or die $!;
-#		close OUT or die $!;
-#		rename "tmp.out", $configure_ac;
-#	    }
-#	}
-
-	chdir "search-xapian" or die $!;
-
-	my $here = `pwd`;
-	chomp($here);
-	$log = `XAPIAN_CONFIG=$here/../xapian-core/xapian-config perl Makefile.PL 2>&1`;
-	print LOG2 $log;
-	if ($?) {
-	    print "*** search-xapian bootstrap failed for '$tag':";
-	    print $log;
-	    $status = 1;
-	    next;
-	}
-	$log = undef;
-
-#	$log = `make disttest 2>&1`;
-#	print LOG2 $log;
-#	if ($?) {
-#	    print "*** make disttest failed for '$tag':";
-#	    print $log;
-#	    $status = 1;
-#	    next;
-#	}
-#	$log = undef;
-
-	$log = `make -s dist 2>&1`;
-	print LOG2 $log;
-	if ($?) {
-	    print "*** make dist failed for '$tag':";
-	    print $log;
-	    $status = 1;
-	    next;
-	}
-	$log = undef;
-
-	chdir "../..";
     }
 
     my $d = "$webbase/oligarchy.co.uk/xapian/$tag";
@@ -357,15 +261,6 @@ foreach my $tag (@ARGV) {
 	    print LOG "Failed with exit code $?\n";
 	} else {
 	    print LOG "OK\n";
-	}
-    }
-    for (glob("search-xapian/*.tar.gz")) {
-	print LOG2 "Moving '$_' to '$d'\n";
-	system("mv", $_, $d);
-	if ($?) {
-	    print LOG2 "Failed with exit code $?\n";
-	} else {
-	    print LOG2 "OK\n";
 	}
     }
     chdir("../..");
