@@ -1,5 +1,8 @@
 upto:
-Fri Jul 04 08:15:03 GMT 2008  Olly Betts <olly@survex.com>
+ 11162       olly Wed Sep 03 12:26:58 GMT 2008  Olly Betts <olly@survex.com>
+
+Backport fodder:
+
 
 HEAD only:
 
@@ -11,9 +14,42 @@ HEAD only:
 	  add $transform{} command (which has been in the code for ages but
 	  disabled).
 
-Omega 1.0.7 (2008-07-??):
+ 10852       olly 	* configure.ac: The workaround to avoid probe code for F77, GCJ, and
+ 10852       olly 	  RC being added to configure is no longer required now that we're
+ 10852       olly 	  using libtool 2.2 so remove it.
 
-general:
+ 10846       olly 	* Makefile.am,configure.ac: Use AC_CONFIG_MACRO_DIR and
+ 10846       olly 	  ACLOCAL_AMFLAGS as libtoolize 2.2.4 recommends.
+
+
+Omega 1.0.8 (2008-09-04):
+
+documentation:
+
+* Fix a few typos and improve wording in a few places.
+
+indexers:
+
+* omindex:
+
+  + If the character encoding is specified using <meta http-equiv=...> in an
+    HTML document then reparse the document if it isn't the encoding we're
+    already using so that any preceding <title> is converted correctly
+    (bug#292).
+	  
+  + Convert text from meta tag parameters to UTF-8 (bug#293).
+  
+  + Handle <meta charset="..."> (new in HTML 5).
+	  
+  + Fix bug in HTML tag parameter parsing which was probably just a small
+    performance penalty in real world cases, but could perhaps result in
+    parsing bogus extra parameters in carefully contrived situations.  
+
+portability:
+
+* Add missing <signal.h>, noted on FreeBSD by Henrik Brix Andersen.
+
+Omega 1.0.7 (2008-07-14):
 
 documentation:
 
@@ -29,24 +65,16 @@ indexers:
   + The built-in conversion code (used when iconv isn't available) now handles
     UCS-2/UTF-16 with and without a BOM, and also the explicit BE and LE forms.
 
-* scriptindex:
-
 omega:
 
 * Overhaul the $highlight colour combinations since some were rather
   unreadable (Debian bug 484456).
-
-templates:
-
-testsuite:
 
 build system:
 
 * configure: Synchronise code for working out warning flags used for builds
   with that used for xapian-core, which in particular handles different
   output formats from "gcc --version".
-
-* configure: Improve code to prevent pointlessly probing for f77, gcj, and rc.
 
 portability:
 

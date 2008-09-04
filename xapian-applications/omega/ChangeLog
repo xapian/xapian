@@ -1,3 +1,7 @@
+Thu Sep 04 04:21:12 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Sync with 1.0.8 and update from ChangeLog.
+
 Wed Sep 03 12:26:58 GMT 2008  Olly Betts <olly@survex.com>
 
 	* htmlparse.cc,htmlparse.h,htmlparsetest.cc,myhtmlparse.cc,
