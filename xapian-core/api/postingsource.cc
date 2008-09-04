@@ -80,8 +80,7 @@ ValueWeightPostingSource::ValueWeightPostingSource(Xapian::Database db_,
 	  valno(valno_),
 	  current_docid(0),
 	  last_docid(db.get_lastdocid()),
-	  current_value(0.0),
-	  max_value(DBL_MAX)
+	  current_value(0.0)
 {
     try {
 	termfreq_max = db.get_value_freq(valno);
@@ -92,6 +91,7 @@ ValueWeightPostingSource::ValueWeightPostingSource(Xapian::Database db_,
 	termfreq_max = db.get_doccount();
 	termfreq_est = termfreq_max / 2;
 	termfreq_min = 0;
+	max_value = DBL_MAX;
     }
 }
 

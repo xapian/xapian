@@ -24,6 +24,320 @@ Mon Oct 29 03:03:31 GMT 2007  Olly Betts <olly@survex.com>
 	  include/xapian.h,tests/api_db.cc,tests/api_nodb.cc,
 	  tests/api_wrdb.cc: Restore the changes.
 
+Thu Sep 04 04:39:32 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING,configure.ac: We now hard require autoconf 2.62, so it's
+	  safe to use AC_TYPE_SSIZE_T.  (bug#135)
+
+Thu Sep 04 04:26:59 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: Set version to 1.1.0.
+
+Thu Sep 04 03:32:06 GMT 2008  Olly Betts <olly@survex.com>
+
+	* AUTHORS,NEWS,configure.ac: Sync with 1.0.8.
+
+Wed Sep 03 15:23:54 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/Makefile.am,tests/api_percentages.cc: Add new test file for
+	  tests related to percentage weights (there are a few around which
+	  could be moved here, and there's another one in the patch in
+	  ticket #216).  Add test in this file which uses a PostingSource
+	  with carefully constructed weights to check the rounding
+	  behaviour for percentage cutoffs.
+
+Wed Sep 03 07:58:29 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/multimatch.cc: Adjust min_weight values calculated for
+	  percent_cutoff in the same manner as in omenquire.cc, to allow
+	  for excess precision in the same way.
+
+Wed Sep 03 07:15:49 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/chert/chert_version.cc: Display numerical value of
+	  correct size of chert version file in error message if size is
+	  incorrect, rather than a complicated expression giving the
+	  correct size.
+
+Tue Sep 02 10:41:46 GMT 2008  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Remove FIXME for pushing check_at_least
+	  handling into the remote backend, which was done for 1.0.2.
+
+Tue Sep 02 06:48:50 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/xapian-inspect.cc: Show the help message on start-up.  Correct
+	  the alias for next from ' ' to ''.  Avoid reading outside of input
+	  string when it is empty.  Bug#286.
+
+Tue Sep 02 04:19:34 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/stemtest.cc: Handle the new supplemental stemming data.
+
+Tue Sep 02 03:05:10 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/stemtest.cc: Update for new xapian-data directory structure.
+
+Tue Aug 26 09:26:49 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/debuglog.h: Handle logging from ctor, dtor, and
+	  void-returning functions/methods with a separate class
+	  (DebugLogFuncVoid).  Fix outdent handling for non-logged message
+	  types.  Fix detection of active exceptions to check if the exception
+	  was already active when we entered the current function.  This
+	  probably means that "RETURN_VOID" is no longer needed, so comment
+	  it out.
+
+Tue Aug 26 07:34:16 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Document explicitly that XAPIAN_DEBUG_FLAGS=- gives you all
+	  debug messages.
+
+Tue Aug 26 00:57:32 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/xapian-check.cc: Fix reversed check for whether a table is in a
+	  flint or chert database.
+
+Mon Aug 25 12:03:36 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_termlisttable.cc: Remove FIXME about dropping
+	  something if we make an incompatible database version bump - that's
+	  not going to happen now for flint.  Avoid packing doclen for an
+	  empty termlist.  Add explicit cast for char for prev_term.size().
+
+Sun Aug 24 11:42:21 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/Makefile.mk: Fix build with --enable-log=profile.
+
+Sun Aug 24 12:41:22 BST 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Add a bit of discussion of --enable-log=profile.  Tweak
+	  formatting in one place and wording in another.
+
+Sat Aug 23 00:48:40 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/collate-test: Only update files which have changed to avoid
+	  rebuilding all apitest's source files when only one has changed.
+
+Fri Aug 22 01:02:57 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lt: Merge upstream "Check-in Number: 5571"
+	  (no code changes in our modified version).
+
+Fri Aug 22 01:00:15 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Fix comment typo.
+
+Fri Aug 22 00:55:26 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Merge upstream "Check-in Number: 5564".
+
+Fri Aug 22 00:44:14 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c,queryparser/queryparser.lt: Merge upstream
+	  "Check-in Number: 5488" and "5563".
+	* queryparser/queryparser.lt: Fix compilation for previous merge
+	  (I fixed it in the generated file before!)
+
+Fri Aug 22 00:07:22 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lt: Merge upstream "Check-in Number: 5472".
+
+Thu Aug 21 04:15:41 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: Remove code which checks for --enable-debug and
+	  --enable-debug-verbose (deprecated since 1.0.0) and gives an error
+	  pointing to the replacements.
+	* docs/deprecation.rst: Document the replacements here.
+
+Thu Aug 21 00:57:52 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/omdebug.h: Remove DEBUGLINE completely.
+	* backends/flint/flint_table.cc,backends/inmemory/inmemory_database.cc,
+	  queryparser/queryparser.lt: Replace remaining DEBUGLINE uses.
+	* backends/inmemory/inmemory_database.cc: Don't need <list>.
+
+Thu Aug 21 00:37:08 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/debuglog.h,common/omdebug.h: Define LOGLINE, etc to no-op
+	  versions when XAPIAN_DEBUG_VERBOSE isn't defined.
+	* api/,backends/chert/,backends/flint/,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/multi/multi_postlist.cc,backends/multi/multi_termlist.cc,
+	  expand/esetinternal.cc,expand/expandweight.cc,matcher/,
+	  net/remoteconnection.cc: Use LOGLINE or LOGVALUE instead of
+	  DEBUGLINE.
+
+Wed Aug 20 13:33:56 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/debuglog.h: Don't need omtime.h.
+
+Wed Aug 20 06:11:31 GMT 2008  Olly Betts <olly@survex.com>
+
+	* examples/quest.cc: Fix to catch QueryParserError instead of const
+	  char * which Xapian < 1.0.0 threw instead.
+
+Wed Aug 20 05:50:26 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/valueranges.rst: Expand on some sections.
+
+Wed Aug 20 04:43:07 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_nodb.cc: Clarify in comments that this affected 1.0.7.
+
+Wed Aug 20 04:33:22 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc: Simplify RSet::remove_document() and
+	  RSet::contains() a little.  Fix output of RSet::get_description().
+	* tests/api_nodb.cc: Add regression test rset4 for
+	  RSet::get_description() fix.
+
+Wed Aug 20 02:45:04 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/omdebug.h: Remove DebugMsg() macro which is no longer used.
+
+Tue Aug 12 05:03:34 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_table.cc,backends/flint/flint_table.h:
+	  Backport elimination of find_tag() to flint.
+
+Tue Aug 12 04:10:41 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_table.cc,backends/chert/chert_table.h:
+	  ChertTable::find_tag() is only used by ChertTable::get_exact_entry()
+	  so remove the former folding its code into the latter.
+
+Mon Aug 11 03:06:10 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_spelling.h,backends/chert/chert_synonym.h:
+	  Remove random closing bracket from a couple of comments.
+
+Mon Aug 11 03:03:19 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/postingsource.cc: Always initialise max_value in the constructor
+	  body for consistency.
+
+Sat Aug 09 09:56:06 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_valuestats.cc: Add valuestats4 as a regression test for
+	  the previous fix.
+
+Sat Aug 09 06:10:49 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/chert/chert_database.h:
+	  Write cached valuestats changes to disk when we automatically flush
+	  changes due to the number of documents indexed.
+
+Wed Aug 06 11:27:29 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omdocument.cc,backends/chert/chert_document.cc,
+	  backends/chert/chert_document.h,backends/flint/flint_document.cc,
+	  backends/flint/flint_document.h,
+	  backends/inmemory/inmemory_document.cc,
+	  backends/inmemory/inmemory_document.h,
+	  backends/remote/net_document.cc,backends/remote/net_document.h,
+	  common/document.h: Change do_get_all_values() to pass a reference
+	  to the std::map to return the result in rather than returning the
+	  std::map.
+
+Wed Aug 06 07:39:08 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/replication.rst: Adding missing (C) for new section addded
+	  recently.
+
+Wed Aug 06 06:27:59 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/alltermslist.cc,backends/chert/,backends/flint/,
+	  backends/inmemory/inmemory_alltermslist.cc,
+	  backends/inmemory/inmemory_alltermslist.h,
+	  backends/multi/multi_alltermslist.cc,common/alltermslist.h,
+	  common/multialltermslist.h: Add a default "not implemented"
+	  implementation of AllTermsList::get_approx_size() and remove the
+	  "not implemented" versions in all the subclasses.  Remove empty
+	  destructors for ChertSpellingTermList, and FlintSpellingTermList.
+	* api/maptermlist.h,api/omdocument.cc: MapTermList::get_approx_size()
+	  should never be used, so make it "Assert(false); return 0;".
+
+Wed Aug 06 02:24:48 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,backends/multi/multi_alltermslist.cc,
+	  common/multialltermslist.h: Reimplement MultiAllTermsList to use a
+	  heap rather than linearly scanning - operations during iteration
+	  should now be O(log(n)) rather than O(n) where n is the number of
+	  databases.
+
+Tue Aug 05 23:50:19 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am: Fix "make clean" to remove cached databases again
+	  and "make check" to remove cached databases like the previous change
+	  aimed to do.
+
+Tue Aug 05 23:48:52 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_db.cc: Use TEST_EQUAL(a, b) rather than TEST(a == b).
+
+Tue Aug 05 12:44:58 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/alltermslist.h: Fix parameter name in doxygen comment.
+
+Tue Aug 05 06:28:15 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/flint/flint_database.cc:
+	  Don't generate a changeset file for the first revision of a database
+	  (since we might as well just send the whole database) - addresses
+	  part of bug#278.  Clean up exceptions to pass errno in the errno
+	  parameter rather than incorporating strerror(errno) in the message
+	  parameter.
+
+Tue Aug 05 06:00:11 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_replicate.cc: Remove "sleep(1);" from testcase replicate1
+	  which is no longer required now we generate proper UUIDs.
+
+Tue Aug 05 03:07:11 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/replication.cc,include/xapian/replication.h: Remove
+	  DatabaseReplica::get_parameter() and set_parameter() as they're no
+	  longer used for storing the database UUID, and Richard said the
+	  thinking behind wanting them was "flawed".
+
+Tue Aug 05 02:03:24 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_version.cc: Comment tweak.
+
+Tue Aug 05 02:02:29 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/replication.cc,backends/flint/flint_database.cc,common/utils.cc,
+	  common/utils.h: Use the UUID stored by the backend rather than
+	  storing it ourselves as a database replica parameter.
+
+Mon Aug 04 14:58:21 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_database.cc,backends/flint/flint_version.cc,
+	  backends/flint/flint_version.h: Generate a UUID when a new flint
+	  database is created, and lazily generate one for existing flint
+	  databases which don't have one.  Store the UUID in a new "uuid"
+	  file in the database directory to avoid having to change the
+	  flint database format incompatibly.
+
+Mon Aug 04 14:13:53 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/chert/chert_version.cc,
+	  backends/chert/chert_version.h,configure.ac: Generate a UUID when
+	  a chert database is created, and store it in the version file.
+
+Mon Aug 04 12:16:54 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_version.cc: Make exception messages more
+	  consistent.
+
+Mon Aug 04 12:15:14 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/chert/chert_version.cc,
+	  backends/chert/chert_version.h: Remove the code to handle upgrading
+	  flint versions >= 200704230 and < 200709120 as it's just dead code
+	  for chert.
+
 Sun Aug 03 14:34:31 GMT 2008  Olly Betts <olly@survex.com>
 
 	* api/replication.cc: Track the replica numbers using an int rather

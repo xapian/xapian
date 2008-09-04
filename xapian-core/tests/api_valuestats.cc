@@ -1,6 +1,7 @@
 /* api_valuestats.cc: tests of the value statistics functions.
  *
  * Copyright 2008 Lemur Consulting Ltd
+ * Copyright 2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -256,5 +257,42 @@ DEFINE_TESTCASE(valuestats3, valuestats) {
     TEST_EQUAL(db.get_value_lower_bound(11), "\xb9P");
     TEST_EQUAL(db.get_value_upper_bound(11), "\xc7\x04");
 
+    return true;
+}
+
+DEFINE_TESTCASE(valuestats4, writable && valuestats) {
+    const size_t FLUSH_THRESHOLD = 10000;
+    SKIP_TEST_FOR_BACKEND("inmemory");
+    {
+	Xapian::WritableDatabase db_w = get_writable_database();
+	Xapian::Document doc;
+	doc.add_value(1, "test");
+	for (size_t i = 0; i < FLUSH_THRESHOLD; ++i) {
+	    db_w.add_document(doc);
+	}
+
+	Xapian::Database db = get_writable_database_as_database();
+	// Check that we had an automatic-flush.
+	TEST_EQUAL(db.get_doccount(), FLUSH_THRESHOLD);
+	// Check that the value stats are there.
+	TEST_EQUAL(db.get_value_freq(1), FLUSH_THRESHOLD);
+	TEST_EQUAL(db.get_value_lower_bound(1), "test");
+	TEST_EQUAL(db.get_value_upper_bound(1), "test");
+
+	db_w.begin_transaction();
+	doc.add_value(1, "umbrella");
+	db_w.cancel_transaction();
+    }
+
+    {
+	Xapian::Database db = get_writable_database_as_database();
+	// Check that we had an automatic-flush.
+	TEST_EQUAL(db.get_doccount(), FLUSH_THRESHOLD);
+	// Check that the value stats are there.
+	TEST_EQUAL(db.get_value_freq(1), FLUSH_THRESHOLD);
+	TEST_EQUAL(db.get_value_lower_bound(1), "test");
+	TEST_EQUAL(db.get_value_upper_bound(1), "test");
+    }
+ 
     return true;
 }

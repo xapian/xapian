@@ -102,7 +102,7 @@ RemoteConnection::read_at_least(size_t min_len, const OmTime & end_time)
 	    DWORD waitrc;
 	    waitrc = WaitForSingleObject(overlapped.hEvent, calc_read_wait_msecs(end_time));
 	    if (waitrc != WAIT_OBJECT_0) {
-		DEBUGLINE(REMOTE, "read: timeout has expired");
+		LOGLINE(REMOTE, "read: timeout has expired");
 		throw Xapian::NetworkTimeoutError("Timeout expired while trying to read", context);
 	    }
 	    // Get the final result of the read.
@@ -139,7 +139,7 @@ RemoteConnection::read_at_least(size_t min_len, const OmTime & end_time)
 	if (received == 0)
 	    throw Xapian::NetworkError("Received EOF", context);
 
-	DEBUGLINE(REMOTE, "read gave errno = " << strerror(errno));
+	LOGLINE(REMOTE, "read gave errno = " << strerror(errno));
 	if (errno == EINTR) continue;
 
 	if (errno != EAGAIN)
@@ -151,7 +151,7 @@ RemoteConnection::read_at_least(size_t min_len, const OmTime & end_time)
 	    OmTime time_diff = end_time - OmTime::now();
 	    // Check if the timeout has expired.
 	    if (time_diff.sec < 0) {
-		DEBUGLINE(REMOTE, "read: timeout has expired");
+		LOGLINE(REMOTE, "read: timeout has expired");
 		throw Xapian::NetworkTimeoutError("Timeout expired while trying to read", context);
 	    }
 
@@ -225,7 +225,7 @@ RemoteConnection::send_message(char type, const string &message, const OmTime & 
 	    DWORD waitrc;
 	    waitrc = WaitForSingleObject(overlapped.hEvent, calc_read_wait_msecs(end_time));
 	    if (waitrc != WAIT_OBJECT_0) {
-		DEBUGLINE(REMOTE, "write: timeout has expired");
+		LOGLINE(REMOTE, "write: timeout has expired");
 		throw Xapian::NetworkTimeoutError("Timeout expired while trying to write", context);
 	    }
 	    // Get the final result.
@@ -271,7 +271,7 @@ RemoteConnection::send_message(char type, const string &message, const OmTime & 
 	    continue;
 	}
 
-	DEBUGLINE(REMOTE, "write gave errno = " << strerror(errno));
+	LOGLINE(REMOTE, "write gave errno = " << strerror(errno));
 	if (errno == EINTR) continue;
 
 	if (errno != EAGAIN)
@@ -283,7 +283,7 @@ RemoteConnection::send_message(char type, const string &message, const OmTime & 
 
 	OmTime time_diff(end_time - OmTime::now());
 	if (time_diff.sec < 0) {
-	    DEBUGLINE(REMOTE, "write: timeout has expired");
+	    LOGLINE(REMOTE, "write: timeout has expired");
 	    throw Xapian::NetworkTimeoutError("Timeout expired while trying to write", context);
 	}
 
@@ -356,7 +356,7 @@ RemoteConnection::send_file(char type, const string &file, const OmTime & end_ti
 	    DWORD waitrc;
 	    waitrc = WaitForSingleObject(overlapped.hEvent, calc_read_wait_msecs(end_time));
 	    if (waitrc != WAIT_OBJECT_0) {
-		DEBUGLINE(REMOTE, "write: timeout has expired");
+		LOGLINE(REMOTE, "write: timeout has expired");
 		throw Xapian::NetworkTimeoutError("Timeout expired while trying to write", context);
 	    }
 	    // Get the final result.
@@ -416,7 +416,7 @@ RemoteConnection::send_file(char type, const string &file, const OmTime & end_ti
 	    continue;
 	}
 
-	DEBUGLINE(REMOTE, "write gave errno = " << strerror(errno));
+	LOGLINE(REMOTE, "write gave errno = " << strerror(errno));
 	if (errno == EINTR) continue;
 
 	if (errno != EAGAIN)
@@ -428,7 +428,7 @@ RemoteConnection::send_file(char type, const string &file, const OmTime & end_ti
 
 	OmTime time_diff(end_time - OmTime::now());
 	if (time_diff.sec < 0) {
-	    DEBUGLINE(REMOTE, "write: timeout has expired");
+	    LOGLINE(REMOTE, "write: timeout has expired");
 	    throw Xapian::NetworkTimeoutError("Timeout expired while trying to write", context);
 	}
 

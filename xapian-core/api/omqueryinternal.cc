@@ -391,7 +391,7 @@ class QUnserial {
 
 Xapian::Query::Internal *
 QUnserial::decode() {
-    DEBUGLINE(UNKNOWN, "QUnserial::decode(" << p << ")");
+    LOGLINE(UNKNOWN, "QUnserial::decode(" << p << ")");
     AutoPtr<Xapian::Query::Internal> qint(readquery());
     if (p != end)
         throw Xapian::InvalidArgumentError("Bad serialised query");
@@ -427,7 +427,7 @@ QUnserial::readquery() {
 	case '(':
 	    return readcompound();
 	default:
-	    DEBUGLINE(UNKNOWN, "Can't parse remainder `" << p - 1 << "'");
+	    LOGLINE(UNKNOWN, "Can't parse remainder `" << p - 1 << "'");
 	    throw Xapian::InvalidArgumentError("Invalid query string");
     }
 }
@@ -550,7 +550,7 @@ QUnserial::readcompound() {
 					    subqs, 0, param);
 		}
 	        default:
-		    DEBUGLINE(UNKNOWN, "Can't parse remainder `" << p - 1 << "'");
+		    LOGLINE(UNKNOWN, "Can't parse remainder `" << p - 1 << "'");
 		    throw Xapian::InvalidArgumentError("Invalid query string");
 	    }
         }

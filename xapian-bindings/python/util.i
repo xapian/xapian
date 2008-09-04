@@ -54,46 +54,18 @@ namespace Xapian {
 #else
 	PyObject * mythis = PyObject_GetAttrString(obj, "this");
 #endif
+	if (!mythis)
+	    return 0;
+
 	Query * retval = 0;
-	if (!mythis || SWIG_ConvertPtr(mythis, (void **)&retval,
-				       SWIGTYPE_p_Xapian__Query, 0) < 0) {
+	int res = SWIG_ConvertPtr(mythis, (void **)&retval,
+				  SWIGTYPE_p_Xapian__Query, 0);
+	if (!SWIG_IsOK(res)) {
 	    retval = 0;
 	}
+	Py_DECREF(mythis);
 	return retval;
     }
-
-#if 0 // Currently unused
-    RSet *get_py_rset(PyObject *obj) {
-	PyObject * mythis = PyObject_GetAttrString(obj, "this");
-	Rset * retval = 0;
-	if (!mythis || SWIG_ConvertPtr(mythis, (void **)&retval,
-				       SWIGTYPE_p_Xapian__RSet, 0) < 0) {
-	    retval = 0;
-	}
-	return retval;
-    }
-#endif
-
-#if 0 // FIXME
-    MatchDecider *get_py_matchdecider(PyObject *obj) {
-	PyObject * mythis = PyObject_GetAttrString(obj, "this");
-	MatchDecider * retval = 0;
-	if (!mythis || SWIG_ConvertPtr(mythis, (void **)&retval,
-				       SWIGTYPE_p_Xapian__MatchDecider, 0) < 0) {
-	    retval = 0;
-	}
-	return retval;
-    }
-#endif
-
-#if 0
-    int get_py_int(PyObject *obj) {
-	if (!PyNumber_Check(obj)) {
-	    throw PythonProblem();
-	}
-	return PyInt_AsLong(PyNumber_Int(obj));
-    }
-#endif
 }
 %}
 
@@ -103,9 +75,16 @@ namespace Xapian {
 	$1 = 0;
     } else {
 	$1 = 1;
-	int numitems = PySequence_Size($input);
+	PyObject * fastseq = PySequence_Fast($input, "expected sequence of strings or queries");
+	if (!fastseq) {
+	    // We've already checked that we have a sequence, so the failure of
+	    // PySequence_Fast() is a serious error, not just a failure of
+	    // typecheck.
+	    SWIG_fail;
+	}
+	int numitems = PySequence_Fast_GET_SIZE(fastseq);
 	for (int i = 0; i < numitems; ++i) {
-	    PyObject *obj = PySequence_GetItem($input, i);
+	    PyObject *obj = PySequence_Fast_GET_ITEM(fastseq, i);
 	    if (!PyUnicode_Check(obj) &&
 %#if PY_VERSION_HEX >= 0x03000000
 		!PyBytes_Check(obj) &&
@@ -117,24 +96,26 @@ namespace Xapian {
 		break;
 	    }
 	}
+	Py_DECREF(fastseq);
     }
 }
 
 %typemap(in) const vector<Xapian::Query> & (vector<Xapian::Query> v) {
-    if (!PySequence_Check($input)) {
-	PyErr_SetString(PyExc_TypeError, "expected list of strings or queries");
-	return NULL;
+    PyObject * fastseq = PySequence_Fast($input, "expected sequence of strings or queries");
+    if (!fastseq) {
+	SWIG_fail;
     }
 
-    int numitems = PySequence_Size($input);
+    int numitems = PySequence_Fast_GET_SIZE(fastseq);
     v.reserve(numitems);
     for (int i = 0; i < numitems; ++i) {
-	PyObject *obj = PySequence_GetItem($input, i);
+	PyObject *obj = PySequence_Fast_GET_ITEM(fastseq, i);
+	PyObject *decrefme = NULL;
 	if (PyUnicode_Check(obj)) {
 	    PyObject *strobj = PyUnicode_EncodeUTF8(PyUnicode_AS_UNICODE(obj), PyUnicode_GET_SIZE(obj), "ignore");
 	    if (!strobj) SWIG_fail;
-	    Py_DECREF(obj);
 	    obj = strobj;
+	    decrefme = strobj;
 	}
 %#if PY_VERSION_HEX >= 0x03000000
 	if (PyBytes_Check(obj))
@@ -156,12 +137,15 @@ namespace Xapian {
 	    Xapian::Query *subqp = Xapian::get_py_query(obj);
 	    if (!subqp) {
 		PyErr_SetString(PyExc_TypeError, "expected string or query");
+		Py_XDECREF(decrefme);
 		SWIG_fail;
 	    }
 	    v.push_back(*subqp);
 	}
+	Py_XDECREF(decrefme);
     }
     $1 = &v;
+    Py_DECREF(fastseq);
 }
 
 #define XAPIAN_TERMITERATOR_PAIR_OUTPUT_TYPEMAP

@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005,2007 Olly Betts
+ * Copyright 2003,2004,2005,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -77,12 +77,11 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 
     private:
 	// Functions for backend to implement
-	virtual string do_get_value(Xapian::valueno /*valueno*/) const { return ""; }
-	virtual map<Xapian::valueno, string> do_get_all_values() const {
-	    map<Xapian::valueno, string> none;
-	    return none;
+	virtual string do_get_value(Xapian::valueno /*valueno*/) const { return string(); }
+	virtual void do_get_all_values(map<Xapian::valueno, string> & values_) const {
+	    values_.clear();
 	}
-	virtual string do_get_data() const { return ""; }
+	virtual string do_get_data() const { return string(); }
 
     public:
 	/** Get value by value number.

@@ -119,14 +119,6 @@ inline int stat(const string &filename, struct stat *buf) {
  */
 void removedir(const string &dirname);
 
-/** Hex-encode a string.
- */
-string hex_encode(const string &input);
-
-/** Hex-decode a string.
- */
-string hex_decode(const string &input);
-
 namespace Xapian {
     namespace Internal {
 	bool within_DBL_EPSILON(double a, double b);

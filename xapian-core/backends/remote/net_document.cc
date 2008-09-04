@@ -41,10 +41,10 @@ NetworkDocument::do_get_value(Xapian::valueno valueid) const
     RETURN(k->second);
 }
 
-map<Xapian::valueno, string>
-NetworkDocument::do_get_all_values() const
+void
+NetworkDocument::do_get_all_values(map<Xapian::valueno, string> & values_) const
 {
-    return values;
+    values_ = values;
 }
 
 string

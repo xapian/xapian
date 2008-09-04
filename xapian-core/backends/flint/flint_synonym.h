@@ -1,7 +1,7 @@
 /** @file flint_synonym.h
  * @brief Synonym data for a flint database.
  */
-/* Copyright (C) 2005,2007 Olly Betts
+/* Copyright (C) 2005,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -157,12 +157,6 @@ class FlintSynonymTermList : public AllTermsList {
 
     /// Destructor.
     ~FlintSynonymTermList();
-
-    /** Returns the approximate size of the list.
-     *
-     *  This may be unused for this class.
-     */
-    Xapian::termcount get_approx_size() const;
 
     /** Returns the current termname.
      *

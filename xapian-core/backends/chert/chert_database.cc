@@ -102,8 +102,8 @@ sys_unlink_if_exists(const string & filename)
     if (unlink(filename) == -1) {
 #endif
 	if (errno == ENOENT) return;
-	throw Xapian::DatabaseError("Can't delete file: `" + filename +
-			      "': " + strerror(errno));
+	throw Xapian::DatabaseError("Can't delete file: `" + filename + "'",
+				    errno);
     }
 }
 
@@ -278,7 +278,7 @@ ChertDatabase::open_tables_consistent()
     chert_revision_number_t cur_rev = record_table.get_open_revision_number();
 
     // Check the version file unless we're reopening.
-    if (cur_rev == 0) version_file.read_and_check(readonly);
+    if (cur_rev == 0) version_file.read_and_check();
 
     record_table.open();
     chert_revision_number_t revision = record_table.get_open_revision_number();
@@ -344,7 +344,7 @@ void
 ChertDatabase::open_tables(chert_revision_number_t revision)
 {
     DEBUGCALL(DB, void, "ChertDatabase::open_tables", revision);
-    version_file.read_and_check(readonly);
+    version_file.read_and_check();
     record_table.open(revision);
 
     // In case the position, value, synonym, and/or spelling tables don't
@@ -456,16 +456,19 @@ ChertDatabase::set_revision_number(chert_revision_number_t new_revision)
 
     if (max_changesets > 0) {
 	chert_revision_number_t old_revision = get_revision_number();
-	changes_name = db_dir + "/changes" + om_tostring(old_revision);
+	if (old_revision) {
+	    // Don't generate a changeset for the first revision.
+	    changes_name = db_dir + "/changes" + om_tostring(old_revision);
 #ifdef __WIN32__
-	changes_fd = msvc_posix_open(changes_name.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);
+	    changes_fd = msvc_posix_open(changes_name.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);
 #else
-	changes_fd = open(changes_name.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
+	    changes_fd = open(changes_name.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
 #endif
-	if (changes_fd < 0) {
-	    string message = string("Couldn't open changeset ")
-		    + changes_name + " to write: " + strerror(errno);
-	    throw Xapian::DatabaseOpeningError(message);
+	    if (changes_fd < 0) {
+		string message = string("Couldn't open changeset ")
+			+ changes_name + " to write";
+		throw Xapian::DatabaseError(message, errno);
+	    }
 	}
     }
 
@@ -1120,10 +1123,10 @@ ChertDatabase::process_changeset_chunk_base(const string & tablename,
 	int saved_errno = errno;
 	if (unlink(tmp_path) == 0 || errno != ENOENT) {
 	    string msg("Couldn't update base file ");
-	    msg += tablename + ".base" + letter;
-	    msg += ": ";
-	    msg += strerror(saved_errno);
-	    throw Xapian::DatabaseError(msg);
+	    msg += tablename;
+	    msg += ".base";
+	    msg += letter;
+	    throw Xapian::DatabaseError(msg, saved_errno);
 	}
     }
 
@@ -1173,9 +1176,9 @@ ChertDatabase::process_changeset_chunk_blocks(const string & tablename,
 	    // Write the block.
 	    // FIXME - should use pwrite if that's available.
 	    if (lseek(fd, (off_t)changeset_blocksize * block_number, SEEK_SET) == -1) {
-		string message = "Error seeking to block: ";
-		message += strerror(errno);
-		throw Xapian::DatabaseError(message);
+		string msg = "Failed to seek to block ";
+		msg += om_tostring(block_number);
+		throw Xapian::DatabaseError(msg, errno);
 	    }
 	    chert_io_write(fd, buf.data(), changeset_blocksize);
 
@@ -1298,18 +1301,7 @@ string
 ChertDatabase::get_uuid() const
 {
     DEBUGCALL(DB, string, "ChertDatabase::get_uuid", "");
-    // Currently, we generate the uuid simply by getting the mtime of the
-    // "iamchert" file, and packing it.
-    // FIXME - a better uuid should be generated whenever a database is
-    // created, and stored in the database somewhere.
-
-    struct stat statbuf;
-    string iamchert_path = db_dir + "/iamchert";
-    if (stat(iamchert_path, &statbuf) != 0) {
-	throw Xapian::DatabaseError("Couldn't stat " + iamchert_path, errno);
-    }
-    unsigned int mtime = statbuf.st_mtime;
-    RETURN(pack_uint(mtime));
+    RETURN(version_file.get_uuid_string());
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -1345,12 +1337,6 @@ ChertWritableDatabase::flush()
     if (transaction_active())
 	throw Xapian::InvalidOperationError("Can't flush during a transaction");
     if (change_count) flush_postlist_changes();
-    if (!value_stats.empty()) {
-	map<Xapian::valueno, ValueStats>::const_iterator i;
-	for (i = value_stats.begin(); i != value_stats.end(); ++i) {
-	    value_table.set_value_stats(i->second, i->first);
-	}
-    }
     apply();
 }
 
@@ -1368,6 +1354,16 @@ ChertWritableDatabase::flush_postlist_changes() const
     doclens.clear();
     mod_plists.clear();
     change_count = 0;
+}
+
+void
+ChertWritableDatabase::apply()
+{
+    map<Xapian::valueno, ValueStats>::const_iterator i;
+    for (i = value_stats.begin(); i != value_stats.end(); ++i) {
+	value_table.set_value_stats(i->second, i->first);
+    }
+    ChertDatabase::apply();
 }
 
 Xapian::docid
@@ -1440,7 +1436,7 @@ ChertWritableDatabase::add_document_(Xapian::docid did,
 		}
 	    }
 	}
-	DEBUGLINE(DB, "Calculated doclen for new document " << did << " as " << new_doclen);
+	LOGLINE(DB, "Calculated doclen for new document " << did << " as " << new_doclen);
 
 	// Set the termlist
 	termlist_table.set_termlist(did, document, new_doclen);
@@ -1673,7 +1669,7 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 		}
 	    }
 	}
-	DEBUGLINE(DB, "Calculated doclen for replacement document " << did << " as " << new_doclen);
+	LOGLINE(DB, "Calculated doclen for replacement document " << did << " as " << new_doclen);
 
 	// Set the termlist
 	termlist_table.set_termlist(did, document, new_doclen);

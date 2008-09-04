@@ -169,16 +169,16 @@ read_start_of_first_chunk(const char ** posptr,
     FlintPostList::read_number_of_entries(posptr, end,
 			   number_of_entries_ptr, collection_freq_ptr);
     if (number_of_entries_ptr)
-	DEBUGLINE(DB, "number_of_entries = " << *number_of_entries_ptr);
+	LOGVALUE(DB, *number_of_entries_ptr);
     if (collection_freq_ptr)
-	DEBUGLINE(DB, "collection_freq = " << *collection_freq_ptr);
+	LOGVALUE(DB, *collection_freq_ptr);
 
     Xapian::docid did;
     // Read the docid of the first entry in the posting list.
     if (!F_unpack_uint(posptr, end, &did))
 	report_read_error(*posptr);
     ++did;
-    DEBUGLINE(DB, "doc_id = " << did);
+    LOGVALUE(DB, did);
     RETURN(did);
 }
 
@@ -218,7 +218,7 @@ read_start_of_chunk(const char ** posptr,
     if (!F_unpack_bool(posptr, end, is_last_chunk_ptr))
 	report_read_error(*posptr);
     if (is_last_chunk_ptr)
-	DEBUGLINE(DB, "is_last_chunk = " << *is_last_chunk_ptr);
+	LOGVALUE(DB, *is_last_chunk_ptr);
 
     // Read what the final document ID in this chunk is.
     Xapian::docid increase_to_last;
@@ -226,7 +226,7 @@ read_start_of_chunk(const char ** posptr,
 	report_read_error(*posptr);
     ++increase_to_last;
     Xapian::docid last_did_in_chunk = first_did_in_chunk + increase_to_last;
-    DEBUGLINE(DB, "last_did_in_chunk = " << last_did_in_chunk);
+    LOGVALUE(DB, last_did_in_chunk);
     RETURN(last_did_in_chunk);
 }
 
@@ -399,10 +399,10 @@ FlintPostlistChunkWriter::flush(FlintTable *table)
 	 * If this was the first chunk, then the next chunk must
 	 * be transformed into the first chunk.  Messy!
 	 */
-	DEBUGLINE(DB, "FlintPostlistChunkWriter::flush(): deleting chunk");
+	LOGLINE(DB, "FlintPostlistChunkWriter::flush(): deleting chunk");
 	Assert(!orig_key.empty());
 	if (is_first_chunk) {
-	    DEBUGLINE(DB, "FlintPostlistChunkWriter::flush(): deleting first chunk");
+	    LOGLINE(DB, "FlintPostlistChunkWriter::flush(): deleting first chunk");
 	    if (is_last_chunk) {
 		/* This is the first and the last chunk, ie the only
 		 * chunk, so just delete the tag.
@@ -477,7 +477,7 @@ FlintPostlistChunkWriter::flush(FlintTable *table)
 	    return;
 	}
 
-	DEBUGLINE(DB, "FlintPostlistChunkWriter::flush(): deleting secondary chunk");
+	LOGLINE(DB, "FlintPostlistChunkWriter::flush(): deleting secondary chunk");
 	/* This isn't the first chunk.  Check whether we're the last
 	 * chunk.
 	 */
@@ -486,7 +486,7 @@ FlintPostlistChunkWriter::flush(FlintTable *table)
 	table->del(orig_key);
 
 	if (is_last_chunk) {
-	    DEBUGLINE(DB, "FlintPostlistChunkWriter::flush(): deleting secondary last chunk");
+	    LOGLINE(DB, "FlintPostlistChunkWriter::flush(): deleting secondary last chunk");
 	    // Update the previous chunk's is_last_chunk flag.
 	    AutoPtr<FlintCursor> cursor(table->cursor_get());
 
@@ -538,7 +538,7 @@ FlintPostlistChunkWriter::flush(FlintTable *table)
 	    table->add(cursor->current_key, tag);
 	}
     } else {
-	DEBUGLINE(DB, "FlintPostlistChunkWriter::flush(): updating chunk which still has items in it");
+	LOGLINE(DB, "FlintPostlistChunkWriter::flush(): updating chunk which still has items in it");
 	/* The chunk still has some items in it.  Two major subcases:
 	 * a) This is the first chunk.
 	 * b) This isn't the first chunk.
@@ -554,7 +554,7 @@ FlintPostlistChunkWriter::flush(FlintTable *table)
 	    /* The first chunk.  This is the relatively easy case,
 	     * and we just have to write this one back to disk.
 	     */
-	    DEBUGLINE(DB, "FlintPostlistChunkWriter::flush(): rewriting the first chunk, which still has items in it");
+	    LOGLINE(DB, "FlintPostlistChunkWriter::flush(): rewriting the first chunk, which still has items in it");
 	    string key = FlintPostListTable::make_key(tname);
 	    bool ok = table->get_exact_entry(key, tag);
 	    (void)ok;
@@ -577,7 +577,7 @@ FlintPostlistChunkWriter::flush(FlintTable *table)
 	    return;
 	}
 
-	DEBUGLINE(DB, "FlintPostlistChunkWriter::flush(): updating secondary chunk which still has items in it");
+	LOGLINE(DB, "FlintPostlistChunkWriter::flush(): updating secondary chunk which still has items in it");
 	/* Not the first chunk.
 	 *
 	 * This has the easy sub-sub-case:
@@ -778,10 +778,12 @@ FlintPostList::next(Xapian::weight w_min)
 	if (!next_in_chunk()) next_chunk();
     }
 
-    DEBUGLINE(DB, string("Moved to ") <<
-	      (is_at_end ? string("end.") : string("docid, wdf, doclength = ") +
-	       om_tostring(did) + ", " + om_tostring(wdf) + ", " +
-	       om_tostring(doclength)));
+    if (is_at_end) {
+	LOGLINE(DB, "Moved to end");
+    } else {
+	LOGLINE(DB, "Moved to docid " << did << ", wdf = " << wdf <<
+	  	", doclength = " << doclength);
+    }
 
     RETURN(NULL);
 }
@@ -893,10 +895,12 @@ FlintPostList::skip_to(Xapian::docid desired_did, Xapian::weight w_min)
     (void)have_document;
 #endif
 
-    DEBUGLINE(DB, string("Skipped to ") <<
-	      (is_at_end ? string("end.") : string("docid, wdf, doclength = ") +
-	       om_tostring(did) + ", " + om_tostring(wdf) + ", " +
-	       om_tostring(doclength) + "."));
+    if (is_at_end) {
+	LOGLINE(DB, "Skipped to end");
+    } else {
+	LOGLINE(DB, "Skipped to docid " << did << ", wdf = " << wdf <<
+	  	", doclength = " << doclength);
+    }
 
     RETURN(NULL);
 }
@@ -1074,7 +1078,7 @@ FlintPostListTable::merge_changes(
 	    Xapian::docid did = j->first;
 
 next_chunk:
-	    DEBUGLINE(DB, "Updating tname=" << tname << ", did=" << did);
+	    LOGLINE(DB, "Updating tname=" << tname << ", did=" << did);
 	    if (from) while (!from->is_at_end()) {
 		Xapian::docid copy_did = from->get_docid();
 		if (copy_did >= did) {

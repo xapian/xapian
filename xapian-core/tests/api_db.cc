@@ -913,8 +913,8 @@ DEFINE_TESTCASE(allterms1, backend) {
     Xapian::Database db(get_database("apitest_allterms"));
     Xapian::TermIterator ati = db.allterms_begin();
     TEST(ati != db.allterms_end());
-    TEST(*ati == "one");
-    TEST(ati.get_termfreq() == 1);
+    TEST_EQUAL(*ati, "one");
+    TEST_EQUAL(ati.get_termfreq(), 1);
 
     Xapian::TermIterator ati2 = ati;
 

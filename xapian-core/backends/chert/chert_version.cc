@@ -34,22 +34,31 @@
 #endif
 
 #include <cstdio> // For rename().
+#include <cstring> // For memcmp() and memcpy().
 #include <string>
 
-#include <string.h> // for memcmp
+#include <uuid/uuid.h>
 
 using namespace std;
 
 // YYYYMMDDX where X allows multiple format revisions in a day
 #define CHERT_VERSION 200804180
-// 200804180 1.1.0 Chert debuts.
+// 200804180       Chert debuts.
+// 200808040 1.1.0 UUID added.
+
+// Note: to upgrade a 200804180 DB "existing.db" to 200808040, generate a
+// temporary empty new chert DB "tmp.db" and do:
+//
+//     mv tmp.db/iamchert existing.db/iamchert
 
 #define MAGIC_STRING "IAmChert"
 
 #define MAGIC_LEN CONST_STRLEN(MAGIC_STRING)
-#define VERSIONFILE_SIZE (MAGIC_LEN + 4)
+// 4 for the version number; 16 for the UUID.
+#define VERSIONFILE_SIZE (MAGIC_LEN + 4 + 16)
 
-void ChertVersion::create()
+void
+ChertVersion::create()
 {
     char buf[VERSIONFILE_SIZE] = MAGIC_STRING;
     unsigned char *v = reinterpret_cast<unsigned char *>(buf) + MAGIC_LEN;
@@ -57,6 +66,9 @@ void ChertVersion::create()
     v[1] = static_cast<unsigned char>((CHERT_VERSION >> 8) & 0xff);
     v[2] = static_cast<unsigned char>((CHERT_VERSION >> 16) & 0xff);
     v[3] = static_cast<unsigned char>((CHERT_VERSION >> 24) & 0xff);
+
+    uuid_generate(uuid);
+    memcpy(buf + MAGIC_LEN + 4, (void*)uuid, 16);
 
     int fd = ::open(filename.c_str(), O_WRONLY|O_CREAT|O_TRUNC|O_BINARY, 0666);
 
@@ -80,13 +92,14 @@ void ChertVersion::create()
     }
 }
 
-void ChertVersion::read_and_check(bool readonly)
+void
+ChertVersion::read_and_check()
 {
     int fd = ::open(filename.c_str(), O_RDONLY|O_BINARY);
 
     if (fd < 0) {
-	string msg("Failed to open chert version file for reading: ");
-	msg += filename;
+	string msg = filename;
+	msg += ": Failed to open chert version file for reading";
 	throw Xapian::DatabaseOpeningError(msg, errno);
     }
 
@@ -102,49 +115,30 @@ void ChertVersion::read_and_check(bool readonly)
     (void)close(fd);
 
     if (size != VERSIONFILE_SIZE) {
-	string msg("Chert version file ");
-	msg += filename;
-	msg += " should be "STRINGIZE(VERSIONFILE_SIZE)" bytes, actually ";
+	string msg = filename;
+	msg += ": Chert version file should be ";
+	msg += om_tostring(VERSIONFILE_SIZE);
+	msg += " bytes, actually ";
 	msg += om_tostring(size);
 	throw Xapian::DatabaseCorruptError(msg);
     }
 
     if (memcmp(buf, MAGIC_STRING, MAGIC_LEN) != 0) {
-	string msg("Chert version file doesn't contain the right magic string: ");
-	msg += filename;
+	string msg = filename;
+	msg += ": Chert version file doesn't contain the right magic string";
 	throw Xapian::DatabaseCorruptError(msg);
     }
 
     const unsigned char *v;
     v = reinterpret_cast<const unsigned char *>(buf) + MAGIC_LEN;
     unsigned int version = v[0] | (v[1] << 8) | (v[2] << 16) | (v[3] << 24);
-    if (version >= 200704230 && version < 200709120) {
-	if (readonly) return;
-	// Upgrade the database to the current version since any changes we
-	// make won't be compatible with older versions of Xapian.
-	string filename_save = filename;
-	filename += ".tmp";
-	create();
-	int result;
-#ifdef __WIN32__
-	result = msvc_posix_rename(filename.c_str(), filename_save.c_str());
-#else
-	result = rename(filename.c_str(), filename_save.c_str());
-#endif
-	filename = filename_save;
-	if (result == -1) {
-	    string msg("Failed to update chert version file: ");
-	    msg += filename;
-	    throw Xapian::DatabaseOpeningError(msg);
-	}
-	return;
-    }
     if (version != CHERT_VERSION) {
-	string msg("Chert version file ");
-	msg += filename;
-	msg += " is version ";
+	string msg = filename;
+	msg += ": Chert version file is version ";
 	msg += om_tostring(version);
 	msg += " but I only understand "STRINGIZE(CHERT_VERSION);
 	throw Xapian::DatabaseVersionError(msg);
     }
+
+    memcpy((void*)uuid, buf + MAGIC_LEN + 4, 16);
 }

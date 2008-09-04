@@ -83,20 +83,20 @@ DatabaseMaster::write_changesets_to_fd(int fd,
 
     // Extract the UUID from start_revision and compare it to the database.
     bool need_whole_db = false;
-    string revision(start_revision);
-    if (revision.empty()) {
+    string revision;
+    if (start_revision.empty()) {
 	need_whole_db = true;
     } else {
-	const char * ptr = revision.data();
-	const char * end = ptr + revision.size();
+	const char * ptr = start_revision.data();
+	const char * end = ptr + start_revision.size();
 	size_t uuid_length = decode_length(&ptr, end, true);
 	string request_uuid(ptr, uuid_length);
+	ptr += uuid_length;
 	string db_uuid = db.internal[0]->get_uuid();
 	if (request_uuid != db_uuid) {
 	    need_whole_db = true;
 	}
-
-	revision.erase(0, ptr + uuid_length - revision.data());
+	revision.assign(ptr, end - ptr);
     }
 
     db.internal[0]->write_changesets_to_fd(fd, revision, need_whole_db, info);
@@ -145,17 +145,8 @@ class DatabaseReplica::Internal : public Xapian::Internal::RefCntBase {
      */
     string offline_needed_revision;
 
-    /// The parameters stored for this replica.
-    map<string, string> parameters;
-
     /// The remote connection we're using.
     RemoteConnection * conn;
-
-    /// Read the parameters from a file in the replica.
-    void read_parameters();
-
-    /// Write the parameters to a file in the replica.
-    void write_parameters() const;
 
     /** Update the stub database which points to a single database.
      *
@@ -200,12 +191,6 @@ class DatabaseReplica::Internal : public Xapian::Internal::RefCntBase {
     /// Destructor.
     ~Internal() { delete conn; }
 
-    /// Set a parameter for the replica.
-    void set_parameter(const string & name, const string & value);
-
-    /// Get a parameter from the replica.
-    string get_parameter(const string & name) const;
-
     /// Get a string describing the current revision of the replica.
     string get_revision_info() const;
 
@@ -249,25 +234,6 @@ DatabaseReplica::DatabaseReplica(const string & path)
 DatabaseReplica::~DatabaseReplica()
 {
     DEBUGAPICALL(void, "Xapian::DatabaseReplica::~DatabaseReplica", "");
-}
-
-void
-DatabaseReplica::set_parameter(const string & name, const string & value)
-{
-    DEBUGAPICALL(void, "Xapian::DatabaseReplica::set_parameter",
-		 name << ", " << value);
-    if (internal.get() == NULL)
-	throw Xapian::InvalidOperationError("Attempt to call DatabaseReplica::set_parameter on a closed replica.");
-    internal->set_parameter(name, value);
-}
-
-string
-DatabaseReplica::get_parameter(const string & name) const
-{
-    DEBUGAPICALL(string, "Xapian::DatabaseReplica::get_parameter", name);
-    if (internal.get() == NULL)
-	throw Xapian::InvalidOperationError("Attempt to call DatabaseReplica::get_parameter on a closed replica.");
-    RETURN(internal->get_parameter(name));
 }
 
 string
@@ -315,36 +281,6 @@ DatabaseReplica::get_description() const
 // Methods of DatabaseReplica::Internal
 
 void
-DatabaseReplica::Internal::read_parameters()
-{
-    parameters.clear();
-
-    string param_path = join_paths(path, "params");
-    ifstream p_in(param_path.c_str());
-    if (p_in.is_open()) {
-	string line;
-	while (getline(p_in, line)) {
-	    string::size_type eq = line.find('=');
-	    if (eq != string::npos) {
-		parameters[string(line, 0, eq)].assign(line, eq + 1, line.npos);
-	    }
-	}
-    }
-}
-
-void
-DatabaseReplica::Internal::write_parameters() const
-{
-    string param_path = join_paths(path, "params");
-    ofstream p_out(param_path.c_str());
-
-    map<string, string>::const_iterator i;
-    for (i = parameters.begin(); i != parameters.end(); ++i) {
-	p_out << i->first << "=" << i->second << endl;
-    }
-}
-
-void
 DatabaseReplica::Internal::update_stub_database() const
 {
     string stub_path = join_paths(path, "XAPIANDB");
@@ -370,8 +306,7 @@ DatabaseReplica::Internal::update_stub_database() const
 
 DatabaseReplica::Internal::Internal(const string & path_)
 	: path(path_), live_id(0), live_db(), have_offline_db(false),
-	  offline_revision(), offline_needed_revision(),
-	  parameters(), conn(NULL)
+	  offline_revision(), offline_needed_revision(), conn(NULL)
 {
     DEBUGCALL(API, void, "DatabaseReplica::Internal::Internal", path_);
 #if ! defined XAPIAN_HAS_FLINT_BACKEND && ! defined XAPIAN_HAS_CHERT_BACKEND
@@ -406,33 +341,8 @@ DatabaseReplica::Internal::Internal(const string & path_)
 		break;
 	    }
 	}
-
-	read_parameters();
     }
 #endif
-}
-
-void
-DatabaseReplica::Internal::set_parameter(const string & name,
-					 const string & value)
-{
-    DEBUGCALL(API, void, "DatabaseReplica::Internal::set_parameter",
-	      name << ", " << value);
-    if (value.empty()) {
-	parameters.erase(name);
-    } else {
-	parameters[name] = value;
-    }
-    write_parameters();
-}
-
-string
-DatabaseReplica::Internal::get_parameter(const string & name) const
-{
-    DEBUGCALL(API, string, "DatabaseReplica::Internal::get_parameter", name);
-    map<string, string>::const_iterator i = parameters.find(name);
-    if (i == parameters.end()) RETURN(string());
-    RETURN(i->second);
 }
 
 string
@@ -442,11 +352,8 @@ DatabaseReplica::Internal::get_revision_info() const
     if (live_db.internal.size() != 1) {
 	throw Xapian::InvalidOperationError("DatabaseReplica needs to be pointed at exactly one subdatabase");
     }
-    string buf;
-    string uuid = hex_decode(get_parameter("uuid"));
-    // FIXME - when uuids are actually stored in databases, use the following:
-    // string uuid = (live_db.internal[0])->get_uuid();
-    buf += encode_length(uuid.size());
+    string uuid = (live_db.internal[0])->get_uuid();
+    string buf = encode_length(uuid.size());
     buf += uuid;
     buf += (live_db.internal[0])->get_revision_info();
     RETURN(buf);
@@ -537,7 +444,6 @@ DatabaseReplica::Internal::possibly_make_offline_live()
     live_id ^= 1;
     update_stub_database();
     live_db = WritableDatabase(get_replica_path(live_id), Xapian::DB_OPEN);
-    set_parameter("uuid", hex_encode(offline_uuid));
     remove_offline_db();
     return true;
 }

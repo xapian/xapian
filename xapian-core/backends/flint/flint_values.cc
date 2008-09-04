@@ -56,8 +56,8 @@ FlintValueTable::unpack_entry(const char ** pos,
 	else throw Xapian::RangeError("Item in value table is too large");
     }
 
-    DEBUGLINE(DB, "FlintValueTable::unpack_entry(): value no " <<
-	      this_value_no << " is `" << this_value << "'");
+    LOGLINE(DB, "FlintValueTable::unpack_entry(): value no " <<
+	    this_value_no << " is `" << this_value << "'");
 }
 
 void

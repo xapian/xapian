@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT([xapian-core], [1.0.7], [http://xapian.org/bugs])
+AC_INIT([xapian-core], [1.1.0], [http://xapian.org/bugs])
 dnl See HACKING document for details of the reasons for required versions.
 AC_PREREQ([2.62])
 dnl Extract from the libtool info manual:
@@ -411,7 +411,7 @@ AC_CHECK_HEADERS(sys/utsname.h, [], [], [ ])
 AC_CHECK_FUNCS(gethostname)
 
 dnl mingw (for instance) lacks ssize_t
-AC_CHECK_TYPE(ssize_t, int)
+AC_TYPE_SSIZE_T
 
 AC_TYPE_PID_T
 
@@ -670,7 +670,25 @@ if test yes = "$enable_backend_flint" -o yes = "$enable_backend_chert" ; then
   LIBS=
   dnl mingw build needs -lzlib or -lzdll.
   AC_SEARCH_LIBS([zlibVersion], [z zlib zdll], [], [
-    AC_MSG_ERROR([zlibVersion() not found in -lz - required for chert and flint (you may need to install the zlib1g-dev or zlib-devel package)])
+    AC_MSG_ERROR([zlibVersion() not found in -lz, -lzlib, or -lzdll - required for chert and flint (you may need to install the zlib1g-dev or zlib-devel package)])
+    ])
+  if test x != x"$LIBS" ; then
+    XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $LIBS"
+  fi
+  LIBS=$SAVE_LIBS
+
+  dnl Find the UUID library (from e2fsprogs, not the OSSP one).
+
+  dnl Check for uuid/uuid.h.
+  AC_CHECK_HEADERS(uuid/uuid.h, [], [
+    AC_MSG_ERROR([uuid/uuid.h not found - required for chert and flint (you may need to install the uuid-dev or libuuid-devel package)])
+    ], [ ])
+
+  dnl Check for uuid_generate in -luuid.
+  SAVE_LIBS=$LIBS
+  LIBS=
+  AC_SEARCH_LIBS([uuid_generate], [uuid], [], [
+    AC_MSG_ERROR([uuid_generate() not found in -luuid - required for chert and flint (you may need to install the uuid-dev or libuuid-devel package)])
     ])
   if test x != x"$LIBS" ; then
     XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $LIBS"
@@ -889,29 +907,6 @@ AC_ARG_ENABLE(log,
       AC_MSG_ERROR([Invalid option: '--enable-log=$enableval']) ;;
   esac])
 
-dnl Provide errors for old options which direct the user to the new ones.
-
-AC_ARG_ENABLE(debug,
-  [AS_HELP_STRING([--enable-debug], [Deprecated (use --enable-assertions and/or --enable-log instead)])],
-  [case $enableval in
-    full)
-      AC_MSG_ERROR(['--enable-debug=full' is no longer supported, use '--enable-debug --enable-log' instead.]) ;;
-    profile)
-      AC_MSG_ERROR(['--enable-debug=profile' is no longer supported, use '--enable-log=profile' instead.]) ;;
-    yes)
-      AC_MSG_ERROR(['--enable-debug' is no longer supported, use '--enable-assertions' instead.]) ;;
-    partial)
-      AC_MSG_ERROR(['--enable-debug=partial' is no longer supported, use '--enable-assertions=partial' instead.]) ;;
-    no)
-      AC_MSG_ERROR(['--disable-debug' is no longer supported, use '--disable-assertions' instead.]) ;;
-    *)
-      AC_MSG_ERROR([Invalid option: '--enable-debug=$enableval']) ;;
-  esac])
-
-AC_ARG_ENABLE(debug-verbose,
-  [AS_HELP_STRING([--enable-debug-verbose], [Deprecated (use --enable-log instead)])],
-  [AC_MSG_ERROR(['--enable-debug-verbose' is no longer supported, use '--enable-log' instead.])])
-
 dnl Set defines according to the --enable-assertions and --enable-log options
 dnl given.
 
@@ -1075,6 +1070,7 @@ AC_SYS_LARGEFILE
 dnl Libtool sets this (to yes|no|unknown) and we use it in xapian-config.
 AC_SUBST(link_all_deplibs_CXX)
 
+dnl Split up the version number into "MAJOR.MINOR.REVISION".
 MAJOR_VERSION=`echo "$VERSION"|sed 's/\..*//'`
 [MINOR_VERSION=`echo "$VERSION"|sed 's/[^.]*\.//;s/\..*//'`]
 [REVISION=`echo "$VERSION"|sed 's/.*\.//;s/_svn[0-9]*$//'`]
