@@ -411,7 +411,7 @@ AC_CHECK_HEADERS(sys/utsname.h, [], [], [ ])
 AC_CHECK_FUNCS(gethostname)
 
 dnl mingw (for instance) lacks ssize_t
-AC_CHECK_TYPE(ssize_t, int)
+AC_TYPE_SSIZE_T
 
 AC_TYPE_PID_T
 

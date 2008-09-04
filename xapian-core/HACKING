@@ -349,7 +349,7 @@ Autotools versions
   autoconf 2.58 is required by automake 1.8.5, and 2.59 was released the same
   day as 2.58 to fix a problem.
 
-  autoconf 2.60 is required for docdir support.
+  autoconf 2.60 is required for docdir support and AC_TYPE_SSIZE_T.
 
   autoconf 2.62 generates faster configure scripts and warns about unrecognised
   options passed to configure.

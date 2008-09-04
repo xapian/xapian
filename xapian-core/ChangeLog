@@ -1,3 +1,8 @@
+Thu Sep 04 04:39:32 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING,configure.ac: We now hard require autoconf 2.62, so it's
+	  safe to use AC_TYPE_SSIZE_T.  (bug#135)
+
 Thu Sep 04 04:26:59 GMT 2008  Olly Betts <olly@survex.com>
 
 	* configure.ac: Set version to 1.1.0.
