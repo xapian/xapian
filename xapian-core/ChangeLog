@@ -1,3 +1,7 @@
+Thu Sep 04 04:26:59 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: Set version to 1.1.0.
+
 Thu Sep 04 03:32:06 GMT 2008  Olly Betts <olly@survex.com>
 
 	* AUTHORS,NEWS,configure.ac: Sync with 1.0.8.
