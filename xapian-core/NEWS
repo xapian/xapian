@@ -1,79 +1,61 @@
 up to:
-Sun Jul 20 10:09:36 GMT 2008  Olly Betts <olly@survex.com>
+ 11148       olly Tue Sep 02 06:48:50 GMT 2008  Olly Betts <olly@survex.com>
 
 Potential backport fodder:
 
-Sun Jul 20 09:13:32 GMT 2008  Olly Betts <olly@survex.com>
+ 11076       olly 	* api/omdatabase.cc,backends/multi/multi_alltermslist.cc,
+ 11076       olly 	  common/multialltermslist.h: Reimplement MultiAllTermsList to use a
+ 11076       olly 	  heap rather than linearly scanning - operations during iteration
+ 11076       olly 	  should now be O(log(n)) rather than O(n) where n is the number of
+ 11076       olly 	  databases (but tests so far show O(n) in both cases...
 
-	* backends/flint/,bin/xapian-check-flint.cc,bin/xapian-check-flint.h,
-	  bin/xapian-compact.cc: Store the tablename in FlintTable as a const
-	  char * - it's a constant string and std::string adds a needless
-	  space overhead.
-
-Sun Jul 20 09:10:49 GMT 2008  Olly Betts <olly@survex.com>
-
-	* bin/xapian-check.cc: Follow-on fix for last change - we need to use
-	  strcmp() to compare C strings.
-
-Sat Jul 19 14:19:58 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/chert/chert_database.cc,backends/chert/chert_values.cc,
-	  backends/chert/chert_values.h: Fix WritableDatabase::add_document()
-	  and replace_document() not to be O(n*n) in the number of values in
-	  the new document.
-	* backends/flint/flint_database.cc,backends/flint/flint_values.cc,
-	  backends/flint/flint_values.h: Backport fix to flint.
-	* tests/api_wrdb.cc: Add testcase bigoaddvalue to make sure we don't
-	  regress to O(n*n) (or worse!)
-
-Fri Jul 18 13:24:43 GMT 2008  Olly Betts <olly@survex.com>
-
-	* tests/api_wrdb.cc: Rewrite lazytablebug1 testcase to avoid having
-	  to run xapian-compact.
-
-Fri Jul 18 11:59:42 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/chert/chert_table.cc: Fix handling of a table created
-	  lazily after the database has had commits, and which is then
-	  cursored while still in sequential mode.
-	* backends/flint/flint_table.cc: Backport fix to flint.
-	* tests/api_wrdb.cc: Add testcase lazytablebug1.
-
-Fri Jul 18 02:38:22 GMT 2008  Olly Betts <olly@survex.com>
-
-	* tests/api_wrdb.cc,tests/harness/testrunner.cc,
-	  tests/harness/testrunner.h: Add "synonyms" test backend property
-	  and use it to decide where to run synonym tests so they get run on
-	  chert too.  Move virtual TestRunner destructor out of the header.
-	  Don't skip all the spelling tests on chert.
-
-Fri Jul 18 00:56:17 GMT 2008  Olly Betts <olly@survex.com>
-
-	* tests/api_wrdb.cc: Eliminate literal top-bit-set characters.
-
-Fri Jul 18 00:40:06 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/chert/chert_values.cc: Kill superfluous else tokens.
-
-Thu Jul 17 13:00:55 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/chert/chert_table.cc,backends/chert/chert_table.h:
-	  Eliminate other_base_letter member of ChertTable - its value can
-	  always be easily determined from base_letter.
-
-Thu Jul 17 12:24:19 GMT 2008  Olly Betts <olly@survex.com>
-
-	* backends/chert/chert_database.cc: Add space after catch for
-	  consistency.
-
-Thu Jul 17 11:51:57 GMT 2008  Olly Betts <olly@survex.com>
-
-	* examples/copydatabase.cc: Use C++ forms of C headers.  Only treat
-	  '\' as a directory separator on platforms where it is.  Update
-	  counter every 13 counting up to the end so that the digits all
-	  "rotate" and the counter ends up on the exact total.
+11041+11075 (doesn't apply cleanly):
+ 11075       olly Tue Aug 05 23:50:19 GMT 2008  Olly Betts <olly@survex.com>
+ 11075       olly 
+ 11075       olly 	* tests/Makefile.am: Fix "make clean" to remove cached databases again
+ 11075       olly 	  and "make check" to remove cached databases like the previous change
+ 11075       olly 	  aimed to do.
+ 11041       olly Sat Aug 02 01:49:35 GMT 2008  Olly Betts <olly@survex.com>
+ 11041       olly 
+ 11041       olly 	* tests/Makefile.am: Remove the cached test databases in before
+ 11041       olly 	  running the testsuite by making check-local do the same as
+ 11041       olly 	  clean-local.
 
 HEAD only:
+
+ 11136,11135,11130,11129
+	overhaul of debug logging framework
+
+ 11120       olly 	* configure.ac: Remove code which checks for --enable-debug and
+ 11120       olly 	  --enable-debug-verbose (deprecated since 1.0.0) and gives an error
+ 11120       olly 	  pointing to the replacements.
+ 11120       olly 	* docs/deprecation.rst: Document the replacements here.
+
+ 11037       olly 	* backends/database.cc: Bad lines in a stub file were being ignored
+ 11037       olly 	  after we'd seen a good entry.
+ 11037       olly 	* tests/api_db.cc: Add regression test.
+
+ 11040       olly 	* backends/dbfactory.cc: Add support for "inmemory" to stub database
+ 11040       olly 	  files (it's useful now they can be writable).  Don't just ignore
+ 11040       olly 	  lines with no spaces in in stub database files.
+
+ 11039       olly Thu Jul 31 13:13:30 GMT 2008  Olly Betts <olly@survex.com>
+ 11039       olly 
+ 11039       olly 	* backends/Makefile.mk,backends/database.cc,backends/dbfactory.cc,
+ 11039       olly 	  common/database.h,include/xapian/dbfactory.h: Add new
+ 11039       olly 	  Auto::open_stub() overload which opens a stub database file
+ 11039       olly 	  containing a single entry as a WritableDatabase.  Move the
+ 11039       olly 	  non-remote database factory API functions from backends/database.cc
+ 11039       olly 	  to new file backends/dbfactory.cc, leaving the former solely for
+ 11039       olly 	  methods of Database::Internal.  A stub database file is now allowed
+ 11039       olly 	  to contain no database entries, which results in an empty Database
+ 11039       olly 	  object (this avoids user code having to special case to handle "0 or
+ 11039       olly 	  more" databases).
+ 11039       olly 	* tests/api_nodb.cc: Tidy up #include directives.  Enhance nosuchdb1
+ 11039       olly 	  to check that we get a reasonable error message - previously we
+ 11039       olly 	  got "Couldn't detect type of database".
+ 11039       olly 	* include/xapian/dbfactory.h: Improve doxygen comment for
+ 11039       olly 	  InMemory::open().
 
 	  Move all information about particular autoconf and automake versions
 	  to HACKING.
@@ -317,6 +299,7 @@ QueryParser sped up (new version of lemon); queryparsertest runs 2.2% faster
 
 * database replication
 
+	* UUIDs.
 	* tests/harness/backendmanager_multi.cc: Make the multi
 	  backendmanager use relative paths in its stub databases.
 	* backends/database.cc: Stub databases used to
@@ -336,6 +319,65 @@ QueryParser sped up (new version of lemon); queryparsertest runs 2.2% faster
 	* tests/api_replicate.cc: Enable test properly, now that
 	  it passes.  Test needs to be expanded to check that the database
 	  copy succeeded better.
+
+Xapian-core 1.0.8 (2008-09-04):
+
+API:
+
+* Fix output of RSet::get_description
+
+testsuite:
+
+* Report subtotals per backend, rather than per testgroup per backend to make
+  the output easier to read.
+
+flint backend:
+
+* Fix WritableDatabase::add_document() and replace_document() not to be O(n*n)
+  in the number of values in the new document.
+
+* Fix handling of a table created lazily after the database has had commits,
+  and which is then cursored while still in sequential mode.
+
+* Fix failure to remove all the Btree entries in some cases when all the
+  postings for a term are removed.  (bug#287)
+
+* xapian-inspect: Show the help message on start-up.  Correct the documented
+  alias for next from ' ' to ''.  Avoid reading outside of input string when it
+  is empty.  (bug#286)
+
+quartz backend:
+
+* Backport fix from flint for WritableDatabase::add_document() and
+  replace_document() not to be O(n*n) in the number of values in the new
+  document.
+
+build system:
+
+* configure: Report bug report URL in --help output.
+
+* xapian-config: Report bug report URL in --help output.
+
+* configure: Fix deprecation error for --enable-debug=full to say to instead
+  use '--enable-assertions --enable-log' not '--enable-debug --enable-log'.
+
+documentation:
+
+* valueranges.html: Expand on some sections.
+
+examples:
+
+* quest: Fix to catch QueryParserError instead of const char * which
+  QueryParser threw in Xapian < 1.0.0.
+
+* copydatabase: Use C++ forms of C headers.  Only treat '\' as a directory
+  separator on platforms where it is.  Update counter every 13 counting up to
+  the end so that the digits all "rotate" and the counter ends up on the exact
+  total.
+
+portability:
+
+* Eliminate literal top-bit-set characters in testsuite source code.
 
 Xapian-core 1.0.7 (2008-07-15):
 
