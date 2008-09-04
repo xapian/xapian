@@ -104,12 +104,24 @@ print FD <<'EOF';
 %include "xapian/error.h"
 
 %{
+// Use our own DirectorException class to signal python exceptions in director
+// methods, to avoid the unwanted side effects of the default SWIG mechanism.
+// This can be removed once we're using a SWIG version with the patch linked to
+// from ticket #289 merged into it.
+class XapianDirectorException {
+};
+
 static void XapianSetPythonException() {
     try {
 	throw;
+    } catch (XapianDirectorException &e) {
+	/* This happens if a python error occurred in a director method.  The
+	 * original Python error state should still be set, so we don't need to
+	 * do anything. */
     } catch (Swig::DirectorException &e) {
-	/* This happens if a director raised an exception.  The original Python
-	 * error state should still be set, so we don't need to do anything. */
+	/* This happens if a director raised an exception.  The standard SWIG
+	 * director exception handling code sets the Python error state, so we
+	 * don't need to do anything. */
 EOF
 
 for (reverse @allclasses) {
@@ -195,7 +207,7 @@ print FD <<'EOF';
  */
 %feature("director:except") {
     if ($error != NULL) {
-	throw Swig::DirectorMethodException();
+	throw XapianDirectorException();
     }
 }
 

@@ -37,6 +37,35 @@ Mon Dec 10 10:28:25 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 	* python/pythontest.py: Add test_docsim(), to test document
 	  similarity calculations.
 
+Thu Sep 04 04:30:09 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Sync with 1.0.8.
+
+Thu Sep 04 04:28:12 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: Set version to 1.1.0.
+
+Wed Sep 03 06:17:11 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/generate-python-exceptions.in: Use our own
+	  XapianDirectorException, to avoid the unwanted side effects of
+	  the default SWIG mechanism.  Fixes ticket #289.
+	* python/pythontest2.py,python/pythontest3.py: Add
+	  test_director_exception(), which tests the fix for ticket #289.
+
+Wed Sep 03 05:22:09 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/util.i: Fix memory leaks in query constructor typemaps.
+	  Also, remove old, commented out, code which almost certainly had
+	  similar memory leaks - I don't think we're going to want this
+	  code, but if we do, rewriting it by copying the maintained and
+	  working code for the query constructor is less likely to lead to
+	  subtle errors.
+
+Mon Aug 04 05:06:46 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Sync against 1.0.7 release.
+
 Wed Jul 30 01:13:43 GMT 2008  Olly Betts <olly@survex.com>
 
 	* python/generate-python-exceptions.in: Fix tiny comment typo.

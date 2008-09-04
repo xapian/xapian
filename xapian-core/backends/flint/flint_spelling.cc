@@ -497,8 +497,6 @@ FlintSpellingTable::get_word_frequency(const string & word) const
 
 ///////////////////////////////////////////////////////////////////////////
 
-FlintSpellingTermList::~FlintSpellingTermList() { }
-
 Xapian::termcount
 FlintSpellingTermList::get_approx_size() const
 {

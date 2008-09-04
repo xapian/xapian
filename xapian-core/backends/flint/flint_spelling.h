@@ -137,9 +137,6 @@ class FlintSpellingTermList : public TermList {
     FlintSpellingTermList(const std::string & data_)
 	: data(data_), p(0) { }
 
-    /// Destructor.
-    ~FlintSpellingTermList();
-
     Xapian::termcount get_approx_size() const;
 
     std::string get_termname() const;

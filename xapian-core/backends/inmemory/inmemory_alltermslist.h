@@ -50,9 +50,6 @@ class InMemoryAllTermsList : public AllTermsList
 			     Xapian::Internal::RefCntPtr<const InMemoryDatabase> database_,
 			     const string & prefix);
 
-        // Gets size of termlist
-	Xapian::termcount get_approx_size() const;
-
 	// Gets current termname
 	string get_termname() const;
 

@@ -1,6 +1,6 @@
 /* flint_spellingwordslist.h: A termlist containing all words which are spelling targets.
  *
- * Copyright (C) 2005 Olly Betts
+ * Copyright (C) 2005,2008 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -64,10 +64,6 @@ class FlintSpellingWordsList : public AllTermsList {
 
     /// Destructor.
     ~FlintSpellingWordsList();
-
-    /** Returns the approximate size of the list.
-     */
-    Xapian::termcount get_approx_size() const;
 
     /** Returns the current termname.
      *

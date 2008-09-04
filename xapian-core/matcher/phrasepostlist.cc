@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2007 Olly Betts
+ * Copyright 2002,2003,2004,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -76,15 +76,15 @@ NearPostList::do_test(std::vector<PositionList *> &plists, Xapian::termcount i,
 		      Xapian::termcount min, Xapian::termcount max)
 {
     DEBUGCALL(MATCH, bool, "NearPostList::do_test", "[plists], " << i << ", " << min << ", " << max);
-    DEBUGLINE(MATCH, "docid = " << get_docid() << ", window = " << window);
+    LOGLINE(MATCH, "docid = " << get_docid() << ", window = " << window);
     Xapian::termcount tmp = max + 1;
     // take care to avoid underflow
     if (window <= tmp) tmp -= window; else tmp = 0;
     plists[i]->skip_to(tmp);
     while (!plists[i]->at_end()) {
 	Xapian::termpos pos = plists[i]->get_position();
-	DEBUGLINE(MATCH, "[" << i << "]: " << max - window + 1 << " " << min
-		  << " " << pos << " " << max << " " << min + window - 1);
+	LOGLINE(MATCH, "[" << i << "]: " << max - window + 1 << " " << min <<
+		       " " << pos << " " << max << " " << min + window - 1);
 	if (pos > min + window - 1) RETURN(false);
 	if (i + 1 == plists.size()) RETURN(true);
 	if (pos < min) min = pos;
@@ -181,7 +181,7 @@ PhrasePostList::test_doc()
     do {
 	plists[0]->next();
 	if (plists[0]->at_end()) {
-	    DEBUGLINE(MATCH, "--MISS--");
+	    LOGLINE(MATCH, "--MISS--");
 	    RETURN(false);
 	}
 	pos = plists[0]->get_position();
@@ -189,7 +189,7 @@ PhrasePostList::test_doc()
 	min = pos + plists.size() - idx;
 	if (min > window) min -= window; else min = 0;
     } while (!do_test(plists, 1, min, pos + window - idx));
-    DEBUGLINE(MATCH, "**HIT**");
+    LOGLINE(MATCH, "**HIT**");
     RETURN(true);
 }
 
@@ -198,34 +198,34 @@ PhrasePostList::do_test(std::vector<PositionList *> &plists, Xapian::termcount i
 			Xapian::termcount min, Xapian::termcount max)
 {
     DEBUGCALL(MATCH, bool, "PhrasePostList::do_test", "[plists],  " << i << ", " << min << ", " << max);
-    DEBUGLINE(MATCH, "docid = " << get_docid() << ", window = " << window);
+    LOGLINE(MATCH, "docid = " << get_docid() << ", window = " << window);
     Xapian::termpos idxi = plists[i]->index;
-    DEBUGLINE(MATCH, "my idx in phrase is " << idxi);
+    LOGLINE(MATCH, "my idx in phrase is " << idxi);
 
     Xapian::termpos mymin = min + idxi;
     Xapian::termpos mymax = max - plists.size() + idxi;
-    DEBUGLINE(MATCH, "MIN = " << mymin << " MAX = " << mymax);
+    LOGLINE(MATCH, "MIN = " << mymin << " MAX = " << mymax);
     // FIXME: this is worst case O(n^2) where n = length of phrase
     // Can we do better?
     for (Xapian::termcount j = 0; j < i; j++) {
 	Xapian::termpos idxj = plists[j]->index;
 	if (idxj > idxi) {
 	    Xapian::termpos tmp = plists[j]->get_position() + idxj - idxi;
-	    DEBUGLINE(MATCH, "ABOVE " << tmp);
+	    LOGLINE(MATCH, "ABOVE " << tmp);
 	    if (tmp < mymax) mymax = tmp;
 	} else {
 	    AssertRel(idxi, !=, idxj);
 	    Xapian::termpos tmp = plists[j]->get_position() + idxi - idxj;
-	    DEBUGLINE(MATCH, "BELOW " << tmp);
+	    LOGLINE(MATCH, "BELOW " << tmp);
 	    if (tmp > mymin) mymin = tmp;
 	}
-	DEBUGLINE(MATCH, "min = " << mymin << " max = " << mymax);
+	LOGLINE(MATCH, "min = " << mymin << " max = " << mymax);
     }
     plists[i]->skip_to(mymin);
 
     while (!plists[i]->at_end()) {
 	Xapian::termpos pos = plists[i]->get_position();
-	DEBUGLINE(MATCH, " " << mymin << " " << pos << " " << mymax);
+	LOGLINE(MATCH, " " << mymin << " " << pos << " " << mymax);
 	if (pos > mymax) RETURN(false);
 	if (i + 1 == plists.size()) RETURN(true);
 	Xapian::termpos tmp = pos + window - idxi;

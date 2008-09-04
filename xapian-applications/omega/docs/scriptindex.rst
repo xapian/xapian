@@ -87,7 +87,7 @@ unique[=PREFIX]
 
 value=VALUENUMBER
 	add as a Xapian document value in slot VALUENUMBER.  Values can be used
-	for eliminating equivalent documents and sorting the mset.
+	for eliminating equivalent documents and sorting the MSet.
 
 weight=FACTOR
 	set the weighting factor to FACTOR (an integer).  The default is 1.

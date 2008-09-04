@@ -115,7 +115,7 @@ ExternalPostList::update_after_advance() {
     DEBUGCALL(MATCH, PostList *, "ExternalPostList::update_after_advance", "");
     Assert(source);
     if (source->at_end()) {
-	DEBUGLINE(MATCH, "ExternalPostList now at end");
+	LOGLINE(MATCH, "ExternalPostList now at end");
 	source = NULL;
     } else {
 	current = source->get_docid();
@@ -155,7 +155,7 @@ ExternalPostList::check(Xapian::docid did, Xapian::weight w_min, bool &valid)
     }
     valid = source->check(did, w_min);
     if (source->at_end()) {
-	DEBUGLINE(MATCH, "ExternalPostList now at end");
+	LOGLINE(MATCH, "ExternalPostList now at end");
 	source = NULL;
     } else {
 	current = valid ? source->get_docid() : current;

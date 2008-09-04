@@ -35,13 +35,6 @@ FlintSpellingWordsList::~FlintSpellingWordsList()
     delete cursor;
 }
 
-Xapian::termcount
-FlintSpellingWordsList::get_approx_size() const
-{
-    DEBUGCALL(DB, Xapian::termcount, "FlintSpellingWordsList::get_approx_size", "");
-    throw Xapian::UnimplementedError("FlintSpellingWordsList::get_approx_size() not implemented");
-}
-
 string
 FlintSpellingWordsList::get_termname() const
 {

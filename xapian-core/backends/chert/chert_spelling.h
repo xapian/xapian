@@ -84,7 +84,7 @@ class ChertSpellingTable : public ChertTable {
     /** Override methods of ChertTable.
      *
      *  NB: these aren't virtual, but we always call them on the subclass in
-     *  cases where it matters).
+     *  cases where it matters.
      *  @{
      */
 
@@ -136,9 +136,6 @@ class ChertSpellingTermList : public TermList {
     /// Constructor.
     ChertSpellingTermList(const std::string & data_)
 	: data(data_), p(0) { }
-
-    /// Destructor.
-    ~ChertSpellingTermList();
 
     Xapian::termcount get_approx_size() const;
 

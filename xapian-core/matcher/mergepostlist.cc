@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006 Olly Betts
+ * Copyright 2002,2003,2004,2006,2008 Olly Betts
  * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -54,7 +54,7 @@ PostList *
 MergePostList::next(Xapian::weight w_min)
 {
     DEBUGCALL(MATCH, PostList *, "MergePostList::next", w_min);
-    DEBUGLINE(MATCH, "current = " << current);
+    LOGVALUE(MATCH, current);
     if (current == -1) current = 0;
     do {
 	// FIXME: should skip over Remote matchers which aren't ready yet
@@ -65,7 +65,7 @@ MergePostList::next(Xapian::weight w_min)
 	    current++;
 	} catch (Xapian::Error & e) {
 	    if (errorhandler) {
-		DEBUGLINE(EXCEPTION, "Calling error handler in MergePostList::next().");
+		LOGLINE(EXCEPTION, "Calling error handler in MergePostList::next().");
 		(*errorhandler)(e);
 		// Continue match without this sub-postlist.
 		delete plists[current];
@@ -75,7 +75,7 @@ MergePostList::next(Xapian::weight w_min)
 	    }
 	}
     } while (unsigned(current) < plists.size());
-    DEBUGLINE(MATCH, "current = " << current);
+    LOGVALUE(MATCH, current);
     RETURN(NULL);
 }
 
@@ -181,7 +181,7 @@ MergePostList::recalc_maxweight()
 	    if (w > w_max) w_max = w;
 	} catch (Xapian::Error & e) {
 	    if (errorhandler) {
-		DEBUGLINE(EXCEPTION, "Calling error handler in MergePostList::recalc_maxweight().");
+		LOGLINE(EXCEPTION, "Calling error handler in MergePostList::recalc_maxweight().");
 		(*errorhandler)(e);
 
 		if (current == i - plists.begin()) {
