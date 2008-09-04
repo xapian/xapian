@@ -374,11 +374,11 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
 #ifdef XAPIAN_DEBUG_VERBOSE
     {
-	DEBUGLINE(MATCH, "termfreqandwts:");
+	LOGLINE(MATCH, "termfreqandwts:");
 	map<string, Xapian::MSet::Internal::TermFreqAndWeight>::const_iterator tfwi;
 	for (tfwi = termfreqandwts.begin(); tfwi != termfreqandwts.end(); ++tfwi)
 	{
-	    DEBUGLINE(MATCH, "termfreqandwt[" << tfwi->first << "] = " << tfwi->second.termfreq << ", " << tfwi->second.termweight);
+	    LOGLINE(MATCH, "termfreqandwt[" << tfwi->first << "] = " << tfwi->second.termfreq << ", " << tfwi->second.termweight);
 	}
     }
 #endif
