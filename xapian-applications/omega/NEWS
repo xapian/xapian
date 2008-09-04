@@ -1,3 +1,30 @@
+Omega 1.0.8 (2008-09-04):
+
+documentation:
+
+* Fix a few typos and improve wording in a few places.
+
+indexers:
+
+* omindex:
+
+  + If the character encoding is specified using <meta http-equiv=...> in an
+    HTML document then reparse the document if it isn't the encoding we're
+    already using so that any preceding <title> is converted correctly
+    (bug#292).
+	  
+  + Convert text from meta tag parameters to UTF-8 (bug#293).
+  
+  + Handle <meta charset="..."> (new in HTML 5).
+	  
+  + Fix bug in HTML tag parameter parsing which was probably just a small
+    performance penalty in real world cases, but could perhaps result in
+    parsing bogus extra parameters in carefully contrived situations.  
+
+portability:
+
+* Add missing <signal.h>, noted on FreeBSD by Henrik Brix Andersen.
+
 Omega 1.0.7 (2008-07-14):
 
 documentation:

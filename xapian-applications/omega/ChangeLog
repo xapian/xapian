@@ -1,3 +1,7 @@
+Thu Sep 04 03:35:05 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Update for 1.0.8.
+
 Wed Sep 03 13:52:58 GMT 2008  Olly Betts <olly@survex.com>
 
 	* configure.ac: Bump version to 1.0.8.
