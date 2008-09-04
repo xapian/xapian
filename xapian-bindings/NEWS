@@ -1,3 +1,16 @@
+Xapian-bindings 1.0.8 (2008-09-04):
+
+General:
+
+* configure: Report bug report URL in --help output.
+
+Python:
+
+* Fix mangling of exceptions thrown from Python subclasses of Xapian classes.
+  (bug#289)
+
+* Fix memory leaks in the xapian.Query constructor.  (bug#294)
+
 Xapian-bindings 1.0.7 (2008-07-14):
 
 Documentation:
