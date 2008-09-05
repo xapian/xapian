@@ -1,3 +1,16 @@
+Fri Sep 05 09:38:35 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/database.h,api/omdatabase.cc: Add
+	  Database.get_uuid() which returns a unique identifier for the
+	  database.
+	* tests/api_anydb.cc: Add test uuid1 to test basic get_uuid()
+	  behaviour.
+	* common/database.h: Extend documentation comment for get_uuid() a
+	  bit.
+	* backends/remote/remote-database.cc,common/remote-database.h,
+	  net/remoteserver.cc: Add support for get_uuid() to remote
+	  databases.
+
 Thu Sep 04 11:37:54 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/Makefile.am: Remove accidentally committed reference to
