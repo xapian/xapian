@@ -1,3 +1,8 @@
+Fri Sep 05 11:40:55 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_replicate.cc: Test that the UUID of a replica is equal
+	  to the UUID of the original database.
+
 Fri Sep 05 09:38:35 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* include/xapian/database.h,api/omdatabase.cc: Add
