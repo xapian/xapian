@@ -992,11 +992,27 @@ def test_value_stats():
     del db
     shutil.rmtree(dbpath)
 
+def test_get_uuid():
+    """Test getting UUIDs from databases.
+
+    """
+    dbpath = 'db_test_get_uuid'
+    db1 = xapian.WritableDatabase(dbpath + "1", xapian.DB_CREATE_OR_OVERWRITE)
+    db2 = xapian.WritableDatabase(dbpath + "2", xapian.DB_CREATE_OR_OVERWRITE)
+    dbr1 = xapian.Database(dbpath + "1")
+    dbr2 = xapian.Database(dbpath + "2")
+    expect(db1.get_uuid() != db2.get_uuid(), True)
+    expect(db1.get_uuid(), dbr1.get_uuid())
+    expect(db2.get_uuid(), dbr2.get_uuid())
+
+    db = xapian.Database()
+    db.add_database(db1)
+    expect(db1.get_uuid(), db.get_uuid())
+
 def test_director_exception():
     """Test handling of an exception raised in a director.
 
     """
-    dbpath = 'db_test_value_stats'
     db = setup_database()
     query = xapian.Query('it')
     enq = xapian.Enquire(db)

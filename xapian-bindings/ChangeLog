@@ -1,3 +1,10 @@
+Fri Sep 05 11:03:38 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/pythontest2.py,python/pythontest3.py: Add test for
+	  get_uuid() (not really python specific, but I can't easily add
+	  this test to smoketest because it needs an on-disk database,
+	  which there's no infrastructure in smoketest to clean up).
+
 Fri Sep 05 09:59:02 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* xapian.i: Add Database::get_uuid() to wrappers.
