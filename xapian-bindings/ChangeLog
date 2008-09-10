@@ -1,3 +1,15 @@
+Wed Sep 10 15:21:26 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* ../swig: Update version of swig in use to current HEAD (swig
+	  revision 10831.  Changes python import method to avoid giving a
+	  warning with the upcoming 2.6 release (and failing with 2.7 or
+	  later).  Also includes a different fix for ticket #289, so we
+	  could back out our XapianDirectorException class now.
+
+	  No other significant changes in the generated files - several
+	  warning fixes, some rearrangement of the order of variable
+	  declarations, some removal of code which wasn't used anyway.
+
 Fri Sep 05 11:03:38 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/pythontest2.py,python/pythontest3.py: Add test for
