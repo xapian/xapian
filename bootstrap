@@ -39,6 +39,10 @@ lazy_build() {
   ext=$3
   checksum=$4
   tarball=$basename.$ext
+  case $basename in
+    *[a-z]) basename=`echo "$basename"|sed 's/[a-z]$//'` ;;
+  esac
+
   # Create the stamp file in INST so that rerunning bootstrap after
   # "rm -rf INST" recovers nicely.
   stamp=../INST/$package.stamp
@@ -128,7 +132,7 @@ else
   # The last field is the SHA1 checksum of the tarball.
   lazy_build autoconf 2.62 tar.bz2 de2b6f57da07427794c56e25844e31f35fc46755
   lazy_build automake 1.10.1 tar.bz2 cd2e0f7054d4edc75cbf87cd8a92962b3b417b74
-  lazy_build libtool 2.2.4 tar.bz2 bc485fd07c8b12820234240e9ef41dba693af2b7
+  lazy_build libtool 2.2.6a tar.gz 7b547877b1b78b547343e4678a531aece8949904
 
   for v in $autotools ; do
      tool=`echo "$v"|tr A-Z a-z`
