@@ -78,11 +78,11 @@ message you're interested by setting environment variables.  You can:
    with the current process-id.
 
  * set XAPIAN_DEBUG_FLAGS to a string of capital letters indicating the types
-   of debugging message you would like to display (the default value is to log
-   calls to API functions and methods).  These letters are show in the first
-   column of the log output, and are also listed in ``common/debuglog.h``.
-   If the first character is ``-``, then the letters indicate those categories
-   of message *not* be shown instead.  As a consequence of this, setting
+   of debugging message you would like to display (the default is to log calls
+   to API functions and methods).  These letters are shown in the first column
+   of the log output, and are also listed in ``common/debuglog.h``.  If the
+   first character is ``-``, then the letters indicate those categories of
+   message *not* be shown instead.  As a consequence of this, setting
    ``XAPIAN_DEBUG_FLAGS=-`` will give you all debugging messages.
 
 These environment variables only have any effect if you ran configure with the
