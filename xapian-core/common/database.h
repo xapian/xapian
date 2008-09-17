@@ -472,9 +472,14 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 
 	/** Get a UUID for the database.
 	 *
+	 *  The UUID will persist for the lifetime of the database.
+	 *
 	 *  Replicas (eg, made with the replication protocol, or by copying all
 	 *  the database files) will have the same UUID.  However, copies (made
 	 *  with copydatabase, or xapian-compact) will have different UUIDs.
+	 *
+	 *  If the backend does not support UUIDs, or this database has
+	 *  multiple sub-databases, an exception will be raised.
 	 */
 	virtual string get_uuid() const;
 

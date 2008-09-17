@@ -1,3 +1,12 @@
+Wed Sep 17 12:57:38 GMT 2008  Olly Betts <olly@survex.com>
+
+	* AUTHORS,HACKING,NEWS,api/omdatabase.cc,
+	  backends/chert/chert_version.cc,backends/remote/remote-database.cc,
+	  bin/xapian-check.cc,bin/xapian-inspect.cc,common/database.h,
+	  common/debuglog.h,common/remote-database.h,configure.ac,
+	  include/xapian/database.h,matcher/multimatch.cc,net/remoteserver.cc,
+	  tests/: Merge from trunk.
+
 Mon Aug 25 12:39:48 GMT 2008  Olly Betts <olly@survex.com>
 
 	* HACKING,api/,backends/chert/,backends/flint/,

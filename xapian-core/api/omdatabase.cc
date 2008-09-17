@@ -555,6 +555,24 @@ Database::metadata_keys_begin(const std::string &prefix) const
     RETURN(TermIterator(internal[0]->open_metadata_keylist(prefix)));
 }
 
+std::string
+Database::get_uuid() const
+{
+    DEBUGAPICALL(std::string, "Database::get_uuid", "");
+    if (internal.size() != 1) {
+	if (internal.size() == 0) {
+	    throw InvalidOperationError(
+		"UUIDs not supported for uninitialised databases");
+	}
+
+	// FIXME - we could probably make a uuid for each multidatabase
+	// combination by hashing together the uuids for the subdatabases.
+	throw UnimplementedError(
+	    "UUIDs not supported for multiple databases");
+    }
+    RETURN(internal[0]->get_uuid());
+}
+
 ///////////////////////////////////////////////////////////////////////////
 
 WritableDatabase::WritableDatabase() : Database()

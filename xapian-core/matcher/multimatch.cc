@@ -54,6 +54,7 @@
 #endif /* XAPIAN_HAS_REMOTE_BACKEND */
 
 #include <algorithm>
+#include <cfloat>
 #include <queue>
 #include <vector>
 #include <map>
@@ -316,8 +317,6 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	vector<Xapian::Internal::RefCntPtr<SubMatch> >::iterator leaf;
 	for (leaf = leaves.begin(); leaf != leaves.end(); ++leaf) {
 	    try {
-		// FIXME: look if we can push the "check_at_least" stuff
-		// into the remote match handling too.
 		(*leaf)->start_match(0, first + maxitems,
 				     first + check_at_least, stats);
 	    } catch (Xapian::Error & e) {
@@ -744,7 +743,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	if (wt > greatest_wt) {
 	    greatest_wt = wt;
 	    if (percent_cutoff) {
-		Xapian::weight w = wt * percent_cutoff_factor;
+		Xapian::weight w = wt * percent_cutoff_factor - 100 * DBL_EPSILON;
 		if (w > min_weight) {
 		    min_weight = w;
 		    if (!is_heap) {
@@ -839,7 +838,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    // Or we could just use a linear scan here instead.
 
 	    // trim the mset to the correct answer...
-	    Xapian::weight min_wt = percent_cutoff_factor / percent_scale;
+	    Xapian::weight min_wt = percent_cutoff_factor / percent_scale - 100 * DBL_EPSILON;
 	    if (!is_heap) {
 		is_heap = true;
 		make_heap<vector<Xapian::Internal::MSetItem>::iterator,

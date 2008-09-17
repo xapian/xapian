@@ -116,8 +116,9 @@ ChertVersion::read_and_check()
 
     if (size != VERSIONFILE_SIZE) {
 	string msg = filename;
-	msg += ": Chert version file should be "STRINGIZE(VERSIONFILE_SIZE)
-	       " bytes, actually ";
+	msg += ": Chert version file should be ";
+	msg += om_tostring(VERSIONFILE_SIZE);
+	msg += " bytes, actually ";
 	msg += om_tostring(size);
 	throw Xapian::DatabaseCorruptError(msg);
     }

@@ -78,11 +78,12 @@ message you're interested by setting environment variables.  You can:
    with the current process-id.
 
  * set XAPIAN_DEBUG_FLAGS to a string of capital letters indicating the types
-   of debugging message you would like to display (the default value is to log
-   calls to API functions and methods).  These letters are show in the first
-   column of the log output, and are also listed in ``common/debuglog.h``.
-   If the first character is ``-``, then the letters indicate those categories
-   of message *not* be shown instead.
+   of debugging message you would like to display (the default is to log calls
+   to API functions and methods).  These letters are shown in the first column
+   of the log output, and are also listed in ``common/debuglog.h``.  If the
+   first character is ``-``, then the letters indicate those categories of
+   message *not* be shown instead.  As a consequence of this, setting
+   ``XAPIAN_DEBUG_FLAGS=-`` will give you all debugging messages.
 
 These environment variables only have any effect if you ran configure with the
 --enable-log option.
@@ -348,7 +349,7 @@ Autotools versions
   autoconf 2.58 is required by automake 1.8.5, and 2.59 was released the same
   day as 2.58 to fix a problem.
 
-  autoconf 2.60 is required for docdir support.
+  autoconf 2.60 is required for docdir support and AC_TYPE_SSIZE_T.
 
   autoconf 2.62 generates faster configure scripts and warns about unrecognised
   options passed to configure.
@@ -364,13 +365,13 @@ Autotools versions
 
   automake 1.10.1 fixes "make clean" to remove .libs from bin/ and examples/.
   
-* libtool 2.2.4 is recommended and a hard minimum requirement.
+* libtool 2.2.6a is recommended and a hard minimum requirement.
 
   libtool 2.2 is required for use to be able to override link_all_deplibs_CXX
   and sys_lib_dlsearch_path_spec in configure.  It also fixes some
   long-standing issues and is significantly faster.
   
-  libtool 2.2.4 includes several bug-fixes over 2.2.
+  libtool 2.2.4 and 2.2.6a include several bug-fixes over 2.2.
 
 Please tell us if you find that older or newer versions of any of these
 tools work or fail to work.

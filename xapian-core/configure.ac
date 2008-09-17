@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT([xapian-core], [1.0.7], [http://xapian.org/bugs])
+AC_INIT([xapian-core], [1.1.0], [http://xapian.org/bugs])
 dnl See HACKING document for details of the reasons for required versions.
 AC_PREREQ([2.62])
 dnl Extract from the libtool info manual:
@@ -117,7 +117,7 @@ AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
 dnl Use libtool to manage our libraries.
-LT_PREREQ([2.2.4])
+LT_PREREQ([2.2.6])
 LT_INIT
 
 AM_CXXFLAGS=
@@ -411,7 +411,7 @@ AC_CHECK_HEADERS(sys/utsname.h, [], [], [ ])
 AC_CHECK_FUNCS(gethostname)
 
 dnl mingw (for instance) lacks ssize_t
-AC_CHECK_TYPE(ssize_t, int)
+AC_TYPE_SSIZE_T
 
 AC_TYPE_PID_T
 
