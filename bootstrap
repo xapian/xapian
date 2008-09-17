@@ -39,6 +39,10 @@ lazy_build() {
   ext=$3
   checksum=$4
   tarball=$basename.$ext
+  case $basename in
+    *[a-z]) basename=`echo "$basename"|sed 's/[a-z]$//'` ;;
+  esac
+
   # Create the stamp file in INST so that rerunning bootstrap after
   # "rm -rf INST" recovers nicely.
   stamp=../INST/$package.stamp
@@ -128,7 +132,7 @@ else
   # The last field is the SHA1 checksum of the tarball.
   lazy_build autoconf 2.62 tar.bz2 de2b6f57da07427794c56e25844e31f35fc46755
   lazy_build automake 1.10.1 tar.bz2 cd2e0f7054d4edc75cbf87cd8a92962b3b417b74
-  lazy_build libtool 2.2.4 tar.bz2 bc485fd07c8b12820234240e9ef41dba693af2b7
+  lazy_build libtool 2.2.6a tar.gz 7b547877b1b78b547343e4678a531aece8949904
 
   for v in $autotools ; do
      tool=`echo "$v"|tr A-Z a-z`
@@ -155,8 +159,6 @@ esac
 ACLOCAL="${ACLOCAL-aclocal} -I `pwd`/xapian-core/m4-macros"
 
 intree_swig=no
-# Don't try to build xapian-applications/dbtools or xapview - they need work.
-# As does cvssearch.
 # We no longer snapshot xapian-applications/queryserver since it hasn't seen a
 # check-in for ages.
 modules=
@@ -203,6 +205,11 @@ for module in xapian-core xapian-applications/omega swig xapian-bindings ; do
     modules="$modules $module"
   fi
 done
+
+# Search::Xapian doesn't use autotools.
+if [ -f "search-xapian/Makefile.PL" ] ; then
+  modules="$modules search-xapian"
+fi
 
 # Generate the top-level configure script.
 rm -f configure.tmp
@@ -307,6 +314,17 @@ for d in $modules ; do
     xapian-core)
       cd "$d" && "$configure" --enable-maintainer-mode --cache-file="$here/config.cache" ${1+"$@"}
       ;;
+    search-xapian)
+      # Extract any CXX=... argument from those passed to us.
+      unset cxxarg
+      for arg
+      do
+      	case $arg in
+	  CXX=*) cxxarg=$arg ;;
+	esac
+      done
+      cd "$d" && perl Makefile.PL XAPIAN_CONFIG="$XAPIAN_CONFIG" ${cxxarg+"$cxxarg"}
+      ;;
     *)
       cd "$d" && "$configure" --enable-maintainer-mode --cache-file="$here/config.cache" XAPIAN_CONFIG="$XAPIAN_CONFIG" ${1+"$@"}
       ;;
@@ -327,10 +345,14 @@ for target in all install uninstall install-strip clean distclean mostlyclean ma
     swig,install*|swig,uninstall|swig,dist|swig,check|swig,distcheck|swig,all)
       # Need to ensure swig is built before "make dist", "make check", etc.
       echo "	cd $d && \$(MAKE)" >> Makefile.tmp ;;
-    swig,mostlyclean)
+    swig,mostlyclean|search-xapian,mostlyclean)
       echo "	cd $d && \$(MAKE) clean" >> Makefile.tmp ;;
-    swig,*)
-      echo "	cd $d && \$(MAKE) $target" >> Makefile.tmp ;;
+    search-xapian,install-strip)
+      echo "	cd $d && \$(MAKE) install" >> Makefile.tmp ;;
+    search-xapian,maintainer-clean)
+      echo "	cd $d && \$(MAKE) realclean" >> Makefile.tmp ;;
+    search-xapian,distcheck)
+      echo "	cd $d && \$(MAKE) disttest" >> Makefile.tmp ;;
     xapian-bindings,distcheck)
       # FIXME: distcheck doesn't currently work for xapian-bindings because
       # xapian-core isn't installed.

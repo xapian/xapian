@@ -211,7 +211,15 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	}
 	MyHtmlParser p;
 	try {
-	    p.parse_html(text);
+	    // Default HTML character set is latin 1, though not specifying one
+	    // is deprecated these days.
+	    p.parse_html(text, "iso-8859-1", false);
+	} catch (const string & newcharset) {
+	    try {
+		p.reset();
+		p.parse_html(text, newcharset, true);
+	    } catch (bool) {
+	    }
 	} catch (bool) {
 	    // MyHtmlParser throws a bool to abandon parsing at </body> or when
 	    // indexing is disallowed
@@ -392,7 +400,9 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	string cmd = "unrtf --nopict --html 2>/dev/null " + shell_protect(file);
 	MyHtmlParser p;
 	try {
-	    p.parse_html(stdout_to_string(cmd));
+	    // No point going looking for charset overrides as unrtf doesn't
+	    // produce them.
+	    p.parse_html(stdout_to_string(cmd), "iso-8859-1", true);
 	} catch (ReadError) {
 	    cout << "\"" << cmd << "\" failed - skipping\n";
 	    return;

@@ -992,6 +992,50 @@ def test_value_stats():
     del db
     shutil.rmtree(dbpath)
 
+def test_get_uuid():
+    """Test getting UUIDs from databases.
+
+    """
+    dbpath = 'db_test_get_uuid'
+    db1 = xapian.WritableDatabase(dbpath + "1", xapian.DB_CREATE_OR_OVERWRITE)
+    db2 = xapian.WritableDatabase(dbpath + "2", xapian.DB_CREATE_OR_OVERWRITE)
+    dbr1 = xapian.Database(dbpath + "1")
+    dbr2 = xapian.Database(dbpath + "2")
+    expect(db1.get_uuid() != db2.get_uuid(), True)
+    expect(db1.get_uuid(), dbr1.get_uuid())
+    expect(db2.get_uuid(), dbr2.get_uuid())
+
+    db = xapian.Database()
+    db.add_database(db1)
+    expect(db1.get_uuid(), db.get_uuid())
+
+def test_director_exception():
+    """Test handling of an exception raised in a director.
+
+    """
+    db = setup_database()
+    query = xapian.Query('it')
+    enq = xapian.Enquire(db)
+    enq.set_query(query)
+    class TestException(Exception):
+        def __init__(self, a, b):
+            Exception.__init__(self, a + b)
+
+    rset = xapian.RSet()
+    rset.add_document(1)
+    class EDecider(xapian.ExpandDecider):
+        def __call__(self, term):
+            raise TestException("foo", "bar")
+    edecider = EDecider()
+    expect_exception(TestException, "foobar", edecider, "foo")
+    expect_exception(TestException, "foobar", enq.get_eset, 10, rset, edecider)
+
+    class MDecider(xapian.MatchDecider):
+        def __call__(self, doc):
+            raise TestException("foo", "bar")
+    mdecider = MDecider()
+    expect_exception(TestException, "foobar", mdecider, xapian.Document())
+    expect_exception(TestException, "foobar", enq.get_mset, 0, 10, None, mdecider)
 
 # Run all tests (ie, callables with names starting "test_").
 if not runtests(globals(), sys.argv[1:]):

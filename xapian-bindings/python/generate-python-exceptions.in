@@ -104,12 +104,14 @@ print FD <<'EOF';
 %include "xapian/error.h"
 
 %{
+
 static void XapianSetPythonException() {
     try {
 	throw;
     } catch (Swig::DirectorException &e) {
-	/* This happens if a director raised an exception.  The original Python
-	 * error state should still be set, so we don't need to do anything. */
+	/* This happens if a director raised an exception.  The standard SWIG
+	 * director exception handling code sets the Python error state if
+	 * necessary, so we don't need to do anything. */
 EOF
 
 for (reverse @allclasses) {
