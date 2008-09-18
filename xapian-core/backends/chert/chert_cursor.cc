@@ -88,7 +88,9 @@ ChertCursor::prev()
 	// We've read the last key and tag, and we're now not positioned.
 	// Simple fix - seek to the current key, and then it's as if we
 	// read the key but not the tag.
-	(void)find_entry(current_key);
+	bool result = find_entry(current_key);
+	(void)result;
+	Assert(result);
 	tag_status = UNREAD;
     }
 

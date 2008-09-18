@@ -1,3 +1,12 @@
+Thu Sep 18 11:50:04 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_cursor.cc,backends/chert/chert_table.cc,
+	  backends/chert/chert_table.h: More assertions and improved debug
+	  logging coverage.  Use rare() to mark a couple of checks which
+	  almost always have the same result.  Make an assertion about the
+	  level of a Btree block into an always-compiled-in check which throws
+	  an exception, as this isn't a sanity check of internal state.
+
 Thu Sep 18 05:26:27 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_postlist.cc,backends/flint/flint_postlist.cc:
