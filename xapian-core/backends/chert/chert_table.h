@@ -31,6 +31,7 @@
 #include "chert_cursor.h"
 
 #include "noreturn.h"
+#include "omassert.h"
 #include "stringutils.h"
 #include "unaligned.h"
 #include "utils.h"
@@ -124,7 +125,12 @@ public:
     Item_base(T p_, int c) : p(p_ + getint2(p_, c)) { }
     Item_base(T p_) : p(p_) { }
     T get_address() const { return p; }
-    int size() const { return getint2(p, 0) & 0x7fff; } /* I in diagram above */
+    /** I in diagram above. */
+    int size() const {
+	int item_size = getint2(p, 0) & 0x7fff;
+	AssertRel(item_size,>=,5);
+	return item_size;
+    }
     bool get_compressed() const { return *p & 0x80; }
     int component_of() const {
 	return getint2(p, getK(p, I2) + I2 - C2);
@@ -143,6 +149,7 @@ public:
      *  level 0).
      */
     uint4 block_given_by() const {
+	AssertRel(size(),>=,BYTES_PER_BLOCK_NUMBER);
 	return getint4(p, size() - BYTES_PER_BLOCK_NUMBER);
     }
 };
@@ -192,7 +199,10 @@ public:
     void set_block_given_by(uint4 n) {
 	setint4(p, size() - BYTES_PER_BLOCK_NUMBER, n);
     }
-    void set_size(int l) { setint2(p, 0, l); }
+    void set_size(int l) {
+	AssertRel(l,>=,5);
+	setint2(p, 0, l);
+    }
     /** Form an item with a null key and with block number n in the tag.
      */
     void form_null_key(uint4 n) {

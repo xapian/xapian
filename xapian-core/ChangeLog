@@ -1,3 +1,8 @@
+Thu Sep 18 12:14:15 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_cursor.cc,backends/chert/chert_table.cc,
+	  backends/chert/chert_table.h,tests/api_wrdb.cc: Merge from trunk.
+
 Thu Sep 18 05:31:50 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_postlist.cc,backends/flint/flint_postlist.cc:

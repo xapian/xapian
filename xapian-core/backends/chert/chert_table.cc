@@ -223,7 +223,7 @@ void
 ChertTable::read_block(uint4 n, byte * p) const
 {
     // Log the value of p, not the contents of the block it points to...
-    DEBUGCALL(DB, void, "ChertTable::read_block", n << ", " << (void*)p);
+    LOGCALL_VOID(DB, "ChertTable::read_block", n << ", " << (void*)p);
     /* Use the base bit_map_size not the bitmap's size, because
      * the latter is uninitialised in readonly mode.
      */
@@ -274,7 +274,7 @@ ChertTable::read_block(uint4 n, byte * p) const
 void
 ChertTable::write_block(uint4 n, const byte * p) const
 {
-    DEBUGCALL(DB, void, "ChertTable::write_block", n << ", " << p);
+    LOGCALL_VOID(DB, "ChertTable::write_block", n << ", " << p);
     Assert(writable);
     /* Check that n is in range. */
     Assert(n / CHAR_BIT < base.get_bit_map_size());
@@ -353,7 +353,7 @@ ChertTable::write_block(uint4 n, const byte * p) const
 void
 ChertTable::set_overwritten() const
 {
-    DEBUGCALL(DB, void, "ChertTable::set_overwritten", "");
+    LOGCALL_VOID(DB, "ChertTable::set_overwritten", "");
     // If we're writable, there shouldn't be another writer who could cause
     // overwritten to be flagged, so that's a DatabaseCorruptError.
     if (writable)
@@ -374,7 +374,7 @@ ChertTable::set_overwritten() const
 void
 ChertTable::block_to_cursor(Cursor * C_, int j, uint4 n) const
 {
-    DEBUGCALL(DB, void, "ChertTable::block_to_cursor", (void*)C_ << ", " << j << ", " << n);
+    LOGCALL_VOID(DB, "ChertTable::block_to_cursor", (void*)C_ << ", " << j << ", " << n);
     if (n == C_[j].n) return;
     byte * p = C_[j].p;
     Assert(p);
@@ -386,6 +386,7 @@ ChertTable::block_to_cursor(Cursor * C_, int j, uint4 n) const
 	write_block(C_[j].n, p);
 	C_[j].rewrite = false;
     }
+
     // Check if the block is in the built-in cursor (potentially in
     // modified form).
     if (writable && n == C[j].n) {
@@ -397,12 +398,21 @@ ChertTable::block_to_cursor(Cursor * C_, int j, uint4 n) const
     C_[j].n = n;
     if (j < level) {
 	/* unsigned comparison */
-	if (REVISION(p) > REVISION(C_[j + 1].p)) {
+	if (rare(REVISION(p) > REVISION(C_[j + 1].p))) {
 	    set_overwritten();
 	    return;
 	}
     }
-    AssertEq(j, GET_LEVEL(p));
+
+    if (rare(j != GET_LEVEL(p))) {
+	string msg = "Expected block ";
+	msg += om_tostring(n);
+	msg += " to be level ";
+	msg += om_tostring(j);
+	msg += ", not ";
+	msg += om_tostring(GET_LEVEL(p));
+	throw Xapian::DatabaseCorruptError(msg);
+    }
 }
 
 /** Btree::alter(); is called when the B-tree is to be altered.
@@ -429,7 +439,7 @@ ChertTable::block_to_cursor(Cursor * C_, int j, uint4 n) const
 void
 ChertTable::alter()
 {
-    DEBUGCALL(DB, void, "ChertTable::alter", "");
+    LOGCALL_VOID(DB, "ChertTable::alter", "");
     Assert(writable);
 #ifdef DANGEROUS
     C[0].rewrite = true;
@@ -471,9 +481,10 @@ ChertTable::alter()
    c if possible.
 */
 
-int ChertTable::find_in_block(const byte * p, Key key, bool leaf, int c)
+int
+ChertTable::find_in_block(const byte * p, Key key, bool leaf, int c)
 {
-    DEBUGCALL_STATIC(DB, int, "ChertTable::find_in_block", reinterpret_cast<const void*>(p) << ", " << reinterpret_cast<const void*>(key.get_address()) << ", " << leaf << ", " << c);
+    LOGCALL_STATIC(DB, int, "ChertTable::find_in_block", (void*)p << ", " << (const void *)key.get_address() << ", " << leaf << ", " << c);
     int i = DIR_START;
     if (leaf) i -= D2;
     int j = DIR_END(p);
@@ -503,7 +514,7 @@ int ChertTable::find_in_block(const byte * p, Key key, bool leaf, int c)
 bool
 ChertTable::find(Cursor * C_) const
 {
-    DEBUGCALL(DB, bool, "ChertTable::find", (void*)C_);
+    LOGCALL(DB, bool, "ChertTable::find", (void*)C_);
     // Note: the parameter is needed when we're called by ChertCursor
     const byte * p;
     int c;
@@ -537,7 +548,7 @@ ChertTable::find(Cursor * C_) const
 void
 ChertTable::compact(byte * p)
 {
-    DEBUGCALL(DB, void, "ChertTable::compact", (void*)p);
+    LOGCALL_VOID(DB, "ChertTable::compact", (void*)p);
     Assert(writable);
     int e = block_size;
     byte * b = buffer;
@@ -561,7 +572,7 @@ ChertTable::compact(byte * p)
 void
 ChertTable::split_root(uint4 split_n)
 {
-    DEBUGCALL(DB, void, "ChertTable::split_root", split_n);
+    LOGCALL_VOID(DB, "ChertTable::split_root", split_n);
     /* gain a level */
     ++level;
 
@@ -606,15 +617,17 @@ ChertTable::split_root(uint4 split_n)
 void
 ChertTable::enter_key(int j, Key prevkey, Key newkey)
 {
+    LOGCALL_VOID(DB, "ChertTable::enter_key", j << ", prevkey, newkey");
     Assert(writable);
     Assert(prevkey < newkey);
-    Assert(j >= 1);
+    AssertRel(j,>=,1);
 
     uint4 blocknumber = C[j - 1].n;
 
     // FIXME update to use Key
     // Keys are truncated here: but don't truncate the count at the end away.
     const int newkey_len = newkey.length();
+    AssertRel(newkey_len,>,0);
     int i;
 
     if (j == 1) {
@@ -666,6 +679,7 @@ ChertTable::enter_key(int j, Key prevkey, Key newkey)
 int
 ChertTable::mid_point(byte * p)
 {
+    LOGCALL(DB, int, "ChertTable::mid_point", (void*)p);
     int n = 0;
     int dir_end = DIR_END(p);
     int size = block_size - TOTAL_FREE(p) - dir_end;
@@ -673,14 +687,14 @@ ChertTable::mid_point(byte * p)
 	int l = Item(p, c).size();
 	n += 2 * l;
 	if (n >= size) {
-	    if (l < n - size) return c;
-	    return c + D2;
+	    if (l < n - size) RETURN(c);
+	    RETURN(c + D2);
 	}
     }
 
     /* falling out of mid_point */
     Assert(false);
-    return 0; /* Stop compiler complaining about end of method. */
+    RETURN(0); /* Stop compiler complaining about end of method. */
 }
 
 /** add_item_to_block(p, kt_, c) adds item kt_ to the block at p.
@@ -694,6 +708,7 @@ ChertTable::mid_point(byte * p)
 void
 ChertTable::add_item_to_block(byte * p, Item_wr kt_, int c)
 {
+    LOGCALL_VOID(DB, "ChertTable::add_item_to_block", (void*)p << ", kt_, " << c);
     Assert(writable);
     int dir_end = DIR_END(p);
     int kt_len = kt_.size();
@@ -731,6 +746,7 @@ ChertTable::add_item_to_block(byte * p, Item_wr kt_, int c)
 void
 ChertTable::add_item(Item_wr kt_, int j)
 {
+    LOGCALL_VOID(DB, "ChertTable::add_item", "kt_, " << j);
     Assert(writable);
     byte * p = C[j].p;
     int c = C[j].c;
@@ -821,6 +837,7 @@ ChertTable::add_item(Item_wr kt_, int j)
 void
 ChertTable::delete_item(int j, bool repeatedly)
 {
+    LOGCALL_VOID(DB, "ChertTable::delete_item", j << ", " << repeatedly);
     Assert(writable);
     byte * p = C[j].p;
     int c = C[j].c;
@@ -893,6 +910,7 @@ static addcount = 0;
 int
 ChertTable::add_kt(bool found)
 {
+    LOGCALL(DB, int, "ChertTable::add_kt", found);
     Assert(writable);
     int components = 0;
 
@@ -947,7 +965,7 @@ ChertTable::add_kt(bool found)
 	C[0].c += D2;
 	add_item(kt, 0);
     }
-    return components;
+    RETURN(components);
 }
 
 /* delete_kt() corresponds to add_kt(found), but there are only
@@ -958,6 +976,7 @@ ChertTable::add_kt(bool found)
 int
 ChertTable::delete_kt()
 {
+    LOGCALL(DB, int, "ChertTable::delete_kt", "");
     Assert(writable);
 
     bool found = find(C);
@@ -977,7 +996,7 @@ ChertTable::delete_kt()
 	alter();
 	delete_item(0, true);
     }
-    return components;
+    RETURN(components);
 }
 
 /* ChertTable::form_key(key) treats address kt as an item holder and fills in
@@ -991,6 +1010,7 @@ K set accordingly. c is set to 1.
 
 void ChertTable::form_key(const string & key) const
 {
+    LOGCALL_VOID(DB, "ChertTable::form_key", key);
     kt.form_key(key);
 }
 
@@ -1020,7 +1040,7 @@ void ChertTable::form_key(const string & key) const
 bool
 ChertTable::add(const string &key, string tag, bool already_compressed)
 {
-    DEBUGCALL(DB, bool, "ChertTable::add", key << ", " << tag);
+    LOGCALL(DB, bool, "ChertTable::add", key << ", " << tag << ", " << already_compressed);
     Assert(writable);
 
     if (handle == -1) create_and_open(block_size);
@@ -1169,7 +1189,7 @@ ChertTable::add(const string &key, string tag, bool already_compressed)
 bool
 ChertTable::del(const string &key)
 {
-    DEBUGCALL(DB, bool, "ChertTable::del", key);
+    LOGCALL(DB, bool, "ChertTable::del", key);
     Assert(writable);
 
     if (handle == -1) RETURN(false);
@@ -1196,7 +1216,7 @@ ChertTable::del(const string &key)
 bool
 ChertTable::get_exact_entry(const string &key, string & tag) const
 {
-    DEBUGCALL(DB, bool, "ChertTable::get_exact_entry", key << ", [&tag]");
+    LOGCALL(DB, bool, "ChertTable::get_exact_entry", key << ", [&tag]");
     Assert(!key.empty());
 
     if (handle == -1) RETURN(false);
@@ -1214,7 +1234,7 @@ ChertTable::get_exact_entry(const string &key, string & tag) const
 bool
 ChertTable::key_exists(const string &key) const
 {
-    DEBUGCALL(DB, bool, "ChertTable::key_exists", key);
+    LOGCALL(DB, bool, "ChertTable::key_exists", key);
     Assert(!key.empty());
 
     // An oversized key can't exist, so attempting to search for it should fail.
@@ -1227,6 +1247,7 @@ ChertTable::key_exists(const string &key) const
 bool
 ChertTable::read_tag(Cursor * C_, string *tag, bool keep_compressed) const
 {
+    LOGCALL(DB, bool, "ChertTable::read_tag", "C_, tag, " << keep_compressed);
     Item item(C_[0].p, C_[0].c);
 
     /* n components to join */
@@ -1248,7 +1269,7 @@ ChertTable::read_tag(Cursor * C_, string *tag, bool keep_compressed) const
     }
     // At this point the cursor is on the last item - calling next will move
     // it to the next key (ChertCursor::get_tag() relies on this).
-    if (!compressed || keep_compressed) return compressed;
+    if (!compressed || keep_compressed) RETURN(compressed);
 
     // FIXME: Perhaps we should we decompress each chunk as we read it so we
     // don't need both the full compressed and uncompressed tags in memory
@@ -1327,12 +1348,13 @@ ChertTable::read_tag(Cursor * C_, string *tag, bool keep_compressed) const
 
     swap(*tag, utag);
 
-    return false;
+    RETURN(false);
 }
 
 void
 ChertTable::set_full_compaction(bool parity)
 {
+    LOGCALL_VOID(DB, "ChertTable::set_full_compaction", parity);
     Assert(writable);
 
     if (parity) seq_count = 0;
@@ -1340,9 +1362,10 @@ ChertTable::set_full_compaction(bool parity)
 }
 
 ChertCursor * ChertTable::cursor_get() const {
-    if (handle == -1) return NULL;
+    LOGCALL(DB, ChertCursor *, "ChertTable::cursor_get", "");
+    if (handle == -1) RETURN(NULL);
     // FIXME Ick - casting away const is nasty
-    return new ChertCursor(const_cast<ChertTable *>(this));
+    RETURN(new ChertCursor(const_cast<ChertTable *>(this)));
 }
 
 /************ B-tree opening and closing ************/
@@ -1350,6 +1373,7 @@ ChertCursor * ChertTable::cursor_get() const {
 bool
 ChertTable::basic_open(bool revision_supplied, chert_revision_number_t revision_)
 {
+    LOGCALL(DB, bool, "ChertTable::basic_open", revision_supplied << ", " << revision_);
     int ch = 'X'; /* will be 'A' or 'B' */
 
     {
@@ -1400,7 +1424,7 @@ ChertTable::basic_open(bool revision_supplied, chert_revision_number_t revision_
 		 * This shouldn't throw an exception, but should just return
 		 * false to upper levels.
 		 */
-		return false;
+		RETURN(false);
 	    }
 	} else {
 	    chert_revision_number_t highest_revision = 0;
@@ -1468,12 +1492,13 @@ ChertTable::basic_open(bool revision_supplied, chert_revision_number_t revision_
 
     /* ready to open the main file */
 
-    return true;
+    RETURN(true);
 }
 
 void
 ChertTable::read_root()
 {
+    LOGCALL_VOID(DB, "ChertTable::read_root", "");
     if (faked_root_block) {
 	/* root block for an unmodified database. */
 	byte * p = C[0].p;
@@ -1519,6 +1544,7 @@ ChertTable::do_open_to_write(bool revision_supplied,
 			     chert_revision_number_t revision_,
 			     bool create_db)
 {
+    LOGCALL(DB, bool, "ChertTable::do_open_to_write", revision_supplied << ", " << revision_ << ", " << create_db);
     int flags = O_RDWR | O_BINARY;
     if (create_db) flags |= O_CREAT | O_TRUNC;
     handle = ::open((name + "DB").c_str(), flags, 0666);
@@ -1527,7 +1553,7 @@ ChertTable::do_open_to_write(bool revision_supplied,
 	// with O_CREAT means a parent directory doesn't exist.
 	if (lazy && !create_db && errno == ENOENT) {
 	    revision_number = revision_;
-	    return true;
+	    RETURN(true);
 	}
 	string message(create_db ? "Couldn't create " : "Couldn't open ");
 	message += name;
@@ -1545,7 +1571,7 @@ ChertTable::do_open_to_write(bool revision_supplied,
 	/* When the revision is supplied, it's not an exceptional
 	 * case when open failed, so we just return false here.
 	 */
-	return false;
+	RETURN(false);
     }
 
     writable = true;
@@ -1569,7 +1595,7 @@ ChertTable::do_open_to_write(bool revision_supplied,
     changed_c = DIR_START;
     seq_count = SEQ_START_POINT;
 
-    return true;
+    RETURN(true);
 }
 
 ChertTable::ChertTable(const char * tablename_, string path_, bool readonly_,
@@ -1601,14 +1627,14 @@ ChertTable::ChertTable(const char * tablename_, string path_, bool readonly_,
 	  compress_strategy(compress_strategy_),
 	  lazy(lazy_)
 {
-    DEBUGCALL(DB, void, "ChertTable::ChertTable",
-	      tablename_ << "," << path_ << ", " << readonly_ << ", " <<
-	      compress_strategy_ << ", " << lazy_);
+    LOGCALL_CTOR(DB, "ChertTable",
+		 tablename_ << "," << path_ << ", " << readonly_ << ", " <<
+		 compress_strategy_ << ", " << lazy_);
 }
 
 bool
 ChertTable::exists() const {
-    DEBUGCALL(DB, bool, "ChertTable::exists", "");
+    LOGCALL(DB, bool, "ChertTable::exists", "");
     return (file_exists(name + "DB") &&
 	    (file_exists(name + "baseA") || file_exists(name + "baseB")));
 }
@@ -1633,7 +1659,7 @@ sys_unlink_if_exists(const string & filename)
 void
 ChertTable::erase()
 {
-    DEBUGCALL(DB, void, "ChertTable::erase", "");
+    LOGCALL_VOID(DB, "ChertTable::erase", "");
     close();
 
     sys_unlink_if_exists(name + "baseA");
@@ -1644,7 +1670,7 @@ ChertTable::erase()
 void
 ChertTable::set_block_size(unsigned int block_size_)
 {
-    DEBUGCALL(DB, void, "ChertTable::set_block_size", block_size_);
+    LOGCALL_VOID(DB, "ChertTable::set_block_size", block_size_);
     // Block size must in the range 2048..BYTE_PAIR_RANGE, and a power of two.
     if (block_size_ < 2048 || block_size_ > BYTE_PAIR_RANGE ||
 	(block_size_ & (block_size_ - 1)) != 0) {
@@ -1656,7 +1682,7 @@ ChertTable::set_block_size(unsigned int block_size_)
 void
 ChertTable::create_and_open(unsigned int block_size_)
 {
-    DEBUGCALL(DB, void, "ChertTable::create_and_open", block_size_);
+    LOGCALL_VOID(DB, "ChertTable::create_and_open", block_size_);
     Assert(writable);
     close();
 
@@ -1685,12 +1711,12 @@ ChertTable::create_and_open(unsigned int block_size_)
 }
 
 ChertTable::~ChertTable() {
-    DEBUGCALL(DB, void, "ChertTable::~ChertTable", "");
+    LOGCALL_DTOR(DB, "ChertTable");
     ChertTable::close();
 }
 
 void ChertTable::close() {
-    DEBUGCALL(DB, void, "ChertTable::close", "");
+    LOGCALL_VOID(DB, "ChertTable::close", "");
 
     if (handle != -1) {
 	// If an error occurs here, we just ignore it, since we're just
@@ -1715,7 +1741,7 @@ void ChertTable::close() {
 void
 ChertTable::flush_db()
 {
-    DEBUGCALL(DB, void, "ChertTable::flush_db", "");
+    LOGCALL_VOID(DB, "ChertTable::flush_db", "");
     Assert(writable);
     if (handle == -1) return;
 
@@ -1734,8 +1760,8 @@ void
 ChertTable::commit(chert_revision_number_t revision, int changes_fd,
 		   const string * changes_tail)
 {
-    DEBUGCALL(DB, void, "ChertTable::commit",
-	      revision << ", " << changes_fd << ", " << changes_tail);
+    LOGCALL_VOID(DB, "ChertTable::commit",
+		 revision << ", " << changes_fd << ", " << changes_tail);
     Assert(writable);
 
     if (revision <= revision_number) {
@@ -1819,6 +1845,7 @@ ChertTable::commit(chert_revision_number_t revision, int changes_fd,
 void
 ChertTable::write_changed_blocks(int changes_fd)
 {
+    LOGCALL_VOID(DB, "ChertTable::write_changed_blocks", changes_fd);
     Assert(changes_fd >= 0);
     if (handle == -1) return;
     if (faked_root_block) return;
@@ -1861,7 +1888,7 @@ ChertTable::write_changed_blocks(int changes_fd)
 void
 ChertTable::cancel()
 {
-    DEBUGCALL(DB, void, "ChertTable::cancel", "");
+    LOGCALL_VOID(DB, "ChertTable::cancel", "");
     Assert(writable);
 
     if (handle == -1) {
@@ -1903,12 +1930,13 @@ ChertTable::cancel()
 bool
 ChertTable::do_open_to_read(bool revision_supplied, chert_revision_number_t revision_)
 {
+    LOGCALL(DB, bool, "ChertTable::do_open_to_read", revision_supplied << ", " << revision_);
     handle = ::open((name + "DB").c_str(), O_RDONLY | O_BINARY);
     if (handle < 0) {
 	if (lazy) {
 	    // This table is optional when reading!
 	    revision_number = revision_;
-	    return true;
+	    RETURN(true);
 	}
 	string message("Couldn't open ");
 	message += name;
@@ -1925,7 +1953,7 @@ ChertTable::do_open_to_read(bool revision_supplied, chert_revision_number_t revi
 	    // This could be because the database was modified underneath us, or
 	    // because a base file is missing.  Return false, and work out what
 	    // the problem was at a higher level.
-	    return false;
+	    RETURN(false);
 	}
 	throw Xapian::DatabaseOpeningError("Failed to open table for reading");
     }
@@ -1939,13 +1967,13 @@ ChertTable::do_open_to_read(bool revision_supplied, chert_revision_number_t revi
     }
 
     read_root();
-    return true;
+    RETURN(true);
 }
 
 void
 ChertTable::open()
 {
-    DEBUGCALL(DB, void, "ChertTable::open", "");
+    LOGCALL_VOID(DB, "ChertTable::open", "");
     LOGLINE(DB, "opening at path " << name);
     close();
 
@@ -1962,7 +1990,7 @@ ChertTable::open()
 bool
 ChertTable::open(chert_revision_number_t revision)
 {
-    DEBUGCALL(DB, bool, "ChertTable::open", revision);
+    LOGCALL(DB, bool, "ChertTable::open", revision);
     LOGLINE(DB, "opening for particular revision at path " << name);
     close();
 
@@ -1989,13 +2017,14 @@ ChertTable::open(chert_revision_number_t revision)
 bool
 ChertTable::prev_for_sequential(Cursor * C_, int /*dummy*/) const
 {
+    LOGCALL(DB, bool, "ChertTable::prev_for_sequential", "C_, UNUSED(int)");
     int c = C_[0].c;
     if (c == DIR_START) {
 	byte * p = C_[0].p;
 	Assert(p);
 	uint4 n = C_[0].n;
 	while (true) {
-	    if (n == 0) return false;
+	    if (n == 0) RETURN(false);
 	    n--;
 	    if (writable) {
 		if (n == C[0].n) {
@@ -2025,7 +2054,7 @@ ChertTable::prev_for_sequential(Cursor * C_, int /*dummy*/) const
 	    if (writable) AssertEq(revision_number, latest_revision_number);
 	    if (REVISION(p) > revision_number + writable) {
 		set_overwritten();
-		return false;
+		RETURN(false);
 	    }
 	    if (GET_LEVEL(p) == 0) break;
 	}
@@ -2034,12 +2063,13 @@ ChertTable::prev_for_sequential(Cursor * C_, int /*dummy*/) const
     }
     c -= D2;
     C_[0].c = c;
-    return true;
+    RETURN(true);
 }
 
 bool
 ChertTable::next_for_sequential(Cursor * C_, int /*dummy*/) const
 {
+    LOGCALL(DB, bool, "ChertTable::next_for_sequential", "C_, UNUSED(int)");
     byte * p = C_[0].p;
     Assert(p);
     int c = C_[0].c;
@@ -2049,7 +2079,7 @@ ChertTable::next_for_sequential(Cursor * C_, int /*dummy*/) const
 	uint4 n = C_[0].n;
 	while (true) {
 	    n++;
-	    if (n > base.get_last_block()) return false;
+	    if (n > base.get_last_block()) RETURN(false);
 	    if (writable) {
 		if (n == C[0].n) {
 		    // Block is a leaf block in the built-in cursor
@@ -2078,7 +2108,7 @@ ChertTable::next_for_sequential(Cursor * C_, int /*dummy*/) const
 	    if (writable) AssertEq(revision_number, latest_revision_number);
 	    if (REVISION(p) > revision_number + writable) {
 		set_overwritten();
-		return false;
+		RETURN(false);
 	    }
 	    if (GET_LEVEL(p) == 0) break;
 	}
@@ -2086,20 +2116,21 @@ ChertTable::next_for_sequential(Cursor * C_, int /*dummy*/) const
 	C_[0].n = n;
     }
     C_[0].c = c;
-    return true;
+    RETURN(true);
 }
 
 bool
 ChertTable::prev_default(Cursor * C_, int j) const
 {
+    LOGCALL(DB, bool, "ChertTable::prev_default", "C_, " << j);
     byte * p = C_[j].p;
     int c = C_[j].c;
     Assert(c >= DIR_START);
     Assert((unsigned)c < block_size);
     Assert(c <= DIR_END(p));
     if (c == DIR_START) {
-	if (j == level) return false;
-	if (!prev_default(C_, j + 1)) return false;
+	if (j == level) RETURN(false);
+	if (!prev_default(C_, j + 1)) RETURN(false);
 	c = DIR_END(p);
     }
     c -= D2;
@@ -2107,12 +2138,13 @@ ChertTable::prev_default(Cursor * C_, int j) const
     if (j > 0) {
 	block_to_cursor(C_, j - 1, Item(p, c).block_given_by());
     }
-    return true;
+    RETURN(true);
 }
 
 bool
 ChertTable::next_default(Cursor * C_, int j) const
 {
+    LOGCALL(DB, bool, "ChertTable::next_default", "C_, " << j);
     byte * p = C_[j].p;
     int c = C_[j].c;
     Assert(c >= DIR_START);
@@ -2122,8 +2154,8 @@ ChertTable::next_default(Cursor * C_, int j) const
     if (c > DIR_END(p)) c = DIR_END(p);
     Assert(c <= DIR_END(p));
     if (c == DIR_END(p)) {
-	if (j == level) return false;
-	if (!next_default(C_, j + 1)) return false;
+	if (j == level) RETURN(false);
+	if (!next_default(C_, j + 1)) RETURN(false);
 	c = DIR_START;
     }
     C_[j].c = c;
@@ -2134,7 +2166,7 @@ ChertTable::next_default(Cursor * C_, int j) const
 	report_block_full(j - 1, C_[j - 1].n, C_[j - 1].p);
 #endif /* BTREE_DEBUG_FULL */
     }
-    return true;
+    RETURN(true);
 }
 
 /** Compares this key with key2.
@@ -2154,7 +2186,7 @@ ChertTable::next_default(Cursor * C_, int j) const
 
 bool Key::operator<(Key key2) const
 {
-    DEBUGCALL(DB, bool, "Key::operator<", static_cast<const void*>(key2.p));
+    LOGCALL(DB, bool, "Key::operator<", static_cast<const void*>(key2.p));
     int key1_len = length();
     int key2_len = key2.length();
     if (key1_len == key2_len) {
@@ -2177,9 +2209,9 @@ bool Key::operator<(Key key2) const
 
 bool Key::operator==(Key key2) const
 {
-    DEBUGCALL(DB, bool, "Key::operator==", static_cast<const void*>(key2.p));
+    LOGCALL(DB, bool, "Key::operator==", static_cast<const void*>(key2.p));
     int key1_len = length();
-    if (key1_len != key2.length()) return false;
+    if (key1_len != key2.length()) RETURN(false);
     // The keys are the same length, so we can compare the counts
     // in the same operation since they're stored as 2 byte
     // bigendian numbers.
