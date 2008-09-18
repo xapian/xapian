@@ -641,7 +641,7 @@ void ChertPostList::read_number_of_entries(const char ** posptr,
 /** The format of a postlist is:
  *
  *  Split into chunks.  Key for first chunk is the termname (encoded as
- *  length - name).  Key for subsequent chunks is the same, followed by the
+ *  length : name).  Key for subsequent chunks is the same, followed by the
  *  document ID of the first document in the chunk (encoded as length of
  *  representation in first byte, and then docid).
  *
@@ -653,8 +653,9 @@ void ChertPostList::read_number_of_entries(const char ** posptr,
  *  4)  increment in docid to next item, followed by wdf for the item.
  *  5)  (4) repeatedly.
  *
- *  The first chunk begins with the number of entries, then the docid of the
- *  first document, then has the header of a standard chunk.
+ *  The first chunk begins with the number of entries, the collection
+ *  frequency, then the docid of the first document, then has the header of a
+ *  standard chunk.
  */
 ChertPostList::ChertPostList(Xapian::Internal::RefCntPtr<const ChertDatabase> this_db_,
 			     const string & tname_,
