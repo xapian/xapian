@@ -2209,7 +2209,11 @@ DEFINE_TESTCASE(cursordelbug1, flint || chert) {
 
     string cmd = "../bin/xapian-check ";
     cmd += get_named_writable_database_path("cursordelbug1");
+#ifdef __WIN32__
+    cmd += " >nul";
+#else
     cmd += " >/dev/null";
+#endif
     if (system(cmd.c_str()) != 0)
 	return false;
 
