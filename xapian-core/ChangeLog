@@ -1,3 +1,8 @@
+Thu Sep 18 05:31:50 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_postlist.cc,backends/flint/flint_postlist.cc:
+	  Merge from trunk.
+
 Wed Sep 17 12:57:38 GMT 2008  Olly Betts <olly@survex.com>
 
 	* AUTHORS,HACKING,NEWS,api/omdatabase.cc,
