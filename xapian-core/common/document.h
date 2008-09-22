@@ -154,6 +154,24 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	void need_values() const;
 	void need_terms() const;
 
+	/** Return true if the data in the document may have been modified.
+	 */
+	bool data_modified() const {
+	    return data_here;
+	}
+
+	/** Return true if the values in the document may have been modified.
+	 */
+	bool values_modified() const {
+	    return values_here;
+	}
+
+	/** Return true if the terms in the document may have been modified.
+	 */
+	bool terms_modified() const {
+	    return terms_here;
+	}
+
 	/** Get the docid which is associated with this document (if any).
 	 *
 	 *  NB If multiple databases are being searched together, then this
@@ -164,6 +182,15 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	 *	    id in that database.  Otherwise, return 0.
 	 */
 	Xapian::docid get_docid() const { return did; }
+
+	/** Check if the document is in the supplied (internal) database.
+	 *
+	 *  This allows us to shortcut the replace operation for documents
+	 *  which are being replaced in the same database they came from.
+	 */
+	bool is_in_database(const Xapian::Database::Internal *db) const {
+	    return db == database;
+	}
 
 	/// Return a string describing this object.
 	string get_description() const;
