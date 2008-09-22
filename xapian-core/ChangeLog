@@ -1,3 +1,9 @@
+Mon Sep 22 07:04:13 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/chert/chert_values.cc,
+	  backends/chert/chert_values.h: Store the value chunks in the
+	  postlist table.
+
 Thu Sep 18 12:14:15 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_cursor.cc,backends/chert/chert_table.cc,

@@ -35,6 +35,7 @@ namespace Xapian {
     class Document;
 }
 
+class ChertPostListTable;
 struct ValueStats;
 
 class ChertValueTable : public ChertChunkedListTable {
@@ -47,6 +48,8 @@ class ChertValueTable : public ChertChunkedListTable {
 
     /** The most recently used value statistics. */
     mutable ValueStats mru_valstats;
+
+    ChertPostListTable * postlist_table;
 
     std::map<Xapian::docid, std::string> slots;
 
@@ -74,10 +77,12 @@ class ChertValueTable : public ChertChunkedListTable {
      *  @param dbdir	    The directory the chert database is stored in.
      *  @param readonly	    true if we're opening read-only, else false.
      */
-    ChertValueTable(const std::string & dbdir, bool readonly)
+    ChertValueTable(const std::string & dbdir, bool readonly,
+		    ChertPostListTable * postlist_table_)
 	: ChertChunkedListTable("value", "/value.", dbdir, readonly,
 				DONT_COMPRESS, true),
-	  mru_valno(Xapian::BAD_VALUENO) { }
+	  mru_valno(Xapian::BAD_VALUENO),
+	  postlist_table(postlist_table_) { }
 
     // Merge in batched-up changes.
     void merge_changes();

@@ -24,6 +24,7 @@
 #include "chert_values.h"
 
 #include "chert_cursor.h"
+#include "chert_postlist.h"
 #include "chert_utils.h"
 #include "omdebug.h"
 
@@ -38,7 +39,6 @@ using namespace std;
 // FIXME:
 //  * put the "used slots" entry in the termlist table, perhaps in the same
 //    entry as the terms.
-//  * put the value chunks in the postlist table.
 //  * put the value stats in the postlist table?
 //  * multi-values?
 //  * values named instead of numbered?
@@ -48,8 +48,7 @@ inline string
 make_key(Xapian::valueno slot, Xapian::docid did)
 {
     DEBUGCALL_STATIC(DB, string, "make_key", slot << ", " << did);
-    // FIXME: sort out exactly what the key format is.
-    RETURN(string(1, '\x01') + pack_uint(slot) + pack_uint_preserving_sort(did));
+    RETURN(string("\0\xd0", 2) + pack_uint(slot) + pack_uint_preserving_sort(did));
 }
 
 inline Xapian::docid
@@ -60,7 +59,7 @@ docid_from_key(Xapian::valueno required_slot, const string & key)
     const char * p = key.data();
     const char * end = p + key.length();
     // Fail if not a value chunk key.
-    if (p == end || *p++ != '\x01') RETURN(0);
+    if (end - p < 2 || *p++ != '\0' || *p++ != '\xd0') RETURN(0);
     Xapian::valueno slot;
     if (!unpack_uint(&p, end, &slot))
        	throw Xapian::DatabaseCorruptError("bad value key");
@@ -169,7 +168,7 @@ ChertValueTable::get_chunk_containing_did(Xapian::valueno slot,
 					  string &chunk) const
 {
     DEBUGCALL(DB, Xapian::docid, "ChertValueTable::get_chunk_containing_did", slot << ", " << did << "[chunk]");
-    AutoPtr<ChertCursor> cursor(cursor_get());
+    AutoPtr<ChertCursor> cursor(postlist_table->cursor_get());
     if (!cursor.get()) return 0;
 
     bool exact = cursor->find_entry(make_key(slot, did));
@@ -180,7 +179,7 @@ ChertValueTable::get_chunk_containing_did(Xapian::valueno slot,
 	const char * end = p + cursor->current_key.size();
 
 	// Check that it is a value stream chunk.
-	if (*p++ != '\x01') return 0;
+	if (end - p < 2 || *p++ != '\0' || *p++ != '\xd0') return 0;
 
 	// Check that it's for the right value slot.
 	Xapian::valueno v;
@@ -204,7 +203,7 @@ ChertValueTable::get_chunk_containing_did(Xapian::valueno slot,
 const size_t CHUNK_SIZE_THRESHOLD = 2000;
 
 class ValueUpdater {
-    ChertValueTable * table;
+    ChertPostListTable * table;
 
     Xapian::valueno slot;
 
@@ -245,7 +244,7 @@ class ValueUpdater {
     }
 
   public:
-    ValueUpdater(ChertValueTable * table_, Xapian::valueno slot_)
+    ValueUpdater(ChertPostListTable * table_, Xapian::valueno slot_)
        	: table(table_), slot(slot_), first_did(0) { }
 
     ~ValueUpdater() {
@@ -317,7 +316,7 @@ ChertValueTable::merge_changes()
 	map<Xapian::valueno, map<Xapian::docid, string> >::const_iterator i;
 	for (i = changes.begin(); i != changes.end(); ++i) {
 	    Xapian::valueno slot = i->first;
-	    ValueUpdater updater(this, slot);
+	    ValueUpdater updater(postlist_table, slot);
 	    const map<Xapian::docid, string> & slot_changes = i->second;
 	    map<Xapian::docid, string>::const_iterator j;
 	    for (j = slot_changes.begin(); j != slot_changes.end(); ++j) {
