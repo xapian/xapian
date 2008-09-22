@@ -36,6 +36,7 @@ namespace Xapian {
 }
 
 class ChertPostListTable;
+class ChertTermListTable;
 struct ValueStats;
 
 class ChertValueTable : public ChertChunkedListTable {
@@ -50,6 +51,8 @@ class ChertValueTable : public ChertChunkedListTable {
     mutable ValueStats mru_valstats;
 
     ChertPostListTable * postlist_table;
+
+    ChertTermListTable * termlist_table;
 
     std::map<Xapian::docid, std::string> slots;
 
@@ -78,11 +81,13 @@ class ChertValueTable : public ChertChunkedListTable {
      *  @param readonly	    true if we're opening read-only, else false.
      */
     ChertValueTable(const std::string & dbdir, bool readonly,
-		    ChertPostListTable * postlist_table_)
+		    ChertPostListTable * postlist_table_,
+		    ChertTermListTable * termlist_table_)
 	: ChertChunkedListTable("value", "/value.", dbdir, readonly,
 				DONT_COMPRESS, true),
 	  mru_valno(Xapian::BAD_VALUENO),
-	  postlist_table(postlist_table_) { }
+	  postlist_table(postlist_table_),
+	  termlist_table(termlist_table_) { }
 
     // Merge in batched-up changes.
     void merge_changes();

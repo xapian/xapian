@@ -25,6 +25,7 @@
 
 #include "chert_cursor.h"
 #include "chert_postlist.h"
+#include "chert_termlist.h"
 #include "chert_utils.h"
 #include "omdebug.h"
 
@@ -37,8 +38,7 @@
 using namespace std;
 
 // FIXME:
-//  * put the "used slots" entry in the termlist table, perhaps in the same
-//    entry as the terms.
+//  * put the "used slots" entry in the same termlist tag as the terms?
 //  * put the value stats in the postlist table?
 //  * multi-values?
 //  * values named instead of numbered?
@@ -76,8 +76,10 @@ inline string
 make_slot_key(Xapian::docid did)
 {
     DEBUGCALL_STATIC(DB, string, "make_slot_key", did);
-    // FIXME: sort out exactly what the key format is.
-    RETURN(string(1, '\0') + pack_uint_last(did));
+    // Add an extra character so that it can't clash with a termlist entry key
+    // and will sort just after the corresponding termlist entry key.
+    // FIXME: should we store this in the *same entry* as the list of terms?
+    RETURN(chert_docid_to_key(did) + string(1, '\0'));
 }
 
 /** Generate a key for a value statistics item. */
@@ -307,7 +309,7 @@ ChertValueTable::merge_changes()
     {
 	map<Xapian::docid, string>::const_iterator i;
 	for (i = slots.begin(); i != slots.end(); ++i) {
-	    add(make_slot_key(i->first), i->second);
+	    termlist_table->add(make_slot_key(i->first), i->second);
 	}
 	slots.clear();
     }
@@ -382,7 +384,7 @@ ChertValueTable::delete_document(Xapian::docid did,
 	s = it->second;
     } else {
 	// Get from table, making a swift exit if this document has no values.
-	if (!get_exact_entry(make_slot_key(did), s)) return;
+	if (!termlist_table->get_exact_entry(make_slot_key(did), s)) return;
     }
     const char * p = s.data();
     const char * end = p + s.size();
@@ -463,7 +465,7 @@ ChertValueTable::get_all_values(map<Xapian::valueno, string> & values,
 	s = i->second;
     } else {
 	// Get from table.
-	if (!get_exact_entry(make_slot_key(did), s)) return;
+	if (!termlist_table->get_exact_entry(make_slot_key(did), s)) return;
     }
     const char * p = s.data();
     const char * end = p + s.size();

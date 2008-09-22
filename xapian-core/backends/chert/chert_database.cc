@@ -119,7 +119,7 @@ ChertDatabase::ChertDatabase(const string &chert_dir, int action,
 	  postlist_table(db_dir, readonly),
 	  position_table(db_dir, readonly),
 	  termlist_table(db_dir, readonly),
-	  value_table(db_dir, readonly, &postlist_table),
+	  value_table(db_dir, readonly, &postlist_table, &termlist_table),
 	  synonym_table(db_dir, readonly),
 	  spelling_table(db_dir, readonly),
 	  record_table(db_dir, readonly),
@@ -443,7 +443,7 @@ ChertDatabase::set_revision_number(chert_revision_number_t new_revision)
     DEBUGCALL(DB, void, "ChertDatabase::set_revision_number", new_revision);
 
     // NB: We need to flush value_table first since doing so makes changes to
-    // postlist_table.
+    // postlist_table and termlist_table.
     value_table.flush_db();
     postlist_table.flush_db();
     position_table.flush_db();
