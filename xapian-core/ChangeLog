@@ -1,3 +1,12 @@
+Mon Sep 22 09:15:43 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/chert/chert_document.cc,backends/chert/chert_document.h:
+	  Check for existence of a document when opening it by searching
+	  for the document length entry, rather than by reading the record
+	  for the document.  Probably slightly slower if the record is
+	  going to be accessed anyway, but much faster if it isn't (though
+	  benchmarking of this is needed).
+
 Mon Sep 22 09:13:44 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* backends/chert/chert_postlist.cc: Fix return value of jump_to()
