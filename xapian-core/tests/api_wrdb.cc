@@ -807,6 +807,8 @@ DEFINE_TESTCASE(deldoc5, writable) {
 
     db.delete_document(2);
 
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(2));
+
     db.flush();
 
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(2));

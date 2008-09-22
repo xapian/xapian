@@ -1,3 +1,9 @@
+Mon Sep 22 09:17:28 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_wrdb.cc: Extend deldoc5 slightly, to check that the
+	  DocNotFoundError for a deleted document is raised before the
+	  flush, as well as after.
+
 Mon Sep 22 09:15:43 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* backends/chert/chert_document.cc,backends/chert/chert_document.h:
