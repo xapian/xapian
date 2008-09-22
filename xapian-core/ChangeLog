@@ -1,3 +1,9 @@
+Mon Sep 22 06:27:23 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* docs/remote_protocol.html: Update documentation of remote
+	  protocol to mention UUID being passed in REPLY_GREETING and
+	  REPLY_UPDATE (added in revision [11369]).
+
 Thu Sep 18 11:52:05 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/api_wrdb.cc: Fix cursordelbug1 to hopefully work on Microsoft
