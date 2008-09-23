@@ -389,6 +389,37 @@ Database::get_description() const
     return "Database()";
 }
 
+// We sum the character frequency histogram absolute differences to compute a
+// lower bound on the edit distance.  Rather than counting each Unicode code
+// point uniquely, we use an array with VEC_SIZE elements and tally code points
+// modulo VEC_SIZE which can only reduce the bound we calculate.
+//
+// There will be a trade-off between how good the bound is and how large and
+// array is used (a larger array takes more time to clear and sum over).  The
+// value 64 is somewhat arbitrary - it works as well as 128 for the testsuite
+// but that may not reflect real world performance.  FIXME: profile and tune.
+
+#define VEC_SIZE 64
+
+static int
+freq_edit_lower_bound(const vector<unsigned> & a, const vector<unsigned> & b)
+{
+    int vec[VEC_SIZE];
+    memset(vec, 0, sizeof(vec));
+    vector<unsigned>::const_iterator i;
+    for (i = a.begin(); i != a.end(); ++i) {
+	++vec[(*i) % VEC_SIZE];
+    }
+    for (i = b.begin(); i != b.end(); ++i) {
+	--vec[(*i) % VEC_SIZE];
+    }
+    int total = 0;
+    for (size_t j = 0; j < VEC_SIZE; ++j) {
+	total += abs(vec[j]);
+    }
+    return total;
+}
+
 // Word must have a trigram score at least this close to the best score seen
 // so far.
 #define TRIGRAM_SCORE_THRESHOLD 2
@@ -454,6 +485,11 @@ Database::get_spelling_suggestion(const string &word,
 	    if (abs((long)utf32_term.size() - (long)utf32_word.size())
 		    > edist_best) {
 		LOGLINE(SPELLING, "Lengths too different");
+		continue;
+	    }
+
+	    if (freq_edit_lower_bound(utf32_term, utf32_word) > edist_best) {
+		LOGLINE(SPELLING, "Rejected by character frequency test");
 		continue;
 	    }
 

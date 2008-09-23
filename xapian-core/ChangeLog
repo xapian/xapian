@@ -1,3 +1,10 @@
+Tue Sep 23 14:58:54 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc: Avoid the relatively expensive edit distance
+	  computation for a candidate spelling correction when we can reject 
+	  the candidate as less good than one we've already seen by looking
+	  at the character frequency histograms.
+
 Mon Sep 22 09:21:55 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* Forward-port from branches/lazyupdate:
