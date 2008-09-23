@@ -39,7 +39,6 @@ using namespace std;
 
 // FIXME:
 //  * put the "used slots" entry in the same termlist tag as the terms?
-//  * put the value stats in the postlist table?
 //  * multi-values?
 //  * values named instead of numbered?
 
@@ -48,18 +47,17 @@ inline string
 make_key(Xapian::valueno slot, Xapian::docid did)
 {
     DEBUGCALL_STATIC(DB, string, "make_key", slot << ", " << did);
-    RETURN(string("\0\xd0", 2) + pack_uint(slot) + pack_uint_preserving_sort(did));
+    RETURN(string("\0\xd8", 2) + pack_uint(slot) + pack_uint_preserving_sort(did));
 }
 
 inline Xapian::docid
 docid_from_key(Xapian::valueno required_slot, const string & key)
 {
     DEBUGCALL_STATIC(DB, Xapian::docid, "docid_from_key", required_slot << ", " << key);
-    // FIXME: sort out exactly what the key format is.
     const char * p = key.data();
     const char * end = p + key.length();
     // Fail if not a value chunk key.
-    if (end - p < 2 || *p++ != '\0' || *p++ != '\xd0') RETURN(0);
+    if (end - p < 2 || *p++ != '\0' || *p++ != '\xd8') RETURN(0);
     Xapian::valueno slot;
     if (!unpack_uint(&p, end, &slot))
        	throw Xapian::DatabaseCorruptError("bad value key");
@@ -87,8 +85,7 @@ inline string
 make_valuestats_key(Xapian::valueno slot)
 {
     DEBUGCALL_STATIC(DB, string, "make_valuestats_key", slot);
-    // FIXME: sort out exactly what the key format is.
-    RETURN(string(1, '\xff') + pack_uint_last(slot));
+    RETURN(string("\0\xd0", 2) + pack_uint_last(slot));
 }
 
 class ValueChunkReader {
@@ -181,7 +178,7 @@ ChertValueTable::get_chunk_containing_did(Xapian::valueno slot,
 	const char * end = p + cursor->current_key.size();
 
 	// Check that it is a value stream chunk.
-	if (end - p < 2 || *p++ != '\0' || *p++ != '\xd0') return 0;
+	if (end - p < 2 || *p++ != '\0' || *p++ != '\xd8') return 0;
 
 	// Check that it's for the right value slot.
 	Xapian::valueno v;
@@ -499,7 +496,7 @@ ChertValueTable::get_value_stats(Xapian::valueno slot, ValueStats & stats) const
     mru_valno = Xapian::BAD_VALUENO;
 
     string tag;
-    if (get_exact_entry(make_valuestats_key(slot), tag)) {
+    if (postlist_table->get_exact_entry(make_valuestats_key(slot), tag)) {
 	const char * pos = tag.data();
 	const char * end = pos + tag.size();
 
@@ -533,20 +530,18 @@ ChertValueTable::set_value_stats(map<Xapian::valueno, ValueStats> & value_stats)
 	string key = make_valuestats_key(i->first);
 	const ValueStats & stats = i->second;
 	if (stats.freq != 0) {
-	    string new_value;
-	    new_value += pack_uint(stats.freq);
+	    string new_value = pack_uint(stats.freq);
 	    new_value += pack_string(stats.lower_bound);
 	    // We don't store or count empty values, so neither of the bounds
 	    // can be empty.  So we can safely store an empty upper bound when
 	    // the bounds are equal.
 	    if (stats.lower_bound != stats.upper_bound)
 		new_value += stats.upper_bound;
-	    add(key, new_value);
+	    postlist_table->add(key, new_value);
 	} else {
-	    del(key);
+	    postlist_table->del(key);
 	}
     }
     value_stats.clear();
     mru_valno = Xapian::BAD_VALUENO;
 }
-

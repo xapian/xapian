@@ -1,3 +1,8 @@
+Tue Sep 23 06:30:03 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_values.cc: Move the value stats to the postlist
+	  table.
+
 Mon Sep 22 13:00:01 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_database.cc,backends/chert/chert_values.cc,
