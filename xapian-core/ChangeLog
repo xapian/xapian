@@ -1,3 +1,8 @@
+Tue Sep 23 07:19:53 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/: The value table is no longer used, so change
+	  ChertValueTable to ChertValueManager.
+
 Tue Sep 23 06:30:03 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_values.cc: Move the value stats to the postlist

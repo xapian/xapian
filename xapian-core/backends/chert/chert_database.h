@@ -84,9 +84,8 @@ class ChertDatabase : public Xapian::Database::Internal {
 	 */
 	ChertTermListTable termlist_table;
 
-	/** Table storing values.
-	 */
-	ChertValueTable value_table;
+	/** Value manager. */
+	ChertValueManager value_manager;
 
 	/** Table storing synonym data.
 	 */

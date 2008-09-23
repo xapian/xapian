@@ -1,5 +1,5 @@
 /** @file chert_values.cc
- * @brief ChertValueTable class
+ * @brief ChertValueManager class
  */
 /* Copyright (C) 2008 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
@@ -139,8 +139,8 @@ class ValueChunkReader {
 };
 
 void
-ChertValueTable::add_value(Xapian::docid did, Xapian::valueno slot,
-			   const string & val)
+ChertValueManager::add_value(Xapian::docid did, Xapian::valueno slot,
+			     const string & val)
 {
     map<Xapian::valueno, map<Xapian::docid, string> >::iterator i;
     i = changes.find(slot);
@@ -151,7 +151,7 @@ ChertValueTable::add_value(Xapian::docid did, Xapian::valueno slot,
 }
 
 void
-ChertValueTable::remove_value(Xapian::docid did, Xapian::valueno slot)
+ChertValueManager::remove_value(Xapian::docid did, Xapian::valueno slot)
 {
     map<Xapian::valueno, map<Xapian::docid, string> >::iterator i;
     i = changes.find(slot);
@@ -162,11 +162,11 @@ ChertValueTable::remove_value(Xapian::docid did, Xapian::valueno slot)
 }
 
 Xapian::docid
-ChertValueTable::get_chunk_containing_did(Xapian::valueno slot,
-					  Xapian::docid did,
-					  string &chunk) const
+ChertValueManager::get_chunk_containing_did(Xapian::valueno slot,
+					    Xapian::docid did,
+					    string &chunk) const
 {
-    DEBUGCALL(DB, Xapian::docid, "ChertValueTable::get_chunk_containing_did", slot << ", " << did << "[chunk]");
+    DEBUGCALL(DB, Xapian::docid, "ChertValueManager::get_chunk_containing_did", slot << ", " << did << "[chunk]");
     AutoPtr<ChertCursor> cursor(postlist_table->cursor_get());
     if (!cursor.get()) return 0;
 
@@ -301,7 +301,7 @@ class ValueUpdater {
 };
 
 void
-ChertValueTable::merge_changes()
+ChertValueManager::merge_changes()
 {
     {
 	map<Xapian::docid, string>::const_iterator i;
@@ -327,8 +327,8 @@ ChertValueTable::merge_changes()
 }
 
 void
-ChertValueTable::add_document(Xapian::docid did, const Xapian::Document &doc,
-			      map<Xapian::valueno, ValueStats> & value_stats)
+ChertValueManager::add_document(Xapian::docid did, const Xapian::Document &doc,
+				map<Xapian::valueno, ValueStats> & value_stats)
 {
     // FIXME: Use BitWriter and interpolative coding?  Or is it not worthwhile
     // for this?
@@ -372,8 +372,8 @@ ChertValueTable::add_document(Xapian::docid did, const Xapian::Document &doc,
 }
 
 void
-ChertValueTable::delete_document(Xapian::docid did,
-				 map<Xapian::valueno, ValueStats> & value_stats)
+ChertValueManager::delete_document(Xapian::docid did,
+				   map<Xapian::valueno, ValueStats> & value_stats)
 {
     map<Xapian::docid, string>::iterator it = slots.find(did);
     string s;
@@ -414,9 +414,9 @@ ChertValueTable::delete_document(Xapian::docid did,
 }
 
 void
-ChertValueTable::replace_document(Xapian::docid did,
-				  const Xapian::Document &doc,
-				  map<Xapian::valueno, ValueStats> & value_stats)
+ChertValueManager::replace_document(Xapian::docid did,
+				    const Xapian::Document &doc,
+				    map<Xapian::valueno, ValueStats> & value_stats)
 {
     // FIXME: We do this to force the values to be cached in the Document
     // object in case we're asked to replace a document with itself with
@@ -429,7 +429,7 @@ ChertValueTable::replace_document(Xapian::docid did,
 }
 
 string
-ChertValueTable::get_value(Xapian::docid did, Xapian::valueno slot) const
+ChertValueManager::get_value(Xapian::docid did, Xapian::valueno slot) const
 {
     map<Xapian::valueno, map<Xapian::docid, string> >::const_iterator i;
     i = changes.find(slot);
@@ -452,8 +452,8 @@ ChertValueTable::get_value(Xapian::docid did, Xapian::valueno slot) const
 }
 
 void
-ChertValueTable::get_all_values(map<Xapian::valueno, string> & values,
-				Xapian::docid did) const
+ChertValueManager::get_all_values(map<Xapian::valueno, string> & values,
+				  Xapian::docid did) const
 {
     Assert(values.empty());
     map<Xapian::docid, string>::const_iterator i = slots.find(did);
@@ -479,9 +479,9 @@ ChertValueTable::get_all_values(map<Xapian::valueno, string> & values,
 }
 
 void
-ChertValueTable::get_value_stats(Xapian::valueno slot) const
+ChertValueManager::get_value_stats(Xapian::valueno slot) const
 {
-    DEBUGCALL(DB, void, "ChertValueTable::get_value_stats", slot);
+    DEBUGCALL(DB, void, "ChertValueManager::get_value_stats", slot);
     // Invalidate the cache first in case an exception is thrown.
     mru_valno = Xapian::BAD_VALUENO;
     get_value_stats(slot, mru_valstats);
@@ -489,9 +489,9 @@ ChertValueTable::get_value_stats(Xapian::valueno slot) const
 }
 
 void
-ChertValueTable::get_value_stats(Xapian::valueno slot, ValueStats & stats) const
+ChertValueManager::get_value_stats(Xapian::valueno slot, ValueStats & stats) const
 {
-    DEBUGCALL(DB, void, "ChertValueTable::get_value_stats", slot << ", [stats]");
+    DEBUGCALL(DB, void, "ChertValueManager::get_value_stats", slot << ", [stats]");
     // Invalidate the cache first in case an exception is thrown.
     mru_valno = Xapian::BAD_VALUENO;
 
@@ -522,9 +522,9 @@ ChertValueTable::get_value_stats(Xapian::valueno slot, ValueStats & stats) const
 }
 
 void
-ChertValueTable::set_value_stats(map<Xapian::valueno, ValueStats> & value_stats)
+ChertValueManager::set_value_stats(map<Xapian::valueno, ValueStats> & value_stats)
 {
-    DEBUGCALL(DB, void, "ChertValueTable::set_value_stats", "[value_stats]");
+    DEBUGCALL(DB, void, "ChertValueManager::set_value_stats", "[value_stats]");
     map<Xapian::valueno, ValueStats>::const_iterator i;
     for (i = value_stats.begin(); i != value_stats.end(); ++i) {
 	string key = make_valuestats_key(i->first);

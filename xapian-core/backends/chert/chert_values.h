@@ -22,8 +22,6 @@
 #ifndef XAPIAN_INCLUDED_CHERT_VALUES_H
 #define XAPIAN_INCLUDED_CHERT_VALUES_H
 
-#include "chert_chunkedlisttable.h"
-
 #include "valuestats.h"
 
 #include "xapian/types.h"
@@ -39,7 +37,7 @@ class ChertPostListTable;
 class ChertTermListTable;
 struct ValueStats;
 
-class ChertValueTable : public ChertChunkedListTable {
+class ChertValueManager {
     /** The value number for the most recently used value statistics.
      *
      *  Set to Xapian::BAD_VALUENO if no value statistics are currently
@@ -58,13 +56,14 @@ class ChertValueTable : public ChertChunkedListTable {
 
     std::map<Xapian::valueno, std::map<Xapian::docid, std::string> > changes;
 
-    void add_value(Xapian::docid did, Xapian::valueno slot, const string & val);
+    void add_value(Xapian::docid did, Xapian::valueno slot,
+		   const std::string & val);
 
     void remove_value(Xapian::docid did, Xapian::valueno slot);
 
     Xapian::docid get_chunk_containing_did(Xapian::valueno slot,
 					   Xapian::docid did,
-					   string &chunk) const;
+					   std::string &chunk) const;
 
     /** Get the statistics for value slot @a slot. */
     void get_value_stats(Xapian::valueno slot) const;
@@ -72,20 +71,10 @@ class ChertValueTable : public ChertChunkedListTable {
     void get_value_stats(Xapian::valueno slot, ValueStats & stats) const;
 
   public:
-    /** Create a new ChertValueTable object.
-     *
-     *  This method does not create or open the table on disk - you
-     *  must call the create() or open() methods respectively!
-     *
-     *  @param dbdir	    The directory the chert database is stored in.
-     *  @param readonly	    true if we're opening read-only, else false.
-     */
-    ChertValueTable(const std::string & dbdir, bool readonly,
-		    ChertPostListTable * postlist_table_,
-		    ChertTermListTable * termlist_table_)
-	: ChertChunkedListTable("value", "/value.", dbdir, readonly,
-				DONT_COMPRESS, true),
-	  mru_valno(Xapian::BAD_VALUENO),
+    /** Create a new ChertValueManager object. */
+    ChertValueManager(ChertPostListTable * postlist_table_,
+		      ChertTermListTable * termlist_table_)
+	: mru_valno(Xapian::BAD_VALUENO),
 	  postlist_table(postlist_table_),
 	  termlist_table(termlist_table_) { }
 
@@ -130,37 +119,20 @@ class ChertValueTable : public ChertChunkedListTable {
      */
     void set_value_stats(std::map<Xapian::valueno, ValueStats> & value_stats);
 
-    /** Override methods of ChertTable.
-     *
-     *  NB: these aren't virtual, but we always call them on the subclass in
-     *  cases where it matters.
-     *  @{
-     */
-
-    bool open(chert_revision_number_t revision_) {
-	/// Ignore any old cached valuestats if we're reopening.
+    void reset() {
+	/// Ignore any old cached valuestats.
 	mru_valno = Xapian::BAD_VALUENO;
-	return ChertTable::open(revision_);
     }
 
     bool is_modified() const {
-	return !changes.empty() || ChertTable::is_modified();
-    }
-
-    void flush_db() {
-	merge_changes();
-	ChertTable::flush_db();
+	return !changes.empty();
     }
 
     void cancel() {
 	// Discard batched-up changes.
 	slots.clear();
 	changes.clear();
-
-	ChertTable::cancel();
     }
-
-    // @}
 };
 
 #endif // XAPIAN_INCLUDED_CHERT_VALUES_H

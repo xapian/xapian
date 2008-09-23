@@ -119,7 +119,7 @@ ChertDatabase::ChertDatabase(const string &chert_dir, int action,
 	  postlist_table(db_dir, readonly),
 	  position_table(db_dir, readonly),
 	  termlist_table(db_dir, readonly),
-	  value_table(db_dir, readonly, &postlist_table, &termlist_table),
+	  value_manager(&postlist_table, &termlist_table),
 	  synonym_table(db_dir, readonly),
 	  spelling_table(db_dir, readonly),
 	  record_table(db_dir, readonly),
@@ -240,10 +240,6 @@ ChertDatabase::create_and_open_tables(unsigned int block_size)
     position_table.set_block_size(block_size);
 
     termlist_table.create_and_open(block_size);
-    // The value table is created lazily, but erase it in case we're
-    // overwriting an existing database and it already exists.
-    value_table.erase();
-    value_table.set_block_size(block_size);
 
     synonym_table.create_and_open(block_size);
     spelling_table.create_and_open(block_size);
@@ -292,9 +288,10 @@ ChertDatabase::open_tables_consistent()
     // exist yet.
     unsigned int block_size = record_table.get_block_size();
     position_table.set_block_size(block_size);
-    value_table.set_block_size(block_size);
     synonym_table.set_block_size(block_size);
     spelling_table.set_block_size(block_size);
+
+    value_manager.reset();
 
     bool fully_opened = false;
     int tries = 100;
@@ -302,7 +299,6 @@ ChertDatabase::open_tables_consistent()
     while (!fully_opened && (tries_left--) > 0) {
 	if (spelling_table.open(revision) &&
 	    synonym_table.open(revision) &&
-	    value_table.open(revision) &&
 	    termlist_table.open(revision) &&
 	    position_table.open(revision) &&
 	    postlist_table.open(revision)) {
@@ -350,13 +346,13 @@ ChertDatabase::open_tables(chert_revision_number_t revision)
     // exist yet.
     unsigned int block_size = record_table.get_block_size();
     position_table.set_block_size(block_size);
-    value_table.set_block_size(block_size);
     synonym_table.set_block_size(block_size);
     spelling_table.set_block_size(block_size);
 
+    value_manager.reset();
+
     spelling_table.open(revision);
     synonym_table.open(revision);
-    value_table.open(revision);
     termlist_table.open(revision);
     position_table.open(revision);
     postlist_table.open(revision);
@@ -442,9 +438,8 @@ ChertDatabase::set_revision_number(chert_revision_number_t new_revision)
 {
     DEBUGCALL(DB, void, "ChertDatabase::set_revision_number", new_revision);
 
-    // NB: We need to flush value_table first since doing so makes changes to
-    // postlist_table and termlist_table.
-    value_table.flush_db();
+    value_manager.merge_changes();
+
     postlist_table.flush_db();
     position_table.flush_db();
     termlist_table.flush_db();
@@ -497,14 +492,12 @@ ChertDatabase::set_revision_number(chert_revision_number_t new_revision)
 	    spelling_table.write_changed_blocks(changes_fd);
 	    record_table.write_changed_blocks(changes_fd);
 	    position_table.write_changed_blocks(changes_fd);
-	    value_table.write_changed_blocks(changes_fd);
 	    postlist_table.write_changed_blocks(changes_fd);
 	}
 
 	postlist_table.commit(new_revision, changes_fd);
 	position_table.commit(new_revision, changes_fd);
 	termlist_table.commit(new_revision, changes_fd);
-	value_table.commit(new_revision, changes_fd);
 	synonym_table.commit(new_revision, changes_fd);
 	spelling_table.commit(new_revision, changes_fd);
 
@@ -743,7 +736,7 @@ ChertDatabase::apply()
     if (!postlist_table.is_modified() &&
 	!position_table.is_modified() &&
 	!termlist_table.is_modified() &&
-	!value_table.is_modified() &&
+	!value_manager.is_modified() &&
 	!synonym_table.is_modified() &&
 	!spelling_table.is_modified() &&
 	!record_table.is_modified()) {
@@ -783,7 +776,7 @@ ChertDatabase::cancel()
     postlist_table.cancel();
     position_table.cancel();
     termlist_table.cancel();
-    value_table.cancel();
+    value_manager.cancel();
     synonym_table.cancel();
     spelling_table.cancel();
     record_table.cancel();
@@ -844,21 +837,21 @@ Xapian::doccount
 ChertDatabase::get_value_freq(Xapian::valueno valno) const
 {
     DEBUGCALL(DB, Xapian::doccount, "ChertDatabase::get_value_freq", valno);
-    RETURN(value_table.get_value_freq(valno));
+    RETURN(value_manager.get_value_freq(valno));
 }
 
 std::string
 ChertDatabase::get_value_lower_bound(Xapian::valueno valno) const
 {
     DEBUGCALL(DB, std::string, "ChertDatabase::get_value_lower_bound", valno);
-    RETURN(value_table.get_value_lower_bound(valno));
+    RETURN(value_manager.get_value_lower_bound(valno));
 }
 
 std::string
 ChertDatabase::get_value_upper_bound(Xapian::valueno valno) const
 {
     DEBUGCALL(DB, std::string, "ChertDatabase::get_value_upper_bound", valno);
-    RETURN(value_table.get_value_upper_bound(valno));
+    RETURN(value_manager.get_value_upper_bound(valno));
 }
 
 bool
@@ -911,9 +904,9 @@ ChertDatabase::open_document(Xapian::docid did, bool lazy) const
 
     Xapian::Internal::RefCntPtr<const ChertDatabase> ptrtothis(this);
     RETURN(new ChertDocument(ptrtothis,
-			      &value_table,
-			      &record_table,
-			      did, lazy));
+			     &value_manager,
+			     &record_table,
+			     did, lazy));
 }
 
 PositionList *
@@ -1330,7 +1323,7 @@ ChertWritableDatabase::flush_postlist_changes() const
 void
 ChertWritableDatabase::apply()
 {
-    value_table.set_value_stats(value_stats);
+    value_manager.set_value_stats(value_stats);
     ChertDatabase::apply();
 }
 
@@ -1358,7 +1351,7 @@ ChertWritableDatabase::add_document_(Xapian::docid did,
 	record_table.replace_record(document.get_data(), did);
 
 	// Set the values.
-	value_table.add_document(did, document, value_stats);
+	value_manager.add_document(did, document, value_stats);
 
 	chert_doclen_t new_doclen = 0;
 	{
@@ -1447,7 +1440,7 @@ ChertWritableDatabase::delete_document(Xapian::docid did)
 
     try {
 	// Remove the values.
-	value_table.delete_document(did, value_stats);
+	value_manager.delete_document(did, value_stats);
 
 	// OK, now add entries to remove the postings in the underlying record.
 	Xapian::Internal::RefCntPtr<const ChertWritableDatabase> ptrtothis(this);
@@ -1570,7 +1563,7 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 	record_table.replace_record(document.get_data(), did);
 
 	// Replace the values.
-	value_table.replace_document(did, document, value_stats);
+	value_manager.replace_document(did, document, value_stats);
 
 	chert_doclen_t new_doclen = 0;
 	{
