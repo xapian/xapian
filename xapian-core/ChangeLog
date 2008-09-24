@@ -1,3 +1,9 @@
+Wed Sep 24 12:48:39 GMT 2008  Olly Betts <olly@survex.com>
+
+	* unicode/tclUniData.cc: Update to Unicode 5.1 (bug#265).
+	* tests/api_unicode.cc: Add tests for some of the changes
+	  in Unicode 5.1.
+
 Tue Sep 23 14:58:54 GMT 2008  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc: Avoid the relatively expensive edit distance
