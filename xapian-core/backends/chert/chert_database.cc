@@ -575,7 +575,6 @@ ChertDatabase::send_whole_database(RemoteConnection & conn,
 	"spelling",
 	"record",
 	"position",
-	"value",
 	"postlist"
     };
     list<string> filenames;
