@@ -1703,7 +1703,7 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 	    record_table.replace_record(document.get_data(), did);
 	}
 
-	if (!modifying || document.internal->data_modified()) {
+	if (!modifying || document.internal->values_modified()) {
 	    // Read the existing values, delete them, and then add the new values.
 
 	    // FIXME - it might be faster to compare the new values with the
