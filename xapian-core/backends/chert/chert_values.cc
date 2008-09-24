@@ -306,7 +306,13 @@ ChertValueManager::merge_changes()
     {
 	map<Xapian::docid, string>::const_iterator i;
 	for (i = slots.begin(); i != slots.end(); ++i) {
-	    termlist_table->add(make_slot_key(i->first), i->second);
+	    const string & enc = i->second;
+	    string key = make_slot_key(i->first);
+	    if (!enc.empty()) {
+		termlist_table->add(key, i->second);
+	    } else {
+		termlist_table->del(key);
+	    }
 	}
 	slots.clear();
     }

@@ -1,3 +1,8 @@
+Wed Sep 24 08:51:20 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_values.cc: Don't store empty lists of used
+	  value slots.
+
 Tue Sep 23 07:19:53 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/chert/: The value table is no longer used, so change
