@@ -1117,6 +1117,46 @@ DEFINE_TESTCASE(replacedoc5, writable) {
     return true;
 }
 
+// Test replacing a document while adding values, without changing anything
+// else.  Regression test for a bug introduced while implementing lazy update,
+// and also covers a few other code paths.
+DEFINE_TESTCASE(replacedoc6, writable) {
+    Xapian::WritableDatabase db = get_writable_database();
+
+    Xapian::Document doc;
+    Xapian::docid did = db.add_document(doc);
+    TEST_EQUAL(did, 1);
+    db.flush();
+
+    // Add document
+    doc = db.get_document(1);
+    TEST_EQUAL(doc.get_value(1), "");
+    TEST_EQUAL(doc.get_value(2), "");
+    doc.add_value(1, "banana1");
+    db.replace_document(1, doc);
+
+    doc = db.get_document(1);
+    TEST_EQUAL(doc.get_value(1), "banana1");
+    TEST_EQUAL(doc.get_value(2), "");
+    db.flush();
+
+    doc = db.get_document(1);
+    TEST_EQUAL(doc.get_value(1), "banana1");
+    TEST_EQUAL(doc.get_value(2), "");
+    doc.add_value(2, "banana2");
+    db.replace_document(1, doc);
+
+    TEST_EQUAL(doc.get_value(1), "banana1");
+    TEST_EQUAL(doc.get_value(2), "banana2");
+    db.flush();
+
+    doc = db.get_document(1);
+    TEST_EQUAL(doc.get_value(1), "banana1");
+    TEST_EQUAL(doc.get_value(2), "banana2");
+
+    return true;
+}
+
 // Test of new feature: WritableDatabase::replace_document and delete_document
 // can take a unique termname instead of a document id as of Xapian 0.8.2.
 DEFINE_TESTCASE(uniqueterm1, writable) {

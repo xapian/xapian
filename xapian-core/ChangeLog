@@ -1,3 +1,9 @@
+Wed Sep 24 13:15:11 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_wrdb.cc: Test a few more cases which are relevant in
+	  the lazyupdate scenario.  Includes a regression test for the bug
+	  fixed by the previous commit.
+
 Wed Sep 24 09:30:33 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* backends/chert/chert_database.cc: Fix stupid typo - was using
