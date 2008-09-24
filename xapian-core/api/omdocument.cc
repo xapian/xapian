@@ -487,3 +487,9 @@ Xapian::Document::Internal::need_values() const
 	values_here = true;
     }
 }
+
+Xapian::Document::Internal::~Internal()
+{
+    if (database)
+	database->invalidate_doc_object(this);
+}

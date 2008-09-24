@@ -335,6 +335,12 @@ Database::Internal::get_uuid() const
     throw Xapian::UnimplementedError("This backend doesn't support UUIDs");
 }
 
+void
+Database::Internal::invalidate_doc_object(Xapian::Document::Internal *) const
+{
+    // Do nothing, by default
+}
+
 RemoteDatabase *
 Database::Internal::as_remotedatabase()
 {

@@ -1,3 +1,15 @@
+Wed Sep 24 22:59:52 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/omdocument.cc,backends/chert/chert_database.cc,
+	  backends/chert/chert_database.h,backends/database.cc,
+	  common/database.h,common/document.h: Don't rely on a pointer
+	  comparison being valid when it involves a pointer to something
+	  which may have been deallocated.  Instead, add a method
+	  Database::Internal::invalidate_doc_object() which is called from
+	  the destructor of a document, so that we can reset the pointer to
+	  modify_shortcut_document in ChertWritableDatabase when this
+	  happens.
+
 Wed Sep 24 13:15:11 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/api_wrdb.cc: Test a few more cases which are relevant in

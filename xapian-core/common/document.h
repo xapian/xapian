@@ -183,15 +183,6 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	Xapian::docid get_docid() const { return did; }
 
-	/** Check if the document is in the supplied (internal) database.
-	 *
-	 *  This allows us to shortcut the replace operation for documents
-	 *  which are being replaced in the same database they came from.
-	 */
-	bool is_in_database(const Xapian::Database::Internal *db) const {
-	    return db == database;
-	}
-
 	/// Return a string describing this object.
 	string get_description() const;
 
@@ -213,7 +204,7 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	 *  Note that the database object which created this document must
 	 *  still exist at the time this is called.
 	 */
-	virtual ~Internal() { }
+	virtual ~Internal();
 };
 
 #endif  // OM_HGUARD_DOCUMENT_H

@@ -1576,13 +1576,12 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 	// Check for a document read from this database being replaced - ie, a
 	// modification operation.
 	bool modifying = false;
-	if (document.internal->get_docid() == modify_shortcut_docid) {
-	    if (document.internal->is_in_database(this) &&
-		document.internal.get() == modify_shortcut_document) {
-		// The document we're supplied with came from this database,
-		// and hasn't been modified since then, so we can skip
-		// modification of any data which hasn't been modified in the
-		// document.
+	if (modify_shortcut_docid &&
+	    document.internal->get_docid() == modify_shortcut_docid) {
+	    if (document.internal.get() == modify_shortcut_document) {
+		// We have a docid, it matches, and the pointer matches, so we
+		// can skip modification of any data which hasn't been modified
+		// in the document.
 		modifying = true;
 		LOGLINE(DB, "Detected potential document modification shortcut.");
 	    } else {
@@ -1945,5 +1944,14 @@ ChertWritableDatabase::set_metadata(const string & key, const string & value)
 	postlist_table.del(btree_key);
     } else {
 	postlist_table.add(btree_key, value);
+    }
+}
+
+void
+ChertWritableDatabase::invalidate_doc_object(Xapian::Document::Internal * obj) const
+{
+    if (obj == modify_shortcut_document) {
+	modify_shortcut_document = NULL;
+	modify_shortcut_docid = 0;
     }
 }

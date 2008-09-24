@@ -483,6 +483,15 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	virtual string get_uuid() const;
 
+	/** Notify the database that document is no longer valid.
+	 *
+	 *  This is used to invalidate references to a document kept by a
+	 *  database for doing lazy updates.  If we moved to using a weak_ptr
+	 *  instead we wouldn't need a special method for this, but it would
+	 *  involve a fair bit of reorganising of other parts of the code.
+	 */
+	virtual void invalidate_doc_object(Xapian::Document::Internal * obj) const;
+
 	//////////////////////////////////////////////////////////////////
 	// Introspection methods:
 	// ======================
