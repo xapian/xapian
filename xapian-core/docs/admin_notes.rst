@@ -46,7 +46,8 @@ even if empty; spelling and synonym tables are new in 1.0.2):
    document which each term occurs at.
  - A value table, which holds the "values" (used for sorting, collapsing, and
    other match-time calculations) associated with each document in the
-   database.
+   database (only for flint - chert stores values in the postlist and termlist
+   tables).
  - A spelling table, which holds data for suggesting spelling corrections.
  - A synonym table, which holds a synonym dictionary.
 

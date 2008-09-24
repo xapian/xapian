@@ -1,3 +1,7 @@
+Wed Sep 24 13:40:22 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/admin_notes.rst: Note that chert doesn't have a value table.
+
 Wed Sep 24 13:38:02 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_database.cc: Remove "value" from the list of
