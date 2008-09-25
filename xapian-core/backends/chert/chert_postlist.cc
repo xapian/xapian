@@ -950,7 +950,8 @@ ChertPostList::jump_to(Xapian::docid desired_did)
     }
 
     // Move to correct position in chunk.
-    RETURN(move_forward_in_chunk_to_at_least(desired_did));
+    if (!move_forward_in_chunk_to_at_least(desired_did)) RETURN(false);
+    RETURN(desired_did == did);
 }
 
 string

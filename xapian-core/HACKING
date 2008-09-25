@@ -73,9 +73,10 @@ mechanism to allow you to select where to store the log and which types of
 message you're interested by setting environment variables.  You can:
 
  * set XAPIAN_DEBUG_LOG to be the path to a file that you would like debugging
-   output to be stored in.  Unless XAPIAN_DEBUG_LOG is set, no debug logging
-   will be performed.  Occurrences of %p in XAPIAN_DEBUG_LOG will be replaced
-   with the current process-id.
+   output to be stored in, or to the special value ``-`` to indicate that you
+   would like debugging output to be sent to stdout.  Unless XAPIAN_DEBUG_LOG
+   is set, no debug logging will be performed.  Occurrences of %p in
+   XAPIAN_DEBUG_LOG will be replaced with the current process-id.
 
  * set XAPIAN_DEBUG_FLAGS to a string of capital letters indicating the types
    of debugging message you would like to display (the default is to log calls
