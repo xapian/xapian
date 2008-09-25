@@ -1293,6 +1293,40 @@ DEFINE_TESTCASE(eliteset4, backend) {
     return true;
 }
 
+/// Regression test for problem with excess precision.
+DEFINE_TESTCASE(eliteset5, backend) {
+    SKIP_TEST_FOR_BACKEND("multi");
+
+    Xapian::Database mydb1(get_database("apitest_simpledata"));
+    Xapian::Enquire enquire1(mydb1);
+
+    vector<string> v;
+    for (int i = 0; i != 3; ++i) {
+	v.push_back("simpl");
+	v.push_back("queri");
+
+	v.push_back("rubbish");
+	v.push_back("rubbish");
+	v.push_back("rubbish");
+	v.push_back("word");
+	v.push_back("word");
+	v.push_back("word");
+    }
+
+    Xapian::Query myquery1 = Xapian::Query(Xapian::Query::OP_ELITE_SET,
+					   v.begin(), v.end(), 1);
+    myquery1 = Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT,
+			     myquery1,
+			     0.004);
+
+    enquire1.set_query(myquery1);
+    // On architectures with excess precision (or, at least, on x86), the
+    // following call used to result in a segfault.
+    enquire1.get_mset(0, 10);
+
+    return true;
+}
+
 /// Test that the termfreq returned by termlists is correct.
 DEFINE_TESTCASE(termlisttermfreq1, backend) {
     Xapian::Database mydb(get_database("apitest_simpledata"));
