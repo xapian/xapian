@@ -30,19 +30,17 @@
 /** Create a ChertDocument: this is only called by
  *  ChertDatabase::open_document().
  */
-ChertDocument::ChertDocument(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
-			       const ChertValueTable *value_table_,
+ChertDocument::ChertDocument(Xapian::Internal::RefCntPtr<const ChertDatabase> database_,
+			       const ChertValueManager *value_manager_,
 			       const ChertRecordTable *record_table_,
 			       Xapian::docid did_, bool lazy)
 	: Xapian::Document::Internal(database_.get(), did_),
 	  database(database_),
-	  value_table(value_table_),
+	  value_manager(value_manager_),
 	  record_table(record_table_)
 {
-    DEBUGCALL(DB, void, "ChertDocument", "[database_], " << value_table_ << ", " << record_table_ << ", " << did_ << ", " << lazy);
-    // FIXME: this should work but isn't great - in fact I wonder if
-    // we should cache the results anyway...
-    if (!lazy) (void)record_table->get_record(did);
+    DEBUGCALL(DB, void, "ChertDocument", "[database_], " << value_manager_ << ", " << record_table_ << ", " << did_ << ", " << lazy);
+    if (!lazy) (void)database->get_doclength(did);
 }
 
 /** Retrieve a value from the database
@@ -53,9 +51,7 @@ string
 ChertDocument::do_get_value(Xapian::valueno valueid) const
 {
     DEBUGCALL(DB, string, "ChertDocument::do_get_value", valueid);
-    string retval;
-    value_table->get_value(retval, did, valueid);
-    RETURN(retval);
+    RETURN(value_manager->get_value(did, valueid));
 }
 
 /** Retrieve all value values from the database
@@ -64,7 +60,7 @@ void
 ChertDocument::do_get_all_values(map<Xapian::valueno, string> & values_) const
 {
     DEBUGCALL(DB, void, "ChertDocument::do_get_all_values", "[values_]");
-    value_table->get_all_values(values_, did);
+    value_manager->get_all_values(values_, did);
 }
 
 /** Retrieve the document data from the database

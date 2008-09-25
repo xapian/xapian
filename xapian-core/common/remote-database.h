@@ -65,6 +65,9 @@ class RemoteDatabase : public Xapian::Database::Internal {
     /// Has positional information?
     mutable bool has_positional_info;
 
+    /// The UUID of the remote database.
+    mutable string uuid;
+
     /// The context to return with any error messages
     string context;
 
@@ -217,6 +220,8 @@ class RemoteDatabase : public Xapian::Database::Internal {
     void replace_document(Xapian::docid did, const Xapian::Document & doc);
     Xapian::docid replace_document(const std::string & unique_term,
 				   const Xapian::Document & document);
+
+    std::string get_uuid() const;
 };
 
 #endif // XAPIAN_INCLUDED_REMOTE_DATABASE_H

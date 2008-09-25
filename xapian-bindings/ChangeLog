@@ -9,6 +9,36 @@ Mon Oct 29 03:03:57 GMT 2007  Olly Betts <olly@survex.com>
 	* NEWS,csharp/Makefile.am,python/extra.i,python/pythontest.py,
 	  python/util.i,xapian.i: Restore the changes.
 
+Wed Sep 10 15:28:57 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/generate-python-exceptions.in: Back out patch which added
+	  XapianDirectorException to work around exception mangling bug in
+	  swig, now that we're using a version of swig which has the bug
+	  fixed.
+
+Wed Sep 10 15:21:26 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* ../swig: Update version of swig in use to current HEAD (swig
+	  revision 10831.  Changes python import method to avoid giving a
+	  warning with the upcoming 2.6 release (and failing with 2.7 or
+	  later).  Also includes a different fix for ticket #289, so we
+	  could back out our XapianDirectorException class now.
+
+	  No other significant changes in the generated files - several
+	  warning fixes, some rearrangement of the order of variable
+	  declarations, some removal of code which wasn't used anyway.
+
+Fri Sep 05 11:03:38 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/pythontest2.py,python/pythontest3.py: Add test for
+	  get_uuid() (not really python specific, but I can't easily add
+	  this test to smoketest because it needs an on-disk database,
+	  which there's no infrastructure in smoketest to clean up).
+
+Fri Sep 05 09:59:02 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* xapian.i: Add Database::get_uuid() to wrappers.
+
 Thu Sep 04 04:30:09 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS: Sync with 1.0.8.

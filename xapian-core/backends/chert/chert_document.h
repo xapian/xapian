@@ -33,13 +33,13 @@ class ChertDocument : public Xapian::Document::Internal {
     friend class ChertDatabase;
     friend class ChertWritableDatabase;
     private:
-	Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database;
+	Xapian::Internal::RefCntPtr<const ChertDatabase> database;
 
-	const ChertValueTable *value_table;
+	const ChertValueManager *value_manager;
 	const ChertRecordTable *record_table;
 
-	ChertDocument(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
-		       const ChertValueTable *value_table_,
+	ChertDocument(Xapian::Internal::RefCntPtr<const ChertDatabase> database_,
+		       const ChertValueManager *value_manager_,
 		       const ChertRecordTable *record_table_,
 		       Xapian::docid did_, bool lazy);
 

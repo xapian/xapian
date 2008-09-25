@@ -472,11 +472,25 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 
 	/** Get a UUID for the database.
 	 *
+	 *  The UUID will persist for the lifetime of the database.
+	 *
 	 *  Replicas (eg, made with the replication protocol, or by copying all
 	 *  the database files) will have the same UUID.  However, copies (made
 	 *  with copydatabase, or xapian-compact) will have different UUIDs.
+	 *
+	 *  If the backend does not support UUIDs, or this database has
+	 *  multiple sub-databases, an exception will be raised.
 	 */
 	virtual string get_uuid() const;
+
+	/** Notify the database that document is no longer valid.
+	 *
+	 *  This is used to invalidate references to a document kept by a
+	 *  database for doing lazy updates.  If we moved to using a weak_ptr
+	 *  instead we wouldn't need a special method for this, but it would
+	 *  involve a fair bit of reorganising of other parts of the code.
+	 */
+	virtual void invalidate_doc_object(Xapian::Document::Internal * obj) const;
 
 	//////////////////////////////////////////////////////////////////
 	// Introspection methods:

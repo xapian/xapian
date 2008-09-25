@@ -66,7 +66,7 @@ value for <code>0</code> or <code>1</code>.  This is indicated by
 <h2>Server greeting and statistics</h2>
 
 <ul>
-<li> <code>REPLY_GREETING &lt;protocol major version&gt; &lt;protocol minor version&gt; I&lt;db doc count&gt; I&lt;last docid&gt; B&lt;has positions?&gt; F&lt;db average length&gt;</code>
+<li> <code>REPLY_GREETING &lt;protocol major version&gt; &lt;protocol minor version&gt; I&lt;db doc count&gt; I&lt;last docid&gt; B&lt;has positions?&gt; F&lt;db average length&gt; L&lt;UUID&gt;</code>
 </ul>
 
 <p>
@@ -153,7 +153,7 @@ abort any current sequence of messages.
 
 <ul>
 <li> <code>MSG_REOPEN</code>
-<li> <code>REPLY_UPDATE I&lt;db doc count&gt; I&lt;last docid&gt; B&lt;has positions?&gt; F&lt;db average length&gt;</code>
+<li> <code>REPLY_UPDATE I&lt;db doc count&gt; I&lt;last docid&gt; B&lt;has positions?&gt; F&lt;db average length&gt; L&lt;UUID&gt;</code>
 </ul>
 
 <p>The reply is the same as for <code>MSG_UPDATE</code>.</p>
