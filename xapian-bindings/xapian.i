@@ -579,8 +579,9 @@ class Database {
 	TermIterator synonym_keys_begin(const std::string &prefix = "") const;
 	TermIterator synonym_keys_end(const std::string &prefix = "") const;
 	std::string get_metadata(const std::string & key) const;
-        Xapian::TermIterator metadata_keys_begin(const std::string &prefix = "") const;
-        Xapian::TermIterator metadata_keys_end(const std::string &prefix = "") const;
+	Xapian::TermIterator metadata_keys_begin(const std::string &prefix = "") const;
+	Xapian::TermIterator metadata_keys_end(const std::string &prefix = "") const;
+	std::string get_uuid() const;
 
 };
 

@@ -117,6 +117,173 @@ Fri Dec 07 14:19:00 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 	  calculation stuff from Yung-chung Lin; exactly as in his patch
 	  from 18 September 2007.
 
+Thu Sep 25 17:38:37 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* Merge lazyupdate branch:
+	* api/omdocument.cc,backends/chert/chert_database.cc,
+	  backends/chert/chert_database.h,backends/chert/chert_values.cc,
+	  backends/database.cc,common/database.h,common/document.h: Add a
+	  shortcut for calling replace_document() with a document which was
+	  just read from the database.  If the document terms were never
+	  accessed, don't bother updating the termlist, postings and
+	  position lists.  If the data was never accessed, don't bother
+	  updating the data.  If the values were never accessed, don't
+	  bother updating them.  Only fires if we know that the document
+	  hasn't been modified (or deleted) since it was read from the
+	  database, to ensure that the lazy access of the data doesn't have
+	  a visible effect - we enforce this by keeping track of the last
+	  document read with open_document(), and only using the shortcut
+	  if this is the document passed to replace_document, and that
+	  document ID hasn't been passed to replace_document or
+	  delete_document since.
+
+	  Add a method Database::Internal::invalidate_doc_object() which is
+	  called from the destructor of a document, so that we can reset
+	  the pointer to modify_shortcut_document in ChertWritableDatabase
+	  when this happens.
+
+	  Document::Internal now keeps a ref-count pointer to the database,
+	  to ensure that the database is valid when invalidate_doc_object()
+	  is called on it.
+
+Thu Sep 25 17:35:07 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* Forward-port from branches/lazyupdate:
+	* tests/api_wrdb.cc: Extend deldoc5 slightly, to check that the
+	  DocNotFoundError for a deleted document is raised before the
+	  flush, as well as after.  Also, test a few more cases which are
+	  relevant in the lazyupdate scenario.
+
+Thu Sep 25 17:33:21 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* Forward-port from branches/lazyupdate:
+	* backends/chert/chert_document.cc,backends/chert/chert_document.h:
+	  Check for existence of a document when opening it by searching
+	  for the document length entry, rather than by reading the record
+	  for the document.  Probably slightly slower if the record is
+	  going to be accessed anyway, but much faster if it isn't (though
+	  benchmarking of this is needed).
+
+Thu Sep 25 14:27:07 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Merge valuestreams branch:
+	* backends/chert/,bin/xapian-check.cc,bin/xapian-compact.cc,
+	  docs/admin_notes.rst: Change the chert backend to store values in a
+	  chunked stream for each value slot to make access more efficient.
+	  The chunked streams and value stats are now stored in the postlist
+	  table while the list of used value slots for each document is stored
+	  in the termlist table, so we no longer need a special table for
+	  values.
+	* bin/xapian-check.cc,bin/xapian-check-flint.cc:  Don't stop checking
+	  a table after an error in certain cases - instead increment the
+	  error counter and try to continue checking from the next item.
+
+Thu Sep 25 13:50:15 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/queryoptimiser.cc,tests/api_anydb.cc: Apply fix for
+	  platforms with excess precision - this fixes a potential segfault
+	  on x86 architecture when doing OP_ELITE_SET queries.  Also, add a
+	  regression test.
+
+Thu Sep 25 03:38:24 GMT 2008  Olly Betts <olly@survex.com>
+
+	* examples/copydatabase.cc: Also copy user metadata.
+
+Wed Sep 24 17:27:33 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/omdatabase.cc: Back out, for now, Olly's change from
+	  yesterday to avoid some edit distance checks; counting the
+	  frequency of letters doesn't take into account the number of
+	  substitutions, so spelling corrections which involve
+	  substitutions are missed.
+
+Wed Sep 24 12:48:39 GMT 2008  Olly Betts <olly@survex.com>
+
+	* unicode/tclUniData.cc: Update to Unicode 5.1 (bug#265).
+	* tests/api_unicode.cc: Add tests for some of the changes
+	  in Unicode 5.1.
+
+Tue Sep 23 14:58:54 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc: Avoid the relatively expensive edit distance
+	  computation for a candidate spelling correction when we can reject 
+	  the candidate as less good than one we've already seen by looking
+	  at the character frequency histograms.
+
+Mon Sep 22 09:21:55 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* Forward-port from branches/lazyupdate:
+	* backends/chert/chert_postlist.cc: Fix return value of jump_to()
+	  to be true only if the exact item specified was found in the
+	  doclen list (previously also returned true if an item following
+	  the item being searched for was found in the chunk).  Note that
+	  there is no test for this fix included in this forward-port, but
+	  an implicit test is included in the lazyupdate branch, and will
+	  be here when that branch is merged to trunk.
+
+Mon Sep 22 07:58:06 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* HACKING: Mention that setting XAPIAN_DEBUG_LOG to '-' has a
+	  special effect.
+
+Mon Sep 22 06:27:23 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* docs/remote_protocol.html: Update documentation of remote
+	  protocol to mention UUID being passed in REPLY_GREETING and
+	  REPLY_UPDATE (added in revision [11369]).
+
+Thu Sep 18 11:52:05 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_wrdb.cc: Fix cursordelbug1 to hopefully work on Microsoft
+	  Windows.
+
+Thu Sep 18 11:50:04 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_cursor.cc,backends/chert/chert_table.cc,
+	  backends/chert/chert_table.h: More assertions and improved debug
+	  logging coverage.  Use rare() to mark a couple of checks which
+	  almost always have the same result.  Make an assertion about the
+	  level of a Btree block into an always-compiled-in check which throws
+	  an exception, as this isn't a sanity check of internal state.
+
+Thu Sep 18 05:26:27 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_postlist.cc,backends/flint/flint_postlist.cc:
+	  Fix comment describing format of postlist chunk (collection freq
+	  was missing).
+
+Wed Sep 17 12:38:51 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Fix typos in XAPIAN_DEBUG_FLAGS documentation.
+
+Sat Sep 13 11:14:02 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING,configure.ac: Upgrade libtool requirement to 2.2.6a.
+
+Fri Sep 05 11:40:55 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_replicate.cc: Test that the UUID of a replica is equal
+	  to the UUID of the original database.
+
+Fri Sep 05 09:38:35 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/database.h,api/omdatabase.cc: Add
+	  Database.get_uuid() which returns a unique identifier for the
+	  database.
+	* tests/api_anydb.cc: Add test uuid1 to test basic get_uuid()
+	  behaviour.
+	* common/database.h: Extend documentation comment for get_uuid() a
+	  bit.
+	* backends/remote/remote-database.cc,common/remote-database.h,
+	  net/remoteserver.cc: Add support for get_uuid() to remote
+	  databases.
+
+Thu Sep 04 11:37:54 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/Makefile.am: Remove accidentally committed reference to
+	  apitest_sortconsist.txt, which only exists in my local checkout
+	  and in a patch in ticket #216.
+
 Thu Sep 04 04:39:32 GMT 2008  Olly Betts <olly@survex.com>
 
 	* HACKING,configure.ac: We now hard require autoconf 2.62, so it's

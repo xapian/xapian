@@ -1,3 +1,8 @@
+Mon Sep 08 09:59:17 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* genversion.pl: Update to match new configure.ac (cope with the []'s
+	  which have been added).
+
 Wed Aug 20 09:31:47 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* README: Remove trailing whitespace.

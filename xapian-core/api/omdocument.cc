@@ -267,7 +267,7 @@ Xapian::Document::Internal::get_value(Xapian::valueno valueid) const
 	if (i == values.end()) return "";
 	return i->second;
     }
-    if (!database) return "";
+    if (!database.get()) return "";
     return do_get_value(valueid);
 }
 	
@@ -282,7 +282,7 @@ string
 Xapian::Document::Internal::get_data() const
 {
     if (data_here) return data;
-    if (!database) return "";
+    if (!database.get()) return "";
     return do_get_data();
 }
 
@@ -300,7 +300,7 @@ Xapian::Document::Internal::open_term_list() const
     if (terms_here) {
 	RETURN(new MapTermList(terms.begin(), terms.end()));
     }
-    if (!database) RETURN(NULL);
+    if (!database.get()) RETURN(NULL);
     RETURN(database->open_term_list(did));
 }
 
@@ -411,7 +411,7 @@ Xapian::Document::Internal::termlist_count() const
 {
     if (!terms_here) {
 	// How equivalent is this line to the rest?
-	// return database ? database->open_term_list(did)->get_approx_size() : 0;
+	// return database.get() ? database->open_term_list(did)->get_approx_size() : 0;
 	need_terms();
     }
     Assert(terms_here);
@@ -422,7 +422,7 @@ void
 Xapian::Document::Internal::need_terms() const
 {
     if (terms_here) return;
-    if (database) {
+    if (database.get()) {
 	Xapian::TermIterator t(database->open_term_list(did));
 	Xapian::TermIterator tend(NULL);
 	for ( ; t != tend; ++t) {
@@ -464,7 +464,7 @@ Xapian::Document::Internal::get_description() const
 	description += "terms[" + om_tostring(terms.size()) + "]";
     }
 
-    if (database) {
+    if (database.get()) {
 	if (data_here || values_here || terms_here) description += ", ";
 	description += "doc=";
 	description += "?"; // do_get_description(); ?
@@ -479,11 +479,17 @@ void
 Xapian::Document::Internal::need_values() const
 {
     if (!values_here) {
-	if (database) {
+	if (database.get()) {
 	    Assert(values.empty());
 	    do_get_all_values(values);
 	    value_nos.clear();
 	}
 	values_here = true;
     }
+}
+
+Xapian::Document::Internal::~Internal()
+{
+    if (database.get())
+	database->invalidate_doc_object(this);
 }
