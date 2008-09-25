@@ -30,7 +30,7 @@
 /** Create a ChertDocument: this is only called by
  *  ChertDatabase::open_document().
  */
-ChertDocument::ChertDocument(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
+ChertDocument::ChertDocument(Xapian::Internal::RefCntPtr<const ChertDatabase> database_,
 			       const ChertValueManager *value_manager_,
 			       const ChertRecordTable *record_table_,
 			       Xapian::docid did_, bool lazy)
@@ -40,9 +40,7 @@ ChertDocument::ChertDocument(Xapian::Internal::RefCntPtr<const Xapian::Database:
 	  record_table(record_table_)
 {
     DEBUGCALL(DB, void, "ChertDocument", "[database_], " << value_manager_ << ", " << record_table_ << ", " << did_ << ", " << lazy);
-    // FIXME: this should work but isn't great - in fact I wonder if
-    // we should cache the results anyway...
-    if (!lazy) (void)record_table->get_record(did);
+    if (!lazy) (void)database->get_doclength(did);
 }
 
 /** Retrieve a value from the database
