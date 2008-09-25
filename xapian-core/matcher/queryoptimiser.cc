@@ -250,7 +250,21 @@ struct CmpMaxOrTerms {
     bool operator()(const PostList *a, const PostList *b) {
 	if (a->get_termfreq_max() == 0) return false;
 	if (b->get_termfreq_max() == 0) return true;
-	return a->get_maxweight() > b->get_maxweight();
+
+#if defined(__i386__) || defined(__mc68000__)
+	// On some architectures, most common of which is x86, floating point
+	// values are calculated with excess precision.  This is dropped
+	// somewhat unpredicatably; if the two maxweights below are actually
+	// equal, the excess precision may be dropped for one of them, but not
+	// for the other, leading to the values being compared different.  This
+	// can lead to the comparisions returned by the operator not being
+	// stable, which can have serious consequences (eg, segfaults) when the
+	// operator is used by nth_element.
+	return (static_cast<float>(a->get_maxweight()) >
+		static_cast<float>(b->get_maxweight()));
+#else
+	return (a->get_maxweight() > b->get_maxweight());
+#endif
     }
 };
 
