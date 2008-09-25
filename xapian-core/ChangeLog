@@ -1,3 +1,11 @@
+Thu Sep 25 17:35:07 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* Forward-port from branches/lazyupdate:
+	* tests/api_wrdb.cc: Extend deldoc5 slightly, to check that the
+	  DocNotFoundError for a deleted document is raised before the
+	  flush, as well as after.  Also, test a few more cases which are
+	  relevant in the lazyupdate scenario.
+
 Thu Sep 25 17:33:21 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* Forward-port from branches/lazyupdate:
