@@ -1,3 +1,17 @@
+Thu Sep 25 14:27:07 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Merge valuestreams branch:
+	* backends/chert/,bin/xapian-check.cc,bin/xapian-compact.cc,
+	  docs/admin_notes.rst: Change the chert backend to store values in a
+	  chunked stream for each value slot to make access more efficient.
+	  The chunked streams and value stats are now stored in the postlist
+	  table while the list of used value slots for each document is stored
+	  in the termlist table, so we no longer need a special table for
+	  values.
+	* bin/xapian-check.cc,bin/xapian-check-flint.cc:  Don't stop checking
+	  a table after an error in certain cases - instead increment the
+	  error counter and try to continue checking from the next item.
+
 Thu Sep 25 13:50:15 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* matcher/queryoptimiser.cc,tests/api_anydb.cc: Apply fix for

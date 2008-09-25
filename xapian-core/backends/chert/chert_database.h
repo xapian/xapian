@@ -84,9 +84,8 @@ class ChertDatabase : public Xapian::Database::Internal {
 	 */
 	ChertTermListTable termlist_table;
 
-	/** Table storing values.
-	 */
-	ChertValueTable value_table;
+	/** Value manager. */
+	ChertValueManager value_manager;
 
 	/** Table storing synonym data.
 	 */
@@ -114,16 +113,6 @@ class ChertDatabase : public Xapian::Database::Internal {
 
 	/** Highest document ID ever allocated by this database. */
 	mutable Xapian::docid lastdocid;
-
-	/** The most recently used value statistics.
-	 */
-	mutable ValueStats mru_valstats;
-
-	/** The value number for the most recently used value statistics.
-	 *
-	 *  Set to BAD_VALUENO if no value statistics have yet been looked up.
-	 */
-	mutable Xapian::valueno mru_valno;
 
 	/** The maximum number of changesets which should be kept in the
 	 *  database. */
