@@ -1,3 +1,11 @@
+Thu Sep 25 13:07:06 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/xapian-check.cc: Update for value streams.
+
+	* bin/xapian-check.cc,bin/xapian-check-flint.cc:  Don't stop checking
+	  a table after an error in certain cases - instead increment the
+	  error counter and try to continue checking from the next item.
+
 Thu Sep 25 09:24:17 GMT 2008  Olly Betts <olly@survex.com>
 
 	* bin/xapian-compact.cc: Update for valuestream changes.
