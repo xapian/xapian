@@ -135,6 +135,15 @@ try {
 	    ++synkey;
 	}
 	cout << " done." << endl;
+
+	cout << "Copying user metadata..." << flush;
+	Xapian::TermIterator metakey = db_in.metadata_keys_begin();
+	while (metakey != db_in.metadata_keys_end()) {
+	    string key = *metakey;
+	    db_out.set_metadata(key, db_in.get_metadata(key));
+	    ++metakey;
+	}
+	cout << " done." << endl;
     }
 
     cout << "Flushing..." << flush;

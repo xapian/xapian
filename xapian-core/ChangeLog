@@ -1,3 +1,7 @@
+Thu Sep 25 03:38:24 GMT 2008  Olly Betts <olly@survex.com>
+
+	* examples/copydatabase.cc: Also copy user metadata.
+
 Wed Sep 24 17:27:33 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/omdatabase.cc: Back out, for now, Olly's change from
