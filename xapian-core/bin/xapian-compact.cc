@@ -336,11 +336,11 @@ merge_postlists(FlintTable * out, vector<Xapian::docid>::const_iterator offset,
     // Merge valuestream chunks.
     while (!pq.empty()) {
 	PostlistCursor * cur = pq.top();
-	pq.pop();
 	const string & key = cur->key;
-	if (!is_valuestats_key(key)) break;
+	if (!is_valuechunk_key(key)) break;
 	Assert(!is_user_metadata_key(key));
 	out->add(key, cur->tag);
+	pq.pop();
 	if (cur->next()) {
 	    pq.push(cur);
 	} else {
@@ -356,9 +356,8 @@ merge_postlists(FlintTable * out, vector<Xapian::docid>::const_iterator offset,
 	    cur = pq.top();
 	    pq.pop();
 	}
-	const string & key = cur->key;
-	Assert(cur == NULL || !is_user_metadata_key(key));
-	if (cur == NULL || key != last_key) {
+	Assert(cur == NULL || !is_user_metadata_key(cur->key));
+	if (cur == NULL || cur->key != last_key) {
 	    if (!tags.empty()) {
 		string first_tag = F_pack_uint(tf);
 		first_tag += F_pack_uint(cf);
@@ -380,7 +379,7 @@ merge_postlists(FlintTable * out, vector<Xapian::docid>::const_iterator offset,
 	    tags.clear();
 	    if (cur == NULL) break;
 	    tf = cf = 0;
-	    last_key = key;
+	    last_key = cur->key;
 	}
 	tf += cur->tf;
 	cf += cur->cf;

@@ -1,3 +1,8 @@
+Thu Sep 25 13:47:31 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Fix a couple of bugs in the valuestream
+	  support.
+
 Thu Sep 25 13:07:06 GMT 2008  Olly Betts <olly@survex.com>
 
 	* bin/xapian-check.cc: Update for value streams.
