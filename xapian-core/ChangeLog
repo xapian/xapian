@@ -1,3 +1,32 @@
+Thu Sep 25 17:38:37 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* Merge lazyupdate branch:
+	* api/omdocument.cc,backends/chert/chert_database.cc,
+	  backends/chert/chert_database.h,backends/chert/chert_values.cc,
+	  backends/database.cc,common/database.h,common/document.h: Add a
+	  shortcut for calling replace_document() with a document which was
+	  just read from the database.  If the document terms were never
+	  accessed, don't bother updating the termlist, postings and
+	  position lists.  If the data was never accessed, don't bother
+	  updating the data.  If the values were never accessed, don't
+	  bother updating them.  Only fires if we know that the document
+	  hasn't been modified (or deleted) since it was read from the
+	  database, to ensure that the lazy access of the data doesn't have
+	  a visible effect - we enforce this by keeping track of the last
+	  document read with open_document(), and only using the shortcut
+	  if this is the document passed to replace_document, and that
+	  document ID hasn't been passed to replace_document or
+	  delete_document since.
+
+	  Add a method Database::Internal::invalidate_doc_object() which is
+	  called from the destructor of a document, so that we can reset
+	  the pointer to modify_shortcut_document in ChertWritableDatabase
+	  when this happens.
+
+	  Document::Internal now keeps a ref-count pointer to the database,
+	  to ensure that the database is valid when invalidate_doc_object()
+	  is called on it.
+
 Thu Sep 25 17:35:07 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* Forward-port from branches/lazyupdate:

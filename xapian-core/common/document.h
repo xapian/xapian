@@ -49,7 +49,7 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
         Internal & operator=(const Internal &);
 
 	/// The database this document is in.
-	const Xapian::Database::Internal *database;
+	Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database;
 
 	bool data_here;
 	mutable bool values_here; // FIXME mutable is a hack
@@ -154,6 +154,24 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	void need_values() const;
 	void need_terms() const;
 
+	/** Return true if the data in the document may have been modified.
+	 */
+	bool data_modified() const {
+	    return data_here;
+	}
+
+	/** Return true if the values in the document may have been modified.
+	 */
+	bool values_modified() const {
+	    return values_here;
+	}
+
+	/** Return true if the terms in the document may have been modified.
+	 */
+	bool terms_modified() const {
+	    return terms_here;
+	}
+
 	/** Get the docid which is associated with this document (if any).
 	 *
 	 *  NB If multiple databases are being searched together, then this
@@ -173,7 +191,8 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	 *  In derived classes, this will typically be a private method, and
 	 *  only be called by database objects of the corresponding type.
 	 */
-	Internal(const Xapian::Database::Internal *database_, Xapian::docid did_)
+	Internal(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
+		 Xapian::docid did_)
 	    : database(database_), data_here(false), values_here(false),
 	      terms_here(false), did(did_) { }
 
@@ -186,7 +205,7 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	 *  Note that the database object which created this document must
 	 *  still exist at the time this is called.
 	 */
-	virtual ~Internal() { }
+	virtual ~Internal();
 };
 
 #endif  // OM_HGUARD_DOCUMENT_H

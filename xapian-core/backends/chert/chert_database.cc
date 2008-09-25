@@ -1276,7 +1276,9 @@ ChertWritableDatabase::ChertWritableDatabase(const string &dir, int action,
 	  doclens(),
 	  mod_plists(),
 	  change_count(0),
-	  flush_threshold(0)
+	  flush_threshold(0),
+	  modify_shortcut_document(NULL),
+	  modify_shortcut_docid(0)
 {
     DEBUGCALL(DB, void, "ChertWritableDatabase", dir << ", " << action << ", "
 	      << block_size);
@@ -1432,6 +1434,13 @@ ChertWritableDatabase::delete_document(Xapian::docid did)
     DEBUGCALL(DB, void, "ChertWritableDatabase::delete_document", did);
     Assert(did != 0);
 
+    if (rare(modify_shortcut_docid == did)) {
+	// The modify_shortcut document can't be used for a modification
+	// shortcut now, because it's been deleted!
+	modify_shortcut_document = NULL;
+	modify_shortcut_docid = 0;
+    }
+
     // Remove the record.  If this fails, just propagate the exception since
     // the state should still be consistent (most likely it's
     // DocNotFoundError).
@@ -1518,54 +1527,74 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 	    return;
 	}
 
-	// OK, now add entries to remove the postings in the underlying record.
-	Xapian::Internal::RefCntPtr<const ChertWritableDatabase> ptrtothis(this);
-	ChertTermList termlist(ptrtothis, did);
-
-	termlist.next();
-	while (!termlist.at_end()) {
-	    string tname = termlist.get_termname();
-	    termcount wdf = termlist.get_wdf();
-
-	    map<string, pair<termcount_diff, termcount_diff> >::iterator i;
-	    i = freq_deltas.find(tname);
-	    if (i == freq_deltas.end()) {
-		freq_deltas.insert(make_pair(tname, make_pair(-1, -termcount_diff(wdf))));
+	// Check for a document read from this database being replaced - ie, a
+	// modification operation.
+	bool modifying = false;
+	if (modify_shortcut_docid &&
+	    document.internal->get_docid() == modify_shortcut_docid) {
+	    if (document.internal.get() == modify_shortcut_document) {
+		// We have a docid, it matches, and the pointer matches, so we
+		// can skip modification of any data which hasn't been modified
+		// in the document.
+		modifying = true;
+		LOGLINE(DB, "Detected potential document modification shortcut.");
 	    } else {
-		--i->second.first;
-		i->second.second -= wdf;
+		// The modify_shortcut document can't be used for a
+		// modification shortcut now, because it's about to be
+		// modified.
+		modify_shortcut_document = NULL;
+		modify_shortcut_docid = 0;
 	    }
+	}
+  
+	if (!modifying || document.internal->terms_modified()) {
+	    // FIXME - in the case where there is overlap between the new
+	    // termlist and the old termlist, it would be better to compare the
+	    // two lists, and make the minimum set of modifications required.
+	    // This would lead to smaller changesets for replication, and
+	    // probably be faster overall.
 
-	    // Remove did from tname's postlist
-	    map<string, map<docid, pair<char, termcount> > >::iterator j;
-	    j = mod_plists.find(tname);
-	    if (j == mod_plists.end()) {
-		map<docid, pair<char, termcount> > m;
-		j = mod_plists.insert(make_pair(tname, m)).first;
-	    }
-
-	    map<docid, pair<char, termcount> >::iterator k;
-	    k = j->second.find(did);
-	    if (k == j->second.end()) {
-		j->second.insert(make_pair(did, make_pair('D', 0u)));
-	    } else {
-		// Modifying a document we added/modified since the last flush.
-		k->second = make_pair('D', 0u);
-	    }
+	    // First, add entries to remove the postings in the underlying record.
+	    Xapian::Internal::RefCntPtr<const ChertWritableDatabase> ptrtothis(this);
+	    ChertTermList termlist(ptrtothis, did);
 
 	    termlist.next();
-	}
+	    while (!termlist.at_end()) {
+		string tname = termlist.get_termname();
+		termcount wdf = termlist.get_wdf();
 
-	total_length -= termlist.get_doclength();
+		map<string, pair<termcount_diff, termcount_diff> >::iterator i;
+		i = freq_deltas.find(tname);
+		if (i == freq_deltas.end()) {
+		    freq_deltas.insert(make_pair(tname, make_pair(-1, -termcount_diff(wdf))));
+		} else {
+		    --i->second.first;
+		    i->second.second -= wdf;
+		}
 
-	// Replace the record
-	record_table.replace_record(document.get_data(), did);
+		// Remove did from tname's postlist
+		map<string, map<docid, pair<char, termcount> > >::iterator j;
+		j = mod_plists.find(tname);
+		if (j == mod_plists.end()) {
+		    map<docid, pair<char, termcount> > m;
+		    j = mod_plists.insert(make_pair(tname, m)).first;
+		}
 
-	// Replace the values.
-	value_manager.replace_document(did, document, value_stats);
+		map<docid, pair<char, termcount> >::iterator k;
+		k = j->second.find(did);
+		if (k == j->second.end()) {
+		    j->second.insert(make_pair(did, make_pair('D', 0u)));
+		} else {
+		    // Modifying a document we added/modified since the last flush.
+		    k->second = make_pair('D', 0u);
+		}
 
-	chert_doclen_t new_doclen = 0;
-	{
+		termlist.next();
+	    }
+
+	    total_length -= termlist.get_doclength();
+
+	    chert_doclen_t new_doclen = 0;
 	    Xapian::TermIterator term = document.termlist_begin();
 	    Xapian::TermIterator term_end = document.termlist_end();
 	    for ( ; term != term_end; ++term) {
@@ -1605,21 +1634,30 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 		PositionIterator it = term.positionlist_begin();
 		PositionIterator it_end = term.positionlist_end();
 		if (it != it_end) {
-		    position_table.set_positionlist(
-			did, tname, it, it_end);
+		    position_table.set_positionlist(did, tname, it, it_end);
 		} else {
 		    position_table.delete_positionlist(did, tname);
 		}
 	    }
+	    LOGLINE(DB, "Calculated doclen for replacement document " << did << " as " << new_doclen);
+
+	    // Set the termlist
+	    termlist_table.set_termlist(did, document, new_doclen);
+
+	    // Set the new document length
+	    doclens[did] = new_doclen;
+	    total_length += new_doclen;
 	}
-	LOGLINE(DB, "Calculated doclen for replacement document " << did << " as " << new_doclen);
 
-	// Set the termlist
-	termlist_table.set_termlist(did, document, new_doclen);
+	if (!modifying || document.internal->data_modified()) {
+	    // Replace the record
+	    record_table.replace_record(document.get_data(), did);
+	}
 
-	// Set the new document length
-	doclens[did] = new_doclen;
-	total_length += new_doclen;
+	if (!modifying || document.internal->values_modified()) {
+	    // Replace the values.
+	    value_manager.replace_document(did, document, value_stats);
+	}
     } catch (const Xapian::DocNotFoundError &) {
 	(void)add_document_(did, document);
 	return;
@@ -1636,6 +1674,18 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 	flush_postlist_changes();
 	if (!transaction_active()) apply();
     }
+}
+
+Xapian::Document::Internal *
+ChertWritableDatabase::open_document(Xapian::docid did, bool lazy) const
+{
+    DEBUGCALL(DB, Xapian::Document::Internal *, "ChertWritableDatabase::open_document",
+	      did << ", " << lazy);
+    modify_shortcut_document = ChertDatabase::open_document(did, lazy);
+    // Store the docid only after open_document() successfully returns, so an
+    // attempt to open a missing document doesn't overwrite this.
+    modify_shortcut_docid = did;
+    RETURN(modify_shortcut_document);
 }
 
 Xapian::doclength
@@ -1824,5 +1874,14 @@ ChertWritableDatabase::set_metadata(const string & key, const string & value)
 	postlist_table.del(btree_key);
     } else {
 	postlist_table.add(btree_key, value);
+    }
+}
+
+void
+ChertWritableDatabase::invalidate_doc_object(Xapian::Document::Internal * obj) const
+{
+    if (obj == modify_shortcut_document) {
+	modify_shortcut_document = NULL;
+	modify_shortcut_docid = 0;
     }
 }

@@ -424,11 +424,10 @@ ChertValueManager::replace_document(Xapian::docid did,
 				    const Xapian::Document &doc,
 				    map<Xapian::valueno, ValueStats> & value_stats)
 {
-    // FIXME: We do this to force the values to be cached in the Document
-    // object in case we're asked to replace a document with itself with
-    // unmodified values.  Really we should trap this case and avoid doing
-    // needless work.
-    (void)doc.values_count();
+    // Assert that the values have been modified - we should only be called
+    // when they have been, anyway, and this also ensures that the values have
+    // been loaded before we delete the old values.
+    Assert(document.internal->values_modified());
 
     delete_document(did, value_stats);
     add_document(did, doc, value_stats);

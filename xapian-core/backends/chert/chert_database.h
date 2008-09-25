@@ -318,6 +318,18 @@ class ChertWritableDatabase : public ChertDatabase {
 	/// If change_count reaches this threshold we automatically flush.
 	Xapian::doccount flush_threshold;
 
+	/** A pointer to the last document which was returned by
+	 *  open_document(), or NULL if there is no such valid document.  This
+	 *  is used purely for comparing with a supplied document to help with
+	 *  optimising replace_document.  When the document internals are
+	 *  deleted, this pointer gets set to NULL.
+	 */
+	mutable Xapian::Document::Internal * modify_shortcut_document;
+
+	/** The document ID for the last document returned by open_document().
+	 */
+	mutable Xapian::docid modify_shortcut_docid;
+
 	/// Flush any unflushed postlist changes, but don't commit them.
 	void flush_postlist_changes() const;
 
@@ -346,6 +358,10 @@ class ChertWritableDatabase : public ChertDatabase {
 #endif
 	void delete_document(Xapian::docid did);
 	void replace_document(Xapian::docid did, const Xapian::Document & document);
+
+	Xapian::Document::Internal * open_document(Xapian::docid did,
+						   bool lazy = false) const;
+
 	//@}
 
     public:
@@ -387,6 +403,7 @@ class ChertWritableDatabase : public ChertDatabase {
 	void clear_synonyms(const string & word) const;
 
 	void set_metadata(const string & key, const string & value);
+	void invalidate_doc_object(Xapian::Document::Internal * obj) const;
 	//@}
 };
 
