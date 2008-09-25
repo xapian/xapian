@@ -96,6 +96,14 @@ RemoteServer::RemoteServer(const std::vector<std::string> &dbpaths,
     message += encode_length(db->get_lastdocid());
     message += (db->has_positions() ? '1' : '0');
     message += serialise_double(db->get_avlength());
+    string uuid;
+    try {
+	uuid = db->get_uuid();
+    } catch (const Xapian::UnimplementedError &err) {
+	// Leave the uuid empty.
+    }
+    message += encode_length(uuid.size());
+    message += uuid;
     send_message(REPLY_GREETING, message);
 
     // Register weighting schemes.
@@ -337,6 +345,14 @@ RemoteServer::msg_update(const string &)
     message += encode_length(db->get_lastdocid());
     message += (db->has_positions() ? '1' : '0');
     message += serialise_double(db->get_avlength());
+    string uuid;
+    try {
+	uuid = db->get_uuid();
+    } catch (const Xapian::UnimplementedError &err) {
+	// Leave the uuid empty.
+    }
+    message += encode_length(uuid.size());
+    message += uuid;
     send_message(REPLY_UPDATE, message);
 }
 

@@ -109,6 +109,9 @@ RemoteDatabase::RemoteDatabase(int fd, Xapian::timeout timeout_,
     }
     has_positional_info = (*p++ == '1');
     avlength = unserialise_double(&p, p_end);
+    size_t len = decode_length(&p, p_end, true);
+    uuid = string(p, len);
+    p += len;
     if (p != p_end || avlength < 0) {
 	throw Xapian::NetworkError("Bad greeting message received (double)", context);
     }
@@ -314,6 +317,9 @@ RemoteDatabase::update_stats(message_type msg_code) const
     }
     has_positional_info = (*p++ == '1');
     avlength = unserialise_double(&p, p_end);
+    size_t len = decode_length(&p, p_end, true);
+    uuid = string(p, len);
+    p += len;
     if (p != p_end || avlength < 0) {
 	throw Xapian::NetworkError("Bad REPLY_UPDATE message received", context);
     }
@@ -645,4 +651,13 @@ RemoteDatabase::replace_document(const std::string & unique_term,
     const char * p = message.data();
     const char * p_end = p + message.size();
     return decode_length(&p, p_end, false);
+}
+
+string
+RemoteDatabase::get_uuid() const
+{
+    if (uuid.empty())
+	throw Xapian::UnimplementedError(
+	    "UUIDs not supported for this database");
+    return uuid;
 }

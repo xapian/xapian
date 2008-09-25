@@ -156,3 +156,37 @@ DEFINE_TESTCASE(caseconvert1,!backend) {
 
     return true;
 }
+
+/// Test Unicode 5.1 support.
+DEFINE_TESTCASE(caseconvert2,!backend) {
+    using namespace Xapian;
+
+    TEST_EQUAL(Unicode::toupper(0x250), 0x2c6f);
+    TEST_EQUAL(Unicode::toupper(0x251), 0x2c6d);
+    TEST_EQUAL(Unicode::toupper(0x271), 0x2c6e);
+
+    TEST_EQUAL(Unicode::get_category(0x2ec), Unicode::MODIFIER_LETTER);
+    TEST_EQUAL(Unicode::get_category(0x374), Unicode::MODIFIER_LETTER);
+    TEST_EQUAL(Unicode::get_category(0x487), Unicode::NON_SPACING_MARK);
+    TEST_EQUAL(Unicode::get_category(0x5be), Unicode::DASH_PUNCTUATION);
+    TEST_EQUAL(Unicode::get_category(0x1f093), Unicode::OTHER_SYMBOL);
+
+    TEST_EQUAL(Unicode::tolower(0x370), 0x371);
+    TEST_EQUAL(Unicode::toupper(0x371), 0x370);
+    TEST_EQUAL(Unicode::tolower(0x372), 0x373);
+    TEST_EQUAL(Unicode::toupper(0x373), 0x372);
+    TEST_EQUAL(Unicode::tolower(0x376), 0x377);
+    TEST_EQUAL(Unicode::toupper(0x377), 0x376);
+    TEST_EQUAL(Unicode::tolower(0x3cf), 0x3d7);
+    TEST_EQUAL(Unicode::toupper(0x3d7), 0x3cf);
+
+    unsigned u;
+    for (u = 0x514; u < 0x524; u += 2) {
+	TEST_EQUAL(Unicode::get_category(u), Unicode::UPPERCASE_LETTER);
+	TEST_EQUAL(Unicode::get_category(u + 1), Unicode::LOWERCASE_LETTER);
+	TEST_EQUAL(Unicode::tolower(u), u + 1);
+	TEST_EQUAL(Unicode::toupper(u + 1), u);
+    }
+	
+    return true;
+}
