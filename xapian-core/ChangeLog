@@ -1,3 +1,11 @@
+Fri Sep 26 10:36:02 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/remote/remote-document.cc,backends/remote/remote-document.h,
+	  common/document.h: Add new files for RemoteDocument class missed
+	  from recent commit.  Pass parameter to set_all_values() by non-const
+	  reference so we can just efficiently swap() the value maps rather
+	  than copying.
+
 Fri Sep 26 10:31:21 GMT 2008  Olly Betts <olly@survex.com>
 
 	* api/omdocument.cc,common/document.h: Remove unused method

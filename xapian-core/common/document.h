@@ -103,9 +103,14 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	string get_value(Xapian::valueno valueid) const;
 
-	/// Set all the values.
-	void set_all_values(const map<Xapian::valueno, string> & values_) {
-	    values = values_;
+	/** Set all the values.
+	 *
+	 *  @param values_	The values to set - passed by non-const reference, and
+	 *			may be modified by the call.
+	 */
+	void set_all_values(map<Xapian::valueno, string> & values_) {
+	    // For efficiency we just swap the old and new value maps.
+	    swap(values, values_);
 	    values_here = true;
 	}
 
