@@ -1,3 +1,7 @@
+Fri Sep 26 11:53:45 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_unicode.cc: Capitalise brief file description.
+
 Fri Sep 26 11:31:46 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/inmemory/inmemory_document.cc,
