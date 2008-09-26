@@ -103,17 +103,6 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	string get_value(Xapian::valueno valueid) const;
 
-	/** Get all values for this document
-	 *
-	 *  Values are quickly accessible fields, for use during the match
-	 *  operation.  Each document may have a set of values, each of which
-	 *  having a different valueid.  Duplicate values with the same valueid
-	 *  are not supported in a single document.
-	 *
-	 *  @return   A map of strings containing all the values.
-	 */
-	map<Xapian::valueno, string> get_all_values() const;
-
 	/// Set all the values.
 	void set_all_values(const map<Xapian::valueno, string> & values_) {
 	    values = values_;
