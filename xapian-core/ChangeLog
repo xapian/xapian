@@ -1,3 +1,10 @@
+Fri Sep 26 11:31:46 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/inmemory/inmemory_document.cc,
+	  backends/inmemory/inmemory_document.h: New simpler InMemoryDocument
+	  class with slightly reduced memory footprint, based on
+	  RemoteDocument class.
+
 Fri Sep 26 10:36:02 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/remote/remote-document.cc,backends/remote/remote-document.h,

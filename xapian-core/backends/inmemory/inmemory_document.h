@@ -1,8 +1,7 @@
-/* inmemory_document.h: C++ class definition for accessing a inmemory document
- *
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002 Ananova Ltd
- * Copyright 2003,2008 Olly Betts
+/** @file inmemory_document.h
+ * @brief A document read from a InMemoryDatabase.
+ */
+/* Copyright (C) 2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,32 +15,45 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef OM_HGUARD_INMEMORY_DOCUMENT_H
-#define OM_HGUARD_INMEMORY_DOCUMENT_H
+#ifndef XAPIAN_INCLUDED_INMEMORY_DOCUMENT_H
+#define XAPIAN_INCLUDED_INMEMORY_DOCUMENT_H
 
+#include "database.h"
 #include "document.h"
 
+/// A document read from a InMemoryDatabase.
 class InMemoryDocument : public Xapian::Document::Internal {
+    /// Don't allow assignment.
+    void operator=(const InMemoryDocument &);
+
+    /// Don't allow copying.
+    InMemoryDocument(const InMemoryDocument &);
+
+    /// InMemoryDocument::open_document() needs to call our private constructor.
     friend class InMemoryDatabase;
-    private:
-	string data;
-	map<Xapian::valueno, string> values;
 
-	InMemoryDocument(const Xapian::Database::Internal *database_,
-			 Xapian::docid did_, const string & data_,
-			 const map<Xapian::valueno, string> &values_);
+    /// Private constructor - only called by InMemoryDocument::open_document().
+    InMemoryDocument(const Xapian::Database::Internal *db, Xapian::docid did_,
+		     const string & data_,
+		     const map<Xapian::valueno, string> &values_)
+	: Xapian::Document::Internal(db, did_)
+    {
+	set_data(data_);
+	// Need to make a copy of values_ as set_all_values() may modified the
+	// parameter passed to it.
+	map<Xapian::valueno, string> values_copy(values_);
+	set_all_values(values_copy);
+    }
 
-	// Stop copying
-	InMemoryDocument(const InMemoryDocument &);
-	InMemoryDocument & operator = (const InMemoryDocument &);
-    public:
-	string do_get_value(Xapian::valueno valueid) const;
-	void do_get_all_values(map<Xapian::valueno, string> & values_) const;
-	string do_get_data() const;
+  public:
+    /** Implementation of virtual methods @{ */
+    string do_get_value(Xapian::valueno slot) const;
+    void do_get_all_values(map<Xapian::valueno, string> & values_) const;
+    string do_get_data() const;
+    /** @} */
 };
 
-#endif /* OM_HGUARD_INMEMORY_DOCUMENT_H */
+#endif // XAPIAN_INCLUDED_INMEMORY_DOCUMENT_H
