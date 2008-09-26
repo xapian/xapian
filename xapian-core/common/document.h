@@ -114,6 +114,12 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	map<Xapian::valueno, string> get_all_values() const;
 
+	/// Set all the values.
+	void set_all_values(const map<Xapian::valueno, string> & values_) {
+	    values = values_;
+	    values_here = true;
+	}
+
 	Xapian::valueno values_count() const;
 	void add_value(Xapian::valueno, const string &);
 	void remove_value(Xapian::valueno);

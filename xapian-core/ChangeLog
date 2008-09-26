@@ -1,3 +1,9 @@
+Fri Sep 26 10:03:17 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/remote/,common/document.h: Replace NetDocument with a new
+	  simpler RemoteDocument class which just sets the values and data in
+	  its Document::Internal base class.
+
 Fri Sep 26 06:21:08 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_database.cc,backends/chert/chert_document.cc,

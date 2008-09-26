@@ -33,7 +33,7 @@
 #include "inmemory_positionlist.h"
 #include "net_postlist.h"
 #include "net_termlist.h"
-#include "net_document.h"
+#include "remote-document.h"
 #include "omassert.h"
 #include "serialise.h"
 #include "serialise-double.h"
@@ -299,7 +299,7 @@ RemoteDatabase::open_document(Xapian::docid did, bool /*lazy*/) const
 	throw Xapian::NetworkError("Bad message received", context);
     }
 
-    return new NetworkDocument(this, did, doc_data, values);
+    return new RemoteDocument(this, did, doc_data, values);
 }
 
 void
