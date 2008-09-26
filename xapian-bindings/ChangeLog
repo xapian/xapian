@@ -1,3 +1,8 @@
+Fri Sep 26 04:54:39 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/Makefile.am: Add testsuite2.py and testsuite3.py to
+	  distribution.
+
 Wed Sep 10 15:28:57 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/generate-python-exceptions.in: Back out patch which added
