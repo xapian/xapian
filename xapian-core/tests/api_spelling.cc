@@ -215,3 +215,19 @@ DEFINE_TESTCASE(spell5, spelling) {
 
     return true;
 }
+
+// Test basic spelling correction features.
+DEFINE_TESTCASE(spell6, spelling) {
+    Xapian::WritableDatabase db = get_writable_database();
+
+    // Check that the more frequent term is chosen.
+    db.add_spelling("hello", 2);
+    db.add_spelling("sell", 3);
+    TEST_EQUAL(db.get_spelling_suggestion("hell"), "sell");
+    db.flush();
+    Xapian::Database dbr(get_writable_database_as_database());
+    TEST_EQUAL(db.get_spelling_suggestion("hell"), "sell");
+    TEST_EQUAL(dbr.get_spelling_suggestion("hell"), "sell");
+
+    return true;
+}
