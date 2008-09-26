@@ -900,12 +900,13 @@ ChertDatabase::open_document(Xapian::docid did, bool lazy) const
     DEBUGCALL(DB, Xapian::Document::Internal *, "ChertDatabase::open_document",
 	      did << ", " << lazy);
     Assert(did != 0);
+    if (!lazy) {
+	// This will throw DocNotFoundError if the document doesn't exist.
+	(void)get_doclength(did);
+    }
 
-    Xapian::Internal::RefCntPtr<const ChertDatabase> ptrtothis(this);
-    RETURN(new ChertDocument(ptrtothis,
-			     &value_manager,
-			     &record_table,
-			     did, lazy));
+    Xapian::Internal::RefCntPtr<const Database::Internal> ptrtothis(this);
+    RETURN(new ChertDocument(ptrtothis, did, &value_manager, &record_table));
 }
 
 PositionList *

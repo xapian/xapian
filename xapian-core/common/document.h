@@ -43,13 +43,14 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	/// Type to store terms in.
 	typedef map<string, OmDocumentTerm> document_terms;
 
+    protected:
+	/// The database this document is in.
+	Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database;
+
     private:
         // Prevent copying
         Internal(const Internal &);
         Internal & operator=(const Internal &);
-
-	/// The database this document is in.
-	Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database;
 
 	bool data_here;
 	mutable bool values_here; // FIXME mutable is a hack

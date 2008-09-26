@@ -1,8 +1,7 @@
-/* chert_document.h: Document from a Chert Database
- *
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2008 Olly Betts
+/** @file chert_document.h
+ * @brief A document read from a ChertDatabase.
+ */
+/* Copyright (C) 2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,40 +15,48 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef OM_HGUARD_CHERT_DOCUMENT_H
-#define OM_HGUARD_CHERT_DOCUMENT_H
+#ifndef XAPIAN_INCLUDED_CHERT_DOCUMENT_H
+#define XAPIAN_INCLUDED_CHERT_DOCUMENT_H
 
-#include <xapian/base.h>
+#include "chert_record.h"
+#include "chert_values.h"
+#include "database.h"
 #include "document.h"
 
-class ChertDatabase;
-
-/// A document from a Chert format database
+/// A document read from a ChertDatabase.
 class ChertDocument : public Xapian::Document::Internal {
+    /// Don't allow assignment.
+    void operator=(const ChertDocument &);
+
+    /// Don't allow copying.
+    ChertDocument(const ChertDocument &);
+
+    /// Used for lazy access to document values.
+    const ChertValueManager *value_manager;
+
+    /// Used for lazy access to document data.
+    const ChertRecordTable *record_table;
+
+    /// ChertDocument::open_document() needs to call our private constructor.
     friend class ChertDatabase;
-    friend class ChertWritableDatabase;
-    private:
-	Xapian::Internal::RefCntPtr<const ChertDatabase> database;
 
-	const ChertValueManager *value_manager;
-	const ChertRecordTable *record_table;
+    /// Private constructor - only called by ChertDocument::open_document().
+    ChertDocument(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> db,
+		  Xapian::docid did_,
+		  const ChertValueManager *value_manager_,
+		  const ChertRecordTable *record_table_)
+	: Xapian::Document::Internal(db, did_),
+	  value_manager(value_manager_), record_table(record_table_) { }
 
-	ChertDocument(Xapian::Internal::RefCntPtr<const ChertDatabase> database_,
-		       const ChertValueManager *value_manager_,
-		       const ChertRecordTable *record_table_,
-		       Xapian::docid did_, bool lazy);
-
-	// Prevent copying
-	ChertDocument(const ChertDocument &);
-	ChertDocument & operator = (const ChertDocument &);
-    public:
-	string do_get_value(Xapian::valueno valueid) const;
-	void do_get_all_values(map<Xapian::valueno, string> & values_) const;
-	string do_get_data() const;
+  public:
+    /** Implementation of virtual methods @{ */
+    string do_get_value(Xapian::valueno slot) const;
+    void do_get_all_values(map<Xapian::valueno, string> & values_) const;
+    string do_get_data() const;
+    /** @} */
 };
 
-#endif /* OM_HGUARD_CHERT_DOCUMENT_H */
+#endif // XAPIAN_INCLUDED_CHERT_DOCUMENT_H

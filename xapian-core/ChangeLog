@@ -1,3 +1,13 @@
+Fri Sep 26 06:21:08 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/chert/chert_document.cc,
+	  backends/chert/chert_document.h,common/document.h: Overhaul
+	  ChertDocument:  Avoid having a reference-counted pointer to the
+	  database in the subclass as well as the one now in the base class.
+	  Also check the lazy flag before we create a ChertDocument object to
+	  avoid a memory allocation in that code path.  And make the
+	  now-simple constructor inline-able.
+
 Thu Sep 25 17:38:37 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* Merge lazyupdate branch:
