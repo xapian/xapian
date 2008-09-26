@@ -1,3 +1,8 @@
+Fri Sep 26 11:55:18 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am,tests/api_spelling.cc,tests/api_wrdb.cc: Split the
+	  spelling tests out into a separate file.
+
 Fri Sep 26 11:53:45 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/api_unicode.cc: Capitalise brief file description.

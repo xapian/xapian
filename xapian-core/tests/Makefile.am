@@ -97,6 +97,7 @@ collated_apitest_sources = \
  api_posdb.cc \
  api_replicate.cc \
  api_sorting.cc \
+ api_spelling.cc \
  api_transdb.cc \
  api_unicode.cc \
  api_valuestats.cc \
