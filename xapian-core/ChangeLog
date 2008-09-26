@@ -1,3 +1,8 @@
+Fri Sep 26 19:12:23 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/omdatabase.cc: Fix warning with gcc 4.2 about possible signed
+	  overflow, by using an unsigned type for the total.
+
 Fri Sep 26 15:48:39 GMT 2008  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc: Fixed version of: Avoid the relatively expensive

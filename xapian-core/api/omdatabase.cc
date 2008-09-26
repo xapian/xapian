@@ -413,7 +413,7 @@ freq_edit_lower_bound(const vector<unsigned> & a, const vector<unsigned> & b)
     for (i = b.begin(); i != b.end(); ++i) {
 	--vec[(*i) % VEC_SIZE];
     }
-    int total = 0;
+    unsigned int total = 0;
     for (size_t j = 0; j < VEC_SIZE; ++j) {
 	total += abs(vec[j]);
     }
