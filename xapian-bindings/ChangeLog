@@ -1,3 +1,9 @@
+Fri Sep 26 19:02:19 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/pythontest2.py: Add a test of adding, modifying, and
+	  deleting values.  This passed with flint (as committed), but
+	  fails currently if the test is changed to use chert.
+
 Fri Sep 26 04:54:39 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/Makefile.am: Add testsuite2.py and testsuite3.py to

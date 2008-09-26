@@ -21,6 +21,7 @@
 import sys
 import xapian
 import shutil
+import random
 
 from testsuite import *
 
@@ -1036,6 +1037,73 @@ def test_director_exception():
     mdecider = MDecider()
     expect_exception(TestException, "foobar", mdecider, xapian.Document())
     expect_exception(TestException, "foobar", enq.get_mset, 0, 10, None, mdecider)
+
+def check_vals(db, vals):
+    """Check that the values in slot 1 are as in vals.
+
+    """
+    for docid in xrange(1, db.get_lastdocid() + 1):
+        val = db.get_document(docid).get_value(1)
+        expect(val, vals[docid], "Expected stored value in doc %d" % docid)
+
+def test_value_mods():
+    """Test handling of an exception raised in a director.
+
+    """
+    dbpath = 'db_test_value_mods'
+    db = xapian.flint_open(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
+    random.seed(42)
+    doccount = 1000
+    vals = {}
+
+    # Add a value to all the documents
+    for num in xrange(1, doccount):
+        doc=xapian.Document()
+        val = 'val%d' % num
+        doc.add_value(1, val)
+        db.add_document(doc)
+        vals[num] = val
+    db.flush()
+    check_vals(db, vals)
+
+    # Modify one of the values (this is a regression test which failed with the
+    # initial implementation of streaming values).
+    doc = xapian.Document()
+    val = 'newval0'
+    doc.add_value(1, val)
+    db.replace_document(2, doc)
+    vals[2] = val
+    db.flush()
+    check_vals(db, vals)
+
+    # Do some random modifications.
+    for count in xrange(1, doccount * 2):
+        docid = random.randint(1, doccount)
+        doc = xapian.Document()
+
+        if count % 5 == 0:
+            val = ''
+        else:
+            val = 'newval%d' % count
+            doc.add_value(1, val)
+        db.replace_document(docid, doc)
+        vals[docid] = val
+
+    # Check the values before and after modification.
+    check_vals(db, vals)
+    db.flush()
+    check_vals(db, vals)
+
+    # Delete all the values which are non-empty, in a random order.
+    keys = [key for key, val in vals.iteritems() if val != '']
+    random.shuffle(keys)
+    for key in keys:
+        doc = xapian.Document()
+        db.replace_document(key, doc)
+        vals[key] = ''
+    check_vals(db, vals)
+    db.flush()
+    check_vals(db, vals)
 
 # Run all tests (ie, callables with names starting "test_").
 if not runtests(globals(), sys.argv[1:]):
