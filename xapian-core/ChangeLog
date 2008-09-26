@@ -1,3 +1,7 @@
+Fri Sep 26 14:40:50 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/xapian-check.cc: Check the structure of the value stream chunks.
+
 Fri Sep 26 12:21:32 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/api_spelling.cc: Add a regression test for the bug my recently
