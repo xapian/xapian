@@ -4,7 +4,7 @@ Fri Sep 26 15:48:39 GMT 2008  Olly Betts <olly@survex.com>
 	  edit distance computation for a candidate spelling correction when
 	  we can reject the candidate as less good than one we've already seen
 	  by looking at the character frequency histograms.  In a test on
-	  real-world data, this gave an 8% speed-up in queryparsing time
+	  real-world data, this gave an 15% speed-up in queryparsing time
 	  with FLAG_SPELLING_CORRECTION set.  The cheap check rejects 90%
 	  of the words it handles (without the cheap check, the edit distance
 	  check rejects 92%).
