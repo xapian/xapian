@@ -2078,3 +2078,103 @@ DEFINE_TESTCASE(cursordelbug1, flint || chert) {
 
     return true;
 }
+
+/** Helper function for modifyvalues1 - check that the values stored in the database match
+ */
+void check_vals(const Xapian::Database & db,
+		const map<Xapian::docid, string> & vals)
+{
+    TEST_EQUAL(db.get_doccount(), vals.size());
+    if (vals.size() == 0) return;
+    TEST_LESSER_OR_EQUAL(vals.rbegin()->first, db.get_lastdocid());
+    map<Xapian::docid, string>::const_iterator i;
+    for (i = vals.begin(); i != vals.end(); ++i) {
+	tout << "Checking value in doc " << i->first << "\n";
+	Xapian::Document doc = db.get_document(i->first);
+	string dbval = doc.get_value(1);
+	TEST_EQUAL(dbval, i->second);
+	if (dbval == "") {
+	    TEST_EQUAL(0, doc.values_count());
+	    TEST_EQUAL(doc.values_begin(), doc.values_end());
+	} else {
+	    TEST_EQUAL(1, doc.values_count());
+	    Xapian::ValueIterator valit = doc.values_begin();
+	    TEST_NOT_EQUAL(valit, doc.values_end());
+	    TEST_EQUAL(dbval, *valit);
+	    TEST_EQUAL(1, valit.get_valueno());
+	    ++valit;
+	    TEST_EQUAL(valit, doc.values_end());
+	}
+    }
+}
+
+/** Regression test for bug in initial streaming values implementation in
+ *  chert.
+ */
+DEFINE_TESTCASE(modifyvalues1, writable) {
+    Xapian::WritableDatabase db = get_writable_database();
+    // Note doccount must be coprime with 13
+    Xapian::doccount doccount = 1000;
+    map<Xapian::docid, string> vals;
+
+    for (Xapian::doccount num = 1; num <= doccount; ++num) {
+    	Xapian::Document doc;
+	string val = "val" + om_tostring(num);
+	doc.add_value(1, val);
+	db.add_document(doc);
+	vals[num] = val;
+	tout << "Set val '" << val << "' in doc " << num << "\n";
+    }
+    check_vals(db, vals);
+    db.flush();
+    check_vals(db, vals);
+
+    // Modify one of the values (this is a regression test which failed with
+    // the initial implementation of streaming values).
+    {
+	Xapian::Document doc;
+	string val = "newval0";
+	doc.add_value(1, val);
+	db.replace_document(2, doc);
+	vals[2] = val;
+	tout << "Set val '" << val << "' in doc " << 2 << "\n";
+	check_vals(db, vals);
+	db.flush();
+	check_vals(db, vals);
+    }
+
+    // Do some random modifications: seed random generator, for repeatable
+    // results.
+    srand(42);
+    for (Xapian::doccount num = 1; num <= doccount * 2; ++num) {
+	Xapian::docid did = ((rand() >> 8) % doccount) + 1;
+	Xapian::Document doc;
+	string val;
+
+	if (num % 5 != 0) {
+	    val = "newval" + om_tostring(num);
+	    doc.add_value(1, val);
+	}
+	db.replace_document(did, doc);
+	vals[did] = val;
+	tout << "Set val '" << val << "' in doc " << did << "\n";
+    }
+    check_vals(db, vals);
+    db.flush();
+    check_vals(db, vals);
+
+    // Delete all the remaining values, in a slightly shuffled order.
+    // This is where it's important that doccount is coprime with 13.
+    for (Xapian::doccount num = 0; num < doccount * 13; num += 13) {
+	Xapian::docid did = (num % doccount) + 1;
+	Xapian::Document doc;
+	db.replace_document(did, doc);
+	vals[did] = "";
+	tout << "Cleared val in doc " << did << "\n";
+    }
+    check_vals(db, vals);
+    db.flush();
+    check_vals(db, vals);
+
+    return true;
+}

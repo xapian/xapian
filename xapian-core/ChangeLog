@@ -1,3 +1,9 @@
+Sat Sep 27 10:36:09 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_wrdb.cc: Add test "modifyvalues1" - regression test for
+	  a bug in the streaming values implementation, and also a fairly
+	  thorough test of adding and modifying values in databases.
+
 Fri Sep 26 19:12:23 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/omdatabase.cc: Fix warning with gcc 4.2 about possible signed
