@@ -1,3 +1,8 @@
+Sun Sep 28 12:15:14 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/collate-test: Avoid perl warning when generating files which
+	  don't already exist.
+
 Sat Sep 27 10:36:09 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/api_wrdb.cc: Add test "modifyvalues1" - regression test for

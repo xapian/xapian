@@ -86,7 +86,8 @@ update_if_required($allfile);
 # just delete it to avoid needlessly updating $file's timestamp.
 sub update_if_required {
     my $file = shift;
-    if (-s $file == -s "$file.tmp") {
+    my $current_size = -s $file;
+    if (defined $current_size && $current_size == -s "$file.tmp") {
 	open OLD, "<$file" or die $!;
 	open NEW, "<$file.tmp" or die $!;
 	my $different = 0;
@@ -105,6 +106,6 @@ sub update_if_required {
 	}
     }
 different:
-    unlink $file if $^O eq 'MSWin32';
+    unlink $file if $^O eq 'MSWin32' && defined $current_size;
     rename "$file.tmp", $file or dir $!;
 }
