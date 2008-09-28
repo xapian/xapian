@@ -1047,11 +1047,11 @@ def check_vals(db, vals):
         expect(val, vals[docid], "Expected stored value in doc %d" % docid)
 
 def test_value_mods():
-    """Test handling of an exception raised in a director.
+    """Test handling of modifications to values.
 
     """
     dbpath = 'db_test_value_mods'
-    db = xapian.flint_open(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
+    db = xapian.chert_open(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
     random.seed(42)
     doccount = 1000
     vals = {}
