@@ -27,6 +27,7 @@
 #include "chert_postlist.h"
 #include "chert_termlist.h"
 #include "chert_utils.h"
+#include "document.h"
 #include "omdebug.h"
 
 #include "xapian/error.h"
@@ -441,11 +442,10 @@ ChertValueManager::replace_document(Xapian::docid did,
 				    const Xapian::Document &doc,
 				    map<Xapian::valueno, ValueStats> & value_stats)
 {
-    // Assert that the values have been modified - we should only be called
-    // when they have been, anyway, and this also ensures that the values have
-    // been loaded before we delete the old values.
-    //Assert(doc.internal->values_modified());
-
+    // Load the values into the document from the database, if they haven't
+    // been already.  (If we don't do this before deleting the old values,
+    // replacing a document with itself will lose the values.)
+    doc.internal->need_values();
     delete_document(did, value_stats);
     add_document(did, doc, value_stats);
 }

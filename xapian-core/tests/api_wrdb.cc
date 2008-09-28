@@ -2143,6 +2143,30 @@ DEFINE_TESTCASE(modifyvalues1, writable) {
 	check_vals(db, vals);
     }
 
+    // Check that value doesn't get lost when replacing a document with itself.
+    {
+	tout << "Replacing document 1 with itself\n";
+	Xapian::Document doc = db.get_document(1);
+	db.replace_document(1, doc);
+	check_vals(db, vals);
+	db.flush();
+	check_vals(db, vals);
+    }
+
+    // Check that value doesn't get lost when replacing a document with itself,
+    // accessing another document in the meantime.  This is a regression test
+    // for a bug in the code which implements lazy updates - this used to
+    // forget the values in the document in this situation.
+    {
+	tout << "Replacing document 1 with itself, after reading doc 2.\n";
+	Xapian::Document doc = db.get_document(1);
+	db.get_document(2);
+	db.replace_document(1, doc);
+	check_vals(db, vals);
+	db.flush();
+	check_vals(db, vals);
+    }
+
     // Do some random modifications: seed random generator, for repeatable
     // results.
     srand(42);

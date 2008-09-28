@@ -1,3 +1,13 @@
+Sun Sep 28 15:13:11 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/chert/chert_values.cc: Fix bug in lazy update - ensure
+	  that the document has loaded its values before deleting the old
+	  one (previously, there was an assertion to this effect, but it
+	  didn't actually compile, and was also incorrect).
+	* tests/api_wrdb.cc: Check that replacing a document with itself
+	  doesn't lose the values - regression test for the bug fixed by
+	  this commit.
+
 Sun Sep 28 14:04:01 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_values.cc: Fix bug in value updating -
