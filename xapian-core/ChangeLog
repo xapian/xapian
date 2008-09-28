@@ -1,3 +1,8 @@
+Sun Sep 28 14:04:01 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_values.cc: Fix bug in value updating -
+	  modifyvalues1 now passes for chert.
+
 Sun Sep 28 12:15:14 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/collate-test: Avoid perl warning when generating files which

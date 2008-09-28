@@ -97,6 +97,7 @@ class ValueChunkReader {
     string value;
 
   public:
+    /// Create a ValueChunkReader which is already at_end().
     ValueChunkReader() : p(NULL) { }
 
     ValueChunkReader(const char * p_, size_t len, Xapian::docid did_) {
@@ -199,7 +200,9 @@ ChertValueManager::get_chunk_containing_did(Xapian::valueno slot,
     return did;
 }
 
-const size_t CHUNK_SIZE_THRESHOLD = 2000;
+static const size_t CHUNK_SIZE_THRESHOLD = 2000;
+
+static const Xapian::docid MAX_DOCID = static_cast<Xapian::docid>(-1);
 
 class ValueUpdater {
     ChertPostListTable * table;
@@ -221,10 +224,13 @@ class ValueUpdater {
     Xapian::docid last_allowed_did;
 
     void append_to_stream(Xapian::docid did, const string & value) {
-	if (tag.empty())
+	Assert(did);
+	if (tag.empty()) {
 	    new_first_did = did;
-	else
+	} else {
+	    AssertRel(did,>,prev_did);
 	    tag += pack_uint(did - prev_did - 1);
+	}
 	prev_did = did;
 	tag += pack_string(value);
 	if (tag.size() >= CHUNK_SIZE_THRESHOLD) write_tag();
@@ -244,7 +250,7 @@ class ValueUpdater {
 
   public:
     ValueUpdater(ChertPostListTable * table_, Xapian::valueno slot_)
-       	: table(table_), slot(slot_), first_did(0) { }
+       	: table(table_), slot(slot_), first_did(0), last_allowed_did(0) { }
 
     ~ValueUpdater() {
 	while (!reader.at_end()) {
@@ -252,47 +258,58 @@ class ValueUpdater {
 	    append_to_stream(reader.get_docid(), reader.get_value());
 	    reader.next();
 	}
-	if (first_did) write_tag();
+	write_tag();
     }
 
     void update(Xapian::docid did, const string & value) {
-	if (first_did && did > last_allowed_did) write_tag();
-	if (first_did == 0) {
+	if (last_allowed_did && did > last_allowed_did) {
+	    write_tag();
+	    last_allowed_did = 0;
+	}
+	if (last_allowed_did == 0) {
+	    last_allowed_did = MAX_DOCID;
+	    Assert(tag.empty());
+	    new_first_did = 0;
 	    AutoPtr<ChertCursor> cursor(table->cursor_get());
-	    bool exact = cursor->find_entry(make_key(slot, did));
-	    if (!cursor->current_key.empty()) {
-		if (!exact)
-		    first_did = docid_from_key(slot, cursor->current_key);
-		if (exact || first_did) {
-		    cursor->read_tag();
-		    if (cursor->current_tag.size() < CHUNK_SIZE_THRESHOLD) {
-			swap(cursor->current_tag, ctag);
-		    } else {
-			first_did = did;
-		    }
-		} else {
-		    first_did = did;
-		}
-		if (!ctag.empty()) {
-		    reader.assign(ctag.data(), ctag.size(), first_did);
-		}
-		last_allowed_did = static_cast<Xapian::docid>(-1);
-		if (cursor->next()) {
-		    Xapian::docid next_first_did;
-		    next_first_did = docid_from_key(slot, cursor->current_key);
-		    if (next_first_did) last_allowed_did = next_first_did - 1;
-		}
-	    } else {
+	    if (cursor->find_entry(make_key(slot, did))) {
+		// We found an exact match, so the first docid is the one
+		// we looked for.
 		first_did = did;
+	    } else if (!cursor->after_end()) {
+		// Otherwise we need to unpack it from the key we found.
+		// We may have found a non-value-chunk entry in which case
+		// docid_from_key() returns 0.
+		first_did = docid_from_key(slot, cursor->current_key);
+	    }
+
+	    // If there are no further chunks, then the last docid that can go
+	    // in this chunk is the highest valid docid.  If there are further
+	    // chunks then it's one less than the first docid of the next
+	    // chunk.
+	    if (first_did) {
+		// We found a value chunk.
+		cursor->read_tag();
+		// FIXME:swap(cursor->current_tag, ctag);
+		ctag = cursor->current_tag;
+		reader.assign(ctag.data(), ctag.size(), first_did);
+		if (cursor->next()) {
+		    const string & key = cursor->current_key;
+		    Xapian::docid next_first_did = docid_from_key(slot, key);
+		    if (next_first_did) last_allowed_did = next_first_did - 1;
+		    Assert(last_allowed_did);
+		    AssertRel(last_allowed_did,>=,first_did);
+		}
 	    }
 	}
-	while (!reader.at_end() && reader.get_docid() <= did) {
-	    if (reader.get_docid() != did) {
-		// FIXME: use skip_to and some splicing magic instead?
-		append_to_stream(reader.get_docid(), reader.get_value());
-	    }
+
+	// Copy over entries until we get to the one we want to
+	// add/modify/delete.
+	// FIXME: use skip_to and some splicing magic instead?
+	while (!reader.at_end() && reader.get_docid() < did) {
+	    append_to_stream(reader.get_docid(), reader.get_value());
 	    reader.next();
 	}
+	if (!reader.at_end() && reader.get_docid() == did) reader.next();
 	if (!value.empty()) {
 	    // Add/update entry for did.
 	    append_to_stream(did, value);
@@ -427,7 +444,7 @@ ChertValueManager::replace_document(Xapian::docid did,
     // Assert that the values have been modified - we should only be called
     // when they have been, anyway, and this also ensures that the values have
     // been loaded before we delete the old values.
-    Assert(document.internal->values_modified());
+    //Assert(doc.internal->values_modified());
 
     delete_document(did, value_stats);
     add_document(did, doc, value_stats);
