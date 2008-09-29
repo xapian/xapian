@@ -1,3 +1,19 @@
+Mon Sep 29 08:19:15 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* api/omdatabase.cc,backends/database.cc,backends/flint/,
+	  common/database.h,include/xapian/database.h: Add
+	  metadata_keys_begin() and metadata_keys_end() methods to
+	  Database, to allow the complete list of metadata in a database to
+	  be retrieved.  Supports a prefix argument to obtain a limited
+	  subset of the keys, since that may be useful in some situations
+	  and is very easy to implement.  Only accesses the keys in the
+	  first database in a multidatabase situation (which corresponds
+	  with the current behaviour of get_metadata()).
+	  Also, reorder the includes in flint_database.cc to be largely
+	  alphabetical, and remove a duplicated #include of
+	  <xapian/error.h>.
+
 Mon Sep 29 06:42:11 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

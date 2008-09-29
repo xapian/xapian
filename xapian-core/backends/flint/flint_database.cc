@@ -24,34 +24,33 @@
 
 #include <config.h>
 
-#include <xapian/error.h>
-
-#include "safeerrno.h"
-
 #include "flint_database.h"
-#include "utils.h"
-#include "omdebug.h"
-#include "autoptr.h"
+
 #include <xapian/error.h>
 #include <xapian/valueiterator.h>
 
+#include "autoptr.h"
 #include "contiguousalldocspostlist.h"
-#include "flint_modifiedpostlist.h"
-#include "flint_postlist.h"
 #include "flint_alldocspostlist.h"
-#include "flint_termlist.h"
-#include "flint_positionlist.h"
-#include "flint_utils.h"
-#include "flint_record.h"
-#include "flint_values.h"
-#include "flint_document.h"
 #include "flint_alltermslist.h"
+#include "flint_document.h"
 #include "flint_lock.h"
+#include "flint_metadata.h"
+#include "flint_modifiedpostlist.h"
+#include "flint_positionlist.h"
+#include "flint_postlist.h"
+#include "flint_record.h"
 #include "flint_spellingwordslist.h"
+#include "flint_termlist.h"
+#include "flint_utils.h"
+#include "flint_values.h"
+#include "omdebug.h"
+#include "safeerrno.h"
+#include "safesysstat.h"
 #include "stringutils.h"
+#include "utils.h"
 
 #include <sys/types.h>
-#include "safesysstat.h"
 
 #include <list>
 #include <string>
@@ -609,6 +608,16 @@ FlintDatabase::open_synonym_keylist(const string & prefix) const
     return new FlintSynonymTermList(Xapian::Internal::RefCntPtr<const FlintDatabase>(this),
 				    cursor, synonym_table.get_entry_count(),
 				    prefix);
+}
+
+TermList *
+FlintDatabase::open_metadata_keylist(const std::string &prefix) const
+{
+    DEBUGCALL(DB, string, "FlintDatabase::open_metadata_keylist", "");
+    FlintCursor * cursor = postlist_table.cursor_get();
+    if (!cursor) return NULL;
+    return new FlintMetadataTermList(Xapian::Internal::RefCntPtr<const FlintDatabase>(this),
+				     cursor, prefix);
 }
 
 string

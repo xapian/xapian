@@ -242,6 +242,7 @@ class FlintDatabase : public Xapian::Database::Internal {
 	TermList * open_synonym_keylist(const string & prefix) const;
 
 	string get_metadata(const string & key) const;
+	TermList * open_metadata_keylist(const std::string &prefix) const;
 	//@}
 };
 

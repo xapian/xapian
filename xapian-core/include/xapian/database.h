@@ -4,7 +4,7 @@
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
- * Copyright 2006 Richard Boulton
+ * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -310,6 +310,22 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *	       metadata.
 	 */
 	std::string get_metadata(const std::string & key) const;
+
+	/** An iterator which returns all user-specified metadata keys.
+	 *
+	 *  When invoked on a Xapian::Database object representing multiple
+	 *  databases, currently only the metadata for the first is considered
+	 *  but this behaviour may change in the future.
+	 *
+	 *  @param prefix   If non-empty, only keys with this prefix are
+	 *		    returned.
+	 */
+	Xapian::TermIterator metadata_keys_begin(const std::string &prefix = "") const;
+
+	/// Corresponding end iterator to metadata_keys_begin().
+	Xapian::TermIterator metadata_keys_end(const std::string & = "") const {
+	    return Xapian::TermIterator(NULL);
+	}
 };
 
 /** This class provides read/write access to a database.
