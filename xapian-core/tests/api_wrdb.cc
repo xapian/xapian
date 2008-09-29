@@ -807,6 +807,8 @@ DEFINE_TESTCASE(deldoc5, writable) {
 
     db.delete_document(2);
 
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(2));
+
     db.flush();
 
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(2));
@@ -1111,6 +1113,46 @@ DEFINE_TESTCASE(replacedoc5, writable) {
     TEST(db.has_positions());
     TEST(db.positionlist_begin(1, "hello") != db.positionlist_end(1, "hello"));
     TEST(db.positionlist_begin(1, "world") != db.positionlist_end(1, "world"));
+
+    return true;
+}
+
+// Test replacing a document while adding values, without changing anything
+// else.  Regression test for a bug introduced while implementing lazy update,
+// and also covers a few other code paths.
+DEFINE_TESTCASE(replacedoc6, writable) {
+    Xapian::WritableDatabase db = get_writable_database();
+
+    Xapian::Document doc;
+    Xapian::docid did = db.add_document(doc);
+    TEST_EQUAL(did, 1);
+    db.flush();
+
+    // Add document
+    doc = db.get_document(1);
+    TEST_EQUAL(doc.get_value(1), "");
+    TEST_EQUAL(doc.get_value(2), "");
+    doc.add_value(1, "banana1");
+    db.replace_document(1, doc);
+
+    doc = db.get_document(1);
+    TEST_EQUAL(doc.get_value(1), "banana1");
+    TEST_EQUAL(doc.get_value(2), "");
+    db.flush();
+
+    doc = db.get_document(1);
+    TEST_EQUAL(doc.get_value(1), "banana1");
+    TEST_EQUAL(doc.get_value(2), "");
+    doc.add_value(2, "banana2");
+    db.replace_document(1, doc);
+
+    TEST_EQUAL(doc.get_value(1), "banana1");
+    TEST_EQUAL(doc.get_value(2), "banana2");
+    db.flush();
+
+    doc = db.get_document(1);
+    TEST_EQUAL(doc.get_value(1), "banana1");
+    TEST_EQUAL(doc.get_value(2), "banana2");
 
     return true;
 }
