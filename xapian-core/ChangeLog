@@ -1,3 +1,13 @@
+Mon Sep 29 05:55:51 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* tests/Makefile.am: Remove the cached test databases in before
+	  running the testsuite by making check-local do the same as
+	  clean-local.
+	* tests/Makefile.am: Fix "make clean" to remove cached databases again
+	  and "make check" to remove cached databases like the previous change
+	  aimed to do.
+
 Thu Sep 04 03:28:23 GMT 2008  Olly Betts <olly@survex.com>
 
 	* AUTHORS: Add Henrik Brix Andersen for FreeBSD portability fix.

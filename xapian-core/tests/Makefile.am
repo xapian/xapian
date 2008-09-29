@@ -13,7 +13,7 @@ TESTS_ENVIRONMENT = ./runtest
 
 .PHONY: check-none check-inmemory check-multi \
         check-remote check-remoteprog check-remotetcp \
-        check-flint check-quartz up
+        check-flint check-quartz up remove-cached-databases
 
 up:
 	cd .. && $(MAKE)
@@ -206,7 +206,13 @@ EXTRA_DIST +=\
 	testdata/flint-1.0.2/termlist.baseA \
 	testdata/flint-1.0.2/termlist.DB
 
-clean-local:
+remove-cached-databases:
 	rm -rf .flint .quartz .quartztmp .btreetmp .multi
+
+clean-local: remove-cached-databases
+
+# Remove the cached databases before "make check" to avoid issues with missing
+# bugs in database creation when we reuse databases from a previous test run.
+check-local: remove-cached-databases
 
 include harness/Makefile.mk
