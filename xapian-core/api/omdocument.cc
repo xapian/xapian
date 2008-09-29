@@ -271,13 +271,6 @@ Xapian::Document::Internal::get_value(Xapian::valueno valueid) const
     return do_get_value(valueid);
 }
 	
-map<Xapian::valueno, string>
-Xapian::Document::Internal::get_all_values() const
-{
-    need_values();
-    return values;
-}
-
 string
 Xapian::Document::Internal::get_data() const
 {
