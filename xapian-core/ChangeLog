@@ -1,3 +1,11 @@
+Mon Sep 29 05:04:57 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_version.cc: Add VERSIONFILE_SIZE_LITERAL and
+	  use CompileTimeAssert() to ensure it matches the expression in
+	  VERSIONFILE_SIZE.  It's very rare for the size to change (it's
+	  happened once ever) and allows us to build the error string
+	  literally at compile time.
+
 Sun Sep 28 15:13:11 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* backends/chert/chert_values.cc: Fix bug in lazy update - ensure
