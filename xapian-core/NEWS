@@ -1,91 +1,42 @@
 up to:
- 11148       olly Tue Sep 02 06:48:50 GMT 2008  Olly Betts <olly@survex.com>
+ 11455       olly Mon Sep 29 05:04:57 GMT 2008  Olly Betts <olly@survex.com>
 
 Potential backport fodder:
 
- 11076       olly 	* api/omdatabase.cc,backends/multi/multi_alltermslist.cc,
- 11076       olly 	  common/multialltermslist.h: Reimplement MultiAllTermsList to use a
- 11076       olly 	  heap rather than linearly scanning - operations during iteration
- 11076       olly 	  should now be O(log(n)) rather than O(n) where n is the number of
- 11076       olly 	  databases (but tests so far show O(n) in both cases...
+ 11417    richard 	* matcher/queryoptimiser.cc,tests/api_anydb.cc: Apply fix for
+ 11417    richard 	  platforms with excess precision - this fixes a potential segfault
+ 11417    richard 	  on x86 architecture when doing OP_ELITE_SET queries.  Also, add a
+ 11417    richard 	  regression test.
 
-11041+11075 (doesn't apply cleanly):
- 11075       olly Tue Aug 05 23:50:19 GMT 2008  Olly Betts <olly@survex.com>
- 11075       olly 
- 11075       olly 	* tests/Makefile.am: Fix "make clean" to remove cached databases again
- 11075       olly 	  and "make check" to remove cached databases like the previous change
- 11075       olly 	  aimed to do.
- 11041       olly Sat Aug 02 01:49:35 GMT 2008  Olly Betts <olly@survex.com>
- 11041       olly 
- 11041       olly 	* tests/Makefile.am: Remove the cached test databases in before
- 11041       olly 	  running the testsuite by making check-local do the same as
- 11041       olly 	  clean-local.
+ 11173    richard 	* tests/Makefile.am,tests/api_percentages.cc: Add new test file for
+ 11173    richard 	  tests related to percentage weights (there are a few around which
+ 11173    richard 	  could be moved here, and there's another one in the patch in
+ 11173    richard 	  ticket #216).  Add test in this file which uses a PostingSource
+ 11173    richard 	  with carefully constructed weights to check the rounding
+ 11173    richard 	  behaviour for percentage cutoffs.
+
+ 11161    richard 	* matcher/multimatch.cc: Adjust min_weight values calculated for
+ 11161    richard 	  percent_cutoff in the same manner as in omenquire.cc, to allow
+ 11161    richard 	  for excess precision in the same way.
+
+ 11449    richard 	* api/omdatabase.cc: Fix warning with gcc 4.2 about possible signed
+ 11449    richard 	  overflow, by using an unsigned type for the total.
+ 11446       olly 	* api/omdatabase.cc: Fixed version of: Avoid the relatively expensive
+ 11446       olly 	  edit distance computation for a candidate spelling correction when
+ 11446       olly 	  we can reject the candidate as less good than one we've already seen
+ 11446       olly 	  by looking at the character frequency histograms.  In a test on
+ 11447       olly 	  real-world data, this gave an 15% speed-up in queryparsing time
+ 11446       olly 	  with FLAG_SPELLING_CORRECTION set.  The cheap check rejects 90%
+ 11446       olly 	  of the words it handles (without the cheap check, the edit distance
+ 11446       olly 	  check rejects 92%).
+ 11444       olly 	* tests/api_spelling.cc: Add a regression test for the bug my recently
+ 11444       olly 	  added and reverted spelling optimisation introduced.
 
 HEAD only:
 
- 11136,11135,11130,11129
-	overhaul of debug logging framework
-
- 11120       olly 	* configure.ac: Remove code which checks for --enable-debug and
- 11120       olly 	  --enable-debug-verbose (deprecated since 1.0.0) and gives an error
- 11120       olly 	  pointing to the replacements.
- 11120       olly 	* docs/deprecation.rst: Document the replacements here.
-
- 11037       olly 	* backends/database.cc: Bad lines in a stub file were being ignored
- 11037       olly 	  after we'd seen a good entry.
- 11037       olly 	* tests/api_db.cc: Add regression test.
-
- 11040       olly 	* backends/dbfactory.cc: Add support for "inmemory" to stub database
- 11040       olly 	  files (it's useful now they can be writable).  Don't just ignore
- 11040       olly 	  lines with no spaces in in stub database files.
-
- 11039       olly Thu Jul 31 13:13:30 GMT 2008  Olly Betts <olly@survex.com>
- 11039       olly 
- 11039       olly 	* backends/Makefile.mk,backends/database.cc,backends/dbfactory.cc,
- 11039       olly 	  common/database.h,include/xapian/dbfactory.h: Add new
- 11039       olly 	  Auto::open_stub() overload which opens a stub database file
- 11039       olly 	  containing a single entry as a WritableDatabase.  Move the
- 11039       olly 	  non-remote database factory API functions from backends/database.cc
- 11039       olly 	  to new file backends/dbfactory.cc, leaving the former solely for
- 11039       olly 	  methods of Database::Internal.  A stub database file is now allowed
- 11039       olly 	  to contain no database entries, which results in an empty Database
- 11039       olly 	  object (this avoids user code having to special case to handle "0 or
- 11039       olly 	  more" databases).
- 11039       olly 	* tests/api_nodb.cc: Tidy up #include directives.  Enhance nosuchdb1
- 11039       olly 	  to check that we get a reasonable error message - previously we
- 11039       olly 	  got "Couldn't detect type of database".
- 11039       olly 	* include/xapian/dbfactory.h: Improve doxygen comment for
- 11039       olly 	  InMemory::open().
-
-	  Move all information about particular autoconf and automake versions
-	  to HACKING.
-	* configure.ac: Use LT_INIT in preference to AC_PROG_LIBTOOL.  On
-	  Linux and k*bsd-gnu, override libtool's link_all_deplibs_CXX to
-	  "no".  On Linux, override libtool's sys_lib_dlsearch_path_spec to a
-	  list generated in a more reliable way which includes *all* the
-	  default directories.
-	* configure.ac: The workaround to avoid probe code for F77, GCJ, and
-	  RC being added to configure is no longer required now that we're
-	  using libtool 2.2 so remove it.
-	* configure.ac,HACKING: Hard require autoconf 2.62 and automake 1.10.1.
-	  Remove workaround which sets docdir for
-	  autoconf < 2.60 since we now require 2.62.
-	* xapian-core.spec.in: We no longer need to run autoreconf to work
-	  around libtool's incomplete sys_lib_dlsearch_path_spec or to pick
-	  up distro-specific patches for link_all_deplibs.
-	* Makefile.am,acinclude.m4,autoconf/dir_contents,
-	  autoconf/rjb_find_stlport.m4,autoconf/type_socklen_t.m4,
-	  m4/dir_contents,m4/rjb_find_stlport.m4,m4/type_socklen_t.m4: Move
-	  the m4 macros which we ship for building configure from into the m4
-	  subdirectory and remove acinclude.m4 - now aclocal will pull in the
-	  required macros automatically.
-	* m4-macros/dir_contents,m4-macros/xapian.m4,m4/dir_contents,
-	  m4/xapian.m4: Move xapain.m4 to a new subdirectory (m4-macros) since
-	  libtoolize now installs m4 files into subdirectory m4 which we don't
-	  really want picking up by applications building against an
-	  uninstalled xapian-core.
-	* Makefile.am,configure.ac: Use AC_CONFIG_MACRO_DIR and
-	  ACLOCAL_AMFLAGS as libtoolize 2.2.4 recommends.
+ * bin/xapian-check.cc,bin/xapian-check-flint.cc:  Don't stop checking
+   a table after an error in certain cases - instead increment the
+   error counter and try to continue checking from the next item.
 
 	* api/postingsource.cc,include/xapian/postingsource.h: Add an
 	  alternative constructor for ValueWeightPostingSource which allows
@@ -96,54 +47,96 @@ HEAD only:
 	  documents for which you know a more precise upper bound than the
 	  database-wide upper bound.
 
-	* docs/doxygen_api_conf.in,docs/doxygen_full_conf.in: Disable
-	  "JAVADOC_AUTOBRIEF" since we always try to write a brief
-	  description explicitly, and it causes problems in some cases.
+Xapian-core 1.1.0 (200?-??-??):
 
-	* tests/harness/: Add "name" parameter to
-	  BackendManager::get_writable_database_as_database(), and
-	  BackendManager::get_writable_database_again(), (and subclasses)
-	  so that old databases can be revived.  Useful for the performance
-	  tests.
 
-	* tests/harness/: Wait for subprocesses to finish at end of tests,
-	  with remotetcp backend, to avoid test failures due to final flush
-	  of a subprocess writing to the database used for the next test.
+API:
 
-	* Makefile.am,tests/Makefile.am: Fix make check-* targets to match
-	  the current set of backends.  Add .multichert and .multiflint to
-	  the clean-local hook in tests/.  Leave .multi there for now, to
-	  clean up existing .multi directories in the automated build trees.
+* All deprecated xapian-core features listed for removal in 1.1.0 have been
+  removed.  For details, and suggested updates, see deprecation.html.
 
-	* api/postingsource.cc: Make ValueWeightPostingSource use value
-	  statistics, if they're available, to return accurate term
-	  frequency statistics, and a better maxweight.
-	* tests/api_db.cc: Add valueweightsource2, to test the bounds and
-	  maxweight returned by a ValueWeightPostingSource for backends
-	  with valuestats support.  Replace !multi condition in
-	  valueweightsource1 with a SKIP_TEST_FOR_BACKEND invocation, since
-	  this is a shortcoming we should fix at some point.
+* The Unicode character categorisation functions have been updated from
+  Unicode 5.0 to Unicode 5.1.
 
-	* tests/harness/testrunner.cc,tests/harness/testrunner.h: Replace
-	  DO_TESTS_FOR_BACKEND macro with a do_tests_for_backend method;
-	  the method version takes a BackendManager * and gets the backend
-	  name from that, rather than requiring it to be specified.
-	  Requires addition of a couple of extra private members to the
-	  TestRunner class.
+11369+11391:
+* Xapian databases now have a UUID, readable with Database::get_uuid().
+
+* A new Database replication API has been added.
+
+* Stub databases used to assume that any relative paths were relative to the
+  current working directory.  They now assume that relative paths are
+  relative to the directory holding the stub database file.
+
+* Stub database lines which begin with a '#' character are ignored, allowing
+  comments in stub database files.
+
+* New "stub directory" database type - this is a directory containing a stub
+  database file named "XAPIANDB".
+
+* Don't just ignore lines with no spaces in in stub database files.
+
+* Bad lines in a stub file were being ignored after we'd seen a good entry.
+
+* Add support for "inmemory" to stub database (it's useful now they can be
+  writable).
+
+ 11039       olly 	* backends/Makefile.mk,backends/database.cc,backends/dbfactory.cc,
+ 11039       olly 	  common/database.h,include/xapian/dbfactory.h: Add new
+ 11039       olly 	  Auto::open_stub() overload which opens a stub database file
+ 11039       olly 	  containing a single entry as a WritableDatabase.  Move the
+ 11039       olly 	  non-remote database factory API functions from backends/database.cc
+ 11039       olly 	  to new file backends/dbfactory.cc, leaving the former solely for
+ 11039       olly 	  methods of Database::Internal.  A stub database file is now allowed
+ 11039       olly 	  to contain no database entries, which results in an empty Database
+ 11039       olly 	  object (this avoids user code having to special case to handle "0 or
+ 11039       olly 	  more" databases).
+
+* Change definition of MSet::get_termfreq() such that it will fall back to
+  looking the term frequency up in the database rather than raising an
+  exception if the term is not present in the MSet.
+
+* Calling RSet:add_document() with argument 0 now throws InvalidArgumentError.
+
+* QueryParser sped up (new version of lemon); queryparsertest runs 2.2% faster.
+
+* Add ValueSetMatchDecider, which is a matchdecider which is intended to be
+  passed a set of values to look for in documents, and selects documents based
+  on the presence of those values.
+
+	* api/Makefile.mk,api/omquery.cc,api/omqueryinternal.cc,
+	  include/Makefile.mk,include/xapian.h,include/xapian/query.h,matcher/,
+	  tests/api_db.cc: Add support for Xapian::PostingSource.
+	* docs/Makefile.am,docs/index.html,docs/postingsource.rst: Add
+	  topic document for PostingSource.
+	* api/postingsource.cc,include/xapian/postingsource.h,tests/api_db.cc,
+	  tests/harness/index_utils.cc: Add ValueWeightPostingSource, which
+	  reads a value, applies sortable_unserialise() to it, and returns
+	  that as the weight for each document.
 
 	* include/xapian/database.h: Add get_value_freq(),
 	  get_value_lower_bound() and get_value_upper_bound() methods to
 	  Database, to get statistics about the values stored in a slot.
-	* api/omdatabase.cc,backends/chert/,backends/database.cc,
-	  backends/inmemory/inmemory_database.cc,
-	  backends/inmemory/inmemory_database.h,
-	  backends/remote/remote-database.cc,common/,
-	  net/remoteserver.cc: Add support for the value statistics methods
+	  Add support for the value statistics methods
 	  to chert, inmemory, multi and remote databases.
-	* tests/Makefile.am,tests/api_valuestats.cc,
-	  tests/harness/testrunner.cc,tests/harness/testrunner.h: Add test
-	  of the value statistics code, and a "valuestats" backend property
-	  to select only backends supporting this.
+
+* Enquire::get_eset() now faster for large ESet size.
+
+* Xapian::Document objects now have a reduced memory footprint.
+
+testsuite:
+
+	* Add new testsuite "perftest", which is
+	  intended to contain potentially time consuming performance tests,
+	  logging the results to an XML file for later analysis.  Add a
+	  simple test of the ValueSetMatchDeciders to this testsuite.
+	  "perftest" isn't run by make check, because it is likely to take
+	  some hours to complete in future - instead, there's a new
+	  top-level target "check-perf" which builds and runs perftest.
+	* tests/submitperftest: Add script to submit the results of a
+	  performance test to a central server.
+
+* stemtest: No longer checks environment variables OM_STEMTEST_SKIP_RANDOM,
+  OM_STEMTEST_LANGUAGES, and OM_STEMTEST_SEED.
 
 	* rests/harness/: Make flint and chert subtypes for the remote and
 	  multi backend types.  These are specified (on the command line
@@ -176,111 +169,40 @@ HEAD only:
 	  subtypes now supported.  Catch string exceptions thrown by the
 	  test runner - these can currently occur when neither flint or
 	  chert are compiled in.
-	* tests/apitest.cc,tests/apitest.h: Adjust return type of
-	  get_dbtype(), implement skip_test_*_backend functions which just
-	  check the prefix of the type, and implement SKIP_TEST_*_BACKEND
-	  macros using these.
-	* tests/api_anydb.cc: Modify check for running on a multi backend
-	  to copy with getting a string back from get_dbtype().
 
-	* api/omenquire.cc,common/,expand/Makefile.mk,expand/esetinternal.cc,
-	  expand/expand.cc: Rewrite class ESet::Internal, incorporating the
-	  functionality which used to be in the internal OmExpand class.  The
-	  expand operation now uses a min heap rather than calling
-	  nth_element() repeatedly - this should reduce the complexity of the
-	  expand operation by a factor of n/log(n) where n is the requested
-	  ESet size.
+	* tests/harness/: Wait for subprocesses to finish at end of tests,
+	  with remotetcp backend, to avoid test failures due to final flush
+	  of a subprocess writing to the database used for the next test.
 
-	* api/Makefile.mk,api/omquery.cc,api/omqueryinternal.cc,
-	  include/Makefile.mk,include/xapian.h,include/xapian/query.h,matcher/,
-	  tests/api_db.cc: Add support for Xapian::PostingSource.
-	* docs/Makefile.am,docs/index.html,docs/postingsource.rst: Add
-	  topic document for PostingSource.
-	* api/postingsource.cc,include/xapian/postingsource.h,tests/api_db.cc,
-	  tests/harness/index_utils.cc: Add ValueWeightPostingSource, which
-	  reads a value, applies sortable_unserialise() to it, and returns
-	  that as the weight for each document.
+matcher:
 
-	* common/omassert.h: Add AssertEqDoubleParanoid().
-	* matcher/multimatch.cc: Use it instead of home-brewed version.
+chert backend:
 
-* Start new development backend "chert".  Currently the only change over flint is
-	  that in the postlist table, doclengths are stored once in a
-	  chunked postlist-like form, rather than once per posting.
-	* backends/database.cc: Add support for XAPIAN_PREFER_CHERT
-	  environmental variable.
-	* backends/chert/: Change ChertAllDocsPostList to inherit from
-	  ChertPostList and use the doclen list from the posting table
-	  rather than using the termlist table.  This helps towards making
-	  the termlist table optional, reduces the amount of data read in
-	  the process of iterating through an alldocs postlist, and can
-	  make a massive difference in performance: I've measured the time
-	  to iterate through all the documents in a 1000000 document
-	  database, and the patch speeds this operation up by a factor of 6.
-	  Add ChertAllDocsModifiedPostList class, inspired by
-	  ChertModifiedPostList, (with corresponding new source files) to
-	  handle alldocs postlist with modifications: this wasn't needed
-	  before since the termlist is updated immediately after changes.
+* New development backend.  Use Chert::open() to explicitly create a chert
+  format database, or set XAPIAN_PREFER_CHERT=1 in the environment to
+  prefer chert when creating a new database without an explicit type.
 
-* include/xapian/enquire.h: Change definition of MSet::get_termfreq()
-	  such that it will fall back to looking the term frequency up in
-	  the database rather than raising an exception if the term is not
-	  present in the mset.
+* Quartz and Flint stored the document length alongside every posting list
+  entry.  Chert instead stores a chunked list of all the document lengths
+  which saves a lot of space, and is a big win for large queries or those
+  which don't need the document lengths.  This structure is used to
+  implement much faster iteration (six times faster in a test) over all
+  document ids (which speeds up queries using unary NOT, e.g. `NOT apples'),
+  and to test for the existence of documents (instead of checking the record
+  table for an entry).
 
-	* api/omdatabase.cc,backends/database.cc,backends/flint/,
-	  common/database.h,include/xapian/database.h: Add
-	  metadata_keys_begin() and metadata_keys_end() methods to
-	  Database, to allow the complete list of metadata in a database to
-	  be retrieved.  Supports a prefix argument to obtain a limited
-	  subset of the keys, since that may be useful in some situations
-	  and is very easy to implement.  Only accesses the keys in the
-	  first database in a multidatabase situation (which corresponds
-	  with the current behaviour of get_metadata()).
+* Document values are now stored in a chunked stream for each slot for
+  efficient access to the same slot in lots of documents.  This makes
+  operations like sort by value much more efficient.
 
-	* Makefile.am,tests/,tests/harness/,tests/perftest.cc,tests/perftest.h,
-	  tests/perftest_matchdecider.cc: Rework the test collation
-	  mechanism slightly to allow it to be used by other testsuites:
-	  rename collate-apitest to collate-test, and add a parameter to it
-	  naming the output file.  Add new "testrunner.h" and
-	  "testrunner.cc" which are an equivalent to the old mechanism in
-	  apitest for running tests with various properties; the properties
-	  for each backend are now held as member variables of a TestRunner
-	  class, and testsuites (eg, apitest) subclass this and implement a
-	  "run()" method, which will be called for each backend with the
-	  appropriate properties set.  Move definition of DEFINE_TESTCASE
-	  macro into testsuite.h.  Add new testsuite "perftest", which is
-	  intended to contain potentially time consuming performance tests,
-	  logging the results to an XML file for later analysis.  Add a
-	  simple test of the ValueSetMatchDeciders to this testsuite.
-	  "perftest" isn't run by make check, because it is likely to take
-	  some hours to complete in future - instead, there's a new
-	  top-level target "check-perf" which builds and runs perftest.
-	* configure.ac,tests/perftest.cc,tests/submitperftest.py.in,
-	  tests/urllib2_file.py: Fix display of upper bound on number of
-	  results of search (was showing lower bound).  Fix display of
-	  closing <repetition> tags.  Add script to submit the results of a
-	  performance test to a central server.
+* WritableDatabase::replace_document() now updates lazily - for example, if you
+  just change the values then the terms and document data aren't needlessly
+  rewritten with the same values.
+  FIXME:
+  Caveats: currently it only checks if you've *looked at* the values/terms/data
+  not if they've been modified.  Also, only works for the last document read.
 
-	  Add ValueSetMatchDecider,
-	  which is a matchdecider which is intended to be passed a set of
-	  values to look for in documents, and selects documents based on
-	  the presence of those values.
-
-* Calling RSet:add_document() with argument 0 now throws InvalidArgumentError.
-
-* stemtest: No longer checks environment variables OM_STEMTEST_SKIP_RANDOM,
-  OM_STEMTEST_LANGUAGES, and OM_STEMTEST_SEED.
-
-QueryParser sped up (new version of lemon); queryparsertest runs 2.2% faster
-
-* All deprecated xapian-core features listed for removal in 1.1.0 have been
-  removed.  For details, and suggested updates, see deprecation.html.
-
-* The remote database protocol major version has been increased, allowing
-  a significant amount of compatibility code to be removed.  This change means
-  that new clients won't work with old servers, and old clients won't work
-  with new servers.  If upgrading a live system, you will need to take this
-  into account.
+flint backend:
 
 	* backends/flint/: Improve reporting of failures to obtain lock due
 	  to unexpected errors - the error messages included in the
@@ -290,35 +212,76 @@ QueryParser sped up (new version of lemon); queryparsertest runs 2.2% faster
 	  useful to know that the lock attempt failed than that the
 	  database wasn't present before the attempt to create it.
 
-	* common/Makefile.mk,common/socket_utils.cc,common/socket_utils.h,
-	  net/remoteconnection.cc,net/tcpclient.cc: Move windows-specific
-	  socket handling code from remoteconnection.cc into a separate
-	  file, provides the inline close_fd_or_socket for unix in the
-	  header file.  Use this in tcpclient.cc instead of close to close
-	  sockets correctly on windows.
+quartz backend:
 
-* database replication
 
-	* UUIDs.
-	* tests/harness/backendmanager_multi.cc: Make the multi
-	  backendmanager use relative paths in its stub databases.
-	* backends/database.cc: Stub databases used to
-	  assume that any relative paths were relative to the current
-	  working directory.  They now assume that relative paths are
-	  relative to the directory holding the stub database file.
-	  Also, lines which begin with a '#' character are ignored, so we
-	  can place comments in the stub database files.  Also, recognise a
-	  new database type: a "stub directory", which is a directory
-	  containing a stub database file named "XAPIANDB".
-	* api/replication.cc: Replica databases are now created as
-	  directories containing a "XAPIANDB" stub file, so all the
-	  workings are internal.
-	* common/Makefile.mk,common/fileutils.cc,common/fileutils.h: Add
-	  new set of utilities to manipulate path names - extracting
-	  directory names, and joining paths.
-	* tests/api_replicate.cc: Enable test properly, now that
-	  it passes.  Test needs to be expanded to check that the database
-	  copy succeeded better.
+remote backend:
+
+* The remote database protocol major version has been increased, allowing
+  a significant amount of compatibility code to be removed.  This change means
+  that new clients won't work with old servers, and old clients won't work
+  with new servers.  If upgrading a live system, you will need to take this
+  into account.
+
+* Database::get_document() no longer does an unnecessary copy of the document's
+  values.
+
+inmemory backend:
+
+build system:
+
+	  Move all information about particular autoconf and automake versions
+	  to HACKING.
+	* configure.ac: Use LT_INIT in preference to AC_PROG_LIBTOOL.  On
+	  Linux and k*bsd-gnu, override libtool's link_all_deplibs_CXX to
+	  "no".  On Linux, override libtool's sys_lib_dlsearch_path_spec to a
+	  list generated in a more reliable way which includes *all* the
+	  default directories.
+	* configure.ac: The workaround to avoid probe code for F77, GCJ, and
+	  RC being added to configure is no longer required now that we're
+	  using libtool 2.2 so remove it.
+	* configure.ac,HACKING: Hard require autoconf 2.62 and automake 1.10.1.
+	  Remove workaround which sets docdir for
+	  autoconf < 2.60 since we now require 2.62.
+	* xapian-core.spec.in: We no longer need to run autoreconf to work
+	  around libtool's incomplete sys_lib_dlsearch_path_spec or to pick
+	  up distro-specific patches for link_all_deplibs.
+	* Makefile.am,acinclude.m4,autoconf/dir_contents,
+	  autoconf/rjb_find_stlport.m4,autoconf/type_socklen_t.m4,
+	  m4/dir_contents,m4/rjb_find_stlport.m4,m4/type_socklen_t.m4: Move
+	  the m4 macros which we ship for building configure from into the m4
+	  subdirectory and remove acinclude.m4 - now aclocal will pull in the
+	  required macros automatically.
+	* m4-macros/dir_contents,m4-macros/xapian.m4,m4/dir_contents,
+	  m4/xapian.m4: Move xapian.m4 to a new subdirectory (m4-macros) since
+	  libtoolize now installs m4 files into subdirectory m4 which we don't
+	  really want picking up by applications building against an
+	  uninstalled xapian-core.
+
+ 11120       olly 	* configure.ac: Remove code which checks for --enable-debug and
+ 11120       olly 	  --enable-debug-verbose (deprecated since 1.0.0) and gives an error
+ 11120       olly 	  pointing to the replacements.
+ 11120       olly 	* docs/deprecation.rst: Document the replacements here.
+
+documentation:
+
+	* docs/doxygen_api_conf.in,docs/doxygen_full_conf.in: Disable
+	  "JAVADOC_AUTOBRIEF" since we always try to write a brief
+	  description explicitly, and it causes problems in some cases.
+
+examples:
+
+
+portability:
+
+
+packaging:
+
+
+debug code:
+
+* The debug logging framework has been overhauled.  See HACKING for details
+  of how it now works.
 
 Xapian-core 1.0.8 (2008-09-04):
 
