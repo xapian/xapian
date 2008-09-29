@@ -1,7 +1,7 @@
 /** \file dbfactory.h
  * \brief Factory functions for constructing Database and WritableDatabase objects
  */
-/* Copyright (C) 2005,2006,2007 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -51,9 +51,10 @@ Database open_stub(const std::string &file);
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
 namespace InMemory {
 
-/** Construct a Database object for update access to an InMemory database.
+/** Construct a WritableDatabase object for a new, empty InMemory database.
  *
- * A new, empty database is created for each call.
+ *  Only a writable InMemory database can be created, since a read-only one
+ *  would always remain empty.
  */
 XAPIAN_VISIBILITY_DEFAULT
 WritableDatabase open();
