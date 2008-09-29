@@ -1,7 +1,7 @@
 /** @file alltermslist.h
  * @brief Abstract base class for iterating all terms in a database.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ class AllTermsList : public TermList {
     virtual ~AllTermsList();
 
     /// Return approximate size of this termlist.
-    virtual Xapian::termcount get_approx_size() const = 0;
+    virtual Xapian::termcount get_approx_size() const;
 
     /// Return the termname at the current position.
     virtual std::string get_termname() const = 0;

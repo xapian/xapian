@@ -1,3 +1,22 @@
+Mon Sep 29 09:55:05 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* api/omdatabase.cc,backends/multi/multi_alltermslist.cc,
+	  common/multialltermslist.h: Reimplement MultiAllTermsList to use a
+	  heap rather than linearly scanning - operations during iteration
+	  should now be O(log(n)) rather than O(n) where n is the number of
+	  databases.
+	* backends/alltermslist.cc,backends/flint/,backends/quartz/,
+	  backends/inmemory/inmemory_alltermslist.cc,
+	  backends/inmemory/inmemory_alltermslist.h,
+	  backends/multi/multi_alltermslist.cc,common/alltermslist.h,
+	  common/multialltermslist.h: Add a default "not implemented"
+	  implementation of AllTermsList::get_approx_size() and remove the
+	  "not implemented" versions in all the subclasses.  Remove empty
+	  destructors for ChertSpellingTermList, and FlintSpellingTermList.
+	* api/maptermlist.h,api/omdocument.cc: MapTermList::get_approx_size()
+	  should never be used, so make it "Assert(false); return 0;".
+
 Mon Sep 29 08:26:34 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

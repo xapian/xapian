@@ -1,7 +1,7 @@
 /** @file flint_metadata.h
  * @brief Access to metadata for a flint database.
  */
-/* Copyright (C) 2005,2007 Olly Betts
+/* Copyright (C) 2005,2007,2008 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -58,12 +58,6 @@ class FlintMetadataTermList : public AllTermsList {
 			  FlintCursor * cursor_, const std::string &prefix_);
 
     ~FlintMetadataTermList();
-
-    /** Returns the approximate size of the list.
-     *
-     *  Currently unused, and unimplemented.
-     */
-    Xapian::termcount get_approx_size() const;
 
     /** Returns the current termname.
      *

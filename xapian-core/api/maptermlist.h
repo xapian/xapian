@@ -1,7 +1,7 @@
 /* maptermlist.h
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,19 +35,19 @@ class MapTermList : public TermList {
     private:
 	Xapian::Document::Internal::document_terms::const_iterator it;
 	Xapian::Document::Internal::document_terms::const_iterator it_end;
-	Xapian::termcount size;
 	bool started;
 
     public:
 	MapTermList(const Xapian::Document::Internal::document_terms::const_iterator &it_,
-		    const Xapian::Document::Internal::document_terms::const_iterator &it_end_,
-		    Xapian::termcount size_)
-		: it(it_), it_end(it_end_), size(size_), started(false)
+		    const Xapian::Document::Internal::document_terms::const_iterator &it_end_)
+		: it(it_), it_end(it_end_), started(false)
 	{ }
 
 	// Gets size of termlist
 	Xapian::termcount get_approx_size() const {
-	    return size;
+	    // This method shouldn't get called on a MapTermList.
+	    Assert(false);
+	    return 0;
 	}
 
 	// Gets current termname

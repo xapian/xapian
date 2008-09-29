@@ -47,13 +47,6 @@ FlintAllTermsList::~FlintAllTermsList()
     delete cursor;
 }
 
-Xapian::termcount
-FlintAllTermsList::get_approx_size() const
-{
-    DEBUGCALL(DB, Xapian::termcount, "FlintAllTermsList::get_approx_size", "");
-    RETURN(approx_size);
-}
-
 string
 FlintAllTermsList::get_termname() const
 {

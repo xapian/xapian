@@ -74,9 +74,6 @@ class QuartzAllTermsList : public AllTermsList
 	/// Standard destructor for base class.
 	~QuartzAllTermsList();
 
-        // Gets size of termlist
-	Xapian::termcount get_approx_size() const;
-
 	// Gets current termname
 	string get_termname() const;
 

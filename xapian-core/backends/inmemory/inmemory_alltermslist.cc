@@ -35,12 +35,6 @@ InMemoryAllTermsList::~InMemoryAllTermsList()
 {
 }
 
-Xapian::termcount
-InMemoryAllTermsList::get_approx_size() const
-{
-    return tmap->size();
-}
-
 string
 InMemoryAllTermsList::get_termname() const
 {

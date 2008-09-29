@@ -71,13 +71,6 @@ QuartzAllTermsList::~QuartzAllTermsList()
     DEBUGCALL(DB, void, "~QuartzAllTermsList", "");
 }
 
-Xapian::termcount
-QuartzAllTermsList::get_approx_size() const
-{
-    DEBUGCALL(DB, Xapian::termcount, "QuartzAllTermsList::get_approx_size", "");
-    RETURN(size);
-}
-
 string
 QuartzAllTermsList::get_termname() const
 {

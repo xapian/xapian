@@ -298,7 +298,7 @@ Xapian::Document::Internal::open_term_list() const
 {
     DEBUGCALL(MATCH, TermList *, "Document::Internal::open_term_list", "");
     if (terms_here) {
-	RETURN(new MapTermList(terms.begin(), terms.end(), terms.size()));
+	RETURN(new MapTermList(terms.begin(), terms.end()));
     }
     if (!database) return NULL;
     RETURN(database->open_term_list(did));
