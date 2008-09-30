@@ -1,3 +1,8 @@
+Tue Sep 30 20:31:34 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* configure.ac: Set -Wstrict-overflow to 2 instead of 5, to avoid
+	  unreasonable warnings under GCC 4.3.
+
 Tue Sep 30 09:45:22 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/omdatabase.cc: Add missing include, to compile on GCC 4.3.0.
