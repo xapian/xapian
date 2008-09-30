@@ -1,3 +1,7 @@
+Tue Sep 30 09:45:22 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/omdatabase.cc: Add missing include, to compile on GCC 4.3.0.
+
 Mon Sep 29 13:06:42 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.

@@ -44,6 +44,7 @@
 
 #include <stdlib.h> // For abs().
 
+#include <cstring>
 #include <vector>
 
 using namespace std;
