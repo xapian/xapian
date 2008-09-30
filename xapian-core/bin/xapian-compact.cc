@@ -284,8 +284,10 @@ merge_postlists(FlintTable * out, vector<Xapian::docid>::const_iterator offset,
 	    const string& key = cur->key;
 	    if (!is_valuestats_key(key)) break;
 	    if (key != last_key) {
-		out->add(last_key, encode_valuestats(freq, lbound, ubound));
-		freq = 0;
+		if (freq) {
+		    out->add(last_key, encode_valuestats(freq, lbound, ubound));
+		    freq = 0;
+		}
 		last_key = key;
 	    }
 

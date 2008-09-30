@@ -1,3 +1,9 @@
+Tue Sep 30 22:41:39 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* bin/xapian-compact.cc: Fix bug: if there are both valuestats and
+	  metadata, don't overwrite the last metadata value with the first
+	  valuestats tag.
+
 Tue Sep 30 20:31:34 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* configure.ac: Set -Wstrict-overflow to 2 instead of 5, to avoid
