@@ -186,7 +186,7 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::RefCntBase {
 };
 
 // In the external API headers, this class is Xapian::PostingIterator::Internal,
-// but in the library code it's still know as "PostList" in most places.
+// but in the library code it's still known as "PostList" in most places.
 typedef Xapian::PostingIterator::Internal PostList;
 
 #endif // XAPIAN_INCLUDED_POSTLIST_H

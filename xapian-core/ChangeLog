@@ -1,3 +1,7 @@
+Wed Oct 01 13:21:22 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/postlist.h,common/termlist.h: Fix comment typo.
+
 Wed Oct 01 00:12:02 GMT 2008  Olly Betts <olly@survex.com>
 
 	* bin/xapian-compact.cc: Add a comment for the previous fix.
