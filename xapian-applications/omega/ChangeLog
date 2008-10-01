@@ -1,3 +1,8 @@
+Wed Oct 01 04:48:37 GMT 2008  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: Separate Action constructor cases to avoid
+	  pointlessly calling atoi() on an empty string.
+
 Wed Oct 01 03:15:29 GMT 2008  Olly Betts <olly@survex.com>
 
 	* omega.cc,omega.h: Remove undocumented and non-functional support for
