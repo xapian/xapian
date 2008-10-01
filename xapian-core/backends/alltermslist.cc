@@ -30,8 +30,6 @@
 
 using namespace std;
 
-AllTermsList::~AllTermsList() { }
-
 Xapian::termcount
 AllTermsList::get_approx_size() const
 {

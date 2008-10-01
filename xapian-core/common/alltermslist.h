@@ -36,11 +36,6 @@ class AllTermsList : public TermList {
     AllTermsList() { }
 
   public:
-    /** We have virtual methods and want to be able to delete derived classes
-     *  using a pointer to the base class, so we need a virtual destructor.
-     */
-    virtual ~AllTermsList();
-
     /// Return approximate size of this termlist.
     virtual Xapian::termcount get_approx_size() const;
 

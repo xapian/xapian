@@ -1,3 +1,9 @@
+Wed Oct 01 14:11:49 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/alltermslist.cc,common/alltermslist.h: We don't need an
+	  explicit virtual dtor for AllTermsList as it is empty and
+	  AllTermsList inherits from TermList which has one.
+
 Wed Oct 01 13:21:22 GMT 2008  Olly Betts <olly@survex.com>
 
 	* common/postlist.h,common/termlist.h: Fix comment typo.
