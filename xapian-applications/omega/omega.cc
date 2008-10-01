@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -68,7 +68,6 @@ string query_string;
 // percentage cut-off
 int threshold = 0;
 
-bool sort_numeric = false;
 Xapian::valueno sort_key = Xapian::BAD_VALUENO; // Don't sort.
 bool sort_ascending = true;
 bool sort_after = false;
@@ -314,14 +313,7 @@ try {
     // sorting
     val = cgi_params.find("SORT");
     if (val != cgi_params.end()) {
-	const string & v = val->second;
-	if (v[0] == '#') {
-	    // FIXME not supported currently!
-	    sort_numeric = true;
-	    sort_key = atoi(v.c_str() + 1);
-	} else {
-	    sort_key = atoi(v.c_str());
-	}
+	sort_key = atoi(val->second.c_str());
 	val = cgi_params.find("SORTREVERSE");
 	if (val != cgi_params.end()) {
 	    sort_ascending = (atoi(val->second.c_str()) == 0);
