@@ -284,6 +284,9 @@ merge_postlists(FlintTable * out, vector<Xapian::docid>::const_iterator offset,
 	    const string& key = cur->key;
 	    if (!is_valuestats_key(key)) break;
 	    if (key != last_key) {
+		// For the first valuestats key, last_key will be the previous
+		// key we wrote, which we don't want to overwrite.  This is the
+		// only time that freq will be 0, so check that.
 		if (freq) {
 		    out->add(last_key, encode_valuestats(freq, lbound, ubound));
 		    freq = 0;

@@ -1,3 +1,7 @@
+Wed Oct 01 00:12:02 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Add a comment for the previous fix.
+
 Tue Sep 30 22:41:39 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* bin/xapian-compact.cc: Fix bug: if there are both valuestats and
