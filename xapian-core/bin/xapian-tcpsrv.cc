@@ -26,6 +26,7 @@
 
 #include "safeerrno.h"
 
+#include <stdio.h>
 #include <iostream>
 #include <string>
 
@@ -52,6 +53,8 @@ const int MSECS_ACTIVE_TIMEOUT_DEFAULT = 15000;
 
 #define OPT_HELP 1
 #define OPT_VERSION 2
+#define OPT_XWPS_PROPS 3
+#define OPT_XWPS_MAXWEIGHT 4
 
 static const struct option opts[] = {
     {"interface",	required_argument,	0, 'I'},
@@ -64,6 +67,8 @@ static const struct option opts[] = {
     {"writable",	no_argument,		0, 'w'},
     {"help",		no_argument,		0, OPT_HELP},
     {"version",		no_argument,		0, OPT_VERSION},
+    {"xwps-props",	required_argument,	0, OPT_XWPS_PROPS},
+    {"xwps-maxweight", required_argument,	0, OPT_XWPS_MAXWEIGHT},
     {NULL, 0, 0, 0}
 };
 
@@ -80,7 +85,42 @@ static void show_usage() {
 "  --quiet                 disable information messages to stdout\n"
 "  --writable              allow updates (only one database directory allowed)\n"
 "  --help                  display this help and exit\n"
-"  --version               output version information and exit" << endl;
+"  --version               output version information and exit\n" 
+"  --xwps-props FILE       property names and default values for ExprWeightPostingSource\n"
+"  --xwps-maxweight WT     maximum weight for ExprWeightPostingSource\n"
+<< endl;
+}
+
+// HACK!
+void read_xwps_props(char* fname,
+    Xapian::ExprWeightPostingSource::PropertyMap& xwps_props,
+    Xapian::ExprWeightPostingSource::DefaultMap& xwps_deflts)
+{
+    char buf[80];
+    FILE *file = fopen(fname, "r"); 
+    if (file==NULL) {
+        cout << "Error: can't open " << fname << endl;
+        exit(1);
+    }
+    else {
+        int n = 0;
+        while (fgets(buf, 80, file)!=NULL) {
+            string s(buf);
+            size_t p = s.find_first_of(" ");
+            if (p == string::npos) {
+                cout << "invalid format in " << fname << endl;
+                exit(1);
+            }
+            string name = s.substr(0, p);
+            float deflt = atof(s.substr(p+1).c_str());
+            
+            xwps_props[name] = n;
+            xwps_deflts[name] = deflt;
+            n++;
+        }
+    }
+
+    fclose(file);
 }
 
 int main(int argc, char **argv) {
@@ -94,6 +134,10 @@ int main(int argc, char **argv) {
     bool writable = false;
     bool syntax_error = false;
 
+    Xapian::ExprWeightPostingSource::PropertyMap xwps_props;
+    Xapian::ExprWeightPostingSource::DefaultMap xwps_deflts;
+    Xapian::weight xwps_maxweight = 1000000.0;
+    
     int c;
     while ((c = gnu_getopt_long(argc, argv, "I:p:a:i:t:oq", opts, NULL)) != EOF) {
 	switch (c) {
@@ -128,6 +172,15 @@ int main(int argc, char **argv) {
 	    case 'w':
 		writable = true;
 		break;
+		
+		case OPT_XWPS_PROPS:
+		    read_xwps_props(optarg, xwps_props, xwps_deflts);
+		break;
+
+        case OPT_XWPS_MAXWEIGHT:
+            xwps_maxweight = atof(optarg);
+		break;
+		
 	    default:
 		syntax_error = true;
 	}
@@ -175,6 +228,11 @@ int main(int argc, char **argv) {
 
 	RemoteTcpServer server(dbnames, host, port, msecs_active_timeout,
 			       msecs_idle_timeout, writable, verbose);
+
+    // HACK!
+    server.xwps_property_map = xwps_props;
+    server.xwps_default_map = xwps_deflts;
+    server.xwps_max_weight= xwps_maxweight;
 
 	if (verbose)
 	    cout << "Listening..." << endl;

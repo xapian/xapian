@@ -25,6 +25,7 @@
 
 #include <xapian/database.h>
 #include <xapian/visibility.h>
+#include <xapian/exprweightpostingsource.h>
 
 #include <string>
 #include <vector>
@@ -86,6 +87,15 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteTcpServer : public TcpServer {
      *  This method may be called by multiple threads.
      */
     void handle_one_connection(int socket);
+    
+    /// HACK Property name map for the ExprWeightPostingSource
+    Xapian::ExprWeightPostingSource::PropertyMap xwps_property_map;
+    
+    /// HACK Default value map for the ExprWeightPostingSource
+    Xapian::ExprWeightPostingSource::DefaultMap xwps_default_map;
+    
+    /// HACK Max weight for the ExprWeightPostingSource
+    Xapian::weight xwps_max_weight;
 };
 
 #endif // XAPIAN_INCLUDED_REMOTETCPSERVER_H

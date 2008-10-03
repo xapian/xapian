@@ -32,6 +32,7 @@
 #include <xapian/types.h>
 #include <xapian/termiterator.h>
 #include <xapian/visibility.h>
+#include <xapian/exprweightpostingsource.h>
 
 // FIXME: sort this out so we avoid exposing Xapian::Query::Internal
 // - we need to at present so that the Xapian::Query's template ctors
@@ -405,7 +406,8 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 	/** Destructor. */
 	~Internal();
 
-	static Xapian::Query::Internal * unserialise(const std::string &s);
+	static Xapian::Query::Internal * unserialise(const std::string &s,
+	    Xapian::ExprWeightPostingSource* ps = 0);
 
 	/** Add a subquery.
 	 */

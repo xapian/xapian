@@ -137,12 +137,24 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
     /// Return the current docid.
     virtual Xapian::docid get_docid() const = 0;
 
+    /** Clone the posting source.
+     *
+     *  FIXME - more documentation needed.
+     *
+     *  This may return NULL to indicate that cloning is not possible.  In this
+     *  case, the PostingSource will work only if a single database is being
+     *  searched.  The default implementation returns NULL.
+     */
+    virtual PostingSource * clone() const;
+
     /** Reset this PostingSource to its freshly constructed state.
      *
      *  This is called automatically by the matcher prior to each query being
      *  processed.
+     *
+     *  FIXME - document the db parameter.
      */
-    virtual void reset() = 0;
+    virtual void reset(const Database & db) = 0;
 
     /** Return a string describing this object.
      *
@@ -196,13 +208,16 @@ class XAPIAN_VISIBILITY_DEFAULT ValueWeightPostingSource : public PostingSource 
     /// An upper bound on the value returned.
     double max_value;
 
+    /// Upper bound on the value returned specified in constructor.
+    double specified_max_value;
+
   public:
     /** Construct a ValueWeightPostingSource.
      *
      *  @param db_ The database to read values from.
      *  @param valno_ The value slot to read values from.
      */
-    ValueWeightPostingSource(Xapian::Database db_, Xapian::valueno valno_);
+    ValueWeightPostingSource(Xapian::valueno valno_);
 
     /** Construct a ValueWeightPostingSource.
      *
@@ -214,8 +229,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueWeightPostingSource : public PostingSource 
      *  constructor need only be used if more accurate information is
      *  available.
      */
-    ValueWeightPostingSource(Xapian::Database db_, Xapian::valueno valno_,
-			     double max_weight_);
+    ValueWeightPostingSource(Xapian::valueno valno_, double max_weight_);
 
     Xapian::doccount get_termfreq_min() const;
     Xapian::doccount get_termfreq_est() const;
@@ -232,7 +246,8 @@ class XAPIAN_VISIBILITY_DEFAULT ValueWeightPostingSource : public PostingSource 
 
     Xapian::docid get_docid() const;
 
-    void reset();
+    ValueWeightPostingSource * clone() const;
+    void reset(const Database & db_);
 
     std::string get_description() const;
 };

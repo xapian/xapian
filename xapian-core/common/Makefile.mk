@@ -61,7 +61,8 @@ noinst_HEADERS +=\
 	common/utils.h\
 	common/valuestats.h\
 	common/vectortermlist.h\
-	common/weightinternal.h
+	common/weightinternal.h\
+	common/gammonparser.h
 
 EXTRA_DIST +=\
 	common/dir_contents\
@@ -78,7 +79,8 @@ libxapian_la_SOURCES +=\
 	common/serialise-double.cc\
 	common/socket_utils.cc\
 	common/stringutils.cc\
-	common/utils.cc
+	common/utils.cc\
+	common/gammonparser.cc
 
 noinst_LTLIBRARIES += libgetopt.la
 

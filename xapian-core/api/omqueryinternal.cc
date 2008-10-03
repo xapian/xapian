@@ -381,25 +381,25 @@ class QUnserial {
     const char *end;
     Xapian::termpos curpos;
 
-    Xapian::Query::Internal * readquery();
-    Xapian::Query::Internal * readcompound();
+    Xapian::Query::Internal * readquery(Xapian::ExprWeightPostingSource* xwps);
+    Xapian::Query::Internal * readcompound(Xapian::ExprWeightPostingSource* xwps);
 
   public:
     QUnserial(const string & s) : p(s.c_str()), end(p + s.size()), curpos(1) { }
-    Xapian::Query::Internal * decode();
+    Xapian::Query::Internal * decode(Xapian::ExprWeightPostingSource* xwps);
 };
 
 Xapian::Query::Internal *
-QUnserial::decode() {
+QUnserial::decode(Xapian::ExprWeightPostingSource* xwps) {
     LOGLINE(UNKNOWN, "QUnserial::decode(" << p << ")");
-    AutoPtr<Xapian::Query::Internal> qint(readquery());
+    AutoPtr<Xapian::Query::Internal> qint(readquery(xwps));
     if (p != end)
         throw Xapian::InvalidArgumentError("Bad serialised query");
     return qint.release();
 }
 
 Xapian::Query::Internal *
-QUnserial::readquery() {
+QUnserial::readquery(Xapian::ExprWeightPostingSource* xwps) {
     if (p == end)
 	throw Xapian::InvalidArgumentError("Bad serialised query");
     switch (*p++) {
@@ -422,10 +422,27 @@ QUnserial::readquery() {
 		}
 	    }
 	    ++curpos;
+	    
+	    // HACK for OGS
+   	    if (strncmp(tname.c_str(), "__EXPR__", 8) == 0) {
+	        // found expression string
+	        if (xwps) {
+                xwps->set_expression(tname.substr(8));
+                return new Xapian::Query::Internal(xwps);
+            }
+            else {
+                throw Xapian::InvalidArgumentError("No external posting source supplied to API");
+            }
+        } 
+        else {
+            return new Xapian::Query::Internal(tname, wqf, term_pos);
+        }
+
+	    
 	    return new Xapian::Query::Internal(tname, wqf, term_pos);
 	}
 	case '(':
-	    return readcompound();
+	    return readcompound(xwps);
 	default:
 	    LOGLINE(UNKNOWN, "Can't parse remainder `" << p - 1 << "'");
 	    throw Xapian::InvalidArgumentError("Invalid query string");
@@ -465,7 +482,7 @@ qint_from_vector(Xapian::Query::op op,
 }
 
 Xapian::Query::Internal *
-QUnserial::readcompound() {
+QUnserial::readcompound(Xapian::ExprWeightPostingSource* xwps) {
     vector<Xapian::Query::Internal *> subqs;
     try {
         while (true) {
@@ -474,10 +491,10 @@ QUnserial::readcompound() {
 	    switch (*p++) {
 	        case '[':
 		    --p;
-		    subqs.push_back(readquery());
+		    subqs.push_back(readquery(xwps));
 		    break;
 	        case '(': {
-		    subqs.push_back(readcompound());
+		    subqs.push_back(readcompound(xwps));
 		    break;
 	        }
 	        case '&':
@@ -563,11 +580,11 @@ QUnserial::readcompound() {
 }
 
 Xapian::Query::Internal *
-Xapian::Query::Internal::unserialise(const string &s)
+Xapian::Query::Internal::unserialise(const string &s, Xapian::ExprWeightPostingSource* xwps)
 {
     Assert(s.length() > 1);
     QUnserial u(s);
-    Xapian::Query::Internal * qint = u.decode();
+    Xapian::Query::Internal * qint = u.decode(xwps);
     AssertEq(s, qint->serialise());
     return qint;
 }

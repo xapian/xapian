@@ -50,6 +50,7 @@
 #include <xapian/queryparser.h>
 #include <xapian/sorter.h>
 #include <xapian/valuesetmatchdecider.h>
+#include <xapian/exprweightpostingsource.h>
 
 // Stemming
 #include <xapian/stem.h>

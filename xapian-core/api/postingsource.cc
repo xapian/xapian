@@ -67,6 +67,13 @@ PostingSource::check(Xapian::docid did, Xapian::weight min_wt)
     return true;
 }
 
+PostingSource *
+PostingSource::clone() const
+{
+    return NULL;
+}
+
+
 std::string
 PostingSource::get_description() const
 {
@@ -74,48 +81,17 @@ PostingSource::get_description() const
 }
 
 
-ValueWeightPostingSource::ValueWeightPostingSource(Xapian::Database db_,
-						   Xapian::valueno valno_)
-	: db(db_),
-	  valno(valno_),
-	  current_docid(0),
-	  last_docid(db.get_lastdocid()),
-	  current_value(0.0)
+ValueWeightPostingSource::ValueWeightPostingSource(Xapian::valueno valno_)
+	: valno(valno_),
+	  specified_max_value(DBL_MAX)
 {
-    try {
-	termfreq_max = db.get_value_freq(valno);
-	termfreq_est = termfreq_max;
-	termfreq_min = termfreq_max;
-	max_value = sortable_unserialise(db.get_value_upper_bound(valno));
-    } catch (const Xapian::UnimplementedError &) {
-	termfreq_max = db.get_doccount();
-	termfreq_est = termfreq_max / 2;
-	termfreq_min = 0;
-	max_value = DBL_MAX;
-    }
 }
 
-ValueWeightPostingSource::ValueWeightPostingSource(Xapian::Database db_,
-						   Xapian::valueno valno_,
+ValueWeightPostingSource::ValueWeightPostingSource(Xapian::valueno valno_,
 						   double max_weight_)
-	: db(db_),
-	  valno(valno_),
-	  current_docid(0),
-	  last_docid(db.get_lastdocid()),
-	  current_value(0.0),
-	  max_value(max_weight_)
+	: valno(valno_),
+	  specified_max_value(max_weight_)
 {
-    try {
-	termfreq_max = db.get_value_freq(valno);
-	termfreq_est = termfreq_max;
-	termfreq_min = termfreq_max;
-	max_value = std::min(max_value,
-			     sortable_unserialise(db.get_value_upper_bound(valno)));
-    } catch (const Xapian::UnimplementedError &) {
-	termfreq_max = db.get_doccount();
-	termfreq_est = termfreq_max / 2;
-	termfreq_min = 0;
-    }
 }
 
 Xapian::doccount
@@ -232,10 +208,31 @@ ValueWeightPostingSource::get_docid() const
     return current_docid;
 }
 
-void
-ValueWeightPostingSource::reset()
+ValueWeightPostingSource *
+ValueWeightPostingSource::clone() const
 {
+    return new ValueWeightPostingSource(valno, specified_max_value);
+}
+
+void
+ValueWeightPostingSource::reset(const Database & db_)
+{
+    db = db_;
     current_docid = 0;
+    current_value = 0.0;
+    last_docid = db.get_lastdocid();
+    try {
+	termfreq_max = db.get_value_freq(valno);
+	termfreq_est = termfreq_max;
+	termfreq_min = termfreq_max;
+	max_value = std::min(specified_max_value,
+			sortable_unserialise(db.get_value_upper_bound(valno)));
+    } catch (const Xapian::UnimplementedError &) {
+	termfreq_max = db.get_doccount();
+	termfreq_est = termfreq_max / 2;
+	termfreq_min = 0;
+	max_value = specified_max_value;
+    }
 }
 
 std::string

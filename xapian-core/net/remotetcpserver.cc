@@ -53,6 +53,12 @@ RemoteTcpServer::handle_one_connection(int socket)
 	RemoteServer sserv(dbpaths, socket, socket,
 			   msecs_active_timeout, msecs_idle_timeout,
 			   writable);
+			   
+    // HACK
+    sserv.xwps_property_map = xwps_property_map;
+    sserv.xwps_default_map = xwps_default_map;
+    sserv.xwps_max_weight = xwps_max_weight;
+    
 	sserv.run();
     } catch (const Xapian::NetworkTimeoutError &e) {
 	if (verbose)

@@ -30,4 +30,5 @@ libxapian_la_SOURCES +=\
 	api/valuerangeproc.cc\
 	api/valuesetmatchdecider.cc\
 	api/version.cc\
-	api/weightinternal.cc
+	api/weightinternal.cc\
+    api/exprweightpostingsource.cc

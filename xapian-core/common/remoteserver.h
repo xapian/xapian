@@ -25,6 +25,7 @@
 #include "xapian/database.h"
 #include "xapian/enquire.h"
 #include "xapian/visibility.h"
+#include "xapian/exprweightpostingsource.h"
 
 #include "remoteconnection.h"
 
@@ -173,6 +174,15 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
     void register_weighting_scheme(const Xapian::Weight &wt) {
 	wtschemes[wt.name()] = wt.clone();
     }
+    
+    /// HACK Property name map for the ExprWeightPostingSource
+    Xapian::ExprWeightPostingSource::PropertyMap xwps_property_map;
+    
+    /// HACK Default value map for the ExprWeightPostingSource
+    Xapian::ExprWeightPostingSource::DefaultMap xwps_default_map;
+    
+    /// HACK Max weight for the ExprWeightPostingSource
+    Xapian::weight xwps_max_weight;
 };
 
 #endif // XAPIAN_INCLUDED_REMOTESERVER_H

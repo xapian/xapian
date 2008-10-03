@@ -26,6 +26,7 @@
 #include <xapian/enquire.h>
 #include <xapian/error.h>
 #include <xapian/valueiterator.h>
+#include <xapian/exprweightpostingsource.h>
 
 #include "safeerrno.h"
 #include <signal.h>
@@ -39,6 +40,8 @@
 #include "serialise-double.h"
 #include "stats.h"
 #include "utils.h"
+
+#include <iostream>
 
 /// Class to throw when we receive the connection closing message.
 struct ConnectionClosed { };
@@ -362,10 +365,16 @@ RemoteServer::msg_query(const string &message_in)
     const char *p = message_in.c_str();
     const char *p_end = p + message_in.size();
     size_t len;
+        
+    // FIXME - maps and max weight need to be initialised
+    Xapian::ExprWeightPostingSource xwps(xwps_property_map, xwps_default_map, xwps_max_weight);
 
     // Unserialise the Query.
     len = decode_length(&p, p_end, true);
-    AutoPtr<Xapian::Query::Internal> query(Xapian::Query::Internal::unserialise(string(p, len)));
+    AutoPtr<Xapian::Query::Internal> query(
+        Xapian::Query::Internal::unserialise(string(p, len), &xwps));
+    
+    std::cout << "## query = " << query->get_description() << std::endl;
     p += len;
 
     // Unserialise assorted Enquire settings.

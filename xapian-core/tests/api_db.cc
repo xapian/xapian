@@ -1887,7 +1887,7 @@ class MyOddPostingSource : public Xapian::PostingSource {
 	: num_docs(db.get_doccount()), last_docid(db.get_lastdocid()), did(0)
     { }
 
-    void reset() { did = 0; }
+    void reset(const Xapian::Database &) { did = 0; }
 
     // These bounds could be better, but that's not important here.
     Xapian::doccount get_termfreq_min() const { return 0; }
@@ -1981,7 +1981,7 @@ class MyOddWeightingPostingSource : public Xapian::PostingSource {
 	: num_docs(db.get_doccount()), last_docid(db.get_lastdocid()), did(0)
     { }
 
-    void reset() { did = 0; }
+    void reset(const Xapian::Database &) { did = 0; }
 
     Xapian::weight get_weight() const {
 	return (did % 2) ? 1000 : 0.001;
@@ -2078,7 +2078,7 @@ class MyDontAskWeightPostingSource : public Xapian::PostingSource {
 	: num_docs(db.get_doccount()), last_docid(db.get_lastdocid()), did(0)
     { }
 
-    void reset() { did = 0; }
+    void reset(const Xapian::Database &) { did = 0; }
 
     Xapian::weight get_weight() const {
 	FAIL_TEST("MyDontAskWeightPostingSource::get_weight() called");
@@ -2152,12 +2152,9 @@ DEFINE_TESTCASE(externalsource4, backend && !remote && !multi) {
 
 // Check that valueweightsource works correctly.
 DEFINE_TESTCASE(valueweightsource1, backend && !remote) {
-    // FIXME: PostingSource doesn't currently work well with multi databases
-    // but we should try to resolve that issue.
-    SKIP_TEST_FOR_BACKEND("multi");
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::Enquire enq(db);
-    Xapian::ValueWeightPostingSource src(db, 11);
+    Xapian::ValueWeightPostingSource src(11);
 
     // Should be in descending order of length
     tout << "RAW" << endl;
@@ -2189,11 +2186,9 @@ DEFINE_TESTCASE(valueweightsource1, backend && !remote) {
 // Check that valueweightsource gives the correct bounds for those databases
 // which support value statistics.
 DEFINE_TESTCASE(valueweightsource2, backend && valuestats) {
-    // FIXME: PostingSource doesn't currently work well with multi databases
-    // but we should try to resolve that issue.
-    SKIP_TEST_FOR_BACKEND("multi");
     Xapian::Database db(get_database("apitest_phrase"));
-    Xapian::ValueWeightPostingSource src(db, 11);
+    Xapian::ValueWeightPostingSource src(11);
+    src.reset(db);
     TEST_EQUAL(src.get_termfreq_min(), 17);
     TEST_EQUAL(src.get_termfreq_est(), 17);
     TEST_EQUAL(src.get_termfreq_max(), 17);
@@ -2204,11 +2199,9 @@ DEFINE_TESTCASE(valueweightsource2, backend && valuestats) {
 
 // Check that valueweightsource skip_to() can stay in the same position.
 DEFINE_TESTCASE(valueweightsource3, backend && valuestats) {
-    // FIXME: PostingSource doesn't currently work well with multi databases
-    // but we should try to resolve that issue.
-    SKIP_TEST_FOR_BACKEND("multi");
     Xapian::Database db(get_database("apitest_phrase"));
-    Xapian::ValueWeightPostingSource src(db, 11);
+    Xapian::ValueWeightPostingSource src(11);
+    src.reset(db);
     TEST(!src.at_end());
     src.skip_to(8, 0.0);
     TEST(!src.at_end());
