@@ -194,6 +194,7 @@ class ValueIterator {
 
 #ifdef XAPIAN_SWIG_DIRECTORS
 %feature("director") Xapian::PostingSource;
+%ignore Xapian::PostingSource::clone; 
 %include <xapian/postingsource.h>
 #else
 %ignore Xapian::Query(Xapian::PostingSource *);
