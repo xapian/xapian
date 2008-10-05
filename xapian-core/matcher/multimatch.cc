@@ -54,7 +54,7 @@
 #endif /* XAPIAN_HAS_REMOTE_BACKEND */
 
 #include <algorithm>
-#include <cfloat>
+#include <cfloat> // For DBL_EPSILON.
 #include <queue>
 #include <vector>
 #include <map>
@@ -455,6 +455,9 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
     // Factor to multiply maximum weight seen by to get the cutoff weight.
     Xapian::weight percent_cutoff_factor = percent_cutoff / 100.0;
+    // Corresponding correction to that in omenquire.cc to account for excess
+    // precision on x86.
+    percent_cutoff_factor -= DBL_EPSILON;
 
     // Table of keys which have been seen already, for collapsing.
     map<string, pair<Xapian::Internal::MSetItem,Xapian::weight> > collapse_tab;
@@ -743,7 +746,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	if (wt > greatest_wt) {
 	    greatest_wt = wt;
 	    if (percent_cutoff) {
-		Xapian::weight w = wt * percent_cutoff_factor - 100 * DBL_EPSILON;
+		Xapian::weight w = wt * percent_cutoff_factor;
 		if (w > min_weight) {
 		    min_weight = w;
 		    if (!is_heap) {
@@ -838,7 +841,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    // Or we could just use a linear scan here instead.
 
 	    // trim the mset to the correct answer...
-	    Xapian::weight min_wt = percent_cutoff_factor / percent_scale - 100 * DBL_EPSILON;
+	    Xapian::weight min_wt = percent_cutoff_factor / percent_scale;
 	    if (!is_heap) {
 		is_heap = true;
 		make_heap<vector<Xapian::Internal::MSetItem>::iterator,

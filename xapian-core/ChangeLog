@@ -1,3 +1,9 @@
+Sun Oct 05 12:34:09 GMT 2008  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Adjust percent_factor instead of min_weight
+	  so that we don't miss some cases, and make the adjustment actually
+	  correspond with the adjustment in omenquire.cc.
+
 Wed Oct 01 14:11:49 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/alltermslist.cc,common/alltermslist.h: We don't need an
