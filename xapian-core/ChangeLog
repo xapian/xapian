@@ -1,3 +1,10 @@
+Mon Oct 06 07:24:40 GMT 2008  Olly Betts <olly@survex.com>
+
+	* matcher/queryoptimiser.cc: Change the excess precision fix to pass
+	  both values through "volatile double" rather than "float" on
+	  platforms where this matters since the former gives better generated
+	  code as well as more consistent results with other platforms.
+
 Mon Oct 06 07:24:07 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/internaltest.cc: Fix comment typo.
