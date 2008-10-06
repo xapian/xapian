@@ -1,3 +1,11 @@
+Mon Oct 06 02:46:39 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/editdistance.cc,api/editdistance.h,api/omdatabase.cc: Pass the
+	  largest edit distance we currently care about into the edit distance
+	  algorithm so it can terminate early once it knows the edit distance
+	  exceeds this.  This shortcut is used quite a lot, but there's no
+	  measurable speed-up in tests on the real world data I have to hand.
+
 Sun Oct 05 12:34:09 GMT 2008  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: Adjust percent_factor instead of min_weight
