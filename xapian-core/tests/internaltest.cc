@@ -129,7 +129,7 @@ static bool test_refcnt1()
 }
 
 // This is a regression test - a RefCntPtr used to delete the object pointed
-// to if you assignment it to itself and the reference count was 1.
+// to if you assigned it to itself and the reference count was 1.
 static bool test_refcnt2()
 {
     bool deleted = false;
