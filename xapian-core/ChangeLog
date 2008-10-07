@@ -1,3 +1,13 @@
+Tue Oct 07 06:17:50 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/multimatch.cc: Adjust min_weight values calculated for
+	  percent_cutoff in the same manner as in omenquire.cc, to allow
+	  for excess precision in the same way.
+	* matcher/multimatch.cc: Adjust percent_factor instead of min_weight
+	  so that we don't miss some cases, and make the adjustment actually
+	  correspond with the adjustment in omenquire.cc.
+
 Tue Oct 07 05:52:02 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

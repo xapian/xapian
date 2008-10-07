@@ -54,6 +54,7 @@
 #endif /* XAPIAN_HAS_REMOTE_BACKEND */
 
 #include <algorithm>
+#include <cfloat> // For DBL_EPSILON.
 #include <queue>
 #include <vector>
 #include <map>
@@ -455,6 +456,9 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
     // Factor to multiply maximum weight seen by to get the cutoff weight.
     Xapian::weight percent_cutoff_factor = percent_cutoff / 100.0;
+    // Corresponding correction to that in omenquire.cc to account for excess
+    // precision on x86.
+    percent_cutoff_factor -= DBL_EPSILON;
 
     // Table of keys which have been seen already, for collapsing.
     map<string, pair<Xapian::Internal::MSetItem,Xapian::weight> > collapse_tab;
