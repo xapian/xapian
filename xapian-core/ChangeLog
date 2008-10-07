@@ -1,3 +1,10 @@
+Tue Oct 07 05:08:10 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/queryoptimiser.h: Query::MatchAll no longer gives match
+	  results ranked by increasing document length.
+	* tests/api_db.cc: Extend matchall1 to be a regression test for this.
+
 Tue Oct 07 01:28:07 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
