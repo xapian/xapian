@@ -1,3 +1,8 @@
+Tue Oct 07 05:42:09 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* common/postlist.h,common/termlist.h: Fix comment typo.
+
 Tue Oct 07 05:20:41 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
