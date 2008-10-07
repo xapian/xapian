@@ -1,3 +1,22 @@
+Tue Oct 07 06:50:10 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* tests/Makefile.am,tests/api_spelling.cc,tests/api_wrdb.cc: Split the
+	  spelling tests out into a separate file.
+	* tests/api_spelling.cc: Add a regression test for the bug my recently
+	  added and reverted spelling optimisation introduced.
+	* api/omdatabase.cc: Fixed version of: Avoid the relatively expensive
+	  edit distance computation for a candidate spelling correction when
+	  we can reject the candidate as less good than one we've already seen
+	  by looking at the character frequency histograms.  In a test on
+	  real-world data, this gave an 15% speed-up in queryparsing time
+	  with FLAG_SPELLING_CORRECTION set.  The cheap check rejects 90%
+	  of the words it handles (without the cheap check, the edit distance
+	  check rejects 92%).
+	* api/omdatabase.cc: Fix warning with gcc 4.2 about possible signed
+	  overflow, by using an unsigned type for the total.
+	* api/omdatabase.cc: Add missing include, to compile on GCC 4.3.0.
+
 Tue Oct 07 06:17:50 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
