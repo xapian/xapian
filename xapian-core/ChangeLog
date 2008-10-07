@@ -1,3 +1,9 @@
+Tue Oct 07 05:20:41 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Set -Wstrict-overflow to 2 instead of 5, to avoid
+	  unreasonable warnings under GCC 4.3.
+
 Tue Oct 07 05:08:10 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
