@@ -1,3 +1,87 @@
+Up to:
+Tue Oct 07 07:04:53 GMT 2008  Olly Betts <olly@survex.com>
+
+Xapian-core 1.0.9 (2008-10-??):
+
+API:
+
+* Add new Database methods metadata_keys_begin() and metadata_keys_end() to
+  allow the complete list of metadata in a database to be retrieved (this
+  API addition is needed so that copydatabase can copy database metadata.
+
+* Spelling correction:
+	Avoid the relatively expensive
+	  edit distance computation for a candidate spelling correction when
+	  we can reject the candidate as less good than one we've already seen
+	  by looking at the character frequency histograms.  In a test on
+	  real-world data, this gave an 15% speed-up in queryparsing time
+	  with FLAG_SPELLING_CORRECTION set.  The cheap check rejects 90%
+	  of the words it handles (without the cheap check, the edit distance
+	  check rejects 92%).
+	 Pass the
+	  largest edit distance we currently care about into the edit distance
+	  algorithm so it can terminate early once it knows the edit distance
+	  exceeds this.  This shortcut is used quite a lot, but there's no
+	  measurable speed-up in tests on the real world data I have to hand.
+
+* Fix OP_ELITE_SET segmentation fault due to excess floating point precision
+  on x86 Linux (and possibly other platforms).
+
+	  Reimplement MultiAllTermsList to use a
+	  heap rather than linearly scanning - operations during iteration
+	  should now be O(log(n)) rather than O(n) where n is the number of
+	  databases.
+
+testsuite:
+
+* Remove the cached test databases before running the testsuite.
+
+	* tests/api_wrdb.cc: Extend deldoc5 slightly, to check that the
+	  DocNotFoundError for a deleted document is raised before the
+	  flush, as well as after.  Also, test a few more cases which are
+	  relevant in the lazyupdate scenario.
+
+matcher:
+
+	* Adjust percent cutoff calculations in the matcher in a way which
+	corresponds to change to percentage calculations made in
+	1.0.7 to allow for excess precision.
+
+flint backend:
+
+
+quartz backend:
+
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+* configure: Set -Wstrict-overflow to 2 instead of 5, to avoid unreasonable
+  warnings under GCC 4.3.
+
+documentation:
+
+* Minor improvements to API documentation.
+
+examples:
+
+* copydatabase: Also copy user metadata.
+
+portability:
+
+* apitset: Fix cursordelbug1 to hopefully work on Microsoft Windows.
+
+packaging:
+
+
+debug code:
+
+
 Xapian-core 1.0.8 (2008-09-04):
 
 API:
