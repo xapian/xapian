@@ -960,7 +960,7 @@ if test yes = "$GXX"; then
       dnl All these options were supported by g++ 2.95 and there's little
       dnl likelihood Xapian will build with any earlier version, so there's
       dnl not much point worrying about whether older versions had them or not.
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -Wconversion -fno-gnu-keywords"
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords"
 
       dnl GCC2 reports e.g. "2.7.2.3" or "2.95.4".  3.0 reports e.g. "3.0.4"
       dnl but somewhere in the 3.X series the output became more verbose
@@ -984,12 +984,19 @@ if test yes = "$GXX"; then
 
         dnl -Winit-self was added in GCC 3.4, but contrary to the documentation
 	dnl it is currently (tested with GCC 4.2) ignored by g++ which warns for
-	dnl this case with -Wunitialized (implied by -W).
+	dnl this case with -Wuninitialized (implied by -W).
 	dnl -Wstrict-overflow is new in GCC 4.2.
 	case $gxx_version in
 	4.0*|4.1*) ;;
 	*) AM_CXXFLAGS="$AM_CXXFLAGS -Winit-self -Wstrict-overflow=2" ;;
 	esac
+
+	dnl FIXME:
+	dnl -Wconversion in older GCC versions is intended to help migration
+	dnl from K&R to ISO C, and isn't useful for us.  In 4.3 it was renamed
+	dnl to -Wtraditional-conversion and a new -Wconversion added which
+	dnl sounds useful but is a bit buggy currently.  So we should consider
+	dnl enabling -Wconversion once it is stabilised (GCC 4.4 or ...)
 
 	if test no = "$enable_visibility"; then
 	  AC_DEFINE(XAPIAN_DISABLE_VISIBILITY, 1, [Define to disable use of visibility attributes])

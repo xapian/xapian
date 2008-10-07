@@ -1,3 +1,8 @@
+Tue Oct 07 10:19:48 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: Disable -Wconversion for now - it's not useful for
+	  older GCC and is buggy in GCC 4.3.
+
 Tue Oct 07 04:53:41 GMT 2008  Olly Betts <olly@survex.com>
 
 	* matcher/queryoptimiser.h: Query::MatchAll no longer gives match
