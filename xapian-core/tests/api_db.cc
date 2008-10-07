@@ -1837,7 +1837,8 @@ DEFINE_TESTCASE(userweight1, backend && !remote) {
 
 // tests MatchAll queries
 // This is a regression test, which failed with assertion failures in
-// revision 9094.
+// revision 9094.  Also check that the results aren't ranked by relevance
+// (regression test for bug fixed in 1.0.9).
 DEFINE_TESTCASE(matchall1, backend) {
     Xapian::Database db(get_database("apitest_simpledata"));
     Xapian::Enquire enquire(db);
@@ -1851,6 +1852,12 @@ DEFINE_TESTCASE(matchall1, backend) {
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.get_matches_lower_bound(), db.get_doccount());
 
+    // Check that the results aren't ranked by relevance (fixed in 1.0.9).
+    TEST(mset.size() > 1);
+    TEST_EQUAL(mset[mset.size() - 1].get_weight(), 0);
+    TEST_EQUAL(*mset[0], 1);
+    TEST_EQUAL(*mset[mset.size() - 1], mset.size());
+ 
     return true;
 }
 

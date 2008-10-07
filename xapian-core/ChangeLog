@@ -1,3 +1,9 @@
+Tue Oct 07 04:53:41 GMT 2008  Olly Betts <olly@survex.com>
+
+	* matcher/queryoptimiser.h: Query::MatchAll no longer gives match
+	  results ranked by increasing document length.
+	* tests/api_db.cc: Extend matchall1 to be a regression test for this.
+
 Tue Oct 07 01:04:51 GMT 2008  Olly Betts <olly@survex.com>
 
 	* matcher/queryoptimiser.cc: Rewrite comment explaining the excess
