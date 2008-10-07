@@ -253,24 +253,26 @@ struct CmpMaxOrTerms {
 
 #if defined(__i386__) || defined(__mc68000__)
 	// On some architectures, most common of which is x86, floating point
-	// values are calculated with excess precision.  This is dropped
-	// somewhat unpredictably; if the two maxweights below are actually
-	// equal, the excess precision may be dropped for one of them, but not
-	// for the other, leading to the values being compared different.  This
-	// can lead to the comparisons returned by the operator not being
-	// stable, which can have serious consequences (e.g. segfaults) when the
-	// operator is used by nth_element().
+	// values are calculated and stored in registers with excess precision.
+	// If the two get_maxweight() calls below return identical values in a
+	// register, the excess precision may be dropped for one of them but
+	// not the other (e.g. because the compiler saves the first calculated
+	// weight to memory while calculating the second, then reloads it to
+	// compare).  This leads to both a > b and b > a being true, which
+	// violates the antisymmetry property of the strict weak ordering
+	// required by nth_element().  This can have serious consequences (e.g.
+	// segfaults).
 	//
 	// To avoid this, we store each result in a volatile double prior to
-	// comparing them.  This means that result of this test should match
-	// that on other architectures with the same double format (which is
-	// desirable), and actually has less overhead than rounding both
+	// comparing them.  This means that the result of this test should
+	// match that on other architectures with the same double format (which
+	// is desirable), and actually has less overhead than rounding both
 	// results to float (which is another approach which works).
 	volatile double a_max_wt = a->get_maxweight();
 	volatile double b_max_wt = b->get_maxweight();
 	return a_max_wt > b_max_wt;
 #else
-	return (a->get_maxweight() > b->get_maxweight());
+	return a->get_maxweight() > b->get_maxweight();
 #endif
     }
 };
