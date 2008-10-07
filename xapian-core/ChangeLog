@@ -1,3 +1,18 @@
+Tue Oct 07 01:28:07 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* matcher/queryoptimiser.cc,tests/api_anydb.cc: Apply fix for
+	  platforms with excess precision - this fixes a potential segfault
+	  on x86 architecture when doing OP_ELITE_SET queries.  Also, add a
+	  regression test.
+	* matcher/queryoptimiser.cc: Change the excess precision fix to pass
+	  both values through "volatile double" rather than "float" on
+	  platforms where this matters since the former gives better generated
+	  code as well as more consistent results with other platforms.
+	* matcher/queryoptimiser.cc: Rewrite comment explaining the excess
+	  precision fix.  Drop unnecessary brackets from return to minimise
+	  the diff.
+
 Mon Sep 29 12:28:36 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
