@@ -191,6 +191,14 @@ Database::Internal::replace_document(const string & unique_term,
     return did;
 }
 
+ValueList *
+Database::Internal::open_value_list(Xapian::valueno slot) const
+{
+    (void)slot;
+    throw Xapian::UnimplementedError("value streams no implemented for this backend");
+    // return DefaultValueList([...]);
+}
+
 TermList *
 Database::Internal::open_spelling_termlist(const string &) const
 {
@@ -338,7 +346,7 @@ Database::Internal::get_uuid() const
 void
 Database::Internal::invalidate_doc_object(Xapian::Document::Internal *) const
 {
-    // Do nothing, by default
+    // Do nothing, by default.
 }
 
 RemoteDatabase *

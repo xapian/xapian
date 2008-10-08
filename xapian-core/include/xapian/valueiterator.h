@@ -47,6 +47,8 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
 	Document doc;
 
     public:
+	class Internal;
+
 	/** Create an uninitialised iterator; this cannot be used, but is
 	 *  convenient syntactically.
 	 */

@@ -45,6 +45,7 @@
 #include "chert_spellingwordslist.h"
 #include "chert_termlist.h"
 #include "chert_utils.h"
+#include "chert_valuelist.h"
 #include "chert_values.h"
 #include "omdebug.h"
 #include "omtime.h"
@@ -882,6 +883,14 @@ ChertDatabase::open_post_list(const string& term) const
     }
 
     RETURN(new ChertPostList(ptrtothis, term, true));
+}
+
+ValueList *
+ChertDatabase::open_value_list(Xapian::valueno slot) const
+{
+    DEBUGCALL(DB, ValueList *, "ChertDatabase::open_value_list", slot);
+    Xapian::Internal::RefCntPtr<const ChertDatabase> ptrtothis(this);
+    RETURN(new ChertValueList(slot, ptrtothis));
 }
 
 TermList *
@@ -1792,6 +1801,16 @@ ChertWritableDatabase::open_post_list(const string& tname) const
     }
 
     RETURN(new ChertPostList(ptrtothis, tname, true));
+}
+
+ValueList *
+ChertWritableDatabase::open_value_list(Xapian::valueno slot) const
+{
+    DEBUGCALL(DB, ValueList *, "ChertWritableDatabase::open_value_list", slot);
+    (void)slot;
+    throw Xapian::UnimplementedError("ChertWritableDatabase::open_value_list not yet implemented"); // FIXME
+    //Xapian::Internal::RefCntPtr<const ChertDatabase> ptrtothis(this);
+    //RETURN(new ChertValueList(slot, ptrtothis));
 }
 
 TermList *

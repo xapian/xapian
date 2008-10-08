@@ -32,6 +32,7 @@
 #include <xapian/document.h>
 #include <xapian/positioniterator.h>
 #include <xapian/termiterator.h>
+#include <xapian/valueiterator.h>
 #include "omdebug.h"
 
 using namespace std;
@@ -43,6 +44,7 @@ class RemoteDatabase;
 
 typedef Xapian::TermIterator::Internal TermList;
 typedef Xapian::PositionIterator::Internal PositionList;
+typedef Xapian::ValueIterator::Internal ValueList;
 
 // Used by flint and chert.
 const int XAPIAN_DB_READONLY = 0;
@@ -217,6 +219,17 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	virtual LeafPostList * open_post_list(const string & tname) const = 0;
 
+	/** Open a value stream.
+	 *
+	 *  This returns the value in a particular slot for each document.
+	 *
+	 *  @param slot	The value slot.
+	 *
+	 *  @return	Pointer to a new ValueList object which should be
+	 *		deleted by the caller once it is no longer needed.
+	 */
+
+	virtual ValueList * open_value_list(Xapian::valueno slot) const;
 	/** Open a term list.
 	 *
 	 *  This is a list of all the terms contained by a given document.

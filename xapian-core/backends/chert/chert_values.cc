@@ -43,33 +43,6 @@ using namespace std;
 //  * multi-values?
 //  * values named instead of numbered?
 
-/** Generate a key for a value stream. */
-inline string
-make_key(Xapian::valueno slot, Xapian::docid did)
-{
-    DEBUGCALL_STATIC(DB, string, "make_key", slot << ", " << did);
-    RETURN(string("\0\xd8", 2) + pack_uint(slot) + pack_uint_preserving_sort(did));
-}
-
-inline Xapian::docid
-docid_from_key(Xapian::valueno required_slot, const string & key)
-{
-    DEBUGCALL_STATIC(DB, Xapian::docid, "docid_from_key", required_slot << ", " << key);
-    const char * p = key.data();
-    const char * end = p + key.length();
-    // Fail if not a value chunk key.
-    if (end - p < 2 || *p++ != '\0' || *p++ != '\xd8') RETURN(0);
-    Xapian::valueno slot;
-    if (!unpack_uint(&p, end, &slot))
-       	throw Xapian::DatabaseCorruptError("bad value key");
-    // Fail if for a different slot.
-    if (slot != required_slot) RETURN(0);
-    Xapian::docid did;
-    if (!unpack_uint_preserving_sort(&p, end, &did))
-       	throw Xapian::DatabaseCorruptError("bad value key");
-    RETURN(did);
-}
-
 /** Generate a key for the "used slots" data. */
 inline string
 make_slot_key(Xapian::docid did)
@@ -89,56 +62,31 @@ make_valuestats_key(Xapian::valueno slot)
     RETURN(string("\0\xd0", 2) + pack_uint_last(slot));
 }
 
-class ValueChunkReader {
-    const char *p;
-    const char *end;
+void
+ValueChunkReader::assign(const char * p_, size_t len, Xapian::docid did_)
+{
+    p = p_;
+    end = p_ + len;
+    did = did_;
+    if (!unpack_string(&p, end, value))
+	throw Xapian::DatabaseCorruptError("Failed to unpack first value");
+}
 
-    Xapian::docid did;
-
-    string value;
-
-  public:
-    /// Create a ValueChunkReader which is already at_end().
-    ValueChunkReader() : p(NULL) { }
-
-    ValueChunkReader(const char * p_, size_t len, Xapian::docid did_) {
-	assign(p_, len, did_);
+void
+ValueChunkReader::next()
+{
+    if (p == end) {
+	p = NULL;
+	return;
     }
 
-    void assign(const char * p_, size_t len, Xapian::docid did_) {
-	p = p_;
-	end = p_ + len;
-	did = did_;
-	if (!unpack_string(&p, end, value))
-	    throw Xapian::DatabaseCorruptError("Failed to unpack first value");
-    }
-
-    bool at_end() const { return p == NULL; }
-
-    Xapian::docid get_docid() const { return did; }
-
-    const string & get_value() const { return value; }
-
-    void next() { 
-	if (p == end) {
-	    p = NULL;
-	    return;
-	}
-
-	Xapian::docid delta;
-	if (!unpack_uint(&p, end, &delta))
-	    throw Xapian::DatabaseCorruptError("Failed to unpack streamed value docid");
-	did += delta + 1;
-	if (!unpack_string(&p, end, value))
-	    throw Xapian::DatabaseCorruptError("Failed to unpack streamed value");
-    }
-
-    void skip_to(Xapian::docid target) {
-	while (!at_end() && target > did) {
-	    next();
-	}
-    }
-};
+    Xapian::docid delta;
+    if (!unpack_uint(&p, end, &delta))
+	throw Xapian::DatabaseCorruptError("Failed to unpack streamed value docid");
+    did += delta + 1;
+    if (!unpack_string(&p, end, value))
+	throw Xapian::DatabaseCorruptError("Failed to unpack streamed value");
+}
 
 void
 ChertValueManager::add_value(Xapian::docid did, Xapian::valueno slot,
@@ -172,7 +120,7 @@ ChertValueManager::get_chunk_containing_did(Xapian::valueno slot,
     AutoPtr<ChertCursor> cursor(postlist_table->cursor_get());
     if (!cursor.get()) return 0;
 
-    bool exact = cursor->find_entry(make_key(slot, did));
+    bool exact = cursor->find_entry(make_valuechunk_key(slot, did));
     if (!exact) {
 	// If we didn't find a chunk starting with docid did, then we need
 	// to check that the chunk:
@@ -240,10 +188,10 @@ class ValueUpdater {
     void write_tag() {
 	// If the first docid has changed, delete the old entry.
 	if (first_did && new_first_did != first_did) {
-	    table->del(make_key(slot, first_did));
+	    table->del(make_valuechunk_key(slot, first_did));
 	}
 	if (!tag.empty()) {
-	    table->add(make_key(slot, new_first_did), tag);
+	    table->add(make_valuechunk_key(slot, new_first_did), tag);
 	}
 	first_did = 0;
 	tag.resize(0);
@@ -272,7 +220,7 @@ class ValueUpdater {
 	    Assert(tag.empty());
 	    new_first_did = 0;
 	    AutoPtr<ChertCursor> cursor(table->cursor_get());
-	    if (cursor->find_entry(make_key(slot, did))) {
+	    if (cursor->find_entry(make_valuechunk_key(slot, did))) {
 		// We found an exact match, so the first docid is the one
 		// we looked for.
 		first_did = did;

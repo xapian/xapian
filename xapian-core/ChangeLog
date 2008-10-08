@@ -1,3 +1,10 @@
+Wed Oct 08 12:00:39 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/Makefile.mk,backends/chert/,backends/database.cc,
+	  backends/valuelist.cc,common/Makefile.mk,common/database.h,
+	  common/valuelist.h,include/xapian/valueiterator.h: The start of
+	  support for iterating along a value stream (currently unused).
+
 Tue Oct 07 10:19:48 GMT 2008  Olly Betts <olly@survex.com>
 
 	* configure.ac: Disable -Wconversion for now - it's not useful for
