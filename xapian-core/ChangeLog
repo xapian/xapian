@@ -1,3 +1,7 @@
+Wed Oct 08 12:11:57 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
 Wed Oct 08 12:00:39 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/Makefile.mk,backends/chert/,backends/database.cc,

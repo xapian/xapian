@@ -1,43 +1,16 @@
 up to:
- 11455       olly Mon Sep 29 05:04:57 GMT 2008  Olly Betts <olly@survex.com>
+ 11495       olly Tue Oct 07 10:19:48 GMT 2008  Olly Betts <olly@survex.com>
 
 Potential backport fodder:
-
- 11417    richard 	* matcher/queryoptimiser.cc,tests/api_anydb.cc: Apply fix for
- 11417    richard 	  platforms with excess precision - this fixes a potential segfault
- 11417    richard 	  on x86 architecture when doing OP_ELITE_SET queries.  Also, add a
- 11417    richard 	  regression test.
-
- 11173    richard 	* tests/Makefile.am,tests/api_percentages.cc: Add new test file for
- 11173    richard 	  tests related to percentage weights (there are a few around which
- 11173    richard 	  could be moved here, and there's another one in the patch in
- 11173    richard 	  ticket #216).  Add test in this file which uses a PostingSource
- 11173    richard 	  with carefully constructed weights to check the rounding
- 11173    richard 	  behaviour for percentage cutoffs.
-
- 11161    richard 	* matcher/multimatch.cc: Adjust min_weight values calculated for
- 11161    richard 	  percent_cutoff in the same manner as in omenquire.cc, to allow
- 11161    richard 	  for excess precision in the same way.
-
- 11449    richard 	* api/omdatabase.cc: Fix warning with gcc 4.2 about possible signed
- 11449    richard 	  overflow, by using an unsigned type for the total.
- 11446       olly 	* api/omdatabase.cc: Fixed version of: Avoid the relatively expensive
- 11446       olly 	  edit distance computation for a candidate spelling correction when
- 11446       olly 	  we can reject the candidate as less good than one we've already seen
- 11446       olly 	  by looking at the character frequency histograms.  In a test on
- 11447       olly 	  real-world data, this gave an 15% speed-up in queryparsing time
- 11446       olly 	  with FLAG_SPELLING_CORRECTION set.  The cheap check rejects 90%
- 11446       olly 	  of the words it handles (without the cheap check, the edit distance
- 11446       olly 	  check rejects 92%).
- 11444       olly 	* tests/api_spelling.cc: Add a regression test for the bug my recently
- 11444       olly 	  added and reverted spelling optimisation introduced.
-
-HEAD only:
 
  * bin/xapian-check.cc,bin/xapian-check-flint.cc:  Don't stop checking
    a table after an error in certain cases - instead increment the
    error counter and try to continue checking from the next item.
 
+HEAD only:
+
+Hmm, we probably don't want this in the API once flint is retired, so does
+it really make sense to add it now:
 	* api/postingsource.cc,include/xapian/postingsource.h: Add an
 	  alternative constructor for ValueWeightPostingSource which allows
 	  the upper bound on the weights stored to be specified manually.
