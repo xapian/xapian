@@ -1387,7 +1387,6 @@ static bool test_qp_value_daterange1()
 
 struct AuthorValueRangeProcessor : public Xapian::ValueRangeProcessor {
     AuthorValueRangeProcessor() {}
-    ~AuthorValueRangeProcessor() {}
 
     Xapian::valueno operator()(std::string &begin, std::string &end) {
 	if (!startswith(begin, "author:"))
