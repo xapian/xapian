@@ -45,6 +45,9 @@ class Xapian::ValueIterator::Internal : public Xapian::Internal::RefCntBase {
      */
     virtual ~Internal();
 
+    /// Return the docid at the current position.
+    virtual Xapian::docid get_docid() const = 0;
+
     /// Return the value at the current position.
     virtual std::string get_value() const = 0;
 
