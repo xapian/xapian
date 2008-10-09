@@ -1,5 +1,5 @@
 Up to:
-Thu Oct 09 04:31:41 GMT 2008  Olly Betts <olly@survex.com>
+Thu Oct 09 14:03:12 GMT 2008  Olly Betts <olly@survex.com>
 
 Xapian-core 1.0.9 (2008-10-??):
 
@@ -51,7 +51,7 @@ build system:
 * configure: Disable -Wconversion for now - it's not useful for older GCC and
   is buggy in GCC 4.3.
 
-* configure: Set -Wstrict-overflow to 2 instead of 5, to avoid unreasonable
+* configure: Set -Wstrict-overflow to 1 instead of 5, to avoid unreasonable
   warnings under GCC 4.3.
 
 documentation:
