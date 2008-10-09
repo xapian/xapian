@@ -130,7 +130,6 @@ else
   cd BUILD
 
   # The last field is the SHA1 checksum of the tarball.
-  lazy_build autoconf 2.62 tar.bz2 de2b6f57da07427794c56e25844e31f35fc46755
   lazy_build autoconf 2.63 tar.bz2 f15e14aa34acf871b47f659ef99a2e6707db4a18
   lazy_build automake 1.10.1 tar.bz2 cd2e0f7054d4edc75cbf87cd8a92962b3b417b74
   lazy_build libtool 2.2.6a tar.gz 7b547877b1b78b547343e4678a531aece8949904
