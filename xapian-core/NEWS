@@ -1,5 +1,5 @@
 Up to:
-Wed Oct 08 11:52:58 GMT 2008  Olly Betts <olly@survex.com>
+Thu Oct 09 04:31:41 GMT 2008  Olly Betts <olly@survex.com>
 
 Xapian-core 1.0.9 (2008-10-??):
 
@@ -57,6 +57,10 @@ build system:
 documentation:
 
 * Minor improvements to API documentation.
+
+	* docs/valueranges.rst: Fix typos in example code.
+	* docs/valueranges.rst,tests/queryparsertest.cc: Drop superfluous
+	  empty destructor from ValueRangeProcessor subclass.
 
 examples:
 

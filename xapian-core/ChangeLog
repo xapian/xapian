@@ -1,3 +1,10 @@
+Thu Oct 09 14:03:12 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Change -Wstrict-overflow level to 1 - even level 2
+	  causes a few warnings (notably in chert_table.cc) to appear with
+	  GCC 4.3 which are unreasonably difficult to avoid.
+
 Thu Oct 09 04:31:41 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
