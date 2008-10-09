@@ -1,3 +1,7 @@
+Thu Oct 09 05:04:49 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING,configure.ac: Raise autoconf requirement to 2.63.
+
 Wed Oct 08 14:52:03 GMT 2008  Olly Betts <olly@survex.com>
 
 	* docs/valueranges.rst: Fix typos in example code.

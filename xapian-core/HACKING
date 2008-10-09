@@ -343,7 +343,7 @@ will look for them there.
 Autotools versions
 ------------------
 
-* autoconf 2.62 is recommended and a hard minimum requirement.
+* autoconf 2.63 is recommended and a hard minimum requirement.
 
   autoconf 2.57 fixes the annoying chmod warnings on FreeBSD.
 
@@ -354,6 +354,9 @@ Autotools versions
 
   autoconf 2.62 generates faster configure scripts and warns about unrecognised
   options passed to configure.
+
+  autoconf 2.63 fixes a regression in AC_C_BIGENDIAN introduced in 2.62
+  (Omega uses this macro).
 
 * automake 1.10.1 is recommended and a hard minimum requirement.
 
