@@ -38,3 +38,47 @@ Index: backends/flint/flint_table.cc
  		set_overwritten();
  		return false;
  	    }
+Index: matcher/queryoptimiser.cc
+===================================================================
+--- matcher/queryoptimiser.cc	(revision 11483)
++++ matcher/queryoptimiser.cc	(revision 11484)
+@@ -1,7 +1,7 @@
+ /** @file queryoptimiser.cc
+  * @brief Convert a Xapian::Query::Internal tree into an optimal PostList tree.
+  */
+-/* Copyright (C) 2007 Olly Betts
++/* Copyright (C) 2007,2008 Olly Betts
+  * Copyright (C) 2008 Lemur Consulting Ltd
+  *
+  * This program is free software; you can redistribute it and/or
+@@ -245,7 +245,30 @@
+     bool operator()(const PostList *a, const PostList *b) {
+ 	if (a->get_termfreq_max() == 0) return false;
+ 	if (b->get_termfreq_max() == 0) return true;
++
++#if defined(__i386__) || defined(__mc68000__)
++	// On some architectures, most common of which is x86, floating point
++	// values are calculated and stored in registers with excess precision.
++	// If the two get_maxweight() calls below return identical values in a
++	// register, the excess precision may be dropped for one of them but
++	// not the other (e.g. because the compiler saves the first calculated
++	// weight to memory while calculating the second, then reloads it to
++	// compare).  This leads to both a > b and b > a being true, which
++	// violates the antisymmetry property of the strict weak ordering
++	// required by nth_element().  This can have serious consequences (e.g.
++	// segfaults).
++	//
++	// To avoid this, we store each result in a volatile double prior to
++	// comparing them.  This means that the result of this test should
++	// match that on other architectures with the same double format (which
++	// is desirable), and actually has less overhead than rounding both
++	// results to float (which is another approach which works).
++	volatile double a_max_wt = a->get_maxweight();
++	volatile double b_max_wt = b->get_maxweight();
++	return a_max_wt > b_max_wt;
++#else
+ 	return a->get_maxweight() > b->get_maxweight();
++#endif
+     }
+ };
+ 

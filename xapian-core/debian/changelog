@@ -1,3 +1,11 @@
+xapian-core (1.0.7-4) unstable; urgency=low
+
+  * debian/patch: Backport fix from upstream SVN which fixes segfaults when
+    using OP_ELITE_SET on x86 and possibly m68k due to excess precision
+    causing a comparison operator to report true for both a>b and b>a.
+
+ -- Olly Betts <olly@eisluft>  Thu, 09 Oct 2008 12:58:25 +0100
+
 xapian-core (1.0.7-3) unstable; urgency=low
 
   * debian/rules: Run "make all" and "make check" as separate commands to
