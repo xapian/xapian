@@ -1,3 +1,9 @@
+Thu Oct 09 05:20:32 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* configure.ac: Change -Wstrict-overflow level to 1 - even level 2
+	  causes a few warnings (notably in chert_table.cc) to appear with
+	  GCC 4.3 which are unreasonably difficult to avoid.
+
 Thu Oct 09 05:04:49 GMT 2008  Olly Betts <olly@survex.com>
 
 	* HACKING,configure.ac: Raise autoconf requirement to 2.63.

@@ -988,7 +988,7 @@ if test yes = "$GXX"; then
 	dnl -Wstrict-overflow is new in GCC 4.2.
 	case $gxx_version in
 	4.0*|4.1*) ;;
-	*) AM_CXXFLAGS="$AM_CXXFLAGS -Winit-self -Wstrict-overflow=2" ;;
+	*) AM_CXXFLAGS="$AM_CXXFLAGS -Winit-self -Wstrict-overflow=1" ;;
 	esac
 
 	dnl FIXME:
