@@ -1,3 +1,7 @@
+Thu Oct 09 09:53:39 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: Update autoconf requirement to 2.63, libtool to 2.2.6.
+
 Sun Sep 28 14:31:49 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/pythontest2.py: Change test_value_mods() to test chert
