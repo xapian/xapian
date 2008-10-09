@@ -1,3 +1,7 @@
+Thu Oct 09 10:16:05 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: Update autoconf requirement to 2.63, libtool to 2.2.6.
+
 Wed Oct 01 04:48:37 GMT 2008  Olly Betts <olly@survex.com>
 
 	* scriptindex.cc: Separate Action constructor cases to avoid
