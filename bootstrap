@@ -27,6 +27,10 @@ fi
 trap 'echo "Bootstrap failed"' EXIT
 set -e
 
+# The variables which specify the autotools to use.
+autotools="AUTORECONF AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE ACLOCAL LIBTOOLIZE"
+
+# Tool for downloading a file from a URL (currently wget or curl).
 FETCH_URL_TOOL=
 
 lazy_build() {
@@ -35,8 +39,8 @@ lazy_build() {
   ext=$3
   checksum=$4
   tarball=$basename.$ext
-  # Create the stamp file in INST so that rerunning bootstrap after "rm -rf INST"
-  # recovers nicely.
+  # Create the stamp file in INST so that rerunning bootstrap after
+  # "rm -rf INST" recovers nicely.
   stamp=../INST/$package.stamp
 
   # Temporary measure to "upgrade" from having the stamp file in BUILD.  Doing
@@ -55,7 +59,7 @@ lazy_build() {
 	FETCH_URL_TOOL=${CURL-curl}
       else
 	echo "Neither wget nor curl found - set WGET or CURL to the full path," >&2
-	echo "or download $url to directory `pwd` by hand and return this script." >&2
+	echo "or download $url to directory `pwd` by hand and rerun this script." >&2
 	exit 1
       fi
     fi
@@ -122,14 +126,13 @@ else
   cd BUILD
 
   # The last field is the SHA1 checksum of the tarball.
-  lazy_build autoconf 2.62 tar.bz2 de2b6f57da07427794c56e25844e31f35fc46755
+  lazy_build autoconf 2.63 tar.bz2 f15e14aa34acf871b47f659ef99a2e6707db4a18
   lazy_build automake 1.10.1 tar.bz2 cd2e0f7054d4edc75cbf87cd8a92962b3b417b74
   lazy_build libtool 1.5.26 tar.gz 4c1738351736562a951a345e24f233d00953ec0a
 
-  for t in autoreconf autoconf autoheader autom4te automake aclocal libtoolize
-  do
-     var=`echo "$t"|tr a-z A-Z`
-     eval "$var=\"\$instdir\"/bin/$t;export $var"
+  for v in $autotools ; do
+     tool=`echo "$v"|tr A-Z a-z`
+     eval "$v=\"\$instdir\"/bin/$tool;export $v"
   done
 
   cd ..
