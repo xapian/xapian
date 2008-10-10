@@ -1,3 +1,10 @@
+Fri Oct 10 17:56:34 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* Backport change from trunk:
+	* tests/api_wrdb.cc: Use a different path in win32 build to match
+	  the different place that the compiled xapian-check is placed in.
+	  Should fix bug #301.
+
 Thu Oct 09 14:09:09 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.

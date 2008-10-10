@@ -1956,11 +1956,10 @@ DEFINE_TESTCASE(cursordelbug1, flint) {
 
     db.flush();
 
-    string cmd = "../bin/xapian-check .flint/dbw__cursordelbug1";
 #ifdef __WIN32__
-    cmd += " >nul";
+    string cmd = "..\\win32\\release\\xapian-check .flint\\dbw__cursordelbug1 >nul";
 #else
-    cmd += " >/dev/null";
+    string cmd = "../bin/xapian-check .flint/dbw__cursordelbug1 >/dev/null";
 #endif
     if (system(cmd.c_str()) != 0)
 	return false;
