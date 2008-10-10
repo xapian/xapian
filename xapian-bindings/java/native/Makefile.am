@@ -1,5 +1,9 @@
 ## Process this file with automake to produce Makefile.in
 
+# `make QUIET=' overrides `./configure --enable-quiet'.
+# `make QUIET=y' overrides `./configure' without `--enable-quiet'.
+LIBTOOL = @LIBTOOL@ $(QUIET:y=--quiet)
+
 if OVERRIDE_MACOSX_DEPLOYMENT_TARGET
 # This requires GNU make, but apparently that's the default on OS X.
 export MACOSX_DEPLOYMENT_TARGET=@OVERRIDE_MACOSX_DEPLOYMENT_TARGET@

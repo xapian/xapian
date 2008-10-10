@@ -1,3 +1,13 @@
+Fri Oct 10 06:39:55 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* Makefile.am,configure.ac: Add support for "--enable-quiet" like
+	  xapian-core and omega have.
+	* csharp/Makefile.am,guile/Makefile.am,java-swig/Makefile.am,
+	  java/Makefile.am,java/native/Makefile.am,php/Makefile.am,
+	  python/Makefile.am,ruby/Makefile.am,tcl8/Makefile.am: More changes
+	  neeed for --enable-quiet support.
+
 Fri Oct 10 03:08:30 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

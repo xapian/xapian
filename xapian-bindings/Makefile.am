@@ -1,5 +1,9 @@
 ## Process this file with automake to produce Makefile.in
 
+# `make QUIET=' overrides `./configure --enable-quiet'.
+# `make QUIET=y' overrides `./configure' without `--enable-quiet'.
+LIBTOOL = @LIBTOOL@ $(QUIET:y=--quiet)
+
 EXTRA_DIST = xapian.i generic/except.i \
     xapian-bindings.spec.in xapian-bindings.spec skiptest \
     xapian-version.h.in xapian-version.h HACKING TODO
