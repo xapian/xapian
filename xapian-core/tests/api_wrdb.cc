@@ -2066,7 +2066,11 @@ DEFINE_TESTCASE(cursordelbug1, flint || chert) {
 
     db.flush();
 
+#ifdef __WIN32__
+    string cmd = "..\\win32\\release\\xapian-check ";
+#else
     string cmd = "../bin/xapian-check ";
+#endif
     cmd += get_named_writable_database_path("cursordelbug1");
 #ifdef __WIN32__
     cmd += " >nul";
