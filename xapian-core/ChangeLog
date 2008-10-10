@@ -1,3 +1,7 @@
+Fri Oct 10 20:44:07 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_wrdb.cc: Back out previous untested fix.
+
 Fri Oct 10 17:56:34 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* Backport change from trunk:
