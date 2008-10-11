@@ -1,3 +1,9 @@
+Sat Oct 11 12:19:38 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_wrdb.cc: If the timer for the first test for bigoaddvalue
+	  reports 0.0 seconds, skip the test as the timer doesn't have fine
+	  enough granularity for this test to be useful.
+
 Fri Oct 10 20:40:14 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/api_wrdb.cc: Reuse XAPIAN_BIN_PATH to avoid hardcoding more

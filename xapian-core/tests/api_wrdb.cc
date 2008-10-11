@@ -2028,6 +2028,11 @@ DEFINE_TESTCASE(bigoaddvalue, writable) {
     tout << "Adding a document with " << 10 * N << " values took " << time_10N
 	 << " seconds" << endl;
 
+    if (time_N == 0.0) {
+	// The first test completed before the timer ticked at all!
+	SKIP_TEST("Timer granularity is too coarse");
+    }
+
     // O(n*n) is bad, but we don't require linearity - O(n*log(n)) is
     // acceptable, so put the threshold halfway between.
     const double ALLOWED_FACTOR = (100.0 + 10 * 2.71828) / 2.0;
