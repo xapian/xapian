@@ -26,6 +26,7 @@ OBJS= \
                 $(INTDIR)\flint_document.obj\
                 $(INTDIR)\flint_io.obj\
                 $(INTDIR)\flint_lock.obj\
+                $(INTDIR)\flint_metadata.obj\
                 $(INTDIR)\flint_modifiedpostlist.obj\
                 $(INTDIR)\flint_positionlist.obj\
                 $(INTDIR)\flint_postlist.obj\
@@ -49,6 +50,7 @@ SRCS= \
                 $(INTDIR)\flint_document.cc\
                 $(INTDIR)\flint_io.cc\
                 $(INTDIR)\flint_lock.cc\
+                $(INTDIR)\flint_metadata.cc\
                 $(INTDIR)\flint_modifiedpostlist.cc\
                 $(INTDIR)\flint_positionlist.cc\
                 $(INTDIR)\flint_postlist.cc\

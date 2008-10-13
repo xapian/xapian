@@ -1,3 +1,10 @@
+Mon Oct 13 14:02:35 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* Backport from trunk:
+	* win32_backends_flint.mak: Patch from Charlie - add
+	  flint_metadata.cc (was present on trunk already, but had been
+	  missed here, somehow).
+
 Mon Sep 08 10:04:43 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* Backport change from trunk:
