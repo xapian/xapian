@@ -1,3 +1,11 @@
+Mon Oct 13 23:38:34 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Rename "Miscellaneous Portability Issues" to "C++
+	  Portability Issues", and add a subsection of that for "Miscellaneous
+	  Portability Issues" with a new note about needing to terminate the
+	  last line of a source file, and a new subsection heading "Header
+	  Portability Issues" for all the header-related stuff.
+
 Sat Oct 11 12:19:38 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/api_wrdb.cc: If the timer for the first test for bigoaddvalue

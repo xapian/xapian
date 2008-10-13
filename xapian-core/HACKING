@@ -463,8 +463,8 @@ Use of C++ Features
   Just put the declaration in the header file, and put the definition in a .cc
   file with the same basename.
 
-Miscellaneous Portability Issues
-================================
+C++ Portability Issues
+======================
 
 Web Resources
 -------------
@@ -474,6 +474,9 @@ http://www.parashift.com/c++-faq-lite/
 
 The libstdc++-porting-howto discusses various C++ portability issues:
 http://gcc.gnu.org/onlinedocs/libstdc++/17_intro/porting-howto.html
+
+Header Portability Issues
+-------------------------
 
 <fcntl.h>:
 ----------
@@ -573,6 +576,12 @@ its dependencies.
 With Intel's C++ compiler, --enable-maintainer-mode also enables -Werror.
 If you know the equivalent of -Werror for other compilers, please add a note
 here, or tell us so that we can add a note.
+
+Miscellaneous Portability Issues
+--------------------------------
+
+Make sure that the last line of any source file ends with a linefeed character.
+Unterminated lines aren't handled by some compilers, 
 
 Branch Prediction Hints
 =======================
