@@ -1,3 +1,9 @@
+Mon Oct 13 07:22:43 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* omega.cc,omega.h: Remove undocumented and non-functional support for
+	  numeric sorting via: SORT=#<slot>
+
 Thu Sep 04 03:35:05 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS: Update for 1.0.8.
