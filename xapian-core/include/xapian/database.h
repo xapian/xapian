@@ -63,7 +63,12 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  need to check if it exists.
 	 *
 	 *  This method returns a Xapian::Document object which provides the
-	 *  information about a document.
+	 *  information about a document.  If the document doesn't exist,
+	 *  either a NULL pointer may be returned, or the returned object will
+	 *  throw DocNotFoundError when you try to access it.
+	 *
+	 *  The caller should delete the returned object when it has finished
+	 *  with it.
 	 *
 	 *  @param did   The document id of the document to retrieve.
 	 *

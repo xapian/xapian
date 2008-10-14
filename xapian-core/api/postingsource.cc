@@ -166,6 +166,7 @@ ValueWeightPostingSource::next(Xapian::weight min_wt)
 	try {
 	    AutoPtr<Xapian::Document::Internal> doc;
 	    doc = db.get_document_lazily(current_docid);
+	    if (!doc.get()) continue;
 	    value = doc->get_value(valno);
 	    if (value.empty())
 		continue;
@@ -199,6 +200,7 @@ ValueWeightPostingSource::check(Xapian::docid min_docid,
     try {
 	AutoPtr<Xapian::Document::Internal> doc;
 	doc = db.get_document_lazily(current_docid);
+	if (!doc.get()) return false;
 	value = doc->get_value(valno);
 	if (value.empty())
 	    return false;

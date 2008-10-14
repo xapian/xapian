@@ -1,3 +1,10 @@
+Tue Oct 14 11:43:42 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/postingsource.cc,backends/inmemory/inmemory_database.cc,
+	  matcher/multimatch.cc: Database::get_document_lazily() now returns
+	  NULL if the document isn't found for an inmemory database.
+	* include/xapian/database.h: Document the return value better.
+
 Tue Oct 14 03:20:38 GMT 2008  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc,api/postingsource.cc,include/xapian/database.h,

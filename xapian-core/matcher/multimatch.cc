@@ -257,6 +257,7 @@ MultiMatch::get_collapse_key(PostList *pl, Xapian::docid did,
     if (key) RETURN(*key);
     if (doc.get() == 0) {
 	doc = db.get_document_lazily(did);
+	Assert(doc.get());
     }
     RETURN(doc->get_value(keyno));
 }
@@ -524,6 +525,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	Xapian::Internal::MSetItem new_item(wt, did);
 	if (sort_by != REL) {
 	    Xapian::Internal::RefCntPtr<Xapian::Document::Internal> doc(db.get_document_lazily(new_item.did));
+	    Assert(doc.get());
 	    if (sorter) {
 		new_item.sort_key = (*sorter)(Xapian::Document(doc.get()));
 	    } else {
@@ -567,6 +569,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    if (!is_remote[n]) {
 		if (doc.get() == 0) {
 		    Xapian::Internal::RefCntPtr<Xapian::Document::Internal> temp(db.get_document_lazily(did));
+		    Assert(temp.get());
 		    doc = temp;
 		}
 		Xapian::Document mydoc(doc.get());

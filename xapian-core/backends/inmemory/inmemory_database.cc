@@ -478,11 +478,11 @@ InMemoryDatabase::open_term_list(Xapian::docid did) const
 }
 
 Xapian::Document::Internal *
-InMemoryDatabase::open_document(Xapian::docid did, bool /*lazy*/) const
+InMemoryDatabase::open_document(Xapian::docid did, bool lazy) const
 {
     Assert(did != 0);
-    // we're never lazy so ignore that flag
     if (!doc_exists(did)) {
+	if (lazy) return false;
 	// FIXME: the docid in this message will be local, not global
 	throw Xapian::DocNotFoundError(string("Docid ") + om_tostring(did) +
 				 string(" not found"));
