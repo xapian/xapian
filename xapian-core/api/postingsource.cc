@@ -161,17 +161,11 @@ ValueWeightPostingSource::next(Xapian::weight min_wt)
 	++current_docid;
 	std::string value;
 
-	// Open document lazily so that we don't waste time checking for
-	// its existence.
-
-	unsigned int multiplier = db.internal.size();
-	Assert(multiplier != 0);
-	Xapian::doccount n = (current_docid - 1) % multiplier; // which actual database
-	Xapian::docid m = (current_docid - 1) / multiplier + 1; // real docid in that database
-
+	// Open document lazily so that we don't waste time checking for its
+	// existence.
 	try {
 	    AutoPtr<Xapian::Document::Internal> doc;
-	    doc = db.internal[n]->open_document(m, true);
+	    doc = db.get_document_lazily(current_docid);
 	    value = doc->get_value(valno);
 	    if (value.empty())
 		continue;
@@ -203,13 +197,8 @@ ValueWeightPostingSource::check(Xapian::docid min_docid,
     current_docid = min_docid;
     std::string value;
     try {
-	unsigned int multiplier = db.internal.size();
-	Assert(multiplier != 0);
-	Xapian::doccount n = (current_docid - 1) % multiplier; // which actual database
-	Xapian::docid m = (current_docid - 1) / multiplier + 1; // real docid in that database
-
 	AutoPtr<Xapian::Document::Internal> doc;
-	doc = db.internal[n]->open_document(m, true);
+	doc = db.get_document_lazily(current_docid);
 	value = doc->get_value(valno);
 	if (value.empty())
 	    return false;

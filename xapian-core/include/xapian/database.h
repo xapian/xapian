@@ -29,6 +29,7 @@
 #include <vector>
 
 #include <xapian/base.h>
+#include <xapian/document.h>
 #include <xapian/types.h>
 #include <xapian/positioniterator.h>
 #include <xapian/postingiterator.h>
@@ -37,8 +38,6 @@
 
 /// The Xapian library lives in the Xapian namespace.
 namespace Xapian {
-
-class Document;
 
 /** This class is used to access a database, or a group of databases.
  *
@@ -59,6 +58,18 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	class Internal;
 	/// @private @internal Reference counted internals.
 	std::vector<Xapian::Internal::RefCntPtr<Internal> > internal;
+
+	/** @private @internal Get a document from the database, but doesn't
+	 *  need to check if it exists.
+	 *
+	 *  This method returns a Xapian::Document object which provides the
+	 *  information about a document.
+	 *
+	 *  @param did   The document id of the document to retrieve.
+	 *
+	 *  @return      Pointer to Document::Internal object.
+	 */
+	Document::Internal * get_document_lazily(Xapian::docid did) const;
 
 	/** Add an existing database (or group of databases) to those
 	 *  accessed by this object.
@@ -260,7 +271,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  This method returns a Xapian::Document object which provides the
 	 *  information about a document.
 	 *
-	 *  @param did   The document id for which to retrieve the data.
+	 *  @param did   The document id of the document to retrieve.
 	 *
 	 *  @return      A Xapian::Document object containing the document data
 	 *

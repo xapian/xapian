@@ -256,12 +256,7 @@ MultiMatch::get_collapse_key(PostList *pl, Xapian::docid did,
     const string *key = pl->get_collapse_key();
     if (key) RETURN(*key);
     if (doc.get() == 0) {
-	unsigned int multiplier = db.internal.size();
-	Assert(multiplier != 0);
-	Xapian::doccount n = (did - 1) % multiplier; // which actual database
-	Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
-
-	doc = db.internal[n]->open_document(m, true);
+	doc = db.get_document_lazily(did);
     }
     RETURN(doc->get_value(keyno));
 }
@@ -528,11 +523,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	LOGLINE(MATCH, "Candidate document id " << did << " wt " << wt);
 	Xapian::Internal::MSetItem new_item(wt, did);
 	if (sort_by != REL) {
-	    const unsigned int multiplier = db.internal.size();
-	    Assert(multiplier != 0);
-	    Xapian::doccount n = (new_item.did - 1) % multiplier; // which actual database
-	    Xapian::docid m = (new_item.did - 1) / multiplier + 1; // real docid in that database
-	    Xapian::Internal::RefCntPtr<Xapian::Document::Internal> doc(db.internal[n]->open_document(m, true));
+	    Xapian::Internal::RefCntPtr<Xapian::Document::Internal> doc(db.get_document_lazily(new_item.did));
 	    if (sorter) {
 		new_item.sort_key = (*sorter)(Xapian::Document(doc.get()));
 	    } else {
@@ -575,9 +566,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    // already have been applied there so we can skip this step.
 	    if (!is_remote[n]) {
 		if (doc.get() == 0) {
-		    Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
-
-		    Xapian::Internal::RefCntPtr<Xapian::Document::Internal> temp(db.internal[n]->open_document(m, true));
+		    Xapian::Internal::RefCntPtr<Xapian::Document::Internal> temp(db.get_document_lazily(did));
 		    doc = temp;
 		}
 		Xapian::Document mydoc(doc.get());

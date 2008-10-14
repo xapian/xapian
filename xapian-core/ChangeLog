@@ -1,3 +1,11 @@
+Tue Oct 14 03:20:38 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,api/postingsource.cc,include/xapian/database.h,
+	  matcher/multimatch.cc: Add internal
+	  Xapian::Database::get_document_lazily() method and use it in the
+	  matcher and Xapian::PostingSource classes to avoid repeating the
+	  same code lots of times.
+
 Mon Oct 13 23:38:34 GMT 2008  Olly Betts <olly@survex.com>
 
 	* HACKING: Rename "Miscellaneous Portability Issues" to "C++

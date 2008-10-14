@@ -359,6 +359,20 @@ Database::get_document(Xapian::docid did) const
     RETURN(Document(internal[n]->open_document(m)));
 }
 
+Document::Internal *
+Database::get_document_lazily(Xapian::docid did) const
+{
+    DEBUGCALL(DATABASE, Document::Internal *, "Database::get_document_lazily", did);
+    if (did == 0) throw InvalidArgumentError("Document ID 0 is invalid");
+
+    unsigned int multiplier = internal.size();
+    Assert(multiplier != 0);
+    Xapian::doccount n = (did - 1) % multiplier; // which actual database
+    Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
+
+    RETURN(internal[n]->open_document(m, true));
+}
+
 bool
 Database::term_exists(const string & tname) const
 {
