@@ -1,3 +1,8 @@
+Wed Oct 15 11:34:15 GMT 2008  Olly Betts <olly@survex.com>
+
+	* include/xapian/database.h: Use std::string() instead of "" as the
+	  default value for std::string method parameters.
+
 Wed Oct 15 03:20:01 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/Makefile.mk,backends/slowvaluelist.cc,

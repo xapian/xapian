@@ -326,10 +326,10 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  @param prefix   If non-empty, only terms with this prefix are
 	 *		    returned.
 	 */
-	Xapian::TermIterator synonym_keys_begin(const std::string &prefix = "") const;
+	Xapian::TermIterator synonym_keys_begin(const std::string &prefix = std::string()) const;
 
 	/// Corresponding end iterator to synonym_keys_begin(prefix).
-	Xapian::TermIterator synonym_keys_end(const std::string & = "") const {
+	Xapian::TermIterator synonym_keys_end(const std::string & = std::string()) const {
 	    return Xapian::TermIterator(NULL);
 	}
 
@@ -372,10 +372,10 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  @param prefix   If non-empty, only keys with this prefix are
 	 *		    returned.
 	 */
-	Xapian::TermIterator metadata_keys_begin(const std::string &prefix = "") const;
+	Xapian::TermIterator metadata_keys_begin(const std::string &prefix = std::string()) const;
 
 	/// Corresponding end iterator to metadata_keys_begin().
-	Xapian::TermIterator metadata_keys_end(const std::string & = "") const {
+	Xapian::TermIterator metadata_keys_end(const std::string & = std::string()) const {
 	    return Xapian::TermIterator(NULL);
 	}
 
