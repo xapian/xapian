@@ -1,3 +1,10 @@
+Wed Oct 15 03:20:01 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/Makefile.mk,backends/slowvaluelist.cc,
+	  backends/slowvaluelist.h: Support for (slowly) iterating along a
+	  value stream for backends which don't support streamed values
+	  internally (currently unused).
+
 Tue Oct 14 11:43:42 GMT 2008  Olly Betts <olly@survex.com>
 
 	* api/postingsource.cc,backends/inmemory/inmemory_database.cc,
@@ -337,7 +344,7 @@ Wed Sep 24 12:48:39 GMT 2008  Olly Betts <olly@survex.com>
 Tue Sep 23 14:58:54 GMT 2008  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc: Avoid the relatively expensive edit distance
-	  computation for a candidate spelling correction when we can reject 
+	  computation for a candidate spelling correction when we can reject
 	  the candidate as less good than one we've already seen by looking
 	  at the character frequency histograms.
 

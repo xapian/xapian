@@ -1,3 +1,6 @@
+noinst_HEADERS +=\
+	backends/slowvaluelist.h
+
 EXTRA_DIST +=\
 	backends/dir_contents\
 	backends/Makefile
@@ -6,6 +9,7 @@ libxapian_la_SOURCES +=\
 	backends/alltermslist.cc\
 	backends/database.cc\
 	backends/dbfactory.cc\
+	backends/slowvaluelist.cc\
 	backends/valuelist.cc
 
 if BUILD_BACKEND_REMOTE
