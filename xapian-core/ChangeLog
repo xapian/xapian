@@ -1,3 +1,13 @@
+Thu Oct 16 12:26:29 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/,backends/chert/chert_valuelist.cc,
+	  backends/chert/chert_valuelist.h,common/document.h,
+	  common/valuelist.h,include/Makefile.mk,include/xapian/derefwrapper.h,
+	  include/xapian/termiterator.h,include/xapian/valueiterator.h:
+	  Reimplement ValueIterator to have reference counted internals.  One
+	  benefit is that Document::Internal no longer need its value_nos map
+	  member.
+
 Thu Oct 16 11:22:13 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/inmemory/inmemory_database.cc: Fix incorrect method name in

@@ -1,12 +1,14 @@
 noinst_HEADERS +=\
-	api/maptermlist.h\
-	api/editdistance.h
+	api/documentvaluelist.h
+	api/editdistance.h\
+	api/maptermlist.h
 
 EXTRA_DIST +=\
 	api/dir_contents\
 	api/Makefile
 
 libxapian_la_SOURCES +=\
+	api/documentvaluelist.cc\
 	api/editdistance.cc\
 	api/error.cc\
 	api/errorhandler.cc\
@@ -20,13 +22,13 @@ libxapian_la_SOURCES +=\
 	api/omquery.cc\
 	api/omqueryinternal.cc\
 	api/omtermlistiterator.cc\
-	api/omvalueiterator.cc\
 	api/postingsource.cc\
 	api/postlist.cc\
 	api/replication.cc\
 	api/sortable-serialise.cc\
 	api/sorter.cc\
 	api/termlist.cc\
+	api/valueiterator.cc\
 	api/valuerangeproc.cc\
 	api/valuesetmatchdecider.cc\
 	api/version.cc\

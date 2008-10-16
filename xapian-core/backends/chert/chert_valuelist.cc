@@ -53,6 +53,12 @@ ChertValueList::get_docid() const
     return reader.get_docid();
 }
 
+Xapian::valueno
+ChertValueList::get_valueno() const
+{
+    return slot;
+}
+
 std::string
 ChertValueList::get_value() const
 {

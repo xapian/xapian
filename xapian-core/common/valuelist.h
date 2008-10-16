@@ -51,6 +51,9 @@ class Xapian::ValueIterator::Internal : public Xapian::Internal::RefCntBase {
     /// Return the value at the current position.
     virtual std::string get_value() const = 0;
 
+    /// Return the value slot for the current position/this iterator.
+    virtual Xapian::valueno get_valueno() const = 0;
+
     /// Return true if the current position is past the last entry in this list.
     virtual bool at_end() const = 0;
 

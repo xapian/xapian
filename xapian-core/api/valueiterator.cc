@@ -1,0 +1,93 @@
+/** @file valueiterator.cc
+ *  @brief Class for iterating over document values.
+ */
+/* Copyright (C) 2008 Olly Betts
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ */
+
+#include <config.h>
+
+#include "xapian/valueiterator.h"
+
+#include "debuglog.h"
+#include "omassert.h"
+#include "valuelist.h"
+
+using namespace std;
+
+namespace Xapian {
+
+ValueIterator::ValueIterator() : internal(NULL) { }
+
+ValueIterator::~ValueIterator() { }
+
+ValueIterator::ValueIterator(Internal *internal_) : internal(internal_) { }
+
+ValueIterator::ValueIterator(const ValueIterator & o)
+    : internal(o.internal) { }
+
+ValueIterator &
+ValueIterator::operator=(const ValueIterator & o)
+{
+    internal = o.internal;
+    return *this;
+}
+
+string
+ValueIterator::operator*() const
+{
+    LOGCALL(API, string, "ValueIterator::operator*", "");
+    Assert(internal.get());
+    RETURN(internal->get_value());
+}
+
+ValueIterator &
+ValueIterator::operator++()
+{
+    LOGCALL(API, ValueIterator &, "ValueIterator::operator++", "");
+    Assert(internal.get());
+    internal->next();
+    if (internal->at_end()) internal = NULL;
+    RETURN(*this);
+}
+
+Xapian::valueno
+ValueIterator::get_valueno() const
+{
+    LOGCALL(API, Xapian::valueno, "ValueIterator::get_valueno", "");
+    Assert(internal.get());
+    RETURN(internal->get_valueno());
+}
+
+void
+ValueIterator::skip_to(Xapian::docid docid_or_slot)
+{
+    LOGCALL_VOID(API, "ValueIterator::skip_to", docid_or_slot);
+    Assert(internal.get());
+    internal->skip_to(docid_or_slot);
+    if (internal->at_end()) internal = NULL;
+}
+
+std::string
+ValueIterator::get_description() const
+{
+    string desc = "ValueIterator(";
+    if (internal.get()) desc += internal->get_description();
+    desc += ')';
+    return desc;
+}
+
+}

@@ -1,5 +1,5 @@
-/** @file chert_valuelist.h
- * @brief Chert class for value streams.
+/** @file documentvaluelist.h
+ * @brief Iteration over values in a document.
  */
 /* Copyright (C) 2007,2008 Olly Betts
  *
@@ -18,56 +18,44 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef XAPIAN_INCLUDED_CHERT_VALUELIST_H
-#define XAPIAN_INCLUDED_CHERT_VALUELIST_H
+#ifndef XAPIAN_INCLUDED_DOCUMENTVALUELIST_H
+#define XAPIAN_INCLUDED_DOCUMENTVALUELIST_H
 
 #include "valuelist.h"
-#include "chert_values.h"
 
-class ChertCursor;
-class ChertDatabase;
+#include "document.h"
 
-/// Chert class for value streams.
-class ChertValueList : public Xapian::ValueIterator::Internal {
+/// Iteration over values in a document.
+class DocumentValueList : public ValueList {
     /// Don't allow assignment.
-    void operator=(const ChertValueList &);
+    void operator=(const DocumentValueList &);
 
     /// Don't allow copying.
-    ChertValueList(const ChertValueList &);
+    DocumentValueList(const DocumentValueList &);
 
-    ChertCursor * cursor;
+    /// Document internals we're iterating over.
+    Xapian::Internal::RefCntPtr<const Xapian::Document::Internal> doc;
 
-    ValueChunkReader reader;
-
-    Xapian::valueno slot;
-
-    Xapian::Internal::RefCntPtr<const ChertDatabase> db;
-
-    /// Update @a reader to use the chunk currently pointed to by @a cursor.
-    bool update_reader();
+    /// Iterator over the map inside @a doc.
+    Xapian::Document::Internal::document_values::const_iterator it;
 
   public:
-    ChertValueList(Xapian::valueno slot_,
-		   Xapian::Internal::RefCntPtr<const ChertDatabase> db_)
-	: cursor(NULL), slot(slot_), db(db_) { }
-
-    ~ChertValueList();
+    DocumentValueList(const Xapian::Internal::RefCntPtr<Xapian::Document::Internal> & doc_)
+	: doc(doc_), it(doc->values.begin()) { }
 
     Xapian::docid get_docid() const;
 
-    Xapian::valueno get_valueno() const;
-
     std::string get_value() const;
+
+    Xapian::valueno get_valueno() const;
 
     bool at_end() const;
 
     void next();
 
-    void skip_to(Xapian::docid);
-
-    bool check(Xapian::docid did);
+    void skip_to(Xapian::valueno);
 
     std::string get_description() const;
 };
 
-#endif // XAPIAN_INCLUDED_CHERT_VALUELIST_H
+#endif // XAPIAN_INCLUDED_DOCUMENTVALUELIST_H

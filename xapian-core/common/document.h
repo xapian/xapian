@@ -33,9 +33,11 @@
 
 using namespace std;
 
+class DocumentValueList;
+
 /// A document in the database, possibly plus modifications.
 class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
-    friend class Xapian::ValueIterator;
+    friend class ::DocumentValueList;
     public:
 	/// Type to store values in.
 	typedef map<Xapian::valueno, string> document_values;
@@ -61,9 +63,6 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 
 	/// The values associated with this document.
 	mutable document_values values; // FIXME mutable is a hack
-
-	/// The value numbers, for use by ValueIterators.
-	mutable vector<Xapian::valueno> value_nos; // FIXME mutable is a hack
 
 	/// The terms (and their frequencies and positions) in this document.
 	mutable document_terms terms;
