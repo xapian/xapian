@@ -1,3 +1,8 @@
+Thu Oct 16 11:22:13 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/inmemory/inmemory_database.cc: Fix incorrect method name in
+	  debug messages.
+
 Thu Oct 16 01:34:07 GMT 2008  Olly Betts <olly@survex.com>
 
 	* HACKING: Note preference for @ rather than \ to introduce doxygen

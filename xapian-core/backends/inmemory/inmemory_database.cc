@@ -716,7 +716,7 @@ InMemoryDatabase::finish_add_doc(Xapian::docid did, const Xapian::Document &docu
 	Xapian::ValueIterator k_end = document.values_end();
 	for ( ; k != k_end; ++k) {
 	    values.insert(make_pair(k.get_valueno(), *k));
-	    LOGLINE(DB, "InMemoryDatabase::add_document(): adding value " <<
+	    LOGLINE(DB, "InMemoryDatabase::finish_add_doc(): adding value " <<
 			k.get_valueno() << " -> " << *k);
 	}
 	add_values(did, values);
@@ -728,7 +728,7 @@ InMemoryDatabase::finish_add_doc(Xapian::docid did, const Xapian::Document &docu
     for ( ; i != i_end; ++i) {
 	make_term(*i);
 
-	LOGLINE(DB, "InMemoryDatabase::add_document(): adding term " << *i);
+	LOGLINE(DB, "InMemoryDatabase::finish_add_doc(): adding term " << *i);
 	Xapian::PositionIterator j = i.positionlist_begin();
 	Xapian::PositionIterator j_end = i.positionlist_end();
 
