@@ -29,6 +29,7 @@
 #include <xapian/base.h>
 #include <xapian/types.h>
 #include <xapian/termiterator.h>
+#include <xapian/valueiterator.h>
 #include <xapian/visibility.h>
 
 namespace Xapian {
@@ -178,7 +179,9 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 	ValueIterator values_begin() const;
 
 	/// Equivalent end iterator for values_begin().
-	ValueIterator values_end() const;
+	ValueIterator values_end() const {
+	    return ValueIterator(NULL);
+	}
 
 	/** Get the document id which is associated with this document (if any).
 	 *

@@ -1,3 +1,8 @@
+Thu Oct 16 12:47:00 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omdocument.cc,include/xapian/document.h: Inline
+	  Xapian::Document::values_end() into user code.
+
 Thu Oct 16 12:26:29 GMT 2008  Olly Betts <olly@survex.com>
 
 	* api/,backends/chert/chert_valuelist.cc,

@@ -192,13 +192,6 @@ Document::values_begin() const
     RETURN(ValueIterator(new DocumentValueList(internal)));
 }
 
-ValueIterator
-Document::values_end() const
-{
-    DEBUGAPICALL(ValueIterator, "Document::values_end", "");
-    RETURN(ValueIterator(NULL));
-}
-
 docid
 Document::get_docid() const
 {
