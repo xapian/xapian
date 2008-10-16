@@ -1,3 +1,8 @@
+Thu Oct 16 13:20:26 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/multi/multi_postlist.cc: Remove unused '#include <list>'
+	  and uninformative comment.
+
 Thu Oct 16 12:47:00 GMT 2008  Olly Betts <olly@survex.com>
 
 	* api/omdocument.cc,include/xapian/document.h: Inline
