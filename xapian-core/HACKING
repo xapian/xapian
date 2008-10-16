@@ -940,9 +940,11 @@ We don't currently have a formal coding standards document, but please try
 to follow the style of the existing code.  In particular:
 
 * Indent C++ code by 4 spaces for a new indentation level, and set your editor
-  to tab-fill indentation.  As an exception, "public", "protected" and
-  "private" declarations in classes and structs should be indented by 2 spaces,
-  and the following code should be indented by 2 more spaces::
+  to tab-fill indentation (with a tab being 8 spaces wide).
+
+  As an exception, "public", "protected" and "private" declarations in classes
+  and structs should be indented by 2 spaces, and the following code should be
+  indented by 2 more spaces::
 
     class Foo {
       public:
@@ -954,9 +956,28 @@ to follow the style of the existing code.  In particular:
   specifier tends to make class definitions less readable.
 
   The default visibility for a class is always "private", so there's no need
-  to specify that explicitly.  If a class only contains public methods and
-  data, consider declaring it as a "struct" (the only difference in C++ is
-  that the default visibility for a struct is "public").
+  to specify that explicitly - in other words, write this::
+  
+    class Foo {
+        int internal_method();
+
+      public:
+        int external_method();
+    };
+
+  Don't write this::
+
+    class Foo {
+      private:
+        int internal_method();
+
+      public:
+        int external_method();
+    };
+
+  If a class only contains public methods and data, consider declaring it as a
+  "struct" (the only difference in C++ is that the default visibility for a
+  struct is "public").
 
 * Put a space before the "(" after control flow constructs like "for", "if",
   "while", etc.  Don't put a space before the "(" in function calls.  So

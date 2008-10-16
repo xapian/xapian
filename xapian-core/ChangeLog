@@ -1,3 +1,7 @@
+Thu Oct 16 01:21:19 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Expand section on public/protected/private a little.
+
 Wed Oct 15 11:34:15 GMT 2008  Olly Betts <olly@survex.com>
 
 	* include/xapian/database.h: Use std::string() instead of "" as the
