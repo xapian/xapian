@@ -1,3 +1,8 @@
+Thu Oct 16 01:34:07 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Note preference for @ rather than \ to introduce doxygen
+	  commands.
+
 Thu Oct 16 01:21:19 GMT 2008  Olly Betts <olly@survex.com>
 
 	* HACKING: Expand section on public/protected/private a little.
