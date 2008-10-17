@@ -79,12 +79,13 @@ ChertValueList::next()
     if (!cursor) {
 	cursor = db->get_postlist_cursor();
 	if (!cursor) return;
+	cursor->find_entry_ge(make_valuechunk_key(slot, 1));
     } else if (!reader.at_end()) {
 	reader.next();
 	if (!reader.at_end()) return;
+	cursor->next();
     }
 
-    cursor->next();
     if (!cursor->after_end()) {
 	if (update_reader()) {
 	    if (!reader.at_end()) return;

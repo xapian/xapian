@@ -1,3 +1,8 @@
+Fri Oct 17 14:22:18 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_valuelist.cc: Fix ChertValueList to start on
+	  the right key.
+
 Fri Oct 17 14:14:14 GMT 2008  Olly Betts <olly@survex.com>
 
 	* include/xapian/database.h,include/xapian/document.h: Inline
