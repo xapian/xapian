@@ -60,6 +60,8 @@ class SlowValueList : public ValueList {
 
     std::string get_value() const;
 
+    Xapian::valueno get_valueno() const;
+
     bool at_end() const;
 
     void next();

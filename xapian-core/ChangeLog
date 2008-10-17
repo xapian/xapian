@@ -1,3 +1,8 @@
+Fri Oct 17 13:53:26 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/slowvaluelist.cc,backends/slowvaluelist.h: Add missing
+	  SlowValueList::get_valueno() method.
+
 Fri Oct 17 13:16:01 GMT 2008  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc,include/xapian/database.h: Add

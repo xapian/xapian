@@ -43,6 +43,12 @@ SlowValueList::get_value() const
     return current_value;
 }
 
+Xapian::valueno
+SlowValueList::get_valueno() const
+{
+    return slot;
+}
+
 bool
 SlowValueList::at_end() const
 {
