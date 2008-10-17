@@ -332,6 +332,18 @@ Database::get_value_upper_bound(Xapian::valueno valno) const
     RETURN(full_ub);
 }
 
+ValueIterator
+Database::valuestream_begin(Xapian::valueno slot) const
+{
+    LOGCALL(API, ValueIterator, "Database::valuestream_begin", slot);
+    if (internal.empty()) RETURN(ValueIterator(NULL));
+    // FIXME: support multidatabases properly.
+    if (internal.size() != 1) {
+	throw Xapian::UnimplementedError("Database::valuestream_begin() doesn't support multidatabases yet");
+    }
+    RETURN(ValueIterator(internal[0]->open_value_list(slot)));
+}
+
 Xapian::doclength
 Database::get_doclength(Xapian::docid did) const
 {

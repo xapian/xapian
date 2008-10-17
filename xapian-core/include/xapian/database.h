@@ -34,6 +34,7 @@
 #include <xapian/positioniterator.h>
 #include <xapian/postingiterator.h>
 #include <xapian/termiterator.h>
+#include <xapian/valueiterator.h>
 #include <xapian/visibility.h>
 
 /// The Xapian library lives in the Xapian namespace.
@@ -261,6 +262,14 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  available for this database type.
 	 */
 	std::string get_value_upper_bound(Xapian::valueno valno) const;
+
+	/// Return an iterator over the value in slot @a slot for each document.
+	ValueIterator valuestream_begin(Xapian::valueno slot) const;
+
+	/// Return end iterator corresponding to valuestream_begin().
+	ValueIterator valuestream_end(Xapian::valueno) const {
+	    return ValueIterator(NULL);
+	}
 
 	/** Get the length of a document.
 	 */

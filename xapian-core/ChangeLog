@@ -1,3 +1,10 @@
+Fri Oct 17 13:16:01 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,include/xapian/database.h: Add
+	  Database::valuestream_begin() and Database::valuestream_end() to
+	  allow iterating over the values in a given slot for each document
+	  in the database (untested so far).
+
 Thu Oct 16 13:20:26 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/multi/multi_postlist.cc: Remove unused '#include <list>'
