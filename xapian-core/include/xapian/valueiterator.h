@@ -72,6 +72,13 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
 	return DerefStringWrapper_(value);
     }
 
+    /** Return the docid at the current position.
+     *
+     *  If we're iterating over values of a document, this method will throw
+     *  Xapian::InvalidOperationError.
+     */
+    Xapian::docid get_docid() const;
+
     /** Return the value slot number for the current position.
      *
      *  If the iterator is over all values in a slot, this returns that slot's

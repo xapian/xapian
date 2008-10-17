@@ -180,7 +180,7 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 
 	/// Equivalent end iterator for values_begin().
 	ValueIterator values_end() const {
-	    return ValueIterator(NULL);
+	    return ValueIterator();
 	}
 
 	/** Get the document id which is associated with this document (if any).

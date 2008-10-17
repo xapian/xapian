@@ -34,7 +34,11 @@ ValueIterator::ValueIterator() : internal(NULL) { }
 
 ValueIterator::~ValueIterator() { }
 
-ValueIterator::ValueIterator(Internal *internal_) : internal(internal_) { }
+ValueIterator::ValueIterator(Internal *internal_) : internal(internal_)
+{
+    internal->next();
+    if (internal->at_end()) internal = NULL;
+}
 
 ValueIterator::ValueIterator(const ValueIterator & o)
     : internal(o.internal) { }
@@ -62,6 +66,14 @@ ValueIterator::operator++()
     internal->next();
     if (internal->at_end()) internal = NULL;
     RETURN(*this);
+}
+
+Xapian::docid
+ValueIterator::get_docid() const
+{
+    LOGCALL(API, Xapian::docid, "ValueIterator::get_docid", "");
+    Assert(internal.get());
+    RETURN(internal->get_docid());
 }
 
 Xapian::valueno

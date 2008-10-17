@@ -1,3 +1,13 @@
+Fri Oct 17 14:14:14 GMT 2008  Olly Betts <olly@survex.com>
+
+	* include/xapian/database.h,include/xapian/document.h: Inline
+	  ValueIterator end iterator as ValueIterator() rather than
+	  ValueIterator(NULL).
+	* api/valueiterator.cc: Need to call next() on a ValueList to get it
+	  to the first position, so do this in ValueIterator's constructor.
+	* api/valueiterator.cc,include/xapian/valueiterator.h: Add
+	  ValueIterator::get_docid() method.
+
 Fri Oct 17 13:53:26 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/slowvaluelist.cc,backends/slowvaluelist.h: Add missing
