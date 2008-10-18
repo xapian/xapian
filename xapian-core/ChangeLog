@@ -1,3 +1,9 @@
+Sat Oct 18 02:12:06 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/multi/multi_postlist.cc: Remove unused '#include <list>'
+	  and uninformative comment.
+
 Fri Oct 17 16:04:59 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* Backport change from trunk:

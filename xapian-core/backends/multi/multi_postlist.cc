@@ -31,12 +31,6 @@
 #include "xapian/database.h"
 #endif
 
-#include <list>
-
-//////////////
-// Postlist //
-//////////////
-
 MultiPostList::MultiPostList(std::vector<LeafPostList *> & pls,
 			     const Xapian::Database &this_db_)
 	: postlists(pls),
