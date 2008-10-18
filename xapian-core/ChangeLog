@@ -1,3 +1,7 @@
+Sat Oct 18 01:31:25 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
 Fri Oct 17 15:54:57 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* bin/xapian-compact.cc: Check that pq is not empty before calling

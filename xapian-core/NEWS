@@ -1,6 +1,62 @@
 up to:
- 11495       olly Tue Oct 07 10:19:48 GMT 2008  Olly Betts <olly@survex.com>
+ 11546    richard Fri Oct 17 15:54:57 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
+ 11541       olly 	* backends/multi/multi_postlist.cc: Remove unused '#include <list>'
+ 11541       olly 	  and uninformative comment.
+
+ 11539       olly 	* api/,backends/chert/chert_valuelist.cc,
+ 11539       olly 	  backends/chert/chert_valuelist.h,common/document.h,
+ 11539       olly 	  common/valuelist.h,include/Makefile.mk,include/xapian/derefwrapper.h,
+ 11539       olly 	  include/xapian/termiterator.h,include/xapian/valueiterator.h:
+ 11539       olly 	  Reimplement ValueIterator to have reference counted internals.  One
+ 11539       olly 	  benefit is that Document::Internal no longer need its value_nos map
+ 11539       olly 	  member.
+
+ 11538       olly 	* backends/inmemory/inmemory_database.cc: Fix incorrect method name in
+ 11538       olly 	  debug messages.
+
+ 11537       olly 	* HACKING: Note preference for @ rather than \ to introduce doxygen
+ 11537       olly 	  commands.
+
+ 11536       olly 	* HACKING: Expand section on public/protected/private a little.
+
+ 11535       olly 	* include/xapian/database.h: Use std::string() instead of "" as the
+ 11535       olly 	  default value for std::string method parameters.
+
+ 11534       olly 	* backends/Makefile.mk,backends/slowvaluelist.cc,
+ 11534       olly 	  backends/slowvaluelist.h: Support for (slowly) iterating along a
+ 11534       olly 	  value stream for backends which don't support streamed values
+ 11534       olly 	  internally (currently unused).
+
+ 11533       olly 	* api/postingsource.cc,backends/inmemory/inmemory_database.cc,
+ 11533       olly 	  matcher/multimatch.cc: Database::get_document_lazily() now returns
+ 11533       olly 	  NULL if the document isn't found for an inmemory database.
+ 11533       olly 	* include/xapian/database.h: Document the return value better.
+
+ 11532       olly 	* api/omdatabase.cc,api/postingsource.cc,include/xapian/database.h,
+ 11532       olly 	  matcher/multimatch.cc: Add internal
+ 11532       olly 	  Xapian::Database::get_document_lazily() method and use it in the
+ 11532       olly 	  matcher and Xapian::PostingSource classes to avoid repeating the
+ 11532       olly 	  same code lots of times.
+
+ 11531       olly 	* HACKING: Rename "Miscellaneous Portability Issues" to "C++
+ 11531       olly 	  Portability Issues", and add a subsection of that for "Miscellaneous
+ 11531       olly 	  Portability Issues" with a new note about needing to terminate the
+ 11531       olly 	  last line of a source file, and a new subsection heading "Header
+ 11531       olly 	  Portability Issues" for all the header-related stuff.
+
+ 11526       olly 	* tests/api_wrdb.cc: If the timer for the first test for bigoaddvalue
+ 11526       olly 	  reports 0.0 seconds, skip the test as the timer doesn't have fine
+ 11527       olly 	  enough granularity for this test to be useful (bug#300).
+
+ 11524       olly 	* tests/api_wrdb.cc: Reuse XAPIAN_BIN_PATH to avoid hardcoding more
+ 11524       olly 	  paths, and so this works in a debug build too.
+
+ 11522    richard 	* tests/api_wrdb.cc: Patch to use a different path in win32 build
+ 11522    richard 	  to match the different place that the compiled xapian-check is
+ 11522    richard 	  placed in.  Should fix bug #301.
+ 11522    richard 
+ 
 Potential backport fodder:
 
  * bin/xapian-check.cc,bin/xapian-check-flint.cc:  Don't stop checking
@@ -19,6 +75,11 @@ it really make sense to add it now:
 	  you know that a query will only be accessing a subset of
 	  documents for which you know a more precise upper bound than the
 	  database-wide upper bound.
+
+ 11498       olly 	* backends/Makefile.mk,backends/chert/,backends/database.cc,
+ 11498       olly 	  backends/valuelist.cc,common/Makefile.mk,common/database.h,
+ 11498       olly 	  common/valuelist.h,include/xapian/valueiterator.h: The start of
+ 11498       olly 	  support for iterating along a value stream (currently unused).
 
 Xapian-core 1.1.0 (200?-??-??):
 
