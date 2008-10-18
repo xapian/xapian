@@ -1,3 +1,9 @@
+Sat Oct 18 02:15:49 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/inmemory/inmemory_database.cc: Fix incorrect method name in
+	  debug messages.
+
 Sat Oct 18 02:12:06 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
