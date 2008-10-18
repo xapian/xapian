@@ -1,3 +1,8 @@
+Sat Oct 18 08:00:24 GMT 2008  Olly Betts <olly@survex.com>
+
+	* omega.cc: Catch std::exception and report what its what() method
+	  returns.
+
 Thu Oct 09 10:16:05 GMT 2008  Olly Betts <olly@survex.com>
 
 	* configure.ac: Update autoconf requirement to 2.63, libtool to 2.2.6.
