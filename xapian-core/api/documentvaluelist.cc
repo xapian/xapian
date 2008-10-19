@@ -61,14 +61,16 @@ DocumentValueList::at_end() const
 void
 DocumentValueList::next()
 {
-    Assert(!at_end());
-    ++it;
+    if (it == doc->values.end()) {
+	it = doc->values.begin();
+    } else {
+	++it;
+    }
 }
 
 void
 DocumentValueList::skip_to(Xapian::valueno slot)
 {
-    Assert(!at_end());
     it = doc->values.lower_bound(slot);
 }
 
