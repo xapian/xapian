@@ -29,7 +29,7 @@
 #include "document.h"
 #include "xapian/document.h"
 #include "xapian/error.h"
-#include "xapian/queryparser.h" // For sortable_unserialise
+#include "xapian/queryparser.h" // For sortable_unserialise().
 
 #include "omassert.h"
 #include "utils.h"
@@ -75,42 +75,38 @@ PostingSource::get_description() const
 
 
 ValueWeightPostingSource::ValueWeightPostingSource(Xapian::Database db_,
-						   Xapian::valueno valno_)
-	: db(db_),
-	  valno(valno_),
-	  current_docid(0),
-	  last_docid(db.get_lastdocid()),
-	  current_value(0.0)
+						   Xapian::valueno slot_)
+	: db(db_), slot(slot_),
+	  it(db.valuestream_begin(slot)), end(db.valuestream_end(slot)),
+	  last_docid(0)
 {
     try {
-	termfreq_max = db.get_value_freq(valno);
+	termfreq_max = db.get_value_freq(slot);
 	termfreq_est = termfreq_max;
 	termfreq_min = termfreq_max;
-	max_value = sortable_unserialise(db.get_value_upper_bound(valno));
+	max_weight = sortable_unserialise(db.get_value_upper_bound(slot));
     } catch (const Xapian::UnimplementedError &) {
 	termfreq_max = db.get_doccount();
 	termfreq_est = termfreq_max / 2;
 	termfreq_min = 0;
-	max_value = DBL_MAX;
+	max_weight = DBL_MAX;
     }
 }
 
 ValueWeightPostingSource::ValueWeightPostingSource(Xapian::Database db_,
-						   Xapian::valueno valno_,
+						   Xapian::valueno slot_,
 						   double max_weight_)
-	: db(db_),
-	  valno(valno_),
-	  current_docid(0),
-	  last_docid(db.get_lastdocid()),
-	  current_value(0.0),
-	  max_value(max_weight_)
+	: db(db_), slot(slot_),
+	  it(db.valuestream_begin(slot)), end(db.valuestream_end(slot)),
+	  last_docid(0),
+	  max_weight(max_weight_)
 {
     try {
-	termfreq_max = db.get_value_freq(valno);
+	termfreq_max = db.get_value_freq(slot);
 	termfreq_est = termfreq_max;
 	termfreq_min = termfreq_max;
-	max_value = std::min(max_value,
-			     sortable_unserialise(db.get_value_upper_bound(valno)));
+	double ubound = sortable_unserialise(db.get_value_upper_bound(slot));
+	max_weight = std::min(max_weight, ubound);
     } catch (const Xapian::UnimplementedError &) {
 	termfreq_max = db.get_doccount();
 	termfreq_est = termfreq_max / 2;
@@ -139,44 +135,32 @@ ValueWeightPostingSource::get_termfreq_max() const
 Xapian::weight
 ValueWeightPostingSource::get_maxweight() const
 {
-    return max_value;
+    return max_weight;
 }
 
 Xapian::weight
 ValueWeightPostingSource::get_weight() const
 {
     Assert(!at_end());
-    Assert(current_docid != 0);
-    return current_value;
+    Assert(last_docid != 0);
+    return sortable_unserialise(*it);
 }
 
 void
 ValueWeightPostingSource::next(Xapian::weight min_wt)
 {
-    if (min_wt > max_value) {
-	current_docid = last_docid + 1;
-	return;
+    if (last_docid == 0) {
+	last_docid = db.get_lastdocid();
+	it = db.valuestream_begin(slot);
+	end = db.valuestream_end(slot);
+    } else {
+	++it;
     }
-    while (current_docid <= last_docid) {
-	++current_docid;
-	std::string value;
 
-	// Open document lazily so that we don't waste time checking for its
-	// existence.
-	try {
-	    AutoPtr<Xapian::Document::Internal> doc;
-	    doc = db.get_document_lazily(current_docid);
-	    if (!doc.get()) continue;
-	    value = doc->get_value(valno);
-	    if (value.empty())
-		continue;
-	} catch (const Xapian::DocNotFoundError &) {
-	    continue;
-	}
-
-	current_value = sortable_unserialise(value);
-	// Don't check that the value is in the specified range, since this
-	// could be a slow loop and isn't required.
+    if (it == end) return;
+	
+    if (min_wt > max_weight) {
+	it = end;
 	return;
     }
 }
@@ -185,54 +169,60 @@ void
 ValueWeightPostingSource::skip_to(Xapian::docid min_docid,
 				  Xapian::weight min_wt)
 {
-    if (current_docid < min_docid) {
-	current_docid = min_docid - 1;
-	next(min_wt);
+    if (last_docid == 0) {
+	last_docid = db.get_lastdocid();
+	it = db.valuestream_begin(slot);
+	end = db.valuestream_end(slot);
     }
+
+    if (min_wt > max_weight) {
+	it = end;
+	return;
+    }
+    it.skip_to(min_docid);
 }
 
+#if 0 // FIXME: Need ValueIterator::check() for this to work...
 bool
 ValueWeightPostingSource::check(Xapian::docid min_docid,
 				Xapian::weight min_wt)
 {
-    current_docid = min_docid;
-    std::string value;
-    try {
-	AutoPtr<Xapian::Document::Internal> doc;
-	doc = db.get_document_lazily(current_docid);
-	if (!doc.get()) return false;
-	value = doc->get_value(valno);
-	if (value.empty())
-	    return false;
-    } catch (const Xapian::DocNotFoundError &) {
-	return false;
+    if (last_docid == 0) {
+	last_docid = db.get_lastdocid();
+	it = db.valuestream_begin(slot);
+	end = db.valuestream_end(slot);
     }
-    current_value = sortable_unserialise(value);
-    return (current_value >= min_wt);
+
+    if (min_wt > max_weight) {
+	it = end;
+	return true;
+    }
+    return it.check(min_docid);
 }
+#endif
 
 bool
 ValueWeightPostingSource::at_end() const
 {
-    return current_docid > last_docid;
+    return it == end;
 }
 
 Xapian::docid
 ValueWeightPostingSource::get_docid() const
 {
-    return current_docid;
+    return it.get_docid();
 }
 
 void
 ValueWeightPostingSource::reset()
 {
-    current_docid = 0;
+    last_docid = 0;
 }
 
 std::string
 ValueWeightPostingSource::get_description() const
 {
-    return "Xapian::ValueWeightPostingSource(valno=" + om_tostring(valno) + ")";
+    return "Xapian::ValueWeightPostingSource(slot=" + om_tostring(slot) + ")";
 }
 
 }

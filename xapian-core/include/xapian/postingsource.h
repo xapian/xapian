@@ -173,13 +173,22 @@ class XAPIAN_VISIBILITY_DEFAULT ValueWeightPostingSource : public PostingSource 
     Xapian::Database db;
 
     /// The slot we're reading values from.
-    Xapian::valueno valno;
+    Xapian::valueno slot;
 
-    /// The current document ID (0 to indicate that we haven't started yet).
-    Xapian::docid current_docid;
+    /// Value stream iterator.
+    Xapian::ValueIterator it;
 
-    /// The last document ID in the database.
+    /// End iterator corresponding to it.
+    Xapian::ValueIterator end;
+
+    /** The last document ID in the database.
+     *
+     *  (Or 0 to indicate we haven't started yet).
+     */
     Xapian::docid last_docid;
+
+    /// An upper bound on the weight returned.
+    double max_weight;
 
     /// A lower bound on the term frequency.
     Xapian::doccount termfreq_min;
@@ -190,31 +199,25 @@ class XAPIAN_VISIBILITY_DEFAULT ValueWeightPostingSource : public PostingSource 
     /// An upper bound on the term frequency.
     Xapian::doccount termfreq_max;
 
-    /// The value for the current
-    double current_value;
-
-    /// An upper bound on the value returned.
-    double max_value;
-
   public:
     /** Construct a ValueWeightPostingSource.
      *
      *  @param db_ The database to read values from.
-     *  @param valno_ The value slot to read values from.
+     *  @param slot_ The value slot to read values from.
      */
-    ValueWeightPostingSource(Xapian::Database db_, Xapian::valueno valno_);
+    ValueWeightPostingSource(Xapian::Database db_, Xapian::valueno slot_);
 
     /** Construct a ValueWeightPostingSource.
      *
      *  @param db_ The database to read values from.
-     *  @param valno_ The value slot to read values from.
+     *  @param slot_ The value slot to read values from.
      *  @param max_weight_ An upper bound on the weights which are stored in
      *  the value slot.  Note that for the chert database format, information
      *  about an upper bound is already stored in the database, so this
      *  constructor need only be used if more accurate information is
      *  available.
      */
-    ValueWeightPostingSource(Xapian::Database db_, Xapian::valueno valno_,
+    ValueWeightPostingSource(Xapian::Database db_, Xapian::valueno slot_,
 			     double max_weight_);
 
     Xapian::doccount get_termfreq_min() const;
@@ -226,7 +229,9 @@ class XAPIAN_VISIBILITY_DEFAULT ValueWeightPostingSource : public PostingSource 
 
     void next(Xapian::weight min_wt);
     void skip_to(Xapian::docid min_docid, Xapian::weight min_wt);
+#if 0 // FIXME
     bool check(Xapian::docid min_docid, Xapian::weight min_wt);
+#endif
 
     bool at_end() const;
 

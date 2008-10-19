@@ -1,3 +1,8 @@
+Sun Oct 19 14:01:15 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/postingsource.cc,include/xapian/postingsource.h: Update
+	  ValueWeightPostingSource to use a value stream iterator.
+
 Sun Oct 19 13:53:51 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/database.cc: Make use of SlowValueList by default.
