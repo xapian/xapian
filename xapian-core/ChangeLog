@@ -1,3 +1,7 @@
+Sun Oct 19 13:53:51 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/database.cc: Make use of SlowValueList by default.
+
 Sun Oct 19 13:47:10 GMT 2008  Olly Betts <olly@survex.com>
 
 	* api/documentvaluelist.cc,api/documentvaluelist.h: Fix so that a

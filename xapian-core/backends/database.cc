@@ -29,6 +29,7 @@
 
 #include "leafpostlist.h"
 #include "omassert.h"
+#include "slowvaluelist.h"
 
 #include <string>
 
@@ -194,9 +195,7 @@ Database::Internal::replace_document(const string & unique_term,
 ValueList *
 Database::Internal::open_value_list(Xapian::valueno slot) const
 {
-    (void)slot;
-    throw Xapian::UnimplementedError("value streams no implemented for this backend");
-    // return DefaultValueList([...]);
+    return new SlowValueList(Xapian::Database(const_cast<Database::Internal*>(this)), slot);
 }
 
 TermList *
