@@ -188,7 +188,7 @@ Document::values_begin() const
     DEBUGAPICALL(ValueIterator, "Document::values_begin", "");
     // Calling values_count() has the side effect of making sure that they have
     // been read into the std::map "values" member of internal.
-    if (internal->values_count() == 0) RETURN(ValueIterator(NULL));
+    if (internal->values_count() == 0) RETURN(ValueIterator());
     RETURN(ValueIterator(new DocumentValueList(internal)));
 }
 

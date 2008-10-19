@@ -336,7 +336,7 @@ ValueIterator
 Database::valuestream_begin(Xapian::valueno slot) const
 {
     LOGCALL(API, ValueIterator, "Database::valuestream_begin", slot);
-    if (internal.empty()) RETURN(ValueIterator(NULL));
+    if (internal.empty()) RETURN(ValueIterator());
     // FIXME: support multidatabases properly.
     if (internal.size() != 1) {
 	throw Xapian::UnimplementedError("Database::valuestream_begin() doesn't support multidatabases yet");

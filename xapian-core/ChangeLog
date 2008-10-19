@@ -1,3 +1,8 @@
+Sun Oct 19 13:09:39 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,api/omdocument.cc: Use ValueIterator() instead of
+	  ValueIterator(NULL).
+
 Sun Oct 19 11:15:15 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
