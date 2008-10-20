@@ -52,3 +52,39 @@ DEFINE_TESTCASE(valuestream1, backend) {
  
     return true;
 }
+
+/// Test skip_to() on a valuestream iterator.
+DEFINE_TESTCASE(valuestream2, backend && !multi) {
+    // FIXME: enable for multi once support is in place.
+    Xapian::Database db = get_database("etext");
+
+    for (Xapian::valueno slot = 0; slot < 15; ++slot) {
+	unsigned interval = 1;
+	while (interval < 1999) {
+	    tout << "testing valuestream skip_to for slot " << slot
+		 << " with interval " << interval << endl;
+	    Xapian::docid did = 1;
+	    Xapian::ValueIterator it = db.valuestream_begin(slot);
+	    if (it == db.valuestream_end(slot)) break;
+	    while (it.skip_to(did), it != db.valuestream_end(slot)) {
+		TEST_EQUAL(it.get_valueno(), slot);
+		string value = *it;
+
+		// Check that the skipped documents had no values.
+		Xapian::docid actual_did = it.get_docid();
+		while (did < actual_did) {
+		    Xapian::Document doc = db.get_document(did);
+		    TEST_EQUAL(doc.get_value(slot), "");
+		    ++did;
+		}
+
+		Xapian::Document doc = db.get_document(actual_did);
+		TEST_EQUAL(doc.get_value(slot), value);
+		did += interval;
+	    }
+	    interval = interval * 3 - 1;
+	}
+    }
+ 
+    return true;
+}
