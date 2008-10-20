@@ -182,7 +182,6 @@ ValueWeightPostingSource::skip_to(Xapian::docid min_docid,
     it.skip_to(min_docid);
 }
 
-#if 0 // FIXME: Need ValueIterator::check() for this to work...
 bool
 ValueWeightPostingSource::check(Xapian::docid min_docid,
 				Xapian::weight min_wt)
@@ -199,7 +198,6 @@ ValueWeightPostingSource::check(Xapian::docid min_docid,
     }
     return it.check(min_docid);
 }
-#endif
 
 bool
 ValueWeightPostingSource::at_end() const

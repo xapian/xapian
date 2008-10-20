@@ -229,9 +229,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueWeightPostingSource : public PostingSource 
 
     void next(Xapian::weight min_wt);
     void skip_to(Xapian::docid min_docid, Xapian::weight min_wt);
-#if 0 // FIXME
     bool check(Xapian::docid min_docid, Xapian::weight min_wt);
-#endif
 
     bool at_end() const;
 

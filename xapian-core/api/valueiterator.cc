@@ -93,6 +93,16 @@ ValueIterator::skip_to(Xapian::docid docid_or_slot)
     if (internal->at_end()) internal = NULL;
 }
 
+bool
+ValueIterator::check(Xapian::docid docid)
+{
+    LOGCALL(API, bool, "ValueIterator::check", docid);
+    Assert(internal.get());
+    if (!internal->check(docid)) return false;
+    if (internal->at_end()) internal = NULL;
+    return true;
+}
+
 std::string
 ValueIterator::get_description() const
 {

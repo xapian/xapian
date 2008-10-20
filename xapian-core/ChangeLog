@@ -1,3 +1,9 @@
+Mon Oct 20 13:30:37 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/postingsource.cc,api/valueiterator.cc,
+	  include/xapian/postingsource.h,include/xapian/valueiterator.h: Add
+	  new API method ValueIterator::check() and use it in PostingIterator.
+
 Mon Oct 20 12:28:16 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/api_valuestream.cc: Add test for skip_to() on valuestream

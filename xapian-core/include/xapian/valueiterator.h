@@ -90,8 +90,8 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
     /** Advance the iterator to document id or value slot @a docid_or_slot.
      *
      *  If this iterator is over values in a document, then this method
-     *  advances the iterator to value slot @a docid_or_slot, or the first slot after
-     *  it if there is no value in slot @a slot.
+     *  advances the iterator to value slot @a docid_or_slot, or the first slot
+     *  after it if there is no value in slot @a slot.
      *
      *  If this iterator is over values in a particular slot, then this
      *  method advances the iterator to document id @a docid_or_slot, or the
@@ -104,6 +104,30 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
      *  them.
      */
     void skip_to(Xapian::docid docid_or_slot);
+
+    /** Check if the specified docid occurs.
+     *
+     *  The caller is required to ensure that the specified document id
+     *  @a did actually exists in the database.
+     *
+     *  This method acts like skip_to() if that can be done at little extra
+     *  cost, in which case it then returns true.  This is how chert behaves
+     *  because it stores values in streams which allow for an efficient
+     *  implementation of skip_to().
+     *
+     *  Otherwise it simply checks if a particular docid is present.  If it
+     *  is, it returns true.  If it isn't, it returns false, and leaves the
+     *  position unspecified (and hence the result of calling methods which
+     *  depends on the current position, such as get_docid(), are also
+     *  unspecified).  In this state, next() will advance to the first matching
+     *  position after document @a did, and skip_to() will act as it would if
+     *  the position was the first matching position after document @a did.
+     *
+     *  Currently the inmemory, flint, and remote backends behave in the
+     *  latter way because they don't support streamed values and so skip_to()
+     *  must check each document it skips over which is significantly slower.
+     */
+    bool check(Xapian::docid docid);
 
     /// Return a string describing this object.
     std::string get_description() const;
