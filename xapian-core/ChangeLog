@@ -1,3 +1,9 @@
+Mon Oct 20 02:19:09 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/multi/multi_postlist.cc,backends/multi/multi_postlist.h:
+	  Remove unused members of MultiPostList: tname, collfreq_initialised,
+	  collfreq, and termweight.
+
 Sun Oct 19 14:01:15 GMT 2008  Olly Betts <olly@survex.com>
 
 	* api/postingsource.cc,include/xapian/postingsource.h: Update
