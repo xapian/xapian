@@ -1,3 +1,8 @@
+Mon Oct 20 11:19:12 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am,tests/api_valuestream.cc: Add a simple test of
+	  valuestream iteration.
+
 Mon Oct 20 11:01:26 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/Makefile.am,tests/collate-test,tests/perftest/Makefile.mk:

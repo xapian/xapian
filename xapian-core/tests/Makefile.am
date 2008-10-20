@@ -101,6 +101,7 @@ collated_apitest_sources = \
  api_transdb.cc \
  api_unicode.cc \
  api_valuestats.cc \
+ api_valuestream.cc \
  api_wrdb.cc
 
 apitest_SOURCES = apitest.cc $(collated_apitest_sources) \
