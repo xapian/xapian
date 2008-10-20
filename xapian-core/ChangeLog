@@ -1,3 +1,11 @@
+Mon Oct 20 11:01:26 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am,tests/collate-test,tests/perftest/Makefile.mk:
+	  Generate the header listing the collated tests so that we can avoid
+	  updating its timestamp when the contents are unchanged, such as in
+	  the common case where you modify tests but don't add, remove, or
+	  change the conditions on any tests.
+
 Mon Oct 20 10:01:56 GMT 2008  Olly Betts <olly@survex.com>
 
 	* examples/delve.cc: Use valuestream iterator to implement "-V<slot>".
