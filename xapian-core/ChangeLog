@@ -1,3 +1,7 @@
+Mon Oct 20 10:01:56 GMT 2008  Olly Betts <olly@survex.com>
+
+	* examples/delve.cc: Use valuestream iterator to implement "-V<slot>".
+
 Mon Oct 20 02:19:09 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/multi/multi_postlist.cc,backends/multi/multi_postlist.h:
