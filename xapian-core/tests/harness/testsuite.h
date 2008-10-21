@@ -28,6 +28,7 @@
 
 #include "stringutils.h" // For STRINGIZE().
 
+#include <iomanip>
 #include <map>
 #include <sstream>
 #include <string>

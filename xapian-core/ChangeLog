@@ -1,3 +1,11 @@
+Tue Oct 21 04:37:53 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* tests/harness/testsuite.h: Add missing "iomanip" header needed
+	  for setprecision calls.
+	* tests/api_anydb.cc,tests/api_db.cc: Remove '#include <iomanip>'
+	  which aren't used.
+
 Tue Oct 21 04:30:55 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
