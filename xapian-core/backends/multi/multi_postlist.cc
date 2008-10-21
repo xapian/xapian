@@ -37,8 +37,7 @@ MultiPostList::MultiPostList(std::vector<LeafPostList *> & pls,
 	  this_db(this_db_),
 	  finished(false),
 	  currdoc(0),
-	  freq_initialised(false),
-	  collfreq_initialised(false)
+	  freq_initialised(false)
 {
     multiplier = pls.size();
 }
