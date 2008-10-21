@@ -400,39 +400,27 @@ InMemoryDatabase::get_collection_freq(const string &tname) const
 }
 
 Xapian::doccount
-InMemoryDatabase::get_value_freq(Xapian::valueno valno) const
+InMemoryDatabase::get_value_freq(Xapian::valueno slot) const
 {
-    map<Xapian::valueno, ValueStats>::const_iterator i
-	    = valuestats.find(valno);
-    if (i != valuestats.end()) {
-	return i->second.freq;
-    } else {
-	return 0;
-    }
+    map<Xapian::valueno, ValueStats>::const_iterator i = valuestats.find(slot);
+    if (i == valuestats.end()) return 0;
+    return i->second.freq;
 }
 
 std::string
-InMemoryDatabase::get_value_lower_bound(Xapian::valueno valno) const
+InMemoryDatabase::get_value_lower_bound(Xapian::valueno slot) const
 {
-    map<Xapian::valueno, ValueStats>::const_iterator i
-	    = valuestats.find(valno);
-    if (i != valuestats.end()) {
-	return i->second.lower_bound;
-    } else {
-	return "";
-    }
+    map<Xapian::valueno, ValueStats>::const_iterator i = valuestats.find(slot);
+    if (i == valuestats.end()) return string();
+    return i->second.lower_bound;
 }
 
 std::string
-InMemoryDatabase::get_value_upper_bound(Xapian::valueno valno) const
+InMemoryDatabase::get_value_upper_bound(Xapian::valueno slot) const
 {
-    map<Xapian::valueno, ValueStats>::const_iterator i
-	    = valuestats.find(valno);
-    if (i != valuestats.end()) {
-	return i->second.upper_bound;
-    } else {
-	return "";
-    }
+    map<Xapian::valueno, ValueStats>::const_iterator i = valuestats.find(slot);
+    if (i == valuestats.end()) return string();
+    return i->second.upper_bound;
 }
 
 Xapian::doccount
