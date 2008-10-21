@@ -1,3 +1,8 @@
+Tue Oct 21 01:32:37 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_anydb.cc,tests/api_db.cc: Remove '#include <iomanip>'
+	  which aren't used.
+
 Mon Oct 20 13:30:37 GMT 2008  Olly Betts <olly@survex.com>
 
 	* api/postingsource.cc,api/valueiterator.cc,
