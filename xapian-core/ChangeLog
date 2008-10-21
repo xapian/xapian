@@ -1,3 +1,7 @@
+Tue Oct 21 05:00:59 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Sync with branches/1.0.
+
 Tue Oct 21 02:09:18 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/api_valuestream.cc: Add feature test of ValueIterator::check().
