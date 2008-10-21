@@ -29,6 +29,7 @@
 
 #include <xapian.h>
 
+#include "backendmanager.h" // For XAPIAN_BIN_PATH.
 #include "omtime.h"
 #include "testsuite.h"
 #include "testutils.h"
@@ -1956,7 +1957,7 @@ DEFINE_TESTCASE(cursordelbug1, flint) {
 
     db.flush();
 
-    string cmd = "../bin/xapian-check .flint/dbw__cursordelbug1";
+    string cmd = XAPIAN_BIN_PATH"xapian-check .flint/dbw__cursordelbug1";
 #ifdef __WIN32__
     cmd += " >nul";
 #else
