@@ -1,3 +1,12 @@
+Tue Oct 21 04:30:55 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/Makefile.am,tests/collate-apitest: Generate the header listing
+	  the collated tests so that we can avoid updating its timestamp when
+	  the contents are unchanged, such as in the common case where you
+	  modify tests but don't add, remove, or change the conditions on any
+	  tests.
+
 Tue Oct 21 04:15:22 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
