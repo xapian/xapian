@@ -88,3 +88,66 @@ DEFINE_TESTCASE(valuestream2, backend && !multi) {
  
     return true;
 }
+
+/// Test check() on a valuestream iterator.
+DEFINE_TESTCASE(valuestream3, backend && !multi) {
+    // FIXME: enable for multi once support is in place.
+    Xapian::Database db = get_database("etext");
+
+    // Check combinations of check with other operations.
+    typedef enum {
+       	CHECK, CHECK_AND_NEXT, CHECK2, SKIP_TO, CHECK_AND_LOOP
+    } test_op;
+    test_op operation = CHECK;
+
+    for (Xapian::valueno slot = 0; slot < 15; ++slot) {
+	unsigned interval = 1;
+	while (interval < 1999) {
+	    tout << "testing valuestream check for slot " << slot
+		 << " with interval " << interval << endl;
+	    Xapian::docid did = 1;
+	    Xapian::ValueIterator it = db.valuestream_begin(slot);
+	    if (it == db.valuestream_end(slot)) break;
+	    while (true) {
+		bool positioned = true;
+		switch (operation) {
+		    case CHECK_AND_LOOP:
+			operation = CHECK;
+			// FALLTHRU.
+		    case CHECK: case CHECK2:
+			positioned = it.check(did);
+			break;
+		    case CHECK_AND_NEXT: {
+			bool was_skip_to = it.check(did);
+			if (!was_skip_to) ++it;
+			break;
+		    }
+		    case SKIP_TO:
+			it.skip_to(did);
+			break;
+		}
+		operation = test_op(operation + 1);
+		if (positioned) {
+		    if (it == db.valuestream_end(slot)) break;
+		    TEST_EQUAL(it.get_valueno(), slot);
+		    string value = *it;
+
+		    // Check that the skipped documents had no values.
+		    Xapian::docid actual_did = it.get_docid();
+		    while (did < actual_did) {
+			Xapian::Document doc = db.get_document(did);
+			TEST_EQUAL(doc.get_value(slot), "");
+			++did;
+		    }
+
+		    Xapian::Document doc = db.get_document(actual_did);
+		    TEST_EQUAL(doc.get_value(slot), value);
+		}
+		did += interval;
+	    }
+	    interval = interval * 3 - 1;
+	}
+    }
+ 
+    return true;
+}
