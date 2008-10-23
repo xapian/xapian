@@ -1,3 +1,8 @@
+Thu Oct 23 17:34:13 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: Skip test if the timer granularity is too
+	  coarse.
+
 Tue Oct 21 05:00:59 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS: Sync with branches/1.0.
