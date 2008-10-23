@@ -1,3 +1,8 @@
+Thu Oct 23 17:08:22 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst: Document HTML parsing a bit, including robots
+	  meta and htdig_noindex.
+
 Sat Oct 18 08:00:24 GMT 2008  Olly Betts <olly@survex.com>
 
 	* omega.cc: Catch std::exception and report what its what() method
