@@ -1,3 +1,8 @@
+Sat Oct 25 06:18:37 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/Makefile.mk: Fix typo so we once again ship editdistance.h and
+	  maptermlist.h.
+
 Thu Oct 23 17:34:13 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/queryparsertest.cc: Skip test if the timer granularity is too

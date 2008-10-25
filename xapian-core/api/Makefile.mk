@@ -1,5 +1,5 @@
 noinst_HEADERS +=\
-	api/documentvaluelist.h
+	api/documentvaluelist.h\
 	api/editdistance.h\
 	api/maptermlist.h
 
