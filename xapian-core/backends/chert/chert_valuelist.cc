@@ -75,7 +75,6 @@ ChertValueList::at_end() const
 void
 ChertValueList::next()
 {
-    Assert(!at_end());
     if (!cursor) {
 	cursor = db->get_postlist_cursor();
 	if (!cursor) return;
@@ -100,7 +99,6 @@ ChertValueList::next()
 void
 ChertValueList::skip_to(Xapian::docid did)
 {
-    Assert(!at_end());
     if (!cursor) {
 	cursor = db->get_postlist_cursor();
 	if (!cursor) return;
@@ -133,7 +131,6 @@ ChertValueList::skip_to(Xapian::docid did)
 bool
 ChertValueList::check(Xapian::docid did)
 {
-    Assert(!at_end());
     if (!cursor) {
 	cursor = db->get_postlist_cursor();
 	if (!cursor) return true;

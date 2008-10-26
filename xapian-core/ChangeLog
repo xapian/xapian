@@ -1,3 +1,7 @@
+Sun Oct 26 00:30:54 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_valuelist.cc: Remove incorrect assertions.
+
 Sat Oct 25 06:18:37 GMT 2008  Olly Betts <olly@survex.com>
 
 	* api/Makefile.mk: Fix typo so we once again ship editdistance.h and
