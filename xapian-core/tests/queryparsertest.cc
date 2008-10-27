@@ -1796,12 +1796,10 @@ static bool test_qp_stem_scale1()
     // Allow a factor of 2 difference, to cover random variation.
     // First, we test a simple query.
     time1 = time_query_parse(db, q1, repetitions, defflags);
-
     if (time1 == 0.0) {
 	// The first test completed before the timer ticked at all!
 	SKIP_TEST("Timer granularity is too coarse");
     }
-
     time2 = time_query_parse(db, q2, 1, defflags);
     tout << "defflags: small=" << time1 << "s, large=" << time2 << "s\n";
     TEST_LESSER(time2, time1 * 2);
@@ -1809,12 +1807,20 @@ static bool test_qp_stem_scale1()
     // If synonyms are enabled, a different code-path is followed.
     // Test a query which has no synonyms.
     time1 = time_query_parse(db, q1b, repetitions, synflags);
+    if (time1 == 0.0) {
+	// The first test completed before the timer ticked at all!
+	SKIP_TEST("Timer granularity is too coarse");
+    }
     time2 = time_query_parse(db, q2b, 1, synflags);
     tout << "synflags: small=" << time1 << "s, large=" << time2 << "s\n";
     TEST_LESSER(time2, time1 * 2);
 
     // Test a query which has short synonyms.
     time1 = time_query_parse(db, q1, repetitions, synflags);
+    if (time1 == 0.0) {
+	// The first test completed before the timer ticked at all!
+	SKIP_TEST("Timer granularity is too coarse");
+    }
     time2 = time_query_parse(db, q2, 1, synflags);
     tout << "synflags: small=" << time1 << "s, large=" << time2 << "s\n";
     TEST_LESSER(time2, time1 * 2);
@@ -1824,6 +1830,10 @@ static bool test_qp_stem_scale1()
     db.flush();
 
     time1 = time_query_parse(db, q1, repetitions, synflags);
+    if (time1 == 0.0) {
+	// The first test completed before the timer ticked at all!
+	SKIP_TEST("Timer granularity is too coarse");
+    }
     time2 = time_query_parse(db, q2, 1, synflags);
     tout << "synflags2: small=" << time1 << "s, large=" << time2 << "s\n";
     TEST_LESSER(time2, time1 * 2);

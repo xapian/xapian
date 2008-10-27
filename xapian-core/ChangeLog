@@ -1,3 +1,8 @@
+Mon Oct 27 17:05:39 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: Skip test if the timer granularity is too
+	  coarse in all cases.
+
 Mon Oct 27 08:12:16 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/api_valuestream.cc: Disable valuestream1 for multi backends.
