@@ -1,3 +1,7 @@
+Mon Oct 27 08:12:16 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_valuestream.cc: Disable valuestream1 for multi backends.
+
 Sun Oct 26 00:30:54 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_valuelist.cc: Remove incorrect assertions.

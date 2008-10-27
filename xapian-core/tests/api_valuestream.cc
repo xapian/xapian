@@ -32,7 +32,8 @@
 using namespace std;
 
 /// Feature test simple valuestream iteration.
-DEFINE_TESTCASE(valuestream1, backend) {
+DEFINE_TESTCASE(valuestream1, backend && !multi) {
+    // FIXME: enable for multi once support is in place.
     Xapian::Database db = get_database("apitest_simpledata");
 
     for (Xapian::valueno slot = 0; slot < 15; ++slot) {
