@@ -59,6 +59,7 @@ noinst_HEADERS +=\
 	common/termlist.h\
 	common/unaligned.h\
 	common/utils.h\
+	common/valuelist.h\
 	common/valuestats.h\
 	common/vectortermlist.h\
 	common/weightinternal.h

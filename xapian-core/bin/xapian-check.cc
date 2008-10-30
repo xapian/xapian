@@ -423,7 +423,56 @@ check_chert_table(const char * tablename, string filename, int opts,
 
 	    if (key.size() >= 2 && key[0] == '\0' && key[1] == '\xd8') {
 		// Value stream chunk.
-		// FIXME: check
+		const char * p = key.data();
+		const char * end = p + key.length();
+		p += 2;
+		Xapian::valueno slot;
+		if (!unpack_uint(&p, end, &slot)) {
+		    cout << "Bad value chunk key (no slot)" << endl;
+		    ++errors;
+		    continue;
+		}
+		Xapian::docid did;
+		if (!unpack_uint_preserving_sort(&p, end, &did)) {
+		    cout << "Bad value chunk key (no docid)" << endl;
+		    ++errors;
+		    continue;
+		}
+		if (p != end) {
+		    cout << "Bad value chunk key (trailing junk)" << endl;
+		    ++errors;
+		    continue;
+		}
+
+		cursor->read_tag();
+		p = cursor->current_tag.data();
+		end = p + cursor->current_tag.size();
+
+		while (true) {
+		    string value;
+		    if (!unpack_string(&p, end, value)) {
+			cout << "Failed to unpack value from chunk" << endl;
+			++errors;
+			break;
+		    }
+		    // FIXME: Cross-check that docid did has value slot (and
+		    // vice versa - that there's a value here if the slot entry
+		    // says so).
+		    if (p == end) break;
+		    Xapian::docid delta;
+		    if (!unpack_uint(&p, end, &delta)) {
+			cout << "Failed to unpack docid delta from chunk" << endl;
+			++errors;
+			break;
+		    }
+		    Xapian::docid new_did = did + delta + 1;
+		    if (new_did <= did) {
+			cout << "docid overflowed in value chunk" << endl;
+			++errors;
+			break;
+		    }
+		    did = new_did;
+		}
 		continue;
 	    }
 

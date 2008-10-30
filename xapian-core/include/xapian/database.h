@@ -29,16 +29,16 @@
 #include <vector>
 
 #include <xapian/base.h>
+#include <xapian/document.h>
 #include <xapian/types.h>
 #include <xapian/positioniterator.h>
 #include <xapian/postingiterator.h>
 #include <xapian/termiterator.h>
+#include <xapian/valueiterator.h>
 #include <xapian/visibility.h>
 
 /// The Xapian library lives in the Xapian namespace.
 namespace Xapian {
-
-class Document;
 
 /** This class is used to access a database, or a group of databases.
  *
@@ -59,6 +59,23 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	class Internal;
 	/// @private @internal Reference counted internals.
 	std::vector<Xapian::Internal::RefCntPtr<Internal> > internal;
+
+	/** @private @internal Get a document from the database, but doesn't
+	 *  need to check if it exists.
+	 *
+	 *  This method returns a Xapian::Document object which provides the
+	 *  information about a document.  If the document doesn't exist,
+	 *  either a NULL pointer may be returned, or the returned object will
+	 *  throw DocNotFoundError when you try to access it.
+	 *
+	 *  The caller should delete the returned object when it has finished
+	 *  with it.
+	 *
+	 *  @param did   The document id of the document to retrieve.
+	 *
+	 *  @return      Pointer to Document::Internal object.
+	 */
+	Document::Internal * get_document_lazily(Xapian::docid did) const;
 
 	/** Add an existing database (or group of databases) to those
 	 *  accessed by this object.
@@ -246,6 +263,14 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 */
 	std::string get_value_upper_bound(Xapian::valueno valno) const;
 
+	/// Return an iterator over the value in slot @a slot for each document.
+	ValueIterator valuestream_begin(Xapian::valueno slot) const;
+
+	/// Return end iterator corresponding to valuestream_begin().
+	ValueIterator valuestream_end(Xapian::valueno) const {
+	    return ValueIterator();
+	}
+
 	/** Get the length of a document.
 	 */
 	Xapian::doclength get_doclength(Xapian::docid did) const;
@@ -260,7 +285,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  This method returns a Xapian::Document object which provides the
 	 *  information about a document.
 	 *
-	 *  @param did   The document id for which to retrieve the data.
+	 *  @param did   The document id of the document to retrieve.
 	 *
 	 *  @return      A Xapian::Document object containing the document data
 	 *
@@ -310,10 +335,10 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  @param prefix   If non-empty, only terms with this prefix are
 	 *		    returned.
 	 */
-	Xapian::TermIterator synonym_keys_begin(const std::string &prefix = "") const;
+	Xapian::TermIterator synonym_keys_begin(const std::string &prefix = std::string()) const;
 
 	/// Corresponding end iterator to synonym_keys_begin(prefix).
-	Xapian::TermIterator synonym_keys_end(const std::string & = "") const {
+	Xapian::TermIterator synonym_keys_end(const std::string & = std::string()) const {
 	    return Xapian::TermIterator(NULL);
 	}
 
@@ -356,10 +381,10 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  @param prefix   If non-empty, only keys with this prefix are
 	 *		    returned.
 	 */
-	Xapian::TermIterator metadata_keys_begin(const std::string &prefix = "") const;
+	Xapian::TermIterator metadata_keys_begin(const std::string &prefix = std::string()) const;
 
 	/// Corresponding end iterator to metadata_keys_begin().
-	Xapian::TermIterator metadata_keys_end(const std::string & = "") const {
+	Xapian::TermIterator metadata_keys_end(const std::string & = std::string()) const {
 	    return Xapian::TermIterator(NULL);
 	}
 

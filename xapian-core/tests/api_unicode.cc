@@ -1,5 +1,5 @@
 /** @file api_unicode.cc
- * @brief test the Unicode and UTF-8 classes and functions.
+ * @brief Test the Unicode and UTF-8 classes and functions.
  */
 /* Copyright (C) 2006,2007,2008 Olly Betts
  *

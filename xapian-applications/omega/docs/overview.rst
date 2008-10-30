@@ -293,6 +293,26 @@ merge all the databases together when searching.
 a certain number of directories.  If you wish to replicate the old
 --no-recurse option, use ----depth-limit=1.
 
+HTML Parsing
+============
+
+The document ``<title>`` tag is used as the document title, the 'description'
+META tag (if present) is used for the document snippet, and the 'keywords'
+META tag (if present) is indexed as extra document text.
+
+The HTML parser will look for the 'robots' META tag, and won't index pages
+which are marked as ``noindex`` or ``none``, for example any of the following::
+
+    <meta name="robots" content="noindex,nofollow">
+    <meta name="robots" content="noindex">
+    <meta name="robots" content="none">
+
+The parser also understand ht://dig comments to mark sections of the document
+to not index (for example, you can use this to avoid indexing navigation links
+or standard headers/footers) - for example::
+
+    Index this bit <!--htdig_noindex-->but <b>not</b> this<!--/htdig_noindex>
+
 Boolean terms
 =============
 

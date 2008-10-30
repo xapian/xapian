@@ -64,6 +64,7 @@ class QueryOptimiser {
      *  @return		A PostList.
      */
     PostList * do_leaf(const Xapian::Query::Internal * query, double factor) {
+	if (query->tname.empty()) factor = 0.0;
 	return localsubmatch.postlist_from_op_leaf_query(query, factor);
     }
 

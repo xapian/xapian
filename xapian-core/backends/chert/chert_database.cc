@@ -45,6 +45,7 @@
 #include "chert_spellingwordslist.h"
 #include "chert_termlist.h"
 #include "chert_utils.h"
+#include "chert_valuelist.h"
 #include "chert_values.h"
 #include "omdebug.h"
 #include "omtime.h"
@@ -884,6 +885,14 @@ ChertDatabase::open_post_list(const string& term) const
     RETURN(new ChertPostList(ptrtothis, term, true));
 }
 
+ValueList *
+ChertDatabase::open_value_list(Xapian::valueno slot) const
+{
+    DEBUGCALL(DB, ValueList *, "ChertDatabase::open_value_list", slot);
+    Xapian::Internal::RefCntPtr<const ChertDatabase> ptrtothis(this);
+    RETURN(new ChertValueList(slot, ptrtothis));
+}
+
 TermList *
 ChertDatabase::open_term_list(Xapian::docid did) const
 {
@@ -900,12 +909,13 @@ ChertDatabase::open_document(Xapian::docid did, bool lazy) const
     DEBUGCALL(DB, Xapian::Document::Internal *, "ChertDatabase::open_document",
 	      did << ", " << lazy);
     Assert(did != 0);
+    if (!lazy) {
+	// This will throw DocNotFoundError if the document doesn't exist.
+	(void)get_doclength(did);
+    }
 
-    Xapian::Internal::RefCntPtr<const ChertDatabase> ptrtothis(this);
-    RETURN(new ChertDocument(ptrtothis,
-			     &value_manager,
-			     &record_table,
-			     did, lazy));
+    Xapian::Internal::RefCntPtr<const Database::Internal> ptrtothis(this);
+    RETURN(new ChertDocument(ptrtothis, did, &value_manager, &record_table));
 }
 
 PositionList *
@@ -1791,6 +1801,16 @@ ChertWritableDatabase::open_post_list(const string& tname) const
     }
 
     RETURN(new ChertPostList(ptrtothis, tname, true));
+}
+
+ValueList *
+ChertWritableDatabase::open_value_list(Xapian::valueno slot) const
+{
+    DEBUGCALL(DB, ValueList *, "ChertWritableDatabase::open_value_list", slot);
+    (void)slot;
+    throw Xapian::UnimplementedError("ChertWritableDatabase::open_value_list not yet implemented"); // FIXME
+    //Xapian::Internal::RefCntPtr<const ChertDatabase> ptrtothis(this);
+    //RETURN(new ChertValueList(slot, ptrtothis));
 }
 
 TermList *

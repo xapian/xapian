@@ -1,7 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
 
 AC_INIT([xapian-omega], [1.1.0], [http://xapian.org/bugs])
-AC_PREREQ([2.62])
+AC_PREREQ([2.63])
 AM_INIT_AUTOMAKE([1.10.1 -Wportability tar-ustar])
 
 AC_CONFIG_SRCDIR([omega.cc])
@@ -10,7 +10,7 @@ AC_CONFIG_HEADERS([config.h])
 
 AC_CONFIG_MACRO_DIR([m4])
 
-LT_PREREQ([2.2.4])
+LT_PREREQ([2.2.6])
 LT_INIT
 
 dnl Check for xapian-core.

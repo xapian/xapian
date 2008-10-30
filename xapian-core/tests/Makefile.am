@@ -98,9 +98,11 @@ collated_apitest_sources = \
  api_posdb.cc \
  api_replicate.cc \
  api_sorting.cc \
+ api_spelling.cc \
  api_transdb.cc \
  api_unicode.cc \
  api_valuestats.cc \
+ api_valuestream.cc \
  api_wrdb.cc
 
 apitest_SOURCES = apitest.cc $(collated_apitest_sources) \
@@ -148,8 +150,7 @@ api_all.h api_collated.h $(collated_apitest_sources:.cc=.h): api_collated.stamp
 	  fi; \
 	fi
 api_collated.stamp: $(collated_apitest_sources) collate-test
-	$(PERL) "$(srcdir)/collate-test" "$(srcdir)" api_all.h $(collated_apitest_sources) > api_collated.hT
-	mv api_collated.hT api_collated.h
+	$(PERL) "$(srcdir)/collate-test" "$(srcdir)" api_collated.h api_all.h $(collated_apitest_sources)
 	touch $@
 
 api_generated.cc: generate-api_generated

@@ -117,6 +117,439 @@ Fri Dec 07 14:19:00 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 	  calculation stuff from Yung-chung Lin; exactly as in his patch
 	  from 18 September 2007.
 
+Mon Oct 27 17:05:39 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: Skip test if the timer granularity is too
+	  coarse in all cases.
+
+Mon Oct 27 08:12:16 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_valuestream.cc: Disable valuestream1 for multi backends.
+
+Sun Oct 26 00:30:54 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_valuelist.cc: Remove incorrect assertions.
+
+Sat Oct 25 06:18:37 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/Makefile.mk: Fix typo so we once again ship editdistance.h and
+	  maptermlist.h.
+
+Thu Oct 23 17:34:13 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: Skip test if the timer granularity is too
+	  coarse.
+
+Tue Oct 21 05:00:59 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Sync with branches/1.0.
+
+Tue Oct 21 02:09:18 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_valuestream.cc: Add feature test of ValueIterator::check().
+
+Tue Oct 21 01:36:45 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h: Prefer string() to "", slot
+	  to valno, and not using else after return.
+
+Tue Oct 21 01:32:37 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_anydb.cc,tests/api_db.cc: Remove '#include <iomanip>'
+	  which aren't used.
+
+Mon Oct 20 13:30:37 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/postingsource.cc,api/valueiterator.cc,
+	  include/xapian/postingsource.h,include/xapian/valueiterator.h: Add
+	  new API method ValueIterator::check() and use it in PostingIterator.
+
+Mon Oct 20 12:28:16 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_valuestream.cc: Add test for skip_to() on valuestream
+	  iterator.
+
+Mon Oct 20 11:19:12 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am,tests/api_valuestream.cc: Add a simple test of
+	  valuestream iteration.
+
+Mon Oct 20 11:01:26 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am,tests/collate-test,tests/perftest/Makefile.mk:
+	  Generate the header listing the collated tests so that we can avoid
+	  updating its timestamp when the contents are unchanged, such as in
+	  the common case where you modify tests but don't add, remove, or
+	  change the conditions on any tests.
+
+Mon Oct 20 10:01:56 GMT 2008  Olly Betts <olly@survex.com>
+
+	* examples/delve.cc: Use valuestream iterator to implement "-V<slot>".
+
+Mon Oct 20 02:19:09 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/multi/multi_postlist.cc,backends/multi/multi_postlist.h:
+	  Remove unused members of MultiPostList: tname, collfreq_initialised,
+	  collfreq, and termweight.
+
+Sun Oct 19 14:01:15 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/postingsource.cc,include/xapian/postingsource.h: Update
+	  ValueWeightPostingSource to use a value stream iterator.
+
+Sun Oct 19 13:53:51 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/database.cc: Make use of SlowValueList by default.
+
+Sun Oct 19 13:47:10 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/documentvaluelist.cc,api/documentvaluelist.h: Fix so that a
+	  DocumentValueList starts before the first value.
+
+Sun Oct 19 13:09:39 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,api/omdocument.cc: Use ValueIterator() instead of
+	  ValueIterator(NULL).
+
+Sun Oct 19 11:15:15 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
+Sat Oct 18 01:31:25 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
+Fri Oct 17 15:54:57 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* bin/xapian-compact.cc: Check that pq is not empty before calling
+	  top() on it - if it's empty, we only have one database, so we can
+	  use the code path which doesn't worry about merging tags.  Fixes
+	  bug #305.
+
+Fri Oct 17 14:22:18 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_valuelist.cc: Fix ChertValueList to start on
+	  the right key.
+
+Fri Oct 17 14:14:14 GMT 2008  Olly Betts <olly@survex.com>
+
+	* include/xapian/database.h,include/xapian/document.h: Inline
+	  ValueIterator end iterator as ValueIterator() rather than
+	  ValueIterator(NULL).
+	* api/valueiterator.cc: Need to call next() on a ValueList to get it
+	  to the first position, so do this in ValueIterator's constructor.
+	* api/valueiterator.cc,include/xapian/valueiterator.h: Add
+	  ValueIterator::get_docid() method.
+
+Fri Oct 17 13:53:26 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/slowvaluelist.cc,backends/slowvaluelist.h: Add missing
+	  SlowValueList::get_valueno() method.
+
+Fri Oct 17 13:16:01 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,include/xapian/database.h: Add
+	  Database::valuestream_begin() and Database::valuestream_end() to
+	  allow iterating over the values in a given slot for each document
+	  in the database (untested so far).
+
+Thu Oct 16 13:20:26 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/multi/multi_postlist.cc: Remove unused '#include <list>'
+	  and uninformative comment.
+
+Thu Oct 16 12:47:00 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omdocument.cc,include/xapian/document.h: Inline
+	  Xapian::Document::values_end() into user code.
+
+Thu Oct 16 12:26:29 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/,backends/chert/chert_valuelist.cc,
+	  backends/chert/chert_valuelist.h,common/document.h,
+	  common/valuelist.h,include/Makefile.mk,include/xapian/derefwrapper.h,
+	  include/xapian/termiterator.h,include/xapian/valueiterator.h:
+	  Reimplement ValueIterator to have reference counted internals.  One
+	  benefit is that Document::Internal no longer need its value_nos map
+	  member.
+
+Thu Oct 16 11:22:13 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/inmemory/inmemory_database.cc: Fix incorrect method name in
+	  debug messages.
+
+Thu Oct 16 01:34:07 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Note preference for @ rather than \ to introduce doxygen
+	  commands.
+
+Thu Oct 16 01:21:19 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Expand section on public/protected/private a little.
+
+Wed Oct 15 11:34:15 GMT 2008  Olly Betts <olly@survex.com>
+
+	* include/xapian/database.h: Use std::string() instead of "" as the
+	  default value for std::string method parameters.
+
+Wed Oct 15 03:20:01 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/Makefile.mk,backends/slowvaluelist.cc,
+	  backends/slowvaluelist.h: Support for (slowly) iterating along a
+	  value stream for backends which don't support streamed values
+	  internally (currently unused).
+
+Tue Oct 14 11:43:42 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/postingsource.cc,backends/inmemory/inmemory_database.cc,
+	  matcher/multimatch.cc: Database::get_document_lazily() now returns
+	  NULL if the document isn't found for an inmemory database.
+	* include/xapian/database.h: Document the return value better.
+
+Tue Oct 14 03:20:38 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,api/postingsource.cc,include/xapian/database.h,
+	  matcher/multimatch.cc: Add internal
+	  Xapian::Database::get_document_lazily() method and use it in the
+	  matcher and Xapian::PostingSource classes to avoid repeating the
+	  same code lots of times.
+
+Mon Oct 13 23:38:34 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Rename "Miscellaneous Portability Issues" to "C++
+	  Portability Issues", and add a subsection of that for "Miscellaneous
+	  Portability Issues" with a new note about needing to terminate the
+	  last line of a source file, and a new subsection heading "Header
+	  Portability Issues" for all the header-related stuff.
+
+Sat Oct 11 12:19:38 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_wrdb.cc: If the timer for the first test for bigoaddvalue
+	  reports 0.0 seconds, skip the test as the timer doesn't have fine
+	  enough granularity for this test to be useful (bug#300).
+
+Fri Oct 10 20:40:14 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_wrdb.cc: Reuse XAPIAN_BIN_PATH to avoid hardcoding more
+	  paths, and so this works in a debug build too.
+
+Fri Oct 10 17:52:53 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_wrdb.cc: Patch to use a different path in win32 build
+	  to match the different place that the compiled xapian-check is
+	  placed in.  Should fix bug #301.
+
+Thu Oct 09 05:20:32 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* configure.ac: Change -Wstrict-overflow level to 1 - even level 2
+	  causes a few warnings (notably in chert_table.cc) to appear with
+	  GCC 4.3 which are unreasonably difficult to avoid.
+
+Thu Oct 09 05:04:49 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING,configure.ac: Raise autoconf requirement to 2.63.
+
+Wed Oct 08 14:52:03 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/valueranges.rst: Fix typos in example code.
+	* docs/valueranges.rst,tests/queryparsertest.cc: Drop superfluous
+	  empty destructor from ValueRangeProcessor subclass.
+
+Wed Oct 08 14:00:04 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/valuelist.h: Add missing get_docid() method.
+
+Wed Oct 08 12:11:57 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
+Wed Oct 08 12:00:39 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/Makefile.mk,backends/chert/,backends/database.cc,
+	  backends/valuelist.cc,common/Makefile.mk,common/database.h,
+	  common/valuelist.h,include/xapian/valueiterator.h: The start of
+	  support for iterating along a value stream (currently unused).
+
+Tue Oct 07 10:19:48 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: Disable -Wconversion for now - it's not useful for
+	  older GCC and is buggy in GCC 4.3.
+
+Tue Oct 07 04:53:41 GMT 2008  Olly Betts <olly@survex.com>
+
+	* matcher/queryoptimiser.h: Query::MatchAll no longer gives match
+	  results ranked by increasing document length.
+	* tests/api_db.cc: Extend matchall1 to be a regression test for this.
+
+Tue Oct 07 01:04:51 GMT 2008  Olly Betts <olly@survex.com>
+
+	* matcher/queryoptimiser.cc: Rewrite comment explaining the excess
+	  precision fix.  Drop unnecessary brackets from return to minimise
+	  the diff.
+
+Mon Oct 06 07:24:40 GMT 2008  Olly Betts <olly@survex.com>
+
+	* matcher/queryoptimiser.cc: Change the excess precision fix to pass
+	  both values through "volatile double" rather than "float" on
+	  platforms where this matters since the former gives better generated
+	  code as well as more consistent results with other platforms.
+
+Mon Oct 06 07:24:07 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/internaltest.cc: Fix comment typo.
+
+Mon Oct 06 02:46:39 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/editdistance.cc,api/editdistance.h,api/omdatabase.cc: Pass the
+	  largest edit distance we currently care about into the edit distance
+	  algorithm so it can terminate early once it knows the edit distance
+	  exceeds this.  This shortcut is used quite a lot, but there's no
+	  measurable speed-up in tests on the real world data I have to hand.
+
+Sun Oct 05 12:34:09 GMT 2008  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Adjust percent_factor instead of min_weight
+	  so that we don't miss some cases, and make the adjustment actually
+	  correspond with the adjustment in omenquire.cc.
+
+Wed Oct 01 14:11:49 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/alltermslist.cc,common/alltermslist.h: We don't need an
+	  explicit virtual dtor for AllTermsList as it is empty and
+	  AllTermsList inherits from TermList which has one.
+
+Wed Oct 01 13:21:22 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/postlist.h,common/termlist.h: Fix comment typo.
+
+Wed Oct 01 00:12:02 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Add a comment for the previous fix.
+
+Tue Sep 30 22:41:39 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* bin/xapian-compact.cc: Fix bug: if there are both valuestats and
+	  metadata, don't overwrite the last metadata value with the first
+	  valuestats tag.
+
+Tue Sep 30 20:31:34 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* configure.ac: Set -Wstrict-overflow to 2 instead of 5, to avoid
+	  unreasonable warnings under GCC 4.3.
+
+Tue Sep 30 09:45:22 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/omdatabase.cc: Add missing include, to compile on GCC 4.3.0.
+
+Mon Sep 29 13:06:42 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
+Mon Sep 29 05:04:57 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_version.cc: Add VERSIONFILE_SIZE_LITERAL and
+	  use CompileTimeAssert() to ensure it matches the expression in
+	  VERSIONFILE_SIZE.  It's very rare for the size to change (it's
+	  happened once ever) and allows us to build the error string
+	  literally at compile time.
+
+Sun Sep 28 15:13:11 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/chert/chert_values.cc: Fix bug in lazy update - ensure
+	  that the document has loaded its values before deleting the old
+	  one (previously, there was an assertion to this effect, but it
+	  didn't actually compile, and was also incorrect).
+	* tests/api_wrdb.cc: Check that replacing a document with itself
+	  doesn't lose the values - regression test for the bug fixed by
+	  this commit.
+
+Sun Sep 28 14:04:01 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_values.cc: Fix bug in value updating -
+	  modifyvalues1 now passes for chert.
+
+Sun Sep 28 12:15:14 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/collate-test: Avoid perl warning when generating files which
+	  don't already exist.
+
+Sat Sep 27 10:36:09 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_wrdb.cc: Add test "modifyvalues1" - regression test for
+	  a bug in the streaming values implementation, and also a fairly
+	  thorough test of adding and modifying values in databases.
+
+Fri Sep 26 19:12:23 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/omdatabase.cc: Fix warning with gcc 4.2 about possible signed
+	  overflow, by using an unsigned type for the total.
+
+Fri Sep 26 15:48:39 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc: Fixed version of: Avoid the relatively expensive
+	  edit distance computation for a candidate spelling correction when
+	  we can reject the candidate as less good than one we've already seen
+	  by looking at the character frequency histograms.  In a test on
+	  real-world data, this gave an 15% speed-up in queryparsing time
+	  with FLAG_SPELLING_CORRECTION set.  The cheap check rejects 90%
+	  of the words it handles (without the cheap check, the edit distance
+	  check rejects 92%).
+
+Fri Sep 26 14:40:50 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/xapian-check.cc: Check the structure of the value stream chunks.
+
+Fri Sep 26 12:21:32 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_spelling.cc: Add a regression test for the bug my recently
+	  added and reverted spelling optimisation introduced.
+
+Fri Sep 26 11:55:18 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am,tests/api_spelling.cc,tests/api_wrdb.cc: Split the
+	  spelling tests out into a separate file.
+
+Fri Sep 26 11:53:45 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_unicode.cc: Capitalise brief file description.
+
+Fri Sep 26 11:31:46 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/inmemory/inmemory_document.cc,
+	  backends/inmemory/inmemory_document.h: New simpler InMemoryDocument
+	  class with slightly reduced memory footprint, based on
+	  RemoteDocument class.
+
+Fri Sep 26 10:36:02 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/remote/remote-document.cc,backends/remote/remote-document.h,
+	  common/document.h: Add new files for RemoteDocument class missed
+	  from recent commit.  Pass parameter to set_all_values() by non-const
+	  reference so we can just efficiently swap() the value maps rather
+	  than copying.
+
+Fri Sep 26 10:31:21 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omdocument.cc,common/document.h: Remove unused method
+	  Xapian::Document::Index::get_all_values().
+
+Fri Sep 26 10:03:17 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/remote/,common/document.h: Replace NetDocument with a new
+	  simpler RemoteDocument class which just sets the values and data in
+	  its Document::Internal base class.
+
+Fri Sep 26 06:21:08 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/chert/chert_document.cc,
+	  backends/chert/chert_document.h,common/document.h: Overhaul
+	  ChertDocument:  Avoid having a reference-counted pointer to the
+	  database in the subclass as well as the one now in the base class.
+	  Also check the lazy flag before we create a ChertDocument object to
+	  avoid a memory allocation in that code path.  And make the
+	  now-simple constructor inline-able.
+
 Thu Sep 25 17:38:37 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* Merge lazyupdate branch:
@@ -206,7 +639,7 @@ Wed Sep 24 12:48:39 GMT 2008  Olly Betts <olly@survex.com>
 Tue Sep 23 14:58:54 GMT 2008  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc: Avoid the relatively expensive edit distance
-	  computation for a candidate spelling correction when we can reject 
+	  computation for a candidate spelling correction when we can reject
 	  the candidate as less good than one we've already seen by looking
 	  at the character frequency histograms.
 

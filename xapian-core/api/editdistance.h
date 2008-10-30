@@ -2,7 +2,7 @@
  * @brief Edit distance calculation algorithm.
  */
 /* Copyright (C) 2003 Richard Boulton
- * Copyright (C) 2007 Olly Betts
+ * Copyright (C) 2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,10 +37,16 @@
  *  @param len1 The length of the first sequence.
  *  @param ptr2 A pointer to the start of the second sequence.
  *  @param len2 The length of the first sequence.
+ *  @param max_distance The greatest edit distance that's interesting to us.
+ *			If the true edit distance is > max_distance, any
+ *			value > max_distance may be returned instead (which
+ *			allows the edit distance algorithm to avoid work for
+ *			poor matces).
  *
  *  @return The edit distance from one item to the other.
  */
 int edit_distance_unsigned(const unsigned* ptr1, int len1,
-			   const unsigned* ptr2, int len2);
+			   const unsigned* ptr2, int len2,
+			   int max_distance);
 
 #endif // XAPIAN_INCLUDED_EDITDISTANCE_H

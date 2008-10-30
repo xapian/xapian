@@ -113,7 +113,8 @@ private:
     int num_arg;
     string string_arg;
 public:
-    Action(type action_, string arg = "") : action(action_), string_arg(arg) {
+    Action(type action_) : action(action_), num_arg(0) { }
+    Action(type action_, string arg) : action(action_), string_arg(arg) {
 	num_arg = atoi(string_arg.c_str());
     }
     Action(type action_, string arg, int num)

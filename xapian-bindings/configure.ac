@@ -1,17 +1,14 @@
 dnl Process this file with autoconf to produce a configure script.
 
-dnl Need autoconf 2.50 or later for many features
-dnl 2.54 needed for automake 1.6
-dnl 2.57 fixes the annoying warnings from configure on FreeBSD
-dnl 2.58 is needed by automake 1.8.5
-dnl 2.59 was released the same day as 2.58 to fix a problem
-AC_PREREQ([2.59])
+dnl See xapian-core's HACKING document for details of the reasons for required
+dnl versions.
+AC_PREREQ([2.63])
 
 AC_INIT([xapian-bindings], [1.1.0], [http://xapian.org/bugs])
-dnl 1.9 reduces Makefile.in size, and 1.9.5 was in Debian sarge
-dnl But the RPM spec file runs autoreconf, and SLES 9 has 1.8.3.
-AM_INIT_AUTOMAKE([1.8.3 -Wportability tar-ustar])
 
+dnl See xapian-core's HACKING document for details of the reasons for required
+dnl versions.
+AM_INIT_AUTOMAKE([1.10.1 -Wportability tar-ustar])
 AC_CONFIG_SRCDIR([xapian.i])
 
 AC_CONFIG_HEADERS([config.h])
@@ -49,10 +46,9 @@ if test -n "$OVERRIDE_MACOSX_DEPLOYMENT_TARGET" ; then
 fi
 AM_CONDITIONAL(NEED_JNILIB_EXT, test yes = "$NEED_JNILIB_EXT")
 
-dnl 2.2 is required; 2.2.4 includes useful bug-fixes.
-LT_PREREQ([2.2.4])
 dnl Use libtool to manage our libraries, but don't build static libraries as
 dnl the bindings only have a use for dynamic ones.
+LT_PREREQ([2.2.6])
 LT_INIT([disable-static])
 
 dnl -no-undefined causes problems on Mac OS X with at least some

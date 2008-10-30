@@ -250,6 +250,11 @@ class ChertDatabase : public Xapian::Database::Internal {
 
 	~ChertDatabase();
 
+	/// Get a postlist table cursor (used by ChertValueList).
+	ChertCursor * get_postlist_cursor() const {
+	    return postlist_table.cursor_get();
+	}
+
 	/** Virtual methods of Database::Internal. */
 	//@{
 	Xapian::doccount  get_doccount() const;
@@ -265,6 +270,7 @@ class ChertDatabase : public Xapian::Database::Internal {
 	bool has_positions() const;
 
 	LeafPostList * open_post_list(const string & tname) const;
+	ValueList * open_value_list(Xapian::valueno slot) const;
 	Xapian::Document::Internal * open_document(Xapian::docid did, bool lazy = false) const;
 
 	PositionList * open_position_list(Xapian::docid did, const string & term) const;
@@ -391,6 +397,7 @@ class ChertWritableDatabase : public ChertDatabase {
 	bool term_exists(const string & tname) const;
 
 	LeafPostList * open_post_list(const string & tname) const;
+	ValueList * open_value_list(Xapian::valueno slot) const;
 	TermList * open_allterms(const string & prefix) const;
 
 	void add_spelling(const string & word, Xapian::termcount freqinc) const;

@@ -15,6 +15,7 @@ xapianinclude_HEADERS =\
 	include/xapian/database.h\
 	include/xapian/dbfactory.h\
 	include/xapian/deprecated.h\
+	include/xapian/derefwrapper.h\
 	include/xapian/document.h\
 	include/xapian/enquire.h\
 	include/xapian/errorhandler.h\
