@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
  * Copyright 2006 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -307,9 +307,9 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 
     Xapian::doccount get_termfreq(const string & tname) const;
     Xapian::termcount get_collection_freq(const string & tname) const;
-    Xapian::doccount get_value_freq(Xapian::valueno valno) const;
-    std::string get_value_lower_bound(Xapian::valueno valno) const;
-    std::string get_value_upper_bound(Xapian::valueno valno) const;
+    Xapian::doccount get_value_freq(Xapian::valueno slot) const;
+    std::string get_value_lower_bound(Xapian::valueno slot) const;
+    std::string get_value_upper_bound(Xapian::valueno slot) const;
     bool term_exists(const string & tname) const;
     bool has_positions() const;
 

@@ -1,5 +1,5 @@
-/** @file inmemory_document.cc
- * @brief A document read from a InMemoryDatabase.
+/** @file remote-document.cc
+ * @brief A document read from a RemoteDatabase.
  */
 /* Copyright (C) 2008 Olly Betts
  *
@@ -20,32 +20,32 @@
 
 #include <config.h>
 
-#include "inmemory_document.h"
+#include "remote-document.h"
 
 #include "debuglog.h"
 #include "omassert.h"
 
 string
-InMemoryDocument::do_get_value(Xapian::valueno) const
+RemoteDocument::do_get_value(Xapian::valueno) const
 {
-    LOGCALL(DB, string, "InMemoryDocument::do_get_value", "[slot]");
+    LOGCALL(DB, string, "RemoteDocument::do_get_value", "[slot]");
     // Our ctor sets the values, so we should never get here.
     Assert(false);
     RETURN(string());
 }
 
 void
-InMemoryDocument::do_get_all_values(map<Xapian::valueno, string> &) const
+RemoteDocument::do_get_all_values(map<Xapian::valueno, string> &) const
 {
-    LOGCALL_VOID(DB, "InMemoryDocument::do_get_all_values", "[&values_]");
+    LOGCALL_VOID(DB, "RemoteDocument::do_get_all_values", "[&values_]");
     // Our ctor sets the values, so we should never get here.
     Assert(false);
 }
 
 string
-InMemoryDocument::do_get_data() const
+RemoteDocument::do_get_data() const
 {
-    LOGCALL(DB, string, "InMemoryDocument::do_get_data", "");
+    LOGCALL(DB, string, "RemoteDocument::do_get_data", "");
     // Our ctor sets the data, so we should never get here.
     Assert(false);
     RETURN(string());

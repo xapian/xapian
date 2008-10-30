@@ -21,37 +21,23 @@
  */
 
 #include <config.h>
+
+#include "chert_document.h"
+
 #include "omdebug.h"
 #include "chert_database.h"
-#include "chert_document.h"
 #include "chert_values.h"
 #include "chert_record.h"
 
-/** Create a ChertDocument: this is only called by
- *  ChertDatabase::open_document().
- */
-ChertDocument::ChertDocument(Xapian::Internal::RefCntPtr<const ChertDatabase> database_,
-			       const ChertValueManager *value_manager_,
-			       const ChertRecordTable *record_table_,
-			       Xapian::docid did_, bool lazy)
-	: Xapian::Document::Internal(database_.get(), did_),
-	  database(database_),
-	  value_manager(value_manager_),
-	  record_table(record_table_)
-{
-    DEBUGCALL(DB, void, "ChertDocument", "[database_], " << value_manager_ << ", " << record_table_ << ", " << did_ << ", " << lazy);
-    if (!lazy) (void)database->get_doclength(did);
-}
-
 /** Retrieve a value from the database
  *
- *  @param valueid	The value number to retrieve.
+ *  @param slot	The value number to retrieve.
  */
 string
-ChertDocument::do_get_value(Xapian::valueno valueid) const
+ChertDocument::do_get_value(Xapian::valueno slot) const
 {
-    DEBUGCALL(DB, string, "ChertDocument::do_get_value", valueid);
-    RETURN(value_manager->get_value(did, valueid));
+    DEBUGCALL(DB, string, "ChertDocument::do_get_value", slot);
+    RETURN(value_manager->get_value(did, slot));
 }
 
 /** Retrieve all value values from the database

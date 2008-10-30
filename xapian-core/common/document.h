@@ -33,9 +33,11 @@
 
 using namespace std;
 
+class DocumentValueList;
+
 /// A document in the database, possibly plus modifications.
 class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
-    friend class Xapian::ValueIterator;
+    friend class ::DocumentValueList;
     public:
 	/// Type to store values in.
 	typedef map<Xapian::valueno, string> document_values;
@@ -43,13 +45,14 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	/// Type to store terms in.
 	typedef map<string, OmDocumentTerm> document_terms;
 
+    protected:
+	/// The database this document is in.
+	Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database;
+
     private:
         // Prevent copying
         Internal(const Internal &);
         Internal & operator=(const Internal &);
-
-	/// The database this document is in.
-	Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database;
 
 	bool data_here;
 	mutable bool values_here; // FIXME mutable is a hack
@@ -60,9 +63,6 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 
 	/// The values associated with this document.
 	mutable document_values values; // FIXME mutable is a hack
-
-	/// The value numbers, for use by ValueIterators.
-	mutable vector<Xapian::valueno> value_nos; // FIXME mutable is a hack
 
 	/// The terms (and their frequencies and positions) in this document.
 	mutable document_terms terms;
@@ -102,16 +102,16 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	string get_value(Xapian::valueno valueid) const;
 
-	/** Get all values for this document
+	/** Set all the values.
 	 *
-	 *  Values are quickly accessible fields, for use during the match
-	 *  operation.  Each document may have a set of values, each of which
-	 *  having a different valueid.  Duplicate values with the same valueid
-	 *  are not supported in a single document.
-	 *
-	 *  @return   A map of strings containing all the values.
+	 *  @param values_	The values to set - passed by non-const reference, and
+	 *			may be modified by the call.
 	 */
-	map<Xapian::valueno, string> get_all_values() const;
+	void set_all_values(map<Xapian::valueno, string> & values_) {
+	    // For efficiency we just swap the old and new value maps.
+	    swap(values, values_);
+	    values_here = true;
+	}
 
 	Xapian::valueno values_count() const;
 	void add_value(Xapian::valueno, const string &);

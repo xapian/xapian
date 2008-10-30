@@ -1,5 +1,5 @@
-/** @file inmemory_document.h
- * @brief A document read from a InMemoryDatabase.
+/** @file remote-document.h
+ * @brief A document read from a RemoteDatabase.
  */
 /* Copyright (C) 2008 Olly Betts
  *
@@ -18,34 +18,35 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef XAPIAN_INCLUDED_INMEMORY_DOCUMENT_H
-#define XAPIAN_INCLUDED_INMEMORY_DOCUMENT_H
+#ifndef XAPIAN_INCLUDED_REMOTE_DOCUMENT_H
+#define XAPIAN_INCLUDED_REMOTE_DOCUMENT_H
 
 #include "database.h"
 #include "document.h"
 
-/// A document read from a InMemoryDatabase.
-class InMemoryDocument : public Xapian::Document::Internal {
+/// A document read from a RemoteDatabase.
+class RemoteDocument : public Xapian::Document::Internal {
     /// Don't allow assignment.
-    void operator=(const InMemoryDocument &);
+    void operator=(const RemoteDocument &);
 
     /// Don't allow copying.
-    InMemoryDocument(const InMemoryDocument &);
+    RemoteDocument(const RemoteDocument &);
 
-    /// InMemoryDocument::open_document() needs to call our private constructor.
-    friend class InMemoryDatabase;
+    /// RemoteDocument::open_document() needs to call our private constructor.
+    friend class RemoteDatabase;
 
-    /// Private constructor - only called by InMemoryDocument::open_document().
-    InMemoryDocument(const Xapian::Database::Internal *db, Xapian::docid did_,
-		     const string & data_,
-		     const map<Xapian::valueno, string> &values_)
+    /** Private constructor - only called by RemoteDocument::open_document().
+     *
+     *  @param values_	The values to set - passed by non-const reference, and
+     *			may be modified by the call.
+     */
+    RemoteDocument(const Xapian::Database::Internal *db, Xapian::docid did_,
+		   const string & data_,
+		   map<Xapian::valueno, string> &values_)
 	: Xapian::Document::Internal(db, did_)
     {
 	set_data(data_);
-	// Need to make a copy of values_ as set_all_values() may modified the
-	// parameter passed to it.
-	map<Xapian::valueno, string> values_copy(values_);
-	set_all_values(values_copy);
+	set_all_values(values_);
     }
 
   public:
@@ -56,4 +57,4 @@ class InMemoryDocument : public Xapian::Document::Internal {
     /** @} */
 };
 
-#endif // XAPIAN_INCLUDED_INMEMORY_DOCUMENT_H
+#endif // XAPIAN_INCLUDED_REMOTE_DOCUMENT_H

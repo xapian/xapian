@@ -23,12 +23,15 @@
 #include <config.h>
 
 #include <xapian/document.h>
-#include <xapian/types.h>
+
 #include "document.h"
+#include "documentvaluelist.h"
 #include "maptermlist.h"
-#include <xapian/error.h>
-#include <xapian/valueiterator.h>
 #include "utils.h"
+
+#include <xapian/error.h>
+#include <xapian/types.h>
+#include <xapian/valueiterator.h>
 
 #include <algorithm>
 #include <string>
@@ -183,16 +186,10 @@ ValueIterator
 Document::values_begin() const
 {
     DEBUGAPICALL(ValueIterator, "Document::values_begin", "");
-    // Force the values to be read and cached.
-    internal->need_values();
-    RETURN(ValueIterator(0, *this));
-}
-
-ValueIterator
-Document::values_end() const
-{
-    DEBUGAPICALL(ValueIterator, "Document::values_end", "");
-    RETURN(ValueIterator(internal->values_count(), *this));
+    // Calling values_count() has the side effect of making sure that they have
+    // been read into the std::map "values" member of internal.
+    if (internal->values_count() == 0) RETURN(ValueIterator());
+    RETURN(ValueIterator(new DocumentValueList(internal)));
 }
 
 docid
@@ -271,13 +268,6 @@ Xapian::Document::Internal::get_value(Xapian::valueno valueid) const
     return do_get_value(valueid);
 }
 	
-map<Xapian::valueno, string>
-Xapian::Document::Internal::get_all_values() const
-{
-    need_values();
-    return values;
-}
-
 string
 Xapian::Document::Internal::get_data() const
 {
@@ -309,7 +299,6 @@ Xapian::Document::Internal::add_value(Xapian::valueno valueno, const string &val
 {
     need_values();
     values[valueno] = value;
-    value_nos.clear();
 }
 
 void
@@ -323,14 +312,12 @@ Xapian::Document::Internal::remove_value(Xapian::valueno valueno)
 		"Xapian::Document::Internal::remove_value()");
     }
     values.erase(i);
-    value_nos.clear();
 }
 
 void
 Xapian::Document::Internal::clear_values()
 {
     values.clear();
-    value_nos.clear();
     values_here = true;
 }
 
@@ -482,7 +469,6 @@ Xapian::Document::Internal::need_values() const
 	if (database.get()) {
 	    Assert(values.empty());
 	    do_get_all_values(values);
-	    value_nos.clear();
 	}
 	values_here = true;
     }
