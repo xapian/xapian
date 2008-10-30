@@ -22,12 +22,42 @@
 #ifndef XAPIAN_INCLUDED_CHERT_VALUES_H
 #define XAPIAN_INCLUDED_CHERT_VALUES_H
 
+#include "chert_utils.h"
 #include "valuestats.h"
 
+#include "xapian/error.h"
 #include "xapian/types.h"
 
 #include <map>
 #include <string>
+
+/** Generate a key for a value stream chunk. */
+inline string
+make_valuechunk_key(Xapian::valueno slot, Xapian::docid did)
+{
+    std::string key("\0\xd8", 2);
+    key += pack_uint(slot);
+    key += pack_uint_preserving_sort(did);
+    return key;
+}
+
+inline Xapian::docid
+docid_from_key(Xapian::valueno required_slot, const string & key)
+{
+    const char * p = key.data();
+    const char * end = p + key.length();
+    // Fail if not a value chunk key.
+    if (end - p < 2 || *p++ != '\0' || *p++ != '\xd8') return 0;
+    Xapian::valueno slot;
+    if (!unpack_uint(&p, end, &slot))
+       	throw Xapian::DatabaseCorruptError("bad value key");
+    // Fail if for a different slot.
+    if (slot != required_slot) return 0;
+    Xapian::docid did;
+    if (!unpack_uint_preserving_sort(&p, end, &did))
+       	throw Xapian::DatabaseCorruptError("bad value key");
+    return did;
+}
 
 namespace Xapian {
     class Document;
@@ -132,6 +162,39 @@ class ChertValueManager {
 	// Discard batched-up changes.
 	slots.clear();
 	changes.clear();
+    }
+};
+
+class ValueChunkReader {
+    const char *p;
+    const char *end;
+
+    Xapian::docid did;
+
+    std::string value;
+
+  public:
+    /// Create a ValueChunkReader which is already at_end().
+    ValueChunkReader() : p(NULL) { }
+
+    ValueChunkReader(const char * p_, size_t len, Xapian::docid did_) {
+	assign(p_, len, did_);
+    }
+
+    void assign(const char * p_, size_t len, Xapian::docid did_);
+
+    bool at_end() const { return p == NULL; }
+
+    Xapian::docid get_docid() const { return did; }
+
+    const string & get_value() const { return value; }
+
+    void next();
+
+    void skip_to(Xapian::docid target) {
+	while (!at_end() && target > did) {
+	    next();
+	}
     }
 };
 

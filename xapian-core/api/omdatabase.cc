@@ -44,6 +44,7 @@
 
 #include <stdlib.h> // For abs().
 
+#include <cstring>
 #include <vector>
 
 using namespace std;
@@ -331,6 +332,18 @@ Database::get_value_upper_bound(Xapian::valueno valno) const
     RETURN(full_ub);
 }
 
+ValueIterator
+Database::valuestream_begin(Xapian::valueno slot) const
+{
+    LOGCALL(API, ValueIterator, "Database::valuestream_begin", slot);
+    if (internal.empty()) RETURN(ValueIterator());
+    // FIXME: support multidatabases properly.
+    if (internal.size() != 1) {
+	throw Xapian::UnimplementedError("Database::valuestream_begin() doesn't support multidatabases yet");
+    }
+    RETURN(ValueIterator(internal[0]->open_value_list(slot)));
+}
+
 Xapian::doclength
 Database::get_doclength(Xapian::docid did) const
 {
@@ -356,6 +369,20 @@ Database::get_document(Xapian::docid did) const
     Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
 
     RETURN(Document(internal[n]->open_document(m)));
+}
+
+Document::Internal *
+Database::get_document_lazily(Xapian::docid did) const
+{
+    DEBUGCALL(DATABASE, Document::Internal *, "Database::get_document_lazily", did);
+    if (did == 0) throw InvalidArgumentError("Document ID 0 is invalid");
+
+    unsigned int multiplier = internal.size();
+    Assert(multiplier != 0);
+    Xapian::doccount n = (did - 1) % multiplier; // which actual database
+    Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
+
+    RETURN(internal[n]->open_document(m, true));
 }
 
 bool
@@ -387,6 +414,41 @@ Database::get_description() const
 {
     /// \todo display contents of the database
     return "Database()";
+}
+
+// We sum the character frequency histogram absolute differences to compute a
+// lower bound on the edit distance.  Rather than counting each Unicode code
+// point uniquely, we use an array with VEC_SIZE elements and tally code points
+// modulo VEC_SIZE which can only reduce the bound we calculate.
+//
+// There will be a trade-off between how good the bound is and how large and
+// array is used (a larger array takes more time to clear and sum over).  The
+// value 64 is somewhat arbitrary - it works as well as 128 for the testsuite
+// but that may not reflect real world performance.  FIXME: profile and tune.
+
+#define VEC_SIZE 64
+
+static int
+freq_edit_lower_bound(const vector<unsigned> & a, const vector<unsigned> & b)
+{
+    int vec[VEC_SIZE];
+    memset(vec, 0, sizeof(vec));
+    vector<unsigned>::const_iterator i;
+    for (i = a.begin(); i != a.end(); ++i) {
+	++vec[(*i) % VEC_SIZE];
+    }
+    for (i = b.begin(); i != b.end(); ++i) {
+	--vec[(*i) % VEC_SIZE];
+    }
+    unsigned int total = 0;
+    for (size_t j = 0; j < VEC_SIZE; ++j) {
+	total += abs(vec[j]);
+    }
+    // Each insertion or deletion adds at most 1 to total.  Each transposition
+    // doesn't change it at all.  But each substitution can change it by 2 so
+    // we need to divide it by 2.  Rounding up is OK, since the odd change must
+    // be due to an actual edit.
+    return (total + 1) / 2;
 }
 
 // Word must have a trigram score at least this close to the best score seen
@@ -457,10 +519,16 @@ Database::get_spelling_suggestion(const string &word,
 		continue;
 	    }
 
+	    if (freq_edit_lower_bound(utf32_term, utf32_word) > edist_best) {
+		LOGLINE(SPELLING, "Rejected by character frequency test");
+		continue;
+	    }
+
 	    int edist = edit_distance_unsigned(&utf32_term[0],
 					       utf32_term.size(),
 					       &utf32_word[0],
-					       utf32_word.size());
+					       utf32_word.size(),
+					       edist_best);
 	    LOGLINE(SPELLING, "Edit distance " << edist);
 	    // If we have an exact match, return an empty string since there's
 	    // no correction required.

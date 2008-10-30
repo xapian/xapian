@@ -26,6 +26,7 @@
 
 #include "chert_io.h"
 #include "chert_version.h"
+#include "omassert.h"
 #include "stringutils.h" // For STRINGIZE() and CONST_STRLEN().
 #include "utils.h"
 
@@ -56,6 +57,11 @@ using namespace std;
 #define MAGIC_LEN CONST_STRLEN(MAGIC_STRING)
 // 4 for the version number; 16 for the UUID.
 #define VERSIONFILE_SIZE (MAGIC_LEN + 4 + 16)
+
+// Literal version of VERSIONFILE_SIZE, used for error message.  This needs
+// to be updated by hand should VERSIONFILE_SIZE change, but that rarely
+// happens so this isn't an onerous requirement.
+#define VERSIONFILE_SIZE_LITERAL 28
 
 void
 ChertVersion::create()
@@ -115,10 +121,10 @@ ChertVersion::read_and_check()
     (void)close(fd);
 
     if (size != VERSIONFILE_SIZE) {
+	CompileTimeAssert(VERSIONFILE_SIZE == VERSIONFILE_SIZE_LITERAL);
 	string msg = filename;
-	msg += ": Chert version file should be ";
-	msg += om_tostring(VERSIONFILE_SIZE);
-	msg += " bytes, actually ";
+	msg += ": Chert version file should be "
+	       STRINGIZE(VERSIONFILE_SIZE_LITERAL)" bytes, actually ";
 	msg += om_tostring(size);
 	throw Xapian::DatabaseCorruptError(msg);
     }

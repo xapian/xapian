@@ -1,20 +1,40 @@
 Up to:
- 11159    richard Wed Sep 03 06:17:11 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+ 11507       olly Thu Oct 09 09:53:39 GMT 2008  Olly Betts <olly@survex.com>
 
 backport fodder:
 
- 10849       olly 	* configure.ac: Replace AM_CONFIG_HEADER with the more modern
- 10849       olly 	  AC_CONFIG_HEADERS.
-
-10848+10850:
- 10850       olly 	* csharp/Makefile.am,guile/Makefile.am,java-swig/Makefile.am,
- 10850       olly 	  java/Makefile.am,java/native/Makefile.am,php/Makefile.am,
- 10850       olly 	  python/Makefile.am,ruby/Makefile.am,tcl8/Makefile.am: More changes
- 10850       olly 	  neeed for --enable-quiet support.
- 10848       olly 	* Makefile.am,configure.ac: Add support for "--enable-quiet" like
- 10848       olly 	  xapian-core and omega have.
+possibly:
+ 11377    richard 	* python/generate-python-exceptions.in: Back out patch which added
+ 11377    richard 	  XapianDirectorException to work around exception mangling bug in
+ 11377    richard 	  swig, now that we're using a version of swig which has the bug
+ 11377    richard 	  fixed.
+ 11376    richard 	* ../swig: Update version of swig in use to current HEAD (swig
+ 11376    richard 	  revision 10831.  Changes python import method to avoid giving a
+ 11376    richard 	  warning with the upcoming 2.6 release (and failing with 2.7 or
+ 11376    richard 	  later).  Also includes a different fix for ticket #289, so we
+ 11376    richard 	  could back out our XapianDirectorException class now.
+ 11376    richard 
+ 11376    richard 	  No other significant changes in the generated files - several
+ 11376    richard 	  warning fixes, some rearrangement of the order of variable
+ 11376    richard 	  declarations, some removal of code which wasn't used anyway.
 
 HEAD only:
+
+ 11453    richard 	* python/pythontest2.py: Change test_value_mods() to test chert
+ 11453    richard 	  instead of flint, for extra regression test of recently fixed bug
+ 11453    richard 	  in chert, and fix doccomment for test function.
+ 11448    richard 	* python/pythontest2.py: Add a test of adding, modifying, and
+ 11448    richard 	  deleting values.  This passed with flint (as committed), but
+ 11448    richard 	  fails currently if the test is changed to use chert.
+
+ 11436    richard 	* python/Makefile.am: Add testsuite2.py and testsuite3.py to
+ 11436    richard 	  distribution.
+ 11371    richard 	* python/pythontest2.py,python/pythontest3.py: Add test for
+ 11371    richard 	  get_uuid() (not really python specific, but I can't easily add
+ 11371    richard 	  this test to smoketest because it needs an on-disk database,
+ 11371    richard 	  which there's no infrastructure in smoketest to clean up).
+
+ 11370    richard 	* xapian.i: Add Database::get_uuid() to wrappers.
 
 	* python/doxy2swig.py.in: Adjust to be compatible with python 3.0.
 	  Fortunately, this can be done without breaking it for python 2.x.

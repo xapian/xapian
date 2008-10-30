@@ -31,20 +31,13 @@
 #include "xapian/database.h"
 #endif
 
-#include <list>
-
-//////////////
-// Postlist //
-//////////////
-
 MultiPostList::MultiPostList(std::vector<LeafPostList *> & pls,
 			     const Xapian::Database &this_db_)
 	: postlists(pls),
 	  this_db(this_db_),
 	  finished(false),
 	  currdoc(0),
-	  freq_initialised(false),
-	  collfreq_initialised(false)
+	  freq_initialised(false)
 {
     multiplier = pls.size();
 }

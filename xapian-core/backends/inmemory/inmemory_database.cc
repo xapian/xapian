@@ -400,39 +400,27 @@ InMemoryDatabase::get_collection_freq(const string &tname) const
 }
 
 Xapian::doccount
-InMemoryDatabase::get_value_freq(Xapian::valueno valno) const
+InMemoryDatabase::get_value_freq(Xapian::valueno slot) const
 {
-    map<Xapian::valueno, ValueStats>::const_iterator i
-	    = valuestats.find(valno);
-    if (i != valuestats.end()) {
-	return i->second.freq;
-    } else {
-	return 0;
-    }
+    map<Xapian::valueno, ValueStats>::const_iterator i = valuestats.find(slot);
+    if (i == valuestats.end()) return 0;
+    return i->second.freq;
 }
 
 std::string
-InMemoryDatabase::get_value_lower_bound(Xapian::valueno valno) const
+InMemoryDatabase::get_value_lower_bound(Xapian::valueno slot) const
 {
-    map<Xapian::valueno, ValueStats>::const_iterator i
-	    = valuestats.find(valno);
-    if (i != valuestats.end()) {
-	return i->second.lower_bound;
-    } else {
-	return "";
-    }
+    map<Xapian::valueno, ValueStats>::const_iterator i = valuestats.find(slot);
+    if (i == valuestats.end()) return string();
+    return i->second.lower_bound;
 }
 
 std::string
-InMemoryDatabase::get_value_upper_bound(Xapian::valueno valno) const
+InMemoryDatabase::get_value_upper_bound(Xapian::valueno slot) const
 {
-    map<Xapian::valueno, ValueStats>::const_iterator i
-	    = valuestats.find(valno);
-    if (i != valuestats.end()) {
-	return i->second.upper_bound;
-    } else {
-	return "";
-    }
+    map<Xapian::valueno, ValueStats>::const_iterator i = valuestats.find(slot);
+    if (i == valuestats.end()) return string();
+    return i->second.upper_bound;
 }
 
 Xapian::doccount
@@ -478,11 +466,11 @@ InMemoryDatabase::open_term_list(Xapian::docid did) const
 }
 
 Xapian::Document::Internal *
-InMemoryDatabase::open_document(Xapian::docid did, bool /*lazy*/) const
+InMemoryDatabase::open_document(Xapian::docid did, bool lazy) const
 {
     Assert(did != 0);
-    // we're never lazy so ignore that flag
     if (!doc_exists(did)) {
+	if (lazy) return false;
 	// FIXME: the docid in this message will be local, not global
 	throw Xapian::DocNotFoundError(string("Docid ") + om_tostring(did) +
 				 string(" not found"));
@@ -716,7 +704,7 @@ InMemoryDatabase::finish_add_doc(Xapian::docid did, const Xapian::Document &docu
 	Xapian::ValueIterator k_end = document.values_end();
 	for ( ; k != k_end; ++k) {
 	    values.insert(make_pair(k.get_valueno(), *k));
-	    LOGLINE(DB, "InMemoryDatabase::add_document(): adding value " <<
+	    LOGLINE(DB, "InMemoryDatabase::finish_add_doc(): adding value " <<
 			k.get_valueno() << " -> " << *k);
 	}
 	add_values(did, values);
@@ -728,7 +716,7 @@ InMemoryDatabase::finish_add_doc(Xapian::docid did, const Xapian::Document &docu
     for ( ; i != i_end; ++i) {
 	make_term(*i);
 
-	LOGLINE(DB, "InMemoryDatabase::add_document(): adding term " << *i);
+	LOGLINE(DB, "InMemoryDatabase::finish_add_doc(): adding term " << *i);
 	Xapian::PositionIterator j = i.positionlist_begin();
 	Xapian::PositionIterator j_end = i.positionlist_end();
 

@@ -27,6 +27,7 @@ noinst_HEADERS +=\
 	backends/chert/chert_termlisttable.h\
 	backends/chert/chert_types.h\
 	backends/chert/chert_utils.h\
+	backends/chert/chert_valuelist.h\
 	backends/chert/chert_values.h\
 	backends/chert/chert_version.h
 
@@ -51,6 +52,7 @@ libxapian_la_SOURCES +=\
 	backends/chert/chert_table.cc\
 	backends/chert/chert_termlist.cc\
 	backends/chert/chert_termlisttable.cc\
+	backends/chert/chert_valuelist.cc\
 	backends/chert/chert_values.cc\
 	backends/chert/chert_version.cc
 

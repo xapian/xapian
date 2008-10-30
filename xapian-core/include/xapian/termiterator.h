@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2003,2004,2005,2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,6 +28,7 @@
 #include <string>
 
 #include <xapian/base.h>
+#include <xapian/derefwrapper.h>
 #include <xapian/types.h>
 #include <xapian/positioniterator.h>
 #include <xapian/visibility.h>
@@ -35,17 +36,6 @@
 namespace Xapian {
 
 class Database;
-
-/** @internal A wrapper class for a termname which returns the termname if
- *  dereferenced with *.  We need this to implement input_iterator semantics.
- */
-class TermNameWrapper {
-    private:
-	std::string tname;
-    public:
-	explicit TermNameWrapper(const std::string & tname_) : tname(tname_) { }
-	const std::string & operator*() const { return tname; }
-};
 
 /** An iterator pointing to items in a list of terms.
  */
@@ -79,10 +69,10 @@ class XAPIAN_VISIBILITY_DEFAULT TermIterator {
 
 	TermIterator & operator++();
 
-	TermNameWrapper operator++(int) {
-	    std::string tmp = **this;
+	DerefStringWrapper_ operator++(int) {
+	    std::string term(**this);
 	    operator++();
-	    return TermNameWrapper(tmp);
+	    return DerefStringWrapper_(term);
 	}
 
 	/** Skip the iterator to term tname, or the first term after tname

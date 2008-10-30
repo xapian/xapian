@@ -125,14 +125,13 @@ described above which only matches ranges with a prefix (e.g.
 
     struct AuthorValueRangeProcessor : public Xapian::ValueRangeProcessor {
         AuthorValueRangeProcessor() {}
-        ~AuthorValueRangeProcessor() {}
 
         Xapian::valueno operator()(std::string &begin, std::string &end) {
             if (begin.substr(0, 7) != "author:")
                 return Xapian::BAD_VALUENO;
             begin.erase(0, 7);
-            begin = Xapian::Unicode::tolower(term);
-            end = Xapian::Unicode::tolower(term);
+            begin = Xapian::Unicode::tolower(begin);
+            end = Xapian::Unicode::tolower(end);
             return 4;
         }
     };
