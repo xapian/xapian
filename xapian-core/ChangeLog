@@ -1,3 +1,9 @@
+Fri Oct 31 19:00:18 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/database.h: Document XAPIAN_FLUSH_THRESHOLD
+	  (bug#306).
+
 Fri Oct 31 18:32:20 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
