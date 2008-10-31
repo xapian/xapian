@@ -70,6 +70,7 @@ XS/StringValueRangeProcessor.xs
 t/01use.t
 t/02pod.t
 t/03podcoverage.t
+t/04functions.t
 t/create.t
 t/document.t
 t/exception.t
