@@ -28,7 +28,7 @@
         try {
             $action
         } catch (...) {
-            XapianSetPythonException();
+            Xapian::SetPythonException();
             SWIG_fail;
         }
     }
@@ -43,7 +43,7 @@
         try {
             $action
         } catch (...) {
-            XapianSetPythonException();
+            Xapian::SetPythonException();
             SWIG_fail;
         }
     }

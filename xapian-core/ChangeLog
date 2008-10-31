@@ -24,6 +24,27 @@ Mon Oct 29 03:03:31 GMT 2007  Olly Betts <olly@survex.com>
 	  include/xapian.h,tests/api_db.cc,tests/api_nodb.cc,
 	  tests/api_wrdb.cc: Restore the changes.
 
+Fri Oct 31 18:55:03 GMT 2008  Olly Betts <olly@survex.com>
+
+	* include/xapian/database.h: Document XAPIAN_FLUSH_THRESHOLD
+	  (bug#306).
+
+Fri Oct 31 18:30:11 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix whitespace inconsistency with omega's
+	  configure.ac.
+
+Fri Oct 31 10:51:06 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/postingsource.cc,include/xapian/postingsource.h: Add a new
+	  built-in posting source, FixedWeightSource, which returns every
+	  document in the database, but with a fixed weight.  In
+	  particular, this is useful to add a constant weight to every item
+	  in a subquery.  Also, in ValueWeightPostingSource, refactor the
+	  "last_docid" member to a bool "started", since this is all it's
+	  used for.
+	* tests/api_db.cc: Add fixedweightsource1, to test FixedWeightSource.
+
 Mon Oct 27 17:05:39 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/queryparsertest.cc: Skip test if the timer granularity is too

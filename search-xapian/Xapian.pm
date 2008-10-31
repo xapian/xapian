@@ -341,6 +341,76 @@ docids sort in whatever order is most efficient for the backend
 
 Standard is db + ops + qpflags + qpstem
 
+=head1 Version functions
+
+=over 4
+
+=item major_version
+
+Returns the major version of the Xapian C++ library being used.  E.g. for
+Xapian 1.0.9 this would return 1.
+
+=item minor_version
+
+Returns the minor version of the Xapian C++ library being used.  E.g. for
+Xapian 1.0.9 this would return 0.
+
+=item revision
+
+Returns the revision of the Xapian C++ library being used.  E.g. for
+Xapian 1.0.9 this would return 9.  In a stable release series, Xapian libraries
+with the same minor and major versions are usually ABI compatible, so this
+often won't match the third component of $Search::Xapian::VERSION (which is the
+version of the Search::Xapian XS wrappers).
+
+=back
+
+=head1 Numeric encoding functions
+
+=over 4
+
+=item sortable_serialise NUMBER
+
+Convert a floating point number to a string, preserving sort order.
+
+This method converts a floating point number to a string, suitable for
+using as a value for numeric range restriction, or for use as a sort
+key.
+
+The conversion is platform independent.
+
+The conversion attempts to ensure that, for any pair of values supplied
+to the conversion algorithm, the result of comparing the original
+values (with a numeric comparison operator) will be the same as the
+result of comparing the resulting values (with a string comparison
+operator).  On platforms which represent doubles with the precisions
+specified by IEEE_754, this will be the case: if the representation of
+doubles is more precise, it is possible that two very close doubles
+will be mapped to the same string, so will compare equal.
+
+Note also that both zero and -zero will be converted to the same
+representation: since these compare equal, this satisfies the
+comparison constraint, but it's worth knowing this if you wish to use
+the encoding in some situation where this distinction matters.
+
+Handling of NaN isn't (currently) guaranteed to be sensible.
+
+=item sortable_unserialise SERIALISED_NUMBER
+
+Convert a string encoded using sortable_serialise back to a floating
+point number.
+
+This expects the input to be a string produced by sortable_serialise().
+If the input is not such a string, the value returned is undefined (but
+no error will be thrown).
+
+The result of the conversion will be exactly the value which was
+supplied to sortable_serialise() when making the string on platforms
+which represent doubles with the precisions specified by IEEE_754, but
+may be a different (nearby) value on other platforms.
+
+=back
+
 =head1 TODO
 
 =over 4
