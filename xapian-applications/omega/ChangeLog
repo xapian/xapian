@@ -1,3 +1,9 @@
+Fri Oct 31 18:22:51 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/overview.rst: Document HTML parsing a bit, including robots
+	  meta and htdig_noindex.
+
 Fri Oct 31 18:22:23 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
