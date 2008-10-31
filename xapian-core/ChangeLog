@@ -1,3 +1,14 @@
+Fri Oct 31 10:51:06 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/postingsource.cc,include/xapian/postingsource.h: Add a new
+	  built-in posting source, FixedWeightSource, which returns every
+	  document in the database, but with a fixed weight.  In
+	  particular, this is useful to add a constant weight to every item
+	  in a subquery.  Also, in ValueWeightPostingSource, refactor the
+	  "last_docid" member to a bool "started", since this is all it's
+	  used for.
+	* tests/api_db.cc: Add fixedweightsource1, to test FixedWeightSource.
+
 Mon Oct 27 17:05:39 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/queryparsertest.cc: Skip test if the timer granularity is too

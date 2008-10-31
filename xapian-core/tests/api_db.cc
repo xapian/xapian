@@ -2225,3 +2225,71 @@ DEFINE_TESTCASE(valueweightsource3, backend && valuestats) {
 
     return true;
 }
+
+// Check that fixedweightsource works correctly.
+DEFINE_TESTCASE(fixedweightsource1, backend && !remote) {
+    // FIXME: PostingSource doesn't currently work well with multi databases
+    // but we should try to resolve that issue.
+    SKIP_TEST_FOR_BACKEND("multi");
+    Xapian::Database db(get_database("apitest_phrase"));
+    Xapian::Enquire enq(db);
+    double wt = 5.6;
+
+    {
+	Xapian::FixedWeightPostingSource src(db, wt);
+
+	// Should be in increasing order of docid.
+	enq.set_query(Xapian::Query(&src));
+	Xapian::MSet mset = enq.get_mset(0, 5);
+	mset_expect_order(mset, 1, 2, 3, 4, 5);
+
+	for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
+	    TEST_EQUAL(i.get_weight(), wt);
+	}
+    }
+
+    // Do some direct tests, to check the skip_to() and check() methods work.
+    {
+	// Check next and skip_to().
+	Xapian::FixedWeightPostingSource src(db, wt);
+
+	src.next(1.0);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 1);
+	src.next(1.0);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 2);
+	src.skip_to(5, 1.0);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 5);
+	src.next(wt * 2);
+	TEST(src.at_end());
+    }
+    {
+	// Check check() as the first operation, followed by next.
+	Xapian::FixedWeightPostingSource src(db, wt);
+
+	TEST_EQUAL(src.check(5, 1.0), true);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 5);
+	src.next(1.0);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 6);
+    }
+    {
+	// Check check() as the first operation, followed by skip_to().
+	Xapian::FixedWeightPostingSource src(db, wt);
+
+	TEST_EQUAL(src.check(5, 1.0), true);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 5);
+	src.skip_to(3, 1.0);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 6);
+	src.skip_to(3, wt * 2);
+	TEST(src.at_end());
+    }
+
+
+    return true;
+}
