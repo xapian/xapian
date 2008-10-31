@@ -4,6 +4,9 @@ General:
 
 * configure: Add support for "--enable-quiet" like xapian-core and omega have.
 
+* Wrap new Database::metadata_keys_begin() and Database::metadata_keys_end()
+  methods.
+
 Xapian-bindings 1.0.8 (2008-09-04):
 
 General:
