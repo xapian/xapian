@@ -1,3 +1,9 @@
+Xapian-bindings 1.0.9 (2008-10-31):
+
+General:
+
+* configure: Add support for "--enable-quiet" like xapian-core and omega have.
+
 Xapian-bindings 1.0.8 (2008-09-04):
 
 General:
