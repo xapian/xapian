@@ -1,5 +1,9 @@
 Revision history for Perl extension Search::Xapian.
 
+	[Changes contributed by Olly Betts]
+	- Wrapped Search::Xapian::get_major_version(), get_minor_version(),
+	  get_revision(), sortable_serialise(), and sortable_unserialise().
+
 1.0.8.0  Thu Sep  4 05:38:22 GMT 2008
 	- No change except for bumping the version to indicate compatibility
 	  with Xapian 1.0.8.

@@ -1,3 +1,7 @@
+Fri Oct 31 18:34:49 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: Sync warning flag handling changes from xapian-core.
+
 Thu Oct 23 17:08:22 GMT 2008  Olly Betts <olly@survex.com>
 
 	* docs/overview.rst: Document HTML parsing a bit, including robots
