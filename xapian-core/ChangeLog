@@ -1,3 +1,9 @@
+Fri Oct 31 18:32:20 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Fix whitespace inconsistency with omega's
+	  configure.ac.
+
 Fri Oct 31 18:18:53 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS: Update for 1.0.9.
