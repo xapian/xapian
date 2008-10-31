@@ -1,3 +1,8 @@
+Fri Oct 31 18:47:37 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Sync warning flag handling changes from xapian-core.
+
 Fri Oct 31 18:31:54 GMT 2008  Olly Betts <olly@survex.com>
 
 	* configure.ac: Update version to 1.0.9.
