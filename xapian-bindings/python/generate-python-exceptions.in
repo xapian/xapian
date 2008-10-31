@@ -104,8 +104,8 @@ print FD <<'EOF';
 %include "xapian/error.h"
 
 %{
-
-static void XapianSetPythonException() {
+namespace Xapian {
+SWIGEXPORT void SetPythonException() {
     try {
 	throw;
     } catch (Swig::DirectorException &e) {
@@ -139,16 +139,17 @@ print FD <<'EOF';
 	SWIG_Error(SWIG_UnknownError, "unknown error in Xapian");
     }
 }
+};
 %}
 
 /* Note that we have to re-acquire the GIL in the catch() here, because
- * XapianSetPythonException accesses Python data structures. */
+ * Xapian::SetPythonException accesses Python data structures. */
 %exception {
     try {
 	$action
     } catch (...) {
 	SWIG_PYTHON_THREAD_END_ALLOW;
-	XapianSetPythonException();
+	Xapian::SetPythonException();
 	SWIG_fail;
     }
 }
@@ -162,7 +163,7 @@ for my $class (@directorclasses) {
     try {
 	\$action
     } catch (...) {
-	XapianSetPythonException();
+	Xapian::SetPythonException();
 	SWIG_fail;
     }
 }
@@ -175,7 +176,7 @@ for my $method (@posting_source_virtual_methods) {
     try {
 	\$action
     } catch (...) {
-	XapianSetPythonException();
+	Xapian::SetPythonException();
 	SWIG_fail;
     }
 }
@@ -187,7 +188,7 @@ print FD <<'EOF';
     try {
 	$action
     } catch (...) {
-	XapianSetPythonException();
+	Xapian::SetPythonException();
 	SWIG_fail;
     }
 }

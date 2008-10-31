@@ -78,7 +78,7 @@ ValueWeightPostingSource::ValueWeightPostingSource(Xapian::Database db_,
 						   Xapian::valueno slot_)
 	: db(db_), slot(slot_),
 	  it(db.valuestream_begin(slot)), end(db.valuestream_end(slot)),
-	  last_docid(0)
+	  started(false)
 {
     try {
 	termfreq_max = db.get_value_freq(slot);
@@ -98,7 +98,7 @@ ValueWeightPostingSource::ValueWeightPostingSource(Xapian::Database db_,
 						   double max_weight_)
 	: db(db_), slot(slot_),
 	  it(db.valuestream_begin(slot)), end(db.valuestream_end(slot)),
-	  last_docid(0),
+	  started(false),
 	  max_weight(max_weight_)
 {
     try {
@@ -142,15 +142,15 @@ Xapian::weight
 ValueWeightPostingSource::get_weight() const
 {
     Assert(!at_end());
-    Assert(last_docid != 0);
+    Assert(started);
     return sortable_unserialise(*it);
 }
 
 void
 ValueWeightPostingSource::next(Xapian::weight min_wt)
 {
-    if (last_docid == 0) {
-	last_docid = db.get_lastdocid();
+    if (!started) {
+	started = true;
 	it = db.valuestream_begin(slot);
 	end = db.valuestream_end(slot);
     } else {
@@ -158,7 +158,7 @@ ValueWeightPostingSource::next(Xapian::weight min_wt)
     }
 
     if (it == end) return;
-	
+
     if (min_wt > max_weight) {
 	it = end;
 	return;
@@ -169,8 +169,8 @@ void
 ValueWeightPostingSource::skip_to(Xapian::docid min_docid,
 				  Xapian::weight min_wt)
 {
-    if (last_docid == 0) {
-	last_docid = db.get_lastdocid();
+    if (!started) {
+	started = true;
 	it = db.valuestream_begin(slot);
 	end = db.valuestream_end(slot);
     }
@@ -186,8 +186,8 @@ bool
 ValueWeightPostingSource::check(Xapian::docid min_docid,
 				Xapian::weight min_wt)
 {
-    if (last_docid == 0) {
-	last_docid = db.get_lastdocid();
+    if (!started) {
+	started = true;
 	it = db.valuestream_begin(slot);
 	end = db.valuestream_end(slot);
     }
@@ -214,7 +214,7 @@ ValueWeightPostingSource::get_docid() const
 void
 ValueWeightPostingSource::reset()
 {
-    last_docid = 0;
+    started = false;
 }
 
 std::string
@@ -222,5 +222,130 @@ ValueWeightPostingSource::get_description() const
 {
     return "Xapian::ValueWeightPostingSource(slot=" + om_tostring(slot) + ")";
 }
+
+
+FixedWeightPostingSource::FixedWeightPostingSource(Xapian::Database db_,
+						   Xapian::weight wt_)
+	: db(db_), termfreq(db_.get_doccount()),
+	  it(db.postlist_begin(std::string())),
+	  end(db.postlist_end(std::string())),
+	  wt(wt_),
+	  started(false)
+{
+}
+
+Xapian::doccount
+FixedWeightPostingSource::get_termfreq_min() const
+{
+    return termfreq;
+}
+
+Xapian::doccount
+FixedWeightPostingSource::get_termfreq_est() const
+{
+    return termfreq;
+}
+
+Xapian::doccount
+FixedWeightPostingSource::get_termfreq_max() const
+{
+    return termfreq;
+}
+
+Xapian::weight
+FixedWeightPostingSource::get_maxweight() const
+{
+    return wt;
+}
+
+Xapian::weight
+FixedWeightPostingSource::get_weight() const
+{
+    return wt;
+}
+
+void
+FixedWeightPostingSource::next(Xapian::weight min_wt)
+{
+    if (!started) {
+	started = true;
+	it = db.postlist_begin(std::string());
+	end = db.postlist_end(std::string());
+    } else {
+	++it;
+    }
+
+    if (it == end) return;
+
+    if (check_docid) {
+	it.skip_to(check_docid + 1);
+	check_docid = 0;
+    }
+
+    if (min_wt > wt) {
+	it = end;
+	return;
+    }
+}
+
+void
+FixedWeightPostingSource::skip_to(Xapian::docid min_docid,
+				  Xapian::weight min_wt)
+{
+    if (!started) {
+	started = true;
+	it = db.postlist_begin(std::string());
+	end = db.postlist_end(std::string());
+    }
+
+    if (check_docid) {
+	if (min_docid < check_docid)
+	    min_docid = check_docid + 1;
+	check_docid = 0;
+    }
+
+    if (min_wt > wt) {
+	it = end;
+	return;
+    }
+    it.skip_to(min_docid);
+}
+
+bool
+FixedWeightPostingSource::check(Xapian::docid min_docid,
+				Xapian::weight)
+{
+    // We're guaranteed not to be called if the document doesn't
+    // exist, so just remember the docid passed, and return true.
+    check_docid = min_docid;
+    return true;
+}
+
+bool
+FixedWeightPostingSource::at_end() const
+{
+    return it == end;
+}
+
+Xapian::docid
+FixedWeightPostingSource::get_docid() const
+{
+    if (check_docid != 0) return check_docid;
+    return *it;
+}
+
+void
+FixedWeightPostingSource::reset()
+{
+    started = false;
+    check_docid = 0;
+}
+
+std::string
+FixedWeightPostingSource::get_description() const
+{
+    return "Xapian::FixedWeightPostingSource(wt=" + om_tostring(wt) + ")";
+}
+
 
 }

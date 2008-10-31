@@ -1,3 +1,10 @@
+Fri Oct 31 19:22:53 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/generate-python-exceptions.in: Convert
+	  XapianSetPythonException to Xapian::SetPythonException, and
+	  export it.  This is neccessary to allow separately compiled
+	  extension modules to handle xapian errors appropriately.
+
 Thu Oct 09 09:53:39 GMT 2008  Olly Betts <olly@survex.com>
 
 	* configure.ac: Update autoconf requirement to 2.63, libtool to 2.2.6.

@@ -980,9 +980,9 @@ if test yes = "$GXX"; then
       3.*)
 	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow" ;;
       *)
-        AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow"
+	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow"
 
-        dnl -Winit-self was added in GCC 3.4, but contrary to the documentation
+	dnl -Winit-self was added in GCC 3.4, but contrary to the documentation
 	dnl it is currently (tested with GCC 4.2) ignored by g++ which warns for
 	dnl this case with -Wuninitialized (implied by -W).
 	dnl -Wstrict-overflow is new in GCC 4.2.

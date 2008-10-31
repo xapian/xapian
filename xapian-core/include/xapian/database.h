@@ -479,7 +479,11 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *
 	 *  Note that flush need not be called explicitly: it will be called
 	 *  automatically when the database is closed, or when a sufficient
-	 *  number of modifications have been made.
+	 *  number of modifications have been made.  By default, this is every
+	 *  10000 documents added, deleted, or modified.  This value is rather
+	 *  conservative, and if you have a machine with plenty of memory,
+	 *  you can improve indexing throughput dramatically by setting
+	 *  XAPIAN_FLUSH_THRESHOLD in the environment to a larger value.
 	 *
 	 *  @exception Xapian::DatabaseError will be thrown if a problem occurs
 	 *             while modifying the database.

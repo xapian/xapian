@@ -181,11 +181,8 @@ class XAPIAN_VISIBILITY_DEFAULT ValueWeightPostingSource : public PostingSource 
     /// End iterator corresponding to it.
     Xapian::ValueIterator end;
 
-    /** The last document ID in the database.
-     *
-     *  (Or 0 to indicate we haven't started yet).
-     */
-    Xapian::docid last_docid;
+    /// Flag indicating if we've started (true if we have).
+    bool started;
 
     /// An upper bound on the weight returned.
     double max_weight;
@@ -239,6 +236,62 @@ class XAPIAN_VISIBILITY_DEFAULT ValueWeightPostingSource : public PostingSource 
 
     std::string get_description() const;
 };
+
+/** A posting source which returns a fixed weight for all documents.
+ *
+ *  This returns entries for all documents in the given database, with a fixed
+ *  weight (specified by a parameter to the constructor).
+ */
+class XAPIAN_VISIBILITY_DEFAULT FixedWeightPostingSource : public PostingSource {
+    /// The database we're reading documents from.
+    Xapian::Database db;
+
+    /// Number of documents in the posting source.
+    Xapian::doccount termfreq;
+
+    /// Iterator over all documents.
+    Xapian::PostingIterator it;
+
+    /// End iterator corresponding to it.
+    Xapian::PostingIterator end;
+
+    /// The weight to return.
+    Xapian::weight wt;
+
+    /// Flag indicating if we've started (true if we have).
+    bool started;
+
+    /// The docid last passed to check() (0 if check() wasn't the last move).
+    Xapian::docid check_docid;
+
+  public:
+    /** Construct a FixedWeightPostingSource.
+     *
+     *  @param db_ The database to read values from.
+     *  @param slot_ The value slot to read values from.
+     */
+    FixedWeightPostingSource(Xapian::Database db_, Xapian::weight wt_);
+
+    Xapian::doccount get_termfreq_min() const;
+    Xapian::doccount get_termfreq_est() const;
+    Xapian::doccount get_termfreq_max() const;
+
+    Xapian::weight get_maxweight() const;
+    Xapian::weight get_weight() const;
+
+    void next(Xapian::weight min_wt);
+    void skip_to(Xapian::docid min_docid, Xapian::weight min_wt);
+    bool check(Xapian::docid min_docid, Xapian::weight min_wt);
+
+    bool at_end() const;
+
+    Xapian::docid get_docid() const;
+
+    void reset();
+
+    std::string get_description() const;
+};
+
 
 }
 

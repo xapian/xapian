@@ -112,6 +112,23 @@ MODULE = Search::Xapian		PACKAGE = Search::Xapian
 
 PROTOTYPES: ENABLE
 
+string
+sortable_serialise(double value)
+
+double
+sortable_unserialise(string value)
+
+const char *
+version_string()
+
+int
+major_version()
+
+int
+minor_version()
+
+int
+revision()
 
 INCLUDE: XS/BM25Weight.xs
 INCLUDE: XS/BoolWeight.xs
