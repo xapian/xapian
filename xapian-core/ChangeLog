@@ -1,3 +1,8 @@
+Fri Oct 31 18:30:11 GMT 2008  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix whitespace inconsistency with omega's
+	  configure.ac.
+
 Fri Oct 31 10:51:06 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/postingsource.cc,include/xapian/postingsource.h: Add a new
