@@ -1,3 +1,13 @@
+Fri Oct 31 22:55:05 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* python/extra.i,xapian.i: Add support for
+	  Database.metadata_keys_begin() and Database.metadata_keys_end().
+	  For python, these are wrapped as simply "metadata_keys()".
+	* python/pythontest.py: Test Database.metadata_keys().
+	* python/docs/index.html: Document Python-specific
+	  Database.metadata_keys(prefix) method.
+
 Fri Oct 31 19:05:30 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.0.9.

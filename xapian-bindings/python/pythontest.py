@@ -793,6 +793,56 @@ def test_synonyms_iter():
     del dbr
     shutil.rmtree(dbpath)
 
+def test_metadata_keys_iter():
+    """Test iterators over list of metadata keys in a database.
+
+    """
+    dbpath = 'flinttest_metadata_iter'
+    db = xapian.WritableDatabase(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
+
+    db.set_metadata('author', 'richard')
+    db.set_metadata('item1', 'hello')
+    db.set_metadata('item1', 'hi')
+    db.set_metadata('item2', 'howdy')
+    db.set_metadata('item3', '')
+    db.set_metadata('item4', 'goodbye')
+    db.set_metadata('item4', '')
+    db.set_metadata('type', 'greeting')
+
+    expect([item for item in db.metadata_keys()],
+           ['author', 'item1', 'item2', 'type'])
+    expect([item for item in db.metadata_keys('foo')], [])
+    expect([item for item in db.metadata_keys('item')], ['item1', 'item2'])
+    expect([item for item in db.metadata_keys('it')], ['item1', 'item2'])
+    expect([item for item in db.metadata_keys('type')], ['type'])
+
+    dbr=xapian.Database(dbpath)
+    expect([item for item in dbr.metadata_keys()], [])
+    expect([item for item in dbr.metadata_keys('foo')], [])
+    expect([item for item in dbr.metadata_keys('item')], [])
+    expect([item for item in dbr.metadata_keys('it')], [])
+    expect([item for item in dbr.metadata_keys('type')], [])
+
+    db.flush()
+    expect([item for item in db.metadata_keys()],
+           ['author', 'item1', 'item2', 'type'])
+    expect([item for item in db.metadata_keys('foo')], [])
+    expect([item for item in db.metadata_keys('item')], ['item1', 'item2'])
+    expect([item for item in db.metadata_keys('it')], ['item1', 'item2'])
+    expect([item for item in db.metadata_keys('type')], ['type'])
+
+    dbr=xapian.Database(dbpath)
+    expect([item for item in dbr.metadata_keys()],
+           ['author', 'item1', 'item2', 'type'])
+    expect([item for item in dbr.metadata_keys('foo')], [])
+    expect([item for item in dbr.metadata_keys('item')], ['item1', 'item2'])
+    expect([item for item in dbr.metadata_keys('it')], ['item1', 'item2'])
+    expect([item for item in dbr.metadata_keys('type')], ['type'])
+
+    del db
+    del dbr
+    shutil.rmtree(dbpath)
+
 def test_spell():
     """Test basic spelling correction features.
 
