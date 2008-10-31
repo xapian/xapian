@@ -51,7 +51,9 @@ build system:
 
 documentation:
 
-* Minor improvements to API documentation.
+* Minor improvements to API documentation, including documenting the
+  XAPIAN_FLUSH_THRESHOLD environmental variable in WriteableDatabase::flush()
+  (bug#306).
 
 * valueranges.html: Fix typos in example code, and drop superfluous empty
   destructor from ValueRangeProcessor subclass.
