@@ -1,3 +1,9 @@
+Fri Oct 31 18:22:23 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* omega.cc: Catch std::exception and report what its what() method
+	  returns.
+
 Mon Oct 13 08:49:55 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

@@ -347,6 +347,8 @@ try {
     parse_omegascript(); 
 } catch (const Xapian::Error &e) {
     cout << "Exception: " << e.get_msg() << endl;
+} catch (const std::exception &e) {
+    cout << "Exception: std::exception " << e.what() << endl;
 } catch (const string &s) {
     cout << "Exception: " << s << endl;
 } catch (const char *s) {
