@@ -1,3 +1,7 @@
+Sat Nov 01 01:47:44 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Sync with 1.0.9 release.
+
 Fri Oct 31 18:55:03 GMT 2008  Olly Betts <olly@survex.com>
 
 	* include/xapian/database.h: Document XAPIAN_FLUSH_THRESHOLD

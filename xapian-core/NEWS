@@ -1,11 +1,7 @@
 up to:
- 11567       olly Tue Oct 21 02:09:18 GMT 2008  Olly Betts <olly@survex.com>
+ 11594       olly Fri Oct 31 18:55:03 GMT 2008  Olly Betts <olly@survex.com>
 
 Potential backport fodder:
-
- 11526       olly 	* tests/api_wrdb.cc: If the timer for the first test for bigoaddvalue
- 11526       olly 	  reports 0.0 seconds, skip the test as the timer doesn't have fine
- 11527       olly 	  enough granularity for this test to be useful (bug#300).
 
  * bin/xapian-check.cc,bin/xapian-check-flint.cc:  Don't stop checking
    a table after an error in certain cases - instead increment the
@@ -289,7 +285,7 @@ debug code:
 * The debug logging framework has been overhauled.  See HACKING for details
   of how it now works.
 
-Xapian-core 1.0.9 (2008-10-2?):
+Xapian-core 1.0.9 (2008-10-31):
 
 API:
 
@@ -313,10 +309,14 @@ testsuite:
 
 * apitest: Fix cursordelbug1 to work on Microsoft Windows (bug#301).
 
+* apitest,queryparsertest: Skip tests which fail because the timer granularity
+  is too coarse to measure how long the test took.  In practice, this is only
+  an issue on Microsoft Windows (bug#300 and bug#308).
+
 matcher:
 
 * Adjust percent cutoff calculations in the matcher in a way which corresponds
-  to change to percentage calculations made in 1.0.7 to allow for excess
+  to the change to percentage calculations made in 1.0.7 to allow for excess
   precision.
 
 * Query::MatchAll no longer gives match results ranked by increasing document
@@ -328,15 +328,6 @@ flint backend:
   database when built with MSVC, and probably other platforms, though Linux
   got lucky and happened to work (bug#305).
 
-quartz backend:
-
-
-remote backend:
-
-
-inmemory backend:
-
-
 build system:
 
 * configure: Disable -Wconversion for now - it's not useful for older GCC and
@@ -347,7 +338,9 @@ build system:
 
 documentation:
 
-* Minor improvements to API documentation.
+* Minor improvements to API documentation, including documenting the
+  XAPIAN_FLUSH_THRESHOLD environmental variable in WriteableDatabase::flush()
+  (bug#306).
 
 * valueranges.html: Fix typos in example code, and drop superfluous empty
   destructor from ValueRangeProcessor subclass.
@@ -357,14 +350,6 @@ documentation:
 examples:
 
 * copydatabase: Also copy user metadata.
-
-portability:
-
-packaging:
-
-
-debug code:
-
 
 Xapian-core 1.0.8 (2008-09-04):
 
