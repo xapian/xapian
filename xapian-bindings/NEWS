@@ -1,5 +1,5 @@
 Up to:
- 11507       olly Thu Oct 09 09:53:39 GMT 2008  Olly Betts <olly@survex.com>
+ 11601       olly Fri Oct 31 22:53:13 GMT 2008  Olly Betts <olly@survex.com>
 
 backport fodder:
 
@@ -17,6 +17,11 @@ possibly:
  11376    richard 	  No other significant changes in the generated files - several
  11376    richard 	  warning fixes, some rearrangement of the order of variable
  11376    richard 	  declarations, some removal of code which wasn't used anyway.
+
+ 11599    richard 	* python/generate-python-exceptions.in: Convert
+ 11599    richard 	  XapianSetPythonException to Xapian::SetPythonException, and
+ 11599    richard 	  export it.  This is necessary to allow separately compiled
+ 11599    richard 	  extension modules to handle xapian errors appropriately.
 
 HEAD only:
 
@@ -155,6 +160,15 @@ HEAD only:
 	  built-in match decider defined there can be used.
 	* php/smoketest.php,python/pythontest.py: Add tests that
 	  ValueSetMatchDecider works in python and PHP.
+
+Xapian-bindings 1.0.9 (2008-10-31):
+
+General:
+
+* configure: Add support for "--enable-quiet" like xapian-core and omega have.
+
+* Wrap new Database::metadata_keys_begin() and Database::metadata_keys_end()
+  methods.
 
 Xapian-bindings 1.0.8 (2008-09-04):
 

@@ -1,3 +1,7 @@
+Sat Nov 01 01:52:29 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Sync with 1.0.9 and update from ChangeLog.
+
 Fri Oct 31 22:53:13 GMT 2008  Olly Betts <olly@survex.com>
 
 	* python/docs/index.html: Document Python-specific
