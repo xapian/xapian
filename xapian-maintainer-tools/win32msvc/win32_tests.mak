@@ -137,6 +137,7 @@ CLEAN :
     -@erase "$(INTDIR)\*.manifest"
     -@erase api_collated.h
     -@erase api_generated.cc
+    -@erase api_all.h
     -@erase $(COLLATED_APITEST_HEADERS)
     if exist ".btreetmp" rmdir ".btreetmp" /s /q
     if exist ".flint" rmdir ".flint" /s /q
@@ -154,7 +155,7 @@ CPP_SBRS=.
 
     
 api_collated.h: collate-apitest $(COLLATED_APITEST_SOURCES)
-    $(PERL_EXE) "$(INTDIR)/collate-apitest" "$(INTDIR)" $(COLLATED_APITEST_SOURCES) > api_collated.h
+    $(PERL_EXE) "$(INTDIR)/collate-apitest" "$(INTDIR)" api_collated.h $(COLLATED_APITEST_SOURCES) 
     
 api_generated.cc: generate-api_generated
     $(PERL_EXE) "$(INTDIR)/generate-api_generated" > api_generated.cc
