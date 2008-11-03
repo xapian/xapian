@@ -65,6 +65,7 @@ APITEST_OBJS= \
     "$(OUTDIR)\api_unicode.obj" \
     "$(OUTDIR)\api_wrdb.obj" \
     "$(OUTDIR)\api_sorting.obj" \
+    "$(OUTDIR)\api_spelling.obj" \
     "$(OUTDIR)\api_generated.obj"
     
 BTREETEST_OBJS= "$(OUTDIR)\btreetest.obj"
@@ -88,6 +89,7 @@ SRC = \
     "$(INTDIR)\api_transdb.cc" \
     "$(INTDIR)\api_unicode.cc" \
     "$(INTDIR)\api_sorting.cc" \
+    "$(INTDIR)\api_spelling.cc" \
     "$(INTDIR)\api_wrdb.cc" \
     "$(INTDIR)\api_generated.cc" \
     "$(INTDIR)\btreetest.cc" \
@@ -97,7 +99,7 @@ SRC = \
     "$(INTDIR)\remotetest.cc" \
     "$(INTDIR)\termgentest.cc" 
 
-COLLATED_APITEST_SOURCES=api_anydb.cc api_db.cc api_nodb.cc api_posdb.cc api_sorting.cc api_transdb.cc api_unicode.cc api_wrdb.cc api_generated.cc
+COLLATED_APITEST_SOURCES=api_anydb.cc api_db.cc api_nodb.cc api_posdb.cc api_sorting.cc api_spelling.cc api_transdb.cc api_unicode.cc api_wrdb.cc api_generated.cc
     
 COLLATED_APITEST_HEADERS=\
     "$(INTDIR)\api_anydb.h" \
