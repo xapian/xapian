@@ -2,8 +2,8 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
- * Copyright 2006 Richard Boulton
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -44,6 +44,7 @@
 
 #include <stdlib.h> // For abs().
 
+#include <cstring>
 #include <vector>
 
 using namespace std;
@@ -73,7 +74,7 @@ Database::operator=(const Database &other)
 {
     DEBUGAPICALL(void, "Database::operator=", "Database");
     if (this == &other) {
-	DEBUGLINE(API, "Database assigned to itself");
+	LOGLINE(API, "Database assigned to itself");
 	return;
     }
 
@@ -88,6 +89,7 @@ Database::~Database()
 void
 Database::reopen()
 {
+    DEBUGAPICALL(void, "Database::reopen", "");
     vector<Xapian::Internal::RefCntPtr<Database::Internal> >::iterator i;
     for (i = internal.begin(); i != internal.end(); ++i) {
 	(*i)->reopen();
@@ -99,9 +101,8 @@ Database::add_database(const Database & database)
 {
     DEBUGAPICALL(void, "Database::add_database", "Database");
     if (this == &database) {
-	DEBUGLINE(API, "Database added to itself");
-	throw Xapian::InvalidArgumentError("Can't add an Database to itself");
-	return;
+	LOGLINE(API, "Database added to itself");
+	throw Xapian::InvalidArgumentError("Can't add a Database to itself");
     }
     vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
     for (i = database.internal.begin(); i != database.internal.end(); ++i) {
@@ -179,14 +180,7 @@ Database::allterms_begin(const std::string & prefix) const
     if (internal.size() == 1)
 	RETURN(TermIterator(internal[0]->open_allterms(prefix)));
 
-    vector<TermList *> lists;
-
-    vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
-    for (i = internal.begin(); i != internal.end(); ++i) {
-	lists.push_back((*i)->open_allterms(prefix));
-    }
-
-    RETURN(TermIterator(new MultiAllTermsList(lists)));
+    RETURN(TermIterator(new MultiAllTermsList(internal, prefix)));
 }
 
 bool
@@ -258,8 +252,8 @@ Database::get_avlength() const
 	docs += db_doccount;
 	totlen += (*i)->get_avlength() * db_doccount;
     }
-    DEBUGLINE(UNKNOWN, "get_avlength() = " << totlen << " / " << docs <<
-	      " (from " << internal.size() << " dbs)");
+    LOGLINE(UNKNOWN, "get_avlength() = " << totlen << " / " << docs <<
+	    " (from " << internal.size() << " dbs)");
 
     if (docs == 0) RETURN(0.0);
     RETURN(totlen / docs);
@@ -293,6 +287,63 @@ Database::get_collection_freq(const string & tname) const
     RETURN(cf);
 }
 
+Xapian::doccount
+Database::get_value_freq(Xapian::valueno valno) const
+{
+    DEBUGAPICALL(Xapian::doccount, "Database::get_value_freq", valno);
+
+    Xapian::doccount vf = 0;
+    vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
+    for (i = internal.begin(); i != internal.end(); i++) {
+	vf += (*i)->get_value_freq(valno);
+    }
+    RETURN(vf);
+}
+
+std::string
+Database::get_value_lower_bound(Xapian::valueno valno) const
+{
+    DEBUGAPICALL(std::string, "Database::get_value_lower_bound", valno);
+
+    std::string full_lb;
+    vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
+    for (i = internal.begin(); i != internal.end(); i++) {
+	std::string lb = (*i)->get_value_lower_bound(valno);
+	if (full_lb.empty())
+	    full_lb = lb;
+	else if (lb < full_lb)
+	    full_lb = lb;
+    }
+    RETURN(full_lb);
+}
+
+std::string
+Database::get_value_upper_bound(Xapian::valueno valno) const
+{
+    DEBUGAPICALL(std::string, "Database::get_value_upper_bound", valno);
+
+    std::string full_ub;
+    vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
+    for (i = internal.begin(); i != internal.end(); i++) {
+	std::string ub = (*i)->get_value_upper_bound(valno);
+	if (full_ub < ub)
+	    full_ub = ub;
+    }
+    RETURN(full_ub);
+}
+
+ValueIterator
+Database::valuestream_begin(Xapian::valueno slot) const
+{
+    LOGCALL(API, ValueIterator, "Database::valuestream_begin", slot);
+    if (internal.empty()) RETURN(ValueIterator());
+    // FIXME: support multidatabases properly.
+    if (internal.size() != 1) {
+	throw Xapian::UnimplementedError("Database::valuestream_begin() doesn't support multidatabases yet");
+    }
+    RETURN(ValueIterator(internal[0]->open_value_list(slot)));
+}
+
 Xapian::doclength
 Database::get_doclength(Xapian::docid did) const
 {
@@ -320,22 +371,38 @@ Database::get_document(Xapian::docid did) const
     RETURN(Document(internal[n]->open_document(m)));
 }
 
+Document::Internal *
+Database::get_document_lazily(Xapian::docid did) const
+{
+    DEBUGCALL(DATABASE, Document::Internal *, "Database::get_document_lazily", did);
+    if (did == 0) throw InvalidArgumentError("Document ID 0 is invalid");
+
+    unsigned int multiplier = internal.size();
+    Assert(multiplier != 0);
+    Xapian::doccount n = (did - 1) % multiplier; // which actual database
+    Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
+
+    RETURN(internal[n]->open_document(m, true));
+}
+
 bool
 Database::term_exists(const string & tname) const
 {
+    DEBUGAPICALL(bool, "Database::term_exists", tname);
     if (tname.empty()) {
-	return get_doccount() != 0;
+	RETURN(get_doccount() != 0);
     }
     vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); ++i) {
-	if ((*i)->term_exists(tname)) return true;
+	if ((*i)->term_exists(tname)) RETURN(true);
     }
-    return false;
+    RETURN(false);
 }
 
 void
 Database::keep_alive()
 {
+    DEBUGAPICALL(void, "Database::keep_alive", "");
     vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); ++i) {
 	(*i)->keep_alive();
@@ -345,9 +412,43 @@ Database::keep_alive()
 string
 Database::get_description() const
 {
-    DEBUGCALL(INTRO, string, "Database::get_description", "");
     /// \todo display contents of the database
-    RETURN("Database()");
+    return "Database()";
+}
+
+// We sum the character frequency histogram absolute differences to compute a
+// lower bound on the edit distance.  Rather than counting each Unicode code
+// point uniquely, we use an array with VEC_SIZE elements and tally code points
+// modulo VEC_SIZE which can only reduce the bound we calculate.
+//
+// There will be a trade-off between how good the bound is and how large and
+// array is used (a larger array takes more time to clear and sum over).  The
+// value 64 is somewhat arbitrary - it works as well as 128 for the testsuite
+// but that may not reflect real world performance.  FIXME: profile and tune.
+
+#define VEC_SIZE 64
+
+static int
+freq_edit_lower_bound(const vector<unsigned> & a, const vector<unsigned> & b)
+{
+    int vec[VEC_SIZE];
+    memset(vec, 0, sizeof(vec));
+    vector<unsigned>::const_iterator i;
+    for (i = a.begin(); i != a.end(); ++i) {
+	++vec[(*i) % VEC_SIZE];
+    }
+    for (i = b.begin(); i != b.end(); ++i) {
+	--vec[(*i) % VEC_SIZE];
+    }
+    unsigned int total = 0;
+    for (size_t j = 0; j < VEC_SIZE; ++j) {
+	total += abs(vec[j]);
+    }
+    // Each insertion or deletion adds at most 1 to total.  Each transposition
+    // doesn't change it at all.  But each substitution can change it by 2 so
+    // we need to divide it by 2.  Rounding up is OK, since the odd change must
+    // be due to an actual edit.
+    return (total + 1) / 2;
 }
 
 // Word must have a trigram score at least this close to the best score seen
@@ -358,12 +459,12 @@ string
 Database::get_spelling_suggestion(const string &word,
 				  unsigned max_edit_distance) const
 {
-    DEBUGLINE(SPELLING, "Database::get_spelling_suggestion(" << word << ", " <<
-			max_edit_distance << ")");
+    DEBUGAPICALL(string, "Database::get_spelling_suggestion",
+		 word << ", " << max_edit_distance);
     AutoPtr<TermList> merger;
     for (size_t i = 0; i < internal.size(); ++i) {
 	TermList * tl = internal[i]->open_spelling_termlist(word);
-	DEBUGLINE(SPELLING, "Sub db " << i << " tl = " << (void*)tl);
+	LOGLINE(SPELLING, "Sub db " << i << " tl = " << (void*)tl);
 	if (tl) {
 	    if (merger.get()) {
 		merger = new OrTermList(merger.release(), tl);
@@ -372,7 +473,7 @@ Database::get_spelling_suggestion(const string &word,
 	    }
 	}
     }
-    if (!merger.get()) return string();
+    if (!merger.get()) RETURN(string());
 
     // Convert word to UTF-32.
     vector<unsigned> utf32_word;
@@ -393,7 +494,7 @@ Database::get_spelling_suggestion(const string &word,
 	string term = merger->get_termname();
 	Xapian::termcount score = merger->get_wdf();
 
-	DEBUGLINE(SPELLING, "Term \"" << term << "\" ngram score " << score);
+	LOGLINE(SPELLING, "Term \"" << term << "\" ngram score " << score);
 	if (score + TRIGRAM_SCORE_THRESHOLD >= best) {
 	    if (score > best) best = score;
 
@@ -404,7 +505,7 @@ Database::get_spelling_suggestion(const string &word,
 	    // First check the length of the encoded UTF-8 version of term.
 	    // Each UTF-32 character is 1-4 bytes in UTF-8.
 	    if (abs((long)term.size() - (long)word.size()) > edist_best * 4) {
-		DEBUGLINE(SPELLING, "Lengths much too different");
+		LOGLINE(SPELLING, "Lengths much too different");
 		continue;
 	    }
 
@@ -414,29 +515,34 @@ Database::get_spelling_suggestion(const string &word,
 
 	    if (abs((long)utf32_term.size() - (long)utf32_word.size())
 		    > edist_best) {
-		DEBUGLINE(SPELLING, "Lengths too different");
+		LOGLINE(SPELLING, "Lengths too different");
+		continue;
+	    }
+
+	    if (freq_edit_lower_bound(utf32_term, utf32_word) > edist_best) {
+		LOGLINE(SPELLING, "Rejected by character frequency test");
 		continue;
 	    }
 
 	    int edist = edit_distance_unsigned(&utf32_term[0],
 					       utf32_term.size(),
 					       &utf32_word[0],
-					       utf32_word.size());
-	    DEBUGLINE(SPELLING, "Edit distance " << edist);
+					       utf32_word.size(),
+					       edist_best);
+	    LOGLINE(SPELLING, "Edit distance " << edist);
 	    // If we have an exact match, return an empty string since there's
 	    // no correction required.
-	    if (edist == 0) return string();
+	    if (edist == 0) RETURN(string());
 
 	    if (edist <= edist_best) {
 		Xapian::doccount freq = 0;
 		for (size_t j = 0; j < internal.size(); ++j)
 		    freq += internal[j]->get_spelling_frequency(term);
 
-		DEBUGLINE(SPELLING, "Freq " << freq << " best " << freq_best);
+		LOGLINE(SPELLING, "Freq " << freq << " best " << freq_best);
 		if (edist < edist_best || freq > freq_best) {
-		    DEBUGLINE(SPELLING, "Best so far: \"" << term <<
-					"\" edist " << edist << " freq " <<
-					freq);
+		    LOGLINE(SPELLING, "Best so far: \"" << term <<
+				      "\" edist " << edist << " freq " << freq);
 		    result = term;
 		    edist_best = edist;
 		    freq_best = freq;
@@ -444,8 +550,7 @@ Database::get_spelling_suggestion(const string &word,
 	    }
 	}
     }
-    DEBUGLINE(SPELLING, "Suggesting \"" << result << "\"");
-    return result;
+    RETURN(result);
 }
 
 TermIterator
@@ -509,6 +614,31 @@ Database::get_metadata(const string & key) const
     if (key.empty())
 	throw InvalidArgumentError("Empty metadata keys are invalid");
     RETURN(internal[0]->get_metadata(key));
+}
+
+Xapian::TermIterator
+Database::metadata_keys_begin(const std::string &prefix) const
+{
+    DEBUGAPICALL(Xapian::TermIterator, "Database::metadata_keys_begin", "");
+    RETURN(TermIterator(internal[0]->open_metadata_keylist(prefix)));
+}
+
+std::string
+Database::get_uuid() const
+{
+    DEBUGAPICALL(std::string, "Database::get_uuid", "");
+    if (internal.size() != 1) {
+	if (internal.size() == 0) {
+	    throw InvalidOperationError(
+		"UUIDs not supported for uninitialised databases");
+	}
+
+	// FIXME - we could probably make a uuid for each multidatabase
+	// combination by hashing together the uuids for the subdatabases.
+	throw UnimplementedError(
+	    "UUIDs not supported for multiple databases");
+    }
+    RETURN(internal[0]->get_uuid());
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -692,9 +822,8 @@ WritableDatabase::set_metadata(const string & key, const string & value)
 string
 WritableDatabase::get_description() const
 {
-    DEBUGCALL(INTRO, string, "WritableDatabase::get_description", "");
     /// \todo display contents of the writable database
-    RETURN("WritableDatabase()");
+    return "WritableDatabase()";
 }
 
 }

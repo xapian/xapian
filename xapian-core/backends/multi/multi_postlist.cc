@@ -1,7 +1,7 @@
 /* multi_postlist.cc: interface to multiple database access
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,22 +20,16 @@
  */
 
 #include <config.h>
-#include <stdio.h>
+
+#include "multi_postlist.h"
 
 #include "omassert.h"
 #include "omdebug.h"
-#include "multi_postlist.h"
 #include "utils.h"
 
 #ifdef XAPIAN_DEBUG_PARANOID
 #include "xapian/database.h"
 #endif
-
-#include <list>
-
-//////////////
-// Postlist //
-//////////////
 
 MultiPostList::MultiPostList(std::vector<LeafPostList *> & pls,
 			     const Xapian::Database &this_db_)
@@ -43,8 +37,7 @@ MultiPostList::MultiPostList(std::vector<LeafPostList *> & pls,
 	  this_db(this_db_),
 	  finished(false),
 	  currdoc(0),
-	  freq_initialised(false),
-	  collfreq_initialised(false)
+	  freq_initialised(false)
 {
     multiplier = pls.size();
 }
@@ -63,7 +56,7 @@ Xapian::doccount
 MultiPostList::get_termfreq() const
 {
     if (freq_initialised) return termfreq;
-    DEBUGLINE(DB, "Calculating multiple term frequencies");
+    LOGLINE(DB, "Calculating multiple term frequencies");
 
     // Calculate and remember the termfreq
     termfreq = 0;
@@ -140,12 +133,12 @@ MultiPostList::next(Xapian::weight w_min)
 	offset++;
     }
     if (newdoc) {
-	DEBUGLINE(DB, "MultiPostList::next() newdoc=" << newdoc <<
-		  " (olddoc=" << currdoc << ")");
+	LOGLINE(DB, "MultiPostList::next() newdoc=" << newdoc <<
+		    " (olddoc=" << currdoc << ")");
 	currdoc = newdoc;
     } else {
-	DEBUGLINE(DB, "MultiPostList::next() finished" <<
-		  " (olddoc=" << currdoc << ")");
+	LOGLINE(DB, "MultiPostList::next() finished" <<
+		    " (olddoc=" << currdoc << ")");
 	finished = true;
     }
     RETURN(NULL);

@@ -46,9 +46,9 @@ using namespace std;
 
 void
 BackendManager::index_files_to_database(Xapian::WritableDatabase & database,
-					const vector<string> & dbnames)
+					const vector<string> & files)
 {
-    FileIndexer f(datadir, dbnames);
+    FileIndexer f(datadir, files);
     while (f) database.add_document(f.next());
 }
 
@@ -76,24 +76,76 @@ BackendManager::create_dir_if_needed(const string &dirname)
 
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
 Xapian::WritableDatabase
-BackendManager::getwritedb_inmemory(const vector<string> &dbnames)
+BackendManager::getwritedb_inmemory(const vector<string> &files)
 {
     Xapian::WritableDatabase db(Xapian::InMemory::open());
-    index_files_to_database(db, dbnames);
+    index_files_to_database(db, files);
     return db;
 }
 #endif
 
+#ifdef XAPIAN_HAS_CHERT_BACKEND
+string
+BackendManager::createdb_chert(const vector<string> &files)
+{
+    string parent_dir = ".chert";
+    create_dir_if_needed(parent_dir);
+
+    string dbdir = parent_dir + "/db";
+    for (vector<string>::const_iterator i = files.begin();
+	 i != files.end(); i++) {
+	dbdir += '=';
+	dbdir += *i;
+    }
+    // If the database is readonly, we can reuse it if it exists.
+    if (create_dir_if_needed(dbdir)) {
+	// Directory was created, so do the indexing.
+	Xapian::WritableDatabase db(Xapian::Chert::open(dbdir, Xapian::DB_CREATE, 2048));
+	index_files_to_database(db, files);
+    }
+    return dbdir;
+}
+
+Xapian::WritableDatabase
+BackendManager::getwritedb_chert(const string & name,
+				 const vector<string> & files)
+{
+    string dbdir = getwritedb_chert_path(name);
+
+    // For a writable database we need to start afresh each time.
+    rm_rf(dbdir);
+    (void)create_dir_if_needed(dbdir);
+
+    // directory was created, so do the indexing.
+    Xapian::WritableDatabase db(Xapian::Chert::open(dbdir, Xapian::DB_CREATE, 2048));
+    index_files_to_database(db, files);
+    return db;
+}
+
+std::string
+BackendManager::getwritedb_chert_path(const string & name)
+{
+    string parent_dir = ".chert";
+    create_dir_if_needed(parent_dir);
+
+    string dbdir = parent_dir;
+    dbdir += '/';
+    dbdir += name;
+    return dbdir;
+}
+
+#endif
+
 #ifdef XAPIAN_HAS_FLINT_BACKEND
 string
-BackendManager::createdb_flint(const vector<string> &dbnames)
+BackendManager::createdb_flint(const vector<string> &files)
 {
     string parent_dir = ".flint";
     create_dir_if_needed(parent_dir);
 
     string dbdir = parent_dir + "/db";
-    for (vector<string>::const_iterator i = dbnames.begin();
-	 i != dbnames.end(); i++) {
+    for (vector<string>::const_iterator i = files.begin();
+	 i != files.end(); i++) {
 	dbdir += '=';
 	dbdir += *i;
     }
@@ -101,7 +153,7 @@ BackendManager::createdb_flint(const vector<string> &dbnames)
     if (create_dir_if_needed(dbdir)) {
 	// Directory was created, so do the indexing.
 	Xapian::WritableDatabase db(Xapian::Flint::open(dbdir, Xapian::DB_CREATE, 2048));
-	index_files_to_database(db, dbnames);
+	index_files_to_database(db, files);
     }
     return dbdir;
 }
@@ -136,16 +188,46 @@ BackendManager::getwritedb_flint_path(const string & name)
 
 #endif
 
-Xapian::Database
-BackendManager::get_database(const vector<string> &)
+std::string
+BackendManager::get_dbtype() const
 {
-    throw Xapian::InvalidArgumentError("Attempted to open a disabled database");
+    return "none";
+}
+
+string
+BackendManager::do_get_database_path(const vector<string> &)
+{
+    throw Xapian::InvalidArgumentError("Path isn't meaningful for this database type");
 }
 
 Xapian::Database
-BackendManager::get_database(const string &)
+BackendManager::do_get_database(const vector<string> & files)
 {
-    throw Xapian::InvalidArgumentError("Attempted to open a disabled database");
+    return Xapian::Database(do_get_database_path(files));
+}
+
+Xapian::Database
+BackendManager::get_database(const vector<string> & files)
+{
+    return do_get_database(files);
+}
+
+Xapian::Database
+BackendManager::get_database(const string & file)
+{
+    return do_get_database(vector<string>(1, file));
+}
+
+string
+BackendManager::get_database_path(const vector<string> & files)
+{
+    return do_get_database_path(files);
+}
+
+string
+BackendManager::get_database_path(const string & file)
+{
+    return do_get_database_path(vector<string>(1, file));
 }
 
 Xapian::WritableDatabase
@@ -170,7 +252,7 @@ BackendManager::get_remote_database(const vector<string> &, unsigned int)
 }
 
 Xapian::Database
-BackendManager::get_writable_database_as_database()
+BackendManager::get_writable_database_as_database(const string &)
 {
     string msg = "Backend ";
     msg += get_dbtype();
@@ -179,12 +261,17 @@ BackendManager::get_writable_database_as_database()
 }
 
 Xapian::WritableDatabase
-BackendManager::get_writable_database_again()
+BackendManager::get_writable_database_again(const string &)
 {
     string msg = "Backend ";
     msg += get_dbtype();
     msg += " doesn't support get_writable_database_again()";
     throw Xapian::InvalidOperationError(msg);
+}
+
+void
+BackendManager::posttest()
+{
 }
 
 const char *

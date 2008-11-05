@@ -1,7 +1,7 @@
 /** @file flint_spelling.cc
  * @brief Spelling correction data for a flint database.
  */
-/* Copyright (C) 2004,2005,2006,2007 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -129,7 +129,7 @@ class PrefixCompressedStringWriter {
 void
 FlintSpellingTable::merge_changes()
 {
-    map<fragment, set<string> >::const_iterator i;
+    map<F_fragment, set<string> >::const_iterator i;
     for (i = termlist_deltas.begin(); i != termlist_deltas.end(); ++i) {
 	string key = i->first;
 	const set<string> & changes = i->second;
@@ -181,7 +181,7 @@ FlintSpellingTable::merge_changes()
     for (j = wordfreq_changes.begin(); j != wordfreq_changes.end(); ++j) {
 	string key = "W" + j->first;
 	if (j->second) {
-	    add(key, pack_uint_last(j->second));
+	    add(key, F_pack_uint_last(j->second));
 	} else {
 	    del(key);
 	}
@@ -190,9 +190,9 @@ FlintSpellingTable::merge_changes()
 }
 
 void
-FlintSpellingTable::add_fragment(fragment frag, const string & word)
+FlintSpellingTable::add_fragment(F_fragment frag, const string & word)
 {
-    map<fragment, set<string> >::iterator i = termlist_deltas.find(frag);
+    map<F_fragment, set<string> >::iterator i = termlist_deltas.find(frag);
     if (i == termlist_deltas.end()) {
 	i = termlist_deltas.insert(make_pair(frag, set<string>())).first;
     }
@@ -218,7 +218,7 @@ FlintSpellingTable::add_word(const string & word, Xapian::termcount freqinc)
 	    // Word "word" already exists, so increment its count.
 	    Xapian::termcount freq;
 	    const char * p = data.data();
-	    if (!unpack_uint_last(&p, p + data.size(), &freq) || freq == 0) {
+	    if (!F_unpack_uint_last(&p, p + data.size(), &freq) || freq == 0) {
 		throw Xapian::DatabaseCorruptError("Bad spelling word freq");
 	    }
 	    wordfreq_changes[word] = freq + freqinc;
@@ -233,7 +233,7 @@ FlintSpellingTable::add_word(const string & word, Xapian::termcount freqinc)
 	wordfreq_changes[word] = freqinc;
     }
 
-    fragment buf;
+    F_fragment buf;
     // Head:
     buf[0] = 'H';
     buf[1] = word[0];
@@ -271,9 +271,9 @@ FlintSpellingTable::add_word(const string & word, Xapian::termcount freqinc)
 }
 
 void
-FlintSpellingTable::remove_fragment(fragment frag, const string & word)
+FlintSpellingTable::remove_fragment(F_fragment frag, const string & word)
 {
-    map<fragment, set<string> >::iterator i = termlist_deltas.find(frag);
+    map<F_fragment, set<string> >::iterator i = termlist_deltas.find(frag);
     if (i != termlist_deltas.end()) {
 	i->second.erase(word);
     }
@@ -305,7 +305,7 @@ FlintSpellingTable::remove_word(const string & word, Xapian::termcount freqdec)
 
 	Xapian::termcount freq;
 	const char *p = data.data();
-	if (!unpack_uint_last(&p, p + data.size(), &freq)) {
+	if (!F_unpack_uint_last(&p, p + data.size(), &freq)) {
 	    throw Xapian::DatabaseCorruptError("Bad spelling word freq");
 	}
 	if (freqdec < freq) {
@@ -317,7 +317,7 @@ FlintSpellingTable::remove_word(const string & word, Xapian::termcount freqdec)
     // Mark word as deleted, and remove its fragment entries.
     wordfreq_changes[word] = 0;
 
-    fragment buf;
+    F_fragment buf;
     // Head:
     buf[0] = 'H';
     buf[1] = word[0];
@@ -369,7 +369,7 @@ FlintSpellingTable::open_termlist(const string & word)
     priority_queue<TermList*, vector<TermList*>, TermListGreaterApproxSize> pq;
     try {
 	string data;
-	fragment buf;
+	F_fragment buf;
 
 	// Head:
 	buf[0] = 'H';
@@ -486,7 +486,7 @@ FlintSpellingTable::get_word_frequency(const string & word) const
 	// Word "word" already exists.
 	Xapian::termcount freq;
 	const char *p = data.data();
-	if (!unpack_uint_last(&p, p + data.size(), &freq)) {
+	if (!F_unpack_uint_last(&p, p + data.size(), &freq)) {
 	    throw Xapian::DatabaseCorruptError("Bad spelling word freq");
 	}
 	return freq;
@@ -496,8 +496,6 @@ FlintSpellingTable::get_word_frequency(const string & word) const
 }
 
 ///////////////////////////////////////////////////////////////////////////
-
-FlintSpellingTermList::~FlintSpellingTermList() { }
 
 Xapian::termcount
 FlintSpellingTermList::get_approx_size() const

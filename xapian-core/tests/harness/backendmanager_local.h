@@ -26,6 +26,9 @@
 #ifdef XAPIAN_HAS_FLINT_BACKEND
 # include "backendmanager_flint.h"
 # define BackendManagerLocal BackendManagerFlint
+#elif defined XAPIAN_HAS_CHERT_BACKEND
+# include "backendmanager_chert.h"
+# define BackendManagerLocal BackendManagerChert
 #else
 # include "backendmanager.h"
 class BackendManagerLocal : public BackendManager {

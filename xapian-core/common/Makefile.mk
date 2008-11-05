@@ -1,10 +1,14 @@
 noinst_HEADERS +=\
 	common/alltermslist.h\
 	common/autoptr.h\
+	common/bitstream.h\
+	common/contiguousalldocspostlist.h\
 	common/database.h\
+	common/debuglog.h\
 	common/document.h\
 	common/documentterm.h\
 	common/emptypostlist.h\
+	common/esetinternal.h\
 	common/expand.h\
 	common/expandweight.h\
 	common/fileutils.h\
@@ -53,7 +57,10 @@ noinst_HEADERS +=\
 	common/tcpclient.h\
 	common/tcpserver.h\
 	common/termlist.h\
+	common/unaligned.h\
 	common/utils.h\
+	common/valuelist.h\
+	common/valuestats.h\
 	common/vectortermlist.h\
 	common/weightinternal.h
 
@@ -62,6 +69,8 @@ EXTRA_DIST +=\
 	common/Makefile
 
 libxapian_la_SOURCES +=\
+	common/bitstream.cc\
+	common/debuglog.cc\
 	common/fileutils.cc\
 	common/msvc_dirent.cc\
 	common/msvc_posix_wrapper.cc\

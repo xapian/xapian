@@ -82,7 +82,7 @@ get_free_physical_memory()
 #endif
     };
     size_t len = sizeof(vm_info);
-    if (sysctl(mib, 2, &vm_info, &len, NULL, 0) == 0)
+    if (sysctl(mib, 2, &vm_info, &len, NULL, 0) == 0) {
 	pagesize = getpagesize();
 	pages = vm_info.t_free;
     }

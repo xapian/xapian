@@ -79,12 +79,16 @@ pr(struct inclist *ip, char *file, char *base)
 	static char	*lastfile;
 	static int	current_len;
 	register int	len, i;
-	char	buf[ BUFSIZ ];
+	char	buf[ BUFFERSIZE ];
 
 	printed = TRUE;
 	len = strlen(ip->i_file)+1;
 	if (current_len + len > width || file != lastfile) {
 		lastfile = file;
+		if (strlen(objprefix)+strlen(base)+strlen(objsuffix)+strlen(ip->i_file)+5
+		    >= BUFFERSIZE)
+			fatalerr("Buffer overflow, increase BUFFERSIZE\n");
+
 		/* Added quotes here, as i_file may have spaces in the paths under Win32 */
 		sprintf(buf, "\n%s%s%s: \"%s\"", objprefix, base, objsuffix,
 			ip->i_file);
@@ -92,6 +96,8 @@ pr(struct inclist *ip, char *file, char *base)
 	}
 	else {
 		buf[0] = ' ';
+		if (strlen(ip->i_file)+1 >= BUFFERSIZE)
+			fatalerr("Buffer overflow, increase BUFFERSIZE\n");
 		strcpy(buf+1, ip->i_file);
 		current_len += len;
 	}

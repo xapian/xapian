@@ -14,6 +14,7 @@ xapianinclude_HEADERS =\
 	include/xapian/database.h\
 	include/xapian/dbfactory.h\
 	include/xapian/deprecated.h\
+	include/xapian/derefwrapper.h\
 	include/xapian/document.h\
 	include/xapian/enquire.h\
 	include/xapian/errorhandler.h\
@@ -21,6 +22,7 @@ xapianinclude_HEADERS =\
 	include/xapian/geospatial.h\
 	include/xapian/positioniterator.h\
 	include/xapian/postingiterator.h\
+	include/xapian/postingsource.h\
 	include/xapian/query.h\
 	include/xapian/queryparser.h\
 	include/xapian/replication.h\
@@ -31,6 +33,7 @@ xapianinclude_HEADERS =\
 	include/xapian/types.h\
 	include/xapian/unicode.h\
 	include/xapian/valueiterator.h\
+	include/xapian/valuesetmatchdecider.h\
 	include/xapian/visibility.h
 
 nodist_xapianinclude_HEADERS =\

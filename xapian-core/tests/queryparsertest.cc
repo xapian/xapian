@@ -22,12 +22,13 @@
 
 #include <xapian.h>
 
-#include <iostream>
-#include <string>
-#include <math.h>
-
-#include "unixcmds.h"
+#include "omtime.h"
+#include "stringutils.h"
 #include "utils.h"
+
+#include <cmath>
+#include <string>
+#include <vector>
 
 using namespace std;
 
@@ -1386,10 +1387,9 @@ static bool test_qp_value_daterange1()
 
 struct AuthorValueRangeProcessor : public Xapian::ValueRangeProcessor {
     AuthorValueRangeProcessor() {}
-    ~AuthorValueRangeProcessor() {}
 
     Xapian::valueno operator()(std::string &begin, std::string &end) {
-	if (begin.substr(0, 7) != "author:")
+	if (!startswith(begin, "author:"))
 	    return Xapian::BAD_VALUENO;
 	begin.erase(0, 7);
 	begin = Xapian::Unicode::tolower(begin);
@@ -1731,6 +1731,116 @@ static bool test_qp_stem_all1()
     return true;
 }
 
+static double time_query_parse(const Xapian::Database & db,
+			       const string & q,
+			       int repetitions,
+			       unsigned flags)
+{
+    Xapian::QueryParser qp;
+    qp.set_database(db);
+    OmTime start, end;
+    start = OmTime::now();
+    std::vector<Xapian::Query> qs;
+    qs.reserve(repetitions);
+    for (int i = 0; i != repetitions; ++i) {
+	qs.push_back(qp.parse_query(q, flags));
+    }
+    if (repetitions > 1) {
+	Xapian::Query qc(Xapian::Query::OP_OR, qs.begin(), qs.end());
+	//tout << "Query1:" << qc << "\n";
+    } else {
+	//tout << "QueryR:" << qs[0] << "\n";
+    }
+    end = OmTime::now();
+    return (end - start).as_double();
+}
+
+// Regression test: check that query parser doesn't scales very badly with the
+// size of the query.
+static bool test_qp_stem_scale1()
+{
+    mkdir(".flint", 0755);
+    string dbdir = ".flint/qp_stem_scale1";
+    Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+
+    db.add_synonym("foo", "bar");
+    db.flush();
+
+    string q1("foo ");
+    string q1b("baz ");
+    string q2, q2b;
+    int repetitions = 2000; 
+    q2.reserve(q1.size() * repetitions);
+    q2b.reserve(q1b.size() * repetitions);
+    for (int i = repetitions; i != 0; --i) {
+	q2 += q1;
+	q2b += q1b;
+    }
+
+    // A long multiword synonym.
+    string syn;
+    for (int j = 60; j != 0; --j) {
+	syn += q1;
+    }
+    syn.resize(syn.size() - 1);
+
+    double time1, time2;
+    unsigned defflags =
+	    Xapian::QueryParser::FLAG_PHRASE |
+	    Xapian::QueryParser::FLAG_BOOLEAN |
+	    Xapian::QueryParser::FLAG_LOVEHATE;
+    unsigned synflags = defflags |
+	    Xapian::QueryParser::FLAG_SYNONYM |
+	    Xapian::QueryParser::FLAG_AUTO_MULTIWORD_SYNONYMS;
+
+    // Allow a factor of 2 difference, to cover random variation.
+    // First, we test a simple query.
+    time1 = time_query_parse(db, q1, repetitions, defflags);
+    if (time1 == 0.0) {
+	// The first test completed before the timer ticked at all!
+	SKIP_TEST("Timer granularity is too coarse");
+    }
+    time2 = time_query_parse(db, q2, 1, defflags);
+    tout << "defflags: small=" << time1 << "s, large=" << time2 << "s\n";
+    TEST_LESSER(time2, time1 * 2);
+
+    // If synonyms are enabled, a different code-path is followed.
+    // Test a query which has no synonyms.
+    time1 = time_query_parse(db, q1b, repetitions, synflags);
+    if (time1 == 0.0) {
+	// The first test completed before the timer ticked at all!
+	SKIP_TEST("Timer granularity is too coarse");
+    }
+    time2 = time_query_parse(db, q2b, 1, synflags);
+    tout << "synflags: small=" << time1 << "s, large=" << time2 << "s\n";
+    TEST_LESSER(time2, time1 * 2);
+
+    // Test a query which has short synonyms.
+    time1 = time_query_parse(db, q1, repetitions, synflags);
+    if (time1 == 0.0) {
+	// The first test completed before the timer ticked at all!
+	SKIP_TEST("Timer granularity is too coarse");
+    }
+    time2 = time_query_parse(db, q2, 1, synflags);
+    tout << "synflags: small=" << time1 << "s, large=" << time2 << "s\n";
+    TEST_LESSER(time2, time1 * 2);
+
+    // Add a synonym for the whole query, to test that code path.
+    db.add_synonym(syn, "bar");
+    db.flush();
+
+    time1 = time_query_parse(db, q1, repetitions, synflags);
+    if (time1 == 0.0) {
+	// The first test completed before the timer ticked at all!
+	SKIP_TEST("Timer granularity is too coarse");
+    }
+    time2 = time_query_parse(db, q2, 1, synflags);
+    tout << "synflags2: small=" << time1 << "s, large=" << time2 << "s\n";
+    TEST_LESSER(time2, time1 * 2);
+
+    return true;
+}
+
 /// Test cases for the QueryParser.
 static test_desc tests[] = {
     TESTCASE(queryparser1),
@@ -1758,6 +1868,7 @@ static test_desc tests[] = {
     TESTCASE(qp_synonym2),
     TESTCASE(qp_synonym3),
     TESTCASE(qp_stem_all1),
+    TESTCASE(qp_stem_scale1),
     END_OF_TESTCASES
 };
 

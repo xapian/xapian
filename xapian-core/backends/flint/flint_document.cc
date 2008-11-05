@@ -1,9 +1,8 @@
 /* flint_document.cc: Implementation of document for Flint database
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004 Olly Betts
+ * Copyright 2003,2004,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
@@ -47,13 +45,6 @@ FlintDocument::FlintDocument(Xapian::Internal::RefCntPtr<const Xapian::Database:
     if (!lazy) (void)record_table->get_record(did);
 }
 
-/** Destroy a FlintDocument.
- */
-FlintDocument::~FlintDocument()
-{
-    DEBUGCALL(DB, void, "~FlintDocument", "");
-}
-
 /** Retrieve a value from the database
  *
  *  @param valueid	The value number to retrieve.
@@ -69,13 +60,11 @@ FlintDocument::do_get_value(Xapian::valueno valueid) const
 
 /** Retrieve all value values from the database
  */
-map<Xapian::valueno, string>
-FlintDocument::do_get_all_values() const
+void
+FlintDocument::do_get_all_values(map<Xapian::valueno, string> & values_) const
 {
-    DEBUGCALL(DB, void, "FlintDocument::do_get_all_values", "");
-    map<Xapian::valueno, string> value_map;
-    value_table->get_all_values(value_map, did);
-    return value_map;
+    DEBUGCALL(DB, void, "FlintDocument::do_get_all_values", "[values_]");
+    value_table->get_all_values(values_, did);
 }
 
 /** Retrieve the document data from the database

@@ -33,20 +33,24 @@
 
 #include "vectortermlist.h"
 
-#include "rset.h"
-#include "multimatch.h"
-#include "expand.h"
 #include "database.h"
+#include "esetinternal.h"
+#include "expandweight.h"
+#include "multimatch.h"
 #include "omenquireinternal.h"
+#include "rset.h"
 #include "stats.h"
 #include "utils.h"
 
 #include <vector>
 #include "autoptr.h"
 #include <algorithm>
+#include <cfloat>
 #include <math.h>
 
 using namespace std;
+
+using Xapian::Internal::ExpandWeight;
 
 namespace Xapian {
 
@@ -54,7 +58,7 @@ MatchDecider::~MatchDecider() { }
 
 // Methods for Xapian::RSet
 
-RSet::RSet() : internal(new RSet::Internal())
+RSet::RSet() : internal(new RSet::Internal)
 {
 }
 
@@ -87,45 +91,42 @@ RSet::empty() const
 void
 RSet::add_document(Xapian::docid did)
 {
+    if (did == 0) throw Xapian::InvalidArgumentError("Docid 0 not valid");
     internal->items.insert(did);
 }
 
 void
 RSet::remove_document(Xapian::docid did)
 {
-    set<Xapian::docid>::iterator i = internal->items.find(did);
-    if (i != internal->items.end()) internal->items.erase(i);
+    internal->items.erase(did);
 }
 
 bool
 RSet::contains(Xapian::docid did) const
 {
-    set<Xapian::docid>::iterator i = internal->items.find(did);
-    return i != internal->items.end();
+    return internal->items.find(did) != internal->items.end();
 }
 
 string
 RSet::get_description() const
 {
-    DEBUGCALL(INTRO, string, "RSet::get_description", "");
-    RETURN("RSet(" + internal->get_description() + ")");
+    return "RSet(" + internal->get_description() + ")";
 }
 
 string
 RSet::Internal::get_description() const
 {
-    DEBUGCALL(INTRO, string, "RSet::get_description", "");
-    string description;
+    string description("RSet::Internal(");
 
     set<Xapian::docid>::const_iterator i;
     for (i = items.begin(); i != items.end(); ++i) {
-	if (!description.empty()) description += ", ";
+	if (i != items.begin()) description += ", ";
 	description += om_tostring(*i);
     }
 
-    description = "RSet(" + description + ")";
+    description += ')';
 
-    RETURN(description);
+    return description;
 }
 
 namespace Internal {
@@ -135,7 +136,6 @@ namespace Internal {
 string
 MSetItem::get_description() const
 {
-    DEBUGCALL(INTRO, string, "Xapian::MSetItem::get_description", "");
     string description;
 
     description = om_tostring(did) + ", " + om_tostring(wt) + ", " +
@@ -143,14 +143,14 @@ MSetItem::get_description() const
 
     description = "Xapian::MSetItem(" + description + ")";
 
-    RETURN(description);
+    return description;
 }
 
 }
 
 // Methods for Xapian::MSet
 
-MSet::MSet() : internal(new MSet::Internal())
+MSet::MSet() : internal(new MSet::Internal)
 {
 }
 
@@ -221,11 +221,13 @@ MSet::get_termfreq(const string &tname) const
     map<string, Internal::TermFreqAndWeight>::const_iterator i;
     Assert(internal.get() != 0);
     i = internal->termfreqandwts.find(tname);
-    if (i == internal->termfreqandwts.end()) {
-	throw InvalidArgumentError("Term frequency of `" + tname +
-				     "' not available.");
+    if (i != internal->termfreqandwts.end()) {
+	RETURN(i->second.termfreq);
     }
-    RETURN(i->second.termfreq);
+    if (internal->enquire.get() == 0) {
+	throw InvalidOperationError("Can't get termfreq from an MSet which is not derived from a query.");
+    }
+    RETURN(internal->enquire->get_termfreq(tname));
 }
 
 Xapian::weight
@@ -336,21 +338,21 @@ MSet::back() const
 string
 MSet::get_description() const
 {
-    DEBUGCALL(INTRO, string, "Xapian::MSet::get_description", "");
     Assert(internal.get() != 0);
-    RETURN("Xapian::MSet(" + internal->get_description() + ")");
+    return "Xapian::MSet(" + internal->get_description() + ")";
 }
 
 percent
 MSet::Internal::convert_to_percent_internal(Xapian::weight wt) const
 {
-    DEBUGAPICALL(Xapian::percent, "Xapian::MSet::Internal::convert_to_percent", wt);
+    DEBUGAPICALL(Xapian::percent, "Xapian::MSet::Internal::convert_to_percent_internal", wt);
     if (percent_factor == 0) RETURN(100);
 
-    // FIXME: + 0.5 ???
-    Xapian::percent pcent = static_cast<Xapian::percent>(wt * percent_factor);
-    DEBUGLINE(API, "wt = " << wt << ", max_possible = "
-	      << max_possible << " =>  pcent = " << pcent);
+    // Excess precision on x86 can result in a difference here.
+    double v = wt * percent_factor + 100.0 * DBL_EPSILON;
+    Xapian::percent pcent = static_cast<Xapian::percent>(v);
+    LOGLINE(API, "wt = " << wt << ", max_possible = " << max_possible <<
+		 " =>  pcent = " << pcent);
     if (pcent > 100) pcent = 100;
     if (pcent < 0) pcent = 0;
     if (pcent == 0 && wt > 0) pcent = 1;
@@ -433,24 +435,15 @@ MSet::Internal::read_docs() const
     set<Xapian::doccount>::const_iterator i;
     for (i = requested_docs.begin(); i != requested_docs.end(); ++i) {
 	indexeddocs[*i] = enquire->read_doc(items[*i - firstitem]);
-	DEBUGLINE(API, "stored doc at index " << *i << " is " << indexeddocs[*i]);
+	LOGLINE(API, "stored doc at index " << *i << " is " << indexeddocs[*i]);
     }
     /* Clear list of requested but not fetched documents. */
     requested_docs.clear();
 }
 
-// Methods for Xapian::Internal::ESetItem
-
-string
-Xapian::Internal::ESetItem::get_description() const
-{
-    DEBUGCALL(INTRO, string, "Xapian::Internal::ESetItem::get_description", "");
-    RETURN("Xapian::Internal::ESetItem(" + tname + ", " + om_tostring(wt) + ")");
-}
-
 // Methods for Xapian::ESet
 
-ESet::ESet() : internal(new Internal()) { }
+ESet::ESet() : internal(new Internal) { }
 
 ESet::~ESet()
 {
@@ -522,28 +515,8 @@ ESet::back() const
 string
 ESet::get_description() const
 {
-    DEBUGCALL(INTRO, string, "Xapian::ESet::get_description", "");
     Assert(internal.get() != 0);
-    RETURN("Xapian::ESet(" + internal->get_description() + ")");
-}
-
-//////////////////////////////////
-// Methods for Xapian::ESet::Internal //
-//////////////////////////////////
-
-string
-Xapian::ESet::Internal::get_description() const
-{
-    DEBUGCALL(INTRO, string, "Xapian::ESet::Internal::get_description", "");
-    string description = "ebound=" + om_tostring(ebound);
-
-    for (vector<Xapian::Internal::ESetItem>::const_iterator i = items.begin();
-	 i != items.end();
-	 i++) {
-	description += ", " + i->get_description();
-    }
-
-    RETURN("Xapian::ESet::Internal(" + description + ")");
+    return "Xapian::ESet(" + internal->get_description() + ")";
 }
 
 // Xapian::ESetIterator
@@ -551,7 +524,7 @@ Xapian::ESet::Internal::get_description() const
 const string &
 ESetIterator::operator *() const
 {
-    return eset.internal->items[index].tname;
+    return eset.internal->items[index].term;
 }
 
 Xapian::weight
@@ -683,12 +656,19 @@ Enquire::Internal::get_eset(Xapian::termcount maxitems,
                     const RSet & rset, int flags, double k,
 		    const ExpandDecider * edecider) const
 {
-    ESet retval;
+    DEBUGCALL(API, ESet, "Enquire::Internal::get_eset", 
+	      maxitems << ", " << rset << ", " << flags << ", " <<
+	      k << ", " << edecider);
 
-    OmExpand expand(db);
+    if (maxitems == 0 || rset.empty()) {
+	// Either we were asked for no results, or wouldn't produce any
+	// because no documents were marked as relevant.
+	RETURN(ESet());
+    }
+
     RSetI rseti(db, rset);
 
-    DEBUGLINE(API, "rset size is " << rset.size());
+    LOGVALUE(API, rset.size());
 
     /* The AutoPtrs will clean up any dynamically allocated
      * expand deciders automatically.
@@ -712,10 +692,12 @@ Enquire::Internal::get_eset(Xapian::termcount maxitems,
 	}
     }
 
-    expand.expand(maxitems, retval, &rseti, edecider,
-		  bool(flags & Enquire::USE_EXACT_TERMFREQ), k);
+    bool use_exact_termfreq(flags & Enquire::USE_EXACT_TERMFREQ);
+    ExpandWeight eweight(db, rseti.size(), use_exact_termfreq, k);
 
-    return retval;
+    Xapian::ESet eset;
+    eset.internal->expand(maxitems, db, rseti, edecider, eweight);
+    RETURN(eset);
 }
 
 class ByQueryIndexCmp {
@@ -780,6 +762,12 @@ Enquire::Internal::get_matching_terms(const MSetIterator &it) const
     // FIXME: take advantage of MSetIterator to ensure that database
     // doesn't get modified underneath us.
     return get_matching_terms(*it);
+}
+
+Xapian::doccount
+Enquire::Internal::get_termfreq(const string &tname) const
+{
+    return db.get_termfreq(tname);
 }
 
 string
@@ -913,6 +901,7 @@ Enquire::set_sort_by_relevance()
 void
 Enquire::set_sort_by_value(Xapian::valueno sort_key, bool ascending)
 {
+    internal->sorter = NULL;
     internal->sort_key = sort_key;
     internal->sort_by = Internal::VAL;
     internal->sort_value_forward = ascending;
@@ -922,6 +911,7 @@ void
 Enquire::set_sort_by_value_then_relevance(Xapian::valueno sort_key,
 					  bool ascending)
 {
+    internal->sorter = NULL;
     internal->sort_key = sort_key;
     internal->sort_by = Internal::VAL_REL;
     internal->sort_value_forward = ascending;
@@ -931,6 +921,7 @@ void
 Enquire::set_sort_by_relevance_then_value(Xapian::valueno sort_key,
 					  bool ascending)
 {
+    internal->sorter = NULL;
     internal->sort_key = sort_key;
     internal->sort_by = Internal::REL_VAL;
     internal->sort_value_forward = ascending;
@@ -964,14 +955,6 @@ Enquire::set_sort_by_relevance_then_key(Xapian::Sorter * sorter, bool ascending)
     internal->sorter = sorter;
     internal->sort_by = Internal::REL_VAL;
     internal->sort_value_forward = ascending;
-}
-
-MSet
-Enquire::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
-		  Xapian::doccount check_at_least, const RSet *rset,
-		  const MatchDecider *mdecider) const
-{
-    return get_mset(first, maxitems, check_at_least, rset, mdecider, NULL);
 }
 
 MSet
@@ -1039,8 +1022,7 @@ Enquire::get_matching_terms_begin(Xapian::docid did) const
 string
 Enquire::get_description() const
 {
-    DEBUGCALL(INTRO, string, "Xapian::Enquire::get_description", "");
-    RETURN("Xapian::Enquire(" + internal->get_description() + ")");
+    return "Xapian::Enquire(" + internal->get_description() + ")";
 }
 
 }

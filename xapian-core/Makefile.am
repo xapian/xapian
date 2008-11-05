@@ -1,6 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
 AUTOMAKE_OPTIONS = 1.5 subdir-objects
+ACLOCAL_AMFLAGS = -I m4
 
 # `make QUIET=' overrides `./configure --enable-quiet'.
 # `make QUIET=y' overrides `./configure' without `--enable-quiet'.
@@ -23,11 +24,10 @@ DISTCLEANFILES =
 MAINTAINERCLEANFILES =
 bin_PROGRAMS =
 EXTRA_PROGRAMS =
-extra_cleandirs =
 
 .PHONY: check-none check-inmemory check-multi \
         check-remote check-remoteprog check-remotetcp \
-        check-flint
+        check-chert check-flint check-perftest
 
 check-none:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-none
@@ -45,19 +45,42 @@ check-remoteprog:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remoteprog
 check-remotetcp:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remotetcp
+if BUILD_BACKEND_CHERT
+check-remoteprog-chert:
+	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remoteprog-chert
+check-remotetcp-chert: apitest$(EXEEXT)
+	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remotetcp-chert
+endif
+if BUILD_BACKEND_FLINT
+check-remoteprog-flint:
+	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remoteprog-flint
+check-remotetcp-flint: apitest$(EXEEXT)
+	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remotetcp-flint
+endif
+endif
+
+if BUILD_BACKEND_CHERT
+check-multi-chert:
+	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-multi-chert
+check-chert:
+	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-chert
 endif
 
 if BUILD_BACKEND_FLINT
+check-multi-flint:
+	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-multi-flint
 check-flint:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-flint
 endif
+
+check-perf:
+	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-perf
 
 bin_SCRIPTS = xapian-config
 
 CLEANFILES = xapian-config
 
 EXTRA_DIST = ChangeLog ChangeLog.examples HACKING PLATFORMS xapian-core.spec \
- autoconf/rjb_find_stlport.m4 autoconf/definedir.m4 autoconf/type_socklen_t.m4 \
  include/xapian/error.h include/xapian/errordispatch.h exception_data.pm \
  preautoreconf dir_contents
 
@@ -67,7 +90,7 @@ include docsource.mk
 
 # xapian.m4 contains the XO_LIB_XAPIAN autoconf macro.
 m4datadir = $(datadir)/aclocal
-dist_m4data_DATA = m4/xapian.m4
+dist_m4data_DATA = m4-macros/xapian.m4
 
 lib_LTLIBRARIES = libxapian.la
 
@@ -111,8 +134,3 @@ CLEANFILES += $(dist_man_MANS)
 xapian-config.1: xapian-config makemanpage
 	./makemanpage ./xapian-config xapian-config xapian-config.1
 endif
-
-# Work around for files which Automake misses its clean target.
-clean-local:
-	-rm -rf $(extra_cleandirs)
-

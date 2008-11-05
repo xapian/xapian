@@ -92,9 +92,12 @@ of IR, but interesting as this new work is, it has not as yet led to results
 that offer improvements for the IR system builder.
 
 <P>
-Xapian is firmly placed as a system that implements, or tries to implement,
-the probabilistic IR model. (We say `tries' because sometimes implementation
-efficiency and theoretical complexity demand certain short-cuts.)
+Xapian was built as a system for efficiently implementing
+the probabilistic IR model (though this doesn't mean it is limited to
+only implementing this model - other models can be implemented providing
+they can be expressed in a suitable way).  Xapian tries to implement the
+probabilistic model faithfully, though in
+some places it can be told to use short-cuts for efficiency.
 
 <P>
 The model has two striking advantages:
@@ -372,7 +375,7 @@ form
 </blockquote>
 
 with the reassurance that this has "some theoretical justification". This is
-the form of the term weighting formula used in Xapian.
+the form of the term weighting formula used in Xapian's BM25Weight.
 <P>
 Note that n is dependent on the term, t, and R on the query, <I>Q</I>, while r
 depends both on t and <I>Q</I>. N is constant, at least until the IR system changes.
@@ -655,29 +658,35 @@ document marked relevant.
 
 <H2>The progress of a query</H2>
 
-We want to stress than even without the fancy notions of a relevance set,
-query expansion, improved term weights and reranking, Xapian is still a very
-useful IR tool. You do not need to use the full capabilities of the software
-to get benefit from it. But in the general case, the IR model it supports is
-as follows:
-<P>
-You enter a query. This is run by the IR system, which returns two lists, a
+<p>
+Below we describe the general case of the IR model supported, including
+use of a relevance set (<a href="glossary.html#rset">RSet</a>),
+query expansion, improved term weights and reranking.
+You don't have to use any of these for Xapian to be useful, but they are
+available should you need them.
+</p>
+
+<p>
+The user enters a query. This is parsed into a form the IR system understands,
+and run by the IR system, which returns two lists, a
 list of captions, derived from the MSet, and a list of terms, from the ESet.
 If the RSet is empty, the first few documents of the MSet can be
-used as a stand-in. After all, they have a good chance of being relevant! You
+used as a stand-in - after all, they have a good chance of being relevant! You
 can read a document by clicking on the caption. (We assume the usual
 screen/mouse environment.) But you can also mark a document as relevant
 (change <I>R</I>) or cause a term to be added from the ESet to the query (change
 <I>Q</I>). As soon as any change is made to the query environment the query can be
 rerun, although you might have a front-end where nothing happens until you
 click on some "Run Query" button.
-<P>
+</p>
 
+<p>
 In any case rerunning the query leads to a new MSet and ESet, and so to a
 new display. The IR process is then an iterative one. You can delete terms
 from the query or add them in; mark or unmark documents as being relevant.
 Eventually you converge on the answer to the query, or at least, the best
 answer the IR system can give you.
+</p>
 
 <H2>Further Reading</H2>
 

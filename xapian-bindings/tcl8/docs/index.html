@@ -42,12 +42,10 @@ to/from Xapian from Tcl8.
    correctly.  This only matters for the Xapian::WritableDatabase class, and we
    avoid wrapping the problematic factory functions to avoid setting a
    trap for the unwary - these are the WritableDatabase versions of
-   <code>Xapian::Flint::open</code>, <code>Xapian::Quartz::open</code> and
-   <code>Xapian::Auto::open</code>.  The latter is deprecated anyway, and
-   you can just use a <code>Xapian::WritableDatabase</code> constructor
-   instead.  Use of quartz is also deprecated, and the
-   <code>Xapian::WritableDatabase</code> constructor creates flint databases
-   in 1.0 releases anyway.
+   <code>Xapian::Chert::open</code>, and <code>Xapian::Flint::open</code>.
+   You can just use a <code>Xapian::WritableDatabase</code> constructor
+   instead (and set <code>XAPIAN_PREFER_CHERT</code> in the environment to
+   select chert rather than flint).
 </p>
 
 <p>
@@ -136,17 +134,33 @@ if [catch {
 <tr><td><code>mset get_docid index</code></td><td><code>[mset get_hit index] get_docid</code></td></tr>
 </table>
 
-<h2>Database Factory Functions</h2>
+<h2>Non-Class Functions</h2>
+
+<p>The C++ API contains a few non-class functions (the Database factory
+functions, and some functions reporting version information), which are
+wrapped like so for Tcl:
+<ul>
+<ul>
+<li> <code>Xapian::version_string()</code> is wrapped as <code>xapian::version_string</code>
+<li> <code>Xapian::major_version()</code> is wrapped as <code>xapian::major_version</code>
+<li> <code>Xapian::minor_version()</code> is wrapped as <code>xapian::minor_version</code>
+<li> <code>Xapian::revision()</code> is wrapped as <code>xapian::revision</code>
+</ul>
 
 <ul>
 <li> <code>Xapian::Auto::open_stub()</code> is wrapped as <code>xapian::open_stub</code>
+<li> <code>Xapian::Chert::open()</code> is wrapped as <code>xapian::chert_open</code> (but note that the WritableDatabase version isn't wrapped - see
+the 'Destructors' section above for an explanation).
 <li> <code>Xapian::Flint::open()</code> is wrapped as <code>xapian::flint_open</code> (but note that the WritableDatabase version isn't wrapped - see
 the 'Destructors' section above for an explanation).
-<li> <code>Xapian::Quartz::open()</code> is wrapped as <code>xapian::quartz_open</code> (but note that the WritableDatabase version isn't wrapped - see
-the 'Destructors' section above for an explanation).
 <li> <code>Xapian::InMemory::open()</code> is wrapped as <code>xapian::inmemory_open</code>
-<li> <code>Xapian::Remote::open()</code> is wrapped as <code>xapian::remote_open</code> (only
-the TCP version is currently wrapped, the "program" version isn't).
+<li> <code>Xapian::Remote::open()</code> is wrapped as <code>xapian::remote_open</code> (both
+the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to
+decide which to call).
+<li> <code>Xapian::Remote::open_writable()</code> is wrapped as <code>xapian::remote_open_writable</code> (both
+the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to
+decide which to call).
+</ul>
 </ul>
 
 <h2>Constants</h2>

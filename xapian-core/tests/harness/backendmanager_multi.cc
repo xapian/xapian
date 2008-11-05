@@ -2,6 +2,7 @@
  * @brief BackendManager subclass for multi databases.
  */
 /* Copyright (C) 2007,2008 Olly Betts
+ * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,18 +26,33 @@
 #include "index_utils.h"
 #include "utils.h"
 
-#include <cstdio>
+#include <cstdio> // For rename().
 #include <cstring>
 #include "safeerrno.h"
 
 using namespace std;
 
+BackendManagerMulti::BackendManagerMulti(const std::string & subtype_)
+	: subtype(subtype_)
+{
+    if (!(false
+#ifdef XAPIAN_HAS_FLINT_BACKEND
+	  || subtype == "flint"
+#endif
+#ifdef XAPIAN_HAS_CHERT_BACKEND
+	  || subtype == "chert"
+#endif
+	 )) {
+	throw ("Unknown backend type \"" + subtype + "\" specified for multi database subdatabases");
+    }
+}
+
 BackendManagerMulti::~BackendManagerMulti() { }
 
-const char *
+std::string
 BackendManagerMulti::get_dbtype() const
 {
-    return "multi";
+    return "multi_" + subtype;
 }
 
 #define NUMBER_OF_SUB_DBS 2
@@ -44,7 +60,8 @@ BackendManagerMulti::get_dbtype() const
 string
 BackendManagerMulti::createdb_multi(const vector<string> & files)
 {
-    create_dir_if_needed(".multi");
+    string dbdir = ".multi" + subtype;
+    create_dir_if_needed(dbdir);
 
     string dbname = "db";
     vector<string>::const_iterator i;
@@ -52,7 +69,7 @@ BackendManagerMulti::createdb_multi(const vector<string> & files)
 	dbname += "__";
 	dbname += *i;
     }
-    string dbpath = ".multi/" + dbname;
+    string dbpath = dbdir + "/" + dbname;
 
     if (file_exists(dbpath)) return dbpath;
 
@@ -76,11 +93,18 @@ BackendManagerMulti::createdb_multi(const vector<string> & files)
 	subdbdir += "___";
 	subdbdir += om_tostring(n);
 #ifdef XAPIAN_HAS_FLINT_BACKEND
-	dbs[n] = Xapian::Flint::open(".multi/" + subdbdir, Xapian::DB_CREATE_OR_OVERWRITE);
-	out << "flint " << subdbdir << '\n';
-#else
-# error No local backend enabled
+	if (subtype == "flint") {
+	    dbs[n] = Xapian::Flint::open(dbdir + "/" + subdbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+	    out << "flint " << subdbdir << '\n';
+	}
 #endif
+#if defined XAPIAN_HAS_CHERT_BACKEND
+	if (subtype == "chert") {
+	    dbs[n] = Xapian::Chert::open(dbdir + "/" + subdbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+	    out << "chert " << subdbdir << '\n';
+	}
+#endif
+	
     }
     out.close();
 
@@ -96,16 +120,10 @@ BackendManagerMulti::createdb_multi(const vector<string> & files)
     return dbpath;
 }
 
-Xapian::Database
-BackendManagerMulti::get_database(const vector<string> & files)
+string
+BackendManagerMulti::do_get_database_path(const vector<string> & files)
 {
-    return Xapian::Auto::open_stub(createdb_multi(files));
-}
-
-Xapian::Database
-BackendManagerMulti::get_database(const string & file)
-{
-    return BackendManagerMulti::get_database(vector<string>(1, file));
+    return createdb_multi(files);
 }
 
 Xapian::WritableDatabase

@@ -1,9 +1,7 @@
 /* flint_record.cc: Records in flint databases
  *
- * ----START-LICENCE----
- * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005 Olly Betts
+ * Copyright 2002,2003,2004,2005,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +15,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
@@ -45,17 +42,11 @@ FlintRecordTable::get_record(Xapian::docid did) const
     RETURN(tag);
 }
 
-
 Xapian::doccount
 FlintRecordTable::get_doccount() const
 {   
     DEBUGCALL(DB, Xapian::doccount, "FlintRecordTable::get_doccount", "");
-    // Check that we can't overflow (the unsigned test is actually too
-    // strict as we can typically assign an unsigned short to a signed long,
-    // but this shouldn't actually matter here).
-    CASSERT(sizeof(Xapian::doccount) >= sizeof(flint_tablesize_t));
-    CASSERT_TYPE_UNSIGNED(Xapian::doccount);
-    CASSERT_TYPE_UNSIGNED(flint_tablesize_t);
+    STATIC_ASSERT_TYPE_DOMINATES(Xapian::doccount, flint_tablesize_t);
     RETURN(get_entry_count());
 }
 

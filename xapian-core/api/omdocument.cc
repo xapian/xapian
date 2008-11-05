@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2006,2007 Olly Betts
+ * Copyright 2003,2004,2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,12 +23,15 @@
 #include <config.h>
 
 #include <xapian/document.h>
-#include <xapian/types.h>
+
 #include "document.h"
+#include "documentvaluelist.h"
 #include "maptermlist.h"
-#include <xapian/error.h>
-#include <xapian/valueiterator.h>
 #include "utils.h"
+
+#include <xapian/error.h>
+#include <xapian/types.h>
+#include <xapian/valueiterator.h>
 
 #include <algorithm>
 #include <string>
@@ -43,7 +46,7 @@ Document::Document(Document::Internal *internal_) : internal(internal_)
 {
 }
 
-Document::Document() : internal(new Xapian::Document::Internal())
+Document::Document() : internal(new Xapian::Document::Internal)
 {
 }
 
@@ -183,16 +186,10 @@ ValueIterator
 Document::values_begin() const
 {
     DEBUGAPICALL(ValueIterator, "Document::values_begin", "");
-    // Force the values to be read and cached.
-    internal->need_values();
-    RETURN(ValueIterator(0, *this));
-}
-
-ValueIterator
-Document::values_end() const
-{
-    DEBUGAPICALL(ValueIterator, "Document::values_end", "");
-    RETURN(ValueIterator(internal->values_count(), *this));
+    // Calling values_count() has the side effect of making sure that they have
+    // been read into the std::map "values" member of internal.
+    if (internal->values_count() == 0) RETURN(ValueIterator());
+    RETURN(ValueIterator(new DocumentValueList(internal)));
 }
 
 docid
@@ -249,14 +246,13 @@ OmDocumentTerm::remove_position(Xapian::termpos tpos)
 string
 OmDocumentTerm::get_description() const
 {
-    DEBUGCALL(INTRO, string, "OmDocumentTerm::get_description", "");
     string description;
 
     description = "OmDocumentTerm(" + tname +
 	    ", wdf = " + om_tostring(wdf) +
 	    ", positions[" + om_tostring(positions.size()) + "]" +
 	    ")";
-    RETURN(description);
+    return description;
 }
 
 string
@@ -268,22 +264,15 @@ Xapian::Document::Internal::get_value(Xapian::valueno valueid) const
 	if (i == values.end()) return "";
 	return i->second;
     }
-    if (!database) return "";
+    if (!database.get()) return "";
     return do_get_value(valueid);
 }
 	
-map<Xapian::valueno, string>
-Xapian::Document::Internal::get_all_values() const
-{
-    need_values();
-    return values;
-}
-
 string
 Xapian::Document::Internal::get_data() const
 {
     if (data_here) return data;
-    if (!database) return "";
+    if (!database.get()) return "";
     return do_get_data();
 }
 
@@ -299,9 +288,9 @@ Xapian::Document::Internal::open_term_list() const
 {
     DEBUGCALL(MATCH, TermList *, "Document::Internal::open_term_list", "");
     if (terms_here) {
-	RETURN(new MapTermList(terms.begin(), terms.end(), terms.size()));
+	RETURN(new MapTermList(terms.begin(), terms.end()));
     }
-    if (!database) return NULL;
+    if (!database.get()) RETURN(NULL);
     RETURN(database->open_term_list(did));
 }
 
@@ -310,7 +299,6 @@ Xapian::Document::Internal::add_value(Xapian::valueno valueno, const string &val
 {
     need_values();
     values[valueno] = value;
-    value_nos.clear();
 }
 
 void
@@ -324,14 +312,12 @@ Xapian::Document::Internal::remove_value(Xapian::valueno valueno)
 		"Xapian::Document::Internal::remove_value()");
     }
     values.erase(i);
-    value_nos.clear();
 }
 
 void
 Xapian::Document::Internal::clear_values()
 {
     values.clear();
-    value_nos.clear();
     values_here = true;
 }
 
@@ -412,7 +398,7 @@ Xapian::Document::Internal::termlist_count() const
 {
     if (!terms_here) {
 	// How equivalent is this line to the rest?
-	// return database ? database->open_term_list(did)->get_approx_size() : 0;
+	// return database.get() ? database->open_term_list(did)->get_approx_size() : 0;
 	need_terms();
     }
     Assert(terms_here);
@@ -423,7 +409,7 @@ void
 Xapian::Document::Internal::need_terms() const
 {
     if (terms_here) return;
-    if (database) {
+    if (database.get()) {
 	Xapian::TermIterator t(database->open_term_list(did));
 	Xapian::TermIterator tend(NULL);
 	for ( ; t != tend; ++t) {
@@ -442,7 +428,7 @@ Xapian::Document::Internal::need_terms() const
 Xapian::valueno
 Xapian::Document::Internal::values_count() const
 {
-    DEBUGLINE(UNKNOWN, "Xapian::Document::Internal::values_count() called");
+    LOGLINE(API, "Xapian::Document::Internal::values_count() called");
     need_values();
     Assert(values_here);
     return values.size();
@@ -465,7 +451,7 @@ Xapian::Document::Internal::get_description() const
 	description += "terms[" + om_tostring(terms.size()) + "]";
     }
 
-    if (database) {
+    if (database.get()) {
 	if (data_here || values_here || terms_here) description += ", ";
 	description += "doc=";
 	description += "?"; // do_get_description(); ?
@@ -480,10 +466,16 @@ void
 Xapian::Document::Internal::need_values() const
 {
     if (!values_here) {
-	if (database) {
-	    values = do_get_all_values();
-	    value_nos.clear();
+	if (database.get()) {
+	    Assert(values.empty());
+	    do_get_all_values(values);
 	}
 	values_here = true;
     }
+}
+
+Xapian::Document::Internal::~Internal()
+{
+    if (database.get())
+	database->invalidate_doc_object(this);
 }

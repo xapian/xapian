@@ -99,19 +99,25 @@ iterate over terms in a Document object):
 <tr><td><code>ESet</code></td><td>default iterator</td><td><code>begin()</code></td><td><code>ESetIter</code></td></tr>
 <tr><td><code>Enquire</code></td><td><code>matching_terms()</code></td><td><code>get_matching_terms_begin()</code></td><td><code>TermIter</code></td></tr>
 <tr><td><code>Query</code></td><td>default iterator</td><td><code>get_terms_begin()</code></td><td><code>TermIter</code></td></tr>
-<tr><td><code>Database</code></td><td><code>allterms()</code></td><td><code>allterms_begin()</code> (also as default iterator)</td><td><code>TermIter</code></td></tr>
+<tr><td><code>Database</code></td><td><code>allterms()</code> (also as default iterator)</td><td><code>allterms_begin()</code></td><td><code>TermIter</code></td></tr>
 <tr><td><code>Database</code></td><td><code>postlist(tname)</code></td><td><code>postlist_begin(tname)</code></td><td><code>PostingIter</code></td></tr>
 <tr><td><code>Database</code></td><td><code>termlist(docid)</code></td><td><code>termlist_begin(docid)</code></td><td><code>TermIter</code></td></tr>
 <tr><td><code>Database</code></td><td><code>positionlist(docid, tname)</code></td><td><code>positionlist_begin(docid, tname)</code></td><td><code>PositionIter</code></td></tr>
+<tr><td><code>Database</code></td><td><code>metadata_keys()</code></td><td><code>metadata_keys(prefix)</code></td><td><code>TermIter</code></td></tr>
+<tr><td><code>Database</code></td><td><code>spellings()</code></td><td><code>spellings_begin(term)</code></td><td><code>TermIter</code></td></tr>
+<tr><td><code>Database</code></td><td><code>synonyms(term)</code></td><td><code>synonyms_begin(term)</code></td><td><code>TermIter</code></td></tr>
+<tr><td><code>Database</code></td><td><code>synonym_keys(prefix)</code></td><td><code>synonym_keys_begin(prefix)</code></td><td><code>TermIter</code></td></tr>
 <tr><td><code>Document</code></td><td><code>values()</code></td><td><code>values_begin()</code></td><td><code>ValueIter</code></td></tr>
-<tr><td><code>Document</code></td><td><code>termlist()</code></td><td><code>termlist_begin()</code> (also as default iterator)</td><td><code>TermIter</code></td></tr>
+<tr><td><code>Document</code></td><td><code>termlist()</code> (also as default iterator)</td><td><code>termlist_begin()</code></td><td><code>TermIter</code></td></tr>
 <tr><td><code>QueryParser</code></td><td><code>stoplist()</code></td><td><code>stoplist_begin()</code></td><td><code>TermIter</code></td></tr>
 <tr><td><code>QueryParser</code></td><td><code>unstemlist(tname)</code></td><td><code>unstem_begin(tname)</code></td><td><code>TermIter</code></td></tr>
 </table>
 
 <p>
-The pythonic iterators return Python objects, with properties available as
-attribute values, with lazy evaluation where appropriate.
+The pythonic iterators generally return Python objects, with properties
+available as attribute values, with lazy evaluation where appropriate.  An
+exception is the <code>PositionIter</code> object returned by
+<code>Database.positionlist</code>, which returns an integer.
 </p>
 
 <p>
@@ -132,23 +138,10 @@ Database.postlist: <b>positer</b>
 
 <p>
 In older releases, the pythonic iterators returned lists representing the
-appropriate item when their <code>next()</code> method was called, except
-PositionIter which just returned a single value.  For backward compatibility,
-this sequence API is still supported so existing code should continue to work,
-but its use is now deprecated and we plan to remove it in Xapian 1.1.0, so we
-recommend users migrate to the new API.
+appropriate item when their <code>next()</code> method was called.  These were
+removed in Xapian 1.1.0.
 </p>
 
-<table title="Sequence API equivalents">
-<thead><td>Class</td><td>Returns</td></thead>
-<tr><td><code>MSetIter</code></td><td>[docid, weight, rank, percentage, document]</td></tr>
-<tr><td><code>ESetIter</code></td><td>[term, weight]</td></tr>
-<tr><td><code>TermIter</code></td><td>[term, wdf, termfreq, position iterator]</td></tr>
-<tr><td><code>PostingIter</code></td><td>[docid, doclength, wdf, position iterator]</td></tr>
-<tr><td><code>PositionIter</code></td><td>termpos</td></tr>
-<tr><td><code>ValueIter</code></td><td>[valueno, value]</td></tr>
-</table>
-   
 <h2>Non-Pythonic Iterators</h2>
 
 <p>
@@ -247,14 +240,30 @@ ESetIterator. The members of the tuple are as follows.
 <tr><td><code>xapian.ESET_WT</code></td><td>Weight</td></tr>
 </table>
 
-<h2>Database Factory Functions</h2>
+<h2>Non-Class Functions</h2>
 
+<p>The C++ API contains a few non-class functions (the Database factory
+functions, and some functions reporting version information), which are
+wrapped like so for Python:
+<ul>
+<ul>
+<li> <code>Xapian::version_string()</code> is wrapped as <code>xapian.version_string()</code>
+<li> <code>Xapian::major_version()</code> is wrapped as <code>xapian.major_version()</code>
+<li> <code>Xapian::minor_version()</code> is wrapped as <code>xapian.minor_version()</code>
+<li> <code>Xapian::revision()</code> is wrapped as <code>xapian.revision()</code>
+</ul>
 <ul>
 <li> <code>Xapian::Auto::open_stub()</code> is wrapped as <code>xapian.open_stub()</code>
-<li> <code>Xapian::Quartz::open()</code> is wrapped as <code>xapian.quartz_open()</code>
+<li> <code>Xapian::Chert::open()</code> is wrapped as <code>xapian.chert_open()</code>
+<li> <code>Xapian::Flint::open()</code> is wrapped as <code>xapian.flint_open()</code>
 <li> <code>Xapian::InMemory::open()</code> is wrapped as <code>xapian.inmemory_open()</code>
-<li> <code>Xapian::Remote::open()</code> is wrapped as <code>xapian.remote_open()</code> (only
-the TCP version is currently wrapped, the "program" version isn't).
+<li> <code>Xapian::Remote::open()</code> is wrapped as <code>xapian.remote_open()</code> (both
+the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to
+decide which to call).
+<li> <code>Xapian::Remote::open_writable()</code> is wrapped as <code>xapian.remote_open_writable()</code> (both
+the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to
+decide which to call).
+</ul>
 </ul>
 
 <h2>Query</h2>

@@ -1,5 +1,9 @@
 ## Process this file with automake to produce Makefile.in
 
+# `make QUIET=' overrides `./configure --enable-quiet'.
+# `make QUIET=y' overrides `./configure' without `--enable-quiet'.
+LIBTOOL = @LIBTOOL@ $(QUIET:y=--quiet)
+
 include ../generic/generic.mk
 
 TESTS_ENVIRONMENT = \
@@ -11,7 +15,7 @@ TESTS = smoketest.tcl
 EXTRA_DIST = except.i util.i $(TESTS) $(BUILT_SOURCES) run-tcl-test runtest.tcl pkgIndex.tcl.in
 SUBDIRS = docs
 
-tcllibdir = @TCL_LIB@/../xapian@VERSION@
+tcllibdir = @TCL_LIB@/xapian@VERSION@
 
 tcllib_LTLIBRARIES = xapian.la
 tcllib_DATA = pkgIndex.tcl
@@ -41,7 +45,10 @@ if MAINTAINER_MODE
 xapian_wrap.cc: $(SWIG_sources) except.i util.i
 	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
 	    -tcl8 -namespace -pkgversion @VERSION_NO_SNAPSHOT@ \
-	    -o xapian_wrap.cc $(SWIG_mainsource)
+	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp $(SWIG_mainsource)
+	mv xapian_wrap_d.tmp xapian_wrap.d
+
+-include xapian_wrap.d
 
 CLEANFILES += $(BUILT_SOURCES)
 else

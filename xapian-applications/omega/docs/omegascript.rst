@@ -1,3 +1,4 @@
+===========
 OmegaScript
 ===========
 
@@ -30,7 +31,7 @@ immediately followed by a letter, digit, or "_", you can use a comment to
 prevent the parser treating the following character as part of a command name.
 E.g. $simplecommand${}k rather than $simplecommandk
 
-It is important to realise that all whitespace is signficant in OmegaScript
+It is important to realise that all whitespace is significant in OmegaScript
 - e.g. if you put whitespace around a "," which separates two command arguments
 then the whitespace will be part of the respective arguments.
 
@@ -57,7 +58,7 @@ In the following descriptions, a LIST is a string of tab-separated
 values.
 
 ${...}
-	commented out code
+	commented-out code
 
 $addfilter{TERM}
         add filter term ``TERM`` as if it had been passed as a ``B`` CGI
@@ -108,8 +109,8 @@ $env{VAR}
 	lookup variable ``VAR`` in the environment.
 
 $error
-	error message (e.g. if a database wouldn't open, or the query wasn't
-	parseable, or a Xapian exception has been thrown) or empty if there
+	error message (e.g. if a database wouldn't open, or the query couldn't
+        be parsed, or a Xapian exception has been thrown) or empty if there
 	wasn't an error.
 
 $field{NAME}
@@ -167,7 +168,7 @@ $highlight{TEXT,LIST,[OPEN,[CLOSE]]}
         is ``</b>``.
 
 $hit
-	MSet number of current doc (first document in MSet is 0, so if
+	MSet index of current doc (first document in MSet is 0, so if
 	you want to number the hits 1, 2, 3, ... use ``$add{$hit,1}``).
 
 $hitlist{FMT}
@@ -193,14 +194,14 @@ $httpheader{NAME,VALUE}
 
 	If ``Content-Type`` is not specified by the template, it defaults
 	to ``text/html``.  Headers must be specified before any other
-	output from the Omegascript template - any ``$httpheader{}``
+	output from the OmegaScript template - any ``$httpheader{}``
 	commands found later in the template will be silently ignored.
 
 $id
-	document id of current doc
+	document id of current document
 
 $last
-	MSet number of last hit on this page
+	MSet index of last hit on this page
 
 $lastpage
 	number of last page of hits (may be an underestimate unless
@@ -508,7 +509,7 @@ Logical Operators:
 ==================
 
 $and{...}
-	logical shortcutting and of its arguments - evaluates
+	logical short-cutting "and" of its arguments - evaluates
 	arguments until it finds an empty one (and returns "") or
 	has evaluated them all (returns "true")
 
@@ -534,7 +535,7 @@ $not{A}
 	returns "true" for the empty string, "" otherwise.
 
 $or{...}
-	logical shortcutting or of its arguments - returns first
+	logical short-cutting "or" of its arguments - returns first
 	non-empty argument
 
 Control:

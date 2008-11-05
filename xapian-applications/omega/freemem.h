@@ -22,7 +22,8 @@
 
 /** Determine how much free physical memory there is.
  *
- *  Returns the amount of free physical memory, or -1 if this isn't known.
+ *  Returns the amount of free physical memory, in bytes, or -1 if this isn't
+ *  known.
  */
 long get_free_physical_memory();
 

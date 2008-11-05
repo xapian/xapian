@@ -3,8 +3,8 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
- * Copyright 2006 Richard Boulton
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,16 +29,16 @@
 #include <vector>
 
 #include <xapian/base.h>
+#include <xapian/document.h>
 #include <xapian/types.h>
 #include <xapian/positioniterator.h>
 #include <xapian/postingiterator.h>
 #include <xapian/termiterator.h>
+#include <xapian/valueiterator.h>
 #include <xapian/visibility.h>
 
 /// The Xapian library lives in the Xapian namespace.
 namespace Xapian {
-
-class Document;
 
 /** This class is used to access a database, or a group of databases.
  *
@@ -59,6 +59,23 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	class Internal;
 	/// @private @internal Reference counted internals.
 	std::vector<Xapian::Internal::RefCntPtr<Internal> > internal;
+
+	/** @private @internal Get a document from the database, but doesn't
+	 *  need to check if it exists.
+	 *
+	 *  This method returns a Xapian::Document object which provides the
+	 *  information about a document.  If the document doesn't exist,
+	 *  either a NULL pointer may be returned, or the returned object will
+	 *  throw DocNotFoundError when you try to access it.
+	 *
+	 *  The caller should delete the returned object when it has finished
+	 *  with it.
+	 *
+	 *  @param did   The document id of the document to retrieve.
+	 *
+	 *  @return      Pointer to Document::Internal object.
+	 */
+	Document::Internal * get_document_lazily(Xapian::docid did) const;
 
 	/** Add an existing database (or group of databases) to those
 	 *  accessed by this object.
@@ -210,6 +227,50 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 */
 	Xapian::termcount get_collection_freq(const std::string & tname) const;
 
+	/** Return the frequency of a given value slot.
+	 *
+	 *  This is the number of documents which have a (non-empty) value
+	 *  stored in the slot.
+	 *
+	 *  @param valno The value slot to examine.
+	 *
+	 *  @exception UnimplementedError The frequency of the value isn't
+	 *  available for this database type.
+	 */
+	Xapian::doccount get_value_freq(Xapian::valueno valno) const;
+
+	/** Get a lower bound on the values stored in the given value slot.
+	 *
+	 *  If there are no values stored in the given value slot, this will
+	 *  return an empty string.
+	 *
+	 *  If the lower bound isn't available for the given database type,
+	 *  this will return the lowest possible bound - the empty string.
+	 *
+	 *  @param valno The value slot to examine.
+	 */
+	std::string get_value_lower_bound(Xapian::valueno valno) const;
+
+	/** Get an upper bound on the values stored in the given value slot.
+	 *
+	 *  If there are no values stored in the given value slot, this will
+	 *  return an empty string.
+	 *
+	 *  @param valno The value slot to examine.
+	 *
+	 *  @exception UnimplementedError The upper bound of the values isn't
+	 *  available for this database type.
+	 */
+	std::string get_value_upper_bound(Xapian::valueno valno) const;
+
+	/// Return an iterator over the value in slot @a slot for each document.
+	ValueIterator valuestream_begin(Xapian::valueno slot) const;
+
+	/// Return end iterator corresponding to valuestream_begin().
+	ValueIterator valuestream_end(Xapian::valueno) const {
+	    return ValueIterator();
+	}
+
 	/** Get the length of a document.
 	 */
 	Xapian::doclength get_doclength(Xapian::docid did) const;
@@ -224,7 +285,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  This method returns a Xapian::Document object which provides the
 	 *  information about a document.
 	 *
-	 *  @param did   The document id for which to retrieve the data.
+	 *  @param did   The document id of the document to retrieve.
 	 *
 	 *  @return      A Xapian::Document object containing the document data
 	 *
@@ -274,10 +335,10 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  @param prefix   If non-empty, only terms with this prefix are
 	 *		    returned.
 	 */
-	Xapian::TermIterator synonym_keys_begin(const std::string &prefix = "") const;
+	Xapian::TermIterator synonym_keys_begin(const std::string &prefix = std::string()) const;
 
 	/// Corresponding end iterator to synonym_keys_begin(prefix).
-	Xapian::TermIterator synonym_keys_end(const std::string & = "") const {
+	Xapian::TermIterator synonym_keys_end(const std::string & = std::string()) const {
 	    return Xapian::TermIterator(NULL);
 	}
 
@@ -310,6 +371,35 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *	       metadata.
 	 */
 	std::string get_metadata(const std::string & key) const;
+
+	/** An iterator which returns all user-specified metadata keys.
+	 *
+	 *  When invoked on a Xapian::Database object representing multiple
+	 *  databases, currently only the metadata for the first is considered
+	 *  but this behaviour may change in the future.
+	 *
+	 *  @param prefix   If non-empty, only keys with this prefix are
+	 *		    returned.
+	 */
+	Xapian::TermIterator metadata_keys_begin(const std::string &prefix = std::string()) const;
+
+	/// Corresponding end iterator to metadata_keys_begin().
+	Xapian::TermIterator metadata_keys_end(const std::string & = std::string()) const {
+	    return Xapian::TermIterator(NULL);
+	}
+
+	/** Get a UUID for the database.
+	 *
+	 *  The UUID will persist for the lifetime of the database.
+	 *
+	 *  Replicas (eg, made with the replication protocol, or by copying all
+	 *  the database files) will have the same UUID.  However, copies (made
+	 *  with copydatabase, or xapian-compact) will have different UUIDs.
+	 *
+	 *  If the backend does not support UUIDs, or this database has
+	 *  multiple sub-databases, an exception will be raised.
+	 */
+	std::string get_uuid() const;
 };
 
 /** This class provides read/write access to a database.
@@ -389,7 +479,11 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *
 	 *  Note that flush need not be called explicitly: it will be called
 	 *  automatically when the database is closed, or when a sufficient
-	 *  number of modifications have been made.
+	 *  number of modifications have been made.  By default, this is every
+	 *  10000 documents added, deleted, or modified.  This value is rather
+	 *  conservative, and if you have a machine with plenty of memory,
+	 *  you can improve indexing throughput dramatically by setting
+	 *  XAPIAN_FLUSH_THRESHOLD in the environment to a larger value.
 	 *
 	 *  @exception Xapian::DatabaseError will be thrown if a problem occurs
 	 *             while modifying the database.
@@ -548,9 +642,11 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  This method removes any documents indexed by the specified term
 	 *  from the database.
 	 *
-	 *  The intended use is to allow UIDs from another system to easily
-	 *  be mapped to terms in Xapian, although this method probably has
-	 *  other uses.
+	 *  A major use is for convenience when UIDs from another system are
+	 *  mapped to terms in Xapian, although this method has other uses
+	 *  (for example, you could add a "deletion date" term to documents at
+	 *  index time and use this method to delete all documents due for
+	 *  deletion on a particular date).
 	 *
 	 *  @param unique_term     The term to remove references to.
 	 *

@@ -1,7 +1,7 @@
 /** @file flint_spellingwordslist.cc
  * @brief Iterator for the spelling correction words in a flint database.
  */
-/* Copyright (C) 2004,2005,2006,2007 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -35,13 +35,6 @@ FlintSpellingWordsList::~FlintSpellingWordsList()
     delete cursor;
 }
 
-Xapian::termcount
-FlintSpellingWordsList::get_approx_size() const
-{
-    DEBUGCALL(DB, Xapian::termcount, "FlintSpellingWordsList::get_approx_size", "");
-    throw Xapian::UnimplementedError("FlintSpellingWordsList::get_approx_size() not implemented");
-}
-
 string
 FlintSpellingWordsList::get_termname() const
 {
@@ -65,7 +58,7 @@ FlintSpellingWordsList::get_termfreq() const
 
     Xapian::termcount freq;
     const char *p = cursor->current_tag.data();
-    if (!unpack_uint_last(&p, p + cursor->current_tag.size(), &freq)) {
+    if (!F_unpack_uint_last(&p, p + cursor->current_tag.size(), &freq)) {
 	throw Xapian::DatabaseCorruptError("Bad spelling word freq");
     }
     return freq;

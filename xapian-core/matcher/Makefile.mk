@@ -5,6 +5,7 @@ noinst_HEADERS +=\
 	matcher/branchpostlist.h\
 	matcher/emptysubmatch.h\
 	matcher/exactphrasepostlist.h\
+	matcher/externalpostlist.h\
 	matcher/extraweightpostlist.h\
 	matcher/localmatch.h\
 	matcher/mergepostlist.h\
@@ -41,6 +42,7 @@ libxapian_la_SOURCES +=\
 	matcher/branchpostlist.cc\
 	matcher/emptysubmatch.cc\
 	matcher/exactphrasepostlist.cc\
+	matcher/externalpostlist.cc\
 	matcher/localmatch.cc\
 	matcher/mergepostlist.cc\
 	matcher/msetcmp.cc\

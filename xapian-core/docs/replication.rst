@@ -1,4 +1,5 @@
 .. Copyright (C) 2008 Lemur Consulting Ltd
+.. Copyright (C) 2008 Olly Betts
 
 =======================================
 Xapian Database Replication Users Guide
@@ -46,10 +47,21 @@ This document gives an overview of how and why to use the replication protocol.
 For technical details of the implementation of the replication protocol, see
 the separate `Replication Protocol <replication_protocol.html>`_ document.
 
+Backend Support
+===============
+
+Replication supports the flint and chert databases, and can cleanly handle the
+master switching database type (a full copy is sent in this situation).  It
+doesn't make a lot of sense to support replication for the remote backend.
+Replication of inmemory databases isn't currently available.  We have a longer
+term aim to replace the current inmemory backend with the current disk based
+backend (e.g. chert) but storing its data in memory.  Once this is done, it
+would probably be easy to support replication of inmemory databases.
+
 Setting up replicated databases
 ===============================
 
-FIXME - expand this section.
+.. FIXME - expand this section.
 
 To replicate a database efficiently from one master machine to other machines,
 there is one configuration step to be performed on the master machine, and two
@@ -65,14 +77,13 @@ of the database.
 Secondly, also on the master machine, run the `xapian-replicate-server` server
 to serve the databases which are to be replicated.  This takes various
 parameters to control the directory that databases are found in, and the
-network interface to serve on.  The "-h" parameter will cause usage information
-to be displayed.  For example, if /var/search/dbs contains a set of xapian
-databases to be replicated::
+network interface to serve on.  The `--help` option will cause usage
+information to be displayed.  For example, if `/var/search/dbs`` contains a
+set of Xapian databases to be replicated::
 
   ./xapian-replicate-server /var/search/dbs -p 7010
 
 would run a server allowing access to these databases, on port 7010.
-
 
 Finally, on the client machine, run the `xapian-replicate` server to keep an
 individual database up-to-date.  This will contact the server on the specified
@@ -86,7 +97,7 @@ example, contacting the above server from the same machine::
 would produce a database "foo2" containing a replica of the database
 "/var/search/dbs/foo".
 
-Both the server and client can be run in "one-shot" mode, by passing "-o".
+Both the server and client can be run in "one-shot" mode, by passing `-o`.
 This may be particularly useful for the client, to allow a shell script to be
 used to cycle through a set of databases, updating each in turn (and then
 probably sleeping for a period).
@@ -240,4 +251,3 @@ In some cases (i.e., a very large database and a high concurrent search load)
 it may be perfectly reasonable to use both the database replication protocol in
 conjunction with the "remote" database backend to get both of these advantages
 - the two systems solve different problems.
-

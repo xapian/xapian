@@ -1,7 +1,7 @@
 /** @file flint_spelling.h
  * @brief Spelling correction data for a flint database.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,14 +31,14 @@
 #include <string>
 #include <string.h> // For memcpy() and memcmp().
 
-struct fragment {
+struct F_fragment {
     char data[4];
 
     // Default constructor.
-    fragment() { }
+    F_fragment() { }
 
     // Allow implicit conversion.
-    fragment(char data_[4]) { memcpy(data, data_, 4); }
+    F_fragment(char data_[4]) { memcpy(data, data_, 4); }
 
     char & operator[] (unsigned i) { return data[i]; }
     const char & operator[] (unsigned i) const { return data[i]; }
@@ -48,16 +48,16 @@ struct fragment {
     }
 };
 
-inline bool operator<(const fragment &a, const fragment &b) {
+inline bool operator<(const F_fragment &a, const F_fragment &b) {
     return memcmp(a.data, b.data, 4) < 0;
 }
 
 class FlintSpellingTable : public FlintTable {
-    void add_fragment(fragment frag, const string & word);
-    void remove_fragment(fragment frag, const string & word);
+    void add_fragment(F_fragment frag, const string & word);
+    void remove_fragment(F_fragment frag, const string & word);
 
     std::map<std::string, Xapian::termcount> wordfreq_changes;
-    std::map<fragment, std::set<std::string> > termlist_deltas;
+    std::map<F_fragment, std::set<std::string> > termlist_deltas;
 
   public:
     /** Create a new FlintSpellingTable object.
@@ -136,9 +136,6 @@ class FlintSpellingTermList : public TermList {
     /// Constructor.
     FlintSpellingTermList(const std::string & data_)
 	: data(data_), p(0) { }
-
-    /// Destructor.
-    ~FlintSpellingTermList();
 
     Xapian::termcount get_approx_size() const;
 

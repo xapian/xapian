@@ -2,6 +2,7 @@
  *  @brief File and path manipulation routines.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
+ * Copyright (C) 2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +22,7 @@
 #include <config.h>
 #include "fileutils.h"
 
+#include "stringutils.h"
 #include <string>
 
 using namespace std;
@@ -31,7 +33,7 @@ calc_dirname(const string & filename)
     string::size_type slash = filename.rfind('/');
 #ifdef __WIN32__
     string::size_type backslash = filename.rfind('\\');
-    if (blackslash != string::npos && backslash > slash) slash = backslash;
+    if (backslash != string::npos && backslash > slash) slash = backslash;
 #endif
     if (slash == string::npos) return "./";
     return (filename.substr(0, slash) + "/");
@@ -59,7 +61,7 @@ is_drive(const string &path)
 string
 join_paths(const string & path1, const string & path2)
 {
-    if (path1.size() == 0) return path2;
+    if (path1.empty()) return path2;
 #ifdef __WIN32__
     if (isabspath(path2)) {
 	// If path2 has a drive, just return it.
@@ -70,7 +72,7 @@ join_paths(const string & path1, const string & path2)
 	return path2;
     }
     if (has_drive(path2)) return path2;
-    if (path1[path1.size() - 1] == '/' || path1[path1.size() - 1] == '\\')
+    if (endswith(path1, '/') || endswith(path1, '\\'))
 	return path1 + path2;
     return path1 + "\\" + path2;
 #else
@@ -85,7 +87,7 @@ bool
 isabspath(const string & path)
 {
     // Empty paths are never absolute.
-    if (path.size() == 0) return false;
+    if (path.empty()) return false;
 #ifdef __WIN32__
     // On windows, paths may begin with a drive letter - but the part after the
     // drive letter may still be relative.

@@ -57,6 +57,11 @@ licenses = [
     '''),
 ]
 
+fixmes = [
+    r'''FIXME:(?P<milestone>[\d.]+)''',
+    r'''FIXME''',
+]
+
 whitespace_re = re.compile(r'\s+')
 
 license_patterns = []
@@ -64,15 +69,20 @@ for name, pattern in licenses:
     pattern = whitespace_re.sub('\s+', pattern)
     license_patterns.append((name, re.compile(pattern)))
 
+fixme_patterns = []
+for pattern in fixmes:
+    fixme_patterns.append(re.compile(pattern))
+
 class FileDetails:
     def __init__(self, path):
         self.path = path
         self.holders = []
         self.licenses = []
         self.length = 0
+        self.fixmes = []
 
     def __repr__(self):
-        return "FileDetails(%r, %r, %r)" % (self.path, self.holders, self.licenses)
+        return "FileDetails(%r, %r, %r, %r)" % (self.path, self.holders, self.licenses, self.fixmes)
 
 class SourceChecker:
     def __init__(self, toppath):
@@ -165,6 +175,28 @@ class SourceChecker:
 
         file = self.get_file_details()
         file.licenses.extend(licenses)
+
+    def parse_fixmes(self, comments):
+        fixmes = []
+        for comment in comments:
+            comment = comment.replace('\n', ' ').replace('\r', '').strip()
+            for pattern in fixme_patterns:
+                g = pattern.search(comment)
+                if g:
+                    fixmetext = comment[g.end():].strip()
+                    if fixmetext.startswith(':'):
+                        fixmetext = fixmetext[1:].strip()
+                    if fixmetext.startswith('-'):
+                        fixmetext = fixmetext[1:].strip()
+                    try:
+                        milestone = g.group('milestone')
+                    except IndexError:
+                        milestone = ''
+                    fixmes.append((milestone, fixmetext))
+                    break
+
+        file = self.get_file_details()
+        file.fixmes.extend(fixmes)
 
     def strip_quotes(self, line, incomment, was_cpp_comment):
         """Remove any quoted strings from a line.
@@ -349,6 +381,7 @@ class SourceChecker:
         comments = self.get_comments(lines)
         self.parse_copyrights(comments)
         self.parse_licenses(comments)
+        self.parse_fixmes(comments)
 
         file = self.get_file_details()
         file.length = len(lines)
@@ -431,6 +464,19 @@ class SourceChecker:
             result.append((license, license_owners))
         return tuple(result)
                 
+    def get_fixmes(self):
+        """Get a dict holding fixmes, keyed by milestone.
+
+        """
+        milestones = {}
+        for file in self.files.itervalues():
+            for milestone, fixmetext in file.fixmes:
+                if milestone not in milestones:
+                    milestones[milestone] = []
+                milestones[milestone].append((file.path, fixmetext))
+        return [(milestone, milestones[milestone]) for milestone in
+                milestones.iterkeys()]
+
 
 toppath = '../xapian-core'
 if len(sys.argv) > 1:
@@ -440,9 +486,20 @@ checker.check()
 
 #pprint(checker.files)
 
+#pprint(checker.get_fixmes())
+fixmefd = open("fixmes.csv", "wb")
+writer = csv.writer(fixmefd)
+writer.writerow(("Milestone", "File", "Message",))
+for milestone, fixmes in checker.get_fixmes():
+    for filepath, fixmetext in fixmes:
+       writer.writerow((milestone, filepath, fixmetext))
+fixmefd.close()
+
+
 #pprint(checker.get_ownership())
 
-writer = csv.writer(sys.stdout)
+copyrightfd = open("copyright.csv", "wb")
+writer = csv.writer(copyrightfd)
 writer.writerow(("License", "Author", "File count", "Lines touched",
                  "File proportion (equal)", "File proportion (biased)",
                  "Lines proportion (equal)", "Lines proportion (biased)",))
@@ -451,3 +508,4 @@ for license in checker.get_ownership():
         value = [license[0]]
         value.extend(holder)
         writer.writerow(value)
+copyrightfd.close()

@@ -1,7 +1,7 @@
 /* flint_cursor.cc: Btree cursor implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,13 +21,13 @@
 
 #include <config.h>
 
+#include "flint_cursor.h"
+
 #include "safeerrno.h"
 
 #include <xapian/error.h>
 
-#include "flint_cursor.h"
 #include "flint_table.h"
-#include "flint_btreeutil.h"
 #include "omassert.h"
 #include "omdebug.h"
 
@@ -96,7 +96,7 @@ FlintCursor::prev()
 	while (true) {
 	    if (! B->prev(C, 0)) {
 		is_positioned = false;
-		return false;
+		RETURN(false);
 	    }
 	    if (Item_(C[0].p, C[0].c).component_of() == 1) {
 		break;
@@ -107,7 +107,7 @@ FlintCursor::prev()
     while (true) {
 	if (! B->prev(C, 0)) {
 	    is_positioned = false;
-	    return false;
+	    RETURN(false);
 	}
 	if (Item_(C[0].p, C[0].c).component_of() == 1) {
 	    break;
@@ -116,8 +116,8 @@ FlintCursor::prev()
     get_key(&current_key);
     tag_status = UNREAD;
 
-    DEBUGLINE(DB, "Moved to entry: key=`" << hex_display_encode(current_key) << "'");
-    return true;
+    LOGLINE(DB, "Moved to entry: key=" << hex_display_encode(current_key));
+    RETURN(true);
 }
 
 bool
@@ -141,14 +141,14 @@ FlintCursor::next()
 
     if (!is_positioned) {
 	is_after_end = true;
-	return false;
+	RETURN(false);
     }
 
     get_key(&current_key);
     tag_status = UNREAD;
 
-    DEBUGLINE(DB, "Moved to entry: key=`" << hex_display_encode(current_key) << "'");
-    return true;
+    LOGLINE(DB, "Moved to entry: key=" << hex_display_encode(current_key));
+    RETURN(true);
 }
 
 bool
@@ -193,7 +193,7 @@ done:
 	get_key(&current_key);
     tag_status = UNREAD;
 
-    DEBUGLINE(DB, "Found entry: key=`" << hex_display_encode(current_key) << "'");
+    LOGLINE(DB, "Found entry: key=" << hex_display_encode(current_key));
     RETURN(found);
 }
 
@@ -232,7 +232,7 @@ FlintCursor::find_entry_ge(const string &key)
     }
     tag_status = UNREAD;
 
-    DEBUGLINE(DB, "Found entry: key=`" << hex_display_encode(current_key) << "'");
+    LOGLINE(DB, "Found entry: key=" << hex_display_encode(current_key));
     RETURN(found);
 }
 
@@ -263,9 +263,9 @@ FlintCursor::read_tag(bool keep_compressed)
 	// cursor ends up on the next key.
 	is_positioned = B->next(C, 0);
 
-	DEBUGLINE(DB, "tag=`" << hex_display_encode(current_tag) << "'");
+	LOGLINE(DB, "tag=" << hex_display_encode(current_tag));
     }
-    return (tag_status == COMPRESSED);
+    RETURN(tag_status == COMPRESSED);
 }
 
 bool
@@ -275,8 +275,11 @@ FlintCursor::del()
 
     B->del(current_key);
 
-    // The deletion happens in a new (uncommitted) revision of the tree, but
-    // the cursor is running over the previous revision, so it can still see
-    // the deleted key.
+    // If we're iterating an older revision of the tree, then the deletion
+    // happens in a new (uncommitted) revision and the cursor still sees
+    // the deleted key.  But if we're iterating the new uncommitted revision
+    // then the deleted key is no longer visible.  We need to handle both
+    // cases - either find_entry_ge() finds the deleted key or not.
+    if (!find_entry_ge(current_key)) return is_positioned;
     return next();
 }

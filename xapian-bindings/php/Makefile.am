@@ -1,5 +1,9 @@
 ## Process this file with automake to produce Makefile.in
 
+# `make QUIET=' overrides `./configure --enable-quiet'.
+# `make QUIET=y' overrides `./configure' without `--enable-quiet'.
+LIBTOOL = @LIBTOOL@ $(QUIET:y=--quiet)
+
 include ../generic/generic.mk
 
 abs_builddir = @abs_builddir@
@@ -59,8 +63,13 @@ php5/xapian_wrap.stamp: $(SWIG_sources) except.i util.i
 	$(multitarget_begin)
 	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
 	    -php5 -prefix Xapian -outdir php5 \
-	    -o php5/xapian_wrap.cc $(SWIG_mainsource)
+	    -o php5/xapian_wrap.cc -MD -MF xapian_wrap_d.tmp $(SWIG_mainsource)
+	$(PERL) -pe 's!xapian_wrap.cc:!xapian_wrap.stamp:!' xapian_wrap_d.tmp > xapian_wrap_d2.tmp
+	mv xapian_wrap_d2.tmp xapian_wrap.d
+	rm xapian_wrap_d.tmp
 	$(multitarget_end)
+
+-include xapian_wrap.d
 
 CLEANFILES = $(BUILT_SOURCES) php5/xapian_wrap.stamp
 else

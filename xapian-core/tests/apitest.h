@@ -25,17 +25,17 @@
 
 #include "testsuite.h"
 
-#define DEFINE_TESTCASE(S,COND) bool test_##S()
-
-const char * get_dbtype();
+std::string get_dbtype();
 
 Xapian::Database get_database(const std::string &db);
 
 Xapian::Database get_database(const std::string &db1, const std::string &db2);
 
-Xapian::WritableDatabase get_writable_database(const std::string &db = "");
+std::string get_database_path(const std::string &db);
 
-Xapian::WritableDatabase get_named_writable_database(const std::string &name, const std::string &source = "");
+Xapian::WritableDatabase get_writable_database(const std::string &db = std::string());
+
+Xapian::WritableDatabase get_named_writable_database(const std::string &name, const std::string &source = std::string());
 
 std::string get_named_writable_database_path(const std::string &name);
 
@@ -45,10 +45,22 @@ Xapian::Database get_writable_database_as_database();
 
 Xapian::WritableDatabase get_writable_database_again();
 
-#define SKIP_TEST_UNLESS_BACKEND(B) \
-    if (strcmp(get_dbtype(), (B)) != 0) SKIP_TEST("Test only supported for "#B" backend"); else (void)0
+// Skip the test for any backend not of the specified type.
+//
+// More precisely, this skips the test for any backend for which the
+// get_dbtype() function does not return a string starting with backend_prefix.
+// This allows backends like "multi (flint)" to be covered by specifying
+// "multi".
+void skip_test_unless_backend(const std::string & backend_prefix);
 
-#define SKIP_TEST_FOR_BACKEND(B) \
-    if (strcmp(get_dbtype(), (B)) == 0) SKIP_TEST("Test not supported for "#B" backend"); else (void)0
+// Skip the test for any backend of the specified type.
+//
+// More precisely, this skips the test for any backend for which the
+// get_dbtype() function returns a string starting with backend_prefix.  This
+// allows backends like "multi (flint)" to be covered by specifying "multi".
+void skip_test_for_backend(const std::string & backend_prefix);
+
+#define SKIP_TEST_UNLESS_BACKEND(B) skip_test_unless_backend(B)
+#define SKIP_TEST_FOR_BACKEND(B) skip_test_for_backend(B)
 
 #endif // XAPIAN_INCLUDED_APITEST_H

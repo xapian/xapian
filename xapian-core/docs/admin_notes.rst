@@ -2,6 +2,8 @@
 .. Copyright (C) 2006 Lemur Consulting Ltd
 .. Copyright (C) 2007,2008 Olly Betts
 
+.. FIXME: Once chert settles down, update this for chert
+
 ============================
 Xapian Administrator's Guide
 ============================
@@ -44,7 +46,8 @@ even if empty; spelling and synonym tables are new in 1.0.2):
    document which each term occurs at.
  - A value table, which holds the "values" (used for sorting, collapsing, and
    other match-time calculations) associated with each document in the
-   database.
+   database (only for flint - chert stores values in the postlist and termlist
+   tables).
  - A spelling table, which holds data for suggesting spelling corrections.
  - A synonym table, which holds a synonym dictionary.
 
@@ -350,7 +353,7 @@ table: for example, this command will check the termlist table of database "foo"
 Converting a quartz database to a flint database
 ------------------------------------------------
 
-It is possible to convert a quartz database to a flint databaseby installing
+It is possible to convert a quartz database to a flint database by installing
 Xapian 1.0.x (since this has support for both quartz and flint)
 and using the "copydatabase" example program included with Xapian.  This is a
 lot slower to run than "xapian-compact", since it has to perform the

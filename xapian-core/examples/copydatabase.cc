@@ -1,7 +1,7 @@
 /** @file copydatabase.cc
  * @brief Perform a document-by-document copy of one or more Xapian databases.
  */
-/* Copyright (C) 2006,2007 Olly Betts
+/* Copyright (C) 2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,9 +25,9 @@
 #include <iomanip>
 #include <iostream>
 
-#include <math.h> // For log10().
-#include <stdlib.h> // For exit().
-#include <string.h> // For strcmp() and strrchr().
+#include <cmath> // For log10().
+#include <cstdlib> // For exit().
+#include <cstring> // For strcmp() and strrchr().
 
 using namespace std;
 
@@ -81,7 +81,9 @@ try {
 
 	// Find the leaf-name of the database path for reporting progress.
 	const char * leaf = strrchr(src, '/');
+#if defined __WIN32__ || defined __EMX__
 	if (!leaf) leaf = strrchr(src, '\\');
+#endif
 	if (leaf) ++leaf; else leaf = src;
 
 	// Iterate over all the documents in db_in, copying each to db_out.
@@ -97,9 +99,12 @@ try {
 	    while (it != db_in.postlist_end("")) {
 		db_out.add_document(db_in.get_document(*it));
 
+		// Update for the first 10, and then every 13th document
+		// counting back from the end (this means that all the
+		// digits "rotate" and the counter ends up on the exact
+		// total.
 		++c;
-		// Update for the first 10, and then every 10th document.
-		if (c <= 10 || c % 10 == 0) {
+		if (c <= 10 || (dbsize - c) % 13 == 0) {
 		    cout << '\r' << leaf << ": ";
 		    cout << setw(width) << c << '/' << dbsize << flush;
 		}
@@ -116,7 +121,7 @@ try {
 	    db_out.add_spelling(*spellword, spellword.get_termfreq());
 	    ++spellword;
 	}
-	cout << " Done." << endl;
+	cout << " done." << endl;
 
 	cout << "Copying synonym data..." << flush;
 	Xapian::TermIterator synkey = db_in.synonym_keys_begin();
@@ -129,7 +134,16 @@ try {
 	    }
 	    ++synkey;
 	}
-	cout << " Done." << endl;
+	cout << " done." << endl;
+
+	cout << "Copying user metadata..." << flush;
+	Xapian::TermIterator metakey = db_in.metadata_keys_begin();
+	while (metakey != db_in.metadata_keys_end()) {
+	    string key = *metakey;
+	    db_out.set_metadata(key, db_in.get_metadata(key));
+	    ++metakey;
+	}
+	cout << " done." << endl;
     }
 
     cout << "Flushing..." << flush;

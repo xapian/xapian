@@ -1,6 +1,12 @@
 ## Process this file with automake to produce Makefile.in
 
-EXTRA_DIST = xapian.i generic/except.i \
+# `make QUIET=' overrides `./configure --enable-quiet'.
+# `make QUIET=y' overrides `./configure' without `--enable-quiet'.
+LIBTOOL = @LIBTOOL@ $(QUIET:y=--quiet)
+
+ACLOCAL_AMFLAGS = -I m4
+
+EXTRA_DIST = xapian.i xapian-head.i generic/except.i \
     xapian-bindings.spec.in xapian-bindings.spec skiptest \
     xapian-version.h.in xapian-version.h HACKING TODO
 DISTCLEANFILES = xapian-version.h

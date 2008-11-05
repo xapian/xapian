@@ -1,9 +1,7 @@
-/* inmemory_document.cc: C++ class for storing inmemory documents
- *
- * ----START-LICENCE----
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002 Ananova Ltd
- * Copyright 2003 Olly Betts
+/** @file inmemory_document.cc
+ * @brief A document read from a InMemoryDatabase.
+ */
+/* Copyright (C) 2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,38 +15,38 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
- * USA
- * -----END-LICENCE-----
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
 #include <config.h>
+
 #include "inmemory_document.h"
 
-InMemoryDocument::InMemoryDocument(const Xapian::Database::Internal *db_,
-				   Xapian::docid did_,
-				   const string & doc_,
-				   const map<Xapian::valueno, string> &values_)
-	: Xapian::Document::Internal(db_, did_), doc(doc_), values(values_)
-{
-}
+#include "debuglog.h"
+#include "omassert.h"
 
 string
-InMemoryDocument::do_get_value(Xapian::valueno valueid) const
+InMemoryDocument::do_get_value(Xapian::valueno) const
 {
-    map<Xapian::valueno, string>::const_iterator k = values.find(valueid);
-    if (k == values.end()) return "";
-    return k->second;
+    LOGCALL(DB, string, "InMemoryDocument::do_get_value", "[slot]");
+    // Our ctor sets the values, so we should never get here.
+    Assert(false);
+    RETURN(string());
 }
 
-map<Xapian::valueno, string>
-InMemoryDocument::do_get_all_values() const
+void
+InMemoryDocument::do_get_all_values(map<Xapian::valueno, string> &) const
 {
-    return values;
+    LOGCALL_VOID(DB, "InMemoryDocument::do_get_all_values", "[&values_]");
+    // Our ctor sets the values, so we should never get here.
+    Assert(false);
 }
 
 string
 InMemoryDocument::do_get_data() const
 {
-    return doc;
+    LOGCALL(DB, string, "InMemoryDocument::do_get_data", "");
+    // Our ctor sets the data, so we should never get here.
+    Assert(false);
+    RETURN(string());
 }

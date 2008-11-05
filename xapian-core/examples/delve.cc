@@ -168,8 +168,8 @@ main(int argc, char **argv)
     vector<string> terms;
     vector<string> dbs;
 
-    valueno valno = 0; // Avoid "may be used uninitialised" warnings.
-    bool valno_set = false;
+    valueno slot = 0; // Avoid "may be used uninitialised" warnings.
+    bool slot_set = false;
 
     int c;
     while ((c = gnu_getopt(argc, argv, "r:t:s:1vkV::d")) != EOF) {
@@ -189,8 +189,8 @@ main(int argc, char **argv)
 	    case 'V': case 'k': /* -k for backward compatibility */
 		showvalues = true;
 		if (optarg) {
-		    valno = atoi(optarg);
-		    valno_set = true;
+		    slot = atoi(optarg);
+		    slot_set = true;
 		}
 		break;
 	    case 'd':
@@ -229,7 +229,8 @@ main(int argc, char **argv)
     }
 
     try {
-	if (terms.empty() && recnos.empty() && !valno_set) {
+	if (terms.empty() && recnos.empty() && !slot_set) {
+	    // Show some statistics about the database.
 	    show_db_stats(db);
 	    return 0;
 	}
@@ -244,20 +245,13 @@ main(int argc, char **argv)
 	    }
 	}
 
-	if (valno_set) {
-	    doccount n = db.get_doccount();
-	    docid did = 0;
-	    docid hwm = db.get_lastdocid();
-	    cout << "Value " << valno << " for each document:";
-	    while (n && did != hwm) {
-		try {
-		    Document doc = db.get_document(++did);
-		    string val = doc.get_value(valno);
-		    if (!val.empty())
-			cout << separator << did << ':' << doc.get_value(valno);
-		    --n;
-		} catch (DocNotFoundError &) {
-		}
+	if (slot_set) {
+	    cout << "Value " << slot << " for each document:";
+	    ValueIterator it = db.valuestream_begin(slot);
+	    ValueIterator end = db.valuestream_end(slot);
+	    while (it != end) {
+		cout << separator << it.get_docid() << ':' << *it;
+		++it;
 	    }
 	    cout << endl;
 	}

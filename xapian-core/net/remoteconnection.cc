@@ -20,6 +20,8 @@
 
 #include <config.h>
 
+#include "remoteconnection.h"
+
 #include <xapian/error.h>
 
 #include "safeerrno.h"
@@ -32,7 +34,6 @@
 #include "omassert.h"
 #include "omdebug.h"
 #include "omtime.h"
-#include "remoteconnection.h"
 #include "serialise.h"
 #include "socket_utils.h"
 #include "utils.h"
@@ -46,6 +47,16 @@
 using namespace std;
 
 #define CHUNKSIZE 4096
+
+#ifdef __WIN32__
+inline void
+update_overlapped_offset(WSAOVERLAPPED & overlapped, DWORD n)
+{
+    STATIC_ASSERT_UNSIGNED_TYPE(DWORD); // signed overflow is undefined.
+    overlapped.Offset += n;
+    if (overlapped.Offset < n) ++overlapped.OffsetHigh;
+}
+#endif
 
 RemoteConnection::RemoteConnection(int fdin_, int fdout_,
 				   const string & context_)
@@ -78,12 +89,7 @@ RemoteConnection::read_at_least(size_t min_len, const OmTime & end_time)
     if (buffer.length() >= min_len) return;
 
 #ifdef __WIN32__
-    // FIXME: transforming handles this way isn't recommended. In particular
-    // file offsets are not preserved through subsequent ReadFile calls, so
-    // we have to do this manually (although this will only manifest when using 
-    // an actual file).
     HANDLE hin = fd_to_handle(fdin);
-    off_t ofs;
     do {
 	char buf[CHUNKSIZE];
 	DWORD received;
@@ -96,7 +102,7 @@ RemoteConnection::read_at_least(size_t min_len, const OmTime & end_time)
 	    DWORD waitrc;
 	    waitrc = WaitForSingleObject(overlapped.hEvent, calc_read_wait_msecs(end_time));
 	    if (waitrc != WAIT_OBJECT_0) {
-		DEBUGLINE(REMOTE, "read: timeout has expired");
+		LOGLINE(REMOTE, "read: timeout has expired");
 		throw Xapian::NetworkTimeoutError("Timeout expired while trying to read", context);
 	    }
 	    // Get the final result of the read.
@@ -110,11 +116,8 @@ RemoteConnection::read_at_least(size_t min_len, const OmTime & end_time)
 
 	buffer.append(buf, received);
 
-	// We must move the offset in the OVERLAPPED structure manually.
-	ofs = (((off_t)overlapped.OffsetHigh)<<32) + overlapped.Offset + received;
-	overlapped.Offset = (DWORD)(ofs & 0xFFFFFFFF);
-	overlapped.OffsetHigh = (DWORD)(ofs >> 32);
-
+	// We must update the offset in the OVERLAPPED structure manually.
+	update_overlapped_offset(overlapped, received);
     } while (buffer.length() < min_len);
 #else
     // If there's no end_time, just use blocking I/O.
@@ -136,7 +139,7 @@ RemoteConnection::read_at_least(size_t min_len, const OmTime & end_time)
 	if (received == 0)
 	    throw Xapian::NetworkError("Received EOF", context);
 
-	DEBUGLINE(REMOTE, "read gave errno = " << strerror(errno));
+	LOGLINE(REMOTE, "read gave errno = " << strerror(errno));
 	if (errno == EINTR) continue;
 
 	if (errno != EAGAIN)
@@ -148,7 +151,7 @@ RemoteConnection::read_at_least(size_t min_len, const OmTime & end_time)
 	    OmTime time_diff = end_time - OmTime::now();
 	    // Check if the timeout has expired.
 	    if (time_diff.sec < 0) {
-		DEBUGLINE(REMOTE, "read: timeout has expired");
+		LOGLINE(REMOTE, "read: timeout has expired");
 		throw Xapian::NetworkTimeoutError("Timeout expired while trying to read", context);
 	    }
 
@@ -207,13 +210,8 @@ RemoteConnection::send_message(char type, const string &message, const OmTime & 
     header += encode_length(message.size());
 
 #ifdef __WIN32__
-    // FIXME: transforming handles this way isn't recommended. In particular
-    // file offsets are not preserved through subsequent WriteFile calls, so
-    // we have to do this manually (although this will only manifest when using 
-    // an actual file).
     HANDLE hout = fd_to_handle(fdout);
     const string * str = &header;
-    off_t ofs;
 
     size_t count = 0;
     while (true) {
@@ -227,7 +225,7 @@ RemoteConnection::send_message(char type, const string &message, const OmTime & 
 	    DWORD waitrc;
 	    waitrc = WaitForSingleObject(overlapped.hEvent, calc_read_wait_msecs(end_time));
 	    if (waitrc != WAIT_OBJECT_0) {
-		DEBUGLINE(REMOTE, "write: timeout has expired");
+		LOGLINE(REMOTE, "write: timeout has expired");
 		throw Xapian::NetworkTimeoutError("Timeout expired while trying to write", context);
 	    }
 	    // Get the final result.
@@ -238,10 +236,8 @@ RemoteConnection::send_message(char type, const string &message, const OmTime & 
 
 	count += n;
 
-	// We must move the offset in the OVERLAPPED structure manually.
-	ofs = (((off_t)overlapped.OffsetHigh)<<32) + overlapped.Offset + n;
-	overlapped.Offset = (DWORD)(ofs & 0xFFFFFFFF);
-	overlapped.OffsetHigh = (DWORD)(ofs >> 32);
+	// We must update the offset in the OVERLAPPED structure manually.
+	update_overlapped_offset(overlapped, n);
 
 	if (count == str->size()) {
 	    if (str == &message || message.empty()) return;
@@ -275,7 +271,7 @@ RemoteConnection::send_message(char type, const string &message, const OmTime & 
 	    continue;
 	}
 
-	DEBUGLINE(REMOTE, "write gave errno = " << strerror(errno));
+	LOGLINE(REMOTE, "write gave errno = " << strerror(errno));
 	if (errno == EINTR) continue;
 
 	if (errno != EAGAIN)
@@ -287,7 +283,7 @@ RemoteConnection::send_message(char type, const string &message, const OmTime & 
 
 	OmTime time_diff(end_time - OmTime::now());
 	if (time_diff.sec < 0) {
-	    DEBUGLINE(REMOTE, "write: timeout has expired");
+	    LOGLINE(REMOTE, "write: timeout has expired");
 	    throw Xapian::NetworkTimeoutError("Timeout expired while trying to write", context);
 	}
 
@@ -347,12 +343,7 @@ RemoteConnection::send_file(char type, const string &file, const OmTime & end_ti
     }
 
 #ifdef __WIN32__
-    // FIXME: transforming handles this way isn't recommended. In particular
-    // file offsets are not preserved through subsequent WriteFile calls, so
-    // we have to do this manually (although this will only manifest when using 
-    // an actual file).
     HANDLE hout = fd_to_handle(fdout);
-    off_t ofs;
     size_t count = 0;
     while (true) {
 	DWORD n;
@@ -365,7 +356,7 @@ RemoteConnection::send_file(char type, const string &file, const OmTime & end_ti
 	    DWORD waitrc;
 	    waitrc = WaitForSingleObject(overlapped.hEvent, calc_read_wait_msecs(end_time));
 	    if (waitrc != WAIT_OBJECT_0) {
-		DEBUGLINE(REMOTE, "write: timeout has expired");
+		LOGLINE(REMOTE, "write: timeout has expired");
 		throw Xapian::NetworkTimeoutError("Timeout expired while trying to write", context);
 	    }
 	    // Get the final result.
@@ -376,10 +367,8 @@ RemoteConnection::send_file(char type, const string &file, const OmTime & end_ti
 
 	count += n;
 
-	// We must move the offset in the OVERLAPPED structure manually.
-	ofs = (((off_t)overlapped.OffsetHigh)<<32) + overlapped.Offset + n;
-	overlapped.Offset = (DWORD)(ofs & 0xFFFFFFFF);
-	overlapped.OffsetHigh = (DWORD)(ofs >> 32);
+	// We must update the offset in the OVERLAPPED structure manually.
+	update_overlapped_offset(overlapped, n);
 
 	if (count == c) {
 	    if (size == 0) return;
@@ -427,7 +416,7 @@ RemoteConnection::send_file(char type, const string &file, const OmTime & end_ti
 	    continue;
 	}
 
-	DEBUGLINE(REMOTE, "write gave errno = " << strerror(errno));
+	LOGLINE(REMOTE, "write gave errno = " << strerror(errno));
 	if (errno == EINTR) continue;
 
 	if (errno != EAGAIN)
@@ -439,7 +428,7 @@ RemoteConnection::send_file(char type, const string &file, const OmTime & end_ti
 
 	OmTime time_diff(end_time - OmTime::now());
 	if (time_diff.sec < 0) {
-	    DEBUGLINE(REMOTE, "write: timeout has expired");
+	    LOGLINE(REMOTE, "write: timeout has expired");
 	    throw Xapian::NetworkTimeoutError("Timeout expired while trying to write", context);
 	}
 
@@ -565,7 +554,7 @@ RemoteConnection::get_message_chunk(string &result, size_t at_least,
 
     read_at_least(at_least, end_time);
 
-    size_t retlen(size_t(min(off_t(buffer.size()), chunked_data_left)));
+    size_t retlen(min(off_t(buffer.size()), chunked_data_left));
     result.append(buffer, 0, retlen);
     buffer.erase(0, retlen);
     chunked_data_left -= retlen;
@@ -642,20 +631,38 @@ RemoteConnection::receive_file(const string &file, const OmTime & end_time)
 }
 
 void
-RemoteConnection::do_close()
+RemoteConnection::do_close(bool wait)
 {
-    DEBUGCALL(REMOTE, void, "RemoteConnection::do_close", "");
-
-    if (fdin == -1 && fdout == -1) return;
+    DEBUGCALL(REMOTE, void, "RemoteConnection::do_close", wait);
 
     if (fdin >= 0) {
-	// We can be called from a destructor, so we can't throw an exception.
-	try {
-	    /* If we can't send the close-down message right away, then just
-	     * close the connection as the other end will cope.
-	     */
-	    send_message(MSG_SHUTDOWN, "", OmTime::now());
-	} catch (...) {
+	if (wait) {
+	    // We can be called from a destructor, so we can't throw an
+	    // exception.
+	    try {
+		send_message(MSG_SHUTDOWN, string(), OmTime());
+	    } catch (...) {
+	    }
+#ifdef __WIN32__
+	    HANDLE hin = fd_to_handle(fdin);
+	    char dummy;
+	    DWORD received;
+	    BOOL ok = ReadFile(hin, &dummy, 1, &received, &overlapped);
+	    if (!ok && GetLastError() == ERROR_IO_PENDING) {
+		// Wait for asynchronous read to complete.
+		(void)WaitForSingleObject(overlapped.hEvent, INFINITE);
+	    }
+#else
+	    // Wait for the connection to be closed - when this happens
+	    // select() will report that a read won't block.
+	    fd_set fdset;
+	    FD_ZERO(&fdset);
+	    FD_SET(fdin, &fdset);
+	    int res;
+	    do {
+		res = select(fdin + 1, &fdset, 0, &fdset, NULL);
+	    } while (res < 0 && errno == EINTR);
+#endif
 	}
 	close_fd_or_socket(fdin);
 

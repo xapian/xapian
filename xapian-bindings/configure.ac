@@ -1,19 +1,19 @@
 dnl Process this file with autoconf to produce a configure script.
 
-dnl Need autoconf 2.50 or later for many features
-dnl 2.54 needed for automake 1.6
-dnl 2.57 fixes the annoying warnings from configure on FreeBSD
-dnl 2.58 is needed by automake 1.8.5
-dnl 2.59 was released the same day as 2.58 to fix a problem
-AC_PREREQ(2.59)
-AC_INIT(xapian-bindings, 1.0.5)dnl FIXME: bugreport addr as third argument
-dnl 1.9 reduces Makefile.in size, and 1.9.5 was in Debian sarge
-dnl But the RPM spec file runs autoreconf, and SLES 9 has 1.8.3.
-AM_INIT_AUTOMAKE([1.8.3 -Wportability tar-ustar])
+dnl See xapian-core's HACKING document for details of the reasons for required
+dnl versions.
+AC_PREREQ([2.63])
 
-AC_CONFIG_SRCDIR(xapian.i)
+AC_INIT([xapian-bindings], [1.1.0], [http://xapian.org/bugs])
 
-AM_CONFIG_HEADER(config.h)
+dnl See xapian-core's HACKING document for details of the reasons for required
+dnl versions.
+AM_INIT_AUTOMAKE([1.10.1 -Wportability tar-ustar])
+AC_CONFIG_SRCDIR([xapian.i])
+
+AC_CONFIG_HEADERS([config.h])
+
+AC_CONFIG_MACRO_DIR([m4])
 
 dnl Mac OS X needs MACOSX_DEPLOYMENT_TARGET set to 10.3 (or higher) to
 dnl successfully link the SWIG generated modules.  The link always fails
@@ -46,20 +46,10 @@ if test -n "$OVERRIDE_MACOSX_DEPLOYMENT_TARGET" ; then
 fi
 AM_CONDITIONAL(NEED_JNILIB_EXT, test yes = "$NEED_JNILIB_EXT")
 
-dnl We don't use Fortran, but libtool 1.5 insists on probing for f77 which just
-dnl makes configure take longer to run.  We force it not to using the method
-dnl suggested here (which also reduces configure size):
-dnl http://article.gmane.org/gmane.comp.gnu.libtool.general/8172
-m4_defun([_LT_AC_LANG_F77_CONFIG], [:])
-dnl Eliminating the unused code for gcj and rc probes further reduces the size
-dnl of the generated configure script (by 29% in total):
-m4_defun([_LT_AC_LANG_GCJ_CONFIG], [:])
-m4_defun([_LT_AC_LANG_RC_CONFIG], [:])
-
 dnl Use libtool to manage our libraries, but don't build static libraries as
 dnl the bindings only have a use for dynamic ones.
-AC_DISABLE_STATIC
-AC_PROG_LIBTOOL
+LT_PREREQ([2.2.6])
+LT_INIT([disable-static])
 
 dnl -no-undefined causes problems on Mac OS X with at least some
 dnl MACOSX_DEPLOYMENT_TARGET settings, so only pass -no-undefined on
@@ -98,6 +88,13 @@ dnl We only need to set docdir for compatibility with autoconf < 2.60 - this
 dnl code can be removed once we move to requiring autoconf 2.60 or newer.
 test -n "$docdir" || docdir='${datadir}/doc/${PACKAGE_TARNAME}'
 AC_SUBST(docdir)
+
+AC_ARG_ENABLE(quiet,
+  [AS_HELP_STRING([--enable-quiet], [enable quiet building [default=no]])],
+  [case ${enableval} in
+    yes|no) ;;
+    *) AC_MSG_ERROR([bad value ${enableval} for --enable-quiet]) ;;
+  esac])
 
 dnl Only probe for SWIG and enable SWIG rules in makefiles if
 dnl configure --enable-maintainer-mode is used.
@@ -145,8 +142,6 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   esac
   SWIG_FLAGS="`$XAPIAN_CONFIG --swigflags` -Werror"
   AC_SUBST(SWIG_FLAGS)
-  SWIG_COREHEADERS="`$XAPIAN_CONFIG --swigheaders`"
-  AC_SUBST(SWIG_COREHEADERS)
 
   dnl Need perl in maintainer mode to generate the except.i file for python.
   AC_PATH_PROGS(PERL, ["${PERL-perl}"], [])
@@ -211,18 +206,17 @@ if test no != "$with_python" ; then
   AC_PATH_PROGS(PYTHON, ["${PYTHON-python}"], [])
   AC_ARG_VAR(PYTHON, [Python interpreter])
   if test -n "$PYTHON" ; then
-    dnl Require Python 2.2 or newer.  We need 2.2 to use SWIG's -modern option,
-    dnl for Pythonic iterator support, and it's now > 4.5 years since the last
-    dnl 2.1.x release and 2.5 is out.
+    dnl Require Python 2.3 or newer.  It's now > 4.5 years since the last
+    dnl 2.2.x release, so 2.2 is essentially unsupported upstream.
     AC_MSG_CHECKING([$PYTHON version])
     version=`$PYTHON -c 'import sys;print(sys.version[[:3]])' 2>/dev/null`
     case $version in
-    [2.[2-9]*|2.1[0-9]*|[3-9].*])
+    [2.[3-9]*|2.[12][0-9][0-9]*|[3-9].*])
       ;;
     *)
       AC_MSG_RESULT([$version (too old)])
       if test yes = "$with_python" ; then
-	AC_MSG_ERROR([Only python 2.2 or newer is supported ($python is $version)])
+	AC_MSG_ERROR([Only python 2.3 or newer is supported ($python is $version)])
       fi
       PYTHON=
       ;;
@@ -257,7 +251,7 @@ if test no != "$with_python" ; then
 	AC_MSG_CHECKING([for python libraries to link against])
 	case $host_os in
 	mingw* | pw32*)
-	  PYTHON_LIBS=`$PYTHON -c 'import os,sys;print("-L"+os.path.join(sys.prefix,"libs").replace(os.sep,"/"),"-lpython"+sys.version[[:3]].replace(".",""))'` ;;
+	  PYTHON_LIBS=`$PYTHON -c 'import os,sys;print("-L"+os.path.join(sys.prefix,"libs").replace(os.sep,"/")+" -lpython"+sys.version[[:3]].replace(".",""))'` ;;
 	*)
 	  PYTHON_LIBS= ;;
 	esac
@@ -388,9 +382,9 @@ if test no != "$with_tcl" ; then
   AC_PATH_PROGS(TCLSH, ["${TCLSH-tclsh}"], [])
   AC_ARG_VAR(TCLSH, [Tcl interpreter])
   if test -n "$TCLSH" ; then
-    # We need Tcl 8.1 or later for TCL_STUBS.
-    # Note: The bindings can easily be made to work with Tcl 8.0 (just
-    # don't pass -DUSE_TCL_STUBS when compiling) should you need that.
+    dnl We need Tcl 8.1 or later for TCL_STUBS.
+    dnl Note: The bindings can easily be made to work with Tcl 8.0 (just
+    dnl don't pass -DUSE_TCL_STUBS when compiling) should you need that.
     AC_MSG_CHECKING([$TCLSH version])
     if echo 'if {$tcl_version < 8.1 } { exit 1 }'|$TCLSH 2> /dev/null ; then
       tcl_version=`echo 'puts "$tcl_version"'|$TCLSH`
@@ -398,7 +392,7 @@ if test no != "$with_tcl" ; then
 
       AC_ARG_VAR(TCL_LIB, [Directory to install Tcl files into])
       if test -z "$TCL_LIB" ; then    
-	TCL_LIB=`echo 'foreach d $tcl_pkgPath {if {![regexp {/share(/|$)} $d]} {break}};puts $d'|$TCLSH`
+	[TCL_LIB=`echo 'foreach d $tcl_pkgPath {if {![regexp {/share(/|$)} $d]} {break}};puts $d'|$TCLSH`]
       fi
       AC_SUBST(TCL_LIB)
 
@@ -476,9 +470,10 @@ if test no != "$with_csharp" ; then
     if test -z "$CSC" ; then
       dnl csc is the Microsoft CSharp compiler.
       AC_PATH_PROGS(CSC, [csc], [])
-      # Chicken (the Scheme-to-C compiler) includes a tool called csc so we check
-      # if the output from "csc -version" includes the word chicken which is
-      # sufficient to distinguish Chicken's csc from Microsoft's csc.exe.
+      dnl Chicken (the Scheme-to-C compiler) includes a tool called csc so we
+      dnl check if the output from "csc -version" includes the word chicken
+      dnl which is sufficient to distinguish Chicken's csc from Microsoft's
+      dnl csc.exe.
       AC_MSG_CHECKING([whether $CSC is for CSharp])
       csc_tmp=`$CSC -version 2>/dev/null|grep chicken`
       if test -z "$csc_tmp" ; then
@@ -493,9 +488,9 @@ if test no != "$with_csharp" ; then
       dnl mcs is the Mono CSharp compiler.
       AC_PATH_PROGS(CSC, [mcs], [])
       if test -n "$CSC" ; then
-	# There are other tools called mcs (such as /usr/bin/mcs on Tru64),
-	# so we check that the mcs we found understands --version which is
-	# sufficient to distinguish mono's mcs from the Tru64 one.
+	dnl There are other tools called mcs (such as /usr/bin/mcs on Tru64),
+	dnl so we check that the mcs we found understands --version which is
+	dnl sufficient to distinguish mono's mcs from the Tru64 one.
 	AC_MSG_CHECKING([whether $CSC is from GNU Mono])
 	if (exec >&5 2>&5;$CSC --version </dev/null;exit $?) ; then
 	  AC_MSG_RESULT(yes)

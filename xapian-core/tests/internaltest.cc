@@ -37,9 +37,10 @@ using namespace std;
 #include "testsuite.h"
 #include "testutils.h"
 
+#include "omassert.h"
+#include "omqueryinternal.h"
 #include "serialise.h"
 #include "serialise-double.h"
-#include "omqueryinternal.h"
 #include "utils.h"
 
 static bool test_except1()
@@ -109,26 +110,26 @@ static bool test_refcnt1()
 	Xapian::Internal::RefCntPtr<test_refcnt> rcp(p);
 
 	TEST_EQUAL(rcp->ref_count, 1);
-	
+
 	{
 	    Xapian::Internal::RefCntPtr<test_refcnt> rcp2;
 	    rcp2 = rcp;
 	    TEST_EQUAL(rcp->ref_count, 2);
 	    // rcp2 goes out of scope here
 	}
-	
+
 	TEST_AND_EXPLAIN(!deleted, "Object prematurely deleted!");
 	TEST_EQUAL(rcp->ref_count, 1);
 	// rcp goes out of scope here
     }
-    
+
     TEST_AND_EXPLAIN(deleted, "Object not properly deleted");
 
     return true;
 }
 
 // This is a regression test - a RefCntPtr used to delete the object pointed
-// to if you assignment it to itself and the reference count was 1.
+// to if you assigned it to itself and the reference count was 1.
 static bool test_refcnt2()
 {
     bool deleted = false;
@@ -136,9 +137,9 @@ static bool test_refcnt2()
     test_refcnt *p = new test_refcnt(deleted);
 
     Xapian::Internal::RefCntPtr<test_refcnt> rcp(p);
-    
+
     rcp = rcp;
-    
+
     TEST_AND_EXPLAIN(!deleted, "Object deleted by self-assignment");
 
     return true;
@@ -178,7 +179,7 @@ static bool test_autoptr1()
     }
 
     TEST(deleted);
-    
+
     return true;
 }
 
@@ -431,8 +432,8 @@ static bool test_serialisequery1()
     queries.push_back(Xapian::Query("foo", 1, 1));
 
     queries.push_back(Xapian::Query(Xapian::Query::OP_OR,
-                                    Xapian::Query("foo", 1, 1),
-                                    Xapian::Query("bar", 1, 1)));
+				    Xapian::Query("foo", 1, 1),
+				    Xapian::Query("bar", 1, 1)));
 
     const char * words[] = { "paragraph", "word" };
     queries.push_back(Xapian::Query(Xapian::Query::OP_OR, words, words + 2));
@@ -448,13 +449,13 @@ static bool test_serialisequery1()
 
     list<Xapian::Query>::const_iterator query;
     for (query = queries.begin(); query != queries.end(); query++) {
-        Xapian::Query::Internal * qint;
+	Xapian::Query::Internal * qint;
 
 	s = query->internal->serialise();
 	qint = Xapian::Query::Internal::unserialise(s);
 
-        TEST(qint->serialise() == s);
-        delete qint;
+	TEST(qint->serialise() == s);
+	delete qint;
     }
 
     return true;
@@ -522,14 +523,64 @@ static bool test_temporarydtor1()
     return true;
 }
 
+static bool test_static_assert1()
+{
+    STATIC_ASSERT(true);
+    STATIC_ASSERT(1);
+    STATIC_ASSERT(-1);
+    STATIC_ASSERT(42);
+    STATIC_ASSERT(sizeof(char) == 1);
+
+    // FIXME: We should test cases which should fail, but these are hard to
+    // check with our current test framework.
+
+    STATIC_ASSERT_UNSIGNED_TYPE(bool);
+    STATIC_ASSERT_UNSIGNED_TYPE(unsigned char);
+    STATIC_ASSERT_UNSIGNED_TYPE(unsigned short);
+    STATIC_ASSERT_UNSIGNED_TYPE(unsigned int);
+    STATIC_ASSERT_UNSIGNED_TYPE(unsigned long);
+
+    // FIXME: We should test cases which should fail, but these are hard to
+    // check with our current test framework.
+
+    STATIC_ASSERT_TYPE_DOMINATES(unsigned long, unsigned long);
+    STATIC_ASSERT_TYPE_DOMINATES(unsigned int, unsigned int);
+    STATIC_ASSERT_TYPE_DOMINATES(unsigned short, unsigned short);
+    STATIC_ASSERT_TYPE_DOMINATES(unsigned char, unsigned char);
+
+    STATIC_ASSERT_TYPE_DOMINATES(long, long);
+    STATIC_ASSERT_TYPE_DOMINATES(int, int);
+    STATIC_ASSERT_TYPE_DOMINATES(short, short);
+    STATIC_ASSERT_TYPE_DOMINATES(signed char, signed char);
+
+    STATIC_ASSERT_TYPE_DOMINATES(char, char);
+
+    STATIC_ASSERT_TYPE_DOMINATES(unsigned long, unsigned int);
+    STATIC_ASSERT_TYPE_DOMINATES(unsigned int, unsigned short);
+    STATIC_ASSERT_TYPE_DOMINATES(unsigned short, unsigned char);
+
+    STATIC_ASSERT_TYPE_DOMINATES(long, int);
+    STATIC_ASSERT_TYPE_DOMINATES(int, short);
+    STATIC_ASSERT_TYPE_DOMINATES(short, signed char);
+
+    STATIC_ASSERT_TYPE_DOMINATES(long, unsigned char);
+    STATIC_ASSERT_TYPE_DOMINATES(int, unsigned char);
+    STATIC_ASSERT_TYPE_DOMINATES(short, unsigned char);
+
+    // FIXME: We should test cases which should fail, but these are hard to
+    // check with our current test framework.
+
+    return true;
+}
+
 // ##################################################################
-// # End of actual tests                                            #
+// # End of actual tests					    #
 // ##################################################################
 
 /// The lists of tests to perform
 test_desc tests[] = {
     {"except1",			test_except1},
-    {"exception1",              test_exception1},
+    {"exception1",		test_exception1},
     {"refcnt1",			test_refcnt1},
     {"refcnt2",			test_refcnt2},
     {"autoptr1",		test_autoptr1},
@@ -544,6 +595,7 @@ test_desc tests[] = {
     {"serialisequery1",		test_serialisequery1},
     {"serialiseerror1",		test_serialiseerror1},
 #endif
+    {"static_assert1",		test_static_assert1},
     {0, 0}
 };
 

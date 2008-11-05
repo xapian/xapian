@@ -54,33 +54,62 @@ class BackendManager {
 
     /// Index data from zero or more text files into a database.
     void index_files_to_database(Xapian::WritableDatabase & database,
-				 const std::vector<std::string> & dbnames);
+				 const std::vector<std::string> & files);
 
   protected:
     bool create_dir_if_needed(const std::string &dirname);
 
+    /** Virtual method implementing get_database().
+     *
+     *  If we just called this get_database() then each subclass which
+     *  defined it would also need to un-hide the non-virtual overloaded method
+     *  with "using get_database(const std::string&);" or similar.
+     */
+    virtual Xapian::Database do_get_database(const std::vector<std::string> &files);
+
+    /** Virtual method implementing get_database_path().
+     *
+     *  If we just called this get_database_path() then each subclass which
+     *  defined it would also need to un-hide the non-virtual overloaded method
+     *  with "using get_database_path(const std::string&);" or similar.
+     */
+    virtual std::string do_get_database_path(const std::vector<std::string> &files);
+
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
     /// Get a writable inmemory database instance.
-    Xapian::WritableDatabase getwritedb_inmemory(const std::vector<std::string> &dbnames);
+    Xapian::WritableDatabase getwritedb_inmemory(const std::vector<std::string> &files);
 #endif
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
     /// Get a remote database instance using xapian-progsrv.
-    Xapian::Database getdb_remoteprog(const std::vector<std::string> &dbnames);
+    Xapian::Database getdb_remoteprog(const std::vector<std::string> &files);
 
     /// Get a writable remote database instance using xapian-progsrv.
-    Xapian::WritableDatabase getwritedb_remoteprog(const std::vector<std::string> &dbnames);
+    Xapian::WritableDatabase getwritedb_remoteprog(const std::vector<std::string> &files);
 
     /// Get a remote database instance using xapian-tcpsrv.
-    Xapian::Database getdb_remotetcp(const std::vector<std::string> &dbnames);
+    Xapian::Database getdb_remotetcp(const std::vector<std::string> &files);
 
     /// Get a writable remote database instance using xapian-tcpsrv.
-    Xapian::WritableDatabase getwritedb_remotetcp(const std::vector<std::string> &dbnames);
+    Xapian::WritableDatabase getwritedb_remotetcp(const std::vector<std::string> &files);
+#endif
+
+#ifdef XAPIAN_HAS_CHERT_BACKEND
+  protected:
+    std::string createdb_chert(const std::vector<std::string> &files);
+
+  public:
+    /// Get a writable chert database instance.
+    Xapian::WritableDatabase getwritedb_chert(const std::string & name,
+					      const std::vector<std::string> &files);
+
+    /// Get the path of a writable chert database instance.
+    std::string getwritedb_chert_path(const std::string & name);
 #endif
 
 #ifdef XAPIAN_HAS_FLINT_BACKEND
   protected:
-    std::string createdb_flint(const std::vector<std::string> &dbnames);
+    std::string createdb_flint(const std::vector<std::string> &files);
 
   public:
     /// Get a writable flint database instance.
@@ -99,11 +128,8 @@ class BackendManager {
     virtual ~BackendManager() { } // FIXME: move out of header
 
     /** Get the database type currently in use.
-     *
-     *  Current possible return values are "inmemory", "flint",
-     *  "none", "remoteprog", and "remotetcp".
      */
-    virtual const char * get_dbtype() const { return "none"; } // FIXME: move out of header
+    virtual std::string get_dbtype() const;
 
     /** Set the directory to store data in.
      */
@@ -114,10 +140,16 @@ class BackendManager {
     const std::string & get_datadir() const { return datadir; }
 
     /// Get a database instance of the current type.
-    virtual Xapian::Database get_database(const std::vector<std::string> &dbnames);
+    Xapian::Database get_database(const std::vector<std::string> &files);
 
     /// Get a database instance of the current type, single file case.
-    virtual Xapian::Database get_database(const std::string &dbname);
+    Xapian::Database get_database(const std::string &file);
+
+    /// Get the path of a database instance, if such a thing exists.
+    std::string get_database_path(const std::vector<std::string> &files);
+
+    /// Get the path of a database instance, if such a thing exists (single file case).
+    std::string get_database_path(const std::string &file);
 
     /// Get a writable database instance.
     virtual Xapian::WritableDatabase get_writable_database(const std::string & name, const std::string & file);
@@ -129,10 +161,13 @@ class BackendManager {
     virtual Xapian::Database get_remote_database(const std::vector<std::string> & files, unsigned int timeout);
 
     /// Create a Database object for the last opened WritableDatabase.
-    virtual Xapian::Database get_writable_database_as_database();
+    virtual Xapian::Database get_writable_database_as_database(const std::string & name = std::string());
 
     /// Create a WritableDatabase object for the last opened WritableDatabase.
-    virtual Xapian::WritableDatabase get_writable_database_again();
+    virtual Xapian::WritableDatabase get_writable_database_again(const std::string & name = std::string());
+
+    /// Called after each test, to perform any necessary cleanup.
+    virtual void posttest();
 
     /// Get the command line required to run xapian-progsrv.
     static const char * get_xapian_progsrv_command();

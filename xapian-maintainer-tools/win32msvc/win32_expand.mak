@@ -15,13 +15,12 @@ ALL : "$(OUTDIR)\libexpand.lib"
 
 OBJS= \
                  $(INTDIR)\ortermlist.obj \
-                 $(INTDIR)\expandweight.obj \
-                 $(INTDIR)\expand.obj \
-                 $(NULL)
+                 $(INTDIR)\esetinternal.obj \
+                 $(INTDIR)\expandweight.obj
 SRCS= \
                  $(INTDIR)\ortermlist.cc \
-                 $(INTDIR)\expandweight.cc \
-                 $(INTDIR)\expand.cc
+                 $(INTDIR)\esetinternal.cc \
+                 $(INTDIR)\expandweight.cc
 		 
 CLEAN :
 	-@erase "$(OUTDIR)\libexpand.lib"
@@ -59,6 +58,6 @@ CPP_SBRS=.
 
 # Calculate any header dependencies and automatically insert them into this file
 HEADERS :
-            if exist ..\win32\$(DEPEND) ..\win32\$(DEPEND) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)"
+            if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) $(DEPEND_FLAGS) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)" 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 

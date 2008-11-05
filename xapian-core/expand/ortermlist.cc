@@ -183,10 +183,6 @@ OrTermList::positionlist_begin() const
 }
 
 
-FreqAdderOrTermList::~FreqAdderOrTermList()
-{
-}
-
 Xapian::doccount
 FreqAdderOrTermList::get_termfreq() const
 {

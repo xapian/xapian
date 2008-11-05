@@ -27,6 +27,7 @@
 #include "omqueryinternal.h"
 #include "omtime.h"
 #include "remoteconnection.h"
+#include "valuestats.h"
 
 namespace Xapian {
     class RSet;
@@ -64,10 +65,23 @@ class RemoteDatabase : public Xapian::Database::Internal {
     /// Has positional information?
     mutable bool has_positional_info;
 
+    /// The UUID of the remote database.
+    mutable string uuid;
+
     /// The context to return with any error messages
     string context;
 
     mutable bool cached_stats_valid;
+
+    /** The most recently used value statistics.
+     */
+    mutable ValueStats mru_valstats;
+
+    /** The value number for the most recently used value statistics.
+     *
+     *  Set to BAD_VALUENO if no value statistics have yet been looked up.
+     */
+    mutable Xapian::valueno mru_valno;
 
     void update_stats(message_type msg_code = MSG_UPDATE) const;
 
@@ -188,6 +202,12 @@ class RemoteDatabase : public Xapian::Database::Internal {
 
     Xapian::termcount get_collection_freq(const string & tname) const;
 
+    /// Read the value statistics for a value from a remote database.
+    void read_value_stats(Xapian::valueno valno) const;
+    Xapian::doccount get_value_freq(Xapian::valueno valno) const;
+    std::string get_value_lower_bound(Xapian::valueno valno) const;
+    std::string get_value_upper_bound(Xapian::valueno valno) const;
+
     void flush();
 
     void cancel();
@@ -200,6 +220,8 @@ class RemoteDatabase : public Xapian::Database::Internal {
     void replace_document(Xapian::docid did, const Xapian::Document & doc);
     Xapian::docid replace_document(const std::string & unique_term,
 				   const Xapian::Document & document);
+
+    std::string get_uuid() const;
 };
 
 #endif // XAPIAN_INCLUDED_REMOTE_DATABASE_H

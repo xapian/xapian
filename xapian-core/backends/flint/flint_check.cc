@@ -23,13 +23,11 @@
 
 #include <config.h>
 
-#include <limits.h>
+#include "flint_check.h"
 
-#include <iostream>
+#include <climits>
 
 using namespace std;
-
-#include "flint_check.h"
 
 #define REVISION(b)      static_cast<unsigned int>(getint4(b, 0))
 #define GET_LEVEL(b)     getint1(b, 4)
@@ -206,8 +204,8 @@ BtreeCheck::block_check(Cursor_ * C_, int j, int opts)
 }
 
 void
-BtreeCheck::check(const string & tablename, const string & path,
-		  int opts, ostream &out)
+BtreeCheck::check(const char * tablename, const string & path, int opts,
+		  ostream &out)
 {
     BtreeCheck B(tablename, path, false, out);
     B.open(); // throws exception if open fails

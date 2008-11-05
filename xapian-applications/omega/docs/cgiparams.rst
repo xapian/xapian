@@ -12,9 +12,10 @@ Main query parameters
 ---------------------
 
 DB
-	database name (give multiple values to search over several
-	databases) each DB value may be a list of database names
-	separated by "/".
+	database name.  If the DB parameter is specified more than once, each
+        value is used to allow searching over multiple databases.  Also, the
+        value of each DB parameter may be a list of database names separated by
+        "/".
 
 xDB
 	database(s) used for last query (separated by / if appropriate).
@@ -38,7 +39,7 @@ xP
 
 ADD
 	if present, any X parameters are added to the probabilistic
-	query (used for topterms support when javascript isn't
+	query (used for topterms support when JavaScript isn't
 	supported or is disabled).
 
 X
@@ -78,16 +79,16 @@ B
 
 COLLAPSE
 	value number to use for removing duplicate documents.
-	Additional documents in the mset with the same value will be
-	removed from the mset. $value{$cgi{COLLAPSE}} can be used to
+	Additional documents in the MSet with the same value will be
+	removed from the MSet. $value{$cgi{COLLAPSE}} can be used to
 	access the actual value for each hit.
 
 DATEVALUE
 	value number to use for date range filtering.  If this isn't set then
 	date filtering will use the older approach based on D-, M-, and
 	Y-prefixed terms.  The values must be of the format YYYYMMDDHHMM
-	(e.g. 200702142359), YYYYMMDD (e.g. 20070214), or a raw 4 byte big
-	endian value representing a time_t (omindex adds this as value 0
+        (e.g. 200702142359), YYYYMMDD (e.g. 20070214), or a raw 4 byte
+        big-endian value representing a time_t (omindex adds this as value 0
 	by default).
 
 SPAN

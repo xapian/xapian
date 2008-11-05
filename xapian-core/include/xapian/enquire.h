@@ -104,8 +104,9 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	 *
 	 *  @param tname The term to look for.
 	 *
-	 *  @exception Xapian::InvalidArgumentError is thrown if the term was
-	 *	       not in the query.
+	 *  This is sometimes more efficient than asking the database directly
+	 *  for the term frequency - in particular, if the term was in the
+	 *  query, its frequency will usually be cached in the MSet.
 	 */
 	Xapian::doccount get_termfreq(const std::string &tname) const;
 
@@ -197,7 +198,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	/** Swap the MSet we point to with another */
 	void swap(MSet & other);
 
-	/** Iterator for the terms in this MSet */
+	/** Iterator for the items in this MSet */
 	MSetIterator begin() const;
 
 	/** End iterator corresponding to begin() */
@@ -253,8 +254,6 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
 	 *  convenient syntactically.
 	 */
 	MSetIterator() : index(0), mset() { }
-
-	~MSetIterator() { }
 
 	/// Copying is allowed (and is cheap).
 	MSetIterator(const MSetIterator &other) {
@@ -318,8 +317,8 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
 	/** Get the rank of the document at the current position.
 	 *
 	 *  The rank is the position that this document is at in the ordered
-	 *  list of results of the query.  The document judged "most relevant"
-	 *  will have rank of 0.
+	 *  list of results of the query.  The result is 0-based - i.e. the
+	 *  top-ranked document has a rank of 0.
 	 */
 	Xapian::doccount get_rank() const {
 	    return mset.get_firstitem() + index;
@@ -456,8 +455,6 @@ class XAPIAN_VISIBILITY_DEFAULT ESetIterator {
 	 *  convenient syntactically.
 	 */
 	ESetIterator() : index(0), eset() { }
-
-	~ESetIterator() { }
 
 	/// Copying is allowed (and is cheap).
 	ESetIterator(const ESetIterator &other) {
@@ -882,12 +879,8 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		      Xapian::doccount checkatleast = 0,
 		      const RSet * omrset = 0,
-		      const MatchDecider * mdecider = 0) const;
-	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
-		      Xapian::doccount checkatleast,
-		      const RSet * omrset,
-		      const MatchDecider * mdecider,
-		      const MatchDecider * matchspy) const;
+		      const MatchDecider * mdecider = 0,
+		      const MatchDecider * matchspy = 0) const;
 	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		      const RSet * omrset,
 		      const MatchDecider * mdecider = 0) const {
@@ -1189,7 +1182,6 @@ class XAPIAN_VISIBILITY_DEFAULT BM25Weight : public Weight {
 		       weight_calculated(false) { }
 
 	BM25Weight * clone() const;
-	~BM25Weight() { }
 	std::string name() const;
 	std::string serialise() const;
 	BM25Weight * unserialise(const std::string & s) const;
@@ -1245,7 +1237,6 @@ class XAPIAN_VISIBILITY_DEFAULT TradWeight : public Weight {
 	TradWeight() : param_k(1.0), weight_calculated(false) { }
 
 	TradWeight * clone() const;
-	~TradWeight() { }
 	std::string name() const;
 	std::string serialise() const;
 	TradWeight * unserialise(const std::string & s) const;

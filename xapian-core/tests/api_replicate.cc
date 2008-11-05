@@ -33,7 +33,7 @@
 #include "utils.h"
 #include "unixcmds.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 
 using namespace std;
@@ -142,21 +142,23 @@ DEFINE_TESTCASE(replicate1, replicas) {
     orig.add_document(doc1);
     orig.flush();
 
-    // Wait for a second to ensure that the uuid isn't the same by chance
-    //
-    // FIXME - remove the sleep when we generate uuids better than just from
-    // the creation time for the database.
-    sleep(1);
-
     // Apply the replication - we don't have changesets stored, so this should
     // just do a database copy, and return a count of 1.
     int count = replicate(master, replica, tempdir, 0, 1, 1);
     TEST_EQUAL(count, 1);
+    {
+	Xapian::Database dbcopy(replicapath);
+	TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
+    }
 
     // Repeating the replication should return a count of 1, since no further
     // changes should need to be applied.
     count = replicate(master, replica, tempdir, 0, 0, 0);
     TEST_EQUAL(count, 1);
+    {
+	Xapian::Database dbcopy(replicapath);
+	TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
+    }
 
     // Regression test - if the replica was reopened, a full copy always used
     // to occur, whether it was needed or not.  Fixed in revision #10117.
@@ -164,6 +166,10 @@ DEFINE_TESTCASE(replicate1, replicas) {
     replica = Xapian::DatabaseReplica(replicapath);
     count = replicate(master, replica, tempdir, 0, 0, 0);
     TEST_EQUAL(count, 1);
+    {
+	Xapian::Database dbcopy(replicapath);
+	TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
+    }
 
     orig.add_document(doc1);
     orig.flush();
@@ -172,6 +178,10 @@ DEFINE_TESTCASE(replicate1, replicas) {
 
     count = replicate(master, replica, tempdir, 2, 0, 1);
     TEST_EQUAL(count, 3);
+    {
+	Xapian::Database dbcopy(replicapath);
+	TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
+    }
 
     check_equal_dbs(masterpath, replicapath);
 

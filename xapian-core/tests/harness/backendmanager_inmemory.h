@@ -39,6 +39,10 @@ class BackendManagerInMemory : public BackendManager {
     /// Don't allow copying.
     BackendManagerInMemory(const BackendManagerInMemory &);
 
+  protected:
+    /// Create a InMemory Xapian::Database object indexing multiple files.
+    Xapian::Database do_get_database(const std::vector<std::string> & files);
+
   public:
     BackendManagerInMemory() { }
 
@@ -48,13 +52,7 @@ class BackendManagerInMemory : public BackendManager {
     virtual ~BackendManagerInMemory();
 
     /// Return a string representing the current database type.
-    const char * get_dbtype() const;
-
-    /// Create a InMemory Xapian::Database object indexing multiple files.
-    Xapian::Database get_database(const std::vector<std::string> & files);
-
-    /// Create a InMemory Xapian::Database object indexing a single file.
-    Xapian::Database get_database(const std::string & file);
+    std::string get_dbtype() const;
 
     /// Create a InMemory Xapian::WritableDatabase object indexing a single file.
     Xapian::WritableDatabase get_writable_database(const std::string & name, const std::string & file);

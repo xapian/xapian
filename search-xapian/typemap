@@ -1,0 +1,280 @@
+TYPEMAP
+Database		O_DATABASE
+Database *		O_DATABASE
+WritableDatabase	O_WDATABASE
+WritableDatabase *	O_WDATABASE
+Enquire *		O_OBJECT
+Query			O_QUERY
+Query *			O_QUERY
+QueryParser		O_QUERYPARSER
+QueryParser *		O_QUERYPARSER
+TermGenerator		O_TERMGENERATOR
+TermGenerator *		O_TERMGENERATOR
+Stopper			O_STOPPER
+Stopper *		O_STOPPER
+SimpleStopper		O_SIMPLESTOPPER
+SimpleStopper *		O_SIMPLESTOPPER
+Stem			O_OBJECT
+Stem *			O_OBJECT
+MSet			O_MSET
+MSet *			O_MSET
+RSet			O_RSET
+RSet *			O_RSET
+ESet			O_ESET
+ESet *			O_ESET
+MSetIterator		O_MSET_I
+MSetIterator *		O_MSET_I
+ESetIterator		O_ESET_I
+ESetIterator *		O_ESET_I
+Document		O_DOC
+Document *		O_DOC
+MatchDecider		O_OBJECT
+MatchDecider *		O_OBJECT
+Weight			O_WEIGHT
+Weight *		O_WEIGHT
+BM25Weight		O_WEIGHT
+BM25Weight *		O_WEIGHT
+BoolWeight		O_WEIGHT
+BoolWeight *		O_WEIGHT
+TradWeight		O_WEIGHT
+TradWeight *		O_WEIGHT
+
+TermIterator		O_TERM_I
+TermIterator *		O_TERM_I
+PostingIterator		O_POSTING_I
+PostingIterator *	O_POSTING_I
+PositionIterator	O_POSITION_I
+PositionIterator *  	O_POSITION_I
+ValueIterator		O_VALUE_I
+ValueIterator *		O_VALUE_I
+
+Error			O_OBJECT
+Error *			O_OBJECT
+
+ValueRangeProcessor	O_OBJECT
+ValueRangeProcessor *	O_OBJECT
+DateValueRangeProcessor		O_OBJECT
+DateValueRangeProcessor *	O_OBJECT
+NumberValueRangeProcessor	O_OBJECT
+NumberValueRangeProcessor *	O_OBJECT
+StringValueRangeProcessor	O_OBJECT
+StringValueRangeProcessor *	O_OBJECT
+
+MultiValueSorter	O_SORTER
+MultiValueSorter *	O_SORTER
+
+string			STRING
+
+docid			T_UV
+doccount		T_UV
+doclength		T_UV
+percent			T_UV
+termcount		T_UV
+termpos			T_UV
+valueno			T_UV
+weight			T_NV
+
+
+
+INPUT
+STRING
+	{
+		STRLEN len;
+		const char * tmp = SvPV($arg, len);
+		$var.assign(tmp, len);
+	}
+
+O_MSET
+	if( sv_isobject($arg) && sv_derived_from($arg, \"Search::Xapian::MSet\") )
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	else{
+		warn( \"${Package}::$func_name() -- $var is not a \\\"Search::Xapian::MSet\\\" object\" );
+		XSRETURN_UNDEF;
+	}
+
+O_RSET
+	if( sv_isobject($arg) && sv_derived_from($arg, \"Search::Xapian::RSet\") )
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	else{
+		warn( \"${Package}::$func_name() -- $var is not a \\\"Search::Xapian::RSet\\\" object\" );
+		XSRETURN_UNDEF;
+	}
+
+O_ESET
+	if( sv_isobject($arg) && sv_derived_from($arg, \"Search::Xapian::ESet\") )
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	else{
+		warn( \"${Package}::$func_name() -- $var is not a \\\"Search::Xapian::ESet\\\" object\" );
+		XSRETURN_UNDEF;
+	}
+
+O_MSET_I
+	if( sv_isobject($arg) && sv_derived_from($arg, \"Search::Xapian::MSetIterator\") )
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	else{
+		warn( \"${Package}::$func_name() -- $var is not a \\\"Search::Xapian::MSetIterator\\\" object\" );
+		XSRETURN_UNDEF;
+	}
+
+O_ESET_I
+	if( sv_isobject($arg) && sv_derived_from($arg, \"Search::Xapian::ESetIterator\") )
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	else{
+		warn( \"${Package}::$func_name() -- $var is not a \\\"Search::Xapian::ESetIterator\\\" object\" );
+		XSRETURN_UNDEF;
+	}
+
+O_DOC
+	if( sv_isobject($arg) && sv_derived_from($arg, \"Search::Xapian::Document\") )
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	else{
+		warn( \"${Package}::$func_name() -- $var is not a \\\"Search::Xapian::Document\\\" object\" );
+		XSRETURN_UNDEF;
+	}
+
+O_QUERY
+	if( sv_isobject($arg) && sv_derived_from($arg, \"Search::Xapian::Query\") )
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	else{
+		warn( \"${Package}::$func_name() -- $var is not a \\\"Search::Xapian::Query\\\" object\" );
+		XSRETURN_UNDEF;
+	}
+       
+O_QUERYPARSER
+	if( sv_isobject($arg) && sv_derived_from($arg, \"Search::Xapian::QueryParser\") )
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	else{
+		warn( \"${Package}::$func_name() -- $var is not a \\\"Search::Xapian::QueryParser\\\" object\" );
+		XSRETURN_UNDEF;
+	}
+
+O_TERMGENERATOR
+	if( sv_isobject($arg) && sv_derived_from($arg, \"Search::Xapian::TermGenerator\") )
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	else{
+		warn( \"${Package}::$func_name() -- $var is not a \\\"Search::Xapian::TermGenerator\\\" object\" );
+		XSRETURN_UNDEF;
+	}
+
+O_STOPPER
+	if( sv_isobject($arg) && sv_derived_from($arg, \"Search::Xapian::Stopper\") )
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	else{
+		warn( \"${Package}::$func_name() -- $var is not a \\\"Search::Xapian::Stopper\\\" object\" );
+		XSRETURN_UNDEF;
+	}
+
+O_SIMPLESTOPPER
+	if( sv_isobject($arg) && sv_derived_from($arg, \"Search::Xapian::SimpleStopper\") )
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	else{
+		warn( \"${Package}::$func_name() -- $var is not a \\\"Search::Xapian::SimpleStopper\\\" object\" );
+		XSRETURN_UNDEF;
+	}
+
+O_DATABASE
+	if( sv_isobject($arg) && sv_derived_from($arg, \"Search::Xapian::Database\") )
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	else{
+		warn( \"${Package}::$func_name() -- $var is not a \\\"Search::Xapian::Database\\\" object\" );
+		XSRETURN_UNDEF;
+	}
+       
+
+O_WDATABASE
+	if( sv_isobject($arg) && sv_derived_from($arg, \"Search::Xapian::WritableDatabase\") )
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	else{
+		warn( \"${Package}::$func_name() -- $var is not a \\\"Search::Xapian::WritableDatabase\\\" object\" );
+		XSRETURN_UNDEF;
+	}
+       
+O_TERM_I
+	if( sv_isobject($arg) && sv_derived_from($arg, \"Search::Xapian::TermIterator\") )
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	else{
+		warn( \"${Package}::$func_name() -- $var is not a \\\"Search::Xapian::TermIterator\\\" object\" );
+		XSRETURN_UNDEF;
+	}
+
+O_POSTING_I
+	if( sv_isobject($arg) && sv_derived_from($arg, \"Search::Xapian::PostingIterator\") )
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	else{
+		warn( \"${Package}::$func_name() -- $var is not a \\\"Search::Xapian::PostingIterator\\\" object\" );
+		XSRETURN_UNDEF;
+	}
+
+O_POSITION_I
+	if( sv_isobject($arg) && sv_derived_from($arg, \"Search::Xapian::PositionIterator\") )
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	else{
+		warn( \"${Package}::$func_name() -- $var is not a \\\"Search::Xapian::PositionIterator\\\" object\" );
+		XSRETURN_UNDEF;
+	}
+
+O_VALUE_I
+	if( sv_isobject($arg) && sv_derived_from($arg, \"Search::Xapian::ValueIterator\") )
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	else{
+		warn( \"${Package}::$func_name() -- $var is not a \\\"Search::Xapian::ValueIterator\\\" object\" );
+		XSRETURN_UNDEF;
+	}
+
+O_WEIGHT
+	if( sv_isobject($arg) && sv_derived_from($arg, \"Search::Xapian::Weight\") )
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	else{
+		warn( \"${Package}::$func_name() -- $var is not a \\\"Search::Xapian::Weight\\\" object\" );
+		XSRETURN_UNDEF;
+	}
+
+O_SORTER
+	if( sv_isobject($arg) && sv_derived_from($arg, \"Search::Xapian::MultiValueSorter\") )
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	else{
+		warn( \"${Package}::$func_name() -- $var is not a \\\"Search::Xapian::MultiValueSorter\\\" object\" );
+		XSRETURN_UNDEF;
+	}
+
+OUTPUT
+STRING
+	sv_setpvn((SV*)$arg, (char *) ($var.data()), ($var.size()));
+O_MSET
+	sv_setref_pv( $arg, "Search::Xapian::MSet", (void*)$var );
+O_WEIGHT
+	sv_setref_pv( $arg, "Search::Xapian::Weight", (void*)$var );
+O_RSET
+	sv_setref_pv( $arg, "Search::Xapian::RSet", (void*)$var );
+O_ESET
+	sv_setref_pv( $arg, "Search::Xapian::ESet", (void*)$var );
+O_MSET_I
+	sv_setref_pv( $arg, "Search::Xapian::MSetIterator", (void*)$var );
+O_ESET_I
+	sv_setref_pv( $arg, "Search::Xapian::ESetIterator", (void*)$var );
+O_DOC
+	sv_setref_pv( $arg, "Search::Xapian::Document", (void*)$var );
+O_QUERY
+	sv_setref_pv( $arg, "Search::Xapian::Query", (void*)$var );
+O_QUERYPARSER
+	sv_setref_pv( $arg, "Search::Xapian::QueryParser", (void*)$var );
+O_TERMGENERATOR
+	sv_setref_pv( $arg, "Search::Xapian::TermGenerator", (void*)$var );
+O_STOPPER
+	sv_setref_pv( $arg, "Search::Xapian::Stopper", (void*)$var );
+O_SIMPLESTOPPER
+	sv_setref_pv( $arg, "Search::Xapian::SimpleStopper", (void*)$var );
+O_DATABASE
+	sv_setref_pv( $arg, "Search::Xapian::Database", (void*)$var );
+O_WDATABASE
+	sv_setref_pv( $arg, "Search::Xapian::WritableDatabase", (void*)$var );
+O_TERM_I
+	sv_setref_pv( $arg, "Search::Xapian::TermIterator", (void*)$var );
+O_POSTING_I
+	sv_setref_pv( $arg, "Search::Xapian::PostingIterator", (void*)$var );
+O_POSITION_I
+	sv_setref_pv( $arg, "Search::Xapian::PositionIterator", (void*)$var );
+O_VALUE_I
+	sv_setref_pv( $arg, "Search::Xapian::ValueIterator", (void*)$var );
+O_SORTER
+	sv_setref_pv( $arg, "Search::Xapian::MultiValueSorter", (void*)$var );

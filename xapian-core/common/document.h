@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005,2007 Olly Betts
+ * Copyright 2003,2004,2005,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,9 +33,11 @@
 
 using namespace std;
 
+class DocumentValueList;
+
 /// A document in the database, possibly plus modifications.
 class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
-    friend class Xapian::ValueIterator;
+    friend class ::DocumentValueList;
     public:
 	/// Type to store values in.
 	typedef map<Xapian::valueno, string> document_values;
@@ -43,13 +45,14 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	/// Type to store terms in.
 	typedef map<string, OmDocumentTerm> document_terms;
 
+    protected:
+	/// The database this document is in.
+	Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database;
+
     private:
         // Prevent copying
         Internal(const Internal &);
         Internal & operator=(const Internal &);
-
-	/// The database this document is in.
-	const Xapian::Database::Internal *database;
 
 	bool data_here;
 	mutable bool values_here; // FIXME mutable is a hack
@@ -60,9 +63,6 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 
 	/// The values associated with this document.
 	mutable document_values values; // FIXME mutable is a hack
-
-	/// The value numbers, for use by ValueIterators.
-	mutable vector<Xapian::valueno> value_nos; // FIXME mutable is a hack
 
 	/// The terms (and their frequencies and positions) in this document.
 	mutable document_terms terms;
@@ -77,12 +77,11 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 
     private:
 	// Functions for backend to implement
-	virtual string do_get_value(Xapian::valueno /*valueno*/) const { return ""; }
-	virtual map<Xapian::valueno, string> do_get_all_values() const {
-	    map<Xapian::valueno, string> none;
-	    return none;
+	virtual string do_get_value(Xapian::valueno /*valueno*/) const { return string(); }
+	virtual void do_get_all_values(map<Xapian::valueno, string> & values_) const {
+	    values_.clear();
 	}
-	virtual string do_get_data() const { return ""; }
+	virtual string do_get_data() const { return string(); }
 
     public:
 	/** Get value by value number.
@@ -103,16 +102,16 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	string get_value(Xapian::valueno valueid) const;
 
-	/** Get all values for this document
+	/** Set all the values.
 	 *
-	 *  Values are quickly accessible fields, for use during the match
-	 *  operation.  Each document may have a set of values, each of which
-	 *  having a different valueid.  Duplicate values with the same valueid
-	 *  are not supported in a single document.
-	 *
-	 *  @return   A map of strings containing all the values.
+	 *  @param values_	The values to set - passed by non-const reference, and
+	 *			may be modified by the call.
 	 */
-	map<Xapian::valueno, string> get_all_values() const;
+	void set_all_values(map<Xapian::valueno, string> & values_) {
+	    // For efficiency we just swap the old and new value maps.
+	    swap(values, values_);
+	    values_here = true;
+	}
 
 	Xapian::valueno values_count() const;
 	void add_value(Xapian::valueno, const string &);
@@ -155,6 +154,24 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	void need_values() const;
 	void need_terms() const;
 
+	/** Return true if the data in the document may have been modified.
+	 */
+	bool data_modified() const {
+	    return data_here;
+	}
+
+	/** Return true if the values in the document may have been modified.
+	 */
+	bool values_modified() const {
+	    return values_here;
+	}
+
+	/** Return true if the terms in the document may have been modified.
+	 */
+	bool terms_modified() const {
+	    return terms_here;
+	}
+
 	/** Get the docid which is associated with this document (if any).
 	 *
 	 *  NB If multiple databases are being searched together, then this
@@ -166,9 +183,7 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	Xapian::docid get_docid() const { return did; }
 
-	/** Returns a string representing the object.
-	 *  Introspection method.
-	 */
+	/// Return a string describing this object.
 	string get_description() const;
 
 	/** Constructor.
@@ -176,7 +191,8 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	 *  In derived classes, this will typically be a private method, and
 	 *  only be called by database objects of the corresponding type.
 	 */
-	Internal(const Xapian::Database::Internal *database_, Xapian::docid did_)
+	Internal(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
+		 Xapian::docid did_)
 	    : database(database_), data_here(false), values_here(false),
 	      terms_here(false), did(did_) { }
 
@@ -189,7 +205,7 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	 *  Note that the database object which created this document must
 	 *  still exist at the time this is called.
 	 */
-	virtual ~Internal() { }
+	virtual ~Internal();
 };
 
 #endif  // OM_HGUARD_DOCUMENT_H

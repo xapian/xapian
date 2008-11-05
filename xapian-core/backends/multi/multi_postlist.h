@@ -35,14 +35,8 @@ class MultiPostList : public LeafPostList {
 	bool   finished;
 	Xapian::docid  currdoc;
 
-	string tname;
 	mutable bool freq_initialised;
 	mutable Xapian::doccount termfreq;
-
-	mutable bool collfreq_initialised;
-	mutable Xapian::termcount collfreq;
-
-	Xapian::weight termweight;
 
 	Xapian::doccount multiplier;
 

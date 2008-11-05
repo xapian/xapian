@@ -31,11 +31,12 @@ OBJS= \
     $(INTDIR)/omtermlistiterator.obj \
     $(INTDIR)/omvalueiterator.obj \
     $(INTDIR)/postlist.obj \
+    $(INTDIR)/postingsource.obj \
     $(INTDIR)/sortable-serialise.obj \
     $(INTDIR)/sorter.obj \
     $(INTDIR)/termlist.obj \
     $(INTDIR)/valuerangeproc.obj \
-    $(INTDIR)/valuerangeproccompat.obj \
+    $(INTDIR)/valuesetmatchdecider.obj \
     $(INTDIR)/version.obj\
     $(INTDIR)/weightinternal.obj\
     $(INTDIR)/replication.obj
@@ -56,11 +57,12 @@ SRCS= \
     $(INTDIR)/omtermlistiterator.cc\
     $(INTDIR)/omvalueiterator.cc\
     $(INTDIR)/postlist.cc\
+    $(INTDIR)/postingsource.cc \
     $(INTDIR)/sortable-serialise.cc\
     $(INTDIR)/sorter.cc\
     $(INTDIR)/termlist.cc\
     $(INTDIR)/valuerangeproc.cc\
-    $(INTDIR)/valuerangeproccompat.cc\
+    $(INTDIR)/valuesetmatchdecider.cc \
     $(INTDIR)/version.cc\
     $(INTDIR)/weightinternal.cc\
     $(INTDIR)/replication.cc
@@ -99,5 +101,5 @@ CPP_SBRS=.
 
 # Calculate any header dependencies and automatically insert them into this file
 HEADERS :
-            if exist ..\win32\$(DEPEND) ..\win32\$(DEPEND) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)"
+            if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) $(DEPEND_FLAGS) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)" 
 # DO NOT DELETE THIS LINE -- make depend depends on it.

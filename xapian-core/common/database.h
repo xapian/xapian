@@ -2,8 +2,8 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
- * Copyright 2006 Richard Boulton
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,6 +32,7 @@
 #include <xapian/document.h>
 #include <xapian/positioniterator.h>
 #include <xapian/termiterator.h>
+#include <xapian/valueiterator.h>
 #include "omdebug.h"
 
 using namespace std;
@@ -43,6 +44,10 @@ class RemoteDatabase;
 
 typedef Xapian::TermIterator::Internal TermList;
 typedef Xapian::PositionIterator::Internal PositionList;
+typedef Xapian::ValueIterator::Internal ValueList;
+
+// Used by flint and chert.
+const int XAPIAN_DB_READONLY = 0;
 
 namespace Xapian {
 
@@ -69,9 +74,8 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 
 	bool transaction_active() const { return int(transaction_state) > 0; }
 
-	/** Create a database - called only by derived classes.
-	 */
-	Internal();
+	/** Create a database - called only by derived classes. */
+	Internal() : transaction_state(TRANSACTION_NONE) { }
 
 	/** Internal method to perform cleanup when a writable database is
 	 *  destroyed with unflushed changes.
@@ -154,6 +158,36 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	virtual Xapian::termcount get_collection_freq(const string & tname) const = 0;
 
+	/** Return the frequency of a given value slot.
+	 *
+	 *  This is the number of documents which have a (non-empty) value
+	 *  stored in the slot.
+	 *
+	 *  @param valno The value slot to examine.
+	 *
+	 *  @exception UnimplementedError The frequency of the value isn't
+	 *  available for this database type.
+	 */
+	virtual Xapian::doccount get_value_freq(Xapian::valueno valno) const;
+
+	/** Get a lower bound on the values stored in the given value slot.
+	 *
+	 *  If the lower bound isn't available for the given database type,
+	 *  this will return the lowest possible bound - the empty string.
+	 *
+	 *  @param valno The value slot to examine.
+	 */
+	virtual std::string get_value_lower_bound(Xapian::valueno valno) const;
+
+	/** Get an upper bound on the values stored in the given value slot.
+	 *
+	 *  @param valno The value slot to examine.
+	 *
+	 *  @exception UnimplementedError The upper bound of the values isn't
+	 *  available for this database type.
+	 */
+	virtual std::string get_value_upper_bound(Xapian::valueno valno) const;
+
 	/** Check whether a given term is in the database.
 	 *
 	 *  @param tname  The term whose presence is being checked.
@@ -185,6 +219,17 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	virtual LeafPostList * open_post_list(const string & tname) const = 0;
 
+	/** Open a value stream.
+	 *
+	 *  This returns the value in a particular slot for each document.
+	 *
+	 *  @param slot	The value slot.
+	 *
+	 *  @return	Pointer to a new ValueList object which should be
+	 *		deleted by the caller once it is no longer needed.
+	 */
+
+	virtual ValueList * open_value_list(Xapian::valueno slot) const;
 	/** Open a term list.
 	 *
 	 *  This is a list of all the terms contained by a given document.
@@ -293,7 +338,7 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 
 	/** Add a synonym for a term.
 	 *
-	 *  If @synonym is already a synonym for @a term, then no action is
+	 *  If @a synonym is already a synonym for @a term, then no action is
 	 *  taken.
 	 */
 	virtual void add_synonym(const string & term, const string & synonym) const;
@@ -315,6 +360,16 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *  See Database::get_metadata() for more information.
 	 */
 	virtual string get_metadata(const string & key) const;
+
+	/** Open a termlist returning each metadata key.
+	 *
+	 *  Only metadata keys which are associated with a non-empty value will
+	 *  be returned.
+	 *
+	 *  @param prefix   If non-empty, only keys with this prefix are
+	 *		    returned.
+	 */
+	virtual TermList * open_metadata_keylist(const std::string &prefix) const;
 
 	/** Set the metadata associated with a given key.
 	 *
@@ -430,11 +485,25 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 
 	/** Get a UUID for the database.
 	 *
+	 *  The UUID will persist for the lifetime of the database.
+	 *
 	 *  Replicas (eg, made with the replication protocol, or by copying all
 	 *  the database files) will have the same UUID.  However, copies (made
 	 *  with copydatabase, or xapian-compact) will have different UUIDs.
+	 *
+	 *  If the backend does not support UUIDs, or this database has
+	 *  multiple sub-databases, an exception will be raised.
 	 */
 	virtual string get_uuid() const;
+
+	/** Notify the database that document is no longer valid.
+	 *
+	 *  This is used to invalidate references to a document kept by a
+	 *  database for doing lazy updates.  If we moved to using a weak_ptr
+	 *  instead we wouldn't need a special method for this, but it would
+	 *  involve a fair bit of reorganising of other parts of the code.
+	 */
+	virtual void invalidate_doc_object(Xapian::Document::Internal * obj) const;
 
 	//////////////////////////////////////////////////////////////////
 	// Introspection methods:

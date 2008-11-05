@@ -1,5 +1,9 @@
 ## Process this file with automake to produce Makefile.in
 
+# `make QUIET=' overrides `./configure --enable-quiet'.
+# `make QUIET=y' overrides `./configure' without `--enable-quiet'.
+LIBTOOL = @LIBTOOL@ $(QUIET:y=--quiet)
+
 include ../generic/generic.mk
 
 TESTS_ENVIRONMENT = $(RUN_CSHARP)
@@ -15,6 +19,7 @@ XAPIAN_SWIG_CS_SRCS=\
 	Auto.cs \
 	BM25Weight.cs \
 	BoolWeight.cs \
+	Chert.cs \
 	Database.cs \
 	DateValueRangeProcessor.cs \
 	Document.cs \
@@ -31,13 +36,14 @@ XAPIAN_SWIG_CS_SRCS=\
 	NumberValueRangeProcessor.cs \
 	PositionIterator.cs \
 	PostingIterator.cs \
+	PostingSource.cs \
 	Query.cs \
 	QueryParser.cs \
 	Remote.cs \
 	RSet.cs \
 	SWIGTYPE_p_std__string.cs \
-	SWIGTYPE_p_std__vectorTstd__string_t.cs \
-	SWIGTYPE_p_std__vectorTXapian__Query_t.cs \
+	SWIGTYPE_p_std__vectorT_std__string_t.cs \
+	SWIGTYPE_p_std__vectorT_Xapian__Query_t.cs \
 	SimpleStopper.cs \
 	Sorter.cs \
 	Stem.cs \
@@ -96,8 +102,13 @@ xapian_wrap.stamp: $(SWIG_sources) util.i
 	-rm -f $(XAPIAN_SWIG_CS_SRCS)
 	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
 	    -csharp -namespace Xapian -module Xapian -dllimport XapianSharp \
-	    -o xapian_wrap.cc $(SWIG_mainsource)
+	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp $(SWIG_mainsource)
+	$(PERL) -pe 's!xapian_wrap.cc:!xapian_wrap.stamp:!' xapian_wrap_d.tmp > xapian_wrap_d2.tmp
+	mv xapian_wrap_d2.tmp xapian_wrap.d
+	rm xapian_wrap_d.tmp
 	$(multitarget_end)
+
+-include xapian_wrap.d
 
 CLEANFILES += $(BUILT_SOURCES) xapian_wrap.stamp
 else

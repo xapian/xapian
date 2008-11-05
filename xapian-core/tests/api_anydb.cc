@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -26,10 +26,10 @@
 #include "api_anydb.h"
 
 #include <algorithm>
-#include <iomanip>
 #include <string>
 
 #include <xapian.h>
+#include "backendmanager_local.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include "utils.h"
@@ -395,7 +395,7 @@ DEFINE_TESTCASE(expandweights2, backend) {
 
     Xapian::ESet eset = enquire.get_eset(3, myrset);
     TEST_EQUAL(eset.size(), 3);
-    if (strcmp(get_dbtype(), "multi") != 0) {
+    if (get_dbtype().substr(0, 5) != "multi") {
 	// For a single database, the weights should be the same with or
 	// without USE_EXACT_TERMFREQ.
 	TEST_EQUAL_DOUBLE(eset[0].get_weight(), 6.08904001099445);
@@ -488,6 +488,56 @@ DEFINE_TESTCASE(topercent1, backend) {
         TEST_AND_EXPLAIN(pct <= last_pct, "percentage increased down mset");
 	last_pct = pct;
     }
+    return true;
+}
+
+// tests the percentage values returned
+DEFINE_TESTCASE(topercent2, backend) {
+    BackendManagerLocal local_manager;
+    local_manager.set_datadir(test_driver::get_srcdir() + "/testdata/");
+    Xapian::Enquire localenq(local_manager.get_database("apitest_simpledata"));
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+
+    int pct;
+
+    // First, test a search in which the top document scores 100%.
+    enquire.set_query(query("this"));
+    localenq.set_query(query("this"));
+    Xapian::MSet mymset = enquire.get_mset(0, 20);
+    Xapian::MSet localmset = localenq.get_mset(0, 20);
+
+    Xapian::MSetIterator i = mymset.begin();
+    TEST(i != mymset.end());
+    pct = mymset.convert_to_percent(i);
+    TEST_EQUAL(pct, 100);
+
+    TEST_EQUAL(mymset, localmset);
+    TEST(mset_range_is_same_percents(mymset, 0, localmset, 0, mymset.size()));
+
+    // A search in which the top document doesn't have 100%
+    Xapian::Query q = query(Xapian::Query::OP_OR,
+			    "this", "line", "paragraph", "rubbish");
+    enquire.set_query(q);
+    localenq.set_query(q);
+    mymset = enquire.get_mset(0, 20);
+    localmset = localenq.get_mset(0, 20);
+
+    i = mymset.begin();
+    TEST(i != mymset.end());
+    pct = mymset.convert_to_percent(i);
+    TEST_GREATER(pct, 65);
+    TEST_LESSER(pct, 75);
+
+    ++i;
+
+    TEST(i != mymset.end());
+    pct = mymset.convert_to_percent(i);
+    TEST_GREATER(pct, 40);
+    TEST_LESSER(pct, 50);
+
+    TEST_EQUAL(mymset, localmset);
+    TEST(mset_range_is_same_percents(mymset, 0, localmset, 0, mymset.size()));
+
     return true;
 }
 
@@ -615,6 +665,61 @@ DEFINE_TESTCASE(pctcutoff1, backend) {
 		     (mymset2.convert_to_percent(mymset2[num_items]) == my_pct &&
 		      mymset2.convert_to_percent(mymset2.back()) == my_pct),
 		     "Match with % cutoff returned too many items");
+
+    return true;
+}
+
+// Tests the percent cutoff option combined with collapsing
+DEFINE_TESTCASE(pctcutoff2, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_query(Xapian::Query("this"));
+    enquire.set_query(Xapian::Query(Xapian::Query::OP_AND_NOT, Xapian::Query("this"), Xapian::Query("banana")));
+    Xapian::MSet mset = enquire.get_mset(0, 100);
+
+    if (verbose) {
+	tout << "Original mset pcts:";
+	print_mset_percentages(mset);
+	tout << "\n";
+    }
+
+    TEST(mset.size() >= 2);
+    TEST(mset[0].get_percent() - mset[1].get_percent() >= 2);
+
+    Xapian::percent cutoff = mset[0].get_percent() + mset[1].get_percent();
+    cutoff /= 2;
+
+    enquire.set_cutoff(cutoff);
+    enquire.set_collapse_key(1234); // Value which is always empty.
+
+    mset = enquire.get_mset(0, 1);
+    TEST_EQUAL(mset.size(), 1);
+    TEST_EQUAL(mset.get_matches_lower_bound(), 1);
+
+    return true;
+}
+
+// Test that the percent cutoff option returns all the answers it should.
+DEFINE_TESTCASE(pctcutoff3, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_query(Xapian::Query("this"));
+    Xapian::MSet mset1 = enquire.get_mset(0, 10);
+
+    if (verbose) {
+	tout << "Original mset pcts:";
+	print_mset_percentages(mset1);
+	tout << "\n";
+    }
+
+    int percent = 100;
+    for (Xapian::MSetIterator i = mset1.begin(); i != mset1.end(); ++i) {
+	int new_percent = mset1.convert_to_percent(i);
+	if (new_percent != percent) {
+	    enquire.set_cutoff(percent);
+	    Xapian::MSet mset2 = enquire.get_mset(0, 10);
+	    TEST_EQUAL(mset2.size(), i.get_rank());
+	    percent = new_percent;
+	}
+    }
 
     return true;
 }
@@ -1037,8 +1142,8 @@ DEFINE_TESTCASE(rsetmultidb1, backend && !multi) {
     mset_expect_order(mymset2a, 1, 2);
     mset_expect_order(mymset2b, 2, 1);
 
-    mset_range_is_same_weights(mymset1a, 0, mymset2a, 0, 2);
-    mset_range_is_same_weights(mymset1b, 0, mymset2b, 0, 2);
+    TEST(mset_range_is_same_weights(mymset1a, 0, mymset2a, 0, 2));
+    TEST(mset_range_is_same_weights(mymset1b, 0, mymset2b, 0, 2));
     TEST_NOT_EQUAL(mymset1a, mymset1b);
     TEST_NOT_EQUAL(mymset2a, mymset2b);
 
@@ -1187,6 +1292,40 @@ DEFINE_TESTCASE(eliteset4, backend) {
     return true;
 }
 
+/// Regression test for problem with excess precision.
+DEFINE_TESTCASE(eliteset5, backend) {
+    SKIP_TEST_FOR_BACKEND("multi");
+
+    Xapian::Database mydb1(get_database("apitest_simpledata"));
+    Xapian::Enquire enquire1(mydb1);
+
+    vector<string> v;
+    for (int i = 0; i != 3; ++i) {
+	v.push_back("simpl");
+	v.push_back("queri");
+
+	v.push_back("rubbish");
+	v.push_back("rubbish");
+	v.push_back("rubbish");
+	v.push_back("word");
+	v.push_back("word");
+	v.push_back("word");
+    }
+
+    Xapian::Query myquery1 = Xapian::Query(Xapian::Query::OP_ELITE_SET,
+					   v.begin(), v.end(), 1);
+    myquery1 = Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT,
+			     myquery1,
+			     0.004);
+
+    enquire1.set_query(myquery1);
+    // On architectures with excess precision (or, at least, on x86), the
+    // following call used to result in a segfault.
+    enquire1.get_mset(0, 10);
+
+    return true;
+}
+
 /// Test that the termfreq returned by termlists is correct.
 DEFINE_TESTCASE(termlisttermfreq1, backend) {
     Xapian::Database mydb(get_database("apitest_simpledata"));
@@ -1281,8 +1420,13 @@ DEFINE_TESTCASE(qterminfo1, backend) {
     // non-existent terms still have weight
     TEST_NOT_EQUAL(mymset1a.get_termweight(term3), 0);
 
+    TEST_EQUAL(mymset1a.get_termfreq(stemmer("banana")), 1);
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-		   mymset1a.get_termfreq("sponge"));
+		   mymset1a.get_termweight(stemmer("banana")));
+
+    TEST_EQUAL(mymset1a.get_termfreq("sponge"), 0);
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+		   mymset1a.get_termweight("sponge"));
 
     return true;
 }
@@ -1800,6 +1944,126 @@ DEFINE_TESTCASE(valuerange1, backend) {
     return true;
 }
 
+// Regression test for Query::OP_VALUE_LE - used to return document IDs for
+// non-existent documents.
+DEFINE_TESTCASE(valuerange2, backend && writable) {
+    Xapian::WritableDatabase db = get_writable_database();
+    Xapian::Document doc;
+    doc.set_data("5");
+    doc.add_value(0, "5");
+    db.replace_document(5, doc);
+    Xapian::Enquire enq(db);
+
+    Xapian::Query query(Xapian::Query::OP_VALUE_LE, 0, "6");
+    enq.set_query(query);
+    Xapian::MSet mset = enq.get_mset(0, 20);
+
+    TEST_EQUAL(mset.size(), 1);
+    TEST_EQUAL(*(mset[0]), 5);
+    return true;
+}
+
+// Test for alldocs postlist with a sparse database.
+DEFINE_TESTCASE(alldocspl1, backend && writable) {
+    Xapian::WritableDatabase db = get_writable_database();
+    Xapian::Document doc;
+    doc.set_data("5");
+    doc.add_value(0, "5");
+    db.replace_document(5, doc);
+
+    Xapian::PostingIterator i = db.postlist_begin("");
+    TEST(i != db.postlist_end(""));
+    TEST_EQUAL(*i, 5);
+    TEST_EQUAL(i.get_doclength(), 0);
+    TEST_EQUAL(i.get_wdf(), 1);
+    ++i;
+    TEST(i == db.postlist_end(""));
+
+    return true;
+}
+
+// Test reading and writing a modified alldocspostlist.
+DEFINE_TESTCASE(alldocspl2, backend && writable) {
+    Xapian::PostingIterator i, end;
+    {
+	Xapian::WritableDatabase db = get_writable_database();
+	Xapian::Document doc;
+	doc.set_data("5");
+	doc.add_value(0, "5");
+	db.replace_document(5, doc);
+
+	// Test iterating before flushing the changes.
+	i = db.postlist_begin("");
+	end = db.postlist_end("");
+	TEST(i != end);
+	TEST_EQUAL(*i, 5);
+	TEST_EQUAL(i.get_doclength(), 0);
+	TEST_EQUAL(i.get_wdf(), 1);
+	++i;
+	TEST(i == end);
+
+	db.flush();
+
+	// Test iterating after flushing the changes.
+	i = db.postlist_begin("");
+	end = db.postlist_end("");
+	TEST(i != end);
+	TEST_EQUAL(*i, 5);
+	TEST_EQUAL(i.get_doclength(), 0);
+	TEST_EQUAL(i.get_wdf(), 1);
+	++i;
+	TEST(i == end);
+
+	// Add another document.
+	doc = Xapian::Document();
+	doc.set_data("5");
+	doc.add_value(0, "7");
+	db.replace_document(7, doc);
+
+	// Test iterating through before flushing the changes.
+	i = db.postlist_begin("");
+	end = db.postlist_end("");
+	TEST(i != end);
+	TEST_EQUAL(*i, 5);
+	TEST_EQUAL(i.get_doclength(), 0);
+	TEST_EQUAL(i.get_wdf(), 1);
+	++i;
+	TEST(i != end);
+	TEST_EQUAL(*i, 7);
+	TEST_EQUAL(i.get_doclength(), 0);
+	TEST_EQUAL(i.get_wdf(), 1);
+	++i;
+	TEST(i == end);
+
+	// Delete the first document.
+	db.delete_document(5);
+
+	// Test iterating through before flushing the changes.
+	i = db.postlist_begin("");
+	end = db.postlist_end("");
+	TEST(i != end);
+	TEST_EQUAL(*i, 7);
+	TEST_EQUAL(i.get_doclength(), 0);
+	TEST_EQUAL(i.get_wdf(), 1);
+	++i;
+	TEST(i == end);
+
+	// Test iterating through after flushing the changes, and dropping the reference to the main DB.
+	db.flush();
+	i = db.postlist_begin("");
+	end = db.postlist_end("");
+    }
+
+    TEST(i != end);
+    TEST_EQUAL(*i, 7);
+    TEST_EQUAL(i.get_doclength(), 0);
+    TEST_EQUAL(i.get_wdf(), 1);
+    ++i;
+    TEST(i == end);
+
+    return true;
+}
+
 // Feature test for Query::OP_VALUE_GE.
 DEFINE_TESTCASE(valuege1, backend) {
     Xapian::Database db(get_database("apitest_phrase"));
@@ -2013,6 +2277,24 @@ DEFINE_TESTCASE(tradweight1, backend) {
     mset = enquire.get_mset(0, 25);
     // FIXME: should check that TradWeight(0) means wdf and doc length really
     // don't affect the weights as stated in the documentation.
+
+    return true;
+}
+
+// Feature test for get_uuid.
+DEFINE_TESTCASE(uuid1, backend && !multi) {
+    SKIP_TEST_FOR_BACKEND("inmemory");
+    Xapian::Database db = get_database("apitest_simpledata");
+    std::string uuid1 = db.get_uuid();
+
+    Xapian::Database db2;
+    TEST_EXCEPTION(Xapian::InvalidOperationError, db2.get_uuid());
+
+    db2.add_database(db);
+    TEST_EQUAL(uuid1, db2.get_uuid());
+
+    db2.add_database(db);
+    TEST_EXCEPTION(Xapian::UnimplementedError, db2.get_uuid());
 
     return true;
 }

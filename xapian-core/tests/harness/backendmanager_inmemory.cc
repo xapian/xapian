@@ -26,22 +26,16 @@ using namespace std;
 
 BackendManagerInMemory::~BackendManagerInMemory() { }
 
-const char *
+std::string
 BackendManagerInMemory::get_dbtype() const
 {
     return "inmemory";
 }
 
 Xapian::Database
-BackendManagerInMemory::get_database(const vector<string> & files)
+BackendManagerInMemory::do_get_database(const vector<string> & files)
 {
     return getwritedb_inmemory(files);
-}
-
-Xapian::Database
-BackendManagerInMemory::get_database(const string & file)
-{
-    return getwritedb_inmemory(vector<string>(1, file));
 }
 
 Xapian::WritableDatabase

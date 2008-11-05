@@ -1,6 +1,6 @@
 /* flint_alltermslist.h: A termlist containing all terms in a flint database.
  *
- * Copyright (C) 2005,2007 Olly Betts
+ * Copyright (C) 2005,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -42,9 +42,6 @@ class FlintAllTermsList : public AllTermsList {
      */
     FlintCursor * cursor;
 
-    /// The approximate number of terms in this list.
-    Xapian::termcount approx_size;
-
     /// The termname at the current position.
     string current_term;
 
@@ -69,18 +66,6 @@ class FlintAllTermsList : public AllTermsList {
     FlintAllTermsList(Xapian::Internal::RefCntPtr<const FlintDatabase> database_,
 		      const string & prefix_)
 	    : database(database_), prefix(prefix_), termfreq(0) {
-	// The number of entries in the postlist table will be the number of
-	// terms, probably plus some extra entries for chunked posting lists,
-	// plus 1 for the metainfo key (unless the table is completely empty).
-	// FIXME : this can badly overestimate (it could be several times too
-	// large) - perhaps keep track of the number of terms (or number of
-	// extra chunks) and store this along with the last_docid and
-	// total_doclen?  (Mind you, not sure this value is ever used, but
-	// we should really make the exact number of terms available somewhere
-	// in the API).
-	approx_size = database->postlist_table.get_entry_count();
-	if (approx_size) --approx_size;
-
 	cursor = database->postlist_table.cursor_get();
 	Assert(cursor); // The postlist table isn't optional.
 
@@ -90,18 +75,12 @@ class FlintAllTermsList : public AllTermsList {
 	if (prefix.empty()) {
 	    cursor->find_entry_lt(string("\x00\xff", 2));
 	} else {
-	    cursor->find_entry_lt(pack_string_preserving_sort(prefix));
+	    cursor->find_entry_lt(F_pack_string_preserving_sort(prefix));
 	}
     }
 
     /// Destructor.
     ~FlintAllTermsList();
-
-    /** Returns the approximate size of the list.
-     *
-     *  This is probably unused for this class.
-     */
-    Xapian::termcount get_approx_size() const;
 
     /** Returns the current termname.
      *

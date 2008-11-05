@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2007 Olly Betts
+ * Copyright 2003,2007,2008 Olly Betts
  * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -38,7 +38,8 @@ RSetI::calculate_stats()
     Assert(!calculated_reltermfreqs);
     std::set<Xapian::docid>::const_iterator doc;
     for (doc = documents.begin(); doc != documents.end(); doc++) {
-	DEBUGLINE(WTCALC, "Counting reltermfreqs in document " << *doc << " [ ");
+	Assert(*doc);
+	LOGLINE(WTCALC, "Counting reltermfreqs in document " << *doc << " [ ");
 	if (dbroot) {
 	    AutoPtr<TermList> tl =
 		AutoPtr<TermList>(dbroot->open_term_list(*doc));
@@ -50,7 +51,7 @@ RSetI::calculate_stats()
 		string tname = tl->get_termname();
 		if (reltermfreqs.find(tname) != reltermfreqs.end()) {
 		    reltermfreqs[tname] ++;
-		    DEBUGLINE(WTCALC, tname << " now has reltermfreq of " << reltermfreqs[tname]);
+		    LOGLINE(WTCALC, tname << " now has reltermfreq of " << reltermfreqs[tname]);
 		}
 		tl->next();
 	    }
@@ -64,12 +65,12 @@ RSetI::calculate_stats()
 		string tname = *tl;
 		if (reltermfreqs.find(tname) != reltermfreqs.end()) {
 		    reltermfreqs[tname] ++;
-		    DEBUGLINE(WTCALC, tname << " now has reltermfreq of " << reltermfreqs[tname]);
+		    LOGLINE(WTCALC, tname << " now has reltermfreq of " << reltermfreqs[tname]);
 		}
 		tl++;
 	    }
 	}
-	DEBUGLINE(WTCALC, "] ");
+	LOGLINE(WTCALC, "]");
     }
     calculated_reltermfreqs = true;
 }
@@ -84,5 +85,5 @@ RSetI::contribute_stats(Stats & stats)
     for (i = reltermfreqs.begin(); i != reltermfreqs.end(); i++) {
 	stats.set_reltermfreq(i->first, i->second);
     }
-    stats.rset_size += get_rsize();
+    stats.rset_size += size();
 }

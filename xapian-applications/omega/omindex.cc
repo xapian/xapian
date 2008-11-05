@@ -157,7 +157,7 @@ get_pdf_metainfo(const string & safefile, string &title, string &keywords)
 		if (pdfinfo[end - 1] == '\r') --end;
 		end -= idx;
 	    }
-	    title = pdfinfo.substr(idx, end);
+	    title.assign(pdfinfo, idx, end);
 	}
 
 	if (strncmp(pdfinfo.c_str(), "Keywords:", 9) == 0) {
@@ -173,7 +173,7 @@ get_pdf_metainfo(const string & safefile, string &title, string &keywords)
 		if (pdfinfo[end - 1] == '\r') --end;
 		end -= idx;
 	    }
-	    keywords = pdfinfo.substr(idx, end);
+	    keywords.assign(pdfinfo, idx, end);
 	}
     } catch (ReadError) {
 	// It's probably best to index the document even if pdfinfo fails.
@@ -211,7 +211,15 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	}
 	MyHtmlParser p;
 	try {
-	    p.parse_html(text);
+	    // Default HTML character set is latin 1, though not specifying one
+	    // is deprecated these days.
+	    p.parse_html(text, "iso-8859-1", false);
+	} catch (const string & newcharset) {
+	    try {
+		p.reset();
+		p.parse_html(text, newcharset, true);
+	    } catch (bool) {
+	    }
 	} catch (bool) {
 	    // MyHtmlParser throws a bool to abandon parsing at </body> or when
 	    // indexing is disallowed
@@ -227,9 +235,23 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	md5_string(text, md5);
     } else if (mimetype == "text/plain") {
 	try {
-	    // Currently we assume that text files are UTF-8.
-	    // FIXME: What charset is the file?  Look for BOM?  Look at contents?
+	    // Currently we assume that text files are UTF-8 unless they have a
+	    // byte-order mark.
 	    dump = file_to_string(file);
+
+	    // Look for Byte-Order Mark (BOM).
+	    if (startswith(dump, "\xfe\xff") || startswith(dump, "\xff\xfe")) {
+		// UTF-16 in big-endian/little-endian order - we just convert
+		// it as "UTF-16" and let the conversion handle the BOM as that
+		// way we avoid the copying overhead of erasing 2 bytes from
+		// the start of dump.
+		convert_to_utf8(dump, "UTF-16");
+	    } else if (startswith(dump, "\xef\xbb\xbf")) {
+		// UTF-8 with stupid Windows not-the-byte-order mark.
+		dump.erase(0, 3);
+	    } else {
+		// FIXME: What charset is the file?  Look at contents?
+	    }
 	} catch (ReadError) {
 	    cout << "can't read \"" << file << "\" - skipping\n";
 	    return;
@@ -378,7 +400,9 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	string cmd = "unrtf --nopict --html 2>/dev/null " + shell_protect(file);
 	MyHtmlParser p;
 	try {
-	    p.parse_html(stdout_to_string(cmd));
+	    // No point going looking for charset overrides as unrtf doesn't
+	    // produce them.
+	    p.parse_html(stdout_to_string(cmd), "iso-8859-1", true);
 	} catch (ReadError) {
 	    cout << "\"" << cmd << "\" failed - skipping\n";
 	    return;
@@ -406,7 +430,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    return;
 	}
     } else if (mimetype == "application/x-dvi") {
-	// FIXME: -e2 means "UTF-8", but that results in "fi", "ff", "ffi", etc
+	// FIXME: -e0 means "UTF-8", but that results in "fi", "ff", "ffi", etc
 	// appearing as single ligatures.  For European languages, it's
 	// actually better to use -e2 (ISO-8859-1) and then convert, so let's
 	// do that for now until we handle Unicode "compatibility

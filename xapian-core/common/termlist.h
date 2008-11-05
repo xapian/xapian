@@ -105,7 +105,7 @@ class Xapian::TermIterator::Internal : public Xapian::Internal::RefCntBase {
 };
 
 // In the external API headers, this class is Xapian::TermIterator::Internal,
-// but in the library code it's still know as "TermList" in most places.
+// but in the library code it's still known as "TermList" in most places.
 typedef Xapian::TermIterator::Internal TermList;
 
 #endif // XAPIAN_INCLUDED_TERMLIST_H

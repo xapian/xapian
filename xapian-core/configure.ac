@@ -1,14 +1,10 @@
 dnl Process this file with autoconf to produce a configure script.
 
-dnl Need autoconf 2.50 or later for many features
-dnl 2.54 needed for automake 1.6
-dnl 2.57 fixes the annoying warnings from configure on FreeBSD
-dnl 2.58 is needed by automake 1.8.5
-dnl 2.59 was released the same day as 2.58 to fix a problem
-AC_PREREQ(2.59)
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT(xapian-core, 1.0.5)dnl FIXME: bugreport addr as third argument
+AC_INIT([xapian-core], [1.1.0], [http://xapian.org/bugs])
+dnl See HACKING document for details of the reasons for required versions.
+AC_PREREQ([2.63])
 dnl Extract from the libtool info manual:
 dnl
 dnl Here are a set of rules to help you update your library version information:
@@ -68,7 +64,9 @@ dnl 16:0:1 1.0.2 New QueryParser flags, etc
 dnl 17:0:2 1.0.3 Database::get_metadata(), etc
 dnl 18:0:3 1.0.4 New Query ctor for OP_SCALE_WEIGHT
 dnl 19:0:4 1.0.5 Enquire copyable/assignable + new methods; new Sorter class
-LIBRARY_VERSION_INFO=19:0:4
+dnl 20:0:5 1.0.6 Unicode::toupper(); OP_VALUE_GE/OP_VALUE_LE
+dnl 20:1:5 1.0.7 No API changes
+LIBRARY_VERSION_INFO=20:1:5
 AC_SUBST(LIBRARY_VERSION_INFO)
 
 dnl Check the build directory doesn't contain a space, so we die early with
@@ -110,28 +108,17 @@ elif test -n "$CCC" ; then
   original_CXX="CCC=$CCC"
 fi
 
-dnl Need 1.5 for AM_CXXFLAGS, etc; also so generated files in EXTRA_DIST work
-dnl Need 1.6.3 for tests/internaltest to build with Solaris make
-dnl 1.8.5 contains a lot of fixes over 1.6.3
-dnl 1.9 reduces Makefile.in size, and 1.9.5 was in Debian sarge
-dnl But the RPM spec file runs autoreconf, and SLES 9 has 1.8.3.
-AM_INIT_AUTOMAKE([1.8.3 -Wportability tar-ustar])
-AC_CONFIG_SRCDIR(matcher/andpostlist.cc)
+dnl See HACKING document for details of the reasons for required versions.
+AM_INIT_AUTOMAKE([1.10.1 -Wportability tar-ustar])
+AC_CONFIG_SRCDIR([matcher/andpostlist.cc])
 
-AC_CONFIG_HEADERS(config.h)
+AC_CONFIG_HEADERS([config.h])
 
-dnl We don't use Fortran, but libtool 1.5 insists on probing for f77 which just
-dnl makes configure take longer to run.  We force it not to using the method
-dnl suggested here (which also reduces configure size by 12%):
-dnl http://article.gmane.org/gmane.comp.gnu.libtool.general/8172
-m4_defun([_LT_AC_LANG_F77_CONFIG], [:])
-dnl Eliminating the unused code for gcj and rc probes reduces the size of the
-dnl generated configure script by a further 15%!
-m4_defun([_LT_AC_LANG_GCJ_CONFIG], [:])
-m4_defun([_LT_AC_LANG_RC_CONFIG], [:])
+AC_CONFIG_MACRO_DIR([m4])
 
-dnl Use libtool to manage our libraries
-AC_PROG_LIBTOOL
+dnl Use libtool to manage our libraries.
+LT_PREREQ([2.2.6])
+LT_INIT
 
 AM_CXXFLAGS=
 
@@ -166,6 +153,22 @@ AM_MAINTAINER_MODE
 
 dnl Checks for programs.
 AC_PROG_CXX
+
+case $host_os in
+  linux* | k*bsd*-gnu)
+    dnl Vanilla libtool sets this to "unknown" which it then handles as "yes".
+    link_all_deplibs_CXX=no
+    ;;
+esac
+
+case $host_os in
+  linux*)
+    dnl Extract search path from ldconfig which is more reliable than the way
+    dnl vanilla libtool extracts them from ld.so.conf.
+    d=`/sbin/ldconfig -N -X -v 3>/dev/null|$SED 's,^\(/.*\):\( (.*)\)\?$,\1,p;d'|tr '\n' ' '`
+    test -z "$d" || sys_lib_dlsearch_path_spec=$d
+    ;;
+esac
 
 dnl For reasons which are beyond me, if autoconf can't find a C++ compiler
 dnl it will set CXX to g++ (which obviously won't work) rather than actually
@@ -408,11 +411,14 @@ AC_CHECK_HEADERS(sys/utsname.h, [], [], [ ])
 AC_CHECK_FUNCS(gethostname)
 
 dnl mingw (for instance) lacks ssize_t
-AC_CHECK_TYPE(ssize_t, int)
+AC_TYPE_SSIZE_T
 
 AC_TYPE_PID_T
 
 AC_TYPE_MODE_T
+
+AC_CHECK_SIZEOF([int])
+AC_CHECK_SIZEOF([long])
 
 dnl Check for a new streams implementation (GCC 2.95 only has streambuf.h).
 AC_CHECK_HEADERS(streambuf, [], [], [ ])
@@ -423,11 +429,6 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   test -z "$PERL" && AC_MSG_ERROR([perl is required in maintainer mode])
 fi
 
-dnl We only need to set docdir for compatibility with autoconf < 2.60 - this
-dnl code can be removed once we move to requiring autoconf 2.60 or newer.
-test -n "$docdir" || docdir='${datadir}/doc/${PACKAGE_TARNAME}'
-AC_SUBST(docdir)
-
 AC_ARG_ENABLE(documentation,
   [AS_HELP_STRING([--enable-documentation], [enable make rules to rebuild documentation [default=maintainer-mode]])],
   [case ${enableval} in
@@ -437,11 +438,6 @@ AC_ARG_ENABLE(documentation,
 test -z "$enable_documentation" && enable_documentation=$USE_MAINTAINER_MODE
 AM_CONDITIONAL(DOCUMENTATION_RULES, test x"$enable_documentation" = xyes)
 AM_CONDITIONAL(MAINTAINER_NO_DOCS, test x"$USE_MAINTAINER_MODE$enable_documentation" = xyesno)
-
-dnl Make DATADIR available to the library
-dnl This isn't currently used.  If we reenable it, it needs to be renamed
-dnl to avoid a clash with a mingw header.
-dnl AC_DEFINE_DIR(DATADIR, datadir, [Location of platform independent support files])
 
 if test x"$enable_documentation" = xyes ; then
   dnl Checks for dot.  (Diagrams in the documentation)
@@ -637,9 +633,18 @@ AC_DEFUN([XAPIAN_BACKEND_ENABLE],
   ])
 
 dnl When adding a new backend, update INSTALL too.
+XAPIAN_BACKEND_ENABLE(chert)
 XAPIAN_BACKEND_ENABLE(flint)
 XAPIAN_BACKEND_ENABLE(inmemory)
 XAPIAN_BACKEND_ENABLE(remote)
+
+if test yes = "$enable_backend_chert" ; then
+  dnl We would need to implement a chert locking strategy for MSDOS before we
+  dnl could build chert there.
+  case $host_os in
+    *djgpp* | *msdos* ) enable_backend_chert=no ;;
+  esac
+fi
 
 if test yes = "$enable_backend_flint" ; then
   dnl We would need to implement a flint locking strategy for MSDOS before we
@@ -649,16 +654,15 @@ if test yes = "$enable_backend_flint" ; then
   esac
 fi
 
-if test yes = "$enable_backend_flint" ; then
-  dnl We use zlib for compressing tags in flint.  We could automatically
-  dnl disable support for flint, but overall that probably does more harm
-  dnl than good - it's most likely that someone just forgot to install the
-  dnl -dev package for zlib and flint is the default backend we want people
-  dnl to use. 
+if test yes = "$enable_backend_flint" -o yes = "$enable_backend_chert" ; then
+  dnl We use zlib for compressing tags in chert/flint.  We could automatically
+  dnl disable support if zlib isn't found, but overall that probably does more
+  dnl harm than good - it's most likely that someone just forgot to install the
+  dnl -dev package for zlib.
 
   dnl Check for zlib.h.
   AC_CHECK_HEADERS(zlib.h, [], [
-    AC_MSG_ERROR([zlib.h not found - required for flint (you may need to install the zlib1g-dev or zlib-devel package)])
+    AC_MSG_ERROR([zlib.h not found - required for chert and flint (you may need to install the zlib1g-dev or zlib-devel package)])
     ], [ ])
 
   dnl Check for zlibVersion in -lz.
@@ -666,7 +670,25 @@ if test yes = "$enable_backend_flint" ; then
   LIBS=
   dnl mingw build needs -lzlib or -lzdll.
   AC_SEARCH_LIBS([zlibVersion], [z zlib zdll], [], [
-    AC_MSG_ERROR([zlibVersion() not found in -lz - required for flint (you may need to install the zlib1g-dev or zlib-devel package)])
+    AC_MSG_ERROR([zlibVersion() not found in -lz, -lzlib, or -lzdll - required for chert and flint (you may need to install the zlib1g-dev or zlib-devel package)])
+    ])
+  if test x != x"$LIBS" ; then
+    XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $LIBS"
+  fi
+  LIBS=$SAVE_LIBS
+
+  dnl Find the UUID library (from e2fsprogs, not the OSSP one).
+
+  dnl Check for uuid/uuid.h.
+  AC_CHECK_HEADERS(uuid/uuid.h, [], [
+    AC_MSG_ERROR([uuid/uuid.h not found - required for chert and flint (you may need to install the uuid-dev or libuuid-devel package)])
+    ], [ ])
+
+  dnl Check for uuid_generate in -luuid.
+  SAVE_LIBS=$LIBS
+  LIBS=
+  AC_SEARCH_LIBS([uuid_generate], [uuid], [], [
+    AC_MSG_ERROR([uuid_generate() not found in -luuid - required for chert and flint (you may need to install the uuid-dev or libuuid-devel package)])
     ])
   if test x != x"$LIBS" ; then
     XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $LIBS"
@@ -764,9 +786,11 @@ dnl Turn off compilation of anything that we don't have the requirements for
 
 dnl Set conditionals to specify what we compile
 
+AM_CONDITIONAL(BUILD_BACKEND_CHERT, test yes = "$enable_backend_chert")
 AM_CONDITIONAL(BUILD_BACKEND_FLINT, test yes = "$enable_backend_flint")
 AM_CONDITIONAL(BUILD_BACKEND_INMEMORY, test yes = "$enable_backend_inmemory")
 AM_CONDITIONAL(BUILD_BACKEND_REMOTE, test yes = "$enable_backend_remote")
+
 dnl Set a flag for AM when shared libraries are enabled.
 dnl AM_CONDITIONAL(ENABLE_SHARED, test yes = "$enable_shared")
 
@@ -876,35 +900,12 @@ AC_ARG_ENABLE(assertions,
   esac])
 
 AC_ARG_ENABLE(log,
-  [AS_HELP_STRING([--enable-log], [generate a log of methods called, etc [default=no]])],
+  [AS_HELP_STRING([--enable-log], [generate a log of methods called, etc (no|yes|profile) [default=no]])],
   [case $enableval in
-    yes|profiling|no) ;;
+    yes|profile|no) ;;
     *)
       AC_MSG_ERROR([Invalid option: '--enable-log=$enableval']) ;;
   esac])
-
-dnl Provide errors for old options which direct the user to the new ones.
-
-AC_ARG_ENABLE(debug,
-  [AS_HELP_STRING([--enable-debug], [Deprecated (use --enable-assertions and/or --enable-log instead)])],
-  [case $enableval in
-    full)
-      AC_MSG_ERROR(['--enable-debug=full' is no longer supported, use '--enable-debug --enable-log' instead.]) ;;
-    profile)
-      AC_MSG_ERROR(['--enable-debug=profile' is no longer supported, use '--enable-log=profile' instead.]) ;;
-    yes)
-      AC_MSG_ERROR(['--enable-debug' is no longer supported, use '--enable-assertions' instead.]) ;;
-    partial)
-      AC_MSG_ERROR(['--enable-debug=partial' is no longer supported, use '--enable-assertions=partial' instead.]) ;;
-    no)
-      AC_MSG_ERROR(['--disable-debug' is no longer supported, use '--disable-assertions' instead.]) ;;
-    *)
-      AC_MSG_ERROR([Invalid option: '--enable-debug=$enableval']) ;;
-  esac])
-
-AC_ARG_ENABLE(debug-verbose,
-  [AS_HELP_STRING([--enable-debug-verbose], [Deprecated (use --enable-log instead)])],
-  [AC_MSG_ERROR(['--enable-debug-verbose' is no longer supported, use '--enable-log' instead.])])
 
 dnl Set defines according to the --enable-assertions and --enable-log options
 dnl given.
@@ -959,7 +960,7 @@ if test yes = "$GXX"; then
       dnl All these options were supported by g++ 2.95 and there's little
       dnl likelihood Xapian will build with any earlier version, so there's
       dnl not much point worrying about whether older versions had them or not.
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -Wconversion -fno-gnu-keywords"
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords"
 
       dnl GCC2 reports e.g. "2.7.2.3" or "2.95.4".  3.0 reports e.g. "3.0.4"
       dnl but somewhere in the 3.X series the output became more verbose
@@ -979,16 +980,23 @@ if test yes = "$GXX"; then
       3.*)
 	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow" ;;
       *)
-        AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow"
+	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow"
 
-        dnl -Winit-self was added in GCC 3.4, but contrary to the documentation
+	dnl -Winit-self was added in GCC 3.4, but contrary to the documentation
 	dnl it is currently (tested with GCC 4.2) ignored by g++ which warns for
-	dnl this case with -Wunitialized (implied by -W).
+	dnl this case with -Wuninitialized (implied by -W).
 	dnl -Wstrict-overflow is new in GCC 4.2.
 	case $gxx_version in
 	4.0*|4.1*) ;;
-	*) AM_CXXFLAGS="$AM_CXXFLAGS -Winit-self -Wstrict-overflow=5" ;;
+	*) AM_CXXFLAGS="$AM_CXXFLAGS -Winit-self -Wstrict-overflow=1" ;;
 	esac
+
+	dnl FIXME:
+	dnl -Wconversion in older GCC versions is intended to help migration
+	dnl from K&R to ISO C, and isn't useful for us.  In 4.3 it was renamed
+	dnl to -Wtraditional-conversion and a new -Wconversion added which
+	dnl sounds useful but is a bit buggy currently.  So we should consider
+	dnl enabling -Wconversion once it is stabilised (GCC 4.4 or ...)
 
 	if test no = "$enable_visibility"; then
 	  AC_DEFINE(XAPIAN_DISABLE_VISIBILITY, 1, [Define to disable use of visibility attributes])
@@ -1069,6 +1077,7 @@ AC_SYS_LARGEFILE
 dnl Libtool sets this (to yes|no|unknown) and we use it in xapian-config.
 AC_SUBST(link_all_deplibs_CXX)
 
+dnl Split up the version number into "MAJOR.MINOR.REVISION".
 MAJOR_VERSION=`echo "$VERSION"|sed 's/\..*//'`
 [MINOR_VERSION=`echo "$VERSION"|sed 's/[^.]*\.//;s/\..*//'`]
 [REVISION=`echo "$VERSION"|sed 's/.*\.//;s/_svn[0-9]*$//'`]
@@ -1087,6 +1096,8 @@ AC_CONFIG_FILES([
  ])
 AC_CONFIG_FILES([tests/runtest], [chmod +x tests/runtest])
 AC_CONFIG_FILES([tests/runsrv], [chmod +x tests/runsrv])
+AC_CONFIG_FILES([tests/submitperftest], [chmod +x tests/submitperftest])
+AC_CONFIG_FILES([tests/perftest/get_machine_info], [chmod +x tests/perftest/get_machine_info])
 AC_CONFIG_FILES([xapian-config], [chmod +x xapian-config])
 AC_CONFIG_FILES([makemanpage], [chmod +x makemanpage])
 AC_CONFIG_FILES([docs/gen_codestructure_doc], [chmod +x docs/gen_codestructure_doc])
@@ -1108,7 +1119,7 @@ dnl Generate include/xapian/version.h:
 dnl MAIN_VERSION is VERSION without any _svn6789 suffix.
 MAIN_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$REVISION"
 cxxcpp_flags=-I.
-for backend in FLINT INMEMORY REMOTE ; do
+for backend in CHERT FLINT INMEMORY REMOTE ; do
   val=`eval echo "\\\$BUILD_BACKEND_${backend}_TRUE"`
   if test -z "$val" ; then
     cxxcpp_flags="$cxxcpp_flags -DXAPIAN_HAS_${backend}_BACKEND"

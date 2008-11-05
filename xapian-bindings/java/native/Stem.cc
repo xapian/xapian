@@ -1,5 +1,6 @@
 /**
  Copyright (c) 2003, Technology Concepts & Design, Inc.
+ Copyright (c) 2008, Olly Betts
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -53,7 +54,8 @@ JNIEXPORT jstring JNICALL Java_org_xapian_XapianJNI_stem_1stem_1word (JNIEnv *en
     TRY
         Stem *stem = _stem->get(stemid);
         const char *c_term = env->GetStringUTFChars(term, 0);
-        string stemmed = (*stem)(c_term);
+	string cpp_term(c_term, env->GetStringUTFLength(term));
+        string stemmed = (*stem)(cpp_term);
         env->ReleaseStringUTFChars(term, c_term);
         return env->NewStringUTF(stemmed.c_str());
     CATCH(NULL)

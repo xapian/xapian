@@ -1,8 +1,11 @@
 /* Driver template for the LEMON parser generator.
 ** The author disclaims copyright to this source code.
+**
+** Synced with upstream CVS rev 1.38:
+** http://www.sqlite.org/cvstrac/fileview?f=sqlite/tool/lempar.c&v=1.38
 */
-/* First off, code is included which follows the "include" declaration
-** in the input file. */
+/* First off, code is included that follows the "include" declaration
+** in the input grammar file. */
 %%
 /* Next is all token values, in a form suitable for use by makeheaders.
 ** This section will be null unless lemon is run with the -m switch.
@@ -43,7 +46,8 @@
 **                       This is typically a union of many types, one of
 **                       which is ParseTOKENTYPE.  The entry in the union
 **                       for base tokens is called "yy0".
-**    YYSTACKDEPTH       is the maximum depth of the parser's stack.
+**    YYSTACKDEPTH       is the maximum depth of the parser's stack.  If
+**                       zero the stack is dynamically sized using realloc()
 **    ParseARG_SDECL     A static variable declaration for the %extra_argument
 **    ParseARG_PDECL     A parameter declaration for the %extra_argument
 **    ParseARG_STORE     Code to store %extra_argument into yypParser
@@ -58,7 +62,7 @@
 #define YY_ACCEPT_ACTION  (YYNSTATE+YYNRULE+1)
 #define YY_ERROR_ACTION   (YYNSTATE+YYNRULE)
 
-/* Next are that tables used to determine what action to take based on the
+/* Next are the tables used to determine what action to take based on the
 ** current state and lookahead token.  These tables are used to implement
 ** functions that take a state number and lookahead value and return an
 ** action integer.  
@@ -141,17 +145,16 @@ struct yyStackEntry {
     stateno = 0;
     major = 0;
   }
-  yyStackEntry(int stateno_, int major_, YYMINORTYPE minor_)
-  {
+  yyStackEntry(YYACTIONTYPE stateno_, YYCODETYPE major_, YYMINORTYPE minor_) {
     stateno = stateno_;
     major = major_;
     minor = minor_;
   }
-  int stateno;       /* The state-number */
-  int major;         /* The major token value.  This is the code
-                     ** number for the token at this stack level */
-  YYMINORTYPE minor; /* The user-supplied minor token value.  This
-                     ** is the value of the token  */
+  YYACTIONTYPE stateno;  /* The state-number */
+  YYCODETYPE major;       /* The major token value.  This is the code
+                          ** number for the token at this stack level */
+  YYMINORTYPE minor;      /* The user-supplied minor token value.  This
+                          ** is the value of the token  */
 };
 
 /* The state of the parser is completely contained in an instance of
@@ -166,6 +169,7 @@ typedef struct yyParser yyParser;
 /* Prototype this here so we can call it from a rule action (ick). */
 static void yy_parse_failed(yyParser *);
 
+#include "omassert.h"
 #include "omdebug.h"
 
 #ifdef XAPIAN_DEBUG_VERBOSE
@@ -186,7 +190,7 @@ static const char *const yyRuleName[] = {
 ** value.
 */
 static const char *ParseTokenName(int tokenType){
-  if( tokenType>0 && size_t(tokenType)<(sizeof(yyTokenName)/sizeof(yyTokenName[0])) ){
+  if( tokenType>=0 && tokenType<(int)(sizeof(yyTokenName)/sizeof(yyTokenName[0])) ){
     return yyTokenName[tokenType];
   }
   return "Unknown";
@@ -197,7 +201,7 @@ static const char *ParseTokenName(int tokenType){
 ** value.
 */
 static const char *ParseRuleName(int ruleNum){
-  if( ruleNum>0 && size_t(ruleNum)<(sizeof(yyRuleName)/sizeof(yyRuleName[0])) ){
+  if( ruleNum>=0 && ruleNum<(int)(sizeof(yyRuleName)/sizeof(yyRuleName[0])) ){
     return yyRuleName[ruleNum];
   }
   return "Unknown";
@@ -225,7 +229,12 @@ static yyParser *ParseAlloc(){
 ** "yymajor" is the symbol code, and "yypminor" is a pointer to
 ** the value.
 */
-static void yy_destructor(YYCODETYPE yymajor, YYMINORTYPE *yypminor){
+static void yy_destructor(
+  yyParser *yypParser,    /* The parser */
+  YYCODETYPE yymajor,     /* Type code for object to destroy */
+  YYMINORTYPE *yypminor   /* The object to be destroyed */
+){
+  ParseARG_FETCH;
   switch( yymajor ){
     /* Here is inserted the actions which take place when a
     ** terminal or non-terminal is destroyed.  This can happen
@@ -240,6 +249,7 @@ static void yy_destructor(YYCODETYPE yymajor, YYMINORTYPE *yypminor){
 %%
     default:  break;   /* If no destructor action specified: do nothing */
   }
+  ParseARG_STORE; /* Suppress warning about unused %extra_argument variable */
 }
 
 /*
@@ -255,9 +265,9 @@ static int yy_pop_parser_stack(yyParser *pParser){
   if( pParser->yystack.empty() ) return 0;
   yyStackEntry *yytos = &pParser->yystack.back();
 
-  DEBUGLINE(QUERYPARSER, "Popping " << ParseTokenName(yytos->major));
+  LOGLINE(QUERYPARSER, "Popping " << ParseTokenName(yytos->major));
   yymajor = (YYCODETYPE)yytos->major;
-  yy_destructor( yymajor, &yytos->minor);
+  yy_destructor(pParser, yymajor, &yytos->minor);
   pParser->yystack.pop_back();
   return yymajor;
 }
@@ -288,31 +298,40 @@ static void ParseFree(
 */
 static int yy_find_shift_action(
   yyParser *pParser,        /* The parser */
-  int iLookAhead            /* The look-ahead token */
+  YYCODETYPE iLookAhead     /* The look-ahead token */
 ){
   int i;
-  /* if( pParser->yystack.empty() ) return YY_NO_ACTION;  */
   int stateno = pParser->yystack.back().stateno;
  
-  i = yy_shift_ofst[stateno];
-  if( i==YY_SHIFT_USE_DFLT ){
+  if( stateno>YY_SHIFT_MAX || (i = yy_shift_ofst[stateno])==YY_SHIFT_USE_DFLT ){
     return yy_default[stateno];
   }
-  if( iLookAhead==YYNOCODE ){
-    return YY_NO_ACTION;
-  }
+  Assert( iLookAhead!=YYNOCODE );
   i += iLookAhead;
   if( i<0 || i>=YY_SZ_ACTTAB || yy_lookahead[i]!=iLookAhead ){
+    if( iLookAhead>0 ){
 #ifdef YYFALLBACK
-    int iFallback;            /* Fallback token */
-    if( iLookAhead<sizeof(yyFallback)/sizeof(yyFallback[0])
-           && (iFallback = yyFallback[iLookAhead])!=0 ){
-      DEBUGLINE(QUERYPARSER,
+      int iFallback;            /* Fallback token */
+      if( iLookAhead<sizeof(yyFallback)/sizeof(yyFallback[0])
+             && (iFallback = yyFallback[iLookAhead])!=0 ){
+        LOGLINE(QUERYPARSER,
 		"FALLBACK " << ParseTokenName(iLookAhead) << " => " <<
 		ParseTokenName(iFallback));
-      return yy_find_shift_action(pParser, iFallback);
-    }
+        return yy_find_shift_action(pParser, iFallback);
+      }
 #endif
+#ifdef YYWILDCARD
+      {
+        int j = i - iLookAhead + YYWILDCARD;
+        if( j>=0 && j<YY_SZ_ACTTAB && yy_lookahead[j]==YYWILDCARD ){
+	  LOGLINE(QUERYPARSER,
+		  "WILDCARD " << ParseTokenName(iLookAhead) << " => " <<
+		  ParseTokenName(YYWILDCARD));
+	  return yy_action[j];
+	}
+      }
+#endif /* YYWILDCARD */
+    }
     return yy_default[stateno];
   }else{
     return yy_action[i];
@@ -328,25 +347,30 @@ static int yy_find_shift_action(
 ** return YY_NO_ACTION.
 */
 static int yy_find_reduce_action(
-  yyParser *pParser,        /* The parser */
-  int iLookAhead            /* The look-ahead token */
+  int stateno,              /* Current state number */
+  YYCODETYPE iLookAhead     /* The look-ahead token */
 ){
   int i;
-  int stateno = pParser->yystack.back().stateno;
- 
-  i = yy_reduce_ofst[stateno];
-  if( i==YY_REDUCE_USE_DFLT ){
+#ifdef YYERRORSYMBOL
+  if( stateno>YY_REDUCE_MAX ){
     return yy_default[stateno];
   }
-  if( iLookAhead==YYNOCODE ){
-    return YY_NO_ACTION;
-  }
+#else
+  Assert( stateno<=YY_REDUCE_MAX );
+#endif
+  i = yy_reduce_ofst[stateno];
+  Assert( i!=YY_REDUCE_USE_DFLT );
+  Assert( iLookAhead!=YYNOCODE );
   i += iLookAhead;
+#ifdef YYERRORSYMBOL
   if( i<0 || i>=YY_SZ_ACTTAB || yy_lookahead[i]!=iLookAhead ){
     return yy_default[stateno];
-  }else{
-    return yy_action[i];
   }
+#else
+  Assert( i>=0 && i<YY_SZ_ACTTAB );
+  Assert( yy_lookahead[i]==iLookAhead );
+#endif
+  return yy_action[i];
 }
 
 /*
@@ -367,13 +391,13 @@ static void yy_shift(
 #endif
 #ifdef XAPIAN_DEBUG_VERBOSE
   unsigned i;
-  DEBUGLINE(QUERYPARSER, "Shift " << yyNewState);
+  LOGLINE(QUERYPARSER, "Shift " << yyNewState);
   string stack("Stack:");
   for (i = 0; i < yypParser->yystack.size(); i++) {
     stack += ' ';
     stack += ParseTokenName(yypParser->yystack[i].major);
   }
-  DEBUGLINE(QUERYPARSER, stack);
+  LOGLINE(QUERYPARSER, stack);
 #endif
   yypParser->yystack.push_back(yyStackEntry(yyNewState, yyMajor, *yypMinor));
 }
@@ -406,8 +430,27 @@ static void yy_reduce(
   ParseARG_FETCH;
   yymsp = &yypParser->yystack.back();
 #ifdef XAPIAN_DEBUG_VERBOSE
-  DEBUGLINE(QUERYPARSER, "Reduce [" << ParseRuleName(yyruleno) << "].");
+  LOGLINE(QUERYPARSER, "Reduce [" << ParseRuleName(yyruleno) << "].");
 #endif
+
+  /* Silence complaints from purify about yygotominor being uninitialized
+  ** in some cases when it is copied into the stack after the following
+  ** switch.  yygotominor is uninitialized when a rule reduces that does
+  ** not set the value of its left-hand side nonterminal.  Leaving the
+  ** value of the nonterminal uninitialized is utterly harmless as long
+  ** as the value is never used.  So really the only thing this code
+  ** accomplishes is to quieten purify.  
+  **
+  ** 2007-01-16:  The wireshark project (www.wireshark.org) reports that
+  ** without this code, their parser segfaults.  I'm not sure what there
+  ** parser is doing to make this happen.  This is the second bug report
+  ** from wireshark this week.  Clearly they are stressing Lemon in ways
+  ** that it has not been previously stressed...  (SQLite ticket #2172)
+  */
+  /* Later comments on ticket #2172 note that this is a bug in wireshark's
+   * grammar which lemon fails to diagnose, so commenting out for Xapian. */
+  /* memset(&yygotominor, 0, sizeof(yygotominor)); */
+
 
   switch( yyruleno ){
   /* Beginning here are the reduction cases.  A typical example
@@ -423,10 +466,11 @@ static void yy_reduce(
   yygoto = yyRuleInfo[yyruleno].lhs;
   yysize = yyRuleInfo[yyruleno].nrhs;
   yypParser->yystack.resize(yypParser->yystack.size() - yysize);
-  yyact = yy_find_reduce_action(yypParser,yygoto);
+  yyact = yy_find_reduce_action(yypParser->yystack.back().stateno,yygoto);
   if( yyact < YYNSTATE ){
     yy_shift(yypParser,yyact,yygoto,&yygotominor);
-  }else if( yyact == YYNSTATE + YYNRULE + 1 ){
+  }else{
+    Assert( yyact == YYNSTATE + YYNRULE + 1 );
     yy_accept(yypParser);
   }
 }
@@ -438,7 +482,7 @@ static void yy_parse_failed(
   yyParser *yypParser           /* The parser */
 ){
   ParseARG_FETCH;
-  DEBUGLINE(QUERYPARSER, "Fail!");
+  LOGLINE(QUERYPARSER, "Fail!");
   while( !yypParser->yystack.empty() ) yy_pop_parser_stack(yypParser);
   /* Here code is inserted which will be executed whenever the
   ** parser fails */
@@ -469,7 +513,7 @@ static void yy_accept(
   yyParser *yypParser           /* The parser */
 ){
   ParseARG_FETCH;
-  DEBUGLINE(QUERYPARSER, "Accept!");
+  LOGLINE(QUERYPARSER, "Accept!");
   while( !yypParser->yystack.empty() ) yy_pop_parser_stack(yypParser);
   /* Here code is inserted which will be executed whenever the
   ** parser accepts */
@@ -505,11 +549,12 @@ static void Parse(
   YYMINORTYPE yyminorunion;
   int yyact;            /* The parser action. */
   int yyendofinput;     /* True if we are at the end of input */
+#ifdef YYERRORSYMBOL
   int yyerrorhit = 0;   /* True if yymajor has invoked an error */
+#endif
 
   /* (re)initialize the parser, if necessary */
   if( yypParser->yystack.empty() ){
-    if( yymajor==0 ) return;
     yypParser->yystack.push_back(yyStackEntry());
     yypParser->yyerrcnt = -1;
   }
@@ -517,24 +562,24 @@ static void Parse(
   yyendofinput = (yymajor==0);
   ParseARG_STORE;
 
-  DEBUGLINE(QUERYPARSER, "Input " << ParseTokenName(yymajor) << " " <<
-	    (yyminor ? yyminor->name : "<<null>>"));
+  LOGLINE(QUERYPARSER, "Input " << ParseTokenName(yymajor) << " " <<
+	  (yyminor ? yyminor->name : "<<null>>"));
 
   do{
     yyact = yy_find_shift_action(yypParser,yymajor);
     if( yyact<YYNSTATE ){
+      Assert( !yyendofinput );  /* Impossible to shift the $ token */
       yy_shift(yypParser,yyact,yymajor,&yyminorunion);
       yypParser->yyerrcnt--;
-      if( yyendofinput && !yypParser->yystack.empty() ){
-        yymajor = 0;
-      }else{
-        yymajor = YYNOCODE;
-      }
+      yymajor = YYNOCODE;
     }else if( yyact < YYNSTATE + YYNRULE ){
       yy_reduce(yypParser,yyact-YYNSTATE);
-    }else if( yyact == YY_ERROR_ACTION ){
+    }else{
+      Assert( yyact == YY_ERROR_ACTION );
+#ifdef YYERRORSYMBOL
       int yymx;
-      DEBUGLINE(QUERYPARSER, "Syntax Error!");
+#endif
+      LOGLINE(QUERYPARSER, "Syntax Error!");
 #ifdef YYERRORSYMBOL
       /* A syntax error has occurred.
       ** The response to an error depends upon whether or not the
@@ -560,19 +605,21 @@ static void Parse(
       }
       yymx = yypParser->yystack.back().major;
       if( yymx==YYERRORSYMBOL || yyerrorhit ){
-	DEBUGLINE(QUERYPARSER, "Discard input token " << ParseTokenName(yymajor));
-        yy_destructor((YYCODETYPE)yymajor,&yyminorunion);
+	LOGLINE(QUERYPARSER, "Discard input token " << ParseTokenName(yymajor));
+        yy_destructor(yypParser, (YYCODETYPE)yymajor,&yyminorunion);
         yymajor = YYNOCODE;
       }else{
          while(
           !yypParser->yystack.empty() &&
           yymx != YYERRORSYMBOL &&
-          (yyact = yy_find_shift_action(yypParser,YYERRORSYMBOL)) >= YYNSTATE
+          (yyact = yy_find_reduce_action(
+                        yypParser->yystack.back().stateno,
+                        YYERRORSYMBOL)) >= YYNSTATE
         ){
           yy_pop_parser_stack(yypParser);
         }
         if( yypParser->yystack.empty() || yymajor==0 ){
-          yy_destructor((YYCODETYPE)yymajor,&yyminorunion);
+          yy_destructor(yypParser, (YYCODETYPE)yymajor,&yyminorunion);
           yy_parse_failed(yypParser);
           yymajor = YYNOCODE;
         }else if( yymx!=YYERRORSYMBOL ){
@@ -597,15 +644,12 @@ static void Parse(
         yy_syntax_error(yypParser,yymajor,yyminorunion);
       }
       yypParser->yyerrcnt = 3;
-      yy_destructor((YYCODETYPE)yymajor,&yyminorunion);
+      yy_destructor(yypParser,(YYCODETYPE)yymajor,&yyminorunion);
       if( yyendofinput ){
         yy_parse_failed(yypParser);
       }
       yymajor = YYNOCODE;
 #endif
-    }else{
-      yy_accept(yypParser);
-      yymajor = YYNOCODE;
     }
   }while( yymajor!=YYNOCODE && !yypParser->yystack.empty() );
   return;

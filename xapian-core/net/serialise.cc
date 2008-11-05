@@ -1,7 +1,7 @@
 /* @file serialise.cc
  * @brief functions to convert Xapian objects to strings and back
  */
-/* Copyright (C) 2006,2007 Olly Betts
+/* Copyright (C) 2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -173,40 +173,6 @@ unserialise_stats(const string &s)
     }
 
     return stat;
-}
-
-string
-serialise_mset_pre_30_5(const Xapian::MSet &mset)
-{
-    string result;
-
-    result += encode_length(mset.get_firstitem());
-    result += encode_length(mset.get_matches_lower_bound());
-    result += encode_length(mset.get_matches_estimated());
-    result += encode_length(mset.get_matches_upper_bound());
-    result += serialise_double(mset.get_max_possible());
-    result += serialise_double(mset.get_max_attained());
-    result += encode_length(mset.size());
-    for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
-	result += serialise_double(i.get_weight());
-	result += encode_length(*i);
-	result += encode_length(i.get_collapse_key().size());
-	result += i.get_collapse_key();
-	result += encode_length(i.get_collapse_count());
-    }
-
-    const map<string, Xapian::MSet::Internal::TermFreqAndWeight> &termfreqandwts
-	= mset.internal->termfreqandwts;
-
-    map<string, Xapian::MSet::Internal::TermFreqAndWeight>::const_iterator j;
-    for (j = termfreqandwts.begin(); j != termfreqandwts.end(); ++j) {
-	result += encode_length(j->first.size());
-	result += j->first;
-	result += encode_length(j->second.termfreq);
-	result += serialise_double(j->second.termweight);
-    }
-
-    return result;
 }
 
 string

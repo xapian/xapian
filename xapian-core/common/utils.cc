@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005,2007 Olly Betts
+ * Copyright 2003,2004,2005,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,11 +23,12 @@
 #include <config.h>
 
 #include "utils.h"
+
 #include "xapian/error.h"
 #include "safedirent.h"
 #include "safeerrno.h"
 
-#include <stdio.h>
+#include <cstdio> // For sprintf()/snprintf().
 #include <sys/types.h>
 #include <cfloat>
 #include <cmath>
@@ -141,6 +142,7 @@ removedir(const string &dirname)
 
     dir = opendir(dirname.c_str());
     if (dir == NULL) {
+	if (errno == ENOENT) return;
 	throw Xapian::DatabaseError("Cannot open directory '" + dirname + "'", errno);
     }
 
@@ -165,44 +167,6 @@ removedir(const string &dirname)
     if (rmdir(dirname)) {
 	throw Xapian::DatabaseError("Cannot remove directory '" + dirname + "'", errno);
     }
-}
-
-string hex_encode(const string &input)
-{
-    string buf;
-    for (string::size_type i = 0; i != input.size(); ++i)
-    {
-	unsigned char ch = input[i];
-	buf += "0123456789abcdef"[ch / 16];
-	buf += "0123456789abcdef"[ch % 16];
-    }
-    return buf;
-}
-
-string hex_decode(const string &input)
-{
-    string buf;
-    for (string::size_type i = 0; i != input.size(); ++i)
-    {
-	int val = 0;
-	unsigned char ch = input[i];
-	if (ch >= '0' && ch <= '9') {
-	    val += (ch - '0') * 16;
-	} else {
-	    val += (10 + (ch - 'a')) * 16;
-	}
-	++i;
-	if (i == input.size())
-	    return buf;
-	ch = input[i];
-	if (ch >= '0' && ch <= '9') {
-	    val += ch - '0';
-	} else {
-	    val += 10 + (ch - 'a');
-	}
-	buf += char(val);
-    }
-    return buf;
 }
 
 namespace Xapian {

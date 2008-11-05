@@ -1,0 +1,5 @@
+<Directory>tests/perftest</Directory>
+
+<Description>
+This directory contains various the performance test suite.
+</Description>

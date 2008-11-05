@@ -10,7 +10,7 @@
  *  http://berghel.net/publications/asm/asm.php
  */
 /* Copyright (C) 2003 Richard Boulton
- * Copyright (C) 2007 Olly Betts
+ * Copyright (C) 2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,11 +29,11 @@
 
 #include <config.h>
 
-#include <algorithm>
-
 #include "editdistance.h"
+
 #include "omassert.h"
 
+#include <algorithm>
 #include <stdlib.h>
 
 using namespace std;
@@ -165,7 +165,8 @@ edist_state<CHR>::~edist_state() {
 
 template<class CHR>
 static int
-seqcmp_editdist(const CHR * ptr1, int len1, const CHR * ptr2, int len2)
+seqcmp_editdist(const CHR * ptr1, int len1, const CHR * ptr2, int len2,
+		int max_distance)
 {
     int lendiff = len2 - len1;
     /* Make sure second sequence is longer (or same length). */
@@ -181,11 +182,9 @@ seqcmp_editdist(const CHR * ptr1, int len1, const CHR * ptr2, int len2)
     edist_state<CHR> state(ptr1, len1, ptr2, len2);
 
     int p = lendiff; /* This is the minimum possible edit distance. */
-    while (true) {
-	int inc;
-	int temp_p;
-	for (temp_p = 0; temp_p != p; ++temp_p) {
-	    inc = p - temp_p;
+    while (p <= max_distance) {
+	for (int temp_p = 0; temp_p != p; ++temp_p) {
+	    int inc = p - temp_p;
 	    if (abs(lendiff - inc) <= temp_p) {
 		state.edist_calc_f_kp(lendiff - inc, temp_p);
 	    }
@@ -203,7 +202,9 @@ seqcmp_editdist(const CHR * ptr1, int len1, const CHR * ptr2, int len2)
 }
 
 int
-edit_distance_unsigned(const unsigned * ptr1, int len1, const unsigned * ptr2, int len2)
+edit_distance_unsigned(const unsigned * ptr1, int len1,
+		       const unsigned * ptr2, int len2,
+		       int max_distance)
 {
-    return seqcmp_editdist<unsigned>(ptr1, len1, ptr2, len2);
+    return seqcmp_editdist<unsigned>(ptr1, len1, ptr2, len2, max_distance);
 }

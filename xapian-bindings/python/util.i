@@ -54,46 +54,18 @@ namespace Xapian {
 #else
 	PyObject * mythis = PyObject_GetAttrString(obj, "this");
 #endif
+	if (!mythis)
+	    return 0;
+
 	Query * retval = 0;
-	if (!mythis || SWIG_ConvertPtr(mythis, (void **)&retval,
-				       SWIGTYPE_p_Xapian__Query, 0) < 0) {
+	int res = SWIG_ConvertPtr(mythis, (void **)&retval,
+				  SWIGTYPE_p_Xapian__Query, 0);
+	if (!SWIG_IsOK(res)) {
 	    retval = 0;
 	}
+	Py_DECREF(mythis);
 	return retval;
     }
-
-#if 0 // Currently unused
-    RSet *get_py_rset(PyObject *obj) {
-	PyObject * mythis = PyObject_GetAttrString(obj, "this");
-	Rset * retval = 0;
-	if (!mythis || SWIG_ConvertPtr(mythis, (void **)&retval,
-				       SWIGTYPE_p_Xapian__RSet, 0) < 0) {
-	    retval = 0;
-	}
-	return retval;
-    }
-#endif
-
-#if 0 // FIXME
-    MatchDecider *get_py_matchdecider(PyObject *obj) {
-	PyObject * mythis = PyObject_GetAttrString(obj, "this");
-	MatchDecider * retval = 0;
-	if (!mythis || SWIG_ConvertPtr(mythis, (void **)&retval,
-				       SWIGTYPE_p_Xapian__MatchDecider, 0) < 0) {
-	    retval = 0;
-	}
-	return retval;
-    }
-#endif
-
-#if 0
-    int get_py_int(PyObject *obj) {
-	if (!PyNumber_Check(obj)) {
-	    throw PythonProblem();
-	}
-	return PyInt_AsLong(PyNumber_Int(obj));
-    }
-#endif
 }
 %}
 
@@ -103,49 +75,77 @@ namespace Xapian {
 	$1 = 0;
     } else {
 	$1 = 1;
-	int numitems = PySequence_Size($input);
+	PyObject * fastseq = PySequence_Fast($input, "expected sequence of strings or queries");
+	if (!fastseq) {
+	    // We've already checked that we have a sequence, so the failure of
+	    // PySequence_Fast() is a serious error, not just a failure of
+	    // typecheck.
+	    SWIG_fail;
+	}
+	int numitems = PySequence_Fast_GET_SIZE(fastseq);
 	for (int i = 0; i < numitems; ++i) {
-	    PyObject *obj = PySequence_GetItem($input, i);
-	    if (!PyUnicode_Check(obj) && !PyString_Check(obj) && !Xapian::get_py_query(obj)) {
+	    PyObject *obj = PySequence_Fast_GET_ITEM(fastseq, i);
+	    if (!PyUnicode_Check(obj) &&
+%#if PY_VERSION_HEX >= 0x03000000
+		!PyBytes_Check(obj) &&
+%#else
+		!PyString_Check(obj) &&
+%#endif
+		!Xapian::get_py_query(obj)) {
 		$1 = 0;
 		break;
 	    }
 	}
+	Py_DECREF(fastseq);
     }
 }
 
 %typemap(in) const vector<Xapian::Query> & (vector<Xapian::Query> v) {
-    if (!PySequence_Check($input)) {
-	PyErr_SetString(PyExc_TypeError, "expected list of strings or queries");
-	return NULL;
+    PyObject * fastseq = PySequence_Fast($input, "expected sequence of strings or queries");
+    if (!fastseq) {
+	SWIG_fail;
     }
 
-    int numitems = PySequence_Size($input);
+    int numitems = PySequence_Fast_GET_SIZE(fastseq);
     v.reserve(numitems);
     for (int i = 0; i < numitems; ++i) {
-	PyObject *obj = PySequence_GetItem($input, i);
+	PyObject *obj = PySequence_Fast_GET_ITEM(fastseq, i);
+	PyObject *decrefme = NULL;
 	if (PyUnicode_Check(obj)) {
 	    PyObject *strobj = PyUnicode_EncodeUTF8(PyUnicode_AS_UNICODE(obj), PyUnicode_GET_SIZE(obj), "ignore");
 	    if (!strobj) SWIG_fail;
-	    Py_DECREF(obj);
 	    obj = strobj;
+	    decrefme = strobj;
 	}
-	if (PyString_Check(obj)) {
+%#if PY_VERSION_HEX >= 0x03000000
+	if (PyBytes_Check(obj))
+%#else
+	if (PyString_Check(obj))
+%#endif
+	{
 	    char * p;
 	    Py_ssize_t len;
+%#if PY_VERSION_HEX >= 0x03000000
+	    /* We know this must be a bytes object, so this call can't fail. */
+	    (void)PyBytes_AsStringAndSize(obj, &p, &len);
+%#else
 	    /* We know this must be a string, so this call can't fail. */
 	    (void)PyString_AsStringAndSize(obj, &p, &len);
+%#endif
 	    v.push_back(Xapian::Query(string(p, len)));
 	} else {
 	    Xapian::Query *subqp = Xapian::get_py_query(obj);
 	    if (!subqp) {
 		PyErr_SetString(PyExc_TypeError, "expected string or query");
+		Py_XDECREF(decrefme);
 		SWIG_fail;
 	    }
 	    v.push_back(*subqp);
 	}
+	Py_XDECREF(decrefme);
     }
     $1 = &v;
+    Py_DECREF(fastseq);
 }
 
 #define XAPIAN_TERMITERATOR_PAIR_OUTPUT_TYPEMAP
@@ -156,7 +156,11 @@ namespace Xapian {
     }
 
     for (Xapian::TermIterator i = $1.first; i != $1.second; ++i) {
+%#if PY_VERSION_HEX >= 0x03000000
+	PyObject * str = PyBytes_FromStringAndSize((*i).data(), (*i).size());
+%#else
 	PyObject * str = PyString_FromStringAndSize((*i).data(), (*i).size());
+%#endif
 	if (str == 0) return NULL;
 	if (PyList_Append($result, str) == -1) return NULL;
     }
@@ -214,7 +218,11 @@ PyObject *Xapian_ESet_items_get(Xapian::ESet *eset)
 	PyObject *t = PyTuple_New(2);
 	if (!t) return NULL;
 
+#if PY_VERSION_HEX >= 0x03000000
+	PyObject * str = PyBytes_FromStringAndSize((*i).data(), (*i).size());
+#else
 	PyObject * str = PyString_FromStringAndSize((*i).data(), (*i).size());
+#endif
 	if (str == 0) return NULL;
 	PyTuple_SetItem(t, ESET_TNAME, str);
 	PyTuple_SetItem(t, ESET_WT, PyFloat_FromDouble(i.get_weight()));
@@ -496,7 +504,11 @@ namespace Xapian {
     PyTuple_SetItem(newresult, 0, $result);
     $result = newresult;
 
+%#if PY_VERSION_HEX >= 0x03000000
+    str = PyBytes_FromStringAndSize($1->data(), $1->size());
+%#else
     str = PyString_FromStringAndSize($1->data(), $1->size());
+%#endif
     if (str == 0) {
         Py_DECREF($result);
         $result = NULL;
@@ -507,7 +519,11 @@ namespace Xapian {
 %typemap(argout) std::string &vrpend {
     PyObject * str;
 
+%#if PY_VERSION_HEX >= 0x03000000
+    str = PyBytes_FromStringAndSize($1->data(), $1->size());
+%#else
     str = PyString_FromStringAndSize($1->data(), $1->size());
+%#endif
     if (str == 0) {
         Py_DECREF($result);
         $result = NULL;

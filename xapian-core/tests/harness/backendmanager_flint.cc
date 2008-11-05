@@ -26,22 +26,16 @@ using namespace std;
 
 BackendManagerFlint::~BackendManagerFlint() { }
 
-const char *
+std::string
 BackendManagerFlint::get_dbtype() const
 {
     return "flint";
 }
 
-Xapian::Database
-BackendManagerFlint::get_database(const vector<string> & files)
+string
+BackendManagerFlint::do_get_database_path(const vector<string> & files)
 {
-    return Xapian::Flint::open(createdb_flint(files));
-}
-
-Xapian::Database
-BackendManagerFlint::get_database(const string & file)
-{
-    return Xapian::Flint::open(createdb_flint(vector<string>(1, file)));
+    return createdb_flint(files);
 }
 
 Xapian::WritableDatabase
@@ -59,13 +53,17 @@ BackendManagerFlint::get_writable_database_path(const string & name)
 }
 
 Xapian::Database
-BackendManagerFlint::get_writable_database_as_database()
+BackendManagerFlint::get_writable_database_as_database(const string & name)
 {
-    return Xapian::Flint::open(".flint/" + last_wdb_name);
+    if (name.empty())
+	return Xapian::Flint::open(".flint/" + last_wdb_name);
+    return Xapian::Flint::open(".flint/" + name);
 }
 
 Xapian::WritableDatabase
-BackendManagerFlint::get_writable_database_again()
+BackendManagerFlint::get_writable_database_again(const string & name)
 {
-    return Xapian::Flint::open(".flint/" + last_wdb_name, Xapian::DB_OPEN);
+    if (name.empty())
+	return Xapian::Flint::open(".flint/" + last_wdb_name, Xapian::DB_OPEN);
+    return Xapian::Flint::open(".flint/" + name, Xapian::DB_OPEN);
 }

@@ -1,7 +1,7 @@
 /** @file valuegepostlist.cc
  * @brief Return document ids matching a range test on a specified doc value.
  */
-/* Copyright 2007 Olly Betts
+/* Copyright 2007,2008 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -21,11 +21,13 @@
 
 #include <config.h>
 
+#include "valuegepostlist.h"
+
 #include "autoptr.h"
 #include "omassert.h"
 #include "document.h"
+#include "leafpostlist.h"
 #include "utils.h"
-#include "valuegepostlist.h"
 
 using namespace std;
 
@@ -33,17 +35,14 @@ PostList *
 ValueGePostList::next(Xapian::weight)
 {
     Assert(db);
-    AssertParanoid(lastdocid == db->get_lastdocid());
-    while (current < lastdocid) {
-	try {
-	    if (++current == 0) break;
-	    AutoPtr<Xapian::Document::Internal> doc(db->open_document(current, true));
-	    string v = doc->get_value(valno);
-	    if (v >= begin) return NULL;
-	} catch (const Xapian::DocNotFoundError &) {
-	    // That document doesn't exist.
-	    // FIXME: this could throw and catch a lot of exceptions!
-	}
+    if (!alldocs_pl) alldocs_pl = db->open_post_list(string());
+    alldocs_pl->skip_to(current + 1);
+    while (!alldocs_pl->at_end()) {
+	current = alldocs_pl->get_docid();
+	AutoPtr<Xapian::Document::Internal> doc(db->open_document(current, true));
+	string v = doc->get_value(valno);
+	if (v >= begin) return NULL;
+	alldocs_pl->next();
     }
     db = NULL;
     return NULL;
@@ -66,25 +65,11 @@ ValueGePostList::check(Xapian::docid did, Xapian::weight, bool &valid)
 	valid = true;
 	return NULL;
     }
-    AssertParanoid(lastdocid == db->get_lastdocid());
-    if (did > lastdocid) {
-	db = NULL;
-	valid = true;
-	return NULL;
-    }
-    try {
-	current = did;
-	AutoPtr<Xapian::Document::Internal> doc(db->open_document(current, true));
-	string v = doc->get_value(valno);
-	if (v >= begin) {
-	    valid = true;
-	    return NULL;
-	}
-    } catch (const Xapian::DocNotFoundError &) {
-	// That document doesn't exist.
-	// FIXME: this could throw and catch a lot of exceptions!
-    }
-    valid = false;
+    AssertRelParanoid(did, <=, db->get_lastdocid());
+    current = did;
+    AutoPtr<Xapian::Document::Internal> doc(db->open_document(current, true));
+    string v = doc->get_value(valno);
+    valid = (v >= begin);
     return NULL;
 }
 

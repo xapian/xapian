@@ -27,19 +27,23 @@
 
 #include "api_wrdb.h"
 
-#include <algorithm>
-#include <map>
-#include <string>
-
 #include <xapian.h>
+
+#include "backendmanager.h" // For XAPIAN_BIN_PATH.
+#include "omtime.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include "utils.h"
+#include "unixcmds.h"
 
 #include "apitest.h"
 
+#include <algorithm>
 #include <cmath>
+#include <cstdlib>
 #include <list>
+#include <map>
+#include <string>
 
 using namespace std;
 
@@ -804,6 +808,8 @@ DEFINE_TESTCASE(deldoc5, writable) {
 
     db.delete_document(2);
 
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(2));
+
     db.flush();
 
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(2));
@@ -1108,6 +1114,46 @@ DEFINE_TESTCASE(replacedoc5, writable) {
     TEST(db.has_positions());
     TEST(db.positionlist_begin(1, "hello") != db.positionlist_end(1, "hello"));
     TEST(db.positionlist_begin(1, "world") != db.positionlist_end(1, "world"));
+
+    return true;
+}
+
+// Test replacing a document while adding values, without changing anything
+// else.  Regression test for a bug introduced while implementing lazy update,
+// and also covers a few other code paths.
+DEFINE_TESTCASE(replacedoc6, writable) {
+    Xapian::WritableDatabase db = get_writable_database();
+
+    Xapian::Document doc;
+    Xapian::docid did = db.add_document(doc);
+    TEST_EQUAL(did, 1);
+    db.flush();
+
+    // Add document
+    doc = db.get_document(1);
+    TEST_EQUAL(doc.get_value(1), "");
+    TEST_EQUAL(doc.get_value(2), "");
+    doc.add_value(1, "banana1");
+    db.replace_document(1, doc);
+
+    doc = db.get_document(1);
+    TEST_EQUAL(doc.get_value(1), "banana1");
+    TEST_EQUAL(doc.get_value(2), "");
+    db.flush();
+
+    doc = db.get_document(1);
+    TEST_EQUAL(doc.get_value(1), "banana1");
+    TEST_EQUAL(doc.get_value(2), "");
+    doc.add_value(2, "banana2");
+    db.replace_document(1, doc);
+
+    TEST_EQUAL(doc.get_value(1), "banana1");
+    TEST_EQUAL(doc.get_value(2), "banana2");
+    db.flush();
+
+    doc = db.get_document(1);
+    TEST_EQUAL(doc.get_value(1), "banana1");
+    TEST_EQUAL(doc.get_value(2), "banana2");
 
     return true;
 }
@@ -1420,8 +1466,11 @@ DEFINE_TESTCASE(crashrecovery1, writable) {
     if (dbtype == "flint") {
 	path = ".flint/dbw";
 	base_ext = ".baseB";
+    } else if (dbtype == "chert") {
+	path = ".chert/dbw";
+	base_ext = ".baseB";
     } else {
-	SKIP_TEST("Test only supported for flint backends");
+	SKIP_TEST("Test only supported for flint and chert backends");
     }
 
     Xapian::Document doc;
@@ -1493,201 +1542,8 @@ DEFINE_TESTCASE(nomoredocids1, writable) {
     return true;
 }
 
-// Test basic spelling correction features.
-DEFINE_TESTCASE(spell1, spelling) {
-    SKIP_TEST_UNLESS_BACKEND("flint");
-
-    Xapian::WritableDatabase db = get_writable_database();
-
-    // Check that the more frequent term is chosen.
-    db.add_spelling("hello");
-    db.add_spelling("cell", 2);
-    TEST_EQUAL(db.get_spelling_suggestion("hell"), "cell");
-    db.flush();
-    Xapian::Database dbr(get_writable_database_as_database());
-    TEST_EQUAL(db.get_spelling_suggestion("hell"), "cell");
-    TEST_EQUAL(dbr.get_spelling_suggestion("hell"), "cell");
-
-    // Check suggestions for single edit errors to "zig".
-    db.add_spelling("zig");
-    // Transpositions:
-    TEST_EQUAL(db.get_spelling_suggestion("izg"), "zig");
-    TEST_EQUAL(db.get_spelling_suggestion("zgi"), "zig");
-    // Substitutions:
-    TEST_EQUAL(db.get_spelling_suggestion("sig"), "zig");
-    TEST_EQUAL(db.get_spelling_suggestion("zog"), "zig");
-    TEST_EQUAL(db.get_spelling_suggestion("zif"), "zig");
-    // Deletions:
-    TEST_EQUAL(db.get_spelling_suggestion("ig"), "zig");
-    TEST_EQUAL(db.get_spelling_suggestion("zg"), "zig");
-    TEST_EQUAL(db.get_spelling_suggestion("zi"), "zig");
-    // Insertions:
-    TEST_EQUAL(db.get_spelling_suggestion("azig"), "zig");
-    TEST_EQUAL(db.get_spelling_suggestion("zaig"), "zig");
-    TEST_EQUAL(db.get_spelling_suggestion("ziag"), "zig");
-    TEST_EQUAL(db.get_spelling_suggestion("ziga"), "zig");
-
-    // Check suggestions for single edit errors to "ch".
-    db.add_spelling("ch");
-    // Transpositions:
-    TEST_EQUAL(db.get_spelling_suggestion("hc"), "ch");
-    // Substitutions - we don't handle these for two character words:
-    TEST_EQUAL(db.get_spelling_suggestion("qh"), "");
-    TEST_EQUAL(db.get_spelling_suggestion("cq"), "");
-    // Deletions would leave a single character, and we don't handle those.
-    TEST_EQUAL(db.get_spelling_suggestion("c"), "");
-    TEST_EQUAL(db.get_spelling_suggestion("h"), "");
-    // Insertions:
-    TEST_EQUAL(db.get_spelling_suggestion("qch"), "ch");
-    TEST_EQUAL(db.get_spelling_suggestion("cqh"), "ch");
-    TEST_EQUAL(db.get_spelling_suggestion("chq"), "ch");
-
-    // Check assorted cases:
-    TEST_EQUAL(db.get_spelling_suggestion("shello"), "hello");
-    TEST_EQUAL(db.get_spelling_suggestion("hellot"), "hello");
-    TEST_EQUAL(db.get_spelling_suggestion("acell"), "cell");
-    TEST_EQUAL(db.get_spelling_suggestion("cella"), "cell");
-    TEST_EQUAL(db.get_spelling_suggestion("acella"), "cell");
-    TEST_EQUAL(db.get_spelling_suggestion("helo"), "hello");
-    TEST_EQUAL(db.get_spelling_suggestion("cll"), "cell");
-    TEST_EQUAL(db.get_spelling_suggestion("helol"), "hello");
-    TEST_EQUAL(db.get_spelling_suggestion("clel"), "cell");
-    TEST_EQUAL(db.get_spelling_suggestion("ecll"), "cell");
-    TEST_EQUAL(db.get_spelling_suggestion("cll"), "cell");
-
-    // Check that edit distance 3 isn't found by default:
-    TEST_EQUAL(db.get_spelling_suggestion("shelolx"), "");
-    TEST_EQUAL(db.get_spelling_suggestion("celling"), "");
-    TEST_EQUAL(db.get_spelling_suggestion("dellin"), "");
-
-    // Check that edit distance 3 is found if specified:
-    TEST_EQUAL(db.get_spelling_suggestion("shelolx", 3), "hello");
-    TEST_EQUAL(db.get_spelling_suggestion("celling", 3), "cell");
-    TEST_EQUAL(db.get_spelling_suggestion("dellin", 3), "cell");
-    return true;
-}
-
-// Test spelling correction for Unicode.
-DEFINE_TESTCASE(spell2, spelling) {
-    SKIP_TEST_UNLESS_BACKEND("flint");
-
-    Xapian::WritableDatabase db = get_writable_database();
-
-    // Check that a UTF-8 sequence counts as a single character.
-    db.add_spelling("h\xc3\xb6hle");
-    db.add_spelling("ascii");
-    TEST_EQUAL(db.get_spelling_suggestion("hohle", 1), "h\xc3\xb6hle");
-    TEST_EQUAL(db.get_spelling_suggestion("hhle", 1), "h\xc3\xb6hle");
-    TEST_EQUAL(db.get_spelling_suggestion("\xf0\xa8\xa8\x8f\xc3\xb6le", 2), "h\xc3\xb6hle");
-    TEST_EQUAL(db.get_spelling_suggestion("hh\xc3\xb6l"), "h\xc3\xb6hle");
-    TEST_EQUAL(db.get_spelling_suggestion("as\xc3\xb6\xc3\xb7i"), "ascii");
-    TEST_EQUAL(db.get_spelling_suggestion("asc\xc3\xb6i\xc3\xb7i"), "ascii");
-    db.flush();
-    Xapian::Database dbr(get_writable_database_as_database());
-    TEST_EQUAL(dbr.get_spelling_suggestion("hohle", 1), "h\xc3\xb6hle");
-    TEST_EQUAL(dbr.get_spelling_suggestion("hhle", 1), "h\xc3\xb6hle");
-    TEST_EQUAL(dbr.get_spelling_suggestion("\xf0\xa8\xa8\x8f\xc3\xb6le", 2), "h\xc3\xb6hle");
-    TEST_EQUAL(dbr.get_spelling_suggestion("hh\xc3\xb6l"), "h\xc3\xb6hle");
-    TEST_EQUAL(dbr.get_spelling_suggestion("as\xc3\xb6\xc3\xb7i"), "ascii");
-    TEST_EQUAL(dbr.get_spelling_suggestion("asc\xc3\xb6i\xc3\xb7i"), "ascii");
-
-    return true;
-}
-
-// Test spelling correction with multi databases
-DEFINE_TESTCASE(spell3, spelling) {
-    SKIP_TEST_UNLESS_BACKEND("flint");
-
-    Xapian::WritableDatabase db1 = get_writable_database();
-    // We can't just call get_writable_database() since it would delete db1
-    // which doesn't work at all under __WIN32__ and will go wrong elsewhere if
-    // changes to db1 are committed.
-    Xapian::WritableDatabase db2 = get_named_writable_database("spell3", "");
-
-    db1.add_spelling("hello");
-    db1.add_spelling("cell", 2);
-    db2.add_spelling("hello", 2);
-    db2.add_spelling("helo");
-
-    Xapian::Database db;
-    db.add_database(db1);
-    db.add_database(db2);
-
-    TEST_EQUAL(db.get_spelling_suggestion("hello"), "");
-    TEST_EQUAL(db.get_spelling_suggestion("hell"), "hello");
-    TEST_EQUAL(db1.get_spelling_suggestion("hell"), "cell");
-    TEST_EQUAL(db2.get_spelling_suggestion("hell"), "hello");
-
-
-    // Test spelling iterator
-    Xapian::TermIterator i(db1.spellings_begin());
-    TEST_EQUAL(*i, "cell");
-    TEST_EQUAL(i.get_termfreq(), 2);
-    ++i;
-    TEST_EQUAL(*i, "hello");
-    TEST_EQUAL(i.get_termfreq(), 1);
-    ++i;
-    TEST(i == db1.spellings_end());
-
-    i = db2.spellings_begin();
-    TEST_EQUAL(*i, "hello");
-    TEST_EQUAL(i.get_termfreq(), 2);
-    ++i;
-    TEST_EQUAL(*i, "helo");
-    TEST_EQUAL(i.get_termfreq(), 1);
-    ++i;
-    TEST(i == db2.spellings_end());
-
-    i = db.spellings_begin();
-    TEST_EQUAL(*i, "cell");
-    TEST_EQUAL(i.get_termfreq(), 2);
-    ++i;
-    TEST_EQUAL(*i, "hello");
-    TEST_EQUAL(i.get_termfreq(), 3);
-    ++i;
-    TEST_EQUAL(*i, "helo");
-    TEST_EQUAL(i.get_termfreq(), 1);
-    ++i;
-    TEST(i == db.spellings_end());
-
-    return true;
-}
-
-// Regression test - check that appending works correctly.
-DEFINE_TESTCASE(spell4, spelling) {
-    SKIP_TEST_UNLESS_BACKEND("flint");
-
-    Xapian::WritableDatabase db = get_writable_database();
-
-    db.add_spelling("check");
-    db.add_spelling("pecks", 2);
-    db.flush();
-    db.add_spelling("becky");
-    db.flush();
-
-    TEST_EQUAL(db.get_spelling_suggestion("jeck", 2), "pecks");
-
-    return true;
-}
-
-// Regression test - used to segfault with some input values.
-DEFINE_TESTCASE(spell5, spelling) {
-    SKIP_TEST_UNLESS_BACKEND("flint");
-
-    Xapian::WritableDatabase db = get_writable_database();
-
-    db.add_spelling("一些");
-    db.flush();
-
-    TEST_EQUAL(db.get_spelling_suggestion("不", strlen("不")), "一些");
-
-    return true;
-}
-
 // Test synonym iterators.
-DEFINE_TESTCASE(synonymitor1, writable) {
-    SKIP_TEST_UNLESS_BACKEND("flint");
-
+DEFINE_TESTCASE(synonymitor1, writable && synonyms) {
     Xapian::WritableDatabase db = get_writable_database();
 
     // Test iterators for terms which aren't there.
@@ -1824,7 +1680,6 @@ DEFINE_TESTCASE(metadata1, writable) {
 
 // Test that metadata gets applied at same time as other changes.
 DEFINE_TESTCASE(metadata2, metadata) {
-    SKIP_TEST_UNLESS_BACKEND("flint");
     Xapian::WritableDatabase db = get_writable_database();
     Xapian::Database dbr = get_writable_database_as_database();
 
@@ -1889,7 +1744,123 @@ DEFINE_TESTCASE(metadata4, metadata) {
     return true;
 }
 
+// Test metadata iterators.
+DEFINE_TESTCASE(metadata5, metadata) {
+    Xapian::WritableDatabase db = get_writable_database();
 
+    // Check that iterator on empty database returns nothing.
+    Xapian::TermIterator iter;
+    iter = db.metadata_keys_begin();
+    TEST_EQUAL(iter, db.metadata_keys_end());
+
+    // Check iterator on a database with only metadata items.
+    db.set_metadata("foo", "val");
+    db.flush();
+
+    iter = db.metadata_keys_begin();
+    TEST(iter != db.metadata_keys_end());
+    TEST_EQUAL(*iter, "foo");
+    ++iter;
+    TEST(iter == db.metadata_keys_end());
+
+    // Check iterator on a database with metadata items and documents.
+    Xapian::Document doc;
+    doc.add_posting("foo", 1);
+    db.add_document(doc);
+    db.flush();
+
+    iter = db.metadata_keys_begin();
+    TEST(iter != db.metadata_keys_end());
+    TEST_EQUAL(*iter, "foo");
+    ++iter;
+    TEST(iter == db.metadata_keys_end());
+
+    // Check iterator on a database with documents but no metadata.  Also
+    // checks that setting metadata to empty stops the iterator returning it.
+    db.set_metadata("foo", "");
+    db.flush();
+    iter = db.metadata_keys_begin();
+    TEST(iter == db.metadata_keys_end());
+
+    // Check use of a prefix, and skip_to.
+    db.set_metadata("a", "val");
+    db.set_metadata("foo", "val");
+    db.set_metadata("foo1", "val");
+    db.set_metadata("foo2", "val");
+    db.set_metadata("z", "val");
+    db.flush();
+
+    iter = db.metadata_keys_begin();
+    TEST(iter != db.metadata_keys_end());
+    TEST_EQUAL(*iter, "a");
+    ++iter;
+    TEST(iter != db.metadata_keys_end());
+    TEST_EQUAL(*iter, "foo");
+    ++iter;
+    TEST(iter != db.metadata_keys_end());
+    TEST_EQUAL(*iter, "foo1");
+    ++iter;
+    TEST(iter != db.metadata_keys_end());
+    TEST_EQUAL(*iter, "foo2");
+    ++iter;
+    TEST(iter != db.metadata_keys_end());
+    TEST_EQUAL(*iter, "z");
+    ++iter;
+    TEST(iter == db.metadata_keys_end());
+
+    iter = db.metadata_keys_begin("foo");
+    TEST(iter != db.metadata_keys_end("foo"));
+    TEST_EQUAL(*iter, "foo");
+    ++iter;
+    TEST(iter != db.metadata_keys_end("foo"));
+    TEST_EQUAL(*iter, "foo1");
+    ++iter;
+    TEST(iter != db.metadata_keys_end("foo"));
+    TEST_EQUAL(*iter, "foo2");
+    ++iter;
+    TEST(iter == db.metadata_keys_end("foo"));
+
+    iter = db.metadata_keys_begin("foo1");
+    TEST(iter != db.metadata_keys_end("foo1"));
+    TEST_EQUAL(*iter, "foo1");
+    ++iter;
+    TEST(iter == db.metadata_keys_end("foo1"));
+
+    iter = db.metadata_keys_begin();
+    TEST(iter != db.metadata_keys_end());
+    TEST_EQUAL(*iter, "a");
+
+    // Skip to "" should move to the first key.
+    iter.skip_to("");
+    TEST(iter != db.metadata_keys_end());
+    TEST_EQUAL(*iter, "a");
+
+    // This skip_to should skip the "foo" key.
+    iter.skip_to("foo1");
+    TEST(iter != db.metadata_keys_end());
+    TEST_EQUAL(*iter, "foo1");
+
+    // Check that skip_to can move backwards.
+    iter.skip_to("");
+    TEST(iter != db.metadata_keys_end());
+    TEST_EQUAL(*iter, "a");
+
+    // Skip back to the foo1 key.
+    iter.skip_to("foo1");
+    TEST(iter != db.metadata_keys_end());
+    TEST_EQUAL(*iter, "foo1");
+
+    // Check that advancing after a skip_to() works correctly.
+    ++iter;
+    TEST(iter != db.metadata_keys_end());
+    TEST_EQUAL(*iter, "foo2");
+
+    // Check that skipping to a key after the last key works.
+    iter.skip_to("zoo");
+    TEST(iter == db.metadata_keys_end());
+
+    return true;
+}
 
 // Test that adding a document with a really long term gives an error on
 // add_document() rather than on flush().
@@ -1904,7 +1875,16 @@ DEFINE_TESTCASE(termtoolong1, writable) {
 	Xapian::Document doc;
 	string term(i, 'X');
 	doc.add_term(term);
-	TEST_EXCEPTION(Xapian::InvalidArgumentError, db.add_document(doc));
+	try {
+	    db.add_document(doc);
+	    TEST_AND_EXPLAIN(false, "Expecting exception InvalidArgumentError");
+	} catch (const Xapian::InvalidArgumentError &e) {
+	    // Check that the max length is correctly expressed in the
+	    // exception message - we've got this wrong in two different ways
+	    // in the past!
+	    tout << e.get_msg() << endl;
+	    TEST(e.get_msg().find("Term too long (> 245)") != string::npos);
+	}
     }
 
     for (Xapian::doccount j = 240; j <= 245; ++j) {
@@ -1916,6 +1896,24 @@ DEFINE_TESTCASE(termtoolong1, writable) {
     }
 
     db.flush();
+
+    {
+	// Currently flint and chert escape zero byte from terms in keys for
+	// some tables, so a term with 126 zero bytes won't work either.
+	Xapian::Document doc;
+	doc.add_term(string(126, '\0'));
+	db.add_document(doc);
+	try {
+	    db.flush();
+	    TEST_AND_EXPLAIN(false, "Expecting exception InvalidArgumentError");
+	} catch (const Xapian::InvalidArgumentError &e) {
+	    // Check that the max length is correctly expressed in the
+	    // exception message - we've got this wrong in two different ways
+	    // in the past!
+	    tout << e.get_msg() << endl;
+	    TEST(e.get_msg().find(" is 252 bytes") != string::npos);
+	}
+    }
 
     return true;
 }
@@ -1959,6 +1957,254 @@ DEFINE_TESTCASE(postlist7, writable) {
     TEST_EQUAL(p.get_doclength(), 2);
     ++p;
     TEST(p == db_w.postlist_end("foo"));
+
+    return true;
+}
+
+/// Regression test of reading after writing but not flushing.
+DEFINE_TESTCASE(writeread1, writable && metadata) {
+    Xapian::WritableDatabase db_w = get_writable_database();
+    db_w.set_metadata("1", "2");
+    string longitem(20000, 'j');
+    db_w.set_metadata("2", longitem);
+
+    string readitem = db_w.get_metadata("2");
+    TEST_EQUAL(readitem, longitem);
+
+    return true;
+}
+
+DEFINE_TESTCASE(lazytablebug1, writable && (flint || chert)) {
+    {
+	Xapian::WritableDatabase db = get_named_writable_database("lazytablebug1", string());
+
+	Xapian::Document doc;
+	doc.add_term("foo");
+	db.add_document(doc);
+	db.flush();
+
+	string synonym(255, 'x');
+	char buf[] = " iamafish!!!!!!!!!!";
+	for (int i = 33; i < 120; ++i) {
+	    db.add_synonym(buf, synonym);
+	    ++buf[0];
+	}
+
+	db.flush();
+    }
+
+    Xapian::Database db = get_writable_database_as_database();
+    for (Xapian::TermIterator t = db.synonym_keys_begin(); t != db.synonym_keys_end(); ++t) {
+	tout << *t << endl;
+    }
+
+    return true;
+}
+
+static double
+bigoaddvalue_helper(size_t num_values)
+{
+    Xapian::WritableDatabase db = get_writable_database();
+
+    Xapian::Document doc;
+    for (size_t i = 0; i < num_values; ++i) {
+	doc.add_value(i, "moo");
+    }
+
+    OmTime start = OmTime::now();
+
+    db.add_document(doc);
+    db.flush();
+
+    return (OmTime::now() - start).as_double();
+}
+
+DEFINE_TESTCASE(bigoaddvalue, writable) {
+    const size_t N = 5000;
+    double time_N = bigoaddvalue_helper(N);
+    tout << "Adding a document with " << N << " values took " << time_N
+	 << " seconds" << endl;
+    double time_10N = bigoaddvalue_helper(10 * N);
+    tout << "Adding a document with " << 10 * N << " values took " << time_10N
+	 << " seconds" << endl;
+
+    if (time_N == 0.0) {
+	// The first test completed before the timer ticked at all!
+	SKIP_TEST("Timer granularity is too coarse");
+    }
+
+    // O(n*n) is bad, but we don't require linearity - O(n*log(n)) is
+    // acceptable, so put the threshold halfway between.
+    const double ALLOWED_FACTOR = (100.0 + 10 * 2.71828) / 2.0;
+    TEST_LESSER(time_10N, time_N * ALLOWED_FACTOR);
+
+    return true;
+}
+
+/** Regression test for bug #287 for flint.
+ *
+ *  Chert also has the same duff code but this testcase doesn't actually 
+ *  tickle the bug there.
+ */
+DEFINE_TESTCASE(cursordelbug1, flint || chert) {
+    static const int terms[] = { 219, 221, 222, 223, 224, 225, 226 };
+    static const int copies[] = { 74, 116, 199, 21, 45, 155, 189 };
+
+    Xapian::WritableDatabase db;
+    db = get_named_writable_database("cursordelbug1", string());
+
+    for (size_t i = 0; i < sizeof(terms) / sizeof(terms[0]); ++i) {
+	Xapian::Document doc;
+	doc.add_term("XC" + om_tostring(terms[i]));
+	doc.add_term("XTabc");
+	doc.add_term("XAdef");
+	doc.add_term("XRghi");
+	doc.add_term("XYabc");
+	size_t c = copies[i];
+	while (c--) db.add_document(doc);
+    }
+
+    db.flush();
+
+    for (size_t i = 0; i < sizeof(terms) / sizeof(terms[0]); ++i) {
+	db.delete_document("XC" + om_tostring(terms[i]));
+    }
+
+    db.flush();
+
+    string cmd = XAPIAN_BIN_PATH"xapian-check ";
+    cmd += get_named_writable_database_path("cursordelbug1");
+#ifdef __WIN32__
+    cmd += " >nul";
+#else
+    cmd += " >/dev/null";
+#endif
+    if (system(cmd.c_str()) != 0)
+	return false;
+
+    return true;
+}
+
+/** Helper function for modifyvalues1 - check that the values stored in the database match
+ */
+void check_vals(const Xapian::Database & db,
+		const map<Xapian::docid, string> & vals)
+{
+    TEST_EQUAL(db.get_doccount(), vals.size());
+    if (vals.size() == 0) return;
+    TEST_LESSER_OR_EQUAL(vals.rbegin()->first, db.get_lastdocid());
+    map<Xapian::docid, string>::const_iterator i;
+    for (i = vals.begin(); i != vals.end(); ++i) {
+	tout << "Checking value in doc " << i->first << "\n";
+	Xapian::Document doc = db.get_document(i->first);
+	string dbval = doc.get_value(1);
+	TEST_EQUAL(dbval, i->second);
+	if (dbval == "") {
+	    TEST_EQUAL(0, doc.values_count());
+	    TEST_EQUAL(doc.values_begin(), doc.values_end());
+	} else {
+	    TEST_EQUAL(1, doc.values_count());
+	    Xapian::ValueIterator valit = doc.values_begin();
+	    TEST_NOT_EQUAL(valit, doc.values_end());
+	    TEST_EQUAL(dbval, *valit);
+	    TEST_EQUAL(1, valit.get_valueno());
+	    ++valit;
+	    TEST_EQUAL(valit, doc.values_end());
+	}
+    }
+}
+
+/** Regression test for bug in initial streaming values implementation in
+ *  chert.
+ */
+DEFINE_TESTCASE(modifyvalues1, writable) {
+    Xapian::WritableDatabase db = get_writable_database();
+    // Note doccount must be coprime with 13
+    Xapian::doccount doccount = 1000;
+    map<Xapian::docid, string> vals;
+
+    for (Xapian::doccount num = 1; num <= doccount; ++num) {
+    	Xapian::Document doc;
+	string val = "val" + om_tostring(num);
+	doc.add_value(1, val);
+	db.add_document(doc);
+	vals[num] = val;
+	tout << "Set val '" << val << "' in doc " << num << "\n";
+    }
+    check_vals(db, vals);
+    db.flush();
+    check_vals(db, vals);
+
+    // Modify one of the values (this is a regression test which failed with
+    // the initial implementation of streaming values).
+    {
+	Xapian::Document doc;
+	string val = "newval0";
+	doc.add_value(1, val);
+	db.replace_document(2, doc);
+	vals[2] = val;
+	tout << "Set val '" << val << "' in doc " << 2 << "\n";
+	check_vals(db, vals);
+	db.flush();
+	check_vals(db, vals);
+    }
+
+    // Check that value doesn't get lost when replacing a document with itself.
+    {
+	tout << "Replacing document 1 with itself\n";
+	Xapian::Document doc = db.get_document(1);
+	db.replace_document(1, doc);
+	check_vals(db, vals);
+	db.flush();
+	check_vals(db, vals);
+    }
+
+    // Check that value doesn't get lost when replacing a document with itself,
+    // accessing another document in the meantime.  This is a regression test
+    // for a bug in the code which implements lazy updates - this used to
+    // forget the values in the document in this situation.
+    {
+	tout << "Replacing document 1 with itself, after reading doc 2.\n";
+	Xapian::Document doc = db.get_document(1);
+	db.get_document(2);
+	db.replace_document(1, doc);
+	check_vals(db, vals);
+	db.flush();
+	check_vals(db, vals);
+    }
+
+    // Do some random modifications: seed random generator, for repeatable
+    // results.
+    srand(42);
+    for (Xapian::doccount num = 1; num <= doccount * 2; ++num) {
+	Xapian::docid did = ((rand() >> 8) % doccount) + 1;
+	Xapian::Document doc;
+	string val;
+
+	if (num % 5 != 0) {
+	    val = "newval" + om_tostring(num);
+	    doc.add_value(1, val);
+	}
+	db.replace_document(did, doc);
+	vals[did] = val;
+	tout << "Set val '" << val << "' in doc " << did << "\n";
+    }
+    check_vals(db, vals);
+    db.flush();
+    check_vals(db, vals);
+
+    // Delete all the remaining values, in a slightly shuffled order.
+    // This is where it's important that doccount is coprime with 13.
+    for (Xapian::doccount num = 0; num < doccount * 13; num += 13) {
+	Xapian::docid did = (num % doccount) + 1;
+	Xapian::Document doc;
+	db.replace_document(did, doc);
+	vals[did] = "";
+	tout << "Cleared val in doc " << did << "\n";
+    }
+    check_vals(db, vals);
+    db.flush();
+    check_vals(db, vals);
 
     return true;
 }

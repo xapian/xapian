@@ -24,60 +24,9 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
-
-// Disable any deprecation warnings for Xapian methods/functions/classes.
-#define XAPIAN_DEPRECATED(D) D
-#include <xapian.h>
-#include <xapian/geospatial.h>
-#include <xapian/replication.h>
-#include <string>
-#include <vector>
-
-using namespace std;
-
-// If a backend has been disabled in xapian-core (manually or automatically) we
-// include a stub definition here so the bindings can still be built.
-namespace Xapian {
-#ifndef XAPIAN_HAS_FLINT_BACKEND
-    namespace Flint {
-	static Database open() {
-	    throw FeatureUnavailableError("Flint backend not supported");
-	}
-	static WritableDatabase open(const string &, int, int = 8192) {
-	    throw FeatureUnavailableError("Flint backend not supported");
-	}
-    }
-#endif
-
-#ifndef XAPIAN_HAS_INMEMORY_BACKEND
-    namespace InMemory {
-	static WritableDatabase open() {
-	    throw FeatureUnavailableError("InMemory backend not supported");
-	}
-    }
-#endif
-
-#ifndef XAPIAN_HAS_REMOTE_BACKEND
-    namespace Remote {
-	static Database open(const string &, unsigned int, timeout = 0, timeout = 0) {
-	    throw FeatureUnavailableError("Remote backend not supported");
-	}
-
-	static WritableDatabase open_writable(const string &, unsigned int, timeout = 0, timeout = 0) {
-	    throw FeatureUnavailableError("Remote backend not supported");
-	}
-
-	static Database open(const string &, const string &, timeout = 0) {
-	    throw FeatureUnavailableError("Remote backend not supported");
-	}
-
-	static WritableDatabase open_writable(const string &, const string &, timeout = 0) {
-	    throw FeatureUnavailableError("Remote backend not supported");
-	}
-    }
-#endif
-}
 %}
+
+%include xapian-head.i
 
 using namespace std;
 
@@ -242,6 +191,13 @@ class ValueIterator {
 %ignore Xapian::Document::Document(Internal *);
 %ignore Xapian::Document::operator=;
 %include <xapian/document.h>
+
+#ifdef XAPIAN_SWIG_DIRECTORS
+%feature("director") Xapian::PostingSource;
+%include <xapian/postingsource.h>
+#else
+%ignore Xapian::Query(Xapian::PostingSource *);
+#endif
 
 namespace Xapian {
 
@@ -435,36 +391,24 @@ class Enquire {
     static const int INCLUDE_QUERY_TERMS = 1;
     static const int USE_EXACT_TERMFREQ = 2;
 
-#ifdef XAPIAN_SWIG_DIRECTORS
     MSet get_mset(doccount first,
-	    doccount maxitems,
-	    doccount checkatleast = 0,
-	    const RSet *omrset = 0,
-	    const MatchDecider *mdecider = 0) const;
-    MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
-		  Xapian::doccount checkatleast,
-		  const RSet * omrset,
-		  const MatchDecider * mdecider,
-		  const MatchDecider * matchspy) const;
+		  doccount maxitems,
+		  doccount checkatleast = 0,
+		  const RSet * omrset = 0,
+		  const MatchDecider * mdecider = 0,
+		  const MatchDecider * matchspy =0) const;
     MSet get_mset(doccount first,
-	    doccount maxitems,
-	    const RSet *omrset,
-	    const MatchDecider *mdecider = 0) const;
+		  doccount maxitems,
+		  const RSet *omrset,
+		  const MatchDecider *mdecider = 0) const;
 
+#ifdef XAPIAN_SWIG_DIRECTORS
     ESet get_eset(termcount maxitems,
 	    const RSet &omrset,
 	    int flags = 0, double k = 1.0,
 	    const ExpandDecider *edecider = 0) const;
     ESet get_eset(termcount maxitems, const RSet & omrset, const Xapian::ExpandDecider * edecider) const;
 #else
-    MSet get_mset(doccount first,
-	    doccount maxitems,
-	    doccount checkatleast = 0,
-	    const RSet *omrset = 0) const;
-    MSet get_mset(doccount first,
-	    doccount maxitems,
-	    const RSet *omrset) const;
-
     ESet get_eset(termcount maxitems,
 	    const RSet &omrset,
 	    int flags = 0, double k = 1.0) const;
@@ -620,6 +564,9 @@ class Database {
 	doccount get_termfreq(const std::string &tname) const;
 	bool term_exists(const std::string &tname) const;
 	termcount get_collection_freq(const std::string &tname) const;
+	doccount get_value_freq(Xapian::valueno valno) const;
+	string get_value_lower_bound(Xapian::valueno valno) const;
+	string get_value_upper_bound(Xapian::valueno valno) const;
 	doclength get_doclength(docid docid) const;
 	void keep_alive();
 	Document get_document(docid did);
@@ -632,6 +579,10 @@ class Database {
 	TermIterator synonym_keys_begin(const std::string &prefix = "") const;
 	TermIterator synonym_keys_end(const std::string &prefix = "") const;
 	std::string get_metadata(const std::string & key) const;
+	Xapian::TermIterator metadata_keys_begin(const std::string &prefix = "") const;
+	Xapian::TermIterator metadata_keys_end(const std::string &prefix = "") const;
+	std::string get_uuid() const;
+
 };
 
 class WritableDatabase : public Database {
@@ -685,6 +636,17 @@ namespace Auto {
     Database open_stub(const string & file);
 }
 
+namespace Chert {
+    %rename(chert_open) open;
+    Database open(const std::string &dir);
+/* SWIG Tcl wrappers don't call destructors for classes returned by factory
+ * functions, so don't wrap them so users are forced to use the
+ * WritableDatabase ctor instead. */
+#ifndef SWIGTCL
+    WritableDatabase open(const std::string &dir, int action, int block_size = 8192);
+#endif
+}
+
 namespace Flint {
     %rename(flint_open) open;
     Database open(const std::string &dir);
@@ -725,6 +687,17 @@ class Auto {
   public:
     static
     Database open_stub(const string & file);
+};
+
+class Chert {
+  private:
+    Chert();
+    ~Chert();
+  public:
+    static
+    Database open(const std::string &dir);
+    static
+    WritableDatabase open(const std::string &dir, int action, int block_size = 8192);
 };
 
 class Flint {
@@ -770,32 +743,20 @@ class Remote {
 };
 #endif
 
+}
+
 // xapian/query.h:
 
-class Query {
-    public:
-	enum op {
-	    OP_AND,
-	    OP_OR,
-	    OP_AND_NOT,
-	    OP_XOR,
-	    OP_AND_MAYBE,
-	    OP_FILTER,
-	    OP_NEAR,
-	    OP_PHRASE,
-	    OP_VALUE_RANGE,
-	    OP_SCALE_WEIGHT,
-	    OP_ELITE_SET = 10,
-	    OP_VALUE_GE,
-	    OP_VALUE_LE
-	};
-	Query(const string &tname, termcount wqf = 1, termpos term_pos = 0);
-	Query(Query::op op_, const Query & left, const Query & right);
-	Query(Query::op op_, const string & left, const string & right);
-	Query(const Query& copyme);
-	Query(Query::op op_, Xapian::valueno valno, const std::string &begin, const std::string &end);
-	Query(Query::op op_, Xapian::valueno valno, const std::string &value);
-	%extend {
+#ifdef SWIGPHP
+%apply int { Xapian::Query::op };
+#endif
+// FIXME: wrap MatchAll and MatchNothing
+%ignore Xapian::Query::MatchAll;
+%ignore Xapian::Query::MatchNothing;
+
+%ignore Xapian::Query::internal;
+%ignore Xapian::Query::operator=;
+%extend Xapian::Query {
 #ifndef XAPIAN_MIXED_VECTOR_QUERY_INPUT_TYPEMAP
 	    /* For some languages we handle strings in the vector<Query>
 	     * case, so we don't need to wrap this ctor. */
@@ -812,25 +773,8 @@ class Query {
 	    Query(Query::op op, const vector<Xapian::Query> & subqs, termcount param = 0) {
 		return new Xapian::Query(op, subqs.begin(), subqs.end(), param);
 	    }
-	}
-
-	/** Apply the specified operator to a single Xapian::Query object, with a parameter. */
-	Query(Query::op op_, Xapian::Query q, double parameter);
-
-	/** Constructs a new empty query object */
-	Query();
-
-	~Query();
-
-	termcount get_length() const;
-	TermIterator get_terms_begin() const;
-	TermIterator get_terms_end() const;
-	bool empty() const;
-
-	string get_description() const;
-};
-
 }
+%include <xapian/query.h>
 
 %feature("director") Xapian::Stopper;
 %feature("director") Xapian::ValueRangeProcessor;
@@ -863,6 +807,7 @@ class Query {
 %ignore Xapian::DatabaseReplica::operator=;
 %ignore Xapian::DatabaseReplica::DatabaseReplica(const DatabaseReplica &);
 %include <xapian/replication.h>
+%include <xapian/valuesetmatchdecider.h>
 
 %ignore Xapian::LatLongCoord::operator< const;
 %include <xapian/geospatial.h>

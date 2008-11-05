@@ -113,7 +113,8 @@ private:
     int num_arg;
     string string_arg;
 public:
-    Action(type action_, string arg = "") : action(action_), string_arg(arg) {
+    Action(type action_) : action(action_), num_arg(0) { }
+    Action(type action_, string arg) : action(action_), string_arg(arg) {
 	num_arg = atoi(string_arg.c_str());
     }
     Action(type action_, string arg, int num)
@@ -534,7 +535,12 @@ index_file(const char *fname, istream &stream,
 		    case Action::UNHTML: {
 			MyHtmlParser p;
 			try {
-			    p.parse_html(value);
+			    // Default HTML character set is latin 1, though
+			    // not specifying one is deprecated these days.
+			    p.parse_html(value, "iso-8859-1", false);
+			} catch (const string & newcharset) {
+			    p.reset();
+			    p.parse_html(value, newcharset, true);
 			} catch (bool) {
 			    // MyHtmlParser throws a bool to abandon parsing at
 			    // </body> or when indexing is disallowed

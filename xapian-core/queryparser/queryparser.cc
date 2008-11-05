@@ -1,7 +1,7 @@
 /* queryparser.cc: The non-lemon-generated parts of the QueryParser
  * class.
  *
- * Copyright (C) 2005,2006,2007 Olly Betts
+ * Copyright (C) 2005,2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -38,14 +38,12 @@ using namespace std;
 string
 Stopper::get_description() const
 {
-    DEBUGCALL(INTRO, string, "Xapian::Stopper::get_description", "");
     return "Xapian::Stopper subclass";
 }
 
 string
 SimpleStopper::get_description() const
 {
-    DEBUGCALL(INTRO, string, "Xapian::SimpleStopper::get_description", "");
     string desc("Xapian::SimpleStopper(");
     set<string>::const_iterator i;
     for (i = stop_words.begin(); i != stop_words.end(); ++i) {
@@ -181,7 +179,6 @@ QueryParser::get_corrected_query_string() const
 string
 QueryParser::get_description() const
 {
-    DEBUGCALL(INTRO, string, "Xapian::QueryParser::get_description", "");
     // FIXME : describe better!
-    RETURN("Xapian::QueryParser()");
+    return "Xapian::QueryParser()";
 }

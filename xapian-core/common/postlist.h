@@ -1,7 +1,7 @@
 /** @file postlist.h
  * @brief Abstract base class for postlists.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -68,6 +68,9 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::RefCntBase {
 
     /// Return the length of current document.
     virtual Xapian::doclength get_doclength() const = 0;
+    /* FIXME: Once flint has been retired, we should probably strip out
+     * PostList::get_doclength() and just fetch it from the DB directly.
+     */
 
     /** Return the wdf for the document at the current position.
      *
@@ -93,6 +96,9 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::RefCntBase {
      *
      *  If the tree has pruned, get_maxweight() may use cached values.  Calling
      *  this method instead forces a full recalculation.
+     *
+     *  Note that this method may be called after the postlist has reached the
+     *  end.  In this situation, the method should return 0.
      */
     virtual Xapian::weight recalc_maxweight() = 0;
 
@@ -129,7 +135,7 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::RefCntBase {
     /** Skip forward to the specified docid.
      *
      *  If the specified docid isn't in the list, position ourselves on the
-     *  first term after it (or at_end() if no greater docids are present).
+     *  first document after it (or at_end() if no greater docids are present).
      *
      *  @param w_min	The minimum weight contribution that is needed (this is
      *			just a hint which PostList subclasses may ignore).
@@ -143,8 +149,11 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::RefCntBase {
 
     /** Check if the specified docid occurs in this postlist.
      *
+     *  The caller is required to ensure that the specified @a docid actually
+     *  exists in the database.
+     *
      *  This method acts like skip_to() if that can be done at little extra
-     *  cost, and @a valid is set to true.
+     *  cost, in which case it then sets @a valid to true.
      *
      *  Otherwise it simply checks if a particular docid is present.  If it
      *  is, @a valid is set to true.  If it isn't, it sets @a valid to
@@ -177,7 +186,7 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::RefCntBase {
 };
 
 // In the external API headers, this class is Xapian::PostingIterator::Internal,
-// but in the library code it's still know as "PostList" in most places.
+// but in the library code it's still known as "PostList" in most places.
 typedef Xapian::PostingIterator::Internal PostList;
 
 #endif // XAPIAN_INCLUDED_POSTLIST_H

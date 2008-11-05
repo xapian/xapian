@@ -1,7 +1,7 @@
 /** @file alltermslist.h
  * @brief Abstract base class for iterating all terms in a database.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,13 +36,8 @@ class AllTermsList : public TermList {
     AllTermsList() { }
 
   public:
-    /** We have virtual methods and want to be able to delete derived classes
-     *  using a pointer to the base class, so we need a virtual destructor.
-     */
-    virtual ~AllTermsList();
-
     /// Return approximate size of this termlist.
-    virtual Xapian::termcount get_approx_size() const = 0;
+    virtual Xapian::termcount get_approx_size() const;
 
     /// Return the termname at the current position.
     virtual std::string get_termname() const = 0;
@@ -66,7 +61,7 @@ class AllTermsList : public TermList {
     /** Skip forward to the specified term.
      *
      *  If the specified term isn't in the list, position ourselves on the
-     *  first term after tname (or at_end() if no terms after tname exist).
+     *  first term after @a term (or at_end() if no terms after @a term exist).
      */
     virtual TermList *skip_to(const std::string &term) = 0;
 

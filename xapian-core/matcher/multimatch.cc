@@ -2,10 +2,10 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
  * Copyright 2003 Orange PCS Ltd
  * Copyright 2003 Sam Liddicott
- * Copyright 2007 Lemur Consulting Ltd
+ * Copyright 2007,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -54,6 +54,7 @@
 #endif /* XAPIAN_HAS_REMOTE_BACKEND */
 
 #include <algorithm>
+#include <cfloat> // For DBL_EPSILON.
 #include <queue>
 #include <vector>
 #include <map>
@@ -157,10 +158,10 @@ prepare_sub_matches(std::vector<Xapian::Internal::RefCntPtr<SubMatch> > & leaves
 	    } catch (Xapian::Error & e) {
 		if (!errorhandler) throw;
 
-		DEBUGLINE(EXCEPTION, "Calling error handler for prepare_match() on a SubMatch.");
+		LOGLINE(EXCEPTION, "Calling error handler for prepare_match() on a SubMatch.");
 		(*errorhandler)(e);
 		// Continue match without this sub-match.
-		leaves[leaf] = new EmptySubMatch();
+		leaves[leaf] = new EmptySubMatch;
 		prepared[leaf] = true;
 		--unprepared;
 	    }
@@ -236,7 +237,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 #endif /* XAPIAN_HAS_REMOTE_BACKEND */
 	} catch (Xapian::Error & e) {
 	    if (!errorhandler) throw;
-	    DEBUGLINE(EXCEPTION, "Calling error handler for creation of a SubMatch from a database and query.");
+	    LOGLINE(EXCEPTION, "Calling error handler for creation of a SubMatch from a database and query.");
 	    (*errorhandler)(e);
 	    // Continue match without this sub-postlist.
 	    smatch = new EmptySubMatch;
@@ -255,12 +256,8 @@ MultiMatch::get_collapse_key(PostList *pl, Xapian::docid did,
     const string *key = pl->get_collapse_key();
     if (key) RETURN(*key);
     if (doc.get() == 0) {
-	unsigned int multiplier = db.internal.size();
-	Assert(multiplier != 0);
-	Xapian::doccount n = (did - 1) % multiplier; // which actual database
-	Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
-
-	doc = db.internal[n]->open_document(m, true);
+	doc = db.get_document_lazily(did);
+	Assert(doc.get());
     }
     RETURN(doc->get_value(keyno));
 }
@@ -271,14 +268,14 @@ MultiMatch::getorrecalc_maxweight(PostList *pl)
     DEBUGCALL(MATCH, Xapian::weight, "MultiMatch::getorrecalc_maxweight", pl);
     Xapian::weight wt;
     if (recalculate_w_max) {
-	DEBUGLINE(MATCH, "recalculating max weight");
+	LOGLINE(MATCH, "recalculating max weight");
 	wt = pl->recalc_maxweight();
 	recalculate_w_max = false;
     } else {
 	wt = pl->get_maxweight();
-	AssertParanoid(fabs(wt - pl->recalc_maxweight()) < 1e-9);
+	AssertEqDoubleParanoid(wt, pl->recalc_maxweight());
     }
-    DEBUGLINE(MATCH, "max possible doc weight = " << wt);
+    LOGLINE(MATCH, "max possible doc weight = " << wt);
     RETURN(wt);
 }
 
@@ -316,17 +313,15 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	vector<Xapian::Internal::RefCntPtr<SubMatch> >::iterator leaf;
 	for (leaf = leaves.begin(); leaf != leaves.end(); ++leaf) {
 	    try {
-		// FIXME: look if we can push the "check_at_least" stuff
-		// into the remote match handling too.
 		(*leaf)->start_match(0, first + maxitems,
 				     first + check_at_least, stats);
 	    } catch (Xapian::Error & e) {
 		if (!errorhandler) throw;
-		DEBUGLINE(EXCEPTION, "Calling error handler for "
-			  "start_match() on a SubMatch.");
+		LOGLINE(EXCEPTION, "Calling error handler for "
+				   "start_match() on a SubMatch.");
 		(*errorhandler)(e);
 		// Continue match without this sub-match.
-		*leaf = Xapian::Internal::RefCntPtr<SubMatch>(new EmptySubMatch());
+		*leaf = Xapian::Internal::RefCntPtr<SubMatch>(new EmptySubMatch);
 	    }
 	}
     }
@@ -351,23 +346,22 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		termfreqandwts_ptr = NULL;
 	    if (is_remote[i]) {
 		if (pl->get_termfreq_min() > first + maxitems) {
-		    DEBUGLINE(MATCH, "Found " <<
-			      pl->get_termfreq_min() - (first + maxitems)
-			      << " definite matches in remote "
-			      "submatch which aren't passed to local "
-			      "match");
+		    LOGLINE(MATCH, "Found " <<
+				   pl->get_termfreq_min() - (first + maxitems)
+				   << " definite matches in remote submatch "
+				   "which aren't passed to local match");
 		    definite_matches_not_seen += pl->get_termfreq_min();
 		    definite_matches_not_seen -= first + maxitems;
 		}
 	    }
 	} catch (Xapian::Error & e) {
 	    if (!errorhandler) throw;
-	    DEBUGLINE(EXCEPTION, "Calling error handler for "
-		      "get_term_info() on a SubMatch.");
+	    LOGLINE(EXCEPTION, "Calling error handler for "
+			       "get_term_info() on a SubMatch.");
 	    (*errorhandler)(e);
 	    // FIXME: check if *ALL* the remote servers have failed!
 	    // Continue match without this sub-match.
-	    leaves[i] = new EmptySubMatch();
+	    leaves[i] = new EmptySubMatch;
 	    pl = new EmptyPostList;
 	}
 	postlists.push_back(pl);
@@ -382,7 +376,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	pl = new MergePostList(postlists, this, errorhandler);
     }
 
-    DEBUGLINE(MATCH, "pl = (" << pl->get_description() << ")");
+    LOGLINE(MATCH, "pl = (" << pl->get_description() << ")");
 
     // Empty result set
     Xapian::doccount docs_matched = 0;
@@ -392,22 +386,25 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     // maximum weight a document could possibly have
     const Xapian::weight max_weight = pl->recalc_maxweight();
 
-    DEBUGLINE(MATCH, "pl = (" << pl->get_description() << ")");
+    LOGLINE(MATCH, "pl = (" << pl->get_description() << ")");
     recalculate_w_max = false;
 
     Xapian::doccount matches_upper_bound = pl->get_termfreq_max();
-    Xapian::doccount matches_lower_bound = pl->get_termfreq_min();
+    Xapian::doccount matches_lower_bound = 0;
     Xapian::doccount matches_estimated   = pl->get_termfreq_est();
+
+    if (mdecider == NULL && matchspy == NULL) {
+	// If we have a matcher decider or match spy, the lower bound must be
+	// set to 0 as we could discard all hits.  Otherwise set it to the
+	// minimum number of entries which the postlist could return.
+	matches_lower_bound = pl->get_termfreq_min();
+    }
 
     // Check if any results have been asked for (might just be wanting
     // maxweight).
     if (check_at_least == 0) {
 	delete pl;
-	if (mdecider != NULL || matchspy != NULL) {
-	    // Lower bound must be set to 0 as the match decider could discard
-	    // all hits.
-	    matches_lower_bound = 0;
-	} else if (collapse_key != Xapian::BAD_VALUENO) {
+	if (collapse_key != Xapian::BAD_VALUENO) {
 	    // Lower bound must be set to no more than 1, since it's possible
 	    // that all hits will be collapsed to a single hit.
 	    if (matches_lower_bound > 1) matches_lower_bound = 1;
@@ -430,6 +427,11 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     Xapian::doccount duplicates_found = 0;
     Xapian::doccount documents_considered = 0;
 
+    // Number of documents considered by a decider or matchspy.
+    Xapian::doccount decider_considered = 0;
+    // Number of documents denied by the decider or matchspy.
+    Xapian::doccount decider_denied = 0;
+
     // We keep track of the number of null collapse values because this allows
     // us to provide a better value for matches_lower_bound if there are null
     // collapse values.
@@ -447,7 +449,11 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     // Minimum weight an item must have to be worth considering.
     Xapian::weight min_weight = weight_cutoff;
 
-    Xapian::weight percent_factor = percent_cutoff / 100.0;
+    // Factor to multiply maximum weight seen by to get the cutoff weight.
+    Xapian::weight percent_cutoff_factor = percent_cutoff / 100.0;
+    // Corresponding correction to that in omenquire.cc to account for excess
+    // precision on x86.
+    percent_cutoff_factor -= DBL_EPSILON;
 
     // Table of keys which have been seen already, for collapsing.
     map<string, pair<Xapian::Internal::MSetItem,Xapian::weight> > collapse_tab;
@@ -475,28 +481,28 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	if (rare(recalculate_w_max)) {
 	    if (min_weight > 0.0) {
 		if (rare(getorrecalc_maxweight(pl) < min_weight)) {
-		    DEBUGLINE(MATCH, "*** TERMINATING EARLY (1)");
+		    LOGLINE(MATCH, "*** TERMINATING EARLY (1)");
 		    break;
 		}
 	    }
 	}
 
 	if (rare(next_handling_prune(pl, min_weight, this))) {
-	    DEBUGLINE(MATCH, "*** REPLACING ROOT");
+	    LOGLINE(MATCH, "*** REPLACING ROOT");
 
 	    if (min_weight > 0.0) {
 		// No need for a full recalc (unless we've got to do one
 		// because of a prune elsewhere) - we're just switching to a
 		// subtree.
 		if (rare(getorrecalc_maxweight(pl) < min_weight)) {
-		    DEBUGLINE(MATCH, "*** TERMINATING EARLY (2)");
+		    LOGLINE(MATCH, "*** TERMINATING EARLY (2)");
 		    break;
 		}
 	    }
 	}
 
 	if (rare(pl->at_end())) {
-	    DEBUGLINE(MATCH, "Reached end of potential matches");
+	    LOGLINE(MATCH, "Reached end of potential matches");
 	    break;
 	}
 
@@ -508,21 +514,18 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	if (sort_by != VAL || min_weight > 0.0) {
 	    wt = pl->get_weight();
 	    if (wt < min_weight) {
-		DEBUGLINE(MATCH, "Rejecting potential match due to insufficient weight");
+		LOGLINE(MATCH, "Rejecting potential match due to insufficient weight");
 		continue;
 	    }
 	    calculated_weight = true;
 	}
 
 	Xapian::docid did = pl->get_docid();
-	DEBUGLINE(MATCH, "Candidate document id " << did << " wt " << wt);
+	LOGLINE(MATCH, "Candidate document id " << did << " wt " << wt);
 	Xapian::Internal::MSetItem new_item(wt, did);
 	if (sort_by != REL) {
-	    const unsigned int multiplier = db.internal.size();
-	    Assert(multiplier != 0);
-	    Xapian::doccount n = (new_item.did - 1) % multiplier; // which actual database
-	    Xapian::docid m = (new_item.did - 1) / multiplier + 1; // real docid in that database
-	    Xapian::Internal::RefCntPtr<Xapian::Document::Internal> doc(db.internal[n]->open_document(m, true));
+	    Xapian::Internal::RefCntPtr<Xapian::Document::Internal> doc(db.get_document_lazily(new_item.did));
+	    Assert(doc.get());
 	    if (sorter) {
 		new_item.sort_key = (*sorter)(Xapian::Document(doc.get()));
 	    } else {
@@ -538,19 +541,19 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		    collapse_key == Xapian::BAD_VALUENO) {
 		    // Document was definitely suitable for mset - no more
 		    // processing needed.
-		    DEBUGLINE(MATCH, "Making note of match item which sorts lower than min_item");
+		    LOGLINE(MATCH, "Making note of match item which sorts lower than min_item");
 		    ++docs_matched;
 		    continue;
 		}
 		if (docs_matched >= check_at_least) {
 		    // We've seen enough items - we can drop this one.
-		    DEBUGLINE(MATCH, "Dropping candidate which sorts lower than min_item");
+		    LOGLINE(MATCH, "Dropping candidate which sorts lower than min_item");
 		    continue;
 		}
 		// We can't drop the item, because we need to show it
 		// to the matchspy, test whether the mdecider would
 		// accept it, and/or test whether it would be collapsed.
-		DEBUGLINE(MATCH, "Keeping candidate which sorts lower than min_item for further investigation");
+		LOGLINE(MATCH, "Keeping candidate which sorts lower than min_item for further investigation");
 	    }
 	}
 
@@ -565,14 +568,21 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    // already have been applied there so we can skip this step.
 	    if (!is_remote[n]) {
 		if (doc.get() == 0) {
-		    Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
-
-		    Xapian::Internal::RefCntPtr<Xapian::Document::Internal> temp(db.internal[n]->open_document(m, true));
+		    Xapian::Internal::RefCntPtr<Xapian::Document::Internal> temp(db.get_document_lazily(did));
+		    Assert(temp.get());
 		    doc = temp;
 		}
 		Xapian::Document mydoc(doc.get());
-		if (matchspy && !matchspy->operator()(mydoc)) continue;
-		if (mdecider && !mdecider->operator()(mydoc)) continue;
+
+		++decider_considered;
+		if (matchspy && !matchspy->operator()(mydoc)) {
+		    ++decider_denied;
+		    continue;
+		}
+		if (mdecider && !mdecider->operator()(mydoc)) {
+		    ++decider_denied;
+		    continue;
+		}
 	    }
 	}
 
@@ -597,8 +607,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		map<string, pair<Xapian::Internal::MSetItem, Xapian::weight> >::iterator oldkey;
 		oldkey = collapse_tab.find(new_item.collapse_key);
 		if (oldkey == collapse_tab.end()) {
-		    DEBUGLINE(MATCH, "collapsem: new key: " <<
-			      new_item.collapse_key);
+		    LOGLINE(MATCH, "collapsem: new key: " <<
+				   new_item.collapse_key);
 		    // Key not been seen before
 		    collapse_tab.insert(make_pair(new_item.collapse_key,
 					make_pair(new_item, Xapian::weight(0))));
@@ -607,8 +617,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		    Xapian::Internal::MSetItem &old_item = oldkey->second.first;
 		    // FIXME: what about the (sort_by != REL) case here?
 		    if (mcmp(old_item, new_item)) {
-			DEBUGLINE(MATCH, "collapsem: better exists: " <<
-				  new_item.collapse_key);
+			LOGLINE(MATCH, "collapsem: better exists: " <<
+				       new_item.collapse_key);
 			// There's already a better match with this key
 			++old_item.collapse_count;
 			// But maybe the weight is worth noting
@@ -637,9 +647,9 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 			vector<Xapian::Internal::MSetItem>::iterator i;
 			for (i = items.begin(); i != items.end(); ++i) {
 			    if (i->did == olddid) {
-				DEBUGLINE(MATCH, "collapsem: removing " <<
-					  olddid << ": " <<
-					  new_item.collapse_key);
+				LOGLINE(MATCH, "collapsem: removing " <<
+					       olddid << ": " <<
+					       new_item.collapse_key);
 				// We can replace an arbitrary element in
 				// O(log N) but have to do it by hand (in this
 				// case the new elt is bigger, so we just swap
@@ -693,14 +703,14 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 			    }
 			}
 			if (min_item.wt > min_weight) {
-			    DEBUGLINE(MATCH, "Setting min_weight to " <<
-				      min_item.wt << " from " << min_weight);
+			    LOGLINE(MATCH, "Setting min_weight to " <<
+				    min_item.wt << " from " << min_weight);
 			    min_weight = min_item.wt;
 			}
 		    }
 		}
 		if (rare(getorrecalc_maxweight(pl) < min_weight)) {
-		    DEBUGLINE(MATCH, "*** TERMINATING EARLY (3)");
+		    LOGLINE(MATCH, "*** TERMINATING EARLY (3)");
 		    break;
 		}
 	    } else {
@@ -728,7 +738,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	if (wt > greatest_wt) {
 	    greatest_wt = wt;
 	    if (percent_cutoff) {
-		Xapian::weight w = wt * percent_factor;
+		Xapian::weight w = wt * percent_cutoff_factor;
 		if (w > min_weight) {
 		    min_weight = w;
 		    if (!is_heap) {
@@ -763,7 +773,17 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	vector<Xapian::Internal::MSetItem>::const_iterator best;
 	best = min_element(items.begin(), items.end(), mcmp);
 
-	if (termfreqandwts.size() > 1) {
+	unsigned int multiplier = db.internal.size();
+	Assert(multiplier != 0);
+	Xapian::doccount n = (best->did - 1) % multiplier; // which actual database
+	// If the top result is from a remote database, then we can
+	// just use the percentage scaling calculated for that
+	// database.
+	if (is_remote[n]) {
+	    RemoteSubMatch * rem_match;
+	    rem_match = static_cast<RemoteSubMatch*>(leaves[n].get());
+	    percent_scale = rem_match->get_percent_factor();
+	} else if (termfreqandwts.size() > 1) {
 	    Xapian::termcount matching_terms = 0;
 	    map<string,
 		Xapian::MSet::Internal::TermFreqAndWeight>::const_iterator i;
@@ -791,7 +811,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		for (i = termfreqandwts.begin(); i != termfreqandwts.end(); ++i)
 		    denom += i->second.termweight;
 
-		DEBUGLINE(MATCH, "denom = " << denom << " percent_scale = " << percent_scale);
+		LOGVALUE(MATCH, denom);
+		LOGVALUE(MATCH, percent_scale);
 		Assert(percent_scale <= denom);
 		denom *= greatest_wt;
 		Assert(denom > 0);
@@ -812,7 +833,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    // Or we could just use a linear scan here instead.
 
 	    // trim the mset to the correct answer...
-	    Xapian::weight min_wt = percent_factor / percent_scale;
+	    Xapian::weight min_wt = percent_cutoff_factor / percent_scale;
 	    if (!is_heap) {
 		is_heap = true;
 		make_heap<vector<Xapian::Internal::MSetItem>::iterator,
@@ -834,12 +855,12 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	percent_scale *= 100.0;
     }
 
-    DEBUGLINE(MATCH,
-	      "docs_matched = " << docs_matched <<
-	      ", definite_matches_not_seen = " << definite_matches_not_seen <<
-	      ", matches_lower_bound = " << matches_lower_bound <<
-	      ", matches_estimated = " << matches_estimated <<
-	      ", matches_upper_bound = " << matches_upper_bound);
+    LOGLINE(MATCH,
+	    "docs_matched = " << docs_matched <<
+	    ", definite_matches_not_seen = " << definite_matches_not_seen <<
+	    ", matches_lower_bound = " << matches_lower_bound <<
+	    ", matches_estimated = " << matches_estimated <<
+	    ", matches_upper_bound = " << matches_upper_bound);
 
     // Adjust docs_matched to take account of documents which matched remotely
     // but weren't sent across.
@@ -848,8 +869,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     if (items.size() < max_msize) {
 	// We have fewer items in the mset than we tried to get for it, so we
 	// must have all the matches in it.
-	DEBUGLINE(MATCH, "items.size() = " << items.size() <<
-		  ", max_msize = " << max_msize << ", setting bounds equal");
+	LOGLINE(MATCH, "items.size() = " << items.size() <<
+		", max_msize = " << max_msize << ", setting bounds equal");
 	Assert(definite_matches_not_seen == 0);
 	Assert(percent_cutoff || docs_matched == items.size());
 	matches_lower_bound = matches_upper_bound = matches_estimated
@@ -857,16 +878,73 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     } else if (docs_matched < check_at_least) {
 	// We have seen fewer matches than we checked for, so we must have seen
 	// all the matches.
-	DEBUGLINE(MATCH, "Setting bounds equal");
+	LOGLINE(MATCH, "Setting bounds equal");
 	matches_lower_bound = matches_upper_bound = matches_estimated
 	    = docs_matched;
     } else {
+	Assert(matches_estimated >= matches_lower_bound);
+	Assert(matches_estimated <= matches_upper_bound);
+
+	// We can end up scaling the estimate more than once, so collect
+	// the scale factors and apply them in one go to avoid rounding
+	// more than once.
+	double estimate_scale = 1.0;
+
+	if (collapse_key != Xapian::BAD_VALUENO) {
+	    // Lower bound must be set to no more than the number of null
+	    // collapse values seen plus the number of unique non-null collapse
+	    // values seen, since it's possible that all further hits will be
+	    // collapsed to values we've already seen.
+	    LOGLINE(MATCH, "Adjusting bounds due to collapse_key");
+	    matches_lower_bound = null_collapse_values + collapse_tab.size();
+
+	    // The estimate for the number of hits can be modified by
+	    // multiplying it by the rate at which we've been finding
+	    // unique documents.
+	    if (documents_considered > 0) {
+		double unique = double(documents_considered - duplicates_found);
+		double unique_rate = unique / double(documents_considered);
+		estimate_scale *= unique_rate;
+	    }
+
+	    // We can safely reduce the upper bound by the number of
+	    // duplicates we've seen.
+	    matches_upper_bound -= duplicates_found;
+
+	    LOGLINE(MATCH, "matches_lower_bound=" << matches_lower_bound <<
+		    ", matches_estimated=" << matches_estimated <<
+		    "*" << estimate_scale <<
+		    ", matches_upper_bound=" << matches_upper_bound);
+	}
+
+	if (matchspy || mdecider) {
+	    if (collapse_key == Xapian::BAD_VALUENO && !percent_cutoff) {
+		// We're not collapsing or doing a percentage cutoff, so
+		// docs_matched is a lower bound on the total number of matches.
+		matches_lower_bound = max(docs_matched, matches_lower_bound);
+	    }
+
+	    // The estimate for the number of hits can be modified by
+	    // multiplying it by the rate at which the match decider has
+	    // been accepting documents.
+	    if (decider_considered > 0) {
+		double accept = double(decider_considered - decider_denied);
+		double accept_rate = accept / double(decider_considered);
+		estimate_scale *= accept_rate;
+	    }
+
+	    // If a document is denied by a match decider, it is not possible
+	    // for it to found to be a duplicate, so it is safe to also reduce
+	    // the upper bound by the number of documents denied by a match
+	    // decider.
+	    matches_upper_bound -= decider_denied;
+	}
+
 	if (percent_cutoff) {
-	    // another approach: Xapian::doccount new_est = items.size() * (1 - percent_factor) / (1 - min_weight / greatest_wt);
-	    Xapian::doccount new_est;
-	    new_est = Xapian::doccount((1 - percent_factor) * matches_estimated);
-	    matches_estimated = max(size_t(new_est), items.size());
-	    // and another: items.size() + (1 - greatest_wt * percent_factor / min_weight) * (matches_estimated - items.size());
+	    estimate_scale *= (1.0 - percent_cutoff_factor);
+	    // another approach:
+	    // Xapian::doccount new_est = items.size() * (1 - percent_cutoff_factor) / (1 - min_weight / greatest_wt);
+	    // and another: items.size() + (1 - greatest_wt * percent_cutoff_factor / min_weight) * (matches_estimated - items.size());
 
 	    // Very likely an underestimate, but we can't really do better
 	    // without checking further matches...  Only possibility would be
@@ -876,33 +954,25 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    matches_lower_bound = items.size();
 	    // matches_upper_bound could be reduced by the number of documents
 	    // which fail the min weight test
+	    LOGLINE(MATCH, "Adjusted bounds due to percent_cutoff (" <<
+		    percent_cutoff << "): now have matches_estimated=" <<
+		    matches_estimated << ", matches_lower_bound=" <<
+		    matches_lower_bound);
 	}
 
-	Assert(matches_estimated >= matches_lower_bound);
-	Assert(matches_estimated <= matches_upper_bound);
+	if (estimate_scale != 1.0) {
+	    matches_estimated =
+		Xapian::doccount(matches_estimated * estimate_scale + 0.5);
+	    if (matches_estimated < matches_lower_bound)
+	       	matches_estimated = matches_lower_bound;
+	}
 
-	if (collapse_key != Xapian::BAD_VALUENO) {
-	    // Lower bound must be set to no more than the number of null
-	    // collapse values seen plus the number of unique non-null collapse
-	    // values seen, since it's possible that all further hits will be
-	    // collapsed to values we've already seen.
-	    matches_lower_bound = null_collapse_values + collapse_tab.size();
-
-	    // The estimate for the number of hits can be modified by
-	    // multiplying it by the rate at which we've been finding
-	    // duplicates.
-	    if (documents_considered > 0) {
-		double collapse_rate =
-			double(duplicates_found) / double(documents_considered);
-		matches_estimated -=
-			Xapian::doccount(double(matches_estimated) *
-					   collapse_rate);
-	    }
-
-	    // We can safely reduce the upper bound by the number of
-	    // duplicates we've seen.
-	    matches_upper_bound -= duplicates_found;
-
+	if (collapse_key != Xapian::BAD_VALUENO || matchspy || mdecider) {
+	    LOGLINE(MATCH, "Clamping estimate between bounds: "
+		    "matches_lower_bound = " << matches_lower_bound <<
+		    ", matches_estimated = " << matches_estimated <<
+		    ", matches_upper_bound = " << matches_upper_bound);
+	    Assert(matches_lower_bound <= matches_upper_bound);
 	    matches_estimated = max(matches_estimated, matches_lower_bound);
 	    matches_estimated = min(matches_estimated, matches_upper_bound);
 	} else if (!percent_cutoff) {
@@ -914,14 +984,14 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	}
     }
 
-    DEBUGLINE(MATCH, items.size() << " items in potential mset");
+    LOGLINE(MATCH, items.size() << " items in potential mset");
 
     if (first > 0) {
 	// Remove unwanted leading entries
 	if (items.size() <= first) {
 	    items.clear();
 	} else {
-	    DEBUGLINE(MATCH, "finding " << first << "th");
+	    LOGLINE(MATCH, "finding " << first << "th");
 	    // We perform nth_element() on reverse iterators so that the
 	    // unwanted elements end up at the end of items, which means
 	    // that the call to erase() to remove them doesn't have to copy
@@ -934,14 +1004,14 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	}
     }
 
-    DEBUGLINE(MATCH, "sorting " << items.size() << " entries");
+    LOGLINE(MATCH, "sorting " << items.size() << " entries");
 
     // Need a stable sort, but this is provided by comparison operator
     sort(items.begin(), items.end(), mcmp);
 
     if (!items.empty()) {
-	DEBUGLINE(MATCH, "min weight in mset = " << items.back().wt);
-	DEBUGLINE(MATCH, "max weight in mset = " << items[0].wt);
+	LOGLINE(MATCH, "min weight in mset = " << items.back().wt);
+	LOGLINE(MATCH, "max weight in mset = " << items[0].wt);
     }
 
     Assert(matches_estimated >= matches_lower_bound);
@@ -959,7 +1029,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	!collapse_tab.empty()) {
 	// Nicked this formula from above, but for some reason percent_scale
 	// has since been multiplied by 100 so we take that into account
-	Xapian::weight min_wt = percent_factor / (percent_scale / 100);
+	Xapian::weight min_wt = percent_cutoff_factor / (percent_scale / 100);
 	vector<Xapian::Internal::MSetItem>::iterator i;
 	for (i = items.begin(); i != items.end() && !collapse_tab.empty(); ++i) {
 	    // Is this a collapsed hit?

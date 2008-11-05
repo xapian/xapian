@@ -112,21 +112,12 @@ inline int stat(const string &filename, struct stat *buf) {
 
 /** Remove a directory, and its contents.
  *
+ *  If dirname doesn't refer to a file or directory, no error is generated.
+ *
  *  Note - this doesn't currently cope with directories which contain
  *  subdirectories.
  */
-XAPIAN_VISIBILITY_DEFAULT
 void removedir(const string &dirname);
-
-/** Hex-encode a string.
- */
-XAPIAN_VISIBILITY_DEFAULT
-string hex_encode(const string &input);
-
-/** Hex-decode a string.
- */
-XAPIAN_VISIBILITY_DEFAULT
-string hex_decode(const string &input);
 
 namespace Xapian {
     namespace Internal {
