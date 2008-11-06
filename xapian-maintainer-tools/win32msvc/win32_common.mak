@@ -19,6 +19,7 @@ OBJS= \
     $(INTDIR)\serialise-double.obj \
     $(INTDIR)\msvc_dirent.obj \
     $(INTDIR)\msvc_posix_wrapper.obj \
+    $(INTDIR)\win32_uuid.obj \
     $(INTDIR)\socket_utils.obj \
     $(INTDIR)\stringutils.obj \
     $(INTDIR)\safe.obj \
@@ -32,6 +33,7 @@ SRCS= \
     $(INTDIR)\serialise-double.cc \
     $(INTDIR)\msvc_dirent.cc \
     $(INTDIR)\msvc_posix_wrapper.cc \
+    $(INTDIR)\win32_uuid.cc \
     $(INTDIR)\socket_utils.cc \
     $(INTDIR)\stringutils.cc \
     $(INTDIR)\safe.cc \

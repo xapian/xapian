@@ -43,7 +43,7 @@ CLEAN :
 perftest_all.h: perftest_collated.h
     
 perftest_collated.h: ..\collate-test $(COLLATED_PERFTEST_SOURCES)
-    $(PERL_EXE) "..\collate-test" "$(INTDIR)" "perftest_all.h" $(COLLATED_PERFTEST_SOURCES) > perftest_collated.h
+    $(PERL_EXE) "..\collate-test" "$(INTDIR)" perftest_collated.h perftest_all.h $(COLLATED_PERFTEST_SOURCES) 
     
 get_machine_info: get_machine_info.in
     copy get_machine_info.in get_machine_info
@@ -61,7 +61,7 @@ CPP_SBRS=.
 ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS) "$(OUTLIBDIR)\libtest.lib"
  
 # executables
-$(BUILD_ALL) : perftest_all.h $(OUTDIR) $(DEF_FILE) $(OBJS) $(XAPIAN_LIBS)
+$(BUILD_ALL) : perftest_all.h $(OUTDIR) $(DEF_FILE) $(OBJS) $(XAPIAN_LIBS) "$(OUTLIBDIR)\libtest.lib"
     $(LINK32) @<<
   $(ALL_LINK32_FLAGS) /out:"$(BUILD_ALL)" $(DEF_FLAGS) $(OBJS)
 <<

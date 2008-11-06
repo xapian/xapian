@@ -36,6 +36,7 @@ OBJS= \
                 $(INTDIR)\chert_termlist.obj\
                 $(INTDIR)\chert_termlisttable.obj\
                 $(INTDIR)\chert_values.obj\
+                $(INTDIR)\chert_valuelist.obj\
                 $(INTDIR)\chert_version.obj
 
 SRCS= \
@@ -60,6 +61,7 @@ SRCS= \
                 $(INTDIR)\chert_termlist.cc\
                 $(INTDIR)\chert_termlisttable.cc\
                 $(INTDIR)\chert_values.cc\
+                $(INTDIR)\chert_valuelist.cc\
                 $(INTDIR)\chert_version.cc\
                 $(INTDIR)\chert_check.cc
 
