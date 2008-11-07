@@ -1,3 +1,11 @@
+Fri Nov 07 12:50:22 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/chert/chert_version.cc,backends/chert/chert_version.h,
+	  backends/flint/flint_version.cc,backends/flint/flint_version.h,
+	  common/safeuuid.h,common/win32_uuid.cc,common/win32_uuid.h: Add
+	  implementation of UUID functions for windows (using the built-in
+	  UUID methods in the windows API). Fixes bug #303.
+
 Sat Nov 01 01:47:44 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS: Sync with 1.0.9 release.

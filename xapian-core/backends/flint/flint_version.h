@@ -24,7 +24,7 @@
 #include <cstring>
 #include <string>
 
-#include <uuid/uuid.h>
+#include "common/safeuuid.h"
 
 /** The FlintVersion class manages the "iamflint" file.
  *
