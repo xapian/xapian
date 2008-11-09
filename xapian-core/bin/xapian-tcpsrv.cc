@@ -31,8 +31,7 @@
 
 #include "gnu_getopt.h"
 
-#include <xapian/error.h>
-#include <xapian/enquire.h>
+#include "xapian/error.h"
 #include "remotetcpserver.h"
 
 using namespace std;

@@ -21,16 +21,15 @@
  * USA
  */
 
-// NB don't prune - even with one sublist we still translate docids...
-
 #include <config.h>
 #include "multimatch.h"
 #include "emptypostlist.h"
 #include "mergepostlist.h"
 #include "branchpostlist.h"
 #include "omdebug.h"
-#include <xapian/enquire.h>
-#include <xapian/errorhandler.h>
+#include "xapian/errorhandler.h"
+
+// NB don't prune - even with one sublist we still translate docids...
 
 MergePostList::MergePostList(std::vector<PostList *> plists_,
 			     MultiMatch *matcher_,
