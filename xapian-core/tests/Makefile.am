@@ -92,6 +92,7 @@ collated_apitest_sources = \
  api_anydb.cc \
  api_db.cc \
  api_generated.cc \
+ api_geospatial.cc \
  api_nodb.cc \
  api_percentages.cc \
  api_posdb.cc \

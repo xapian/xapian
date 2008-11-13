@@ -1,3 +1,8 @@
+Thu Nov 13 02:10:46 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/Makefile.am,tests/api_geospatial.cc: Add geospatial tests - 
+	  currently just tests latlong parser.
+
 Thu Nov 13 02:10:18 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* common/debuglog.h: Add GEOSPATIAL debug category.
