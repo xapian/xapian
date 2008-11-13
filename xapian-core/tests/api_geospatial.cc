@@ -21,6 +21,7 @@
 #include <config.h>
 #include "api_geospatial.h"
 #include <xapian/geospatial.h>
+#include <xapian/error.h>
 
 #include "apitest.h"
 #include "testsuite.h"
@@ -113,5 +114,26 @@ DEFINE_TESTCASE(latlongparse2, !backend) {
 	TEST_EQUAL_DOUBLE(parsed.latitude, ptr->latitude);
 	TEST_EQUAL_DOUBLE(parsed.longitude, ptr->longitude);
     }
+    return true;
+}
+
+// Check that appropriate errors are thrown.
+DEFINE_TESTCASE(latlongparse3, !backend) {
+    TEST_EXCEPTION(Xapian::LatLongParserError,
+		   LatLongCoord::parse_latlong(""));
+    TEST_EXCEPTION(Xapian::LatLongParserError,
+		   LatLongCoord::parse_latlong("", ""));
+    TEST_EXCEPTION(Xapian::LatLongParserError,
+		   LatLongCoord::parse_latlong("a"));
+    TEST_EXCEPTION(Xapian::LatLongParserError,
+		   LatLongCoord::parse_latlong("a", "b"));
+    TEST_EXCEPTION(Xapian::LatLongParserError,
+		   LatLongCoord::parse_latlong("1"));
+    TEST_EXCEPTION(Xapian::LatLongParserError,
+		   LatLongCoord::parse_latlong("1", "2 1"));
+    TEST_EXCEPTION(Xapian::LatLongParserError,
+		   LatLongCoord::parse_latlong("1N 2N"));
+    TEST_EXCEPTION(Xapian::LatLongParserError,
+		   LatLongCoord::parse_latlong("fN 2N"));
     return true;
 }
