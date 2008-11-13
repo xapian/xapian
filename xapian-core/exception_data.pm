@@ -171,6 +171,10 @@ errorclass('QueryParserError', 'RuntimeError', <<'DOC');
 /** Indicates a query string can't be parsed. */
 DOC
 
+errorclass('LatLongParserError', 'RuntimeError', <<'DOC');
+/** Indicates a latitude/longitude coordinate can't be parsed. */
+DOC
+
 errorclass('RangeError', 'RuntimeError', <<'DOC');
 /** RangeError indicates an attempt to access outside the bounds of a container.
  */

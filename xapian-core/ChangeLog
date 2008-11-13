@@ -1,3 +1,7 @@
+Thu Nov 13 02:08:08 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* exception_data.pm: Add LatLongParserError
+
 Thu Nov 13 01:59:04 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* geospatial/: Add parser for latitude/longitude coordinates.
