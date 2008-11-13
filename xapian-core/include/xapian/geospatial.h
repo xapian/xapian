@@ -152,9 +152,7 @@ struct XAPIAN_VISIBILITY_DEFAULT LatLongCoord {
      *     "degrees", "minutes" and "seconds" symbols, optionally separated by
      *     whitespace.  (eg: 10o 30' 36")
      *
-     *  
-     *
-     *  @exception Xapian::InvalidArgumentError if the string cannot be parsed
+     *  @exception Xapian::LatLongParserError if the string cannot be parsed
      *  into a valid coordinate.
      */
     static LatLongCoord parse_latlong(const std::string & coord);
@@ -164,7 +162,7 @@ struct XAPIAN_VISIBILITY_DEFAULT LatLongCoord {
      *  @param lat_string String holding the latitude.
      *  @param long_string String holding the longitude.
      *
-     *  @exception Xapian::InvalidArgumentError if the string cannot be parsed
+     *  @exception Xapian::LatLongParserError if the string cannot be parsed
      *  into a valid coordinate.
      */
     static LatLongCoord parse_latlong(const std::string & lat_string,
@@ -246,35 +244,6 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongCoords {
      */
     std::string serialise() const;
 };
-
-
-/** Base class for converting coordinates from one datum to another.
- */
-class XAPIAN_VISIBILITY_DEFAULT LatLongCoordTransform {
-  public:
-    /// Destructor.
-    virtual ~LatLongCoordTransform();
-
-    /** Convert a coordinate from one datum to another.
-     */
-    virtual LatLongCoord transform(const LatLongCoord & coord,
-				   const std::string & datum_in,
-				   const std::string & datum_out);
-
-    LatLongCoords transform(const LatLongCoords & coords,
-			    const std::string & datum_in,
-			    const std::string & datum_out)
-    {
-	LatLongCoords output;
-	std::set<LatLongCoord>::const_iterator i;
-	for (i = coords.begin(); i != coords.end(); ++i)
-	{
-	    output.insert(transform(*i, datum_in, datum_out));
-	}
-	return output;
-    }
-};
-
 
 /** Base class for calculating distances between two lat/long coordinates.
  */

@@ -1,3 +1,11 @@
+Thu Nov 13 02:11:48 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* Makefile.am: Add geospatial subdir to build.
+	* include/xapian/geospatial.h: Update documentation of exception
+	  type when parsing coordinates.  Remove LatLongCoordTransform
+	  class (such manipulation should be done at a higher layer - just
+	  work within one datum for all calculations in a xapian database).
+
 Thu Nov 13 02:10:46 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/Makefile.am,tests/api_geospatial.cc: Add geospatial tests - 
