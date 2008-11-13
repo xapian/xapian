@@ -13,7 +13,6 @@ libxapian_la_SOURCES +=\
 	api/error.cc\
 	api/errorhandler.cc\
 	api/expanddecider.cc\
-	api/geospatial.cc\
 	api/leafpostlist.cc\
 	api/omdatabase.cc\
 	api/omdocument.cc\

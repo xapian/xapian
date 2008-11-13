@@ -41,95 +41,6 @@ using namespace Xapian;
 #define M_PI 3.14159265358979323846
 #endif
 
-/** Convert from degrees, arcminutes and arcseconds to decimal degrees.
- */
-static double
-deg_min_sec_to_decimal(double degrees, double arcminutes, double arcseconds)
-{
-    return degrees + arcminutes * (1.0 / 60.0) + arcseconds * (1.0 / 3600.0);
-}
-
-/** Test if a character is a degrees marker.
- */
-static bool
-is_degrees_marker(unsigned ch)
-{
-    switch(ch) {
-	case 0xb0: /* Unicode "DEGREE SIGN" */
-	case 0x2070: /* Unicode "SUPERSCRIPT ZERO". */
-	case 0x02da: /* Unicode "RING ABOVE", looks same as 0xb0 in some
-			character sets, and hence is sometimes mistakenly
-			used. */
-	case 0xba: /* Unicode "MASCULINE ORDINAL INDICATOR", looks same as
-		      0xb0 in some character sets, and hence is sometimes
-		      mistakenly used. */
-	case 'o': /* Lower case letter "o", sometimes used for degrees in
-		     ascii text. */
-	    return true;
-	default:
-	    return false;
-    }
-}
-
-/** Test if a character is a minutes marker.
- */
-static bool
-is_minutes_marker(unsigned ch)
-{
-    switch(ch) {
-	case 0x0027: /* APOSTROPHE. */
-	case 0x00b4: /* ACUTE ACCENT. */
-	case 0x02b9: /* MODIFIER LETTER PRIME. */
-	case 0x2032: /* PRIME. */
-	    return true;
-	default:
-	    return false;
-    }
-}
-
-/** Test if a character is a seconds marker.
- */
-static bool
-is_seconds_marker(unsigned ch)
-{
-    switch(ch) {
-	case 0x0022: /* QUOTATION MARK. */
-	case 0x02ba: /* MODIFIER LETTER DOUBLE PRIME. */
-	case 0x201d: /* RIGHT DOUBLE QUOTATION MARK. */
-	case 0x2033: /* DOUBLE PRIME. */
-	case 0x3003: /* DITTO MARK. */
-	case 0x301e: /* DOUBLE PRIME QUOTATION MARK. */
-	    return true;
-	default:
-	    return false;
-    }
-}
-
-/** Test if a character is a direction indicator (eg, E, N).
- *
- *  If not, returns 0.  Otherwise, returns one of 'N', 'S', 'E', 'W'.
- */
-static char
-get_direction_indicator(unsigned ch)
-{
-    switch(ch) {
-	case 'N': /* FALLTHROUGH */
-	case 'n':
-	    return 'N';
-	case 'S': /* FALLTHROUGH */
-	case 's':
-	    return 'S';
-	case 'E': /* FALLTHROUGH */
-	case 'e':
-	    return 'E';
-	case 'W': /* FALLTHROUGH */
-	case 'w':
-	    return 'W';
-	default:
-	    return '\0';
-    }
-}
-
 LatLongCoord::LatLongCoord(double latitude_, double longitude_)
 	: latitude(latitude_),
 	  longitude(longitude_)
@@ -178,24 +89,6 @@ LatLongCoord::serialise() const
     return result;
 }
 
-LatLongCoord
-LatLongCoord::parse_latlong(const std::string & coord)
-{
-    double latitude, longitude;
-
-    return LatLongCoord(latitude, longitude);
-}
-
-LatLongCoord
-LatLongCoord::parse_latlong(const std::string & lat_string,
-			    const std::string & long_string)
-{
-    double latitude, longitude;
-
-    return LatLongCoord(latitude, longitude);
-}
-
-
 LatLongCoords
 LatLongCoords::unserialise(const std::string & serialised)
 {
@@ -238,11 +131,6 @@ LatLongCoords::serialise() const
 	result += serialise_double(coord->longitude);
     }
     return result;
-}
-
-
-LatLongCoordTransform::~LatLongCoordTransform()
-{
 }
 
 
