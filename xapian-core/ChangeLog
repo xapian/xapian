@@ -1,3 +1,11 @@
+Fri Nov 14 18:00:47 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* bin/,examples/delve.cc,examples/quest.cc,tests/harness/testsuite.cc:
+	  Don't compare return value of gnu_getopt_long() with EOF - it's
+	  documented to simply return -1 or 0, and EOF requires inclusion of
+	  stdio.h.
+
 Fri Nov 14 17:53:53 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
