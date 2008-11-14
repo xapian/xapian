@@ -31,7 +31,6 @@
 #include "serialise-double.h"
 
 #include <xapian/error.h>
-#include <xapian/enquire.h>
 #include <xapian/termiterator.h>
 #include <xapian/version.h>
 #include "vectortermlist.h"

@@ -32,7 +32,6 @@
 #include "gnu_getopt.h"
 
 #include <xapian/error.h>
-#include <xapian/enquire.h>
 #include "tcpserver.h"
 
 using namespace std;

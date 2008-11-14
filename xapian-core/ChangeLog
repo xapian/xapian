@@ -1,3 +1,9 @@
+Fri Nov 14 18:12:02 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* api/omquery.cc,api/omqueryinternal.cc,bin/xapian-tcpsrv.cc,
+	  matcher/: Remove some unused xapian/enquire.h inclusions.
+
 Fri Nov 14 18:04:54 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

@@ -29,8 +29,6 @@
 #include "utils.h"
 
 #include <xapian/error.h>
-#include <xapian/enquire.h>
-
 #include <xapian/termiterator.h>
 
 #include <vector>
