@@ -874,7 +874,7 @@ main(int argc, char **argv)
     bool renumber = true;
 
     int c;
-    while ((c = gnu_getopt_long(argc, argv, "b:nFm", long_opts, 0)) != EOF) {
+    while ((c = gnu_getopt_long(argc, argv, "b:nFm", long_opts, 0)) == 0) {
 	switch (c) {
 	    case 'b': {
 		char *p;

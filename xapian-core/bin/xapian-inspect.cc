@@ -93,7 +93,7 @@ main(int argc, char **argv)
     };
 
     int c;
-    while ((c = gnu_getopt_long(argc, argv, "", long_opts, 0)) != EOF) {
+    while ((c = gnu_getopt_long(argc, argv, "", long_opts, 0)) == 0) {
         switch (c) {
 	    case OPT_HELP:
 		cout << PROG_NAME" - "PROG_DESC"\n\n";

@@ -653,8 +653,7 @@ test_driver::parse_command_line(int argc, char **argv)
     }
 
     int c;
-    while ((c = gnu_getopt_long(argc, argv, opts.c_str(), long_opts, 0)) != EOF)
-    {
+    while ((c = gnu_getopt_long(argc, argv, opts.c_str(), long_opts, 0)) == 0) {
 	switch (c) {
 	    case 'v':
 		verbose = true;
