@@ -1,3 +1,8 @@
+Fri Nov 14 18:04:54 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/flint/flint_modifiedpostlist.cc: Correct comment.
+
 Fri Nov 14 18:03:32 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
