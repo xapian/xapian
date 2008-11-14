@@ -35,6 +35,7 @@
 
 #include <string>
 
+#include <stdio.h> // For rename().
 #include <string.h> // for memcmp
 
 using std::string;

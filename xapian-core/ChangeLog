@@ -1,3 +1,8 @@
+Fri Nov 14 17:24:55 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_version.cc: Add stdio.h to fix compilation with
+	  GCC 4.4 snapshot (already done on trunk as part of a large change).
+
 Fri Oct 31 19:01:52 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS: Update.
