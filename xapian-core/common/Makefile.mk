@@ -46,6 +46,7 @@ noinst_HEADERS +=\
 	common/safesysselect.h\
 	common/safesysstat.h\
 	common/safeunistd.h\
+	common/safeuuid.h\
 	common/safewindows.h\
 	common/safewinsock2.h\
 	common/serialise-double.h\
