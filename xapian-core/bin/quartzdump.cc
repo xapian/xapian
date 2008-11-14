@@ -91,7 +91,7 @@ main(int argc, char *argv[])
     };
 
     int c;
-    while ((c = gnu_getopt_long(argc, argv, "r:s:e:", long_opts, 0)) != EOF) {
+    while ((c = gnu_getopt_long(argc, argv, "r:s:e:", long_opts, 0)) == 0) {
         switch (c) {
             case 'r':
 		revnum = atoi(optarg);

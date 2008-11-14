@@ -1,3 +1,8 @@
+Fri Nov 14 17:45:52 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/quartzdump.cc: Fix to build with GCC 4.4 snapshot (file no
+	  longer present on trunk).
+
 Fri Nov 14 17:24:55 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_version.cc: Add stdio.h to fix compilation with
