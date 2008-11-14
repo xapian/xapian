@@ -1,3 +1,9 @@
+Fri Nov 14 17:30:39 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/serialise-double.cc: Fix "#elif" with no argument to
+	  "#else" - the former surprisingly compiles with most compilers, but
+	  GCC 4.4 snapshots reject it.
+
 Fri Nov 14 16:54:15 GMT 2008  Olly Betts <olly@survex.com>
 
 	* common/win32_uuid.cc: A few code clean-ups.
