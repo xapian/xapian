@@ -185,6 +185,7 @@ struct LatLongState {
 	    longitude = fmod(longitude_, 360);
 	    if (longitude <= -180) longitude += 360;
 	    if (longitude > 180) longitude -= 360;
+	    if (longitude == -0.0) longitude = 0.0;
 	    has_longitude = true;
 	}
     }

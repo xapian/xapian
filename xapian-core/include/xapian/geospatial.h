@@ -24,6 +24,7 @@
 
 #include <xapian/enquire.h>
 #include <xapian/query.h>
+#include <xapian/sorter.h>
 #include <xapian/visibility.h>
 #include <string>
 #include <set>
@@ -141,19 +142,24 @@ struct XAPIAN_VISIBILITY_DEFAULT LatLongCoord {
 
     /** Parse a string representation of a latitude / longitude.
      *
-     *  The latitude / longitude strings may be in any of the following forms:
+     *  The latitude / longitude strings may be in any of the
+     *  following forms:
      *
      *   - decimal degrees, optionally followed by a "degrees" symbol.
-     *     (eg: 10.51o)
-     *   - degrees and decimal minutes, optionally followed by "degrees" and
-     *     minutes symbols, optionally separated by whitespace.
-     *     (eg: 10o 30.6')
-     *   - sexagesimal degrees, minutes and seconds, optionally followed by
-     *     "degrees", "minutes" and "seconds" symbols, optionally separated by
-     *     whitespace.  (eg: 10o 30' 36")
+     *   (eg: 10.51o)
      *
-     *  @exception Xapian::LatLongParserError if the string cannot be parsed
-     *  into a valid coordinate.
+     *   - degrees and minutes, followed by "degrees" and minutes
+     *   symbols, optionally separated by whitespace.  (eg: 10o 30.6')
+     *
+     *   - degrees, minutes and seconds, followed by "degrees",
+     *   "minutes" and "seconds" symbols, optionally separated by
+     *   whitespace.  (eg: 10o 30' 36")
+     *
+     *  The latitude and longitude may be followed by direction
+     *  indicators (N, S, E or W).
+     *
+     *  @exception Xapian::LatLongParserError if the string cannot be
+     *  parsed into a valid coordinate.
      */
     static LatLongCoord parse_latlong(const std::string & coord);
 
@@ -162,8 +168,8 @@ struct XAPIAN_VISIBILITY_DEFAULT LatLongCoord {
      *  @param lat_string String holding the latitude.
      *  @param long_string String holding the longitude.
      *
-     *  @exception Xapian::LatLongParserError if the string cannot be parsed
-     *  into a valid coordinate.
+     *  @exception Xapian::LatLongParserError if the string cannot be
+     *  parsed into a valid coordinate.
      */
     static LatLongCoord parse_latlong(const std::string & lat_string,
 				      const std::string & long_string);
@@ -229,16 +235,17 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongCoords {
 
     /** Construct a set of coordinates by unserialising a string.
      *
-     *  The string may contain further data after the coordinates.
+     *  The string may NOT contain further data after the coordinates (the
+     *  representation of the list of coordinates is not self-terminating).
      *
-     *  @param ptr A pointer to the start of the string.  This will be updated
-     *  to point to the end of the data representing the coordinates.
+     *  @param ptr A pointer to the start of the string.
      *  @param end A pointer to the end of the string.
      *
      *  @exception Xapian::InvalidArgumentError if the string does not contain
-     *  a valid serialised latitude-longitude pair.
+     *  a valid serialised latitude-longitude pair, or contains junk at the end
+     *  of it.
      */
-    static LatLongCoords unserialise(const char ** ptr, const char * end);
+    static LatLongCoords unserialise(const char * ptr, const char * end);
 
     /** Return a serialised form of the coordinate list.
      */
@@ -254,7 +261,7 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongMetric {
 
     /** Return the distance between two coordinates, in metres.
      */
-    virtual double distance(const LatLongCoord & a, const LatLongCoord &b) const = 0;
+    virtual double operator()(const LatLongCoord & a, const LatLongCoord &b) const = 0;
 
     /** Return the distance between two coordinate lists, in metres.
      *
@@ -263,7 +270,7 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongMetric {
      *
      *  If either of the lists is empty, an InvalidArgumentError will be raised.
      */
-    double distance(const LatLongCoords & a, const LatLongCoords &b) const;
+    double operator()(const LatLongCoords & a, const LatLongCoords &b) const;
 };
 
 /** Calculate the great-circle distance between two coordinates on a sphere.
@@ -295,7 +302,7 @@ class XAPIAN_VISIBILITY_DEFAULT GreatCircleMetric : public LatLongMetric {
 
     /** Return the great-circle distance between points on the sphere.
      */
-    double distance(const LatLongCoord & a, const LatLongCoord &b) const;
+    double operator()(const LatLongCoord & a, const LatLongCoord &b) const;
 };
 
 /** A set of nodes.
@@ -451,7 +458,7 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongRangeMatchDecider : public MatchDecider
     Xapian::valueno valno;
     const LatLongCoords & centre;
     double range;
-    const LatLongMetric * metric;
+    const LatLongMetric & metric;
 
   public:
     /** Construct a new match decider which returns only documents within
@@ -460,7 +467,7 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongRangeMatchDecider : public MatchDecider
     LatLongRangeMatchDecider(Xapian::valueno valno_,
 			     const LatLongCoords & centre_,
 			     double range_,
-			     const LatLongMetric * metric_)
+			     const LatLongMetric & metric_)
 	    : valno(valno_), centre(centre_), range(range_), metric(metric_)
     {}
 
@@ -473,6 +480,41 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongRangeMatchDecider : public MatchDecider
      *  coordinate set.
      */
     bool operator()(const Xapian::Document &doc) const;
+};
+
+
+/** Sorter subclass which sorts by distance from a latitude/longitude.
+ *
+ *  Results are ordered by the distance from a fixed point, or list of points,
+ *  calculated according to the metric supplied.  If multiple points are
+ *  supplied (either in the constructor, or in the coordinates stored in a
+ *  document) , the closest pointwise distance is returned.
+ */
+class XAPIAN_VISIBILITY_DEFAULT LatLongDistanceSorter : public Sorter {
+    Xapian::valueno valno;
+    LatLongCoords centre;
+    const LatLongMetric & metric;
+
+  public:
+    LatLongDistanceSorter(Xapian::valueno valno_,
+			  const LatLongCoords & centre_,
+			  const LatLongMetric & metric_)
+	    : valno(valno_),
+	      centre(centre_),
+	      metric(metric_)
+    {}
+
+    LatLongDistanceSorter(Xapian::valueno valno_,
+			  const LatLongCoord & centre_,
+			  const LatLongMetric & metric_)
+	    : valno(valno_),
+	      centre(),
+	      metric(metric_)
+    {
+	centre.insert(centre_);
+    }
+
+    std::string operator()(const Xapian::Document & doc) const;
 };
 
 }
