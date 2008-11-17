@@ -1,3 +1,7 @@
+Mon Nov 17 13:00:12 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/queryparser.html: Add link to valueranges.html.
+
 Fri Nov 14 22:23:10 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS: Update revision we're current to.
