@@ -22,10 +22,10 @@
 #include <config.h>
 #include "remoteserver.h"
 
-#include <xapian/database.h>
-#include <xapian/enquire.h>
-#include <xapian/error.h>
-#include <xapian/valueiterator.h>
+#include "xapian/database.h"
+#include "xapian/enquire.h"
+#include "xapian/error.h"
+#include "xapian/valueiterator.h"
 
 #include "safeerrno.h"
 #include <signal.h>

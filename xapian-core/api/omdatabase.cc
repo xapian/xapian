@@ -374,7 +374,7 @@ Database::get_document(Xapian::docid did) const
 Document::Internal *
 Database::get_document_lazily(Xapian::docid did) const
 {
-    DEBUGCALL(DATABASE, Document::Internal *, "Database::get_document_lazily", did);
+    DEBUGCALL(DB, Document::Internal *, "Database::get_document_lazily", did);
     if (did == 0) throw InvalidArgumentError("Document ID 0 is invalid");
 
     unsigned int multiplier = internal.size();

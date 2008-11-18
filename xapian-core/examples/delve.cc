@@ -172,7 +172,7 @@ main(int argc, char **argv)
     bool slot_set = false;
 
     int c;
-    while ((c = gnu_getopt(argc, argv, "r:t:s:1vkV::d")) != EOF) {
+    while ((c = gnu_getopt(argc, argv, "r:t:s:1vkV::d")) == 0) {
 	switch (c) {
 	    case 'r':
 		recnos.push_back(atoi(optarg));

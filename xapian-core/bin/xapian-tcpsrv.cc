@@ -31,8 +31,7 @@
 
 #include "gnu_getopt.h"
 
-#include <xapian/error.h>
-#include <xapian/enquire.h>
+#include "xapian/error.h"
 #include "remotetcpserver.h"
 
 using namespace std;
@@ -95,7 +94,7 @@ int main(int argc, char **argv) {
     bool syntax_error = false;
 
     int c;
-    while ((c = gnu_getopt_long(argc, argv, "I:p:a:i:t:oq", opts, NULL)) != EOF) {
+    while ((c = gnu_getopt_long(argc, argv, "I:p:a:i:t:oq", opts, NULL)) == 0) {
 	switch (c) {
 	    case OPT_HELP:
 		cout << PROG_NAME" - "PROG_DESC"\n\n";

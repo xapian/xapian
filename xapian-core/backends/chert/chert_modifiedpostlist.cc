@@ -127,7 +127,7 @@ PostList *
 ChertModifiedPostList::skip_to(Xapian::docid desired_did, Xapian::weight w_min)
 {
     if (!ChertPostList::at_end()) ChertPostList::skip_to(desired_did, w_min);
-    /* FIXME: should we use find on the map? */
+    /* FIXME: should we use lower_bound() on the map? */
     while (it != mods.end() && it->first < desired_did) ++it;
     skip_deletes(w_min);
     return NULL;

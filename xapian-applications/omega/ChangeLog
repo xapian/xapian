@@ -1,3 +1,7 @@
+Sat Nov 01 01:49:07 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Sync with 1.0.9.
+
 Fri Oct 31 18:34:49 GMT 2008  Olly Betts <olly@survex.com>
 
 	* configure.ac: Sync warning flag handling changes from xapian-core.

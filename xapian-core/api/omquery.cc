@@ -28,10 +28,8 @@
 #include "omqueryinternal.h"
 #include "utils.h"
 
-#include <xapian/error.h>
-#include <xapian/enquire.h>
-
-#include <xapian/termiterator.h>
+#include "xapian/error.h"
+#include "xapian/termiterator.h"
 
 #include <vector>
 #include <map>

@@ -1,8 +1,7 @@
 upto:
- 11162       olly Wed Sep 03 12:26:58 GMT 2008  Olly Betts <olly@survex.com>
+ 11591       olly Fri Oct 31 18:34:49 GMT 2008  Olly Betts <olly@survex.com>
 
 Backport fodder:
-
 
 HEAD only:
 
@@ -14,6 +13,8 @@ HEAD only:
 	  add $transform{} command (which has been in the code for ages but
 	  disabled).
 
+ 11508       olly 	* configure.ac: Update autoconf requirement to 2.63, libtool to 2.2.6.
+
  10852       olly 	* configure.ac: The workaround to avoid probe code for F77, GCJ, and
  10852       olly 	  RC being added to configure is no longer required now that we're
  10852       olly 	  using libtool 2.2 so remove it.
@@ -21,6 +22,24 @@ HEAD only:
  10846       olly 	* Makefile.am,configure.ac: Use AC_CONFIG_MACRO_DIR and
  10846       olly 	  ACLOCAL_AMFLAGS as libtoolize 2.2.4 recommends.
 
+Omega 1.0.9 (2008-10-31):
+
+documentation:
+
+* docs/overview.html: Document HTML parsing a bit, including robots
+  meta and htdig_noindex.
+
+omega:
+
+* omega: Catch std::exception and report what its what() method returns.
+
+* omega: Remove undocumented and non-functional support for numeric sorting
+  via CGI parameter SORT=#<slot> (SORT=<slot> works as before).
+
+build system:
+
+* configure: Sync warning flag handling changes from xapian-core to eliminate
+  many warnings from GCC 4.3.
 
 Omega 1.0.8 (2008-09-04):
 

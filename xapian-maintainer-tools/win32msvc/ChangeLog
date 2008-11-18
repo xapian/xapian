@@ -1,3 +1,26 @@
+Thu Nov 06 12:50:34 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* win32_perftest.mak: Call collate-apitest in the new way.  Add
+	  libtest.lib.
+	* win32_tests.mak: Call collate-apitest in the
+	  new way.  Add api_spelling.cc.  Improve "nmake CLEAN" target.
+	* win32_api.mak: omvalueiterator.cc renamed to valueiterator.cc,
+	  add documentvaluelist.cc.
+	* win32_backends.mak: add dbfactory_remote.cc, valuelist.cc and
+	  slowvaluelist.cc.
+	* win32_backends_remote.mak: rename net_document.cc to
+	  remote-document.cc.
+	* config.mak: Change paths to XAPIAN_APPLICATIONS and
+	  XAPIAN_BINDINGS to be appropriate for a SVN checkout, rather than
+	  for unpacked tarballs.  Add rpcrt4.lib for UUID functions. Remove
+	  libquartz.lib, and add libchert.lib.
+	* win32_common.mak: Add win32_uuid.cc. (Not yet in trunk, but
+	  needed for windows compile - currently requires patch attached to
+	  bug #303.)
+	* config.h.win32: Update version numbers (to 1.1.0, to match
+	  configure.ac). Define 'usual' keyword to identity, since we don't
+	  have this in MSVC.
+
 Mon Sep 08 09:59:17 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* genversion.pl: Update to match new configure.ac (cope with the []'s
