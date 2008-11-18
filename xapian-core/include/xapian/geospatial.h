@@ -23,6 +23,7 @@
 #define XAPIAN_INCLUDED_GEOSPATIAL_H
 
 #include <xapian/enquire.h>
+#include <xapian/postingsource.h>
 #include <xapian/query.h>
 #include <xapian/sorter.h>
 #include <xapian/visibility.h>
@@ -453,6 +454,8 @@ class XAPIAN_VISIBILITY_DEFAULT HTMCalculator {
 				  const std::string & prefix) const;
 };
 
+/** Match decider which returns only those documents within a given range.
+ */
 class XAPIAN_VISIBILITY_DEFAULT LatLongRangeMatchDecider : public MatchDecider
 {
     Xapian::valueno valno;
@@ -482,6 +485,116 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongRangeMatchDecider : public MatchDecider
     bool operator()(const Xapian::Document &doc) const;
 };
 
+/** Posting source which returns a weight based on geospatial distance.
+ *
+ *  Results are weighted by the distance from a fixed point, or list of points,
+ *  calculated according to the metric supplied.  If multiple points are
+ *  supplied (either in the constructor, or in the coordinates stored in a
+ *  document) , the closest pointwise distance is returned.
+ *
+ *  Documents further away than a specified maximum range (or with no
+ *  location stored in the specified slot) will not be returned.
+ *
+ *  The weight returned will be computed from the distance using the formula:
+ *  (distance + k1) ** (- k2)
+ *
+ *  (Where k1 and k2 are (strictly) positive, floating point, constants, and both
+ *  default to 1.)
+ */
+class XAPIAN_VISIBILITY_DEFAULT LatLongDistancePostingSource : public PostingSource
+{
+    /// The database we're reading values from.
+    Xapian::Database db;
+
+    /// The slot we're reading values from.
+    Xapian::valueno valno;
+
+    /// Value stream iterator.
+    Xapian::ValueIterator it;
+
+    /// End iterator corresponding to it.
+    Xapian::ValueIterator end;
+
+    /// Flag indicating if we've started (true if we have).
+    bool started;
+
+    /// Current distance from centre.
+    double dist;
+
+    /// An upper bound on the weight returned.
+    double max_weight;
+
+    /// A lower bound on the term frequency.
+    Xapian::doccount termfreq_min;
+
+    /// An estimate of the term frequency.
+    Xapian::doccount termfreq_est;
+
+    /// An upper bound on the term frequency.
+    Xapian::doccount termfreq_max;
+
+    /// Centre, to compute distance from.
+    const LatLongCoords & centre;
+
+    /// Metric to compute the distance with.
+    const LatLongMetric & metric;
+
+    /// Maximum range to allow.  If set to 0, there is no maximum range.
+    double max_range;
+
+    /// Constant used in weighting function.
+    double k1;
+
+    /// Constant used in weighting function.
+    double k2;
+
+    /** Calculate the distance for the current document.
+     *
+     *  Returns true if the distance was calculated ok, or false if the
+     *  document didn't contain a valid serialised set of coordinates in the
+     *  appropriate value slot.
+     */
+    void calc_distance();
+
+  public:
+    /** Construct a new match decider which returns only documents within
+     *  range of one of the central coordinates.
+     *
+     *  @param db_ The database to read values from.
+     *  @param valno_ The value slot to read values from.
+     *  @param centre_ The centre point to use for distance calculations.
+     *  @param metric_ The metric to use for distance calculations.
+     *  @param max_range_ The maximum distance for documents which are returned.
+     *  @param k1_ The k1 constant to use in the weighting function.
+     *  @param k2_ The k2 constant to use in the weighting function.
+     */
+    LatLongDistancePostingSource(Xapian::Database db_,
+				 Xapian::valueno valno_,
+				 const LatLongCoords & centre_,
+				 const LatLongMetric & metric_,
+				 double max_range_ = 0,
+				 double k1_ = 1,
+				 double k2_ = 1);
+
+    Xapian::doccount get_termfreq_min() const;
+    Xapian::doccount get_termfreq_est() const;
+    Xapian::doccount get_termfreq_max() const;
+
+    Xapian::weight get_maxweight() const;
+    Xapian::weight get_weight() const;
+
+    void next(Xapian::weight min_wt);
+    void skip_to(Xapian::docid min_docid, Xapian::weight min_wt);
+    bool check(Xapian::docid min_docid, Xapian::weight min_wt);
+
+    bool at_end() const;
+
+    Xapian::docid get_docid() const;
+
+    void reset();
+
+    std::string get_description() const;
+};
 
 /** Sorter subclass which sorts by distance from a latitude/longitude.
  *
@@ -489,6 +602,9 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongRangeMatchDecider : public MatchDecider
  *  calculated according to the metric supplied.  If multiple points are
  *  supplied (either in the constructor, or in the coordinates stored in a
  *  document) , the closest pointwise distance is returned.
+ *
+ *  Note that you will usually want to use the "descending" sort order with
+ *  this sorter, in order to sort in descending order of distance.
  */
 class XAPIAN_VISIBILITY_DEFAULT LatLongDistanceSorter : public Sorter {
     Xapian::valueno valno;

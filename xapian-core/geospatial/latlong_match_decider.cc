@@ -1,5 +1,5 @@
-/** \file distance_sorter.cc
- * \brief LatLongDistanceSorter implementation.
+/** \file latlong_match_decider.cc
+ * \brief LatLongRangeMatchDecider implementation.
  */
 /* Copyright 2008 Lemur Consulting Ltd
  *
@@ -23,15 +23,15 @@
 
 #include "xapian/geospatial.h"
 #include "xapian/document.h"
-#include "xapian/queryparser.h" // For sortable_serialise.
 
 using namespace Xapian;
 
-std::string
-LatLongDistanceSorter::operator()(const Document &doc) const
+bool
+LatLongRangeMatchDecider::operator()(const Document &doc) const
 {
     std::string val(doc.get_value(valno));
-    LatLongCoords doccoords = LatLongCoords::unserialise(val);
-    double distance = metric(centre, doccoords);
-    return sortable_serialise(distance);
+    if (val.empty())
+	return false;
+    LatLongCoords coords = LatLongCoords::unserialise(val);
+    return (metric(centre, coords) <= range);
 }

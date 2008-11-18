@@ -54,9 +54,10 @@ MAINTAINERCLEANFILES += $(geospatial_lemon_built_sources)
 endif
 
 libxapian_la_SOURCES += \
-	geospatial/distance_sorter.cc \
-	geospatial/geospatial.cc \
 	geospatial/htmcalc.cc \
+	geospatial/latlong_distance_sorter.cc \
+	geospatial/latlong_match_decider.cc \
+	geospatial/latlong_posting_source.cc \
 	geospatial/latlongcoord.cc \
 	geospatial/latlongparse_internal.cc \
-	geospatial/metrics.cc
+	geospatial/latlong_metrics.cc

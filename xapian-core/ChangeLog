@@ -1,3 +1,8 @@
+Tue Nov 18 20:59:12 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* geospatial/,include/xapian/geospatial.h: Reorganise source files,
+	  and add the posting source.
+
 Sat Nov 15 15:09:10 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* geospatial/,include/xapian/geospatial.h: Reorganisation of code,

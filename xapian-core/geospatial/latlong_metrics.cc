@@ -1,4 +1,4 @@
-/** \file metrics.cc
+/** \file latlong_metrics.cc
  * \brief Geospatial distance metrics.
  */
 /* Copyright 2008 Lemur Consulting Ltd
