@@ -299,12 +299,26 @@ parse_item(const std::string & val, LatLongState & state)
     // Insert separator if needed.
     if (!had_separator) {
 
-	// We do this by inserting a separator before a decimal (other
-	// than the first) which has no 
+	// We do this by inserting a separator before the first decimal (other
+	// than the first) which has no following unit, or a unit of degrees.
 
 	bool had_decimal = false;
 	int prev_decimal_level = -1;
 	size_t i;
+
+	// True if the initial character (other than space) is a direction
+	// indicator.
+	bool initial_direction = false;
+	for (i = 0; i != tokens.size(); ++i) {
+	    if (tokens[i].type == LETTER_S || tokens[i].type == LETTER_N ||
+		tokens[i].type == LETTER_E || tokens[i].type == LETTER_W) {
+		initial_direction = true;
+		break;
+	    }
+	    if (tokens[i].type == SPACE)
+		continue;
+	    break;
+	}
 
 	for (i = 0; i != tokens.size(); ++i) {
 	    if (tokens[i].type == DECIMAL) {
@@ -315,7 +329,6 @@ parse_item(const std::string & val, LatLongState & state)
 
 	    // We only get here for the token immediately after a
 	    // DECIMAL.
-
 	    int new_level = 2;
 	    switch (tokens[i].type) {
 		case DEGREES:
@@ -332,6 +345,12 @@ parse_item(const std::string & val, LatLongState & state)
 		    if (i == 0) break;
 		    --i;
 		}
+		if (initial_direction && i != 0) {
+		    if (tokens[i].type == LETTER_S || tokens[i].type == LETTER_N ||
+			tokens[i].type == LETTER_E || tokens[i].type == LETTER_W) {
+			--i;
+		    }
+		}
 		tokens.insert(tokens.begin() + i + 1, Token(SEPARATOR));
 		break;
 	    }
@@ -343,6 +362,12 @@ parse_item(const std::string & val, LatLongState & state)
 		if (tokens[i].type == MINUS || tokens[i].type == PLUS) {
 		    --i;
 		}
+		if (initial_direction) {
+		    if (tokens[i].type == LETTER_S || tokens[i].type == LETTER_N ||
+			tokens[i].type == LETTER_E || tokens[i].type == LETTER_W) {
+			--i;
+		    }
+		}
 		tokens.insert(tokens.begin() + i + 1, Token(SEPARATOR));
 	    }
 	}
@@ -353,8 +378,10 @@ parse_item(const std::string & val, LatLongState & state)
     while (!tokens.empty()) {
     	const Token & token = tokens.front();
 	if (token.type == DECIMAL) {
+	    printf("DECIMAL (%f)\n", token.value);
 	    Parse(pParser, token.type, token.value, &state);
 	} else {
+	    printf("TOKEN TYPE %d\n", token.type);
 	    Parse(pParser, token.type, 0, &state);
 	}
 	tokens.erase(tokens.begin());
@@ -478,12 +505,24 @@ latitude(I) ::= item(A) LETTER_S. {
 latitude(I) ::= item(A) LETTER_N. {
     I = A;
 }
+latitude(I) ::= LETTER_S item(A). {
+    I = -A;
+}
+latitude(I) ::= LETTER_N item(A). {
+    I = A;
+}
 
 %type longitude {double}
 longitude(I) ::= item(A) LETTER_W. {
     I = -A;
 }
 longitude(I) ::= item(A) LETTER_E. {
+    I = A;
+}
+longitude(I) ::= LETTER_W item(A). {
+    I = -A;
+}
+longitude(I) ::= LETTER_E item(A). {
     I = A;
 }
 
