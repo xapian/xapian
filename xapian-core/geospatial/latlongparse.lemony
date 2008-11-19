@@ -378,10 +378,8 @@ parse_item(const std::string & val, LatLongState & state)
     while (!tokens.empty()) {
     	const Token & token = tokens.front();
 	if (token.type == DECIMAL) {
-	    printf("DECIMAL (%f)\n", token.value);
 	    Parse(pParser, token.type, token.value, &state);
 	} else {
-	    printf("TOKEN TYPE %d\n", token.type);
 	    Parse(pParser, token.type, 0, &state);
 	}
 	tokens.erase(tokens.begin());
