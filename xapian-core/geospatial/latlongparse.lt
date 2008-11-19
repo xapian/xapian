@@ -18,6 +18,8 @@
 ** Each symbol here is a terminal symbol in the grammar.
 */
 %%
+namespace Xapian {
+namespace LatLongParse {
 /* Make sure the INTERFACE macro is defined.
 */
 #ifndef INTERFACE
@@ -169,8 +171,12 @@ typedef struct yyParser yyParser;
 /* Prototype this here so we can call it from a rule action (ick). */
 static void yy_parse_failed(yyParser *);
 
+}
+}
 #include "omassert.h"
 #include "omdebug.h"
+namespace Xapian {
+namespace LatLongParse {
 
 #ifdef XAPIAN_DEBUG_VERBOSE
 /* For tracing shifts, the names of all terminals and nonterminals
@@ -656,4 +662,6 @@ static void Parse(
   return;
 }
 
+}
+}
 // Select C++ syntax highlighting in vim editor: vim: syntax=cpp

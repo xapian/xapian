@@ -1,3 +1,11 @@
+Wed Nov 19 09:44:47 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* geospatial/latlongparse.lemony,geospatial/latlongparse.lt: Move
+	  LatLongCoord parser into a separate namespace to avoid symbol
+	  conflicts with the query parser (was previously causing some of
+	  the query parser tests (eg, wildquery1) to fail due to picking up
+	  the wrong parser rule table).
+
 Wed Nov 19 02:07:12 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* geospatial/latlongparse.lemony: Remove accidental debug lines.

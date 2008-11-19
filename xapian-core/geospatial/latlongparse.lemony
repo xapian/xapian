@@ -28,14 +28,15 @@
 
 #include "latlongparse_token.h"
 
-#include <math.h>
+#include <cmath>
+#include <cstdlib>
 #include <string>
-#include <stdlib.h>
 #include <vector>
 
 using namespace std;
 
-using namespace Xapian;
+namespace Xapian {
+namespace LatLongParse {
 
 /** Get the type of a symbol, or 0 if not a recognised symbol. 
  */
@@ -388,10 +389,12 @@ parse_item(const std::string & val, LatLongState & state)
     ParseFree(pParser);
 }
 
+}
+
 LatLongCoord
 LatLongCoord::parse_latlong(const std::string & coord)
 {
-    LatLongState state;
+    LatLongParse::LatLongState state;
     parse_item(coord, state);
     if (state.had_error) {
 	throw Xapian::LatLongParserError(state.errmsg);
@@ -406,7 +409,7 @@ LatLongCoord
 LatLongCoord::parse_latlong(const std::string & lat_string,
 			    const std::string & long_string)
 {
-    LatLongState state;
+    LatLongParse::LatLongState state;
 
     parse_item(lat_string, state);
     if (state.had_error) {
@@ -421,6 +424,8 @@ LatLongCoord::parse_latlong(const std::string & lat_string,
 	throw Xapian::LatLongParserError("Only received half a coordinate - expected both parts");
     }
     return LatLongCoord(state.latitude, state.longitude);
+}
+
 }
 
 }
