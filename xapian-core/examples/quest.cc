@@ -80,7 +80,7 @@ main(int argc, char **argv)
 	Xapian::Database db;
 
 	int c;
-	while ((c = gnu_getopt_long(argc, argv, "hvm:d:s:", long_opts, 0)) == 0)
+	while ((c = gnu_getopt_long(argc, argv, "hvm:d:s:", long_opts, 0)) != -1)
 	{
 	    switch (c) {
 		case 'm':
