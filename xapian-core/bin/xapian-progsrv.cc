@@ -60,7 +60,7 @@ int main(int argc, char **argv)
     bool syntax_error = false;
 
     int c;
-    while ((c = gnu_getopt_long(argc, argv, "t:", opts, NULL)) == 0) {
+    while ((c = gnu_getopt_long(argc, argv, "t:", opts, NULL)) != -1) {
 	switch (c) {
 	    case OPT_HELP:
 		cout << PROG_NAME" - "PROG_DESC"\n\n";
