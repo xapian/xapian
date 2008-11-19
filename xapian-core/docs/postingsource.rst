@@ -44,6 +44,8 @@ It must always be true that::
 
     get_termfreq_min() <= get_termfreq_est() <= get_termfreq_max()
 
+PostingSources must always return documents in increasing document ID order.
+
 After construction, a PostingSource points to a position *before* the first
 document id - so before a docid can be read, the position must be advanced.
 
