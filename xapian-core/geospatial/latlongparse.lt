@@ -564,7 +564,7 @@ static void Parse(
   ParseARG_STORE;
 
   LOGLINE(GEOSPATIAL, "Input " << ParseTokenName(yymajor) << " " <<
-	  (yyminor ? yyminor->name : "<<null>>"));
+	  (yyminor ? yyminor : 0.0));
 
   do{
     yyact = yy_find_shift_action(yypParser,yymajor);

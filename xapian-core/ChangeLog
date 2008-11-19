@@ -1,3 +1,8 @@
+Wed Nov 19 01:22:04 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* geospatial/latlongparse.lt: Adjust template to allow debugging
+	  build when minor token type is a double.
+
 Tue Nov 18 20:59:12 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* geospatial/,include/xapian/geospatial.h: Reorganise source files,
