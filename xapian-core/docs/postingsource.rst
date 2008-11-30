@@ -102,7 +102,8 @@ allows the matcher to just check if a given document matches::
 
     virtual bool check(Xapian::docid did, Xapian::weight min_wt);
 
-The return value is ``true`` if the method leaves the iteration position valid, and ``false`` if it doesn't.  In the latter case, ``next()`` will advance to
+The return value is ``true`` if the method leaves the iteration position valid,
+and ``false`` if it doesn't.  In the latter case, ``next()`` will advance to
 the first matching position after document id ``did``, and ``skip_to()`` will
 act as it would if the iteration position was the first matching position
 after ``did``.
@@ -137,3 +138,5 @@ Xapian::PostingSource doesn't currently work well with multiple databases.  The
 issue is that the document ids refer to those in the sub-database, but there's
 no hint as to which sub-database they are in, and generally the same document
 id can appear in more than one sub-database.
+
+The remote backend isn't supported either yet.
