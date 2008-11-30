@@ -1,3 +1,11 @@
+Sun Nov 30 21:46:59 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/,examples/quest.cc,tests/harness/testsuite.cc: Pull out lists of
+	  short options next to list of long options to help make sure they
+	  are kept in step.  xapian-tcpsrv and xapian-progsrv now accept -w
+	  as a short form of --writable, as their long option table had, but
+	  their short option string didn't.
+
 Sun Nov 30 20:44:48 GMT 2008  Olly Betts <olly@survex.com>
 
 	* docs/postingsource.rst: Wrap a long line.  Note that the remote

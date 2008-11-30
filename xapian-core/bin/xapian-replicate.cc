@@ -59,6 +59,7 @@ static void show_usage() {
 int
 main(int argc, char **argv)
 {
+    const char * opts = "h:p:m:i:ov";
     const struct option long_opts[] = {
 	{"host",	required_argument,	0, 'h'},
 	{"port",	required_argument,	0, 'p'},
@@ -79,7 +80,7 @@ main(int argc, char **argv)
     bool verbose = false;
 
     int c;
-    while ((c = gnu_getopt_long(argc, argv, "h:p:m:i:ov", long_opts, 0)) != -1) {
+    while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
 	switch (c) {
 	    case 'h':
 		host.assign(optarg);

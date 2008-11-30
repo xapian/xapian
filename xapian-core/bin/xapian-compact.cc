@@ -857,6 +857,7 @@ merge_docid_keyed(const char * tablename,
 int
 main(int argc, char **argv)
 {
+    const char * opts = "b:nFm";
     const struct option long_opts[] = {
 	{"fuller",	no_argument, 0, 'F'},
 	{"no-full",	no_argument, 0, 'n'},
@@ -874,7 +875,7 @@ main(int argc, char **argv)
     bool renumber = true;
 
     int c;
-    while ((c = gnu_getopt_long(argc, argv, "b:nFm", long_opts, 0)) != -1) {
+    while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
 	switch (c) {
 	    case 'b': {
 		char *p;

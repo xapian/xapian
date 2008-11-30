@@ -61,6 +61,7 @@ static void show_usage() {
 int
 main(int argc, char **argv)
 {
+    const char * opts = "d:m:s:hv";
     static const struct option long_opts[] = {
 	{ "db",		required_argument, 0, 'd' },
 	{ "msize",	required_argument, 0, 'm' },
@@ -80,8 +81,7 @@ main(int argc, char **argv)
 	Xapian::Database db;
 
 	int c;
-	while ((c = gnu_getopt_long(argc, argv, "hvm:d:s:", long_opts, 0)) != -1)
-	{
+	while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
 	    switch (c) {
 		case 'm':
 		    msize = atoi(optarg);
@@ -94,9 +94,10 @@ main(int argc, char **argv)
 		    try {
 			stemmer = Xapian::Stem(optarg);
 		    } catch (const Xapian::Error &) {
-			cerr << "Unknown stemming language '" << optarg << "'.\n";
-			cerr << "Available language names are: "
-			    << Xapian::Stem::get_available_languages() << endl;
+			cerr << "Unknown stemming language '" << optarg
+			     << "'.\n"
+				"Available language names are: "
+			     << Xapian::Stem::get_available_languages() << endl;
 			exit(1);
 		    }
 		    break;
