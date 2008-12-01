@@ -4,8 +4,10 @@ xapian-omega (1.1.0-1) unstable; urgency=low
   * debian/control.in,debian/rules: On Debian > etch and Ubuntu >= gutsy, we
     now suggest ghostscript instead of gs-common (gs-common is no longer a
     real package).
+  * debian/control.in: Add "perl" back in to "Suggests:" as it is only
+    perl-base which is essential, and we need perl for pod2text.
 
- -- Olly Betts <olly@survex.com>  Fri,  8 Aug 2008 08:23:01 +0100
+ -- Olly Betts <olly@atreus.tartarus.org>  Mon,  1 Dec 2008 04:36:43 +0000
 
 xapian-omega (1.0.7-3) unstable; urgency=low
 
