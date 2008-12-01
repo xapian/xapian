@@ -23,7 +23,11 @@
 CODENAME ?= $(shell cat debian/codename 2>/dev/null||echo sid)
 
 # Version without the "-N" suffix.
-XAPIAN_VERSION = $(shell sed 's/.*(\([^-]*\)\(-.*\)*).*/\1/;q' debian/changelog)
+XAPIAN_VERSION := $(shell sed 's/.*(\([^-]*\)\(-.*\)*).*/\1/;q' debian/changelog)
+
+# The next incompatible version - i.e. the first release of the next release
+# branch.  So for XAPIAN_VERSION "1.0.<n>", this should be "1.1.0".
+XAPIAN_VERSION_CEILING := $(shell echo '$(XAPIAN_VERSION)'|awk -F. '{print $$1"."$$2+1".0"}')
 
 # In Debian "etch" and Ubuntu "dapper", we should suggest gs-common to pull in
 # ps2pdf.  In newer supported version, we should suggest ghostscript.
@@ -38,26 +42,41 @@ export DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 export DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 
 ifeq ($(DEB_BUILD_GNU_TYPE), $(DEB_HOST_GNU_TYPE))
-	confflags += --build $(DEB_HOST_GNU_TYPE)
+    confflags += --build $(DEB_HOST_GNU_TYPE)
 else
-	confflags += --build $(DEB_BUILD_GNU_TYPE) --host $(DEB_HOST_GNU_TYPE)
+    confflags += --build $(DEB_BUILD_GNU_TYPE) --host $(DEB_HOST_GNU_TYPE)
+    # Disable the testsuite when cross-compiling.
+    DEB_BUILD_OPTIONS += nocheck
 endif
 
-ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
-	confflags += CFLAGS="-O0" CXXFLAGS="-O0"
+# Handle DEB_BUILD_OPTIONS.  Note that dh_strip handles nostrip for us.
+ifneq (,$(filter noopt,$(DEB_BUILD_OPTIONS)))
+    confflags += CFLAGS=-O0 CXXFLAGS=-O0
 else
-	confflags += CFLAGS="-O2" CXXFLAGS="-O2"
+    confflags += CFLAGS=-O2 CXXFLAGS=-O2
+endif
+ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+    NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+    MAKEFLAGS += -j$(NUMJOBS)
+endif
+ifneq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
+    MAKE_CHECK := :
+else
+    MAKE_CHECK := make check
 endif
 
 BUILD_DEPS := debhelper (>= 4.1.22),
 # We need a versioned build dependency on libxapian-dev.
 BUILD_DEPS += libxapian-dev (>= $(XAPIAN_VERSION)),# NB Trailing ',' required here!
-BUILD_DEPS += libxapian-dev (<= $(XAPIAN_VERSION)-9999),# NB Trailing ',' required here!
+BUILD_DEPS += libxapian-dev (<< $(XAPIAN_VERSION_CEILING)),# NB Trailing ',' required here!
 
 commonconfflags := \
 	$(confflags) \
 	--prefix=/usr \
 	--sysconfdir=/etc
+
+# Needed for dapper where we end up using automake1.9
+commonconfflags += --mandir=/usr/share/man
 
 # With GCC3 and later this won't make a huge difference, but it'll save
 # a bit of time and diskspace while building.
@@ -78,6 +97,10 @@ configure: configure-stamp
 configure-stamp:
 	dh_testdir
 
+	# Use Debian's patched libtool to avoid trying to explicitly link with
+	# -lz.  Just forcing link_all_deplibs=no doesn't help here.
+	autoreconf -if
+
 	# Use the latest config.sub and config.guess from the autotools-dev
 	# package.
 	rm -f config.sub config.guess
@@ -91,10 +114,11 @@ configure-stamp:
 	# Touch the stamp file, to avoid repeating the configure step.
 	touch $@
 
-build: configure build-stamp
-build-stamp:
+build: build-stamp
+build-stamp: configure
 	dh_testdir
 	$(MAKE) -C build
+	$(MAKE_CHECK) -C build
 	touch $@
 
 install: DH_OPTIONS=

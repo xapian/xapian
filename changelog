@@ -1,13 +1,57 @@
+xapian-omega (1.1.0-1) unstable; urgency=low
+
+  * debian/control.in: Add libpcre3-dev to Build-Depends.
+  * debian/control.in,debian/rules: On Debian > etch and Ubuntu >= gutsy, we
+    now suggest ghostscript instead of gs-common (gs-common is no longer a
+    real package).
+
+ -- Olly Betts <olly@survex.com>  Fri,  8 Aug 2008 08:23:01 +0100
+
+xapian-omega (1.0.7-3) unstable; urgency=low
+
+  * debian/rules: Run "make all" and "make check" as separate commands to
+    avoid hitting parallel building bugs.  Related to #493390 and
+    #494247.
+
+ -- Olly Betts <olly@survex.com>  Fri,  8 Aug 2008 08:23:01 +0100
+
+xapian-omega (1.0.7-2) unstable; urgency=low
+
+  * debian/rules: Fix build rule to be parallel make safe.
+
+ -- Olly Betts <olly@survex.com>  Tue, 29 Jul 2008 01:36:59 +0100
+
+xapian-omega (1.0.7-1) unstable; urgency=low
+
+  * New upstream release.
+    + Overhaul the $highlight colour combinations since some were rather
+      unreadable.  Reported by Joey Hess.  Closes: #484456
+  * debian/copyright: Update for 2008 and a few other minor changes.
   * debian/control.in: Add "djvulibre-bin" to "Suggests:" as omindex can now
     make use of it to index DjVu files.
   * debian/rules: The dependency on libxapianN is now versioned.  We require a
     version >= the version of xapian-omega being packaged (which is sometimes
     slightly too conservative, but simple to implement without manual
     maintenance).
-  * debian/control.in: Add libpcre3-dev to Build-Depends.
-  * debian/control.in,debian/rules: On Debian > etch and Ubuntu >= gutsy, we
-    now suggest ghostscript instead of gs-common (gs-common is no longer a
-    real package).
+  * debian/rules: Add support for parallel=<n> in DEB_BUILD_OPTIONS, as
+    recommended by policy 3.8.0.  Use $(filter ...) instead of $(find ...)
+    to check for noopt in DEB_BUILD_OPTIONS to avoid false matches on
+    substrings of non-standard options (e.g. snooptables).
+  * debian/rules: Run the xapian-omega testsuite unless nocheck is specified
+    in DEB_BUILD_OPTIONS.  Takes less than a second to run on x86-64.
+  * debian/control.in: Standards-Version: 3.8.0
+  * debian/watch: Add watch file.  Not useful for me as I make the upstream
+    releases, but DEHS, etc find it useful.
+  * debian/rules: Calculate the version starting the next release branch (so
+    1.1.0 currently) and use that as the upper bound on the libxapian-dev
+    build dependency).
+  * debian/control.in,debian/rules: Depend on the autotools and run autoreconf
+    so we're using Debian's patched libtool which avoids trying to explicitly
+    link with -lz.  Specify --mandir=/usr/share/man to configure since in the
+    dapper backport the newest automake available is 1.9 which defaults mandir
+    to /usr/man.
+
+ -- Olly Betts <olly@survex.com>  Mon, 28 Jul 2008 08:29:04 +0100
 
 xapian-omega (1.0.5-1) unstable; urgency=low
 
