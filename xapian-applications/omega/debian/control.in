@@ -2,8 +2,9 @@ Source: xapian-omega
 Section: web
 Priority: optional
 Maintainer: Olly Betts <olly@survex.com>
-Build-Depends: @BUILD_DEPS@ autotools-dev, libpcre3-dev
-Standards-Version: 3.7.3
+Build-Depends: @BUILD_DEPS@ autotools-dev, libpcre3-dev,
+    autoconf, automake (>= 1.10) | automake1.9, libtool
+Standards-Version: 3.8.0
 Homepage: http://www.xapian.org/
 
 Package: xapian-omega
