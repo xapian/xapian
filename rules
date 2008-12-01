@@ -18,8 +18,19 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 # USA
 
+# Codename we're building packages for.  If not explicitly specified, default
+# to that named in debian/codename and if that's not given, use "sid".
+CODENAME ?= $(shell cat debian/codename 2>/dev/null||echo sid)
+
 # Version without the "-N" suffix.
 XAPIAN_VERSION = $(shell sed 's/.*(\([^-]*\)\(-.*\)*).*/\1/;q' debian/changelog)
+
+# In Debian "etch" and Ubuntu "dapper", we should suggest gs-common to pull in
+# ps2pdf.  In newer supported version, we should suggest ghostscript.
+GHOSTSCRIPT := gs-common
+ifeq ($(findstring .$(CODENAME)., .etch.dapper.), )
+GHOSTSCRIPT := ghostscript
+endif
 
 export DH_OPTIONS
 

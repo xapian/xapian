@@ -5,6 +5,9 @@
     slightly too conservative, but simple to implement without manual
     maintenance).
   * debian/control.in: Add libpcre3-dev to Build-Depends.
+  * debian/control.in,debian/rules: On Debian > etch and Ubuntu >= gutsy, we
+    now suggest ghostscript instead of gs-common (gs-common is no longer a
+    real package).
 
 xapian-omega (1.0.5-1) unstable; urgency=low
 
