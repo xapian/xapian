@@ -1,6 +1,6 @@
 /* loadfile.h: load a file into a std::string.
  *
- * Copyright (C) 2006,2007 Olly Betts
+ * Copyright (C) 2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,16 +22,16 @@
 
 #include <string>
 
-enum { NOCACHE = 0x1, NOATIME = 0x2 };
-
-bool load_file(const std::string &file_name, size_t max_to_read, int flags,
-	       std::string &output, bool &truncated);
+extern bool load_file(const std::string &file_name, size_t max_to_read,
+		      bool try_not_to_cache,
+		      std::string &output, bool &truncated);
 
 inline bool
-load_file(const std::string &file_name, std::string &output, int flags = 0)
+load_file(const std::string &file_name, std::string &output,
+	  bool try_not_to_cache = false)
 {
     bool dummy;
-    return load_file(file_name, 0, flags, output, dummy);
+    return load_file(file_name, 0, try_not_to_cache, output, dummy);
 }
 
 #endif // OMEGA_INCLUDED_LOADFILE_H

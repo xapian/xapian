@@ -1,6 +1,6 @@
 /* loadfile.cc: load a file into a std::string.
  *
- * Copyright (C) 2006,2007 Olly Betts
+ * Copyright (C) 2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,8 +26,6 @@
 # endif
 #endif
 
-#include "loadfile.h"
-
 #include <algorithm>
 #include <string>
 
@@ -41,35 +39,29 @@
 # ifdef __linux__
 // This is the value used by rml's O_STREAMING patch for 2.4.
 #  define O_STREAMING	04000000
+# else
+// Define as 0 otherwise, so we don't need ifdefs in the code.
+#  define O_STREAMING	0
 # endif
 #endif
+
+#include "loadfile.h"
 
 using namespace std;
 
 bool
-load_file(const string &file_name, size_t max_to_read, int flags,
+load_file(const string &file_name, size_t max_to_read,
+	  bool try_not_to_cache,
 	  string &output, bool &truncated)
 {
-    (void)flags; // Avoid possible "unused" warning.
     mode_t mode = O_RDONLY;
-#ifdef O_STREAMING
-    if (flags & NOCACHE) mode |= O_STREAMING;
-#endif
-#ifdef O_NOATIME
-    if (flags & NOATIME) mode |= O_NOATIME;
-#endif
+    if (try_not_to_cache) mode |= O_STREAMING;
 
     int fd = open(file_name.c_str(), mode);
-#ifdef O_NOATIME
-    if (fd < 0 && (mode & O_NOATIME)) {
-	mode &= ~O_NOATIME;
-	fd = open(file_name.c_str(), mode);
-    }
-#endif
     if (fd < 0) return false;
 
 #ifdef HAVE_POSIX_FADVISE
-    if (flags & NOCACHE)
+    if (try_not_to_cache)
 	posix_fadvise(fd, 0, 0, POSIX_FADV_NOREUSE); // or POSIX_FADV_SEQUENTIAL
 #endif
 
@@ -105,7 +97,7 @@ load_file(const string &file_name, size_t max_to_read, int flags,
     }
 
 #ifdef HAVE_POSIX_FADVISE
-    if (flags & NOCACHE)
+    if (try_not_to_cache)
 	posix_fadvise(fd, 0, 0, POSIX_FADV_DONTNEED);
 #endif
 

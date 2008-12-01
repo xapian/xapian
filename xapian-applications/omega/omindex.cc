@@ -132,7 +132,7 @@ static string
 file_to_string(const string &file)
 {
     string out;
-    if (!load_file(file, out, NOCACHE|NOATIME)) throw ReadError();
+    if (!load_file(file, out)) throw ReadError();
     return out;
 }
 

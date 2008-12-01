@@ -520,7 +520,7 @@ index_file(const char *fname, istream &stream,
 			break;
 		    case Action::LOAD: {
 			bool truncated = false;
-			if (!load_file(value, i->get_num_arg(), NOCACHE|NOATIME,
+			if (!load_file(value, i->get_num_arg(), true,
 				       value, truncated)) {
 			    cerr << "Couldn't load file '" << value << "': "
 				 << strerror(errno) << endl;
