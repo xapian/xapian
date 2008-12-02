@@ -1,3 +1,8 @@
+Tue Dec 02 07:08:11 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/queryparser.html: Add link to valueranges.html.
+
 Fri Nov 14 18:12:02 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
