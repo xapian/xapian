@@ -1,3 +1,12 @@
+Tue Dec 02 07:22:18 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* bin/,examples/delve.cc,examples/quest.cc,tests/harness/testsuite.cc:
+	  Test return type of gnu_getopt_long for being != -1, rather than
+	  == 0, since there are a wide variety of return types other than 0
+	  which may be returned in the successful case (with the builtin
+	  implementation in common/getopt.cc, at least).
+
 Tue Dec 02 07:08:11 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
