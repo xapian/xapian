@@ -1,3 +1,14 @@
+Tue Dec 02 07:32:24 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* HACKING: Explicitly give the commands to install the required
+	  packages for developing on recent Debian or Ubuntu for added
+	  convenience.  Update the Debian/Ubuntu packages needed for
+	  documentation to reflect the change from tetex to texlive.  Fix
+	  unfinished paragraph about requiring a newline at the end of a
+	  source file and note that this is actually undefined behaviour in
+	  C++.
+
 Tue Dec 02 07:22:18 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
