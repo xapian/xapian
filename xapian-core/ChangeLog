@@ -1,3 +1,7 @@
+Wed Dec 03 22:56:19 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc: Fix API logging.
+
 Wed Dec 03 03:11:45 GMT 2008  Olly Betts <olly@survex.com>
 
 	* INSTALL: Note that libuuid is required for Xapian 1.1.0 and higher.
