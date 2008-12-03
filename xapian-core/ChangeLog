@@ -1,3 +1,7 @@
+Wed Dec 03 03:11:45 GMT 2008  Olly Betts <olly@survex.com>
+
+	* INSTALL: Note that libuuid is required for Xapian 1.1.0 and higher.
+
 Wed Dec 03 03:10:59 GMT 2008  Olly Betts <olly@survex.com>
 
 	* INSTALL: Remove ':' from the end of headings.
