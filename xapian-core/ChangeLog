@@ -1,3 +1,7 @@
+Wed Dec 03 03:10:59 GMT 2008  Olly Betts <olly@survex.com>
+
+	* INSTALL: Remove ':' from the end of headings.
+
 Mon Dec 01 08:59:04 GMT 2008  Olly Betts <olly@survex.com>
 
 	* HACKING: Explicitly give the commands to install the required

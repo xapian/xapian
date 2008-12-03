@@ -10,9 +10,8 @@ the following 3 simple steps:
  2) Run "make" to build Xapian
  3) Run "make install" to install Xapian
 
-
-Prerequisites:
-==============
+Prerequisites
+=============
 
 You'll need to install zlib (http://www.zlib.net/) before you can build Xapian.
 The zlib library is very widely used, so you'll probably have it installed
@@ -21,8 +20,8 @@ already if you're using Linux, FreeBSD, or similar.  You may need to install a
 zlib 1.2.x as it apparently fixes a memory leak in deflateInit2 (which Xapian
 uses) and decompression is supposed to be about 20% faster than with 1.1.x.
 
-Compilers:
-==========
+Compilers
+=========
 
 We aim to support compilation with any C++ compiler which conforms to ISO C++,
 or a reasonable approximation to it.
@@ -43,8 +42,8 @@ The "GCC 2.96" supplied with older RedHat releases is also best avoided.  This
 isn't based on an official GCC release, but rather on a snapshot of GCC
 somewhere between 2.95 and 3.0.
 
-Building in a separate directory:
-=================================
+Building in a separate directory
+================================
 
 If you wish to perform your build in a separate directory from the source,
 create and change to the build directory, and run the configure script (in
@@ -55,8 +54,8 @@ the source directory) from the build directory, like so:
   ../configure
 
 
-Options to give to configure:
-=============================
+Options to give to configure
+============================
 
 --enable-assertions
 	You should use this to build a version of Xapian with debugging
@@ -74,8 +73,8 @@ Options to give to configure:
 	all backends for which the appropriate libraries and OS support are
 	available will be enabled.
 
-_FORTIFY_SOURCE:
-----------------
+_FORTIFY_SOURCE
+---------------
 
 When compiling with GCC, by default Xapian will be built with _FORTIFY_SOURCE
 set to 2.  This enables some compile time and runtime checking of values passed
@@ -92,8 +91,8 @@ Or you can set the "fortification level" to 1 instead of 2:
 If you're disabling it because it causes problems, please also report this to
 us (via the bug tracker or mailing lists).
 
--Bsymbolic-functions:
----------------------
+-Bsymbolic-functions
+--------------------
 
 When compiling with GCC and using a sufficiently new version of ld, configure
 we automatically cause -Wl,-Bsymbolic-functions to be used when linking the
@@ -110,8 +109,8 @@ which disables the probe for -Bsymbolic-functions so it won't ever be used:
 If you're disabling it because it causes problems, please also report this to
 us (via the bug tracker or mailing lists).
 
--fvisibility:
--------------
+-fvisibility
+------------
 
 When compiling with GCC >= 4.0, we automatically pass -fvisibility=hidden to
 g++ when building the library, and mark classes, methods, and functions which
@@ -160,8 +159,8 @@ do this by setting the LD_LIBRARY_PATH environment variable to point
 to the directory containing the library.
 
 
-Developers:
-===========
+Developers
+==========
 
 There are additional scripts and configure options to help people doing
 development work on Xapian itself, and people who are building from SVN.
