@@ -1,3 +1,11 @@
+Thu Dec 04 22:46:44 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* tests/api_db.cc: Prefer str.empty() to str == "".
+	* tests/queryparsertest.cc: No need to explicitly initialise a
+	  std::string to "".
+	* tests/stemtest.cc: Use str.resize(0) instead of str = "".
+
 Thu Dec 04 21:37:18 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
