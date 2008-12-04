@@ -1,3 +1,7 @@
+Thu Dec 04 04:55:47 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_db.cc: Prefer str.empty() to str == "".
+
 Thu Dec 04 01:50:10 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/api_wrdb.cc: Make helper function static.  Use STATIC_ASSERT
