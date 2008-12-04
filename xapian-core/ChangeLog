@@ -1,3 +1,7 @@
+Thu Dec 04 08:56:54 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/stemtest.cc: Use str.resize(0) instead of str = "".
+
 Thu Dec 04 04:56:55 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/queryparsertest.cc: No need to explicitly initialise a
