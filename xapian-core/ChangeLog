@@ -1,3 +1,8 @@
+Thu Dec 04 04:56:55 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: No need to explicitly initialise a
+	  std::string to "".
+
 Thu Dec 04 04:55:47 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/api_db.cc: Prefer str.empty() to str == "".
