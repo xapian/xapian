@@ -1,3 +1,8 @@
+Thu Dec 04 01:50:10 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_wrdb.cc: Make helper function static.  Use STATIC_ASSERT
+	  to ensure a constant is coprime with 13.
+
 Wed Dec 03 22:56:19 GMT 2008  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc: Fix API logging.
