@@ -1,3 +1,8 @@
+Thu Dec 04 21:37:18 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* INSTALL: Remove ':' from the end of headings.
+
 Tue Dec 02 08:44:27 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
