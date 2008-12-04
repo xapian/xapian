@@ -1,3 +1,11 @@
+Thu Dec 04 09:00:04 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_lock.cc,backends/flint/flint_lock.cc: Create
+	  the lockfile with permissions 0666 so that the umask is honoured
+	  just like we do for the other files (previously we used 0600).
+	* tests/Makefile.am,tests/api_backend.cc: Add regression test
+	  lockfileumask1.
+
 Thu Dec 04 08:56:54 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/stemtest.cc: Use str.resize(0) instead of str = "".
