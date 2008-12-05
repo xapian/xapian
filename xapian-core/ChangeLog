@@ -1,3 +1,12 @@
+Fri Dec 05 00:25:11 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/flint/flint_lock.cc: Create the lockfile with permissions
+	  0666 so that the umask is honoured just like we do for the other
+	  files (previously we used 0600).
+	* tests/Makefile.am,tests/api_backend.cc: Add regression test
+	  lockfileumask1.
+
 Thu Dec 04 22:46:44 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
