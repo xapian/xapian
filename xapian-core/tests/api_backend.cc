@@ -40,12 +40,11 @@ DEFINE_TESTCASE(lockfileumask1, flint || chert) {
     try {
 	Xapian::WritableDatabase db = get_named_writable_database("lockfileumask1");
 
-	string path = get_named_writable_database_path("lockfileumask1");
+	string path;
 	const string & dbtype = get_dbtype();
-	if (dbtype == "flint") {
+	if (dbtype == "flint" || dbtype == "chert") {
+	    path = get_named_writable_database_path("lockfileumask1");
 	    path += "/flintlock";
-	} else if (dbtype == "chert") {
-	    path += "/chertlock";
 	} else {
 	    SKIP_TEST("Test only supported for flint and chert backends");
 	}

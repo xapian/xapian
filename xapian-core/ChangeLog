@@ -1,3 +1,11 @@
+Fri Dec 05 21:08:08 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,tests/api_backend.cc: Use
+	  "flintlock" rather than "chertlock" for the lockfile in chert.
+	  The locking is compatible and this avoids the possibility of
+	  creating a chert and flint database in the same directory (which
+	  will result in one being corrupt since the Btree filenames overlap).
+
 Thu Dec 04 09:00:04 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_lock.cc,backends/flint/flint_lock.cc: Create
