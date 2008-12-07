@@ -1,3 +1,8 @@
+Sun Dec 07 22:50:32 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/sorter.cc,tests/api_sorting.cc: Fix an empty MultiValueSorter
+	  not to SEGV/hang.
+
 Fri Dec 05 21:08:08 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_database.cc,tests/api_backend.cc: Use
