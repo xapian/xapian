@@ -1,3 +1,7 @@
+Mon Dec 08 03:45:20 GMT 2008  Olly Betts <olly@survex.com>
+
+	* debian/: Sync with 1.0 branch.
+
 Mon Dec 08 03:18:22 GMT 2008  Olly Betts <olly@survex.com>
 
 	* python/Makefile.am: Need to clean testsuite.pyc from srcdir since
