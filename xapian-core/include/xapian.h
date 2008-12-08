@@ -57,6 +57,9 @@
 // Unicode support
 #include <xapian/unicode.h>
 
+// Geospatial
+#include <xapian/geospatial.h>
+
 // ELF visibility annotations for GCC.
 #include <xapian/visibility.h>
 
