@@ -35,7 +35,7 @@ namespace Xapian {
 static double
 weight_from_distance(double dist, double k1, double k2)
 {
-    return pow(dist + k1, -k2);
+    return k1 * pow(dist + k1, -k2);
 }
 
 void

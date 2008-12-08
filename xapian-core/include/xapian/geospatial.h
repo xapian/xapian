@@ -492,14 +492,17 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongRangeMatchDecider : public MatchDecider
  *  supplied (either in the constructor, or in the coordinates stored in a
  *  document) , the closest pointwise distance is returned.
  *
- *  Documents further away than a specified maximum range (or with no
- *  location stored in the specified slot) will not be returned.
+ *  Documents further away than a specified maximum range (or with no location
+ *  stored in the specified slot) will not be returned.
  *
  *  The weight returned will be computed from the distance using the formula:
- *  (distance + k1) ** (- k2)
+ *  k1 * (distance + k1) ** (- k2)
  *
- *  (Where k1 and k2 are (strictly) positive, floating point, constants, and both
- *  default to 1.)
+ *  (Where k1 and k2 are (strictly) positive, floating point, constants, and
+ *  default to 1000 and 1, respectively.  Distance is measured in metres, so
+ *  this means that something at the centre gets a weight of 1.0, something 1km
+ *  away gets a weight of 0.5, and something 3km away gets a weight of 0.25,
+ *  etc)
  */
 class XAPIAN_VISIBILITY_DEFAULT LatLongDistancePostingSource : public PostingSource
 {
@@ -572,9 +575,9 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistancePostingSource : public PostingSou
 				 Xapian::valueno valno_,
 				 const LatLongCoords & centre_,
 				 const LatLongMetric & metric_,
-				 double max_range_ = 0,
-				 double k1_ = 1,
-				 double k2_ = 1);
+				 double max_range_ = 0.0,
+				 double k1_ = 1000.0,
+				 double k2_ = 1.0);
 
     Xapian::doccount get_termfreq_min() const;
     Xapian::doccount get_termfreq_est() const;
