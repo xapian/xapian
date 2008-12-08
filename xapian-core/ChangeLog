@@ -1,3 +1,8 @@
+Mon Dec 08 09:39:18 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_geospatial.cc: Add partial testcase -
+	  latlongpostingsource1.
+
 Mon Dec 08 09:33:35 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* geospatial/Makefile: Add stub makefile to allow building from

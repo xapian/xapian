@@ -150,3 +150,13 @@ DEFINE_TESTCASE(latlongparse3, !backend) {
 		   LatLongCoord::parse_latlong("fN 2N"));
     return true;
 }
+
+DEFINE_TESTCASE(latlongpostingsource1, backend && !remote && !multi) {
+    // FIXME: PostingSource doesn't currently work well with multi databases
+    // but we should try to resolve that issue.
+    Xapian::WritableDatabase db = get_writable_database();
+
+    Xapian::LatLongCoord coord(10, 10);
+    Xapian::Document doc;
+    doc.add_value(coord);
+}
