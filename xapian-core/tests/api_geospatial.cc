@@ -156,7 +156,49 @@ DEFINE_TESTCASE(latlongpostingsource1, backend && !remote && !multi) {
     // but we should try to resolve that issue.
     Xapian::WritableDatabase db = get_writable_database();
 
-    Xapian::LatLongCoord coord(10, 10);
+    Xapian::LatLongCoord coord1(10, 10);
+    Xapian::LatLongCoord coord2(20, 10);
+    Xapian::LatLongCoord coord3(30, 10);
+
     Xapian::Document doc;
-    doc.add_value(coord);
+    doc.add_value(0, coord1.serialise());
+    db.add_document(doc);
+
+    doc = Xapian::Document();
+    doc.add_value(0, coord2.serialise());
+    db.add_document(doc);
+
+    doc = Xapian::Document();
+    doc.add_value(0, coord3.serialise());
+    db.add_document(doc);
+
+    db.flush();
+
+    // Chert doesn't currently support opening a value iterator for a writable database.
+    SKIP_TEST_FOR_BACKEND("chert");
+
+    Xapian::GreatCircleMetric metric;
+    Xapian::LatLongCoords centre;
+    centre.insert(coord1);
+    Xapian::LatLongDistancePostingSource ps(db, 0, centre, metric);
+
+    double coorddist = metric(coord1, coord2);
+    TEST_EQUAL_DOUBLE(metric(coord1, coord2), metric(coord2, coord3));
+
+    ps.next(0.0);
+    TEST_EQUAL(ps.at_end(), false);
+    TEST_EQUAL(ps.get_weight(), 1.0);
+
+    ps.next(0.0);
+    TEST_EQUAL(ps.at_end(), false);
+    TEST_EQUAL_DOUBLE(ps.get_weight(), 1000.0 / (1000.0 + coorddist));
+
+    ps.next(0.0);
+    TEST_EQUAL(ps.at_end(), false);
+    TEST_EQUAL_DOUBLE(ps.get_weight(), 1000.0 / (1000.0 + coorddist * 2));
+
+    ps.next(0.0);
+    TEST_EQUAL(ps.at_end(), true);
+
+    return true;
 }
