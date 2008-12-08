@@ -70,7 +70,10 @@ _xapian$(PYTHON_SO): _xapian.la
 	. ./libtoolconfig.tmp; cp $$objdir/_xapian$(PYTHON_SO) .
 	rm -f libtoolconfig.tmp
 
-CLEANFILES = _xapian$(PYTHON_SO) xapian.py xapian.pyc xapian.pyo testsuite.pyc
+CLEANFILES = \
+    _xapian$(PYTHON_SO) \
+    xapian.py xapian.pyc xapian.pyo \
+    $(srcdir)/testsuite.pyc
 
 if MAINTAINER_MODE
 # We need to explicitly set -outdir because on Windows, SWIG splits paths at
