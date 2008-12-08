@@ -1,3 +1,11 @@
+xapian-bindings (1.0.7-3.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Fix FTBFS when built twice in a row by cleaning python/testsuite.pyc in
+    clean target. (Closes: #506090)
+
+ -- Chris Lamb <lamby@debian.org>  Tue, 18 Nov 2008 19:32:24 +0000
+
 xapian-bindings (1.0.7-3) unstable; urgency=low
 
   * Install /etc/php5/conf.d/xapian.ini instead of /etc/php5/conf.d/xapian as
