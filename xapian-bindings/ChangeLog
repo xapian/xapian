@@ -1,3 +1,9 @@
+Tue Dec 09 00:06:44 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* xapian.i: include postingsource.h from all bindings, even those
+	  which don't support directors, so that built-in posting sources,
+	  like the geospatial one, can be used.
+
 Sat Nov 01 01:52:29 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS: Sync with 1.0.9 and update from ChangeLog.
