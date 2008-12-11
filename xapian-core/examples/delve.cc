@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -56,7 +56,7 @@ static void show_usage() {
 "  -V<valueno>           output value valueno for each document in the database\n"
 "  -d                    output document data for each document referred to\n"
 "  -v                    extra info (wdf and len for postlist;\n"
-"                        wdf termfreq for termlist; number of terms for db)\n"
+"                        wdf and termfreq for termlist; number of terms for db)\n"
 "      --help            display this help and exit\n"
 "      --version         output version information and exit" << endl;
 }
@@ -272,7 +272,9 @@ main(int argc, char **argv)
 	    }
 	    if (recnos.empty()) {
 		// Display posting list
-		cout << "Posting List for term `" << term << "':";
+		cout << "Posting List for term `" << term << "' (termfreq "
+		     << db.get_termfreq(term) << ", collfreq "
+		     << db.get_collection_freq(term) << "):";
 		while (p != pend) {
 		    cout << separator << *p;
 		    if (verbose) {

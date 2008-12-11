@@ -1,3 +1,8 @@
+Thu Dec 11 01:02:41 GMT 2008  Olly Betts <olly@survex.com>
+
+	* examples/delve.cc: Add missing "and" to --help output.  Report
+	  termfreq and collection freq for each term we're asked about.
+
 Mon Dec 08 00:52:51 GMT 2008  Olly Betts <olly@survex.com>
 
 	* AUTHORS: Add Daniel Andersson for reporting the flintlock
