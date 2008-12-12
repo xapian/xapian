@@ -1,3 +1,7 @@
+Fri Dec 12 13:29:21 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* genversion.pl: Support substitution of COMPAT_VERSION.
+
 Thu Dec 11 12:05:35 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* Backport from trunk:

@@ -49,6 +49,7 @@ while (<VERSIN>) {
     s/\@MAJOR_VERSION\@/$major/;
     s/\@MINOR_VERSION\@/$minor/;
     s/\@REVISION\@/$revision/;
+    s/\@COMPAT_VERSION\@/$major.$minor.$revision/;
     print VERSOUT $_;
 }
 
