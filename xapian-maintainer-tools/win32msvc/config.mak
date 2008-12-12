@@ -116,11 +116,17 @@ JAVA_PATHSEP=/
 
 # ------------- end Java settings-------------
 
+# ------------- C# settings ------------
+
+CSC="$(LIBPATH)\csc.exe"
+SN="C:\Program Files\Microsoft Visual Studio .NET 2003\SDK\v1.1\Bin\sn.exe"
+
+# ------------- end C# settings ------------
 
 # ------------SWIG settings-------------
 # Swig executable
 SWIG=\work\xapian\xapian-svn\swig\swig.exe
-SWIG_FLAGS= -Werror -noproxy
+SWIG_FLAGS= -Werror 
 # ------------end SWIG settings-------------
 
 # ------------ Misc external libraries we depend on -------------

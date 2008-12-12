@@ -1,6 +1,6 @@
 README for Xapian/Visual C++ Tools
 ==================================
-2008-08-14 for Xapian 1.0.7 (revised)
+2008-12-12 for Xapian 1.0.9 (revised)
 
 Make files, some extra headers and associated tools for compiling Xapian on
 Win32 using the Microsoft Visual C++ compilers. This is particularly useful
@@ -19,7 +19,7 @@ www.lemurconsulting.com
 What works?
 ===========
 
-- The Python, PHP, Ruby & Java-Swig bindings (note that the Java-Swig bindings
+- The Python, PHP, Ruby, C# & Java-Swig bindings (note that the Java-Swig bindings
   are still rather alpha, and may be subject to significant API change).
 - The xapian-compact, xapian-check, xapian-inspect binaries
 - The xapian-progsrv and xapian-tcpsrv binaries
@@ -159,6 +159,10 @@ and make sure the path to where you downloaded it matches the path in config.mak
 
 - To compile the Ruby bindings you will need the one-click installer for Ruby 1.8.6 from http://www.ruby-lang.org/en/downloads/ - config.mak has settings that will work if this is installed at the default location of c:\ruby. Note that you will have to change the "!=" in the first line of c:\ruby\lib\ruby\1.8\i386-mswin32\config.h
 to "<=" if using a Visual C++ older than 5.0.
+
+- To compile the C# bindings you will need the .NET 1.1 SDK (see above) and Visual C# (the Express 2005 edition works, available from:
+http://www.microsoft.com/express/2005/). Note that the bindings are produced as two separate DLLs: your C# program will need to import the right one,
+see how the Smoketest is built in win32_bindings_csharp.mak for details.
 
 - SWIG is used for recompiling the bindings, but this is done by the Xapian core maintainers, so you shouldn't need to do this unless you are building from the development sources, in which case you'll have to use the version of SWIG in the Xapian repository. To build this follow the instructions at
 xapian\swig\Doc\Manual\Windows.html

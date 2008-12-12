@@ -1,3 +1,8 @@
+Fri Dec 12 17:04:02 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* Makefile,README,config.mak,version.rc.csharp,
+	  win32_bindings_csharp.mak: Add support for C-sharp bindings.
+
 Fri Dec 12 15:23:47 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* genversion.pl: Match xapian-.* in the AC_INIT parsing rule, so
