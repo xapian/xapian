@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Olly Betts <olly@survex.com>
 Build-Depends: @BUILD_DEPS@ po-debconf, autotools-dev
 XS-Python-Version: all
-Standards-Version: 3.7.3
+Standards-Version: 3.8.0
 Homepage: http://www.xapian.org/
 
 Package: tclxapian
@@ -56,7 +56,7 @@ Replaces: @PYTHON_OLD_PACKAGES@
 Provides: ${python:Provides}
 XB-Python-Version: ${python:Versions}
 Description: Xapian search engine interface for Python
- This package provides Xapian python bindings for all the packaged versions
+ This package provides Xapian Python bindings for all the packaged versions
  of Python.
  .
  The Xapian search engine library is a highly adaptable toolkit to allow
@@ -67,5 +67,5 @@ Description: Xapian search engine interface for Python
  update and searching.  It is highly scalable, and is capable of working with
  collections containing hundreds of millions of documents.
  .
- The Xapian python bindings provide an interface to the Xapian library from the
+ The Xapian Python bindings provide an interface to the Xapian library from the
  Python programming language, allowing both indexing and retrieval operations.

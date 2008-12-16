@@ -1,7 +1,7 @@
 /** @file msetpostlist.h
  *  @brief PostList returning entries from an MSet
  */
-/* Copyright (C) 2006,2007 Olly Betts
+/* Copyright (C) 2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 #ifndef XAPIAN_INCLUDED_MSETPOSTLIST_H
 #define XAPIAN_INCLUDED_MSETPOSTLIST_H
 
-#include <xapian/enquire.h>
+#include "xapian/enquire.h"
 
 #include "omenquireinternal.h"
 #include "postlist.h"

@@ -1,13 +1,60 @@
+trunk only:
+
+  * debian/python-xapian.install: The xapian packages are now generated in a
+    subdirectory, so update the paths accordingly, and include the .pth file.
+
+xapian-bindings (1.0.7-3) unstable; urgency=low
+
+  * Install /etc/php5/conf.d/xapian.ini instead of /etc/php5/conf.d/xapian as
+    the file is ignored unless it has extensions ".ini".  Closes: #493941
+  * Install xapian.php in /usr/share/php not /usr/share/php5 so that it is in
+    the default PHP include_path.  Closes: #493944
+  * debian/rules: Run "make all" and "make check" as separate commands to
+    avoid hitting parallel building bugs.  Closes: #494247
+
+ -- Olly Betts <olly@survex.com>  Fri,  8 Aug 2008 08:18:52 +0100
+
+xapian-bindings (1.0.7-2) unstable; urgency=low
+
+  * debian/rules: Fix build rule to be parallel make safe.
+  * debian/rules: Back out link_all_deplibs=no change made in 1.0.7-1 since
+    the bindings shared objects weren't getting an explicit dependency on zlib
+    anyway.
+
+ -- Olly Betts <olly@survex.com>  Tue, 29 Jul 2008 15:25:56 +0100
+
+xapian-bindings (1.0.7-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/copyright: Update for 2008 and a few other minor changes.
   * debian/rules: The dependency on libxapianN is now versioned.  We require a
     version >= the version of xapian-bindings being packaged (which is
     sometimes slightly too conservative, but simple to implement without
     manual maintenance).  Closes: #462106
-  * debian/patch: Remove patch for installation of Ruby RDocs as it is already
-    in the upstream sources.
-  * debian/patch: Remove patch to fix "make check" for PHP4 as it is already
-    in the upstream sources.
-  * debian/python-xapian.install: The xapian packages are now generated in a
-    subdirectory, so update the paths accordingly, and include the .pth file.
+  * debian/rules: Add support for parallel=<n> in DEB_BUILD_OPTIONS, as
+    recommended by policy 3.8.0.  Use $(filter ...) instead of $(find ...)
+    to check for noopt in DEB_BUILD_OPTIONS to avoid false matches on
+    substrings of non-standard options (e.g. snooptables).  Add support
+    for nocheck in DEB_BUILD_OPTIONS.
+  * debian/control.in: Standards-Version: 3.8.0
+  * debian/watch: Add watch file.  Not useful for me as I make the upstream
+    releases, but DEHS, etc find it useful.
+  * debian/control.in: Capitalise python to placate lintian.
+  * debian/patch: Remove since all patches are already in the upstream
+    sources.
+  * debian/rules: Calculate the version starting the next release branch (so
+    1.1.0 currently) and use that as the upper bound on the libxapian-dev
+    build dependency).
+  * debian/tclxapian.install: Update to reflect new install location which
+    reflects the new tcl policy: /usr/lib/xapian<version> ->
+    /usr/lib/tcltk/xapian<version>
+  * debian/rules: Tweak how we build the conflicts/replaces for old
+    python-xapian as the old way doesn't seem to work for newer versions of
+    GNU make.
+  * debian/rules: Force link_all_deplibs=no so libtool doesn't try to
+    explicitly link with -lz.
+
+ -- Olly Betts <olly@survex.com>  Sat, 26 Jul 2008 16:27:57 +0100
 
 xapian-bindings (1.0.5-1) unstable; urgency=low
 

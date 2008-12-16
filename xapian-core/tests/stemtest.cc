@@ -62,7 +62,7 @@ test_stemrandom()
 	    continue;
 	}
 	stemmed_size += stemmer(word).length();
-	word = "";
+	word.resize(0);
     }
     stemmed_size += stemmer(word).length();
     tout << "Input size " << JUNKSIZE << ", stemmed size " << stemmed_size
@@ -95,7 +95,7 @@ test_stemjunk()
 	    continue;
 	}
 	stemmed_size += stemmer(word).length();
-	word = "";
+	word.resize(0);
     }
     stemmed_size += stemmer(word).length();
     tout << "Input size " << JUNKSIZE << ", stemmed size " << stemmed_size

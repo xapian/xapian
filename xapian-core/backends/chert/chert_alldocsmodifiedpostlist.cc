@@ -114,7 +114,7 @@ ChertAllDocsModifiedPostList::skip_to(Xapian::docid desired_did,
 	      desired_did << ", " << w_min);
     if (!ChertAllDocsPostList::at_end())
 	ChertAllDocsPostList::skip_to(desired_did, w_min);
-    /* FIXME: should we use find on the map? */
+    /* FIXME: should we use lower_bound() on the map? */
     while (doclens_it != doclens.end() && doclens_it->first < desired_did) {
 	++doclens_it;
     }

@@ -31,8 +31,7 @@
 
 #include "gnu_getopt.h"
 
-#include <xapian/error.h>
-#include <xapian/enquire.h>
+#include "xapian/error.h"
 #include "remotetcpserver.h"
 
 using namespace std;
@@ -53,7 +52,8 @@ const int MSECS_ACTIVE_TIMEOUT_DEFAULT = 15000;
 #define OPT_HELP 1
 #define OPT_VERSION 2
 
-static const struct option opts[] = {
+static const char * opts = "I:p:a:i:t:oqw";
+static const struct option long_opts[] = {
     {"interface",	required_argument,	0, 'I'},
     {"port",		required_argument,	0, 'p'},
     {"active-timeout",	required_argument,	0, 'a'},
@@ -95,7 +95,7 @@ int main(int argc, char **argv) {
     bool syntax_error = false;
 
     int c;
-    while ((c = gnu_getopt_long(argc, argv, "I:p:a:i:t:oq", opts, NULL)) != EOF) {
+    while ((c = gnu_getopt_long(argc, argv, opts, long_opts, NULL)) != -1) {
 	switch (c) {
 	    case OPT_HELP:
 		cout << PROG_NAME" - "PROG_DESC"\n\n";

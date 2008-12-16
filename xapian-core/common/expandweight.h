@@ -1,7 +1,7 @@
 /** @file expandweight.h
  * @brief Collate statistics and calculate the term weights for the ESet.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -63,7 +63,8 @@ class ExpandStats {
           dbsize(0), termfreq(0), multiplier(0), rtermfreq(0), db_index(0) {
     }
 
-    void accumulate(Xapian::termcount wdf, Xapian::doclength doclen, Xapian::doccount subtf, Xapian::doccount subdbsize) {
+    void accumulate(Xapian::termcount wdf, Xapian::doclength doclen,
+		    Xapian::doccount subtf, Xapian::doccount subdbsize) {
 	// Boolean terms may have wdf == 0, but treat that as 1 so such terms
 	// get a non-zero weight.
 	if (wdf == 0) wdf = 1;
@@ -74,10 +75,10 @@ class ExpandStats {
 	// If we've not seen this sub-database before, then update dbsize and
 	// termfreq and note that we have seen it.
 	if (db_index >= dbs_seen.size() || !dbs_seen[db_index]) {
-	    dbsize += subdbsize;
-	    termfreq += subtf;
 	    if (db_index >= dbs_seen.size()) dbs_seen.resize(db_index + 1);
 	    dbs_seen[db_index] = true;
+	    dbsize += subdbsize;
+	    termfreq += subtf;
 	}
     }
 };
@@ -86,6 +87,12 @@ class ExpandStats {
 class ExpandWeight {
     /// The combined database.
     const Xapian::Database db;
+
+    /// The number of documents in the whole database.
+    Xapian::doccount dbsize;
+
+    /// Average document length in the whole database.
+    Xapian::doclength avlen;
 
     /// The number of documents in the RSet.
     Xapian::doccount rsize;
@@ -106,13 +113,31 @@ class ExpandWeight {
     double expand_k;
 
 public:
+    /** Constructor.
+     *
+     *  @param db_ The database.
+     *  @param rsize_ The number of documents in the RSet.
+     *  @param use_exact_termfreq_ When expanding over a combined database,
+     *				   should we use the exact termfreq (if false
+     *				   a cheaper approximation is used).
+     *  @param expand_k_ Parameter k in the probabilistic expand weighting
+     *			 formula.
+     */
     ExpandWeight(const Xapian::Database &db_,
 		 Xapian::doccount rsize_,
 		 bool use_exact_termfreq_,
-		 double expand_k_);
+		 double expand_k_)
+	: db(db_), dbsize(db.get_doccount()), avlen(db.get_avlength()),
+	  rsize(rsize_), use_exact_termfreq(use_exact_termfreq_),
+	  expand_k(expand_k_) { } 
 
+    /** Get the expand weight.
+     *
+     *  @param merger The tree of TermList objects.
+     *  @param term The current term name.
+     */
     Xapian::weight get_weight(TermList * merger,
-			      const std::string & tname) const;
+			      const std::string & term) const;
 };
 
 }

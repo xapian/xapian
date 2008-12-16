@@ -24,6 +24,176 @@ Mon Oct 29 03:03:31 GMT 2007  Olly Betts <olly@survex.com>
 	  include/xapian.h,tests/api_db.cc,tests/api_nodb.cc,
 	  tests/api_wrdb.cc: Restore the changes.
 
+Tue Dec 16 13:30:47 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/expandweight.h,expand/expandweight.cc: Overhaul ExpandWeight
+	  - now we use the "official" formula and don't return terms which it
+	  would give a negative weight to (since that means they are expected
+	  to be harmful not helfpul).
+	* tests/api_anydb.cc,tests/api_db.cc: Fix unwarranted assumptions in
+	  existing testcases broken by this change.
+
+Thu Dec 11 01:02:41 GMT 2008  Olly Betts <olly@survex.com>
+
+	* examples/delve.cc: Add missing "and" to --help output.  Report
+	  termfreq and collection freq for each term we're asked about.
+
+Mon Dec 08 00:52:51 GMT 2008  Olly Betts <olly@survex.com>
+
+	* AUTHORS: Add Daniel Andersson for reporting the flintlock
+	  permissions issue.
+
+Sun Dec 07 22:50:32 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/sorter.cc,tests/api_sorting.cc: Fix an empty MultiValueSorter
+	  not to SEGV/hang.
+
+Fri Dec 05 21:08:08 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,tests/api_backend.cc: Use
+	  "flintlock" rather than "chertlock" for the lockfile in chert.
+	  The locking is compatible and this avoids the possibility of
+	  creating a chert and flint database in the same directory (which
+	  will result in one being corrupt since the Btree filenames overlap).
+
+Thu Dec 04 09:00:04 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_lock.cc,backends/flint/flint_lock.cc: Create
+	  the lockfile with permissions 0666 so that the umask is honoured
+	  just like we do for the other files (previously we used 0600).
+	* tests/Makefile.am,tests/api_backend.cc: Add regression test
+	  lockfileumask1.
+
+Thu Dec 04 08:56:54 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/stemtest.cc: Use str.resize(0) instead of str = "".
+
+Thu Dec 04 04:56:55 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: No need to explicitly initialise a
+	  std::string to "".
+
+Thu Dec 04 04:55:47 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_db.cc: Prefer str.empty() to str == "".
+
+Thu Dec 04 01:50:10 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_wrdb.cc: Make helper function static.  Use STATIC_ASSERT
+	  to ensure a constant is coprime with 13.
+
+Wed Dec 03 22:56:19 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc: Fix API logging.
+
+Wed Dec 03 03:11:45 GMT 2008  Olly Betts <olly@survex.com>
+
+	* INSTALL: Note that libuuid is required for Xapian 1.1.0 and higher.
+
+Wed Dec 03 03:10:59 GMT 2008  Olly Betts <olly@survex.com>
+
+	* INSTALL: Remove ':' from the end of headings.
+
+Mon Dec 01 08:59:04 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Explicitly give the commands to install the required
+	  packages for developing on recent Debian or Ubuntu for added
+	  convenience.  Update the Debian/Ubuntu packages needed for
+	  documentation to reflect the change from tetex to texlive.  Fix
+	  unfinished paragraph about requiring a newline at the end of a
+	  source file and note that this is actually undefined behaviour in
+	  C++.
+
+Sun Nov 30 21:46:59 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/,examples/quest.cc,tests/harness/testsuite.cc: Pull out lists of
+	  short options next to list of long options to help make sure they
+	  are kept in step.  xapian-tcpsrv and xapian-progsrv now accept -w
+	  as a short form of --writable, as their long option table had, but
+	  their short option string didn't.
+
+Sun Nov 30 20:44:48 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/postingsource.rst: Wrap a long line.  Note that the remote
+	  backend isn't supported yet.
+
+Wed Nov 19 11:36:00 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* docs/postingsource.rst: Make it clear that PostingSources must
+	  always return documents in increasing document ID order.
+
+Wed Nov 19 08:43:04 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* bin/,examples/delve.cc,examples/quest.cc,tests/harness/testsuite.cc:
+	  Test return type of gnu_getopt_long for being != -1, rather than
+	  == 0, since there are a wide variety of return types other than 0
+	  which may be returned in the successful case (with the builtin
+	  implementation in common/getopt.cc, at least).
+
+Tue Nov 18 23:22:09 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/omdatabase.cc: Change unknown "DATABASE" debug type to "DB".
+
+Mon Nov 17 13:00:12 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/queryparser.html: Add link to valueranges.html.
+
+Fri Nov 14 22:23:10 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Update revision we're current to.
+
+Fri Nov 14 17:43:15 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_alldocsmodifiedpostlist.cc,
+	  backends/chert/chert_modifiedpostlist.cc,
+	  backends/flint/flint_modifiedpostlist.cc: Correct comments.
+
+Fri Nov 14 17:38:33 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/harness/testsuite.cc: Update comment about valgrind and C++
+	  STL allocators.
+
+Fri Nov 14 17:36:47 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/,examples/delve.cc,examples/quest.cc,tests/harness/testsuite.cc:
+	  Don't compare return value of gnu_getopt_long() with EOF - it's
+	  documented to simply return -1 or 0, and EOF requires inclusion of
+	  stdio.h.
+
+Fri Nov 14 17:30:39 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/serialise-double.cc: Fix "#elif" with no argument to
+	  "#else" - the former surprisingly compiles with most compilers, but
+	  GCC 4.4 snapshots reject it.
+
+Fri Nov 14 16:54:15 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/win32_uuid.cc: A few code clean-ups.
+
+Fri Nov 14 13:09:16 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/Makefile.mk: Ship common/safeuuid.h to unbreak tarball
+	  snapshot building.
+
+Sun Nov 09 13:31:19 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omquery.cc,api/omqueryinternal.cc,bin/xapian-tcpsrv.cc,
+	  common/omenquireinternal.h,matcher/,net/remoteserver.cc:
+	  Prefer "" to <> for including Xapian API headers from within the
+	  library.  Remove so unused xapian/enquire.h inclusions.
+
+Fri Nov 07 12:50:22 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/chert/chert_version.cc,backends/chert/chert_version.h,
+	  backends/flint/flint_version.cc,backends/flint/flint_version.h,
+	  common/safeuuid.h,common/win32_uuid.cc,common/win32_uuid.h: Add
+	  implementation of UUID functions for windows (using the built-in
+	  UUID methods in the windows API). Fixes bug #303.
+
+Sat Nov 01 01:47:44 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Sync with 1.0.9 release.
+
 Fri Oct 31 18:55:03 GMT 2008  Olly Betts <olly@survex.com>
 
 	* include/xapian/database.h: Document XAPIAN_FLUSH_THRESHOLD

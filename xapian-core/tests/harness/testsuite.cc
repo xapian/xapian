@@ -351,10 +351,11 @@ test_driver::runtest(const test_desc *test)
 			return FAIL;
 		    }
 		    if (vg_reachable > 0) {
-			// FIXME:
 			// C++ STL implementations often "horde" released
-			// memory - perhaps we can supply our own allocator
-			// so we can tell the difference?
+			// memory - for GCC 3.4 and newer the runtest script
+			// sets GLIBCXX_FORCE_NEW=1 which will disable this
+			// behaviour so we avoid this issue, but for older
+			// GCC and other compilers this may be an issue.
 			//
 			// See also:
 			// http://valgrind.org/docs/FAQ/#faq.reports
@@ -638,23 +639,23 @@ test_driver::parse_command_line(int argc, char **argv)
     }
 #endif
 
-    struct option long_opts[] = {
+    const struct option long_opts[] = {
 	{"verbose",		no_argument, 0, 'v'},
 	{"abort-on-error",	no_argument, 0, 'o'},
 	{"help",		no_argument, 0, 'h'},
 	{NULL,			0, 0, 0}
     };
 
-    string opts = "voh";
+    string short_opts_string = "voh";
     map<int, string *>::const_iterator i;
     for (i = short_opts.begin(); i != short_opts.end(); ++i) {
-	opts += char(i->first);
-	opts += ':';
+	short_opts_string += char(i->first);
+	short_opts_string += ':';
     }
+    const char * opts = short_opts_string.c_str();
 
     int c;
-    while ((c = gnu_getopt_long(argc, argv, opts.c_str(), long_opts, 0)) != EOF)
-    {
+    while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
 	switch (c) {
 	    case 'v':
 		verbose = true;

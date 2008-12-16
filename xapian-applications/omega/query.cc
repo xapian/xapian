@@ -2288,8 +2288,8 @@ OmegaExpandDecider::operator()(const string & term) const
     if (exclude_stems.find(stem) != exclude_stems.end())
 	return false;
 
-    // Ignore terms that only occurs once (hapaxes) since they aren't
-    // useful for finding related documents - they only occurs in a
+    // Ignore terms that only occur once (hapaxes) since they aren't
+    // useful for finding related documents - they only occur in a
     // document that's already been marked as relevant.
     // FIXME: add an expand option to ignore terms where
     // termfreq == rtermfreq.

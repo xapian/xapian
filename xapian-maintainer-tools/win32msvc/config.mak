@@ -24,8 +24,8 @@ NULL=nul
 # win32_applications_omega.mak
 # win32_bindings_python.mak
 # and any other bindings mak files
-XAPIAN_APPLICATIONS=..\..\xapian-omega-1.0.7
-XAPIAN_BINDINGS=..\..\xapian-bindings-1.0.7
+XAPIAN_APPLICATIONS=..\..\xapian-applications\omega
+XAPIAN_BINDINGS=..\..\xapian-bindings
 
 #  ------------- Perl settings-------------
 # Perl folder
@@ -138,7 +138,7 @@ LIB32=link.exe -lib
 LIB32_FLAGS=-nologo  
 LINK32=link.exe
 LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib\
- advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib \
+ advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib rpcrt4.lib\
  wsock32.lib Ws2_32.lib  odbccp32.lib -subsystem:console -debug -nologo \
  "$(ZLIB_LIB_DIR)\zdll.lib"
  
@@ -180,7 +180,7 @@ XAPIAN_LIBS = \
  "$(OUTLIBDIR)\libbackend.lib"  \
  "$(OUTLIBDIR)\libexpand.lib"  \
  "$(OUTLIBDIR)\libflint.lib" \
- "$(OUTLIBDIR)\libquartz.lib" \
+ "$(OUTLIBDIR)\libchert.lib" \
  "$(OUTLIBDIR)\libinmemory.lib" \
  "$(OUTLIBDIR)\libmulti.lib" \
  "$(OUTLIBDIR)\libmatcher.lib"  \
