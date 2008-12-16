@@ -15,7 +15,9 @@ OUTLIBDIR=$(XAPIAN_CORE_REL_CSHARP)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 OUTDIR=$(XAPIAN_CORE_REL_CSHARP)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\CSharp
 INTDIR=.
 
-ASSEMBLY=XapianSharp
+# Note we have two DLLs: the Assembly is built by the Csharp compiler and references the Binding which is built by the C compiler
+ASSEMBLY=XapianCSharp
+BINDING=XapianSharp
 
 XAPIAN_SWIG_CSHARP_SRCS=\
 	Auto.cs \
@@ -62,20 +64,20 @@ XAPIAN_SWIG_CSHARP_SRCS=\
 	XapianPINVOKE.cs
 
     
-ALL : "$(ASSEMBLY).dll" SmokeTest.exe "XapianCS.dll"
+ALL : "$(ASSEMBLY).dll" SmokeTest.exe "$(BINDING).dll"
 # REMOVE THIS NEXT LINE if using Visual C++ .net 2003 - you won't need to worry about manifests. For later compilers this prevents error R6034
-    $(MANIFEST) "XapianCS.dll.manifest" -outputresource:"XapianCS.dll;2"
+    $(MANIFEST) "$(BINDING).dll.manifest" -outputresource:"$(BINDING).dll;2"
     copy  "$(ASSEMBLY).dll" $(OUTDIR)
-    copy  "XapianCS.dll" $(OUTDIR)
+    copy  "$(BINDING).dll" $(OUTDIR)
     copy "$(ZLIB_LIB_DIR)\zdll.lib" 
     copy "$(ZLIB_BIN_DIR)\zlib1.dll" $(OUTDIR)
 
 CLEAN :
     -@erase XapianSharp.snk 
     -@erase AssemblyInfo.cs
-    -@erase "XapianCS.dll"
-    -@erase "$(OUTDIR)\XapianCS.dll"
-    -@erase "XapianCS.dll.manifest"
+    -@erase "$(BINDING).dll"
+    -@erase "$(OUTDIR)\$(BINDING).dll"
+    -@erase "$(BINDING).dll.manifest"
     -@erase "$(ASSEMBLY).dll" 
     -@erase "$(OUTDIR)\$(ASSEMBLY).dll
     -@erase "$(ASSEMBLY).dll.manifest" 
@@ -106,7 +108,7 @@ CHECK: ALL DOTEST
 XapianSharp.snk:
     $(SN) -k $@
     
-"$(ASSEMBLY).dll": $(XAPIAN_SWIG_CSHARP_SRCS) AssemblyInfo.cs XapianSharp.snk "$(OUTDIR)" XapianCS.dll 
+"$(ASSEMBLY).dll": $(XAPIAN_SWIG_CSHARP_SRCS) AssemblyInfo.cs XapianSharp.snk "$(OUTDIR)" $(BINDING).dll 
     $(CSC) -unsafe -target:library -out:"$(ASSEMBLY).dll" \
         $(XAPIAN_SWIG_CSHARP_SRCS) AssemblyInfo.cs  
 
@@ -119,9 +121,9 @@ CPP_PROJ=$(CPPFLAGS_EXTRA)  /GR \
  
 ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS) 
 
-"XapianCS.dll" : "$(OUTDIR)" xapian_wrap.obj ".\version.res" 
+"$(BINDING).dll" : "$(OUTDIR)" xapian_wrap.obj ".\version.res" 
     $(LINK32) @<<
-  $(ALL_LINK32_FLAGS) /DLL /out:"XapianCS.dll" xapian_wrap.obj ".\version.res" 
+  $(ALL_LINK32_FLAGS) /DLL /out:"$(BINDING).dll" xapian_wrap.obj ".\version.res" 
 
 <<
   
@@ -131,7 +133,7 @@ xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_CSHARP_SRCS): util.i ..\xapian.i
 # case where SWIG changes its mind as to which files it generates.
     -@erase $(XAPIAN_SWIG_CSHARP_SRCS)
     $(SWIG) $(SWIG_FLAGS) -I$(XAPIAN_CORE_REL_CSHARP)\include -I..\generic \
-        -csharp -namespace Xapian -module Xapian -dllimport XapianCS \
+        -csharp -namespace Xapian -module Xapian -dllimport $(BINDING) \
         -c++ -o xapian_wrap.cc ..\xapian.i   
 !ENDIF
 
@@ -150,5 +152,5 @@ xapian_wrap.obj : xapian_wrap.cc
   $(CPP_PROJ) $**
 <<
 
-SmokeTest.exe: SmokeTest.cs $(ASSEMBLY).dll
+SmokeTest.exe: SmokeTest.cs $(ASSEMBLY).dll $(BINDING).dll
 	$(CSC) -unsafe -target:exe -out:SmokeTest.exe SmokeTest.cs -r:$(ASSEMBLY).dll
