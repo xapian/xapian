@@ -1,8 +1,7 @@
-/* expandweight.cc: C++ class for weight calculation routines
- *
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2007,2008 Olly Betts
+/** @file expandweight.cc
+ * @brief Calculate term weights for the ESet.
+ */
+/* Copyright (C) 2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,97 +15,100 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
 #include <config.h>
 
-#include <math.h>
-
 #include "expandweight.h"
+
+#include "debuglog.h"
+#include "omassert.h"
 #include "termlist.h"
 
-#include "omassert.h"
-#include "omdebug.h"
+#include <cmath>
 
 using namespace std;
 
 namespace Xapian {
 namespace Internal {
 
-ExpandWeight::ExpandWeight(const Xapian::Database &db_,
-			   Xapian::doccount rsize_,
-			   bool use_exact_termfreq_,
-			   double expand_k_)
-	: db(db_),
-	  rsize(rsize_),
-	  use_exact_termfreq(use_exact_termfreq_),
-	  expand_k(expand_k_)
-{
-    DEBUGCALL(MATCH, void, "ExpandWeight", db_ << ", " << rsize_ << ", " << use_exact_termfreq_ << ", " << expand_k_);
-}
-
 Xapian::weight
-ExpandWeight::get_weight(TermList * merger, const std::string &tname) const
+ExpandWeight::get_weight(TermList * merger, const string & term) const
 {
-    DEBUGCALL(MATCH, Xapian::weight, "ExpandWeight::get_weight", "[merger], " << tname);
-    ExpandStats stats(db.get_avlength(), expand_k);
-    merger->accumulate_stats(stats);
-    double termfreq = double(stats.termfreq);
-    const double rtermfreq = stats.rtermfreq;
+    LOGCALL(MATCH, Xapian::weight, "ExpandWeight::get_weight", "[merger], " << term);
 
-    Xapian::doccount dbsize = db.get_doccount();
-    if (stats.dbsize != dbsize) {
-	if (!use_exact_termfreq) {
-	    termfreq *= double(dbsize) / stats.dbsize;
-	    LOGLINE(EXPAND, "Approximating termfreq of `" << tname << "': " <<
-		    stats.termfreq << " * " << dbsize << " / " <<
-		    stats.dbsize << " = " << termfreq << " (true value is:" <<
-		    db.get_termfreq(tname) << ")");
-	    // termfreq must be at least rtermfreq since there are at least
-	    // rtermfreq documents indexed by this term.  And it can't be
-	    // more than (dbsize - rsize + rtermfreq) since the number
-	    // of relevant documents not indexed by this term can't be
-	    // more than the number of documents not indexed by this term.
+    // Accumulate the stats for this term across all relevant documents.
+    ExpandStats stats(avlen, expand_k);
+    merger->accumulate_stats(stats);
+
+    double termfreq = stats.termfreq;
+    double rtermfreq = stats.rtermfreq;
+
+    LOGVALUE(EXPAND, rsize);
+    LOGVALUE(EXPAND, rtermfreq);
+
+    LOGVALUE(EXPAND, dbsize);
+    LOGVALUE(EXPAND, stats.dbsize);
+    if (stats.dbsize == dbsize) {
+	// Either we're expanding from just one database, or we got stats from
+	// all the sub-databases (because at least one relevant document from
+	// each sub-database contained this term), so termfreq should already
+	// be exact.
+	AssertEqParanoid(termfreq, db.get_termfreq(term));
+    } else {
+	AssertRel(stats.dbsize,<,dbsize);
+	// We're expanding from more than one database and the stats we've got
+	// only cover some of the sub-databases, so termfreq only includes
+	// those sub-databases.
+	if (use_exact_termfreq) {
+	    LOGLINE(EXPAND, "Had to request exact termfreq");
+	    termfreq = db.get_termfreq(term);
+	} else {
+	    // Approximate the termfreq by scaling it up from the databases we
+	    // do have information from.
+	    termfreq *= double(dbsize) / double(stats.dbsize);
+	    LOGLINE(EXPAND, "termfreq is approx " << stats.termfreq << " * " <<
+			    dbsize << " / " << stats.dbsize << " = " <<
+			    termfreq);
+	    LOGVALUE(EXPAND, db.get_termfreq(term));
 	    if (termfreq < rtermfreq) {
+		// termfreq must be at least rtermfreq, since there are at
+		// least rtermfreq documents indexed by this term.
+		LOGLINE(EXPAND, "termfreq must be at least rtermfreq");
 		termfreq = rtermfreq;
 	    } else {
-		const double upper_bound = dbsize - rsize + rtermfreq;
-		if (termfreq > upper_bound) termfreq = upper_bound;
+		// termfreq can't be more than (dbsize - rsize + rtermfreq)
+		// since the number of relevant documents not indexed by this
+		// term can't be more than the number of documents not indexed
+		// by this term, so:
+		//
+		//     rsize - rtermfreq <= dbsize - termfreq
+		// <=> termfreq <= dbsize - (rsize - rtermfreq)
+		double termfreq_upper_bound = dbsize - (rsize - rtermfreq);
+		if (termfreq > termfreq_upper_bound) {
+		    LOGLINE(EXPAND, "termfreq can't be more than "
+				    "dbsize - (rsize + rtermfreq)");
+		    termfreq = termfreq_upper_bound;
+		}
 	    }
-	} else {
-	    termfreq = db.get_termfreq(tname);
-	    LOGLINE(EXPAND, "Asked database for termfreq of `" << tname <<
-			    "': " << termfreq);
 	}
     }
+    LOGVALUE(EXPAND, termfreq);
 
-    LOGLINE(EXPAND, "ExpandWeight::get_weight: "
-		    "N=" << dbsize << ", "
-		    "n=" << termfreq << ", "
-		    "R=" << rsize << ", "
-		    "r=" << rtermfreq << ", "
-		    "mult=" << stats.multiplier);
+    double reldocs_without_term = rsize - rtermfreq;
+    double num, denom;
+    num = (rtermfreq + 0.5) * (dbsize - termfreq - reldocs_without_term + 0.5);
+    AssertRel(num,>,0);
+    denom = (termfreq - rtermfreq + 0.5) * (reldocs_without_term + 0.5);
+    AssertRel(denom,>,0);
 
-    Xapian::weight tw;
-    tw = (rtermfreq + 0.5) * (dbsize - rsize - termfreq + rtermfreq + 0.5) /
-	    ((rsize - rtermfreq + 0.5) * (termfreq - rtermfreq + 0.5));
-    Assert(tw > 0);
+    // If the returned termweight would be negative, clamp it to 0.0.
+    if (rare(num <= denom)) RETURN(0.0);
 
-    // FIXME This is to guarantee nice properties (monotonic increase) of the
-    // weighting function.  Actually, I think the important point is that
-    // it ensures that tw is positive.
-    // Check whether this actually helps / whether it hinders efficiency
-    if (tw < 2) {
-	tw = tw / 2 + 1;
-    }
-    tw = log(tw);
-
-    LOGLINE(EXPAND, " => Term weight = " << tw <<
-		    " Expand weight = " << stats.multiplier * tw);
-
-    //RETURN(rtermfreq * tw);
+    Xapian::weight tw = log(num / denom);
+    LOGVALUE(EXPAND, tw);
+    LOGVALUE(EXPAND, stats.multiplier);
     RETURN(stats.multiplier * tw);
 }
 

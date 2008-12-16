@@ -780,7 +780,8 @@ DEFINE_TESTCASE(cutoff1, backend) {
 // tests the allow query terms expand option
 DEFINE_TESTCASE(allowqterms1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
-    enquire.set_query(Xapian::Query("this"));
+    string term = "paragraph";
+    enquire.set_query(Xapian::Query(term));
 
     Xapian::MSet mymset = enquire.get_mset(0, 10);
     TEST(mymset.size() >= 2);
@@ -793,13 +794,13 @@ DEFINE_TESTCASE(allowqterms1, backend) {
     Xapian::ESet myeset = enquire.get_eset(1000, myrset);
     Xapian::ESetIterator j = myeset.begin();
     for ( ; j != myeset.end(); ++j) {
-        TEST_NOT_EQUAL(*j, "this");
+	TEST_NOT_EQUAL(*j, term);
     }
 
     Xapian::ESet myeset2 = enquire.get_eset(1000, myrset, Xapian::Enquire::INCLUDE_QUERY_TERMS);
     j = myeset2.begin();
     for ( ; j != myeset2.end(); ++j) {
-        if (*j == "this") break;
+	if (*j == term) break;
     }
     TEST(j != myeset2.end());
     return true;

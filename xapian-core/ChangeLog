@@ -1,3 +1,12 @@
+Tue Dec 16 13:30:47 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/expandweight.h,expand/expandweight.cc: Overhaul ExpandWeight
+	  - now we use the "official" formula and don't return terms which it
+	  would give a negative weight to (since that means they are expected
+	  to be harmful not helfpul).
+	* tests/api_anydb.cc,tests/api_db.cc: Fix unwarranted assumptions in
+	  existing testcases broken by this change.
+
 Thu Dec 11 01:02:41 GMT 2008  Olly Betts <olly@survex.com>
 
 	* examples/delve.cc: Add missing "and" to --help output.  Report

@@ -1153,8 +1153,7 @@ DEFINE_TESTCASE(multiexpand1, backend && !multi) {
     rset2.add_document(1);
     rset2.add_document(2);
 
-    // retrieve the top ten results from each method of accessing
-    // multiple text files
+    // Retrieve all the ESet results in each of the three setups:
 
     // This is the single database one.
     Xapian::ESet eset1 = enquire1.get_eset(1000, rset1);
@@ -1165,25 +1164,32 @@ DEFINE_TESTCASE(multiexpand1, backend && !multi) {
     // This is the multi database without approximation
     Xapian::ESet eset3 = enquire2.get_eset(1000, rset2, Xapian::Enquire::USE_EXACT_TERMFREQ);
 
-    TEST_EQUAL(eset1.size(), eset2.size());
     TEST_EQUAL(eset1.size(), eset3.size());
 
     Xapian::ESetIterator i = eset1.begin();
-    Xapian::ESetIterator j = eset2.begin();
-    Xapian::ESetIterator k = eset3.begin();
-    bool all_iwts_equal_jwts = true;
-    while (i != eset1.end() && j != eset2.end() && k != eset3.end()) {
-	if (i.get_weight() != j.get_weight()) all_iwts_equal_jwts = false;
-	TEST_EQUAL(i.get_weight(), k.get_weight());
-	TEST_EQUAL(*i, *k);
+    Xapian::ESetIterator j = eset3.begin();
+    while (i != eset1.end() && j != eset3.end()) {
+	TEST_EQUAL(*i, *j);
+	TEST_EQUAL(i.get_weight(), j.get_weight());
 	++i;
 	++j;
-	++k;
     }
     TEST(i == eset1.end());
-    TEST(j == eset2.end());
-    TEST(k == eset3.end());
-    TEST(!all_iwts_equal_jwts);
+    TEST(j == eset3.end());
+
+    bool eset1_eq_eset2 = true;
+    i = eset1.begin();
+    j = eset2.begin();
+    while (i != eset1.end() && j != eset2.end()) {
+	if (i.get_weight() != j.get_weight()) {
+	    eset1_eq_eset2 = false;
+	    break;
+	}
+	++i;
+	++j;
+    }
+    TEST(!eset1_eq_eset2);
+
     return true;
 }
 
