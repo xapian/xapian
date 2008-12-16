@@ -1310,7 +1310,7 @@ static const double test_value_range_numbers[] = {
 static bool test_value_range_serialise1()
 {
     double prevnum = 0;
-    string prevstr = "";
+    string prevstr;
     bool started = false;
     for (const double *p = test_value_range_numbers; *p != 64; ++p) {
 	double num = *p;

@@ -31,7 +31,6 @@
 #include "serialise-double.h"
 
 #include <xapian/error.h>
-#include <xapian/enquire.h>
 #include <xapian/postingsource.h>
 #include <xapian/termiterator.h>
 #include <xapian/version.h>

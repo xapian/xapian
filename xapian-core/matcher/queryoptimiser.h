@@ -1,7 +1,7 @@
 /** @file queryoptimiser.h
  * @brief Convert a Xapian::Query::Internal tree into an optimal PostList tree.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,8 +21,7 @@
 #ifndef XAPIAN_INCLUDED_QUERYOPTIMISER_H
 #define XAPIAN_INCLUDED_QUERYOPTIMISER_H
 
-#include <xapian/enquire.h>
-#include <xapian/query.h>
+#include "xapian/query.h"
 
 #include "database.h"
 #include "localmatch.h"

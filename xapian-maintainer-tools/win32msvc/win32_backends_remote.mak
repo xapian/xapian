@@ -15,13 +15,13 @@ ALL : "$(OUTDIR)\libremote.lib"
 
 OBJS= \
                  $(INTDIR)\remote-database.obj \
-                 $(INTDIR)\net_document.obj \
+                 $(INTDIR)\remote-document.obj \
                  $(INTDIR)\net_termlist.obj \
                  $(INTDIR)\net_postlist.obj \
 				 
 SRCS= \
                  $(INTDIR)\remote-database.cc \
-                 $(INTDIR)\net_document.cc \
+                 $(INTDIR)\remote-document.cc \
                  $(INTDIR)\net_termlist.cc \
                  $(INTDIR)\net_postlist.cc \
 

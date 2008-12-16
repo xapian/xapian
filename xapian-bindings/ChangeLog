@@ -1,3 +1,22 @@
+Mon Dec 08 03:45:20 GMT 2008  Olly Betts <olly@survex.com>
+
+	* debian/: Sync with 1.0 branch.
+
+Mon Dec 08 03:18:22 GMT 2008  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Need to clean testsuite.pyc from srcdir since
+	  that's where it gets generated as things stand (upstream fix for
+	  Debian bug 506090).
+
+Sat Nov 01 01:52:29 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Sync with 1.0.9 and update from ChangeLog.
+
+Fri Oct 31 22:53:13 GMT 2008  Olly Betts <olly@survex.com>
+
+	* python/docs/index.html: Document Python-specific
+	  Database.metadata_keys(prefix) method.
+
 Fri Oct 31 19:22:53 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/generate-python-exceptions.in: Convert

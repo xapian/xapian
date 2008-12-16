@@ -16,6 +16,7 @@ INTDIR=.\
 ALL : "$(OUTDIR)\libapi.lib" 
 
 OBJS= \
+    $(INTDIR)/documentvaluelist.obj\
     $(INTDIR)/editdistance.obj \
     $(INTDIR)/error.obj \
     $(INTDIR)/errorhandler.obj \
@@ -29,12 +30,12 @@ OBJS= \
     $(INTDIR)/omquery.obj \
     $(INTDIR)/omqueryinternal.obj \
     $(INTDIR)/omtermlistiterator.obj \
-    $(INTDIR)/omvalueiterator.obj \
     $(INTDIR)/postlist.obj \
     $(INTDIR)/postingsource.obj \
     $(INTDIR)/sortable-serialise.obj \
     $(INTDIR)/sorter.obj \
     $(INTDIR)/termlist.obj \
+    $(INTDIR)/valueiterator.obj\
     $(INTDIR)/valuerangeproc.obj \
     $(INTDIR)/valuesetmatchdecider.obj \
     $(INTDIR)/version.obj\
@@ -42,6 +43,7 @@ OBJS= \
     $(INTDIR)/replication.obj
     
 SRCS= \
+    $(INTDIR)/documentvaluelist.cc\
     $(INTDIR)/editdistance.cc\
     $(INTDIR)/error.cc\
     $(INTDIR)/errorhandler.cc\
@@ -55,12 +57,12 @@ SRCS= \
     $(INTDIR)/omquery.cc\
     $(INTDIR)/omqueryinternal.cc\
     $(INTDIR)/omtermlistiterator.cc\
-    $(INTDIR)/omvalueiterator.cc\
     $(INTDIR)/postlist.cc\
     $(INTDIR)/postingsource.cc \
     $(INTDIR)/sortable-serialise.cc\
     $(INTDIR)/sorter.cc\
     $(INTDIR)/termlist.cc\
+    $(INTDIR)/valueiterator.cc\
     $(INTDIR)/valuerangeproc.cc\
     $(INTDIR)/valuesetmatchdecider.cc \
     $(INTDIR)/version.cc\

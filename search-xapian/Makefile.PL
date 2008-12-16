@@ -127,7 +127,15 @@ close F;
 
 my ($BASEVERSION) = $VERSION =~ /^([0-9]+\.[0-9]+\.[0-9]+)/;
 if ($xver !~ /^\Q$BASEVERSION\E(?:_svn[0-9]+)?$/) {
-    my $msg = "Xapian version $xver may be incompatible with Search::Xapian $VERSION\n";
+    # There's no chance that we'll with xapian-core 0.x.y.
+    my $no_chance = ($xver =~ /^0/);
+    my $msg;
+    if ($no_chance) {
+	$msg = "Xapian version $xver is incompatible with Search::Xapian $VERSION\n";
+    } else {
+	$msg = "Xapian version $xver may be incompatible with Search::Xapian $VERSION\n";
+    }
+
     if ($ENV{AUTOMATED_TESTING}) {
 	# Don't let automated testers continue, as we don't want bogus failure
 	# reports due to builds with incompatible versions.
@@ -137,6 +145,10 @@ if ($xver !~ /^\Q$BASEVERSION\E(?:_svn[0-9]+)?$/) {
 	# by CPAN test building scripts.
 	unlink "Makefile";
 	exit 0;
+    }
+    if ($no_chance) {
+	unlink "Makefile";
+	die $msg;
     }
     warn "Warning: $msg";
 }

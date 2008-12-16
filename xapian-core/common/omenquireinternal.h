@@ -23,11 +23,12 @@
 #ifndef OM_HGUARD_OMENQUIREINTERNAL_H
 #define OM_HGUARD_OMENQUIREINTERNAL_H
 
-#include <xapian/database.h>
-#include <xapian/document.h>
-#include <xapian/enquire.h>
-#include <xapian/sorter.h>
-#include <xapian/query.h>
+#include "xapian/database.h"
+#include "xapian/document.h"
+#include "xapian/enquire.h"
+#include "xapian/query.h"
+#include "xapian/sorter.h"
+
 #include <algorithm>
 #include <math.h>
 #include <map>

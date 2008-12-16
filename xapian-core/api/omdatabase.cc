@@ -335,7 +335,7 @@ Database::get_value_upper_bound(Xapian::valueno valno) const
 ValueIterator
 Database::valuestream_begin(Xapian::valueno slot) const
 {
-    LOGCALL(API, ValueIterator, "Database::valuestream_begin", slot);
+    DEBUGAPICALL(ValueIterator, "Database::valuestream_begin", slot);
     if (internal.empty()) RETURN(ValueIterator());
     // FIXME: support multidatabases properly.
     if (internal.size() != 1) {
@@ -374,7 +374,7 @@ Database::get_document(Xapian::docid did) const
 Document::Internal *
 Database::get_document_lazily(Xapian::docid did) const
 {
-    DEBUGCALL(DATABASE, Document::Internal *, "Database::get_document_lazily", did);
+    DEBUGCALL(DB, Document::Internal *, "Database::get_document_lazily", did);
     if (did == 0) throw InvalidArgumentError("Document ID 0 is invalid");
 
     unsigned int multiplier = internal.size();

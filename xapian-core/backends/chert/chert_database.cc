@@ -124,7 +124,11 @@ ChertDatabase::ChertDatabase(const string &chert_dir, int action,
 	  synonym_table(db_dir, readonly),
 	  spelling_table(db_dir, readonly),
 	  record_table(db_dir, readonly),
-	  lock(db_dir + "/chertlock"),
+	  // Keep the same lockfile name as flint since the locking is
+	  // compatible and this avoids the possibility of creating a chert and
+	  // flint database in the same directory (which will result in one
+	  // being corrupt since the Btree filenames overlap).
+	  lock(db_dir + "/flintlock"),
 	  total_length(0),
 	  lastdocid(0),
 	  max_changesets(0)
