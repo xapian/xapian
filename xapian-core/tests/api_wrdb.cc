@@ -2085,10 +2085,11 @@ DEFINE_TESTCASE(cursordelbug1, flint || chert) {
     return true;
 }
 
-/** Helper function for modifyvalues1 - check that the values stored in the database match
- */
-void check_vals(const Xapian::Database & db,
-		const map<Xapian::docid, string> & vals)
+/** Helper function for modifyvalues1.
+ *
+ * Check that the values stored in the database match */
+static void
+check_vals(const Xapian::Database & db, const map<Xapian::docid, string> & vals)
 {
     TEST_EQUAL(db.get_doccount(), vals.size());
     if (vals.size() == 0) return;
@@ -2099,7 +2100,7 @@ void check_vals(const Xapian::Database & db,
 	Xapian::Document doc = db.get_document(i->first);
 	string dbval = doc.get_value(1);
 	TEST_EQUAL(dbval, i->second);
-	if (dbval == "") {
+	if (dbval.empty()) {
 	    TEST_EQUAL(0, doc.values_count());
 	    TEST_EQUAL(doc.values_begin(), doc.values_end());
 	} else {
@@ -2119,8 +2120,10 @@ void check_vals(const Xapian::Database & db,
  */
 DEFINE_TESTCASE(modifyvalues1, writable) {
     Xapian::WritableDatabase db = get_writable_database();
-    // Note doccount must be coprime with 13
-    Xapian::doccount doccount = 1000;
+    // Note: doccount must be coprime with 13
+    const Xapian::doccount doccount = 1000;
+    STATIC_ASSERT(doccount % 13 != 0);
+
     map<Xapian::docid, string> vals;
 
     for (Xapian::doccount num = 1; num <= doccount; ++num) {
@@ -2199,7 +2202,7 @@ DEFINE_TESTCASE(modifyvalues1, writable) {
 	Xapian::docid did = (num % doccount) + 1;
 	Xapian::Document doc;
 	db.replace_document(did, doc);
-	vals[did] = "";
+	vals[did] = string();
 	tout << "Cleared val in doc " << did << "\n";
     }
     check_vals(db, vals);

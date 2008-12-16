@@ -62,6 +62,8 @@ APITEST_OBJS= \
     "$(OUTDIR)\api_unicode.obj" \
     "$(OUTDIR)\api_wrdb.obj" \
     "$(OUTDIR)\api_sorting.obj" \
+    "$(OUTDIR)\api_spelling.obj" \
+    "$(OUTDIR)\api_backend.obj" \
     "$(OUTDIR)\api_generated.obj" \
     "$(OUTDIR)\api_replicate.obj"
     
@@ -86,6 +88,8 @@ SRC = \
     "$(INTDIR)\api_transdb.cc" \
     "$(INTDIR)\api_unicode.cc" \
     "$(INTDIR)\api_sorting.cc" \
+    "$(INTDIR)\api_spelling.cc" \
+    "$(OUTDIR)\api_backend.cc" \
     "$(INTDIR)\api_wrdb.cc" \
     "$(INTDIR)\api_generated.cc" \
     "$(INTDIR)\api_docsim.cc" \
@@ -95,7 +99,7 @@ SRC = \
     "$(INTDIR)\remotetest.cc" \
     "$(INTDIR)\termgentest.cc" 
 
-COLLATED_APITEST_SOURCES=api_anydb.cc api_db.cc api_docsim.cc api_generated.cc api_nodb.cc api_posdb.cc api_replicate.cc api_sorting.cc api_transdb.cc api_unicode.cc api_wrdb.cc
+COLLATED_APITEST_SOURCES=api_anydb.cc api_db.cc api_docsim.cc api_nodb.cc api_posdb.cc api_sorting.cc api_spelling.cc api_backend.cc api_transdb.cc api_unicode.cc api_wrdb.cc api_generated.cc api_replicate.cc
     
 COLLATED_APITEST_HEADERS=\
     "$(INTDIR)\api_anydb.h" \
@@ -103,8 +107,10 @@ COLLATED_APITEST_HEADERS=\
     "$(INTDIR)\api_nodb.h" \
     "$(INTDIR)\api_posdb.h" \
     "$(INTDIR)\api_sorting.h" \
+    "$(INTDIR)\api_spelling.h" \
     "$(INTDIR)\api_transdb.h" \
     "$(INTDIR)\api_unicode.h" \
+    "$(INTDIR)\api_backend.h" \
     "$(INTDIR)\api_generated.h" \
     "$(INTDIR)\api_docsim.h" \
     "$(INTDIR)\api_replicate.h" \
@@ -136,6 +142,7 @@ CLEAN :
     -@erase "$(INTDIR)\*.manifest"
     -@erase api_collated.h
     -@erase api_generated.cc
+    -@erase api_all.h
     -@erase $(COLLATED_APITEST_HEADERS)
     if exist ".btreetmp" rmdir ".btreetmp" /s /q
     if exist ".flint" rmdir ".flint" /s /q
@@ -144,6 +151,9 @@ CLEAN :
     if exist ".quartztmp" rmdir ".quartztmp" /s /q
     if exist ".multi" rmdir ".multi" /s /q
     if exist ".replicatmp" rmdir ".replicatmp" /s /q
+    if exist ".stub" rmdir ".stub" /s /q
+    if exist ".multichert" rmdir ".multichert" /s /q
+    if exist ".multiflint" rmdir ".multiflint" /s /q
     
     
     
@@ -157,7 +167,7 @@ CPP_SBRS=.
 api_all.h: api_collated.h
     
 api_collated.h: collate-test $(COLLATED_APITEST_SOURCES)
-    $(PERL_EXE) "$(INTDIR)/collate-test" "$(INTDIR)" "api_all.h" $(COLLATED_APITEST_SOURCES) > api_collated.h
+    $(PERL_EXE) "$(INTDIR)/collate-test" "$(INTDIR)" api_collated.h api_all.h $(COLLATED_APITEST_SOURCES) 
     
 api_generated.cc: generate-api_generated
     $(PERL_EXE) "$(INTDIR)/generate-api_generated" > api_generated.cc

@@ -37,7 +37,7 @@
 #include <cstring> // For memcmp() and memcpy().
 #include <string>
 
-#include <uuid/uuid.h>
+#include "common/safeuuid.h"
 
 using std::string;
 

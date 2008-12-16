@@ -23,7 +23,11 @@
 CODENAME ?= $(shell cat debian/codename 2>/dev/null||echo sid)
 
 # Version without the "-N" suffix.
-XAPIAN_VERSION = $(shell sed 's/.*(\([^-]*\)\(-.*\)*).*/\1/;q' debian/changelog)
+XAPIAN_VERSION := $(shell sed 's/.*(\([^-]*\)\(-.*\)*).*/\1/;q' debian/changelog)
+
+# The next incompatible version - i.e. the first release of the next release
+# branch.  So for XAPIAN_VERSION "1.0.<n>", this should be "1.1.0".
+XAPIAN_VERSION_CEILING := $(shell echo '$(XAPIAN_VERSION)'|awk -F. '{print $$1"."$$2+1".0"}')
 
 # `--exclude=.EXT' arguments to pass dh_install
 DH_INSTALL_EXCLUDE := --exclude=.pyc --exclude=.pyo
@@ -81,28 +85,38 @@ endif
 
 export DH_OPTIONS
 
-buildtargets := all
-
 export DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 export DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 
 ifeq ($(DEB_BUILD_GNU_TYPE), $(DEB_HOST_GNU_TYPE))
-	confflags += --build $(DEB_HOST_GNU_TYPE)
-	buildtargets += check
+    confflags += --build $(DEB_HOST_GNU_TYPE)
 else
-	confflags += --build $(DEB_BUILD_GNU_TYPE) --host $(DEB_HOST_GNU_TYPE)
+    confflags += --build $(DEB_BUILD_GNU_TYPE) --host $(DEB_HOST_GNU_TYPE)
+    # Disable the testsuite when cross-compiling.
+    DEB_BUILD_OPTIONS += nocheck
 endif
 
-ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
-	confflags += CFLAGS="-O0" CXXFLAGS="-O0"
+# Handle DEB_BUILD_OPTIONS.  Note that dh_strip handles nostrip for us.
+ifneq (,$(filter noopt,$(DEB_BUILD_OPTIONS)))
+    confflags += CFLAGS=-O0 CXXFLAGS=-O0
 else
-	confflags += CFLAGS="-O2" CXXFLAGS="-O2"
+    confflags += CFLAGS=-O2 CXXFLAGS=-O2
+endif
+ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+    NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+    MAKEFLAGS += -j$(NUMJOBS)
+endif
+ifneq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
+    MAKE_CHECK := :
+else
+    MAKE_CHECK := make check
 endif
 
 # Python versions which had packages before the Python policy transition.
 PYTHON_OLD_VERSIONS := 2.1 2.2 2.3 2.4
 # For use in Conflicts: and Replaces:
-PYTHON_OLD_PACKAGES := $(shell echo "$(PYTHON_OLD_VERSIONS:%=python%-xapian (<< 0.9.6-3$),)"|sed 's/,$$//')
+PYTHON_XAPIAN_TOO_OLD := (<< 0.9.6-3)
+PYTHON_OLD_PACKAGES := $(shell echo "$(PYTHON_OLD_VERSIONS:%=python%-xapian $(PYTHON_XAPIAN_TOO_OLD),)"|sed 's/,$$//')
 
 # Build depends for PHP.  We need phpN-cli so we can run "make check" on
 # the bindings and to get the phpapi version we need to depend on.
@@ -141,7 +155,7 @@ RUBY_LIB_ARCH=$(shell $(RUBY) -rrbconfig -e 'puts Config::CONFIG["archdir"]')
 
 # We need a versioned build dependency on libxapian-dev.
 BUILD_DEPS += libxapian-dev (>= $(XAPIAN_VERSION)),# NB Trailing ',' required here!
-BUILD_DEPS += libxapian-dev (<= $(XAPIAN_VERSION)-9999),# NB Trailing ',' required here!
+BUILD_DEPS += libxapian-dev (<< $(XAPIAN_VERSION_CEILING)),# NB Trailing ',' required here!
 
 commonconfflags := \
 	$(confflags) \
@@ -204,20 +218,23 @@ debian/configure-stamp:
 
 	touch $@
 
-build: configure debian/build-stamp
-debian/build-stamp:
+build: debian/build-stamp
+debian/build-stamp: configure
 	dh_testdir
 	for python in $(PYTHON_VERSIONS); do \
 	    set -e; \
-	    $(MAKE) -C build-$$python $(buildtargets) ; \
+	    $(MAKE) -C build-$$python ; \
+	    $(MAKE_CHECK) -C build-$$python ; \
 	done
 	for v in $(PHP_VERSIONS); do \
 	    if test -x /usr/bin/php-config$$v ; then \
 		set -e; \
-		$(MAKE) -C build-php$$v $(buildtargets) ; \
+		$(MAKE) -C build-php$$v ; \
+		$(MAKE_CHECK) -C build-php$$v ; \
 	    fi \
 	done
-	$(MAKE) -C build-tcl-and-ruby $(buildtargets)
+	$(MAKE) -C build-tcl-and-ruby
+	$(MAKE_CHECK) -C build-tcl-and-ruby
 	touch $@
 
 install: DH_OPTIONS=
@@ -233,16 +250,23 @@ install: build
 	    $(MAKE) -C build-$$python DESTDIR=$(CURDIR)/debian/tmp install; \
 	done
 
-	# Always install /etc/xapian/phpN/conf.d/xapian, even for backports to
-	# suites where PHP doesn't support it - the extra file is harmless, and
-	# it means we'll work nicely with backported PHP packages too.
+	# Install xapian.php in /usr/share/php for PHP5 so that it's in the
+	# PHP include_path, but for the PHP4 backport put it in /usr/share/php4
+	# to avoid a file conflict with the php5-xapian package.  The file won't
+	# be automatically found there, but it isn't vital for the PHP4 bindings
+	# while it is for the PHP5 ones.
+	#
+	# Always install /etc/xapian/phpN/conf.d/xapian.ini, even for backports
+	# to suites where PHP doesn't support it - the extra file is harmless,
+	# and it means we'll work nicely with backported PHP packages too.
 	for v in $(PHP_VERSIONS); do \
 	    c=/usr/bin/php-config$$v; \
 	    if test -x $$c ; then \
 		set -e; \
-		$(MAKE) -C build-php$$v DESTDIR=$(CURDIR)/debian/tmp install; \
+		$(MAKE) -C build-php$$v DESTDIR=$(CURDIR)/debian/tmp \
+		    phpincdir=/usr/share/php`echo $$v|tr -d 5` install; \
 		install -d -m 755 debian/tmp/etc/php$$v/conf.d; \
-		install -m 644 debian/etc-php-conf.d-xapian debian/tmp/etc/php$$v/conf.d/xapian; \
+		install -m 644 debian/etc-php-conf.d-xapian.ini debian/tmp/etc/php$$v/conf.d/xapian.ini; \
 	    fi \
 	done
 

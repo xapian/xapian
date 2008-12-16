@@ -29,18 +29,18 @@ Xapian.
 	we haven't yet performed timings to measure the overhead...)
 
 --enable-log
-        This enables compiling code into the library which generates verbose
+	This enables compiling code into the library which generates verbose
 	debugging messages.  See "Debugging Messages", below.
 
 --enable-log=profile
-        This enables compiling code into the library which reports to stderr
-        how long each method takes to execute.  The profiling machinery tries
-        to discount time spent in itself, but it will affect code generation
-        and cache use, and this feature is implemented by using the logging
-        macros so it only knows about functions and methods which have them, so
-        it is probably more invasive and the output less helpful than dedicated
-        profiling tools.  However, it may be useful and isn't much extra code
-        to maintain, so we've kept it around for now.
+	This enables compiling code into the library which reports to stderr
+	how long each method takes to execute.  The profiling machinery tries
+	to discount time spent in itself, but it will affect code generation
+	and cache use, and this feature is implemented by using the logging
+	macros so it only knows about functions and methods which have them, so
+	it is probably more invasive and the output less helpful than dedicated
+	profiling tools.  However, it may be useful and isn't much extra code
+	to maintain, so we've kept it around for now.
 
 --enable-maintainer-mode
 	This tells configure to enable make dependencies for regenerating build
@@ -48,12 +48,12 @@ Xapian.
 	generated files (such as the stemmers and query parser) when required.
 	These are disabled by default as some make programs try to rebuild them
 	when it's not appropriate (e.g. BSD make doesn't handle VPATH except
-	for implicit rules).  If you enable maintainer mode you probably need
-	to use a better make program (GNU make is recommended).  You'll also
-	need a non-cross-compiling C compiler for compiling the Lemon parser
-	generator and the Snowball stemming algorithm compiler.  The configure
-	script will attempt to locate one, but you can override the
-	autodetection by passing CC_FOR_BUILD on the command line like so::
+	for implicit rules).  For this reason, we recommend GNU make if you
+	enable maintainer mode.  You'll also need a non-cross-compiling C
+	compiler for compiling the Lemon parser generator and the Snowball
+	stemming algorithm compiler.  The configure script will attempt to
+	locate one, but you can override this autodetection by passing
+	CC_FOR_BUILD on the command line like so::
 
 	./configure CC_FOR_BUILD=/opt/bin/gcc
 
@@ -260,6 +260,15 @@ You will need the following tools installed to build from SVN:
 * python >= 2.3 (for generating the Python bindings)
 * GNU make (or another make which support VPATH for explicit rules)
 
+For a recent version of Debian or Ubuntu, this command should ensure you have
+all the necessary tools and libraries::
+
+apt-get install build-essential m4 perl python zlib1g-dev uuid-dev wget
+
+If you want to build Omega, you'll also need::
+
+apt-get install libpcre3-dev
+
 The SVN repository does not contain any automatically generated files
 (such as configure, Makefile.in, Snowball-generated stemmers, Lemon-generated
 parsers, SWIG-generated code, etc) because experience shows it's best to keep
@@ -325,20 +334,24 @@ The documentation tools are:
 
 * doxygen (v1.5.2 is used for snapshots and releases; 1.4.6 produced incomplete
   documentation for Xapian::Query).
-* dot (part of the graphviz package)
-* pdflatex (on Debian/Ubuntu, tetex-extra is also required for fancyhdr.sty)
-* ghostscript
-* epstopdf (usually packaged with TeX)
-* makeindex (usually packaged with TeX)
+* dot (part of Graphviz)
+* gs (part of Ghostscript)
+* pdflatex (in texlive-latex-base on Debian/Ubuntu)
+* epstopdf (in texlive-extra-utils on Debian/Ubuntu)
+* makeindex (in texlive-base-bin on Debian/Ubuntu)
 * help2man
-* rst2html or rst2html.py (on Debian/Ubuntu, this is provided by the
-  python-docutils package)
+* rst2html or rst2html.py (in python-docutils on Debian/Ubuntu)
 * pngcrush (optional - used to reduce the size of PNG files in the HTML
   apidocs)
 
 Note that pdflatex, epstopdf, gs, and makeindex must all currently be on the
 system path (as specified by the environmental variable PATH), since doxygen
 will look for them there.
+
+For a recent version of Debian or Ubuntu, this command should install all the
+required documentation tools::
+
+apt-get install doxygen graphviz ghostscript texlive-latex-base texlive-extra-utils help2man python-docutils pngcrush
 
 Autotools versions
 ------------------
@@ -368,13 +381,13 @@ Autotools versions
   automake 1.10 requires autoconf 2.60 and Perl 5.6.
 
   automake 1.10.1 fixes "make clean" to remove .libs from bin/ and examples/.
-  
+
 * libtool 2.2.6a is recommended and a hard minimum requirement.
 
   libtool 2.2 is required for use to be able to override link_all_deplibs_CXX
   and sys_lib_dlsearch_path_spec in configure.  It also fixes some
   long-standing issues and is significantly faster.
-  
+
   libtool 2.2.4 and 2.2.6a include several bug-fixes over 2.2.
 
 Please tell us if you find that older or newer versions of any of these
@@ -580,14 +593,15 @@ here, or tell us so that we can add a note.
 Miscellaneous Portability Issues
 --------------------------------
 
-Make sure that the last line of any source file ends with a linefeed character.
-Unterminated lines aren't handled by some compilers, 
+Make sure that the last line of any source file ends with a linefeed character
+since it's undefined behaviour if it doesn't (most compilers accept it, though
+at least GCC gives a warning).
 
 Branch Prediction Hints
 =======================
 
 GCC 3.0 and newer and Intel's C++ compiler both provide a mechanism for giving
-the compiler hints to assist branch prediction (using __builtin_expect()).
+the compiler hints to assist branch prediction (using ``__builtin_expect()``).
 Within the xapian-core library code, you can mark the expressions in ``if`` and
 ``while`` statements as ``rare`` (if the condition is rarely true) or ``usual``
 (if the condition is usually true).

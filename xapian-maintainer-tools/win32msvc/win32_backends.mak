@@ -18,8 +18,23 @@ DEPLIBS = "$(OUTDIR)\libmulti.lib"  \
     "$(OUTDIR)\libchert.lib" \
     $(NULL)
 
-OBJS= $(INTDIR)\database.obj $(INTDIR)\dbfactory_remote.obj $(INTDIR)\alltermslist.obj $(INTDIR)\contiguousalldocspostlist.obj
-SRCS= $(INTDIR)\database.cc $(INTDIR)\dbfactory_remote.cc $(INTDIR)\alltermslist.cc $(INTDIR)\contiguousalldocspostlist.cc
+OBJS=   $(INTDIR)\database.obj \
+        $(INTDIR)\dbfactory.obj \
+        $(INTDIR)\dbfactory_remote.obj \
+        $(INTDIR)\alltermslist.obj \
+        $(INTDIR)\valuelist.obj \
+        $(INTDIR)\slowvaluelist.obj \
+        $(INTDIR)\contiguousalldocspostlist.obj
+
+SRCS=   $(INTDIR)\database.cc \
+        $(INTDIR)\dbfactory.cc \
+        $(INTDIR)\dbfactory_remote.cc \
+        $(INTDIR)\alltermslist.cc \
+        $(INTDIR)\valuelist.cc \
+        $(INTDIR)\slowvaluelist.cc \
+        $(INTDIR)\contiguousalldocspostlist.cc
+
+
 	  
 ALL : $(DEPLIBS) "$(OUTDIR)\libbackend.lib" 
 

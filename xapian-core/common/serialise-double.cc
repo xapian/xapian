@@ -1,7 +1,7 @@
 /* @file serialise-double.cc
  * @brief functions to serialise and unserialise a double
  */
-/* Copyright (C) 2006,2007 Olly Betts
+/* Copyright (C) 2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,7 +56,7 @@ using namespace std;
 # define MAX_MANTISSA_BYTES ((DBL_MANT_DIG + 1 + 1) / 2)
 # define MAX_EXP ((DBL_MAX_EXP + 1) / 2)
 # define MAX_MANTISSA (1 << ((DBL_MAX_EXP & 1) * 4))
-#elif
+#else
 # error FLT_RADIX is a value not currently handled (not 2 or 16)
 // # define MAX_MANTISSA_BYTES (sizeof(double) + 1)
 #endif

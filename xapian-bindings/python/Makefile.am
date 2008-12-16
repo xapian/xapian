@@ -78,7 +78,10 @@ xapian/_xapian$(PYTHON_SO): _xapian.la
 	. ./libtoolconfig.tmp; cp $$objdir/_xapian$(PYTHON_SO) xapian
 	rm -f libtoolconfig.tmp
 
-CLEANFILES = xapian/_xapian$(PYTHON_SO) xapian/__init__.py xapian/__init__.pyc xapian/__init__.pyo testsuite.pyc
+CLEANFILES = \
+    xapian/_xapian$(PYTHON_SO) \
+    xapian/__init__.py xapian/__init__.pyc xapian/__init__.pyo \
+    $(srcdir)/testsuite.pyc
 
 # Clean the xapian directory which we created, if it's empty
 clean-local:

@@ -1,7 +1,7 @@
 /** @file api_sorting.cc
  * @brief tests of MSet sorting
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -158,7 +158,7 @@ class NeverUseMeSorter : public Xapian::Sorter {
     }
 };
 
-// Regression test for changing away from a sorter.
+/// Regression test for changing away from a sorter.
 DEFINE_TESTCASE(changesorter1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("word"));
@@ -183,6 +183,23 @@ DEFINE_TESTCASE(changesorter1, backend) {
     enquire.set_sort_by_relevance();
     mset = enquire.get_mset(0, 25);
     TEST_EQUAL(mset.size(), 2); // Check that search is still doing something.
+
+    return true;
+}
+
+/// Regression test - an empty MultiValueSorter hung in 1.0.9 and earlier.
+DEFINE_TESTCASE(sortfunctorempty1,backend && !remote) {
+    Xapian::Enquire enquire(get_database("apitest_sortrel"));
+    enquire.set_query(Xapian::Query("woman"));
+
+    {
+	int i;
+	Xapian::MultiValueSorter sorter(&i, &i);
+
+	enquire.set_sort_by_key(&sorter);
+	Xapian::MSet mset = enquire.get_mset(0, 10);
+	mset_expect_order(mset, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+    }
 
     return true;
 }
