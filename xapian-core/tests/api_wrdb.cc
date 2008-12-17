@@ -30,6 +30,7 @@
 #include <xapian.h>
 
 #include "backendmanager.h" // For XAPIAN_BIN_PATH.
+#include "omassert.h"
 #include "omtime.h"
 #include "testsuite.h"
 #include "testutils.h"

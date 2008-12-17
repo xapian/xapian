@@ -1,3 +1,7 @@
+Wed Dec 17 15:17:07 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_wrdb.cc: Need omassert.h for STATIC_ASSERT.
+
 Wed Dec 17 10:45:45 GMT 2008  Olly Betts <olly@survex.com>
 
 	* api/omqueryinternal.cc,tests/api_nodb.cc: A NEAR of 2 OR subqueries
