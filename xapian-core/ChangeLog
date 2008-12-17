@@ -1,3 +1,10 @@
+Wed Dec 17 17:27:24 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/chert/chert_table.cc,backends/flint/flint_table.cc:
+	  Fix construction of the error message when a base can't be
+	  re-read: used to do pointer arithmetic by mistake - now does the
+	  correct string concatenation.
+
 Wed Dec 17 15:18:10 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/api_valuestream.cc: Skip valuestream3 on chert for now so that

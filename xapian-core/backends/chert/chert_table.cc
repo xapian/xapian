@@ -1900,7 +1900,7 @@ ChertTable::cancel()
 
     string err_msg;
     if (!base.read(name, base_letter, err_msg)) {
-	throw Xapian::DatabaseCorruptError("Couldn't reread base " + base_letter);
+	throw Xapian::DatabaseCorruptError(string("Couldn't reread base ") + base_letter);
     }
 
     revision_number =  base.get_revision();
