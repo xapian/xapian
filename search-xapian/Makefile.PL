@@ -62,13 +62,16 @@ $xver =~ s/.*\s//; # "xapian 1.0.4" -> "1.0.4"
 my $inc = `$xapian_config --cxxflags`;
 chomp($inc);
 
+my @writemakefile_args = ();
 my $libsvar = 'LIBS';
 my $libs = `$xapian_config --libs 2> /dev/null`;
 chomp($libs);
 my ($xapian_config_dir) = $xapian_config =~ /^(.*?)[^\/]*$/;
-if ($? || -f "$xapian_config_dir/Makefile") {
+my $using_libtool = 0;
+if ($? || -f "${xapian_config_dir}Makefile") {
+    $using_libtool = 1;
     # Assume we're being asked to build against an uninstalled xapian-core.
-    my $libtool = "$xapian_config_dir/libtool";
+    my $libtool = "${xapian_config_dir}libtool";
     unless (-x $libtool) {
 	die "You've asked me to link against what appears to be an uninstalled xapian-core tree, but I can't find libtool in that tree\n";
     }
@@ -80,8 +83,15 @@ if ($? || -f "$xapian_config_dir/Makefile") {
     $libs = `$xapian_config --ltlibs`;
     chomp($libs);
     $libs = {'LDLOADLIBS' => $libs};
-    $LD = "$libtool --tag=CXX --mode=link $CC -avoid-version -module -no-install";
-    $CC = "$libtool --mode=compile $CC";
+    $LD = "$libtool --tag=CXX --mode=link $CC -avoid-version -module";
+    $LD .= " -rpath \$(PERL_ARCHLIB)/auto/\$(FULLEXT)";
+    $LD .= " -shrext .".$Config{'dlext'};
+    $CC = "$libtool --tag=CXX --mode=compile $CC";
+    push @writemakefile_args, (
+	'OBJ_EXT'	=> '.lo',
+	'DLEXT'		=> 'la',
+	'FULLPERL'	=> '$(PERL) "-I$(INST_ARCHAUTODIR)/.libs"',
+    );
 }
 
 # Filter out some gcc options which g++ doesn't support.
@@ -95,7 +105,7 @@ $CCFLAGS =~ s/(^|\s+)-Wall(\s+|$)/$1-Wall -Wno-uninitialized$2/;
 
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
-WriteMakefile(
+push @writemakefile_args, (
     'NAME'		=> 'Search::Xapian',
     'VERSION_FROM'	=> 'Xapian.pm', # finds $VERSION
     'PREREQ_PM'		=> {}, # e.g., Module::Name => 1.1
@@ -114,6 +124,7 @@ WriteMakefile(
     # Add "make check" as alias for "make test".
     'depend'		=> { 'check' => 'test' },
 );
+WriteMakefile(@writemakefile_args);
 
 my $VERSION = "unknown";
 open F, "Makefile" or die $!;

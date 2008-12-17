@@ -4,6 +4,9 @@ Revision history for Perl extension Search::Xapian.
 	- Wrap Search::Xapian::get_major_version(), get_minor_version(),
 	  get_revision(), sortable_serialise(), and sortable_unserialise().
 	- Reject xapian-core < 1.0 with an error rather than just a warning.
+	- Fixed building against uninstalled xapian-core to work with libtool
+	  2.2.x (you can't currently "make install" in a tree configured in
+	  this way though).
 
 1.0.8.0  Thu Sep  4 05:38:22 GMT 2008
 	- No change except for bumping the version to indicate compatibility
