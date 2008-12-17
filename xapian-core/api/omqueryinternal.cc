@@ -913,7 +913,9 @@ Xapian::Query::Internal::collapse_subqs()
 void
 Xapian::Query::Internal::flatten_subqs()
 {
-    Assert(op == Xapian::Query::OP_NEAR || op == Xapian::Query::OP_PHRASE);
+    if (op != Xapian::Query::OP_NEAR && op != Xapian::Query::OP_PHRASE) {
+	throw Xapian::UnimplementedError("NEAR or PHRASE with non-term subqueries isn't well supported currently");
+    }
 
     subquery_list::iterator sq;
     for (sq = subqs.begin(); sq != subqs.end(); sq++) {

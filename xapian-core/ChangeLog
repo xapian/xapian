@@ -1,3 +1,10 @@
+Wed Dec 17 10:45:45 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc,tests/api_nodb.cc: A NEAR of 2 OR subqueries
+	  shouldn't throw AssertionError - instead throw UnimplementedError.
+	  Addresses the worst aspect of bug#201, but this should really be
+	  implemented.
+
 Wed Dec 17 04:44:10 GMT 2008  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_database.cc,backends/chert/chert_database.h:
