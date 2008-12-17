@@ -1811,10 +1811,11 @@ ValueList *
 ChertWritableDatabase::open_value_list(Xapian::valueno slot) const
 {
     DEBUGCALL(DB, ValueList *, "ChertWritableDatabase::open_value_list", slot);
-    (void)slot;
-    throw Xapian::UnimplementedError("ChertWritableDatabase::open_value_list not yet implemented"); // FIXME
-    //Xapian::Internal::RefCntPtr<const ChertDatabase> ptrtothis(this);
-    //RETURN(new ChertValueList(slot, ptrtothis));
+    // If there are changes, we don't have code to iterate the modified value
+    // list so we need to flush (but don't commit - there may be a transaction
+    // in progress).
+    if (change_count) value_manager.merge_changes();
+    RETURN(ChertDatabase::open_value_list(slot));
 }
 
 TermList *
@@ -1822,7 +1823,8 @@ ChertWritableDatabase::open_allterms(const string & prefix) const
 {
     DEBUGCALL(DB, TermList *, "ChertWritableDatabase::open_allterms", "");
     // If there are changes, terms may have been added or removed, and so we
-    // need to flush (but don't commit - there may be a transaction in progress.
+    // need to flush (but don't commit - there may be a transaction in
+    // progress).
     if (change_count) flush_postlist_changes();
     RETURN(ChertDatabase::open_allterms(prefix));
 }

@@ -1,3 +1,10 @@
+Wed Dec 17 04:44:10 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/chert/chert_database.h:
+	  Implement ChertWritableDatabase::open_value_list().
+	* tests/api_valuestream.cc: Add valueweightsource5 testcase which is a
+	  regression test for bug#299 and also exercises the above method.
+
 Tue Dec 16 13:30:47 GMT 2008  Olly Betts <olly@survex.com>
 
 	* common/expandweight.h,expand/expandweight.cc: Overhaul ExpandWeight
