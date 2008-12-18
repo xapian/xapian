@@ -110,7 +110,8 @@ WriteMakefile(
     'LD'                => $LD,
     'INC'		=> $inc, # e.g., '-I/usr/include/other'
     'XSOPT'             => '-C++',
-    'TYPEMAPS'          => ['perlobject.map','typemap'],
+    # 'typemap' is implicitly added to this list.
+    'TYPEMAPS'          => ['perlobject.map'],
     # Add "make check" as alias for "make test".
     'depend'		=> { 'check' => 'test' },
 );
