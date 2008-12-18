@@ -119,9 +119,10 @@ push @writemakefile_args, (
     'CCFLAGS'		=> $CCFLAGS,
     'LD'                => $LD,
     'INC'		=> $inc, # e.g., '-I/usr/include/other'
+    'OBJECT'		=> '$(BASEEXT)$(OBJ_EXT) handle_exception$(OBJ_EXT)',
     'XSOPT'             => '-C++',
     # 'typemap' is implicitly added to this list.
-    'TYPEMAPS'          => ['perlobject.map'],
+    'TYPEMAPS'          => ['perlobject.map', 'typemap-errorclasses'],
     # Add "make check" as alias for "make test".
     'depend'		=> { 'check' => 'test' },
 );

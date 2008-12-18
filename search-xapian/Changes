@@ -1,5 +1,8 @@
 Revision history for Perl extension Search::Xapian.
 
+	[Changes contributed by Andreas Marienborg and Olly Betts]
+	- Xapian C++ exceptions classes are now wrapped and C++ exceptions
+	  are caught and rethrown in Perl.
 	[Changes contributed by Olly Betts]
 	- Wrap Search::Xapian::get_major_version(), get_minor_version(),
 	  get_revision(), sortable_serialise(), and sortable_unserialise().
