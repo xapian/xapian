@@ -185,6 +185,15 @@ class ChertDatabase : public Xapian::Database::Internal {
 	 */
 	void reopen();
 
+	/** Called if a modifications fail.
+	 *
+	 *  @param msg is a string description of the exception that was
+	 *  raised when the modifications failed.
+	 */
+	void modifications_failed(chert_revision_number_t old_revision,
+				  chert_revision_number_t new_revision,
+				  const std::string & msg);
+
 	/** Apply any outstanding changes to the tables.
 	 *
 	 *  If an error occurs during this operation, this will be signalled

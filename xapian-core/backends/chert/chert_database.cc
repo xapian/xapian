@@ -734,6 +734,30 @@ ChertDatabase::write_changesets_to_fd(int fd,
 }
 
 void
+ChertDatabase::modifications_failed(chert_revision_number_t old_revision,
+				    chert_revision_number_t new_revision,
+				    const std::string & msg)
+{
+    // Modifications failed.  Wipe all the modifications from memory.
+    try {
+	// Discard any buffered changes and reinitialised cached values
+	// from the table.
+	cancel();
+
+	// Reopen tables with old revision number.
+	open_tables(old_revision);
+
+	// Increase revision numbers to new revision number plus one,
+	// writing increased numbers to all tables.
+	++new_revision;
+	set_revision_number(new_revision);
+    } catch (const Xapian::Error &e) {
+	// Modifications failed, and we couldn't recover successfully.
+	throw Xapian::DatabaseError("Modifications failed (" + msg + "), and cannot set consistent table revision numbers: " + e.get_msg());
+    }
+}
+
+void
 ChertDatabase::apply()
 {
     DEBUGCALL(DB, void, "ChertDatabase::apply", "");
@@ -752,23 +776,11 @@ ChertDatabase::apply()
 
     try {
 	set_revision_number(new_revision);
+    } catch (const Xapian::Error &e) {
+	modifications_failed(old_revision, new_revision, e.get_description());
+	throw;
     } catch (...) {
-	// Modifications failed.  Wipe all the modifications from memory.
-	try {
-	    // Discard any buffered changes and reinitialised cached values
-	    // from the table.
-	    cancel();
-
-	    // Reopen tables with old revision number.
-	    open_tables(old_revision);
-
-	    // Increase revision numbers to new revision number plus one,
-	    // writing increased numbers to all tables.
-	    ++new_revision;
-	    set_revision_number(new_revision);
-	} catch (const Xapian::Error &e) {
-	    throw Xapian::DatabaseError("Modifications failed, and cannot set consistent table revision numbers: " + e.get_msg());
-	}
+	modifications_failed(old_revision, new_revision, "Unknown error");
 	throw;
     }
 }
