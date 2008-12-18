@@ -1758,51 +1758,52 @@ FlintTable::commit(flint_revision_number_t revision, int changes_fd,
     }
 
     try {
-        if (faked_root_block) {
+	if (faked_root_block) {
 	    /* We will use a dummy bitmap. */
 	    base.clear_bit_map();
-        }
+	}
 
-        base.set_revision(revision);
-        base.set_root(C[level].n);
-        base.set_level(level);
-        base.set_item_count(item_count);
-        base.set_have_fakeroot(faked_root_block);
-        base.set_sequential(sequential);
+	base.set_revision(revision);
+	base.set_root(C[level].n);
+	base.set_level(level);
+	base.set_item_count(item_count);
+	base.set_have_fakeroot(faked_root_block);
+	base.set_sequential(sequential);
 
-        base_letter = other_base_letter();
+	base_letter = other_base_letter();
 
-        both_bases = true;
-        latest_revision_number = revision_number = revision;
-        root = C[level].n;
+	both_bases = true;
+	latest_revision_number = revision_number = revision;
+	root = C[level].n;
 
-        Btree_modified = false;
+	Btree_modified = false;
 
-        for (int i = 0; i < BTREE_CURSOR_LEVELS; ++i) {
+	for (int i = 0; i < BTREE_CURSOR_LEVELS; ++i) {
 	    C[i].n = BLK_UNUSED;
 	    C[i].c = -1;
 	    C[i].rewrite = false;
-        }
+	}
 
-        // Do this as late as possible to allow maximum time for writes to be committed.
-        if (!flint_io_sync(handle)) {
+	// Do this as late as possible to allow maximum time for writes to be
+	// committed.
+	if (!flint_io_sync(handle)) {
 	    (void)::close(handle);
 	    handle = -1;
 	    throw Xapian::DatabaseError("Can't commit new revision - failed to flush DB to disk");
-        }
+	}
 
-        // Save to "<table>.tmp" and then rename to "<table>.base<letter>" so that
-        // a reader can't try to read a partially written base file.
-        string tmp = name;
-        tmp += "tmp";
-        string basefile = name;
-        basefile += "base";
-        basefile += char(base_letter);
-        base.write_to_file(tmp, base_letter, tablename, changes_fd, changes_tail);
+	// Save to "<table>.tmp" and then rename to "<table>.base<letter>" so
+	// that a reader can't try to read a partially written base file.
+	string tmp = name;
+	tmp += "tmp";
+	string basefile = name;
+	basefile += "base";
+	basefile += char(base_letter);
+	base.write_to_file(tmp, base_letter, tablename, changes_fd, changes_tail);
 #if defined __WIN32__
-        if (msvc_posix_rename(tmp.c_str(), basefile.c_str()) < 0)
+	if (msvc_posix_rename(tmp.c_str(), basefile.c_str()) < 0)
 #else
-        if (rename(tmp.c_str(), basefile.c_str()) < 0)
+	if (rename(tmp.c_str(), basefile.c_str()) < 0)
 #endif
 	{
 	    // With NFS, rename() failing may just mean that the server crashed
@@ -1819,13 +1820,13 @@ FlintTable::commit(flint_revision_number_t revision, int changes_fd,
 		throw Xapian::DatabaseError(msg);
 	    }
 	}
-        base.commit();
+	base.commit();
 
-        read_root();
+	read_root();
 
-        changed_n = 0;
-        changed_c = DIR_START;
-        seq_count = SEQ_START_POINT;
+	changed_n = 0;
+	changed_c = DIR_START;
+	seq_count = SEQ_START_POINT;
     } catch(...) {
 	FlintTable::close();
 	throw;

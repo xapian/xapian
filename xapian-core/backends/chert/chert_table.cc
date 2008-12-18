@@ -1784,7 +1784,7 @@ ChertTable::commit(chert_revision_number_t revision, int changes_fd,
     }
 
     try {
-        if (faked_root_block) {
+	if (faked_root_block) {
 	    /* We will use a dummy bitmap. */
 	    base.clear_bit_map();
 	}
@@ -1810,15 +1810,16 @@ ChertTable::commit(chert_revision_number_t revision, int changes_fd,
 	    C[i].rewrite = false;
 	}
 
-	// Do this as late as possible to allow maximum time for writes to be committed.
+	// Do this as late as possible to allow maximum time for writes to be
+	// committed.
 	if (!chert_io_sync(handle)) {
 	    (void)::close(handle);
 	    handle = -1;
 	    throw Xapian::DatabaseError("Can't commit new revision - failed to flush DB to disk");
 	}
 
-	// Save to "<table>.tmp" and then rename to "<table>.base<letter>" so that
-	// a reader can't try to read a partially written base file.
+	// Save to "<table>.tmp" and then rename to "<table>.base<letter>" so
+	// that a reader can't try to read a partially written base file.
 	string tmp = name;
 	tmp += "tmp";
 	string basefile = name;
