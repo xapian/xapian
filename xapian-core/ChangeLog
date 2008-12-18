@@ -1,3 +1,21 @@
+Thu Dec 18 14:26:30 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/chert/chert_database.cc,backends/chert/chert_table.cc,
+	  backends/chert/chert_table.h,backends/flint/flint_database.cc,
+	  backends/flint/flint_table.cc,backends/flint/flint_table.h:
+	  Improve resilience to unexpected errors during commit.  Firstly,
+	  fix FlintTable and ChertTable to close the table if an error
+	  occurs during commit - this avoids the table being left in an
+	  inconsistent state (instead, the table is reopened in a
+	  consistent state the next time it is used).  Secondly, add a
+	  "permanent" close state for tables (indicated by handle being set
+	  to -2), which will raise an error if anything tries to do an
+	  action which needs the table to be opened, and set the tables to
+	  this state if we fail to recover the database after error in
+	  commit().  This prevents further actions on the database if we
+	  couldn't recover the state (eg, because we're out of disk space),
+	  avoiding risk of corruption.
+
 Thu Dec 18 01:28:06 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* backends/chert/chert_database.cc,backends/chert/chert_database.h,

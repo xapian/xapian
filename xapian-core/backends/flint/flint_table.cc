@@ -1023,7 +1023,7 @@ FlintTable::add(const string &key, string tag, bool already_compressed)
     DEBUGCALL(DB, bool, "FlintTable::add", key << ", " << tag);
     Assert(writable);
 
-    if (handle == -1) create_and_open(block_size);
+    if (handle < 0) create_and_open(block_size);
 
     form_key(key);
 
@@ -1172,7 +1172,7 @@ FlintTable::del(const string &key)
     DEBUGCALL(DB, bool, "FlintTable::del", key);
     Assert(writable);
 
-    if (handle == -1) RETURN(false);
+    if (handle < 0) RETURN(false);
 
     // We can't delete a key which we is too long for us to store.
     if (key.size() > FLINT_BTREE_MAX_KEY_LEN) RETURN(false);
@@ -1199,7 +1199,7 @@ FlintTable::get_exact_entry(const string &key, string & tag) const
     DEBUGCALL(DB, bool, "FlintTable::get_exact_entry", key << ", [&tag]");
     Assert(!key.empty());
 
-    if (handle == -1) RETURN(false);
+    if (handle < 0) RETURN(false);
 
     // An oversized key can't exist, so attempting to search for it should fail.
     if (key.size() > FLINT_BTREE_MAX_KEY_LEN) RETURN(false);
@@ -1340,7 +1340,7 @@ FlintTable::set_full_compaction(bool parity)
 }
 
 FlintCursor * FlintTable::cursor_get() const {
-    if (handle == -1) return NULL;
+    if (handle < 0) return NULL;
     // FIXME Ick - casting away const is nasty
     return new FlintCursor(const_cast<FlintTable *>(this));
 }
@@ -1375,7 +1375,7 @@ FlintTable::basic_open(bool revision_supplied, flint_revision_number_t revision_
 	}
 
 	if (!valid_base) {
-	    if (handle != -1) {
+	    if (handle >= 0) {
 		::close(handle);
 		handle = -1;
 	    }
@@ -1519,6 +1519,9 @@ FlintTable::do_open_to_write(bool revision_supplied,
 			     flint_revision_number_t revision_,
 			     bool create_db)
 {
+    if (handle == -2) {
+	throw Xapian::DatabaseError("Database has been closed");
+    }
     int flags = O_RDWR | O_BINARY;
     if (create_db) flags |= O_CREAT | O_TRUNC;
     handle = ::open((name + "DB").c_str(), flags, 0666);
@@ -1657,6 +1660,9 @@ void
 FlintTable::create_and_open(unsigned int block_size_)
 {
     DEBUGCALL(DB, void, "FlintTable::create_and_open", block_size_);
+    if (handle == -2) {
+	throw Xapian::DatabaseError("Database has been closed");
+    }
     Assert(writable);
     close();
 
@@ -1689,14 +1695,18 @@ FlintTable::~FlintTable() {
     FlintTable::close();
 }
 
-void FlintTable::close() {
+void FlintTable::close(bool permanent) {
     DEBUGCALL(DB, void, "FlintTable::close", "");
 
-    if (handle != -1) {
+    if (handle >= 0) {
 	// If an error occurs here, we just ignore it, since we're just
 	// trying to free everything.
 	(void)::close(handle);
 	handle = -1;
+    }
+
+    if (permanent) {
+	handle = -2;
     }
 
     for (int j = level; j >= 0; j--) {
@@ -1717,7 +1727,7 @@ FlintTable::flush_db()
 {
     DEBUGCALL(DB, void, "FlintTable::flush_db", "");
     Assert(writable);
-    if (handle == -1) return;
+    if (handle < 0) return;
 
     for (int j = level; j >= 0; j--) {
 	if (C[j].rewrite) {
@@ -1742,85 +1752,91 @@ FlintTable::commit(flint_revision_number_t revision, int changes_fd,
 	throw Xapian::DatabaseError("New revision too low");
     }
 
-    if (handle == -1) {
+    if (handle < 0) {
 	latest_revision_number = revision_number = revision;
 	return;
     }
 
-    if (faked_root_block) {
-	/* We will use a dummy bitmap. */
-	base.clear_bit_map();
-    }
+    try {
+        if (faked_root_block) {
+	    /* We will use a dummy bitmap. */
+	    base.clear_bit_map();
+        }
 
-    base.set_revision(revision);
-    base.set_root(C[level].n);
-    base.set_level(level);
-    base.set_item_count(item_count);
-    base.set_have_fakeroot(faked_root_block);
-    base.set_sequential(sequential);
+        base.set_revision(revision);
+        base.set_root(C[level].n);
+        base.set_level(level);
+        base.set_item_count(item_count);
+        base.set_have_fakeroot(faked_root_block);
+        base.set_sequential(sequential);
 
-    base_letter = other_base_letter();
+        base_letter = other_base_letter();
 
-    both_bases = true;
-    latest_revision_number = revision_number = revision;
-    root = C[level].n;
+        both_bases = true;
+        latest_revision_number = revision_number = revision;
+        root = C[level].n;
 
-    Btree_modified = false;
+        Btree_modified = false;
 
-    for (int i = 0; i < BTREE_CURSOR_LEVELS; ++i) {
-	C[i].n = BLK_UNUSED;
-	C[i].c = -1;
-	C[i].rewrite = false;
-    }
+        for (int i = 0; i < BTREE_CURSOR_LEVELS; ++i) {
+	    C[i].n = BLK_UNUSED;
+	    C[i].c = -1;
+	    C[i].rewrite = false;
+        }
 
-    // Do this as late as possible to allow maximum time for writes to be committed.
-    if (!flint_io_sync(handle)) {
-	(void)::close(handle);
-	handle = -1;
-	throw Xapian::DatabaseError("Can't commit new revision - failed to flush DB to disk");
-    }
+        // Do this as late as possible to allow maximum time for writes to be committed.
+        if (!flint_io_sync(handle)) {
+	    (void)::close(handle);
+	    handle = -1;
+	    throw Xapian::DatabaseError("Can't commit new revision - failed to flush DB to disk");
+        }
 
-    // Save to "<table>.tmp" and then rename to "<table>.base<letter>" so that
-    // a reader can't try to read a partially written base file.
-    string tmp = name;
-    tmp += "tmp";
-    string basefile = name;
-    basefile += "base";
-    basefile += char(base_letter);
-    base.write_to_file(tmp, base_letter, tablename, changes_fd, changes_tail);
+        // Save to "<table>.tmp" and then rename to "<table>.base<letter>" so that
+        // a reader can't try to read a partially written base file.
+        string tmp = name;
+        tmp += "tmp";
+        string basefile = name;
+        basefile += "base";
+        basefile += char(base_letter);
+        base.write_to_file(tmp, base_letter, tablename, changes_fd, changes_tail);
 #if defined __WIN32__
-    if (msvc_posix_rename(tmp.c_str(), basefile.c_str()) < 0) {
+        if (msvc_posix_rename(tmp.c_str(), basefile.c_str()) < 0)
 #else
-    if (rename(tmp.c_str(), basefile.c_str()) < 0) {
+        if (rename(tmp.c_str(), basefile.c_str()) < 0)
 #endif
-	// With NFS, rename() failing may just mean that the server crashed
-	// after successfully renaming, but before reporting this, and then
-	// the retried operation fails.  So we need to check if the source
-	// file still exists, which we do by calling unlink(), since we want
-	// to remove the temporary file anyway.
-	int saved_errno = errno;
-	if (unlink(tmp) == 0 || errno != ENOENT) {
-	    string msg("Couldn't update base file ");
-	    msg += basefile;
-	    msg += ": ";
-	    msg += strerror(saved_errno);
-	    throw Xapian::DatabaseError(msg);
+	{
+	    // With NFS, rename() failing may just mean that the server crashed
+	    // after successfully renaming, but before reporting this, and then
+	    // the retried operation fails.  So we need to check if the source
+	    // file still exists, which we do by calling unlink(), since we want
+	    // to remove the temporary file anyway.
+	    int saved_errno = errno;
+	    if (unlink(tmp) == 0 || errno != ENOENT) {
+		string msg("Couldn't update base file ");
+		msg += basefile;
+		msg += ": ";
+		msg += strerror(saved_errno);
+		throw Xapian::DatabaseError(msg);
+	    }
 	}
+        base.commit();
+
+        read_root();
+
+        changed_n = 0;
+        changed_c = DIR_START;
+        seq_count = SEQ_START_POINT;
+    } catch(...) {
+	FlintTable::close();
+	throw;
     }
-    base.commit();
-
-    read_root();
-
-    changed_n = 0;
-    changed_c = DIR_START;
-    seq_count = SEQ_START_POINT;
 }
 
 void
 FlintTable::write_changed_blocks(int changes_fd)
 {
     Assert(changes_fd >= 0);
-    if (handle == -1) return;
+    if (handle < 0) return;
     if (faked_root_block) return;
 
     string buf;
@@ -1864,7 +1880,7 @@ FlintTable::cancel()
     DEBUGCALL(DB, void, "FlintTable::cancel", "");
     Assert(writable);
 
-    if (handle == -1) {
+    if (handle < 0) {
 	latest_revision_number = revision_number; // FIXME: we can end up reusing a revision if we opened a btree at an older revision, start to modify it, then cancel...
 	return;
     }
@@ -1903,6 +1919,9 @@ FlintTable::cancel()
 bool
 FlintTable::do_open_to_read(bool revision_supplied, flint_revision_number_t revision_)
 {
+    if (handle == -2) {
+	throw Xapian::DatabaseError("Database has been closed");
+    }
     handle = ::open((name + "DB").c_str(), O_RDONLY | O_BINARY);
     if (handle < 0) {
 	if (lazy) {
