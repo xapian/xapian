@@ -1,3 +1,9 @@
+Fri Dec 19 01:27:24 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* AUTHORS: Add Daniel Andersson for reporting the flintlock
+	  permissions issue.
+
 Fri Dec 19 01:26:52 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
