@@ -1,3 +1,24 @@
+Fri Dec 19 02:07:59 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* backends/flint/flint_database.cc,
+	  backends/flint/flint_table.cc,backends/flint/flint_table.h:
+	  Improve resilience to unexpected errors during commit.  Firstly,
+	  fix FlintTable to close the table if an error
+	  occurs during commit - this avoids the table being left in an
+	  inconsistent state (instead, the table is reopened in a
+	  consistent state the next time it is used).  Secondly, add a
+	  "permanent" close state for tables (indicated by handle being set
+	  to -2), which will raise an error if anything tries to do an
+	  action which needs the table to be opened, and set the tables to
+	  this state if we fail to recover the database after error in
+	  commit().  This prevents further actions on the database if we
+	  couldn't recover the state (eg, because we're out of disk space),
+	  avoiding risk of corruption.
+	* backends/flint/flint_table.cc: Tidy up
+	  comment wrapping and indenting of code wrapped in try blocks by the
+	  previous commit.
+
 Fri Dec 19 01:53:21 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
