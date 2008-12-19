@@ -1,11 +1,16 @@
-Tue Dec 02 08:44:27 GMT 2008  Olly Betts <olly@survex.com>
+Fri Dec 19 02:07:59 GMT 2008  Olly Betts <olly@survex.com>
 
 Xapian-core 1.0.10 (2008-12-??):
 
-
 API:
 
+* Composing an OP_NEAR query with two non-term subqueries now throws
+  UnimplementedError instead of AssertionError (in a --enable-assertions build)
+  or leading to unexpected results (otherwise).  This partly addresses bug#201.
 
+* Using a MultiValueSorter with no values set no longer causes a hang or
+  segmentation fault (but it is still rather pointless!)
+    
 testsuite:
 
 
@@ -14,6 +19,22 @@ matcher:
 
 flint backend:
 
+* If the disk became full while flushing database changes to disk, the
+  WritableDatabase object would throw a DatabaseError exception but be left in
+  an inconsistent state such that further use could lead to the database on
+  disk ending up in a "corrupt" state (theoretically fixable, but no tool
+  to fix such a database exists).  Now we try to ensure that the object is
+  left in a consistent state, but if doing so throws a further exception, we
+  put the WritableDatabase object in a "closed" state such that further
+  attempts to use it throw an exception.
+
+* Create the lockfile "flintlock" with permissions 0666 so that the umask is
+  honoured just like we do for the other files (previously we used 0600).
+  Previously it wasn't possible to lock a database for update if it was
+  owned by another user, even if you otherwise had sufficient permissions via
+  "group" or "other".
+
+* Fix garbled exception message when a base file can't be reread.
 
 quartz backend:
 
@@ -35,6 +56,8 @@ documentation:
 
 examples:
 
+* delve: Add missing "and" to --help output.  Report termfreq and collection
+  freq for each term we're asked about.
 
 portability:
 
