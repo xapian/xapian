@@ -277,6 +277,7 @@ struct lemon {
   int tablesize;           /* Size of the parse tables */
   int basisflag;           /* Print only basis configurations */
   int has_fallback;        /* True if any %fallback is seen in the grammar */
+  int nolinenosflag;       /* True if #line statements should not be printed */
   char *argv0;             /* Name of the program */
 };
 
@@ -1436,12 +1437,14 @@ char **argv;
   static int quiet = 0;
   static int statistics = 0;
   static int mhflag = 0;
+  static int nolinenosflag = 0;
   static struct s_options options[] = {
     {OPT_FLAG, "b", (void*)&basisflag, 0, "Print only the basis in report."},
     {OPT_FLAG, "c", (void*)&compress, 0, "Don't compress the action table."},
     {OPT_FSTR, "D", 0, handle_D_option, "Define an %ifdef macro."},
     {OPT_FLAG, "g", (void*)&rpflag, 0, "Print grammar without actions."},
-    {OPT_FLAG, "m", (void*)&mhflag, 0, "Output a makeheaders compatible file"},
+    {OPT_FLAG, "m", (char*)&mhflag, 0, "Output a makeheaders compatible file."},
+    {OPT_FLAG, "l", (char*)&nolinenosflag, 0, "Do not print #line statements."},
     {OPT_FLAG, "q", (void*)&quiet, 0, "(Quiet) Don't print the report file."},
     {OPT_FLAG, "s", (void*)&statistics, 0,
                                    "Print parser stats to standard output."},
@@ -1473,6 +1476,7 @@ char **argv;
   lem.argv0 = argv[0];
   lem.filename = OptArg(0);
   lem.basisflag = basisflag;
+  lem.nolinenosflag = nolinenosflag;
   Symbol_new("$");
   lem.errsym = Symbol_new("error");
   lem.errsym->useCnt = 0;
@@ -2378,7 +2382,7 @@ struct pstate *psp;
         }
         nOld = lemonStrlen(zOld);
         n = nOld + nNew + 20;
-        addLineMacro = psp->insertLineMacro &&
+        addLineMacro = !psp->gp->nolinenosflag && psp->insertLineMacro &&
                         (psp->decllinenoslot==0 || psp->decllinenoslot[0]!=0);
         if( addLineMacro ){
           for(z=psp->filename, nBack=0; *z; z++){
@@ -3162,18 +3166,18 @@ char *str;
 int *lineno;
 {
   if( str==0 ) return;
-  (*lineno)++;
   while( *str ){
-    if( *str=='\n' ) (*lineno)++;
     putc(*str,out);
+    if( *str=='\n' ) (*lineno)++;
     str++;
   }
   if( str[-1]!='\n' ){
     putc('\n',out);
     (*lineno)++;
   }
-  tplt_linedir(out,*lineno+2,lemp->outname); 
-  (*lineno)+=2;
+  if (!lemp->nolinenosflag) {
+    (*lineno)++; tplt_linedir(out,*lineno,lemp->outname); 
+  }
   return;
 }
 
@@ -3189,7 +3193,6 @@ int *lineno;
 {
  char *cp = 0;
 
- int linecnt = 0;
  if( sp->type==TERMINAL ){
    cp = lemp->tokendest;
    if( cp==0 ) return;
@@ -3197,7 +3200,7 @@ int *lineno;
  }else if( sp->destructor ){
    cp = sp->destructor;
    fprintf(out,"{\n"); (*lineno)++;
-   tplt_linedir(out,sp->destLineno,lemp->filename); (*lineno)++;
+   if (!lemp->nolinenosflag) { (*lineno)++; tplt_linedir(out,sp->destLineno,lemp->filename); }
  }else if( lemp->vardest ){
    cp = lemp->vardest;
    if( cp==0 ) return;
@@ -3211,13 +3214,14 @@ int *lineno;
      cp++;
      continue;
    }
-   if( *cp=='\n' ) linecnt++;
+   if( *cp=='\n' ) (*lineno)++;
    fputc(*cp,out);
  }
- (*lineno) += 3 + linecnt;
- fprintf(out,"\n");
- tplt_linedir(out,*lineno,lemp->outname);
- fprintf(out,"}\n");
+ fprintf(out,"\n"); (*lineno)++;
+ if (!lemp->nolinenosflag) { 
+   (*lineno)++; tplt_linedir(out,*lineno,lemp->outname); 
+ }
+ fprintf(out,"}\n"); (*lineno)++;
  return;
 }
 
@@ -3389,18 +3393,16 @@ struct lemon *lemp;
 int *lineno;
 {
  char *cp;
- int linecnt = 0;
 
  /* Generate code to do the reduce action */
  if( rp->code ){
-   tplt_linedir(out,rp->line,lemp->filename);
+   if (!lemp->nolinenosflag) { (*lineno)++; tplt_linedir(out,rp->line,lemp->filename); }
    fprintf(out,"{%s",rp->code);
    for(cp=rp->code; *cp; cp++){
-     if( *cp=='\n' ) linecnt++;
+     if( *cp=='\n' ) (*lineno)++;
    } /* End loop */
-   (*lineno) += 3 + linecnt;
-   fprintf(out,"}\n");
-   tplt_linedir(out,*lineno,lemp->outname);
+   fprintf(out,"}\n"); (*lineno)++;
+   if (!lemp->nolinenosflag) { (*lineno)++; tplt_linedir(out,*lineno,lemp->outname); }
  } /* End if( rp->code ) */
 
  return;
