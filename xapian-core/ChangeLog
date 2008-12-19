@@ -1,3 +1,9 @@
+Fri Dec 19 01:26:52 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* api/sorter.cc,tests/api_sorting.cc: Fix an empty MultiValueSorter
+	  not to SEGV/hang.
+
 Fri Dec 05 00:25:11 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
