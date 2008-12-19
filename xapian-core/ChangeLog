@@ -1,3 +1,9 @@
+Fri Dec 19 01:29:15 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* examples/delve.cc: Add missing "and" to --help output.  Report
+	  termfreq and collection freq for each term we're asked about.
+
 Fri Dec 19 01:27:24 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
