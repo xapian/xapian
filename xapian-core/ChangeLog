@@ -1,3 +1,11 @@
+Fri Dec 19 01:43:57 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/chert/chert_table.cc,backends/flint/flint_table.cc:
+	  Fix construction of the error message when a base can't be
+	  re-read: used to do pointer arithmetic by mistake - now does the
+	  correct string concatenation.
+
 Fri Dec 19 01:32:19 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
