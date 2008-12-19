@@ -1,3 +1,11 @@
+Fri Dec 19 01:32:19 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* api/omqueryinternal.cc,tests/api_nodb.cc: A NEAR of 2 OR subqueries
+	  shouldn't throw AssertionError - instead throw UnimplementedError.
+	  Addresses the worst aspect of bug#201, but this should really be
+	  implemented.
+
 Fri Dec 19 01:29:15 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
