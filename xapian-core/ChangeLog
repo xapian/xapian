@@ -1,7 +1,15 @@
+Fri Dec 19 01:53:21 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/flint/flint_database.cc,backends/flint/flint_database.h:
+	  Improve the error reporting when modifications fail and we cannot
+	  set the revision numbers in the table to consistent values, to
+	  report the original error too.
+
 Fri Dec 19 01:43:57 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
-	* backends/chert/chert_table.cc,backends/flint/flint_table.cc:
+	* backends/flint/flint_table.cc:
 	  Fix construction of the error message when a base can't be
 	  re-read: used to do pointer arithmetic by mistake - now does the
 	  correct string concatenation.
