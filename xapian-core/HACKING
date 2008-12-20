@@ -707,10 +707,10 @@ Here's an incomplete list of things to avoid:
   provides a configure-time include, which may provide a replacement for some
   uses of "include".
 
-* It appears that BSD make only supports VPATH for implicit rules (e.g. ".c.o:")
-  - there's certainly a restriction there which is not present in GNU make.
-  We used to try to work around this, but now we use AM_MAINTAINER_MODE to
-  disable rules which are only needed by those developing Xapian (these were
+* It appears that BSD make only supports VPATH for implicit rules (e.g.
+  ".c.o:") - there's certainly a restriction there which is not present in GNU
+  make.  We used to try to work around this, but now we use AM_MAINTAINER_MODE
+  to disable rules which are only needed by those developing Xapian (these were
   the rules which caused problems).  And we recommend those developing Xapian
   use GNU make to avoid problems.
 

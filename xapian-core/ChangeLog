@@ -1,3 +1,7 @@
+Sat Dec 20 05:51:50 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Wrap a long line.
+
 Sat Dec 20 05:28:57 GMT 2008  Olly Betts <olly@survex.com>
 
 	* queryparser/lemon.c: Merge upstream "Check-in Number: 6016".
