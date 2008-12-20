@@ -1,3 +1,9 @@
+Sat Dec 20 13:09:13 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_percentages.cc: Make formatting of MyPostingSource code
+	  more self-consistent.  Remove a superfluous block scope.  Wrap a
+	  long comment.
+
 Sat Dec 20 12:25:40 GMT 2008  Olly Betts <olly@survex.com>
 
 	* exception_data.pm: Build a hash mapping a class to a list of its
