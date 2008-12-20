@@ -520,11 +520,12 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    calculated_weight = true;
 	}
 
+	Xapian::Internal::RefCntPtr<Xapian::Document::Internal> doc;
 	Xapian::docid did = pl->get_docid();
 	LOGLINE(MATCH, "Candidate document id " << did << " wt " << wt);
 	Xapian::Internal::MSetItem new_item(wt, did);
 	if (sort_by != REL) {
-	    Xapian::Internal::RefCntPtr<Xapian::Document::Internal> doc(db.get_document_lazily(new_item.did));
+	    doc = db.get_document_lazily(did);
 	    Assert(doc.get());
 	    if (sorter) {
 		new_item.sort_key = (*sorter)(Xapian::Document(doc.get()));
@@ -557,8 +558,6 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    }
 	}
 
-	Xapian::Internal::RefCntPtr<Xapian::Document::Internal> doc;
-
 	// Use the match spy and/or decision functors (if specified).
 	if (matchspy != NULL || mdecider != NULL) {
 	    const unsigned int multiplier = db.internal.size();
@@ -568,9 +567,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    // already have been applied there so we can skip this step.
 	    if (!is_remote[n]) {
 		if (doc.get() == 0) {
-		    Xapian::Internal::RefCntPtr<Xapian::Document::Internal> temp(db.get_document_lazily(did));
-		    Assert(temp.get());
-		    doc = temp;
+		    doc = db.get_document_lazily(did);
+		    Assert(doc.get());
 		}
 		Xapian::Document mydoc(doc.get());
 

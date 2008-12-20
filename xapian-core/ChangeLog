@@ -1,3 +1,9 @@
+Sat Dec 20 13:51:35 GMT 2008  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: If we're using values for sorting and for
+	  another purpose, cache the Document::Internal object from getting
+	  the value for sorting like we do between other uses.
+
 Sat Dec 20 13:09:13 GMT 2008  Olly Betts <olly@survex.com>
 
 	* tests/api_percentages.cc: Make formatting of MyPostingSource code
