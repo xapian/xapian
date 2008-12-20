@@ -174,7 +174,7 @@ def test_eset_iter():
     enquire = xapian.Enquire(db)
     eset = enquire.get_eset(10, rset)
     items = [item for item in eset]
-    expect(len(items), 4)
+    expect(len(items), 3)
     expect(len(items), len(eset))
 
     context("getting eset items with a query")
