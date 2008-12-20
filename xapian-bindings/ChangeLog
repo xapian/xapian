@@ -1,3 +1,12 @@
+Sat Dec 20 11:41:42 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/Makefile.am: Pass the default value of PYTHONPATH through
+	  to python tests (just make sure our recently compiled modules are
+	  at the start of it).  Pass abs_builddir in the TESTS_ENVIRONMENT
+	  variable, since the replication test needs it.
+	* python/replicationtest2.py: Add a test (currently failing) of
+	  database replication under heavy concurrent modification load.
+
 Sat Dec 20 10:17:11 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/pythontest2.py: Fix test of get_eset() to match change in
