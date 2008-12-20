@@ -1,3 +1,8 @@
+Sat Dec 20 12:25:40 GMT 2008  Olly Betts <olly@survex.com>
+
+	* exception_data.pm: Build a hash mapping a class to a list of its
+	  subclasses and export this as %subclasses.
+
 Sat Dec 20 05:51:50 GMT 2008  Olly Betts <olly@survex.com>
 
 	* HACKING: Wrap a long line.
