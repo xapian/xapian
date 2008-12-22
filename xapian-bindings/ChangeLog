@@ -1,3 +1,11 @@
+Mon Dec 22 13:47:05 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/replicationtest.py,python/replicationtest2.py: Make
+	  replication test a bit more stringent, and don't trigger
+	  potential problems with swapping a database back in place by
+	  updating the uuids, so each replicated database is effectively
+	  brand new, as far as replication is concerned.
+
 Sat Dec 20 11:41:42 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/Makefile.am: Pass the default value of PYTHONPATH through

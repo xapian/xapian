@@ -27,9 +27,22 @@ import xapian
 
 from testsuite import *
 
-def set_link(path, contents):
-    os.symlink(contents, path + '_')
-    os.rename(path + '_', path)
+def set_master(masterpath, srcpath):
+    if os.path.exists(masterpath + "_"):
+        shutil.rmtree(masterpath + "_")
+    shutil.copytree(srcpath, masterpath + "_")
+
+    xapian.WritableDatabase(masterpath + "__", xapian.DB_CREATE_OR_OVERWRITE)
+    os.unlink(os.path.join(masterpath + "_", "uuid"))
+    os.rename(os.path.join(masterpath + "__", "uuid"),
+              os.path.join(masterpath + "_", "uuid"))
+
+    shutil.rmtree(masterpath + "__")
+    if os.path.exists(masterpath):
+        os.rename(masterpath, masterpath + "__")
+    os.rename(masterpath + '_', masterpath)
+    if os.path.exists(masterpath + "__"):
+        shutil.rmtree(masterpath + "__")
 
 def test_replication_concurrency():
     """Test concurrent replication and modification
@@ -45,8 +58,8 @@ def test_replication_concurrency():
     firstpath = os.path.join(dbsdir, 'first')
     secondpath = os.path.join(dbsdir, 'second')
     slavepath = os.path.join(dbsdir, 'slave')
-    if os.path.lexists(masterpath):
-        os.unlink(masterpath)
+    if os.path.isdir(masterpath):
+        shutil.rmtree(masterpath)
     if os.path.isdir(slavepath):
         shutil.rmtree(slavepath)
     port = 7876
@@ -62,7 +75,7 @@ def test_replication_concurrency():
                                ),
                               )
 
-    doccount1 = 1000000
+    doccount1 = 10000
     doccount2 = 1000
 
     starttime = time.time()
@@ -102,7 +115,7 @@ def test_replication_concurrency():
         time.sleep(1) # Give server time to start
 
     try:
-        set_link(masterpath, 'first')
+        set_master(masterpath, firstpath)
         clientp = subprocess.Popen(('../../xapian-core/bin/xapian-replicate',
                                     '--host=127.0.0.1',
                                     '--master=master',
@@ -115,21 +128,24 @@ def test_replication_concurrency():
         expect(xapian.Database(slavepath).get_metadata('dbname'), '1')
 
         for count in xrange(10):
-            print count
-            set_link(masterpath, 'second')
-            time.sleep(0.05)
+            for count2 in xrange(2):
+                set_master(masterpath, secondpath)
+                time.sleep(0.1)
+                set_master(masterpath, firstpath)
+                time.sleep(0.1)
+
+            set_master(masterpath, secondpath)
+            time.sleep(1)
             expect(xapian.Database(slavepath).get_metadata('dbname'), '2')
 
-            set_link(masterpath, 'first')
-            time.sleep(0.05)
-            expect(xapian.Database(slavepath).get_metadata('dbname'), '2')
+            set_master(masterpath, firstpath)
+            time.sleep(1)
+            expect(xapian.Database(slavepath).get_metadata('dbname'), '1')
 
     finally:
         if clientp is not None:
-            print "Terminating client"
             os.kill(clientp.pid, 9)
             clientp.wait()
-        print "Terminating server"
         os.kill(serverp.pid, 9)
         serverp.wait()
         #shutil.rmtree(dbsdir)
