@@ -54,7 +54,7 @@ DatabaseReplicator::~DatabaseReplicator()
 Xapian::Internal::RefCntPtr<DatabaseReplicator>
 DatabaseReplicator::open(const std::string & path)
 {
-    DEBUGAPICALL(void, "DatabaseReplicator::DatabaseReplicator", path);
+    DEBUGCALL_STATIC(DB, void, "DatabaseReplicator::DatabaseReplicator", path);
 
     struct stat statbuf;
     if (stat(path, &statbuf) == -1) {

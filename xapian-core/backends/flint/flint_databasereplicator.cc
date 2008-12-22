@@ -35,6 +35,7 @@
 #include "omdebug.h"
 #include "omtime.h"
 #include "remoteconnection.h"
+#include "replicationprotocol.h"
 #include "safeerrno.h"
 #include "stringutils.h"
 #include "utils.h"
