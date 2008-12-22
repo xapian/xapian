@@ -1,7 +1,7 @@
 /* Driver template for the LEMON parser generator.
 ** The author disclaims copyright to this source code.
 **
-** Synced with upstream CVS rev 1.38:
+** Synced with upstream CVS rev 1.41:
 ** http://www.sqlite.org/cvstrac/fileview?f=sqlite/tool/lempar.c&v=1.38
 */
 /* First off, code is included that follows the "include" declaration
@@ -318,7 +318,7 @@ static int yy_find_shift_action(
   if( i<0 || i>=YY_SZ_ACTTAB || yy_lookahead[i]!=iLookAhead ){
     if( iLookAhead>0 ){
 #ifdef YYFALLBACK
-      int iFallback;            /* Fallback token */
+      YYCODETYPE iFallback;            /* Fallback token */
       if( iLookAhead<sizeof(yyFallback)/sizeof(yyFallback[0])
              && (iFallback = yyFallback[iLookAhead])!=0 ){
         LOGLINE(GEOSPATIAL,
@@ -473,7 +473,7 @@ static void yy_reduce(
   yygoto = yyRuleInfo[yyruleno].lhs;
   yysize = yyRuleInfo[yyruleno].nrhs;
   yypParser->yystack.resize(yypParser->yystack.size() - yysize);
-  yyact = yy_find_reduce_action(yypParser->yystack.back().stateno,yygoto);
+  yyact = yy_find_reduce_action(yypParser->yystack.back().stateno,(YYCODETYPE)yygoto);
   if( yyact < YYNSTATE ){
     yy_shift(yypParser,yyact,yygoto,&yygotominor);
   }else{
@@ -573,7 +573,7 @@ static void Parse(
 	  (yyminor ? yyminor : 0.0));
 
   do{
-    yyact = yy_find_shift_action(yypParser,yymajor);
+    yyact = yy_find_shift_action(yypParser,(YYCODETYPE)yymajor);
     if( yyact<YYNSTATE ){
       Assert( !yyendofinput );  /* Impossible to shift the $ token */
       yy_shift(yypParser,yyact,yymajor,&yyminorunion);
