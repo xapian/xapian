@@ -9,7 +9,7 @@ include ../generic/generic.mk
 TESTS_ENVIRONMENT = PYTHONPATH=".:$$PYTHONPATH" abs_builddir=@abs_builddir@ $(PYTHON)
 
 ## Test programs to be run
-TESTS = smoketest.py pythontest.py
+TESTS = smoketest.py pythontest.py replicationtest.py
 
 BUILT_SOURCES = modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py
 
