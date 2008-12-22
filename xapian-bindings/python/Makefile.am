@@ -22,6 +22,7 @@ EXTRA_DIST = util.i extra.i extracomments.i except.i \
 	testsuite.py testsuite2.py testsuite3.py \
 	smoketest2.py smoketest3.py \
 	pythontest2.py pythontest3.py \
+	replicationtest2.py \
 	$(TESTS) $(BUILT_SOURCES)
 
 SUBDIRS = docs

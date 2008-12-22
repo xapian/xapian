@@ -1,3 +1,7 @@
+Mon Dec 22 15:08:33 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/Makefile.am: Add replicationtest2.py to distribution.
+
 Mon Dec 22 13:48:56 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/Makefile.am: Enable the replication test by default, now
