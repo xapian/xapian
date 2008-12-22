@@ -102,6 +102,30 @@ This may be particularly useful for the client, to allow a shell script to be
 used to cycle through a set of databases, updating each in turn (and then
 probably sleeping for a period).
 
+Limitations
+===========
+
+It is possible to confuse the replication system in some cases, such that an
+invalid database will be produced on the client.  However, this is easy to
+avoid in practice.
+
+To confuse the replication system, the following needs to happen:
+
+ - Start with two databases, A and B.
+ - Start a replication of database A.
+ - While the replication is in progress, swap B in place of A (ie, by moving
+   the files around, such that B is now at the path of A).
+ - While the replication is still in progress, swap A back in place of B.
+
+If this happens, the replication process will not detect the change in
+database, and you are likely to end up with a database on the client which
+contains parts of A and B mixed together.  You will need to delete the damaged
+database on the client, and re-run the replication.
+
+To avoid this, simply avoid swapping a database back in place of another one.
+Or at least, if you must do this, wait until any replications in progress when
+you were using the original database have finished.
+
 
 Alternative approaches
 ======================
