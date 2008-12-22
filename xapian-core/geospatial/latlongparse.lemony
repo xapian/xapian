@@ -374,6 +374,11 @@ parse_item(const std::string & val, LatLongState & state)
 	}
     }
 
+    if (tokens.empty()) {
+	state.set_error("Empty input");
+	return;
+    }
+
     // Now parse.
     yyParser * pParser = ParseAlloc();
     while (!tokens.empty()) {
