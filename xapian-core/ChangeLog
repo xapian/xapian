@@ -1,3 +1,23 @@
+Mon Dec 22 13:30:53 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/replication.cc,backends/Makefile.mk,backends/chert/,
+	  backends/database.cc,backends/databasereplicator.cc,backends/flint/,
+	  common/Makefile.mk,common/database.h,common/databasereplicator.h:
+	  Add DatabaseReplicator base class, and subclasses for flint and
+	  chert, to hold parts of database replication code which need to
+	  be applied to a partially replicated database which may not be a
+	  valid database.  Move the code for applying changesets and
+	  comparing revision numbers into here, and add code for getting
+	  uuids which simply returns "" if the database is too broken to
+	  have a uuid associated with it.  Update the replication code to
+	  use DatabaseReplicator subclasses instead of Database classes
+	  where necessary, to avoid failing if a partial database is
+	  transmitted.  Add additional checks to ensure that the UUID of a
+	  replicated databse is equal to that sent in the replication
+	  protocol message introducing a full database copy; if they
+	  differ, a retry of the copy is needed, so ensure that the next
+	  message sent is a new copy of the database.
+
 Mon Dec 22 11:24:43 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* docs/replication.rst: Warning about a possible way to confuse the

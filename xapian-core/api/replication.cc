@@ -29,6 +29,7 @@
 #include "xapian/version.h"
 
 #include "database.h"
+#include "databasereplicator.h"
 #include "fileutils.h"
 #ifdef __WIN32__
 # include "msvc_posix_wrapper.h"
@@ -131,6 +132,10 @@ class DatabaseReplica::Internal : public Xapian::Internal::RefCntBase {
      *  to the required revision, which can't yet be made live.
      */
     bool have_offline_db;
+
+    /** Flag to indicate that the only valid operation next is a full copy.
+     */
+    bool need_copy_next;
 
     /** The revision that the secondary database has been updated to.
      */
@@ -306,7 +311,8 @@ DatabaseReplica::Internal::update_stub_database() const
 
 DatabaseReplica::Internal::Internal(const string & path_)
 	: path(path_), live_id(0), live_db(), have_offline_db(false),
-	  offline_revision(), offline_needed_revision(), conn(NULL)
+	  need_copy_next(false), offline_revision(), offline_needed_revision(),
+	  conn(NULL)
 {
     DEBUGCALL(API, void, "DatabaseReplica::Internal::Internal", path_);
 #if ! defined XAPIAN_HAS_FLINT_BACKEND && ! defined XAPIAN_HAS_CHERT_BACKEND
@@ -422,6 +428,7 @@ DatabaseReplica::Internal::apply_db_copy(const OmTime & end_time)
     }
     char type = conn->get_message(offline_needed_revision, end_time);
     check_message_type(type, REPL_REPLY_DB_FOOTER);
+    need_copy_next = false;
 }
 
 void
@@ -437,13 +444,32 @@ DatabaseReplica::Internal::check_message_type(char type, char expected) const
 bool
 DatabaseReplica::Internal::possibly_make_offline_live()
 {
-    if (!live_db.internal[0]->check_revision_at_least(offline_revision,
-						      offline_needed_revision))
+    Xapian::Internal::RefCntPtr<DatabaseReplicator> replicator;
+    try {
+	replicator = DatabaseReplicator::open(get_replica_path(live_id ^ 1));
+    } catch (Xapian::DatabaseError & e) {
 	return false;
+    }
+    if (!replicator->check_revision_at_least(offline_revision,
+					     offline_needed_revision)) {
+	return false;
+    }
+
+    string replicated_uuid = replicator->get_uuid();
+    if (replicated_uuid.empty())
+    {
+	return false;
+    }
+
+    if (replicated_uuid != offline_uuid) {
+	return false;
+    }
 
     live_id ^= 1;
-    update_stub_database();
+    // Open the database first, so that if there's a problem, an exception
+    // will be thrown before we make the new database live.
     live_db = WritableDatabase(get_replica_path(live_id), Xapian::DB_OPEN);
+    update_stub_database();
     remove_offline_db();
     return true;
 }
@@ -478,6 +504,22 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info)
 		    apply_db_copy(end_time);
 		    if (info != NULL)
 			++(info->fullcopy_count);
+		    std::string replica_uuid;
+		    {
+			Xapian::Internal::RefCntPtr<DatabaseReplicator> replicator =
+				DatabaseReplicator::open(get_replica_path(live_id ^ 1));
+			replica_uuid = replicator->get_uuid();
+		    }
+		    if (replica_uuid != offline_uuid) {
+			remove_offline_db();
+			// We've been sent an database with the wrong uuid,
+			// which only happens if the database at the server
+			// got changed during the copy, so the only safe
+			// action next is a new copy.  Set a flag to ensure
+			// that this happens, or we're at risk of database
+			// corruption.
+			need_copy_next = true;
+		    }
 		} catch (...) {
 		    remove_offline_db();
 		    throw;
@@ -488,26 +530,36 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info)
 		}
 		break;
 	    case REPL_REPLY_CHANGESET:
+		if (need_copy_next) {
+		    throw NetworkError("Needed a database copy next");
+		}
 		if (!have_offline_db) {
-		    offline_needed_revision = (live_db.internal[0])->
-			    apply_changeset_from_conn(*conn, end_time);
+		    // Close the live db.
+		    live_db = WritableDatabase();
+
+		    // Open a replicator for the live path, and apply the
+		    // changeset.
+		    Xapian::Internal::RefCntPtr<DatabaseReplicator> replicator =
+			    DatabaseReplicator::open(get_replica_path(live_id));
+		    offline_needed_revision = replicator->
+			    apply_changeset_from_conn(*conn, end_time, true);
+
+		    // Close the replicator and open the live db again.
+		    replicator = NULL;
 		    if (info != NULL) {
 			++(info->changeset_count);
 			info->changed = true;
 		    }
-		    // FIXME: We currently close and reopen the database for
-		    // each applied delta.  It would be nice to avoid doing so.
-		    live_db = WritableDatabase();
 		    live_db = WritableDatabase(get_replica_path(live_id),
 					       Xapian::DB_OPEN);
 		    RETURN(true);
 		}
 
 		{
-		    WritableDatabase offline_db(get_replica_path(live_id ^ 1),
-						Xapian::DB_OPEN);
-		    offline_needed_revision = (offline_db.internal[0])->
-			    apply_changeset_from_conn(*conn, end_time);
+		    Xapian::Internal::RefCntPtr<DatabaseReplicator> replicator =
+			    DatabaseReplicator::open(get_replica_path(live_id ^ 1));
+		    offline_needed_revision = replicator->
+			    apply_changeset_from_conn(*conn, end_time, false);
 		}
 		if (possibly_make_offline_live()) {
 		    if (info != NULL)

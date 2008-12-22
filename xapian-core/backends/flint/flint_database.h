@@ -214,22 +214,6 @@ class FlintDatabase : public Xapian::Database::Internal {
 	void send_whole_database(RemoteConnection & conn,
 				 const OmTime & end_time);
 
-
-	/** Process a chunk which holds a base block.
-	 */
-	void process_changeset_chunk_base(const string & tablename,
-					  string & buf,
-					  RemoteConnection & conn,
-					  const OmTime & end_time);
-
-	/** Process a chunk which holds a list of changed blocks in the
-	 *  database.
-	 */
-	void process_changeset_chunk_blocks(const string & tablename,
-					    string & buf,
-					    RemoteConnection & conn,
-					    const OmTime & end_time);
-
 	/** Get the revision stored in a changeset.
 	 */
 	void get_changeset_revisions(const string & path,
@@ -291,11 +275,7 @@ class FlintDatabase : public Xapian::Database::Internal {
 				    const string & start_revision,
 				    bool need_whole_db,
 				    Xapian::ReplicationInfo * info);
-	bool check_revision_at_least(const string & rev,
-				     const string & target) const;
 	string get_revision_info() const;
-	string apply_changeset_from_conn(RemoteConnection & conn,
-					 const OmTime & end_time);
 	string get_uuid() const;
 	//@}
 
