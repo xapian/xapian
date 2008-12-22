@@ -12,6 +12,7 @@ use Search::Xapian::Database;
 use Search::Xapian::Document;
 use Search::Xapian::ESet;
 use Search::Xapian::ESetIterator;
+use Search::Xapian::Error;
 use Search::Xapian::MSet;
 use Search::Xapian::MSetIterator;
 use Search::Xapian::MultiValueSorter;

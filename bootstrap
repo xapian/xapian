@@ -208,6 +208,9 @@ done
 
 # Search::Xapian doesn't use autotools.
 if [ -f "search-xapian/Makefile.PL" ] ; then
+  cd search-xapian
+  perl generate-perl-exceptions
+  cd ..
   modules="$modules search-xapian"
 fi
 

@@ -1,3 +1,7 @@
+Thu Dec 11 12:04:11 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* win32_tests.mak: Add support for new test file, api_backend.cc
+
 Thu Nov 06 12:50:34 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* win32_perftest.mak: Call collate-apitest in the new way.  Add

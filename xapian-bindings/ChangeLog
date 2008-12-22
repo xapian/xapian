@@ -4,6 +4,44 @@ Tue Dec 09 00:06:44 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 	  which don't support directors, so that built-in posting sources,
 	  like the geospatial one, can be used.
 
+Mon Dec 22 13:48:56 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/Makefile.am: Enable the replication test by default, now
+	  that it passes.
+
+Mon Dec 22 13:47:05 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/replicationtest.py,python/replicationtest2.py: Make
+	  replication test a bit more stringent, and don't trigger
+	  potential problems with swapping a database back in place by
+	  updating the uuids, so each replicated database is effectively
+	  brand new, as far as replication is concerned.
+
+Sat Dec 20 11:41:42 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/Makefile.am: Pass the default value of PYTHONPATH through
+	  to python tests (just make sure our recently compiled modules are
+	  at the start of it).  Pass abs_builddir in the TESTS_ENVIRONMENT
+	  variable, since the replication test needs it.
+	* python/replicationtest2.py: Add a test (currently failing) of
+	  database replication under heavy concurrent modification load.
+
+Sat Dec 20 10:17:11 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/pythontest2.py: Fix test of get_eset() to match change in
+	  behaviour of get_eset().
+	* python/pythontest3.py: Bring up to date with pythontest2.py
+
+Mon Dec 08 03:45:20 GMT 2008  Olly Betts <olly@survex.com>
+
+	* debian/: Sync with 1.0 branch.
+
+Mon Dec 08 03:18:22 GMT 2008  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Need to clean testsuite.pyc from srcdir since
+	  that's where it gets generated as things stand (upstream fix for
+	  Debian bug 506090).
+
 Sat Nov 01 01:52:29 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS: Sync with 1.0.9 and update from ChangeLog.

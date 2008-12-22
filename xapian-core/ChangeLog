@@ -106,6 +106,242 @@ Fri Mar 14 16:35:06 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 	* include/xapian/unicode.h: Correct typos in documentation
 	  comments.
 
+Mon Dec 22 13:30:53 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/replication.cc,backends/Makefile.mk,backends/chert/,
+	  backends/database.cc,backends/databasereplicator.cc,backends/flint/,
+	  common/Makefile.mk,common/database.h,common/databasereplicator.h:
+	  Add DatabaseReplicator base class, and subclasses for flint and
+	  chert, to hold parts of database replication code which need to
+	  be applied to a partially replicated database which may not be a
+	  valid database.  Move the code for applying changesets and
+	  comparing revision numbers into here, and add code for getting
+	  uuids which simply returns "" if the database is too broken to
+	  have a uuid associated with it.  Update the replication code to
+	  use DatabaseReplicator subclasses instead of Database classes
+	  where necessary, to avoid failing if a partial database is
+	  transmitted.  Add additional checks to ensure that the UUID of a
+	  replicated databse is equal to that sent in the replication
+	  protocol message introducing a full database copy; if they
+	  differ, a retry of the copy is needed, so ensure that the next
+	  message sent is a new copy of the database.
+
+Mon Dec 22 11:24:43 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* docs/replication.rst: Warning about a possible way to confuse the
+	  replication process.
+
+Sat Dec 20 14:00:34 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_percentages.cc: Update (C) too.
+
+Sat Dec 20 13:51:35 GMT 2008  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: If we're using values for sorting and for
+	  another purpose, cache the Document::Internal object from getting
+	  the value for sorting like we do between other uses.
+
+Sat Dec 20 13:09:13 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_percentages.cc: Make formatting of MyPostingSource code
+	  more self-consistent.  Remove a superfluous block scope.  Wrap a
+	  long comment.
+
+Sat Dec 20 12:25:40 GMT 2008  Olly Betts <olly@survex.com>
+
+	* exception_data.pm: Build a hash mapping a class to a list of its
+	  subclasses and export this as %subclasses.
+
+Sat Dec 20 05:51:50 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Wrap a long line.
+
+Sat Dec 20 05:28:57 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Merge upstream "Check-in Number: 6016".
+
+Fri Dec 19 14:25:10 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lt: Merge upstream "Check-in Number: 6015".
+
+Fri Dec 19 14:07:52 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lt: Merge upstream "Check-in Number: 6006".
+
+Fri Dec 19 13:51:33 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lt: Merge upstream "Check-in Number: 5919"
+	  - code changes are in deleted code, so no actual code changes for
+	  us.
+
+Fri Dec 19 13:46:22 GMT 2008  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Merge upstream "Check-in Number: 6008".
+
+Fri Dec 19 11:15:04 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_replicate.cc: Fix comment describing test.
+
+Thu Dec 18 23:38:50 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_table.cc,backends/flint/flint_table.cc: Tidy up
+	  comment wrapping and indenting of code wrapped in try blocks by the
+	  previous commit.
+
+Thu Dec 18 14:26:30 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/chert/chert_database.cc,backends/chert/chert_table.cc,
+	  backends/chert/chert_table.h,backends/flint/flint_database.cc,
+	  backends/flint/flint_table.cc,backends/flint/flint_table.h:
+	  Improve resilience to unexpected errors during commit.  Firstly,
+	  fix FlintTable and ChertTable to close the table if an error
+	  occurs during commit - this avoids the table being left in an
+	  inconsistent state (instead, the table is reopened in a
+	  consistent state the next time it is used).  Secondly, add a
+	  "permanent" close state for tables (indicated by handle being set
+	  to -2), which will raise an error if anything tries to do an
+	  action which needs the table to be opened, and set the tables to
+	  this state if we fail to recover the database after error in
+	  commit().  This prevents further actions on the database if we
+	  couldn't recover the state (eg, because we're out of disk space),
+	  avoiding risk of corruption.
+
+Thu Dec 18 01:28:06 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/chert/chert_database.cc,backends/chert/chert_database.h,
+	  backends/flint/flint_database.cc,backends/flint/flint_database.h:
+	  Improve the error reporting when modifications fail and we cannot
+	  set the revision numbers in the table to consistent values, to
+	  report the original error too.
+
+Wed Dec 17 17:27:24 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/chert/chert_table.cc,backends/flint/flint_table.cc:
+	  Fix construction of the error message when a base can't be
+	  re-read: used to do pointer arithmetic by mistake - now does the
+	  correct string concatenation.
+
+Wed Dec 17 15:18:10 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_valuestream.cc: Skip valuestream3 on chert for now so that
+	  snapshots and the tinderbox work again.
+
+Wed Dec 17 15:17:07 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_wrdb.cc: Need omassert.h for STATIC_ASSERT.
+
+Wed Dec 17 10:45:45 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc,tests/api_nodb.cc: A NEAR of 2 OR subqueries
+	  shouldn't throw AssertionError - instead throw UnimplementedError.
+	  Addresses the worst aspect of bug#201, but this should really be
+	  implemented.
+
+Wed Dec 17 04:44:10 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/chert/chert_database.h:
+	  Implement ChertWritableDatabase::open_value_list().
+	* tests/api_valuestream.cc: Add valueweightsource5 testcase which is a
+	  regression test for bug#299 and also exercises the above method.
+
+Tue Dec 16 13:30:47 GMT 2008  Olly Betts <olly@survex.com>
+
+	* common/expandweight.h,expand/expandweight.cc: Overhaul ExpandWeight
+	  - now we use the "official" formula and don't return terms which it
+	  would give a negative weight to (since that means they are expected
+	  to be harmful not helfpul).
+	* tests/api_anydb.cc,tests/api_db.cc: Fix unwarranted assumptions in
+	  existing testcases broken by this change.
+
+Thu Dec 11 01:02:41 GMT 2008  Olly Betts <olly@survex.com>
+
+	* examples/delve.cc: Add missing "and" to --help output.  Report
+	  termfreq and collection freq for each term we're asked about.
+
+Mon Dec 08 00:52:51 GMT 2008  Olly Betts <olly@survex.com>
+
+	* AUTHORS: Add Daniel Andersson for reporting the flintlock
+	  permissions issue.
+
+Sun Dec 07 22:50:32 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/sorter.cc,tests/api_sorting.cc: Fix an empty MultiValueSorter
+	  not to SEGV/hang.
+
+Fri Dec 05 21:08:08 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,tests/api_backend.cc: Use
+	  "flintlock" rather than "chertlock" for the lockfile in chert.
+	  The locking is compatible and this avoids the possibility of
+	  creating a chert and flint database in the same directory (which
+	  will result in one being corrupt since the Btree filenames overlap).
+
+Thu Dec 04 09:00:04 GMT 2008  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_lock.cc,backends/flint/flint_lock.cc: Create
+	  the lockfile with permissions 0666 so that the umask is honoured
+	  just like we do for the other files (previously we used 0600).
+	* tests/Makefile.am,tests/api_backend.cc: Add regression test
+	  lockfileumask1.
+
+Thu Dec 04 08:56:54 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/stemtest.cc: Use str.resize(0) instead of str = "".
+
+Thu Dec 04 04:56:55 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: No need to explicitly initialise a
+	  std::string to "".
+
+Thu Dec 04 04:55:47 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_db.cc: Prefer str.empty() to str == "".
+
+Thu Dec 04 01:50:10 GMT 2008  Olly Betts <olly@survex.com>
+
+	* tests/api_wrdb.cc: Make helper function static.  Use STATIC_ASSERT
+	  to ensure a constant is coprime with 13.
+
+Wed Dec 03 22:56:19 GMT 2008  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc: Fix API logging.
+
+Wed Dec 03 03:11:45 GMT 2008  Olly Betts <olly@survex.com>
+
+	* INSTALL: Note that libuuid is required for Xapian 1.1.0 and higher.
+
+Wed Dec 03 03:10:59 GMT 2008  Olly Betts <olly@survex.com>
+
+	* INSTALL: Remove ':' from the end of headings.
+
+Mon Dec 01 08:59:04 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Explicitly give the commands to install the required
+	  packages for developing on recent Debian or Ubuntu for added
+	  convenience.  Update the Debian/Ubuntu packages needed for
+	  documentation to reflect the change from tetex to texlive.  Fix
+	  unfinished paragraph about requiring a newline at the end of a
+	  source file and note that this is actually undefined behaviour in
+	  C++.
+
+Sun Nov 30 21:46:59 GMT 2008  Olly Betts <olly@survex.com>
+
+	* bin/,examples/quest.cc,tests/harness/testsuite.cc: Pull out lists of
+	  short options next to list of long options to help make sure they
+	  are kept in step.  xapian-tcpsrv and xapian-progsrv now accept -w
+	  as a short form of --writable, as their long option table had, but
+	  their short option string didn't.
+
+Sun Nov 30 20:44:48 GMT 2008  Olly Betts <olly@survex.com>
+
+	* docs/postingsource.rst: Wrap a long line.  Note that the remote
+	  backend isn't supported yet.
+
+Wed Nov 19 11:36:00 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* docs/postingsource.rst: Make it clear that PostingSources must
+	  always return documents in increasing document ID order.
+
 Wed Nov 19 08:43:04 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* bin/,examples/delve.cc,examples/quest.cc,tests/harness/testsuite.cc:

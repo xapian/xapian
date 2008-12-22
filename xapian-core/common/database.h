@@ -475,14 +475,6 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	/// Get a string describing the current revision of the database.
 	virtual string get_revision_info() const;
 
-	/// Check if the revision of the database is at least that supplied.
-	virtual bool check_revision_at_least(const string & rev,
-					     const string & target) const;
-
-	/// Read and apply the next changeset.
-	virtual string apply_changeset_from_conn(RemoteConnection & conn,
-						 const OmTime & end_time);
-
 	/** Get a UUID for the database.
 	 *
 	 *  The UUID will persist for the lifetime of the database.

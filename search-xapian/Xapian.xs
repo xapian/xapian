@@ -13,9 +13,12 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+#undef get_context
 
 using namespace std;
 using namespace Xapian;
+
+extern void handle_exception(void);
 
 /* PerlStopper class
  *
@@ -138,6 +141,7 @@ INCLUDE: XS/Enquire.xs
 INCLUDE: XS/MSet.xs
 INCLUDE: XS/MSetIterator.xs
 INCLUDE: XS/ESet.xs
+INCLUDE: XS/Error.xs
 INCLUDE: XS/ESetIterator.xs
 INCLUDE: XS/RSet.xs
 INCLUDE: XS/MultiValueSorter.xs

@@ -116,8 +116,7 @@ check_equal_dbs(const string & path1, const string & path2)
 // #######################################################################
 // # Tests start here
 
-// test that indexing a term more than once at the same position increases
-// the wdf
+// Basic test of replication functionality.
 DEFINE_TESTCASE(replicate1, replicas) {
     string tempdir = ".replicatmp";
     mktmpdir(tempdir);

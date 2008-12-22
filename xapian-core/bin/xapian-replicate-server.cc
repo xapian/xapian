@@ -51,6 +51,7 @@ static void show_usage() {
 int
 main(int argc, char **argv)
 {
+    const char * opts = "I:p:o";
     const struct option long_opts[] = {
 	{"interface",	required_argument,	0, 'I'},
 	{"port",	required_argument,	0, 'p'},
@@ -66,7 +67,7 @@ main(int argc, char **argv)
     bool one_shot = false;
 
     int c;
-    while ((c = gnu_getopt_long(argc, argv, "I:p:o", long_opts, 0)) != -1) {
+    while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
 	switch (c) {
 	    case 'I':
 		host.assign(optarg);

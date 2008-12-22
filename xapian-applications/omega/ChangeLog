@@ -1,3 +1,7 @@
+Wed Dec 10 01:06:03 GMT 2008  Olly Betts <olly@survex.com>
+
+	* query.cc: Fix poor grammar in comment.
+
 Sat Nov 01 01:49:07 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS: Sync with 1.0.9.

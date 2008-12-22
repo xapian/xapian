@@ -1,7 +1,7 @@
 /** @file xapian-progsrv.cc
  * @brief Remote server for use with ProgClient.
  */
-/* Copyright (C) 2002,2003,2006,2007 Olly Betts
+/* Copyright (C) 2002,2003,2006,2007,2008 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +36,8 @@ using namespace std;
 #define OPT_HELP 1
 #define OPT_VERSION 2
 
-static const struct option opts[] = {
+static const char * opts = "t:w";
+static const struct option long_opts[] = {
     {"timeout",		required_argument,	0, 't'},
     {"writable",	no_argument,		0, 'w'},
     {"help",		no_argument,		0, OPT_HELP},
@@ -60,7 +61,7 @@ int main(int argc, char **argv)
     bool syntax_error = false;
 
     int c;
-    while ((c = gnu_getopt_long(argc, argv, "t:", opts, NULL)) != -1) {
+    while ((c = gnu_getopt_long(argc, argv, opts, long_opts, NULL)) != -1) {
 	switch (c) {
 	    case OPT_HELP:
 		cout << PROG_NAME" - "PROG_DESC"\n\n";

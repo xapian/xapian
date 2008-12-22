@@ -335,7 +335,7 @@ Database::get_value_upper_bound(Xapian::valueno valno) const
 ValueIterator
 Database::valuestream_begin(Xapian::valueno slot) const
 {
-    LOGCALL(API, ValueIterator, "Database::valuestream_begin", slot);
+    DEBUGAPICALL(ValueIterator, "Database::valuestream_begin", slot);
     if (internal.empty()) RETURN(ValueIterator());
     // FIXME: support multidatabases properly.
     if (internal.size() != 1) {

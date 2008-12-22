@@ -73,7 +73,7 @@ ChertLock::lock(bool exclusive, std::string & explanation) {
     return UNKNOWN;
 #else
     Assert(fd == -1);
-    int lockfd = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0600);
+    int lockfd = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
     if (lockfd < 0) {
 	// Couldn't open lockfile.
 	explanation = std::string("Couldn't open lockfile: ") + strerror(errno);

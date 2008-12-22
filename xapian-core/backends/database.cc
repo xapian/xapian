@@ -323,19 +323,6 @@ Database::Internal::get_revision_info() const
     throw Xapian::UnimplementedError("This backend doesn't provide access to revision information");
 }
 
-bool
-Database::Internal::check_revision_at_least(const string &, const string &) const
-{
-    throw Xapian::UnimplementedError("This backend doesn't support comparing revision numbers");
-}
-
-string
-Database::Internal::apply_changeset_from_conn(RemoteConnection &,
-					      const OmTime &)
-{
-    throw Xapian::UnimplementedError("This backend doesn't support applying changesets");
-}
-
 string
 Database::Internal::get_uuid() const
 {

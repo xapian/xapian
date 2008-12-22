@@ -37,6 +37,9 @@ MultiValueSorter::operator()(const Xapian::Document & doc) const
     string result;
 
     vector<pair<Xapian::valueno, bool> >::const_iterator i = valnos.begin();
+    // Don't crash if valnos is empty.
+    if (rare(i == valnos.end())) return result;
+
     while (true) {
 	// All values (except for the last if it's sorted forwards) need to
 	// be adjusted.

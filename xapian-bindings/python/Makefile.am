@@ -6,10 +6,10 @@ LIBTOOL = @LIBTOOL@ $(QUIET:y=--quiet)
 
 include ../generic/generic.mk
 
-TESTS_ENVIRONMENT = PYTHONPATH=. $(PYTHON)
+TESTS_ENVIRONMENT = PYTHONPATH=".:$$PYTHONPATH" abs_builddir=@abs_builddir@ $(PYTHON)
 
 ## Test programs to be run
-TESTS = smoketest.py pythontest.py
+TESTS = smoketest.py pythontest.py replicationtest.py
 
 BUILT_SOURCES = modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py
 
@@ -65,12 +65,12 @@ xapian/__init__.py: modern/xapian.py
 # We "import _xapian" first so that if we fail to import the glue library
 # we don't generate a broken __init__.pyc or __init__.pyo.
 xapian/__init__.pyc: xapian/__init__.py xapian/_xapian$(PYTHON_SO)
-	PYTHONPATH=xapian $(PYTHON) -c "import _xapian"
-	PYTHONPATH=. $(PYTHON) -c "import xapian"
+	PYTHONPATH="xapian:$$PYTHONPATH" $(PYTHON) -c "import _xapian"
+	PYTHONPATH=".:$$PYTHONPATH" $(PYTHON) -c "import xapian"
 
 xapian/__init__.pyo: xapian/__init__.py xapian/_xapian$(PYTHON_SO)
-	PYTHONPATH=xapian $(PYTHON) -O -c "import _xapian"
-	PYTHONPATH=. $(PYTHON) -O -c "import xapian"
+	PYTHONPATH="xapian:$$PYTHONPATH" $(PYTHON) -O -c "import _xapian"
+	PYTHONPATH=".:$$PYTHONPATH" $(PYTHON) -O -c "import xapian"
 
 xapian/_xapian$(PYTHON_SO): _xapian.la
 	-test -d xapian || mkdir xapian
@@ -78,7 +78,10 @@ xapian/_xapian$(PYTHON_SO): _xapian.la
 	. ./libtoolconfig.tmp; cp $$objdir/_xapian$(PYTHON_SO) xapian
 	rm -f libtoolconfig.tmp
 
-CLEANFILES = xapian/_xapian$(PYTHON_SO) xapian/__init__.py xapian/__init__.pyc xapian/__init__.pyo testsuite.pyc
+CLEANFILES = \
+    xapian/_xapian$(PYTHON_SO) \
+    xapian/__init__.py xapian/__init__.pyc xapian/__init__.pyo \
+    $(srcdir)/testsuite.pyc
 
 # Clean the xapian directory which we created, if it's empty
 clean-local:

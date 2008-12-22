@@ -294,8 +294,10 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 
 	/** Close the Btree.  This closes and frees any of the btree
 	 *  structures which have been created and opened.
+	 *
+	 *  @param permanent If true, the Btree will not reopen on demand.
 	 */
-	void close();
+	void close(bool permanent=false);
 
 	/** Determine whether the btree exists on disk.
 	 */
