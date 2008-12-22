@@ -19,7 +19,6 @@ xapianinclude_HEADERS =\
 	include/xapian/enquire.h\
 	include/xapian/errorhandler.h\
 	include/xapian/expanddecider.h\
-	include/xapian/geospatial.h\
 	include/xapian/positioniterator.h\
 	include/xapian/postingiterator.h\
 	include/xapian/postingsource.h\
@@ -34,6 +33,7 @@ xapianinclude_HEADERS =\
 	include/xapian/unicode.h\
 	include/xapian/valueiterator.h\
 	include/xapian/valuesetmatchdecider.h\
+	include/xapian/geospatial.h\
 	include/xapian/visibility.h
 
 nodist_xapianinclude_HEADERS =\
