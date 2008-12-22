@@ -1,3 +1,11 @@
+Mon Dec 22 16:49:46 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* Makefile,README,config.h.omega.win32,config.mak,genversion.pl,
+	  win32_api.mak,win32_backends.mak,win32_backends_chert.mak,
+	  win32_backends_flint.mak,win32_perftest.mak: Add C# bindings to
+	  build system, and update with new files for replication in
+	  xapian-core.
+
 Thu Dec 11 12:04:11 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* win32_tests.mak: Add support for new test file, api_backend.cc

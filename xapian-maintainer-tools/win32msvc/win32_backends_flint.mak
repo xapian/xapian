@@ -22,6 +22,7 @@ OBJS= \
                 $(INTDIR)\flint_btreebase.obj\
                 $(INTDIR)\flint_cursor.obj\
                 $(INTDIR)\flint_database.obj\
+                $(INTDIR)\flint_databasereplicator.obj\
                 $(INTDIR)\flint_document.obj\
                 $(INTDIR)\flint_io.obj\
                 $(INTDIR)\flint_lock.obj\
@@ -45,6 +46,7 @@ SRCS= \
                 $(INTDIR)\flint_btreebase.cc\
                 $(INTDIR)\flint_cursor.cc\
                 $(INTDIR)\flint_database.cc\
+                $(INTDIR)\flint_databasereplicator.cc\
                 $(INTDIR)\flint_document.cc\
                 $(INTDIR)\flint_io.cc\
                 $(INTDIR)\flint_lock.cc\

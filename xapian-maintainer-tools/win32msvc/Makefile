@@ -127,6 +127,8 @@ COPYMAKFILES:
    if exist $(XAPIAN_BINDINGS) copy version.rc.java-swig $(XAPIAN_BINDINGS)\java-swig\version.rc
    if exist $(XAPIAN_BINDINGS) copy WriteJavaVersion.java $(XAPIAN_BINDINGS)\java-swig\WriteJavaVersion.java
    if exist $(XAPIAN_BINDINGS) copy win32_bindings_ruby.mak $(XAPIAN_BINDINGS)\ruby\Makefile
+   if exist $(XAPIAN_BINDINGS) copy version.rc.csharp $(XAPIAN_BINDINGS)\csharp\version.rc
+   if exist $(XAPIAN_BINDINGS) copy win32_bindings_csharp.mak $(XAPIAN_BINDINGS)\csharp\Makefile
    if exist $(XAPIAN_APPLICATIONS) copy win32_applications_omega.mak $(XAPIAN_APPLICATIONS)\Makefile
    if exist $(XAPIAN_APPLICATIONS) copy config.mak $(XAPIAN_APPLICATIONS)
    if exist $(XAPIAN_APPLICATIONS) copy config.h.omega.win32 $(XAPIAN_APPLICATIONS)\config.h
