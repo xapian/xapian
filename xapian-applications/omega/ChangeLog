@@ -1,3 +1,8 @@
+Tue Dec 23 04:42:50 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* query.cc: Fix poor grammar in comment.
+
 Fri Oct 31 18:53:43 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS: Update for 1.0.9.
