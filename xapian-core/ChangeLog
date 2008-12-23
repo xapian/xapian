@@ -1,3 +1,7 @@
+Tue Dec 23 07:13:27 GMT 2008  Olly Betts <olly@survex.com>
+
+	* NEWS: Update for 1.0.10.
+
 Tue Dec 23 07:11:59 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport fix from flint:
