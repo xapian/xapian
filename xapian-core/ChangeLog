@@ -1,3 +1,7 @@
+Tue Dec 23 05:22:12 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING: Recommend autoconf 2.63 and automake 1.10.2.
+
 Tue Dec 23 05:16:27 GMT 2008  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

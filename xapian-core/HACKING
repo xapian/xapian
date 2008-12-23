@@ -355,10 +355,10 @@ recommend.
   autoconf 2.62 generates faster configure scripts and warns about unrecognised
   options passed to configure.
 
-  autoconf 2.63 fixes some regressions in 2.62 (we haven't investigated if
-  these actually affect us).
+  autoconf 2.63 fixes a regression in AC_C_BIGENDIAN introduced in 2.62
+  (Omega uses this macro).
 
-* automake 1.10.1 is recommended; 1.9 is a hard minimum requirement.
+* automake 1.10.2 is recommended; 1.9 is a hard minimum requirement.
 
   In 1.0.6 and earlier, the specified hard minimum requirement was 1.8.3 (for
   SLES 9), but since 1.0.3 we've been using option "tar-ustar" which actually
@@ -380,6 +380,8 @@ recommend.
 
   automake 1.10.1 fixes "make clean" to remove .libs from bin/ and examples/,
   but we have a workaround in place to allow us to work with older versions.
+
+  automake 1.10.2 fixes a few bugs (not investigated if these affect Xapian)
 
 * libtool 1.5.26 is recommended; there is no hard minimum requirement, except
   that bootstrap rejects libtool 1.4.x.
