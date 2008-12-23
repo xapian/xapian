@@ -1,3 +1,11 @@
+Tue Dec 23 07:11:59 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport fix from flint:
+	* backends/quartz/btree.cc:
+	  Fix construction of the error message when a base can't be
+	  re-read: used to do pointer arithmetic by mistake - now does the
+	  correct string concatenation.
+
 Tue Dec 23 06:47:31 GMT 2008  Olly Betts <olly@survex.com>
 
 	* configure.ac: Update for 1.0.10.
