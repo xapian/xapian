@@ -1,3 +1,7 @@
+Tue Dec 23 05:55:20 GMT 2008  Olly Betts <olly@survex.com>
+
+	* python/: svn:ignore new generated databases.
+
 Tue Dec 23 05:52:54 GMT 2008  Olly Betts <olly@survex.com>
 
 	* configure.ac,python/Makefile.am,python/generate-python-exceptions,
