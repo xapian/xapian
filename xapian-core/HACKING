@@ -342,7 +342,7 @@ spec file for building RPMs runs autoreconf to avoid a libtool bug with setting
 rpath for /usr/lib64, and such platforms may not have the versions we
 recommend.
 
-* autoconf 2.62 is recommended; 2.59 is a hard minimum requirement.
+* autoconf 2.63 is recommended; 2.59 is a hard minimum requirement.
 
   autoconf 2.57 fixes the annoying chmod warnings on FreeBSD.
 
@@ -354,6 +354,9 @@ recommend.
 
   autoconf 2.62 generates faster configure scripts and warns about unrecognised
   options passed to configure.
+
+  autoconf 2.63 fixes some regressions in 2.62 (we haven't investigated if
+  these actually affect us).
 
 * automake 1.10.1 is recommended; 1.9 is a hard minimum requirement.
 
