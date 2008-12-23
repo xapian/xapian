@@ -201,7 +201,15 @@ if (defined $builddir) {
     print M <<"EOF";
 .DEFAULT:
 \t\$(MAKE) -C "$srcdir" \$\@
+
+.PHONY: Search-Xapian-$VERSION.tar.gz
+
+dist tardist Search-Xapian-$VERSION.tar.gz:
+\t\$(MAKE) -C "$srcdir" \$\@
+\trm -f Search-Xapian-$VERSION.tar.gz
+\tcp "$srcdir"/Search-Xapian-$VERSION.tar.gz .
 EOF
+
     close M or die $!;
     rename "$builddir/Makefile~", "$builddir/Makefile" or die $!;
 }
