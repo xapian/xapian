@@ -9,7 +9,7 @@ $ExtUtils::MakeMaker::Recognized_Att_Keys{XAPIAN_CONFIG} = 1;
 my $builddir;
 
 my $srcdir = $0;
-if ($srcdir =~ s!/.*!!) {
+if ($srcdir =~ s!/.*?$!!) {
     chomp($builddir = `pwd`);
     chdir $srcdir;
 }
