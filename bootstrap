@@ -317,22 +317,22 @@ for d in $modules ; do
     xapian-core)
       cd "$d" && "$configure" --enable-maintainer-mode --cache-file="$here/config.cache" ${1+"$@"}
       ;;
-    search-xapian)
-      # Extract any CXX=... argument from those passed to us.
-      unset cxxarg
-      for arg
-      do
-      	case $arg in
-	  CXX=*) cxxarg=$arg ;;
-	esac
-      done
-      cd "$d" && perl Makefile.PL XAPIAN_CONFIG="$XAPIAN_CONFIG" ${cxxarg+"$cxxarg"}
-      ;;
     *)
       cd "$d" && "$configure" --enable-maintainer-mode --cache-file="$here/config.cache" XAPIAN_CONFIG="$XAPIAN_CONFIG" ${1+"$@"}
       ;;
     esac
     cd "$here"
+    dirs="$dirs $d"
+  elif [ search-xapian = "$d" ] ; then
+    # Extract any CXX=... argument from those passed to us.
+    unset cxxarg
+    for arg
+    do
+      case $arg in
+	CXX=*) cxxarg=$arg ;;
+      esac
+    done
+    perl "$d/Makefile.PL" XAPIAN_CONFIG="$XAPIAN_CONFIG" ${cxxarg+"$cxxarg"}
     dirs="$dirs $d"
   fi
 done
