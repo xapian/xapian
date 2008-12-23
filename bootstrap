@@ -329,6 +329,7 @@ for d in $modules ; do
     else
       makefilepl=$srcdir/$d/Makefile.PL
     fi
+    echo "makefilepl=$makefilepl"
     if [ -f "$makefilepl" ] ; then
       [ -d "$d" ] || mkdir "$d"
       echo "Configuring \`$d'"
@@ -340,7 +341,9 @@ for d in $modules ; do
 	  CXX=*) cxxarg=$arg ;;
 	esac
       done
+      cd "$d"
       perl "$makefilepl" XAPIAN_CONFIG="$XAPIAN_CONFIG" ${cxxarg+"$cxxarg"}
+      cd "$here"
       dirs="$dirs $d"
     fi
   fi
