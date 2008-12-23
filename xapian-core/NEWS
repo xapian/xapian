@@ -1,11 +1,19 @@
 up to:
- 11634       olly Fri Nov 14 17:43:15 GMT 2008  Olly Betts <olly@survex.com>
+ 11747    richard Mon Dec 22 16:02:58 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 Potential backport fodder:
 
  * bin/xapian-check.cc,bin/xapian-check-flint.cc:  Don't stop checking
    a table after an error in certain cases - instead increment the
    error counter and try to continue checking from the next item.
+
+Possible to do, but probably to big a change at this point:
+ 11701       olly 	* common/expandweight.h,expand/expandweight.cc: Overhaul ExpandWeight
+ 11701       olly 	  - now we use the "official" formula and don't return terms which it
+ 11701       olly 	  would give a negative weight to (since that means they are expected
+ 11701       olly 	  to be harmful not helfpul).
+ 11701       olly 	* tests/api_anydb.cc,tests/api_db.cc: Fix unwarranted assumptions in
+ 11701       olly 	  existing testcases broken by this change.
 
 trunk only:
 
