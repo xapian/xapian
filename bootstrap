@@ -354,12 +354,14 @@ for target in all install uninstall install-strip clean distclean mostlyclean ma
       echo "	cd $d && \$(MAKE) install" >> Makefile.tmp ;;
     search-xapian,maintainer-clean)
       echo "	cd $d && \$(MAKE) realclean" >> Makefile.tmp ;;
+    search-xapian,dist)
+      echo "	cd $d && \$(MAKE) dist GZIP=-f" >> Makefile.tmp ;;
     search-xapian,distcheck)
-      echo "	cd $d && \$(MAKE) disttest" >> Makefile.tmp ;;
+      echo "	cd $d && \$(MAKE) disttest && \$(MAKE) dist GZIP=-f" >> Makefile.tmp ;;
     xapian-bindings,distcheck)
       # FIXME: distcheck doesn't currently work for xapian-bindings because
       # xapian-core isn't installed.
-      echo "	cd $d && \$(MAKE) check dist" >> Makefile.tmp ;;
+      echo "	cd $d && \$(MAKE) check && \$(MAKE) dist" >> Makefile.tmp ;;
     *)
       echo "	cd $d && \$(MAKE) $target" >> Makefile.tmp ;;
     esac
