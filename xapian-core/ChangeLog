@@ -1,3 +1,9 @@
+Tue Dec 23 06:22:02 GMT 2008  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: HP testdrive has been shut down, so all mark all those
+	  machines as "no longer available".  Update atreus' build report
+	  to 1.0.10.
+
 Tue Dec 23 05:22:12 GMT 2008  Olly Betts <olly@survex.com>
 
 	* HACKING: Recommend autoconf 2.63 and automake 1.10.2.
