@@ -1,3 +1,10 @@
+xapian-omega (1.0.10-1) unstable; urgency=low
+
+  * debian/control.in,debian/rules: Suggest ghostscript instead of gs-common
+    except for Debian etch and Ubuntu dapper.
+
+ -- Olly Betts <olly@survex.com>  Tue, 23 Dec 2008 07:36:10 +0000
+
 xapian-omega (1.0.7-3) unstable; urgency=low
 
   * debian/rules: Run "make all" and "make check" as separate commands to
