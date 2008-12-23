@@ -1,3 +1,11 @@
+Tue Dec 23 06:35:11 GMT 2008  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Sync with 1.0 branch.
+	* PLATFORMS: Remove 0.9.x build reports; move 1.0.x build reports
+	  to the "old version" section.
+	* INSTALL: Adapt old footnotes from PLATFORMS about HP's aCC and IRIX
+	  into new paragraphs here.
+
 Tue Dec 23 05:19:52 GMT 2008  Olly Betts <olly@survex.com>
 
 	* HACKING,configure.ac: Make automake 1.10.2 a hard minimum
