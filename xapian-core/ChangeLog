@@ -1,3 +1,8 @@
+Tue Dec 23 05:19:52 GMT 2008  Olly Betts <olly@survex.com>
+
+	* HACKING,configure.ac: Make automake 1.10.2 a hard minimum
+	  requirement.
+
 Tue Dec 23 04:36:27 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
