@@ -1,3 +1,7 @@
+Tue Dec 23 13:42:21 GMT 2008  Olly Betts <olly@survex.com>
+
+	* languages/compiler/analyser.c: Fix GCC 4.3 warning.
+
 Tue Dec 23 06:35:11 GMT 2008  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Sync with 1.0 branch.
