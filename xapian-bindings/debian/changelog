@@ -1,3 +1,11 @@
+xapian-bindings (1.0.10-1) unstable; urgency=low
+
+  * ACK NMU - thanks Chris!
+    - Bug #506090 fixed upstream in 1.0.10 so NMU patch no longer required.
+  * New upstream release.
+
+ -- Olly Betts <olly@survex.com>  Tue, 23 Dec 2008 07:32:55 +0000
+
 xapian-bindings (1.0.7-3.1) unstable; urgency=medium
 
   * Non-maintainer upload.
