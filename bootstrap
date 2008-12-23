@@ -330,6 +330,8 @@ for d in $modules ; do
       makefilepl=$srcdir/$d/Makefile.PL
     fi
     if [ -f "$makefilepl" ] ; then
+      [ -d "$d" ] || mkdir "$d"
+      echo "Configuring \`$d'"
       # Extract any CXX=... argument from those passed to us.
       unset cxxarg
       for arg
