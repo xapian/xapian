@@ -94,8 +94,8 @@ if MAINTAINER_MODE
 # option.
 
 BUILT_SOURCES += except.i $(DOCCOMMENTS_I)
-except.i: generate-python-exceptions ../../xapian-core/exception_data.pm
-	./generate-python-exceptions
+except.i: $(srcdir)/generate-python-exceptions ../../xapian-core/exception_data.pm
+	$(PERL) -w -I$(srcdir)/../../xapian-core $(srcdir)/generate-python-exceptions
 
 doccomments.i: doxy2swig.py ../../xapian-core/exception_data.pm ../../xapian-core/docs/apidoc/xml/index.xml
 	$(PYTHON) doxy2swig.py ../../xapian-core/docs/apidoc/xml/index.xml doccomments.i

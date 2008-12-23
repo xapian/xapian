@@ -1,8 +1,4 @@
-#!@PERL@ -w -I @srcdir@/../../xapian-core/
-# @configure_input@
-#
-# generate-python-exceptions.in: generate error handling code for python
-# bindings
+# generate-python-exceptions: generate error handling code for Python bindings
 #
 # Copyright (C) 2003,2004,2006,2007,2008 Olly Betts
 # Copyright (C) 2007 Richard Boulton
