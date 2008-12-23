@@ -1,0 +1,66 @@
+Tue Dec 16 11:15:46 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* config.h.omega.win32: Update version numbers.
+	* config.h.win32: Update version numbers.
+	* win32_bindings_csharp.mak: Adjust to remove some name clashes -
+	  now builds two separate DLLs.
+
+Fri Dec 12 17:04:02 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* Makefile,README,config.mak,version.rc.csharp,
+	  win32_bindings_csharp.mak: Add support for C-sharp bindings.
+
+Fri Dec 12 15:23:47 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* genversion.pl: Match xapian-.* in the AC_INIT parsing rule, so
+	  this works when run in xapian-bindings as well as in xapian-core.
+
+Fri Dec 12 13:29:21 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* genversion.pl: Support substitution of COMPAT_VERSION.
+
+Thu Dec 11 12:05:35 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* Backport from trunk:
+	* win32_tests.mak: Add support for new test file, api_backend.cc
+
+Mon Nov 03 14:07:15 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* win32_tests.mak: add api_spelling.cc to tests.
+
+Mon Nov 03 12:26:39 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* win32_tests.mak: Patch from Charlie to call collate-apitest in
+	  the new way.
+
+Mon Oct 13 14:02:35 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* Backport from trunk:
+	* win32_backends_flint.mak: Patch from Charlie - add
+	  flint_metadata.cc (was present on trunk already, but had been
+	  missed here, somehow).
+
+Mon Sep 08 10:04:43 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* Backport change from trunk:
+	* genversion.pl: Update to match new configure.ac (cope with the []'s
+	  which have been added).
+
+Wed Aug 20 09:31:02 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* README: Change Omega, Omindex and Scriptindex to start with a
+	  lower case letter, since these are command names (and as such are
+	  case sensitive).
+
+Wed Aug 20 09:29:58 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* README: Remove trailing whitespace.
+
+Thu Aug 14 15:42:00 GMT 2008  Charlie Hull <charlie@lemurconsulting.com>
+
+	* win32_bindings_ruby.mak,config.mak,README,Makefile: Added new
+	  Ruby bindings makefile written by Zsolt Sz. Sztupák
+
+Thu Jun 05 17:04:26 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* Start of ChangeLog.
