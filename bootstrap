@@ -324,16 +324,23 @@ for d in $modules ; do
     cd "$here"
     dirs="$dirs $d"
   elif [ search-xapian = "$d" ] ; then
-    # Extract any CXX=... argument from those passed to us.
-    unset cxxarg
-    for arg
-    do
-      case $arg in
-	CXX=*) cxxarg=$arg ;;
-      esac
-    done
-    perl "$d/Makefile.PL" XAPIAN_CONFIG="$XAPIAN_CONFIG" ${cxxarg+"$cxxarg"}
-    dirs="$dirs $d"
+    if [ "$here" = "$srcdir" ] ; then
+      makefilepl=Makefile.PL
+    else
+      makefilepl=$srcdir/$d/Makefile.PL
+    fi
+    if [ -f "$makefilepl" ] ; then
+      # Extract any CXX=... argument from those passed to us.
+      unset cxxarg
+      for arg
+      do
+	case $arg in
+	  CXX=*) cxxarg=$arg ;;
+	esac
+      done
+      perl "$makefilepl" XAPIAN_CONFIG="$XAPIAN_CONFIG" ${cxxarg+"$cxxarg"}
+      dirs="$dirs $d"
+    fi
   fi
 done
 
