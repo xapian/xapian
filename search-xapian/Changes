@@ -1,5 +1,13 @@
 Revision history for Perl extension Search::Xapian.
 
+1.0.10.0  Tue Dec 23 09:18:21 GMT 2008
+	[Changes contributed by Olly Betts]
+	- Makefile.PL now supports a "fake VPATH" mode, to better support for
+	  building from SVN.  If you run "perl /path/to/Makefile.PL" then
+	  Makefile.PL will run Makefile.PL as nomal in /path/to, and then
+	  create a stub Makefile in the current directory which forwards any
+	  make invocations.
+
 1.0.9.0  Fri Oct 31 23:27:06 GMT 2008
 	[Changes contributed by Olly Betts]
 	- Wrap Search::Xapian::get_major_version(), get_minor_version(),
