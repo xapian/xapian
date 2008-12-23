@@ -12,6 +12,7 @@ Revision history for Perl extension Search::Xapian.
 	  Makefile.PL will run Makefile.PL as nomal in /path/to, and then
 	  create a stub Makefile in the current directory which forwards any
 	  make invocations.
+	- Fix "fake VPATH" mode to work better.
 
 1.0.9.0  Fri Oct 31 23:27:06 GMT 2008
 	[Changes contributed by Olly Betts]

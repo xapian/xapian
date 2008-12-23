@@ -199,10 +199,10 @@ if (scalar @bad) {
 if (defined $builddir) {
     open M, '>', "$builddir/Makefile~" or die $!;
     print M <<"EOF";
-.DEFAULT:
+all .DEFAULT:
 \t\$(MAKE) -C "$srcdir" \$\@
 
-.PHONY: Search-Xapian-$VERSION.tar.gz
+.PHONY: all Search-Xapian-$VERSION.tar.gz
 
 dist tardist Search-Xapian-$VERSION.tar.gz:
 \t\$(MAKE) -C "$srcdir" \$\@
