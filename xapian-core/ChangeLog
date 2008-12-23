@@ -1,3 +1,9 @@
+Tue Dec 23 04:22:06 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* exception_data.pm: Build a hash mapping a class to a list of its
+	  subclasses and export this as %subclasses.
+
 Sat Dec 20 05:52:27 GMT 2008  Olly Betts <olly@survex.com>
 
 	* HACKING: Wrap several long lines.
