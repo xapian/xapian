@@ -1,3 +1,9 @@
+Tue Dec 23 06:40:26 GMT 2008  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* INSTALL: Adapt old footnotes from PLATFORMS about HP's aCC and IRIX
+	  into new paragraphs here.
+
 Tue Dec 23 06:22:02 GMT 2008  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: HP testdrive has been shut down, so all mark all those
