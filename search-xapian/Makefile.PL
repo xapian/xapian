@@ -6,6 +6,14 @@ use Config;
 $ExtUtils::MakeMaker::Recognized_Att_Keys{CXX} = 1;
 $ExtUtils::MakeMaker::Recognized_Att_Keys{XAPIAN_CONFIG} = 1;
 
+my $builddir;
+
+my $srcdir = $0;
+if ($srcdir =~ s!/.*!!) {
+    chomp($builddir = `pwd`);
+    chdir $srcdir;
+}
+
 my $xapian_config;
 my $CC;
 for (@ARGV) {
@@ -140,7 +148,7 @@ close F;
 
 my ($BASEVERSION) = $VERSION =~ /^([0-9]+\.[0-9]+\.[0-9]+)/;
 if ($xver !~ /^\Q$BASEVERSION\E(?:_svn[0-9]+)?$/) {
-    # There's no chance that we'll with xapian-core 0.x.y.
+    # There's no chance that we'll work with xapian-core 0.x.y.
     my $no_chance = ($xver =~ /^0/);
     my $msg;
     if ($no_chance) {
@@ -186,6 +194,17 @@ if (scalar @bad) {
     die(join(",",@bad).": No mention of current version: $VERSION\n");
 }
 
+# If we're doing a fake VPATH build, add a stub Makefile which forwards all
+# invocations (.DEFAULT is a GNU-make-ism).
+if (defined $builddir) {
+    open M, '>', "$builddir/Makefile~" or die $!;
+    print M <<"EOF";
+.DEFAULT:
+\t\$(MAKE) -C "$srcdir" \$\@
+EOF
+    close M or die $!;
+    rename "$builddir/Makefile~", "$builddir/Makefile" or die $!;
+}
 
 sub MY::postamble {
   return "\$(XS_FILES): ".join(" ", <XS/*.xs>)."\n\ttouch \$(XS_FILES)";
