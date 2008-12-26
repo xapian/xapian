@@ -1,3 +1,7 @@
+Fri Dec 26 15:22:01 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* xapian.i: Add Database.close() method.
+
 Tue Dec 23 05:59:02 GMT 2008  Olly Betts <olly@survex.com>
 
 	* csharp/xapian_wrap.d ruby/xapian_wrap.d php/xapian_wrap.d i
