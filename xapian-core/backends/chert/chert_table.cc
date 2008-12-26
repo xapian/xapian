@@ -1363,7 +1363,12 @@ ChertTable::set_full_compaction(bool parity)
 
 ChertCursor * ChertTable::cursor_get() const {
     LOGCALL(DB, ChertCursor *, "ChertTable::cursor_get", "");
-    if (handle < 0) RETURN(NULL);
+    if (handle < 0) {
+	if (handle == -2) {
+	    throw Xapian::DatabaseError("Database has been closed");
+	}
+	RETURN(NULL);
+    }
     // FIXME Ick - casting away const is nasty
     RETURN(new ChertCursor(const_cast<ChertTable *>(this)));
 }

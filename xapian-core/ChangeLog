@@ -1,3 +1,12 @@
+Fri Dec 26 13:42:14 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/chert/chert_table.cc,backends/flint/flint_table.cc:
+	  Raise error if database has been closed permanently when
+	  cursor_get() is called - a NULL return type isn't checked in
+	  various places (for tables which are never closed temporarily),
+	  so this is the easiest place to add a check to avoid a segfault
+	  without incurring extra overhead.
+
 Tue Dec 23 13:42:21 GMT 2008  Olly Betts <olly@survex.com>
 
 	* languages/compiler/analyser.c: Fix GCC 4.3 warning.
