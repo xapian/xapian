@@ -384,6 +384,10 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	virtual void reopen();
 
+	/** Close the database
+	 */
+	virtual void close() = 0;
+
 	//////////////////////////////////////////////////////////////////
 	// Modifying the database:
 	// =======================

@@ -1,3 +1,23 @@
+Fri Dec 26 15:05:05 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/database.h: Add Database.close() method, used to
+	  close the resources (in particular, the filehandles) held by a
+	  database before the destructor is called.  Particularly useful
+	  for the bindings from other languages.
+	* api/omdatabase.cc,backends/chert/chert_database.cc,
+	  backends/chert/chert_database.h,backends/flint/flint_database.cc,
+	  backends/flint/flint_database.h,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h,
+	  backends/remote/remote-database.cc,common/database.h,
+	  common/remote-database.h,net/remoteconnection.cc: Implementation
+	  of close() methods.
+	* tests/Makefile.am,tests/api_closedb.cc: New test file, for
+	  testing the close method.  Could do with being expanded to test
+	  many more methods of databases in the closed state, and to test
+	  the behaviour after the close of objects created from databases
+	  before the database was closed.
+
 Fri Dec 26 13:42:14 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* backends/chert/chert_table.cc,backends/flint/flint_table.cc:

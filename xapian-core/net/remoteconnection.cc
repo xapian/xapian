@@ -182,6 +182,9 @@ bool
 RemoteConnection::ready_to_read() const
 {
     DEBUGCALL(REMOTE, bool, "RemoteConnection::ready_to_read", "");
+    if (fdin == -1) {
+	throw Xapian::DatabaseError("Database has been closed");
+    }
 
     if (!buffer.empty()) RETURN(true);
 
@@ -204,6 +207,9 @@ RemoteConnection::send_message(char type, const string &message, const OmTime & 
 {
     DEBUGCALL(REMOTE, void, "RemoteConnection::send_message",
 	      type << ", " << message << ", " << end_time);
+    if (fdout == -1) {
+	throw Xapian::DatabaseError("Database has been closed");
+    }
 
     string header;
     header += type;
@@ -314,6 +320,9 @@ RemoteConnection::send_file(char type, const string &file, const OmTime & end_ti
 {
     DEBUGCALL(REMOTE, void, "RemoteConnection::send_file",
 	      type << ", " << file << ", " << end_time);
+    if (fdout == -1) {
+	throw Xapian::DatabaseError("Database has been closed");
+    }
 
 #ifdef __WIN32__
     int fd = msvc_posix_open(file.c_str(), O_RDONLY);
@@ -459,6 +468,9 @@ RemoteConnection::sniff_next_message_type(const OmTime & end_time)
 {
     DEBUGCALL(REMOTE, char, "RemoteConnection::get_message",
 	      "[result], " << end_time);
+    if (fdin == -1) {
+	throw Xapian::DatabaseError("Database has been closed");
+    }
 
     read_at_least(1, end_time);
     char type = buffer[0];
@@ -470,6 +482,9 @@ RemoteConnection::get_message(string &result, const OmTime & end_time)
 {
     DEBUGCALL(REMOTE, char, "RemoteConnection::get_message",
 	      "[result], " << end_time);
+    if (fdin == -1) {
+	throw Xapian::DatabaseError("Database has been closed");
+    }
 
     read_at_least(2, end_time);
     size_t len = static_cast<unsigned char>(buffer[1]);
@@ -506,6 +521,9 @@ char
 RemoteConnection::get_message_chunked(const OmTime & end_time)
 {
     DEBUGCALL(REMOTE, char, "RemoteConnection::get_message_chunked", end_time);
+    if (fdin == -1) {
+	throw Xapian::DatabaseError("Database has been closed");
+    }
 
     read_at_least(2, end_time);
     off_t len = static_cast<unsigned char>(buffer[1]);
@@ -545,6 +563,9 @@ RemoteConnection::get_message_chunk(string &result, size_t at_least,
 {
     DEBUGCALL(REMOTE, bool, "RemoteConnection::get_message_chunk",
 	      result << ", " << at_least << ", " << end_time);
+    if (fdin == -1) {
+	throw Xapian::DatabaseError("Database has been closed");
+    }
 
     if (at_least <= result.size()) RETURN(true);
     at_least -= result.size();
@@ -581,6 +602,9 @@ RemoteConnection::receive_file(const string &file, const OmTime & end_time)
 {
     DEBUGCALL(REMOTE, char, "RemoteConnection::receive_file",
 	      file << ", " << end_time);
+    if (fdin == -1) {
+	throw Xapian::DatabaseError("Database has been closed");
+    }
 
 #ifdef __WIN32__
     // Do we want to be able to delete the file during writing?

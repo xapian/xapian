@@ -91,6 +91,7 @@ noinst_HEADERS = apitest.h
 collated_apitest_sources = \
  api_anydb.cc \
  api_backend.cc \
+ api_closedb.cc \
  api_db.cc \
  api_generated.cc \
  api_nodb.cc \

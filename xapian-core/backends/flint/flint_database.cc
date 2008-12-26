@@ -522,6 +522,19 @@ FlintDatabase::reopen()
 }
 
 void
+FlintDatabase::close()
+{
+    DEBUGCALL(DB, void, "FlintDatabase::close", "");
+    postlist_table.close(true);
+    position_table.close(true);
+    termlist_table.close(true);
+    value_table.close(true);
+    synonym_table.close(true);
+    spelling_table.close(true);
+    record_table.close(true);
+}
+
+void
 FlintDatabase::get_database_write_lock(bool creating)
 {
     DEBUGCALL(DB, void, "FlintDatabase::get_database_write_lock", creating);

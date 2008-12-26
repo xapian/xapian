@@ -298,6 +298,8 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 
     ~InMemoryDatabase();
 
+    void close();
+
     Xapian::doccount get_doccount() const;
 
     Xapian::docid get_lastdocid() const;

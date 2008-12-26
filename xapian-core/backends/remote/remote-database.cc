@@ -271,6 +271,12 @@ RemoteDatabase::reopen()
     mru_valno = Xapian::BAD_VALUENO;
 }
 
+void
+RemoteDatabase::close()
+{
+    do_close();
+}
+
 // Currently lazy is only used in three cases, all in multimatch.cc.  One is
 // when using a MatchDecider, which we don't support with the remote backend
 // currently.  The others are for the sort key and collapse key which in the

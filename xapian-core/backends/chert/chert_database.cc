@@ -522,6 +522,18 @@ ChertDatabase::reopen()
 }
 
 void
+ChertDatabase::close()
+{
+    DEBUGCALL(DB, void, "ChertDatabase::close", "");
+    postlist_table.close(true);
+    position_table.close(true);
+    termlist_table.close(true);
+    synonym_table.close(true);
+    spelling_table.close(true);
+    record_table.close(true);
+}
+
+void
 ChertDatabase::get_database_write_lock(bool creating)
 {
     DEBUGCALL(DB, void, "ChertDatabase::get_database_write_lock", creating);
