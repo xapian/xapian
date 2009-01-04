@@ -1,3 +1,8 @@
+Sun Jan 04 23:45:24 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac,tcl8/Makefile.am: Allow tcl8 bindings to be built on
+	  Cygwin (based on patch 1.0.7-tcl.patch from Cygwin Ports).
+
 Mon Dec 29 16:54:54 GMT 2008  James Aylett <james@tartarus.org>
 
 	* python/docs/examples/: get_description() is now __str__() in Python.

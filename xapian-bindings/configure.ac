@@ -429,7 +429,20 @@ if test no != "$with_tcl" ; then
 	  AC_MSG_ERROR([Can't find tcl.h])
 	fi
       fi
+
+      dnl Cygwin needs to link with -ltcl8.5 or similar.
+      TCL_LIBS=
+      case $host_os in
+      cygwin*)
+	AC_CHECK_LIB([tcl$tcl_version], [Tcl_Init],
+		     [TCL_LIBS="-ltcl$tcl_version"],
+		     [AC_MSG_ERROR([libtcl$tcl_version not found])])
+	;;
+      *)
+	TCL_CPPFLAGS="$TCL_CPPFLAGS -DUSE_TCL_STUBS" ;;
+      esac
       AC_SUBST(TCL_CPPFLAGS)
+      AC_SUBST(TCL_LIBS)
     else
       AC_MSG_RESULT([< 8.1 (too old)])
       if test yes = "$with_tcl" ; then
