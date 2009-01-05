@@ -1,3 +1,9 @@
+Mon Jan 05 04:42:04 GMT 2009  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lt: Merge upstream "Check-in Number: 6016" -
+	  only change is to comment noting the synced version as the changed
+	  code has been deleted in our version.
+
 Fri Dec 26 15:05:05 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* include/xapian/database.h: Add Database.close() method, used to
