@@ -1,3 +1,9 @@
+Mon Jan 05 04:09:05 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Allow Python buildings to be built on Cygwin (taken
+	  from patch 1.0.7-python.patch from Cygwin Ports, and adapted for
+	  Python 3.0 compatibility).
+
 Mon Jan 05 02:14:17 GMT 2009  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am: Rename the compiled C++ wrapper from
