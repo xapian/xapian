@@ -1,3 +1,8 @@
+Mon Jan 05 00:18:39 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac,ruby/Makefile.am: Allow ruby bindings to be built on
+	  Cygwin (need to pass -lruby there).
+
 Sun Jan 04 23:45:24 GMT 2009  Olly Betts <olly@survex.com>
 
 	* configure.ac,tcl8/Makefile.am: Allow tcl8 bindings to be built on

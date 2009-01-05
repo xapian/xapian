@@ -38,7 +38,7 @@ AM_CPPFLAGS = -I$(RUBY_INC)
 AM_CXXFLAGS = @SWIG_CXXFLAGS@ $(XAPIAN_CXXFLAGS)
 _xapian_la_LDFLAGS = -avoid-version -module -shrext ".$(RUBY_DLEXT)" $(NO_UNDEFINED)
 _xapian_la_SOURCES = xapian_wrap.cc xapian_wrap.h
-_xapian_la_LIBADD = $(XAPIAN_LIBS)
+_xapian_la_LIBADD = $(XAPIAN_LIBS) $(RUBY_LIBS)
 
 if MAINTAINER_MODE
 xapian_wrap.cc xapian_wrap.h: xapian_wrap.stamp

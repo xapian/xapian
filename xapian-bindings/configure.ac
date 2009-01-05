@@ -732,16 +732,25 @@ if test no != "$with_ruby" ; then
       AC_MSG_CHECKING([for $RUBY_INC/ruby.h])
       if test -f "$RUBY_INC/ruby.h" ; then
 	AC_MSG_RESULT(yes)
+
         AC_ARG_VAR(RUBY_LIB, [Directory to install ruby files into])
 	if test -z "$RUBY_LIB" ; then    
 	  RUBY_LIB=`$RUBY -rrbconfig -e 'puts Config::CONFIG[["sitelibdir"]]'`
 	fi
 	AC_SUBST(RUBY_LIB)
+
         AC_ARG_VAR(RUBY_LIB_ARCH, [Directory to install ruby binary modules into])
 	if test -z "$RUBY_LIB_ARCH" ; then    
 	  RUBY_LIB_ARCH=`$RUBY -rrbconfig -e 'puts Config::CONFIG[["sitearchdir"]]'`
 	fi
 	AC_SUBST(RUBY_LIB_ARCH)
+
+	RUBY_LIBS=
+	case $host_os in
+	cygwin*) RUBY_LIBS=-lruby ;;
+	esac
+	AC_SUBST(RUBY_LIBS)
+
 	if test yes = "$enable_documentation" ; then
 	  if test -n "$RDOC" ; then
 	    AC_PATH_PROGS(RDOC, ["$RDOC"], [])
@@ -755,6 +764,7 @@ if test no != "$with_ruby" ; then
 	    fi
 	  fi
 	fi
+
 	BINDINGS="$BINDINGS ruby"
       else
 	AC_MSG_RESULT([no (install ruby-dev or ruby-devel package or similar)])
