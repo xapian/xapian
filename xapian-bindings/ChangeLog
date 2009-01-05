@@ -1,3 +1,9 @@
+Mon Jan 05 02:14:17 GMT 2009  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Rename the compiled C++ wrapper from
+	  XapianSharp.la to _XapianSharp.la to avoid a name clash on with the
+	  C# assembly XapianSharp.dll on Microsoft Windows.
+
 Mon Jan 05 00:36:48 GMT 2009  Olly Betts <olly@survex.com>
 
 	* configure.ac: Allow PHP bindings to be built on Cygwin (patch

@@ -72,12 +72,12 @@ BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_CS_SRCS)
 
 EXTRA_DIST = util.i AssemblyInfo.cs.in SmokeTest.cs $(BUILT_SOURCES)
 
-lib_LTLIBRARIES = XapianSharp.la
+lib_LTLIBRARIES = _XapianSharp.la
 
 AM_CXXFLAGS = @SWIG_CXXFLAGS@ $(XAPIAN_CXXFLAGS)
-XapianSharp_la_LDFLAGS = -avoid-version -module $(NO_UNDEFINED)
-XapianSharp_la_SOURCES = xapian_wrap.cc
-XapianSharp_la_LIBADD = $(XAPIAN_LIBS)
+_XapianSharp_la_LDFLAGS = -avoid-version -module $(NO_UNDEFINED)
+_XapianSharp_la_SOURCES = xapian_wrap.cc
+_XapianSharp_la_LIBADD = $(XAPIAN_LIBS)
 
 install-data-local: $(ASSEMBLY).dll
 	$(GACUTIL) /i $(ASSEMBLY).dll /f /package $(ASSEMBLY) /gacdir $(libdir) /root $(DESTDIR)$(libdir)
@@ -101,7 +101,7 @@ xapian_wrap.stamp: $(SWIG_sources) util.i
 	: # case where SWIG changes its mind as to which files it generates.
 	-rm -f $(XAPIAN_SWIG_CS_SRCS)
 	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
-	    -csharp -namespace Xapian -module Xapian -dllimport XapianSharp \
+	    -csharp -namespace Xapian -module Xapian -dllimport _XapianSharp \
 	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp $(SWIG_mainsource)
 	$(PERL) -pe 's!xapian_wrap.cc:!xapian_wrap.stamp:!' xapian_wrap_d.tmp > xapian_wrap_d2.tmp
 	mv xapian_wrap_d2.tmp xapian_wrap.d
