@@ -369,6 +369,8 @@ if test no != "$with_php" ; then
 	dnl someone who actually has mingw and wants to build the PHP bindings
 	dnl there.  FIXME.
 	PHP_LIBS="-L`$PHP_CONFIG --prefix` -lphp${PHP_MAJOR_VERSION}ts" ;;
+      cygwin*)
+	PHP_LIBS="-lphp${PHP_MAJOR_VERSION}lib" ;;
       *)
 	PHP_LIBS= ;;
       esac

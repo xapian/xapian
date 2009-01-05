@@ -1,3 +1,8 @@
+Mon Jan 05 00:36:48 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Allow PHP bindings to be built on Cygwin (patch
+	  1.0.7-php.patch from Cygwin Ports).
+
 Mon Jan 05 00:18:39 GMT 2009  Olly Betts <olly@survex.com>
 
 	* configure.ac,ruby/Makefile.am: Allow ruby bindings to be built on
