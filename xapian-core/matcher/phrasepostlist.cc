@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -110,7 +110,7 @@ NearPostList::get_wdf() const
     // calculating the weight for synonym postlists, and it's not clear that
     // the above definition is exactly appropriate in this situation, anyway).
     //
-    // Instead, we could do an estimate of this value, based on the the lengths
+    // Instead, we could do an estimate of this value, based on the lengths
     // of the position lists.  Rather than having to open the position lists,
     // we could use the wdfs, which will be the same value unless the wdfs have
     // been artificially inflated - in which case we probably want to use the
@@ -244,7 +244,7 @@ PhrasePostList::do_test(std::vector<PositionList *> &plists, Xapian::termcount i
 Xapian::termcount
 PhrasePostList::get_wdf() const
 {
-    // Calculate the an estimate for the wdf of a phrase postlist.
+    // Calculate an estimate for the wdf of a phrase postlist.
     //
     // We use the minimum wdf of a sub-postlist as our estimate.  See the
     // comment in NearPostList::get_wdf for justification of this estimate.

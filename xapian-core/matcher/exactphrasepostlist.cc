@@ -1,7 +1,7 @@
 /** @file exactphrasepostlist.cc
  * @brief Return docs containing terms forming a particular exact phrase.
  *
- * Copyright (C) 2006,2007 Olly Betts
+ * Copyright (C) 2006,2007,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -127,7 +127,7 @@ ExactPhrasePostList::test_doc()
 Xapian::termcount
 ExactPhrasePostList::get_wdf() const
 {
-    // Calculate the an estimate for the wdf of an exact phrase postlist.
+    // Calculate an estimate for the wdf of an exact phrase postlist.
     //
     // We use the minimum wdf of a sub-postlist as our estimate.  See the
     // comment in NearPostList::get_wdf for justification of this estimate.

@@ -1,3 +1,8 @@
+Tue Jan 06 03:20:27 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/exactphrasepostlist.cc,matcher/phrasepostlist.cc: Fix
+	  comment typos.
+
 Mon Jan 05 04:42:04 GMT 2009  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lt: Merge upstream "Check-in Number: 6016" -
