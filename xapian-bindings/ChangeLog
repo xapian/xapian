@@ -1,3 +1,8 @@
+Tue Jan 06 00:43:58 GMT 2009  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Clean up any left over test databases on "make
+	  clean".
+
 Tue Jan 06 00:43:01 GMT 2009  Olly Betts <olly@survex.com>
 
 	* python/pythontest2.py: All but two testcases delete the database(s)

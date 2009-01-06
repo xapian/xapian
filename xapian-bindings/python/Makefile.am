@@ -84,9 +84,11 @@ CLEANFILES = \
     xapian/__init__.py xapian/__init__.pyc xapian/__init__.pyo \
     $(srcdir)/testsuite.pyc
 
-# Clean the xapian directory which we created, if it's empty
+# Clean the xapian directory which we created, if it's empty, and any
+# databases created by test cases.
 clean-local:
 	-rmdir xapian
+	rm -f db_test_* dbs_replication
 
 if MAINTAINER_MODE
 # We need to explicitly set -outdir because on Windows, SWIG splits paths at
