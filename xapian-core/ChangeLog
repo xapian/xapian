@@ -1,3 +1,8 @@
+Tue Jan 06 21:39:30 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/matchspy.cc: Add assertions to try to track down what's causing
+	  bug#321.
+
 Tue Jan 06 03:20:27 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/exactphrasepostlist.cc,matcher/phrasepostlist.cc: Fix
