@@ -1,3 +1,7 @@
+Tue Jan 06 22:08:12 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/inmemory/inmemory_database.cc: Fix comment typo.
+
 Tue Jan 06 21:39:30 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/matchspy.cc: Add assertions to try to track down what's causing

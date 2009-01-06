@@ -363,7 +363,7 @@ InMemoryDatabase::close()
 {
     // Free all the resources.
     //
-    // We don't bother setting a flag mark the database as closed, since
+    // We don't bother setting a flag to mark the database as closed, since
     // checking for this would add extra overhead in all methods.  Users
     // shouldn't be calling other methods after the close, anyway.
     postlists.clear();
