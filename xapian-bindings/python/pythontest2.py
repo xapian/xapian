@@ -1,7 +1,7 @@
 # Tests of Python-specific parts of the xapian bindings.
 #
 # Copyright (C) 2007 Lemur Consulting Ltd
-# Copyright (C) 2008 Olly Betts
+# Copyright (C) 2008,2009 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -1010,6 +1010,14 @@ def test_get_uuid():
     db.add_database(db1)
     expect(db1.get_uuid(), db.get_uuid())
 
+    del db1
+    del db2
+    del dbr1
+    del dbr2
+    del db
+    shutil.rmtree(dbpath + "1")
+    shutil.rmtree(dbpath + "2")
+
 def test_director_exception():
     """Test handling of an exception raised in a director.
 
@@ -1104,6 +1112,9 @@ def test_value_mods():
     check_vals(db, vals)
     db.flush()
     check_vals(db, vals)
+
+    del db
+    shutil.rmtree(dbpath)
 
 # Run all tests (ie, callables with names starting "test_").
 if not runtests(globals(), sys.argv[1:]):

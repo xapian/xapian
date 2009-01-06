@@ -1,3 +1,8 @@
+Tue Jan 06 00:43:01 GMT 2009  Olly Betts <olly@survex.com>
+
+	* python/pythontest2.py: All but two testcases delete the database(s)
+	  they create if they pass, so fix the remaining two to do the same.
+
 Mon Jan 05 04:09:05 GMT 2009  Olly Betts <olly@survex.com>
 
 	* configure.ac: Allow Python buildings to be built on Cygwin (taken
