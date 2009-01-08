@@ -1,3 +1,13 @@
+Thu Jan 08 05:14:47 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_cursor.cc,backends/chert/chert_postlist.cc,
+	  backends/flint/flint_cursor.cc,backends/flint/flint_postlist.cc,
+	  backends/multi/multi_postlist.cc,common/omassert.h,configure.ac,
+	  matcher/multimatch.cc: Change preprocessor defines controlling
+	  assertions from XAPIAN_DEBUG->XAPIAN_ASSERTIONS and
+	  XAPIAN_DEBUG_PARANOID->XAPIAN_ASSERTIONS_PARANOID so their purpose
+	  is clearer.
+
 Thu Jan 08 02:23:21 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.

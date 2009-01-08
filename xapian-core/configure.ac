@@ -911,12 +911,12 @@ dnl Set defines according to the --enable-assertions and --enable-log options
 dnl given.
 
 if test yes = "$enable_assertions" || test partial = "$enable_assertions" ; then
-  AC_DEFINE(XAPIAN_DEBUG,,
+  AC_DEFINE(XAPIAN_ASSERTIONS,,
     [Define if you want assertions (causes some slow-down)])
 fi
 
 if test yes = "$enable_assertions"; then
-  AC_DEFINE(XAPIAN_DEBUG_PARANOID,,
+  AC_DEFINE(XAPIAN_ASSERTIONS_PARANOID,,
     [Define if you want paranoid assertions (causes significant slow-down)])
 fi
 

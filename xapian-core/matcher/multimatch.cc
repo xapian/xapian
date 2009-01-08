@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2003 Orange PCS Ltd
  * Copyright 2003 Sam Liddicott
  * Copyright 2007,2008 Lemur Consulting Ltd
@@ -750,7 +750,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 			Assert(items.back().wt < min_weight);
 			items.pop_back();
 		    }
-#ifdef XAPIAN_DEBUG_PARANOID
+#ifdef XAPIAN_ASSERTIONS_PARANOID
 		    vector<Xapian::Internal::MSetItem>::const_iterator i;
 		    for (i = items.begin(); i != items.end(); ++i) {
 			Assert(i->wt >= min_weight);
@@ -843,7 +843,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		Assert(items.back().wt < min_wt);
 		items.pop_back();
 	    }
-#ifdef XAPIAN_DEBUG_PARANOID
+#ifdef XAPIAN_ASSERTIONS_PARANOID
 	    vector<Xapian::Internal::MSetItem>::const_iterator j;
 	    for (j = items.begin(); j != items.end(); ++j) {
 		Assert(j->wt >= min_wt);
