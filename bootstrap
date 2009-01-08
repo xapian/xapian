@@ -2,7 +2,7 @@
 # bootstrap a xapian source tree obtained from SVN to produce a tree like
 # you'd get from unpacking the results of "make dist"
 #
-# Copyright (C) 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+# Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -60,7 +60,7 @@ lazy_build() {
 	FETCH_URL_TOOL=${WGET-wget}
       elif ${CURL-curl} --version > /dev/null 2>&1 || [ "$?" = 2 ] ; then
 	# curl --version exists with code 2.
-	FETCH_URL_TOOL=${CURL-curl}
+	FETCH_URL_TOOL="${CURL-curl} -O"
       else
 	echo "Neither wget nor curl found - set WGET or CURL to the full path," >&2
 	echo "or download $url to directory `pwd` by hand and rerun this script." >&2
