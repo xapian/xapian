@@ -1,5 +1,5 @@
 up to:
- 11747    richard Mon Dec 22 16:02:58 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+11812 Wed Jan 07 03:43:07 GMT 2009  Olly Betts <olly@survex.com>
 
 Potential backport fodder:
 
@@ -27,6 +27,20 @@ it really make sense to add it now:
 	  you know that a query will only be accessing a subset of
 	  documents for which you know a more precise upper bound than the
 	  database-wide upper bound.
+
+This code is currently not compiled on trunk:
+	* api/matchspy.cc: Fix FP rounding bug (bug#321).
+	* AUTHORS: Add Shane Evans for bug report.
+
+	* include/xapian/database.h: Add Database.close() method, used to
+	  close the resources (in particular, the filehandles) held by a
+	  database before the destructor is called.  Particularly useful
+	  for the bindings from other languages.
+	* tests/Makefile.am,tests/api_closedb.cc: New test file, for
+	  testing the close method.  Could do with being expanded to test
+	  many more methods of databases in the closed state, and to test
+	  the behaviour after the close of objects created from databases
+	  before the database was closed.
 
  11498       olly 	* backends/Makefile.mk,backends/chert/,backends/database.cc,
  11498       olly 	  backends/valuelist.cc,common/Makefile.mk,common/database.h,
@@ -57,8 +71,7 @@ it really make sense to add it now:
  11532       olly 	  same code lots of times.
 
 
-Xapian-core 1.1.0 (200?-??-??):
-
+Xapian-core 1.1.0 (2009-0?-??):
 
 API:
 
@@ -250,7 +263,7 @@ build system:
 	* configure.ac: The workaround to avoid probe code for F77, GCJ, and
 	  RC being added to configure is no longer required now that we're
 	  using libtool 2.2 so remove it.
-	* configure.ac,HACKING: Hard require autoconf 2.62 and automake 1.10.1.
+	* configure.ac,HACKING: Hard require autoconf 2.63 and automake 1.10.2.
 	  Remove workaround which sets docdir for
 	  autoconf < 2.60 since we now require 2.62.
 	* xapian-core.spec.in: We no longer need to run autoreconf to work

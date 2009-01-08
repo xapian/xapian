@@ -1,3 +1,7 @@
+Thu Jan 08 02:23:21 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
 Wed Jan 07 03:43:07 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/matchspy.cc: Fix FP rounding bug (bug#321).
