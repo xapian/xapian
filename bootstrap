@@ -33,6 +33,17 @@ autotools="AUTORECONF AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE ACLOCAL LIBTOOLIZE"
 # Tool for downloading a file from a URL (currently wget or curl).
 FETCH_URL_TOOL=
 
+check_sha1sum() {
+  checksum=$1
+  tarball=$2
+  if ${SHA1SUM-sha1sum} --version > /dev/null 2>&1 ; then
+    echo "$checksum  $tarball"|${SHA1SUM-sha1sum} -c
+  else
+    test "$checksum" = `openssl sha1 < "$tarball"`|| \
+      ( echo "$tarball: computed SHA1 checksum did NOT match" ; exit 1 )
+  fi
+}
+
 lazy_build() {
   package=$1
   basename=$package-$2
@@ -78,7 +89,7 @@ lazy_build() {
 
   if [ -z "$find_stdout" ] ; then
     # Verify the tarball's checksum before building it.
-    echo "$checksum  $tarball"|sha1sum -c
+    check_sha1sum "$checksum" "$tarball"
 
     for f in "$package"-* ; do
       [ "$f" = "$tarball" ] || rm -rf "$f"
