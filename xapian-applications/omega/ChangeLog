@@ -1,3 +1,10 @@
+Fri Jan 09 05:25:52 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* runfilter.cc: Fix to compile when RLIMIT_AS isn't available (as on
+	  NetBSD and OpenBSD).  In this situation, instead use RLIMIT_VMEM or
+	  RLIMIT_DATA if either is available.
+
 Tue Dec 23 07:20:18 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS: Update for 1.0.10.
