@@ -54,7 +54,7 @@ DEFINE_TESTCASE(sortfunctor1,backend && !remote) {
 
     {
 	Xapian::MultiValueSorter sorter;
-	sorter.add(13); // Value 13 isn't set.
+	sorter.add(100); // Value 100 isn't set.
 	sorter.add(3);
 	sorter.add(1, false);
 

@@ -27,6 +27,7 @@
 #include <xapian/visibility.h>
 
 #include <string>
+#include <map>
 
 namespace Xapian {
 
@@ -154,6 +155,80 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
     virtual std::string get_description() const;
 };
 
+/** A posting source which generates weights from a value slot.
+ * *
+ *  This is a base class for classes which generate weights using values stored 
+ *  in the specified slot. For example, ValueWeightPostingSource uses sortable_unserialise
+ *  to convert values directly to weights.
+ *
+ */
+class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
+  protected:
+    /// The slot we're reading values from.
+    Xapian::valueno slot;
+
+    /// The database we're reading values from.
+    Xapian::Database db;
+
+    /// An upper bound on the weight returned.
+    double max_weight;
+
+    /// A lower bound on the term frequency.
+    Xapian::doccount termfreq_min;
+
+    /// An estimate of the term frequency.
+    Xapian::doccount termfreq_est;
+
+    /// An upper bound on the term frequency.
+    Xapian::doccount termfreq_max;
+
+    /// Value stream iterator.
+    Xapian::ValueIterator it;
+
+    /// End iterator corresponding to it.
+    Xapian::ValueIterator end;
+
+    /// Flag indicating if we've started (true if we have).
+    bool started;
+
+  public:  
+    /** Construct a ValuePostingSource.
+     *
+     *  @param db_ The database to read values from.
+     *  @param slot_ The value slot to read values from.
+     */
+    ValuePostingSource(Xapian::Database db_, Xapian::valueno slot_);
+
+    /** Construct a ValuePostingSource.
+     *
+     *  @param db_ The database to read values from.
+     *  @param slot_ The value slot to read values from.
+     *  @param max_weight_ An upper bound on the weights which are stored in
+     *  the value slot.  Note that for the chert database format, information
+     *  about an upper bound is already stored in the database, so this
+     *  constructor need only be used if more accurate information is
+     *  available.
+     */
+    ValuePostingSource(Xapian::Database db_, Xapian::valueno slot_, double max_weight_);
+
+    Xapian::doccount get_termfreq_min() const;
+    Xapian::doccount get_termfreq_est() const;
+    Xapian::doccount get_termfreq_max() const;
+
+    Xapian::weight get_maxweight() const;
+
+    void next(Xapian::weight min_wt);
+    void skip_to(Xapian::docid min_docid, Xapian::weight min_wt);
+    bool check(Xapian::docid min_docid, Xapian::weight min_wt);
+
+    bool at_end() const;
+
+    Xapian::docid get_docid() const;
+
+    void reset();
+};
+
+
 /** A posting source which reads weights from a value slot.
  *
  *  This returns entries for all documents in the given database which have a
@@ -168,34 +243,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
  *  values are positive, which is a requirement for weights.  The behaviour if
  *  the slot contains values which unserialise to negative values is undefined.
  */
-class XAPIAN_VISIBILITY_DEFAULT ValueWeightPostingSource : public PostingSource {
-    /// The database we're reading values from.
-    Xapian::Database db;
-
-    /// The slot we're reading values from.
-    Xapian::valueno slot;
-
-    /// Value stream iterator.
-    Xapian::ValueIterator it;
-
-    /// End iterator corresponding to it.
-    Xapian::ValueIterator end;
-
-    /// Flag indicating if we've started (true if we have).
-    bool started;
-
-    /// An upper bound on the weight returned.
-    double max_weight;
-
-    /// A lower bound on the term frequency.
-    Xapian::doccount termfreq_min;
-
-    /// An estimate of the term frequency.
-    Xapian::doccount termfreq_est;
-
-    /// An upper bound on the term frequency.
-    Xapian::doccount termfreq_max;
-
+class XAPIAN_VISIBILITY_DEFAULT ValueWeightPostingSource : public ValuePostingSource {
   public:
     /** Construct a ValueWeightPostingSource.
      *
@@ -214,28 +262,59 @@ class XAPIAN_VISIBILITY_DEFAULT ValueWeightPostingSource : public PostingSource 
      *  constructor need only be used if more accurate information is
      *  available.
      */
-    ValueWeightPostingSource(Xapian::Database db_, Xapian::valueno slot_,
-			     double max_weight_);
+    ValueWeightPostingSource(Xapian::Database db_, Xapian::valueno slot_, double max_weight_);
 
-    Xapian::doccount get_termfreq_min() const;
-    Xapian::doccount get_termfreq_est() const;
-    Xapian::doccount get_termfreq_max() const;
-
-    Xapian::weight get_maxweight() const;
     Xapian::weight get_weight() const;
-
-    void next(Xapian::weight min_wt);
-    void skip_to(Xapian::docid min_docid, Xapian::weight min_wt);
-    bool check(Xapian::docid min_docid, Xapian::weight min_wt);
-
-    bool at_end() const;
-
-    Xapian::docid get_docid() const;
-
-    void reset();
 
     std::string get_description() const;
 };
+
+/** A posting source which looks up weights from a map using values as a key.
+ *
+ *  This allows values for the specified slot to be mapped to values in a table.   
+ *  It will return entries for all documents in the given database which have a
+ *  value in the slot specified, mapped to the corresponding weight in the weight 
+ *  table. If there is no mapping for that value, the default weight will be 
+ *  returned (which itself defaults to 0.0)
+ */
+class XAPIAN_VISIBILITY_DEFAULT ValueMapPostingSource : public ValuePostingSource {
+  private:
+    /// The default weight
+    double dft_weight;
+    
+    /// The value -> weight map
+    std::map<std::string, double> weight_map;
+    
+  public:
+    /** Construct a ValueWeightPostingSource.
+     *
+     *  @param db_ The database to read values from.
+     *  @param slot_ The value slot to read values from.
+     *  @param dft_weight The default weight to return for unmapped values.
+     */
+    ValueMapPostingSource(Xapian::Database db_, Xapian::valueno slot_);
+
+    /** Add a mapping.
+     *
+     *  @param key_ The key looked up from the value slot.
+     *  @param weight_ The weight to give this key.
+     */
+    void add_mapping(std::string key_, double weight_);
+    
+    /** Clear all mappings.
+     */
+    void clear_mappings();
+    
+    /** Set a default weight for document values not in the map.
+     */
+    void set_default_weight(double wt);
+
+    Xapian::weight get_weight() const;
+
+    std::string get_description() const;
+};
+
+
 
 /** A posting source which returns a fixed weight for all documents.
  *
