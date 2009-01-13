@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -252,24 +252,26 @@ class MSet::Internal : public Xapian::Internal::RefCntBase {
 		  max_possible(0),
 		  max_attained(0) {}
 
+	/// Note: destroys parameter items.
 	Internal(Xapian::doccount firstitem_,
 	     Xapian::doccount matches_upper_bound_,
 	     Xapian::doccount matches_lower_bound_,
 	     Xapian::doccount matches_estimated_,
 	     Xapian::weight max_possible_,
 	     Xapian::weight max_attained_,
-	     const vector<Xapian::Internal::MSetItem> &items_,
+	     vector<Xapian::Internal::MSetItem> &items_,
 	     const map<string, TermFreqAndWeight> &termfreqandwts_,
 	     Xapian::weight percent_factor_)
 		: percent_factor(percent_factor_),
 		  termfreqandwts(termfreqandwts_),
-		  items(items_),
 		  firstitem(firstitem_),
 		  matches_lower_bound(matches_lower_bound_),
 		  matches_estimated(matches_estimated_),
 		  matches_upper_bound(matches_upper_bound_),
 		  max_possible(max_possible_),
-		  max_attained(max_attained_) {}
+		  max_attained(max_attained_) {
+	    std::swap(items, items_);
+	}
 
 	/// get a document by index in MSet, via the cache.
 	Xapian::Document get_doc_by_index(Xapian::doccount index) const;
