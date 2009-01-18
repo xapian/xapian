@@ -2,7 +2,7 @@
  * @brief Tests of percentage calculations.
  */
 /* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2008 Olly Betts
+ * Copyright 2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -81,7 +81,7 @@ class MyPostingSource : public Xapian::PostingSource {
 };
 
 
-// Test for rounding errors in percentage weight calculations and cutoffs.
+/// Test for rounding errors in percentage weight calculations and cutoffs.
 DEFINE_TESTCASE(pctcutoff4, backend && !remote && !multi) {
     // Find the number of DBL_EPSILONs to subtract which result in the
     // percentage of the second hit being 49% instead of 50%.
@@ -129,6 +129,23 @@ DEFINE_TESTCASE(pctcutoff4, backend && !remote && !multi) {
 	    percent = new_percent;
 	}
     }
+
+    return true;
+}
+
+/// Check we throw for a percentage cutoff while sorting primarily by value.
+DEFINE_TESTCASE(pctcutoff5, backend) {
+    Xapian::Database db(get_database("apitest_simpledata"));
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query("test"));
+    enquire.set_cutoff(42);
+    Xapian::MSet mset;
+
+    enquire.set_sort_by_value(0);
+    TEST_EXCEPTION(Xapian::UnimplementedError, mset = enquire.get_mset(0, 10));
+
+    enquire.set_sort_by_value_then_relevance(0);
+    TEST_EXCEPTION(Xapian::UnimplementedError, mset = enquire.get_mset(0, 10));
 
     return true;
 }
