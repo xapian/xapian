@@ -728,7 +728,8 @@ if test no != "$with_ruby" ; then
       AC_MSG_RESULT([$version])
       AC_ARG_VAR(RUBY_INC, [Directory where ruby.h can be found])
       if test -z "$RUBY_INC" ; then
-        RUBY_INC=`$RUBY -rrbconfig -e 'puts Config::CONFIG[["archdir"]]'`
+        dnl Ruby 1.9 added rubyhdrdir; for older Ruby we use archdir.
+        [RUBY_INC=`$RUBY -rrbconfig -e 'puts Config::CONFIG["rubyhdrdir"] || Config::CONFIG["archdir"]'`]
       fi
       AC_SUBST(RUBY_INC)
       dnl Check that ruby.h is there, which is a good way to check that

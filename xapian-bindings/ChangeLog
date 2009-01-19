@@ -1,3 +1,8 @@
+Mon Jan 19 23:16:13 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Use rubyhdrdir if it exists (it was added at some
+	  point during Ruby 1.9 development).  See bug#323.
+
 Tue Jan 06 00:54:51 GMT 2009  Olly Betts <olly@survex.com>
 
 	* python/Makefile.am: Temporarily disable replicationtest.py
