@@ -2,13 +2,6 @@ if VPATH_BUILD
 # We need this so that generated sources can find non-generated headers in a
 # VPATH build from SVN.
 INCLUDES += -I$(top_srcdir)/queryparser
-
-if MAINTAINER_MODE
-# We need this because otherwise, if depcomp is being used (as it will be for a
-# build with gcc-2.95), depcomp will be unable to find queryparser_token.h.
-# This may be a bug in depcomp, but it certainly happens with automake-1.10.
-INCLUDES += -I$(top_builddir)/queryparser
-endif
 endif
 
 noinst_HEADERS +=\
@@ -45,12 +38,18 @@ queryparser/queryparser_internal.cc queryparser/queryparser_token.h: queryparser
 	    test -f queryparser/queryparser_internal.stamp; exit $$?; \
 	  fi; \
 	fi
-# Lemon carefully avoids touching queryparser_token.h if it hasn't changed,
-# but only the generated file queryparser_internal.cc depends
-# on it, so it's better to touch it so we can have a
-# dependency to generate it.
 queryparser/queryparser_internal.stamp: queryparser/queryparser.lemony queryparser/queryparser.lt queryparser/lemon
-	queryparser/lemon -q -oqueryparser/queryparser_internal.cc -hqueryparser/queryparser_token.h $(srcdir)/queryparser/queryparser.lemony && touch queryparser/queryparser_token.h
+## It's OK to directly update the output file here, since it's the stamp file
+## which determines whether the file is up to date.
+	queryparser/lemon -q -oqueryparser/queryparser_internal.cc \
+	    -hqueryparser/queryparser_token.h \
+	    $(srcdir)/queryparser/queryparser.lemony
+	$(PERL) -pi -e 's@^(#line \d+ ").*/(queryparser/)@$$1$$2@' \
+	    queryparser/queryparser_internal.cc
+## Lemon carefully avoids touching queryparser_token.h if it hasn't changed,
+## but only the generated file queryparser_internal.cc depends on it, so it's
+## better to touch it so we can have a dependency to generate it.
+	touch queryparser/queryparser_token.h
 	touch $@
 
 BUILT_SOURCES += $(lemon_built_sources)
