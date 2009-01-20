@@ -1,3 +1,7 @@
+Tue Jan 20 06:22:20 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_db.cc: Prefer value.empty() to value == "".
+
 Mon Jan 19 05:08:48 GMT 2009  Olly Betts <olly@survex.com>
 
 	* AUTHORS,queryparser/Makefile.mk: Fix "#line" directives in generated

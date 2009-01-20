@@ -719,7 +719,7 @@ DEFINE_TESTCASE(collapsekey1, backend) {
 	Xapian::MSetIterator i = mymset.begin();
 	for ( ; i != mymset.end(); ++i) {
 	    string value = i.get_document().get_value(value_no);
-	    TEST(values[value] == 0 || value == "");
+	    TEST(values[value] == 0 || value.empty());
 	    values[value] = *i;
 	}
     }
