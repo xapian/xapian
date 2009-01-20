@@ -1,3 +1,7 @@
+Tue Jan 20 13:55:54 GMT 2009  Olly Betts <olly@survex.com>
+
+	* ruby/util.i: Fix for Ruby 1.9 compatibility.
+
 Mon Jan 19 23:16:13 GMT 2009  Olly Betts <olly@survex.com>
 
 	* configure.ac: Use rubyhdrdir if it exists (it was added at some
