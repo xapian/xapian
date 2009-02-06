@@ -814,7 +814,9 @@ case $host_os in
     ;;
   *)
     AC_CHECK_FUNC(pread,
-       [AC_MSG_CHECKING([for any prototype needed for pread])
+       [AC_DEFINE(HAVE_PREAD, 1,
+	    [Define if pread is available on this system])
+	AC_MSG_CHECKING([for any prototype needed for pread])
 	AC_CACHE_VAL([xo_cv_pread_prototype],
 	  [
 	    for p in ' ' \
@@ -846,7 +848,9 @@ $p
 	  fi
 	])
     AC_CHECK_FUNC(pwrite,
-       [AC_MSG_CHECKING([for any prototype needed for pwrite])
+       [AC_DEFINE(HAVE_PWRITE, 1,
+	    [Define if pwrite is available on this system])
+	AC_MSG_CHECKING([for any prototype needed for pwrite])
 	AC_CACHE_VAL([xo_cv_pwrite_prototype],
 	  [
 	    for p in ' ' \

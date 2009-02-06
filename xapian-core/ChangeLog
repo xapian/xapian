@@ -1,3 +1,11 @@
+Fri Feb 06 16:06:50 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* configure.ac: Set HAVE_PREAD and HAVE_PWRITE if pread and pwrite
+	  are found; turns use of pread and pwrite back on.  This improves
+	  the speed of a test case of 10,000 (fully cached) searches from
+	  1.84 seconds to 1.78 seconds for me (on ubuntu hardy) - ie, about
+	  3% speed increase.
+
 Tue Jan 20 06:22:20 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_db.cc: Prefer value.empty() to value == "".
