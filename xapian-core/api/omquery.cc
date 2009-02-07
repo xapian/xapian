@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2003,2004,2005,2006,2007,2008 Olly Betts
- * Copyright 2006,2007,2008 Lemur Consulting Ltd
+ * Copyright 2006,2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -191,6 +191,25 @@ Query::Query() : internal(0)
 Query::~Query()
 {
     DEBUGAPICALL(void, "Xapian::Query::~Query", "");
+}
+
+std::string
+Query::serialise() const
+{
+    DEBUGAPICALL(std::string, "Xapian::Query::serialise", "");
+    if (!internal.get()) return "";
+    return internal->serialise();
+}
+
+Query
+Query::unserialise(const std::string &s)
+{
+    DEBUGAPICALL_STATIC(Xapian::Query, "Xapian::Query::unserialise", s);
+    Query result;
+    if (!s.empty()) {
+	result.internal = Xapian::Query::Internal::unserialise(s);
+    }
+    RETURN(result);
 }
 
 std::string

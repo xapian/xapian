@@ -1,3 +1,13 @@
+Sat Feb 07 00:16:43 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/omdocument.cc,api/omquery.cc,include/xapian/document.h,
+	  include/xapian/query.h: Add methods for serialising documents and
+	  queries into strings, and unserialising back from strings.  Fixes
+	  most of ticket #206 - missing part is that serialising queries
+	  containing PostingSources doesn't work.
+	* tests/Makefile.am,tests/api_serialise.cc: Add tests of document
+	  and query serialisation.
+
 Fri Feb 06 16:06:50 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* configure.ac: Set HAVE_PREAD and HAVE_PWRITE if pread and pwrite
