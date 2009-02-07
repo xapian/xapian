@@ -1116,6 +1116,57 @@ def test_value_mods():
     del db
     shutil.rmtree(dbpath)
 
+def test_serialise_document():
+    """Test serialisation of documents.
+
+    """
+    doc = xapian.Document()
+    doc.add_term('foo', 2)
+    doc.add_value(1, 'bar')
+    doc.set_data('baz')
+    s = doc.serialise()
+    doc2 = xapian.Document.unserialise(s)
+    expect(len(list(doc.termlist())), len(list(doc2.termlist())))
+    expect(len(list(doc.termlist())), 1)
+    expect([(item.term, item.wdf) for item in doc.termlist()],
+           [(item.term, item.wdf) for item in doc2.termlist()])
+    expect([(item.num, item.value) for item in doc.values()],
+           [(item.num, item.value) for item in doc2.values()])
+    expect(doc.get_data(), doc2.get_data())
+    expect(doc.get_data(), 'baz')
+
+    db = setup_database()
+    doc = db.get_document(1)
+    s = doc.serialise()
+    doc2 = xapian.Document.unserialise(s)
+    expect(len(list(doc.termlist())), len(list(doc2.termlist())))
+    expect(len(list(doc.termlist())), 3)
+    expect([(item.term, item.wdf) for item in doc.termlist()],
+           [(item.term, item.wdf) for item in doc2.termlist()])
+    expect([(item.num, item.value) for item in doc.values()],
+           [(item.num, item.value) for item in doc2.values()])
+    expect(doc.get_data(), doc2.get_data())
+    expect(doc.get_data(), 'is it cold?')
+
+def test_serialise_query():
+    """Test serialisation of queries.
+
+    """
+    q = xapian.Query()
+    q2 = xapian.Query.unserialise(q.serialise())
+    expect(str(q), str(q2))
+    expect(str(q), 'Xapian::Query()')
+ 
+    q = xapian.Query('hello')
+    q2 = xapian.Query.unserialise(q.serialise())
+    expect(str(q), str(q2))
+    expect(str(q), 'Xapian::Query(hello)')
+
+    q = xapian.Query(xapian.Query.OP_OR, ('hello', 'world'))
+    q2 = xapian.Query.unserialise(q.serialise())
+    expect(str(q), str(q2))
+    expect(str(q), 'Xapian::Query((hello OR world))')
+
 # Run all tests (ie, callables with names starting "test_").
 if not runtests(globals(), sys.argv[1:]):
     sys.exit(1)
