@@ -1,3 +1,10 @@
+Thu Feb 12 19:31:42 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* geospatial/latlong_posting_source.cc,include/xapian/geospatial.h,
+	  tests/api_geospatial.cc: Fix max_range parameter with
+	  LatLongDistancePostingSource::next(), and slightly optimise the
+	  loop while doing it.  Add test of max_range parameter.
+
 Mon Dec 22 16:39:30 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* geospatial/latlongparse.lemony: Return a specific error if the

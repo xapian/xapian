@@ -224,6 +224,12 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongCoords {
     /// Construct an empty set of coordinates.
     LatLongCoords() : coords() {}
 
+    /// Construct a set of coordinates containing one coordinate.
+    LatLongCoords(const LatLongCoord & coord) : coords()
+    {
+	coords.insert(coord);
+    }
+
     /** Construct a set of coordinates by unserialising a string.
      *
      *  @param serialised the string to unserialise the coordinates from.

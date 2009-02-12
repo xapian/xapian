@@ -129,20 +129,20 @@ LatLongDistancePostingSource::get_weight() const
 void
 LatLongDistancePostingSource::next(Xapian::weight)
 {
-    do {
-	if (!started) {
-	    started = true;
-	    it = db.valuestream_begin(valno);
-	    end = db.valuestream_end(valno);
-	} else {
-	    ++it;
-	}
-	if (it == end) break;
+    if (!started) {
+	started = true;
+	it = db.valuestream_begin(valno);
+	end = db.valuestream_end(valno);
+    } else {
+	++it;
+    }
 
+    while (it != end) {
 	calc_distance();
-	if (max_range > 0 && dist > max_range)
-	    continue;
-    } while(false);
+	if (max_range == 0 || dist <= max_range)
+	    break;
+	++it;
+    }
 }
 
 void
