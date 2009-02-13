@@ -1,3 +1,8 @@
+Fri Feb 13 14:05:44 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_sorting.cc: Change slot number used to get an empty
+	  slot from 13 to 100 - we're getting close to using slot 13 now!
+
 Sat Feb 07 00:31:12 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* backends/chert/chert_cursor.cc,backends/flint/flint_cursor.cc:
