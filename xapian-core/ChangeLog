@@ -1,3 +1,14 @@
+Fri Feb 13 19:29:38 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/postingsource.cc,include/xapian/postingsource.h: Add
+	  ValuePostingSource, which is a base class for implementing
+	  posting sources based on reading from a value slot.  Convert
+	  ValueWeightPostingSource to be a subclass of this, and add
+	  ValueMapPostingSource, which is a posting source which uses a map
+	  to convert values to weights.
+	* tests/api_db.cc: Add valuemapsource1, testing the
+	  ValueMapPostingSource.
+
 Fri Feb 13 15:14:53 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/harness/index_utils.cc: Add value 13, containing the first

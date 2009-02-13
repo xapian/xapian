@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
- * Copyright 2006,2007,2008 Lemur Consulting Ltd
+ * Copyright 2006,2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -2296,6 +2296,65 @@ DEFINE_TESTCASE(fixedweightsource1, backend && !remote) {
 	TEST(src.at_end());
     }
 
+
+    return true;
+}
+
+// Check that ValueMapSource works correctly.
+// the test db has value 13 set to:
+//      1   Thi
+//      2   The
+//      3   You
+//      4   War
+//      5   Fri
+//      6   Ins
+//      7   Whi
+//      8   Com
+//      9   A p
+//      10  Tel
+//      11  Tel
+//      12  Enc
+//      13  Get
+//      14  Doe
+//      15  fir
+//      16  Pad
+//      17  Pad
+//
+DEFINE_TESTCASE(valuemapsource1, backend && !remote) {
+    // FIXME: PostingSource doesn't currently work well with multi databases
+    // but we should try to resolve that issue.
+    SKIP_TEST_FOR_BACKEND("multi");
+    Xapian::Database db(get_database("apitest_phrase"));
+    Xapian::Enquire enq(db);
+
+    Xapian::ValueMapPostingSource src(db, 13);
+    src.add_mapping("Thi", 2.0);
+    src.add_mapping("The", 1.0);
+    src.add_mapping("You", 3.0);
+    src.add_mapping("War", 4.0);
+    src.add_mapping("Fri", 5.0);
+
+    // check mset size and order
+    enq.set_query(Xapian::Query(&src));
+    Xapian::MSet mset = enq.get_mset(0, 5);
+
+    TEST(mset.size() == 5);
+    mset_expect_order(mset, 5, 4, 3, 1, 2);
+
+    // and with default weight
+    src.clear_mappings();
+    src.set_default_weight(3.5);
+    src.add_mapping("Thi", 2.0);
+    src.add_mapping("The", 1.0);
+    src.add_mapping("You", 3.0);
+    src.add_mapping("War", 4.0);
+    src.add_mapping("Fri", 5.0);
+
+    enq.set_query(Xapian::Query(&src));
+    mset = enq.get_mset(0, 5);
+
+    TEST(mset.size() == 5);
+    mset_expect_order(mset, 5, 4, 6, 7, 8);
 
     return true;
 }
