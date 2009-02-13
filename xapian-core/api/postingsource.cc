@@ -145,6 +145,8 @@ ValuePostingSource::skip_to(Xapian::docid min_docid,
 	started = true;
 	it = db.valuestream_begin(slot);
 	end = db.valuestream_end(slot);
+
+	if (it == end) return;
     }
 
     if (min_wt > max_weight) {
@@ -162,6 +164,8 @@ ValuePostingSource::check(Xapian::docid min_docid,
 	started = true;
 	it = db.valuestream_begin(slot);
 	end = db.valuestream_end(slot);
+
+	if (it == end) return true;
     }
 
     if (min_wt > max_weight) {

@@ -189,3 +189,92 @@ DEFINE_TESTCASE(valueweightsource5, writable && valuestats) {
 
     return true;
 }
+
+// Check that ValueMapSource works correctly.
+// the test db has value 13 set to:
+//      1   Thi
+//      2   The
+//      3   You
+//      4   War
+//      5   Fri
+//      6   Ins
+//      7   Whi
+//      8   Com
+//      9   A p
+//      10  Tel
+//      11  Tel
+//      12  Enc
+//      13  Get
+//      14  Doe
+//      15  fir
+//      16  Pad
+//      17  Pad
+//
+DEFINE_TESTCASE(valuemapsource1, backend && !remote) {
+    // FIXME: PostingSource doesn't currently work well with multi databases
+    // but we should try to resolve that issue.
+    SKIP_TEST_FOR_BACKEND("multi");
+    Xapian::Database db(get_database("apitest_phrase"));
+    Xapian::Enquire enq(db);
+
+    Xapian::ValueMapPostingSource src(db, 13);
+    src.add_mapping("Thi", 2.0);
+    src.add_mapping("The", 1.0);
+    src.add_mapping("You", 3.0);
+    src.add_mapping("War", 4.0);
+    src.add_mapping("Fri", 5.0);
+
+    // check mset size and order
+    enq.set_query(Xapian::Query(&src));
+    Xapian::MSet mset = enq.get_mset(0, 5);
+
+    TEST(mset.size() == 5);
+    mset_expect_order(mset, 5, 4, 3, 1, 2);
+
+    // and with default weight
+    src.clear_mappings();
+    src.set_default_weight(3.5);
+    src.add_mapping("Thi", 2.0);
+    src.add_mapping("The", 1.0);
+    src.add_mapping("You", 3.0);
+    src.add_mapping("War", 4.0);
+    src.add_mapping("Fri", 5.0);
+
+    enq.set_query(Xapian::Query(&src));
+    mset = enq.get_mset(0, 5);
+
+    TEST(mset.size() == 5);
+    mset_expect_order(mset, 5, 4, 6, 7, 8);
+
+    return true;
+}
+
+// Regression test for valuepostingsource subclasses: used to segfault if skip_to()
+// called on an empty list.
+DEFINE_TESTCASE(valuemapsource2, backend && !remote) {
+    // FIXME: PostingSource doesn't currently work well with multi databases
+    // but we should try to resolve that issue.
+    SKIP_TEST_FOR_BACKEND("multi");
+    Xapian::Database db(get_database("apitest_phrase"));
+    Xapian::Enquire enq(db);
+
+    {
+	Xapian::ValueMapPostingSource src(db, 100);
+	src.next(0.0);
+	TEST(src.at_end() == true);
+    }
+
+    {
+	Xapian::ValueMapPostingSource src(db, 100);
+	src.skip_to(1, 0.0);
+	TEST(src.at_end() == true);
+    }
+
+    {
+	Xapian::ValueMapPostingSource src(db, 100);
+	src.check(1, 0.0);
+	TEST(src.at_end() == true);
+    }
+
+    return true;
+}

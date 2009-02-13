@@ -1,3 +1,14 @@
+Fri Feb 13 20:09:10 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/postingsource.cc: Fix segfaults which occur if an empty
+	  ValuePostingSource subclass has the skip_to() or check() methods
+	  called on it first.
+	* tests/api_db.cc tests/api_valuestream.cc: Move valuemapsource1 to
+	  api_valuestream.cc, since that seems like a better place (and
+	  api_db.cc is already rather over-large).  Add regression test
+	  "valuemapsource2" to check the behaviour of ValuePostingSource
+	  subclasses on empty lists.
+
 Fri Feb 13 19:29:38 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/postingsource.cc,include/xapian/postingsource.h: Add
