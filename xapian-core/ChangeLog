@@ -1,3 +1,9 @@
+Fri Feb 13 15:14:53 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/harness/index_utils.cc: Add value 13, containing the first
+	  3 letters of the paragraph - needed for some tests I'm going to
+	  commit shortly.
+
 Fri Feb 13 14:05:44 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/api_sorting.cc: Change slot number used to get an empty
