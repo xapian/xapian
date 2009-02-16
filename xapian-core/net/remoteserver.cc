@@ -2,7 +2,7 @@
  *  @brief Xapian remote backend server base class
  */
 /* Copyright (C) 2006,2007,2008 Olly Betts
- * Copyright (C) 2006,2007 Lemur Consulting Ltd
+ * Copyright (C) 2006,2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

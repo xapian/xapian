@@ -1,3 +1,11 @@
+Mon Feb 16 13:32:39 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/omqueryinternal.cc,common/remoteserver.h,
+	  matcher/externalpostlist.cc,matcher/externalpostlist.h,
+	  matcher/queryoptimiser.cc,net/remoteserver.cc,
+	  tests/api_percentages.cc,tests/api_valuestream.cc: Add some
+	  copyright lines missed in changeset [11838].
+
 Mon Feb 16 11:56:46 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* matcher/queryoptimiser.cc: Add another reference from a FIXME to
