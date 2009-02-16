@@ -29,12 +29,25 @@
 
 using namespace std;
 
-ExternalPostList::ExternalPostList(Xapian::PostingSource *source_,
+ExternalPostList::ExternalPostList(const Xapian::Database & db,
+				   Xapian::PostingSource *source_,
 				   double factor_)
-    : source(source_), current(0), factor(factor_)
+    : source(source_), source_is_owned(false), current(0), factor(factor_)
 {
     Assert(source);
-    source->reset();
+    Xapian::PostingSource * newsource = source->clone();
+    if (newsource != NULL) {
+	source = newsource;
+	source_is_owned = true;
+    }
+    source->reset(db);
+}
+
+ExternalPostList::~ExternalPostList()
+{
+    if (source_is_owned) {
+	delete source;
+    }
 }
 
 Xapian::doccount

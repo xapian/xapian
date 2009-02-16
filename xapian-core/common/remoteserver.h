@@ -24,15 +24,13 @@
 
 #include "xapian/database.h"
 #include "xapian/enquire.h"
+#include "xapian/postingsource.h"
 #include "xapian/visibility.h"
 
 #include "remoteconnection.h"
 
 #include <map>
 #include <string>
-
-// Forward declaration
-namespace Xapian { class Weight; }
 
 using namespace std;
 
@@ -69,6 +67,9 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
 
     /// Registered weighting schemes.
     map<string, Xapian::Weight *> wtschemes;
+
+    /// Registered external posting sources.
+    map<string, Xapian::PostingSource *> postingsources;
 
     /// Accept a message from the client.
     message_type get_message(Xapian::timeout timeout, string & result,
@@ -173,6 +174,10 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
     void register_weighting_scheme(const Xapian::Weight &wt) {
 	wtschemes[wt.name()] = wt.clone();
     }
+
+    /** Register a user-defined posting source class.
+     */
+    void register_posting_source(const Xapian::PostingSource &source);
 };
 
 #endif // XAPIAN_INCLUDED_REMOTESERVER_H

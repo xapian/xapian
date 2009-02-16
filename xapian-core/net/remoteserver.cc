@@ -114,6 +114,14 @@ RemoteServer::RemoteServer(const std::vector<std::string> &dbpaths,
     wtschemes[weight->name()] = weight;
     weight = new Xapian::TradWeight;
     wtschemes[weight->name()] = weight;
+
+    Xapian::PostingSource * source;
+    source = new Xapian::ValueWeightPostingSource(0);
+    postingsources[source->name()] = source;
+    source = new Xapian::ValueMapPostingSource(0);
+    postingsources[source->name()] = source;
+    source = new Xapian::FixedWeightPostingSource(0.0);
+    postingsources[source->name()] = source;
 }
 
 RemoteServer::~RemoteServer()
@@ -121,9 +129,18 @@ RemoteServer::~RemoteServer()
     delete db;
     // wdb is either NULL or equal to db, so we shouldn't delete it too!
 
-    map<string, Xapian::Weight*>::const_iterator i;
-    for (i = wtschemes.begin(); i != wtschemes.end(); ++i) {
-	delete i->second;
+    {
+	map<string, Xapian::Weight*>::const_iterator i;
+	for (i = wtschemes.begin(); i != wtschemes.end(); ++i) {
+	    delete i->second;
+	}
+    }
+
+    {
+	map<string, Xapian::PostingSource *>::const_iterator i;
+	for (i = postingsources.begin(); i != postingsources.end(); ++i) {
+	    delete i->second;
+	}
     }
 }
 
@@ -365,7 +382,7 @@ RemoteServer::msg_query(const string &message_in)
 
     // Unserialise the Query.
     len = decode_length(&p, p_end, true);
-    AutoPtr<Xapian::Query::Internal> query(Xapian::Query::Internal::unserialise(string(p, len)));
+    AutoPtr<Xapian::Query::Internal> query(Xapian::Query::Internal::unserialise(string(p, len), postingsources));
     p += len;
 
     // Unserialise assorted Enquire settings.
@@ -609,4 +626,23 @@ RemoteServer::msg_replacedocumentterm(const string & message)
     Xapian::docid did = wdb->replace_document(unique_term, unserialise_document(string(p, p_end)));
 
     send_message(REPLY_ADDDOCUMENT, encode_length(did));
+}
+
+
+void
+RemoteServer::register_posting_source(const Xapian::PostingSource &source)
+{
+    if (source.name().empty()) {
+	throw Xapian::InvalidOperationError("Unable to register posting source - name() method returns empty string.");
+    }
+    Xapian::PostingSource * sourceclone = source.clone();
+    if (!sourceclone) {
+	throw Xapian::InvalidOperationError("Unable to register posting source - clone() method returns NULL.");
+    }
+    try {
+	postingsources[source.name()] = sourceclone;
+    } catch(...) {
+	delete sourceclone;
+	throw;
+    }
 }

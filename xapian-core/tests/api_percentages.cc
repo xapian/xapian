@@ -38,8 +38,18 @@ class MyPostingSource : public Xapian::PostingSource {
     Xapian::weight maxwt;
     bool started;
 
+    MyPostingSource(const std::vector<std::pair<Xapian::docid, Xapian::weight> > &weights_,
+		    Xapian::weight maxwt_)
+	: weights(weights_), maxwt(maxwt_), started(false)
+    {}
+
   public:
     MyPostingSource() : maxwt(0.0), started(false) { }
+
+    PostingSource * clone() const
+    {
+	return new MyPostingSource(weights, maxwt);
+    }
 
     void append_docweight(Xapian::docid did, Xapian::weight wt) {
 	weights.push_back(make_pair(did, wt));
@@ -50,7 +60,7 @@ class MyPostingSource : public Xapian::PostingSource {
 	if (wt > maxwt) maxwt = wt;
     }
 
-    void reset() { started = false; }
+    void reset(const Xapian::Database &) { started = false; }
 
     Xapian::weight get_weight() const { return i->second; }
 

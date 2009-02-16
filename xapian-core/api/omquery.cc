@@ -29,6 +29,7 @@
 #include "utils.h"
 
 #include "xapian/error.h"
+#include "xapian/postingsource.h"
 #include "xapian/termiterator.h"
 
 #include <vector>
@@ -160,9 +161,17 @@ Query::Query(Query::op op_, Xapian::valueno valno, const std::string &value)
 }
 
 Query::Query(PostingSource * external_source)
-	: internal(new Query::Internal(external_source))
+	: internal(NULL)
 {
     DEBUGAPICALL(void, "Xapian::Query::Query", external_source);
+    if (!external_source)
+	throw Xapian::InvalidArgumentError("The external_source parameter can not be NULL");
+    PostingSource * clone = external_source->clone();
+    if (clone) {
+	internal = new Query::Internal(clone, true);
+    } else {
+	internal = new Query::Internal(external_source, false);
+    }
 }
 
 // Copy constructor
@@ -207,7 +216,8 @@ Query::unserialise(const std::string &s)
     DEBUGAPICALL_STATIC(Xapian::Query, "Xapian::Query::unserialise", s);
     Query result;
     if (!s.empty()) {
-	result.internal = Xapian::Query::Internal::unserialise(s);
+	std::map<std::string, Xapian::PostingSource *> sources;
+	result.internal = Xapian::Query::Internal::unserialise(s, sources);
     }
     RETURN(result);
 }

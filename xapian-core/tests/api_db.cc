@@ -1899,7 +1899,14 @@ class MyOddPostingSource : public Xapian::PostingSource {
 	: num_docs(db.get_doccount()), last_docid(db.get_lastdocid()), did(0)
     { }
 
-    void reset() { did = 0; }
+    MyOddPostingSource(Xapian::doccount num_docs_,
+		       Xapian::doccount last_docid_)
+	: num_docs(num_docs_), last_docid(last_docid_), did(0)
+    { }
+
+    PostingSource * clone() const { return new MyOddPostingSource(num_docs, last_docid); }
+
+    void reset(const Xapian::Database &) { did = 0; }
 
     // These bounds could be better, but that's not important here.
     Xapian::doccount get_termfreq_min() const { return 0; }
@@ -1993,7 +2000,14 @@ class MyOddWeightingPostingSource : public Xapian::PostingSource {
 	: num_docs(db.get_doccount()), last_docid(db.get_lastdocid()), did(0)
     { }
 
-    void reset() { did = 0; }
+    MyOddWeightingPostingSource(Xapian::doccount num_docs_,
+				Xapian::doccount last_docid_)
+	: num_docs(num_docs_), last_docid(last_docid_), did(0)
+    { }
+
+    PostingSource * clone() const { return new MyOddWeightingPostingSource(num_docs, last_docid); }
+
+    void reset(const Xapian::Database &) { did = 0; }
 
     Xapian::weight get_weight() const {
 	return (did % 2) ? 1000 : 0.001;
@@ -2090,7 +2104,14 @@ class MyDontAskWeightPostingSource : public Xapian::PostingSource {
 	: num_docs(db.get_doccount()), last_docid(db.get_lastdocid()), did(0)
     { }
 
-    void reset() { did = 0; }
+    MyDontAskWeightPostingSource(Xapian::doccount num_docs_,
+				 Xapian::doccount last_docid_)
+	: num_docs(num_docs_), last_docid(last_docid_), did(0)
+    { }
+
+    PostingSource * clone() const { return new MyDontAskWeightPostingSource(num_docs, last_docid); }
+
+    void reset(const Xapian::Database &) { did = 0; }
 
     Xapian::weight get_weight() const {
 	FAIL_TEST("MyDontAskWeightPostingSource::get_weight() called");
@@ -2163,13 +2184,10 @@ DEFINE_TESTCASE(externalsource4, backend && !remote && !multi) {
 }
 
 // Check that valueweightsource works correctly.
-DEFINE_TESTCASE(valueweightsource1, backend && !remote) {
-    // FIXME: PostingSource doesn't currently work well with multi databases
-    // but we should try to resolve that issue.
-    SKIP_TEST_FOR_BACKEND("multi");
+DEFINE_TESTCASE(valueweightsource1, backend) {
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::Enquire enq(db);
-    Xapian::ValueWeightPostingSource src(db, 11);
+    Xapian::ValueWeightPostingSource src(11);
 
     // Should be in descending order of length
     tout << "RAW" << endl;
@@ -2201,11 +2219,9 @@ DEFINE_TESTCASE(valueweightsource1, backend && !remote) {
 // Check that valueweightsource gives the correct bounds for those databases
 // which support value statistics.
 DEFINE_TESTCASE(valueweightsource2, backend && valuestats) {
-    // FIXME: PostingSource doesn't currently work well with multi databases
-    // but we should try to resolve that issue.
-    SKIP_TEST_FOR_BACKEND("multi");
     Xapian::Database db(get_database("apitest_phrase"));
-    Xapian::ValueWeightPostingSource src(db, 11);
+    Xapian::ValueWeightPostingSource src(11);
+    src.reset(db);
     TEST_EQUAL(src.get_termfreq_min(), 17);
     TEST_EQUAL(src.get_termfreq_est(), 17);
     TEST_EQUAL(src.get_termfreq_max(), 17);
@@ -2220,7 +2236,8 @@ DEFINE_TESTCASE(valueweightsource3, backend && valuestats) {
     // but we should try to resolve that issue.
     SKIP_TEST_FOR_BACKEND("multi");
     Xapian::Database db(get_database("apitest_phrase"));
-    Xapian::ValueWeightPostingSource src(db, 11);
+    Xapian::ValueWeightPostingSource src(11);
+    src.reset(db);
     TEST(!src.at_end());
     src.skip_to(8, 0.0);
     TEST(!src.at_end());
@@ -2233,16 +2250,13 @@ DEFINE_TESTCASE(valueweightsource3, backend && valuestats) {
 }
 
 // Check that fixedweightsource works correctly.
-DEFINE_TESTCASE(fixedweightsource1, backend && !remote) {
-    // FIXME: PostingSource doesn't currently work well with multi databases
-    // but we should try to resolve that issue.
-    SKIP_TEST_FOR_BACKEND("multi");
+DEFINE_TESTCASE(fixedweightsource1, backend) {
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::Enquire enq(db);
     double wt = 5.6;
 
     {
-	Xapian::FixedWeightPostingSource src(db, wt);
+	Xapian::FixedWeightPostingSource src(wt);
 
 	// Should be in increasing order of docid.
 	enq.set_query(Xapian::Query(&src));
@@ -2257,7 +2271,8 @@ DEFINE_TESTCASE(fixedweightsource1, backend && !remote) {
     // Do some direct tests, to check the skip_to() and check() methods work.
     {
 	// Check next and skip_to().
-	Xapian::FixedWeightPostingSource src(db, wt);
+	Xapian::FixedWeightPostingSource src(wt);
+	src.reset(db);
 
 	src.next(1.0);
 	TEST(!src.at_end());
@@ -2273,7 +2288,8 @@ DEFINE_TESTCASE(fixedweightsource1, backend && !remote) {
     }
     {
 	// Check check() as the first operation, followed by next.
-	Xapian::FixedWeightPostingSource src(db, wt);
+	Xapian::FixedWeightPostingSource src(wt);
+	src.reset(db);
 
 	TEST_EQUAL(src.check(5, 1.0), true);
 	TEST(!src.at_end());
@@ -2284,7 +2300,8 @@ DEFINE_TESTCASE(fixedweightsource1, backend && !remote) {
     }
     {
 	// Check check() as the first operation, followed by skip_to().
-	Xapian::FixedWeightPostingSource src(db, wt);
+	Xapian::FixedWeightPostingSource src(wt);
+	src.reset(db);
 
 	TEST_EQUAL(src.check(5, 1.0), true);
 	TEST(!src.at_end());

@@ -47,7 +47,11 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
     // Destructor.
     virtual ~PostingSource();
 
-    /// A lower bound on the number of documents this object can return.
+    /** A lower bound on the number of documents this object can return.
+     *
+     *  Xapian will always call reset() on a PostingSource before calling this
+     *  for the first time.
+     */
     virtual Xapian::doccount get_termfreq_min() const = 0;
 
     /** An estimate of the number of documents this object can return.
@@ -55,10 +59,17 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *  It must always be true that:
      *
      *  get_termfreq_min() <= get_termfreq_est() <= get_termfreq_max()
+     *
+     *  Xapian will always call reset() on a PostingSource before calling this
+     *  for the first time.
      */
     virtual Xapian::doccount get_termfreq_est() const = 0;
 
-    /// A upper bound on the number of documents this object can return.
+    /** An upper bound on the number of documents this object can return.
+     *
+     *  Xapian will always call reset() on a PostingSource before calling this
+     *  for the first time.
+     */
     virtual Xapian::doccount get_termfreq_max() const = 0;
 
     /** Return an upper bound on what get_weight() can return from now on.
@@ -70,6 +81,9 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *
      *  This default implementation always returns 0, for convenience when
      *  implementing "weight-less" PostingSource subclasses.
+     *
+     *  Xapian will always call reset() on a PostingSource before calling this
+     *  for the first time.
      */
     virtual Xapian::weight get_maxweight() const;
 
@@ -77,8 +91,23 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *
      *  This default implementation always returns 0, for convenience when
      *  implementing "weight-less" PostingSource subclasses.
+     *
+     *  This method may assume that it will only be called when there is a
+     *  "current document".  In detail: Xapian will always call reset() on a
+     *  PostingSource before calling this for the first time.  It will also
+     *  only call this if the PostingSource reports that it is pointing to a
+     *  valid document (ie, it will not call it before calling at least one of
+     *  next(), skip_to() or check(), and will ensure that the PostingSource is
+     *  not at the end by calling at_end()).
      */
     virtual Xapian::weight get_weight() const;
+
+    /** Return the current docid.
+     *
+     *  This method may assume that it will only be called when there is a
+     *  "current document".  See @a get_weight() for details.
+     */
+    virtual Xapian::docid get_docid() const = 0;
 
     /** Advance the current position to the next matching document.
      *
@@ -114,19 +143,25 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
 
     /** Check if the specified docid occurs.
      *
-     *  The caller is required to ensure that the specified document id
-     *  @a did actually exists in the database.
+     *  The caller is required to ensure that the specified document id @a did
+     *  actually exists in the database.  If it does, it must move to that
+     *  document id, and return true.  If it does not, it may either:
      *
-     *  This method acts like skip_to() if that can be done at little extra
-     *  cost, in which case it then returns true.
+     *   - return true, having moved to a definite position (including
+     *   "at_end"), which must be the same position as skip_to() would have
+     *   moved to.
      *
-     *  Otherwise it simply checks if a particular docid is present.  If it
-     *  is, it returns true.  If it isn't, it returns false, and leaves the
-     *  position unspecified (and hence the result of calling methods which
-     *  depends on the current position, such as get_docid(), are also
-     *  unspecified).  In this state, next() will advance to the first matching
-     *  position after document @a did, and skip_to() will act as it would if
-     *  the position was the first matching position after document @a did.
+     *  or
+     *
+     *   - return false, having moved to an "indeterminate" position, such that
+     *   a subsequent call to next() or skip_to() will move to the next
+     *   matching position after @a did.
+     *
+     *  Generally, this method should act like skip_to() and return true if
+     *  that can be done at little extra cost.
+     *
+     *  Otherwise it should simply checks if a particular docid is present,
+     *  returning true if it is, and false if it isn't.
      *
      *  The default implementation calls skip_to() and always returns true.
      */
@@ -135,15 +170,65 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
     /// Return true if the current position is past the last entry in this list.
     virtual bool at_end() const = 0;
 
-    /// Return the current docid.
-    virtual Xapian::docid get_docid() const = 0;
+    /** Clone the posting source.
+     *
+     *  The clone should inherit the configuration of the parent, but need not
+     *  inherit the state.  ie, the clone does not need to be in the same
+     *  iteration position as the original: the matcher will always call
+     *  reset() on the clone before attempting to move the iterator, or read
+     *  the information about the current position of the iterator.
+     *
+     *  This may return NULL to indicate that cloning is not supported.  In
+     *  this case, the PostingSource may only be used with a single-database
+     *  search.
+     *
+     *  The default implementation returns NULL.
+     */
+    virtual PostingSource * clone() const;
+
+    /** Name of the posting source class.
+     *
+     *  This is used when serialising and unserialising posting sources; for
+     *  example, for performing remote searches.
+     *
+     *  If the subclass is in a C++ namespace, the namespace should be included
+     *  in the name, using "::" as a separator.  For example, for a
+     *  PostingSource subclass called "FooPostingSource" in the "Xapian"
+     *  namespace the result of this call should be "Xapian::FooPostingSource".
+     *
+     *  This should only be implemented if serialise() and unserialise() are
+     *  also implemented.  The default implementation returns an empty string.
+     *
+     *  If this returns an empty string, Xapian will assume that serialise()
+     *  and unserialise() are not implemented.
+     */
+    virtual std::string name() const;
+
+    /** Serialise object parameters into a string.
+     *
+     *  The serialised parameters should represent the configuration of the
+     *  posting source, but need not (indeed, should not) represent the current
+     *  iteration state.
+     */
+    virtual std::string serialise() const;
+
+    /** Create object given string serialisation returned by serialise().
+     *
+     *  @param s A serialised instance of this PostingSource subclass.
+     */
+    virtual PostingSource * unserialise(const std::string &s) const;
 
     /** Reset this PostingSource to its freshly constructed state.
      *
      *  This is called automatically by the matcher prior to each query being
      *  processed.
+     *
+     *  @param db The database which the PostingSource should iterate through.
+     *
+     *  Note: the database supplied to this method must not be modified: in
+     *  particular, the reopen() method on it should not be called.
      */
-    virtual void reset() = 0;
+    virtual void reset(const Database & db) = 0;
 
     /** Return a string describing this object.
      *
@@ -171,18 +256,18 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
     Xapian::valueno slot;
 
     /// Value stream iterator.
-    Xapian::ValueIterator it;
+    Xapian::ValueIterator value_it;
 
     /// End iterator corresponding to it.
-    Xapian::ValueIterator end;
+    Xapian::ValueIterator value_end;
 
     /// Flag indicating if we've started (true if we have).
     bool started;
 
     /** An upper bound on the weight returned.
      *
-     *  Subclasses should set this in their constructor if they know a bound on
-     *  the weight.  It defaults to DBL_MAX.
+     *  Subclasses should set this in their reset method if they know a bound
+     *  on the weight.  It defaults to DBL_MAX.
      */
     double max_weight;
 
@@ -210,10 +295,9 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
   public:
     /** Construct a ValuePostingSource.
      *
-     *  @param db_ The database to read values from.
      *  @param slot_ The value slot to read values from.
      */
-    ValuePostingSource(Xapian::Database db_, Xapian::valueno slot_);
+    ValuePostingSource(Xapian::valueno slot_);
 
     Xapian::doccount get_termfreq_min() const;
     Xapian::doccount get_termfreq_est() const;
@@ -229,7 +313,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
 
     Xapian::docid get_docid() const;
 
-    void reset();
+    void reset(const Database & db_);
 };
 
 /** A posting source which reads weights from a value slot.
@@ -248,17 +332,18 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
  */
 class XAPIAN_VISIBILITY_DEFAULT ValueWeightPostingSource
 	: public ValuePostingSource {
+    /// Upper bound on the value returned specified in constructor.
+    double specified_max_weight;
+
   public:
     /** Construct a ValueWeightPostingSource.
      *
-     *  @param db_ The database to read values from.
      *  @param slot_ The value slot to read values from.
      */
-    ValueWeightPostingSource(Xapian::Database db_, Xapian::valueno slot_);
+    ValueWeightPostingSource(Xapian::valueno slot_);
 
     /** Construct a ValueWeightPostingSource.
      *
-     *  @param db_ The database to read values from.
      *  @param slot_ The value slot to read values from.
      *  @param max_weight_ An upper bound on the weights which are stored in
      *  the value slot.  Note that for the chert database format, information
@@ -266,11 +351,14 @@ class XAPIAN_VISIBILITY_DEFAULT ValueWeightPostingSource
      *  constructor need only be used if more accurate information is
      *  available.
      */
-    ValueWeightPostingSource(Xapian::Database db_,
-			     Xapian::valueno slot_,
-			     double max_weight_);
+    ValueWeightPostingSource(Xapian::valueno slot_, double max_weight_);
 
     Xapian::weight get_weight() const;
+    ValueWeightPostingSource * clone() const;
+    std::string name() const;
+    std::string serialise() const;
+    PostingSource * unserialise(const std::string &s) const;
+    void reset(const Database & db_);
 
     std::string get_description() const;
 };
@@ -289,17 +377,19 @@ class XAPIAN_VISIBILITY_DEFAULT ValueMapPostingSource
     /// The default weight
     double default_weight;
 
+    /// The maximum weight in weight_map.
+    double max_weight_in_map;
+
     /// The value -> weight map
     std::map<std::string, double> weight_map;
 
   public:
     /** Construct a ValueWeightPostingSource.
      *
-     *  @param db_ The database to read values from.
      *  @param slot_ The value slot to read values from.
      *  @param default_weight The default weight to return for unmapped values.
      */
-    ValueMapPostingSource(Xapian::Database db_, Xapian::valueno slot_);
+    ValueMapPostingSource(Xapian::valueno slot_);
 
     /** Add a mapping.
      *
@@ -317,6 +407,11 @@ class XAPIAN_VISIBILITY_DEFAULT ValueMapPostingSource
     void set_default_weight(double wt);
 
     Xapian::weight get_weight() const;
+    ValueMapPostingSource * clone() const;
+    std::string name() const;
+    std::string serialise() const;
+    PostingSource * unserialise(const std::string &s) const;
+    void reset(const Database & db_);
 
     std::string get_description() const;
 };
@@ -351,10 +446,9 @@ class XAPIAN_VISIBILITY_DEFAULT FixedWeightPostingSource : public PostingSource 
   public:
     /** Construct a FixedWeightPostingSource.
      *
-     *  @param db_ The database to read values from.
      *  @param slot_ The value slot to read values from.
      */
-    FixedWeightPostingSource(Xapian::Database db_, Xapian::weight wt_);
+    FixedWeightPostingSource(Xapian::weight wt_);
 
     Xapian::doccount get_termfreq_min() const;
     Xapian::doccount get_termfreq_est() const;
@@ -371,7 +465,11 @@ class XAPIAN_VISIBILITY_DEFAULT FixedWeightPostingSource : public PostingSource 
 
     Xapian::docid get_docid() const;
 
-    void reset();
+    FixedWeightPostingSource * clone() const;
+    std::string name() const;
+    std::string serialise() const;
+    PostingSource * unserialise(const std::string &s) const;
+    void reset(const Database & db_);
 
     std::string get_description() const;
 };

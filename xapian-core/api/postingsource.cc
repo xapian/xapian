@@ -32,6 +32,8 @@
 #include "xapian/queryparser.h" // For sortable_unserialise().
 
 #include "omassert.h"
+#include "serialise.h"
+#include "serialise-double.h"
 #include "utils.h"
 
 #include <cfloat>
@@ -67,6 +69,30 @@ PostingSource::check(Xapian::docid did, Xapian::weight min_wt)
     return true;
 }
 
+PostingSource *
+PostingSource::clone() const
+{
+    return NULL;
+}
+
+std::string
+PostingSource::name() const
+{
+    return std::string();
+}
+
+std::string
+PostingSource::serialise() const
+{
+    throw Xapian::InvalidOperationError("serialise() not supported for this PostingSource");
+}
+
+PostingSource *
+PostingSource::unserialise(const std::string &) const
+{
+    throw Xapian::InvalidOperationError("unserialise() not supported for this PostingSource");
+}
+
 std::string
 PostingSource::get_description() const
 {
@@ -74,24 +100,9 @@ PostingSource::get_description() const
 }
 
 
-ValuePostingSource::ValuePostingSource(Xapian::Database db_,
-				       Xapian::valueno slot_)
-	: db(db_),
-	  slot(slot_),
-	  it(db.valuestream_begin(slot)),
-	  end(db.valuestream_end(slot)),
-	  started(false),
-	  max_weight(DBL_MAX)
+ValuePostingSource::ValuePostingSource(Xapian::valueno slot_)
+	: slot(slot_)
 {
-    try {
-	termfreq_max = db.get_value_freq(slot);
-	termfreq_est = termfreq_max;
-	termfreq_min = termfreq_max;
-    } catch (const Xapian::UnimplementedError &) {
-	termfreq_max = db.get_doccount();
-	termfreq_est = termfreq_max / 2;
-	termfreq_min = 0;
-    }
 }
 
 Xapian::doccount
@@ -123,16 +134,16 @@ ValuePostingSource::next(Xapian::weight min_wt)
 {
     if (!started) {
 	started = true;
-	it = db.valuestream_begin(slot);
-	end = db.valuestream_end(slot);
+	value_it = db.valuestream_begin(slot);
+	value_end = db.valuestream_end(slot);
     } else {
-	++it;
+	++value_it;
     }
 
-    if (it == end) return;
+    if (value_it == value_end) return;
 
     if (min_wt > max_weight) {
-	it = end;
+	value_it = value_end;
 	return;
     }
 }
@@ -143,17 +154,17 @@ ValuePostingSource::skip_to(Xapian::docid min_docid,
 {
     if (!started) {
 	started = true;
-	it = db.valuestream_begin(slot);
-	end = db.valuestream_end(slot);
+	value_it = db.valuestream_begin(slot);
+	value_end = db.valuestream_end(slot);
 
-	if (it == end) return;
+	if (value_it == value_end) return;
     }
 
     if (min_wt > max_weight) {
-	it = end;
+	value_it = value_end;
 	return;
     }
-    it.skip_to(min_docid);
+    value_it.skip_to(min_docid);
 }
 
 bool
@@ -162,59 +173,60 @@ ValuePostingSource::check(Xapian::docid min_docid,
 {
     if (!started) {
 	started = true;
-	it = db.valuestream_begin(slot);
-	end = db.valuestream_end(slot);
+	value_it = db.valuestream_begin(slot);
+	value_end = db.valuestream_end(slot);
 
-	if (it == end) return true;
+	if (value_it == value_end) return true;
     }
 
     if (min_wt > max_weight) {
-	it = end;
+	value_it = value_end;
 	return true;
     }
-    return it.check(min_docid);
+    return value_it.check(min_docid);
 }
 
 bool
 ValuePostingSource::at_end() const
 {
-    return it == end;
+    return started && value_it == value_end;
 }
 
 Xapian::docid
 ValuePostingSource::get_docid() const
 {
-    return it.get_docid();
+    return value_it.get_docid();
 }
 
 void
-ValuePostingSource::reset()
+ValuePostingSource::reset(const Database & db_)
 {
+    db = db_;
     started = false;
-}
-
-
-ValueWeightPostingSource::ValueWeightPostingSource(Xapian::Database db_,
-						   Xapian::valueno slot_)
-	: ValuePostingSource(db_, slot_)
-{
+    max_weight = DBL_MAX;
     try {
-    	max_weight = sortable_unserialise(db_.get_value_upper_bound(slot_));
+	termfreq_max = db.get_value_freq(slot);
+	termfreq_est = termfreq_max;
+	termfreq_min = termfreq_max;
     } catch (const Xapian::UnimplementedError &) {
+	termfreq_max = db.get_doccount();
+	termfreq_est = termfreq_max / 2;
+	termfreq_min = 0;
     }
 }
 
-ValueWeightPostingSource::ValueWeightPostingSource(Xapian::Database db_,
-						   Xapian::valueno slot_,
+
+ValueWeightPostingSource::ValueWeightPostingSource(Xapian::valueno slot_)
+	: ValuePostingSource(slot_),
+	  specified_max_weight(DBL_MAX)
+{
+}
+
+ValueWeightPostingSource::ValueWeightPostingSource(Xapian::valueno slot_,
 						   double max_weight_)
-    : ValuePostingSource(db_, slot_)
+	: ValuePostingSource(slot_),
+	  specified_max_weight(max_weight_)
 {
-    try {
-    	double ubound = sortable_unserialise(db_.get_value_upper_bound(slot_));
-	max_weight = std::min(max_weight_, ubound);
-    } catch (const Xapian::UnimplementedError &) {
-	max_weight = max_weight_;
-    }
 }
 
 Xapian::weight
@@ -222,7 +234,53 @@ ValueWeightPostingSource::get_weight() const
 {
     Assert(!at_end());
     Assert(started);
-    return sortable_unserialise(*it);
+    return sortable_unserialise(*value_it);
+}
+
+ValueWeightPostingSource *
+ValueWeightPostingSource::clone() const
+{
+    return new ValueWeightPostingSource(slot, specified_max_weight);
+}
+
+std::string
+ValueWeightPostingSource::name() const
+{
+    return std::string("ValueWeight");
+}
+
+std::string
+ValueWeightPostingSource::serialise() const
+{
+    return encode_length(slot) + serialise_double(specified_max_weight);
+}
+
+PostingSource *
+ValueWeightPostingSource::unserialise(const std::string &s) const
+{
+    const char * p = s.data();
+    const char * end = p + s.size();
+
+    Xapian::valueno new_valno = decode_length(&p, end, false);
+    double new_spec_max = unserialise_double(&p, end);
+    if (p != end) {
+	throw Xapian::NetworkError("Bad serialised ValueWeightPostingSource - junk at end");
+    }
+
+    return new ValueWeightPostingSource(new_valno, new_spec_max);
+}
+
+void
+ValueWeightPostingSource::reset(const Database & db_)
+{
+    ValuePostingSource::reset(db_);
+
+    try {
+    	double ubound = sortable_unserialise(db.get_value_upper_bound(slot));
+	max_weight = std::min(specified_max_weight, ubound);
+    } catch (const Xapian::UnimplementedError &) {
+	max_weight = specified_max_weight;
+    }
 }
 
 std::string
@@ -232,10 +290,10 @@ ValueWeightPostingSource::get_description() const
 }
 
 
-ValueMapPostingSource::ValueMapPostingSource(Xapian::Database db_,
-					     Xapian::valueno slot_)
-	: ValuePostingSource(db_, slot_),
-	  default_weight(0.0)
+ValueMapPostingSource::ValueMapPostingSource(Xapian::valueno slot_)
+	: ValuePostingSource(slot_),
+	  default_weight(0.0),
+	  max_weight_in_map(0.0)
 {
 }
 
@@ -243,14 +301,14 @@ void
 ValueMapPostingSource::add_mapping(std::string key_, double weight_)
 {
     weight_map[key_] = weight_;
-    max_weight = std::max(weight_, max_weight);
+    max_weight_in_map = std::max(weight_, max_weight_in_map);
 }
 
 void
 ValueMapPostingSource::clear_mappings()
 {
     weight_map.clear();
-    max_weight = default_weight;
+    max_weight_in_map = 0.0;
 }
 
 void
@@ -263,12 +321,73 @@ ValueMapPostingSource::set_default_weight(double wt)
 Xapian::weight
 ValueMapPostingSource::get_weight() const
 {
-    std::map<std::string, double>::const_iterator wit = weight_map.find(*it);
+    std::map<std::string, double>::const_iterator wit = weight_map.find(*value_it);
     if (wit == weight_map.end()) {
 	return default_weight;
     } else {
 	return wit->second;
     }
+}
+
+ValueMapPostingSource *
+ValueMapPostingSource::clone() const
+{
+    AutoPtr<ValueMapPostingSource> res(new ValueMapPostingSource(slot));
+    std::map<std::string, double>::const_iterator i;
+    for (i = weight_map.begin(); i != weight_map.end(); ++i)
+    {
+	res->add_mapping(i->first, i->second);
+    }
+    res->set_default_weight(default_weight);
+    return res.release();
+}
+
+std::string
+ValueMapPostingSource::name() const
+{
+    return std::string("ValueMap");
+}
+
+std::string
+ValueMapPostingSource::serialise() const
+{
+    std::string result;
+    result = encode_length(slot) + serialise_double(default_weight);
+
+    std::map<std::string, double>::const_iterator i;
+    for (i = weight_map.begin(); i != weight_map.end(); ++i)
+    {
+	result.append(encode_length(i->first.size()));
+	result.append(i->first);
+	result.append(serialise_double(i->second));
+    }
+
+    return result;
+}
+
+PostingSource *
+ValueMapPostingSource::unserialise(const std::string &s) const
+{
+    const char * p = s.data();
+    const char * end = p + s.size();
+
+    Xapian::valueno new_slot = decode_length(&p, end, false);
+    AutoPtr<ValueMapPostingSource> res(new ValueMapPostingSource(new_slot));
+    res->set_default_weight(unserialise_double(&p, end));
+    while (p != end) {
+	size_t keylen = decode_length(&p, end, true);
+	string key(p, keylen);
+	p += keylen;
+	res->add_mapping(key, unserialise_double(&p, end));
+    }
+    return res.release();
+}
+
+void
+ValueMapPostingSource::reset(const Database & db_)
+{
+    ValuePostingSource::reset(db_);
+    max_weight = std::max(max_weight_in_map, default_weight);
 }
 
 std::string
@@ -278,12 +397,8 @@ ValueMapPostingSource::get_description() const
 }
 
 
-FixedWeightPostingSource::FixedWeightPostingSource(Xapian::Database db_,
-						   Xapian::weight wt_)
-	: db(db_), termfreq(db_.get_doccount()),
-	  it(db.postlist_begin(std::string())),
-	  end(db.postlist_end(std::string())),
-	  wt(wt_),
+FixedWeightPostingSource::FixedWeightPostingSource(Xapian::weight wt_)
+	: wt(wt_),
 	  started(false)
 {
 }
@@ -350,6 +465,8 @@ FixedWeightPostingSource::skip_to(Xapian::docid min_docid,
 	started = true;
 	it = db.postlist_begin(std::string());
 	end = db.postlist_end(std::string());
+
+	if (it == end) return;
     }
 
     if (check_docid) {
@@ -378,7 +495,8 @@ FixedWeightPostingSource::check(Xapian::docid min_docid,
 bool
 FixedWeightPostingSource::at_end() const
 {
-    return it == end;
+    if (check_docid != 0) return false;
+    return started && it == end;
 }
 
 Xapian::docid
@@ -388,9 +506,41 @@ FixedWeightPostingSource::get_docid() const
     return *it;
 }
 
-void
-FixedWeightPostingSource::reset()
+FixedWeightPostingSource *
+FixedWeightPostingSource::clone() const
 {
+    return new FixedWeightPostingSource(wt);
+}
+
+std::string
+FixedWeightPostingSource::name() const
+{
+    return std::string("FixedWeight");
+}
+
+std::string
+FixedWeightPostingSource::serialise() const
+{
+    return serialise_double(wt);
+}
+
+PostingSource *
+FixedWeightPostingSource::unserialise(const std::string &s) const
+{
+    const char * p = s.data();
+    const char * s_end = p + s.size();
+    double new_wt = unserialise_double(&p, s_end);
+    if (p != s_end) {
+	throw Xapian::NetworkError("Bad serialised ValueWeightPostingSource - junk at end");
+    }
+    return new FixedWeightPostingSource(new_wt);
+}
+
+void
+FixedWeightPostingSource::reset(const Xapian::Database & db_)
+{
+    db = db_;
+    termfreq = db_.get_doccount();
     started = false;
     check_docid = 0;
 }

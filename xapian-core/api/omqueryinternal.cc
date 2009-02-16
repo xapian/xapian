@@ -41,6 +41,7 @@
 #include <cfloat>
 #include <climits>
 #include <cmath>
+#include <map>
 #include <set>
 #include <vector>
 
@@ -145,7 +146,15 @@ Xapian::Query::Internal::serialise(Xapian::termpos & curpos) const
 	if (wqf != 1) result += '#' + om_tostring(wqf);
 	++curpos;
     } else if (op == Xapian::Query::Internal::OP_EXTERNAL_SOURCE) {
-	throw Xapian::UnimplementedError("Remote backend doesn't support PostingSource");
+	string sourcename = external_source->name();
+	if (sourcename.empty())
+	    throw Xapian::UnimplementedError("This PostingSource doesn't support remote use.");
+	result += '!';
+	result += encode_length(sourcename.length());
+	result += sourcename;
+	string sourcedata = external_source->serialise();
+	result += encode_length(sourcedata.length());
+	result += sourcedata;
     } else {
 	result += "(";
 	for (subquery_list::const_iterator i = subqs.begin();
@@ -155,6 +164,9 @@ Xapian::Query::Internal::serialise(Xapian::termpos & curpos) const
 	}
 	switch (op) {
 	    case Xapian::Query::Internal::OP_LEAF:
+		Assert(false);
+		break;
+	    case Xapian::Query::Internal::OP_EXTERNAL_SOURCE:
 		Assert(false);
 		break;
 	    case Xapian::Query::OP_AND:
@@ -379,12 +391,16 @@ class QUnserial {
     const char *p;
     const char *end;
     Xapian::termpos curpos;
+    const map<string, Xapian::PostingSource *> & sources;
 
     Xapian::Query::Internal * readquery();
+    Xapian::Query::Internal * readexternal();
     Xapian::Query::Internal * readcompound();
 
   public:
-    QUnserial(const string & s) : p(s.c_str()), end(p + s.size()), curpos(1) { }
+    QUnserial(const string & s,
+	      const map<string, Xapian::PostingSource *> & sources_)
+	    : p(s.c_str()), end(p + s.size()), curpos(1), sources(sources_) { }
     Xapian::Query::Internal * decode();
 };
 
@@ -423,12 +439,36 @@ QUnserial::readquery() {
 	    ++curpos;
 	    return new Xapian::Query::Internal(tname, wqf, term_pos);
 	}
+	case '!':
+	    return readexternal();
 	case '(':
 	    return readcompound();
 	default:
 	    LOGLINE(UNKNOWN, "Can't parse remainder `" << p - 1 << "'");
 	    throw Xapian::InvalidArgumentError("Invalid query string");
     }
+}
+
+Xapian::Query::Internal *
+QUnserial::readexternal()
+{
+    if (p == end)
+	throw Xapian::InvalidArgumentError("Bad serialised query");
+
+    size_t length = decode_length(&p, end, true);
+    string sourcename(p, length);
+    map<string, Xapian::PostingSource *>::const_iterator i;
+    i = sources.find(sourcename);
+    if (i == sources.end()) {
+	throw Xapian::InvalidArgumentError("PostingSource " + string(p, length) + " not registered");
+    }
+
+    p += length;
+    length = decode_length(&p, end, true);
+    string sourcedata(p, length);
+    p += length;
+
+    return new Xapian::Query::Internal(i->second->unserialise(sourcedata), true);
 }
 
 static Xapian::Query::Internal *
@@ -474,6 +514,9 @@ QUnserial::readcompound() {
 	        case '[':
 		    --p;
 		    subqs.push_back(readquery());
+		    break;
+		case '!':
+		    subqs.push_back(readexternal());
 		    break;
 	        case '(': {
 		    subqs.push_back(readcompound());
@@ -562,17 +605,19 @@ QUnserial::readcompound() {
 }
 
 Xapian::Query::Internal *
-Xapian::Query::Internal::unserialise(const string &s)
+Xapian::Query::Internal::unserialise(const string &s,
+			const map<string, Xapian::PostingSource *> & sources)
 {
     Assert(s.length() > 1);
-    QUnserial u(s);
+    QUnserial u(s, sources);
     Xapian::Query::Internal * qint = u.decode();
     AssertEq(s, qint->serialise());
     return qint;
 }
 #else
 Xapian::Query::Internal *
-Xapian::Query::Internal::unserialise(const string &)
+Xapian::Query::Internal::unserialise(const string &,
+			const map<string, Xapian::PostingSource *> & sources)
 {
     throw Xapian::InternalError("query serialisation not compiled in");
 }
@@ -596,6 +641,7 @@ Xapian::Query::Internal::swap(Xapian::Query::Internal &other)
     std::swap(term_pos, other.term_pos);
     std::swap(wqf, other.wqf);
     std::swap(external_source, other.external_source);
+    std::swap(external_source_owned, other.external_source_owned);
 }
 
 Xapian::Query::Internal::Internal(const Xapian::Query::Internal &copyme)
@@ -607,12 +653,22 @@ Xapian::Query::Internal::Internal(const Xapian::Query::Internal &copyme)
 	  str_parameter(copyme.str_parameter),
 	  term_pos(copyme.term_pos),
 	  wqf(copyme.wqf),
-	  external_source(copyme.external_source)
+	  external_source(NULL),
+	  external_source_owned(false)
 {
     for (subquery_list::const_iterator i = copyme.subqs.begin();
 	 i != copyme.subqs.end();
 	 ++i) {
 	subqs.push_back(new Xapian::Query::Internal(**i));
+    }
+    if (copyme.external_source) {
+	external_source = copyme.external_source->clone();
+	if (external_source == NULL) {
+	    external_source = copyme.external_source;
+	    external_source_owned = false;
+	} else {
+	    external_source_owned = true;
+	}
     }
 }
 
@@ -626,7 +682,9 @@ Xapian::Query::Internal::Internal(const string & tname_, Xapian::termcount wqf_,
 	  parameter(0),
 	  tname(tname_),
 	  term_pos(term_pos_),
-	  wqf(wqf_)
+	  wqf(wqf_),
+	  external_source(NULL),
+	  external_source_owned(false)
 {
     validate_query();
 }
@@ -637,7 +695,9 @@ Xapian::Query::Internal::Internal(op_t op_, Xapian::termcount parameter_)
 	  parameter(parameter_),
 	  tname(),
 	  term_pos(0),
-	  wqf(0)
+	  wqf(0),
+	  external_source(NULL),
+	  external_source_owned(false)
 {
     if (parameter != 0 && op != OP_PHRASE && op != OP_NEAR && op != OP_ELITE_SET)
 	throw Xapian::InvalidArgumentError("parameter is only meaningful for OP_NEAR, OP_PHRASE, or OP_ELITE_SET");
@@ -648,7 +708,9 @@ Xapian::Query::Internal::Internal(op_t op_, Xapian::valueno valno,
 	: op(op_),
 	  parameter(Xapian::termcount(valno)),
 	  tname(begin),
-	  str_parameter(end)
+	  str_parameter(end),
+	  external_source(NULL),
+	  external_source_owned(false)
 {
     if (op != OP_VALUE_RANGE)
 	throw Xapian::InvalidArgumentError("This constructor is only meaningful for OP_VALUE_RANGE");
@@ -659,7 +721,9 @@ Xapian::Query::Internal::Internal(op_t op_, Xapian::valueno valno,
 				  const std::string &value)
 	: op(op_),
 	  parameter(Xapian::termcount(valno)),
-	  tname(value)
+	  tname(value),
+	  external_source(NULL),
+	  external_source_owned(false)
 {
     if (op != OP_VALUE_GE && op != OP_VALUE_LE)
 	throw Xapian::InvalidArgumentError("This constructor is only meaningful for OP_VALUE_GE or OP_VALUE_LE");
@@ -673,11 +737,11 @@ Xapian::Query::Internal::Internal(op_t op_, Xapian::valueno valno,
     validate_query();
 }
 
-Xapian::Query::Internal::Internal(PostingSource * external_source_)
-    : op(OP_EXTERNAL_SOURCE), external_source(external_source_)
+Xapian::Query::Internal::Internal(PostingSource * external_source_, bool owned)
+	: op(OP_EXTERNAL_SOURCE), external_source(external_source_),
+	  external_source_owned(owned)
 {
-    if (!external_source)
-	throw Xapian::InvalidArgumentError("The external_source parameter can not be NULL");
+    Assert(external_source);
 }
 
 Xapian::Query::Internal::~Internal()
@@ -685,6 +749,9 @@ Xapian::Query::Internal::~Internal()
     subquery_list::iterator i;
     for (i = subqs.begin(); i != subqs.end(); i++) {
         delete *i;
+    }
+    if (external_source_owned) {
+	delete external_source;
     }
 }
 

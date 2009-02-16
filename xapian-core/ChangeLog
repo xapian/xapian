@@ -1,3 +1,38 @@
+Mon Feb 16 10:11:39 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* Add support for multi and remote backends with posting sources,
+	  from ticket #295:
+	* include/xapian/postingsource.h: Add some clarifying comments
+	  about the interface of PostingSources, and add clone(), name(),
+	  serialise() and unserialise() methods to PostingSources, for
+	  remote and multidatabase support.
+	* include/xapian/query.h: Add internal member to track ownership of
+	  external posting sources, and update some comments.
+	* api/postingsource.cc: Add implementations of the new methods, so
+	  that all standard PostingSources support remote and multi
+	  database searches.
+	* api/omquery.cc: Clone external PostingSources if possible.
+	* api/omqueryinternal.cc: Add serialisation and unserialisation
+	  support for posting sources, and support for keeping track of
+	  whether an external posting source is owned by the query object
+	  or not (ie, whether it needs to be deleted by the destructor).
+	* matcher/externalpostlist.cc,matcher/externalpostlist.h: (Attempt
+	  to) clone external posting sources at start, and call the reset()
+	  method with the database in use.  Delete the posting source
+	  afterwards, if the clone was successful.
+	* matcher/queryoptimiser.cc: Pass the database to ExternalPostList.
+	  Sadly, this currently requires a const_cast.
+	* tests/: Update tests of PostingSources to take the db parameter
+	  on the reset() method, and to test behaviour with multi and
+	  remote backends where appropriate.  Also, add regression test for
+	  segfault in FixedWeightPostingSource::skip_to() when database is
+	  empty.
+	* net/remoteserver.cc,common/remoteserver.h: Add the built-in
+	  posting sources to the remote server, and add
+	  register_posting_source() to the remoteserver, for use in
+	  xapian-tcpsrv.cc for user posting sources, analogously to
+	  register_weighting_scheme().
+
 Fri Feb 13 20:09:10 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/postingsource.cc: Fix segfaults which occur if an empty
