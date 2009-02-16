@@ -1,3 +1,7 @@
+Mon Feb 16 12:02:48 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* win32_bindings_csharp.mak: Remove doubled file contents.
+
 Mon Dec 22 16:50:55 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* version.rc.csharp,win32_bindings_csharp.mak: Add files missed
