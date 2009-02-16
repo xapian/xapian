@@ -1,3 +1,8 @@
+Mon Feb 16 11:47:21 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/omqueryinternal.cc: Update two FIXMEs to reference the
+	  appropriate ticket.
+
 Mon Feb 16 10:11:39 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* Add support for multi and remote backends with posting sources,
