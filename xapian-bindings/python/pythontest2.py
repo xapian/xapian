@@ -913,7 +913,7 @@ def test_postingsource():
             xapian.PostingSource.__init__(self)
             self.max = max
 
-        def reset(self):
+        def reset(self, db):
             self.current = -1
 
         def get_termfreq_min(self): return 0
@@ -954,7 +954,7 @@ def test_postingsource2():
         doc.add_value(1, xapian.sortable_serialise(vals[id]))
         db.add_document(doc)
 
-    source = xapian.ValueWeightPostingSource(db, 1)
+    source = xapian.ValueWeightPostingSource(1)
     query = xapian.Query(source)
     # del source # Check that query keeps a reference to it.
 

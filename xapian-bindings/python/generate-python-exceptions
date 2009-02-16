@@ -39,6 +39,8 @@ my @posting_source_virtual_methods = qw(
     get_docid
     get_description
     reset
+    name
+    serialise
 );
 
 open FD, ">except.i" or die $!;
