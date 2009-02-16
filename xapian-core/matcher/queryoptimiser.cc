@@ -64,7 +64,7 @@ QueryOptimiser::do_subquery(const Xapian::Query::Internal * query, double factor
 
 	case Xapian::Query::Internal::OP_EXTERNAL_SOURCE:
 	    Assert(query->external_source);
-	    // FIXME - avoid this const_cast somehow.
+	    // FIXME - avoid this const_cast somehow.  See ticket #332
 	    RETURN(new ExternalPostList(
 		Xapian::Database(const_cast<Xapian::Database::Internal *>(&db)),
 		query->external_source, factor));
