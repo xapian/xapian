@@ -246,7 +246,7 @@ ValueWeightPostingSource::clone() const
 std::string
 ValueWeightPostingSource::name() const
 {
-    return std::string("ValueWeight");
+    return std::string("Xapian::ValueWeightPostingSource");
 }
 
 std::string
@@ -345,7 +345,7 @@ ValueMapPostingSource::clone() const
 std::string
 ValueMapPostingSource::name() const
 {
-    return std::string("ValueMap");
+    return std::string("Xapian::ValueMapPostingSource");
 }
 
 std::string
@@ -515,7 +515,7 @@ FixedWeightPostingSource::clone() const
 std::string
 FixedWeightPostingSource::name() const
 {
-    return std::string("FixedWeight");
+    return std::string("Xapian::FixedWeightPostingSource");
 }
 
 std::string

@@ -1,3 +1,10 @@
+Mon Feb 16 14:27:28 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/postingsource.cc: Change the name() methods of the built-in
+	  posting sources to return a full name (starting with Xapian:: and
+	  ending with PostingSource), as documented in the API
+	  documentation comments.
+
 Mon Feb 16 13:32:39 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/omqueryinternal.cc,common/remoteserver.h,
