@@ -206,7 +206,7 @@ std::string
 Query::serialise() const
 {
     DEBUGAPICALL(std::string, "Xapian::Query::serialise", "");
-    if (!internal.get()) return "";
+    if (!internal.get()) return std::string();
     return internal->serialise();
 }
 
