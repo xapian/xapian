@@ -251,10 +251,9 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	/** Serialise query into a string.
 	 *
 	 *  The query representation may change between xapian releases:
-	 *  even between minor versions.  The serialisation should not be used
-	 *  for persistence - it is intended for allowing documents to be
-	 *  passed between clients and servers which are running the same
-	 *  version of xapian.
+	 *  even between minor versions.  However, it is guaranteed not to
+	 *  change unless the remote database protocol has also changed between
+	 *  releases.
 	 */
 	std::string serialise() const;
 
