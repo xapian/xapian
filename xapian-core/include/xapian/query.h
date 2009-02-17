@@ -250,7 +250,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 
 	/** Serialise query into a string.
 	 *
-	 *  The query representation may change between xapian releases:
+	 *  The query representation may change between Xapian releases:
 	 *  even between minor versions.  However, it is guaranteed not to
 	 *  change unless the remote database protocol has also changed between
 	 *  releases.

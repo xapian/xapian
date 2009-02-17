@@ -197,7 +197,7 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 
 	/** Serialise document into a string.
 	 *
-	 *  The document representation may change between xapian releases:
+	 *  The document representation may change between Xapian releases:
 	 *  even between minor versions.  However, it is guaranteed not to
 	 *  change if the remote database protocol has not changed between
 	 *  releases.
