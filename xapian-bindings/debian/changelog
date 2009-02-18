@@ -3,6 +3,8 @@ xapian-bindings (1.0.10-1) unstable; urgency=low
   * ACK NMU - thanks Chris!
     - Bug #506090 fixed upstream in 1.0.10 so NMU patch no longer required.
   * New upstream release.
+  * debian/control.in: Add "DM-Upload-Allowed: yes" since I'm now a Debian
+    Maintainer.
 
  -- Olly Betts <olly@survex.com>  Tue, 23 Dec 2008 07:32:55 +0000
 
