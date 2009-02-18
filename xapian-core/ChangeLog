@@ -1,3 +1,10 @@
+Wed Feb 18 04:00:02 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* common/omenquireinternal.h: Swap the items vector into the
+	  MSet::Internal object rather than copying it to avoid the overhead
+	  of the copy.
+
 Wed Feb 18 02:51:19 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
