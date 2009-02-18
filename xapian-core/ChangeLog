@@ -1,3 +1,13 @@
+Wed Feb 18 04:58:06 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* api/omenquire.cc: Throw UnimplementedError from Enquire::get_mset()
+	  if we're asked for a percentage cutoff and to sort primarily by
+	  value - this has never been correctly supported and it's better to
+	  warn people than give incorrect results.
+	* tests/Makefile.am,tests/api_percentages.cc: Add test that this error
+	  gets thrown.
+
 Wed Feb 18 04:00:02 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
