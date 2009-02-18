@@ -135,7 +135,7 @@ split_rset_by_db(const Xapian::RSet * rset,
  *  statistics arrive, we can move on to the next step.
  */
 static void
-prepare_sub_matches(std::vector<Xapian::Internal::RefCntPtr<SubMatch> > & leaves,
+prepare_sub_matches(vector<Xapian::Internal::RefCntPtr<SubMatch> > & leaves,
 		    Xapian::ErrorHandler * errorhandler,
 		    Stats & stats)
 {
