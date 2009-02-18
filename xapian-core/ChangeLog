@@ -1,3 +1,8 @@
+Wed Feb 18 06:48:43 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Use AssertRel rather than Assert with an
+	  inequality so that we see the arguments if the assertion fails.
+
 Wed Feb 18 06:39:33 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: "items" -> "rsetitems" to distinguish from

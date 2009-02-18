@@ -880,8 +880,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	matches_lower_bound = matches_upper_bound = matches_estimated
 	    = docs_matched;
     } else {
-	Assert(matches_estimated >= matches_lower_bound);
-	Assert(matches_estimated <= matches_upper_bound);
+	AssertRel(matches_estimated,>=,matches_lower_bound);
+	AssertRel(matches_estimated,<=,matches_upper_bound);
 
 	// We can end up scaling the estimate more than once, so collect
 	// the scale factors and apply them in one go to avoid rounding
@@ -970,11 +970,11 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		    "matches_lower_bound = " << matches_lower_bound <<
 		    ", matches_estimated = " << matches_estimated <<
 		    ", matches_upper_bound = " << matches_upper_bound);
-	    Assert(matches_lower_bound <= matches_upper_bound);
+	    AssertRel(matches_lower_bound,<=,matches_upper_bound);
 	    matches_estimated = max(matches_estimated, matches_lower_bound);
 	    matches_estimated = min(matches_estimated, matches_upper_bound);
 	} else if (!percent_cutoff) {
-	    Assert(docs_matched <= matches_upper_bound);
+	    AssertRel(docs_matched,<=,matches_upper_bound);
 	    if (docs_matched > matches_lower_bound)
 		matches_lower_bound = docs_matched;
 	    if (docs_matched > matches_estimated)
@@ -1012,8 +1012,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	LOGLINE(MATCH, "max weight in mset = " << items[0].wt);
     }
 
-    Assert(matches_estimated >= matches_lower_bound);
-    Assert(matches_estimated <= matches_upper_bound);
+    AssertRel(matches_estimated,>=,matches_lower_bound);
+    AssertRel(matches_estimated,<=,matches_upper_bound);
 
     // We may need to qualify any collapse_count to see if the highest weight
     // collapsed item would have qualified percent_cutoff
