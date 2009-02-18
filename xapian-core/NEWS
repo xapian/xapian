@@ -1,5 +1,111 @@
 up to:
-11812 Wed Jan 07 03:43:07 GMT 2009  Olly Betts <olly@survex.com>
+ 11847       olly Tue Feb 17 23:53:54 GMT 2009  Olly Betts <olly@survex.com>
+
+ 11847       olly 	* include/xapian/document.h,include/xapian/query.h: "xapian" ->
+ 11847       olly 	  "Xapian".
+
+ 11846    richard 	* include/xapian/document.h,include/xapian/query.h: Soften comment
+ 11846    richard 	  warning about changes in serialised format between xapian
+ 11846    richard 	  versions; note that the format won't change unless the remote
+ 11846    richard 	  database protocol has changed.
+
+ 11845    richard 	* api/omquery.cc: Return std::string() rather than "" to encourage
+ 11845    richard 	  compilers to use special empty string representation.
+
+ 11844    richard 	* api/postingsource.cc: Change the name() methods of the built-in
+ 11844    richard 	  posting sources to return a full name (starting with Xapian:: and
+ 11844    richard 	  ending with PostingSource), as documented in the API
+ 11844    richard 	  documentation comments.
+
+ 11843    richard 	* api/omqueryinternal.cc,common/remoteserver.h,
+ 11843    richard 	  matcher/externalpostlist.cc,matcher/externalpostlist.h,
+ 11843    richard 	  matcher/queryoptimiser.cc,net/remoteserver.cc,
+ 11843    richard 	  tests/api_percentages.cc,tests/api_valuestream.cc: Add some
+
+ 11841    richard 	* matcher/queryoptimiser.cc: Add another reference from a FIXME to
+ 11841    richard 	  a ticket number.
+
+ 11840    richard 	* api/omqueryinternal.cc: Update two FIXMEs to reference the
+ 11840    richard 	  appropriate ticket.
+
+ 11838    richard 	* Add support for multi and remote backends with posting sources,
+ 11838    richard 	  from ticket #295:
+ 11838    richard 	* include/xapian/postingsource.h: Add some clarifying comments
+ 11838    richard 	  about the interface of PostingSources, and add clone(), name(),
+ 11838    richard 	  serialise() and unserialise() methods to PostingSources, for
+ 11838    richard 	  remote and multidatabase support.
+ 11838    richard 	* include/xapian/query.h: Add internal member to track ownership of
+ 11838    richard 	  external posting sources, and update some comments.
+ 11838    richard 	* api/postingsource.cc: Add implementations of the new methods, so
+ 11838    richard 	  that all standard PostingSources support remote and multi
+ 11838    richard 	  database searches.
+ 11838    richard 	* api/omquery.cc: Clone external PostingSources if possible.
+ 11838    richard 	* api/omqueryinternal.cc: Add serialisation and unserialisation
+ 11838    richard 	  support for posting sources, and support for keeping track of
+ 11838    richard 	  whether an external posting source is owned by the query object
+ 11838    richard 	  or not (ie, whether it needs to be deleted by the destructor).
+ 11838    richard 	* matcher/externalpostlist.cc,matcher/externalpostlist.h: (Attempt
+ 11838    richard 	  to) clone external posting sources at start, and call the reset()
+ 11838    richard 	  method with the database in use.  Delete the posting source
+ 11838    richard 	  afterwards, if the clone was successful.
+ 11838    richard 	* matcher/queryoptimiser.cc: Pass the database to ExternalPostList.
+ 11838    richard 	  Sadly, this currently requires a const_cast.
+ 11838    richard 	* tests/: Update tests of PostingSources to take the db parameter
+ 11838    richard 	  on the reset() method, and to test behaviour with multi and
+ 11838    richard 	  remote backends where appropriate.  Also, add regression test for
+ 11838    richard 	  segfault in FixedWeightPostingSource::skip_to() when database is
+ 11838    richard 	  empty.
+ 11838    richard 	* net/remoteserver.cc,common/remoteserver.h: Add the built-in
+ 11838    richard 	  posting sources to the remote server, and add
+ 11838    richard 	  register_posting_source() to the remoteserver, for use in
+ 11838    richard 	  xapian-tcpsrv.cc for user posting sources, analogously to
+ 11838    richard 	  register_weighting_scheme().
+
+ 11836    richard 	* api/postingsource.cc: Fix segfaults which occur if an empty
+ 11836    richard 	  ValuePostingSource subclass has the skip_to() or check() methods
+ 11836    richard 	  called on it first.
+ 11836    richard 	* tests/api_db.cc tests/api_valuestream.cc: Move valuemapsource1 to
+ 11836    richard 	  api_valuestream.cc, since that seems like a better place (and
+ 11836    richard 	  api_db.cc is already rather over-large).  Add regression test
+ 11836    richard 	  "valuemapsource2" to check the behaviour of ValuePostingSource
+ 11836    richard 	  subclasses on empty lists.
+
+ 11835    richard 	* api/postingsource.cc,include/xapian/postingsource.h: Add
+ 11835    richard 	  ValuePostingSource, which is a base class for implementing
+ 11835    richard 	  posting sources based on reading from a value slot.  Convert
+ 11835    richard 	  ValueWeightPostingSource to be a subclass of this, and add
+ 11835    richard 	  ValueMapPostingSource, which is a posting source which uses a map
+ 11835    richard 	  to convert values to weights.
+ 11835    richard 	* tests/api_db.cc: Add valuemapsource1, testing the
+ 11835    richard 	  ValueMapPostingSource.
+
+ 11834    richard 	* tests/harness/index_utils.cc: Add value 13, containing the first
+ 11834    richard 	  3 letters of the paragraph - needed for some tests I'm going to
+ 11834    richard 	  commit shortly.
+
+ 11833    richard 	* tests/api_sorting.cc: Change slot number used to get an empty
+ 11833    richard 	  slot from 13 to 100 - we're getting close to using slot 13 now!
+
+ 11829    richard 	* api/omdocument.cc,api/omquery.cc,include/xapian/document.h,
+ 11829    richard 	  include/xapian/query.h: Add methods for serialising documents and
+ 11829    richard 	  queries into strings, and unserialising back from strings.  Fixes
+ 11829    richard 	  most of ticket #206 - missing part is that serialising queries
+ 11829    richard 	  containing PostingSources doesn't work.
+ 11829    richard 	* tests/Makefile.am,tests/api_serialise.cc: Add tests of document
+ 11829    richard 	  and query serialisation.
+ 
+ 11825       olly 	* tests/api_db.cc: Prefer value.empty() to value == "".
+
+ 11815       olly 	* backends/chert/chert_cursor.cc,backends/chert/chert_postlist.cc,
+ 11815       olly 	  backends/flint/flint_cursor.cc,backends/flint/flint_postlist.cc,
+ 11815       olly 	  backends/multi/multi_postlist.cc,common/omassert.h,configure.ac,
+ 11815       olly 	  matcher/multimatch.cc: Change preprocessor defines controlling
+ 11815       olly 	  assertions from XAPIAN_DEBUG->XAPIAN_ASSERTIONS and
+ 11815       olly 	  XAPIAN_DEBUG_PARANOID->XAPIAN_ASSERTIONS_PARANOID so their purpose
+ 11815       olly 	  is clearer.
+ 11831    richard 	* backends/chert/chert_cursor.cc,backends/flint/flint_cursor.cc:
+ 11831    richard 	  Return accidentally changed "XAPIAN_ASSERTIONS_VERBOSE" ifdefs to
+ 11831    richard 	  "XAPIAN_DEBUG_VERBOSE".
 
 Potential backport fodder:
 

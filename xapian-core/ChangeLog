@@ -1,3 +1,7 @@
+Wed Feb 18 05:46:59 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
 Tue Feb 17 23:53:54 GMT 2009  Olly Betts <olly@survex.com>
 
 	* include/xapian/document.h,include/xapian/query.h: "xapian" ->
