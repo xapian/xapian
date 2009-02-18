@@ -1,19 +1,14 @@
-xapian-core (1.0.11-1) unstable; urgency=low
+xapian-core (1.0.10-1) unstable; urgency=low
 
+  * New upstream release.
+    + Builds with GCC 4.4 snapshot.  Closes: #505413
+    + debian/patch: All changes included upstream so remove.
   * debian/control.in: Update libxapian15 to "Priority: important" to match
     the override file.
   * debian/control.in: Add "DM-Upload-Allowed: yes" since I'm now a Debian
     Maintainer.
 
  -- Olly Betts <olly@survex.com>  Wed, 18 Feb 2009 04:15:19 +0000
-
-xapian-core (1.0.10-1) unstable; urgency=low
-
-  * New upstream release.
-    + Builds with GCC 4.4 snapshot.  Closes: #505413
-    + debian/patch: All changes included upstream so remove.
-
- -- Olly Betts <olly@survex.com>  Tue, 23 Dec 2008 07:49:05 +0000
 
 xapian-core (1.0.7-4) unstable; urgency=low
 
