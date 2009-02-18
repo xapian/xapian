@@ -24,7 +24,7 @@
 
 set -e
 
-VALID_CODENAMES='sid etch intrepid hardy gutsy feisty dapper'
+VALID_CODENAMES='sid lenny etch intrepid hardy gutsy dapper'
 
 if [ x"$1" = x--help ] ; then
   echo "Usage: $0 [CODENAME...]"
