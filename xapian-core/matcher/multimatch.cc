@@ -101,9 +101,9 @@ split_rset_by_db(const Xapian::RSet * rset,
 		subrsets.push_back(Xapian::RSet());
 	    }
 
-	    const set<Xapian::docid> & items = rset->internal->get_items();
+	    const set<Xapian::docid> & rsetitems = rset->internal->get_items();
 	    set<Xapian::docid>::const_iterator j;
-	    for (j = items.begin(); j != items.end(); ++j) {
+	    for (j = rsetitems.begin(); j != rsetitems.end(); ++j) {
 		Xapian::doccount local_docid = (*j - 1) / number_of_subdbs + 1;
 		Xapian::doccount subdatabase = (*j - 1) % number_of_subdbs;
 		subrsets[subdatabase].add_document(local_docid);
