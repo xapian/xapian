@@ -5,10 +5,12 @@ Maintainer: Olly Betts <olly@survex.com>
 Standards-Version: 3.8.0
 Build-Depends: debhelper (>= 4.1.22), autotools-dev, zlib1g-dev
 Homepage: http://xapian.org/
+DM-Upload-Allowed: yes
 
 Package: libxapian@LIBXAPIAN_SOVERSION@
 Architecture: any
 Section: libs
+Priority: important
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Suggests: xapian-tools
 Conflicts: libxapian2

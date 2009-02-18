@@ -1,3 +1,12 @@
+xapian-core (1.0.11-1) unstable; urgency=low
+
+  * debian/control.in: Update libxapian15 to "Priority: important" to match
+    the override file.
+  * debian/control.in: Add "DM-Upload-Allowed: yes" since I'm now a Debian
+    Maintainer.
+
+ -- Olly Betts <olly@survex.com>  Wed, 18 Feb 2009 04:15:19 +0000
+
 xapian-core (1.0.10-1) unstable; urgency=low
 
   * New upstream release.
