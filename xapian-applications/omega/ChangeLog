@@ -1,3 +1,9 @@
+Thu Feb 19 04:46:26 GMT 2009  Olly Betts <olly@survex.com>
+
+	* metaxmlparse.cc,metaxmlparse.h,xmlparse.cc,xmlparse.h: XmlParser and
+	  MetaXmlParser were overriding opening_tag with the wrong signature so
+	  their implementations weren't ever being used.
+
 Fri Jan 09 04:19:32 GMT 2009  Olly Betts <olly@survex.com>
 
 	* runfilter.cc: Fix to compile when RLIMIT_AS isn't available (as on
