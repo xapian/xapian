@@ -122,7 +122,7 @@ build-stamp: configure
 	# a bug in the link_all_deplibs=no patch in Debian's libtool package
 	# in 2.2.6 at least.
 	$(MAKE) -C build XAPIAN_LIBS=/usr/lib/libxapian.so
-	$(MAKE_CHECK) -C build
+	$(MAKE_CHECK) -C build XAPIAN_LIBS=/usr/lib/libxapian.so
 	touch $@
 
 install: DH_OPTIONS=

@@ -1,3 +1,10 @@
+xapian-omega (1.0.10-3) unstable; urgency=low
+
+  * debian/rules: Apply workaround when running "make check" too as that links
+    the test programs with libxapian.
+
+ -- Olly Betts <olly@survex.com>  Thu, 19 Feb 2009 12:40:43 +0000
+
 xapian-omega (1.0.10-2) unstable; urgency=low
 
   * debian/rules: Work around bug in link_all_deplibs patch in Debian's
