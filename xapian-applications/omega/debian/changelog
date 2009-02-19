@@ -1,3 +1,13 @@
+xapian-omega (1.0.10-5) unstable; urgency=low
+
+  * debian/rules,debian/control.in: Dapper's automake is 1.4, but "automake
+    (>= 1.10) | automake1.9" doesn't work in the Ubuntu dapper PPA builder -
+    it has automake 1.4 installed, so goes for the first alternative, and then
+    fails the version check.  We want to prefer 1.10 so swapping the order is
+    no help, so generate the dependency depending on the codename.
+
+ -- Olly Betts <olly@survex.com>  Thu, 19 Feb 2009 23:56:08 +0000
+
 xapian-omega (1.0.10-4) unstable; urgency=low
 
   * debian/rules: Substitute @GHOSTSCRIPT@ when generating debian/control.

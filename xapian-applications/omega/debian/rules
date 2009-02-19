@@ -70,6 +70,16 @@ BUILD_DEPS := debhelper (>= 4.1.22),
 # We need a versioned build dependency on libxapian-dev.
 BUILD_DEPS += libxapian-dev (>= $(XAPIAN_VERSION)),# NB Trailing ',' required here!
 BUILD_DEPS += libxapian-dev (<< $(XAPIAN_VERSION_CEILING)),# NB Trailing ',' required here!
+# Dapper's automake is 1.4, but "automake (>= 1.10) | automake1.9" doesn't work
+# in the Ubuntu dapper PPA builder - it has automake 1.4 installed, so goes for
+# the first alternative, and then fails the version check.  We want to prefer
+# 1.10 so swapping the order is no help, so generate the dependency depending
+# on the codename.
+ifeq ($(CODENAME), dapper)
+BUILD_DEPS += automake1.9,# NB Trailing ',' required here!
+else
+BUILD_DEPS += automake (>= 1.10),# NB Trailing ',' required here!
+endif
 
 commonconfflags := \
 	$(confflags) \
