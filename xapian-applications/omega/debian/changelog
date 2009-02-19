@@ -2,7 +2,7 @@ xapian-omega (1.0.10-4) unstable; urgency=low
 
   * debian/rules: Substitute @GHOSTSCRIPT@ when generating debian/control.
 
- -- Olly Betts <olly@survex.com>  Thu, 19 Feb 2009 13:31:59 +0000
+ -- Olly Betts <olly@survex.com>  Thu, 19 Feb 2009 13:39:20 +0000
 
 xapian-omega (1.0.10-3) unstable; urgency=low
 
