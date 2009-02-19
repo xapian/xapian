@@ -4,7 +4,7 @@
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002 Intercede 1749 Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2008 Thomas Viehmann
  *
  * This program is free software; you can redistribute it and/or
@@ -600,7 +600,7 @@ html_highlight(const string &s, const string &list,
 		Xapian::Unicode::append_utf8(term, *j);
 	    }
 	    if (term.length() < 2 || (j != s_end && is_wordchar(*j))) {
-		term = "";
+		term.resize(0);
 	    }
 	    term_end = j;
 	}
@@ -1082,7 +1082,7 @@ eval(const string &fmt, const vector<string> &param)
 		for (vector<string>::const_iterator i = args.begin();
 		     i != args.end(); i++) {
 		    if (eval(*i, param).empty()) {
-			value = "";
+			value.resize(0);
 			break;
 		    }
 	        }

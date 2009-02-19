@@ -1,3 +1,7 @@
+Thu Feb 19 10:34:36 GMT 2009  Olly Betts <olly@survex.com>
+
+	* omega.cc,query.cc: Prefer str.resize(0) to str = "".
+
 Thu Feb 19 06:23:34 GMT 2009  Olly Betts <olly@survex.com>
 
 	* docs/overview.rst,omindex.cc: Add support for MS Office 2007
