@@ -27,7 +27,7 @@ xapian-omega (1.0.10-2) unstable; urgency=low
     libtool 2.2.x package.
   * debian/copyright: Update (C) year for debian packaging.
 
- -- Olly Betts <olly@eisluft>  Fri, 20 Feb 2009 00:23:36 +1300
+ -- Olly Betts <olly@survex.com>  Fri, 20 Feb 2009 00:23:36 +1300
 
 xapian-omega (1.0.10-1) unstable; urgency=low
 
