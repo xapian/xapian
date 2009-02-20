@@ -1,3 +1,7 @@
+Fri Feb 20 03:25:14 GMT 2009  Olly Betts <olly@survex.com>
+
+	* query.cc: Wrap a long comment.
+
 Thu Feb 19 10:34:36 GMT 2009  Olly Betts <olly@survex.com>
 
 	* omega.cc,query.cc: Prefer str.resize(0) to str = "".
