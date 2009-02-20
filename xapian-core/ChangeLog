@@ -1,3 +1,8 @@
+Fri Feb 20 14:32:46 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_closedb.cc: Fix testcase closedb3 not to create a test
+	  database named closedb2.
+
 Fri Feb 20 01:38:32 GMT 2009  Olly Betts <olly@survex.com>
 
 	* include/xapian/enquire.h: Documentation comment improvements.
