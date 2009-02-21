@@ -1,3 +1,8 @@
+Sat Feb 21 08:18:21 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/harness/testsuite.cc: Fix option usage in --help - "-x=foo"
+	  doesn't work - "-x foo" does.
+
 Sat Feb 21 07:37:01 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/perftest/perftest_randomidx.cc: Use two argument version of
