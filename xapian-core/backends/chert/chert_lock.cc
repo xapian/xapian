@@ -143,7 +143,9 @@ ChertLock::lock(bool exclusive, std::string & explanation) {
 	dup2(fds[1], 0);
 	dup2(fds[1], 1);
 	// Make sure we don't block unmount(), etc.
-	chdir("/");
+	if (chdir("/")) {
+	    // Can't do anything useful with an error, so ignore it.
+	}
 	// Make sure we don't hang on to open files which may get deleted but
 	// not have their disk space released until we exit.
 	int maxfd = (int)sysconf(_SC_OPEN_MAX);
