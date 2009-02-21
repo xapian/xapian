@@ -1,3 +1,10 @@
+Sat Feb 21 02:06:56 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/postingsource.cc,include/xapian/postingsource.h: Pass string as
+	  const string &; drop trailing "_" from parameters which don't clash
+	  with member variables; fix brace formatting on a couple of for
+	  loops.
+
 Fri Feb 20 14:32:46 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_closedb.cc: Fix testcase closedb3 not to create a test

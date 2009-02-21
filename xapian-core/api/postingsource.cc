@@ -1,7 +1,7 @@
 /** @file postingsource.cc
  * @brief External sources of posting information
  */
-/* Copyright (C) 2008 Olly Betts
+/* Copyright (C) 2008,2009 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -298,10 +298,10 @@ ValueMapPostingSource::ValueMapPostingSource(Xapian::valueno slot_)
 }
 
 void
-ValueMapPostingSource::add_mapping(std::string key_, double weight_)
+ValueMapPostingSource::add_mapping(const std::string & key, double weight)
 {
-    weight_map[key_] = weight_;
-    max_weight_in_map = std::max(weight_, max_weight_in_map);
+    weight_map[key] = weight;
+    max_weight_in_map = std::max(weight, max_weight_in_map);
 }
 
 void
@@ -334,8 +334,7 @@ ValueMapPostingSource::clone() const
 {
     AutoPtr<ValueMapPostingSource> res(new ValueMapPostingSource(slot));
     std::map<std::string, double>::const_iterator i;
-    for (i = weight_map.begin(); i != weight_map.end(); ++i)
-    {
+    for (i = weight_map.begin(); i != weight_map.end(); ++i) {
 	res->add_mapping(i->first, i->second);
     }
     res->set_default_weight(default_weight);
@@ -355,8 +354,7 @@ ValueMapPostingSource::serialise() const
     result = encode_length(slot) + serialise_double(default_weight);
 
     std::map<std::string, double>::const_iterator i;
-    for (i = weight_map.begin(); i != weight_map.end(); ++i)
-    {
+    for (i = weight_map.begin(); i != weight_map.end(); ++i) {
 	result.append(encode_length(i->first.size()));
 	result.append(i->first);
 	result.append(serialise_double(i->second));
