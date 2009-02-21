@@ -1,3 +1,12 @@
+Sat Feb 21 04:27:45 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_lock.cc,backends/flint/flint_lock.cc: In the
+	  locking child process, before we exec /bin/cat change directory to
+	  / so that we don't block unmounting of any partitions and close
+	  any open file descriptors (apart from those we're using) so that if
+	  the files are closed by our parent and deleted the disk space gets
+	  released right away.
+
 Sat Feb 21 02:06:56 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/postingsource.cc,include/xapian/postingsource.h: Pass string as
