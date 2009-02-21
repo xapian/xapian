@@ -2,7 +2,7 @@
  *  @brief Xapian remote backend server base class
  */
 /* Copyright (C) 2006,2007,2008 Olly Betts
- * Copyright (C) 2007 Lemur Consulting Ltd
+ * Copyright (C) 2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,15 +24,13 @@
 
 #include "xapian/database.h"
 #include "xapian/enquire.h"
+#include "xapian/postingsource.h"
 #include "xapian/visibility.h"
 
 #include "remoteconnection.h"
 
 #include <map>
 #include <string>
-
-// Forward declaration
-namespace Xapian { class Weight; }
 
 using namespace std;
 
@@ -69,6 +67,9 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
 
     /// Registered weighting schemes.
     map<string, Xapian::Weight *> wtschemes;
+
+    /// Registered external posting sources.
+    map<string, Xapian::PostingSource *> postingsources;
 
     /// Accept a message from the client.
     message_type get_message(Xapian::timeout timeout, string & result,
@@ -173,6 +174,10 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
     void register_weighting_scheme(const Xapian::Weight &wt) {
 	wtschemes[wt.name()] = wt.clone();
     }
+
+    /** Register a user-defined posting source class.
+     */
+    void register_posting_source(const Xapian::PostingSource &source);
 };
 
 #endif // XAPIAN_INCLUDED_REMOTESERVER_H

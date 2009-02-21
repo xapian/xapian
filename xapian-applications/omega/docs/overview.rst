@@ -195,8 +195,12 @@ know):
   .odi, .odm, .ott, .ots, .otp, .otg, .otc, .otf, .oti, .oth) if unzip is
   available
 * MS Word documents (.doc, .dot) if antiword is available
-* MS Excel documents (.xls, .xlb, .xlt) if xls2csv is available (comes with catdoc)
-* MS Powerpoint documents (.ppt, .pps) if catppt is available (comes with catdoc)
+* MS Excel documents (.xls, .xlb, .xlt) if xls2csv is available (comes with
+  catdoc)
+* MS Powerpoint documents (.ppt, .pps) if catppt is available (comes with
+  catdoc)
+* MS Office 2007 documents (.docx, .dotx, .xlsx, .xlst, .pptx, .potx, .ppsx) if
+  unzip is available
 * Wordperfect documents (.wpd) if wpd2text is available (comes with libwpd)
 * MS Works documents (.wps, .wpt) if wps2text is available (comes with libwps)
 * AbiWord documents (.abw)
@@ -242,6 +246,13 @@ of:
    - application/vnd.oasis.opendocument.formula-template
    - application/vnd.oasis.opendocument.image-template
    - application/vnd.oasis.opendocument.text-web
+   - application/vnd.openxmlformats-officedocument.wordprocessingml.document
+   - application/vnd.openxmlformats-officedocument.wordprocessingml.template
+   - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+   - application/vnd.openxmlformats-officedocument.spreadsheetml.template
+   - application/vnd.openxmlformats-officedocument.presentationml.presentation
+   - application/vnd.openxmlformats-officedocument.presentationml.slideshow
+   - application/vnd.openxmlformats-officedocument.presentationml.template
    - application/vnd.sun.xml.calc
    - application/vnd.sun.xml.calc.template
    - application/vnd.sun.xml.draw

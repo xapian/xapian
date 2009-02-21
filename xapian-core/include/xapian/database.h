@@ -123,6 +123,29 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 */
 	void reopen();
 
+	/** Close the database.
+	 *
+	 *  This closes the database and releases all file handles held by the
+	 *  database.
+	 *
+	 *  After this call, no calls should be made to other methods of the
+	 *  database, or to objects derived from the database (other than
+	 *  destructors).  If any such methods are called, their behaviour is
+	 *  undefined: they will often raise a Xapian::DatabaseError indicating
+	 *  that the database is closed, but this is not guaranteed.  The
+	 *  behaviour of methods in this situation should not be relied on,
+	 *  since it may change in later releases due to changes in the
+	 *  implementation of the database backend.
+	 *
+	 *  This is a permanent close of the database: calling reopen() after
+	 *  closing a database will not reopen it, and may raise an exception
+	 *  just like any other method.
+	 *
+	 *  Calling close() on a database which is already closed has no effect
+	 *  (and doesn't raise an exception).
+	 */
+	virtual void close();
+
 	/// Return a string describing this object.
 	virtual std::string get_description() const;
 

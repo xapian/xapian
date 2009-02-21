@@ -195,6 +195,8 @@ class ValueIterator {
 #ifdef XAPIAN_SWIG_DIRECTORS
 %feature("director") Xapian::PostingSource;
 #endif
+%ignore Xapian::PostingSource::clone;
+%ignore Xapian::PostingSource::unserialise;
 %include <xapian/postingsource.h>
 
 namespace Xapian {
@@ -543,6 +545,7 @@ class Database {
 	virtual ~Database();
 	Database(const Database & other);
 	void reopen();
+	void close();
 
 	string get_description() const;
 	PostingIterator postlist_begin(const std::string& tname) const;

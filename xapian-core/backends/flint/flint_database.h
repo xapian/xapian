@@ -186,6 +186,10 @@ class FlintDatabase : public Xapian::Database::Internal {
 	 */
 	void reopen();
 
+	/** Close all the tables permanently.
+	 */
+	void close();
+
 	/** Called if a modifications fail.
 	 *
 	 *  @param msg is a string description of the exception that was

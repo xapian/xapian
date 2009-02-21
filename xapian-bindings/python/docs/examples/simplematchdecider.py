@@ -62,7 +62,7 @@ try:
     qp.set_database(database)
     qp.set_stemming_strategy(xapian.QueryParser.STEM_SOME)
     query = qp.parse_query(query_string)
-    print "Parsed query is: %s" % query.get_description()
+    print "Parsed query is: %s" % str(query)
 
     # Find the top 10 results for the query.
     enquire.set_query(query)

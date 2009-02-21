@@ -1,3 +1,28 @@
+Fri Feb 20 03:25:14 GMT 2009  Olly Betts <olly@survex.com>
+
+	* query.cc: Wrap a long comment.
+
+Thu Feb 19 10:34:36 GMT 2009  Olly Betts <olly@survex.com>
+
+	* omega.cc,query.cc: Prefer str.resize(0) to str = "".
+
+Thu Feb 19 06:23:34 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst,omindex.cc: Add support for MS Office 2007
+	  formats (bug#290).
+
+Thu Feb 19 04:46:26 GMT 2009  Olly Betts <olly@survex.com>
+
+	* metaxmlparse.cc,metaxmlparse.h,xmlparse.cc,xmlparse.h: XmlParser and
+	  MetaXmlParser were overriding opening_tag with the wrong signature so
+	  their implementations weren't ever being used.
+
+Fri Jan 09 04:19:32 GMT 2009  Olly Betts <olly@survex.com>
+
+	* runfilter.cc: Fix to compile when RLIMIT_AS isn't available (as on
+	  NetBSD and OpenBSD).  In this situation, instead use RLIMIT_VMEM or
+	  RLIMIT_DATA if either is available.
+
 Wed Dec 10 01:06:03 GMT 2008  Olly Betts <olly@survex.com>
 
 	* query.cc: Fix poor grammar in comment.

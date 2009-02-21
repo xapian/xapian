@@ -97,6 +97,16 @@ Database::reopen()
 }
 
 void
+Database::close()
+{
+    DEBUGAPICALL(void, "Database::close", "");
+    vector<Xapian::Internal::RefCntPtr<Database::Internal> >::iterator i;
+    for (i = internal.begin(); i != internal.end(); ++i) {
+	(*i)->close();
+    }
+}
+
+void
 Database::add_database(const Database & database)
 {
     DEBUGAPICALL(void, "Database::add_database", "Database");

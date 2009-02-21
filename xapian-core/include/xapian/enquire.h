@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -165,6 +165,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	Xapian::doccount get_matches_upper_bound() const;
 
 	/** The maximum possible weight in the MSet.
+	 *
 	 *  This weight is likely not to be attained in the set of results,
 	 *  but represents an upper bound on the weight which a document
 	 *  could attain for the given query.
@@ -174,8 +175,8 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	/** The greatest weight which is attained by any document in the
 	 *  database.
 	 *
-	 *  If firstitem == 0, this is the weight of the first entry in
-	 *  items.
+	 *  If firstitem == 0 and the primary ordering is by relevance, this is
+	 *  the weight of the first entry in the MSet. 
 	 *
 	 *  If no documents are found by the query, this will be 0.
 	 *

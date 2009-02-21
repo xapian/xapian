@@ -1,7 +1,7 @@
 /** @file omassert.h
  * @brief Various assertion macros.
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,11 +42,11 @@
 	typedef int xapian_compile_time_check_[(COND) ? 1 : -1];\
     } while (0)
 
-#ifndef XAPIAN_DEBUG
-// The configure script should always define XAPIAN_DEBUG if it defines
-// XAPIAN_DEBUG_PARANOID.
-# ifdef XAPIAN_DEBUG_PARANOID
-#  error XAPIAN_DEBUG_PARANOID defined without XAPIAN_DEBUG
+#ifndef XAPIAN_ASSERTIONS
+// The configure script should always define XAPIAN_ASSERTIONS if it defines
+// XAPIAN_ASSERTIONS_PARANOID.
+# ifdef XAPIAN_ASSERTIONS_PARANOID
+#  error XAPIAN_ASSERTIONS_PARANOID defined without XAPIAN_ASSERTIONS
 # endif
 #else
 
@@ -61,7 +61,7 @@
 // Expensive (or potentially expensive) assertions can be marked as "Paranoid"
 // - these can be disabled separately from other assertions to allow a build
 // with assertions which still has good performance.
-#ifdef XAPIAN_DEBUG_PARANOID
+#ifdef XAPIAN_ASSERTIONS_PARANOID
 # define AssertParanoid(COND) Assert(COND)
 # define AssertRelParanoid(A,REL,B) AssertRel(A,REL,B)
 # define AssertEqParanoid(A,B) AssertEq(A,B)

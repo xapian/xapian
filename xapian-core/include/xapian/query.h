@@ -4,7 +4,7 @@
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2003,2004,2005,2006,2007,2008 Olly Betts
- * Copyright 2006,2007,2008 Lemur Consulting Ltd
+ * Copyright 2006,2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,6 +25,7 @@
 #ifndef XAPIAN_INCLUDED_QUERY_H
 #define XAPIAN_INCLUDED_QUERY_H
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -204,7 +205,16 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 */
 	Query(Query::op op_, Xapian::valueno valno, const std::string &value);
 
-	/// Construct an external source query.
+	/** Construct an external source query.
+	 *
+	 *  An attempt to clone the posting source will be made immediately, so
+	 *  if the posting source supports clone(), the source supplied may be
+	 *  safely deallocated after this call.  If the source does not support
+	 *  clone(), the caller must ensure that the posting source remains
+	 *  valid until the Query is deallocated.
+	 *
+	 *  @param external_source The source to use in the query.
+	 */
 	explicit Query(Xapian::PostingSource * external_source);
 
 	/** A query which matches all documents in the database. */
@@ -237,6 +247,20 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 *  the default ctor or with an empty iterator ctor).
 	 */
 	bool empty() const;
+
+	/** Serialise query into a string.
+	 *
+	 *  The query representation may change between Xapian releases:
+	 *  even between minor versions.  However, it is guaranteed not to
+	 *  change unless the remote database protocol has also changed between
+	 *  releases.
+	 */
+	std::string serialise() const;
+
+	/** Unserialise a query from a string produced by serialise().
+	 *  FIXME - need to add a way to register posting sources.  See ticket #206
+	 */
+	static Query unserialise(const std::string &s);
 
 	/// Return a string describing this object.
 	std::string get_description() const;
@@ -325,6 +349,9 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 	/// External posting source.
 	Xapian::PostingSource * external_source;
 
+	/// Flag, indicating whether the external source is owned by the query.
+	bool external_source_owned;
+
 	/** swap the contents of this with another Xapian::Query::Internal,
 	 *  in a way which is guaranteed not to throw.  This is
 	 *  used with the assignment operator to make it exception
@@ -400,12 +427,13 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 	Internal(op_t op_, Xapian::valueno valno, const std::string &value);
 
 	/// Construct an external source query.
-	explicit Internal(Xapian::PostingSource * external_source_);
+	explicit Internal(Xapian::PostingSource * external_source_, bool owned);
 
 	/** Destructor. */
 	~Internal();
 
-	static Xapian::Query::Internal * unserialise(const std::string &s);
+	static Xapian::Query::Internal * unserialise(const std::string &s,
+		const std::map<std::string, Xapian::PostingSource *> &sources);
 
 	/** Add a subquery.
 	 */

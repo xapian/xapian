@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2003 Orange PCS Ltd
  * Copyright 2003 Sam Liddicott
  * Copyright 2007,2008 Lemur Consulting Ltd
@@ -101,9 +101,9 @@ split_rset_by_db(const Xapian::RSet * rset,
 		subrsets.push_back(Xapian::RSet());
 	    }
 
-	    const set<Xapian::docid> & items = rset->internal->get_items();
+	    const set<Xapian::docid> & rsetitems = rset->internal->get_items();
 	    set<Xapian::docid>::const_iterator j;
-	    for (j = items.begin(); j != items.end(); ++j) {
+	    for (j = rsetitems.begin(); j != rsetitems.end(); ++j) {
 		Xapian::doccount local_docid = (*j - 1) / number_of_subdbs + 1;
 		Xapian::doccount subdatabase = (*j - 1) % number_of_subdbs;
 		subrsets[subdatabase].add_document(local_docid);
@@ -135,7 +135,7 @@ split_rset_by_db(const Xapian::RSet * rset,
  *  statistics arrive, we can move on to the next step.
  */
 static void
-prepare_sub_matches(std::vector<Xapian::Internal::RefCntPtr<SubMatch> > & leaves,
+prepare_sub_matches(vector<Xapian::Internal::RefCntPtr<SubMatch> > & leaves,
 		    Xapian::ErrorHandler * errorhandler,
 		    Stats & stats)
 {
@@ -750,7 +750,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 			Assert(items.back().wt < min_weight);
 			items.pop_back();
 		    }
-#ifdef XAPIAN_DEBUG_PARANOID
+#ifdef XAPIAN_ASSERTIONS_PARANOID
 		    vector<Xapian::Internal::MSetItem>::const_iterator i;
 		    for (i = items.begin(); i != items.end(); ++i) {
 			Assert(i->wt >= min_weight);
@@ -843,7 +843,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		Assert(items.back().wt < min_wt);
 		items.pop_back();
 	    }
-#ifdef XAPIAN_DEBUG_PARANOID
+#ifdef XAPIAN_ASSERTIONS_PARANOID
 	    vector<Xapian::Internal::MSetItem>::const_iterator j;
 	    for (j = items.begin(); j != items.end(); ++j) {
 		Assert(j->wt >= min_wt);
@@ -880,8 +880,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	matches_lower_bound = matches_upper_bound = matches_estimated
 	    = docs_matched;
     } else {
-	Assert(matches_estimated >= matches_lower_bound);
-	Assert(matches_estimated <= matches_upper_bound);
+	AssertRel(matches_estimated,>=,matches_lower_bound);
+	AssertRel(matches_estimated,<=,matches_upper_bound);
 
 	// We can end up scaling the estimate more than once, so collect
 	// the scale factors and apply them in one go to avoid rounding
@@ -970,11 +970,11 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		    "matches_lower_bound = " << matches_lower_bound <<
 		    ", matches_estimated = " << matches_estimated <<
 		    ", matches_upper_bound = " << matches_upper_bound);
-	    Assert(matches_lower_bound <= matches_upper_bound);
+	    AssertRel(matches_lower_bound,<=,matches_upper_bound);
 	    matches_estimated = max(matches_estimated, matches_lower_bound);
 	    matches_estimated = min(matches_estimated, matches_upper_bound);
 	} else if (!percent_cutoff) {
-	    Assert(docs_matched <= matches_upper_bound);
+	    AssertRel(docs_matched,<=,matches_upper_bound);
 	    if (docs_matched > matches_lower_bound)
 		matches_lower_bound = docs_matched;
 	    if (docs_matched > matches_estimated)
@@ -1012,8 +1012,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	LOGLINE(MATCH, "max weight in mset = " << items[0].wt);
     }
 
-    Assert(matches_estimated >= matches_lower_bound);
-    Assert(matches_estimated <= matches_upper_bound);
+    AssertRel(matches_estimated,>=,matches_lower_bound);
+    AssertRel(matches_estimated,<=,matches_upper_bound);
 
     // We may need to qualify any collapse_count to see if the highest weight
     // collapsed item would have qualified percent_cutoff

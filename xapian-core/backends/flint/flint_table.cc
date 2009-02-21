@@ -1340,7 +1340,12 @@ FlintTable::set_full_compaction(bool parity)
 }
 
 FlintCursor * FlintTable::cursor_get() const {
-    if (handle < 0) return NULL;
+    if (handle < 0) {
+	if (handle == -2) {
+	    throw Xapian::DatabaseError("Database has been closed");
+	}
+	return NULL;
+    }
     // FIXME Ick - casting away const is nasty
     return new FlintCursor(const_cast<FlintTable *>(this));
 }

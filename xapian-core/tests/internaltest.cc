@@ -452,7 +452,8 @@ static bool test_serialisequery1()
 	Xapian::Query::Internal * qint;
 
 	s = query->internal->serialise();
-	qint = Xapian::Query::Internal::unserialise(s);
+	map<string, Xapian::PostingSource *> m;
+	qint = Xapian::Query::Internal::unserialise(s, m);
 
 	TEST(qint->serialise() == s);
 	delete qint;

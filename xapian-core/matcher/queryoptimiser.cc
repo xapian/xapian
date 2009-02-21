@@ -2,7 +2,7 @@
  * @brief Convert a Xapian::Query::Internal tree into an optimal PostList tree.
  */
 /* Copyright (C) 2007,2008 Olly Betts
- * Copyright (C) 2008 Lemur Consulting Ltd
+ * Copyright (C) 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -64,7 +64,10 @@ QueryOptimiser::do_subquery(const Xapian::Query::Internal * query, double factor
 
 	case Xapian::Query::Internal::OP_EXTERNAL_SOURCE:
 	    Assert(query->external_source);
-	    RETURN(new ExternalPostList(query->external_source, factor));
+	    // FIXME - avoid this const_cast somehow.  See ticket #332
+	    RETURN(new ExternalPostList(
+		Xapian::Database(const_cast<Xapian::Database::Internal *>(&db)),
+		query->external_source, factor));
 
 	case Xapian::Query::OP_AND:
 	case Xapian::Query::OP_FILTER:

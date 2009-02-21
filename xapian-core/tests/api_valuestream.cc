@@ -2,6 +2,7 @@
  * @brief Tests of valuestream functionality.
  */
 /* Copyright (C) 2008 Olly Betts
+ * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -162,10 +163,7 @@ DEFINE_TESTCASE(valuestream3, backend && !multi) {
  *
  *  The original implementation went into an infinite loop in this case.
  */
-DEFINE_TESTCASE(valueweightsource5, writable && valuestats) {
-    // FIXME: PostingSource doesn't currently work well with multi databases
-    // but we should try to resolve that issue.
-    SKIP_TEST_FOR_BACKEND("multi");
+DEFINE_TESTCASE(valueweightsource5, writable && valuestats & !multi) {
     // inmemory's memory use is currently O(last_docid)!
     SKIP_TEST_FOR_BACKEND("inmemory");
     // Not supported currently.
@@ -177,7 +175,8 @@ DEFINE_TESTCASE(valueweightsource5, writable && valuestats) {
     db.replace_document(0xffffffff, doc);
     db.flush();
 
-    Xapian::ValueWeightPostingSource src(db, 1);
+    Xapian::ValueWeightPostingSource src(1);
+    src.reset(db);
     src.next(0.0);
     TEST(!src.at_end());
     TEST_EQUAL(src.get_docid(), 1);
@@ -186,6 +185,122 @@ DEFINE_TESTCASE(valueweightsource5, writable && valuestats) {
     TEST_EQUAL(src.get_docid(), 0xffffffff);
     src.next(0.0);
     TEST(src.at_end());
+
+    return true;
+}
+
+// Check that ValueMapSource works correctly.
+// the test db has value 13 set to:
+//      1   Thi
+//      2   The
+//      3   You
+//      4   War
+//      5   Fri
+//      6   Ins
+//      7   Whi
+//      8   Com
+//      9   A p
+//      10  Tel
+//      11  Tel
+//      12  Enc
+//      13  Get
+//      14  Doe
+//      15  fir
+//      16  Pad
+//      17  Pad
+//
+DEFINE_TESTCASE(valuemapsource1, backend) {
+    Xapian::Database db(get_database("apitest_phrase"));
+    Xapian::Enquire enq(db);
+
+    Xapian::ValueMapPostingSource src(13);
+    src.add_mapping("Thi", 2.0);
+    src.add_mapping("The", 1.0);
+    src.add_mapping("You", 3.0);
+    src.add_mapping("War", 4.0);
+    src.add_mapping("Fri", 5.0);
+
+    // check mset size and order
+    enq.set_query(Xapian::Query(&src));
+    Xapian::MSet mset = enq.get_mset(0, 5);
+
+    TEST(mset.size() == 5);
+    mset_expect_order(mset, 5, 4, 3, 1, 2);
+
+    // and with default weight
+    src.clear_mappings();
+    src.set_default_weight(3.5);
+    src.add_mapping("Thi", 2.0);
+    src.add_mapping("The", 1.0);
+    src.add_mapping("You", 3.0);
+    src.add_mapping("War", 4.0);
+    src.add_mapping("Fri", 5.0);
+
+    enq.set_query(Xapian::Query(&src));
+    mset = enq.get_mset(0, 5);
+
+    TEST(mset.size() == 5);
+    mset_expect_order(mset, 5, 4, 6, 7, 8);
+
+    return true;
+}
+
+// Regression test for valuepostingsource subclasses: used to segfault if skip_to()
+// called on an empty list.
+DEFINE_TESTCASE(valuemapsource2, backend && !remote && !multi) {
+    Xapian::Database db(get_database("apitest_phrase"));
+
+    {
+	Xapian::ValueMapPostingSource src(100);
+	src.reset(db);
+	TEST(src.at_end() == false);
+	src.next(0.0);
+	TEST(src.at_end() == true);
+    }
+
+    {
+	Xapian::ValueMapPostingSource src(100);
+	src.reset(db);
+	TEST(src.at_end() == false);
+	src.skip_to(1, 0.0);
+	TEST(src.at_end() == true);
+    }
+
+    {
+	Xapian::ValueMapPostingSource src(100);
+	src.reset(db);
+	TEST(src.at_end() == false);
+	src.check(1, 0.0);
+	TEST(src.at_end() == true);
+    }
+
+    return true;
+}
+
+// Regression test for fixedweightpostingsource: used to segfault if skip_to()
+// called on an empty list.
+DEFINE_TESTCASE(fixedweightsource2, !backend) {
+    Xapian::Database db;
+
+    {
+	Xapian::FixedWeightPostingSource src(5.0);
+	src.reset(db);
+	TEST(src.at_end() == false);
+	src.next(0.0);
+	TEST(src.at_end() == true);
+    }
+
+    {
+	Xapian::FixedWeightPostingSource src(5.0);
+	src.reset(db);
+	TEST(src.at_end() == false);
+	src.skip_to(1, 0.0);
+	TEST(src.at_end() == true);
+    }
+
+    // No need to test behaviour of check() - check is only allowed to be
+    // called with document IDs which exist, so can never be called for a
+    // FixedWeightPostingSource with an empty database.
 
     return true;
 }

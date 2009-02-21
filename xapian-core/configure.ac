@@ -109,7 +109,7 @@ elif test -n "$CCC" ; then
 fi
 
 dnl See HACKING document for details of the reasons for required versions.
-AM_INIT_AUTOMAKE([1.10.1 -Wportability tar-ustar])
+AM_INIT_AUTOMAKE([1.10.2 -Wportability tar-ustar])
 AC_CONFIG_SRCDIR([matcher/andpostlist.cc])
 
 AC_CONFIG_HEADERS([config.h])
@@ -814,7 +814,9 @@ case $host_os in
     ;;
   *)
     AC_CHECK_FUNC(pread,
-       [AC_MSG_CHECKING([for any prototype needed for pread])
+       [AC_DEFINE(HAVE_PREAD, 1,
+	    [Define if pread is available on this system])
+	AC_MSG_CHECKING([for any prototype needed for pread])
 	AC_CACHE_VAL([xo_cv_pread_prototype],
 	  [
 	    for p in ' ' \
@@ -846,7 +848,9 @@ $p
 	  fi
 	])
     AC_CHECK_FUNC(pwrite,
-       [AC_MSG_CHECKING([for any prototype needed for pwrite])
+       [AC_DEFINE(HAVE_PWRITE, 1,
+	    [Define if pwrite is available on this system])
+	AC_MSG_CHECKING([for any prototype needed for pwrite])
 	AC_CACHE_VAL([xo_cv_pwrite_prototype],
 	  [
 	    for p in ' ' \
@@ -911,12 +915,12 @@ dnl Set defines according to the --enable-assertions and --enable-log options
 dnl given.
 
 if test yes = "$enable_assertions" || test partial = "$enable_assertions" ; then
-  AC_DEFINE(XAPIAN_DEBUG,,
+  AC_DEFINE(XAPIAN_ASSERTIONS,,
     [Define if you want assertions (causes some slow-down)])
 fi
 
 if test yes = "$enable_assertions"; then
-  AC_DEFINE(XAPIAN_DEBUG_PARANOID,,
+  AC_DEFINE(XAPIAN_ASSERTIONS_PARANOID,,
     [Define if you want paranoid assertions (causes significant slow-down)])
 fi
 

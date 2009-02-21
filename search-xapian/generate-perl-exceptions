@@ -107,8 +107,45 @@ END
 close F or die $!;
 rename "$fnm.tmp", "$fnm" or die $!;
 
-foreach (@baseclasses, @classes) {
+foreach ('Error', @baseclasses, @classes) {
     my ($classname, $parent, $full_description) = split /\t/;
+
+    # XS/CLASSNAME.xs
+    $fnm = "XS/$classname.xs";
+    open F, '>', "$fnm.tmp" or die $!;
+
+    print F <<"END";
+MODULE = Search::Xapian\t PACKAGE = Search::Xapian::$classname
+
+PROTOTYPES: ENABLE
+
+string
+${classname}::get_type()
+
+string
+${classname}::get_msg()
+
+string
+${classname}::get_context()
+
+const char *
+${classname}::get_error_string()
+
+void
+${classname}::DESTROY()
+END
+
+    if (exists $subclasses{$classname}) {
+	print F "\n";
+	foreach my $subclass (@{$subclasses{$classname}}) {
+	    print F "INCLUDE: XS/$subclass.xs\n";
+	}
+    }
+
+    close F or die $!;
+    rename "$fnm.tmp", "$fnm" or die $!;
+
+    next if $classname eq 'Error';
 
     $full_description =~ s!^[/ ]\*[*/]?!!mg;
     $full_description =~ s!\*\/$!!mg; # ! to unconfuse vim
@@ -153,41 +190,6 @@ our \@ISA = qw(DynaLoader Search::Xapian::$parent);
 
 1;
 END
-
-    close F or die $!;
-    rename "$fnm.tmp", "$fnm" or die $!;
-
-    # XS/CLASSNAME.xs
-    $fnm = "XS/$classname.xs";
-    open F, '>', "$fnm.tmp" or die $!;
-
-    print F <<"END";
-MODULE = Search::Xapian\t PACKAGE = Search::Xapian::$classname
-
-PROTOTYPES: ENABLE
-
-string
-${classname}::get_type()
-
-string
-${classname}::get_msg()
-
-string
-${classname}::get_context()
-
-const char *
-${classname}::get_error_string()
-
-void
-${classname}::DESTROY()
-END
-
-    if (exists $subclasses{$classname}) {
-	print F "\n";
-	foreach my $subclass (@{$subclasses{$classname}}) {
-	    print F "INCLUDE: XS/$subclass.xs\n";
-	}
-    }
 
     close F or die $!;
     rename "$fnm.tmp", "$fnm" or die $!;
