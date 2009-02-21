@@ -128,6 +128,11 @@ Fri Mar 14 16:35:06 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 	* include/xapian/unicode.h: Correct typos in documentation
 	  comments.
 
+Sat Feb 21 11:04:08 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/chert/chert_lock.cc,backends/flint/flint_lock.cc: Fix
+	  warning about ignoring result of chdir (with GCC 4.2)
+
 Sat Feb 21 08:18:21 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/harness/testsuite.cc: Fix option usage in --help - "-x=foo"
