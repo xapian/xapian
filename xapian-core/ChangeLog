@@ -1,3 +1,12 @@
+Sat Feb 21 05:14:49 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/flint/flint_lock.cc: In the locking child process, before
+	  we exec /bin/cat change directory to / so that we don't block
+	  unmounting of any partitions and close any open file descriptors
+	  (apart from those we're using) so that if the files are closed by
+	  our parent and deleted the disk space gets released right away.
+
 Wed Feb 18 04:58:06 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

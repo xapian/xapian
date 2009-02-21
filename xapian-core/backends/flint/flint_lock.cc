@@ -1,6 +1,6 @@
 /* flint_lock.cc: database locking for flint backend.
  *
- * Copyright (C) 2005,2006,2007 Olly Betts
+ * Copyright (C) 2005,2006,2007,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -132,9 +132,17 @@ FlintLock::lock(bool exclusive) {
 	    if (why != SUCCESS) _exit(0);
 	}
 
-	//shutdown(fds[1], 1); // Disable further sends.
-	// Connect pipe to stdin.
+	// Connect pipe to stdin and stdout.
 	dup2(fds[1], 0);
+	dup2(fds[1], 1);
+	// Make sure we don't block unmount(), etc.
+	chdir("/");
+	// Make sure we don't hang on to open files which may get deleted but
+	// not have their disk space released until we exit.
+	int maxfd = (int)sysconf(_SC_OPEN_MAX);
+	for (int i = 2; i <= maxfd; ++i) {
+	    if (i != lockfd) (void)close(i);
+	}
 	// FIXME: use special statically linked helper instead of cat.
 	execl("/bin/cat", "/bin/cat", (void*)NULL);
 	// Emulate cat ourselves (we try to avoid this to reduce VM overhead).
