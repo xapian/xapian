@@ -1,3 +1,9 @@
+Sat Feb 21 07:37:01 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/perftest/perftest_randomidx.cc: Use two argument version of
+	  rand_int() where applicable.  Reserve length of result string in
+	  gen_word().  Fix truncated comment.
+
 Sat Feb 21 04:27:45 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_lock.cc,backends/flint/flint_lock.cc: In the

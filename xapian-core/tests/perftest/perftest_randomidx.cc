@@ -1,6 +1,7 @@
 /* perftest_randomidx.cc: performance tests involving a randomly generated index
  *
  * Copyright 2008 Lemur Consulting Ltd
+ * Copyright 2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -70,6 +71,7 @@ static string
 gen_word(unsigned int length, unsigned int char_range)
 {
     string result;
+    result.reserve(length);
     for (unsigned int i = 0; i != length; ++i) {
 	char ch = char('a' + rand_int(char_range));
 	result.append(1, ch);
@@ -77,7 +79,7 @@ gen_word(unsigned int length, unsigned int char_range)
     return result;
 }
 
-// Test the performance using randomly generated dat
+// Test the performance using randomly generated data.
 DEFINE_TESTCASE(randomidx1, writable && !inmemory) {
     logger.testcase_begin("randomidx1");
 
@@ -120,7 +122,7 @@ DEFINE_TESTCASE(randomidx1, writable && !inmemory) {
 	Xapian::Document doc;
 	doc.set_data("random document " + om_tostring(i));
 
-	unsigned int terms = rand_int(maxterms + 1 - minterms) + minterms;
+	unsigned int terms = rand_int(minterms, maxterms);
 	for (unsigned int j = 0; j < terms; ++j) {
 	    unsigned int termlen = rand_int(mintermlen, maxtermlen);
 	    doc.add_term(gen_word(termlen, termcharrange));
@@ -131,8 +133,7 @@ DEFINE_TESTCASE(randomidx1, writable && !inmemory) {
 	// values.
 	for (unsigned int slot = 0; slot < slots_used; ++slot) {
 	    if (rand_01() < slot_probability) {
-		unsigned int len = rand_int(slotval_maxlen + 1 -
-				slotval_minlen) + slotval_minlen;
+		unsigned int len = rand_int(slotval_minlen, slotval_maxlen);
 		doc.add_value(slot, gen_word(len, slot + 2));
 	    }
 	}
