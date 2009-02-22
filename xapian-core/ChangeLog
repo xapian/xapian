@@ -1,3 +1,11 @@
+Sun Feb 22 10:06:13 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_lock.cc,backends/flint/flint_lock.cc: Note
+	  explicitly why we now have the strange empty if (not) checking the
+	  return value of chdir("/") (it's actually newer glibc and
+	  _FORTIFY_SOURCE rather than newer GCC).  Retry closing filehandle if
+	  it returns EINTR.  Whitespace tweaks.
+
 Sat Feb 21 11:04:08 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* backends/chert/chert_lock.cc,backends/flint/flint_lock.cc: Fix
