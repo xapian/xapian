@@ -90,15 +90,6 @@ FlintLock::lock(bool exclusive, std::string & explanation) {
 
     pid_t child = fork();
 
-    if (child == -1) {
-	// Couldn't fork.
-	explanation = std::string("Couldn't fork: ") + strerror(errno);
-	close(lockfd);
-	close(fds[0]);
-	close(fds[1]);
-	return UNKNOWN;
-    }
-
     if (child == 0) {
 	// Child process.
 	close(fds[0]);
@@ -173,9 +164,17 @@ FlintLock::lock(bool exclusive, std::string & explanation) {
 	_exit(0);
     }
 
-    // Parent process.
     close(lockfd);
     close(fds[1]);
+
+    if (child == -1) {
+	// Couldn't fork.
+	explanation = std::string("Couldn't fork: ") + strerror(errno);
+	close(fds[0]);
+	return UNKNOWN;
+    }
+
+    // Parent process.
     while (true) {
 	char ch;
 	int n = read(fds[0], &ch, 1);
