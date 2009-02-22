@@ -1,3 +1,13 @@
+Sun Feb 22 11:12:58 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* backends/flint/flint_lock.cc: Fix warning about ignoring result of
+	  chdir (with GCC 4.2)
+	* backends/flint/flint_lock.cc: Note explicitly why we now have the
+	  strange empty if (not) checking the return value of chdir("/") (it's
+	  actually newer glibc and _FORTIFY_SOURCE rather than newer GCC).
+	  Retry closing filehandle if it returns EINTR.  Whitespace tweaks.
+
 Sat Feb 21 05:14:49 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
