@@ -1,3 +1,10 @@
+xapian-core (???) unstable; urgency=low
+
+  * debian/control.in: Demote xapian-doc and xapian-examples from Recommends
+    to Suggests of libxapian<N>-dev.  Closes: #516511, #516512
+
+ -- Olly Betts <olly@survex.com>  Sun, 22 Feb 2009 11:47:34 +0000
+
 xapian-core (1.0.10-1) unstable; urgency=low
 
   * New upstream release.
