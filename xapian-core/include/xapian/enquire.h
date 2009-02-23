@@ -164,6 +164,21 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	 */
 	Xapian::doccount get_matches_upper_bound() const;
 
+	/** A lower bound on the number of documents in the database which
+	 *  would match the query if collapsing wasn't used.
+	 */
+	Xapian::doccount get_uncollapsed_matches_lower_bound() const;
+
+	/** A estimate of the number of documents in the database which
+	 *  would match the query if collapsing wasn't used.
+	 */
+	Xapian::doccount get_uncollapsed_matches_estimated() const;
+
+	/** A upper bound on the number of documents in the database which
+	 *  would match the query if collapsing wasn't used.
+	 */
+	Xapian::doccount get_uncollapsed_matches_upper_bound() const;
+
 	/** The maximum possible weight in the MSet.
 	 *
 	 *  This weight is likely not to be attained in the set of results,
@@ -670,17 +685,24 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	/** Set the collapse key to use for queries.
 	 *
 	 *  @param collapse_key  value number to collapse on - at most one MSet
-	 *	entry with each particular value will be returned.
+	 *	entry with each particular value will be returned
+	 *	(default is Xapian::BAD_VALUENO which means no collapsing).
 	 *
-	 *	The entry returned will be the best entry with that particular
-	 *	value (highest weight or highest sorting key).
+	 *  @param collapse_max	 Max number of items with the same key to leave
+	 *			 after collapsing (default 1).
+	 *
+	 *	The MSet returned by get_mset() will have only the "best"
+	 *	(at most) @a collapse_max entries with each particular
+	 *	value of @a collapse_key ("best" being highest ranked - i.e.
+	 *	highest weight or highest sorting key).
 	 *
 	 *	An example use might be to create a value for each document
 	 *	containing an MD5 hash of the document contents.  Then
 	 *	duplicate documents from different sources can be eliminated at
-	 *	search time (it's better to eliminate duplicates at index time,
-	 *	but this may not be always be possible - for example the search
-	 *	may be over more than one Xapian database).
+	 *	search time by collapsing with @a collapse_max = 1 (it's better
+	 *	to eliminate duplicates at index time, but this may not be
+	 *	always be possible - for example the search may be over more
+	 *	than one Xapian database).
 	 *
 	 *	Another use is to group matches in a particular category (e.g.
 	 *	you might collapse a mailing list search on the Subject: so
@@ -690,10 +712,9 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *	Subject: as a boolean term as well as putting it in a value,
 	 *	you can offer a link to a non-collapsed search restricted to
 	 *	that thread using a boolean filter.
-	 *
-	 *	(default is Xapian::BAD_VALUENO which means no collapsing).
 	 */
-	void set_collapse_key(Xapian::valueno collapse_key);
+	void set_collapse_key(Xapian::valueno collapse_key,
+			      Xapian::doccount collapse_max = 1);
 
 	typedef enum {
 	    ASCENDING = 1,

@@ -1,7 +1,7 @@
 /** @file remoteserver.cc
  *  @brief Xapian remote backend server base class
  */
-/* Copyright (C) 2006,2007,2008 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009 Olly Betts
  * Copyright (C) 2006,2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -388,7 +388,10 @@ RemoteServer::msg_query(const string &message_in)
     // Unserialise assorted Enquire settings.
     Xapian::termcount qlen = decode_length(&p, p_end, false);
 
-    Xapian::valueno collapse_key = decode_length(&p, p_end, false);
+    Xapian::valueno collapse_max = decode_length(&p, p_end, false);
+
+    Xapian::valueno collapse_key = Xapian::BAD_VALUENO;
+    if (collapse_max) collapse_key = decode_length(&p, p_end, false);
 
     if (p_end - p < 4 || *p < '0' || *p > '2') {
 	throw Xapian::NetworkError("bad message (docid_order)");
@@ -436,7 +439,7 @@ RemoteServer::msg_query(const string &message_in)
     Xapian::RSet rset = unserialise_rset(string(p, p_end - p));
 
     Stats local_stats;
-    MultiMatch match(*db, query.get(), qlen, &rset, collapse_key,
+    MultiMatch match(*db, query.get(), qlen, &rset, collapse_max, collapse_key,
 		     percent_cutoff, weight_cutoff, order,
 		     sort_key, sort_by, sort_value_forward, NULL,
 		     NULL, local_stats, wt.get());

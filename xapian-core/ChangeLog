@@ -1,3 +1,15 @@
+Mon Feb 23 01:24:23 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,backends/remote/remote-database.cc,
+	  common/multimatch.h,common/omenquireinternal.h,
+	  common/remote-database.h,docs/collapsing.rst,
+	  docs/remote_protocol.html,include/xapian/enquire.h,matcher/,
+	  net/remoteserver.cc,net/serialise.cc,tests/Makefile.am,
+	  tests/api_collapse.cc: Replace the collapsing code in the matcher
+	  with a separate Collapser class.  This new class can keep more than
+	  one document with each collapse key.  Also track bounds and an
+	  estimate of the total number of matches if collapsing wasn't in use.
+
 Mon Feb 23 00:52:16 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc: Fix AssertionError from apitest testcases

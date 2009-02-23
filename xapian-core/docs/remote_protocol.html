@@ -162,7 +162,9 @@ abort any current sequence of messages.
 
 <ul>
 <li> <code>MSG_QUERY L&lt;serialised Xapian::Query object&gt;
-I&lt;query length&gt; I&lt;collapse key number&gt; &lt;docid order&gt;
+I&lt;query length&gt;
+I&lt;collapse max&gt; [I&lt;collapse key number&gt; (if collapse_max non-zero)]
+&lt;docid order&gt;
 I&lt;sort key number&gt; &lt;sort by&gt; B&lt;sort value forward&gt;
 &lt;percent cutoff&gt; F&lt;weight cutoff&gt; &lt;serialised Xapian::Weight object&gt; &lt;serialised Xapian::RSet object&gt;</code>
 <li> <code>REPLY_STATS &lt;serialised Stats object&gt;</code>
