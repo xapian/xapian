@@ -35,7 +35,7 @@ const int num_coefs = 40;
 typedef double Unit;
 
 // Needs to be enough to index num_pixel_squared.  can't be unsigned
-// as the sign is used to distinuish between positive and negative
+// as the sign is used to distinguish between positive and negative
 // coeeficients.
 typedef int Idx;
 
