@@ -7,12 +7,17 @@
 %include "stl.i"
 %include "std_set.i"
 %include "std_string.i"
+%include "carrays.i"
+%array_class(double, dptr);
 %feature("notabstract") ImgSigSimilarityPostingSource;
 %import "xapian/postingsource.h"
 %apply const std::string& {std::string& serialised};
 namespace std {
   %template(dset) set<double>;
+  %template(iset) set<int>;
 };
+
+%import "haar.h"
 
 %include "xapian/error.h"
 
