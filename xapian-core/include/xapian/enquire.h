@@ -27,6 +27,7 @@
 #include <string>
 
 #include <xapian/base.h>
+#include <xapian/deprecated.h>
 #include <xapian/sorter.h>
 #include <xapian/types.h>
 #include <xapian/termiterator.h>
@@ -781,21 +782,21 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *
 	 * @param sort_key  value number to sort on.
 	 *
-	 * @param ascending  If true, documents values which sort higher by
-	 *		 string compare are better.  If false, the sort order
-	 *		 is reversed.  (default true)
+	 * @param reverse   If true, reverses the sort order.
          */
-	void set_sort_by_value(Xapian::valueno sort_key, bool ascending = true);
+	void set_sort_by_value(Xapian::valueno sort_key, bool reverse);
+
+	XAPIAN_DEPRECATED(void set_sort_by_value(Xapian::valueno sort_key));
 
 	/** Set the sorting to be by key generated from values only.
 	 *
 	 * @param sorter    The functor to use for generating keys.
 	 *
-	 * @param ascending  If true, documents values which sort higher by
-	 *		 string compare are better.  If false, the sort order
-	 *		 is reversed.  (default true)
+	 * @param reverse   If true, reverses the sort order.
          */
-	void set_sort_by_key(Xapian::Sorter * sorter, bool ascending = true);
+	void set_sort_by_key(Xapian::Sorter * sorter, bool reverse);
+
+	XAPIAN_DEPRECATED(void set_sort_by_key(Xapian::Sorter * sorter));
 
 	/** Set the sorting to be by value, then by relevance for documents
 	 *  with the same value.
@@ -806,24 +807,24 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *
 	 * @param sort_key  value number to sort on.
 	 *
-	 * @param ascending  If true, documents values which sort higher by
-	 *		 string compare are better.  If false, the sort order
-	 *		 is reversed.  (default true)
+	 * @param reverse   If true, reverses the sort order.
 	 */
 	void set_sort_by_value_then_relevance(Xapian::valueno sort_key,
-					      bool ascending = true);
+					      bool reverse);
+
+	XAPIAN_DEPRECATED(void set_sort_by_value_then_relevance(Xapian::valueno sort_key));
 
 	/** Set the sorting to be by keys generated from values, then by
 	 *  relevance for documents with identical keys.
 	 *
 	 * @param sorter    The functor to use for generating keys.
 	 *
-	 * @param ascending  If true, keys which sort higher by
-	 *		 string compare are better.  If false, the sort order
-	 *		 is reversed.  (default true)
+	 * @param reverse   If true, reverses the sort order.
 	 */
 	void set_sort_by_key_then_relevance(Xapian::Sorter * sorter,
-					    bool ascending = true);
+					    bool reverse);
+
+	XAPIAN_DEPRECATED(void set_sort_by_key_then_relevance(Xapian::Sorter * sorter));
 
 	/** Set the sorting to be by relevance then value.
 	 *
@@ -840,12 +841,12 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *
 	 * @param sort_key  value number to sort on.
 	 *
-	 * @param ascending  If true, documents values which sort higher by
-	 *		 string compare are better.  If false, the sort order
-	 *		 is reversed.  (default true)
+	 * @param reverse   If true, reverses the sort order.
 	 */
 	void set_sort_by_relevance_then_value(Xapian::valueno sort_key,
-					      bool ascending = true);
+					      bool reverse);
+
+	XAPIAN_DEPRECATED(void set_sort_by_relevance_then_value(Xapian::valueno sort_key));
 
 	/** Set the sorting to be by relevance, then by keys generated from
 	 *  values.
@@ -859,12 +860,12 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *
 	 * @param sorter    The functor to use for generating keys.
 	 *
-	 * @param ascending  If true, keys which sort higher by
-	 *		 string compare are better.  If false, the sort order
-	 *		 is reversed.  (default true)
+	 * @param reverse   If true, reverses the sort order.
 	 */
 	void set_sort_by_relevance_then_key(Xapian::Sorter * sorter,
-					    bool ascending = true);
+					    bool reverse);
+
+	XAPIAN_DEPRECATED(void set_sort_by_relevance_then_key(Xapian::Sorter * sorter));
 
 	/** Get (a portion of) the match set for the current query.
 	 *
@@ -1025,6 +1026,44 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	/// Return a string describing this object.
 	std::string get_description() const;
 };
+
+// Deprecated forms:
+
+inline void
+Enquire::set_sort_by_value(Xapian::valueno sort_key)
+{
+    return set_sort_by_value(sort_key, true);
+}
+
+inline void
+Enquire::set_sort_by_key(Xapian::Sorter * sorter)
+{
+    return set_sort_by_key(sorter, true);
+}
+
+inline void
+Enquire::set_sort_by_value_then_relevance(Xapian::valueno sort_key)
+{
+    return set_sort_by_value_then_relevance(sort_key, true);
+}
+
+inline void
+Enquire::set_sort_by_key_then_relevance(Xapian::Sorter * sorter)
+{
+    return set_sort_by_key_then_relevance(sorter, true);
+}
+
+inline void
+Enquire::set_sort_by_relevance_then_value(Xapian::valueno sort_key)
+{
+    return set_sort_by_relevance_then_value(sort_key, true);
+}
+
+inline void
+Enquire::set_sort_by_relevance_then_key(Xapian::Sorter * sorter)
+{
+    return set_sort_by_relevance_then_key(sorter, true);
+}
 
 }
 

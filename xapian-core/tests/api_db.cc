@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2006,2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -515,7 +515,7 @@ DEFINE_TESTCASE(matchfunctor3, backend) {
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query(""));
     enquire.set_collapse_key(12);
-    enquire.set_sort_by_value(11);
+    enquire.set_sort_by_value(11, true);
 
     myMatchDecider2 myfunctor;
 
@@ -1332,7 +1332,7 @@ DEFINE_TESTCASE(sortvalue1, backend) {
     for (int pass = 1; pass <= 2; ++pass) {
 	for (Xapian::valueno value_no = 1; value_no < 7; ++value_no) {
 	    tout << "Sorting on value " << value_no << endl;
-	    enquire.set_sort_by_value(value_no);
+	    enquire.set_sort_by_value(value_no, true);
 	    Xapian::MSet allbset = enquire.get_mset(0, 100);
 	    Xapian::MSet partbset1 = enquire.get_mset(0, 3);
 	    Xapian::MSet partbset2 = enquire.get_mset(3, 97);
@@ -1610,7 +1610,7 @@ DEFINE_TESTCASE(flintdatabaseopen1, flint) {
 // set_sort_by_relevance_then_value
 DEFINE_TESTCASE(sortrel1, backend) {
     Xapian::Enquire enquire(get_database("apitest_sortrel"));
-    enquire.set_sort_by_value(1);
+    enquire.set_sort_by_value(1, true);
     enquire.set_query(Xapian::Query("woman"));
 
     const Xapian::docid order1[] = { 1,2,3,4,5,6,7,8,9 };
@@ -1632,7 +1632,7 @@ DEFINE_TESTCASE(sortrel1, backend) {
 	TEST_EQUAL(*mset[i], order1[i]);
     }
 
-    enquire.set_sort_by_value_then_relevance(1);
+    enquire.set_sort_by_value_then_relevance(1, true);
 
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), sizeof(order2) / sizeof(Xapian::docid));
@@ -1640,7 +1640,7 @@ DEFINE_TESTCASE(sortrel1, backend) {
 	TEST_EQUAL(*mset[i], order2[i]);
     }
 
-    enquire.set_sort_by_value(1);
+    enquire.set_sort_by_value(1, true);
 
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), sizeof(order1) / sizeof(Xapian::docid));
@@ -1648,7 +1648,7 @@ DEFINE_TESTCASE(sortrel1, backend) {
 	TEST_EQUAL(*mset[i], order1[i]);
     }
 
-    enquire.set_sort_by_value_then_relevance(1);
+    enquire.set_sort_by_value_then_relevance(1, true);
     enquire.set_docid_order(Xapian::Enquire::DESCENDING);
 
     mset = enquire.get_mset(0, 10);
@@ -1657,7 +1657,7 @@ DEFINE_TESTCASE(sortrel1, backend) {
 	TEST_EQUAL(*mset[i], order2[i]);
     }
 
-    enquire.set_sort_by_value(1);
+    enquire.set_sort_by_value(1, true);
     enquire.set_docid_order(Xapian::Enquire::DESCENDING);
 
     mset = enquire.get_mset(0, 10);
@@ -1698,7 +1698,7 @@ DEFINE_TESTCASE(sortrel1, backend) {
 	TEST_EQUAL(*mset[i], order7[i]);
     }
 
-    enquire.set_sort_by_relevance_then_value(1);
+    enquire.set_sort_by_relevance_then_value(1, true);
     enquire.set_docid_order(Xapian::Enquire::ASCENDING);
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), sizeof(order8) / sizeof(Xapian::docid));
@@ -1706,7 +1706,7 @@ DEFINE_TESTCASE(sortrel1, backend) {
 	TEST_EQUAL(*mset[i], order8[i]);
     }
 
-    enquire.set_sort_by_relevance_then_value(1);
+    enquire.set_sort_by_relevance_then_value(1, true);
     enquire.set_docid_order(Xapian::Enquire::DESCENDING);
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), sizeof(order8) / sizeof(Xapian::docid));

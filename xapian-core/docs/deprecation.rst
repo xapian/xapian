@@ -1,7 +1,7 @@
 .. This document was originally written by Richard Boulton.
 
 .. Copyright (C) 2007 Lemur Consulting Ltd
-.. Copyright (C) 2007,2008 Olly Betts
+.. Copyright (C) 2007,2008,2009 Olly Betts
 
 ===========
 Deprecation
@@ -145,8 +145,22 @@ Deprecated Remove Feature name                        Upgrade suggestion and com
                   throwing ``DocNotFoundError`` if    do, it's easy to check - just call ``Database::get_document()`` with the
                   the document specified doesn't      specified document ID.
                   exist.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.1.0      1.3.0  Default second parameter to         The parameter name was ``ascending`` and defaulted to ``true``.  However
+                  ``Enquire`` sorting functions.      ascending=false gave what you'd expect the default sort order to be (and
+                                                      probably think of as ascending) while ascending=true gave the reverse
+                                                      (descending) order.  For sanity, we renamed the parameter to ``reverse``
+                                                      and deprecated the default value.  In the more distant future, we'll
+                                                      probably add a default again, but of ``false`` instead.
+                                                      
+                                                      The methods affected are:
+                                                      ``Enquire::set_sort_by_value(Xapian::valueno sort_key)``
+                                                      ``Enquire::set_sort_by_key(Xapian::Sorter * sorter)``
+                                                      ``Enquire::set_sort_by_value_then_relevance(Xapian::valueno sort_key)``
+                                                      ``Enquire::set_sort_by_key_then_relevance(Xapian::Sorter * sorter)``
+                                                      ``Enquire::set_sort_by_relevance_then_value(Xapian::valueno sort_key)``
+                                                      ``Enquire::set_sort_by_relevance_then_key(Xapian::Sorter * sorter)``
 ========== ====== =================================== ========================================================================
-
 
 Bindings
 --------

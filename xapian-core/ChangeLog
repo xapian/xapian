@@ -1,3 +1,10 @@
+Mon Feb 23 14:04:50 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/deprecation.rst,include/xapian/enquire.h,tests/: Rename the
+	  wrongly named "ascending" parameter of the set_sort_by*() methods
+	  of Enquire to "reverse" and deprecate the default value since
+	  defaulting to "reverse=true" is confusing.  (bug#311)
+
 Mon Feb 23 01:24:23 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,backends/remote/remote-database.cc,
