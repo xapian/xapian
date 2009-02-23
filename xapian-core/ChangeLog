@@ -1,3 +1,8 @@
+Mon Feb 23 00:52:16 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc: Fix AssertionError from apitest testcases
+	  fixedweightsource2 and valueweightsource1.
+
 Sun Feb 22 11:02:24 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_lock.cc,backends/flint/flint_lock.cc: Check for
