@@ -307,10 +307,12 @@ XAPIAN_CONFIG=$here/xapian-core/xapian-config
 for d in $modules ; do
   if [ "$here" = "$srcdir" ] ; then
     configure=./configure
+    configure_from_here="$d/configure"
   else
     configure=$srcdir/$d/configure
+    configure_from_here="$configure"
   fi
-  if [ -f "$configure" ] ; then
+  if [ -f "$configure_from_here" ] ; then
     if [ -d "$d" ] ; then : ; else
       case $d in
       xapian-applications/*) [ -d xapian-applications ] || mkdir xapian-applications ;;
