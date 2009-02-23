@@ -387,7 +387,6 @@ for target in all install uninstall install-strip clean distclean mostlyclean ma
       echo "	cd $d && \$(MAKE) check && \$(MAKE) dist" >> Makefile.tmp ;;
     *)
       echo "	cd $d && \$(MAKE) $target" >> Makefile.tmp ;;
-    esac
     xapian-extras,distcheck)
       # FIXME: distcheck doesn't currently work for xapian-extras because
       # xapian-core isn't installed.
