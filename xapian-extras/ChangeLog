@@ -1,3 +1,7 @@
+Mon Feb 23 10:52:22 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* imgseek/imgseek.rst: Fix typo.
+
 Mon Feb 23 10:19:41 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* ChangeLog: Add xapian-extras/imgseek branch, for experimental

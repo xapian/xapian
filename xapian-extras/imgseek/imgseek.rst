@@ -17,7 +17,7 @@ ideas in the paper "Fast Multiresolution Image Querying":
 http://grail.cs.washington.edu/projects/query/mrquery.pdf.
 
 These features allow signatures for one or more images to be stored in
-a documents, allowing searches to be restricted or reordered based on
+a document, allowing searches to be restricted or reordered based on
 similarity to the (signatures of) images associated with a specified
 document.
 
