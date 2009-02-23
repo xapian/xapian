@@ -1,0 +1,15 @@
+imgseek
+=======
+
+The Xapian interface to imgseek was written by:
+
+ Paul Rudin
+ Richard Boulton
+
+The imgseek code was written by various individuals (as noted in the
+source code).  The following is hopefully a complete list of the names
+mentioned in the source code, in no particular order:
+
+ Ricardo Niederberger Cabral
+ Geert Janssen
+ Joerg Arndt

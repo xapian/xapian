@@ -1,0 +1,5 @@
+Xapian-extras 1.1.0 (2009-??-??):
+
+imgseek:
+
+ * Add imgseek module, for doing image similarity matching.

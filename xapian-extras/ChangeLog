@@ -1,3 +1,8 @@
+Mon Feb 23 19:49:49 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* AUTHORS,INSTALL,NEWS,README: Add essential files, required by
+	  autotools build.
+
 Mon Feb 23 19:40:33 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* Makefile.am,configure.ac,imgseek/Makefile.mk,m4/pkg.m4: Vaguely
