@@ -17,8 +17,6 @@ namespace std {
   %template(iset) set<int>;
 };
 
-%import "haar.h"
-
 %include "xapian/error.h"
 
 %include "exception.i"

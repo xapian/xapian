@@ -1,3 +1,9 @@
+Mon Feb 23 23:33:23 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* imgseek/imgseek.i,imgseek/imgseek.rst: Move imgseek.rst to docs,
+	  and remove include of "haar.h" from imgseek.i, now that we don't
+	  do that in "imgseek.h"
+
 Mon Feb 23 19:49:49 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* AUTHORS,INSTALL,NEWS,README: Add essential files, required by
