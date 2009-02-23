@@ -1,3 +1,8 @@
+Mon Feb 23 16:45:21 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* Makefile.am,configure.ac,imgseek/,imgseek/src/imgseek.cc: Tidy up
+	  directory structure, and more work on the build system.
+
 Mon Feb 23 13:43:53 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* imgseek/imgseek.i: Small tweaks from Paul.

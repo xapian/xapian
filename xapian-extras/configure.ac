@@ -4,7 +4,7 @@ AC_INIT([xapian-extras], [1.1.0], [http://xapian.org/bugs])
 AC_PREREQ([2.63])
 AM_INIT_AUTOMAKE([1.10.1 -Wportability tar-ustar])
 
-AC_CONFIG_SRCDIR([imgseek/haar.cc])
+AC_CONFIG_SRCDIR([imgseek/src/haar.cc])
 
 AC_CONFIG_HEADERS([config.h])
 

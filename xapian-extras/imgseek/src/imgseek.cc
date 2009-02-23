@@ -25,7 +25,7 @@
 
 
 #include "xapian/error.h"
-#include "imgseek.h"
+#include "xapian/imgseek.h"
 #include "serialise-double.h"
 
 #include <algorithm>
