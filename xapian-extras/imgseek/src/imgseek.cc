@@ -1,52 +1,52 @@
-/* 
-
-   Copyright (C) 2009 Lemur Consulting Ltd.
-
-   Partially based on imgseek code:
-   Copyright (C) 2003 Ricardo Niederberger Cabral (nieder|at|mail.ru)
-   Copyright (C) 2006 Geert Janssen <geert at ieee.org>
-
-   This program is free software; you can redistribute it and/or
-   modify it under the terms of the GNU General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
- 
-   This program is distributed in the hope that it will be useful, but
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
- 
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-   02110-1301 USA
-
+/** @file imgseek.cc
+ * @brief Image feature extraction and matching.
+ */
+/* Copyright 2009 Lemur Consulting Ltd.
+ *
+ * Partially based on imgseek code:
+ * Copyright 2003 Ricardo Niederberger Cabral (nieder|at|mail.ru)
+ * Copyright 2006 Geert Janssen <geert at ieee.org>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301
+ * USA
  */
 
+#include <config.h>
 
 #include "xapian/error.h"
 #include "xapian/imgseek.h"
+
 #include "serialise-double.h"
 
 #include <algorithm>
-#include <fstream>
 #include <cmath>
+#include <fstream>
 #include <iterator>
 #include <stdexcept>
 
-//debugging - remove me
-#include <iostream>
-
-/* QT Includes */
 #include <qimage.h>
 
 /* JPEG Includes */
 #define XMD_H   // avoid primitive typedef name clashes on libjpeg
 extern "C"
-{	
+{
 #include <jpeglib.h>
 }
+
 #include "jpegloader.h"
+#include "haar.h"
 
 // Weights for the Haar coefficients.
 // Straight from the referenced paper:
@@ -62,8 +62,8 @@ const float weights[6][3]= {
 
 /* the original imgseek code made a big array with all these values
    pre-computed so that it was just looking up into an array */
-unsigned int 
-imgbin(const int idx) { 
+unsigned int
+imgbin(const int idx) {
   return std::min ( std::max(idx % num_pixels, idx / num_pixels), 5);
 }
 
@@ -93,7 +93,7 @@ ImgSig::register_Image(const std::string& filename)
       width  = image.width();
       height = image.height();
     }
-    else {  // fast jpeg succeeded  
+    else {  // fast jpeg succeeded
       height = cinfo.image_height;
     }
   }
@@ -122,9 +122,9 @@ ImgSig::register_Image(const std::string& filename)
   ImgSig isig;
 
   transform_and_calc(cdata1, cdata2, cdata3,
-                     isig.sig1, isig.sig2, isig.sig3, 
+                     isig.sig1, isig.sig2, isig.sig3,
                      isig.avgl);
- 
+
   // for (i = 0; i < num_coefs; ++i) { // populate buckets
   //   for (j = i; j < 3; ++j) { // for each colour
   //     int x, t;
@@ -141,14 +141,14 @@ ImgSig::register_Image(const std::string& filename)
   return isig;
 }
 
-double 
+double
 ImgSig::score(const ImgSig & other) const{
   double result = 0;
   const coeffs sig[3] = {sig1,  sig2 , sig3};
   const coeffs osig[3] = {other.sig1, other.sig2, other.sig3};
   for (int c = 0; c < 3; ++c) { // for each colour
     //average luminance score for each colour
-    result += weights[0][c] * abs(other.avgl[c] - avgl[c]);  
+    result += weights[0][c] * abs(other.avgl[c] - avgl[c]);
 
     //score for each coefficient in common
     std::vector<int> intersection;
@@ -166,7 +166,7 @@ ImgSig::score(const ImgSig & other) const{
   return std::max(0.0, std::min(100.0, result * magic_factor));
 }
 
-void 
+void
 serialise_coefs(const coeffs &cos, std::string& res) {
   coeffs::const_iterator co;
   for (co = cos.begin(); co != cos.end(); ++co) {
@@ -208,13 +208,14 @@ ImgSig::unserialise(const char ** ptr, const char * end) {
   return result;
 }
 
-ImgSig ImgSig::unserialise(std::string& serialised) {
-  const char * ptr = serialised.data();
-  const char * end = ptr + serialised.size();
-  ImgSig result = unserialise(&ptr, end);
-  if (ptr != end)
-    throw Xapian::InvalidArgumentError("Junk found at end of serialised ImgSig");
-  return result;
+ImgSig
+ImgSig::unserialise(const std::string & serialised) {
+    const char * ptr = serialised.data();
+    const char * end = ptr + serialised.size();
+    ImgSig result = unserialise(&ptr, end);
+    if (ptr != end)
+	throw Xapian::InvalidArgumentError("Junk found at end of serialised ImgSig");
+    return result;
 }
 
 ImgSigs
@@ -227,7 +228,7 @@ ImgSigs::unserialise (const char * ptr, const char * end) {
   } catch (const Xapian::NetworkError & e) {
     throw Xapian::InvalidArgumentError(e.get_msg());
   }
-  if (ptr != end) 
+  if (ptr != end)
     throw Xapian::InvalidArgumentError("Junk at end of serialised ImgSigs");
   return result;
 }
@@ -252,23 +253,21 @@ ImgSigs::serialise() const {
 
 //ImgSigSimilarityPostingSource::ImgSigSimilarityPostingSource(const Xapian::docid did, Xapian::valueno valno, Xapian::Database db) {};
 
-ImgSigSimilarityPostingSource::ImgSigSimilarityPostingSource(const ImgSigs sigs_, Xapian::valueno valno_, Xapian::Database db_) : 
-  sigs(sigs_), valno(valno_), db(db_), started(false) {
-  
+ImgSigSimilarityPostingSource::ImgSigSimilarityPostingSource(const ImgSigs sigs_, Xapian::valueno valno_) :
+  sigs(sigs_), valno(valno_), started(false) {
+
   if (sigs.size() < 1) {
     throw Xapian::InvalidArgumentError("Cannot construct an ImgSigSimilarityPostingSource from an empty set of signatures.");
   }
-  //  try { 
-  // std::cout << "calling get_value_freq" << std::endl;
-  //  termfreq_max = db.get_value_freq(valno);
-  //  std::cout << "called get_value_freq" << std::endl;
-  //  termfreq_min = termfreq_max;
-  //  termfreq_est = termfreq_max;
-  //} catch (const Xapian::UnimplementedError &) {
-    termfreq_max = db.get_doccount();
-    termfreq_est = termfreq_max / 2;
-    termfreq_min = 0;
-    //}
+  try {
+      termfreq_max = db.get_value_freq(valno);
+      termfreq_min = termfreq_max;
+      termfreq_est = termfreq_max;
+  } catch (const Xapian::UnimplementedError &) {
+      termfreq_max = db.get_doccount();
+      termfreq_est = termfreq_max / 2;
+      termfreq_min = 0;
+  }
 }
 
 Xapian::doccount ImgSigSimilarityPostingSource::get_termfreq_min() const {
@@ -314,7 +313,7 @@ void ImgSigSimilarityPostingSource::calc_score() {
   }
 }
 
-std::string 
+std::string
 ImgSigSimilarityPostingSource::get_description() const {
   std::string d = "FIXME";
   return d;
@@ -331,13 +330,8 @@ ImgSigSimilarityPostingSource::at_end() const {
 }
 
 void
-ImgSigSimilarityPostingSource::reset() {
-  started = false;
-}
-
-void 
 ImgSigSimilarityPostingSource::reset(const Xapian::Database & db_) {
-  reset();
+  started = false;
   db = db_;
 }
 

@@ -15,8 +15,6 @@ LT_INIT
 
 dnl Check for xapian-core.
 XO_LIB_XAPIAN
-dnl We want XAPIAN_CXXFLAGS to be used for configure tests.
-CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"
 
 dnl disable "maintainer only" rules by default
 AM_MAINTAINER_MODE
@@ -26,8 +24,8 @@ AC_PROG_CXX
 AC_PROG_CC
 
 # Checks for libraries.
-# FIXME: Replace `main' with a function in `-ljpeg':
-AC_CHECK_LIB([jpeg], [main])
+AC_CHECK_LIB([jpeg], [jpeg_std_error])
+PKG_CHECK_MODULES([QT], [qt-mt])
 
 # Checks for header files.
 AC_CHECK_HEADERS([stdlib.h string.h])

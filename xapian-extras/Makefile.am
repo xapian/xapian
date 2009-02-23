@@ -7,6 +7,8 @@ ACLOCAL_AMFLAGS = -I m4
 # `make QUIET=y' overrides `./configure' without `--enable-quiet'.
 LIBTOOL = @LIBTOOL@ $(QUIET:y=--quiet)
 
+AM_CXXFLAGS = $(XAPIAN_CXXFLAGS) $(QT_CFLAGS)
+
 INCLUDES =
 noinst_HEADERS =
 EXTRA_DIST =
