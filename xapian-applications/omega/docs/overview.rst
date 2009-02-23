@@ -209,6 +209,7 @@ know):
 * Perl POD documentation (.pl, .pm, .pod) if pod2text is available
 * TeX DVI files (.dvi) if catdvi is available
 * DjVu files (.djv, .djvu) if djvutxt is available
+* XPS files (.xps) if unzip is available
 
 If you have additional extensions that represent one of these types, you need
 to add an additional MIME mapping using the --mime-type option. For instance::
@@ -229,6 +230,7 @@ of:
    - application/vnd.ms-excel
    - application/vnd.ms-powerpoint
    - application/vnd.ms-works
+   - application/vnd.ms-xpsdocument
    - application/vnd.oasis.opendocument.text
    - application/vnd.oasis.opendocument.spreadsheet
    - application/vnd.oasis.opendocument.presentation
