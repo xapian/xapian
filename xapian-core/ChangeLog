@@ -1,3 +1,81 @@
+Mon Feb 23 14:11:12 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/sorting.rst: Clarify meaning.
+
+Mon Feb 23 14:04:50 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/deprecation.rst,include/xapian/enquire.h,tests/: Rename the
+	  wrongly named "ascending" parameter of the set_sort_by*() methods
+	  of Enquire to "reverse" and deprecate the default value since
+	  defaulting to "reverse=true" is confusing.  (bug#311)
+
+Mon Feb 23 01:24:23 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,backends/remote/remote-database.cc,
+	  common/multimatch.h,common/omenquireinternal.h,
+	  common/remote-database.h,docs/collapsing.rst,
+	  docs/remote_protocol.html,include/xapian/enquire.h,matcher/,
+	  net/remoteserver.cc,net/serialise.cc,tests/Makefile.am,
+	  tests/api_collapse.cc: Replace the collapsing code in the matcher
+	  with a separate Collapser class.  This new class can keep more than
+	  one document with each collapse key.  Also track bounds and an
+	  estimate of the total number of matches if collapsing wasn't in use.
+
+Mon Feb 23 00:52:16 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc: Fix AssertionError from apitest testcases
+	  fixedweightsource2 and valueweightsource1.
+
+Sun Feb 22 11:02:24 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_lock.cc,backends/flint/flint_lock.cc: Check for
+	  fork failing *after* we check if we're now the child process.
+
+Sun Feb 22 10:06:13 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_lock.cc,backends/flint/flint_lock.cc: Note
+	  explicitly why we now have the strange empty if (not) checking the
+	  return value of chdir("/") (it's actually newer glibc and
+	  _FORTIFY_SOURCE rather than newer GCC).  Retry closing filehandle if
+	  it returns EINTR.  Whitespace tweaks.
+
+Sat Feb 21 11:04:08 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/chert/chert_lock.cc,backends/flint/flint_lock.cc: Fix
+	  warning about ignoring result of chdir (with GCC 4.2)
+
+Sat Feb 21 08:18:21 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/harness/testsuite.cc: Fix option usage in --help - "-x=foo"
+	  doesn't work - "-x foo" does.
+
+Sat Feb 21 07:37:01 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/perftest/perftest_randomidx.cc: Use two argument version of
+	  rand_int() where applicable.  Reserve length of result string in
+	  gen_word().  Fix truncated comment.
+
+Sat Feb 21 04:27:45 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_lock.cc,backends/flint/flint_lock.cc: In the
+	  locking child process, before we exec /bin/cat change directory to
+	  / so that we don't block unmounting of any partitions and close
+	  any open file descriptors (apart from those we're using) so that if
+	  the files are closed by our parent and deleted the disk space gets
+	  released right away.
+
+Sat Feb 21 02:06:56 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/postingsource.cc,include/xapian/postingsource.h: Pass string as
+	  const string &; drop trailing "_" from parameters which don't clash
+	  with member variables; fix brace formatting on a couple of for
+	  loops.
+
+Fri Feb 20 14:32:46 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_closedb.cc: Fix testcase closedb3 not to create a test
+	  database named closedb2.
+
 Fri Feb 20 01:38:32 GMT 2009  Olly Betts <olly@survex.com>
 
 	* include/xapian/enquire.h: Documentation comment improvements.

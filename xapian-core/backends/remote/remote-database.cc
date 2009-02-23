@@ -1,7 +1,7 @@
 /** @file remote-database.cc
  *  @brief Remote backend database class
  */
-/* Copyright (C) 2006,2007,2008 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -502,6 +502,7 @@ RemoteDatabase::do_close()
 void
 RemoteDatabase::set_query(const Xapian::Query::Internal *query,
 			 Xapian::termcount qlen,
+			 Xapian::doccount collapse_max,
 			 Xapian::valueno collapse_key,
 			 Xapian::Enquire::docid_order order,
 			 Xapian::valueno sort_key,
@@ -517,7 +518,8 @@ RemoteDatabase::set_query(const Xapian::Query::Internal *query,
 
     // Serialise assorted Enquire settings.
     message += encode_length(qlen);
-    message += encode_length(collapse_key);
+    message += encode_length(collapse_max);
+    if (collapse_max) message += encode_length(collapse_key);
     message += char('0' + order);
     message += encode_length(sort_key);
     message += char('0' + sort_by);

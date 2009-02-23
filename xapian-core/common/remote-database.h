@@ -1,7 +1,7 @@
 /** @file remote-database.h
  *  @brief RemoteDatabase is the baseclass for remote database implementations.
  */
-/* Copyright (C) 2006,2007 Olly Betts
+/* Copyright (C) 2006,2007,2009 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -127,6 +127,9 @@ class RemoteDatabase : public Xapian::Database::Internal {
      *
      * @param query			The query.
      * @param qlen			The query length.
+     * @param collapse_max		Max number of items with the same key
+     *					to leave after collapsing (0 for don't
+     *					collapse).
      * @param collapse_key		The value number to collapse matches on.
      * @param order			Sort order for docids.
      * @param sort_key			The value number to sort on.
@@ -139,6 +142,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
      */
     void set_query(const Xapian::Query::Internal *query,
 		   Xapian::termcount qlen,
+		   Xapian::doccount collapse_max,
 		   Xapian::valueno collapse_key,
 		   Xapian::Enquire::docid_order order,
 		   Xapian::valueno sort_key,

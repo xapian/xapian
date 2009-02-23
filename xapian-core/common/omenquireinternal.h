@@ -134,6 +134,8 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 
 	Xapian::valueno collapse_key;
 
+	Xapian::doccount collapse_max;
+
 	Xapian::Enquire::docid_order order;
 
 	percent percent_cutoff;
@@ -239,6 +241,12 @@ class MSet::Internal : public Xapian::Internal::RefCntBase {
 
 	Xapian::doccount matches_upper_bound;
 
+	Xapian::doccount uncollapsed_lower_bound;
+
+	Xapian::doccount uncollapsed_estimated;
+
+	Xapian::doccount uncollapsed_upper_bound;
+
 	Xapian::weight max_possible;
 
 	Xapian::weight max_attained;
@@ -249,6 +257,9 @@ class MSet::Internal : public Xapian::Internal::RefCntBase {
 		  matches_lower_bound(0),
 		  matches_estimated(0),
 		  matches_upper_bound(0),
+		  uncollapsed_lower_bound(0),
+		  uncollapsed_estimated(0),
+		  uncollapsed_upper_bound(0),
 		  max_possible(0),
 		  max_attained(0) {}
 
@@ -257,6 +268,9 @@ class MSet::Internal : public Xapian::Internal::RefCntBase {
 	     Xapian::doccount matches_upper_bound_,
 	     Xapian::doccount matches_lower_bound_,
 	     Xapian::doccount matches_estimated_,
+	     Xapian::doccount uncollapsed_upper_bound_,
+	     Xapian::doccount uncollapsed_lower_bound_,
+	     Xapian::doccount uncollapsed_estimated_,
 	     Xapian::weight max_possible_,
 	     Xapian::weight max_attained_,
 	     vector<Xapian::Internal::MSetItem> &items_,
@@ -268,6 +282,9 @@ class MSet::Internal : public Xapian::Internal::RefCntBase {
 		  matches_lower_bound(matches_lower_bound_),
 		  matches_estimated(matches_estimated_),
 		  matches_upper_bound(matches_upper_bound_),
+		  uncollapsed_lower_bound(uncollapsed_lower_bound_),
+		  uncollapsed_estimated(uncollapsed_estimated_),
+		  uncollapsed_upper_bound(uncollapsed_upper_bound_),
 		  max_possible(max_possible_),
 		  max_attained(max_attained_) {
 	    std::swap(items, items_);

@@ -151,10 +151,16 @@ DEFINE_TESTCASE(pctcutoff5, backend) {
     enquire.set_cutoff(42);
     Xapian::MSet mset;
 
-    enquire.set_sort_by_value(0);
+    enquire.set_sort_by_value(0, false);
     TEST_EXCEPTION(Xapian::UnimplementedError, mset = enquire.get_mset(0, 10));
 
-    enquire.set_sort_by_value_then_relevance(0);
+    enquire.set_sort_by_value(0, true);
+    TEST_EXCEPTION(Xapian::UnimplementedError, mset = enquire.get_mset(0, 10));
+
+    enquire.set_sort_by_value_then_relevance(0, false);
+    TEST_EXCEPTION(Xapian::UnimplementedError, mset = enquire.get_mset(0, 10));
+
+    enquire.set_sort_by_value_then_relevance(0, true);
     TEST_EXCEPTION(Xapian::UnimplementedError, mset = enquire.get_mset(0, 10));
 
     return true;

@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -1819,19 +1819,20 @@ DEFINE_TESTCASE(checkatleast3, backend) {
 		break;
 	}
 
-	for (int sort = 0; sort < 4; ++sort) {
+	for (int sort = 0; sort < 7; ++sort) {
+	    bool reverse = (sort & 1);
 	    switch (sort) {
 		case 0:
 		    enquire.set_sort_by_relevance();
 		    break;
-		case 1:
-		    enquire.set_sort_by_value(0);
+		case 1: case 2:
+		    enquire.set_sort_by_value(0, reverse);
 		    break;
-		case 2:
-		    enquire.set_sort_by_value_then_relevance(0);
+		case 3: case 4:
+		    enquire.set_sort_by_value_then_relevance(0, reverse);
 		    break;
-		case 3:
-		    enquire.set_sort_by_relevance_then_value(0);
+		case 5: case 6:
+		    enquire.set_sort_by_relevance_then_value(0, reverse);
 		    break;
 	    }
 

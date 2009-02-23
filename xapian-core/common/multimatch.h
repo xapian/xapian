@@ -1,7 +1,7 @@
 /* multimatch.h: class for performing a match
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,6 +41,8 @@ class MultiMatch
 
 	const Xapian::Query::Internal *query;
 
+	Xapian::doccount collapse_max;
+
 	Xapian::valueno collapse_key;
 
 	int percent_cutoff;
@@ -71,11 +73,6 @@ class MultiMatch
 	/** Is each sub-database remote? */
 	vector<bool> is_remote;
 
-	/// get the collapse key
-	string get_collapse_key(PostList *pl,
-				Xapian::docid did, Xapian::valueno keyno,
-				Xapian::Internal::RefCntPtr<Xapian::Document::Internal> &doc);
-
 	/** get the maxweight that the postlist pl may return, calling
 	 *  recalc_maxweight if recalculate_w_max is set, and unsetting it.
 	 *  Must only be called on the top of the postlist tree.
@@ -104,6 +101,7 @@ class MultiMatch
 		   const Xapian::Query::Internal * query,
 		   Xapian::termcount qlen,
 		   const Xapian::RSet * omrset,
+		   Xapian::doccount collapse_max_,
 		   Xapian::valueno collapse_key_,
 		   int percent_cutoff_,
 		   Xapian::weight weight_cutoff_,

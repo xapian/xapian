@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -132,6 +132,8 @@ Database::postlist_begin(const string &tname) const
     // Handle the common case of a single database specially.
     if (internal.size() == 1)
 	RETURN(PostingIterator(internal[0]->open_post_list(tname)));
+
+    if (rare(internal.size() == 0)) RETURN(PostingIterator(NULL));
 
     vector<LeafPostList *> pls;
     try {

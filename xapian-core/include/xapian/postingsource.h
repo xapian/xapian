@@ -1,7 +1,7 @@
 /** @file postingsource.h
  *  @brief External sources of posting information
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007,2008,2009 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -393,10 +393,10 @@ class XAPIAN_VISIBILITY_DEFAULT ValueMapPostingSource
 
     /** Add a mapping.
      *
-     *  @param key_ The key looked up from the value slot.
-     *  @param weight_ The weight to give this key.
+     *  @param key The key looked up from the value slot.
+     *  @param weight The weight to give this key.
      */
-    void add_mapping(std::string key_, double weight_);
+    void add_mapping(const std::string &key, double weight);
 
     /** Clear all mappings.
      */

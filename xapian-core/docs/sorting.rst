@@ -112,7 +112,7 @@ sort, depending if/how you want relevance used in the ordering:
    ordered by relevance, and the value is only used to order groups of documents
    with identical relevance values (note: the weight has to be the same, not
    just the rounded percentage score).  This method isn't very useful with the
-   default BM25 weighting, since it rarely assigns identical scores to
+   default BM25 weighting, which rarely assigns identical scores to
    different documents.
 
 Sorting by Generated Key
