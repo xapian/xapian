@@ -1,0 +1,6 @@
+Tue Feb 24 01:18:22 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* AUTHORS,COPYING,ChangeLog,INSTALL,Makefile.am,NEWS,README,
+	  configure.ac,imgseek/Makefile.am,imgseek/python/Makefile.am:
+	  Work in progress on building build system for python bindings for
+	  imgseek.
