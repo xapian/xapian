@@ -307,10 +307,10 @@ XAPIAN_CONFIG=$here/xapian-core/xapian-config
 for d in $modules ; do
   if [ "$here" = "$srcdir" ] ; then
     configure=./configure
-    configure_from_here="$d/configure"
+    configure_from_here=$d/configure
   else
     configure=$srcdir/$d/configure
-    configure_from_here="$configure"
+    configure_from_here=$configure
   fi
   if [ -f "$configure_from_here" ] ; then
     if [ -d "$d" ] ; then : ; else
