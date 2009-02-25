@@ -4,7 +4,6 @@ xapian-core (1.0.10-2) unstable; urgency=low
     to Suggests of libxapian<N>-dev.  Closes: #516511, #516512
   * debian/rules: Force noopt on alpha to try to work around likely toolchain
     bug which is causing a SEGV in the testsuite when an exception is thrown.
-  * 
 
  -- Olly Betts <olly@survex.com>  Tue, 24 Feb 2009 12:57:04 +0000
 
