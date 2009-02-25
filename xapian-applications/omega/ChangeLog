@@ -1,3 +1,9 @@
+Wed Feb 25 12:39:08 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Update g++ version check to match recent change to
+	  xapian-core.  Also turn on _FORTIFY_SOURCE and make the rare()
+	  and usual() branch prediction hint macros available.
+
 Mon Feb 23 06:05:25 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Makefile.am,docs/overview.rst,omindex.cc,xpsxmlparse.cc,
