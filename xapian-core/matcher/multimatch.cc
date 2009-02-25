@@ -829,16 +829,16 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	Assert(percent_cutoff || docs_matched == items.size());
 	matches_lower_bound = matches_upper_bound = matches_estimated
 	    = items.size();
-	uncollapsed_lower_bound = uncollapsed_upper_bound
-	    = uncollapsed_estimated = items.size();
+	if (matches_lower_bound > uncollapsed_lower_bound)
+	   uncollapsed_lower_bound = matches_lower_bound;
     } else if (docs_matched < check_at_least) {
 	// We have seen fewer matches than we checked for, so we must have seen
 	// all the matches.
 	LOGLINE(MATCH, "Setting bounds equal");
 	matches_lower_bound = matches_upper_bound = matches_estimated
 	    = docs_matched;
-	uncollapsed_lower_bound = uncollapsed_upper_bound
-	    = uncollapsed_estimated = docs_matched;
+	if (matches_lower_bound > uncollapsed_lower_bound)
+	   uncollapsed_lower_bound = matches_lower_bound;
     } else {
 	AssertRel(matches_estimated,>=,matches_lower_bound);
 	AssertRel(matches_estimated,<=,matches_upper_bound);
@@ -852,6 +852,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	if (collapser) {
 	    LOGLINE(MATCH, "Adjusting bounds due to collapse_key");
 	    matches_lower_bound = collapser.get_matches_lower_bound();
+	    if (matches_lower_bound > uncollapsed_lower_bound)
+	       uncollapsed_lower_bound = matches_lower_bound;
 
 	    // The estimate for the number of hits can be modified by
 	    // multiplying it by the rate at which we've been finding
@@ -881,8 +883,9 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		    // docs_matched is a lower bound on the total number of
 		    // matches.
 		    matches_lower_bound = max(docs_matched, matches_lower_bound);
+		    // We're not collapsing, so the bounds must be the same.
+		    uncollapsed_lower_bound = matches_lower_bound;
 		}
-		uncollapsed_lower_bound = max(docs_matched, uncollapsed_lower_bound);
 	    }
 
 	    // The estimate for the number of hits can be modified by

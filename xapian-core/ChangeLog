@@ -1,3 +1,8 @@
+Wed Feb 25 13:43:41 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Fix adjustment of the uncollapse bounds and
+	  estimate.
+
 Wed Feb 25 12:32:13 GMT 2009  Olly Betts <olly@survex.com>
 
 	* configure.ac: GCC --version keeps changing format, and as a result
