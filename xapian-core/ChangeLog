@@ -1,3 +1,10 @@
+Wed Feb 25 12:32:13 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: GCC --version keeps changing format, and as a result
+	  we were currently getting "g++" as the version.  So change to the
+	  (hopefully) more robust technique of using g++ -E to pull out
+	  __GNUC__ and __GNUC_MINOR__.
+
 Wed Feb 25 03:14:08 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc: Fix for compiling with Sun's compiler
