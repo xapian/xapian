@@ -1,3 +1,8 @@
+Wed Feb 25 03:14:08 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc: Fix for compiling with Sun's compiler
+	  (untested as I no longer have access to it).
+
 Mon Feb 23 14:11:12 GMT 2009  Olly Betts <olly@survex.com>
 
 	* docs/sorting.rst: Clarify meaning.

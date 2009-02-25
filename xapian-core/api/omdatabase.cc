@@ -488,8 +488,16 @@ Database::get_spelling_suggestion(const string &word,
     if (!merger.get()) RETURN(string());
 
     // Convert word to UTF-32.
+#ifdef __SUNPRO_CC
     vector<unsigned> utf32_word;
-    utf32_word.assign(Utf8Iterator(word), Utf8Iterator());
+    for (Utf8Iterator sunpro_it(word); sunpro_it != Utf8Iterator(); ++sunpro_it) {
+	utf32_word.push_back(*sunpro_it);
+    }
+#else
+    // Extra brackets needed to avoid this being misparsed as a function
+    // prototype.
+    vector<unsigned> utf32_word((Utf8Iterator(word)), Utf8Iterator());
+#endif
 
     vector<unsigned> utf32_term;
 
