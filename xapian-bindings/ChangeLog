@@ -1,3 +1,8 @@
+Thu Feb 26 04:09:04 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac,ruby/Makefile.am: Workaround rubyio.h vs ruby/io.h
+	  incompatibility.  Fix defaulting of RUBY_INC_ARCH to RUBY_INC.
+
 Thu Feb 26 03:12:11 GMT 2009  Olly Betts <olly@survex.com>
 
 	* configure.ac,ruby/Makefile.am: Fixes for Ruby 1.9 compatibility

@@ -728,8 +728,8 @@ if test no != "$with_ruby" ; then
       AC_MSG_RESULT([$version])
       AC_ARG_VAR(RUBY_INC, [Directory where ruby.h can be found])
       if test -z "$RUBY_INC" ; then
-        dnl Ruby 1.9 added rubyhdrdir; for older Ruby we use archdir.
-        [RUBY_INC=`$RUBY -rrbconfig -e 'puts Config::CONFIG["rubyhdrdir"] || Config::CONFIG["archdir"]'`]
+	dnl Ruby 1.9 added rubyhdrdir; for older Ruby we use archdir.
+	[RUBY_INC=`$RUBY -rrbconfig -e 'puts Config::CONFIG["rubyhdrdir"] || Config::CONFIG["archdir"]'`]
       fi
       AC_SUBST(RUBY_INC)
       dnl Check that ruby.h is there, which is a good way to check that
@@ -738,23 +738,39 @@ if test no != "$with_ruby" ; then
       if test -f "$RUBY_INC/ruby.h" ; then
 	AC_MSG_RESULT(yes)
 
+	AC_MSG_CHECKING([ruby/io.h])
+	rm -f ruby/rubyio.h
+	if test -f "$RUBY_INC/ruby/io.h" ; then
+	  AC_MSG_RESULT(yes)
+	  dnl Newer Ruby has ruby/io.h - older has rubyio.h.  Ruby doesn't
+	  dnl seem to provide any way to generate code which works with
+	  dnl both (and even the version number isn't a discriminator as
+	  dnl Debian etch has 1.9 without ruby/io.h).  The SWIG version
+	  dnl we're currently using assumes rubyio.h exists and luckily
+	  dnl it includes it with "", so we can just drop a rubyio.h
+	  dnl wrapper alongside ruby/xapian_wrap.cc.
+	  echo '#include <ruby/io.h>' > ruby/rubyio.h
+	else
+	  AC_MSG_RESULT(no)
+	fi
+
 	AC_ARG_VAR(RUBY_INC_ARCH, [Directory where ruby/config.h can be found (needed from Ruby 1.9)])
 	if test -z "$RUBY_INC_ARCH" ; then
 	  dnl Ruby 1.9 requires this.
 	  [RUBY_INC_ARCH=`$RUBY -rrbconfig -e 'd = Config::CONFIG["rubyhdrdir"];if d != nil; print d + "/" + Config::CONFIG["arch"]; end'`]
 	  dnl For earlier versions, just make it the same as RUBY_INC.
-	  : ${RUBY_INC_ARCH=$RUBY_INC}
+	  test x"$RUBY_INC_ARCH" != x || RUBY_INC_ARCH=$RUBY_INC
 	fi
 	AC_SUBST(RUBY_INC_ARCH)
 
-        AC_ARG_VAR(RUBY_LIB, [Directory to install ruby files into])
+	AC_ARG_VAR(RUBY_LIB, [Directory to install ruby files into])
 	if test -z "$RUBY_LIB" ; then
 	  [RUBY_LIB=`$RUBY -rrbconfig -e 'puts Config::CONFIG["sitelibdir"]'`]
 	fi
 	AC_SUBST(RUBY_LIB)
 
-        AC_ARG_VAR(RUBY_LIB_ARCH, [Directory to install ruby binary modules into])
-	if test -z "$RUBY_LIB_ARCH" ; then    
+	AC_ARG_VAR(RUBY_LIB_ARCH, [Directory to install ruby binary modules into])
+	if test -z "$RUBY_LIB_ARCH" ; then
 	  [RUBY_LIB_ARCH=`$RUBY -rrbconfig -e 'puts Config::CONFIG["sitearchdir"]'`]
 	fi
 	AC_SUBST(RUBY_LIB_ARCH)

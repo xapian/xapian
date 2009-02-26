@@ -66,3 +66,6 @@ CLEANFILES = $(BUILT_SOURCES) xapian_wrap.stamp
 else
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 endif
+
+# Compatibility wrapper which configure creates when required.
+DISTCLEANFILES = rubyio.h
