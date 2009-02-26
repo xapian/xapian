@@ -395,7 +395,7 @@ if test no != "$with_tcl" ; then
       AC_MSG_RESULT([$tcl_version])
 
       AC_ARG_VAR(TCL_LIB, [Directory to install Tcl files into])
-      if test -z "$TCL_LIB" ; then    
+      if test -z "$TCL_LIB" ; then
 	[TCL_LIB=`echo 'foreach d $tcl_pkgPath {if {![regexp {/share(/|$)} $d]} {break}};puts $d'|$TCLSH`]
       fi
       AC_SUBST(TCL_LIB)
@@ -738,15 +738,24 @@ if test no != "$with_ruby" ; then
       if test -f "$RUBY_INC/ruby.h" ; then
 	AC_MSG_RESULT(yes)
 
+	AC_ARG_VAR(RUBY_INC_ARCH, [Directory where ruby/config.h can be found (needed from Ruby 1.9)])
+	if test -z "$RUBY_INC_ARCH" ; then
+	  dnl Ruby 1.9 requires this.
+	  [RUBY_INC_ARCH=`$RUBY -rrbconfig -e 'd = Config::CONFIG["rubyhdrdir"];if d != nil; print d + "/" + Config::CONFIG["arch"]; end'`]
+	  dnl For earlier versions, just make it the same as RUBY_INC.
+	  : ${RUBY_INC_ARCH=$RUBY_INC}
+	fi
+	AC_SUBST(RUBY_INC_ARCH)
+
         AC_ARG_VAR(RUBY_LIB, [Directory to install ruby files into])
-	if test -z "$RUBY_LIB" ; then    
-	  RUBY_LIB=`$RUBY -rrbconfig -e 'puts Config::CONFIG[["sitelibdir"]]'`
+	if test -z "$RUBY_LIB" ; then
+	  [RUBY_LIB=`$RUBY -rrbconfig -e 'puts Config::CONFIG["sitelibdir"]'`]
 	fi
 	AC_SUBST(RUBY_LIB)
 
         AC_ARG_VAR(RUBY_LIB_ARCH, [Directory to install ruby binary modules into])
 	if test -z "$RUBY_LIB_ARCH" ; then    
-	  RUBY_LIB_ARCH=`$RUBY -rrbconfig -e 'puts Config::CONFIG[["sitearchdir"]]'`
+	  [RUBY_LIB_ARCH=`$RUBY -rrbconfig -e 'puts Config::CONFIG["sitearchdir"]'`]
 	fi
 	AC_SUBST(RUBY_LIB_ARCH)
 

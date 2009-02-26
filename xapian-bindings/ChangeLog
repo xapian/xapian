@@ -1,3 +1,8 @@
+Thu Feb 26 03:12:11 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac,ruby/Makefile.am: Fixes for Ruby 1.9 compatibility
+	  (bug#323).
+
 Mon Feb 16 11:09:20 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/generate-python-exceptions,python/pythontest2.py,xapian.i:
