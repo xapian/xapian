@@ -1,7 +1,19 @@
 upto:
- 11591       olly Fri Oct 31 18:34:49 GMT 2008  Olly Betts <olly@survex.com>
+ 11940       olly Thu Feb 26 06:18:05 GMT 2009  Olly Betts <olly@survex.com>
 
 Backport fodder:
+
+ 11935       olly 	* configure.ac: Update g++ version check to match recent change to
+ 11935       olly 	  xapian-core.  Also turn on _FORTIFY_SOURCE and make the rare()
+ 11935       olly 	  and usual() branch prediction hint macros available.
+
+maybe:
+ 11904       olly 	* Makefile.am,docs/overview.rst,omindex.cc,xpsxmlparse.cc,
+ 11904       olly 	  xpsxmlparse.h: Add support for XPS files (bug#290).
+
+maybe:
+ 11866       olly 	* docs/overview.rst,omindex.cc: Add support for MS Office 2007
+ 11866       olly 	  formats (bug#290).
 
 HEAD only:
 

@@ -1,3 +1,7 @@
+Thu Feb 26 06:38:05 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
 Thu Feb 26 06:18:05 GMT 2009  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Mark "-l" as requiring an argument so that it actually
