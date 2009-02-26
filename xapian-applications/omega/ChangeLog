@@ -1,3 +1,10 @@
+Thu Feb 26 06:22:46 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* metaxmlparse.cc,metaxmlparse.h,xmlparse.cc,xmlparse.h: XmlParser and
+	  MetaXmlParser were overriding opening_tag with the wrong signature so
+	  their implementations weren't ever being used.
+
 Fri Jan 09 05:25:52 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
