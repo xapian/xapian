@@ -1,3 +1,10 @@
+Thu Feb 26 07:49:23 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/harness/Makefile.mk,tests/harness/testmacros.h,
+	  tests/harness/testsuite.h: Add new "TEST_REL" macro which can test
+	  for condition using any relational operator and report a failure
+	  clearly yet concisely.
+
 Wed Feb 25 13:43:41 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: Fix adjustment of the uncollapse bounds and
