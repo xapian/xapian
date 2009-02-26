@@ -1936,14 +1936,14 @@ class MyOddPostingSource : public Xapian::PostingSource {
 
     Xapian::docid did;
 
-  public:
-    MyOddPostingSource(const Xapian::Database &db)
-	: num_docs(db.get_doccount()), last_docid(db.get_lastdocid()), did(0)
-    { }
-
     MyOddPostingSource(Xapian::doccount num_docs_,
 		       Xapian::doccount last_docid_)
 	: num_docs(num_docs_), last_docid(last_docid_), did(0)
+    { }
+
+  public:
+    MyOddPostingSource(const Xapian::Database &db)
+	: num_docs(db.get_doccount()), last_docid(db.get_lastdocid()), did(0)
     { }
 
     PostingSource * clone() const { return new MyOddPostingSource(num_docs, last_docid); }
@@ -2037,14 +2037,14 @@ class MyOddWeightingPostingSource : public Xapian::PostingSource {
 
     Xapian::docid did;
 
-  public:
-    MyOddWeightingPostingSource(const Xapian::Database &db)
-	: num_docs(db.get_doccount()), last_docid(db.get_lastdocid()), did(0)
-    { }
-
     MyOddWeightingPostingSource(Xapian::doccount num_docs_,
 				Xapian::doccount last_docid_)
 	: num_docs(num_docs_), last_docid(last_docid_), did(0)
+    { }
+
+  public:
+    MyOddWeightingPostingSource(const Xapian::Database &db)
+	: num_docs(db.get_doccount()), last_docid(db.get_lastdocid()), did(0)
     { }
 
     PostingSource * clone() const { return new MyOddWeightingPostingSource(num_docs, last_docid); }
@@ -2141,14 +2141,14 @@ class MyDontAskWeightPostingSource : public Xapian::PostingSource {
 
     Xapian::docid did;
 
-  public:
-    MyDontAskWeightPostingSource(const Xapian::Database &db)
-	: num_docs(db.get_doccount()), last_docid(db.get_lastdocid()), did(0)
-    { }
-
     MyDontAskWeightPostingSource(Xapian::doccount num_docs_,
 				 Xapian::doccount last_docid_)
 	: num_docs(num_docs_), last_docid(last_docid_), did(0)
+    { }
+
+  public:
+    MyDontAskWeightPostingSource(const Xapian::Database &db)
+	: num_docs(db.get_doccount()), last_docid(db.get_lastdocid()), did(0)
     { }
 
     PostingSource * clone() const { return new MyDontAskWeightPostingSource(num_docs, last_docid); }
