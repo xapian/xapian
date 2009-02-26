@@ -1,3 +1,7 @@
+Thu Feb 26 10:07:18 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_db.cc: A couple more uncollapsed tests.
+
 Thu Feb 26 08:28:42 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_anydb.cc,tests/api_wrdb.cc,tests/harness/testsuite.h,

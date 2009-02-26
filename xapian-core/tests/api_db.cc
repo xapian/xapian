@@ -1890,12 +1890,14 @@ DEFINE_TESTCASE(matchall1, backend) {
     enquire.set_query(Xapian::Query::MatchAll);
     Xapian::MSet mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.get_matches_lower_bound(), db.get_doccount());
+    TEST_EQUAL(mset.get_uncollapsed_matches_lower_bound(), db.get_doccount());
 
     enquire.set_query(Xapian::Query(Xapian::Query::OP_OR,
 				    Xapian::Query("nosuchterm"),
 				    Xapian::Query::MatchAll));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.get_matches_lower_bound(), db.get_doccount());
+    TEST_EQUAL(mset.get_uncollapsed_matches_lower_bound(), db.get_doccount());
 
     // Check that the results aren't ranked by relevance (fixed in 1.0.9).
     TEST(mset.size() > 1);
