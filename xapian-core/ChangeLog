@@ -1,3 +1,9 @@
+Thu Feb 26 14:54:28 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_db.cc,tests/api_valuestream.cc: Update comments about why
+	  certain tests are disabled for certain backends.  Enable
+	  valueweightsource5 for multi and valuemapsource2 for remote.
+
 Thu Feb 26 14:53:19 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/multiandpostlist.cc: Use AssertRelParanoid() instead

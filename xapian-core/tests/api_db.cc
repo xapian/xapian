@@ -1980,8 +1980,9 @@ class MyOddPostingSource : public Xapian::PostingSource {
 };
 
 DEFINE_TESTCASE(externalsource1, backend && !remote && !multi) {
-    // FIXME: PostingSource doesn't currently work well with multi databases
-    // but we should try to resolve that issue.
+    // Doesn't work for remote without registering with the server.
+    // Doesn't work for multi because it checks the docid in the
+    // subdatabase.
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::Enquire enq(db);
     MyOddPostingSource src(db);
@@ -2008,7 +2009,8 @@ DEFINE_TESTCASE(externalsource1, backend && !remote && !multi) {
 }
 
 // Test that trying to use PostingSource with the remote backend throws
-// Xapian::UnimplementedError as intended.
+// Xapian::UnimplementedError as expected (we need to register the class
+// in xapian-tcpsrv/xapian-progsrv for this to work).
 DEFINE_TESTCASE(externalsource2, remote) {
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::Enquire enq(db);
@@ -2090,8 +2092,9 @@ class MyOddWeightingPostingSource : public Xapian::PostingSource {
 
 // Like externalsource1, except we use the weight to favour odd documents.
 DEFINE_TESTCASE(externalsource3, backend && !remote && !multi) {
-    // FIXME: PostingSource doesn't currently work well with multi databases
-    // but we should try to resolve that issue.
+    // Doesn't work for remote without registering with the server.
+    // Doesn't work for multi because it checks the docid in the
+    // subdatabase.
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::Enquire enq(db);
     MyOddWeightingPostingSource src(db);
@@ -2194,8 +2197,7 @@ class MyDontAskWeightPostingSource : public Xapian::PostingSource {
 
 // Check that boolean use doesn't call get_weight() or get_maxweight().
 DEFINE_TESTCASE(externalsource4, backend && !remote && !multi) {
-    // FIXME: PostingSource doesn't currently work well with multi databases
-    // but we should try to resolve that issue.
+    // FIXME: currently fails for multi with an assertion.
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::Enquire enq(db);
     MyDontAskWeightPostingSource src(db);
@@ -2273,10 +2275,8 @@ DEFINE_TESTCASE(valueweightsource2, backend && valuestats) {
 }
 
 // Check that valueweightsource skip_to() can stay in the same position.
-DEFINE_TESTCASE(valueweightsource3, backend && valuestats) {
-    // FIXME: PostingSource doesn't currently work well with multi databases
-    // but we should try to resolve that issue.
-    SKIP_TEST_FOR_BACKEND("multi");
+DEFINE_TESTCASE(valueweightsource3, backend && valuestats && !multi) {
+    // FIXME: multi doesn't support iterating valuestreams yet.
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::ValueWeightPostingSource src(11);
     src.reset(db);

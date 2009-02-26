@@ -163,10 +163,12 @@ DEFINE_TESTCASE(valuestream3, backend && !multi) {
  *
  *  The original implementation went into an infinite loop in this case.
  */
-DEFINE_TESTCASE(valueweightsource5, writable && valuestats & !multi) {
+DEFINE_TESTCASE(valueweightsource5, writable && valuestats) {
     // inmemory's memory use is currently O(last_docid)!
     SKIP_TEST_FOR_BACKEND("inmemory");
-    // Not supported currently.
+    // remote's value slot iteration is very slow for this case currently
+    // because it throws and catches DocNotFoundError across the link 2^32-3
+    // times.
     SKIP_TEST_FOR_BACKEND("remote");
     Xapian::WritableDatabase db = get_writable_database();
     Xapian::Document doc;
@@ -189,7 +191,7 @@ DEFINE_TESTCASE(valueweightsource5, writable && valuestats & !multi) {
     return true;
 }
 
-// Check that ValueMapSource works correctly.
+// Check that ValueMapPostingSource works correctly.
 // the test db has value 13 set to:
 //      1   Thi
 //      2   The
@@ -247,7 +249,7 @@ DEFINE_TESTCASE(valuemapsource1, backend) {
 
 // Regression test for valuepostingsource subclasses: used to segfault if skip_to()
 // called on an empty list.
-DEFINE_TESTCASE(valuemapsource2, backend && !remote && !multi) {
+DEFINE_TESTCASE(valuemapsource2, backend && !multi) {
     Xapian::Database db(get_database("apitest_phrase"));
 
     {
