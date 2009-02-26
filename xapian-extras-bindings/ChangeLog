@@ -1,3 +1,9 @@
+Thu Feb 26 14:19:08 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* imgseek/imgseek.i,imgseek/python/Makefile.am: Fix up compilation
+	  not to actually link with _xapian.so, since that's not portable
+	  or neccessary. Add support for getting at the avgl members.
+
 Thu Feb 26 13:21:58 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* generic/generic.mk,imgseek/imgseek.i,imgseek/python/Makefile.am:

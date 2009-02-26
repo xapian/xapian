@@ -59,20 +59,17 @@ namespace Xapian {
 }
 #include "xapian/imgseek.h"
 %}
+//%include "except.i"
 
-/*
 %include "std_set.i"
 %include "std_string.i"
-%feature("notabstract") ImgSigSimilarityPostingSource;
-%apply const std::string& {std::string& serialised};
+%include "carrays.i"
+%array_functions(double, doubleArray)
 namespace std {
-  %template(dset) set<double>;
   %template(iset) set<int>;
 };
-*/
 
 %import "xapian/postingsource.h"
 %include "xapian/imgseek.h"
-%import "xapian.i"
 
 /* vim:set syntax=cpp:set noexpandtab: */

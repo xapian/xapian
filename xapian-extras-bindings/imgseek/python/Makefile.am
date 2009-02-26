@@ -36,7 +36,6 @@ EXTRA_DIST = \
 	$(TESTS) $(BUILT_SOURCES)
 
 IMGSEEK_LIBS = $(builddir)/../../../xapian-extras/libxapian_imgseek.la
-XAPIAN_PYTHON_LIBS = $(builddir)/../../../xapian-bindings/python/_xapian.la
 
 pkgpylibdir = @PYTHON_LIB@/xapian/imgseek
 
@@ -61,7 +60,7 @@ AM_CPPFLAGS = -I$(PYTHON_INC)
 AM_CXXFLAGS = $(SWIG_CXXFLAGS) $(XAPIAN_CXXFLAGS) -I$(srcdir)/../../../xapian-extras/imgseek/include
 _imgseek_la_LDFLAGS = -avoid-version -module -shrext "$(PYTHON_SO)" $(NO_UNDEFINED)
 _imgseek_la_SOURCES = imgseek_wrap.cc
-_imgseek_la_LIBADD = $(XAPIAN_LIBS) $(IMGSEEK_LIBS) $(PYTHON_LIBS) $(XAPIAN_PYTHON_LIBS)
+_imgseek_la_LIBADD = $(XAPIAN_LIBS) $(IMGSEEK_LIBS) $(PYTHON_LIBS)
 
 # In a distribution, imgseek.py is in $(srcdir), and python will always
 # generate the .pyc and .pyo files in the same directory as the .py file.
