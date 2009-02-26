@@ -1,3 +1,8 @@
+Thu Feb 26 06:33:41 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* omega.cc,query.cc: Prefer str.resize(0) to str = "".
+
 Thu Feb 26 06:22:46 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
