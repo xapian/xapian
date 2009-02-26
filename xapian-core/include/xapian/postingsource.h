@@ -160,7 +160,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *  Generally, this method should act like skip_to() and return true if
      *  that can be done at little extra cost.
      *
-     *  Otherwise it should simply checks if a particular docid is present,
+     *  Otherwise it should simply check if a particular docid is present,
      *  returning true if it is, and false if it isn't.
      *
      *  The default implementation calls skip_to() and always returns true.
