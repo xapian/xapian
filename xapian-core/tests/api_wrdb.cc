@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2006 Richard Boulton
  * Copyright 2007 Lemur Consulting Ltd
  *
@@ -2037,7 +2037,7 @@ DEFINE_TESTCASE(bigoaddvalue, writable) {
     // O(n*n) is bad, but we don't require linearity - O(n*log(n)) is
     // acceptable, so put the threshold halfway between.
     const double ALLOWED_FACTOR = (100.0 + 10 * 2.71828) / 2.0;
-    TEST_LESSER(time_10N, time_N * ALLOWED_FACTOR);
+    TEST_REL(time_10N,<,time_N * ALLOWED_FACTOR);
 
     return true;
 }
@@ -2094,7 +2094,7 @@ check_vals(const Xapian::Database & db, const map<Xapian::docid, string> & vals)
 {
     TEST_EQUAL(db.get_doccount(), vals.size());
     if (vals.size() == 0) return;
-    TEST_LESSER_OR_EQUAL(vals.rbegin()->first, db.get_lastdocid());
+    TEST_REL(vals.rbegin()->first,<=,db.get_lastdocid());
     map<Xapian::docid, string>::const_iterator i;
     for (i = vals.begin(); i != vals.end(); ++i) {
 	tout << "Checking value in doc " << i->first << "\n";

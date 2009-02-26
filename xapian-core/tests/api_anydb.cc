@@ -531,15 +531,15 @@ DEFINE_TESTCASE(topercent2, backend) {
     i = mymset.begin();
     TEST(i != mymset.end());
     pct = mymset.convert_to_percent(i);
-    TEST_GREATER(pct, 65);
-    TEST_LESSER(pct, 75);
+    TEST_REL(pct,>,65);
+    TEST_REL(pct,<,75);
 
     ++i;
 
     TEST(i != mymset.end());
     pct = mymset.convert_to_percent(i);
-    TEST_GREATER(pct, 40);
-    TEST_LESSER(pct, 50);
+    TEST_REL(pct,>,40);
+    TEST_REL(pct,<,50);
 
     TEST_EQUAL(mymset, localmset);
     TEST(mset_range_is_same_percents(mymset, 0, localmset, 0, mymset.size()));

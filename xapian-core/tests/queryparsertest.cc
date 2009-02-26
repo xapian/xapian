@@ -1,6 +1,6 @@
 /* queryparsertest.cc: Tests of Xapian::QueryParser
  *
- * Copyright (C) 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1802,7 +1802,7 @@ static bool test_qp_stem_scale1()
     }
     time2 = time_query_parse(db, q2, 1, defflags);
     tout << "defflags: small=" << time1 << "s, large=" << time2 << "s\n";
-    TEST_LESSER(time2, time1 * 2);
+    TEST_REL(time2,<,time1 * 2);
 
     // If synonyms are enabled, a different code-path is followed.
     // Test a query which has no synonyms.
@@ -1813,7 +1813,7 @@ static bool test_qp_stem_scale1()
     }
     time2 = time_query_parse(db, q2b, 1, synflags);
     tout << "synflags: small=" << time1 << "s, large=" << time2 << "s\n";
-    TEST_LESSER(time2, time1 * 2);
+    TEST_REL(time2,<,time1 * 2);
 
     // Test a query which has short synonyms.
     time1 = time_query_parse(db, q1, repetitions, synflags);
@@ -1823,7 +1823,7 @@ static bool test_qp_stem_scale1()
     }
     time2 = time_query_parse(db, q2, 1, synflags);
     tout << "synflags: small=" << time1 << "s, large=" << time2 << "s\n";
-    TEST_LESSER(time2, time1 * 2);
+    TEST_REL(time2,<,time1 * 2);
 
     // Add a synonym for the whole query, to test that code path.
     db.add_synonym(syn, "bar");
@@ -1836,7 +1836,7 @@ static bool test_qp_stem_scale1()
     }
     time2 = time_query_parse(db, q2, 1, synflags);
     tout << "synflags2: small=" << time1 << "s, large=" << time2 << "s\n";
-    TEST_LESSER(time2, time1 * 2);
+    TEST_REL(time2,<,time1 * 2);
 
     return true;
 }

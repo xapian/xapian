@@ -1,6 +1,7 @@
 /* perftest_matchdecider.cc: performance tests for match decider
  *
  * Copyright 2008 Lemur Consulting Ltd
+ * Copyright 2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -117,8 +118,8 @@ DEFINE_TESTCASE(valuesetmatchdecider1, writable && !remote && !inmemory) {
 	enquire.set_query(query);
 	mset = enquire.get_mset(0, 10, 0, NULL, &md, NULL);
 	logger.search_end(query, mset);
-	TEST(mset.size() == 10);
-	TEST_LESSER_OR_EQUAL(mset.get_matches_lower_bound(), runsize * (i + 1) / 100);
+	TEST_EQUAL(mset.size(), 10);
+	TEST_REL(mset.get_matches_lower_bound(),<=,runsize * (i + 1) / 100);
 	logger.searching_end();
 
 	Xapian::Query query2(Xapian::Query::OP_FILTER, query,
@@ -129,8 +130,8 @@ DEFINE_TESTCASE(valuesetmatchdecider1, writable && !remote && !inmemory) {
 	enquire.set_query(query2);
 	mset2 = enquire.get_mset(0, 10, 0, NULL, NULL, NULL);
 	logger.search_end(query2, mset2);
-	TEST(mset2.size() == 10);
-	TEST_LESSER_OR_EQUAL(mset2.get_matches_lower_bound(), runsize * (i + 1) / 100);
+	TEST_EQUAL(mset2.size(), 10);
+	TEST_REL(mset2.get_matches_lower_bound(),<=,runsize * (i + 1) / 100);
 	test_mset_order_equal(mset, mset2);
 	logger.searching_end();
     }

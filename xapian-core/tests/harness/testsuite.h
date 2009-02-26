@@ -273,26 +273,6 @@ extern bool TEST_EQUAL_DOUBLE_(double a, double b);
 	"Expected `"STRINGIZE(a)"' and `"STRINGIZE(b)"' not to be equal:" \
 	" were " << (a) << " and " << (b))
 
-/// Test for one thing being >= another.
-#define TEST_GREATER_OR_EQUAL(a, b) TEST_AND_EXPLAIN(((a) >= (b)), \
-	"Expected `"STRINGIZE(a)"' to be greater than or equal to `"STRINGIZE(b)"':" \
-	" were " << (a) << " and " << (b))
-
-/// Test for one thing being > another.
-#define TEST_GREATER(a, b) TEST_AND_EXPLAIN(((a) > (b)), \
-	"Expected `"STRINGIZE(a)"' to be greater than `"STRINGIZE(b)"':" \
-	" were " << (a) << " and " << (b))
-
-/// Test for one thing being <= another.
-#define TEST_LESSER_OR_EQUAL(a, b) TEST_AND_EXPLAIN(((a) <= (b)), \
-	"Expected `"STRINGIZE(a)"' to be less than or equal to `"STRINGIZE(b)"':" \
-	" were " << (a) << " and " << (b))
-
-/// Test for one thing being < another.
-#define TEST_LESSER(a, b) TEST_AND_EXPLAIN(((a) < (b)), \
-	"Expected `"STRINGIZE(a)"' to be less than than `"STRINGIZE(b)"':" \
-	" were " << (a) << " and " << (b))
-
 #define DEFINE_TESTCASE(S,COND) bool test_##S()
 
 // Newer test macros:
