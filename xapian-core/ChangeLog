@@ -1,3 +1,11 @@
+Thu Feb 26 07:51:43 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Fix the new
+	  Enquire::get_uncollapsed_matches_lower_bound(), etc methods for
+	  certain cases.
+	* tests/api_anydb.cc,tests/api_db.cc: Extend existing tests to also
+	  check Enquire::get_uncollapsed_matches_lower_bound(), etc.
+
 Thu Feb 26 07:49:23 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/harness/Makefile.mk,tests/harness/testmacros.h,

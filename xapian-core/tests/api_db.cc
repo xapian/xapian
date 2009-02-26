@@ -389,6 +389,9 @@ DEFINE_TESTCASE(matchfunctor1, backend && !remote) {
     TEST_EQUAL(mymset.get_matches_lower_bound(), 3);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 3);
     TEST_EQUAL(mymset.get_matches_estimated(), 3);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_lower_bound(), 3);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_upper_bound(), 3);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_estimated(), 3);
     for ( ; i != mymset.end(); ++i) {
 	const Xapian::Document doc(i.get_document());
 	TEST(myfunctor(doc));
@@ -406,20 +409,30 @@ DEFINE_TESTCASE(matchfunctor1, backend && !remote) {
     TEST_EQUAL(mymset.size(), 0);
     TEST_EQUAL(mymset.get_matches_lower_bound(), 0);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 6);
-    TEST(mymset.get_matches_estimated() > 0);
-    TEST(mymset.get_matches_estimated() <= 6);
+    TEST_REL(mymset.get_matches_estimated(),>,0);
+    TEST_REL(mymset.get_matches_estimated(),<=,6);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_lower_bound(), 0);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_upper_bound(), 6);
+    TEST_REL(mymset.get_uncollapsed_matches_estimated(),>,0);
+    TEST_REL(mymset.get_uncollapsed_matches_estimated(),<=,6);
 
     // Check that the bounds are appropriate if we ask for only one hit.
     // (Regression test - until SVN 10256, we didn't reduce the lower_bound
     // appropriately, and returned 6 here.)
     mymset = enquire.get_mset(0, 1, 0, &myfunctor);
     TEST_EQUAL(mymset.size(), 1);
-    TEST(mymset.get_matches_lower_bound() >= 1);
-    TEST(mymset.get_matches_lower_bound() <= 3);
-    TEST(mymset.get_matches_upper_bound() >= 3);
-    TEST(mymset.get_matches_upper_bound() <= 6);
-    TEST(mymset.get_matches_estimated() > 0);
-    TEST(mymset.get_matches_estimated() <= 6);
+    TEST_REL(mymset.get_matches_lower_bound(),>=,1);
+    TEST_REL(mymset.get_matches_lower_bound(),<=,3);
+    TEST_REL(mymset.get_matches_upper_bound(),>=,3);
+    TEST_REL(mymset.get_matches_upper_bound(),<=,6);
+    TEST_REL(mymset.get_matches_estimated(),>,0);
+    TEST_REL(mymset.get_matches_estimated(),<=,6);
+    TEST_REL(mymset.get_uncollapsed_matches_lower_bound(),>=,1);
+    TEST_REL(mymset.get_uncollapsed_matches_lower_bound(),<=,3);
+    TEST_REL(mymset.get_uncollapsed_matches_upper_bound(),>=,3);
+    TEST_REL(mymset.get_uncollapsed_matches_upper_bound(),<=,6);
+    TEST_REL(mymset.get_uncollapsed_matches_estimated(),>,0);
+    TEST_REL(mymset.get_uncollapsed_matches_estimated(),<=,6);
 
     // Check that the other documents don't satisfy the condition.
     for (Xapian::docid did = 1; did < docid_checked.size(); ++did) {
@@ -433,12 +446,18 @@ DEFINE_TESTCASE(matchfunctor1, backend && !remote) {
     enquire.set_collapse_key(99);
     mymset = enquire.get_mset(0, 1, 0, &myfunctor);
     TEST_EQUAL(mymset.size(), 1);
-    TEST(mymset.get_matches_lower_bound() >= 1);
-    TEST(mymset.get_matches_lower_bound() <= 3);
-    TEST(mymset.get_matches_upper_bound() >= 3);
-    TEST(mymset.get_matches_upper_bound() <= 6);
-    TEST(mymset.get_matches_estimated() > 0);
-    TEST(mymset.get_matches_estimated() <= 6);
+    TEST_REL(mymset.get_matches_lower_bound(),>=,1);
+    TEST_REL(mymset.get_matches_lower_bound(),<=,3);
+    TEST_REL(mymset.get_matches_upper_bound(),>=,3);
+    TEST_REL(mymset.get_matches_upper_bound(),<=,6);
+    TEST_REL(mymset.get_matches_estimated(),>,0);
+    TEST_REL(mymset.get_matches_estimated(),<=,6);
+    TEST_REL(mymset.get_uncollapsed_matches_lower_bound(),>=,1);
+    TEST_REL(mymset.get_uncollapsed_matches_lower_bound(),<=,3);
+    TEST_REL(mymset.get_uncollapsed_matches_upper_bound(),>=,3);
+    TEST_REL(mymset.get_uncollapsed_matches_upper_bound(),<=,6);
+    TEST_REL(mymset.get_uncollapsed_matches_estimated(),>,0);
+    TEST_REL(mymset.get_uncollapsed_matches_estimated(),<=,6);
 
     // Check that the bounds are appropriate if a percentage cutoff is in
     // use.  Set a 1% threshold so we don't actually discard anything.
@@ -446,23 +465,35 @@ DEFINE_TESTCASE(matchfunctor1, backend && !remote) {
     enquire.set_cutoff(1);
     mymset = enquire.get_mset(0, 1, 0, &myfunctor);
     TEST_EQUAL(mymset.size(), 1);
-    TEST(mymset.get_matches_lower_bound() >= 1);
-    TEST(mymset.get_matches_lower_bound() <= 3);
-    TEST(mymset.get_matches_upper_bound() >= 3);
-    TEST(mymset.get_matches_upper_bound() <= 6);
-    TEST(mymset.get_matches_estimated() > 0);
-    TEST(mymset.get_matches_estimated() <= 6);
+    TEST_REL(mymset.get_matches_lower_bound(),>=,1);
+    TEST_REL(mymset.get_matches_lower_bound(),<=,3);
+    TEST_REL(mymset.get_matches_upper_bound(),>=,3);
+    TEST_REL(mymset.get_matches_upper_bound(),<=,6);
+    TEST_REL(mymset.get_matches_estimated(),>,0);
+    TEST_REL(mymset.get_matches_estimated(),<=,6);
+    TEST_REL(mymset.get_uncollapsed_matches_lower_bound(),>=,1);
+    TEST_REL(mymset.get_uncollapsed_matches_lower_bound(),<=,3);
+    TEST_REL(mymset.get_uncollapsed_matches_upper_bound(),>=,3);
+    TEST_REL(mymset.get_uncollapsed_matches_upper_bound(),<=,6);
+    TEST_REL(mymset.get_uncollapsed_matches_estimated(),>,0);
+    TEST_REL(mymset.get_uncollapsed_matches_estimated(),<=,6);
 
     // And now with both a collapse key and percentage cutoff.
     enquire.set_collapse_key(99);
     mymset = enquire.get_mset(0, 1, 0, &myfunctor);
     TEST_EQUAL(mymset.size(), 1);
-    TEST(mymset.get_matches_lower_bound() >= 1);
-    TEST(mymset.get_matches_lower_bound() <= 3);
-    TEST(mymset.get_matches_upper_bound() >= 3);
-    TEST(mymset.get_matches_upper_bound() <= 6);
-    TEST(mymset.get_matches_estimated() > 0);
-    TEST(mymset.get_matches_estimated() <= 6);
+    TEST_REL(mymset.get_matches_lower_bound(),>=,1);
+    TEST_REL(mymset.get_matches_lower_bound(),<=,3);
+    TEST_REL(mymset.get_matches_upper_bound(),>=,3);
+    TEST_REL(mymset.get_matches_upper_bound(),<=,6);
+    TEST_REL(mymset.get_matches_estimated(),>,0);
+    TEST_REL(mymset.get_matches_estimated(),<=,6);
+    TEST_REL(mymset.get_uncollapsed_matches_lower_bound(),>=,1);
+    TEST_REL(mymset.get_uncollapsed_matches_lower_bound(),<=,3);
+    TEST_REL(mymset.get_uncollapsed_matches_upper_bound(),>=,3);
+    TEST_REL(mymset.get_uncollapsed_matches_upper_bound(),<=,6);
+    TEST_REL(mymset.get_uncollapsed_matches_estimated(),>,0);
+    TEST_REL(mymset.get_uncollapsed_matches_estimated(),<=,6);
 
     return true;
 }
@@ -519,26 +550,35 @@ DEFINE_TESTCASE(matchfunctor3, backend) {
 
     myMatchDecider2 myfunctor;
 
-    Xapian::MSet mymset1 = enquire.get_mset(0, 2, 0, NULL, &myfunctor);
-    Xapian::MSet mymset2 = enquire.get_mset(0, 1000, 0, NULL, &myfunctor);
+    Xapian::MSet mset1 = enquire.get_mset(0, 2, 0, NULL, &myfunctor);
+    Xapian::MSet mset2 = enquire.get_mset(0, 1000, 0, NULL, &myfunctor);
 
-    // mymset2 should contain all the hits, so the statistics should be exact.
-    TEST_EQUAL(mymset2.get_matches_estimated(),
-	       mymset2.size());
-    TEST_EQUAL(mymset2.get_matches_lower_bound(),
-	       mymset2.get_matches_estimated());
-    TEST_EQUAL(mymset2.get_matches_estimated(),
-	       mymset2.get_matches_upper_bound());
+    // mset2 should contain all the hits, so the statistics should be exact.
+    TEST_EQUAL(mset2.get_matches_estimated(), mset2.size());
+    TEST_EQUAL(mset2.get_matches_lower_bound(), mset2.get_matches_estimated());
+    TEST_EQUAL(mset2.get_matches_estimated(), mset2.get_matches_upper_bound());
 
-    // Check that the lower bound in mymset1 is not greater than the known
+    TEST_REL(mset2.get_uncollapsed_matches_lower_bound(),<=,mset2.get_uncollapsed_matches_estimated());
+    TEST_REL(mset2.get_uncollapsed_matches_estimated(),<=,mset2.get_uncollapsed_matches_upper_bound());
+
+    // Check that the lower bound in mset1 is not greater than the known
     // number of hits.  This failed until revision 10811.
-    TEST_LESSER_OR_EQUAL(mymset1.get_matches_lower_bound(),
-			 mymset2.size());
+    TEST_REL(mset1.get_matches_lower_bound(),<=,mset2.size());
 
-    // Check that the bounds for mymset1 make sense
-    TEST_LESSER_OR_EQUAL(mymset1.get_matches_lower_bound(), mymset1.get_matches_estimated());
-    TEST_LESSER_OR_EQUAL(mymset1.size(), mymset1.get_matches_upper_bound());
-    TEST_LESSER_OR_EQUAL(mymset1.get_matches_estimated(), mymset1.get_matches_upper_bound());
+    // Check that the bounds for mset1 make sense.
+    TEST_REL(mset1.get_matches_lower_bound(),<=,mset1.get_matches_estimated());
+    TEST_REL(mset1.get_matches_estimated(),<=,mset1.get_matches_upper_bound());
+    TEST_REL(mset1.size(),<=,mset1.get_matches_upper_bound());
+
+    TEST_REL(mset1.get_uncollapsed_matches_lower_bound(),<=,mset1.get_uncollapsed_matches_estimated());
+    TEST_REL(mset1.get_uncollapsed_matches_estimated(),<=,mset1.get_uncollapsed_matches_upper_bound());
+
+    // The uncollapsed match would match all documents but the one the
+    // matchdecider rejects.
+    TEST_REL(mset1.get_uncollapsed_matches_upper_bound(),>=,db.get_doccount() - 1);
+    TEST_REL(mset1.get_uncollapsed_matches_upper_bound(),<=,db.get_doccount());
+    TEST_REL(mset2.get_uncollapsed_matches_upper_bound(),>=,db.get_doccount() - 1);
+    TEST_REL(mset2.get_uncollapsed_matches_upper_bound(),<=,db.get_doccount());
 
     return true;
 }
@@ -736,7 +776,7 @@ DEFINE_TESTCASE(collapsekey2, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata2"));
     enquire.set_query(Xapian::Query("this"));
 
-    Xapian::MSet mymset1 = enquire.get_mset(0, 1);
+    Xapian::MSet mset1 = enquire.get_mset(0, 1);
 
     // Test that if no duplicates are found, then the upper bound remains
     // unchanged and the lower bound drops.
@@ -744,10 +784,10 @@ DEFINE_TESTCASE(collapsekey2, backend) {
 	enquire.set_query(Xapian::Query("this"));
 	Xapian::valueno value_no = 3;
 	enquire.set_collapse_key(value_no);
-	Xapian::MSet mymset = enquire.get_mset(0, 1);
+	Xapian::MSet mset = enquire.get_mset(0, 1);
 
-	TEST(mymset.get_matches_lower_bound() < mymset1.get_matches_lower_bound());
-	TEST_EQUAL(mymset.get_matches_upper_bound(), mymset1.get_matches_upper_bound());
+	TEST_REL(mset.get_matches_lower_bound(),<,mset1.get_matches_lower_bound());
+	TEST_EQUAL(mset.get_matches_upper_bound(), mset1.get_matches_upper_bound());
     }
 
     return true;
