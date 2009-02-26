@@ -1,3 +1,9 @@
+Thu Feb 26 14:53:19 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/multiandpostlist.cc: Use AssertRelParanoid() instead
+	  of AssertParanoid() so the values get reported if the assertion
+	  fails.
+
 Thu Feb 26 14:18:21 GMT 2009  Olly Betts <olly@survex.com>
 
 	* include/xapian/postingsource.h: Tweak word order.
