@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2006,2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -479,8 +479,7 @@ qint_from_vector(Xapian::Query::op op,
     Xapian::Query::Internal * qint = new Xapian::Query::Internal(op, parameter);
     vector<Xapian::Query::Internal *>::const_iterator i;
     for (i = vec.begin(); i != vec.end(); i++) {
-	qint->add_subquery(*i);
-	delete *i;
+	qint->add_subquery_nocopy(*i);
     }
     qint->end_construction();
     return qint;
@@ -496,8 +495,7 @@ qint_from_vector(Xapian::Query::op op,
     qint->set_dbl_parameter(dbl_parameter);
     vector<Xapian::Query::Internal *>::const_iterator i;
     for (i = vec.begin(); i != vec.end(); i++) {
-	qint->add_subquery(*i);
-	delete *i;
+	qint->add_subquery_nocopy(*i);
     }
     qint->end_construction();
     return qint;
@@ -1032,6 +1030,24 @@ Xapian::Query::Internal::add_subquery(const Xapian::Query::Internal * subq)
 	}
     } else {
 	subqs.push_back(new Xapian::Query::Internal(*subq));
+    }
+}
+
+void
+Xapian::Query::Internal::add_subquery_nocopy(Xapian::Query::Internal * subq)
+{
+    Assert(!is_leaf(op));
+    if (subq == 0) {
+	subqs.push_back(0);
+    } else if (op == subq->op && (op == OP_AND || op == OP_OR || op == OP_XOR)) {
+	// Distribute the subquery.
+	for (subquery_list::const_iterator i = subq->subqs.begin();
+	     i != subq->subqs.end(); i++) {
+	    add_subquery(*i);
+	}
+	delete subq;
+    } else {
+	subqs.push_back(subq);
     }
 }
 

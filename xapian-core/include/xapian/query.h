@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2006,2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -435,9 +435,14 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 	static Xapian::Query::Internal * unserialise(const std::string &s,
 		const std::map<std::string, Xapian::PostingSource *> &sources);
 
-	/** Add a subquery.
-	 */
+	/** Add a subquery. */
 	void add_subquery(const Query::Internal * subq);
+
+	/** Add a subquery without copying it.
+	 *
+	 *  subq is owned by the object this is called on after the call.
+	 */
+	void add_subquery_nocopy(Query::Internal * subq);
 
 	void set_dbl_parameter(double dbl_parameter_);
 

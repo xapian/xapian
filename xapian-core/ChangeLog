@@ -1,3 +1,9 @@
+Thu Feb 26 12:08:40 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc,include/xapian/query.h: Avoid copying
+	  Query::Internal objects needlessly when unserialising Query
+	  objects.
+
 Thu Feb 26 10:07:18 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_db.cc: A couple more uncollapsed tests.
