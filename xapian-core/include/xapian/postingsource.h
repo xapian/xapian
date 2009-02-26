@@ -226,7 +226,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *  @param db The database which the PostingSource should iterate through.
      *
      *  Note: the database supplied to this method must not be modified: in
-     *  particular, the reopen() method on it should not be called.
+     *  particular, the reopen() method should not be called on it.
      */
     virtual void reset(const Database & db) = 0;
 
