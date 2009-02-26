@@ -15,4 +15,3 @@ libxapian_imgseek_la_SOURCES +=\
 	imgseek/src/haar.cc\
 	imgseek/src/imgseek.cc\
 	imgseek/src/jpegloader.cc
-
