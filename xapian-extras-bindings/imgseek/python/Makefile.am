@@ -4,7 +4,21 @@
 # `make QUIET=y' overrides `./configure' without `--enable-quiet'.
 LIBTOOL = @LIBTOOL@ $(QUIET:y=--quiet)
 
-include ../generic/generic.mk
+include ../../generic/generic.mk
+
+SWIG_mainsource = \
+	$(srcdir)/../imgseek.i
+
+SWIG_sources = \
+	$(SWIG_mainsource) \
+	$(srcdir)/../../../xapian-bindings/generic/except.i
+
+SWIG_includes = \
+	-I$(srcdir) \
+	-I$(srcdir)/../../../xapian-extras/imgseek/include \
+	-I$(srcdir)/../../../xapian-bindings/python \
+	-I$(srcdir)/../../../xapian-bindings/generic \
+	-I$(srcdir)/../../../xapian-bindings
 
 TESTS_ENVIRONMENT = PYTHONPATH=".:$$PYTHONPATH" abs_builddir=@abs_builddir@ $(PYTHON)
 
@@ -13,13 +27,16 @@ TESTS = pythontest.py
 
 BUILT_SOURCES = imgseek_wrap.cc imgseek_wrap.h imgseek.py
 
-if !MAINTAINER_NO_DOCS
-DOCCOMMENTS_I = imgseek_doccomments.i
-DOCCOMMENTS_I_FLAGS=-DDOCCOMMENTS_I_SOURCES
-endif
+# if !MAINTAINER_NO_DOCS
+# DOCCOMMENTS_I = imgseek_doccomments.i
+# DOCCOMMENTS_I_FLAGS=-DDOCCOMMENTS_I_SOURCES
+# endif
 
-EXTRA_DIST = imgseek.i \
+EXTRA_DIST = \
 	$(TESTS) $(BUILT_SOURCES)
+
+IMGSEEK_LIBS = $(builddir)/../../../xapian-extras/libxapian_imgseek.la
+XAPIAN_PYTHON_LIBS = $(builddir)/../../../xapian-bindings/python/_xapian.la
 
 pkgpylibdir = @PYTHON_LIB@/xapian/imgseek
 
@@ -41,10 +58,10 @@ uninstall-local:
 	rm -f $(DESTDIR)$(pkgpylibdir)/_imgseek$(PYTHON_SO)
 
 AM_CPPFLAGS = -I$(PYTHON_INC)
-AM_CXXFLAGS = $(SWIG_CXXFLAGS) $(XAPIAN_CXXFLAGS)
+AM_CXXFLAGS = $(SWIG_CXXFLAGS) $(XAPIAN_CXXFLAGS) -I$(srcdir)/../../../xapian-extras/imgseek/include
 _imgseek_la_LDFLAGS = -avoid-version -module -shrext "$(PYTHON_SO)" $(NO_UNDEFINED)
 _imgseek_la_SOURCES = imgseek_wrap.cc
-_imgseek_la_LIBADD = $(XAPIAN_LIBS) $(PYTHON_LIBS)
+_imgseek_la_LIBADD = $(XAPIAN_LIBS) $(IMGSEEK_LIBS) $(PYTHON_LIBS) $(XAPIAN_PYTHON_LIBS)
 
 # In a distribution, imgseek.py is in $(srcdir), and python will always
 # generate the .pyc and .pyo files in the same directory as the .py file.
@@ -61,11 +78,11 @@ imgseek/__init__.py: imgseek.py
 # we don't generate a broken __init__.pyc or __init__.pyo.
 imgseek/__init__.pyc: imgseek/__init__.py imgseek/_imgseek$(PYTHON_SO)
 	PYTHONPATH="imgseek:$$PYTHONPATH" $(PYTHON) -c "import _imgseek"
-	PYTHONPATH=".:$$PYTHONPATH" $(PYTHON) -c "import imgseek"
+	PYTHONPATH=".:$(builddir)/../../../xapian-bindings/python/:$(builddir)/../../../xapian-bindings/python/xapian/:$$PYTHONPATH" $(PYTHON) -c "import imgseek"
 
 imgseek/__init__.pyo: imgseek/__init__.py imgseek/_imgseek$(PYTHON_SO)
 	PYTHONPATH="imgseek:$$PYTHONPATH" $(PYTHON) -O -c "import _imgseek"
-	PYTHONPATH=".:$$PYTHONPATH" $(PYTHON) -O -c "import imgseek"
+	PYTHONPATH=".:$(builddir)/../../../xapian-bindings/python/:$(builddir)/../../../xapian-bindings/python/xapian/:$$PYTHONPATH" $(PYTHON) -O -c "import imgseek"
 
 imgseek/_imgseek$(PYTHON_SO): _imgseek.la
 	-test -d imgseek || mkdir imgseek
@@ -90,29 +107,29 @@ if MAINTAINER_MODE
 # option.
 
 BUILT_SOURCES += $(DOCCOMMENTS_I)
-except.i: $(srcdir)/generate-python-exceptions ../../xapian-core/exception_data.pm
-	$(PERL) -w -I$(srcdir)/../../xapian-core $(srcdir)/generate-python-exceptions
+except.i: ../../../xapian-bindings/python/except.i
+	echo cp "$^" "$@"
 
-imgseek_doccomments.i: doxy2swig.py ../../xapian-core/exception_data.pm ../../xapian-core/docs/apidoc/xml/index.xml
-	$(PYTHON) doxy2swig.py ../../xapian-core/docs/apidoc/xml/index.xml imgseek_doccomments.i
+# imgseek_doccomments.i: doxy2swig.py ../../xapian-core/exception_data.pm ../../xapian-core/docs/apidoc/xml/index.xml
+# 	$(PYTHON) doxy2swig.py ../../xapian-core/docs/apidoc/xml/index.xml imgseek_doccomments.i
 
-xapian_wrap.cc xapian_wrap.h xapian.py xapian_wrap.d: xapian_wrap.stamp
-	@stamp=xapian_wrap.stamp; $(make_many_locked)
-xapian_wrap.stamp: $(SWIG_sources) util.i except.i $(DOCCOMMENTS_I) extra.i extracomments.i
+imgseek_wrap.cc imgseek_wrap.h imgseek.py imgseek_wrap.d: imgseek_wrap.stamp
+	stamp=imgseek_wrap.stamp; $(make_many_locked)
+imgseek_wrap.stamp: $(SWIG_sources) $(DOCCOMMENTS_I)
 	$(multitarget_begin)
 	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) $(DOCCOMMENTS_I_FLAGS) -c++ \
 	    -python -threads -shadow -modern -O -outdir . \
-	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp $(SWIG_mainsource)
-	$(PERL) -pe 's!xapian_wrap.cc:!xapian_wrap.stamp:!' xapian_wrap_d.tmp > xapian_wrap_d2.tmp
-	mv xapian_wrap_d2.tmp xapian_wrap.d
-	rm xapian_wrap_d.tmp
-	$(PERL) -pe 's/class Error:/class Error(Exception):/' xapian.py > xapian_py.tmp
-	mv xapian_py.tmp xapian.py
+	    -o imgseek_wrap.cc -MD -MF imgseek_wrap_d.tmp $(SWIG_mainsource)
+	$(PERL) -pe 's!imgseek_wrap.cc:!imgseek_wrap.stamp:!' imgseek_wrap_d.tmp > imgseek_wrap_d2.tmp
+	mv imgseek_wrap_d2.tmp imgseek_wrap.d
+	rm imgseek_wrap_d.tmp
+	$(PERL) -pe 's/class Error:/class Error(Exception):/' imgseek.py > imgseek_py.tmp
+	mv imgseek_py.tmp imgseek.py
 	$(multitarget_end)
 
--include xapian_wrap.d
+-include imgseek_wrap.d
 
-CLEANFILES += $(BUILT_SOURCES) xapian_wrap.d xapian_wrap.stamp
+CLEANFILES += $(BUILT_SOURCES) imgseek_wrap.d imgseek_wrap.stamp
 else
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 endif

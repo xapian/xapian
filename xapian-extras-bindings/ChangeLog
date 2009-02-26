@@ -1,3 +1,11 @@
+Thu Feb 26 13:21:58 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* generic/generic.mk,imgseek/imgseek.i,imgseek/python/Makefile.am:
+	  First version which actually compiles and links.  A bit of a mess
+	  in various places, and doesn't handle exceptions correctly (lacks
+	  a handler, so exceptions result in a crash).  Also needs work to
+	  make it possible to use the module uninstalled.
+
 Tue Feb 24 01:18:22 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* AUTHORS,COPYING,ChangeLog,INSTALL,Makefile.am,NEWS,README,
