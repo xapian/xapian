@@ -26,16 +26,26 @@
 #ifndef XAPIAN_INCLUDED_IMGSEEK_H
 #define XAPIAN_INCLUDED_IMGSEEK_H
 
+#include <iostream>
+#include <algorithm>
+#include <cmath>
 #include <set>
 #include <string>
+#include <sstream>
 
 #include <xapian/database.h>
 #include <xapian/error.h>
 #include <xapian/postingsource.h>
+#include <xapian/query.h>
 #include <xapian/visibility.h>
 
+#include "serialise-double.h"
+
+//namespace Xapian {
+//  namespace ImgSeek {
 // FIXME - these are currently defined here as well as in haar.h internally
 typedef int Idx;
+// use std::tr1::unordered_set ?
 typedef std::set<Idx> coeffs;
 
 /** The signature for an image.
@@ -108,6 +118,7 @@ struct XAPIAN_VISIBILITY_DEFAULT ImgSig {
 
 /** A collection of image signatures */
 class XAPIAN_VISIBILITY_DEFAULT ImgSigs {
+    // use std::tr1::unordered_set?
     std::set<ImgSig> sigs;
   public:
     std::set<ImgSig>::const_iterator begin() const {
@@ -181,4 +192,120 @@ class XAPIAN_VISIBILITY_DEFAULT ImgSigSimilarityPostingSource
     std::string get_description() const;
 };
 
+typedef std::map<std::string, double> WeightMap;
+typedef std::set<std::string> CoeffTerms;
+
+typedef std::vector<Xapian::valueno> ColourVals;
+
+template<class T>
+inline std::string to_string(const T& t) {
+  std::stringstream ss;
+  ss << t;
+  return ss.str();
+}
+
+typedef std::vector< std::pair<double, double> > Ranges;
+class XAPIAN_VISIBILITY_DEFAULT RangeAccelerator {
+  Xapian::valueno valnum;
+  Ranges ranges;
+  std::vector<double> midpoints;
+  std::vector<std::string> range_terms;
+  std::string prefix;
+  double total_range;
+  std::string make_range_term(const std::pair<double, double> r) {
+    return prefix+"r"+to_string(r.first)+"-"+to_string(r.second);
+  }
+ public:
+  /*
+  RangeAccelerator(const std::string& prefix_, Xapian::valueno valnum_, Ranges ranges_):
+    valnum(valnum_),
+    ranges(ranges_),
+    prefix(prefix_)
+    {};
+  */
+
+ RangeAccelerator(const std::string& prefix_, Xapian::valueno valnum_, double lo, double hi, double step):
+  prefix(prefix_),
+    valnum(valnum_) {
+      double x = lo;
+      while (x <= hi) {
+        double next = x + step;
+        std::pair<double, double> r = std::make_pair(x, next);
+        ranges.push_back(r);
+        range_terms.push_back(make_range_term(r));
+        midpoints.push_back(x + (step / 2.0));
+        x = next;
+      }
+      total_range = ranges.back().second - ranges.front().first;
+  }
+
+  void add_val(Xapian::Document& doc, double val) const {
+    doc.add_value(valnum, serialise_double(val));
+    for (int i = 0; i < ranges.size(); ++i) {
+      if ((val >= ranges[i].first) & (val <= ranges[i].second)) {
+        doc.add_term(range_terms[i], 0);
+      }
+    }
+  }
+  
+  Xapian::Query query_for_val_distance(double val, double cutoff = 0.0) const {
+    Xapian::Query query;
+    for (int i = 0; i<ranges.size(); ++i) {
+      double distance = fabs(val - midpoints[i]);
+      double weight = distance / total_range;
+      if (weight > cutoff) {
+        query = Xapian::Query(Xapian::Query::OP_OR,
+                              query,
+                              Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT,
+                                            Xapian::Query(range_terms[i]),
+                                            weight));
+      }
+    }
+    return query;
+  }
+};
+
+
+class XAPIAN_VISIBILITY_DEFAULT ImgTerms {
+  std::string prefix;
+  ColourVals colour_vals;
+  WeightMap weightmap;
+  WeightMap make_weightmap() const;
+  void add_coeff_terms(const coeffs& s, int c, CoeffTerms& r) const;
+  std::string make_coeff_term(int x, int c) const;
+  std::string colourprefix(int) const;
+  CoeffTerms make_coeff_terms(const ImgSig & sig) const;
+  Xapian::Query::Query make_coeff_query(const Xapian::Document& doc) const;
+  Xapian::Query::Query make_averages_query(const Xapian::Document& doc) const;
+  std::vector<RangeAccelerator> colour_average_accels;
+ public:
+  /* Make an ImgTerms object for makes terms and associated queries
+     for finding similar images signatures.
+
+     @param prefix used for terms, this prefix should not be used for
+     other terms in the database.
+   */
+  ImgTerms(const std::string& prefix, Xapian::valueno v1, Xapian::valueno v2, Xapian::valueno v3 );
+  /* Add the necessary terms and values to a document so that it can
+     be searched for image similarity.
+     
+     @param doc The document to modify
+     @param sig The image signature
+     
+     It is not advisable to call this twice on with the same document.
+   */
+  void AddTerms(Xapian::Document& doc, const ImgSig& sig) const;
+
+  /*
+    Construct a query for documents with similar signatures to that of
+    the supplied doc.
+
+    @param doc. A document which should have had terms added with AddTerms.
+   */
+
+  Xapian::Query querySimilar(const Xapian::Document& doc) const;
+};
+
+//  } // namespace ImgSeek
+//} // namespace Xapian
 #endif /* XAPIAN_INCLUDED_IMGSEEK_H */

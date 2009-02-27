@@ -62,9 +62,9 @@
 
 // RGB -> YIQ colorspace conversion; Y luminance, I,Q chrominance.
 // If RGB in [0..255] then Y in [0..255] and I,Q in [-127..127].
-void rgb_2_yiq(Unit (&a) [num_pixels_squared], 
-               Unit (&b) [num_pixels_squared],
-               Unit (&c) [num_pixels_squared]) {
+void rgb_2_yiq(colourChan &a, 
+               colourChan &b,
+               colourChan &c) {
     int i;
     for (i = 0; i < num_pixels_squared; i++) { 
       Unit Y, I, Q; 
