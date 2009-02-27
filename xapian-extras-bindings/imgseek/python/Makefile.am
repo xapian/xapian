@@ -10,8 +10,7 @@ SWIG_mainsource = \
 	$(srcdir)/../imgseek.i
 
 SWIG_sources = \
-	$(SWIG_mainsource) \
-	$(srcdir)/../../../xapian-bindings/generic/except.i
+	$(SWIG_mainsource)
 
 SWIG_includes = \
 	-I$(srcdir) \
@@ -20,17 +19,14 @@ SWIG_includes = \
 	-I$(srcdir)/../../../xapian-bindings/generic \
 	-I$(srcdir)/../../../xapian-bindings
 
-TESTS_ENVIRONMENT = PYTHONPATH=".:$$PYTHONPATH" abs_builddir=@abs_builddir@ $(PYTHON)
+UNINST_PYTHONPATH = ".:$(builddir)/../../../xapian-bindings/python/"
+
+TESTS_ENVIRONMENT = PYTHONPATH="$(UNINST_PYTHONPATH):$$PYTHONPATH" abs_builddir=@abs_builddir@ $(PYTHON)
 
 ## Test programs to be run
 TESTS = pythontest.py
 
 BUILT_SOURCES = imgseek_wrap.cc imgseek_wrap.h imgseek.py
-
-# if !MAINTAINER_NO_DOCS
-# DOCCOMMENTS_I = imgseek_doccomments.i
-# DOCCOMMENTS_I_FLAGS=-DDOCCOMMENTS_I_SOURCES
-# endif
 
 EXTRA_DIST = \
 	$(TESTS) $(BUILT_SOURCES)
@@ -60,7 +56,7 @@ AM_CPPFLAGS = -I$(PYTHON_INC)
 AM_CXXFLAGS = $(SWIG_CXXFLAGS) $(XAPIAN_CXXFLAGS) -I$(srcdir)/../../../xapian-extras/imgseek/include
 _imgseek_la_LDFLAGS = -avoid-version -module -shrext "$(PYTHON_SO)" $(NO_UNDEFINED)
 _imgseek_la_SOURCES = imgseek_wrap.cc
-_imgseek_la_LIBADD = $(XAPIAN_LIBS) $(IMGSEEK_LIBS) $(PYTHON_LIBS)
+_imgseek_la_LIBADD = $(XAPIAN_LIBS) $(IMGSEEK_LIBS) $(PYTHON_LIBS) $(builddir)/../../../xapian-bindings/python/_xapian.la
 
 # In a distribution, imgseek.py is in $(srcdir), and python will always
 # generate the .pyc and .pyo files in the same directory as the .py file.
@@ -76,7 +72,7 @@ imgseek/__init__.py: imgseek.py
 # We "import _imgseek" first so that if we fail to import the glue library
 # we don't generate a broken __init__.pyc or __init__.pyo.
 imgseek/__init__.pyc: imgseek/__init__.py imgseek/_imgseek$(PYTHON_SO)
-	PYTHONPATH="imgseek:$$PYTHONPATH" $(PYTHON) -c "import _imgseek"
+	PYTHONPATH="imgseek:$(builddir)/../../../xapian-bindings/python/xapian/:$$PYTHONPATH" $(PYTHON) -c "import _xapian;import _imgseek"
 	PYTHONPATH=".:$(builddir)/../../../xapian-bindings/python/:$(builddir)/../../../xapian-bindings/python/xapian/:$$PYTHONPATH" $(PYTHON) -c "import imgseek"
 
 imgseek/__init__.pyo: imgseek/__init__.py imgseek/_imgseek$(PYTHON_SO)
@@ -91,30 +87,20 @@ imgseek/_imgseek$(PYTHON_SO): _imgseek.la
 
 CLEANFILES = \
     imgseek/_imgseek$(PYTHON_SO) \
-    imgseek/__init__.py imgseek/__init__.pyc imgseek/__init__.pyo \
-    $(srcdir)/testsuite.pyc
+    imgseek/__init__.py imgseek/__init__.pyc imgseek/__init__.pyo
 
-# Clean the imgseek directory which we created, if it's empty, and any
-# databases created by test cases.
+# Clean the imgseek directory which we created, if it's empty.
 clean-local:
 	-rmdir imgseek
-	rm -f db_test_* dbs_replication
 
 if MAINTAINER_MODE
 # We need to explicitly set -outdir because on Windows, SWIG splits paths at
 # "\" when extracting the output directory from the value passed to the -o
 # option.
 
-BUILT_SOURCES += $(DOCCOMMENTS_I)
-except.i: ../../../xapian-bindings/python/except.i
-	echo cp "$^" "$@"
-
-# imgseek_doccomments.i: doxy2swig.py ../../xapian-core/exception_data.pm ../../xapian-core/docs/apidoc/xml/index.xml
-# 	$(PYTHON) doxy2swig.py ../../xapian-core/docs/apidoc/xml/index.xml imgseek_doccomments.i
-
 imgseek_wrap.cc imgseek_wrap.h imgseek.py imgseek_wrap.d: imgseek_wrap.stamp
 	stamp=imgseek_wrap.stamp; $(make_many_locked)
-imgseek_wrap.stamp: $(SWIG_sources) $(DOCCOMMENTS_I)
+imgseek_wrap.stamp: $(SWIG_sources)
 	$(multitarget_begin)
 	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) $(DOCCOMMENTS_I_FLAGS) -c++ \
 	    -python -threads -shadow -modern -O -outdir . \
