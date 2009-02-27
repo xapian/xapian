@@ -1,3 +1,7 @@
+Fri Feb 27 16:11:08 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* imgseek/Makefile: Remove old non-autotools makefile.
+
 Fri Feb 27 10:37:06 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* imgseek/src/imgseek.cc: Add comments about magic constants.
