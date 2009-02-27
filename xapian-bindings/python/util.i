@@ -346,10 +346,11 @@ namespace Xapian {
 SWIGINTERN int
 SWIG_AsPtr_std_string (PyObject * obj, std::string **val);
 
+namespace Xapian {
 /* Utility function which works like SWIG_AsPtr_std_string, but
- * converts unicode strings to UTF-8 simple strings first. */
-SWIGINTERN int
-SWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
+ * converts unicode strings to UTF-8 byte strings first. */
+SWIGEXPORT int
+anystring_as_ptr(PyObject ** obj, std::string **val)
 {
     if (PyUnicode_Check(*obj)) {
 	PyObject * strobj = PyUnicode_EncodeUTF8(PyUnicode_AS_UNICODE(*obj), PyUnicode_GET_SIZE(*obj), "ignore");
@@ -361,6 +362,7 @@ SWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
 	return SWIG_AsPtr_std_string(*obj, val);
     }
 }
+}
 %}
 
 /* These typemaps depends somewhat heavily on the internals of SWIG, so
@@ -368,7 +370,7 @@ SWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
  */
 %typemap(in) const std::string &(int res = SWIG_OLDOBJ) {
     std::string *ptr = (std::string *)0;
-    res = SWIG_anystring_as_ptr(&($input), &ptr);
+    res = Xapian::anystring_as_ptr(&($input), &ptr);
     if (!SWIG_IsOK(res)) {
 	%argument_fail(res,"$type",$symname, $argnum); 
     }
@@ -379,7 +381,7 @@ SWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
 }
 %typemap(in) std::string {
     std::string *ptr = (std::string *)0;
-    int res = SWIG_anystring_as_ptr(&($input), &ptr);
+    int res = Xapian::anystring_as_ptr(&($input), &ptr);
     if (!SWIG_IsOK(res) || !ptr) {
 	%argument_fail((ptr ? res : SWIG_TypeError),"$type",$symname, $argnum); 
     }
@@ -390,7 +392,7 @@ SWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
     if (SWIG_IsNewObj(res$argnum)) %delete($1);
 }
 %typemap(typecheck,noblock=1,precedence=900) const std::string & {
-    int res = SWIG_anystring_as_ptr(&($input), (std::string**)(0));
+    int res = Xapian::anystring_as_ptr(&($input), (std::string**)(0));
     $1 = SWIG_CheckState(res);
 
 }
@@ -405,7 +407,7 @@ SWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
     {
 	PyObject * tmp = $input;
 	Py_INCREF(tmp);
-	swig_ores = SWIG_anystring_as_ptr(&tmp, &swig_optr);
+	swig_ores = Xapian::anystring_as_ptr(&tmp, &swig_optr);
 	Py_DECREF(tmp);
     }
     if (!SWIG_IsOK(swig_ores) || !swig_optr) {
