@@ -1,3 +1,10 @@
+Fri Feb 27 09:57:18 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* imgseek/include/xapian/imgseek.h,
+	  imgseek/include/xapian/range_acceleration.h,imgseek/src/imgseek.cc:
+	  Move direct references to xapian internals out of header file,
+	  and split the range acceleration stuff into a new class.
+
 Fri Feb 27 09:33:05 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* imgseek/include/xapian/imgseek.h,imgseek/src/haar.cc,

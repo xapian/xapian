@@ -45,6 +45,32 @@ extern "C"
 #include "jpegloader.h"
 #include "haar.h"
 
+#include "serialise-double.h"
+
+template<class T>
+inline std::string to_string(const T& t) {
+    std::stringstream ss;
+    ss << t;
+    return ss.str();
+}
+
+
+std::string
+Xapian::RangeAccelerator::make_range_term(const std::pair<double, double> r) {
+    return prefix+"r"+to_string(r.first)+"-"+to_string(r.second);
+}
+
+void
+Xapian::RangeAccelerator::add_val(Xapian::Document& doc, double val) const {
+    doc.add_value(valnum, serialise_double(val));
+    for (int i = 0; i < ranges.size(); ++i) {
+	if ((val >= ranges[i].first) & (val <= ranges[i].second)) {
+	    doc.add_term(range_terms[i], 0);
+	}
+    }
+}
+
+
 //namespace Xapian {
 //  namespace ImgSeek {
 // Weights for the Haar coefficients.
