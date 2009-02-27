@@ -53,5 +53,6 @@ namespace std {
 };
 
 %include "xapian/imgseek.h"
+%include "xapian/range_acceleration.h"
 
 /* vim:set syntax=cpp:set noexpandtab: */
