@@ -1,3 +1,7 @@
+Fri Feb 27 10:37:06 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* imgseek/src/imgseek.cc: Add comments about magic constants.
+
 Fri Feb 27 10:01:02 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* imgseek/src/imgseek.cc: Fix namespace for RangeAccelerator.

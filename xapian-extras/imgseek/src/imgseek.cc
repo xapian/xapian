@@ -407,16 +407,19 @@ ImgTerms::ImgTerms(const std::string& prefix_, Xapian::valueno v1, Xapian::value
   colour_vals.push_back(v1);
   colour_vals.push_back(v2);
   colour_vals.push_back(v3);
-  //Y
+
+  // Put the values into 255 buckets.
+
+  // Y - ranges from 0.0 to 1.0
   colour_average_accels.push_back(Xapian::RangeAccelerator(prefix+"A0",
 							   colour_vals[0],
 							   0.0, 1.0, 1.0/255.0));
-  //I
+  // I - ranges from -0.523 to 0.523
   colour_average_accels.push_back(Xapian::RangeAccelerator(prefix+"A1",
 							   colour_vals[1],
 							   -0.523, 0.523, 
 							   (0.523*2.0)/255.0));
-  //Q
+  // Q - ranges from -0.596 to 0.596
   colour_average_accels.push_back(Xapian::RangeAccelerator(prefix+"A2",
 							   colour_vals[2],
 							   -0.596, 0.596, 
