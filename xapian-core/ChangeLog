@@ -1,3 +1,9 @@
+Fri Feb 27 01:59:31 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/database.h: WritableDatabase::flush() can't throw
+	  DatabaseLockError.  WritableDatabase's ctor can throw at least
+	  DatabaseCorruptError or DatabaseLockError.
+
 Thu Feb 26 14:54:28 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_db.cc,tests/api_valuestream.cc: Update comments about why
