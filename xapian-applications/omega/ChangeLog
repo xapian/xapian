@@ -1,3 +1,8 @@
+Sat Feb 28 08:28:26 GMT 2009  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: Don't call reopen() on a WritableDatabase - it
+	  doesn't do anything!
+
 Thu Feb 26 06:38:05 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
