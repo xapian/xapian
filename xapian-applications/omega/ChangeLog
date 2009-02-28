@@ -1,3 +1,7 @@
+Sat Feb 28 08:31:15 GMT 2009  Olly Betts <olly@survex.com>
+
+	* omindex.cc,scriptindex.cc: Use commit() rather than flush().
+
 Sat Feb 28 08:28:26 GMT 2009  Olly Betts <olly@survex.com>
 
 	* scriptindex.cc: Don't call reopen() on a WritableDatabase - it

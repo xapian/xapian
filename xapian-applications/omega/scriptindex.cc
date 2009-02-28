@@ -584,7 +584,7 @@ again:
 			    // Hmm, what happened?
 			    cout << "Caught exception in UNIQUE!" << endl;
 			    cout << "E: " << e.get_msg() << endl;
-			    database.flush();
+			    database.commit();
 			    goto again;
 			}
 			break;
@@ -671,9 +671,10 @@ again:
 	}
     }
 
-    // Flush after each file to make sure all changes from that file make it in.
-    if (verbose) cout << "Flushing: " << endl;
-    database.flush();
+    // Commit after each file to make sure all changes from that file make it
+    // in.
+    if (verbose) cout << "Committing: " << endl;
+    database.commit();
 
     return true;
 }

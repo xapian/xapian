@@ -961,7 +961,7 @@ main(int argc, char **argv)
 		}
 	    }
 	}
-	db.flush();
+	db.commit();
 	// cout << "\n\nNow we have " << db.get_doccount() << " documents.\n";
 	exitcode = 0;
     } catch (const Xapian::Error &e) {
