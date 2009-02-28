@@ -73,7 +73,7 @@ builddb_valuestest1()
 	    dbw.replace_document(i + 10, doc);
 	    logger.indexing_add();
 	}
-	dbw.flush();
+	dbw.commit();
 	logger.indexing_end();
 	logger.testcase_end();
     }

@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2006 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -272,7 +272,7 @@ class InMemoryDatabase : public Xapian::Database::Internal {
     //@{
     /** Implementation of virtual methods: see Database for details.
      */
-    void flush();
+    void commit();
     void cancel();
 
     Xapian::docid add_document(const Xapian::Document & document);

@@ -2049,7 +2049,7 @@ DEFINE_TESTCASE(alldocspl2, backend && writable) {
 	doc.add_value(0, "5");
 	db.replace_document(5, doc);
 
-	// Test iterating before flushing the changes.
+	// Test iterating before committing the changes.
 	i = db.postlist_begin("");
 	end = db.postlist_end("");
 	TEST(i != end);
@@ -2059,9 +2059,9 @@ DEFINE_TESTCASE(alldocspl2, backend && writable) {
 	++i;
 	TEST(i == end);
 
-	db.flush();
+	db.commit();
 
-	// Test iterating after flushing the changes.
+	// Test iterating after committing the changes.
 	i = db.postlist_begin("");
 	end = db.postlist_end("");
 	TEST(i != end);
@@ -2077,7 +2077,7 @@ DEFINE_TESTCASE(alldocspl2, backend && writable) {
 	doc.add_value(0, "7");
 	db.replace_document(7, doc);
 
-	// Test iterating through before flushing the changes.
+	// Test iterating through before committing the changes.
 	i = db.postlist_begin("");
 	end = db.postlist_end("");
 	TEST(i != end);
@@ -2095,7 +2095,7 @@ DEFINE_TESTCASE(alldocspl2, backend && writable) {
 	// Delete the first document.
 	db.delete_document(5);
 
-	// Test iterating through before flushing the changes.
+	// Test iterating through before committing the changes.
 	i = db.postlist_begin("");
 	end = db.postlist_end("");
 	TEST(i != end);
@@ -2105,8 +2105,9 @@ DEFINE_TESTCASE(alldocspl2, backend && writable) {
 	++i;
 	TEST(i == end);
 
-	// Test iterating through after flushing the changes, and dropping the reference to the main DB.
-	db.flush();
+	// Test iterating through after committing the changes, and dropping the
+	// reference to the main DB.
+	db.commit();
 	i = db.postlist_begin("");
 	end = db.postlist_end("");
     }

@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -1079,10 +1079,10 @@ ChertWritableDatabase::~ChertWritableDatabase()
 }
 
 void
-ChertWritableDatabase::flush()
+ChertWritableDatabase::commit()
 {
     if (transaction_active())
-	throw Xapian::InvalidOperationError("Can't flush during a transaction");
+	throw Xapian::InvalidOperationError("Can't commit during a transaction");
     if (change_count) flush_postlist_changes();
     apply();
 }
@@ -1367,7 +1367,8 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 		if (k == j->second.end()) {
 		    j->second.insert(make_pair(did, make_pair('D', 0u)));
 		} else {
-		    // Modifying a document we added/modified since the last flush.
+		    // Modifying a document we added/modified since the last
+		    // flush.
 		    k->second = make_pair('D', 0u);
 		}
 

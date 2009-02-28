@@ -1,7 +1,7 @@
 /** @file copydatabase.cc
  * @brief Perform a document-by-document copy of one or more Xapian databases.
  */
-/* Copyright (C) 2006,2007,2008 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -146,9 +146,9 @@ try {
 	cout << " done." << endl;
     }
 
-    cout << "Flushing..." << flush;
-    // Flush explicitly so that any error is reported.
-    db_out.flush();
+    cout << "Committing..." << flush;
+    // Commit explicitly so that any error is reported.
+    db_out.commit();
     cout << " done." << endl;
 } catch (const Xapian::Error & e) {
     cerr << '\n' << argv[0] << ": " << e.get_description() << endl;

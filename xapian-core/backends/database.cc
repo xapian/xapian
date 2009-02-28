@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -75,7 +75,7 @@ Database::Internal::dtor_called()
 	if (transaction_active()) {
 	    cancel_transaction();
 	} else if (transaction_state == TRANSACTION_NONE) {
-	    flush();
+	    commit();
 	}
     } catch (...) {
 	// We can't safely throw exceptions from a destructor in case an
@@ -84,7 +84,7 @@ Database::Internal::dtor_called()
 }
 
 void
-Database::Internal::flush()
+Database::Internal::commit()
 {
     // Writable databases should override this method.
     Assert(false);
@@ -106,9 +106,9 @@ Database::Internal::begin_transaction(bool flushed)
 	throw InvalidOperationError("Cannot begin transaction - transaction already in progress");
     }
     if (flushed) {
-	// N.B. Call flush() before we set transaction_state since flush()
+	// N.B. Call commit() before we set transaction_state since commit()
 	// isn't allowing during a transaction.
-	flush();
+	commit();
 	transaction_state = TRANSACTION_FLUSHED;
     } else {
 	transaction_state = TRANSACTION_UNFLUSHED;
@@ -125,9 +125,9 @@ Database::Internal::commit_transaction()
     }
     bool flushed = (transaction_state == TRANSACTION_FLUSHED);
     transaction_state = TRANSACTION_NONE;
-    // N.B. Call flush() after we clear transaction_state since flush()
+    // N.B. Call commit() after we clear transaction_state since commit()
     // isn't allowing during a transaction.
-    if (flushed) flush();
+    if (flushed) commit();
 }
 
 void

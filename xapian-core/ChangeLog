@@ -1,3 +1,17 @@
+Sat Feb 28 08:21:33 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,backends/chert/chert_database.cc,
+	  backends/chert/chert_database.h,backends/database.cc,
+	  backends/flint/flint_database.cc,backends/flint/flint_database.h,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h,
+	  backends/remote/remote-database.cc,common/,docs/remote_protocol.html,
+	  examples/copydatabase.cc,include/xapian/database.h,
+	  net/remoteserver.cc,tests/,tests/perftest/perftest_matchdecider.cc,
+	  tests/perftest/perftest_randomidx.cc,tests/queryparsertest.cc: Add
+	  WritableDatabase::commit() as a new, preferred alias for
+	  WritableDatabase::flush().  (bug#266)
+
 Fri Feb 27 01:59:31 GMT 2009  Olly Betts <olly@survex.com>
 
 	* include/xapian/database.h: WritableDatabase::flush() can't throw

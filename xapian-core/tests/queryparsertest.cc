@@ -1515,7 +1515,7 @@ static bool test_qp_spell2()
 
     db1.add_spelling("document");
     db1.add_spelling("search");
-    db1.flush();
+    db1.commit();
 
     dbdir = ".flint/qp_spell2b";
     Xapian::WritableDatabase db2(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
@@ -1573,7 +1573,7 @@ static bool test_qp_synonym1()
     db.add_synonym("search", "find");
     db.add_synonym("Zseek", "Zsearch");
 
-    db.flush();
+    db.commit();
 
     Xapian::QueryParser qp;
     qp.set_stemmer(Xapian::Stem("english"));
@@ -1618,7 +1618,7 @@ static bool test_qp_synonym2()
     db.add_synonym("sun tan", "bathe");
     db.add_synonym("single", "record");
 
-    db.flush();
+    db.commit();
 
     Xapian::QueryParser qp;
     qp.set_stemmer(Xapian::Stem("english"));
@@ -1672,7 +1672,7 @@ static bool test_qp_synonym3()
     db.add_synonym("search", "find");
     db.add_synonym("Zseek", "Zsearch");
 
-    db.flush();
+    db.commit();
 
     Xapian::QueryParser qp;
     qp.set_stemmer(Xapian::Stem("english"));
@@ -1764,7 +1764,7 @@ static bool test_qp_stem_scale1()
     Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 
     db.add_synonym("foo", "bar");
-    db.flush();
+    db.commit();
 
     string q1("foo ");
     string q1b("baz ");
@@ -1827,7 +1827,7 @@ static bool test_qp_stem_scale1()
 
     // Add a synonym for the whole query, to test that code path.
     db.add_synonym(syn, "bar");
-    db.flush();
+    db.commit();
 
     time1 = time_query_parse(db, q1, repetitions, synflags);
     if (time1 == 0.0) {

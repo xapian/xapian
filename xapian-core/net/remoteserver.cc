@@ -211,7 +211,7 @@ RemoteServer::run()
 		&RemoteServer::msg_adddocument,
 		&RemoteServer::msg_cancel,
 		&RemoteServer::msg_deletedocumentterm,
-		&RemoteServer::msg_flush,
+		&RemoteServer::msg_commit,
 		&RemoteServer::msg_replacedocument,
 		&RemoteServer::msg_replacedocumentterm,
 		&RemoteServer::msg_deletedocument
@@ -544,12 +544,12 @@ RemoteServer::msg_doclength(const string &message)
 }
 
 void
-RemoteServer::msg_flush(const string &)
+RemoteServer::msg_commit(const string &)
 {
     if (!wdb)
 	throw Xapian::InvalidOperationError("Server is read-only");
 
-    wdb->flush();
+    wdb->commit();
 
     send_message(REPLY_DONE, "");
 }

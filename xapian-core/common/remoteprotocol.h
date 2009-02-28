@@ -1,7 +1,7 @@
 /** @file remoteprotocol.h
  *  @brief Remote protocol version and message numbers
  */
-/* Copyright (C) 2006,2007,2008 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -66,7 +66,7 @@ enum message_type {
     MSG_ADDDOCUMENT,		// Add Document
     MSG_CANCEL,			// Cancel
     MSG_DELETEDOCUMENTTERM,	// Delete Document by term
-    MSG_FLUSH,			// Flush
+    MSG_COMMIT,			// Commit
     MSG_REPLACEDOCUMENT,	// Replace Document
     MSG_REPLACEDOCUMENTTERM,	// Replace Document by term
     MSG_DELETEDOCUMENT,		// Delete Document

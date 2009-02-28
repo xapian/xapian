@@ -214,7 +214,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
     std::string get_value_lower_bound(Xapian::valueno valno) const;
     std::string get_value_upper_bound(Xapian::valueno valno) const;
 
-    void flush();
+    void commit();
 
     void cancel();
 

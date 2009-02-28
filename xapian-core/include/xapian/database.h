@@ -483,17 +483,15 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 */
 	void operator=(const WritableDatabase &other);
 
-	/** Flush to disk any modifications made to the database.
+	/** Commit any pending modifications made to the database.
 	 *
 	 *  For efficiency reasons, when performing multiple updates to a
 	 *  database it is best (indeed, almost essential) to make as many
 	 *  modifications as memory will permit in a single pass through
 	 *  the database.  To ensure this, Xapian batches up modifications.
 	 *
-	 *  Flush may be called at any time to
-	 *  ensure that the modifications which have been made are written to
-	 *  disk: if the flush succeeds, all the preceding modifications will
-	 *  have been written to disk.
+	 *  This method may be called at any time to commit any pending
+	 *  modifications to the database.
 	 *
 	 *  If any of the modifications fail, an exception will be thrown and
 	 *  the database will be left in a state in which each separate
@@ -501,12 +499,12 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  performed or not performed at all: it is then up to the
 	 *  application to work out which operations need to be repeated.
 	 *
-	 *  It's not valid to call flush within a transaction.
+	 *  It's not valid to call commit() within a transaction.
 	 *
-	 *  Beware of calling flush too frequently: this will have a severe
-	 *  performance cost.
+	 *  Beware of calling commit() too frequently: this will make indexing
+	 *  take much longer.
 	 *
-	 *  Note that flush need not be called explicitly: it will be called
+	 *  Note that commit() need not be called explicitly: it will be called
 	 *  automatically when the database is closed, or when a sufficient
 	 *  number of modifications have been made.  By default, this is every
 	 *  10000 documents added, deleted, or modified.  This value is rather
@@ -520,7 +518,14 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  @exception Xapian::DatabaseCorruptError will be thrown if the
 	 *             database is in a corrupt state.
 	 */
-	void flush();
+	void commit();
+
+	/** Pre-1.1.0 name for commit().
+	 *
+	 *  Use commit() instead in new code.  This alias may be deprecated in
+	 *  the future.
+	 */
+	void flush() { commit(); }
 
 	/** Begin a transaction.
 	 *
@@ -534,18 +539,17 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  either be committed by calling commit_transaction() or aborted
 	 *  by calling cancel_transaction().
 	 *
-	 *  By default, a transaction implicitly calls flush before and after
-	 *  so that the modifications stand and fall without affecting
+	 *  By default, a transaction implicitly calls commit() before and
+	 *  after so that the modifications stand and fall without affecting
 	 *  modifications before or after.
 	 *
-	 *  The downside of this flushing is that small transactions cause
-	 *  modifications to be frequently flushed which can harm indexing
-	 *  performance in the same way that explicitly calling flush
-	 *  frequently can.
+	 *  The downside of these calls to commit() is that small transactions
+	 *  can harm indexing performance in the same way that explicitly
+	 *  calling commit() frequently can.
 	 *
 	 *  If you're applying atomic groups of changes and only wish to
 	 *  ensure that each group is either applied or not applied, then
-	 *  you can prevent the automatic flush before and after the
+	 *  you can prevent the automatic commit() before and after the
 	 *  transaction by starting the transaction with
 	 *  begin_transaction(false).  However, if cancel_transaction is
 	 *  called (or if commit_transaction isn't called before the
@@ -591,7 +595,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	void commit_transaction();
 
 	/** Abort the transaction currently in progress, discarding the
-	 *  potential modifications made to the database.
+	 *  pending modifications made to the database.
 	 *
 	 *  If an error occurs in this method, an exception will be thrown,
 	 *  but the transaction will be cancelled anyway.
@@ -621,12 +625,12 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  call replace_document() instead.
 	 *
 	 *  Note that changes to the database won't be immediately committed to
-	 *  disk; see flush() for more details.
+	 *  disk; see commit() for more details.
 	 *
 	 *  As with all database modification operations, the effect is
 	 *  atomic: the document will either be fully added, or the document
 	 *  fails to be added and an exception is thrown (possibly at a
-	 *  later time when flush is called or the database is closed).
+	 *  later time when commit() is called or the database is closed).
 	 *
 	 *  @param document The new document to be added.
 	 *
@@ -646,12 +650,12 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  from the database.
 	 *
 	 *  Note that changes to the database won't be immediately committed to
-	 *  disk; see flush() for more details.
+	 *  disk; see commit() for more details.
 	 *
 	 *  As with all database modification operations, the effect is
 	 *  atomic: the document will either be fully removed, or the document
 	 *  fails to be removed and an exception is thrown (possibly at a
-	 *  later time when flush is called or the database is closed).
+	 *  later time when commit() is called or the database is closed).
 	 *
 	 *  @param did     The document ID of the document to be removed.
 	 *
@@ -699,12 +703,12 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  allocate document IDs!
 	 *
 	 *  Note that changes to the database won't be immediately committed to
-	 *  disk; see flush() for more details.
+	 *  disk; see commit() for more details.
 	 *
 	 *  As with all database modification operations, the effect is
 	 *  atomic: the document will either be fully replaced, or the document
 	 *  fails to be replaced and an exception is thrown (possibly at a
-	 *  later time when flush is called or the database is closed).
+	 *  later time when commit() is called or the database is closed).
 	 *
 	 *  @param did     The document ID of the document to be replaced.
 	 *  @param document The new document.
@@ -730,13 +734,13 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  other uses.
 	 *
 	 *  Note that changes to the database won't be immediately committed to
-	 *  disk; see flush() for more details.
+	 *  disk; see commit() for more details.
 	 *
 	 *  As with all database modification operations, the effect is
 	 *  atomic: the document(s) will either be fully replaced, or the
 	 *  document(s) fail to be replaced and an exception is thrown
 	 *  (possibly at a
-	 *  later time when flush is called or the database is closed).
+	 *  later time when commit() is called or the database is closed).
 	 *
 	 *  @param unique_term    The "unique" term.
 	 *  @param document The new document.
@@ -813,7 +817,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  Metadata modifications are committed to disk in the same way as
 	 *  modifications to the documents in the database are: i.e.,
 	 *  modifications are atomic, and won't be committed to disk
-	 *  immediately (see flush() for more details).  This allows metadata
+	 *  immediately (see commit() for more details).  This allows metadata
 	 *  to be used to link databases with versioned external resources
 	 *  by storing the appropriate version number in a metadata item.
 	 *

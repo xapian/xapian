@@ -700,11 +700,11 @@ static void only_one_subdatabase_allowed()
 }
 
 void
-WritableDatabase::flush()
+WritableDatabase::commit()
 {
-    DEBUGAPICALL(void, "WritableDatabase::flush", "");
+    DEBUGAPICALL(void, "WritableDatabase::commit", "");
     if (internal.size() != 1) only_one_subdatabase_allowed();
-    internal[0]->flush();
+    internal[0]->commit();
 }
 
 void

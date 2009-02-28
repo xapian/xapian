@@ -1,7 +1,7 @@
 /** @file remoteserver.h
  *  @brief Xapian remote backend server base class
  */
-/* Copyright (C) 2006,2007,2008 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009 Olly Betts
  * Copyright (C) 2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -120,8 +120,8 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
     // get updated doccount and avlength
     void msg_update(const std::string &message);
 
-    // flush
-    void msg_flush(const std::string & message);
+    // commit
+    void msg_commit(const std::string & message);
 
     // cancel
     void msg_cancel(const string &message);

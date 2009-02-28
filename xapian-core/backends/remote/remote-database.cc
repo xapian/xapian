@@ -66,7 +66,7 @@ RemoteDatabase::RemoteDatabase(int fd, Xapian::timeout timeout_,
     if (!writable) {
 	// Transactions only make sense when writing, so flag them as
 	// "unimplemented" so that our destructor doesn't call dtor_called()
-	// since that might try to call flush() which will cause a message to
+	// since that might try to call commit() which will cause a message to
 	// be sent to the remote server and probably an InvalidOperationError
 	// exception message to be returned.
 	transaction_state = TRANSACTION_UNIMPLEMENTED;
@@ -574,9 +574,9 @@ RemoteDatabase::get_mset(Xapian::MSet &mset)
 }
 
 void
-RemoteDatabase::flush()
+RemoteDatabase::commit()
 {
-    send_message(MSG_FLUSH, "");
+    send_message(MSG_COMMIT, "");
 
     // We need to wait for a response to ensure documents have been committed.
     string message;

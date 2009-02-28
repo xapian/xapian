@@ -1,7 +1,7 @@
 /* api_valuestats.cc: tests of the value statistics functions.
  *
  * Copyright 2008 Lemur Consulting Ltd
- * Copyright 2008 Olly Betts
+ * Copyright 2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -167,7 +167,7 @@ DEFINE_TESTCASE(valuestats2, transactions && valuestats) {
     TEST_EQUAL(db.get_value_upper_bound(1), "");
 
     // Check that readonly database catches up when a commit is done.
-    db_w.flush();
+    db_w.commit();
     db.reopen();
     TEST_EQUAL(db.get_value_freq(1), 1);
     TEST_EQUAL(db.get_value_lower_bound(1), "cheese");
@@ -207,7 +207,7 @@ DEFINE_TESTCASE(valuestats2, transactions && valuestats) {
     TEST_EQUAL(db_w.get_value_upper_bound(0), "");
 
     // Check that a readonly database gets the right statistics, too.
-    db_w.flush();
+    db_w.commit();
     db.reopen();
     TEST_EQUAL(db.get_value_freq(0), 0);
     TEST_EQUAL(db.get_value_lower_bound(0), "");
@@ -272,7 +272,7 @@ DEFINE_TESTCASE(valuestats4, writable && valuestats) {
 	}
 
 	Xapian::Database db = get_writable_database_as_database();
-	// Check that we had an automatic-flush.
+	// Check that we had an automatic-commit.
 	TEST_EQUAL(db.get_doccount(), FLUSH_THRESHOLD);
 	// Check that the value stats are there.
 	TEST_EQUAL(db.get_value_freq(1), FLUSH_THRESHOLD);
@@ -286,7 +286,7 @@ DEFINE_TESTCASE(valuestats4, writable && valuestats) {
 
     {
 	Xapian::Database db = get_writable_database_as_database();
-	// Check that we had an automatic-flush.
+	// Check that we had an automatic-commit.
 	TEST_EQUAL(db.get_doccount(), FLUSH_THRESHOLD);
 	// Check that the value stats are there.
 	TEST_EQUAL(db.get_value_freq(1), FLUSH_THRESHOLD);
