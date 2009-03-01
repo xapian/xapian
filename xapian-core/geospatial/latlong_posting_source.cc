@@ -41,29 +41,19 @@ weight_from_distance(double dist, double k1, double k2)
 void
 LatLongDistancePostingSource::calc_distance()
 {
-    std::string val(*it);
+    std::string val(*value_it);
     LatLongCoords coords = LatLongCoords::unserialise(val);
     dist = metric(centre, coords);
 }
 
 LatLongDistancePostingSource::LatLongDistancePostingSource(
-	Xapian::Database db_,
-	Xapian::valueno valno_,
+	Xapian::valueno slot_,
 	const LatLongCoords & centre_,
 	const LatLongMetric & metric_,
 	double max_range_,
 	double k1_,
 	double k2_)
-	: db(db_),
-	  valno(valno_),
-	  // "it" is not initialised until we start
-	  // "end" is not initialised until we start
-	  started(false),
-	  // "dist" is not initialised until we start
-	  // "max_weight" is initialised in body of constructor
-	  // "termfreq_min" is initialised in body of constructor
-	  // "termfreq_est" is initialised in body of constructor
-	  // "termfreq_max" is initialised in body of constructor
+	: Xapian::ValuePostingSource(slot_),
 	  centre(centre_),
 	  metric(metric_),
 	  max_range(max_range_),
@@ -79,105 +69,44 @@ LatLongDistancePostingSource::LatLongDistancePostingSource(
 	    "k2 parameter to LatLongDistancePostingSource must be greater "
 	    "than 0; was " + om_tostring(k2));
     max_weight = weight_from_distance(0, k1, k2);
-
-    try { 
-	termfreq_max = db.get_value_freq(valno);
-	if (max_range == 0) {
-	    termfreq_min = termfreq_max;
-	    termfreq_est = termfreq_max;
-	} else {
-	    termfreq_min = 0;
-	    termfreq_est = termfreq_max / 2;
-	}
-    } catch (const Xapian::UnimplementedError &) {
-	termfreq_max = db.get_doccount();
-	termfreq_est = termfreq_max / 2;
-	termfreq_min = 0;
-    }
-}
-
-Xapian::doccount
-LatLongDistancePostingSource::get_termfreq_min() const
-{
-    return termfreq_min;
-}
-
-Xapian::doccount
-LatLongDistancePostingSource::get_termfreq_est() const
-{
-    return termfreq_est;
-}
-
-Xapian::doccount
-LatLongDistancePostingSource::get_termfreq_max() const
-{
-    return termfreq_max;
-}
-
-Xapian::weight
-LatLongDistancePostingSource::get_maxweight() const
-{
-    return max_weight;
-}
-
-Xapian::weight
-LatLongDistancePostingSource::get_weight() const
-{
-    return weight_from_distance(dist, k1, k2);
 }
 
 void
-LatLongDistancePostingSource::next(Xapian::weight)
+LatLongDistancePostingSource::next(Xapian::weight min_wt)
 {
-    if (!started) {
-	started = true;
-	it = db.valuestream_begin(valno);
-	end = db.valuestream_end(valno);
-    } else {
-	++it;
-    }
+    ValuePostingSource::next(min_wt);
 
-    while (it != end) {
+    while (value_it != value_end) {
 	calc_distance();
 	if (max_range == 0 || dist <= max_range)
 	    break;
-	++it;
+	++value_it;
     }
 }
 
 void
-LatLongDistancePostingSource::skip_to(Xapian::docid min_docid, Xapian::weight)
+LatLongDistancePostingSource::skip_to(Xapian::docid min_docid,
+				      Xapian::weight min_wt)
 {
-    if (!started) {
-	started = true;
-	it = db.valuestream_begin(valno);
-	end = db.valuestream_end(valno);
-    }
+    ValuePostingSource::skip_to(min_docid, min_wt);
 
-    it.skip_to(min_docid);
-
-    while (it != end) {
+    while (value_it != value_end) {
 	calc_distance();
 	if (max_range == 0 || dist <= max_range)
 	    break;
-	++it;
+	++value_it;
     }
 }
 
 bool
-LatLongDistancePostingSource::check(Xapian::docid min_docid, Xapian::weight)
+LatLongDistancePostingSource::check(Xapian::docid min_docid,
+				    Xapian::weight min_wt)
 {
-    if (!started) {
-	started = true;
-	it = db.valuestream_begin(valno);
-	end = db.valuestream_end(valno);
-    }
-
-    if (!it.check(min_docid)) {
+    if (!ValuePostingSource::check(min_docid, min_wt)) {
 	// check returned false, so we know the document is not in the source.
 	return false;
     }
-    if (it == end) {
+    if (value_it == value_end) {
 	// return true, since we're definitely at the end of the list.
 	return true;
     }
@@ -189,28 +118,29 @@ LatLongDistancePostingSource::check(Xapian::docid min_docid, Xapian::weight)
     return true;
 }
 
-bool
-LatLongDistancePostingSource::at_end() const
+Xapian::weight
+LatLongDistancePostingSource::get_weight() const
 {
-    return it == end;
-}
-
-Xapian::docid
-LatLongDistancePostingSource::get_docid() const
-{
-    return it.get_docid();
+    return weight_from_distance(dist, k1, k2);
 }
 
 void
-LatLongDistancePostingSource::reset()
+LatLongDistancePostingSource::reset(const Database & db_)
 {
-    started = false;
+    ValuePostingSource::reset(db_);
+    if (max_range > 0.0) {
+	// Possible that no documents are in range.
+	termfreq_min = 0;
+	// Note - would be good to improve termfreq_est here, too, but
+	// I can't think of anything we can do with the information
+	// available.
+    }
 }
 
 std::string
 LatLongDistancePostingSource::get_description() const
 {
-    return "Xapian::LatLongDistancePostingSource(slot=" + om_tostring(valno) + ")";
+    return "Xapian::LatLongDistancePostingSource(slot=" + om_tostring(slot) + ")";
 }
 
 }

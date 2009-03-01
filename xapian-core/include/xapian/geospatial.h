@@ -510,37 +510,10 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongRangeMatchDecider : public MatchDecider
  *  away gets a weight of 0.5, and something 3km away gets a weight of 0.25,
  *  etc)
  */
-class XAPIAN_VISIBILITY_DEFAULT LatLongDistancePostingSource : public PostingSource
+class XAPIAN_VISIBILITY_DEFAULT LatLongDistancePostingSource : public ValuePostingSource
 {
-    /// The database we're reading values from.
-    Xapian::Database db;
-
-    /// The slot we're reading values from.
-    Xapian::valueno valno;
-
-    /// Value stream iterator.
-    Xapian::ValueIterator it;
-
-    /// End iterator corresponding to it.
-    Xapian::ValueIterator end;
-
-    /// Flag indicating if we've started (true if we have).
-    bool started;
-
     /// Current distance from centre.
     double dist;
-
-    /// An upper bound on the weight returned.
-    double max_weight;
-
-    /// A lower bound on the term frequency.
-    Xapian::doccount termfreq_min;
-
-    /// An estimate of the term frequency.
-    Xapian::doccount termfreq_est;
-
-    /// An upper bound on the term frequency.
-    Xapian::doccount termfreq_max;
 
     /// Centre, to compute distance from.
     const LatLongCoords & centre;
@@ -570,37 +543,30 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistancePostingSource : public PostingSou
      *  range of one of the central coordinates.
      *
      *  @param db_ The database to read values from.
-     *  @param valno_ The value slot to read values from.
+     *  @param slot_ The value slot to read values from.
      *  @param centre_ The centre point to use for distance calculations.
      *  @param metric_ The metric to use for distance calculations.
      *  @param max_range_ The maximum distance for documents which are returned.
      *  @param k1_ The k1 constant to use in the weighting function.
      *  @param k2_ The k2 constant to use in the weighting function.
      */
-    LatLongDistancePostingSource(Xapian::Database db_,
-				 Xapian::valueno valno_,
+    LatLongDistancePostingSource(Xapian::valueno slot_,
 				 const LatLongCoords & centre_,
 				 const LatLongMetric & metric_,
 				 double max_range_ = 0.0,
 				 double k1_ = 1000.0,
 				 double k2_ = 1.0);
 
-    Xapian::doccount get_termfreq_min() const;
-    Xapian::doccount get_termfreq_est() const;
-    Xapian::doccount get_termfreq_max() const;
-
-    Xapian::weight get_maxweight() const;
-    Xapian::weight get_weight() const;
-
     void next(Xapian::weight min_wt);
     void skip_to(Xapian::docid min_docid, Xapian::weight min_wt);
     bool check(Xapian::docid min_docid, Xapian::weight min_wt);
 
-    bool at_end() const;
-
-    Xapian::docid get_docid() const;
-
-    void reset();
+    Xapian::weight get_weight() const;
+    ValueMapPostingSource * clone() const;
+    std::string name() const;
+    std::string serialise() const;
+    LatLongDistancePostingSource * unserialise(const std::string &s) const;
+    void reset(const Database & db_);
 
     std::string get_description() const;
 };
