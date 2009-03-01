@@ -2150,13 +2150,15 @@ class MyDontAskWeightPostingSource : public Xapian::PostingSource {
     { }
 
   public:
-    MyDontAskWeightPostingSource(const Xapian::Database &db)
-	: num_docs(db.get_doccount()), last_docid(db.get_lastdocid()), did(0)
-    { }
+    MyDontAskWeightPostingSource() : Xapian::PostingSource() {}
 
     PostingSource * clone() const { return new MyDontAskWeightPostingSource(num_docs, last_docid); }
 
-    void reset(const Xapian::Database &) { did = 0; }
+    void reset(const Xapian::Database &db) {
+	num_docs = db.get_doccount();
+	last_docid = db.get_lastdocid();
+	did = 0;
+    }
 
     Xapian::weight get_weight() const {
 	FAIL_TEST("MyDontAskWeightPostingSource::get_weight() called");
@@ -2196,11 +2198,10 @@ class MyDontAskWeightPostingSource : public Xapian::PostingSource {
 };
 
 // Check that boolean use doesn't call get_weight() or get_maxweight().
-DEFINE_TESTCASE(externalsource4, backend && !remote && !multi) {
-    // FIXME: currently fails for multi with an assertion.
+DEFINE_TESTCASE(externalsource4, backend && !remote) {
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::Enquire enq(db);
-    MyDontAskWeightPostingSource src(db);
+    MyDontAskWeightPostingSource src;
 
     tout << "OP_SCALE_WEIGHT 0" << endl;
     enq.set_query(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT, Xapian::Query(&src), 0));
