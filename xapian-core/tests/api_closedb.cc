@@ -29,36 +29,101 @@
 
 using namespace std;
 
+#define COUNT_CLOSEDEXC(code) \
+    try { code; } catch (Xapian::DatabaseError & e) { ++closedexc_count; }
+#define IF_NOT_CLOSEDEXC(code) \
+    do { \
+	hadexc = false; \
+	try { \
+	    code; \
+	} catch (Xapian::DatabaseError & e) { \
+	    ++closedexc_count; \
+	    hadexc = true; \
+	} \
+    } while (false); if (hadexc)
+
+// Iterators used by closedb1.
+struct closedb1_iterators {
+    Xapian::Database db;
+    Xapian::Document doc1;
+    Xapian::PostingIterator pl1;
+    Xapian::PostingIterator pl2;
+    Xapian::PostingIterator plend;
+
+    void setup(Xapian::Database db_) {
+	db = db_;
+
+	// Set up the iterators for the test.
+	pl1 = db.postlist_begin("paragraph");
+	pl2 = db.postlist_begin("paragraph");
+	++pl2;
+	plend = db.postlist_end("paragraph");
+    }
+
+    int perform() {
+	int closedexc_count = 0;
+	bool hadexc;
+
+	// Getting a document may throw closed.
+	IF_NOT_CLOSEDEXC(doc1 = db.get_document(1)) {
+	    COUNT_CLOSEDEXC(TEST_EQUAL(doc1.get_data().substr(0, 33),
+				       "This is a test document used with"));
+	    COUNT_CLOSEDEXC(doc1.termlist_begin());
+	}
+
+	// Causing the database to access its files raises the "database closed" error.
+	COUNT_CLOSEDEXC(db.postlist_begin("paragraph"));
+	COUNT_CLOSEDEXC(db.get_document(1).get_value(1));
+
+	// Reopen raises the "database closed" error.
+	COUNT_CLOSEDEXC(db.reopen());
+
+	TEST_NOT_EQUAL(pl1, plend);
+
+	COUNT_CLOSEDEXC(db.postlist_begin("paragraph"));
+
+	COUNT_CLOSEDEXC(TEST_EQUAL(*pl1, 1));
+	COUNT_CLOSEDEXC(TEST_EQUAL(pl1.get_doclength(), 28));
+
+	// Advancing the iterator may or may not raise an error, but if it doesn't
+	// it must return the correct answers.
+	bool advanced = false;
+	try {
+	    ++pl1;
+	    advanced = true;
+	} catch (Xapian::DatabaseError & e) {}
+
+	if (advanced) {
+	    COUNT_CLOSEDEXC(TEST_EQUAL(*pl1, 2));
+	    COUNT_CLOSEDEXC(TEST_EQUAL(pl1.get_doclength(), 81));
+	}
+
+	return closedexc_count;
+    }
+};
+
 // Test for closing a database
-DEFINE_TESTCASE(closedb1, backend && !inmemory) {
+DEFINE_TESTCASE(closedb1, backend) {
     Xapian::Database db(get_database("apitest_simpledata"));
-    TEST_NOT_EQUAL(db.postlist_begin("paragraph"), db.postlist_end("paragraph"));
+    closedb1_iterators iters;
+
+    // Run the test, checking that we get no "closed" exceptions.
+    iters.setup(db);
+    int closedexc_count = iters.perform();
+    TEST_EQUAL(closedexc_count, 0);
+
+    // Setup for the next test.
+    iters.setup(db);
+
+    // Close the database.
     db.close();
 
-    // Counting the documents raises the "database closed" error.
-    TEST_EXCEPTION(Xapian::DatabaseError, db.postlist_begin("paragraph"));
-
-    // Reopen raises the "database closed" error.
+    // Reopening a closed database should always raise DatabaseError.
     TEST_EXCEPTION(Xapian::DatabaseError, db.reopen());
 
-    // Calling close repeatedly is okay.
-    db.close();
-
-    return true;
-}
-
-// Test for closing an inmemory database
-DEFINE_TESTCASE(closedb2, backend && inmemory) {
-    Xapian::Database db(get_database("apitest_simpledata"));
-    TEST_NOT_EQUAL(db.postlist_begin("paragraph"), db.postlist_end("paragraph"));
-    db.close();
-
-    // Inmemory database doesn't currently raise an error, but does release all
-    // memory used, so behaves as if database is empty.
-    TEST_EQUAL(db.postlist_begin("paragraph"), db.postlist_end("paragraph"));
-
-    // Reopen has no effect for inmemory, and doesn't raise an exception.
-    db.reopen();
+    // Run the test again, checking that we get some "closed" exceptions.
+    closedexc_count = iters.perform();
+    TEST_NOT_EQUAL(closedexc_count, 0);
 
     // Calling close repeatedly is okay.
     db.close();
@@ -67,7 +132,7 @@ DEFINE_TESTCASE(closedb2, backend && inmemory) {
 }
 
 // Test closing a writable database, and that it drops the lock.
-DEFINE_TESTCASE(closedb3, backend && writable && !remote && !inmemory) {
+DEFINE_TESTCASE(closedb2, backend && writable && !remote && !inmemory) {
     Xapian::WritableDatabase dbw1(get_named_writable_database("apitest_closedb3"));
     TEST_EXCEPTION(Xapian::DatabaseLockError,
 		   Xapian::WritableDatabase(get_named_writable_database_path("apitest_closedb3"),

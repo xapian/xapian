@@ -1,3 +1,12 @@
+Sun Mar 01 19:41:16 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_closedb.cc: Merge closedb1 and closedb2 into a single
+	  test, and add lots more checking to it.  Rename closedb3 to
+	  closedb2, to avoid leaving an odd gap.  closedb1 needs more work,
+	  but is a useful start; committing now, rather than once I've done
+	  this work, since the old test is failing in buildbot, and I don't
+	  want to get in the way of snapshot tarballs.
+
 Sun Mar 01 19:27:38 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* backends/chert/chert_table.cc,backends/flint/flint_table.cc:
