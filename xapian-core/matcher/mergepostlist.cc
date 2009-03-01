@@ -73,7 +73,9 @@ MergePostList::next(Xapian::weight w_min)
 		throw;
 	    }
 	}
-    } while (unsigned(current) < plists.size());
+	if (unsigned(current) >= plists.size()) break;
+	if (matcher) matcher->recalc_maxweight();
+    } while (true);
     LOGVALUE(MATCH, current);
     RETURN(NULL);
 }

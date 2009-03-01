@@ -1,3 +1,10 @@
+Sun Mar 01 17:49:26 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/mergepostlist.cc: Fix ticket #336 by calling
+	  recalc_maxweight when a sub-posting list finishes (other than
+	  after the last one, where there is no point in calling
+	  recalc_maxweight).
+
 Sun Mar 01 15:34:46 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/api_db.cc: Fix MyDontAskWeightPostingSource to use the
