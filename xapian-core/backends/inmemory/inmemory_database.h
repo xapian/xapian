@@ -249,6 +249,9 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 
     bool positions_present;
 
+    // Flag, true if the db has been closed.
+    bool closed;
+
     // Stop copy / assignment being allowed
     InMemoryDatabase& operator=(const InMemoryDatabase &);
     InMemoryDatabase(const InMemoryDatabase &);
@@ -298,7 +301,9 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 
     ~InMemoryDatabase();
 
+    void reopen();
     void close();
+    bool is_closed() const { return closed; }
 
     Xapian::doccount get_doccount() const;
 

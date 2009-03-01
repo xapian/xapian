@@ -99,6 +99,8 @@ InMemoryPostList::get_termfreq() const
 Xapian::docid
 InMemoryPostList::get_docid() const
 {
+    if (db->is_closed())
+	throw Xapian::DatabaseError("Database has been closed");
     Assert(started);
     Assert(!at_end());
     return (*pos).did;
@@ -107,6 +109,8 @@ InMemoryPostList::get_docid() const
 PostList *
 InMemoryPostList::next(Xapian::weight /*w_min*/)
 {
+    if (db->is_closed())
+	throw Xapian::DatabaseError("Database has been closed");
     if (started) {
 	Assert(!at_end());
 	++pos;
@@ -120,6 +124,8 @@ InMemoryPostList::next(Xapian::weight /*w_min*/)
 PostList *
 InMemoryPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 {
+    if (db->is_closed())
+	throw Xapian::DatabaseError("Database has been closed");
     // FIXME - see if we can make more efficient, perhaps using better
     // data structure.  Note, though, that a binary search of
     // the remaining list may NOT be a good idea (search time is then
@@ -137,6 +143,8 @@ InMemoryPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 bool
 InMemoryPostList::at_end() const
 {
+    if (db->is_closed())
+	throw Xapian::DatabaseError("Database has been closed");
     return (pos == end);
 }
 
@@ -149,12 +157,16 @@ InMemoryPostList::get_description() const
 Xapian::doclength
 InMemoryPostList::get_doclength() const
 {
+    if (db->is_closed())
+	throw Xapian::DatabaseError("Database has been closed");
     return db->get_doclength(get_docid());
 }
 
 PositionList *
 InMemoryPostList::read_position_list()
 {
+    if (db->is_closed())
+	throw Xapian::DatabaseError("Database has been closed");
     mypositions.set_data(pos->positions);
     return &mypositions;
 }
@@ -162,12 +174,16 @@ InMemoryPostList::read_position_list()
 PositionList *
 InMemoryPostList::open_position_list() const
 {
+    if (db->is_closed())
+	throw Xapian::DatabaseError("Database has been closed");
     return new InMemoryPositionList(pos->positions);
 }
 
 Xapian::termcount
 InMemoryPostList::get_wdf() const
 {
+    if (db->is_closed())
+	throw Xapian::DatabaseError("Database has been closed");
     return (*pos).wdf;
 }
 
@@ -190,6 +206,8 @@ InMemoryTermList::InMemoryTermList(Xapian::Internal::RefCntPtr<const InMemoryDat
 Xapian::termcount
 InMemoryTermList::get_wdf() const
 {
+    if (db->is_closed())
+	throw Xapian::DatabaseError("Database has been closed");
     Assert(started);
     Assert(!at_end());
     return (*pos).wdf;
@@ -198,6 +216,8 @@ InMemoryTermList::get_wdf() const
 Xapian::doccount
 InMemoryTermList::get_termfreq() const
 {
+    if (db->is_closed())
+	throw Xapian::DatabaseError("Database has been closed");
     Assert(started);
     Assert(!at_end());
 
@@ -207,12 +227,16 @@ InMemoryTermList::get_termfreq() const
 Xapian::termcount
 InMemoryTermList::get_approx_size() const
 {
+    if (db->is_closed())
+	throw Xapian::DatabaseError("Database has been closed");
     return terms;
 }
 
 void
 InMemoryTermList::accumulate_stats(Xapian::Internal::ExpandStats & stats) const
 {
+    if (db->is_closed())
+	throw Xapian::DatabaseError("Database has been closed");
     Assert(started);
     Assert(!at_end());
     stats.accumulate(InMemoryTermList::get_wdf(), document_length,
@@ -223,6 +247,8 @@ InMemoryTermList::accumulate_stats(Xapian::Internal::ExpandStats & stats) const
 string
 InMemoryTermList::get_termname() const
 {
+    if (db->is_closed())
+	throw Xapian::DatabaseError("Database has been closed");
     Assert(started);
     Assert(!at_end());
     return (*pos).tname;
@@ -231,6 +257,8 @@ InMemoryTermList::get_termname() const
 TermList *
 InMemoryTermList::next()
 {
+    if (db->is_closed())
+	throw Xapian::DatabaseError("Database has been closed");
     if (started) {
 	Assert(!at_end());
 	pos++;
@@ -243,6 +271,8 @@ InMemoryTermList::next()
 bool
 InMemoryTermList::at_end() const
 {
+    if (db->is_closed())
+	throw Xapian::DatabaseError("Database has been closed");
     Assert(started);
     return (pos == end);
 }
@@ -250,12 +280,16 @@ InMemoryTermList::at_end() const
 Xapian::termcount
 InMemoryTermList::positionlist_count() const
 {
+    if (db->is_closed())
+	throw Xapian::DatabaseError("Database has been closed");
     return db->positionlist_count(did, (*pos).tname);
 }
 
 Xapian::PositionIterator
 InMemoryTermList::positionlist_begin() const
 {
+    if (db->is_closed())
+	throw Xapian::DatabaseError("Database has been closed");
     return Xapian::PositionIterator(db->open_position_list(did, (*pos).tname));
 }
 
@@ -271,12 +305,16 @@ InMemoryAllDocsPostList::InMemoryAllDocsPostList(Xapian::Internal::RefCntPtr<con
 Xapian::doccount
 InMemoryAllDocsPostList::get_termfreq() const
 {
+    if (db->is_closed())
+	throw Xapian::DatabaseError("Database has been closed");
     return db->totdocs;
 }
 
 Xapian::docid
 InMemoryAllDocsPostList::get_docid() const
 {
+    if (db->is_closed())
+	throw Xapian::DatabaseError("Database has been closed");
     Assert(did > 0);
     Assert(did <= db->termlists.size());
     Assert(db->termlists[did - 1].is_valid);
@@ -286,6 +324,8 @@ InMemoryAllDocsPostList::get_docid() const
 Xapian::doclength
 InMemoryAllDocsPostList::get_doclength() const
 {
+    if (db->is_closed())
+	throw Xapian::DatabaseError("Database has been closed");
     return db->get_doclength(did);
 }
 
@@ -310,6 +350,8 @@ InMemoryAllDocsPostList::open_position_list() const
 PostList *
 InMemoryAllDocsPostList::next(Xapian::weight /*w_min*/)
 {
+    if (db->is_closed())
+	throw Xapian::DatabaseError("Database has been closed");
     Assert(!at_end());
     do {
        ++did;
@@ -320,6 +362,8 @@ InMemoryAllDocsPostList::next(Xapian::weight /*w_min*/)
 PostList *
 InMemoryAllDocsPostList::skip_to(Xapian::docid did_, Xapian::weight /*w_min*/)
 {
+    if (db->is_closed())
+	throw Xapian::DatabaseError("Database has been closed");
     Assert(!at_end());
     if (did <= did_) {
 	did = did_;
@@ -333,6 +377,8 @@ InMemoryAllDocsPostList::skip_to(Xapian::docid did_, Xapian::weight /*w_min*/)
 bool
 InMemoryAllDocsPostList::at_end() const
 {
+    if (db->is_closed())
+	throw Xapian::DatabaseError("Database has been closed");
     return (did > db->termlists.size());
 }
 
@@ -347,7 +393,7 @@ InMemoryAllDocsPostList::get_description() const
 ///////////////////////////
 
 InMemoryDatabase::InMemoryDatabase()
-	: totdocs(0), totlen(0), positions_present(false)
+	: totdocs(0), totlen(0), positions_present(false), closed(false)
 {
     // Updates are applied immediately so we can't support transactions.
     transaction_state = TRANSACTION_UNIMPLEMENTED;
@@ -359,13 +405,16 @@ InMemoryDatabase::~InMemoryDatabase()
 }
 
 void
+InMemoryDatabase::reopen()
+{
+    if (closed)
+	throw Xapian::DatabaseError("Database has been closed");
+}
+
+void
 InMemoryDatabase::close()
 {
-    // Free all the resources.
-    //
-    // We don't bother setting a flag to mark the database as closed, since
-    // checking for this would add extra overhead in all methods.  Users
-    // shouldn't be calling other methods after the close, anyway.
+    // Free all the resources, and mark the db as closed.
     postlists.clear();
     termlists.clear();
     doclists.clear();
@@ -373,11 +422,14 @@ InMemoryDatabase::close()
     valuestats.clear();
     doclengths.clear();
     metadata.clear();
+    closed = true;
 }
 
 LeafPostList *
 InMemoryDatabase::open_post_list(const string & tname) const
 {
+    if (closed)
+	throw Xapian::DatabaseError("Database has been closed");
     if (tname.empty()) {
 	if (termlists.empty())
 	    return new EmptyPostList;
@@ -397,12 +449,16 @@ InMemoryDatabase::open_post_list(const string & tname) const
 bool
 InMemoryDatabase::doc_exists(Xapian::docid did) const
 {
+    if (closed)
+	throw Xapian::DatabaseError("Database has been closed");
     return (did > 0 && did <= termlists.size() && termlists[did - 1].is_valid);
 }
 
 Xapian::doccount
 InMemoryDatabase::get_termfreq(const string & tname) const
 {
+    if (closed)
+	throw Xapian::DatabaseError("Database has been closed");
     map<string, InMemoryTerm>::const_iterator i = postlists.find(tname);
     if (i == postlists.end()) return 0;
     return i->second.term_freq;
@@ -411,6 +467,8 @@ InMemoryDatabase::get_termfreq(const string & tname) const
 Xapian::termcount
 InMemoryDatabase::get_collection_freq(const string &tname) const
 {
+    if (closed)
+	throw Xapian::DatabaseError("Database has been closed");
     map<string, InMemoryTerm>::const_iterator i = postlists.find(tname);
     if (i == postlists.end()) return 0;
     return i->second.collection_freq;
@@ -419,6 +477,8 @@ InMemoryDatabase::get_collection_freq(const string &tname) const
 Xapian::doccount
 InMemoryDatabase::get_value_freq(Xapian::valueno slot) const
 {
+    if (closed)
+	throw Xapian::DatabaseError("Database has been closed");
     map<Xapian::valueno, ValueStats>::const_iterator i = valuestats.find(slot);
     if (i == valuestats.end()) return 0;
     return i->second.freq;
@@ -427,6 +487,8 @@ InMemoryDatabase::get_value_freq(Xapian::valueno slot) const
 std::string
 InMemoryDatabase::get_value_lower_bound(Xapian::valueno slot) const
 {
+    if (closed)
+	throw Xapian::DatabaseError("Database has been closed");
     map<Xapian::valueno, ValueStats>::const_iterator i = valuestats.find(slot);
     if (i == valuestats.end()) return string();
     return i->second.lower_bound;
@@ -435,6 +497,8 @@ InMemoryDatabase::get_value_lower_bound(Xapian::valueno slot) const
 std::string
 InMemoryDatabase::get_value_upper_bound(Xapian::valueno slot) const
 {
+    if (closed)
+	throw Xapian::DatabaseError("Database has been closed");
     map<Xapian::valueno, ValueStats>::const_iterator i = valuestats.find(slot);
     if (i == valuestats.end()) return string();
     return i->second.upper_bound;
@@ -443,18 +507,24 @@ InMemoryDatabase::get_value_upper_bound(Xapian::valueno slot) const
 Xapian::doccount
 InMemoryDatabase::get_doccount() const
 {
+    if (closed)
+	throw Xapian::DatabaseError("Database has been closed");
     return totdocs;
 }
 
 Xapian::docid
 InMemoryDatabase::get_lastdocid() const
 {
+    if (closed)
+	throw Xapian::DatabaseError("Database has been closed");
     return termlists.size();
 }
 
 Xapian::doclength
 InMemoryDatabase::get_avlength() const
 {
+    if (closed)
+	throw Xapian::DatabaseError("Database has been closed");
     if (totdocs == 0) return 0;
     return Xapian::doclength(totlen) / totdocs;
 }
@@ -462,6 +532,8 @@ InMemoryDatabase::get_avlength() const
 Xapian::doclength
 InMemoryDatabase::get_doclength(Xapian::docid did) const
 {
+    if (closed)
+	throw Xapian::DatabaseError("Database has been closed");
     if (!doc_exists(did)) {
 	throw Xapian::DocNotFoundError(string("Docid ") + om_tostring(did) +
 				 string(" not found"));
@@ -472,6 +544,8 @@ InMemoryDatabase::get_doclength(Xapian::docid did) const
 TermList *
 InMemoryDatabase::open_term_list(Xapian::docid did) const
 {
+    if (closed)
+	throw Xapian::DatabaseError("Database has been closed");
     Assert(did != 0);
     if (!doc_exists(did)) {
 	// FIXME: the docid in this message will be local, not global
@@ -485,6 +559,8 @@ InMemoryDatabase::open_term_list(Xapian::docid did) const
 Xapian::Document::Internal *
 InMemoryDatabase::open_document(Xapian::docid did, bool lazy) const
 {
+    if (closed)
+	throw Xapian::DatabaseError("Database has been closed");
     Assert(did != 0);
     if (!doc_exists(did)) {
 	if (lazy) return false;
@@ -499,6 +575,8 @@ InMemoryDatabase::open_document(Xapian::docid did, bool lazy) const
 std::string
 InMemoryDatabase::get_metadata(const std::string & key) const
 {
+    if (closed)
+	throw Xapian::DatabaseError("Database has been closed");
     map<string, string>::const_iterator i = metadata.find(key);
     if (i == metadata.end())
 	return string();
@@ -509,6 +587,8 @@ void
 InMemoryDatabase::set_metadata(const std::string & key,
 			       const std::string & value)
 {
+    if (closed)
+	throw Xapian::DatabaseError("Database has been closed");
     if (!value.empty()) {
 	metadata[key] = value;
     } else {
@@ -520,6 +600,8 @@ Xapian::termcount
 InMemoryDatabase::positionlist_count(Xapian::docid did,
 				     const string & tname) const
 {
+    if (closed)
+	throw Xapian::DatabaseError("Database has been closed");
     if (!doc_exists(did)) {
 	return 0;
     }
@@ -538,6 +620,8 @@ PositionList *
 InMemoryDatabase::open_position_list(Xapian::docid did,
 				     const string & tname) const
 {
+    if (closed)
+	throw Xapian::DatabaseError("Database has been closed");
     if (!doc_exists(did)) {
 	throw Xapian::DocNotFoundError("Document id " + om_tostring(did) +
 				 " doesn't exist in inmemory database");
@@ -557,6 +641,8 @@ void
 InMemoryDatabase::add_values(Xapian::docid did,
 			     const map<Xapian::valueno, string> &values_)
 {
+    if (closed)
+	throw Xapian::DatabaseError("Database has been closed");
     if (did > valuelists.size()) {
 	valuelists.resize(did);
     }
@@ -601,6 +687,8 @@ InMemoryDatabase::cancel()
 void
 InMemoryDatabase::delete_document(Xapian::docid did)
 {
+    if (closed)
+	throw Xapian::DatabaseError("Database has been closed");
     if (!doc_exists(did)) {
 	throw Xapian::DocNotFoundError(string("Docid ") + om_tostring(did) +
 				 string(" not found"));
@@ -650,6 +738,9 @@ InMemoryDatabase::replace_document(Xapian::docid did,
 				   const Xapian::Document & document)
 {
     DEBUGCALL(DB, void, "InMemoryDatabase::replace_document", did << ", " << document);
+
+    if (closed)
+	throw Xapian::DatabaseError("Database has been closed");
 
     if (doc_exists(did)) { 
 	doclists[did - 1] = "";
@@ -704,6 +795,8 @@ Xapian::docid
 InMemoryDatabase::add_document(const Xapian::Document & document)
 {
     DEBUGCALL(DB, Xapian::docid, "InMemoryDatabase::add_document", document);
+    if (closed)
+	throw Xapian::DatabaseError("Database has been closed");
 
     Xapian::docid did = make_doc(document.get_data());
 
@@ -816,6 +909,8 @@ void InMemoryDatabase::make_posting(InMemoryDoc * doc,
 bool
 InMemoryDatabase::term_exists(const string & tname) const
 {
+    if (closed)
+	throw Xapian::DatabaseError("Database has been closed");
     Assert(!tname.empty());
     map<string, InMemoryTerm>::const_iterator i = postlists.find(tname);
     if (i == postlists.end()) return false;
@@ -825,12 +920,16 @@ InMemoryDatabase::term_exists(const string & tname) const
 bool
 InMemoryDatabase::has_positions() const
 {
+    if (closed)
+	throw Xapian::DatabaseError("Database has been closed");
     return positions_present;
 }
 
 TermList *
 InMemoryDatabase::open_allterms(const string & prefix) const
 {
+    if (closed)
+	throw Xapian::DatabaseError("Database has been closed");
     return new InMemoryAllTermsList(&postlists,
 				    Xapian::Internal::RefCntPtr<const InMemoryDatabase>(this),
 				    prefix);

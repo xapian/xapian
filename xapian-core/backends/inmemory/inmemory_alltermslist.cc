@@ -34,6 +34,8 @@ InMemoryAllTermsList::InMemoryAllTermsList(const std::map<string, InMemoryTerm> 
 string
 InMemoryAllTermsList::get_termname() const
 {
+    if (database->is_closed())
+	throw Xapian::DatabaseError("Database has been closed");
     Assert(started);
     Assert(!at_end());
     return it->first;
@@ -42,6 +44,8 @@ InMemoryAllTermsList::get_termname() const
 Xapian::doccount
 InMemoryAllTermsList::get_termfreq() const
 {
+    if (database->is_closed())
+	throw Xapian::DatabaseError("Database has been closed");
     Assert(started);
     Assert(!at_end());
     /* FIXME: this isn't quite right. */
@@ -51,6 +55,8 @@ InMemoryAllTermsList::get_termfreq() const
 Xapian::termcount
 InMemoryAllTermsList::get_collection_freq() const
 {
+    if (database->is_closed())
+	throw Xapian::DatabaseError("Database has been closed");
     Assert(started);
     Assert(!at_end());
     throw Xapian::UnimplementedError("Collection frequency not implemented in InMemory backend");
@@ -59,6 +65,8 @@ InMemoryAllTermsList::get_collection_freq() const
 TermList *
 InMemoryAllTermsList::skip_to(const string &tname_)
 {
+    if (database->is_closed())
+	throw Xapian::DatabaseError("Database has been closed");
     string tname(tname_);
     if (started) {
 	Assert(!at_end());
@@ -79,6 +87,8 @@ InMemoryAllTermsList::skip_to(const string &tname_)
 TermList *
 InMemoryAllTermsList::next()
 {
+    if (database->is_closed())
+	throw Xapian::DatabaseError("Database has been closed");
     if (!started) {
 	started = true;
 	it = tmap->lower_bound(prefix);
@@ -95,6 +105,8 @@ InMemoryAllTermsList::next()
 bool
 InMemoryAllTermsList::at_end() const
 {
+    if (database->is_closed())
+	throw Xapian::DatabaseError("Database has been closed");
     Assert(started);
     return (it == tmap->end());
 }
