@@ -1,3 +1,10 @@
+Sun Mar 01 18:22:52 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/database.h: Update documentation comments for
+	  reopen() and close() to document the API we're aiming for (ie,
+	  that closed databases either return the right result from cache,
+	  or raise a DatabaseError).
+
 Sun Mar 01 18:20:19 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* backends/inmemory/inmemory_alltermslist.cc,

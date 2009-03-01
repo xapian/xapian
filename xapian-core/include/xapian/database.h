@@ -117,9 +117,13 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	void operator=(const Database &other);
 
 	/** Re-open the database.
+	 *
 	 *  This re-opens the database(s) to the latest available version(s).
-	 *  It can be used either to make sure the latest results are
-	 *  returned, or to recover from a Xapian::DatabaseModifiedError.
+	 *  It can be used either to make sure the latest results are returned,
+	 *  or to recover from a Xapian::DatabaseModifiedError.
+	 *
+	 *  Calling reopen() on a database which has been closed (with @a
+	 *  close()) will always raise a Xapian::DatabaseError.
 	 */
 	void reopen();
 
@@ -128,21 +132,27 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  This closes the database and releases all file handles held by the
 	 *  database.
 	 *
-	 *  After this call, no calls should be made to other methods of the
-	 *  database, or to objects derived from the database (other than
-	 *  destructors).  If any such methods are called, their behaviour is
-	 *  undefined: they will often raise a Xapian::DatabaseError indicating
-	 *  that the database is closed, but this is not guaranteed.  The
-	 *  behaviour of methods in this situation should not be relied on,
-	 *  since it may change in later releases due to changes in the
-	 *  implementation of the database backend.
-	 *
 	 *  This is a permanent close of the database: calling reopen() after
-	 *  closing a database will not reopen it, and may raise an exception
-	 *  just like any other method.
+	 *  closing a database will not reopen it, and will raise an exception.
 	 *
 	 *  Calling close() on a database which is already closed has no effect
 	 *  (and doesn't raise an exception).
+	 *
+	 *  After this call, no calls should be made to other methods of the
+	 *  database, or to objects derived from the database (other than
+	 *  destructors).  If any such methods are called, they may do one of
+	 *  two things (but which of these things happens may vary between
+	 *  releases, and between database backends):
+	 *
+	 *   - raise a Xapian::DatabaseError indicating that the database is
+	 *   closed.
+	 *
+	 *   - behave exactly as they would have done if the database had not
+	 *   been closed (by using cached data).
+	 *
+	 *  To summarise - you should not rely on the exception being raised,
+	 *  or the normal result being available, but if you do get a result,
+	 *  it will be correct.
 	 */
 	virtual void close();
 
