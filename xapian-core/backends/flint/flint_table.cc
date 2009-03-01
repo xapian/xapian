@@ -1172,7 +1172,12 @@ FlintTable::del(const string &key)
     DEBUGCALL(DB, bool, "FlintTable::del", key);
     Assert(writable);
 
-    if (handle < 0) RETURN(false);
+    if (handle < 0) {
+	if (handle == -2) {
+	    throw Xapian::DatabaseError("Database has been closed");
+	}
+	RETURN(false);
+    }
 
     // We can't delete a key which we is too long for us to store.
     if (key.size() > FLINT_BTREE_MAX_KEY_LEN) RETURN(false);
@@ -1199,7 +1204,12 @@ FlintTable::get_exact_entry(const string &key, string & tag) const
     DEBUGCALL(DB, bool, "FlintTable::get_exact_entry", key << ", [&tag]");
     Assert(!key.empty());
 
-    if (handle < 0) RETURN(false);
+    if (handle < 0) {
+	if (handle == -2) {
+	    throw Xapian::DatabaseError("Database has been closed");
+	}
+	RETURN(false);
+    }
 
     // An oversized key can't exist, so attempting to search for it should fail.
     if (key.size() > FLINT_BTREE_MAX_KEY_LEN) RETURN(false);
@@ -1712,6 +1722,9 @@ void FlintTable::close(bool permanent) {
 
     if (permanent) {
 	handle = -2;
+	// Don't delete the resources in the table, since they may
+	// still be used to look up cached content.
+	return;
     }
 
     for (int j = level; j >= 0; j--) {
@@ -1732,7 +1745,12 @@ FlintTable::flush_db()
 {
     DEBUGCALL(DB, void, "FlintTable::flush_db", "");
     Assert(writable);
-    if (handle < 0) return;
+    if (handle < 0) {
+	if (handle == -2) {
+	    throw Xapian::DatabaseError("Database has been closed");
+	}
+	return;
+    }
 
     for (int j = level; j >= 0; j--) {
 	if (C[j].rewrite) {
@@ -1758,6 +1776,9 @@ FlintTable::commit(flint_revision_number_t revision, int changes_fd,
     }
 
     if (handle < 0) {
+	if (handle == -2) {
+	    throw Xapian::DatabaseError("Database has been closed");
+	}
 	latest_revision_number = revision_number = revision;
 	return;
     }
@@ -1887,6 +1908,9 @@ FlintTable::cancel()
     Assert(writable);
 
     if (handle < 0) {
+	if (handle == -2) {
+	    throw Xapian::DatabaseError("Database has been closed");
+	}
 	latest_revision_number = revision_number; // FIXME: we can end up reusing a revision if we opened a btree at an older revision, start to modify it, then cancel...
 	return;
     }

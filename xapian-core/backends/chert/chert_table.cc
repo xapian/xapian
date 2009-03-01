@@ -1192,7 +1192,12 @@ ChertTable::del(const string &key)
     LOGCALL(DB, bool, "ChertTable::del", key);
     Assert(writable);
 
-    if (handle < 0) RETURN(false);
+    if (handle < 0) {
+	if (handle == -2) {
+	    throw Xapian::DatabaseError("Database has been closed");
+	}
+	RETURN(false);
+    }
 
     // We can't delete a key which we is too long for us to store.
     if (key.size() > CHERT_BTREE_MAX_KEY_LEN) RETURN(false);
@@ -1219,7 +1224,12 @@ ChertTable::get_exact_entry(const string &key, string & tag) const
     LOGCALL(DB, bool, "ChertTable::get_exact_entry", key << ", [&tag]");
     Assert(!key.empty());
 
-    if (handle < 0) RETURN(false);
+    if (handle < 0) {
+	if (handle == -2) {
+	    throw Xapian::DatabaseError("Database has been closed");
+	}
+	RETURN(false);
+    }
 
     // An oversized key can't exist, so attempting to search for it should fail.
     if (key.size() > CHERT_BTREE_MAX_KEY_LEN) RETURN(false);
@@ -1738,8 +1748,10 @@ void ChertTable::close(bool permanent) {
 
     if (permanent) {
 	handle = -2;
+	// Don't delete the resources in the table, since they may
+	// still be used to look up cached content.
+	return;
     }
-
     for (int j = level; j >= 0; j--) {
 	delete [] C[j].p;
 	C[j].p = 0;
@@ -1758,7 +1770,12 @@ ChertTable::flush_db()
 {
     LOGCALL_VOID(DB, "ChertTable::flush_db", "");
     Assert(writable);
-    if (handle < 0) return;
+    if (handle < 0) {
+	if (handle == -2) {
+	    throw Xapian::DatabaseError("Database has been closed");
+	}
+	return;
+    }
 
     for (int j = level; j >= 0; j--) {
 	if (C[j].rewrite) {
@@ -1784,6 +1801,9 @@ ChertTable::commit(chert_revision_number_t revision, int changes_fd,
     }
 
     if (handle < 0) {
+	if (handle == -2) {
+	    throw Xapian::DatabaseError("Database has been closed");
+	}
 	latest_revision_number = revision_number = revision;
 	return;
     }
@@ -1914,6 +1934,9 @@ ChertTable::cancel()
     Assert(writable);
 
     if (handle < 0) {
+	if (handle == -2) {
+	    throw Xapian::DatabaseError("Database has been closed");
+	}
 	latest_revision_number = revision_number; // FIXME: we can end up reusing a revision if we opened a btree at an older revision, start to modify it, then cancel...
 	return;
     }
