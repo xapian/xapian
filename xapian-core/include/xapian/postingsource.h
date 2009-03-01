@@ -106,6 +106,10 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *
      *  This method may assume that it will only be called when there is a
      *  "current document".  See @a get_weight() for details.
+     *
+     *  Note: in the case of a multi-database search, the returned docid should
+     *  be in the single subdatabase relevant to this posting source.  See the
+     *  @a reset() method for details.
      */
     virtual Xapian::docid get_docid() const = 0;
 
@@ -138,6 +142,10 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *
      *  The default implementation calls next() repeatedly, which works but
      *  skip_to() can often be implemented much more efficiently.
+     *
+     *  Note: in the case of a multi-database search, the docid specified is
+     *  the docid in the single subdatabase relevant to this posting source.
+     *  See the @a reset() method for details.
      */
     virtual void skip_to(Xapian::docid did, Xapian::weight min_wt);
 
@@ -164,6 +172,10 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *  returning true if it is, and false if it isn't.
      *
      *  The default implementation calls skip_to() and always returns true.
+     *
+     *  Note: in the case of a multi-database search, the docid specified is
+     *  the docid in the single subdatabase relevant to this posting source.
+     *  See the @a reset() method for details.
      */
     virtual bool check(Xapian::docid did, Xapian::weight min_wt);
 
@@ -183,6 +195,9 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *  search.
      *
      *  The default implementation returns NULL.
+     *
+     *  Note that the returned object will be deallocated by Xapian after use
+     *  with "delete".  It must therefore have been allocated with "new".
      */
     virtual PostingSource * clone() const;
 
@@ -218,7 +233,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      */
     virtual PostingSource * unserialise(const std::string &s) const;
 
-    /** Reset this PostingSource to its freshly constructed state.
+    /** Reset this PostingSource to the start of the list of postings.
      *
      *  This is called automatically by the matcher prior to each query being
      *  processed.
@@ -227,6 +242,14 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *
      *  Note: the database supplied to this method must not be modified: in
      *  particular, the reopen() method should not be called on it.
+     *
+     *  Note: in the case of a multi-database search, a separate PostingSource
+     *  will be used for each database (the separate PostingSources will be
+     *  obtained using clone()), and each PostingSource will be passed one of
+     *  the sub-databases as the @a db parameter here.  The @a db parameter
+     *  will therefore always refer to a single database.  All docids passed
+     *  to, or returned from, the PostingSource refer to docids in that single
+     *  database, rather than in the multi-database. 
      */
     virtual void reset(const Database & db) = 0;
 
