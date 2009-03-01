@@ -42,7 +42,7 @@ class InMemoryDocument : public Xapian::Document::Internal {
 	: Xapian::Document::Internal(db, did_)
     {
 	set_data(data_);
-	// Need to make a copy of values_ as set_all_values() may modified the
+	// Need to make a copy of values_ as set_all_values() may modify the
 	// parameter passed to it.
 	map<Xapian::valueno, string> values_copy(values_);
 	set_all_values(values_copy);
