@@ -143,8 +143,8 @@ Xapian::Query::Internal::serialise(Xapian::termpos & curpos) const
 	result += '[';
 	result += encode_length(tname.length());
 	result += tname;
-	if (term_pos != curpos) result += '@' + om_tostring(term_pos);
-	if (wqf != 1) result += '#' + om_tostring(wqf);
+	if (term_pos != curpos) result += '@' + encode_length(term_pos);
+	if (wqf != 1) result += '#' + encode_length(wqf);
 	++curpos;
     } else if (op == Xapian::Query::Internal::OP_EXTERNAL_SOURCE) {
 	string sourcename = external_source->name();
@@ -189,13 +189,13 @@ Xapian::Query::Internal::serialise(Xapian::termpos & curpos) const
 		result += "^";
 		break;
 	    case Xapian::Query::OP_NEAR:
-		result += "~" + om_tostring(parameter);
+		result += "~" + encode_length(parameter);
 		break;
 	    case Xapian::Query::OP_PHRASE:
-		result += "\"" + om_tostring(parameter);
+		result += "\"" + encode_length(parameter);
 		break;
 	    case Xapian::Query::OP_ELITE_SET:
-		result += "*" + om_tostring(parameter);
+		result += "*" + encode_length(parameter);
 		break;
 	    case Xapian::Query::OP_VALUE_RANGE:
 		result += "]";
@@ -203,19 +203,19 @@ Xapian::Query::Internal::serialise(Xapian::termpos & curpos) const
 		result += tname;
 		result += encode_length(str_parameter.length());
 		result += str_parameter;
-		result += om_tostring(parameter);
+		result += encode_length(parameter);
 		break;
 	    case Xapian::Query::OP_VALUE_GE:
 		result += "}";
 		result += encode_length(tname.length());
 		result += tname;
-		result += om_tostring(parameter);
+		result += encode_length(parameter);
 		break;
 	    case Xapian::Query::OP_VALUE_LE:
 		result += "{";
 		result += encode_length(tname.length());
 		result += tname;
-		result += om_tostring(parameter);
+		result += encode_length(parameter);
 		break;
 	    case Xapian::Query::OP_SCALE_WEIGHT:
 		result += ".";
@@ -427,14 +427,12 @@ QUnserial::readquery() {
 	    Xapian::termcount wqf = 1;
 	    if (p != end) {
 		if (*p == '@') {
-		    char *tmp; // avoid compiler warning
-		    term_pos = strtol(p + 1, &tmp, 10);
-		    p = tmp;
+		    ++p;
+		    term_pos = decode_length(&p, end, false);
 		}
 		if (*p == '#') {
-		    char *tmp; // avoid compiler warning
-		    wqf = strtol(p + 1, &tmp, 10);
-		    p = tmp;
+		    ++p;
+		    wqf = decode_length(&p, end, false);
 		}
 	    }
 	    ++curpos;
@@ -534,21 +532,15 @@ QUnserial::readcompound() {
 	        case '-':
 		    return qint_from_vector(Xapian::Query::OP_AND_NOT, subqs);
 	        case '~': {
-		    char *tmp; // avoid compiler warning
-		    Xapian::termcount window(strtol(p, &tmp, 10));
-		    p = tmp;
+		    Xapian::termcount window(decode_length(&p, end, false));
 		    return qint_from_vector(Xapian::Query::OP_NEAR, subqs, window);
 	        }
 	        case '"': {
-		    char *tmp; // avoid compiler warning
-		    Xapian::termcount window(strtol(p, &tmp, 10));
-		    p = tmp;
+		    Xapian::termcount window(decode_length(&p, end, false));
 		    return qint_from_vector(Xapian::Query::OP_PHRASE, subqs, window);
 	        }
 	        case '*': {
-		    char *tmp; // avoid compiler warning
-		    Xapian::termcount elite_set_size(strtol(p, &tmp, 10));
-		    p = tmp;
+		    Xapian::termcount elite_set_size(decode_length(&p, end, false));
 		    return qint_from_vector(Xapian::Query::OP_ELITE_SET, subqs,
 					    elite_set_size);
 		}
@@ -559,9 +551,7 @@ QUnserial::readcompound() {
 		    len = decode_length(&p, end, true);
 		    string stop(p, len);
 		    p += len;
-		    char *tmp; // avoid compiler warning
-		    Xapian::valueno valno = strtoul(p, &tmp, 10);
-		    p = tmp;
+		    Xapian::valueno valno(decode_length(&p, end, false));
 		    return new Xapian::Query::Internal(Xapian::Query::OP_VALUE_RANGE, valno,
 						       start, stop);
 	        }
@@ -569,9 +559,7 @@ QUnserial::readcompound() {
 		    size_t len = decode_length(&p, end, true);
 		    string start(p, len);
 		    p += len;
-		    char *tmp; // avoid compiler warning
-		    Xapian::valueno valno = strtoul(p, &tmp, 10);
-		    p = tmp;
+		    Xapian::valueno valno(decode_length(&p, end, false));
 		    return new Xapian::Query::Internal(Xapian::Query::OP_VALUE_GE, valno,
 						       start);
 	        }
@@ -579,9 +567,7 @@ QUnserial::readcompound() {
 		    size_t len = decode_length(&p, end, true);
 		    string start(p, len);
 		    p += len;
-		    char *tmp; // avoid compiler warning
-		    Xapian::valueno valno = strtoul(p, &tmp, 10);
-		    p = tmp;
+		    Xapian::valueno valno(decode_length(&p, end, false));
 		    return new Xapian::Query::Internal(Xapian::Query::OP_VALUE_LE, valno,
 						       start);
 	        }
