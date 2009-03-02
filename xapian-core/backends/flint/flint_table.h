@@ -595,6 +595,9 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	   return (base_letter == 'A') ? 'B' : 'A';
 	}
 
+	void lazy_alloc_deflate_zstream() const;
+	void lazy_alloc_inflate_zstream() const;
+
 	/** revision number of the opened B-tree. */
 	flint_revision_number_t revision_number;
 
@@ -712,6 +715,10 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	/** DONT_COMPRESS or Z_DEFAULT_STRATEGY, Z_FILTERED, Z_HUFFMAN_ONLY,
 	 *  Z_RLE. */
 	int compress_strategy;
+
+	/** Zlib state object */
+	mutable z_stream *deflate_zstream;
+	mutable z_stream *inflate_zstream;
 
 	/// If true, don't create the table until it's needed.
 	bool lazy;

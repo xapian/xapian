@@ -1058,56 +1058,25 @@ ChertTable::add(const string &key, string tag, bool already_compressed)
 	CompileTimeAssert(DONT_COMPRESS != Z_RLE);
 #endif
 
-	z_stream stream;
+	lazy_alloc_deflate_zstream();
 
-	stream.zalloc = reinterpret_cast<alloc_func>(0);
-	stream.zfree = reinterpret_cast<free_func>(0);
-	stream.opaque = (voidpf)0;
-
-	// -15 means raw deflate with 32K LZ77 window (largest)
-	// memLevel 9 is the highest (8 is default)
-	int err;
-	err = deflateInit2(&stream, Z_DEFAULT_COMPRESSION, Z_DEFLATED, -15, 9,
-			   compress_strategy);
-	if (err != Z_OK) {
-	    if (err == Z_MEM_ERROR) throw std::bad_alloc();
-	    string msg = "deflateInit2 failed";
-	    if (stream.msg) {
-		msg += " (";
-		msg += stream.msg;
-		msg += ')';
-	    }
-	    throw Xapian::DatabaseError(msg);
-	}
-
-	stream.next_in = (Bytef *)const_cast<char *>(tag.data());
-	stream.avail_in = (uInt)tag.size();
+	deflate_zstream->next_in = (Bytef *)const_cast<char *>(tag.data());
+	deflate_zstream->avail_in = (uInt)tag.size();
 
 	// If compressed size is >= tag.size(), we don't want to compress.
 	unsigned long blk_len = tag.size() - 1;
 	unsigned char * blk = new unsigned char[blk_len];
-	stream.next_out = blk;
-	stream.avail_out = (uInt)blk_len;
+	deflate_zstream->next_out = blk;
+	deflate_zstream->avail_out = (uInt)blk_len;
 
-	err = deflate(&stream, Z_FINISH);
+	int err = deflate(deflate_zstream, Z_FINISH);
 	if (err == Z_STREAM_END) {
 	    // If deflate succeeded, then the output was at least one byte
 	    // smaller than the input.
-	    tag.assign(reinterpret_cast<const char *>(blk), stream.total_out);
+	    tag.assign(reinterpret_cast<const char *>(blk), deflate_zstream->total_out);
 	    compressed = true;
-	    err = deflateEnd(&stream);
-	    if (err != Z_OK) {
-		string msg = "deflateEnd failed";
-		if (stream.msg) {
-		    msg += " (";
-		    msg += stream.msg;
-		    msg += ')';
-		}
-		throw Xapian::DatabaseError(msg);
-	    }
 	} else {
 	    // Deflate failed - presumably the data wasn't compressible.
-	    (void)deflateEnd(&stream);
 	}
 
 	delete [] blk;
@@ -1291,70 +1260,51 @@ ChertTable::read_tag(Cursor * C_, string *tag, bool keep_compressed) const
 
     Bytef buf[8192];
 
-    z_stream stream;
-    stream.next_out = buf;
-    stream.avail_out = (uInt)sizeof(buf);
+    lazy_alloc_inflate_zstream();
 
-    stream.zalloc = reinterpret_cast<alloc_func>(0);
-    stream.zfree = reinterpret_cast<free_func>(0);
+    inflate_zstream->next_out = buf;
+    inflate_zstream->avail_out = (uInt)sizeof(buf);
 
-    stream.next_in = Z_NULL;
-    stream.avail_in = 0;
+    inflate_zstream->next_in = (Bytef*)const_cast<char *>(tag->data());
+    inflate_zstream->avail_in = (uInt)tag->size();
 
-    int err = inflateInit2(&stream, -15);
-    if (err != Z_OK) {
-	if (err == Z_MEM_ERROR) throw std::bad_alloc();
-	string msg = "inflateInit2 failed";
-	if (stream.msg) {
-	    msg += " (";
-	    msg += stream.msg;
-	    msg += ')';
-	}
-	throw Xapian::DatabaseError(msg);
-    }
-
-    stream.next_in = (Bytef*)const_cast<char *>(tag->data());
-    stream.avail_in = (uInt)tag->size();
-
+    int err = Z_OK;
     while (err != Z_STREAM_END) {
-	stream.next_out = buf;
-	stream.avail_out = (uInt)sizeof(buf);
-	err = inflate(&stream, Z_SYNC_FLUSH);
-	if (err == Z_BUF_ERROR && stream.avail_in == 0) {
-	    LOGLINE(DB, "Z_BUF_ERROR - faking checksum of " << stream.adler);
+	inflate_zstream->next_out = buf;
+	inflate_zstream->avail_out = (uInt)sizeof(buf);
+	err = inflate(inflate_zstream, Z_SYNC_FLUSH);
+	if (err == Z_BUF_ERROR && inflate_zstream->avail_in == 0) {
+	    LOGLINE(DB, "Z_BUF_ERROR - faking checksum of " << inflate_zstream->adler);
 	    Bytef header2[4];
-	    setint4(header2, 0, stream.adler);
-	    stream.next_in = header2;
-	    stream.avail_in = 4;
-	    err = inflate(&stream, Z_SYNC_FLUSH);
+	    setint4(header2, 0, inflate_zstream->adler);
+	    inflate_zstream->next_in = header2;
+	    inflate_zstream->avail_in = 4;
+	    err = inflate(inflate_zstream, Z_SYNC_FLUSH);
 	    if (err == Z_STREAM_END) break;
 	}
 
 	if (err != Z_OK && err != Z_STREAM_END) {
 	    if (err == Z_MEM_ERROR) throw std::bad_alloc();
 	    string msg = "inflate failed";
-	    if (stream.msg) {
+	    if (inflate_zstream->msg) {
 		msg += " (";
-		msg += stream.msg;
+		msg += inflate_zstream->msg;
 		msg += ')';
 	    }
 	    throw Xapian::DatabaseError(msg);
 	}
 
 	utag.append(reinterpret_cast<const char *>(buf),
-		    stream.next_out - buf);
+		    inflate_zstream->next_out - buf);
     }
-    if (utag.size() != stream.total_out) {
+    if (utag.size() != inflate_zstream->total_out) {
 	string msg = "compressed tag didn't expand to the expected size: ";
 	msg += om_tostring(utag.size());
 	msg += " != ";
 	// OpenBSD's zlib.h uses off_t instead of uLong for total_out.
-	msg += om_tostring((size_t)stream.total_out);
+	msg += om_tostring((size_t)inflate_zstream->total_out);
 	throw Xapian::DatabaseCorruptError(msg);
     }
-
-    err = inflateEnd(&stream);
-    if (err != Z_OK) abort();
 
     swap(*tag, utag);
 
@@ -1643,11 +1593,71 @@ ChertTable::ChertTable(const char * tablename_, string path_, bool readonly_,
 	  writable(!readonly_),
 	  split_p(0),
 	  compress_strategy(compress_strategy_),
+	  deflate_zstream(NULL),
+	  inflate_zstream(NULL),
 	  lazy(lazy_)
 {
     LOGCALL_CTOR(DB, "ChertTable",
 		 tablename_ << "," << path_ << ", " << readonly_ << ", " <<
 		 compress_strategy_ << ", " << lazy_);
+}
+
+void
+ChertTable::lazy_alloc_deflate_zstream() const {
+    if (deflate_zstream) {
+	deflateReset(deflate_zstream);
+	return;
+    }
+
+    deflate_zstream = new z_stream;
+
+    deflate_zstream->zalloc = reinterpret_cast<alloc_func>(0);
+    deflate_zstream->zfree = reinterpret_cast<free_func>(0);
+    deflate_zstream->opaque = (voidpf)0;
+
+    // -15 means raw deflate with 32K LZ77 window (largest)
+    // memLevel 9 is the highest (8 is default)
+    int err;
+    err = deflateInit2(deflate_zstream, Z_DEFAULT_COMPRESSION, Z_DEFLATED, -15, 9,
+		       compress_strategy);
+    if (err != Z_OK) {
+	if (err == Z_MEM_ERROR) throw std::bad_alloc();
+	string msg = "deflateInit2 failed. err = " + err;
+	if (deflate_zstream->msg) {
+	    msg += " (";
+	    msg += deflate_zstream->msg;
+	    msg += ')';
+	}
+	throw Xapian::DatabaseError(msg);
+    }
+}
+
+void
+ChertTable::lazy_alloc_inflate_zstream() const {
+    if (inflate_zstream) {
+	inflateReset(inflate_zstream);
+	return;
+    }
+
+    inflate_zstream = new z_stream;
+
+    inflate_zstream->zalloc = reinterpret_cast<alloc_func>(0);
+    inflate_zstream->zfree = reinterpret_cast<free_func>(0);
+
+    inflate_zstream->next_in = Z_NULL;
+    inflate_zstream->avail_in = 0;
+
+    int err = inflateInit2(inflate_zstream, -15);
+    if (err != Z_OK) {
+	if (err == Z_MEM_ERROR) throw std::bad_alloc();
+	string msg = "inflateInit2 failed";
+	if (inflate_zstream->msg) {
+	    msg += " (";
+	    msg += inflate_zstream->msg;
+	    msg += ')';
+	}
+	throw Xapian::DatabaseError(msg);
+    }
 }
 
 bool
@@ -1734,6 +1744,20 @@ ChertTable::create_and_open(unsigned int block_size_)
 ChertTable::~ChertTable() {
     LOGCALL_DTOR(DB, "ChertTable");
     ChertTable::close();
+
+    if (deflate_zstream) {
+	// Errors which we care about have already been handled, so just ignore
+	// any which get returned here.
+	(void) deflateEnd(deflate_zstream);
+	delete deflate_zstream;
+    }
+
+    if (inflate_zstream) {
+	// Errors which we care about have already been handled, so just ignore
+	// any which get returned here.
+	(void) inflateEnd(inflate_zstream);
+	delete inflate_zstream;
+    }
 }
 
 void ChertTable::close(bool permanent) {
