@@ -13,5 +13,7 @@ EXTRA_DIST +=\
 
 libxapian_imgseek_la_SOURCES +=\
 	imgseek/src/haar.cc\
+	imgseek/src/image_terms.cc\
 	imgseek/src/imgseek.cc\
-	imgseek/src/jpegloader.cc
+	imgseek/src/jpegloader.cc\
+	imgseek/src/range_accelerator.cc

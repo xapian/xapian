@@ -46,41 +46,21 @@ class XAPIAN_VISIBILITY_DEFAULT RangeAccelerator {
     std::string prefix;
     double total_range;
     std::string make_range_term(const std::pair<double, double> r);
+
   public:
+    RangeAccelerator(const std::string& prefix_,
+		     Xapian::valueno valnum_,
+		     double lo,
+		     double hi,
+		     double step);
 
-    RangeAccelerator(const std::string& prefix_, Xapian::valueno valnum_, double lo, double hi, double step)
-	    : valnum(valnum_),
-	      prefix(prefix_)
-    {
-	double x = lo;
-	while (x <= hi) {
-	    double next = x + step;
-	    std::pair<double, double> r = std::make_pair(x, next);
-	    ranges.push_back(r);
-	    range_terms.push_back(make_range_term(r));
-	    midpoints.push_back(x + (step / 2.0));
-	    x = next;
-	}
-	total_range = ranges.back().second - ranges.front().first;
-    }
-
+    /** Add a value to the document.
+     */
     void add_val(Xapian::Document& doc, double val) const;
   
-    Xapian::Query query_for_val_distance(double val, double cutoff = 0.0) const {
-	Xapian::Query query;
-	for (unsigned int i = 0; i < ranges.size(); ++i) {
-	    double distance = fabs(val - midpoints[i]);
-	    double weight = distance / total_range;
-	    if (weight > cutoff) {
-		query = Xapian::Query(Xapian::Query::OP_OR,
-				      query,
-				      Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT,
-						    Xapian::Query(range_terms[i]),
-						    weight));
-	    }
-	}
-	return query;
-    }
+    /** Make a query which returns 
+     */
+    Xapian::Query query_for_val_distance(double val, double cutoff = 0.0) const;
 };
 
 }

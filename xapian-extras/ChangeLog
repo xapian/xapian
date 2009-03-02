@@ -1,3 +1,12 @@
+Mon Mar 02 15:13:03 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* imgseek/Makefile.mk,imgseek/include/xapian/imgseek.h,
+	  imgseek/include/xapian/range_acceleration.h,
+	  imgseek/include/xapian/range_accelerator.h,
+	  imgseek/src/image_terms.cc,imgseek/src/imgseek.cc,
+	  imgseek/src/range_accelerator.cc: Refactor the imgseek code,
+	  separating the range accelerator stuff out further.
+
 Fri Feb 27 16:11:08 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* imgseek/Makefile: Remove old non-autotools makefile.

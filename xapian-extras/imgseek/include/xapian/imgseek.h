@@ -39,7 +39,7 @@
 #include <xapian/query.h>
 #include <xapian/visibility.h>
 
-#include "range_acceleration.h"
+#include "range_accelerator.h"
 
 //namespace Xapian {
 //  namespace ImgSeek {
@@ -215,11 +215,13 @@ class XAPIAN_VISIBILITY_DEFAULT ImgTerms {
   public:
     /** Make an ImgTerms object.
      *
-
        @param prefix used for terms, this prefix should not be used for
        other terms in the database.
      */
-    ImgTerms(const std::string& prefix, Xapian::valueno v1, Xapian::valueno v2, Xapian::valueno v3);
+    ImgTerms(const std::string& prefix,
+	     Xapian::valueno v1,
+	     Xapian::valueno v2,
+	     Xapian::valueno v3);
 
     /* Add the necessary terms and values to a document so that it can
        be searched for image similarity.
@@ -227,7 +229,7 @@ class XAPIAN_VISIBILITY_DEFAULT ImgTerms {
        @param doc The document to modify
        @param sig The image signature
 
-       It is not advisable to call this twice on with the same document.
+       It is not advisable to call this twice with the same document.
      */
     void AddTerms(Xapian::Document& doc, const ImgSig& sig) const;
 
