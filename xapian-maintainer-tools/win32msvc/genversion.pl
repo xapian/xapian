@@ -34,7 +34,7 @@ my $revision;
 
 open CONFFD, $confpath or die "Can't open \"$confpath\"";
 while (<CONFFD>) {
-    if (m/AC_INIT\(\[?xapian-core\]?, \[?([0-9]+)\.([0-9]+)\.([0-9]+).*\)/) {
+    if (m/AC_INIT\(\[?xapian-.*\]?, \[?([0-9]+)\.([0-9]+)\.([0-9]+).*\)/) {
 	$major = $1;
 	$minor = $2;
 	$revision = $3;
@@ -49,6 +49,7 @@ while (<VERSIN>) {
     s/\@MAJOR_VERSION\@/$major/;
     s/\@MINOR_VERSION\@/$minor/;
     s/\@REVISION\@/$revision/;
+    s/\@COMPAT_VERSION\@/$major\.$minor\.$revision/;
     print VERSOUT $_;
 }
 

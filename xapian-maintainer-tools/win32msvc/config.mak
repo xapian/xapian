@@ -116,11 +116,17 @@ JAVA_PATHSEP=/
 
 # ------------- end Java settings-------------
 
+# ------------- C# settings ------------
+
+CSC="$(LIBPATH)\csc.exe"
+SN="C:\Program Files\Microsoft Visual Studio .NET 2003\SDK\v1.1\Bin\sn.exe"
+
+# ------------- end C# settings ------------
 
 # ------------SWIG settings-------------
 # Swig executable
 SWIG=\work\xapian\xapian-svn\swig\swig.exe
-SWIG_FLAGS= -Werror -noproxy
+SWIG_FLAGS= -Werror 
 # ------------end SWIG settings-------------
 
 # ------------ Misc external libraries we depend on -------------
@@ -138,8 +144,8 @@ LIB32=link.exe -lib
 LIB32_FLAGS=-nologo  
 LINK32=link.exe
 LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib\
- advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib rpcrt4.lib\
- wsock32.lib Ws2_32.lib  odbccp32.lib -subsystem:console -debug -nologo \
+ advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib \
+ wsock32.lib Ws2_32.lib  odbccp32.lib Rpcrt4.lib -subsystem:console -debug -nologo \
  "$(ZLIB_LIB_DIR)\zdll.lib"
  
 CPP=cl.exe

@@ -1,3 +1,62 @@
+Sat Feb 28 08:31:15 GMT 2009  Olly Betts <olly@survex.com>
+
+	* omindex.cc,scriptindex.cc: Use commit() rather than flush().
+
+Sat Feb 28 08:28:26 GMT 2009  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: Don't call reopen() on a WritableDatabase - it
+	  doesn't do anything!
+
+Thu Feb 26 06:38:05 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
+Thu Feb 26 06:18:05 GMT 2009  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Mark "-l" as requiring an argument so that it actually
+	  works - previously it would always result in a segmentation fault.
+
+Thu Feb 26 00:17:56 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/cgiparams.rst: Note the technique of using a stub database file
+	  to allow a default of searching over multiple databases.
+
+Wed Feb 25 12:39:08 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Update g++ version check to match recent change to
+	  xapian-core.  Also turn on _FORTIFY_SOURCE and make the rare()
+	  and usual() branch prediction hint macros available.
+
+Mon Feb 23 06:05:25 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Makefile.am,docs/overview.rst,omindex.cc,xpsxmlparse.cc,
+	  xpsxmlparse.h: Add support for XPS files (bug#290).
+
+Fri Feb 20 03:25:14 GMT 2009  Olly Betts <olly@survex.com>
+
+	* query.cc: Wrap a long comment.
+
+Thu Feb 19 10:34:36 GMT 2009  Olly Betts <olly@survex.com>
+
+	* omega.cc,query.cc: Prefer str.resize(0) to str = "".
+
+Thu Feb 19 06:23:34 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst,omindex.cc: Add support for MS Office 2007
+	  formats (bug#290).
+
+Thu Feb 19 04:46:26 GMT 2009  Olly Betts <olly@survex.com>
+
+	* metaxmlparse.cc,metaxmlparse.h,xmlparse.cc,xmlparse.h: XmlParser and
+	  MetaXmlParser were overriding opening_tag with the wrong signature so
+	  their implementations weren't ever being used.
+
+Fri Jan 09 04:19:32 GMT 2009  Olly Betts <olly@survex.com>
+
+	* runfilter.cc: Fix to compile when RLIMIT_AS isn't available (as on
+	  NetBSD and OpenBSD).  In this situation, instead use RLIMIT_VMEM or
+	  RLIMIT_DATA if either is available.
+
 Wed Dec 10 01:06:03 GMT 2008  Olly Betts <olly@survex.com>
 
 	* query.cc: Fix poor grammar in comment.

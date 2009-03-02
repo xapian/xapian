@@ -54,7 +54,7 @@ MultiAndPostList::get_termfreq_min() const
 	    }
 	    sum -= db_size;
 	}
-	AssertParanoid(sum <= MultiAndPostList::get_termfreq_est());
+	AssertRelParanoid(sum,<=,MultiAndPostList::get_termfreq_est());
     }
     return sum;
 }

@@ -10,6 +10,7 @@ noinst_HEADERS +=\
 	backends/flint/flint_check.h\
 	backends/flint/flint_cursor.h\
 	backends/flint/flint_database.h\
+	backends/flint/flint_databasereplicator.h\
 	backends/flint/flint_document.h\
 	backends/flint/flint_io.h\
 	backends/flint/flint_lock.h\
@@ -18,6 +19,7 @@ noinst_HEADERS +=\
 	backends/flint/flint_positionlist.h\
 	backends/flint/flint_postlist.h\
 	backends/flint/flint_record.h\
+	backends/flint/flint_replicate_internal.h\
 	backends/flint/flint_spelling.h\
 	backends/flint/flint_spellingwordslist.h\
 	backends/flint/flint_synonym.h\
@@ -35,6 +37,7 @@ libxapian_la_SOURCES +=\
 	backends/flint/flint_btreebase.cc\
 	backends/flint/flint_cursor.cc\
 	backends/flint/flint_database.cc\
+	backends/flint/flint_databasereplicator.cc\
 	backends/flint/flint_document.cc\
 	backends/flint/flint_io.cc\
 	backends/flint/flint_lock.cc\

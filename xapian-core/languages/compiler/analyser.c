@@ -16,7 +16,7 @@ static void fault(int n) { fprintf(stderr, "fault %d\n", n); exit(1); }
 static void print_node_(struct node * p, int n, char * s) {
 
     int i;
-    for (i = 0; i < n; i++) printf(i == n - 1 ? s : "  ");
+    for (i = 0; i < n; i++) fputs(i == n - 1 ? s : "  ", stdout);
     printf("%s ", name_of_token(p->type));
     unless (p->name == 0) report_b(stdout, p->name->b);
     unless (p->literalstring == 0) {

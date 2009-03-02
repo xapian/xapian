@@ -1,6 +1,6 @@
 # exception_data.pm: details of the exception heirarchy used by Xapian.
 #
-# Copyright (C) 2003,2004,2006,2007 Olly Betts
+# Copyright (C) 2003,2004,2006,2007,2008 Olly Betts
 # Copyright (C) 2007 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
@@ -20,7 +20,7 @@
 package exception_data;
 use Exporter;
 @ISA = qw(Exporter);
-@EXPORT = qw($copyright $generated_warning @baseclasses @classes);
+@EXPORT = qw($copyright $generated_warning @baseclasses @classes %subclasses);
 
 $copyright = <<'EOF';
 /* Copyright (C) 2003,2004,2006,2007 Olly Betts
@@ -46,13 +46,16 @@ $generated_warning =
 
 @baseclasses = ();
 @classes = ();
+%subclasses = ();
 
 sub errorbaseclass {
     push @baseclasses, join("\t", @_);
+    push @{$subclasses{$_[1]}}, $_[0];
 }
 
 sub errorclass {
     push @classes, join("\t", @_);
+    push @{$subclasses{$_[1]}}, $_[0];
 }
 
 errorbaseclass('LogicError', 'Error', <<'DOC');

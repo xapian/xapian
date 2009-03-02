@@ -4,6 +4,7 @@ noinst_HEADERS +=\
 	common/bitstream.h\
 	common/contiguousalldocspostlist.h\
 	common/database.h\
+	common/databasereplicator.h\
 	common/debuglog.h\
 	common/document.h\
 	common/documentterm.h\
@@ -49,6 +50,7 @@ noinst_HEADERS +=\
 	common/safeuuid.h\
 	common/safewindows.h\
 	common/safewinsock2.h\
+	common/serialisationcontextinternal.h\
 	common/serialise-double.h\
 	common/serialise.h\
 	common/socket_utils.h\

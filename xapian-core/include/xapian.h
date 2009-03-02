@@ -54,6 +54,9 @@
 // Stemming
 #include <xapian/stem.h>
 
+// Serialisation support
+#include <xapian/serialisationcontext.h>
+
 // Unicode support
 #include <xapian/unicode.h>
 

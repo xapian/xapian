@@ -25,6 +25,7 @@ libxapian_la_SOURCES +=\
 	api/postingsource.cc\
 	api/postlist.cc\
 	api/replication.cc\
+	api/serialisationcontext.cc\
 	api/sortable-serialise.cc\
 	api/sorter.cc\
 	api/termlist.cc\

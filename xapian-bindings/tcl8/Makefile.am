@@ -32,11 +32,11 @@ uninstall-local:
 	eval `grep '^dlname=' $(tcllib_LTLIBRARIES)` ; \
 	  rm -f $(DESTDIR)$(tcllibdir)/"$$dlname"
 
-AM_CPPFLAGS = @TCL_CPPFLAGS@ -DUSE_TCL_STUBS
+AM_CPPFLAGS = @TCL_CPPFLAGS@
 AM_CXXFLAGS = @SWIG_CXXFLAGS@ $(XAPIAN_CXXFLAGS)
 xapian_la_LDFLAGS = -avoid-version -module $(NO_UNDEFINED)
 nodist_xapian_la_SOURCES = xapian_wrap.cc
-xapian_la_LIBADD = $(XAPIAN_LIBS)
+xapian_la_LIBADD = $(XAPIAN_LIBS) $(TCL_LIBS)
 
 BUILT_SOURCES = xapian_wrap.cc
 CLEANFILES = pkgIndex.tcl

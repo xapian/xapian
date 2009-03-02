@@ -109,7 +109,7 @@ elif test -n "$CCC" ; then
 fi
 
 dnl See HACKING document for details of the reasons for required versions.
-AM_INIT_AUTOMAKE([1.10.1 -Wportability tar-ustar])
+AM_INIT_AUTOMAKE([1.10.2 -Wportability tar-ustar])
 AC_CONFIG_SRCDIR([matcher/andpostlist.cc])
 
 AC_CONFIG_HEADERS([config.h])
@@ -484,65 +484,43 @@ AC_CHECK_HEADERS([fcntl.h limits.h sys/errno.h sys/select.h], [], [], [ ])
 dnl If valgrind is installed and new enough, we use it for leak checking in the
 dnl testsuite.  If VALGRIND is set to an empty value, then skip the check and
 dnl don't use valgrind.
-dnl
-dnl Default to what modern valgrind knows, so the user can specify valgrind
-dnl when running runtest even if it doesn't get picked up here.
-VALGRIND_LOG_FILE_OPT=--log-file
 if test -n "${VALGRIND-unset}" ; then
   AC_PATH_PROG(VALGRIND, valgrind, [])
   if test -n "$VALGRIND" ; then
-    dnl Check that the valgrind version installed supports the most recently
-    dnl added client request which we use - VALGRIND_DO_LEAK_CHECK is ages old,
-    dnl VALGRIND_COUNT_ERRORS was added at the same time as VALGRIND_COUNT_LEAKS
-    AC_MSG_CHECKING([for VALGRIND_COUNT_LEAKS])
-    AC_EGREP_CPP(yes,
-      [#include <valgrind/memcheck.h>
-       #ifdef VALGRIND_COUNT_LEAKS
-       yes
-       #endif
-      ], AC_MSG_RESULT(found),
-      AC_MSG_RESULT(not supported)
-      [VALGRIND=])
-  fi
-
-  if test -n "$VALGRIND" ; then
-    dnl Check that the installed valgrind version works, and see if it needs
-    dnl --tool=memcheck to work (older and newer versions don't, but some in
-    dnl between do).  Valgrind 2.1.2 and later have a --log-file option but
-    dnl 2.1.1 and older had --logfile instead, so we need to check this too.
-    AC_MSG_CHECKING([for valgrind options to use])
-    if $VALGRIND --log-file=config.valgrind.tmp -q true 2> /dev/null ; then
-      dnl Test the case which matches a modern valgrind first so we handle
-      dnl the common case quickly with a single test.
-      AC_MSG_RESULT([--log-file])
-    else
-      dnl Now we have to test individual options.
-      if $VALGRIND --tool=memcheck -q true 2> /dev/null ; then
-	dnl This valgrind version requires --tool=memcheck
-	VALGRIND="$VALGRIND --tool=memcheck"
-	AC_MSG_RESULT([--tool=memcheck])
-	AC_MSG_CHECKING([for valgrind options to use])
-      fi
-      if $VALGRIND --log-file=config.valgrind.tmp -q true 2>/dev/null ; then
-	AC_MSG_RESULT([--log-file])
-      elif $VALGRIND --logfile=config.valgrind.tmp -q true 2>/dev/null ; then
-	VALGRIND_LOG_FILE_OPT=--logfile
-	AC_MSG_RESULT([--logfile])
+    dnl Check that the installed valgrind version works, and supports the
+    dnl options we use.  This means we won't try to use valgrind < 3.3.0
+    dnl (released 7/12/2007) since before that --log-file didn't expand
+    dnl %p (and appended the process id).
+    dnl
+    dnl No need to check for VALGRIND_COUNT_LEAKS now - that was added before
+    dnl 2.0.0.
+    AC_MSG_CHECKING([if valgrind supports --log-file with %p])
+    vglog=config.vglog.%p.tmp
+    vglogwild="config.vglog.*.tmp*"
+    rm -f $vglogwild
+    if $VALGRIND --log-file="$vglog" -q true 2> /dev/null ; then
+      for f in $vglogwild ; do
+        case $f in
+	$vglog*) VALGRIND= ;;
+	esac
+      done
+      if test x"$VALGRIND" = x ; then
+	AC_MSG_RESULT([no])
       else
-	dnl The valgrind detected doesn't seem to work!  Perhaps this is an
-	dnl x86_64 box with a 32 bit valgrind.
-	AC_MSG_RESULT([$VALGRIND doesn't work])
-	VALGRIND=
-      fi
+	AC_MSG_RESULT([yes])
+      fi	
+    else
+      dnl The valgrind detected doesn't seem to work!  Perhaps this is an
+      dnl x86_64 box with a 32 bit valgrind.
+      AC_MSG_RESULT([$VALGRIND doesn't work])
+      VALGRIND=
     fi
-    rm -f config.valgrind.tmp*
+    rm -f $vglogwild
   fi
 fi
-AC_SUBST(VALGRIND_LOG_FILE_OPT)
 
 if test -n "$VALGRIND" ; then
-  AC_DEFINE(HAVE_VALGRIND, 1,
-	    [Define if valgrind is installed and supports VALGRIND_COUNT_LEAKS])
+  AC_DEFINE(HAVE_VALGRIND, 1, [Define if a suitable valgrind is installed])
 fi
 
 dnl Checks for library functions.
@@ -814,7 +792,9 @@ case $host_os in
     ;;
   *)
     AC_CHECK_FUNC(pread,
-       [AC_MSG_CHECKING([for any prototype needed for pread])
+       [AC_DEFINE(HAVE_PREAD, 1,
+	    [Define if pread is available on this system])
+	AC_MSG_CHECKING([for any prototype needed for pread])
 	AC_CACHE_VAL([xo_cv_pread_prototype],
 	  [
 	    for p in ' ' \
@@ -846,7 +826,9 @@ $p
 	  fi
 	])
     AC_CHECK_FUNC(pwrite,
-       [AC_MSG_CHECKING([for any prototype needed for pwrite])
+       [AC_DEFINE(HAVE_PWRITE, 1,
+	    [Define if pwrite is available on this system])
+	AC_MSG_CHECKING([for any prototype needed for pwrite])
 	AC_CACHE_VAL([xo_cv_pwrite_prototype],
 	  [
 	    for p in ' ' \
@@ -911,12 +893,12 @@ dnl Set defines according to the --enable-assertions and --enable-log options
 dnl given.
 
 if test yes = "$enable_assertions" || test partial = "$enable_assertions" ; then
-  AC_DEFINE(XAPIAN_DEBUG,,
+  AC_DEFINE(XAPIAN_ASSERTIONS,,
     [Define if you want assertions (causes some slow-down)])
 fi
 
 if test yes = "$enable_assertions"; then
-  AC_DEFINE(XAPIAN_DEBUG_PARANOID,,
+  AC_DEFINE(XAPIAN_ASSERTIONS_PARANOID,,
     [Define if you want paranoid assertions (causes significant slow-down)])
 fi
 
@@ -962,32 +944,37 @@ if test yes = "$GXX"; then
       dnl not much point worrying about whether older versions had them or not.
       AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords"
 
-      dnl GCC2 reports e.g. "2.7.2.3" or "2.95.4".  3.0 reports e.g. "3.0.4"
-      dnl but somewhere in the 3.X series the output became more verbose
-      dnl (3.2 has the new style output - not sure about 3.1).  So we need to
-      dnl run the output through head and sed to extract the version number.
-      gxx_version=`$CXX --version 2>&1|head -1|${SED-sed} 's/^[[^ ]]* (GCC) //;s/ .*//'`
+      dnl The output of g++ --version seems to change with almost every minor
+      dnl release so use the preprocessor macros which should be more robust.
+      gxx_major_version=`echo __GNUC__|$CXX -E -|sed '/^#/d;s/ //g'`
+      gxx_minor_version=`echo __GNUC_MINOR__|$CXX -E -|sed '/^#/d;s/ //g'`
+      gxx_version=$gxx_major_version.$gxx_minor_version
 
       case $gxx_version in
       2.96)
 	dnl Oddly Redhat's "2.96" doesn't support -Wundef, though real
 	dnl GCC versions before and after it do!
 	;;
-      [[012]].* | 3.0*) dnl GCC < 3.1, other than 2.96
+      [[012]].* | 3.0) dnl GCC < 3.1, other than 2.96
 	dnl GCC 3.0 supports -Wshadow, but it spews false positives (at least
 	dnl with 3.0.4) so we don't use it.
 	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef" ;;
       3.*)
 	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow" ;;
-      *)
+      *) dnl GCC >= 4.0
 	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow"
 
-	dnl -Winit-self was added in GCC 3.4, but contrary to the documentation
-	dnl it is currently (tested with GCC 4.2) ignored by g++ which warns for
-	dnl this case with -Wuninitialized (implied by -W).
-	dnl -Wstrict-overflow is new in GCC 4.2.
+	dnl -Winit-self was added in GCC 3.4, but up to at least GCC 4.2 it is
+	dnl ignored by g++ which warns for this case with -Wuninitialized
+	dnl (implied by -W).  But at some point this bug (filed upstream as
+	dnl http://gcc.gnu.org/PR34772) may get fixed so we pass this option
+	dnl anyway - we don't intend to use this idiom, so any instances are
+	dnl bugs we'd like to know about.
+	dnl
+	dnl -Wstrict-overflow is new in GCC 4.2.  Higher settings than 1 have
+	dnl proved too noisy.
 	case $gxx_version in
-	4.0*|4.1*) ;;
+	4.[[01]]) ;;
 	*) AM_CXXFLAGS="$AM_CXXFLAGS -Winit-self -Wstrict-overflow=1" ;;
 	esac
 

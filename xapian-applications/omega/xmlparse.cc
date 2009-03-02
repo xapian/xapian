@@ -1,6 +1,6 @@
 /* xmlparse.cc: subclass of HtmlParser for parsing XML.
  *
- * Copyright (C) 2006 Olly Betts
+ * Copyright (C) 2006,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 #include "xmlparse.h"
 
 void
-XmlParser::opening_tag(const string &, const map<string,string> &)
+XmlParser::opening_tag(const string &)
 {
 }
 

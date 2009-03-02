@@ -3,6 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2003,2004,2006,2007,2008 Olly Betts
+ * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,6 +28,7 @@
 #include "document.h"
 #include "documentvaluelist.h"
 #include "maptermlist.h"
+#include "serialise.h"
 #include "utils.h"
 
 #include <xapian/error.h>
@@ -197,6 +199,20 @@ Document::get_docid() const
 {
     DEBUGAPICALL(docid, "Document::get_docid", "");
     RETURN(internal->get_docid());
+}
+
+std::string
+Document::serialise() const
+{
+    DEBUGAPICALL(std::string, "Document::serialise", "");
+    return serialise_document(*this);
+}
+
+Document
+Document::unserialise(const std::string &s)
+{
+    DEBUGAPICALL_STATIC(Document, "Document::unserialise", s);
+    return unserialise_document(s);
 }
 
 }

@@ -63,7 +63,7 @@ try:
     query = qp.parse_query(query_string)
 
     if not query.empty():
-        print "Parsed query is: %s" % query.get_description()
+        print "Parsed query is: %s" % str(query)
 
         # Find the top 10 results for the query.
         enquire.set_query(query)

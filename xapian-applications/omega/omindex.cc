@@ -3,7 +3,8 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2005 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2009 Frank J Bruzzaniti
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -55,6 +56,7 @@
 #include "utils.h"
 #include "values.h"
 #include "xmlparse.h"
+#include "xpsxmlparse.h"
 
 #include "gnu_getopt.h"
 
@@ -351,6 +353,30 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    cout << "\"" << cmd << "\" failed - skipping\n";
 	    return;
 	}
+    } else if (startswith(mimetype, "application/vnd.openxmlformats-officedocument.")) {
+	const char * args = NULL;
+	string tail(mimetype, 46);
+	if (startswith(tail, "wordprocessingml.")) {
+	    args = " word/document.xml";
+	} else if (startswith(tail, "spreadsheetml.")) {
+	    args = " xl/sharedStrings.xml";
+	} else if (startswith(tail, "presentationml.")) {
+	    args = " ppt/slides/slide*.xml";
+	} else {
+	    // Don't know how to index this type.
+	    cout << "unknown Office 2007 MIME subtype - skipping\n";
+	    return;
+	}
+	string safefile = shell_protect(file);
+	string cmd = "unzip -p " + safefile + args;
+	try {
+	    XmlParser xmlparser;
+	    xmlparser.parse_html(stdout_to_string(cmd));
+	    dump = xmlparser.dump;
+	} catch (ReadError) {
+	    cout << "\"" << cmd << "\" failed - skipping\n";
+	    return;
+	}
     } else if (mimetype == "application/vnd.wordperfect") {
 	// Looking at the source of wpd2html and wpd2text I think both output
 	// utf-8, but it's hard to be sure without sample Unicode .wpd files
@@ -451,6 +477,26 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	string cmd = "djvutxt " + shell_protect(file);
 	try {
 	    dump = stdout_to_string(cmd);
+	} catch (ReadError) {
+	    cout << "\"" << cmd << "\" failed - skipping\n";
+	    return;
+	}
+    } else if (mimetype == "application/vnd.ms-xpsdocument") {
+	string safefile = shell_protect(file);
+	string cmd = "unzip -p " + safefile + " Documents/1/Pages/*.fpage";
+	try {
+	    XpsXmlParser xpsparser;
+	    dump = stdout_to_string(cmd);
+	    // Look for Byte-Order Mark (BOM).
+	    if (startswith(dump, "\xfe\xff") || startswith(dump, "\xff\xfe")) {
+		// UTF-16 in big-endian/little-endian order - we just convert
+		// it as "UTF-16" and let the conversion handle the BOM as that
+		// way we avoid the copying overhead of erasing 2 bytes from
+		// the start of dump.
+		convert_to_utf8(dump, "UTF-16");
+	    }
+	    xpsparser.parse_html(dump);
+	    dump = xpsparser.dump;
 	} catch (ReadError) {
 	    cout << "\"" << cmd << "\" failed - skipping\n";
 	    return;
@@ -727,6 +773,15 @@ main(int argc, char **argv)
     mime_map["sxw"] = "application/vnd.sun.xml.writer";
     mime_map["sxg"] = "application/vnd.sun.xml.writer.global";
     mime_map["stw"] = "application/vnd.sun.xml.writer.template";
+    // MS Office 2007 formats:
+    mime_map["docx"] = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"; // Word 2007
+    mime_map["dotx"] = "application/vnd.openxmlformats-officedocument.wordprocessingml.template"; // Word 2007 template
+    mime_map["xlsx"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"; // Excel 2007
+    mime_map["xltx"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.template"; // Excel 2007 template
+    mime_map["pptx"] = "application/vnd.openxmlformats-officedocument.presentationml.presentation"; // PowerPoint 2007 presentation
+    mime_map["ppsx"] = "application/vnd.openxmlformats-officedocument.presentationml.slideshow"; // PowerPoint 2007 slideshow
+    mime_map["potx"] = "application/vnd.openxmlformats-officedocument.presentationml.template"; // PowerPoint 2007 template
+    mime_map["xps"] = "application/vnd.ms-xpsdocument";
     // Some other word processor formats:
     mime_map["doc"] = "application/msword";
     mime_map["dot"] = "application/msword"; // Word template
@@ -752,7 +807,7 @@ main(int argc, char **argv)
     mime_map["djv"] = "image/vnd.djvu";
     mime_map["djvu"] = "image/vnd.djvu";
 
-    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:lpf", longopts, NULL)) != -1) {
+    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:l:pf", longopts, NULL)) != -1) {
 	switch (getopt_ret) {
 	case 'h': {
 	    cout << PROG_NAME" - "PROG_DESC"\n\n"
@@ -906,7 +961,7 @@ main(int argc, char **argv)
 		}
 	    }
 	}
-	db.flush();
+	db.commit();
 	// cout << "\n\nNow we have " << db.get_doccount() << " documents.\n";
 	exitcode = 0;
     } catch (const Xapian::Error &e) {

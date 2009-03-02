@@ -2,6 +2,7 @@
  * @brief Return document ids from an external source.
  */
 /* Copyright 2008 Olly Betts
+ * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +30,7 @@ namespace Xapian {
 
 class ExternalPostList : public PostList {
     Xapian::PostingSource * source;
+    bool source_is_owned;
 
     Xapian::docid current;
 
@@ -43,7 +45,10 @@ class ExternalPostList : public PostList {
     PostList * update_after_advance();
 
   public:
-    ExternalPostList(Xapian::PostingSource *source_, double factor_);
+    ExternalPostList(const Xapian::Database & db,
+		     Xapian::PostingSource *source_,
+		     double factor_);
+    ~ExternalPostList();
 
     Xapian::doccount get_termfreq_min() const;
 

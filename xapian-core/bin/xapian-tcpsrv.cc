@@ -40,7 +40,9 @@ static void register_user_weighting_schemes(TcpServer &server) {
     (void)server; // Suppress "unused parameter" warning.
     // If you have defined your own weighting scheme, register it here
     // like so:
-    // server.register_weighting_scheme(FooWeight());
+    // SerialisationContext ctx;
+    // ctx.register_weighting_scheme(FooWeight());
+    // server.set_context(ctx);
 }
 
 const int MSECS_IDLE_TIMEOUT_DEFAULT = 60000;

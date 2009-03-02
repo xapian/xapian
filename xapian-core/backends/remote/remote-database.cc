@@ -1,7 +1,7 @@
 /** @file remote-database.cc
  *  @brief Remote backend database class
  */
-/* Copyright (C) 2006,2007,2008 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -66,7 +66,7 @@ RemoteDatabase::RemoteDatabase(int fd, Xapian::timeout timeout_,
     if (!writable) {
 	// Transactions only make sense when writing, so flag them as
 	// "unimplemented" so that our destructor doesn't call dtor_called()
-	// since that might try to call flush() which will cause a message to
+	// since that might try to call commit() which will cause a message to
 	// be sent to the remote server and probably an InvalidOperationError
 	// exception message to be returned.
 	transaction_state = TRANSACTION_UNIMPLEMENTED;
@@ -269,6 +269,12 @@ RemoteDatabase::reopen()
 {
     update_stats(MSG_REOPEN);
     mru_valno = Xapian::BAD_VALUENO;
+}
+
+void
+RemoteDatabase::close()
+{
+    do_close();
 }
 
 // Currently lazy is only used in three cases, all in multimatch.cc.  One is
@@ -496,6 +502,7 @@ RemoteDatabase::do_close()
 void
 RemoteDatabase::set_query(const Xapian::Query::Internal *query,
 			 Xapian::termcount qlen,
+			 Xapian::doccount collapse_max,
 			 Xapian::valueno collapse_key,
 			 Xapian::Enquire::docid_order order,
 			 Xapian::valueno sort_key,
@@ -511,7 +518,8 @@ RemoteDatabase::set_query(const Xapian::Query::Internal *query,
 
     // Serialise assorted Enquire settings.
     message += encode_length(qlen);
-    message += encode_length(collapse_key);
+    message += encode_length(collapse_max);
+    if (collapse_max) message += encode_length(collapse_key);
     message += char('0' + order);
     message += encode_length(sort_key);
     message += char('0' + sort_by);
@@ -566,9 +574,9 @@ RemoteDatabase::get_mset(Xapian::MSet &mset)
 }
 
 void
-RemoteDatabase::flush()
+RemoteDatabase::commit()
 {
-    send_message(MSG_FLUSH, "");
+    send_message(MSG_COMMIT, "");
 
     // We need to wait for a response to ensure documents have been committed.
     string message;

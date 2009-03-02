@@ -3,8 +3,8 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005,2006,2007,2008 Olly Betts
- * Copyright 2006,2007,2008 Lemur Consulting Ltd
+ * Copyright 2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2006,2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -44,6 +44,7 @@ struct SortPosName;
 namespace Xapian {
 
 class PostingSource;
+class SerialisationContext;
 
 /** Class representing a query.
  *
@@ -204,7 +205,16 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 */
 	Query(Query::op op_, Xapian::valueno valno, const std::string &value);
 
-	/// Construct an external source query.
+	/** Construct an external source query.
+	 *
+	 *  An attempt to clone the posting source will be made immediately, so
+	 *  if the posting source supports clone(), the source supplied may be
+	 *  safely deallocated after this call.  If the source does not support
+	 *  clone(), the caller must ensure that the posting source remains
+	 *  valid until the Query is deallocated.
+	 *
+	 *  @param external_source The source to use in the query.
+	 */
 	explicit Query(Xapian::PostingSource * external_source);
 
 	/** A query which matches all documents in the database. */
@@ -237,6 +247,36 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 *  the default ctor or with an empty iterator ctor).
 	 */
 	bool empty() const;
+
+	/** Serialise query into a string.
+	 *
+	 *  The query representation may change between Xapian releases:
+	 *  even between minor versions.  However, it is guaranteed not to
+	 *  change unless the remote database protocol has also changed between
+	 *  releases.
+	 */
+	std::string serialise() const;
+
+	/** Unserialise a query from a string produced by serialise().
+	 *
+	 *  This method will fail if the query contains any external
+	 *  PostingSource leaf nodes.
+	 *
+	 *  @param s The string representing the serialised query.
+	 */
+	static Query unserialise(const std::string &s);
+
+	/** Unserialise a query from a string produced by serialise().
+	 *
+	 *  The supplied context will be used to attempt to unserialise any
+	 *  external PostingSource leaf nodes.  This method will fail if the
+	 *  query contains any external PostingSource leaf nodes which are not
+	 *  registered in the context.
+	 *
+	 *  @param s The string representing the serialised query.
+	 *  @param ctx A context to use when unserialising the query.
+	 */
+	static Query unserialise(const std::string & s, const SerialisationContext & ctx);
 
 	/// Return a string describing this object.
 	std::string get_description() const;
@@ -325,6 +365,9 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 	/// External posting source.
 	Xapian::PostingSource * external_source;
 
+	/// Flag, indicating whether the external source is owned by the query.
+	bool external_source_owned;
+
 	/** swap the contents of this with another Xapian::Query::Internal,
 	 *  in a way which is guaranteed not to throw.  This is
 	 *  used with the assignment operator to make it exception
@@ -400,16 +443,22 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 	Internal(op_t op_, Xapian::valueno valno, const std::string &value);
 
 	/// Construct an external source query.
-	explicit Internal(Xapian::PostingSource * external_source_);
+	explicit Internal(Xapian::PostingSource * external_source_, bool owned);
 
 	/** Destructor. */
 	~Internal();
 
-	static Xapian::Query::Internal * unserialise(const std::string &s);
+	static Xapian::Query::Internal * unserialise(const std::string &s,
+						     const SerialisationContext & ctx);
 
-	/** Add a subquery.
-	 */
+	/** Add a subquery. */
 	void add_subquery(const Query::Internal * subq);
+
+	/** Add a subquery without copying it.
+	 *
+	 *  subq is owned by the object this is called on after the call.
+	 */
+	void add_subquery_nocopy(Query::Internal * subq);
 
 	void set_dbl_parameter(double dbl_parameter_);
 

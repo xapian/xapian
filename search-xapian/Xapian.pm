@@ -4,7 +4,7 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '1.0.8.0';
+our $VERSION = '1.0.9.0';
 
 use Exporter 'import';
 
@@ -12,6 +12,7 @@ use Search::Xapian::Database;
 use Search::Xapian::Document;
 use Search::Xapian::ESet;
 use Search::Xapian::ESetIterator;
+use Search::Xapian::Error;
 use Search::Xapian::MSet;
 use Search::Xapian::MSetIterator;
 use Search::Xapian::MultiValueSorter;

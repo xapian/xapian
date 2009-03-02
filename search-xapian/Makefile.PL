@@ -6,6 +6,14 @@ use Config;
 $ExtUtils::MakeMaker::Recognized_Att_Keys{CXX} = 1;
 $ExtUtils::MakeMaker::Recognized_Att_Keys{XAPIAN_CONFIG} = 1;
 
+my $builddir;
+
+my $srcdir = $0;
+if ($srcdir =~ s!/[^/]*$!!) {
+    chomp($builddir = `pwd`);
+    chdir $srcdir;
+}
+
 my $xapian_config;
 my $CC;
 for (@ARGV) {
@@ -62,13 +70,16 @@ $xver =~ s/.*\s//; # "xapian 1.0.4" -> "1.0.4"
 my $inc = `$xapian_config --cxxflags`;
 chomp($inc);
 
+my @writemakefile_args = ();
 my $libsvar = 'LIBS';
 my $libs = `$xapian_config --libs 2> /dev/null`;
 chomp($libs);
 my ($xapian_config_dir) = $xapian_config =~ /^(.*?)[^\/]*$/;
-if ($? || -f "$xapian_config_dir/Makefile") {
+my $using_libtool = 0;
+if ($? || -f "${xapian_config_dir}Makefile") {
+    $using_libtool = 1;
     # Assume we're being asked to build against an uninstalled xapian-core.
-    my $libtool = "$xapian_config_dir/libtool";
+    my $libtool = "${xapian_config_dir}libtool";
     unless (-x $libtool) {
 	die "You've asked me to link against what appears to be an uninstalled xapian-core tree, but I can't find libtool in that tree\n";
     }
@@ -80,8 +91,15 @@ if ($? || -f "$xapian_config_dir/Makefile") {
     $libs = `$xapian_config --ltlibs`;
     chomp($libs);
     $libs = {'LDLOADLIBS' => $libs};
-    $LD = "$libtool --tag=CXX --mode=link $CC -avoid-version -module -no-install";
-    $CC = "$libtool --mode=compile $CC";
+    $LD = "$libtool --tag=CXX --mode=link $CC -avoid-version -module";
+    $LD .= " -rpath \$(PERL_ARCHLIB)/auto/\$(FULLEXT)";
+    $LD .= " -shrext .".$Config{'dlext'};
+    $CC = "$libtool --tag=CXX --mode=compile $CC";
+    push @writemakefile_args, (
+	'OBJ_EXT'	=> '.lo',
+	'DLEXT'		=> 'la',
+	'FULLPERL'	=> '$(PERL) "-I$(INST_ARCHAUTODIR)/.libs"',
+    );
 }
 
 # Filter out some gcc options which g++ doesn't support.
@@ -95,7 +113,7 @@ $CCFLAGS =~ s/(^|\s+)-Wall(\s+|$)/$1-Wall -Wno-uninitialized$2/;
 
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
-WriteMakefile(
+push @writemakefile_args, (
     'NAME'		=> 'Search::Xapian',
     'VERSION_FROM'	=> 'Xapian.pm', # finds $VERSION
     'PREREQ_PM'		=> {}, # e.g., Module::Name => 1.1
@@ -109,11 +127,14 @@ WriteMakefile(
     'CCFLAGS'		=> $CCFLAGS,
     'LD'                => $LD,
     'INC'		=> $inc, # e.g., '-I/usr/include/other'
+    'OBJECT'		=> '$(BASEEXT)$(OBJ_EXT) handle_exception$(OBJ_EXT)',
     'XSOPT'             => '-C++',
-    'TYPEMAPS'          => ['perlobject.map','typemap'],
+    # 'typemap' is implicitly added to this list.
+    'TYPEMAPS'          => ['perlobject.map', 'typemap-errorclasses'],
     # Add "make check" as alias for "make test".
     'depend'		=> { 'check' => 'test' },
 );
+WriteMakefile(@writemakefile_args);
 
 my $VERSION = "unknown";
 open F, "Makefile" or die $!;
@@ -127,7 +148,7 @@ close F;
 
 my ($BASEVERSION) = $VERSION =~ /^([0-9]+\.[0-9]+\.[0-9]+)/;
 if ($xver !~ /^\Q$BASEVERSION\E(?:_svn[0-9]+)?$/) {
-    # There's no chance that we'll with xapian-core 0.x.y.
+    # There's no chance that we'll work with xapian-core 0.x.y.
     my $no_chance = ($xver =~ /^0/);
     my $msg;
     if ($no_chance) {
@@ -173,6 +194,25 @@ if (scalar @bad) {
     die(join(",",@bad).": No mention of current version: $VERSION\n");
 }
 
+# If we're doing a fake VPATH build, add a stub Makefile which forwards all
+# invocations (.DEFAULT is a GNU-make-ism).
+if (defined $builddir) {
+    open M, '>', "$builddir/Makefile~" or die $!;
+    print M <<"EOF";
+all .DEFAULT:
+\t\$(MAKE) -C "$srcdir" \$\@
+
+.PHONY: all Search-Xapian-$VERSION.tar.gz
+
+dist tardist Search-Xapian-$VERSION.tar.gz:
+\t\$(MAKE) -C "$srcdir" \$\@
+\trm -f Search-Xapian-$VERSION.tar.gz
+\tcp "$srcdir"/Search-Xapian-$VERSION.tar.gz .
+EOF
+
+    close M or die $!;
+    rename "$builddir/Makefile~", "$builddir/Makefile" or die $!;
+}
 
 sub MY::postamble {
   return "\$(XS_FILES): ".join(" ", <XS/*.xs>)."\n\ttouch \$(XS_FILES)";

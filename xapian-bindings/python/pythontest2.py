@@ -1,7 +1,7 @@
 # Tests of Python-specific parts of the xapian bindings.
 #
 # Copyright (C) 2007 Lemur Consulting Ltd
-# Copyright (C) 2008 Olly Betts
+# Copyright (C) 2008,2009 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -174,7 +174,7 @@ def test_eset_iter():
     enquire = xapian.Enquire(db)
     eset = enquire.get_eset(10, rset)
     items = [item for item in eset]
-    expect(len(items), 4)
+    expect(len(items), 3)
     expect(len(items), len(eset))
 
     context("getting eset items with a query")
@@ -913,7 +913,7 @@ def test_postingsource():
             xapian.PostingSource.__init__(self)
             self.max = max
 
-        def reset(self):
+        def reset(self, db):
             self.current = -1
 
         def get_termfreq_min(self): return 0
@@ -954,7 +954,7 @@ def test_postingsource2():
         doc.add_value(1, xapian.sortable_serialise(vals[id]))
         db.add_document(doc)
 
-    source = xapian.ValueWeightPostingSource(db, 1)
+    source = xapian.ValueWeightPostingSource(1)
     query = xapian.Query(source)
     # del source # Check that query keeps a reference to it.
 
@@ -1009,6 +1009,14 @@ def test_get_uuid():
     db = xapian.Database()
     db.add_database(db1)
     expect(db1.get_uuid(), db.get_uuid())
+
+    del db1
+    del db2
+    del dbr1
+    del dbr2
+    del db
+    shutil.rmtree(dbpath + "1")
+    shutil.rmtree(dbpath + "2")
 
 def test_director_exception():
     """Test handling of an exception raised in a director.
@@ -1104,6 +1112,63 @@ def test_value_mods():
     check_vals(db, vals)
     db.flush()
     check_vals(db, vals)
+
+    db.close()
+    expect_exception(xapian.DatabaseError, "Database has been closed", check_vals, db, vals)
+
+    del db
+    shutil.rmtree(dbpath)
+
+def test_serialise_document():
+    """Test serialisation of documents.
+
+    """
+    doc = xapian.Document()
+    doc.add_term('foo', 2)
+    doc.add_value(1, 'bar')
+    doc.set_data('baz')
+    s = doc.serialise()
+    doc2 = xapian.Document.unserialise(s)
+    expect(len(list(doc.termlist())), len(list(doc2.termlist())))
+    expect(len(list(doc.termlist())), 1)
+    expect([(item.term, item.wdf) for item in doc.termlist()],
+           [(item.term, item.wdf) for item in doc2.termlist()])
+    expect([(item.num, item.value) for item in doc.values()],
+           [(item.num, item.value) for item in doc2.values()])
+    expect(doc.get_data(), doc2.get_data())
+    expect(doc.get_data(), 'baz')
+
+    db = setup_database()
+    doc = db.get_document(1)
+    s = doc.serialise()
+    doc2 = xapian.Document.unserialise(s)
+    expect(len(list(doc.termlist())), len(list(doc2.termlist())))
+    expect(len(list(doc.termlist())), 3)
+    expect([(item.term, item.wdf) for item in doc.termlist()],
+           [(item.term, item.wdf) for item in doc2.termlist()])
+    expect([(item.num, item.value) for item in doc.values()],
+           [(item.num, item.value) for item in doc2.values()])
+    expect(doc.get_data(), doc2.get_data())
+    expect(doc.get_data(), 'is it cold?')
+
+def test_serialise_query():
+    """Test serialisation of queries.
+
+    """
+    q = xapian.Query()
+    q2 = xapian.Query.unserialise(q.serialise())
+    expect(str(q), str(q2))
+    expect(str(q), 'Xapian::Query()')
+ 
+    q = xapian.Query('hello')
+    q2 = xapian.Query.unserialise(q.serialise())
+    expect(str(q), str(q2))
+    expect(str(q), 'Xapian::Query(hello)')
+
+    q = xapian.Query(xapian.Query.OP_OR, ('hello', 'world'))
+    q2 = xapian.Query.unserialise(q.serialise())
+    expect(str(q), str(q2))
+    expect(str(q), 'Xapian::Query((hello OR world))')
 
 # Run all tests (ie, callables with names starting "test_").
 if not runtests(globals(), sys.argv[1:]):

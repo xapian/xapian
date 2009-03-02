@@ -5,7 +5,7 @@
  * Based on the php4 and python util.i files.
  *
  * Copyright (C) 2006 Networked Knowledge Systems, Inc.
- * Copyright (C) 2006,2007,2008 Olly Betts
+ * Copyright (C) 2006,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -173,13 +173,13 @@
 	SWIG_exception(SWIG_ValueError, "expected array of queries");
     }
 
-    int numitems = RARRAY($input)->len;
+    int numitems = RARRAY_LEN($input);
     v.reserve(numitems);
     for (int i = 0; i < numitems; ++i) {
       VALUE arrayEntry = rb_ary_entry($input, i);
       if (TYPE(arrayEntry) == T_STRING) {
-        v.push_back(Xapian::Query(string(RSTRING(arrayEntry)->ptr,
-					 RSTRING(arrayEntry)->len)));
+        v.push_back(Xapian::Query(string(RSTRING_PTR(arrayEntry),
+					 RSTRING_LEN(arrayEntry))));
       }
       else {
         // array element may be a Xapian::Query object. Add it if it is,
