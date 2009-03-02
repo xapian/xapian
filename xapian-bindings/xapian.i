@@ -812,6 +812,9 @@ class Remote {
 %include <xapian/replication.h>
 %include <xapian/valuesetmatchdecider.h>
 
+%ignore Xapian::SerialisationContext::operator=;
+%include <xapian/serialisationcontext.h>
+
 namespace Xapian {
 
 #if defined SWIGPYTHON

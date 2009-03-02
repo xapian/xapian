@@ -1,3 +1,8 @@
+Mon Mar 02 10:32:59 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* csharp/Makefile.am,xapian.i: Update with new serialisation
+	  context class.
+
 Mon Mar 02 08:38:36 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/pythontest2.py: Extend "database closed" test slightly, to
