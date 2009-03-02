@@ -875,7 +875,13 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *		     A value of 10 corresponds to the first 10 items
 	 *		     being ignored, and the returned items starting
 	 *		     at the eleventh.
-	 *  @param maxitems  the maximum number of items to return.
+	 *  @param maxitems  the maximum number of items to return.  If you
+	 *		     want all matches, then you can pass the result
+	 *		     of calling get_doccount() on the Database object
+	 *		     (though if you are doing this so you can filter
+	 *		     results, you are likely to get better performance
+	 *		     by using Xapian's match-time filtering features
+	 *		     instead).
 	 *  @param checkatleast  the minimum number of items to check.  Because
 	 *		     the matcher optimises, it won't consider every
 	 *		     document which might match, so the total number
