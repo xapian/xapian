@@ -2,6 +2,7 @@ noinst_HEADERS +=\
 	common/alltermslist.h\
 	common/autoptr.h\
 	common/bitstream.h\
+	common/const_database_wrapper.h\
 	common/contiguousalldocspostlist.h\
 	common/database.h\
 	common/databasereplicator.h\
@@ -73,6 +74,7 @@ EXTRA_DIST +=\
 
 libxapian_la_SOURCES +=\
 	common/bitstream.cc\
+	common/const_database_wrapper.cc\
 	common/debuglog.cc\
 	common/fileutils.cc\
 	common/msvc_dirent.cc\

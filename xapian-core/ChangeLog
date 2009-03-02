@@ -1,3 +1,15 @@
+Mon Mar 02 19:56:20 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/Makefile.mk,common/const_database_wrapper.cc,
+	  common/const_database_wrapper.h,matcher/queryoptimiser.cc: Avoid
+	  const_cast() on Database::Internal, and exposing
+	  compiler-dependent behaviour if non-const methods are called, by
+	  adding a ConstDatabaseWrapper class, which is a subclass of
+	  Database::Internal, and also takes a Database::Internal as a
+	  parameter, to be wrapped.  This class proxies all const methods
+	  to the wrapped Database::Internal, and raises
+	  InvalidOperationError on non-const methods.  Fixes #332.
+
 Mon Mar 02 18:27:00 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* include/xapian/postingsource.h: Documentation comment
