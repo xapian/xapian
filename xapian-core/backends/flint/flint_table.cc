@@ -1174,7 +1174,7 @@ FlintTable::del(const string &key)
 
     if (handle < 0) {
 	if (handle == -2) {
-	    throw Xapian::DatabaseError("Database has been closed");
+	    FlintTable::throw_database_closed();
 	}
 	RETURN(false);
     }
@@ -1206,7 +1206,7 @@ FlintTable::get_exact_entry(const string &key, string & tag) const
 
     if (handle < 0) {
 	if (handle == -2) {
-	    throw Xapian::DatabaseError("Database has been closed");
+	    FlintTable::throw_database_closed();
 	}
 	RETURN(false);
     }
@@ -1352,7 +1352,7 @@ FlintTable::set_full_compaction(bool parity)
 FlintCursor * FlintTable::cursor_get() const {
     if (handle < 0) {
 	if (handle == -2) {
-	    throw Xapian::DatabaseError("Database has been closed");
+	    FlintTable::throw_database_closed();
 	}
 	return NULL;
     }
@@ -1535,7 +1535,7 @@ FlintTable::do_open_to_write(bool revision_supplied,
 			     bool create_db)
 {
     if (handle == -2) {
-	throw Xapian::DatabaseError("Database has been closed");
+	FlintTable::throw_database_closed();
     }
     int flags = O_RDWR | O_BINARY;
     if (create_db) flags |= O_CREAT | O_TRUNC;
@@ -1676,7 +1676,7 @@ FlintTable::create_and_open(unsigned int block_size_)
 {
     DEBUGCALL(DB, void, "FlintTable::create_and_open", block_size_);
     if (handle == -2) {
-	throw Xapian::DatabaseError("Database has been closed");
+	FlintTable::throw_database_closed();
     }
     Assert(writable);
     close();
@@ -1747,7 +1747,7 @@ FlintTable::flush_db()
     Assert(writable);
     if (handle < 0) {
 	if (handle == -2) {
-	    throw Xapian::DatabaseError("Database has been closed");
+	    FlintTable::throw_database_closed();
 	}
 	return;
     }
@@ -1777,7 +1777,7 @@ FlintTable::commit(flint_revision_number_t revision, int changes_fd,
 
     if (handle < 0) {
 	if (handle == -2) {
-	    throw Xapian::DatabaseError("Database has been closed");
+	    FlintTable::throw_database_closed();
 	}
 	latest_revision_number = revision_number = revision;
 	return;
@@ -1909,7 +1909,7 @@ FlintTable::cancel()
 
     if (handle < 0) {
 	if (handle == -2) {
-	    throw Xapian::DatabaseError("Database has been closed");
+	    FlintTable::throw_database_closed();
 	}
 	latest_revision_number = revision_number; // FIXME: we can end up reusing a revision if we opened a btree at an older revision, start to modify it, then cancel...
 	return;
@@ -1950,7 +1950,7 @@ bool
 FlintTable::do_open_to_read(bool revision_supplied, flint_revision_number_t revision_)
 {
     if (handle == -2) {
-	throw Xapian::DatabaseError("Database has been closed");
+	FlintTable::throw_database_closed();
     }
     handle = ::open((name + "DB").c_str(), O_RDONLY | O_BINARY);
     if (handle < 0) {
@@ -2185,6 +2185,12 @@ FlintTable::next_default(Cursor_ * C_, int j) const
 #endif /* BTREE_DEBUG_FULL */
     }
     return true;
+}
+
+void
+FlintTable::throw_database_closed()
+{
+    throw Xapian::DatabaseError("Database has been closed");
 }
 
 /** Compares this key with key2.

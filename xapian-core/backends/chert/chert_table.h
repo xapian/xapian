@@ -728,6 +728,9 @@ class XAPIAN_VISIBILITY_DEFAULT ChertTable {
 
 	/* Debugging methods */
 //	void report_block_full(int m, int n, const byte * p);
+
+	/// Throw an exception indicating that the database is closed.
+	XAPIAN_NORETURN(static void throw_database_closed());
 };
 
 #endif /* OM_HGUARD_CHERT_TABLE_H */

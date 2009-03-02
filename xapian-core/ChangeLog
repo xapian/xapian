@@ -1,3 +1,11 @@
+Mon Mar 02 07:05:54 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/chert/chert_table.cc,backends/chert/chert_table.h,
+	  backends/flint/flint_table.cc,backends/flint/flint_table.h:
+	  Factor out more "throw Xapian::DatabaseError("Database has been
+	  closed")" bits into separate functions: knocks another 20KB off
+	  the shared library size.
+
 Mon Mar 02 05:46:15 GMT 2009  Olly Betts <olly@survex.com>
 
 	* include/xapian/enquire.h: Document how to get all matches from
