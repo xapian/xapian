@@ -1,3 +1,9 @@
+Mon Mar 02 08:38:36 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/pythontest2.py: Extend "database closed" test slightly, to
+	  cover a case which caused a segfault with core before revision
+	  r11980.
+
 Thu Feb 26 04:09:04 GMT 2009  Olly Betts <olly@survex.com>
 
 	* configure.ac,ruby/Makefile.am: Workaround rubyio.h vs ruby/io.h
