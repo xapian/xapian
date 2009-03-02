@@ -56,6 +56,7 @@
 #include "utils.h"
 #include "values.h"
 #include "xmlparse.h"
+#include "xpsxmlparse.h"
 
 #include "gnu_getopt.h"
 
@@ -480,6 +481,26 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    cout << "\"" << cmd << "\" failed - skipping\n";
 	    return;
 	}
+    } else if (mimetype == "application/vnd.ms-xpsdocument") {
+	string safefile = shell_protect(file);
+	string cmd = "unzip -p " + safefile + " Documents/1/Pages/*.fpage";
+	try {
+	    XpsXmlParser xpsparser;
+	    dump = stdout_to_string(cmd);
+	    // Look for Byte-Order Mark (BOM).
+	    if (startswith(dump, "\xfe\xff") || startswith(dump, "\xff\xfe")) {
+		// UTF-16 in big-endian/little-endian order - we just convert
+		// it as "UTF-16" and let the conversion handle the BOM as that
+		// way we avoid the copying overhead of erasing 2 bytes from
+		// the start of dump.
+		convert_to_utf8(dump, "UTF-16");
+	    }
+	    xpsparser.parse_html(dump);
+	    dump = xpsparser.dump;
+	} catch (ReadError) {
+	    cout << "\"" << cmd << "\" failed - skipping\n";
+	    return;
+	}
     } else {
 	// Don't know how to index this type.
 	cout << "unknown MIME type - skipping\n";
@@ -760,6 +781,7 @@ main(int argc, char **argv)
     mime_map["pptx"] = "application/vnd.openxmlformats-officedocument.presentationml.presentation"; // PowerPoint 2007 presentation
     mime_map["ppsx"] = "application/vnd.openxmlformats-officedocument.presentationml.slideshow"; // PowerPoint 2007 slideshow
     mime_map["potx"] = "application/vnd.openxmlformats-officedocument.presentationml.template"; // PowerPoint 2007 template
+    mime_map["xps"] = "application/vnd.ms-xpsdocument";
     // Some other word processor formats:
     mime_map["doc"] = "application/msword";
     mime_map["dot"] = "application/msword"; // Word template
@@ -785,7 +807,7 @@ main(int argc, char **argv)
     mime_map["djv"] = "image/vnd.djvu";
     mime_map["djvu"] = "image/vnd.djvu";
 
-    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:lpf", longopts, NULL)) != -1) {
+    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:l:pf", longopts, NULL)) != -1) {
 	switch (getopt_ret) {
 	case 'h': {
 	    cout << PROG_NAME" - "PROG_DESC"\n\n"
@@ -939,7 +961,7 @@ main(int argc, char **argv)
 		}
 	    }
 	}
-	db.flush();
+	db.commit();
 	// cout << "\n\nNow we have " << db.get_doccount() << " documents.\n";
 	exitcode = 0;
     } catch (const Xapian::Error &e) {

@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2006,2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -25,6 +25,7 @@
 
 #include "omqueryinternal.h"
 
+#include "serialisationcontextinternal.h"
 #include "omdebug.h"
 #include "utils.h"
 #include "serialise.h"
@@ -391,7 +392,7 @@ class QUnserial {
     const char *p;
     const char *end;
     Xapian::termpos curpos;
-    const map<string, Xapian::PostingSource *> & sources;
+    const Xapian::SerialisationContext & ctx;
 
     Xapian::Query::Internal * readquery();
     Xapian::Query::Internal * readexternal();
@@ -399,8 +400,8 @@ class QUnserial {
 
   public:
     QUnserial(const string & s,
-	      const map<string, Xapian::PostingSource *> & sources_)
-	    : p(s.c_str()), end(p + s.size()), curpos(1), sources(sources_) { }
+	      const Xapian::SerialisationContext & ctx_)
+	    : p(s.c_str()), end(p + s.size()), curpos(1), ctx(ctx_) { }
     Xapian::Query::Internal * decode();
 };
 
@@ -457,10 +458,10 @@ QUnserial::readexternal()
 
     size_t length = decode_length(&p, end, true);
     string sourcename(p, length);
-    map<string, Xapian::PostingSource *>::const_iterator i;
-    i = sources.find(sourcename);
-    if (i == sources.end()) {
-	throw Xapian::InvalidArgumentError("PostingSource " + string(p, length) + " not registered");
+    const Xapian::PostingSource * source = ctx.get_posting_source(sourcename);
+    if (source == NULL) {
+	throw Xapian::InvalidArgumentError("PostingSource " + sourcename +
+					   " not registered");
     }
 
     p += length;
@@ -468,7 +469,7 @@ QUnserial::readexternal()
     string sourcedata(p, length);
     p += length;
 
-    return new Xapian::Query::Internal(i->second->unserialise(sourcedata), true);
+    return new Xapian::Query::Internal(source->unserialise(sourcedata), true);
 }
 
 static Xapian::Query::Internal *
@@ -479,8 +480,7 @@ qint_from_vector(Xapian::Query::op op,
     Xapian::Query::Internal * qint = new Xapian::Query::Internal(op, parameter);
     vector<Xapian::Query::Internal *>::const_iterator i;
     for (i = vec.begin(); i != vec.end(); i++) {
-	qint->add_subquery(*i);
-	delete *i;
+	qint->add_subquery_nocopy(*i);
     }
     qint->end_construction();
     return qint;
@@ -496,8 +496,7 @@ qint_from_vector(Xapian::Query::op op,
     qint->set_dbl_parameter(dbl_parameter);
     vector<Xapian::Query::Internal *>::const_iterator i;
     for (i = vec.begin(); i != vec.end(); i++) {
-	qint->add_subquery(*i);
-	delete *i;
+	qint->add_subquery_nocopy(*i);
     }
     qint->end_construction();
     return qint;
@@ -606,10 +605,10 @@ QUnserial::readcompound() {
 
 Xapian::Query::Internal *
 Xapian::Query::Internal::unserialise(const string &s,
-			const map<string, Xapian::PostingSource *> & sources)
+		const Xapian::SerialisationContext & ctx)
 {
     Assert(s.length() > 1);
-    QUnserial u(s, sources);
+    QUnserial u(s, ctx);
     Xapian::Query::Internal * qint = u.decode();
     AssertEq(s, qint->serialise());
     return qint;
@@ -617,7 +616,7 @@ Xapian::Query::Internal::unserialise(const string &s,
 #else
 Xapian::Query::Internal *
 Xapian::Query::Internal::unserialise(const string &,
-			const map<string, Xapian::PostingSource *> & sources)
+		const Xapian::SerialisationContext & ctx)
 {
     throw Xapian::InternalError("query serialisation not compiled in");
 }
@@ -1032,6 +1031,24 @@ Xapian::Query::Internal::add_subquery(const Xapian::Query::Internal * subq)
 	}
     } else {
 	subqs.push_back(new Xapian::Query::Internal(*subq));
+    }
+}
+
+void
+Xapian::Query::Internal::add_subquery_nocopy(Xapian::Query::Internal * subq)
+{
+    Assert(!is_leaf(op));
+    if (subq == 0) {
+	subqs.push_back(0);
+    } else if (op == subq->op && (op == OP_AND || op == OP_OR || op == OP_XOR)) {
+	// Distribute the subquery.
+	for (subquery_list::const_iterator i = subq->subqs.begin();
+	     i != subq->subqs.end(); i++) {
+	    add_subquery(*i);
+	}
+	delete subq;
+    } else {
+	subqs.push_back(subq);
     }
 }
 

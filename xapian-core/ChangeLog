@@ -145,6 +145,273 @@ Fri Mar 14 16:35:06 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 	* include/xapian/unicode.h: Correct typos in documentation
 	  comments.
 
+Mon Mar 02 10:08:25 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/,bin/xapian-tcpsrv.cc,common/Makefile.mk,common/remoteserver.h,
+	  common/serialisationcontextinternal.h,include/Makefile.mk,
+	  include/xapian.h,include/xapian/enquire.h,include/xapian/query.h,
+	  include/xapian/serialisationcontext.h,net/remoteserver.cc,
+	  tests/api_serialise.cc,tests/internaltest.cc: Add
+	  SerialisationContext.  This object is used to register
+	  PostingSource or Weight subclasses, so that they can be
+	  serialised and unserialised, and therefore used in remote
+	  searches.  Add two-argument form for Query::unserialise() which
+	  takes a serialisation context.  Fixes #206.
+
+Mon Mar 02 07:13:38 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/database.h: Further tweak to wording of
+	  documentation about close().
+
+Mon Mar 02 07:05:54 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/chert/chert_table.cc,backends/chert/chert_table.h,
+	  backends/flint/flint_table.cc,backends/flint/flint_table.h:
+	  Factor out more "throw Xapian::DatabaseError("Database has been
+	  closed")" bits into separate functions: knocks another 20KB off
+	  the shared library size.
+
+Mon Mar 02 05:46:15 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/enquire.h: Document how to get all matches from
+	  Enquire::get_mset().
+
+Mon Mar 02 04:52:17 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/inmemory/inmemory_alltermslist.cc,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h: Factor out "throw
+	  Xapian::DatabaseError("Database has been closed") into a separate
+	  function which knocks over 100KB off the shared library size (just
+	  over 0.5%).
+
+Mon Mar 02 03:57:17 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/phrasepostlist.h: Remove blank line from end of file.
+
+Mon Mar 02 03:52:10 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/replication.cc,common/msvc_posix_wrapper.cc: Cuddle braces for
+	  "if" and "switch".
+
+Mon Mar 02 03:32:32 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_closedb.cc: Use more conventional uppercase macro parameter
+	  names.  Wrap long comments.  Remove another unused exception name.
+
+Mon Mar 02 03:21:39 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/replication.cc,backends/chert/chert_databasereplicator.cc,
+	  backends/flint/flint_databasereplicator.cc,net/remoteserver.cc,
+	  tests/api_closedb.cc,tests/perftest/perftest_matchdecider.cc:
+	  Don't name the exception being caught if we don't look at it.  While
+	  GCC doesn't currently warn "unused variable" here, I'm fairly sure
+	  there are compilers which do.
+
+Mon Mar 02 03:20:52 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/perftest/perftest.cc: Wrap overlong comment.
+
+Mon Mar 02 03:17:48 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/mergepostlist.cc: Change "do { ... } while (true);" to the
+	  more usual "while (true) { ... }".
+
+Sun Mar 01 19:41:16 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_closedb.cc: Merge closedb1 and closedb2 into a single
+	  test, and add lots more checking to it.  Rename closedb3 to
+	  closedb2, to avoid leaving an odd gap.  closedb1 needs more work,
+	  but is a useful start; committing now, rather than once I've done
+	  this work, since the old test is failing in buildbot, and I don't
+	  want to get in the way of snapshot tarballs.
+
+Sun Mar 01 19:27:38 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/chert/chert_table.cc,backends/flint/flint_table.cc:
+	  Add a few guards to throw DatabaseError when the database has
+	  been permanently closed, rather than behaving as if the table is
+	  empty in that situation.  Also, don't delete the resources in the
+	  table when Database::close() is called, because they may still be
+	  used to attempt to look up cached content.
+
+Sun Mar 01 18:22:52 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/database.h: Update documentation comments for
+	  reopen() and close() to document the API we're aiming for (ie,
+	  that closed databases either return the right result from cache,
+	  or raise a DatabaseError).
+
+Sun Mar 01 18:20:19 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/inmemory/inmemory_alltermslist.cc,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h: Add a flag to mark whether
+	  the database is closed, and add guards before all methods which
+	  access content which goes away when the database is closed, to
+	  raise an exception if the database is closed.
+
+Sun Mar 01 18:20:03 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/inmemory/inmemory_document.h: Fix a typo in a comment.
+
+Sun Mar 01 17:49:26 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/mergepostlist.cc: Fix ticket #336 by calling
+	  recalc_maxweight when a sub-posting list finishes (other than
+	  after the last one, where there is no point in calling
+	  recalc_maxweight).
+
+Sun Mar 01 15:34:46 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_db.cc: Fix MyDontAskWeightPostingSource to use the
+	  database passed to reset(), rather than one passed to its
+	  constructor.  This allows externalsource4 to be enabled for
+	  multidatabases.
+
+Sun Mar 01 13:07:37 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/postingsource.h: Add comments as discussed in
+	  ticket #295 to make clear that in a multi-database search,
+	  PostingSources are passed a single sub-database.  Also mention
+	  that the returned value of clone() will be deallocated with
+	  delete.
+
+Sat Feb 28 08:21:33 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,backends/chert/chert_database.cc,
+	  backends/chert/chert_database.h,backends/database.cc,
+	  backends/flint/flint_database.cc,backends/flint/flint_database.h,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h,
+	  backends/remote/remote-database.cc,common/,docs/remote_protocol.html,
+	  examples/copydatabase.cc,include/xapian/database.h,
+	  net/remoteserver.cc,tests/,tests/perftest/perftest_matchdecider.cc,
+	  tests/perftest/perftest_randomidx.cc,tests/queryparsertest.cc: Add
+	  WritableDatabase::commit() as a new, preferred alias for
+	  WritableDatabase::flush().  (bug#266)
+
+Fri Feb 27 01:59:31 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/database.h: WritableDatabase::flush() can't throw
+	  DatabaseLockError.  WritableDatabase's ctor can throw at least
+	  DatabaseCorruptError or DatabaseLockError.
+
+Thu Feb 26 14:54:28 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_db.cc,tests/api_valuestream.cc: Update comments about why
+	  certain tests are disabled for certain backends.  Enable
+	  valueweightsource5 for multi and valuemapsource2 for remote.
+
+Thu Feb 26 14:53:19 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/multiandpostlist.cc: Use AssertRelParanoid() instead
+	  of AssertParanoid() so the values get reported if the assertion
+	  fails.
+
+Thu Feb 26 14:18:21 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/postingsource.h: Tweak word order.
+
+Thu Feb 26 12:48:16 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_db.cc: Make the PostingSource subclass ctors which are
+	  only called from clone() private to set a good example for users.
+
+Thu Feb 26 12:28:34 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/postingsource.h: Fix doc comment typo.
+
+Thu Feb 26 12:08:40 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc,include/xapian/query.h: Avoid copying
+	  Query::Internal objects needlessly when unserialising Query
+	  objects.
+
+Thu Feb 26 10:07:18 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_db.cc: A couple more uncollapsed tests.
+
+Thu Feb 26 08:28:42 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_anydb.cc,tests/api_wrdb.cc,tests/harness/testsuite.h,
+	  tests/perftest/perftest_matchdecider.cc,tests/queryparsertest.cc:
+	  Update to use new TEST_REL() macro.  Remove old TEST_LESSER(),
+	  etc.
+
+Thu Feb 26 07:51:43 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Fix the new
+	  Enquire::get_uncollapsed_matches_lower_bound(), etc methods for
+	  certain cases.
+	* tests/api_anydb.cc,tests/api_db.cc: Extend existing tests to also
+	  check Enquire::get_uncollapsed_matches_lower_bound(), etc.
+
+Thu Feb 26 07:49:23 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/harness/Makefile.mk,tests/harness/testmacros.h,
+	  tests/harness/testsuite.h: Add new "TEST_REL" macro which can test
+	  for a condition using any relational operator and report a failure
+	  clearly yet concisely.
+
+Wed Feb 25 13:43:41 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Fix adjustment of the uncollapse bounds and
+	  estimate.
+
+Wed Feb 25 12:32:13 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: GCC --version keeps changing format, and as a result
+	  we were currently getting "g++" as the version.  So change to the
+	  (hopefully) more robust technique of using g++ -E to pull out
+	  __GNUC__ and __GNUC_MINOR__.
+
+Wed Feb 25 03:14:08 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc: Fix for compiling with Sun's compiler
+	  (untested as I no longer have access to it).
+
+Mon Feb 23 14:11:12 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/sorting.rst: Clarify meaning.
+
+Mon Feb 23 14:04:50 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/deprecation.rst,include/xapian/enquire.h,tests/: Rename the
+	  wrongly named "ascending" parameter of the set_sort_by*() methods
+	  of Enquire to "reverse" and deprecate the default value since
+	  defaulting to "reverse=true" is confusing.  (bug#311)
+
+Mon Feb 23 01:24:23 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,backends/remote/remote-database.cc,
+	  common/multimatch.h,common/omenquireinternal.h,
+	  common/remote-database.h,docs/collapsing.rst,
+	  docs/remote_protocol.html,include/xapian/enquire.h,matcher/,
+	  net/remoteserver.cc,net/serialise.cc,tests/Makefile.am,
+	  tests/api_collapse.cc: Replace the collapsing code in the matcher
+	  with a separate Collapser class.  This new class can keep more than
+	  one document with each collapse key.  Also track bounds and an
+	  estimate of the total number of matches if collapsing wasn't in use.
+
+Mon Feb 23 00:52:16 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc: Fix AssertionError from apitest testcases
+	  fixedweightsource2 and valueweightsource1.
+
+Sun Feb 22 11:02:24 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_lock.cc,backends/flint/flint_lock.cc: Check for
+	  fork failing *after* we check if we're now the child process.
+
+Sun Feb 22 10:06:13 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_lock.cc,backends/flint/flint_lock.cc: Note
+	  explicitly why we now have the strange empty if (not) checking the
+	  return value of chdir("/") (it's actually newer glibc and
+	  _FORTIFY_SOURCE rather than newer GCC).  Retry closing filehandle if
+	  it returns EINTR.  Whitespace tweaks.
+
 Sat Feb 21 11:04:08 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* backends/chert/chert_lock.cc,backends/flint/flint_lock.cc: Fix

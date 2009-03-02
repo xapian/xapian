@@ -96,4 +96,3 @@ class PhrasePostList : public SelectPostList {
 };
 
 #endif /* OM_HGUARD_PHRASEPOSTLIST_H */
-

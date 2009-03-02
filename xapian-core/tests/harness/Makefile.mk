@@ -14,6 +14,7 @@ noinst_HEADERS +=\
 	harness/backendmanager_remotetcp.h\
 	harness/index_utils.h\
 	harness/unixcmds.h\
+	harness/testmacros.h\
 	harness/testrunner.h\
 	harness/testsuite.h\
 	harness/testutils.h

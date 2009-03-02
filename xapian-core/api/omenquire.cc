@@ -272,6 +272,27 @@ MSet::get_matches_upper_bound() const
     return internal->matches_upper_bound;
 }
 
+Xapian::doccount
+MSet::get_uncollapsed_matches_lower_bound() const
+{
+    Assert(internal.get() != 0);
+    return internal->uncollapsed_lower_bound;
+}
+
+Xapian::doccount
+MSet::get_uncollapsed_matches_estimated() const
+{
+    Assert(internal.get() != 0);
+    return internal->uncollapsed_estimated;
+}
+
+Xapian::doccount
+MSet::get_uncollapsed_matches_upper_bound() const
+{
+    Assert(internal.get() != 0);
+    return internal->uncollapsed_upper_bound;
+}
+
 Xapian::weight
 MSet::get_max_possible() const
 {
@@ -587,7 +608,7 @@ MSetIterator::get_description() const
 // Methods for Xapian::Enquire::Internal
 
 Enquire::Internal::Internal(const Database &db_, ErrorHandler * errorhandler_)
-  : db(db_), query(), collapse_key(Xapian::BAD_VALUENO),
+  : db(db_), query(), collapse_key(Xapian::BAD_VALUENO), collapse_max(0),
     order(Enquire::ASCENDING), percent_cutoff(0), weight_cutoff(0),
     sort_key(Xapian::BAD_VALUENO), sort_by(REL), sort_value_forward(true),
     sorter(0), errorhandler(errorhandler_), weight(0)
@@ -635,7 +656,8 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     }
 
     Stats stats;
-    ::MultiMatch match(db, query.internal.get(), qlen, rset, collapse_key,
+    ::MultiMatch match(db, query.internal.get(), qlen, rset,
+		       collapse_max, collapse_key,
 		       percent_cutoff, weight_cutoff,
 		       order, sort_key, sort_by, sort_value_forward, sorter,
 		       errorhandler, stats, weight);
@@ -878,9 +900,11 @@ Enquire::set_weighting_scheme(const Weight &weight_)
 }
 
 void
-Enquire::set_collapse_key(Xapian::valueno collapse_key)
+Enquire::set_collapse_key(Xapian::valueno collapse_key, Xapian::doccount collapse_max)
 {
+    if (collapse_key == Xapian::BAD_VALUENO) collapse_max = 0;
     internal->collapse_key = collapse_key;
+    internal->collapse_max = collapse_max;
 }
 
 void

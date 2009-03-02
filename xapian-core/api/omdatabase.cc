@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -132,6 +132,8 @@ Database::postlist_begin(const string &tname) const
     // Handle the common case of a single database specially.
     if (internal.size() == 1)
 	RETURN(PostingIterator(internal[0]->open_post_list(tname)));
+
+    if (rare(internal.size() == 0)) RETURN(PostingIterator(NULL));
 
     vector<LeafPostList *> pls;
     try {
@@ -486,8 +488,16 @@ Database::get_spelling_suggestion(const string &word,
     if (!merger.get()) RETURN(string());
 
     // Convert word to UTF-32.
+#ifdef __SUNPRO_CC
     vector<unsigned> utf32_word;
-    utf32_word.assign(Utf8Iterator(word), Utf8Iterator());
+    for (Utf8Iterator sunpro_it(word); sunpro_it != Utf8Iterator(); ++sunpro_it) {
+	utf32_word.push_back(*sunpro_it);
+    }
+#else
+    // Extra brackets needed to avoid this being misparsed as a function
+    // prototype.
+    vector<unsigned> utf32_word((Utf8Iterator(word)), Utf8Iterator());
+#endif
 
     vector<unsigned> utf32_term;
 
@@ -690,11 +700,11 @@ static void only_one_subdatabase_allowed()
 }
 
 void
-WritableDatabase::flush()
+WritableDatabase::commit()
 {
-    DEBUGAPICALL(void, "WritableDatabase::flush", "");
+    DEBUGAPICALL(void, "WritableDatabase::commit", "");
     if (internal.size() != 1) only_one_subdatabase_allowed();
-    internal[0]->flush();
+    internal[0]->commit();
 }
 
 void

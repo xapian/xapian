@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -108,7 +108,7 @@ class ChertDatabase : public Xapian::Database::Internal {
 	/// Lock object.
 	ChertLock lock;
 
-	/** Total length of all documents including unflushed modifications. */
+	/// Total length of all documents including uncommitted modifications.
 	mutable chert_totlen_t total_length;
 
 	/** Highest document ID ever allocated by this database. */
@@ -339,7 +339,7 @@ class ChertWritableDatabase : public ChertDatabase {
 	/** Implementation of virtual methods: see Database::Internal for
 	 *  details.
 	 */
-	void flush();
+	void commit();
 
 	/** Cancel pending modifications to the database. */
 	void cancel();

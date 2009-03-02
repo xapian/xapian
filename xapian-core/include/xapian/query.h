@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2006,2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -25,7 +25,6 @@
 #ifndef XAPIAN_INCLUDED_QUERY_H
 #define XAPIAN_INCLUDED_QUERY_H
 
-#include <map>
 #include <string>
 #include <vector>
 
@@ -45,6 +44,7 @@ struct SortPosName;
 namespace Xapian {
 
 class PostingSource;
+class SerialisationContext;
 
 /** Class representing a query.
  *
@@ -258,9 +258,25 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	std::string serialise() const;
 
 	/** Unserialise a query from a string produced by serialise().
-	 *  FIXME - need to add a way to register posting sources.  See ticket #206
+	 *
+	 *  This method will fail if the query contains any external
+	 *  PostingSource leaf nodes.
+	 *
+	 *  @param s The string representing the serialised query.
 	 */
 	static Query unserialise(const std::string &s);
+
+	/** Unserialise a query from a string produced by serialise().
+	 *
+	 *  The supplied context will be used to attempt to unserialise any
+	 *  external PostingSource leaf nodes.  This method will fail if the
+	 *  query contains any external PostingSource leaf nodes which are not
+	 *  registered in the context.
+	 *
+	 *  @param s The string representing the serialised query.
+	 *  @param ctx A context to use when unserialising the query.
+	 */
+	static Query unserialise(const std::string & s, const SerialisationContext & ctx);
 
 	/// Return a string describing this object.
 	std::string get_description() const;
@@ -433,11 +449,16 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 	~Internal();
 
 	static Xapian::Query::Internal * unserialise(const std::string &s,
-		const std::map<std::string, Xapian::PostingSource *> &sources);
+						     const SerialisationContext & ctx);
 
-	/** Add a subquery.
-	 */
+	/** Add a subquery. */
 	void add_subquery(const Query::Internal * subq);
+
+	/** Add a subquery without copying it.
+	 *
+	 *  subq is owned by the object this is called on after the call.
+	 */
+	void add_subquery_nocopy(Query::Internal * subq);
 
 	void set_dbl_parameter(double dbl_parameter_);
 

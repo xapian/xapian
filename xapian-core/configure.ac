@@ -966,32 +966,37 @@ if test yes = "$GXX"; then
       dnl not much point worrying about whether older versions had them or not.
       AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords"
 
-      dnl GCC2 reports e.g. "2.7.2.3" or "2.95.4".  3.0 reports e.g. "3.0.4"
-      dnl but somewhere in the 3.X series the output became more verbose
-      dnl (3.2 has the new style output - not sure about 3.1).  So we need to
-      dnl run the output through head and sed to extract the version number.
-      gxx_version=`$CXX --version 2>&1|head -1|${SED-sed} 's/^[[^ ]]* (GCC) //;s/ .*//'`
+      dnl The output of g++ --version seems to change with almost every minor
+      dnl release so use the preprocessor macros which should be more robust.
+      gxx_major_version=`echo __GNUC__|$CXX -E -|sed '/^#/d;s/ //g'`
+      gxx_minor_version=`echo __GNUC_MINOR__|$CXX -E -|sed '/^#/d;s/ //g'`
+      gxx_version=$gxx_major_version.$gxx_minor_version
 
       case $gxx_version in
       2.96)
 	dnl Oddly Redhat's "2.96" doesn't support -Wundef, though real
 	dnl GCC versions before and after it do!
 	;;
-      [[012]].* | 3.0*) dnl GCC < 3.1, other than 2.96
+      [[012]].* | 3.0) dnl GCC < 3.1, other than 2.96
 	dnl GCC 3.0 supports -Wshadow, but it spews false positives (at least
 	dnl with 3.0.4) so we don't use it.
 	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef" ;;
       3.*)
 	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow" ;;
-      *)
+      *) dnl GCC >= 4.0
 	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow"
 
-	dnl -Winit-self was added in GCC 3.4, but contrary to the documentation
-	dnl it is currently (tested with GCC 4.2) ignored by g++ which warns for
-	dnl this case with -Wuninitialized (implied by -W).
-	dnl -Wstrict-overflow is new in GCC 4.2.
+	dnl -Winit-self was added in GCC 3.4, but up to at least GCC 4.2 it is
+	dnl ignored by g++ which warns for this case with -Wuninitialized
+	dnl (implied by -W).  But at some point this bug (filed upstream as
+	dnl http://gcc.gnu.org/PR34772) may get fixed so we pass this option
+	dnl anyway - we don't intend to use this idiom, so any instances are
+	dnl bugs we'd like to know about.
+	dnl
+	dnl -Wstrict-overflow is new in GCC 4.2.  Higher settings than 1 have
+	dnl proved too noisy.
 	case $gxx_version in
-	4.0*|4.1*) ;;
+	4.[[01]]) ;;
 	*) AM_CXXFLAGS="$AM_CXXFLAGS -Winit-self -Wstrict-overflow=1" ;;
 	esac
 

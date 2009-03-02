@@ -182,3 +182,119 @@ DEFINE_TESTCASE(serialise_query1, !backend) {
 
     return true;
 }
+
+// Test for serialising a query which contains a PostingSource.
+DEFINE_TESTCASE(serialise_query2, !backend) {
+    Xapian::ValueWeightPostingSource s1(10);
+    Xapian::Query q(&s1);
+    Xapian::Query q2 = Xapian::Query::unserialise(q.serialise());
+    TEST_EQUAL(q.get_description(), q2.get_description());
+    TEST_EQUAL(q.get_description(), "Xapian::Query(PostingSource(Xapian::ValueWeightPostingSource(slot=10)))");
+
+    Xapian::ValueMapPostingSource s2(11);
+    s2.set_default_weight(5.0);
+    q = Xapian::Query(&s2);
+    q2 = Xapian::Query::unserialise(q.serialise());
+    TEST_EQUAL(q.get_description(), q2.get_description());
+    TEST_EQUAL(q.get_description(), "Xapian::Query(PostingSource(Xapian::ValueMapPostingSource(slot=11)))");
+
+    Xapian::FixedWeightPostingSource s3(5.5);
+    q = Xapian::Query(&s3);
+    q2 = Xapian::Query::unserialise(q.serialise());
+    TEST_EQUAL(q.get_description(), q2.get_description());
+    TEST_EQUAL(q.get_description(), "Xapian::Query(PostingSource(Xapian::FixedWeightPostingSource(wt=5.5)))");
+
+    return true;
+}
+
+// Test for unserialising a query using the default context.
+DEFINE_TESTCASE(serialise_query3, !backend) {
+    Xapian::ValueWeightPostingSource s1(10);
+    Xapian::Query q(&s1);
+    Xapian::SerialisationContext ctx;
+    Xapian::Query q2 = Xapian::Query::unserialise(q.serialise(), ctx);
+    TEST_EQUAL(q.get_description(), q2.get_description());
+    TEST_EQUAL(q.get_description(), "Xapian::Query(PostingSource(Xapian::ValueWeightPostingSource(slot=10)))");
+
+    Xapian::ValueMapPostingSource s2(11);
+    s2.set_default_weight(5.0);
+    q = Xapian::Query(&s2);
+    q2 = Xapian::Query::unserialise(q.serialise(), ctx);
+    TEST_EQUAL(q.get_description(), q2.get_description());
+    TEST_EQUAL(q.get_description(), "Xapian::Query(PostingSource(Xapian::ValueMapPostingSource(slot=11)))");
+
+    Xapian::FixedWeightPostingSource s3(5.5);
+    q = Xapian::Query(&s3);
+    q2 = Xapian::Query::unserialise(q.serialise(), ctx);
+    TEST_EQUAL(q.get_description(), q2.get_description());
+    TEST_EQUAL(q.get_description(), "Xapian::Query(PostingSource(Xapian::FixedWeightPostingSource(wt=5.5)))");
+
+    return true;
+}
+
+class MyPostingSource2 : public Xapian::ValuePostingSource {
+    std::string desc;
+  public:
+    MyPostingSource2(const std::string & desc_)
+	    : Xapian::ValuePostingSource(0), desc(desc_)
+    {
+    }
+
+    MyPostingSource2 * clone() const
+    {
+	return new MyPostingSource2(desc);
+    }
+
+    std::string name() const {
+	return "MyPostingSource2";
+    }
+
+    std::string serialise() const {
+	return desc;
+    }
+
+    MyPostingSource2 * unserialise(const std::string & s) const {
+	return new MyPostingSource2(s);
+    }
+
+    Xapian::weight get_weight() const { return 1.0; }
+
+    std::string get_description() const {
+	return "MyPostingSource2(" + desc + ")";
+    }
+};
+
+// Test for unserialising a query which contains a custom PostingSource.
+DEFINE_TESTCASE(serialise_query4, !backend) {
+    MyPostingSource2 s1("foo");
+    Xapian::Query q(&s1);
+    TEST_EQUAL(q.get_description(), "Xapian::Query(PostingSource(MyPostingSource2(foo)))");
+    std::string serialised = q.serialise();
+
+    TEST_EXCEPTION(Xapian::InvalidArgumentError, Xapian::Query::unserialise(serialised));
+    Xapian::SerialisationContext ctx;
+    TEST_EXCEPTION(Xapian::InvalidArgumentError, Xapian::Query::unserialise(serialised, ctx));
+
+    ctx.register_posting_source(s1);
+    Xapian::Query q2 = Xapian::Query::unserialise(serialised, ctx);
+    TEST_EQUAL(q.get_description(), q2.get_description());
+
+    return true;
+}
+
+// Test for memory leaks when registering posting sources or weights twice.
+DEFINE_TESTCASE(double_register_leak, !backend) {
+    MyPostingSource2 s1("foo");
+    Xapian::BM25Weight w1;
+
+    Xapian::SerialisationContext ctx;
+    ctx.register_posting_source(s1);
+    ctx.register_posting_source(s1);
+    ctx.register_posting_source(s1);
+
+    ctx.register_weighting_scheme(w1);
+    ctx.register_weighting_scheme(w1);
+    ctx.register_weighting_scheme(w1);
+
+    return true;
+}

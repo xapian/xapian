@@ -1,3 +1,37 @@
+Sat Feb 28 08:31:15 GMT 2009  Olly Betts <olly@survex.com>
+
+	* omindex.cc,scriptindex.cc: Use commit() rather than flush().
+
+Sat Feb 28 08:28:26 GMT 2009  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: Don't call reopen() on a WritableDatabase - it
+	  doesn't do anything!
+
+Thu Feb 26 06:38:05 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
+Thu Feb 26 06:18:05 GMT 2009  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Mark "-l" as requiring an argument so that it actually
+	  works - previously it would always result in a segmentation fault.
+
+Thu Feb 26 00:17:56 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/cgiparams.rst: Note the technique of using a stub database file
+	  to allow a default of searching over multiple databases.
+
+Wed Feb 25 12:39:08 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Update g++ version check to match recent change to
+	  xapian-core.  Also turn on _FORTIFY_SOURCE and make the rare()
+	  and usual() branch prediction hint macros available.
+
+Mon Feb 23 06:05:25 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Makefile.am,docs/overview.rst,omindex.cc,xpsxmlparse.cc,
+	  xpsxmlparse.h: Add support for XPS files (bug#290).
+
 Fri Feb 20 03:25:14 GMT 2009  Olly Betts <olly@survex.com>
 
 	* query.cc: Wrap a long comment.

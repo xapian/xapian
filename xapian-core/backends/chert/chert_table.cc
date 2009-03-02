@@ -1192,7 +1192,12 @@ ChertTable::del(const string &key)
     LOGCALL(DB, bool, "ChertTable::del", key);
     Assert(writable);
 
-    if (handle < 0) RETURN(false);
+    if (handle < 0) {
+	if (handle == -2) {
+	    ChertTable::throw_database_closed();
+	}
+	RETURN(false);
+    }
 
     // We can't delete a key which we is too long for us to store.
     if (key.size() > CHERT_BTREE_MAX_KEY_LEN) RETURN(false);
@@ -1219,7 +1224,12 @@ ChertTable::get_exact_entry(const string &key, string & tag) const
     LOGCALL(DB, bool, "ChertTable::get_exact_entry", key << ", [&tag]");
     Assert(!key.empty());
 
-    if (handle < 0) RETURN(false);
+    if (handle < 0) {
+	if (handle == -2) {
+	    ChertTable::throw_database_closed();
+	}
+	RETURN(false);
+    }
 
     // An oversized key can't exist, so attempting to search for it should fail.
     if (key.size() > CHERT_BTREE_MAX_KEY_LEN) RETURN(false);
@@ -1365,7 +1375,7 @@ ChertCursor * ChertTable::cursor_get() const {
     LOGCALL(DB, ChertCursor *, "ChertTable::cursor_get", "");
     if (handle < 0) {
 	if (handle == -2) {
-	    throw Xapian::DatabaseError("Database has been closed");
+	    ChertTable::throw_database_closed();
 	}
 	RETURN(NULL);
     }
@@ -1551,7 +1561,7 @@ ChertTable::do_open_to_write(bool revision_supplied,
 {
     LOGCALL(DB, bool, "ChertTable::do_open_to_write", revision_supplied << ", " << revision_ << ", " << create_db);
     if (handle == -2) {
-	throw Xapian::DatabaseError("Database has been closed");
+	ChertTable::throw_database_closed();
     }
     int flags = O_RDWR | O_BINARY;
     if (create_db) flags |= O_CREAT | O_TRUNC;
@@ -1692,7 +1702,7 @@ ChertTable::create_and_open(unsigned int block_size_)
 {
     LOGCALL_VOID(DB, "ChertTable::create_and_open", block_size_);
     if (handle == -2) {
-	throw Xapian::DatabaseError("Database has been closed");
+	ChertTable::throw_database_closed();
     }
     Assert(writable);
     close();
@@ -1738,8 +1748,10 @@ void ChertTable::close(bool permanent) {
 
     if (permanent) {
 	handle = -2;
+	// Don't delete the resources in the table, since they may
+	// still be used to look up cached content.
+	return;
     }
-
     for (int j = level; j >= 0; j--) {
 	delete [] C[j].p;
 	C[j].p = 0;
@@ -1758,7 +1770,12 @@ ChertTable::flush_db()
 {
     LOGCALL_VOID(DB, "ChertTable::flush_db", "");
     Assert(writable);
-    if (handle < 0) return;
+    if (handle < 0) {
+	if (handle == -2) {
+	    ChertTable::throw_database_closed();
+	}
+	return;
+    }
 
     for (int j = level; j >= 0; j--) {
 	if (C[j].rewrite) {
@@ -1784,6 +1801,9 @@ ChertTable::commit(chert_revision_number_t revision, int changes_fd,
     }
 
     if (handle < 0) {
+	if (handle == -2) {
+	    ChertTable::throw_database_closed();
+	}
 	latest_revision_number = revision_number = revision;
 	return;
     }
@@ -1914,6 +1934,9 @@ ChertTable::cancel()
     Assert(writable);
 
     if (handle < 0) {
+	if (handle == -2) {
+	    ChertTable::throw_database_closed();
+	}
 	latest_revision_number = revision_number; // FIXME: we can end up reusing a revision if we opened a btree at an older revision, start to modify it, then cancel...
 	return;
     }
@@ -1954,7 +1977,7 @@ ChertTable::do_open_to_read(bool revision_supplied, chert_revision_number_t revi
 {
     LOGCALL(DB, bool, "ChertTable::do_open_to_read", revision_supplied << ", " << revision_);
     if (handle == -2) {
-	throw Xapian::DatabaseError("Database has been closed");
+	ChertTable::throw_database_closed();
     }
     handle = ::open((name + "DB").c_str(), O_RDONLY | O_BINARY);
     if (handle < 0) {
@@ -2192,6 +2215,12 @@ ChertTable::next_default(Cursor * C_, int j) const
 #endif /* BTREE_DEBUG_FULL */
     }
     RETURN(true);
+}
+
+void
+ChertTable::throw_database_closed()
+{
+    throw Xapian::DatabaseError("Database has been closed");
 }
 
 /** Compares this key with key2.

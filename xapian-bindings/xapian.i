@@ -813,6 +813,9 @@ class Remote {
 %ignore Xapian::LatLongCoord::operator< const;
 %include <xapian/geospatial.h>
 
+%ignore Xapian::SerialisationContext::operator=;
+%include <xapian/serialisationcontext.h>
+
 namespace Xapian {
 
 #if defined SWIGPYTHON

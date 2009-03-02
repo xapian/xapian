@@ -15,7 +15,11 @@ DB
 	database name.  If the DB parameter is specified more than once, each
         value is used to allow searching over multiple databases.  Also, the
         value of each DB parameter may be a list of database names separated by
-        "/".
+        "/".  If no DB parameters are specified, then the database name
+        defaults to ``default``.  If you want to search over a combination
+        of databases by default then you can make the ``default`` database a
+        stub database file - see the "Overview" document in xapian-core for
+        details of the format.
 
 xDB
 	database(s) used for last query (separated by / if appropriate).

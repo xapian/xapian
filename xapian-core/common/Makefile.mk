@@ -50,6 +50,7 @@ noinst_HEADERS +=\
 	common/safeuuid.h\
 	common/safewindows.h\
 	common/safewinsock2.h\
+	common/serialisationcontextinternal.h\
 	common/serialise-double.h\
 	common/serialise.h\
 	common/socket_utils.h\

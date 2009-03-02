@@ -1,7 +1,7 @@
 /** @file remoteserver.h
  *  @brief Xapian remote backend server base class
  */
-/* Copyright (C) 2006,2007,2008 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009 Olly Betts
  * Copyright (C) 2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -22,6 +22,7 @@
 #ifndef XAPIAN_INCLUDED_REMOTESERVER_H
 #define XAPIAN_INCLUDED_REMOTESERVER_H
 
+#include "xapian/serialisationcontext.h"
 #include "xapian/database.h"
 #include "xapian/enquire.h"
 #include "xapian/postingsource.h"
@@ -65,11 +66,10 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
      */
     Xapian::timeout idle_timeout;
 
-    /// Registered weighting schemes.
-    map<string, Xapian::Weight *> wtschemes;
-
-    /// Registered external posting sources.
-    map<string, Xapian::PostingSource *> postingsources;
+    /** The context, used for registering weight schemes and posting
+     *  sources.
+     */
+    Xapian::SerialisationContext ctx;
 
     /// Accept a message from the client.
     message_type get_message(Xapian::timeout timeout, string & result,
@@ -120,8 +120,8 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
     // get updated doccount and avlength
     void msg_update(const std::string &message);
 
-    // flush
-    void msg_flush(const std::string & message);
+    // commit
+    void msg_commit(const std::string & message);
 
     // cancel
     void msg_cancel(const string &message);
@@ -170,14 +170,15 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
      */
     void run();
 
-    /// Register a user-defined weighting scheme class.
-    void register_weighting_scheme(const Xapian::Weight &wt) {
-	wtschemes[wt.name()] = wt.clone();
+    /// Get the context used for (un)serialisation.
+    const Xapian::SerialisationContext & get_context() const {
+	return ctx;
     }
 
-    /** Register a user-defined posting source class.
-     */
-    void register_posting_source(const Xapian::PostingSource &source);
+    /// Set the context used for (un)serialisation.
+    void set_context(const Xapian::SerialisationContext & new_ctx) {
+	ctx = new_ctx;
+    }
 };
 
 #endif // XAPIAN_INCLUDED_REMOTESERVER_H

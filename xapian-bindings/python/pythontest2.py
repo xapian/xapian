@@ -1113,6 +1113,9 @@ def test_value_mods():
     db.flush()
     check_vals(db, vals)
 
+    db.close()
+    expect_exception(xapian.DatabaseError, "Database has been closed", check_vals, db, vals)
+
     del db
     shutil.rmtree(dbpath)
 

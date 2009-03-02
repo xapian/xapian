@@ -1,7 +1,7 @@
 /** @file api_sorting.cc
  * @brief tests of MSet sorting
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@ DEFINE_TESTCASE(sortfunctor1,backend && !remote) {
 	const int keys[] = { 3, 1 };
 	Xapian::MultiValueSorter sorter(keys, keys + 2);
 
-	enquire.set_sort_by_key(&sorter);
+	enquire.set_sort_by_key(&sorter, true);
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 2, 6, 7, 1, 3, 4, 5, 8, 9);
     }
@@ -47,7 +47,7 @@ DEFINE_TESTCASE(sortfunctor1,backend && !remote) {
 	sorter.add(3);
 	sorter.add(1, false);
 
-	enquire.set_sort_by_key(&sorter);
+	enquire.set_sort_by_key(&sorter, true);
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 7, 6, 2, 8, 9, 4, 5, 1, 3);
     }
@@ -58,7 +58,7 @@ DEFINE_TESTCASE(sortfunctor1,backend && !remote) {
 	sorter.add(3);
 	sorter.add(1, false);
 
-	enquire.set_sort_by_key(&sorter);
+	enquire.set_sort_by_key(&sorter, true);
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 7, 6, 2, 8, 9, 4, 5, 1, 3);
     }
@@ -68,7 +68,7 @@ DEFINE_TESTCASE(sortfunctor1,backend && !remote) {
 	sorter.add(10); // Value 10 isn't always set.
 	sorter.add(1, false);
 
-	enquire.set_sort_by_key(&sorter);
+	enquire.set_sort_by_key(&sorter, true);
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 8, 9, 4, 5, 1, 3, 7, 6, 2);
     }
@@ -98,7 +98,7 @@ DEFINE_TESTCASE(sortfunctor2,writable && !remote) {
     {
 	Xapian::MultiValueSorter sorter;
 	sorter.add(0);
-	enquire.set_sort_by_key(&sorter);
+	enquire.set_sort_by_key(&sorter, true);
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 5, 4, 3, 2, 1);
     }
@@ -106,7 +106,7 @@ DEFINE_TESTCASE(sortfunctor2,writable && !remote) {
     {
 	Xapian::MultiValueSorter sorter;
 	sorter.add(0, false);
-	enquire.set_sort_by_key(&sorter);
+	enquire.set_sort_by_key(&sorter, true);
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 1, 2, 3, 4, 5);
     }
@@ -115,7 +115,7 @@ DEFINE_TESTCASE(sortfunctor2,writable && !remote) {
 	Xapian::MultiValueSorter sorter;
 	sorter.add(0);
 	sorter.add(1);
-	enquire.set_sort_by_key(&sorter);
+	enquire.set_sort_by_key(&sorter, true);
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 5, 4, 3, 2, 1);
     }
@@ -124,7 +124,7 @@ DEFINE_TESTCASE(sortfunctor2,writable && !remote) {
 	Xapian::MultiValueSorter sorter;
 	sorter.add(0, false);
 	sorter.add(1);
-	enquire.set_sort_by_key(&sorter);
+	enquire.set_sort_by_key(&sorter, true);
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 1, 2, 3, 4, 5);
     }
@@ -133,7 +133,7 @@ DEFINE_TESTCASE(sortfunctor2,writable && !remote) {
 	Xapian::MultiValueSorter sorter;
 	sorter.add(0);
 	sorter.add(1, false);
-	enquire.set_sort_by_key(&sorter);
+	enquire.set_sort_by_key(&sorter, true);
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 5, 4, 3, 2, 1);
     }
@@ -142,7 +142,7 @@ DEFINE_TESTCASE(sortfunctor2,writable && !remote) {
 	Xapian::MultiValueSorter sorter;
 	sorter.add(0, false);
 	sorter.add(1, false);
-	enquire.set_sort_by_key(&sorter);
+	enquire.set_sort_by_key(&sorter, true);
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 1, 2, 3, 4, 5);
     }
@@ -164,22 +164,22 @@ DEFINE_TESTCASE(changesorter1, backend) {
     enquire.set_query(Xapian::Query("word"));
     NeverUseMeSorter sorter;
 
-    enquire.set_sort_by_key(&sorter);
-    enquire.set_sort_by_value(0);
+    enquire.set_sort_by_key(&sorter, true);
+    enquire.set_sort_by_value(0, true);
     Xapian::MSet mset = enquire.get_mset(0, 25);
     TEST_EQUAL(mset.size(), 2); // Check that search is still doing something.
 
-    enquire.set_sort_by_key(&sorter);
-    enquire.set_sort_by_value_then_relevance(0);
+    enquire.set_sort_by_key(&sorter, true);
+    enquire.set_sort_by_value_then_relevance(0, true);
     mset = enquire.get_mset(0, 25);
     TEST_EQUAL(mset.size(), 2); // Check that search is still doing something.
 
-    enquire.set_sort_by_key(&sorter);
-    enquire.set_sort_by_relevance_then_value(0);
+    enquire.set_sort_by_key(&sorter, true);
+    enquire.set_sort_by_relevance_then_value(0, true);
     mset = enquire.get_mset(0, 25);
     TEST_EQUAL(mset.size(), 2); // Check that search is still doing something.
 
-    enquire.set_sort_by_key(&sorter);
+    enquire.set_sort_by_key(&sorter, true);
     enquire.set_sort_by_relevance();
     mset = enquire.get_mset(0, 25);
     TEST_EQUAL(mset.size(), 2); // Check that search is still doing something.
@@ -196,7 +196,7 @@ DEFINE_TESTCASE(sortfunctorempty1,backend && !remote) {
 	int i;
 	Xapian::MultiValueSorter sorter(&i, &i);
 
-	enquire.set_sort_by_key(&sorter);
+	enquire.set_sort_by_key(&sorter, true);
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 1, 2, 3, 4, 5, 6, 7, 8, 9);
     }

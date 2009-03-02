@@ -2,6 +2,7 @@
  * @brief Support for chert database replication
  */
 /* Copyright 2008 Lemur Consulting Ltd
+ * Copyright 2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -343,7 +344,7 @@ ChertDatabaseReplicator::get_uuid() const
     ChertVersion version_file(db_dir);
     try {
 	version_file.read_and_check();
-    } catch (const Xapian::DatabaseError & e) {
+    } catch (const Xapian::DatabaseError &) {
 	RETURN(string());
     }
     RETURN(version_file.get_uuid_string());

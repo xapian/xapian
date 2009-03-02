@@ -4,6 +4,27 @@ Tue Dec 09 00:06:44 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 	  which don't support directors, so that built-in posting sources,
 	  like the geospatial one, can be used.
 
+Mon Mar 02 10:32:59 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* csharp/Makefile.am,xapian.i: Update with new serialisation
+	  context class.
+
+Mon Mar 02 08:38:36 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/pythontest2.py: Extend "database closed" test slightly, to
+	  cover a case which caused a segfault with core before revision
+	  r11980.
+
+Thu Feb 26 04:09:04 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac,ruby/Makefile.am: Workaround rubyio.h vs ruby/io.h
+	  incompatibility.  Fix defaulting of RUBY_INC_ARCH to RUBY_INC.
+
+Thu Feb 26 03:12:11 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac,ruby/Makefile.am: Fixes for Ruby 1.9 compatibility
+	  (bug#323).
+
 Mon Feb 16 11:09:20 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/generate-python-exceptions,python/pythontest2.py,xapian.i:

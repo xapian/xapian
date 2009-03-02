@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2006 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -33,6 +33,7 @@
 #include <xapian/document.h>
 #include "inmemory_positionlist.h"
 #include <omassert.h>
+#include "noreturn.h"
 
 using namespace std;
 
@@ -249,6 +250,9 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 
     bool positions_present;
 
+    // Flag, true if the db has been closed.
+    bool closed;
+
     // Stop copy / assignment being allowed
     InMemoryDatabase& operator=(const InMemoryDatabase &);
     InMemoryDatabase(const InMemoryDatabase &);
@@ -272,7 +276,7 @@ class InMemoryDatabase : public Xapian::Database::Internal {
     //@{
     /** Implementation of virtual methods: see Database for details.
      */
-    void flush();
+    void commit();
     void cancel();
 
     Xapian::docid add_document(const Xapian::Document & document);
@@ -298,7 +302,9 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 
     ~InMemoryDatabase();
 
+    void reopen();
     void close();
+    bool is_closed() const { return closed; }
 
     Xapian::doccount get_doccount() const;
 
@@ -327,6 +333,8 @@ class InMemoryDatabase : public Xapian::Database::Internal {
     PositionList * open_position_list(Xapian::docid did,
 				      const string & tname) const;
     TermList * open_allterms(const string & prefix) const;
+
+    XAPIAN_NORETURN(static void throw_database_closed());
 };
 
 #endif /* OM_HGUARD_INMEMORY_DATABASE_H */
