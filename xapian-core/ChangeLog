@@ -1,3 +1,7 @@
+Mon Mar 02 17:58:28 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* docs/postingsource.rst: Update documentation with new design.
+
 Mon Mar 02 17:16:54 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/omqueryinternal.cc: Change serialisation of queries to use
