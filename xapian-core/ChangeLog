@@ -1,3 +1,12 @@
+Mon Mar 02 04:52:17 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/inmemory/inmemory_alltermslist.cc,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h: Factor out "throw
+	  Xapian::DatabaseError("Database has been closed") into a separate
+	  function which knocks over 100KB off the shared library size (just
+	  over 0.5%).
+
 Mon Mar 02 03:57:17 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/phrasepostlist.h: Remove blank line from end of file.

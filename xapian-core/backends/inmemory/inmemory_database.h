@@ -33,6 +33,7 @@
 #include <xapian/document.h>
 #include "inmemory_positionlist.h"
 #include <omassert.h>
+#include "noreturn.h"
 
 using namespace std;
 
@@ -332,6 +333,8 @@ class InMemoryDatabase : public Xapian::Database::Internal {
     PositionList * open_position_list(Xapian::docid did,
 				      const string & tname) const;
     TermList * open_allterms(const string & prefix) const;
+
+    XAPIAN_NORETURN(static void throw_database_closed());
 };
 
 #endif /* OM_HGUARD_INMEMORY_DATABASE_H */
