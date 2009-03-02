@@ -1,3 +1,10 @@
+Mon Mar 02 13:41:29 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/postingsource.cc: Don't set max_weight in
+	  ValueMapPostingSource::set_default_weight() - it's set in
+	  reset() before being used, and it's not been set here yet, so
+	  accessing it in std::max() was making valgrind complain.
+
 Mon Mar 02 12:23:01 GMT 2009  Olly Betts <olly@survex.com>
 
 	* HACKING,configure.ac,tests/runtest.in: Don't use valgrind if it's
