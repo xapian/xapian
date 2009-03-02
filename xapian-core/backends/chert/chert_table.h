@@ -605,7 +605,10 @@ class XAPIAN_VISIBILITY_DEFAULT ChertTable {
 	/// The name of the table (used when writing changesets).
 	const char * tablename;
 
+	/// Allocate the zstream for deflating, if not already allocated.
 	void lazy_alloc_deflate_zstream() const;
+
+	/// Allocate the zstream for inflating, if not already allocated.
 	void lazy_alloc_inflate_zstream() const;
 
 	/** revision number of the opened B-tree. */
@@ -726,8 +729,10 @@ class XAPIAN_VISIBILITY_DEFAULT ChertTable {
 	 *  Z_RLE. */
 	int compress_strategy;
 
-	/** Zlib state object */
+	/// Zlib state object for deflating
 	mutable z_stream *deflate_zstream;
+
+	/// Zlib state object for inflating
 	mutable z_stream *inflate_zstream;
 
 	/// If true, don't create the table until it's needed.
