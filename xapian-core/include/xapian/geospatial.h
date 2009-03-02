@@ -1,7 +1,7 @@
 /** \file geospatial.h
  * \brief Geospatial search support routines.
  */
-/* Copyright 2008 Lemur Consulting Ltd
+/* Copyright 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -278,6 +278,34 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongMetric {
      *  If either of the lists is empty, an InvalidArgumentError will be raised.
      */
     double operator()(const LatLongCoords & a, const LatLongCoords &b) const;
+
+    /** Clone the metric. */
+    virtual LatLongMetric * clone() const = 0;
+
+    /** Return the full name of the metric.
+     *
+     *  This is used when serialising and unserialising metrics; for example,
+     *  for performing remote searches.
+     *
+     *  If the subclass is in a C++ namespace, the namespace should be included
+     *  in the name, using "::" as a separator.  For example, for a
+     *  LatLongMetric subclass called "FooLatLongMetric" in the "Xapian"
+     *  namespace the result of this call should be "Xapian::FooLatLongMetric".
+     */
+    virtual std::string name() const = 0;
+
+    /** Serialise object parameters into a string.
+     *
+     *  The serialised parameters should represent the configuration of the
+     *  metric.
+     */
+    virtual std::string serialise() const = 0;
+
+    /** Create object given string serialisation returned by serialise().
+     *
+     *  @param s A serialised instance of this LatLongMetric subclass.
+     */
+    virtual LatLongMetric * unserialise(const std::string & s) const = 0;
 };
 
 /** Calculate the great-circle distance between two coordinates on a sphere.
@@ -310,6 +338,11 @@ class XAPIAN_VISIBILITY_DEFAULT GreatCircleMetric : public LatLongMetric {
     /** Return the great-circle distance between points on the sphere.
      */
     double operator()(const LatLongCoord & a, const LatLongCoord &b) const;
+
+    LatLongMetric * clone() const;
+    std::string name() const;
+    std::string serialise() const;
+    LatLongMetric * unserialise(const std::string & s) const;
 };
 
 /** A set of nodes.
@@ -516,10 +549,10 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistancePostingSource : public ValuePosti
     double dist;
 
     /// Centre, to compute distance from.
-    const LatLongCoords & centre;
+    LatLongCoords centre;
 
     /// Metric to compute the distance with.
-    const LatLongMetric & metric;
+    const LatLongMetric * metric;
 
     /// Maximum range to allow.  If set to 0, there is no maximum range.
     double max_range;
@@ -537,6 +570,14 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistancePostingSource : public ValuePosti
      *  appropriate value slot.
      */
     void calc_distance();
+
+    /// Internal constructor; used by clone() and serialise().
+    LatLongDistancePostingSource(Xapian::valueno slot_,
+				 const LatLongCoords & centre_,
+				 const LatLongMetric * metric_,
+				 double max_range_,
+				 double k1_,
+				 double k2_);
 
   public:
     /** Construct a new match decider which returns only documents within
@@ -556,13 +597,14 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistancePostingSource : public ValuePosti
 				 double max_range_ = 0.0,
 				 double k1_ = 1000.0,
 				 double k2_ = 1.0);
+    ~LatLongDistancePostingSource();
 
     void next(Xapian::weight min_wt);
     void skip_to(Xapian::docid min_docid, Xapian::weight min_wt);
     bool check(Xapian::docid min_docid, Xapian::weight min_wt);
 
     Xapian::weight get_weight() const;
-    ValueMapPostingSource * clone() const;
+    LatLongDistancePostingSource * clone() const;
     std::string name() const;
     std::string serialise() const;
     LatLongDistancePostingSource * unserialise(const std::string &s) const;

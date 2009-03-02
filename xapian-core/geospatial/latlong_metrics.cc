@@ -23,6 +23,7 @@
 
 #include "xapian/geospatial.h"
 #include "xapian/error.h"
+#include "serialise-double.h"
 
 #include <math.h>
 
@@ -96,4 +97,36 @@ GreatCircleMetric::operator()(const LatLongCoord & a,
     double sqrt_h = sqrt(h);
     if (sqrt_h > 1.0) sqrt_h = 1.0;
     return 2 * radius * asin(sqrt_h);
+}
+
+LatLongMetric *
+GreatCircleMetric::clone() const
+{
+    return new GreatCircleMetric(radius);
+}
+
+std::string 
+GreatCircleMetric::name() const
+{
+    return "Xapian::GreatCircleMetric";
+}
+
+std::string 
+GreatCircleMetric::serialise() const
+{
+    return serialise_double(radius);
+}
+
+LatLongMetric * 
+GreatCircleMetric::unserialise(const std::string & s) const
+{
+    const char * p = s.data();
+    const char * end = p + s.size();
+
+    double new_radius = unserialise_double(&p, end);
+    if (p != end) {
+	throw Xapian::NetworkError("Bad serialised GreatCircleMetric - junk at end");
+    }
+
+    return new GreatCircleMetric(new_radius);
 }
