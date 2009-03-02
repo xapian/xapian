@@ -33,6 +33,7 @@ OBJS= \
     $(INTDIR)/omtermlistiterator.obj \
     $(INTDIR)/postlist.obj \
     $(INTDIR)/postingsource.obj \
+    $(INTDIR)/replication.obj \
     $(INTDIR)/sortable-serialise.obj \
     $(INTDIR)/sorter.obj \
     $(INTDIR)/termlist.obj \
@@ -40,8 +41,7 @@ OBJS= \
     $(INTDIR)/valuerangeproc.obj \
     $(INTDIR)/valuesetmatchdecider.obj \
     $(INTDIR)/version.obj\
-    $(INTDIR)/weightinternal.obj\
-    $(INTDIR)/replication.obj
+    $(INTDIR)/weightinternal.obj
     
 SRCS= \
     $(INTDIR)/documentvaluelist.cc\
@@ -61,6 +61,7 @@ SRCS= \
     $(INTDIR)/omtermlistiterator.cc\
     $(INTDIR)/postlist.cc\
     $(INTDIR)/postingsource.cc \
+    $(INTDIR)/replication.cc \
     $(INTDIR)/sortable-serialise.cc\
     $(INTDIR)/sorter.cc\
     $(INTDIR)/termlist.cc\
@@ -68,8 +69,7 @@ SRCS= \
     $(INTDIR)/valuerangeproc.cc\
     $(INTDIR)/valuesetmatchdecider.cc \
     $(INTDIR)/version.cc\
-    $(INTDIR)/weightinternal.cc\
-    $(INTDIR)/replication.cc
+    $(INTDIR)/weightinternal.cc
 
 	     
 CLEAN :

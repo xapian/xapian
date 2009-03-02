@@ -1,7 +1,7 @@
 /** @file matchspy.cc
  * @brief MatchDecider subclasses for use as "match spies".
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007,2008,2009 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -298,6 +298,8 @@ CategorySelectMatchSpy::build_numeric_ranges(Xapian::valueno valno, size_t max_r
     // width 1.0 which we may then coalesce if there are too many used buckets.
     double unit = pow(10.0, floor(log10(sizeby / max_ranges) - 0.2));
     double start = floor(lo / unit) * unit;
+    // Can happen due to FP rounding (e.g. lo = 11.95, unit = 0.01).
+    if (start > lo) start = lo;
     size_t n_buckets = size_t(ceil(hi / unit) - floor(lo / unit));
 
     bool scaleby2 = true;
@@ -318,6 +320,8 @@ CategorySelectMatchSpy::build_numeric_ranges(Xapian::valueno valno, size_t max_r
 	unit *= scaleby2 ? 2.0 : 2.5;
 	scaleby2 = !scaleby2;
 	start = floor(lo / unit) * unit;
+	// Can happen due to FP rounding (e.g. lo = 11.95, unit = 0.01).
+	if (start > lo) start = lo;
 	n_buckets = size_t(ceil(hi / unit) - floor(lo / unit));
 	bucket.resize(0);
 	bucket.resize(n_buckets + 1);

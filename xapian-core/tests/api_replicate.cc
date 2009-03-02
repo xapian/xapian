@@ -1,6 +1,7 @@
 /* api_replicate.cc: tests of replication functionality
  *
  * Copyright 2008 Lemur Consulting Ltd
+ * Copyright 2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -116,8 +117,7 @@ check_equal_dbs(const string & path1, const string & path2)
 // #######################################################################
 // # Tests start here
 
-// test that indexing a term more than once at the same position increases
-// the wdf
+// Basic test of replication functionality.
 DEFINE_TESTCASE(replicate1, replicas) {
     string tempdir = ".replicatmp";
     mktmpdir(tempdir);
@@ -140,7 +140,7 @@ DEFINE_TESTCASE(replicate1, replicas) {
     doc1.add_posting("doc", 1);
     doc1.add_posting("one", 1);
     orig.add_document(doc1);
-    orig.flush();
+    orig.commit();
 
     // Apply the replication - we don't have changesets stored, so this should
     // just do a database copy, and return a count of 1.
@@ -172,9 +172,9 @@ DEFINE_TESTCASE(replicate1, replicas) {
     }
 
     orig.add_document(doc1);
-    orig.flush();
+    orig.commit();
     orig.add_document(doc1);
-    orig.flush();
+    orig.commit();
 
     count = replicate(master, replica, tempdir, 2, 0, 1);
     TEST_EQUAL(count, 3);

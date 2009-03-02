@@ -19,6 +19,7 @@ DEPLIBS = "$(OUTDIR)\libmulti.lib"  \
     $(NULL)
 
 OBJS=   $(INTDIR)\database.obj \
+        $(INTDIR)\databasereplicator.obj\
         $(INTDIR)\dbfactory.obj \
         $(INTDIR)\dbfactory_remote.obj \
         $(INTDIR)\alltermslist.obj \
@@ -27,6 +28,7 @@ OBJS=   $(INTDIR)\database.obj \
         $(INTDIR)\contiguousalldocspostlist.obj
 
 SRCS=   $(INTDIR)\database.cc \
+        $(INTDIR)\databasereplicator.cc\
         $(INTDIR)\dbfactory.cc \
         $(INTDIR)\dbfactory_remote.cc \
         $(INTDIR)\alltermslist.cc \

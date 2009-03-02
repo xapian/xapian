@@ -91,12 +91,15 @@ noinst_HEADERS = apitest.h
 collated_apitest_sources = \
  api_anydb.cc \
  api_backend.cc \
+ api_closedb.cc \
+ api_collapse.cc \
  api_db.cc \
  api_generated.cc \
  api_nodb.cc \
  api_percentages.cc \
  api_posdb.cc \
  api_replicate.cc \
+ api_serialise.cc \
  api_sorting.cc \
  api_spelling.cc \
  api_transdb.cc \

@@ -1,0 +1,243 @@
+#!/usr/bin/perl -w
+use strict;
+
+# Author: Andreas Marienborg <andreas.marienborg@gmail.com>
+# Donated as is to xapian project. Use and modify as see fit
+
+BEGIN {
+    my $dir = shift || '../xapian-core';
+    if ($dir eq '--help') {
+	print "Syntax: $0 [<path to xapian-core source directory>]\n\n";
+	print "This script needs to know the xapian-core source directory to find\n";
+	print "exception_data.pm - by default it looks in '../xapian-core'.\n";
+	exit 0;
+    }
+    push(@INC, $dir);
+}
+
+# We load the exception data from xapian-core.
+use exception_data qw(@baseclasses @classes %subclasses);
+
+# Generate typemaps for Xapian::Error and its subclasses.
+my $tm = "typemap-errorclasses";
+open(TM, ">", "$tm.tmp")
+    or die "cannot write '$tm.tmp': $!\n";
+
+foreach (@baseclasses, @classes) {
+    my ($classname, $parent, $desc) = split /\t/;
+    print TM "$classname\tO_OBJECT\n";
+    print TM "$classname *\tO_OBJECT\n";
+}
+close TM;
+
+rename "$tm.tmp", $tm
+    or die "Failed to rename '$tm.tmp' to '$tm': $!\n";
+
+my $fnm = "Xapian/Error.pm";
+open F, '>', "$fnm.tmp" or die $!;
+
+print F <<'END';
+package Search::Xapian::Error;
+
+=head1 NAME
+
+Search::Xapian::Error - Base class for all exceptions in Search::Xapian
+
+=head1 DESCRIPTION
+
+This is an abstract class in C++, i.e. it cannot be instantiated directly.
+In Perl there is no such concept, but you should not need to create instances
+of this class yourself.
+
+=head1 METHODS
+
+All exception objects have the following methods
+
+=head2 get_msg
+
+Returns a string with a descriptive error message, useful for outputing
+
+=head2 get_type
+
+The type of this error (e.g. "DocNotFoundError").
+
+=head2 get_context
+
+Optional context information, returned as a string
+
+=head2 get_error_string
+
+Returns any error string from errno or similar associated with this error
+
+=cut
+
+use 5.006;
+use strict;
+use warnings;
+use Carp;
+
+require DynaLoader;
+
+END
+
+foreach my $subclass (@{$subclasses{'Error'}}) {
+    print F "use Search::Xapian::$subclass;\n";
+}
+
+print F <<'END';
+
+our @ISA = qw(DynaLoader);
+
+# Preloaded methods go here.
+
+# In a new thread, copy objects of this class to unblessed, undef values.
+sub CLONE_SKIP { 1 }
+
+sub new {
+    my $class = shift;
+    my ($self);
+    bless $self, $class;
+
+    return $self;
+}
+
+1;
+END
+
+close F or die $!;
+rename "$fnm.tmp", "$fnm" or die $!;
+
+foreach ('Error', @baseclasses, @classes) {
+    my ($classname, $parent, $full_description) = split /\t/;
+
+    # XS/CLASSNAME.xs
+    $fnm = "XS/$classname.xs";
+    open F, '>', "$fnm.tmp" or die $!;
+
+    print F <<"END";
+MODULE = Search::Xapian\t PACKAGE = Search::Xapian::$classname
+
+PROTOTYPES: ENABLE
+
+string
+${classname}::get_type()
+
+string
+${classname}::get_msg()
+
+string
+${classname}::get_context()
+
+const char *
+${classname}::get_error_string()
+
+void
+${classname}::DESTROY()
+END
+
+    if (exists $subclasses{$classname}) {
+	print F "\n";
+	foreach my $subclass (@{$subclasses{$classname}}) {
+	    print F "INCLUDE: XS/$subclass.xs\n";
+	}
+    }
+
+    close F or die $!;
+    rename "$fnm.tmp", "$fnm" or die $!;
+
+    next if $classname eq 'Error';
+
+    $full_description =~ s!^[/ ]\*[*/]?!!mg;
+    $full_description =~ s!\*\/$!!mg; # ! to unconfuse vim
+
+    my ($heading, $desc) = split('\n\n', $full_description, 2);
+    $desc ||= '';
+
+    # Xapian/CLASSNAME.pm
+    $fnm = "Xapian/$classname.pm";
+    open F, '>', "$fnm.tmp" or die $!;
+
+    print F <<"END";
+package Search::Xapian::$classname;
+
+=head1 NAME
+
+Search::Xapian::$classname - $heading
+
+=head1 DESCRIPTION
+
+$desc
+=cut
+
+use 5.006;
+use strict;
+use warnings;
+use Carp;
+
+require DynaLoader;
+
+END
+
+    if (exists $subclasses{$classname}) {
+	foreach my $subclass (@{$subclasses{$classname}}) {
+	    print F "use Search::Xapian::$subclass;\n";
+	}
+	print F "\n";
+    }
+
+    print F <<"END";
+our \@ISA = qw(DynaLoader Search::Xapian::$parent);
+
+1;
+END
+
+    close F or die $!;
+    rename "$fnm.tmp", "$fnm" or die $!;
+}
+
+# write new handle_exception.cc
+
+$fnm = "handle_exception.cc";
+open F, '>', "$fnm.tmp" or die $!;
+
+print F <<'END';
+#include <xapian.h>
+
+extern "C" {
+#include "EXTERN.h"
+#include "perl.h"
+#include "XSUB.h"
+}
+
+/* handle_exception function
+ *
+ * called in catch blocks to croak or rethrow in perl land
+ */
+
+void handle_exception(void) {
+    try {
+        throw;
+END
+
+foreach (reverse @classes) {
+    my ($classname, $parent, $full_description) = split /\t/;
+
+    print F <<"END";
+    } catch (const Xapian::$classname & error) {
+	SV * errsv = get_sv("\@", TRUE);
+	sv_setref_pv(errsv, "Search::Xapian::$classname", (void *) new Xapian::$classname(error));
+        croak(Nullch);
+END
+}
+
+print F <<'END';
+    } catch (const std::exception & error) {
+        croak( "std::exception: %s", error.what());
+    } catch (...) {
+        croak("something terrible happened");
+    }
+}
+END
+
+close F or die $!;
+rename "$fnm.tmp", "$fnm" or die $!;

@@ -194,6 +194,8 @@ class ValueIterator {
 
 #ifdef XAPIAN_SWIG_DIRECTORS
 %feature("director") Xapian::PostingSource;
+%ignore Xapian::PostingSource::clone;
+%ignore Xapian::PostingSource::unserialise;
 %include <xapian/postingsource.h>
 #else
 %ignore Xapian::Query(Xapian::PostingSource *);
@@ -561,6 +563,7 @@ class Database {
 	virtual ~Database();
 	Database(const Database & other);
 	void reopen();
+	void close();
 
 	string get_description() const;
 	PostingIterator postlist_begin(const std::string& tname) const;
@@ -824,6 +827,9 @@ class Remote {
 %ignore Xapian::DatabaseReplica::DatabaseReplica(const DatabaseReplica &);
 %include <xapian/replication.h>
 %include <xapian/valuesetmatchdecider.h>
+
+%ignore Xapian::SerialisationContext::operator=;
+%include <xapian/serialisationcontext.h>
 
 namespace Xapian {
 

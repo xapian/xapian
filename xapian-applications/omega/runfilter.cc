@@ -1,6 +1,6 @@
 /* runfilter.cc: run an external filter and capture its output in a std::string.
  *
- * Copyright (C) 2003,2006,2007 Olly Betts
+ * Copyright (C) 2003,2006,2007,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -92,13 +92,23 @@ stdout_to_string(const string &cmd)
 	struct rlimit cpu_limit = { 300, RLIM_INFINITY } ;
 	setrlimit(RLIMIT_CPU, &cpu_limit);
 
+#if defined RLIMIT_AS || defined RLIMIT_VMEM || defined RLIMIT_DATA
 	// Limit process data to 7/8 of free physical memory.
 	long mem = get_free_physical_memory();
 	if (mem > 0) {
 	    mem = (mem / 8) * 7;
 	    struct rlimit ram_limit = { mem, RLIM_INFINITY } ;
+#ifdef RLIMIT_AS
 	    setrlimit(RLIMIT_AS, &ram_limit);
+#elif defined RLIMIT_VMEM
+	    setrlimit(RLIMIT_VMEM, &ram_limit);
+#else
+	    // Only limits the data segment rather than the total address
+	    // space, but that's better than nothing.
+	    setrlimit(RLIMIT_DATA, &ram_limit);
+#endif
 	}
+#endif
 
 	execl("/bin/sh", "/bin/sh", "-c", cmd.c_str(), (void*)NULL);
 	_exit(-1);

@@ -8,6 +8,7 @@ EXTRA_DIST +=\
 libxapian_la_SOURCES +=\
 	backends/alltermslist.cc\
 	backends/database.cc\
+	backends/databasereplicator.cc\
 	backends/dbfactory.cc\
 	backends/slowvaluelist.cc\
 	backends/valuelist.cc
@@ -35,7 +36,8 @@ endif
 # 3) Write backends/newone/Makefile.mk - it should add files to noinst_HEADERS
 #    and libxapian_la_SOURCES conditional on BUILD_BACKEND_NEWONE.
 # 4) Update backends/dbfactory.cc.
-# 5) Write the backend code!
+# 5) If it needs to support replication, update backends/databasereplicator.cc
+# 6) Write the backend code!
 
 include backends/chert/Makefile.mk
 include backends/flint/Makefile.mk

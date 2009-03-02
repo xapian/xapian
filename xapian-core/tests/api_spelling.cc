@@ -1,7 +1,7 @@
 /** @file api_spelling.cc
  * @brief Test the spelling correction suggestion API.
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007,2008,2009 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -41,7 +41,7 @@ DEFINE_TESTCASE(spell1, spelling) {
     db.add_spelling("hello");
     db.add_spelling("cell", 2);
     TEST_EQUAL(db.get_spelling_suggestion("hell"), "cell");
-    db.flush();
+    db.commit();
     Xapian::Database dbr(get_writable_database_as_database());
     TEST_EQUAL(db.get_spelling_suggestion("hell"), "cell");
     TEST_EQUAL(dbr.get_spelling_suggestion("hell"), "cell");
@@ -118,7 +118,7 @@ DEFINE_TESTCASE(spell2, spelling) {
     TEST_EQUAL(db.get_spelling_suggestion("hh\xc3\xb6l"), "h\xc3\xb6hle");
     TEST_EQUAL(db.get_spelling_suggestion("as\xc3\xb6\xc3\xb7i"), "ascii");
     TEST_EQUAL(db.get_spelling_suggestion("asc\xc3\xb6i\xc3\xb7i"), "ascii");
-    db.flush();
+    db.commit();
     Xapian::Database dbr(get_writable_database_as_database());
     TEST_EQUAL(dbr.get_spelling_suggestion("hohle", 1), "h\xc3\xb6hle");
     TEST_EQUAL(dbr.get_spelling_suggestion("hhle", 1), "h\xc3\xb6hle");
@@ -193,9 +193,9 @@ DEFINE_TESTCASE(spell4, spelling) {
 
     db.add_spelling("check");
     db.add_spelling("pecks", 2);
-    db.flush();
+    db.commit();
     db.add_spelling("becky");
-    db.flush();
+    db.commit();
 
     TEST_EQUAL(db.get_spelling_suggestion("jeck", 2), "pecks");
 
@@ -208,7 +208,7 @@ DEFINE_TESTCASE(spell5, spelling) {
 
     Xapian::WritableDatabase db = get_writable_database();
     db.add_spelling(target);
-    db.flush();
+    db.commit();
 
     string s = db.get_spelling_suggestion("\xe4\xb8\x8d", 3);
     TEST_EQUAL(s, target);
@@ -224,7 +224,7 @@ DEFINE_TESTCASE(spell6, spelling) {
     db.add_spelling("hello", 2);
     db.add_spelling("sell", 3);
     TEST_EQUAL(db.get_spelling_suggestion("hell"), "sell");
-    db.flush();
+    db.commit();
     Xapian::Database dbr(get_writable_database_as_database());
     TEST_EQUAL(db.get_spelling_suggestion("hell"), "sell");
     TEST_EQUAL(dbr.get_spelling_suggestion("hell"), "sell");

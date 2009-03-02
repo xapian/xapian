@@ -195,8 +195,12 @@ know):
   .odi, .odm, .ott, .ots, .otp, .otg, .otc, .otf, .oti, .oth) if unzip is
   available
 * MS Word documents (.doc, .dot) if antiword is available
-* MS Excel documents (.xls, .xlb, .xlt) if xls2csv is available (comes with catdoc)
-* MS Powerpoint documents (.ppt, .pps) if catppt is available (comes with catdoc)
+* MS Excel documents (.xls, .xlb, .xlt) if xls2csv is available (comes with
+  catdoc)
+* MS Powerpoint documents (.ppt, .pps) if catppt is available (comes with
+  catdoc)
+* MS Office 2007 documents (.docx, .dotx, .xlsx, .xlst, .pptx, .potx, .ppsx) if
+  unzip is available
 * Wordperfect documents (.wpd) if wpd2text is available (comes with libwpd)
 * MS Works documents (.wps, .wpt) if wps2text is available (comes with libwps)
 * AbiWord documents (.abw)
@@ -205,6 +209,7 @@ know):
 * Perl POD documentation (.pl, .pm, .pod) if pod2text is available
 * TeX DVI files (.dvi) if catdvi is available
 * DjVu files (.djv, .djvu) if djvutxt is available
+* XPS files (.xps) if unzip is available
 
 If you have additional extensions that represent one of these types, you need
 to add an additional MIME mapping using the --mime-type option. For instance::
@@ -225,6 +230,7 @@ of:
    - application/vnd.ms-excel
    - application/vnd.ms-powerpoint
    - application/vnd.ms-works
+   - application/vnd.ms-xpsdocument
    - application/vnd.oasis.opendocument.text
    - application/vnd.oasis.opendocument.spreadsheet
    - application/vnd.oasis.opendocument.presentation
@@ -242,6 +248,13 @@ of:
    - application/vnd.oasis.opendocument.formula-template
    - application/vnd.oasis.opendocument.image-template
    - application/vnd.oasis.opendocument.text-web
+   - application/vnd.openxmlformats-officedocument.wordprocessingml.document
+   - application/vnd.openxmlformats-officedocument.wordprocessingml.template
+   - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+   - application/vnd.openxmlformats-officedocument.spreadsheetml.template
+   - application/vnd.openxmlformats-officedocument.presentationml.presentation
+   - application/vnd.openxmlformats-officedocument.presentationml.slideshow
+   - application/vnd.openxmlformats-officedocument.presentationml.template
    - application/vnd.sun.xml.calc
    - application/vnd.sun.xml.calc.template
    - application/vnd.sun.xml.draw
