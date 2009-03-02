@@ -2,7 +2,7 @@
  *  \brief performance tests for Xapian.
  */
 /* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2008 Olly Betts
+ * Copyright 2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -171,9 +171,9 @@ get_ncpus()
 	} catch (NoSuchProgram) {} catch (ReadError) {}
     if (ncpus.empty())
 	try {
-	    // Works on Linux, just in case the getconf version doesn't.  Different
-	    // architectures have different formats for /proc/cpuinfo so this won't
-	    // work as widely as getconf _NPROCESSORS_ONLN will.
+	    // Works on Linux, just in case the getconf version doesn't.
+	    // Different architectures have different formats for /proc/cpuinfo
+	    // so this won't work as widely as getconf _NPROCESSORS_ONLN will.
 	    ncpus = stdout_to_string("grep -c processor /proc/cpuinfo 2>/dev/null");
 	} catch (NoSuchProgram) {} catch (ReadError) {}
 #endif

@@ -1,3 +1,7 @@
+Mon Mar 02 03:20:52 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/perftest/perftest.cc: Wrap overlong comment.
+
 Mon Mar 02 03:17:48 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/mergepostlist.cc: Change "do { ... } while (true);" to the
