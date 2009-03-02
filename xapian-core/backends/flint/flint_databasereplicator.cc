@@ -2,6 +2,7 @@
  * @brief Support for flint database replication
  */
 /* Copyright 2008 Lemur Consulting Ltd
+ * Copyright 2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -343,7 +344,7 @@ FlintDatabaseReplicator::get_uuid() const
     FlintVersion version_file(db_dir);
     try {
 	version_file.read_and_check(true);
-    } catch (const DatabaseError & e) {
+    } catch (const DatabaseError &) {
 	RETURN(string());
     }
     RETURN(version_file.get_uuid_string());

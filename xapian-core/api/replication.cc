@@ -2,7 +2,7 @@
  * @brief Replication support for Xapian databases.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
- * Copyright (C) 2008 Olly Betts
+ * Copyright (C) 2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -447,7 +447,7 @@ DatabaseReplica::Internal::possibly_make_offline_live()
     Xapian::Internal::RefCntPtr<DatabaseReplicator> replicator;
     try {
 	replicator = DatabaseReplicator::open(get_replica_path(live_id ^ 1));
-    } catch (Xapian::DatabaseError & e) {
+    } catch (Xapian::DatabaseError &) {
 	return false;
     }
     if (!replicator->check_revision_at_least(offline_revision,

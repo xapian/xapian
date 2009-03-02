@@ -46,7 +46,7 @@ builddb_valuestest1()
 	Xapian::Database db = backendmanager->get_writable_database_as_database(dbname);
 	if (db.get_doccount() != runsize)
 	    need_rebuild = true;
-    } catch (Xapian::DatabaseOpeningError & e) {
+    } catch (Xapian::DatabaseOpeningError &) {
 	need_rebuild = true;
     }
 

@@ -99,7 +99,7 @@ RemoteServer::RemoteServer(const std::vector<std::string> &dbpaths,
     string uuid;
     try {
 	uuid = db->get_uuid();
-    } catch (const Xapian::UnimplementedError &err) {
+    } catch (const Xapian::UnimplementedError &) {
 	// Leave the uuid empty.
     }
     message += encode_length(uuid.size());
@@ -238,7 +238,7 @@ RemoteServer::run()
 	    // And rethrow it so our caller can log it and close the
 	    // connection.
 	    throw;
-	} catch (const Xapian::NetworkError) {
+	} catch (const Xapian::NetworkError &) {
 	    // All other network errors mean we are fatally confused and are
 	    // unlikely to be able to communicate further across this
 	    // connection.  So we don't try to propagate the error to the
@@ -365,7 +365,7 @@ RemoteServer::msg_update(const string &)
     string uuid;
     try {
 	uuid = db->get_uuid();
-    } catch (const Xapian::UnimplementedError &err) {
+    } catch (const Xapian::UnimplementedError &) {
 	// Leave the uuid empty.
     }
     message += encode_length(uuid.size());

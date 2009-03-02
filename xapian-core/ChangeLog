@@ -1,3 +1,12 @@
+Mon Mar 02 03:21:39 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/replication.cc,backends/chert/chert_databasereplicator.cc,
+	  backends/flint/flint_databasereplicator.cc,net/remoteserver.cc,
+	  tests/api_closedb.cc,tests/perftest/perftest_matchdecider.cc:
+	  Don't name the exception being caught if we don't look at it.  While
+	  GCC doesn't currently warn "unused variable" here, I'm fairly sure
+	  there are compilers which do.
+
 Mon Mar 02 03:20:52 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/perftest/perftest.cc: Wrap overlong comment.
