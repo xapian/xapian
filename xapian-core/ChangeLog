@@ -1,3 +1,8 @@
+Mon Mar 02 14:15:11 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/externalpostlist.cc: Fix memory leak in external source
+	  postlist (fixes fixedweightsource1).
+
 Mon Mar 02 13:41:29 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/postingsource.cc: Don't set max_weight in

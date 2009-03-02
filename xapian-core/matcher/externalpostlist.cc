@@ -130,6 +130,7 @@ ExternalPostList::update_after_advance() {
     Assert(source);
     if (source->at_end()) {
 	LOGLINE(MATCH, "ExternalPostList now at end");
+	if (source_is_owned) delete source;
 	source = NULL;
     } else {
 	current = source->get_docid();
@@ -170,6 +171,7 @@ ExternalPostList::check(Xapian::docid did, Xapian::weight w_min, bool &valid)
     valid = source->check(did, w_min);
     if (source->at_end()) {
 	LOGLINE(MATCH, "ExternalPostList now at end");
+	if (source_is_owned) delete source;
 	source = NULL;
     } else {
 	current = valid ? source->get_docid() : current;
