@@ -30,13 +30,14 @@
 
 using namespace std;
 
-#define COUNT_CLOSEDEXC(code) \
-    try { code; } catch (Xapian::DatabaseError &) { ++closedexc_count; }
-#define IF_NOT_CLOSEDEXC(code) \
+#define COUNT_CLOSEDEXC(CODE) \
+    try { CODE; } catch (Xapian::DatabaseError &) { ++closedexc_count; }
+
+#define IF_NOT_CLOSEDEXC(CODE) \
     do { \
 	hadexc = false; \
 	try { \
-	    code; \
+	    CODE; \
 	} catch (Xapian::DatabaseError &) { \
 	    ++closedexc_count; \
 	    hadexc = true; \
@@ -72,7 +73,8 @@ struct closedb1_iterators {
 	    COUNT_CLOSEDEXC(doc1.termlist_begin());
 	}
 
-	// Causing the database to access its files raises the "database closed" error.
+	// Causing the database to access its files raises the "database
+	// closed" error.
 	COUNT_CLOSEDEXC(db.postlist_begin("paragraph"));
 	COUNT_CLOSEDEXC(db.get_document(1).get_value(1));
 
@@ -86,13 +88,13 @@ struct closedb1_iterators {
 	COUNT_CLOSEDEXC(TEST_EQUAL(*pl1, 1));
 	COUNT_CLOSEDEXC(TEST_EQUAL(pl1.get_doclength(), 28));
 
-	// Advancing the iterator may or may not raise an error, but if it doesn't
-	// it must return the correct answers.
+	// Advancing the iterator may or may not raise an error, but if it
+	// doesn't it must return the correct answers.
 	bool advanced = false;
 	try {
 	    ++pl1;
 	    advanced = true;
-	} catch (Xapian::DatabaseError & e) {}
+	} catch (Xapian::DatabaseError &) {}
 
 	if (advanced) {
 	    COUNT_CLOSEDEXC(TEST_EQUAL(*pl1, 2));
