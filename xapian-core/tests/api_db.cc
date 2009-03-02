@@ -1506,11 +1506,10 @@ DEFINE_TESTCASE(synonym1, backend) {
 	}
 	TEST_EQUAL(values_or.size(), values_synonym.size());
 
-	/* Check that the weights for each item in the or mset are different from
-	 * those in the synonym mset. (Note, it's technically possible that some
-	 * might be equal, but unlikely, so for now we just check that none are.
-	 * If this causes problems, we can change to just checking that most
-	 * differ.) */
+	/* Check that the most of the weights for items in the "or" mset are
+	 * different from those in the "synonym" mset. */
+	int same_weight = 0;
+	int different_weight = 0;
 	for (map<Xapian::docid, Xapian::weight>::const_iterator
 	     j = values_or.begin();
 	     j != values_or.end(); ++j)
@@ -1518,13 +1517,20 @@ DEFINE_TESTCASE(synonym1, backend) {
 	    Xapian::docid did = j->first;
 	    // Check that all the results in the or tree make it to the synonym tree.
 	    TEST(values_synonym.find(did) != values_synonym.end());
-	    if (qlist->size() == 1) {
-		// Check that the weights are the same.
-		TEST_EQUAL(values_or[did], values_synonym[did]);
+	    if (values_or[did] == values_synonym[did]) {
+		same_weight += 1;
 	    } else {
-		// Check that the weights differ.
-		TEST_NOT_EQUAL(values_or[did], values_synonym[did]);
+		different_weight += 1;
 	    }
+	}
+	if (qlist->size() == 1) {
+	    // Had a single term - check that all the weights were the same.
+	    TEST_EQUAL(different_weight, 0);
+	    TEST_NOT_EQUAL(same_weight, 0);
+	} else {
+	    // Check that most of the weights differ.
+	    TEST_NOT_EQUAL(different_weight, 0);
+	    TEST_REL(same_weight, <, different_weight);
 	}
     }
     return true;
