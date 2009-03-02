@@ -2,5 +2,6 @@
 
 EXTRA_DIST = imgseek.i
 
-SUBDIRS = @BINDINGS@
+#SUBDIRS = @BINDINGS@
+SUBDIRS = python
 DIST_SUBDIRS = python
