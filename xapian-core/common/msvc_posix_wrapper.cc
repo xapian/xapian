@@ -151,8 +151,7 @@ msvc_posix_open(const char *filename, int flags)
 {
     /* Translate ANSI read mode to Windows access mode */
     DWORD dwDesiredAccess = GENERIC_READ;
-    switch (flags & (O_RDONLY | O_RDWR | O_WRONLY))
-    {
+    switch (flags & (O_RDONLY | O_RDWR | O_WRONLY)) {
 	case O_RDONLY:
 	    dwDesiredAccess = GENERIC_READ;
 	    break;
@@ -168,8 +167,7 @@ msvc_posix_open(const char *filename, int flags)
 
     /* Translate ANSI creation mode to Windows creation mode */
     DWORD dwCreationDisposition = OPEN_EXISTING;
-    switch (flags & (O_CREAT | O_TRUNC | O_EXCL))
-    {
+    switch (flags & (O_CREAT | O_TRUNC | O_EXCL)) {
 	case O_EXCL:
 	    dwCreationDisposition = OPEN_EXISTING;
 	    break;

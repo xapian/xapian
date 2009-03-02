@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -85,7 +85,7 @@ class ChertDatabase : public Xapian::Database::Internal {
 	ChertTermListTable termlist_table;
 
 	/** Value manager. */
-	ChertValueManager value_manager;
+	mutable ChertValueManager value_manager;
 
 	/** Table storing synonym data.
 	 */
@@ -108,7 +108,7 @@ class ChertDatabase : public Xapian::Database::Internal {
 	/// Lock object.
 	ChertLock lock;
 
-	/** Total length of all documents including unflushed modifications. */
+	/// Total length of all documents including uncommitted modifications.
 	mutable chert_totlen_t total_length;
 
 	/** Highest document ID ever allocated by this database. */
@@ -185,6 +185,19 @@ class ChertDatabase : public Xapian::Database::Internal {
 	 */
 	void reopen();
 
+	/** Close all the tables permanently.
+	 */
+	void close();
+
+	/** Called if a modifications fail.
+	 *
+	 *  @param msg is a string description of the exception that was
+	 *  raised when the modifications failed.
+	 */
+	void modifications_failed(chert_revision_number_t old_revision,
+				  chert_revision_number_t new_revision,
+				  const std::string & msg);
+
 	/** Apply any outstanding changes to the tables.
 	 *
 	 *  If an error occurs during this operation, this will be signalled
@@ -203,22 +216,6 @@ class ChertDatabase : public Xapian::Database::Internal {
 	 */
 	void send_whole_database(RemoteConnection & conn,
 				 const OmTime & end_time);
-
-
-	/** Process a chunk which holds a base block.
-	 */
-	void process_changeset_chunk_base(const string & tablename,
-					  string & buf,
-					  RemoteConnection & conn,
-					  const OmTime & end_time);
-
-	/** Process a chunk which holds a list of changed blocks in the
-	 *  database.
-	 */
-	void process_changeset_chunk_blocks(const string & tablename,
-					    string & buf,
-					    RemoteConnection & conn,
-					    const OmTime & end_time);
 
 	/** Get the revision stored in a changeset.
 	 */
@@ -290,11 +287,7 @@ class ChertDatabase : public Xapian::Database::Internal {
 				    const string & start_revision,
 				    bool need_whole_db,
 				    Xapian::ReplicationInfo * info);
-	bool check_revision_at_least(const string & rev,
-				     const string & target) const;
 	string get_revision_info() const;
-	string apply_changeset_from_conn(RemoteConnection & conn,
-					 const OmTime & end_time);
 	string get_uuid() const;
 	//@}
 
@@ -346,7 +339,7 @@ class ChertWritableDatabase : public ChertDatabase {
 	/** Implementation of virtual methods: see Database::Internal for
 	 *  details.
 	 */
-	void flush();
+	void commit();
 
 	/** Cancel pending modifications to the database. */
 	void cancel();

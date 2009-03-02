@@ -4,6 +4,7 @@
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2006,2007 Olly Betts
+ * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -193,6 +194,19 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 	 *	    id in that database.  Otherwise, return 0.
 	 */
 	docid get_docid() const;
+
+	/** Serialise document into a string.
+	 *
+	 *  The document representation may change between Xapian releases:
+	 *  even between minor versions.  However, it is guaranteed not to
+	 *  change if the remote database protocol has not changed between
+	 *  releases.
+	 */
+	std::string serialise() const;
+
+	/** Unserialise a document from a string produced by serialise().
+	 */
+	static Document unserialise(const std::string &s);
 
 	/// Return a string describing this object.
 	std::string get_description() const;

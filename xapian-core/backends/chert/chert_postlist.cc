@@ -1,7 +1,7 @@
 /* chert_postlist.cc: Postlists in a chert database
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2007,2008,2009 Olly Betts
  * Copyright 2007,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -843,7 +843,7 @@ ChertPostList::move_to_chunk_containing(Xapian::docid desired_did)
 
     if (keypos == keyend) {
 	// In first chunk
-#ifdef XAPIAN_DEBUG
+#ifdef XAPIAN_ASSERTIONS
 	Xapian::doccount old_number_of_entries = number_of_entries;
 	did = read_start_of_first_chunk(&pos, end, &number_of_entries, NULL);
 	Assert(old_number_of_entries == number_of_entries);
@@ -909,11 +909,8 @@ ChertPostList::skip_to(Xapian::docid desired_did, Xapian::weight w_min)
 
     // Move to correct position in chunk
     bool have_document = move_forward_in_chunk_to_at_least(desired_did);
-#ifdef XAPIAN_DEBUG
-    Assert(have_document);
-#else
     (void)have_document;
-#endif
+    Assert(have_document);
 
     if (is_at_end) {
 	LOGLINE(DB, "Skipped to end");

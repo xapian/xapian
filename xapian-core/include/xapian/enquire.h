@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,6 +27,7 @@
 #include <string>
 
 #include <xapian/base.h>
+#include <xapian/deprecated.h>
 #include <xapian/sorter.h>
 #include <xapian/types.h>
 #include <xapian/termiterator.h>
@@ -164,7 +165,23 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	 */
 	Xapian::doccount get_matches_upper_bound() const;
 
+	/** A lower bound on the number of documents in the database which
+	 *  would match the query if collapsing wasn't used.
+	 */
+	Xapian::doccount get_uncollapsed_matches_lower_bound() const;
+
+	/** A estimate of the number of documents in the database which
+	 *  would match the query if collapsing wasn't used.
+	 */
+	Xapian::doccount get_uncollapsed_matches_estimated() const;
+
+	/** A upper bound on the number of documents in the database which
+	 *  would match the query if collapsing wasn't used.
+	 */
+	Xapian::doccount get_uncollapsed_matches_upper_bound() const;
+
 	/** The maximum possible weight in the MSet.
+	 *
 	 *  This weight is likely not to be attained in the set of results,
 	 *  but represents an upper bound on the weight which a document
 	 *  could attain for the given query.
@@ -174,8 +191,8 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	/** The greatest weight which is attained by any document in the
 	 *  database.
 	 *
-	 *  If firstitem == 0, this is the weight of the first entry in
-	 *  items.
+	 *  If firstitem == 0 and the primary ordering is by relevance, this is
+	 *  the weight of the first entry in the MSet. 
 	 *
 	 *  If no documents are found by the query, this will be 0.
 	 *
@@ -669,17 +686,24 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	/** Set the collapse key to use for queries.
 	 *
 	 *  @param collapse_key  value number to collapse on - at most one MSet
-	 *	entry with each particular value will be returned.
+	 *	entry with each particular value will be returned
+	 *	(default is Xapian::BAD_VALUENO which means no collapsing).
 	 *
-	 *	The entry returned will be the best entry with that particular
-	 *	value (highest weight or highest sorting key).
+	 *  @param collapse_max	 Max number of items with the same key to leave
+	 *			 after collapsing (default 1).
+	 *
+	 *	The MSet returned by get_mset() will have only the "best"
+	 *	(at most) @a collapse_max entries with each particular
+	 *	value of @a collapse_key ("best" being highest ranked - i.e.
+	 *	highest weight or highest sorting key).
 	 *
 	 *	An example use might be to create a value for each document
 	 *	containing an MD5 hash of the document contents.  Then
 	 *	duplicate documents from different sources can be eliminated at
-	 *	search time (it's better to eliminate duplicates at index time,
-	 *	but this may not be always be possible - for example the search
-	 *	may be over more than one Xapian database).
+	 *	search time by collapsing with @a collapse_max = 1 (it's better
+	 *	to eliminate duplicates at index time, but this may not be
+	 *	always be possible - for example the search may be over more
+	 *	than one Xapian database).
 	 *
 	 *	Another use is to group matches in a particular category (e.g.
 	 *	you might collapse a mailing list search on the Subject: so
@@ -689,10 +713,9 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *	Subject: as a boolean term as well as putting it in a value,
 	 *	you can offer a link to a non-collapsed search restricted to
 	 *	that thread using a boolean filter.
-	 *
-	 *	(default is Xapian::BAD_VALUENO which means no collapsing).
 	 */
-	void set_collapse_key(Xapian::valueno collapse_key);
+	void set_collapse_key(Xapian::valueno collapse_key,
+			      Xapian::doccount collapse_max = 1);
 
 	typedef enum {
 	    ASCENDING = 1,
@@ -759,21 +782,21 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *
 	 * @param sort_key  value number to sort on.
 	 *
-	 * @param ascending  If true, documents values which sort higher by
-	 *		 string compare are better.  If false, the sort order
-	 *		 is reversed.  (default true)
+	 * @param reverse   If true, reverses the sort order.
          */
-	void set_sort_by_value(Xapian::valueno sort_key, bool ascending = true);
+	void set_sort_by_value(Xapian::valueno sort_key, bool reverse);
+
+	XAPIAN_DEPRECATED(void set_sort_by_value(Xapian::valueno sort_key));
 
 	/** Set the sorting to be by key generated from values only.
 	 *
 	 * @param sorter    The functor to use for generating keys.
 	 *
-	 * @param ascending  If true, documents values which sort higher by
-	 *		 string compare are better.  If false, the sort order
-	 *		 is reversed.  (default true)
+	 * @param reverse   If true, reverses the sort order.
          */
-	void set_sort_by_key(Xapian::Sorter * sorter, bool ascending = true);
+	void set_sort_by_key(Xapian::Sorter * sorter, bool reverse);
+
+	XAPIAN_DEPRECATED(void set_sort_by_key(Xapian::Sorter * sorter));
 
 	/** Set the sorting to be by value, then by relevance for documents
 	 *  with the same value.
@@ -784,24 +807,24 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *
 	 * @param sort_key  value number to sort on.
 	 *
-	 * @param ascending  If true, documents values which sort higher by
-	 *		 string compare are better.  If false, the sort order
-	 *		 is reversed.  (default true)
+	 * @param reverse   If true, reverses the sort order.
 	 */
 	void set_sort_by_value_then_relevance(Xapian::valueno sort_key,
-					      bool ascending = true);
+					      bool reverse);
+
+	XAPIAN_DEPRECATED(void set_sort_by_value_then_relevance(Xapian::valueno sort_key));
 
 	/** Set the sorting to be by keys generated from values, then by
 	 *  relevance for documents with identical keys.
 	 *
 	 * @param sorter    The functor to use for generating keys.
 	 *
-	 * @param ascending  If true, keys which sort higher by
-	 *		 string compare are better.  If false, the sort order
-	 *		 is reversed.  (default true)
+	 * @param reverse   If true, reverses the sort order.
 	 */
 	void set_sort_by_key_then_relevance(Xapian::Sorter * sorter,
-					    bool ascending = true);
+					    bool reverse);
+
+	XAPIAN_DEPRECATED(void set_sort_by_key_then_relevance(Xapian::Sorter * sorter));
 
 	/** Set the sorting to be by relevance then value.
 	 *
@@ -818,12 +841,12 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *
 	 * @param sort_key  value number to sort on.
 	 *
-	 * @param ascending  If true, documents values which sort higher by
-	 *		 string compare are better.  If false, the sort order
-	 *		 is reversed.  (default true)
+	 * @param reverse   If true, reverses the sort order.
 	 */
 	void set_sort_by_relevance_then_value(Xapian::valueno sort_key,
-					      bool ascending = true);
+					      bool reverse);
+
+	XAPIAN_DEPRECATED(void set_sort_by_relevance_then_value(Xapian::valueno sort_key));
 
 	/** Set the sorting to be by relevance, then by keys generated from
 	 *  values.
@@ -837,12 +860,12 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *
 	 * @param sorter    The functor to use for generating keys.
 	 *
-	 * @param ascending  If true, keys which sort higher by
-	 *		 string compare are better.  If false, the sort order
-	 *		 is reversed.  (default true)
+	 * @param reverse   If true, reverses the sort order.
 	 */
 	void set_sort_by_relevance_then_key(Xapian::Sorter * sorter,
-					    bool ascending = true);
+					    bool reverse);
+
+	XAPIAN_DEPRECATED(void set_sort_by_relevance_then_key(Xapian::Sorter * sorter));
 
 	/** Get (a portion of) the match set for the current query.
 	 *
@@ -852,7 +875,13 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *		     A value of 10 corresponds to the first 10 items
 	 *		     being ignored, and the returned items starting
 	 *		     at the eleventh.
-	 *  @param maxitems  the maximum number of items to return.
+	 *  @param maxitems  the maximum number of items to return.  If you
+	 *		     want all matches, then you can pass the result
+	 *		     of calling get_doccount() on the Database object
+	 *		     (though if you are doing this so you can filter
+	 *		     results, you are likely to get better performance
+	 *		     by using Xapian's match-time filtering features
+	 *		     instead).
 	 *  @param checkatleast  the minimum number of items to check.  Because
 	 *		     the matcher optimises, it won't consider every
 	 *		     document which might match, so the total number
@@ -1004,6 +1033,44 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	std::string get_description() const;
 };
 
+// Deprecated forms:
+
+inline void
+Enquire::set_sort_by_value(Xapian::valueno sort_key)
+{
+    return set_sort_by_value(sort_key, true);
+}
+
+inline void
+Enquire::set_sort_by_key(Xapian::Sorter * sorter)
+{
+    return set_sort_by_key(sorter, true);
+}
+
+inline void
+Enquire::set_sort_by_value_then_relevance(Xapian::valueno sort_key)
+{
+    return set_sort_by_value_then_relevance(sort_key, true);
+}
+
+inline void
+Enquire::set_sort_by_key_then_relevance(Xapian::Sorter * sorter)
+{
+    return set_sort_by_key_then_relevance(sorter, true);
+}
+
+inline void
+Enquire::set_sort_by_relevance_then_value(Xapian::valueno sort_key)
+{
+    return set_sort_by_relevance_then_value(sort_key, true);
+}
+
+inline void
+Enquire::set_sort_by_relevance_then_key(Xapian::Sorter * sorter)
+{
+    return set_sort_by_relevance_then_key(sorter, true);
+}
+
 }
 
 class RemoteServer;
@@ -1011,10 +1078,13 @@ class ScaleWeight;
 
 namespace Xapian {
 
+class SerialisationContext;
+
 /// Abstract base class for weighting schemes
 class XAPIAN_VISIBILITY_DEFAULT Weight {
     friend class Enquire; // So Enquire can clone us
     friend class ::RemoteServer; // So RemoteServer can clone us - FIXME
+    friend class SerialisationContext;
     friend class ::ScaleWeight;
     public:
 	class Internal;

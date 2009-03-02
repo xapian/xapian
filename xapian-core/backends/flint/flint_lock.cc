@@ -1,6 +1,6 @@
 /* flint_lock.cc: database locking for flint backend.
  *
- * Copyright (C) 2005,2006,2007,2008 Olly Betts
+ * Copyright (C) 2005,2006,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -64,7 +64,7 @@ FlintLock::lock(bool exclusive, std::string & explanation) {
     APIRET rc;
     ULONG ulAction;
     rc = DosOpen((PCSZ)filename.c_str(), &hFile, &ulAction, 0, FILE_NORMAL,
-		 OPEN_ACTION_OPEN_IF_EXISTS  | OPEN_ACTION_CREATE_IF_NEW,
+		 OPEN_ACTION_OPEN_IF_EXISTS | OPEN_ACTION_CREATE_IF_NEW,
 		 OPEN_SHARE_DENYWRITE | OPEN_ACCESS_WRITEONLY,
 		 NULL);
     if (rc == NO_ERROR) return SUCCESS;
@@ -89,15 +89,6 @@ FlintLock::lock(bool exclusive, std::string & explanation) {
     }
 
     pid_t child = fork();
-
-    if (child == -1) {
-	// Couldn't fork.
-	explanation = std::string("Couldn't fork: ") + strerror(errno);
-	close(lockfd);
-	close(fds[0]);
-	close(fds[1]);
-	return UNKNOWN;
-    }
 
     if (child == 0) {
 	// Child process.
@@ -139,9 +130,32 @@ FlintLock::lock(bool exclusive, std::string & explanation) {
 	    if (why != SUCCESS) _exit(0);
 	}
 
-	//shutdown(fds[1], 1); // Disable further sends.
-	// Connect pipe to stdin.
+	// Connect pipe to stdin and stdout.
 	dup2(fds[1], 0);
+	dup2(fds[1], 1);
+
+	// Make sure we don't block unmount() of partition holding the current
+	// directory.
+	if (chdir("/") < 0) {
+	    // We can't usefully do anything in response to an error, so just
+	    // ignore it - the worst harm it can do is make it impossible to
+	    // unmount a partition.
+	    //
+	    // We need the if statement because glibc's _FORTIFY_SOURCE mode
+	    // gives a warning even if we cast the result to void.
+	}
+
+	// Make sure we don't hang on to open files which may get deleted but
+	// not have their disk space released until we exit.
+	int maxfd = (int)sysconf(_SC_OPEN_MAX);
+	for (int i = 2; i <= maxfd; ++i) {
+	    if (i != lockfd) {
+		// Retry on EINTR; just ignore other errors (we'll get
+		// EBADF if the fd isn't open so that's OK).
+		while (close(i) < 0 && errno == EINTR) { }
+	    }
+	}
+
 	// FIXME: use special statically linked helper instead of cat.
 	execl("/bin/cat", "/bin/cat", (void*)NULL);
 	// Emulate cat ourselves (we try to avoid this to reduce VM overhead).
@@ -151,9 +165,16 @@ FlintLock::lock(bool exclusive, std::string & explanation) {
     }
 
     close(lockfd);
+    close(fds[1]);
+
+    if (child == -1) {
+	// Couldn't fork.
+	explanation = std::string("Couldn't fork: ") + strerror(errno);
+	close(fds[0]);
+	return UNKNOWN;
+    }
 
     // Parent process.
-    close(fds[1]);
     while (true) {
 	char ch;
 	int n = read(fds[0], &ch, 1);

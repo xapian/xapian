@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2006 Richard Boulton
  * Copyright 2007 Lemur Consulting Ltd
  *
@@ -30,6 +30,7 @@
 #include <xapian.h>
 
 #include "backendmanager.h" // For XAPIAN_BIN_PATH.
+#include "omassert.h"
 #include "omtime.h"
 #include "testsuite.h"
 #include "testutils.h"
@@ -300,7 +301,7 @@ DEFINE_TESTCASE(adddoc4, writable) {
 	db.add_document(doc);
     }
     db.add_document(Xapian::Document());
-    db.flush();
+    db.commit();
 
     for (Xapian::doccount i = 1; i <= 240; ++i) {
 	Xapian::Document doc = db.get_document(i);
@@ -496,7 +497,7 @@ DEFINE_TESTCASE(adddoc6, writable) {
     return true;
 }
 
-// tests that database destructors flush if it isn't done explicitly
+// tests that database destructors commit if it isn't done explicitly
 DEFINE_TESTCASE(implicitendsession1, writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
@@ -511,7 +512,8 @@ DEFINE_TESTCASE(implicitendsession1, writable) {
     return true;
 }
 
-// tests that assignment of Xapian::Database and Xapian::WritableDatabase work as expected
+// tests that assignment of Xapian::Database and Xapian::WritableDatabase works
+// as expected
 DEFINE_TESTCASE(databaseassign1, writable) {
     Xapian::WritableDatabase wdb = get_writable_database();
     Xapian::Database db = get_database("");
@@ -600,7 +602,7 @@ DEFINE_TESTCASE(deldoc2, writable) {
     did = db.add_document(doc1);
     TEST_EQUAL(did, 3);
 
-    db.flush();
+    db.commit();
 
     db.reopen();
 
@@ -608,7 +610,7 @@ DEFINE_TESTCASE(deldoc2, writable) {
     db.delete_document(2);
     db.delete_document(3);
 
-    db.flush();
+    db.commit();
 
     db.reopen();
 
@@ -661,13 +663,13 @@ DEFINE_TESTCASE(deldoc3, writable) {
     Xapian::docid did = db.add_document(doc1);
     TEST_EQUAL(did, 1);
 
-    db.flush();
+    db.commit();
 
     db.reopen();
 
     db.delete_document(1);
 
-    db.flush();
+    db.commit();
 
     db.reopen();
 
@@ -728,11 +730,11 @@ DEFINE_TESTCASE(deldoc4, writable) {
 
 	bool is_power_of_two = ((i & (i - 1)) == 0);
 	if (is_power_of_two) {
-	    db.flush();
+	    db.commit();
 	    db.reopen();
 	}
     }
-    db.flush();
+    db.commit();
     db.reopen();
 
     /* delete the documents in a peculiar order */
@@ -742,7 +744,7 @@ DEFINE_TESTCASE(deldoc4, writable) {
 	db.delete_document(i + 1);
     }
 
-    db.flush();
+    db.commit();
 
     db.reopen();
 
@@ -810,7 +812,7 @@ DEFINE_TESTCASE(deldoc5, writable) {
 
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(2));
 
-    db.flush();
+    db.commit();
 
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(2));
 
@@ -849,12 +851,12 @@ DEFINE_TESTCASE(deldoc6, writable) {
     did = db.add_document(doc1);
     TEST_EQUAL(did, 2);
 
-    db.flush();
+    db.commit();
 
     db.delete_document(2);
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.delete_document(3));
 
-    db.flush();
+    db.commit();
 
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(2));
 
@@ -991,7 +993,7 @@ DEFINE_TESTCASE(replacedoc3, writable) {
     doc2.add_term("world");
     db.replace_document(2, doc2);
 
-    db.flush();
+    db.commit();
 
     // Check that the document exists (no DocNotFoundError).
     doc2 = db.get_document(2);
@@ -1059,7 +1061,7 @@ DEFINE_TESTCASE(replacedoc4, writable) {
     doc2.add_term("world");
     db.replace_document(2, doc2);
 
-    db.flush();
+    db.commit();
 
     // Check that the document exists (no DocNotFoundError).
     doc2 = db.get_document(2);
@@ -1102,14 +1104,14 @@ DEFINE_TESTCASE(replacedoc5, writable) {
 
     Xapian::docid did = db.add_document(doc1);
     TEST_EQUAL(did, 1);
-    db.flush();
+    db.commit();
 
     Xapian::Document doc2 = db.get_document(1);
     TEST(db.has_positions());
     TEST(db.positionlist_begin(1, "hello") != db.positionlist_end(1, "hello"));
     TEST(db.positionlist_begin(1, "world") != db.positionlist_end(1, "world"));
     db.replace_document(1, doc2);
-    db.flush();
+    db.commit();
 
     TEST(db.has_positions());
     TEST(db.positionlist_begin(1, "hello") != db.positionlist_end(1, "hello"));
@@ -1127,7 +1129,7 @@ DEFINE_TESTCASE(replacedoc6, writable) {
     Xapian::Document doc;
     Xapian::docid did = db.add_document(doc);
     TEST_EQUAL(did, 1);
-    db.flush();
+    db.commit();
 
     // Add document
     doc = db.get_document(1);
@@ -1139,7 +1141,7 @@ DEFINE_TESTCASE(replacedoc6, writable) {
     doc = db.get_document(1);
     TEST_EQUAL(doc.get_value(1), "banana1");
     TEST_EQUAL(doc.get_value(2), "");
-    db.flush();
+    db.commit();
 
     doc = db.get_document(1);
     TEST_EQUAL(doc.get_value(1), "banana1");
@@ -1149,7 +1151,7 @@ DEFINE_TESTCASE(replacedoc6, writable) {
 
     TEST_EQUAL(doc.get_value(1), "banana1");
     TEST_EQUAL(doc.get_value(2), "banana2");
-    db.flush();
+    db.commit();
 
     doc = db.get_document(1);
     TEST_EQUAL(doc.get_value(1), "banana1");
@@ -1315,7 +1317,7 @@ DEFINE_TESTCASE(phraseorneartoand1, writable) {
 	doc.set_data("pass1");
 	db.add_document(doc);
     }
-    db.flush();
+    db.commit();
 
     Xapian::Enquire enquire(db);
     Xapian::MSet mymset;
@@ -1355,7 +1357,7 @@ DEFINE_TESTCASE(longpositionlist1, writable) {
     }
     doc.set_data("cutlery");
     Xapian::docid did = db.add_document(doc);
-    db.flush();
+    db.commit();
 
     doc = db.get_document(did);
 
@@ -1432,7 +1434,7 @@ bool test_consistency2()
 	db.add_document(doc);
     }
 
-    db.flush();
+    db.commit();
 
     Xapian::Enquire enq(db);
     enq.set_query(Xapian::Query("test"));
@@ -1482,14 +1484,14 @@ DEFINE_TESTCASE(crashrecovery1, writable) {
 	// Xapian::Database has full set of baseA, no baseB
 
 	db.add_document(doc);
-	db.flush();
+	db.commit();
 	dbr.reopen();
 	TEST_EQUAL(dbr.get_doccount(), 1);
 
 	// Xapian::Database has full set of baseB, old baseA
 
 	db.add_document(doc);
-	db.flush();
+	db.commit();
 	dbr.reopen();
 	TEST_EQUAL(dbr.get_doccount(), 2);
 
@@ -1509,14 +1511,14 @@ DEFINE_TESTCASE(crashrecovery1, writable) {
     Xapian::Database dbr = Xapian::Database(path);
 
     db.add_document(doc);
-    db.flush();
+    db.commit();
     dbr.reopen();
     TEST_EQUAL(dbr.get_doccount(), 3);
 
     // Xapian::Database has full set of baseB, old baseA
 
     db.add_document(doc);
-    db.flush();
+    db.commit();
     dbr.reopen();
     TEST_EQUAL(dbr.get_doccount(), 4);
 
@@ -1560,7 +1562,7 @@ DEFINE_TESTCASE(synonymitor1, writable && synonyms) {
     Xapian::TermIterator t;
     string s;
 
-    // Try these tests twice - once before flushing and once after.
+    // Try these tests twice - once before committing and once after.
     for (int times = 1; times <= 2; ++times) {
 	// Test iterators for terms which aren't there.
 	TEST(db.synonyms_begin("abc") == db.synonyms_end("abc"));
@@ -1591,14 +1593,14 @@ DEFINE_TESTCASE(synonymitor1, writable && synonyms) {
 	}
 	TEST_STRINGS_EQUAL(s, "|goodbye|hello|");
 
-	db.flush();
+	db.commit();
     }
 
     // Delete a synonym for "hello" and all synonyms for "goodbye".
     db.remove_synonym("hello", "hi");
     db.clear_synonyms("goodbye");
 
-    // Try these tests twice - once before flushing and once after.
+    // Try these tests twice - once before committing and once after.
     for (int times = 1; times <= 2; ++times) {
 	// Test iterators for terms which aren't there.
 	TEST(db.synonyms_begin("abc") == db.synonyms_end("abc"));
@@ -1623,7 +1625,7 @@ DEFINE_TESTCASE(synonymitor1, writable && synonyms) {
 	}
 	TEST_STRINGS_EQUAL(s, "|hello|");
 
-	db.flush();
+	db.commit();
     }
 
     Xapian::Database db_multi;
@@ -1687,7 +1689,7 @@ DEFINE_TESTCASE(metadata2, metadata) {
     db.set_metadata("foo", "bar");
     TEST_EQUAL(db.get_metadata("foo"), "bar");
     TEST_EQUAL(dbr.get_metadata("foo"), "");
-    db.flush();
+    db.commit();
     TEST_EQUAL(dbr.get_metadata("foo"), "");
     dbr.reopen();
     TEST_EQUAL(db.get_metadata("foo"), "bar");
@@ -1698,7 +1700,7 @@ DEFINE_TESTCASE(metadata2, metadata) {
     db.set_metadata("foo", "baz");
     TEST_EQUAL(db.get_doccount(), 1);
     TEST_EQUAL(db.get_metadata("foo"), "baz");
-    db.flush();
+    db.commit();
 
     TEST_EQUAL(dbr.get_metadata("foo"), "bar");
     dbr.reopen();
@@ -1706,7 +1708,7 @@ DEFINE_TESTCASE(metadata2, metadata) {
 
     db.set_metadata("foo", "");
     TEST_EQUAL(db.get_metadata("foo"), "");
-    db.flush();
+    db.commit();
     TEST_EQUAL(dbr.get_metadata("foo"), "baz");
     dbr.reopen();
     TEST_EQUAL(dbr.get_metadata("foo"), "");
@@ -1733,7 +1735,7 @@ DEFINE_TESTCASE(metadata4, metadata) {
     Xapian::WritableDatabase db = get_writable_database();
 
     db.set_metadata("foo", "foo");
-    db.flush();
+    db.commit();
 
     Xapian::Document doc;
     doc.add_posting("foo", 1);
@@ -1755,7 +1757,7 @@ DEFINE_TESTCASE(metadata5, metadata) {
 
     // Check iterator on a database with only metadata items.
     db.set_metadata("foo", "val");
-    db.flush();
+    db.commit();
 
     iter = db.metadata_keys_begin();
     TEST(iter != db.metadata_keys_end());
@@ -1767,7 +1769,7 @@ DEFINE_TESTCASE(metadata5, metadata) {
     Xapian::Document doc;
     doc.add_posting("foo", 1);
     db.add_document(doc);
-    db.flush();
+    db.commit();
 
     iter = db.metadata_keys_begin();
     TEST(iter != db.metadata_keys_end());
@@ -1778,7 +1780,7 @@ DEFINE_TESTCASE(metadata5, metadata) {
     // Check iterator on a database with documents but no metadata.  Also
     // checks that setting metadata to empty stops the iterator returning it.
     db.set_metadata("foo", "");
-    db.flush();
+    db.commit();
     iter = db.metadata_keys_begin();
     TEST(iter == db.metadata_keys_end());
 
@@ -1788,7 +1790,7 @@ DEFINE_TESTCASE(metadata5, metadata) {
     db.set_metadata("foo1", "val");
     db.set_metadata("foo2", "val");
     db.set_metadata("z", "val");
-    db.flush();
+    db.commit();
 
     iter = db.metadata_keys_begin();
     TEST(iter != db.metadata_keys_end());
@@ -1863,7 +1865,7 @@ DEFINE_TESTCASE(metadata5, metadata) {
 }
 
 // Test that adding a document with a really long term gives an error on
-// add_document() rather than on flush().
+// add_document() rather than on commit().
 DEFINE_TESTCASE(termtoolong1, writable) {
     // Inmemory doesn't impose a limit.
     SKIP_TEST_FOR_BACKEND("inmemory");
@@ -1895,7 +1897,7 @@ DEFINE_TESTCASE(termtoolong1, writable) {
 	db.add_document(doc);
     }
 
-    db.flush();
+    db.commit();
 
     {
 	// Currently flint and chert escape zero byte from terms in keys for
@@ -1904,7 +1906,7 @@ DEFINE_TESTCASE(termtoolong1, writable) {
 	doc.add_term(string(126, '\0'));
 	db.add_document(doc);
 	try {
-	    db.flush();
+	    db.commit();
 	    TEST_AND_EXPLAIN(false, "Expecting exception InvalidArgumentError");
 	} catch (const Xapian::InvalidArgumentError &e) {
 	    // Check that the max length is correctly expressed in the
@@ -1961,7 +1963,7 @@ DEFINE_TESTCASE(postlist7, writable) {
     return true;
 }
 
-/// Regression test of reading after writing but not flushing.
+/// Regression test of reading after writing but not committing.
 DEFINE_TESTCASE(writeread1, writable && metadata) {
     Xapian::WritableDatabase db_w = get_writable_database();
     db_w.set_metadata("1", "2");
@@ -1981,7 +1983,7 @@ DEFINE_TESTCASE(lazytablebug1, writable && (flint || chert)) {
 	Xapian::Document doc;
 	doc.add_term("foo");
 	db.add_document(doc);
-	db.flush();
+	db.commit();
 
 	string synonym(255, 'x');
 	char buf[] = " iamafish!!!!!!!!!!";
@@ -1990,7 +1992,7 @@ DEFINE_TESTCASE(lazytablebug1, writable && (flint || chert)) {
 	    ++buf[0];
 	}
 
-	db.flush();
+	db.commit();
     }
 
     Xapian::Database db = get_writable_database_as_database();
@@ -2014,7 +2016,7 @@ bigoaddvalue_helper(size_t num_values)
     OmTime start = OmTime::now();
 
     db.add_document(doc);
-    db.flush();
+    db.commit();
 
     return (OmTime::now() - start).as_double();
 }
@@ -2036,7 +2038,7 @@ DEFINE_TESTCASE(bigoaddvalue, writable) {
     // O(n*n) is bad, but we don't require linearity - O(n*log(n)) is
     // acceptable, so put the threshold halfway between.
     const double ALLOWED_FACTOR = (100.0 + 10 * 2.71828) / 2.0;
-    TEST_LESSER(time_10N, time_N * ALLOWED_FACTOR);
+    TEST_REL(time_10N,<,time_N * ALLOWED_FACTOR);
 
     return true;
 }
@@ -2064,13 +2066,13 @@ DEFINE_TESTCASE(cursordelbug1, flint || chert) {
 	while (c--) db.add_document(doc);
     }
 
-    db.flush();
+    db.commit();
 
     for (size_t i = 0; i < sizeof(terms) / sizeof(terms[0]); ++i) {
 	db.delete_document("XC" + om_tostring(terms[i]));
     }
 
-    db.flush();
+    db.commit();
 
     string cmd = XAPIAN_BIN_PATH"xapian-check ";
     cmd += get_named_writable_database_path("cursordelbug1");
@@ -2093,7 +2095,7 @@ check_vals(const Xapian::Database & db, const map<Xapian::docid, string> & vals)
 {
     TEST_EQUAL(db.get_doccount(), vals.size());
     if (vals.size() == 0) return;
-    TEST_LESSER_OR_EQUAL(vals.rbegin()->first, db.get_lastdocid());
+    TEST_REL(vals.rbegin()->first,<=,db.get_lastdocid());
     map<Xapian::docid, string>::const_iterator i;
     for (i = vals.begin(); i != vals.end(); ++i) {
 	tout << "Checking value in doc " << i->first << "\n";
@@ -2135,7 +2137,7 @@ DEFINE_TESTCASE(modifyvalues1, writable) {
 	tout << "Set val '" << val << "' in doc " << num << "\n";
     }
     check_vals(db, vals);
-    db.flush();
+    db.commit();
     check_vals(db, vals);
 
     // Modify one of the values (this is a regression test which failed with
@@ -2148,7 +2150,7 @@ DEFINE_TESTCASE(modifyvalues1, writable) {
 	vals[2] = val;
 	tout << "Set val '" << val << "' in doc " << 2 << "\n";
 	check_vals(db, vals);
-	db.flush();
+	db.commit();
 	check_vals(db, vals);
     }
 
@@ -2158,7 +2160,7 @@ DEFINE_TESTCASE(modifyvalues1, writable) {
 	Xapian::Document doc = db.get_document(1);
 	db.replace_document(1, doc);
 	check_vals(db, vals);
-	db.flush();
+	db.commit();
 	check_vals(db, vals);
     }
 
@@ -2172,7 +2174,7 @@ DEFINE_TESTCASE(modifyvalues1, writable) {
 	db.get_document(2);
 	db.replace_document(1, doc);
 	check_vals(db, vals);
-	db.flush();
+	db.commit();
 	check_vals(db, vals);
     }
 
@@ -2193,7 +2195,7 @@ DEFINE_TESTCASE(modifyvalues1, writable) {
 	tout << "Set val '" << val << "' in doc " << did << "\n";
     }
     check_vals(db, vals);
-    db.flush();
+    db.commit();
     check_vals(db, vals);
 
     // Delete all the remaining values, in a slightly shuffled order.
@@ -2206,7 +2208,7 @@ DEFINE_TESTCASE(modifyvalues1, writable) {
 	tout << "Cleared val in doc " << did << "\n";
     }
     check_vals(db, vals);
-    db.flush();
+    db.commit();
     check_vals(db, vals);
 
     return true;

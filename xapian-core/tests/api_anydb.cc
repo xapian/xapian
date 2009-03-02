@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -145,6 +145,9 @@ DEFINE_TESTCASE(emptyquery1, backend) {
     TEST_EQUAL(mymset.get_matches_lower_bound(), 0);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 0);
     TEST_EQUAL(mymset.get_matches_estimated(), 0);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_lower_bound(), 0);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_upper_bound(), 0);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_estimated(), 0);
 
     vector<Xapian::Query> v;
     enquire.set_query(Xapian::Query(Xapian::Query::OP_AND, v.begin(), v.end()));
@@ -153,6 +156,9 @@ DEFINE_TESTCASE(emptyquery1, backend) {
     TEST_EQUAL(mymset.get_matches_lower_bound(), 0);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 0);
     TEST_EQUAL(mymset.get_matches_estimated(), 0);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_lower_bound(), 0);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_upper_bound(), 0);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_estimated(), 0);
 
     return true;
 }
@@ -525,15 +531,15 @@ DEFINE_TESTCASE(topercent2, backend) {
     i = mymset.begin();
     TEST(i != mymset.end());
     pct = mymset.convert_to_percent(i);
-    TEST_GREATER(pct, 65);
-    TEST_LESSER(pct, 75);
+    TEST_REL(pct,>,65);
+    TEST_REL(pct,<,75);
 
     ++i;
 
     TEST(i != mymset.end());
     pct = mymset.convert_to_percent(i);
-    TEST_GREATER(pct, 40);
-    TEST_LESSER(pct, 50);
+    TEST_REL(pct,>,40);
+    TEST_REL(pct,<,50);
 
     TEST_EQUAL(mymset, localmset);
     TEST(mset_range_is_same_percents(mymset, 0, localmset, 0, mymset.size()));
@@ -691,9 +697,14 @@ DEFINE_TESTCASE(pctcutoff2, backend) {
     enquire.set_cutoff(cutoff);
     enquire.set_collapse_key(1234); // Value which is always empty.
 
-    mset = enquire.get_mset(0, 1);
-    TEST_EQUAL(mset.size(), 1);
-    TEST_EQUAL(mset.get_matches_lower_bound(), 1);
+    Xapian::MSet mset2 = enquire.get_mset(0, 1);
+    TEST_EQUAL(mset2.size(), 1);
+    TEST_EQUAL(mset2.get_matches_lower_bound(), 1);
+    TEST_REL(mset2.get_uncollapsed_matches_lower_bound(),>=,1);
+    TEST_REL(mset2.get_uncollapsed_matches_lower_bound(),<=,mset.size());
+    TEST_REL(mset2.get_uncollapsed_matches_upper_bound(),>=,mset.size());
+    TEST_REL(mset2.get_uncollapsed_matches_lower_bound(),<=,mset2.get_uncollapsed_matches_estimated());
+    TEST_REL(mset2.get_uncollapsed_matches_upper_bound(),>=,mset2.get_uncollapsed_matches_estimated());
 
     return true;
 }
@@ -1482,6 +1493,9 @@ DEFINE_TESTCASE(matches1, backend) {
     TEST_EQUAL(mymset.get_matches_lower_bound(), 2);
     TEST_EQUAL(mymset.get_matches_estimated(), 2);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 2);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_lower_bound(), 2);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_estimated(), 2);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_upper_bound(), 2);
 
     myquery = query(Xapian::Query::OP_OR, "inmemory", "word");
     enquire.set_query(myquery);
@@ -1489,6 +1503,9 @@ DEFINE_TESTCASE(matches1, backend) {
     TEST_EQUAL(mymset.get_matches_lower_bound(), 2);
     TEST_EQUAL(mymset.get_matches_estimated(), 2);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 2);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_lower_bound(), 2);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_estimated(), 2);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_upper_bound(), 2);
 
     myquery = query(Xapian::Query::OP_AND, "inmemory", "word");
     enquire.set_query(myquery);
@@ -1496,6 +1513,9 @@ DEFINE_TESTCASE(matches1, backend) {
     TEST_EQUAL(mymset.get_matches_lower_bound(), 0);
     TEST_EQUAL(mymset.get_matches_estimated(), 0);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 0);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_lower_bound(), 0);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_estimated(), 0);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_upper_bound(), 0);
 
     myquery = query(Xapian::Query::OP_AND, "simple", "word");
     enquire.set_query(myquery);
@@ -1503,6 +1523,9 @@ DEFINE_TESTCASE(matches1, backend) {
     TEST_EQUAL(mymset.get_matches_lower_bound(), 2);
     TEST_EQUAL(mymset.get_matches_estimated(), 2);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 2);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_lower_bound(), 2);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_estimated(), 2);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_upper_bound(), 2);
 
     myquery = query(Xapian::Query::OP_AND, "simple", "word");
     enquire.set_query(myquery);
@@ -1511,19 +1534,28 @@ DEFINE_TESTCASE(matches1, backend) {
     // one sub-database has 3 documents and simple and word both have termfreq
     // of 2, so the matcher can tell at least one document must match!)
     // TEST_EQUAL(mymset.get_matches_lower_bound(), 0);
-    TEST(mymset.get_matches_lower_bound() <= mymset.get_matches_estimated());
+    TEST_REL(mymset.get_matches_lower_bound(),<=,mymset.get_matches_estimated());
     TEST_EQUAL(mymset.get_matches_estimated(), 1);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 2);
+    TEST_REL(mymset.get_uncollapsed_matches_lower_bound(),<=,mymset.get_uncollapsed_matches_estimated());
+    TEST_EQUAL(mymset.get_uncollapsed_matches_estimated(), 1);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_upper_bound(), 2);
 
     mymset = enquire.get_mset(0, 1);
     TEST_EQUAL(mymset.get_matches_lower_bound(), 2);
     TEST_EQUAL(mymset.get_matches_estimated(), 2);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 2);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_lower_bound(), 2);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_estimated(), 2);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_upper_bound(), 2);
 
     mymset = enquire.get_mset(0, 2);
     TEST_EQUAL(mymset.get_matches_lower_bound(), 2);
     TEST_EQUAL(mymset.get_matches_estimated(), 2);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 2);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_lower_bound(), 2);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_estimated(), 2);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_upper_bound(), 2);
 
     myquery = query(Xapian::Query::OP_AND, "paragraph", "another");
     enquire.set_query(myquery);
@@ -1531,21 +1563,33 @@ DEFINE_TESTCASE(matches1, backend) {
     TEST_EQUAL(mymset.get_matches_lower_bound(), 1);
     TEST_EQUAL(mymset.get_matches_estimated(), 2);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 2);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_lower_bound(), 1);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_estimated(), 2);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_upper_bound(), 2);
 
     mymset = enquire.get_mset(0, 1);
     TEST_EQUAL(mymset.get_matches_lower_bound(), 1);
     TEST_EQUAL(mymset.get_matches_estimated(), 2);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 2);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_lower_bound(), 1);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_estimated(), 2);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_upper_bound(), 2);
 
     mymset = enquire.get_mset(0, 2);
     TEST_EQUAL(mymset.get_matches_lower_bound(), 1);
     TEST_EQUAL(mymset.get_matches_estimated(), 1);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 1);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_lower_bound(), 1);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_estimated(), 1);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_upper_bound(), 1);
 
     mymset = enquire.get_mset(1, 20);
     TEST_EQUAL(mymset.get_matches_lower_bound(), 1);
     TEST_EQUAL(mymset.get_matches_estimated(), 1);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 1);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_lower_bound(), 1);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_estimated(), 1);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_upper_bound(), 1);
 
     return true;
 }
@@ -1793,10 +1837,14 @@ DEFINE_TESTCASE(checkatleast2, backend) {
     Xapian::MSet mymset = enquire.get_mset(0, 3, 10);
     TEST_MSET_SIZE(mymset, 3);
     TEST_EQUAL(mymset.get_matches_lower_bound(), 5);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_lower_bound(), 5);
 
     mymset = enquire.get_mset(0, 2, 4);
     TEST_MSET_SIZE(mymset, 2);
-    TEST_GREATER_OR_EQUAL(mymset.get_matches_lower_bound(), 4);
+    TEST_REL(mymset.get_matches_lower_bound(),>=,4);
+    TEST_REL(mymset.get_matches_lower_bound(),>=,4);
+    TEST_REL(mymset.get_uncollapsed_matches_lower_bound(),>=,4);
+    TEST_REL(mymset.get_uncollapsed_matches_lower_bound(),>=,4);
 
     return true;
 }
@@ -1819,19 +1867,20 @@ DEFINE_TESTCASE(checkatleast3, backend) {
 		break;
 	}
 
-	for (int sort = 0; sort < 4; ++sort) {
+	for (int sort = 0; sort < 7; ++sort) {
+	    bool reverse = (sort & 1);
 	    switch (sort) {
 		case 0:
 		    enquire.set_sort_by_relevance();
 		    break;
-		case 1:
-		    enquire.set_sort_by_value(0);
+		case 1: case 2:
+		    enquire.set_sort_by_value(0, reverse);
 		    break;
-		case 2:
-		    enquire.set_sort_by_value_then_relevance(0);
+		case 3: case 4:
+		    enquire.set_sort_by_value_then_relevance(0, reverse);
 		    break;
-		case 3:
-		    enquire.set_sort_by_relevance_then_value(0);
+		case 5: case 6:
+		    enquire.set_sort_by_relevance_then_value(0, reverse);
 		    break;
 	    }
 
@@ -1840,16 +1889,23 @@ DEFINE_TESTCASE(checkatleast3, backend) {
 	    TEST_EQUAL(mset.get_matches_lower_bound(), 60);
 	    TEST_EQUAL(mset.get_matches_estimated(), 60);
 	    TEST_EQUAL(mset.get_matches_upper_bound(), 60);
+	    TEST_EQUAL(mset.get_uncollapsed_matches_lower_bound(), 60);
+	    TEST_EQUAL(mset.get_uncollapsed_matches_estimated(), 60);
+	    TEST_EQUAL(mset.get_uncollapsed_matches_upper_bound(), 60);
 
 	    mset = enquire.get_mset(0, 50, 100);
 	    TEST_MSET_SIZE(mset, 50);
 	    TEST_EQUAL(mset.get_matches_lower_bound(), 60);
 	    TEST_EQUAL(mset.get_matches_estimated(), 60);
 	    TEST_EQUAL(mset.get_matches_upper_bound(), 60);
+	    TEST_EQUAL(mset.get_uncollapsed_matches_lower_bound(), 60);
+	    TEST_EQUAL(mset.get_uncollapsed_matches_estimated(), 60);
+	    TEST_EQUAL(mset.get_uncollapsed_matches_upper_bound(), 60);
 
 	    mset = enquire.get_mset(0, 10, 50);
 	    TEST_MSET_SIZE(mset, 10);
-	    TEST(mset.get_matches_lower_bound() >= 50);
+	    TEST_REL(mset.get_matches_lower_bound(),>=,50);
+	    TEST_REL(mset.get_uncollapsed_matches_lower_bound(),>=,50);
 	}
     }
 
@@ -1993,7 +2049,7 @@ DEFINE_TESTCASE(alldocspl2, backend && writable) {
 	doc.add_value(0, "5");
 	db.replace_document(5, doc);
 
-	// Test iterating before flushing the changes.
+	// Test iterating before committing the changes.
 	i = db.postlist_begin("");
 	end = db.postlist_end("");
 	TEST(i != end);
@@ -2003,9 +2059,9 @@ DEFINE_TESTCASE(alldocspl2, backend && writable) {
 	++i;
 	TEST(i == end);
 
-	db.flush();
+	db.commit();
 
-	// Test iterating after flushing the changes.
+	// Test iterating after committing the changes.
 	i = db.postlist_begin("");
 	end = db.postlist_end("");
 	TEST(i != end);
@@ -2021,7 +2077,7 @@ DEFINE_TESTCASE(alldocspl2, backend && writable) {
 	doc.add_value(0, "7");
 	db.replace_document(7, doc);
 
-	// Test iterating through before flushing the changes.
+	// Test iterating through before committing the changes.
 	i = db.postlist_begin("");
 	end = db.postlist_end("");
 	TEST(i != end);
@@ -2039,7 +2095,7 @@ DEFINE_TESTCASE(alldocspl2, backend && writable) {
 	// Delete the first document.
 	db.delete_document(5);
 
-	// Test iterating through before flushing the changes.
+	// Test iterating through before committing the changes.
 	i = db.postlist_begin("");
 	end = db.postlist_end("");
 	TEST(i != end);
@@ -2049,8 +2105,9 @@ DEFINE_TESTCASE(alldocspl2, backend && writable) {
 	++i;
 	TEST(i == end);
 
-	// Test iterating through after flushing the changes, and dropping the reference to the main DB.
-	db.flush();
+	// Test iterating through after committing the changes, and dropping the
+	// reference to the main DB.
+	db.commit();
 	i = db.postlist_begin("");
 	end = db.postlist_end("");
     }

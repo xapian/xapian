@@ -5,7 +5,11 @@ PROTOTYPES: ENABLE
 BoolWeight *
 new1()
     CODE:
-	RETVAL = new BoolWeight();
+	try {
+	    RETVAL = new BoolWeight();
+	} catch (...) {
+	    handle_exception();
+	}
     OUTPUT:
 	RETVAL
 

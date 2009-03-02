@@ -1,6 +1,6 @@
 /* metaxmlparse.cc: subclass of HtmlParser for parsing OpenDocument's meta.xml.
  *
- * Copyright (C) 2006 Olly Betts
+ * Copyright (C) 2006,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@ MetaXmlParser::process_text(const string &text)
 }
 
 void
-MetaXmlParser::opening_tag(const string &tag, const map<string,string> &)
+MetaXmlParser::opening_tag(const string &tag)
 {
     if (tag.size() < 8) return;
     if (tag[0] == 'd' && tag[1] == 'c') {

@@ -1,7 +1,7 @@
 /* @file serialise.cc
  * @brief functions to convert Xapian objects to strings and back
  */
-/* Copyright (C) 2006,2007,2008 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -184,6 +184,9 @@ serialise_mset(const Xapian::MSet &mset)
     result += encode_length(mset.get_matches_lower_bound());
     result += encode_length(mset.get_matches_estimated());
     result += encode_length(mset.get_matches_upper_bound());
+    result += encode_length(mset.get_uncollapsed_matches_lower_bound());
+    result += encode_length(mset.get_uncollapsed_matches_estimated());
+    result += encode_length(mset.get_uncollapsed_matches_upper_bound());
     result += serialise_double(mset.get_max_possible());
     result += serialise_double(mset.get_max_attained());
 
@@ -222,6 +225,9 @@ unserialise_mset(const string &s)
     Xapian::doccount matches_lower_bound = decode_length(&p, p_end, false);
     Xapian::doccount matches_estimated = decode_length(&p, p_end, false);
     Xapian::doccount matches_upper_bound = decode_length(&p, p_end, false);
+    Xapian::doccount uncollapsed_lower_bound = decode_length(&p, p_end, false);
+    Xapian::doccount uncollapsed_estimated = decode_length(&p, p_end, false);
+    Xapian::doccount uncollapsed_upper_bound = decode_length(&p, p_end, false);
     Xapian::weight max_possible = unserialise_double(&p, p_end);
     Xapian::weight max_attained = unserialise_double(&p, p_end);
 
@@ -255,6 +261,9 @@ unserialise_mset(const string &s)
 				       matches_upper_bound,
 				       matches_lower_bound,
 				       matches_estimated,
+				       uncollapsed_upper_bound,
+				       uncollapsed_lower_bound,
+				       uncollapsed_estimated,
 				       max_possible, max_attained,
 				       items, terminfo, percent_factor));
 }
