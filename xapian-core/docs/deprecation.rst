@@ -171,6 +171,9 @@ Bindings
 Deprecated Remove Language Feature name                 Upgrade suggestion and comments
 ========== ====== ======== ============================ ======================================================================
 1.0.4      1.2.0  Python   Non-pythonic iterators       Use the pythonic iterators instead.
+---------- ------ -------- ---------------------------- ----------------------------------------------------------------------
+1.1.0      1.2.0  Python   Stem_get_available_languages Use Stem.get_available_languages instead (static method instead of
+                                                        function)
 ========== ====== ======== ============================ ======================================================================
 
 Omega

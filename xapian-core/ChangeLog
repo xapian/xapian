@@ -1,3 +1,8 @@
+Mon Mar 02 21:10:54 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* docs/deprecation.rst: Deprecate Stem_get_available_languages()
+	  from the python bindings.
+
 Mon Mar 02 19:56:20 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* common/Makefile.mk,common/const_database_wrapper.cc,
