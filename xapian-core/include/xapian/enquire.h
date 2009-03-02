@@ -1078,10 +1078,13 @@ class ScaleWeight;
 
 namespace Xapian {
 
+class SerialisationContext;
+
 /// Abstract base class for weighting schemes
 class XAPIAN_VISIBILITY_DEFAULT Weight {
     friend class Enquire; // So Enquire can clone us
     friend class ::RemoteServer; // So RemoteServer can clone us - FIXME
+    friend class SerialisationContext;
     friend class ::ScaleWeight;
     public:
 	class Internal;

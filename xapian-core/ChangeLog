@@ -1,3 +1,16 @@
+Mon Mar 02 10:08:25 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/,bin/xapian-tcpsrv.cc,common/Makefile.mk,common/remoteserver.h,
+	  common/serialisationcontextinternal.h,include/Makefile.mk,
+	  include/xapian.h,include/xapian/enquire.h,include/xapian/query.h,
+	  include/xapian/serialisationcontext.h,net/remoteserver.cc,
+	  tests/api_serialise.cc,tests/internaltest.cc: Add
+	  SerialisationContext.  This object is used to register
+	  PostingSource or Weight subclasses, so that they can be
+	  serialised and unserialised, and therefore used in remote
+	  searches.  Add two-argument form for Query::unserialise() which
+	  takes a serialisation context.  Fixes #206.
+
 Mon Mar 02 07:13:38 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* include/xapian/database.h: Further tweak to wording of

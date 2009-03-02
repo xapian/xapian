@@ -30,6 +30,7 @@
 
 #include "xapian/error.h"
 #include "xapian/postingsource.h"
+#include "xapian/serialisationcontext.h"
 #include "xapian/termiterator.h"
 
 #include <vector>
@@ -216,8 +217,20 @@ Query::unserialise(const std::string &s)
     DEBUGAPICALL_STATIC(Xapian::Query, "Xapian::Query::unserialise", s);
     Query result;
     if (!s.empty()) {
-	std::map<std::string, Xapian::PostingSource *> sources;
-	result.internal = Xapian::Query::Internal::unserialise(s, sources);
+	SerialisationContext ctx;
+	result.internal = Xapian::Query::Internal::unserialise(s, ctx);
+    }
+    RETURN(result);
+}
+
+Query
+Query::unserialise(const std::string & s, const SerialisationContext & ctx)
+{
+    DEBUGAPICALL_STATIC(Xapian::Query, "Xapian::Query::unserialise",
+			s << ", ctx");
+    Query result;
+    if (!s.empty()) {
+	result.internal = Xapian::Query::Internal::unserialise(s, ctx);
     }
     RETURN(result);
 }

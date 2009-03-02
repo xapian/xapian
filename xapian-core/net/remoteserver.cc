@@ -32,6 +32,7 @@
 #include <stdlib.h>
 
 #include "autoptr.h"
+#include "serialisationcontextinternal.h"
 #include "multimatch.h"
 #include "omassert.h"
 #include "omtime.h"
@@ -105,43 +106,12 @@ RemoteServer::RemoteServer(const std::vector<std::string> &dbpaths,
     message += encode_length(uuid.size());
     message += uuid;
     send_message(REPLY_GREETING, message);
-
-    // Register weighting schemes.
-    Xapian::Weight * weight;
-    weight = new Xapian::BM25Weight;
-    wtschemes[weight->name()] = weight;
-    weight = new Xapian::BoolWeight;
-    wtschemes[weight->name()] = weight;
-    weight = new Xapian::TradWeight;
-    wtschemes[weight->name()] = weight;
-
-    Xapian::PostingSource * source;
-    source = new Xapian::ValueWeightPostingSource(0);
-    postingsources[source->name()] = source;
-    source = new Xapian::ValueMapPostingSource(0);
-    postingsources[source->name()] = source;
-    source = new Xapian::FixedWeightPostingSource(0.0);
-    postingsources[source->name()] = source;
 }
 
 RemoteServer::~RemoteServer()
 {
     delete db;
     // wdb is either NULL or equal to db, so we shouldn't delete it too!
-
-    {
-	map<string, Xapian::Weight*>::const_iterator i;
-	for (i = wtschemes.begin(); i != wtschemes.end(); ++i) {
-	    delete i->second;
-	}
-    }
-
-    {
-	map<string, Xapian::PostingSource *>::const_iterator i;
-	for (i = postingsources.begin(); i != postingsources.end(); ++i) {
-	    delete i->second;
-	}
-    }
 }
 
 message_type
@@ -382,7 +352,7 @@ RemoteServer::msg_query(const string &message_in)
 
     // Unserialise the Query.
     len = decode_length(&p, p_end, true);
-    AutoPtr<Xapian::Query::Internal> query(Xapian::Query::Internal::unserialise(string(p, len), postingsources));
+    AutoPtr<Xapian::Query::Internal> query(Xapian::Query::Internal::unserialise(string(p, len), ctx));
     p += len;
 
     // Unserialise assorted Enquire settings.
@@ -424,15 +394,18 @@ RemoteServer::msg_query(const string &message_in)
 
     // Unserialise the Weight object.
     len = decode_length(&p, p_end, true);
-    map<string, Xapian::Weight *>::const_iterator i;
-    i = wtschemes.find(string(p, len));
-    if (i == wtschemes.end()) {
-	throw Xapian::InvalidArgumentError("Weighting scheme " + string(p, len) + " not registered");
+    const Xapian::Weight * wttype = ctx.get_weighting_scheme(string(p, len));
+    if (wttype == NULL) {
+	// Note: user weighting schemes should be registered by adding them to
+	// a SerialisationContext, and setting the context using
+	// RemoteServer::set_context().
+	throw Xapian::InvalidArgumentError("Weighting scheme " +
+					   string(p, len) + " not registered");
     }
     p += len;
 
     len = decode_length(&p, p_end, true);
-    AutoPtr<Xapian::Weight> wt(i->second->unserialise(string(p, len)));
+    AutoPtr<Xapian::Weight> wt(wttype->unserialise(string(p, len)));
     p += len;
 
     // Unserialise the RSet object.
@@ -629,23 +602,4 @@ RemoteServer::msg_replacedocumentterm(const string & message)
     Xapian::docid did = wdb->replace_document(unique_term, unserialise_document(string(p, p_end)));
 
     send_message(REPLY_ADDDOCUMENT, encode_length(did));
-}
-
-
-void
-RemoteServer::register_posting_source(const Xapian::PostingSource &source)
-{
-    if (source.name().empty()) {
-	throw Xapian::InvalidOperationError("Unable to register posting source - name() method returns empty string.");
-    }
-    Xapian::PostingSource * sourceclone = source.clone();
-    if (!sourceclone) {
-	throw Xapian::InvalidOperationError("Unable to register posting source - clone() method returns NULL.");
-    }
-    try {
-	postingsources[source.name()] = sourceclone;
-    } catch(...) {
-	delete sourceclone;
-	throw;
-    }
 }

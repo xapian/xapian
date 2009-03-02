@@ -25,6 +25,7 @@
 
 #include "omqueryinternal.h"
 
+#include "serialisationcontextinternal.h"
 #include "omdebug.h"
 #include "utils.h"
 #include "serialise.h"
@@ -391,7 +392,7 @@ class QUnserial {
     const char *p;
     const char *end;
     Xapian::termpos curpos;
-    const map<string, Xapian::PostingSource *> & sources;
+    const Xapian::SerialisationContext & ctx;
 
     Xapian::Query::Internal * readquery();
     Xapian::Query::Internal * readexternal();
@@ -399,8 +400,8 @@ class QUnserial {
 
   public:
     QUnserial(const string & s,
-	      const map<string, Xapian::PostingSource *> & sources_)
-	    : p(s.c_str()), end(p + s.size()), curpos(1), sources(sources_) { }
+	      const Xapian::SerialisationContext & ctx_)
+	    : p(s.c_str()), end(p + s.size()), curpos(1), ctx(ctx_) { }
     Xapian::Query::Internal * decode();
 };
 
@@ -457,10 +458,10 @@ QUnserial::readexternal()
 
     size_t length = decode_length(&p, end, true);
     string sourcename(p, length);
-    map<string, Xapian::PostingSource *>::const_iterator i;
-    i = sources.find(sourcename);
-    if (i == sources.end()) {
-	throw Xapian::InvalidArgumentError("PostingSource " + string(p, length) + " not registered");
+    const Xapian::PostingSource * source = ctx.get_posting_source(sourcename);
+    if (source == NULL) {
+	throw Xapian::InvalidArgumentError("PostingSource " + sourcename +
+					   " not registered");
     }
 
     p += length;
@@ -468,7 +469,7 @@ QUnserial::readexternal()
     string sourcedata(p, length);
     p += length;
 
-    return new Xapian::Query::Internal(i->second->unserialise(sourcedata), true);
+    return new Xapian::Query::Internal(source->unserialise(sourcedata), true);
 }
 
 static Xapian::Query::Internal *
@@ -604,10 +605,10 @@ QUnserial::readcompound() {
 
 Xapian::Query::Internal *
 Xapian::Query::Internal::unserialise(const string &s,
-			const map<string, Xapian::PostingSource *> & sources)
+		const Xapian::SerialisationContext & ctx)
 {
     Assert(s.length() > 1);
-    QUnserial u(s, sources);
+    QUnserial u(s, ctx);
     Xapian::Query::Internal * qint = u.decode();
     AssertEq(s, qint->serialise());
     return qint;
@@ -615,7 +616,7 @@ Xapian::Query::Internal::unserialise(const string &s,
 #else
 Xapian::Query::Internal *
 Xapian::Query::Internal::unserialise(const string &,
-			const map<string, Xapian::PostingSource *> & sources)
+		const Xapian::SerialisationContext & ctx)
 {
     throw Xapian::InternalError("query serialisation not compiled in");
 }
