@@ -1,3 +1,8 @@
+Mon Mar 02 14:48:08 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/multi/multi_alltermslist.cc: Fix memory leak which
+	  was causing allterms6 to fail.
+
 Mon Mar 02 14:15:11 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* matcher/externalpostlist.cc: Fix memory leak in external source
