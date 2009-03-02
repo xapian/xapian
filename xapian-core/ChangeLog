@@ -1,6 +1,11 @@
+Mon Mar 02 03:52:10 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/replication.cc,common/msvc_posix_wrapper.cc: Cuddle braces for
+	  "if" and "switch".
+
 Mon Mar 02 03:32:32 GMT 2009  Olly Betts <olly@survex.com>
 
-	* tests/api_closedb.cc: Use more convential uppercase macro parameter
+	* tests/api_closedb.cc: Use more conventional uppercase macro parameter
 	  names.  Wrap long comments.  Remove another unused exception name.
 
 Mon Mar 02 03:21:39 GMT 2009  Olly Betts <olly@survex.com>

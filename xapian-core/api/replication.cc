@@ -456,8 +456,7 @@ DatabaseReplica::Internal::possibly_make_offline_live()
     }
 
     string replicated_uuid = replicator->get_uuid();
-    if (replicated_uuid.empty())
-    {
+    if (replicated_uuid.empty()) {
 	return false;
     }
 
