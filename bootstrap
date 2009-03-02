@@ -173,7 +173,8 @@ intree_swig=no
 # We no longer snapshot xapian-applications/queryserver since it hasn't seen a
 # check-in for ages.
 modules=
-for module in xapian-core xapian-applications/omega swig xapian-bindings xapian-extras ; do
+for module in xapian-core xapian-extras xapian-applications/omega swig \
+              xapian-bindings xapian-extras-bindings ; do
   d=$module
   if [ -f "$d/configure.ac" -o -f "$d/configure.in" ] ; then
     echo "Bootstrapping \`$module'"
@@ -387,9 +388,11 @@ for target in all install uninstall install-strip clean distclean mostlyclean ma
       # FIXME: distcheck doesn't currently work for xapian-bindings because
       # xapian-core isn't installed.
       echo "	cd $d && \$(MAKE) check && \$(MAKE) dist" >> Makefile.tmp ;;
-    *)
-      echo "	cd $d && \$(MAKE) $target" >> Makefile.tmp ;;
     xapian-extras,distcheck)
+      # FIXME: distcheck doesn't currently work for xapian-extras because
+      # xapian-core isn't installed.
+      echo "	cd $d && \$(MAKE) check && \$(MAKE) dist" >> Makefile.tmp ;;
+    xapian-extras-bindings,distcheck)
       # FIXME: distcheck doesn't currently work for xapian-extras because
       # xapian-core isn't installed.
       echo "	cd $d && \$(MAKE) check && \$(MAKE) dist" >> Makefile.tmp ;;
