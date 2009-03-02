@@ -854,6 +854,10 @@ __all__ = tuple(__all__)
 # work) with its __call() method (which we define with an %extend in util.i)
 ValueRangeProcessor.__call__ = ValueRangeProcessor.__call
 
+# Remove static methods which shouldn't be in the API.
+del Document_unserialise
+del Query_unserialise
+
 %}
 
 /* vim:syntax=python:set expandtab: */
