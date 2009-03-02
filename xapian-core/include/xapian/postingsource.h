@@ -119,6 +119,9 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *  must be called before any methods which need the context of
      *  the current position.
      *
+     *  Xapian will always call reset() on a PostingSource before calling this
+     *  for the first time.
+     *
      *  @param min_wt	The minimum weight contribution that is needed (this is
      *			just a hint which subclasses may ignore).
      */
@@ -137,15 +140,18 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *  current position unmodified, but it is also reasonable to move to the
      *  specified docid.
      *
-     *  @param min_wt	The minimum weight contribution that is needed (this is
-     *			just a hint which subclasses may ignore).
-     *
      *  The default implementation calls next() repeatedly, which works but
      *  skip_to() can often be implemented much more efficiently.
+     *
+     *  Xapian will always call reset() on a PostingSource before calling this
+     *  for the first time.
      *
      *  Note: in the case of a multi-database search, the docid specified is
      *  the docid in the single subdatabase relevant to this posting source.
      *  See the @a reset() method for details.
+     *
+     *  @param min_wt	The minimum weight contribution that is needed (this is
+     *			just a hint which subclasses may ignore).
      */
     virtual void skip_to(Xapian::docid did, Xapian::weight min_wt);
 
@@ -173,13 +179,20 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *
      *  The default implementation calls skip_to() and always returns true.
      *
+     *  Xapian will always call reset() on a PostingSource before calling this
+     *  for the first time.
+     *
      *  Note: in the case of a multi-database search, the docid specified is
      *  the docid in the single subdatabase relevant to this posting source.
      *  See the @a reset() method for details.
      */
     virtual bool check(Xapian::docid did, Xapian::weight min_wt);
 
-    /// Return true if the current position is past the last entry in this list.
+    /** Return true if the current position is past the last entry in this list.
+     *
+     *  At least one of @a next(), @a skip_to() or @a check() will be called
+     *  before this method is first called.
+     */
     virtual bool at_end() const = 0;
 
     /** Clone the posting source.
@@ -245,7 +258,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *
      *  Note: in the case of a multi-database search, a separate PostingSource
      *  will be used for each database (the separate PostingSources will be
-     *  obtained using clone()), and each PostingSource will be passed one of
+     *  obtained using @a clone()), and each PostingSource will be passed one of
      *  the sub-databases as the @a db parameter here.  The @a db parameter
      *  will therefore always refer to a single database.  All docids passed
      *  to, or returned from, the PostingSource refer to docids in that single
