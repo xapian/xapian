@@ -1,3 +1,8 @@
+Mon Mar 02 03:17:48 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/mergepostlist.cc: Change "do { ... } while (true);" to the
+	  more usual "while (true) { ... }".
+
 Sun Mar 01 19:41:16 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/api_closedb.cc: Merge closedb1 and closedb2 into a single
