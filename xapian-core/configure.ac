@@ -484,65 +484,43 @@ AC_CHECK_HEADERS([fcntl.h limits.h sys/errno.h sys/select.h], [], [], [ ])
 dnl If valgrind is installed and new enough, we use it for leak checking in the
 dnl testsuite.  If VALGRIND is set to an empty value, then skip the check and
 dnl don't use valgrind.
-dnl
-dnl Default to what modern valgrind knows, so the user can specify valgrind
-dnl when running runtest even if it doesn't get picked up here.
-VALGRIND_LOG_FILE_OPT=--log-file
 if test -n "${VALGRIND-unset}" ; then
   AC_PATH_PROG(VALGRIND, valgrind, [])
   if test -n "$VALGRIND" ; then
-    dnl Check that the valgrind version installed supports the most recently
-    dnl added client request which we use - VALGRIND_DO_LEAK_CHECK is ages old,
-    dnl VALGRIND_COUNT_ERRORS was added at the same time as VALGRIND_COUNT_LEAKS
-    AC_MSG_CHECKING([for VALGRIND_COUNT_LEAKS])
-    AC_EGREP_CPP(yes,
-      [#include <valgrind/memcheck.h>
-       #ifdef VALGRIND_COUNT_LEAKS
-       yes
-       #endif
-      ], AC_MSG_RESULT(found),
-      AC_MSG_RESULT(not supported)
-      [VALGRIND=])
-  fi
-
-  if test -n "$VALGRIND" ; then
-    dnl Check that the installed valgrind version works, and see if it needs
-    dnl --tool=memcheck to work (older and newer versions don't, but some in
-    dnl between do).  Valgrind 2.1.2 and later have a --log-file option but
-    dnl 2.1.1 and older had --logfile instead, so we need to check this too.
-    AC_MSG_CHECKING([for valgrind options to use])
-    if $VALGRIND --log-file=config.valgrind.tmp -q true 2> /dev/null ; then
-      dnl Test the case which matches a modern valgrind first so we handle
-      dnl the common case quickly with a single test.
-      AC_MSG_RESULT([--log-file])
-    else
-      dnl Now we have to test individual options.
-      if $VALGRIND --tool=memcheck -q true 2> /dev/null ; then
-	dnl This valgrind version requires --tool=memcheck
-	VALGRIND="$VALGRIND --tool=memcheck"
-	AC_MSG_RESULT([--tool=memcheck])
-	AC_MSG_CHECKING([for valgrind options to use])
-      fi
-      if $VALGRIND --log-file=config.valgrind.tmp -q true 2>/dev/null ; then
-	AC_MSG_RESULT([--log-file])
-      elif $VALGRIND --logfile=config.valgrind.tmp -q true 2>/dev/null ; then
-	VALGRIND_LOG_FILE_OPT=--logfile
-	AC_MSG_RESULT([--logfile])
+    dnl Check that the installed valgrind version works, and supports the
+    dnl options we use.  This means we won't try to use valgrind < 3.3.0
+    dnl (released 7/12/2007) since before that --log-file didn't expand
+    dnl %p (and appended the process id).
+    dnl
+    dnl No need to check for VALGRIND_COUNT_LEAKS now - that was added before
+    dnl 2.0.0.
+    AC_MSG_CHECKING([if valgrind supports --log-file with %p])
+    vglog=config.vglog.%p.tmp
+    vglogwild="config.vglog.*.tmp*"
+    rm -f $vglogwild
+    if $VALGRIND --log-file="$vglog" -q true 2> /dev/null ; then
+      for f in $vglogwild ; do
+        case $f in
+	$vglog*) VALGRIND= ;;
+	esac
+      done
+      if test x"$VALGRIND" = x ; then
+	AC_MSG_RESULT([no])
       else
-	dnl The valgrind detected doesn't seem to work!  Perhaps this is an
-	dnl x86_64 box with a 32 bit valgrind.
-	AC_MSG_RESULT([$VALGRIND doesn't work])
-	VALGRIND=
-      fi
+	AC_MSG_RESULT([yes])
+      fi	
+    else
+      dnl The valgrind detected doesn't seem to work!  Perhaps this is an
+      dnl x86_64 box with a 32 bit valgrind.
+      AC_MSG_RESULT([$VALGRIND doesn't work])
+      VALGRIND=
     fi
-    rm -f config.valgrind.tmp*
+    rm -f $vglogwild
   fi
 fi
-AC_SUBST(VALGRIND_LOG_FILE_OPT)
 
 if test -n "$VALGRIND" ; then
-  AC_DEFINE(HAVE_VALGRIND, 1,
-	    [Define if valgrind is installed and supports VALGRIND_COUNT_LEAKS])
+  AC_DEFINE(HAVE_VALGRIND, 1, [Define if a suitable valgrind is installed])
 fi
 
 dnl Checks for library functions.

@@ -1,3 +1,11 @@
+Mon Mar 02 12:23:01 GMT 2009  Olly Betts <olly@survex.com>
+
+	* HACKING,configure.ac,tests/runtest.in: Don't use valgrind if it's
+	  < 3.3.0 as that's well over a year old and greatly simplifies the
+	  configure tests.  Fix options passed to valgrind so that the
+	  testsuite harness actually reports problems detected by newer
+	  valgrind versions.
+
 Mon Mar 02 10:08:25 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/,bin/xapian-tcpsrv.cc,common/Makefile.mk,common/remoteserver.h,
