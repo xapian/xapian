@@ -1,3 +1,8 @@
+Mon Mar 02 11:43:55 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_geospatial.cc: Update postingsource test to use new
+	  postingsource style.
+
 Mon Mar 02 11:40:48 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* geospatial/latlong_metrics.cc,geospatial/latlong_posting_source.cc,

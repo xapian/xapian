@@ -185,7 +185,8 @@ DEFINE_TESTCASE(latlongpostingsource1, backend && !remote && !multi) {
 
     // Test a search with no range restriction.
     {
-	Xapian::LatLongDistancePostingSource ps(db, 0, centre, metric);
+	Xapian::LatLongDistancePostingSource ps(0, centre, metric);
+	ps.reset(db);
 
 	ps.next(0.0);
 	TEST_EQUAL(ps.at_end(), false);
@@ -208,7 +209,8 @@ DEFINE_TESTCASE(latlongpostingsource1, backend && !remote && !multi) {
 
     // Test a search with a tight range restriction
     {
-	Xapian::LatLongDistancePostingSource ps(db, 0, centre, metric, coorddist * 0.5);
+	Xapian::LatLongDistancePostingSource ps(0, centre, metric, coorddist * 0.5);
+	ps.reset(db);
 
 	ps.next(0.0);
 	TEST_EQUAL(ps.at_end(), false);
@@ -220,7 +222,8 @@ DEFINE_TESTCASE(latlongpostingsource1, backend && !remote && !multi) {
 
     // Test a search with a looser range restriction
     {
-	Xapian::LatLongDistancePostingSource ps(db, 0, centre, metric, coorddist);
+	Xapian::LatLongDistancePostingSource ps(0, centre, metric, coorddist);
+	ps.reset(db);
 
 	ps.next(0.0);
 	TEST_EQUAL(ps.at_end(), false);
@@ -238,7 +241,8 @@ DEFINE_TESTCASE(latlongpostingsource1, backend && !remote && !multi) {
     // Test a search with a looser range restriction, but not enough to return
     // the next document.
     {
-	Xapian::LatLongDistancePostingSource ps(db, 0, centre, metric, coorddist * 1.5);
+	Xapian::LatLongDistancePostingSource ps(0, centre, metric, coorddist * 1.5);
+	ps.reset(db);
 
 	ps.next(0.0);
 	TEST_EQUAL(ps.at_end(), false);
@@ -256,7 +260,8 @@ DEFINE_TESTCASE(latlongpostingsource1, backend && !remote && !multi) {
     // Test a search with a loose enough range restriction that all docs should
     // be returned.
     {
-	Xapian::LatLongDistancePostingSource ps(db, 0, centre, metric, coorddist * 2.5);
+	Xapian::LatLongDistancePostingSource ps(0, centre, metric, coorddist * 2.5);
+	ps.reset(db);
 
 	ps.next(0.0);
 	TEST_EQUAL(ps.at_end(), false);
