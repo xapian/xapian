@@ -138,11 +138,11 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  Calling close() on a database which is already closed has no effect
 	 *  (and doesn't raise an exception).
 	 *
-	 *  After this call, no calls should be made to other methods of the
-	 *  database, or to objects derived from the database (other than
-	 *  destructors).  If any such methods are called, they may do one of
-	 *  two things (but which of these things happens may vary between
-	 *  releases, and between database backends):
+	 *  After this call, calls made to methods of the database (other than
+	 *  close() or the destructor), or to objects associated with the
+	 *  database will behave in one of the following ways (but which
+	 *  behaviour happens may vary between releases, and between database
+	 *  backends):
 	 *
 	 *   - raise a Xapian::DatabaseError indicating that the database is
 	 *   closed.

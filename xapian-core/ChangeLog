@@ -1,3 +1,8 @@
+Mon Mar 02 07:13:38 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/database.h: Further tweak to wording of
+	  documentation about close().
+
 Mon Mar 02 07:05:54 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* backends/chert/chert_table.cc,backends/chert/chert_table.h,
