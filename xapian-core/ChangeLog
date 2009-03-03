@@ -1,3 +1,8 @@
+Tue Mar 03 05:50:38 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/enquire.h: Documentation comment improvements.
+
 Tue Mar 03 05:49:19 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
