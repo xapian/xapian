@@ -1,3 +1,8 @@
+Tue Mar 03 07:31:13 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* common/msvc_posix_wrapper.cc: Cuddle braces for "switch".
+
 Tue Mar 03 07:30:23 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
