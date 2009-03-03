@@ -1,3 +1,10 @@
+Tue Mar 03 18:41:55 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* imgseek/src/range_accelerator.cc: Use XOR instead of OR to
+	  combine the range terms, since only one of them can be present in
+	  each document anyway, and this should allow xapian to optimise a
+	  bit better.
+
 Tue Mar 03 17:52:50 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* imgseek/src/image_terms.cc,imgseek/src/range_accelerator.cc:

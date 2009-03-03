@@ -79,19 +79,20 @@ Xapian::RangeAccelerator::query_for_distance(double val,
 					  weight));
 	}
     }
-    Xapian::Query query(Xapian::Query::OP_OR, subqs.begin(), subqs.end());
+    Xapian::Query query(Xapian::Query::OP_XOR, subqs.begin(), subqs.end());
     return query;
 }
 
 Xapian::Query 
-Xapian::RangeAccelerator::query_for_distance(const Xapian::Document& doc, double cutoff) const {
-  Xapian::TermIterator it = doc.termlist_begin();
-  it.skip_to(prefix);
-  if ((*it).find(prefix) == 0) {
-    std::vector<std::string>::const_iterator pos = 
-      std::find(range_terms.begin(), range_terms.end(), *it);
-    if (pos != range_terms.end())
-      return query_for_distance(midpoints[std::distance(range_terms.begin(), pos)], cutoff);
-  }
-  return Xapian::Query();
+Xapian::RangeAccelerator::query_for_distance(const Xapian::Document& doc, double cutoff) const
+{
+    Xapian::TermIterator it = doc.termlist_begin();
+    it.skip_to(prefix);
+    if ((*it).find(prefix) == 0) {
+	std::vector<std::string>::const_iterator pos = 
+		std::find(range_terms.begin(), range_terms.end(), *it);
+	if (pos != range_terms.end())
+	    return query_for_distance(midpoints[std::distance(range_terms.begin(), pos)], cutoff);
+    }
+    return Xapian::Query();
 }
