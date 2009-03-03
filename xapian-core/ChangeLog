@@ -1,3 +1,12 @@
+Tue Mar 03 07:17:10 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* HACKING,configure.ac,tests/runtest.in: Don't use valgrind if it's
+	  < 3.3.0 as that's well over a year old and greatly simplifies the
+	  configure tests.  Fix options passed to valgrind so that the
+	  testsuite harness actually reports problems detected by newer
+	  valgrind versions.
+
 Tue Mar 03 07:04:27 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
