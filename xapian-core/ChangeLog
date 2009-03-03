@@ -1,3 +1,8 @@
+Tue Mar 03 06:55:37 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/sorting.rst: Clarify meaning.
+
 Tue Mar 03 05:59:14 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
