@@ -1,7 +1,7 @@
 /** \file  queryparser.h
  *  \brief parsing a user query string to build a Xapian::Query object
  */
-/* Copyright (C) 2005,2006,2007,2008 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -291,7 +291,13 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	 *
 	 *  NB: You must also call set_database() for this to work.
 	 */
-	FLAG_AUTO_MULTIWORD_SYNONYMS = 1024 | FLAG_AUTO_SYNONYMS
+	FLAG_AUTO_MULTIWORD_SYNONYMS = 1024 | FLAG_AUTO_SYNONYMS,
+
+	/** The default flags.
+	 *
+	 *  Used if you don't explicitly pass any to @a parse_query().
+	 */
+	FLAG_DEFAULT = FLAG_PHRASE|FLAG_BOOLEAN|FLAG_LOVEHATE
     } feature_flag;
 
     typedef enum { STEM_NONE, STEM_SOME, STEM_ALL } stem_strategy;
@@ -354,12 +360,12 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *  @param query_string  A free-text query as entered by a user
      *  @param flags         Zero or more Query::feature_flag specifying
      *		what features the QueryParser should support.  Combine
-     *		multiple values with bitwise-or (|).
+     *		multiple values with bitwise-or (|) (default FLAG_DEFAULT).
      *	@param default_prefix  The default term prefix to use (default none).
      *		For example, you can pass "A" when parsing an "Author" field.
      */
     Query parse_query(const std::string &query_string,
-		      unsigned flags = FLAG_PHRASE|FLAG_BOOLEAN|FLAG_LOVEHATE,
+		      unsigned flags = FLAG_DEFAULT,
 		      const std::string &default_prefix = "");
 
     /** Add a probabilistic term prefix.

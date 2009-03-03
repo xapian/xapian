@@ -1,3 +1,10 @@
+Tue Mar 03 04:31:48 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Add QueryParser::FLAG_DEFAULT to make
+	  it easier to add flags to those set by default.
+	* tests/queryparsertest.cc: Use FLAG_DEFAULT in a few places to serve
+	  as a feature test.
+
 Tue Mar 03 03:45:53 GMT 2009  Olly Betts <olly@survex.com>
 
 	* docs/index.html: Add link to new serialisation topic document.
