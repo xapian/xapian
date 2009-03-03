@@ -1,3 +1,9 @@
+Tue Mar 03 07:19:56 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/multi/multi_alltermslist.cc: Fix memory leak which
+	  was causing allterms6 to fail.
+
 Tue Mar 03 07:17:10 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
