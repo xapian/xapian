@@ -1,3 +1,9 @@
+Tue Mar 03 17:52:50 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* imgseek/src/image_terms.cc,imgseek/src/range_accelerator.cc:
+	  Speed up query construction a bit by building queries into a
+	  vector, rather than joining pair-wise.
+
 Tue Mar 03 15:20:49 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* imgseek/include/xapian/imgseek.h,

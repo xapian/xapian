@@ -27,6 +27,8 @@
 #include "haar.h" // For num_pixels_squared - FIXME - should be supplied to ImgTerms constructor.
 #include "serialise-double.h"
 
+#include <vector>
+
 // Declarations of functions in other file: FIXME - should have a shared internal header.
 double find_weight(const int idx, const int colour);
 const float weights[6][3]= {
@@ -135,8 +137,9 @@ startswith(const std::string& s, const std::string& start){
 }
 
 Xapian::Query
-ImgTerms::make_coeff_query(const Xapian::Document& doc) const {
-    Xapian::Query::Query query;
+ImgTerms::make_coeff_query(const Xapian::Document& doc) const
+{
+    std::vector<Xapian::Query> subqs;
     Xapian::TermIterator it;
     for (int c = 0; c < 3; ++c) {
 	it = doc.termlist_begin();
@@ -145,36 +148,30 @@ ImgTerms::make_coeff_query(const Xapian::Document& doc) const {
 	while (it != doc.termlist_end() && startswith(*it, cprefix)) {
 	    Xapian::Query::Query subq = Xapian::Query(*it);
 	    WeightMap::const_iterator pos = weightmap.find(*it);
-	    subq = Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT,
-				 subq,
-				 pos->second);
-	    query = Xapian::Query(Xapian::Query::OP_OR, 
-				  query,
-				  subq);
+	    subqs.push_back(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT,
+					  subq,
+					  pos->second));
 	    ++it;
 	} 
     }
-    return query;
+    return Xapian::Query(Xapian::Query::OP_OR, subqs.begin(), subqs.end());
 }
 
 // FIXME - refactor common bits with above method
 Xapian::Query
-ImgTerms::make_coeff_query(const ImgSig& sig) const {
-  
-    Xapian::Query::Query query;
+ImgTerms::make_coeff_query(const ImgSig& sig) const
+{
+    std::vector<Xapian::Query> subqs;
     CoeffTerms terms = make_coeff_terms(sig);
     CoeffTerms::const_iterator it;
     for (it = terms.begin(); it != terms.end(); ++it) {
-      Xapian::Query subq = Xapian::Query(*it);
-      WeightMap::const_iterator pos = weightmap.find(*it);
-      subq = Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT,
-                           subq,
-                           pos->second);
-      query = Xapian::Query(Xapian::Query::OP_OR, 
-                            query,
-                            subq);
+	Xapian::Query subq = Xapian::Query(*it);
+	WeightMap::const_iterator pos = weightmap.find(*it);
+	subqs.push_back(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT,
+				      subq,
+				      pos->second));
     }
-    return query;
+    return Xapian::Query(Xapian::Query::OP_OR, subqs.begin(), subqs.end());
 }
 
 

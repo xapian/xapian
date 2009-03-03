@@ -56,7 +56,8 @@ Xapian::RangeAccelerator::RangeAccelerator(const std::string& prefix_,
 
 
 void
-Xapian::RangeAccelerator::add_val_terms(Xapian::Document& doc, double val) const {
+Xapian::RangeAccelerator::add_val_terms(Xapian::Document& doc, double val) const
+{
     for (int i = 0; i < ranges.size(); ++i) {
 	if ((val >= ranges[i].first) & (val <= ranges[i].second)) {
 	    doc.add_term(range_terms[i], 0);
@@ -66,19 +67,19 @@ Xapian::RangeAccelerator::add_val_terms(Xapian::Document& doc, double val) const
 
 Xapian::Query
 Xapian::RangeAccelerator::query_for_distance(double val,
-						 double cutoff) const {
-    Xapian::Query query;
+					     double cutoff) const
+{
+    std::vector<Xapian::Query> subqs;
     for (unsigned int i = 0; i < ranges.size(); ++i) {
 	double distance = fabs(val - midpoints[i]);
 	double weight = distance / total_range;
 	if (weight > cutoff) {
-	    query = Xapian::Query(Xapian::Query::OP_OR,
-				  query,
-				  Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT,
-						Xapian::Query(range_terms[i]),
-						weight));
+	    subqs.push_back(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT,
+					  Xapian::Query(range_terms[i]),
+					  weight));
 	}
     }
+    Xapian::Query query(Xapian::Query::OP_OR, subqs.begin(), subqs.end());
     return query;
 }
 
