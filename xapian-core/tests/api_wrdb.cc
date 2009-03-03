@@ -758,7 +758,7 @@ DEFINE_TESTCASE(deldoc4, writable) {
 	// very inefficient with large strings, so clear tout on each pass of
 	// the loop to speed up the test since the older information isn't
 	// interesting anyway.
-	tout.str("");
+	tout.str(string());
 	TEST_EXCEPTION(Xapian::DocNotFoundError, db.termlist_begin(i));
 	TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_doclength(i));
 	TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(i));
@@ -2098,6 +2098,7 @@ check_vals(const Xapian::Database & db, const map<Xapian::docid, string> & vals)
     TEST_REL(vals.rbegin()->first,<=,db.get_lastdocid());
     map<Xapian::docid, string>::const_iterator i;
     for (i = vals.begin(); i != vals.end(); ++i) {
+	tout.str(string());
 	tout << "Checking value in doc " << i->first << "\n";
 	Xapian::Document doc = db.get_document(i->first);
 	string dbval = doc.get_value(1);
@@ -2129,12 +2130,13 @@ DEFINE_TESTCASE(modifyvalues1, writable) {
     map<Xapian::docid, string> vals;
 
     for (Xapian::doccount num = 1; num <= doccount; ++num) {
+	tout.str(string());
     	Xapian::Document doc;
 	string val = "val" + om_tostring(num);
+	tout << "Setting val '" << val << "' in doc " << num << "\n";
 	doc.add_value(1, val);
 	db.add_document(doc);
 	vals[num] = val;
-	tout << "Set val '" << val << "' in doc " << num << "\n";
     }
     check_vals(db, vals);
     db.commit();
@@ -2145,10 +2147,10 @@ DEFINE_TESTCASE(modifyvalues1, writable) {
     {
 	Xapian::Document doc;
 	string val = "newval0";
+	tout << "Setting val '" << val << "' in doc 2\n";
 	doc.add_value(1, val);
 	db.replace_document(2, doc);
 	vals[2] = val;
-	tout << "Set val '" << val << "' in doc " << 2 << "\n";
 	check_vals(db, vals);
 	db.commit();
 	check_vals(db, vals);
@@ -2182,17 +2184,20 @@ DEFINE_TESTCASE(modifyvalues1, writable) {
     // results.
     srand(42);
     for (Xapian::doccount num = 1; num <= doccount * 2; ++num) {
+	tout.str(string());
 	Xapian::docid did = ((rand() >> 8) % doccount) + 1;
 	Xapian::Document doc;
 	string val;
 
 	if (num % 5 != 0) {
+	    tout << "Setting val '" << val << "' in doc " << did << "\n";
 	    val = "newval" + om_tostring(num);
 	    doc.add_value(1, val);
+	} else {
+	    tout << "Adding/replacing empty document " << did << "\n";
 	}
 	db.replace_document(did, doc);
 	vals[did] = val;
-	tout << "Set val '" << val << "' in doc " << did << "\n";
     }
     check_vals(db, vals);
     db.commit();
@@ -2201,11 +2206,12 @@ DEFINE_TESTCASE(modifyvalues1, writable) {
     // Delete all the remaining values, in a slightly shuffled order.
     // This is where it's important that doccount is coprime with 13.
     for (Xapian::doccount num = 0; num < doccount * 13; num += 13) {
+	tout.str(string());
 	Xapian::docid did = (num % doccount) + 1;
+	tout << "Clearing val in doc " << did << "\n";
 	Xapian::Document doc;
 	db.replace_document(did, doc);
 	vals[did] = string();
-	tout << "Cleared val in doc " << did << "\n";
     }
     check_vals(db, vals);
     db.commit();

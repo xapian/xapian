@@ -1,3 +1,12 @@
+Tue Mar 03 03:05:47 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_wrdb.cc: Clear tout regularly in modifyvalues1 as
+	  otherwise the output builds up.  Some string stream implementations
+	  get very inefficient with large strings, and also this seems to
+	  interact badly with valgrind's leak detection resulting in the
+	  test having to be rerun to check if it really leaks.  Prefer
+	  tout.str(string()) to tout.str("") in existing uses too.
+
 Tue Mar 03 01:41:07 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_table.cc: Update handling of shutting down
