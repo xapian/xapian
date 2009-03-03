@@ -1,3 +1,9 @@
+Tue Mar 03 05:49:19 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/multimatch.cc: Use AssertRel rather than Assert with an
+	  inequality so that we see the arguments if the assertion fails.
+
 Tue Mar 03 05:45:53 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
