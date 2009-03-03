@@ -1,3 +1,10 @@
+Tue Mar 03 07:55:06 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/database.h: WritableDatabase::flush() can't throw
+	  DatabaseLockError.  WritableDatabase's ctor can throw at least
+	  DatabaseCorruptError or DatabaseLockError.
+
 Tue Mar 03 07:54:06 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
