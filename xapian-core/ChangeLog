@@ -1,3 +1,10 @@
+Tue Mar 03 08:10:48 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/multiandpostlist.cc: Use AssertRelParanoid() instead
+	  of AssertParanoid() so the values get reported if the assertion
+	  fails.
+
 Tue Mar 03 07:55:06 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
