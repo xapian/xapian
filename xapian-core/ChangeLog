@@ -1,3 +1,9 @@
+Tue Mar 03 05:59:14 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/harness/testsuite.cc: Fix option usage in --help - "-x=foo"
+	  doesn't work - "-x foo" does.
+
 Tue Mar 03 05:50:38 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
