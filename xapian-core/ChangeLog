@@ -1,3 +1,7 @@
+Tue Mar 03 09:43:34 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Updated from ChangeLog.
+
 Tue Mar 03 05:52:16 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_closedb.cc: Fix testcase closedb2 not to create a test
