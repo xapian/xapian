@@ -491,6 +491,24 @@ class BoolWeight : public Weight {
 	bool get_sumpart_needs_doclength() const;
 };
 
+%warnfilter(842) UnitWeight::unserialise;
+class UnitWeight : public Weight {
+    public:
+	UnitWeight * clone() const;
+	UnitWeight();
+	~UnitWeight();
+	std::string name() const;
+	std::string serialise() const;
+	UnitWeight * unserialise(const std::string & s) const;
+	Xapian::weight get_sumpart(Xapian::termcount wdf, Xapian::doclength len) const;
+	Xapian::weight get_maxpart() const;
+
+	Xapian::weight get_sumextra(Xapian::doclength len) const;
+	Xapian::weight get_maxextra() const;
+
+	bool get_sumpart_needs_doclength() const;
+};
+
 %warnfilter(842) BM25Weight::unserialise;
 class BM25Weight : public Weight {
     public:
