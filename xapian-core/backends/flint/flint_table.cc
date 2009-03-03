@@ -1720,40 +1720,16 @@ FlintTable::~FlintTable() {
     FlintTable::close();
 
     if (deflate_zstream) {
-	int err = deflateEnd(deflate_zstream);
-	if (err != Z_OK) {
-	    // FIXME - display the warning message somewhere.
-	    //string msg = "deflateEnd failed. err = " + err;
-	    //if (deflate_zstream->msg) {
-	    //    msg += " (";
-	    //    msg += deflate_zstream->msg;
-	    //    msg += ')';
-	    //}
-	    //
-	    // Note - we mustn't throw an exception because we're in a
-	    // destructor.  If the destructor was called due to stack
-	    // unwinding for another exception, this will result in a
-	    // call to terminate().
-	}
+	// Errors which we care about have already been handled, so just ignore
+	// any which get returned here.
+	(void) deflateEnd(deflate_zstream);
 	delete deflate_zstream;
     }
 
     if (inflate_zstream) {
-	int err = inflateEnd(inflate_zstream);
-	if (err != Z_OK) {
-	    // FIXME - display the warning message somewhere.
-	    //string msg = "inflateEnd failed. err = " + err;
-	    //if (inflate_zstream->msg) {
-	    //    msg += " (";
-	    //    msg += inflate_zstream->msg;
-	    //    msg += ')';
-	    //}
-	    //
-	    // Note - we mustn't throw an exception because we're in a
-	    // destructor.  If the destructor was called due to stack
-	    // unwinding for another exception, this will result in a
-	    // call to terminate().
-	}
+	// Errors which we care about have already been handled, so just ignore
+	// any which get returned here.
+	(void) inflateEnd(inflate_zstream);
 	delete inflate_zstream;
     }
 }

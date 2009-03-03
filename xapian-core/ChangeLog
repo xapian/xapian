@@ -1,3 +1,8 @@
+Tue Mar 03 01:41:07 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_table.cc: Update handling of shutting down
+	  the zstream objects in the dtor to match chert.
+
 Mon Mar 02 23:57:26 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* backends/chert/chert_table.h,backends/flint/flint_table.h: Add
