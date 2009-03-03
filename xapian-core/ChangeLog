@@ -1,3 +1,11 @@
+Tue Mar 03 07:04:27 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: GCC --version keeps changing format, and as a result
+	  we were currently getting "g++" as the version.  So change to the
+	  (hopefully) more robust technique of using g++ -E to pull out
+	  __GNUC__ and __GNUC_MINOR__.
+
 Tue Mar 03 06:55:37 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
