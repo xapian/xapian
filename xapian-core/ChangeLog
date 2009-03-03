@@ -1,3 +1,8 @@
+Tue Mar 03 05:31:41 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/multimatch.cc: Drop superfluous "std::".
+
 Sun Feb 22 11:12:58 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
