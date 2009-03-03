@@ -1,3 +1,9 @@
+Tue Mar 03 05:45:53 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/multimatch.cc: "items" -> "rsetitems" to distinguish from
+	  items used elsewhere for the MSet items.
+
 Tue Mar 03 05:31:41 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
