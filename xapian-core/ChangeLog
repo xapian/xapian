@@ -1,3 +1,8 @@
+Tue Mar 03 03:35:29 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/runsrv.in: Use @top_builddir@ rather than relying on it
+	  coming from the environment.
+
 Tue Mar 03 03:05:47 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_wrdb.cc: Clear tout regularly in modifyvalues1 as
