@@ -68,7 +68,7 @@ dnl 20:0:5 1.0.6 Unicode::toupper(); OP_VALUE_GE/OP_VALUE_LE
 dnl 20:1:5 1.0.7 No API changes
 dnl 20:2:5 1.0.8 No API changes
 dnl 21:0:6 1.0.9 Database::metadata_keys_begin()
-dnl 21:1:6 1.0.9 No API changes
+dnl 21:1:6 1.0.10 No API changes
 LIBRARY_VERSION_INFO=21:1:6
 AC_SUBST(LIBRARY_VERSION_INFO)
 

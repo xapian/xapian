@@ -1,3 +1,7 @@
+Tue Mar 03 09:11:20 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix typo in comments above LIBRARY_VERSION_INFO.
+
 Tue Mar 03 08:38:08 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
