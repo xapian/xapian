@@ -1,3 +1,9 @@
+Tue Mar 03 08:38:08 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* api/omdatabase.cc: Fix for compiling with Sun's compiler
+	  (untested as I no longer have access to it).
+
 Tue Mar 03 08:10:48 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
