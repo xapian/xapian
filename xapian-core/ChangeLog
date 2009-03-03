@@ -1,3 +1,10 @@
+Tue Mar 03 09:31:01 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* api/omqueryinternal.cc,include/xapian/query.h: Avoid copying
+	  Query::Internal objects needlessly when unserialising Query
+	  objects.
+
 Tue Mar 03 09:11:20 GMT 2009  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix typo in comments above LIBRARY_VERSION_INFO.
