@@ -55,7 +55,7 @@ MergePostList::next(Xapian::weight w_min)
     DEBUGCALL(MATCH, PostList *, "MergePostList::next", w_min);
     DEBUGLINE(MATCH, "current = " << current);
     if (current == -1) current = 0;
-    do {
+    while (true) {
 	// FIXME: should skip over Remote matchers which aren't ready yet
 	// and come back to them later...
 	try {
@@ -73,7 +73,9 @@ MergePostList::next(Xapian::weight w_min)
 		throw;
 	    }
 	}
-    } while (unsigned(current) < plists.size());
+	if (unsigned(current) >= plists.size()) break;
+	if (matcher) matcher->recalc_maxweight();
+    }
     DEBUGLINE(MATCH, "current = " << current);
     RETURN(NULL);
 }

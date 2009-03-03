@@ -1,3 +1,13 @@
+Tue Mar 03 07:54:06 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/mergepostlist.cc: Fix ticket #336 by calling
+	  recalc_maxweight when a sub-posting list finishes (other than
+	  after the last one, where there is no point in calling
+	  recalc_maxweight).
+	* matcher/mergepostlist.cc: Change "do { ... } while (true);" to the
+	  more usual "while (true) { ... }".
+
 Tue Mar 03 07:31:13 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
