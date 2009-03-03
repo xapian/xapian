@@ -1,3 +1,11 @@
+Tue Mar 03 15:20:49 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* imgseek/include/xapian/imgseek.h,
+	  imgseek/include/xapian/range_accelerator.h,
+	  imgseek/src/image_terms.cc,imgseek/src/range_accelerator.cc:
+	  Remove the use of a value from range acceleration queries; not
+	  really needed, and much neater if we can avoid it.
+
 Mon Mar 02 15:13:03 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* imgseek/Makefile.mk,imgseek/include/xapian/imgseek.h,

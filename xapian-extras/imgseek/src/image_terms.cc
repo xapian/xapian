@@ -76,35 +76,26 @@ ImgTerms::make_weightmap() const {
 #define Q_MIN -0.596
 #define Q_MAX 0.596
 
-ImgTerms::ImgTerms(const std::string& prefix_,
-		   Xapian::valueno v1,
-		   Xapian::valueno v2,
-		   Xapian::valueno v3)
+ImgTerms::ImgTerms(const std::string& prefix_)
 	: prefix(prefix_),
 	  weightmap(make_weightmap())
 {
-    colour_vals.push_back(v1);
-    colour_vals.push_back(v2);
-    colour_vals.push_back(v3);
 
     // Put the values into 255 buckets.
 
     // Y - ranges from 0.0 to 1.0
     colour_average_accels.push_back(
 	Xapian::RangeAccelerator(prefix + "A0",
-				 colour_vals[0],
 				 Y_MIN, Y_MAX,
 				 (Y_MAX - Y_MIN) / 255.0));
     // I - ranges from -0.523 to 0.523
     colour_average_accels.push_back(
 	Xapian::RangeAccelerator(prefix + "A1",
-				 colour_vals[1],
 				 I_MIN, I_MAX,
 				 (I_MAX - I_MIN) / 255.0));
     // Q - ranges from -0.596 to 0.596
     colour_average_accels.push_back(
 	Xapian::RangeAccelerator(prefix + "A2",
-				 colour_vals[2],
 				 Q_MIN, Q_MAX,
 				 (Q_MAX - Q_MIN) / 255.0));
 }
@@ -133,7 +124,7 @@ ImgTerms::AddTerms(Xapian::Document& doc, const ImgSig& sig) const {
 	doc.add_term(*it);
     }
     for (int c = 0; c < 3; ++c) {
-	colour_average_accels[c].add_val(doc, sig.avgl[c]);
+	colour_average_accels[c].add_val_terms(doc, sig.avgl[c]);
     }
 }
 
@@ -143,7 +134,7 @@ startswith(const std::string& s, const std::string& start){
     return s.find(start) == 0;
 }
 
-Xapian::Query::Query 
+Xapian::Query
 ImgTerms::make_coeff_query(const Xapian::Document& doc) const {
     Xapian::Query::Query query;
     Xapian::TermIterator it;
@@ -166,28 +157,75 @@ ImgTerms::make_coeff_query(const Xapian::Document& doc) const {
     return query;
 }
 
+// FIXME - refactor common bits with above method
+Xapian::Query
+ImgTerms::make_coeff_query(const ImgSig& sig) const {
+  
+    Xapian::Query::Query query;
+    CoeffTerms terms = make_coeff_terms(sig);
+    CoeffTerms::const_iterator it;
+    for (it = terms.begin(); it != terms.end(); ++it) {
+      Xapian::Query subq = Xapian::Query(*it);
+      WeightMap::const_iterator pos = weightmap.find(*it);
+      subq = Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT,
+                           subq,
+                           pos->second);
+      query = Xapian::Query(Xapian::Query::OP_OR, 
+                            query,
+                            subq);
+    }
+    return query;
+}
+
+
+
+/*
+
+FIXME - should be using templated version, but problem with swig wrappers
+template<class T>
 Xapian::Query 
-ImgTerms::querySimilar(const Xapian::Document& doc) const {
+ImgTerms::querySimilar(const T& img_src) const {
     return Xapian::Query(Xapian::Query::OP_OR,
-			 make_coeff_query(doc),
-			 make_averages_query(doc));
+			 make_coeff_query(img_src),
+			 make_averages_query(img_src));
+}
+*/
+
+Xapian::Query 
+ImgTerms::querySimilarDoc(const Xapian::Document& img_src) const {
+    return Xapian::Query(Xapian::Query::OP_OR,
+			 make_coeff_query(img_src),
+			 make_averages_query(img_src));
+}
+
+Xapian::Query 
+ImgTerms::querySimilarSig(const ImgSig& img_src) const {
+    return Xapian::Query(Xapian::Query::OP_OR,
+			 make_coeff_query(img_src),
+			 make_averages_query(img_src));
 }
 
 Xapian::Query
 ImgTerms::make_averages_query(const Xapian::Document& doc) const {
     Xapian::Query query;
     for (int c = 0; c < 3; ++c) {
-	std::string doc_val = doc.get_value(colour_vals[c]);
-	const char* ptr = doc_val.data();
-	const char* end = ptr + doc_val.size();
-	double val;
-	try {
-	    val = unserialise_double(&ptr, end);
-	} catch (const Xapian::NetworkError & e) {
-	    throw Xapian::InvalidArgumentError(e.get_msg());
-	}
 	Xapian::Query subq = Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT, 
-					   colour_average_accels[c].query_for_val_distance(val),
+					   colour_average_accels[c].query_for_distance(doc),
+					   weights[0][c]);
+	query = Xapian::Query(Xapian::Query::OP_OR,
+			      query,
+			      subq);
+    }
+    return query;
+}
+
+// FIXME - refactor to reuse common bits with above method
+Xapian::Query
+ImgTerms::make_averages_query(const ImgSig& sig) const {
+  Xapian::Query query;
+      for (int c = 0; c < 3; ++c) {
+	Xapian::Query subq = Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT, 
+					   colour_average_accels[c].query_for_distance(sig.avgl[c]),
 					   weights[0][c]);
 	query = Xapian::Query(Xapian::Query::OP_OR,
 			      query,

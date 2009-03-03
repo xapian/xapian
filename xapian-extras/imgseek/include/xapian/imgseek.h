@@ -202,14 +202,15 @@ typedef std::vector<Xapian::valueno> ColourVals;
  */
 class XAPIAN_VISIBILITY_DEFAULT ImgTerms {
     std::string prefix;
-    ColourVals colour_vals;
     WeightMap weightmap;
     WeightMap make_weightmap() const;
     void add_coeff_terms(const coeffs& s, int c, CoeffTerms& r) const;
     std::string make_coeff_term(int x, int c) const;
     std::string colourprefix(int) const;
     CoeffTerms make_coeff_terms(const ImgSig & sig) const;
+    Xapian::Query::Query make_coeff_query(const ImgSig& sig) const;
     Xapian::Query::Query make_coeff_query(const Xapian::Document& doc) const;
+    Xapian::Query::Query make_averages_query(const ImgSig& sig) const;
     Xapian::Query::Query make_averages_query(const Xapian::Document& doc) const;
     std::vector<Xapian::RangeAccelerator> colour_average_accels;
   public:
@@ -218,10 +219,7 @@ class XAPIAN_VISIBILITY_DEFAULT ImgTerms {
        @param prefix used for terms, this prefix should not be used for
        other terms in the database.
      */
-    ImgTerms(const std::string& prefix,
-	     Xapian::valueno v1,
-	     Xapian::valueno v2,
-	     Xapian::valueno v3);
+    ImgTerms(const std::string& prefix);
 
     /* Add the necessary terms and values to a document so that it can
        be searched for image similarity.
@@ -240,7 +238,14 @@ class XAPIAN_VISIBILITY_DEFAULT ImgTerms {
        @param doc. A document which should have had terms added with AddTerms.
      */
 
-    Xapian::Query querySimilar(const Xapian::Document& doc) const;
+    /*FIXME - should be templated querySimilar, but python binding give undefined
+     symbols.
+     template<class T> Xapian::Query querySimilarDoc(const T& img_src) const;
+    */
+
+    Xapian::Query querySimilarDoc(const Xapian::Document& doc) const;
+    Xapian::Query querySimilarSig(const ImgSig& sig) const;
+
 };
 
 //  } // namespace ImgSeek

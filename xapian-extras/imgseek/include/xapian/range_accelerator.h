@@ -39,7 +39,6 @@ namespace Xapian {
 
 typedef std::vector< std::pair<double, double> > Ranges;
 class XAPIAN_VISIBILITY_DEFAULT RangeAccelerator {
-    Xapian::valueno valnum;
     Ranges ranges;
     std::vector<double> midpoints;
     std::vector<std::string> range_terms;
@@ -49,18 +48,18 @@ class XAPIAN_VISIBILITY_DEFAULT RangeAccelerator {
 
   public:
     RangeAccelerator(const std::string& prefix_,
-		     Xapian::valueno valnum_,
 		     double lo,
 		     double hi,
 		     double step);
 
-    /** Add a value to the document.
+    /** Add terms for the given value to the document.
      */
-    void add_val(Xapian::Document& doc, double val) const;
+    void add_val_terms(Xapian::Document& doc, double val) const;
   
     /** Make a query which returns 
      */
-    Xapian::Query query_for_val_distance(double val, double cutoff = 0.0) const;
+    Xapian::Query query_for_distance(double val, double cutoff = 0.0) const;
+    Xapian::Query query_for_distance(const Xapian::Document& doc, double cutoff = 0.0) const;
 };
 
 }

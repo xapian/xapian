@@ -37,12 +37,10 @@ Xapian::RangeAccelerator::make_range_term(const std::pair<double, double> r) {
 }
 
 Xapian::RangeAccelerator::RangeAccelerator(const std::string& prefix_,
-					   Xapian::valueno valnum_,
 					   double lo,
 					   double hi,
 					   double step)
-	: valnum(valnum_),
-	  prefix(prefix_)
+	: prefix(prefix_)
 {
     double x = lo;
     while (x <= hi) {
@@ -58,8 +56,7 @@ Xapian::RangeAccelerator::RangeAccelerator(const std::string& prefix_,
 
 
 void
-Xapian::RangeAccelerator::add_val(Xapian::Document& doc, double val) const {
-    doc.add_value(valnum, serialise_double(val));
+Xapian::RangeAccelerator::add_val_terms(Xapian::Document& doc, double val) const {
     for (int i = 0; i < ranges.size(); ++i) {
 	if ((val >= ranges[i].first) & (val <= ranges[i].second)) {
 	    doc.add_term(range_terms[i], 0);
@@ -68,7 +65,7 @@ Xapian::RangeAccelerator::add_val(Xapian::Document& doc, double val) const {
 }
 
 Xapian::Query
-Xapian::RangeAccelerator::query_for_val_distance(double val,
+Xapian::RangeAccelerator::query_for_distance(double val,
 						 double cutoff) const {
     Xapian::Query query;
     for (unsigned int i = 0; i < ranges.size(); ++i) {
@@ -83,4 +80,17 @@ Xapian::RangeAccelerator::query_for_val_distance(double val,
 	}
     }
     return query;
+}
+
+Xapian::Query 
+Xapian::RangeAccelerator::query_for_distance(const Xapian::Document& doc, double cutoff) const {
+  Xapian::TermIterator it = doc.termlist_begin();
+  it.skip_to(prefix);
+  if ((*it).find(prefix) == 0) {
+    std::vector<std::string>::const_iterator pos = 
+      std::find(range_terms.begin(), range_terms.end(), *it);
+    if (pos != range_terms.end())
+      return query_for_distance(midpoints[std::distance(range_terms.begin(), pos)], cutoff);
+  }
+  return Xapian::Query();
 }
