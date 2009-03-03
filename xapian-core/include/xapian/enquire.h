@@ -1186,6 +1186,24 @@ class XAPIAN_VISIBILITY_DEFAULT BoolWeight : public Weight {
 	bool get_sumpart_needs_doclength() const;
 };
 
+/// Unitary weighting scheme (everything gets 1)
+class XAPIAN_VISIBILITY_DEFAULT UnitWeight : public Weight {
+    public:
+	UnitWeight * clone() const;
+	UnitWeight() { }
+	~UnitWeight();
+	std::string name() const;
+	std::string serialise() const;
+	UnitWeight * unserialise(const std::string & s) const;
+	Xapian::weight get_sumpart(Xapian::termcount wdf, Xapian::doclength len) const;
+	Xapian::weight get_maxpart() const;
+
+	Xapian::weight get_sumextra(Xapian::doclength len) const;
+	Xapian::weight get_maxextra() const;
+
+	bool get_sumpart_needs_doclength() const;
+};
+
 /** BM25 weighting scheme
  *
  * BM25 weighting options : The BM25 formula is \f[

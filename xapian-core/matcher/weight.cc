@@ -80,3 +80,35 @@ Xapian::weight BoolWeight::get_maxextra() const { return 0; }
 bool BoolWeight::get_sumpart_needs_doclength() const { return false; }
 
 }
+
+/* Xapian::UnitWeight */
+
+UnitWeight * UnitWeight::clone() const { return new UnitWeight; }
+
+UnitWeight::~UnitWeight() { }
+
+std::string UnitWeight::name() const { return "Unit"; }
+
+std::string UnitWeight::serialise() const { return ""; }
+
+UnitWeight *
+UnitWeight::unserialise(const std::string &) const
+{
+    return new UnitWeight;
+}
+
+Xapian::weight
+UnitWeight::get_sumpart(Xapian::termcount, Xapian::doclength) const
+{
+    return 1;
+}
+
+Xapian::weight UnitWeight::get_maxpart() const { return 1; }
+
+Xapian::weight UnitWeight::get_sumextra(Xapian::doclength) const { return 0; }
+
+Xapian::weight UnitWeight::get_maxextra() const { return 0; }
+
+bool UnitWeight::get_sumpart_needs_doclength() const { return false; }
+
+}
