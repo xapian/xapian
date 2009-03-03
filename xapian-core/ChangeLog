@@ -1,3 +1,7 @@
+Tue Mar 03 19:17:08 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/weight.cc: Remove incorrect }
+
 Tue Mar 03 19:10:20 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* include/xapian/enquire.h,matcher/weight.cc: Add UnitWeight
