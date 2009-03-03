@@ -1579,7 +1579,8 @@ FlintTable::FlintTable(const char * tablename_, string path_, bool readonly_,
 void
 FlintTable::lazy_alloc_deflate_zstream() const {
     if (deflate_zstream) {
-	deflateReset(deflate_zstream);
+	if (deflateReset(deflate_zstream) != Z_OK)
+	    throw Xapian::InternalError("deflateReset() failed");
 	return;
     }
 
@@ -1609,7 +1610,8 @@ FlintTable::lazy_alloc_deflate_zstream() const {
 void
 FlintTable::lazy_alloc_inflate_zstream() const {
     if (inflate_zstream) {
-	inflateReset(inflate_zstream);
+	if (inflateReset(inflate_zstream) != Z_OK)
+	    throw Xapian::InternalError("inflateReset() failed");
 	return;
     }
 
