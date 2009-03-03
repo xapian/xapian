@@ -1,3 +1,9 @@
+Tue Mar 03 03:45:53 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/index.html: Add link to new serialisation topic document.
+	* docs/serialisation.rst: Reword to avoid pluralising class names.
+	  Add link to postingsource document where we reference it.
+
 Tue Mar 03 03:35:29 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/runsrv.in: Use @top_builddir@ rather than relying on it
