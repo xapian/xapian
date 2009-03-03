@@ -1,3 +1,9 @@
+Tue Mar 03 07:30:23 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/enquire.h: Document how to get all matches from
+	  Enquire::get_mset().
+
 Tue Mar 03 07:19:56 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
