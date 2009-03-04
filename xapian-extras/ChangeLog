@@ -1,3 +1,7 @@
+Wed Mar 04 14:32:49 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* imgseek/src/imgseek.cc: use fabs instead of abs.
+
 Wed Mar 04 14:10:59 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* imgseek/src/image_terms.cc: Use fixed weight posting source for

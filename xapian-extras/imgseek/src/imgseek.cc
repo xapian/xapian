@@ -162,7 +162,7 @@ ImgSig::score(const ImgSig & other) const{
   const coeffs osig[3] = {other.sig1, other.sig2, other.sig3};
   for (int c = 0; c < 3; ++c) { // for each colour
     //average luminance score for each colour
-    result += weights[0][c] * abs(other.avgl[c] - avgl[c]);
+    result += weights[0][c] * fabs(other.avgl[c] - avgl[c]);
 
     //score for each coefficient in common
     std::vector<int> intersection;
