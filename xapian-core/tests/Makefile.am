@@ -168,6 +168,7 @@ EXTRA_DIST +=\
 	testdata/apitest_allterms4.txt \
 	testdata/apitest_poslist.txt \
 	testdata/apitest_manydocs.txt \
+	testdata/apitest_sortconsist.txt \
 	testdata/apitest_sortrel.txt \
 	testdata/etext.txt \
 	testdata/btreetest_ord+ \

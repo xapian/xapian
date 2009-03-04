@@ -1,3 +1,14 @@
+Wed Mar 04 04:39:09 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* include/xapian/enquire.h,matcher/multimatch.cc: Fix inconsistent
+	  percentage scores when sorting primarily by valuei, except when
+	  a MatchDecider is also being used; document this remaining problem
+	  case.  (bug#216)
+	* tests/Makefile.am,tests/api_percentages.cc,
+	  tests/testdata/apitest_sortconsist.txt: Apply regression test patch
+	  from bug#216.
+
 Wed Mar 04 02:27:26 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:

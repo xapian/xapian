@@ -483,6 +483,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     bool is_heap = false;
 
     while (true) {
+	bool pushback;
+
 	if (rare(recalculate_w_max)) {
 	    if (min_weight > 0.0) {
 		if (rare(getorrecalc_maxweight(pl) < min_weight)) {
@@ -552,6 +554,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		    // processing needed.
 		    DEBUGLINE(MATCH, "Making note of match item which sorts lower than min_item");
 		    ++docs_matched;
+		    if (!calculated_weight) wt = pl->get_weight();
+		    if (wt > greatest_wt) goto new_greatest_weight;
 		    continue;
 		}
 		if (docs_matched >= check_at_least) {
@@ -599,7 +603,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    new_item.wt = wt;
 	}
 
-	bool pushback = true;
+	pushback = true;
 	documents_considered++;
 
 	// Perform collapsing on key if requested.
@@ -631,6 +635,11 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 			// But maybe the weight is worth noting
 			if (new_item.wt > oldkey->second.second) {
 			    oldkey->second.second = new_item.wt;
+			}
+			// If we're sorting by relevance primarily, then we
+			// throw away the lower weighted document anyway.
+			if (sort_by != REL && sort_by != REL_VAL) {
+			    if (wt > greatest_wt) goto new_greatest_weight;
 			}
 			continue;
 		    }
@@ -743,6 +752,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
 	// Keep a track of the greatest weight we've seen.
 	if (wt > greatest_wt) {
+new_greatest_weight:
 	    greatest_wt = wt;
 	    if (percent_cutoff) {
 		Xapian::weight w = wt * percent_cutoff_factor;
