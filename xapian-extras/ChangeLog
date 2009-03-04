@@ -1,3 +1,10 @@
+Wed Mar 04 11:31:48 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* imgseek/src/range_accelerator.cc: Use FixedWeightPostingSources
+	  to control the weight returned, rather than using OP_SCALE_WEIGHT
+	  which was giving the wrong values due to interference from the
+	  weighting scheme in use.
+
 Tue Mar 03 18:41:55 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* imgseek/src/range_accelerator.cc: Use XOR instead of OR to
