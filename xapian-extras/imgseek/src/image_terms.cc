@@ -79,13 +79,11 @@ ImgTerms::make_weightmap() const {
 #define Q_MIN -0.596
 #define Q_MAX 0.596
 
-ImgTerms::ImgTerms(const std::string& prefix_)
+ImgTerms::ImgTerms(const std::string& prefix_,
+		   unsigned int buckets)
 	: prefix(prefix_),
 	  weightmap(make_weightmap())
 {
-    // Put the values into this number of buckets.
-    unsigned int buckets = 100;
-
     // Y - ranges from 0.0 to 1.0
     colour_average_accels.push_back(
 	Xapian::RangeAccelerator(prefix + "A0",

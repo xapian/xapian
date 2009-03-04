@@ -218,8 +218,13 @@ class XAPIAN_VISIBILITY_DEFAULT ImgTerms {
      *
        @param prefix used for terms, this prefix should not be used for
        other terms in the database.
+
+       @param buckets - the number of buckets to use for distance weight
+       calculation.  More means more terms, slower indexing and slower search,
+       but better results.  250 seems to be a reasonable balance between
+       quality and speed.
      */
-    ImgTerms(const std::string& prefix);
+    ImgTerms(const std::string& prefix, unsigned int buckets);
 
     /* Add the necessary terms and values to a document so that it can
        be searched for image similarity.

@@ -1,3 +1,8 @@
+Wed Mar 04 15:10:09 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* imgseek/include/xapian/imgseek.h,imgseek/src/image_terms.cc:
+	  Expose "buckets" as a parameter.
+
 Wed Mar 04 15:05:56 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* imgseek/src/range_accelerator.cc: Correct weighting - we want to
