@@ -1,3 +1,8 @@
+Wed Mar 04 13:45:41 GMT 2009  Olly Betts <olly@survex.com>
+
+	* HACKING: Conversion to C++ names for ISO C headers will happen in
+	  1.1.x, not 1.1.0.
+
 Wed Mar 04 13:37:47 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc,backends/database.cc,
