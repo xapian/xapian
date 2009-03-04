@@ -1,3 +1,9 @@
+Wed Mar 04 14:10:59 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* imgseek/src/image_terms.cc: Use fixed weight posting source for
+	  weights in the coeffs part of the query, too.  Pull the number of
+	  buckets to use into a variable, for easy tweaking.
+
 Wed Mar 04 11:31:48 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* imgseek/src/range_accelerator.cc: Use FixedWeightPostingSources

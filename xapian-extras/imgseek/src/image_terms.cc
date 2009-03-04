@@ -23,6 +23,7 @@
 
 #include "xapian/error.h"
 #include "xapian/imgseek.h"
+#include "xapian/postingsource.h"
 
 #include "haar.h" // For num_pixels_squared - FIXME - should be supplied to ImgTerms constructor.
 #include "serialise-double.h"
@@ -82,24 +83,24 @@ ImgTerms::ImgTerms(const std::string& prefix_)
 	: prefix(prefix_),
 	  weightmap(make_weightmap())
 {
-
-    // Put the values into 255 buckets.
+    // Put the values into this number of buckets.
+    unsigned int buckets = 100;
 
     // Y - ranges from 0.0 to 1.0
     colour_average_accels.push_back(
 	Xapian::RangeAccelerator(prefix + "A0",
 				 Y_MIN, Y_MAX,
-				 (Y_MAX - Y_MIN) / 255.0));
+				 (Y_MAX - Y_MIN) / buckets));
     // I - ranges from -0.523 to 0.523
     colour_average_accels.push_back(
 	Xapian::RangeAccelerator(prefix + "A1",
 				 I_MIN, I_MAX,
-				 (I_MAX - I_MIN) / 255.0));
+				 (I_MAX - I_MIN) / buckets));
     // Q - ranges from -0.596 to 0.596
     colour_average_accels.push_back(
 	Xapian::RangeAccelerator(prefix + "A2",
 				 Q_MIN, Q_MAX,
-				 (Q_MAX - Q_MIN) / 255.0));
+				 (Q_MAX - Q_MIN) / buckets));
 }
 
 void 
@@ -146,11 +147,11 @@ ImgTerms::make_coeff_query(const Xapian::Document& doc) const
 	std::string cprefix = colourprefix(c);
 	it.skip_to(cprefix);
 	while (it != doc.termlist_end() && startswith(*it, cprefix)) {
-	    Xapian::Query::Query subq = Xapian::Query(*it);
 	    WeightMap::const_iterator pos = weightmap.find(*it);
-	    subqs.push_back(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT,
-					  subq,
-					  pos->second));
+	    Xapian::FixedWeightPostingSource ps(pos->second);
+	    subqs.push_back(Xapian::Query(Xapian::Query::OP_FILTER,
+					  Xapian::Query(&ps),
+					  Xapian::Query(*it)));
 	    ++it;
 	} 
     }
@@ -165,11 +166,11 @@ ImgTerms::make_coeff_query(const ImgSig& sig) const
     CoeffTerms terms = make_coeff_terms(sig);
     CoeffTerms::const_iterator it;
     for (it = terms.begin(); it != terms.end(); ++it) {
-	Xapian::Query subq = Xapian::Query(*it);
 	WeightMap::const_iterator pos = weightmap.find(*it);
-	subqs.push_back(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT,
-				      subq,
-				      pos->second));
+	Xapian::FixedWeightPostingSource ps(pos->second);
+	subqs.push_back(Xapian::Query(Xapian::Query::OP_FILTER,
+				      Xapian::Query(&ps),
+				      Xapian::Query(*it)));
     }
     return Xapian::Query(Xapian::Query::OP_OR, subqs.begin(), subqs.end());
 }
