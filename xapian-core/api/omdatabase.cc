@@ -647,18 +647,12 @@ std::string
 Database::get_uuid() const
 {
     DEBUGAPICALL(std::string, "Database::get_uuid", "");
-    if (internal.size() != 1) {
-	if (internal.size() == 0) {
-	    throw InvalidOperationError(
-		"UUIDs not supported for uninitialised databases");
-	}
-
-	// FIXME - we could probably make a uuid for each multidatabase
-	// combination by hashing together the uuids for the subdatabases.
-	throw UnimplementedError(
-	    "UUIDs not supported for multiple databases");
+    string uuid;
+    for (size_t i = 0; i < internal.size(); ++i) {
+	if (!uuid.empty()) uuid += ':';
+	uuid += internal[i]->get_uuid();
     }
-    RETURN(internal[0]->get_uuid());
+    RETURN(uuid);
 }
 
 ///////////////////////////////////////////////////////////////////////////

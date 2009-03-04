@@ -1,3 +1,14 @@
+Wed Mar 04 13:37:47 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,backends/database.cc,
+	  backends/remote/remote-database.cc,common/database.h,
+	  include/xapian/database.h,net/remoteserver.cc,tests/api_anydb.cc:
+	  Return an empty string from Database::get_uuid() when then backend
+	  doesn't support UUIDs for consistency with flint when the database
+	  has no UUID.  For a multiple database, build a string from the UUIDs
+	  of each subdatabase and return this as the UUID.  If there are no
+	  subdatabases return the empty string.
+
 Wed Mar 04 11:34:04 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/remote/remote-database.cc,common/remoteprotocol.h,

@@ -97,12 +97,7 @@ RemoteServer::RemoteServer(const std::vector<std::string> &dbpaths,
     message += encode_length(db->get_lastdocid());
     message += (db->has_positions() ? '1' : '0');
     message += serialise_double(db->get_avlength());
-    string uuid;
-    try {
-	uuid = db->get_uuid();
-    } catch (const Xapian::UnimplementedError &) {
-	// Leave the uuid empty.
-    }
+    string uuid = db->get_uuid();
     message += encode_length(uuid.size());
     message += uuid;
     send_message(REPLY_GREETING, message);
@@ -345,12 +340,7 @@ RemoteServer::msg_update(const string &)
     message += encode_length(db->get_lastdocid());
     message += (db->has_positions() ? '1' : '0');
     message += serialise_double(db->get_avlength());
-    string uuid;
-    try {
-	uuid = db->get_uuid();
-    } catch (const Xapian::UnimplementedError &) {
-	// Leave the uuid empty.
-    }
+    string uuid = db->get_uuid();
     message += encode_length(uuid.size());
     message += uuid;
     send_message(REPLY_UPDATE, message);

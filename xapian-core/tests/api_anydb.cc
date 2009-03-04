@@ -2339,20 +2339,23 @@ DEFINE_TESTCASE(tradweight1, backend) {
     return true;
 }
 
-// Feature test for get_uuid.
+// Feature test for Database::get_uuid().
 DEFINE_TESTCASE(uuid1, backend && !multi) {
     SKIP_TEST_FOR_BACKEND("inmemory");
     Xapian::Database db = get_database("apitest_simpledata");
-    std::string uuid1 = db.get_uuid();
+    string uuid1 = db.get_uuid();
 
+    // A database with no sub-databases has an empty UUID.
     Xapian::Database db2;
-    TEST_EXCEPTION(Xapian::InvalidOperationError, db2.get_uuid());
+    TEST_EQUAL(string(), db2.get_uuid());
 
     db2.add_database(db);
     TEST_EQUAL(uuid1, db2.get_uuid());
 
+    // Multi-database has multiple UUIDs (we don't define the format exactly
+    // so this assumes something about the implementation).
     db2.add_database(db);
-    TEST_EXCEPTION(Xapian::UnimplementedError, db2.get_uuid());
+    TEST_EQUAL(uuid1 + ":" + uuid1, db2.get_uuid());
 
     return true;
 }

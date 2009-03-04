@@ -487,8 +487,7 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *  the database files) will have the same UUID.  However, copies (made
 	 *  with copydatabase, or xapian-compact) will have different UUIDs.
 	 *
-	 *  If the backend does not support UUIDs, or this database has
-	 *  multiple sub-databases, an exception will be raised.
+	 *  If the backend does not support UUIDs the empty string is returned.
 	 */
 	virtual string get_uuid() const;
 

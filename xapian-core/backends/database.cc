@@ -326,7 +326,7 @@ Database::Internal::get_revision_info() const
 string
 Database::Internal::get_uuid() const
 {
-    throw Xapian::UnimplementedError("This backend doesn't support UUIDs");
+    return string();
 }
 
 void

@@ -666,8 +666,5 @@ RemoteDatabase::replace_document(const std::string & unique_term,
 string
 RemoteDatabase::get_uuid() const
 {
-    if (uuid.empty())
-	throw Xapian::UnimplementedError(
-	    "UUIDs not supported for this database");
     return uuid;
 }
