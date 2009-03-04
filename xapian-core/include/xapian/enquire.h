@@ -368,8 +368,18 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
 
 	/** This returns the weight of the document as a percentage score.
 	 *
-	 *  The return value will be in the range 0 to 100:  0 meaning
-	 *  that the item did not match the query at all.
+	 *  The return value will be an integer in the range 0 to 100:  0
+	 *  meaning that the item did not match the query at all.
+	 *
+	 *  The intention is that the highest weighted document will get 100
+	 *  if it matches all the weight-contributing terms in the query.
+	 *  However, currently it may get a lower percentage score if you
+	 *  use a MatchDecider and the sorting is primarily by value.
+	 *  In this case, the percentage for a particular document may vary
+	 *  depending on the first, max_size, and checkatleast parameters
+	 *  passed to Enquire::get_mset() (this bug is hard to fix without
+	 *  having to apply the MatchDecider to potentially many more
+	 *  documents, which is potentially costly).
 	 */
 	Xapian::percent get_percent() const;
 
