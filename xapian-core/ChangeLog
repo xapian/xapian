@@ -1,3 +1,33 @@
+Wed Mar 04 02:27:26 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* AUTHORS,backends/flint/flint_table.cc,backends/flint/flint_table.h:
+	  Reduce allocation of zstreams by allocating them lazily, keeping
+	  them in the table objects, and reuse them, rather than allocating
+	  a new one each time it's wanted.  Heavily based on a patch from
+	  Todd Lipcon.  Apparently improves performance significantly on
+	  some systems; on my tests it has no perceptible negative impact,
+	  but it makes sense that it could help in some situations, so
+	  let's apply it.  Fixes #325.
+	* backends/flint/flint_table.h: Add documentation comments for the
+	  lazy allocation methods, and separate comments for the zstream members.
+	* backends/flint/flint_table.cc: Update handling of shutting down
+	  the zstream objects in the dtor to match chert.
+	* backends/flint/flint_table.cc: Check for errors from deflateReset()
+	  and inflateReset() - there shouldn't be any if we've given them a
+	  valid stream, so just raise InternalError if we get one.
+	* backends/flint/flint_table.cc: If deflateReset() or inflateReset()
+	  fails, just delete the zstream take the initialisation codepath -
+	  that should mean we recover if the stream does somehow end up in a
+	  bad state and is less code than throwing an exception.  Annotate
+	  tests with rare() or usual() if they are for exceptional conditions.
+	  Fix bug introduced by the laziness patch which was adding an int
+	  error code to a const char * message.  If deflateInit2() or
+	  inflateInit2() fails, delete and zero the stream so there's no risk
+	  of ending up wedged on a partly initialised stream.
+	* backends/flint/flint_table.cc: No need to initialise
+	  inflate_zstream->next_out and avail_out twice.
+
 Tue Mar 03 12:36:48 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
