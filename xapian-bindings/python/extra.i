@@ -616,6 +616,18 @@ def _queryparser_gen_unstemlist_iter(self, tname):
                     return_strings=True)
 QueryParser.unstemlist = _queryparser_gen_unstemlist_iter
 
+# When we set a ValueRangeProcessor into the QueryParser, keep a python
+# reference so it won't be deleted. This hack can probably be removed once
+# xapian bug #186 is fixed.
+__queryparser_add_valuerangeprocessor_orig = QueryParser.add_valuerangeprocessor
+def _queryparser_add_valuerangeprocessor(self, vrproc):
+    if not hasattr(self, '_vrps'):
+        self._vrps = []
+    self._vrps.append(vrproc)
+    return __queryparser_add_valuerangeprocessor_orig(self, vrproc)
+_queryparser_add_valuerangeprocessor.__doc__ = __queryparser_add_valuerangeprocessor_orig.__doc__
+QueryParser.add_valuerangeprocessor = _queryparser_add_valuerangeprocessor
+del _queryparser_add_valuerangeprocessor
 
 
 ##########################################
