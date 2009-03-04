@@ -1,3 +1,8 @@
+Wed Mar 04 01:58:07 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_table.cc,backends/flint/flint_table.cc: No need
+	  to initialise inflate_zstream->next_out and avail_out twice.
+
 Wed Mar 04 01:16:32 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_table.cc,backends/flint/flint_table.cc: If

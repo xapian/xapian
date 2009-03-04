@@ -1241,9 +1241,6 @@ FlintTable::read_tag(Cursor_ * C_, string *tag, bool keep_compressed) const
 
     lazy_alloc_inflate_zstream();
 
-    inflate_zstream->next_out = buf;
-    inflate_zstream->avail_out = (uInt)sizeof(buf);
-
     inflate_zstream->next_in = (Bytef*)const_cast<char *>(tag->data());
     inflate_zstream->avail_in = (uInt)tag->size();
 
