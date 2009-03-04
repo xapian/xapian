@@ -1,3 +1,8 @@
+Wed Mar 04 07:24:39 GMT 2009  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lt: Sync with latest upstream lempar.c
+	  (only changes were in code which isn't in our version).
+
 Wed Mar 04 04:03:44 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/Makefile.am,tests/api_percentages.cc,
