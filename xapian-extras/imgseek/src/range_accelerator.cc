@@ -72,7 +72,7 @@ Xapian::RangeAccelerator::query_for_distance(double val,
     std::vector<Xapian::Query> subqs;
     for (unsigned int i = 0; i < ranges.size(); ++i) {
 	double distance = fabs(val - midpoints[i]);
-	double weight = distance / total_range;
+	double weight = total_range - distance;
 	if (weight > cutoff) {
 	    FixedWeightPostingSource ps(weight);
 	    subqs.push_back(Xapian::Query(Xapian::Query::OP_FILTER,
