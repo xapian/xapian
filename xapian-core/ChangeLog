@@ -1,3 +1,10 @@
+Wed Mar 04 16:06:11 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/omdatabase.cc: If a sub-database of a multi-database has no
+	  uuid, we cannot return a uuid for the database, so return
+	  string() instead.
+	* tests/api_anydb.cc: Test for this.
+
 Wed Mar 04 13:45:41 GMT 2009  Olly Betts <olly@survex.com>
 
 	* HACKING: Conversion to C++ names for ISO C headers will happen in

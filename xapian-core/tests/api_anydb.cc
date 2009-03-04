@@ -2357,5 +2357,10 @@ DEFINE_TESTCASE(uuid1, backend && !multi) {
     db2.add_database(db);
     TEST_EQUAL(uuid1 + ":" + uuid1, db2.get_uuid());
 
+    // This relies on InMemory databases not supporting uuids.
+    // A multi-database containing a database with no uuid has no uuid.
+    db2.add_database(Xapian::InMemory::open());
+    TEST_EQUAL(string(), db2.get_uuid());
+
     return true;
 }
