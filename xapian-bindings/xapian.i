@@ -598,6 +598,7 @@ class WritableDatabase : public Database {
 	WritableDatabase(const string &path, int action);
 	WritableDatabase(const WritableDatabase & other);
 
+	void commit();
 	void flush();
 
 	void begin_transaction(bool flushed = true);
