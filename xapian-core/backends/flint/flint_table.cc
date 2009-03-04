@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -1578,10 +1578,10 @@ FlintTable::FlintTable(const char * tablename_, string path_, bool readonly_,
 
 void
 FlintTable::lazy_alloc_deflate_zstream() const {
-    if (deflate_zstream) {
-	if (deflateReset(deflate_zstream) != Z_OK)
-	    throw Xapian::InternalError("deflateReset() failed");
-	return;
+    if (usual(deflate_zstream)) {
+	if (usual(deflateReset(deflate_zstream) == Z_OK)) return;
+	// Try to recover by deleting the stream and starting from scratch.
+	delete deflate_zstream;
     }
 
     deflate_zstream = new z_stream;
@@ -1593,26 +1593,33 @@ FlintTable::lazy_alloc_deflate_zstream() const {
     // -15 means raw deflate with 32K LZ77 window (largest)
     // memLevel 9 is the highest (8 is default)
     int err;
-    err = deflateInit2(deflate_zstream, Z_DEFAULT_COMPRESSION, Z_DEFLATED, -15, 9,
-		       compress_strategy);
-    if (err != Z_OK) {
-	if (err == Z_MEM_ERROR) throw std::bad_alloc();
-	string msg = "deflateInit2 failed. err = " + err;
-	if (deflate_zstream->msg) {
-	    msg += " (";
-	    msg += deflate_zstream->msg;
-	    msg += ')';
+    err = deflateInit2(deflate_zstream, Z_DEFAULT_COMPRESSION, Z_DEFLATED,
+		       -15, 9, compress_strategy);
+    if (rare(err != Z_OK)) {
+	if (err == Z_MEM_ERROR) {
+	    delete deflate_zstream;
+	    deflate_zstream = 0;
+	    throw std::bad_alloc();
 	}
+	string msg = "deflateInit2 failed (";
+	if (deflate_zstream->msg) {
+	    msg += deflate_zstream->msg;
+	} else {
+	    msg += om_tostring(err);
+	}
+	msg += ')';
+	delete deflate_zstream;
+	deflate_zstream = 0;
 	throw Xapian::DatabaseError(msg);
     }
 }
 
 void
 FlintTable::lazy_alloc_inflate_zstream() const {
-    if (inflate_zstream) {
-	if (inflateReset(inflate_zstream) != Z_OK)
-	    throw Xapian::InternalError("inflateReset() failed");
-	return;
+    if (usual(inflate_zstream)) {
+	if (usual(inflateReset(inflate_zstream) == Z_OK)) return;
+	// Try to recover by deleting the stream and starting from scratch.
+	delete inflate_zstream;
     }
 
     inflate_zstream = new z_stream;
@@ -1624,14 +1631,21 @@ FlintTable::lazy_alloc_inflate_zstream() const {
     inflate_zstream->avail_in = 0;
 
     int err = inflateInit2(inflate_zstream, -15);
-    if (err != Z_OK) {
-	if (err == Z_MEM_ERROR) throw std::bad_alloc();
-	string msg = "inflateInit2 failed";
-	if (inflate_zstream->msg) {
-	    msg += " (";
-	    msg += inflate_zstream->msg;
-	    msg += ')';
+    if (rare(err != Z_OK)) {
+	if (err == Z_MEM_ERROR) {
+	    delete inflate_zstream;
+	    inflate_zstream = 0;
+	    throw std::bad_alloc();
 	}
+	string msg = "inflateInit2 failed (";
+	if (inflate_zstream->msg) {
+	    msg += inflate_zstream->msg;
+	} else {
+	    msg += om_tostring(err);
+	}
+	msg += ')';
+	delete inflate_zstream;
+	inflate_zstream = 0;
 	throw Xapian::DatabaseError(msg);
     }
 }
