@@ -1,3 +1,9 @@
+Wed Mar 04 23:23:14 GMT 2009  Olly Betts <olly@survex.com>
+
+	* xapian.i: Wrap MSet::get_uncollapsed_matches_lower_bound(),
+	  MSet::get_uncollapsed_matches_estimated(), and
+	  MSet::get_uncollapsed_matches_upper_bound().
+
 Wed Mar 04 16:56:28 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/extra.i: When ValueRangeProcessors are passed to the
