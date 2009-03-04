@@ -44,7 +44,7 @@ class XAPIAN_VISIBILITY_DEFAULT RangeAccelerator {
     std::vector<std::string> range_terms;
     std::string prefix;
     double total_range;
-    std::string make_range_term(const std::pair<double, double> r);
+    std::string make_range_term(unsigned int count);
 
   public:
     RangeAccelerator(const std::string& prefix_,

@@ -23,6 +23,7 @@
 
 #include "xapian/range_accelerator.h"
 #include "serialise-double.h"
+#include "serialise.h"
 
 template<class T>
 inline std::string to_string(const T& t) {
@@ -32,8 +33,8 @@ inline std::string to_string(const T& t) {
 }
 
 std::string
-Xapian::RangeAccelerator::make_range_term(const std::pair<double, double> r) {
-    return prefix + "r" + to_string(r.first) + "-" + to_string(r.second);
+Xapian::RangeAccelerator::make_range_term(unsigned int count) {
+    return prefix + encode_length(count);
 }
 
 Xapian::RangeAccelerator::RangeAccelerator(const std::string& prefix_,
@@ -43,13 +44,15 @@ Xapian::RangeAccelerator::RangeAccelerator(const std::string& prefix_,
 	: prefix(prefix_)
 {
     double x = lo;
+    unsigned int count = 0;
     while (x <= hi) {
 	double next = x + step;
 	std::pair<double, double> r = std::make_pair(x, next);
 	ranges.push_back(r);
-	range_terms.push_back(make_range_term(r));
+	range_terms.push_back(make_range_term(count));
 	midpoints.push_back(x + (step / 2.0));
 	x = next;
+	++count;
     }
     total_range = ranges.back().second - ranges.front().first;
 }

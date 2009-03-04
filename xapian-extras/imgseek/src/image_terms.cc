@@ -27,6 +27,7 @@
 
 #include "haar.h" // For num_pixels_squared - FIXME - should be supplied to ImgTerms constructor.
 #include "serialise-double.h"
+#include "serialise.h"
 
 #include <vector>
 
@@ -52,12 +53,15 @@ inline std::string to_string(const T& t) {
 
 std::string
 ImgTerms::colourprefix(int c) const {
-    return prefix + to_string(c);
+    return prefix + "012"[c];
 }
 
 std::string 
 ImgTerms::make_coeff_term(int x, int c) const {
-    return colourprefix(c) + to_string(x);
+    if (x < 0)
+	return colourprefix(c) + "-" + encode_length(-x);
+    else
+	return colourprefix(c) + "+" + encode_length(x);
 }
 
 WeightMap
@@ -86,17 +90,17 @@ ImgTerms::ImgTerms(const std::string& prefix_,
 {
     // Y - ranges from 0.0 to 1.0
     colour_average_accels.push_back(
-	Xapian::RangeAccelerator(prefix + "A0",
+	Xapian::RangeAccelerator(prefix + "3",
 				 Y_MIN, Y_MAX,
 				 (Y_MAX - Y_MIN) / buckets));
     // I - ranges from -0.523 to 0.523
     colour_average_accels.push_back(
-	Xapian::RangeAccelerator(prefix + "A1",
+	Xapian::RangeAccelerator(prefix + "4",
 				 I_MIN, I_MAX,
 				 (I_MAX - I_MIN) / buckets));
     // Q - ranges from -0.596 to 0.596
     colour_average_accels.push_back(
-	Xapian::RangeAccelerator(prefix + "A2",
+	Xapian::RangeAccelerator(prefix + "5",
 				 Q_MIN, Q_MAX,
 				 (Q_MAX - Q_MIN) / buckets));
 }
