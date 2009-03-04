@@ -366,7 +366,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      */
     Query parse_query(const std::string &query_string,
 		      unsigned flags = FLAG_DEFAULT,
-		      const std::string &default_prefix = "");
+		      const std::string &default_prefix = std::string());
 
     /** Add a probabilistic term prefix.
      *

@@ -1,3 +1,9 @@
+Wed Mar 04 22:53:13 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h,include/xapian/termgenerator.h: Make
+	  default empty std::string parameters use std::string() rather than
+	  "".
+
 Wed Mar 04 16:06:11 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/omdatabase.cc: If a sub-database of a multi-database has no

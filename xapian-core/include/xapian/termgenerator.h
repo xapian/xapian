@@ -1,7 +1,7 @@
 /** @file termgenerator.h
  * @brief parse free text and generate terms
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -102,7 +102,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      */
     void index_text(const Xapian::Utf8Iterator & itor,
 		    Xapian::termcount weight = 1,
-		    const std::string & prefix = "");
+		    const std::string & prefix = std::string());
 
     /** Index some text in a std::string.
      *
@@ -111,7 +111,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      */
     void index_text(const std::string & text,
 		    Xapian::termcount weight = 1,
-		    const std::string & prefix = "") {
+		    const std::string & prefix = std::string()) {
 	return index_text(Utf8Iterator(text), weight, prefix);
     }
 
@@ -123,7 +123,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      */
     void index_text_without_positions(const Xapian::Utf8Iterator & itor,
 				      Xapian::termcount weight = 1,
-				      const std::string & prefix = "");
+				      const std::string & prefix = std::string());
 
     /** Index some text in a std::string without positional information.
      *
@@ -133,7 +133,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      */
     void index_text_without_positions(const std::string & text,
 				      Xapian::termcount weight = 1,
-				      const std::string & prefix = "") {
+				      const std::string & prefix = std::string()) {
 	return index_text_without_positions(Utf8Iterator(text), weight, prefix);
     }
 
