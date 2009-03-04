@@ -1,3 +1,17 @@
+Wed Mar 04 11:34:04 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/remote/remote-database.cc,common/remoteprotocol.h,
+	  common/remoteserver.h,docs/remote_protocol.html,net/remoteserver.cc:
+	  Change the remote server to always default to opening a Database and
+	  having the client request write access explicitly.  This allows a
+	  single server to support multiple readers and one writer
+	  simultaneously.  (bug#145)
+	* net/remoteserver.cc,backends/remote/remote-database.cc: For constant
+	  empty string parameters, pass string() rather than "".
+	* common/remoteserver.h: Remove unused '#include <map>'.  Remove
+	  'using namespace std;' and explicitly qualify the few bare mentions
+	  of 'string'.
+
 Wed Mar 04 07:24:39 GMT 2009  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lt: Sync with latest upstream lempar.c

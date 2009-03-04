@@ -95,6 +95,29 @@ unserialised by the client and thrown.  The server and client both
 abort any current sequence of messages.
 </p>
 
+<h2>Write Access</h2>
+
+<ul>
+<li> <code>MSG_WRITEACCESS</code>
+<li> <code>REPLY_UPDATE I&lt;db doc count&gt; I&lt;last docid&gt; B&lt;has positions?&gt; F&lt;db average length&gt; L&lt;UUID&gt;</code>
+</ul>
+
+<p>
+The reply is the same as for <code>MSG_UPDATE</code>.  If write access isn't
+supported or the database is locked by another writer, then an exception is
+thrown.
+</p>
+
+<p>
+By default the server is also read-only, even if writing is supported.
+If the client wants to be able to write, it needs to request this
+explicitly.  We do this so that the same server can support multiple
+read-only clients and one writing client at once, without the protocol
+for read-only clients requiring an extra message.  The overhead of an
+extra message exchange for a writer is likely to matter as indexing
+is rarely so real-time critical as searching.
+</p>
+
 <h2>All Terms</h2>
 
 <ul>

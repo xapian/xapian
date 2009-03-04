@@ -115,6 +115,8 @@ RemoteDatabase::RemoteDatabase(int fd, Xapian::timeout timeout_,
     if (p != p_end || avlength < 0) {
 	throw Xapian::NetworkError("Bad greeting message received (double)", context);
     }
+
+    if (writable) update_stats(MSG_WRITEACCESS);
 }
 
 RemoteDatabase *
@@ -126,7 +128,7 @@ RemoteDatabase::as_remotedatabase()
 void
 RemoteDatabase::keep_alive()
 {
-    send_message(MSG_KEEPALIVE, "");
+    send_message(MSG_KEEPALIVE, string());
     string message;
     get_message(message, REPLY_DONE);
 }
@@ -311,7 +313,7 @@ RemoteDatabase::open_document(Xapian::docid did, bool /*lazy*/) const
 void
 RemoteDatabase::update_stats(message_type msg_code) const
 {
-    send_message(msg_code, "");
+    send_message(msg_code, string());
     string message;
     get_message(message, REPLY_UPDATE);
     const char * p = message.c_str();
@@ -576,7 +578,7 @@ RemoteDatabase::get_mset(Xapian::MSet &mset)
 void
 RemoteDatabase::commit()
 {
-    send_message(MSG_COMMIT, "");
+    send_message(MSG_COMMIT, string());
 
     // We need to wait for a response to ensure documents have been committed.
     string message;
@@ -589,7 +591,7 @@ RemoteDatabase::cancel()
     cached_stats_valid = false;
     mru_valno = Xapian::BAD_VALUENO;
 
-    send_message(MSG_CANCEL, "");
+    send_message(MSG_CANCEL, string());
 }
 
 Xapian::docid
