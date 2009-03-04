@@ -32,6 +32,40 @@
 
 using namespace std;
 
+// Test that percentages reported are the same regardless of which part of the
+// mset is returned, for sort-by-value search.  Regression test for bug#216 in
+// 1.0.10 and earlier with returned percentages.
+DEFINE_TESTCASE(consistency3, backend) {
+    Xapian::Database db(get_database("apitest_sortconsist"));
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query("foo"));
+    enquire.set_sort_by_value(1, 0);
+    Xapian::doccount lots = 3;
+    Xapian::MSet bigmset = enquire.get_mset(0, lots);
+    TEST_EQUAL(bigmset.size(), lots);
+    for (Xapian::doccount start = 0; start < lots; ++start) {
+	tout << *bigmset[start] << ":" << bigmset[start].get_weight() << ":"
+	     << bigmset[start].get_percent() << "%" << endl;
+	for (Xapian::doccount size = 0; size < lots - start; ++size) {
+	    Xapian::MSet mset = enquire.get_mset(start, size);
+	    if (mset.size()) {
+		TEST_EQUAL(start + mset.size(),
+			   min(start + size, bigmset.size()));
+	    } else if (size) {
+		TEST(start >= bigmset.size());
+	    }
+	    for (Xapian::doccount i = 0; i < mset.size(); ++i) {
+		TEST_EQUAL(*mset[i], *bigmset[start + i]);
+		TEST_EQUAL_DOUBLE(mset[i].get_weight(),
+				  bigmset[start + i].get_weight());
+		TEST_EQUAL_DOUBLE(mset[i].get_percent(),
+				  bigmset[start + i].get_percent());
+	    }
+	}
+    }
+    return true;
+}
+
 class MyPostingSource : public Xapian::PostingSource {
     std::vector<std::pair<Xapian::docid, Xapian::weight> > weights;
     std::vector<std::pair<Xapian::docid, Xapian::weight> >::const_iterator i;

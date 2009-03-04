@@ -1,3 +1,9 @@
+Wed Mar 04 04:03:44 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am,tests/api_percentages.cc,
+	  tests/testdata/apitest_sortconsist.txt: Apply regression test patch
+	  from bug#216.
+
 Wed Mar 04 03:41:49 GMT 2009  Olly Betts <olly@survex.com>
 
 	* include/xapian/enquire.h,matcher/multimatch.cc: Fix inconsistent
