@@ -803,7 +803,7 @@ def test_queryparser_custom_vrp():
            'Xapian::Query(VALUE_RANGE 7 A5 B8)')
 
 def test_queryparser_custom_vrp_deallocation():
-    """Test that QueryParser don't delete ValueRangeProcessors too soon.
+    """Test that QueryParser doesn't delete ValueRangeProcessors too soon.
 
     """
     class MyVRP(xapian.ValueRangeProcessor):

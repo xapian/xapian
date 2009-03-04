@@ -1,3 +1,7 @@
+Wed Mar 04 23:37:29 GMT 2009  Olly Betts <olly@survex.com>
+
+	* python/pythontest2.py: Fix comment typo.
+
 Wed Mar 04 23:33:17 GMT 2009  Olly Betts <olly@survex.com>
 
 	* php/docs/examples/simpleindex.php5,python/pythontest2.py,
