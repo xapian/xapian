@@ -1,3 +1,11 @@
+Thu Mar 05 14:14:38 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* configure.ac,ruby/Makefile.am: Fixes for Ruby 1.9 compatibility
+	  (bug#323).
+	* configure.ac,ruby/Makefile.am: Workaround rubyio.h vs ruby/io.h
+	  incompatibility.  Fix defaulting of RUBY_INC_ARCH to RUBY_INC.
+
 Thu Mar 05 14:08:16 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
@@ -8,7 +16,7 @@ Thu Mar 05 14:08:16 GMT 2009  Olly Betts <olly@survex.com>
 Thu Mar 05 13:57:19 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
-	* python/pythontest2.py: All but two testcases delete the database(s)
+	* python/pythontest.py: All but two testcases delete the database(s)
 	  they create if they pass, so fix the remaining two to do the same.
 	* python/Makefile.am: Clean up any left over test databases on "make
 	  clean".
