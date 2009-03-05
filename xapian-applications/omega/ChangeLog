@@ -1,3 +1,10 @@
+Thu Mar 05 10:05:23 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Update g++ version check to match recent change to
+	  xapian-core.  Also turn on _FORTIFY_SOURCE and make the rare()
+	  and usual() branch prediction hint macros available.
+
 Thu Feb 26 06:37:44 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
