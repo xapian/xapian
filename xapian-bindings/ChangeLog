@@ -1,3 +1,9 @@
+Thu Mar 05 10:34:38 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* xapian.i: There are now several useful built-in posting sources,
+	  so remove the code which ignores postingsource.h if there aren't
+	  directors.
+
 Thu Mar 05 08:01:18 GMT 2009  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix comment to match code.
