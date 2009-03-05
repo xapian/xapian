@@ -1,7 +1,7 @@
 #!/usr/bin/env tclsh
 # Tcl script to index each paragraph of a text file as a Xapian document.
 #
-# Copyright (C) 2004,2006,2007 Olly Betts
+# Copyright (C) 2004,2006,2007,2009 Olly Betts
 # Copyright (C) 2004 Michael Schlenker
 #
 # This program is free software; you can redistribute it and/or modify
@@ -60,7 +60,7 @@ if {[catch {
 	}
     }
     # We *must* delete the database so that the destructor gets called so
-    # pending changes are flushed and the lock file is removed.
+    # pending changes are committed and the lock file is removed.
     database -delete
 } exception]} {
     puts stderr "Exception: $errorCode $exception"

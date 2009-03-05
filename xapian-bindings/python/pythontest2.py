@@ -687,7 +687,7 @@ def test_synonyms_iter():
     expect([item for item in dbr.synonym_keys('he')], [])
     expect([item for item in dbr.synonym_keys('hello')], [])
 
-    db.flush()
+    db.commit()
 
     expect([item for item in db.synonyms('foo')], [])
     expect([item for item in db.synonyms('hello')], ['hi', 'howdy'])
@@ -738,7 +738,7 @@ def test_metadata_keys_iter():
     expect([item for item in dbr.metadata_keys('it')], [])
     expect([item for item in dbr.metadata_keys('type')], [])
 
-    db.flush()
+    db.commit()
     expect([item for item in db.metadata_keys()],
            ['author', 'item1', 'item2', 'type'])
     expect([item for item in db.metadata_keys('foo')], [])
@@ -772,7 +772,7 @@ def test_spell():
     dbr=xapian.Database(dbpath)
     expect(dbr.get_spelling_suggestion('hell'), '')
     expect([(item.term, item.termfreq) for item in dbr.spellings()], [])
-    db.flush()
+    db.commit()
     dbr=xapian.Database(dbpath)
     expect(db.get_spelling_suggestion('hell'), 'mell')
     expect(dbr.get_spelling_suggestion('hell'), 'mell')
@@ -802,6 +802,28 @@ def test_queryparser_custom_vrp():
     expect(str(query),
            'Xapian::Query(VALUE_RANGE 7 A5 B8)')
 
+def test_queryparser_custom_vrp_deallocation():
+    """Test that QueryParser doesn't delete ValueRangeProcessors too soon.
+
+    """
+    class MyVRP(xapian.ValueRangeProcessor):
+        def __init__(self):
+            xapian.ValueRangeProcessor.__init__(self)
+
+        def __call__(self, begin, end):
+            return (7, "A"+begin, "B"+end)
+
+    def make_parser():
+        queryparser = xapian.QueryParser()
+        myvrp = MyVRP()
+        queryparser.add_valuerangeprocessor(myvrp)
+        return queryparser
+
+    queryparser = make_parser()
+    query = queryparser.parse_query('5..8')
+
+    expect(str(query),
+           'Xapian::Query(VALUE_RANGE 7 A5 B8)')
 
 def test_scale_weight():
     """Test query OP_SCALE_WEIGHT feature.
@@ -1071,7 +1093,7 @@ def test_value_mods():
         doc.add_value(1, val)
         db.add_document(doc)
         vals[num] = val
-    db.flush()
+    db.commit()
     check_vals(db, vals)
 
     # Modify one of the values (this is a regression test which failed with the
@@ -1081,7 +1103,7 @@ def test_value_mods():
     doc.add_value(1, val)
     db.replace_document(2, doc)
     vals[2] = val
-    db.flush()
+    db.commit()
     check_vals(db, vals)
 
     # Do some random modifications.
@@ -1099,7 +1121,7 @@ def test_value_mods():
 
     # Check the values before and after modification.
     check_vals(db, vals)
-    db.flush()
+    db.commit()
     check_vals(db, vals)
 
     # Delete all the values which are non-empty, in a random order.
@@ -1110,7 +1132,7 @@ def test_value_mods():
         db.replace_document(key, doc)
         vals[key] = ''
     check_vals(db, vals)
-    db.flush()
+    db.commit()
     check_vals(db, vals)
 
     db.close()

@@ -150,6 +150,240 @@ Fri Mar 14 16:35:06 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 	* include/xapian/unicode.h: Correct typos in documentation
 	  comments.
 
+Thu Mar 05 10:28:07 GMT 2009  Olly Betts <olly@survex.com>
+
+	* AUTHORS: Add Frank J. Bruzzaniti for omindex patches.
+
+Thu Mar 05 10:20:38 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am: If both chert and flint are enabled, run
+	  remoteprog_chert and remotetcp_flint but not the other two
+	  combinations as they don't buy us any useful extra test
+	  coverage, but cost a lot of extra time per testrun.
+
+Thu Mar 05 07:51:52 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/deprecation.rst: Update to reflect that odd minor versions are
+	  now development series.
+
+Thu Mar 05 04:20:43 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/serialisationcontextinternal.h: Fix forward declarations.
+
+Thu Mar 05 02:11:26 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc: "new_uuid" -> "sub_uuid" - it's not really new.
+
+Wed Mar 04 22:53:13 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h,include/xapian/termgenerator.h: Make
+	  default empty std::string parameters use std::string() rather than
+	  "".
+
+Wed Mar 04 16:06:11 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/omdatabase.cc: If a sub-database of a multi-database has no
+	  uuid, we cannot return a uuid for the database, so return
+	  string() instead.
+	* tests/api_anydb.cc: Test for this.
+
+Wed Mar 04 13:45:41 GMT 2009  Olly Betts <olly@survex.com>
+
+	* HACKING: Conversion to C++ names for ISO C headers will happen in
+	  1.1.x, not 1.1.0.
+
+Wed Mar 04 13:37:47 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,backends/database.cc,
+	  backends/remote/remote-database.cc,common/database.h,
+	  include/xapian/database.h,net/remoteserver.cc,tests/api_anydb.cc:
+	  Return an empty string from Database::get_uuid() when then backend
+	  doesn't support UUIDs for consistency with flint when the database
+	  has no UUID.  For a multiple database, build a string from the UUIDs
+	  of each subdatabase and return this as the UUID.  If there are no
+	  subdatabases return the empty string.
+
+Wed Mar 04 11:34:04 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/remote/remote-database.cc,common/remoteprotocol.h,
+	  common/remoteserver.h,docs/remote_protocol.html,net/remoteserver.cc:
+	  Change the remote server to always default to opening a Database and
+	  having the client request write access explicitly.  This allows a
+	  single server to support multiple readers and one writer
+	  simultaneously.  (bug#145)
+	* net/remoteserver.cc,backends/remote/remote-database.cc: For constant
+	  empty string parameters, pass string() rather than "".
+	* common/remoteserver.h: Remove unused '#include <map>'.  Remove
+	  'using namespace std;' and explicitly qualify the few bare mentions
+	  of 'string'.
+
+Wed Mar 04 07:24:39 GMT 2009  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lt: Sync with latest upstream lempar.c
+	  (only changes were in code which isn't in our version).
+
+Wed Mar 04 04:03:44 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am,tests/api_percentages.cc,
+	  tests/testdata/apitest_sortconsist.txt: Apply regression test patch
+	  from bug#216.
+
+Wed Mar 04 03:41:49 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/enquire.h,matcher/multimatch.cc: Fix inconsistent
+	  percentage scores when sorting primarily by valuei, except when
+	  a MatchDecider is also being used; document this remaining problem
+	  case.  (bug#216)
+
+Wed Mar 04 01:58:07 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_table.cc,backends/flint/flint_table.cc: No need
+	  to initialise inflate_zstream->next_out and avail_out twice.
+
+Wed Mar 04 01:16:32 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_table.cc,backends/flint/flint_table.cc: If
+	  deflateReset() or inflateReset() fails, just delete the zstream
+	  take the initialisation codepath - that should mean we recover
+	  if the stream does somehow end up in a bad state and is less
+	  code than throwing an exception.  Annotate tests with rare()
+	  or usual() if they are for exceptional conditions.  Fix bug
+	  introduced by the laziness patch which was adding an int error
+	  code to a const char * message.  If deflateInit2() or inflateInit2()
+	  fails, delete and zero the stream so there's no risk of ending up
+	  wedged on a partly initialised stream.
+
+Tue Mar 03 15:32:53 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/chert/chert_table.cc,backends/flint/flint_table.cc:
+	  Check for errors from deflateReset() and inflateReset() - there
+	  shouldn't be any if we've given them a valid stream, so just
+	  raise InternalError if we get one.
+
+Tue Mar 03 09:43:34 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Updated from ChangeLog.
+
+Tue Mar 03 05:52:16 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_closedb.cc: Fix testcase closedb2 not to create a test
+	  database named closedb3.
+
+Tue Mar 03 04:31:48 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Add QueryParser::FLAG_DEFAULT to make
+	  it easier to add flags to those set by default.
+	* tests/queryparsertest.cc: Use FLAG_DEFAULT in a few places to serve
+	  as a feature test.
+
+Tue Mar 03 03:45:53 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/index.html: Add link to new serialisation topic document.
+	* docs/serialisation.rst: Reword to avoid pluralising class names.
+	  Add link to postingsource document where we reference it.
+
+Tue Mar 03 03:35:29 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/runsrv.in: Use @top_builddir@ rather than relying on it
+	  coming from the environment.
+
+Tue Mar 03 03:05:47 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_wrdb.cc: Clear tout regularly in modifyvalues1 as
+	  otherwise the output builds up.  Some string stream implementations
+	  get very inefficient with large strings, and also this seems to
+	  interact badly with valgrind's leak detection resulting in the
+	  test having to be rerun to check if it really leaks.  Prefer
+	  tout.str(string()) to tout.str("") in existing uses too.
+
+Tue Mar 03 01:41:07 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_table.cc: Update handling of shutting down
+	  the zstream objects in the dtor to match chert.
+
+Mon Mar 02 23:57:26 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/chert/chert_table.h,backends/flint/flint_table.h: Add
+	  documentation comments for the lazy allocation methods, and
+	  separate comments for the zstream members.
+
+Mon Mar 02 23:40:20 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* AUTHORS,backends/chert/chert_table.cc,backends/chert/chert_table.h,
+	  backends/flint/flint_table.cc,backends/flint/flint_table.h:
+	  Reduce allocation of zstreams by allocating them lazily, keeping
+	  them in the table objects, and reuse them, rather than allocating
+	  a new one each time it's wanted.  Heavily based on a patch from
+	  Todd Lipcon.  Apparently improves performance significantly on
+	  some systems; on my tests it has no perceptible negative impact,
+	  but it makes sense that it could help in some situations, so
+	  let's apply it.  Fixes #325.
+
+Mon Mar 02 21:10:54 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* docs/deprecation.rst: Deprecate Stem_get_available_languages()
+	  from the python bindings.
+
+Mon Mar 02 19:56:20 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/Makefile.mk,common/const_database_wrapper.cc,
+	  common/const_database_wrapper.h,matcher/queryoptimiser.cc: Avoid
+	  const_cast() on Database::Internal, and exposing
+	  compiler-dependent behaviour if non-const methods are called, by
+	  adding a ConstDatabaseWrapper class, which is a subclass of
+	  Database::Internal, and also takes a Database::Internal as a
+	  parameter, to be wrapped.  This class proxies all const methods
+	  to the wrapped Database::Internal, and raises
+	  InvalidOperationError on non-const methods.  Fixes #332.
+
+Mon Mar 02 18:27:00 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/postingsource.h: Documentation comment
+	  improvements.  Be explicit that Xapian will call reset() before
+	  various methods, and will call next, skip_to or check before
+	  at_end.
+	* include/xapian/query.h: Wrap over-long line.
+
+Mon Mar 02 18:26:37 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* docs/Makefile.am,docs/serialisation.rst: Add topic document about
+	  serialisation.
+
+Mon Mar 02 17:58:28 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* docs/postingsource.rst: Update documentation with new design.
+
+Mon Mar 02 17:16:54 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/omqueryinternal.cc: Change serialisation of queries to use
+	  encode_length() rather than om_tostring(), for a more compact and
+	  easier to parse representation.
+
+Mon Mar 02 14:48:08 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/multi/multi_alltermslist.cc: Fix memory leak which
+	  was causing allterms6 to fail.
+
+Mon Mar 02 14:15:11 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/externalpostlist.cc: Fix memory leak in external source
+	  postlist (fixes fixedweightsource1).
+
+Mon Mar 02 13:41:29 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/postingsource.cc: Don't set max_weight in
+	  ValueMapPostingSource::set_default_weight() - it's set in
+	  reset() before being used, and it's not been set here yet, so
+	  accessing it in std::max() was making valgrind complain.
+
+Mon Mar 02 12:23:01 GMT 2009  Olly Betts <olly@survex.com>
+
+	* HACKING,configure.ac,tests/runtest.in: Don't use valgrind if it's
+	  < 3.3.0 as that's well over a year old and greatly simplifies the
+	  configure tests.  Fix options passed to valgrind so that the
+	  testsuite harness actually reports problems detected by newer
+	  valgrind versions.
+
 Mon Mar 02 10:08:25 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/,bin/xapian-tcpsrv.cc,common/Makefile.mk,common/remoteserver.h,

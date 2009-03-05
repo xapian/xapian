@@ -121,7 +121,7 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   if test -z "$SWIG" ; then
     AC_MSG_ERROR([Can't find SWIG utility])
   fi
-  dnl Check for swig >= 1.3.32 (SVN rev 10143):
+  dnl Check for swig >= 1.3.33 (SVN rev 10143):
   dnl
   dnl 1.3.30 produces class wrappers for PHP5
   dnl 1.3.32 fixes PHP5 wrappers for overloaded forms with default arguments,

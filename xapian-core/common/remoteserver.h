@@ -30,10 +30,7 @@
 
 #include "remoteconnection.h"
 
-#include <map>
 #include <string>
-
-using namespace std;
 
 /** Remote backend server base class. */
 class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
@@ -51,6 +48,9 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
 
     /// The WritableDatabase we're using, or NULL if we're read-only.
     Xapian::WritableDatabase * wdb;
+
+    /// Do we support writing?
+    bool writable;
 
     /** Timeout for actions during a conversation.
      *
@@ -72,11 +72,11 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
     Xapian::SerialisationContext ctx;
 
     /// Accept a message from the client.
-    message_type get_message(Xapian::timeout timeout, string & result,
+    message_type get_message(Xapian::timeout timeout, std::string & result,
 			     message_type required_type = MSG_MAX);
 
     /// Send a message to the client.
-    void send_message(reply_type type, const string &message);
+    void send_message(reply_type type, const std::string &message);
 
     // all terms
     void msg_allterms(const std::string & message);
@@ -94,7 +94,7 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
     void msg_termfreq(const std::string & message);
 
     // get value statistics
-    void msg_valuestats(const string & message);
+    void msg_valuestats(const std::string & message);
 
     // keep alive
     void msg_keepalive(const std::string & message);
@@ -114,6 +114,9 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
     // get positionlist
     void msg_positionlist(const std::string &message);
 
+    // get write access
+    void msg_writeaccess(const std::string & message);
+
     // reopen
     void msg_reopen(const std::string & message);
 
@@ -124,7 +127,7 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
     void msg_commit(const std::string & message);
 
     // cancel
-    void msg_cancel(const string &message);
+    void msg_cancel(const std::string &message);
 
     // add document
     void msg_adddocument(const std::string & message);

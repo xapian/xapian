@@ -4,6 +4,46 @@ Tue Dec 09 00:06:44 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 	  which don't support directors, so that built-in posting sources,
 	  like the geospatial one, can be used.
 
+Thu Mar 05 10:34:38 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* xapian.i: There are now several useful built-in posting sources,
+	  so remove the code which ignores postingsource.h if there aren't
+	  directors.
+
+Thu Mar 05 08:01:18 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix comment to match code.
+
+Wed Mar 04 23:37:29 GMT 2009  Olly Betts <olly@survex.com>
+
+	* python/pythontest2.py: Fix comment typo.
+
+Wed Mar 04 23:33:17 GMT 2009  Olly Betts <olly@survex.com>
+
+	* php/docs/examples/simpleindex.php5,python/pythontest2.py,
+	  python/pythontest3.py,python/replicationtest2.py,
+	  tcl8/docs/examples/simpleindex.tcl,xapian.i: Update for the
+	  "WritableDatabase::flush()" to "WritableDatabase::commit()" change.
+
+Wed Mar 04 23:23:14 GMT 2009  Olly Betts <olly@survex.com>
+
+	* xapian.i: Wrap MSet::get_uncollapsed_matches_lower_bound(),
+	  MSet::get_uncollapsed_matches_estimated(), and
+	  MSet::get_uncollapsed_matches_upper_bound().
+
+Wed Mar 04 16:56:28 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/extra.i: When ValueRangeProcessors are passed to the
+	  QueryParser, keep a list of them so that they're not deleted
+	  until the QueryParser is.
+	* python/pythontest2.py: Regression test that the proxying works -
+	  this test crashed without the patch to extra.i.
+
+Mon Mar 02 20:45:09 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/extra.i: Remove Document_unserialise and
+	  Query_unserialise from API.
+
 Mon Mar 02 10:32:59 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* csharp/Makefile.am,xapian.i: Update with new serialisation

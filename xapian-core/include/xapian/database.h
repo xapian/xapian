@@ -429,8 +429,11 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  the database files) will have the same UUID.  However, copies (made
 	 *  with copydatabase, or xapian-compact) will have different UUIDs.
 	 *
-	 *  If the backend does not support UUIDs, or this database has
-	 *  multiple sub-databases, an exception will be raised.
+	 *  If the backend does not support UUIDs or this database has no
+	 *  subdatabases, the UUID will be empty.
+	 *
+	 *  If this database has multiple sub-databases, the UUID string will
+	 *  contain the UUIDs of all the sub-databases.
 	 */
 	std::string get_uuid() const;
 };

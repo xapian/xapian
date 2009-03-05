@@ -276,7 +276,8 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 *  @param s The string representing the serialised query.
 	 *  @param ctx A context to use when unserialising the query.
 	 */
-	static Query unserialise(const std::string & s, const SerialisationContext & ctx);
+	static Query unserialise(const std::string & s,
+				 const SerialisationContext & ctx);
 
 	/// Return a string describing this object.
 	std::string get_description() const;

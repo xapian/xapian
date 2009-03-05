@@ -1,7 +1,7 @@
 # Tests of Python-specific parts of the xapian bindings.
 #
 # Copyright (C) 2007,2008 Lemur Consulting Ltd
-# Copyright (C) 2008 Olly Betts
+# Copyright (C) 2008,2009 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -92,7 +92,7 @@ def test_replication_concurrency():
             if num % 100000 == 0:
                 print "%d documents..." % num
         firstdb.set_metadata('dbname', '1')
-        firstdb.flush()
+        firstdb.commit()
         print "built"
 
     if not os.path.isdir(secondpath):
@@ -108,7 +108,7 @@ def test_replication_concurrency():
             if num % 100000 == 0:
                 print "%d documents..." % num
         seconddb.set_metadata('dbname', '2')
-        seconddb.flush()
+        seconddb.commit()
         print "built"
 
     if time.time() - starttime < 1:
