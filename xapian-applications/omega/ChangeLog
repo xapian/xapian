@@ -1,3 +1,9 @@
+Thu Mar 05 10:22:20 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/overview.rst,omindex.cc: Add support for MS Office 2007
+	  formats (bug#290).
+
 Thu Mar 05 10:05:23 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
