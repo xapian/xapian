@@ -1,3 +1,7 @@
+Thu Mar 05 11:00:29 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* xapian.i: decvalwtsource.h has to be included after postingsource.h
+
 Thu Mar 05 09:27:36 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/doxy2swig.py.in: Turn off text wrapping which was
