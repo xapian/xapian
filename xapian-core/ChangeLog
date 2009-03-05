@@ -1,3 +1,10 @@
+Thu Mar 05 10:20:38 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am: If both chert and flint are enabled, run
+	  remoteprog_chert and remotetcp_flint but not the other two
+	  combinations as they don't buy us any useful extra test
+	  coverage, but cost a lot of extra time per testrun.
+
 Thu Mar 05 07:51:52 GMT 2009  Olly Betts <olly@survex.com>
 
 	* docs/deprecation.rst: Update to reflect that odd minor versions are
