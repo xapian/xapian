@@ -1,3 +1,8 @@
+Thu Mar 05 11:49:45 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_db.cc,tests/api_nodb.cc: Back out accidentally committed
+	  changes 2 commits ago.
+
 Thu Mar 05 10:28:07 GMT 2009  Olly Betts <olly@survex.com>
 
 	* AUTHORS: Add Frank J. Bruzzaniti for omindex patches.
