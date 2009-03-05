@@ -37,6 +37,7 @@
 #include "orpostlist.h"
 #include "phrasepostlist.h"
 #include "postlist.h"
+#include "setweightpostlist.h"
 #include "valuegepostlist.h"
 #include "valuerangepostlist.h"
 #include "xorpostlist.h"
@@ -118,6 +119,12 @@ QueryOptimiser::do_subquery(const Xapian::Query::Internal * query, double factor
 	    double sub_factor = factor;
 	    if (sub_factor != 0.0) sub_factor *= query->get_dbl_parameter();
 	    RETURN(do_subquery(query->subqs[0], sub_factor));
+	}
+	case Xapian::Query::OP_SET_WEIGHT: {
+	    AssertEq(query->subqs.size(), 1);
+	    PostList * subpl = do_subquery(query->subqs[0], 0.0);
+	    RETURN(new SetWeightPostList(subpl, matcher,
+					 query->get_dbl_parameter()));
 	}
 
 	default:

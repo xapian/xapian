@@ -119,7 +119,10 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	    OP_VALUE_GE,
 
 	    /** Filter by a less-than-or-equal test on a document value. */
-	    OP_VALUE_LE
+	    OP_VALUE_LE,
+
+	    /** Set weights to a given value. */
+	    OP_SET_WEIGHT
 	} op;
 
 	/** Copy constructor. */

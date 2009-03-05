@@ -19,6 +19,7 @@ noinst_HEADERS +=\
 	matcher/remotesubmatch.h\
 	matcher/scaleweight.h\
 	matcher/selectpostlist.h\
+	matcher/setweightpostlist.h\
 	matcher/valuegepostlist.h\
 	matcher/valuerangepostlist.h\
 	matcher/xorpostlist.h
