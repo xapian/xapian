@@ -1,3 +1,8 @@
+Thu Mar 05 13:13:04 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* python/docs/examples/: get_description() is now __str__() in Python.
+
 Tue Dec 23 07:24:20 GMT 2008  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.0.10.
