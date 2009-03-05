@@ -1,3 +1,8 @@
+Thu Mar 05 10:12:21 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/decvalwtsource.cc,tests/api_valuestream.cc:  Fix small bug,
+	  and add lots of tests.
+
 Thu Mar 05 09:43:24 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* include/xapian/decvalwtsource.h: Fix visibility.

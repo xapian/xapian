@@ -92,7 +92,7 @@ DecreasingValueWeightPostingSource::skip_if_in_range(Xapian::weight min_wt)
 	    if (range_end == 0) {
 		value_it = value_end;
 	    } else {
-		value_it.skip_to(range_end);
+		value_it.skip_to(range_end + 1);
 		if (value_it != value_end)
 		    curr_weight = Xapian::ValueWeightPostingSource::get_weight();
 	    }

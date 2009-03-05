@@ -321,23 +321,99 @@ DEFINE_TESTCASE(decvalwtsource1, writable) {
     db.add_document(doc);
     db.commit();
 
-    Xapian::DecreasingValueWeightPostingSource src(1);
-    src.reset(db);
+    // Check basic function
+    {
+	Xapian::DecreasingValueWeightPostingSource src(1);
+	src.reset(db);
 
-    src.next(0.0);
-    TEST(!src.at_end());
-    TEST_EQUAL(src.get_docid(), 1);
+	src.next(0.0);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 1);
 
-    src.next(0.0);
-    TEST(!src.at_end());
-    TEST_EQUAL(src.get_docid(), 2);
+	src.next(0.0);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 2);
 
-    src.next(0.0);
-    TEST(!src.at_end());
-    TEST_EQUAL(src.get_docid(), 3);
+	src.next(0.0);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 3);
 
-    src.next(0.0);
-    TEST(src.at_end());
+	src.next(0.0);
+	TEST(src.at_end());
+    }
+
+    // Check skipping to end of list due to weight
+    {
+	Xapian::DecreasingValueWeightPostingSource src(1);
+	src.reset(db);
+
+	src.next(1.5);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 1);
+
+	src.next(1.5);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 2);
+
+	src.next(1.5);
+	TEST(src.at_end());
+    }
+
+    // Check behaviour with a restricted range
+    doc.add_value(1, Xapian::sortable_serialise(2));
+    db.add_document(doc);
+
+    {
+	Xapian::DecreasingValueWeightPostingSource src(1, 1, 3);
+	src.reset(db);
+
+	src.next(1.5);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 1);
+
+	src.next(1.5);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 2);
+
+	src.next(1.5);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 4);
+
+	src.next(1.5);
+	TEST(src.at_end());
+    }
+
+    {
+	Xapian::DecreasingValueWeightPostingSource src(1, 1, 3);
+	src.reset(db);
+
+	src.next(1.5);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 1);
+
+	src.skip_to(3, 1.5);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 4);
+
+	src.next(1.5);
+	TEST(src.at_end());
+    }
+
+    {
+	Xapian::DecreasingValueWeightPostingSource src(1, 1, 3);
+	src.reset(db);
+
+	src.next(1.5);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 1);
+
+	TEST(src.check(3, 1.5));
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 4);
+
+	src.next(1.5);
+	TEST(src.at_end());
+    }
 
     return true;
 }
