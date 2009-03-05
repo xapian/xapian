@@ -24,6 +24,8 @@
 #include "xapian/error.h"
 #include "serialise.h"
 
+using namespace Xapian;
+
 DecreasingValueWeightPostingSource::DecreasingValueWeightPostingSource(
     Xapian::valueno slot_,
     Xapian::docid range_start_,

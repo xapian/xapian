@@ -24,6 +24,8 @@
 #include <xapian/types.h>
 #include <xapian/postingsource.h>
 
+namespace Xapian {
+
 /** Read weights from a value which is known to decrease as docid increases.
  *
  *  This posting source can be used, like ValueWeightPostingSource, to add a
@@ -67,5 +69,7 @@ class DecreasingValueWeightPostingSource : public Xapian::ValueWeightPostingSour
 
     std::string get_description() const;
 };
+
+}
 
 #endif // XAPIAN_INCLUDED_DECVALWTSOURCE_H

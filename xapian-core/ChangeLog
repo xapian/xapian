@@ -1,3 +1,8 @@
+Thu Mar 05 09:17:51 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/decvalwtsource.cc,include/xapian/decvalwtsource.h: Put
+	  DecreasingValueWeightPostingSource in the Xapian namespace.
+
 Thu Mar 05 09:08:55 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/Makefile.mk,api/decvalwtsource.cc,include/Makefile.mk,
