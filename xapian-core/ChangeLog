@@ -1,3 +1,11 @@
+Thu Mar 05 09:53:17 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/queryparser.h: Add QueryParser::FLAG_DEFAULT to make
+	  it easier to add flags to those set by default.
+	* tests/queryparsertest.cc: Use FLAG_DEFAULT in a few places to serve
+	  as a feature test.
+
 Thu Mar 05 09:42:54 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
