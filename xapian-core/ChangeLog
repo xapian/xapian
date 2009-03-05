@@ -1,3 +1,9 @@
+Thu Mar 05 09:08:55 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/Makefile.mk,api/decvalwtsource.cc,include/Makefile.mk,
+	  include/xapian/decvalwtsource.h: Add decreasing value weight
+	  source.
+
 Thu Mar 05 07:51:52 GMT 2009  Olly Betts <olly@survex.com>
 
 	* docs/deprecation.rst: Update to reflect that odd minor versions are

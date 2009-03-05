@@ -8,6 +8,7 @@ EXTRA_DIST +=\
 	api/Makefile
 
 libxapian_la_SOURCES +=\
+	api/decvalwtsource.cc\
 	api/documentvaluelist.cc\
 	api/editdistance.cc\
 	api/error.cc\

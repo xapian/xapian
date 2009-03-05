@@ -13,6 +13,7 @@ xapianinclude_HEADERS =\
 	include/xapian/base.h\
 	include/xapian/database.h\
 	include/xapian/dbfactory.h\
+	include/xapian/decvalwtsource.h\
 	include/xapian/deprecated.h\
 	include/xapian/derefwrapper.h\
 	include/xapian/document.h\
