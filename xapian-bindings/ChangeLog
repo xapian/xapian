@@ -1,3 +1,11 @@
+Thu Mar 05 13:57:19 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* python/pythontest2.py: All but two testcases delete the database(s)
+	  they create if they pass, so fix the remaining two to do the same.
+	* python/Makefile.am: Clean up any left over test databases on "make
+	  clean".
+
 Thu Mar 05 13:50:32 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
