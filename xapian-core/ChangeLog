@@ -1,3 +1,7 @@
+Thu Mar 05 10:28:07 GMT 2009  Olly Betts <olly@survex.com>
+
+	* AUTHORS: Add Frank J. Bruzzaniti for omindex patches.
+
 Thu Mar 05 10:20:38 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/Makefile.am: If both chert and flint are enabled, run
