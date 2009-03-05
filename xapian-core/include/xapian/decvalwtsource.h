@@ -23,6 +23,7 @@
 
 #include <xapian/types.h>
 #include <xapian/postingsource.h>
+#include <xapian/visibility.h>
 
 namespace Xapian {
 
@@ -44,7 +45,8 @@ namespace Xapian {
  *  The ordering property can be arranged at index time, or by sorting an
  *  indexed database to produce a new, sorted, database.
  */
-class DecreasingValueWeightPostingSource : public Xapian::ValueWeightPostingSource {
+class XAPIAN_VISIBILITY_DEFAULT DecreasingValueWeightPostingSource
+	: public Xapian::ValueWeightPostingSource {
     Xapian::docid range_start;
     Xapian::docid range_end;
     double curr_weight;
