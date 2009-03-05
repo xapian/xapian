@@ -1,3 +1,8 @@
+Thu Mar 05 10:30:32 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* AUTHORS: Add Frank J. Bruzzaniti for omindex patches.
+
 Thu Mar 05 09:53:17 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
