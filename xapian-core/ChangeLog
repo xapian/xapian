@@ -1,3 +1,8 @@
+Thu Mar 05 07:51:52 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/deprecation.rst: Update to reflect that odd minor versions are
+	  now development series.
+
 Thu Mar 05 04:20:43 GMT 2009  Olly Betts <olly@survex.com>
 
 	* common/serialisationcontextinternal.h: Fix forward declarations.

@@ -51,29 +51,46 @@ of this file, will describe possible alternatives to the deprecated feature.
 API and ABI compatibility
 -------------------------
 
-Within a series of releases with a given major and minor number, we try to
-maintain API and ABI forwards compatibility.   This means that an application
-written and compiled against version `X.Y.a` of Xapian should work, without any
-changes or need to recompile, with a later version `X.Y.b`, for all `a` <= `b`.
+Releases are given three-part version numbers (e.g. 1.0.2), the three parts
+being termed "major" (1), "minor" (0), and "revision" (2).  Releases with
+the same major and minor version are termed a "release series".
+
+For Xapian releases 1.0.0 and higher, an even minor version indicates a stable
+release series, while an odd minor version indicates a development release
+series.
+
+Within a stable release series, we strive to maintain API and ABI forwards
+compatibility.  This means that an application written and compiled against
+version `X.Y.a` of Xapian should work, without any source changes or need to
+recompile, with a later version `X.Y.b`, for all `b` >= `a`.
+
+Stable releases which increase the minor or major version number will usually
+change the ABI incompatibly (so that code will need to be recompiled against
+the newer release series.  They may also make incompatible API changes,
+though we will attempt to do this in a way which makes it reasonably easy to
+migrate applications, and document how to do so in this document.
 
 It is possible that a feature may be marked as deprecated within a minor
 release series - that is from version `X.Y.c`
 onwards, where `c` is not zero.  The API and ABI will not be changed by this
 deprecation, since the feature will still be available in the API (though the
-change may cause the compiler to emit new warnings at compile time).
+change may cause the compiler to emit new warnings at when rebuilding code
+which uses the now-deprecated feature).
 
-In general, a feature will be supported after being deprecated for an entire
-series of releases with a given major and minor number.  For example, if a
-feature is deprecated in release `1.2.0`, it will be supported for the entire
-`1.2.x` release series, and removed in release `1.3.0`.  If a feature is
-deprecated in release `1.2.5`, it will be supported for all remaining releases
-in the `1.2.x` series, and also for all releases in the `1.3.x` series, and
-will be removed in release `1.4.0`.
+Users should generally be able to expect working code which uses Xapian not to
+stop working without reason.  We attempt to codify this in the following
+policy, but we reserve the right not to slavishly follow this.  The spirit of
+the rule should kept in mind - for example if we discovered a feature which
+didn't actually work, making an incompatible API change at the next ABI bump
+would be reasonable.
 
-However, this rule may not be followed in all cases.  In particular, if a
-feature was marked as "temporary" in the documentation, it may be removed
-faster (and possibly, without even passing through a stage of being
-deprecated).
+Normally a feature will be supported after being deprecated for an entire
+stable release series.  For example, if a feature is deprecated in release
+1.2.0, it will be supported for the entire 1.2.x release series, and removed in
+development release 1.3.0.  If a feature is deprecated in release 1.2.1, it
+will be supported for the 1.2.x *and* 1.4.x stable release series (and of
+course the 1.3.x release series in between), and won't be removed until
+1.5.0.
 
 Deprecation in the bindings
 ---------------------------
@@ -170,9 +187,9 @@ Bindings
 ========== ====== ======== ============================ ======================================================================
 Deprecated Remove Language Feature name                 Upgrade suggestion and comments
 ========== ====== ======== ============================ ======================================================================
-1.0.4      1.2.0  Python   Non-pythonic iterators       Use the pythonic iterators instead.
+1.0.4      1.3.0  Python   Non-pythonic iterators       Use the pythonic iterators instead.
 ---------- ------ -------- ---------------------------- ----------------------------------------------------------------------
-1.1.0      1.2.0  Python   Stem_get_available_languages Use Stem.get_available_languages instead (static method instead of
+1.1.0      1.3.0  Python   Stem_get_available_languages Use Stem.get_available_languages instead (static method instead of
                                                         function)
 ========== ====== ======== ============================ ======================================================================
 
