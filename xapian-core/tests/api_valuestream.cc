@@ -306,3 +306,38 @@ DEFINE_TESTCASE(fixedweightsource2, !backend) {
 
     return true;
 }
+
+/** Test DecreasingValueWeightPostingSource.
+ */
+DEFINE_TESTCASE(decvalwtsource1, writable) {
+    Xapian::WritableDatabase db = get_writable_database();
+
+    Xapian::Document doc;
+    doc.add_value(1, Xapian::sortable_serialise(3));
+    db.add_document(doc);
+    doc.add_value(1, Xapian::sortable_serialise(2));
+    db.add_document(doc);
+    doc.add_value(1, Xapian::sortable_serialise(1));
+    db.add_document(doc);
+    db.commit();
+
+    Xapian::DecreasingValueWeightPostingSource src(1);
+    src.reset(db);
+
+    src.next(0.0);
+    TEST(!src.at_end());
+    TEST_EQUAL(src.get_docid(), 1);
+
+    src.next(0.0);
+    TEST(!src.at_end());
+    TEST_EQUAL(src.get_docid(), 2);
+
+    src.next(0.0);
+    TEST(!src.at_end());
+    TEST_EQUAL(src.get_docid(), 3);
+
+    src.next(0.0);
+    TEST(src.at_end());
+
+    return true;
+}
