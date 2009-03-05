@@ -1,3 +1,8 @@
+Thu Mar 05 10:53:57 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* imgseek/Makefile.mk: Remove reference to missing dir_contents
+	  file.
+
 Wed Mar 04 18:44:44 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* imgseek/include/xapian/range_accelerator.h,
