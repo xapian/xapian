@@ -1,3 +1,12 @@
+Thu Mar 05 09:42:54 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/enquire.h,tests/: Rename the
+	  wrongly named "ascending" parameter of the set_sort_by*() methods
+	  of Enquire to "reverse" and note that its value should always be
+	  explicitly given since defaulting to "reverse=true" is confusing
+	  and the default will be deprecated in 1.1.0.  (bug#311)
+
 Wed Mar 04 11:32:54 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/testdata/apitest_sortconsist.txt: Add new file missed in the
