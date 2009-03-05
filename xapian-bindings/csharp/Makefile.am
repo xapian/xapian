@@ -71,12 +71,12 @@ BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_CS_SRCS)
 
 EXTRA_DIST = util.i AssemblyInfo.cs.in SmokeTest.cs $(BUILT_SOURCES)
 
-lib_LTLIBRARIES = XapianSharp.la
+lib_LTLIBRARIES = _XapianSharp.la
 
 AM_CXXFLAGS = @SWIG_CXXFLAGS@ $(XAPIAN_CXXFLAGS)
-XapianSharp_la_LDFLAGS = -avoid-version -module $(NO_UNDEFINED)
-XapianSharp_la_SOURCES = xapian_wrap.cc
-XapianSharp_la_LIBADD = $(XAPIAN_LIBS)
+_XapianSharp_la_LDFLAGS = -avoid-version -module $(NO_UNDEFINED)
+_XapianSharp_la_SOURCES = xapian_wrap.cc
+_XapianSharp_la_LIBADD = $(XAPIAN_LIBS)
 
 install-data-local: $(ASSEMBLY).dll
 	$(GACUTIL) /i $(ASSEMBLY).dll /f /package $(ASSEMBLY) /gacdir $(libdir) /root $(DESTDIR)$(libdir)

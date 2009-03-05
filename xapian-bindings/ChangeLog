@@ -1,3 +1,19 @@
+Thu Mar 05 13:50:32 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* configure.ac,tcl8/Makefile.am: Allow tcl8 bindings to be built on
+	  Cygwin (based on patch 1.0.7-tcl.patch from Cygwin Ports).
+	* configure.ac,ruby/Makefile.am: Allow ruby bindings to be built on
+	  Cygwin (need to pass -lruby there).
+	* configure.ac: Allow PHP bindings to be built on Cygwin (patch
+	  1.0.7-php.patch from Cygwin Ports).
+	* csharp/Makefile.am: Rename the compiled C++ wrapper from
+	  XapianSharp.la to _XapianSharp.la to avoid a name clash on with the
+	  C# assembly XapianSharp.dll on Microsoft Windows.
+	* configure.ac: Allow Python buildings to be built on Cygwin (taken
+	  from patch 1.0.7-python.patch from Cygwin Ports, and adapted for
+	  Python 3.0 compatibility).
+
 Thu Mar 05 13:13:04 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

@@ -259,6 +259,8 @@ if test no != "$with_python" ; then
 	case $host_os in
 	mingw* | pw32*)
 	  PYTHON_LIBS=`$PYTHON -c 'import os,sys;print("-L"+os.path.join(sys.prefix,"libs").replace(os.sep,"/")+" -lpython"+sys.version[[:3]].replace(".",""))'` ;;
+	cygwin*)
+	  PYTHON_LIBS=`$PYTHON -c 'import os,sys;print("-L"+os.path.join(sys.path[[3]],"config")+" -lpython"+sys.version[[:3]]')` ;;
 	*)
 	  PYTHON_LIBS= ;;
 	esac
@@ -380,6 +382,8 @@ if test no != "$with_php" ; then
 	dnl someone who actually has mingw and wants to build the PHP bindings
 	dnl there.  FIXME.
 	PHP_LIBS="-L`$PHP_CONFIG --prefix` -lphp${PHP_MAJOR_VERSION}ts" ;;
+      cygwin*)
+	PHP_LIBS="-lphp${PHP_MAJOR_VERSION}lib" ;;
       *)
 	PHP_LIBS= ;;
       esac
@@ -440,7 +444,20 @@ if test no != "$with_tcl" ; then
 	  AC_MSG_ERROR([Can't find tcl.h])
 	fi
       fi
+
+      dnl Cygwin needs to link with -ltcl8.5 or similar.
+      TCL_LIBS=
+      case $host_os in
+      cygwin*)
+	AC_CHECK_LIB([tcl$tcl_version], [Tcl_Init],
+		     [TCL_LIBS="-ltcl$tcl_version"],
+		     [AC_MSG_ERROR([libtcl$tcl_version not found])])
+	;;
+      *)
+	TCL_CPPFLAGS="$TCL_CPPFLAGS -DUSE_TCL_STUBS" ;;
+      esac
       AC_SUBST(TCL_CPPFLAGS)
+      AC_SUBST(TCL_LIBS)
     else
       AC_MSG_RESULT([< 8.1 (too old)])
       if test yes = "$with_tcl" ; then
@@ -730,16 +747,25 @@ if test no != "$with_ruby" ; then
       AC_MSG_CHECKING([for $RUBY_INC/ruby.h])
       if test -f "$RUBY_INC/ruby.h" ; then
 	AC_MSG_RESULT(yes)
+
         AC_ARG_VAR(RUBY_LIB, [Directory to install ruby files into])
 	if test -z "$RUBY_LIB" ; then    
 	  RUBY_LIB=`$RUBY -rrbconfig -e 'puts Config::CONFIG[["sitelibdir"]]'`
 	fi
 	AC_SUBST(RUBY_LIB)
+
         AC_ARG_VAR(RUBY_LIB_ARCH, [Directory to install ruby binary modules into])
 	if test -z "$RUBY_LIB_ARCH" ; then    
 	  RUBY_LIB_ARCH=`$RUBY -rrbconfig -e 'puts Config::CONFIG[["sitearchdir"]]'`
 	fi
 	AC_SUBST(RUBY_LIB_ARCH)
+
+	RUBY_LIBS=
+	case $host_os in
+	cygwin*) RUBY_LIBS=-lruby ;;
+	esac
+	AC_SUBST(RUBY_LIBS)
+
 	if test yes = "$enable_documentation" ; then
 	  if test -n "$RDOC" ; then
 	    AC_PATH_PROGS(RDOC, ["$RDOC"], [])
@@ -753,6 +779,7 @@ if test no != "$with_ruby" ; then
 	    fi
 	  fi
 	fi
+
 	BINDINGS="$BINDINGS ruby"
       else
 	AC_MSG_RESULT([no (install ruby-dev or ruby-devel package or similar)])
