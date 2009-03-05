@@ -1,3 +1,49 @@
+upto:
+Thu Mar 05 10:34:07 GMT 2009  Olly Betts <olly@survex.com>
+
+Omega 1.0.11 (2009-03-??):
+
+general:
+
+documentation:
+
+* cgiparams.html: Note the technique of using a stub database file to allow a
+  default of searching over multiple databases.
+
+indexers:
+
+* omindex:
+
+  + Add support for indexing Microsoft Office 2007 formats and XPS files
+    (bug#290).
+
+  + Fix the extraction of metadata from OpenDocument formats.
+
+  + Fix "-l" which would previously always cause a segmentation fault if used
+    ("--depth-limit" wasn't affected).
+
+* scriptindex:
+
+omega:
+
+templates:
+
+testsuite:
+
+build system:
+
+	* configure.ac: Update g++ version check to match recent change to
+	  xapian-core.  Also turn on _FORTIFY_SOURCE and make the rare()
+	  and usual() branch prediction hint macros available.
+
+portability:
+
+* Fix to compile when RLIMIT_AS isn't available (as on NetBSD and OpenBSD).  Instead
+  use RLIMIT_VMEM or RLIMIT_DATA if either is available, else don't try to limit the
+  memory the filter process can use.
+
+packaging:
+
 Omega 1.0.10 (2008-12-23):
 
 build system:
