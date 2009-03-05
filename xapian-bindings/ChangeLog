@@ -1,3 +1,8 @@
+Thu Mar 05 14:22:07 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Fix comment to match code.
+
 Thu Mar 05 14:14:38 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
