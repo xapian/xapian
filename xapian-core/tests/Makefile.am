@@ -39,19 +39,31 @@ check-multi: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b multi
 
 if BUILD_BACKEND_REMOTE
-check-remote: apitest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remoteprog
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp
+check-remote: check-remoteprog check-remotetcp
+
 check-remoteprog: apitest$(EXEEXT)
+## If both chert and flint are enabled, just run remoteprog_chert.
+if BUILD_BACKEND_CHERT
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remoteprog_chert
+else
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remoteprog
+endif
+
 check-remotetcp: apitest$(EXEEXT)
+## If both chert and flint are enabled, just run remotetcp_flint.
+if BUILD_BACKEND_FLINT
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp_flint
+else
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp
+endif
+
 if BUILD_BACKEND_CHERT
 check-remoteprog-chert: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remoteprog_chert
 check-remotetcp-chert: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp_chert
 endif
+
 if BUILD_BACKEND_FLINT
 check-remoteprog-flint: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remoteprog_flint
