@@ -18,4 +18,7 @@ noinst_LTLIBRARIES =
 lib_LTLIBRARIES = libxapian_imgseek.la
 libxapian_imgseek_la_SOURCES =
 
+xapianincludedir = $(includedir)/xapian
+xapianinclude_HEADERS =
+
 include imgseek/Makefile.mk

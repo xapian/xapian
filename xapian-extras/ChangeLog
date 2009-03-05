@@ -1,3 +1,8 @@
+Thu Mar 05 11:10:42 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* Makefile.am,imgseek/Makefile.mk,imgseek/include/xapian/imgseek.h:
+	  Fix header installation and distribution.
+
 Thu Mar 05 10:53:57 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* imgseek/Makefile.mk: Remove reference to missing dir_contents
