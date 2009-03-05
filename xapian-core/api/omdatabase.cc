@@ -649,13 +649,13 @@ Database::get_uuid() const
     DEBUGAPICALL(std::string, "Database::get_uuid", "");
     string uuid;
     for (size_t i = 0; i < internal.size(); ++i) {
-	string new_uuid = internal[i]->get_uuid();
+	string sub_uuid = internal[i]->get_uuid();
 	// If any of the sub-databases have no uuid, we can't make a uuid for
 	// the combined database.
-	if (new_uuid.empty())
-	    RETURN(new_uuid);
+	if (sub_uuid.empty())
+	    RETURN(sub_uuid);
 	if (!uuid.empty()) uuid += ':';
-	uuid += new_uuid;
+	uuid += sub_uuid;
     }
     RETURN(uuid);
 }
