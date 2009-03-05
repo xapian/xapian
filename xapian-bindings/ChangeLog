@@ -1,3 +1,8 @@
+Thu Mar 05 23:19:49 GMT 2009  Olly Betts <olly@survex.com>
+
+	* python/pythontest.py: Fix up previous backported change to this
+	  file.
+
 Thu Mar 05 14:22:07 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

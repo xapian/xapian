@@ -967,13 +967,7 @@ def test_weight_normalise():
             expect(item.weight > 0, True)
             expect(item.weight <= 1, True)
 
-    del db1
-    del db2
-    del dbr1
-    del dbr2
     del db
-    shutil.rmtree(dbpath + "1")
-    shutil.rmtree(dbpath + "2")
 
 def test_director_exception():
     """Test handling of an exception raised in a director.
@@ -1008,9 +1002,6 @@ def test_director_exception():
 # testing it for Python 2.2.
 vinfo = sys.version_info    
 test_legacy_sequence_api = vinfo[0] > 2 or (vinfo[0] == 2 and vinfo[1] >= 3)
-
-    del db
-    shutil.rmtree(dbpath)
 
 # Run all tests (ie, callables with names starting "test_").
 if not runtests(globals(), sys.argv[1:]):
