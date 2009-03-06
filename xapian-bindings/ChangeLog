@@ -1,3 +1,8 @@
+Fri Mar 06 04:11:11 GMT 2009  Olly Betts <olly@survex.com>
+
+	* README: Note that 1.0.x probably won't support Python 3, and
+	  current issues with Ruby 1.9.
+
 Fri Mar 06 03:51:35 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
