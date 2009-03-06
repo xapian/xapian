@@ -1,3 +1,10 @@
+Fri Mar 06 05:10:13 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* imgseek/imgseek.i,imgseek/python/Makefile.am,
+	  imgseek/python/pythontest.py: Add test of normal xapian exception
+	  handling.  use exceptcode.cc from xapian-bindings for exception
+	  handling support.
+
 Fri Feb 27 10:21:29 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* imgseek/imgseek.i: Include new rangeacceleration header.

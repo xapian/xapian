@@ -1,4 +1,4 @@
-%module imgseek
+%module(directors="1") imgseek
 
 %{
 /* imgseek.i: Interface to the imgseek component of xapian.
@@ -22,25 +22,29 @@
  */
 %}
 
-%{
-/* Forward declaration. */
-namespace Xapian {
-SWIGEXPORT int
-anystring_as_ptr(PyObject ** obj, std::string **val);
-}
-%}
+%include "stringstuff.i"
 
-%import "xapian.i"
+// Define a dummy function which needs the string conversion code, to force
+// SWIG to generate it.  Otherwise, because SWIG first sees that it's needed in
+// the %import "xapian.i", it decides it doesn't need to add it to the file.
+static void dummy(std::string);
+%{
+static void dummy(std::string) {}
+%}
 
 // Parse the visibility and deprecation support header files, so we don't get
 // errors when we %include other Xapian headers.
 %include <xapian/visibility.h>
 %include <xapian/deprecated.h>
 
+%import "except.i"
 %{
-namespace Xapian {
-    void SetPythonException();
-}
+#include "exceptcode.cc"
+%}
+
+%import(module="xapian") "xapian/postingsource.h"
+
+%{
 #include "xapian/imgseek.h"
 %}
 

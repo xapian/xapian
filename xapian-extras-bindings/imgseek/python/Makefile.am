@@ -26,7 +26,7 @@ TESTS_ENVIRONMENT = PYTHONPATH="$(UNINST_PYTHONPATH):$$PYTHONPATH" abs_builddir=
 ## Test programs to be run
 TESTS = pythontest.py
 
-BUILT_SOURCES = imgseek_wrap.cc imgseek_wrap.h imgseek.py
+BUILT_SOURCES = imgseek_wrap.cc imgseek_wrap.h imgseek.py exceptcode.cc
 
 EXTRA_DIST = \
 	$(TESTS) $(BUILT_SOURCES)
@@ -53,11 +53,13 @@ uninstall-local:
 	rm -f $(DESTDIR)$(pkgpylibdir)/_imgseek$(PYTHON_SO)
 
 AM_CPPFLAGS = -I$(PYTHON_INC)
-AM_CXXFLAGS = $(SWIG_CXXFLAGS) $(XAPIAN_CXXFLAGS) -I$(srcdir)/../../../xapian-extras/imgseek/include
+AM_CXXFLAGS = $(SWIG_CXXFLAGS) $(XAPIAN_CXXFLAGS) -I$(srcdir)/../../../xapian-extras/imgseek/include -I$(builddir)/../../../xapian-bindings/python/
 _imgseek_la_LDFLAGS = -avoid-version -module -shrext "$(PYTHON_SO)" $(NO_UNDEFINED)
 _imgseek_la_SOURCES = imgseek_wrap.cc
-_imgseek_la_LIBADD = $(XAPIAN_LIBS) $(IMGSEEK_LIBS) $(PYTHON_LIBS) $(builddir)/../../../xapian-bindings/python/_xapian.la
+_imgseek_la_LIBADD = $(XAPIAN_LIBS) $(IMGSEEK_LIBS) $(PYTHON_LIBS)
 
+exceptcode.cc: $(builddir)/../../../xapian-bindings/python/exceptcode.cc
+	cp $(builddir)/../../../xapian-bindings/python/exceptcode.cc exceptcode.cc
 # In a distribution, imgseek.py is in $(srcdir), and python will always
 # generate the .pyc and .pyo files in the same directory as the .py file.
 # However, $(srcdir) might be shared between builds for different python
