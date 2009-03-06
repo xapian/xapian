@@ -53,13 +53,14 @@ uninstall-local:
 	rm -f $(DESTDIR)$(pkgpylibdir)/_imgseek$(PYTHON_SO)
 
 AM_CPPFLAGS = -I$(PYTHON_INC)
-AM_CXXFLAGS = $(SWIG_CXXFLAGS) $(XAPIAN_CXXFLAGS) -I$(srcdir)/../../../xapian-extras/imgseek/include -I$(builddir)/../../../xapian-bindings/python/
+AM_CXXFLAGS = $(SWIG_CXXFLAGS) $(XAPIAN_CXXFLAGS) -I$(srcdir)/../../../xapian-extras/imgseek/include
 _imgseek_la_LDFLAGS = -avoid-version -module -shrext "$(PYTHON_SO)" $(NO_UNDEFINED)
 _imgseek_la_SOURCES = imgseek_wrap.cc
 _imgseek_la_LIBADD = $(XAPIAN_LIBS) $(IMGSEEK_LIBS) $(PYTHON_LIBS)
 
-exceptcode.cc: $(builddir)/../../../xapian-bindings/python/exceptcode.cc
+exceptcode.cc:
 	cp $(builddir)/../../../xapian-bindings/python/exceptcode.cc exceptcode.cc
+
 # In a distribution, imgseek.py is in $(srcdir), and python will always
 # generate the .pyc and .pyo files in the same directory as the .py file.
 # However, $(srcdir) might be shared between builds for different python
