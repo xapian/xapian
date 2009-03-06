@@ -37,15 +37,14 @@ static void dummy(std::string) {}
 %include <xapian/visibility.h>
 %include <xapian/deprecated.h>
 
-%import "except.i"
+%import "xapian.i"
 %{
 #include "exceptcode.cc"
 %}
 
-%import(module="xapian") "xapian/postingsource.h"
-
 %{
 #include "xapian/imgseek.h"
+#include "xapian/range_accelerator.h"
 %}
 
 %include "std_set.i"
@@ -56,7 +55,7 @@ namespace std {
   %template(iset) set<int>;
 };
 
-%include "xapian/imgseek.h"
 %include "xapian/range_accelerator.h"
+%include "xapian/imgseek.h"
 
 /* vim:set syntax=cpp:set noexpandtab: */

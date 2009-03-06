@@ -1,3 +1,8 @@
+Fri Mar 06 05:39:53 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* imgseek/imgseek.i: import xapian.i instead of just except.i.
+	  Other tidyups.
+
 Fri Mar 06 05:19:20 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* imgseek/python/Makefile.am: Copy exceptcode.cc into dist.
