@@ -21,7 +21,12 @@ DOCCOMMENTS_I = doccomments.i
 DOCCOMMENTS_I_FLAGS=-DDOCCOMMENTS_I_SOURCES
 endif
 
-EXTRA_DIST = util.i extra.i extracomments.i except.i \
+EXTRA_DIST = \
+	except.i\
+	extra.i\
+	extracomments.i\
+	stringstuff.i\
+	util.i\
 	testsuite.py testsuite2.py testsuite3.py \
 	smoketest2.py smoketest3.py \
 	pythontest2.py pythontest3.py \

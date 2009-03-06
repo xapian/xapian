@@ -1,3 +1,9 @@
+Fri Mar 06 05:04:14 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/: Write code for handling exceptions from external modules
+	  to exceptcode.cc.  Split string handling code for external
+	  modules out of util.i into stringstuff.i.
+
 Tue Mar 03 19:10:46 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* xapian.i: add UnitWeight.
