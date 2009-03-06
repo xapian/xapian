@@ -1,3 +1,7 @@
+Fri Mar 06 03:51:35 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
 Fri Mar 06 03:44:45 GMT 2009  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am: Apply rejected hunk I missed in backported

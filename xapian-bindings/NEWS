@@ -1,3 +1,38 @@
+up to:
+Fri Mar 06 03:44:45 GMT 2009  Olly Betts <olly@survex.com>
+
+Xapian-bindings 1.0.11 (2009-03-??):
+
+Documentation:
+
+General:
+
+Packaging:
+
+Portability:
+
+* Merge fixes from Cygwin Ports, so bindings should build out of the box on
+  Cygwin.
+
+CSharp:
+
+Guile:
+
+Java:
+
+PHP:
+
+Python:
+
+* python/docs/examples/: Use str(obj) rather than obj.get_description().
+
+Ruby:
+
+* Fixes for Ruby 1.9 compatibility (bug#323).  The test harness currently fails
+  so "make check" doesn't pass, but code using the bindings should work.
+
+Tcl:
+
 Xapian-bindings 1.0.10 (2008-12-23):
 
 Python:
