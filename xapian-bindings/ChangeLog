@@ -1,3 +1,8 @@
+Fri Mar 06 03:44:45 GMT 2009  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Apply rejected hunk I missed in backported
+	  patch.
+
 Thu Mar 05 23:19:49 GMT 2009  Olly Betts <olly@survex.com>
 
 	* python/pythontest.py: Fix up previous backported change to this

@@ -100,7 +100,7 @@ xapian_wrap.stamp: $(SWIG_sources) util.i
 	: # case where SWIG changes its mind as to which files it generates.
 	-rm -f $(XAPIAN_SWIG_CS_SRCS)
 	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
-	    -csharp -namespace Xapian -module Xapian -dllimport XapianSharp \
+	    -csharp -namespace Xapian -module Xapian -dllimport _XapianSharp \
 	    -o xapian_wrap.cc $(SWIG_mainsource)
 	$(multitarget_end)
 
