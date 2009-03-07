@@ -1,3 +1,8 @@
+Sat Mar 07 05:44:18 GMT 2009  Olly Betts <olly@survex.com>
+
+	* net/serialise.cc: Fix top of file to actually be a doxygen comment.
+	  Tweak layout of definition of serialise_stats().
+
 Sat Mar 07 05:40:58 GMT 2009  Olly Betts <olly@survex.com>
 
 	* net/serialise.cc: c_str() -> data() since we don't need the

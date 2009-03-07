@@ -1,4 +1,4 @@
-/* @file serialise.cc
+/** @file serialise.cc
  * @brief functions to convert Xapian objects to strings and back
  */
 /* Copyright (C) 2006,2007,2008,2009 Olly Betts
@@ -119,7 +119,8 @@ unserialise_error(const string &serialised_error, const string &prefix,
     throw Xapian::InternalError(msg, context);
 }
 
-string serialise_stats(const Stats &stats)
+string
+serialise_stats(const Stats &stats)
 {
     string result;
 
