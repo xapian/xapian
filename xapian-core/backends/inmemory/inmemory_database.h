@@ -1,4 +1,4 @@
-/* inmemory_database.h: C++ class definition for multiple database access
+/* inmemory_database.h: C++ class definition for inmemory database access
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
