@@ -148,7 +148,7 @@ string serialise_stats(const Stats &stats)
 Stats
 unserialise_stats(const string &s)
 {
-    const char * p = s.c_str();
+    const char * p = s.data();
     const char * p_end = p + s.size();
 
     Stats stat;
