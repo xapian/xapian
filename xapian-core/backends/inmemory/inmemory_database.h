@@ -207,11 +207,12 @@ class InMemoryTermList : public TermList {
 
 	Xapian::Internal::RefCntPtr<const InMemoryDatabase> db;
 	Xapian::docid did;
-	Xapian::doclength document_length;
+	Xapian::termcount document_length;
 
-	InMemoryTermList(Xapian::Internal::RefCntPtr<const InMemoryDatabase> db, Xapian::docid did,
+	InMemoryTermList(Xapian::Internal::RefCntPtr<const InMemoryDatabase> db,
+			 Xapian::docid did,
 			 const InMemoryDoc & doc,
-			 Xapian::doclength len);
+			 Xapian::termcount len);
     public:
 	Xapian::termcount get_approx_size() const;
 
@@ -240,7 +241,7 @@ class InMemoryDatabase : public Xapian::Database::Internal {
     vector<std::map<Xapian::valueno, string> > valuelists;
     std::map<Xapian::valueno, ValueStats> valuestats;
 
-    vector<Xapian::doclength> doclengths;
+    vector<Xapian::termcount> doclengths;
 
     std::map<string, string> metadata;
 

@@ -1,3 +1,10 @@
+Sat Mar 07 08:25:11 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h: Store non-normalised document
+	  lengths as Xapian::termcount (unsigned int) rather than
+	  Xapian::doclength (double).
+
 Sat Mar 07 06:56:26 GMT 2009  Olly Betts <olly@survex.com>
 
 	* common/database.h: Removed unused forward declarations of classes.

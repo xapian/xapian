@@ -186,13 +186,12 @@ InMemoryPostList::get_wdf() const
 InMemoryTermList::InMemoryTermList(Xapian::Internal::RefCntPtr<const InMemoryDatabase> db_,
 				   Xapian::docid did_,
 				   const InMemoryDoc & doc,
-				   Xapian::doclength len)
+				   Xapian::termcount len)
 	: pos(doc.terms.begin()), end(doc.terms.end()), terms(doc.terms.size()),
-	  started(false), db(db_), did(did_)
+	  started(false), db(db_), did(did_), document_length(len)
 {
     LOGLINE(DB, "InMemoryTermList::InMemoryTermList(): " <<
 	        terms << " terms starting from " << pos->tname);
-    document_length = len;
 }
 
 Xapian::termcount
@@ -517,7 +516,7 @@ InMemoryDatabase::open_term_list(Xapian::docid did) const
 				 string(" not found"));
     }
     return new InMemoryTermList(Xapian::Internal::RefCntPtr<const InMemoryDatabase>(this), did,
-				termlists[did - 1], get_doclength(did));
+				termlists[did - 1], doclengths[did - 1]);
 }
 
 Xapian::Document::Internal *
