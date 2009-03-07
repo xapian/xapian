@@ -1336,7 +1336,8 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 	    // This would lead to smaller changesets for replication, and
 	    // probably be faster overall.
 
-	    // First, add entries to remove the postings in the underlying record.
+	    // First, add entries to remove the postings in the underlying
+	    // record.
 	    Xapian::Internal::RefCntPtr<const ChertWritableDatabase> ptrtothis(this);
 	    ChertTermList termlist(ptrtothis, did);
 
