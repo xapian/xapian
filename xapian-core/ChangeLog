@@ -1,3 +1,7 @@
+Sat Mar 07 06:56:26 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/database.h: Removed unused forward declarations of classes.
+
 Sat Mar 07 06:52:11 GMT 2009  Olly Betts <olly@survex.com>
 
 	* common/database.h: Fix comment typo.

@@ -38,8 +38,6 @@
 using namespace std;
 
 class LeafPostList;
-class OmTime;
-class RemoteConnection;
 class RemoteDatabase;
 
 typedef Xapian::TermIterator::Internal TermList;
