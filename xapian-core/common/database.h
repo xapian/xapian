@@ -149,7 +149,7 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	virtual Xapian::doccount get_termfreq(const string & tname) const = 0;
 
 	/** Return the total number of occurrences of the given term.  This
-	 *  is the sum of the number of ocurrences of the term in each
+	 *  is the sum of the number of occurrences of the term in each
 	 *  document: ie, the sum of the within document frequencies of the
 	 *  term.
 	 *
