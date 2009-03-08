@@ -1,3 +1,8 @@
+Sun Mar 08 05:36:54 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/extraweightpostlist.h: Add forward declaration of
+	  Xapian::Weight since we use "Xapian::Weight *".
+
 Sun Mar 08 04:39:22 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_types.h,backends/flint/flint_types.h,
