@@ -1,7 +1,7 @@
 /** @file api_backend.cc
  * @brief Backend-related tests.
  */
-/* Copyright (C) 2008 Olly Betts
+/* Copyright (C) 2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,7 +35,7 @@ using namespace std;
 
 /// Regression test - lockfile should honour umask, was only user-readable.
 DEFINE_TESTCASE(lockfileumask1, flint || chert) {
-#ifndef __WIN32__
+#if !defined __WIN32__ && !defined __CYGWIN__ && !defined __EMX__
     mode_t old_umask = umask(022);
     try {
 	Xapian::WritableDatabase db = get_named_writable_database("lockfileumask1");
