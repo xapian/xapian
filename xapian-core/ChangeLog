@@ -1,3 +1,8 @@
+Sun Mar 08 06:16:24 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_backend.cc: Add check that backends don't truncate total
+	  document length to 32 bits.
+
 Sun Mar 08 06:02:43 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_backend.cc: Disable lockfileumask1 on Cygwin and on OS/2.

@@ -62,3 +62,21 @@ DEFINE_TESTCASE(lockfileumask1, flint || chert) {
 
     return true;
 }
+
+/// Check that the backend handles total document length > 0xffffffff.
+DEFINE_TESTCASE(totaldoclen1, writable) {
+    Xapian::WritableDatabase db = get_writable_database();
+    Xapian::Document doc;
+    doc.add_posting("foo", 1, 2000000000);
+    db.add_document(doc);
+    db.add_document(doc);
+    TEST_EQUAL(db.get_avlength(), 2000000000);
+    db.commit();
+    TEST_EQUAL(db.get_avlength(), 2000000000);
+    if (get_dbtype() != "inmemory") {
+	// InMemory doesn't support get_writable_database_as_database().
+	Xapian::Database dbr = get_writable_database_as_database();
+	TEST_EQUAL(dbr.get_avlength(), 2000000000);
+    }
+    return true;
+}
