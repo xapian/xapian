@@ -33,7 +33,7 @@
 #include "utils.h"
 #include "valuestats.h"
 
-#include "database.h" // For totlen_t.
+#include "internaltypes.h"
 
 // FIXME: this currently works for chert, but we are really going to need
 // separate versions eventually.

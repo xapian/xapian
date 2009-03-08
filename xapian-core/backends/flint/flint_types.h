@@ -22,21 +22,7 @@
 #ifndef OM_HGUARD_FLINT_TYPES_H
 #define OM_HGUARD_FLINT_TYPES_H
 
-typedef unsigned char byte;
-
-#ifndef SIZEOF_INT
-# error SIZEOF_INT is not defined
-#endif
-#ifndef SIZEOF_LONG
-# error SIZEOF_LONG is not defined
-#endif
-#if SIZEOF_INT >= 4
-typedef unsigned int uint4;
-#elif SIZEOF_LONG >= 4
-typedef unsigned long uint4;
-#else
-# error Type long is less than 32 bits, which ISO does not allow!
-#endif
+#include "internaltypes.h"
 
 typedef unsigned int flint_blocksize_t;
 

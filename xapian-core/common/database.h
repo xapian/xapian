@@ -44,9 +44,6 @@ typedef Xapian::TermIterator::Internal TermList;
 typedef Xapian::PositionIterator::Internal PositionList;
 typedef Xapian::ValueIterator::Internal ValueList;
 
-/// Integer type used to hold the total length of all documents in a database.
-typedef unsigned long long int totlen_t; 
-
 // Used by flint and chert.
 const int XAPIAN_DB_READONLY = 0;
 

@@ -29,7 +29,7 @@
 
 #include "bitstream.h"
 
-#include "database.h" // For totlen_t.
+#include "internaltypes.h"
 
 #include "flint_check.h"
 #include "flint_cursor.h"

@@ -1,3 +1,13 @@
+Sun Mar 08 04:39:22 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_types.h,backends/flint/flint_types.h,
+	  bin/xapian-check-flint.cc,bin/xapian-check.cc,bin/xapian-compact.cc,
+	  common/Makefile.mk,common/database.h,common/internaltypes.h:
+	  Move totlen_t to a new header (internaltypes.h) to avoid needing to
+	  pull in database.h in when we want to use it.  Also move int4 and
+	  uint4 there to avoid duplicated definitions and abstract out a
+	  new uint8 from defining totlen_t.
+
 Sun Mar 08 00:50:38 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_database.h,backends/chert/chert_types.h,

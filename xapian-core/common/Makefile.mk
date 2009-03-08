@@ -16,6 +16,7 @@ noinst_HEADERS +=\
 	common/fileutils.h\
 	common/gnu_getopt.h\
 	common/inmemory_positionlist.h\
+	common/internaltypes.h\
 	common/leafpostlist.h\
 	common/msvc_dirent.h\
 	common/msvc_posix_wrapper.h\

@@ -32,7 +32,7 @@
 #include "chert_types.h"
 #include "chert_utils.h"
 
-#include "database.h" // For totlen_t.
+#include "internaltypes.h"
 
 #include "stringutils.h"
 #include "utils.h"
