@@ -1,6 +1,6 @@
 /* xapian-compact.cc: Compact a flint or chert database, or merge and compact several.
  *
- * Copyright (C) 2004,2005,2006,2007,2008 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,6 +32,8 @@
 #include <sys/types.h>
 #include "utils.h"
 #include "valuestats.h"
+
+#include "database.h" // For totlen_t.
 
 // FIXME: this currently works for chert, but we are really going to need
 // separate versions eventually.
@@ -200,7 +202,7 @@ merge_postlists(FlintTable * out, vector<Xapian::docid>::const_iterator offset,
 		vector<string>::const_iterator b, vector<string>::const_iterator e,
 		Xapian::docid tot_off)
 {
-    flint_totlen_t tot_totlen = 0;
+    totlen_t tot_totlen = 0;
     priority_queue<PostlistCursor *, vector<PostlistCursor *>, PostlistCursorGt> pq;
     for ( ; b != e; ++b, ++offset) {
 	FlintTable *in = new FlintTable("postlist", *b, true);
@@ -221,7 +223,7 @@ merge_postlists(FlintTable * out, vector<Xapian::docid>::const_iterator offset,
 	    if (!F_unpack_uint(&data, end, &dummy_did)) {
 		throw Xapian::DatabaseCorruptError("Tag containing meta information is corrupt.");
 	    }
-	    flint_totlen_t totlen = 0;
+	    totlen_t totlen = 0;
 	    if (!F_unpack_uint_last(&data, end, &totlen)) {
 		throw Xapian::DatabaseCorruptError("Tag containing meta information is corrupt.");
 	    }

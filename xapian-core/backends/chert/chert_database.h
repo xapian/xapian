@@ -109,7 +109,7 @@ class ChertDatabase : public Xapian::Database::Internal {
 	ChertLock lock;
 
 	/// Total length of all documents including uncommitted modifications.
-	mutable chert_totlen_t total_length;
+	mutable totlen_t total_length;
 
 	/** Highest document ID ever allocated by this database. */
 	mutable Xapian::docid lastdocid;

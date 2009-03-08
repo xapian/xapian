@@ -1,3 +1,11 @@
+Sun Mar 08 00:50:38 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.h,backends/chert/chert_types.h,
+	  backends/flint/flint_database.h,backends/flint/flint_types.h,
+	  bin/xapian-check-flint.cc,bin/xapian-check.cc,bin/xapian-compact.cc,
+	  common/database.h: Replace flint_totlen_t and chert_totlen_t with
+	  a common totlen_t.
+
 Sat Mar 07 08:35:27 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_database.cc: Wrap comment.

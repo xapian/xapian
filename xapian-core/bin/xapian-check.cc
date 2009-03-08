@@ -1,7 +1,7 @@
 /* xapian-check.cc: Check consistency of a chert or flint database or table.
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,6 +31,8 @@
 #include "chert_table.h"
 #include "chert_types.h"
 #include "chert_utils.h"
+
+#include "database.h" // For totlen_t.
 
 #include "stringutils.h"
 #include "utils.h"
@@ -275,7 +277,7 @@ check_chert_table(const char * tablename, string filename, int opts,
 		cursor->read_tag();
 		// Check format of the METAINFO key.
 		Xapian::docid did;
-		chert_totlen_t totlen;
+		totlen_t totlen;
 		const char * data = cursor->current_tag.data();
 		const char * end = data + cursor->current_tag.size();
 		if (!unpack_uint(&data, end, &did)) {

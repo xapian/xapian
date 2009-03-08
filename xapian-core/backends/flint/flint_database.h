@@ -110,7 +110,7 @@ class FlintDatabase : public Xapian::Database::Internal {
 	FlintLock lock;
 
 	/** Total length of all documents including unflushed modifications. */
-	mutable flint_totlen_t total_length;
+	mutable totlen_t total_length;
 
 	/** Highest document ID ever allocated by this database. */
 	mutable Xapian::docid lastdocid;

@@ -1,7 +1,7 @@
 /* xapian-check-flint.cc: Check consistency of a flint table.
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,6 +28,8 @@
 #include "autoptr.h"
 
 #include "bitstream.h"
+
+#include "database.h" // For totlen_t.
 
 #include "flint_check.h"
 #include "flint_cursor.h"
@@ -80,7 +82,7 @@ check_flint_table(const char * tablename, string filename, int opts,
 		cursor->read_tag();
 		// Check format of the METAINFO key.
 		Xapian::docid did;
-		flint_totlen_t totlen;
+		totlen_t totlen;
 		const char * data = cursor->current_tag.data();
 		const char * end = data + cursor->current_tag.size();
 		if (!F_unpack_uint(&data, end, &did)) {
