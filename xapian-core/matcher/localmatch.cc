@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -65,11 +65,8 @@ LocalSubMatch::prepare_match(bool /*nowait*/, Stats & total_stats)
     Xapian::TermIterator titer = orig_query.get_terms();
     Xapian::TermIterator terms_end(NULL);
     for ( ; titer != terms_end; ++titer) {
-	if ((*titer).empty()) {
-	    my_stats.set_termfreq(*titer, db->get_doccount());
-	} else {
-	    my_stats.set_termfreq(*titer, db->get_termfreq(*titer));
-	}
+	Assert(!(*titer).empty());
+	my_stats.set_termfreq(*titer, db->get_termfreq(*titer));
 	rset.will_want_reltermfreq(*titer);
     }
     rset.contribute_stats(my_stats);

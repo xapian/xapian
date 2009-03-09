@@ -1,3 +1,9 @@
+Mon Mar 09 12:27:28 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/localmatch.cc: Remove special case handling for empty string
+	  being returned from the TermIterator returned by
+	  Query::Internal::get_terms() as this should no longer happen.
+
 Mon Mar 09 12:09:21 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/omqueryinternal.cc: Don't return "" from a TermIterator from
