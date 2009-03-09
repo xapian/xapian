@@ -110,6 +110,7 @@ collated_apitest_sources = \
  api_nodb.cc \
  api_percentages.cc \
  api_posdb.cc \
+ api_query.cc \
  api_replicate.cc \
  api_serialise.cc \
  api_sorting.cc \

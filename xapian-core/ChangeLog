@@ -1,3 +1,11 @@
+Mon Mar 09 12:09:21 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc: Don't return "" from a TermIterator from
+	  Query::get_terms_begin() (happened when Query contained or was
+	  Query::MatchAll).
+	* tests/Makefile.am,tests/api_query.cc: Add regression testcase
+	  queryterms1.
+
 Sun Mar 08 06:16:24 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_backend.cc: Add check that backends don't truncate total
