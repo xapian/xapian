@@ -1,3 +1,8 @@
+Tue Mar 10 14:03:33 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/harness/testutils.cc: If mset_range_is_same_percents() fails
+	  because the percentages differ, report what they were to tout.
+
 Mon Mar 09 12:27:28 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/localmatch.cc: Remove special case handling for empty string
