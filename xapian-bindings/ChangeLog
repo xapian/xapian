@@ -1,3 +1,9 @@
+Tue Mar 10 18:02:08 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/extra.i,python/pythontest2.py: Preserve posting sources on
+	  queries when set on enquire, and when retrieved from enquire
+	  objects.
+
 Tue Mar 10 17:46:48 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/extra.i: When making a query object, keep references to

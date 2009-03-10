@@ -952,13 +952,32 @@ def test_postingsource():
         doc = xapian.Document()
         db.add_document(doc)
 
-    def mkquery():
-        source = OddPostingSource(10)
-        return xapian.Query(xapian.Query.OP_OR, [xapian.Query(source)])
-    query = mkquery()
+    # Do a dance to check that the posting source doesn't get dereferenced too
+    # soon in various cases.
+    def mkenq(db):
+        # First - check that it's kept when the source goes out of scope.
+        def mkquery():
+            source = OddPostingSource(10)
+            return xapian.Query(xapian.Query.OP_OR, [xapian.Query(source)])
 
-    enquire = xapian.Enquire(db)
-    enquire.set_query(query)
+        # Check that it's kept when the query goes out of scope.
+        def submkenq():
+            query = mkquery()
+            enquire = xapian.Enquire(db)
+            enquire.set_query(query)
+            return enquire
+
+        # Check it's kept when the query is retrieved from enquire and put into
+        # a new enquire.
+        def submkenq2():
+            enq1 = submkenq()
+            enquire = xapian.Enquire(db)
+            enquire.set_query(enq1.get_query())
+            return enquire
+
+        return submkenq2()
+
+    enquire = mkenq(db)
     mset = enquire.get_mset(0, 10)
 
     expect([item.docid for item in mset], [1, 3, 5, 7, 9])

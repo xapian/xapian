@@ -616,7 +616,8 @@ def _queryparser_gen_unstemlist_iter(self, tname):
                     return_strings=True)
 QueryParser.unstemlist = _queryparser_gen_unstemlist_iter
 
-# When we make a query, keep a note of postingsources involved.
+# When we make a query, keep a note of postingsources involved, so they won't
+# be deleted. This hack can probably be removed once xapian bug #186 is fixed.
 __query_init_orig = Query.__init__
 def _query_init(self, *args):
     """Make a new query object.
@@ -639,6 +640,29 @@ def _query_init(self, *args):
     self._ps = ps
 Query.__init__ = _query_init
 del _query_init
+
+# When setting a query on enquire, keep a note of postingsources involved, so
+# they won't be deleted. This hack can probably be removed once xapian bug #186
+# is fixed.
+__enquire_set_query_orig = Enquire.set_query
+def _enquire_set_query(self, query, qlen=0):
+    self._ps = getattr(query, '_ps', [])
+    return __enquire_set_query_orig(self, query, qlen)
+_enquire_set_query.__doc__ = __enquire_set_query_orig.__doc__
+Enquire.set_query = _enquire_set_query
+del _enquire_set_query
+
+# When getting  a query from enquire, keep a note of postingsources involved,
+# so they won't be deleted. This hack can probably be removed once xapian bug
+# #186 is fixed.
+__enquire_get_query_orig = Enquire.get_query
+def _enquire_get_query(self):
+    query = __enquire_get_query_orig(self)
+    query._ps = getattr(self, '_ps', [])
+    return query
+_enquire_get_query.__doc__ = __enquire_get_query_orig.__doc__
+Enquire.get_query = _enquire_get_query
+del _enquire_get_query
 
 # When we set a ValueRangeProcessor into the QueryParser, keep a python
 # reference so it won't be deleted. This hack can probably be removed once
