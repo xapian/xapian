@@ -952,8 +952,10 @@ def test_postingsource():
         doc = xapian.Document()
         db.add_document(doc)
 
-    source = OddPostingSource(10)
-    query = xapian.Query(source)
+    def mkquery():
+        source = OddPostingSource(10)
+        return xapian.Query(xapian.Query.OP_OR, [xapian.Query(source)])
+    query = mkquery()
 
     enquire = xapian.Enquire(db)
     enquire.set_query(query)

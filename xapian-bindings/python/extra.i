@@ -616,6 +616,30 @@ def _queryparser_gen_unstemlist_iter(self, tname):
                     return_strings=True)
 QueryParser.unstemlist = _queryparser_gen_unstemlist_iter
 
+# When we make a query, keep a note of postingsources involved.
+__query_init_orig = Query.__init__
+def _query_init(self, *args):
+    """Make a new query object.
+
+    Many possible arguments are possible - see the documentation for details.
+
+    """
+    ps = []
+    if len(args) == 1 and isinstance(args[0], PostingSource):
+        ps.append(args[0])
+    else:
+        for arg in args:
+            if isinstance(arg, Query):
+                ps.extend(getattr(arg, '_ps', []))
+            elif hasattr(arg, '__iter__'):
+                for listarg in arg:
+                    if isinstance(listarg, Query):
+                        ps.extend(getattr(listarg, '_ps', []))
+    __query_init_orig(self, *args)
+    self._ps = ps
+Query.__init__ = _query_init
+del _query_init
+
 # When we set a ValueRangeProcessor into the QueryParser, keep a python
 # reference so it won't be deleted. This hack can probably be removed once
 # xapian bug #186 is fixed.

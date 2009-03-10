@@ -1,3 +1,11 @@
+Tue Mar 10 17:46:48 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/extra.i: When making a query object, keep references to
+	  posting sources in the query.  Copy references for sub queries
+	  into parent queries, too.
+	* python/pythontest2.py: Modify test to include regression test for
+	  the above.
+
 Tue Mar 10 17:06:56 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/extra.i: Add better support for deprecation of single
