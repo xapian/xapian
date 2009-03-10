@@ -1192,6 +1192,84 @@ def test_serialise_query():
     expect(str(q), str(q2))
     expect(str(q), 'Xapian::Query((hello OR world))')
 
+def test_preserve_query_parser_stopper():
+    """Test preservation of stopper set on query parser.
+
+    """
+    def make_qp():
+        queryparser = xapian.QueryParser()
+        stopper = xapian.SimpleStopper()
+        stopper.add('to')
+        stopper.add('not')
+        queryparser.set_stopper(stopper)
+        del stopper
+        return queryparser
+    queryparser = make_qp()
+    query = queryparser.parse_query('to be')
+    expect([term for term in queryparser.stoplist()], ['to']) 
+
+def test_preserve_term_generator_stopper():
+    """Test preservation of stopper set on term generator.
+
+    """
+    def make_tg():
+        termgen = xapian.TermGenerator()
+        termgen.set_stemmer(xapian.Stem('en'))
+        stopper = xapian.SimpleStopper()
+        stopper.add('to')
+        stopper.add('not')
+        termgen.set_stopper(stopper)
+        del stopper
+        return termgen
+    termgen = make_tg()
+
+    termgen.index_text('to be')
+    doc = termgen.get_document()
+    terms = [term.term for term in doc.termlist()]
+    terms.sort()
+    expect(terms, ['Zbe', 'be', 'to']) 
+
+def test_preserve_enquire_sorter():
+    """Test preservation of sorter set on enquire.
+
+    """
+    db = xapian.inmemory_open()
+    doc = xapian.Document()
+    doc.add_term('foo')
+    doc.add_value(1, '1')
+    db.add_document(doc)
+    db.add_document(doc)
+
+    def make_enq1(db):
+        enq = xapian.Enquire(db)
+        sorter = xapian.MultiValueSorter()
+        enq.set_sort_by_key(sorter, True)
+        del sorter
+        return enq
+    enq = make_enq1(db)
+    enq.set_query(xapian.Query('foo'))
+    enq.get_mset(0, 10)
+
+    def make_enq2(db):
+        enq = xapian.Enquire(db)
+        sorter = xapian.MultiValueSorter()
+        enq.set_sort_by_key_then_relevance(sorter, True)
+        del sorter
+        return enq
+    enq = make_enq2(db)
+    enq.set_query(xapian.Query('foo'))
+    enq.get_mset(0, 10)
+
+    def make_enq3(db):
+        enq = xapian.Enquire(db)
+        sorter = xapian.MultiValueSorter()
+        enq.set_sort_by_relevance_then_key(sorter, True)
+        del sorter
+        return enq
+    enq = make_enq3(db)
+    enq.set_query(xapian.Query('foo'))
+    enq.get_mset(0, 10)
+
 # Run all tests (ie, callables with names starting "test_").
 if not runtests(globals(), sys.argv[1:]):
     sys.exit(1)

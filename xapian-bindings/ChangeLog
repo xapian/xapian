@@ -1,3 +1,10 @@
+Tue Mar 10 09:14:44 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/extra.i: Keep references to Stoppers and Sorters set on
+	  objects, to avoid segfaults when they go out of scope.
+	* python/pythontest2.py: Tests for the above, and add deprecation
+	  warnings for single argument form of the set_sort_by_* methods.
+
 Thu Mar 05 10:34:38 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* xapian.i: There are now several useful built-in posting sources,
