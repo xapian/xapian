@@ -107,7 +107,7 @@ SynonymPostList::get_docid() const {
     return subtree->get_docid();
 }
 
-Xapian::doclength 
+Xapian::termcount 
 SynonymPostList::get_doclength() const {
     return subtree->get_doclength();
 }

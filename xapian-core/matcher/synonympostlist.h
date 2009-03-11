@@ -77,7 +77,7 @@ class SynonymPostList : public PostList {
 	Xapian::doccount get_termfreq_est() const;
 	Xapian::doccount get_termfreq_max() const;
 	Xapian::docid get_docid() const;
-	Xapian::doclength get_doclength() const;
+	Xapian::termcount get_doclength() const;
 	PositionList * read_position_list();
 	PositionList * open_position_list() const;
 	bool at_end() const;
