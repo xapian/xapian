@@ -2142,14 +2142,15 @@ DEFINE_TESTCASE(valuege1, backend) {
 	    matched.insert(*i);
 	    string value = db.get_document(*i).get_value(1);
 	    tout << "'" << *start << "' <= '" << value << "'" << endl;
-	    TEST(value >= *start);
+	    TEST_REL(value,>=,*start);
 	}
-	// Check that documents not in the MSet don't match the value range filter.
+	// Check that documents not in the MSet don't match the value range
+	// filter.
 	for (Xapian::docid j = db.get_lastdocid(); j != 0; --j) {
 	    if (matched.find(j) == matched.end()) {
 		string value = db.get_document(j).get_value(1);
 		tout << value << " < '" << *start << "'" << endl;
-		TEST(value < *start);
+		TEST_REL(value,<,*start);
 	    }
 	}
     }
