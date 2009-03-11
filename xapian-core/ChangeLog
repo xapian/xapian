@@ -1,3 +1,7 @@
+Wed Mar 11 22:56:59 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_valuelist.cc: Fix comment typo.
+
 Wed Mar 11 22:50:49 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/api_valuestream.cc: Enable valuestream3 for chert.

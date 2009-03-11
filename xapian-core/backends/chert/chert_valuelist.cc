@@ -150,7 +150,7 @@ ChertValueList::check(Xapian::docid did)
 	return false;
     }
 
-    // We had an exact match for a chunk starting with specified docid..
+    // We had an exact match for a chunk starting with specified docid.
     Assert(!cursor->after_end());
     if (!update_reader()) {
 	// We found the exact key we built, so it must match the slot.
