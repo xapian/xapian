@@ -38,7 +38,7 @@ BoolWeight::init(double)
     // Nothing to do here.
 }
 
-const char *
+std::string
 BoolWeight::name() const
 {
     return "Xapian::BoolWeight";

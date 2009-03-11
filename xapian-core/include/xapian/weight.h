@@ -134,7 +134,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *  scheme, you can just implement this to throw
      *  Xapian::UnimplementedError.
      */
-    virtual const char * name() const = 0;
+    virtual std::string name() const = 0;
 
     /** Return this object's parameters serialised as a single string.
      *
@@ -287,7 +287,7 @@ class XAPIAN_VISIBILITY_DEFAULT BoolWeight : public Weight {
     /** Construct a BoolWeight. */
     BoolWeight() { }
 
-    const char * name() const;
+    std::string name() const;
 
     std::string serialise() const;
     BoolWeight * unserialise(const std::string & s) const;
@@ -387,7 +387,7 @@ class XAPIAN_VISIBILITY_DEFAULT BM25Weight : public Weight {
 	need_stat(WQF);
     }
 
-    const char * name() const;
+    std::string name() const;
 
     std::string serialise() const;
     BM25Weight * unserialise(const std::string & s) const;
@@ -444,7 +444,7 @@ class XAPIAN_VISIBILITY_DEFAULT TradWeight : public Weight {
 	need_stat(WDF_MAX);
     }
 
-    const char * name() const;
+    std::string name() const;
 
     std::string serialise() const;
     TradWeight * unserialise(const std::string & s) const;

@@ -1861,7 +1861,7 @@ class MyWeight : public Xapian::Weight {
     }
     MyWeight() { }
     ~MyWeight() { }
-    const char * name() const { return "MyWeight"; }
+    std::string name() const { return "MyWeight"; }
     string serialise() const { return string(); }
     MyWeight * unserialise(const string &) const { return new MyWeight; }
     Xapian::weight get_sumpart(Xapian::termcount, Xapian::termcount) const {

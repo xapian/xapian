@@ -1,3 +1,10 @@
+Wed Mar 11 13:13:32 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/weight.h,tests/api_db.cc,tests/api_nodb.cc,
+	  weight/bm25weight.cc,weight/boolweight.cc,weight/tradweight.cc:
+	  Make Weight::name() return std::string to allow sane wrapping
+	  with SWIG directors.
+
 Wed Mar 11 05:46:40 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/,backends/chert/,backends/contiguousalldocspostlist.cc,
