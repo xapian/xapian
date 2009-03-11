@@ -22,7 +22,6 @@
 
 #include "multimatch.h"
 #include "postlist.h"
-#include "stats.h"
 #include <vector>
 
 /** A postlist comprising several postlists SYNONYMed together.

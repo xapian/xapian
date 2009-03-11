@@ -64,6 +64,25 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length,
     init(factor);
 }
 
+void
+Weight::init_(const Internal & stats, Xapian::termcount query_length,
+	      const string & term, Xapian::termcount wqf, double factor,
+	      Xapian::doccount termfreq,
+	      Xapian::doccount reltermfreq)
+{
+    collection_size_ = stats.collection_size;
+    rset_size_ = stats.rset_size;
+    average_length_ = stats.get_average_length();
+    doclength_upper_bound_ = stats.db.get_doclength_upper_bound();
+    doclength_lower_bound_ = stats.db.get_doclength_lower_bound();
+    wdf_upper_bound_ = stats.db.get_wdf_upper_bound(term);
+    termfreq_ = termfreq;
+    reltermfreq_ = reltermfreq;
+    query_length_ = query_length;
+    wqf_ = wqf;
+    init(factor);
+}
+
 Weight::~Weight() { }
 
 bool Weight::get_sumpart_needs_doclength() const { return true; }

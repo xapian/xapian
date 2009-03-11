@@ -31,7 +31,6 @@
 #include "omdebug.h"
 #include "omqueryinternal.h"
 #include "queryoptimiser.h"
-#include "stats.h"
 #include "synonympostlist.h"
 #include "weightinternal.h"
 
@@ -120,15 +119,12 @@ LocalSubMatch::make_synonym_postlist(PostList * or_pl, MultiMatch * matcher,
 	      "[or_pl], [matcher], " << factor);
     LOGLINE(MATCH, "or_pl->get_termfreq() = " << or_pl->get_termfreq_est());
     AutoPtr<SynonymPostList> res(new SynonymPostList(or_pl, matcher));
-    AutoPtr<Xapian::Weight> wt;
+    AutoPtr<Xapian::Weight> wt(wt_factory->clone_());
 
-    AutoPtr<Xapian::Weight::Internal> wt_internal(new Xapian::Weight::Internal(*stats));
-    wt_internal->termfreq = or_pl->get_termfreq_est();
-    wt_internal->reltermfreq = 0; // FIXME - calculate this.
-    wt = wt_factory->create(wt_internal.release(), qlen, 1, "");
-    if (fabs(factor - 1.0) > DBL_EPSILON) {
-	wt = new ScaleWeight(wt.release(), factor);
-    }
+    wt->init_(*stats, qlen, "", 1, factor,
+	      or_pl->get_termfreq_est(),
+	      0 // FIXME - calculate the reltermfreq to use
+	      );
 
     res->set_weight(wt.release());
     RETURN(res.release());

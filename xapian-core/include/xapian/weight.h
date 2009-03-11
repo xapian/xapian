@@ -214,6 +214,22 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 	       const std::string & term, Xapian::termcount wqf_,
 	       double factor);
 
+    /** Initialise this object to calculate weights for term @a term.
+     *
+     *  @param stats	   Source of statistics.
+     *  @param query_len_  Query length.
+     *  @param term	   The term for the new object.
+     *  @param wqf_	   The within-query-frequency of @a term.
+     *  @param factor	   Any scaling factor (e.g. from OP_SCALE_WEIGHT).
+     *  @param termfreq    The termfreq to use.
+     *  @param reltermfreq The reltermfreq to use.
+     */
+    void init_(const Internal & stats, Xapian::termcount query_len_,
+	       const std::string & term, Xapian::termcount wqf_,
+	       double factor,
+	       Xapian::doccount termfreq,
+	       Xapian::doccount reltermfreq);
+
     /** Initialise this object to calculate the extra weight term.
      *
      *  @param stats	  Source of statistics.
