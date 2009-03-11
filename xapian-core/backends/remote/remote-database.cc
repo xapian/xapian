@@ -144,8 +144,8 @@ RemoteDatabase::open_term_list(Xapian::docid did) const
     get_message(message, REPLY_DOCLENGTH);
     const char * p = message.c_str();
     const char * p_end = p + message.size();
-    Xapian::doclength doclen = unserialise_double(&p, p_end);
-    if (p != p_end || doclen < 0) {
+    Xapian::termcount doclen = decode_length(&p, p_end, false);
+    if (p != p_end) {
 	throw Xapian::NetworkError("Bad REPLY_DOCLENGTH message received", context);
     }
 
@@ -181,7 +181,7 @@ RemoteDatabase::open_allterms(const string & prefix) const {
     send_message(MSG_ALLTERMS, prefix);
 
     AutoPtr<NetworkTermList> tlist;
-    tlist = new NetworkTermList(0.0, doccount,
+    tlist = new NetworkTermList(0, doccount,
 				Xapian::Internal::RefCntPtr<const RemoteDatabase>(this),
 				0);
     vector<NetworkTermListItem> & items = tlist->items;
@@ -460,7 +460,7 @@ RemoteDatabase::get_wdf_upper_bound(const string &) const
     return doclen_ubound;
 }
 
-Xapian::doclength
+Xapian::termcount
 RemoteDatabase::get_doclength(Xapian::docid did) const
 {
     Assert(did != 0);
@@ -469,8 +469,8 @@ RemoteDatabase::get_doclength(Xapian::docid did) const
     get_message(message, REPLY_DOCLENGTH);
     const char * p = message.c_str();
     const char * p_end = p + message.size();
-    Xapian::doclength doclen = unserialise_double(&p, p_end);
-    if (p != p_end || doclen < 0) {
+    Xapian::termcount doclen = decode_length(&p, p_end, false);
+    if (p != p_end) {
 	throw Xapian::NetworkError("Bad REPLY_DOCLENGTH message received", context);
     }
     return doclen;

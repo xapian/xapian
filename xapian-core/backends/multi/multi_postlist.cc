@@ -78,13 +78,13 @@ MultiPostList::get_docid() const
     RETURN(currdoc);
 }
 
-Xapian::doclength
+Xapian::termcount
 MultiPostList::get_doclength() const
 {
-    DEBUGCALL(DB, Xapian::doclength, "MultiPostList::get_doclength", "");
+    DEBUGCALL(DB, Xapian::termcount, "MultiPostList::get_doclength", "");
     Assert(!at_end());
     Assert(currdoc != 0);
-    Xapian::doclength result = postlists[(currdoc - 1) % multiplier]->get_doclength();
+    Xapian::termcount result = postlists[(currdoc - 1) % multiplier]->get_doclength();
     AssertEqParanoid(result, this_db.get_doclength(get_docid()));
     RETURN(result);
 }

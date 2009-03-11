@@ -150,7 +150,7 @@ InMemoryPostList::get_description() const
     return "InMemoryPostList" + om_tostring(termfreq);
 }
 
-Xapian::doclength
+Xapian::termcount
 InMemoryPostList::get_doclength() const
 {
     if (db->is_closed()) InMemoryDatabase::throw_database_closed();
@@ -301,7 +301,7 @@ InMemoryAllDocsPostList::get_docid() const
     return did;
 }
 
-Xapian::doclength
+Xapian::termcount
 InMemoryAllDocsPostList::get_doclength() const
 {
     if (db->is_closed()) InMemoryDatabase::throw_database_closed();
@@ -500,7 +500,7 @@ InMemoryDatabase::get_avlength() const
     return Xapian::doclength(totlen) / totdocs;
 }
 
-Xapian::doclength
+Xapian::termcount
 InMemoryDatabase::get_doclength(Xapian::docid did) const
 {
     if (closed) InMemoryDatabase::throw_database_closed();

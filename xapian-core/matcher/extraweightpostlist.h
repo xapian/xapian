@@ -91,7 +91,7 @@ class ExtraWeightPostList : public PostList {
 	/** Return the document length of the document the current term
 	 *  comes from.
 	 */
-	virtual Xapian::doclength get_doclength() const {
+	virtual Xapian::termcount get_doclength() const {
 	    return pl->get_doclength();
 	}
 

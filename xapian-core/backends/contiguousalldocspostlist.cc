@@ -1,7 +1,7 @@
 /** @file contiguousalldocspostlist.cc
  * @brief Iterate all document ids when they form a contiguous range.
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@ ContiguousAllDocsPostList::get_docid() const
     return did;
 }
 
-Xapian::doclength
+Xapian::termcount
 ContiguousAllDocsPostList::get_doclength() const
 {
     Assert(did != 0);

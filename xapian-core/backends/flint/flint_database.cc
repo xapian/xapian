@@ -847,10 +847,10 @@ FlintDatabase::get_avlength() const
     RETURN(double(total_length) / doccount);
 }
 
-Xapian::doclength
+Xapian::termcount
 FlintDatabase::get_doclength(Xapian::docid did) const
 {
-    DEBUGCALL(DB, Xapian::doclength, "FlintDatabase::get_doclength", did);
+    DEBUGCALL(DB, Xapian::termcount, "FlintDatabase::get_doclength", did);
     Assert(did != 0);
     RETURN(termlist_table.get_doclength(did));
 }
@@ -1409,10 +1409,10 @@ FlintWritableDatabase::replace_document(Xapian::docid did,
     }
 }
 
-Xapian::doclength
+Xapian::termcount
 FlintWritableDatabase::get_doclength(Xapian::docid did) const
 {
-    DEBUGCALL(DB, Xapian::doclength, "FlintWritableDatabase::get_doclength", did);
+    DEBUGCALL(DB, Xapian::termcount, "FlintWritableDatabase::get_doclength", did);
     map<docid, termcount>::const_iterator i = doclens.find(did);
     if (i != doclens.end()) RETURN(i->second);
 

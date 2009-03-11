@@ -1,7 +1,7 @@
 /** @file externalpostlist.cc
  * @brief Return document ids from an external source.
  */
-/* Copyright 2008 Olly Betts
+/* Copyright 2008,2009 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -99,7 +99,7 @@ ExternalPostList::get_weight() const
     RETURN(factor * source->get_weight());
 }
 
-Xapian::doclength
+Xapian::termcount
 ExternalPostList::get_doclength() const
 {
     // FIXME

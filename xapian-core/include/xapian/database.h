@@ -316,12 +316,12 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	    return ValueIterator();
 	}
 
-	/** Get the length of a document.
-	 */
-	Xapian::doclength get_doclength(Xapian::docid did) const;
+	/// Get the length of a document.
+	Xapian::termcount get_doclength(Xapian::docid did) const;
 
-	/** Send a "keep-alive" to remote databases to stop them timing
-	 *  out.
+	/** Send a "keep-alive" to remote databases to stop them timing out.
+	 *
+	 *  Has no effect on non-remote databases.
 	 */
 	void keep_alive();
 

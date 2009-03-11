@@ -140,7 +140,7 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *  @param did  The document id of the document whose length is
 	 *              being requested.
 	 */
-	virtual Xapian::doclength get_doclength(Xapian::docid did) const = 0;
+	virtual Xapian::termcount get_doclength(Xapian::docid did) const = 0;
 
 	/** Return the number of documents indexed by a given term.  This
 	 *  may be an approximation, but must be an upper bound (ie,

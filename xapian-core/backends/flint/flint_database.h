@@ -254,7 +254,7 @@ class FlintDatabase : public Xapian::Database::Internal {
 	Xapian::docid get_lastdocid() const;
 	totlen_t get_total_length() const;
 	Xapian::doclength get_avlength() const;
-	Xapian::doclength get_doclength(Xapian::docid did) const;
+	Xapian::termcount get_doclength(Xapian::docid did) const;
 	Xapian::doccount get_termfreq(const string & tname) const;
 	Xapian::termcount get_collection_freq(const string & tname) const;
 	bool term_exists(const string & tname) const;
@@ -353,7 +353,7 @@ class FlintWritableDatabase : public FlintDatabase {
 
 	/** Virtual methods of Database::Internal. */
 	//@{
-	Xapian::doclength get_doclength(Xapian::docid did) const;
+	Xapian::termcount get_doclength(Xapian::docid did) const;
 	Xapian::doccount get_termfreq(const string & tname) const;
 	Xapian::termcount get_collection_freq(const string & tname) const;
 	bool term_exists(const string & tname) const;

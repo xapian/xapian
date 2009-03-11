@@ -760,7 +760,7 @@ Enquire::Internal::get_matching_terms(Xapian::docid did) const
     // a problem.
     map<string, unsigned int> tmap;
     unsigned int index = 1;
-    for ( ; qt != qt_end; qt++) {
+    for ( ; qt != qt_end; ++qt) {
 	if (tmap.find(*qt) == tmap.end())
 	    tmap[*qt] = index++;
     }

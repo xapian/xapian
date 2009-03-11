@@ -99,7 +99,7 @@ RemoteServer::RemoteServer(const std::vector<std::string> &dbpaths,
     message += encode_length(db->get_doclength_upper_bound());
     message += (db->has_positions() ? '1' : '0');
     // FIXME: clumsy to reverse calculate total_len like this:
-    totlen_t total_len = db->get_avlength() * db->get_doccount() + 0.5;
+    totlen_t total_len = totlen_t(db->get_avlength() * db->get_doccount() + .5);
     message += encode_length(total_len);
     //message += encode_length(db->get_total_length());
     string uuid = db->get_uuid();
@@ -346,7 +346,7 @@ RemoteServer::msg_update(const string &)
     message += encode_length(db->get_doclength_upper_bound());
     message += (db->has_positions() ? '1' : '0');
     // FIXME: clumsy to reverse calculate total_len like this:
-    totlen_t total_len = db->get_avlength() * db->get_doccount() + 0.5;
+    totlen_t total_len = totlen_t(db->get_avlength() * db->get_doccount() + .5);
     message += encode_length(total_len);
     //message += encode_length(db->get_total_length());
     string uuid = db->get_uuid();
@@ -522,9 +522,7 @@ RemoteServer::msg_doclength(const string &message)
     const char *p = message.data();
     const char *p_end = p + message.size();
     Xapian::docid did = decode_length(&p, p_end, false);
-    // FIXME: get_doclength should always return an integer, but
-    // Xapian::doclength is a double...
-    send_message(REPLY_DOCLENGTH, serialise_double(db->get_doclength(did)));
+    send_message(REPLY_DOCLENGTH, encode_length(db->get_doclength(did)));
 }
 
 void

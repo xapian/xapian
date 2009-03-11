@@ -401,10 +401,10 @@ Database::valuestream_begin(Xapian::valueno slot) const
     RETURN(ValueIterator(internal[0]->open_value_list(slot)));
 }
 
-Xapian::doclength
+Xapian::termcount
 Database::get_doclength(Xapian::docid did) const
 {
-    DEBUGAPICALL(Xapian::doclength, "Database::get_doclength", did);
+    DEBUGAPICALL(Xapian::termcount, "Database::get_doclength", did);
     if (did == 0) throw InvalidArgumentError("Document ID 0 is invalid");
 
     unsigned int multiplier = internal.size();

@@ -817,10 +817,10 @@ ChertDatabase::get_avlength() const
     RETURN(double(stats.get_total_doclen()) / doccount);
 }
 
-Xapian::doclength
+Xapian::termcount
 ChertDatabase::get_doclength(Xapian::docid did) const
 {
-    DEBUGCALL(DB, Xapian::doclength, "ChertDatabase::get_doclength", did);
+    DEBUGCALL(DB, Xapian::termcount, "ChertDatabase::get_doclength", did);
     Assert(did != 0);
     Xapian::Internal::RefCntPtr<const ChertDatabase> ptrtothis(this);
     RETURN(postlist_table.get_doclength(did, ptrtothis));
@@ -1469,10 +1469,10 @@ ChertWritableDatabase::open_document(Xapian::docid did, bool lazy) const
     RETURN(modify_shortcut_document);
 }
 
-Xapian::doclength
+Xapian::termcount
 ChertWritableDatabase::get_doclength(Xapian::docid did) const
 {
-    DEBUGCALL(DB, Xapian::doclength, "ChertWritableDatabase::get_doclength", did);
+    DEBUGCALL(DB, Xapian::termcount, "ChertWritableDatabase::get_doclength", did);
     map<docid, termcount>::const_iterator i = doclens.find(did);
     if (i != doclens.end()) {
 	Xapian::termcount doclen = i->second;
