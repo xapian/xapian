@@ -38,8 +38,8 @@
 #include "omtime.h"
 #include "serialise.h"
 #include "serialise-double.h"
-#include "stats.h"
 #include "utils.h"
+#include "weightinternal.h"
 
 /// Class to throw when we receive the connection closing message.
 struct ConnectionClosed { };
@@ -95,10 +95,14 @@ RemoteServer::RemoteServer(const std::vector<std::string> &dbpaths,
     message += char(XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION);
     message += encode_length(db->get_doccount());
     message += encode_length(db->get_lastdocid());
+    message += encode_length(db->get_doclength_lower_bound());
+    message += encode_length(db->get_doclength_upper_bound());
     message += (db->has_positions() ? '1' : '0');
-    message += serialise_double(db->get_avlength());
+    // FIXME: clumsy to reverse calculate total_len like this:
+    totlen_t total_len = db->get_avlength() * db->get_doccount() + 0.5;
+    message += encode_length(total_len);
+    //message += encode_length(db->get_total_length());
     string uuid = db->get_uuid();
-    message += encode_length(uuid.size());
     message += uuid;
     send_message(REPLY_GREETING, message);
 }
@@ -338,10 +342,14 @@ RemoteServer::msg_update(const string &)
 
     string message = encode_length(db->get_doccount());
     message += encode_length(db->get_lastdocid());
+    message += encode_length(db->get_doclength_lower_bound());
+    message += encode_length(db->get_doclength_upper_bound());
     message += (db->has_positions() ? '1' : '0');
-    message += serialise_double(db->get_avlength());
+    // FIXME: clumsy to reverse calculate total_len like this:
+    totlen_t total_len = db->get_avlength() * db->get_doccount() + 0.5;
+    message += encode_length(total_len);
+    //message += encode_length(db->get_total_length());
     string uuid = db->get_uuid();
-    message += encode_length(uuid.size());
     message += uuid;
     send_message(REPLY_UPDATE, message);
 }
@@ -414,7 +422,7 @@ RemoteServer::msg_query(const string &message_in)
     // Unserialise the RSet object.
     Xapian::RSet rset = unserialise_rset(string(p, p_end - p));
 
-    Stats local_stats;
+    Xapian::Weight::Internal local_stats;
     MultiMatch match(*db, query.get(), qlen, &rset, collapse_max, collapse_key,
 		     percent_cutoff, weight_cutoff, order,
 		     sort_key, sort_by, sort_value_forward, NULL,
@@ -434,7 +442,7 @@ RemoteServer::msg_query(const string &message_in)
     check_at_least = decode_length(&p, p_end, false);
 
     message.erase(0, message.size() - (p_end - p));
-    Stats total_stats(unserialise_stats(message));
+    Xapian::Weight::Internal total_stats(unserialise_stats(message));
 
     Xapian::MSet mset;
     match.get_mset(first, maxitems, check_at_least, mset, total_stats, 0, 0);

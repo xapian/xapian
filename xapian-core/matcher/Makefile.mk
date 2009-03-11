@@ -17,7 +17,6 @@ noinst_HEADERS +=\
 	matcher/phrasepostlist.h\
 	matcher/queryoptimiser.h\
 	matcher/remotesubmatch.h\
-	matcher/scaleweight.h\
 	matcher/selectpostlist.h\
 	matcher/valuegepostlist.h\
 	matcher/valuerangepostlist.h\
@@ -39,7 +38,6 @@ libxapian_la_SOURCES +=\
 	matcher/andmaybepostlist.cc\
 	matcher/andnotpostlist.cc\
 	matcher/andpostlist.cc\
-	matcher/bm25weight.cc\
 	matcher/branchpostlist.cc\
 	matcher/collapser.cc\
 	matcher/emptysubmatch.cc\
@@ -55,11 +53,7 @@ libxapian_la_SOURCES +=\
 	matcher/phrasepostlist.cc\
 	matcher/queryoptimiser.cc\
 	matcher/rset.cc\
-	matcher/scaleweight.cc\
 	matcher/selectpostlist.cc\
-	matcher/stats.cc\
-	matcher/tradweight.cc\
 	matcher/valuegepostlist.cc\
 	matcher/valuerangepostlist.cc\
-	matcher/weight.cc\
 	matcher/xorpostlist.cc

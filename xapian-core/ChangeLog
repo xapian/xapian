@@ -1,3 +1,23 @@
+Wed Mar 11 04:52:41 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Makefile.am,api/,backends/chert/,backends/database.cc,
+	  backends/flint/flint_database.cc,backends/flint/flint_database.h,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h,
+	  backends/remote/remote-database.cc,common/,docs/remote_protocol.html,
+	  examples/delve.cc,include/Makefile.mk,include/xapian.h,
+	  include/xapian/database.h,include/xapian/enquire.h,
+	  include/xapian/weight.h,matcher/,net/remoteserver.cc,
+	  net/serialise.cc,tests/,weight/: Reimplementation of weighting
+	  schemes which allows user subclasses to access the same stats which
+	  built in schemes can (bug#213) and which also can use lower and
+	  upper bounds of doclength and upper bounds on wdf to give a tighter
+	  maxweight, which should allow the matcher weight-based optimisations
+	  to be more effective.  Chert now tracks doclength bounds and a
+	  global (rather than per term) bound on wdf.  Other backends
+	  return much less good bounds, but these still lead to better
+	  maxweight bounds.
+
 Wed Mar 11 00:13:24 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* include/xapian/query.h: Rename parameter name from "ctx" to the

@@ -1805,7 +1805,12 @@ DEFINE_TESTCASE(netstats1, remote) {
 	Xapian::Enquire enq(db);
 	enq.set_query(query);
 	Xapian::MSet mset = enq.get_mset(0, MSET_SIZE, &rset);
-	TEST_EQUAL(mset, mset_alllocal);
+	TEST_EQUAL(mset.get_matches_lower_bound(), mset_alllocal.get_matches_lower_bound());
+	TEST_EQUAL(mset.get_matches_upper_bound(), mset_alllocal.get_matches_upper_bound());
+	TEST_EQUAL(mset.get_matches_estimated(), mset_alllocal.get_matches_estimated());
+	TEST_EQUAL(mset.get_max_attained(), mset_alllocal.get_max_attained());
+	TEST_EQUAL(mset.size(), mset_alllocal.size());
+	TEST(mset_range_is_same(mset, 0, mset_alllocal, 0, mset.size()));
     }
 
     {
@@ -1816,7 +1821,12 @@ DEFINE_TESTCASE(netstats1, remote) {
 	Xapian::Enquire enq(db);
 	enq.set_query(query);
 	Xapian::MSet mset = enq.get_mset(0, MSET_SIZE, &rset);
-	TEST_EQUAL(mset, mset_alllocal);
+	TEST_EQUAL(mset.get_matches_lower_bound(), mset_alllocal.get_matches_lower_bound());
+	TEST_EQUAL(mset.get_matches_upper_bound(), mset_alllocal.get_matches_upper_bound());
+	TEST_EQUAL(mset.get_matches_estimated(), mset_alllocal.get_matches_estimated());
+	TEST_EQUAL(mset.get_max_attained(), mset_alllocal.get_max_attained());
+	TEST_EQUAL(mset.size(), mset_alllocal.size());
+	TEST(mset_range_is_same(mset, 0, mset_alllocal, 0, mset.size()));
     }
 
     {
@@ -1827,7 +1837,12 @@ DEFINE_TESTCASE(netstats1, remote) {
 	Xapian::Enquire enq(db);
 	enq.set_query(query);
 	Xapian::MSet mset = enq.get_mset(0, MSET_SIZE, &rset);
-	TEST_EQUAL(mset, mset_alllocal);
+	TEST_EQUAL(mset.get_matches_lower_bound(), mset_alllocal.get_matches_lower_bound());
+	TEST_EQUAL(mset.get_matches_upper_bound(), mset_alllocal.get_matches_upper_bound());
+	TEST_EQUAL(mset.get_matches_estimated(), mset_alllocal.get_matches_estimated());
+	TEST_EQUAL(mset.get_max_attained(), mset_alllocal.get_max_attained());
+	TEST_EQUAL(mset.size(), mset_alllocal.size());
+	TEST(mset_range_is_same(mset, 0, mset_alllocal, 0, mset.size()));
     }
 
     return true;
@@ -1835,24 +1850,29 @@ DEFINE_TESTCASE(netstats1, remote) {
 
 // Coordinate matching - scores 1 for each matching term
 class MyWeight : public Xapian::Weight {
-    public:
-	MyWeight * clone() const {
-	    return new MyWeight;
-	}
-	MyWeight() { }
-	~MyWeight() { }
-	std::string name() const { return "Coord"; }
-	std::string serialise() const { return ""; }
-	MyWeight * unserialise(const std::string & /*s*/) const {
-	    return new MyWeight;
-	}
-	Xapian::weight get_sumpart(Xapian::termcount /*wdf*/, Xapian::doclength /*len*/) const { return 1; }
-	Xapian::weight get_maxpart() const { return 1; }
+    double scale_factor;
 
-	Xapian::weight get_sumextra(Xapian::doclength /*len*/) const { return 0; }
-	Xapian::weight get_maxextra() const { return 0; }
+  public:
+    MyWeight * clone() const {
+	return new MyWeight;
+    }
+    void init(double factor) {
+	scale_factor = factor;
+    }
+    MyWeight() { }
+    ~MyWeight() { }
+    const char * name() const { return "MyWeight"; }
+    string serialise() const { return string(); }
+    MyWeight * unserialise(const string &) const { return new MyWeight; }
+    Xapian::weight get_sumpart(Xapian::termcount, Xapian::termcount) const {
+	return scale_factor;
+    }
+    Xapian::weight get_maxpart() const { return scale_factor; }
 
-	bool get_sumpart_needs_doclength() const { return false; }
+    Xapian::weight get_sumextra(Xapian::termcount) const { return 0; }
+    Xapian::weight get_maxextra() const { return 0; }
+
+    bool get_sumpart_needs_doclength() const { return false; }
 };
 
 // tests user weighting scheme.

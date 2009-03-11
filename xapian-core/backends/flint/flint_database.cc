@@ -828,6 +828,13 @@ FlintDatabase::get_lastdocid() const
     RETURN(lastdocid);
 }
 
+totlen_t
+FlintDatabase::get_total_length() const
+{
+    DEBUGCALL(DB, totlen_t, "FlintDatabase::get_total_length", "");
+    RETURN(total_length);
+}
+
 Xapian::doclength
 FlintDatabase::get_avlength() const
 {

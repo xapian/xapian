@@ -28,8 +28,7 @@
 #include <vector>
 #include <map>
 
-// Forward declaration.
-class Stats;
+#include "xapian/weight.h"
 
 class MultiMatch
 {
@@ -111,14 +110,14 @@ class MultiMatch
 		   bool sort_value_forward_,
 		   const Xapian::Sorter * sorter_,
 		   Xapian::ErrorHandler * errorhandler,
-		   Stats & stats,
+		   Xapian::Weight::Internal & stats,
 		   const Xapian::Weight *wtscheme);
 
 	void get_mset(Xapian::doccount first,
 		      Xapian::doccount maxitems,
 		      Xapian::doccount check_at_least,
 		      Xapian::MSet & mset,
-		      const Stats & stats,
+		      const Xapian::Weight::Internal & stats,
 		      const Xapian::MatchDecider * mdecider,
 		      const Xapian::MatchDecider * matchspy);
 

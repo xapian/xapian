@@ -80,3 +80,27 @@ DEFINE_TESTCASE(totaldoclen1, writable) {
     }
     return true;
 }
+
+DEFINE_TESTCASE(dbstats1, backend) {
+    Xapian::Database db = get_database("etext");
+
+    // Use precalculated values to avoid expending CPU cycles to calculate
+    // these every time without improving test coverage.
+    const Xapian::termcount min_len = 2;
+    const Xapian::termcount max_len = 532;
+    const Xapian::termcount max_wdf = 22;
+
+    if (get_dbtype().find("chert") != string::npos) {
+	// Should be exact for chert as no deletions have happened.
+	TEST_EQUAL(db.get_doclength_upper_bound(), max_len);
+	TEST_EQUAL(db.get_doclength_lower_bound(), min_len);
+    } else {
+	// For other backends, we usually give rather loose bounds.
+	TEST_REL(db.get_doclength_upper_bound(),>=,max_len);
+	TEST_REL(db.get_doclength_lower_bound(),<=,min_len);
+    }
+
+    TEST_REL(db.get_wdf_upper_bound("the"),>=,max_wdf);
+
+    return true;
+}

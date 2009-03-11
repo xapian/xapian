@@ -517,8 +517,12 @@ DEFINE_TESTCASE(topercent2, backend) {
     pct = mymset.convert_to_percent(i);
     TEST_EQUAL(pct, 100);
 
-    TEST_EQUAL(mymset, localmset);
-    TEST(mset_range_is_same_percents(mymset, 0, localmset, 0, mymset.size()));
+    TEST_EQUAL(mymset.get_matches_lower_bound(), localmset.get_matches_lower_bound());
+    TEST_EQUAL(mymset.get_matches_upper_bound(), localmset.get_matches_upper_bound());
+    TEST_EQUAL(mymset.get_matches_estimated(), localmset.get_matches_estimated());
+    TEST_EQUAL(mymset.get_max_attained(), localmset.get_max_attained());
+    TEST_EQUAL(mymset.size(), localmset.size());
+    TEST(mset_range_is_same(mymset, 0, localmset, 0, mymset.size()));
 
     // A search in which the top document doesn't have 100%
     Xapian::Query q = query(Xapian::Query::OP_OR,
@@ -531,7 +535,7 @@ DEFINE_TESTCASE(topercent2, backend) {
     i = mymset.begin();
     TEST(i != mymset.end());
     pct = mymset.convert_to_percent(i);
-    TEST_REL(pct,>,65);
+    TEST_REL(pct,>,60);
     TEST_REL(pct,<,75);
 
     ++i;
@@ -541,8 +545,12 @@ DEFINE_TESTCASE(topercent2, backend) {
     TEST_REL(pct,>,40);
     TEST_REL(pct,<,50);
 
-    TEST_EQUAL(mymset, localmset);
-    TEST(mset_range_is_same_percents(mymset, 0, localmset, 0, mymset.size()));
+    TEST_EQUAL(mymset.get_matches_lower_bound(), localmset.get_matches_lower_bound());
+    TEST_EQUAL(mymset.get_matches_upper_bound(), localmset.get_matches_upper_bound());
+    TEST_EQUAL(mymset.get_matches_estimated(), localmset.get_matches_estimated());
+    TEST_EQUAL(mymset.get_max_attained(), localmset.get_max_attained());
+    TEST_EQUAL(mymset.size(), localmset.size());
+    TEST(mset_range_is_same(mymset, 0, localmset, 0, mymset.size()));
 
     return true;
 }
@@ -1412,16 +1420,10 @@ DEFINE_TESTCASE(qterminfo1, backend) {
 
     TEST_EQUAL(mymset1a.get_termfreq(term1),
 	       mymset2a.get_termfreq(term1));
-    TEST_EQUAL(mymset1a.get_termweight(term1),
-	       mymset2a.get_termweight(term1));
     TEST_EQUAL(mymset1a.get_termfreq(term2),
 	       mymset2a.get_termfreq(term2));
-    TEST_EQUAL(mymset1a.get_termweight(term2),
-	       mymset2a.get_termweight(term2));
     TEST_EQUAL(mymset1a.get_termfreq(term3),
 	       mymset2a.get_termfreq(term3));
-    TEST_EQUAL(mymset1a.get_termweight(term3),
-	       mymset2a.get_termweight(term3));
 
     TEST_EQUAL(mymset1a.get_termfreq(term1), 3);
     TEST_EQUAL(mymset1a.get_termfreq(term2), 1);

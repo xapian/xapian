@@ -312,19 +312,19 @@ Database::get_value_freq(Xapian::valueno valno) const
     RETURN(vf);
 }
 
-std::string
+string
 Database::get_value_lower_bound(Xapian::valueno valno) const
 {
-    DEBUGAPICALL(std::string, "Database::get_value_lower_bound", valno);
+    DEBUGAPICALL(string, "Database::get_value_lower_bound", valno);
 
-    std::string full_lb;
+    if (rare(internal.empty())) RETURN(string());
+
     vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
-    for (i = internal.begin(); i != internal.end(); i++) {
-	std::string lb = (*i)->get_value_lower_bound(valno);
-	if (full_lb.empty())
-	    full_lb = lb;
-	else if (lb < full_lb)
-	    full_lb = lb;
+    i = internal.begin();
+    string full_lb = (*i)->get_value_lower_bound(valno);
+    while (++i != internal.end()) {
+	string lb = (*i)->get_value_lower_bound(valno);
+	if (lb < full_lb) full_lb = lb;
     }
     RETURN(full_lb);
 }
@@ -338,8 +338,53 @@ Database::get_value_upper_bound(Xapian::valueno valno) const
     vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); i++) {
 	std::string ub = (*i)->get_value_upper_bound(valno);
-	if (full_ub < ub)
+	if (ub > full_ub)
 	    full_ub = ub;
+    }
+    RETURN(full_ub);
+}
+
+Xapian::termcount
+Database::get_doclength_lower_bound() const
+{
+    LOGCALL(API, Xapian::termcount, "Database::get_doclength_lower_bound", "");
+
+    if (rare(internal.empty())) RETURN(0);
+
+    vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
+    i = internal.begin();
+    Xapian::termcount full_lb = (*i)->get_doclength_lower_bound();
+    while (++i != internal.end()) {
+	Xapian::termcount lb = (*i)->get_doclength_lower_bound();
+	if (lb < full_lb) full_lb = lb;
+    }
+    RETURN(full_lb);
+}
+
+Xapian::termcount
+Database::get_doclength_upper_bound() const
+{
+    LOGCALL(API, Xapian::termcount, "Database::get_doclength_upper_bound", "");
+
+    Xapian::termcount full_ub = 0;
+    vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
+    for (i = internal.begin(); i != internal.end(); i++) {
+	Xapian::termcount ub = (*i)->get_doclength_upper_bound();
+	if (ub > full_ub) full_ub = ub;
+    }
+    RETURN(full_ub);
+}
+
+Xapian::termcount
+Database::get_wdf_upper_bound(const string & term) const
+{
+    LOGCALL(API, Xapian::termcount, "Database::get_wdf_upper_bound", term);
+
+    Xapian::termcount full_ub = 0;
+    vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
+    for (i = internal.begin(); i != internal.end(); i++) {
+	Xapian::termcount ub = (*i)->get_wdf_upper_bound(term);
+	if (ub > full_ub) full_ub = ub;
     }
     RETURN(full_ub);
 }

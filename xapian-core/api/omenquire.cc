@@ -24,12 +24,13 @@
 #include <config.h>
 #include "omdebug.h"
 
-#include <xapian/document.h>
-#include <xapian/enquire.h>
-#include <xapian/error.h>
-#include <xapian/errorhandler.h>
-#include <xapian/expanddecider.h>
-#include <xapian/termiterator.h>
+#include "xapian/document.h"
+#include "xapian/enquire.h"
+#include "xapian/error.h"
+#include "xapian/errorhandler.h"
+#include "xapian/expanddecider.h"
+#include "xapian/termiterator.h"
+#include "xapian/weight.h"
 
 #include "vectortermlist.h"
 
@@ -39,14 +40,14 @@
 #include "multimatch.h"
 #include "omenquireinternal.h"
 #include "rset.h"
-#include "stats.h"
 #include "utils.h"
+#include "weightinternal.h"
 
-#include <vector>
-#include "autoptr.h"
 #include <algorithm>
+#include "autoptr.h"
 #include <cfloat>
 #include <math.h>
+#include <vector>
 
 using namespace std;
 
@@ -655,7 +656,7 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	weight = new BM25Weight;
     }
 
-    Stats stats;
+    Xapian::Weight::Internal stats;
     ::MultiMatch match(db, query.internal.get(), qlen, rset,
 		       collapse_max, collapse_key,
 		       percent_cutoff, weight_cutoff,
@@ -895,8 +896,10 @@ void
 Enquire::set_weighting_scheme(const Weight &weight_)
 {
     DEBUGAPICALL(void, "Xapian::Enquire::set_weighting_scheme", "[Weight]");
-    delete internal->weight;
-    internal->weight = weight_.clone();
+    // Clone first in case doing so throws an exception.
+    Weight * wt = weight_.clone_();
+    swap(wt, internal->weight);
+    delete wt;
 }
 
 void

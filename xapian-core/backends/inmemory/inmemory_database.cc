@@ -486,6 +486,12 @@ InMemoryDatabase::get_lastdocid() const
     return termlists.size();
 }
 
+totlen_t
+InMemoryDatabase::get_total_length() const
+{
+    return totlen;
+}
+
 Xapian::doclength
 InMemoryDatabase::get_avlength() const
 {

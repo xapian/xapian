@@ -20,11 +20,13 @@
  */
 
 #include <config.h>
+
 #include "xapian/serialisationcontext.h"
 
-#include "xapian/enquire.h"
 #include "xapian/error.h"
 #include "xapian/postingsource.h"
+#include "xapian/weight.h"
+
 #include "serialisationcontextinternal.h"
 #include "omdebug.h"
 
@@ -157,7 +159,7 @@ SerialisationContext::Internal::register_weighting_scheme(const Xapian::Weight &
 
     Xapian::Weight * wtclone = NULL;
     try {
-	wtclone = wt.clone();
+	wtclone = wt.clone_();
 	wtschemes[wtname] = wtclone; 
     } catch(...) {
 	delete wtclone;

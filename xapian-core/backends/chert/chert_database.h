@@ -25,6 +25,7 @@
 #define OM_HGUARD_CHERT_DATABASE_H
 
 #include "database.h"
+#include "chert_dbstats.h"
 #include "chert_positionlist.h"
 #include "chert_postlist.h"
 #include "chert_record.h"
@@ -118,8 +119,8 @@ class ChertDatabase : public Xapian::Database::Internal {
 	 *  database. */
 	unsigned int max_changesets;
 
-	/// Read lastdocid and total_length from the postlist table.
-	void read_metainfo();
+	/// Database statistics.
+	ChertDatabaseStats stats;
 
 	/** Return true if a database exists at the path specified for this
 	 *  database.
@@ -256,6 +257,7 @@ class ChertDatabase : public Xapian::Database::Internal {
 	//@{
 	Xapian::doccount  get_doccount() const;
 	Xapian::docid get_lastdocid() const;
+	totlen_t get_total_length() const;
 	Xapian::doclength get_avlength() const;
 	Xapian::doclength get_doclength(Xapian::docid did) const;
 	Xapian::doccount get_termfreq(const string & tname) const;
@@ -263,6 +265,9 @@ class ChertDatabase : public Xapian::Database::Internal {
 	Xapian::doccount get_value_freq(Xapian::valueno valno) const;
 	std::string get_value_lower_bound(Xapian::valueno valno) const;
 	std::string get_value_upper_bound(Xapian::valueno valno) const;
+	Xapian::termcount get_doclength_lower_bound() const;
+	Xapian::termcount get_doclength_upper_bound() const;
+	Xapian::termcount get_wdf_upper_bound(const string & term) const;
 	bool term_exists(const string & tname) const;
 	bool has_positions() const;
 

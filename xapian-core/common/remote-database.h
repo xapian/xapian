@@ -28,14 +28,13 @@
 #include "omtime.h"
 #include "remoteconnection.h"
 #include "valuestats.h"
+#include "xapian/weight.h"
 
 namespace Xapian {
     class RSet;
-    class Weight;
 }
 
 class NetworkPostList;
-class Stats;
 
 /** RemoteDatabase is the baseclass for remote database implementations.
  *
@@ -59,8 +58,14 @@ class RemoteDatabase : public Xapian::Database::Internal {
     /// The remote last docid, given at open.
     mutable Xapian::docid lastdocid;
 
-    /// The remote document avlength, given at open.
-    mutable Xapian::doclength avlength;
+    /// A lower bound on the smallest document length in this database.
+    mutable Xapian::termcount doclen_lbound;
+
+    /// An upper bound on the greatest document length in this database.
+    mutable Xapian::termcount doclen_ubound;
+
+    /// The total length of all documents in this database.
+    mutable totlen_t total_length;
 
     /// Has positional information?
     mutable bool has_positional_info;
@@ -73,8 +78,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
 
     mutable bool cached_stats_valid;
 
-    /** The most recently used value statistics.
-     */
+    /** The most recently used value statistics. */
     mutable ValueStats mru_valstats;
 
     /** The value number for the most recently used value statistics.
@@ -152,17 +156,17 @@ class RemoteDatabase : public Xapian::Database::Internal {
 		   const Xapian::Weight *wtscheme,
 		   const Xapian::RSet &omrset);
 
-    /** Get the Stats from the remote server.
+    /** Get the stats from the remote server.
      *
      *  @return	true if we got the remote stats; false if we should try again.
      */
-    bool get_remote_stats(bool nowait, Stats &out);
+    bool get_remote_stats(bool nowait, Xapian::Weight::Internal &out);
 
-    /// Send the global Stats to the remote server.
+    /// Send the global stats to the remote server.
     void send_global_stats(Xapian::doccount first,
 			   Xapian::doccount maxitems,
 			   Xapian::doccount check_at_least,
-			   const Stats &stats);
+			   const Xapian::Weight::Internal &stats);
 
     /// Get the MSet from the remote server.
     void get_mset(Xapian::MSet &mset);
@@ -195,6 +199,8 @@ class RemoteDatabase : public Xapian::Database::Internal {
     /// Get the last used docid.
     Xapian::docid get_lastdocid() const;
 
+    totlen_t get_total_length() const;
+
     /// Find out the remote average document length.
     Xapian::doclength get_avlength() const;
 
@@ -213,6 +219,10 @@ class RemoteDatabase : public Xapian::Database::Internal {
     Xapian::doccount get_value_freq(Xapian::valueno valno) const;
     std::string get_value_lower_bound(Xapian::valueno valno) const;
     std::string get_value_upper_bound(Xapian::valueno valno) const;
+
+    Xapian::termcount get_doclength_lower_bound() const;
+    Xapian::termcount get_doclength_upper_bound() const;
+    Xapian::termcount get_wdf_upper_bound(const string & term) const;
 
     void commit();
 

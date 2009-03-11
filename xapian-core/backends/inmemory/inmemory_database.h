@@ -311,6 +311,7 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 
     Xapian::docid get_lastdocid() const;
 
+    totlen_t get_total_length() const;
     Xapian::doclength get_avlength() const;
     Xapian::doclength get_doclength(Xapian::docid did) const;
 

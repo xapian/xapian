@@ -2,6 +2,7 @@
  * @brief Wrapper which exposes only the const methods of database internals.
  */
 /* Copyright 2009 Lemur Consulting Ltd
+ * Copyright 2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,7 +32,6 @@ using namespace std;
 /** Base class for databases.
  */
 class ConstDatabaseWrapper : public Xapian::Database::Internal {
-  private:
     /// Copies are not allowed.
     ConstDatabaseWrapper(const ConstDatabaseWrapper &);
 
@@ -43,12 +43,14 @@ class ConstDatabaseWrapper : public Xapian::Database::Internal {
 
     /// Raise an exception complaining about access to a non-const method.
     XAPIAN_NORETURN(void nonconst_access() const);
+
   public:
     ConstDatabaseWrapper(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> realdb_);
 
     // Const methods: these are proxied to realdb.
     Xapian::doccount get_doccount() const;
     Xapian::docid get_lastdocid() const;
+    totlen_t get_total_length() const;
     Xapian::doclength get_avlength() const;
     Xapian::doclength get_doclength(Xapian::docid did) const;
     Xapian::doccount get_termfreq(const string & tname) const;

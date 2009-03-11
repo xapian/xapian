@@ -31,13 +31,13 @@
 #include "omdebug.h"
 #include "omqueryinternal.h"
 #include "queryoptimiser.h"
-#include "scaleweight.h"
 #include "weightinternal.h"
-#include "stats.h"
 
 #include <cfloat>
 #include <cmath>
 #include <map>
+
+using namespace std;
 
 LocalSubMatch::LocalSubMatch(const Xapian::Database::Internal *db_,
 	const Xapian::Query::Internal * query, Xapian::termcount qlen_,
@@ -52,14 +52,14 @@ LocalSubMatch::LocalSubMatch(const Xapian::Database::Internal *db_,
 }
 
 bool
-LocalSubMatch::prepare_match(bool /*nowait*/, Stats & total_stats)
+LocalSubMatch::prepare_match(bool, Xapian::Weight::Internal & total_stats)
 {
-    DEBUGCALL(MATCH, bool, "LocalSubMatch::prepare_match", "/*nowait*/");
-    Stats my_stats;
+    DEBUGCALL(MATCH, bool, "LocalSubMatch::prepare_match", "[nowait], [total_stats]");
+    Xapian::Weight::Internal my_stats;
 
     // Set the collection statistics.
+    my_stats.total_length = db->get_total_length();
     my_stats.collection_size = db->get_doccount();
-    my_stats.average_length = db->get_avlength();
 
     // Get the term-frequencies and relevant term-frequencies.
     Xapian::TermIterator titer = orig_query.get_terms();
@@ -78,7 +78,8 @@ LocalSubMatch::prepare_match(bool /*nowait*/, Stats & total_stats)
 
 void
 LocalSubMatch::start_match(Xapian::doccount, Xapian::doccount,
-			   Xapian::doccount, const Stats & total_stats)
+			   Xapian::doccount,
+			   const Xapian::Weight::Internal & total_stats)
 {
     // Set the statistics for the whole collection.
     stats = &total_stats;
@@ -100,8 +101,8 @@ LocalSubMatch::get_postlist_and_term_info(MultiMatch * matcher,
 
     // We only need an ExtraWeightPostList if there's an extra weight
     // contribution.
-    AutoPtr<Xapian::Weight> extra_wt(
-	wt_factory->create(new Xapian::Weight::Internal(*stats), qlen, 1, ""));
+    AutoPtr<Xapian::Weight> extra_wt(wt_factory->clone_());
+    extra_wt->init_(*stats, qlen);
     if (extra_wt->get_maxextra() != 0.0) {
 	pl = new ExtraWeightPostList(pl, extra_wt.release(), matcher);
     }
@@ -121,14 +122,8 @@ LocalSubMatch::postlist_from_op_leaf_query(const Xapian::Query::Internal *query,
     bool boolean = (factor == 0.0);
     AutoPtr<Xapian::Weight> wt;
     if (!boolean) {
-	// FIXME:
-	// pass factor to Weight::create() - and have a shim class for classes
-	// which don't understand it...
-	wt = wt_factory->create(new Xapian::Weight::Internal(*stats, query->tname),
-				qlen, query->wqf, query->tname);
-	if (fabs(factor - 1.0) > DBL_EPSILON) {
-	    wt = new ScaleWeight(wt.release(), factor);
-	}
+	wt = wt_factory->clone_();
+	wt->init_(*stats, qlen, query->tname, query->wqf, factor);
     }
 
     map<string, Xapian::MSet::Internal::TermFreqAndWeight>::iterator i;
