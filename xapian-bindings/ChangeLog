@@ -1,3 +1,8 @@
+Wed Mar 11 11:18:57 GMT 2009  Olly Betts <olly@survex.com>
+
+	* xapian.i: Updated to wrap xapian/weight.h directly, such that it
+	  builds with the new Xapian::Weight class.
+
 Wed Mar 11 11:15:18 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/testsuite2.py,python/testsuite3.py: Remove bare except:
