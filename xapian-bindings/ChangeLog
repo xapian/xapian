@@ -1,3 +1,10 @@
+Wed Mar 11 01:05:23 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* python/extra.i: Add support for the old name ("ascending") for the
+	  second argument of set_sort_by_key() and set_sort_by_value() and
+	  friends.
+
 Wed Mar 11 00:48:04 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
