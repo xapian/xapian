@@ -1,3 +1,8 @@
+Wed Mar 11 13:17:58 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/weight.h: Mark Weight::init_() methods as "@private
+	  @internal" for doxygen API docs.
+
 Wed Mar 11 13:13:32 GMT 2009  Olly Betts <olly@survex.com>
 
 	* include/xapian/weight.h,tests/api_db.cc,tests/api_nodb.cc,

@@ -202,7 +202,8 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      */
     Weight * clone_() const { return clone(); }
 
-    /** Initialise this object to calculate weights for term @a term.
+    /** @private @internal Initialise this object to calculate weights for term
+     *  @a term.
      *
      *  @param stats	  Source of statistics.
      *  @param query_len_ Query length.
@@ -214,7 +215,8 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 	       const std::string & term, Xapian::termcount wqf_,
 	       double factor);
 
-    /** Initialise this object to calculate the extra weight term.
+    /** @private @internal Initialise this object to calculate the extra weight
+     *  term.
      *
      *  @param stats	  Source of statistics.
      *  @param query_len_ Query length.
