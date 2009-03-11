@@ -1,7 +1,7 @@
 /** @file msetpostlist.cc
  *  @brief PostList returning entries from an MSet
  */
-/* Copyright (C) 2006,2007 Olly Betts
+/* Copyright (C) 2006,2007,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -85,7 +85,7 @@ MSetPostList::get_collapse_key() const
     RETURN(&mset_internal->items[cursor].collapse_key);
 }
 
-Xapian::doclength
+Xapian::termcount
 MSetPostList::get_doclength() const
 {
     throw Xapian::UnimplementedError("MSetPostList::get_doclength() unimplemented");

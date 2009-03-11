@@ -70,6 +70,7 @@ enum message_type {
     MSG_REPLACEDOCUMENT,	// Replace Document
     MSG_REPLACEDOCUMENTTERM,	// Replace Document by term
     MSG_DELETEDOCUMENT,		// Delete Document
+    MSG_WRITEACCESS,		// Upgrade to WritableDatabase
     MSG_GETMSET,		// Get MSet
     MSG_SHUTDOWN,		// Shutdown
     MSG_MAX

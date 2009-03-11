@@ -1,7 +1,7 @@
 /** @file valuerangepostlist.cc
  * @brief Return document ids matching a range test on a specified doc value.
  */
-/* Copyright 2007,2008 Olly Betts
+/* Copyright 2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -78,7 +78,7 @@ ValueRangePostList::get_weight() const
     return 0;
 }
 
-Xapian::doclength
+Xapian::termcount
 ValueRangePostList::get_doclength() const
 {
     Assert(db);

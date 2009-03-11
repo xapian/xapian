@@ -1,7 +1,7 @@
 /** @file externalpostlist.cc
  * @brief Return document ids from an external source.
  */
-/* Copyright 2008 Olly Betts
+/* Copyright 2008,2009 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -99,7 +99,7 @@ ExternalPostList::get_weight() const
     RETURN(factor * source->get_weight());
 }
 
-Xapian::doclength
+Xapian::termcount
 ExternalPostList::get_doclength() const
 {
     // FIXME
@@ -130,6 +130,7 @@ ExternalPostList::update_after_advance() {
     Assert(source);
     if (source->at_end()) {
 	LOGLINE(MATCH, "ExternalPostList now at end");
+	if (source_is_owned) delete source;
 	source = NULL;
     } else {
 	current = source->get_docid();
@@ -170,6 +171,7 @@ ExternalPostList::check(Xapian::docid did, Xapian::weight w_min, bool &valid)
     valid = source->check(did, w_min);
     if (source->at_end()) {
 	LOGLINE(MATCH, "ExternalPostList now at end");
+	if (source_is_owned) delete source;
 	source = NULL;
     } else {
 	current = valid ? source->get_docid() : current;

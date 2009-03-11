@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2007,2008,2009 Olly Betts
  * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -222,10 +222,10 @@ class FlintPostList : public LeafPostList {
 	Xapian::docid get_docid() const { Assert(have_started); return did; }
 
 	/// Returns the length of current document.
-	Xapian::doclength get_doclength() const {
-	    DEBUGCALL(DB, Xapian::doclength, "FlintPostList::get_doclength", "");
+	Xapian::termcount get_doclength() const {
+	    DEBUGCALL(DB, Xapian::termcount, "FlintPostList::get_doclength", "");
 	    Assert(have_started);
-	    RETURN(static_cast<Xapian::doclength>(doclength));
+	    RETURN(static_cast<Xapian::termcount>(doclength));
 	}
 
 	/** Returns the Within Document Frequency of the term in the current

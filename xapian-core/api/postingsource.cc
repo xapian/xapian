@@ -315,7 +315,6 @@ void
 ValueMapPostingSource::set_default_weight(double wt)
 {
     default_weight = wt;
-    max_weight = std::max(max_weight, default_weight);
 }
 
 Xapian::weight

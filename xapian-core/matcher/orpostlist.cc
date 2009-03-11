@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2003,2004,2007,2008 Olly Betts
+ * Copyright 2003,2004,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -239,11 +239,11 @@ OrPostList::get_description() const
     return "(" + l->get_description() + " Or " + r->get_description() + ")";
 }
 
-Xapian::doclength
+Xapian::termcount
 OrPostList::get_doclength() const
 {
-    DEBUGCALL(MATCH, Xapian::doclength, "OrPostList::get_doclength", "");
-    Xapian::doclength doclength;
+    DEBUGCALL(MATCH, Xapian::termcount, "OrPostList::get_doclength", "");
+    Xapian::termcount doclength;
 
     Assert(lhead != 0 && rhead != 0); // check we've started
     if (lhead > rhead) {

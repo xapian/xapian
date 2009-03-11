@@ -1,7 +1,7 @@
 /** @file chert_alldocspostlist.cc
  * @brief A PostList which iterates over all documents in a ChertDatabase.
  */
-/* Copyright (C) 2006,2007,2008 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -45,10 +45,10 @@ ChertAllDocsPostList::get_termfreq() const
     RETURN(doccount);
 }
 
-Xapian::doclength
+Xapian::termcount
 ChertAllDocsPostList::get_doclength() const
 {
-    DEBUGCALL(DB, Xapian::doclength, "ChertAllDocsPostList::get_doclength", "");
+    DEBUGCALL(DB, Xapian::termcount, "ChertAllDocsPostList::get_doclength", "");
 
     RETURN(ChertPostList::get_wdf());
 }

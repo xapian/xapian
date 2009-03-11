@@ -1,7 +1,7 @@
 /** @file api_backend.cc
  * @brief Backend-related tests.
  */
-/* Copyright (C) 2008 Olly Betts
+/* Copyright (C) 2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,7 +35,7 @@ using namespace std;
 
 /// Regression test - lockfile should honour umask, was only user-readable.
 DEFINE_TESTCASE(lockfileumask1, flint || chert) {
-#ifndef __WIN32__
+#if !defined __WIN32__ && !defined __CYGWIN__ && !defined __EMX__
     mode_t old_umask = umask(022);
     try {
 	Xapian::WritableDatabase db = get_named_writable_database("lockfileumask1");
@@ -59,6 +59,48 @@ DEFINE_TESTCASE(lockfileumask1, flint || chert) {
 
     umask(old_umask);
 #endif
+
+    return true;
+}
+
+/// Check that the backend handles total document length > 0xffffffff.
+DEFINE_TESTCASE(totaldoclen1, writable) {
+    Xapian::WritableDatabase db = get_writable_database();
+    Xapian::Document doc;
+    doc.add_posting("foo", 1, 2000000000);
+    db.add_document(doc);
+    db.add_document(doc);
+    TEST_EQUAL(db.get_avlength(), 2000000000);
+    db.commit();
+    TEST_EQUAL(db.get_avlength(), 2000000000);
+    if (get_dbtype() != "inmemory") {
+	// InMemory doesn't support get_writable_database_as_database().
+	Xapian::Database dbr = get_writable_database_as_database();
+	TEST_EQUAL(dbr.get_avlength(), 2000000000);
+    }
+    return true;
+}
+
+DEFINE_TESTCASE(dbstats1, backend) {
+    Xapian::Database db = get_database("etext");
+
+    // Use precalculated values to avoid expending CPU cycles to calculate
+    // these every time without improving test coverage.
+    const Xapian::termcount min_len = 2;
+    const Xapian::termcount max_len = 532;
+    const Xapian::termcount max_wdf = 22;
+
+    if (get_dbtype().find("chert") != string::npos) {
+	// Should be exact for chert as no deletions have happened.
+	TEST_EQUAL(db.get_doclength_upper_bound(), max_len);
+	TEST_EQUAL(db.get_doclength_lower_bound(), min_len);
+    } else {
+	// For other backends, we usually give rather loose bounds.
+	TEST_REL(db.get_doclength_upper_bound(),>=,max_len);
+	TEST_REL(db.get_doclength_lower_bound(),<=,min_len);
+    }
+
+    TEST_REL(db.get_wdf_upper_bound("the"),>=,max_wdf);
 
     return true;
 }

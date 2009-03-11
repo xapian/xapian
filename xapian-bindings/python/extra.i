@@ -616,6 +616,170 @@ def _queryparser_gen_unstemlist_iter(self, tname):
                     return_strings=True)
 QueryParser.unstemlist = _queryparser_gen_unstemlist_iter
 
+# When we make a query, keep a note of postingsources involved, so they won't
+# be deleted. This hack can probably be removed once xapian bug #186 is fixed.
+__query_init_orig = Query.__init__
+def _query_init(self, *args):
+    """Make a new query object.
+
+    Many possible arguments are possible - see the documentation for details.
+
+    """
+    ps = []
+    if len(args) == 1 and isinstance(args[0], PostingSource):
+        ps.append(args[0])
+    else:
+        for arg in args:
+            if isinstance(arg, Query):
+                ps.extend(getattr(arg, '_ps', []))
+            elif hasattr(arg, '__iter__'):
+                for listarg in arg:
+                    if isinstance(listarg, Query):
+                        ps.extend(getattr(listarg, '_ps', []))
+    __query_init_orig(self, *args)
+    self._ps = ps
+Query.__init__ = _query_init
+del _query_init
+
+# When setting a query on enquire, keep a note of postingsources involved, so
+# they won't be deleted. This hack can probably be removed once xapian bug #186
+# is fixed.
+__enquire_set_query_orig = Enquire.set_query
+def _enquire_set_query(self, query, qlen=0):
+    self._ps = getattr(query, '_ps', [])
+    return __enquire_set_query_orig(self, query, qlen)
+_enquire_set_query.__doc__ = __enquire_set_query_orig.__doc__
+Enquire.set_query = _enquire_set_query
+del _enquire_set_query
+
+# When getting  a query from enquire, keep a note of postingsources involved,
+# so they won't be deleted. This hack can probably be removed once xapian bug
+# #186 is fixed.
+__enquire_get_query_orig = Enquire.get_query
+def _enquire_get_query(self):
+    query = __enquire_get_query_orig(self)
+    query._ps = getattr(self, '_ps', [])
+    return query
+_enquire_get_query.__doc__ = __enquire_get_query_orig.__doc__
+Enquire.get_query = _enquire_get_query
+del _enquire_get_query
+
+# When we set a ValueRangeProcessor into the QueryParser, keep a python
+# reference so it won't be deleted. This hack can probably be removed once
+# xapian bug #186 is fixed.
+__queryparser_add_valuerangeprocessor_orig = QueryParser.add_valuerangeprocessor
+def _queryparser_add_valuerangeprocessor(self, vrproc):
+    if not hasattr(self, '_vrps'):
+        self._vrps = []
+    self._vrps.append(vrproc)
+    return __queryparser_add_valuerangeprocessor_orig(self, vrproc)
+_queryparser_add_valuerangeprocessor.__doc__ = __queryparser_add_valuerangeprocessor_orig.__doc__
+QueryParser.add_valuerangeprocessor = _queryparser_add_valuerangeprocessor
+del _queryparser_add_valuerangeprocessor
+
+# When we set a Stopper into the QueryParser, keep a python reference so it
+# won't be deleted. This hack can probably be removed once xapian bug #186 is
+# fixed.
+__queryparser_set_stopper_orig = QueryParser.set_stopper
+def _queryparser_set_stopper(self, stopper):
+    self._stopper = stopper
+    return __queryparser_set_stopper_orig(self, stopper)
+_queryparser_set_stopper.__doc__ = __queryparser_set_stopper_orig.__doc__
+QueryParser.set_stopper = _queryparser_set_stopper
+del _queryparser_set_stopper
+
+# When we set a Stopper into the TermGenerator, keep a python reference so it
+# won't be deleted. This hack can probably be removed once xapian bug #186 is
+# fixed.
+__termgenerator_set_stopper_orig = TermGenerator.set_stopper
+def _termgenerator_set_stopper(self, stopper):
+    self._stopper = stopper
+    return __termgenerator_set_stopper_orig(self, stopper)
+_termgenerator_set_stopper.__doc__ = __termgenerator_set_stopper_orig.__doc__
+TermGenerator.set_stopper = _termgenerator_set_stopper
+del _termgenerator_set_stopper
+
+def _enquire_check_deprec_args(reverse, kwargs, methodname):
+    """Check the keyword arguments to one of the enquire set_sort_* methods.
+    
+    """
+    if reverse is not None:
+        if 'ascending' in kwargs:
+            raise TypeError('Only one of "reverse" and "ascending" may be specified')
+        if len(kwargs) != 0:
+            raise TypeError('Only keyword arguments allowed are "reverse" and "ascending"')
+    else:
+        import warnings
+        if 'ascending' in kwargs:
+            reverse = kwargs.get('ascending')
+            del kwargs['ascending']
+            warnings.warn("'ascending' as a parameter name to Enquire::" +
+                          methodname + "() is deprecated and will be removed "
+                          "in Xapian 1.3.0", DeprecationWarning)
+        else:
+            warnings.warn("Single argument form of Enquire::" +
+                          methodname + "() is deprecated and will be removed "
+                          "in Xapian 1.3.0", DeprecationWarning)
+            reverse = True
+        if len(kwargs) != 0:
+            raise TypeError('Only keyword arguments allowed are "reverse" and "ascending"')
+    return reverse
+
+# When we set a Sorter on enquire, keep a python reference so it won't be
+# deleted.  This hack can probably be removed once xapian bug #186 is fixed.
+__enquire_set_sort_by_key_orig = Enquire.set_sort_by_key
+def _enquire_set_sort_by_key(self, sorter, reverse=None, **kwargs):
+    self._sorter = sorter
+    reverse = _enquire_check_deprec_args(reverse, kwargs, "set_sort_by_key")
+    return __enquire_set_sort_by_key_orig(self, sorter, reverse)
+_enquire_set_sort_by_key.__doc__ = __enquire_set_sort_by_key_orig.__doc__
+Enquire.set_sort_by_key = _enquire_set_sort_by_key
+del _enquire_set_sort_by_key
+
+__enquire_set_sort_by_key_then_relevance_orig = Enquire.set_sort_by_key_then_relevance
+def _enquire_set_sort_by_key_then_relevance(self, sorter, reverse=None, **kwargs):
+    self._sorter = sorter
+    reverse = _enquire_check_deprec_args(reverse, kwargs, "set_sort_by_key_then_relevance")
+    return __enquire_set_sort_by_key_then_relevance_orig(self, sorter, reverse)
+_enquire_set_sort_by_key_then_relevance.__doc__ = __enquire_set_sort_by_key_then_relevance_orig.__doc__
+Enquire.set_sort_by_key_then_relevance = _enquire_set_sort_by_key_then_relevance
+del _enquire_set_sort_by_key_then_relevance
+
+__enquire_set_sort_by_relevance_then_key_orig = Enquire.set_sort_by_relevance_then_key
+def _enquire_set_sort_by_relevance_then_key(self, sorter, reverse=None, **kwargs):
+    self._sorter = sorter
+    reverse = _enquire_check_deprec_args(reverse, kwargs, "set_sort_by_relevance_then_key")
+    return __enquire_set_sort_by_relevance_then_key_orig(self, sorter, reverse)
+_enquire_set_sort_by_relevance_then_key.__doc__ = __enquire_set_sort_by_relevance_then_key_orig.__doc__
+Enquire.set_sort_by_relevance_then_key = _enquire_set_sort_by_relevance_then_key
+del _enquire_set_sort_by_relevance_then_key
+
+# Add deprecation warnings about old argument names.  Can be removed in 1.3.0
+__enquire_set_sort_by_value_orig = Enquire.set_sort_by_value
+def _enquire_set_sort_by_value(self, sort_key, reverse=None, **kwargs):
+    reverse = _enquire_check_deprec_args(reverse, kwargs, "set_sort_by_value")
+    return __enquire_set_sort_by_value_orig(self, sort_key, reverse)
+_enquire_set_sort_by_value.__doc__ = __enquire_set_sort_by_value_orig.__doc__
+Enquire.set_sort_by_value = _enquire_set_sort_by_value
+del _enquire_set_sort_by_value
+
+# Add deprecation warnings about old argument names.  Can be removed in 1.3.0
+__enquire_set_sort_by_relevance_then_value_orig = Enquire.set_sort_by_relevance_then_value
+def _enquire_set_sort_by_relevance_then_value(self, sort_key, reverse=None, **kwargs):
+    reverse = _enquire_check_deprec_args(reverse, kwargs, "set_sort_by_relevance_then_value")
+    return __enquire_set_sort_by_relevance_then_value_orig(self, sort_key, reverse)
+_enquire_set_sort_by_relevance_then_value.__doc__ = __enquire_set_sort_by_relevance_then_value_orig.__doc__
+Enquire.set_sort_by_relevance_then_value = _enquire_set_sort_by_relevance_then_value
+del _enquire_set_sort_by_relevance_then_value
+
+# Add deprecation warnings about old argument names.  Can be removed in 1.3.0
+__enquire_set_sort_by_value_then_relevance_orig = Enquire.set_sort_by_value_then_relevance
+def _enquire_set_sort_by_value_then_relevance(self, sort_key, reverse=None, **kwargs):
+    reverse = _enquire_check_deprec_args(reverse, kwargs, "set_sort_by_value_then_relevance")
+    return __enquire_set_sort_by_value_then_relevance_orig(self, sort_key, reverse)
+_enquire_set_sort_by_value_then_relevance.__doc__ = __enquire_set_sort_by_value_then_relevance_orig.__doc__
+Enquire.set_sort_by_value_then_relevance = _enquire_set_sort_by_value_then_relevance
+del _enquire_set_sort_by_value_then_relevance
 
 
 ##########################################
@@ -864,6 +1028,10 @@ def _docsim_set_termfreqsource(self, decider):
 _docsim_set_termfreqsource.__doc__ = __docsim_set_termfreqsource_orig.__doc__
 DocSim.set_termfreqsource = _docsim_set_termfreqsource
 del _docsim_set_termfreqsource
+
+# Remove static methods which shouldn't be in the API.
+del Document_unserialise
+del Query_unserialise
 
 %}
 
