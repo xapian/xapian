@@ -845,8 +845,8 @@ def test_scale_weight():
             expected = [(0, item.docid) for item in mset1]
             expected.sort()
         else:
-            expected = [(item.weight * mult, item.docid) for item in mset1]
-        expect([(item.weight, item.docid) for item in mset2], expected)
+            expected = [(int(item.weight * mult * 1000000), item.docid) for item in mset1]
+        expect([(int(item.weight * 1000000), item.docid) for item in mset2], expected)
 
     context("checking queries with OP_SCALE_WEIGHT with a multipler of -1")
     query1 = xapian.Query("it")

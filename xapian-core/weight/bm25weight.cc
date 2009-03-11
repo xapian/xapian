@@ -127,7 +127,7 @@ BM25Weight::init(double factor)
     LOGVALUE(WTCALC, len_factor);
 }
 
-const char *
+std::string
 BM25Weight::name() const
 {
     return "Xapian::BM25Weight";

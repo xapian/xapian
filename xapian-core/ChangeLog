@@ -89,6 +89,18 @@ Tue Nov 27 08:40:51 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 	* tests/api_db.cc: Add basic test of synonyms (currently doesn't
 	  pass due to testcase shortcomings).
 
+Wed Mar 11 13:17:58 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/weight.h: Mark Weight::init_() methods as "@private
+	  @internal" for doxygen API docs.
+
+Wed Mar 11 13:13:32 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/weight.h,tests/api_db.cc,tests/api_nodb.cc,
+	  weight/bm25weight.cc,weight/boolweight.cc,weight/tradweight.cc:
+	  Make Weight::name() return std::string to allow sane wrapping
+	  with SWIG directors.
+
 Wed Mar 11 05:46:40 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/,backends/chert/,backends/contiguousalldocspostlist.cc,

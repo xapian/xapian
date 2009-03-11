@@ -288,14 +288,14 @@ DEFINE_TESTCASE(weight1, !backend) {
     Xapian::Weight * wt;
 
     Xapian::BoolWeight boolweight;
-    TEST(strcmp(boolweight.name(), "Xapian::BoolWeight") == 0);
+    TEST_EQUAL(boolweight.name(), "Xapian::BoolWeight");
     wt = Xapian::BoolWeight().unserialise(boolweight.serialise());
     TEST_EQUAL(boolweight.serialise(), wt->serialise());
     delete wt;
 
     Xapian::TradWeight tradweight_dflt;
     Xapian::TradWeight tradweight(1.0);
-    TEST(strcmp(tradweight.name(), "Xapian::TradWeight") == 0);
+    TEST_EQUAL(tradweight.name(), "Xapian::TradWeight");
     TEST_EQUAL(tradweight_dflt.serialise(), tradweight.serialise());
     wt = Xapian::TradWeight().unserialise(tradweight.serialise());
     TEST_EQUAL(tradweight.serialise(), wt->serialise());
@@ -306,7 +306,7 @@ DEFINE_TESTCASE(weight1, !backend) {
 
     Xapian::BM25Weight bm25weight_dflt;
     Xapian::BM25Weight bm25weight(1, 0, 1, 0.5, 0.5);
-    TEST(strcmp(bm25weight.name(), "Xapian::BM25Weight") == 0);
+    TEST_EQUAL(bm25weight.name(), "Xapian::BM25Weight");
     TEST_EQUAL(bm25weight_dflt.serialise(), bm25weight.serialise());
     wt = Xapian::BM25Weight().unserialise(bm25weight.serialise());
     TEST_EQUAL(bm25weight.serialise(), wt->serialise());
