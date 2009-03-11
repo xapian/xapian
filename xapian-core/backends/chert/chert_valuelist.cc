@@ -135,18 +135,22 @@ ChertValueList::check(Xapian::docid did)
 	cursor = db->get_postlist_cursor();
 	if (!cursor) return true;
     } else if (!reader.at_end()) {
+	// Check for the requested docid in the current block.
 	reader.skip_to(did);
 	if (!reader.at_end()) return true;
     }
 
+    // Try moving to the appropriate chunk.
     if (!cursor->find_entry(make_valuechunk_key(slot, did))) {
+	// We're in a chunk which might contain the docid.
 	if (update_reader()) {
 	    reader.skip_to(did);
+	    if (!reader.at_end()) return true;
 	}
 	return false;
     }
 
-    // Exact match for a chunk starting with did.
+    // We had an exact match for a chunk starting with specified docid..
     Assert(!cursor->after_end());
     if (!update_reader()) {
 	// We found the exact key we built, so it must match the slot.
