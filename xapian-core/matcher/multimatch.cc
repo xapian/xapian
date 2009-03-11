@@ -43,9 +43,10 @@
 #include "omqueryinternal.h"
 
 #include "submatch.h"
-#include "stats.h"
 
 #include "msetcmp.h"
+
+#include "weightinternal.h"
 
 #include <xapian/errorhandler.h>
 #include <xapian/version.h> // For XAPIAN_HAS_REMOTE_BACKEND
@@ -139,7 +140,7 @@ split_rset_by_db(const Xapian::RSet * rset,
 static void
 prepare_sub_matches(vector<Xapian::Internal::RefCntPtr<SubMatch> > & leaves,
 		    Xapian::ErrorHandler * errorhandler,
-		    Stats & stats)
+		    Xapian::Weight::Internal & stats)
 {
     DEBUGCALL_STATIC(MATCH, void, "prepare_sub_matches",
 		     "[leaves(size=" << leaves.size() << ")], " <<
@@ -190,7 +191,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 		       bool sort_value_forward_,
 		       const Xapian::Sorter * sorter_,
 		       Xapian::ErrorHandler * errorhandler_,
-		       Stats & stats,
+		       Xapian::Weight::Internal & stats,
 		       const Xapian::Weight * weight_)
 	: db(db_), query(query_),
 	  collapse_max(collapse_max_), collapse_key(collapse_key_),
@@ -251,6 +252,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
     }
 
     prepare_sub_matches(leaves, errorhandler, stats);
+    stats.set_bounds_from_db(db);
 }
 
 Xapian::weight
@@ -274,7 +276,7 @@ void
 MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		     Xapian::doccount check_at_least,
 		     Xapian::MSet & mset,
-		     const Stats & stats,
+		     const Xapian::Weight::Internal & stats,
 		     const Xapian::MatchDecider *mdecider,
 		     const Xapian::MatchDecider *matchspy)
 {
@@ -475,6 +477,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     bool is_heap = false;
 
     while (true) {
+	bool pushback;
+
 	if (rare(recalculate_w_max)) {
 	    if (min_weight > 0.0) {
 		if (rare(getorrecalc_maxweight(pl) < min_weight)) {
@@ -540,11 +544,16 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		    // processing needed.
 		    LOGLINE(MATCH, "Making note of match item which sorts lower than min_item");
 		    ++docs_matched;
+		    if (!calculated_weight) wt = pl->get_weight();
+		    if (wt > greatest_wt) goto new_greatest_weight;
 		    continue;
 		}
 		if (docs_matched >= check_at_least) {
 		    // We've seen enough items - we can drop this one.
 		    LOGLINE(MATCH, "Dropping candidate which sorts lower than min_item");
+		    // FIXME: hmm, match decider might have rejected this...
+		    if (!calculated_weight) wt = pl->get_weight();
+		    if (wt > greatest_wt) goto new_greatest_weight;
 		    continue;
 		}
 		// We can't drop the item, because we need to show it
@@ -586,13 +595,20 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    new_item.wt = wt;
 	}
 
-	bool pushback = true;
+	pushback = true;
 
 	// Perform collapsing on key if requested.
 	if (collapser) {
 	    collapse_result res;
 	    res = collapser.process(new_item, pl, db, doc, mcmp);
-	    if (res == REJECTED) continue;
+	    if (res == REJECTED) {
+		// If we're sorting by relevance primarily, then we throw away
+		// the lower weighted document anyway.
+		if (sort_by != REL && sort_by != REL_VAL) {
+		    if (wt > greatest_wt) goto new_greatest_weight;
+		}
+		continue;
+	    }
 
 	    if (res == REPLACED) {
 		// There was a previous item in the collapse tab so
@@ -698,6 +714,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
 	// Keep a track of the greatest weight we've seen.
 	if (wt > greatest_wt) {
+new_greatest_weight:
 	    greatest_wt = wt;
 	    if (percent_cutoff) {
 		Xapian::weight w = wt * percent_cutoff_factor;

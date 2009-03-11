@@ -1,7 +1,7 @@
 <?php
 /* PHP5 script to index each paragraph of a text file as a Xapian document.
  *
- * Copyright (C) 2007 Olly Betts
+ * Copyright (C) 2007,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -64,7 +64,7 @@ try {
     }
 
     // Set the database handle to Null to ensure that it gets closed
-    // down cleanly or unflushed changes may be lost.
+    // down cleanly or uncommitted changes may be lost.
     $database = Null;
 } catch (Exception $e) {
     print $e->getMessage() . "\n";

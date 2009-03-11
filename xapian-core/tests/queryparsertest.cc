@@ -1585,11 +1585,7 @@ static bool test_qp_synonym1()
 	expect += p->expect;
 	expect += ')';
 	Xapian::Query q;
-	q = qp.parse_query(p->query,
-			   Xapian::QueryParser::FLAG_AUTO_SYNONYMS |
-			   Xapian::QueryParser::FLAG_BOOLEAN |
-			   Xapian::QueryParser::FLAG_LOVEHATE |
-			   Xapian::QueryParser::FLAG_PHRASE );
+	q = qp.parse_query(p->query, qp.FLAG_AUTO_SYNONYMS|qp.FLAG_DEFAULT);
 	tout << "Query: " << p->query << endl;
 	TEST_STRINGS_EQUAL(q.get_description(), expect);
     }
@@ -1632,9 +1628,7 @@ static bool test_qp_synonym2()
 	Xapian::Query q;
 	q = qp.parse_query(p->query,
 			   Xapian::QueryParser::FLAG_AUTO_MULTIWORD_SYNONYMS |
-			   Xapian::QueryParser::FLAG_BOOLEAN |
-			   Xapian::QueryParser::FLAG_LOVEHATE |
-			   Xapian::QueryParser::FLAG_PHRASE );
+			   Xapian::QueryParser::FLAG_DEFAULT);
 	tout << "Query: " << p->query << endl;
 	TEST_STRINGS_EQUAL(q.get_description(), expect);
     }
@@ -1785,10 +1779,7 @@ static bool test_qp_stem_scale1()
     syn.resize(syn.size() - 1);
 
     double time1, time2;
-    unsigned defflags =
-	    Xapian::QueryParser::FLAG_PHRASE |
-	    Xapian::QueryParser::FLAG_BOOLEAN |
-	    Xapian::QueryParser::FLAG_LOVEHATE;
+    unsigned defflags = Xapian::QueryParser::FLAG_DEFAULT;
     unsigned synflags = defflags |
 	    Xapian::QueryParser::FLAG_SYNONYM |
 	    Xapian::QueryParser::FLAG_AUTO_MULTIWORD_SYNONYMS;

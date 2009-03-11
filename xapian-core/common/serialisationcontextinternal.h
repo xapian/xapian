@@ -2,6 +2,7 @@
  * @brief Internals of SerialisationContext object.
  */
 /* Copyright 2009 Lemur Consulting Ltd
+ * Copyright 2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,8 +28,10 @@
 #include <map>
 #include <string>
 
-class Xapian::Weight;
-class Xapian::PostingSource;
+namespace Xapian {
+    class Weight;
+    class PostingSource;
+}
 
 class Xapian::SerialisationContext::Internal
 	: public Xapian::Internal::RefCntBase {

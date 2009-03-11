@@ -1,7 +1,7 @@
 /** @file multialltermslist.cc
  * @brief Class for merging AllTermsList objects from subdatabases.
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -106,6 +106,7 @@ MultiAllTermsList::next()
 	while (i != termlists.end()) {
 	    (*i)->next();
 	    if ((*i)->at_end()) {
+		delete *i;
 		i = termlists.erase(i);
 	    } else {
 		++i;
@@ -153,6 +154,7 @@ MultiAllTermsList::skip_to(const std::string &term)
     while (i != termlists.end()) {
 	(*i)->skip_to(term);
 	if ((*i)->at_end()) {
+	    delete *i;
 	    i = termlists.erase(i);
 	} else {
 	    ++i;

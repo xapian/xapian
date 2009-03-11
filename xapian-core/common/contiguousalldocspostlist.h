@@ -1,7 +1,7 @@
 /** @file contiguousalldocspostlist.h
  * @brief Iterate all document ids when they form a contiguous range.
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,7 +59,7 @@ class ContiguousAllDocsPostList : public LeafPostList {
     Xapian::docid get_docid() const;
 
     /// Return the length of current document.
-    Xapian::doclength get_doclength() const;
+    Xapian::termcount get_doclength() const;
 
     /// Always return 1 (wdf isn't totally meaningful for us).
     Xapian::termcount get_wdf() const;

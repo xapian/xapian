@@ -1,7 +1,7 @@
 /** @file emptysubmatch.cc
  *  @brief SubMatch class for a dead remote database.
  */
-/* Copyright (C) 2006,2007,2008 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,19 +20,21 @@
 
 #include <config.h>
 
-#include "emptypostlist.h"
 #include "emptysubmatch.h"
 
-#include "xapian/enquire.h"
+#include "emptypostlist.h"
+
+using namespace std;
 
 bool
-EmptySubMatch::prepare_match(bool /*nowait*/, Stats & /*total_stats*/) {
+EmptySubMatch::prepare_match(bool, Xapian::Weight::Internal &)
+{
     return true;
 }
 
 void
 EmptySubMatch::start_match(Xapian::doccount, Xapian::doccount,
-			   Xapian::doccount, const Stats &)
+			   Xapian::doccount, const Xapian::Weight::Internal &)
 {
 }
 

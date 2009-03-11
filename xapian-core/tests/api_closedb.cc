@@ -136,12 +136,12 @@ DEFINE_TESTCASE(closedb1, backend) {
 
 // Test closing a writable database, and that it drops the lock.
 DEFINE_TESTCASE(closedb2, backend && writable && !remote && !inmemory) {
-    Xapian::WritableDatabase dbw1(get_named_writable_database("apitest_closedb3"));
+    Xapian::WritableDatabase dbw1(get_named_writable_database("apitest_closedb2"));
     TEST_EXCEPTION(Xapian::DatabaseLockError,
-		   Xapian::WritableDatabase(get_named_writable_database_path("apitest_closedb3"),
+		   Xapian::WritableDatabase(get_named_writable_database_path("apitest_closedb2"),
 					    Xapian::DB_OPEN));
     dbw1.close();
-    Xapian::WritableDatabase dbw2 = get_named_writable_database("apitest_closedb3");
+    Xapian::WritableDatabase dbw2 = get_named_writable_database("apitest_closedb2");
     TEST_EXCEPTION(Xapian::DatabaseError, dbw1.postlist_begin("paragraph"));
     TEST_EQUAL(dbw2.postlist_begin("paragraph"), dbw2.postlist_end("paragraph"));
 

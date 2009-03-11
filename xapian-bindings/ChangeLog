@@ -1,3 +1,78 @@
+Wed Mar 11 00:06:54 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/pythontest3.py: Update to match pythontest2.py (after
+	  passing through 2to3).
+
+Tue Mar 10 18:02:08 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/extra.i,python/pythontest2.py: Preserve posting sources on
+	  queries when set on enquire, and when retrieved from enquire
+	  objects.
+
+Tue Mar 10 17:46:48 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/extra.i: When making a query object, keep references to
+	  posting sources in the query.  Copy references for sub queries
+	  into parent queries, too.
+	* python/pythontest2.py: Modify test to include regression test for
+	  the above.
+
+Tue Mar 10 17:06:56 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/extra.i: Add better support for deprecation of single
+	  argument form of the Enquire::set_sort_by_* methods, and for
+	  deprecation of the old name ("ascending") for the second
+	  argument.  Add deprecation warnings to the remaining three
+	  set_sort_by_*value* methods, too.
+
+Tue Mar 10 09:14:44 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/extra.i: Keep references to Stoppers and Sorters set on
+	  objects, to avoid segfaults when they go out of scope, and add
+	  deprecation warnings for single argument form of the set_sort_by_*
+	  methods.
+	* python/pythontest2.py: Tests for the above.
+
+Thu Mar 05 10:34:38 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* xapian.i: There are now several useful built-in posting sources,
+	  so remove the code which ignores postingsource.h if there aren't
+	  directors.
+
+Thu Mar 05 08:01:18 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix comment to match code.
+
+Wed Mar 04 23:37:29 GMT 2009  Olly Betts <olly@survex.com>
+
+	* python/pythontest2.py: Fix comment typo.
+
+Wed Mar 04 23:33:17 GMT 2009  Olly Betts <olly@survex.com>
+
+	* php/docs/examples/simpleindex.php5,python/pythontest2.py,
+	  python/pythontest3.py,python/replicationtest2.py,
+	  tcl8/docs/examples/simpleindex.tcl,xapian.i: Update for the
+	  "WritableDatabase::flush()" to "WritableDatabase::commit()" change.
+
+Wed Mar 04 23:23:14 GMT 2009  Olly Betts <olly@survex.com>
+
+	* xapian.i: Wrap MSet::get_uncollapsed_matches_lower_bound(),
+	  MSet::get_uncollapsed_matches_estimated(), and
+	  MSet::get_uncollapsed_matches_upper_bound().
+
+Wed Mar 04 16:56:28 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/extra.i: When ValueRangeProcessors are passed to the
+	  QueryParser, keep a list of them so that they're not deleted
+	  until the QueryParser is.
+	* python/pythontest2.py: Regression test that the proxying works -
+	  this test crashed without the patch to extra.i.
+
+Mon Mar 02 20:45:09 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/extra.i: Remove Document_unserialise and
+	  Query_unserialise from API.
+
 Mon Mar 02 10:32:59 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* csharp/Makefile.am,xapian.i: Update with new serialisation

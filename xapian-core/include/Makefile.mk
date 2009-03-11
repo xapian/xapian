@@ -34,7 +34,8 @@ xapianinclude_HEADERS =\
 	include/xapian/unicode.h\
 	include/xapian/valueiterator.h\
 	include/xapian/valuesetmatchdecider.h\
-	include/xapian/visibility.h
+	include/xapian/visibility.h\
+	include/xapian/weight.h
 
 nodist_xapianinclude_HEADERS =\
 	include/xapian/version.h

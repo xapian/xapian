@@ -26,6 +26,7 @@
 #include "andmaybepostlist.h"
 #include "andnotpostlist.h"
 #include "autoptr.h"
+#include "const_database_wrapper.h"
 #include "emptypostlist.h"
 #include "exactphrasepostlist.h"
 #include "externalpostlist.h"
@@ -62,12 +63,12 @@ QueryOptimiser::do_subquery(const Xapian::Query::Internal * query, double factor
 	case Xapian::Query::Internal::OP_LEAF:
 	    RETURN(do_leaf(query, factor));
 
-	case Xapian::Query::Internal::OP_EXTERNAL_SOURCE:
+	case Xapian::Query::Internal::OP_EXTERNAL_SOURCE: {
 	    Assert(query->external_source);
-	    // FIXME - avoid this const_cast somehow.  See ticket #332
-	    RETURN(new ExternalPostList(
-		Xapian::Database(const_cast<Xapian::Database::Internal *>(&db)),
-		query->external_source, factor));
+	    Xapian::Database wrappeddb(new ConstDatabaseWrapper(&db));
+	    RETURN(new ExternalPostList(wrappeddb,
+					query->external_source, factor));
+	}
 
 	case Xapian::Query::OP_AND:
 	case Xapian::Query::OP_FILTER:

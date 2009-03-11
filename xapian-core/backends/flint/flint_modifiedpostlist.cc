@@ -1,7 +1,7 @@
 /** @file flint_modifiedpostlist.cc
  * @brief A FlintPostList plus pending modifications
  */
-/* Copyright (C) 2006,2007 Olly Betts
+/* Copyright (C) 2006,2007,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,10 +55,10 @@ FlintModifiedPostList::get_docid() const
     return min(it->first, FlintPostList::get_docid());
 }
 
-Xapian::doclength
+Xapian::termcount
 FlintModifiedPostList::get_doclength() const
 {
-    DEBUGCALL(DB, Xapian::doclength, "FlintModifiedPostList::get_doclength", "");
+    DEBUGCALL(DB, Xapian::termcount, "FlintModifiedPostList::get_doclength", "");
     if (it != mods.end() && (FlintPostList::at_end() || it->first <= FlintPostList::get_docid()))
 	RETURN(this_db->get_doclength(it->first));
     RETURN(FlintPostList::get_doclength());

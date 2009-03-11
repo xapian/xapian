@@ -1,7 +1,7 @@
 /** @file localmatch.h
  *  @brief SubMatch class for a local database.
  */
-/* Copyright (C) 2006,2007 Olly Betts
+/* Copyright (C) 2006,2007,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,13 +25,10 @@
 #include "omqueryinternal.h"
 #include "rset.h"
 #include "submatch.h"
-
-namespace Xapian { class Weight; }
+#include "xapian/weight.h"
 
 #include <map>
 #include <vector>
-
-class Stats;
 
 class LocalSubMatch : public SubMatch {
     /// Don't allow assignment.
@@ -40,9 +37,8 @@ class LocalSubMatch : public SubMatch {
     /// Don't allow copying.
     LocalSubMatch(const LocalSubMatch &);
 
-    /** The statistics for the collection.
-     */
-    const Stats * stats;
+    /// The statistics for the collection.
+    const Xapian::Weight::Internal * stats;
 
     /// The original query before any rearrangement.
     Xapian::Query::Internal orig_query;
@@ -74,13 +70,13 @@ class LocalSubMatch : public SubMatch {
 		  const Xapian::Weight *wt_factory);
 
     /// Fetch and collate statistics.
-    bool prepare_match(bool nowait, Stats & total_stats);
+    bool prepare_match(bool nowait, Xapian::Weight::Internal & total_stats);
 
     /// Start the match.
     void start_match(Xapian::doccount first,
 		     Xapian::doccount maxitems,
 		     Xapian::doccount check_at_least,
-		     const Stats & total_stats);
+		     const Xapian::Weight::Internal & total_stats);
 
     /// Get PostList and term info.
     PostList * get_postlist_and_term_info(MultiMatch *matcher,
