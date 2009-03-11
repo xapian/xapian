@@ -1,3 +1,8 @@
+Wed Mar 11 00:06:54 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/pythontest3.py: Update to match pythontest2.py (after
+	  passing through 2to3).
+
 Tue Mar 10 18:02:08 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/extra.i,python/pythontest2.py: Preserve posting sources on
