@@ -1,3 +1,9 @@
+Wed Mar 11 11:31:59 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/pythontest2.py,python/pythontest3.py: Round the weights
+	  returned for the OP_SCALE_WEIGHT test, to avoid failing due to
+	  rounding errors.
+
 Wed Mar 11 11:18:57 GMT 2009  Olly Betts <olly@survex.com>
 
 	* xapian.i: Updated to wrap xapian/weight.h directly, such that it
