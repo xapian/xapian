@@ -1076,7 +1076,7 @@ def test_preserve_enquire_sorter():
     def make_enq1(db):
         enq = xapian.Enquire(db)
         sorter = xapian.MultiValueSorter()
-        enq.set_sort_by_key(sorter, True)
+        enq.set_sort_by_key(sorter, ascending = True)
         del sorter
         return enq
     enq = make_enq1(db)
@@ -1086,7 +1086,7 @@ def test_preserve_enquire_sorter():
     def make_enq2(db):
         enq = xapian.Enquire(db)
         sorter = xapian.MultiValueSorter()
-        enq.set_sort_by_key_then_relevance(sorter, True)
+        enq.set_sort_by_key_then_relevance(sorter, reverse = True)
         del sorter
         return enq
     enq = make_enq2(db)

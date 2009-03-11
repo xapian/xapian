@@ -1,3 +1,8 @@
+Wed Mar 11 01:07:20 GMT 2009  Olly Betts <olly@survex.com>
+
+	* python/pythontest.py: Test that either of ascending=True and
+	  reverse=True is accepted.
+
 Wed Mar 11 01:05:23 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
