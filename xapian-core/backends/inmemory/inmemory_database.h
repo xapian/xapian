@@ -1,4 +1,4 @@
-/* inmemory_database.h: C++ class definition for multiple database access
+/* inmemory_database.h: C++ class definition for inmemory database access
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
@@ -32,6 +32,7 @@
 #include <algorithm>
 #include <xapian/document.h>
 #include "inmemory_positionlist.h"
+#include "internaltypes.h"
 #include <omassert.h>
 #include "noreturn.h"
 
@@ -152,8 +153,8 @@ class InMemoryPostList : public LeafPostList {
 	Xapian::doccount get_termfreq() const;
 
 	Xapian::docid       get_docid() const;     // Gets current docid
-	Xapian::doclength   get_doclength() const; // Length of current document
-        Xapian::termcount   get_wdf() const;	      // Within Document Frequency
+	Xapian::termcount   get_doclength() const; // Length of current document
+	Xapian::termcount   get_wdf() const;	   // Within Document Frequency
 	PositionList * read_position_list();
 	PositionList * open_position_list() const;
 
@@ -181,7 +182,7 @@ class InMemoryAllDocsPostList : public LeafPostList {
 	Xapian::doccount get_termfreq() const;
 
 	Xapian::docid       get_docid() const;     // Gets current docid
-	Xapian::doclength   get_doclength() const; // Length of current document
+	Xapian::termcount   get_doclength() const; // Length of current document
 	Xapian::termcount   get_wdf() const;       // Within Document Frequency
 	PositionList * read_position_list();
 	PositionList * open_position_list() const;
@@ -207,11 +208,12 @@ class InMemoryTermList : public TermList {
 
 	Xapian::Internal::RefCntPtr<const InMemoryDatabase> db;
 	Xapian::docid did;
-	Xapian::doclength document_length;
+	Xapian::termcount document_length;
 
-	InMemoryTermList(Xapian::Internal::RefCntPtr<const InMemoryDatabase> db, Xapian::docid did,
+	InMemoryTermList(Xapian::Internal::RefCntPtr<const InMemoryDatabase> db,
+			 Xapian::docid did,
 			 const InMemoryDoc & doc,
-			 Xapian::doclength len);
+			 Xapian::termcount len);
     public:
 	Xapian::termcount get_approx_size() const;
 
@@ -240,13 +242,13 @@ class InMemoryDatabase : public Xapian::Database::Internal {
     vector<std::map<Xapian::valueno, string> > valuelists;
     std::map<Xapian::valueno, ValueStats> valuestats;
 
-    vector<Xapian::doclength> doclengths;
+    vector<Xapian::termcount> doclengths;
 
     std::map<string, string> metadata;
 
     Xapian::doccount totdocs;
 
-    Xapian::doclength totlen;
+    totlen_t totlen;
 
     bool positions_present;
 
@@ -310,8 +312,9 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 
     Xapian::docid get_lastdocid() const;
 
+    totlen_t get_total_length() const;
     Xapian::doclength get_avlength() const;
-    Xapian::doclength get_doclength(Xapian::docid did) const;
+    Xapian::termcount get_doclength(Xapian::docid did) const;
 
     Xapian::doccount get_termfreq(const string & tname) const;
     Xapian::termcount get_collection_freq(const string & tname) const;

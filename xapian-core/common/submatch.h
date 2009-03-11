@@ -1,7 +1,7 @@
 /** @file submatch.h
  *  @brief base class for sub-matchers
  */
-/* Copyright (C) 2006,2007 Olly Betts
+/* Copyright (C) 2006,2007,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,13 +26,15 @@
 
 #include "omenquireinternal.h"
 #include "postlist.h"
-
-// Forward declaration.
-class Stats;
+#include "xapian/weight.h"
 
 class SubMatch : public Xapian::Internal::RefCntBase {
   public:
-    /// Virtual destructor required because we have virtual methods.
+    /** Virtual destructor.
+     *
+     *  Required because we have virtual methods and delete derived objects
+     *  via a pointer to this base class.
+     */
     virtual ~SubMatch() { }
 
     /** Fetch and collate statistics.
@@ -45,7 +47,9 @@ class SubMatch : public Xapian::Internal::RefCntBase {
      *			false in this situation allowing the matcher to ask
      *			other database.  If nowait is false, then this method
      *			will block until statistics are available.
-     *  @param total_stats A Stats object which the statistics should be added to.
+     *
+     *  @param total_stats A stats object to which the statistics should be
+     *			added.
      *
      *  @return		If nowait is true and results aren't available yet
      *			then false will be returned and this method must be
@@ -53,7 +57,8 @@ class SubMatch : public Xapian::Internal::RefCntBase {
      *			are available or nowait is false, then this method
      *			returns true.
      */
-    virtual bool prepare_match(bool nowait, Stats & total_stats) = 0;
+    virtual bool prepare_match(bool nowait,
+			       Xapian::Weight::Internal & total_stats) = 0;
 
     /** Start the match.
      *
@@ -65,11 +70,12 @@ class SubMatch : public Xapian::Internal::RefCntBase {
     virtual void start_match(Xapian::doccount first,
 			     Xapian::doccount maxitems,
 			     Xapian::doccount check_at_least,
-			     const Stats & total_stats) = 0;
+			     const Xapian::Weight::Internal & total_stats) = 0;
 
     /// Get PostList and term info.
     virtual PostList * get_postlist_and_term_info(MultiMatch *matcher,
-	map<string, Xapian::MSet::Internal::TermFreqAndWeight> *termfreqandwts)
+	std::map<std::string,
+		 Xapian::MSet::Internal::TermFreqAndWeight> *termfreqandwts)
 	= 0;
 };
 

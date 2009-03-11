@@ -697,10 +697,10 @@ ChertPostList::~ChertPostList()
     DEBUGCALL(DB, void, "ChertPostList::~ChertPostList", "");
 }
 
-Xapian::doclength
+Xapian::termcount
 ChertPostList::get_doclength() const
 {
-    DEBUGCALL(DB, Xapian::doclength, "ChertPostList::get_doclength", "");
+    DEBUGCALL(DB, Xapian::termcount, "ChertPostList::get_doclength", "");
     Assert(have_started);
     Assert(this_db.get());
     RETURN(this_db->get_doclength(did));

@@ -4,6 +4,41 @@ Tue Dec 09 00:06:44 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 	  which don't support directors, so that built-in posting sources,
 	  like the geospatial one, can be used.
 
+Wed Mar 11 00:06:54 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/pythontest3.py: Update to match pythontest2.py (after
+	  passing through 2to3).
+
+Tue Mar 10 18:02:08 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/extra.i,python/pythontest2.py: Preserve posting sources on
+	  queries when set on enquire, and when retrieved from enquire
+	  objects.
+
+Tue Mar 10 17:46:48 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/extra.i: When making a query object, keep references to
+	  posting sources in the query.  Copy references for sub queries
+	  into parent queries, too.
+	* python/pythontest2.py: Modify test to include regression test for
+	  the above.
+
+Tue Mar 10 17:06:56 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/extra.i: Add better support for deprecation of single
+	  argument form of the Enquire::set_sort_by_* methods, and for
+	  deprecation of the old name ("ascending") for the second
+	  argument.  Add deprecation warnings to the remaining three
+	  set_sort_by_*value* methods, too.
+
+Tue Mar 10 09:14:44 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/extra.i: Keep references to Stoppers and Sorters set on
+	  objects, to avoid segfaults when they go out of scope, and add
+	  deprecation warnings for single argument form of the set_sort_by_*
+	  methods.
+	* python/pythontest2.py: Tests for the above.
+
 Thu Mar 05 10:34:38 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* xapian.i: There are now several useful built-in posting sources,

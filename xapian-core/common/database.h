@@ -26,6 +26,8 @@
 
 #include <string>
 
+#include "internaltypes.h"
+
 #include <xapian/base.h>
 #include <xapian/types.h>
 #include <xapian/database.h>
@@ -38,8 +40,6 @@
 using namespace std;
 
 class LeafPostList;
-class OmTime;
-class RemoteConnection;
 class RemoteDatabase;
 
 typedef Xapian::TermIterator::Internal TermList;
@@ -120,6 +120,9 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	virtual Xapian::docid get_lastdocid() const = 0;
 
+	/** Return the total length of all documents in this database. */
+	virtual totlen_t get_total_length() const = 0;
+
 	/** Return the average length of a document in this (sub) database.
 	 *
 	 *  See Database::Internal::get_doclength() for the meaning of document
@@ -137,7 +140,7 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *  @param did  The document id of the document whose length is
 	 *              being requested.
 	 */
-	virtual Xapian::doclength get_doclength(Xapian::docid did) const = 0;
+	virtual Xapian::termcount get_doclength(Xapian::docid did) const = 0;
 
 	/** Return the number of documents indexed by a given term.  This
 	 *  may be an approximation, but must be an upper bound (ie,
@@ -149,7 +152,7 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	virtual Xapian::doccount get_termfreq(const string & tname) const = 0;
 
 	/** Return the total number of occurrences of the given term.  This
-	 *  is the sum of the number of ocurrences of the term in each
+	 *  is the sum of the number of occurrences of the term in each
 	 *  document: ie, the sum of the within document frequencies of the
 	 *  term.
 	 *
@@ -187,6 +190,15 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *  available for this database type.
 	 */
 	virtual std::string get_value_upper_bound(Xapian::valueno valno) const;
+
+	/// Get a lower bound on the length of a document in this DB.
+	virtual Xapian::termcount get_doclength_lower_bound() const;
+
+	/// Get an upper bound on the length of a document in this DB.
+	virtual Xapian::termcount get_doclength_upper_bound() const;
+
+	/// Get an upper bound on the wdf of term @a term.
+	virtual Xapian::termcount get_wdf_upper_bound(const std::string & term) const;
 
 	/** Check whether a given term is in the database.
 	 *

@@ -1,7 +1,7 @@
 /* emptypostlist.h: empty posting list (for zero frequency terms)
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2007 Olly Betts
+ * Copyright 2002,2003,2007,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,7 +32,7 @@ class EmptyPostList : public LeafPostList {
 	Xapian::docid  get_docid() const;
 	Xapian::weight get_weight() const;
 	Xapian::weight get_maxweight() const { return 0; }
-	Xapian::doclength get_doclength() const;
+	Xapian::termcount get_doclength() const;
 	PositionList *read_position_list();
 	PositionList * open_position_list() const;
 
@@ -57,7 +57,7 @@ EmptyPostList::get_weight() const
     return 0;
 }
 
-inline Xapian::doclength
+inline Xapian::termcount
 EmptyPostList::get_doclength() const
 {
     Assert(0); // no documents

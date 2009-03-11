@@ -43,9 +43,10 @@
 #include "omqueryinternal.h"
 
 #include "submatch.h"
-#include "stats.h"
 
 #include "msetcmp.h"
+
+#include "weightinternal.h"
 
 #include <xapian/errorhandler.h>
 #include <xapian/version.h> // For XAPIAN_HAS_REMOTE_BACKEND
@@ -139,7 +140,7 @@ split_rset_by_db(const Xapian::RSet * rset,
 static void
 prepare_sub_matches(vector<Xapian::Internal::RefCntPtr<SubMatch> > & leaves,
 		    Xapian::ErrorHandler * errorhandler,
-		    Stats & stats)
+		    Xapian::Weight::Internal & stats)
 {
     DEBUGCALL_STATIC(MATCH, void, "prepare_sub_matches",
 		     "[leaves(size=" << leaves.size() << ")], " <<
@@ -190,7 +191,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 		       bool sort_value_forward_,
 		       const Xapian::Sorter * sorter_,
 		       Xapian::ErrorHandler * errorhandler_,
-		       Stats & stats,
+		       Xapian::Weight::Internal & stats,
 		       const Xapian::Weight * weight_)
 	: db(db_), query(query_),
 	  collapse_max(collapse_max_), collapse_key(collapse_key_),
@@ -251,6 +252,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
     }
 
     prepare_sub_matches(leaves, errorhandler, stats);
+    stats.set_bounds_from_db(db);
 }
 
 Xapian::weight
@@ -274,7 +276,7 @@ void
 MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		     Xapian::doccount check_at_least,
 		     Xapian::MSet & mset,
-		     const Stats & stats,
+		     const Xapian::Weight::Internal & stats,
 		     const Xapian::MatchDecider *mdecider,
 		     const Xapian::MatchDecider *matchspy)
 {

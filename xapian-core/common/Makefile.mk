@@ -16,6 +16,7 @@ noinst_HEADERS +=\
 	common/fileutils.h\
 	common/gnu_getopt.h\
 	common/inmemory_positionlist.h\
+	common/internaltypes.h\
 	common/leafpostlist.h\
 	common/msvc_dirent.h\
 	common/msvc_posix_wrapper.h\
@@ -55,7 +56,6 @@ noinst_HEADERS +=\
 	common/serialise-double.h\
 	common/serialise.h\
 	common/socket_utils.h\
-	common/stats.h\
 	common/stringutils.h\
 	common/submatch.h\
 	common/tcpclient.h\

@@ -337,11 +337,13 @@ Xapian::Query::Internal::accumulate_terms(
 			vector<pair<string, Xapian::termpos> > &terms) const
 {
     if (is_leaf(op)) {
-        // We're a leaf, so just return our term.
-        terms.push_back(make_pair(tname, term_pos));
+	// We're a leaf, so just return our term, but skip Query::MatchAllTerms
+	// (which is Query("")).
+	if (!tname.empty())
+	    terms.push_back(make_pair(tname, term_pos));
     } else {
 	subquery_list::const_iterator end = subqs.end();
-        // not a leaf, concatenate results from all subqueries
+	// Not a leaf, concatenate results from all subqueries.
 	for (subquery_list::const_iterator i = subqs.begin(); i != end; ++i) {
 	    (*i)->accumulate_terms(terms);
 	}

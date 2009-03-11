@@ -1,7 +1,7 @@
 /* @file serialise.h
  * @brief functions to convert classes to strings and back
  *
- * Copyright (C) 2006,2007,2008 Olly Betts
+ * Copyright (C) 2006,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,9 +21,10 @@
 #ifndef XAPIAN_INCLUDED_SERIALISE_H
 #define XAPIAN_INCLUDED_SERIALISE_H
 
-#include <xapian/visibility.h>
 #include <string>
 #include "noreturn.h"
+#include "xapian/visibility.h"
+#include "xapian/weight.h"
 
 // Forward class declarations:
 
@@ -32,10 +33,7 @@ namespace Xapian {
     class Error;
     class MSet;
     class RSet;
-    class Weight;
 }
-
-class Stats;
 
 /** Encode a length as a variable-length string.
  *
@@ -108,21 +106,21 @@ void unserialise_error(const std::string &error_string,
 		       const std::string &prefix,
 		       const std::string &new_context));
 
-/** Serialise a Stats object.
+/** Serialise a stats object.
  *
- *  @param stats	The Stats object to serialise.
+ *  @param stats	The stats object to serialise.
  *
  *  @return	Serialisation of @a stats.
  */
-std::string serialise_stats(const Stats &stats);
+std::string serialise_stats(const Xapian::Weight::Internal &stats);
 
-/** Unserialise a serialised Stats object.
+/** Unserialise a serialised stats object.
  *
  *  @param s	The string to unserialise.
  *
- *  @return	The unserialised Stats object.
+ *  @return	The unserialised stats object.
  */
-Stats unserialise_stats(const std::string &s);
+Xapian::Weight::Internal unserialise_stats(const std::string &s);
 
 /** Serialise a Xapian::MSet object.
  *

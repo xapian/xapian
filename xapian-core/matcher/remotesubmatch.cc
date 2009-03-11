@@ -1,7 +1,7 @@
 /** @file remotesubmatch.cc
  *  @brief SubMatch class for a remote database.
  */
-/* Copyright (C) 2006,2007 Olly Betts
+/* Copyright (C) 2006,2007,2009 Olly Betts
  * Copyright (C) 2007,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,7 @@
 #include "msetpostlist.h"
 #include "omdebug.h"
 #include "remote-database.h"
-#include "stats.h"
+#include "weightinternal.h"
 
 RemoteSubMatch::RemoteSubMatch(RemoteDatabase *db_, bool decreasing_relevance_)
 	: db(db_), decreasing_relevance(decreasing_relevance_)
@@ -35,10 +35,11 @@ RemoteSubMatch::RemoteSubMatch(RemoteDatabase *db_, bool decreasing_relevance_)
 }
 
 bool
-RemoteSubMatch::prepare_match(bool nowait, Stats & total_stats)
+RemoteSubMatch::prepare_match(bool nowait,
+			      Xapian::Weight::Internal & total_stats)
 {
-    DEBUGCALL(MATCH, bool, "RemoteSubMatch::prepare_match", nowait);
-    Stats remote_stats;
+    DEBUGCALL(MATCH, bool, "RemoteSubMatch::prepare_match", nowait << ", [total_stats]");
+    Xapian::Weight::Internal remote_stats;
     if (!db->get_remote_stats(nowait, remote_stats)) RETURN(false);
     total_stats += remote_stats;
     RETURN(true);
@@ -48,7 +49,7 @@ void
 RemoteSubMatch::start_match(Xapian::doccount first,
 			    Xapian::doccount maxitems,
 			    Xapian::doccount check_at_least,
-			    const Stats & total_stats)
+			    const Xapian::Weight::Internal & total_stats)
 {
     DEBUGCALL(MATCH, void, "RemoteSubMatch::start_match",
 	      first << ", " << maxitems << ", " << check_at_least);

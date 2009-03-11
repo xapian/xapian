@@ -1,7 +1,7 @@
 /** @file flint_alldocspostlist.cc
  * @brief A PostList which iterates over all documents in a FlintDatabase.
  */
-/* Copyright (C) 2006,2007,2008 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,10 +41,10 @@ FlintAllDocsPostList::get_docid() const
     return current_did;
 }
 
-Xapian::doclength
+Xapian::termcount
 FlintAllDocsPostList::get_doclength() const
 {
-    DEBUGCALL(DB, Xapian::doclength, "FlintAllDocsPostList::get_doclength", "");
+    DEBUGCALL(DB, Xapian::termcount, "FlintAllDocsPostList::get_doclength", "");
     Assert(current_did);
 
     cursor->read_tag();

@@ -1,7 +1,7 @@
 /** @file expandweight.h
  * @brief Collate statistics and calculate the term weights for the ESet.
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -63,7 +63,7 @@ class ExpandStats {
           dbsize(0), termfreq(0), multiplier(0), rtermfreq(0), db_index(0) {
     }
 
-    void accumulate(Xapian::termcount wdf, Xapian::doclength doclen,
+    void accumulate(Xapian::termcount wdf, Xapian::termcount doclen,
 		    Xapian::doccount subtf, Xapian::doccount subdbsize) {
 	// Boolean terms may have wdf == 0, but treat that as 1 so such terms
 	// get a non-zero weight.

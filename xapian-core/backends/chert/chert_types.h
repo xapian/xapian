@@ -1,7 +1,7 @@
 /* chert_types.h: Types used by chert backend and the Btree manager
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2008 Olly Betts
+ * Copyright 2002,2003,2004,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,21 +22,7 @@
 #ifndef OM_HGUARD_CHERT_TYPES_H
 #define OM_HGUARD_CHERT_TYPES_H
 
-typedef unsigned char byte;
-
-#ifndef SIZEOF_INT
-# error SIZEOF_INT is not defined
-#endif
-#ifndef SIZEOF_LONG
-# error SIZEOF_LONG is not defined
-#endif
-#if SIZEOF_INT >= 4
-typedef unsigned int uint4;
-#elif SIZEOF_LONG >= 4
-typedef unsigned long uint4;
-#else
-# error Type long is less than 32 bits, which ISO does not allow!
-#endif
+#include "internaltypes.h"
 
 typedef unsigned int chert_blocksize_t;
 
@@ -62,11 +48,6 @@ typedef unsigned int chert_tablesize_t;
  *  wdfs of the terms in the document.
  */
 typedef unsigned int chert_doclen_t;
-
-/** An integer type which can store the sum of the lengths of the documents
- *  in the database.
- */
-typedef unsigned long long int chert_totlen_t;
 
 /** The default block size to use in a B-tree table.
  *  If this is changed, be sure to update the API documentation

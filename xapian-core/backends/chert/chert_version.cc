@@ -1,7 +1,7 @@
 /** @file chert_version.cc
  * @brief ChertVersion class
  */
-/* Copyright (C) 2006,2007,2008 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,14 +43,9 @@
 using namespace std;
 
 // YYYYMMDDX where X allows multiple format revisions in a day
-#define CHERT_VERSION 200804180
+#define CHERT_VERSION 200903070
 // 200804180       Chert debuts.
-// 200808040 1.1.0 UUID added.
-
-// Note: to upgrade a 200804180 DB "existing.db" to 200808040, generate a
-// temporary empty new chert DB "tmp.db" and do:
-//
-//     mv tmp.db/iamchert existing.db/iamchert
+// 200903070 1.1.0 doclen bounds and wdf upper bound.
 
 #define MAGIC_STRING "IAmChert"
 

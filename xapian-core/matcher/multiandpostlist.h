@@ -1,7 +1,7 @@
 /** @file multiandpostlist.h
  * @brief N-way AND postlist
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -139,7 +139,7 @@ class MultiAndPostList : public PostList {
 
     Xapian::docid get_docid() const;
 
-    Xapian::doclength get_doclength() const;
+    Xapian::termcount get_doclength() const;
 
     Xapian::weight get_weight() const;
 

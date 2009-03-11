@@ -1,7 +1,7 @@
 /** @file remotesubmatch.h
  *  @brief SubMatch class for a remote database.
  */
-/* Copyright (C) 2006,2007 Olly Betts
+/* Copyright (C) 2006,2007,2009 Olly Betts
  * Copyright (C) 2007,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -24,8 +24,7 @@
 
 #include "submatch.h"
 #include "remote-database.h"
-
-class Stats;
+#include "xapian/weight.h"
 
 /// Class for performing matching on a remote database.
 class RemoteSubMatch : public SubMatch {
@@ -52,17 +51,18 @@ class RemoteSubMatch : public SubMatch {
     RemoteSubMatch(RemoteDatabase *db_, bool decreasing_relevance_);
 
     /// Fetch and collate statistics.
-    bool prepare_match(bool nowait, Stats & total_stats);
+    bool prepare_match(bool nowait, Xapian::Weight::Internal & total_stats);
 
     /// Start the match.
     void start_match(Xapian::doccount first,
 		     Xapian::doccount maxitems,
 		     Xapian::doccount check_at_least,
-		     const Stats & total_stats);
+		     const Xapian::Weight::Internal & total_stats);
 
     /// Get PostList and term info.
     PostList * get_postlist_and_term_info(MultiMatch *matcher,
-	map<string, Xapian::MSet::Internal::TermFreqAndWeight> *termfreqandwts);
+	std::map<std::string,
+		 Xapian::MSet::Internal::TermFreqAndWeight> *termfreqandwts);
 
     /// Get percentage factor - only valid after get_postlist_and_term_info().
     double get_percent_factor() const { return percent_factor; }
