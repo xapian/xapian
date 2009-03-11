@@ -26,8 +26,6 @@
 #include "safeerrno.h"
 #include <signal.h>
 
-#include <xapian/error.h>
-
 #include "autoptr.h"
 #include "emptypostlist.h"
 #include "inmemory_positionlist.h"
@@ -37,12 +35,14 @@
 #include "omassert.h"
 #include "serialise.h"
 #include "serialise-double.h"
-#include "stats.h"
 #include "stringutils.h" // For STRINGIZE().
 #include "utils.h"
+#include "weightinternal.h"
 
 #include <string>
 #include <vector>
+
+#include "xapian/error.h"
 
 using namespace std;
 
@@ -104,17 +104,16 @@ RemoteDatabase::RemoteDatabase(int fd, Xapian::timeout timeout_,
 
     doccount = decode_length(&p, p_end, false);
     lastdocid = decode_length(&p, p_end, false);
+    doclen_lbound = decode_length(&p, p_end, false);
+    doclen_ubound = decode_length(&p, p_end, false);
     if (p == p_end) {
-	throw Xapian::NetworkError("Bad greeting message received (bool)", context);
+	throw Xapian::NetworkError("Bad greeting message received", context);
     }
     has_positional_info = (*p++ == '1');
-    avlength = unserialise_double(&p, p_end);
-    size_t len = decode_length(&p, p_end, true);
-    uuid = string(p, len);
-    p += len;
-    if (p != p_end || avlength < 0) {
-	throw Xapian::NetworkError("Bad greeting message received (double)", context);
-    }
+    total_length = decode_length(&p, p_end, false);
+    uuid.assign(p, p_end);
+
+    if (writable) update_stats(MSG_WRITEACCESS);
 }
 
 RemoteDatabase *
@@ -126,7 +125,7 @@ RemoteDatabase::as_remotedatabase()
 void
 RemoteDatabase::keep_alive()
 {
-    send_message(MSG_KEEPALIVE, "");
+    send_message(MSG_KEEPALIVE, string());
     string message;
     get_message(message, REPLY_DONE);
 }
@@ -136,7 +135,7 @@ RemoteDatabase::open_term_list(Xapian::docid did) const
 {
     Assert(did);
 
-    // Ensure that avlength and doccount are up-to-date.
+    // Ensure that total_length and doccount are up-to-date.
     if (!cached_stats_valid) update_stats();
 
     send_message(MSG_TERMLIST, encode_length(did));
@@ -145,8 +144,8 @@ RemoteDatabase::open_term_list(Xapian::docid did) const
     get_message(message, REPLY_DOCLENGTH);
     const char * p = message.c_str();
     const char * p_end = p + message.size();
-    Xapian::doclength doclen = unserialise_double(&p, p_end);
-    if (p != p_end || doclen < 0) {
+    Xapian::termcount doclen = decode_length(&p, p_end, false);
+    if (p != p_end) {
 	throw Xapian::NetworkError("Bad REPLY_DOCLENGTH message received", context);
     }
 
@@ -176,13 +175,13 @@ RemoteDatabase::open_term_list(Xapian::docid did) const
 
 TermList *
 RemoteDatabase::open_allterms(const string & prefix) const {
-    // Ensure that avlength and doccount are up-to-date.
+    // Ensure that total_length and doccount are up-to-date.
     if (!cached_stats_valid) update_stats();
 
     send_message(MSG_ALLTERMS, prefix);
 
     AutoPtr<NetworkTermList> tlist;
-    tlist = new NetworkTermList(0.0, doccount,
+    tlist = new NetworkTermList(0, doccount,
 				Xapian::Internal::RefCntPtr<const RemoteDatabase>(this),
 				0);
     vector<NetworkTermListItem> & items = tlist->items;
@@ -311,24 +310,21 @@ RemoteDatabase::open_document(Xapian::docid did, bool /*lazy*/) const
 void
 RemoteDatabase::update_stats(message_type msg_code) const
 {
-    send_message(msg_code, "");
+    send_message(msg_code, string());
     string message;
     get_message(message, REPLY_UPDATE);
     const char * p = message.c_str();
     const char * p_end = p + message.size();
     doccount = decode_length(&p, p_end, false);
     lastdocid = decode_length(&p, p_end, false);
+    doclen_lbound = decode_length(&p, p_end, false);
+    doclen_ubound = decode_length(&p, p_end, false);
     if (p == p_end) {
 	throw Xapian::NetworkError("Bad REPLY_UPDATE message received", context);
     }
     has_positional_info = (*p++ == '1');
-    avlength = unserialise_double(&p, p_end);
-    size_t len = decode_length(&p, p_end, true);
-    uuid = string(p, len);
-    p += len;
-    if (p != p_end || avlength < 0) {
-	throw Xapian::NetworkError("Bad REPLY_UPDATE message received", context);
-    }
+    total_length = decode_length(&p, p_end, false);
+    uuid.assign(p, p_end);
     cached_stats_valid = true;
 }
 
@@ -346,11 +342,18 @@ RemoteDatabase::get_lastdocid() const
     return lastdocid;
 }
 
+totlen_t
+RemoteDatabase::get_total_length() const
+{
+    if (!cached_stats_valid) update_stats();
+    return total_length;
+}
+
 Xapian::doclength
 RemoteDatabase::get_avlength() const
 {
     if (!cached_stats_valid) update_stats();
-    return avlength;
+    return Xapian::doclength(total_length) / doccount;
 }
 
 bool
@@ -435,7 +438,29 @@ RemoteDatabase::get_value_upper_bound(Xapian::valueno valno) const
     return mru_valstats.upper_bound;
 }
 
-Xapian::doclength
+Xapian::termcount
+RemoteDatabase::get_doclength_lower_bound() const
+{
+    return doclen_lbound;
+}
+
+Xapian::termcount
+RemoteDatabase::get_doclength_upper_bound() const
+{
+    return doclen_ubound;
+}
+
+Xapian::termcount
+RemoteDatabase::get_wdf_upper_bound(const string &) const
+{
+    // The default implementation returns get_collection_freq(), but we
+    // don't want the overhead of a remote message and reply per query
+    // term, and we can get called in the middle of a remote exchange
+    // too.  FIXME: handle this bound in the stats local/remote code...
+    return doclen_ubound;
+}
+
+Xapian::termcount
 RemoteDatabase::get_doclength(Xapian::docid did) const
 {
     Assert(did != 0);
@@ -444,8 +469,8 @@ RemoteDatabase::get_doclength(Xapian::docid did) const
     get_message(message, REPLY_DOCLENGTH);
     const char * p = message.c_str();
     const char * p_end = p + message.size();
-    Xapian::doclength doclen = unserialise_double(&p, p_end);
-    if (p != p_end || doclen < 0) {
+    Xapian::termcount doclen = decode_length(&p, p_end, false);
+    if (p != p_end) {
 	throw Xapian::NetworkError("Bad REPLY_DOCLENGTH message received", context);
     }
     return doclen;
@@ -541,7 +566,7 @@ RemoteDatabase::set_query(const Xapian::Query::Internal *query,
 }
 
 bool
-RemoteDatabase::get_remote_stats(bool nowait, Stats &out)
+RemoteDatabase::get_remote_stats(bool nowait, Xapian::Weight::Internal &out)
 {
     if (nowait && !link.ready_to_read()) return false;
 
@@ -554,9 +579,9 @@ RemoteDatabase::get_remote_stats(bool nowait, Stats &out)
 
 void
 RemoteDatabase::send_global_stats(Xapian::doccount first,
-				Xapian::doccount maxitems,
-				Xapian::doccount check_at_least,
-				const Stats &stats)
+				  Xapian::doccount maxitems,
+				  Xapian::doccount check_at_least,
+				  const Xapian::Weight::Internal &stats)
 {
     string message = encode_length(first);
     message += encode_length(maxitems);
@@ -576,7 +601,7 @@ RemoteDatabase::get_mset(Xapian::MSet &mset)
 void
 RemoteDatabase::commit()
 {
-    send_message(MSG_COMMIT, "");
+    send_message(MSG_COMMIT, string());
 
     // We need to wait for a response to ensure documents have been committed.
     string message;
@@ -589,7 +614,7 @@ RemoteDatabase::cancel()
     cached_stats_valid = false;
     mru_valno = Xapian::BAD_VALUENO;
 
-    send_message(MSG_CANCEL, "");
+    send_message(MSG_CANCEL, string());
 }
 
 Xapian::docid
@@ -664,8 +689,5 @@ RemoteDatabase::replace_document(const std::string & unique_term,
 string
 RemoteDatabase::get_uuid() const
 {
-    if (uuid.empty())
-	throw Xapian::UnimplementedError(
-	    "UUIDs not supported for this database");
     return uuid;
 }

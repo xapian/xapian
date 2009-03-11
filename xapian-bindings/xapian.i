@@ -6,7 +6,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002,2003,2005 James Aylett
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -194,12 +194,10 @@ class ValueIterator {
 
 #ifdef XAPIAN_SWIG_DIRECTORS
 %feature("director") Xapian::PostingSource;
+#endif
 %ignore Xapian::PostingSource::clone;
 %ignore Xapian::PostingSource::unserialise;
 %include <xapian/postingsource.h>
-#else
-%ignore Xapian::Query(Xapian::PostingSource *);
-#endif
 
 namespace Xapian {
 
@@ -226,6 +224,9 @@ class MSet {
     doccount get_matches_lower_bound() const;
     doccount get_matches_estimated() const;
     doccount get_matches_upper_bound() const;
+    doccount get_uncollapsed_matches_lower_bound() const;
+    doccount get_uncollapsed_matches_estimated() const;
+    doccount get_uncollapsed_matches_upper_bound() const;
     weight get_max_possible();
     weight get_max_attained();
     doccount size() const;
@@ -611,6 +612,7 @@ class WritableDatabase : public Database {
 	WritableDatabase(const string &path, int action);
 	WritableDatabase(const WritableDatabase & other);
 
+	void commit();
 	void flush();
 
 	void begin_transaction(bool flushed = true);

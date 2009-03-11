@@ -1,7 +1,7 @@
 /* multi_postlist.h: C++ class definition for multiple database access
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2005,2007 Olly Betts
+ * Copyright 2003,2005,2007,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -48,7 +48,7 @@ class MultiPostList : public LeafPostList {
 	Xapian::doccount get_termfreq() const;
 
 	Xapian::docid  get_docid() const;     // Gets current docid
-	Xapian::doclength get_doclength() const; // Get length of current document
+	Xapian::termcount get_doclength() const; // Get length of current document
         Xapian::termcount get_wdf() const;	    // Within Document Frequency
 	PositionList *read_position_list();
 	PositionList * open_position_list() const;

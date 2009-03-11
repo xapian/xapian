@@ -474,8 +474,13 @@ class SourceChecker:
                 if milestone not in milestones:
                     milestones[milestone] = []
                 milestones[milestone].append((file.path, fixmetext))
-        return [(milestone, milestones[milestone]) for milestone in
-                milestones.iterkeys()]
+        def cmpfn(a, b):
+            if (a[0] == '') ^ (b[0] == ''):
+                return -cmp(a, b)
+            return cmp(a, b)
+        return sorted([(milestone, sorted(milestones[milestone]))
+                      for milestone in milestones.iterkeys()],
+                      cmp=cmpfn)
 
 
 toppath = '../xapian-core'

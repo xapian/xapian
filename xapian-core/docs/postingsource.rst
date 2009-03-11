@@ -29,6 +29,15 @@ returned by Xapian::PostingSource.
 Anatomy
 =======
 
+When first constructed, a PostingSource is not tied to a particular database.
+Before Xapian can get any postings (or statistics) from the source, it needs to
+be supplied with a database.  This is performed by the reset() method, which is
+passed a single parameter holding the database to use.  The reset method will
+always be called before asking for any information about the postings in the
+list::
+
+    virtual void reset(const Xapian::Database & db) = 0;
+
 Three methods return statistics independent of the iteration position.
 These are upper and lower bounds for the number of documents which can
 be returned, and an estimate of this number::
@@ -112,17 +121,11 @@ The default implementation of ``check()`` is just a thin wrapper around
 ``skip_to()`` which returns true - you should use this if ``skip_to()`` incurs
 only a small extra cost.
 
-In order to cope with being used more than once, there needs to be a way to
-reset a PostingSource to its freshly constructed state.  This is provided
-by the ``reset()`` method::
-
-    virtual void reset() = 0;
-
 There's also a method to return a string describing this object::
 
     virtual std::string get_description() const;
 
-The default implementation returns a generic answer.  This default it provided
+The default implementation returns a generic answer.  This default is provided
 to avoid forcing you to provide an implementation if you don't really care
 what ``get_description()`` gives for your sub-class.
 
@@ -131,12 +134,48 @@ Examples
 
 FIXME: Provide some!
 
-Current Limitations
-===================
+Multiple databases, and remote databases
+========================================
 
-Xapian::PostingSource doesn't currently work well with multiple databases.  The
-issue is that the document ids refer to those in the sub-database, but there's
-no hint as to which sub-database they are in, and generally the same document
-id can appear in more than one sub-database.
+In order to work with searches across multiple databases, or in remote
+databases, some additional methods need to be implemented on
+Xapian::PostingSources.  The first of these is ``clone()``, which is used for
+multi database searches.  This method should just return a newly allocated
+instance of the same posting source class, initialised in the same way as the
+source that clone() was called on.  The returned source will be deallocated by
+the caller (using "delete" - so you should allocate it with "new").
 
-The remote backend isn't supported either yet.
+If you don't care about supporting searches across multiple databases, you can
+simply return NULL from this method.  In fact, the default implementation does
+this, so you can just leave the default implementation in place.  If
+``clone()`` returns NULL, an attempt to perform a search with multiple
+databases will raise an exception::
+
+    virtual PostingSource * clone() const;
+
+To work with searches across remote databases, you need to implement a few more
+methods.  Firstly, you need to implement the ``name()`` method.  This simply
+returns the (fully namespaced) name of your posting source::
+
+    virtual std::string name() const;
+
+Next, you need to implement the serialise and unserialise methods.  The
+``serialise()`` method converts all the settings of the PostingSource to a
+string, and the ``unserialise()`` method converts one of these strings back
+into a PostingSource.  Note that the serialised string doesn't need to include
+any information about the current iteration position of the PostingSource::
+
+    virtual std::string serialise() const;
+    virtual PostingSource * unserialise(const std::string &s) const;
+
+Finally, you need to make a remote server which knows about your PostingSource.
+Currently, the only way to do this is to hack the source slightly, and compile
+your own.  To do this, you need to edit ``xapian-core/bin/xapian-tcpsrv.cc``
+and find the ``register_user_weighting_schemes()`` function.  At the end of
+this function, add the lines::
+
+    SerialisationContext ctx;
+    ctx.register_postingsource(MyPostingSource());
+    server.set_context(ctx);
+
+Where ``MyPostingSource`` is your posting source.

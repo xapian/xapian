@@ -114,6 +114,7 @@ include matcher/Makefile.mk
 include net/Makefile.mk
 include queryparser/Makefile.mk
 include unicode/Makefile.mk
+include weight/Makefile.mk
 
 xapianinclude_HEADERS += include/xapian/error.h
 

@@ -1,9 +1,8 @@
 /* orpostlist.h: OR of two posting lists
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004 Olly Betts
+ * Copyright 2003,2004,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -62,7 +61,7 @@ class OrPostList : public BranchPostList {
 	 *  current document for the document length.  If both subpostlists
 	 *  are valid, the left one is asked.
 	 */
-	virtual Xapian::doclength get_doclength() const;
+	virtual Xapian::termcount get_doclength() const;
 
         OrPostList(PostList * left_,
 		   PostList * right_,

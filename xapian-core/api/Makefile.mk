@@ -33,5 +33,4 @@ libxapian_la_SOURCES +=\
 	api/valueiterator.cc\
 	api/valuerangeproc.cc\
 	api/valuesetmatchdecider.cc\
-	api/version.cc\
-	api/weightinternal.cc
+	api/version.cc

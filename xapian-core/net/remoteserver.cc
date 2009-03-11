@@ -38,8 +38,8 @@
 #include "omtime.h"
 #include "serialise.h"
 #include "serialise-double.h"
-#include "stats.h"
 #include "utils.h"
+#include "weightinternal.h"
 
 /// Class to throw when we receive the connection closing message.
 struct ConnectionClosed { };
@@ -48,32 +48,32 @@ RemoteServer::RemoteServer(const std::vector<std::string> &dbpaths,
 			   int fdin_, int fdout_,
 			   Xapian::timeout active_timeout_,
 			   Xapian::timeout idle_timeout_,
-			   bool writable)
+			   bool writable_)
     : RemoteConnection(fdin_, fdout_, std::string()),
-      db(NULL), wdb(NULL),
+      db(NULL), wdb(NULL), writable(writable_),
       active_timeout(active_timeout_), idle_timeout(idle_timeout_)
 {
     // Catch errors opening the database and propagate them to the client.
     try {
-	if (writable) {
-	    AssertEq(dbpaths.size(), 1); // Expecting exactly one database.
-	    wdb = new Xapian::WritableDatabase(dbpaths[0], Xapian::DB_CREATE_OR_OPEN);
-	    db = wdb;
-	} else {
-	    db = new Xapian::Database;
-	    vector<std::string>::const_iterator i;
-	    for (i = dbpaths.begin(); i != dbpaths.end(); ++i)
-		db->add_database(Xapian::Database(*i));
-	}
-
-	// Build a better description than Database::get_description() gives.
-	// FIXME: improve Database::get_description() and then just use that
-	// instead.
+	Assert(!dbpaths.empty());
+	// We always open the database read-only to start with.  If we're
+	// writable, the client can ask to be upgraded to write access once
+	// connected if it wants it.
+	db = new Xapian::Database(dbpaths[0]);
+	// Build a better description than Database::get_description() gives
+	// in the variable context.  FIXME: improve Database::get_description()
+	// and then just use that instead.
 	context = dbpaths[0];
-	vector<std::string>::const_iterator i(dbpaths.begin());
-	for (++i; i != dbpaths.end(); ++i) {
-	    context += ' ';
-	    context += *i;
+
+	if (!writable) {
+	    vector<std::string>::const_iterator i(dbpaths.begin());
+	    for (++i; i != dbpaths.end(); ++i) {
+		db->add_database(Xapian::Database(*i));
+		context += ' ';
+		context += *i;
+	    }
+	} else {
+	    AssertEq(dbpaths.size(), 1); // Expecting exactly one database.
 	}
     } catch (const Xapian::Error &err) {
 	// Propagate the exception to the client.
@@ -95,15 +95,14 @@ RemoteServer::RemoteServer(const std::vector<std::string> &dbpaths,
     message += char(XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION);
     message += encode_length(db->get_doccount());
     message += encode_length(db->get_lastdocid());
+    message += encode_length(db->get_doclength_lower_bound());
+    message += encode_length(db->get_doclength_upper_bound());
     message += (db->has_positions() ? '1' : '0');
-    message += serialise_double(db->get_avlength());
-    string uuid;
-    try {
-	uuid = db->get_uuid();
-    } catch (const Xapian::UnimplementedError &) {
-	// Leave the uuid empty.
-    }
-    message += encode_length(uuid.size());
+    // FIXME: clumsy to reverse calculate total_len like this:
+    totlen_t total_len = totlen_t(db->get_avlength() * db->get_doccount() + .5);
+    message += encode_length(total_len);
+    //message += encode_length(db->get_total_length());
+    string uuid = db->get_uuid();
     message += uuid;
     send_message(REPLY_GREETING, message);
 }
@@ -184,7 +183,8 @@ RemoteServer::run()
 		&RemoteServer::msg_commit,
 		&RemoteServer::msg_replacedocument,
 		&RemoteServer::msg_replacedocumentterm,
-		&RemoteServer::msg_deletedocument
+		&RemoteServer::msg_deletedocument,
+		&RemoteServer::msg_writeaccess,
 		// MSG_GETMSET - used during a conversation.
 		// MSG_SHUTDOWN - handled by get_message().
 	    };
@@ -223,7 +223,7 @@ RemoteServer::run()
 	    return;
 	} catch (...) {
 	    // Propagate an unknown exception to the client.
-	    send_message(REPLY_EXCEPTION, "");
+	    send_message(REPLY_EXCEPTION, string());
 	    // And rethrow it so our caller can log it and close the
 	    // connection.
 	    throw;
@@ -245,7 +245,7 @@ RemoteServer::msg_allterms(const string &message)
 	send_message(REPLY_ALLTERMS, item);
     }
 
-    send_message(REPLY_DONE, "");
+    send_message(REPLY_DONE, string());
 }
 
 void
@@ -264,7 +264,7 @@ RemoteServer::msg_termlist(const string &message)
 	send_message(REPLY_TERMLIST, item);
     }
 
-    send_message(REPLY_DONE, "");
+    send_message(REPLY_DONE, string());
 }
 
 void
@@ -284,7 +284,7 @@ RemoteServer::msg_positionlist(const string &message)
 	lastpos = pos;
     }
 
-    send_message(REPLY_DONE, "");
+    send_message(REPLY_DONE, string());
 }
 
 void
@@ -311,7 +311,19 @@ RemoteServer::msg_postlist(const string &message)
 	lastdocid = newdocid;
     }
 
-    send_message(REPLY_DONE, "");
+    send_message(REPLY_DONE, string());
+}
+
+void
+RemoteServer::msg_writeaccess(const string & msg)
+{
+    if (!writable) 
+	throw Xapian::InvalidOperationError("Server is read-only");
+
+    wdb = new Xapian::WritableDatabase(context, Xapian::DB_OPEN);
+    delete db;
+    db = wdb;
+    msg_update(msg);
 }
 
 void
@@ -330,15 +342,14 @@ RemoteServer::msg_update(const string &)
 
     string message = encode_length(db->get_doccount());
     message += encode_length(db->get_lastdocid());
+    message += encode_length(db->get_doclength_lower_bound());
+    message += encode_length(db->get_doclength_upper_bound());
     message += (db->has_positions() ? '1' : '0');
-    message += serialise_double(db->get_avlength());
-    string uuid;
-    try {
-	uuid = db->get_uuid();
-    } catch (const Xapian::UnimplementedError &) {
-	// Leave the uuid empty.
-    }
-    message += encode_length(uuid.size());
+    // FIXME: clumsy to reverse calculate total_len like this:
+    totlen_t total_len = totlen_t(db->get_avlength() * db->get_doccount() + .5);
+    message += encode_length(total_len);
+    //message += encode_length(db->get_total_length());
+    string uuid = db->get_uuid();
     message += uuid;
     send_message(REPLY_UPDATE, message);
 }
@@ -411,7 +422,7 @@ RemoteServer::msg_query(const string &message_in)
     // Unserialise the RSet object.
     Xapian::RSet rset = unserialise_rset(string(p, p_end - p));
 
-    Stats local_stats;
+    Xapian::Weight::Internal local_stats;
     MultiMatch match(*db, query.get(), qlen, &rset, collapse_max, collapse_key,
 		     percent_cutoff, weight_cutoff, order,
 		     sort_key, sort_by, sort_value_forward, NULL,
@@ -431,7 +442,7 @@ RemoteServer::msg_query(const string &message_in)
     check_at_least = decode_length(&p, p_end, false);
 
     message.erase(0, message.size() - (p_end - p));
-    Stats total_stats(unserialise_stats(message));
+    Xapian::Weight::Internal total_stats(unserialise_stats(message));
 
     Xapian::MSet mset;
     match.get_mset(first, maxitems, check_at_least, mset, total_stats, 0, 0);
@@ -456,7 +467,7 @@ RemoteServer::msg_document(const string &message)
 	item += *i;
 	send_message(REPLY_VALUE, item);
     }
-    send_message(REPLY_DONE, "");
+    send_message(REPLY_DONE, string());
 }
 
 void
@@ -464,13 +475,13 @@ RemoteServer::msg_keepalive(const string &)
 {
     // Ensure *our* database stays alive, as it may contain remote databases!
     db->keep_alive();
-    send_message(REPLY_DONE, "");
+    send_message(REPLY_DONE, string());
 }
 
 void
 RemoteServer::msg_termexists(const string &term)
 {
-    send_message((db->term_exists(term) ? REPLY_TERMEXISTS : REPLY_TERMDOESNTEXIST), "");
+    send_message((db->term_exists(term) ? REPLY_TERMEXISTS : REPLY_TERMDOESNTEXIST), string());
 }
 
 void
@@ -511,9 +522,7 @@ RemoteServer::msg_doclength(const string &message)
     const char *p = message.data();
     const char *p_end = p + message.size();
     Xapian::docid did = decode_length(&p, p_end, false);
-    // FIXME: get_doclength should always return an integer, but
-    // Xapian::doclength is a double...
-    send_message(REPLY_DOCLENGTH, serialise_double(db->get_doclength(did)));
+    send_message(REPLY_DOCLENGTH, encode_length(db->get_doclength(did)));
 }
 
 void
@@ -524,7 +533,7 @@ RemoteServer::msg_commit(const string &)
 
     wdb->commit();
 
-    send_message(REPLY_DONE, "");
+    send_message(REPLY_DONE, string());
 }
 
 void
@@ -562,7 +571,7 @@ RemoteServer::msg_deletedocument(const string & message)
 
     wdb->delete_document(did);
 
-    send_message(REPLY_DONE, "");
+    send_message(REPLY_DONE, string());
 }
 
 void

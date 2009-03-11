@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2007 Olly Betts
+ * Copyright 2003,2004,2007,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -169,9 +169,9 @@ AndNotPostList::get_description() const
     return "(" + l->get_description() + " AndNot " + r->get_description() + ")";
 }
 
-Xapian::doclength
+Xapian::termcount
 AndNotPostList::get_doclength() const
 {
-    DEBUGCALL(MATCH, Xapian::doclength, "AndNotPostList::get_doclength", "");
+    DEBUGCALL(MATCH, Xapian::termcount, "AndNotPostList::get_doclength", "");
     RETURN(l->get_doclength());
 }

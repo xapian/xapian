@@ -1,7 +1,7 @@
 /* ompostlistiterator.cc
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2004,2005,2008 Olly Betts
+ * Copyright 2003,2004,2005,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -93,10 +93,10 @@ Xapian::PostingIterator::skip_to(Xapian::docid did)
     if (internal->at_end()) internal = 0;
 }    
 
-Xapian::doclength
+Xapian::termcount
 Xapian::PostingIterator::get_doclength() const
 {
-    DEBUGAPICALL(Xapian::doclength, "Xapian::PostingIterator::get_doclength", "");
+    DEBUGAPICALL(Xapian::termcount, "Xapian::PostingIterator::get_doclength", "");
     Assert(internal.get());
     Assert(!internal->at_end());
     RETURN(internal->get_doclength());

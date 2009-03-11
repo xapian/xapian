@@ -1,7 +1,7 @@
 /** @file leafpostlist.cc
  * @brief Abstract base class for leaf postlists.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,7 +20,7 @@
 
 #include <config.h>
 
-#include <xapian/enquire.h> // For Xapian::Weight.
+#include "xapian/weight.h"
 
 #include "leafpostlist.h"
 #include "omassert.h"
@@ -67,7 +67,7 @@ Xapian::weight
 LeafPostList::get_weight() const
 {
     if (!weight) return 0;
-    Xapian::doclength doclen = 0;
+    Xapian::termcount doclen = 0;
     // Fetching the document length is work we can avoid if the weighting
     // scheme doesn't use it.
     if (need_doclength) doclen = get_doclength();

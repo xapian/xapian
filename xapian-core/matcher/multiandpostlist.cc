@@ -1,7 +1,7 @@
 /** @file multiandpostlist.cc
  * @brief N-way AND postlist
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -96,13 +96,13 @@ MultiAndPostList::get_docid() const
     return did;
 }
 
-Xapian::doclength
+Xapian::termcount
 MultiAndPostList::get_doclength() const
 {
     Assert(did);
-    Xapian::doclength doclength = plist[0]->get_doclength();
+    Xapian::termcount doclength = plist[0]->get_doclength();
     for (size_t i = 1; i < n_kids; ++i) {
-	AssertEqDouble(doclength, plist[i]->get_doclength());
+	AssertEq(doclength, plist[i]->get_doclength());
     }
     return doclength;
 }
