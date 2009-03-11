@@ -1,3 +1,7 @@
+Wed Mar 11 01:25:28 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
 Wed Mar 11 01:07:20 GMT 2009  Olly Betts <olly@survex.com>
 
 	* python/pythontest.py: Test that either of ascending=True and

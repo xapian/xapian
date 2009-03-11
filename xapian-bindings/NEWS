@@ -1,9 +1,12 @@
 up to:
-Fri Mar 06 03:44:45 GMT 2009  Olly Betts <olly@survex.com>
+Wed Mar 11 01:07:20 GMT 2009  Olly Betts <olly@survex.com>
 
 Xapian-bindings 1.0.11 (2009-03-??):
 
 Documentation:
+
+	* README: Note that 1.0.x probably won't support Python 3, and
+	  current issues with Ruby 1.9.
 
 General:
 
@@ -26,6 +29,19 @@ Python:
 
 * python/docs/examples/: Use str(obj) rather than obj.get_description().
 
+	* python/extra.i: Add support for the old name ("ascending") for the
+	  second argument of set_sort_by_key() and set_sort_by_value() and
+	  friends.
+
+	* python/extra.i: When ValueRangeProcessors are passed to the
+	  QueryParser, keep a list of them so that they're not deleted
+	  until the QueryParser is.
+	* python/pythontest.py: Regression test that the proxying works -
+	  this test crashed without the patch to extra.i.
+	* python/pythontest.py: Fix comment typo.
+	* python/extra.i: Keep references to Stoppers and Sorters set on
+	  objects, to avoid segfaults when they go out of scope.
+	* python/pythontest.py: Tests for the above. (bug#341)
 Ruby:
 
 * Fixes for Ruby 1.9 compatibility (bug#323).  The test harness currently fails
