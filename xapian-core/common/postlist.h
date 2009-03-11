@@ -1,7 +1,7 @@
 /** @file postlist.h
  * @brief Abstract base class for postlists.
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -67,7 +67,7 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::RefCntBase {
     virtual Xapian::docid get_docid() const = 0;
 
     /// Return the length of current document.
-    virtual Xapian::doclength get_doclength() const = 0;
+    virtual Xapian::termcount get_doclength() const = 0;
     /* FIXME: Once flint has been retired, we should probably strip out
      * PostList::get_doclength() and just fetch it from the DB directly.
      */

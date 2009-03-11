@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2007,2008 Olly Betts
+ * Copyright 2003,2007,2008,2009 Olly Betts
  * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -25,11 +25,11 @@
 
 #include "database.h"
 #include "rset.h"
-#include "stats.h"
 #include "omdebug.h"
 
 #include "autoptr.h"
 #include "termlist.h"
+#include "weightinternal.h"
 
 void
 RSetI::calculate_stats()
@@ -76,7 +76,7 @@ RSetI::calculate_stats()
 }
 
 void
-RSetI::contribute_stats(Stats & stats)
+RSetI::contribute_stats(Xapian::Weight::Internal & stats)
 {
     DEBUGCALL(MATCH, void, "RSetI::contribute_stats", stats);
     calculate_stats();

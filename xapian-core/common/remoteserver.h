@@ -24,9 +24,9 @@
 
 #include "xapian/serialisationcontext.h"
 #include "xapian/database.h"
-#include "xapian/enquire.h"
 #include "xapian/postingsource.h"
 #include "xapian/visibility.h"
+#include "xapian/weight.h"
 
 #include "remoteconnection.h"
 

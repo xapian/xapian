@@ -219,10 +219,10 @@ MergePostList::get_description() const
     return desc + ")";
 }
 
-Xapian::doclength
+Xapian::termcount
 MergePostList::get_doclength() const
 {
-    DEBUGCALL(MATCH, Xapian::doclength, "MergePostList::get_doclength", "");
+    DEBUGCALL(MATCH, Xapian::termcount, "MergePostList::get_doclength", "");
     Assert(current != -1);
     return plists[current]->get_doclength();
 }

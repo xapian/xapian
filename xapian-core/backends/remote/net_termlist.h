@@ -1,7 +1,7 @@
 /* net_termlist.h
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2006,2007 Olly Betts
+ * Copyright 2003,2006,2007,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -77,7 +77,7 @@ class NetworkTermList : public TermList {
 	 *
 	 *  Note that this is not a normalised document length.
 	 */
-	Xapian::doclength document_length;
+	Xapian::termcount document_length;
 
 	/** The number of documents in the database in which this
 	 *  document resides.
@@ -96,12 +96,12 @@ class NetworkTermList : public TermList {
 	/** Standard constructor is private: NetworkTermLists are created
 	 *  by RemoteDatabase object only, which is a friend.
 	 *
-	 *  @param average_length_  The (non-normalised) length of the document
+	 *  @param document_length_ The (non-normalised) length of the document
 	 *  @param database_size_   The number of documents in the database
 	 *  @param this_db_	    The database
 	 *  @param did_		    The document id
 	 */
-	NetworkTermList(Xapian::doclength document_length_,
+	NetworkTermList(Xapian::termcount document_length_,
 			Xapian::doccount database_size_,
 			Xapian::Internal::RefCntPtr<const RemoteDatabase> this_db_,
 			Xapian::docid did_);

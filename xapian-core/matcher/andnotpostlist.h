@@ -1,9 +1,8 @@
 /* andnotpostlist.h: Return items which are in A, unless they're in B
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004 Olly Betts
+ * Copyright 2003,2004,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -59,7 +58,7 @@ class AndNotPostList : public BranchPostList {
 	/** Return the document length of the document the current term
 	 *  comes from.
 	 */
-	virtual Xapian::doclength get_doclength() const;
+	virtual Xapian::termcount get_doclength() const;
 
         AndNotPostList(PostList *left,
 		       PostList *right,

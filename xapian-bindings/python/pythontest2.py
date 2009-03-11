@@ -952,11 +952,32 @@ def test_postingsource():
         doc = xapian.Document()
         db.add_document(doc)
 
-    source = OddPostingSource(10)
-    query = xapian.Query(source)
+    # Do a dance to check that the posting source doesn't get dereferenced too
+    # soon in various cases.
+    def mkenq(db):
+        # First - check that it's kept when the source goes out of scope.
+        def mkquery():
+            source = OddPostingSource(10)
+            return xapian.Query(xapian.Query.OP_OR, [xapian.Query(source)])
 
-    enquire = xapian.Enquire(db)
-    enquire.set_query(query)
+        # Check that it's kept when the query goes out of scope.
+        def submkenq():
+            query = mkquery()
+            enquire = xapian.Enquire(db)
+            enquire.set_query(query)
+            return enquire
+
+        # Check it's kept when the query is retrieved from enquire and put into
+        # a new enquire.
+        def submkenq2():
+            enq1 = submkenq()
+            enquire = xapian.Enquire(db)
+            enquire.set_query(enq1.get_query())
+            return enquire
+
+        return submkenq2()
+
+    enquire = mkenq(db)
     mset = enquire.get_mset(0, 10)
 
     expect([item.docid for item in mset], [1, 3, 5, 7, 9])
@@ -1191,6 +1212,84 @@ def test_serialise_query():
     q2 = xapian.Query.unserialise(q.serialise())
     expect(str(q), str(q2))
     expect(str(q), 'Xapian::Query((hello OR world))')
+
+def test_preserve_query_parser_stopper():
+    """Test preservation of stopper set on query parser.
+
+    """
+    def make_qp():
+        queryparser = xapian.QueryParser()
+        stopper = xapian.SimpleStopper()
+        stopper.add('to')
+        stopper.add('not')
+        queryparser.set_stopper(stopper)
+        del stopper
+        return queryparser
+    queryparser = make_qp()
+    query = queryparser.parse_query('to be')
+    expect([term for term in queryparser.stoplist()], ['to']) 
+
+def test_preserve_term_generator_stopper():
+    """Test preservation of stopper set on term generator.
+
+    """
+    def make_tg():
+        termgen = xapian.TermGenerator()
+        termgen.set_stemmer(xapian.Stem('en'))
+        stopper = xapian.SimpleStopper()
+        stopper.add('to')
+        stopper.add('not')
+        termgen.set_stopper(stopper)
+        del stopper
+        return termgen
+    termgen = make_tg()
+
+    termgen.index_text('to be')
+    doc = termgen.get_document()
+    terms = [term.term for term in doc.termlist()]
+    terms.sort()
+    expect(terms, ['Zbe', 'be', 'to']) 
+
+def test_preserve_enquire_sorter():
+    """Test preservation of sorter set on enquire.
+
+    """
+    db = xapian.inmemory_open()
+    doc = xapian.Document()
+    doc.add_term('foo')
+    doc.add_value(1, '1')
+    db.add_document(doc)
+    db.add_document(doc)
+
+    def make_enq1(db):
+        enq = xapian.Enquire(db)
+        sorter = xapian.MultiValueSorter()
+        enq.set_sort_by_key(sorter, True)
+        del sorter
+        return enq
+    enq = make_enq1(db)
+    enq.set_query(xapian.Query('foo'))
+    enq.get_mset(0, 10)
+
+    def make_enq2(db):
+        enq = xapian.Enquire(db)
+        sorter = xapian.MultiValueSorter()
+        enq.set_sort_by_key_then_relevance(sorter, True)
+        del sorter
+        return enq
+    enq = make_enq2(db)
+    enq.set_query(xapian.Query('foo'))
+    enq.get_mset(0, 10)
+
+    def make_enq3(db):
+        enq = xapian.Enquire(db)
+        sorter = xapian.MultiValueSorter()
+        enq.set_sort_by_relevance_then_key(sorter, True)
+        del sorter
+        return enq
+    enq = make_enq3(db)
+    enq.set_query(xapian.Query('foo'))
+    enq.get_mset(0, 10)
 
 # Run all tests (ie, callables with names starting "test_").
 if not runtests(globals(), sys.argv[1:]):

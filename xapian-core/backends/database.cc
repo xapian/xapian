@@ -31,6 +31,7 @@
 #include "omassert.h"
 #include "slowvaluelist.h"
 
+#include <algorithm>
 #include <string>
 
 using namespace std;
@@ -64,6 +65,30 @@ string
 Database::Internal::get_value_upper_bound(Xapian::valueno) const
 {
     throw Xapian::UnimplementedError("This backend doesn't support get_value_upper_bound");
+}
+
+Xapian::termcount
+Database::Internal::get_doclength_lower_bound() const
+{
+    // A zero-length document can't contain any terms, so we ignore such
+    // documents for the purposes of this lower bound.
+    return 1;
+}
+
+Xapian::termcount
+Database::Internal::get_doclength_upper_bound() const
+{
+    // Not a very tight bound in general, but this is only a fall-back for
+    // backends which don't store these stats.
+    return min(get_total_length(), totlen_t(Xapian::termcount(-1)));
+}
+
+Xapian::termcount
+Database::Internal::get_wdf_upper_bound(const string & term) const
+{
+    // Not a very tight bound in general, but this is only a fall-back for
+    // backends which don't store these stats.
+    return get_collection_freq(term);
 }
 
 // Discard any exceptions - we're called from the destructors of derived

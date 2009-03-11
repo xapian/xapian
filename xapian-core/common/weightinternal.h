@@ -1,7 +1,8 @@
 /** @file weightinternal.h
- * @brief Internals of weight object.
+ * @brief Xapian::Weight::Internal class, holding database and term statistics.
  */
 /* Copyright 2007 Lemur Consulting Ltd
+ * Copyright 2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,52 +22,90 @@
 #ifndef XAPIAN_INCLUDED_WEIGHTINTERNAL_H
 #define XAPIAN_INCLUDED_WEIGHTINTERNAL_H
 
-#include "xapian/enquire.h" // For Xapian::Weight::Internal
+#include "xapian/weight.h"
+
+#include "xapian/database.h"
+
+#include "internaltypes.h"
+
+#include <map>
 #include <string>
 
-// Forward declaration.
-class Stats;
+namespace Xapian {
 
 /** Class to hold statistics for a given collection. */
-class Xapian::Weight::Internal {
-    public:
-	/** Number of documents in the collection. */
-	Xapian::doccount collection_size;
+class Weight::Internal {
+  public:
+    /** Total length of all documents in the collection. */
+    totlen_t total_length;
 
-	/** Number of relevant documents in the collection. */
-	Xapian::doccount rset_size;
+    /** Number of documents in the collection. */
+    Xapian::doccount collection_size;
 
-	/** Average length of documents in the collection. */
-	Xapian::doclength average_length;
+    /** Number of relevant documents in the collection. */
+    Xapian::doccount rset_size;
 
-	/** Term frequency.
-	 *
-	 *  ie, number of documents that the term for this weight object
-	 *  occurs in.
-	 */
-	Xapian::doccount termfreq;
+    /** Database to get the bounds on doclength and wdf from. */
+    Xapian::Database db;
 
-	/** Relevant term frequency.
-	 *
-	 *  ie, number of relevant documents that the term for this weight
-	 *  object occurs in.
-	 */
-	Xapian::doccount reltermfreq;
+    /** Map of term frequencies for the collection. */
+    std::map<std::string, Xapian::doccount> termfreq;
 
-	/** Create a Weight::Internal object with global statistics.
-	 *
-	 *  All term-specific statistics will be set to 0.
-	 *
-	 *  @param stats Object containing the statistics to use.
-	 */
-	Internal(const Stats & stats);
+    /** Map of relevant term frequencies for the collection. */
+    std::map<std::string, Xapian::doccount> reltermfreq;
 
-	/** Create a Weight::Internal object with global and term statistics.
-	 *
-	 *  @param stats Object containing the statistics to use.
-	 *  @param tname The term to read the term-specific statistics for.
-	 */
-	Internal(const Stats & stats, const std::string & tname);
+    /** Create a Weight::Internal object with global statistics.
+     *
+     *  All term-specific statistics will be set to 0.
+     *
+     *  @param stats  Object containing the statistics to use.
+     */
+    Internal(const Internal & stats);
+
+    /** Create a Weight::Internal object with global and term statistics.
+     *
+     *  @param stats  Object containing the statistics to use.
+     *  @param term   The term to read the term-specific statistics for.
+     */
+    Internal(const Internal & stats, const std::string & term);
+
+    Internal() : total_length(0), collection_size(0), rset_size(0) { }
+
+    /** Add in the supplied statistics from a sub-database. */
+    Internal & operator +=(const Internal & inc);
+
+    /** Get the term-frequency of the given term.
+     *
+     *  This is "n_t", the number of documents in the collection indexed by
+     *  the given term.
+     */
+    Xapian::doccount get_termfreq(const std::string & term) const;
+
+    /** Set the term-frequency for the given term. */
+    void set_termfreq(const std::string & term, Xapian::doccount tfreq);
+
+    /** Get the relevant term-frequency for the given term.
+     *
+     *  This is "r_t", the number of relevant documents in the collection
+     *  indexed by the given term.
+     */
+    Xapian::doccount get_reltermfreq(const std::string & term) const;
+
+    /** Set the relevant term-frequency for the given term. */
+    void set_reltermfreq(const std::string & term, Xapian::doccount rtfreq);
+
+    Xapian::doclength get_average_length() const {
+	if (rare(collection_size == 0)) return 0;
+	return Xapian::doclength(total_length) / collection_size;
+    }
+
+    /** Set the "bounds" stats from Database @a db. */
+    void set_bounds_from_db(const Xapian::Database &db_) { db = db_; }
+
+    /// Return a std::string describing this object.
+    std::string get_description() const;
 };
+
+}
 
 #endif // XAPIAN_INCLUDED_WEIGHTINTERNAL_H

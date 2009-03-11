@@ -1,4 +1,4 @@
-/* @file serialise.cc
+/** @file serialise.cc
  * @brief functions to convert Xapian objects to strings and back
  */
 /* Copyright (C) 2006,2007,2008,2009 Olly Betts
@@ -30,8 +30,8 @@
 #include "omenquireinternal.h"
 #include "serialise.h"
 #include "serialise-double.h"
-#include "stats.h"
 #include "utils.h"
+#include "weightinternal.h"
 
 #include <string>
 #include <string.h>
@@ -119,13 +119,14 @@ unserialise_error(const string &serialised_error, const string &prefix,
     throw Xapian::InternalError(msg, context);
 }
 
-string serialise_stats(const Stats &stats)
+string
+serialise_stats(const Xapian::Weight::Internal &stats)
 {
     string result;
 
+    result += encode_length(stats.total_length);
     result += encode_length(stats.collection_size);
     result += encode_length(stats.rset_size);
-    result += serialise_double(stats.average_length);
 
     map<string, Xapian::doccount>::const_iterator i;
 
@@ -145,17 +146,17 @@ string serialise_stats(const Stats &stats)
     return result;
 }
 
-Stats
+Xapian::Weight::Internal
 unserialise_stats(const string &s)
 {
-    const char * p = s.c_str();
+    const char * p = s.data();
     const char * p_end = p + s.size();
 
-    Stats stat;
+    Xapian::Weight::Internal stat;
 
+    stat.total_length = decode_length(&p, p_end, false);
     stat.collection_size = decode_length(&p, p_end, false);
     stat.rset_size = decode_length(&p, p_end, false);
-    stat.average_length = unserialise_double(&p, p_end);
 
     size_t n = decode_length(&p, p_end, false);
     while (n--) {

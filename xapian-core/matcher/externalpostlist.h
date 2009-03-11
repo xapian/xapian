@@ -1,7 +1,7 @@
 /** @file externalpostlist.h
  * @brief Return document ids from an external source.
  */
-/* Copyright 2008 Olly Betts
+/* Copyright 2008,2009 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -62,7 +62,7 @@ class ExternalPostList : public PostList {
 
     Xapian::weight get_weight() const;
 
-    Xapian::doclength get_doclength() const;
+    Xapian::termcount get_doclength() const;
 
     Xapian::weight recalc_maxweight();
 

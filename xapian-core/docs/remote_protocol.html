@@ -66,7 +66,7 @@ value for <code>0</code> or <code>1</code>.  This is indicated by
 <h2>Server greeting and statistics</h2>
 
 <ul>
-<li> <code>REPLY_GREETING &lt;protocol major version&gt; &lt;protocol minor version&gt; I&lt;db doc count&gt; I&lt;last docid&gt; B&lt;has positions?&gt; F&lt;db average length&gt; L&lt;UUID&gt;</code>
+<li> <code>REPLY_GREETING &lt;protocol major version&gt; &lt;protocol minor version&gt; I&lt;db doc count&gt; I&lt;last docid&gt; B&lt;has positions?&gt; I&lt;db total length&gt; &lt;UUID&gt;</code>
 </ul>
 
 <p>
@@ -99,7 +99,7 @@ abort any current sequence of messages.
 
 <ul>
 <li> <code>MSG_WRITEACCESS</code>
-<li> <code>REPLY_UPDATE I&lt;db doc count&gt; I&lt;last docid&gt; B&lt;has positions?&gt; F&lt;db average length&gt; L&lt;UUID&gt;</code>
+<li> <code>REPLY_UPDATE I&lt;db doc count&gt; I&lt;last docid&gt; B&lt;has positions?&gt; I&lt;db total length&gt; &lt;UUID&gt;</code>
 </ul>
 
 <p>
@@ -162,7 +162,7 @@ is rarely so real-time critical as searching.
 
 <ul>
 <li> <code>MSG_DOCLENGTH I&lt;document id&gt;</code>
-<li> <code>REPLY_DOCLENGTH F&lt;document length&gt;</code>
+<li> <code>REPLY_DOCLENGTH I&lt;document length&gt;</code>
 </ul>
 
 <h2>Keep Alive</h2>
@@ -176,7 +176,7 @@ is rarely so real-time critical as searching.
 
 <ul>
 <li> <code>MSG_REOPEN</code>
-<li> <code>REPLY_UPDATE I&lt;db doc count&gt; I&lt;last docid&gt; B&lt;has positions?&gt; F&lt;db average length&gt; L&lt;UUID&gt;</code>
+<li> <code>REPLY_UPDATE I&lt;db doc count&gt; I&lt;last docid&gt; B&lt;has positions?&gt; I&lt;db total length&gt; &lt;UUID&gt;</code>
 </ul>
 
 <p>The reply is the same as for <code>MSG_UPDATE</code>.</p>
@@ -204,7 +204,7 @@ I&lt;sort key number&gt; &lt;sort by&gt; B&lt;sort value forward&gt;
 
 <ul>
 <li> <code>MSG_TERMLIST I&lt;document id&gt;</code>
-<li> <code>REPLY_DOCLENGTH F&lt;document length&gt;</code>
+<li> <code>REPLY_DOCLENGTH I&lt;document length&gt;</code>
 <li> <code>REPLY_TERMLIST I&lt;wdf&gt; I&lt;term freq&gt; L&lt;term name&gt;</code>
 <li> <code>...</code>
 <li> <code>REPLY_DONE</code>
@@ -257,7 +257,7 @@ No reply is sent - this message signals that the client has ended the session.
 
 <ul>
 <li> <code>MSG_UPDATE</code>
-<li> <code>REPLY_UPDATE I&lt;db doc count&gt; I&lt;last docid&gt; B&lt;has positions?&gt; F&lt;db average length&gt;</code>
+<li> <code>REPLY_UPDATE I&lt;db doc count&gt; I&lt;last docid&gt; B&lt;has positions?&gt; I&lt;db total length&gt; &lt;UUID&gt;</code>
 </ul>
 
 <p>

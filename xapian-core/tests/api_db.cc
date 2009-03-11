@@ -1805,7 +1805,12 @@ DEFINE_TESTCASE(netstats1, remote) {
 	Xapian::Enquire enq(db);
 	enq.set_query(query);
 	Xapian::MSet mset = enq.get_mset(0, MSET_SIZE, &rset);
-	TEST_EQUAL(mset, mset_alllocal);
+	TEST_EQUAL(mset.get_matches_lower_bound(), mset_alllocal.get_matches_lower_bound());
+	TEST_EQUAL(mset.get_matches_upper_bound(), mset_alllocal.get_matches_upper_bound());
+	TEST_EQUAL(mset.get_matches_estimated(), mset_alllocal.get_matches_estimated());
+	TEST_EQUAL(mset.get_max_attained(), mset_alllocal.get_max_attained());
+	TEST_EQUAL(mset.size(), mset_alllocal.size());
+	TEST(mset_range_is_same(mset, 0, mset_alllocal, 0, mset.size()));
     }
 
     {
@@ -1816,7 +1821,12 @@ DEFINE_TESTCASE(netstats1, remote) {
 	Xapian::Enquire enq(db);
 	enq.set_query(query);
 	Xapian::MSet mset = enq.get_mset(0, MSET_SIZE, &rset);
-	TEST_EQUAL(mset, mset_alllocal);
+	TEST_EQUAL(mset.get_matches_lower_bound(), mset_alllocal.get_matches_lower_bound());
+	TEST_EQUAL(mset.get_matches_upper_bound(), mset_alllocal.get_matches_upper_bound());
+	TEST_EQUAL(mset.get_matches_estimated(), mset_alllocal.get_matches_estimated());
+	TEST_EQUAL(mset.get_max_attained(), mset_alllocal.get_max_attained());
+	TEST_EQUAL(mset.size(), mset_alllocal.size());
+	TEST(mset_range_is_same(mset, 0, mset_alllocal, 0, mset.size()));
     }
 
     {
@@ -1827,7 +1837,12 @@ DEFINE_TESTCASE(netstats1, remote) {
 	Xapian::Enquire enq(db);
 	enq.set_query(query);
 	Xapian::MSet mset = enq.get_mset(0, MSET_SIZE, &rset);
-	TEST_EQUAL(mset, mset_alllocal);
+	TEST_EQUAL(mset.get_matches_lower_bound(), mset_alllocal.get_matches_lower_bound());
+	TEST_EQUAL(mset.get_matches_upper_bound(), mset_alllocal.get_matches_upper_bound());
+	TEST_EQUAL(mset.get_matches_estimated(), mset_alllocal.get_matches_estimated());
+	TEST_EQUAL(mset.get_max_attained(), mset_alllocal.get_max_attained());
+	TEST_EQUAL(mset.size(), mset_alllocal.size());
+	TEST(mset_range_is_same(mset, 0, mset_alllocal, 0, mset.size()));
     }
 
     return true;
@@ -1846,15 +1861,15 @@ class MyWeight : public Xapian::Weight {
     }
     MyWeight() { }
     ~MyWeight() { }
-    const char * name() const { return "Coord"; }
-    std::string serialise() const { return std::string(); }
-    MyWeight * unserialise(const std::string & /*s*/) const {
-	return new MyWeight;
+    const char * name() const { return "MyWeight"; }
+    string serialise() const { return string(); }
+    MyWeight * unserialise(const string &) const { return new MyWeight; }
+    Xapian::weight get_sumpart(Xapian::termcount, Xapian::termcount) const {
+	return scale_factor;
     }
-    Xapian::weight get_sumpart(Xapian::termcount /*wdf*/, Xapian::doclength /*len*/) const { return scale_factor; }
     Xapian::weight get_maxpart() const { return scale_factor; }
 
-    Xapian::weight get_sumextra(Xapian::doclength /*len*/) const { return 0; }
+    Xapian::weight get_sumextra(Xapian::termcount) const { return 0; }
     Xapian::weight get_maxextra() const { return 0; }
 
     bool get_sumpart_needs_doclength() const { return false; }

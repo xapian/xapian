@@ -296,6 +296,18 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 */
 	std::string get_value_upper_bound(Xapian::valueno valno) const;
 
+	/** Get a lower bound on the length of a document in this DB.
+	 *
+	 *  This bound does not include any zero-length documents.
+	 */
+	Xapian::termcount get_doclength_lower_bound() const;
+
+	/// Get an upper bound on the length of a document in this DB.
+	Xapian::termcount get_doclength_upper_bound() const;
+
+	/// Get an upper bound on the wdf of term @a term.
+	Xapian::termcount get_wdf_upper_bound(const std::string & term) const;
+
 	/// Return an iterator over the value in slot @a slot for each document.
 	ValueIterator valuestream_begin(Xapian::valueno slot) const;
 
@@ -304,12 +316,12 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	    return ValueIterator();
 	}
 
-	/** Get the length of a document.
-	 */
-	Xapian::doclength get_doclength(Xapian::docid did) const;
+	/// Get the length of a document.
+	Xapian::termcount get_doclength(Xapian::docid did) const;
 
-	/** Send a "keep-alive" to remote databases to stop them timing
-	 *  out.
+	/** Send a "keep-alive" to remote databases to stop them timing out.
+	 *
+	 *  Has no effect on non-remote databases.
 	 */
 	void keep_alive();
 

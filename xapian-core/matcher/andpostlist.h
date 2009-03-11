@@ -1,7 +1,7 @@
 /* andpostlist.h: Return only items which are in both sublists
  *
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004 Olly Betts
+ * Copyright 2003,2004,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -63,7 +63,7 @@ class AndPostList : public BranchPostList {
 	 *  returned by the left branch: the left branch is preferable
 	 *  because this should be the fastest way to get to a leaf node.
 	 */
-	virtual Xapian::doclength get_doclength() const;
+	virtual Xapian::termcount get_doclength() const;
 
         AndPostList(PostList *left,
 		    PostList *right,
