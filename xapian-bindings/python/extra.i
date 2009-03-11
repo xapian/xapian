@@ -710,6 +710,72 @@ def _queryparser_gen_unstemlist_iter(self, tname):
                     return_strings=True)
 QueryParser.unstemlist = _queryparser_gen_unstemlist_iter
 
+# When we set a ValueRangeProcessor into the QueryParser, keep a python
+# reference so it won't be deleted. This hack can probably be removed once
+# xapian bug #186 is fixed.
+__queryparser_add_valuerangeprocessor_orig = QueryParser.add_valuerangeprocessor
+def _queryparser_add_valuerangeprocessor(self, vrproc):
+    if not hasattr(self, '_vrps'):
+        self._vrps = []
+    self._vrps.append(vrproc)
+    return __queryparser_add_valuerangeprocessor_orig(self, vrproc)
+_queryparser_add_valuerangeprocessor.__doc__ = __queryparser_add_valuerangeprocessor_orig.__doc__
+QueryParser.add_valuerangeprocessor = _queryparser_add_valuerangeprocessor
+del _queryparser_add_valuerangeprocessor
+
+# When we set a Stopper into the QueryParser, keep a python reference so it
+# won't be deleted. This hack can probably be removed once xapian bug #186 is
+# fixed.
+__queryparser_set_stopper_orig = QueryParser.set_stopper
+def _queryparser_set_stopper(self, stopper):
+    self._stopper = stopper
+    return __queryparser_set_stopper_orig(self, stopper)
+_queryparser_set_stopper.__doc__ = __queryparser_set_stopper_orig.__doc__
+QueryParser.set_stopper = _queryparser_set_stopper
+del _queryparser_set_stopper
+
+# When we set a Stopper into the TermGenerator, keep a python reference so it
+# won't be deleted. This hack can probably be removed once xapian bug #186 is
+# fixed.
+__termgenerator_set_stopper_orig = TermGenerator.set_stopper
+def _termgenerator_set_stopper(self, stopper):
+    self._stopper = stopper
+    return __termgenerator_set_stopper_orig(self, stopper)
+_termgenerator_set_stopper.__doc__ = __termgenerator_set_stopper_orig.__doc__
+TermGenerator.set_stopper = _termgenerator_set_stopper
+del _termgenerator_set_stopper
+
+# When we set a Sorter on enquire, keep a python reference so it won't be
+# deleted.  This hack can probably be removed once xapian bug #186 is fixed.
+__enquire_set_sort_by_key_orig = Enquire.set_sort_by_key
+def _enquire_set_sort_by_key(self, sorter, ascending=None):
+    self._sorter = sorter
+    if ascending is None:
+        return __enquire_set_sort_by_key_orig(self, sorter)
+    return __enquire_set_sort_by_key_orig(self, sorter, ascending)
+_enquire_set_sort_by_key.__doc__ = __enquire_set_sort_by_key_orig.__doc__
+Enquire.set_sort_by_key = _enquire_set_sort_by_key
+del _enquire_set_sort_by_key
+
+__enquire_set_sort_by_key_then_relevance_orig = Enquire.set_sort_by_key_then_relevance
+def _enquire_set_sort_by_key_then_relevance(self, sorter, ascending=None):
+    self._sorter = sorter
+    if ascending is None:
+        return __enquire_set_sort_by_key_then_relevance_orig(self, sorter)
+    return __enquire_set_sort_by_key_then_relevance_orig(self, sorter, ascending)
+_enquire_set_sort_by_key_then_relevance.__doc__ = __enquire_set_sort_by_key_then_relevance_orig.__doc__
+Enquire.set_sort_by_key_then_relevance = _enquire_set_sort_by_key_then_relevance
+del _enquire_set_sort_by_key_then_relevance
+
+__enquire_set_sort_by_relevance_then_key_orig = Enquire.set_sort_by_relevance_then_key
+def _enquire_set_sort_by_relevance_then_key(self, sorter, ascending=None):
+    self._sorter = sorter
+    if ascending is None:
+        return __enquire_set_sort_by_relevance_then_key_orig(self, sorter)
+    return __enquire_set_sort_by_relevance_then_key_orig(self, sorter, ascending)
+_enquire_set_sort_by_relevance_then_key.__doc__ = __enquire_set_sort_by_relevance_then_key_orig.__doc__
+Enquire.set_sort_by_relevance_then_key = _enquire_set_sort_by_relevance_then_key
+del _enquire_set_sort_by_relevance_then_key
 
 
 ##########################################

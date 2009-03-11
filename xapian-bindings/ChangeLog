@@ -1,3 +1,16 @@
+Wed Mar 11 00:48:04 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* python/extra.i: When ValueRangeProcessors are passed to the
+	  QueryParser, keep a list of them so that they're not deleted
+	  until the QueryParser is.
+	* python/pythontest.py: Regression test that the proxying works -
+	  this test crashed without the patch to extra.i.
+	* python/pythontest.py: Fix comment typo.
+	* python/extra.i: Keep references to Stoppers and Sorters set on
+	  objects, to avoid segfaults when they go out of scope.
+	* python/pythontest.py: Tests for the above.
+
 Fri Mar 06 04:11:11 GMT 2009  Olly Betts <olly@survex.com>
 
 	* README: Note that 1.0.x probably won't support Python 3, and
