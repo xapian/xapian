@@ -1,3 +1,9 @@
+Wed Mar 11 11:15:18 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/testsuite2.py,python/testsuite3.py: Remove bare except:
+	  handlers from testsuite, so ctrl-C stop the whole testsuite, not
+	  just one test.
+
 Wed Mar 11 00:06:54 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/pythontest3.py: Update to match pythontest2.py (after
