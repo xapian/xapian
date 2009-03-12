@@ -72,7 +72,7 @@ XAPIAN_OUTPUT_FUNCTION(Xapian::ValueIterator)
 XAPIAN_OUTPUT_FUNCTION(Xapian::DatabaseMaster)
 XAPIAN_OUTPUT_FUNCTION(Xapian::DatabaseReplica)
 
-#include "common/weightinternal.h"
+#include "weightinternal.h"
 XAPIAN_OUTPUT_FUNCTION(Xapian::Weight::Internal)
 
 #endif /* XAPIAN_INCLUDED_OUTPUT_H */
