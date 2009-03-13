@@ -1,3 +1,9 @@
+Fri Mar 13 05:48:37 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/queryparser.h: Note that QueryParser::FLAG_DEFAULT
+	  was new in 1.0.11.
+
 Thu Mar 05 10:30:32 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

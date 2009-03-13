@@ -1,28 +1,37 @@
 up to:
-Tue Mar 03 09:31:01 GMT 2009  Olly Betts <olly@survex.com>
+Thu Mar 05 10:30:32 GMT 2009  Olly Betts <olly@survex.com>
 
 Xapian-core 1.0.11 (2009-03-??):
 
-
 API:
 
-	* api/omenquire.cc: Throw UnimplementedError from Enquire::get_mset()
-	  if we're asked for a percentage cutoff and to sort primarily by
-	  value - this has never been correctly supported and it's better to
-	  warn people than give incorrect results.
+* Enquire::get_mset():
+    
+  + Now throws UnimplementedError if there's a percentage cutoff and sorting is
+    primarily by value - this has never been correctly supported and it's
+    better to warn people than give incorrect results.
 
-* Enquire::get_mset()
-	* common/omenquireinternal.h: Swap the items vector into the
-	  MSet::Internal object rather than copying it to avoid the overhead
-	  of the copy.
+  + No longer does a needless copy of the results.
 
-	* matcher/mergepostlist.cc: Fix ticket #336 by calling
-	  recalc_maxweight when a sub-posting list finishes (other than
-	  after the last one, where there is no point in calling
-	  recalc_maxweight).
+  + When searching multiple databases now recalculates the maximum attainable
+    weight after each database which may allow it to terminate earlier.
+    (bug#336).
 
-	* backends/multi/multi_alltermslist.cc: Fix memory leak which
-	  was causing allterms6 to fail.
+  + Fix inconsistent percentage scores when sorting primarily by value, except
+    when a MatchDecider is also being used; document this remaining problem
+    case.  (bug#216)
+
+* Database::allterms_begin(): Fix memory leak when iterating all terms from
+  more than one database.
+
+* Add QueryParser::FLAG_DEFAULT to make it easier to add flags to those set by
+  default.
+
+* include/xapian/enquire.h,tests/: Rename the
+	  wrongly named "ascending" parameter of the set_sort_by*() methods
+	  of Enquire to "reverse" and note that its value should always be
+	  explicitly given since defaulting to "reverse=true" is confusing
+	  and the default will be deprecated in 1.1.0.  (bug#311)
 
 testsuite:
 
@@ -51,6 +60,14 @@ flint backend:
 	  unmounting of any partitions and close any open file descriptors
 	  (apart from those we're using) so that if the files are closed by
 	  our parent and deleted the disk space gets released right away.
+
+	* Reduce allocation of zstreams by allocating them lazily, keeping
+	  them in the table objects, and reuse them, rather than allocating
+	  a new one each time it's wanted.  Heavily based on a patch from
+	  Todd Lipcon.  Apparently improves performance significantly on
+	  some systems; on my tests it has no perceptible negative impact,
+	  but it makes sense that it could help in some situations, so
+	  let's apply it.  Fixes #325.
 
 quartz backend:
 
