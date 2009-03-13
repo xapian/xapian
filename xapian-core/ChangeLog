@@ -1,3 +1,8 @@
+Fri Mar 13 04:36:19 GMT 2009  Olly Betts <olly@survex.com>
+
+	* weight/weightinternal.cc: Implement
+	  Weight::Internal::get_description().
+
 Thu Mar 12 11:57:02 GMT 2009  Olly Betts <olly@survex.com>
 
 	* common/output.h: Fix last commit.
