@@ -24,6 +24,7 @@
 #include "weightinternal.h"
 
 #include "omassert.h"
+#include "utils.h" // For om_tostring().
 
 using namespace std;
 
