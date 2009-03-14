@@ -1,3 +1,11 @@
+Sat Mar 14 14:51:33 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h: Store non-normalised document
+	  lengths as Xapian::termcount (unsigned int) rather than
+	  Xapian::doclength (double).
+
 Sat Mar 14 09:37:10 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

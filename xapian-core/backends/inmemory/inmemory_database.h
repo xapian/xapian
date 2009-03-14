@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2009 Olly Betts
  * Copyright 2006 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -204,11 +204,12 @@ class InMemoryTermList : public TermList {
 
 	Xapian::Internal::RefCntPtr<const InMemoryDatabase> db;
 	Xapian::docid did;
-	Xapian::doclength document_length;
+	Xapian::termcount document_length;
 
-	InMemoryTermList(Xapian::Internal::RefCntPtr<const InMemoryDatabase> db, Xapian::docid did,
+	InMemoryTermList(Xapian::Internal::RefCntPtr<const InMemoryDatabase> db,
+			 Xapian::docid did,
 			 const InMemoryDoc & doc,
-			 Xapian::doclength len);
+			 Xapian::termcount len);
     public:
 	Xapian::termcount get_approx_size() const;
 
@@ -236,7 +237,7 @@ class InMemoryDatabase : public Xapian::Database::Internal {
     vector<std::string> doclists;
     vector<std::map<Xapian::valueno, string> > valuelists;
 
-    vector<Xapian::doclength> doclengths;
+    vector<Xapian::termcount> doclengths;
 
     std::map<string, string> metadata;
 
