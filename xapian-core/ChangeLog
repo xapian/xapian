@@ -1,3 +1,8 @@
+Sat Mar 14 09:37:10 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* common/database.h: Fix comment typo.
+
 Sat Mar 14 09:36:09 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
