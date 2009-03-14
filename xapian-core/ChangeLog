@@ -1,3 +1,9 @@
+Sat Mar 14 15:02:36 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/api_backend.cc: Add check that backends don't truncate total
+	  document length to 32 bits.
+
 Sat Mar 14 14:56:51 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
