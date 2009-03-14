@@ -1,3 +1,10 @@
+Sat Mar 14 15:29:14 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/localmatch.cc: Remove special case handling for empty string
+	  being returned from the TermIterator returned by
+	  Query::Internal::get_terms() as this should no longer happen.
+
 Sat Mar 14 15:24:58 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
