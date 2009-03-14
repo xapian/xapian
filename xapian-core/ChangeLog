@@ -1,3 +1,9 @@
+Sat Mar 14 09:36:09 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* net/serialise.cc: c_str() -> data() since we don't need the
+	  nul-termination.
+
 Fri Mar 13 05:48:37 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
