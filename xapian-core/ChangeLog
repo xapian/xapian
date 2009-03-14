@@ -1,3 +1,9 @@
+Sat Mar 14 14:52:24 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/inmemory/inmemory_database.h: Fix file description
+	  ("multiple database" -> "inmemory database").
+
 Sat Mar 14 14:51:33 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
