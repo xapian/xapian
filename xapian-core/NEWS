@@ -1,7 +1,4 @@
-up to:
-Sun Mar 15 03:40:10 GMT 2009  Olly Betts <olly@survex.com>
-
-Xapian-core 1.0.11 (2009-03-1?):
+Xapian-core 1.0.11 (2009-03-15):
 
 API:
 
@@ -11,20 +8,20 @@ API:
     primarily by value - this has never been correctly supported and it's
     better to warn people than give incorrect results.
 
-  + No longer does a needless copy of the results.
+  + No longer needlessly copies the results internally.
 
-  + When searching multiple databases now recalculates the maximum attainable
+  + When searching multiple databases, now recalculates the maximum attainable
     weight after each database which may allow it to terminate earlier.
-    (bug#336).
+    (ticket#336).
 
   + Fix inconsistent percentage scores when sorting primarily by value, except
     when a MatchDecider is also being used; document this remaining problem
-    case.  (bug#216)
+    case.  (ticket#216)
 
 * Enquire::set_sort_by_value() (and similar methods): Rename the wrongly named
-  "ascending" parameter to "reverse" and note that its value should always be
+  "ascending" parameter to "reverse", and note that its value should always be
   explicitly given since defaulting to "reverse=true" is confusing and the
-  default will be deprecated in 1.1.0.  (bug#311)
+  default will be deprecated in 1.1.0.  (ticket#311)
 
 * Database::allterms_begin(): Fix memory leak when iterating all terms from
   more than one database.
@@ -51,9 +48,6 @@ testsuite:
 
 * Disable lockfileumask1 (regression testcase added in 1.0.10) on Cygwin and on
   OS/2.
-
-matcher:
-
 
 flint backend:
 
@@ -109,9 +103,6 @@ documentation:
 
 * docs/sorting.html: Clarify meaning.
 
-examples:
-
-
 portability:
 
 * Fix "#line" directives in generated file queryparser/queryparser_internal.cc
@@ -119,14 +110,8 @@ portability:
   VPATH build (as release tarballs are), and this confused GCC 2.95 and
   depcomp.
 
-* Fix for compiling with Sun's compiler (untested as I no longer have access to
-  it).
-
-packaging:
-
-
-debug code:
-
+* Fix for compiling with Sun's compiler (untested as we no longer have access
+  to it).
 
 Xapian-core 1.0.10 (2008-12-23):
 

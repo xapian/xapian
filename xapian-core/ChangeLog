@@ -1,3 +1,7 @@
+Sun Mar 15 10:29:45 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS,PLATFORMS,configure.ac: Update for 1.0.11.
+
 Sun Mar 15 04:55:09 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
