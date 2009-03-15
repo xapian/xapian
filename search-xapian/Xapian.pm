@@ -4,7 +4,7 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '1.0.10.0';
+our $VERSION = '1.0.11.0';
 
 use Exporter 'import';
 
@@ -83,6 +83,7 @@ our %EXPORT_TAGS = (
 				 FLAG_SYNONYM
 				 FLAG_AUTO_SYNONYMS
 				 FLAG_AUTO_MULTIWORD_SYNONYMS
+				 FLAG_DEFAULT
                                  ) ],
                     'qpstem' => [ qw(
 				 STEM_NONE
@@ -251,6 +252,11 @@ Filter by a range test on a document value.
 =head1 :qpflags
 
 =over 4
+
+=item FLAG_DEFAULT
+
+This gives the QueryParser default flag settings, allowing you to easily add
+flags to the default ones.
 
 =item FLAG_BOOLEAN
 
