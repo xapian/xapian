@@ -1,53 +1,33 @@
-up to:
-Wed Mar 11 01:07:20 GMT 2009  Olly Betts <olly@survex.com>
-
-Xapian-bindings 1.0.11 (2009-03-??):
+Xapian-bindings 1.0.11 (2009-03-15):
 
 Documentation:
 
-	* README: Note that 1.0.x probably won't support Python 3, and
-	  current issues with Ruby 1.9.
-
-General:
-
-Packaging:
+* README: Note that 1.0.x doesn't (and isn't currently planned to) support
+  Python 3, and possible current issues with Ruby 1.9.
 
 Portability:
 
 * Merge fixes from Cygwin Ports, so bindings should build out of the box on
   Cygwin.
 
-CSharp:
-
-Guile:
-
-Java:
-
-PHP:
-
 Python:
 
-* python/docs/examples/: Use str(obj) rather than obj.get_description().
+* python/docs/examples/: Use str(obj) rather than obj.get_description() (the
+  latter is deprecated, and support was removed in 1.0.0).
 
-	* python/extra.i: Add support for the old name ("ascending") for the
-	  second argument of set_sort_by_key() and set_sort_by_value() and
-	  friends.
+* Add support for using the new name ("reverse") for the second argument of
+  set_sort_by_key() and set_sort_by_value() and friends as a named parameter.
+  The old name ("ascending") is still supported, but will be deprecated in
+  1.1.0.
 
-	* python/extra.i: When ValueRangeProcessors are passed to the
-	  QueryParser, keep a list of them so that they're not deleted
-	  until the QueryParser is.
-	* python/pythontest.py: Regression test that the proxying works -
-	  this test crashed without the patch to extra.i.
-	* python/pythontest.py: Fix comment typo.
-	* python/extra.i: Keep references to Stoppers and Sorters set on
-	  objects, to avoid segfaults when they go out of scope.
-	* python/pythontest.py: Tests for the above. (bug#341)
+* Keep Python references to Sorter, Stopper, and ValueRangeProcessor objects
+  which get set on other objects to avoid segmentation faults if they go out
+  of scope before the object they are set on does.  (ticket#341)
+
 Ruby:
 
-* Fixes for Ruby 1.9 compatibility (bug#323).  The test harness currently fails
-  so "make check" doesn't pass, but code using the bindings should work.
-
-Tcl:
+* Fixes for Ruby 1.9 compatibility (ticket#323).  The test harness currently
+  fails so "make check" doesn't pass, but code using the bindings should work.
 
 Xapian-bindings 1.0.10 (2008-12-23):
 
