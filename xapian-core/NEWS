@@ -1,7 +1,7 @@
 up to:
-Thu Mar 05 10:30:32 GMT 2009  Olly Betts <olly@survex.com>
+Sun Mar 15 03:40:10 GMT 2009  Olly Betts <olly@survex.com>
 
-Xapian-core 1.0.11 (2009-03-??):
+Xapian-core 1.0.11 (2009-03-1?):
 
 API:
 
@@ -21,29 +21,36 @@ API:
     when a MatchDecider is also being used; document this remaining problem
     case.  (bug#216)
 
+* Enquire::set_sort_by_value() (and similar methods): Rename the wrongly named
+  "ascending" parameter to "reverse" and note that its value should always be
+  explicitly given since defaulting to "reverse=true" is confusing and the
+  default will be deprecated in 1.1.0.  (bug#311)
+
 * Database::allterms_begin(): Fix memory leak when iterating all terms from
   more than one database.
+
+* Query::get_terms_begin(): Don't return "" from the TermIterator (happened
+  when the query contained or was Query::MatchAll).
 
 * Add QueryParser::FLAG_DEFAULT to make it easier to add flags to those set by
   default.
 
-* include/xapian/enquire.h,tests/: Rename the
-	  wrongly named "ascending" parameter of the set_sort_by*() methods
-	  of Enquire to "reverse" and note that its value should always be
-	  explicitly given since defaulting to "reverse=true" is confusing
-	  and the default will be deprecated in 1.1.0.  (bug#311)
-
 testsuite:
 
-	* HACKING,configure.ac,tests/runtest.in: Don't use valgrind if it's
-	  < 3.3.0 as that's well over a year old and greatly simplifies the
-	  configure tests.  Fix options passed to valgrind so that the
-	  testsuite harness actually reports problems detected by newer
-	  valgrind versions.
+* The testsuite now reports problems detected by valgrind with newer valgrind
+  versions.  Drop support for running the testsuite under valgrind < 3.3.0
+  (well over a year old) as this greatly simplifies the configure tests.  
 
-	* tests/harness/testsuite.cc: Fix option usage in --help - "-x=foo"
-	  doesn't work - "-x foo" does.
+* Fix usage message for options which take arguments in --help output from test
+  programs - "-x=foo" doesn't work, the correct syntax is "-x foo".
 
+* If comparing MSet percentages fails, report the differing percentages if in
+  verbose mode.
+
+* Add test that backends don't truncate total document length to 32 bits.
+
+* Disable lockfileumask1 (regression testcase added in 1.0.10) on Cygwin and on
+  OS/2.
 
 matcher:
 
@@ -55,19 +62,16 @@ flint backend:
   since then.  The configure test is now fixed, and gives a slight speedup
   (3% measured for searching).
 
-	* backends/flint/flint_lock.cc: In the locking child process, before
-	  we exec /bin/cat change directory to / so that we don't block
-	  unmounting of any partitions and close any open file descriptors
-	  (apart from those we're using) so that if the files are closed by
-	  our parent and deleted the disk space gets released right away.
+* The child process used to implement WritableDatabase locking now changes
+  directory to / so that it doesn't block unmounting of any partitions and
+  closes any open file descriptors which aren't relating to locking so that
+  if those files are closed by our parent and deleted the disk space gets
+  released right away.
 
-	* Reduce allocation of zstreams by allocating them lazily, keeping
-	  them in the table objects, and reuse them, rather than allocating
-	  a new one each time it's wanted.  Heavily based on a patch from
-	  Todd Lipcon.  Apparently improves performance significantly on
-	  some systems; on my tests it has no perceptible negative impact,
-	  but it makes sense that it could help in some situations, so
-	  let's apply it.  Fixes #325.
+* We now reuse the same zlib zstream structures rather than using a fresh
+  one for each operation.  This doesn't make a measurable difference in
+  our own tests on Linux but reportedly is measurably faster on some
+  systems.  (ticket #325)
 
 quartz backend:
 
@@ -75,43 +79,48 @@ quartz backend:
 
 remote backend:
 
-	* api/omqueryinternal.cc,include/xapian/query.h: Avoid copying
-	  Query::Internal objects needlessly when unserialising Query
-	  objects.
+* Avoid copying Query::Internal objects needlessly when unserialising Query
+  objects.
 
 inmemory backend:
 
+* Store the (non-normalised) document lengths as Xapian::termcount (unsigned
+  int) rather than Xapian::doclength (double) which saves 4 bytes per document.
 
 build system:
 
-	* configure.ac: GCC --version keeps changing format, and as a result
-	  we were currently getting "g++" as the version.  So change to the
-	  (hopefully) more robust technique of using g++ -E to pull out
-	  __GNUC__ and __GNUC_MINOR__.
+* configure: The output of g++ --version changed format (again) with GCC 4.3
+  which meant configure got "g++" for the version.  Instead use the (hopefully)
+  more robust technique of using g++ -E to pull out __GNUC__ and
+  __GNUC_MINOR__.
 
 documentation:
 
-	* include/xapian/database.h: WritableDatabase::flush() can't throw
-	  DatabaseLockError.  WritableDatabase's ctor can throw at least
-	  DatabaseCorruptError or DatabaseLockError.
+* API documentation:
 
-	* docs/sorting.rst: Clarify meaning.
-	* include/xapian/enquire.h: Documentation comment improvements.
-	* include/xapian/enquire.h: Document how to get all matches from
-	  Enquire::get_mset().
+  + WritableDatabase::flush() can't throw DatabaseLockError.
+
+  + WritableDatabase's constructor can throw at least DatabaseCorruptError or
+    DatabaseLockError.
+
+  + Document how to get all matches from Enquire::get_mset().
+
+  + Other minor improvements.
+
+* docs/sorting.html: Clarify meaning.
 
 examples:
 
 
 portability:
 
-	* AUTHORS,queryparser/Makefile.mk: Fix "#line" directives in generated
-	  file queryparser/queryparser_internal.cc to give a relative path -
-	  previously they had a full path when generated by a VPATH build, and
-	  this confused GCC 2.95 and depcomp.
+* Fix "#line" directives in generated file queryparser/queryparser_internal.cc
+  to give a relative path - previously they had a full path when generated by a
+  VPATH build (as release tarballs are), and this confused GCC 2.95 and
+  depcomp.
 
-	* api/omdatabase.cc: Fix for compiling with Sun's compiler
-	  (untested as I no longer have access to it).
+* Fix for compiling with Sun's compiler (untested as I no longer have access to
+  it).
 
 packaging:
 
