@@ -1,9 +1,4 @@
-upto:
-Thu Mar 05 10:34:07 GMT 2009  Olly Betts <olly@survex.com>
-
-Omega 1.0.11 (2009-03-??):
-
-general:
+Omega 1.0.11 (2009-03-15):
 
 documentation:
 
@@ -22,27 +17,20 @@ indexers:
   + Fix "-l" which would previously always cause a segmentation fault if used
     ("--depth-limit" wasn't affected).
 
-* scriptindex:
-
-omega:
-
-templates:
-
-testsuite:
-
 build system:
 
-	* configure.ac: Update g++ version check to match recent change to
-	  xapian-core.  Also turn on _FORTIFY_SOURCE and make the rare()
-	  and usual() branch prediction hint macros available.
+* configure: The output of g++ --version changed format (again) with GCC 4.3
+  which meant configure got "g++" for the version.  Instead use the (hopefully)
+  more robust technique of using g++ -E to pull out __GNUC__ and
+  __GNUC_MINOR__.
+
+* configure: Turn on _FORTIFY_SOURCE where available (as we do in xapian-core).
 
 portability:
 
-* Fix to compile when RLIMIT_AS isn't available (as on NetBSD and OpenBSD).  Instead
-  use RLIMIT_VMEM or RLIMIT_DATA if either is available, else don't try to limit the
-  memory the filter process can use.
-
-packaging:
+* Fix to compile when RLIMIT_AS isn't available (as on NetBSD and OpenBSD).
+  Instead use RLIMIT_VMEM or RLIMIT_DATA if either is available, else don't try
+  to limit the memory the filter process can use.
 
 Omega 1.0.10 (2008-12-23):
 
