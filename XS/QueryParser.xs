@@ -50,7 +50,7 @@ QueryParser::set_database(database)
 	THIS->set_database(*database);
 
 Query *
-QueryParser::parse_query(q, flags = 7)
+QueryParser::parse_query(q, flags = QueryParser::FLAG_DEFAULT)
     string q
     int flags
     CODE:

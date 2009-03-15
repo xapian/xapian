@@ -1,5 +1,11 @@
 Revision history for Perl extension Search::Xapian.
 
+1.0.11.0  Sun Mar 15 12:53:20 GMT 2008
+	[Changes contributed by Olly Betts]
+	- Wrap the new FLAG_DEFAULT constant which gives the QueryParser
+	  default flag settings, allowing you to easily add flags to the
+	  default ones.
+
 1.0.10.0  Tue Dec 23 09:18:21 GMT 2008
 	[Changes contributed by Olly Betts]
 	- Makefile.PL now supports a "fake VPATH" mode, to better support for
