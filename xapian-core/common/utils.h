@@ -57,6 +57,10 @@ string om_tostring(unsigned long int a);
 string om_tostring(__int64 a);
 #endif
 
+/// Convert an unsigned long long integer to a string
+XAPIAN_VISIBILITY_DEFAULT
+string om_tostring(unsigned long long int a);
+
 /// Convert a double to a string
 XAPIAN_VISIBILITY_DEFAULT
 string om_tostring(double a);

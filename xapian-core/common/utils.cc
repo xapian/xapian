@@ -90,6 +90,12 @@ om_tostring(__int64 val)
 #endif
 
 string
+om_tostring(unsigned long long int val);
+{
+    CONVERT_TO_STRING("%llu")
+}
+
+string
 om_tostring(double val)
 {
     CONVERT_TO_STRING("%.20g")
