@@ -1,3 +1,7 @@
+Mon Mar 16 14:07:58 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Sync with 1.0.11.
+
 Sat Feb 28 08:31:15 GMT 2009  Olly Betts <olly@survex.com>
 
 	* omindex.cc,scriptindex.cc: Use commit() rather than flush().

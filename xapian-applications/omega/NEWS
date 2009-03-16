@@ -3,18 +3,6 @@ upto:
 
 Backport fodder:
 
- 11935       olly 	* configure.ac: Update g++ version check to match recent change to
- 11935       olly 	  xapian-core.  Also turn on _FORTIFY_SOURCE and make the rare()
- 11935       olly 	  and usual() branch prediction hint macros available.
-
-maybe:
- 11904       olly 	* Makefile.am,docs/overview.rst,omindex.cc,xpsxmlparse.cc,
- 11904       olly 	  xpsxmlparse.h: Add support for XPS files (bug#290).
-
-maybe:
- 11866       olly 	* docs/overview.rst,omindex.cc: Add support for MS Office 2007
- 11866       olly 	  formats (bug#290).
-
 HEAD only:
 
 	* scriptindex.cc: Make deprecated "index=nopos" an error.
@@ -33,6 +21,49 @@ HEAD only:
 
  10846       olly 	* Makefile.am,configure.ac: Use AC_CONFIG_MACRO_DIR and
  10846       olly 	  ACLOCAL_AMFLAGS as libtoolize 2.2.4 recommends.
+
+Omega 1.0.11 (2009-03-15):
+
+documentation:
+
+* cgiparams.html: Note the technique of using a stub database file to allow a
+  default of searching over multiple databases.
+
+indexers:
+
+* omindex:
+
+  + Add support for indexing Microsoft Office 2007 formats and XPS files
+    (bug#290).
+
+  + Fix the extraction of metadata from OpenDocument formats.
+
+  + Fix "-l" which would previously always cause a segmentation fault if used
+    ("--depth-limit" wasn't affected).
+
+build system:
+
+* configure: The output of g++ --version changed format (again) with GCC 4.3
+  which meant configure got "g++" for the version.  Instead use the (hopefully)
+  more robust technique of using g++ -E to pull out __GNUC__ and
+  __GNUC_MINOR__.
+
+* configure: Turn on _FORTIFY_SOURCE where available (as we do in xapian-core).
+
+portability:
+
+* Fix to compile when RLIMIT_AS isn't available (as on NetBSD and OpenBSD).
+  Instead use RLIMIT_VMEM or RLIMIT_DATA if either is available, else don't try
+  to limit the memory the filter process can use.
+
+Omega 1.0.10 (2008-12-23):
+
+build system:
+
+* This release now uses newer versions of the autotools (autoconf 2.62 ->
+  2.63; automake 1.10.1 -> 1.10.2).  The newer autoconf fixes a regression
+  in autoconf 2.62 (and so Omega 1.0.7) with detecting the endian-ness of some
+  platforms.
 
 Omega 1.0.9 (2008-10-31):
 
