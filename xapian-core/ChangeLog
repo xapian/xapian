@@ -1,3 +1,10 @@
+Tue Mar 17 23:45:52 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_lock.cc,backends/flint/flint_lock.cc: If the
+	  locking attempt fails after we spawn the child process, call
+	  waitpid() in the parent process to avoid creating a zombie process.
+	* AUTHORS: Add Jim Spath for reporting this.
+
 Tue Mar 17 23:34:16 GMT 2009  Olly Betts <olly@survex.com>
 
 	* common/Makefile.mk,common/str.cc,common/str.h: New family of
