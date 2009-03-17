@@ -581,7 +581,7 @@ case $ac_cv_func_snprintf in
     AC_MSG_RESULT([$ac_cv_func_snprintf_noniso])
     if test no != "$ac_cv_func_snprintf_noniso" ; then
       AC_DEFINE_UNQUOTED(SNPRINTF, [$ac_cv_func_snprintf_noniso],
-	[Define to the name of a function implementing snprintf but not caring about ISO C90 return value semantics (if one exists)])
+	[Define to the name of a function implementing snprintf but not caring about ISO C99 return value semantics (if one exists)])
     fi
     ;;
   unknown)
@@ -589,9 +589,9 @@ case $ac_cv_func_snprintf in
     ;;
   *)
     AC_DEFINE_UNQUOTED(SNPRINTF_ISO, [$ac_cv_func_snprintf],
-       [Define to the name of a function implementing snprintf with ISO C90 semantics (if one exists)])
+       [Define to the name of a function implementing snprintf with ISO C99 semantics (if one exists)])
     AC_DEFINE_UNQUOTED(SNPRINTF, [$ac_cv_func_snprintf],
-       [Define to the name of a function implementing snprintf but not caring about ISO C90 return value semantics (if one exists)])
+       [Define to the name of a function implementing snprintf but not caring about ISO C99 return value semantics (if one exists)])
     ;;
 esac
 

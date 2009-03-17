@@ -1,3 +1,7 @@
+Tue Mar 17 21:28:54 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix comment typo.
+
 Tue Mar 17 00:47:26 GMT 2009  Olly Betts <olly@survex.com>
 
 	* common/utils.cc: Fix previous change to actually compile...
