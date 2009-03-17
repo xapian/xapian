@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2003,2004,2005,2006,2007,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,50 +28,15 @@
 #include <string>
 using std::string;
 
+#include "str.h"
+
 #include <stdlib.h>
 #include <sys/types.h>
 #include "safesysstat.h"
 #include "safeunistd.h"
 
-/// Convert a string to a string!
-inline string om_tostring(const string &s) { return s; }
-
-/// Convert an integer to a string
-XAPIAN_VISIBILITY_DEFAULT
-string om_tostring(int a);
-
-/// Convert an unsigned integer to a string
-XAPIAN_VISIBILITY_DEFAULT
-string om_tostring(unsigned int a);
-
-/// Convert a long integer to a string
-XAPIAN_VISIBILITY_DEFAULT
-string om_tostring(long int a);
-
-/// Convert an unsigned long integer to a string
-XAPIAN_VISIBILITY_DEFAULT
-string om_tostring(unsigned long int a);
-
-#ifdef __WIN32__
-/// Convert a 64 bit integer to a string
-string om_tostring(__int64 a);
-#endif
-
-/// Convert an unsigned long long integer to a string
-XAPIAN_VISIBILITY_DEFAULT
-string om_tostring(unsigned long long int a);
-
-/// Convert a double to a string
-XAPIAN_VISIBILITY_DEFAULT
-string om_tostring(double a);
-
-/// Convert a bool to a string
-XAPIAN_VISIBILITY_DEFAULT
-string om_tostring(bool a);
-
-/// Convert a pointer to a string
-XAPIAN_VISIBILITY_DEFAULT
-string om_tostring(const void * a);
+// For compatibility.
+#define om_tostring(V) str(V)
 
 /** Return true if the file fname exists.
  */

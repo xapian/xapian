@@ -1,3 +1,15 @@
+Tue Mar 17 23:34:16 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/Makefile.mk,common/str.cc,common/str.h: New family of
+	  overloaded str() functions for converting types to std::string.
+	  The integer conversion are much faster than the existing
+	  om_tostring().
+	* common/omassert.h,common/omdebug.h: Use str() instead of
+	  om_tostring().
+	* common/utils.cc,common/utils.h: Make om_tostring() a macro wrapping
+	  str() for now to avoid introducing a lot of conflicts with other
+	  branches and unapplied patches.
+
 Tue Mar 17 21:28:54 GMT 2009  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix comment typo.
