@@ -90,7 +90,7 @@ om_tostring(__int64 val)
 #endif
 
 string
-om_tostring(unsigned long long int val);
+om_tostring(unsigned long long int val)
 {
     CONVERT_TO_STRING("%llu")
 }

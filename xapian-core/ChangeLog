@@ -1,3 +1,7 @@
+Tue Mar 17 00:47:26 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/utils.cc: Fix previous change to actually compile...
+
 Mon Mar 16 20:10:01 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* common/utils.cc,common/utils.h: Add om_tostring() version of
