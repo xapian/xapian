@@ -1,3 +1,8 @@
+Wed Mar 18 06:37:33 GMT 2009  Olly Betts <olly@survex.com>
+
+	* HACKING: stdlib.h -> cstdlib not happening in 1.1.0, but probably
+	  1.1.x.
+
 Wed Mar 18 06:35:53 GMT 2009  Olly Betts <olly@survex.com>
 
 	* docs/admin_notes.rst,docs/quartzdesign.html: Quartz is definitely
