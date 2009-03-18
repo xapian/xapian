@@ -939,7 +939,7 @@ FlintDatabase::open_position_list(Xapian::docid did, const string & term) const
 	tl->skip_to(term);
 	if (tl->at_end() || tl->get_termname() != term)
 	    throw Xapian::RangeError("Can't open position list: requested term is not present in document.");
-	// FIXME: For 1.2.0, change this to just return an empty termlist.
+	// FIXME: For 1.1.0, change this to just return an empty termlist.
 	// If the user really needs to know, they can check themselves.
     }
 
