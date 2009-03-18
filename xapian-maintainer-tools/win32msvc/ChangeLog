@@ -1,3 +1,8 @@
+Wed Mar 18 13:52:33 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* config.h.win32: Update version numbers, and backport definitions
+	  of rare() and usual() from trunk.
+
 Tue Dec 16 11:15:46 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* config.h.omega.win32: Update version numbers.
