@@ -1,40 +1,14 @@
 up to:
- 12033       olly Tue Mar 03 05:52:16 GMT 2009  Olly Betts <olly@survex.com>
+ 12212       olly Wed Mar 18 04:36:59 GMT 2009  Olly Betts <olly@survex.com>
 
 Potential backport fodder:
 
- 12028       olly 	* include/xapian/queryparser.h: Add QueryParser::FLAG_DEFAULT to make
- 12028       olly 	  it easier to add flags to those set by default.
- 12028       olly 	* tests/queryparsertest.cc: Use FLAG_DEFAULT in a few places to serve
- 12028       olly 	  as a feature test.
-
- 12020       olly 	* backends/flint/flint_table.cc: Update handling of shutting down
- 12020       olly 	  the zstream objects in the dtor to match chert.
- 12019    richard 
- 12019    richard 	* backends/chert/chert_table.h,backends/flint/flint_table.h: Add
- 12019    richard 	  documentation comments for the lazy allocation methods, and
- 12019    richard 	  separate comments for the zstream members.
- 12018    richard 
- 12018    richard 	* AUTHORS,backends/chert/chert_table.cc,backends/chert/chert_table.h,
- 12018    richard 	  backends/flint/flint_table.cc,backends/flint/flint_table.h:
- 12018    richard 	  Reduce allocation of zstreams by allocating them lazily, keeping
- 12018    richard 	  them in the table objects, and reuse them, rather than allocating
- 12018    richard 	  a new one each time it's wanted.  Heavily based on a patch from
- 12018    richard 	  Todd Lipcon.  Apparently improves performance significantly on
- 12018    richard 	  some systems; on my tests it has no perceptible negative impact,
- 12018    richard 	  but it makes sense that it could help in some situations, so
- 12018    richard 	  let's apply it.  Fixes #325.
-
- 11913       olly 	* docs/deprecation.rst,include/xapian/enquire.h,tests/: Rename the
- 11913       olly 	  wrongly named "ascending" parameter of the set_sort_by*() methods
- 11913       olly 	  of Enquire to "reverse" and deprecate the default value since
- 11913       olly 	  defaulting to "reverse=true" is confusing.  (bug#311)
-
- * bin/xapian-check.cc,bin/xapian-check-flint.cc:  Don't stop checking
+ * bin/xapian-check.cc,bin/xapian-check-flint.cc: Don't stop checking
    a table after an error in certain cases - instead increment the
    error counter and try to continue checking from the next item.
 
-Possible to do, but probably to big a change at this point:
+trunk only:
+
  11701       olly 	* common/expandweight.h,expand/expandweight.cc: Overhaul ExpandWeight
  11701       olly 	  - now we use the "official" formula and don't return terms which it
  11701       olly 	  would give a negative weight to (since that means they are expected
@@ -42,19 +16,35 @@ Possible to do, but probably to big a change at this point:
  11701       olly 	* tests/api_anydb.cc,tests/api_db.cc: Fix unwarranted assumptions in
  11701       olly 	  existing testcases broken by this change.
 
-trunk only:
+ 12200       olly 	* common/Makefile.mk,common/str.cc,common/str.h: New family of
+ 12200       olly 	  overloaded str() functions for converting types to std::string.
+ 12200       olly 	  The integer conversion are much faster than the existing
+ 12200       olly 	  om_tostring().
+ 12200       olly 	* common/omassert.h,common/omdebug.h: Use str() instead of
+ 12200       olly 	  om_tostring().
+ 12200       olly 	* common/utils.cc,common/utils.h: Make om_tostring() a macro wrapping
+ 12200       olly 	  str() for now to avoid introducing a lot of conflicts with other
+ 12200       olly 	  branches and unapplied patches.
 
-Hmm, we probably don't want this in the API once flint is retired, so does
-it really make sense to add it now:
-	* api/postingsource.cc,include/xapian/postingsource.h: Add an
-	  alternative constructor for ValueWeightPostingSource which allows
-	  the upper bound on the weights stored to be specified manually.
-	  This is useful for database formats like flint which don't have
-	  an upper bound available.  It could conceivably also be useful if
-	  you know that a query will only be accessing a subset of
-	  documents for which you know a more precise upper bound than the
-	  database-wide upper bound.
+ 12153       olly 	  net/remoteserver.cc: Internally, pass around non-normalised document
+ 12153       olly 	  lengths as Xapian::termcount (unsigned integer) not Xapian::doclength
+ 12153       olly 	  (double). (3% speedup for 10 term OR queries!)
 
+ 12151       olly 	  net/serialise.cc,tests/,weight/: Reimplementation of weighting
+ 12151       olly 	  schemes which allows user subclasses to access the same stats which
+ 12151       olly 	  built in schemes can (bug#213) and which also can use lower and
+ 12151       olly 	  upper bounds of doclength and upper bounds on wdf to give a tighter
+ 12151       olly 	  maxweight, which should allow the matcher weight-based optimisations
+ 12151       olly 	  to be more effective.  Chert now tracks doclength bounds and a
+ 12151       olly 	  global (rather than per term) bound on wdf.  Other backends
+ 12151       olly 	  return much less good bounds, but these still lead to better
+ 12151       olly 	  maxweight bounds.
+
+ 12065       olly 	  Change the remote server to always default to opening a Database and
+ 12065       olly 	  having the client request write access explicitly.  This allows a
+ 12065       olly 	  single server to support multiple readers and one writer
+ 12065       olly 	  simultaneously.  (bug#145)
+ 
 This code is currently not compiled on trunk:
 	* api/matchspy.cc: Fix FP rounding bug (bug#321).
 	* AUTHORS: Add Shane Evans for bug report.

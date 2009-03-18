@@ -1,3 +1,7 @@
+Wed Mar 18 06:42:09 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
 Wed Mar 18 04:36:59 GMT 2009  Olly Betts <olly@survex.com>
 
 	* xapian-core.spec.in: Tweak reference to "1.1.0 branch" to make more
