@@ -171,8 +171,7 @@ Which database format to use?
 -----------------------------
 
 As of release 1.0.0, you should use the flint format (which is now the
-default).  The quartz format is now deprecated and support is scheduled
-for removal in 1.1.0.
+default).  The quartz format is now deprecated and will be removed in 1.1.0.
 
 Can I put other files in the database directory?
 ------------------------------------------------

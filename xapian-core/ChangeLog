@@ -1,3 +1,8 @@
+Wed Mar 18 06:35:53 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/admin_notes.rst,docs/quartzdesign.html: Quartz is definitely
+	  gone in 1.1.0.
+
 Wed Mar 18 06:34:21 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/valuerangeproccompat.cc,include/xapian/queryparser.h: Reword
