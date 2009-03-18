@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Olly Betts <olly@survex.com>
 Build-Depends: @BUILD_DEPS@ po-debconf, autotools-dev
 XS-Python-Version: all
-Standards-Version: 3.8.0
+Standards-Version: 3.8.1
 Homepage: http://www.xapian.org/
 DM-Upload-Allowed: yes
 
@@ -29,7 +29,7 @@ Description: Xapian search engine interface for Tcl
  Tcl programming language, allowing both indexing and retrieval operations.
 
 Package: libxapian-ruby1.8
-Section: libs
+Section: ruby
 Architecture: any
 Depends: ${ruby:Depends}, ${shlibs:Depends}, ${misc:Depends}
 Suggests: xapian-doc
