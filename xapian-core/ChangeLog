@@ -1,3 +1,8 @@
+Wed Mar 18 04:36:59 GMT 2009  Olly Betts <olly@survex.com>
+
+	* xapian-core.spec.in: Tweak reference to "1.1.0 branch" to make more
+	  sense.
+
 Wed Mar 18 04:30:18 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/postingsource.cc,include/xapian/postingsource.h: Remove the
