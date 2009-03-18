@@ -37,7 +37,7 @@ using namespace std;
 // Xapian 1.0.0 and 1.0.1 had a conceptually broken implementation of
 // NumberValueRangeProcessor which we quickly told people to avoid using.  But to keep
 // ABI compatibility, we should keep it around until the next incompatible ABI change
-// (probably 1.1.0).  So we put the new NumberValueRangeProcessor in a subnamespace and
+// (in 1.1.0).  So we put the new NumberValueRangeProcessor in a subnamespace and
 // then pull it into namespace Xapian with "using v102::NumberValueRangeProcessor".
 //
 // This is the old NumberValueRangeProcessor implementation, which still exists
