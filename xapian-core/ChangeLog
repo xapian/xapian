@@ -1,3 +1,7 @@
+Wed Mar 18 04:29:22 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/postingsource.rst: "ctx" -> "context" in example code.
+
 Tue Mar 17 23:45:52 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_lock.cc,backends/flint/flint_lock.cc: If the

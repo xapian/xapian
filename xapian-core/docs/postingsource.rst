@@ -174,8 +174,8 @@ your own.  To do this, you need to edit ``xapian-core/bin/xapian-tcpsrv.cc``
 and find the ``register_user_weighting_schemes()`` function.  At the end of
 this function, add the lines::
 
-    SerialisationContext ctx;
-    ctx.register_postingsource(MyPostingSource());
-    server.set_context(ctx);
+    SerialisationContext context;
+    context.register_postingsource(MyPostingSource());
+    server.set_context(context);
 
 Where ``MyPostingSource`` is your posting source.
