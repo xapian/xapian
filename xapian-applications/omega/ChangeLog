@@ -1,3 +1,9 @@
+Wed Mar 18 06:12:06 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/scriptindex.rst: The deprecated "index=nopos" is now removed
+	  and gives an error explaining what to use instead, so remove the
+	  documentation saying it is deprecated and what to do.
+
 Mon Mar 16 14:07:58 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS: Sync with 1.0.11.
