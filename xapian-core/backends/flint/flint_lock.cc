@@ -175,28 +175,36 @@ FlintLock::lock(bool exclusive) {
 	return UNKNOWN;
     }
 
+    reason why = UNKNOWN;
+
     // Parent process.
     close(fds[1]);
     while (true) {
 	char ch;
 	int n = read(fds[0], &ch, 1);
 	if (n == 1) {
-	    reason why = static_cast<reason>(ch);
-	    if (why == SUCCESS) break; // Got the lock.
-	    close(fds[0]);
-	    return why;
+	    why = static_cast<reason>(ch);
+	    if (why != SUCCESS) break;
+	    // Got the lock.
+	    fd = fds[0];
+	    pid = child;
+	    return SUCCESS;
 	}
 	if (n == 0 || errno != EINTR) {
 	    // EOF means the lock failed; we also treat unexpected errors from
 	    // read() the same way.
-	    close(fds[0]);
-	    return UNKNOWN;
+	    break;
 	}
     }
-    //shutdown(fds[0], 0); // Disable further receives.
-    fd = fds[0];
-    pid = child;
-    return SUCCESS;
+
+    close(fds[0]);
+
+    int status;
+    while (waitpid(pid, &status, 0) < 0) {
+	if (errno != EINTR) break;
+    }
+
+    return why;
 #endif
 }
 
