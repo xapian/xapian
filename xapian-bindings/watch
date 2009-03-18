@@ -1,0 +1,2 @@
+version=3
+http://xapian.org/download http://oligarchy.co.uk/xapian/([\d.]+)/xapian-bindings-\1\.tar\.gz
