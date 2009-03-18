@@ -1,3 +1,10 @@
+Wed Mar 18 04:30:18 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/postingsource.cc,include/xapian/postingsource.h: Remove the
+	  optional "max_weight_" parameter to ValuePostingSource's ctor.
+	* include/xapian/postingsource.h: Correct a few errors in
+	  documentation comments.
+
 Wed Mar 18 04:29:22 GMT 2009  Olly Betts <olly@survex.com>
 
 	* docs/postingsource.rst: "ctx" -> "context" in example code.

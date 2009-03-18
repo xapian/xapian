@@ -284,7 +284,6 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
  */
 class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
   protected:
-
     /// The database we're reading values from.
     Xapian::Database db;
 
@@ -368,26 +367,12 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
  */
 class XAPIAN_VISIBILITY_DEFAULT ValueWeightPostingSource
 	: public ValuePostingSource {
-    /// Upper bound on the value returned specified in constructor.
-    double specified_max_weight;
-
   public:
     /** Construct a ValueWeightPostingSource.
      *
      *  @param slot_ The value slot to read values from.
      */
     ValueWeightPostingSource(Xapian::valueno slot_);
-
-    /** Construct a ValueWeightPostingSource.
-     *
-     *  @param slot_ The value slot to read values from.
-     *  @param max_weight_ An upper bound on the weights which are stored in
-     *  the value slot.  Note that for the chert database format, information
-     *  about an upper bound is already stored in the database, so this
-     *  constructor need only be used if more accurate information is
-     *  available.
-     */
-    ValueWeightPostingSource(Xapian::valueno slot_, double max_weight_);
 
     Xapian::weight get_weight() const;
     ValueWeightPostingSource * clone() const;
@@ -409,7 +394,6 @@ class XAPIAN_VISIBILITY_DEFAULT ValueWeightPostingSource
  */
 class XAPIAN_VISIBILITY_DEFAULT ValueMapPostingSource
 	: public ValuePostingSource {
-  private:
     /// The default weight
     double default_weight;
 
@@ -423,7 +407,6 @@ class XAPIAN_VISIBILITY_DEFAULT ValueMapPostingSource
     /** Construct a ValueWeightPostingSource.
      *
      *  @param slot_ The value slot to read values from.
-     *  @param default_weight The default weight to return for unmapped values.
      */
     ValueMapPostingSource(Xapian::valueno slot_);
 
@@ -434,12 +417,10 @@ class XAPIAN_VISIBILITY_DEFAULT ValueMapPostingSource
      */
     void add_mapping(const std::string &key, double weight);
 
-    /** Clear all mappings.
-     */
+    /** Clear all mappings. */
     void clear_mappings();
 
-    /** Set a default weight for document values not in the map.
-     */
+    /** Set a default weight for document values not in the map. */
     void set_default_weight(double wt);
 
     Xapian::weight get_weight() const;
@@ -482,7 +463,7 @@ class XAPIAN_VISIBILITY_DEFAULT FixedWeightPostingSource : public PostingSource 
   public:
     /** Construct a FixedWeightPostingSource.
      *
-     *  @param slot_ The value slot to read values from.
+     *  @param wt_ The fixed weight to return.
      */
     FixedWeightPostingSource(Xapian::weight wt_);
 

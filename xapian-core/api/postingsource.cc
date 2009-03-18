@@ -217,15 +217,7 @@ ValuePostingSource::reset(const Database & db_)
 
 
 ValueWeightPostingSource::ValueWeightPostingSource(Xapian::valueno slot_)
-	: ValuePostingSource(slot_),
-	  specified_max_weight(DBL_MAX)
-{
-}
-
-ValueWeightPostingSource::ValueWeightPostingSource(Xapian::valueno slot_,
-						   double max_weight_)
-	: ValuePostingSource(slot_),
-	  specified_max_weight(max_weight_)
+	: ValuePostingSource(slot_)
 {
 }
 
@@ -240,7 +232,7 @@ ValueWeightPostingSource::get_weight() const
 ValueWeightPostingSource *
 ValueWeightPostingSource::clone() const
 {
-    return new ValueWeightPostingSource(slot, specified_max_weight);
+    return new ValueWeightPostingSource(slot);
 }
 
 std::string
@@ -252,7 +244,7 @@ ValueWeightPostingSource::name() const
 std::string
 ValueWeightPostingSource::serialise() const
 {
-    return encode_length(slot) + serialise_double(specified_max_weight);
+    return encode_length(slot);
 }
 
 PostingSource *
@@ -262,12 +254,11 @@ ValueWeightPostingSource::unserialise(const std::string &s) const
     const char * end = p + s.size();
 
     Xapian::valueno new_valno = decode_length(&p, end, false);
-    double new_spec_max = unserialise_double(&p, end);
     if (p != end) {
 	throw Xapian::NetworkError("Bad serialised ValueWeightPostingSource - junk at end");
     }
 
-    return new ValueWeightPostingSource(new_valno, new_spec_max);
+    return new ValueWeightPostingSource(new_valno);
 }
 
 void
@@ -276,10 +267,9 @@ ValueWeightPostingSource::reset(const Database & db_)
     ValuePostingSource::reset(db_);
 
     try {
-    	double ubound = sortable_unserialise(db.get_value_upper_bound(slot));
-	max_weight = std::min(specified_max_weight, ubound);
+    	max_weight = sortable_unserialise(db.get_value_upper_bound(slot));
     } catch (const Xapian::UnimplementedError &) {
-	max_weight = specified_max_weight;
+	max_weight = DBL_MAX;
     }
 }
 
@@ -323,9 +313,8 @@ ValueMapPostingSource::get_weight() const
     std::map<std::string, double>::const_iterator wit = weight_map.find(*value_it);
     if (wit == weight_map.end()) {
 	return default_weight;
-    } else {
-	return wit->second;
     }
+    return wit->second;
 }
 
 ValueMapPostingSource *
@@ -450,7 +439,6 @@ FixedWeightPostingSource::next(Xapian::weight min_wt)
 
     if (min_wt > wt) {
 	it = end;
-	return;
     }
 }
 
