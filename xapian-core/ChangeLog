@@ -1,3 +1,10 @@
+Fri Mar 20 02:51:32 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc: Fix return type of
+	  Xapian::Query::Internal::simplify_query() in a debug build.  Since
+	  RETURN() isn't used by this function, this is only a cosmetic issue
+	  in the log file.
+
 Wed Mar 18 09:26:02 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_database.cc,backends/flint/flint_database.cc,

@@ -848,7 +848,7 @@ Xapian::Query::Internal::simplify_matchnothing()
 Xapian::Query::Internal *
 Xapian::Query::Internal::simplify_query()
 {
-    DEBUGCALL(API, bool, "Xapian::Query::Internal::simplify_query", "");
+    DEBUGCALL(API, Xapian::Query::Internal *, "Xapian::Query::Internal::simplify_query", "");
 
     // Simplify any MatchNothing nodes.
     if (simplify_matchnothing()) {
