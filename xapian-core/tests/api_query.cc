@@ -41,3 +41,16 @@ DEFINE_TESTCASE(queryterms1, !backend) {
     TEST_EQUAL(*query.get_terms_begin(), "fair");
     return true;
 }
+
+DEFINE_TESTCASE(matchnothing1, !backend) {
+    vector<Xapian::Query> subqs;
+    subqs.push_back(Xapian::Query("foo"));
+    subqs.push_back(Xapian::Query::MatchNothing);
+    Xapian::Query q(Xapian::Query::OP_AND, subqs.begin(), subqs.end());
+    TEST_STRINGS_EQUAL(q.get_description(), "Xapian::Query()");
+
+    Xapian::Query q2(Xapian::Query::OP_AND,
+		     Xapian::Query("foo"), Xapian::Query::MatchNothing);
+    TEST_STRINGS_EQUAL(q2.get_description(), "Xapian::Query()");
+    return true;
+}

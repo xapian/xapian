@@ -1,3 +1,8 @@
+Fri Mar 20 08:43:20 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_query.cc: Add coverage for OP_AND with MatchNothing
+	  subquery (new testcase matchnothing1).
+
 Fri Mar 20 05:16:18 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/omqueryinternal.cc: Fix assertions in previous check-in to
