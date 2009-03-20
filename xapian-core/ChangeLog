@@ -1,3 +1,11 @@
+Fri Mar 20 05:16:18 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc: Fix assertions in previous check-in to
+	  verify the right condition.  And return the simplified query in
+	  the case the assertion would have failed, as that means a small
+	  memory leak rather than unpredictable behaviour in a non-assertion
+	  build.
+
 Fri Mar 20 04:26:29 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/omqueryinternal.cc: Check that end_construction() returns NULL

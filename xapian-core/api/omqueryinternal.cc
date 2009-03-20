@@ -485,9 +485,8 @@ qint_from_vector(Xapian::Query::op op,
     Xapian::Query::Internal * r = qint->end_construction();
     // We're only called during unserialisation, so no simplification should
     // happen.
-    (void)r;
-    Assert(!r);
-    return qint;
+    AssertEq(r, qint);
+    return r;
 }
 
 static Xapian::Query::Internal *
@@ -505,9 +504,8 @@ qint_from_vector(Xapian::Query::op op,
     Xapian::Query::Internal * r = qint->end_construction();
     // We're only called during unserialisation, so no simplification should
     // happen.
-    (void)r;
-    Assert(!r);
-    return qint;
+    AssertEq(r, qint);
+    return r;
 }
 
 Xapian::Query::Internal *
