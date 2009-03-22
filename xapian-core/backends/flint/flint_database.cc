@@ -933,14 +933,9 @@ FlintDatabase::open_position_list(Xapian::docid did, const string & term) const
 
     AutoPtr<FlintPositionList> poslist(new FlintPositionList);
     if (!poslist->read_data(&position_table, did, term)) {
-	// Check that term / document combination exists.
-	// If the doc doesn't exist, this will throw Xapian::DocNotFoundError:
-	AutoPtr<TermList> tl(open_term_list(did));
-	tl->skip_to(term);
-	if (tl->at_end() || tl->get_termname() != term)
-	    throw Xapian::RangeError("Can't open position list: requested term is not present in document.");
-	// FIXME: For 1.1.0, change this to just return an empty termlist.
-	// If the user really needs to know, they can check themselves.
+	// As of 1.1.0, we don't check if the did and term exist - we just
+	// return an empty positionlist.  If the user really needs to know,
+	// they can check for themselves.
     }
 
     return poslist.release();

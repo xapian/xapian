@@ -1,3 +1,12 @@
+Sun Mar 22 10:23:37 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/flint/flint_database.cc,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_positionlist.cc,
+	  common/inmemory_positionlist.h,docs/deprecation.rst,
+	  tests/api_posdb.cc: Change Database::positionlist_begin() not to
+	  throw exceptions if the term or document doesn't exist.
+
 Sun Mar 22 09:02:46 GMT 2009  Olly Betts <olly@survex.com>
 
 	* docs/deprecation.rst: Fix typo.

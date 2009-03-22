@@ -153,16 +153,6 @@ Native C++ API
 ========== ====== =================================== ========================================================================
 Deprecated Remove Feature name                        Upgrade suggestion and comments
 ========== ====== =================================== ========================================================================
-1.0.3      1.1.0  ``Database::positionlist_begin()``  This check is quite expensive, and often you don't care.  If you
-                  throwing ``RangeError`` if the      do it's easy to check - just open a ``TermListIterator`` for the
-                  term specified doesn't index the    document and use ``skip_to()`` to check if the term is there.
-                  document specified.
----------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.0.3      1.1.0  ``Database::positionlist_begin()``  This check is quite expensive, and often you don't care.  If you
-                  throwing ``DocNotFoundError`` if    do, it's easy to check - just call ``Database::get_document()`` with the
-                  the document specified doesn't      specified document ID.
-                  exist.
----------- ------ ----------------------------------- ------------------------------------------------------------------------
 1.1.0      1.3.0  Default second parameter to         The parameter name was ``ascending`` and defaulted to ``true``.  However
                   ``Enquire`` sorting functions.      ascending=false gave what you'd expect the default sort order to be (and
                                                       probably think of as ascending) while ascending=true gave the reverse
@@ -322,6 +312,16 @@ Removed Feature name                        Upgrade suggestion and comments
 1.1.0   configure --enable-debug=profile    configure --enable-log=profile
 ------- ----------------------------------- ----------------------------------------------------------------------------------
 1.1.0   configure --enable-debug-verbose    configure --enable-log
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.1.0   ``Database::positionlist_begin()``  This check is quite expensive, and often you don't care.  If you
+        throwing ``RangeError`` if the      do it's easy to check - just open a ``TermListIterator`` for the
+        term specified doesn't index the    document and use ``skip_to()`` to check if the term is there.
+        document specified.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.1.0   ``Database::positionlist_begin()``  This check is quite expensive, and often you don't care.  If you
+        throwing ``DocNotFoundError`` if    do, it's easy to check - just call ``Database::get_document()`` with the
+        the document specified doesn't      specified document ID.
+        exist.
 ======= =================================== ==================================================================================
 
 

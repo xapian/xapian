@@ -586,19 +586,17 @@ InMemoryDatabase::open_position_list(Xapian::docid did,
 				     const string & tname) const
 {
     if (closed) InMemoryDatabase::throw_database_closed();
-    if (!doc_exists(did)) {
-	throw Xapian::DocNotFoundError("Document id " + om_tostring(did) +
-				 " doesn't exist in inmemory database");
-    }
-    const InMemoryDoc &doc = termlists[did-1];
+    if (usual(doc_exists(did))) {
+	const InMemoryDoc &doc = termlists[did-1];
 
-    vector<InMemoryTermEntry>::const_iterator i;
-    for (i = doc.terms.begin(); i != doc.terms.end(); ++i) {
-	if (i->tname == tname) {
-	    return new InMemoryPositionList(i->positions);
+	vector<InMemoryTermEntry>::const_iterator i;
+	for (i = doc.terms.begin(); i != doc.terms.end(); ++i) {
+	    if (i->tname == tname) {
+		return new InMemoryPositionList(i->positions);
+	    }
 	}
     }
-    throw Xapian::RangeError("No positionlist for term in document.");
+    return new InMemoryPositionList(false);
 }
 
 void
