@@ -1,7 +1,7 @@
 .. This document was originally written by Richard Boulton.
 
 .. Copyright (C) 2007 Lemur Consulting Ltd
-.. Copyright (C) 2007 Olly Betts
+.. Copyright (C) 2007,2009 Olly Betts
 
 ===========
 Deprecation
@@ -21,7 +21,7 @@ requires a modification to the external interface.
 
 We aim to make such changes in a way that allows developers to work against a
 stable API, while avoiding the need for the Xapian developers to maintain too
-many old historical interface artifacts.  This document describes the process
+many old historical interface artefacts.  This document describes the process
 we use to deprecate old pieces of the API, lists parts of the API which are
 currently marked as deprecated, and also describes parts of the API which have
 been deprecated for some time, and are now removed from the Xapian library.
@@ -160,12 +160,12 @@ Deprecated Remove Feature name                        Upgrade suggestion and com
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
 1.0.3      1.1.0  Enquire::register_match_decider()   This method didn't do anything, so just remove calls to it!
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.0.3      1.2.0? ``Database::positionlist_begin()``  This check is quite expensive, and often you don't care.  If you
+1.0.3      1.1.0  ``Database::positionlist_begin()``  This check is quite expensive, and often you don't care.  If you
                   throwing ``RangeError`` if the      do it's easy to check - just open a ``TermListIterator`` for the
                   term specified doesn't index the    document and use ``skip_to()`` to check if the term is there.
                   document specified.
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.0.3      1.2.0? ``Database::positionlist_begin()``  This check is quite expensive, and often you don't care.  If you
+1.0.3      1.1.0  ``Database::positionlist_begin()``  This check is quite expensive, and often you don't care.  If you
                   throwing ``DocNotFoundError`` if    do, it's easy to check - just call ``Database::get_document()`` with the
                   the document specified doesn't      specified document ID.
                   exist.
@@ -214,7 +214,7 @@ Deprecated Remove Language Feature name                 Upgrade suggestion and c
 0.9.6      1.1.0  SWIG     MSet::get_document_id()      Use ``MSet::get_docid()`` instead.
                   [#swg2]_
 ---------- ------ -------- ---------------------------- ----------------------------------------------------------------------
-1.0.4      1.2.0  Python   Non-pythonic iterators       Use the pythonic iterators instead.
+1.0.4      1.3.0  Python   Non-pythonic iterators       Use the pythonic iterators instead.
 ========== ====== ======== ============================ ======================================================================
 
 .. [#swig] This affects all SWIG-generated bindings (currently: Python, PHP, Ruby, Tcl8 and CSharp)
