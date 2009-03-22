@@ -1,7 +1,7 @@
 /** @file api_query.cc
  * @brief Query-related tests which don't need a backend.
  */
-/* Copyright (C) 2009 Olly Betts
+/* Copyright (C) 2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -52,5 +52,55 @@ DEFINE_TESTCASE(matchnothing1, !backend) {
     Xapian::Query q2(Xapian::Query::OP_AND,
 		     Xapian::Query("foo"), Xapian::Query::MatchNothing);
     TEST_STRINGS_EQUAL(q2.get_description(), "Xapian::Query()");
+    return true;
+}
+
+/** Regression test and feature test.
+ *
+ *  This threw AssertionError in 1.0.9 and earlier (bug#201) and gave valgrind
+ *  errors in 1.0.11 and earlier (bug#349).
+ *
+ *  Having two non-leaf subqueries with OP_NEAR used to be expected to throw
+ *  UnimplementedError, but now actually works.
+ */
+DEFINE_TESTCASE(nearsubqueries1, !backend) {
+    Xapian::Query a_or_b(Xapian::Query::OP_OR,
+			 Xapian::Query("a"),
+			 Xapian::Query("b"));
+    Xapian::Query near(Xapian::Query::OP_NEAR, a_or_b, a_or_b);
+    TEST_STRINGS_EQUAL(near.get_description(),
+		       "Xapian::Query(((a NEAR 2 a) OR (b NEAR 2 a) OR (b NEAR 2 b) OR (a NEAR 2 b)))");
+
+    Xapian::Query a_near_b(Xapian::Query::OP_NEAR,
+			   Xapian::Query("a"),
+			   Xapian::Query("b"));
+    Xapian::Query x_phrs_y(Xapian::Query::OP_PHRASE,
+			   Xapian::Query("a"),
+			   Xapian::Query("b"));
+
+    TEST_EXCEPTION(Xapian::UnimplementedError,
+		   Xapian::Query q(Xapian::Query::OP_NEAR,
+				   a_near_b,
+				   Xapian::Query("c"))
+    );
+
+    TEST_EXCEPTION(Xapian::UnimplementedError,
+		   Xapian::Query q(Xapian::Query::OP_NEAR,
+				   x_phrs_y,
+				   Xapian::Query("c"))
+    );
+
+    TEST_EXCEPTION(Xapian::UnimplementedError,
+		   Xapian::Query q(Xapian::Query::OP_PHRASE,
+				   a_near_b,
+				   Xapian::Query("c"))
+    );
+
+    TEST_EXCEPTION(Xapian::UnimplementedError,
+		   Xapian::Query q(Xapian::Query::OP_PHRASE,
+				   x_phrs_y,
+				   Xapian::Query("c"))
+    );
+
     return true;
 }

@@ -1,3 +1,13 @@
+Sun Mar 22 07:54:30 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc,include/xapian/query.h,tests/api_nodb.cc,
+	  tests/api_query.cc: Fix valgrind errors on nearsubqueries1
+	  (ticket#349) and enhance distribution of OP_NEAR/OP_PHRASE over
+	  non-leaf subqueries to work when there are multiple non-leaf
+	  subqueries (ticket#201).  Extend nearsubqueries1 to test that
+	  trying to distribute OP_NEAR/OP_PHRASE over OP_NEAR/OP_PHRASE
+	  throws UnimplementedError.
+
 Fri Mar 20 08:43:20 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_query.cc: Add coverage for OP_AND with MatchNothing

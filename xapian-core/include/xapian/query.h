@@ -415,7 +415,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 	/** Flatten a query structure, by changing, for example,
 	 *  "A NEAR (B AND C)" to "(A NEAR B) AND (A NEAR C)"
 	 */
-	void flatten_subqs();
+	Xapian::Query::Internal * flatten_subqs();
 
         /** Implementation of serialisation; called recursively.
          */

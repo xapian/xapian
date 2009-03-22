@@ -882,8 +882,7 @@ Xapian::Query::Internal::simplify_query()
 	    // Default to the number of subqueries.
 	    if (!parameter) parameter = subqs.size();
 	    // Flatten out sub queries if this is a phrase (or near) operation.
-	    flatten_subqs();
-	    break;
+	    return flatten_subqs();
 	case OP_ELITE_SET:
 	    if (!parameter) {
 		// Default to sqrt(number of subqueries), or a minimum of 10.
@@ -970,45 +969,62 @@ Xapian::Query::Internal::collapse_subqs()
 }
 
 /// Change, eg, A NEAR (B AND C) to (A NEAR B) AND (A NEAR C)
-void
+Xapian::Query::Internal *
 Xapian::Query::Internal::flatten_subqs()
 {
-    if (op != Xapian::Query::OP_NEAR && op != Xapian::Query::OP_PHRASE) {
-	throw Xapian::UnimplementedError("NEAR or PHRASE with non-term subqueries isn't well supported currently");
-    }
+    Assert(op == Xapian::Query::OP_NEAR || op == Xapian::Query::OP_PHRASE);
 
     subquery_list::iterator sq;
-    for (sq = subqs.begin(); sq != subqs.end(); sq++) {
+    for (sq = subqs.begin(); sq != subqs.end(); ++sq) {
 	if (!is_leaf((*sq)->op)) break;
     }
 
-    if (sq != subqs.end()) {
-	if ((*sq)->op == Xapian::Query::OP_NEAR ||
-	    (*sq)->op == Xapian::Query::OP_PHRASE) {
-	    // FIXME: A PHRASE (B PHRASE C) -> (A PHRASE B) AND (B PHRASE C)?
-	    throw Xapian::UnimplementedError("Can't use NEAR/PHRASE with a subexpression containing NEAR or PHRASE");
-	}
+    if (sq == subqs.end()) return this;
 
-	AutoPtr<Xapian::Query::Internal> flattenme(*sq);
-	*sq = 0;
-
-	// New query to build up.
-	Xapian::Query::Internal newq(flattenme->op, 0);
-
-	subquery_list::iterator j;
-	for (j = flattenme->subqs.begin(); j != flattenme->subqs.end(); ++j) {
-	    *sq = *j;
-	    *j = 0;
-	    flatten_subqs();
-	    newq.add_subquery(this);
-	    delete *sq;
-	    *sq = 0;
-	}
-
-	Xapian::Query::Internal * newq2 = newq.end_construction();
-	Assert(newq2);
-	this->swap(*newq2);
+    if ((*sq)->op == Xapian::Query::OP_NEAR ||
+	(*sq)->op == Xapian::Query::OP_PHRASE) {
+	// FIXME: A PHRASE (B PHRASE C) -> (A PHRASE B) AND (B PHRASE C)?
+	throw Xapian::UnimplementedError("Can't use NEAR/PHRASE with a subexpression containing NEAR or PHRASE");
     }
+
+    AutoPtr<Xapian::Query::Internal> flattenme(*sq);
+    *sq = 0;
+
+    subquery_list::iterator j;
+    for (j = flattenme->subqs.begin(); j != flattenme->subqs.end(); ++j) {
+	*sq = *j;
+	*j = 0;
+	AutoPtr<Xapian::Query::Internal> newq(new Xapian::Query::Internal(*this));
+	delete *sq;
+	*sq = 0;
+	newq = newq->flatten_subqs();
+	*j = newq.release();
+    }
+
+    if (flattenme->op == OP_AND ||
+	flattenme->op == OP_OR ||
+	flattenme->op == OP_XOR) {
+	size_t i = flattenme->subqs.size();
+	do {
+	    --i;
+	    Xapian::Query::Internal * q = flattenme->subqs[i];
+	    if (flattenme->op == q->op) {
+		subquery_list::iterator k;
+		for (k = q->subqs.begin(), ++k;
+		     k != q->subqs.end();
+		     ++k) {
+		    flattenme->subqs.push_back(0);
+		    flattenme->subqs.back() = *k;
+		    *k = 0;
+		}
+		flattenme->subqs[i] = q->subqs[0];
+		q->subqs.clear();
+		delete q;
+	    }
+	} while (i != 0);
+    }
+
+    return flattenme.release();
 }
 
 void
