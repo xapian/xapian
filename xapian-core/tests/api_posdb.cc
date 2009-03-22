@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -496,10 +496,8 @@ DEFINE_TESTCASE(poslist1, positional) {
 
     TEST_EXCEPTION(Xapian::DocNotFoundError, mydb.positionlist_begin(55, term));
 
-    /* FIXME: what exception should be thrown here?  Quartz throws
-     * Xapian::DocNotFoundError, and InMemory throws Xapian::RangeError.
-     */
-    TEST_EXCEPTION(Xapian::RuntimeError, mydb.positionlist_begin(2, "adskfjadsfa"));
+    TEST_EXCEPTION(Xapian::RangeError, mydb.positionlist_begin(2, "adskfjadsfa"));
+
     TEST_EXCEPTION(Xapian::DocNotFoundError, mydb.positionlist_begin(55, "adskfjadsfa"));
 
     return true;

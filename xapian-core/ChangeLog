@@ -1,3 +1,10 @@
+Sun Mar 22 10:00:41 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_posdb.cc: Remove out of date FIXME, and update the
+	  exception we check for from RuntimeError to its subclass RangeError
+	  (change no relevant to trunk as the behaviour being tested will be
+	  changed there).
+
 Sun Mar 22 08:57:22 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
