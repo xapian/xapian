@@ -74,7 +74,7 @@ It is possible that a feature may be marked as deprecated within a minor
 release series - that is from version `X.Y.c`
 onwards, where `c` is not zero.  The API and ABI will not be changed by this
 deprecation, since the feature will still be available in the API (though the
-change may cause the compiler to emit new warnings at when rebuilding code
+change may cause the compiler to emit new warnings when rebuilding code
 which uses the now-deprecated feature).
 
 Users should generally be able to expect working code which uses Xapian not to
