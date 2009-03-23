@@ -1,3 +1,8 @@
+Mon Mar 23 14:09:33 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_unicode.cc: Add test coverage for
+	  Xapian::Unicode::append_utf8().
+
 Mon Mar 23 11:40:09 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/postingsource.cc,docs/postingsource.rst,
