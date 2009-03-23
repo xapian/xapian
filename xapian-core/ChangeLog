@@ -1,3 +1,8 @@
+Mon Mar 23 11:01:02 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/harness/testsuite.h: Fix documentation comment in line with
+	  the corrected --help output from "Sat Feb 21 08:18:21 GMT 2009".
+
 Mon Mar 23 02:24:44 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/omqueryinternal.cc: Fix handling of empty and single subquery
