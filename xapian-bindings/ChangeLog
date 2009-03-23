@@ -1,3 +1,9 @@
+Mon Mar 23 11:49:10 GMT 2009  Olly Betts <olly@survex.com>
+
+	* python/generate-python-exceptions,python/pythontest2.py,
+	  python/pythontest3.py: Update for PostingSource::reset() ->
+	  PostingSource::init() rename.
+
 Wed Mar 18 06:05:31 GMT 2009  Olly Betts <olly@survex.com>
 
 	* python/docs/index.html: Non-pythonic iterators now being removed
