@@ -199,7 +199,7 @@ ValuePostingSource::get_docid() const
 }
 
 void
-ValuePostingSource::reset(const Database & db_)
+ValuePostingSource::init(const Database & db_)
 {
     db = db_;
     started = false;
@@ -262,9 +262,9 @@ ValueWeightPostingSource::unserialise(const std::string &s) const
 }
 
 void
-ValueWeightPostingSource::reset(const Database & db_)
+ValueWeightPostingSource::init(const Database & db_)
 {
-    ValuePostingSource::reset(db_);
+    ValuePostingSource::init(db_);
 
     try {
     	max_weight = sortable_unserialise(db.get_value_upper_bound(slot));
@@ -370,9 +370,9 @@ ValueMapPostingSource::unserialise(const std::string &s) const
 }
 
 void
-ValueMapPostingSource::reset(const Database & db_)
+ValueMapPostingSource::init(const Database & db_)
 {
-    ValuePostingSource::reset(db_);
+    ValuePostingSource::init(db_);
     max_weight = std::max(max_weight_in_map, default_weight);
 }
 
@@ -522,7 +522,7 @@ FixedWeightPostingSource::unserialise(const std::string &s) const
 }
 
 void
-FixedWeightPostingSource::reset(const Xapian::Database & db_)
+FixedWeightPostingSource::init(const Xapian::Database & db_)
 {
     db = db_;
     termfreq = db_.get_doccount();

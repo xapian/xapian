@@ -173,7 +173,7 @@ DEFINE_TESTCASE(valueweightsource5, writable && valuestats) {
     db.commit();
 
     Xapian::ValueWeightPostingSource src(1);
-    src.reset(db);
+    src.init(db);
     src.next(0.0);
     TEST(!src.at_end());
     TEST_EQUAL(src.get_docid(), 1);
@@ -249,7 +249,7 @@ DEFINE_TESTCASE(valuemapsource2, backend && !multi) {
 
     {
 	Xapian::ValueMapPostingSource src(100);
-	src.reset(db);
+	src.init(db);
 	TEST(src.at_end() == false);
 	src.next(0.0);
 	TEST(src.at_end() == true);
@@ -257,7 +257,7 @@ DEFINE_TESTCASE(valuemapsource2, backend && !multi) {
 
     {
 	Xapian::ValueMapPostingSource src(100);
-	src.reset(db);
+	src.init(db);
 	TEST(src.at_end() == false);
 	src.skip_to(1, 0.0);
 	TEST(src.at_end() == true);
@@ -265,7 +265,7 @@ DEFINE_TESTCASE(valuemapsource2, backend && !multi) {
 
     {
 	Xapian::ValueMapPostingSource src(100);
-	src.reset(db);
+	src.init(db);
 	TEST(src.at_end() == false);
 	src.check(1, 0.0);
 	TEST(src.at_end() == true);
@@ -281,7 +281,7 @@ DEFINE_TESTCASE(fixedweightsource2, !backend) {
 
     {
 	Xapian::FixedWeightPostingSource src(5.0);
-	src.reset(db);
+	src.init(db);
 	TEST(src.at_end() == false);
 	src.next(0.0);
 	TEST(src.at_end() == true);
@@ -289,7 +289,7 @@ DEFINE_TESTCASE(fixedweightsource2, !backend) {
 
     {
 	Xapian::FixedWeightPostingSource src(5.0);
-	src.reset(db);
+	src.init(db);
 	TEST(src.at_end() == false);
 	src.skip_to(1, 0.0);
 	TEST(src.at_end() == true);

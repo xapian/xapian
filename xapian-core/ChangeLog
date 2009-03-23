@@ -1,3 +1,10 @@
+Mon Mar 23 11:40:09 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/postingsource.cc,docs/postingsource.rst,
+	  include/xapian/postingsource.h,matcher/externalpostlist.cc,
+	  tests/api_db.cc,tests/api_percentages.cc,tests/api_valuestream.cc:
+	  Rename PostingSource::reset() to PostingSource::init().
+
 Mon Mar 23 11:01:02 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/harness/testsuite.h: Fix documentation comment in line with

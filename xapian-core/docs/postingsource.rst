@@ -1,5 +1,5 @@
 
-.. Copyright (C) 2008 Olly Betts
+.. Copyright (C) 2008,2009 Olly Betts
 
 =====================
 Xapian::PostingSource
@@ -31,12 +31,12 @@ Anatomy
 
 When first constructed, a PostingSource is not tied to a particular database.
 Before Xapian can get any postings (or statistics) from the source, it needs to
-be supplied with a database.  This is performed by the reset() method, which is
-passed a single parameter holding the database to use.  The reset method will
+be supplied with a database.  This is performed by the init() method, which is
+passed a single parameter holding the database to use.  This method will
 always be called before asking for any information about the postings in the
 list::
 
-    virtual void reset(const Xapian::Database & db) = 0;
+    virtual void init(const Xapian::Database & db) = 0;
 
 Three methods return statistics independent of the iteration position.
 These are upper and lower bounds for the number of documents which can
