@@ -879,9 +879,14 @@ Xapian::Query::Internal::simplify_query()
 	    // so we leave it to be removed.
 	    break;
 	case OP_PHRASE: case OP_NEAR:
+	    // Empty and single subquery OP_PHRASE and OP_NEAR get handled
+	    // below.
+	    if (subqs.size() <= 1) break;
+
 	    // Default to the number of subqueries.
 	    if (!parameter) parameter = subqs.size();
-	    // Flatten out sub queries if this is a phrase (or near) operation.
+
+	    // Flatten out sub queries of a phrase or near operation.
 	    return flatten_subqs();
 	case OP_ELITE_SET:
 	    if (!parameter) {
