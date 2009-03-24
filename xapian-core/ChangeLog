@@ -1,3 +1,9 @@
+Tue Mar 24 09:57:39 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/inmemory/inmemory_database.cc: Add a space in the output
+	  of InMemoryPostList::get_description() and
+	  InMemoryAllDocsPostList::get_description().
+
 Tue Mar 24 08:52:46 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/leafpostlist.cc,include/xapian/weight.h,tests/api_db.cc,weight/:
