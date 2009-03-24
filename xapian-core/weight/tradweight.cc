@@ -167,10 +167,4 @@ TradWeight::get_maxextra() const
     return 0;
 }
 
-bool
-TradWeight::get_sumpart_needs_doclength() const
-{
-    return len_factor != 0;
-}
-
 }

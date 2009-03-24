@@ -190,9 +190,6 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      */
     virtual Xapian::weight get_maxextra() const = 0;
 
-    /// Return true if the document length is needed by @a get_sumpart().
-    virtual bool get_sumpart_needs_doclength() const;
-
     /** @private @internal Helper method for cloning Xapian::Weight objects.
      *
      *  This avoids us having to forward-declare internal classes in the
@@ -222,6 +219,16 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *  @param query_len_ Query length.
      */
     void init_(const Internal & stats, Xapian::termcount query_len_);
+
+    /** @private @internal Return true if the document length is needed.
+     *
+     *  If this method returns true, then the document length will be fetched
+     *  and passed to @a get_sumpart().  Otherwise 0 may be passed for the
+     *  document length.
+     */
+    bool get_sumpart_needs_doclength_() const {
+	return stats_needed & DOC_LENGTH;
+    }
 
   protected:
     /// Only allow subclasses to copy us.
@@ -300,8 +307,6 @@ class XAPIAN_VISIBILITY_DEFAULT BoolWeight : public Weight {
 
     Xapian::weight get_sumextra(Xapian::termcount doclen) const;
     Xapian::weight get_maxextra() const;
-
-    bool get_sumpart_needs_doclength() const;
 };
 
 /// Xapian::Weight subclass implementing the BM25 probabilistic formula.
@@ -371,6 +376,7 @@ class XAPIAN_VISIBILITY_DEFAULT BM25Weight : public Weight {
 	    need_stat(DOC_LENGTH_MIN);
 	    need_stat(AVERAGE_LENGTH);
 	}
+	if (param_k1 != 0 && param_b != 0) need_stat(DOC_LENGTH);
 	if (param_k2 != 0) need_stat(QUERY_LENGTH);
 	if (param_k3 != 0) need_stat(WQF);
     }
@@ -386,6 +392,7 @@ class XAPIAN_VISIBILITY_DEFAULT BM25Weight : public Weight {
 	need_stat(WDF_MAX);
 	need_stat(DOC_LENGTH_MIN);
 	need_stat(AVERAGE_LENGTH);
+	need_stat(DOC_LENGTH);
 	need_stat(WQF);
     }
 
@@ -400,8 +407,6 @@ class XAPIAN_VISIBILITY_DEFAULT BM25Weight : public Weight {
 
     Xapian::weight get_sumextra(Xapian::termcount doclen) const;
     Xapian::weight get_maxextra() const;
-
-    bool get_sumpart_needs_doclength() const;
 };
 
 /** Xapian::Weight subclass implementing the traditional probabilistic formula.
@@ -437,7 +442,10 @@ class XAPIAN_VISIBILITY_DEFAULT TradWeight : public Weight {
      */
     explicit TradWeight(double k = 1.0) : param_k(k) {
 	if (param_k < 0) param_k = 0;
-	if (param_k != 0.0) need_stat(AVERAGE_LENGTH);
+	if (param_k != 0.0) {
+	    need_stat(AVERAGE_LENGTH);
+	    need_stat(DOC_LENGTH);
+	}
 	need_stat(COLLECTION_SIZE);
 	need_stat(RSET_SIZE);
 	need_stat(TERMFREQ);
@@ -457,8 +465,6 @@ class XAPIAN_VISIBILITY_DEFAULT TradWeight : public Weight {
 
     Xapian::weight get_sumextra(Xapian::termcount doclen) const;
     Xapian::weight get_maxextra() const;
-
-    bool get_sumpart_needs_doclength() const;
 };
 
 }

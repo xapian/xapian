@@ -206,10 +206,4 @@ BM25Weight::get_maxextra() const
     return num / (1.0 + max(double(get_doclength_lower_bound()), param_min_normlen));
 }
 
-bool
-BM25Weight::get_sumpart_needs_doclength() const
-{
-    return len_factor != 0;
-}
-
 }

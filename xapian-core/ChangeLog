@@ -1,3 +1,10 @@
+Tue Mar 24 08:52:46 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/leafpostlist.cc,include/xapian/weight.h,tests/api_db.cc,weight/:
+	  Get rid of the virtual Weight::get_sumpart_needs_doclength() method
+	  - subclasses can call need_stat(DOC_LENGTH) in their constructor if
+	  they need doc lengths.
+
 Tue Mar 24 07:55:06 GMT 2009  Olly Betts <olly@survex.com>
 
 	* weight/weight.cc: Check stats_needed for stats which aren't just a

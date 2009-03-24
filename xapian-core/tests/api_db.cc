@@ -1871,8 +1871,6 @@ class MyWeight : public Xapian::Weight {
 
     Xapian::weight get_sumextra(Xapian::termcount) const { return 0; }
     Xapian::weight get_maxextra() const { return 0; }
-
-    bool get_sumpart_needs_doclength() const { return false; }
 };
 
 // tests user weighting scheme.

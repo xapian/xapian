@@ -75,6 +75,4 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length,
 
 Weight::~Weight() { }
 
-bool Weight::get_sumpart_needs_doclength() const { return true; }
-
 }
