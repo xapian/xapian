@@ -54,6 +54,7 @@ MultiPostList::~MultiPostList()
 Xapian::doccount
 MultiPostList::get_termfreq() const
 {
+    // Should never get called.
     Assert(false);
     return 0;
 }
@@ -82,12 +83,6 @@ Xapian::termcount
 MultiPostList::get_wdf() const
 {
     return postlists[(currdoc - 1) % multiplier]->get_wdf();
-}
-
-PositionList *
-MultiPostList::read_position_list()
-{
-    return postlists[(currdoc - 1) % multiplier]->read_position_list();
 }
 
 PositionList *

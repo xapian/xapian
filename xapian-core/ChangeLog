@@ -1,3 +1,8 @@
+Tue Mar 24 11:10:57 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/multi/multi_postlist.cc,backends/multi/multi_postlist.h:
+	  MultiPostList::read_position_list() is never used, so remove it.
+
 Tue Mar 24 10:04:03 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/multi/multi_postlist.cc: Remove "[" and "]" from the output
