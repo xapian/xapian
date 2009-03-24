@@ -1,3 +1,11 @@
+Tue Mar 24 10:04:03 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/multi/multi_postlist.cc: Remove "[" and "]" from the output
+	  of MultiPostList::get_description().  Remove excess "," from output
+	  of MultiPostList::get_description().
+	* tests/api_db.cc: Add some test coverage of
+	  PostingIterator::get_wdf() and PostingIterator::get_description().
+
 Tue Mar 24 10:00:23 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/ompostlistiterator.cc: Remove "[" and "]" from

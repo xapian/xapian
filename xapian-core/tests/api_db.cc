@@ -1258,13 +1258,19 @@ DEFINE_TESTCASE(postlist2, backend) {
     p = db.postlist_begin("this");
     Xapian::PostingIterator pend = db.postlist_end("this");
 
+    TEST(p.get_description() != "Xapian::PostingIterator(pos=END)");
+
     // test operator= creates a copy which compares equal
     Xapian::PostingIterator p_copy = p;
     TEST_EQUAL(p, p_copy);
 
+    TEST(p_copy.get_description() != "Xapian::PostingIterator(pos=END)");
+
     // test copy constructor creates a copy which compares equal
     Xapian::PostingIterator p_clone(p);
     TEST_EQUAL(p, p_clone);
+
+    TEST(p_clone.get_description() != "Xapian::PostingIterator(pos=END)");
 
     vector<Xapian::docid> v(p, pend);
 
@@ -1277,6 +1283,12 @@ DEFINE_TESTCASE(postlist2, backend) {
 	p++;
     }
     TEST_EQUAL(p, pend);
+
+    TEST_STRINGS_EQUAL(p.get_description(),
+		       "Xapian::PostingIterator(pos=END)");
+    TEST_STRINGS_EQUAL(pend.get_description(),
+		       "Xapian::PostingIterator(pos=END)");
+
     return true;
 }
 
@@ -1334,7 +1346,8 @@ DEFINE_TESTCASE(postlist6, backend) {
     TEST(i != db.postlist_end("this"));
     while (i != db.postlist_end("this")) {
 	TEST_EQUAL(i.get_doclength(), db.get_doclength(*i));
-	i++;
+	TEST_REL(i.get_wdf(),<=,i.get_doclength());
+	++i;
     }
     return true;
 }
