@@ -1,3 +1,8 @@
+Tue Mar 24 07:55:06 GMT 2009  Olly Betts <olly@survex.com>
+
+	* weight/weight.cc: Check stats_needed for stats which aren't just a
+	  simple member variable lookup.
+
 Tue Mar 24 06:46:24 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/multi/multi_postlist.cc,backends/multi/multi_postlist.h:

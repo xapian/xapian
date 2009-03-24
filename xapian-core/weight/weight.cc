@@ -37,9 +37,12 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length)
 {
     collection_size_ = stats.collection_size;
     rset_size_ = stats.rset_size;
-    average_length_ = stats.get_average_length();
-    doclength_upper_bound_ = stats.db.get_doclength_upper_bound();
-    doclength_lower_bound_ = stats.db.get_doclength_lower_bound();
+    if (stats_needed & AVERAGE_LENGTH)
+	average_length_ = stats.get_average_length();
+    if (stats_needed & DOC_LENGTH_MAX)
+	doclength_upper_bound_ = stats.db.get_doclength_upper_bound();
+    if (stats_needed & DOC_LENGTH_MIN)
+	doclength_lower_bound_ = stats.db.get_doclength_lower_bound();
     wdf_upper_bound_ = 0;
     termfreq_ = 0;
     reltermfreq_ = 0;
@@ -53,12 +56,18 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length,
 {
     collection_size_ = stats.collection_size;
     rset_size_ = stats.rset_size;
-    average_length_ = stats.get_average_length();
-    doclength_upper_bound_ = stats.db.get_doclength_upper_bound();
-    doclength_lower_bound_ = stats.db.get_doclength_lower_bound();
-    wdf_upper_bound_ = stats.db.get_wdf_upper_bound(term);
-    termfreq_ = stats.get_termfreq(term);
-    reltermfreq_ = stats.get_reltermfreq(term);
+    if (stats_needed & AVERAGE_LENGTH)
+	average_length_ = stats.get_average_length();
+    if (stats_needed & DOC_LENGTH_MAX)
+	doclength_upper_bound_ = stats.db.get_doclength_upper_bound();
+    if (stats_needed & DOC_LENGTH_MIN)
+	doclength_lower_bound_ = stats.db.get_doclength_lower_bound();
+    if (stats_needed & WDF_MAX)
+	wdf_upper_bound_ = stats.db.get_wdf_upper_bound(term);
+    if (stats_needed & TERMFREQ)
+	termfreq_ = stats.get_termfreq(term);
+    if (stats_needed & RELTERMFREQ)
+	reltermfreq_ = stats.get_reltermfreq(term);
     query_length_ = query_length;
     wqf_ = wqf;
     init(factor);
