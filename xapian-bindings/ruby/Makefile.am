@@ -55,7 +55,7 @@ xapian_wrap.stamp: $(SWIG_sources) util.i
 	awk '{print} /#include <ruby\.h>/{print "#undef rb_intern\n"}' xapian_wrap.ccT > xapian_wrap.ccU
 	rm xapian_wrap.ccT
 	mv xapian_wrap.ccU xapian_wrap.cc
-	$(PERL) -pe 's!xapian_wrap.cc:!xapian_wrap.stamp:!' xapian_wrap_d.tmp > xapian_wrap_d2.tmp
+	$(PERL) -pe 's!xapian_wrap.ccT:!xapian_wrap.stamp:!' xapian_wrap_d.tmp > xapian_wrap_d2.tmp
 	mv xapian_wrap_d2.tmp xapian_wrap.d
 	rm xapian_wrap_d.tmp
 	$(multitarget_end)

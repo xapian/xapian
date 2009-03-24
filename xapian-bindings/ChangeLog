@@ -1,3 +1,8 @@
+Tue Mar 24 12:37:45 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* ruby/Makefile.am: Fix dependency target in ruby's xapian_wrap.d
+	  file.
+
 Mon Mar 23 11:49:10 GMT 2009  Olly Betts <olly@survex.com>
 
 	* python/generate-python-exceptions,python/pythontest2.py,
