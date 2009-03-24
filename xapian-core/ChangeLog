@@ -1,3 +1,9 @@
+Tue Mar 24 10:00:23 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/ompostlistiterator.cc: Remove "[" and "]" from
+	  Xapian::PostingIterator::get_description() as they don't add
+	  anything useful.
+
 Tue Mar 24 09:57:39 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/inmemory/inmemory_database.cc: Add a space in the output
