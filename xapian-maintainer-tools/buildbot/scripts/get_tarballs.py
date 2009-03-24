@@ -13,7 +13,7 @@ archive_names = ('xapian-core', 'xapian-bindings', 'xapian-omega',
                  'win32msvc',)
 builddir = 'build'
 
-tarlink_re = re.compile('<A HREF="([a-zA-Z0-9_\.-]+).tar.gz">')
+tarlink_re = re.compile('<a href="([a-zA-Z0-9_\.-]+).tar.gz">')
 archivedir_re = re.compile('([a-zA-Z0-9_\.-]+)$')
 basename_re = re.compile('([a-zA-Z-]+)-[0-9_\.-]+svn[0-9]+$')
 basename2_re = re.compile('(win32msvc)_svn[0-9]+$')
