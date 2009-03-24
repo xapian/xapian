@@ -1,3 +1,8 @@
+Tue Mar 24 06:46:24 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/multi/multi_postlist.cc,backends/multi/multi_postlist.h:
+	  MultiPostList::get_termfreq() is never used, so remove it.
+
 Mon Mar 23 14:09:33 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_unicode.cc: Add test coverage for

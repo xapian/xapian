@@ -36,8 +36,7 @@ MultiPostList::MultiPostList(std::vector<LeafPostList *> & pls,
 	: postlists(pls),
 	  this_db(this_db_),
 	  finished(false),
-	  currdoc(0),
-	  freq_initialised(false)
+	  currdoc(0)
 {
     multiplier = pls.size();
 }
@@ -55,18 +54,8 @@ MultiPostList::~MultiPostList()
 Xapian::doccount
 MultiPostList::get_termfreq() const
 {
-    if (freq_initialised) return termfreq;
-    LOGLINE(DB, "Calculating multiple term frequencies");
-
-    // Calculate and remember the termfreq
-    termfreq = 0;
-    std::vector<LeafPostList *>::const_iterator i;
-    for (i = postlists.begin(); i != postlists.end(); i++) {
-	termfreq += (*i)->get_termfreq();
-    }
-
-    freq_initialised = true;
-    return termfreq;
+    Assert(false);
+    return 0;
 }
 
 Xapian::docid
@@ -192,5 +181,5 @@ MultiPostList::get_description() const
 	if (i != postlists.end()) desc += ",";
     }
 
-    return desc + "]:" + om_tostring(get_termfreq());
+    return desc + "]";
 }
