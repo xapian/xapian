@@ -1,3 +1,9 @@
+Wed Mar 25 11:44:36 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Only put ANSI_CXXFLAGS in CXXFLAGS for the duration of
+	  configure - put it in AM_CXXFLAGS for substituting so that the user
+	  can safely override CXXFLAGS at make-time: "make CXXFLAGS=-Os" 
+
 Wed Mar 25 10:50:44 GMT 2009  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix comment typo.

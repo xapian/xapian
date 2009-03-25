@@ -358,10 +358,15 @@ else
   fi
 fi
 
-dnl Put any flags for ANSI mode in CXXFLAGS not AM_CXXFLAGS since AM_CXXFLAGS
-dnl is only used in the Makefiles and we want to use such flags in configure
-dnl tests.
-test -n "$ANSI_CXXFLAGS" && CXXFLAGS="$ANSI_CXXFLAGS $CXXFLAGS"
+dnl Preserve the default CXXFLAGS.
+save_CXXFLAGS=$CXXFLAGS
+
+dnl Put any flags for ANSI mode in CXXFLAGS for the duration of configure
+dnl since we want to make feature tests using those flags.
+if test -n "$ANSI_CXXFLAGS" ; then
+  CXXFLAGS="$ANSI_CXXFLAGS $CXXFLAGS"
+  AM_CXXFLAGS="$ANSI_CXXFLAGS $AM_CXXFLAGS"
+fi
 
 dnl Make 'xapian-config --cxxflags' turn on any such flags for code linking
 dnl with Xapian.
@@ -1057,6 +1062,9 @@ fi
 AC_SUBST(STLPORT_CXXFLAGS)
 
 AC_SUBST(AM_CXXFLAGS)
+
+dnl Restore CXXFLAGS to those the user specified or autoconf defaulted to.
+CXXFLAGS=$save_CXXFLAGS
 
 dnl See if large file support is available
 AC_SYS_LARGEFILE
