@@ -1,3 +1,8 @@
+Wed Mar 25 12:35:42 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac: Actually use all those warning flags we
+	  carefully determine!
+
 Wed Mar 25 12:03:37 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.ac: Only put XAPIAN_CXXFLAGS in CXXFLAGS for

@@ -59,7 +59,7 @@ EXTRA_DIST =\
 	xapian-omega.spec
 
 AM_CPPFLAGS = -DCONFIGFILE_SYSTEM=\"$(sysconfdir)/omega.conf\"
-AM_CXXFLAGS = $(XAPIAN_CXXFLAGS)
+AM_CXXFLAGS += $(XAPIAN_CXXFLAGS)
 
 pkglibbindir = $(pkglibdir)/bin
 pkglibbin_PROGRAMS = omega
