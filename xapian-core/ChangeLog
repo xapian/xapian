@@ -1,3 +1,19 @@
+Wed Mar 25 05:42:34 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* backends/database.cc: Open documents lazily in collect_document().
+	* backends/inmemory/inmemory_database.cc: Don't "return false" when
+	  the return type is a pointer!
+	* api/omdatabase.cc,backends/flint/flint_database.h,
+	  backends/inmemory/inmemory_database.h,
+	  backends/remote/remote-database.cc,
+	  common/database.h: Drop the default value of the lazy parameter to
+	  Database::open_document() - it's better to force us to consider
+	  whether a new call should be lazy or not.
+	* common/database.h: Better description of lazy parameter.
+	* backends/remote/remote-database.cc: Update comment about when lazy
+	  is set to true.
+
 Sun Mar 22 10:00:41 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_posdb.cc: Remove out of date FIXME, and update the

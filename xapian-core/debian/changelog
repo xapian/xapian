@@ -2,8 +2,11 @@ xapian-core (1.0.11-1) unstable; urgency=low
 
   * New upstream release.
   * debian/control.in: Standards-Version: 3.8.1 (no changes required).
+  * debian/patch: Patch from upstream SVN to clean up zombie process left
+    behind if opening a WritableDatabase fails because the database is
+    locked by another process.
 
- -- Olly Betts <olly@survex.com>  Sun, 15 Mar 2009 06:25:36 +0000
+ -- Olly Betts <olly@survex.com>  Wed, 25 Mar 2009 04:42:30 +0000
 
 xapian-core (1.0.10-2) unstable; urgency=low
 
