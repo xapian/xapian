@@ -404,13 +404,3 @@ DEFINE_TESTCASE(opvaluege1, !backend) {
     TEST_STRINGS_EQUAL(query.get_description(), Xapian::Query::MatchAll.get_description());
     return true;
 }
-
-/// Regression test - this threw AssertionError in 1.0.9 and earlier (bug#201).
-DEFINE_TESTCASE(nearsubqueries1, !backend) {
-    Xapian::Query a_or_b(Xapian::Query::OP_OR,
-			 Xapian::Query("a"),
-			 Xapian::Query("b"));
-    TEST_EXCEPTION(Xapian::UnimplementedError,
-		   Xapian::Query near(Xapian::Query::OP_NEAR, a_or_b, a_or_b));
-    return true;
-}
