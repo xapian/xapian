@@ -41,7 +41,7 @@ ExternalPostList::ExternalPostList(const Xapian::Database & db,
 	source = newsource;
 	source_is_owned = true;
     }
-    source->reset(db);
+    source->init(db);
 }
 
 ExternalPostList::~ExternalPostList()

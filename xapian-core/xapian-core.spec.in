@@ -47,9 +47,9 @@ files needed for building packages which use Xapian.
 %setup -q -n %{name}-%{version}
 
 %build
-# In the 1.1.0 branch, Xapian uses libtool 2.2.x which allows us to override
-# libtool's sometimes conservative take on which directories are in the default
-# dynamic linker search path, so we no longer incorrectly try to set rpath for
+# As of 1.1.0, Xapian uses libtool 2.2.x which allows us to override libtool's
+# sometimes conservative take on which directories are in the default dynamic
+# linker search path, so we no longer incorrectly try to set rpath for
 # /usr/lib64.  Hence there's no longer a need to run "autoreconf --force" here
 # and it's better not to as it avoids having to cope with incompatibilities
 # with older versions of the autotools which older distros have.

@@ -61,6 +61,7 @@ noinst_HEADERS +=\
 	common/tcpclient.h\
 	common/tcpserver.h\
 	common/termlist.h\
+	common/str.h\
 	common/unaligned.h\
 	common/utils.h\
 	common/valuelist.h\
@@ -83,6 +84,7 @@ libxapian_la_SOURCES +=\
 	common/safe.cc\
 	common/serialise-double.cc\
 	common/socket_utils.cc\
+	common/str.cc\
 	common/stringutils.cc\
 	common/utils.cc
 

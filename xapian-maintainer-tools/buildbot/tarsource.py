@@ -14,7 +14,7 @@ from buildbot.process.step import Source, RemoteShellCommand
 
 import re
 
-tarlink_re = re.compile('<A HREF="([a-zA-Z0-9_\.-]+).tar.gz">')
+tarlink_re = re.compile('<a href="([a-zA-Z0-9_\.-]+).tar.gz">')
 
 def parsehtml(html, archives):
     max_revision = 0

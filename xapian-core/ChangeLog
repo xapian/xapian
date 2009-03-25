@@ -117,6 +117,269 @@ Fri Dec 07 14:19:00 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 	  calculation stuff from Yung-chung Lin; exactly as in his patch
 	  from 18 September 2007.
 
+Wed Mar 25 11:44:36 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Only put ANSI_CXXFLAGS in CXXFLAGS for the duration of
+	  configure - put it in AM_CXXFLAGS for substituting so that the user
+	  can safely override CXXFLAGS at make-time: "make CXXFLAGS=-Os" 
+
+Wed Mar 25 10:50:44 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix comment typo.
+
+Wed Mar 25 04:48:50 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,backends/chert/chert_database.h,
+	  backends/flint/flint_database.h,
+	  backends/inmemory/inmemory_database.h,
+	  backends/remote/remote-database.cc,common/const_database_wrapper.h,
+	  common/database.h: Drop the default value of the lazy parameter to
+	  Database::open_document() - it's better to force us to consider
+	  whether a new call should be lazy or not.
+	* common/database.h: Better description of lazy parameter.
+	* backends/remote/remote-database.cc: Update comment about when lazy
+	  is set to true.
+
+Wed Mar 25 04:20:34 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/inmemory/inmemory_database.cc: Don't "return false" when
+	  the return type is a pointer!
+
+Tue Mar 24 17:42:22 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/database.cc: Open documents lazily in
+	  collect_document().
+
+Tue Mar 24 11:10:57 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/multi/multi_postlist.cc,backends/multi/multi_postlist.h:
+	  MultiPostList::read_position_list() is never used, so remove it.
+
+Tue Mar 24 10:04:03 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/multi/multi_postlist.cc: Remove "[" and "]" from the output
+	  of MultiPostList::get_description().  Remove excess "," from output
+	  of MultiPostList::get_description().
+	* tests/api_db.cc: Add some test coverage of
+	  PostingIterator::get_wdf() and PostingIterator::get_description().
+
+Tue Mar 24 10:00:23 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/ompostlistiterator.cc: Remove "[" and "]" from
+	  Xapian::PostingIterator::get_description() as they don't add
+	  anything useful.
+
+Tue Mar 24 09:57:39 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/inmemory/inmemory_database.cc: Add a space in the output
+	  of InMemoryPostList::get_description() and
+	  InMemoryAllDocsPostList::get_description().
+
+Tue Mar 24 08:52:46 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/leafpostlist.cc,include/xapian/weight.h,tests/api_db.cc,weight/:
+	  Get rid of the virtual Weight::get_sumpart_needs_doclength() method
+	  - subclasses can call need_stat(DOC_LENGTH) in their constructor if
+	  they need doc lengths.
+
+Tue Mar 24 07:55:06 GMT 2009  Olly Betts <olly@survex.com>
+
+	* weight/weight.cc: Check stats_needed for stats which aren't just a
+	  simple member variable lookup.
+
+Tue Mar 24 06:46:24 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/multi/multi_postlist.cc,backends/multi/multi_postlist.h:
+	  MultiPostList::get_termfreq() is never used, so remove it.
+
+Mon Mar 23 14:09:33 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_unicode.cc: Add test coverage for
+	  Xapian::Unicode::append_utf8().
+
+Mon Mar 23 11:40:09 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/postingsource.cc,docs/postingsource.rst,
+	  include/xapian/postingsource.h,matcher/externalpostlist.cc,
+	  tests/api_db.cc,tests/api_percentages.cc,tests/api_valuestream.cc:
+	  Rename PostingSource::reset() to PostingSource::init().
+
+Mon Mar 23 11:01:02 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/harness/testsuite.h: Fix documentation comment in line with
+	  the corrected --help output from "Sat Feb 21 08:18:21 GMT 2009".
+
+Mon Mar 23 02:24:44 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc: Fix handling of empty and single subquery
+	  OP_NEAR and OP_PHRASE (was breaking queryparsertest).
+
+Sun Mar 22 10:23:37 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/flint/flint_database.cc,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_positionlist.cc,
+	  common/inmemory_positionlist.h,docs/deprecation.rst,
+	  tests/api_posdb.cc: Change Database::positionlist_begin() not to
+	  throw exceptions if the term or document doesn't exist.
+
+Sun Mar 22 09:02:46 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/deprecation.rst: Fix typo.
+
+Sun Mar 22 07:54:30 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc,include/xapian/query.h,tests/api_nodb.cc,
+	  tests/api_query.cc: Fix valgrind errors on nearsubqueries1
+	  (ticket#349) and enhance distribution of OP_NEAR/OP_PHRASE over
+	  non-leaf subqueries to work when there are multiple non-leaf
+	  subqueries (ticket#201).  Extend nearsubqueries1 to test that
+	  trying to distribute OP_NEAR/OP_PHRASE over OP_NEAR/OP_PHRASE
+	  throws UnimplementedError.
+
+Fri Mar 20 08:43:20 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_query.cc: Add coverage for OP_AND with MatchNothing
+	  subquery (new testcase matchnothing1).
+
+Fri Mar 20 05:16:18 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc: Fix assertions in previous check-in to
+	  verify the right condition.  And return the simplified query in
+	  the case the assertion would have failed, as that means a small
+	  memory leak rather than unpredictable behaviour in a non-assertion
+	  build.
+
+Fri Mar 20 04:26:29 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc: Check that end_construction() returns NULL
+	  when unserialising queries.
+
+Fri Mar 20 02:51:32 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc: Fix return type of
+	  Xapian::Query::Internal::simplify_query() in a debug build.  Since
+	  RETURN() isn't used by this function, this is only a cosmetic issue
+	  in the log file.
+
+Wed Mar 18 09:26:02 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/flint/flint_database.cc,
+	  docs/deprecation.rst: Move just returning an empty PositionIterator
+	  from Database::positionlist_begin() when the docs or term isn't
+	  present from 1.2.0 to 1.1.0 (has to be 1.1.0 or 1.3.0 really).
+
+Wed Mar 18 09:24:27 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/glossary.rst: Chert as the default backend in 1.2.0 is pretty
+	  much definite.
+
+Wed Mar 18 06:42:09 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
+Wed Mar 18 04:36:59 GMT 2009  Olly Betts <olly@survex.com>
+
+	* xapian-core.spec.in: Tweak reference to "1.1.0 branch" to make more
+	  sense.
+
+Wed Mar 18 04:30:18 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/postingsource.cc,include/xapian/postingsource.h: Remove the
+	  optional "max_weight_" parameter to ValuePostingSource's ctor.
+	* include/xapian/postingsource.h: Correct a few errors in
+	  documentation comments.
+
+Wed Mar 18 04:29:22 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/postingsource.rst: "ctx" -> "context" in example code.
+
+Tue Mar 17 23:45:52 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_lock.cc,backends/flint/flint_lock.cc: If the
+	  locking attempt fails after we spawn the child process, call
+	  waitpid() in the parent process to avoid creating a zombie process.
+	* AUTHORS: Add Jim Spath for reporting this.
+
+Tue Mar 17 23:34:16 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/Makefile.mk,common/str.cc,common/str.h: New family of
+	  overloaded str() functions for converting types to std::string.
+	  The integer conversion are much faster than the existing
+	  om_tostring().
+	* common/omassert.h,common/omdebug.h: Use str() instead of
+	  om_tostring().
+	* common/utils.cc,common/utils.h: Make om_tostring() a macro wrapping
+	  str() for now to avoid introducing a lot of conflicts with other
+	  branches and unapplied patches.
+
+Tue Mar 17 21:28:54 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix comment typo.
+
+Tue Mar 17 00:47:26 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/utils.cc: Fix previous change to actually compile...
+
+Mon Mar 16 20:10:01 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/utils.cc,common/utils.h: Add om_tostring() version of
+	  unsigned long long int, to fix debug build on i686.
+
+Mon Mar 16 14:01:02 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Sync with 1.0.11.
+
+Fri Mar 13 06:59:29 GMT 2009  Olly Betts <olly@survex.com>
+
+	* weight/weightinternal.cc: Need "utils.h" for om_tostring().
+
+Fri Mar 13 05:47:24 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Note that QueryParser::FLAG_DEFAULT
+	  was new in 1.0.11.
+
+Fri Mar 13 04:36:19 GMT 2009  Olly Betts <olly@survex.com>
+
+	* weight/weightinternal.cc: Implement
+	  Weight::Internal::get_description().
+
+Thu Mar 12 11:57:02 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/output.h: Fix last commit.
+
+Thu Mar 12 11:29:58 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/output.h: Define operator<< for Xapian::Weight::Internal.
+
+Thu Mar 12 11:21:09 GMT 2009  Olly Betts <olly@survex.com>
+
+	* net/remoteserver.cc: Fix overlooked case which was still sending
+	  REPLY_DOCLENGTH as a double.
+
+Wed Mar 11 22:56:59 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_valuelist.cc: Fix comment typo.
+
+Wed Mar 11 22:50:49 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_valuestream.cc: Enable valuestream3 for chert.
+	* backends/chert/chert_valuelist.cc: Fix return value of
+	  ChertValueList::check() when it needs to move to a new chunk.
+	  Fixes valuestream3 test.
+
+Wed Mar 11 13:17:58 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/weight.h: Mark Weight::init_() methods as "@private
+	  @internal" for doxygen API docs.
+
+Wed Mar 11 13:13:32 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/weight.h,tests/api_db.cc,tests/api_nodb.cc,
+	  weight/bm25weight.cc,weight/boolweight.cc,weight/tradweight.cc:
+	  Make Weight::name() return std::string to allow sane wrapping
+	  with SWIG directors.
+
 Wed Mar 11 05:46:40 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/,backends/chert/,backends/contiguousalldocspostlist.cc,

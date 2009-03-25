@@ -1,7 +1,7 @@
 /** @file api_unicode.cc
  * @brief Test the Unicode and UTF-8 classes and functions.
  */
-/* Copyright (C) 2006,2007,2008 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -188,5 +188,30 @@ DEFINE_TESTCASE(caseconvert2,!backend) {
 	TEST_EQUAL(Unicode::toupper(u + 1), u);
     }
 	
+    return true;
+}
+
+DEFINE_TESTCASE(utf8convert1,!backend) {
+    string s;
+    Xapian::Unicode::append_utf8(s, 'a');
+    Xapian::Unicode::append_utf8(s, 128);
+    Xapian::Unicode::append_utf8(s, 160);
+    Xapian::Unicode::append_utf8(s, 0xFFFF);
+    Xapian::Unicode::append_utf8(s, 166415);
+    Xapian::Unicode::append_utf8(s, 0x10345);
+    Xapian::Unicode::append_utf8(s, 0x10FFFD);
+    Xapian::Unicode::append_utf8(s, 0xFFFFFFFF);
+    Xapian::Unicode::append_utf8(s, 'z');
+    TEST_STRINGS_EQUAL(s, "a"
+			  "\xc2\x80"
+			  "\xc2\xa0"
+			  "\xef\xbf\xbf"
+			  "\xf0\xa8\xa8\x8f"
+			  "\xf0\x90\x8d\x85"
+			  "\xf4\x8f\xbf\xbd"
+			  ""
+			  "z"
+			  );
+
     return true;
 }

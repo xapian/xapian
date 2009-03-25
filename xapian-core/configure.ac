@@ -311,7 +311,7 @@ else
       dnl 4273 "floating-point equality and inequality comparisons may be
       dnl	inappropriate due to roundoff common in floating-point computation"
       dnl	No obvious workaround for when you really do want == or !=.
-      dnl 4285 "operator= does not have a check for the sourc and destination
+      dnl 4285 "operator= does not have a check for the source and destination
       dnl	addresses being non-identical" - fires for AutoPtr which
       dnl	includes such a check indirectly (internaltest's autoptr1 check this).
       dnl 20201 "Memory leak is detected" which triggers for "return new Foo;"!
@@ -358,10 +358,15 @@ else
   fi
 fi
 
-dnl Put any flags for ANSI mode in CXXFLAGS not AM_CXXFLAGS since AM_CXXFLAGS
-dnl is only used in the Makefiles and we want to use such flags in configure
-dnl tests.
-test -n "$ANSI_CXXFLAGS" && CXXFLAGS="$ANSI_CXXFLAGS $CXXFLAGS"
+dnl Preserve the default CXXFLAGS.
+save_CXXFLAGS=$CXXFLAGS
+
+dnl Put any flags for ANSI mode in CXXFLAGS for the duration of configure
+dnl since we want to make feature tests using those flags.
+if test -n "$ANSI_CXXFLAGS" ; then
+  CXXFLAGS="$ANSI_CXXFLAGS $CXXFLAGS"
+  AM_CXXFLAGS="$ANSI_CXXFLAGS $AM_CXXFLAGS"
+fi
 
 dnl Make 'xapian-config --cxxflags' turn on any such flags for code linking
 dnl with Xapian.
@@ -581,7 +586,7 @@ case $ac_cv_func_snprintf in
     AC_MSG_RESULT([$ac_cv_func_snprintf_noniso])
     if test no != "$ac_cv_func_snprintf_noniso" ; then
       AC_DEFINE_UNQUOTED(SNPRINTF, [$ac_cv_func_snprintf_noniso],
-	[Define to the name of a function implementing snprintf but not caring about ISO C90 return value semantics (if one exists)])
+	[Define to the name of a function implementing snprintf but not caring about ISO C99 return value semantics (if one exists)])
     fi
     ;;
   unknown)
@@ -589,9 +594,9 @@ case $ac_cv_func_snprintf in
     ;;
   *)
     AC_DEFINE_UNQUOTED(SNPRINTF_ISO, [$ac_cv_func_snprintf],
-       [Define to the name of a function implementing snprintf with ISO C90 semantics (if one exists)])
+       [Define to the name of a function implementing snprintf with ISO C99 semantics (if one exists)])
     AC_DEFINE_UNQUOTED(SNPRINTF, [$ac_cv_func_snprintf],
-       [Define to the name of a function implementing snprintf but not caring about ISO C90 return value semantics (if one exists)])
+       [Define to the name of a function implementing snprintf but not caring about ISO C99 return value semantics (if one exists)])
     ;;
 esac
 
@@ -1057,6 +1062,9 @@ fi
 AC_SUBST(STLPORT_CXXFLAGS)
 
 AC_SUBST(AM_CXXFLAGS)
+
+dnl Restore CXXFLAGS to those the user specified or autoconf defaulted to.
+CXXFLAGS=$save_CXXFLAGS
 
 dnl See if large file support is available
 AC_SYS_LARGEFILE
