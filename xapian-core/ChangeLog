@@ -1,3 +1,10 @@
+Wed Mar 25 16:42:58 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/harness/testutils.cc: Use TEST_EQUAL_DOUBLE_ for comparison
+	  of weights in mset, to fix test failures due to floating point
+	  differences.  (Currently only manifests in some tests in the
+	  matchspy branch, but it's a generally useful fix.)
+
 Wed Mar 25 11:44:36 GMT 2009  Olly Betts <olly@survex.com>
 
 	* configure.ac: Only put ANSI_CXXFLAGS in CXXFLAGS for the duration of
