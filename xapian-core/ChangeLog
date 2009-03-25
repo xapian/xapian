@@ -1,3 +1,11 @@
+Wed Mar 25 05:50:54 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* api/omqueryinternal.cc: Fix return type of
+	  Xapian::Query::Internal::simplify_query() in a debug build.  Since
+	  RETURN() isn't used by this function, this is only a cosmetic issue
+	  in the log file.
+
 Wed Mar 25 05:47:04 GMT 2009  Olly Betts <olly@survex.com>
 
 	* docs/glossary.rst: Add definition of chert.  Note quartz will be
