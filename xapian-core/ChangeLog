@@ -1,3 +1,12 @@
+Wed Mar 25 05:58:54 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* api/omqueryinternal.cc: Fix assertions in previous check-in to
+	  verify the right condition.  And return the simplified query in
+	  the case the assertion would have failed, as that means a small
+	  memory leak rather than unpredictable behaviour in a non-assertion
+	  build.
+
 Wed Mar 25 05:54:26 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
