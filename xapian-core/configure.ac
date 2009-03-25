@@ -311,7 +311,7 @@ else
       dnl 4273 "floating-point equality and inequality comparisons may be
       dnl	inappropriate due to roundoff common in floating-point computation"
       dnl	No obvious workaround for when you really do want == or !=.
-      dnl 4285 "operator= does not have a check for the sourc and destination
+      dnl 4285 "operator= does not have a check for the source and destination
       dnl	addresses being non-identical" - fires for AutoPtr which
       dnl	includes such a check indirectly (internaltest's autoptr1 check this).
       dnl 20201 "Memory leak is detected" which triggers for "return new Foo;"!
