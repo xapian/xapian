@@ -123,12 +123,12 @@ Xapian::PostingIterator::positionlist_begin() const
 string
 Xapian::PostingIterator::get_description() const
 {
-    string desc = "Xapian::PostingIterator([pos=";
+    string desc = "Xapian::PostingIterator(pos=";
     if (internal.get() == 0) {
 	desc += "END";
     } else {
 	desc += internal->get_description();
     }
-    desc += "])";
+    desc += ")";
     return desc;
 }

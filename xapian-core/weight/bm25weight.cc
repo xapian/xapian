@@ -127,7 +127,7 @@ BM25Weight::init(double factor)
     LOGVALUE(WTCALC, len_factor);
 }
 
-const char *
+std::string
 BM25Weight::name() const
 {
     return "Xapian::BM25Weight";
@@ -204,12 +204,6 @@ BM25Weight::get_maxextra() const
 {
     Xapian::weight num = (2.0 * param_k2 * get_query_length());
     return num / (1.0 + max(double(get_doclength_lower_bound()), param_min_normlen));
-}
-
-bool
-BM25Weight::get_sumpart_needs_doclength() const
-{
-    return len_factor != 0;
 }
 
 }

@@ -54,7 +54,7 @@ LeafPostList::set_termweight(const Xapian::Weight * weight_)
     // This method shouldn't be called more than once on the same object.
     Assert(!weight);
     weight = weight_;
-    need_doclength = weight->get_sumpart_needs_doclength();
+    need_doclength = weight->get_sumpart_needs_doclength_();
 }
 
 Xapian::weight

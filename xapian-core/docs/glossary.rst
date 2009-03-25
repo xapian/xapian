@@ -33,8 +33,8 @@ Retrieval, while others have a specific meaning in the context of Xapian.
  Chert is the current "under development" database format used in Xapian.  We
  try to keep it as stable as flint - the main difference is that incompatible
  changes may be made which will require you to reindex - flint databases are
- compatible between Xapian releases.  At some point (probably 1.2.0) we'll
- declare chert "stable" and make it the default, deprecating flint.
+ compatible between Xapian releases.  In release 1.2.0, chert will be declared
+ stable and made the default backend, and flint will then be deprecated.
 
 **Database**
  In Xapian (as opposed to a relational database system) a database consists of

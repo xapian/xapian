@@ -116,7 +116,7 @@ TradWeight::init(double factor)
     LOGVALUE(WTCALC, len_factor);
 }
 
-const char *
+std::string
 TradWeight::name() const
 {
     return "Xapian::TradWeight";
@@ -165,12 +165,6 @@ Xapian::weight
 TradWeight::get_maxextra() const
 {
     return 0;
-}
-
-bool
-TradWeight::get_sumpart_needs_doclength() const
-{
-    return len_factor != 0;
 }
 
 }

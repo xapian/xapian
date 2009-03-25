@@ -38,7 +38,7 @@ BoolWeight::init(double)
     // Nothing to do here.
 }
 
-const char *
+std::string
 BoolWeight::name() const
 {
     return "Xapian::BoolWeight";
@@ -79,12 +79,6 @@ Xapian::weight
 BoolWeight::get_maxextra() const
 {
     return 0;
-}
-
-bool
-BoolWeight::get_sumpart_needs_doclength() const
-{
-    return false;
 }
 
 }

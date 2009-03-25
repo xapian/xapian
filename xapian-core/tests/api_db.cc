@@ -1310,13 +1310,19 @@ DEFINE_TESTCASE(postlist2, backend) {
     p = db.postlist_begin("this");
     Xapian::PostingIterator pend = db.postlist_end("this");
 
+    TEST(p.get_description() != "Xapian::PostingIterator(pos=END)");
+
     // test operator= creates a copy which compares equal
     Xapian::PostingIterator p_copy = p;
     TEST_EQUAL(p, p_copy);
 
+    TEST(p_copy.get_description() != "Xapian::PostingIterator(pos=END)");
+
     // test copy constructor creates a copy which compares equal
     Xapian::PostingIterator p_clone(p);
     TEST_EQUAL(p, p_clone);
+
+    TEST(p_clone.get_description() != "Xapian::PostingIterator(pos=END)");
 
     vector<Xapian::docid> v(p, pend);
 
@@ -1329,6 +1335,12 @@ DEFINE_TESTCASE(postlist2, backend) {
 	p++;
     }
     TEST_EQUAL(p, pend);
+
+    TEST_STRINGS_EQUAL(p.get_description(),
+		       "Xapian::PostingIterator(pos=END)");
+    TEST_STRINGS_EQUAL(pend.get_description(),
+		       "Xapian::PostingIterator(pos=END)");
+
     return true;
 }
 
@@ -1386,7 +1398,8 @@ DEFINE_TESTCASE(postlist6, backend) {
     TEST(i != db.postlist_end("this"));
     while (i != db.postlist_end("this")) {
 	TEST_EQUAL(i.get_doclength(), db.get_doclength(*i));
-	i++;
+	TEST_REL(i.get_wdf(),<=,i.get_doclength());
+	++i;
     }
     return true;
 }
@@ -1913,7 +1926,7 @@ class MyWeight : public Xapian::Weight {
     }
     MyWeight() { }
     ~MyWeight() { }
-    const char * name() const { return "MyWeight"; }
+    std::string name() const { return "MyWeight"; }
     string serialise() const { return string(); }
     MyWeight * unserialise(const string &) const { return new MyWeight; }
     Xapian::weight get_sumpart(Xapian::termcount, Xapian::termcount) const {
@@ -1923,8 +1936,6 @@ class MyWeight : public Xapian::Weight {
 
     Xapian::weight get_sumextra(Xapian::termcount) const { return 0; }
     Xapian::weight get_maxextra() const { return 0; }
-
-    bool get_sumpart_needs_doclength() const { return false; }
 };
 
 // tests user weighting scheme.
@@ -2020,7 +2031,7 @@ class MyOddPostingSource : public Xapian::PostingSource {
 
     PostingSource * clone() const { return new MyOddPostingSource(num_docs, last_docid); }
 
-    void reset(const Xapian::Database &) { did = 0; }
+    void init(const Xapian::Database &) { did = 0; }
 
     // These bounds could be better, but that's not important here.
     Xapian::doccount get_termfreq_min() const { return 0; }
@@ -2123,7 +2134,7 @@ class MyOddWeightingPostingSource : public Xapian::PostingSource {
 
     PostingSource * clone() const { return new MyOddWeightingPostingSource(num_docs, last_docid); }
 
-    void reset(const Xapian::Database &) { did = 0; }
+    void init(const Xapian::Database &) { did = 0; }
 
     Xapian::weight get_weight() const {
 	return (did % 2) ? 1000 : 0.001;
@@ -2226,7 +2237,7 @@ class MyDontAskWeightPostingSource : public Xapian::PostingSource {
 
     PostingSource * clone() const { return new MyDontAskWeightPostingSource(num_docs, last_docid); }
 
-    void reset(const Xapian::Database &db) {
+    void init(const Xapian::Database &db) {
 	num_docs = db.get_doccount();
 	last_docid = db.get_lastdocid();
 	did = 0;
@@ -2338,7 +2349,7 @@ DEFINE_TESTCASE(valueweightsource1, backend) {
 DEFINE_TESTCASE(valueweightsource2, backend && valuestats) {
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::ValueWeightPostingSource src(11);
-    src.reset(db);
+    src.init(db);
     TEST_EQUAL(src.get_termfreq_min(), 17);
     TEST_EQUAL(src.get_termfreq_est(), 17);
     TEST_EQUAL(src.get_termfreq_max(), 17);
@@ -2352,7 +2363,7 @@ DEFINE_TESTCASE(valueweightsource3, backend && valuestats && !multi) {
     // FIXME: multi doesn't support iterating valuestreams yet.
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::ValueWeightPostingSource src(11);
-    src.reset(db);
+    src.init(db);
     TEST(!src.at_end());
     src.skip_to(8, 0.0);
     TEST(!src.at_end());
@@ -2387,7 +2398,7 @@ DEFINE_TESTCASE(fixedweightsource1, backend) {
     {
 	// Check next and skip_to().
 	Xapian::FixedWeightPostingSource src(wt);
-	src.reset(db);
+	src.init(db);
 
 	src.next(1.0);
 	TEST(!src.at_end());
@@ -2404,7 +2415,7 @@ DEFINE_TESTCASE(fixedweightsource1, backend) {
     {
 	// Check check() as the first operation, followed by next.
 	Xapian::FixedWeightPostingSource src(wt);
-	src.reset(db);
+	src.init(db);
 
 	TEST_EQUAL(src.check(5, 1.0), true);
 	TEST(!src.at_end());
@@ -2416,7 +2427,7 @@ DEFINE_TESTCASE(fixedweightsource1, backend) {
     {
 	// Check check() as the first operation, followed by skip_to().
 	Xapian::FixedWeightPostingSource src(wt);
-	src.reset(db);
+	src.init(db);
 
 	TEST_EQUAL(src.check(5, 1.0), true);
 	TEST(!src.at_end());

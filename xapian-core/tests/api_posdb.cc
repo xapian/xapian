@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -494,14 +494,6 @@ DEFINE_TESTCASE(poslist1, positional) {
     pli++;
     TEST(pli == mydb.positionlist_end(2, term));
 
-    TEST_EXCEPTION(Xapian::DocNotFoundError, mydb.positionlist_begin(55, term));
-
-    /* FIXME: what exception should be thrown here?  Quartz throws
-     * Xapian::DocNotFoundError, and InMemory throws Xapian::RangeError.
-     */
-    TEST_EXCEPTION(Xapian::RuntimeError, mydb.positionlist_begin(2, "adskfjadsfa"));
-    TEST_EXCEPTION(Xapian::DocNotFoundError, mydb.positionlist_begin(55, "adskfjadsfa"));
-
     return true;
 }
 
@@ -512,20 +504,18 @@ DEFINE_TESTCASE(poslist2, positional && writable) {
     doc.add_term("nopos");
     Xapian::docid did = db.add_document(doc);
 
-    TEST_EXCEPTION(Xapian::RangeError,
-	// Check what happens when term doesn't exist
-	Xapian::PositionIterator i = db.positionlist_begin(did, "nosuchterm");
-    );
+    // Check what happens when term doesn't exist - should give an empty list.
+    // Threw RangeError in Xapian < 1.1.0, 
+    TEST_EQUAL(db.positionlist_begin(did, "nosuchterm"),
+	       db.positionlist_end(did, "nosuchterm"));
 
-    TEST_EXCEPTION(Xapian::DocNotFoundError,
-	// Check what happens when the document doesn't even exist
-	Xapian::PositionIterator i = db.positionlist_begin(123, "nosuchterm");
-    );
+    // Check what happens when the document doesn't even exist - should give
+    // an empty list.  Threw DocNotFoundError in Xapian < 1.1.0.
+    TEST_EQUAL(db.positionlist_begin(123, "nosuchterm"),
+	       db.positionlist_end(123, "nosuchterm"));
 
-    {
-	Xapian::PositionIterator i = db.positionlist_begin(did, "nopos");
-	TEST_EQUAL(i, db.positionlist_end(did, "nopos"));
-    }
+    TEST_EQUAL(db.positionlist_begin(did, "nopos"),
+	       db.positionlist_end(did, "nopos"));
 
     Xapian::Document doc2 = db.get_document(did);
 
@@ -550,11 +540,9 @@ DEFINE_TESTCASE(poslist2, positional && writable) {
     }
 
     db.delete_document(did);
-    TEST_EXCEPTION(Xapian::DocNotFoundError,
-	// Check what happens when the document doesn't even exist
-	// (but once did)
-	Xapian::PositionIterator i = db.positionlist_begin(did, "nosuchterm");
-    );
+    // Check what happens when the document doesn't exist (but once did).
+    TEST_EQUAL(db.positionlist_begin(did, "nosuchterm"),
+	       db.positionlist_end(did, "nosuchterm"));
 
     return true;
 }
@@ -573,9 +561,6 @@ DEFINE_TESTCASE(poslist3, positional && writable) {
     document.add_posting("foo", 12);
     db.add_document(document);
 
-    TEST_EXCEPTION(Xapian::RangeError, db.positionlist_begin(1, "foobar"));
-    TEST_EXCEPTION(Xapian::DocNotFoundError, db.positionlist_begin(2, "foo"));
-    TEST_EXCEPTION(Xapian::DocNotFoundError, db.positionlist_begin(2, "foobar"));
     Xapian::PositionIterator pl = db.positionlist_begin(1, "foo");
     Xapian::PositionIterator pl_end = db.positionlist_end(1, "foo");
 
