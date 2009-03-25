@@ -1,3 +1,16 @@
+Wed Mar 25 04:48:50 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,backends/chert/chert_database.h,
+	  backends/flint/flint_database.h,
+	  backends/inmemory/inmemory_database.h,
+	  backends/remote/remote-database.cc,common/const_database_wrapper.h,
+	  common/database.h: Drop the default value of the lazy parameter to
+	  Database::open_document() - it's better to force us to consider
+	  whether a new call should be lazy or not.
+	* common/database.h: Better description of lazy parameter.
+	* backends/remote/remote-database.cc: Update comment about when lazy
+	  is set to true.
+
 Wed Mar 25 04:20:34 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/inmemory/inmemory_database.cc: Don't "return false" when

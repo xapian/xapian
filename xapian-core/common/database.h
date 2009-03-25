@@ -286,17 +286,16 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *
 	 *  @param did    The document id which is being requested.
 	 *
-	 *  @param lazy   Don't check the document exists immediately -
-	 *                use from within the matcher where we know the
-	 *                document exists, and don't want to read the
-	 *                record when we just want the values.
+	 *  @param lazy   No need to check that this document actually exists.
+	 *                Used when we already know that this document exists
+	 *                (only a hint - the backend may still check).
 	 *
 	 *  @return       A pointer to the newly created document object.
 	 *                This object must be deleted by the caller after
 	 *                use.
 	 */
 	virtual Xapian::Document::Internal *
-	open_document(Xapian::docid did, bool lazy = false) const = 0;
+	open_document(Xapian::docid did, bool lazy) const = 0;
 
 	/** Create a termlist tree from trigrams of @a word.
 	 *
