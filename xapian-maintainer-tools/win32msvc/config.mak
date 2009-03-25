@@ -39,27 +39,44 @@ PERL_EXE=$(PERL_DIR)\perl.exe
 # Note that you should only use a Windows Python built using Visual C++, i.e. the standard Windows
 # binary distribution
 
-# Python folder
-PYTHON_DIR=c:\Python25
+# Python folder for 2.4
+PYTHON_DIR_24=c:\Python24
 # Python executable
-PYTHON_EXE=$(PYTHON_DIR)\python.exe 
+PYTHON_EXE_24=$(PYTHON_DIR_24)\python.exe 
  #PYTHON_INCLUDE : Set this to the directory that contains python.h
-PYTHON_INCLUDE=$(PYTHON_DIR)\include
+PYTHON_INCLUDE_24=$(PYTHON_DIR_24)\include
 #A 'PC' directory is also included for people building from a source tree.
-PYTHON_INCLUDE_2=$(PYTHON_DIR)\PC
+PYTHON_INCLUDE_2_24=$(PYTHON_DIR_24)\PC
 
 # PYTHON_LIB_DIR : Set this to the directory containing python*.lib
 # It should only be necessary to change this for source builds of Python,
 # where the files are in 'PCBuild' rather than 'libs' (this magically works
 # as Python uses a #pragma to reference the library base name - which
 # includes any version numbers and debug suffixes ('_d'))
-PYTHON_LIB_DIR=$(PYTHON_DIR)\libs
+PYTHON_LIB_DIR_24=$(PYTHON_DIR_24)\libs
+
+# Python folder for 2.5
+PYTHON_DIR_25=c:\Python25
+# Python executable
+PYTHON_EXE_25=$(PYTHON_DIR_25)\python.exe 
+ #PYTHON_INCLUDE : Set this to the directory that contains python.h
+PYTHON_INCLUDE_25=$(PYTHON_DIR_25)\include
+#A 'PC' directory is also included for people building from a source tree.
+PYTHON_INCLUDE_2_25=$(PYTHON_DIR_25)\PC
+
+# PYTHON_LIB_DIR : Set this to the directory containing python*.lib
+# It should only be necessary to change this for source builds of Python,
+# where the files are in 'PCBuild' rather than 'libs' (this magically works
+# as Python uses a #pragma to reference the library base name - which
+# includes any version numbers and debug suffixes ('_d'))
+PYTHON_LIB_DIR_25=$(PYTHON_DIR_25)\libs
+
 # -------------end Python settings-------------
 
 
 # -------------PHP settings-------------
 # PHP source folder
-PHP_SRC_DIR=C:\php-5.2.1
+PHP_SRC_DIR=C:\work\php-5.2.1
 
 PHP_INCLUDE_CPPFLAGS= \
 -I "$(PHP_SRC_DIR)" -I "$(PHP_SRC_DIR)\tsrm" -I "$(PHP_SRC_DIR)\Zend" -I "$(PHP_SRC_DIR)\main" -I "$(PHP_SRC_DIR)\regex"  \
@@ -71,19 +88,19 @@ PHP_INCLUDE_CPPFLAGS= \
 PHP_MAJOR_VERSION = 5
 
 # PHP_EXE_DIR: Set this to the folder where the PHP executable is
-# PHP_LIB : Set this to the path to the PHP library 
+# PHP_LIB : Set this to the path to the PHP library
 !if "$(DEBUG)"=="1"
 PHP_EXE_DIR=C:\php-5.2.1\Debug_TS
 PHP_LIB=$(PHP_EXE_DIR)\php5ts_debug.lib
 PHP_DEBUG_OR_RELEASE= /D "ZEND_DEBUG=1"
 !else
-PHP_EXE_DIR=C:\php-5.2.1-win32
+PHP_EXE_DIR=C:\work\php-5.2.1-win32
 PHP_LIB=$(PHP_EXE_DIR)\dev\php5ts.lib
 PHP_DEBUG_OR_RELEASE= /D "ZEND_DEBUG=0"
 !endif
 
 #    PHP executable
-PHP_EXE=$(PHP_EXE_DIR)\PHP.exe 
+PHP_EXE=$(PHP_EXE_DIR)\PHP.exe
 # ------------- end PHP settings-------------
 
 # -------------Ruby settings-------------

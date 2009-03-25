@@ -133,6 +133,32 @@ TESTFORTOOLS: makedepend.exe
 # Perl is needed for header generation
    if not exist $(PERL_EXE) exit(1) 
    
+MAKEALLBINDINGS: ALL
+# Need bindings to exist
+   if not exist  $(XAPIAN_BINDINGS) exit(1)
+
+   cd $(XAPIAN_BINDINGS)\python
+   nmake PYTHON_VER=24 CLEAN
+   nmake PYTHON_VER=24 DIST
+
+   nmake PYTHON_VER=25 CLEAN
+   nmake PYTHON_VER=25 DIST
+   
+   cd $(XAPIAN_BINDINGS)\php
+   nmake CLEAN
+   nmake DIST
+   
+   cd $(XAPIAN_BINDINGS)\java-swig
+   nmake CLEAN
+   nmake DIST
+
+   cd $(XAPIAN_BINDINGS)\ruby
+   nmake CLEAN
+   nmake DIST
+   
+   cd $(XAPIAN_BINDINGS)\csharp
+   nmake CLEAN
+   nmake DIST
    
 # Header files generated automatically from various .in files
 MAKEHEADERS: ..\include\xapian\error.h ..\include\xapian\version.h

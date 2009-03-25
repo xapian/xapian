@@ -102,6 +102,16 @@ DOTEST:
     
 CHECK: ALL DOTEST
 
+DIST: CHECK 
+    cd $(MAKEDIR)
+    if not exist "$(OUTDIR)\dist\$(NULL)" mkdir "$(OUTDIR)\dist"
+    if not exist "$(OUTDIR)\dist\docs/$(NULL)" mkdir "$(OUTDIR)\dist\docs"
+    if not exist "$(OUTDIR)\dist\docs\examples/$(NULL)" mkdir "$(OUTDIR)\dist\docs\examples"           
+    copy "$(OUTDIR)\_XapianSharp.dll" "$(OUTDIR)\dist"
+    copy "$(OUTDIR)\XapianCSharp.dll" "$(OUTDIR)\dist"
+    if exist docs copy docs\*.htm* "$(OUTDIR)\dist\docs"
+    if exist docs\examples copy docs\examples\*.* "$(OUTDIR)\dist\docs\examples"
+
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 

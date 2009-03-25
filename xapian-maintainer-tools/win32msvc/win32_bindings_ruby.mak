@@ -7,7 +7,7 @@
 
 # Where the core is, relative to the Ruby bindings
 # Change this to match your environment
-XAPIAN_CORE_REL_RUBY=..\..\xapian-core-1.0.7
+XAPIAN_CORE_REL_RUBY=..\..\xapian-core
 
 OUTLIBDIR=$(XAPIAN_CORE_REL_RUBY)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 
@@ -38,9 +38,21 @@ DOTEST :
 	
 CHECK: ALL DOTEST	
 
+DIST: CHECK 
+    cd $(MAKEDIR)
+    if not exist "$(OUTDIR)\dist\$(NULL)" mkdir "$(OUTDIR)\dist"   
+    if not exist "$(OUTDIR)\dist\docs\$(NULL)" mkdir "$(OUTDIR)\dist\docs"   
+    if not exist "$(OUTDIR)\dist\docs\rdocs\$(NULL)" mkdir "$(OUTDIR)\dist\docs\rdocs"   
+    if not exist "$(OUTDIR)\dist\docs\examples/$(NULL)" mkdir "$(OUTDIR)\dist\docs\examples"           
+    copy "$(OUTDIR)\xapian.rb" "$(OUTDIR)\dist"
+    copy "$(OUTDIR)\_xapian.so" "$(OUTDIR)\dist"
+    if exist docs copy docs\*.htm* "$(OUTDIR)\dist\docs"
+    if exist docs\rdocs xcopy docs\rdocs\*.* "$(OUTDIR)\dist\docs\rdocs" /s
+    if exist docs\examples xcopy docs\examples\*.* "$(OUTDIR)\dist\docs\examples" /s
+
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"   
-
+    
 CPP_PROJ=$(CPPFLAGS_EXTRA)  /GR \
  /I "$(XAPIAN_CORE_REL_RUBY)" /I "$(XAPIAN_CORE_REL_RUBY)\include" \
  /I "$(RUBY_INCLUDE)" /I"." \

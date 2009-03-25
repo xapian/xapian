@@ -1,3 +1,21 @@
+Wed Mar 25 12:51:56 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* config.h.omega.win32: Update version numbers, undefine rare().
+	* win32_applications_omega.mak: add new file for omindex.
+	* win32_bindings_php.mak,win32_bindings_csharp.mak,
+	  win32_bindings_java-swig.mak,win32_bindings_ruby.mak: add example
+	  and doc files where they exist and DIST build target.
+	* config.mak,win32_bindings_python.mak: add ability to build two 
+	  different Python versions, and add example files, and change
+	  BUILDDIST to DIST for consistency with other bindings.
+	* setup.py: add example & documentation files for Python.
+	* win32_examples.mak,win32_bin.mak: add Manifests into .exe or
+	  .dll and remove separate manifest files.
+	* Makefile: add MAKEALLBINDINGS target for building all bindings.
+	* README: update for the above changes.
+	* makebinaries.py: Add script which Charlie uses to build the
+	  windows binary packages.
+
 Wed Mar 18 13:52:33 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* config.h.win32: Update version numbers, and backport definitions

@@ -17,7 +17,6 @@ OUTLIBDIR=$(XAPIAN_CORE_REL_PYTHON)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 
 LIB_XAPIAN_OBJS= ".\xapian_wrap.obj" ".\version.res" 
 
-OUTDIR=$(XAPIAN_CORE_REL_PYTHON)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\Python
 INTDIR=.\
 
 # Debug builds of Python *insist* on a '_d' suffix for extension modules.
@@ -27,16 +26,41 @@ PY_DEBUG_SUFFIX=_d
 PY_DEBUG_SUFFIX=
 !endif
 
+!if "$(PYTHON_VER)" == "24"
+PYTHON_EXE = $(PYTHON_EXE_24)
+PYTHON_INCLUDE = $(PYTHON_INCLUDE_24)
+PYTHON_INCLUDE_2 = $(PYTHON_INCLUDE_2_24)
+PYTHON_LIB_DIR = $(PYTHON_LIB_DIR_24)
+OUTDIR=$(XAPIAN_CORE_REL_PYTHON)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\Python24
+!else if "$(PYTHON_VER)" == "25"
+PYTHON_EXE = $(PYTHON_EXE_25)
+PYTHON_INCLUDE = $(PYTHON_INCLUDE_25)
+PYTHON_INCLUDE_2 = $(PYTHON_INCLUDE_2_25)
+PYTHON_LIB_DIR= $(PYTHON_LIB_DIR_25)
+OUTDIR=$(XAPIAN_CORE_REL_PYTHON)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\Python25
+!else
+# Must specify a version
+exit(1)
+!endif
+
 PYTHON_PACKAGE=xapian
 
 ALL : "$(OUTDIR)\_xapian$(PY_DEBUG_SUFFIX).pyd" "$(OUTDIR)\xapian.py" "$(OUTDIR)\smoketest.py" "$(OUTDIR)\pythontest.py" "$(OUTDIR)\testsuite.py"
 
-CLEAN :
+CLEANLOCAL:
+    -@erase *.pdb
+    -@erase *.res
+    -@erase *.obj
+    -@erase pythonversion.h
+
+CLEAN : CLEANLOCAL
 	-@erase $(LIB_XAPIAN_OBJS)
 	-@erase /Q /s "$(OUTDIR)\$(PYTHON_PACKAGE)"
+	-@erase /Q /s "$(OUTDIR)\build"
+	-@erase /Q /s "$(OUTDIR)\dist"
 	-@erase /Q /s "$(OUTDIR)"
-	-@erase *.pdb
-	
+	-@erase "$(OUTDIR)\*.pdb"
+
 CLEANSWIG : CLEAN
 	-@erase /Q /s modern
 	-@erase generate-python-exceptions
@@ -51,12 +75,17 @@ DOTEST :
 	
 CHECK: ALL DOTEST	
 
-DISTUTILS: "$(OUTDIR)\$(PYTHON_PACKAGE)" "$(OUTDIR)\_xapian$(PY_DEBUG_SUFFIX).pyd" "$(OUTDIR)\xapian.py" 
-	copy "$(ZLIB_BIN_DIR)\zlib1.dll" "$(OUTDIR)\$(PYTHON_PACKAGE)"
-    copy "$(OUTDIR)\_xapian$(PY_DEBUG_SUFFIX).pyd" "$(OUTDIR)\$(PYTHON_PACKAGE)"
-    copy "$(OUTDIR)\xapian.py" "$(OUTDIR)\$(PYTHON_PACKAGE)\__init__.py"
+DIST: "$(OUTDIR)\$(PYTHON_PACKAGE)" CHECK
+    cd $(MAKEDIR)
     copy setup.py "$(OUTDIR)"
+    if not exist "$(OUTDIR)\$(PYTHON_PACKAGE)\docs" mkdir "$(OUTDIR)\$(PYTHON_PACKAGE)\docs"
+    if not exist "$(OUTDIR)\$(PYTHON_PACKAGE)\docs\examples" mkdir "$(OUTDIR)\$(PYTHON_PACKAGE)\docs\examples"
+    copy docs\*.html $(OUTDIR)\$(PYTHON_PACKAGE)\docs
+    copy docs\examples\*.py $(OUTDIR)\$(PYTHON_PACKAGE)\docs\examples
     cd "$(OUTDIR)"
+    copy zlib1.dll $(PYTHON_PACKAGE)
+    copy "_xapian$(PY_DEBUG_SUFFIX).pyd" $(PYTHON_PACKAGE)
+    copy xapian.py "$(PYTHON_PACKAGE)\__init__.py"
     "$(PYTHON_EXE)" setup.py bdist_wininst
     
 
