@@ -1,3 +1,9 @@
+Wed Mar 25 06:06:21 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/api_query.cc: Add coverage for OP_AND with MatchNothing
+	  subquery (new testcase matchnothing1).
+
 Wed Mar 25 05:58:54 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
