@@ -1,3 +1,9 @@
+Wed Mar 25 07:15:41 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/api_unicode.cc: Add test coverage for
+	  Xapian::Unicode::append_utf8().
+
 Wed Mar 25 06:38:20 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
