@@ -1,3 +1,9 @@
+Wed Mar 25 06:38:20 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/harness/testsuite.h: Fix documentation comment in line with
+	  the corrected --help output from "Sat Feb 21 08:18:21 GMT 2009".
+
 Wed Mar 25 06:37:40 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

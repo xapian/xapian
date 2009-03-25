@@ -126,7 +126,7 @@ class test_driver {
 	 *
 	 *  The recognised option will be described as:
 	 *
-	 *   -<s>=<l>
+	 *   -<s> <l>
 	 *
 	 *  And any value set will be put into arg.
 	 */
