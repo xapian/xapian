@@ -1,5 +1,5 @@
 .. Copyright (C) 2007 Jenny Black
-.. Copyright (C) 2007 Olly Betts
+.. Copyright (C) 2007,2008 Olly Betts
 .. Copyright (C) 2007 Deron Meranda
 
 ========
@@ -28,6 +28,13 @@ Retrieval, while others have a specific meaning in the context of Xapian.
  relevance.  In Xapian, a pure Boolean query may be used, or alternatively a
  Boolean style query can filter the retrieved documents, which are then ordered
  using a probabilistic ranking.
+
+**Chert**
+ Chert is the current "under development" database format used in Xapian 1.1.x.  We
+ try to keep it as stable as flint - the main difference is that incompatible
+ changes may be made which will require you to reindex - flint databases are
+ compatible between Xapian releases.  In release 1.2.0, chert will be declared
+ stable and made the default backend, and flint will then be deprecated.
 
 **Database**
  In Xapian (as opposed to a relational database system) a database consists of
@@ -125,7 +132,7 @@ Retrieval, while others have a specific meaning in the context of Xapian.
 
 **Quartz**
  Quartz was the database format used by Xapian prior to version 1.0.  It is
- now deprecated, and support will be dropped in some future Xapian release.
+ now deprecated, and support will be dropped in Xapian 1.1.0.
  New installations should use Flint, and existing installations should consider
  migrating to Flint.
 

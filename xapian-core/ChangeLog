@@ -1,3 +1,8 @@
+Wed Mar 25 05:47:04 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/glossary.rst: Add definition of chert.  Note quartz will be
+	  removed in 1.1.0.
+
 Wed Mar 25 05:42:34 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
