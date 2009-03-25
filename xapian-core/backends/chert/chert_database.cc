@@ -505,6 +505,7 @@ ChertDatabase::close()
     synonym_table.close(true);
     spelling_table.close(true);
     record_table.close(true);
+    lock.release();
 }
 
 void
@@ -737,6 +738,7 @@ ChertDatabase::modifications_failed(chert_revision_number_t old_revision,
 	synonym_table.close(true);
 	spelling_table.close(true);
 	record_table.close(true);
+	lock.release();
 	throw Xapian::DatabaseError("Modifications failed (" + msg +
 				    "), and cannot set consistent table "
 				    "revision numbers: " + e.get_msg());

@@ -1,3 +1,10 @@
+Wed Mar 25 17:39:01 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/chert/chert_database.cc,backends/flint/flint_database.cc:
+	  Release the lock when the database is closed (either due to a
+	  call to close() or due to a serious error during modifications).
+	  Should fix ticket #354.
+
 Wed Mar 25 16:42:58 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/harness/testutils.cc: Use TEST_EQUAL_DOUBLE_ for comparison
