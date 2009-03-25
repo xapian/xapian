@@ -13,6 +13,12 @@ AC_CONFIG_MACRO_DIR([m4])
 LT_PREREQ([2.2.6])
 LT_INIT
 
+dnl Checks for programs.
+AC_PROG_CXX
+
+dnl Run tests using the C++ compiler.
+AC_LANG_CPLUSPLUS
+
 dnl Check for xapian-core.
 XO_LIB_XAPIAN
 dnl We want XAPIAN_CXXFLAGS to be used for configure tests.
@@ -30,12 +36,6 @@ AC_ARG_ENABLE(documentation,
 test -z "$enable_documentation" && enable_documentation=$USE_MAINTAINER_MODE
 AM_CONDITIONAL(DOCUMENTATION_RULES, test x"$enable_documentation" = xyes)
 AM_CONDITIONAL(MAINTAINER_NO_DOCS, test x"$USE_MAINTAINER_MODE$enable_documentation" = xyesno)
-
-dnl Checks for programs.
-AC_PROG_CXX
-
-dnl Run tests using the C++ compiler.
-AC_LANG_CPLUSPLUS
 
 dnl IRIX helpfully won't allow stdint.h to be included from C++ code,
 dnl so we can't just use AC_CHECK_HEADERS.
