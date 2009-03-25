@@ -1,3 +1,8 @@
+Wed Mar 25 10:56:29 GMT 2009  Olly Betts <olly@survex.com>
+
+	* query.cc: Cope with write() not writing all the data or being
+	  interrupted by a signal when writing log entries.
+
 Wed Mar 25 10:48:14 GMT 2009  Olly Betts <olly@survex.com>
 
 	* configure.ac: Move AC_PROG_CXX and AC_LANG_CPLUSPLUS earlier so that
