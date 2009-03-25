@@ -1713,16 +1713,16 @@ DEFINE_TESTCASE(matchspy1, writable && !remote)
     };
     for (Xapian::valueno v = 0; results[v]; ++v) {
 	const map<string, Xapian::doccount> & cat = spy.get_values(v);
-	string str("|");
+	string resultrepr("|");
 	map<string, Xapian::doccount>::const_iterator i;
 	for (i = cat.begin(); i != cat.end(); ++i) {
-	    str += i->first;
-	    str += ':';
-	    str += om_tostring(i->second);
-	    str += '|';
+	    resultrepr += i->first;
+	    resultrepr += ':';
+	    resultrepr += om_tostring(i->second);
+	    resultrepr += '|';
 	}
 	tout << "value " << v << endl;
-	TEST_STRINGS_EQUAL(str, results[v]);
+	TEST_STRINGS_EQUAL(resultrepr, results[v]);
     }
 
     {
@@ -1819,7 +1819,7 @@ DEFINE_TESTCASE(matchspy2, writable && !remote)
 	TEST(result);
 	const map<string, Xapian::doccount> & cat = spy.get_values(v);
 	TEST(cat.size() <= 7);
-	string str("|");
+	string resultrepr("|");
 	map<string, Xapian::doccount>::const_iterator i;
 	for (i = cat.begin(); i != cat.end(); ++i) {
 	    if (i->first.size() > 9) {
@@ -1827,20 +1827,20 @@ DEFINE_TESTCASE(matchspy2, writable && !remote)
 		double end = Xapian::sortable_unserialise((i->first).substr(9));
 		start = floor(start * 100);
 		end = floor(end * 100);
-		str += om_tostring(start);
-		str += "..";
-		str += om_tostring(end);
+		resultrepr += om_tostring(start);
+		resultrepr += "..";
+		resultrepr += om_tostring(end);
 	    } else {
 		double start = Xapian::sortable_unserialise((i->first).substr(0, 9));
 		start = floor(start * 100);
-		str += om_tostring(start);
+		resultrepr += om_tostring(start);
 	    }
-	    str += ':';
-	    str += om_tostring(i->second);
-	    str += '|';
+	    resultrepr += ':';
+	    resultrepr += om_tostring(i->second);
+	    resultrepr += '|';
 	}
 	tout << "value " << v << endl;
-	TEST_STRINGS_EQUAL(str, results[v]);
+	TEST_STRINGS_EQUAL(resultrepr, results[v]);
     }
 
     return true;

@@ -1,3 +1,8 @@
+Wed Mar 25 15:46:24 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_wrdb.cc: Rename variables named "str" to "resultrepr",
+	  to avoid conflict with new str() function.
+
 Fri Aug 29 16:19:13 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/matchspy.cc: Don't count terms as having the right prefix if
