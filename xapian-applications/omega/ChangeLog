@@ -1,3 +1,11 @@
+Wed Mar 25 12:03:37 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac: Only put XAPIAN_CXXFLAGS in CXXFLAGS for
+	  the duration of configure (we need it as it may include options to
+	  put the compiler into ISO C++ mode).  Set AM_CXXFLAGS to
+	  XAPIAN_CXXFLAGS in Makefile.am.  This means that the user can safely
+	  override CXXFLAGS at make-time: "make CXXFLAGS=-Os"
+
 Wed Mar 25 10:56:29 GMT 2009  Olly Betts <olly@survex.com>
 
 	* query.cc: Cope with write() not writing all the data or being

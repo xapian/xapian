@@ -21,7 +21,9 @@ AC_LANG_CPLUSPLUS
 
 dnl Check for xapian-core.
 XO_LIB_XAPIAN
+
 dnl We want XAPIAN_CXXFLAGS to be used for configure tests.
+save_CXXFLAGS=$CXXFLAGS
 CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"
 
 dnl disable "maintainer only" rules by default
@@ -470,6 +472,9 @@ if test yes = "$enable_quiet"; then
   QUIET=--quiet
 fi
 AC_SUBST(QUIET)
+
+dnl Restore CXXFLAGS to those the user specified or autoconf defaulted to.
+CXXFLAGS=$save_CXXFLAGS
 
 dnl **************************
 dnl * Build the output files *
