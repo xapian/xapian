@@ -67,7 +67,7 @@ class ConstDatabaseWrapper : public Xapian::Database::Internal {
     PositionList * open_position_list(Xapian::docid did,
 				      const string & tname) const;
     Xapian::Document::Internal *
-	open_document(Xapian::docid did, bool lazy = false) const;
+	open_document(Xapian::docid did, bool lazy) const;
     TermList * open_spelling_termlist(const string & word) const;
     TermList * open_spelling_wordlist() const;
     Xapian::doccount get_spelling_frequency(const string & word) const;

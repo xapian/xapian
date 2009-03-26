@@ -276,12 +276,13 @@ RemoteDatabase::close()
     do_close();
 }
 
-// Currently lazy is only used in three cases, all in multimatch.cc.  One is
-// when using a MatchDecider, which we don't support with the remote backend
-// currently.  The others are for the sort key and collapse key which in the
-// remote cases is fetched during the remote match and passed across with the
-// MSet.  So we can safely ignore it here for now without any performance
-// penalty.
+// Currently lazy is used when fetching documents from the MSet, and in three
+// cases in multimatch.cc.  One of the latter is when using a MatchDecider,
+// which we don't support with the remote backend currently.  The others are
+// for the sort key and collapse key which in the remote cases are fetched
+// during the remote match and passed across with the MSet.  So we can safely
+// ignore "lazy" here for now without any performance penalty during the match
+// process.
 Xapian::Document::Internal *
 RemoteDatabase::open_document(Xapian::docid did, bool /*lazy*/) const
 {

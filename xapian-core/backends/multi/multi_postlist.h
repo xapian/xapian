@@ -35,9 +35,6 @@ class MultiPostList : public LeafPostList {
 	bool   finished;
 	Xapian::docid  currdoc;
 
-	mutable bool freq_initialised;
-	mutable Xapian::doccount termfreq;
-
 	Xapian::doccount multiplier;
 
 	MultiPostList(std::vector<LeafPostList *> & pls,
@@ -50,7 +47,6 @@ class MultiPostList : public LeafPostList {
 	Xapian::docid  get_docid() const;     // Gets current docid
 	Xapian::termcount get_doclength() const; // Get length of current document
         Xapian::termcount get_wdf() const;	    // Within Document Frequency
-	PositionList *read_position_list();
 	PositionList * open_position_list() const;
 	PostList *next(Xapian::weight w_min);          // Moves to next docid
 	PostList *skip_to(Xapian::docid did, Xapian::weight w_min);// Moves to next docid >= specified docid

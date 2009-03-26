@@ -296,6 +296,8 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	/** The default flags.
 	 *
 	 *  Used if you don't explicitly pass any to @a parse_query().
+	 *
+	 *  Added in Xapian 1.0.11.
 	 */
 	FLAG_DEFAULT = FLAG_PHRASE|FLAG_BOOLEAN|FLAG_LOVEHATE
     } feature_flag;

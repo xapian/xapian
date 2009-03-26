@@ -295,12 +295,12 @@ parse_index_script(const string &filename)
 			if (val == "nopos") {
 			    // INDEX used to take an optional argument which
 			    // could be "nopos" to mean the same that
-			    // INDEXNOPOS now does.  FIXME: remove this
-			    // error eventually (1.2.0?)
+			    // INDEXNOPOS now does.  FIXME:1.3.0 remove this
+			    // error eventually
 			    cerr << filename << ':' << line_no
-				 << ": Support for '" << action
-				 << '=' << val << "' has been removed - "
-				    "use 'indexnopos' instead" << endl;
+				 << ": Support for 'index=nopos' has been "
+				    "removed - use 'indexnopos' instead"
+				 << endl;
 			    exit(1);
 			}
 			/* FALLTHRU */

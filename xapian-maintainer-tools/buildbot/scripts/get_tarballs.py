@@ -13,7 +13,7 @@ archive_names = ('xapian-core', 'xapian-bindings', 'xapian-omega',
                  'win32msvc',)
 builddir = 'build'
 
-tarlink_re = re.compile('<A HREF="([a-zA-Z0-9_\.-]+).tar.gz">')
+tarlink_re = re.compile('<a href="([a-zA-Z0-9_\.-]+).tar.gz">')
 archivedir_re = re.compile('([a-zA-Z0-9_\.-]+)$')
 basename_re = re.compile('([a-zA-Z-]+)-[0-9_\.-]+svn[0-9]+$')
 basename2_re = re.compile('(win32msvc)_svn[0-9]+$')
@@ -100,7 +100,7 @@ os.rename(os.path.join(builddir, 'win32msvc'),
           os.path.join(builddir, 'xapian-core', 'win32'))
 
 # Get the scripts for building on our windows server, too:
-fd = urllib2.urlopen('http://svn.xapian.org/trunk/xapian-maintainer-tools/buildbot/scripts/compile_with_vc7.bat?revision=HEAD')
+fd = urllib2.urlopen('http://svn.xapian.org/*checkout*/trunk/xapian-maintainer-tools/buildbot/scripts/compile_with_vc7.bat')
 data = fd.read()
 fd.close()
 fd = open(os.path.join(builddir, 'xapian-core', 'win32', 'compile_with_vc7.bat'), 'wb')

@@ -81,10 +81,4 @@ BoolWeight::get_maxextra() const
     return 0;
 }
 
-bool
-BoolWeight::get_sumpart_needs_doclength() const
-{
-    return false;
-}
-
 }

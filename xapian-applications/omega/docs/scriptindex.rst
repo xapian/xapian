@@ -45,11 +45,7 @@ hash[=LENGTH]
 
 index[=PREFIX]
 	split text into words and index probabilistically (with prefix PREFIX
-	if specified).  For backwards compatibility, the prefix "nopos" is
-	treated specially - this indexes the text with no prefix, and
-	probabilistically, as if you'd written indexnopos.  Use of index=nopos
-	is deprecated, and is scheduled for removal in version 1.1.0 - please
-	upgrade your scripts to use indexnopos instead.
+	if specified).
 
 indexnopos[=PREFIX]
 	split text into words and index probabilistically (with prefix PREFIX
