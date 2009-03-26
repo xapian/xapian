@@ -147,7 +147,7 @@ InMemoryPostList::at_end() const
 string
 InMemoryPostList::get_description() const
 {
-    return "InMemoryPostList" + om_tostring(termfreq);
+    return "InMemoryPostList " + om_tostring(termfreq);
 }
 
 Xapian::termcount
@@ -361,7 +361,7 @@ InMemoryAllDocsPostList::at_end() const
 string
 InMemoryAllDocsPostList::get_description() const
 {
-    return "InMemoryAllDocsPostList" + om_tostring(did);
+    return "InMemoryAllDocsPostList " + om_tostring(did);
 }
 
 ///////////////////////////
@@ -531,7 +531,7 @@ InMemoryDatabase::open_document(Xapian::docid did, bool lazy) const
     if (closed) InMemoryDatabase::throw_database_closed();
     Assert(did != 0);
     if (!doc_exists(did)) {
-	if (lazy) return false;
+	if (lazy) return NULL;
 	// FIXME: the docid in this message will be local, not global
 	throw Xapian::DocNotFoundError(string("Docid ") + om_tostring(did) +
 				 string(" not found"));
@@ -586,19 +586,17 @@ InMemoryDatabase::open_position_list(Xapian::docid did,
 				     const string & tname) const
 {
     if (closed) InMemoryDatabase::throw_database_closed();
-    if (!doc_exists(did)) {
-	throw Xapian::DocNotFoundError("Document id " + om_tostring(did) +
-				 " doesn't exist in inmemory database");
-    }
-    const InMemoryDoc &doc = termlists[did-1];
+    if (usual(doc_exists(did))) {
+	const InMemoryDoc &doc = termlists[did-1];
 
-    vector<InMemoryTermEntry>::const_iterator i;
-    for (i = doc.terms.begin(); i != doc.terms.end(); ++i) {
-	if (i->tname == tname) {
-	    return new InMemoryPositionList(i->positions);
+	vector<InMemoryTermEntry>::const_iterator i;
+	for (i = doc.terms.begin(); i != doc.terms.end(); ++i) {
+	    if (i->tname == tname) {
+		return new InMemoryPositionList(i->positions);
+	    }
 	}
     }
-    throw Xapian::RangeError("No positionlist for term in document.");
+    return new InMemoryPositionList(false);
 }
 
 void

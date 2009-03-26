@@ -94,7 +94,7 @@ class MyPostingSource : public Xapian::PostingSource {
 	if (wt > maxwt) maxwt = wt;
     }
 
-    void reset(const Xapian::Database &) { started = false; }
+    void init(const Xapian::Database &) { started = false; }
 
     Xapian::weight get_weight() const { return i->second; }
 

@@ -425,7 +425,8 @@ Database::get_document(Xapian::docid did) const
     Xapian::doccount n = (did - 1) % multiplier; // which actual database
     Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
 
-    RETURN(Document(internal[n]->open_document(m)));
+    // Open non-lazily so we throw DocNotFoundError if the doc doesn't exist.
+    RETURN(Document(internal[n]->open_document(m, false)));
 }
 
 Document::Internal *

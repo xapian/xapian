@@ -52,7 +52,8 @@
 
 #include <xapian/error.h>
 
-#include "utils.h" // For om_tostring() and within_DBL_EPSILON().
+#include "str.h"
+#include "utils.h" // For within_DBL_EPSILON().
 
 #define XAPIAN_ASSERT_LOCATION__(LINE,MSG) __FILE__":"#LINE": "#MSG
 #define XAPIAN_ASSERT_LOCATION_(LINE,MSG) XAPIAN_ASSERT_LOCATION__(LINE,MSG)
@@ -90,9 +91,9 @@
 	if (rare(!((A) REL (B)))) {\
 	    std::string xapian_assertion_msg(XAPIAN_ASSERT_LOCATION(A REL B));\
 	    xapian_assertion_msg += " : values were ";\
-	    xapian_assertion_msg += om_tostring(A);\
+	    xapian_assertion_msg += str(A);\
 	    xapian_assertion_msg += " and ";\
-	    xapian_assertion_msg += om_tostring(B);\
+	    xapian_assertion_msg += str(B);\
 	    throw Xapian::AssertionError(xapian_assertion_msg);\
 	}\
     } while (0)
@@ -113,9 +114,9 @@
 	if (rare(within_DBL_EPSILON(A,B))) {\
 	    std::string xapian_assertion_msg(XAPIAN_ASSERT_LOCATION(within_DBL_EPSILON(A,B)));\
 	    xapian_assertion_msg += " : values were ";\
-	    xapian_assertion_msg += om_tostring(A);\
+	    xapian_assertion_msg += str(A);\
 	    xapian_assertion_msg += " and ";\
-	    xapian_assertion_msg += om_tostring(B);\
+	    xapian_assertion_msg += str(B);\
 	    throw Xapian::AssertionError(xapian_assertion_msg);\
 	}\
     } while (0)

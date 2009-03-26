@@ -1,3 +1,44 @@
+Wed Mar 25 12:35:42 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac: Actually use all those warning flags we
+	  carefully determine!
+
+Wed Mar 25 12:03:37 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac: Only put XAPIAN_CXXFLAGS in CXXFLAGS for
+	  the duration of configure (we need it as it may include options to
+	  put the compiler into ISO C++ mode).  Set AM_CXXFLAGS to
+	  XAPIAN_CXXFLAGS in Makefile.am.  This means that the user can safely
+	  override CXXFLAGS at make-time: "make CXXFLAGS=-Os"
+
+Wed Mar 25 10:56:29 GMT 2009  Olly Betts <olly@survex.com>
+
+	* query.cc: Cope with write() not writing all the data or being
+	  interrupted by a signal when writing log entries.
+
+Wed Mar 25 10:48:14 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Move AC_PROG_CXX and AC_LANG_CPLUSPLUS earlier so that
+	  CXXFLAGS is set before we add XAPIAN_CXXFLAGS to it.  With libtool
+	  1.5.x this wasn't an issue, as AC_PROG_CXX was implicitly run early
+	  on.  With libtool 2.2.x it is as AC_PROG_CXX doesn't touch CXXFLAGS
+	  if it is already set, so we don't get "-O2 -g" set for GCC.
+
+Wed Mar 18 06:13:16 GMT 2009  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: Mark "index=nopos" error for removal in 1.3.0
+	  not 1.2.0.  Tweak code that produces it to use more literal strings.
+
+Wed Mar 18 06:12:06 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/scriptindex.rst: The deprecated "index=nopos" is now removed
+	  and gives an error explaining what to use instead, so remove the
+	  documentation saying it is deprecated and what to do.
+
+Mon Mar 16 14:07:58 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Sync with 1.0.11.
+
 Sat Feb 28 08:31:15 GMT 2009  Olly Betts <olly@survex.com>
 
 	* omindex.cc,scriptindex.cc: Use commit() rather than flush().

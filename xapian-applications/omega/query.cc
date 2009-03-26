@@ -937,6 +937,23 @@ T(weight,	   0, 0, N, 0), // weight of the current hit
 
 static vector<string> macros;
 
+// Call write() repeatedly until all data is written or we get a
+// non-recoverable error.
+static ssize_t
+write_all(int fd, const char * buf, size_t count)
+{
+    while (count) {
+	ssize_t r = write(fd, buf, count);
+	if (rare(r < 0)) {
+	    if (errno == EINTR) continue;
+	    return r;
+	}
+	buf += r;
+	count -= r;
+    }
+    return 0;
+}
+
 static string
 eval(const string &fmt, const vector<string> &param)
 {
@@ -1442,7 +1459,7 @@ eval(const string &fmt, const vector<string> &param)
 		}
 		line = eval(line, noargs);
 		line += '\n';
-		write(fd, line.data(), line.length());
+		(void)write_all(fd, line.data(), line.length());
 		close(fd);
 		break;
 	    }

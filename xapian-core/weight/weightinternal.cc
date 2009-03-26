@@ -24,6 +24,7 @@
 #include "weightinternal.h"
 
 #include "omassert.h"
+#include "utils.h" // For om_tostring().
 
 using namespace std;
 
@@ -89,6 +90,19 @@ Weight::Internal::set_reltermfreq(const string & term, Xapian::doccount rtfreq)
     Assert(reltermfreq.find(term) == reltermfreq.end() ||
 	   reltermfreq.find(term)->second == rtfreq);
     reltermfreq[term] = rtfreq;
+}
+
+string
+Weight::Internal::get_description() const
+{
+    string desc = "Weight::Internal(totlen=";
+    desc += om_tostring(total_length);
+    desc += ", collection_size=";
+    desc += om_tostring(collection_size);
+    desc += ", rset_size=";
+    desc += om_tostring(rset_size);
+    desc += ')';
+    return desc;
 }
 
 }

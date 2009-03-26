@@ -436,6 +436,8 @@ class Enquire {
     string get_description() const;
 };
 
+}
+
 /* Generated code won't compile if directors are enabled.  Disable for now
  * while we investigate.
  *
@@ -449,92 +451,18 @@ class Enquire {
  *
  * Also having a factory method might be a problem?
  */
-/*
-#ifdef SWIGPYTHON
-%feature("director") Weight;
-#endif
-*/
 
-class Weight {
-/* SWIG doesn't handle this:
-    private:
-	virtual Weight * clone() const = 0; */
-    public:
-	virtual ~Weight();
-
-	virtual std::string name() const = 0;
-	virtual std::string serialise() const = 0;
-	virtual Weight * unserialise(const std::string &s) const = 0;
-
-	virtual Xapian::weight get_sumpart(Xapian::termcount wdf,
-				      Xapian::doclength len) const = 0;
-	virtual Xapian::weight get_maxpart() const = 0;
-	virtual Xapian::weight get_sumextra(Xapian::doclength len) const = 0;
-	virtual Xapian::weight get_maxextra() const = 0;
-	virtual bool get_sumpart_needs_doclength() const;
-};
-
-%warnfilter(842) BoolWeight::unserialise;
-class BoolWeight : public Weight {
-    public:
-	BoolWeight * clone() const;
-	BoolWeight();
-	~BoolWeight();
-	std::string name() const;
-	std::string serialise() const;
-	BoolWeight * unserialise(const std::string & s) const;
-	Xapian::weight get_sumpart(Xapian::termcount wdf, Xapian::doclength len) const;
-	Xapian::weight get_maxpart() const;
-
-	Xapian::weight get_sumextra(Xapian::doclength len) const;
-	Xapian::weight get_maxextra() const;
-
-	bool get_sumpart_needs_doclength() const;
-};
-
-%warnfilter(842) BM25Weight::unserialise;
-class BM25Weight : public Weight {
-    public:
-	BM25Weight(double k1_, double k2_, double k3_, double b_,
-		   double min_normlen_);
-	BM25Weight();
-
-	BM25Weight * clone() const;
-	~BM25Weight();
-	std::string name() const;
-	std::string serialise() const;
-	BM25Weight * unserialise(const std::string & s) const;
-	Xapian::weight get_sumpart(Xapian::termcount wdf, Xapian::doclength len) const;
-	Xapian::weight get_maxpart() const;
-
-	Xapian::weight get_sumextra(Xapian::doclength len) const;
-	Xapian::weight get_maxextra() const;
-
-	bool get_sumpart_needs_doclength() const;
-};
-
-%warnfilter(842) TradWeight::unserialise;
-class TradWeight : public Weight {
-    public:
-	explicit TradWeight(double k);
-	TradWeight();
-
-	TradWeight * clone() const;
-	~TradWeight();
-	std::string name() const;
-	std::string serialise() const;
-	TradWeight * unserialise(const std::string & s) const;
-
-	Xapian::weight get_sumpart(Xapian::termcount wdf, Xapian::doclength len) const;
-	Xapian::weight get_maxpart() const;
-
-	Xapian::weight get_sumextra(Xapian::doclength len) const;
-	Xapian::weight get_maxextra() const;
-
-	bool get_sumpart_needs_doclength() const;
-};
-
-}
+//%feature("director") Weight;
+%ignore Xapian::Weight::Internal;
+%ignore Xapian::Weight::operator=;
+%ignore Xapian::Weight::Weight(const Weight &);
+%ignore Xapian::Weight::clone;
+%ignore Xapian::Weight::clone_;
+%ignore Xapian::Weight::init_;
+%warnfilter(842) Xapian::BoolWeight::unserialise;
+%warnfilter(842) Xapian::BM25Weight::unserialise;
+%warnfilter(842) Xapian::TradWeight::unserialise;
+%include <xapian/weight.h>
 
 namespace Xapian {
 

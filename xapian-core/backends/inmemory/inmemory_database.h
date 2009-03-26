@@ -326,7 +326,7 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 
     LeafPostList * open_post_list(const string & tname) const;
     TermList * open_term_list(Xapian::docid did) const;
-    Xapian::Document::Internal * open_document(Xapian::docid did, bool lazy = false) const;
+    Xapian::Document::Internal * open_document(Xapian::docid did, bool lazy) const;
 
     std::string get_metadata(const std::string & key) const;
     void set_metadata(const std::string & key, const std::string & value);

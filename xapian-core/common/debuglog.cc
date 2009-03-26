@@ -24,7 +24,7 @@
 
 #include "debuglog.h"
 
-#include "utils.h"
+#include "str.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -66,7 +66,7 @@ DebugLogger::initialise_categories_mask()
 	    while (*f) {
 		if (*f == '%' && f[1] == 'p') {
 		    // Replace %p in the filename with the process id.
-		    if (pid.empty()) pid = om_tostring(getpid());
+		    if (pid.empty()) pid = str(getpid());
 		    fnm += pid;
 		    f += 2;
 		} else {
@@ -113,7 +113,7 @@ DebugLogger::log_line(debuglog_categories category, const string & msg)
     line.reserve(8 + indent_string.size() + msg.size());
     line = char(category) + '@';
     line += ' ';
-    line += om_tostring(getpid());
+    line += str(getpid());
     line += indent_string;
     line += msg;
     line += '\n';
