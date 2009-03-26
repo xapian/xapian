@@ -36,6 +36,9 @@ AC_SUBST(LIBRARY_VERSION_INFO)
 LIBRARY_VERSION_SUFFIX=-1.1
 AC_SUBST(LIBRARY_VERSION_SUFFIX)
 
+dnl Default to "-1.1"; for no suffix, specify: --program-suffix=
+test x"$program_suffix" != xNONE || program_suffix=-1.1
+
 dnl Check the build directory doesn't contain a space, so we die early with
 dnl a helpful error.
 case `pwd` in

@@ -1,3 +1,9 @@
+Thu Mar 26 13:46:06 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Default program suffix to -1.1 if not specified.  If
+	  you really want no suffix, "./configure --program-suffix=" will
+	  achieve that.
+
 Thu Mar 26 12:49:10 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Makefile.am,api/Makefile.mk,backends/Makefile.mk,
