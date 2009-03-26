@@ -1,3 +1,7 @@
+Thu Mar 26 22:54:33 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* xapian.i: Update ignores for clustering methods.
+
 Mon Jan 07 18:54:48 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/pythontest.py: Update python test with new function
