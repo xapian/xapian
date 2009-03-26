@@ -120,7 +120,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermFreqSource {
 
 /** A class which always claims that the term frequency is 1.
  */
-class XAPIAN_VISIBILITY_DEFAULT DummyTermFreqSource : public TermFreqSource{
+class XAPIAN_VISIBILITY_DEFAULT DummyTermFreqSource : public TermFreqSource {
   public:
 
     /** Get the frequency of a term.  This always returns 1.
@@ -197,10 +197,9 @@ class XAPIAN_VISIBILITY_DEFAULT TermListGroup : public TermFreqSource {
      *
      *  @param document The document to read the termlist from.
      */
-    void add_document(const Database & database,
-		      const Document & document)
+    void add_document(const Document & document)
     {
-	add_document(database, document, NULL);
+	add_document(document, static_cast<const ExpandDecider *>(NULL));
     }
 
     /** Add a document to the termlist group.
@@ -211,9 +210,20 @@ class XAPIAN_VISIBILITY_DEFAULT TermListGroup : public TermFreqSource {
      *  @param decider A decider to determine which terms should be stored.  If
      *                 NULL, all terms will be stored.
      */
-    void add_document(const Database & database,
-		      const Document & document,
+    void add_document(const Document & document,
 		      const ExpandDecider * decider);
+
+    /** Add a document to the termlist group.
+     *
+     *  The value in the specified slot in the document will be read and
+     *  stored in the group.
+     *
+     *  @param document The document to read the termlist from.
+     *  @param slot The slot to read from.
+     */
+    void add_document(const Document & document,
+		      Xapian::valueno slot);
+
 
     /** Add all documents from a document source to the termlist group.
      *
@@ -222,9 +232,9 @@ class XAPIAN_VISIBILITY_DEFAULT TermListGroup : public TermFreqSource {
      *
      *  @param source The source to read the documents from.
      */
-    void add_documents(const Database & database, DocumentSource & source)
+    void add_documents(DocumentSource & source)
     {
-	add_documents(database, source, NULL);
+	add_documents(source, static_cast<const ExpandDecider *>(NULL));
     }
 
     /** Add all documents from a document source to the termlist group.
@@ -236,9 +246,20 @@ class XAPIAN_VISIBILITY_DEFAULT TermListGroup : public TermFreqSource {
      *  @param decider A decider to determine which terms should be stored.  If
      *                 NULL, all terms will be stored.
      */
-    void add_documents(const Database & database,
-		       DocumentSource & source,
+    void add_documents(DocumentSource & source,
 		       const ExpandDecider * decider);
+
+    /** Add all documents from a document source to the termlist group.
+     *
+     *  The value in the specified slot for each document supplied by the
+     *  source will be read and stored in the group.
+     *
+     *  @param source The source to read the documents from.
+     *  @param slot The slot to read from.
+     */
+    void add_documents(DocumentSource & source,
+		       Xapian::valueno slot);
+
 
     /** Get the frequency of a term.
      *
@@ -327,21 +348,33 @@ struct XAPIAN_VISIBILITY_DEFAULT ClusterAssignments {
 };
 
 class XAPIAN_VISIBILITY_DEFAULT ClusterSingleLink {
+    void do_cluster(ClusterAssignments & clusters,
+		    DocSim & docsim,
+		    int num_clusters,
+		    const TermListGroup & tlg,
+		    const std::vector<Xapian::docid> & docids);
+
   public:
-    void cluster(const Database & database,
-		 ClusterAssignments & clusters,
-		 DocSimCosine & docsim,
+    void cluster(ClusterAssignments & clusters,
+		 DocSim & docsim,
 		 DocumentSource & docsource,
 		 int num_clusters)
     {
-	cluster(database, clusters, docsim, docsource, NULL, num_clusters);
+	cluster(clusters, docsim, docsource, 
+		static_cast<const ExpandDecider *>(NULL),
+		num_clusters);
     }
 
-    void cluster(const Database & database,
-		 ClusterAssignments & clusters,
-		 DocSimCosine & docsim,
+    void cluster(ClusterAssignments & clusters,
+		 DocSim & docsim,
 		 DocumentSource & docsource,
 		 const ExpandDecider * decider,
+		 int num_clusters);
+
+    void cluster(ClusterAssignments & clusters,
+		 DocSim & docsim,
+		 DocumentSource & docsource,
+		 Xapian::valueno slot,
 		 int num_clusters);
 };
 

@@ -115,17 +115,16 @@ DatabaseTermFreqSource::get_doccount() const
 }
 
 void
-TermListGroup::add_document(const Database & database,
-			    const Document & document,
+TermListGroup::add_document(const Document & document,
 			    const ExpandDecider * decider)
 {
     DEBUGAPICALL(void, "TermListGroup::add_document",
 		 document << ", " << decider);
     vector<TermWdf> & tl = termlists[document.get_docid()];
     tl.clear();
-    TermIterator titer;
-    TermIterator end(database.termlist_end(document.get_docid()));
-    for (titer = database.termlist_begin(document.get_docid()); titer != end; ++titer) {
+    TermIterator titer(document.termlist_begin());
+    TermIterator end(document.termlist_end());
+    for (; titer != end; ++titer) {
 	if (decider != NULL && !(*decider)(*titer))
 	    continue;
 	tl.push_back(TermWdf(*titer, titer.get_wdf()));
@@ -140,16 +139,47 @@ TermListGroup::add_document(const Database & database,
 }
 
 void
-TermListGroup::add_documents(const Database & database,
-			     DocumentSource & source,
+TermListGroup::add_document(const Document & document,
+			    Xapian::valueno slot)
+{
+    DEBUGAPICALL(void, "TermListGroup::add_document",
+		 document << ", " << slot);
+    vector<TermWdf> & tl = termlists[document.get_docid()];
+    tl.clear();
+    std::string value = document.get_value(slot);
+    tl.push_back(TermWdf(value, 1));
+
+    map<string, doccount>::iterator i;
+    i = termfreqs.find(value);
+    if (i == termfreqs.end()) {
+	termfreqs[value] = 0;
+    } else {
+	i->second += 1;
+    }
+}
+
+void
+TermListGroup::add_documents(DocumentSource & source,
 			     const ExpandDecider * decider)
 {
     DEBUGAPICALL(void, "TermListGroup::add_documents",
 		 "source" << ", " << decider);
     while (!source.at_end()) {
-	add_document(database, source.next_document(), decider);
+	add_document(source.next_document(), decider);
     }
 }
+
+void
+TermListGroup::add_documents(DocumentSource & source,
+			     Xapian::valueno slot)
+{
+    DEBUGAPICALL(void, "TermListGroup::add_documents",
+		 "source" << ", " << slot);
+    while (!source.at_end()) {
+	add_document(source.next_document(), slot);
+    }
+}
+
 
 doccount
 TermListGroup::get_termfreq(const string &tname) const
@@ -268,9 +298,8 @@ void set_distance(vector<double> & distance, int docs, int i, int j,
 }
 
 void
-ClusterSingleLink::cluster(const Database & database,
-			   ClusterAssignments & clusters,
-			   DocSimCosine & docsim,
+ClusterSingleLink::cluster(ClusterAssignments & clusters,
+			   DocSim & docsim,
 			   DocumentSource & docsource,
 			   const ExpandDecider * decider,
 			   int num_clusters)
@@ -280,9 +309,39 @@ ClusterSingleLink::cluster(const Database & database,
     while (!docsource.at_end())
     {
 	Document doc = docsource.next_document();
-	tlg.add_document(database, doc, decider);
+	tlg.add_document(doc, decider);
 	docids.push_back(doc.get_docid());
     }
+
+    do_cluster(clusters, docsim, num_clusters, tlg, docids);
+}
+
+void
+ClusterSingleLink::cluster(ClusterAssignments & clusters,
+			   DocSim & docsim,
+			   DocumentSource & docsource,
+			   Xapian::valueno slot,
+			   int num_clusters)
+{
+    TermListGroup tlg;
+    vector<docid> docids;
+    while (!docsource.at_end())
+    {
+	Document doc = docsource.next_document();
+	tlg.add_document(doc, slot);
+	docids.push_back(doc.get_docid());
+    }
+
+    do_cluster(clusters, docsim, num_clusters, tlg, docids);
+}
+
+void
+ClusterSingleLink::do_cluster(ClusterAssignments & clusters,
+			      DocSim & docsim,
+			      int num_clusters,
+			      const TermListGroup & tlg,
+			      const vector<docid> & docids)
+{
     int docs = docids.size();
     docsim.set_termfreqsource(&tlg);
 
