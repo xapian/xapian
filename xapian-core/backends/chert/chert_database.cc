@@ -730,15 +730,9 @@ ChertDatabase::modifications_failed(chert_revision_number_t old_revision,
 	++new_revision;
 	set_revision_number(new_revision);
     } catch (const Xapian::Error &e) {
-	// Permanently close the table, since we can't get it into a
-	// consistent state, to avoid risk of database corruption.
-	postlist_table.close(true);
-	position_table.close(true);
-	termlist_table.close(true);
-	synonym_table.close(true);
-	spelling_table.close(true);
-	record_table.close(true);
-	lock.release();
+	// We can't get the database into a consistent state, so close
+	// it to avoid the risk of database corruption.
+	ChertDatabase::close();
 	throw Xapian::DatabaseError("Modifications failed (" + msg +
 				    "), and cannot set consistent table "
 				    "revision numbers: " + e.get_msg());
