@@ -1,3 +1,8 @@
+Thu Mar 26 14:29:54 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac,include/Makefile.mk,xapian-config.in: Install headers
+	  in $prefix/include/xapian-1.1/ so they don't clash with 1.0.
+
 Thu Mar 26 13:46:06 GMT 2009  Olly Betts <olly@survex.com>
 
 	* configure.ac: Default program suffix to -1.1 if not specified.  If

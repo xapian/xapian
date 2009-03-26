@@ -179,9 +179,9 @@ while [ 0 != "$#" ] ; do
 	    # you explicitly pass -I/usr/include you get the non-fixed
 	    # versions.  More recent GCC versions simply ignore -I/usr/include
 	    # but we want to support older versions too.
-	    case "@includedir@" in
+	    case "@incdir@" in
 	    /usr/include|/usr/include/c++) I= ;;
-	    *) I="-I@includedir@" ;;
+	    *) I="-I@incdir@" ;;
 	    esac
 	fi
 	cxxflags=
