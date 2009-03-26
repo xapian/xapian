@@ -1,3 +1,16 @@
+Thu Mar 26 12:49:10 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Makefile.am,api/Makefile.mk,backends/Makefile.mk,
+	  backends/chert/Makefile.mk,backends/flint/Makefile.mk,
+	  backends/inmemory/Makefile.mk,backends/multi/Makefile.mk,
+	  backends/remote/Makefile.mk,bin/Makefile.mk,common/Makefile.mk,
+	  configure.ac,examples/Makefile.mk,expand/Makefile.mk,
+	  languages/Makefile.mk,matcher/Makefile.mk,net/Makefile.mk,
+	  queryparser/Makefile.mk,tests/Makefile.am,tests/perftest/Makefile.mk,
+	  unicode/Makefile.mk,weight/Makefile.mk,xapian-config.in,
+	  xapian-core.spec.in: Change library name to libxapian-1.1 as a first
+	  step towards allowing parallel installation with 1.0.x.
+
 Thu Mar 26 06:53:27 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.

@@ -103,16 +103,16 @@ cp AUTHORS ChangeLog ChangeLog.examples COPYING NEWS PLATFORMS README %{buildroo
 
 %files libs
 %defattr(-, root, root)
-%{_libdir}/libxapian.so.*
+%{_libdir}/libxapian*.so.*
 
 %files devel
 %defattr(-, root, root)
 %{_bindir}/xapian-config
 %{_includedir}/xapian
 %{_includedir}/xapian.h
-%{_libdir}/libxapian.so
-%{_libdir}/libxapian.a
-%{_libdir}/libxapian.la
+%{_libdir}/libxapian*.so
+%{_libdir}/libxapian*.a
+%{_libdir}/libxapian*.la
 %{_datadir}/aclocal/xapian.m4
 %doc %{_datadir}/doc/%{name}-devel-%{version}
 # man pages may be gzipped, hence the trailing wildcard.

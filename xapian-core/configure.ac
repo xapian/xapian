@@ -28,46 +28,13 @@ dnl
 dnl 6. If any interfaces have been removed since the last public release
 dnl    then set AGE to 0.
 dnl
-dnl Older libxapian versions:
-dnl 0:0:0 0.7.2 (and 0.7.1 and 0.7.0 - 0.7.0 was the first libxapian version)
-dnl 0:1:0 0.7.3
-dnl 1:0:0 0.7.4 (Xapian::ESet now has reference counted internals)
-dnl 1:1:1 0.7.5 (Xapian::{Term,Posting,Position}Iterator default ctors added)
-dnl 2:0:0 0.8.0 (TradWeight ctor explicit; Xapian::Document::add_term() added)
-dnl Older libxapianqueryparser versions:
-dnl 0:0:0 0.7.2 (and 0.7.1 and 0.7.0)
-dnl 0:1:0 0.7.3 (and 0.7.4)
-dnl 0:2:0 0.7.5
-dnl 1:0:0 0.8.0
-dnl LIBRARY_VERSION_INFO:
-dnl 3:0:0 0.8.1 (Xapian::Database::get_lastdocid added; QueryParser tries
-dnl	       reparsing after stripping punctuation; several unused
-dnl	       Error subclasses removed; assorted Iterator changes)
-dnl 4:0:1 0.8.2 (Xapian::ESet::back and many other methods added)
-dnl 4:1:1 0.8.3 No API changes
-dnl 5:0:0 0.8.4 BM25Weight ctor parameters reordered
-dnl 5:1:0 0.8.5 No API changes
-dnl 6:0:0 0.9.0 QueryParser API overhauled, etc
-dnl 7:0:0 0.9.1 Query::get_terms_end() now inline in header
-dnl 8:0:0 0.9.2 QueryParser::parse_query has new optional argument
-dnl 9:0:1 0.9.3 Added xapian_version_string(), etc
-dnl 10:0:0 0.9.4 Fixed typo in name of xapian_revision()
-dnl 11:0:0 0.9.5 Document::termlist_end() now inline in header, etc
-dnl 12:0:1 0.9.6 Added Xapian::version_string(), etc
-dnl 13:0:0 0.9.7 Rewritten Xapian::Error class
-dnl 13:0:0 0.9.8 No API changes (failed to bump revision)
-dnl 13:1:0 0.9.9 No API changes
-dnl 13:2:0 0.9.10 No API changes
-dnl 14:0:0 1.0.0 Numerous API changes
-dnl 15:0:0 1.0.1 Error::error_string changed type
-dnl 16:0:1 1.0.2 New QueryParser flags, etc
-dnl 17:0:2 1.0.3 Database::get_metadata(), etc
-dnl 18:0:3 1.0.4 New Query ctor for OP_SCALE_WEIGHT
-dnl 19:0:4 1.0.5 Enquire copyable/assignable + new methods; new Sorter class
-dnl 20:0:5 1.0.6 Unicode::toupper(); OP_VALUE_GE/OP_VALUE_LE
-dnl 20:1:5 1.0.7 No API changes
-LIBRARY_VERSION_INFO=20:1:5
+dnl LIBRARY_VERSION_INFO for libxapian-1.1:
+dnl 0:0:0 1.1.0 Reset as library renamed
+LIBRARY_VERSION_INFO=0:0:0
 AC_SUBST(LIBRARY_VERSION_INFO)
+
+LIBRARY_VERSION_SUFFIX=-1.1
+AC_SUBST(LIBRARY_VERSION_SUFFIX)
 
 dnl Check the build directory doesn't contain a space, so we die early with
 dnl a helpful error.

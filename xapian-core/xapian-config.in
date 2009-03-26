@@ -66,7 +66,7 @@ need_explicit_dependencies()
     # For static libraries, we need to explicitly link with dependency_libs
     # on all platforms.  If we only have static libraries, then "$dlname"
     # will be empty.
-    extract_dlname "@libdir@/libxapian.la"
+    extract_dlname "@libdir@/libxapian@LIBRARY_VERSION_SUFFIX@.la"
     [ -n "$dlname" ] || return 0 # "true"
 
     # If libtool has been patched to give link_all_deplibs=no, don't link them.
@@ -203,7 +203,7 @@ while [ 0 != "$#" ] ; do
 
     --from-xo-lib-xapian)
 	# Top Secret option which allows us to give a more helpful error
-	# message if we're asked to link with an uninstalled libxapian
+	# message if we're asked to link with an uninstalled libxapian@LIBRARY_VERSION_SUFFIX@
 	# and libtool isn't in use.
 	xo_lib_xapian=yes
 	;;
@@ -223,14 +223,14 @@ while [ 0 != "$#" ] ; do
 		fi
 		echo "$0: Add AC_PROG_LIBTOOL to your $configure_ac" 1>&2
 	    fi
-	    echo "to link with an uninstalled libxapian." 1>&2
+	    echo "to link with an uninstalled libxapian@LIBRARY_VERSION_SUFFIX@." 1>&2
 	    exit 1
 	fi
 	set_F_to_extra_ldflags
 	set_L_to_library_path
 	D=
 	if need_explicit_dependencies ; then
-	    extract_dependency_libs "@libdir@/libxapian.la"
+	    extract_dependency_libs "@libdir@/libxapian@LIBRARY_VERSION_SUFFIX@.la"
 	    [ -n "$dependency_libs" ] && D=" $dependency_libs"
 	fi
 	echo "$F$L-lxapian$D"
@@ -239,15 +239,15 @@ while [ 0 != "$#" ] ; do
     --ltlibs)
 	set_F_to_extra_ldflags
 	if is_uninstalled ; then
-	    # Don't check if libxapian.la exists yet since we want to allow
+	    # Don't check if libxapian@LIBRARY_VERSION_SUFFIX@.la exists yet since we want to allow
 	    # configuring against a xapian-core tree which hasn't been built
 	    # yet (the top level bootstrap script relies on this).
 	    [ ./ != "$builddir" ] && F="$F$builddir"
-	    echo "${F}libxapian.la"
+	    echo "${F}libxapian@LIBRARY_VERSION_SUFFIX@.la"
 	    continue
 	fi
 
-	# If we need to pull in dependency_libs, we need libxapian.la.
+	# If we need to pull in dependency_libs, we need libxapian@LIBRARY_VERSION_SUFFIX@.la.
 	# Otherwise just use the appropriate -L and -l options.
 	# Upstream libtool currently never sets link_all_deplibs_CXX=no.
 	# Some Linux distros patch libtool to return no, and some have an
@@ -255,12 +255,12 @@ while [ 0 != "$#" ] ; do
 	# around this.  So avoiding using libtool here gives more consistent
 	# behaviour.
 	if need_explicit_dependencies ; then
-	    if [ -f "@libdir@/libxapian.la" ]; then
-		echo "${F}@libdir@/libxapian.la"
+	    if [ -f "@libdir@/libxapian@LIBRARY_VERSION_SUFFIX@.la" ]; then
+		echo "${F}@libdir@/libxapian@LIBRARY_VERSION_SUFFIX@.la"
 		continue
 	    fi
 
-	    echo "$0: Can't find libxapian.la to link against." 1>&2
+	    echo "$0: Can't find libxapian@LIBRARY_VERSION_SUFFIX@.la to link against." 1>&2
 	    exit 1
 	fi
 

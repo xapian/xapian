@@ -5,7 +5,7 @@ EXTRA_DIST +=\
 	backends/dir_contents\
 	backends/Makefile
 
-libxapian_la_SOURCES +=\
+lib_src +=\
 	backends/alltermslist.cc\
 	backends/database.cc\
 	backends/databasereplicator.cc\
@@ -14,16 +14,16 @@ libxapian_la_SOURCES +=\
 	backends/valuelist.cc
 
 if BUILD_BACKEND_REMOTE
-libxapian_la_SOURCES +=\
+lib_src +=\
 	backends/dbfactory_remote.cc
 endif
 
 if BUILD_BACKEND_FLINT
-libxapian_la_SOURCES +=\
+lib_src +=\
 	backends/contiguousalldocspostlist.cc
 else
 if BUILD_BACKEND_CHERT
-libxapian_la_SOURCES +=\
+lib_src +=\
         backends/contiguousalldocspostlist.cc
 endif
 endif
@@ -34,7 +34,7 @@ endif
 #    "BUILD_BACKEND_NEWONE"
 # 2) Add lines below to "include backends/newone/Makefile.mk"
 # 3) Write backends/newone/Makefile.mk - it should add files to noinst_HEADERS
-#    and libxapian_la_SOURCES conditional on BUILD_BACKEND_NEWONE.
+#    and lib_src conditional on BUILD_BACKEND_NEWONE.
 # 4) Update backends/dbfactory.cc.
 # 5) If it needs to support replication, update backends/databasereplicator.cc
 # 6) Write the backend code!

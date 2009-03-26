@@ -92,11 +92,13 @@ include docsource.mk
 m4datadir = $(datadir)/aclocal
 dist_m4data_DATA = m4-macros/xapian.m4
 
-lib_LTLIBRARIES = libxapian.la
+libxapian_la = libxapian-1.1.la
+lib_LTLIBRARIES = libxapian-1.1.la
+libxapian_1_1_la_SOURCES = $(lib_src)
+libxapian_1_1_la_LDFLAGS = \
+    $(XAPIAN_LDFLAGS) -no-undefined -version-info $(LIBRARY_VERSION_INFO)
 
-libxapian_la_SOURCES =
-
-libxapian_la_LDFLAGS = $(XAPIAN_LDFLAGS) -no-undefined -version-info $(LIBRARY_VERSION_INFO)
+lib_src =
 
 if !MAINTAINER_NO_DOCS
 dist_man_MANS = xapian-config.1

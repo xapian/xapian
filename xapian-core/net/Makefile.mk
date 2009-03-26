@@ -3,7 +3,7 @@ EXTRA_DIST +=\
 	net/Makefile
 
 if BUILD_BACKEND_REMOTE
-libxapian_la_SOURCES +=\
+lib_src +=\
 	net/progclient.cc\
 	net/remoteconnection.cc\
 	net/remoteserver.cc\
