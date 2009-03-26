@@ -93,11 +93,6 @@ DEFINE_TESTCASE(valuestream2, backend && !multi) {
 
 /// Test check() on a valuestream iterator.
 DEFINE_TESTCASE(valuestream3, backend && !multi) {
-    // FIXME: this testcase fails for chert - need to sort out why and fix
-    // either chert or the testcase, but let's skip this for now as it's
-    // turning tinderbox red and is stopping SVN snapshots from being made
-    // available.
-    SKIP_TEST_FOR_BACKEND("chert");
     // FIXME: enable for multi once support is in place.
     Xapian::Database db = get_database("etext");
 
@@ -178,7 +173,7 @@ DEFINE_TESTCASE(valueweightsource5, writable && valuestats) {
     db.commit();
 
     Xapian::ValueWeightPostingSource src(1);
-    src.reset(db);
+    src.init(db);
     src.next(0.0);
     TEST(!src.at_end());
     TEST_EQUAL(src.get_docid(), 1);
@@ -254,7 +249,7 @@ DEFINE_TESTCASE(valuemapsource2, backend && !multi) {
 
     {
 	Xapian::ValueMapPostingSource src(100);
-	src.reset(db);
+	src.init(db);
 	TEST(src.at_end() == false);
 	src.next(0.0);
 	TEST(src.at_end() == true);
@@ -262,7 +257,7 @@ DEFINE_TESTCASE(valuemapsource2, backend && !multi) {
 
     {
 	Xapian::ValueMapPostingSource src(100);
-	src.reset(db);
+	src.init(db);
 	TEST(src.at_end() == false);
 	src.skip_to(1, 0.0);
 	TEST(src.at_end() == true);
@@ -270,7 +265,7 @@ DEFINE_TESTCASE(valuemapsource2, backend && !multi) {
 
     {
 	Xapian::ValueMapPostingSource src(100);
-	src.reset(db);
+	src.init(db);
 	TEST(src.at_end() == false);
 	src.check(1, 0.0);
 	TEST(src.at_end() == true);
@@ -286,7 +281,7 @@ DEFINE_TESTCASE(fixedweightsource2, !backend) {
 
     {
 	Xapian::FixedWeightPostingSource src(5.0);
-	src.reset(db);
+	src.init(db);
 	TEST(src.at_end() == false);
 	src.next(0.0);
 	TEST(src.at_end() == true);
@@ -294,7 +289,7 @@ DEFINE_TESTCASE(fixedweightsource2, !backend) {
 
     {
 	Xapian::FixedWeightPostingSource src(5.0);
-	src.reset(db);
+	src.init(db);
 	TEST(src.at_end() == false);
 	src.skip_to(1, 0.0);
 	TEST(src.at_end() == true);

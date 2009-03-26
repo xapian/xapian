@@ -174,31 +174,40 @@ FlintLock::lock(bool exclusive, std::string & explanation) {
 	return UNKNOWN;
     }
 
+    reason why = UNKNOWN;
+
     // Parent process.
     while (true) {
 	char ch;
 	int n = read(fds[0], &ch, 1);
 	if (n == 1) {
-	    reason why = static_cast<reason>(ch);
-	    if (why == SUCCESS) break; // Got the lock.
-	    close(fds[0]);
-	    return why;
-	} else if (n == 0) {
+	    why = static_cast<reason>(ch);
+	    if (why != SUCCESS) break;
+	    // Got the lock.
+	    fd = fds[0];
+	    pid = child;
+	    return SUCCESS;
+	}
+	if (n == 0) {
 	    // EOF means the lock failed.
 	    explanation = std::string("Got EOF reading from child process");
-	    close(fds[0]);
-	    return UNKNOWN;
-	} else if (errno != EINTR) {
+	    break;
+	}
+	if (errno != EINTR) {
 	    // Treat unexpected errors from read() as failure to get the lock.
 	    explanation = std::string("Error reading from child process: ") + strerror(errno);
-	    close(fds[0]);
-	    return UNKNOWN;
+	    break;
 	}
     }
-    //shutdown(fds[0], 0); // Disable further receives.
-    fd = fds[0];
-    pid = child;
-    return SUCCESS;
+
+    close(fds[0]);
+
+    int status;
+    while (waitpid(pid, &status, 0) < 0) {
+	if (errno != EINTR) break;
+    }
+
+    return why;
 #endif
 }
 

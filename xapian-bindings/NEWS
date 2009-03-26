@@ -161,6 +161,44 @@ HEAD only:
 	* php/smoketest.php,python/pythontest.py: Add tests that
 	  ValueSetMatchDecider works in python and PHP.
 
+Xapian-bindings 1.0.11 (2009-03-15):
+
+Documentation:
+
+* README: Note that 1.0.x doesn't (and isn't currently planned to) support
+  Python 3, and possible current issues with Ruby 1.9.
+
+Portability:
+
+* Merge fixes from Cygwin Ports, so bindings should build out of the box on
+  Cygwin.
+
+Python:
+
+* python/docs/examples/: Use str(obj) rather than obj.get_description() (the
+  latter is deprecated, and support was removed in 1.0.0).
+
+* Add support for using the new name ("reverse") for the second argument of
+  set_sort_by_key() and set_sort_by_value() and friends as a named parameter.
+  The old name ("ascending") is still supported, but will be deprecated in
+  1.1.0.
+
+* Keep Python references to Sorter, Stopper, and ValueRangeProcessor objects
+  which get set on other objects to avoid segmentation faults if they go out
+  of scope before the object they are set on does.  (ticket#341)
+
+Ruby:
+
+* Fixes for Ruby 1.9 compatibility (ticket#323).  The test harness currently
+  fails so "make check" doesn't pass, but code using the bindings should work.
+
+Xapian-bindings 1.0.10 (2008-12-23):
+
+Python:
+
+* Need to clean testsuite.pyc from srcdir since that's where it gets generated
+  as things stand (upstream fix for Debian bug 506090).
+
 Xapian-bindings 1.0.9 (2008-10-31):
 
 General:
