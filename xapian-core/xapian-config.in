@@ -233,7 +233,7 @@ while [ 0 != "$#" ] ; do
 	    extract_dependency_libs "@libdir@/libxapian@LIBRARY_VERSION_SUFFIX@.la"
 	    [ -n "$dependency_libs" ] && D=" $dependency_libs"
 	fi
-	echo "$F$L-lxapian$D"
+	echo "$F$L-lxapian@LIBRARY_VERSION_SUFFIX@$D"
 	;;
 
     --ltlibs)
@@ -265,7 +265,7 @@ while [ 0 != "$#" ] ; do
 	fi
 
 	set_L_to_library_path
-	echo "$F$L-lxapian"
+	echo "$F$L-lxapian@LIBRARY_VERSION_SUFFIX@"
 	;;
 
     -*)
