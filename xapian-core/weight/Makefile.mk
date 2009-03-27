@@ -1,4 +1,4 @@
-libxapian_la_SOURCES +=\
+lib_src +=\
 	weight/bm25weight.cc\
 	weight/boolweight.cc\
 	weight/tradweight.cc\

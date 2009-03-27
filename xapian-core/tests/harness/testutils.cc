@@ -23,6 +23,8 @@
 
 #include "testutils.h"
 
+#include "testsuite.h"
+
 #include <fstream>
 #include <vector>
 
@@ -58,7 +60,14 @@ mset_range_is_same(const Xapian::MSet &mset1, unsigned int first1,
     Xapian::MSetIterator j = mset2[first2];
 
     for (unsigned int l = 0; l < count; ++l) {
-	if (*i != *j || i.get_weight() != j.get_weight()) {
+	if (*i != *j) {
+	    tout << "docids differ at item " << (l + 1) << " in range: "
+		    << *i << " != " << *j << "\n";
+	    return false;
+	}
+	if (!TEST_EQUAL_DOUBLE_(i.get_weight(), j.get_weight())) {
+	    tout << "weights differ at item " << (l + 1) << " in range: "
+		    << i.get_weight() << " != " << j.get_weight() << "\n";
 	    return false;
 	}
 	++i;
@@ -86,7 +95,9 @@ mset_range_is_same_weights(const Xapian::MSet &mset1, unsigned int first1,
     Xapian::MSetIterator j = mset2[first2];
 
     for (unsigned int l = 0; l < count; ++l) {
-	if (i.get_weight() != j.get_weight()) {
+	if (!TEST_EQUAL_DOUBLE_(i.get_weight(), j.get_weight())) {
+	    tout << "weights differ at item " << (l + 1) << " in range: "
+		    << i.get_weight() << " != " << j.get_weight() << "\n";
 	    return false;
 	}
 	++i;

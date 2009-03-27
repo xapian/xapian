@@ -74,7 +74,6 @@
 %rename("rank") get_rank;
 %rename("sumextra") get_sumextra;
 %rename("sumpart") get_sumpart;
-%rename("sumpart_needs_doclength") get_sumpart_needs_doclength;
 %rename("termfreq") get_termfreq;
 %rename("terms") get_terms;
 %rename("term") get_term;
