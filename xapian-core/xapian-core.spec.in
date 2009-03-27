@@ -113,7 +113,7 @@ cp AUTHORS ChangeLog ChangeLog.examples COPYING NEWS PLATFORMS README %{buildroo
 %{_libdir}/libxapian*.so
 %{_libdir}/libxapian*.a
 %{_libdir}/libxapian*.la
-%{_datadir}/aclocal/xapian.m4
+%{_datadir}/aclocal/xapian*.m4
 %doc %{_datadir}/doc/%{name}-devel-%{version}
 # man pages may be gzipped, hence the trailing wildcard.
 %{_mandir}/man1/xapian-config.1*

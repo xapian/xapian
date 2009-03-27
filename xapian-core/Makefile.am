@@ -88,9 +88,9 @@ EXTRA_DIST = ChangeLog ChangeLog.examples HACKING PLATFORMS xapian-core.spec \
 # it running autoreconf.
 include docsource.mk
 
-# xapian.m4 contains the XO_LIB_XAPIAN autoconf macro.
+# Install the m4 file containing the XO_LIB_XAPIAN autoconf macro.
 m4datadir = $(datadir)/aclocal
-dist_m4data_DATA = m4-macros/xapian.m4
+dist_m4data_DATA = m4-macros/xapian-1.1.m4
 
 libxapian_la = libxapian-1.1.la
 lib_LTLIBRARIES = libxapian-1.1.la

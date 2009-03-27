@@ -1,3 +1,11 @@
+Thu Mar 26 23:59:36 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Makefile.am,m4-macros/xapian.m4,xapian-core.spec.in: Rename
+	  xapian.m4 to xapian-1.1.m4 to avoid clash with Xapian 1.0.x.  Both
+	  xapian.m4 and xapian-1.1.m4 will contain XO_LIB_XAPIAN, but aclocal
+	  copes and only copies one of them.  We need to avoid incompatible
+	  changes to XO_LIB_XAPIAN though.
+
 Thu Mar 26 14:29:54 GMT 2009  Olly Betts <olly@survex.com>
 
 	* configure.ac,include/Makefile.mk,xapian-config.in: Install headers
