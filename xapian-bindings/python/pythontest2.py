@@ -704,8 +704,8 @@ def test_synonyms_iter():
     expect([item for item in dbr.synonym_keys('he')], ['hello'])
     expect([item for item in dbr.synonym_keys('hello')], ['hello'])
 
-    del db
-    del dbr
+    db.close()
+    dbr.close()
     shutil.rmtree(dbpath)
 
 def test_metadata_keys_iter():
@@ -754,8 +754,8 @@ def test_metadata_keys_iter():
     expect([item for item in dbr.metadata_keys('it')], ['item1', 'item2'])
     expect([item for item in dbr.metadata_keys('type')], ['type'])
 
-    del db
-    del dbr
+    db.close()
+    dbr.close()
     shutil.rmtree(dbpath)
 
 def test_spell():
@@ -778,8 +778,8 @@ def test_spell():
     expect(dbr.get_spelling_suggestion('hell'), 'mell')
     expect([(item.term, item.termfreq) for item in dbr.spellings()], [('hello', 1), ('mell', 2)])
 
-    del db
-    del dbr
+    db.close()
+    dbr.close()
     shutil.rmtree(dbpath)
 
 def test_queryparser_custom_vrp():
@@ -982,7 +982,7 @@ def test_postingsource():
 
     expect([item.docid for item in mset], [1, 3, 5, 7, 9])
 
-    del db
+    db.close()
     shutil.rmtree(dbpath)
 
 def test_postingsource2():
@@ -999,7 +999,7 @@ def test_postingsource2():
 
     source = xapian.ValueWeightPostingSource(1)
     query = xapian.Query(source)
-    # del source # Check that query keeps a reference to it.
+    del source # Check that query keeps a reference to it.
 
     enquire = xapian.Enquire(db)
     enquire.set_query(query)
@@ -1007,7 +1007,7 @@ def test_postingsource2():
 
     expect([item.docid for item in mset], [2, 1, 5, 3, 4, 8, 9, 6, 7, 10])
 
-    del db
+    db.close()
     shutil.rmtree(dbpath)
 
 def test_value_stats():
@@ -1033,7 +1033,7 @@ def test_value_stats():
     expect(db.get_value_lower_bound(2), "")
     expect(db.get_value_upper_bound(2), "")
 
-    del db
+    db.close()
     shutil.rmtree(dbpath)
 
 def test_get_uuid():
@@ -1053,11 +1053,11 @@ def test_get_uuid():
     db.add_database(db1)
     expect(db1.get_uuid(), db.get_uuid())
 
-    del db1
-    del db2
-    del dbr1
-    del dbr2
-    del db
+    db1.close()
+    db2.close()
+    dbr1.close()
+    dbr2.close()
+    db.close()
     shutil.rmtree(dbpath + "1")
     shutil.rmtree(dbpath + "2")
 
@@ -1158,8 +1158,6 @@ def test_value_mods():
 
     db.close()
     expect_exception(xapian.DatabaseError, "Database has been closed", check_vals, db, vals)
-
-    del db
     shutil.rmtree(dbpath)
 
 def test_serialise_document():

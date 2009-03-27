@@ -44,27 +44,27 @@ bin_xapian_check_SOURCES =\
 	bin/xapian-check.cc\
 	bin/xapian-check-flint.cc\
 	bin/xapian-check-flint.h
-bin_xapian_check_LDADD = $(ldflags) libchertcheck.la libflintcheck.la libxapian.la
+bin_xapian_check_LDADD = $(ldflags) libchertcheck.la libflintcheck.la $(libxapian_la)
 
 bin_xapian_compact_CPPFLAGS = -I$(top_srcdir)/backends/flint
 bin_xapian_compact_SOURCES = bin/xapian-compact.cc
-bin_xapian_compact_LDADD = $(ldflags) libgetopt.la libxapian.la
+bin_xapian_compact_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
 
 bin_xapian_inspect_CPPFLAGS = -I$(top_srcdir)/backends/flint
 bin_xapian_inspect_SOURCES = bin/xapian-inspect.cc
-bin_xapian_inspect_LDADD = $(ldflags) libgetopt.la libxapian.la
+bin_xapian_inspect_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
 
 bin_xapian_progsrv_SOURCES = bin/xapian-progsrv.cc
-bin_xapian_progsrv_LDADD = $(ldflags) libgetopt.la libxapian.la
+bin_xapian_progsrv_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
 
 bin_xapian_replicate_SOURCES = bin/xapian-replicate.cc
-bin_xapian_replicate_LDADD = $(ldflags) libgetopt.la libxapian.la
+bin_xapian_replicate_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
 
 bin_xapian_replicate_server_SOURCES = bin/xapian-replicate-server.cc
-bin_xapian_replicate_server_LDADD = $(ldflags) libgetopt.la libxapian.la
+bin_xapian_replicate_server_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
 
 bin_xapian_tcpsrv_SOURCES = bin/xapian-tcpsrv.cc
-bin_xapian_tcpsrv_LDADD = $(ldflags) libgetopt.la libxapian.la
+bin_xapian_tcpsrv_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
 
 if DOCUMENTATION_RULES
 bin/quartzcheck.1: bin/quartzcheck$(EXEEXT) makemanpage

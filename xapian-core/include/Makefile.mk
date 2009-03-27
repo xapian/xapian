@@ -4,9 +4,9 @@ EXTRA_DIST +=\
 	include/xapian/dir_contents\
 	include/xapian/Makefile
 
-xapianincludedir = $(includedir)/xapian
+xapianincludedir = $(incdir)/xapian
 
-include_HEADERS =\
+inc_HEADERS =\
 	include/xapian.h
 
 xapianinclude_HEADERS =\

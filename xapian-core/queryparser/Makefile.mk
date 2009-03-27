@@ -60,7 +60,7 @@ MAINTAINERCLEANFILES += $(lemon_built_sources)\
 	queryparser/lemon
 endif
 
-libxapian_la_SOURCES +=\
+lib_src +=\
 	queryparser/queryparser.cc\
 	queryparser/queryparser_internal.cc\
 	queryparser/termgenerator.cc\
