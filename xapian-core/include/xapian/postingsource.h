@@ -246,7 +246,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      */
     virtual PostingSource * unserialise(const std::string &s) const;
 
-    /** Reset this PostingSource to the start of the list of postings.
+    /** Set this PostingSource to the start of the list of postings.
      *
      *  This is called automatically by the matcher prior to each query being
      *  processed.
@@ -301,8 +301,8 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
 
     /** An upper bound on the weight returned.
      *
-     *  Subclasses should set this in their reset method if they know a bound
-     *  on the weight.  It defaults to DBL_MAX.
+     *  Subclasses should set this in their @a init() method if they know a
+     *  bound on the weight.  It defaults to DBL_MAX.
      */
     double max_weight;
 
