@@ -29,6 +29,65 @@ Mon Oct 29 03:03:31 GMT 2007  Olly Betts <olly@survex.com>
 	  include/xapian.h,tests/api_db.cc,tests/api_nodb.cc,
 	  tests/api_wrdb.cc: Restore the changes.
 
+Thu Mar 26 23:59:36 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Makefile.am,m4-macros/xapian.m4,xapian-core.spec.in: Rename
+	  xapian.m4 to xapian-1.1.m4 to avoid clash with Xapian 1.0.x.  Both
+	  xapian.m4 and xapian-1.1.m4 will contain XO_LIB_XAPIAN, but aclocal
+	  copes and only copies one of them.  We need to avoid incompatible
+	  changes to XO_LIB_XAPIAN though.
+
+Thu Mar 26 14:29:54 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac,include/Makefile.mk,xapian-config.in: Install headers
+	  in $prefix/include/xapian-1.1/ so they don't clash with 1.0.
+
+Thu Mar 26 13:46:06 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Default program suffix to -1.1 if not specified.  If
+	  you really want no suffix, "./configure --program-suffix=" will
+	  achieve that.
+
+Thu Mar 26 12:49:10 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Makefile.am,api/Makefile.mk,backends/Makefile.mk,
+	  backends/chert/Makefile.mk,backends/flint/Makefile.mk,
+	  backends/inmemory/Makefile.mk,backends/multi/Makefile.mk,
+	  backends/remote/Makefile.mk,bin/Makefile.mk,common/Makefile.mk,
+	  configure.ac,examples/Makefile.mk,expand/Makefile.mk,
+	  languages/Makefile.mk,matcher/Makefile.mk,net/Makefile.mk,
+	  queryparser/Makefile.mk,tests/Makefile.am,tests/perftest/Makefile.mk,
+	  unicode/Makefile.mk,weight/Makefile.mk,xapian-config.in,
+	  xapian-core.spec.in: Change library name to libxapian-1.1 as a first
+	  step towards allowing parallel installation with 1.0.x.
+
+Thu Mar 26 06:53:27 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
+Thu Mar 26 06:50:44 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_values.h: Fix class name in file doc comment.
+
+Thu Mar 26 00:13:48 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/flint/flint_database.cc:
+	  Call ChertDatabase::close() rather than repeating its code.
+
+Wed Mar 25 17:39:01 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/chert/chert_database.cc,backends/flint/flint_database.cc:
+	  Release the lock when the database is closed (either due to a
+	  call to close() or due to a serious error during modifications).
+	  Should fix ticket #354.
+
+Wed Mar 25 16:42:58 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/harness/testutils.cc: Use TEST_EQUAL_DOUBLE_ for comparison
+	  of weights in mset, to fix test failures due to floating point
+	  differences.  (Currently only manifests in some tests in the
+	  matchspy branch, but it's a generally useful fix.)
+
 Wed Mar 25 11:44:36 GMT 2009  Olly Betts <olly@survex.com>
 
 	* configure.ac: Only put ANSI_CXXFLAGS in CXXFLAGS for the duration of

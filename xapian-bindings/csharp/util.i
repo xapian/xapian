@@ -1,7 +1,7 @@
 %{
 /* csharp/util.i: custom C# typemaps for xapian-bindings
  *
- * Copyright (c) 2005,2006,2008 Olly Betts
+ * Copyright (c) 2005,2006,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -49,7 +49,6 @@
 %rename("GetMaxPart") get_maxpart;
 %rename("GetSumExtra") get_sumextra;
 %rename("GetMaxExtra") get_maxextra;
-%rename("GetSumPartNeedsDocLength") get_sumpart_needs_doclength;
 %rename("PostListBegin") postlist_begin;
 %rename("PostListEnd") postlist_end;
 %rename("AllTermsBegin") allterms_begin;

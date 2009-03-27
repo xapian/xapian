@@ -7,7 +7,7 @@ EXTRA_DIST +=\
 	api/dir_contents\
 	api/Makefile
 
-libxapian_la_SOURCES +=\
+lib_src +=\
 	api/documentvaluelist.cc\
 	api/editdistance.cc\
 	api/error.cc\

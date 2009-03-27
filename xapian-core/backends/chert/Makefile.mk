@@ -34,7 +34,7 @@ noinst_HEADERS +=\
 	backends/chert/chert_values.h\
 	backends/chert/chert_version.h
 
-libxapian_la_SOURCES +=\
+lib_src +=\
 	backends/chert/chert_alldocsmodifiedpostlist.cc\
 	backends/chert/chert_alldocspostlist.cc\
 	backends/chert/chert_alltermslist.cc\
