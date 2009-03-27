@@ -63,7 +63,7 @@ class XAPIAN_VISIBILITY_DEFAULT DecreasingValueWeightPostingSource
     std::string name() const;
     std::string serialise() const;
     PostingSource * unserialise(const std::string &s) const;
-    void reset(const Xapian::Database & db_);
+    void init(const Xapian::Database & db_);
 
     void next(Xapian::weight min_wt);
     void skip_to(Xapian::docid min_docid, Xapian::weight min_wt);

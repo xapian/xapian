@@ -76,8 +76,8 @@ DecreasingValueWeightPostingSource::unserialise(const std::string &s) const {
 }
 
 void
-DecreasingValueWeightPostingSource::reset(const Xapian::Database & db_) {
-    Xapian::ValueWeightPostingSource::reset(db_);
+DecreasingValueWeightPostingSource::init(const Xapian::Database & db_) {
+    Xapian::ValueWeightPostingSource::init(db_);
 }
 
 void

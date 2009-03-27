@@ -1,3 +1,8 @@
+Fri Mar 27 08:24:35 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/decvalwtsource.cc,include/xapian/decvalwtsource.h: Rename
+	  reset() to init().
+
 Thu Mar 05 10:12:21 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/decvalwtsource.cc,tests/api_valuestream.cc:  Fix small bug,
