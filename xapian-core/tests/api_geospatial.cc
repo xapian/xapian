@@ -184,7 +184,7 @@ DEFINE_TESTCASE(latlongpostingsource1, backend && writable) {
     // Test a search with no range restriction.
     {
 	Xapian::LatLongDistancePostingSource ps(0, centre, metric);
-	ps.reset(db);
+	ps.init(db);
 
 	ps.next(0.0);
 	TEST_EQUAL(ps.at_end(), false);
@@ -208,7 +208,7 @@ DEFINE_TESTCASE(latlongpostingsource1, backend && writable) {
     // Test a search with a tight range restriction
     {
 	Xapian::LatLongDistancePostingSource ps(0, centre, metric, coorddist * 0.5);
-	ps.reset(db);
+	ps.init(db);
 
 	ps.next(0.0);
 	TEST_EQUAL(ps.at_end(), false);
@@ -221,7 +221,7 @@ DEFINE_TESTCASE(latlongpostingsource1, backend && writable) {
     // Test a search with a looser range restriction
     {
 	Xapian::LatLongDistancePostingSource ps(0, centre, metric, coorddist);
-	ps.reset(db);
+	ps.init(db);
 
 	ps.next(0.0);
 	TEST_EQUAL(ps.at_end(), false);
@@ -240,7 +240,7 @@ DEFINE_TESTCASE(latlongpostingsource1, backend && writable) {
     // the next document.
     {
 	Xapian::LatLongDistancePostingSource ps(0, centre, metric, coorddist * 1.5);
-	ps.reset(db);
+	ps.init(db);
 
 	ps.next(0.0);
 	TEST_EQUAL(ps.at_end(), false);
@@ -259,7 +259,7 @@ DEFINE_TESTCASE(latlongpostingsource1, backend && writable) {
     // be returned.
     {
 	Xapian::LatLongDistancePostingSource ps(0, centre, metric, coorddist * 2.5);
-	ps.reset(db);
+	ps.init(db);
 
 	ps.next(0.0);
 	TEST_EQUAL(ps.at_end(), false);

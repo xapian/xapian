@@ -1,3 +1,9 @@
+Fri Mar 27 08:41:53 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* geospatial/latlong_posting_source.cc,include/xapian/geospatial.h,
+	  tests/api_geospatial.cc: Rename PostingSource subclass reset()
+	  methods to init().
+
 Mon Mar 02 12:24:59 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/api_geospatial.cc: Enable latlongpostingsource1 for all

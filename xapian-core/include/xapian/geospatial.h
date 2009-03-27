@@ -608,7 +608,7 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistancePostingSource : public ValuePosti
     std::string name() const;
     std::string serialise() const;
     LatLongDistancePostingSource * unserialise(const std::string &s) const;
-    void reset(const Database & db_);
+    void init(const Database & db_);
 
     std::string get_description() const;
 };

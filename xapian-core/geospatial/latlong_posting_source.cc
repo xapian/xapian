@@ -232,9 +232,9 @@ LatLongDistancePostingSource::unserialise(const std::string &s) const
 }
 
 void
-LatLongDistancePostingSource::reset(const Database & db_)
+LatLongDistancePostingSource::init(const Database & db_)
 {
-    ValuePostingSource::reset(db_);
+    ValuePostingSource::init(db_);
     if (max_range > 0.0) {
 	// Possible that no documents are in range.
 	termfreq_min = 0;
