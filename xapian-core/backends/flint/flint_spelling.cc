@@ -1,7 +1,7 @@
 /** @file flint_spelling.cc
  * @brief Spelling correction data for a flint database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -135,7 +135,7 @@ FlintSpellingTable::merge_changes()
 	const set<string> & changes = i->second;
 
 	set<string>::const_iterator d = changes.begin();
-	Assert(d != changes.end());
+	if (d == changes.end()) continue;
 
 	string updated;
 	string current;
@@ -143,15 +143,16 @@ FlintSpellingTable::merge_changes()
 	if (get_exact_entry(key, current)) {
 	    PrefixCompressedStringItor in(current);
 	    updated.reserve(current.size()); // FIXME plus some?
-	    while (!in.at_end()) {
+	    while (!in.at_end() && d != changes.end()) {
 		const string & word = *in;
-		if (word < *d) {
+		Assert(d != changes.end());
+		int cmp = word.compare(*d);
+		if (cmp < 0) {
 		    out.append(word);
 		    ++in;
-		} else if (word > *d) {
-		    out.append(*d++);
-		    if (d == changes.end()) break;
-		    continue;
+		} else if (cmp > 0) {
+		    out.append(*d);
+		    ++d;
 		} else {
 		    // If an existing entry is in the changes list, that means
 		    // we should remove it.
@@ -190,13 +191,19 @@ FlintSpellingTable::merge_changes()
 }
 
 void
-FlintSpellingTable::add_fragment(F_fragment frag, const string & word)
+FlintSpellingTable::toggle_fragment(F_fragment frag, const string & word)
 {
     map<F_fragment, set<string> >::iterator i = termlist_deltas.find(frag);
     if (i == termlist_deltas.end()) {
 	i = termlist_deltas.insert(make_pair(frag, set<string>())).first;
     }
-    i->second.insert(word);
+    // The commonest case is that we're adding lots of words, so try insert
+    // first and if that reports that the word already exists, remove it.
+    pair<set<string>::iterator, bool> res = i->second.insert(word);
+    if (!res.second) {
+	// word is already in the set, so remove it.
+	i->second.erase(res.first);
+    }
 }
 
 void
@@ -211,6 +218,9 @@ FlintSpellingTable::add_word(const string & word, Xapian::termcount freqinc)
 	    i->second += freqinc;
 	    return;
 	}
+	// If "word" is currently modified such that it no longer exists, so
+	// we need to execute the code below to re-add trigrams for it.
+	i->second = freqinc;
     } else {
 	string key = "W" + word;
 	string data;
@@ -224,14 +234,10 @@ FlintSpellingTable::add_word(const string & word, Xapian::termcount freqinc)
 	    wordfreq_changes[word] = freq + freqinc;
 	    return;
 	}
+	wordfreq_changes[word] = freqinc;
     }
 
     // New word - need to create trigrams for it.
-    if (i != wordfreq_changes.end()) {
-	i->second = freqinc;
-    } else {
-	wordfreq_changes[word] = freqinc;
-    }
 
     F_fragment buf;
     // Head:
@@ -239,14 +245,14 @@ FlintSpellingTable::add_word(const string & word, Xapian::termcount freqinc)
     buf[1] = word[0];
     buf[2] = word[1];
     buf[3] = '\0';
-    add_fragment(buf, word);
+    toggle_fragment(buf, word);
 
     // Tail:
     buf[0] = 'T';
     buf[1] = word[word.size() - 2];
     buf[2] = word[word.size() - 1];
     buf[3] = '\0';
-    add_fragment(buf, word);
+    toggle_fragment(buf, word);
 
     if (word.size() <= 4) {
 	// We also generate 'bookends' for two, three, and four character
@@ -258,24 +264,15 @@ FlintSpellingTable::add_word(const string & word, Xapian::termcount freqinc)
 	buf[0] = 'B';
 	buf[1] = word[0];
 	buf[3] = '\0';
-	add_fragment(buf, word);
+	toggle_fragment(buf, word);
     }
     if (word.size() > 2) {
 	// Middles:
 	buf[0] = 'M';
 	for (size_t start = 0; start <= word.size() - 3; ++start) {
 	    memcpy(buf.data + 1, word.data() + start, 3);
-	    add_fragment(buf, word);
+	    toggle_fragment(buf, word);
 	}
-    }
-}
-
-void
-FlintSpellingTable::remove_fragment(F_fragment frag, const string & word)
-{
-    map<F_fragment, set<string> >::iterator i = termlist_deltas.find(frag);
-    if (i != termlist_deltas.end()) {
-	i->second.erase(word);
     }
 }
 
@@ -293,9 +290,10 @@ FlintSpellingTable::remove_word(const string & word, Xapian::termcount freqdec)
 	    i->second -= freqdec;
 	    return;
 	}
-    }
 
-    {
+	// Mark word as deleted.
+	i->second = 0;
+    } else {
 	string key = "W" + word;
 	string data;
 	if (!get_exact_entry(key, data)) {
@@ -312,10 +310,11 @@ FlintSpellingTable::remove_word(const string & word, Xapian::termcount freqdec)
 	    wordfreq_changes[word] = freq - freqdec;
 	    return;
 	}
+	// Mark word as deleted.
+	wordfreq_changes[word] = 0;
     }
 
-    // Mark word as deleted, and remove its fragment entries.
-    wordfreq_changes[word] = 0;
+    // Remove fragment entries for word.
 
     F_fragment buf;
     // Head:
@@ -323,28 +322,28 @@ FlintSpellingTable::remove_word(const string & word, Xapian::termcount freqdec)
     buf[1] = word[0];
     buf[2] = word[1];
     buf[3] = '\0';
-    remove_fragment(buf, word);
+    toggle_fragment(buf, word);
 
     // Tail:
     buf[0] = 'T';
     buf[1] = word[word.size() - 2];
     buf[2] = word[word.size() - 1];
     buf[3] = '\0';
-    remove_fragment(buf, word);
+    toggle_fragment(buf, word);
 
     if (word.size() <= 4) {
 	// 'Bookends':
 	buf[0] = 'B';
 	buf[1] = word[0];
 	buf[3] = '\0';
-	remove_fragment(buf, word);
+	toggle_fragment(buf, word);
     }
     if (word.size() > 2) {
 	// Middles:
 	buf[0] = 'M';
 	for (size_t start = 0; start <= word.size() - 3; ++start) {
 	    memcpy(buf.data + 1, word.data() + start, 3);
-	    remove_fragment(buf, word);
+	    toggle_fragment(buf, word);
 	}
     }
 }

@@ -1,3 +1,11 @@
+Fri Mar 27 14:29:05 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_spelling.cc,backends/chert/chert_spelling.h,
+	  backends/flint/flint_spelling.cc,backends/flint/flint_spelling.h:
+	  Fix WritableDatabase::remove_spelling() to not be very broken in
+	  several ways.
+	* tests/api_spelling.cc: Add test coverage for it.
+
 Fri Mar 27 10:43:34 GMT 2009  Olly Betts <olly@survex.com>
 
 	* xapian-config.in: Add @LIBRARY_VERSION_SUFFIX@ to -lxapian too.

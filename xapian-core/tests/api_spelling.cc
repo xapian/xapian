@@ -39,6 +39,7 @@ DEFINE_TESTCASE(spell1, spelling) {
 
     // Check that the more frequent term is chosen.
     db.add_spelling("hello");
+    TEST_EQUAL(db.get_spelling_suggestion("cell"), "hello");
     db.add_spelling("cell", 2);
     TEST_EQUAL(db.get_spelling_suggestion("hell"), "cell");
     db.commit();
@@ -102,6 +103,32 @@ DEFINE_TESTCASE(spell1, spelling) {
     TEST_EQUAL(db.get_spelling_suggestion("shelolx", 3), "hello");
     TEST_EQUAL(db.get_spelling_suggestion("celling", 3), "cell");
     TEST_EQUAL(db.get_spelling_suggestion("dellin", 3), "cell");
+
+    // Make "hello" more frequent than "cell" (3 vs 2).
+    db.add_spelling("hello", 2);
+    TEST_EQUAL(db.get_spelling_suggestion("hell"), "hello");
+    db.commit();
+    TEST_EQUAL(db.get_spelling_suggestion("cello"), "hello");
+    db.remove_spelling("hello", 2);
+    TEST_EQUAL(db.get_spelling_suggestion("hell"), "cell");
+    // Test "over-removing".
+    db.remove_spelling("cell", 6);
+    TEST_EQUAL(db.get_spelling_suggestion("cell"), "hello");
+    db.commit();
+    TEST_EQUAL(db.get_spelling_suggestion("cell"), "hello");
+    db.remove_spelling("hello");
+    TEST_EQUAL(db.get_spelling_suggestion("cell"), "");
+
+    // Test removing words not in the table.
+    db.remove_spelling("nonsuch");
+    db.remove_spelling("zzzzzzzzz", 1000000);
+    db.remove_spelling("aarvark");
+
+    // Try removing word which was present but no longer is.
+    db.remove_spelling("hello");
+    db.commit();
+    db.remove_spelling("hello");
+
     return true;
 }
 
