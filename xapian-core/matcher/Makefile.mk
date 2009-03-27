@@ -27,14 +27,14 @@ EXTRA_DIST +=\
 	matcher/Makefile
 
 if BUILD_BACKEND_REMOTE
-libxapian_la_SOURCES +=\
+lib_src +=\
 	matcher/remotesubmatch.cc
 endif
 # Make sure we always distribute this source.
 EXTRA_DIST +=\
 	matcher/remotesubmatch.cc
 
-libxapian_la_SOURCES +=\
+lib_src +=\
 	matcher/andmaybepostlist.cc\
 	matcher/andnotpostlist.cc\
 	matcher/andpostlist.cc\

@@ -2,6 +2,6 @@ EXTRA_DIST +=\
 	unicode/dir_contents\
 	unicode/Makefile
 
-libxapian_la_SOURCES +=\
+lib_src +=\
 	unicode/tclUniData.cc\
 	unicode/utf8itor.cc

@@ -73,7 +73,7 @@ EXTRA_DIST +=\
 	common/dir_contents\
 	common/Makefile
 
-libxapian_la_SOURCES +=\
+lib_src +=\
 	common/bitstream.cc\
 	common/const_database_wrapper.cc\
 	common/debuglog.cc\
