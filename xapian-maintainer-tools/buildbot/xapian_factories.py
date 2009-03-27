@@ -119,7 +119,7 @@ def gen_tarball_updated_factory(rooturl):
     """
     f = factory.BuildFactory()
     f.addStep(step.ShellCommand, command = ["python", "-c", "import urllib2;open('get_tarballs.py', 'wb').write(urllib2.urlopen('%s').read())" %
-              'http://svn.xapian.org/trunk/xapian-maintainer-tools/buildbot/scripts/get_tarballs.py?revision=HEAD'], workdir='.', haltOnFailure=True)
+              'http://svn.xapian.org/*checkout*/trunk/xapian-maintainer-tools/buildbot/scripts/get_tarballs.py'], workdir='.', haltOnFailure=True)
     f.addStep(step.ShellCommand, command = ["python", 'get_tarballs.py'], workdir='.', haltOnFailure=True)
     f.addStep(step.Configure, workdir='build/xapian-core')
     f.addStep(step.Compile, workdir='build/xapian-core')
@@ -146,11 +146,11 @@ def gen_svn_updated_valgrind_factory(baseURL):
 
     for target in ("check-none", "check-inmemory", "check-remoteprog",
                    "check-flint"):
-        f.addStep(step.Test, name=target, command=("make", target, "XAPIAN_TESTSUITE_OUTPUT=plain"), workdir='build/xapian-core')
+        f.addStep(step.Test, name=target, command=("make", target, "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND=/home/olly/install/bin/valgrind"), workdir='build/xapian-core')
 
     # Currently, valgrind incorrectly reports leaked memory for the remotetcp
     # backend, so check that one without using valgrind.
-    f.addStep(step.Test, name="check-remotetcp", command=("make", "check-remotetcp", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="), workdir='build/xapian-core')
+    f.addStep(step.Test, name="check-remotetcp", command=("make", "check-remotetcp", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND=/home/olly/install/bin/valgrind"), workdir='build/xapian-core')
 
     return f
 
@@ -206,7 +206,7 @@ def gen_tarball_updated_win_factory(rooturl):
     """
     f = factory.BuildFactory()
     f.addStep(step.ShellCommand, command = ["python", "-c", "import urllib2;open('get_tarballs.py', 'wb').write(urllib2.urlopen('%s').read())" %
-              'http://svn.xapian.org/trunk/xapian-maintainer-tools/buildbot/scripts/get_tarballs.py?revision=HEAD'], workdir='.', haltOnFailure=True)
+              'http://svn.xapian.org/*checkout*/trunk/xapian-maintainer-tools/buildbot/scripts/get_tarballs.py'], workdir='.', haltOnFailure=True)
     f.addStep(step.ShellCommand, command = ["python", 'get_tarballs.py'], workdir='.', haltOnFailure=True)
     f.addStep(step.Compile, workdir='build/xapian-core/win32', command=("compile_with_vc7.bat"))
     return f
