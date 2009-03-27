@@ -1,13 +1,40 @@
 up to:
- 12212       olly Wed Mar 18 04:36:59 GMT 2009  Olly Betts <olly@survex.com>
+ 12251       olly Wed Mar 25 04:48:50 GMT 2009  Olly Betts <olly@survex.com>
 
 Potential backport fodder:
+
+ 12245       olly 	* backends/multi/multi_postlist.cc,backends/multi/multi_postlist.h:
+ 12245       olly 	  MultiPostList::read_position_list() is never used, so remove it.
+
+ 12244       olly 	* backends/multi/multi_postlist.cc: Remove "[" and "]" from the output
+ 12244       olly 	  of MultiPostList::get_description().  Remove excess "," from output
+ 12244       olly 	  of MultiPostList::get_description().
+ 12244       olly 	* tests/api_db.cc: Add some test coverage of
+ 12244       olly 	  PostingIterator::get_wdf() and PostingIterator::get_description().
+
+ 12243       olly 	* api/ompostlistiterator.cc: Remove "[" and "]" from
+ 12243       olly 	  Xapian::PostingIterator::get_description() as they don't add
+ 12243       olly 	  anything useful.
+
+ 12242       olly 	* backends/inmemory/inmemory_database.cc: Add a space in the output
+ 12242       olly 	  of InMemoryPostList::get_description() and
+ 12242       olly 	  InMemoryAllDocsPostList::get_description().
+
+ 12239       olly 	* backends/multi/multi_postlist.cc,backends/multi/multi_postlist.h:
+ 12239       olly 	  MultiPostList::get_termfreq() is never used, so remove it.
 
  * bin/xapian-check.cc,bin/xapian-check-flint.cc: Don't stop checking
    a table after an error in certain cases - instead increment the
    error counter and try to continue checking from the next item.
 
 trunk only:
+
+ 12232       olly 	* backends/chert/chert_database.cc,backends/flint/flint_database.cc,
+ 12232       olly 	  backends/inmemory/inmemory_database.cc,
+ 12232       olly 	  backends/inmemory/inmemory_positionlist.cc,
+ 12232       olly 	  common/inmemory_positionlist.h,docs/deprecation.rst,
+ 12232       olly 	  tests/api_posdb.cc: Change Database::positionlist_begin() not to
+ 12232       olly 	  throw exceptions if the term or document doesn't exist.
 
  11701       olly 	* common/expandweight.h,expand/expandweight.cc: Overhaul ExpandWeight
  11701       olly 	  - now we use the "official" formula and don't return terms which it

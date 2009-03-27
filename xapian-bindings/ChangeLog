@@ -4,6 +4,21 @@ Tue Dec 09 00:06:44 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 	  which don't support directors, so that built-in posting sources,
 	  like the geospatial one, can be used.
 
+Fri Mar 27 03:27:03 GMT 2009  Olly Betts <olly@survex.com>
+
+	* csharp/util.i,java-swig/util.i,ruby/util.i: Remove %rename
+	  directives for get_sumpart_needs_doclength as this method no longer
+	  exists.
+
+Wed Mar 25 17:31:28 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/pythontest2.py: Change deletion of database objects to
+	  Database.close() calls, which should be more robust across
+	  different python implementations, and should also avoid problems
+	  on windows when the temporary database directories are deleted if
+	  other objects which aren't deleted have lingering references to
+	  the database.
+
 Tue Mar 24 12:37:45 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* ruby/Makefile.am: Fix dependency target in ruby's xapian_wrap.d
