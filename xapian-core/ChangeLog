@@ -1,3 +1,10 @@
+Fri Mar 27 07:44:59 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Add two new targets to assist generating test coverage
+	  reports with lcov: coverage-reconfigure which reruns configure in
+	  the source tree and coverage-check which runs "make check" and
+	  generates an HTML report in a directory called "lcov".
+	  
 Thu Mar 26 23:59:36 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Makefile.am,m4-macros/xapian.m4,xapian-core.spec.in: Rename
