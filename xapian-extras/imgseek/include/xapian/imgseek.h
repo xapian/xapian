@@ -189,7 +189,7 @@ class XAPIAN_VISIBILITY_DEFAULT ImgSigSimilarityPostingSource
 
     void next(Xapian::weight min_wt);
     bool at_end() const;
-    void reset(const Xapian::Database &db);
+    void init(const Xapian::Database &db);
     std::string get_description() const;
 };
 

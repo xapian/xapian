@@ -345,7 +345,7 @@ ImgSigSimilarityPostingSource::at_end() const {
 }
 
 void
-ImgSigSimilarityPostingSource::reset(const Xapian::Database & db_) {
+ImgSigSimilarityPostingSource::init(const Xapian::Database & db_) {
   started = false;
   db = db_;
 }

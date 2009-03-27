@@ -1,3 +1,8 @@
+Fri Mar 27 13:32:43 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* imgseek/include/xapian/imgseek.h,imgseek/src/imgseek.cc: Update
+	  reset() method to be called init().
+
 Thu Mar 05 11:10:42 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* Makefile.am,imgseek/Makefile.mk,imgseek/include/xapian/imgseek.h:
