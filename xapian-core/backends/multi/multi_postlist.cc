@@ -36,8 +36,7 @@ MultiPostList::MultiPostList(std::vector<LeafPostList *> & pls,
 	: postlists(pls),
 	  this_db(this_db_),
 	  finished(false),
-	  currdoc(0),
-	  freq_initialised(false)
+	  currdoc(0)
 {
     multiplier = pls.size();
 }
@@ -55,18 +54,9 @@ MultiPostList::~MultiPostList()
 Xapian::doccount
 MultiPostList::get_termfreq() const
 {
-    if (freq_initialised) return termfreq;
-    LOGLINE(DB, "Calculating multiple term frequencies");
-
-    // Calculate and remember the termfreq
-    termfreq = 0;
-    std::vector<LeafPostList *>::const_iterator i;
-    for (i = postlists.begin(); i != postlists.end(); i++) {
-	termfreq += (*i)->get_termfreq();
-    }
-
-    freq_initialised = true;
-    return termfreq;
+    // Should never get called.
+    Assert(false);
+    return 0;
 }
 
 Xapian::docid
@@ -78,13 +68,13 @@ MultiPostList::get_docid() const
     RETURN(currdoc);
 }
 
-Xapian::doclength
+Xapian::termcount
 MultiPostList::get_doclength() const
 {
-    DEBUGCALL(DB, Xapian::doclength, "MultiPostList::get_doclength", "");
+    DEBUGCALL(DB, Xapian::termcount, "MultiPostList::get_doclength", "");
     Assert(!at_end());
     Assert(currdoc != 0);
-    Xapian::doclength result = postlists[(currdoc - 1) % multiplier]->get_doclength();
+    Xapian::termcount result = postlists[(currdoc - 1) % multiplier]->get_doclength();
     AssertEqParanoid(result, this_db.get_doclength(get_docid()));
     RETURN(result);
 }
@@ -93,12 +83,6 @@ Xapian::termcount
 MultiPostList::get_wdf() const
 {
     return postlists[(currdoc - 1) % multiplier]->get_wdf();
-}
-
-PositionList *
-MultiPostList::read_position_list()
-{
-    return postlists[(currdoc - 1) % multiplier]->read_position_list();
 }
 
 PositionList *
@@ -184,13 +168,13 @@ MultiPostList::at_end() const
 std::string
 MultiPostList::get_description() const
 {
-    std::string desc = "[";
+    std::string desc;
 
     std::vector<LeafPostList *>::const_iterator i;
     for (i = postlists.begin(); i != postlists.end(); i++) {
+	if (!desc.empty()) desc += ',';
 	desc += (*i)->get_description();
-	if (i != postlists.end()) desc += ",";
     }
 
-    return desc + "]:" + om_tostring(get_termfreq());
+    return desc;
 }

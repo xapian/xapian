@@ -75,6 +75,6 @@ MAINTAINERCLEANFILES += $(snowball_built_sources)\
 	languages/allsnowballheaders.h
 endif
 
-libxapian_la_SOURCES += $(snowball_built_sources)\
+lib_src += $(snowball_built_sources)\
 	languages/stem.cc\
 	languages/steminternal.cc

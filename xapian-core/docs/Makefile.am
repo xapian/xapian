@@ -13,7 +13,8 @@ HTMLDOCS = index.html internals.html install.html intro_ir.html overview.html \
 
 RSTDOCS = admin_notes.rst deprecation.rst glossary.rst \
  postingsource.rst replication.rst replication_protocol.rst \
- sorting.rst spelling.rst synonyms.rst termgenerator.rst valueranges.rst
+ sorting.rst serialisation.rst spelling.rst synonyms.rst \
+ termgenerator.rst valueranges.rst
 RSTHTML = $(RSTDOCS:.rst=.html)
 
 # Files which should be put in the distribution by automake

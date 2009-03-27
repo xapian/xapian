@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -532,6 +532,7 @@ FlintDatabase::close()
     synonym_table.close(true);
     spelling_table.close(true);
     record_table.close(true);
+    lock.release();
 }
 
 void
@@ -758,15 +759,9 @@ FlintDatabase::modifications_failed(flint_revision_number_t old_revision,
 	++new_revision;
 	set_revision_number(new_revision);
     } catch (const Xapian::Error &e) {
-	// Permanently close the table, since we can't get it into a
-	// consistent state, to avoid risk of database corruption.
-	postlist_table.close(true);
-	position_table.close(true);
-	termlist_table.close(true);
-	value_table.close(true);
-	synonym_table.close(true);
-	spelling_table.close(true);
-	record_table.close(true);
+	// We can't get the database into a consistent state, so close
+	// it to avoid the risk of database corruption.
+	FlintDatabase::close();
 	throw Xapian::DatabaseError("Modifications failed (" + msg +
 				    "), and cannot set consistent table "
 				    "revision numbers: " + e.get_msg());
@@ -828,6 +823,13 @@ FlintDatabase::get_lastdocid() const
     RETURN(lastdocid);
 }
 
+totlen_t
+FlintDatabase::get_total_length() const
+{
+    DEBUGCALL(DB, totlen_t, "FlintDatabase::get_total_length", "");
+    RETURN(total_length);
+}
+
 Xapian::doclength
 FlintDatabase::get_avlength() const
 {
@@ -840,10 +842,10 @@ FlintDatabase::get_avlength() const
     RETURN(double(total_length) / doccount);
 }
 
-Xapian::doclength
+Xapian::termcount
 FlintDatabase::get_doclength(Xapian::docid did) const
 {
-    DEBUGCALL(DB, Xapian::doclength, "FlintDatabase::get_doclength", did);
+    DEBUGCALL(DB, Xapian::termcount, "FlintDatabase::get_doclength", did);
     Assert(did != 0);
     RETURN(termlist_table.get_doclength(did));
 }
@@ -926,14 +928,9 @@ FlintDatabase::open_position_list(Xapian::docid did, const string & term) const
 
     AutoPtr<FlintPositionList> poslist(new FlintPositionList);
     if (!poslist->read_data(&position_table, did, term)) {
-	// Check that term / document combination exists.
-	// If the doc doesn't exist, this will throw Xapian::DocNotFoundError:
-	AutoPtr<TermList> tl(open_term_list(did));
-	tl->skip_to(term);
-	if (tl->at_end() || tl->get_termname() != term)
-	    throw Xapian::RangeError("Can't open position list: requested term is not present in document.");
-	// FIXME: For 1.2.0, change this to just return an empty termlist.
-	// If the user really needs to know, they can check themselves.
+	// As of 1.1.0, we don't check if the did and term exist - we just
+	// return an empty positionlist.  If the user really needs to know,
+	// they can check for themselves.
     }
 
     return poslist.release();
@@ -1049,10 +1046,10 @@ FlintWritableDatabase::~FlintWritableDatabase()
 }
 
 void
-FlintWritableDatabase::flush()
+FlintWritableDatabase::commit()
 {
     if (transaction_active())
-	throw Xapian::InvalidOperationError("Can't flush during a transaction");
+	throw Xapian::InvalidOperationError("Can't commit during a transaction");
     if (change_count) flush_postlist_changes();
     apply();
 }
@@ -1402,10 +1399,10 @@ FlintWritableDatabase::replace_document(Xapian::docid did,
     }
 }
 
-Xapian::doclength
+Xapian::termcount
 FlintWritableDatabase::get_doclength(Xapian::docid did) const
 {
-    DEBUGCALL(DB, Xapian::doclength, "FlintWritableDatabase::get_doclength", did);
+    DEBUGCALL(DB, Xapian::termcount, "FlintWritableDatabase::get_doclength", did);
     map<docid, termcount>::const_iterator i = doclens.find(did);
     if (i != doclens.end()) RETURN(i->second);
 

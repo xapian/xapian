@@ -28,46 +28,20 @@ dnl
 dnl 6. If any interfaces have been removed since the last public release
 dnl    then set AGE to 0.
 dnl
-dnl Older libxapian versions:
-dnl 0:0:0 0.7.2 (and 0.7.1 and 0.7.0 - 0.7.0 was the first libxapian version)
-dnl 0:1:0 0.7.3
-dnl 1:0:0 0.7.4 (Xapian::ESet now has reference counted internals)
-dnl 1:1:1 0.7.5 (Xapian::{Term,Posting,Position}Iterator default ctors added)
-dnl 2:0:0 0.8.0 (TradWeight ctor explicit; Xapian::Document::add_term() added)
-dnl Older libxapianqueryparser versions:
-dnl 0:0:0 0.7.2 (and 0.7.1 and 0.7.0)
-dnl 0:1:0 0.7.3 (and 0.7.4)
-dnl 0:2:0 0.7.5
-dnl 1:0:0 0.8.0
-dnl LIBRARY_VERSION_INFO:
-dnl 3:0:0 0.8.1 (Xapian::Database::get_lastdocid added; QueryParser tries
-dnl	       reparsing after stripping punctuation; several unused
-dnl	       Error subclasses removed; assorted Iterator changes)
-dnl 4:0:1 0.8.2 (Xapian::ESet::back and many other methods added)
-dnl 4:1:1 0.8.3 No API changes
-dnl 5:0:0 0.8.4 BM25Weight ctor parameters reordered
-dnl 5:1:0 0.8.5 No API changes
-dnl 6:0:0 0.9.0 QueryParser API overhauled, etc
-dnl 7:0:0 0.9.1 Query::get_terms_end() now inline in header
-dnl 8:0:0 0.9.2 QueryParser::parse_query has new optional argument
-dnl 9:0:1 0.9.3 Added xapian_version_string(), etc
-dnl 10:0:0 0.9.4 Fixed typo in name of xapian_revision()
-dnl 11:0:0 0.9.5 Document::termlist_end() now inline in header, etc
-dnl 12:0:1 0.9.6 Added Xapian::version_string(), etc
-dnl 13:0:0 0.9.7 Rewritten Xapian::Error class
-dnl 13:0:0 0.9.8 No API changes (failed to bump revision)
-dnl 13:1:0 0.9.9 No API changes
-dnl 13:2:0 0.9.10 No API changes
-dnl 14:0:0 1.0.0 Numerous API changes
-dnl 15:0:0 1.0.1 Error::error_string changed type
-dnl 16:0:1 1.0.2 New QueryParser flags, etc
-dnl 17:0:2 1.0.3 Database::get_metadata(), etc
-dnl 18:0:3 1.0.4 New Query ctor for OP_SCALE_WEIGHT
-dnl 19:0:4 1.0.5 Enquire copyable/assignable + new methods; new Sorter class
-dnl 20:0:5 1.0.6 Unicode::toupper(); OP_VALUE_GE/OP_VALUE_LE
-dnl 20:1:5 1.0.7 No API changes
-LIBRARY_VERSION_INFO=20:1:5
+dnl LIBRARY_VERSION_INFO for libxapian-1.1:
+dnl 0:0:0 1.1.0 Reset as library renamed
+LIBRARY_VERSION_INFO=0:0:0
 AC_SUBST(LIBRARY_VERSION_INFO)
+
+LIBRARY_VERSION_SUFFIX=-1.1
+AC_SUBST(LIBRARY_VERSION_SUFFIX)
+
+dnl Default to "-1.1"; for no suffix, specify: --program-suffix=
+test x"$program_suffix" != xNONE || program_suffix=-1.1
+
+dnl Where xapian.h, etc go.
+incdir=$includedir/xapian-1.1
+AC_SUBST(incdir)
 
 dnl Check the build directory doesn't contain a space, so we die early with
 dnl a helpful error.
@@ -311,7 +285,7 @@ else
       dnl 4273 "floating-point equality and inequality comparisons may be
       dnl	inappropriate due to roundoff common in floating-point computation"
       dnl	No obvious workaround for when you really do want == or !=.
-      dnl 4285 "operator= does not have a check for the sourc and destination
+      dnl 4285 "operator= does not have a check for the source and destination
       dnl	addresses being non-identical" - fires for AutoPtr which
       dnl	includes such a check indirectly (internaltest's autoptr1 check this).
       dnl 20201 "Memory leak is detected" which triggers for "return new Foo;"!
@@ -358,10 +332,15 @@ else
   fi
 fi
 
-dnl Put any flags for ANSI mode in CXXFLAGS not AM_CXXFLAGS since AM_CXXFLAGS
-dnl is only used in the Makefiles and we want to use such flags in configure
-dnl tests.
-test -n "$ANSI_CXXFLAGS" && CXXFLAGS="$ANSI_CXXFLAGS $CXXFLAGS"
+dnl Preserve the default CXXFLAGS.
+save_CXXFLAGS=$CXXFLAGS
+
+dnl Put any flags for ANSI mode in CXXFLAGS for the duration of configure
+dnl since we want to make feature tests using those flags.
+if test -n "$ANSI_CXXFLAGS" ; then
+  CXXFLAGS="$ANSI_CXXFLAGS $CXXFLAGS"
+  AM_CXXFLAGS="$ANSI_CXXFLAGS $AM_CXXFLAGS"
+fi
 
 dnl Make 'xapian-config --cxxflags' turn on any such flags for code linking
 dnl with Xapian.
@@ -484,65 +463,43 @@ AC_CHECK_HEADERS([fcntl.h limits.h sys/errno.h sys/select.h], [], [], [ ])
 dnl If valgrind is installed and new enough, we use it for leak checking in the
 dnl testsuite.  If VALGRIND is set to an empty value, then skip the check and
 dnl don't use valgrind.
-dnl
-dnl Default to what modern valgrind knows, so the user can specify valgrind
-dnl when running runtest even if it doesn't get picked up here.
-VALGRIND_LOG_FILE_OPT=--log-file
 if test -n "${VALGRIND-unset}" ; then
   AC_PATH_PROG(VALGRIND, valgrind, [])
   if test -n "$VALGRIND" ; then
-    dnl Check that the valgrind version installed supports the most recently
-    dnl added client request which we use - VALGRIND_DO_LEAK_CHECK is ages old,
-    dnl VALGRIND_COUNT_ERRORS was added at the same time as VALGRIND_COUNT_LEAKS
-    AC_MSG_CHECKING([for VALGRIND_COUNT_LEAKS])
-    AC_EGREP_CPP(yes,
-      [#include <valgrind/memcheck.h>
-       #ifdef VALGRIND_COUNT_LEAKS
-       yes
-       #endif
-      ], AC_MSG_RESULT(found),
-      AC_MSG_RESULT(not supported)
-      [VALGRIND=])
-  fi
-
-  if test -n "$VALGRIND" ; then
-    dnl Check that the installed valgrind version works, and see if it needs
-    dnl --tool=memcheck to work (older and newer versions don't, but some in
-    dnl between do).  Valgrind 2.1.2 and later have a --log-file option but
-    dnl 2.1.1 and older had --logfile instead, so we need to check this too.
-    AC_MSG_CHECKING([for valgrind options to use])
-    if $VALGRIND --log-file=config.valgrind.tmp -q true 2> /dev/null ; then
-      dnl Test the case which matches a modern valgrind first so we handle
-      dnl the common case quickly with a single test.
-      AC_MSG_RESULT([--log-file])
-    else
-      dnl Now we have to test individual options.
-      if $VALGRIND --tool=memcheck -q true 2> /dev/null ; then
-	dnl This valgrind version requires --tool=memcheck
-	VALGRIND="$VALGRIND --tool=memcheck"
-	AC_MSG_RESULT([--tool=memcheck])
-	AC_MSG_CHECKING([for valgrind options to use])
-      fi
-      if $VALGRIND --log-file=config.valgrind.tmp -q true 2>/dev/null ; then
-	AC_MSG_RESULT([--log-file])
-      elif $VALGRIND --logfile=config.valgrind.tmp -q true 2>/dev/null ; then
-	VALGRIND_LOG_FILE_OPT=--logfile
-	AC_MSG_RESULT([--logfile])
+    dnl Check that the installed valgrind version works, and supports the
+    dnl options we use.  This means we won't try to use valgrind < 3.3.0
+    dnl (released 7/12/2007) since before that --log-file didn't expand
+    dnl %p (and appended the process id).
+    dnl
+    dnl No need to check for VALGRIND_COUNT_LEAKS now - that was added before
+    dnl 2.0.0.
+    AC_MSG_CHECKING([if valgrind supports --log-file with %p])
+    vglog=config.vglog.%p.tmp
+    vglogwild="config.vglog.*.tmp*"
+    rm -f $vglogwild
+    if $VALGRIND --log-file="$vglog" -q true 2> /dev/null ; then
+      for f in $vglogwild ; do
+        case $f in
+	$vglog*) VALGRIND= ;;
+	esac
+      done
+      if test x"$VALGRIND" = x ; then
+	AC_MSG_RESULT([no])
       else
-	dnl The valgrind detected doesn't seem to work!  Perhaps this is an
-	dnl x86_64 box with a 32 bit valgrind.
-	AC_MSG_RESULT([$VALGRIND doesn't work])
-	VALGRIND=
-      fi
+	AC_MSG_RESULT([yes])
+      fi	
+    else
+      dnl The valgrind detected doesn't seem to work!  Perhaps this is an
+      dnl x86_64 box with a 32 bit valgrind.
+      AC_MSG_RESULT([$VALGRIND doesn't work])
+      VALGRIND=
     fi
-    rm -f config.valgrind.tmp*
+    rm -f $vglogwild
   fi
 fi
-AC_SUBST(VALGRIND_LOG_FILE_OPT)
 
 if test -n "$VALGRIND" ; then
-  AC_DEFINE(HAVE_VALGRIND, 1,
-	    [Define if valgrind is installed and supports VALGRIND_COUNT_LEAKS])
+  AC_DEFINE(HAVE_VALGRIND, 1, [Define if a suitable valgrind is installed])
 fi
 
 dnl Checks for library functions.
@@ -603,7 +560,7 @@ case $ac_cv_func_snprintf in
     AC_MSG_RESULT([$ac_cv_func_snprintf_noniso])
     if test no != "$ac_cv_func_snprintf_noniso" ; then
       AC_DEFINE_UNQUOTED(SNPRINTF, [$ac_cv_func_snprintf_noniso],
-	[Define to the name of a function implementing snprintf but not caring about ISO C90 return value semantics (if one exists)])
+	[Define to the name of a function implementing snprintf but not caring about ISO C99 return value semantics (if one exists)])
     fi
     ;;
   unknown)
@@ -611,9 +568,9 @@ case $ac_cv_func_snprintf in
     ;;
   *)
     AC_DEFINE_UNQUOTED(SNPRINTF_ISO, [$ac_cv_func_snprintf],
-       [Define to the name of a function implementing snprintf with ISO C90 semantics (if one exists)])
+       [Define to the name of a function implementing snprintf with ISO C99 semantics (if one exists)])
     AC_DEFINE_UNQUOTED(SNPRINTF, [$ac_cv_func_snprintf],
-       [Define to the name of a function implementing snprintf but not caring about ISO C90 return value semantics (if one exists)])
+       [Define to the name of a function implementing snprintf but not caring about ISO C99 return value semantics (if one exists)])
     ;;
 esac
 
@@ -966,32 +923,37 @@ if test yes = "$GXX"; then
       dnl not much point worrying about whether older versions had them or not.
       AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords"
 
-      dnl GCC2 reports e.g. "2.7.2.3" or "2.95.4".  3.0 reports e.g. "3.0.4"
-      dnl but somewhere in the 3.X series the output became more verbose
-      dnl (3.2 has the new style output - not sure about 3.1).  So we need to
-      dnl run the output through head and sed to extract the version number.
-      gxx_version=`$CXX --version 2>&1|head -1|${SED-sed} 's/^[[^ ]]* (GCC) //;s/ .*//'`
+      dnl The output of g++ --version seems to change with almost every minor
+      dnl release so use the preprocessor macros which should be more robust.
+      gxx_major_version=`echo __GNUC__|$CXX -E -|sed '/^#/d;s/ //g'`
+      gxx_minor_version=`echo __GNUC_MINOR__|$CXX -E -|sed '/^#/d;s/ //g'`
+      gxx_version=$gxx_major_version.$gxx_minor_version
 
       case $gxx_version in
       2.96)
 	dnl Oddly Redhat's "2.96" doesn't support -Wundef, though real
 	dnl GCC versions before and after it do!
 	;;
-      [[012]].* | 3.0*) dnl GCC < 3.1, other than 2.96
+      [[012]].* | 3.0) dnl GCC < 3.1, other than 2.96
 	dnl GCC 3.0 supports -Wshadow, but it spews false positives (at least
 	dnl with 3.0.4) so we don't use it.
 	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef" ;;
       3.*)
 	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow" ;;
-      *)
+      *) dnl GCC >= 4.0
 	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow"
 
-	dnl -Winit-self was added in GCC 3.4, but contrary to the documentation
-	dnl it is currently (tested with GCC 4.2) ignored by g++ which warns for
-	dnl this case with -Wuninitialized (implied by -W).
-	dnl -Wstrict-overflow is new in GCC 4.2.
+	dnl -Winit-self was added in GCC 3.4, but up to at least GCC 4.2 it is
+	dnl ignored by g++ which warns for this case with -Wuninitialized
+	dnl (implied by -W).  But at some point this bug (filed upstream as
+	dnl http://gcc.gnu.org/PR34772) may get fixed so we pass this option
+	dnl anyway - we don't intend to use this idiom, so any instances are
+	dnl bugs we'd like to know about.
+	dnl
+	dnl -Wstrict-overflow is new in GCC 4.2.  Higher settings than 1 have
+	dnl proved too noisy.
 	case $gxx_version in
-	4.0*|4.1*) ;;
+	4.[[01]]) ;;
 	*) AM_CXXFLAGS="$AM_CXXFLAGS -Winit-self -Wstrict-overflow=1" ;;
 	esac
 
@@ -1074,6 +1036,9 @@ fi
 AC_SUBST(STLPORT_CXXFLAGS)
 
 AC_SUBST(AM_CXXFLAGS)
+
+dnl Restore CXXFLAGS to those the user specified or autoconf defaulted to.
+CXXFLAGS=$save_CXXFLAGS
 
 dnl See if large file support is available
 AC_SYS_LARGEFILE

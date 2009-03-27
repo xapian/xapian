@@ -1,5 +1,5 @@
 /** @file chert_values.h
- * @brief ChertValueTable class
+ * @brief ChertValueManager class
  */
 /* Copyright (C) 2008 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd

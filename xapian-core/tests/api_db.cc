@@ -389,6 +389,9 @@ DEFINE_TESTCASE(matchfunctor1, backend && !remote) {
     TEST_EQUAL(mymset.get_matches_lower_bound(), 3);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 3);
     TEST_EQUAL(mymset.get_matches_estimated(), 3);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_lower_bound(), 3);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_upper_bound(), 3);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_estimated(), 3);
     for ( ; i != mymset.end(); ++i) {
 	const Xapian::Document doc(i.get_document());
 	TEST(myfunctor(doc));
@@ -406,20 +409,30 @@ DEFINE_TESTCASE(matchfunctor1, backend && !remote) {
     TEST_EQUAL(mymset.size(), 0);
     TEST_EQUAL(mymset.get_matches_lower_bound(), 0);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 6);
-    TEST(mymset.get_matches_estimated() > 0);
-    TEST(mymset.get_matches_estimated() <= 6);
+    TEST_REL(mymset.get_matches_estimated(),>,0);
+    TEST_REL(mymset.get_matches_estimated(),<=,6);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_lower_bound(), 0);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_upper_bound(), 6);
+    TEST_REL(mymset.get_uncollapsed_matches_estimated(),>,0);
+    TEST_REL(mymset.get_uncollapsed_matches_estimated(),<=,6);
 
     // Check that the bounds are appropriate if we ask for only one hit.
     // (Regression test - until SVN 10256, we didn't reduce the lower_bound
     // appropriately, and returned 6 here.)
     mymset = enquire.get_mset(0, 1, 0, &myfunctor);
     TEST_EQUAL(mymset.size(), 1);
-    TEST(mymset.get_matches_lower_bound() >= 1);
-    TEST(mymset.get_matches_lower_bound() <= 3);
-    TEST(mymset.get_matches_upper_bound() >= 3);
-    TEST(mymset.get_matches_upper_bound() <= 6);
-    TEST(mymset.get_matches_estimated() > 0);
-    TEST(mymset.get_matches_estimated() <= 6);
+    TEST_REL(mymset.get_matches_lower_bound(),>=,1);
+    TEST_REL(mymset.get_matches_lower_bound(),<=,3);
+    TEST_REL(mymset.get_matches_upper_bound(),>=,3);
+    TEST_REL(mymset.get_matches_upper_bound(),<=,6);
+    TEST_REL(mymset.get_matches_estimated(),>,0);
+    TEST_REL(mymset.get_matches_estimated(),<=,6);
+    TEST_REL(mymset.get_uncollapsed_matches_lower_bound(),>=,1);
+    TEST_REL(mymset.get_uncollapsed_matches_lower_bound(),<=,3);
+    TEST_REL(mymset.get_uncollapsed_matches_upper_bound(),>=,3);
+    TEST_REL(mymset.get_uncollapsed_matches_upper_bound(),<=,6);
+    TEST_REL(mymset.get_uncollapsed_matches_estimated(),>,0);
+    TEST_REL(mymset.get_uncollapsed_matches_estimated(),<=,6);
 
     // Check that the other documents don't satisfy the condition.
     for (Xapian::docid did = 1; did < docid_checked.size(); ++did) {
@@ -433,12 +446,18 @@ DEFINE_TESTCASE(matchfunctor1, backend && !remote) {
     enquire.set_collapse_key(99);
     mymset = enquire.get_mset(0, 1, 0, &myfunctor);
     TEST_EQUAL(mymset.size(), 1);
-    TEST(mymset.get_matches_lower_bound() >= 1);
-    TEST(mymset.get_matches_lower_bound() <= 3);
-    TEST(mymset.get_matches_upper_bound() >= 3);
-    TEST(mymset.get_matches_upper_bound() <= 6);
-    TEST(mymset.get_matches_estimated() > 0);
-    TEST(mymset.get_matches_estimated() <= 6);
+    TEST_REL(mymset.get_matches_lower_bound(),>=,1);
+    TEST_REL(mymset.get_matches_lower_bound(),<=,3);
+    TEST_REL(mymset.get_matches_upper_bound(),>=,3);
+    TEST_REL(mymset.get_matches_upper_bound(),<=,6);
+    TEST_REL(mymset.get_matches_estimated(),>,0);
+    TEST_REL(mymset.get_matches_estimated(),<=,6);
+    TEST_REL(mymset.get_uncollapsed_matches_lower_bound(),>=,1);
+    TEST_REL(mymset.get_uncollapsed_matches_lower_bound(),<=,3);
+    TEST_REL(mymset.get_uncollapsed_matches_upper_bound(),>=,3);
+    TEST_REL(mymset.get_uncollapsed_matches_upper_bound(),<=,6);
+    TEST_REL(mymset.get_uncollapsed_matches_estimated(),>,0);
+    TEST_REL(mymset.get_uncollapsed_matches_estimated(),<=,6);
 
     // Check that the bounds are appropriate if a percentage cutoff is in
     // use.  Set a 1% threshold so we don't actually discard anything.
@@ -446,23 +465,35 @@ DEFINE_TESTCASE(matchfunctor1, backend && !remote) {
     enquire.set_cutoff(1);
     mymset = enquire.get_mset(0, 1, 0, &myfunctor);
     TEST_EQUAL(mymset.size(), 1);
-    TEST(mymset.get_matches_lower_bound() >= 1);
-    TEST(mymset.get_matches_lower_bound() <= 3);
-    TEST(mymset.get_matches_upper_bound() >= 3);
-    TEST(mymset.get_matches_upper_bound() <= 6);
-    TEST(mymset.get_matches_estimated() > 0);
-    TEST(mymset.get_matches_estimated() <= 6);
+    TEST_REL(mymset.get_matches_lower_bound(),>=,1);
+    TEST_REL(mymset.get_matches_lower_bound(),<=,3);
+    TEST_REL(mymset.get_matches_upper_bound(),>=,3);
+    TEST_REL(mymset.get_matches_upper_bound(),<=,6);
+    TEST_REL(mymset.get_matches_estimated(),>,0);
+    TEST_REL(mymset.get_matches_estimated(),<=,6);
+    TEST_REL(mymset.get_uncollapsed_matches_lower_bound(),>=,1);
+    TEST_REL(mymset.get_uncollapsed_matches_lower_bound(),<=,3);
+    TEST_REL(mymset.get_uncollapsed_matches_upper_bound(),>=,3);
+    TEST_REL(mymset.get_uncollapsed_matches_upper_bound(),<=,6);
+    TEST_REL(mymset.get_uncollapsed_matches_estimated(),>,0);
+    TEST_REL(mymset.get_uncollapsed_matches_estimated(),<=,6);
 
     // And now with both a collapse key and percentage cutoff.
     enquire.set_collapse_key(99);
     mymset = enquire.get_mset(0, 1, 0, &myfunctor);
     TEST_EQUAL(mymset.size(), 1);
-    TEST(mymset.get_matches_lower_bound() >= 1);
-    TEST(mymset.get_matches_lower_bound() <= 3);
-    TEST(mymset.get_matches_upper_bound() >= 3);
-    TEST(mymset.get_matches_upper_bound() <= 6);
-    TEST(mymset.get_matches_estimated() > 0);
-    TEST(mymset.get_matches_estimated() <= 6);
+    TEST_REL(mymset.get_matches_lower_bound(),>=,1);
+    TEST_REL(mymset.get_matches_lower_bound(),<=,3);
+    TEST_REL(mymset.get_matches_upper_bound(),>=,3);
+    TEST_REL(mymset.get_matches_upper_bound(),<=,6);
+    TEST_REL(mymset.get_matches_estimated(),>,0);
+    TEST_REL(mymset.get_matches_estimated(),<=,6);
+    TEST_REL(mymset.get_uncollapsed_matches_lower_bound(),>=,1);
+    TEST_REL(mymset.get_uncollapsed_matches_lower_bound(),<=,3);
+    TEST_REL(mymset.get_uncollapsed_matches_upper_bound(),>=,3);
+    TEST_REL(mymset.get_uncollapsed_matches_upper_bound(),<=,6);
+    TEST_REL(mymset.get_uncollapsed_matches_estimated(),>,0);
+    TEST_REL(mymset.get_uncollapsed_matches_estimated(),<=,6);
 
     return true;
 }
@@ -519,26 +550,35 @@ DEFINE_TESTCASE(matchfunctor3, backend) {
 
     myMatchDecider2 myfunctor;
 
-    Xapian::MSet mymset1 = enquire.get_mset(0, 2, 0, NULL, &myfunctor);
-    Xapian::MSet mymset2 = enquire.get_mset(0, 1000, 0, NULL, &myfunctor);
+    Xapian::MSet mset1 = enquire.get_mset(0, 2, 0, NULL, &myfunctor);
+    Xapian::MSet mset2 = enquire.get_mset(0, 1000, 0, NULL, &myfunctor);
 
-    // mymset2 should contain all the hits, so the statistics should be exact.
-    TEST_EQUAL(mymset2.get_matches_estimated(),
-	       mymset2.size());
-    TEST_EQUAL(mymset2.get_matches_lower_bound(),
-	       mymset2.get_matches_estimated());
-    TEST_EQUAL(mymset2.get_matches_estimated(),
-	       mymset2.get_matches_upper_bound());
+    // mset2 should contain all the hits, so the statistics should be exact.
+    TEST_EQUAL(mset2.get_matches_estimated(), mset2.size());
+    TEST_EQUAL(mset2.get_matches_lower_bound(), mset2.get_matches_estimated());
+    TEST_EQUAL(mset2.get_matches_estimated(), mset2.get_matches_upper_bound());
 
-    // Check that the lower bound in mymset1 is not greater than the known
+    TEST_REL(mset2.get_uncollapsed_matches_lower_bound(),<=,mset2.get_uncollapsed_matches_estimated());
+    TEST_REL(mset2.get_uncollapsed_matches_estimated(),<=,mset2.get_uncollapsed_matches_upper_bound());
+
+    // Check that the lower bound in mset1 is not greater than the known
     // number of hits.  This failed until revision 10811.
-    TEST_LESSER_OR_EQUAL(mymset1.get_matches_lower_bound(),
-			 mymset2.size());
+    TEST_REL(mset1.get_matches_lower_bound(),<=,mset2.size());
 
-    // Check that the bounds for mymset1 make sense
-    TEST_LESSER_OR_EQUAL(mymset1.get_matches_lower_bound(), mymset1.get_matches_estimated());
-    TEST_LESSER_OR_EQUAL(mymset1.size(), mymset1.get_matches_upper_bound());
-    TEST_LESSER_OR_EQUAL(mymset1.get_matches_estimated(), mymset1.get_matches_upper_bound());
+    // Check that the bounds for mset1 make sense.
+    TEST_REL(mset1.get_matches_lower_bound(),<=,mset1.get_matches_estimated());
+    TEST_REL(mset1.get_matches_estimated(),<=,mset1.get_matches_upper_bound());
+    TEST_REL(mset1.size(),<=,mset1.get_matches_upper_bound());
+
+    TEST_REL(mset1.get_uncollapsed_matches_lower_bound(),<=,mset1.get_uncollapsed_matches_estimated());
+    TEST_REL(mset1.get_uncollapsed_matches_estimated(),<=,mset1.get_uncollapsed_matches_upper_bound());
+
+    // The uncollapsed match would match all documents but the one the
+    // matchdecider rejects.
+    TEST_REL(mset1.get_uncollapsed_matches_upper_bound(),>=,db.get_doccount() - 1);
+    TEST_REL(mset1.get_uncollapsed_matches_upper_bound(),<=,db.get_doccount());
+    TEST_REL(mset2.get_uncollapsed_matches_upper_bound(),>=,db.get_doccount() - 1);
+    TEST_REL(mset2.get_uncollapsed_matches_upper_bound(),<=,db.get_doccount());
 
     return true;
 }
@@ -736,7 +776,7 @@ DEFINE_TESTCASE(collapsekey2, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata2"));
     enquire.set_query(Xapian::Query("this"));
 
-    Xapian::MSet mymset1 = enquire.get_mset(0, 1);
+    Xapian::MSet mset1 = enquire.get_mset(0, 1);
 
     // Test that if no duplicates are found, then the upper bound remains
     // unchanged and the lower bound drops.
@@ -744,10 +784,10 @@ DEFINE_TESTCASE(collapsekey2, backend) {
 	enquire.set_query(Xapian::Query("this"));
 	Xapian::valueno value_no = 3;
 	enquire.set_collapse_key(value_no);
-	Xapian::MSet mymset = enquire.get_mset(0, 1);
+	Xapian::MSet mset = enquire.get_mset(0, 1);
 
-	TEST(mymset.get_matches_lower_bound() < mymset1.get_matches_lower_bound());
-	TEST_EQUAL(mymset.get_matches_upper_bound(), mymset1.get_matches_upper_bound());
+	TEST_REL(mset.get_matches_lower_bound(),<,mset1.get_matches_lower_bound());
+	TEST_EQUAL(mset.get_matches_upper_bound(), mset1.get_matches_upper_bound());
     }
 
     return true;
@@ -1218,13 +1258,19 @@ DEFINE_TESTCASE(postlist2, backend) {
     p = db.postlist_begin("this");
     Xapian::PostingIterator pend = db.postlist_end("this");
 
+    TEST(p.get_description() != "Xapian::PostingIterator(pos=END)");
+
     // test operator= creates a copy which compares equal
     Xapian::PostingIterator p_copy = p;
     TEST_EQUAL(p, p_copy);
 
+    TEST(p_copy.get_description() != "Xapian::PostingIterator(pos=END)");
+
     // test copy constructor creates a copy which compares equal
     Xapian::PostingIterator p_clone(p);
     TEST_EQUAL(p, p_clone);
+
+    TEST(p_clone.get_description() != "Xapian::PostingIterator(pos=END)");
 
     vector<Xapian::docid> v(p, pend);
 
@@ -1237,6 +1283,12 @@ DEFINE_TESTCASE(postlist2, backend) {
 	p++;
     }
     TEST_EQUAL(p, pend);
+
+    TEST_STRINGS_EQUAL(p.get_description(),
+		       "Xapian::PostingIterator(pos=END)");
+    TEST_STRINGS_EQUAL(pend.get_description(),
+		       "Xapian::PostingIterator(pos=END)");
+
     return true;
 }
 
@@ -1294,7 +1346,8 @@ DEFINE_TESTCASE(postlist6, backend) {
     TEST(i != db.postlist_end("this"));
     while (i != db.postlist_end("this")) {
 	TEST_EQUAL(i.get_doclength(), db.get_doclength(*i));
-	i++;
+	TEST_REL(i.get_wdf(),<=,i.get_doclength());
+	++i;
     }
     return true;
 }
@@ -1765,7 +1818,12 @@ DEFINE_TESTCASE(netstats1, remote) {
 	Xapian::Enquire enq(db);
 	enq.set_query(query);
 	Xapian::MSet mset = enq.get_mset(0, MSET_SIZE, &rset);
-	TEST_EQUAL(mset, mset_alllocal);
+	TEST_EQUAL(mset.get_matches_lower_bound(), mset_alllocal.get_matches_lower_bound());
+	TEST_EQUAL(mset.get_matches_upper_bound(), mset_alllocal.get_matches_upper_bound());
+	TEST_EQUAL(mset.get_matches_estimated(), mset_alllocal.get_matches_estimated());
+	TEST_EQUAL(mset.get_max_attained(), mset_alllocal.get_max_attained());
+	TEST_EQUAL(mset.size(), mset_alllocal.size());
+	TEST(mset_range_is_same(mset, 0, mset_alllocal, 0, mset.size()));
     }
 
     {
@@ -1776,7 +1834,12 @@ DEFINE_TESTCASE(netstats1, remote) {
 	Xapian::Enquire enq(db);
 	enq.set_query(query);
 	Xapian::MSet mset = enq.get_mset(0, MSET_SIZE, &rset);
-	TEST_EQUAL(mset, mset_alllocal);
+	TEST_EQUAL(mset.get_matches_lower_bound(), mset_alllocal.get_matches_lower_bound());
+	TEST_EQUAL(mset.get_matches_upper_bound(), mset_alllocal.get_matches_upper_bound());
+	TEST_EQUAL(mset.get_matches_estimated(), mset_alllocal.get_matches_estimated());
+	TEST_EQUAL(mset.get_max_attained(), mset_alllocal.get_max_attained());
+	TEST_EQUAL(mset.size(), mset_alllocal.size());
+	TEST(mset_range_is_same(mset, 0, mset_alllocal, 0, mset.size()));
     }
 
     {
@@ -1787,7 +1850,12 @@ DEFINE_TESTCASE(netstats1, remote) {
 	Xapian::Enquire enq(db);
 	enq.set_query(query);
 	Xapian::MSet mset = enq.get_mset(0, MSET_SIZE, &rset);
-	TEST_EQUAL(mset, mset_alllocal);
+	TEST_EQUAL(mset.get_matches_lower_bound(), mset_alllocal.get_matches_lower_bound());
+	TEST_EQUAL(mset.get_matches_upper_bound(), mset_alllocal.get_matches_upper_bound());
+	TEST_EQUAL(mset.get_matches_estimated(), mset_alllocal.get_matches_estimated());
+	TEST_EQUAL(mset.get_max_attained(), mset_alllocal.get_max_attained());
+	TEST_EQUAL(mset.size(), mset_alllocal.size());
+	TEST(mset_range_is_same(mset, 0, mset_alllocal, 0, mset.size()));
     }
 
     return true;
@@ -1795,24 +1863,27 @@ DEFINE_TESTCASE(netstats1, remote) {
 
 // Coordinate matching - scores 1 for each matching term
 class MyWeight : public Xapian::Weight {
-    public:
-	MyWeight * clone() const {
-	    return new MyWeight;
-	}
-	MyWeight() { }
-	~MyWeight() { }
-	std::string name() const { return "Coord"; }
-	std::string serialise() const { return ""; }
-	MyWeight * unserialise(const std::string & /*s*/) const {
-	    return new MyWeight;
-	}
-	Xapian::weight get_sumpart(Xapian::termcount /*wdf*/, Xapian::doclength /*len*/) const { return 1; }
-	Xapian::weight get_maxpart() const { return 1; }
+    double scale_factor;
 
-	Xapian::weight get_sumextra(Xapian::doclength /*len*/) const { return 0; }
-	Xapian::weight get_maxextra() const { return 0; }
+  public:
+    MyWeight * clone() const {
+	return new MyWeight;
+    }
+    void init(double factor) {
+	scale_factor = factor;
+    }
+    MyWeight() { }
+    ~MyWeight() { }
+    std::string name() const { return "MyWeight"; }
+    string serialise() const { return string(); }
+    MyWeight * unserialise(const string &) const { return new MyWeight; }
+    Xapian::weight get_sumpart(Xapian::termcount, Xapian::termcount) const {
+	return scale_factor;
+    }
+    Xapian::weight get_maxpart() const { return scale_factor; }
 
-	bool get_sumpart_needs_doclength() const { return false; }
+    Xapian::weight get_sumextra(Xapian::termcount) const { return 0; }
+    Xapian::weight get_maxextra() const { return 0; }
 };
 
 // tests user weighting scheme.
@@ -1850,12 +1921,14 @@ DEFINE_TESTCASE(matchall1, backend) {
     enquire.set_query(Xapian::Query::MatchAll);
     Xapian::MSet mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.get_matches_lower_bound(), db.get_doccount());
+    TEST_EQUAL(mset.get_uncollapsed_matches_lower_bound(), db.get_doccount());
 
     enquire.set_query(Xapian::Query(Xapian::Query::OP_OR,
 				    Xapian::Query("nosuchterm"),
 				    Xapian::Query::MatchAll));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.get_matches_lower_bound(), db.get_doccount());
+    TEST_EQUAL(mset.get_uncollapsed_matches_lower_bound(), db.get_doccount());
 
     // Check that the results aren't ranked by relevance (fixed in 1.0.9).
     TEST(mset.size() > 1);
@@ -1894,19 +1967,19 @@ class MyOddPostingSource : public Xapian::PostingSource {
 
     Xapian::docid did;
 
-  public:
-    MyOddPostingSource(const Xapian::Database &db)
-	: num_docs(db.get_doccount()), last_docid(db.get_lastdocid()), did(0)
-    { }
-
     MyOddPostingSource(Xapian::doccount num_docs_,
 		       Xapian::doccount last_docid_)
 	: num_docs(num_docs_), last_docid(last_docid_), did(0)
     { }
 
+  public:
+    MyOddPostingSource(const Xapian::Database &db)
+	: num_docs(db.get_doccount()), last_docid(db.get_lastdocid()), did(0)
+    { }
+
     PostingSource * clone() const { return new MyOddPostingSource(num_docs, last_docid); }
 
-    void reset(const Xapian::Database &) { did = 0; }
+    void init(const Xapian::Database &) { did = 0; }
 
     // These bounds could be better, but that's not important here.
     Xapian::doccount get_termfreq_min() const { return 0; }
@@ -1938,8 +2011,9 @@ class MyOddPostingSource : public Xapian::PostingSource {
 };
 
 DEFINE_TESTCASE(externalsource1, backend && !remote && !multi) {
-    // FIXME: PostingSource doesn't currently work well with multi databases
-    // but we should try to resolve that issue.
+    // Doesn't work for remote without registering with the server.
+    // Doesn't work for multi because it checks the docid in the
+    // subdatabase.
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::Enquire enq(db);
     MyOddPostingSource src(db);
@@ -1966,7 +2040,8 @@ DEFINE_TESTCASE(externalsource1, backend && !remote && !multi) {
 }
 
 // Test that trying to use PostingSource with the remote backend throws
-// Xapian::UnimplementedError as intended.
+// Xapian::UnimplementedError as expected (we need to register the class
+// in xapian-tcpsrv/xapian-progsrv for this to work).
 DEFINE_TESTCASE(externalsource2, remote) {
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::Enquire enq(db);
@@ -1995,19 +2070,19 @@ class MyOddWeightingPostingSource : public Xapian::PostingSource {
 
     Xapian::docid did;
 
-  public:
-    MyOddWeightingPostingSource(const Xapian::Database &db)
-	: num_docs(db.get_doccount()), last_docid(db.get_lastdocid()), did(0)
-    { }
-
     MyOddWeightingPostingSource(Xapian::doccount num_docs_,
 				Xapian::doccount last_docid_)
 	: num_docs(num_docs_), last_docid(last_docid_), did(0)
     { }
 
+  public:
+    MyOddWeightingPostingSource(const Xapian::Database &db)
+	: num_docs(db.get_doccount()), last_docid(db.get_lastdocid()), did(0)
+    { }
+
     PostingSource * clone() const { return new MyOddWeightingPostingSource(num_docs, last_docid); }
 
-    void reset(const Xapian::Database &) { did = 0; }
+    void init(const Xapian::Database &) { did = 0; }
 
     Xapian::weight get_weight() const {
 	return (did % 2) ? 1000 : 0.001;
@@ -2048,8 +2123,9 @@ class MyOddWeightingPostingSource : public Xapian::PostingSource {
 
 // Like externalsource1, except we use the weight to favour odd documents.
 DEFINE_TESTCASE(externalsource3, backend && !remote && !multi) {
-    // FIXME: PostingSource doesn't currently work well with multi databases
-    // but we should try to resolve that issue.
+    // Doesn't work for remote without registering with the server.
+    // Doesn't work for multi because it checks the docid in the
+    // subdatabase.
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::Enquire enq(db);
     MyOddWeightingPostingSource src(db);
@@ -2099,19 +2175,21 @@ class MyDontAskWeightPostingSource : public Xapian::PostingSource {
 
     Xapian::docid did;
 
-  public:
-    MyDontAskWeightPostingSource(const Xapian::Database &db)
-	: num_docs(db.get_doccount()), last_docid(db.get_lastdocid()), did(0)
-    { }
-
     MyDontAskWeightPostingSource(Xapian::doccount num_docs_,
 				 Xapian::doccount last_docid_)
 	: num_docs(num_docs_), last_docid(last_docid_), did(0)
     { }
 
+  public:
+    MyDontAskWeightPostingSource() : Xapian::PostingSource() {}
+
     PostingSource * clone() const { return new MyDontAskWeightPostingSource(num_docs, last_docid); }
 
-    void reset(const Xapian::Database &) { did = 0; }
+    void init(const Xapian::Database &db) {
+	num_docs = db.get_doccount();
+	last_docid = db.get_lastdocid();
+	did = 0;
+    }
 
     Xapian::weight get_weight() const {
 	FAIL_TEST("MyDontAskWeightPostingSource::get_weight() called");
@@ -2151,12 +2229,10 @@ class MyDontAskWeightPostingSource : public Xapian::PostingSource {
 };
 
 // Check that boolean use doesn't call get_weight() or get_maxweight().
-DEFINE_TESTCASE(externalsource4, backend && !remote && !multi) {
-    // FIXME: PostingSource doesn't currently work well with multi databases
-    // but we should try to resolve that issue.
+DEFINE_TESTCASE(externalsource4, backend && !remote) {
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::Enquire enq(db);
-    MyDontAskWeightPostingSource src(db);
+    MyDontAskWeightPostingSource src;
 
     tout << "OP_SCALE_WEIGHT 0" << endl;
     enq.set_query(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT, Xapian::Query(&src), 0));
@@ -2221,7 +2297,7 @@ DEFINE_TESTCASE(valueweightsource1, backend) {
 DEFINE_TESTCASE(valueweightsource2, backend && valuestats) {
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::ValueWeightPostingSource src(11);
-    src.reset(db);
+    src.init(db);
     TEST_EQUAL(src.get_termfreq_min(), 17);
     TEST_EQUAL(src.get_termfreq_est(), 17);
     TEST_EQUAL(src.get_termfreq_max(), 17);
@@ -2231,13 +2307,11 @@ DEFINE_TESTCASE(valueweightsource2, backend && valuestats) {
 }
 
 // Check that valueweightsource skip_to() can stay in the same position.
-DEFINE_TESTCASE(valueweightsource3, backend && valuestats) {
-    // FIXME: PostingSource doesn't currently work well with multi databases
-    // but we should try to resolve that issue.
-    SKIP_TEST_FOR_BACKEND("multi");
+DEFINE_TESTCASE(valueweightsource3, backend && valuestats && !multi) {
+    // FIXME: multi doesn't support iterating valuestreams yet.
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::ValueWeightPostingSource src(11);
-    src.reset(db);
+    src.init(db);
     TEST(!src.at_end());
     src.skip_to(8, 0.0);
     TEST(!src.at_end());
@@ -2272,7 +2346,7 @@ DEFINE_TESTCASE(fixedweightsource1, backend) {
     {
 	// Check next and skip_to().
 	Xapian::FixedWeightPostingSource src(wt);
-	src.reset(db);
+	src.init(db);
 
 	src.next(1.0);
 	TEST(!src.at_end());
@@ -2289,7 +2363,7 @@ DEFINE_TESTCASE(fixedweightsource1, backend) {
     {
 	// Check check() as the first operation, followed by next.
 	Xapian::FixedWeightPostingSource src(wt);
-	src.reset(db);
+	src.init(db);
 
 	TEST_EQUAL(src.check(5, 1.0), true);
 	TEST(!src.at_end());
@@ -2301,7 +2375,7 @@ DEFINE_TESTCASE(fixedweightsource1, backend) {
     {
 	// Check check() as the first operation, followed by skip_to().
 	Xapian::FixedWeightPostingSource src(wt);
-	src.reset(db);
+	src.init(db);
 
 	TEST_EQUAL(src.check(5, 1.0), true);
 	TEST(!src.at_end());

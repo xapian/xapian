@@ -2,8 +2,8 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2008 Olly Betts
- * Copyright 2007 Lemur Consulting Ltd
+ * Copyright 2002,2003,2004,2006,2008,2009 Olly Betts
+ * Copyright 2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -55,7 +55,7 @@ MergePostList::next(Xapian::weight w_min)
     DEBUGCALL(MATCH, PostList *, "MergePostList::next", w_min);
     LOGVALUE(MATCH, current);
     if (current == -1) current = 0;
-    do {
+    while (true) {
 	// FIXME: should skip over Remote matchers which aren't ready yet
 	// and come back to them later...
 	try {
@@ -73,7 +73,9 @@ MergePostList::next(Xapian::weight w_min)
 		throw;
 	    }
 	}
-    } while (unsigned(current) < plists.size());
+	if (unsigned(current) >= plists.size()) break;
+	if (matcher) matcher->recalc_maxweight();
+    }
     LOGVALUE(MATCH, current);
     RETURN(NULL);
 }
@@ -217,10 +219,10 @@ MergePostList::get_description() const
     return desc + ")";
 }
 
-Xapian::doclength
+Xapian::termcount
 MergePostList::get_doclength() const
 {
-    DEBUGCALL(MATCH, Xapian::doclength, "MergePostList::get_doclength", "");
+    DEBUGCALL(MATCH, Xapian::termcount, "MergePostList::get_doclength", "");
     Assert(current != -1);
     return plists[current]->get_doclength();
 }

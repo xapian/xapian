@@ -1,7 +1,7 @@
 /* testutils.cc: Xapian-specific test helper functions.
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2004,2007,2008 Olly Betts
+ * Copyright 2003,2004,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,6 +22,8 @@
 #include <config.h>
 
 #include "testutils.h"
+
+#include "testsuite.h"
 
 #include <fstream>
 #include <vector>
@@ -58,7 +60,14 @@ mset_range_is_same(const Xapian::MSet &mset1, unsigned int first1,
     Xapian::MSetIterator j = mset2[first2];
 
     for (unsigned int l = 0; l < count; ++l) {
-	if (*i != *j || i.get_weight() != j.get_weight()) {
+	if (*i != *j) {
+	    tout << "docids differ at item " << (l + 1) << " in range: "
+		    << *i << " != " << *j << "\n";
+	    return false;
+	}
+	if (!TEST_EQUAL_DOUBLE_(i.get_weight(), j.get_weight())) {
+	    tout << "weights differ at item " << (l + 1) << " in range: "
+		    << i.get_weight() << " != " << j.get_weight() << "\n";
 	    return false;
 	}
 	++i;
@@ -86,7 +95,9 @@ mset_range_is_same_weights(const Xapian::MSet &mset1, unsigned int first1,
     Xapian::MSetIterator j = mset2[first2];
 
     for (unsigned int l = 0; l < count; ++l) {
-	if (i.get_weight() != j.get_weight()) {
+	if (!TEST_EQUAL_DOUBLE_(i.get_weight(), j.get_weight())) {
+	    tout << "weights differ at item " << (l + 1) << " in range: "
+		    << i.get_weight() << " != " << j.get_weight() << "\n";
 	    return false;
 	}
 	++i;
@@ -115,6 +126,7 @@ mset_range_is_same_percents(const Xapian::MSet &mset1, unsigned int first1,
 
     for (unsigned int l = 0; l < count; ++l) {
 	if (i.get_percent() != j.get_percent()) {
+	    tout << i.get_percent() << "% != " << j.get_percent() << "%\n";
 	    return false;
 	}
 	++i;

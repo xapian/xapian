@@ -68,7 +68,7 @@ class SetWeightPostList : public PostList {
 	return subpl->get_docid();
     }
 
-    Xapian::doclength get_doclength() const {
+    Xapian::termcount get_doclength() const {
 	return subpl->get_doclength();
     }
 

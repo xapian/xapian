@@ -145,6 +145,9 @@ DEFINE_TESTCASE(emptyquery1, backend) {
     TEST_EQUAL(mymset.get_matches_lower_bound(), 0);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 0);
     TEST_EQUAL(mymset.get_matches_estimated(), 0);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_lower_bound(), 0);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_upper_bound(), 0);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_estimated(), 0);
 
     vector<Xapian::Query> v;
     enquire.set_query(Xapian::Query(Xapian::Query::OP_AND, v.begin(), v.end()));
@@ -153,6 +156,9 @@ DEFINE_TESTCASE(emptyquery1, backend) {
     TEST_EQUAL(mymset.get_matches_lower_bound(), 0);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 0);
     TEST_EQUAL(mymset.get_matches_estimated(), 0);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_lower_bound(), 0);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_upper_bound(), 0);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_estimated(), 0);
 
     return true;
 }
@@ -511,8 +517,12 @@ DEFINE_TESTCASE(topercent2, backend) {
     pct = mymset.convert_to_percent(i);
     TEST_EQUAL(pct, 100);
 
-    TEST_EQUAL(mymset, localmset);
-    TEST(mset_range_is_same_percents(mymset, 0, localmset, 0, mymset.size()));
+    TEST_EQUAL(mymset.get_matches_lower_bound(), localmset.get_matches_lower_bound());
+    TEST_EQUAL(mymset.get_matches_upper_bound(), localmset.get_matches_upper_bound());
+    TEST_EQUAL(mymset.get_matches_estimated(), localmset.get_matches_estimated());
+    TEST_EQUAL(mymset.get_max_attained(), localmset.get_max_attained());
+    TEST_EQUAL(mymset.size(), localmset.size());
+    TEST(mset_range_is_same(mymset, 0, localmset, 0, mymset.size()));
 
     // A search in which the top document doesn't have 100%
     Xapian::Query q = query(Xapian::Query::OP_OR,
@@ -525,18 +535,22 @@ DEFINE_TESTCASE(topercent2, backend) {
     i = mymset.begin();
     TEST(i != mymset.end());
     pct = mymset.convert_to_percent(i);
-    TEST_GREATER(pct, 65);
-    TEST_LESSER(pct, 75);
+    TEST_REL(pct,>,60);
+    TEST_REL(pct,<,75);
 
     ++i;
 
     TEST(i != mymset.end());
     pct = mymset.convert_to_percent(i);
-    TEST_GREATER(pct, 40);
-    TEST_LESSER(pct, 50);
+    TEST_REL(pct,>,40);
+    TEST_REL(pct,<,50);
 
-    TEST_EQUAL(mymset, localmset);
-    TEST(mset_range_is_same_percents(mymset, 0, localmset, 0, mymset.size()));
+    TEST_EQUAL(mymset.get_matches_lower_bound(), localmset.get_matches_lower_bound());
+    TEST_EQUAL(mymset.get_matches_upper_bound(), localmset.get_matches_upper_bound());
+    TEST_EQUAL(mymset.get_matches_estimated(), localmset.get_matches_estimated());
+    TEST_EQUAL(mymset.get_max_attained(), localmset.get_max_attained());
+    TEST_EQUAL(mymset.size(), localmset.size());
+    TEST(mset_range_is_same(mymset, 0, localmset, 0, mymset.size()));
 
     return true;
 }
@@ -691,9 +705,14 @@ DEFINE_TESTCASE(pctcutoff2, backend) {
     enquire.set_cutoff(cutoff);
     enquire.set_collapse_key(1234); // Value which is always empty.
 
-    mset = enquire.get_mset(0, 1);
-    TEST_EQUAL(mset.size(), 1);
-    TEST_EQUAL(mset.get_matches_lower_bound(), 1);
+    Xapian::MSet mset2 = enquire.get_mset(0, 1);
+    TEST_EQUAL(mset2.size(), 1);
+    TEST_EQUAL(mset2.get_matches_lower_bound(), 1);
+    TEST_REL(mset2.get_uncollapsed_matches_lower_bound(),>=,1);
+    TEST_REL(mset2.get_uncollapsed_matches_lower_bound(),<=,mset.size());
+    TEST_REL(mset2.get_uncollapsed_matches_upper_bound(),>=,mset.size());
+    TEST_REL(mset2.get_uncollapsed_matches_lower_bound(),<=,mset2.get_uncollapsed_matches_estimated());
+    TEST_REL(mset2.get_uncollapsed_matches_upper_bound(),>=,mset2.get_uncollapsed_matches_estimated());
 
     return true;
 }
@@ -1401,16 +1420,10 @@ DEFINE_TESTCASE(qterminfo1, backend) {
 
     TEST_EQUAL(mymset1a.get_termfreq(term1),
 	       mymset2a.get_termfreq(term1));
-    TEST_EQUAL(mymset1a.get_termweight(term1),
-	       mymset2a.get_termweight(term1));
     TEST_EQUAL(mymset1a.get_termfreq(term2),
 	       mymset2a.get_termfreq(term2));
-    TEST_EQUAL(mymset1a.get_termweight(term2),
-	       mymset2a.get_termweight(term2));
     TEST_EQUAL(mymset1a.get_termfreq(term3),
 	       mymset2a.get_termfreq(term3));
-    TEST_EQUAL(mymset1a.get_termweight(term3),
-	       mymset2a.get_termweight(term3));
 
     TEST_EQUAL(mymset1a.get_termfreq(term1), 3);
     TEST_EQUAL(mymset1a.get_termfreq(term2), 1);
@@ -1482,6 +1495,9 @@ DEFINE_TESTCASE(matches1, backend) {
     TEST_EQUAL(mymset.get_matches_lower_bound(), 2);
     TEST_EQUAL(mymset.get_matches_estimated(), 2);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 2);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_lower_bound(), 2);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_estimated(), 2);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_upper_bound(), 2);
 
     myquery = query(Xapian::Query::OP_OR, "inmemory", "word");
     enquire.set_query(myquery);
@@ -1489,6 +1505,9 @@ DEFINE_TESTCASE(matches1, backend) {
     TEST_EQUAL(mymset.get_matches_lower_bound(), 2);
     TEST_EQUAL(mymset.get_matches_estimated(), 2);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 2);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_lower_bound(), 2);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_estimated(), 2);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_upper_bound(), 2);
 
     myquery = query(Xapian::Query::OP_AND, "inmemory", "word");
     enquire.set_query(myquery);
@@ -1496,6 +1515,9 @@ DEFINE_TESTCASE(matches1, backend) {
     TEST_EQUAL(mymset.get_matches_lower_bound(), 0);
     TEST_EQUAL(mymset.get_matches_estimated(), 0);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 0);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_lower_bound(), 0);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_estimated(), 0);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_upper_bound(), 0);
 
     myquery = query(Xapian::Query::OP_AND, "simple", "word");
     enquire.set_query(myquery);
@@ -1503,6 +1525,9 @@ DEFINE_TESTCASE(matches1, backend) {
     TEST_EQUAL(mymset.get_matches_lower_bound(), 2);
     TEST_EQUAL(mymset.get_matches_estimated(), 2);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 2);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_lower_bound(), 2);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_estimated(), 2);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_upper_bound(), 2);
 
     myquery = query(Xapian::Query::OP_AND, "simple", "word");
     enquire.set_query(myquery);
@@ -1511,19 +1536,28 @@ DEFINE_TESTCASE(matches1, backend) {
     // one sub-database has 3 documents and simple and word both have termfreq
     // of 2, so the matcher can tell at least one document must match!)
     // TEST_EQUAL(mymset.get_matches_lower_bound(), 0);
-    TEST(mymset.get_matches_lower_bound() <= mymset.get_matches_estimated());
+    TEST_REL(mymset.get_matches_lower_bound(),<=,mymset.get_matches_estimated());
     TEST_EQUAL(mymset.get_matches_estimated(), 1);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 2);
+    TEST_REL(mymset.get_uncollapsed_matches_lower_bound(),<=,mymset.get_uncollapsed_matches_estimated());
+    TEST_EQUAL(mymset.get_uncollapsed_matches_estimated(), 1);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_upper_bound(), 2);
 
     mymset = enquire.get_mset(0, 1);
     TEST_EQUAL(mymset.get_matches_lower_bound(), 2);
     TEST_EQUAL(mymset.get_matches_estimated(), 2);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 2);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_lower_bound(), 2);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_estimated(), 2);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_upper_bound(), 2);
 
     mymset = enquire.get_mset(0, 2);
     TEST_EQUAL(mymset.get_matches_lower_bound(), 2);
     TEST_EQUAL(mymset.get_matches_estimated(), 2);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 2);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_lower_bound(), 2);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_estimated(), 2);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_upper_bound(), 2);
 
     myquery = query(Xapian::Query::OP_AND, "paragraph", "another");
     enquire.set_query(myquery);
@@ -1531,21 +1565,33 @@ DEFINE_TESTCASE(matches1, backend) {
     TEST_EQUAL(mymset.get_matches_lower_bound(), 1);
     TEST_EQUAL(mymset.get_matches_estimated(), 2);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 2);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_lower_bound(), 1);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_estimated(), 2);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_upper_bound(), 2);
 
     mymset = enquire.get_mset(0, 1);
     TEST_EQUAL(mymset.get_matches_lower_bound(), 1);
     TEST_EQUAL(mymset.get_matches_estimated(), 2);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 2);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_lower_bound(), 1);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_estimated(), 2);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_upper_bound(), 2);
 
     mymset = enquire.get_mset(0, 2);
     TEST_EQUAL(mymset.get_matches_lower_bound(), 1);
     TEST_EQUAL(mymset.get_matches_estimated(), 1);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 1);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_lower_bound(), 1);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_estimated(), 1);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_upper_bound(), 1);
 
     mymset = enquire.get_mset(1, 20);
     TEST_EQUAL(mymset.get_matches_lower_bound(), 1);
     TEST_EQUAL(mymset.get_matches_estimated(), 1);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 1);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_lower_bound(), 1);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_estimated(), 1);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_upper_bound(), 1);
 
     return true;
 }
@@ -1793,10 +1839,14 @@ DEFINE_TESTCASE(checkatleast2, backend) {
     Xapian::MSet mymset = enquire.get_mset(0, 3, 10);
     TEST_MSET_SIZE(mymset, 3);
     TEST_EQUAL(mymset.get_matches_lower_bound(), 5);
+    TEST_EQUAL(mymset.get_uncollapsed_matches_lower_bound(), 5);
 
     mymset = enquire.get_mset(0, 2, 4);
     TEST_MSET_SIZE(mymset, 2);
-    TEST_GREATER_OR_EQUAL(mymset.get_matches_lower_bound(), 4);
+    TEST_REL(mymset.get_matches_lower_bound(),>=,4);
+    TEST_REL(mymset.get_matches_lower_bound(),>=,4);
+    TEST_REL(mymset.get_uncollapsed_matches_lower_bound(),>=,4);
+    TEST_REL(mymset.get_uncollapsed_matches_lower_bound(),>=,4);
 
     return true;
 }
@@ -1841,16 +1891,23 @@ DEFINE_TESTCASE(checkatleast3, backend) {
 	    TEST_EQUAL(mset.get_matches_lower_bound(), 60);
 	    TEST_EQUAL(mset.get_matches_estimated(), 60);
 	    TEST_EQUAL(mset.get_matches_upper_bound(), 60);
+	    TEST_EQUAL(mset.get_uncollapsed_matches_lower_bound(), 60);
+	    TEST_EQUAL(mset.get_uncollapsed_matches_estimated(), 60);
+	    TEST_EQUAL(mset.get_uncollapsed_matches_upper_bound(), 60);
 
 	    mset = enquire.get_mset(0, 50, 100);
 	    TEST_MSET_SIZE(mset, 50);
 	    TEST_EQUAL(mset.get_matches_lower_bound(), 60);
 	    TEST_EQUAL(mset.get_matches_estimated(), 60);
 	    TEST_EQUAL(mset.get_matches_upper_bound(), 60);
+	    TEST_EQUAL(mset.get_uncollapsed_matches_lower_bound(), 60);
+	    TEST_EQUAL(mset.get_uncollapsed_matches_estimated(), 60);
+	    TEST_EQUAL(mset.get_uncollapsed_matches_upper_bound(), 60);
 
 	    mset = enquire.get_mset(0, 10, 50);
 	    TEST_MSET_SIZE(mset, 10);
-	    TEST(mset.get_matches_lower_bound() >= 50);
+	    TEST_REL(mset.get_matches_lower_bound(),>=,50);
+	    TEST_REL(mset.get_uncollapsed_matches_lower_bound(),>=,50);
 	}
     }
 
@@ -1994,7 +2051,7 @@ DEFINE_TESTCASE(alldocspl2, backend && writable) {
 	doc.add_value(0, "5");
 	db.replace_document(5, doc);
 
-	// Test iterating before flushing the changes.
+	// Test iterating before committing the changes.
 	i = db.postlist_begin("");
 	end = db.postlist_end("");
 	TEST(i != end);
@@ -2004,9 +2061,9 @@ DEFINE_TESTCASE(alldocspl2, backend && writable) {
 	++i;
 	TEST(i == end);
 
-	db.flush();
+	db.commit();
 
-	// Test iterating after flushing the changes.
+	// Test iterating after committing the changes.
 	i = db.postlist_begin("");
 	end = db.postlist_end("");
 	TEST(i != end);
@@ -2022,7 +2079,7 @@ DEFINE_TESTCASE(alldocspl2, backend && writable) {
 	doc.add_value(0, "7");
 	db.replace_document(7, doc);
 
-	// Test iterating through before flushing the changes.
+	// Test iterating through before committing the changes.
 	i = db.postlist_begin("");
 	end = db.postlist_end("");
 	TEST(i != end);
@@ -2040,7 +2097,7 @@ DEFINE_TESTCASE(alldocspl2, backend && writable) {
 	// Delete the first document.
 	db.delete_document(5);
 
-	// Test iterating through before flushing the changes.
+	// Test iterating through before committing the changes.
 	i = db.postlist_begin("");
 	end = db.postlist_end("");
 	TEST(i != end);
@@ -2050,8 +2107,9 @@ DEFINE_TESTCASE(alldocspl2, backend && writable) {
 	++i;
 	TEST(i == end);
 
-	// Test iterating through after flushing the changes, and dropping the reference to the main DB.
-	db.flush();
+	// Test iterating through after committing the changes, and dropping the
+	// reference to the main DB.
+	db.commit();
 	i = db.postlist_begin("");
 	end = db.postlist_end("");
     }
@@ -2084,14 +2142,15 @@ DEFINE_TESTCASE(valuege1, backend) {
 	    matched.insert(*i);
 	    string value = db.get_document(*i).get_value(1);
 	    tout << "'" << *start << "' <= '" << value << "'" << endl;
-	    TEST(value >= *start);
+	    TEST_REL(value,>=,*start);
 	}
-	// Check that documents not in the MSet don't match the value range filter.
+	// Check that documents not in the MSet don't match the value range
+	// filter.
 	for (Xapian::docid j = db.get_lastdocid(); j != 0; --j) {
 	    if (matched.find(j) == matched.end()) {
 		string value = db.get_document(j).get_value(1);
 		tout << value << " < '" << *start << "'" << endl;
-		TEST(value < *start);
+		TEST_REL(value,<,*start);
 	    }
 	}
     }
@@ -2283,20 +2342,28 @@ DEFINE_TESTCASE(tradweight1, backend) {
     return true;
 }
 
-// Feature test for get_uuid.
+// Feature test for Database::get_uuid().
 DEFINE_TESTCASE(uuid1, backend && !multi) {
     SKIP_TEST_FOR_BACKEND("inmemory");
     Xapian::Database db = get_database("apitest_simpledata");
-    std::string uuid1 = db.get_uuid();
+    string uuid1 = db.get_uuid();
 
+    // A database with no sub-databases has an empty UUID.
     Xapian::Database db2;
-    TEST_EXCEPTION(Xapian::InvalidOperationError, db2.get_uuid());
+    TEST_EQUAL(string(), db2.get_uuid());
 
     db2.add_database(db);
     TEST_EQUAL(uuid1, db2.get_uuid());
 
+    // Multi-database has multiple UUIDs (we don't define the format exactly
+    // so this assumes something about the implementation).
     db2.add_database(db);
-    TEST_EXCEPTION(Xapian::UnimplementedError, db2.get_uuid());
+    TEST_EQUAL(uuid1 + ":" + uuid1, db2.get_uuid());
+
+    // This relies on InMemory databases not supporting uuids.
+    // A multi-database containing a database with no uuid has no uuid.
+    db2.add_database(Xapian::InMemory::open());
+    TEST_EQUAL(string(), db2.get_uuid());
 
     return true;
 }

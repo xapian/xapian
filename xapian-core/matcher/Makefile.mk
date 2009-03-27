@@ -17,7 +17,6 @@ noinst_HEADERS +=\
 	matcher/phrasepostlist.h\
 	matcher/queryoptimiser.h\
 	matcher/remotesubmatch.h\
-	matcher/scaleweight.h\
 	matcher/selectpostlist.h\
 	matcher/setweightpostlist.h\
 	matcher/valuegepostlist.h\
@@ -29,18 +28,17 @@ EXTRA_DIST +=\
 	matcher/Makefile
 
 if BUILD_BACKEND_REMOTE
-libxapian_la_SOURCES +=\
+lib_src +=\
 	matcher/remotesubmatch.cc
 endif
 # Make sure we always distribute this source.
 EXTRA_DIST +=\
 	matcher/remotesubmatch.cc
 
-libxapian_la_SOURCES +=\
+lib_src +=\
 	matcher/andmaybepostlist.cc\
 	matcher/andnotpostlist.cc\
 	matcher/andpostlist.cc\
-	matcher/bm25weight.cc\
 	matcher/branchpostlist.cc\
 	matcher/collapser.cc\
 	matcher/emptysubmatch.cc\
@@ -56,11 +54,7 @@ libxapian_la_SOURCES +=\
 	matcher/phrasepostlist.cc\
 	matcher/queryoptimiser.cc\
 	matcher/rset.cc\
-	matcher/scaleweight.cc\
 	matcher/selectpostlist.cc\
-	matcher/stats.cc\
-	matcher/tradweight.cc\
 	matcher/valuegepostlist.cc\
 	matcher/valuerangepostlist.cc\
-	matcher/weight.cc\
 	matcher/xorpostlist.cc

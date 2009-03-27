@@ -1,6 +1,6 @@
 /* queryparsertest.cc: Tests of Xapian::QueryParser
  *
- * Copyright (C) 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1515,7 +1515,7 @@ static bool test_qp_spell2()
 
     db1.add_spelling("document");
     db1.add_spelling("search");
-    db1.flush();
+    db1.commit();
 
     dbdir = ".flint/qp_spell2b";
     Xapian::WritableDatabase db2(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
@@ -1573,7 +1573,7 @@ static bool test_qp_synonym1()
     db.add_synonym("search", "find");
     db.add_synonym("Zseek", "Zsearch");
 
-    db.flush();
+    db.commit();
 
     Xapian::QueryParser qp;
     qp.set_stemmer(Xapian::Stem("english"));
@@ -1585,11 +1585,7 @@ static bool test_qp_synonym1()
 	expect += p->expect;
 	expect += ')';
 	Xapian::Query q;
-	q = qp.parse_query(p->query,
-			   Xapian::QueryParser::FLAG_AUTO_SYNONYMS |
-			   Xapian::QueryParser::FLAG_BOOLEAN |
-			   Xapian::QueryParser::FLAG_LOVEHATE |
-			   Xapian::QueryParser::FLAG_PHRASE );
+	q = qp.parse_query(p->query, qp.FLAG_AUTO_SYNONYMS|qp.FLAG_DEFAULT);
 	tout << "Query: " << p->query << endl;
 	TEST_STRINGS_EQUAL(q.get_description(), expect);
     }
@@ -1618,7 +1614,7 @@ static bool test_qp_synonym2()
     db.add_synonym("sun tan", "bathe");
     db.add_synonym("single", "record");
 
-    db.flush();
+    db.commit();
 
     Xapian::QueryParser qp;
     qp.set_stemmer(Xapian::Stem("english"));
@@ -1632,9 +1628,7 @@ static bool test_qp_synonym2()
 	Xapian::Query q;
 	q = qp.parse_query(p->query,
 			   Xapian::QueryParser::FLAG_AUTO_MULTIWORD_SYNONYMS |
-			   Xapian::QueryParser::FLAG_BOOLEAN |
-			   Xapian::QueryParser::FLAG_LOVEHATE |
-			   Xapian::QueryParser::FLAG_PHRASE );
+			   Xapian::QueryParser::FLAG_DEFAULT);
 	tout << "Query: " << p->query << endl;
 	TEST_STRINGS_EQUAL(q.get_description(), expect);
     }
@@ -1672,7 +1666,7 @@ static bool test_qp_synonym3()
     db.add_synonym("search", "find");
     db.add_synonym("Zseek", "Zsearch");
 
-    db.flush();
+    db.commit();
 
     Xapian::QueryParser qp;
     qp.set_stemmer(Xapian::Stem("english"));
@@ -1764,7 +1758,7 @@ static bool test_qp_stem_scale1()
     Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 
     db.add_synonym("foo", "bar");
-    db.flush();
+    db.commit();
 
     string q1("foo ");
     string q1b("baz ");
@@ -1785,10 +1779,7 @@ static bool test_qp_stem_scale1()
     syn.resize(syn.size() - 1);
 
     double time1, time2;
-    unsigned defflags =
-	    Xapian::QueryParser::FLAG_PHRASE |
-	    Xapian::QueryParser::FLAG_BOOLEAN |
-	    Xapian::QueryParser::FLAG_LOVEHATE;
+    unsigned defflags = Xapian::QueryParser::FLAG_DEFAULT;
     unsigned synflags = defflags |
 	    Xapian::QueryParser::FLAG_SYNONYM |
 	    Xapian::QueryParser::FLAG_AUTO_MULTIWORD_SYNONYMS;
@@ -1802,7 +1793,7 @@ static bool test_qp_stem_scale1()
     }
     time2 = time_query_parse(db, q2, 1, defflags);
     tout << "defflags: small=" << time1 << "s, large=" << time2 << "s\n";
-    TEST_LESSER(time2, time1 * 2);
+    TEST_REL(time2,<,time1 * 2);
 
     // If synonyms are enabled, a different code-path is followed.
     // Test a query which has no synonyms.
@@ -1813,7 +1804,7 @@ static bool test_qp_stem_scale1()
     }
     time2 = time_query_parse(db, q2b, 1, synflags);
     tout << "synflags: small=" << time1 << "s, large=" << time2 << "s\n";
-    TEST_LESSER(time2, time1 * 2);
+    TEST_REL(time2,<,time1 * 2);
 
     // Test a query which has short synonyms.
     time1 = time_query_parse(db, q1, repetitions, synflags);
@@ -1823,11 +1814,11 @@ static bool test_qp_stem_scale1()
     }
     time2 = time_query_parse(db, q2, 1, synflags);
     tout << "synflags: small=" << time1 << "s, large=" << time2 << "s\n";
-    TEST_LESSER(time2, time1 * 2);
+    TEST_REL(time2,<,time1 * 2);
 
     // Add a synonym for the whole query, to test that code path.
     db.add_synonym(syn, "bar");
-    db.flush();
+    db.commit();
 
     time1 = time_query_parse(db, q1, repetitions, synflags);
     if (time1 == 0.0) {
@@ -1836,7 +1827,7 @@ static bool test_qp_stem_scale1()
     }
     time2 = time_query_parse(db, q2, 1, synflags);
     tout << "synflags2: small=" << time1 << "s, large=" << time2 << "s\n";
-    TEST_LESSER(time2, time1 * 2);
+    TEST_REL(time2,<,time1 * 2);
 
     return true;
 }

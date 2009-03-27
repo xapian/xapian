@@ -595,6 +595,12 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	   return (base_letter == 'A') ? 'B' : 'A';
 	}
 
+	/// Allocate the zstream for deflating, if not already allocated.
+	void lazy_alloc_deflate_zstream() const;
+
+	/// Allocate the zstream for inflating, if not already allocated.
+	void lazy_alloc_inflate_zstream() const;
+
 	/** revision number of the opened B-tree. */
 	flint_revision_number_t revision_number;
 
@@ -713,11 +719,20 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	 *  Z_RLE. */
 	int compress_strategy;
 
+	/// Zlib state object for deflating
+	mutable z_stream *deflate_zstream;
+
+	/// Zlib state object for inflating
+	mutable z_stream *inflate_zstream;
+
 	/// If true, don't create the table until it's needed.
 	bool lazy;
 
 	/* Debugging methods */
 //	void report_block_full(int m, int n, const byte * p);
+
+        /// Throw an exception indicating that the database is closed.
+	XAPIAN_NORETURN(static void throw_database_closed());
 };
 
 #endif /* OM_HGUARD_FLINT_TABLE_H */

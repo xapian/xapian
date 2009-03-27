@@ -12,6 +12,7 @@ noinst_HEADERS +=\
 	backends/chert/chert_cursor.h\
 	backends/chert/chert_database.h\
 	backends/chert/chert_databasereplicator.h\
+	backends/chert/chert_dbstats.h\
 	backends/chert/chert_document.h\
 	backends/chert/chert_io.h\
 	backends/chert/chert_lock.h\
@@ -33,7 +34,7 @@ noinst_HEADERS +=\
 	backends/chert/chert_values.h\
 	backends/chert/chert_version.h
 
-libxapian_la_SOURCES +=\
+lib_src +=\
 	backends/chert/chert_alldocsmodifiedpostlist.cc\
 	backends/chert/chert_alldocspostlist.cc\
 	backends/chert/chert_alltermslist.cc\
@@ -41,6 +42,7 @@ libxapian_la_SOURCES +=\
 	backends/chert/chert_cursor.cc\
 	backends/chert/chert_database.cc\
 	backends/chert/chert_databasereplicator.cc\
+	backends/chert/chert_dbstats.cc\
 	backends/chert/chert_document.cc\
 	backends/chert/chert_io.cc\
 	backends/chert/chert_lock.cc\

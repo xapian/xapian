@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -110,7 +110,7 @@ class FlintDatabase : public Xapian::Database::Internal {
 	FlintLock lock;
 
 	/** Total length of all documents including unflushed modifications. */
-	mutable flint_totlen_t total_length;
+	mutable totlen_t total_length;
 
 	/** Highest document ID ever allocated by this database. */
 	mutable Xapian::docid lastdocid;
@@ -252,15 +252,16 @@ class FlintDatabase : public Xapian::Database::Internal {
 	//@{
 	Xapian::doccount  get_doccount() const;
 	Xapian::docid get_lastdocid() const;
+	totlen_t get_total_length() const;
 	Xapian::doclength get_avlength() const;
-	Xapian::doclength get_doclength(Xapian::docid did) const;
+	Xapian::termcount get_doclength(Xapian::docid did) const;
 	Xapian::doccount get_termfreq(const string & tname) const;
 	Xapian::termcount get_collection_freq(const string & tname) const;
 	bool term_exists(const string & tname) const;
 	bool has_positions() const;
 
 	LeafPostList * open_post_list(const string & tname) const;
-	Xapian::Document::Internal * open_document(Xapian::docid did, bool lazy = false) const;
+	Xapian::Document::Internal * open_document(Xapian::docid did, bool lazy) const;
 
 	PositionList * open_position_list(Xapian::docid did, const string & term) const;
 	TermList * open_term_list(Xapian::docid did) const;
@@ -314,7 +315,7 @@ class FlintWritableDatabase : public FlintDatabase {
 	/** Implementation of virtual methods: see Database::Internal for
 	 *  details.
 	 */
-	void flush();
+	void commit();
 
 	/** Cancel pending modifications to the database. */
 	void cancel();
@@ -352,7 +353,7 @@ class FlintWritableDatabase : public FlintDatabase {
 
 	/** Virtual methods of Database::Internal. */
 	//@{
-	Xapian::doclength get_doclength(Xapian::docid did) const;
+	Xapian::termcount get_doclength(Xapian::docid did) const;
 	Xapian::doccount get_termfreq(const string & tname) const;
 	Xapian::termcount get_collection_freq(const string & tname) const;
 	bool term_exists(const string & tname) const;

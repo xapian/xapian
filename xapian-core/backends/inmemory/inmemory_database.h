@@ -1,8 +1,8 @@
-/* inmemory_database.h: C++ class definition for multiple database access
+/* inmemory_database.h: C++ class definition for inmemory database access
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2006 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -32,7 +32,9 @@
 #include <algorithm>
 #include <xapian/document.h>
 #include "inmemory_positionlist.h"
+#include "internaltypes.h"
 #include <omassert.h>
+#include "noreturn.h"
 
 using namespace std;
 
@@ -151,8 +153,8 @@ class InMemoryPostList : public LeafPostList {
 	Xapian::doccount get_termfreq() const;
 
 	Xapian::docid       get_docid() const;     // Gets current docid
-	Xapian::doclength   get_doclength() const; // Length of current document
-        Xapian::termcount   get_wdf() const;	      // Within Document Frequency
+	Xapian::termcount   get_doclength() const; // Length of current document
+	Xapian::termcount   get_wdf() const;	   // Within Document Frequency
 	PositionList * read_position_list();
 	PositionList * open_position_list() const;
 
@@ -180,7 +182,7 @@ class InMemoryAllDocsPostList : public LeafPostList {
 	Xapian::doccount get_termfreq() const;
 
 	Xapian::docid       get_docid() const;     // Gets current docid
-	Xapian::doclength   get_doclength() const; // Length of current document
+	Xapian::termcount   get_doclength() const; // Length of current document
 	Xapian::termcount   get_wdf() const;       // Within Document Frequency
 	PositionList * read_position_list();
 	PositionList * open_position_list() const;
@@ -206,11 +208,12 @@ class InMemoryTermList : public TermList {
 
 	Xapian::Internal::RefCntPtr<const InMemoryDatabase> db;
 	Xapian::docid did;
-	Xapian::doclength document_length;
+	Xapian::termcount document_length;
 
-	InMemoryTermList(Xapian::Internal::RefCntPtr<const InMemoryDatabase> db, Xapian::docid did,
+	InMemoryTermList(Xapian::Internal::RefCntPtr<const InMemoryDatabase> db,
+			 Xapian::docid did,
 			 const InMemoryDoc & doc,
-			 Xapian::doclength len);
+			 Xapian::termcount len);
     public:
 	Xapian::termcount get_approx_size() const;
 
@@ -239,15 +242,18 @@ class InMemoryDatabase : public Xapian::Database::Internal {
     vector<std::map<Xapian::valueno, string> > valuelists;
     std::map<Xapian::valueno, ValueStats> valuestats;
 
-    vector<Xapian::doclength> doclengths;
+    vector<Xapian::termcount> doclengths;
 
     std::map<string, string> metadata;
 
     Xapian::doccount totdocs;
 
-    Xapian::doclength totlen;
+    totlen_t totlen;
 
     bool positions_present;
+
+    // Flag, true if the db has been closed.
+    bool closed;
 
     // Stop copy / assignment being allowed
     InMemoryDatabase& operator=(const InMemoryDatabase &);
@@ -272,7 +278,7 @@ class InMemoryDatabase : public Xapian::Database::Internal {
     //@{
     /** Implementation of virtual methods: see Database for details.
      */
-    void flush();
+    void commit();
     void cancel();
 
     Xapian::docid add_document(const Xapian::Document & document);
@@ -298,14 +304,17 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 
     ~InMemoryDatabase();
 
+    void reopen();
     void close();
+    bool is_closed() const { return closed; }
 
     Xapian::doccount get_doccount() const;
 
     Xapian::docid get_lastdocid() const;
 
+    totlen_t get_total_length() const;
     Xapian::doclength get_avlength() const;
-    Xapian::doclength get_doclength(Xapian::docid did) const;
+    Xapian::termcount get_doclength(Xapian::docid did) const;
 
     Xapian::doccount get_termfreq(const string & tname) const;
     Xapian::termcount get_collection_freq(const string & tname) const;
@@ -317,7 +326,7 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 
     LeafPostList * open_post_list(const string & tname) const;
     TermList * open_term_list(Xapian::docid did) const;
-    Xapian::Document::Internal * open_document(Xapian::docid did, bool lazy = false) const;
+    Xapian::Document::Internal * open_document(Xapian::docid did, bool lazy) const;
 
     std::string get_metadata(const std::string & key) const;
     void set_metadata(const std::string & key, const std::string & value);
@@ -327,6 +336,8 @@ class InMemoryDatabase : public Xapian::Database::Internal {
     PositionList * open_position_list(Xapian::docid did,
 				      const string & tname) const;
     TermList * open_allterms(const string & prefix) const;
+
+    XAPIAN_NORETURN(static void throw_database_closed());
 };
 
 #endif /* OM_HGUARD_INMEMORY_DATABASE_H */

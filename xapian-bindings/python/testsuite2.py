@@ -212,8 +212,6 @@ class TestRunner(object):
             self.report_failure(name, "%s: %s" % (str(e.__class__), str(e)))
         except Exception, e:
             self.report_failure(name, "%s: %s" % (str(e.__class__), str(e)))
-        except:
-            self.report_failure(name, "Unexpected exception")
         return False
 
     def runtests(self, namedict, runonly=None):

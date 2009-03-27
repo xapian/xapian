@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -31,6 +31,7 @@
 #include "omassert.h"
 #include "slowvaluelist.h"
 
+#include <algorithm>
 #include <string>
 
 using namespace std;
@@ -66,6 +67,30 @@ Database::Internal::get_value_upper_bound(Xapian::valueno) const
     throw Xapian::UnimplementedError("This backend doesn't support get_value_upper_bound");
 }
 
+Xapian::termcount
+Database::Internal::get_doclength_lower_bound() const
+{
+    // A zero-length document can't contain any terms, so we ignore such
+    // documents for the purposes of this lower bound.
+    return 1;
+}
+
+Xapian::termcount
+Database::Internal::get_doclength_upper_bound() const
+{
+    // Not a very tight bound in general, but this is only a fall-back for
+    // backends which don't store these stats.
+    return min(get_total_length(), totlen_t(Xapian::termcount(-1)));
+}
+
+Xapian::termcount
+Database::Internal::get_wdf_upper_bound(const string & term) const
+{
+    // Not a very tight bound in general, but this is only a fall-back for
+    // backends which don't store these stats.
+    return get_collection_freq(term);
+}
+
 // Discard any exceptions - we're called from the destructors of derived
 // classes so we can't safely throw.
 void
@@ -75,7 +100,7 @@ Database::Internal::dtor_called()
 	if (transaction_active()) {
 	    cancel_transaction();
 	} else if (transaction_state == TRANSACTION_NONE) {
-	    flush();
+	    commit();
 	}
     } catch (...) {
 	// We can't safely throw exceptions from a destructor in case an
@@ -84,7 +109,7 @@ Database::Internal::dtor_called()
 }
 
 void
-Database::Internal::flush()
+Database::Internal::commit()
 {
     // Writable databases should override this method.
     Assert(false);
@@ -106,9 +131,9 @@ Database::Internal::begin_transaction(bool flushed)
 	throw InvalidOperationError("Cannot begin transaction - transaction already in progress");
     }
     if (flushed) {
-	// N.B. Call flush() before we set transaction_state since flush()
+	// N.B. Call commit() before we set transaction_state since commit()
 	// isn't allowing during a transaction.
-	flush();
+	commit();
 	transaction_state = TRANSACTION_FLUSHED;
     } else {
 	transaction_state = TRANSACTION_UNFLUSHED;
@@ -125,9 +150,9 @@ Database::Internal::commit_transaction()
     }
     bool flushed = (transaction_state == TRANSACTION_FLUSHED);
     transaction_state = TRANSACTION_NONE;
-    // N.B. Call flush() after we clear transaction_state since flush()
+    // N.B. Call commit() after we clear transaction_state since commit()
     // isn't allowing during a transaction.
-    if (flushed) flush();
+    if (flushed) commit();
 }
 
 void
@@ -308,7 +333,10 @@ Database::Internal::request_document(Xapian::docid /*did*/) const
 Xapian::Document::Internal *
 Database::Internal::collect_document(Xapian::docid did) const
 {
-    return open_document(did);
+    // Open the document lazily - collect document is only called by
+    // Enquire::Internal::read_doc() for a given MSetItem, so we know that the
+    // document already exists.
+    return open_document(did, true);
 }
 
 void
@@ -326,7 +354,7 @@ Database::Internal::get_revision_info() const
 string
 Database::Internal::get_uuid() const
 {
-    throw Xapian::UnimplementedError("This backend doesn't support UUIDs");
+    return string();
 }
 
 void

@@ -7,7 +7,7 @@ EXTRA_DIST +=\
 	api/dir_contents\
 	api/Makefile
 
-libxapian_la_SOURCES +=\
+lib_src +=\
 	api/documentvaluelist.cc\
 	api/editdistance.cc\
 	api/error.cc\
@@ -25,11 +25,11 @@ libxapian_la_SOURCES +=\
 	api/postingsource.cc\
 	api/postlist.cc\
 	api/replication.cc\
+	api/serialisationcontext.cc\
 	api/sortable-serialise.cc\
 	api/sorter.cc\
 	api/termlist.cc\
 	api/valueiterator.cc\
 	api/valuerangeproc.cc\
 	api/valuesetmatchdecider.cc\
-	api/version.cc\
-	api/weightinternal.cc
+	api/version.cc

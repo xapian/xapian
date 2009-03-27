@@ -141,7 +141,7 @@ DEFINE_TESTCASE(randomidx1, writable && !inmemory) {
 	dbw.add_document(doc);
 	logger.indexing_add();
     }
-    dbw.flush();
+    dbw.commit();
     logger.indexing_end();
 
     logger.testcase_end();

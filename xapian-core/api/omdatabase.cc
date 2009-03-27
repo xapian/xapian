@@ -312,19 +312,19 @@ Database::get_value_freq(Xapian::valueno valno) const
     RETURN(vf);
 }
 
-std::string
+string
 Database::get_value_lower_bound(Xapian::valueno valno) const
 {
-    DEBUGAPICALL(std::string, "Database::get_value_lower_bound", valno);
+    DEBUGAPICALL(string, "Database::get_value_lower_bound", valno);
 
-    std::string full_lb;
+    if (rare(internal.empty())) RETURN(string());
+
     vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
-    for (i = internal.begin(); i != internal.end(); i++) {
-	std::string lb = (*i)->get_value_lower_bound(valno);
-	if (full_lb.empty())
-	    full_lb = lb;
-	else if (lb < full_lb)
-	    full_lb = lb;
+    i = internal.begin();
+    string full_lb = (*i)->get_value_lower_bound(valno);
+    while (++i != internal.end()) {
+	string lb = (*i)->get_value_lower_bound(valno);
+	if (lb < full_lb) full_lb = lb;
     }
     RETURN(full_lb);
 }
@@ -338,8 +338,53 @@ Database::get_value_upper_bound(Xapian::valueno valno) const
     vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); i++) {
 	std::string ub = (*i)->get_value_upper_bound(valno);
-	if (full_ub < ub)
+	if (ub > full_ub)
 	    full_ub = ub;
+    }
+    RETURN(full_ub);
+}
+
+Xapian::termcount
+Database::get_doclength_lower_bound() const
+{
+    LOGCALL(API, Xapian::termcount, "Database::get_doclength_lower_bound", "");
+
+    if (rare(internal.empty())) RETURN(0);
+
+    vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
+    i = internal.begin();
+    Xapian::termcount full_lb = (*i)->get_doclength_lower_bound();
+    while (++i != internal.end()) {
+	Xapian::termcount lb = (*i)->get_doclength_lower_bound();
+	if (lb < full_lb) full_lb = lb;
+    }
+    RETURN(full_lb);
+}
+
+Xapian::termcount
+Database::get_doclength_upper_bound() const
+{
+    LOGCALL(API, Xapian::termcount, "Database::get_doclength_upper_bound", "");
+
+    Xapian::termcount full_ub = 0;
+    vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
+    for (i = internal.begin(); i != internal.end(); i++) {
+	Xapian::termcount ub = (*i)->get_doclength_upper_bound();
+	if (ub > full_ub) full_ub = ub;
+    }
+    RETURN(full_ub);
+}
+
+Xapian::termcount
+Database::get_wdf_upper_bound(const string & term) const
+{
+    LOGCALL(API, Xapian::termcount, "Database::get_wdf_upper_bound", term);
+
+    Xapian::termcount full_ub = 0;
+    vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
+    for (i = internal.begin(); i != internal.end(); i++) {
+	Xapian::termcount ub = (*i)->get_wdf_upper_bound(term);
+	if (ub > full_ub) full_ub = ub;
     }
     RETURN(full_ub);
 }
@@ -356,10 +401,10 @@ Database::valuestream_begin(Xapian::valueno slot) const
     RETURN(ValueIterator(internal[0]->open_value_list(slot)));
 }
 
-Xapian::doclength
+Xapian::termcount
 Database::get_doclength(Xapian::docid did) const
 {
-    DEBUGAPICALL(Xapian::doclength, "Database::get_doclength", did);
+    DEBUGAPICALL(Xapian::termcount, "Database::get_doclength", did);
     if (did == 0) throw InvalidArgumentError("Document ID 0 is invalid");
 
     unsigned int multiplier = internal.size();
@@ -380,7 +425,8 @@ Database::get_document(Xapian::docid did) const
     Xapian::doccount n = (did - 1) % multiplier; // which actual database
     Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
 
-    RETURN(Document(internal[n]->open_document(m)));
+    // Open non-lazily so we throw DocNotFoundError if the doc doesn't exist.
+    RETURN(Document(internal[n]->open_document(m, false)));
 }
 
 Document::Internal *
@@ -488,8 +534,16 @@ Database::get_spelling_suggestion(const string &word,
     if (!merger.get()) RETURN(string());
 
     // Convert word to UTF-32.
+#ifdef __SUNPRO_CC
     vector<unsigned> utf32_word;
-    utf32_word.assign(Utf8Iterator(word), Utf8Iterator());
+    for (Utf8Iterator sunpro_it(word); sunpro_it != Utf8Iterator(); ++sunpro_it) {
+	utf32_word.push_back(*sunpro_it);
+    }
+#else
+    // Extra brackets needed to avoid this being misparsed as a function
+    // prototype.
+    vector<unsigned> utf32_word((Utf8Iterator(word)), Utf8Iterator());
+#endif
 
     vector<unsigned> utf32_term;
 
@@ -639,18 +693,17 @@ std::string
 Database::get_uuid() const
 {
     DEBUGAPICALL(std::string, "Database::get_uuid", "");
-    if (internal.size() != 1) {
-	if (internal.size() == 0) {
-	    throw InvalidOperationError(
-		"UUIDs not supported for uninitialised databases");
-	}
-
-	// FIXME - we could probably make a uuid for each multidatabase
-	// combination by hashing together the uuids for the subdatabases.
-	throw UnimplementedError(
-	    "UUIDs not supported for multiple databases");
+    string uuid;
+    for (size_t i = 0; i < internal.size(); ++i) {
+	string sub_uuid = internal[i]->get_uuid();
+	// If any of the sub-databases have no uuid, we can't make a uuid for
+	// the combined database.
+	if (sub_uuid.empty())
+	    RETURN(sub_uuid);
+	if (!uuid.empty()) uuid += ':';
+	uuid += sub_uuid;
     }
-    RETURN(internal[0]->get_uuid());
+    RETURN(uuid);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -692,11 +745,11 @@ static void only_one_subdatabase_allowed()
 }
 
 void
-WritableDatabase::flush()
+WritableDatabase::commit()
 {
-    DEBUGAPICALL(void, "WritableDatabase::flush", "");
+    DEBUGAPICALL(void, "WritableDatabase::commit", "");
     if (internal.size() != 1) only_one_subdatabase_allowed();
-    internal[0]->flush();
+    internal[0]->commit();
 }
 
 void

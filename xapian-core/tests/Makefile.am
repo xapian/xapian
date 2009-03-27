@@ -9,6 +9,8 @@ LIBTOOL = @LIBTOOL@ $(QUIET:y=--quiet)
 INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include \
  -I$(top_builddir)/include -I$(srcdir)/harness
 
+libxapian_la = libxapian@LIBRARY_VERSION_SUFFIX@.la
+
 TESTS_ENVIRONMENT = ./runtest
 
 .PHONY: check-none check-inmemory \
@@ -39,19 +41,31 @@ check-multi: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b multi
 
 if BUILD_BACKEND_REMOTE
-check-remote: apitest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remoteprog
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp
+check-remote: check-remoteprog check-remotetcp
+
 check-remoteprog: apitest$(EXEEXT)
+## If both chert and flint are enabled, just run remoteprog_chert.
+if BUILD_BACKEND_CHERT
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remoteprog_chert
+else
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remoteprog
+endif
+
 check-remotetcp: apitest$(EXEEXT)
+## If both chert and flint are enabled, just run remotetcp_flint.
+if BUILD_BACKEND_FLINT
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp_flint
+else
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp
+endif
+
 if BUILD_BACKEND_CHERT
 check-remoteprog-chert: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remoteprog_chert
 check-remotetcp-chert: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp_chert
 endif
+
 if BUILD_BACKEND_FLINT
 check-remoteprog-flint: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remoteprog_flint
@@ -98,6 +112,7 @@ collated_apitest_sources = \
  api_nodb.cc \
  api_percentages.cc \
  api_posdb.cc \
+ api_query.cc \
  api_replicate.cc \
  api_serialise.cc \
  api_sorting.cc \
@@ -112,23 +127,23 @@ apitest_SOURCES = apitest.cc $(collated_apitest_sources) \
  api_all.h api_collated.h $(testharness_sources)
 
 apitest_LDFLAGS = -no-install $(ldflags)
-apitest_LDADD = ../libgetopt.la ../libxapian.la
+apitest_LDADD = ../libgetopt.la ../$(libxapian_la)
 
 stemtest_SOURCES = stemtest.cc $(testharness_sources)
 stemtest_LDFLAGS = -no-install $(ldflags)
-stemtest_LDADD = ../libgetopt.la ../libxapian.la
+stemtest_LDADD = ../libgetopt.la ../$(libxapian_la)
 
 internaltest_SOURCES = internaltest.cc $(testharness_sources)
 internaltest_LDFLAGS = -no-install $(ldflags)
-internaltest_LDADD = ../libgetopt.la ../libxapian.la
+internaltest_LDADD = ../libgetopt.la ../$(libxapian_la)
 
 queryparsertest_SOURCES = queryparsertest.cc $(testharness_sources)
 queryparsertest_LDFLAGS = -no-install $(ldflags)
-queryparsertest_LDADD = ../libgetopt.la ../libxapian.la
+queryparsertest_LDADD = ../libgetopt.la ../$(libxapian_la)
 
 termgentest_SOURCES = termgentest.cc $(testharness_sources)
 termgentest_LDFLAGS = -no-install $(ldflags)
-termgentest_LDADD = ../libgetopt.la ../libxapian.la
+termgentest_LDADD = ../libgetopt.la ../$(libxapian_la)
 
 BUILT_SOURCES =
 
@@ -181,6 +196,7 @@ EXTRA_DIST +=\
 	testdata/apitest_allterms4.txt \
 	testdata/apitest_poslist.txt \
 	testdata/apitest_manydocs.txt \
+	testdata/apitest_sortconsist.txt \
 	testdata/apitest_sortrel.txt \
 	testdata/etext.txt \
 	testdata/flint-0.9.9/flicklock \

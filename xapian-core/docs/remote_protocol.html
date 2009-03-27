@@ -66,7 +66,7 @@ value for <code>0</code> or <code>1</code>.  This is indicated by
 <h2>Server greeting and statistics</h2>
 
 <ul>
-<li> <code>REPLY_GREETING &lt;protocol major version&gt; &lt;protocol minor version&gt; I&lt;db doc count&gt; I&lt;last docid&gt; B&lt;has positions?&gt; F&lt;db average length&gt; L&lt;UUID&gt;</code>
+<li> <code>REPLY_GREETING &lt;protocol major version&gt; &lt;protocol minor version&gt; I&lt;db doc count&gt; I&lt;last docid&gt; B&lt;has positions?&gt; I&lt;db total length&gt; &lt;UUID&gt;</code>
 </ul>
 
 <p>
@@ -93,6 +93,29 @@ with empty contents.
 This message can be sent at any point - the serialised exception is
 unserialised by the client and thrown.  The server and client both
 abort any current sequence of messages.
+</p>
+
+<h2>Write Access</h2>
+
+<ul>
+<li> <code>MSG_WRITEACCESS</code>
+<li> <code>REPLY_UPDATE I&lt;db doc count&gt; I&lt;last docid&gt; B&lt;has positions?&gt; I&lt;db total length&gt; &lt;UUID&gt;</code>
+</ul>
+
+<p>
+The reply is the same as for <code>MSG_UPDATE</code>.  If write access isn't
+supported or the database is locked by another writer, then an exception is
+thrown.
+</p>
+
+<p>
+By default the server is also read-only, even if writing is supported.
+If the client wants to be able to write, it needs to request this
+explicitly.  We do this so that the same server can support multiple
+read-only clients and one writing client at once, without the protocol
+for read-only clients requiring an extra message.  The overhead of an
+extra message exchange for a writer is likely to matter as indexing
+is rarely so real-time critical as searching.
 </p>
 
 <h2>All Terms</h2>
@@ -139,7 +162,7 @@ abort any current sequence of messages.
 
 <ul>
 <li> <code>MSG_DOCLENGTH I&lt;document id&gt;</code>
-<li> <code>REPLY_DOCLENGTH F&lt;document length&gt;</code>
+<li> <code>REPLY_DOCLENGTH I&lt;document length&gt;</code>
 </ul>
 
 <h2>Keep Alive</h2>
@@ -153,7 +176,7 @@ abort any current sequence of messages.
 
 <ul>
 <li> <code>MSG_REOPEN</code>
-<li> <code>REPLY_UPDATE I&lt;db doc count&gt; I&lt;last docid&gt; B&lt;has positions?&gt; F&lt;db average length&gt; L&lt;UUID&gt;</code>
+<li> <code>REPLY_UPDATE I&lt;db doc count&gt; I&lt;last docid&gt; B&lt;has positions?&gt; I&lt;db total length&gt; &lt;UUID&gt;</code>
 </ul>
 
 <p>The reply is the same as for <code>MSG_UPDATE</code>.</p>
@@ -181,7 +204,7 @@ I&lt;sort key number&gt; &lt;sort by&gt; B&lt;sort value forward&gt;
 
 <ul>
 <li> <code>MSG_TERMLIST I&lt;document id&gt;</code>
-<li> <code>REPLY_DOCLENGTH F&lt;document length&gt;</code>
+<li> <code>REPLY_DOCLENGTH I&lt;document length&gt;</code>
 <li> <code>REPLY_TERMLIST I&lt;wdf&gt; I&lt;term freq&gt; L&lt;term name&gt;</code>
 <li> <code>...</code>
 <li> <code>REPLY_DONE</code>
@@ -234,7 +257,7 @@ No reply is sent - this message signals that the client has ended the session.
 
 <ul>
 <li> <code>MSG_UPDATE</code>
-<li> <code>REPLY_UPDATE I&lt;db doc count&gt; I&lt;last docid&gt; B&lt;has positions?&gt; F&lt;db average length&gt;</code>
+<li> <code>REPLY_UPDATE I&lt;db doc count&gt; I&lt;last docid&gt; B&lt;has positions?&gt; I&lt;db total length&gt; &lt;UUID&gt;</code>
 </ul>
 
 <p>
@@ -281,10 +304,10 @@ and they don't change if the database can't change).
 <li> <code>MSG_CANCEL</code>
 </ul>
 
-<h2>Flush</h2>
+<h2>Commit</h2>
 
 <ul>
-<li> <code>MSG_FLUSH</code>
+<li> <code>MSG_COMMIT</code>
 <li> <code>REPLY_DONE</code>
 </ul>
 

@@ -4,7 +4,7 @@
 /*
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2007 Olly Betts
+ * Copyright 2002,2003,2004,2007,2009 Olly Betts
  * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -53,9 +53,6 @@ XAPIAN_OUTPUT_FUNCTION(Xapian::ESetIterator)
 XAPIAN_OUTPUT_FUNCTION(Xapian::ESet)
 XAPIAN_OUTPUT_FUNCTION(Xapian::Enquire)
 
-#include "stats.h"
-XAPIAN_OUTPUT_FUNCTION(Stats)
-
 #include <xapian/stem.h>
 XAPIAN_OUTPUT_FUNCTION(Xapian::Stem)
 
@@ -74,5 +71,8 @@ XAPIAN_OUTPUT_FUNCTION(Xapian::ValueIterator)
 #include <xapian/replication.h>
 XAPIAN_OUTPUT_FUNCTION(Xapian::DatabaseMaster)
 XAPIAN_OUTPUT_FUNCTION(Xapian::DatabaseReplica)
+
+#include "weightinternal.h"
+XAPIAN_OUTPUT_FUNCTION(Xapian::Weight::Internal)
 
 #endif /* XAPIAN_INCLUDED_OUTPUT_H */

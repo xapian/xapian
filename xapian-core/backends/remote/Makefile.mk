@@ -8,7 +8,7 @@ noinst_HEADERS +=\
 	backends/remote/net_postlist.h\
 	backends/remote/net_termlist.h
 
-libxapian_la_SOURCES +=\
+lib_src +=\
 	backends/remote/remote-document.cc\
 	backends/remote/net_postlist.cc\
 	backends/remote/net_termlist.cc\

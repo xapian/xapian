@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -25,6 +25,7 @@
 #define OM_HGUARD_CHERT_DATABASE_H
 
 #include "database.h"
+#include "chert_dbstats.h"
 #include "chert_positionlist.h"
 #include "chert_postlist.h"
 #include "chert_record.h"
@@ -108,8 +109,8 @@ class ChertDatabase : public Xapian::Database::Internal {
 	/// Lock object.
 	ChertLock lock;
 
-	/** Total length of all documents including unflushed modifications. */
-	mutable chert_totlen_t total_length;
+	/// Total length of all documents including uncommitted modifications.
+	mutable totlen_t total_length;
 
 	/** Highest document ID ever allocated by this database. */
 	mutable Xapian::docid lastdocid;
@@ -118,8 +119,8 @@ class ChertDatabase : public Xapian::Database::Internal {
 	 *  database. */
 	unsigned int max_changesets;
 
-	/// Read lastdocid and total_length from the postlist table.
-	void read_metainfo();
+	/// Database statistics.
+	ChertDatabaseStats stats;
 
 	/** Return true if a database exists at the path specified for this
 	 *  database.
@@ -256,19 +257,23 @@ class ChertDatabase : public Xapian::Database::Internal {
 	//@{
 	Xapian::doccount  get_doccount() const;
 	Xapian::docid get_lastdocid() const;
+	totlen_t get_total_length() const;
 	Xapian::doclength get_avlength() const;
-	Xapian::doclength get_doclength(Xapian::docid did) const;
+	Xapian::termcount get_doclength(Xapian::docid did) const;
 	Xapian::doccount get_termfreq(const string & tname) const;
 	Xapian::termcount get_collection_freq(const string & tname) const;
 	Xapian::doccount get_value_freq(Xapian::valueno valno) const;
 	std::string get_value_lower_bound(Xapian::valueno valno) const;
 	std::string get_value_upper_bound(Xapian::valueno valno) const;
+	Xapian::termcount get_doclength_lower_bound() const;
+	Xapian::termcount get_doclength_upper_bound() const;
+	Xapian::termcount get_wdf_upper_bound(const string & term) const;
 	bool term_exists(const string & tname) const;
 	bool has_positions() const;
 
 	LeafPostList * open_post_list(const string & tname) const;
 	ValueList * open_value_list(Xapian::valueno slot) const;
-	Xapian::Document::Internal * open_document(Xapian::docid did, bool lazy = false) const;
+	Xapian::Document::Internal * open_document(Xapian::docid did, bool lazy) const;
 
 	PositionList * open_position_list(Xapian::docid did, const string & term) const;
 	TermList * open_term_list(Xapian::docid did) const;
@@ -339,7 +344,7 @@ class ChertWritableDatabase : public ChertDatabase {
 	/** Implementation of virtual methods: see Database::Internal for
 	 *  details.
 	 */
-	void flush();
+	void commit();
 
 	/** Cancel pending modifications to the database. */
 	void cancel();
@@ -359,7 +364,7 @@ class ChertWritableDatabase : public ChertDatabase {
 	void replace_document(Xapian::docid did, const Xapian::Document & document);
 
 	Xapian::Document::Internal * open_document(Xapian::docid did,
-						   bool lazy = false) const;
+						   bool lazy) const;
 
 	//@}
 
@@ -381,7 +386,7 @@ class ChertWritableDatabase : public ChertDatabase {
 
 	/** Virtual methods of Database::Internal. */
 	//@{
-	Xapian::doclength get_doclength(Xapian::docid did) const;
+	Xapian::termcount get_doclength(Xapian::docid did) const;
 	Xapian::doccount get_termfreq(const string & tname) const;
 	Xapian::termcount get_collection_freq(const string & tname) const;
 	Xapian::doccount get_value_freq(Xapian::valueno valno) const;

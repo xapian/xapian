@@ -38,7 +38,7 @@ my @posting_source_virtual_methods = qw(
     at_end
     get_docid
     get_description
-    reset
+    init
     name
     serialise
 );

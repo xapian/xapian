@@ -687,7 +687,7 @@ def test_synonyms_iter():
     expect([item for item in dbr.synonym_keys('he')], [])
     expect([item for item in dbr.synonym_keys('hello')], [])
 
-    db.flush()
+    db.commit()
 
     expect([item for item in db.synonyms('foo')], [])
     expect([item for item in db.synonyms('hello')], ['hi', 'howdy'])
@@ -704,8 +704,8 @@ def test_synonyms_iter():
     expect([item for item in dbr.synonym_keys('he')], ['hello'])
     expect([item for item in dbr.synonym_keys('hello')], ['hello'])
 
-    del db
-    del dbr
+    db.close()
+    dbr.close()
     shutil.rmtree(dbpath)
 
 def test_metadata_keys_iter():
@@ -738,7 +738,7 @@ def test_metadata_keys_iter():
     expect([item for item in dbr.metadata_keys('it')], [])
     expect([item for item in dbr.metadata_keys('type')], [])
 
-    db.flush()
+    db.commit()
     expect([item for item in db.metadata_keys()],
            ['author', 'item1', 'item2', 'type'])
     expect([item for item in db.metadata_keys('foo')], [])
@@ -754,8 +754,8 @@ def test_metadata_keys_iter():
     expect([item for item in dbr.metadata_keys('it')], ['item1', 'item2'])
     expect([item for item in dbr.metadata_keys('type')], ['type'])
 
-    del db
-    del dbr
+    db.close()
+    dbr.close()
     shutil.rmtree(dbpath)
 
 def test_spell():
@@ -772,14 +772,14 @@ def test_spell():
     dbr=xapian.Database(dbpath)
     expect(dbr.get_spelling_suggestion('hell'), '')
     expect([(item.term, item.termfreq) for item in dbr.spellings()], [])
-    db.flush()
+    db.commit()
     dbr=xapian.Database(dbpath)
     expect(db.get_spelling_suggestion('hell'), 'mell')
     expect(dbr.get_spelling_suggestion('hell'), 'mell')
     expect([(item.term, item.termfreq) for item in dbr.spellings()], [('hello', 1), ('mell', 2)])
 
-    del db
-    del dbr
+    db.close()
+    dbr.close()
     shutil.rmtree(dbpath)
 
 def test_queryparser_custom_vrp():
@@ -802,6 +802,28 @@ def test_queryparser_custom_vrp():
     expect(str(query),
            'Xapian::Query(VALUE_RANGE 7 A5 B8)')
 
+def test_queryparser_custom_vrp_deallocation():
+    """Test that QueryParser doesn't delete ValueRangeProcessors too soon.
+
+    """
+    class MyVRP(xapian.ValueRangeProcessor):
+        def __init__(self):
+            xapian.ValueRangeProcessor.__init__(self)
+
+        def __call__(self, begin, end):
+            return (7, "A"+begin, "B"+end)
+
+    def make_parser():
+        queryparser = xapian.QueryParser()
+        myvrp = MyVRP()
+        queryparser.add_valuerangeprocessor(myvrp)
+        return queryparser
+
+    queryparser = make_parser()
+    query = queryparser.parse_query('5..8')
+
+    expect(str(query),
+           'Xapian::Query(VALUE_RANGE 7 A5 B8)')
 
 def test_scale_weight():
     """Test query OP_SCALE_WEIGHT feature.
@@ -823,8 +845,8 @@ def test_scale_weight():
             expected = [(0, item.docid) for item in mset1]
             expected.sort()
         else:
-            expected = [(item.weight * mult, item.docid) for item in mset1]
-        expect([(item.weight, item.docid) for item in mset2], expected)
+            expected = [(int(item.weight * mult * 1000000), item.docid) for item in mset1]
+        expect([(int(item.weight * 1000000), item.docid) for item in mset2], expected)
 
     context("checking queries with OP_SCALE_WEIGHT with a multipler of -1")
     query1 = xapian.Query("it")
@@ -913,7 +935,7 @@ def test_postingsource():
             xapian.PostingSource.__init__(self)
             self.max = max
 
-        def reset(self, db):
+        def init(self, db):
             self.current = -1
 
         def get_termfreq_min(self): return 0
@@ -930,16 +952,37 @@ def test_postingsource():
         doc = xapian.Document()
         db.add_document(doc)
 
-    source = OddPostingSource(10)
-    query = xapian.Query(source)
+    # Do a dance to check that the posting source doesn't get dereferenced too
+    # soon in various cases.
+    def mkenq(db):
+        # First - check that it's kept when the source goes out of scope.
+        def mkquery():
+            source = OddPostingSource(10)
+            return xapian.Query(xapian.Query.OP_OR, [xapian.Query(source)])
 
-    enquire = xapian.Enquire(db)
-    enquire.set_query(query)
+        # Check that it's kept when the query goes out of scope.
+        def submkenq():
+            query = mkquery()
+            enquire = xapian.Enquire(db)
+            enquire.set_query(query)
+            return enquire
+
+        # Check it's kept when the query is retrieved from enquire and put into
+        # a new enquire.
+        def submkenq2():
+            enq1 = submkenq()
+            enquire = xapian.Enquire(db)
+            enquire.set_query(enq1.get_query())
+            return enquire
+
+        return submkenq2()
+
+    enquire = mkenq(db)
     mset = enquire.get_mset(0, 10)
 
     expect([item.docid for item in mset], [1, 3, 5, 7, 9])
 
-    del db
+    db.close()
     shutil.rmtree(dbpath)
 
 def test_postingsource2():
@@ -956,7 +999,7 @@ def test_postingsource2():
 
     source = xapian.ValueWeightPostingSource(1)
     query = xapian.Query(source)
-    # del source # Check that query keeps a reference to it.
+    del source # Check that query keeps a reference to it.
 
     enquire = xapian.Enquire(db)
     enquire.set_query(query)
@@ -964,7 +1007,7 @@ def test_postingsource2():
 
     expect([item.docid for item in mset], [2, 1, 5, 3, 4, 8, 9, 6, 7, 10])
 
-    del db
+    db.close()
     shutil.rmtree(dbpath)
 
 def test_value_stats():
@@ -990,7 +1033,7 @@ def test_value_stats():
     expect(db.get_value_lower_bound(2), "")
     expect(db.get_value_upper_bound(2), "")
 
-    del db
+    db.close()
     shutil.rmtree(dbpath)
 
 def test_get_uuid():
@@ -1010,11 +1053,11 @@ def test_get_uuid():
     db.add_database(db1)
     expect(db1.get_uuid(), db.get_uuid())
 
-    del db1
-    del db2
-    del dbr1
-    del dbr2
-    del db
+    db1.close()
+    db2.close()
+    dbr1.close()
+    dbr2.close()
+    db.close()
     shutil.rmtree(dbpath + "1")
     shutil.rmtree(dbpath + "2")
 
@@ -1071,7 +1114,7 @@ def test_value_mods():
         doc.add_value(1, val)
         db.add_document(doc)
         vals[num] = val
-    db.flush()
+    db.commit()
     check_vals(db, vals)
 
     # Modify one of the values (this is a regression test which failed with the
@@ -1081,7 +1124,7 @@ def test_value_mods():
     doc.add_value(1, val)
     db.replace_document(2, doc)
     vals[2] = val
-    db.flush()
+    db.commit()
     check_vals(db, vals)
 
     # Do some random modifications.
@@ -1099,7 +1142,7 @@ def test_value_mods():
 
     # Check the values before and after modification.
     check_vals(db, vals)
-    db.flush()
+    db.commit()
     check_vals(db, vals)
 
     # Delete all the values which are non-empty, in a random order.
@@ -1110,10 +1153,11 @@ def test_value_mods():
         db.replace_document(key, doc)
         vals[key] = ''
     check_vals(db, vals)
-    db.flush()
+    db.commit()
     check_vals(db, vals)
 
-    del db
+    db.close()
+    expect_exception(xapian.DatabaseError, "Database has been closed", check_vals, db, vals)
     shutil.rmtree(dbpath)
 
 def test_serialise_document():
@@ -1166,6 +1210,84 @@ def test_serialise_query():
     q2 = xapian.Query.unserialise(q.serialise())
     expect(str(q), str(q2))
     expect(str(q), 'Xapian::Query((hello OR world))')
+
+def test_preserve_query_parser_stopper():
+    """Test preservation of stopper set on query parser.
+
+    """
+    def make_qp():
+        queryparser = xapian.QueryParser()
+        stopper = xapian.SimpleStopper()
+        stopper.add('to')
+        stopper.add('not')
+        queryparser.set_stopper(stopper)
+        del stopper
+        return queryparser
+    queryparser = make_qp()
+    query = queryparser.parse_query('to be')
+    expect([term for term in queryparser.stoplist()], ['to']) 
+
+def test_preserve_term_generator_stopper():
+    """Test preservation of stopper set on term generator.
+
+    """
+    def make_tg():
+        termgen = xapian.TermGenerator()
+        termgen.set_stemmer(xapian.Stem('en'))
+        stopper = xapian.SimpleStopper()
+        stopper.add('to')
+        stopper.add('not')
+        termgen.set_stopper(stopper)
+        del stopper
+        return termgen
+    termgen = make_tg()
+
+    termgen.index_text('to be')
+    doc = termgen.get_document()
+    terms = [term.term for term in doc.termlist()]
+    terms.sort()
+    expect(terms, ['Zbe', 'be', 'to']) 
+
+def test_preserve_enquire_sorter():
+    """Test preservation of sorter set on enquire.
+
+    """
+    db = xapian.inmemory_open()
+    doc = xapian.Document()
+    doc.add_term('foo')
+    doc.add_value(1, '1')
+    db.add_document(doc)
+    db.add_document(doc)
+
+    def make_enq1(db):
+        enq = xapian.Enquire(db)
+        sorter = xapian.MultiValueSorter()
+        enq.set_sort_by_key(sorter, True)
+        del sorter
+        return enq
+    enq = make_enq1(db)
+    enq.set_query(xapian.Query('foo'))
+    enq.get_mset(0, 10)
+
+    def make_enq2(db):
+        enq = xapian.Enquire(db)
+        sorter = xapian.MultiValueSorter()
+        enq.set_sort_by_key_then_relevance(sorter, True)
+        del sorter
+        return enq
+    enq = make_enq2(db)
+    enq.set_query(xapian.Query('foo'))
+    enq.get_mset(0, 10)
+
+    def make_enq3(db):
+        enq = xapian.Enquire(db)
+        sorter = xapian.MultiValueSorter()
+        enq.set_sort_by_relevance_then_key(sorter, True)
+        del sorter
+        return enq
+    enq = make_enq3(db)
+    enq.set_query(xapian.Query('foo'))
+    enq.get_mset(0, 10)
 
 # Run all tests (ie, callables with names starting "test_").
 if not runtests(globals(), sys.argv[1:]):

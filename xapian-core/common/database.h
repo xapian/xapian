@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -26,6 +26,8 @@
 
 #include <string>
 
+#include "internaltypes.h"
+
 #include <xapian/base.h>
 #include <xapian/types.h>
 #include <xapian/database.h>
@@ -38,8 +40,6 @@
 using namespace std;
 
 class LeafPostList;
-class OmTime;
-class RemoteConnection;
 class RemoteDatabase;
 
 typedef Xapian::TermIterator::Internal TermList;
@@ -78,7 +78,7 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	Internal() : transaction_state(TRANSACTION_NONE) { }
 
 	/** Internal method to perform cleanup when a writable database is
-	 *  destroyed with unflushed changes.
+	 *  destroyed with uncommitted changes.
 	 *
 	 *  A derived class' destructor should call this method before
 	 *  destroying the database to ensure that no sessions or
@@ -120,6 +120,9 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	virtual Xapian::docid get_lastdocid() const = 0;
 
+	/** Return the total length of all documents in this database. */
+	virtual totlen_t get_total_length() const = 0;
+
 	/** Return the average length of a document in this (sub) database.
 	 *
 	 *  See Database::Internal::get_doclength() for the meaning of document
@@ -137,7 +140,7 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *  @param did  The document id of the document whose length is
 	 *              being requested.
 	 */
-	virtual Xapian::doclength get_doclength(Xapian::docid did) const = 0;
+	virtual Xapian::termcount get_doclength(Xapian::docid did) const = 0;
 
 	/** Return the number of documents indexed by a given term.  This
 	 *  may be an approximation, but must be an upper bound (ie,
@@ -149,7 +152,7 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	virtual Xapian::doccount get_termfreq(const string & tname) const = 0;
 
 	/** Return the total number of occurrences of the given term.  This
-	 *  is the sum of the number of ocurrences of the term in each
+	 *  is the sum of the number of occurrences of the term in each
 	 *  document: ie, the sum of the within document frequencies of the
 	 *  term.
 	 *
@@ -187,6 +190,15 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *  available for this database type.
 	 */
 	virtual std::string get_value_upper_bound(Xapian::valueno valno) const;
+
+	/// Get a lower bound on the length of a document in this DB.
+	virtual Xapian::termcount get_doclength_lower_bound() const;
+
+	/// Get an upper bound on the length of a document in this DB.
+	virtual Xapian::termcount get_doclength_upper_bound() const;
+
+	/// Get an upper bound on the wdf of term @a term.
+	virtual Xapian::termcount get_wdf_upper_bound(const std::string & term) const;
 
 	/** Check whether a given term is in the database.
 	 *
@@ -274,17 +286,16 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *
 	 *  @param did    The document id which is being requested.
 	 *
-	 *  @param lazy   Don't check the document exists immediately -
-	 *                use from within the matcher where we know the
-	 *                document exists, and don't want to read the
-	 *                record when we just want the values.
+	 *  @param lazy   No need to check that this document actually exists.
+	 *                Used when we already know that this document exists
+	 *                (only a hint - the backend may still check).
 	 *
 	 *  @return       A pointer to the newly created document object.
 	 *                This object must be deleted by the caller after
 	 *                use.
 	 */
 	virtual Xapian::Document::Internal *
-	open_document(Xapian::docid did, bool lazy = false) const = 0;
+	open_document(Xapian::docid did, bool lazy) const = 0;
 
 	/** Create a termlist tree from trigrams of @a word.
 	 *
@@ -392,11 +403,11 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	// Modifying the database:
 	// =======================
 
-	/** Flush pending modifications to the database.
+	/** Commit pending modifications to the database.
 	 *
-	 *  See WritableDatabase::flush() for more information.
+	 *  See WritableDatabase::commit() for more information.
 	 */
-	virtual void flush();
+	virtual void commit();
 
 	/** Cancel pending modifications to the database. */
 	virtual void cancel();
@@ -487,8 +498,7 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *  the database files) will have the same UUID.  However, copies (made
 	 *  with copydatabase, or xapian-compact) will have different UUIDs.
 	 *
-	 *  If the backend does not support UUIDs, or this database has
-	 *  multiple sub-databases, an exception will be raised.
+	 *  If the backend does not support UUIDs the empty string is returned.
 	 */
 	virtual string get_uuid() const;
 

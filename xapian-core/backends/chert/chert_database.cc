@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -65,6 +65,7 @@
 #include "safesysstat.h"
 #include <sys/types.h>
 
+#include <algorithm>
 #include "autoptr.h"
 #include <cstdio> // For rename().
 #include <list>
@@ -80,10 +81,6 @@ using namespace Xapian;
 // the term contains zero bytes, the limit is lower (by one for each zero byte
 // in the term).
 #define MAX_SAFE_TERM_LENGTH 245
-
-// Magic key in the postlist table (which corresponds to an invalid docid) is
-// used to store the next free docid and total length of all documents.
-static const string METAINFO_KEY("", 1);
 
 /** Delete file, throwing an error if we can't delete it (but not if it
  *  doesn't exist).
@@ -123,8 +120,6 @@ ChertDatabase::ChertDatabase(const string &chert_dir, int action,
 	  // flint database in the same directory (which will result in one
 	  // being corrupt since the Btree filenames overlap).
 	  lock(db_dir + "/flintlock"),
-	  total_length(0),
-	  lastdocid(0),
 	  max_changesets(0)
 {
     DEBUGCALL(DB, void, "ChertDatabase", chert_dir << ", " << action <<
@@ -194,26 +189,6 @@ ChertDatabase::~ChertDatabase()
     DEBUGCALL(DB, void, "~ChertDatabase", "");
 }
 
-void
-ChertDatabase::read_metainfo()
-{
-    DEBUGCALL(DB, void, "ChertDatabase::read_metainfo", "");
-
-    string tag;
-    if (!postlist_table.get_exact_entry(METAINFO_KEY, tag)) {
-	lastdocid = 0;
-	total_length = 0;
-	return;
-    }
-
-    const char * data = tag.data();
-    const char * end = data + tag.size();
-    if (!unpack_uint(&data, end, &lastdocid) ||
-	!unpack_uint_last(&data, end, &total_length)) {
-	throw Xapian::DatabaseCorruptError("Meta information is corrupt.");
-    }
-}
-
 bool
 ChertDatabase::database_exists() {
     DEBUGCALL(DB, bool, "ChertDatabase::database_exists", "");
@@ -253,8 +228,7 @@ ChertDatabase::create_and_open_tables(unsigned int block_size)
 	throw Xapian::DatabaseCreateError("Newly created tables are not in consistent state");
     }
 
-    total_length = 0;
-    lastdocid = 0;
+    stats.zero();
 }
 
 void
@@ -331,7 +305,7 @@ ChertDatabase::open_tables_consistent()
 	throw Xapian::DatabaseModifiedError("Cannot open tables at stable revision - changing too fast");
     }
 
-    read_metainfo();
+    stats.read(postlist_table);
 }
 
 void
@@ -531,6 +505,7 @@ ChertDatabase::close()
     synonym_table.close(true);
     spelling_table.close(true);
     record_table.close(true);
+    lock.release();
 }
 
 void
@@ -755,14 +730,9 @@ ChertDatabase::modifications_failed(chert_revision_number_t old_revision,
 	++new_revision;
 	set_revision_number(new_revision);
     } catch (const Xapian::Error &e) {
-	// Permanently close the table, since we can't get it into a
-	// consistent state, to avoid risk of database corruption.
-	postlist_table.close(true);
-	position_table.close(true);
-	termlist_table.close(true);
-	synonym_table.close(true);
-	spelling_table.close(true);
-	record_table.close(true);
+	// We can't get the database into a consistent state, so close
+	// it to avoid the risk of database corruption.
+	ChertDatabase::close();
 	throw Xapian::DatabaseError("Modifications failed (" + msg +
 				    "), and cannot set consistent table "
 				    "revision numbers: " + e.get_msg());
@@ -821,7 +791,14 @@ Xapian::docid
 ChertDatabase::get_lastdocid() const
 {
     DEBUGCALL(DB, Xapian::docid, "ChertDatabase::get_lastdocid", "");
-    RETURN(lastdocid);
+    RETURN(stats.get_last_docid());
+}
+
+totlen_t
+ChertDatabase::get_total_length() const
+{
+    DEBUGCALL(DB, totlen_t, "ChertDatabase::get_total_length", "");
+    RETURN(stats.get_total_doclen());
 }
 
 Xapian::doclength
@@ -833,13 +810,13 @@ ChertDatabase::get_avlength() const
 	// Avoid dividing by zero when there are no documents.
 	RETURN(0);
     }
-    RETURN(double(total_length) / doccount);
+    RETURN(double(stats.get_total_doclen()) / doccount);
 }
 
-Xapian::doclength
+Xapian::termcount
 ChertDatabase::get_doclength(Xapian::docid did) const
 {
-    DEBUGCALL(DB, Xapian::doclength, "ChertDatabase::get_doclength", did);
+    DEBUGCALL(DB, Xapian::termcount, "ChertDatabase::get_doclength", did);
     Assert(did != 0);
     Xapian::Internal::RefCntPtr<const ChertDatabase> ptrtothis(this);
     RETURN(postlist_table.get_doclength(did, ptrtothis));
@@ -882,6 +859,24 @@ ChertDatabase::get_value_upper_bound(Xapian::valueno valno) const
     RETURN(value_manager.get_value_upper_bound(valno));
 }
 
+Xapian::termcount
+ChertDatabase::get_doclength_lower_bound() const
+{
+    return stats.get_doclength_lower_bound();
+}
+
+Xapian::termcount
+ChertDatabase::get_doclength_upper_bound() const
+{
+    return stats.get_doclength_upper_bound();
+}
+
+Xapian::termcount
+ChertDatabase::get_wdf_upper_bound(const string & term) const
+{
+    return min(get_collection_freq(term), stats.get_wdf_upper_bound());
+}
+
 bool
 ChertDatabase::term_exists(const string & term) const
 {
@@ -904,7 +899,7 @@ ChertDatabase::open_post_list(const string& term) const
 
     if (term.empty()) {
 	Xapian::doccount doccount = get_doccount();
-	if (lastdocid == doccount) {
+	if (stats.get_last_docid() == doccount) {
 	    RETURN(new ContiguousAllDocsPostList(ptrtothis, doccount));
 	}
 	RETURN(new ChertAllDocsPostList(ptrtothis, doccount));
@@ -953,15 +948,9 @@ ChertDatabase::open_position_list(Xapian::docid did, const string & term) const
 
     AutoPtr<ChertPositionList> poslist(new ChertPositionList);
     if (!poslist->read_data(&position_table, did, term)) {
-	// Check that term / document combination exists.
-	// If the doc doesn't exist, this will throw Xapian::DocNotFoundError:
-	AutoPtr<TermList> tl(open_term_list(did));
-	tl->skip_to(term);
-	if (tl->at_end() || tl->get_termname() != term)
-	    throw Xapian::RangeError("Can't open position list: requested term is not present in document.");
-	// FIXME:1.2.0: For 1.2.0, change this to just return an empty
-	// positionlist.  If the user really needs to know, they can check
-	// themselves.
+	// As of 1.1.0, we don't check if the did and term exist - we just
+	// return an empty positionlist.  If the user really needs to know,
+	// they can check for themselves.
     }
 
     return poslist.release();
@@ -1079,10 +1068,10 @@ ChertWritableDatabase::~ChertWritableDatabase()
 }
 
 void
-ChertWritableDatabase::flush()
+ChertWritableDatabase::commit()
 {
     if (transaction_active())
-	throw Xapian::InvalidOperationError("Can't flush during a transaction");
+	throw Xapian::InvalidOperationError("Can't commit during a transaction");
     if (change_count) flush_postlist_changes();
     apply();
 }
@@ -1091,11 +1080,7 @@ void
 ChertWritableDatabase::flush_postlist_changes() const
 {
     postlist_table.merge_changes(mod_plists, doclens, freq_deltas);
-
-    // Update the total document length and last used docid.
-    string tag = pack_uint(lastdocid);
-    tag += pack_uint_last(total_length);
-    postlist_table.add(METAINFO_KEY, tag);
+    stats.write(postlist_table);
 
     freq_deltas.clear();
     doclens.clear();
@@ -1116,10 +1101,10 @@ ChertWritableDatabase::add_document(const Xapian::Document & document)
     DEBUGCALL(DB, Xapian::docid,
 	      "ChertWritableDatabase::add_document", document);
     // Make sure the docid counter doesn't overflow.
-    if (lastdocid == Xapian::docid(-1))
+    if (stats.get_last_docid() == Xapian::docid(-1))
 	throw Xapian::DatabaseError("Run out of docids - you'll have to use copydatabase to eliminate any gaps before you can add more documents");
     // Use the next unused document ID.
-    RETURN(add_document_(++lastdocid, document));
+    RETURN(add_document_(stats.get_next_docid(), document));
 }
 
 Xapian::docid
@@ -1144,6 +1129,7 @@ ChertWritableDatabase::add_document_(Xapian::docid did,
 		termcount wdf = term.get_wdf();
 		// Calculate the new document length
 		new_doclen += wdf;
+		stats.check_wdf(wdf);
 
 		string tname = *term;
 		if (tname.size() > MAX_SAFE_TERM_LENGTH)
@@ -1182,7 +1168,7 @@ ChertWritableDatabase::add_document_(Xapian::docid did,
 	// Set the new document length
 	Assert(doclens.find(did) == doclens.end() || doclens[did] == static_cast<Xapian::termcount>(-1));
 	doclens[did] = new_doclen;
-	total_length += new_doclen;
+	stats.add_document(new_doclen);
     } catch (...) {
 	// If an error occurs while adding a document, or doing any other
 	// transaction, the modifications so far must be cleared before
@@ -1236,7 +1222,7 @@ ChertWritableDatabase::delete_document(Xapian::docid did)
 	Xapian::Internal::RefCntPtr<const ChertWritableDatabase> ptrtothis(this);
 	ChertTermList termlist(ptrtothis, did);
 
-	total_length -= termlist.get_doclength();
+	stats.delete_document(termlist.get_doclength());
 
 	termlist.next();
 	while (!termlist.at_end()) {
@@ -1301,8 +1287,8 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
     Assert(did != 0);
 
     try {
-	if (did > lastdocid) {
-	    lastdocid = did;
+	if (did > stats.get_last_docid()) {
+	    stats.set_last_docid(did);
 	    // If this docid is above the highwatermark, then we can't be
 	    // replacing an existing document.
 	    (void)add_document_(did, document);
@@ -1328,7 +1314,7 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 		modify_shortcut_docid = 0;
 	    }
 	}
-  
+
 	if (!modifying || document.internal->terms_modified()) {
 	    // FIXME - in the case where there is overlap between the new
 	    // termlist and the old termlist, it would be better to compare the
@@ -1336,7 +1322,8 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 	    // This would lead to smaller changesets for replication, and
 	    // probably be faster overall.
 
-	    // First, add entries to remove the postings in the underlying record.
+	    // First, add entries to remove the postings in the underlying
+	    // record.
 	    Xapian::Internal::RefCntPtr<const ChertWritableDatabase> ptrtothis(this);
 	    ChertTermList termlist(ptrtothis, did);
 
@@ -1367,22 +1354,24 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 		if (k == j->second.end()) {
 		    j->second.insert(make_pair(did, make_pair('D', 0u)));
 		} else {
-		    // Modifying a document we added/modified since the last flush.
+		    // Modifying a document we added/modified since the last
+		    // flush.
 		    k->second = make_pair('D', 0u);
 		}
 
 		termlist.next();
 	    }
 
-	    total_length -= termlist.get_doclength();
+	    stats.delete_document(termlist.get_doclength());
 
 	    chert_doclen_t new_doclen = 0;
 	    Xapian::TermIterator term = document.termlist_begin();
 	    Xapian::TermIterator term_end = document.termlist_end();
 	    for ( ; term != term_end; ++term) {
-		// Calculate the new document length
 		termcount wdf = term.get_wdf();
+		// Calculate the new document length
 		new_doclen += wdf;
+		stats.check_wdf(wdf);
 
 		string tname = *term;
 		if (tname.size() > MAX_SAFE_TERM_LENGTH)
@@ -1428,7 +1417,7 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 
 	    // Set the new document length
 	    doclens[did] = new_doclen;
-	    total_length += new_doclen;
+	    stats.add_document(new_doclen);
 	}
 
 	if (!modifying || document.internal->data_modified()) {
@@ -1470,10 +1459,10 @@ ChertWritableDatabase::open_document(Xapian::docid did, bool lazy) const
     RETURN(modify_shortcut_document);
 }
 
-Xapian::doclength
+Xapian::termcount
 ChertWritableDatabase::get_doclength(Xapian::docid did) const
 {
-    DEBUGCALL(DB, Xapian::doclength, "ChertWritableDatabase::get_doclength", did);
+    DEBUGCALL(DB, Xapian::termcount, "ChertWritableDatabase::get_doclength", did);
     map<docid, termcount>::const_iterator i = doclens.find(did);
     if (i != doclens.end()) {
 	Xapian::termcount doclen = i->second;
@@ -1554,14 +1543,13 @@ ChertWritableDatabase::open_post_list(const string& tname) const
 
     if (tname.empty()) {
 	Xapian::doccount doccount = get_doccount();
-	if (lastdocid == doccount) {
+	if (stats.get_last_docid() == doccount) {
 	    RETURN(new ContiguousAllDocsPostList(ptrtothis, doccount));
 	}
 	if (doclens.empty()) {
 	    RETURN(new ChertAllDocsPostList(ptrtothis, doccount));
-	} else {
-	    RETURN(new ChertAllDocsModifiedPostList(ptrtothis, doccount, doclens));
 	}
+	RETURN(new ChertAllDocsModifiedPostList(ptrtothis, doccount, doclens));
     }
 
     map<string, map<docid, pair<char, termcount> > >::const_iterator j;
@@ -1601,7 +1589,7 @@ void
 ChertWritableDatabase::cancel()
 {
     ChertDatabase::cancel();
-    read_metainfo();
+    stats.read(postlist_table);
     freq_deltas.clear();
     doclens.clear();
     mod_plists.clear();

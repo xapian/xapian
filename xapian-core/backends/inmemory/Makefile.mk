@@ -8,7 +8,7 @@ noinst_HEADERS +=\
 	backends/inmemory/inmemory_database.h\
 	backends/inmemory/inmemory_document.h
 
-libxapian_la_SOURCES +=\
+lib_src +=\
 	backends/inmemory/inmemory_alltermslist.cc\
 	backends/inmemory/inmemory_database.cc\
 	backends/inmemory/inmemory_document.cc\
@@ -16,6 +16,6 @@ libxapian_la_SOURCES +=\
 else
 # Xapian::Document uses MapTermList which uses InMemoryPositionList so we
 # always need "inmemory_positionlist.cc".
-libxapian_la_SOURCES +=\
+lib_src +=\
 	backends/inmemory/inmemory_positionlist.cc
 endif

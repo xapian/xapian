@@ -31,7 +31,7 @@ noinst_HEADERS +=\
 	backends/flint/flint_values.h\
 	backends/flint/flint_version.h
 
-libxapian_la_SOURCES +=\
+lib_src +=\
 	backends/flint/flint_alldocspostlist.cc\
 	backends/flint/flint_alltermslist.cc\
 	backends/flint/flint_btreebase.cc\

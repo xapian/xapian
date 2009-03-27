@@ -32,13 +32,14 @@
 #include <stdlib.h>
 
 #include "autoptr.h"
+#include "serialisationcontextinternal.h"
 #include "multimatch.h"
 #include "omassert.h"
 #include "omtime.h"
 #include "serialise.h"
 #include "serialise-double.h"
-#include "stats.h"
 #include "utils.h"
+#include "weightinternal.h"
 
 /// Class to throw when we receive the connection closing message.
 struct ConnectionClosed { };
@@ -47,32 +48,32 @@ RemoteServer::RemoteServer(const std::vector<std::string> &dbpaths,
 			   int fdin_, int fdout_,
 			   Xapian::timeout active_timeout_,
 			   Xapian::timeout idle_timeout_,
-			   bool writable)
+			   bool writable_)
     : RemoteConnection(fdin_, fdout_, std::string()),
-      db(NULL), wdb(NULL),
+      db(NULL), wdb(NULL), writable(writable_),
       active_timeout(active_timeout_), idle_timeout(idle_timeout_)
 {
     // Catch errors opening the database and propagate them to the client.
     try {
-	if (writable) {
-	    AssertEq(dbpaths.size(), 1); // Expecting exactly one database.
-	    wdb = new Xapian::WritableDatabase(dbpaths[0], Xapian::DB_CREATE_OR_OPEN);
-	    db = wdb;
-	} else {
-	    db = new Xapian::Database;
-	    vector<std::string>::const_iterator i;
-	    for (i = dbpaths.begin(); i != dbpaths.end(); ++i)
-		db->add_database(Xapian::Database(*i));
-	}
-
-	// Build a better description than Database::get_description() gives.
-	// FIXME: improve Database::get_description() and then just use that
-	// instead.
+	Assert(!dbpaths.empty());
+	// We always open the database read-only to start with.  If we're
+	// writable, the client can ask to be upgraded to write access once
+	// connected if it wants it.
+	db = new Xapian::Database(dbpaths[0]);
+	// Build a better description than Database::get_description() gives
+	// in the variable context.  FIXME: improve Database::get_description()
+	// and then just use that instead.
 	context = dbpaths[0];
-	vector<std::string>::const_iterator i(dbpaths.begin());
-	for (++i; i != dbpaths.end(); ++i) {
-	    context += ' ';
-	    context += *i;
+
+	if (!writable) {
+	    vector<std::string>::const_iterator i(dbpaths.begin());
+	    for (++i; i != dbpaths.end(); ++i) {
+		db->add_database(Xapian::Database(*i));
+		context += ' ';
+		context += *i;
+	    }
+	} else {
+	    AssertEq(dbpaths.size(), 1); // Expecting exactly one database.
 	}
     } catch (const Xapian::Error &err) {
 	// Propagate the exception to the client.
@@ -94,54 +95,22 @@ RemoteServer::RemoteServer(const std::vector<std::string> &dbpaths,
     message += char(XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION);
     message += encode_length(db->get_doccount());
     message += encode_length(db->get_lastdocid());
+    message += encode_length(db->get_doclength_lower_bound());
+    message += encode_length(db->get_doclength_upper_bound());
     message += (db->has_positions() ? '1' : '0');
-    message += serialise_double(db->get_avlength());
-    string uuid;
-    try {
-	uuid = db->get_uuid();
-    } catch (const Xapian::UnimplementedError &err) {
-	// Leave the uuid empty.
-    }
-    message += encode_length(uuid.size());
+    // FIXME: clumsy to reverse calculate total_len like this:
+    totlen_t total_len = totlen_t(db->get_avlength() * db->get_doccount() + .5);
+    message += encode_length(total_len);
+    //message += encode_length(db->get_total_length());
+    string uuid = db->get_uuid();
     message += uuid;
     send_message(REPLY_GREETING, message);
-
-    // Register weighting schemes.
-    Xapian::Weight * weight;
-    weight = new Xapian::BM25Weight;
-    wtschemes[weight->name()] = weight;
-    weight = new Xapian::BoolWeight;
-    wtschemes[weight->name()] = weight;
-    weight = new Xapian::TradWeight;
-    wtschemes[weight->name()] = weight;
-
-    Xapian::PostingSource * source;
-    source = new Xapian::ValueWeightPostingSource(0);
-    postingsources[source->name()] = source;
-    source = new Xapian::ValueMapPostingSource(0);
-    postingsources[source->name()] = source;
-    source = new Xapian::FixedWeightPostingSource(0.0);
-    postingsources[source->name()] = source;
 }
 
 RemoteServer::~RemoteServer()
 {
     delete db;
     // wdb is either NULL or equal to db, so we shouldn't delete it too!
-
-    {
-	map<string, Xapian::Weight*>::const_iterator i;
-	for (i = wtschemes.begin(); i != wtschemes.end(); ++i) {
-	    delete i->second;
-	}
-    }
-
-    {
-	map<string, Xapian::PostingSource *>::const_iterator i;
-	for (i = postingsources.begin(); i != postingsources.end(); ++i) {
-	    delete i->second;
-	}
-    }
 }
 
 message_type
@@ -211,10 +180,11 @@ RemoteServer::run()
 		&RemoteServer::msg_adddocument,
 		&RemoteServer::msg_cancel,
 		&RemoteServer::msg_deletedocumentterm,
-		&RemoteServer::msg_flush,
+		&RemoteServer::msg_commit,
 		&RemoteServer::msg_replacedocument,
 		&RemoteServer::msg_replacedocumentterm,
-		&RemoteServer::msg_deletedocument
+		&RemoteServer::msg_deletedocument,
+		&RemoteServer::msg_writeaccess,
 		// MSG_GETMSET - used during a conversation.
 		// MSG_SHUTDOWN - handled by get_message().
 	    };
@@ -238,7 +208,7 @@ RemoteServer::run()
 	    // And rethrow it so our caller can log it and close the
 	    // connection.
 	    throw;
-	} catch (const Xapian::NetworkError) {
+	} catch (const Xapian::NetworkError &) {
 	    // All other network errors mean we are fatally confused and are
 	    // unlikely to be able to communicate further across this
 	    // connection.  So we don't try to propagate the error to the
@@ -253,7 +223,7 @@ RemoteServer::run()
 	    return;
 	} catch (...) {
 	    // Propagate an unknown exception to the client.
-	    send_message(REPLY_EXCEPTION, "");
+	    send_message(REPLY_EXCEPTION, string());
 	    // And rethrow it so our caller can log it and close the
 	    // connection.
 	    throw;
@@ -275,7 +245,7 @@ RemoteServer::msg_allterms(const string &message)
 	send_message(REPLY_ALLTERMS, item);
     }
 
-    send_message(REPLY_DONE, "");
+    send_message(REPLY_DONE, string());
 }
 
 void
@@ -285,7 +255,7 @@ RemoteServer::msg_termlist(const string &message)
     const char *p_end = p + message.size();
     Xapian::docid did = decode_length(&p, p_end, false);
 
-    send_message(REPLY_DOCLENGTH, serialise_double(db->get_doclength(did)));
+    send_message(REPLY_DOCLENGTH, encode_length(db->get_doclength(did)));
     const Xapian::TermIterator end = db->termlist_end(did);
     for (Xapian::TermIterator t = db->termlist_begin(did); t != end; ++t) {
 	string item = encode_length(t.get_wdf());
@@ -294,7 +264,7 @@ RemoteServer::msg_termlist(const string &message)
 	send_message(REPLY_TERMLIST, item);
     }
 
-    send_message(REPLY_DONE, "");
+    send_message(REPLY_DONE, string());
 }
 
 void
@@ -314,7 +284,7 @@ RemoteServer::msg_positionlist(const string &message)
 	lastpos = pos;
     }
 
-    send_message(REPLY_DONE, "");
+    send_message(REPLY_DONE, string());
 }
 
 void
@@ -341,7 +311,19 @@ RemoteServer::msg_postlist(const string &message)
 	lastdocid = newdocid;
     }
 
-    send_message(REPLY_DONE, "");
+    send_message(REPLY_DONE, string());
+}
+
+void
+RemoteServer::msg_writeaccess(const string & msg)
+{
+    if (!writable) 
+	throw Xapian::InvalidOperationError("Server is read-only");
+
+    wdb = new Xapian::WritableDatabase(context, Xapian::DB_OPEN);
+    delete db;
+    db = wdb;
+    msg_update(msg);
 }
 
 void
@@ -360,15 +342,14 @@ RemoteServer::msg_update(const string &)
 
     string message = encode_length(db->get_doccount());
     message += encode_length(db->get_lastdocid());
+    message += encode_length(db->get_doclength_lower_bound());
+    message += encode_length(db->get_doclength_upper_bound());
     message += (db->has_positions() ? '1' : '0');
-    message += serialise_double(db->get_avlength());
-    string uuid;
-    try {
-	uuid = db->get_uuid();
-    } catch (const Xapian::UnimplementedError &err) {
-	// Leave the uuid empty.
-    }
-    message += encode_length(uuid.size());
+    // FIXME: clumsy to reverse calculate total_len like this:
+    totlen_t total_len = totlen_t(db->get_avlength() * db->get_doccount() + .5);
+    message += encode_length(total_len);
+    //message += encode_length(db->get_total_length());
+    string uuid = db->get_uuid();
     message += uuid;
     send_message(REPLY_UPDATE, message);
 }
@@ -382,7 +363,7 @@ RemoteServer::msg_query(const string &message_in)
 
     // Unserialise the Query.
     len = decode_length(&p, p_end, true);
-    AutoPtr<Xapian::Query::Internal> query(Xapian::Query::Internal::unserialise(string(p, len), postingsources));
+    AutoPtr<Xapian::Query::Internal> query(Xapian::Query::Internal::unserialise(string(p, len), ctx));
     p += len;
 
     // Unserialise assorted Enquire settings.
@@ -424,21 +405,24 @@ RemoteServer::msg_query(const string &message_in)
 
     // Unserialise the Weight object.
     len = decode_length(&p, p_end, true);
-    map<string, Xapian::Weight *>::const_iterator i;
-    i = wtschemes.find(string(p, len));
-    if (i == wtschemes.end()) {
-	throw Xapian::InvalidArgumentError("Weighting scheme " + string(p, len) + " not registered");
+    const Xapian::Weight * wttype = ctx.get_weighting_scheme(string(p, len));
+    if (wttype == NULL) {
+	// Note: user weighting schemes should be registered by adding them to
+	// a SerialisationContext, and setting the context using
+	// RemoteServer::set_context().
+	throw Xapian::InvalidArgumentError("Weighting scheme " +
+					   string(p, len) + " not registered");
     }
     p += len;
 
     len = decode_length(&p, p_end, true);
-    AutoPtr<Xapian::Weight> wt(i->second->unserialise(string(p, len)));
+    AutoPtr<Xapian::Weight> wt(wttype->unserialise(string(p, len)));
     p += len;
 
     // Unserialise the RSet object.
     Xapian::RSet rset = unserialise_rset(string(p, p_end - p));
 
-    Stats local_stats;
+    Xapian::Weight::Internal local_stats;
     MultiMatch match(*db, query.get(), qlen, &rset, collapse_max, collapse_key,
 		     percent_cutoff, weight_cutoff, order,
 		     sort_key, sort_by, sort_value_forward, NULL,
@@ -458,7 +442,7 @@ RemoteServer::msg_query(const string &message_in)
     check_at_least = decode_length(&p, p_end, false);
 
     message.erase(0, message.size() - (p_end - p));
-    Stats total_stats(unserialise_stats(message));
+    Xapian::Weight::Internal total_stats(unserialise_stats(message));
 
     Xapian::MSet mset;
     match.get_mset(first, maxitems, check_at_least, mset, total_stats, 0, 0);
@@ -483,7 +467,7 @@ RemoteServer::msg_document(const string &message)
 	item += *i;
 	send_message(REPLY_VALUE, item);
     }
-    send_message(REPLY_DONE, "");
+    send_message(REPLY_DONE, string());
 }
 
 void
@@ -491,13 +475,13 @@ RemoteServer::msg_keepalive(const string &)
 {
     // Ensure *our* database stays alive, as it may contain remote databases!
     db->keep_alive();
-    send_message(REPLY_DONE, "");
+    send_message(REPLY_DONE, string());
 }
 
 void
 RemoteServer::msg_termexists(const string &term)
 {
-    send_message((db->term_exists(term) ? REPLY_TERMEXISTS : REPLY_TERMDOESNTEXIST), "");
+    send_message((db->term_exists(term) ? REPLY_TERMEXISTS : REPLY_TERMDOESNTEXIST), string());
 }
 
 void
@@ -538,20 +522,18 @@ RemoteServer::msg_doclength(const string &message)
     const char *p = message.data();
     const char *p_end = p + message.size();
     Xapian::docid did = decode_length(&p, p_end, false);
-    // FIXME: get_doclength should always return an integer, but
-    // Xapian::doclength is a double...
-    send_message(REPLY_DOCLENGTH, serialise_double(db->get_doclength(did)));
+    send_message(REPLY_DOCLENGTH, encode_length(db->get_doclength(did)));
 }
 
 void
-RemoteServer::msg_flush(const string &)
+RemoteServer::msg_commit(const string &)
 {
     if (!wdb)
 	throw Xapian::InvalidOperationError("Server is read-only");
 
-    wdb->flush();
+    wdb->commit();
 
-    send_message(REPLY_DONE, "");
+    send_message(REPLY_DONE, string());
 }
 
 void
@@ -589,7 +571,7 @@ RemoteServer::msg_deletedocument(const string & message)
 
     wdb->delete_document(did);
 
-    send_message(REPLY_DONE, "");
+    send_message(REPLY_DONE, string());
 }
 
 void
@@ -629,23 +611,4 @@ RemoteServer::msg_replacedocumentterm(const string & message)
     Xapian::docid did = wdb->replace_document(unique_term, unserialise_document(string(p, p_end)));
 
     send_message(REPLY_ADDDOCUMENT, encode_length(did));
-}
-
-
-void
-RemoteServer::register_posting_source(const Xapian::PostingSource &source)
-{
-    if (source.name().empty()) {
-	throw Xapian::InvalidOperationError("Unable to register posting source - name() method returns empty string.");
-    }
-    Xapian::PostingSource * sourceclone = source.clone();
-    if (!sourceclone) {
-	throw Xapian::InvalidOperationError("Unable to register posting source - clone() method returns NULL.");
-    }
-    try {
-	postingsources[source.name()] = sourceclone;
-    } catch(...) {
-	delete sourceclone;
-	throw;
-    }
 }

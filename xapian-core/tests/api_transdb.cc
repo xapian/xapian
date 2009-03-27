@@ -1,7 +1,7 @@
 /** @file api_transdb.cc
  * @brief tests requiring a database backend supporting transactions
  */
-/* Copyright (C) 2006 Olly Betts
+/* Copyright (C) 2006,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -97,7 +97,7 @@ DEFINE_TESTCASE(canceltransaction1, transactions) {
     return true;
 }
 
-/// Test that begin_transaction() flushes any changes pending before the
+/// Test that begin_transaction() commits any changes pending before the
 //  transaction.
 DEFINE_TESTCASE(canceltransaction2, transactions) {
     Xapian::WritableDatabase db(get_writable_database("apitest_simpledata"));

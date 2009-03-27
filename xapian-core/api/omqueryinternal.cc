@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2006,2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -25,6 +25,7 @@
 
 #include "omqueryinternal.h"
 
+#include "serialisationcontextinternal.h"
 #include "omdebug.h"
 #include "utils.h"
 #include "serialise.h"
@@ -144,8 +145,8 @@ Xapian::Query::Internal::serialise(Xapian::termpos & curpos) const
 	result += '[';
 	result += encode_length(tname.length());
 	result += tname;
-	if (term_pos != curpos) result += '@' + om_tostring(term_pos);
-	if (wqf != 1) result += '#' + om_tostring(wqf);
+	if (term_pos != curpos) result += '@' + encode_length(term_pos);
+	if (wqf != 1) result += '#' + encode_length(wqf);
 	++curpos;
     } else if (op == Xapian::Query::Internal::OP_EXTERNAL_SOURCE) {
 	string sourcename = external_source->name();
@@ -190,13 +191,13 @@ Xapian::Query::Internal::serialise(Xapian::termpos & curpos) const
 		result += "^";
 		break;
 	    case Xapian::Query::OP_NEAR:
-		result += "~" + om_tostring(parameter);
+		result += "~" + encode_length(parameter);
 		break;
 	    case Xapian::Query::OP_PHRASE:
-		result += "\"" + om_tostring(parameter);
+		result += "\"" + encode_length(parameter);
 		break;
 	    case Xapian::Query::OP_ELITE_SET:
-		result += "*" + om_tostring(parameter);
+		result += "*" + encode_length(parameter);
 		break;
 	    case Xapian::Query::OP_VALUE_RANGE:
 		result += "]";
@@ -204,19 +205,19 @@ Xapian::Query::Internal::serialise(Xapian::termpos & curpos) const
 		result += tname;
 		result += encode_length(str_parameter.length());
 		result += str_parameter;
-		result += om_tostring(parameter);
+		result += encode_length(parameter);
 		break;
 	    case Xapian::Query::OP_VALUE_GE:
 		result += "}";
 		result += encode_length(tname.length());
 		result += tname;
-		result += om_tostring(parameter);
+		result += encode_length(parameter);
 		break;
 	    case Xapian::Query::OP_VALUE_LE:
 		result += "{";
 		result += encode_length(tname.length());
 		result += tname;
-		result += om_tostring(parameter);
+		result += encode_length(parameter);
 		break;
 	    case Xapian::Query::OP_SCALE_WEIGHT:
 		result += ".";
@@ -348,11 +349,13 @@ Xapian::Query::Internal::accumulate_terms(
 			vector<pair<string, Xapian::termpos> > &terms) const
 {
     if (is_leaf(op)) {
-        // We're a leaf, so just return our term.
-        terms.push_back(make_pair(tname, term_pos));
+	// We're a leaf, so just return our term, but skip Query::MatchAllTerms
+	// (which is Query("")).
+	if (!tname.empty())
+	    terms.push_back(make_pair(tname, term_pos));
     } else {
 	subquery_list::const_iterator end = subqs.end();
-        // not a leaf, concatenate results from all subqueries
+	// Not a leaf, concatenate results from all subqueries.
 	for (subquery_list::const_iterator i = subqs.begin(); i != end; ++i) {
 	    (*i)->accumulate_terms(terms);
 	}
@@ -403,7 +406,7 @@ class QUnserial {
     const char *p;
     const char *end;
     Xapian::termpos curpos;
-    const map<string, Xapian::PostingSource *> & sources;
+    const Xapian::SerialisationContext & ctx;
 
     Xapian::Query::Internal * readquery();
     Xapian::Query::Internal * readexternal();
@@ -411,8 +414,8 @@ class QUnserial {
 
   public:
     QUnserial(const string & s,
-	      const map<string, Xapian::PostingSource *> & sources_)
-	    : p(s.c_str()), end(p + s.size()), curpos(1), sources(sources_) { }
+	      const Xapian::SerialisationContext & ctx_)
+	    : p(s.c_str()), end(p + s.size()), curpos(1), ctx(ctx_) { }
     Xapian::Query::Internal * decode();
 };
 
@@ -438,14 +441,12 @@ QUnserial::readquery() {
 	    Xapian::termcount wqf = 1;
 	    if (p != end) {
 		if (*p == '@') {
-		    char *tmp; // avoid compiler warning
-		    term_pos = strtol(p + 1, &tmp, 10);
-		    p = tmp;
+		    ++p;
+		    term_pos = decode_length(&p, end, false);
 		}
 		if (*p == '#') {
-		    char *tmp; // avoid compiler warning
-		    wqf = strtol(p + 1, &tmp, 10);
-		    p = tmp;
+		    ++p;
+		    wqf = decode_length(&p, end, false);
 		}
 	    }
 	    ++curpos;
@@ -469,10 +470,10 @@ QUnserial::readexternal()
 
     size_t length = decode_length(&p, end, true);
     string sourcename(p, length);
-    map<string, Xapian::PostingSource *>::const_iterator i;
-    i = sources.find(sourcename);
-    if (i == sources.end()) {
-	throw Xapian::InvalidArgumentError("PostingSource " + string(p, length) + " not registered");
+    const Xapian::PostingSource * source = ctx.get_posting_source(sourcename);
+    if (source == NULL) {
+	throw Xapian::InvalidArgumentError("PostingSource " + sourcename +
+					   " not registered");
     }
 
     p += length;
@@ -480,7 +481,7 @@ QUnserial::readexternal()
     string sourcedata(p, length);
     p += length;
 
-    return new Xapian::Query::Internal(i->second->unserialise(sourcedata), true);
+    return new Xapian::Query::Internal(source->unserialise(sourcedata), true);
 }
 
 static Xapian::Query::Internal *
@@ -491,11 +492,13 @@ qint_from_vector(Xapian::Query::op op,
     Xapian::Query::Internal * qint = new Xapian::Query::Internal(op, parameter);
     vector<Xapian::Query::Internal *>::const_iterator i;
     for (i = vec.begin(); i != vec.end(); i++) {
-	qint->add_subquery(*i);
-	delete *i;
+	qint->add_subquery_nocopy(*i);
     }
-    qint->end_construction();
-    return qint;
+    Xapian::Query::Internal * r = qint->end_construction();
+    // We're only called during unserialisation, so no simplification should
+    // happen.
+    AssertEq(r, qint);
+    return r;
 }
 
 static Xapian::Query::Internal *
@@ -508,11 +511,13 @@ qint_from_vector(Xapian::Query::op op,
     qint->set_dbl_parameter(dbl_parameter);
     vector<Xapian::Query::Internal *>::const_iterator i;
     for (i = vec.begin(); i != vec.end(); i++) {
-	qint->add_subquery(*i);
-	delete *i;
+	qint->add_subquery_nocopy(*i);
     }
-    qint->end_construction();
-    return qint;
+    Xapian::Query::Internal * r = qint->end_construction();
+    // We're only called during unserialisation, so no simplification should
+    // happen.
+    AssertEq(r, qint);
+    return r;
 }
 
 Xapian::Query::Internal *
@@ -547,21 +552,15 @@ QUnserial::readcompound() {
 	        case '-':
 		    return qint_from_vector(Xapian::Query::OP_AND_NOT, subqs);
 	        case '~': {
-		    char *tmp; // avoid compiler warning
-		    Xapian::termcount window(strtol(p, &tmp, 10));
-		    p = tmp;
+		    Xapian::termcount window(decode_length(&p, end, false));
 		    return qint_from_vector(Xapian::Query::OP_NEAR, subqs, window);
 	        }
 	        case '"': {
-		    char *tmp; // avoid compiler warning
-		    Xapian::termcount window(strtol(p, &tmp, 10));
-		    p = tmp;
+		    Xapian::termcount window(decode_length(&p, end, false));
 		    return qint_from_vector(Xapian::Query::OP_PHRASE, subqs, window);
 	        }
 	        case '*': {
-		    char *tmp; // avoid compiler warning
-		    Xapian::termcount elite_set_size(strtol(p, &tmp, 10));
-		    p = tmp;
+		    Xapian::termcount elite_set_size(decode_length(&p, end, false));
 		    return qint_from_vector(Xapian::Query::OP_ELITE_SET, subqs,
 					    elite_set_size);
 		}
@@ -572,9 +571,7 @@ QUnserial::readcompound() {
 		    len = decode_length(&p, end, true);
 		    string stop(p, len);
 		    p += len;
-		    char *tmp; // avoid compiler warning
-		    Xapian::valueno valno = strtoul(p, &tmp, 10);
-		    p = tmp;
+		    Xapian::valueno valno(decode_length(&p, end, false));
 		    return new Xapian::Query::Internal(Xapian::Query::OP_VALUE_RANGE, valno,
 						       start, stop);
 	        }
@@ -582,9 +579,7 @@ QUnserial::readcompound() {
 		    size_t len = decode_length(&p, end, true);
 		    string start(p, len);
 		    p += len;
-		    char *tmp; // avoid compiler warning
-		    Xapian::valueno valno = strtoul(p, &tmp, 10);
-		    p = tmp;
+		    Xapian::valueno valno(decode_length(&p, end, false));
 		    return new Xapian::Query::Internal(Xapian::Query::OP_VALUE_GE, valno,
 						       start);
 	        }
@@ -592,9 +587,7 @@ QUnserial::readcompound() {
 		    size_t len = decode_length(&p, end, true);
 		    string start(p, len);
 		    p += len;
-		    char *tmp; // avoid compiler warning
-		    Xapian::valueno valno = strtoul(p, &tmp, 10);
-		    p = tmp;
+		    Xapian::valueno valno(decode_length(&p, end, false));
 		    return new Xapian::Query::Internal(Xapian::Query::OP_VALUE_LE, valno,
 						       start);
 	        }
@@ -623,10 +616,10 @@ QUnserial::readcompound() {
 
 Xapian::Query::Internal *
 Xapian::Query::Internal::unserialise(const string &s,
-			const map<string, Xapian::PostingSource *> & sources)
+		const Xapian::SerialisationContext & ctx)
 {
     Assert(s.length() > 1);
-    QUnserial u(s, sources);
+    QUnserial u(s, ctx);
     Xapian::Query::Internal * qint = u.decode();
     AssertEq(s, qint->serialise());
     return qint;
@@ -634,7 +627,7 @@ Xapian::Query::Internal::unserialise(const string &s,
 #else
 Xapian::Query::Internal *
 Xapian::Query::Internal::unserialise(const string &,
-			const map<string, Xapian::PostingSource *> & sources)
+		const Xapian::SerialisationContext & ctx)
 {
     throw Xapian::InternalError("query serialisation not compiled in");
 }
@@ -880,7 +873,7 @@ Xapian::Query::Internal::simplify_matchnothing()
 Xapian::Query::Internal *
 Xapian::Query::Internal::simplify_query()
 {
-    DEBUGCALL(API, bool, "Xapian::Query::Internal::simplify_query", "");
+    DEBUGCALL(API, Xapian::Query::Internal *, "Xapian::Query::Internal::simplify_query", "");
 
     // Simplify any MatchNothing nodes.
     if (simplify_matchnothing()) {
@@ -907,11 +900,15 @@ Xapian::Query::Internal::simplify_query()
         case OP_SET_WEIGHT:
 	    return this;
 	case OP_PHRASE: case OP_NEAR:
+	    // Empty and single subquery OP_PHRASE and OP_NEAR get handled
+	    // below.
+	    if (subqs.size() <= 1) break;
+
 	    // Default to the number of subqueries.
 	    if (!parameter) parameter = subqs.size();
-	    // Flatten out sub queries if this is a phrase (or near) operation.
-	    flatten_subqs();
-	    break;
+
+	    // Flatten out sub queries of a phrase or near operation.
+	    return flatten_subqs();
 	case OP_ELITE_SET:
 	    if (!parameter) {
 		// Default to sqrt(number of subqueries), or a minimum of 10.
@@ -998,45 +995,62 @@ Xapian::Query::Internal::collapse_subqs()
 }
 
 /// Change, eg, A NEAR (B AND C) to (A NEAR B) AND (A NEAR C)
-void
+Xapian::Query::Internal *
 Xapian::Query::Internal::flatten_subqs()
 {
-    if (op != Xapian::Query::OP_NEAR && op != Xapian::Query::OP_PHRASE) {
-	throw Xapian::UnimplementedError("NEAR or PHRASE with non-term subqueries isn't well supported currently");
-    }
+    Assert(op == Xapian::Query::OP_NEAR || op == Xapian::Query::OP_PHRASE);
 
     subquery_list::iterator sq;
-    for (sq = subqs.begin(); sq != subqs.end(); sq++) {
+    for (sq = subqs.begin(); sq != subqs.end(); ++sq) {
 	if (!is_leaf((*sq)->op)) break;
     }
 
-    if (sq != subqs.end()) {
-	if ((*sq)->op == Xapian::Query::OP_NEAR ||
-	    (*sq)->op == Xapian::Query::OP_PHRASE) {
-	    // FIXME: A PHRASE (B PHRASE C) -> (A PHRASE B) AND (B PHRASE C)?
-	    throw Xapian::UnimplementedError("Can't use NEAR/PHRASE with a subexpression containing NEAR or PHRASE");
-	}
+    if (sq == subqs.end()) return this;
 
-	AutoPtr<Xapian::Query::Internal> flattenme(*sq);
-	*sq = 0;
-
-	// New query to build up.
-	Xapian::Query::Internal newq(flattenme->op, 0);
-
-	subquery_list::iterator j;
-	for (j = flattenme->subqs.begin(); j != flattenme->subqs.end(); ++j) {
-	    *sq = *j;
-	    *j = 0;
-	    flatten_subqs();
-	    newq.add_subquery(this);
-	    delete *sq;
-	    *sq = 0;
-	}
-
-	Xapian::Query::Internal * newq2 = newq.end_construction();
-	Assert(newq2);
-	this->swap(*newq2);
+    if ((*sq)->op == Xapian::Query::OP_NEAR ||
+	(*sq)->op == Xapian::Query::OP_PHRASE) {
+	// FIXME: A PHRASE (B PHRASE C) -> (A PHRASE B) AND (B PHRASE C)?
+	throw Xapian::UnimplementedError("Can't use NEAR/PHRASE with a subexpression containing NEAR or PHRASE");
     }
+
+    AutoPtr<Xapian::Query::Internal> flattenme(*sq);
+    *sq = 0;
+
+    subquery_list::iterator j;
+    for (j = flattenme->subqs.begin(); j != flattenme->subqs.end(); ++j) {
+	*sq = *j;
+	*j = 0;
+	AutoPtr<Xapian::Query::Internal> newq(new Xapian::Query::Internal(*this));
+	delete *sq;
+	*sq = 0;
+	newq = newq->flatten_subqs();
+	*j = newq.release();
+    }
+
+    if (flattenme->op == OP_AND ||
+	flattenme->op == OP_OR ||
+	flattenme->op == OP_XOR) {
+	size_t i = flattenme->subqs.size();
+	do {
+	    --i;
+	    Xapian::Query::Internal * q = flattenme->subqs[i];
+	    if (flattenme->op == q->op) {
+		subquery_list::iterator k;
+		for (k = q->subqs.begin(), ++k;
+		     k != q->subqs.end();
+		     ++k) {
+		    flattenme->subqs.push_back(0);
+		    flattenme->subqs.back() = *k;
+		    *k = 0;
+		}
+		flattenme->subqs[i] = q->subqs[0];
+		q->subqs.clear();
+		delete q;
+	    }
+	} while (i != 0);
+    }
+
+    return flattenme.release();
 }
 
 void
@@ -1053,6 +1067,24 @@ Xapian::Query::Internal::add_subquery(const Xapian::Query::Internal * subq)
 	}
     } else {
 	subqs.push_back(new Xapian::Query::Internal(*subq));
+    }
+}
+
+void
+Xapian::Query::Internal::add_subquery_nocopy(Xapian::Query::Internal * subq)
+{
+    Assert(!is_leaf(op));
+    if (subq == 0) {
+	subqs.push_back(0);
+    } else if (op == subq->op && (op == OP_AND || op == OP_OR || op == OP_XOR)) {
+	// Distribute the subquery.
+	for (subquery_list::const_iterator i = subq->subqs.begin();
+	     i != subq->subqs.end(); i++) {
+	    add_subquery(*i);
+	}
+	delete subq;
+    } else {
+	subqs.push_back(subq);
     }
 }
 

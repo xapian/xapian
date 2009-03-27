@@ -2,6 +2,7 @@ noinst_HEADERS +=\
 	common/alltermslist.h\
 	common/autoptr.h\
 	common/bitstream.h\
+	common/const_database_wrapper.h\
 	common/contiguousalldocspostlist.h\
 	common/database.h\
 	common/databasereplicator.h\
@@ -15,6 +16,7 @@ noinst_HEADERS +=\
 	common/fileutils.h\
 	common/gnu_getopt.h\
 	common/inmemory_positionlist.h\
+	common/internaltypes.h\
 	common/leafpostlist.h\
 	common/msvc_dirent.h\
 	common/msvc_posix_wrapper.h\
@@ -50,15 +52,16 @@ noinst_HEADERS +=\
 	common/safeuuid.h\
 	common/safewindows.h\
 	common/safewinsock2.h\
+	common/serialisationcontextinternal.h\
 	common/serialise-double.h\
 	common/serialise.h\
 	common/socket_utils.h\
-	common/stats.h\
 	common/stringutils.h\
 	common/submatch.h\
 	common/tcpclient.h\
 	common/tcpserver.h\
 	common/termlist.h\
+	common/str.h\
 	common/unaligned.h\
 	common/utils.h\
 	common/valuelist.h\
@@ -70,8 +73,9 @@ EXTRA_DIST +=\
 	common/dir_contents\
 	common/Makefile
 
-libxapian_la_SOURCES +=\
+lib_src +=\
 	common/bitstream.cc\
+	common/const_database_wrapper.cc\
 	common/debuglog.cc\
 	common/fileutils.cc\
 	common/msvc_dirent.cc\
@@ -80,6 +84,7 @@ libxapian_la_SOURCES +=\
 	common/safe.cc\
 	common/serialise-double.cc\
 	common/socket_utils.cc\
+	common/str.cc\
 	common/stringutils.cc\
 	common/utils.cc
 

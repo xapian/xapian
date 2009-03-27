@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -1058,56 +1058,25 @@ ChertTable::add(const string &key, string tag, bool already_compressed)
 	CompileTimeAssert(DONT_COMPRESS != Z_RLE);
 #endif
 
-	z_stream stream;
+	lazy_alloc_deflate_zstream();
 
-	stream.zalloc = reinterpret_cast<alloc_func>(0);
-	stream.zfree = reinterpret_cast<free_func>(0);
-	stream.opaque = (voidpf)0;
-
-	// -15 means raw deflate with 32K LZ77 window (largest)
-	// memLevel 9 is the highest (8 is default)
-	int err;
-	err = deflateInit2(&stream, Z_DEFAULT_COMPRESSION, Z_DEFLATED, -15, 9,
-			   compress_strategy);
-	if (err != Z_OK) {
-	    if (err == Z_MEM_ERROR) throw std::bad_alloc();
-	    string msg = "deflateInit2 failed";
-	    if (stream.msg) {
-		msg += " (";
-		msg += stream.msg;
-		msg += ')';
-	    }
-	    throw Xapian::DatabaseError(msg);
-	}
-
-	stream.next_in = (Bytef *)const_cast<char *>(tag.data());
-	stream.avail_in = (uInt)tag.size();
+	deflate_zstream->next_in = (Bytef *)const_cast<char *>(tag.data());
+	deflate_zstream->avail_in = (uInt)tag.size();
 
 	// If compressed size is >= tag.size(), we don't want to compress.
 	unsigned long blk_len = tag.size() - 1;
 	unsigned char * blk = new unsigned char[blk_len];
-	stream.next_out = blk;
-	stream.avail_out = (uInt)blk_len;
+	deflate_zstream->next_out = blk;
+	deflate_zstream->avail_out = (uInt)blk_len;
 
-	err = deflate(&stream, Z_FINISH);
+	int err = deflate(deflate_zstream, Z_FINISH);
 	if (err == Z_STREAM_END) {
 	    // If deflate succeeded, then the output was at least one byte
 	    // smaller than the input.
-	    tag.assign(reinterpret_cast<const char *>(blk), stream.total_out);
+	    tag.assign(reinterpret_cast<const char *>(blk), deflate_zstream->total_out);
 	    compressed = true;
-	    err = deflateEnd(&stream);
-	    if (err != Z_OK) {
-		string msg = "deflateEnd failed";
-		if (stream.msg) {
-		    msg += " (";
-		    msg += stream.msg;
-		    msg += ')';
-		}
-		throw Xapian::DatabaseError(msg);
-	    }
 	} else {
 	    // Deflate failed - presumably the data wasn't compressible.
-	    (void)deflateEnd(&stream);
 	}
 
 	delete [] blk;
@@ -1192,7 +1161,12 @@ ChertTable::del(const string &key)
     LOGCALL(DB, bool, "ChertTable::del", key);
     Assert(writable);
 
-    if (handle < 0) RETURN(false);
+    if (handle < 0) {
+	if (handle == -2) {
+	    ChertTable::throw_database_closed();
+	}
+	RETURN(false);
+    }
 
     // We can't delete a key which we is too long for us to store.
     if (key.size() > CHERT_BTREE_MAX_KEY_LEN) RETURN(false);
@@ -1219,7 +1193,12 @@ ChertTable::get_exact_entry(const string &key, string & tag) const
     LOGCALL(DB, bool, "ChertTable::get_exact_entry", key << ", [&tag]");
     Assert(!key.empty());
 
-    if (handle < 0) RETURN(false);
+    if (handle < 0) {
+	if (handle == -2) {
+	    ChertTable::throw_database_closed();
+	}
+	RETURN(false);
+    }
 
     // An oversized key can't exist, so attempting to search for it should fail.
     if (key.size() > CHERT_BTREE_MAX_KEY_LEN) RETURN(false);
@@ -1281,70 +1260,48 @@ ChertTable::read_tag(Cursor * C_, string *tag, bool keep_compressed) const
 
     Bytef buf[8192];
 
-    z_stream stream;
-    stream.next_out = buf;
-    stream.avail_out = (uInt)sizeof(buf);
+    lazy_alloc_inflate_zstream();
 
-    stream.zalloc = reinterpret_cast<alloc_func>(0);
-    stream.zfree = reinterpret_cast<free_func>(0);
+    inflate_zstream->next_in = (Bytef*)const_cast<char *>(tag->data());
+    inflate_zstream->avail_in = (uInt)tag->size();
 
-    stream.next_in = Z_NULL;
-    stream.avail_in = 0;
-
-    int err = inflateInit2(&stream, -15);
-    if (err != Z_OK) {
-	if (err == Z_MEM_ERROR) throw std::bad_alloc();
-	string msg = "inflateInit2 failed";
-	if (stream.msg) {
-	    msg += " (";
-	    msg += stream.msg;
-	    msg += ')';
-	}
-	throw Xapian::DatabaseError(msg);
-    }
-
-    stream.next_in = (Bytef*)const_cast<char *>(tag->data());
-    stream.avail_in = (uInt)tag->size();
-
+    int err = Z_OK;
     while (err != Z_STREAM_END) {
-	stream.next_out = buf;
-	stream.avail_out = (uInt)sizeof(buf);
-	err = inflate(&stream, Z_SYNC_FLUSH);
-	if (err == Z_BUF_ERROR && stream.avail_in == 0) {
-	    LOGLINE(DB, "Z_BUF_ERROR - faking checksum of " << stream.adler);
+	inflate_zstream->next_out = buf;
+	inflate_zstream->avail_out = (uInt)sizeof(buf);
+	err = inflate(inflate_zstream, Z_SYNC_FLUSH);
+	if (err == Z_BUF_ERROR && inflate_zstream->avail_in == 0) {
+	    LOGLINE(DB, "Z_BUF_ERROR - faking checksum of " << inflate_zstream->adler);
 	    Bytef header2[4];
-	    setint4(header2, 0, stream.adler);
-	    stream.next_in = header2;
-	    stream.avail_in = 4;
-	    err = inflate(&stream, Z_SYNC_FLUSH);
+	    setint4(header2, 0, inflate_zstream->adler);
+	    inflate_zstream->next_in = header2;
+	    inflate_zstream->avail_in = 4;
+	    err = inflate(inflate_zstream, Z_SYNC_FLUSH);
 	    if (err == Z_STREAM_END) break;
 	}
 
 	if (err != Z_OK && err != Z_STREAM_END) {
 	    if (err == Z_MEM_ERROR) throw std::bad_alloc();
 	    string msg = "inflate failed";
-	    if (stream.msg) {
+	    if (inflate_zstream->msg) {
 		msg += " (";
-		msg += stream.msg;
+		msg += inflate_zstream->msg;
 		msg += ')';
 	    }
 	    throw Xapian::DatabaseError(msg);
 	}
 
 	utag.append(reinterpret_cast<const char *>(buf),
-		    stream.next_out - buf);
+		    inflate_zstream->next_out - buf);
     }
-    if (utag.size() != stream.total_out) {
+    if (utag.size() != inflate_zstream->total_out) {
 	string msg = "compressed tag didn't expand to the expected size: ";
 	msg += om_tostring(utag.size());
 	msg += " != ";
 	// OpenBSD's zlib.h uses off_t instead of uLong for total_out.
-	msg += om_tostring((size_t)stream.total_out);
+	msg += om_tostring((size_t)inflate_zstream->total_out);
 	throw Xapian::DatabaseCorruptError(msg);
     }
-
-    err = inflateEnd(&stream);
-    if (err != Z_OK) abort();
 
     swap(*tag, utag);
 
@@ -1365,7 +1322,7 @@ ChertCursor * ChertTable::cursor_get() const {
     LOGCALL(DB, ChertCursor *, "ChertTable::cursor_get", "");
     if (handle < 0) {
 	if (handle == -2) {
-	    throw Xapian::DatabaseError("Database has been closed");
+	    ChertTable::throw_database_closed();
 	}
 	RETURN(NULL);
     }
@@ -1551,7 +1508,7 @@ ChertTable::do_open_to_write(bool revision_supplied,
 {
     LOGCALL(DB, bool, "ChertTable::do_open_to_write", revision_supplied << ", " << revision_ << ", " << create_db);
     if (handle == -2) {
-	throw Xapian::DatabaseError("Database has been closed");
+	ChertTable::throw_database_closed();
     }
     int flags = O_RDWR | O_BINARY;
     if (create_db) flags |= O_CREAT | O_TRUNC;
@@ -1633,11 +1590,87 @@ ChertTable::ChertTable(const char * tablename_, string path_, bool readonly_,
 	  writable(!readonly_),
 	  split_p(0),
 	  compress_strategy(compress_strategy_),
+	  deflate_zstream(NULL),
+	  inflate_zstream(NULL),
 	  lazy(lazy_)
 {
     LOGCALL_CTOR(DB, "ChertTable",
 		 tablename_ << "," << path_ << ", " << readonly_ << ", " <<
 		 compress_strategy_ << ", " << lazy_);
+}
+
+void
+ChertTable::lazy_alloc_deflate_zstream() const {
+    if (usual(deflate_zstream)) {
+	if (usual(deflateReset(deflate_zstream) == Z_OK)) return;
+	// Try to recover by deleting the stream and starting from scratch.
+	delete deflate_zstream;
+    }
+
+    deflate_zstream = new z_stream;
+
+    deflate_zstream->zalloc = reinterpret_cast<alloc_func>(0);
+    deflate_zstream->zfree = reinterpret_cast<free_func>(0);
+    deflate_zstream->opaque = (voidpf)0;
+
+    // -15 means raw deflate with 32K LZ77 window (largest)
+    // memLevel 9 is the highest (8 is default)
+    int err;
+    err = deflateInit2(deflate_zstream, Z_DEFAULT_COMPRESSION, Z_DEFLATED,
+		       -15, 9, compress_strategy);
+    if (rare(err != Z_OK)) {
+	if (err == Z_MEM_ERROR) {
+	    delete deflate_zstream;
+	    deflate_zstream = 0;
+	    throw std::bad_alloc();
+	}
+	string msg = "deflateInit2 failed (";
+	if (deflate_zstream->msg) {
+	    msg += deflate_zstream->msg;
+	} else {
+	    msg += om_tostring(err);
+	}
+	msg += ')';
+	delete deflate_zstream;
+	deflate_zstream = 0;
+	throw Xapian::DatabaseError(msg);
+    }
+}
+
+void
+ChertTable::lazy_alloc_inflate_zstream() const {
+    if (usual(inflate_zstream)) {
+	if (usual(inflateReset(inflate_zstream) == Z_OK)) return;
+	// Try to recover by deleting the stream and starting from scratch.
+	delete inflate_zstream;
+    }
+
+    inflate_zstream = new z_stream;
+
+    inflate_zstream->zalloc = reinterpret_cast<alloc_func>(0);
+    inflate_zstream->zfree = reinterpret_cast<free_func>(0);
+
+    inflate_zstream->next_in = Z_NULL;
+    inflate_zstream->avail_in = 0;
+
+    int err = inflateInit2(inflate_zstream, -15);
+    if (rare(err != Z_OK)) {
+	if (err == Z_MEM_ERROR) {
+	    delete inflate_zstream;
+	    inflate_zstream = 0;
+	    throw std::bad_alloc();
+	}
+	string msg = "inflateInit2 failed (";
+	if (inflate_zstream->msg) {
+	    msg += inflate_zstream->msg;
+	} else {
+	    msg += om_tostring(err);
+	}
+	msg += ')';
+	delete inflate_zstream;
+	inflate_zstream = 0;
+	throw Xapian::DatabaseError(msg);
+    }
 }
 
 bool
@@ -1692,7 +1725,7 @@ ChertTable::create_and_open(unsigned int block_size_)
 {
     LOGCALL_VOID(DB, "ChertTable::create_and_open", block_size_);
     if (handle == -2) {
-	throw Xapian::DatabaseError("Database has been closed");
+	ChertTable::throw_database_closed();
     }
     Assert(writable);
     close();
@@ -1724,6 +1757,20 @@ ChertTable::create_and_open(unsigned int block_size_)
 ChertTable::~ChertTable() {
     LOGCALL_DTOR(DB, "ChertTable");
     ChertTable::close();
+
+    if (deflate_zstream) {
+	// Errors which we care about have already been handled, so just ignore
+	// any which get returned here.
+	(void) deflateEnd(deflate_zstream);
+	delete deflate_zstream;
+    }
+
+    if (inflate_zstream) {
+	// Errors which we care about have already been handled, so just ignore
+	// any which get returned here.
+	(void) inflateEnd(inflate_zstream);
+	delete inflate_zstream;
+    }
 }
 
 void ChertTable::close(bool permanent) {
@@ -1738,8 +1785,10 @@ void ChertTable::close(bool permanent) {
 
     if (permanent) {
 	handle = -2;
+	// Don't delete the resources in the table, since they may
+	// still be used to look up cached content.
+	return;
     }
-
     for (int j = level; j >= 0; j--) {
 	delete [] C[j].p;
 	C[j].p = 0;
@@ -1758,7 +1807,12 @@ ChertTable::flush_db()
 {
     LOGCALL_VOID(DB, "ChertTable::flush_db", "");
     Assert(writable);
-    if (handle < 0) return;
+    if (handle < 0) {
+	if (handle == -2) {
+	    ChertTable::throw_database_closed();
+	}
+	return;
+    }
 
     for (int j = level; j >= 0; j--) {
 	if (C[j].rewrite) {
@@ -1784,6 +1838,9 @@ ChertTable::commit(chert_revision_number_t revision, int changes_fd,
     }
 
     if (handle < 0) {
+	if (handle == -2) {
+	    ChertTable::throw_database_closed();
+	}
 	latest_revision_number = revision_number = revision;
 	return;
     }
@@ -1914,6 +1971,9 @@ ChertTable::cancel()
     Assert(writable);
 
     if (handle < 0) {
+	if (handle == -2) {
+	    ChertTable::throw_database_closed();
+	}
 	latest_revision_number = revision_number; // FIXME: we can end up reusing a revision if we opened a btree at an older revision, start to modify it, then cancel...
 	return;
     }
@@ -1954,7 +2014,7 @@ ChertTable::do_open_to_read(bool revision_supplied, chert_revision_number_t revi
 {
     LOGCALL(DB, bool, "ChertTable::do_open_to_read", revision_supplied << ", " << revision_);
     if (handle == -2) {
-	throw Xapian::DatabaseError("Database has been closed");
+	ChertTable::throw_database_closed();
     }
     handle = ::open((name + "DB").c_str(), O_RDONLY | O_BINARY);
     if (handle < 0) {
@@ -2192,6 +2252,12 @@ ChertTable::next_default(Cursor * C_, int j) const
 #endif /* BTREE_DEBUG_FULL */
     }
     RETURN(true);
+}
+
+void
+ChertTable::throw_database_closed()
+{
+    throw Xapian::DatabaseError("Database has been closed");
 }
 
 /** Compares this key with key2.

@@ -4,9 +4,9 @@ EXTRA_DIST +=\
 	include/xapian/dir_contents\
 	include/xapian/Makefile
 
-xapianincludedir = $(includedir)/xapian
+xapianincludedir = $(incdir)/xapian
 
-include_HEADERS =\
+inc_HEADERS =\
 	include/xapian.h
 
 xapianinclude_HEADERS =\
@@ -25,6 +25,7 @@ xapianinclude_HEADERS =\
 	include/xapian/query.h\
 	include/xapian/queryparser.h\
 	include/xapian/replication.h\
+	include/xapian/serialisationcontext.h\
 	include/xapian/sorter.h\
 	include/xapian/stem.h\
 	include/xapian/termgenerator.h\
@@ -33,7 +34,8 @@ xapianinclude_HEADERS =\
 	include/xapian/unicode.h\
 	include/xapian/valueiterator.h\
 	include/xapian/valuesetmatchdecider.h\
-	include/xapian/visibility.h
+	include/xapian/visibility.h\
+	include/xapian/weight.h
 
 nodist_xapianinclude_HEADERS =\
 	include/xapian/version.h
