@@ -31,7 +31,11 @@
 
 namespace Xapian {
 
-/// Base class which provides an "external" source of postings.
+/** Base class which provides an "external" source of postings.
+ *
+ *  Warning: the PostingSource interface is currently experimental, and is
+ *  liable to change between releases without warning.
+ */
 class XAPIAN_VISIBILITY_DEFAULT PostingSource {
     /// Don't allow assignment.
     void operator=(const PostingSource &);

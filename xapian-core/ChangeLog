@@ -1,3 +1,11 @@
+Tue Mar 31 12:10:03 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/postingsource.h: Add comment on PostingSource base
+	  class listing it as an experimental feature.
+	* docs/deprecation.rst: Describe what "experimental" features are,
+	  and why replication and posting sources are currently
+	  experimental.
+
 Tue Mar 31 11:34:25 GMT 2009  Olly Betts <olly@survex.com>
 
 	* include/xapian/matchspy.h: Removed currently unused header to stop
