@@ -212,24 +212,23 @@ merge_postlists(FlintTable * out, vector<Xapian::docid>::const_iterator offset,
 	    // responsible for deleting it.
 	    PostlistCursor * cur = new PostlistCursor(in, *offset);
 	    // Merge the METAINFO tags from each database into one.
-	    // They have a key consisting of a single zero byte, which will
-	    // always be the first key.
-	    if (!is_metainfo_key(cur->key)) {
-		throw Xapian::DatabaseCorruptError("No METAINFO item in postlist table.");
-	    }
-	    const char * data = cur->tag.data();
-	    const char * end = data + cur->tag.size();
-	    Xapian::docid dummy_did = 0;
-	    if (!F_unpack_uint(&data, end, &dummy_did)) {
-		throw Xapian::DatabaseCorruptError("Tag containing meta information is corrupt.");
-	    }
-	    totlen_t totlen = 0;
-	    if (!F_unpack_uint_last(&data, end, &totlen)) {
-		throw Xapian::DatabaseCorruptError("Tag containing meta information is corrupt.");
-	    }
-	    tot_totlen += totlen;
-	    if (tot_totlen < tot_totlen) {
-		throw "totlen wrapped!";
+	    // They have a key consisting of a single zero byte.
+	    // They may be absent, if the database contains no documents.
+	    if (is_metainfo_key(cur->key)) {
+		const char * data = cur->tag.data();
+		const char * end = data + cur->tag.size();
+		Xapian::docid dummy_did = 0;
+		if (!F_unpack_uint(&data, end, &dummy_did)) {
+		    throw Xapian::DatabaseCorruptError("Tag containing meta information is corrupt.");
+		}
+		totlen_t totlen = 0;
+		if (!F_unpack_uint_last(&data, end, &totlen)) {
+		    throw Xapian::DatabaseCorruptError("Tag containing meta information is corrupt.");
+		}
+		tot_totlen += totlen;
+		if (tot_totlen < tot_totlen) {
+		    throw "totlen wrapped!";
+		}
 	    }
 	    if (cur->next()) {
 		pq.push(cur);

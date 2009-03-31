@@ -1,3 +1,10 @@
+Tue Mar 31 17:01:20 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* bin/xapian-compact.cc: Handle databases which contain no
+	  documents (and hence have no METAINFO item), but do contain some
+	  metadata (so the postlist table is not empty).  Fixes ticket
+	  #356.
+
 Tue Mar 31 13:49:01 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/postingsource.cc,include/xapian/postingsource.h: Change
