@@ -1,3 +1,9 @@
+Tue Mar 31 11:36:03 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/matchspy.h: Removed currently unused header to stop
+	  doxygen from generating documentation for it.
+
 Wed Mar 25 07:15:41 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
