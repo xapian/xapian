@@ -92,6 +92,16 @@ will be supported for the 1.2.x *and* 1.4.x stable release series (and of
 course the 1.3.x release series in between), and won't be removed until
 1.5.0.
 
+Experimental features
+---------------------
+
+During a development release series (such as the 1.1.x series), some features
+may be marked as "experimental".  Such features are liable to change without
+going through the normal deprecation procedure.  This includes changing on-disk
+formats for data stored by the feature, and breaking API and ABI compatibility
+between releases for the feature.  Such features are included in releases to
+get wider use and corresponding feedback about them.
+
 Deprecation in the bindings
 ---------------------------
 
@@ -192,6 +202,25 @@ Omega
 Deprecated Remove Feature name                        Upgrade suggestion and comments
 ========== ====== =================================== ========================================================================
 ========== ====== =================================== ========================================================================
+
+Features currently marked as experimental
+=========================================
+
+Native C++ API
+--------------
+
+============== ===============================================================================================================
+Name           Details
+============== ===============================================================================================================
+Replication    Replication API (in particular, the ReplicationInfo structure) is likely to be changed in future.  Also, the
+               format for changesets (both on-disk and over the network) is likely to change (to allow compression of
+	       changesets).  See tickets `#347 <http://trac.xapian.org/ticket/347>`_ and
+	       `#348 <http://trac.xapian.org/ticket/348>`_.
+-------------- ---------------------------------------------------------------------------------------------------------------
+PostingSource  The PostingSource API is new, and has already been through several redesigns before release.  While we think
+	       that we now have a good design, we are concerned that wider use of it will show that the API needs to be
+	       adjusted again, so we're marking it as experimental for now.
+============== ===============================================================================================================
 
 Features removed from Xapian
 ============================

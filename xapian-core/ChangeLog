@@ -123,6 +123,61 @@ Fri Dec 07 14:19:00 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 	  calculation stuff from Yung-chung Lin; exactly as in his patch
 	  from 18 September 2007.
 
+Tue Mar 31 13:49:01 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/postingsource.cc,include/xapian/postingsource.h: Change
+	  return types of clone() and unserialise() methods to be of the
+	  subclass returned; this is a bit more flexible, but the main
+	  reason is to be consistent: previously, the clone() methods
+	  returned the subclass, but the unserialise() methods returned
+	  PostingSource.
+
+Tue Mar 31 12:10:03 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/postingsource.h: Add comment on PostingSource base
+	  class listing it as an experimental feature.
+	* docs/deprecation.rst: Describe what "experimental" features are,
+	  and why replication and posting sources are currently
+	  experimental.
+
+Tue Mar 31 11:34:25 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/matchspy.h: Removed currently unused header to stop
+	  doxygen from generating documentation for it.
+
+Tue Mar 31 11:27:54 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* docs/replication.rst,include/xapian/replication.h: Note that
+	  replication is currently "experimental".
+
+Fri Mar 27 14:29:05 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_spelling.cc,backends/chert/chert_spelling.h,
+	  backends/flint/flint_spelling.cc,backends/flint/flint_spelling.h:
+	  Fix WritableDatabase::remove_spelling() to not be very broken in
+	  several ways.
+	* tests/api_spelling.cc: Add test coverage for it.
+
+Fri Mar 27 10:43:34 GMT 2009  Olly Betts <olly@survex.com>
+
+	* xapian-config.in: Add @LIBRARY_VERSION_SUFFIX@ to -lxapian too.
+
+Fri Mar 27 08:22:39 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/postingsource.h: Update documentation comments to
+	  refer to init() instead of the old name of reset().
+
+Fri Mar 27 08:10:48 GMT 2009  Olly Betts <olly@survex.com>
+
+	* HACKING: Document the lcov make targets.
+
+Fri Mar 27 07:44:59 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Add two new targets to assist generating test coverage
+	  reports with lcov: coverage-reconfigure which reruns configure in
+	  the source tree and coverage-check which runs "make check" and
+	  generates an HTML report in a directory called "lcov".
+	  
 Thu Mar 26 23:59:36 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Makefile.am,m4-macros/xapian.m4,xapian-core.spec.in: Rename
