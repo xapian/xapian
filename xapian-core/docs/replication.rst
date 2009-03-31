@@ -5,6 +5,8 @@
 Xapian Database Replication Users Guide
 =======================================
 
+.. warning:: This feature is currently experimental.  Both the API for replication and the format of changesets on disk are liable to change between releases without warning.
+
 .. contents:: Table of contents
 
 Introduction

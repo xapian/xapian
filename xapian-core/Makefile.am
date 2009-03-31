@@ -27,7 +27,8 @@ EXTRA_PROGRAMS =
 
 .PHONY: check-none check-inmemory check-multi \
         check-remote check-remoteprog check-remotetcp \
-        check-chert check-flint check-perftest
+        check-chert check-flint check-perftest \
+	coverage-reconfigure coverage-check
 
 check-none:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-none
@@ -75,6 +76,26 @@ endif
 
 check-perf:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-perf
+
+coverage-reconfigure: distclean
+	## --disable-shared as the shared build fails for me on x86-64 Debian etch.
+	## CCACHE_DISABLE as ccache 2.4 doesn't handle the .gcno files.
+	$(srcdir)/configure CXXFLAGS='-O0 -fprofile-arcs -ftest-coverage' --enable-quiet --disable-shared CCACHE_DISABLE=1 VALGRIND=
+
+coverage-check:
+	## GNU find and xargs specific.
+	find . -name '*.gcda' -print0|xargs -0 rm -f
+	## Don't run under valgrind even if configure was run by hand.
+	$(MAKE) $(AM_MAKEFLAGS) check VALGRIND=
+	rm -f xapian-core.lcov
+	for d in api backends bin common examples expand include languages \
+	    matcher net queryparser tests unicode weight ; do \
+	    rm -f tests/$$d ; \
+	    ln -s ../$$d tests/$$d ; \
+	done
+	cd tests && lcov -c -b `pwd` -d `pwd` -o ../tmp.lcov
+	sed '/^SF:\/usr/,/^end_of_record/{d};s,^\(SF:/.*/xapian-core/\)\([^t]\),\1tests/\2,' tmp.lcov > xapian-core.lcov
+	genhtml -q -t "Test Coverage for xapian-core r`svn info|sed 's/^Revision: //p;d'`" -o lcov xapian-core.lcov
 
 bin_SCRIPTS = xapian-config
 
