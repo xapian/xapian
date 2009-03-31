@@ -382,7 +382,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueWeightPostingSource
     ValueWeightPostingSource * clone() const;
     std::string name() const;
     std::string serialise() const;
-    PostingSource * unserialise(const std::string &s) const;
+    ValueWeightPostingSource * unserialise(const std::string &s) const;
     void init(const Database & db_);
 
     std::string get_description() const;
@@ -431,7 +431,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueMapPostingSource
     ValueMapPostingSource * clone() const;
     std::string name() const;
     std::string serialise() const;
-    PostingSource * unserialise(const std::string &s) const;
+    ValueMapPostingSource * unserialise(const std::string &s) const;
     void init(const Database & db_);
 
     std::string get_description() const;
@@ -489,7 +489,7 @@ class XAPIAN_VISIBILITY_DEFAULT FixedWeightPostingSource : public PostingSource 
     FixedWeightPostingSource * clone() const;
     std::string name() const;
     std::string serialise() const;
-    PostingSource * unserialise(const std::string &s) const;
+    FixedWeightPostingSource * unserialise(const std::string &s) const;
     void init(const Database & db_);
 
     std::string get_description() const;

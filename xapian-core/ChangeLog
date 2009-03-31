@@ -1,3 +1,12 @@
+Tue Mar 31 13:49:01 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/postingsource.cc,include/xapian/postingsource.h: Change
+	  return types of clone() and unserialise() methods to be of the
+	  subclass returned; this is a bit more flexible, but the main
+	  reason is to be consistent: previously, the clone() methods
+	  returned the subclass, but the unserialise() methods returned
+	  PostingSource.
+
 Tue Mar 31 12:10:03 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* include/xapian/postingsource.h: Add comment on PostingSource base
