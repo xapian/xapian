@@ -41,7 +41,7 @@ DecreasingValueWeightPostingSource::get_weight() const {
     return curr_weight;
 }
 
-Xapian::ValueWeightPostingSource *
+Xapian::DecreasingValueWeightPostingSource *
 DecreasingValueWeightPostingSource::clone() const {
     return new DecreasingValueWeightPostingSource(slot, range_start,
 						  range_end);
@@ -61,7 +61,7 @@ DecreasingValueWeightPostingSource::serialise() const {
     return result;
 }
 
-Xapian::PostingSource *
+Xapian::DecreasingValueWeightPostingSource *
 DecreasingValueWeightPostingSource::unserialise(const std::string &s) const {
     const char * pos = s.data();
     const char * end = pos + s.size();

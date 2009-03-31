@@ -1,3 +1,9 @@
+Tue Mar 31 16:07:58 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/decvalwtsource.cc,include/xapian/decvalwtsource.h: Change
+	  return types of clone() and unserialise() methods to be of the
+	  subclass returned.
+
 Fri Mar 27 08:24:35 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/decvalwtsource.cc,include/xapian/decvalwtsource.h: Rename
