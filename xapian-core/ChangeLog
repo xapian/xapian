@@ -1,3 +1,10 @@
+Tue Mar 31 16:09:12 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/Makefile.mk,api/limitvalwtsource.cc,include/Makefile.mk,
+	  include/xapian.h,include/xapian/limitvalwtsource.h: Add
+	  LimitedValueWeightPostingSource - a ValueWeightPostingSource
+	  which limits the maximum weight returned.
+
 Tue Mar 31 16:07:58 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/decvalwtsource.cc,include/xapian/decvalwtsource.h: Change
