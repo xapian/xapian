@@ -1,7 +1,7 @@
 /** @file flint_spelling.h
  * @brief Spelling correction data for a flint database.
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,8 +53,7 @@ inline bool operator<(const F_fragment &a, const F_fragment &b) {
 }
 
 class FlintSpellingTable : public FlintTable {
-    void add_fragment(F_fragment frag, const string & word);
-    void remove_fragment(F_fragment frag, const string & word);
+    void toggle_fragment(F_fragment frag, const string & word);
 
     std::map<std::string, Xapian::termcount> wordfreq_changes;
     std::map<F_fragment, std::set<std::string> > termlist_deltas;
