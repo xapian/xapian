@@ -232,6 +232,15 @@ To use Insure (another proprietary tool):
 
   ./configure CXX=insure
 
+To use lcov to generate a test coverage report there are two make targets:
+
+  * coverage-reconfigure: reruns configure in the source tree.  See
+    Makefile.am for details of the configure options used and why they
+    are needed.
+  
+  * coverage-check: runs "make check" and generates an HTML report in a
+    directory called "lcov".
+
 If you have runes for using other tools, please add them above, or send them
 to us so we can.
 

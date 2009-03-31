@@ -247,7 +247,7 @@ ValueWeightPostingSource::serialise() const
     return encode_length(slot);
 }
 
-PostingSource *
+ValueWeightPostingSource *
 ValueWeightPostingSource::unserialise(const std::string &s) const
 {
     const char * p = s.data();
@@ -351,7 +351,7 @@ ValueMapPostingSource::serialise() const
     return result;
 }
 
-PostingSource *
+ValueMapPostingSource *
 ValueMapPostingSource::unserialise(const std::string &s) const
 {
     const char * p = s.data();
@@ -509,7 +509,7 @@ FixedWeightPostingSource::serialise() const
     return serialise_double(wt);
 }
 
-PostingSource *
+FixedWeightPostingSource *
 FixedWeightPostingSource::unserialise(const std::string &s) const
 {
     const char * p = s.data();

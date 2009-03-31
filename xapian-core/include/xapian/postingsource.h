@@ -31,7 +31,11 @@
 
 namespace Xapian {
 
-/// Base class which provides an "external" source of postings.
+/** Base class which provides an "external" source of postings.
+ *
+ *  Warning: the PostingSource interface is currently experimental, and is
+ *  liable to change between releases without warning.
+ */
 class XAPIAN_VISIBILITY_DEFAULT PostingSource {
     /// Don't allow assignment.
     void operator=(const PostingSource &);
@@ -246,7 +250,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      */
     virtual PostingSource * unserialise(const std::string &s) const;
 
-    /** Reset this PostingSource to the start of the list of postings.
+    /** Set this PostingSource to the start of the list of postings.
      *
      *  This is called automatically by the matcher prior to each query being
      *  processed.
@@ -301,8 +305,8 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
 
     /** An upper bound on the weight returned.
      *
-     *  Subclasses should set this in their reset method if they know a bound
-     *  on the weight.  It defaults to DBL_MAX.
+     *  Subclasses should set this in their @a init() method if they know a
+     *  bound on the weight.  It defaults to DBL_MAX.
      */
     double max_weight;
 
@@ -378,7 +382,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueWeightPostingSource
     ValueWeightPostingSource * clone() const;
     std::string name() const;
     std::string serialise() const;
-    PostingSource * unserialise(const std::string &s) const;
+    ValueWeightPostingSource * unserialise(const std::string &s) const;
     void init(const Database & db_);
 
     std::string get_description() const;
@@ -427,7 +431,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueMapPostingSource
     ValueMapPostingSource * clone() const;
     std::string name() const;
     std::string serialise() const;
-    PostingSource * unserialise(const std::string &s) const;
+    ValueMapPostingSource * unserialise(const std::string &s) const;
     void init(const Database & db_);
 
     std::string get_description() const;
@@ -485,7 +489,7 @@ class XAPIAN_VISIBILITY_DEFAULT FixedWeightPostingSource : public PostingSource 
     FixedWeightPostingSource * clone() const;
     std::string name() const;
     std::string serialise() const;
-    PostingSource * unserialise(const std::string &s) const;
+    FixedWeightPostingSource * unserialise(const std::string &s) const;
     void init(const Database & db_);
 
     std::string get_description() const;
