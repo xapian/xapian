@@ -44,9 +44,9 @@
 
 // Searching
 #include <xapian/decvalwtsource.h>
+#include <xapian/limitvalwtsource.h>
 #include <xapian/enquire.h>
 #include <xapian/expanddecider.h>
-#include <xapian/limitvalwtsource.h>
 #include <xapian/postingsource.h>
 #include <xapian/query.h>
 #include <xapian/queryparser.h>

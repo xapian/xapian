@@ -14,13 +14,13 @@ xapianinclude_HEADERS =\
 	include/xapian/database.h\
 	include/xapian/dbfactory.h\
 	include/xapian/decvalwtsource.h\
+	include/xapian/limitvalwtsource.h\
 	include/xapian/deprecated.h\
 	include/xapian/derefwrapper.h\
 	include/xapian/document.h\
 	include/xapian/enquire.h\
 	include/xapian/errorhandler.h\
 	include/xapian/expanddecider.h\
-	include/xapian/limitvalwtsource.h\
 	include/xapian/positioniterator.h\
 	include/xapian/postingiterator.h\
 	include/xapian/postingsource.h\
