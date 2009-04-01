@@ -74,9 +74,9 @@ my $libsvar = 'LIBS';
 my $libs = `$xapian_config --libs 2> /dev/null`;
 chomp($libs);
 my ($xapian_config_dir) = $xapian_config =~ /^(.*?)[^\/]*$/;
-if ($? || -f "$xapian_config_dir/Makefile") {
+if ($? || -f "${xapian_config_dir}Makefile") {
     # Assume we're being asked to build against an uninstalled xapian-core.
-    my $libtool = "$xapian_config_dir/libtool";
+    my $libtool = "${xapian_config_dir}libtool";
     unless (-x $libtool) {
 	die "You've asked me to link against what appears to be an uninstalled xapian-core tree, but I can't find libtool in that tree\n";
     }
