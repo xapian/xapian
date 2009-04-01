@@ -6,12 +6,12 @@ MANIFEST\.bak
 MANIFEST\.OLD
 testdb
 testdb-exception
+testdb-exception-modified
 testdb-spell
 blib
 pm_to_blib
 .*\.o
 Xapian\.c
-handleException\.[ch]
 Xapian\.bs
 Xapian\.lo
 handle_exception\.lo

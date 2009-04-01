@@ -10,7 +10,6 @@ typemap
 typemap-errorclasses
 perlobject.map
 errorsubclasses.map
-generate_exception_modules
 
 Xapian/BM25Weight.pm
 Xapian/BoolWeight.pm
