@@ -1,5 +1,6 @@
 Revision history for Perl extension Search::Xapian.
 
+1.1.0.0
 	[Changes contributed by Andreas Marienborg and Olly Betts]
 	- Xapian C++ exceptions classes are now wrapped and C++ exceptions
 	  are caught and rethrown in Perl.
@@ -7,12 +8,24 @@ Revision history for Perl extension Search::Xapian.
 	- Fixed building against uninstalled xapian-core to work with libtool
 	  2.2.x (you can't currently "make install" in a tree configured in
 	  this way though).
+
+1.0.12.0  <not yet released>
+	[Changes contributed by Olly Betts]
+	- Fix "fake VPATH" mode to work better.
+
+1.0.11.0  Sun Mar 15 12:53:20 GMT 2008
+	[Changes contributed by Olly Betts]
+	- Wrap the new FLAG_DEFAULT constant which gives the QueryParser
+	  default flag settings, allowing you to easily add flags to the
+	  default ones.
+
+1.0.10.0  Tue Dec 23 09:18:21 GMT 2008
+	[Changes contributed by Olly Betts]
 	- Makefile.PL now supports a "fake VPATH" mode, to better support for
 	  building from SVN.  If you run "perl /path/to/Makefile.PL" then
 	  Makefile.PL will run Makefile.PL as nomal in /path/to, and then
 	  create a stub Makefile in the current directory which forwards any
 	  make invocations.
-	- Fix "fake VPATH" mode to work better.
 
 1.0.9.0  Fri Oct 31 23:27:06 GMT 2008
 	[Changes contributed by Olly Betts]

@@ -11,8 +11,10 @@ blib
 pm_to_blib
 .*\.o
 Xapian\.c
+handleException\.[ch]
 Xapian\.bs
 Xapian\.lo
+handle_exception\.lo
 Search-Xapian-[0-9.]+\.tar\.gz
 Search-Xapian-[0-9.]+
 html

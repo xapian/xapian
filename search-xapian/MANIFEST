@@ -9,6 +9,8 @@ makehtmldocs
 typemap
 typemap-errorclasses
 perlobject.map
+errorsubclasses.map
+generate_exception_modules
 
 Xapian/BM25Weight.pm
 Xapian/BoolWeight.pm
@@ -118,6 +120,7 @@ t/02pod.t
 t/03podcoverage.t
 t/04functions.t
 t/create.t
+t/databasemodified.t
 t/document.t
 t/exception.t
 t/index.t
