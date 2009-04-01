@@ -1,3 +1,8 @@
+Wed Apr 01 00:18:02 GMT 2009  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Fix totlen overflow test.  Refactor lightly
+	  to reduce indenting.
+
 Tue Mar 31 17:01:20 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* bin/xapian-compact.cc: Handle databases which contain no
