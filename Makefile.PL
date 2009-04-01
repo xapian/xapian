@@ -9,7 +9,7 @@ $ExtUtils::MakeMaker::Recognized_Att_Keys{XAPIAN_CONFIG} = 1;
 my $builddir;
 
 my $srcdir = $0;
-if ($srcdir =~ s!/.*!!) {
+if ($srcdir =~ s!/[^/]*$!!) {
     chomp($builddir = `pwd`);
     chdir $srcdir;
 }
@@ -187,10 +187,10 @@ if (scalar @bad) {
 if (defined $builddir) {
     open M, '>', "$builddir/Makefile~" or die $!;
     print M <<"EOF";
-.DEFAULT:
+all .DEFAULT:
 \t\$(MAKE) -C "$srcdir" \$\@
 
-.PHONY: Search-Xapian-$VERSION.tar.gz
+.PHONY: all Search-Xapian-$VERSION.tar.gz
 
 dist tardist Search-Xapian-$VERSION.tar.gz:
 \t\$(MAKE) -C "$srcdir" \$\@
