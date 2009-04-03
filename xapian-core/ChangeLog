@@ -1,3 +1,12 @@
+Fri Apr 03 12:31:07 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* Makefile.am: Add two new targets to assist generating test coverage
+	  reports with lcov: coverage-reconfigure which reruns configure in
+	  the source tree and coverage-check which runs "make check" and
+	  generates an HTML report in a directory called "lcov".
+	* HACKING: Document the lcov make targets.
+
 Fri Apr 03 09:42:04 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
