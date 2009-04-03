@@ -1,3 +1,12 @@
+Fri Apr 03 09:42:04 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* bin/xapian-compact.cc: Handle databases which contain no
+	  documents (and hence have no METAINFO item), but do contain some
+	  metadata (so the postlist table is not empty).  Fixes ticket #356.
+	* bin/xapian-compact.cc: Fix totlen overflow test.  Refactor lightly
+	  to reduce indenting.
+
 Fri Apr 03 08:20:18 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
