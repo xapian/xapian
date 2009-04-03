@@ -9,7 +9,6 @@ makehtmldocs
 typemap
 typemap-errorclasses
 perlobject.map
-errorsubclasses.map
 
 Xapian/BM25Weight.pm
 Xapian/BoolWeight.pm
