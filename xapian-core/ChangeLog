@@ -1,3 +1,9 @@
+Fri Apr 03 05:52:20 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/flint/flint_database.cc: Release the lock when the database
+	  is closed due to a serious error during modifications. (ticket#354)
+
 Thu Apr 02 14:17:36 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
