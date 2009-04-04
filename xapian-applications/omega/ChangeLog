@@ -1,3 +1,7 @@
+Sat Apr 04 15:15:18 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
 Wed Mar 25 12:35:42 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.ac: Actually use all those warning flags we
