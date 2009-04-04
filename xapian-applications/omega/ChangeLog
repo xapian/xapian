@@ -1,3 +1,9 @@
+Sat Apr 04 15:00:24 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* query.cc: Cope with write() not writing all the data or being
+	  interrupted by a signal when writing log entries.
+
 Sun Mar 15 10:32:04 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.0.11.
