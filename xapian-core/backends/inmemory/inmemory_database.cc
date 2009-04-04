@@ -146,7 +146,7 @@ InMemoryPostList::at_end() const
 string
 InMemoryPostList::get_description() const
 {
-    return "InMemoryPostList" + om_tostring(termfreq);
+    return "InMemoryPostList " + om_tostring(termfreq);
 }
 
 Xapian::doclength
@@ -341,7 +341,7 @@ InMemoryAllDocsPostList::at_end() const
 string
 InMemoryAllDocsPostList::get_description() const
 {
-    return "InMemoryAllDocsPostList" + om_tostring(did);
+    return "InMemoryAllDocsPostList " + om_tostring(did);
 }
 
 ///////////////////////////

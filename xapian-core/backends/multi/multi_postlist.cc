@@ -54,6 +54,7 @@ MultiPostList::~MultiPostList()
 Xapian::doccount
 MultiPostList::get_termfreq() const
 {
+    // Should never get called.
     Assert(false);
     return 0;
 }
@@ -82,12 +83,6 @@ Xapian::termcount
 MultiPostList::get_wdf() const
 {
     return postlists[(currdoc - 1) % multiplier]->get_wdf();
-}
-
-PositionList *
-MultiPostList::read_position_list()
-{
-    return postlists[(currdoc - 1) % multiplier]->read_position_list();
 }
 
 PositionList *
@@ -173,13 +168,13 @@ MultiPostList::at_end() const
 std::string
 MultiPostList::get_description() const
 {
-    std::string desc = "[";
+    std::string desc;
 
     std::vector<LeafPostList *>::const_iterator i;
     for (i = postlists.begin(); i != postlists.end(); i++) {
+	if (!desc.empty()) desc += ',';
 	desc += (*i)->get_description();
-	if (i != postlists.end()) desc += ",";
     }
 
-    return desc + "]";
+    return desc;
 }
