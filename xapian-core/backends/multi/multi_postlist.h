@@ -35,9 +35,6 @@ class MultiPostList : public LeafPostList {
 	bool   finished;
 	Xapian::docid  currdoc;
 
-	mutable bool freq_initialised;
-	mutable Xapian::doccount termfreq;
-
 	Xapian::doccount multiplier;
 
 	MultiPostList(std::vector<LeafPostList *> & pls,

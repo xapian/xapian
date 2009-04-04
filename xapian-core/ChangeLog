@@ -1,3 +1,9 @@
+Sat Apr 04 04:21:52 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/multi/multi_postlist.cc,backends/multi/multi_postlist.h:
+	  MultiPostList::get_termfreq() is never used, so remove it.
+
 Fri Apr 03 12:31:07 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
