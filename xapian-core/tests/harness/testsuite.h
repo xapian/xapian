@@ -241,6 +241,9 @@ class test_driver {
 /// Test a condition, without an additional explanation for failure.
 #define TEST(a) TEST_AND_EXPLAIN(a, "")
 
+// Crude wrapper for compatibility with tests backported from 1.1.x.
+#define TEST_REL(A,R,B) TEST((A) R (B))
+
 /// Test for equality of two things.
 #define TEST_EQUAL(a, b) TEST_AND_EXPLAIN(((a) == (b)), \
 	"Expected `"STRINGIZE(a)"' and `"STRINGIZE(b)"' to be equal:" \

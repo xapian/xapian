@@ -1,3 +1,8 @@
+Sat Apr 04 05:37:24 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/harness/testsuite.h: Add crude compatibility wrapper for
+	  TEST_REL() to aid backporting testcases from trunk.
+
 Sat Apr 04 04:21:52 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
