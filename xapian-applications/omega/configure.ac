@@ -24,7 +24,9 @@ define([AC_LIBTOOL_LANG_RC_CONFIG], [:])
 dnl Check for libxapian
 AC_PROG_LIBTOOL
 XO_LIB_XAPIAN
+
 dnl We want XAPIAN_CXXFLAGS to be used for configure tests.
+save_CXXFLAGS=$CXXFLAGS
 CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"
 
 dnl disable "maintainer only" rules by default
@@ -461,6 +463,11 @@ if test yes = "$enable_quiet"; then
   QUIET=--quiet
 fi
 AC_SUBST(QUIET)
+
+AC_SUBST(AM_CXXFLAGS)
+
+dnl Restore CXXFLAGS to those the user specified or autoconf defaulted to.
+CXXFLAGS=$save_CXXFLAGS
 
 dnl **************************
 dnl * Build the output files *

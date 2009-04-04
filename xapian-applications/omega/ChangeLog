@@ -1,3 +1,14 @@
+Sat Apr 04 15:13:52 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* Makefile.am,configure.ac: Only put XAPIAN_CXXFLAGS in CXXFLAGS for
+	  the duration of configure (we need it as it may include options to
+	  put the compiler into ISO C++ mode).  Set AM_CXXFLAGS to
+	  XAPIAN_CXXFLAGS in Makefile.am.  This means that the user can safely
+	  override CXXFLAGS at make-time: "make CXXFLAGS=-Os"
+	* Makefile.am,configure.ac: Actually use all those warning flags we
+	  carefully determine!
+
 Sat Apr 04 15:00:24 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
