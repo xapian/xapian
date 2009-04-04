@@ -1,3 +1,9 @@
+Sat Apr 04 15:38:16 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* python/pythontest.py: Round the weights returned for the
+	  OP_SCALE_WEIGHT test, to avoid failing due to rounding errors.
+
 Sat Apr 04 15:36:49 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
