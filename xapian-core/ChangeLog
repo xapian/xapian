@@ -1,3 +1,11 @@
+Sun Apr 05 14:24:47 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/unicode.h: Add NON_SPACING_MARK to is_wordchar() for
+	  better tokenisation of Arabic, for example.  (ticket#355)
+	* tests/queryparsertest.cc: Add test that this has the desired effect.
+	* tests/api_unicode.cc: Add feature tests of Unicode::is_wordchar(),
+	  Unicode::is_currency(), and Unicode::is_whitespace().
+
 Sat Apr 04 05:41:47 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.

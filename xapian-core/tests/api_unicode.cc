@@ -215,3 +215,73 @@ DEFINE_TESTCASE(utf8convert1,!backend) {
 
     return true;
 }
+
+DEFINE_TESTCASE(unicodepredicates1,!backend) {
+    const unsigned wordchars[] = {
+	// DECIMAL_DIGIT_NUMER
+	'0', '7', '9',
+	// LOWERCASE_LETTER
+	'a', 'z', 0x250, 0x251, 0x271, 0x371, 0x373, 0x377, 0x3d7,
+	0x514, 0x516, 0x518, 0x51a, 0x51c, 0x51e, 0x520, 0x522,
+	0x242, // (added in Unicode 5.0.0)
+	// UPPERCASE_LETTER
+	'A', 'Z', 0x241, 0x2c6f, 0x2c6d, 0x2c6e, 0x370, 0x372, 0x376, 0x3cf,
+	0x515, 0x517, 0x519, 0x51b, 0x51d, 0x51f, 0x521, 0x523,
+	// OTHER_LETTER
+	0x10345,
+	// MODIFIER_LETTER
+	0x2ec, 0x374,
+	// NON_SPACING_MARK (added to is_wordchar() in 1.1.0)
+	0x487, 0x651,
+	0
+    };
+    const unsigned currency[] = {
+	// CURRENCY_SYMBOL
+	'$', 0xa3,
+	0
+    };
+    const unsigned whitespace[] = {
+       	// CONTROL
+	'\t', '\n', '\f', '\r',
+	// SPACE_SEPARATOR
+       	' ',
+	0
+    };
+    const unsigned other[] = {
+       	// DASH_PUNCTUATION
+	0x5be,
+       	// OTHER_SYMBOL
+	0x1f093,
+       	// UNASSIGNED
+	0xffff, 0x10ffff, 0x110000, 0xFFFFFFFF,
+       	// PRIVATE_USE
+	0x10fffd,
+	0
+    };
+
+    for (const unsigned * p = wordchars; *p; ++p) {
+	TEST(Xapian::Unicode::is_wordchar(*p));
+	TEST(!Xapian::Unicode::is_currency(*p));
+	TEST(!Xapian::Unicode::is_whitespace(*p));
+    }
+
+    for (const unsigned * p = currency; *p; ++p) {
+	TEST(!Xapian::Unicode::is_wordchar(*p));
+	TEST(Xapian::Unicode::is_currency(*p));
+	TEST(!Xapian::Unicode::is_whitespace(*p));
+    }
+
+    for (const unsigned * p = whitespace; *p; ++p) {
+	TEST(!Xapian::Unicode::is_wordchar(*p));
+	TEST(!Xapian::Unicode::is_currency(*p));
+	TEST(Xapian::Unicode::is_whitespace(*p));
+    }
+
+    for (const unsigned * p = other; *p; ++p) {
+	TEST(!Xapian::Unicode::is_wordchar(*p));
+	TEST(!Xapian::Unicode::is_currency(*p));
+	TEST(!Xapian::Unicode::is_whitespace(*p));
+    }
+
+    return true;
+}
