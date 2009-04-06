@@ -27,7 +27,7 @@
 
 namespace Xapian {
 
-/** An iterator which returns unicode character values from a UTF-8 encoded
+/** An iterator which returns Unicode character values from a UTF-8 encoded
  *  string.
  */
 class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
@@ -124,13 +124,13 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      */
     Utf8Iterator() : p(NULL), end(0), seqlen(0) { }
 
-    /** Get the current unicode character value pointed to by the iterator.
+    /** Get the current Unicode character value pointed to by the iterator.
      *
      *  Returns unsigned(-1) if the iterator has reached the end of its buffer.
      */
     unsigned operator*() const;
 
-    /** Move forward to the next unicode character.
+    /** Move forward to the next Unicode character.
      *
      *  @return An iterator pointing to the position before the move.
      */
@@ -145,7 +145,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
 	return Utf8Iterator(old_p, end, old_seqlen);
     }
 
-    /** Move forward to the next unicode character.
+    /** Move forward to the next Unicode character.
      *
      *  @return A reference to this object.
      */
@@ -181,7 +181,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
 
 namespace Unicode {
 
-/** Each unicode character is in one of these categories. */
+/** Each Unicode character is in exactly one of these categories. */
 typedef enum {
     UNASSIGNED,
     UPPERCASE_LETTER,
@@ -224,12 +224,12 @@ namespace Internal {
     XAPIAN_VISIBILITY_DEFAULT
     int get_character_info(unsigned ch);
 
-    /** @internal Extract how to convert the case of a unicode character from
+    /** @internal Extract how to convert the case of a Unicode character from
      *  its info.
      */
     inline int get_case_type(int info) { return ((info & 0xe0) >> 5); }
 
-    /// @internal Extract the category of a unicode character from its info.
+    /// @internal Extract the category of a Unicode character from its info.
     inline category get_category(int info) { return static_cast<category>(info & 0x1f); }
 
     /** @internal Extract the delta to use for case conversion of a character
@@ -245,7 +245,7 @@ namespace Internal {
     }
 }
 
-/** Convert a single non-ASCII unicode character to UTF-8.
+/** Convert a single non-ASCII Unicode character to UTF-8.
  *
  *  This is intended mainly as a helper method for to_utf8().
  *
@@ -257,7 +257,7 @@ namespace Internal {
 XAPIAN_VISIBILITY_DEFAULT
 unsigned nonascii_to_utf8(unsigned ch, char * buf);
 
-/** Convert a single unicode character to UTF-8.
+/** Convert a single Unicode character to UTF-8.
  *
  *  The character @a ch is written to the buffer @a buf and the length of the
  *  resultant UTF-8 character is returned.
@@ -272,7 +272,7 @@ inline unsigned to_utf8(unsigned ch, char *buf) {
     return Xapian::Unicode::nonascii_to_utf8(ch, buf);
 }
 
-/** Append the UTF-8 representation of a single unicode character to a
+/** Append the UTF-8 representation of a single Unicode character to a
  *  std::string.
  */
 inline void append_utf8(std::string &s, unsigned ch) {
@@ -280,14 +280,14 @@ inline void append_utf8(std::string &s, unsigned ch) {
     s.append(buf, to_utf8(ch, buf));
 }
 
-/// Return the category which a given unicode character falls into.
+/// Return the category which a given Unicode character falls into.
 inline category get_category(unsigned ch) {
     // Categorise non-Unicode values as UNASSIGNED.
     if (ch >= 0x110000) return Xapian::Unicode::UNASSIGNED;
     return Internal::get_category(Internal::get_character_info(ch));
 }
 
-/// Test is a given unicode character is "word character".
+/// Test if a given Unicode character is "word character".
 inline bool is_wordchar(unsigned ch) {
     const unsigned int WORDCHAR_MASK =
 	    (1 << Xapian::Unicode::UPPERCASE_LETTER) |
@@ -303,7 +303,7 @@ inline bool is_wordchar(unsigned ch) {
     return ((WORDCHAR_MASK >> get_category(ch)) & 1);
 }
 
-/// Test is a given unicode character is a whitespace character.
+/// Test if a given Unicode character is a whitespace character.
 inline bool is_whitespace(unsigned ch) {
     const unsigned int WHITESPACE_MASK =
 	    (1 << Xapian::Unicode::CONTROL) | // For TAB, CR, LF, FF.
@@ -313,12 +313,12 @@ inline bool is_whitespace(unsigned ch) {
     return ((WHITESPACE_MASK >> get_category(ch)) & 1);
 }
 
-/// Test is a given unicode character is a currency symbol.
+/// Test if a given Unicode character is a currency symbol.
 inline bool is_currency(unsigned ch) {
     return (get_category(ch) == Xapian::Unicode::CURRENCY_SYMBOL);
 }
 
-/// Convert a unicode character to lowercase.
+/// Convert a Unicode character to lowercase.
 inline unsigned tolower(unsigned ch) {
     int info;
     // Leave non-Unicode values unchanged.
@@ -327,7 +327,7 @@ inline unsigned tolower(unsigned ch) {
     return ch + Internal::get_delta(info);
 }
 
-/// Convert a unicode character to uppercase.
+/// Convert a Unicode character to uppercase.
 inline unsigned toupper(unsigned ch) {
     int info;
     // Leave non-Unicode values unchanged.

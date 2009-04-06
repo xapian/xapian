@@ -1,3 +1,7 @@
+Mon Apr 06 06:35:03 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/unicode.h: Fix documentation comment typos.
+
 Mon Apr 06 06:03:45 GMT 2009  Olly Betts <olly@survex.com>
 
 	* AUTHORS: Add Muayyad Alsadi for reporting #355.
