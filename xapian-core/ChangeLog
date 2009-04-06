@@ -1,3 +1,8 @@
+Mon Apr 06 05:59:38 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_unicode.cc: Note which characters in the new
+	  unicodepredicate1 testcase are new in Unicode 5.1.0.
+
 Sun Apr 05 14:24:47 GMT 2009  Olly Betts <olly@survex.com>
 
 	* include/xapian/unicode.h: Add NON_SPACING_MARK to is_wordchar() for
