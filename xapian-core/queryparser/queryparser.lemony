@@ -373,9 +373,13 @@ inline bool
 is_phrase_generator(unsigned ch)
 {
     // These characters generate a phrase search.
-    // Ordered mostly by frequency of calls to this function done when
-    // running queryparsertest.
-    return (ch && ch < 128 && strchr(".-/:\\@", ch) != NULL);
+    if (rare(ch == 0)) return false;
+    if (ch < 128) {
+	// Ordered mostly by frequency of calls to this function done when
+	// running queryparsertest.
+	return (strchr(".-/:\\@", ch) != NULL);
+    }
+    return Unicode::get_category(ch) == Xapian::Unicode::NON_SPACING_MARK;
 }
 
 inline bool
