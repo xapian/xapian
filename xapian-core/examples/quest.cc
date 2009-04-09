@@ -22,7 +22,7 @@
 
 #include <xapian.h>
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <iostream>
 
