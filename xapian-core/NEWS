@@ -1,33 +1,38 @@
 up to:
- 12251       olly Wed Mar 25 04:48:50 GMT 2009  Olly Betts <olly@survex.com>
+ 12320       olly Wed Apr 01 00:18:02 GMT 2009  Olly Betts <olly@survex.com>
 
 Potential backport fodder:
 
- 12245       olly 	* backends/multi/multi_postlist.cc,backends/multi/multi_postlist.h:
- 12245       olly 	  MultiPostList::read_position_list() is never used, so remove it.
-
- 12244       olly 	* backends/multi/multi_postlist.cc: Remove "[" and "]" from the output
- 12244       olly 	  of MultiPostList::get_description().  Remove excess "," from output
- 12244       olly 	  of MultiPostList::get_description().
- 12244       olly 	* tests/api_db.cc: Add some test coverage of
- 12244       olly 	  PostingIterator::get_wdf() and PostingIterator::get_description().
-
- 12243       olly 	* api/ompostlistiterator.cc: Remove "[" and "]" from
- 12243       olly 	  Xapian::PostingIterator::get_description() as they don't add
- 12243       olly 	  anything useful.
-
- 12242       olly 	* backends/inmemory/inmemory_database.cc: Add a space in the output
- 12242       olly 	  of InMemoryPostList::get_description() and
- 12242       olly 	  InMemoryAllDocsPostList::get_description().
-
- 12239       olly 	* backends/multi/multi_postlist.cc,backends/multi/multi_postlist.h:
- 12239       olly 	  MultiPostList::get_termfreq() is never used, so remove it.
+Sort out use of internal macro from different file?
+ 12272    richard 	* tests/harness/testutils.cc: Use TEST_EQUAL_DOUBLE_ for comparison
+ 12272    richard 	  of weights in mset, to fix test failures due to floating point
+ 12272    richard 	  differences.  (Currently only manifests in some tests in the
+ 12272    richard 	  matchspy branch, but it's a generally useful fix.)
 
  * bin/xapian-check.cc,bin/xapian-check-flint.cc: Don't stop checking
    a table after an error in certain cases - instead increment the
    error counter and try to continue checking from the next item.
 
 trunk only:
+
+ 12309    richard 	* api/postingsource.cc,include/xapian/postingsource.h: Change
+ 12309    richard 	  return types of clone() and unserialise() methods to be of the
+ 12309    richard 	  subclass returned; this is a bit more flexible, but the main
+ 12309    richard 	  reason is to be consistent: previously, the clone() methods
+ 12309    richard 	  returned the subclass, but the unserialise() methods returned
+ 12309    richard 	  PostingSource.
+
+ 12308    richard 	* include/xapian/postingsource.h: Add comment on PostingSource base
+ 12308    richard 	  class listing it as an experimental feature.
+ 12308    richard 	* docs/deprecation.rst: Describe what "experimental" features are,
+ 12308    richard 	  and why replication and posting sources are currently
+ 12308    richard 	  experimental.
+
+* The library is now libxapian-1.1; xapian.m4 is now xapian-1.1.m4; headers now in $prefix/include/xapian-1.1
+  to allow easy parallel installs.  If you use XO_LIB_XAPIAN or xapian-config, this should all be transparent.
+* configure.ac: Default program suffix to -1.1 if not specified.  If
+  you really want no suffix, "./configure --program-suffix=" will
+  achieve that.
 
  12232       olly 	* backends/chert/chert_database.cc,backends/flint/flint_database.cc,
  12232       olly 	  backends/inmemory/inmemory_database.cc,
@@ -43,15 +48,8 @@ trunk only:
  11701       olly 	* tests/api_anydb.cc,tests/api_db.cc: Fix unwarranted assumptions in
  11701       olly 	  existing testcases broken by this change.
 
- 12200       olly 	* common/Makefile.mk,common/str.cc,common/str.h: New family of
- 12200       olly 	  overloaded str() functions for converting types to std::string.
- 12200       olly 	  The integer conversion are much faster than the existing
- 12200       olly 	  om_tostring().
- 12200       olly 	* common/omassert.h,common/omdebug.h: Use str() instead of
- 12200       olly 	  om_tostring().
- 12200       olly 	* common/utils.cc,common/utils.h: Make om_tostring() a macro wrapping
- 12200       olly 	  str() for now to avoid introducing a lot of conflicts with other
- 12200       olly 	  branches and unapplied patches.
+* Faster integer to string functions inside the library (will speed up a debug
+  build particularly).
 
  12153       olly 	  net/remoteserver.cc: Internally, pass around non-normalised document
  12153       olly 	  lengths as Xapian::termcount (unsigned integer) not Xapian::doclength
@@ -89,7 +87,7 @@ This code is currently not compiled on trunk:
  11534       olly 	  value stream for backends which don't support streamed values
  11534       olly 	  internally (currently unused).
 
-Xapian-core 1.1.0 (2009-0?-??):
+Xapian-core 1.1.0 (2009-04-??):
 
 API:
 
@@ -106,7 +104,7 @@ API:
 11369+11391:
 * Xapian databases now have a UUID, readable with Database::get_uuid().
 
-* A new Database replication API has been added.
+* A new Database replication API has been added (currently experimental).
 
 * Stub databases used to assume that any relative paths were relative to the
   current working directory.  They now assume that relative paths are

@@ -76,6 +76,8 @@ static test test_or_queries[] = {
     // Regression test for bug fixed in 1.0.4 - the '+' would be ignored there
     // because the whitespace after the '"' wasn't noticed.
     { "\"hello world\" +python", "(Zpython:(pos=3) AND_MAYBE (hello:(pos=1) PHRASE 2 world:(pos=2)))" },
+    // In 1.1.0, NON_SPACING_MARK was added as a word character.
+    { "\xd8\xa7\xd9\x84\xd8\xb1\xd9\x91\xd8\xad\xd9\x85\xd9\x86", "Z\xd8\xa7\xd9\x84\xd8\xb1\xd9\x91\xd8\xad\xd9\x85\xd9\x86:(pos=1)" },
     { "unmatched\"", "unmatched:(pos=1)" },
     { "unmatched \" \" ", "Zunmatch:(pos=1)" },
     { "hyphen-ated\" ", "(hyphen:(pos=1) PHRASE 2 ated:(pos=2))" },

@@ -27,8 +27,8 @@
 #include <map>
 #include <queue>
 
-#include <stdio.h> // for rename()
-#include <string.h>
+#include <cstdio> // for rename()
+#include <cstring>
 #include <sys/types.h>
 #include "utils.h"
 #include "valuestats.h"
@@ -207,16 +207,20 @@ merge_postlists(FlintTable * out, vector<Xapian::docid>::const_iterator offset,
     for ( ; b != e; ++b, ++offset) {
 	FlintTable *in = new FlintTable("postlist", *b, true);
 	in->open();
-	if (in->get_entry_count()) {
-	    // PostlistCursor takes ownership of FlintTable in and is
-	    // responsible for deleting it.
-	    PostlistCursor * cur = new PostlistCursor(in, *offset);
-	    // Merge the METAINFO tags from each database into one.
-	    // They have a key consisting of a single zero byte, which will
-	    // always be the first key.
-	    if (!is_metainfo_key(cur->key)) {
-		throw Xapian::DatabaseCorruptError("No METAINFO item in postlist table.");
-	    }
+	if (!in->get_entry_count()) {
+	    // Skip empty tables.
+	    delete in;
+	    continue;
+	}
+
+	// PostlistCursor takes ownership of FlintTable in and is
+	// responsible for deleting it.
+	PostlistCursor * cur = new PostlistCursor(in, *offset);
+	// Merge the METAINFO tags from each database into one.
+	// They have a key consisting of a single zero byte.
+	// They may be absent, if the database contains no documents.  If it
+	// has user metadata we'll still get here.
+	if (is_metainfo_key(cur->key)) {
 	    const char * data = cur->tag.data();
 	    const char * end = data + cur->tag.size();
 	    Xapian::docid dummy_did = 0;
@@ -228,16 +232,14 @@ merge_postlists(FlintTable * out, vector<Xapian::docid>::const_iterator offset,
 		throw Xapian::DatabaseCorruptError("Tag containing meta information is corrupt.");
 	    }
 	    tot_totlen += totlen;
-	    if (tot_totlen < tot_totlen) {
+	    if (tot_totlen < totlen) {
 		throw "totlen wrapped!";
 	    }
-	    if (cur->next()) {
-		pq.push(cur);
-	    } else {
-		delete cur;
-	    }
+	}
+	if (cur->next()) {
+	    pq.push(cur);
 	} else {
-	    delete in;
+	    delete cur;
 	}
     }
 

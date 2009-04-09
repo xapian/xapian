@@ -6,7 +6,7 @@
 
 use Test;
 use Devel::Peek;
-BEGIN { plan tests => 52 };
+BEGIN { plan tests => 53 };
 use Search::Xapian qw(:standard);
 ok(1); # If we made it this far, we're ok.
 
@@ -138,5 +138,8 @@ eval {
     $qp->parse_query('other* AND', FLAG_BOOLEAN|FLAG_WILDCARD);
 };
 ok( $@ =~ /^Exception: Syntax: <expression> AND <expression> at \S+ line \d+\.$/ );
+
+# Check FLAG_DEFAULT is wrapped (new in 1.0.11.0).
+ok( $qp->parse_query('hello world', FLAG_DEFAULT|FLAG_BOOLEAN_ANY_CASE) );
 
 1;

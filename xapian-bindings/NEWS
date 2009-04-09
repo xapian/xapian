@@ -1,5 +1,4 @@
-Up to:
- 11601       olly Fri Oct 31 22:53:13 GMT 2008  Olly Betts <olly@survex.com>
+ 12287       olly Fri Mar 27 03:27:03 GMT 2009  Olly Betts <olly@survex.com>
 
 backport fodder:
 
@@ -24,6 +23,59 @@ possibly:
  11599    richard 	  extension modules to handle xapian errors appropriately.
 
 HEAD only:
+
+ 12158       olly 	* xapian.i: Updated to wrap xapian/weight.h directly, such that it
+ 12158       olly 	  builds with the new Xapian::Weight class.
+
+Python now flags deprecation warnings for the single argument and old parameter
+(ascending) in set_sort_by_...().
+
+ 12077       olly 	* php/docs/examples/simpleindex.php5,python/pythontest2.py,
+ 12077       olly 	  python/pythontest3.py,python/replicationtest2.py,
+ 12077       olly 	  tcl8/docs/examples/simpleindex.tcl,xapian.i: Update for the
+ 12077       olly 	  "WritableDatabase::flush()" to "WritableDatabase::commit()" change.
+
+ 12076       olly 	* xapian.i: Wrap MSet::get_uncollapsed_matches_lower_bound(),
+ 12076       olly 	  MSet::get_uncollapsed_matches_estimated(), and
+ 12076       olly 	  MSet::get_uncollapsed_matches_upper_bound().
+
+ 11996    richard 	* csharp/Makefile.am,xapian.i: Update with new serialisation
+ 11996    richard 	  context class.
+
+ 11839    richard 	* python/generate-python-exceptions,python/pythontest2.py,xapian.i:
+ 11839    richard 	  Update for new posting source interface.
+
+ 11830    richard 	* python/pythontest2.py: Add python test of document and query
+ 11830    richard 	  serialisation and unserialisation.
+
+ 11808       olly 	* python/Makefile.am: Temporarily disable replicationtest.py
+ 11808       olly 	  for now, as it just seems to fail most of the time.  See bug#320.
+
+ 11797    richard 	* xapian.i: Add Database.close() method.
+
+ 11762       olly 	* configure.ac,python/Makefile.am,python/generate-python-exceptions,
+ 11762       olly 	  python/generate-python-exceptions.in: Explicitly run
+ 11762       olly 	  generate-python-exceptions using $(PERL) rather than generating it
+ 11762       olly 	  with AC_OUTPUT just to substitute the "#!" line.
+ 
+ 11746    richard 	* python/Makefile.am: Add replicationtest2.py to distribution.
+ 11743    richard 	* python/Makefile.am: Enable the replication test by default, now
+ 11743    richard 	  that it passes.
+ 11742    richard 	* python/replicationtest.py,python/replicationtest2.py: Make
+ 11742    richard 	  replication test a bit more stringent, and don't trigger
+ 11742    richard 	  potential problems with swapping a database back in place by
+ 11742    richard 	  updating the uuids, so each replicated database is effectively
+ 11742    richard 	  brand new, as far as replication is concerned.
+ 11735    richard 	* python/Makefile.am: Pass the default value of PYTHONPATH through
+ 11735    richard 	  to python tests (just make sure our recently compiled modules are
+ 11735    richard 	  at the start of it).  Pass abs_builddir in the TESTS_ENVIRONMENT
+ 11735    richard 	  variable, since the replication test needs it.
+ 11735    richard 	* python/replicationtest2.py: Add a test (currently failing) of
+ 11735    richard 	  database replication under heavy concurrent modification load.
+
+ 11734    richard 	* python/pythontest2.py: Fix test of get_eset() to match change in
+ 11734    richard 	  behaviour of get_eset().
+ 11734    richard 	* python/pythontest3.py: Bring up to date with pythontest2.py
 
  11453    richard 	* python/pythontest2.py: Change test_value_mods() to test chert
  11453    richard 	  instead of flint, for extra regression test of recently fixed bug
