@@ -27,8 +27,8 @@
 #include <map>
 #include <queue>
 
-#include <stdio.h> // for rename()
-#include <string.h>
+#include <cstdio> // for rename()
+#include <cstring>
 #include <sys/types.h>
 #include "utils.h"
 #include "valuestats.h"
