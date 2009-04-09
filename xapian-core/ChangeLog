@@ -1,3 +1,8 @@
+Thu Apr 09 05:01:04 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/admin_notes.rst: Document the child process used for locking
+	  which exec-s "cat" (ticket #258).
+
 Thu Apr 09 03:49:13 GMT 2009  Olly Betts <olly@survex.com>
 
 	* bin/: Use C++ forms of C headers in bin (ticket#330).
