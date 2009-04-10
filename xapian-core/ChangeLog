@@ -1,3 +1,9 @@
+Fri Apr 10 04:19:58 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/admin_notes.rst: Document the child process used for locking
+	  which exec-s "cat" (ticket #258).
+
 Mon Apr 06 06:57:45 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
