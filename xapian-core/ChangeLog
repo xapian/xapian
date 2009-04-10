@@ -1,3 +1,7 @@
+Fri Apr 10 05:04:04 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
 Fri Apr 10 05:00:25 GMT 2009  Olly Betts <olly@survex.com>
 
 	* docs/admin_notes.rst: Remove references to chert in previous
