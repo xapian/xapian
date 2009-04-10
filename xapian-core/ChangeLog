@@ -1,3 +1,8 @@
+Fri Apr 10 05:00:25 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/admin_notes.rst: Remove references to chert in previous
+	  backported documentation change.
+
 Fri Apr 10 04:19:58 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

@@ -124,10 +124,9 @@ at any given instant, there is only permitted to be a single object modifying
 a database, but there may (simultaneously) be many objects reading the
 database at once.
 
-Xapian enforces this restriction using lock-files.  For a flint or chert
+Xapian enforces this restriction using lock-files.  For a flint
 database, each Xapian database directory contains a lock file named
-``flintlock`` (chert uses the same name as the locking technique is the
-same).
+``flintlock``.
 
 This lock-file will always exist, but will be locked using ``fcntl()`` when the
 database is open for writing.  Because of the semantics of ``fcntl()`` locking,
