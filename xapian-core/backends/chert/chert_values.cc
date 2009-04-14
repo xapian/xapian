@@ -212,6 +212,10 @@ class ValueUpdater {
 
     void update(Xapian::docid did, const string & value) {
 	if (last_allowed_did && did > last_allowed_did) {
+	    while (!reader.at_end() && reader.get_docid() < did) {
+		append_to_stream(reader.get_docid(), reader.get_value());
+		reader.next();
+	    }
 	    write_tag();
 	    last_allowed_did = 0;
 	}

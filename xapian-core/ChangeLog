@@ -1,3 +1,8 @@
+Tue Apr 14 18:12:08 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/chert/chert_values.cc: When we move the reader to a new
+	  chunk, write any trailing values left in it to the stream first.
+
 Thu Apr 09 05:01:04 GMT 2009  Olly Betts <olly@survex.com>
 
 	* docs/admin_notes.rst: Document the child process used for locking
