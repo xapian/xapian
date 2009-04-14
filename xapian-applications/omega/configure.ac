@@ -39,6 +39,135 @@ test -z "$enable_documentation" && enable_documentation=$USE_MAINTAINER_MODE
 AM_CONDITIONAL(DOCUMENTATION_RULES, test x"$enable_documentation" = xyes)
 AM_CONDITIONAL(MAINTAINER_NO_DOCS, test x"$USE_MAINTAINER_MODE$enable_documentation" = xyesno)
 
+dnl ******************************
+dnl * Set special compiler flags *
+dnl ******************************
+
+dnl Set flags to control warnings (enable more, or disable annoying ones).
+if test yes = "$GXX"; then
+  dnl Intel's C++ compiler is identified as "GXX" by autoconf's test - check
+  dnl which we actually have.
+  AC_EGREP_CPP(yes,
+    [#ifdef __INTEL_COMPILER
+     yes
+     #endif
+    ],
+    [
+      dnl Intel's compiler:
+      dnl
+      dnl -w1 stops the avalanche of uninteresting "remark" messages.
+      dnl -wd... disables warnings which don't have good code workarounds.
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -w1 -wd177,1572"
+      dnl Automatically add -Werror if maintainer mode is enabled.
+      if test x$USE_MAINTAINER_MODE = xyes; then
+	AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
+      fi
+    ],
+    [
+      dnl GCC:
+      dnl
+      dnl All these options were supported by g++ 2.95 and there's little
+      dnl likelihood Xapian will build with any earlier version, so there's
+      dnl not much point worrying about whether older versions had them or not.
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords"
+
+      dnl The output of g++ --version seems to change with almost every minor
+      dnl release so use the preprocessor macros which should be more robust.
+      gxx_major_version=`echo __GNUC__|$CXX -E -|sed '/^#/d;s/ //g'`
+      gxx_minor_version=`echo __GNUC_MINOR__|$CXX -E -|sed '/^#/d;s/ //g'`
+      gxx_version=$gxx_major_version.$gxx_minor_version
+
+      case $gxx_version in
+      2.96)
+	dnl Oddly Redhat's "2.96" doesn't support -Wundef, though real
+	dnl GCC versions before and after it do!
+	;;
+      [[012]].* | 3.0) dnl GCC < 3.1, other than 2.96
+	dnl GCC 3.0 supports -Wshadow, but it spews false positives (at least
+	dnl with 3.0.4) so we don't use it.
+	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef" ;;
+      3.*)
+	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow" ;;
+      *) dnl GCC >= 4.0
+	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow"
+
+	dnl -Winit-self was added in GCC 3.4, but up to at least GCC 4.2 it is
+	dnl ignored by g++ which warns for this case with -Wuninitialized
+	dnl (implied by -W).  But at some point this bug (filed upstream as
+	dnl http://gcc.gnu.org/PR34772) may get fixed so we pass this option
+	dnl anyway - we don't intend to use this idiom, so any instances are
+	dnl bugs we'd like to know about.
+	dnl
+	dnl -Wstrict-overflow is new in GCC 4.2.  Higher settings than 1 have
+	dnl proved too noisy.
+	case $gxx_version in
+	4.[[01]]) ;;
+	*) AM_CXXFLAGS="$AM_CXXFLAGS -Winit-self -Wstrict-overflow=1" ;;
+	esac
+
+	dnl FIXME:
+	dnl -Wconversion in older GCC versions is intended to help migration
+	dnl from K&R to ISO C, and isn't useful for us.  In 4.3 it was renamed
+	dnl to -Wtraditional-conversion and a new -Wconversion added which
+	dnl sounds useful but is a bit buggy currently.  So we should consider
+	dnl enabling -Wconversion once it is stabilised (GCC 4.4 or ...)
+
+	if test no = "$enable_visibility"; then
+	  AC_DEFINE(XAPIAN_DISABLE_VISIBILITY, 1, [Define to disable use of visibility attributes])
+	else
+	  dnl Turn on visibility support for GCC >= 4.0.
+	  AM_CXXFLAGS="$AM_CXXFLAGS -fvisibility=hidden"
+	fi
+
+	dnl Automatically add -Werror if maintainer mode is enabled and we're
+	dnl using GCC4 or newer.  We don't do this for older GCCs as GCC 2.95
+	dnl and some GCC 3.x compilers issue spurious warnings.
+	if test x$USE_MAINTAINER_MODE = xyes; then
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
+	fi
+	;;
+      esac
+    ])
+fi
+
+AC_SUBST(AM_CXXFLAGS)
+CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS $AM_CXXFLAGS"
+
+AH_BOTTOM(
+[/* Disable stupid MSVC "performance" warning for converting int to bool. */
+#ifdef _MSC_VER
+# pragma warning(disable:4800)
+#endif
+
+/* _FORTIFY_SOURCE is only supported by GCC >= 4.1 and glibc >= 2.3.4, but it
+ * shouldn't cause a problem to define it where it's not supported and some
+ * distros may have backported support, so hardcoding version checks is
+ * counter-productive.
+ *
+ * Check if _FORTIFY_SOURCE is already defined to allow the user to override
+ * our choice with "./configure CPPFLAGS=-D_FORTIFY_SOURCE=0" or "...=1".
+ */
+#if defined __GNUC__ && !defined _FORTIFY_SOURCE
+# define _FORTIFY_SOURCE 2
+#endif
+
+/* For GCC >= 3.0 (and Intel's C++ compiler, which also defines __GNUC__),
+ * we can use __builtin_expect to give the compiler hints about branch
+ * prediction.  See HACKING for how to use these.
+ */
+#if defined __GNUC__ && __GNUC__ >= 3
+/* The arguments of __builtin_expect() are both long, so use !! to ensure that
+ * the first argument is always an integer expression, and always 0 or 1, but
+ * still has the same truth value for the if or while it is used in.
+ */
+# define rare(COND) __builtin_expect(!!(COND), 0)
+# define usual(COND) __builtin_expect(!!(COND), 1)
+#else
+# define rare(COND) (COND)
+# define usual(COND) (COND)
+#endif
+])
+
 dnl IRIX helpfully won't allow stdint.h to be included from C++ code,
 dnl so we can't just use AC_CHECK_HEADERS.
 AC_TRY_COMPILE([#include <stdint.h>],
@@ -215,7 +344,14 @@ if test no != "$with_iconv" ; then
 	    [#include <iconv.h>],
 	    [[
 	      char buf[20];
-	      $t in = "hello";
+	      char inbuf[6];
+	      inbuf[0] = 'h';
+	      inbuf[1] = 'e';
+	      inbuf[2] = 'l';
+	      inbuf[3] = 'l';
+	      inbuf[4] = 'o';
+	      inbuf[5] = '\0';
+	      $t in = inbuf;
 	      size_t in_len = 5;
 	      char * out = buf;
 	      size_t out_len = 20;
@@ -328,134 +464,6 @@ dnl else
 dnl AC_MSG_WARN(libxml doesn't have xmlValidateDocument: disabling validation.)
 dnl fi
 
-dnl ******************************
-dnl * Set special compiler flags *
-dnl ******************************
-
-dnl Set flags to control warnings (enable more, or disable annoying ones).
-if test yes = "$GXX"; then
-  dnl Intel's C++ compiler is identified as "GXX" by autoconf's test - check
-  dnl which we actually have.
-  AC_EGREP_CPP(yes,
-    [#ifdef __INTEL_COMPILER
-     yes
-     #endif
-    ],
-    [
-      dnl Intel's compiler:
-      dnl
-      dnl -w1 stops the avalanche of uninteresting "remark" messages.
-      dnl -wd... disables warnings which don't have good code workarounds.
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -w1 -wd177,1572"
-      dnl Automatically add -Werror if maintainer mode is enabled.
-      if test x$USE_MAINTAINER_MODE = xyes; then
-	AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
-      fi
-    ],
-    [
-      dnl GCC:
-      dnl
-      dnl All these options were supported by g++ 2.95 and there's little
-      dnl likelihood Xapian will build with any earlier version, so there's
-      dnl not much point worrying about whether older versions had them or not.
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords"
-
-      dnl The output of g++ --version seems to change with almost every minor
-      dnl release so use the preprocessor macros which should be more robust.
-      gxx_major_version=`echo __GNUC__|$CXX -E -|sed '/^#/d;s/ //g'`
-      gxx_minor_version=`echo __GNUC_MINOR__|$CXX -E -|sed '/^#/d;s/ //g'`
-      gxx_version=$gxx_major_version.$gxx_minor_version
-
-      case $gxx_version in
-      2.96)
-	dnl Oddly Redhat's "2.96" doesn't support -Wundef, though real
-	dnl GCC versions before and after it do!
-	;;
-      [[012]].* | 3.0) dnl GCC < 3.1, other than 2.96
-	dnl GCC 3.0 supports -Wshadow, but it spews false positives (at least
-	dnl with 3.0.4) so we don't use it.
-	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef" ;;
-      3.*)
-	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow" ;;
-      *) dnl GCC >= 4.0
-	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow"
-
-	dnl -Winit-self was added in GCC 3.4, but up to at least GCC 4.2 it is
-	dnl ignored by g++ which warns for this case with -Wuninitialized
-	dnl (implied by -W).  But at some point this bug (filed upstream as
-	dnl http://gcc.gnu.org/PR34772) may get fixed so we pass this option
-	dnl anyway - we don't intend to use this idiom, so any instances are
-	dnl bugs we'd like to know about.
-	dnl
-	dnl -Wstrict-overflow is new in GCC 4.2.  Higher settings than 1 have
-	dnl proved too noisy.
-	case $gxx_version in
-	4.[[01]]) ;;
-	*) AM_CXXFLAGS="$AM_CXXFLAGS -Winit-self -Wstrict-overflow=1" ;;
-	esac
-
-	dnl FIXME:
-	dnl -Wconversion in older GCC versions is intended to help migration
-	dnl from K&R to ISO C, and isn't useful for us.  In 4.3 it was renamed
-	dnl to -Wtraditional-conversion and a new -Wconversion added which
-	dnl sounds useful but is a bit buggy currently.  So we should consider
-	dnl enabling -Wconversion once it is stabilised (GCC 4.4 or ...)
-
-	if test no = "$enable_visibility"; then
-	  AC_DEFINE(XAPIAN_DISABLE_VISIBILITY, 1, [Define to disable use of visibility attributes])
-	else
-	  dnl Turn on visibility support for GCC >= 4.0.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -fvisibility=hidden"
-	fi
-
-	dnl Automatically add -Werror if maintainer mode is enabled and we're
-	dnl using GCC4 or newer.  We don't do this for older GCCs as GCC 2.95
-	dnl and some GCC 3.x compilers issue spurious warnings.
-	if test x$USE_MAINTAINER_MODE = xyes; then
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
-	fi
-	;;
-      esac
-    ])
-fi
-
-AC_SUBST(AM_CXXFLAGS)
-
-AH_BOTTOM(
-[/* Disable stupid MSVC "performance" warning for converting int to bool. */
-#ifdef _MSC_VER
-# pragma warning(disable:4800)
-#endif
-
-/* _FORTIFY_SOURCE is only supported by GCC >= 4.1 and glibc >= 2.3.4, but it
- * shouldn't cause a problem to define it where it's not supported and some
- * distros may have backported support, so hardcoding version checks is
- * counter-productive.
- *
- * Check if _FORTIFY_SOURCE is already defined to allow the user to override
- * our choice with "./configure CPPFLAGS=-D_FORTIFY_SOURCE=0" or "...=1".
- */
-#if defined __GNUC__ && !defined _FORTIFY_SOURCE
-# define _FORTIFY_SOURCE 2
-#endif
-
-/* For GCC >= 3.0 (and Intel's C++ compiler, which also defines __GNUC__),
- * we can use __builtin_expect to give the compiler hints about branch
- * prediction.  See HACKING for how to use these.
- */
-#if defined __GNUC__ && __GNUC__ >= 3
-/* The arguments of __builtin_expect() are both long, so use !! to ensure that
- * the first argument is always an integer expression, and always 0 or 1, but
- * still has the same truth value for the if or while it is used in.
- */
-# define rare(COND) __builtin_expect(!!(COND), 0)
-# define usual(COND) __builtin_expect(!!(COND), 1)
-#else
-# define rare(COND) (COND)
-# define usual(COND) (COND)
-#endif
-])
-
 AC_ARG_ENABLE(quiet,
   [AS_HELP_STRING([--enable-quiet], [Enable quiet building [default=no]])],
   [case ${enableval} in
@@ -472,8 +480,6 @@ if test yes = "$enable_quiet"; then
   QUIET=--quiet
 fi
 AC_SUBST(QUIET)
-
-AC_SUBST(AM_CXXFLAGS)
 
 dnl Restore CXXFLAGS to those the user specified or autoconf defaulted to.
 CXXFLAGS=$save_CXXFLAGS

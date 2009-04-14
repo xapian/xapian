@@ -1,3 +1,14 @@
+Tue Apr 14 15:34:36 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* configure.ac: Test for compiler flags before checking for
+	  libraries, and use the compiler flags found when checking for
+	  things.  In particular, this should fix the test for the type
+	  used by iconv() on MacOS (where it was previously returning "char
+	  *", and the test was giving a warning about converting this to
+	  "const char *", but not failing).  Requires a change to the iconv
+	  test to avoid it failing on linux with GCC due to an unrelated
+	  warning in the test code.
+
 Sat Apr 04 15:15:18 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
