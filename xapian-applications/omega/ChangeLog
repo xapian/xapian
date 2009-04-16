@@ -1,3 +1,7 @@
+Thu Apr 16 04:38:20 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Remove duplicate "AC_SUBST(AM_CXXFLAGS)".
+
 Thu Apr 16 04:29:28 GMT 2009  Olly Betts <olly@survex.com>
 
 	* configure.ac: Avoid implicitly casting a string literal to char* in

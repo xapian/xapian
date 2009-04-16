@@ -473,8 +473,6 @@ if test yes = "$enable_quiet"; then
 fi
 AC_SUBST(QUIET)
 
-AC_SUBST(AM_CXXFLAGS)
-
 dnl Restore CXXFLAGS to those the user specified or autoconf defaulted to.
 CXXFLAGS=$save_CXXFLAGS
 
