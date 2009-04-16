@@ -52,7 +52,6 @@
 #endif
 
 #include <cdb.h>
-#include <pcre.h>
 
 #include "date.h"
 #include "datematchdecider.h"
@@ -62,6 +61,7 @@
 #include "cgiparam.h"
 #include "loadfile.h"
 #include "stringutils.h"
+#include "transform.h"
 #include "values.h"
 
 #include <xapian.h>
@@ -1851,40 +1851,9 @@ eval(const string &fmt, const vector<string> &param)
 		    if (!value.empty()) value.erase(value.size() - 1);
 		}
 		break;
-	    case CMD_transform: {
-		pcre *re;
-		const char *error;
-		int erroffset;
-		int offsets[30];
-		int matches;
-		re = pcre_compile(args[0].c_str(), 0, &error, &erroffset, NULL);
-		matches = pcre_exec(re, NULL, args[2].data(), args[2].size(),
-				    0, 0, offsets, 30);
-		if (matches > 0) {
-		    string::const_iterator i;
-		    value = args[2].substr(0, offsets[0]);
-		    for (i = args[1].begin(); i != args[1].end(); ++i) {
-			if (*i != '\\') {
-			    value += *i;
-			} else {
-			    ++i;
-			    if (i != args[1].end()) {
-				if (*i >= '0' && *i < '0' + matches) {
-				    int c = (*i - '0') * 2;
-				    value.append(args[2].substr(offsets[c],
-						offsets[c + 1] - offsets[c]));
-				} else {
-				    value += *i;
-				}
-			    }
-			}
-		    }
-		    value += args[2].substr(offsets[1]);
-		} else {
-		    value = args[2];
-		}
+	    case CMD_transform:
+		omegascript_transform(value, args);
 		break;
-	    }
 	    case CMD_uniq: {
 		const string &list = args[0];
 		if (list.empty()) break;

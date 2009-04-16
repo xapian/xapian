@@ -97,11 +97,19 @@ noinst_HEADERS +=\
 
 AM_LDFLAGS = $(ICONV_LDFLAGS)
 
+# We want to compile transform.cc with PCRE_CFLAGS, but if this adds a -I for
+# a directory with a different version of iconv, then we get problems (this
+# has been reported on Mac OS X).  So we only add PCRE_CFLAGS when compiling
+# transform.cc, using the convenience library technique suggested by the
+# automake manual.
+noinst_LTLIBRARIES = libtransform.la
+libtransform_la_SOURCES = transform.cc
+libtransform_la_CPPFLAGS = $(PCRE_CFLAGS)
+
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc\
  cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc loadfile.cc\
  utf8convert.cc datematchdecider.cc
-omega_LDADD = $(XAPIAN_LIBS) $(PCRE_LIBS)
-omega_CPPFLAGS = $(AM_CPPFLAGS) $(PCRE_CFLAGS)
+omega_LDADD = $(XAPIAN_LIBS) libtransform.la $(PCRE_LIBS)
 
 omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc\
  common/getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc md5.cc\
