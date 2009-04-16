@@ -7,13 +7,18 @@
 use Test::More;
 if ($] < 5.008007) {
     plan skip_all => 'Test requires Perl >= 5.8.7';
-} else {
-    # Number of test cases to run - increase this if you add more testcases.
-    plan tests => 65;
+}
+eval {
+    require threads;
+};
+if ($@) {
+    plan skip_all => 'Test requires Perl with thread support';
 }
 
+# Number of test cases to run - increase this if you add more testcases.
+plan tests => 65;
+
 use Search::Xapian qw(:standard);
-use threads;
 
 # TODO: check these classes too:
 # MSet/Tied.pm
