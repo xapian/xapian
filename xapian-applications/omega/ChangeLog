@@ -1,3 +1,8 @@
+Thu Apr 16 03:56:16 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Back out previous fix - -Werror has nothing to do with
+	  the issue James reported.
+
 Tue Apr 14 15:34:36 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* configure.ac: Test for compiler flags before checking for
