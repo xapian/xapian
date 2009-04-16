@@ -79,7 +79,7 @@ noinst_HEADERS = omega.h query.h cgiparam.h\
  commonhelp.h cdb.h cdb_int.h hashterm.h loadfile.h\
  md5.h md5wrap.h xmlparse.h metaxmlparse.h values.h utf8convert.h\
  namedentities.h datematchdecider.h sample.h strcasecmp.h\
- utf8truncate.h diritor.h runfilter.h freemem.h xpsxmlparse.h
+ utf8truncate.h diritor.h runfilter.h freemem.h xpsxmlparse.h transform.h
 
 # headers maintained in xapian-core
 noinst_HEADERS +=\
