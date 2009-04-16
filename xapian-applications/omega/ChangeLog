@@ -1,3 +1,13 @@
+Thu Apr 16 10:33:29 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Avoid implicitly casting a string literal to char* in
+	  the test for iconv by adding the same explicit cast we use in the
+	  code in utf8convert.cc.  Currently the implicit cast is "only" a
+	  warning under GCC, but the user could pass -Werror explicitly in
+	  CXXFLAGS, and this could be promoted to an error in future GCC
+	  versions, and may already be so for some other compilers.
+
 Fri Apr 10 06:54:48 GMT 2009  Olly Betts <olly@survex.com>
 
 	* configure.ac: Update for 1.0.12.
