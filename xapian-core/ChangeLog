@@ -1,3 +1,10 @@
+Thu Apr 16 12:08:24 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_values.cc: When copying the tail of a value
+	  chunk because did > last_allowed_did, we don't need to check if
+	  the docids being copied are < did, since they should all be <=
+	  last_allowed_did, so just assert the latter.
+
 Tue Apr 14 20:32:41 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/api_wrdb.cc: patch from james to move logging in

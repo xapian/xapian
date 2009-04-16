@@ -1,8 +1,8 @@
 /** @file chert_values.cc
  * @brief ChertValueManager class
  */
-/* Copyright (C) 2008 Olly Betts
- * Copyright (C) 2008 Lemur Consulting Ltd
+/* Copyright (C) 2008,2009 Olly Betts
+ * Copyright (C) 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -212,7 +212,14 @@ class ValueUpdater {
 
     void update(Xapian::docid did, const string & value) {
 	if (last_allowed_did && did > last_allowed_did) {
-	    while (!reader.at_end() && reader.get_docid() < did) {
+	    // The next change needs to go in a later existing chunk than the
+	    // one we're currently updating, so we copy over the rest of the
+	    // entries from the current chunk, write out the updated chunk and
+	    // drop through to the case below will read in that later chunk.
+	    // FIXME: use some string splicing magic instead of this loop.
+	    while (!reader.at_end()) {
+		// last_allowed_did should be an upper bound for this chunk.
+		AssertRel(reader.get_docid(),<=,last_allowed_did);
 		append_to_stream(reader.get_docid(), reader.get_value());
 		reader.next();
 	    }
