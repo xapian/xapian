@@ -5,6 +5,8 @@ Revision history for Perl extension Search::Xapian.
 	- Xapian C++ exceptions classes are now wrapped and C++ exceptions
 	  are caught and rethrown in Perl.
 	[Changes contributed by Olly Betts]
+	- Skip thread.t testcase if Perl is new enough, but wasn't built with
+	  thread support (reported by Felix Antonius Wilhelm Ostmann).
 	- Fixed building against uninstalled xapian-core to work with libtool
 	  2.2.x (you can't currently "make install" in a tree configured in
 	  this way though).
