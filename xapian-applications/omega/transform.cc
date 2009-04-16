@@ -64,7 +64,7 @@ omegascript_transform(string & value, const vector<string> & args)
 	if (c >= '1' && c <= '9') {
 	    c -= '0';
 	    // If there aren't that many groupings, expand to nothing.
-	    if (c > matches) continue;
+	    if (c >= matches) continue;
 	} else {
 	    value += ch;
 	    if (c != '\\') value += char(c);

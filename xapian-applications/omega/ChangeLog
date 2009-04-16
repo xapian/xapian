@@ -1,3 +1,8 @@
+Thu Apr 16 10:02:44 GMT 2009  Olly Betts <olly@survex.com>
+
+	* transform.cc: Fix off-by-one error - the return value of pcre_exec()
+	  is one more than the number of groupings.
+
 Thu Apr 16 09:23:29 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Need to ship new file transform.h.
