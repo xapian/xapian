@@ -10,6 +10,8 @@ Revision history for Perl extension Search::Xapian.
 	- Fixed building against uninstalled xapian-core to work with libtool
 	  2.2.x (you can't currently "make install" in a tree configured in
 	  this way though).
+	[Changes contributed by Kosei Moriyama]
+	- Add test coverage for more WritableDatabase methods.
 
 1.0.12.0  <not yet released>
 	[Changes contributed by Olly Betts]
