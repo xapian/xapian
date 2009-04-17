@@ -6,7 +6,9 @@
 
 use Test::More;
 if ($] < 5.008007) {
-    plan skip_all => 'Test requires Perl >= 5.8.7';
+    # Perl 5.8.7 added CLONE_SKIP which is required to implement the behaviour
+    # which this test case tests.
+    plan skip_all => 'Test requires Perl >= 5.8.7 for CLONE_SKIP';
 }
 eval {
     require threads;
