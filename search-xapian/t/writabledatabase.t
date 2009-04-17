@@ -5,40 +5,27 @@
 #########################
 
 use Test::More;
-if ($] < 5.008007) {
-    plan skip_all => 'Test requires Perl >= 5.8.7';
-} else {
-    # Number of test cases to run - increase this if you add more testcases.
-    plan tests => 34;
-}
+# Number of test cases to run - increase this if you add more testcases.
+plan tests => 34;
 
 use Search::Xapian qw(:standard);
 
+my $db_dir = 'testdb-writabledatabase';
 
-# first create database dir, if it doesn't exist;
-my $db_dir = 'testdb';
-
-if( (! -e $db_dir) or (! -d $db_dir) ) {
-  mkdir( $db_dir );
+# Delete contents of database dir, if it exists.
+if (opendir( DB_DIR, $db_dir )) {
+  while( defined( my $file = readdir( DB_DIR ) ) ) {
+    next if $file =~ /^\.+$/;
+    unlink( "$db_dir/$file" ) or die "Could not delete '$db_dir/$file': $!";
+  }
+  closedir( DB_DIR );
 }
 
-opendir( DB_DIR, $db_dir );
-while( defined( my $file = readdir( DB_DIR ) ) ) {
-  next if $file =~ /^\.+$/;
-  unlink( "$db_dir/$file" ) or die "Could not delete '$db_dir/$file': $!";
-}
-closedir( DB_DIR );
-
-my $create = Search::Xapian::WritableDatabase->new( $db_dir, Search::Xapian::DB_CREATE );
-
-$create = undef;
-
-my $write = Search::Xapian::WritableDatabase->new( $db_dir, Search::Xapian::DB_CREATE_OR_OPEN );
+my $write = Search::Xapian::WritableDatabase->new( $db_dir, Search::Xapian::DB_CREATE );
 
 # Let's try to index something.
 my $term = 'test';
 
-my $docid;
 for my $num (1..1000) {
   my $doc = Search::Xapian::Document->new();
 
@@ -50,7 +37,6 @@ for my $num (1..1000) {
   $doc->add_value(0, $num);
   $write->add_document( $doc );
 } 
-$write->flush();
 
 for my $num qw (three four five) {
   my $doc = Search::Xapian::Document->new();
@@ -62,18 +48,17 @@ for my $num qw (three four five) {
 
   $doc->add_value(0, $num);
   $write->add_document( $doc );
-  $write->flush();
 }
 $write->flush();
 
 my $doccount = $write->get_doccount();
 is($doccount, 1003, "check number of documents in WritableDatabase");
 
-# replace document by docidb
+# replace document by docid
 my $repdoc = Search::Xapian::Document->new();
 my $num = "six";
 $term = "test";
-$docid = 500;
+my $docid = 500;
 $repdoc->set_data( "$term $num" );
 $repdoc->add_posting( $term, 0 );
 $repdoc->add_posting( $num, 1 );
@@ -126,12 +111,14 @@ is($write->get_termfreq($num), 0, "check term frequency");
 $write->replace_document_by_term($num, $repdoc);
 $write->flush();
 
-is(++$doccount, 1004, "check doccount");
+$doccount = $write->get_doccount();
+is($doccount, 1004, "check doccount");
 is($write->get_termfreq($term), $doccount, "check term frequency");
 is($write->get_termfreq($num), 1, "check term frequency");
 
 # replace document by term.
-# if there are any documents which has same term, the document which has smallest id is replaced.
+# all documents indexed with the term are replaced; the replacement uses the
+# lowest docid if multiple documents are indexed by the term.
 $repdoc = Search::Xapian::Document->new();
 $term = "test";
 $num = "nine";
@@ -158,7 +145,6 @@ for my $num qw (one two three four five) {
 
   $doc->add_value(0, $num);
   $write->add_document( $doc );
-  $write->flush();
 }
 $write->flush();
 
