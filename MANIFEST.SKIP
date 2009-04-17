@@ -7,6 +7,7 @@ MANIFEST\.OLD
 testdb
 testdb-exception
 testdb-spell
+testdb-writabledatabase
 blib
 pm_to_blib
 .*\.o
