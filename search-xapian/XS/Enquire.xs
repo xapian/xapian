@@ -139,26 +139,30 @@ Enquire::get_mset1(first, maxitems, checkatleast = NO_INIT, rset = NO_INIT, func
     RSet *	rset
     SV *	func
     CODE:
-	MSet mset;
-	switch (items) { /* items includes the hidden this pointer */
-	    case 3:
-		mset = THIS->get_mset(first, maxitems);
-		break;
-	    case 4:
-		mset = THIS->get_mset(first, maxitems, checkatleast);
-		break;
-	    case 5:
-		mset = THIS->get_mset(first, maxitems, checkatleast, rset);
-		break;
-	    case 6: {
-		perlMatchDecider d = perlMatchDecider(func);
-		mset = THIS->get_mset(first, maxitems, checkatleast, rset, &d);
-		break;
+	try {
+	    MSet mset;
+	    switch (items) { /* items includes the hidden this pointer */
+		case 3:
+		    mset = THIS->get_mset(first, maxitems);
+		    break;
+		case 4:
+		    mset = THIS->get_mset(first, maxitems, checkatleast);
+		    break;
+		case 5:
+		    mset = THIS->get_mset(first, maxitems, checkatleast, rset);
+		    break;
+		case 6: {
+		    perlMatchDecider d = perlMatchDecider(func);
+		    mset = THIS->get_mset(first, maxitems, checkatleast, rset, &d);
+		    break;
+		}
+		default:
+		    croak("Bad parameter count for get_mset1");
 	    }
-	    default:
-		croak("Bad parameter count for get_mset1");
+	    RETVAL = new MSet(mset);
+	} catch (const Error &error) {
+	    croak( "Exception: %s", error.get_msg().c_str() );
 	}
-	RETVAL = new MSet(mset);
     OUTPUT:
 	RETVAL
 
@@ -168,8 +172,12 @@ Enquire::get_mset2(first, maxitems, func)
     doccount    maxitems
     SV *	func
     CODE:
-	perlMatchDecider d = perlMatchDecider(func);
-	RETVAL = new MSet(THIS->get_mset(first, maxitems, 0, NULL, &d));
+	try {
+	    perlMatchDecider d = perlMatchDecider(func);
+	    RETVAL = new MSet(THIS->get_mset(first, maxitems, 0, NULL, &d));
+	} catch (const Error &error) {
+	    croak( "Exception: %s", error.get_msg().c_str() );
+	}
     OUTPUT:
 	RETVAL
 
@@ -178,14 +186,22 @@ Enquire::get_eset(maxitems, rset)
     doccount    maxitems
     RSet *      rset
     CODE:
-        RETVAL = new ESet(THIS->get_eset(maxitems, *rset));
+	try {
+	    RETVAL = new ESet(THIS->get_eset(maxitems, *rset));
+	} catch (const Error &error) {
+	    croak( "Exception: %s", error.get_msg().c_str() );
+	}
     OUTPUT:
         RETVAL
 
 TermIterator *
 Enquire::get_matching_terms_begin1(docid did)
     CODE:
-        RETVAL = new TermIterator(THIS->get_matching_terms_begin(did));
+	try {
+	    RETVAL = new TermIterator(THIS->get_matching_terms_begin(did));
+	} catch (const Error &error) {
+	    croak( "Exception: %s", error.get_msg().c_str() );
+	}
     OUTPUT:
         RETVAL
 
@@ -193,7 +209,11 @@ TermIterator *
 Enquire::get_matching_terms_begin2(it)
         MSetIterator *        it
     CODE:
-        RETVAL = new TermIterator(THIS->get_matching_terms_begin(* it));
+	try {
+	    RETVAL = new TermIterator(THIS->get_matching_terms_begin(* it));
+	} catch (const Error &error) {
+	    croak( "Exception: %s", error.get_msg().c_str() );
+	}
     OUTPUT:
         RETVAL
 
