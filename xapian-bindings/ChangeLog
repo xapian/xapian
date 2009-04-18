@@ -1,3 +1,9 @@
+Sat Apr 18 08:25:11 GMT 2009  Olly Betts <olly@survex.com>
+
+	* INSTALL: Speak of 0.9.3 in the past tense.  Add a note about being
+	  able to pass variables to configure to pick which of several
+	  parallel installations of a language to build for.
+
 Sun Apr 05 03:59:31 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.

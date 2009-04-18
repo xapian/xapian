@@ -17,8 +17,8 @@ Known Issues
 
 	 make CXXFLAGS=-g
 
-     Xapian-bindings version 0.9.3 reduces the compile time by something like a
-     factor of 3 and probably also reduces memory usage significantly, but you
+     Xapian-bindings version 0.9.3 reduced the compile time by something like a
+     factor of 3 and probably also reduced memory usage significantly, but you
      might still encounter this issue on slower machines with less memory.
 
 Quick Installation Guide
@@ -53,6 +53,14 @@ The simplest way to compile this package is:
      configure will fail with an error if it is missing the prerequisite
      tools, libraries, header files, etc required to build bindings for
      any of the specified languages.
+
+     If you have more than one version of a particular language installed
+     you can tell configure which to build the bindings for by setting
+     variables on the configure command line.  For a full list of such
+     variables, see the output of `configure --help' - for example, for
+     Python you might use:
+
+       ./configure PYTHON=/opt/bin/python2.6
 
      Running `configure' takes a while.  While running, it prints some
      messages telling which features it is checking for.
