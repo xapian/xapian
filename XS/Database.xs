@@ -279,6 +279,15 @@ Database::get_document(docid did)
 
 string
 Database::get_metadata(string key)
+    CODE:
+	try {
+	    RETVAL = THIS->get_metadata(key);
+	}
+        catch (const Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
+    OUTPUT:
+        RETVAL
 
 void
 Database::DESTROY()
