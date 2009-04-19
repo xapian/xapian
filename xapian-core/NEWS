@@ -1,5 +1,4 @@
-up to:
- 12320       olly Wed Apr 01 00:18:02 GMT 2009  Olly Betts <olly@survex.com>
+ 12377       olly Thu Apr 16 12:08:24 GMT 2009  Olly Betts <olly@survex.com>
 
 Potential backport fodder:
 
@@ -14,6 +13,15 @@ Sort out use of internal macro from different file?
    error counter and try to continue checking from the next item.
 
 trunk only:
+
+ 12352       olly Thu Apr 09 03:49:13 GMT 2009  Olly Betts <olly@survex.com>
+	* bin/: Use C++ forms of C headers in bin (ticket#330).
+ 12351       olly Thu Apr 09 03:47:42 GMT 2009  Olly Betts <olly@survex.com>
+	* examples/: Use C++ forms of C headers in examples (ticket#330).
+
+* include/xapian/unicode.h: Add NON_SPACING_MARK to is_wordchar() for
+      better tokenisation of Arabic, for example.  (ticket#355)
+(rather than the 1.0 solution of making NON_SPACING_MARK a phrase generator).
 
  12309    richard 	* api/postingsource.cc,include/xapian/postingsource.h: Change
  12309    richard 	  return types of clone() and unserialise() methods to be of the
@@ -337,12 +345,79 @@ debug code:
 * The debug logging framework has been overhauled.  See HACKING for details
   of how it now works.
 
+Xapian-core 1.0.12 (2009-04-19):
+
+API:
+
+* WritableDatabase::remove_spelling() now works properly.
+
+* The QueryParser now treats NON_SPACING_MARK Unicode characters as phrase
+  generators, which improves handling of Arabic.  This is a stop-gap solution
+  for 1.0.x which will work with existing databases without requiring
+  reindexing - in 1.1.0, NON_SPACING_MARK will be regarded as part of a word.
+  (ticket#355)
+
+* Fix undefined behaviour in distribution of OP_NEAR and OP_PHRASE over a
+  non-leaf subquery (indentified by valgrind on testcase nearsubqueries1).
+  (ticket#349)
+
+* Enhance distribution of OP_NEAR/OP_PHRASE over non-leaf subqueries to work
+  when there are multiple non-leaf subqueries (ticket#201).
+
+* Enquire::get_mset() no longer needlessly checks if the documents exist.
+
+* PostingIterator::get_description() output improved visually in some cases.
+
+testsuite:
+
+* Add make targets to assist generating a testsuite code coverage report with
+  lcov.  See HACKING for details.
+
+* Improved test coverage in a number of places and removed some used code as
+  shown by lcov's coverage report.
+
+flint backend:
+
+* xapian-compact:
+
+  + Now handles databases which contains no documents but have user metadata
+    (ticket#356).
+
+  + Fix test for the total document length overflowing.
+
+* Release the database lock if the database is closed due to an unrecoverable
+  error during modifications. (ticket#354)
+
+* If we fail to get the lock after we spawn the child lock process (the common
+  case is because the database is already open for writing) then we now clean
+  up the child process properly.
+
+build system:
+
+* Overriding CXXFLAGS at make-time (e.g. "make CXXFLAGS=-Os") no longer
+  overrides any flags configure detected to be required to make the compiler
+  accept ISO C++ (for GCC, no such flags are required, so this doesn't
+  change anything).
+
+documentation:
+
+* Update documentation and code comments to reflect that 1.1 will be a
+  development series, and 1.2 the next release series.
+
+* docs/admin_notes.html: Document the child process used for locking which
+  exec-s "cat" (ticket #258).
+
+* include/xapian/unicode.h: Fix documentation comment typos.
+
+* include/xapian/matchspy.h: Removed currently unused header to stop doxygen
+  from generating documentation for it.
+
 Xapian-core 1.0.11 (2009-03-15):
 
 API:
 
 * Enquire::get_mset():
-    
+
   + Now throws UnimplementedError if there's a percentage cutoff and sorting is
     primarily by value - this has never been correctly supported and it's
     better to warn people than give incorrect results.
@@ -375,7 +450,7 @@ testsuite:
 
 * The testsuite now reports problems detected by valgrind with newer valgrind
   versions.  Drop support for running the testsuite under valgrind < 3.3.0
-  (well over a year old) as this greatly simplifies the configure tests.  
+  (well over a year old) as this greatly simplifies the configure tests.
 
 * Fix usage message for options which take arguments in --help output from test
   programs - "-x=foo" doesn't work, the correct syntax is "-x foo".
@@ -462,7 +537,7 @@ API:
 
 * Using a MultiValueSorter with no values set no longer causes a hang or
   segmentation fault (but it is still rather pointless!)
-    
+
 matcher:
 
 * If we're using values for sorting and for another purpose, cache the
@@ -746,7 +821,7 @@ remote backend:
 * Improve performance of matches with multiple databases at least one of which
   is remote, and when the top hit is from a remote database (bug#279).
 
-* When remote protocol version doesn't match, the error message displayed 
+* When remote protocol version doesn't match, the error message displayed
   now shows the minor version number supplied by the server correctly.
 
 * We now wait for the connection to close after sending MSG_SHUTDOWN for a
@@ -1176,7 +1251,7 @@ matcher:
     combined into a single multi-way OP_AND operation, and the filters which
     implement the near/phrase restrictions are hoisted above this so they need
     to check fewer documents (bug#23).
-	  
+
   + If an OP_OR or OP_AND_MAYBE decays to OP_AND, we now ensure that the less
     frequent sub-query is on the left, which OP_AND is optimised to expect.
 
