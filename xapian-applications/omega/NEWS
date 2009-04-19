@@ -1,35 +1,20 @@
- 12339       olly Sat Apr 04 15:13:52 GMT 2009  Olly Betts <olly@survex.com>
-
-Omega 1.0.12 (2009-04-1?):
-
-general:
-
-documentation:
-
-indexers:
-
-* omindex:
-
-* scriptindex:
+Omega 1.0.12 (2009-04-19):
 
 omega:
 
 * $log now retries a partial write, or one interrupted by a system call.
 
-templates:
-
-testsuite:
-
 build system:
+
+* configure: Fix iconv parameter type probe not to implicitly cast a string
+  literal to char* - this a warning under GCC currently, but the user could
+  pass -Werror explicitly in CXXFLAGS, and this could be promoted to an error
+  in future GCC versions, and may already be so for some other compilers.
 
 * Overriding CXXFLAGS at make-time (e.g. "make CXXFLAGS=-Os") no longer
   overrides any flags required for building with Xapian.
 
 * We now actually use the compiler warning flags which configure detects.
-
-portability:
-
-packaging:
 
 Omega 1.0.11 (2009-03-15):
 
