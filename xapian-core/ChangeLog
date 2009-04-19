@@ -1,3 +1,7 @@
+Sun Apr 19 12:12:19 GMT 2009  Olly Betts <olly@survex.com>
+
+	* AUTHORS: Update for 1.0 branch.
+
 Thu Apr 16 12:08:24 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_values.cc: When copying the tail of a value
