@@ -3,6 +3,7 @@ use strict;
 use Fcntl ':flock';
 use File::Path;
 use Sys::Hostname;
+use POSIX;
 
 my $MAXLOADPERCPU = 1.5;
 
@@ -31,7 +32,6 @@ my $work = "/home/olly/tmp/xapian-svn-snapshot";
 # Add ccache's directory first so we'll use it if it is installed.
 $ENV{PATH} = "/usr/lib/ccache:/home/olly/install/bin:/usr/bin:/bin";
 my $repourl = 'file:///home/xapian-svn/xapian';
-my $repourl2 = 'file:///home/xapian-svn/search-xapian';
 my $webbase = '/srv/www';
 
 # Create the work directory first, since we need it to exist so we can create
@@ -53,8 +53,13 @@ unless (flock LOCK, LOCK_EX|LOCK_NB) {
 # running.
 my $HOSTNAME = Sys::Hostname::hostname();
 # Check the load average isn't too high.
-if (!$force && (run_command("uptime 2>/dev/null"))[0] =~ /.*: (\d+(?:\.\d+)?),/) {
-    if ($1 > $MAXLOADPERCPU) {
+if (!$force) {
+    if (-e "/var/run/dobackup") {
+	#print STDERR "$HOSTNAME: Backup running (/var/run/dobackup exists)\n";
+	exit(1);
+    }
+    if (((run_command("uptime 2>/dev/null"))[0] =~ /.*: (\d+(?:\.\d+)?),/) &&
+	($1 > $MAXLOADPERCPU)) {
 	my $loadavg = $1;
 	# `getconf _NPROCESSORS_ONLN` on linux gives e.g. 2
 	# `sysctl hw.ncpu` on openbsd (and prob. freebsd & darwin) gives e.g. hw.ncpu=2
@@ -139,6 +144,9 @@ foreach my $tag (@ARGV) {
     }
     my ($revision) = ($lastlog =~ /\b(\d+)\b/);
 
+    # Don't repeat a build for the same revision.
+    next if -f "$logfile.$revision";
+
     open LOG, ">", "$logfile.$revision" or die $!;
     # Flush output after every print.
     my $old_fh = select(LOG);
@@ -151,17 +159,61 @@ foreach my $tag (@ARGV) {
     if ($tag !~ m!^tags/!) {
 	# Modify configure.ac files to insert $revision into version string.
 	foreach my $configure_ac
-	    (glob("\Q$co_dir\E/*/configure.ac"),
-	     glob("\Q$co_dir\E/*/*/configure.ac")) {
+	    (glob("\Q$co_dir\E/xapian*/configure.ac"),
+	     glob("\Q$co_dir\E/xapian*/*/configure.ac")) {
 	    open OUT, ">", "tmp.out" or die $!;
 	    open IN, "<", $configure_ac or die $!;
 	    while (<IN>) {
-		s/(^AC_INIT\([^,]*,.*?)(\s*[),])/$1_svn$revision$2/g;
+		s/(^AC_INIT\([^,]*,.*?)(\s*[),\]])/$1_svn$revision$2/g;
 		print OUT;
 	    }
 	    close IN or die $!;
 	    close OUT or die $!;
-	    rename "tmp.out", $configure_ac;
+	    rename "tmp.out", $configure_ac or die $!;
+	}
+	if (-f  "$co_dir/search-xapian/Makefile.PL") {
+	    my $snap_version;
+	    my $fnm = "$co_dir/search-xapian/Xapian.pm";
+	    open OUT, ">", "tmp.out" or die $!;
+	    open IN, "<", $fnm or die $!;
+	    while (<IN>) {
+		if (s/^(our \$VERSION = ')(\d+\.\d+\.\d+\.)\d+(.*)/$1$2$revision$3 # SVN snapshot/) {
+		    $snap_version = $2 . $revision;
+		}
+		print OUT;
+	    }
+	    close IN or die $!;
+	    close OUT or die $!;
+	    rename "tmp.out", $fnm or die $!;
+
+	    $fnm = "$co_dir/search-xapian/README";
+	    open OUT, ">", "tmp.out" or die $!;
+	    open IN, "<", $fnm or die $!;
+	    $_ = <IN>;
+	    s/(\d+\.\d+\.\d+\.)\d+/$1$revision (SVN snapshot)/;
+	    print OUT;
+	    while (<IN>) {
+		print OUT;
+	    }
+	    close IN or die $!;
+	    close OUT or die $!;
+	    rename "tmp.out", $fnm or die $!;
+
+	    $fnm = "$co_dir/search-xapian/Changes";
+	    open OUT, ">", "tmp.out" or die $!;
+	    open IN, "<", $fnm or die $!;
+	    while (<IN>) {
+		print OUT;
+		last if /^\s*$/;
+	    }
+	    print OUT $snap_version.strftime("  %a %b %e %H:%M:%S %Z %Y\n",gmtime());
+	    print OUT "\t- SVN snapshot of revision $revision.\n\n";
+	    while (<IN>) {
+		print OUT;
+	    }
+	    close IN or die $!;
+	    close OUT or die $!;
+	    rename "tmp.out", $fnm or die $!;
 	}
     }
 
@@ -170,17 +222,17 @@ foreach my $tag (@ARGV) {
     mkpath("$tag/build", 0, 0755) or die $!;
     chdir "$tag/build" or die $!;
 
-    $log = `../xapian/bootstrap-with-autotools 2>&1`;
+    $log = `../xapian/bootstrap 2>&1`;
     print LOG $log;
     if ($?) {
-	print "*** bootstrap-with-autotools failed for '$tag':";
+	print "*** bootstrap failed for '$tag':";
 	print $log;
 	$status = 1;
 	next;
     }
     $log = undef;
 
-    $log = `./configure --enable-quiet --enable-maintainer-mode 2>&1`;
+    $log = `../xapian/configure --enable-quiet --enable-maintainer-mode 2>&1`;
     print LOG $log;
     if ($?) {
 	print "*** configure failed for '$tag':";
@@ -200,10 +252,21 @@ foreach my $tag (@ARGV) {
     }
     $log = undef;
 
+    my $lib = (<xapian-core/.libs/libxapian*.so>)[0];
+    my $unstripped_so = -s $lib;
+    $log = `strip \Q$lib\E`;
+    print LOG $log;
+    $log = undef;
+    my $stripped_so = -s $lib;
+
+    open SIZELOG, ">>/home/olly/xapian-autobuild-stats.log";
+    print SIZELOG "$tag\trev=$revision\tunstripped_so=$unstripped_so\tstripped_so=$stripped_so\n";
+    close SIZELOG;
+
     $log = `make -s distcheck VALGRIND= 2>&1`;
     print LOG $log;
     if ($?) {
-	print "*** make dist failed for '$tag':";
+	print "*** make distcheck failed for '$tag':";
 	print $log;
 	$status = 1;
 	next;
@@ -222,102 +285,6 @@ foreach my $tag (@ARGV) {
 	print $log;
 	$status = 1;
 	next;
-    }
-
-    # Snapshots of Search::Xapian.
-    if ($tag eq 'trunk') {
-	# We're in $tag/build and Search::Xapian must be bootstrapped in-tree.
-	my $co_dir = "search-xapian";
-	if (! -d "$co_dir/.svn") {
-	    system "chmod", "-R", "+w", $co_dir if -d $co_dir;
-	    system "rm", "-rf", $co_dir;
-	    # Check out the tag into a directory of the same name.
-	    open SVN, "svn co --non-interactive \Q$repourl2\E \Q$co_dir\E 2>&1|" or die $!;
-	    while (<SVN>) {
-		$log .= $_;
-		$lastlog = $_;
-	    }
-	    close SVN or die $!;
-	} else {
-	    # Revert any local changes.
-	    $log = "svn revert:\n".`svn revert -R \Q$co_dir\E 2>&1`."svn up:\n";
-	    open SVN, "svn up --non-interactive \Q$co_dir\E 2>&1|" or die $!;
-	    my $lines = 0;
-	    while (<SVN>) {
-		$log .= $_;
-		$lastlog = $_;
-		++$lines;
-		if (/^C. / || /^.C /) {
-		    # But we just reverted any local changes!
-		    die "A conflict?!  That should be impossible!\n";    
-		}
-	    }
-	    close SVN or die $!;
-#	    next if ($lines <= 1);
-	}
-	my ($revision) = ($lastlog =~ /\b(\d+)\b/);
-
-	open LOG2, ">", "../search-xapian.snapshot.log.$revision" or die $!;
-	# Flush output after every print.
-	my $old_fh = select(LOG2);
-	$| = 1;
-	select($old_fh);
-
-	print LOG2 $log;
-	$log = undef;
-
-#	if ($tag !~ m!^tags/!) {
-#	    # Modify configure.ac files to insert $revision into version string.
-#	    foreach my $configure_ac
-#		(glob("\Q$tag\E/xapian/*/configure.ac"),
-#		 glob("\Q$tag\E/xapian/*/*/configure.ac")) {
-#		open OUT, ">", "tmp.out" or die $!;
-#		open IN, "<", $configure_ac or die $!;
-#		while (<IN>) {
-#		    s/(^AC_INIT\([^,]*,.*?)(\s*[),])/$1_svn$revision$2/g;
-#		    print OUT;
-#		}
-#		close IN or die $!;
-#		close OUT or die $!;
-#		rename "tmp.out", $configure_ac;
-#	    }
-#	}
-
-	chdir "search-xapian" or die $!;
-
-	my $here = `pwd`;
-	chomp($here);
-	$log = `XAPIAN_CONFIG=$here/../xapian-core/xapian-config perl Makefile.PL 2>&1`;
-	print LOG2 $log;
-	if ($?) {
-	    print "*** search-xapian bootstrap failed for '$tag':";
-	    print $log;
-	    $status = 1;
-	    next;
-	}
-	$log = undef;
-
-#	$log = `make disttest 2>&1`;
-#	print LOG2 $log;
-#	if ($?) {
-#	    print "*** make disttest failed for '$tag':";
-#	    print $log;
-#	    $status = 1;
-#	    next;
-#	}
-#	$log = undef;
-
-	$log = `make -s dist 2>&1`;
-	print LOG2 $log;
-	if ($?) {
-	    print "*** make dist failed for '$tag':";
-	    print $log;
-	    $status = 1;
-	    next;
-	}
-	$log = undef;
-
-	chdir "../..";
     }
 
     my $d = "$webbase/oligarchy.co.uk/xapian/$tag";
@@ -374,4 +341,5 @@ foreach my $tag (@ARGV) {
 # Expire logs more than 10 days old
 unlink grep {-M $_ > 10} glob 'snapshot.log.*';
 
+system("/home/olly/bin/plot-sizes");
 exit($status);
