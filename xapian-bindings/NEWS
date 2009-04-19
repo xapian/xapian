@@ -1,37 +1,17 @@
- 12342       olly Sat Apr 04 15:38:16 GMT 2009  Olly Betts <olly@survex.com>
-
-Xapian-bindings 1.0.12 (2009-04-1?):
+Xapian-bindings 1.0.12 (2009-04-19):
 
 Documentation:
 
-General:
-
-Packaging:
-
-Portability:
-
-CSharp:
-
-Guile:
-
-Java:
-
-PHP:
+* INSTALL: Add a note about being able to pass variables to configure to pick
+  which of several parallel installations of a language to build for.
 
 Python:
 
-	* python/pythontest.py: Round the weights returned for the
-	  OP_SCALE_WEIGHT test, to avoid failing due to rounding errors.
+* python/pythontest.py: Round the weights returned for the OP_SCALE_WEIGHT
+  test to avoid failing due to rounding differences.
 
-	* python/testsuite.py: Remove bare except: handlers from testsuite, so
-	  ctrl-C stop the whole testsuite, not just one test.
-
-	* python/docs/index.html: Non-pythonic iterators now being removed
-	  in 1.3.0, not 1.2.0.
-Ruby:
-
-Tcl:
-
+* python/testsuite.py: Remove bare except: handlers from testsuite, so Ctrl-C
+  stop the whole testsuite, not just the currently running testcase.
 
 Xapian-bindings 1.0.11 (2009-03-15):
 
