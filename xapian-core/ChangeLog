@@ -1,3 +1,10 @@
+Sun Apr 19 14:50:08 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_nodb.cc: Stick the reciprocal of "factor" into a
+	  volatile double temporary variable to stop compiler using
+	  extended precision calculation on x86, and coming up an answer of
+	  exactly 1.0 when multiplying by "factor" again.
+
 Sun Apr 19 14:26:09 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS: Sync with 1.0.12 and update from ChangeLog.
