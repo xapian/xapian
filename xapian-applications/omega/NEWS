@@ -1,25 +1,38 @@
- 12267       olly Wed Mar 25 12:35:42 GMT 2009  Olly Betts <olly@survex.com>
+ 12373       olly Thu Apr 16 10:02:44 GMT 2009  Olly Betts <olly@survex.com>
 
-Backport fodder:
+Omega 1.1.0 (2009-04-2?):
 
-HEAD only:
+general:
 
-	* scriptindex.cc: Make deprecated "index=nopos" an error.
+documentation:
 
-	* INSTALL: PCRE required.
-	* docs/omegascript.rst: $transform{} now enabled.  Fixes bug#231.
-	* Makefile.am,configure.ac,query.cc: Add PCRE as a requirement and
-	  add $transform{} command (which has been in the code for ages but
-	  disabled).
+indexers:
 
- 11508       olly 	* configure.ac: Update autoconf requirement to 2.63, libtool to 2.2.6.
+* omindex:
 
- 10852       olly 	* configure.ac: The workaround to avoid probe code for F77, GCJ, and
- 10852       olly 	  RC being added to configure is no longer required now that we're
- 10852       olly 	  using libtool 2.2 so remove it.
+* scriptindex:
 
- 10846       olly 	* Makefile.am,configure.ac: Use AC_CONFIG_MACRO_DIR and
- 10846       olly 	  ACLOCAL_AMFLAGS as libtoolize 2.2.4 recommends.
+  + Make deprecated "index=nopos" an error.
+
+omega:
+
+* New OmegaScript command $transform{} which performs regular expression
+  substitutions using the PCRE library (which is now required to build Omega).
+  (ticket#231)
+
+templates:
+
+testsuite:
+
+build system:
+
+* The build system is now bootstrapped with newer versions of autoconf and
+  libtool which should produce smaller files and speed up configure and
+  make.
+
+portability:
+
+packaging:
 
 Omega 1.0.11 (2009-03-15):
 

@@ -1,3 +1,7 @@
+Mon Apr 20 14:15:41 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog and clean up for release.
+
 Thu Apr 16 10:02:44 GMT 2009  Olly Betts <olly@survex.com>
 
 	* transform.cc: Fix off-by-one error - the return value of pcre_exec()
