@@ -21,9 +21,9 @@
 #include <config.h>
 
 #include "synonympostlist.h"
+
 #include "branchpostlist.h"
-#include "omassert.h"
-#include "omdebug.h"
+#include "debuglog.h"
 
 SynonymPostList::SynonymPostList(PostList *subtree_,
 				 MultiMatch * matcher_)
@@ -43,7 +43,7 @@ SynonymPostList::~SynonymPostList()
 void
 SynonymPostList::set_weight(const Xapian::Weight * wt_)
 {
-    delete(wt);
+    delete wt;
     wt = wt_;
     want_doclength = wt_->get_sumpart_needs_doclength_();
 }
@@ -59,7 +59,7 @@ SynonymPostList::next(Xapian::weight w_min)
 PostList *
 SynonymPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 {
-    DEBUGCALL(MATCH, PostList *, "SynonymPostList::skip_to", did << ", " << w_min);
+    LOGCALL(MATCH, PostList *, "SynonymPostList::skip_to", did << ", " << w_min);
     skip_to_handling_prune(subtree, did, w_min, matcher);
     RETURN(NULL);
 }

@@ -1,3 +1,9 @@
+Mon Apr 20 10:03:07 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/synonympostlist.cc: Doesn't need "omassert.h".  Use modern
+	  debug logging header and macros.  Don't bracket argument to delete
+	  as we don't anywhere else.
+
 Mon Apr 20 07:15:06 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: Push calculation into the else branch where
