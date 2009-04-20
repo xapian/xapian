@@ -1292,8 +1292,8 @@ This is a (hopefully complete) list of the jobs which need doing:
 * Add a new milestone for the version after this one:
   http://trac.xapian.org/admin/ticket/milestones
 
-  Check that any bugs with milestone set to the release being made are either
-  closed or updated to the milestone you just added.
+* Mark the current milestone as completed.  In order to do so, any unfixed bugs
+  with this milestone will need to be updated to the milestone you just added.
 
 * Update the website: version.php in the CVS module www.xapian.org contains the
   latest version and the date it was released.
@@ -1313,7 +1313,7 @@ This is a (hopefully complete) list of the jobs which need doing:
   estimated release date.
 
 * Update the freshmeat entry at:
-  http://freshmeat.net/add-release/40427/43070/
+  http://freshmeat.net/projects/xapian/releases/new
 
 * Announce the new version on xapian-discuss
 
