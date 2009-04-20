@@ -1,3 +1,9 @@
+ 12405       olly Mon Apr 20 05:21:48 GMT 2009  Olly Betts <olly@survex.com>
+
+* Fix testcase scaleweight4 not to fail on x86 when compiled with -O0.  The
+  problem was in the testcase code, and was caused by excess precision in
+  intermediate FP values.
+
 Xapian-core 1.0.12 (2009-04-19):
 
 API:
