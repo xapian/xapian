@@ -34,7 +34,13 @@ Xapian.
 
 --enable-log=profile
 	This enables compiling code into the library which reports to stderr
-	how long each method takes to execute.
+	how long each method takes to execute.  The profiling machinery tries
+	to discount time spent in itself, but it will affect code generation
+	and cache use, and this feature is implemented by using the logging
+	macros so it only knows about functions and methods which have them, so
+	it is probably more invasive and the output less helpful than dedicated
+	profiling tools.  However, it may be useful and isn't much extra code
+	to maintain, so we've kept it around for now.
 
 --enable-maintainer-mode
 	This tells configure to enable make dependencies for regenerating build
@@ -1301,10 +1307,13 @@ This is a (hopefully complete) list of the jobs which need doing:
 
   Create a new page http://wiki.xapian.org/ReleaseNotes/X.Y.Z and link it into
   http://wiki.xapian.org/ReleaseNotes in place of the old current release link,
-  which should be moved to the archived section.
+  which should be moved to the archived section.  Also update
+  http://wiki.xapian.org/RoadMap to record the date of the release and the
+  estimated date for the next release.
 
   Also update the roadmap at http://wiki.xapian.org/RoadMap by recording the
-  date of this release and an estimated date for the next release.
+  date of this release and adding an entry for the next release with an
+  estimated release date.
 
 * Update the freshmeat entry at:
   http://freshmeat.net/add-release/40427/43070/
