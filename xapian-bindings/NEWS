@@ -1,4 +1,4 @@
- 12287       olly Fri Mar 27 03:27:03 GMT 2009  Olly Betts <olly@survex.com>
+ 12386       olly Sat Apr 18 08:25:11 GMT 2009  Olly Betts <olly@survex.com>
 
 backport fodder:
 
@@ -212,6 +212,21 @@ Python now flags deprecation warnings for the single argument and old parameter
 	  built-in match decider defined there can be used.
 	* php/smoketest.php,python/pythontest.py: Add tests that
 	  ValueSetMatchDecider works in python and PHP.
+
+Xapian-bindings 1.0.12 (2009-04-19):
+
+Documentation:
+
+* INSTALL: Add a note about being able to pass variables to configure to pick
+  which of several parallel installations of a language to build for.
+
+Python:
+
+* python/pythontest.py: Round the weights returned for the OP_SCALE_WEIGHT
+  test to avoid failing due to rounding differences.
+
+* python/testsuite.py: Remove bare except: handlers from testsuite, so Ctrl-C
+  stop the whole testsuite, not just the currently running testcase.
 
 Xapian-bindings 1.0.11 (2009-03-15):
 

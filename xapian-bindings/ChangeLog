@@ -1,3 +1,7 @@
+Mon Apr 20 14:23:47 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Sync changes from 1.0.12.
+
 Sat Apr 18 08:25:11 GMT 2009  Olly Betts <olly@survex.com>
 
 	* INSTALL: Speak of 0.9.3 in the past tense.  Add a note about being
