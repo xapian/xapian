@@ -51,7 +51,7 @@ SynonymPostList::set_weight(const Xapian::Weight * wt_)
 PostList *
 SynonymPostList::next(Xapian::weight w_min)
 {
-    DEBUGCALL(MATCH, PostList *, "SynonymPostList::next", w_min);
+    LOGCALL(MATCH, PostList *, "SynonymPostList::next", w_min);
     next_handling_prune(subtree, w_min, matcher);
     RETURN(NULL);
 }
