@@ -1,3 +1,11 @@
+Mon Apr 20 05:21:26 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/api_nodb.cc: Stick the reciprocal of "factor" into a
+	  volatile double temporary variable to stop compiler using
+	  extended precision calculation on x86, and coming up an answer of
+	  exactly 1.0 when multiplying by "factor" again.
+
 Mon Apr 20 02:26:30 GMT 2009  Olly Betts <olly@survex.com>
 
 	* HACKING: Copy appropriate changes back from trunk.
