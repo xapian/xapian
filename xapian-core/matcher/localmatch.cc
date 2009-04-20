@@ -117,11 +117,11 @@ LocalSubMatch::make_synonym_postlist(PostList * or_pl, MultiMatch * matcher,
 {
     DEBUGCALL(MATCH, PostList *, "LocalSubMatch::make_synonym_postlist",
 	      "[or_pl], [matcher], " << factor);
-    LOGLINE(MATCH, "or_pl->get_termfreq() = " << or_pl->get_termfreq_est());
+    LOGVALUE(MATCH, or_pl->get_termfreq_est());
     AutoPtr<SynonymPostList> res(new SynonymPostList(or_pl, matcher));
     AutoPtr<Xapian::Weight> wt(wt_factory->clone_());
 
-    wt->init_(*stats, qlen, "", 1, factor,
+    wt->init_(*stats, qlen, string(), 1, factor,
 	      or_pl->get_termfreq_est(),
 	      0 // FIXME - calculate the reltermfreq to use
 	      );
