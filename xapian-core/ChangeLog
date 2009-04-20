@@ -1,3 +1,8 @@
+Mon Apr 20 06:39:42 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Apply debug logging change lifted from
+	  branches/opsynonym.
+
 Mon Apr 20 05:22:24 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/harness/testutils.cc: Add FIXME comments about use of internal
