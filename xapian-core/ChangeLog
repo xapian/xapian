@@ -1,3 +1,8 @@
+Mon Apr 20 07:15:06 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Push calculation into the else branch where
+	  it is actually used.
+
 Mon Apr 20 07:12:23 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/localmatch.cc: Use LOGVALUE(), fixing typo in method name in

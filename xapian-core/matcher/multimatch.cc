@@ -782,10 +782,10 @@ new_greatest_weight:
 		LOGVALUE(MATCH, denom);
 		LOGVALUE(MATCH, percent_scale);
 		Assert(percent_scale <= denom);
-		denom *= greatest_wt;
 		if (denom == 0) {
 		    percent_scale = 1.0 / greatest_wt;
 		} else {
+		    denom *= greatest_wt;
 		    Assert(denom > 0);
 		    percent_scale /= denom;
 		}
