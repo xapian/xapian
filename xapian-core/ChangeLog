@@ -1,3 +1,7 @@
+Mon Apr 20 13:06:17 GMT 2009  Olly Betts <olly@survex.com>
+
+	* HACKING: XAPIAN_DEBUG_LOG=- send output to stderr, not stdout.
+
 Mon Apr 20 11:53:07 GMT 2009  Olly Betts <olly@survex.com>
 
 	* common/output.h: Add new macro XAPIAN_OUTPUT_FUNCTION_PTR and use it
