@@ -1,3 +1,9 @@
+Mon Apr 20 11:53:07 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/output.h: Add new macro XAPIAN_OUTPUT_FUNCTION_PTR and use it
+	  so that debug logging of Xapian::Query::Internal* doesn't just
+	  report the pointer value.
+
 Mon Apr 20 06:39:42 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: Apply debug logging change lifted from
