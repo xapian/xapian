@@ -1,99 +1,6 @@
- 12377       olly Thu Apr 16 12:08:24 GMT 2009  Olly Betts <olly@survex.com>
-
-Potential backport fodder:
-
-Sort out use of internal macro from different file?
- 12272    richard 	* tests/harness/testutils.cc: Use TEST_EQUAL_DOUBLE_ for comparison
- 12272    richard 	  of weights in mset, to fix test failures due to floating point
- 12272    richard 	  differences.  (Currently only manifests in some tests in the
- 12272    richard 	  matchspy branch, but it's a generally useful fix.)
-
- * bin/xapian-check.cc,bin/xapian-check-flint.cc: Don't stop checking
-   a table after an error in certain cases - instead increment the
-   error counter and try to continue checking from the next item.
+ 12416       olly Mon Apr 20 13:06:17 GMT 2009  Olly Betts <olly@survex.com>
 
 trunk only:
-
- 12352       olly Thu Apr 09 03:49:13 GMT 2009  Olly Betts <olly@survex.com>
-	* bin/: Use C++ forms of C headers in bin (ticket#330).
- 12351       olly Thu Apr 09 03:47:42 GMT 2009  Olly Betts <olly@survex.com>
-	* examples/: Use C++ forms of C headers in examples (ticket#330).
-
-* include/xapian/unicode.h: Add NON_SPACING_MARK to is_wordchar() for
-      better tokenisation of Arabic, for example.  (ticket#355)
-(rather than the 1.0 solution of making NON_SPACING_MARK a phrase generator).
-
- 12309    richard 	* api/postingsource.cc,include/xapian/postingsource.h: Change
- 12309    richard 	  return types of clone() and unserialise() methods to be of the
- 12309    richard 	  subclass returned; this is a bit more flexible, but the main
- 12309    richard 	  reason is to be consistent: previously, the clone() methods
- 12309    richard 	  returned the subclass, but the unserialise() methods returned
- 12309    richard 	  PostingSource.
-
- 12308    richard 	* include/xapian/postingsource.h: Add comment on PostingSource base
- 12308    richard 	  class listing it as an experimental feature.
- 12308    richard 	* docs/deprecation.rst: Describe what "experimental" features are,
- 12308    richard 	  and why replication and posting sources are currently
- 12308    richard 	  experimental.
-
-* The library is now libxapian-1.1; xapian.m4 is now xapian-1.1.m4; headers now in $prefix/include/xapian-1.1
-  to allow easy parallel installs.  If you use XO_LIB_XAPIAN or xapian-config, this should all be transparent.
-* configure.ac: Default program suffix to -1.1 if not specified.  If
-  you really want no suffix, "./configure --program-suffix=" will
-  achieve that.
-
- 12232       olly 	* backends/chert/chert_database.cc,backends/flint/flint_database.cc,
- 12232       olly 	  backends/inmemory/inmemory_database.cc,
- 12232       olly 	  backends/inmemory/inmemory_positionlist.cc,
- 12232       olly 	  common/inmemory_positionlist.h,docs/deprecation.rst,
- 12232       olly 	  tests/api_posdb.cc: Change Database::positionlist_begin() not to
- 12232       olly 	  throw exceptions if the term or document doesn't exist.
-
- 11701       olly 	* common/expandweight.h,expand/expandweight.cc: Overhaul ExpandWeight
- 11701       olly 	  - now we use the "official" formula and don't return terms which it
- 11701       olly 	  would give a negative weight to (since that means they are expected
- 11701       olly 	  to be harmful not helfpul).
- 11701       olly 	* tests/api_anydb.cc,tests/api_db.cc: Fix unwarranted assumptions in
- 11701       olly 	  existing testcases broken by this change.
-
-* Faster integer to string functions inside the library (will speed up a debug
-  build particularly).
-
- 12153       olly 	  net/remoteserver.cc: Internally, pass around non-normalised document
- 12153       olly 	  lengths as Xapian::termcount (unsigned integer) not Xapian::doclength
- 12153       olly 	  (double). (3% speedup for 10 term OR queries!)
-
- 12151       olly 	  net/serialise.cc,tests/,weight/: Reimplementation of weighting
- 12151       olly 	  schemes which allows user subclasses to access the same stats which
- 12151       olly 	  built in schemes can (bug#213) and which also can use lower and
- 12151       olly 	  upper bounds of doclength and upper bounds on wdf to give a tighter
- 12151       olly 	  maxweight, which should allow the matcher weight-based optimisations
- 12151       olly 	  to be more effective.  Chert now tracks doclength bounds and a
- 12151       olly 	  global (rather than per term) bound on wdf.  Other backends
- 12151       olly 	  return much less good bounds, but these still lead to better
- 12151       olly 	  maxweight bounds.
-
- 12065       olly 	  Change the remote server to always default to opening a Database and
- 12065       olly 	  having the client request write access explicitly.  This allows a
- 12065       olly 	  single server to support multiple readers and one writer
- 12065       olly 	  simultaneously.  (bug#145)
- 
-This code is currently not compiled on trunk:
-	* api/matchspy.cc: Fix FP rounding bug (bug#321).
-	* AUTHORS: Add Shane Evans for bug report.
-
-	* include/xapian/database.h: Add Database.close() method, used to
-	  close the resources (in particular, the filehandles) held by a
-	  database before the destructor is called.  Particularly useful
-	  for the bindings from other languages.
-
- 12017    richard 	* docs/deprecation.rst: Deprecate Stem_get_available_languages()
- 12017    richard 	  from the python bindings.
-
- 11534       olly 	* backends/Makefile.mk,backends/slowvaluelist.cc,
- 11534       olly 	  backends/slowvaluelist.h: Support for (slowly) iterating along a
- 11534       olly 	  value stream for backends which don't support streamed values
- 11534       olly 	  internally (currently unused).
 
 Xapian-core 1.1.0 (2009-04-??):
 
@@ -103,13 +10,32 @@ API:
   removed.  For details, and suggested updates, see deprecation.html.
 
 * The Unicode character categorisation functions have been updated from
-  Unicode 5.0 to Unicode 5.1.
+  Unicode 5.0 to 5.1.
 
- 11539       olly 	  Reimplement ValueIterator to have reference counted internals.  One
- 11539       olly 	  benefit is that Document::Internal no longer need its value_nos map
- 11539       olly 	  member.
+* Add NON_SPACING_MARK to is_wordchar() for better tokenisation of languages
+  which use such marks (for example, Arabic).  (ticket#355)
 
-11369+11391:
+(rather than the 1.0 solution of making NON_SPACING_MARK a phrase generator).
+
+* Reimplementation of weighting schemes which allows user subclasses to access
+  the same stats which built in schemes can (bug#213) and which also can use
+  lower and upper bounds of doclength and upper bounds on wdf to give a tighter
+  maxweight, which should allow the matcher weight-based optimisations to be
+  more effective.  Chert now tracks doclength bounds and a global (rather than
+  per term) bound on wdf.  Other backends return much less tight bounds, but
+  these still lead to better maxweight bounds.
+
+* Enquire::get_eset() now uses the "official" formula and doesn't return terms
+  which would get a negative weight from it (since that means they are expected
+  to be harmful not helfpul).
+
+* Add Database::close() method, used to close the resources (in particular, the
+  filehandles) held by a database before the destructor is called.
+  Particularly useful for the bindings from other languages.
+
+* Change Database::positionlist_begin() not to throw exceptions if the term or
+  document doesn't exist.
+
 * Xapian databases now have a UUID, readable with Database::get_uuid().
 
 * A new Database replication API has been added (currently experimental).
@@ -131,16 +57,12 @@ API:
 * Add support for "inmemory" to stub database (it's useful now they can be
   writable).
 
- 11039       olly 	* backends/Makefile.mk,backends/database.cc,backends/dbfactory.cc,
- 11039       olly 	  common/database.h,include/xapian/dbfactory.h: Add new
- 11039       olly 	  Auto::open_stub() overload which opens a stub database file
- 11039       olly 	  containing a single entry as a WritableDatabase.  Move the
- 11039       olly 	  non-remote database factory API functions from backends/database.cc
- 11039       olly 	  to new file backends/dbfactory.cc, leaving the former solely for
- 11039       olly 	  methods of Database::Internal.  A stub database file is now allowed
- 11039       olly 	  to contain no database entries, which results in an empty Database
- 11039       olly 	  object (this avoids user code having to special case to handle "0 or
- 11039       olly 	  more" databases).
+* Add new Auto::open_stub() overload which opens a stub database file
+  containing a single entry as a WritableDatabase.  
+
+* A stub database file is now allowed to contain no database entries, which
+  results in an empty Database object (this avoids user code having to special
+  case to handle "0 or more" databases).
 
 * Change definition of MSet::get_termfreq() such that it will fall back to
   looking the term frequency up in the database rather than raising an
@@ -154,28 +76,31 @@ API:
   passed a set of values to look for in documents, and selects documents based
   on the presence of those values.
 
-	  Xapian::PostingSource.
-	* api/postingsource.cc,include/xapian/postingsource.h,tests/api_db.cc,
-	  tests/harness/index_utils.cc: Add ValueWeightPostingSource, which
-	  reads a value, applies sortable_unserialise() to it, and returns
-	  that as its weight contribution for each document.
+* Xapian::PostingSource, and subclasses: ValueWeightPostingSource, ... FIXME
 
-	* include/xapian/database.h: Add get_value_freq(),
-	  get_value_lower_bound() and get_value_upper_bound() methods to
-	  Database, to get statistics about the values stored in a slot.
-	  Add support for the value statistics methods
-	  to chert, inmemory, multi and remote databases.
+* Database: Add get_value_freq(), get_value_lower_bound() and
+  get_value_upper_bound() methods to get statistics about the values stored in
+  a slot.  Add support for the value statistics methods to chert, inmemory,
+  multi and remote databases.
 
 * Enquire::get_eset() now faster for large ESet size.
 
 * Xapian::Document objects now have a reduced memory footprint.
 
-	  tests/api_collapse.cc: Replace the collapsing code in the matcher
-	  with a separate Collapser class.  This new class can keep more than
-	  one document with each collapse key.  Also track bounds and an
-	  estimate of the total number of matches if collapsing wasn't in use.
+* Enquire::set_collapse_key() now allows you to specify a maximum number of
+  matches with each collapse key to keep (which defaults to 1, giving the
+  previous behaviour).  Enquire can now report track bounds and an estimate of
+  what the total number of matches would be if collapsing wasn't in use.
 
-* WritableDatabase::commit() is a new, preferred alias for WritableDatabase::flush().  (bug#266)
+* WritableDatabase::commit() is a new, preferred alias for
+  WritableDatabase::flush().  (bug#266)
+
+* Add methods for serialising documents and queries into strings, and
+  unserialising back from strings.  #206
+ 
+* Internally, pass around non-normalised document lengths as Xapian::termcount
+  (unsigned integer) not Xapian::doclength (double). (3% speedup for 10 term OR
+  queries!)
 
 testsuite:
 
@@ -199,12 +124,7 @@ testsuite:
 	  chert).  Change return type of BackendManager::get_dbtype() to a
 	  string instead of a const char *, to allow backend managers which
 	  have subtypes to generate the result dynamically.
-	* tests/harness/backendmanager_remote.cc,
-	  tests/harness/backendmanager_remote.h,
-	  tests/harness/backendmanager_remoteprog.cc,
-	  tests/harness/backendmanager_remoteprog.h,
-	  tests/harness/backendmanager_remotetcp.cc,
-	  tests/harness/backendmanager_remotetcp.h: Add new
+	* Add new
 	  BackendManagerRemote class as a common base for the two remote
 	  backend managers, and move duplicated code into it.  Add
 	  parameter to its constructor, and to the constructors of the
@@ -224,14 +144,10 @@ testsuite:
 	  test runner - these can currently occur when neither flint or
 	  chert are compiled in.
 
-	* tests/harness/: Wait for subprocesses to finish at end of tests,
+* tests/harness/: Wait for subprocesses to finish at end of tests,
 	  with remotetcp backend, to avoid test failures due to final flush
 	  of a subprocess writing to the database used for the next test.
 
- 11829    richard 	* api/omdocument.cc,api/omquery.cc,include/xapian/document.h,
- 11829    richard 	  include/xapian/query.h: Add methods for serialising documents and
- 11829    richard 	  queries into strings, and unserialising back from strings.  #206
- 
 matcher:
 
 chert backend:
@@ -262,7 +178,7 @@ chert backend:
 
 flint backend:
 
-	* backends/flint/: Improve reporting of failures to obtain lock due
+* Improve reporting of failures to obtain lock due
 	  to unexpected errors - the error messages included in the
 	  exceptions raised are now more verbose in many situations.  Also,
 	  if the lock can't be obtained when a database is being created,
@@ -270,8 +186,9 @@ flint backend:
 	  useful to know that the lock attempt failed than that the
 	  database wasn't present before the attempt to create it.
 
-quartz backend:
-
+ * bin/xapian-check.cc,bin/xapian-check-flint.cc: Don't stop checking
+   a table after an error in certain cases - instead increment the
+   error counter and try to continue checking from the next item.
 
 remote backend:
 
@@ -281,16 +198,28 @@ remote backend:
   with new servers.  If upgrading a live system, you will need to take this
   into account.
 
+* The remote servers now always default to opening a Database and the client
+  has to send a protocol message to explicitly request write access.  This
+  allows a single server to support multiple readers and one writer
+  simultaneously.  (bug#145)
+ 
 * Database::get_document() no longer does an unnecessary copy of the document's
   values.
 
- 12010    richard 	* api/omqueryinternal.cc: Change serialisation of queries to use
- 12010    richard 	  encode_length() rather than om_tostring(), for a more compact and
- 12010    richard 	  easier to parse representation.
+* Change serialisation of queries to use encode_length() rather than
+  om_tostring(), for a more compact and easier to parse representation.
 
 inmemory backend:
 
 build system:
+
+* To allow installations of Xapian 1.0 and 1.1 to easily coexist, the library
+  is now libxapian-1.1; xapian.m4 is now xapian-1.1.m4; headers are now
+  installed in $prefix/include/xapian-1.1.  If you use XO_LIB_XAPIAN or
+  xapian-config as we recommend, this should all be transparent.  Also
+  programs and scripts have a default program suffix to -1.1 unless overridden
+  using the --program-suffix argument to configure (if you really want no
+  suffix, "./configure --program-suffix=" will achieve this).
 
 	  Move all information about particular autoconf and automake versions
 	  to HACKING.
@@ -308,31 +237,28 @@ build system:
 	* xapian-core.spec.in: We no longer need to run autoreconf to work
 	  around libtool's incomplete sys_lib_dlsearch_path_spec or to pick
 	  up distro-specific patches for link_all_deplibs.
-	* Makefile.am,acinclude.m4,autoconf/dir_contents,
-	  autoconf/rjb_find_stlport.m4,autoconf/type_socklen_t.m4,
-	  m4/dir_contents,m4/rjb_find_stlport.m4,m4/type_socklen_t.m4: Move
-	  the m4 macros which we ship for building configure from into the m4
-	  subdirectory and remove acinclude.m4 - now aclocal will pull in the
-	  required macros automatically.
-	* m4-macros/dir_contents,m4-macros/xapian.m4,m4/dir_contents,
-	  m4/xapian.m4: Move xapian.m4 to a new subdirectory (m4-macros) since
-	  libtoolize now installs m4 files into subdirectory m4 which we don't
-	  really want picking up by applications building against an
-	  uninstalled xapian-core.
 
- 11120       olly 	* configure.ac: Remove code which checks for --enable-debug and
- 11120       olly 	  --enable-debug-verbose (deprecated since 1.0.0) and gives an error
- 11120       olly 	  pointing to the replacements.
- 11120       olly 	* docs/deprecation.rst: Document the replacements here.
+* configure: --enable-debug and --enable-debug-verbose have been deprecated
+  since 1.0.0, so remove specific errors pointing to the replacements.
 
 documentation:
 
-	* docs/doxygen_api_conf.in,docs/doxygen_full_conf.in: Disable
-	  "JAVADOC_AUTOBRIEF" since we always try to write a brief
-	  description explicitly, and it causes problems in some cases.
+* Disable "JAVADOC_AUTOBRIEF" in doxygen configuration since we always try to
+  write a brief description explicitly, and JAVADOC_AUTOBRIEF causes problems
+  in some cases.
+
+* include/xapian/postingsource.h: Add comment on PostingSource base
+  class listing it as an experimental feature.
+* docs/deprecation.rst: Describe what "experimental" features are,
+  and why replication and posting sources are currently
+  experimental.
+
+* docs/deprecation.rst: Deprecate Stem_get_available_languages() from the
+  python bindings.
 
 examples:
 
+* Use C++ forms of C headers in examples (ticket#330).
 
 portability:
 
@@ -342,8 +268,15 @@ packaging:
 
 debug code:
 
+	* common/output.h: Add new macro XAPIAN_OUTPUT_FUNCTION_PTR and use it
+	  so that debug logging of Xapian::Query::Internal* doesn't just
+	  report the pointer value.
+
 * The debug logging framework has been overhauled.  See HACKING for details
   of how it now works.
+
+* Faster integer to string functions inside the library (this will particularly
+  speed up debug logging as that converts a lot of integers to strings).
 
 Xapian-core 1.0.12 (2009-04-19):
 

@@ -1,3 +1,8 @@
+Mon Apr 20 14:10:08 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog and start to lick into shape for a
+	  release.
+
 Mon Apr 20 13:06:17 GMT 2009  Olly Betts <olly@survex.com>
 
 	* HACKING: XAPIAN_DEBUG_LOG=- send output to stderr, not stdout.
