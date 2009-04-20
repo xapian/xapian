@@ -1,3 +1,10 @@
+Mon Apr 20 12:16:28 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/localmatch.cc,matcher/queryoptimiser.cc: Drop
+	  "->get_description()" from debug logging of Xapian::Query::Internal*
+	  parameters.  The next merge from trunk will bring in an overload
+	  of operator<< which will call get_description() implicitly for us.
+
 Mon Apr 20 10:06:00 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/synonympostlist.cc: Oops, missed a DEBUGCALL->LOGCALL.

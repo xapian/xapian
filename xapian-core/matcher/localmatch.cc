@@ -135,7 +135,7 @@ LocalSubMatch::postlist_from_op_leaf_query(const Xapian::Query::Internal *query,
 					   double factor)
 {
     DEBUGCALL(MATCH, PostList *, "LocalSubMatch::postlist_from_op_leaf_query",
-	      query->get_description() << ", " << factor);
+	      query << ", " << factor);
     Assert(query);
     AssertEq(query->op, Xapian::Query::Internal::OP_LEAF);
     Assert(query->subqs.empty());

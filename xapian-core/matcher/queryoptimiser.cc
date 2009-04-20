@@ -54,7 +54,7 @@ PostList *
 QueryOptimiser::do_subquery(const Xapian::Query::Internal * query, double factor)
 {
     DEBUGCALL(MATCH, PostList *, "QueryOptimiser::do_subquery",
-	      query->get_description() << ", " << factor);
+	      query << ", " << factor);
 
     // Handle QueryMatchNothing.
     if (!query) RETURN(new EmptyPostList);
@@ -154,7 +154,7 @@ PostList *
 QueryOptimiser::do_and_like(const Xapian::Query::Internal *query, double factor)
 {
     DEBUGCALL(MATCH, PostList *, "QueryOptimiser::do_and_like",
-	      query->get_description() << ", " << factor);
+	      query << ", " << factor);
 
     list<PosFilter> pos_filters;
     vector<PostList *> plists;
@@ -204,8 +204,7 @@ QueryOptimiser::do_and_like(const Xapian::Query::Internal *query, double factor,
 			    list<PosFilter> & pos_filters)
 {
     DEBUGCALL(MATCH, void, "QueryOptimiser::do_and_like",
-	      query->get_description() << ", " <<
-	      factor << ", [and_plists], [pos_filters],");
+	      query << ", " << factor << ", [and_plists], [pos_filters]");
 
     Xapian::Query::Internal::op_t op = query->op;
     Assert(is_and_like(op));
@@ -308,7 +307,7 @@ PostList *
 QueryOptimiser::do_or_like(const Xapian::Query::Internal *query, double factor)
 {
     DEBUGCALL(MATCH, PostList *, "QueryOptimiser::do_or_like",
-	      query->get_description() << ", " << factor);
+	      query << ", " << factor);
 
     // FIXME: we could optimise by merging OP_ELITE_SET and OP_OR like we do
     // for AND-like operations.
@@ -403,7 +402,7 @@ PostList *
 QueryOptimiser::do_synonym(const Xapian::Query::Internal *query, double factor)
 {
     DEBUGCALL(MATCH, PostList *, "QueryOptimiser::do_synonym",
-	      query->get_description() << ", " << factor);
+	      query << ", " << factor);
 
     if (factor == 0.0) {
 	// If we have a factor of 0, we don't care about the weights, so
