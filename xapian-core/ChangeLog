@@ -1,3 +1,8 @@
+Tue Apr 21 03:20:25 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/synonympostlist.h: Add file doxygen comments.  Remove unused
+	  '#include <vector>'.  Indent class contents by one level not two.
+
 Mon Apr 20 12:16:28 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/localmatch.cc,matcher/queryoptimiser.cc: Drop

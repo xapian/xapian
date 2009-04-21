@@ -1,6 +1,7 @@
-/* synonympostlist.h: Combine subqueries, weighting as if they are synonyms
- *
- * Copyright 2007 Lemur Consulting Ltd
+/** @file synonympostlist.h
+ * @brief Combine subqueries, weighting as if they are synonyms
+ */
+/* Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +23,6 @@
 
 #include "multimatch.h"
 #include "postlist.h"
-#include <vector>
 
 /** A postlist comprising several postlists SYNONYMed together.
  *
@@ -31,57 +31,57 @@
  *  portion of the weight is approximated.
  */
 class SynonymPostList : public PostList {
-    private:
-	/** The subtree, which starts as an OR of all the sub-postlists being
-	 *  joined with Synonym, but may decay into something else.
-	 */
-	PostList * subtree;
+    /** The subtree, which starts as an OR of all the sub-postlists being
+     *  joined with Synonym, but may decay into something else.
+     */
+    PostList * subtree;
 
-	/** The object which is using this postlist to perform
-	 *  a match.  This object needs to be notified when the
-	 *  tree changes such that the maximum weights need to be
-	 *  recalculated.
-	 */
-	MultiMatch *matcher;
+    /** The object which is using this postlist to perform a match.
+     *
+     *  This object needs to be notified when the tree changes such that the
+     *  maximum weights need to be recalculated.
+     */
+    MultiMatch *matcher;
 
-	/** Weighting object used for calculating the synonym weights.
-	 */
-	const Xapian::Weight * wt;
+    /** Weighting object used for calculating the synonym weights.
+     */
+    const Xapian::Weight * wt;
 
-	/** Flag indicating whether the weighting object needs the doclength.
-	 */
-	bool want_doclength;
+    /** Flag indicating whether the weighting object needs the doclength.
+     */
+    bool want_doclength;
 
-    public:
-	SynonymPostList(PostList *subtree_, MultiMatch * matcher_);
-        ~SynonymPostList();
+  public:
+    SynonymPostList(PostList *subtree_, MultiMatch * matcher_);
 
-	/** Set the weight object to be used for the synonym postlist.
-	 *
-	 *  Ownership of the weight object passes to the synonym postlist - the
-	 *  caller must not delete it after use.
-	 */
-	void set_weight(const Xapian::Weight * wt_);
+    ~SynonymPostList();
 
-	PostList *next(Xapian::weight w_min);
-	PostList *skip_to(Xapian::docid did, Xapian::weight w_min);
+    /** Set the weight object to be used for the synonym postlist.
+     *
+     *  Ownership of the weight object passes to the synonym postlist - the
+     *  caller must not delete it after use.
+     */
+    void set_weight(const Xapian::Weight * wt_);
 
-	Xapian::weight get_weight() const;
-	Xapian::weight get_maxweight() const;
-	Xapian::weight recalc_maxweight();
+    PostList *next(Xapian::weight w_min);
+    PostList *skip_to(Xapian::docid did, Xapian::weight w_min);
 
-	// The following methods just call through to the subtree.
-	Xapian::termcount get_wdf() const;
-	Xapian::doccount get_termfreq_min() const;
-	Xapian::doccount get_termfreq_est() const;
-	Xapian::doccount get_termfreq_max() const;
-	Xapian::docid get_docid() const;
-	Xapian::termcount get_doclength() const;
-	PositionList * read_position_list();
-	PositionList * open_position_list() const;
-	bool at_end() const;
+    Xapian::weight get_weight() const;
+    Xapian::weight get_maxweight() const;
+    Xapian::weight recalc_maxweight();
 
-	std::string get_description() const;
+    // The following methods just call through to the subtree.
+    Xapian::termcount get_wdf() const;
+    Xapian::doccount get_termfreq_min() const;
+    Xapian::doccount get_termfreq_est() const;
+    Xapian::doccount get_termfreq_max() const;
+    Xapian::docid get_docid() const;
+    Xapian::termcount get_doclength() const;
+    PositionList * read_position_list();
+    PositionList * open_position_list() const;
+    bool at_end() const;
+
+    std::string get_description() const;
 };
 
 #endif /* XAPIAN_INCLUDED_SYNONYMPOSTLIST_H */
