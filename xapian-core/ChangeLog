@@ -1,3 +1,7 @@
+Tue Apr 21 11:05:17 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* NEWS: A few minor corrections and adjustments.
+
 Tue Apr 21 07:49:49 GMT 2009  Olly Betts <olly@survex.com>
 
 	* include/xapian/weight.h: Don't use the term "term" to talk about the

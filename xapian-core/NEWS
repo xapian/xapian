@@ -15,7 +15,7 @@ API:
 * Add NON_SPACING_MARK to is_wordchar() for better tokenisation of languages
   which use such marks (for example, Arabic).  (ticket#355)
 
-(rather than the 1.0 solution of making NON_SPACING_MARK a phrase generator).
+  (rather than the 1.0 solution of making NON_SPACING_MARK a phrase generator).
 
 * Reimplementation of weighting schemes which allows user subclasses to access
   the same stats which built in schemes can (bug#213) and which also can use
@@ -27,7 +27,7 @@ API:
 
 * Enquire::get_eset() now uses the "official" formula and doesn't return terms
   which would get a negative weight from it (since that means they are expected
-  to be harmful not helfpul).
+  to be harmful not helpful).
 
 * Add Database::close() method, used to close the resources (in particular, the
   filehandles) held by a database before the destructor is called.
@@ -76,7 +76,12 @@ API:
   passed a set of values to look for in documents, and selects documents based
   on the presence of those values.
 
-* Xapian::PostingSource, and subclasses: ValueWeightPostingSource, ... FIXME
+* Add new Xapian::PostingSource interface to allow passing custom sources
+  of postings and weights to the matcher (currently experimental).
+  
+* Built-in PostingSource subclasses: ValuePostingSource,
+  ValueWeightPostingSource, ValueMapPostingSource,
+  FixedWeightPostingSource (also experimental).
 
 * Database: Add get_value_freq(), get_value_lower_bound() and
   get_value_upper_bound() methods to get statistics about the values stored in
@@ -89,8 +94,9 @@ API:
 
 * Enquire::set_collapse_key() now allows you to specify a maximum number of
   matches with each collapse key to keep (which defaults to 1, giving the
-  previous behaviour).  Enquire can now report track bounds and an estimate of
-  what the total number of matches would be if collapsing wasn't in use.
+  previous behaviour).  Enquire can now track and report bounds and an
+  estimate of what the total number of matches would be if collapsing
+  wasn't in use.
 
 * WritableDatabase::commit() is a new, preferred alias for
   WritableDatabase::flush().  (bug#266)
@@ -98,10 +104,6 @@ API:
 * Add methods for serialising documents and queries into strings, and
   unserialising back from strings.  #206
  
-* Internally, pass around non-normalised document lengths as Xapian::termcount
-  (unsigned integer) not Xapian::doclength (double). (3% speedup for 10 term OR
-  queries!)
-
 testsuite:
 
 	* Add new testsuite "perftest", which is
@@ -117,7 +119,7 @@ testsuite:
 * stemtest: No longer checks environment variables OM_STEMTEST_SKIP_RANDOM,
   OM_STEMTEST_LANGUAGES, and OM_STEMTEST_SEED.
 
-	* rests/harness/: Make flint and chert subtypes for the remote and
+	* tests/harness/: Make flint and chert subtypes for the remote and
 	  multi backend types.  These are specified (on the command line
 	  and elsewhere) by the main type (multi, remotetcp or remoteprog),
 	  followed by an underscore, followed by the subtype (flint or
@@ -149,6 +151,10 @@ testsuite:
 	  of a subprocess writing to the database used for the next test.
 
 matcher:
+
+* Internally, pass around non-normalised document lengths as Xapian::termcount
+  (unsigned integer) not Xapian::doclength (double). (3% speedup for 10 term OR
+  queries!)
 
 chert backend:
 
