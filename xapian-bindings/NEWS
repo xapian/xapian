@@ -1,217 +1,62 @@
  12386       olly Sat Apr 18 08:25:11 GMT 2009  Olly Betts <olly@survex.com>
 
-backport fodder:
+Xapian-bindings 1.1.0 (2009-04-2?):
 
-possibly:
- 11377    richard 	* python/generate-python-exceptions.in: Back out patch which added
- 11377    richard 	  XapianDirectorException to work around exception mangling bug in
- 11377    richard 	  swig, now that we're using a version of swig which has the bug
- 11377    richard 	  fixed.
- 11376    richard 	* ../swig: Update version of swig in use to current HEAD (swig
- 11376    richard 	  revision 10831.  Changes python import method to avoid giving a
- 11376    richard 	  warning with the upcoming 2.6 release (and failing with 2.7 or
- 11376    richard 	  later).  Also includes a different fix for ticket #289, so we
- 11376    richard 	  could back out our XapianDirectorException class now.
- 11376    richard 
- 11376    richard 	  No other significant changes in the generated files - several
- 11376    richard 	  warning fixes, some rearrangement of the order of variable
- 11376    richard 	  declarations, some removal of code which wasn't used anyway.
+Documentation:
 
- 11599    richard 	* python/generate-python-exceptions.in: Convert
- 11599    richard 	  XapianSetPythonException to Xapian::SetPythonException, and
- 11599    richard 	  export it.  This is necessary to allow separately compiled
- 11599    richard 	  extension modules to handle xapian errors appropriately.
+General:
 
-HEAD only:
+* All deprecated features slated for removal in 1.1.0 have been removed.
 
- 12158       olly 	* xapian.i: Updated to wrap xapian/weight.h directly, such that it
- 12158       olly 	  builds with the new Xapian::Weight class.
+* All new C++ API features have been wrapped.  Also, since we now supply some
+  standard MatchDecider subclasses, we now wrap Enquire::get_mset() so that
+  these can be passed in even for languages for which SWIG doesn't support
+  subclassing.
+  
+Packaging:
 
-Python now flags deprecation warnings for the single argument and old parameter
-(ascending) in set_sort_by_...().
+* xapian-bindings.spec: Updated to reflect the new Python packaging.
 
- 12077       olly 	* php/docs/examples/simpleindex.php5,python/pythontest2.py,
- 12077       olly 	  python/pythontest3.py,python/replicationtest2.py,
- 12077       olly 	  tcl8/docs/examples/simpleindex.tcl,xapian.i: Update for the
- 12077       olly 	  "WritableDatabase::flush()" to "WritableDatabase::commit()" change.
+Portability:
 
- 12076       olly 	* xapian.i: Wrap MSet::get_uncollapsed_matches_lower_bound(),
- 12076       olly 	  MSet::get_uncollapsed_matches_estimated(), and
- 12076       olly 	  MSet::get_uncollapsed_matches_upper_bound().
+CSharp:
 
- 11996    richard 	* csharp/Makefile.am,xapian.i: Update with new serialisation
- 11996    richard 	  context class.
+Guile:
 
- 11839    richard 	* python/generate-python-exceptions,python/pythontest2.py,xapian.i:
- 11839    richard 	  Update for new posting source interface.
+Java:
 
- 11830    richard 	* python/pythontest2.py: Add python test of document and query
- 11830    richard 	  serialisation and unserialisation.
+PHP:
 
- 11808       olly 	* python/Makefile.am: Temporarily disable replicationtest.py
- 11808       olly 	  for now, as it just seems to fail most of the time.  See bug#320.
+* PHP4 support has been removed, since PHP4 is no longer supported upstream
+  as of 2008-08-08.
 
- 11797    richard 	* xapian.i: Add Database.close() method.
+Python:
 
- 11762       olly 	* configure.ac,python/Makefile.am,python/generate-python-exceptions,
- 11762       olly 	  python/generate-python-exceptions.in: Explicitly run
- 11762       olly 	  generate-python-exceptions using $(PERL) rather than generating it
- 11762       olly 	  with AC_OUTPUT just to substitute the "#!" line.
- 
- 11746    richard 	* python/Makefile.am: Add replicationtest2.py to distribution.
- 11743    richard 	* python/Makefile.am: Enable the replication test by default, now
- 11743    richard 	  that it passes.
- 11742    richard 	* python/replicationtest.py,python/replicationtest2.py: Make
- 11742    richard 	  replication test a bit more stringent, and don't trigger
- 11742    richard 	  potential problems with swapping a database back in place by
- 11742    richard 	  updating the uuids, so each replicated database is effectively
- 11742    richard 	  brand new, as far as replication is concerned.
- 11735    richard 	* python/Makefile.am: Pass the default value of PYTHONPATH through
- 11735    richard 	  to python tests (just make sure our recently compiled modules are
- 11735    richard 	  at the start of it).  Pass abs_builddir in the TESTS_ENVIRONMENT
- 11735    richard 	  variable, since the replication test needs it.
- 11735    richard 	* python/replicationtest2.py: Add a test (currently failing) of
- 11735    richard 	  database replication under heavy concurrent modification load.
+* Python 2.3 or later is now required.  2.2 is essentially unsupported
+  upstream.
 
- 11734    richard 	* python/pythontest2.py: Fix test of get_eset() to match change in
- 11734    richard 	  behaviour of get_eset().
- 11734    richard 	* python/pythontest3.py: Bring up to date with pythontest2.py
+* The import method used has been changed (by using a newer SWIG version)
+  and no longer gives a warning with Python 2.6.
 
- 11453    richard 	* python/pythontest2.py: Change test_value_mods() to test chert
- 11453    richard 	  instead of flint, for extra regression test of recently fixed bug
- 11453    richard 	  in chert, and fix doccomment for test function.
- 11448    richard 	* python/pythontest2.py: Add a test of adding, modifying, and
- 11448    richard 	  deleting values.  This passed with flint (as committed), but
- 11448    richard 	  fails currently if the test is changed to use chert.
+* Initial support for Python 3.0 has been added.  This currently doesn't
+  work correctly and should be treated as experimental. (ticket#346)
 
- 11436    richard 	* python/Makefile.am: Add testsuite2.py and testsuite3.py to
- 11436    richard 	  distribution.
- 11371    richard 	* python/pythontest2.py,python/pythontest3.py: Add test for
- 11371    richard 	  get_uuid() (not really python specific, but I can't easily add
- 11371    richard 	  this test to smoketest because it needs an on-disk database,
- 11371    richard 	  which there's no infrastructure in smoketest to clean up).
+* The newer SWIG version handles exceptions in director methods correctly
+  so we no longer need our workaround for ticket #289.
 
- 11370    richard 	* xapian.i: Add Database::get_uuid() to wrappers.
+* Database::metadata_keys_begin() and Database::metadata_keys_end() are
+  wrapped for Python as Database.metadata_keys().
 
-	* python/doxy2swig.py.in: Adjust to be compatible with python 3.0.
-	  Fortunately, this can be done without breaking it for python 2.x.
+* The Python bindings are now installed as a python package, with the
+  files in a xapian subdirectory, hiding the internal _xapian module
+  better.
 
- 10926    richard 	* python/: Rename test files to end with ...2.py, and add versions
- 10926    richard 	  generated by 2to3 named ...3.py.  (2to3 seems to be quite buggy
- 10926    richard 	  still, so the generated versions need some hand editing after
- 10926    richard 	  running it; in future, we should probably remove the ...3.py
- 10926    richard 	  versions and just automatically generate them.)
-	* python/util.i: Fixes for compilation with python 3.0;
-	  conditionally replace PyString_ methods with PyBytes_ methods.
- 10784    richard 	* python/util.i: Fix #if PY_VERSION_HEX statements which aren't
- 10784    richard 	  inside %{ %} to be %#if.  Similarly for the corresponding #else
- 10784    richard 	  and #endifs.
- 10785    richard 	* python/pythontest.py,python/smoketest.py,python/testsuite.py:
- 10785    richard 	  Fixes to make tests closer to being compatible with python 3.0.
+* Python now flags deprecation warnings for the single argument and old
+  parameter (ascending) in set_sort_by_...().
 
-	* xapian.i: Add support for the new Database methods,
-	  get_value_freq(), get_value_lower_bound() and
-	  get_value_upper_bound().
-	* python/pythontest.py: Add test of these methods.
+Ruby:
 
- 10853       olly 	* configure.ac: The workaround to avoid probe code for F77, GCJ, and
- 10853       olly 	  RC being added to configure is no longer required now that we're
- 10853       olly 	  using libtool 2.2 so remove it.
- 10847       olly 	* Makefile.am,configure.ac: Use AC_CONFIG_MACRO_DIR and
- 10847       olly 	  ACLOCAL_AMFLAGS as libtoolize 2.2.4 recommends.
-
-* Wrap Replication API.
-
-* Remove PHP4 support.
-
-* Remove all deprecated features slated for removal in 1.1.0.
-
-	* python/pythontest.py: Add test of ValueWeightPostingSource.
-
-	* php/except.i: Tweak to maximise the
-	  amount of exception handling code which is in the helper function.
-
-	* ../swig: Update version of swig in use to current HEAD.  Causes
-	  few changes other than whitespace to the generated bindings, but
-	  makes new features in swig (such as better support for reference
-	  counted pointers) available.  Also only performs initialisation
-	  of swig wrapper once when there are multiple interpreters in use,
-	  which could possibly help a little with bug #185.
-	* csharp/Makefile.am: Change names of generated files to match
-	  those made by new SWIG version.
-
-	* python/Makefile.am: Use SWIG's -MD flag to generate dependencies.
-	* csharp/Makefile.am,guile/Makefile.am,java-swig/Makefile.am,
-	  php/Makefile.am,ruby/Makefile.am,tcl8/Makefile.am: Seemed to work
-	  for python, so use SWIG's -MD flag for all the other swig targets
-	  too.
-
-	* python/Makefile.am: Use "-rmdir" rather than "|| true" for
-	  consistency.
-
-	* python/pythontest.py: Add a simple test of the posting source stuff.
-
-	* debian/python-xapian.install,python/Makefile.am,python/xapian.pth,
-	  xapian-bindings.spec.in: Change way python bindings are installed
-	  We put
-	  the python files in a subdirectory called xapian/, but rename the
-	  xapian.py file to __init__.py (and similarly for the .pyc and
-	  .pyo files).  This makes it into a python package, and seems to
-	  work well, and also hides the internal _xapian module from public
-	  view.
-
-	* csharp/Makefile.am,java-swig/Makefile.am,
-	  python/generate-python-exceptions.in,xapian.i: Only wrap
-	  PostingSource where we have directors.  Fix up various issues
-	  with the wrapping.
-
-	* README: Note Python 2.3 or later is required.
-
-	* configure.ac: Require python 2.3 or greater.  2.2 is essentially
-	  unsupported upstream.
-
-	* xapian-bindings.spec.in: Update RPM .spec file to reflect the new
-	  location of the python packages, and the .pth file.
-
-	* debian/changelog,debian/patch,debian/python-xapian.install:
-	  Update debian packaging to remove the patch which is currently
-	  applied (since it's included in HEAD now), and to get the python
-	  packages from the new locations (and include the .pth file).
-
-	* xapian.i: Use "%include <xapian/query.h>" to wrap Xapian::Query so
-	  we automatically pick up new features (in this case, the new
-	  PostingSource constructor).
-
-	* Makefile.am,csharp/Makefile.am,java-swig/Makefile.am,
-	  tcl8/docs/index.html,xapian-head.i,xapian.i: Split the header chunk
-	  of xapian.i out into xapian-head.i.  Remove lingering references to
-	  quartz.  Wrap chert.
-
-	* python/Makefile.am,python/xapian.pth: Change installation
-	  location for the python bindings to use a "xapian" subdirectory
-	  to hold the files, and use a "xapian.pth" file to ensure that the
-	  contents of this directory are on the path.  Seems to be the more
-	  usual way to install python extensions these days, and matches
-	  the way we need to install on windows.
-
-	* python/docs/index.html,python/extra.i,python/pythontest.py:
-	  Remove the deprecated legacy support for the sequence API on
-	  pythonic iterators.
-
-	* python/extra.i,xapian.i: Add support for
-	  Database.metadata_keys_begin() and Database.metadata_keys_end().
-	  For python, these are wrapped as simply "metadata_keys()".
-	* python/pythontest.py: Test Database.metadata_keys().
-
-	* xapian.i: Modify wrapping of get_mset() to match the new
-	  definitions in xapian/enquire.h (though this shouldn't change
-	  user-visible behaviour in the bindings).  Also, allow a
-	  mdecider (and matchspy) parameter to be passed even for languages
-	  which don't have director support, now that we have a built-in
-	  match decider.  Also, wrap valuesetmatchdecider.h, so that the
-	  built-in match decider defined there can be used.
-	* php/smoketest.php,python/pythontest.py: Add tests that
-	  ValueSetMatchDecider works in python and PHP.
+Tcl:
 
 Xapian-bindings 1.0.12 (2009-04-19):
 
