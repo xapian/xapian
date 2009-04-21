@@ -131,12 +131,6 @@ QueryOptimiser::do_subquery(const Xapian::Query::Internal * query, double factor
     }
 }
 
-PostList *
-QueryOptimiser::do_leaf(const Xapian::Query::Internal * query, double factor) {
-    if (query->tname.empty()) factor = 0.0;
-    return localsubmatch.postlist_from_op_leaf_query(query, factor);
-}
-
 struct PosFilter {
     PosFilter(Xapian::Query::Internal::op_t op_, size_t begin_, size_t end_,
 	      Xapian::termcount window_)
