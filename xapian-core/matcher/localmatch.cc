@@ -121,10 +121,8 @@ LocalSubMatch::make_synonym_postlist(PostList * or_pl, MultiMatch * matcher,
     AutoPtr<SynonymPostList> res(new SynonymPostList(or_pl, matcher));
     AutoPtr<Xapian::Weight> wt(wt_factory->clone_());
 
-    wt->init_(*stats, qlen, string(), 1, factor,
-	      or_pl->get_termfreq_est(),
-	      0 // FIXME - calculate the reltermfreq to use
-	      );
+    // FIXME - calculate the reltermfreq to use and pass it in?
+    wt->init_(*stats, qlen, factor, or_pl->get_termfreq_est());
 
     res->set_weight(wt.release());
     RETURN(res.release());

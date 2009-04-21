@@ -75,20 +75,22 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length,
 
 void
 Weight::init_(const Internal & stats, Xapian::termcount query_length,
-	      const string & term, Xapian::termcount wqf, double factor,
-	      Xapian::doccount termfreq,
-	      Xapian::doccount reltermfreq)
+	      double factor, Xapian::doccount termfreq)
 {
+    // Synonym case.
     collection_size_ = stats.collection_size;
     rset_size_ = stats.rset_size;
     average_length_ = stats.get_average_length();
     doclength_upper_bound_ = stats.db.get_doclength_upper_bound();
     doclength_lower_bound_ = stats.db.get_doclength_lower_bound();
-    wdf_upper_bound_ = stats.db.get_wdf_upper_bound(term);
+    // For a synonym, the doclength is an upper bound on the wdf.
+    // FIXME: foo OP_SYNONYM foo could exceed this, but we probably need to
+    // handle repeated terms better somehow.
+    wdf_upper_bound_ = stats.db.get_doclength_upper_bound();
     termfreq_ = termfreq;
-    reltermfreq_ = reltermfreq;
+    reltermfreq_ = 0;
     query_length_ = query_length;
-    wqf_ = wqf;
+    wqf_ = 1;
     init(factor);
 }
 

@@ -1,3 +1,10 @@
+Tue Apr 21 15:01:20 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/weight.h,matcher/localmatch.cc,weight/weight.cc:
+	  Remove fixed value parameters from the new Weight::init_()
+	  overloaded form.  Set wdf_upper_bound for the synonym's Weight
+	  object to get_doclength_upper_bound().
+
 Tue Apr 21 06:44:10 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/queryoptimiser.cc,matcher/queryoptimiser.h: Revert change
