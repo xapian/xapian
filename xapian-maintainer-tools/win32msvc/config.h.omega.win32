@@ -129,6 +129,14 @@
    stripped. */
 #define CONFIGFILE_SYSTEM "omega.conf"
 
+/* Define rare() as identity, since we don't have this in MSVC (See
+ * the section "Branch Prediction Hints" in xapian-core/HACKING) */
+#define rare(COND) (COND)
+
+/* Define usual() as identity, since we don't have this in MSVC (See
+ * the section "Branch Prediction Hints" in xapian-core/HACKING) */
+#define usual(COND) (COND)
+
 /* Disable stupid MSVC "performance" warning for converting int to bool. */
 #ifdef _MSC_VER
 # pragma warning(disable:4800)

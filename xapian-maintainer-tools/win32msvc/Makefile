@@ -49,6 +49,9 @@ DOTEST:
    cd ..\win32
 
 CLEAN: COPYMAKFILES
+   cd makedepend
+   nmake -f makedepend.mak CLEAN
+   cd ..
    cd ..\net
    nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
    cd ..\common
@@ -133,7 +136,7 @@ TESTFORTOOLS: makedepend.exe
 # Perl is needed for header generation
    if not exist $(PERL_EXE) exit(1) 
    
-MAKEALLBINDINGS: ALL
+MAKEALLBINDINGS: ALL COPYMAKFILES
 # Need bindings to exist
    if not exist  $(XAPIAN_BINDINGS) exit(1)
 

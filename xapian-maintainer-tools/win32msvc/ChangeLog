@@ -1,3 +1,13 @@
+Tue Apr 21 13:33:51 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* makebinaries.py: fix quotes and add various extra bits of output
+	  to the html.
+	* win32_tests.mak: add some new tests and reformat for clarity
+	* makedepend.mak,Makefile: CLEAN now also cleans makedepend.
+	  MAKEALLBINDINGS now depends on COPYMAKFILES
+	* config.h.omega.win32: Update version numbers.  define 'rare' and
+	  'usual'
+
 Wed Mar 25 12:51:56 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* config.h.omega.win32: Update version numbers, undefine rare().

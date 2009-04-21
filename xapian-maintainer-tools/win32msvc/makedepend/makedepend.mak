@@ -16,7 +16,8 @@ CLEAN :
 	-@erase "$(INTDIR)\parse.obj"
 	-@erase "$(INTDIR)\pr.obj"
 	-@erase "$(INTDIR)\vc80.idb"
-	-@erase "$(OUTDIR)\makedepend.exe"
+	-@erase "$(INTDIR)\makedepend.exe"
+    -@erase "$(OUTDIR)\makedepend.exe"
 
 CPP=cl.exe
 CPP_PROJ=/nologo /W3 /EHsc /O2 /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D STANDALONE=1 /D OBJSUFFIX=\".obj\" /Fp"$(INTDIR)\makedepend.pch"  /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /FD /c 

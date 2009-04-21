@@ -58,16 +58,18 @@ STEMTEST_OBJS= "$(OUTDIR)\stemtest.obj"
 APITEST_OBJS= \
     "$(OUTDIR)\apitest.obj" \
     "$(OUTDIR)\api_anydb.obj" \
+    "$(OUTDIR)\api_backend.obj" \
     "$(OUTDIR)\api_db.obj" \
+    "$(OUTDIR)\api_generated.obj" \
     "$(OUTDIR)\api_nodb.obj" \
+    "$(OUTDIR)\api_percentages.obj" \
     "$(OUTDIR)\api_posdb.obj" \
-    "$(OUTDIR)\api_transdb.obj" \
-    "$(OUTDIR)\api_unicode.obj" \
-    "$(OUTDIR)\api_wrdb.obj" \
+    "$(OUTDIR)\api_query.obj" \
     "$(OUTDIR)\api_sorting.obj" \
     "$(OUTDIR)\api_spelling.obj" \
-    "$(OUTDIR)\api_backend.obj" \
-    "$(OUTDIR)\api_generated.obj"
+    "$(OUTDIR)\api_transdb.obj" \
+    "$(OUTDIR)\api_unicode.obj" \
+    "$(OUTDIR)\api_wrdb.obj" 
     
 BTREETEST_OBJS= "$(OUTDIR)\btreetest.obj"
 
@@ -84,16 +86,18 @@ TERMGENTEST_OBJS= "$(OUTDIR)\termgentest.obj"
 SRC = \
     "$(INTDIR)\apitest.cc" \
     "$(INTDIR)\api_anydb.cc" \
+    "$(INTDIR)\api_backend.cc" \
     "$(INTDIR)\api_db.cc" \
+    "$(INTDIR)\api_generated.cc" \
     "$(INTDIR)\api_nodb.cc" \
+    "$(INTDIR)\api_percentages.cc" \
     "$(INTDIR)\api_posdb.cc" \
-    "$(INTDIR)\api_transdb.cc" \
-    "$(INTDIR)\api_unicode.cc" \
+    "$(INTDIR)\api_query.cc" \
     "$(INTDIR)\api_sorting.cc" \
     "$(INTDIR)\api_spelling.cc" \
-    "$(OUTDIR)\api_backend.cc" \
+    "$(INTDIR)\api_transdb.cc" \
+    "$(INTDIR)\api_unicode.cc" \
     "$(INTDIR)\api_wrdb.cc" \
-    "$(INTDIR)\api_generated.cc" \
     "$(INTDIR)\btreetest.cc" \
     "$(INTDIR)\internaltest.cc" \
     "$(INTDIR)\quartztest.cc" \
@@ -101,7 +105,20 @@ SRC = \
     "$(INTDIR)\remotetest.cc" \
     "$(INTDIR)\termgentest.cc" 
 
-COLLATED_APITEST_SOURCES=api_anydb.cc api_db.cc api_nodb.cc api_posdb.cc api_sorting.cc api_spelling.cc api_backend.cc api_transdb.cc api_unicode.cc api_wrdb.cc api_generated.cc
+COLLATED_APITEST_SOURCES= \
+    "$(INTDIR)\api_anydb.cc" \
+    "$(INTDIR)\api_backend.cc" \
+    "$(INTDIR)\api_db.cc" \
+    "$(INTDIR)\api_generated.cc" \
+    "$(INTDIR)\api_nodb.cc" \
+    "$(INTDIR)\api_percentages.cc" \
+    "$(INTDIR)\api_posdb.cc" \
+    "$(INTDIR)\api_query.cc" \
+    "$(INTDIR)\api_sorting.cc" \
+    "$(INTDIR)\api_spelling.cc" \
+    "$(INTDIR)\api_transdb.cc" \
+    "$(INTDIR)\api_unicode.cc" \
+    "$(INTDIR)\api_wrdb.cc" 
     
 COLLATED_APITEST_HEADERS=\
     "$(INTDIR)\api_anydb.h" \

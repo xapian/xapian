@@ -93,8 +93,10 @@ def zipandmd5it(fname, contents):
 
 # Make the folders (kill old ones of the same name)   
 rev = sys.argv[1]
+revnodots = rev.replace(".","")
+    
 tmpfile= "xapian-binaries-" + rev + "-tmpfile.txt" 
-os.chdir("\\work\\xapian\\xapian-releases\\xapian-core-" + rev + "\\win32" )
+# os.chdir("\\work\\xapian\\xapian-releases\\xapian-core-" + rev + "\\win32" )
 newdir = "xapian-binaries-win32-" + rev
 newhtml = newdir + ".htm"
 if os.path.exists(newdir):
@@ -129,14 +131,22 @@ zipandmd5it("xapian-%s-bindings-java-swig.zip" % rev,"..\\Release\\Java-swig\\di
 # Make a HTML list 
 ifi = open(tmpfile, "r")
 ofi = open(newhtml, "w")
-print >> ofi, r"<html><head></head><body>"
-print >> ofi, r"<table>Xapian version " + rev + r" Binaries for Win32<tr><td>File</td><td>MD5 sum</td></tr>"
+print >> ofi, r"<html><head></head><body><table>"
+print >> ofi, r"<!-- cut and paste from after here -->"
+print >> ofi, r'<tr><td><b>' + rev + '</b><br><br>'
+print >> ofi, r'<a href=xapian/' + revnodots + '/xapian-core-' + rev + '.tar.gz>xapian-core-' + rev + '.tar.gz</a><br>'
+print >> ofi, r'<a href=xapian/' + revnodots + '/xapian-bindings-' + rev + '.tar.gz>xapian-bindings-' + rev + '.tar.gz</a><br>'
+print >> ofi, r'<a href=xapian/' + revnodots + '/xapian-omega-' + rev + '.tar.gz>xapian-omega-' + rev + '.tar.gz</a></td>'
+print >> ofi, '<td><a href=\"xapian/' + revnodots + '/win32.zip\">win32.zip</a></td>'
+print >> ofi, r'<td><a href="xapian/' + revnodots + '/readme.txt\">readme.txt</a></td><td>'
 for line in ifi:
     parts = line.split('*')
     print parts
-    print >> ofi, r"<tr><td>" + r"<a href=" + newdir + r"\\" + parts[1] + r">" + parts[1] + r"</a> </td><td>" + parts[0] + r"</td></tr><br>"
+    parts1mod = parts[1].replace("\n","")
+    print >> ofi, r'<a href="' + newdir + r'/' + parts[1] + r'">' + parts[1] + r'</a> MD5 sum: ' + parts[0] + r'<br>'
     
-print >> ofi, r"</table><br><br></body></html>"
+print >> ofi, r"<!-- cut and paste to before here -->"
+print >> ofi, r"</table></body></html>"
 
 ifi.close()
 ofi.close()
