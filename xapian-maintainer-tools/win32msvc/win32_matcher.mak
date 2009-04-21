@@ -18,8 +18,8 @@ OBJS= \
     $(INTDIR)\andmaybepostlist.obj\
     $(INTDIR)\andnotpostlist.obj\
     $(INTDIR)\andpostlist.obj\
-    $(INTDIR)\bm25weight.obj\
     $(INTDIR)\branchpostlist.obj\
+    $(INTDIR)\collapser.obj\
     $(INTDIR)\emptysubmatch.obj\
     $(INTDIR)\exactphrasepostlist.obj\
     $(INTDIR)\externalpostlist.obj\
@@ -33,13 +33,9 @@ OBJS= \
     $(INTDIR)\phrasepostlist.obj\
     $(INTDIR)\queryoptimiser.obj\
     $(INTDIR)\rset.obj\
-    $(INTDIR)\scaleweight.obj\
     $(INTDIR)\selectpostlist.obj\
-    $(INTDIR)\stats.obj\
-    $(INTDIR)\tradweight.obj\
     $(INTDIR)\valuerangepostlist.obj\
     $(INTDIR)\valuegepostlist.obj\
-    $(INTDIR)\weight.obj\
     $(INTDIR)\xorpostlist.obj\
     $(INTDIR)\remotesubmatch.obj
 
@@ -48,8 +44,8 @@ SRCS= \
     $(INTDIR)\andmaybepostlist.cc\
     $(INTDIR)\andnotpostlist.cc\
     $(INTDIR)\andpostlist.cc\
-    $(INTDIR)\bm25weight.cc\
     $(INTDIR)\branchpostlist.cc\
+    $(INTDIR)\collapser.cc\
     $(INTDIR)\emptysubmatch.cc\
     $(INTDIR)\exactphrasepostlist.cc\
     $(INTDIR)\externalpostlist.cc\
@@ -63,16 +59,11 @@ SRCS= \
     $(INTDIR)\phrasepostlist.cc\
     $(INTDIR)\queryoptimiser.cc\
     $(INTDIR)\rset.cc\
-    $(INTDIR)\scaleweight.cc\
     $(INTDIR)\selectpostlist.cc\
-    $(INTDIR)\stats.cc\
-    $(INTDIR)\tradweight.cc\
     $(INTDIR)\valuerangepostlist.cc\
     $(INTDIR)\valuegepostlist.cc\
-    $(INTDIR)\weight.cc\
     $(INTDIR)\xorpostlist.cc\
     $(INTDIR)\remotesubmatch.cc
-
 
 CLEAN :
     -@erase "$(OUTDIR)\libmatcher.lib"

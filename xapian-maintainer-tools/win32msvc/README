@@ -1,6 +1,6 @@
 README for Xapian/Visual C++ Tools
 ==================================
-2008-12-12 for Xapian 1.0.9 (revised)
+2009-03-26 for Xapian SVN HEAD
 
 Make files, some extra headers and associated tools for compiling Xapian on
 Win32 using the Microsoft Visual C++ compilers. This is particularly useful
@@ -19,8 +19,7 @@ www.lemurconsulting.com
 What works?
 ===========
 
-- The Python, PHP, Ruby, C# & Java-Swig bindings (note that the Java-Swig bindings
-  are still rather alpha, and may be subject to significant API change).
+- The Python, PHP, Ruby, C# bindings
 - The xapian-compact, xapian-check, xapian-inspect binaries
 - The xapian-progsrv and xapian-tcpsrv binaries
 - The delve, quest and copydatabase binaries
@@ -34,7 +33,8 @@ What works?
 What doesn't work?
 ==================
 
-- Any other bindings.
+- Any other bindings. Java-Swig bindings do not work for SVN HEAD (note that the Java-Swig bindings
+  are still rather alpha, and may be subject to significant API change).
 
 - Warning: unlike Unix, windows does not usually allow open files to be
   deleted.  This caused a serious problem with releases of Xapian on
@@ -147,8 +147,8 @@ which contains headers, libs and NMAKE.
 http://www.zlib.net/zlib123-dll.zip
 and make sure the path to where you downloaded it matches the path in config.mak (ZLIB_DIR).
 
-- To compile the Python bindings you need Python from www.python.org. Make sure the paths to this are set correctly in config.mak (PYTHON_DIR)
-
+- To compile the Python bindings you need Python from www.python.org. Make sure the paths to this are set correctly in config.mak (PYTHON_DIR). 
+Note that the build system supports Python 2.4 and 2.5 currently, you must specify which you require.
 - To compile the PHP bindings you need:
 
   a. the PHP sources from www.php.net (we have used PHP 4.4.6 & 5.2.1).
@@ -209,34 +209,55 @@ either:
 To build the bindings (do steps 1-5 above first to make sure you have Xapian built):
 
 6) cd to xapian-core-0.x.y\win32 or the appropriate path on your system.
-7) edit win32_bindings_python.mak or win32_bindings_php.mak to suit your environment (XAPIAN_CORE_REL_PYTHON or similar)
+7) edit 
+  win32_bindings_python.mak
+  win32_bindings_php.mak
+  win32_bindings_ruby.mak 
+  win32_bindings_java-swig.mak
+  win32_bindings_csharp.mak
+    to suit your environment (XAPIAN_CORE_REL_PYTHON or similar)
 8) nmake COPYMAKFILES
-   - to make sure this change is copied to the build folder
-9) cd to ..\..\xapian-bindings-0.x.y\python or ..\..\xapian-bindings-0.x.y\php
+   - to make sure this change is copied to the build folder (this is also done by a rebuild of Xapian)
+9) cd to ..\..\xapian-bindings-0.x.y\ and then the binding folder (php, python etc.)
 10) nmake CLEAN
 11a) nmake CHECK
    - to build and run the test suite
 11b) nmake
    - to just build.
-11c) nmake SWIGBUILD=1
+11c) nmake DIST
+   - to build, CHECK and also create a /dist subfolder containing a binary distribution, documentation and examples
+11d) nmake SWIGBUILD=1
    - to build from the development sources using SWIG (see above)
-11d) For Python only, use
-    nmake DISTUTILS
- to build packaged bindings - they will end up in xapian-core-1.x.y\win32\Release\Python\dist
-11e) For Ruby only, use
+   
+11e) For Python only, add an extra flag before CLEAN, CHECK or DIST:
+    nmake PYTHON_VER=24 ..
+ to make bindings for Python 2.4 or
+    nmake PYTHON_VER=25 ..
+    
+11f) For Ruby only, use
     nmake INSTALL
  to install the bindings to the standard Ruby library folder.
+ 
+ 
+ To build *all* the bindings (usually only done by those distributing binaries):
+
+12) cd to xapian-core-0.x.y\win32 or the appropriate path on your system.
+13) nmake MAKEALLBINDINGS
+    - this will build Xapian if not already available. You will need build environments for all
+    the bindings described above available.
 
  To build Omega (do steps 1-5 above first to make sure you have Xapian built):
 
-12) edit win32_applications_omega.mak to suit your environment (XAPIAN_CORE_REL_OMEGA)
-13) nmake COPYMAKFILES
+14) edit win32_applications_omega.mak to suit your environment (XAPIAN_CORE_REL_OMEGA)
+15) nmake COPYMAKFILES
    - to make sure this change is copied to the build folder
-14) cd to ..\..\omega-0.x.y
-15) nmake
+16) cd to ..\..\omega-0.x.y
+17) nmake
    - to build.
 
-The binaries end up in xapian-core-0.x.y\win32\Release or \Debug if you are building a Debug build (see below)
+The binaries end up in xapian-core-0.x.y\win32\Release or \Debug if you are building a Debug build (see below). 
+If you build using nmake DIST you will see a further /dist subfolder in each bindings's folder, containing 
+ a binary distribution, documentation and examples.
 
 Debug builds
 ===========

@@ -22,6 +22,7 @@ OBJS= \
                 $(INTDIR)\chert_cursor.obj\
                 $(INTDIR)\chert_database.obj\
                 $(INTDIR)\chert_databasereplicator.obj\
+                $(INTDIR)\chert_dbstats.obj\
                 $(INTDIR)\chert_document.obj\
                 $(INTDIR)\chert_io.obj\
                 $(INTDIR)\chert_lock.obj\
@@ -48,6 +49,7 @@ SRCS= \
                 $(INTDIR)\chert_cursor.cc\
                 $(INTDIR)\chert_database.cc\
                 $(INTDIR)\chert_databasereplicator.cc\
+                $(INTDIR)\chert_dbstats.cc\
                 $(INTDIR)\chert_document.cc\
                 $(INTDIR)\chert_io.cc\
                 $(INTDIR)\chert_lock.cc\
