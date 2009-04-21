@@ -1,3 +1,10 @@
+Tue Apr 21 06:45:14 GMT 2009  Olly Betts <olly@survex.com>
+
+
+	* matcher/queryoptimiser.cc,matcher/queryoptimiser.h: Eliminate
+	  QueryOptimiser::do_leaf() as it is only called from one place
+	  and if only two lines of code.
+
 Mon Apr 20 14:10:08 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog and start to lick into shape for a
