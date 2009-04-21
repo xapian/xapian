@@ -1,3 +1,8 @@
+Tue Apr 21 07:49:49 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/weight.h: Don't use the term "term" to talk about the
+	  extra weight component as it already has a strong meaning in Xapian.
+
 Tue Apr 21 07:16:18 GMT 2009  Olly Betts <olly@survex.com>
 
 	* queryparser/lemon.c: Merge upstream "Check-in Number: 6451".
