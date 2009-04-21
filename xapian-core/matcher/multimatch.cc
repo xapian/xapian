@@ -371,6 +371,15 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
     LOGLINE(MATCH, "pl = (" << pl->get_description() << ")");
 
+#ifdef XAPIAN_DEBUG_VERBOSE
+    {
+	map<string, Xapian::MSet::Internal::TermFreqAndWeight>::const_iterator tfwi;
+	for (tfwi = termfreqandwts.begin(); tfwi != termfreqandwts.end(); ++tfwi) {
+	    LOGLINE(MATCH, "termfreqandwts[" << tfwi->first << "] = " << tfwi->second.termfreq << ", " << tfwi->second.termweight);
+	}
+    }
+#endif
+
     // Empty result set
     Xapian::doccount docs_matched = 0;
     Xapian::weight greatest_wt = 0;

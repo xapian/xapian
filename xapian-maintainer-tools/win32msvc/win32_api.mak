@@ -33,14 +33,14 @@ OBJS= \
     $(INTDIR)/postlist.obj \
     $(INTDIR)/postingsource.obj \
     $(INTDIR)/replication.obj \
+    $(INTDIR)/serialisationcontext.obj \
     $(INTDIR)/sortable-serialise.obj \
     $(INTDIR)/sorter.obj \
     $(INTDIR)/termlist.obj \
     $(INTDIR)/valueiterator.obj\
     $(INTDIR)/valuerangeproc.obj \
     $(INTDIR)/valuesetmatchdecider.obj \
-    $(INTDIR)/version.obj\
-    $(INTDIR)/weightinternal.obj
+    $(INTDIR)/version.obj
     
 SRCS= \
     $(INTDIR)/documentvaluelist.cc\
@@ -60,14 +60,14 @@ SRCS= \
     $(INTDIR)/postlist.cc\
     $(INTDIR)/postingsource.cc \
     $(INTDIR)/replication.cc \
+    $(INTDIR)/serialisationcontext.cc \
     $(INTDIR)/sortable-serialise.cc\
     $(INTDIR)/sorter.cc\
     $(INTDIR)/termlist.cc\
     $(INTDIR)/valueiterator.cc\
     $(INTDIR)/valuerangeproc.cc\
     $(INTDIR)/valuesetmatchdecider.cc \
-    $(INTDIR)/version.cc\
-    $(INTDIR)/weightinternal.cc
+    $(INTDIR)/version.cc
 
 	     
 CLEAN :

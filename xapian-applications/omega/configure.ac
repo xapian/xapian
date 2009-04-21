@@ -215,7 +215,7 @@ if test no != "$with_iconv" ; then
 	    [#include <iconv.h>],
 	    [[
 	      char buf[20];
-	      $t in = "hello";
+	      $t in = const_cast<char *>("hello");
 	      size_t in_len = 5;
 	      char * out = buf;
 	      size_t out_len = 20;
@@ -472,8 +472,6 @@ if test yes = "$enable_quiet"; then
   QUIET=--quiet
 fi
 AC_SUBST(QUIET)
-
-AC_SUBST(AM_CXXFLAGS)
 
 dnl Restore CXXFLAGS to those the user specified or autoconf defaulted to.
 CXXFLAGS=$save_CXXFLAGS

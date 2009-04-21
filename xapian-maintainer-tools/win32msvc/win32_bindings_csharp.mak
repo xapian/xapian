@@ -17,23 +17,21 @@ INTDIR=.
 
 # Note we have two DLLs: the Assembly is built by the Csharp compiler and references the Binding which is built by the C compiler
 ASSEMBLY=XapianCSharp
-BINDING=XapianSharp
+BINDING=_XapianSharp
 
 XAPIAN_SWIG_CSHARP_SRCS=\
+    AssemblyInfo.cs \
     Auto.cs \
     BM25Weight.cs \
     BoolWeight.cs \
     Chert.cs \
     Database.cs \
-    DatabaseMaster.cs \
-    DatabaseReplica.cs \
     DateValueRangeProcessor.cs \
     Document.cs \
     Enquire.cs \
     ESet.cs \
     ESetIterator.cs \
     ExpandDecider.cs \
-    FixedWeightPostingSource.cs \
     Flint.cs \
     InMemory.cs \
     MatchDecider.cs \
@@ -47,29 +45,27 @@ XAPIAN_SWIG_CSHARP_SRCS=\
     Query.cs \
     QueryParser.cs \
     Remote.cs \
-    ReplicationInfo.cs \
     RSet.cs \
+    SerialisationContext.cs \
     SimpleStopper.cs \
+    SmokeTest.cs \
     Sorter.cs \
     Stem.cs \
     Stopper.cs \
     StringValueRangeProcessor.cs \
     SWIGTYPE_p_std__string.cs \
-    SWIGTYPE_p_std__vectorTstd__string_t.cs \
-    SWIGTYPE_p_std__vectorTXapian__Query_t.cs \
+    SWIGTYPE_p_std__vectorT_std__string_t.cs \
+    SWIGTYPE_p_std__vectorT_Xapian__Query_t.cs \
     TermGenerator.cs \
     TermIterator.cs \
     TradWeight.cs \
     ValueIterator.cs \
     ValueRangeProcessor.cs \
-    ValueSetMatchDecider.cs \
-    ValueWeightPostingSource.cs \
     Version.cs \
     Weight.cs \
     WritableDatabase.cs \
     Xapian.cs \
-    XapianPINVOKE.cs 
-
+    XapianPINVOKE.cs
     
 ALL : "$(ASSEMBLY).dll" SmokeTest.exe "$(BINDING).dll"
 # REMOVE THIS NEXT LINE if using Visual C++ .net 2003 - you won't need to worry about manifests. For later compilers this prevents error R6034
@@ -108,6 +104,16 @@ DOTEST:
     SmokeTest
     
 CHECK: ALL DOTEST
+
+DIST: CHECK 
+    cd $(MAKEDIR)
+    if not exist "$(OUTDIR)\dist\$(NULL)" mkdir "$(OUTDIR)\dist"
+    if not exist "$(OUTDIR)\dist\docs/$(NULL)" mkdir "$(OUTDIR)\dist\docs"
+    if not exist "$(OUTDIR)\dist\docs\examples/$(NULL)" mkdir "$(OUTDIR)\dist\docs\examples"           
+    copy "$(OUTDIR)\_XapianSharp.dll" "$(OUTDIR)\dist"
+    copy "$(OUTDIR)\XapianCSharp.dll" "$(OUTDIR)\dist"
+    if exist docs copy docs\*.htm* "$(OUTDIR)\dist\docs"
+    if exist docs\examples copy docs\examples\*.* "$(OUTDIR)\dist\docs\examples"
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"

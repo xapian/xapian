@@ -2099,7 +2099,7 @@ check_vals(const Xapian::Database & db, const map<Xapian::docid, string> & vals)
     map<Xapian::docid, string>::const_iterator i;
     for (i = vals.begin(); i != vals.end(); ++i) {
 	tout.str(string());
-	tout << "Checking value in doc " << i->first << "\n";
+	tout << "Checking value in doc " << i->first << " - should be '" << i->second << "'\n";
 	Xapian::Document doc = db.get_document(i->first);
 	string dbval = doc.get_value(1);
 	TEST_EQUAL(dbval, i->second);
@@ -2122,6 +2122,7 @@ check_vals(const Xapian::Database & db, const map<Xapian::docid, string> & vals)
  *  chert.
  */
 DEFINE_TESTCASE(modifyvalues1, writable) {
+    unsigned int seed = 7;
     Xapian::WritableDatabase db = get_writable_database();
     // Note: doccount must be coprime with 13
     const Xapian::doccount doccount = 1000;
@@ -2182,7 +2183,8 @@ DEFINE_TESTCASE(modifyvalues1, writable) {
 
     // Do some random modifications: seed random generator, for repeatable
     // results.
-    srand(42);
+    tout << "Setting seed to " << seed << "\n";
+    srand(seed);
     for (Xapian::doccount num = 1; num <= doccount * 2; ++num) {
 	tout.str(string());
 	Xapian::docid did = ((rand() >> 8) % doccount) + 1;
@@ -2190,8 +2192,8 @@ DEFINE_TESTCASE(modifyvalues1, writable) {
 	string val;
 
 	if (num % 5 != 0) {
-	    tout << "Setting val '" << val << "' in doc " << did << "\n";
 	    val = "newval" + om_tostring(num);
+	    tout << "Setting val '" << val << "' in doc " << did << "\n";
 	    doc.add_value(1, val);
 	} else {
 	    tout << "Adding/replacing empty document " << did << "\n";

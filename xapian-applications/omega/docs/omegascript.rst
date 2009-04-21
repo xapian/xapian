@@ -448,6 +448,10 @@ $transform{REGEXP,SUBST,STRING}
          $string =~ s/REGEXP/SUBST/;
          print $string;
 
+        In SUBST, ``\1`` to ``\9`` are substituted by the 1st to 9th bracket
+        grouping (or are empty if there is no such bracket grouping).  ``\\``
+        is a literal backslash.
+
 $uniq{LIST}
 	remove duplicates from a sorted list
 

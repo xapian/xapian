@@ -48,13 +48,24 @@ DOTEST :
 	$(PHP_EXE) -q -n -d safe_mode=off -d enable_dl=on -d extension_dir="php$(PHP_MAJOR_VERSION)" -d include_path="php$(PHP_MAJOR_VERSION)" smoketest.php
 
 CHECK: ALL DOTEST
+
+DIST: CHECK 
+    cd $(MAKEDIR)
+    if not exist "$(OUTDIR)\dist/$(NULL)" mkdir "$(OUTDIR)\dist"
+    if not exist "$(OUTDIR)\dist\docs/$(NULL)" mkdir "$(OUTDIR)\dist\docs"
+    if not exist "$(OUTDIR)\dist\docs\examples/$(NULL)" mkdir "$(OUTDIR)\dist\docs\examples"    
+    copy "$(OUTDIR)\php_xapian.dll" "$(OUTDIR)\dist"
+    copy "$(OUTDIR)\xapian.php" "$(OUTDIR)\dist"
+    copy docs\*.html "$(OUTDIR)\dist\docs"
+    copy docs\examples\*.* "$(OUTDIR)\dist\docs\examples"
 	
-"$(OUTROOT)" :	
+"$(OUTROOT)" :
     if not exist "$(OUTROOT)/$(NULL)" mkdir "$(OUTROOT)"
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
-
+    
+    
 CPP_PROJ=$(CPPFLAGS_EXTRA)  /GR \
  /I "$(XAPIAN_CORE_REL_PHP)" /I "$(XAPIAN_CORE_REL_PHP)\include" $(PHP_INCLUDE_CPPFLAGS) $(PHP_DEBUG_OR_RELEASE)\
  /I"." /Fo"$(INTDIR)\\" /Tp$(INPUTNAME) 
@@ -88,6 +99,7 @@ ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS) $(PHP_LIB)
 	-copy $** "$(OUTDIR)\xapian.php"
 # REMOVE THIS NEXT LINE if using Visual C++ .net 2003 - you won't need to worry about manifests
 	$(MANIFEST) "$(OUTDIR)\php_xapian.dll.manifest" -outputresource:"$(OUTDIR)\php_xapian.dll;2"
+	-@erase "$(OUTDIR)\php_xapian.dll.manifest"
 "$(OUTDIR)\smoketest5.php" : ".\smoketest5.php"
 	-copy $** "$(OUTDIR)\smoketest5.php"
 "$(OUTDIR)\smoketest4.php" : ".\smoketest4.php"
@@ -140,3 +152,4 @@ ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS) $(PHP_LIB)
    $(CPP) @<<
    $(CPP_PROJ) $< 
 <<
+

@@ -129,5 +129,6 @@ t/termgenerator.t
 t/thread.t
 t/tied.t
 t/valuerange.t
+t/writabledatabase.t
 
 examples/simplesearch.pl

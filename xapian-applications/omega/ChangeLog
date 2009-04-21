@@ -1,3 +1,59 @@
+Mon Apr 20 14:20:51 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Sync changes from 1.0.12.
+
+Mon Apr 20 14:15:41 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog and clean up for release.
+
+Thu Apr 16 10:02:44 GMT 2009  Olly Betts <olly@survex.com>
+
+	* transform.cc: Fix off-by-one error - the return value of pcre_exec()
+	  is one more than the number of groupings.
+
+Thu Apr 16 09:23:29 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Need to ship new file transform.h.
+
+Thu Apr 16 08:20:01 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Makefile.am,docs/omegascript.rst,query.cc,transform.cc,transform.h:
+	  Factor out the implementation of $transform into a separate source
+	  file and compile only that file with $(PCRE_CFLAGS) to avoid
+	  problems reported by James Aylett with Mac OS X on #xapian-devel.
+	  Fix expansion of \1 to \9 to work correctly and document these
+	  and \\.  Fix handling of unescaped \ at the end of the pattern, and
+	  leave unrecognised \<x> sequences unchanged. 
+
+Thu Apr 16 04:38:20 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Remove duplicate "AC_SUBST(AM_CXXFLAGS)".
+
+Thu Apr 16 04:29:28 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Avoid implicitly casting a string literal to char* in
+	  the test for iconv by adding the same explicit cast we use in the
+	  code in utf8convert.cc.  Currently the implicit cast is "only" a
+	  warning under GCC, but the user could pass -Werror explicitly in
+	  CXXFLAGS, and this could be promoted to an error in future GCC
+	  versions, and may already be so for some other compilers.
+
+Thu Apr 16 03:56:16 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Back out previous fix - -Werror has nothing to do with
+	  the issue James reported.
+
+Tue Apr 14 15:34:36 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* configure.ac: Test for compiler flags before checking for
+	  libraries, and use the compiler flags found when checking for
+	  things.  In particular, this should fix the test for the type
+	  used by iconv() on MacOS (where it was previously returning "char
+	  *", and the test was giving a warning about converting this to
+	  "const char *", but not failing).  Requires a change to the iconv
+	  test to avoid it failing on linux with GCC due to an unrelated
+	  warning in the test code.
+
 Sat Apr 04 15:15:18 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.

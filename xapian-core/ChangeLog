@@ -144,6 +144,95 @@ Tue Nov 27 08:40:51 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 	* tests/api_db.cc: Add basic test of synonyms (currently doesn't
 	  pass due to testcase shortcomings).
 
+Tue Apr 21 11:05:17 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* NEWS: A few minor corrections and adjustments.
+
+Tue Apr 21 07:49:49 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/weight.h: Don't use the term "term" to talk about the
+	  extra weight component as it already has a strong meaning in Xapian.
+
+Tue Apr 21 07:16:18 GMT 2009  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Merge upstream "Check-in Number: 6451".
+
+Tue Apr 21 06:54:00 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/queryoptimiser.h: '#include <map>' isn't required.
+
+Tue Apr 21 06:45:14 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/queryoptimiser.cc,matcher/queryoptimiser.h: Eliminate
+	  QueryOptimiser::do_leaf() as it is only called from one place
+	  and if only two lines of code.
+
+Mon Apr 20 14:10:08 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog and start to lick into shape for a
+	  release.
+
+Mon Apr 20 13:06:17 GMT 2009  Olly Betts <olly@survex.com>
+
+	* HACKING: XAPIAN_DEBUG_LOG=- send output to stderr, not stdout.
+
+Mon Apr 20 11:53:07 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/output.h: Add new macro XAPIAN_OUTPUT_FUNCTION_PTR and use it
+	  so that debug logging of Xapian::Query::Internal* doesn't just
+	  report the pointer value.
+
+Mon Apr 20 06:39:42 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Apply debug logging change lifted from
+	  branches/opsynonym.
+
+Mon Apr 20 05:22:24 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/harness/testutils.cc: Add FIXME comments about use of internal
+	  macro from a different header.
+
+Mon Apr 20 05:08:34 GMT 2009  Olly Betts <olly@survex.com>
+
+	* HACKING: Update release checklist.
+
+Sun Apr 19 14:50:08 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_nodb.cc: Stick the reciprocal of "factor" into a
+	  volatile double temporary variable to stop compiler using
+	  extended precision calculation on x86, and coming up an answer of
+	  exactly 1.0 when multiplying by "factor" again.
+
+Sun Apr 19 14:26:09 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Sync with 1.0.12 and update from ChangeLog.
+
+Sun Apr 19 12:12:19 GMT 2009  Olly Betts <olly@survex.com>
+
+	* AUTHORS: Update for 1.0 branch.
+
+Thu Apr 16 12:08:24 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_values.cc: When copying the tail of a value
+	  chunk because did > last_allowed_did, we don't need to check if
+	  the docids being copied are < did, since they should all be <=
+	  last_allowed_did, so just assert the latter.
+
+Tue Apr 14 20:32:41 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_wrdb.cc: patch from james to move logging in
+	  modifyvalues1 so it reports the values it's rewriting correctly,
+	  rather than the empty string.  Also display the expected value in
+	  tout when checking the value.  Also, pull the setting of the random
+	  seed out to the start of the function, and set it to 7 (which
+	  exposed the bug fixed with the previous commit, which that the old
+	  value of 42 didn't, on my machine, at least).
+
+Tue Apr 14 18:12:08 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/chert/chert_values.cc: When we move the reader to a new
+	  chunk, write any trailing values left in it to the stream first.
+
 Thu Apr 09 05:01:04 GMT 2009  Olly Betts <olly@survex.com>
 
 	* docs/admin_notes.rst: Document the child process used for locking

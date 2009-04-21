@@ -8,6 +8,7 @@ testdb
 testdb-exception
 testdb-exception-modified
 testdb-spell
+testdb-writabledatabase
 blib
 pm_to_blib
 .*\.o

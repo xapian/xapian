@@ -224,7 +224,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 	       double factor, Xapian::doccount termfreq);
 
     /** @private @internal Initialise this object to calculate the extra weight
-     *  term.
+     *  component.
      *
      *  @param stats	  Source of statistics.
      *  @param query_len_ Query length.
