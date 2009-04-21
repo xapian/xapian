@@ -1,3 +1,9 @@
+Tue Apr 21 06:40:37 GMT 2009  Olly Betts <olly@survex.com>
+
+	* INSTALL: Python 2.6 and later look in ~/.local for Python modules so
+	  update the instructions to suggest users use this standard location
+	  for installing without root access.
+
 Tue Apr 21 05:59:29 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS: Clean up for release.
