@@ -1,3 +1,7 @@
+Wed Apr 22 14:32:56 GMT 2009  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Sync with 1.0.12; add entry for atreus for 1.1.0.
+
 Wed Apr 22 14:27:36 GMT 2009  Olly Betts <olly@survex.com>
 
 	* AUTHORS: Add more bug reporters and patch contributors.  Remove a
