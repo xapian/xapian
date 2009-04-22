@@ -70,9 +70,10 @@ AC_LANG_CPLUSPLUS
 dnl Check for libxapian
 XO_LIB_XAPIAN
 
-dnl We want XAPIAN_CXXFLAGS to be used for configure tests, so set AM_CXXFLAGS
-dnl here and unset them later.
-AM_CXXFLAGS=$XAPIAN_CXXFLAGS
+dnl We want XAPIAN_CXXFLAGS to be used for configure tests, so add it to
+dnl CXXFLAGS for the duration of configure.
+save_CXXFLAGS=$CXXFLAGS
+CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"
 
 dnl COMPAT_VERSION is the version of xapian-core that "matches" our version.
 dnl We allow for bindings being version 0.8.5.1 while xapian-core is 0.8.5.
@@ -812,7 +813,6 @@ AC_SUBST(BINDINGS)
 
 dnl Set flags to control warnings (enable more, or disable annoying ones)
 dnl and other compiler specific flags.
-AM_CXXFLAGS=
 SWIG_CXXFLAGS=
 JAVA_CXXFLAGS=
 if test yes = "$GXX" ; then
@@ -888,6 +888,9 @@ if test yes = "$GXX" ; then
 fi
 AC_SUBST(SWIG_CXXFLAGS)
 AC_SUBST(JAVA_CXXFLAGS)
+
+dnl Restore CXXFLAGS to those the user specified or autoconf defaulted to.
+CXXFLAGS=$save_CXXFLAGS
 
 AC_CONFIG_FILES([Makefile
  xapian-version.h
