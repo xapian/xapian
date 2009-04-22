@@ -1,5 +1,3 @@
- 12436    richard Tue Apr 21 17:59:13 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
-
 Xapian-core 1.1.0 (2009-04-2?):
 
 API:
@@ -80,7 +78,7 @@ API:
 
 * Add methods for serialising documents and queries to strings, and
   unserialising back from strings.  (ticket#206)
- 
+
 testsuite:
 
 * stemtest: No longer checks environment variables OM_STEMTEST_SKIP_RANDOM,
@@ -91,32 +89,8 @@ testsuite:
   an XML file for later analysis.  It's not run by "make check" - use "make
   check-perf" to run it.
 
-	* tests/harness/: Make flint and chert subtypes for the remote and
-	  multi backend types.  These are specified (on the command line
-	  and elsewhere) by the main type (multi, remotetcp or remoteprog),
-	  followed by an underscore, followed by the subtype (flint or
-	  chert).  Change return type of BackendManager::get_dbtype() to a
-	  string instead of a const char *, to allow backend managers which
-	  have subtypes to generate the result dynamically.
-	* Add new
-	  BackendManagerRemote class as a common base for the two remote
-	  backend managers, and move duplicated code into it.  Add
-	  parameter to its constructor, and to the constructors of the
-	  remote backend manager subclasses, to control the type of
-	  database to use at the remote end.
-	* tests/harness/backendmanager_multi.cc,
-	  tests/harness/backendmanager_multi.h: Add parameter to
-	  constructor of BackendManagerMulti, controlling the type of
-	  database to use for sub databases.  Put the generated database
-	  files in ".multiflint" and ".multichert" instead of ".multi".
-	* tests/harness/testrunner.cc: Update list of backend properties to
-	  contain the new subtypes.  Modify use_backend() to allow either
-	  the full backend type, or just the main part of the backend type,
-	  to be specified, so that, for example "-b multi" will run both
-	  the multi_chert and multi_flint tests.  Add test runs for all the
-	  subtypes now supported.  Catch string exceptions thrown by the
-	  test runner - these can currently occur when neither flint or
-	  chert are compiled in.
+* apitest: Now runs tests over both flint and chert for multi, remotetcp, and
+  remoteprog.
 
 * Wait for subprocesses to finish at end of tests with remotetcp backend, to
   avoid test failures when the same database is used for the next testcase.
@@ -124,8 +98,8 @@ testsuite:
 matcher:
 
 * Internally, pass around non-normalised document lengths as Xapian::termcount
-  (unsigned integer) not Xapian::doclength (double). (3% speedup for 10 term OR
-  queries!)
+  (unsigned integer) not Xapian::doclength (double).  This gives a 3% speedup
+  for 10 term OR queries!
 
 chert backend:
 
@@ -155,17 +129,16 @@ chert backend:
 
 flint backend:
 
-* Improve reporting of failures to obtain lock due
-	  to unexpected errors - the error messages included in the
-	  exceptions raised are now more verbose in many situations.  Also,
-	  if the lock can't be obtained when a database is being created,
-	  report the lock failure, not a DatabaseOpeningError - it's more
-	  useful to know that the lock attempt failed than that the
-	  database wasn't present before the attempt to create it.
+* If we can't obtain a write lock while trying to create a new database
+  we now report the lock failure with DatabaseLockError, not
+  DatabaseOpeningError - it's more useful to know that the lock attempt failed
+  in this situation.
 
- * bin/xapian-check.cc,bin/xapian-check-flint.cc: Don't stop checking
-   a table after an error in certain cases - instead increment the
-   error counter and try to continue checking from the next item.
+* Improve reporting of failures to obtain lock due to unexpected errors.
+
+* xapian-check: Don't stop checking a table after an error in certain cases -
+  instead increment the error counter and try to continue checking from the
+  next item.
 
 remote backend:
 
@@ -178,15 +151,12 @@ remote backend:
 * The remote servers now always default to opening a Database and the client
   has to send a protocol message to explicitly request write access.  This
   allows a single server to support multiple readers and one writer
-  simultaneously.  (bug#145)
- 
+  simultaneously.  (ticket#145)
+
 * Database::get_document() no longer does an unnecessary copy of the document's
   values.
 
-* Change serialisation of queries to use encode_length() rather than
-  om_tostring(), for a more compact and easier to parse representation.
-
-inmemory backend:
+* Change serialisation of queries to be more compact and easier to parse.
 
 stub databases:
 
@@ -205,7 +175,7 @@ stub databases:
 * Bad lines in a stub file were being ignored after we'd seen a good entry.
 
 * Add new Auto::open_stub() overload which opens a stub database file
-  containing a single entry as a WritableDatabase.  
+  containing a single entry as a WritableDatabase.
 
 * Add support for "inmemory" to stub database (which is useful now that stub
   databases can be opened for writing).
@@ -224,22 +194,10 @@ build system:
   using the --program-suffix argument to configure (if you really want no
   suffix, "./configure --program-suffix=" will achieve this).
 
-	  Move all information about particular autoconf and automake versions
-	  to HACKING.
-	* configure.ac: Use LT_INIT in preference to AC_PROG_LIBTOOL.  On
-	  Linux and k*bsd-gnu, override libtool's link_all_deplibs_CXX to
-	  "no".  On Linux, override libtool's sys_lib_dlsearch_path_spec to a
-	  list generated in a more reliable way which includes *all* the
-	  default directories.
-	* configure.ac: The workaround to avoid probe code for F77, GCJ, and
-	  RC being added to configure is no longer required now that we're
-	  using libtool 2.2 so remove it.
-	* configure.ac,HACKING: Hard require autoconf 2.63 and automake 1.10.2.
-	  Remove workaround which sets docdir for
-	  autoconf < 2.60 since we now require 2.62.
-	* xapian-core.spec.in: We no longer need to run autoreconf to work
-	  around libtool's incomplete sys_lib_dlsearch_path_spec or to pick
-	  up distro-specific patches for link_all_deplibs.
+* On Linux and k*bsd-gnu, override libtool's link_all_deplibs_CXX to "no".
+
+* On Linux, override libtool's sys_lib_dlsearch_path_spec to a list generated
+  in a more reliable way which includes all the default directories.
 
 * configure: --enable-debug and --enable-debug-verbose have been deprecated
   since 1.0.0, so remove specific errors pointing to the replacements.
@@ -250,36 +208,33 @@ documentation:
   write a brief description explicitly, and JAVADOC_AUTOBRIEF causes problems
   in some cases.
 
-* include/xapian/postingsource.h: Add comment on PostingSource base
-  class listing it as an experimental feature.
-* docs/deprecation.rst: Describe what "experimental" features are,
-  and why replication and posting sources are currently
-  experimental.
+* docs/deprecation.html: Describe what "experimental" features are, and why
+  replication and posting sources are currently experimental.
 
-* docs/deprecation.rst: Deprecate Stem_get_available_languages() from the
+* docs/deprecation.html: Deprecate Stem_get_available_languages() from the
   python bindings.
 
 examples:
 
 * Use C++ forms of C headers in examples (ticket#330).
 
-portability:
-
-
 packaging:
 
+* xapian-core.spec: We no longer need to run autoreconf to work around
+  libtool's incomplete sys_lib_dlsearch_path_spec or to pick up distro-specific
+  patches for link_all_deplibs.
 
 debug code:
 
-	* common/output.h: Add new macro XAPIAN_OUTPUT_FUNCTION_PTR and use it
-	  so that debug logging of Xapian::Query::Internal* doesn't just
-	  report the pointer value.
+* Report get_description() rather than the pointer value for
+  Xapian::Query::Internal* parameters to internal functions.
 
 * The debug logging framework has been overhauled.  See HACKING for details
   of how it now works.
 
-* Faster integer to string functions inside the library (this will particularly
-  speed up debug logging as that converts a lot of integers to strings).
+* Faster integer to string functions inside the library (this is a general
+  improvement, but will particularly speed up debug logging as that converts a
+  lot of integers to strings).
 
 Xapian-core 1.0.12 (2009-04-19):
 
