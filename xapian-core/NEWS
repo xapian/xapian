@@ -1,37 +1,41 @@
- 12416       olly Mon Apr 20 13:06:17 GMT 2009  Olly Betts <olly@survex.com>
+ 12436    richard Tue Apr 21 17:59:13 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
-trunk only:
-
-Xapian-core 1.1.0 (2009-04-??):
+Xapian-core 1.1.0 (2009-04-2?):
 
 API:
 
 * All deprecated xapian-core features listed for removal in 1.1.0 have been
-  removed.  For details, and suggested updates, see deprecation.html.
+  removed.  See deprecation.html for details, and suggested updates.
 
 * The Unicode character categorisation functions have been updated from
   Unicode 5.0 to 5.1.
 
 * Add NON_SPACING_MARK to is_wordchar() for better tokenisation of languages
-  which use such marks (for example, Arabic).  (ticket#355)
+  which use such marks - for example, Arabic.  This is better than the stop-gap
+  fix in 1.0 of treating NON_SPACING_MARK as a phrase-generator character
+  when parsing queries, but it does mean that databases built from data
+  containing such characters will need to be rebuilt.  (ticket#355)
 
-  (rather than the 1.0 solution of making NON_SPACING_MARK a phrase generator).
+* The details of how to subclass Xapian::Weight to implement your own
+  weighting scheme have changed incompatibly to allow user weighting schemes
+  to have access to the same statistics as built-in schemes (ticket#213)
+  If you have a existing subclass of Xapian::Weight you'll need to update it.
 
-* Reimplementation of weighting schemes which allows user subclasses to access
-  the same stats which built in schemes can (bug#213) and which also can use
-  lower and upper bounds of doclength and upper bounds on wdf to give a tighter
-  maxweight, which should allow the matcher weight-based optimisations to be
-  more effective.  Chert now tracks doclength bounds and a global (rather than
-  per term) bound on wdf.  Other backends return much less tight bounds, but
-  these still lead to better maxweight bounds.
+* New Database methods get_doclength_upper_bound(), get_doclength_lower_bound()
+  and get_wdf_upper_bound(), primarily intended for allowing weighting schemes
+  to calculate tighter upper bounds on weights (which BM25Weight and TradWeight
+  now do) which allows matcher weight-based optimisations to be more effective.
+  Chert actually tracks doclength bounds and a global (rather than per term)
+  upper bound on wdf; other backends return much less tight bounds, but these
+  still lead to better upper bounds on weights.
 
-* Enquire::get_eset() now uses the "official" formula and doesn't return terms
-  which would get a negative weight from it (since that means they are expected
-  to be harmful not helpful).
+* Enquire::get_eset() now uses an unmodified of probabilistic formula, and
+  doesn't return terms which would get a negative weight from it (since that
+  means they are expected to be harmful not helpful).
 
-* Add Database::close() method, used to close the resources (in particular, the
-  filehandles) held by a database before the destructor is called.
-  Particularly useful for the bindings from other languages.
+* Add Database::close() method, which will release system resources (in
+  particular, close filehandles) held by a database.  This is particularly
+  useful when wrapping the API for languages with garbage collection.
 
 * Change Database::positionlist_begin() not to throw exceptions if the term or
   document doesn't exist.
@@ -40,33 +44,9 @@ API:
 
 * A new Database replication API has been added (currently experimental).
 
-* Stub databases used to assume that any relative paths were relative to the
-  current working directory.  They now assume that relative paths are
-  relative to the directory holding the stub database file.
-
-* Stub database lines which begin with a '#' character are ignored, allowing
-  comments in stub database files.
-
-* New "stub directory" database type - this is a directory containing a stub
-  database file named "XAPIANDB".
-
-* Don't just ignore lines with no spaces in in stub database files.
-
-* Bad lines in a stub file were being ignored after we'd seen a good entry.
-
-* Add support for "inmemory" to stub database (it's useful now they can be
-  writable).
-
-* Add new Auto::open_stub() overload which opens a stub database file
-  containing a single entry as a WritableDatabase.  
-
-* A stub database file is now allowed to contain no database entries, which
-  results in an empty Database object (this avoids user code having to special
-  case to handle "0 or more" databases).
-
-* Change definition of MSet::get_termfreq() such that it will fall back to
-  looking the term frequency up in the database rather than raising an
-  exception if the term is not present in the MSet.
+* MSet::get_termfreq() will now fall back to looking up the term frequency in
+  the database rather than raising an exception if a term wasn't present in
+  the query.
 
 * Calling RSet:add_document() with argument 0 now throws InvalidArgumentError.
 
@@ -76,12 +56,10 @@ API:
   passed a set of values to look for in documents, and selects documents based
   on the presence of those values.
 
-* Add new Xapian::PostingSource interface to allow passing custom sources
-  of postings and weights to the matcher (currently experimental).
-  
-* Built-in PostingSource subclasses: ValuePostingSource,
-  ValueWeightPostingSource, ValueMapPostingSource,
-  FixedWeightPostingSource (also experimental).
+* Add new Xapian::PostingSource class to allow passing custom sources of
+  postings and weights to the matcher.  Built-in PostingSource subclasses:
+  FixedWeightPostingSource, ValueMapPostingSource, ValuePostingSource, and
+  ValueWeightPostingSource.  (Currently experimental).
 
 * Database: Add get_value_freq(), get_value_lower_bound() and
   get_value_upper_bound() methods to get statistics about the values stored in
@@ -94,30 +72,24 @@ API:
 
 * Enquire::set_collapse_key() now allows you to specify a maximum number of
   matches with each collapse key to keep (which defaults to 1, giving the
-  previous behaviour).  Enquire can now track and report bounds and an
-  estimate of what the total number of matches would be if collapsing
-  wasn't in use.
+  previous behaviour).  Enquire can now report bounds and an estimate of what
+  the total number of matches would have been if collapsing wasn't in use.
 
 * WritableDatabase::commit() is a new, preferred alias for
-  WritableDatabase::flush().  (bug#266)
+  WritableDatabase::flush().  (ticket#266)
 
-* Add methods for serialising documents and queries into strings, and
-  unserialising back from strings.  #206
+* Add methods for serialising documents and queries to strings, and
+  unserialising back from strings.  (ticket#206)
  
 testsuite:
 
-	* Add new testsuite "perftest", which is
-	  intended to contain potentially time consuming performance tests,
-	  logging the results to an XML file for later analysis.  Add a
-	  simple test of the ValueSetMatchDeciders to this testsuite.
-	  "perftest" isn't run by make check, because it is likely to take
-	  some hours to complete in future - instead, there's a new
-	  top-level target "check-perf" which builds and runs perftest.
-	* tests/submitperftest: Add script to submit the results of a
-	  performance test to a central server.
-
 * stemtest: No longer checks environment variables OM_STEMTEST_SKIP_RANDOM,
   OM_STEMTEST_LANGUAGES, and OM_STEMTEST_SEED.
+
+* perftest: New performance testsuite.  This is intended to contain intended to
+  contain potentially time-consuming performance tests, which log output to
+  an XML file for later analysis.  It's not run by "make check" - use "make
+  check-perf" to run it.
 
 	* tests/harness/: Make flint and chert subtypes for the remote and
 	  multi backend types.  These are specified (on the command line
@@ -146,9 +118,8 @@ testsuite:
 	  test runner - these can currently occur when neither flint or
 	  chert are compiled in.
 
-* tests/harness/: Wait for subprocesses to finish at end of tests,
-	  with remotetcp backend, to avoid test failures due to final flush
-	  of a subprocess writing to the database used for the next test.
+* Wait for subprocesses to finish at end of tests with remotetcp backend, to
+  avoid test failures when the same database is used for the next testcase.
 
 matcher:
 
@@ -175,12 +146,12 @@ chert backend:
   efficient access to the same slot in lots of documents.  This makes
   operations like sort by value much more efficient.
 
-* WritableDatabase::replace_document() now updates lazily - for example, if you
-  just change the values then the terms and document data aren't needlessly
-  rewritten with the same values.
-  FIXME:
-  Caveats: currently it only checks if you've *looked at* the values/terms/data
-  not if they've been modified.  Also, only works for the last document read.
+* WritableDatabase::replace_document() now updates the database lazily in
+  simple cases - for example, if you just change a document's values and
+  replace it with the same docid, then the terms and document data aren't
+  needlessly rewritten.  Caveats: currently we only check if you've looked at
+  the values/terms/data, not if they've actually been modified, and only keep
+  keep track of the last document read.
 
 flint backend:
 
@@ -216,6 +187,32 @@ remote backend:
   om_tostring(), for a more compact and easier to parse representation.
 
 inmemory backend:
+
+stub databases:
+
+* Stub databases used to assume that any relative paths were relative to the
+  current working directory.  They now assume that relative paths are
+  relative to the directory holding the stub database file.
+
+* Stub database lines which begin with a '#' character are now ignored,
+  allowing comments in stub database files.
+
+* New "stub directory" database type - this is a directory containing a stub
+  database file named "XAPIANDB".
+
+* Don't just ignore lines with no spaces in a stub database file.
+
+* Bad lines in a stub file were being ignored after we'd seen a good entry.
+
+* Add new Auto::open_stub() overload which opens a stub database file
+  containing a single entry as a WritableDatabase.  
+
+* Add support for "inmemory" to stub database (which is useful now that stub
+  databases can be opened for writing).
+
+* A stub database file is now allowed to contain no database entries, which
+  results in an empty Database object (this avoids user code having to special
+  case to handle "0 or more" databases).
 
 build system:
 
