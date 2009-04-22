@@ -1,11 +1,11 @@
-xapian-bindings (1.0.11-1) unstable; urgency=low
+xapian-bindings (1.0.12-1) unstable; urgency=low
 
   * New upstream release.
   * debian/control.in: Standards-Version: 3.8.1 (no changes required).
   * debian/control.in,debian/control-php.in: Update sections of php5-xapian
     and libxapian-ruby1.8.
 
- -- Olly Betts <olly@survex.com>  Wed, 18 Mar 2009 01:02:29 +0000
+ -- Olly Betts <olly@survex.com>  Wed, 22 Apr 2009 04:03:08 +0100
 
 xapian-bindings (1.0.10-1) unstable; urgency=low
 
