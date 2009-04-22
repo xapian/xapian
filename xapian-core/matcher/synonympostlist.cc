@@ -1,6 +1,7 @@
-/* synonympostlist.cc: Combine subqueries, weighting as if they are synonyms
- *
- * Copyright 2007 Lemur Consulting Ltd
+/** @file synonympostlist.cc
+ * @brief Combine subqueries, weighting as if they are synonyms
+ */
+/* Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -87,42 +88,42 @@ SynonymPostList::get_wdf() const {
     return subtree->get_wdf();
 }
 
-Xapian::doccount 
+Xapian::doccount
 SynonymPostList::get_termfreq_min() const {
     return subtree->get_termfreq_min();
 }
 
-Xapian::doccount 
+Xapian::doccount
 SynonymPostList::get_termfreq_est() const {
     return subtree->get_termfreq_est();
 }
 
-Xapian::doccount 
+Xapian::doccount
 SynonymPostList::get_termfreq_max() const {
     return subtree->get_termfreq_max();
 }
 
-Xapian::docid 
+Xapian::docid
 SynonymPostList::get_docid() const {
     return subtree->get_docid();
 }
 
-Xapian::termcount 
+Xapian::termcount
 SynonymPostList::get_doclength() const {
     return subtree->get_doclength();
 }
 
-PositionList * 
+PositionList *
 SynonymPostList::read_position_list() {
     return subtree->read_position_list();
 }
 
-PositionList * 
+PositionList *
 SynonymPostList::open_position_list() const {
     return subtree->open_position_list();
 }
 
-bool 
+bool
 SynonymPostList::at_end() const {
     return subtree->at_end();
 }

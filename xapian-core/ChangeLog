@@ -1,3 +1,8 @@
+Wed Apr 22 05:46:50 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/synonympostlist.cc: Add doxygen comments for file.  Trim
+	  trailing whitespace.
+
 Tue Apr 21 15:01:20 GMT 2009  Olly Betts <olly@survex.com>
 
 	* include/xapian/weight.h,matcher/localmatch.cc,weight/weight.cc:
