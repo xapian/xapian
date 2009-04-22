@@ -1,3 +1,8 @@
+Wed Apr 22 16:21:53 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* makebinaries.py,win32_tests.mak: Add a script and some changes to
+	  the test makefile which got missed out of the previous commit.
+
 Tue Apr 21 10:34:00 GMT 2009  Charlie Hull <charlie@lemurconsulting.com>
 
 	* config.h.omega.win32: Update version numbers
