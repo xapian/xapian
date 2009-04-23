@@ -1,3 +1,10 @@
+Thu Apr 23 13:36:14 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/localmatch.cc,matcher/localmatch.h,matcher/queryoptimiser.h,
+	  queryparser/queryparser.lemony,tests/queryparsertest.cc: Update
+	  copyright lines with changes made by me during the lifetime of
+	  this branch.
+
 Thu Apr 23 13:26:55 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/queryoptimiser.cc: Move the OP_SYNONYM case up with OP_OR

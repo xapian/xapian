@@ -2,6 +2,7 @@
 /* queryparser.lemony: build a Xapian::Query object from a user query string.
  *
  * Copyright (C) 2004,2005,2006,2007,2008 Olly Betts
+ * Copyright (C) 2007,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
