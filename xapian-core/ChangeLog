@@ -1,3 +1,10 @@
+Thu Apr 23 23:43:26 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/synonympostlist.cc: Call next() and skip_to() on the
+	  sub-postlist with a w_min of 0.  We're not reading weights from
+	  it, so we don't want it to try terminating early or skipping
+	  items due to weight restrictions.
+
 Thu Apr 23 15:21:28 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* queryparser/queryparser.lemony: Make partial queries join all the
