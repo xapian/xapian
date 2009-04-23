@@ -1,3 +1,8 @@
+Thu Apr 23 17:46:12 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/smoketest2.py,python/smoketest3.py: Update smoketest test
+	  of FLAG_PARTIAL to expect a SYNONYM operator.
+
 Tue Apr 21 06:40:37 GMT 2009  Olly Betts <olly@survex.com>
 
 	* INSTALL: Python 2.6 and later look in ~/.local for Python modules so
