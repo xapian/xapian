@@ -1461,15 +1461,26 @@ DEFINE_TESTCASE(consistency1, backend && !remote) {
 DEFINE_TESTCASE(synonym1, backend) {
     Xapian::Database db(get_database("etext"));
     Xapian::doccount lots = 214;
+
+    // Make a list of lists of subqueries, which are going to be joined
+    // together as a synonym.
     vector<vector<Xapian::Query> > subqueries_list;
 
     vector<Xapian::Query> subqueries;
     subqueries.push_back(Xapian::Query("date"));
     subqueries_list.push_back(subqueries);
 
+    // Two terms, which co-occur in some documents.
     subqueries.clear();
     subqueries.push_back(Xapian::Query("sky"));
     subqueries.push_back(Xapian::Query("date"));
+    subqueries_list.push_back(subqueries);
+
+    // Two terms which are entirely disjoint, and where the maximum weight
+    // doesn't occur in the first or second match.
+    subqueries.clear();
+    subqueries.push_back(Xapian::Query("gutenberg"));
+    subqueries.push_back(Xapian::Query("blockhead"));
     subqueries_list.push_back(subqueries);
 
     subqueries.clear();
@@ -1487,10 +1498,10 @@ DEFINE_TESTCASE(synonym1, backend) {
     subqueries_list.push_back(subqueries);
 
     subqueries.clear();
-    subqueries.push_back(Xapian::Query("sky"));
+    subqueries.push_back(Xapian::Query("attitud"));
     subqueries.push_back(Xapian::Query(Xapian::Query::OP_PHRASE,
-				       Xapian::Query("date"),
-				       Xapian::Query("stein")));
+				       Xapian::Query("german"),
+				       Xapian::Query("adventur")));
     subqueries_list.push_back(subqueries);
 
     for (vector<vector<Xapian::Query> >::const_iterator
@@ -1500,10 +1511,14 @@ DEFINE_TESTCASE(synonym1, backend) {
 	// Run two queries, one joining the subqueries with OR and one joining them
 	// with SYNONYM.
 	Xapian::Enquire enquire(db);
-	enquire.set_query(Xapian::Query(Xapian::Query::OP_OR, qlist->begin(), qlist->end()));
+
+	// Do the search with OR
+	Xapian::Query orquery(Xapian::Query(Xapian::Query::OP_OR, qlist->begin(), qlist->end()));
+	enquire.set_query(orquery);
 	Xapian::MSet ormset = enquire.get_mset(0, lots);
+
+	// Do the search with synonym, getting all the results.
 	Xapian::Query synquery(Xapian::Query::OP_SYNONYM, qlist->begin(), qlist->end());
-	tout << synquery << "\n";
 	enquire.set_query(synquery);
 	Xapian::MSet mset = enquire.get_mset(0, lots);
 
@@ -1545,6 +1560,13 @@ DEFINE_TESTCASE(synonym1, backend) {
 	    TEST_NOT_EQUAL(different_weight, 0);
 	    TEST_REL(same_weight, <, different_weight);
 	}
+
+	// Do the search with synonym, but just get the top result.
+	// (Regression test - the OR subquery in the synonym postlist tree used
+	// to shortcut incorrectly, and return the wrong result here).
+	Xapian::MSet mset_top = enquire.get_mset(0, 1);
+	TEST_EQUAL(mset_top.size(), 1);
+	TEST(mset_range_is_same(mset_top, 0, mset, 0, 1));
     }
     return true;
 }
