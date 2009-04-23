@@ -7,6 +7,12 @@ ACLOCAL_AMFLAGS = -I m4
 # `make QUIET=y' overrides `./configure' without `--enable-quiet'.
 LIBTOOL = @LIBTOOL@ $(QUIET:y=--quiet)
 
+if MAINTAINER_MODE
+# Export these so that we run the locally installed autotools when building
+# from a bootstrapped SVN tree.
+export ACLOCAL AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE
+endif
+
 INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
 if VPATH_BUILD
 # Needed for the generated files include/xapian/version.h

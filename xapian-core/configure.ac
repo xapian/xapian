@@ -1083,6 +1083,10 @@ if test yes = "$vpath_build" ; then
   done
 fi
 
+dnl Required for auto regeneration to work in a combined maintainer-mode tree.
+: ${AUTOM4TE=autom4te}
+AC_SUBST([AUTOM4TE])
+
 dnl Generate include/xapian/version.h:
 
 dnl MAIN_VERSION is VERSION without any _svn6789 suffix.

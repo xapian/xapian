@@ -1,3 +1,10 @@
+Thu Apr 23 06:16:05 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac,docs/Makefile.am,tests/Makefile.am: Fix
+	  things up so that in a bootstrapped SVN tree, automatic regeneration
+	  of autotools-generated files uses the in-tree versions of the
+	  autotools.
+
 Thu Apr 23 04:37:31 GMT 2009  Olly Betts <olly@survex.com>
 
 	* AUTHORS: Add another bug reporter.
