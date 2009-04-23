@@ -1,3 +1,11 @@
+Thu Apr 23 15:21:28 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* queryparser/queryparser.lemony: Make partial queries join all the
+	  parts from separate prefixes with OP_SYNONYM, rather than joining
+	  all the parts from each prefix with OP_SYNONYM and then joining
+	  those with OP_OR.
+	* tests/queryparsertest.cc: Test the above.
+
 Thu Apr 23 13:36:14 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* matcher/localmatch.cc,matcher/localmatch.h,matcher/queryoptimiser.h,

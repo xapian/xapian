@@ -1,7 +1,7 @@
 /* queryparsertest.cc: Tests of Xapian::QueryParser
  *
  * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
- * Copyright (C) 2007 Lemur Consulting Ltd
+ * Copyright (C) 2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -908,6 +908,10 @@ static bool test_qp_flag_partial1()
     doc.add_term("XTcowl");
     doc.add_term("XTcox");
     doc.add_term("ZXTcow");
+    doc.add_term("XONEpartial");
+    doc.add_term("XONEpartial2");
+    doc.add_term("XTWOpartial3");
+    doc.add_term("XTWOpartial4");
     db.add_document(doc);
     Xapian::QueryParser qp;
     qp.set_database(db);
@@ -983,7 +987,19 @@ static bool test_qp_flag_partial1()
     // inflate the wqf of the "parsed as normal" version of a partial term
     // by multiplying it by the number of prefixes mapped to.
     qobj = qp.parse_query("double:vision", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((ZXONEvision:(pos=1) OR ZXTWOvision:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((ZXONEvision:(pos=1) SYNONYM ZXTWOvision:(pos=1)))");
+
+    // Test handling of FLAG_PARTIAL when there's more than one prefix.
+    qobj = qp.parse_query("double:part", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(((XONEpartial:(pos=1) SYNONYM XONEpartial2:(pos=1) SYNONYM XTWOpartial3:(pos=1) SYNONYM XTWOpartial4:(pos=1)) OR (ZXONEpart:(pos=1) SYNONYM ZXTWOpart:(pos=1))))");
+
+    // Test handling of FLAG_PARTIAL when there's more than one prefix, without
+    // stemming.
+    qp.set_stemming_strategy(Xapian::QueryParser::STEM_NONE);
+    qobj = qp.parse_query("double:part", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(((XONEpartial:(pos=1) SYNONYM XONEpartial2:(pos=1) SYNONYM XTWOpartial3:(pos=1) SYNONYM XTWOpartial4:(pos=1)) OR (XONEpart:(pos=1) SYNONYM XTWOpart:(pos=1))))");
+    qobj = qp.parse_query("double:partial", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(((XONEpartial:(pos=1) SYNONYM XONEpartial2:(pos=1) SYNONYM XTWOpartial3:(pos=1) SYNONYM XTWOpartial4:(pos=1)) OR (XONEpartial:(pos=1) SYNONYM XTWOpartial:(pos=1))))");
 
     return true;
 }
