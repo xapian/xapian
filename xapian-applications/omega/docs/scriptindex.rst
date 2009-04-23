@@ -81,9 +81,16 @@ unique[=PREFIX]
 	the old record can be found.  In Omega, Q is reserved for use as the
 	prefix of a unique term.
 
-value=VALUENUMBER
-	add as a Xapian document value in slot VALUENUMBER.  Values can be used
-	for eliminating equivalent documents and sorting the MSet.
+value=VALUESLOT
+	add as a Xapian document value in slot VALUESLOT.  Values can be used
+	for collapsing equivalent documents, sorting the MSet, etc.  If you
+        want to perform numeric sorting, use the valuenumeric action instead.
+
+valuenumeric=VALUESLOT
+        Like value=VALUESLOT, this adds as a Xapian document value in slot
+        VALUESLOT, but it encodes it for numeric sorting using
+        Xapian::sortable_serialise().  Values set with this action can be
+        used for numeric sorting of the MSet.
 
 weight=FACTOR
 	set the weighting factor to FACTOR (an integer).  The default is 1.

@@ -34,6 +34,7 @@
 #include <vector>
 #include <cstring>
 
+#include <cstdlib>
 #include "safeerrno.h"
 #include <stdio.h>
 #include <time.h>
@@ -95,7 +96,7 @@ prefix_needs_colon(const string & prefix, unsigned ch)
 const char * action_names[] = {
     "bad", "new",
     "boolean", "date", "field", "hash", "index", "indexnopos", "load", "lower",
-    "truncate", "unhtml", "unique", "value", "weight"
+    "truncate", "unhtml", "unique", "value", "valuenumeric", "weight"
 };
 
 // For debugging:
@@ -106,7 +107,7 @@ public:
     typedef enum {
 	BAD, NEW,
 	BOOLEAN, DATE, FIELD, HASH, INDEX, INDEXNOPOS, LOAD, LOWER,
-	TRUNCATE, UNHTML, UNIQUE, VALUE, WEIGHT
+	TRUNCATE, UNHTML, UNIQUE, VALUE, VALUENUMERIC, WEIGHT
     } type;
 private:
     type action;
@@ -252,6 +253,10 @@ parse_index_script(const string &filename)
 		    case 'v':
 			if (action == "value") {
 			    code = Action::VALUE;
+			    arg = YES;
+			    takes_integer_argument = true;
+			} else if (action == "valuenumeric") {
+			    code = Action::VALUENUMERIC;
 			    arg = YES;
 			    takes_integer_argument = true;
 			}
@@ -593,6 +598,19 @@ again:
 			if (!value.empty())
 			    doc.add_value(i->get_num_arg(), value);
 			break;
+		    case Action::VALUENUMERIC: {
+			if (value.empty()) break;
+			char * end;
+			double dbl = strtod(value.c_str(), &end);
+			if (*end) {
+			    cout << fname << ':' << line_no << ": Warning: "
+				    "Trailing characters in VALUENUMERIC: '"
+				 << value << "'" << endl;
+			}
+			doc.add_value(i->get_num_arg(),
+				      Xapian::sortable_serialise(dbl));
+			break;
+		    }
 		    case Action::DATE: {
 			const string & type = i->get_string_arg();
 			string yyyymmdd;
