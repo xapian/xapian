@@ -1,3 +1,8 @@
+Thu Apr 23 03:51:03 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Use "--coverage" instead of "-fprofile-arcs
+	  -ftest-coverage" in the test coverage build.
+
 Wed Apr 22 14:32:56 GMT 2009  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Sync with 1.0.12; add entry for atreus for 1.1.0.
