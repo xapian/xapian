@@ -6,6 +6,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2003,2004,2009 Olly Betts
+ * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -103,6 +104,12 @@ class AndMaybePostList : public BranchPostList {
 	    lmax = l->get_maxweight();
 	    rmax = r->get_maxweight();
 	}
+
+	/** get_wdf() for ANDMAYBE postlists returns the sum of the wdfs of the
+	 *  sub postlists which are at the current document - this is desirable
+	 *  when the AND is part of a synonym.
+	 */
+	Xapian::termcount get_wdf() const;
 };
 
 #endif /* OM_HGUARD_ANDMAYBEPOSTLIST_H */

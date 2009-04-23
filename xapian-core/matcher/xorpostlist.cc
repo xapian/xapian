@@ -3,6 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2003,2004,2007,2008,2009 Olly Betts
+ * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -293,4 +294,12 @@ XorPostList::get_doclength() const
     if (lhead < rhead) return l->get_doclength();
     Assert(lhead > rhead);
     return r->get_doclength();
+}
+
+Xapian::termcount
+XorPostList::get_wdf() const
+{
+    DEBUGCALL(MATCH, Xapian::termcount, "XorPostList::get_wdf", "");
+    if (lhead < rhead) RETURN(l->get_wdf());
+    RETURN(r->get_wdf());
 }

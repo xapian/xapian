@@ -2,6 +2,7 @@
  *
  * Copyright 2002 Ananova Ltd
  * Copyright 2003,2004,2009 Olly Betts
+ * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -70,6 +71,11 @@ class AndPostList : public BranchPostList {
 		    MultiMatch *matcher_,
 		    Xapian::doccount dbsize_,
 		    bool replacement = false);
+
+	/** get_wdf() for AND postlists returns the sum of the wdfs of the sub
+	 *  postlists - this is desirable when the AND is part of a synonym.
+	 */
+	Xapian::termcount get_wdf() const;
 };
 
 #endif /* OM_HGUARD_ANDPOSTLIST_H */
