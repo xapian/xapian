@@ -82,6 +82,9 @@ QueryOptimiser::do_subquery(const Xapian::Query::Internal * query, double factor
 	case Xapian::Query::OP_ELITE_SET:
 	    RETURN(do_or_like(query, factor));
 
+	case Xapian::Query::OP_SYNONYM:
+	    RETURN(do_synonym(query, factor));
+
 	case Xapian::Query::OP_AND_NOT: {
 	    AssertEq(query->subqs.size(), 2);
 	    PostList * l = do_subquery(query->subqs[0], factor);
@@ -120,10 +123,6 @@ QueryOptimiser::do_subquery(const Xapian::Query::Internal * query, double factor
 	    double sub_factor = factor;
 	    if (sub_factor != 0.0) sub_factor *= query->get_dbl_parameter();
 	    RETURN(do_subquery(query->subqs[0], sub_factor));
-	}
-
-	case Xapian::Query::OP_SYNONYM: {
-	    RETURN(do_synonym(query, factor));
 	}
 
 	default:
@@ -310,12 +309,6 @@ QueryOptimiser::do_or_like(const Xapian::Query::Internal *query, double factor)
     Assert(op == Xapian::Query::OP_ELITE_SET || op == Xapian::Query::OP_OR ||
 	   op == Xapian::Query::OP_XOR || op == Xapian::Query::OP_SYNONYM);
 
-    // We build an OR tree for OP_SYNONYM.  (The resulting tree will then be
-    // passed into a SynonymPostList, from which the weightings will come.)
-    if (op == Xapian::Query::OP_SYNONYM) {
-	op = Xapian::Query::OP_OR;
-    }
-
     const Xapian::Query::Internal::subquery_list &queries = query->subqs;
     AssertRel(queries.size(), >=, 2);
 
@@ -407,6 +400,8 @@ QueryOptimiser::do_synonym(const Xapian::Query::Internal *query, double factor)
 
     AssertEq(query->wqf, 0); // FIXME - should we be doing something with the wqf?
 
+    // We build an OP_OR tree for OP_SYNONYM and then wrap it in a
+    // SynonymPostList, which supplies the weights.
     RETURN(localsubmatch.make_synonym_postlist(do_or_like(query, 0.0),
 					       matcher, factor));
 }

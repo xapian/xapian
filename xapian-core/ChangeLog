@@ -1,3 +1,10 @@
+Thu Apr 23 13:26:55 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/queryoptimiser.cc: Move the OP_SYNONYM case up with OP_OR
+	  which it's most similar too.  And there's no need to change the op
+	  from OP_SYNONYM to OP_OR in QueryOptimiser::do_or_like() (and we
+	  don't mess with OP_ELITE_SET which also produces OrPostList).
+
 Thu Apr 23 13:25:06 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: Note in a comment when (denom == 0) happens.
