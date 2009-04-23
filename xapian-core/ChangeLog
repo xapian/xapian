@@ -1,3 +1,11 @@
+Thu Apr 23 04:26:25 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Makefile.am,languages/Makefile.mk,queryparser/Makefile.mk,
+	  tests/Makefile.am,tests/perftest/Makefile.mk: Don't remove any
+	  built sources in "make clean" even under --make-maintainer-mode
+	  as that breaks switching a tree away from maintainer-mode with:
+	  make distclean;./configure
+
 Thu Apr 23 03:51:03 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Use "--coverage" instead of "-fprofile-arcs

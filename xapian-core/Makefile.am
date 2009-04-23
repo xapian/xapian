@@ -158,3 +158,5 @@ CLEANFILES += $(dist_man_MANS)
 xapian-config.1: xapian-config makemanpage
 	./makemanpage ./xapian-config xapian-config xapian-config.1
 endif
+
+MAINTAINERCLEANFILES += $(BUILT_SOURCES)

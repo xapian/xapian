@@ -150,8 +150,6 @@ BUILT_SOURCES =
 if MAINTAINER_MODE
 BUILT_SOURCES += api_all.h api_collated.h $(collated_apitest_sources:.cc=.h) \
  api_generated.cc
-CLEANFILES = api_all.h api_collated.h $(collated_apitest_sources:.cc=.h) \
- api_generated.cc
 
 api_all.h api_collated.h $(collated_apitest_sources:.cc=.h): api_collated.stamp
 ## Recover from the removal of $@.  A full explanation of these rules is in the

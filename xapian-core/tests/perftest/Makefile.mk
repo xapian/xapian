@@ -32,8 +32,6 @@ perftest_perftest_LDADD = ../libgetopt.la ../$(libxapian_la)
 if MAINTAINER_MODE
 BUILT_SOURCES += perftest/perftest_all.h perftest/perftest_collated.h \
  $(collated_perftest_sources:.cc=.h)
-CLEANFILES += perftest/perftest_all.h perftest/perftest_collated.h \
- $(collated_perftest_sources:.cc=.h)
 
 perftest/perftest_all.h perftest/perftest_collated.h $(collated_perftest_sources:.cc=.h): perftest/perftest_collated.stamp
 ## Recover from the removal of $@.  A full explanation of these rules is in the
