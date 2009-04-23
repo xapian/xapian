@@ -1,3 +1,7 @@
+Thu Apr 23 04:37:31 GMT 2009  Olly Betts <olly@survex.com>
+
+	* AUTHORS: Add another bug reporter.
+
 Thu Apr 23 04:26:25 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Makefile.am,languages/Makefile.mk,queryparser/Makefile.mk,
