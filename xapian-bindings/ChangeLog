@@ -1,3 +1,19 @@
+Thu Apr 23 06:59:22 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac,csharp/Makefile.am,csharp/docs/Makefile.am,
+	  generic/generic.mk,guile/Makefile.am,java-swig/Makefile.am,
+	  java/Makefile.am,java/native/Makefile.am,java/org/xapian/Makefile.am,
+	  java/org/xapian/errors/Makefile.am,
+	  java/org/xapian/examples/Makefile.am,php/Makefile.am,
+	  php/docs/Makefile.am,python/Makefile.am,python/docs/Makefile.am,
+	  ruby/Makefile.am,ruby/docs/Makefile.am,tcl8/Makefile.am,
+	  tcl8/docs/Makefile.am: Fix things up so that in a bootstrapped SVN
+	  tree, automatic regeneration of autotools-generated files uses the
+	  in-tree versions of the autotools.
+	* configure.ac,java/Makefile.am,java/org/Makefile.am: Eliminate
+	  java/org/Makefile.am which just forwards to its "xapian"
+	  subdirectory.
+
 Wed Apr 22 13:57:58 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS: Fix date.

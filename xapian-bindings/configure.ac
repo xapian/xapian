@@ -892,11 +892,15 @@ AC_SUBST(JAVA_CXXFLAGS)
 dnl Restore CXXFLAGS to those the user specified or autoconf defaulted to.
 CXXFLAGS=$save_CXXFLAGS
 
+dnl Required for auto regeneration to work in a combined maintainer-mode tree.
+: ${AUTOM4TE=autom4te}
+AC_SUBST([AUTOM4TE])
+
 AC_CONFIG_FILES([Makefile
  xapian-version.h
  python/Makefile python/docs/Makefile
  php/Makefile php/docs/Makefile
- java/Makefile java/native/Makefile java/org/Makefile java/org/xapian/Makefile
+ java/Makefile java/native/Makefile java/org/xapian/Makefile
  java/org/xapian/errors/Makefile java/org/xapian/examples/Makefile
  java-swig/Makefile
  tcl8/Makefile tcl8/docs/Makefile
