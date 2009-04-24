@@ -1,3 +1,9 @@
+Fri Apr 24 22:51:35 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/omqueryinternal.cc: Add OP_SYNONYM to list of operators in
+	  add_subquery_nocopy(); it probably got missed due to an earlier
+	  merge.
+
 Fri Apr 24 22:49:58 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/api_opsynonym.cc: Add a check that the document length

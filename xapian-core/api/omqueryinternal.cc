@@ -1065,7 +1065,7 @@ Xapian::Query::Internal::add_subquery_nocopy(Xapian::Query::Internal * subq)
     Assert(!is_leaf(op));
     if (subq == 0) {
 	subqs.push_back(0);
-    } else if (op == subq->op && (op == OP_AND || op == OP_OR || op == OP_XOR)) {
+    } else if (op == subq->op && (op == OP_AND || op == OP_OR || op == OP_XOR || op == OP_SYNONYM)) {
 	// Distribute the subquery.
 	for (subquery_list::const_iterator i = subq->subqs.begin();
 	     i != subq->subqs.end(); i++) {
