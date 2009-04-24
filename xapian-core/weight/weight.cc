@@ -81,16 +81,27 @@ void
 Weight::init_(const Internal & stats, Xapian::termcount query_length,
 	      double factor, Xapian::doccount termfreq)
 {
+    LOGCALL_VOID(MATCH, "Weight::init_", stats << ", " << query_length <<
+	    ", " << factor << ", " << termfreq);
     // Synonym case.
     collection_size_ = stats.collection_size;
     rset_size_ = stats.rset_size;
-    average_length_ = stats.get_average_length();
-    doclength_upper_bound_ = stats.db.get_doclength_upper_bound();
-    doclength_lower_bound_ = stats.db.get_doclength_lower_bound();
-    // For a synonym, the doclength is an upper bound on the wdf.
-    // FIXME: foo OP_SYNONYM foo could exceed this, but we probably need to
-    // handle repeated terms better somehow.
-    wdf_upper_bound_ = stats.db.get_doclength_upper_bound();
+    if (stats_needed & AVERAGE_LENGTH)
+    	average_length_ = stats.get_average_length();
+    if (stats_needed & DOC_LENGTH_MAX)
+    	doclength_upper_bound_ = stats.db.get_doclength_upper_bound();
+    if (stats_needed & DOC_LENGTH_MIN)
+    	doclength_lower_bound_ = stats.db.get_doclength_lower_bound();
+
+    // The doclength is an upper bound on the wdf.  This is obviously true for
+    // normal terms, but SynonymPostList ensures that it is also true for
+    // synonym terms by clamping the wdf values returned to the doclength.
+    //
+    // (This clamping is only actually necessary in cases where a constituent
+    // term of the synonym is repeated.)
+    if (stats_needed & WDF_MAX)
+    	wdf_upper_bound_ = stats.db.get_doclength_upper_bound();
+
     termfreq_ = termfreq;
     reltermfreq_ = 0;
     query_length_ = query_length;
