@@ -62,6 +62,7 @@ SynonymPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 Xapian::weight
 SynonymPostList::get_weight() const
 {
+    LOGCALL(MATCH, Xapian::weight, "SynonymPostList::get_weight", "");
     // The wdf returned can be higher than the doclength.  In particular, this
     // can currently occur if the query contains a term more than once; the wdf
     // of each occurrence is added up.
@@ -78,56 +79,65 @@ SynonymPostList::get_weight() const
 	Xapian::termcount wdf = get_wdf();
 	Xapian::termcount doclen = get_doclength();
 	if (wdf > doclen) wdf = doclen;
-	return wt->get_sumpart(wdf, doclen);
+	RETURN(wt->get_sumpart(wdf, doclen));
     }
-    return wt->get_sumpart(0, want_doclength ? get_doclength() : 0);
+    RETURN(wt->get_sumpart(0, want_doclength ? get_doclength() : 0));
 }
 
 Xapian::weight
 SynonymPostList::get_maxweight() const
 {
-    return wt->get_maxpart();
+    LOGCALL(MATCH, Xapian::weight, "SynonymPostList::get_maxweight", "");
+    RETURN(wt->get_maxpart());
 }
 
 Xapian::weight
 SynonymPostList::recalc_maxweight()
 {
-    return SynonymPostList::get_maxweight();
+    LOGCALL(MATCH, Xapian::weight, "SynonymPostList::recalc_maxweight", "");
+    RETURN(SynonymPostList::get_maxweight());
 }
 
 Xapian::termcount
 SynonymPostList::get_wdf() const {
-    return subtree->get_wdf();
+    LOGCALL(MATCH, Xapian::termcount, "SynonymPostList::get_wdf", "");
+    RETURN(subtree->get_wdf());
 }
 
 Xapian::doccount
 SynonymPostList::get_termfreq_min() const {
-    return subtree->get_termfreq_min();
+    LOGCALL(MATCH, Xapian::doccount, "SynonymPostList::get_termfreq_min", "");
+    RETURN(subtree->get_termfreq_min());
 }
 
 Xapian::doccount
 SynonymPostList::get_termfreq_est() const {
-    return subtree->get_termfreq_est();
+    LOGCALL(MATCH, Xapian::doccount, "SynonymPostList::get_termfreq_min", "");
+    RETURN(subtree->get_termfreq_est());
 }
 
 Xapian::doccount
 SynonymPostList::get_termfreq_max() const {
-    return subtree->get_termfreq_max();
+    LOGCALL(MATCH, Xapian::doccount, "SynonymPostList::get_termfreq_min", "");
+    RETURN(subtree->get_termfreq_max());
 }
 
 Xapian::docid
 SynonymPostList::get_docid() const {
-    return subtree->get_docid();
+    LOGCALL(MATCH, Xapian::docid, "SynonymPostList::get_docid", "");
+    RETURN(subtree->get_docid());
 }
 
 Xapian::termcount
 SynonymPostList::get_doclength() const {
-    return subtree->get_doclength();
+    LOGCALL(MATCH, Xapian::termcount, "SynonymPostList::get_doclength", "");
+    RETURN(subtree->get_doclength());
 }
 
 bool
 SynonymPostList::at_end() const {
-    return subtree->at_end();
+    LOGCALL(MATCH, bool, "SynonymPostList::at_end", "");
+    RETURN(subtree->at_end());
 }
 
 std::string

@@ -1,3 +1,8 @@
+Fri Apr 24 14:33:20 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/synonympostlist.cc: Add debugging to calls in
+	  SynonymPostList.
+
 Fri Apr 24 12:49:36 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* include/xapian/weight.h: Add need_stat(WDF) to the weighting
