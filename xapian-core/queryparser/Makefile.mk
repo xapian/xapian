@@ -53,11 +53,7 @@ queryparser/queryparser_internal.stamp: queryparser/queryparser.lemony querypars
 	touch $@
 
 BUILT_SOURCES += $(lemon_built_sources)
-CLEANFILES += $(lemon_built_sources)\
-	queryparser/lemon
-else
-MAINTAINERCLEANFILES += $(lemon_built_sources)\
-	queryparser/lemon
+CLEANFILES += queryparser/lemon
 endif
 
 lib_src +=\

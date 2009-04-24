@@ -1,14 +1,6 @@
- 12373       olly Thu Apr 16 10:02:44 GMT 2009  Olly Betts <olly@survex.com>
-
-Omega 1.1.0 (2009-04-2?):
-
-general:
-
-documentation:
+Omega 1.1.0 (2009-04-23):
 
 indexers:
-
-* omindex:
 
 * scriptindex:
 
@@ -20,19 +12,11 @@ omega:
   substitutions using the PCRE library (which is now required to build Omega).
   (ticket#231)
 
-templates:
-
-testsuite:
-
 build system:
 
 * The build system is now bootstrapped with newer versions of autoconf and
   libtool which should produce smaller files and speed up configure and
   make.
-
-portability:
-
-packaging:
 
 Omega 1.0.12 (2009-04-19):
 

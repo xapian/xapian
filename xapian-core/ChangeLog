@@ -210,6 +210,55 @@ Tue Nov 27 08:40:51 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 	* tests/api_db.cc: Add basic test of synonyms (currently doesn't
 	  pass due to testcase shortcomings).
 
+Thu Apr 23 06:16:05 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac,docs/Makefile.am,tests/Makefile.am: Fix
+	  things up so that in a bootstrapped SVN tree, automatic regeneration
+	  of autotools-generated files uses the in-tree versions of the
+	  autotools.
+
+Thu Apr 23 04:37:31 GMT 2009  Olly Betts <olly@survex.com>
+
+	* AUTHORS: Add another bug reporter.
+
+Thu Apr 23 04:26:25 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Makefile.am,languages/Makefile.mk,queryparser/Makefile.mk,
+	  tests/Makefile.am,tests/perftest/Makefile.mk: Don't remove any
+	  built sources in "make clean" even under --make-maintainer-mode
+	  as that breaks switching a tree away from maintainer-mode with:
+	  make distclean;./configure
+
+Thu Apr 23 03:51:03 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Use "--coverage" instead of "-fprofile-arcs
+	  -ftest-coverage" in the test coverage build.
+
+Wed Apr 22 14:32:56 GMT 2009  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Sync with 1.0.12; add entry for atreus for 1.1.0.
+
+Wed Apr 22 14:27:36 GMT 2009  Olly Betts <olly@survex.com>
+
+	* AUTHORS: Add more bug reporters and patch contributors.  Remove a
+	  duplicate entry.
+
+Wed Apr 22 13:58:31 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Set release date.
+
+Wed Apr 22 13:36:04 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Update, perhaps even ready for release now.
+
+Wed Apr 22 11:00:50 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: More work.
+
+Tue Apr 21 17:59:13 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* docs/queryparser.html: Add closing <code> tag.
+
 Tue Apr 21 11:05:17 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* NEWS: A few minor corrections and adjustments.

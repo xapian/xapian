@@ -2,6 +2,16 @@
 ## SWIG.  Any makefile rules or variables which should be set for all SWIG
 ## bindings should be placed here.
 
+# `make QUIET=' overrides `./configure --enable-quiet'.
+# `make QUIET=y' overrides `./configure' without `--enable-quiet'.
+LIBTOOL = @LIBTOOL@ $(QUIET:y=--quiet)
+
+if MAINTAINER_MODE
+# Export these so that we run the locally installed autotools when building
+# from a bootstrapped SVN tree.
+export ACLOCAL AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE
+endif
+
 if OVERRIDE_MACOSX_DEPLOYMENT_TARGET
 # This requires GNU make, but apparently that's the default on OS X.
 export MACOSX_DEPLOYMENT_TARGET=@OVERRIDE_MACOSX_DEPLOYMENT_TARGET@

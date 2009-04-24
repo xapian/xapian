@@ -1,3 +1,9 @@
+if MAINTAINER_MODE
+# Export these so that we run the locally installed autotools when building
+# from a bootstrapped SVN tree.
+export ACLOCAL AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE
+endif
+
 SUFFIXES = .java .class
 
 EXTRA_DIST = AssertionError.java DatabaseCorruptError.java DatabaseError.java\

@@ -14,22 +14,18 @@ INTDIR= ..\tests
 
 
 PROGRAM_APITEST= "$(OUTDIR)\apitest.exe" 
-PROGRAM_BTREETEST= "$(OUTDIR)\btreetest.exe" 
 PROGRAM_INTERNALTEST= "$(OUTDIR)\internaltest.exe" 
-PROGRAM_QUARTZTEST= "$(OUTDIR)\quartztest.exe" 
 PROGRAM_QUERYPARSERTEST= "$(OUTDIR)\queryparsertest.exe"
 PROGRAM_STEMTEST= "$(OUTDIR)\stemtest.exe"
 PROGRAM_TERMGENTEST= "$(OUTDIR)\termgentest.exe"
 
-ALL : HEADERS $(CLEAN_COLLATED_HEADERS) $(PROGRAM_APITEST) $(PROGRAM_BTREETEST) $(PROGRAM_INTERNALTEST) \
- $(PROGRAM_QUARTZTEST) $(PROGRAM_QUERYPARSERTEST) $(PROGRAM_STEMTEST) $(PROGRAM_TERMGENTEST)
+ALL : HEADERS $(CLEAN_COLLATED_HEADERS) $(PROGRAM_APITEST) $(PROGRAM_INTERNALTEST) \
+ $(PROGRAM_QUERYPARSERTEST) $(PROGRAM_STEMTEST) $(PROGRAM_TERMGENTEST)
  
  
 APITEST : $(PROGRAM_APITEST) 
 STEMTEST : $(PROGRAM_STEMTEST)  
-BTREETEST : $(PROGRAM_BTREETEST)  
 INTERNALTEST : $(PROGRAM_INTERNALTEST)  
-QUARTZTEST : $(PROGRAM_QUARTZTEST)  
 QUERYPARSERTEST : $(PROGRAM_QUERYPARSERTEST)  
 TERMGENTEST : $(PROGRAM_TERMGENTEST)  
 
@@ -38,9 +34,7 @@ DOTEST :
     set srcdir=.
     copy "$(ZLIB_BIN_DIR)\zlib1.dll"
     apitest -v
-    btreetest
     internaltest
-    quartztest
     queryparsertest
     stemtest
     termgentest
@@ -71,8 +65,6 @@ APITEST_OBJS= \
     "$(OUTDIR)\api_unicode.obj" \
     "$(OUTDIR)\api_wrdb.obj" 
     
-BTREETEST_OBJS= "$(OUTDIR)\btreetest.obj"
-
 INTERNALTEST_OBJS= "$(OUTDIR)\internaltest.obj"
     
 QUARTZTEST_OBJS= "$(OUTDIR)\quartztest.obj"
@@ -108,47 +100,58 @@ SRC = \
 COLLATED_APITEST_SOURCES= \
     "$(INTDIR)\api_anydb.cc" \
     "$(INTDIR)\api_backend.cc" \
+    "$(INTDIR)\api_closedb.cc" \
+    "$(INTDIR)\api_collapse.cc" \
     "$(INTDIR)\api_db.cc" \
     "$(INTDIR)\api_generated.cc" \
     "$(INTDIR)\api_nodb.cc" \
     "$(INTDIR)\api_percentages.cc" \
     "$(INTDIR)\api_posdb.cc" \
     "$(INTDIR)\api_query.cc" \
+    "$(INTDIR)\api_replicate.cc" \
+    "$(INTDIR)\api_serialise.cc" \
     "$(INTDIR)\api_sorting.cc" \
     "$(INTDIR)\api_spelling.cc" \
     "$(INTDIR)\api_transdb.cc" \
     "$(INTDIR)\api_unicode.cc" \
-    "$(INTDIR)\api_wrdb.cc" 
+    "$(INTDIR)\api_valuestats.cc" \
+    "$(INTDIR)\api_valuestream.cc" \
+    "$(INTDIR)\api_wrdb.cc"
     
 COLLATED_APITEST_HEADERS=\
     "$(INTDIR)\api_anydb.h" \
+    "$(INTDIR)\api_backend.h" \
+    "$(INTDIR)\api_closedb.h" \
+    "$(INTDIR)\api_collapse.h" \
     "$(INTDIR)\api_db.h" \
+    "$(INTDIR)\api_generated.h" \
     "$(INTDIR)\api_nodb.h" \
+    "$(INTDIR)\api_percentages.h" \
     "$(INTDIR)\api_posdb.h" \
+    "$(INTDIR)\api_query.h" \
+    "$(INTDIR)\api_replicate.h" \
+    "$(INTDIR)\api_serialise.h" \
     "$(INTDIR)\api_sorting.h" \
+    "$(INTDIR)\api_spelling.h" \
     "$(INTDIR)\api_transdb.h" \
     "$(INTDIR)\api_unicode.h" \
-    "$(INTDIR)\api_backend.h" \
-    "$(INTDIR)\api_generated.h" \
+    "$(INTDIR)\api_valuestats.h" \
+    "$(INTDIR)\api_valuestream.h" \
     "$(INTDIR)\api_wrdb.h"
-
+    
 CLEAN_COLLATED_HEADERS:
     -@erase api_collated.h
     -@erase $(COLLATED_APITEST_HEADERS)
 
 CLEAN : 
     -@erase $(PROGRAM_APITEST) 
-    -@erase $(PROGRAM_BTREETEST)
     -@erase $(PROGRAM_INTERNALTEST) 
-     -@erase $(PROGRAM_QUARTZTEST) 
     -@erase $(PROGRAM_QUERYPARSERTEST) 
     -@erase $(PROGRAM_REMOTETEST)
     -@erase $(PROGRAM_STEMTEST)
     -@erase $(PROGRAM_TERMGENTEST)
     -@erase $(APITEST_OBJS)
-    -@erase $(BTREETEST_OBJS)
     -@erase $(INTERNALTEST_OBJS)
-    -@erase $(QUARTZTEST_OBJS)
     -@erase $(QUERYPARSERTEST_OBJS)
     -@erase $(STEMTEST_OBJS)
     -@erase $(TERMGENTEST_OBJS)
@@ -176,10 +179,10 @@ CPP_OBJS=..\win32\Tests$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
     
-api_collated.h: collate-apitest $(COLLATED_APITEST_SOURCES)
-    $(PERL_EXE) "$(INTDIR)/collate-apitest" "$(INTDIR)" api_collated.h $(COLLATED_APITEST_SOURCES) 
-    
-api_generated.cc: generate-api_generated
+api_collated.h api_all.h: collate-test $(COLLATED_APITEST_SOURCES)
+    $(PERL_EXE) "$(INTDIR)/collate-test" "$(INTDIR)" api_collated.h api_all.h $(COLLATED_APITEST_SOURCES) 
+
+"$(INTDIR)/api_generated.cc": generate-api_generated
     $(PERL_EXE) "$(INTDIR)/generate-api_generated" > api_generated.cc
     
 LINK32=link.exe
@@ -199,24 +202,12 @@ PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS) "$(OUTLIBDIR)\libtest.lib"
     $(LINK32) @<<
   $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\stemtest.exe" $(DEF_FLAGS) $(STEMTEST_OBJS)
 <<
-
-"$(OUTDIR)\btreetest.exe" : "$(OUTDIR)" $(DEF_FILE) $(BTREETEST_OBJS) \
-                      $(PROGRAM_DEPENDENCIES)
-    $(LINK32) @<<
-  $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\btreetest.exe" $(DEF_FLAGS) $(BTREETEST_OBJS) "$(OUTLIBDIR)\libquartzbtreecheck.lib" 
-<<
-
 "$(OUTDIR)\internaltest.exe" : "$(OUTDIR)" $(DEF_FILE) $(INTERNALTEST_OBJS) \
                       $(PROGRAM_DEPENDENCIES)
     $(LINK32) @<<
   $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\internaltest.exe" $(DEF_FLAGS) $(INTERNALTEST_OBJS)
 <<
 
-"$(OUTDIR)\quartztest.exe" : "$(OUTDIR)" $(DEF_FILE) $(QUARTZTEST_OBJS) \
-                      $(PROGRAM_DEPENDENCIES)
-    $(LINK32) @<<
-  $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\quartztest.exe" $(DEF_FLAGS) $(QUARTZTEST_OBJS)
-<<
 
 "$(OUTDIR)\queryparsertest.exe" : "$(OUTDIR)" $(DEF_FILE) $(QUERYPARSERTEST_OBJS) \
                       $(PROGRAM_DEPENDENCIES)
