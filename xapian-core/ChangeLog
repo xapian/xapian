@@ -1,3 +1,9 @@
+Fri Apr 24 11:57:06 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/synonympostlist.cc,matcher/synonympostlist.h: Remove unused
+	  SynonymPostList methods read_position_list() and
+	  open_position_list().
+
 Fri Apr 24 10:47:56 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/synonympostlist.cc: Fix comment typo and make wording more

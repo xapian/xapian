@@ -41,7 +41,7 @@ class SynonymPostList : public PostList {
      *  This object needs to be notified when the tree changes such that the
      *  maximum weights need to be recalculated.
      */
-    MultiMatch *matcher;
+    MultiMatch * matcher;
 
     /** Weighting object used for calculating the synonym weights.
      */
@@ -56,7 +56,7 @@ class SynonymPostList : public PostList {
     bool want_wdf;
 
   public:
-    SynonymPostList(PostList *subtree_, MultiMatch * matcher_)
+    SynonymPostList(PostList * subtree_, MultiMatch * matcher_)
 	: subtree(subtree_), matcher(matcher_), wt(NULL),
 	  want_doclength(false), want_wdf(false) { }
 
@@ -83,8 +83,6 @@ class SynonymPostList : public PostList {
     Xapian::doccount get_termfreq_max() const;
     Xapian::docid get_docid() const;
     Xapian::termcount get_doclength() const;
-    PositionList * read_position_list();
-    PositionList * open_position_list() const;
     bool at_end() const;
 
     std::string get_description() const;

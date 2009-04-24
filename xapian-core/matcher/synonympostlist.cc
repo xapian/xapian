@@ -125,16 +125,6 @@ SynonymPostList::get_doclength() const {
     return subtree->get_doclength();
 }
 
-PositionList *
-SynonymPostList::read_position_list() {
-    return subtree->read_position_list();
-}
-
-PositionList *
-SynonymPostList::open_position_list() const {
-    return subtree->open_position_list();
-}
-
 bool
 SynonymPostList::at_end() const {
     return subtree->at_end();
