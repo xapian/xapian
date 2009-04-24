@@ -1,3 +1,7 @@
+Fri Apr 24 10:17:36 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/synonympostlist.cc: "wt_" -> "wt" for consistency.
+
 Fri Apr 24 10:12:29 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/queryoptimiser.cc: Replace FIXME comment for wqf of

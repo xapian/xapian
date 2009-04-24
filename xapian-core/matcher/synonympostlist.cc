@@ -47,7 +47,7 @@ SynonymPostList::set_weight(const Xapian::Weight * wt_)
 {
     delete wt;
     wt = wt_;
-    want_doclength = wt_->get_sumpart_needs_doclength_();
+    want_doclength = wt->get_sumpart_needs_doclength_();
     want_wdf = wt->get_sumpart_needs_wdf_();
 }
 
