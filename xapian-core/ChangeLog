@@ -1,3 +1,9 @@
+Fri Apr 24 07:56:26 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/Makefile.am,tests/api_db.cc,tests/api_opsynonym.cc: Move
+	  opsynonym tests into a separate file, to avoid further bloat to
+	  api_db.cc.
+
 Fri Apr 24 00:23:32 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* include/xapian/weight.h: Add a method to check whether the wdf is
