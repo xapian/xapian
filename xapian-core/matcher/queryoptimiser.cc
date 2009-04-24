@@ -391,14 +391,17 @@ QueryOptimiser::do_synonym(const Xapian::Query::Internal *query, double factor)
 {
     DEBUGCALL(MATCH, PostList *, "QueryOptimiser::do_synonym",
 	      query << ", " << factor);
-
     if (factor == 0.0) {
 	// If we have a factor of 0, we don't care about the weights, so
 	// we're just like a normal OR query.
 	RETURN(do_or_like(query, 0.0));
     }
 
-    AssertEq(query->wqf, 0); // FIXME - should we be doing something with the wqf?
+    // We currently assume wqf is 1 for calculating the synonym's weight
+    // since conceptually the synonym is one "virtual" term.  If we were
+    // to combine multiple occurrences of the same synonym expansion into
+    // a single instance with wqf set, we would want to use the wqf.
+    AssertEq(query->wqf, 0);
 
     // We build an OP_OR tree for OP_SYNONYM and then wrap it in a
     // SynonymPostList, which supplies the weights.
