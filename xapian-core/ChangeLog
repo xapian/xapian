@@ -1,3 +1,9 @@
+Fri Apr 24 13:14:50 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/branchpostlist.cc,matcher/branchpostlist.h: Remove
+	  BranchPostList::get_wdf() which isn't currently used, and isn't
+	  wanted on branches/opsynonym.
+
 Fri Apr 24 12:46:18 GMT 2009  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Apply doxygen comment improvement

@@ -3,7 +3,6 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2003,2004,2007 Olly Betts
- * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -72,13 +71,6 @@ class BranchPostList : public PostList {
 		: l(l_), r(r_), matcher(matcher_) {}
 
 	virtual ~BranchPostList();
-
-	/** get_wdf() for branch postlists returns the sum of the wdfs of the
-	 *  sub postlists.  The wdf isn't really meaningful in many situations,
-	 *  but if the lists are being combined as a synonym we want the sum of
-	 *  the wdfs, so we do that in general.
-	 */
-	virtual Xapian::termcount get_wdf() const;
 };
 
 // Helper functions - call next/skip_to on a postlist and handle any
