@@ -25,6 +25,7 @@
 #include "weightinternal.h"
 
 #include "autoptr.h"
+#include "debuglog.h"
 
 #include "xapian/error.h"
 
@@ -35,6 +36,7 @@ namespace Xapian {
 void
 Weight::init_(const Internal & stats, Xapian::termcount query_length)
 {
+    LOGCALL_VOID(MATCH, "Weight::init_", stats << ", " << query_length);
     collection_size_ = stats.collection_size;
     rset_size_ = stats.rset_size;
     if (stats_needed & AVERAGE_LENGTH)
@@ -54,6 +56,8 @@ void
 Weight::init_(const Internal & stats, Xapian::termcount query_length,
 	      const string & term, Xapian::termcount wqf, double factor)
 {
+    LOGCALL_VOID(MATCH, "Weight::init_", stats << ", " << query_length <<
+	    ", " << term << ", " << wqf << ", " << factor);
     collection_size_ = stats.collection_size;
     rset_size_ = stats.rset_size;
     if (stats_needed & AVERAGE_LENGTH)
