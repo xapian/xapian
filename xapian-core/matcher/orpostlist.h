@@ -71,9 +71,9 @@ class OrPostList : public BranchPostList {
 
 	/** get_wdf() for OR postlists returns the sum of the wdfs of the
 	 *  sub postlists which are at the current document - this is desirable
-	 *  when the AND is part of a synonym.
+	 *  when the OR is part of a synonym.
 	 */
-	virtual Xapian::termcount get_wdf() const;
+	Xapian::termcount get_wdf() const;
 };
 
 #endif /* OM_HGUARD_ORPOSTLIST_H */

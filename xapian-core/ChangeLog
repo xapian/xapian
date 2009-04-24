@@ -1,3 +1,10 @@
+Fri Apr 24 10:04:21 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/: Fix up cut-and-paste errors in get_wdf() doxygen comments.
+	  Some subclass get_wdf() methods were explicitly virtual, others
+	  weren't, so removed virtual from all since we don't generally
+	  specify virtual explicitly elsewhere.
+
 Fri Apr 24 09:42:52 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* queryparser/queryparser.lemony: Improve documentation comment for

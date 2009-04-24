@@ -107,7 +107,7 @@ class AndMaybePostList : public BranchPostList {
 
 	/** get_wdf() for ANDMAYBE postlists returns the sum of the wdfs of the
 	 *  sub postlists which are at the current document - this is desirable
-	 *  when the AND is part of a synonym.
+	 *  when the ANDMAYBE is part of a synonym.
 	 */
 	Xapian::termcount get_wdf() const;
 };

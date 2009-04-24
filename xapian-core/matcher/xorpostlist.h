@@ -71,10 +71,10 @@ class XorPostList : public BranchPostList {
 		    MultiMatch * matcher_,
 		    Xapian::doccount dbsize_);
 
-	/** get_wdf() for OR postlists returns the wdf of the sub postlist
+	/** get_wdf() for XOR postlists returns the wdf of the sub postlist
 	 *  which is at the current document.
 	 */
-	virtual Xapian::termcount get_wdf() const;
+	Xapian::termcount get_wdf() const;
 };
 
 #endif /* OM_HGUARD_XORPOSTLIST_H */

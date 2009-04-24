@@ -154,11 +154,12 @@ class MultiAndPostList : public PostList {
     std::string get_description() const;
 
     /** get_wdf() for MultiAndPostlists returns the sum of the wdfs of the
-     *  sub postlists.  The wdf isn't really meaningful in many situations,
-     *  but if the lists are being combined as a synonym we want the sum of
-     *  the wdfs, so we do that in general.
+     *  sub postlists.
+     *
+     *  The wdf isn't really meaningful in many situations, but if the lists
+     *  are being combined as a synonym we want the sum of the wdfs, so we do
+     *  that in general.
      */
-    virtual Xapian::termcount get_wdf() const;
-};
+    Xapian::termcount get_wdf() const; };
 
 #endif // XAPIAN_INCLUDED_MULTIANDPOSTLIST_H

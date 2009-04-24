@@ -71,7 +71,9 @@ class AndNotPostList : public BranchPostList {
 				   Xapian::docid lh,
 				   Xapian::docid rh);
 
-	/// get_wdf() for ANDNOT postlists returns the wdfs of the left hand side.
+	/** get_wdf() for ANDNOT postlists returns the wdf of the left hand
+	 * side.
+	 */
 	Xapian::termcount get_wdf() const;
 };
 
