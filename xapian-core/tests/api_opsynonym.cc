@@ -187,3 +187,55 @@ DEFINE_TESTCASE(synonym2, backend) {
 
     return true;
 }
+
+// Test a synonym search which has had its weight scaled to 0.
+DEFINE_TESTCASE(synonym3, backend) {
+    Xapian::Query query = Xapian::Query(Xapian::Query::OP_SYNONYM,
+					Xapian::Query("sky"),
+					Xapian::Query("date"));
+
+    Xapian::Database db(get_database("etext"));
+    Xapian::Enquire enquire(db);
+    enquire.set_query(query);
+    Xapian::MSet mset_orig = enquire.get_mset(0, db.get_doccount());
+
+    tout << query.get_description() << endl;
+    tout << mset_orig.get_description() << endl;
+
+    // Test that OP_SCALE_WEIGHT with a factor of 0.0 works with OP_SYNONYM
+    // (this has a special codepath to avoid doing the synonym calculation).
+    query = Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT, query, 0.0);
+    enquire.set_query(query);
+    Xapian::MSet mset_zero = enquire.get_mset(0, db.get_doccount());
+
+    tout << query.get_description() << endl;
+    tout << mset_zero.get_description() << endl;
+
+    // Check that the queries return some results.
+    TEST_NOT_EQUAL(mset_zero.size(), 0);
+    // Check that the queries return the same document IDs, and the the zero
+    // one has zero weight.
+    TEST_EQUAL(mset_zero.size(), mset_orig.size());
+
+    map<Xapian::docid, Xapian::weight> values_orig;
+    map<Xapian::docid, Xapian::weight> values_zero;
+    for (Xapian::doccount i = 0; i < mset_zero.size(); ++i) {
+	TEST_NOT_EQUAL(mset_orig[i].get_weight(), 0.0);
+	TEST_EQUAL(mset_zero[i].get_weight(), 0.0);
+
+	values_orig[*mset_orig[i]] = mset_orig[i].get_weight();
+	values_zero[*mset_zero[i]] = mset_zero[i].get_weight();
+    }
+
+    for (map<Xapian::docid, Xapian::weight>::const_iterator
+	 j = values_orig.begin();
+	 j != values_orig.end(); ++j)
+    {
+	Xapian::docid did = j->first;
+	// Check that all the results in the orig mset are in the zero mset.
+	TEST(values_zero.find(did) != values_zero.end());
+    }
+    TEST_EQUAL(values_orig.size(), values_zero.size());
+
+    return true;
+}
