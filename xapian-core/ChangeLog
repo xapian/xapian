@@ -1,3 +1,9 @@
+Fri Apr 24 10:23:33 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/synonympostlist.cc,matcher/synonympostlist.h:
+	  SynonymPostList has a trivial ctor which is only used once, so
+	  inline it from the header.
+
 Fri Apr 24 10:17:36 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/synonympostlist.cc: "wt_" -> "wt" for consistency.

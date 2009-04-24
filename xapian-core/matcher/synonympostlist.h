@@ -56,7 +56,9 @@ class SynonymPostList : public PostList {
     bool want_wdf;
 
   public:
-    SynonymPostList(PostList *subtree_, MultiMatch * matcher_);
+    SynonymPostList(PostList *subtree_, MultiMatch * matcher_)
+	: subtree(subtree_), matcher(matcher_), wt(NULL),
+	  want_doclength(false), want_wdf(false) { }
 
     ~SynonymPostList();
 

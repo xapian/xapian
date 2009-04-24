@@ -26,16 +26,6 @@
 #include "branchpostlist.h"
 #include "debuglog.h"
 
-SynonymPostList::SynonymPostList(PostList *subtree_,
-				 MultiMatch * matcher_)
-	: subtree(subtree_),
-	  matcher(matcher_),
-	  wt(NULL),
-	  want_doclength(false),
-	  want_wdf(false)
-{
-}
-
 SynonymPostList::~SynonymPostList()
 {
     delete wt;
