@@ -1,3 +1,8 @@
+Fri Apr 24 10:47:56 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/synonympostlist.cc: Fix comment typo and make wording more
+	  precise.
+
 Fri Apr 24 10:23:33 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/synonympostlist.cc,matcher/synonympostlist.h:

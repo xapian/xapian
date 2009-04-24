@@ -62,13 +62,12 @@ SynonymPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 Xapian::weight
 SynonymPostList::get_weight() const
 {
-
     // The wdf returned can be higher than the doclength.  In particular, this
     // can currently occur if the query contains a term more than once; the wdf
     // of each occurrence is added up.
     //
     // However, it's reasonable for weighting algorithms to optimise by
-    // assuming that get_wdf() will always reeturn less than get_doclength(),
+    // assuming that get_wdf() will never return more than get_doclength(),
     // since the doclength is the sum of the wdfs.
     //
     // Therefore, we simply clamp the wdf value to the doclength, to ensure
