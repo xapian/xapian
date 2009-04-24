@@ -43,6 +43,9 @@ using namespace std;
 // Check a synonym search
 DEFINE_TESTCASE(synonym1, backend) {
     Xapian::Database db(get_database("etext"));
+
+    TEST_REL(db.get_doclength_upper_bound(), >, 0);
+
     Xapian::doccount lots = 214;
 
     // Make a list of lists of subqueries, which are going to be joined
