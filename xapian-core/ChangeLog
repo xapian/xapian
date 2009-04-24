@@ -1,3 +1,8 @@
+Fri Apr 24 12:31:15 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/localmatch.cc: Apply assertion and debug logging
+	  improvements from branches/opsynonym.
+
 Thu Apr 23 06:16:05 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.ac,docs/Makefile.am,tests/Makefile.am: Fix

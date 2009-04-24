@@ -132,9 +132,12 @@ LocalSubMatch::postlist_from_op_leaf_query(const Xapian::Query::Internal *query,
 	Xapian::doccount tf = stats->get_termfreq(query->tname);
 	Xapian::weight weight = boolean ? 0 : wt->get_maxpart();
 	Xapian::MSet::Internal::TermFreqAndWeight info(tf, weight);
+	LOGLINE(MATCH, "Setting term_info[" << query->tname << "] to (" << tf << ", " << weight << ")");
 	term_info.insert(make_pair(query->tname, info));
     } else if (!boolean) {
 	i->second.termweight += wt->get_maxpart();
+	AssertEq(stats->get_termfreq(query->tname), i->second.termfreq);
+	LOGLINE(MATCH, "Increasing term_info[" << query->tname << "] to (" << i->second.termfreq << ", " << i->second.termweight << ")");
     }
 
     LeafPostList * pl = db->open_post_list(query->tname);
