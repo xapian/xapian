@@ -265,6 +265,22 @@ Tue Nov 27 08:40:51 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 	* tests/api_db.cc: Add basic test of synonyms (currently doesn't
 	  pass due to testcase shortcomings).
 
+Fri Apr 24 13:14:50 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/branchpostlist.cc,matcher/branchpostlist.h: Remove
+	  BranchPostList::get_wdf() which isn't currently used, and isn't
+	  wanted on branches/opsynonym.
+
+Fri Apr 24 12:46:18 GMT 2009  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Apply doxygen comment improvement
+	  from branches/opsynonym.
+
+Fri Apr 24 12:31:15 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/localmatch.cc: Apply assertion and debug logging
+	  improvements from branches/opsynonym.
+
 Thu Apr 23 06:16:05 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.ac,docs/Makefile.am,tests/Makefile.am: Fix
