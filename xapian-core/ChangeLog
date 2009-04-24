@@ -1,3 +1,13 @@
+Fri Apr 24 00:23:32 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/weight.h: Add a method to check whether the wdf is
+	  required.
+	* matcher/synonympostlist.cc,matcher/synonympostlist.h: Add flag to
+	  indicate whether the wdf is required, as specified in the Weight
+	  object.  If the wdf is required, calculate it from the
+	  subpostlist, and also calculate the doclength and clamp the wdf
+	  to that value.
+
 Thu Apr 23 23:57:27 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* matcher/synonympostlist.cc: Avoid warnings for w_min being unused

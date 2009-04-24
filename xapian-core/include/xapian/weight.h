@@ -2,6 +2,7 @@
  * @brief Weighting scheme API.
  */
 /* Copyright (C) 2007,2008,2009 Olly Betts
+ * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -239,6 +240,15 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      */
     bool get_sumpart_needs_doclength_() const {
 	return stats_needed & DOC_LENGTH;
+    }
+
+    /** @private @internal Return true if the WDF is needed.
+     *
+     *  If this method returns true, then the WDF will be fetched and passed to
+     *  @a get_sumpart().  Otherwise 0 may be passed for the wdf.
+     */
+    bool get_sumpart_needs_wdf_() const {
+	return stats_needed & WDF;
     }
 
   protected:

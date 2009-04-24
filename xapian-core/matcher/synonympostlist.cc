@@ -1,7 +1,7 @@
 /** @file synonympostlist.cc
  * @brief Combine subqueries, weighting as if they are synonyms
  */
-/* Copyright 2007 Lemur Consulting Ltd
+/* Copyright 2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,7 +31,8 @@ SynonymPostList::SynonymPostList(PostList *subtree_,
 	: subtree(subtree_),
 	  matcher(matcher_),
 	  wt(NULL),
-	  want_doclength(false)
+	  want_doclength(false),
+	  want_wdf(false)
 {
 }
 
@@ -47,6 +48,7 @@ SynonymPostList::set_weight(const Xapian::Weight * wt_)
     delete wt;
     wt = wt_;
     want_doclength = wt_->get_sumpart_needs_doclength_();
+    want_wdf = wt->get_sumpart_needs_wdf_();
 }
 
 PostList *
@@ -70,7 +72,26 @@ SynonymPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 Xapian::weight
 SynonymPostList::get_weight() const
 {
-    return wt->get_sumpart(get_wdf(), want_doclength ? get_doclength() : 0);
+
+    // The wdf returned can be higher than the doclength.  In particular, this
+    // can currently occur if the query contains a term more than once; the wdf
+    // of each occurrence is added up.
+    //
+    // However, it's reasonable for weighting algorithms to optimise by
+    // assuming that get_wdf() will always reeturn less than get_doclength(),
+    // since the doclength is the sum of the wdfs.
+    //
+    // Therefore, we simply clamp the wdf value to the doclength, to ensure
+    // that this is true.  Note that this requires the doclength to be
+    // calculated even if the weight object doesn't want it.
+
+    if (want_wdf) {
+	Xapian::termcount wdf = get_wdf();
+	Xapian::termcount doclen = get_doclength();
+	if (wdf > doclen) wdf = doclen;
+	return wt->get_sumpart(wdf, doclen);
+    }
+    return wt->get_sumpart(0, want_doclength ? get_doclength() : 0);
 }
 
 Xapian::weight

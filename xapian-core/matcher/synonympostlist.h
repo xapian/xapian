@@ -1,7 +1,7 @@
 /** @file synonympostlist.h
  * @brief Combine subqueries, weighting as if they are synonyms
  */
-/* Copyright 2007 Lemur Consulting Ltd
+/* Copyright 2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,6 +50,10 @@ class SynonymPostList : public PostList {
     /** Flag indicating whether the weighting object needs the doclength.
      */
     bool want_doclength;
+
+    /** Flag indicating whether the weighting object needs the wdf.
+     */
+    bool want_wdf;
 
   public:
     SynonymPostList(PostList *subtree_, MultiMatch * matcher_);
