@@ -1,3 +1,8 @@
+Fri Apr 24 12:46:18 GMT 2009  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Apply doxygen comment improvement
+	  from branches/opsynonym.
+
 Fri Apr 24 12:31:15 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/localmatch.cc: Apply assertion and debug logging
