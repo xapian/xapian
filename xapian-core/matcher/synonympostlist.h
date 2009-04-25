@@ -43,22 +43,23 @@ class SynonymPostList : public PostList {
      */
     MultiMatch * matcher;
 
-    /** Weighting object used for calculating the synonym weights.
-     */
+    /// Weighting object used for calculating the synonym weights.
     const Xapian::Weight * wt;
 
-    /** Flag indicating whether the weighting object needs the doclength.
-     */
+    /// Flag indicating whether the weighting object needs the doclength.
     bool want_doclength;
 
-    /** Flag indicating whether the weighting object needs the wdf.
-     */
+    /// Flag indicating whether the weighting object needs the wdf.
     bool want_wdf;
+
+    /// Flag indicating if we've called recalc_maxweight on the subtree yet.
+    bool have_calculated_subtree_maxweights;
 
   public:
     SynonymPostList(PostList * subtree_, MultiMatch * matcher_)
 	: subtree(subtree_), matcher(matcher_), wt(NULL),
-	  want_doclength(false), want_wdf(false) { }
+	  want_doclength(false), want_wdf(false),
+	  have_calculated_subtree_maxweights(false) { }
 
     ~SynonymPostList();
 
