@@ -291,6 +291,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
     Assert(!leaves.empty());
 
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
     // If there's only one database and it's remote, we can just unserialise
     // its MSet and return that.
     if (leaves.size() == 1 && is_remote[0]) {
@@ -300,6 +301,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	rem_match->get_mset(mset);
 	return;
     }
+#endif
 
     // Start matchers.
     {
@@ -750,6 +752,7 @@ new_greatest_weight:
 	vector<Xapian::Internal::MSetItem>::const_iterator best;
 	best = min_element(items.begin(), items.end(), mcmp);
 
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
 	unsigned int multiplier = db.internal.size();
 	Assert(multiplier != 0);
 	Xapian::doccount n = (best->did - 1) % multiplier; // which actual database
@@ -760,7 +763,9 @@ new_greatest_weight:
 	    RemoteSubMatch * rem_match;
 	    rem_match = static_cast<RemoteSubMatch*>(leaves[n].get());
 	    percent_scale = rem_match->get_percent_factor();
-	} else if (termfreqandwts.size() > 1) {
+	} else
+#endif
+	if (termfreqandwts.size() > 1) {
 	    Xapian::termcount matching_terms = 0;
 	    map<string,
 		Xapian::MSet::Internal::TermFreqAndWeight>::const_iterator i;
