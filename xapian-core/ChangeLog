@@ -1,3 +1,7 @@
+Sat Apr 25 01:36:22 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_opsynonym.cc: Add a test to check synonym searches combined with various operators.
+
 Fri Apr 24 23:35:04 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* weight/weight.cc: Add some more debugging, and only calculate

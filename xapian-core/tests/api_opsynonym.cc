@@ -191,6 +191,30 @@ DEFINE_TESTCASE(synonym2, backend) {
     return true;
 }
 
+static void
+check_msets_contain_same_docs(const Xapian::MSet & mset1,
+			      const Xapian::MSet & mset2)
+{
+    TEST_EQUAL(mset1.size(), mset2.size());
+
+    map<Xapian::docid, Xapian::weight> values1;
+    map<Xapian::docid, Xapian::weight> values2;
+    for (Xapian::doccount i = 0; i < mset1.size(); ++i) {
+	values1[*mset1[i]] = mset1[i].get_weight();
+	values2[*mset2[i]] = mset2[i].get_weight();
+    }
+
+    for (map<Xapian::docid, Xapian::weight>::const_iterator
+	 j = values2.begin();
+	 j != values2.end(); ++j)
+    {
+	Xapian::docid did = j->first;
+	// Check that all the results in the orig mset are in the zero mset.
+	TEST(values1.find(did) != values1.end());
+    }
+    TEST_EQUAL(values1.size(), values2.size());
+}
+
 // Test a synonym search which has had its weight scaled to 0.
 DEFINE_TESTCASE(synonym3, backend) {
     Xapian::Query query = Xapian::Query(Xapian::Query::OP_SYNONYM,
@@ -218,27 +242,57 @@ DEFINE_TESTCASE(synonym3, backend) {
     TEST_NOT_EQUAL(mset_zero.size(), 0);
     // Check that the queries return the same document IDs, and the the zero
     // one has zero weight.
-    TEST_EQUAL(mset_zero.size(), mset_orig.size());
-
-    map<Xapian::docid, Xapian::weight> values_orig;
-    map<Xapian::docid, Xapian::weight> values_zero;
-    for (Xapian::doccount i = 0; i < mset_zero.size(); ++i) {
+    check_msets_contain_same_docs(mset_orig, mset_zero);
+    for (Xapian::doccount i = 0; i < mset_orig.size(); ++i) {
 	TEST_NOT_EQUAL(mset_orig[i].get_weight(), 0.0);
 	TEST_EQUAL(mset_zero[i].get_weight(), 0.0);
-
-	values_orig[*mset_orig[i]] = mset_orig[i].get_weight();
-	values_zero[*mset_zero[i]] = mset_zero[i].get_weight();
     }
 
-    for (map<Xapian::docid, Xapian::weight>::const_iterator
-	 j = values_orig.begin();
-	 j != values_orig.end(); ++j)
-    {
-	Xapian::docid did = j->first;
-	// Check that all the results in the orig mset are in the zero mset.
-	TEST(values_zero.find(did) != values_zero.end());
+    return true;
+}
+
+// Test synonym searches combined with various operators.
+DEFINE_TESTCASE(synonym4, backend) {
+    Xapian::Database db(get_database("etext"));
+    Xapian::Enquire enquire(db);
+    Xapian::Query syn_query = Xapian::Query(Xapian::Query::OP_SYNONYM,
+					    Xapian::Query("gutenberg"),
+					    Xapian::Query("blockhead"));
+    Xapian::Query or_query = Xapian::Query(Xapian::Query::OP_OR,
+					   Xapian::Query("gutenberg"),
+					   Xapian::Query("blockhead"));
+    Xapian::Query date_query = Xapian::Query("date");
+    Xapian::Query query1;
+    Xapian::Query query2;
+
+    // Check some queries.
+    Xapian::Query::op operators[] = {
+	Xapian::Query::OP_AND_MAYBE,
+	Xapian::Query::OP_AND_NOT,
+	Xapian::Query::OP_AND,
+	Xapian::Query::OP_XOR,
+	Xapian::Query::OP_OR,
+	Xapian::Query::OP_SYNONYM,
+	static_cast<Xapian::Query::op>(-1),
+    };
+    for (Xapian::Query::op * i = operators;
+	 *i != static_cast<Xapian::Query::op>(-1);
+	 ++i) {
+	query1 = Xapian::Query(*i, syn_query, date_query);
+	query2 = Xapian::Query(*i, or_query, date_query);
+
+	enquire.set_query(query1);
+	tout << "query1:" << query1 << "\n";
+	Xapian::MSet mset1 = enquire.get_mset(0, db.get_doccount());
+	tout << "mset1:" << mset1 << "\n";
+	enquire.set_query(query2);
+	tout << "query2:" << query2 << "\n";
+	Xapian::MSet mset2 = enquire.get_mset(0, db.get_doccount());
+	tout << "mset2:" << mset2 << "\n";
+
+	TEST_NOT_EQUAL(mset1.size(), 0);
+	check_msets_contain_same_docs(mset1, mset2);
     }
-    TEST_EQUAL(values_orig.size(), values_zero.size());
 
     return true;
 }
