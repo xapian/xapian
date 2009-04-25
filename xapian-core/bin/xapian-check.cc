@@ -114,6 +114,7 @@ main(int argc, char **argv)
 	size_t errors = 0;
 	struct stat sb;
 	string dir(argv[1]);
+#ifdef XAPIAN_HAS_FLINT_BACKEND
 	if (stat((dir + "/iamflint").c_str(), &sb) == 0) {
 	    // Check a whole flint database directory.
 	    try {
@@ -151,7 +152,10 @@ main(int argc, char **argv)
 		}
 		errors += check_flint_table(*t, table, opts, doclens);
 	    }
-	} else if (stat((dir + "/iamchert").c_str(), &sb) == 0) {
+	} else
+#endif
+#ifdef XAPIAN_HAS_CHERT_BACKEND
+	if (stat((dir + "/iamchert").c_str(), &sb) == 0) {
 	    // Check a whole chert database directory.
 	    try {
 		Xapian::Database db = Xapian::Chert::open(dir);
@@ -187,7 +191,9 @@ main(int argc, char **argv)
 		}
 		errors += check_chert_table(*t, table, opts, doclens);
 	    }
-	} else {
+	} else
+#endif
+	{
 	    if (stat((dir + "/record_DB").c_str(), &sb) == 0) {
 		// Quartz is no longer supported as of Xapian 1.1.0.
 		cerr << argv[0] << ": '" << dir << "' is a quartz database.\n"

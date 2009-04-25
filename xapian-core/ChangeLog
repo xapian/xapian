@@ -1,3 +1,8 @@
+Sat Apr 25 01:10:49 GMT 2009  Olly Betts <olly@survex.com>
+
+	* bin/xapian-check.cc: Fix to build with the flint and/or chert
+	  backends disabled.
+
 Sat Apr 25 01:06:00 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: Fix to build with the remote backend
