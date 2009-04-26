@@ -1,3 +1,12 @@
+Sun Apr 26 11:15:26 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* Makefile.am,languages/Makefile.mk,queryparser/Makefile.mk,
+	  tests/Makefile.am,tests/perftest/Makefile.mk: Don't remove any
+	  built sources in "make clean" even under --make-maintainer-mode
+	  as that breaks switching a tree away from maintainer-mode with:
+	  make distclean;./configure
+
 Sun Apr 26 11:03:21 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
