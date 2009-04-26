@@ -1,3 +1,7 @@
+Sun Apr 26 06:30:57 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_anydb.cc: Fix to build with the inmemory backend disabled.
+
 Sat Apr 25 01:10:49 GMT 2009  Olly Betts <olly@survex.com>
 
 	* bin/xapian-check.cc: Fix to build with the flint and/or chert
