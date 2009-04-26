@@ -1,3 +1,9 @@
+Sun Apr 26 13:13:05 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/multimatch.cc: Fix to build with the remote backend
+	  disabled.
+
 Sun Apr 26 13:10:31 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
