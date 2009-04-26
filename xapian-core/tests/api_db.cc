@@ -176,7 +176,7 @@ DEFINE_TESTCASE(stubdb5, flint || chert || multi) {
 }
 
 // Test a stub database with an inmemory database (new feature in 1.1.0).
-DEFINE_TESTCASE(stubdb6, flint || chert || multi) {
+DEFINE_TESTCASE(stubdb6, inmemory) {
     mkdir(".stub", 0755);
     const char * dbpath = ".stub/stubdb6";
     ofstream out(dbpath);
