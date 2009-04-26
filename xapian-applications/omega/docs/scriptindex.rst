@@ -64,6 +64,10 @@ load
 lower
 	lowercase the text (useful for generating boolean terms)
 
+spell
+        Generate spelling correction data for any ``index`` or ``indexnopos``
+        actions in the remainder of this list of actions.
+
 truncate=LENGTH
 	truncate to at most LENGTH characters, but avoid chopping off a word
 	(useful for sample and title fields)
@@ -93,9 +97,10 @@ valuenumeric=VALUESLOT
         used for numeric sorting of the MSet.
 
 weight=FACTOR
-	set the weighting factor to FACTOR (an integer).  The default is 1.
-	Use this to add extra weight to titles, keyword fields, etc, so that
-	words in them are regarded as more important by searches.
+	set the weighting factor to FACTOR (an integer) for any ``index`` or
+        ``indexnopos`` actions in the remainder of this list of actions.  The
+        default is 1.  Use this to add extra weight to titles, keyword fields,
+        etc, so that words in them are regarded as more important by searches.
 
 Input files:
 ============
