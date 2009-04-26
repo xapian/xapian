@@ -1,3 +1,11 @@
+Sun Apr 26 13:10:31 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* tests/generate-api_generated: Fix so generated api_generated.cc
+	  builds with the inmemory backend disabled.
+	* tests/queryparsertest.cc: Fix to build with the inmemory backend
+	  disabled.
+
 Sun Apr 26 12:52:24 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
