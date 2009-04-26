@@ -1,3 +1,9 @@
+Sun Apr 26 11:48:44 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/localmatch.cc: Apply assertion and debug logging
+	  improvements from branches/opsynonym.
+
 Sun Apr 26 11:17:47 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
