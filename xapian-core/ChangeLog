@@ -1,3 +1,9 @@
+Sun Apr 26 11:03:21 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* Makefile.am: Use "--coverage" instead of "-fprofile-arcs
+	  -ftest-coverage" in the test coverage build.
+
 Mon Apr 20 05:25:56 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
