@@ -160,6 +160,14 @@ class Term {
 
     Query * as_wildcarded_query(State * state) const;
 
+    /** Build a query for a term at the very end of the query string when
+     *  FLAG_PARTIAL is in use.
+     *
+     *  This query should match documents containing any terms which start with
+     *  the characters specified, but should give a higher score to exact
+     *  matches (since the user might have finished typing - we simply don't
+     *  know).
+     */
     Query * as_partial_query(State * state_) const;
 
     Query get_query() const;
