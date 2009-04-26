@@ -771,6 +771,9 @@ static bool test_qp_odd_chars1()
 // Test right truncation.
 static bool test_qp_flag_wildcard1()
 {
+#ifndef XAPIAN_HAS_BACKEND_INMEMORY
+    SKIP_TEST("Testcase requires the InMemory backend which is disabled");
+#else
     Xapian::WritableDatabase db(Xapian::InMemory::open());
     Xapian::Document doc;
     doc.add_term("abc");
@@ -863,11 +866,15 @@ static bool test_qp_flag_wildcard1()
     qobj = qp.parse_query("foo* -main", Xapian::QueryParser::FLAG_WILDCARD);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query()");
     return true;
+#endif
 }
 
 // Test right truncation with prefixes.
 static bool test_qp_flag_wildcard2()
 {
+#ifndef XAPIAN_HAS_BACKEND_INMEMORY
+    SKIP_TEST("Testcase requires the InMemory backend which is disabled");
+#else
     Xapian::WritableDatabase db(Xapian::InMemory::open());
     Xapian::Document doc;
     doc.add_term("Aheinlein");
@@ -883,11 +890,15 @@ static bool test_qp_flag_wildcard2()
     qobj = qp.parse_query("author:h* test", Xapian::QueryParser::FLAG_WILDCARD);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((Aheinlein:(pos=1) OR Ahuxley:(pos=1) OR test:(pos=2)))");
     return true;
+#endif
 }
 
 // Test partial queries.
 static bool test_qp_flag_partial1()
 {
+#ifndef XAPIAN_HAS_BACKEND_INMEMORY
+    SKIP_TEST("Testcase requires the InMemory backend which is disabled");
+#else
     Xapian::WritableDatabase db(Xapian::InMemory::open());
     Xapian::Document doc;
     Xapian::Stem stemmer("english");
@@ -985,6 +996,7 @@ static bool test_qp_flag_partial1()
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((ZXONEvision:(pos=1) OR ZXTWOvision:(pos=1)))");
 
     return true;
+#endif
 }
 
 static bool test_qp_flag_bool_any_case1()
@@ -1215,6 +1227,9 @@ static bool test_qp_value_range2()
 // Test NumberValueRangeProcessors with actual data.
 static bool test_qp_value_range3()
 {
+#ifndef XAPIAN_HAS_BACKEND_INMEMORY
+    SKIP_TEST("Testcase requires the InMemory backend which is disabled");
+#else
     Xapian::WritableDatabase db(Xapian::InMemory::open());
     double low = -10;
     int steps = 60;
@@ -1254,6 +1269,7 @@ static bool test_qp_value_range3()
 	}
     }
     return true;
+#endif
 }
 
 static const double test_value_range_numbers[] = {
