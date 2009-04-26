@@ -1,3 +1,8 @@
+Sun Apr 26 16:28:36 GMT 2009  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Make -s work as a short-form for --stemmer (as
+	  documented by "omindex --help" and "man omindex").
+
 Sun Apr 26 15:33:32 GMT 2009  Olly Betts <olly@survex.com>
 
 	* docs/omegascript.rst,query.cc: Add $suggestion and $opt{spelling} to

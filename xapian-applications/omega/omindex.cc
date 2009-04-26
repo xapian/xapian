@@ -807,7 +807,7 @@ main(int argc, char **argv)
     mime_map["djv"] = "image/vnd.djvu";
     mime_map["djvu"] = "image/vnd.djvu";
 
-    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:l:pf", longopts, NULL)) != -1) {
+    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:l:s:pf", longopts, NULL)) != -1) {
 	switch (getopt_ret) {
 	case 'h': {
 	    cout << PROG_NAME" - "PROG_DESC"\n\n"
