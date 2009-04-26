@@ -1,3 +1,10 @@
+Sun Apr 26 12:52:24 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/branchpostlist.cc,matcher/branchpostlist.h: Remove
+	  BranchPostList::get_wdf() which isn't currently used, and isn't
+	  wanted on branches/opsynonym.
+
 Sun Apr 26 12:04:45 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
