@@ -1,3 +1,8 @@
+Sun Apr 26 07:28:47 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/generate-api_generated: Fix so generated api_generated.cc
+	  builds with the inmemory backend disabled.
+
 Sun Apr 26 06:30:57 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_anydb.cc: Fix to build with the inmemory backend disabled.
