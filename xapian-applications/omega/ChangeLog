@@ -1,3 +1,8 @@
+Sun Apr 26 15:33:32 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.rst,query.cc: Add $suggestion and $opt{spelling} to
+	  provide access to spelling correction (ticket#296).
+
 Sun Apr 26 15:08:40 GMT 2009  Olly Betts <olly@survex.com>
 
 	* docs/scriptindex.rst,scriptindex.cc: Add new "spell" action for

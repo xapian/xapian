@@ -340,6 +340,8 @@ $set{OPT,VALUE}
 	  stemming).
 	* stem_all - if "true", then tell the query parser to stem all words,
 	  even capitalised ones.
+	* spelling - if "true", then the query parser spelling correction
+	  feature is enabled and ``$suggestion`` can be used.
 	* fieldnames - if set to a non-empty value then the document data is
 	  parsed with each line being the value of a field, and the names
 	  are taken from entries in the list in fieldnames.  So
@@ -423,6 +425,12 @@ $substr{STRING,START[,LENGTH]}
 	to omit from the end of STRING (so "$substr{example,2,-2}" is "amp").
 	Note that this means that "$substr{STRING,0,N}$substr{STRING,N}" is
 	"STRING" whether N is positive, negative or zero.
+
+$suggestion
+	if ``$set{spelling,true}`` was done before the query was parsed, then
+	``$suggestion`` will return any suggested spelling corrected version
+	of the query string.  If there are no spelling corrections, it will
+	return an empty string.
 
 $terms
 	list of matching terms for current hit.
