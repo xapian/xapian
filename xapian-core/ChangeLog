@@ -1,3 +1,8 @@
+Mon Apr 27 10:57:58 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_opsynonym.cc: Fix a comment typo.  Tweak point of
+	  declaration of a couple of variables.
+
 Mon Apr 27 10:21:32 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_opsynonym.cc: Correct source file description and format

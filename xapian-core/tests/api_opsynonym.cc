@@ -240,7 +240,7 @@ DEFINE_TESTCASE(synonym3, backend) {
 
     // Check that the queries return some results.
     TEST_NOT_EQUAL(mset_zero.size(), 0);
-    // Check that the queries return the same document IDs, and the the zero
+    // Check that the queries return the same document IDs, and the zero
     // one has zero weight.
     check_msets_contain_same_docs(mset_orig, mset_zero);
     for (Xapian::doccount i = 0; i < mset_orig.size(); ++i) {
@@ -262,8 +262,6 @@ DEFINE_TESTCASE(synonym4, backend) {
 					   Xapian::Query("gutenberg"),
 					   Xapian::Query("blockhead"));
     Xapian::Query date_query = Xapian::Query("date");
-    Xapian::Query query1;
-    Xapian::Query query2;
 
     // Check some queries.
     Xapian::Query::op operators[] = {
@@ -278,8 +276,8 @@ DEFINE_TESTCASE(synonym4, backend) {
     for (Xapian::Query::op * i = operators;
 	 *i != static_cast<Xapian::Query::op>(-1);
 	 ++i) {
-	query1 = Xapian::Query(*i, syn_query, date_query);
-	query2 = Xapian::Query(*i, or_query, date_query);
+	Xapian::Query query1(*i, syn_query, date_query);
+	Xapian::Query query2(*i, or_query, date_query);
 
 	enquire.set_query(query1);
 	tout << "query1:" << query1 << "\n";
