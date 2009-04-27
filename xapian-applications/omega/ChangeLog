@@ -1,3 +1,7 @@
+Mon Apr 27 16:34:29 GMT 2009  Olly Betts <olly@survex.com>
+
+	* templates/query: Offer any spelling correction QueryParser gives.
+
 Mon Apr 27 13:36:19 GMT 2009  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Add "--spelling" option to index spelling correction
