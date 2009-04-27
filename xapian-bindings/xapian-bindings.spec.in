@@ -17,6 +17,10 @@
 %define php_extension_dir %(php-config --extension-dir)
 %endif
 
+%if 0%{?!_without_tcl8:1}
+%define tcl_lib %(echo 'foreach d $tcl_pkgPath {if {![regexp {/share(/|$)} $d]} {break}};puts $d'|tclsh)
+%endif
+
 Summary: Bindings for the Xapian Probabilistic Information Retrieval Library
 Name: xapian-bindings
 Version: @VERSION@
@@ -156,7 +160,7 @@ make install DESTDIR=%{buildroot}
 %if 0%{?!_without_tcl8:1}
 %files tcl8
 %defattr(-, root, root)
-%{_datadir}/xapian%{version}
+%{tcl_lib}/xapian%{version}
 %doc %{_datadir}/doc/%{name}-tcl8-%{version}
 %endif
 
