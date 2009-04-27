@@ -1,3 +1,8 @@
+Mon Apr 27 08:43:37 GMT 2009  Olly Betts <olly@survex.com>
+
+	* xapian-bindings.spec.in: Update for rename of XapianSharp.so to
+	  _XapianSharp.so.
+
 Mon Apr 27 08:37:22 GMT 2009  Olly Betts <olly@survex.com>
 
 	* xapian-bindings.spec.in: Update for where we now install the tcl8
