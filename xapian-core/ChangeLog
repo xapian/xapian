@@ -1,3 +1,8 @@
+Mon Apr 27 10:21:32 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_opsynonym.cc: Correct source file description and format
+	  as @file doxygen comment.  Don't need "backendmanager_local.h".
+
 Mon Apr 27 10:20:21 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/synonympostlist.cc: Wrap comment.
@@ -236,7 +241,7 @@ Mon Mar 02 19:34:53 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 Thu Sep 04 10:58:43 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
-	* matcher/multimatch.cc: Change DEBUGLINE calls to LOGLINE. 
+	* matcher/multimatch.cc: Change DEBUGLINE calls to LOGLINE.
 
 Thu Sep 04 10:53:55 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
@@ -307,7 +312,7 @@ Tue Nov 27 08:40:51 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 Fri Apr 24 22:59:34 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
-	* weight/weight.cc: Add debug logging to Weight::init_() methods. 
+	* weight/weight.cc: Add debug logging to Weight::init_() methods.
 	* net/remoteserver.cc: Fix bounds returned by Weight::Internal
 	  object in get_mset() in remote submatches, by setting the
 	  database used to read the bounds.
@@ -570,7 +575,7 @@ Fri Mar 27 07:44:59 GMT 2009  Olly Betts <olly@survex.com>
 	  reports with lcov: coverage-reconfigure which reruns configure in
 	  the source tree and coverage-check which runs "make check" and
 	  generates an HTML report in a directory called "lcov".
-	  
+
 Thu Mar 26 23:59:36 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Makefile.am,m4-macros/xapian.m4,xapian-core.spec.in: Rename
@@ -634,7 +639,7 @@ Wed Mar 25 11:44:36 GMT 2009  Olly Betts <olly@survex.com>
 
 	* configure.ac: Only put ANSI_CXXFLAGS in CXXFLAGS for the duration of
 	  configure - put it in AM_CXXFLAGS for substituting so that the user
-	  can safely override CXXFLAGS at make-time: "make CXXFLAGS=-Os" 
+	  can safely override CXXFLAGS at make-time: "make CXXFLAGS=-Os"
 
 Wed Mar 25 10:50:44 GMT 2009  Olly Betts <olly@survex.com>
 

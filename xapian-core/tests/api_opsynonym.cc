@@ -1,6 +1,7 @@
-/* api_opsynonym.cc: tests which need a backend
- *
- * Copyright 2009 Olly Betts
+/** @file api_opsynonym.cc
+ * @brief tests of OP_SYNONYM.
+ */
+/* Copyright 2009 Olly Betts
  * Copyright 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -29,7 +30,6 @@
 #include <xapian.h>
 
 #include "backendmanager.h"
-#include "backendmanager_local.h"
 #include "testsuite.h"
 #include "testutils.h"
 
