@@ -1,3 +1,10 @@
+Mon Apr 27 12:20:25 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/weight.h: Add "need_stat(WDF);" for Weight subclasses
+	  which use wdf.  Currently this is never actually checked by trunk
+	  (so a regression test for this omission isn't really feasible), but
+	  the opsynonym branch uses it.
+
 Sun Apr 26 14:47:57 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* weight/bm25weight.cc: Add call debugging.
