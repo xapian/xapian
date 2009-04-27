@@ -1,3 +1,8 @@
+Mon Apr 27 13:36:19 GMT 2009  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Add "--spelling" option to index spelling correction
+	  data.
+
 Sun Apr 26 16:28:36 GMT 2009  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Make -s work as a short-form for --stemmer (as

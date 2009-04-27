@@ -74,6 +74,8 @@ using namespace std;
 
 static bool skip_duplicates = false;
 static bool follow_symlinks = false;
+static bool spelling = false;
+
 static string dbpath;
 static string root;
 static string indexroot;
@@ -723,6 +725,7 @@ main(int argc, char **argv)
 	{ "depth-limit",required_argument,	NULL, 'l' },
 	{ "follow",	no_argument,		NULL, 'f' },
 	{ "stemmer",	required_argument,	NULL, 's' },
+	{ "spelling",	no_argument,		NULL, 'S' },
 	{ 0, 0, NULL, 0 }
     };
 
@@ -807,7 +810,8 @@ main(int argc, char **argv)
     mime_map["djv"] = "image/vnd.djvu";
     mime_map["djvu"] = "image/vnd.djvu";
 
-    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:l:s:pf", longopts, NULL)) != -1) {
+    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:l:s:pfS",
+					 longopts, NULL)) != -1) {
 	switch (getopt_ret) {
 	case 'h': {
 	    cout << PROG_NAME" - "PROG_DESC"\n\n"
@@ -821,6 +825,7 @@ main(int argc, char **argv)
 "  -M, --mime-type          additional MIME mapping ext:type\n"
 "  -l, --depth-limit=LIMIT  set recursion limit (0 = unlimited)\n"
 "  -f, --follow             follow symbolic links\n"
+"  -S, --spelling           index data for spelling correction\n"
 "      --overwrite          create the database anew (the default is to update\n"
 "                           if the database already exists)" << endl;
 	    print_stemmer_help("     ");
@@ -895,6 +900,9 @@ main(int argc, char **argv)
 		return 1;
 	    }
 	    break;
+	case 'S':
+	    spelling = true;
+	    break;
 	case ':': // missing param
 	    return 1;
 	case '?': // unknown option: FIXME -> char
@@ -947,6 +955,10 @@ main(int argc, char **argv)
 	    db = Xapian::WritableDatabase(dbpath, Xapian::DB_CREATE_OR_OVERWRITE);
 	}
 
+	if (spelling) {
+	    indexer.set_database(db);
+	    indexer.set_flags(indexer.FLAG_SPELLING);
+	}
 	indexer.set_stemmer(stemmer);
 
 	index_directory(depth_limit, "/", mime_map);
