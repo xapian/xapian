@@ -658,6 +658,13 @@ index_directory(size_t depth_limit, const string &dir,
 			if (changed) mt = mime_map.find(ext);
 		    }
 		    if (mt != mime_map.end()) {
+			if (mt->second.empty()) {
+			    cout << "Skipping file, required filter not "
+				    "installed: \"" << file << "\""
+				 << endl;
+			    continue;
+			}
+
 			// Only check the file size if we recognise the
 			// extension to avoid a call to stat()/lstat() for
 			// files we can't handle when readdir() tells us the
@@ -680,7 +687,7 @@ index_directory(size_t depth_limit, const string &dir,
 			    cout << "Filter for \"" << mimetype
 				 << "\" not installed - ignoring extension \""
 				 << ext << "\"" << endl;
-			    mime_map.erase(mt);
+			    mt->second = string();
 			}
 		    } else {
 			cout << "Unknown extension: \"" << file

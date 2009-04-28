@@ -1,3 +1,11 @@
+Tue Apr 28 05:03:29 GMT 2009  Olly Betts <olly@survex.com>
+
+	* omindex.cc: If the filter for a filetype isn't installed, don't erase
+	  the entry from the mime_map, but instead set it to the empty string
+	  and then use this to report why we subsequently skip files with the
+	  same extension, rather than slightly misleadingly reporting "Unknown
+	  extension".
+
 Mon Apr 27 16:34:29 GMT 2009  Olly Betts <olly@survex.com>
 
 	* templates/query: Offer any spelling correction QueryParser gives.
