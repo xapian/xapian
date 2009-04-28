@@ -1,3 +1,8 @@
+Tue Apr 28 14:01:41 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc: Use <cstdlib> rather than <stdlib.h> which means
+	  that there's an overload for abs(long).
+
 Tue Apr 28 13:17:48 GMT 2009  Olly Betts <olly@survex.com>
 
 	* HACKING,INSTALL,configure.ac,include/xapian/deprecated.h,
