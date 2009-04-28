@@ -1,3 +1,8 @@
+Tue Apr 28 12:47:11 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/debuglog.h: Add missing initialisation of uncaught_exception
+	  in a couple of places.
+
 Tue Apr 28 11:24:02 GMT 2009  Olly Betts <olly@survex.com>
 
 	* INSTALL: Note that Xapian 1.0.x should build with GCC 2.95.3.
