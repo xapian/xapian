@@ -841,13 +841,6 @@ main(int argc, char **argv)
 	}
 	case 'v':
 	    print_package_info(PROG_NAME);
-	    cout << "\n"
-		 << "Copyright (c) 1999,2000,2001 BrightStation PLC.\n"
-		 << "Copyright (c) 2001,2005 James Aylett\n"
-		 << "Copyright (c) 2001,2002 Ananova Ltd\n"
-		 << "Copyright (c) 2002,2003,2004,2005,2006 Olly Betts\n\n"
-		 << "This is free software, and may be redistributed under\n"
-		 << "the terms of the GNU Public License." << endl;
 	    return 0;
 	case 'd': // how shall we handle duplicate documents?
 	    switch (optarg[0]) {

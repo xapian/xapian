@@ -1,3 +1,9 @@
+Tue Apr 28 05:17:04 GMT 2009  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Drop the copyright info from the output of --version as
+	  it's perennially out of date and we don't report it for any other
+	  Xapian programs.
+
 Tue Apr 28 05:03:29 GMT 2009  Olly Betts <olly@survex.com>
 
 	* omindex.cc: If the filter for a filetype isn't installed, don't erase
