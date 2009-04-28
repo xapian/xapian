@@ -1,3 +1,9 @@
+Tue Apr 28 04:09:34 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_opsynonym.cc: In synonym4, avoid casting -1 to
+	  Xapian::Query::op as that might collide with a valid value - instead
+	  make the loop termination test use sizeof().
+
 Tue Apr 28 03:58:57 GMT 2009  Olly Betts <olly@survex.com>
 
 	* weight/weight.cc: Fix whitespace oddities.

@@ -264,18 +264,18 @@ DEFINE_TESTCASE(synonym4, backend) {
     Xapian::Query date_query = Xapian::Query("date");
 
     // Check some queries.
-    Xapian::Query::op operators[] = {
+    static const Xapian::Query::op operators[] = {
 	Xapian::Query::OP_AND_MAYBE,
 	Xapian::Query::OP_AND_NOT,
 	Xapian::Query::OP_AND,
 	Xapian::Query::OP_XOR,
 	Xapian::Query::OP_OR,
-	Xapian::Query::OP_SYNONYM,
-	static_cast<Xapian::Query::op>(-1),
+	Xapian::Query::OP_SYNONYM
     };
-    for (Xapian::Query::op * i = operators;
-	 *i != static_cast<Xapian::Query::op>(-1);
-	 ++i) {
+    const Xapian::Query::op * end;
+    end = operators + sizeof(operators) / sizeof(operators[0]);
+    for (const Xapian::Query::op * i = operators; i != end; ++i) {
+	tout.str(string());
 	Xapian::Query query1(*i, syn_query, date_query);
 	Xapian::Query query2(*i, or_query, date_query);
 
