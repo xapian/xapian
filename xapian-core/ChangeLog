@@ -1,3 +1,8 @@
+Tue Apr 28 13:51:00 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_opsynonym.cc: Wrap some long comments.  Cuddle some
+	  opening braces.  Prefer '++x' to 'x += 1'.
+
 Tue Apr 28 04:09:34 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_opsynonym.cc: In synonym4, avoid casting -1 to

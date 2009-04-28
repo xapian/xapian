@@ -92,14 +92,13 @@ DEFINE_TESTCASE(synonym1, backend) {
 
     for (vector<vector<Xapian::Query> >::const_iterator
 	 qlist = subqueries_list.begin();
-	 qlist != subqueries_list.end(); ++qlist)
-    {
-	// Run two queries, one joining the subqueries with OR and one joining them
-	// with SYNONYM.
+	 qlist != subqueries_list.end(); ++qlist) {
+	// Run two queries, one joining the subqueries with OR and one joining
+	// them with SYNONYM.
 	Xapian::Enquire enquire(db);
 
 	// Do the search with OR
-	Xapian::Query orquery(Xapian::Query(Xapian::Query::OP_OR, qlist->begin(), qlist->end()));
+	Xapian::Query orquery(Xapian::Query::OP_OR, qlist->begin(), qlist->end());
 	enquire.set_query(orquery);
 	Xapian::MSet ormset = enquire.get_mset(0, lots);
 
@@ -125,16 +124,15 @@ DEFINE_TESTCASE(synonym1, backend) {
 	int same_weight = 0;
 	int different_weight = 0;
 	for (map<Xapian::docid, Xapian::weight>::const_iterator
-	     j = values_or.begin();
-	     j != values_or.end(); ++j)
-	{
+	     j = values_or.begin(); j != values_or.end(); ++j) {
 	    Xapian::docid did = j->first;
-	    // Check that all the results in the or tree make it to the synonym tree.
+	    // Check that all the results in the or tree make it to the synonym
+	    // tree.
 	    TEST(values_synonym.find(did) != values_synonym.end());
 	    if (values_or[did] == values_synonym[did]) {
-		same_weight += 1;
+		++same_weight;
 	    } else {
-		different_weight += 1;
+		++different_weight;
 	    }
 	}
 	if (qlist->size() == 1) {
