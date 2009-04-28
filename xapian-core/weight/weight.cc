@@ -87,11 +87,11 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length,
     collection_size_ = stats.collection_size;
     rset_size_ = stats.rset_size;
     if (stats_needed & AVERAGE_LENGTH)
-    	average_length_ = stats.get_average_length();
+	average_length_ = stats.get_average_length();
     if (stats_needed & DOC_LENGTH_MAX)
-    	doclength_upper_bound_ = stats.db.get_doclength_upper_bound();
+	doclength_upper_bound_ = stats.db.get_doclength_upper_bound();
     if (stats_needed & DOC_LENGTH_MIN)
-    	doclength_lower_bound_ = stats.db.get_doclength_lower_bound();
+	doclength_lower_bound_ = stats.db.get_doclength_lower_bound();
 
     // The doclength is an upper bound on the wdf.  This is obviously true for
     // normal terms, but SynonymPostList ensures that it is also true for
@@ -100,7 +100,7 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length,
     // (This clamping is only actually necessary in cases where a constituent
     // term of the synonym is repeated.)
     if (stats_needed & WDF_MAX)
-    	wdf_upper_bound_ = stats.db.get_doclength_upper_bound();
+	wdf_upper_bound_ = stats.db.get_doclength_upper_bound();
 
     termfreq_ = termfreq;
     reltermfreq_ = 0;
