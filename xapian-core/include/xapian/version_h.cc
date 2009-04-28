@@ -51,21 +51,15 @@ const char * dummy = {
 #define J3(A,B,C) g++ A##.##B##.##C
 "",
 "#ifdef __GNUC__",
-"#if __GNUC__ < 3",
-"#error Xapian no longer supports GCC < 3.0",
+"#if __GNUC__ < 3 || (__GNUC__ == 3 && __GNUC_MINOR__ == 0)",
+"#error Xapian no longer supports GCC < 3.1",
 "#else",
 #ifndef __GXX_ABI_VERSION
 #error GCC does not have __GXX_ABI_VERSION defined
 #endif
 // GCC 3.1 reports ABI version 100 (same as 3.0), but this should actually have
-// been 101!  So use hard-coded version number checks for 3.0 and 3.1.
-#if __GNUC__ == 3 && __GNUC_MINOR__ == 0
-"#if !(__GNUC__ == 3 && __GNUC_MINOR__ == 0)",
-#elif __GNUC__ == 3 && __GNUC_MINOR__ == 1
-"#if !(__GNUC__ == 3 && __GNUC_MINOR__ == 1)",
-#else
+// been 101!  But we reject 3.0 above, so this doesn't actually matter.
 "#if !defined(__GXX_ABI_VERSION) || __GXX_ABI_VERSION != ",__GXX_ABI_VERSION,
-#endif
 "#error The C++ ABI version of compiler you are using does not match",
 "#error that of the compiler used to build the library.  The versions",
 "#error must match or your program will not work correctly.",

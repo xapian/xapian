@@ -1,3 +1,13 @@
+Tue Apr 28 13:17:48 GMT 2009  Olly Betts <olly@survex.com>
+
+	* HACKING,INSTALL,configure.ac,include/xapian/deprecated.h,
+	  include/xapian/version_h.cc,tests/harness/testsuite.cc: Actually,
+	  let's require GCC 3.1 as doing so eliminates some preprocessor
+	  conditionals which we aren't able to test regularly as we don't
+	  have easy access to such old GCC versions.  GCC 3.1 is nearly 7
+	  years old now, and GCC3 didn't get widespread use until later
+	  versions anyway.
+
 Tue Apr 28 12:47:11 GMT 2009  Olly Betts <olly@survex.com>
 
 	* common/debuglog.h: Add missing initialisation of uncaught_exception

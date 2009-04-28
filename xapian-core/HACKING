@@ -583,13 +583,11 @@ Warning Free Compilation
 ------------------------
 
 Compiling without warnings on every platform is our goal, though it's not
-always possible to achieve.  For example, GCC 2.95 produces a few bogus
-warnings (e.g. about not returning a value from a non-void function),
-and some GCC 3.x compilers produce the occasional bogus warning (e.g.
-warning that a variable may be used uninitialised, despite it being initialised
-at the point of declaration!)
+always possible to achieve.  For example, some GCC 3.x compilers produce the
+occasional bogus warning (e.g.  warning that a variable may be used
+uninitialised, despite it being initialised at the point of declaration!)
 
-If using GCC 3.0 or newer, you should consider configure-ing with:
+You should consider configure-ing with:
 
 ./configure CXXFLAGS=-Werror
 
