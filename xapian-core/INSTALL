@@ -35,7 +35,8 @@ If you're using GCC, we currently recommend GCC 3.3 or newer.
 
 The minimum required GCC version is 3.0 (2.95.2 and earlier don't have
 the <sstream> header; 3.0 adds support for the <limits> header and has
-<streambuf> as well as <streambuf.h>). 
+<streambuf> as well as <streambuf.h>).  If you really still need to
+use an older version of GCC, Xapian 1.0.x should build with GCC 2.95.3.
 
 When using HP's aCC, Xapian must be compiled with -AA ("ANSI mode"), which
 xapian-core's configure automatically detects and passes.  This means your code

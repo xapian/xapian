@@ -1,3 +1,7 @@
+Tue Apr 28 11:24:02 GMT 2009  Olly Betts <olly@survex.com>
+
+	* INSTALL: Note that Xapian 1.0.x should build with GCC 2.95.3.
+
 Tue Apr 28 11:20:51 GMT 2009  Olly Betts <olly@survex.com>
 
 	* HACKING,INSTALL,backends/chert/chert_database.h,
