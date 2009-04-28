@@ -1,3 +1,8 @@
+Tue Apr 28 07:38:54 GMT 2009  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Check the last modification time of files before
+	  reindexing (ticket#342).
+
 Tue Apr 28 05:17:04 GMT 2009  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Drop the copyright info from the output of --version as
