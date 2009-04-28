@@ -160,6 +160,7 @@ class MultiAndPostList : public PostList {
      *  are being combined as a synonym we want the sum of the wdfs, so we do
      *  that in general.
      */
-    Xapian::termcount get_wdf() const; };
+    Xapian::termcount get_wdf() const;
+};
 
 #endif // XAPIAN_INCLUDED_MULTIANDPOSTLIST_H
