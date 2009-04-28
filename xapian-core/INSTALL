@@ -33,16 +33,9 @@ a set of suitable makefiles: http://xapian.org/download.php
 
 If you're using GCC, we currently recommend GCC 3.3 or newer.
 
-The minimum required GCC version is 2.95.3 (2.95.2 and earlier don't have
-the <sstream> header).  We still regularly peform test builds with 2.95.4 on
-x86 with the aim of maintaining compatibility.  However, you may experience
-spurious warning messages with this version, and on some architectures you
-might get Internal Compiler Errors (in particular, GCC 2.95 for arm usually
-fails to compile Xapian).
-
-The "GCC 2.96" supplied with older RedHat releases is also best avoided.  This
-isn't based on an official GCC release, but rather on a snapshot of GCC
-somewhere between 2.95 and 3.0.
+The minimum required GCC version is 3.0 (2.95.2 and earlier don't have
+the <sstream> header; 3.0 adds support for the <limits> header and has
+<streambuf> as well as <streambuf.h>). 
 
 When using HP's aCC, Xapian must be compiled with -AA ("ANSI mode"), which
 xapian-core's configure automatically detects and passes.  This means your code

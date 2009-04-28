@@ -422,9 +422,9 @@ Use of C++ Features
   don't include full support for this.  Often we can work around this, for
   example:
 
-  * Providing our own auto_ptr implementation (AutoPtr).
-  * Using string::resize(0) instead of string::clear() (for GCC 2.95).
-  * Avoiding use of '#include <limits>' (for GCC 2.95; GCC 3.0+ support it).
+  * Providing our own auto_ptr implementation (AutoPtr).  This may well no
+    longer be necessary for the compilers we want to support, but needs
+    investigating.
 
   There is now plenty of choice of compilers which provide good conformance to
   ISO C++, so if working around problems for some compiler proves too hard we
@@ -443,6 +443,11 @@ Use of C++ Features
     in use which lacks these, and GCC 4.3 no longer has the old versions.  If
     there are any, we could add a directory full of forwarding headers to work
     around this issue.
+
+  * Standard header ``<limits>`` (for ``numeric_limits<>``) - for GCC, this was
+    added in GCC 3.0.
+
+  * Standard header ``<streambuf>`` (GCC < 3.0 only has ``<streambuf.h>``).
 
 * RTTI (dynamic_cast<>, typeid, etc):  Needing to use RTTI features in the
   library most likely indicates a design flaw, and you should avoid use

@@ -399,9 +399,6 @@ AC_TYPE_MODE_T
 AC_CHECK_SIZEOF([int])
 AC_CHECK_SIZEOF([long])
 
-dnl Check for a new streams implementation (GCC 2.95 only has streambuf.h).
-AC_CHECK_HEADERS(streambuf, [], [], [ ])
-
 dnl Check for perl (needed to generate some sources and documentation).
 AC_PATH_PROG(PERL, perl, [])
 if test x$USE_MAINTAINER_MODE = xyes; then
@@ -930,11 +927,10 @@ if test yes = "$GXX"; then
       gxx_version=$gxx_major_version.$gxx_minor_version
 
       case $gxx_version in
-      2.96)
-	dnl Oddly Redhat's "2.96" doesn't support -Wundef, though real
-	dnl GCC versions before and after it do!
+      [[012]].*)
+	AC_MSG_ERROR([Xapian requires GCC 3.0 or later (you appear to have $gxx_version)])
 	;;
-      [[012]].* | 3.0) dnl GCC < 3.1, other than 2.96
+      3.0)
 	dnl GCC 3.0 supports -Wshadow, but it spews false positives (at least
 	dnl with 3.0.4) so we don't use it.
 	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef" ;;

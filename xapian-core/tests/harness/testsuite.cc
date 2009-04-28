@@ -38,14 +38,8 @@
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
-
-#ifdef HAVE_STREAMBUF
-#include <streambuf>
-#else // HAVE_STREAMBUF
-#include <streambuf.h>
-#endif // HAVE_STREAMBUF
-
 #include <set>
+#include <streambuf>
 
 #include <float.h> // For DBL_DIG.
 #include <math.h> // For ceil, fabs, log10.

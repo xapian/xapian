@@ -6,7 +6,7 @@ const char * dummy = {
 "// If using GCC, also check the C++ ABI version is compatible with that used",
 "// to build the library.",
 "//",
-"// Copyright (C) 2002,2004,2005,2006,2007,2008 Olly Betts",
+"// Copyright (C) 2002,2004,2005,2006,2007,2008,2009 Olly Betts",
 "//",
 "// This program is free software; you can redistribute it and/or",
 "// modify it under the terms of the GNU General Public License as",
@@ -51,7 +51,12 @@ const char * dummy = {
 #define J3(A,B,C) g++ A##.##B##.##C
 "",
 "#ifdef __GNUC__",
-#ifdef __GXX_ABI_VERSION
+"#if __GNUC__ < 3",
+"#error Xapian no longer supports GCC < 3.0",
+"#else",
+#ifndef __GXX_ABI_VERSION
+#error GCC does not have __GXX_ABI_VERSION defined
+#endif
 // GCC 3.1 reports ABI version 100 (same as 3.0), but this should actually have
 // been 101!  So use hard-coded version number checks for 3.0 and 3.1.
 #if __GNUC__ == 3 && __GNUC_MINOR__ == 0
@@ -60,11 +65,6 @@ const char * dummy = {
 "#if !(__GNUC__ == 3 && __GNUC_MINOR__ == 1)",
 #else
 "#if !defined(__GXX_ABI_VERSION) || __GXX_ABI_VERSION != ",__GXX_ABI_VERSION,
-#endif
-#elif __GNUC__ == 2 && __GNUC_MINOR__ == 96
-"#if !(__GNUC__ == 2 && __GNUC_MINOR__ == 96)",
-#else
-"#if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 96)",
 #endif
 "#error The C++ ABI version of compiler you are using does not match",
 "#error that of the compiler used to build the library.  The versions",
@@ -93,6 +93,7 @@ const char * dummy = {
 "#endif",
 #endif
 #endif
+"#endif",
 "#endif",
 #endif
 "",

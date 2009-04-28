@@ -1,3 +1,11 @@
+Tue Apr 28 11:20:51 GMT 2009  Olly Betts <olly@survex.com>
+
+	* HACKING,INSTALL,backends/chert/chert_database.h,
+	  backends/flint/flint_database.h,
+	  backends/inmemory/inmemory_database.h,configure.ac,
+	  include/xapian/version_h.cc,tests/harness/testsuite.cc: Drop support
+	  for GCC 2.95.3 - we now require at least 3.0.
+
 Mon Apr 27 12:20:25 GMT 2009  Olly Betts <olly@survex.com>
 
 	* include/xapian/weight.h: Add "need_stat(WDF);" for Weight subclasses
