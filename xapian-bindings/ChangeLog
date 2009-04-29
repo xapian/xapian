@@ -1,3 +1,11 @@
+Wed Apr 29 15:42:37 GMT 2009  Olly Betts <olly@survex.com>
+
+	* README: Note that the testsuite fails due to a bug in the test/unit
+	  module in Ruby 1.9.0, but applications using the bindings should
+	  work, and that the testsuite works with Ruby 1.9.1.  Drop all mention
+	  of Ruby 1.6.x as that appears to be completely dead both upstream
+	  and in the wild.
+
 Wed Apr 29 13:06:55 GMT 2009  Olly Betts <olly@survex.com>
 
 	* configure.ac: Update required SWIG version to r11194 to get better
