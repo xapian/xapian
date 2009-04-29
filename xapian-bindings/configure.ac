@@ -122,18 +122,20 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   if test -z "$SWIG" ; then
     AC_MSG_ERROR([Can't find SWIG utility])
   fi
-  dnl Check for swig >= 1.3.33 (SVN rev 10143):
+  dnl Check for swig >= 1.3.40 (SVN rev 11194):
   dnl
   dnl 1.3.30 produces class wrappers for PHP5
   dnl 1.3.32 fixes PHP5 wrappers for overloaded forms with default arguments,
   dnl memory leaks for PHP4 and PHP5, some problems with ZTS-enabled PHP builds
   dnl (noted on Windows; Linux builds of PHP generally don't enable ZTS), and
   dnl several other issues.
+  dnl 1.3.40 fixes Python 3.0.1 support and removes superfulous GIL locking to
+  dnl workaround mod_python problems.
   v=`$SWIG -version 2>&1|sed 's/^SWIG Version \([[0-9\.]]*\).*/\1/p;d'`
   case $v in
-    [1.3.[3-9][0-9]|1.3.[1-9][0-9][0-9][0-9]*|1.[4-9].*|2.*]) ;;
+    [1.3.[4-9][0-9]|1.[4-9].*|2.*]) ;;
     *)
-      msg="SWIG >= 1.3.33 (SVN rev 10143 or later) required (you have ${v:-an unknown version})"
+      msg="SWIG >= 1.3.40 (SVN rev 11194 or later) required (you have ${v:-an unknown version})"
       if test -n "$swigoverridden" ; then
 	dnl If SWIG was explicitly set, make this a warning only.
 	AC_MSG_WARN([$msg])

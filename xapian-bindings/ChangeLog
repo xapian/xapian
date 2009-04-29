@@ -1,3 +1,9 @@
+Wed Apr 29 13:06:55 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Update required SWIG version to r11194 to get better
+	  Python 3 support (ticket#346) and to eliminate superfluous GIL
+	  locking calls (ticket#185).
+
 Mon Apr 27 08:43:37 GMT 2009  Olly Betts <olly@survex.com>
 
 	* xapian-bindings.spec.in: Update for rename of XapianSharp.so to
