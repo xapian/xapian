@@ -1,3 +1,8 @@
+Thu Apr 30 05:07:56 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_opsynonym.cc: Simplify check_msets_contain_same_docs() to
+	  use a single set instead of two maps.
+
 Tue Apr 28 13:51:00 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_opsynonym.cc: Wrap some long comments.  Cuddle some

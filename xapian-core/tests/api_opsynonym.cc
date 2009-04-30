@@ -25,6 +25,7 @@
 #include "api_opsynonym.h"
 
 #include <map>
+#include <set>
 #include <vector>
 
 #include <xapian.h>
@@ -195,22 +196,18 @@ check_msets_contain_same_docs(const Xapian::MSet & mset1,
 {
     TEST_EQUAL(mset1.size(), mset2.size());
 
-    map<Xapian::docid, Xapian::weight> values1;
-    map<Xapian::docid, Xapian::weight> values2;
+    set<Xapian::docid> docids;
     for (Xapian::doccount i = 0; i < mset1.size(); ++i) {
-	values1[*mset1[i]] = mset1[i].get_weight();
-	values2[*mset2[i]] = mset2[i].get_weight();
+	docids.insert(*mset1[i]);
     }
 
-    for (map<Xapian::docid, Xapian::weight>::const_iterator
-	 j = values2.begin();
-	 j != values2.end(); ++j)
-    {
-	Xapian::docid did = j->first;
-	// Check that all the results in the orig mset are in the zero mset.
-	TEST(values1.find(did) != values1.end());
+    // Check that all the results in mset1 are in mset2.
+    for (Xapian::doccount j = 0; j < mset2.size(); ++j) {
+	// Check that we can erase each entry from mset2 element.  Since mset1
+	// and mset2 are the same size this means we can be sure that there
+	// were no repeated docids in either (it would be a bug if there were).
+	TEST(docids.erase(*mset2[j]));
     }
-    TEST_EQUAL(values1.size(), values2.size());
 }
 
 // Test a synonym search which has had its weight scaled to 0.
