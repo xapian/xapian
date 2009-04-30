@@ -351,6 +351,12 @@ $set{OPT,VALUE}
 	  name will be ignored.  If unset or empty then the document data is
 	  parsed as one field per line in the format NAME=VALUE (where NAME is
 	  assumed not to contain '=').
+        * weighting - set the weighting scheme to use, and (optionally) the
+          parameters to use if the weighting scheme supports them.  The syntax
+          is a string consisting of the scheme name followed by any parameters,
+          all separated by whitespace.  Any parameters not specified will use
+          their default values.  Valid scheme names are ``bm25``, ``bool``, and
+          ``trad``.  e.g. ``$set{weighting,bm25 1 0.8}``
 
 $setrelevant{docids}
 	add documents into the RSet

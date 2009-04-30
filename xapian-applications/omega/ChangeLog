@@ -1,3 +1,9 @@
+Thu Apr 30 14:09:50 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Makefile.am,docs/omegascript.rst,query.cc,weight.cc,weight.h: Add
+	  $opt{weighting} to allow the weighting scheme and parameters to be
+	  specified (ticket#298).
+
 Tue Apr 28 07:38:54 GMT 2009  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Check the last modification time of files before

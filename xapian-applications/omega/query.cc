@@ -63,6 +63,7 @@
 #include "stringutils.h"
 #include "transform.h"
 #include "values.h"
+#include "weight.h"
 
 #include <xapian.h>
 
@@ -312,6 +313,7 @@ void add_bterm(const string &term) {
 static void
 run_query()
 {
+    bool force_boolean = false;
     if (!filter_map.empty()) {
 	// OR together filters with the same prefix, then AND together
 	vector<Xapian::Query> filter_vec;
@@ -347,7 +349,7 @@ run_query()
 	    // to be THE query - filtering an empty query will give no
 	    // matches.
 	    std::swap(query, filter);
-	    if (enquire) enquire->set_weighting_scheme(Xapian::BoolWeight());
+	    if (enquire) force_boolean = true;
 	} else {
 	    query = Xapian::Query(Xapian::Query::OP_FILTER, query, filter);
 	}
@@ -376,6 +378,8 @@ run_query()
     }
 
     if (!enquire || !error_msg.empty()) return;
+
+    set_weighting_scheme(*enquire, option, force_boolean);
 
     enquire->set_cutoff(threshold);
 
