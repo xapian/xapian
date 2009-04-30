@@ -1,3 +1,7 @@
+Thu Apr 30 15:02:41 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/valuestats.h: Fix comment typo.
+
 Tue Apr 28 14:01:41 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc: Use <cstdlib> rather than <stdlib.h> which means
