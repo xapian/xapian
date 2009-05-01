@@ -63,7 +63,8 @@ static void show_usage() {
 }
 
 static size_t check_chert_table(const char * tablename, string table, int opts,
-				std::vector<Xapian::termcount> & doclens);
+				vector<Xapian::termcount> & doclens,
+				Xapian::docid db_last_docid);
 
 static inline bool
 is_user_metadata_key(const string & key)
@@ -119,7 +120,7 @@ main(int argc, char **argv)
 	    // Check a whole flint database directory.
 	    try {
 		Xapian::Database db = Xapian::Flint::open(dir);
-		doclens.reserve(db.get_lastdocid());
+		doclens.reserve(db.get_lastdocid() + 1);
 	    } catch (const Xapian::Error & e) {
 		// Ignore so we can check a database too broken to open.
 		cout << "Database couldn't be opened for reading: "
@@ -157,9 +158,13 @@ main(int argc, char **argv)
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 	if (stat((dir + "/iamchert").c_str(), &sb) == 0) {
 	    // Check a whole chert database directory.
+	    // If we can't read the last docid, set it to its maximum value
+	    // to suppress errors.
+	    Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
 	    try {
 		Xapian::Database db = Xapian::Chert::open(dir);
-		doclens.reserve(db.get_lastdocid());
+		db_last_docid = db.get_lastdocid();
+		doclens.reserve(db_last_docid + 1);
 	    } catch (const Xapian::Error & e) {
 		// Ignore so we can check a database too broken to open.
 		cout << "Database couldn't be opened for reading: "
@@ -189,7 +194,8 @@ main(int argc, char **argv)
 			continue;
 		    }
 		}
-		errors += check_chert_table(*t, table, opts, doclens);
+		errors += check_chert_table(*t, table, opts, doclens,
+					    db_last_docid);
 	    }
 	} else
 #endif
@@ -225,10 +231,12 @@ main(int argc, char **argv)
 
 	    if (flint) {
 		errors = check_flint_table(tablename.c_str(), filename, opts,
-				 	   doclens);
+					   doclens);
 	    } else {
+		// Set the last docid to its maximum value to suppress errors.
+		Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
 		errors = check_chert_table(tablename.c_str(), filename, opts,
-				 	   doclens);
+					   doclens, db_last_docid);
 	    }
 	}
 	if (errors > 0) {
@@ -250,7 +258,8 @@ main(int argc, char **argv)
 
 static size_t
 check_chert_table(const char * tablename, string filename, int opts,
-		  vector<Xapian::termcount> & doclens)
+		  vector<Xapian::termcount> & doclens,
+		  Xapian::docid db_last_docid)
 {
     filename += '.';
 
@@ -382,12 +391,24 @@ check_chert_table(const char * tablename, string filename, int opts,
 			break;
 		    }
 
+		    if (did > db_last_docid) {
+			cout << "document id " << did
+			     << " is larger that get_last_docid() "
+			     << db_last_docid << endl;
+			++errors;
+		    }
+
 		    if (!doclens.empty()) {
-			if (did >= doclens.size()) {
-			    cout << "document id " << did << " is larger than any in the termlist table!" << endl;
-			    ++errors;
-			} else if (doclens[did] != doclen) {
-			    cout << "doclen " << doclen << " doesn't match " << doclens[did] << " in the termlist table" << endl;
+			// In chert, a document without terms doesn't get a
+			// termlist entry.
+			Xapian::termcount termlist_doclen = 0;
+			if (did < doclens.size())
+			    termlist_doclen = doclens[did];
+			
+			if (doclen != termlist_doclen) {
+			    cout << "doclen " << doclen << " doesn't match "
+				 << termlist_doclen
+				 << " in the termlist table" << endl;
 			    ++errors;
 			}
 		    }
