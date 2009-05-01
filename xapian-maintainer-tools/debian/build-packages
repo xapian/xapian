@@ -17,9 +17,11 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
+# packages required: lintian dchroot
+
 set -e
 
-REPO_URL=http://www.xapian.org/debian-tmp
+REPO_URL=http://xapian.org/debian-tmp
 
 LINTIAN_FLAGS="-l0 -I"
 
@@ -31,14 +33,26 @@ fi
 
 # Usage: build_package DSC_FILE
 build_package() {
+  echo ">>> Building: $1"
   pbuilder build --no-targz --buildplace "$CHROOT_DIR" --buildresult "$POOL" "$1"
 }
 
-rm -rf Sources.gz *.dsc *.orig.tar.gz *.diff.gz
+fetch_url() {
+  echo ">>> Fetching: $1"
+  wget -qc "$1"
+}
+
+chroot_command() {
+  echo ">>> Running: $1"
+  dchroot -c "$CHROOT" -- "$1"
+}
+
+#rm -rf Sources.gz *.dsc *.orig.tar.gz *.diff.gz
 
 CODENAME=$1
 ARCH=$2
 VERSION=$3
+shift
 shift
 shift
 PACKAGES=${*-"core bindings omega"}
@@ -52,7 +66,7 @@ mkdir -p "$POOL"
 
 DSC_PATH="$REPO_URL/pool/$VERSION/$CODENAME/source/"
 
-wget -nv "$REPO_URL/dists/$CODENAME/main/source/Sources.gz"
+fetch_url "$REPO_URL/dists/$CODENAME/main/source/Sources.gz"
 
 skip=yes
 gzip -dc Sources.gz | while read line ; do
@@ -62,8 +76,8 @@ gzip -dc Sources.gz | while read line ; do
     esac
   elif test -n "$line" ; then
     FILE=`echo "$line"|sed 's/.* //'`
-    if expr "$FILE" : ".*_${VERSION}[-.]" ; then
-      wget -nv "$DSC_PATH$FILE"
+    if expr "$FILE" : ".*_${VERSION}[-.]" >/dev/null ; then
+      fetch_url "$DSC_PATH$FILE" ;;
     else
       echo "*** Not version $VERSION, ignoring: '$FILE'"
     fi
@@ -72,16 +86,22 @@ gzip -dc Sources.gz | while read line ; do
   fi
 done
 
-rm -rf "$CHROOT_DIR"/tmp/*
+if [ -d "$CHROOT_DIR" ] ; then
+  rm -rf "$CHROOT_DIR"/tmp/*
+else
+  ./create-chroot "$CODENAME" "$ARCH"
+fi
 
-# Remove any old libxapian packages.
-dchroot -c "$CHROOT" -- 'apt-get --force-yes -y remove libxapian.\*' || true
+echo ">>> Removing any old libxapian packages."
+chroot_command 'apt-get --force-yes -y remove libxapian.\*' || true
 
 # Remove /tmp/tmp-repo from sources.list as it won't currently exist.
 perl -ni -e 'print unless m!^deb file:/tmp/tmp-repo/ \./$!' \
     "$CHROOT_DIR"/etc/apt/sources.list
-dchroot -c "$CHROOT" -- 'apt-get update'
-dchroot -c "$CHROOT" -- 'apt-get --force-yes -y dist-upgrade'
+chroot_command 'apt-get update'
+chroot_command 'apt-get --force-yes -y dist-upgrade'
+# autoremove just cleans up no longer needed packages - if it fails, so be it.
+chroot_command 'apt-get -y autoremove' || true
 
 if expr "$PACKAGES" : '.*core' ; then
   build_package xapian-core_*.dsc
@@ -100,14 +120,15 @@ ln "$POOL"/libxapian* "$CHROOT_DIR"/tmp/tmp-repo \
 )
 
 echo 'deb file:/tmp/tmp-repo/ ./' >> "$CHROOT_DIR"/etc/apt/sources.list
-dchroot -c "$CHROOT" -- 'apt-get update'
-dchroot -c "$CHROOT" -- 'apt-get --force-yes -y dist-upgrade'
+chroot_command 'apt-get update'
+chroot_command 'apt-get --force-yes -y dist-upgrade'
+chroot_command 'apt-get --force-yes -y install build-essential'
 
 if expr "$PACKAGES" : '.*bindings' ; then
   # Need to ensure python is installed in the chroot so that the xapian-bindings
   # install script can discover the default python version.
   # FIXME : not sure this is actually required now...
-  dchroot -c "$CHROOT" -- 'apt-get --force-yes -y install python'
+  chroot_command 'apt-get --force-yes -y install python'
 
   build_package xapian-bindings_*.dsc
   rm -rf "$CHROOT_DIR"/tmp/*
