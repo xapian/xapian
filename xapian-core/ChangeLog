@@ -1,3 +1,12 @@
+Fri May 01 04:53:22 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omdocument.cc: Don't ever store empty values explicitly, which
+	  eliminates an inconsistently handled corner case which was causing
+	  the "value frequency" to be wrong from at least one point of view.
+	  This is consistent with how user metadata works too. 
+	* include/xapian/document.h: Explicitly document this behaviour.
+	* tests/api_valuestats.cc: Add regression test for the above change.
+
 Fri May 01 03:11:25 GMT 2009  Olly Betts <olly@survex.com>
 
 	* bin/xapian-check.cc: Chert doesn't store termlist entries for
