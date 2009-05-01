@@ -36,6 +36,7 @@
 
 #include "stringutils.h"
 #include "utils.h"
+#include "valuestats.h"
 
 #include "xapian-check-flint.h"
 
@@ -256,6 +257,12 @@ main(int argc, char **argv)
     }
 }
 
+struct VStats : public ValueStats {
+    Xapian::doccount freq_real;
+
+    VStats() : ValueStats(), freq_real(0) {}
+};
+
 static size_t
 check_chert_table(const char * tablename, string filename, int opts,
 		  vector<Xapian::termcount> & doclens,
@@ -278,6 +285,7 @@ check_chert_table(const char * tablename, string filename, int opts,
 
     if (strcmp(tablename, "postlist") == 0) {
 	// Now check the structure of each postlist in the table.
+	map<Xapian::valueno, VStats> valuestats;
 	string current_term;
 	Xapian::docid lastdid = 0;
 	Xapian::termcount termfreq = 0, collfreq = 0;
@@ -392,8 +400,8 @@ check_chert_table(const char * tablename, string filename, int opts,
 		    }
 
 		    if (did > db_last_docid) {
-			cout << "document id " << did
-			     << " is larger that get_last_docid() "
+			cout << "document id " << did << " in doclen stream "
+			     << "is larger that get_last_docid() "
 			     << db_last_docid << endl;
 			++errors;
 		    }
@@ -446,7 +454,46 @@ check_chert_table(const char * tablename, string filename, int opts,
 
 	    if (key.size() >= 2 && key[0] == '\0' && key[1] == '\xd0') {
 		// Value stats.
-		// FIXME: check
+		const char * p = key.data();
+		const char * end = p + key.length();
+		p += 2;
+		Xapian::valueno slot;
+		if (!unpack_uint_last(&p, end, &slot)) {
+		    cout << "Bad valuestats key (no slot)" << endl;
+		    ++errors;
+		    continue;
+		}
+
+		cursor->read_tag();
+		p = cursor->current_tag.data();
+		end = p + cursor->current_tag.size();
+
+		VStats & v = valuestats[slot];
+		if (!unpack_uint(&p, end, &v.freq)) {
+		    if (*p == 0) {
+			cout << "Incomplete stats item in value table" << endl;
+		    } else {
+			cout << "Frequency statistic in value table is too large" << endl;
+		    }
+		    ++errors;
+		    continue;
+		}
+		if (!unpack_string(&p, end, v.lower_bound)) {
+		    if (*p == 0) {
+			cout << "Incomplete stats item in value table" << endl;
+		    } else {
+			cout << "Lower bound statistic in value table is too large" << endl;
+		    }
+		    ++errors;
+		    continue;
+		}
+		size_t len = end - p;
+		if (len == 0) {
+		    v.upper_bound = v.lower_bound;
+		} else {
+		    v.upper_bound.assign(p, len);
+		}
+
 		continue;
 	    }
 
@@ -473,6 +520,8 @@ check_chert_table(const char * tablename, string filename, int opts,
 		    continue;
 		}
 
+		VStats & v = valuestats[slot];
+
 		cursor->read_tag();
 		p = cursor->current_tag.data();
 		end = p + cursor->current_tag.size();
@@ -484,9 +533,27 @@ check_chert_table(const char * tablename, string filename, int opts,
 			++errors;
 			break;
 		    }
+
+		    ++v.freq_real;
+
 		    // FIXME: Cross-check that docid did has value slot (and
 		    // vice versa - that there's a value here if the slot entry
 		    // says so).
+
+		    // FIXME: Check if the bounds are tight?  Or is that better
+		    // as a separate tool which can also update the bounds?
+		    if (value < v.lower_bound) {
+			cout << "Value slot " << slot << " has value below "
+				"lower bound: '" << value << "' < '"
+			     << v.lower_bound << "'" << endl;
+			++errors;
+		    } else if (value > v.upper_bound) {
+			cout << "Value slot " << slot << " has value above "
+				"upper bound: '" << value << "' > '"
+			     << v.upper_bound << "'" << endl;
+			++errors;
+		    }
+
 		    if (p == end) break;
 		    Xapian::docid delta;
 		    if (!unpack_uint(&p, end, &delta)) {
@@ -501,6 +568,13 @@ check_chert_table(const char * tablename, string filename, int opts,
 			break;
 		    }
 		    did = new_did;
+
+		    if (did > db_last_docid) {
+			cout << "document id " << did << " in value chunk "
+			     << "is larger that get_last_docid() "
+			     << db_last_docid << endl;
+			++errors;
+		    }
 		}
 		continue;
 	    }
@@ -648,6 +722,16 @@ check_chert_table(const char * tablename, string filename, int opts,
 	    cout << "Last term `" << current_term << "' has no last chunk"
 		 << endl;
 	    ++errors;
+	}
+
+	map<Xapian::valueno, VStats>::const_iterator i;
+	for (i = valuestats.begin(); i != valuestats.end(); ++i) {
+	    if (i->second.freq != i->second.freq_real) {
+		cout << "Value stats frequency for slot " << i->first << " is "
+		     << i->second.freq << " but recounting gives "
+		     << i->second.freq_real << endl;
+		++errors;
+	    }
 	}
     } else if (strcmp(tablename, "record") == 0) {
 	// Now check the contents of the record table.  Any data is valid as
