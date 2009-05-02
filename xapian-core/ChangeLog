@@ -1,3 +1,11 @@
+Sat May 02 15:49:46 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac,tests/Makefile.am,tests/api_scalability.cc,
+	  tests/api_wrdb.cc,tests/harness/: Add new "test_scalability()" helper
+	  function which checks that an operation scales in CPU time used in
+	  the desired way.  Use this to reimplement bigoaddvalue (and rename
+	  to bigoaddvalue1 for consistency).
+
 Fri May 01 04:58:41 GMT 2009  Olly Betts <olly@survex.com>
 
 	* bin/xapian-check.cc: For chert, check value stats are the correct

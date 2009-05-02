@@ -373,6 +373,9 @@ AC_TRY_COMPILE([#include <typeinfo>],
 dnl Check for time functions.
 AC_CHECK_FUNCS(gettimeofday ftime)
 
+dnl Used by tests/harness/cputimer.cc:
+AC_CHECK_FUNCS([getrusage times sysconf])
+
 dnl See if ftime returns void (as it does on mingw)
 AC_MSG_CHECKING([return type of ftime])
 if test $ac_cv_func_ftime = yes ; then
