@@ -1459,6 +1459,7 @@ DEFINE_TESTCASE(consistency1, backend && !remote) {
 
 // tests that specifying a nonexistent input file throws an exception.
 DEFINE_TESTCASE(flintdatabaseopeningerror1, flint) {
+#ifdef XAPIAN_HAS_FLINT_BACKEND
     mkdir(".flint", 0755);
 
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
@@ -1481,12 +1482,14 @@ DEFINE_TESTCASE(flintdatabaseopeningerror1, flint) {
 		   Xapian::Flint::open(".flint/somefile", Xapian::DB_CREATE_OR_OPEN));
     TEST_EXCEPTION(Xapian::DatabaseCreateError,
 		   Xapian::Flint::open(".flint/somefile", Xapian::DB_CREATE_OR_OVERWRITE));
+#endif
 
     return true;
 }
 
 /// Tests that appropriate error is thrown for database format change.
 DEFINE_TESTCASE(flintdatabaseformaterror1, flint) {
+#ifdef XAPIAN_HAS_FLINT_BACKEND
     string dbdir = test_driver::get_srcdir();
     dbdir += "/testdata/flint-0.9.9";
 
@@ -1502,6 +1505,7 @@ DEFINE_TESTCASE(flintdatabaseformaterror1, flint) {
     // Clean up the "flintlock" file that we will have created while trying
     // to open the database.
     unlink((dbdir + "/flintlock").c_str());
+#endif
 
     return true;
 }
@@ -1509,6 +1513,7 @@ DEFINE_TESTCASE(flintdatabaseformaterror1, flint) {
 /// Test that an old database can be successfully overwritten when using
 // Xapian::DB_CREATE_OR_OVERWRITE.
 DEFINE_TESTCASE(flintdatabaseformaterror2, flint) {
+#ifdef XAPIAN_HAS_FLINT_BACKEND
     string flint099 = test_driver::get_srcdir();
     flint099 += "/testdata/flint-0.9.9";
 
@@ -1525,12 +1530,14 @@ DEFINE_TESTCASE(flintdatabaseformaterror2, flint) {
 
     // Also test when explicitly opening as a flint database.
     (void)Xapian::Flint::open(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+#endif
 
     return true;
 }
 
 // regression test for not releasing lock on error.
 DEFINE_TESTCASE(flintdatabaseformaterror3, flint) {
+#ifdef XAPIAN_HAS_FLINT_BACKEND
     string flint099 = test_driver::get_srcdir();
     flint099 += "/testdata/flint-0.9.9";
 
@@ -1546,12 +1553,14 @@ DEFINE_TESTCASE(flintdatabaseformaterror3, flint) {
     // This used to throw a DatabaseLockError: "Unable to acquire database
     // write lock on .flint/formatdb: already locked"
     Xapian::WritableDatabase(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+#endif
 
     return true;
 }
 
 // Test that 1.0.2 and later can open 1.0.1 databases.
 DEFINE_TESTCASE(flintbackwardcompat1, flint) {
+#ifdef XAPIAN_HAS_FLINT_BACKEND
     string flint101 = test_driver::get_srcdir();
     flint101 += "/testdata/flint-1.0.1";
 
@@ -1572,12 +1581,14 @@ DEFINE_TESTCASE(flintbackwardcompat1, flint) {
 	Xapian::WritableDatabase db(dbdir, Xapian::DB_OPEN);
 	TEST_EQUAL(db.get_doccount(), 0);
     }
+#endif
 
     return true;
 }
 
 // Test that 1.0.3 and later can open 1.0.2 databases.
 DEFINE_TESTCASE(flintbackwardcompat2, flint) {
+#ifdef XAPIAN_HAS_FLINT_BACKEND
     string flint102 = test_driver::get_srcdir();
     flint102 += "/testdata/flint-1.0.2";
 
@@ -1598,12 +1609,14 @@ DEFINE_TESTCASE(flintbackwardcompat2, flint) {
 	Xapian::WritableDatabase db(dbdir, Xapian::DB_OPEN);
 	TEST_EQUAL(db.get_doccount(), 0);
     }
+#endif
 
     return true;
 }
 
 /// Test opening of a flint database
 DEFINE_TESTCASE(flintdatabaseopen1, flint) {
+#ifdef XAPIAN_HAS_FLINT_BACKEND
     const string dbdir = ".flint/test_flintdatabaseopen1";
     mkdir(".flint", 0755);
 
@@ -1653,6 +1666,7 @@ DEFINE_TESTCASE(flintdatabaseopen1, flint) {
 	    Xapian::Flint::open(dbdir, Xapian::DB_OPEN);
 	Xapian::Flint::open(dbdir);
     }
+#endif
 
     return true;
 }

@@ -1,3 +1,8 @@
+Sun May 03 05:23:32 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_db.cc: Protect tests which assume Flint is enabled with
+	  #ifdef XAPIAN_HAS_FLINT_BACKEND.
+
 Sat May 02 15:49:46 GMT 2009  Olly Betts <olly@survex.com>
 
 	* configure.ac,tests/Makefile.am,tests/api_scalability.cc,
