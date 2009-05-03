@@ -1,7 +1,7 @@
 /** @file backendmanager_multi.cc
  * @brief BackendManager subclass for multi databases.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -78,7 +78,12 @@ BackendManagerMulti::createdb_multi(const vector<string> & files)
 	dbs[n] = Xapian::Flint::open(subdbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 	out << "flint " << subdbdir << '\n';
 #else
-	dbs[n] = Xapian::Quartz::open(subdbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+	// Using Xapian::Quartz::open() would give a deprecation warning.
+	// When flint is disabled, WritableDatabase will create a Quartz
+	// database, so let's rely on that.  The stub database will refuse
+	// to open a non-quartz database so we'll catch any cock-up there.
+	dbs[n] = Xapian::WritableDatabase(subdbdir,
+					  Xapian::DB_CREATE_OR_OVERWRITE);
 	out << "quartz " << subdbdir << '\n';
 #endif
     }

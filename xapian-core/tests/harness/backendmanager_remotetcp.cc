@@ -1,7 +1,7 @@
 /** @file backendmanager_remotetcp.cc
  * @brief BackendManager subclass for remotetcp databases.
  */
-/* Copyright (C) 2006,2007,2008 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -341,7 +341,7 @@ BackendManagerRemoteTcp::get_writable_database(const string & name,
     (void)getwritedb_flint(name, vector<string>(1, file));
     args += ".flint/";
 #else
-    (void)getwritedb_quartz(vector<string>(1, file));
+    (void)getwritedb_quartz(name, vector<string>(1, file));
     args += ".quartz/";
 #endif
     args += name;
