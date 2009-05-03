@@ -1,7 +1,7 @@
 /** @file debuglog.h
  * @brief Debug logging macros.
  */
-/* Copyright (C) 2008 Olly Betts
+/* Copyright (C) 2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -163,7 +163,8 @@ class DebugLogFunc {
     DebugLogFunc(const void * this_ptr_, debuglog_categories category_,
 		 const char * return_type, const char * func_name,
 		 const std::string & params)
-	: this_ptr(this_ptr_), category(category_)
+	: this_ptr(this_ptr_), category(category_),
+	  uncaught_exception(std::uncaught_exception())
     {
 	if (xapian_debuglogger__.is_category_wanted(category)) {
 	    func.assign(return_type);
@@ -235,7 +236,7 @@ class DebugLogFuncVoid {
 		     const char * func_name,
 		     const std::string & params)
 	: this_ptr(this_ptr_), category(category_),
-       	  uncaught_exception(std::uncaught_exception())
+	  uncaught_exception(std::uncaught_exception())
     {
 	if (xapian_debuglogger__.is_category_wanted(category)) {
 	    func.assign("void ");
@@ -253,7 +254,7 @@ class DebugLogFuncVoid {
 		     const std::string & params,
 		     const char * class_name)
 	: this_ptr(this_ptr_), category(category_),
-       	  uncaught_exception(std::uncaught_exception())
+	  uncaught_exception(std::uncaught_exception())
     {
 	if (xapian_debuglogger__.is_category_wanted(category)) {
 	    func.assign(class_name);
@@ -270,7 +271,8 @@ class DebugLogFuncVoid {
     /// Constructor called when logging for a class destructor.
     DebugLogFuncVoid(const void * this_ptr_, debuglog_categories category_,
 		     const char * class_name)
-	: this_ptr(this_ptr_), category(category_)
+	: this_ptr(this_ptr_), category(category_),
+	  uncaught_exception(std::uncaught_exception())
     {
 	if (xapian_debuglogger__.is_category_wanted(category)) {
 	    func.assign(class_name);

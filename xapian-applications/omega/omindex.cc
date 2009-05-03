@@ -74,6 +74,8 @@ using namespace std;
 
 static bool skip_duplicates = false;
 static bool follow_symlinks = false;
+static bool spelling = false;
+
 static string dbpath;
 static string root;
 static string indexroot;
@@ -83,6 +85,8 @@ static Xapian::Stem stemmer("english");
 static Xapian::TermGenerator indexer;
 static vector<bool> updated;
 static string tmpdir;
+
+static time_t last_mod_max;
 
 inline static bool
 p_notalnum(unsigned int c)
@@ -197,9 +201,33 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
     if (urlterm.length() > MAX_SAFE_TERM_LENGTH)
 	urlterm = hash_long_term(urlterm, MAX_SAFE_TERM_LENGTH);
 
-    if (skip_duplicates && db.term_exists(urlterm)) {
-	cout << "duplicate. Ignored." << endl;
-	return;
+    Xapian::docid did = 0; 
+    if (skip_duplicates) {
+        if (db.term_exists(urlterm)) {
+	    cout << "duplicate. Ignored." << endl;
+	    return;
+	}
+    } else {
+	// If last_mod > last_mod_max, we know for sure that the file is new
+	// or updated.
+	if (last_mod <= last_mod_max) {
+	    Xapian::PostingIterator p = db.postlist_begin(urlterm);
+	    if (p != db.postlist_end(urlterm)) {
+		did = *p;
+		Xapian::Document doc = db.get_document(did);
+		string value = doc.get_value(VALUE_LASTMOD);
+		time_t old_last_mod = binary_string_to_int(value);
+		if (last_mod <= old_last_mod) {
+		    cout << "Already indexed." << endl;
+		    // The docid should be in updated - the only valid
+		    // exception is if the URL was long and hashed to the
+		    // same URL as an existing document indexed in the same
+		    // batch.
+		    if (usual(did < updated.size())) updated[did] = true;
+		    return;
+		}
+	    }
+	}
     }
 
     string md5;
@@ -580,7 +608,8 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
     newdocument.add_term(urlterm); // Url
 
     // Add last_mod as a value to allow "sort by date".
-    newdocument.add_value(VALUE_LASTMOD, int_to_binary_string((uint32_t)last_mod));
+    newdocument.add_value(VALUE_LASTMOD,
+			  int_to_binary_string((uint32_t)last_mod));
 
     // Add MD5 as a value to allow duplicate documents to be collapsed together.
     newdocument.add_value(VALUE_MD5, md5);
@@ -589,7 +618,15 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	// If this document has already been indexed, update the existing
 	// entry.
 	try {
-	    Xapian::docid did = db.replace_document(urlterm, newdocument);
+	    if (did) {
+		// We already found out the document id above.
+		db.replace_document(did, newdocument);
+	    } else if (last_mod <= last_mod_max) {
+		// We checked for the UID term and didn't find it.
+		did = db.add_document(newdocument);
+	    } else {
+		did = db.replace_document(urlterm, newdocument);
+	    }
 	    if (did < updated.size()) {
 		updated[did] = true;
 		cout << "updated." << endl;
@@ -656,6 +693,13 @@ index_directory(size_t depth_limit, const string &dir,
 			if (changed) mt = mime_map.find(ext);
 		    }
 		    if (mt != mime_map.end()) {
+			if (mt->second.empty()) {
+			    cout << "Skipping file, required filter not "
+				    "installed: \"" << file << "\""
+				 << endl;
+			    continue;
+			}
+
 			// Only check the file size if we recognise the
 			// extension to avoid a call to stat()/lstat() for
 			// files we can't handle when readdir() tells us the
@@ -678,7 +722,7 @@ index_directory(size_t depth_limit, const string &dir,
 			    cout << "Filter for \"" << mimetype
 				 << "\" not installed - ignoring extension \""
 				 << ext << "\"" << endl;
-			    mime_map.erase(mt);
+			    mt->second = string();
 			}
 		    } else {
 			cout << "Unknown extension: \"" << file
@@ -723,6 +767,7 @@ main(int argc, char **argv)
 	{ "depth-limit",required_argument,	NULL, 'l' },
 	{ "follow",	no_argument,		NULL, 'f' },
 	{ "stemmer",	required_argument,	NULL, 's' },
+	{ "spelling",	no_argument,		NULL, 'S' },
 	{ 0, 0, NULL, 0 }
     };
 
@@ -807,7 +852,8 @@ main(int argc, char **argv)
     mime_map["djv"] = "image/vnd.djvu";
     mime_map["djvu"] = "image/vnd.djvu";
 
-    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:l:pf", longopts, NULL)) != -1) {
+    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:l:s:pfS",
+					 longopts, NULL)) != -1) {
 	switch (getopt_ret) {
 	case 'h': {
 	    cout << PROG_NAME" - "PROG_DESC"\n\n"
@@ -821,6 +867,7 @@ main(int argc, char **argv)
 "  -M, --mime-type          additional MIME mapping ext:type\n"
 "  -l, --depth-limit=LIMIT  set recursion limit (0 = unlimited)\n"
 "  -f, --follow             follow symbolic links\n"
+"  -S, --spelling           index data for spelling correction\n"
 "      --overwrite          create the database anew (the default is to update\n"
 "                           if the database already exists)" << endl;
 	    print_stemmer_help("     ");
@@ -829,13 +876,6 @@ main(int argc, char **argv)
 	}
 	case 'v':
 	    print_package_info(PROG_NAME);
-	    cout << "\n"
-		 << "Copyright (c) 1999,2000,2001 BrightStation PLC.\n"
-		 << "Copyright (c) 2001,2005 James Aylett\n"
-		 << "Copyright (c) 2001,2002 Ananova Ltd\n"
-		 << "Copyright (c) 2002,2003,2004,2005,2006 Olly Betts\n\n"
-		 << "This is free software, and may be redistributed under\n"
-		 << "the terms of the GNU Public License." << endl;
 	    return 0;
 	case 'd': // how shall we handle duplicate documents?
 	    switch (optarg[0]) {
@@ -895,6 +935,9 @@ main(int argc, char **argv)
 		return 1;
 	    }
 	    break;
+	case 'S':
+	    spelling = true;
+	    break;
 	case ':': // missing param
 	    return 1;
 	case '?': // unknown option: FIXME -> char
@@ -943,10 +986,35 @@ main(int argc, char **argv)
 		// + 1 so that db.get_lastdocid() is a valid subscript.
 		updated.resize(db.get_lastdocid() + 1);
 	    }
+	    try {
+		string ubound = db.get_value_upper_bound(VALUE_LASTMOD);
+		if (!ubound.empty()) 
+		    last_mod_max = binary_string_to_int(ubound);
+	    } catch (const Xapian::UnimplementedError &) {
+		last_mod_max = (uint32_t)-1;
+	    }
+	    // Handle signed time_t.  This seems a bit clumsy, but the compiler
+	    // should eliminate most of what isn't required at least.  We could
+	    // use numeric_limits here once we require a new enough GCC
+	    // version.
+	    if (time_t(-1) < 0 && last_mod_max < 0) {
+		// Compile-time check that sizeof(time_t) is >= 4.
+		char foo[sizeof(time_t) >= 4 ? 1 : -1];
+		(void)foo;
+		if (sizeof(time_t) >= 8) {
+		    last_mod_max = 0x7fffffffffffffff;
+		} else {
+		    last_mod_max = 0x7fffffff;
+		}
+	    }
 	} else {
 	    db = Xapian::WritableDatabase(dbpath, Xapian::DB_CREATE_OR_OVERWRITE);
 	}
 
+	if (spelling) {
+	    indexer.set_database(db);
+	    indexer.set_flags(indexer.FLAG_SPELLING);
+	}
 	indexer.set_stemmer(stemmer);
 
 	index_directory(depth_limit, "/", mime_map);

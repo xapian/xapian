@@ -63,6 +63,7 @@
 #include "stringutils.h"
 #include "transform.h"
 #include "values.h"
+#include "weight.h"
 
 #include <xapian.h>
 
@@ -233,7 +234,10 @@ set_probabilistic(const string &oldp)
     }
 
     try {
-	query = qp.parse_query(query_string);
+	unsigned f = qp.FLAG_DEFAULT;
+	if (option["spelling"] == "true")
+	    f |= qp.FLAG_SPELLING_CORRECTION;
+	query = qp.parse_query(query_string, f);
     } catch (Xapian::QueryParserError &e) {
 	error_msg = e.get_msg();
 	return BAD_QUERY;
@@ -309,6 +313,7 @@ void add_bterm(const string &term) {
 static void
 run_query()
 {
+    bool force_boolean = false;
     if (!filter_map.empty()) {
 	// OR together filters with the same prefix, then AND together
 	vector<Xapian::Query> filter_vec;
@@ -344,7 +349,7 @@ run_query()
 	    // to be THE query - filtering an empty query will give no
 	    // matches.
 	    std::swap(query, filter);
-	    if (enquire) enquire->set_weighting_scheme(Xapian::BoolWeight());
+	    if (enquire) force_boolean = true;
 	} else {
 	    query = Xapian::Query(Xapian::Query::OP_FILTER, query, filter);
 	}
@@ -373,6 +378,8 @@ run_query()
     }
 
     if (!enquire || !error_msg.empty()) return;
+
+    set_weighting_scheme(*enquire, option, force_boolean);
 
     enquire->set_cutoff(threshold);
 
@@ -796,6 +803,7 @@ CMD_split,
 CMD_stoplist,
 CMD_sub,
 CMD_substr,
+CMD_suggestion,
 CMD_terms,
 CMD_thispage,
 CMD_time,
@@ -913,6 +921,7 @@ T(split,	   1, 2, N, 0), // split a string to give a list
 T(stoplist,	   0, 0, N, Q), // return list of stopped terms
 T(sub,		   2, 2, N, 0), // subtract
 T(substr,	   2, 3, N, 0), // substring
+T(suggestion,	   0, 0, N, Q), // misspelled word correction suggestion
 T(terms,	   0, 0, N, M), // list of matching terms
 T(thispage,	   0, 0, N, M), // page number of current page
 T(time,		   0, 0, N, M), // how long the match took (in seconds)
@@ -1777,6 +1786,9 @@ eval(const string &fmt, const vector<string> &param)
 		value = args[0].substr(start, len);
 		break;
 	    }
+	    case CMD_suggestion:
+		value = qp.get_corrected_query_string();
+		break;
 	    case CMD_terms:
 		if (enquire) {
 		    // list of matching terms

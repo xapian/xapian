@@ -38,14 +38,8 @@
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
-
-#ifdef HAVE_STREAMBUF
-#include <streambuf>
-#else // HAVE_STREAMBUF
-#include <streambuf.h>
-#endif // HAVE_STREAMBUF
-
 #include <set>
+#include <streambuf>
 
 #include <float.h> // For DBL_DIG.
 #include <math.h> // For ceil, fabs, log10.
@@ -60,8 +54,8 @@
 #include <exception>
 #ifdef USE_RTTI
 # include <typeinfo>
-# if defined __GNUC__ && (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1))
-#  include <cxxabi.h>
+# ifdef __GNUC__
+#  include <cxxabi.h> // Added in GCC 3.1 which is now required.
 # endif
 #endif
 
@@ -434,7 +428,7 @@ test_driver::runtest(const test_desc *test)
 		out << "std::exception";
 #else
 		const char * name = typeid(e).name();
-# if defined __GNUC__ && (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1))
+# ifdef __GNUC__
 		// __cxa_demangle() apparently requires GCC >= 3.1.
 		// Demangle the name which GCC returns for type_info::name().
 		int status;

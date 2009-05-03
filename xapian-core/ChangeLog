@@ -339,6 +339,123 @@ Tue Nov 27 08:40:51 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 	* tests/api_db.cc: Add basic test of synonyms (currently doesn't
 	  pass due to testcase shortcomings).
 
+Sun May 03 05:23:32 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_db.cc: Protect tests which assume Flint is enabled with
+	  #ifdef XAPIAN_HAS_FLINT_BACKEND.
+
+Sat May 02 15:49:46 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac,tests/Makefile.am,tests/api_scalability.cc,
+	  tests/api_wrdb.cc,tests/harness/: Add new "test_scalability()" helper
+	  function which checks that an operation scales in CPU time used in
+	  the desired way.  Use this to reimplement bigoaddvalue (and rename
+	  to bigoaddvalue1 for consistency).
+
+Fri May 01 04:58:41 GMT 2009  Olly Betts <olly@survex.com>
+
+	* bin/xapian-check.cc: For chert, check value stats are the correct
+	  format and that the streamed values are consistent with their stats
+	  (ticket#277).
+
+Fri May 01 04:53:22 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omdocument.cc: Don't ever store empty values explicitly, which
+	  eliminates an inconsistently handled corner case which was causing
+	  the "value frequency" to be wrong from at least one point of view.
+	  This is consistent with how user metadata works too. 
+	* include/xapian/document.h: Explicitly document this behaviour.
+	* tests/api_valuestats.cc: Add regression test for the above change.
+
+Fri May 01 03:11:25 GMT 2009  Olly Betts <olly@survex.com>
+
+	* bin/xapian-check.cc: Chert doesn't store termlist entries for
+	  documents without terms, which resulted in us reporting an error when
+	  we found document ids in the doclength "postlist" which were greater
+	  than any with an entry in the termlist.  Instead compare these
+	  entries against db.get_last_docid() if we are checking a whole db
+	  and able to call it.  If not, suppress this check.
+
+Thu Apr 30 15:02:41 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/valuestats.h: Fix comment typo.
+
+Tue Apr 28 14:01:41 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc: Use <cstdlib> rather than <stdlib.h> which means
+	  that there's an overload for abs(long).
+
+Tue Apr 28 13:17:48 GMT 2009  Olly Betts <olly@survex.com>
+
+	* HACKING,INSTALL,configure.ac,include/xapian/deprecated.h,
+	  include/xapian/version_h.cc,tests/harness/testsuite.cc: Actually,
+	  let's require GCC 3.1 as doing so eliminates some preprocessor
+	  conditionals which we aren't able to test regularly as we don't
+	  have easy access to such old GCC versions.  GCC 3.1 is nearly 7
+	  years old now, and GCC3 didn't get widespread use until later
+	  versions anyway.
+
+Tue Apr 28 12:47:11 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/debuglog.h: Add missing initialisation of uncaught_exception
+	  in a couple of places.
+
+Tue Apr 28 11:24:02 GMT 2009  Olly Betts <olly@survex.com>
+
+	* INSTALL: Note that Xapian 1.0.x should build with GCC 2.95.3.
+
+Tue Apr 28 11:20:51 GMT 2009  Olly Betts <olly@survex.com>
+
+	* HACKING,INSTALL,backends/chert/chert_database.h,
+	  backends/flint/flint_database.h,
+	  backends/inmemory/inmemory_database.h,configure.ac,
+	  include/xapian/version_h.cc,tests/harness/testsuite.cc: Drop support
+	  for GCC 2.95.3 - we now require at least 3.0.
+
+Mon Apr 27 12:20:25 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/weight.h: Add "need_stat(WDF);" for Weight subclasses
+	  which use wdf.  Currently this is never actually checked by trunk
+	  (so a regression test for this omission isn't really feasible), but
+	  the opsynonym branch uses it.
+
+Sun Apr 26 14:47:57 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* weight/bm25weight.cc: Add call debugging.
+
+Sun Apr 26 10:57:48 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_db.cc: stubdb6 is "inmemory" not "flint || chert || multi".
+
+Sun Apr 26 10:51:50 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: Fix to build with the inmemory backend
+	  disabled.
+
+Sun Apr 26 07:28:47 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/generate-api_generated: Fix so generated api_generated.cc
+	  builds with the inmemory backend disabled.
+
+Sun Apr 26 06:30:57 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_anydb.cc: Fix to build with the inmemory backend disabled.
+
+Sat Apr 25 01:10:49 GMT 2009  Olly Betts <olly@survex.com>
+
+	* bin/xapian-check.cc: Fix to build with the flint and/or chert
+	  backends disabled.
+
+Sat Apr 25 01:06:00 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Fix to build with the remote backend
+	  disabled.
+
+Sat Apr 25 00:57:41 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/dbfactory.cc: Fix to build with the inmemory backend
+	  disabled.
+
 Fri Apr 24 22:59:34 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* weight/weight.cc: Add debug logging to Weight::init_() methods.

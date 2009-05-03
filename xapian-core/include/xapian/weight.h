@@ -392,6 +392,7 @@ class XAPIAN_VISIBILITY_DEFAULT BM25Weight : public Weight {
 	need_stat(RSET_SIZE);
 	need_stat(TERMFREQ);
 	need_stat(RELTERMFREQ);
+	need_stat(WDF);
 	need_stat(WDF_MAX);
 	need_stat(WDF);
 	if (param_k2 != 0 || (param_k1 != 0 && param_b != 0)) {
@@ -411,6 +412,7 @@ class XAPIAN_VISIBILITY_DEFAULT BM25Weight : public Weight {
 	need_stat(RSET_SIZE);
 	need_stat(TERMFREQ);
 	need_stat(RELTERMFREQ);
+	need_stat(WDF);
 	need_stat(WDF_MAX);
 	need_stat(WDF);
 	need_stat(DOC_LENGTH_MIN);
@@ -474,6 +476,7 @@ class XAPIAN_VISIBILITY_DEFAULT TradWeight : public Weight {
 	need_stat(TERMFREQ);
 	need_stat(RELTERMFREQ);
 	need_stat(DOC_LENGTH_MIN);
+	need_stat(WDF);
 	need_stat(WDF_MAX);
 	need_stat(WDF);
     }

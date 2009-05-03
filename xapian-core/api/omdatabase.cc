@@ -42,7 +42,7 @@
 #include "ortermlist.h"
 #include "noreturn.h"
 
-#include <stdlib.h> // For abs().
+#include <cstdlib> // For abs().
 
 #include <cstring>
 #include <vector>

@@ -1,7 +1,7 @@
 /** @file dbfactory.cc
  * @brief Database factories for non-remote databases.
  */
-/* Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+/* Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -159,10 +159,12 @@ open_stub(Database &db, const string &file)
 	}
 #endif
 
+#ifdef XAPIAN_HAS_INMEMORY_BACKEND
 	if (type == "inmemory" && line.empty()) {
 	    db.add_database(InMemory::open());
 	    continue;
 	}
+#endif
 
 	// Don't include the line itself - that might help an attacker
 	// by revealing part of a sensitive file's contents if they can
@@ -259,10 +261,12 @@ open_stub(WritableDatabase &db, const string &file, int action)
 	}
 #endif
 
+#ifdef XAPIAN_HAS_INMEMORY_BACKEND
 	if (type == "inmemory" && line.empty()) {
 	    db.add_database(InMemory::open());
 	    continue;
 	}
+#endif
 
 	// Don't include the line itself - that might help an attacker
 	// by revealing part of a sensitive file's contents if they can

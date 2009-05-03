@@ -121,6 +121,7 @@ collated_apitest_sources = \
  api_posdb.cc \
  api_query.cc \
  api_replicate.cc \
+ api_scalability.cc \
  api_serialise.cc \
  api_sorting.cc \
  api_spelling.cc \

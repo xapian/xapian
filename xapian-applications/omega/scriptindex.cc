@@ -96,7 +96,7 @@ prefix_needs_colon(const string & prefix, unsigned ch)
 const char * action_names[] = {
     "bad", "new",
     "boolean", "date", "field", "hash", "index", "indexnopos", "load", "lower",
-    "truncate", "unhtml", "unique", "value", "valuenumeric", "weight"
+    "spell", "truncate", "unhtml", "unique", "value", "valuenumeric", "weight"
 };
 
 // For debugging:
@@ -107,7 +107,7 @@ public:
     typedef enum {
 	BAD, NEW,
 	BOOLEAN, DATE, FIELD, HASH, INDEX, INDEXNOPOS, LOAD, LOWER,
-	TRUNCATE, UNHTML, UNIQUE, VALUE, VALUENUMERIC, WEIGHT
+	SPELL, TRUNCATE, UNHTML, UNIQUE, VALUE, VALUENUMERIC, WEIGHT
     } type;
 private:
     type action;
@@ -233,6 +233,11 @@ parse_index_script(const string &filename)
 			    code = Action::LOWER;
 			} else if (action == "load") {
 			    code = Action::LOAD;
+			}
+			break;
+		    case 's':
+			if (action == "spell") {
+			    code = Action::SPELL;
 			}
 			break;
 		    case 't':
@@ -377,6 +382,7 @@ parse_index_script(const string &filename)
 	    switch (action) {
 		case Action::HASH:
 		case Action::LOWER:
+		case Action::SPELL:
 		case Action::TRUNCATE:
 		case Action::UNHTML:
 		    done = false;
@@ -462,6 +468,9 @@ index_file(const char *fname, istream &stream,
 		value += line;
 	    }
 
+	    // Default to not indexing spellings.
+	    indexer.set_flags(Xapian::TermGenerator::flags(0));
+
 	    const vector<Action> &v = index_spec[field];
 	    string old_value = value;
 	    vector<Action>::const_iterator i;
@@ -536,6 +545,9 @@ index_file(const char *fname, istream &stream,
 		    }
 		    case Action::TRUNCATE:
 			utf8_truncate(value, i->get_num_arg());
+			break;
+		    case Action::SPELL:
+			indexer.set_flags(indexer.FLAG_SPELLING);
 			break;
 		    case Action::UNHTML: {
 			MyHtmlParser p;
@@ -784,6 +796,8 @@ main(int argc, char **argv)
 
 	Xapian::TermGenerator indexer;
 	indexer.set_stemmer(stemmer);
+	// Set the database for spellings to be added to by the "spell" action.
+	indexer.set_database(database);
 
 	addcount = 0;
 	repcount = 0;

@@ -39,7 +39,7 @@ struct ValueStats {
      */
     std::string upper_bound;
 
-    /// Contstruct an empty ValueStats object.
+    /// Construct an empty ValueStats object.
     ValueStats() : freq(0), lower_bound(), upper_bound() {}
 
     /** Clear the statistics.

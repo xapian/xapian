@@ -85,6 +85,8 @@ SRC = \
     "$(INTDIR)\api_percentages.cc" \
     "$(INTDIR)\api_posdb.cc" \
     "$(INTDIR)\api_query.cc" \
+    "$(INTDIR)\api_replicate.cc" \
+    "$(INTDIR)\api_serialise.cc" \
     "$(INTDIR)\api_sorting.cc" \
     "$(INTDIR)\api_spelling.cc" \
     "$(INTDIR)\api_transdb.cc" \
@@ -155,6 +157,7 @@ CLEAN :
     -@erase $(QUERYPARSERTEST_OBJS)
     -@erase $(STEMTEST_OBJS)
     -@erase $(TERMGENTEST_OBJS)
+    -@erase "$(INTDIR)\*.obj"
     -@erase "$(INTDIR)\*.pdb"
     -@erase "$(INTDIR)\*.ilk"
     -@erase "$(INTDIR)\*.exp"

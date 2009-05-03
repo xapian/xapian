@@ -3,6 +3,30 @@ Thu Apr 23 17:46:12 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 	* python/smoketest2.py,python/smoketest3.py: Update smoketest test
 	  of FLAG_PARTIAL to expect a SYNONYM operator.
 
+Wed Apr 29 15:42:37 GMT 2009  Olly Betts <olly@survex.com>
+
+	* README: Note that the testsuite fails due to a bug in the test/unit
+	  module in Ruby 1.9.0, but applications using the bindings should
+	  work, and that the testsuite works with Ruby 1.9.1.  Drop all mention
+	  of Ruby 1.6.x as that appears to be completely dead both upstream
+	  and in the wild.
+
+Wed Apr 29 13:06:55 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Update required SWIG version to r11194 to get better
+	  Python 3 support (ticket#346) and to eliminate superfluous GIL
+	  locking calls (ticket#185).
+
+Mon Apr 27 08:43:37 GMT 2009  Olly Betts <olly@survex.com>
+
+	* xapian-bindings.spec.in: Update for rename of XapianSharp.so to
+	  _XapianSharp.so.
+
+Mon Apr 27 08:37:22 GMT 2009  Olly Betts <olly@survex.com>
+
+	* xapian-bindings.spec.in: Update for where we now install the tcl8
+	  bindings.
+
 Thu Apr 23 06:59:22 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.ac,csharp/Makefile.am,csharp/docs/Makefile.am,

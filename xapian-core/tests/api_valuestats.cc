@@ -296,3 +296,28 @@ DEFINE_TESTCASE(valuestats4, writable && valuestats) {
  
     return true;
 }
+
+/// Regression test for bug fixed in 1.1.1 which led to incorrect valuestats.
+DEFINE_TESTCASE(valuestats5, !backend) {
+    Xapian::Document doc;
+    doc.add_value(0, "zero");
+    doc.add_value(1, "one");
+    doc.add_value(2, "two");
+    doc.add_value(3, "three");
+    doc.add_value(4, "");
+    doc.add_value(5, "five");
+    doc.remove_value(3);
+    doc.add_value(1, "");
+
+    // Check that we don't have any empty values reported.
+    size_t c = 0;
+    Xapian::ValueIterator v = doc.values_begin();
+    while (v != doc.values_end()) {
+	TEST(!(*v).empty());
+	++c;
+	++v;
+    }
+    TEST_EQUAL(c, 3); // 0, 2, 5
+
+    return true;
+}
