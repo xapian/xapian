@@ -26,7 +26,6 @@
 #include "submatch.h"
 
 #include <vector>
-#include <map>
 
 #include "xapian/weight.h"
 

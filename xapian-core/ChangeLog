@@ -1,3 +1,7 @@
+Sun May 03 11:49:08 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/multimatch.h: Remove unused include of <map>
+
 Sun May 03 05:23:32 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_db.cc: Protect tests which assume Flint is enabled with
