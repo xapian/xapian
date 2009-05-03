@@ -24,12 +24,12 @@
 #define OM_HGUARD_RSET_H
 
 #include <set>
-#include <map>
 #include "omassert.h"
 #include "omdebug.h"
 #include "xapian/enquire.h"
 #include "omenquireinternal.h"
 #include "xapian/weight.h"
+#include "weightinternal.h"
 
 /** A relevance set.
  *
@@ -46,7 +46,7 @@ class RSetI {
 	const Xapian::Database root;
 	const Xapian::Database::Internal *dbroot;
 
-	std::map<string, Xapian::doccount> reltermfreqs;
+	Xapian::TermFreqMap reltermfreqs;
 	bool calculated_reltermfreqs;
 
 	/** Calculate the statistics.

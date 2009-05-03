@@ -38,7 +38,7 @@ Weight::Internal::operator +=(const Weight::Internal & inc)
     rset_size += inc.rset_size;
 
     // Add termfreqs and reltermfreqs
-    map<string, Xapian::doccount>::const_iterator i;
+    TermFreqMap::const_iterator i;
     for (i = inc.termfreq.begin(); i != inc.termfreq.end(); ++i) {
 	termfreq[i->first] += i->second;
     }
@@ -54,8 +54,7 @@ Weight::Internal::get_termfreq(const string & term) const
     // We pass an empty std::string for term when calculating the extra weight.
     if (term.empty()) return 0;
 
-    map<string, Xapian::doccount>::const_iterator tfreq;
-    tfreq = termfreq.find(term);
+    TermFreqMap::const_iterator tfreq = termfreq.find(term);
     Assert(tfreq != termfreq.end());
     return tfreq->second;
 }
@@ -76,8 +75,7 @@ Weight::Internal::get_reltermfreq(const string & term) const
     // We pass an empty string for term when calculating the extra weight.
     if (term.empty()) return 0;
 
-    map<string, Xapian::doccount>::const_iterator rtfreq;
-    rtfreq = reltermfreq.find(term);
+    TermFreqMap::const_iterator rtfreq = reltermfreq.find(term);
     Assert(rtfreq != reltermfreq.end());
     return rtfreq->second;
 }
