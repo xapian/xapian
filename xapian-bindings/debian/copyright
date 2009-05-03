@@ -18,7 +18,7 @@ Upstream Authors:
 
 Copyright:
 
-  Copyright (C) 2002,2003,2004,2005,2007,2008 Olly Betts
+  Copyright (C) 2002,2003,2004,2005,2007,2008,2009 Olly Betts
   Copyright (C) 2002,2003,2004,2005 James Aylett
   Copyright (C) 2001,2002 Ananova Ltd
   Copyright (C) 1999,2000,2001 BrightStation PLC
@@ -40,13 +40,13 @@ Copyright:
   along with this program; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-  See /usr/share/common-licenses/GPL for the full text of the GNU GPL.
+  See /usr/share/common-licenses/GPL-2 for the full text of the GNU GPL.
 
 The JNI Java bindings in the java subdirectory bear the following
 licence notice:
 
   Copyright (c) 2003, Technology Concepts & Design, Inc.
-  Copyright (c) 2005,2006, Olly Betts
+  Copyright (c) 2005,2006,2008 Olly Betts
   All rights reserved.
 
   Redistribution and use in source and binary forms, with or without
@@ -79,4 +79,4 @@ The Debian packaging is also licensed under the GPL v2 or later (see above)
 and the copyright details are:
 
   Copyright (C) 2004,2005,2006 Lemur Consulting Ltd
-  Copyright (C) 2006,2007,2008 Olly Betts
+  Copyright (C) 2006,2007,2008,2009 Olly Betts
