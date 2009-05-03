@@ -3,8 +3,11 @@ xapian-bindings (1.0.12-2) unstable; urgency=low
   * debian/copyright: Update for 2009 (and 2008 for the code in java/).
     /usr/share/common-licenses/GPL -> /usr/share/licenses/GPL-2 since the
     former is now a symlink to GPL-3 and Xapian is GPL v2 or later.
+  * debian/python-xapian.install: Look for files to install in "*-packages"
+    instead of "site-packages" as Ubuntu jaunty's Python 2.6 installs packaged
+    extensions in dist-packages instead.
 
- -- Olly Betts <olly@survex.com>  Sun,  3 May 2009 10:14:22 +0100
+ -- Olly Betts <olly@survex.com>  Sun,  3 May 2009 10:56:17 +0100
 
 xapian-bindings (1.0.12-1) unstable; urgency=low
 
