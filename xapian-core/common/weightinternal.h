@@ -33,6 +33,9 @@
 
 namespace Xapian {
 
+/** A mapping from term to term frequency. */
+typedef std::map<std::string, Xapian::doccount> TermFreqMap;
+
 /** Class to hold statistics for a given collection. */
 class Weight::Internal {
   public:
@@ -49,10 +52,10 @@ class Weight::Internal {
     Xapian::Database db;
 
     /** Map of term frequencies for the collection. */
-    std::map<std::string, Xapian::doccount> termfreq;
+    TermFreqMap termfreq;
 
     /** Map of relevant term frequencies for the collection. */
-    std::map<std::string, Xapian::doccount> reltermfreq;
+    TermFreqMap reltermfreq;
 
     /** Create a Weight::Internal object with global statistics.
      *
