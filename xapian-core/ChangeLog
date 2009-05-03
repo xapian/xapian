@@ -1,3 +1,9 @@
+Sun May 03 05:46:48 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/api_db.cc: Protect tests which assume Flint is enabled with
+	  #ifdef XAPIAN_HAS_FLINT_BACKEND.
+
 Sun May 03 04:35:31 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_backend.cc: Fix comment typo (not present in trunk).
