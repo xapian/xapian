@@ -1,3 +1,9 @@
+Sun May 03 06:06:44 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_backend.cc: On branches/1.0, get_dbtype() returns const
+	  char * rather than std::string, so we need to use strcmp to test
+	  its value.
+
 Sun May 03 06:01:06 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/harness/backendmanager_multi.cc: Fix to compile without a
