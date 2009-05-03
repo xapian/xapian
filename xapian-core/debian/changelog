@@ -1,3 +1,13 @@
+xapian-core (1.0.12-2) unstable; urgency=low
+
+  * debian/control.in: libxapian<SOVERSION>-dbg should be section debug not
+    libs.
+  * debian/copyright: Update for 2009.  /usr/share/common-licenses/GPL ->
+    /usr/share/licenses/GPL-2 since the former is now a symlink to GPL-3
+    and Xapian is GPL v2 or later.
+
+ -- Olly Betts <olly@survex.com>  Sun,  3 May 2009 05:49:37 +0100
+
 xapian-core (1.0.12-1) unstable; urgency=low
 
   * New upstream release.
