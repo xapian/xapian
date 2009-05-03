@@ -43,7 +43,7 @@ DEFINE_TESTCASE(lockfileumask1, flint) {
 	string path;
 	const string & dbtype = get_dbtype();
 	if (dbtype == "flint") {
-	    // Hardcodeed path for 1.0.x backport:
+	    // Hardcoded path for 1.0.x backport:
 	    path = ".flint/dbw__lockfileumask1/flintlock";
 	} else {
 	    SKIP_TEST("Test only supported for flint backend");

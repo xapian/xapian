@@ -1,3 +1,7 @@
+Sun May 03 04:35:31 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_backend.cc: Fix comment typo (not present in trunk).
+
 Sun Apr 26 13:13:05 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
