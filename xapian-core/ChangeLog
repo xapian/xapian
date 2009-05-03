@@ -1,3 +1,8 @@
+Sun May 03 14:58:42 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_valuestats.cc: Testcase valuestats4 requires transactions,
+	  so indicate that and remove the explicit SKIP for inmemory.
+
 Sun May 03 12:34:30 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* common/rset.h,common/weightinternal.h,matcher/rset.cc,
