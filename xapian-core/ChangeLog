@@ -1,3 +1,8 @@
+Mon May 04 03:31:51 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/queryparser.html: Add examples of using a prefix on a phrase
+	  or subexpression.
+
 Sun May 03 14:58:42 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_valuestats.cc: Testcase valuestats4 requires transactions,
