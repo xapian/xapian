@@ -34,6 +34,8 @@
 # ifdef HAVE_SYSCONF
 #  include "safeunistd.h"
 # endif
+#elif defined HAVE_FTIME
+# include <sys/timeb.h>
 #else
 # include <time.h>
 #endif
@@ -73,8 +75,25 @@ CPUTimer::get_current_cputime() const
 # else
     t /= CLK_TCK;
 # endif
-#else 
+#else
+    // FIXME: Fallback to just using wallclock time, which is probably only
+    // going to be used on Microsoft Windows, which seems to lack an API to get
+    // CPU time used by any children of a process.
+# ifdef HAVE_FTIME 
+    struct timeb tb;
+#  ifdef FTIME_RETURNS_VOID
+    ftime(&tb);
+    t = tb.time + (tb.millitm + 0.001);
+#  else
+    if (ftime(&tb) == -1) {
+	t = time(NULL);
+    } else {
+	t = tb.time + (tb.millitm + 0.001);
+    }
+#  endif
+# else
     t = time(NULL);
+# endif
 #endif
 
     return t;
