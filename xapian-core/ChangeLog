@@ -1,3 +1,12 @@
+Mon May 04 12:04:16 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: Rename qp_stem_scale1 to qp_scale1 as it
+	  has no connection with stemming.  Factor out a helper function to
+	  do the timing comparison, and update time_query_parse() to use
+	  CPUTimer rather than OmTime.  Tweak the "fudge factor" up from
+	  2 to 2.15 to allow for non-equal ticks due to rounding of an
+	  interval which isn't an exact multiple of 1/CLK_TCK (ticket#308). 
+
 Mon May 04 12:02:32 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/harness/cputimer.cc: If we don't have rusage() or times(), but
