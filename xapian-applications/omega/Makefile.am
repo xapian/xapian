@@ -4,6 +4,12 @@
 # `make QUIET=y' overrides `./configure' without `--enable-quiet'.
 LIBTOOL = @LIBTOOL@ $(QUIET:y=--quiet)
 
+if MAINTAINER_MODE
+# Export these so that we run the locally installed autotools when building
+# from a bootstrapped SVN tree.
+export ACLOCAL AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE
+endif
+
 ACLOCAL_AMFLAGS = -I m4
 
 SUBDIRS = . docs
@@ -79,7 +85,8 @@ noinst_HEADERS = omega.h query.h cgiparam.h\
  commonhelp.h cdb.h cdb_int.h hashterm.h loadfile.h\
  md5.h md5wrap.h xmlparse.h metaxmlparse.h values.h utf8convert.h\
  namedentities.h datematchdecider.h sample.h strcasecmp.h\
- utf8truncate.h diritor.h runfilter.h freemem.h xpsxmlparse.h
+ utf8truncate.h diritor.h runfilter.h freemem.h xpsxmlparse.h transform.h\
+ weight.h
 
 # headers maintained in xapian-core
 noinst_HEADERS +=\
@@ -97,11 +104,19 @@ noinst_HEADERS +=\
 
 AM_LDFLAGS = $(ICONV_LDFLAGS)
 
+# We want to compile transform.cc with PCRE_CFLAGS, but if this adds a -I for
+# a directory with a different version of iconv, then we get problems (this
+# has been reported on Mac OS X).  So we only add PCRE_CFLAGS when compiling
+# transform.cc, using the convenience library technique suggested by the
+# automake manual.
+noinst_LTLIBRARIES = libtransform.la
+libtransform_la_SOURCES = transform.cc
+libtransform_la_CPPFLAGS = $(PCRE_CFLAGS)
+
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc\
  cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc loadfile.cc\
- utf8convert.cc datematchdecider.cc
-omega_LDADD = $(XAPIAN_LIBS) $(PCRE_LIBS)
-omega_CPPFLAGS = $(AM_CPPFLAGS) $(PCRE_CFLAGS)
+ utf8convert.cc datematchdecider.cc weight.cc
+omega_LDADD = $(XAPIAN_LIBS) libtransform.la $(PCRE_LIBS)
 
 omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc\
  common/getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc md5.cc\

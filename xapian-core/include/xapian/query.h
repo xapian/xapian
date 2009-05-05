@@ -119,7 +119,24 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	    OP_VALUE_GE,
 
 	    /** Filter by a less-than-or-equal test on a document value. */
-	    OP_VALUE_LE
+	    OP_VALUE_LE,
+
+	    /** Treat a set of queries as synonyms.
+	     *
+	     *  This returns all results which match at least one of the
+	     *  queries, but weighting as if all the sub-queries are instances
+	     *  of the same term: so multiple matching terms for a document
+	     *  increase the wdf value used, and the term frequency is based on
+	     *  the number of documents which would match an OR of all the
+	     *  subqueries.
+	     *
+	     *  The term frequency used will usually be an approximation,
+	     *  because calculating the precise combined term frequency would
+	     *  be overly expensive.
+	     *
+	     *  Identical to OP_OR, except for the weightings returned.
+	     */
+	    OP_SYNONYM
 	} op;
 
 	/** Copy constructor. */

@@ -443,6 +443,7 @@ RemoteServer::msg_query(const string &message_in)
 
     message.erase(0, message.size() - (p_end - p));
     Xapian::Weight::Internal total_stats(unserialise_stats(message));
+    total_stats.set_bounds_from_db(*db);
 
     Xapian::MSet mset;
     match.get_mset(first, maxitems, check_at_least, mset, total_stats, 0, 0);

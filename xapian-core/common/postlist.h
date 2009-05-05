@@ -2,6 +2,7 @@
  * @brief Abstract base class for postlists.
  */
 /* Copyright (C) 2007,2008,2009 Olly Betts
+ * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,6 +29,7 @@
 #include <xapian/postingiterator.h>
 
 #include "positionlist.h"
+#include "weightinternal.h"
 
 /// Abstract base class for postlists.
 class Xapian::PostingIterator::Internal : public Xapian::Internal::RefCntBase {
@@ -59,6 +61,15 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::RefCntBase {
      *  get_termfreq_min() <= get_termfreq_est() <= get_termfreq_max()
      */
     virtual Xapian::doccount get_termfreq_est() const = 0;
+
+    /** Get an estimate for the termfreq and reltermfreq, given the stats.
+     *
+     *  The frequencies may be for a combination of databases, or for just the
+     *  relevant documents, so the results need not lie in the bounds given by
+     *  get_termfreq_min() and get_termfreq_max().
+     */
+    virtual TermFreqs get_termfreq_est_using_stats(
+	const Xapian::Weight::Internal & stats) const;
 
     /// Return an upper bound on what get_weight() can return.
     virtual Xapian::weight get_maxweight() const = 0;

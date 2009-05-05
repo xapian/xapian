@@ -3,6 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2003,2004,2009 Olly Betts
+ * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,6 +42,8 @@ class OrPostList : public BranchPostList {
 	Xapian::doccount get_termfreq_max() const;
 	Xapian::doccount get_termfreq_min() const;
 	Xapian::doccount get_termfreq_est() const;
+	TermFreqs get_termfreq_est_using_stats(
+	    const Xapian::Weight::Internal & stats) const;
 
 	Xapian::docid  get_docid() const;
 	Xapian::weight get_weight() const;
@@ -67,6 +70,12 @@ class OrPostList : public BranchPostList {
 		   PostList * right_,
 		   MultiMatch * matcher_,
 		   Xapian::doccount dbsize_);
+
+	/** get_wdf() for OR postlists returns the sum of the wdfs of the
+	 *  sub postlists which are at the current document - this is desirable
+	 *  when the OR is part of a synonym.
+	 */
+	Xapian::termcount get_wdf() const;
 };
 
 #endif /* OM_HGUARD_ORPOSTLIST_H */

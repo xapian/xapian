@@ -384,7 +384,8 @@ DEFINE_TESTCASE(scaleweight4, !backend) {
     // Factor is a double which, when multiplied by its reciprocal, doesn't
     // give exactly 1.0
     double factor = 179.76931348623157e306;
-    double nearly1 = factor * (1.0 / factor);
+    volatile double recip = 1.0 / factor;
+    double nearly1 = factor * recip;
 
     TEST_NOT_EQUAL(nearly1, 1.0);
     Xapian::Query foo("foo");

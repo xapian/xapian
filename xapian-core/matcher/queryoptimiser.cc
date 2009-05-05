@@ -1,7 +1,7 @@
 /** @file queryoptimiser.cc
  * @brief Convert a Xapian::Query::Internal tree into an optimal PostList tree.
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007,2008,2009 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -61,7 +61,8 @@ QueryOptimiser::do_subquery(const Xapian::Query::Internal * query, double factor
 
     switch (query->op) {
 	case Xapian::Query::Internal::OP_LEAF:
-	    RETURN(do_leaf(query, factor));
+	    if (query->tname.empty()) factor = 0.0;
+	    RETURN(localsubmatch.postlist_from_op_leaf_query(query, factor));
 
 	case Xapian::Query::Internal::OP_EXTERNAL_SOURCE: {
 	    Assert(query->external_source);
@@ -80,6 +81,9 @@ QueryOptimiser::do_subquery(const Xapian::Query::Internal * query, double factor
 	case Xapian::Query::OP_XOR:
 	case Xapian::Query::OP_ELITE_SET:
 	    RETURN(do_or_like(query, factor));
+
+	case Xapian::Query::OP_SYNONYM:
+	    RETURN(do_synonym(query, factor));
 
 	case Xapian::Query::OP_AND_NOT: {
 	    AssertEq(query->subqs.size(), 2);
@@ -303,7 +307,7 @@ QueryOptimiser::do_or_like(const Xapian::Query::Internal *query, double factor)
     // for AND-like operations.
     Xapian::Query::Internal::op_t op = query->op;
     Assert(op == Xapian::Query::OP_ELITE_SET || op == Xapian::Query::OP_OR ||
-	   op == Xapian::Query::OP_XOR);
+	   op == Xapian::Query::OP_XOR || op == Xapian::Query::OP_SYNONYM);
 
     const Xapian::Query::Internal::subquery_list &queries = query->subqs;
     AssertRel(queries.size(), >=, 2);
@@ -380,4 +384,27 @@ QueryOptimiser::do_or_like(const Xapian::Query::Internal *query, double factor)
 	push_heap(postlists.begin(), postlists.end(),
 		  ComparePostListTermFreqAscending());
     }
+}
+
+PostList *
+QueryOptimiser::do_synonym(const Xapian::Query::Internal *query, double factor)
+{
+    DEBUGCALL(MATCH, PostList *, "QueryOptimiser::do_synonym",
+	      query << ", " << factor);
+    if (factor == 0.0) {
+	// If we have a factor of 0, we don't care about the weights, so
+	// we're just like a normal OR query.
+	RETURN(do_or_like(query, 0.0));
+    }
+
+    // We currently assume wqf is 1 for calculating the synonym's weight
+    // since conceptually the synonym is one "virtual" term.  If we were
+    // to combine multiple occurrences of the same synonym expansion into
+    // a single instance with wqf set, we would want to use the wqf.
+    AssertEq(query->wqf, 0);
+
+    // We build an OP_OR tree for OP_SYNONYM and then wrap it in a
+    // SynonymPostList, which supplies the weights.
+    RETURN(localsubmatch.make_synonym_postlist(do_or_like(query, 0.0),
+					       matcher, factor));
 }

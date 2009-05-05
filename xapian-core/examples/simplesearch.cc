@@ -25,7 +25,7 @@
 #include <iostream>
 #include <string>
 
-#include <stdlib.h> // For exit().
+#include <cstdlib> // For exit().
 
 using namespace std;
 

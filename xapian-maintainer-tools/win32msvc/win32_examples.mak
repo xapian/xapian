@@ -71,36 +71,50 @@ PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS)
     $(LINK32) @<<
   $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\copydatabase.exe" $(DEF_FLAGS) "$(INTDIR)\copydatabase.obj"
 <<
+    $(MANIFEST) "$(OUTDIR)\copydatabase.exe.manifest" -outputresource:"$(OUTDIR)\copydatabase.exe;1"
+    -@erase "$(OUTDIR)\copydatabase.exe.manifest"
+
 
 "$(OUTDIR)\delve.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\delve.obj" \
                       $(PROGRAM_DEPENDENCIES)
     $(LINK32) @<<
   $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\delve.exe" $(DEF_FLAGS) "$(INTDIR)\delve.obj"
 <<
+    $(MANIFEST) "$(OUTDIR)\delve.exe.manifest" -outputresource:"$(OUTDIR)\delve.exe;1"
+    -@erase "$(OUTDIR)\delve.exe.manifest"
 
 "$(OUTDIR)\quest.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\quest.obj" \
                       $(PROGRAM_DEPENDENCIES)
     $(LINK32) @<<
   $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\quest.exe" $(DEF_FLAGS) "$(INTDIR)\quest.obj"
 <<
+    $(MANIFEST) "$(OUTDIR)\quest.exe.manifest" -outputresource:"$(OUTDIR)\quest.exe;1"
+    -@erase "$(OUTDIR)\quest.exe.manifest"
+
 
 "$(OUTDIR)\simpleexpand.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\simpleexpand.obj" \
                       $(PROGRAM_DEPENDENCIES)
     $(LINK32) @<<
   $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\simpleexpand.exe" $(DEF_FLAGS) "$(INTDIR)\simpleexpand.obj"
 <<
+    $(MANIFEST) "$(OUTDIR)\simpleexpand.exe.manifest" -outputresource:"$(OUTDIR)\simpleexpand.exe;1"
+    -@erase "$(OUTDIR)\simpleexpand.exe.manifest"
 
 "$(OUTDIR)\simpleindex.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\simpleindex.obj" \
                       $(PROGRAM_DEPENDENCIES)
     $(LINK32) @<<
   $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\simpleindex.exe" $(DEF_FLAGS) "$(INTDIR)\simpleindex.obj"
 <<
+    $(MANIFEST) "$(OUTDIR)\simpleindex.exe.manifest" -outputresource:"$(OUTDIR)\simpleindex.exe;1"
+    -@erase "$(OUTDIR)\simpleindex.exe.manifest"
 
 "$(OUTDIR)\simplesearch.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\simplesearch.obj" \
                       $(PROGRAM_DEPENDENCIES)
     $(LINK32) @<<
   $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\simplesearch.exe" $(DEF_FLAGS) "$(INTDIR)\simplesearch.obj"
 <<
+    $(MANIFEST) "$(OUTDIR)\simplesearch.exe.manifest" -outputresource:"$(OUTDIR)\simplesearch.exe;1"
+    -@erase "$(OUTDIR)\simplesearch.exe.manifest"
 
 
 # inference rules, showing how to create one type of file from another with the same root name

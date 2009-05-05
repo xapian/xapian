@@ -35,9 +35,9 @@ MAKEALL:
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\unicode
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
-   cd ..\tests\harness
+   cd ..\weight
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
-   cd ..\perftest
+   cd ..\tests\harness
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\..\bin
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
@@ -51,6 +51,9 @@ DOTEST:
    cd ..\win32
 
 CLEAN: COPYMAKFILES
+   cd makedepend
+   nmake -f makedepend.mak CLEAN
+   cd ..
    cd ..\net
    nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
    cd ..\common
@@ -71,9 +74,9 @@ CLEAN: COPYMAKFILES
    nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
    cd ..\unicode
    nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
-   cd ..\tests\harness
+   cd ..\weight
    nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
-   cd ..\perftest
+   cd ..\tests\harness
    nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
    cd ..\..\bin
    nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
@@ -112,10 +115,10 @@ COPYMAKFILES:
    copy  win32_matcher.mak ..\matcher\Makefile
    copy  win32_net.mak ..\net\Makefile
    copy  win32_unicode.mak ..\unicode\Makefile
+   copy  win32_weight.mak ..\weight\Makefile
    copy  win32_queryparser.mak ..\queryparser\Makefile
    copy  win32_tests.mak ..\tests\Makefile
    copy  win32_testsuite.mak ..\tests\harness\Makefile
-   copy  win32_perftest.mak ..\tests\perftest\Makefile
    if exist $(XAPIAN_BINDINGS) copy $(XAPIAN_BINDINGS)\xapian-version.h.in $(XAPIAN_BINDINGS)\xapian-version.h
    if exist $(XAPIAN_BINDINGS) copy win32_bindings_python.mak $(XAPIAN_BINDINGS)\python\Makefile
    if exist $(XAPIAN_BINDINGS) copy doccomments.i $(XAPIAN_BINDINGS)\python
@@ -127,8 +130,8 @@ COPYMAKFILES:
    if exist $(XAPIAN_BINDINGS) copy version.rc.java-swig $(XAPIAN_BINDINGS)\java-swig\version.rc
    if exist $(XAPIAN_BINDINGS) copy WriteJavaVersion.java $(XAPIAN_BINDINGS)\java-swig\WriteJavaVersion.java
    if exist $(XAPIAN_BINDINGS) copy win32_bindings_ruby.mak $(XAPIAN_BINDINGS)\ruby\Makefile
-   if exist $(XAPIAN_BINDINGS) copy version.rc.csharp $(XAPIAN_BINDINGS)\csharp\version.rc
    if exist $(XAPIAN_BINDINGS) copy win32_bindings_csharp.mak $(XAPIAN_BINDINGS)\csharp\Makefile
+   if exist $(XAPIAN_BINDINGS) copy version.rc.csharp $(XAPIAN_BINDINGS)\csharp\version.rc
    if exist $(XAPIAN_APPLICATIONS) copy win32_applications_omega.mak $(XAPIAN_APPLICATIONS)\Makefile
    if exist $(XAPIAN_APPLICATIONS) copy config.mak $(XAPIAN_APPLICATIONS)
    if exist $(XAPIAN_APPLICATIONS) copy config.h.omega.win32 $(XAPIAN_APPLICATIONS)\config.h
@@ -138,6 +141,32 @@ TESTFORTOOLS: makedepend.exe
 # Perl is needed for header generation
    if not exist $(PERL_EXE) exit(1) 
    
+MAKEALLBINDINGS: ALL COPYMAKFILES
+# Need bindings to exist
+   if not exist  $(XAPIAN_BINDINGS) exit(1)
+
+   cd $(XAPIAN_BINDINGS)\python
+   nmake PYTHON_VER=24 CLEAN
+   nmake PYTHON_VER=24 DIST
+
+   nmake PYTHON_VER=25 CLEAN
+   nmake PYTHON_VER=25 DIST
+   
+   cd $(XAPIAN_BINDINGS)\php
+   nmake CLEAN
+   nmake DIST
+   
+   cd $(XAPIAN_BINDINGS)\java-swig
+   nmake CLEAN
+   nmake DIST
+
+   cd $(XAPIAN_BINDINGS)\ruby
+   nmake CLEAN
+   nmake DIST
+   
+   cd $(XAPIAN_BINDINGS)\csharp
+   nmake CLEAN
+   nmake DIST
    
 # Header files generated automatically from various .in files
 MAKEHEADERS: ..\include\xapian\error.h ..\include\xapian\version.h

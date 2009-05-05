@@ -125,14 +125,22 @@ at any given instant, there is only permitted to be a single object modifying
 a database, but there may (simultaneously) be many objects reading the
 database at once.
 
-Xapian enforces this restriction using lock-files.  For a flint database, each
-Xapian database directory contains a lock file named ``flintlock``.  The
-lock-file will always exist, but will be locked using ``fcntl()`` when the
-database is open for writing.  If a writer exits without being given a
-chance to clean up (for example, if the application holding the writer
-is killed), the ``fcntl()`` lock will be automatically released by the operating
-system.  Under Microsoft Windows, we use a different locking technique, but
-with the same features.
+Xapian enforces this restriction using lock-files.  For a flint or chert
+database, each Xapian database directory contains a lock file named
+``flintlock`` (chert uses the same name as the locking technique is the
+same).
+
+This lock-file will always exist, but will be locked using ``fcntl()`` when the
+database is open for writing.  Because of the semantics of ``fcntl()`` locking,
+for each WritableDatabase opened we spawn a child process to hold the lock,
+which then exec-s ``cat``, so you will see a ``cat`` subprocess of any writer
+process in the output of ``ps``, ``top``, etc.
+
+If a writer exits without being given a chance to clean up (for example, if the
+application holding the writer is killed), the ``fcntl()`` lock will be
+automatically released by the operating system.  Under Microsoft Windows, we
+use a different locking technique which doesn't require a child process, but
+also means the lock is released automatically when the writing process exits.
 
 Revision numbers
 ----------------

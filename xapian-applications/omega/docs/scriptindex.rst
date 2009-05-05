@@ -64,6 +64,10 @@ load
 lower
 	lowercase the text (useful for generating boolean terms)
 
+spell
+        Generate spelling correction data for any ``index`` or ``indexnopos``
+        actions in the remainder of this list of actions.
+
 truncate=LENGTH
 	truncate to at most LENGTH characters, but avoid chopping off a word
 	(useful for sample and title fields)
@@ -81,14 +85,22 @@ unique[=PREFIX]
 	the old record can be found.  In Omega, Q is reserved for use as the
 	prefix of a unique term.
 
-value=VALUENUMBER
-	add as a Xapian document value in slot VALUENUMBER.  Values can be used
-	for eliminating equivalent documents and sorting the MSet.
+value=VALUESLOT
+	add as a Xapian document value in slot VALUESLOT.  Values can be used
+	for collapsing equivalent documents, sorting the MSet, etc.  If you
+        want to perform numeric sorting, use the valuenumeric action instead.
+
+valuenumeric=VALUESLOT
+        Like value=VALUESLOT, this adds as a Xapian document value in slot
+        VALUESLOT, but it encodes it for numeric sorting using
+        Xapian::sortable_serialise().  Values set with this action can be
+        used for numeric sorting of the MSet.
 
 weight=FACTOR
-	set the weighting factor to FACTOR (an integer).  The default is 1.
-	Use this to add extra weight to titles, keyword fields, etc, so that
-	words in them are regarded as more important by searches.
+	set the weighting factor to FACTOR (an integer) for any ``index`` or
+        ``indexnopos`` actions in the remainder of this list of actions.  The
+        default is 1.  Use this to add extra weight to titles, keyword fields,
+        etc, so that words in them are regarded as more important by searches.
 
 Input files:
 ============

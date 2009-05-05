@@ -2,6 +2,7 @@
  * @brief A PostList which iterates over all documents in a FlintDatabase.
  */
 /* Copyright (C) 2006,2007,2008,2009 Olly Betts
+ * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +26,7 @@
 
 #include "leafpostlist.h"
 
-class FlintAllDocsPostList : public LeafPostList {
+class FlintAllDocsPostList : public TermBasedLeafPostList {
     /// Don't allow assignment.
     void operator=(const FlintAllDocsPostList &);
 
@@ -50,7 +51,8 @@ class FlintAllDocsPostList : public LeafPostList {
   public:
     FlintAllDocsPostList(Xapian::Internal::RefCntPtr<const FlintDatabase> db_,
 			 Xapian::doccount doccount_)
-      : db(db_), doccount(doccount_), cursor(db->termlist_table.cursor_get()),
+      : TermBasedLeafPostList(std::string()),
+	db(db_), doccount(doccount_), cursor(db->termlist_table.cursor_get()),
 	current_did(0)
     {
 	cursor->find_entry("");

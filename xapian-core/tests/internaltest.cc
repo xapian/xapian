@@ -41,6 +41,7 @@ using namespace std;
 #include "omqueryinternal.h"
 #include "serialise.h"
 #include "serialise-double.h"
+#include "str.h"
 #include "utils.h"
 
 static bool test_except1()
@@ -574,6 +575,14 @@ static bool test_static_assert1()
     return true;
 }
 
+/// Regression test for bug fixed in 1.1.1.
+static bool test_strbool1()
+{
+    TEST_EQUAL(str(true), "1");
+    TEST_EQUAL(str(false), "0");
+    return true;
+}
+
 // ##################################################################
 // # End of actual tests					    #
 // ##################################################################
@@ -597,6 +606,7 @@ test_desc tests[] = {
     {"serialiseerror1",		test_serialiseerror1},
 #endif
     {"static_assert1",		test_static_assert1},
+    {"strbool1",		test_strbool1},
     {0, 0}
 };
 

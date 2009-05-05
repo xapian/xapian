@@ -1,6 +1,7 @@
 /* queryparsertest.cc: Tests of Xapian::QueryParser
  *
  * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright (C) 2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +23,7 @@
 
 #include <xapian.h>
 
-#include "omtime.h"
+#include "cputimer.h"
 #include "stringutils.h"
 #include "utils.h"
 
@@ -76,6 +77,8 @@ static test test_or_queries[] = {
     // Regression test for bug fixed in 1.0.4 - the '+' would be ignored there
     // because the whitespace after the '"' wasn't noticed.
     { "\"hello world\" +python", "(Zpython:(pos=3) AND_MAYBE (hello:(pos=1) PHRASE 2 world:(pos=2)))" },
+    // In 1.1.0, NON_SPACING_MARK was added as a word character.
+    { "\xd8\xa7\xd9\x84\xd8\xb1\xd9\x91\xd8\xad\xd9\x85\xd9\x86", "Z\xd8\xa7\xd9\x84\xd8\xb1\xd9\x91\xd8\xad\xd9\x85\xd9\x86:(pos=1)" },
     { "unmatched\"", "unmatched:(pos=1)" },
     { "unmatched \" \" ", "Zunmatch:(pos=1)" },
     { "hyphen-ated\" ", "(hyphen:(pos=1) PHRASE 2 ated:(pos=2))" },
@@ -769,6 +772,9 @@ static bool test_qp_odd_chars1()
 // Test right truncation.
 static bool test_qp_flag_wildcard1()
 {
+#ifndef XAPIAN_HAS_BACKEND_INMEMORY
+    SKIP_TEST("Testcase requires the InMemory backend which is disabled");
+#else
     Xapian::WritableDatabase db(Xapian::InMemory::open());
     Xapian::Document doc;
     doc.add_term("abc");
@@ -784,11 +790,11 @@ static bool test_qp_flag_wildcard1()
     Xapian::Query qobj = qp.parse_query("ab*", Xapian::QueryParser::FLAG_WILDCARD);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(abc:(pos=1))");
     qobj = qp.parse_query("muscle*", Xapian::QueryParser::FLAG_WILDCARD);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((muscle:(pos=1) OR musclebound:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((muscle:(pos=1) SYNONYM musclebound:(pos=1)))");
     qobj = qp.parse_query("meat*", Xapian::QueryParser::FLAG_WILDCARD);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query()");
     qobj = qp.parse_query("musc*", Xapian::QueryParser::FLAG_WILDCARD);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((muscat:(pos=1) OR muscle:(pos=1) OR musclebound:(pos=1) OR muscular:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((muscat:(pos=1) SYNONYM muscle:(pos=1) SYNONYM musclebound:(pos=1) SYNONYM muscular:(pos=1)))");
     qobj = qp.parse_query("mutt*", Xapian::QueryParser::FLAG_WILDCARD);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(mutton:(pos=1))");
     // Regression test (we weren't lowercasing terms before checking if they
@@ -861,11 +867,15 @@ static bool test_qp_flag_wildcard1()
     qobj = qp.parse_query("foo* -main", Xapian::QueryParser::FLAG_WILDCARD);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query()");
     return true;
+#endif
 }
 
 // Test right truncation with prefixes.
 static bool test_qp_flag_wildcard2()
 {
+#ifndef XAPIAN_HAS_BACKEND_INMEMORY
+    SKIP_TEST("Testcase requires the InMemory backend which is disabled");
+#else
     Xapian::WritableDatabase db(Xapian::InMemory::open());
     Xapian::Document doc;
     doc.add_term("Aheinlein");
@@ -877,15 +887,19 @@ static bool test_qp_flag_wildcard2()
     qp.add_prefix("author", "A");
     Xapian::Query qobj;
     qobj = qp.parse_query("author:h*", Xapian::QueryParser::FLAG_WILDCARD);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((Aheinlein:(pos=1) OR Ahuxley:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((Aheinlein:(pos=1) SYNONYM Ahuxley:(pos=1)))");
     qobj = qp.parse_query("author:h* test", Xapian::QueryParser::FLAG_WILDCARD);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((Aheinlein:(pos=1) OR Ahuxley:(pos=1) OR test:(pos=2)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(((Aheinlein:(pos=1) SYNONYM Ahuxley:(pos=1)) OR test:(pos=2)))");
     return true;
+#endif
 }
 
 // Test partial queries.
 static bool test_qp_flag_partial1()
 {
+#ifndef XAPIAN_HAS_BACKEND_INMEMORY
+    SKIP_TEST("Testcase requires the InMemory backend which is disabled");
+#else
     Xapian::WritableDatabase db(Xapian::InMemory::open());
     Xapian::Document doc;
     Xapian::Stem stemmer("english");
@@ -905,6 +919,10 @@ static bool test_qp_flag_partial1()
     doc.add_term("XTcowl");
     doc.add_term("XTcox");
     doc.add_term("ZXTcow");
+    doc.add_term("XONEpartial");
+    doc.add_term("XONEpartial2");
+    doc.add_term("XTWOpartial3");
+    doc.add_term("XTWOpartial4");
     db.add_document(doc);
     Xapian::QueryParser qp;
     qp.set_database(db);
@@ -920,25 +938,25 @@ static bool test_qp_flag_partial1()
     qobj = qp.parse_query("ab", Xapian::QueryParser::FLAG_PARTIAL);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((abc:(pos=1) OR Zab:(pos=1)))");
     qobj = qp.parse_query("muscle", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((muscle:(pos=1) OR musclebound:(pos=1) OR Zmuscl:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(((muscle:(pos=1) SYNONYM musclebound:(pos=1)) OR Zmuscl:(pos=1)))");
     qobj = qp.parse_query("meat", Xapian::QueryParser::FLAG_PARTIAL);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(Zmeat:(pos=1))");
     qobj = qp.parse_query("musc", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((muscat:(pos=1) OR muscle:(pos=1) OR musclebound:(pos=1) OR muscular:(pos=1) OR Zmusc:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(((muscat:(pos=1) SYNONYM muscle:(pos=1) SYNONYM musclebound:(pos=1) SYNONYM muscular:(pos=1)) OR Zmusc:(pos=1)))");
     qobj = qp.parse_query("mutt", Xapian::QueryParser::FLAG_PARTIAL);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((mutton:(pos=1) OR Zmutt:(pos=1)))");
     qobj = qp.parse_query("abc musc", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((Zabc:(pos=1) OR muscat:(pos=2) OR muscle:(pos=2) OR musclebound:(pos=2) OR muscular:(pos=2) OR Zmusc:(pos=2)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((Zabc:(pos=1) OR (muscat:(pos=2) SYNONYM muscle:(pos=2) SYNONYM musclebound:(pos=2) SYNONYM muscular:(pos=2)) OR Zmusc:(pos=2)))");
     qobj = qp.parse_query("a* mutt", Xapian::QueryParser::FLAG_PARTIAL | Xapian::QueryParser::FLAG_WILDCARD);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((abc:(pos=1) OR mutton:(pos=2) OR Zmutt:(pos=2)))");
 
     // Check behaviour with stemmed terms, and stem strategy STEM_SOME.
     qobj = qp.parse_query("o", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((out:(pos=1) OR outside:(pos=1) OR Zo:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(((out:(pos=1) SYNONYM outside:(pos=1)) OR Zo:(pos=1)))");
     qobj = qp.parse_query("ou", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((out:(pos=1) OR outside:(pos=1) OR Zou:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(((out:(pos=1) SYNONYM outside:(pos=1)) OR Zou:(pos=1)))");
     qobj = qp.parse_query("out", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((out:(pos=1) OR outside:(pos=1) OR Zout:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(((out:(pos=1) SYNONYM outside:(pos=1)) OR Zout:(pos=1)))");
     qobj = qp.parse_query("outs", Xapian::QueryParser::FLAG_PARTIAL);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((outside:(pos=1) OR Zout:(pos=1)))");
     qobj = qp.parse_query("outsi", Xapian::QueryParser::FLAG_PARTIAL);
@@ -950,7 +968,7 @@ static bool test_qp_flag_partial1()
 
     // Check behaviour with capitalised terms, and stem strategy STEM_SOME.
     qobj = qp.parse_query("Out", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((out:(pos=1,wqf=2) OR outside:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(((out:(pos=1) SYNONYM outside:(pos=1)) OR out:(pos=1)))");
     qobj = qp.parse_query("Outs", Xapian::QueryParser::FLAG_PARTIAL);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((outside:(pos=1) OR outs:(pos=1)))");
     qobj = qp.parse_query("Outside", Xapian::QueryParser::FLAG_PARTIAL);
@@ -959,7 +977,7 @@ static bool test_qp_flag_partial1()
     // And now with stemming strategy STEM_ALL.
     qp.set_stemming_strategy(Xapian::QueryParser::STEM_ALL);
     qobj = qp.parse_query("Out", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((out:(pos=1,wqf=2) OR outside:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(((out:(pos=1) SYNONYM outside:(pos=1)) OR out:(pos=1)))");
     qobj = qp.parse_query("Outs", Xapian::QueryParser::FLAG_PARTIAL);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((outside:(pos=1) OR out:(pos=1)))");
     qobj = qp.parse_query("Outside", Xapian::QueryParser::FLAG_PARTIAL);
@@ -968,11 +986,11 @@ static bool test_qp_flag_partial1()
     // Check handling of a case with a prefix.
     qp.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
     qobj = qp.parse_query("title:cow", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((XTcowl:(pos=1) OR XTcows:(pos=1) OR ZXTcow:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(((XTcowl:(pos=1) SYNONYM XTcows:(pos=1)) OR ZXTcow:(pos=1)))");
     qobj = qp.parse_query("title:cows", Xapian::QueryParser::FLAG_PARTIAL);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((XTcows:(pos=1) OR ZXTcow:(pos=1)))");
     qobj = qp.parse_query("title:Cow", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((XTcowl:(pos=1) OR XTcows:(pos=1) OR XTcow:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(((XTcowl:(pos=1) SYNONYM XTcows:(pos=1)) OR XTcow:(pos=1)))");
     qobj = qp.parse_query("title:Cows", Xapian::QueryParser::FLAG_PARTIAL);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(XTcows:(pos=1,wqf=2))");
 
@@ -980,9 +998,22 @@ static bool test_qp_flag_partial1()
     // inflate the wqf of the "parsed as normal" version of a partial term
     // by multiplying it by the number of prefixes mapped to.
     qobj = qp.parse_query("double:vision", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((ZXONEvision:(pos=1) OR ZXTWOvision:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((ZXONEvision:(pos=1) SYNONYM ZXTWOvision:(pos=1)))");
+
+    // Test handling of FLAG_PARTIAL when there's more than one prefix.
+    qobj = qp.parse_query("double:part", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(((XONEpartial:(pos=1) SYNONYM XONEpartial2:(pos=1) SYNONYM XTWOpartial3:(pos=1) SYNONYM XTWOpartial4:(pos=1)) OR (ZXONEpart:(pos=1) SYNONYM ZXTWOpart:(pos=1))))");
+
+    // Test handling of FLAG_PARTIAL when there's more than one prefix, without
+    // stemming.
+    qp.set_stemming_strategy(Xapian::QueryParser::STEM_NONE);
+    qobj = qp.parse_query("double:part", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(((XONEpartial:(pos=1) SYNONYM XONEpartial2:(pos=1) SYNONYM XTWOpartial3:(pos=1) SYNONYM XTWOpartial4:(pos=1)) OR (XONEpart:(pos=1) SYNONYM XTWOpart:(pos=1))))");
+    qobj = qp.parse_query("double:partial", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(((XONEpartial:(pos=1) SYNONYM XONEpartial2:(pos=1) SYNONYM XTWOpartial3:(pos=1) SYNONYM XTWOpartial4:(pos=1)) OR (XONEpartial:(pos=1) SYNONYM XTWOpartial:(pos=1))))");
 
     return true;
+#endif
 }
 
 static bool test_qp_flag_bool_any_case1()
@@ -1213,6 +1244,9 @@ static bool test_qp_value_range2()
 // Test NumberValueRangeProcessors with actual data.
 static bool test_qp_value_range3()
 {
+#ifndef XAPIAN_HAS_BACKEND_INMEMORY
+    SKIP_TEST("Testcase requires the InMemory backend which is disabled");
+#else
     Xapian::WritableDatabase db(Xapian::InMemory::open());
     double low = -10;
     int steps = 60;
@@ -1252,6 +1286,7 @@ static bool test_qp_value_range3()
 	}
     }
     return true;
+#endif
 }
 
 static const double test_value_range_numbers[] = {
@@ -1545,17 +1580,17 @@ static bool test_qp_spell2()
 }
 
 static test test_synonym_queries[] = {
-    { "searching", "(Zsearch:(pos=1) OR Zfind:(pos=1) OR Zlocate:(pos=1))" },
-    { "search", "(Zsearch:(pos=1) OR find:(pos=1))" },
-    { "Search", "(search:(pos=1) OR find:(pos=1))" },
+    { "searching", "(Zsearch:(pos=1) SYNONYM Zfind:(pos=1) SYNONYM Zlocate:(pos=1))" },
+    { "search", "(Zsearch:(pos=1) SYNONYM find:(pos=1))" },
+    { "Search", "(search:(pos=1) SYNONYM find:(pos=1))" },
     { "Searching", "searching:(pos=1)" },
-    { "searching OR terms", "(Zsearch:(pos=1) OR Zfind:(pos=1) OR Zlocate:(pos=1) OR Zterm:(pos=2))" },
-    { "search OR terms", "(Zsearch:(pos=1) OR find:(pos=1) OR Zterm:(pos=2))" },
-    { "search +terms", "(Zterm:(pos=2) AND_MAYBE (Zsearch:(pos=1) OR find:(pos=1)))" },
-    { "search -terms", "((Zsearch:(pos=1) OR find:(pos=1)) AND_NOT Zterm:(pos=2))" },
-    { "+search terms", "((Zsearch:(pos=1) OR find:(pos=1)) AND_MAYBE Zterm:(pos=2))" },
-    { "-search terms", "(Zterm:(pos=2) AND_NOT (Zsearch:(pos=1) OR find:(pos=1)))" },
-    { "search terms", "(Zsearch:(pos=1) OR find:(pos=1) OR Zterm:(pos=2))" },
+    { "searching OR terms", "((Zsearch:(pos=1) SYNONYM Zfind:(pos=1) SYNONYM Zlocate:(pos=1)) OR Zterm:(pos=2))" },
+    { "search OR terms", "((Zsearch:(pos=1) SYNONYM find:(pos=1)) OR Zterm:(pos=2))" },
+    { "search +terms", "(Zterm:(pos=2) AND_MAYBE (Zsearch:(pos=1) SYNONYM find:(pos=1)))" },
+    { "search -terms", "((Zsearch:(pos=1) SYNONYM find:(pos=1)) AND_NOT Zterm:(pos=2))" },
+    { "+search terms", "((Zsearch:(pos=1) SYNONYM find:(pos=1)) AND_MAYBE Zterm:(pos=2))" },
+    { "-search terms", "(Zterm:(pos=2) AND_NOT (Zsearch:(pos=1) SYNONYM find:(pos=1)))" },
+    { "search terms", "((Zsearch:(pos=1) SYNONYM find:(pos=1)) OR Zterm:(pos=2))" },
     // Shouldn't trigger synonyms:
     { "\"search terms\"", "(search:(pos=1) PHRASE 2 terms:(pos=2))" },
     { NULL, NULL }
@@ -1595,11 +1630,11 @@ static bool test_qp_synonym1()
 
 static test test_multi_synonym_queries[] = {
     { "sun OR tan OR cream", "(Zsun:(pos=1) OR Ztan:(pos=2) OR Zcream:(pos=3))" },
-    { "sun tan", "(Zsun:(pos=1) OR Ztan:(pos=2) OR bathe:(pos=1))" },
-    { "sun tan cream", "(Zsun:(pos=1) OR Ztan:(pos=2) OR Zcream:(pos=3) OR lotion:(pos=1))" },
-    { "beach sun tan holiday", "(Zbeach:(pos=1) OR Zsun:(pos=2) OR Ztan:(pos=3) OR bathe:(pos=2) OR Zholiday:(pos=4))" },
-    { "sun tan sun tan cream", "(Zsun:(pos=1) OR Ztan:(pos=2) OR bathe:(pos=1) OR Zsun:(pos=3) OR Ztan:(pos=4) OR Zcream:(pos=5) OR lotion:(pos=3))" },
-    { "single", "(Zsingl:(pos=1) OR record:(pos=1))" },
+    { "sun tan", "((Zsun:(pos=1) OR Ztan:(pos=2)) SYNONYM bathe:(pos=1))" },
+    { "sun tan cream", "((Zsun:(pos=1) OR Ztan:(pos=2) OR Zcream:(pos=3)) SYNONYM lotion:(pos=1))" },
+    { "beach sun tan holiday", "(Zbeach:(pos=1) OR ((Zsun:(pos=2) OR Ztan:(pos=3)) SYNONYM bathe:(pos=2)) OR Zholiday:(pos=4))" },
+    { "sun tan sun tan cream", "(((Zsun:(pos=1) OR Ztan:(pos=2)) SYNONYM bathe:(pos=1)) OR ((Zsun:(pos=3) OR Ztan:(pos=4) OR Zcream:(pos=5)) SYNONYM lotion:(pos=3)))" },
+    { "single", "(Zsingl:(pos=1) SYNONYM record:(pos=1))" },
     { NULL, NULL }
 };
 
@@ -1638,17 +1673,17 @@ static bool test_qp_synonym2()
 
 static test test_synonym_op_queries[] = {
     { "searching", "Zsearch:(pos=1)" },
-    { "~searching", "(Zsearch:(pos=1) OR Zfind:(pos=1) OR Zlocate:(pos=1))" },
-    { "~search", "(Zsearch:(pos=1) OR find:(pos=1))" },
-    { "~Search", "(search:(pos=1) OR find:(pos=1))" },
+    { "~searching", "(Zsearch:(pos=1) SYNONYM Zfind:(pos=1) SYNONYM Zlocate:(pos=1))" },
+    { "~search", "(Zsearch:(pos=1) SYNONYM find:(pos=1))" },
+    { "~Search", "(search:(pos=1) SYNONYM find:(pos=1))" },
     { "~Searching", "searching:(pos=1)" },
-    { "~searching OR terms", "(Zsearch:(pos=1) OR Zfind:(pos=1) OR Zlocate:(pos=1) OR Zterm:(pos=2))" },
-    { "~search OR terms", "(Zsearch:(pos=1) OR find:(pos=1) OR Zterm:(pos=2))" },
-    { "~search +terms", "(Zterm:(pos=2) AND_MAYBE (Zsearch:(pos=1) OR find:(pos=1)))" },
-    { "~search -terms", "((Zsearch:(pos=1) OR find:(pos=1)) AND_NOT Zterm:(pos=2))" },
-    { "+~search terms", "((Zsearch:(pos=1) OR find:(pos=1)) AND_MAYBE Zterm:(pos=2))" },
-    { "-~search terms", "(Zterm:(pos=2) AND_NOT (Zsearch:(pos=1) OR find:(pos=1)))" },
-    { "~search terms", "(Zsearch:(pos=1) OR find:(pos=1) OR Zterm:(pos=2))" },
+    { "~searching OR terms", "((Zsearch:(pos=1) SYNONYM Zfind:(pos=1) SYNONYM Zlocate:(pos=1)) OR Zterm:(pos=2))" },
+    { "~search OR terms", "((Zsearch:(pos=1) SYNONYM find:(pos=1)) OR Zterm:(pos=2))" },
+    { "~search +terms", "(Zterm:(pos=2) AND_MAYBE (Zsearch:(pos=1) SYNONYM find:(pos=1)))" },
+    { "~search -terms", "((Zsearch:(pos=1) SYNONYM find:(pos=1)) AND_NOT Zterm:(pos=2))" },
+    { "+~search terms", "((Zsearch:(pos=1) SYNONYM find:(pos=1)) AND_MAYBE Zterm:(pos=2))" },
+    { "-~search terms", "(Zterm:(pos=2) AND_NOT (Zsearch:(pos=1) SYNONYM find:(pos=1)))" },
+    { "~search terms", "((Zsearch:(pos=1) SYNONYM find:(pos=1)) OR Zterm:(pos=2))" },
     // FIXME: should look for multi-term synonym...
     { "~\"search terms\"", "(search:(pos=1) PHRASE 2 terms:(pos=2))" },
     { NULL, NULL }
@@ -1732,8 +1767,7 @@ static double time_query_parse(const Xapian::Database & db,
 {
     Xapian::QueryParser qp;
     qp.set_database(db);
-    OmTime start, end;
-    start = OmTime::now();
+    CPUTimer timer;
     std::vector<Xapian::Query> qs;
     qs.reserve(repetitions);
     for (int i = 0; i != repetitions; ++i) {
@@ -1741,20 +1775,47 @@ static double time_query_parse(const Xapian::Database & db,
     }
     if (repetitions > 1) {
 	Xapian::Query qc(Xapian::Query::OP_OR, qs.begin(), qs.end());
-	//tout << "Query1:" << qc << "\n";
-    } else {
-	//tout << "QueryR:" << qs[0] << "\n";
     }
-    end = OmTime::now();
-    return (end - start).as_double();
+    return timer.get_time();
 }
 
-// Regression test: check that query parser doesn't scales very badly with the
+static void
+qp_scale1_helper(const Xapian::Database &db, const string & q, unsigned n,
+		 unsigned flags)
+{
+    double time1;
+    while (true) {
+	time1 = time_query_parse(db, q, n, flags);
+	if (time1 != 0.0) break;
+
+	// The first test completed before the timer ticked at all, so increase
+	// the number of repetitions and retry.
+	unsigned n_new = n * 10;
+	if (n_new < n)
+	    SKIP_TEST("Can't count enough repetitions to be able to time test");
+	n = n_new;
+    }
+
+    string q_n;
+    q_n.reserve(q.size() * n);
+    for (unsigned i = n; i != 0; --i) {
+	q_n += q;
+    }
+
+    double time2 = time_query_parse(db, q_n, 1, flags);
+    tout << "small=" << time1 << "s, large=" << time2 << "s\n";
+
+    // Allow a factor of 2.15 difference, to cover random variation and a
+    // native time interval which isn't an exact multiple of 1/CLK_TCK.
+    TEST_REL(time2,<,time1 * 2.15);
+}
+
+// Regression test: check that query parser doesn't scale very badly with the
 // size of the query.
-static bool test_qp_stem_scale1()
+static bool test_qp_scale1()
 {
     mkdir(".flint", 0755);
-    string dbdir = ".flint/qp_stem_scale1";
+    string dbdir = ".flint/qp_scale1";
     Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 
     db.add_synonym("foo", "bar");
@@ -1762,14 +1823,7 @@ static bool test_qp_stem_scale1()
 
     string q1("foo ");
     string q1b("baz ");
-    string q2, q2b;
-    int repetitions = 2000; 
-    q2.reserve(q1.size() * repetitions);
-    q2b.reserve(q1b.size() * repetitions);
-    for (int i = repetitions; i != 0; --i) {
-	q2 += q1;
-	q2b += q1b;
-    }
+    const unsigned repetitions = 5000;
 
     // A long multiword synonym.
     string syn;
@@ -1778,56 +1832,25 @@ static bool test_qp_stem_scale1()
     }
     syn.resize(syn.size() - 1);
 
-    double time1, time2;
-    unsigned defflags = Xapian::QueryParser::FLAG_DEFAULT;
-    unsigned synflags = defflags |
+    unsigned synflags = Xapian::QueryParser::FLAG_DEFAULT |
 	    Xapian::QueryParser::FLAG_SYNONYM |
 	    Xapian::QueryParser::FLAG_AUTO_MULTIWORD_SYNONYMS;
 
-    // Allow a factor of 2 difference, to cover random variation.
     // First, we test a simple query.
-    time1 = time_query_parse(db, q1, repetitions, defflags);
-    if (time1 == 0.0) {
-	// The first test completed before the timer ticked at all!
-	SKIP_TEST("Timer granularity is too coarse");
-    }
-    time2 = time_query_parse(db, q2, 1, defflags);
-    tout << "defflags: small=" << time1 << "s, large=" << time2 << "s\n";
-    TEST_REL(time2,<,time1 * 2);
+    qp_scale1_helper(db, q1, repetitions, Xapian::QueryParser::FLAG_DEFAULT);
 
     // If synonyms are enabled, a different code-path is followed.
     // Test a query which has no synonyms.
-    time1 = time_query_parse(db, q1b, repetitions, synflags);
-    if (time1 == 0.0) {
-	// The first test completed before the timer ticked at all!
-	SKIP_TEST("Timer granularity is too coarse");
-    }
-    time2 = time_query_parse(db, q2b, 1, synflags);
-    tout << "synflags: small=" << time1 << "s, large=" << time2 << "s\n";
-    TEST_REL(time2,<,time1 * 2);
+    qp_scale1_helper(db, q1b, repetitions, synflags);
 
     // Test a query which has short synonyms.
-    time1 = time_query_parse(db, q1, repetitions, synflags);
-    if (time1 == 0.0) {
-	// The first test completed before the timer ticked at all!
-	SKIP_TEST("Timer granularity is too coarse");
-    }
-    time2 = time_query_parse(db, q2, 1, synflags);
-    tout << "synflags: small=" << time1 << "s, large=" << time2 << "s\n";
-    TEST_REL(time2,<,time1 * 2);
+    qp_scale1_helper(db, q1, repetitions, synflags);
 
     // Add a synonym for the whole query, to test that code path.
     db.add_synonym(syn, "bar");
     db.commit();
 
-    time1 = time_query_parse(db, q1, repetitions, synflags);
-    if (time1 == 0.0) {
-	// The first test completed before the timer ticked at all!
-	SKIP_TEST("Timer granularity is too coarse");
-    }
-    time2 = time_query_parse(db, q2, 1, synflags);
-    tout << "synflags2: small=" << time1 << "s, large=" << time2 << "s\n";
-    TEST_REL(time2,<,time1 * 2);
+    qp_scale1_helper(db, q1, repetitions, synflags);
 
     return true;
 }
@@ -1859,7 +1882,7 @@ static test_desc tests[] = {
     TESTCASE(qp_synonym2),
     TESTCASE(qp_synonym3),
     TESTCASE(qp_stem_all1),
-    TESTCASE(qp_stem_scale1),
+    TESTCASE(qp_scale1),
     END_OF_TESTCASES
 };
 

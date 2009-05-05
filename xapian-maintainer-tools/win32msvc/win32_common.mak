@@ -13,33 +13,40 @@ OUTDIR=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 INTDIR=.\
 
 OBJS= \
-    $(INTDIR)\utils.obj \
+    $(INTDIR)\bitstream.obj\
+    $(INTDIR)\const_database_wrapper.obj\
+    $(INTDIR)\debuglog.obj\
+    $(INTDIR)\fileutils.obj \
     $(INTDIR)\getopt.obj \
-    $(INTDIR)\omdebug.obj \
-    $(INTDIR)\serialise-double.obj \
     $(INTDIR)\msvc_dirent.obj \
     $(INTDIR)\msvc_posix_wrapper.obj \
-    $(INTDIR)\win32_uuid.obj \
-    $(INTDIR)\socket_utils.obj \
-    $(INTDIR)\stringutils.obj \
+    $(INTDIR)\omdebug.obj \
     $(INTDIR)\safe.obj \
-    $(INTDIR)\fileutils.obj \
-    $(INTDIR)\bitstream.obj
-    
+    $(INTDIR)\serialise-double.obj \
+    $(INTDIR)\socket_utils.obj \
+    $(INTDIR)\str.obj\
+    $(INTDIR)\stringutils.obj \
+    $(INTDIR)\utils.obj \
+    $(INTDIR)\win32_uuid.obj 
+  
 SRCS= \
-    $(INTDIR)\utils.cc \
+    $(INTDIR)\bitstream.cc\
+    $(INTDIR)\const_database_wrapper.cc\
+    $(INTDIR)\debuglog.cc\
+    $(INTDIR)\fileutils.cc \
     $(INTDIR)\getopt.cc \
-    $(INTDIR)\omdebug.cc \
-    $(INTDIR)\serialise-double.cc \
     $(INTDIR)\msvc_dirent.cc \
     $(INTDIR)\msvc_posix_wrapper.cc \
-    $(INTDIR)\win32_uuid.cc \
-    $(INTDIR)\socket_utils.cc \
-    $(INTDIR)\stringutils.cc \
+    $(INTDIR)\omdebug.cc \
     $(INTDIR)\safe.cc \
-    $(INTDIR)\fileutils.cc \
-    $(INTDIR)\bitstream.cc
-
+    $(INTDIR)\serialise-double.cc \
+    $(INTDIR)\socket_utils.cc \
+    $(INTDIR)\str.cc\
+    $(INTDIR)\stringutils.cc \
+    $(INTDIR)\utils.cc \
+    $(INTDIR)\win32_uuid.cc 
+    
+  
 CPP_PROJ=$(CPPFLAGS_EXTRA) -I..\win32\ -Fo"$(INTDIR)\\" -Tp$(INPUTNAME) 
 CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
