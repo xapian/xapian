@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
- * Copyright 2006 Richard Boulton
+ * Copyright 2006,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -132,7 +132,7 @@ class InMemoryDatabase;
 
 /** A PostList in an inmemory database.
  */
-class InMemoryPostList : public LeafPostList {
+class InMemoryPostList : public TermBasedLeafPostList {
     friend class InMemoryDatabase;
     private:
 	vector<InMemoryPosting>::const_iterator pos;
@@ -148,7 +148,7 @@ class InMemoryPostList : public LeafPostList {
 	Xapian::Internal::RefCntPtr<const InMemoryDatabase> db;
 
 	InMemoryPostList(Xapian::Internal::RefCntPtr<const InMemoryDatabase> db,
-			 const InMemoryTerm & imterm);
+			 const InMemoryTerm & imterm, const std::string & term_);
     public:
 	Xapian::doccount get_termfreq() const;
 
@@ -170,7 +170,7 @@ class InMemoryPostList : public LeafPostList {
 
 /** A PostList over all docs in an inmemory database.
  */
-class InMemoryAllDocsPostList : public LeafPostList {
+class InMemoryAllDocsPostList : public TermBasedLeafPostList {
     friend class InMemoryDatabase;
     private:
 	Xapian::docid did;

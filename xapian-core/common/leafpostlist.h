@@ -2,6 +2,7 @@
  * @brief Abstract base class for leaf postlists.
  */
 /* Copyright (C) 2007 Olly Betts
+ * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,6 +23,8 @@
 #define XAPIAN_INCLUDED_LEAFPOSTLIST_H
 
 #include "postlist.h"
+
+#include <string>
 
 namespace Xapian {
     class Weight;
@@ -74,6 +77,23 @@ class LeafPostList : public PostList {
     Xapian::weight get_maxweight() const;
     Xapian::weight get_weight() const;
     Xapian::weight recalc_maxweight();
+};
+
+/// Abstract base class for leaf postlists based on a term.
+class TermBasedLeafPostList : public LeafPostList {
+    /// Don't allow assignment.
+    void operator=(const TermBasedLeafPostList &);
+
+    /// Don't allow copying.
+    TermBasedLeafPostList(const TermBasedLeafPostList &);
+
+  protected:
+    /// The term name for this postlist ("" for an alldocs postlist).
+    std::string term;
+
+    /// Only constructable as a base class for derived classes.
+    TermBasedLeafPostList(const std::string & term_)
+	    : LeafPostList(), term(term_) {}
 };
 
 #endif // XAPIAN_INCLUDED_LEAFPOSTLIST_H

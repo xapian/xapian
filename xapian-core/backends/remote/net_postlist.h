@@ -1,7 +1,7 @@
 /** @file net_postlist.h
  *  @brief Postlists for remote databases
  */
-/* Copyright (C) 2007 Lemur Consulting Ltd
+/* Copyright (C) 2007,2009 Lemur Consulting Ltd
  * Copyright (C) 2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
@@ -33,11 +33,10 @@ using namespace std;
 
 /** A postlist in a remote database.
  */
-class NetworkPostList : public LeafPostList {
+class NetworkPostList : public TermBasedLeafPostList {
     friend class RemoteDatabase;
 
     Xapian::Internal::RefCntPtr<const RemoteDatabase> db;
-    string term;
 
     string postings;
     bool started;
@@ -61,7 +60,8 @@ class NetworkPostList : public LeafPostList {
     /// Default constructor.
     NetworkPostList(Xapian::Internal::RefCntPtr<const RemoteDatabase> db_,
 		    const string & term_)
-	: db(db_), term(term_), started(false), pos(NULL), pos_end(NULL),
+	: TermBasedLeafPostList(term_),
+	  db(db_), started(false), pos(NULL), pos_end(NULL),
 	  lastdocid(0), lastwdf(0), termfreq(0)
     {
 	termfreq = db->read_post_list(term, *this);

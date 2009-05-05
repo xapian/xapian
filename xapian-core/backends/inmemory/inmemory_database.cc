@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
- * Copyright 2006 Richard Boulton
+ * Copyright 2006,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -78,8 +78,10 @@ InMemoryDoc::add_posting(const InMemoryTermEntry & post)
 //////////////
 
 InMemoryPostList::InMemoryPostList(Xapian::Internal::RefCntPtr<const InMemoryDatabase> db_,
-				   const InMemoryTerm & imterm)
-	: pos(imterm.docs.begin()),
+				   const InMemoryTerm & imterm,
+				   const std::string & term_)
+	: TermBasedLeafPostList(term_),
+	  pos(imterm.docs.begin()),
 	  end(imterm.docs.end()),
 	  termfreq(imterm.term_freq),
 	  started(false),
@@ -280,7 +282,7 @@ InMemoryTermList::positionlist_begin() const
 /////////////////////////////
 
 InMemoryAllDocsPostList::InMemoryAllDocsPostList(Xapian::Internal::RefCntPtr<const InMemoryDatabase> db_)
-	: did(0), db(db_)
+	: TermBasedLeafPostList(std::string()), did(0), db(db_)
 {
 }
 
@@ -415,7 +417,7 @@ InMemoryDatabase::open_post_list(const string & tname) const
 	return new EmptyPostList;
 
     Xapian::Internal::RefCntPtr<const InMemoryDatabase> ptrtothis(this);
-    LeafPostList * pl = new InMemoryPostList(ptrtothis, i->second);
+    LeafPostList * pl = new InMemoryPostList(ptrtothis, i->second, tname);
     Assert(!pl->at_end());
     return pl;
 }

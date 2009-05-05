@@ -1,3 +1,15 @@
+Tue May 05 07:19:19 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/chert/chert_postlist.cc,backends/chert/chert_postlist.h,
+	  backends/flint/flint_alldocspostlist.h,
+	  backends/flint/flint_postlist.cc,backends/flint/flint_postlist.h,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h,backends/remote/net_postlist.h,
+	  common/contiguousalldocspostlist.h,common/leafpostlist.h:
+	  Introduce TermBasedLeafPostList, as a new common base class for
+	  postlists which are derived from a term in the query (including
+	  alldocs postlists which are derived from the empty term).
+
 Tue May 05 06:47:11 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/,backends/flint/flint_modifiedpostlist.cc,

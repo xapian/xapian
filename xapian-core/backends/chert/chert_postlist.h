@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2007,2008,2009 Olly Betts
- * Copyright 2007 Lemur Consulting Ltd
+ * Copyright 2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -121,16 +121,13 @@ class ChertPostListTable : public ChertTable {
 
 /** A postlist in a chert database.
  */
-class ChertPostList : public LeafPostList {
+class ChertPostList : public TermBasedLeafPostList {
     protected: // ChertModifiedPostList needs to access these.
 	/** The database we are searching.  This pointer is held so that the
 	 *  database doesn't get deleted before us, and also to give us access
 	 *  to the position_table.
 	 */
 	Xapian::Internal::RefCntPtr<const ChertDatabase> this_db;
-
-	/// The termname for this postlist.
-	string term;
 
 	/// Whether we've started reading the list yet.
 	bool have_started;
