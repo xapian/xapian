@@ -1,6 +1,7 @@
 /* queryparsertest.cc: Tests of Xapian::QueryParser
  *
  * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright (C) 2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -789,11 +790,11 @@ static bool test_qp_flag_wildcard1()
     Xapian::Query qobj = qp.parse_query("ab*", Xapian::QueryParser::FLAG_WILDCARD);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(abc:(pos=1))");
     qobj = qp.parse_query("muscle*", Xapian::QueryParser::FLAG_WILDCARD);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((muscle:(pos=1) OR musclebound:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((muscle:(pos=1) SYNONYM musclebound:(pos=1)))");
     qobj = qp.parse_query("meat*", Xapian::QueryParser::FLAG_WILDCARD);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query()");
     qobj = qp.parse_query("musc*", Xapian::QueryParser::FLAG_WILDCARD);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((muscat:(pos=1) OR muscle:(pos=1) OR musclebound:(pos=1) OR muscular:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((muscat:(pos=1) SYNONYM muscle:(pos=1) SYNONYM musclebound:(pos=1) SYNONYM muscular:(pos=1)))");
     qobj = qp.parse_query("mutt*", Xapian::QueryParser::FLAG_WILDCARD);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(mutton:(pos=1))");
     // Regression test (we weren't lowercasing terms before checking if they
@@ -886,9 +887,9 @@ static bool test_qp_flag_wildcard2()
     qp.add_prefix("author", "A");
     Xapian::Query qobj;
     qobj = qp.parse_query("author:h*", Xapian::QueryParser::FLAG_WILDCARD);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((Aheinlein:(pos=1) OR Ahuxley:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((Aheinlein:(pos=1) SYNONYM Ahuxley:(pos=1)))");
     qobj = qp.parse_query("author:h* test", Xapian::QueryParser::FLAG_WILDCARD);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((Aheinlein:(pos=1) OR Ahuxley:(pos=1) OR test:(pos=2)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(((Aheinlein:(pos=1) SYNONYM Ahuxley:(pos=1)) OR test:(pos=2)))");
     return true;
 #endif
 }
@@ -918,6 +919,10 @@ static bool test_qp_flag_partial1()
     doc.add_term("XTcowl");
     doc.add_term("XTcox");
     doc.add_term("ZXTcow");
+    doc.add_term("XONEpartial");
+    doc.add_term("XONEpartial2");
+    doc.add_term("XTWOpartial3");
+    doc.add_term("XTWOpartial4");
     db.add_document(doc);
     Xapian::QueryParser qp;
     qp.set_database(db);
@@ -933,25 +938,25 @@ static bool test_qp_flag_partial1()
     qobj = qp.parse_query("ab", Xapian::QueryParser::FLAG_PARTIAL);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((abc:(pos=1) OR Zab:(pos=1)))");
     qobj = qp.parse_query("muscle", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((muscle:(pos=1) OR musclebound:(pos=1) OR Zmuscl:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(((muscle:(pos=1) SYNONYM musclebound:(pos=1)) OR Zmuscl:(pos=1)))");
     qobj = qp.parse_query("meat", Xapian::QueryParser::FLAG_PARTIAL);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(Zmeat:(pos=1))");
     qobj = qp.parse_query("musc", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((muscat:(pos=1) OR muscle:(pos=1) OR musclebound:(pos=1) OR muscular:(pos=1) OR Zmusc:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(((muscat:(pos=1) SYNONYM muscle:(pos=1) SYNONYM musclebound:(pos=1) SYNONYM muscular:(pos=1)) OR Zmusc:(pos=1)))");
     qobj = qp.parse_query("mutt", Xapian::QueryParser::FLAG_PARTIAL);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((mutton:(pos=1) OR Zmutt:(pos=1)))");
     qobj = qp.parse_query("abc musc", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((Zabc:(pos=1) OR muscat:(pos=2) OR muscle:(pos=2) OR musclebound:(pos=2) OR muscular:(pos=2) OR Zmusc:(pos=2)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((Zabc:(pos=1) OR (muscat:(pos=2) SYNONYM muscle:(pos=2) SYNONYM musclebound:(pos=2) SYNONYM muscular:(pos=2)) OR Zmusc:(pos=2)))");
     qobj = qp.parse_query("a* mutt", Xapian::QueryParser::FLAG_PARTIAL | Xapian::QueryParser::FLAG_WILDCARD);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((abc:(pos=1) OR mutton:(pos=2) OR Zmutt:(pos=2)))");
 
     // Check behaviour with stemmed terms, and stem strategy STEM_SOME.
     qobj = qp.parse_query("o", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((out:(pos=1) OR outside:(pos=1) OR Zo:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(((out:(pos=1) SYNONYM outside:(pos=1)) OR Zo:(pos=1)))");
     qobj = qp.parse_query("ou", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((out:(pos=1) OR outside:(pos=1) OR Zou:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(((out:(pos=1) SYNONYM outside:(pos=1)) OR Zou:(pos=1)))");
     qobj = qp.parse_query("out", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((out:(pos=1) OR outside:(pos=1) OR Zout:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(((out:(pos=1) SYNONYM outside:(pos=1)) OR Zout:(pos=1)))");
     qobj = qp.parse_query("outs", Xapian::QueryParser::FLAG_PARTIAL);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((outside:(pos=1) OR Zout:(pos=1)))");
     qobj = qp.parse_query("outsi", Xapian::QueryParser::FLAG_PARTIAL);
@@ -963,7 +968,7 @@ static bool test_qp_flag_partial1()
 
     // Check behaviour with capitalised terms, and stem strategy STEM_SOME.
     qobj = qp.parse_query("Out", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((out:(pos=1,wqf=2) OR outside:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(((out:(pos=1) SYNONYM outside:(pos=1)) OR out:(pos=1)))");
     qobj = qp.parse_query("Outs", Xapian::QueryParser::FLAG_PARTIAL);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((outside:(pos=1) OR outs:(pos=1)))");
     qobj = qp.parse_query("Outside", Xapian::QueryParser::FLAG_PARTIAL);
@@ -972,7 +977,7 @@ static bool test_qp_flag_partial1()
     // And now with stemming strategy STEM_ALL.
     qp.set_stemming_strategy(Xapian::QueryParser::STEM_ALL);
     qobj = qp.parse_query("Out", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((out:(pos=1,wqf=2) OR outside:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(((out:(pos=1) SYNONYM outside:(pos=1)) OR out:(pos=1)))");
     qobj = qp.parse_query("Outs", Xapian::QueryParser::FLAG_PARTIAL);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((outside:(pos=1) OR out:(pos=1)))");
     qobj = qp.parse_query("Outside", Xapian::QueryParser::FLAG_PARTIAL);
@@ -981,11 +986,11 @@ static bool test_qp_flag_partial1()
     // Check handling of a case with a prefix.
     qp.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
     qobj = qp.parse_query("title:cow", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((XTcowl:(pos=1) OR XTcows:(pos=1) OR ZXTcow:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(((XTcowl:(pos=1) SYNONYM XTcows:(pos=1)) OR ZXTcow:(pos=1)))");
     qobj = qp.parse_query("title:cows", Xapian::QueryParser::FLAG_PARTIAL);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((XTcows:(pos=1) OR ZXTcow:(pos=1)))");
     qobj = qp.parse_query("title:Cow", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((XTcowl:(pos=1) OR XTcows:(pos=1) OR XTcow:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(((XTcowl:(pos=1) SYNONYM XTcows:(pos=1)) OR XTcow:(pos=1)))");
     qobj = qp.parse_query("title:Cows", Xapian::QueryParser::FLAG_PARTIAL);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(XTcows:(pos=1,wqf=2))");
 
@@ -993,7 +998,19 @@ static bool test_qp_flag_partial1()
     // inflate the wqf of the "parsed as normal" version of a partial term
     // by multiplying it by the number of prefixes mapped to.
     qobj = qp.parse_query("double:vision", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((ZXONEvision:(pos=1) OR ZXTWOvision:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((ZXONEvision:(pos=1) SYNONYM ZXTWOvision:(pos=1)))");
+
+    // Test handling of FLAG_PARTIAL when there's more than one prefix.
+    qobj = qp.parse_query("double:part", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(((XONEpartial:(pos=1) SYNONYM XONEpartial2:(pos=1) SYNONYM XTWOpartial3:(pos=1) SYNONYM XTWOpartial4:(pos=1)) OR (ZXONEpart:(pos=1) SYNONYM ZXTWOpart:(pos=1))))");
+
+    // Test handling of FLAG_PARTIAL when there's more than one prefix, without
+    // stemming.
+    qp.set_stemming_strategy(Xapian::QueryParser::STEM_NONE);
+    qobj = qp.parse_query("double:part", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(((XONEpartial:(pos=1) SYNONYM XONEpartial2:(pos=1) SYNONYM XTWOpartial3:(pos=1) SYNONYM XTWOpartial4:(pos=1)) OR (XONEpart:(pos=1) SYNONYM XTWOpart:(pos=1))))");
+    qobj = qp.parse_query("double:partial", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(((XONEpartial:(pos=1) SYNONYM XONEpartial2:(pos=1) SYNONYM XTWOpartial3:(pos=1) SYNONYM XTWOpartial4:(pos=1)) OR (XONEpartial:(pos=1) SYNONYM XTWOpartial:(pos=1))))");
 
     return true;
 #endif
@@ -1563,17 +1580,17 @@ static bool test_qp_spell2()
 }
 
 static test test_synonym_queries[] = {
-    { "searching", "(Zsearch:(pos=1) OR Zfind:(pos=1) OR Zlocate:(pos=1))" },
-    { "search", "(Zsearch:(pos=1) OR find:(pos=1))" },
-    { "Search", "(search:(pos=1) OR find:(pos=1))" },
+    { "searching", "(Zsearch:(pos=1) SYNONYM Zfind:(pos=1) SYNONYM Zlocate:(pos=1))" },
+    { "search", "(Zsearch:(pos=1) SYNONYM find:(pos=1))" },
+    { "Search", "(search:(pos=1) SYNONYM find:(pos=1))" },
     { "Searching", "searching:(pos=1)" },
-    { "searching OR terms", "(Zsearch:(pos=1) OR Zfind:(pos=1) OR Zlocate:(pos=1) OR Zterm:(pos=2))" },
-    { "search OR terms", "(Zsearch:(pos=1) OR find:(pos=1) OR Zterm:(pos=2))" },
-    { "search +terms", "(Zterm:(pos=2) AND_MAYBE (Zsearch:(pos=1) OR find:(pos=1)))" },
-    { "search -terms", "((Zsearch:(pos=1) OR find:(pos=1)) AND_NOT Zterm:(pos=2))" },
-    { "+search terms", "((Zsearch:(pos=1) OR find:(pos=1)) AND_MAYBE Zterm:(pos=2))" },
-    { "-search terms", "(Zterm:(pos=2) AND_NOT (Zsearch:(pos=1) OR find:(pos=1)))" },
-    { "search terms", "(Zsearch:(pos=1) OR find:(pos=1) OR Zterm:(pos=2))" },
+    { "searching OR terms", "((Zsearch:(pos=1) SYNONYM Zfind:(pos=1) SYNONYM Zlocate:(pos=1)) OR Zterm:(pos=2))" },
+    { "search OR terms", "((Zsearch:(pos=1) SYNONYM find:(pos=1)) OR Zterm:(pos=2))" },
+    { "search +terms", "(Zterm:(pos=2) AND_MAYBE (Zsearch:(pos=1) SYNONYM find:(pos=1)))" },
+    { "search -terms", "((Zsearch:(pos=1) SYNONYM find:(pos=1)) AND_NOT Zterm:(pos=2))" },
+    { "+search terms", "((Zsearch:(pos=1) SYNONYM find:(pos=1)) AND_MAYBE Zterm:(pos=2))" },
+    { "-search terms", "(Zterm:(pos=2) AND_NOT (Zsearch:(pos=1) SYNONYM find:(pos=1)))" },
+    { "search terms", "((Zsearch:(pos=1) SYNONYM find:(pos=1)) OR Zterm:(pos=2))" },
     // Shouldn't trigger synonyms:
     { "\"search terms\"", "(search:(pos=1) PHRASE 2 terms:(pos=2))" },
     { NULL, NULL }
@@ -1613,11 +1630,11 @@ static bool test_qp_synonym1()
 
 static test test_multi_synonym_queries[] = {
     { "sun OR tan OR cream", "(Zsun:(pos=1) OR Ztan:(pos=2) OR Zcream:(pos=3))" },
-    { "sun tan", "(Zsun:(pos=1) OR Ztan:(pos=2) OR bathe:(pos=1))" },
-    { "sun tan cream", "(Zsun:(pos=1) OR Ztan:(pos=2) OR Zcream:(pos=3) OR lotion:(pos=1))" },
-    { "beach sun tan holiday", "(Zbeach:(pos=1) OR Zsun:(pos=2) OR Ztan:(pos=3) OR bathe:(pos=2) OR Zholiday:(pos=4))" },
-    { "sun tan sun tan cream", "(Zsun:(pos=1) OR Ztan:(pos=2) OR bathe:(pos=1) OR Zsun:(pos=3) OR Ztan:(pos=4) OR Zcream:(pos=5) OR lotion:(pos=3))" },
-    { "single", "(Zsingl:(pos=1) OR record:(pos=1))" },
+    { "sun tan", "((Zsun:(pos=1) OR Ztan:(pos=2)) SYNONYM bathe:(pos=1))" },
+    { "sun tan cream", "((Zsun:(pos=1) OR Ztan:(pos=2) OR Zcream:(pos=3)) SYNONYM lotion:(pos=1))" },
+    { "beach sun tan holiday", "(Zbeach:(pos=1) OR ((Zsun:(pos=2) OR Ztan:(pos=3)) SYNONYM bathe:(pos=2)) OR Zholiday:(pos=4))" },
+    { "sun tan sun tan cream", "(((Zsun:(pos=1) OR Ztan:(pos=2)) SYNONYM bathe:(pos=1)) OR ((Zsun:(pos=3) OR Ztan:(pos=4) OR Zcream:(pos=5)) SYNONYM lotion:(pos=3)))" },
+    { "single", "(Zsingl:(pos=1) SYNONYM record:(pos=1))" },
     { NULL, NULL }
 };
 
@@ -1656,17 +1673,17 @@ static bool test_qp_synonym2()
 
 static test test_synonym_op_queries[] = {
     { "searching", "Zsearch:(pos=1)" },
-    { "~searching", "(Zsearch:(pos=1) OR Zfind:(pos=1) OR Zlocate:(pos=1))" },
-    { "~search", "(Zsearch:(pos=1) OR find:(pos=1))" },
-    { "~Search", "(search:(pos=1) OR find:(pos=1))" },
+    { "~searching", "(Zsearch:(pos=1) SYNONYM Zfind:(pos=1) SYNONYM Zlocate:(pos=1))" },
+    { "~search", "(Zsearch:(pos=1) SYNONYM find:(pos=1))" },
+    { "~Search", "(search:(pos=1) SYNONYM find:(pos=1))" },
     { "~Searching", "searching:(pos=1)" },
-    { "~searching OR terms", "(Zsearch:(pos=1) OR Zfind:(pos=1) OR Zlocate:(pos=1) OR Zterm:(pos=2))" },
-    { "~search OR terms", "(Zsearch:(pos=1) OR find:(pos=1) OR Zterm:(pos=2))" },
-    { "~search +terms", "(Zterm:(pos=2) AND_MAYBE (Zsearch:(pos=1) OR find:(pos=1)))" },
-    { "~search -terms", "((Zsearch:(pos=1) OR find:(pos=1)) AND_NOT Zterm:(pos=2))" },
-    { "+~search terms", "((Zsearch:(pos=1) OR find:(pos=1)) AND_MAYBE Zterm:(pos=2))" },
-    { "-~search terms", "(Zterm:(pos=2) AND_NOT (Zsearch:(pos=1) OR find:(pos=1)))" },
-    { "~search terms", "(Zsearch:(pos=1) OR find:(pos=1) OR Zterm:(pos=2))" },
+    { "~searching OR terms", "((Zsearch:(pos=1) SYNONYM Zfind:(pos=1) SYNONYM Zlocate:(pos=1)) OR Zterm:(pos=2))" },
+    { "~search OR terms", "((Zsearch:(pos=1) SYNONYM find:(pos=1)) OR Zterm:(pos=2))" },
+    { "~search +terms", "(Zterm:(pos=2) AND_MAYBE (Zsearch:(pos=1) SYNONYM find:(pos=1)))" },
+    { "~search -terms", "((Zsearch:(pos=1) SYNONYM find:(pos=1)) AND_NOT Zterm:(pos=2))" },
+    { "+~search terms", "((Zsearch:(pos=1) SYNONYM find:(pos=1)) AND_MAYBE Zterm:(pos=2))" },
+    { "-~search terms", "(Zterm:(pos=2) AND_NOT (Zsearch:(pos=1) SYNONYM find:(pos=1)))" },
+    { "~search terms", "((Zsearch:(pos=1) SYNONYM find:(pos=1)) OR Zterm:(pos=2))" },
     // FIXME: should look for multi-term synonym...
     { "~\"search terms\"", "(search:(pos=1) PHRASE 2 terms:(pos=2))" },
     { NULL, NULL }

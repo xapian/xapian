@@ -1,3 +1,10 @@
+Tue May 05 12:54:36 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	Merge from opsynonym branch:
+	* queryparser/queryparser.lemony: Use OP_SYNONYM instead of OP_OR
+	  for synonyms, wildcards, and partial queries.
+	* tests/queryparsertest.cc: Test use of OP_SYNONYM by query parser.
+
 Tue May 05 12:18:06 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	Merge from opsynonym branch:

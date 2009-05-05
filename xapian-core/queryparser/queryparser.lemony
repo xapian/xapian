@@ -2,6 +2,7 @@
 /* queryparser.lemony: build a Xapian::Query object from a user query string.
  *
  * Copyright (C) 2004,2005,2006,2007,2008 Olly Betts
+ * Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -287,7 +288,7 @@ Term::get_query_with_synonyms() const
 	    end = db.synonyms_end(term);
 	}
 	while (syn != end) {
-	    q = Query(Query::OP_OR, q, Query(*syn, 1, pos));
+	    q = Query(Query::OP_SYNONYM, q, Query(*syn, 1, pos));
 	    ++syn;
 	}
     }
@@ -353,28 +354,33 @@ Term::as_wildcarded_query(State * state_) const
 	}
     }
     delete this;
-    return new Query(Query::OP_OR, subqs.begin(), subqs.end());
+    return new Query(Query::OP_SYNONYM, subqs.begin(), subqs.end());
 }
 
 Query *
 Term::as_partial_query(State * state_) const
 {
     Database db = state_->get_database();
-    vector<Query> subqs;
+    vector<Query> subqs_partial; // A synonym of all the partial terms.
+    vector<Query> subqs_full; // A synonym of all the full terms.
     list<string>::const_iterator piter;
     for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
 	string root = *piter;
 	root += name;
 	TermIterator t = db.allterms_begin(root);
 	while (t != db.allterms_end(root)) {
-	    subqs.push_back(Query(*t, 1, pos));
+	    subqs_partial.push_back(Query(*t, 1, pos));
 	    ++t;
 	}
 	// Add the term, as it would normally be handled, as an alternative.
-	subqs.push_back(Query(make_term(*piter), 1, pos));
+	subqs_full.push_back(Query(make_term(*piter), 1, pos));
     }
     delete this;
-    return new Query(Query::OP_OR, subqs.begin(), subqs.end());
+    return new Query(Query::OP_OR,
+		     Query(Query::OP_SYNONYM,
+			   subqs_partial.begin(), subqs_partial.end()),
+		     Query(Query::OP_SYNONYM,
+			   subqs_full.begin(), subqs_full.end()));
 }
 
 inline bool
@@ -1176,9 +1182,9 @@ TermGroup::as_group(State *state) const
 		subqs2.push_back(Query(*syn, 1, pos));
 		++syn;
 	    }
-	    Query q_synonym_terms(Query::OP_OR, subqs2.begin(), subqs2.end());
+	    Query q_synonym_terms(Query::OP_SYNONYM, subqs2.begin(), subqs2.end());
 	    subqs2.clear();
-	    subqs.push_back(Query(Query::OP_OR,
+	    subqs.push_back(Query(Query::OP_SYNONYM,
 				  q_original_terms, q_synonym_terms));
 	}
     } else {
