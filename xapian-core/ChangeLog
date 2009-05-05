@@ -1,3 +1,9 @@
+Tue May 05 01:01:49 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_opsynonym.cc: I've checked exactly what's going on in
+	  these examples, and written an explanation of it.  All seems
+	  well.
+
 Tue May 05 00:43:18 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* weight/weight.cc: Add reltermfreq to debugging, now that we

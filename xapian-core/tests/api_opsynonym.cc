@@ -155,8 +155,14 @@ DEFINE_TESTCASE(synonym1, backend) {
 				       Xapian::Query("sky"),
 				       Xapian::Query("date")));
     subqueries_list.push_back(subqueries);
-    // FIXME - check that these values make sense.
-    // Compare to what's happening with OR
+    // When the top-level operator is OR, the synonym part has an estimated
+    // termfreq of 35.  When the top-level operator is SYNONYM, the whole query
+    // has an estimated termfreq of 35, and is in fact the same as the synonmyn
+    // part in the OR query, except that the wqf of "date" is 2.  We're
+    // currently not using the wqfs of components of synonyms, so this
+    // difference has no effect on the weightings.  Therefore, for the 1
+    // document which does not contain "data", we get the same result with
+    // SYNONYM as with OR.
     subqueries_sameweight_count.push_back(1);
     subqueries_diffweight_count.push_back(33);
 
@@ -176,7 +182,12 @@ DEFINE_TESTCASE(synonym1, backend) {
 				       Xapian::Query("german"),
 				       Xapian::Query("adventur")));
     subqueries_list.push_back(subqueries);
-    // FIXME - check that these numbers make sense
+    // The estimated term frequency for the synoynm is 2 (because the estimate
+    // for the phrase is 0), which is the same as the term frequency of
+    // "attitud".  Thus, the synonym gets the same weight as "attitud", so
+    // documents with only "attitud" (but not the phrase) in them get the same
+    // wdf, and have the same total weight.  There turns out to be exactly one
+    // such document.
     subqueries_sameweight_count.push_back(1);
     subqueries_diffweight_count.push_back(3);
 
