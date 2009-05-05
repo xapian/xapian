@@ -30,6 +30,14 @@ namespace Xapian {
 
 PostingIterator::Internal::~Internal() { }
 
+TermFreqs
+PostingIterator::Internal::get_termfreq_est_using_stats(
+	const Xapian::Weight::Internal &) const
+{
+    throw Xapian::InvalidOperationError(
+     "get_termfreq_est_using_stats() not meaningful for this PostingIterator");
+}
+
 Xapian::termcount
 PostingIterator::Internal::get_wdf() const
 {

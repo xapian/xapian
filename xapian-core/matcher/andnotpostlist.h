@@ -3,6 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2003,2004,2009 Olly Betts
+ * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -42,6 +43,8 @@ class AndNotPostList : public BranchPostList {
 	Xapian::doccount get_termfreq_max() const;
 	Xapian::doccount get_termfreq_min() const;
 	Xapian::doccount get_termfreq_est() const;
+	TermFreqs get_termfreq_est_using_stats(
+	    const Xapian::Weight::Internal & stats) const;
 
 	Xapian::docid  get_docid() const;
 	Xapian::weight get_weight() const;
@@ -69,6 +72,11 @@ class AndNotPostList : public BranchPostList {
 				   Xapian::weight w_min,
 				   Xapian::docid lh,
 				   Xapian::docid rh);
+
+	/** get_wdf() for ANDNOT postlists returns the wdf of the left hand
+	 * side.
+	 */
+	Xapian::termcount get_wdf() const;
 };
 
 #endif /* OM_HGUARD_ANDNOTPOSTLIST_H */

@@ -3,6 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2003,2004,2007,2008,2009 Olly Betts
+ * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -232,6 +233,39 @@ XorPostList::get_termfreq_est() const
     RETURN(static_cast<Xapian::doccount>(est + 0.5));
 }
 
+TermFreqs
+XorPostList::get_termfreq_est_using_stats(
+	const Xapian::Weight::Internal & stats) const 
+{
+    LOGCALL(MATCH, TermFreqs,
+	    "XorPostList::get_termfreq_est_using_stats", stats);
+    // Estimate assuming independence:
+    // P(l or r) = P(l) + P(r) - 2 . P(l) . P(r)
+    TermFreqs lfreqs(l->get_termfreq_est_using_stats(stats));
+    TermFreqs rfreqs(r->get_termfreq_est_using_stats(stats));
+
+    double freqest, relfreqest;
+
+    if (stats.collection_size == 0) {
+	freqest = 0;
+    } else {
+	freqest = lfreqs.termfreq + rfreqs.termfreq
+		- (2.0 * lfreqs.termfreq * rfreqs.termfreq
+		   / stats.collection_size);
+    }
+
+    if (stats.collection_size == 0) {
+	relfreqest = 0;
+    } else {
+	relfreqest = lfreqs.reltermfreq + rfreqs.reltermfreq
+		- (2.0 * lfreqs.reltermfreq * rfreqs.reltermfreq
+		   / stats.rset_size);
+    }
+
+    RETURN(TermFreqs(static_cast<Xapian::doccount>(freqest + 0.5),
+		     static_cast<Xapian::doccount>(relfreqest + 0.5)));
+}
+
 Xapian::docid
 XorPostList::get_docid() const
 {
@@ -293,4 +327,12 @@ XorPostList::get_doclength() const
     if (lhead < rhead) return l->get_doclength();
     Assert(lhead > rhead);
     return r->get_doclength();
+}
+
+Xapian::termcount
+XorPostList::get_wdf() const
+{
+    DEBUGCALL(MATCH, Xapian::termcount, "XorPostList::get_wdf", "");
+    if (lhead < rhead) RETURN(l->get_wdf());
+    RETURN(r->get_wdf());
 }

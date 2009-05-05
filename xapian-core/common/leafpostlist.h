@@ -94,6 +94,10 @@ class TermBasedLeafPostList : public LeafPostList {
     /// Only constructable as a base class for derived classes.
     TermBasedLeafPostList(const std::string & term_)
 	    : LeafPostList(), term(term_) {}
+
+  public:
+    TermFreqs get_termfreq_est_using_stats(
+	const Xapian::Weight::Internal & stats) const;
 };
 
 #endif // XAPIAN_INCLUDED_LEAFPOSTLIST_H

@@ -2,6 +2,7 @@
  * @brief Return docs containing terms forming a particular exact phrase.
  *
  * Copyright (C) 2006 Olly Betts
+ * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -57,6 +58,9 @@ class ExactPhrasePostList : public SelectPostList {
     Xapian::termcount get_wdf() const;
 
     Xapian::doccount get_termfreq_est() const;
+
+    TermFreqs get_termfreq_est_using_stats(
+	const Xapian::Weight::Internal & stats) const;
 
     std::string get_description() const;
 };
