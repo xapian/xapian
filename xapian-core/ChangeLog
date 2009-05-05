@@ -1,3 +1,11 @@
+Tue May 05 13:41:57 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/str.h: Fix swapped parameters in string ctor in code for
+	  str(bool) overload which lead to us returning 48 or 49 \x01
+	  characters instead of "0" or "1".
+	* tests/internaltest.cc: Add regression test strbool1.
+	* AUTHORS: Thank Peter Kelm for helping us spot this.
+
 Tue May 05 12:54:36 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	Merge from opsynonym branch:
