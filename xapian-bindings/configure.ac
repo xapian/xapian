@@ -70,9 +70,10 @@ AC_LANG_CPLUSPLUS
 dnl Check for libxapian
 XO_LIB_XAPIAN
 
-dnl We want XAPIAN_CXXFLAGS to be used for configure tests, so set AM_CXXFLAGS
-dnl here and unset them later.
-AM_CXXFLAGS=$XAPIAN_CXXFLAGS
+dnl We want XAPIAN_CXXFLAGS to be used for configure tests, so add it to
+dnl CXXFLAGS for the duration of configure.
+save_CXXFLAGS=$CXXFLAGS
+CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"
 
 dnl COMPAT_VERSION is the version of xapian-core that "matches" our version.
 dnl We allow for bindings being version 0.8.5.1 while xapian-core is 0.8.5.
@@ -121,18 +122,20 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   if test -z "$SWIG" ; then
     AC_MSG_ERROR([Can't find SWIG utility])
   fi
-  dnl Check for swig >= 1.3.33 (SVN rev 10143):
+  dnl Check for swig >= 1.3.40 (SVN rev 11194):
   dnl
   dnl 1.3.30 produces class wrappers for PHP5
   dnl 1.3.32 fixes PHP5 wrappers for overloaded forms with default arguments,
   dnl memory leaks for PHP4 and PHP5, some problems with ZTS-enabled PHP builds
   dnl (noted on Windows; Linux builds of PHP generally don't enable ZTS), and
   dnl several other issues.
+  dnl 1.3.40 fixes Python 3.0.1 support and removes superfulous GIL locking to
+  dnl workaround mod_python problems.
   v=`$SWIG -version 2>&1|sed 's/^SWIG Version \([[0-9\.]]*\).*/\1/p;d'`
   case $v in
-    [1.3.[3-9][0-9]|1.3.[1-9][0-9][0-9][0-9]*|1.[4-9].*|2.*]) ;;
+    [1.3.[4-9][0-9]|1.[4-9].*|2.*]) ;;
     *)
-      msg="SWIG >= 1.3.33 (SVN rev 10143 or later) required (you have ${v:-an unknown version})"
+      msg="SWIG >= 1.3.40 (SVN rev 11194 or later) required (you have ${v:-an unknown version})"
       if test -n "$swigoverridden" ; then
 	dnl If SWIG was explicitly set, make this a warning only.
 	AC_MSG_WARN([$msg])
@@ -812,7 +815,6 @@ AC_SUBST(BINDINGS)
 
 dnl Set flags to control warnings (enable more, or disable annoying ones)
 dnl and other compiler specific flags.
-AM_CXXFLAGS=
 SWIG_CXXFLAGS=
 JAVA_CXXFLAGS=
 if test yes = "$GXX" ; then
@@ -889,11 +891,18 @@ fi
 AC_SUBST(SWIG_CXXFLAGS)
 AC_SUBST(JAVA_CXXFLAGS)
 
+dnl Restore CXXFLAGS to those the user specified or autoconf defaulted to.
+CXXFLAGS=$save_CXXFLAGS
+
+dnl Required for auto regeneration to work in a combined maintainer-mode tree.
+: ${AUTOM4TE=autom4te}
+AC_SUBST([AUTOM4TE])
+
 AC_CONFIG_FILES([Makefile
  xapian-version.h
  python/Makefile python/docs/Makefile
  php/Makefile php/docs/Makefile
- java/Makefile java/native/Makefile java/org/Makefile java/org/xapian/Makefile
+ java/Makefile java/native/Makefile java/org/xapian/Makefile
  java/org/xapian/errors/Makefile java/org/xapian/examples/Makefile
  java-swig/Makefile
  tcl8/Makefile tcl8/docs/Makefile

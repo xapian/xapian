@@ -1,5 +1,11 @@
 ## Process this file with automake to produce Makefile.in
 
+if MAINTAINER_MODE
+# Export these so that we run the locally installed autotools when building
+# from a bootstrapped SVN tree.
+export ACLOCAL AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE
+endif
+
 # Note: we don't want dist tarballs built with docs missing, so for simplicity
 # this Makefile.am blindly assumes the tools are in place when "make dist" is
 # being run.  For "make all", "make check", etc we carefully skip any docs

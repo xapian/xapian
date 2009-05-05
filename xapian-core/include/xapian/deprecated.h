@@ -1,6 +1,6 @@
 // deprecated.h: Define XAPIAN_DEPRECATED() macro.
 //
-// Copyright (C) 2006,2007 Olly Betts
+// Copyright (C) 2006,2007,2009 Olly Betts
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -28,8 +28,10 @@
 // so check if XAPIAN_DEPRECATED is defined so xapian-bindings can override
 // it.
 #ifndef XAPIAN_DEPRECATED
-# if defined __GNUC__ && (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ > 0))
-// __attribute__((__deprecated__)) is supported by GCC 3.1 and later.
+# ifdef __GNUC__
+// __attribute__((__deprecated__)) is supported by GCC 3.1 and later, which
+// is now our minimum requirement, so there's no need to check the GCC version
+// in use.
 #  define XAPIAN_DEPRECATED(D) D __attribute__((__deprecated__))
 # elif defined _MSC_VER && _MSC_VER >= 1300
 // __declspec(deprecated) is supported by MSVC 7.0 and later.

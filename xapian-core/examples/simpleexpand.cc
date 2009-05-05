@@ -23,8 +23,8 @@
 #include <iostream>
 #include <string>
 
-#include <stdlib.h> // For exit().
-#include <string.h>
+#include <cstdlib> // For exit().
+#include <cstring>
 
 using namespace std;
 

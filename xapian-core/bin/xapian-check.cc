@@ -36,6 +36,7 @@
 
 #include "stringutils.h"
 #include "utils.h"
+#include "valuestats.h"
 
 #include "xapian-check-flint.h"
 
@@ -63,7 +64,8 @@ static void show_usage() {
 }
 
 static size_t check_chert_table(const char * tablename, string table, int opts,
-				std::vector<Xapian::termcount> & doclens);
+				vector<Xapian::termcount> & doclens,
+				Xapian::docid db_last_docid);
 
 static inline bool
 is_user_metadata_key(const string & key)
@@ -114,11 +116,12 @@ main(int argc, char **argv)
 	size_t errors = 0;
 	struct stat sb;
 	string dir(argv[1]);
+#ifdef XAPIAN_HAS_FLINT_BACKEND
 	if (stat((dir + "/iamflint").c_str(), &sb) == 0) {
 	    // Check a whole flint database directory.
 	    try {
 		Xapian::Database db = Xapian::Flint::open(dir);
-		doclens.reserve(db.get_lastdocid());
+		doclens.reserve(db.get_lastdocid() + 1);
 	    } catch (const Xapian::Error & e) {
 		// Ignore so we can check a database too broken to open.
 		cout << "Database couldn't be opened for reading: "
@@ -151,11 +154,18 @@ main(int argc, char **argv)
 		}
 		errors += check_flint_table(*t, table, opts, doclens);
 	    }
-	} else if (stat((dir + "/iamchert").c_str(), &sb) == 0) {
+	} else
+#endif
+#ifdef XAPIAN_HAS_CHERT_BACKEND
+	if (stat((dir + "/iamchert").c_str(), &sb) == 0) {
 	    // Check a whole chert database directory.
+	    // If we can't read the last docid, set it to its maximum value
+	    // to suppress errors.
+	    Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
 	    try {
 		Xapian::Database db = Xapian::Chert::open(dir);
-		doclens.reserve(db.get_lastdocid());
+		db_last_docid = db.get_lastdocid();
+		doclens.reserve(db_last_docid + 1);
 	    } catch (const Xapian::Error & e) {
 		// Ignore so we can check a database too broken to open.
 		cout << "Database couldn't be opened for reading: "
@@ -185,9 +195,12 @@ main(int argc, char **argv)
 			continue;
 		    }
 		}
-		errors += check_chert_table(*t, table, opts, doclens);
+		errors += check_chert_table(*t, table, opts, doclens,
+					    db_last_docid);
 	    }
-	} else {
+	} else
+#endif
+	{
 	    if (stat((dir + "/record_DB").c_str(), &sb) == 0) {
 		// Quartz is no longer supported as of Xapian 1.1.0.
 		cerr << argv[0] << ": '" << dir << "' is a quartz database.\n"
@@ -219,10 +232,12 @@ main(int argc, char **argv)
 
 	    if (flint) {
 		errors = check_flint_table(tablename.c_str(), filename, opts,
-				 	   doclens);
+					   doclens);
 	    } else {
+		// Set the last docid to its maximum value to suppress errors.
+		Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
 		errors = check_chert_table(tablename.c_str(), filename, opts,
-				 	   doclens);
+					   doclens, db_last_docid);
 	    }
 	}
 	if (errors > 0) {
@@ -242,9 +257,16 @@ main(int argc, char **argv)
     }
 }
 
+struct VStats : public ValueStats {
+    Xapian::doccount freq_real;
+
+    VStats() : ValueStats(), freq_real(0) {}
+};
+
 static size_t
 check_chert_table(const char * tablename, string filename, int opts,
-		  vector<Xapian::termcount> & doclens)
+		  vector<Xapian::termcount> & doclens,
+		  Xapian::docid db_last_docid)
 {
     filename += '.';
 
@@ -263,6 +285,7 @@ check_chert_table(const char * tablename, string filename, int opts,
 
     if (strcmp(tablename, "postlist") == 0) {
 	// Now check the structure of each postlist in the table.
+	map<Xapian::valueno, VStats> valuestats;
 	string current_term;
 	Xapian::docid lastdid = 0;
 	Xapian::termcount termfreq = 0, collfreq = 0;
@@ -376,12 +399,24 @@ check_chert_table(const char * tablename, string filename, int opts,
 			break;
 		    }
 
+		    if (did > db_last_docid) {
+			cout << "document id " << did << " in doclen stream "
+			     << "is larger that get_last_docid() "
+			     << db_last_docid << endl;
+			++errors;
+		    }
+
 		    if (!doclens.empty()) {
-			if (did >= doclens.size()) {
-			    cout << "document id " << did << " is larger than any in the termlist table!" << endl;
-			    ++errors;
-			} else if (doclens[did] != doclen) {
-			    cout << "doclen " << doclen << " doesn't match " << doclens[did] << " in the termlist table" << endl;
+			// In chert, a document without terms doesn't get a
+			// termlist entry.
+			Xapian::termcount termlist_doclen = 0;
+			if (did < doclens.size())
+			    termlist_doclen = doclens[did];
+			
+			if (doclen != termlist_doclen) {
+			    cout << "doclen " << doclen << " doesn't match "
+				 << termlist_doclen
+				 << " in the termlist table" << endl;
 			    ++errors;
 			}
 		    }
@@ -419,7 +454,46 @@ check_chert_table(const char * tablename, string filename, int opts,
 
 	    if (key.size() >= 2 && key[0] == '\0' && key[1] == '\xd0') {
 		// Value stats.
-		// FIXME: check
+		const char * p = key.data();
+		const char * end = p + key.length();
+		p += 2;
+		Xapian::valueno slot;
+		if (!unpack_uint_last(&p, end, &slot)) {
+		    cout << "Bad valuestats key (no slot)" << endl;
+		    ++errors;
+		    continue;
+		}
+
+		cursor->read_tag();
+		p = cursor->current_tag.data();
+		end = p + cursor->current_tag.size();
+
+		VStats & v = valuestats[slot];
+		if (!unpack_uint(&p, end, &v.freq)) {
+		    if (*p == 0) {
+			cout << "Incomplete stats item in value table" << endl;
+		    } else {
+			cout << "Frequency statistic in value table is too large" << endl;
+		    }
+		    ++errors;
+		    continue;
+		}
+		if (!unpack_string(&p, end, v.lower_bound)) {
+		    if (*p == 0) {
+			cout << "Incomplete stats item in value table" << endl;
+		    } else {
+			cout << "Lower bound statistic in value table is too large" << endl;
+		    }
+		    ++errors;
+		    continue;
+		}
+		size_t len = end - p;
+		if (len == 0) {
+		    v.upper_bound = v.lower_bound;
+		} else {
+		    v.upper_bound.assign(p, len);
+		}
+
 		continue;
 	    }
 
@@ -446,6 +520,8 @@ check_chert_table(const char * tablename, string filename, int opts,
 		    continue;
 		}
 
+		VStats & v = valuestats[slot];
+
 		cursor->read_tag();
 		p = cursor->current_tag.data();
 		end = p + cursor->current_tag.size();
@@ -457,9 +533,27 @@ check_chert_table(const char * tablename, string filename, int opts,
 			++errors;
 			break;
 		    }
+
+		    ++v.freq_real;
+
 		    // FIXME: Cross-check that docid did has value slot (and
 		    // vice versa - that there's a value here if the slot entry
 		    // says so).
+
+		    // FIXME: Check if the bounds are tight?  Or is that better
+		    // as a separate tool which can also update the bounds?
+		    if (value < v.lower_bound) {
+			cout << "Value slot " << slot << " has value below "
+				"lower bound: '" << value << "' < '"
+			     << v.lower_bound << "'" << endl;
+			++errors;
+		    } else if (value > v.upper_bound) {
+			cout << "Value slot " << slot << " has value above "
+				"upper bound: '" << value << "' > '"
+			     << v.upper_bound << "'" << endl;
+			++errors;
+		    }
+
 		    if (p == end) break;
 		    Xapian::docid delta;
 		    if (!unpack_uint(&p, end, &delta)) {
@@ -474,6 +568,13 @@ check_chert_table(const char * tablename, string filename, int opts,
 			break;
 		    }
 		    did = new_did;
+
+		    if (did > db_last_docid) {
+			cout << "document id " << did << " in value chunk "
+			     << "is larger that get_last_docid() "
+			     << db_last_docid << endl;
+			++errors;
+		    }
 		}
 		continue;
 	    }
@@ -621,6 +722,16 @@ check_chert_table(const char * tablename, string filename, int opts,
 	    cout << "Last term `" << current_term << "' has no last chunk"
 		 << endl;
 	    ++errors;
+	}
+
+	map<Xapian::valueno, VStats>::const_iterator i;
+	for (i = valuestats.begin(); i != valuestats.end(); ++i) {
+	    if (i->second.freq != i->second.freq_real) {
+		cout << "Value stats frequency for slot " << i->first << " is "
+		     << i->second.freq << " but recounting gives "
+		     << i->second.freq_real << endl;
+		++errors;
+	    }
 	}
     } else if (strcmp(tablename, "record") == 0) {
 	// Now check the contents of the record table.  Any data is valid as

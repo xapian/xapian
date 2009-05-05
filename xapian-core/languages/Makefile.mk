@@ -66,13 +66,7 @@ languages/allsnowballheaders.h: languages/generate-allsnowballheaders languages/
 
 BUILT_SOURCES += $(snowball_built_sources)\
 	languages/allsnowballheaders.h
-CLEANFILES += $(snowball_built_sources)\
-	languages/snowball\
-	languages/allsnowballheaders.h
-else
-MAINTAINERCLEANFILES += $(snowball_built_sources)\
-	languages/snowball\
-	languages/allsnowballheaders.h
+CLEANFILES += languages/snowball
 endif
 
 lib_src += $(snowball_built_sources)\

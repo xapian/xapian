@@ -84,4 +84,11 @@ sub convert_to_percent() {
   }
 }
 
+sub matches {
+  my $self = shift;
+  my @array;
+  tie( @array, 'Search::Xapian::MSet::Tied', $self );
+  return @array;
+}
+
 1;

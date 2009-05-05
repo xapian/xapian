@@ -18,6 +18,7 @@ noinst_HEADERS +=\
 	matcher/queryoptimiser.h\
 	matcher/remotesubmatch.h\
 	matcher/selectpostlist.h\
+	matcher/synonympostlist.h\
 	matcher/valuegepostlist.h\
 	matcher/valuerangepostlist.h\
 	matcher/xorpostlist.h
@@ -54,6 +55,7 @@ lib_src +=\
 	matcher/queryoptimiser.cc\
 	matcher/rset.cc\
 	matcher/selectpostlist.cc\
+	matcher/synonympostlist.cc\
 	matcher/valuegepostlist.cc\
 	matcher/valuerangepostlist.cc\
 	matcher/xorpostlist.cc

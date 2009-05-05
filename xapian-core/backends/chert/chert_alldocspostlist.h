@@ -24,7 +24,6 @@
 
 #include <string>
 
-#include "leafpostlist.h"
 #include "chert_postlist.h"
 
 class ChertAllDocsPostList : public ChertPostList {

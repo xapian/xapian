@@ -2,6 +2,7 @@
  * @brief N-way AND postlist
  */
 /* Copyright (C) 2007,2009 Olly Betts
+ * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -135,6 +136,9 @@ class MultiAndPostList : public PostList {
 
     Xapian::doccount get_termfreq_est() const;
 
+    TermFreqs get_termfreq_est_using_stats(
+	const Xapian::Weight::Internal & stats) const;
+
     Xapian::weight get_maxweight() const;
 
     Xapian::docid get_docid() const;
@@ -154,11 +158,13 @@ class MultiAndPostList : public PostList {
     std::string get_description() const;
 
     /** get_wdf() for MultiAndPostlists returns the sum of the wdfs of the
-     *  sub postlists.  The wdf isn't really meaningful in many situations,
-     *  but if the lists are being combined as a synonym we want the sum of
-     *  the wdfs, so we do that in general.
+     *  sub postlists.
+     *
+     *  The wdf isn't really meaningful in many situations, but if the lists
+     *  are being combined as a synonym we want the sum of the wdfs, so we do
+     *  that in general.
      */
-    virtual Xapian::termcount get_wdf() const;
+    Xapian::termcount get_wdf() const;
 };
 
 #endif // XAPIAN_INCLUDED_MULTIANDPOSTLIST_H

@@ -154,6 +154,20 @@ ExactPhrasePostList::get_termfreq_est() const
     return source->get_termfreq_est() / 4;
 }
 
+TermFreqs
+ExactPhrasePostList::get_termfreq_est_using_stats(
+	const Xapian::Weight::Internal & stats) const
+{
+    LOGCALL(MATCH, TermFreqs,
+	    "ExactPhrasePostList::get_termfreq_est_using_stats", stats);
+    // No idea how to estimate this  - do the same as get_termfreq_est() for
+    // now.
+    TermFreqs result(source->get_termfreq_est_using_stats(stats));
+    result.termfreq /= 4;
+    result.reltermfreq /= 4;
+    RETURN(result);
+}
+
 string
 ExactPhrasePostList::get_description() const
 {
