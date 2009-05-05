@@ -3,6 +3,12 @@ Thu Apr 23 17:46:12 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 	* python/smoketest2.py,python/smoketest3.py: Update smoketest test
 	  of FLAG_PARTIAL to expect a SYNONYM operator.
 
+Tue May 05 13:11:43 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	Merge from opsynonym branch:
+	* python/smoketest2.py,python/smoketest3.py: Update tests with
+	  FLAG_PARTIAL to expect SYNONYM in generated query.
+
 Wed Apr 29 15:42:37 GMT 2009  Olly Betts <olly@survex.com>
 
 	* README: Note that the testsuite fails due to a bug in the test/unit
@@ -871,7 +877,7 @@ Wed Mar 12 08:59:30 GMT 2008  Olly Betts <olly@survex.com>
 
 Wed Mar 12 08:57:55 GMT 2008  Olly Betts <olly@survex.com>
 
-		* README,configure.ac,php/Makefile.am,php/docs/Makefile.am,
+	* README,configure.ac,php/Makefile.am,php/docs/Makefile.am,
 	  php/docs/examples/simpleexpand.php4,
 	  php/docs/examples/simpleindex.php4,
 	  php/docs/examples/simplesearch.php4,php/docs/index.html,
