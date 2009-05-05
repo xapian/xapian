@@ -2,6 +2,7 @@
  * @brief Weighting scheme API.
  */
 /* Copyright (C) 2007,2008,2009 Olly Betts
+ * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -212,6 +213,19 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 	       const std::string & term, Xapian::termcount wqf_,
 	       double factor);
 
+    /** @private @internal Initialise this object to calculate weights for a
+     *  synonym.
+     *
+     *  @param stats	   Source of statistics.
+     *  @param query_len_  Query length.
+     *  @param factor	   Any scaling factor (e.g. from OP_SCALE_WEIGHT).
+     *  @param termfreq    The termfreq to use.
+     *  @param reltermfreq The reltermfreq to use.
+     */
+    void init_(const Internal & stats, Xapian::termcount query_len_,
+	       double factor, Xapian::doccount termfreq,
+	       Xapian::doccount reltermfreq);
+
     /** @private @internal Initialise this object to calculate the extra weight
      *  component.
      *
@@ -228,6 +242,15 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      */
     bool get_sumpart_needs_doclength_() const {
 	return stats_needed & DOC_LENGTH;
+    }
+
+    /** @private @internal Return true if the WDF is needed.
+     *
+     *  If this method returns true, then the WDF will be fetched and passed to
+     *  @a get_sumpart().  Otherwise 0 may be passed for the wdf.
+     */
+    bool get_sumpart_needs_wdf_() const {
+	return stats_needed & WDF;
     }
 
   protected:
@@ -373,6 +396,7 @@ class XAPIAN_VISIBILITY_DEFAULT BM25Weight : public Weight {
 	need_stat(RELTERMFREQ);
 	need_stat(WDF);
 	need_stat(WDF_MAX);
+	need_stat(WDF);
 	if (param_k2 != 0 || (param_k1 != 0 && param_b != 0)) {
 	    need_stat(DOC_LENGTH_MIN);
 	    need_stat(AVERAGE_LENGTH);
@@ -392,6 +416,7 @@ class XAPIAN_VISIBILITY_DEFAULT BM25Weight : public Weight {
 	need_stat(RELTERMFREQ);
 	need_stat(WDF);
 	need_stat(WDF_MAX);
+	need_stat(WDF);
 	need_stat(DOC_LENGTH_MIN);
 	need_stat(AVERAGE_LENGTH);
 	need_stat(DOC_LENGTH);
@@ -455,6 +480,7 @@ class XAPIAN_VISIBILITY_DEFAULT TradWeight : public Weight {
 	need_stat(DOC_LENGTH_MIN);
 	need_stat(WDF);
 	need_stat(WDF_MAX);
+	need_stat(WDF);
     }
 
     std::string name() const;

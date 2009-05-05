@@ -2,6 +2,7 @@
  * @brief Convert a Xapian::Query::Internal tree into an optimal PostList tree.
  */
 /* Copyright (C) 2007,2008,2009 Olly Betts
+ * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -87,6 +88,15 @@ class QueryOptimiser {
      *  @return		A PostList subtree.
      */
     PostList * do_or_like(const Xapian::Query::Internal *query, double factor);
+
+    /** Optimise a synonym Xapian::Query::Internal subtree into a PostList
+     *
+     *  @param query	The subtree to optimise.
+     *  @param factor	How much to scale weights for this subtree by.
+     *
+     *  @return		A PostList subtree.
+     */
+    PostList * do_synonym(const Xapian::Query::Internal *query, double factor);
 
   public:
     QueryOptimiser(const Xapian::Database::Internal & db_,

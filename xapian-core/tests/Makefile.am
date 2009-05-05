@@ -116,6 +116,7 @@ collated_apitest_sources = \
  api_db.cc \
  api_generated.cc \
  api_nodb.cc \
+ api_opsynonym.cc \
  api_percentages.cc \
  api_posdb.cc \
  api_query.cc \

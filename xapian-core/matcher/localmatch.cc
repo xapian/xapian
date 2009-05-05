@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
- * Copyright 2007 Lemur Consulting Ltd
+ * Copyright 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,6 +31,7 @@
 #include "omdebug.h"
 #include "omqueryinternal.h"
 #include "queryoptimiser.h"
+#include "synonympostlist.h"
 #include "weightinternal.h"
 
 #include <cfloat>
@@ -108,6 +109,23 @@ LocalSubMatch::get_postlist_and_term_info(MultiMatch * matcher,
     }
 
     RETURN(pl);
+}
+
+PostList *
+LocalSubMatch::make_synonym_postlist(PostList * or_pl, MultiMatch * matcher,
+				     double factor)
+{
+    DEBUGCALL(MATCH, PostList *, "LocalSubMatch::make_synonym_postlist",
+	      "[or_pl], [matcher], " << factor);
+    LOGVALUE(MATCH, or_pl->get_termfreq_est());
+    AutoPtr<SynonymPostList> res(new SynonymPostList(or_pl, matcher));
+    AutoPtr<Xapian::Weight> wt(wt_factory->clone_());
+
+    TermFreqs freqs(or_pl->get_termfreq_est_using_stats(*stats));
+    wt->init_(*stats, qlen, factor, freqs.termfreq, freqs.reltermfreq);
+
+    res->set_weight(wt.release());
+    RETURN(res.release());
 }
 
 PostList *

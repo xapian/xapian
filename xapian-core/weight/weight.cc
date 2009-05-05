@@ -2,6 +2,7 @@
  * @brief Xapian::Weight base class
  */
 /* Copyright (C) 2007,2008,2009 Olly Betts
+ * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -74,6 +75,39 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length,
 	reltermfreq_ = stats.get_reltermfreq(term);
     query_length_ = query_length;
     wqf_ = wqf;
+    init(factor);
+}
+
+void
+Weight::init_(const Internal & stats, Xapian::termcount query_length,
+	      double factor, Xapian::doccount termfreq,
+	      Xapian::doccount reltermfreq)
+{
+    LOGCALL_VOID(MATCH, "Weight::init_", stats << ", " << query_length <<
+	    ", " << factor << ", " << termfreq << ", " << reltermfreq);
+    // Synonym case.
+    collection_size_ = stats.collection_size;
+    rset_size_ = stats.rset_size;
+    if (stats_needed & AVERAGE_LENGTH)
+	average_length_ = stats.get_average_length();
+    if (stats_needed & DOC_LENGTH_MAX)
+	doclength_upper_bound_ = stats.db.get_doclength_upper_bound();
+    if (stats_needed & DOC_LENGTH_MIN)
+	doclength_lower_bound_ = stats.db.get_doclength_lower_bound();
+
+    // The doclength is an upper bound on the wdf.  This is obviously true for
+    // normal terms, but SynonymPostList ensures that it is also true for
+    // synonym terms by clamping the wdf values returned to the doclength.
+    //
+    // (This clamping is only actually necessary in cases where a constituent
+    // term of the synonym is repeated.)
+    if (stats_needed & WDF_MAX)
+	wdf_upper_bound_ = stats.db.get_doclength_upper_bound();
+
+    termfreq_ = termfreq;
+    reltermfreq_ = reltermfreq;
+    query_length_ = query_length;
+    wqf_ = 1;
     init(factor);
 }
 

@@ -794,10 +794,15 @@ new_greatest_weight:
 
 		LOGVALUE(MATCH, denom);
 		LOGVALUE(MATCH, percent_scale);
-		Assert(percent_scale <= denom);
-		denom *= greatest_wt;
-		Assert(denom > 0);
-		percent_scale /= denom;
+		AssertRel(percent_scale,<=,denom);
+		if (denom == 0) {
+		    // This happens if the top-level operator is OP_SYNONYM.
+		    percent_scale = 1.0 / greatest_wt;
+		} else {
+		    denom *= greatest_wt;
+		    AssertRel(denom,>,0);
+		    percent_scale /= denom;
+		}
 	    } else {
 		// If all the terms match, the 2 sums of weights cancel
 		percent_scale = 1.0 / greatest_wt;

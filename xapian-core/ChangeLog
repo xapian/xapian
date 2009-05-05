@@ -1,3 +1,21 @@
+Tue May 05 12:18:06 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	Merge from opsynonym branch:
+	* api/omqueryinternal.cc,include/xapian/query.h,matcher/,
+	  weight/weight.cc: Implement a new OP_SYNONYM query operator,
+	  which behaves similarly to OP_OR, but produces weights for the
+	  combined set of terms as if they were a single term (by merging
+	  their wdfs).
+	* tests/Makefile.am,tests/api_opsynonym.cc: Add tests for the
+	  OP_SYNONYM operator.
+	* include/xapian/weight.h: Add a Weight::init_() method for
+	  synonym, since there isn't a single term involved.  Also,
+	  requires a method get_sumpart_needs_wdf_() to check if wdfs are
+	  needed, since the synonym weight calculation requires fetching
+	  the doclength, which is potentially expensive, in order that the
+	  wdf returned can be clamped to a sane range.  Mark the weighting
+	  methods which require WDF with need_stat(WDF).
+
 Tue May 05 12:04:33 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* common/remoteprotocol.h: Add comment to remind use to do the

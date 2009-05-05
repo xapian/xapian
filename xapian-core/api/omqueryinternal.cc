@@ -65,6 +65,7 @@ get_min_subqs(Xapian::Query::Internal::op_t op)
 	case Xapian::Query::OP_VALUE_RANGE:
 	case Xapian::Query::OP_VALUE_GE:
 	case Xapian::Query::OP_VALUE_LE:
+	case Xapian::Query::OP_SYNONYM:
 	    return 0;
 	case Xapian::Query::OP_SCALE_WEIGHT:
 	    return 1;
@@ -100,6 +101,7 @@ get_max_subqs(Xapian::Query::Internal::op_t op)
 	case Xapian::Query::OP_NEAR:
 	case Xapian::Query::OP_PHRASE:
 	case Xapian::Query::OP_ELITE_SET:
+	case Xapian::Query::OP_SYNONYM:
 	    return UINT_MAX;
 	default:
 	    Assert(false);
@@ -221,6 +223,9 @@ Xapian::Query::Internal::serialise(Xapian::termpos & curpos) const
 		result += ".";
 		result += str_parameter; // serialise_double(get_dbl_parameter());
 		break;
+	    case Xapian::Query::OP_SYNONYM:
+		result += "=";
+		break;
 	}
     }
     return result;
@@ -251,6 +256,7 @@ Xapian::Query::Internal::get_op_name(Xapian::Query::Internal::op_t op)
 	case Xapian::Query::OP_VALUE_GE:        name = "VALUE_GE"; break;
 	case Xapian::Query::OP_VALUE_LE:        name = "VALUE_LE"; break;
 	case Xapian::Query::OP_SCALE_WEIGHT:    name = "SCALE_WEIGHT"; break;
+	case Xapian::Query::OP_SYNONYM:         name = "SYNONYM"; break;
     }
     return name;
 }
@@ -584,7 +590,10 @@ QUnserial::readcompound() {
 		    return qint_from_vector(Xapian::Query::OP_SCALE_WEIGHT,
 					    subqs, 0, param);
 		}
-	        default:
+		case '=': {
+		    return qint_from_vector(Xapian::Query::OP_SYNONYM, subqs);
+		}
+		default:
 		    LOGLINE(UNKNOWN, "Can't parse remainder `" << p - 1 << "'");
 		    throw Xapian::InvalidArgumentError("Invalid query string");
 	    }
@@ -809,6 +818,7 @@ Xapian::Query::Internal::simplify_matchnothing()
         case OP_ELITE_SET:
         case OP_OR:
         case OP_XOR:
+	case OP_SYNONYM:
             // Doing an "OR" type operation - if we've got any MatchNothing
             // subnodes, drop them; except that we mustn't become an empty
             // node due to this, so we never drop a MatchNothing subnode
@@ -900,7 +910,7 @@ Xapian::Query::Internal::simplify_query()
 		}
 	    }
 	    break;
-	case OP_OR: case OP_AND: case OP_XOR:
+	case OP_OR: case OP_AND: case OP_XOR: case OP_SYNONYM:
 	    // Remove duplicates if we can.
 	    if (subqs.size() > 1) collapse_subqs();
 	    break;
@@ -944,7 +954,7 @@ struct SortPosName {
 void
 Xapian::Query::Internal::collapse_subqs()
 {
-    Assert(op == OP_OR || op == OP_AND || op == OP_XOR);
+    Assert(op == OP_OR || op == OP_AND || op == OP_XOR || op == OP_SYNONYM);
     typedef set<Xapian::Query::Internal *, SortPosName> subqtable;
     subqtable sqtab;
 
@@ -1038,7 +1048,7 @@ Xapian::Query::Internal::add_subquery(const Xapian::Query::Internal * subq)
     Assert(!is_leaf(op));
     if (subq == 0) {
 	subqs.push_back(0);
-    } else if (op == subq->op && (op == OP_AND || op == OP_OR || op == OP_XOR)) {
+    } else if (op == subq->op && (op == OP_AND || op == OP_OR || op == OP_XOR || op == OP_SYNONYM)) {
 	// Distribute the subquery.
 	for (subquery_list::const_iterator i = subq->subqs.begin();
 	     i != subq->subqs.end(); i++) {
@@ -1055,7 +1065,7 @@ Xapian::Query::Internal::add_subquery_nocopy(Xapian::Query::Internal * subq)
     Assert(!is_leaf(op));
     if (subq == 0) {
 	subqs.push_back(0);
-    } else if (op == subq->op && (op == OP_AND || op == OP_OR || op == OP_XOR)) {
+    } else if (op == subq->op && (op == OP_AND || op == OP_OR || op == OP_XOR || op == OP_SYNONYM)) {
 	// Distribute the subquery.
 	for (subquery_list::const_iterator i = subq->subqs.begin();
 	     i != subq->subqs.end(); i++) {
