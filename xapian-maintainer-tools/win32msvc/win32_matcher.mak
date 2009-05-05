@@ -34,6 +34,7 @@ OBJS= \
     $(INTDIR)\queryoptimiser.obj\
     $(INTDIR)\rset.obj\
     $(INTDIR)\selectpostlist.obj\
+    $(INTDIR)\synonympostlist.obj\
     $(INTDIR)\valuerangepostlist.obj\
     $(INTDIR)\valuegepostlist.obj\
     $(INTDIR)\xorpostlist.obj\
@@ -60,6 +61,7 @@ SRCS= \
     $(INTDIR)\queryoptimiser.cc\
     $(INTDIR)\rset.cc\
     $(INTDIR)\selectpostlist.cc\
+    $(INTDIR)\synonympostlist.cc\
     $(INTDIR)\valuerangepostlist.cc\
     $(INTDIR)\valuegepostlist.cc\
     $(INTDIR)\xorpostlist.cc\

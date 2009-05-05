@@ -1,3 +1,7 @@
+Tue May 05 12:42:26 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* win32_matcher.mak: Add synoympostlist.cc to build.
+
 Fri May 01 15:40:48 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* win32_tests.mak: Add api_replicate.cc and api_serialise.cc, and
