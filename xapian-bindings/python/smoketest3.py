@@ -153,7 +153,7 @@ def test_all():
 
     # Feature test for Document.values
     count = 0
-    for term in doc.values():
+    for term in list(doc.values()):
         count += 1
     expect(count, 0, "Unexpected number of entries in doc.values")
 
@@ -213,7 +213,7 @@ def test_all():
     qp.set_stemming_strategy(qp.STEM_SOME)
     qp.set_stemmer(xapian.Stem('en'))
     expect_query(qp.parse_query("foo o", qp.FLAG_PARTIAL),
-                 "(Zfoo:(pos=1) AND (out:(pos=2) OR outsid:(pos=2) OR Zo:(pos=2)))")
+                 "(Zfoo:(pos=1) AND ((out:(pos=2) SYNONYM outsid:(pos=2)) OR Zo:(pos=2)))")
 
     expect_query(qp.parse_query("foo outside", qp.FLAG_PARTIAL),
                  "(Zfoo:(pos=1) AND Zoutsid:(pos=2))")
