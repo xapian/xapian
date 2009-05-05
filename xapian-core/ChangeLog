@@ -1,3 +1,7 @@
+Tue May 05 02:15:35 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/contiguousalldocspostlist.h: Wrap comment.
+
 Tue May 05 02:04:02 GMT 2009  Olly Betts <olly@survex.com>
 
 	* common/Makefile.mk: Move str.h into alphabetical order.
