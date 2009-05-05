@@ -81,6 +81,7 @@ XAPIAN_OUTPUT_FUNCTION(Xapian::DatabaseMaster)
 XAPIAN_OUTPUT_FUNCTION(Xapian::DatabaseReplica)
 
 #include "weightinternal.h"
+XAPIAN_OUTPUT_FUNCTION(TermFreqs)
 XAPIAN_OUTPUT_FUNCTION(Xapian::Weight::Internal)
 
 #endif /* XAPIAN_INCLUDED_OUTPUT_H */

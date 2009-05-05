@@ -1,3 +1,7 @@
+Tue May 05 10:53:11 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/output.h: Add output function for TermFreqs.
+
 Tue May 05 08:23:28 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/leafpostlist.cc,api/postlist.cc,common/emptypostlist.h,
