@@ -56,14 +56,14 @@ NetworkPostList::get_wdf() const
 PositionList *
 NetworkPostList::read_position_list()
 {
-    lastposlist = db->open_position_list(lastdocid, tname);
+    lastposlist = db->open_position_list(lastdocid, term);
     return lastposlist.get();
 }
 
 PositionList *
 NetworkPostList::open_position_list() const
 {
-    return db->open_position_list(lastdocid, tname);
+    return db->open_position_list(lastdocid, term);
 }
 
 PostList *
@@ -105,5 +105,5 @@ NetworkPostList::at_end() const
 string
 NetworkPostList::get_description() const
 {
-    return "NetworkPostList(" + tname + ")";
+    return "NetworkPostList(" + term + ")";
 }

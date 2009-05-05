@@ -204,7 +204,7 @@ class FlintPostList : public TermBasedLeafPostList {
     public:
 	/// Default constructor.
 	FlintPostList(Xapian::Internal::RefCntPtr<const FlintDatabase> this_db_,
-		      const string & tname);
+		      const string & term_);
 
 	/// Destructor.
 	~FlintPostList();

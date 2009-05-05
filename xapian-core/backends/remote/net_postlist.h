@@ -64,7 +64,7 @@ class NetworkPostList : public TermBasedLeafPostList {
 	  db(db_), started(false), pos(NULL), pos_end(NULL),
 	  lastdocid(0), lastwdf(0), termfreq(0)
     {
-	termfreq = db->read_post_list(tname, *this);
+	termfreq = db->read_post_list(term, *this);
     }
 
     /// Get number of documents indexed by this term.

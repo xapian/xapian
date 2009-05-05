@@ -88,10 +88,10 @@ TermBasedLeafPostList::get_termfreq_est_using_stats(
 {
     LOGCALL(MATCH, TermFreqs,
 	    "TermBasedLeafPostList::get_termfreq_est_using_stats", stats);
-    if (tname.empty()) {
+    if (term.empty()) {
 	RETURN(TermFreqs(stats.collection_size, stats.rset_size));
     }
     std::map<std::string, TermFreqs>::const_iterator i =
-	    stats.termfreqs.find(tname);
+	    stats.termfreqs.find(term);
     RETURN(i->second);
 }

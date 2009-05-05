@@ -89,11 +89,11 @@ class TermBasedLeafPostList : public LeafPostList {
 
   protected:
     /// The term name for this postlist ("" for an alldocs postlist).
-    std::string tname;
+    std::string term;
 
     /// Only constructable as a base class for derived classes.
-    TermBasedLeafPostList(const std::string & tname_)
-	    : LeafPostList(), tname(tname_) {}
+    TermBasedLeafPostList(const std::string & term_)
+	    : LeafPostList(), term(term_) {}
 
   public:
     TermFreqs get_termfreq_est_using_stats(

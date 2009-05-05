@@ -78,12 +78,12 @@ InMemoryDoc::add_posting(const InMemoryTermEntry & post)
 //////////////
 
 InMemoryPostList::InMemoryPostList(Xapian::Internal::RefCntPtr<const InMemoryDatabase> db_,
-				   const InMemoryTerm & term,
-				   const std::string & tname_)
-	: TermBasedLeafPostList(tname_),
-	  pos(term.docs.begin()),
-	  end(term.docs.end()),
-	  termfreq(term.term_freq),
+				   const InMemoryTerm & imterm,
+				   const std::string & term_)
+	: TermBasedLeafPostList(term_),
+	  pos(imterm.docs.begin()),
+	  end(imterm.docs.end()),
+	  termfreq(imterm.term_freq),
 	  started(false),
 	  db(db_)
 {

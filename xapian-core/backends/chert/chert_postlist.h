@@ -220,7 +220,7 @@ class ChertPostList : public TermBasedLeafPostList {
     public:
 	/// Default constructor.
 	ChertPostList(Xapian::Internal::RefCntPtr<const ChertDatabase> this_db_,
-		      const string & tname,
+		      const string & term,
 		      bool keep_reference);
 
 	/// Destructor.
