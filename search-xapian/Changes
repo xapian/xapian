@@ -5,6 +5,10 @@ Revision history for Perl extension Search::Xapian.
 	- Add Search::Xapian::MSet::matches() method which returns an array
 	  tied to the MSet (much like Search::Xapian::Enquire::matches(), but
 	  you get access to the MSet object itself).
+	- Add new translated version of the simple examples from the Python
+	  bindings (no simplematchdecider yet).
+	- Add more fully featured examples: full-indexer.pl and
+	  full-searcher.pl.
 
 1.0.12.0  Sun Apr 19 11:18:04 GMT 2009
 	[Changes contributed by Olly Betts]
