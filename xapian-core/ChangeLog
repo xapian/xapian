@@ -1,3 +1,12 @@
+Tue May 05 06:47:11 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/,backends/flint/flint_modifiedpostlist.cc,
+	  backends/flint/flint_postlist.cc,backends/flint/flint_postlist.h:
+	  Rename "tname" parameters to LeafPostList subclasses to "term".
+	* backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h: Rename term parameter of
+	  type InMemoryTerm to imterm ready for opsynonym branch changes.
+
 Tue May 05 04:51:28 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_alldocspostlist.h,matcher/multimatch.cc:

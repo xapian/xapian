@@ -130,7 +130,7 @@ class ChertPostList : public LeafPostList {
 	Xapian::Internal::RefCntPtr<const ChertDatabase> this_db;
 
 	/// The termname for this postlist.
-	string tname;
+	string term;
 
 	/// Whether we've started reading the list yet.
 	bool have_started;
@@ -223,7 +223,7 @@ class ChertPostList : public LeafPostList {
     public:
 	/// Default constructor.
 	ChertPostList(Xapian::Internal::RefCntPtr<const ChertDatabase> this_db_,
-		      const string & tname,
+		      const string & term,
 		      bool keep_reference);
 
 	/// Destructor.

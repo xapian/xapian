@@ -78,10 +78,10 @@ InMemoryDoc::add_posting(const InMemoryTermEntry & post)
 //////////////
 
 InMemoryPostList::InMemoryPostList(Xapian::Internal::RefCntPtr<const InMemoryDatabase> db_,
-				   const InMemoryTerm & term)
-	: pos(term.docs.begin()),
-	  end(term.docs.end()),
-	  termfreq(term.term_freq),
+				   const InMemoryTerm & imterm)
+	: pos(imterm.docs.begin()),
+	  end(imterm.docs.end()),
+	  termfreq(imterm.term_freq),
 	  started(false),
 	  db(db_)
 {

@@ -111,7 +111,7 @@ class FlintPostList : public LeafPostList {
 	Xapian::Internal::RefCntPtr<const FlintDatabase> this_db;
 
 	/// The termname for this postlist.
-	string tname;
+	string term;
 
 	/// Whether we've started reading the list yet.
 	bool have_started;
@@ -207,7 +207,7 @@ class FlintPostList : public LeafPostList {
     public:
 	/// Default constructor.
 	FlintPostList(Xapian::Internal::RefCntPtr<const FlintDatabase> this_db_,
-		      const string & tname);
+		      const string & term_);
 
 	/// Destructor.
 	~FlintPostList();

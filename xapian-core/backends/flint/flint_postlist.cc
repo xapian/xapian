@@ -653,16 +653,16 @@ void FlintPostList::read_number_of_entries(const char ** posptr,
  *  standard chunk.
  */
 FlintPostList::FlintPostList(Xapian::Internal::RefCntPtr<const FlintDatabase> this_db_,
-			     const string & tname_)
+			     const string & term_)
 	: this_db(this_db_),
-	  tname(tname_),
+	  term(term_),
 	  have_started(false),
 	  cursor(this_db->postlist_table.cursor_get()),
 	  is_at_end(false)
 {
     DEBUGCALL(DB, void, "FlintPostList::FlintPostList",
-	      this_db_.get() << ", " << tname_);
-    string key = FlintPostListTable::make_key(tname);
+	      this_db_.get() << ", " << term_);
+    string key = FlintPostListTable::make_key(term);
     int found = cursor->find_entry(key);
     if (!found) {
 	number_of_entries = 0;
@@ -719,15 +719,15 @@ FlintPostList::next_chunk()
     if (cursor->after_end()) {
 	is_at_end = true;
 	throw Xapian::DatabaseCorruptError("Unexpected end of posting list for `" +
-				     tname + "'");
+				     term + "'");
     }
     const char * keypos = cursor->current_key.data();
     const char * keyend = keypos + cursor->current_key.size();
     // Check we're still in same postlist
-    if (!check_tname_in_key_lite(&keypos, keyend, tname)) {
+    if (!check_tname_in_key_lite(&keypos, keyend, term)) {
 	is_at_end = true;
 	throw Xapian::DatabaseCorruptError("Unexpected end of posting list for `" +
-				     tname + "'");
+				     term + "'");
     }
 
     Xapian::docid newdid;
@@ -756,7 +756,7 @@ PositionList *
 FlintPostList::read_position_list()
 {
     DEBUGCALL(DB, PositionList *, "FlintPostList::read_position_list", "");
-    positionlist.read_data(&this_db->position_table, did, tname);
+    positionlist.read_data(&this_db->position_table, did, term);
     RETURN(&positionlist);
 }
 
@@ -764,7 +764,7 @@ PositionList *
 FlintPostList::open_position_list() const
 {
     DEBUGCALL(DB, PositionList *, "FlintPostList::open_position_list", "");
-    RETURN(new FlintPositionList(&this_db->position_table, did, tname));
+    RETURN(new FlintPositionList(&this_db->position_table, did, term));
 }
 
 PostList *
@@ -805,13 +805,13 @@ FlintPostList::move_to_chunk_containing(Xapian::docid desired_did)
 {
     DEBUGCALL(DB, void,
 	      "FlintPostList::move_to_chunk_containing", desired_did);
-    (void)cursor->find_entry(FlintPostListTable::make_key(tname, desired_did));
+    (void)cursor->find_entry(FlintPostListTable::make_key(term, desired_did));
     Assert(!cursor->after_end());
 
     const char * keypos = cursor->current_key.data();
     const char * keyend = keypos + cursor->current_key.size();
     // Check we're still in same postlist
-    if (!check_tname_in_key_lite(&keypos, keyend, tname)) {
+    if (!check_tname_in_key_lite(&keypos, keyend, term)) {
 	// This should only happen if the postlist doesn't exist at all.
 	is_at_end = true;
 	is_last_chunk = true;
@@ -906,7 +906,7 @@ FlintPostList::skip_to(Xapian::docid desired_did, Xapian::weight w_min)
 string
 FlintPostList::get_description() const
 {
-    return tname + ":" + om_tostring(number_of_entries);
+    return term + ":" + om_tostring(number_of_entries);
 }
 
 // Returns the last did to allow in this chunk.

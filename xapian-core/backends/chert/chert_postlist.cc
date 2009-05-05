@@ -658,17 +658,17 @@ void ChertPostList::read_number_of_entries(const char ** posptr,
  *  standard chunk.
  */
 ChertPostList::ChertPostList(Xapian::Internal::RefCntPtr<const ChertDatabase> this_db_,
-			     const string & tname_,
+			     const string & term_,
 			     bool keep_reference)
 	: this_db(keep_reference ? this_db_ : NULL),
-	  tname(tname_),
+	  term(term_),
 	  have_started(false),
 	  cursor(this_db_->postlist_table.cursor_get()),
 	  is_at_end(false)
 {
     DEBUGCALL(DB, void, "ChertPostList::ChertPostList",
-	      this_db_.get() << ", " << tname_ << ", " << keep_reference);
-    string key = ChertPostListTable::make_key(tname);
+	      this_db_.get() << ", " << term_ << ", " << keep_reference);
+    string key = ChertPostListTable::make_key(term);
     int found = cursor->find_entry(key);
     if (!found) {
 	LOGLINE(DB, "postlist for term not found");
@@ -736,15 +736,15 @@ ChertPostList::next_chunk()
     if (cursor->after_end()) {
 	is_at_end = true;
 	throw Xapian::DatabaseCorruptError("Unexpected end of posting list for `" +
-				     tname + "'");
+				     term + "'");
     }
     const char * keypos = cursor->current_key.data();
     const char * keyend = keypos + cursor->current_key.size();
     // Check we're still in same postlist
-    if (!check_tname_in_key_lite(&keypos, keyend, tname)) {
+    if (!check_tname_in_key_lite(&keypos, keyend, term)) {
 	is_at_end = true;
 	throw Xapian::DatabaseCorruptError("Unexpected end of posting list for `" +
-				     tname + "'");
+				     term + "'");
     }
 
     Xapian::docid newdid;
@@ -774,7 +774,7 @@ ChertPostList::read_position_list()
 {
     DEBUGCALL(DB, PositionList *, "ChertPostList::read_position_list", "");
     Assert(this_db.get());
-    positionlist.read_data(&this_db->position_table, did, tname);
+    positionlist.read_data(&this_db->position_table, did, term);
     RETURN(&positionlist);
 }
 
@@ -783,7 +783,7 @@ ChertPostList::open_position_list() const
 {
     DEBUGCALL(DB, PositionList *, "ChertPostList::open_position_list", "");
     Assert(this_db.get());
-    RETURN(new ChertPositionList(&this_db->position_table, did, tname));
+    RETURN(new ChertPositionList(&this_db->position_table, did, term));
 }
 
 PostList *
@@ -823,13 +823,13 @@ ChertPostList::move_to_chunk_containing(Xapian::docid desired_did)
 {
     DEBUGCALL(DB, void,
 	      "ChertPostList::move_to_chunk_containing", desired_did);
-    (void)cursor->find_entry(ChertPostListTable::make_key(tname, desired_did));
+    (void)cursor->find_entry(ChertPostListTable::make_key(term, desired_did));
     Assert(!cursor->after_end());
 
     const char * keypos = cursor->current_key.data();
     const char * keyend = keypos + cursor->current_key.size();
     // Check we're still in same postlist
-    if (!check_tname_in_key_lite(&keypos, keyend, tname)) {
+    if (!check_tname_in_key_lite(&keypos, keyend, term)) {
 	// This should only happen if the postlist doesn't exist at all.
 	is_at_end = true;
 	is_last_chunk = true;
@@ -954,7 +954,7 @@ ChertPostList::jump_to(Xapian::docid desired_did)
 string
 ChertPostList::get_description() const
 {
-    return tname + ":" + om_tostring(number_of_entries);
+    return term + ":" + om_tostring(number_of_entries);
 }
 
 // Returns the last did to allow in this chunk.

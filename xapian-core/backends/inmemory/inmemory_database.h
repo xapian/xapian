@@ -148,7 +148,7 @@ class InMemoryPostList : public LeafPostList {
 	Xapian::Internal::RefCntPtr<const InMemoryDatabase> db;
 
 	InMemoryPostList(Xapian::Internal::RefCntPtr<const InMemoryDatabase> db,
-			 const InMemoryTerm & term);
+			 const InMemoryTerm & imterm);
     public:
 	Xapian::doccount get_termfreq() const;
 
