@@ -53,7 +53,8 @@ class ContiguousAllDocsPostList : public TermBasedLeafPostList {
 
     /** Return the term frequency.
      *
-     *  For an all documents postlist, this is the number of documents in the database.
+     *  For an all documents postlist, this is the number of documents in the
+     *  database.
      */
     Xapian::doccount get_termfreq() const;
 

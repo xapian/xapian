@@ -260,9 +260,8 @@ DEFINE_TESTCASE(valuestats3, valuestats) {
     return true;
 }
 
-DEFINE_TESTCASE(valuestats4, writable && valuestats) {
+DEFINE_TESTCASE(valuestats4, writable && valuestats && transactions) {
     const size_t FLUSH_THRESHOLD = 10000;
-    SKIP_TEST_FOR_BACKEND("inmemory");
     {
 	Xapian::WritableDatabase db_w = get_writable_database();
 	Xapian::Document doc;
