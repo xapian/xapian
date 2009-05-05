@@ -84,7 +84,7 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length,
 	      Xapian::doccount reltermfreq)
 {
     LOGCALL_VOID(MATCH, "Weight::init_", stats << ", " << query_length <<
-	    ", " << factor << ", " << termfreq);
+	    ", " << factor << ", " << termfreq << ", " << reltermfreq);
     // Synonym case.
     collection_size_ = stats.collection_size;
     rset_size_ = stats.rset_size;
