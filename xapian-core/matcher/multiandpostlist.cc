@@ -2,6 +2,7 @@
  * @brief N-way AND postlist
  */
 /* Copyright (C) 2007,2009 Olly Betts
+ * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,6 +23,7 @@
 
 #include "multiandpostlist.h"
 #include "omassert.h"
+#include "debuglog.h"
 
 MultiAndPostList::~MultiAndPostList()
 {
@@ -82,6 +84,38 @@ MultiAndPostList::get_termfreq_est() const
 	result = (result * plist[i]->get_termfreq_est()) / db_size;
     }
     return static_cast<Xapian::doccount>(result + 0.5);
+}
+
+TermFreqs
+MultiAndPostList::get_termfreq_est_using_stats(
+	const Xapian::Weight::Internal & stats) const 
+{
+    LOGCALL(MATCH, TermFreqs,
+	    "MultiAndPostList::get_termfreq_est_using_stats", stats);
+    // We calculate the estimate assuming independence.  With this assumption,
+    // the estimate is the product of the estimates for the sub-postlists
+    // divided by db_size (n_kids - 1) times.
+    TermFreqs freqs(plist[0]->get_termfreq_est_using_stats(stats));
+
+    double freqest = double(freqs.termfreq);
+    double relfreqest = double(freqs.reltermfreq);
+
+    for (size_t i = 1; i < n_kids; ++i) {
+	freqs = plist[i]->get_termfreq_est_using_stats(stats);
+
+	// If the collection is empty, freqest should be 0 already, so leave
+	// it alone.
+	if (stats.collection_size != 0)
+	    freqest = (freqest * freqs.termfreq) / stats.collection_size;
+
+	// If the rset is empty, relfreqest should be 0 already, so leave
+	// it alone.
+	if (stats.rset_size != 0)
+	    relfreqest = (relfreqest * freqs.reltermfreq) / stats.rset_size;
+    }
+
+    RETURN(TermFreqs(static_cast<Xapian::doccount>(freqest + 0.5),
+		     static_cast<Xapian::doccount>(relfreqest + 0.5)));
 }
 
 Xapian::weight

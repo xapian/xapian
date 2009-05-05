@@ -129,6 +129,15 @@ SynonymPostList::get_termfreq_max() const {
     RETURN(subtree->get_termfreq_max());
 }
 
+TermFreqs
+SynonymPostList::get_termfreq_est_using_stats(
+	const Xapian::Weight::Internal & stats) const
+{
+    LOGCALL(MATCH, TermFreqs,
+	    "SynonymPostList::get_termfreq_est_using_stats", stats);
+    RETURN(subtree->get_termfreq_est_using_stats(stats));
+}
+
 Xapian::docid
 SynonymPostList::get_docid() const {
     LOGCALL(MATCH, Xapian::docid, "SynonymPostList::get_docid", "");

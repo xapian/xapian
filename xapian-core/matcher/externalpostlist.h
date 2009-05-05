@@ -56,6 +56,9 @@ class ExternalPostList : public PostList {
 
     Xapian::doccount get_termfreq_max() const;
 
+    TermFreqs get_termfreq_est_using_stats(
+	const Xapian::Weight::Internal & stats) const;
+
     Xapian::weight get_maxweight() const;
 
     Xapian::docid get_docid() const;

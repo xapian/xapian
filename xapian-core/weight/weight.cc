@@ -2,6 +2,7 @@
  * @brief Xapian::Weight base class
  */
 /* Copyright (C) 2007,2008,2009 Olly Betts
+ * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -79,7 +80,8 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length,
 
 void
 Weight::init_(const Internal & stats, Xapian::termcount query_length,
-	      double factor, Xapian::doccount termfreq)
+	      double factor, Xapian::doccount termfreq,
+	      Xapian::doccount reltermfreq)
 {
     LOGCALL_VOID(MATCH, "Weight::init_", stats << ", " << query_length <<
 	    ", " << factor << ", " << termfreq);
@@ -103,7 +105,7 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length,
 	wdf_upper_bound_ = stats.db.get_doclength_upper_bound();
 
     termfreq_ = termfreq;
-    reltermfreq_ = 0;
+    reltermfreq_ = reltermfreq;
     query_length_ = query_length;
     wqf_ = 1;
     init(factor);

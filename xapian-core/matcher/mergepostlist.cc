@@ -137,6 +137,15 @@ MergePostList::get_termfreq_est() const
     return total;
 }
 
+TermFreqs
+MergePostList::get_termfreq_est_using_stats(
+	const Xapian::Weight::Internal &) const
+{
+    // Should never get called.
+    Assert(false);
+    return TermFreqs();
+}
+
 Xapian::docid
 MergePostList::get_docid() const
 {

@@ -72,6 +72,15 @@ ExternalPostList::get_termfreq_max() const
     return source->get_termfreq_max();
 }
 
+TermFreqs
+ExternalPostList::get_termfreq_est_using_stats(
+	const Xapian::Weight::Internal &) const
+{
+    // Should never get called.
+    Assert(false);
+    return TermFreqs();
+}
+
 Xapian::weight
 ExternalPostList::get_maxweight() const
 {

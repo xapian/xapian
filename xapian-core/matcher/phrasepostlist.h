@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2003,2004,2005 Olly Betts
+ * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -53,6 +54,9 @@ class NearPostList : public SelectPostList {
 	    return source->get_termfreq_est() / 2;
 	}
 
+	TermFreqs get_termfreq_est_using_stats(
+            const Xapian::Weight::Internal & stats) const;
+
         NearPostList(PostList *source_, Xapian::termpos window_,
 		     std::vector<PostList *> terms_)
 		: SelectPostList(source_)
@@ -86,6 +90,9 @@ class PhrasePostList : public SelectPostList {
 	    // No idea how to estimate this - FIXME
 	    return source->get_termfreq_est() / 3;
 	}
+
+	TermFreqs get_termfreq_est_using_stats(
+            const Xapian::Weight::Internal & stats) const;
 
         PhrasePostList(PostList *source_, Xapian::termpos window_,
 		       std::vector<PostList *> terms_) : SelectPostList(source_)

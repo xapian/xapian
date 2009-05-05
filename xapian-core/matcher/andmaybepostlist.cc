@@ -113,6 +113,16 @@ AndMaybePostList::get_termfreq_est() const
     RETURN(l->get_termfreq_est());
 }
 
+TermFreqs
+AndMaybePostList::get_termfreq_est_using_stats(
+	const Xapian::Weight::Internal & stats) const
+{
+    LOGCALL(MATCH, TermFreqs,
+	    "AndMaybePostList::get_termfreq_est_using_stats", stats);
+    // Termfreq is exactly that of left hand branch.
+    RETURN(l->get_termfreq_est_using_stats(stats));
+}
+
 Xapian::docid
 AndMaybePostList::get_docid() const
 {

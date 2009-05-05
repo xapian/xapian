@@ -46,7 +46,7 @@ class RSetI {
 	const Xapian::Database root;
 	const Xapian::Database::Internal *dbroot;
 
-	Xapian::TermFreqMap reltermfreqs;
+	std::map<std::string, Xapian::doccount> reltermfreqs;
 	bool calculated_reltermfreqs;
 
 	/** Calculate the statistics.

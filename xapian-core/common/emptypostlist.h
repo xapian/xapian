@@ -2,6 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002,2003,2007,2009 Olly Betts
+ * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,6 +29,8 @@
 class EmptyPostList : public LeafPostList {
     public:
 	Xapian::doccount get_termfreq() const { return 0; }
+	TermFreqs get_termfreq_est_using_stats(
+		const Xapian::Weight::Internal &) const { return TermFreqs(); }
 
 	Xapian::docid  get_docid() const;
 	Xapian::weight get_weight() const;

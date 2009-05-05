@@ -2,6 +2,7 @@
  * @brief Iterate all document ids when they form a contiguous range.
  */
 /* Copyright (C) 2007,2008,2009 Olly Betts
+ * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +28,7 @@
 #include "leafpostlist.h"
 
 /// A PostList iteratating all docids when they form a contiguous range.
-class ContiguousAllDocsPostList : public LeafPostList {
+class ContiguousAllDocsPostList : public TermBasedLeafPostList {
     /// Don't allow assignment.
     void operator=(const ContiguousAllDocsPostList &);
 
@@ -47,7 +48,8 @@ class ContiguousAllDocsPostList : public LeafPostList {
     /// Constructor.
     ContiguousAllDocsPostList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> db_,
 			      Xapian::doccount doccount_)
-	: db(db_), did(0), doccount(doccount_) { }
+	: TermBasedLeafPostList(std::string()),
+	  db(db_), did(0), doccount(doccount_) { }
 
     /** Return the term frequency.
      *

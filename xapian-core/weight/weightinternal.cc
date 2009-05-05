@@ -28,6 +28,12 @@
 
 using namespace std;
 
+std::string
+TermFreqs::get_description() const {
+    return std::string("TermFreqs(") + om_tostring(termfreq) + ", " +
+	    om_tostring(reltermfreq) + ")";
+}
+
 namespace Xapian {
 
 Weight::Internal &
@@ -38,12 +44,9 @@ Weight::Internal::operator +=(const Weight::Internal & inc)
     rset_size += inc.rset_size;
 
     // Add termfreqs and reltermfreqs
-    TermFreqMap::const_iterator i;
-    for (i = inc.termfreq.begin(); i != inc.termfreq.end(); ++i) {
-	termfreq[i->first] += i->second;
-    }
-    for (i = inc.reltermfreq.begin(); i != inc.reltermfreq.end(); ++i) {
-	reltermfreq[i->first] += i->second;
+    map<string, TermFreqs>::const_iterator i;
+    for (i = inc.termfreqs.begin(); i != inc.termfreqs.end(); ++i) {
+	termfreqs[i->first] += i->second;
     }
     return *this;
 }
@@ -54,9 +57,9 @@ Weight::Internal::get_termfreq(const string & term) const
     // We pass an empty std::string for term when calculating the extra weight.
     if (term.empty()) return 0;
 
-    TermFreqMap::const_iterator tfreq = termfreq.find(term);
-    Assert(tfreq != termfreq.end());
-    return tfreq->second;
+    map<string, TermFreqs>::const_iterator tfreq = termfreqs.find(term);
+    Assert(tfreq != termfreqs.end());
+    return tfreq->second.termfreq;
 }
 
 void
@@ -64,9 +67,10 @@ Weight::Internal::set_termfreq(const string & term, Xapian::doccount tfreq)
 {
     // Can be called a second time, if a term occurs multiple times in the
     // query; if this happens, the termfreq should be the same each time.
-    Assert(termfreq.find(term) == termfreq.end() ||
-	   termfreq.find(term)->second == tfreq);
-    termfreq[term] = tfreq;
+    Assert(termfreqs.find(term) == termfreqs.end() ||
+	   termfreqs.find(term)->second.termfreq == 0 ||
+	   termfreqs.find(term)->second.termfreq == tfreq);
+    termfreqs[term].termfreq = tfreq;
 }
 
 Xapian::doccount
@@ -75,9 +79,9 @@ Weight::Internal::get_reltermfreq(const string & term) const
     // We pass an empty string for term when calculating the extra weight.
     if (term.empty()) return 0;
 
-    TermFreqMap::const_iterator rtfreq = reltermfreq.find(term);
-    Assert(rtfreq != reltermfreq.end());
-    return rtfreq->second;
+    map<string, TermFreqs>::const_iterator tfreq = termfreqs.find(term);
+    Assert(tfreq != termfreqs.end());
+    return tfreq->second.reltermfreq;
 }
 
 void
@@ -85,9 +89,10 @@ Weight::Internal::set_reltermfreq(const string & term, Xapian::doccount rtfreq)
 {
     // Can be called a second time, if a term occurs multiple times in the
     // query; if this happens, the termfreq should be the same each time.
-    Assert(reltermfreq.find(term) == reltermfreq.end() ||
-	   reltermfreq.find(term)->second == rtfreq);
-    reltermfreq[term] = rtfreq;
+    Assert(termfreqs.find(term) == termfreqs.end() ||
+	   termfreqs.find(term)->second.reltermfreq == 0 ||
+	   termfreqs.find(term)->second.reltermfreq == rtfreq);
+    termfreqs[term].reltermfreq = rtfreq;
 }
 
 string

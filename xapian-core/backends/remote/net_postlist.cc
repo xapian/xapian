@@ -3,6 +3,7 @@
  */
 /* Copyright (C) 2007 Lemur Consulting Ltd
  * Copyright (C) 2007,2008,2009 Olly Betts
+ * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -55,14 +56,14 @@ NetworkPostList::get_wdf() const
 PositionList *
 NetworkPostList::read_position_list()
 {
-    lastposlist = db->open_position_list(lastdocid, term);
+    lastposlist = db->open_position_list(lastdocid, tname);
     return lastposlist.get();
 }
 
 PositionList *
 NetworkPostList::open_position_list() const
 {
-    return db->open_position_list(lastdocid, term);
+    return db->open_position_list(lastdocid, tname);
 }
 
 PostList *
@@ -104,5 +105,5 @@ NetworkPostList::at_end() const
 string
 NetworkPostList::get_description() const
 {
-    return "NetworkPostList(" + term + ")";
+    return "NetworkPostList(" + tname + ")";
 }

@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2009 Olly Betts
- * Copyright 2007 Lemur Consulting Ltd
+ * Copyright 2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -53,6 +53,8 @@ class MergePostList : public PostList {
 	Xapian::doccount get_termfreq_max() const;
 	Xapian::doccount get_termfreq_min() const;
 	Xapian::doccount get_termfreq_est() const;
+	TermFreqs get_termfreq_est_using_stats(
+	    const Xapian::Weight::Internal & stats) const;
 
 	Xapian::docid  get_docid() const;
 	Xapian::weight get_weight() const;

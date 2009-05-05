@@ -1,3 +1,27 @@
+Tue May 05 00:13:54 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/leafpostlist.cc,backends/chert/chert_postlist.cc,
+	  backends/chert/chert_postlist.h,
+	  backends/flint/flint_alldocspostlist.h,
+	  backends/flint/flint_postlist.cc,backends/flint/flint_postlist.h,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h,
+	  backends/multi/multi_postlist.cc,backends/multi/multi_postlist.h,
+	  backends/remote/net_postlist.cc,backends/remote/net_postlist.h,
+	  common/,include/xapian/weight.h,matcher/,net/serialise.cc,
+	  tests/api_opsynonym.cc,weight/weight.cc,weight/weightinternal.cc:
+	  Introduce TermFreqs struct, holding a termfreq, reltermfreq pair,
+	  with some useful accessor methods.  Introduce
+	  PostList::get_termfreq_est_using_stats() which uses the stats
+	  held in Weight::Internal instead of the database to estimate the
+	  term frequency (and relevant term frequency).  Introduce
+	  TermBasedPostList class, as a common base for all the posting
+	  lists which iterate over a term (or over all documents), which
+	  implements this method.  Implement the method for all other
+	  PostList subclasses.  Modify Weight::init_() method for synonym
+	  weights to accept a reltermfreq, now that we can easily
+	  calculate it.
+
 Thu Apr 30 05:07:56 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_opsynonym.cc: Simplify check_msets_contain_same_docs() to

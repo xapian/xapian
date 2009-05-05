@@ -125,6 +125,38 @@ AndNotPostList::get_termfreq_est() const
     RETURN(static_cast<Xapian::doccount>(est + 0.5));
 }
 
+TermFreqs
+AndNotPostList::get_termfreq_est_using_stats(
+	const Xapian::Weight::Internal & stats) const
+{
+    LOGCALL(MATCH, TermFreqs,
+	      "AndNotPostList::get_termfreq_est_using_stats", stats);
+    // Estimate assuming independence:
+    // P(l and r) = P(l) . P(r)
+    // P(l not r) = P(l) - P(l and r) = P(l) . ( 1 - P(r))
+    TermFreqs lfreqs(l->get_termfreq_est_using_stats(stats));
+    TermFreqs rfreqs(r->get_termfreq_est_using_stats(stats));
+
+    double freqest, relfreqest;
+
+    if (stats.collection_size == 0) {
+	freqest = 0;
+    } else {
+	freqest = lfreqs.termfreq *
+		(1.0 - (double(rfreqs.termfreq) / stats.collection_size));
+    }
+
+    if (stats.rset_size == 0) {
+	relfreqest = 0;
+    } else {
+	relfreqest = lfreqs.reltermfreq *
+		(1.0 - (double(rfreqs.reltermfreq) / stats.rset_size));
+    }
+
+    RETURN(TermFreqs(static_cast<Xapian::doccount>(freqest + 0.5),
+		     static_cast<Xapian::doccount>(relfreqest + 0.5)));
+}
+
 Xapian::docid
 AndNotPostList::get_docid() const
 {

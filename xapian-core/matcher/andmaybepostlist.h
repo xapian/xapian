@@ -62,6 +62,9 @@ class AndMaybePostList : public BranchPostList {
 	Xapian::doccount get_termfreq_min() const;
 	Xapian::doccount get_termfreq_est() const;
 
+	TermFreqs get_termfreq_est_using_stats(
+	    const Xapian::Weight::Internal & stats) const;
+
 	Xapian::docid  get_docid() const;
 	Xapian::weight get_weight() const;
 	Xapian::weight get_maxweight() const;

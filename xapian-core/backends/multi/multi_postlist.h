@@ -2,6 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2003,2005,2007,2009 Olly Betts
+ * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -43,6 +44,8 @@ class MultiPostList : public LeafPostList {
 	~MultiPostList();
 
 	Xapian::doccount get_termfreq() const;
+	TermFreqs get_termfreq_est_using_stats(
+		const Xapian::Weight::Internal & stats) const;
 
 	Xapian::docid  get_docid() const;     // Gets current docid
 	Xapian::termcount get_doclength() const; // Get length of current document

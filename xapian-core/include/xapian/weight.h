@@ -220,9 +220,11 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *  @param query_len_  Query length.
      *  @param factor	   Any scaling factor (e.g. from OP_SCALE_WEIGHT).
      *  @param termfreq    The termfreq to use.
+     *  @param reltermfreq The reltermfreq to use.
      */
     void init_(const Internal & stats, Xapian::termcount query_len_,
-	       double factor, Xapian::doccount termfreq);
+	       double factor, Xapian::doccount termfreq,
+	       Xapian::doccount reltermfreq);
 
     /** @private @internal Initialise this object to calculate the extra weight
      *  component.
