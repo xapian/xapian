@@ -1,3 +1,8 @@
+Tue May 05 16:05:48 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_opsynonym.cc: Test that the top document has a weight
+	  of 100%, which is should do for all the current examples here.
+
 Tue May 05 16:03:29 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* matcher/multimatch.cc: Add logging to keep track of the weights
