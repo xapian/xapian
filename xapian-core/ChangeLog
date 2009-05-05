@@ -1,3 +1,7 @@
+Tue May 05 08:29:31 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/Makefile.mk: Remove reference to extraweightpostlist.cc
+
 Tue May 05 08:06:50 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/postlist.cc,backends/multi/multi_postlist.cc,

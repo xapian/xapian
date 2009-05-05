@@ -44,7 +44,6 @@ lib_src +=\
 	matcher/emptysubmatch.cc\
 	matcher/exactphrasepostlist.cc\
 	matcher/externalpostlist.cc\
-	matcher/extraweightpostlist.cc\
 	matcher/localmatch.cc\
 	matcher/mergepostlist.cc\
 	matcher/msetcmp.cc\
