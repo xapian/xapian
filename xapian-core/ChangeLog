@@ -1,3 +1,8 @@
+Tue May 05 04:51:28 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_alldocspostlist.h,matcher/multimatch.cc:
+	  Remove unused '#include "leafpostlist.h"'.
+
 Tue May 05 02:15:35 GMT 2009  Olly Betts <olly@survex.com>
 
 	* common/contiguousalldocspostlist.h: Wrap comment.
