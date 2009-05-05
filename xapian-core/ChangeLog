@@ -1,3 +1,11 @@
+Tue May 05 07:37:04 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/rset.h,common/weightinternal.h,matcher/rset.cc,
+	  net/serialise.cc,weight/weightinternal.cc: Store termfreqs and
+	  reltermfreqs in a Weight::Internal in a single map; introduce a
+	  new struct (TermFreqs) for the values stored here.
+	  Remove now unused Xapian::TermFreqMap typedef.
+
 Tue May 05 07:19:19 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* backends/chert/chert_postlist.cc,backends/chert/chert_postlist.h,

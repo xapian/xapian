@@ -81,7 +81,7 @@ RSetI::contribute_stats(Xapian::Weight::Internal & stats)
     DEBUGCALL(MATCH, void, "RSetI::contribute_stats", stats);
     calculate_stats();
 
-    Xapian::TermFreqMap::const_iterator i;
+    std::map<std::string, Xapian::doccount>::const_iterator i;
     for (i = reltermfreqs.begin(); i != reltermfreqs.end(); i++) {
 	stats.set_reltermfreq(i->first, i->second);
     }

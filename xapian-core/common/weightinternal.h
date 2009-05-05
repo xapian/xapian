@@ -31,10 +31,25 @@
 #include <map>
 #include <string>
 
-namespace Xapian {
+/// A pair holding a termfreq and reltermfreq.
+struct TermFreqs {
+    Xapian::doccount termfreq;
+    Xapian::doccount reltermfreq;
 
-/** A mapping from term to term frequency. */
-typedef std::map<std::string, Xapian::doccount> TermFreqMap;
+    TermFreqs() : termfreq(0), reltermfreq(0) {}
+    TermFreqs(Xapian::doccount termfreq_, Xapian::doccount reltermfreq_)
+	    : termfreq(termfreq_), reltermfreq(reltermfreq_) {}
+
+    void operator +=(const TermFreqs & other) {
+	termfreq += other.termfreq;
+	reltermfreq += other.reltermfreq;
+    }
+
+    /// Return a std::string describing this object.
+    std::string get_description() const;
+};
+
+namespace Xapian {
 
 /** Class to hold statistics for a given collection. */
 class Weight::Internal {
@@ -51,11 +66,9 @@ class Weight::Internal {
     /** Database to get the bounds on doclength and wdf from. */
     Xapian::Database db;
 
-    /** Map of term frequencies for the collection. */
-    TermFreqMap termfreq;
-
-    /** Map of relevant term frequencies for the collection. */
-    TermFreqMap reltermfreq;
+    /** Map of term frequencies and relevant term frequencies for the
+     *  collection. */
+    std::map<std::string, TermFreqs> termfreqs;
 
     /** Create a Weight::Internal object with global statistics.
      *
