@@ -191,6 +191,18 @@ DEFINE_TESTCASE(synonym1, backend) {
     subqueries_sameweight_count.push_back(1);
     subqueries_diffweight_count.push_back(3);
 
+    subqueries.clear();
+    subqueries.push_back(Xapian::Query("attitud"));
+    subqueries.push_back(Xapian::Query(Xapian::Query::OP_OR,
+				       Xapian::Query("german"),
+				       Xapian::Query(Xapian::Query::OP_SYNONYM,
+						     Xapian::Query("sky"),
+						     Xapian::Query("date"))));
+    subqueries_list.push_back(subqueries);
+    // All 54 results are different.
+    subqueries_sameweight_count.push_back(0);
+    subqueries_diffweight_count.push_back(54);
+
     for (vector<vector<Xapian::Query> >::size_type subqgroup = 0;
 	 subqgroup != subqueries_list.size(); ++subqgroup)
     {
