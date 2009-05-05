@@ -2,6 +2,7 @@
  *  @brief SubMatch class for a local database.
  */
 /* Copyright (C) 2006,2007,2009 Olly Betts
+ * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -81,6 +82,11 @@ class LocalSubMatch : public SubMatch {
     /// Get PostList and term info.
     PostList * get_postlist_and_term_info(MultiMatch *matcher,
 	std::map<string, Xapian::MSet::Internal::TermFreqAndWeight> *termfreqandwts);
+
+    /** Convert a postlist into a synonym postlist.
+     */
+    PostList * make_synonym_postlist(PostList * or_pl, MultiMatch * matcher,
+				     double factor);
 
     /** Convert an OP_LEAF query to a PostList.
      *

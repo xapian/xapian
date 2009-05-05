@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2009 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -75,8 +75,11 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 	 */
 	std::string get_value(Xapian::valueno valueno) const;
 
-	/** Add a new value.  It will replace any existing value with the
-	 *  same number.
+	/** Add a new value.
+	 *
+	 *  The new value will replace any existing value with the same number
+	 *  (or if the new value is empty, it will remove any existing value
+	 *  with the same number).
 	 */
 	void add_value(Xapian::valueno valueno, const std::string &value);
 

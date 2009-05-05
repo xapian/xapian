@@ -71,7 +71,7 @@ inline std::string str(const std::string & value) { return value; }
 inline std::string str(const char * value) { return value; }
 
 /// Convert bool to std::string.
-inline std::string str(bool value) { return std::string('0' | value, 1); }
+inline std::string str(bool value) { return std::string(1, '0' | value); }
 
 }
 }

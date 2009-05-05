@@ -2,6 +2,7 @@
  * @brief Return document ids matching a range test on a specified doc value.
  */
 /* Copyright 2007,2008,2009 Olly Betts
+ * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,6 +49,17 @@ ValueRangePostList::get_termfreq_est() const
     // FIXME: It's hard to estimate well - perhaps consider the values of
     // begin and end?
     return db_size / 2;
+}
+
+TermFreqs
+ValueRangePostList::get_termfreq_est_using_stats(
+	const Xapian::Weight::Internal & stats) const
+{
+    LOGCALL(MATCH, TermFreqs,
+	    "ValueRangePostList::get_termfreq_est_using_stats", stats);
+    // FIXME: It's hard to estimate well - perhaps consider the values of
+    // begin and end?
+    RETURN(TermFreqs(stats.collection_size / 2, stats.rset_size / 2));
 }
 
 Xapian::doccount

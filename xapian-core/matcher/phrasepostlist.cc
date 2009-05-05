@@ -3,6 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2007,2008,2009 Olly Betts
+ * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -149,6 +150,19 @@ NearPostList::get_wdf() const
     return std::max(wdf, 1u);
 }
 
+TermFreqs
+NearPostList::get_termfreq_est_using_stats(
+	const Xapian::Weight::Internal & stats) const
+{
+    LOGCALL(MATCH, TermFreqs,
+	    "NearPostList::get_termfreq_est_using_stats", stats);
+    // No idea how to estimate this - FIXME
+    TermFreqs result(source->get_termfreq_est_using_stats(stats));
+    result.termfreq /= 2;
+    result.reltermfreq /= 2;
+    RETURN(result);
+}
+
 std::string
 NearPostList::get_description() const
 {
@@ -262,6 +276,19 @@ PhrasePostList::get_wdf() const
     // Ensure that we always return a wdf of at least 1, since we know there
     // was at least one occurrence of the phrase.
     return std::max(wdf / 2, 1u);
+}
+
+TermFreqs
+PhrasePostList::get_termfreq_est_using_stats(
+	const Xapian::Weight::Internal & stats) const
+{
+    LOGCALL(MATCH, TermFreqs,
+	    "PhrasePostList::get_termfreq_est_using_stats", stats);
+    // No idea how to estimate this - FIXME
+    TermFreqs result(source->get_termfreq_est_using_stats(stats));
+    result.termfreq /= 3;
+    result.reltermfreq /= 3;
+    RETURN(result);
 }
 
 std::string

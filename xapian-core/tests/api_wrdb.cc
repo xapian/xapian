@@ -31,7 +31,6 @@
 
 #include "backendmanager.h" // For XAPIAN_BIN_PATH.
 #include "omassert.h"
-#include "omtime.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include "utils.h"
@@ -2003,46 +2002,6 @@ DEFINE_TESTCASE(lazytablebug1, writable && (flint || chert)) {
     return true;
 }
 
-static double
-bigoaddvalue_helper(size_t num_values)
-{
-    Xapian::WritableDatabase db = get_writable_database();
-
-    Xapian::Document doc;
-    for (size_t i = 0; i < num_values; ++i) {
-	doc.add_value(i, "moo");
-    }
-
-    OmTime start = OmTime::now();
-
-    db.add_document(doc);
-    db.commit();
-
-    return (OmTime::now() - start).as_double();
-}
-
-DEFINE_TESTCASE(bigoaddvalue, writable) {
-    const size_t N = 5000;
-    double time_N = bigoaddvalue_helper(N);
-    tout << "Adding a document with " << N << " values took " << time_N
-	 << " seconds" << endl;
-    double time_10N = bigoaddvalue_helper(10 * N);
-    tout << "Adding a document with " << 10 * N << " values took " << time_10N
-	 << " seconds" << endl;
-
-    if (time_N == 0.0) {
-	// The first test completed before the timer ticked at all!
-	SKIP_TEST("Timer granularity is too coarse");
-    }
-
-    // O(n*n) is bad, but we don't require linearity - O(n*log(n)) is
-    // acceptable, so put the threshold halfway between.
-    const double ALLOWED_FACTOR = (100.0 + 10 * 2.71828) / 2.0;
-    TEST_REL(time_10N,<,time_N * ALLOWED_FACTOR);
-
-    return true;
-}
-
 /** Regression test for bug #287 for flint.
  *
  *  Chert also has the same duff code but this testcase doesn't actually 
@@ -2099,7 +2058,7 @@ check_vals(const Xapian::Database & db, const map<Xapian::docid, string> & vals)
     map<Xapian::docid, string>::const_iterator i;
     for (i = vals.begin(); i != vals.end(); ++i) {
 	tout.str(string());
-	tout << "Checking value in doc " << i->first << "\n";
+	tout << "Checking value in doc " << i->first << " - should be '" << i->second << "'\n";
 	Xapian::Document doc = db.get_document(i->first);
 	string dbval = doc.get_value(1);
 	TEST_EQUAL(dbval, i->second);
@@ -2122,6 +2081,7 @@ check_vals(const Xapian::Database & db, const map<Xapian::docid, string> & vals)
  *  chert.
  */
 DEFINE_TESTCASE(modifyvalues1, writable) {
+    unsigned int seed = 7;
     Xapian::WritableDatabase db = get_writable_database();
     // Note: doccount must be coprime with 13
     const Xapian::doccount doccount = 1000;
@@ -2182,7 +2142,8 @@ DEFINE_TESTCASE(modifyvalues1, writable) {
 
     // Do some random modifications: seed random generator, for repeatable
     // results.
-    srand(42);
+    tout << "Setting seed to " << seed << "\n";
+    srand(seed);
     for (Xapian::doccount num = 1; num <= doccount * 2; ++num) {
 	tout.str(string());
 	Xapian::docid did = ((rand() >> 8) % doccount) + 1;
@@ -2190,8 +2151,8 @@ DEFINE_TESTCASE(modifyvalues1, writable) {
 	string val;
 
 	if (num % 5 != 0) {
-	    tout << "Setting val '" << val << "' in doc " << did << "\n";
 	    val = "newval" + om_tostring(num);
+	    tout << "Setting val '" << val << "' in doc " << did << "\n";
 	    doc.add_value(1, val);
 	} else {
 	    tout << "Adding/replacing empty document " << did << "\n";

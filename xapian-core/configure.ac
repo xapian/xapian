@@ -373,6 +373,9 @@ AC_TRY_COMPILE([#include <typeinfo>],
 dnl Check for time functions.
 AC_CHECK_FUNCS(gettimeofday ftime)
 
+dnl Used by tests/harness/cputimer.cc:
+AC_CHECK_FUNCS([getrusage times sysconf])
+
 dnl See if ftime returns void (as it does on mingw)
 AC_MSG_CHECKING([return type of ftime])
 if test $ac_cv_func_ftime = yes ; then
@@ -398,9 +401,6 @@ AC_TYPE_MODE_T
 
 AC_CHECK_SIZEOF([int])
 AC_CHECK_SIZEOF([long])
-
-dnl Check for a new streams implementation (GCC 2.95 only has streambuf.h).
-AC_CHECK_HEADERS(streambuf, [], [], [ ])
 
 dnl Check for perl (needed to generate some sources and documentation).
 AC_PATH_PROG(PERL, perl, [])
@@ -918,10 +918,12 @@ if test yes = "$GXX"; then
     [
       dnl GCC:
       dnl
-      dnl All these options were supported by g++ 2.95 and there's little
+      dnl -Wundef and -Wshadow were supported by g++ 3.0 (though -Wshadow was
+      dnl buggy there).  We now require GCC >= 3.1, so can rely on them.
+      dnl All the other options were supported by g++ 2.95 and there's little
       dnl likelihood Xapian will build with any earlier version, so there's
       dnl not much point worrying about whether older versions had them or not.
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords"
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Wshadow"
 
       dnl The output of g++ --version seems to change with almost every minor
       dnl release so use the preprocessor macros which should be more robust.
@@ -930,18 +932,11 @@ if test yes = "$GXX"; then
       gxx_version=$gxx_major_version.$gxx_minor_version
 
       case $gxx_version in
-      2.96)
-	dnl Oddly Redhat's "2.96" doesn't support -Wundef, though real
-	dnl GCC versions before and after it do!
+      [[012]].* | 3.0)
+	AC_MSG_ERROR([Xapian requires GCC 3.1 or later (you appear to have $gxx_version)])
 	;;
-      [[012]].* | 3.0) dnl GCC < 3.1, other than 2.96
-	dnl GCC 3.0 supports -Wshadow, but it spews false positives (at least
-	dnl with 3.0.4) so we don't use it.
-	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef" ;;
-      3.*)
-	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow" ;;
+      3.*) ;;
       *) dnl GCC >= 4.0
-	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow"
 
 	dnl -Winit-self was added in GCC 3.4, but up to at least GCC 4.2 it is
 	dnl ignored by g++ which warns for this case with -Wuninitialized
@@ -1010,7 +1005,7 @@ AH_BOTTOM(
  * we can use __builtin_expect to give the compiler hints about branch
  * prediction.  See HACKING for how to use these.
  */
-#if defined __GNUC__ && __GNUC__ >= 3
+#if defined __GNUC__
 /* The arguments of __builtin_expect() are both long, so use !! to ensure that
  * the first argument is always an integer expression, and always 0 or 1, but
  * still has the same truth value for the if or while it is used in.
@@ -1082,6 +1077,10 @@ if test yes = "$vpath_build" ; then
     test -d "$dir" || mkdir "$dir"
   done
 fi
+
+dnl Required for auto regeneration to work in a combined maintainer-mode tree.
+: ${AUTOM4TE=autom4te}
+AC_SUBST([AUTOM4TE])
 
 dnl Generate include/xapian/version.h:
 

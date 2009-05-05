@@ -9,8 +9,8 @@
 ** Modified to add "-o" and "-h" command line options.  Olly Betts 2005-02-14
 ** Modified to fix a number of compiler warnings.  Olly Betts 2007-02-20
 **
-** Synced with upstream CVS rev 1.64:
-** http://www.sqlite.org/cvstrac/fileview?f=sqlite/tool/lemon.c&v=1.64
+** Synced with upstream CVS rev 1.65:
+** http://www.sqlite.org/cvstrac/fileview?f=sqlite/tool/lemon.c&v=1.65
 */
 #include <stdio.h>
 #include <stdarg.h>
@@ -3475,7 +3475,7 @@ int mhflag;                 /* True if generating makeheaders output */
     while( *cp ) stddt[j++] = *cp++;
     while( j>0 && isspace(stddt[j-1]) ) j--;
     stddt[j] = 0;
-    if( strcmp(stddt, lemp->tokentype)==0 ){
+    if( lemp->tokentype && strcmp(stddt, lemp->tokentype)==0 ){
       sp->dtnum = 0;
       continue;
     }

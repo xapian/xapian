@@ -19,6 +19,7 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	Auto.java\
 	BM25Weight.java\
 	BoolWeight.java\
+    Chert.java\
 	Database.java\
 	DateValueRangeProcessor.java\
 	Document.java\
@@ -35,6 +36,7 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	NumberValueRangeProcessor.java\
 	PositionIterator.java\
 	PostingIterator.java\
+    PostingSource.java\
 	Quartz.java\
 	Query.java\
 	QueryParser.java\
@@ -97,7 +99,7 @@ CLEAN :
     -@erase version.res
     -@erase javaversion.h
     
-CLEANSWIG:
+CLEANSWIG: CLEAN
     -@erase xapian_wrap.cc
     -@erase xapian_wrap.h
     -@erase $(XAPIAN_SWIG_JAVA_SRCS)
@@ -111,10 +113,21 @@ DOTEST:
     
 CHECK: ALL DOTEST
 
+DIST: CHECK 
+    cd $(MAKEDIR)
+    if not exist "$(OUTDIR)\dist\$(NULL)" mkdir "$(OUTDIR)\dist"
+    if not exist "$(OUTDIR)\dist\docs/$(NULL)" mkdir "$(OUTDIR)\dist\docs"
+    if not exist "$(OUTDIR)\dist\docs\examples/$(NULL)" mkdir "$(OUTDIR)\dist\docs\examples"        
+    copy "$(OUTDIR)\xapian_jni.dll" "$(OUTDIR)\dist"
+    copy "$(OUTDIR)\xapian_jni.jar" "$(OUTDIR)\dist"
+    if exist docs copy docs\*.htm* "$(OUTDIR)\dist\docs"
+    if exist docs\examples copy docs\examples\*.* "$(OUTDIR)\dist\docs\examples"
+
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
-    
-$(OUTDIR)/xapian_jni.jar: xapian_wrap.cc "$(OUTDIR)" $(XAPIAN_SWIG_JAVA_CLASS)
+
+   
+$(OUTDIR)/xapian_jni.jar: xapian_wrap.obj "$(OUTDIR)" $(XAPIAN_SWIG_JAVA_CLASS)
 	$(JAR) -cf $(OUTDIR)/xapian_jni.jar $(XAPIAN_SWIG_JAVA_CLASS) $(XAPIAN_SWIG_JAVA_EXTRA_CLASSES) 
     
 CPP_PROJ=$(CPPFLAGS_EXTRA)  /GR \

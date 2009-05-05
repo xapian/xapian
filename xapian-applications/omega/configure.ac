@@ -215,7 +215,7 @@ if test no != "$with_iconv" ; then
 	    [#include <iconv.h>],
 	    [[
 	      char buf[20];
-	      $t in = "hello";
+	      $t in = const_cast<char *>("hello");
 	      size_t in_len = 5;
 	      char * out = buf;
 	      size_t out_len = 20;
@@ -473,10 +473,12 @@ if test yes = "$enable_quiet"; then
 fi
 AC_SUBST(QUIET)
 
-AC_SUBST(AM_CXXFLAGS)
-
 dnl Restore CXXFLAGS to those the user specified or autoconf defaulted to.
 CXXFLAGS=$save_CXXFLAGS
+
+dnl Required for auto regeneration to work in a combined maintainer-mode tree.
+: ${AUTOM4TE=autom4te}
+AC_SUBST([AUTOM4TE])
 
 dnl **************************
 dnl * Build the output files *

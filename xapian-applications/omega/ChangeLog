@@ -1,3 +1,134 @@
+Tue May 05 12:13:17 GMT 2009  Olly Betts <olly@survex.com>
+
+	* omindex.cc: We can now use numeric_limits<> since we no longer
+	  support GCC 2.95, so use it and fix a warning on platforms with
+	  32 bit long.
+
+Thu Apr 30 14:09:50 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Makefile.am,docs/omegascript.rst,query.cc,weight.cc,weight.h: Add
+	  $opt{weighting} to allow the weighting scheme and parameters to be
+	  specified (ticket#298).
+
+Tue Apr 28 07:38:54 GMT 2009  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Check the last modification time of files before
+	  reindexing (ticket#342).
+
+Tue Apr 28 05:17:04 GMT 2009  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Drop the copyright info from the output of --version as
+	  it's perennially out of date and we don't report it for any other
+	  Xapian programs.
+
+Tue Apr 28 05:03:29 GMT 2009  Olly Betts <olly@survex.com>
+
+	* omindex.cc: If the filter for a filetype isn't installed, don't erase
+	  the entry from the mime_map, but instead set it to the empty string
+	  and then use this to report why we subsequently skip files with the
+	  same extension, rather than slightly misleadingly reporting "Unknown
+	  extension".
+
+Mon Apr 27 16:34:29 GMT 2009  Olly Betts <olly@survex.com>
+
+	* templates/query: Offer any spelling correction QueryParser gives.
+
+Mon Apr 27 13:36:19 GMT 2009  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Add "--spelling" option to index spelling correction
+	  data.
+
+Sun Apr 26 16:28:36 GMT 2009  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Make -s work as a short-form for --stemmer (as
+	  documented by "omindex --help" and "man omindex").
+
+Sun Apr 26 15:33:32 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.rst,query.cc: Add $suggestion and $opt{spelling} to
+	  provide access to spelling correction (ticket#296).
+
+Sun Apr 26 15:08:40 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/scriptindex.rst,scriptindex.cc: Add new "spell" action for
+	  scriptindex (ticket#296).
+
+Thu Apr 23 07:40:41 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/scriptindex.rst,scriptindex.cc: Add new "valuenumeric" action
+	  to index a value using Xapian::sortable_serialise() to allow numeric
+	  sorting (ticket#260).
+
+Thu Apr 23 07:09:18 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac,docs/Makefile.am: Fix things up so that in
+	  a bootstrapped SVN tree, automatic regeneration of
+	  autotools-generated files uses the in-tree versions of the autotools.
+
+Wed Apr 22 13:52:28 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Update for 1.1.0.
+
+Mon Apr 20 14:20:51 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Sync changes from 1.0.12.
+
+Mon Apr 20 14:15:41 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog and clean up for release.
+
+Thu Apr 16 10:02:44 GMT 2009  Olly Betts <olly@survex.com>
+
+	* transform.cc: Fix off-by-one error - the return value of pcre_exec()
+	  is one more than the number of groupings.
+
+Thu Apr 16 09:23:29 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Need to ship new file transform.h.
+
+Thu Apr 16 08:20:01 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Makefile.am,docs/omegascript.rst,query.cc,transform.cc,transform.h:
+	  Factor out the implementation of $transform into a separate source
+	  file and compile only that file with $(PCRE_CFLAGS) to avoid
+	  problems reported by James Aylett with Mac OS X on #xapian-devel.
+	  Fix expansion of \1 to \9 to work correctly and document these
+	  and \\.  Fix handling of unescaped \ at the end of the pattern, and
+	  leave unrecognised \<x> sequences unchanged. 
+
+Thu Apr 16 04:38:20 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Remove duplicate "AC_SUBST(AM_CXXFLAGS)".
+
+Thu Apr 16 04:29:28 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Avoid implicitly casting a string literal to char* in
+	  the test for iconv by adding the same explicit cast we use in the
+	  code in utf8convert.cc.  Currently the implicit cast is "only" a
+	  warning under GCC, but the user could pass -Werror explicitly in
+	  CXXFLAGS, and this could be promoted to an error in future GCC
+	  versions, and may already be so for some other compilers.
+
+Thu Apr 16 03:56:16 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Back out previous fix - -Werror has nothing to do with
+	  the issue James reported.
+
+Tue Apr 14 15:34:36 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* configure.ac: Test for compiler flags before checking for
+	  libraries, and use the compiler flags found when checking for
+	  things.  In particular, this should fix the test for the type
+	  used by iconv() on MacOS (where it was previously returning "char
+	  *", and the test was giving a warning about converting this to
+	  "const char *", but not failing).  Requires a change to the iconv
+	  test to avoid it failing on linux with GCC due to an unrelated
+	  warning in the test code.
+
+Sat Apr 04 15:15:18 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
 Wed Mar 25 12:35:42 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.ac: Actually use all those warning flags we

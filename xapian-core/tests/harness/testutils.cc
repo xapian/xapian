@@ -65,6 +65,7 @@ mset_range_is_same(const Xapian::MSet &mset1, unsigned int first1,
 		    << *i << " != " << *j << "\n";
 	    return false;
 	}
+	// FIXME: don't use internal macro here...
 	if (!TEST_EQUAL_DOUBLE_(i.get_weight(), j.get_weight())) {
 	    tout << "weights differ at item " << (l + 1) << " in range: "
 		    << i.get_weight() << " != " << j.get_weight() << "\n";
@@ -95,6 +96,7 @@ mset_range_is_same_weights(const Xapian::MSet &mset1, unsigned int first1,
     Xapian::MSetIterator j = mset2[first2];
 
     for (unsigned int l = 0; l < count; ++l) {
+	// FIXME: don't use internal macro here...
 	if (!TEST_EQUAL_DOUBLE_(i.get_weight(), j.get_weight())) {
 	    tout << "weights differ at item " << (l + 1) << " in range: "
 		    << i.get_weight() << " != " << j.get_weight() << "\n";

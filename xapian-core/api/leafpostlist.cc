@@ -2,6 +2,7 @@
  * @brief Abstract base class for leaf postlists.
  */
 /* Copyright (C) 2007,2009 Olly Betts
+ * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,6 +25,7 @@
 
 #include "leafpostlist.h"
 #include "omassert.h"
+#include "debuglog.h"
 
 LeafPostList::~LeafPostList()
 {
@@ -78,4 +80,18 @@ Xapian::weight
 LeafPostList::recalc_maxweight()
 {
     return LeafPostList::get_maxweight();
+}
+
+TermFreqs
+TermBasedLeafPostList::get_termfreq_est_using_stats(
+	const Xapian::Weight::Internal & stats) const
+{
+    LOGCALL(MATCH, TermFreqs,
+	    "TermBasedLeafPostList::get_termfreq_est_using_stats", stats);
+    if (term.empty()) {
+	RETURN(TermFreqs(stats.collection_size, stats.rset_size));
+    }
+    std::map<std::string, TermFreqs>::const_iterator i =
+	    stats.termfreqs.find(term);
+    RETURN(i->second);
 }
