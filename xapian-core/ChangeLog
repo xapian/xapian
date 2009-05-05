@@ -1,3 +1,7 @@
+Tue May 05 02:04:02 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/Makefile.mk: Move str.h into alphabetical order.
+
 Mon May 04 12:04:16 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/queryparsertest.cc: Rename qp_stem_scale1 to qp_scale1 as it
