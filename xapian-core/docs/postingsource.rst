@@ -32,9 +32,12 @@ Anatomy
 When first constructed, a PostingSource is not tied to a particular database.
 Before Xapian can get any postings (or statistics) from the source, it needs to
 be supplied with a database.  This is performed by the init() method, which is
-passed a single parameter holding the database to use.  This method will
-always be called before asking for any information about the postings in the
-list::
+passed a single parameter holding the database to use.  This method will always
+be called before asking for any information about the postings in the list.  If
+a posting source is used for multiple searches, the init() method will be
+called before each search; implementations must cope with init() being called
+multiple times, and should always use the database provided in the most recent
+call::
 
     virtual void init(const Xapian::Database & db) = 0;
 

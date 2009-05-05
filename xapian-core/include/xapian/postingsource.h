@@ -255,6 +255,10 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *  This is called automatically by the matcher prior to each query being
      *  processed.
      *
+     *  If a PostingSource is used for multiple searches, @a init() will
+     *  therefore be called multiple times, and must handle this by using the
+     *  database passed in the most recent call.
+     *
      *  @param db The database which the PostingSource should iterate through.
      *
      *  Note: the database supplied to this method must not be modified: in
