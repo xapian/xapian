@@ -1,3 +1,10 @@
+Tue May 05 16:03:29 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/multimatch.cc: Add logging to keep track of the weights
+	  being added to percent_scale.  If the percent_scale total is 0.0,
+	  which can happen if the top document only matches synonym terms,
+	  force percent_scale to 1.0, to avoid an assertion failure.
+
 Tue May 05 13:41:57 GMT 2009  Olly Betts <olly@survex.com>
 
 	* common/str.h: Fix swapped parameters in string ctor in code for
