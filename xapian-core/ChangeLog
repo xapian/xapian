@@ -1,3 +1,10 @@
+Tue May 05 19:37:56 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/Makefile.am,tests/api_db.cc,tests/api_postingsource.cc:
+	  Split the tests of PostingSource subclasses out of api_db.cc; I'm
+	  about to add some more, and bloating api_db.cc further is
+	  unworkable.
+
 Tue May 05 18:23:02 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* docs/postingsource.rst,include/xapian/postingsource.h:
