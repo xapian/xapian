@@ -260,9 +260,8 @@ DEFINE_TESTCASE(valuestats3, valuestats) {
     return true;
 }
 
-DEFINE_TESTCASE(valuestats4, writable && valuestats) {
+DEFINE_TESTCASE(valuestats4, writable && valuestats && transactions) {
     const size_t FLUSH_THRESHOLD = 10000;
-    SKIP_TEST_FOR_BACKEND("inmemory");
     {
 	Xapian::WritableDatabase db_w = get_writable_database();
 	Xapian::Document doc;
@@ -294,5 +293,30 @@ DEFINE_TESTCASE(valuestats4, writable && valuestats) {
 	TEST_EQUAL(db.get_value_upper_bound(1), "test");
     }
  
+    return true;
+}
+
+/// Regression test for bug fixed in 1.1.1 which led to incorrect valuestats.
+DEFINE_TESTCASE(valuestats5, !backend) {
+    Xapian::Document doc;
+    doc.add_value(0, "zero");
+    doc.add_value(1, "one");
+    doc.add_value(2, "two");
+    doc.add_value(3, "three");
+    doc.add_value(4, "");
+    doc.add_value(5, "five");
+    doc.remove_value(3);
+    doc.add_value(1, "");
+
+    // Check that we don't have any empty values reported.
+    size_t c = 0;
+    Xapian::ValueIterator v = doc.values_begin();
+    while (v != doc.values_end()) {
+	TEST(!(*v).empty());
+	++c;
+	++v;
+    }
+    TEST_EQUAL(c, 3); // 0, 2, 5
+
     return true;
 }

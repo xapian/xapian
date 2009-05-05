@@ -7,6 +7,12 @@ ACLOCAL_AMFLAGS = -I m4
 # `make QUIET=y' overrides `./configure' without `--enable-quiet'.
 LIBTOOL = @LIBTOOL@ $(QUIET:y=--quiet)
 
+if MAINTAINER_MODE
+# Export these so that we run the locally installed autotools when building
+# from a bootstrapped SVN tree.
+export ACLOCAL AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE
+endif
+
 INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
 if VPATH_BUILD
 # Needed for the generated files include/xapian/version.h
@@ -81,9 +87,9 @@ check-docsim:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-docsim
 
 coverage-reconfigure: distclean
-	## --disable-shared as the shared build fails for me on x86-64 Debian etch.
+	## --disable-shared as shared builds fail for me on x86-64 Debian etch.
 	## CCACHE_DISABLE as ccache 2.4 doesn't handle the .gcno files.
-	$(srcdir)/configure CXXFLAGS='-O0 -fprofile-arcs -ftest-coverage' --enable-quiet --disable-shared CCACHE_DISABLE=1 VALGRIND=
+	$(srcdir)/configure CXXFLAGS='-O0 --coverage' --enable-quiet --disable-shared CCACHE_DISABLE=1 VALGRIND=
 
 coverage-check:
 	## GNU find and xargs specific.
@@ -162,3 +168,5 @@ CLEANFILES += $(dist_man_MANS)
 xapian-config.1: xapian-config makemanpage
 	./makemanpage ./xapian-config xapian-config xapian-config.1
 endif
+
+MAINTAINERCLEANFILES += $(BUILT_SOURCES)

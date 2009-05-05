@@ -56,12 +56,12 @@ noinst_HEADERS +=\
 	common/serialise-double.h\
 	common/serialise.h\
 	common/socket_utils.h\
+	common/str.h\
 	common/stringutils.h\
 	common/submatch.h\
 	common/tcpclient.h\
 	common/tcpserver.h\
 	common/termlist.h\
-	common/str.h\
 	common/unaligned.h\
 	common/utils.h\
 	common/valuelist.h\

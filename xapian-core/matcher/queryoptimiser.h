@@ -1,7 +1,8 @@
 /** @file queryoptimiser.h
  * @brief Convert a Xapian::Query::Internal tree into an optimal PostList tree.
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007,2008,2009 Olly Betts
+ * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,7 +30,6 @@
 #include "postlist.h"
 
 #include <list>
-#include <map>
 #include <string>
 #include <vector>
 
@@ -54,18 +54,6 @@ class QueryOptimiser {
      */
     PostList * do_subquery(const Xapian::Query::Internal * query,
 			   double factor);
-
-    /** Optimise a leaf Xapian::Query::Internal subtree into a PostList.
-     *
-     *  @param query	The subtree to optimise.
-     *  @param factor	How much to scale weights for this postlist by.
-     *
-     *  @return		A PostList.
-     */
-    PostList * do_leaf(const Xapian::Query::Internal * query, double factor) {
-	if (query->tname.empty()) factor = 0.0;
-	return localsubmatch.postlist_from_op_leaf_query(query, factor);
-    }
 
     /** Optimise an AND-like Xapian::Query::Internal subtree into a PostList
      *  subtree.
@@ -100,6 +88,15 @@ class QueryOptimiser {
      *  @return		A PostList subtree.
      */
     PostList * do_or_like(const Xapian::Query::Internal *query, double factor);
+
+    /** Optimise a synonym Xapian::Query::Internal subtree into a PostList
+     *
+     *  @param query	The subtree to optimise.
+     *  @param factor	How much to scale weights for this subtree by.
+     *
+     *  @return		A PostList subtree.
+     */
+    PostList * do_synonym(const Xapian::Query::Internal *query, double factor);
 
   public:
     QueryOptimiser(const Xapian::Database::Internal & db_,

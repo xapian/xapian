@@ -3,6 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2003,2004,2007,2009 Olly Betts
+ * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -124,6 +125,38 @@ AndNotPostList::get_termfreq_est() const
     RETURN(static_cast<Xapian::doccount>(est + 0.5));
 }
 
+TermFreqs
+AndNotPostList::get_termfreq_est_using_stats(
+	const Xapian::Weight::Internal & stats) const
+{
+    LOGCALL(MATCH, TermFreqs,
+	      "AndNotPostList::get_termfreq_est_using_stats", stats);
+    // Estimate assuming independence:
+    // P(l and r) = P(l) . P(r)
+    // P(l not r) = P(l) - P(l and r) = P(l) . ( 1 - P(r))
+    TermFreqs lfreqs(l->get_termfreq_est_using_stats(stats));
+    TermFreqs rfreqs(r->get_termfreq_est_using_stats(stats));
+
+    double freqest, relfreqest;
+
+    if (stats.collection_size == 0) {
+	freqest = 0;
+    } else {
+	freqest = lfreqs.termfreq *
+		(1.0 - (double(rfreqs.termfreq) / stats.collection_size));
+    }
+
+    if (stats.rset_size == 0) {
+	relfreqest = 0;
+    } else {
+	relfreqest = lfreqs.reltermfreq *
+		(1.0 - (double(rfreqs.reltermfreq) / stats.rset_size));
+    }
+
+    RETURN(TermFreqs(static_cast<Xapian::doccount>(freqest + 0.5),
+		     static_cast<Xapian::doccount>(relfreqest + 0.5)));
+}
+
 Xapian::docid
 AndNotPostList::get_docid() const
 {
@@ -174,4 +207,11 @@ AndNotPostList::get_doclength() const
 {
     DEBUGCALL(MATCH, Xapian::termcount, "AndNotPostList::get_doclength", "");
     RETURN(l->get_doclength());
+}
+
+Xapian::termcount
+AndNotPostList::get_wdf() const
+{
+    DEBUGCALL(MATCH, Xapian::termcount, "AndNotPostList::get_wdf", "");
+    RETURN(l->get_wdf());
 }

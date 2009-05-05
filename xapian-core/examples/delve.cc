@@ -30,7 +30,7 @@
 
 #include "gnu_getopt.h"
 
-#include <string.h>
+#include <cstring>
 
 using namespace Xapian;
 using namespace std;

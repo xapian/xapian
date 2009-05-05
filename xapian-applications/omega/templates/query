@@ -1,5 +1,6 @@
 $httpheader{Content-Type,text/html; charset=utf-8}
 <html>
+$set{spelling,$ne{$cgi{SPELL},0}}}
 $set{thousand,$.}$set{decimal,.}$setmap{BN,,Any Country,uk,England,fr,France}
 ${
 $def{PREV,
@@ -48,6 +49,8 @@ $if{$opt{topterms},
  <BR><NOSCRIPT><INPUT TYPE=hidden NAME=ADD VALUE=1></NOSCRIPT>
  </div>
 }
+<br>
+$if{$suggestion,Did you mean: <a href="$html{$or{$env{SCRIPT_NAME},omega}}?DB=$url{$dbname}&P=$url{$suggestion}$if{$ne{$hitsperpage,10},&HITSPERPAGE=$hitsperpage}$if{$fmt,&FMT=$html{$fmt}}$if{$cgi{COLLAPSE},&COLLAPSE=$cgi{COLLAPSE}}$map{$relevants,&R=$_}$if{$cgi{THRESHOLD},&THRESHOLD=$html{$cgi{THRESHOLD}}"}$map{$cgilist{B},&B=$html{$_}}&SPELL=0">$html{$suggestion}</a><br>}
 $or{$html{$error},
 $if{$eq{$msize,0},
 $if{$query,No documents match your query,

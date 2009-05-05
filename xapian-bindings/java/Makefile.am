@@ -4,7 +4,13 @@
 # `make QUIET=y' overrides `./configure' without `--enable-quiet'.
 LIBTOOL = @LIBTOOL@ $(QUIET:y=--quiet)
 
-SUBDIRS = native org .
+if MAINTAINER_MODE
+# Export these so that we run the locally installed autotools when building
+# from a bootstrapped SVN tree.
+export ACLOCAL AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE
+endif
+
+SUBDIRS = native org/xapian .
 
 TESTS_ENVIRONMENT = \
   LIBTOOL="$(LIBTOOL)" JAVA="$(JAVA)" PATHSEP="$(JAVA_PATHSEP)" $(srcdir)/run-java-test

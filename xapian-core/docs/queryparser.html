@@ -64,7 +64,7 @@ by using <code>NEAR/<i>n</i></code> like so: <code>one NEAR/6 two</code>.
 appear in the same order as in the query.  So <code>one ADJ two ADJ
 three</code> matches documents containing those three words in that order
 and within 10 words of each other.  You can set the threshold to <i>n</i>
-by using <code>ADJ/<i>n</i> like so: <code>one ADJ/6 two</code>.
+by using <code>ADJ/<i>n</i></code> like so: <code>one ADJ/6 two</code>.
 
 <H3>Phrase searches</H3>
 
@@ -78,7 +78,8 @@ cases such as filenames and email addresses (e.g. /etc/passwd or president@white
 from certain fields, you can set up a prefix map so that the user can
 search within those fields.  For example <code>author:dickens title:shop</code>
 might find documents by dickens with shop in the title.  You can also specify a
-prefix on a quoted phrase or on a bracketed expression.
+prefix on a quoted phrase (e.g. <code>author:"charles&nbsp;dickens"</code>) or
+on a bracketed subexpression (e.g. <code>title:(mice men)</code>).
 
 <H3>Searching for proper names</H3>
 

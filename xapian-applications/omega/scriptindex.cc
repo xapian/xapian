@@ -34,6 +34,7 @@
 #include <vector>
 #include <cstring>
 
+#include <cstdlib>
 #include "safeerrno.h"
 #include <stdio.h>
 #include <time.h>
@@ -95,7 +96,7 @@ prefix_needs_colon(const string & prefix, unsigned ch)
 const char * action_names[] = {
     "bad", "new",
     "boolean", "date", "field", "hash", "index", "indexnopos", "load", "lower",
-    "truncate", "unhtml", "unique", "value", "weight"
+    "spell", "truncate", "unhtml", "unique", "value", "valuenumeric", "weight"
 };
 
 // For debugging:
@@ -106,7 +107,7 @@ public:
     typedef enum {
 	BAD, NEW,
 	BOOLEAN, DATE, FIELD, HASH, INDEX, INDEXNOPOS, LOAD, LOWER,
-	TRUNCATE, UNHTML, UNIQUE, VALUE, WEIGHT
+	SPELL, TRUNCATE, UNHTML, UNIQUE, VALUE, VALUENUMERIC, WEIGHT
     } type;
 private:
     type action;
@@ -234,6 +235,11 @@ parse_index_script(const string &filename)
 			    code = Action::LOAD;
 			}
 			break;
+		    case 's':
+			if (action == "spell") {
+			    code = Action::SPELL;
+			}
+			break;
 		    case 't':
 			if (action == "truncate") {
 			    code = Action::TRUNCATE;
@@ -252,6 +258,10 @@ parse_index_script(const string &filename)
 		    case 'v':
 			if (action == "value") {
 			    code = Action::VALUE;
+			    arg = YES;
+			    takes_integer_argument = true;
+			} else if (action == "valuenumeric") {
+			    code = Action::VALUENUMERIC;
 			    arg = YES;
 			    takes_integer_argument = true;
 			}
@@ -372,6 +382,7 @@ parse_index_script(const string &filename)
 	    switch (action) {
 		case Action::HASH:
 		case Action::LOWER:
+		case Action::SPELL:
 		case Action::TRUNCATE:
 		case Action::UNHTML:
 		    done = false;
@@ -457,6 +468,9 @@ index_file(const char *fname, istream &stream,
 		value += line;
 	    }
 
+	    // Default to not indexing spellings.
+	    indexer.set_flags(Xapian::TermGenerator::flags(0));
+
 	    const vector<Action> &v = index_spec[field];
 	    string old_value = value;
 	    vector<Action>::const_iterator i;
@@ -532,6 +546,9 @@ index_file(const char *fname, istream &stream,
 		    case Action::TRUNCATE:
 			utf8_truncate(value, i->get_num_arg());
 			break;
+		    case Action::SPELL:
+			indexer.set_flags(indexer.FLAG_SPELLING);
+			break;
 		    case Action::UNHTML: {
 			MyHtmlParser p;
 			try {
@@ -593,6 +610,19 @@ again:
 			if (!value.empty())
 			    doc.add_value(i->get_num_arg(), value);
 			break;
+		    case Action::VALUENUMERIC: {
+			if (value.empty()) break;
+			char * end;
+			double dbl = strtod(value.c_str(), &end);
+			if (*end) {
+			    cout << fname << ':' << line_no << ": Warning: "
+				    "Trailing characters in VALUENUMERIC: '"
+				 << value << "'" << endl;
+			}
+			doc.add_value(i->get_num_arg(),
+				      Xapian::sortable_serialise(dbl));
+			break;
+		    }
 		    case Action::DATE: {
 			const string & type = i->get_string_arg();
 			string yyyymmdd;
@@ -766,6 +796,8 @@ main(int argc, char **argv)
 
 	Xapian::TermGenerator indexer;
 	indexer.set_stemmer(stemmer);
+	// Set the database for spellings to be added to by the "spell" action.
+	indexer.set_database(database);
 
 	addcount = 0;
 	repcount = 0;
