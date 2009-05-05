@@ -1,3 +1,9 @@
+Tue May 05 12:13:17 GMT 2009  Olly Betts <olly@survex.com>
+
+	* omindex.cc: We can now use numeric_limits<> since we no longer
+	  support GCC 2.95, so use it and fix a warning on platforms with
+	  32 bit long.
+
 Thu Apr 30 14:09:50 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Makefile.am,docs/omegascript.rst,query.cc,weight.cc,weight.h: Add

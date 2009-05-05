@@ -27,6 +27,7 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <limits>
 #include <string>
 #include <map>
 #include <vector>
@@ -991,21 +992,8 @@ main(int argc, char **argv)
 		if (!ubound.empty()) 
 		    last_mod_max = binary_string_to_int(ubound);
 	    } catch (const Xapian::UnimplementedError &) {
-		last_mod_max = (uint32_t)-1;
-	    }
-	    // Handle signed time_t.  This seems a bit clumsy, but the compiler
-	    // should eliminate most of what isn't required at least.  We could
-	    // use numeric_limits here once we require a new enough GCC
-	    // version.
-	    if (time_t(-1) < 0 && last_mod_max < 0) {
-		// Compile-time check that sizeof(time_t) is >= 4.
-		char foo[sizeof(time_t) >= 4 ? 1 : -1];
-		(void)foo;
-		if (sizeof(time_t) >= 8) {
-		    last_mod_max = 0x7fffffffffffffff;
-		} else {
-		    last_mod_max = 0x7fffffff;
-		}
+		numeric_limits<time_t> n;
+		last_mod_max = n.max();
 	    }
 	} else {
 	    db = Xapian::WritableDatabase(dbpath, Xapian::DB_CREATE_OR_OVERWRITE);
