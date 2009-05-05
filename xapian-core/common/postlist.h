@@ -69,7 +69,7 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::RefCntBase {
      *  get_termfreq_min() and get_termfreq_max().
      */
     virtual TermFreqs get_termfreq_est_using_stats(
-	const Xapian::Weight::Internal & stats) const = 0;
+	const Xapian::Weight::Internal & stats) const;
 
     /// Return an upper bound on what get_weight() can return.
     virtual Xapian::weight get_maxweight() const = 0;

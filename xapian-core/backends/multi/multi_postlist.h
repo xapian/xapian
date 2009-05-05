@@ -44,8 +44,6 @@ class MultiPostList : public LeafPostList {
 	~MultiPostList();
 
 	Xapian::doccount get_termfreq() const;
-	TermFreqs get_termfreq_est_using_stats(
-		const Xapian::Weight::Internal & stats) const;
 
 	Xapian::docid  get_docid() const;     // Gets current docid
 	Xapian::termcount get_doclength() const; // Get length of current document

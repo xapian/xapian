@@ -60,15 +60,6 @@ MultiPostList::get_termfreq() const
     return 0;
 }
 
-TermFreqs
-MultiPostList::get_termfreq_est_using_stats(
-	const Xapian::Weight::Internal &) const
-{
-    // Should never get called.
-    Assert(false);
-    return TermFreqs();
-}
-
 Xapian::docid
 MultiPostList::get_docid() const
 {

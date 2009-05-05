@@ -49,9 +49,6 @@ class ExtraWeightPostList : public PostList {
 	    return pl->get_termfreq_est();
 	}
 
-	TermFreqs get_termfreq_est_using_stats(
-	    const Xapian::Weight::Internal & stats) const;
-
 	Xapian::docid  get_docid() const { return pl->get_docid(); }
 
 	Xapian::weight get_weight() const {
