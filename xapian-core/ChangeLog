@@ -1,3 +1,8 @@
+Wed May 06 03:26:05 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Remove incorrect comment accidentally
+	  committed in r12623.
+
 Wed May 06 03:18:42 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_opsynonym.cc: Fix comment typo.

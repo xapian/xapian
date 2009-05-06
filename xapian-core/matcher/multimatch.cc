@@ -813,7 +813,6 @@ new_greatest_weight:
 		}
 	    } else {
 		// If all the terms match, the 2 sums of weights cancel.
-		// Or else if matching_terms == 0, we have synonym issues.
 		percent_scale = 1.0 / greatest_wt;
 	    }
 	} else {
