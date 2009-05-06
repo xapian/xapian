@@ -1,3 +1,8 @@
+Wed May 06 13:03:40 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* net/serialise.cc: Better serialisation - don't include the
+	  reltermfreqs if the rset_size is 0, since they'll all be 0 too.
+
 Wed May 06 12:13:52 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* common/remoteprotocol.h,net/serialise.cc: When serialising stats,
