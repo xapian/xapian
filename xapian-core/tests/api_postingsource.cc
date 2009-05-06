@@ -27,6 +27,7 @@
 #include <xapian.h>
 
 #include "testutils.h"
+#include "utils.h"
 #include "apitest.h"
 
 using namespace std;
@@ -456,6 +457,93 @@ DEFINE_TESTCASE(fixedweightsource1, backend) {
 	TEST_EQUAL(src.get_docid(), 6);
 	src.skip_to(3, wt * 2);
 	TEST(src.at_end());
+    }
+
+    return true;
+}
+
+// A posting source which changes the maximum weight.
+class ChangeMaxweightPostingSource : public Xapian::PostingSource {
+    Xapian::docid did;
+
+    // Maximum docid that get_weight() should be called for.
+    Xapian::docid maxid_accessed;
+
+  public:
+    ChangeMaxweightPostingSource(Xapian::docid maxid_accessed_)
+	    : did(0), maxid_accessed(maxid_accessed_) { }
+
+    void init(const Xapian::Database &) { did = 0; }
+
+    Xapian::weight get_weight() const {
+	if (did > maxid_accessed) {
+	    FAIL_TEST("MyDontAskWeightPostingSource::get_weight() called "
+		      "for docid " + om_tostring(did) + ", max id accessed "
+		      "should be " + om_tostring(maxid_accessed));
+	}
+	return 5 - did;
+    }
+
+    Xapian::weight get_maxweight() const {
+	return 5 - did;
+    }
+
+    Xapian::doccount get_termfreq_min() const { return 5; }
+    Xapian::doccount get_termfreq_est() const { return 5; }
+    Xapian::doccount get_termfreq_max() const { return 5; }
+
+    void next(Xapian::weight) {
+	++did;
+	notify_new_maxweight();
+    }
+
+    void skip_to(Xapian::docid to_did, Xapian::weight) {
+	did = to_did;
+	notify_new_maxweight();
+    }
+
+    bool at_end() const { return did >= 5; }
+    Xapian::docid get_docid() const { return did; }
+    string get_description() const { return "ChangeMaxweightPostingSource"; }
+};
+
+// Test a posting source with a variable maxweight.
+DEFINE_TESTCASE(changemaxweightsource1, backend) {
+    Xapian::Database db(get_database("apitest_phrase"));
+    Xapian::Enquire enq(db);
+
+    {
+	ChangeMaxweightPostingSource src1(5);
+	Xapian::FixedWeightPostingSource src2(2.5);
+
+	Xapian::Query q(Xapian::Query::OP_AND,
+			Xapian::Query(&src1), Xapian::Query(&src2));
+	enq.set_query(q);
+
+	Xapian::MSet mset = enq.get_mset(0, 4);
+	TEST(src1.at_end());
+	mset_expect_order(mset, 1, 2, 3, 4);
+	for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
+	    TEST_EQUAL_DOUBLE(i.get_weight(), 7.5 - *i);
+	}
+    }
+
+    {
+	ChangeMaxweightPostingSource src1(3);
+	Xapian::FixedWeightPostingSource src2(2.5);
+
+	Xapian::Query q(Xapian::Query::OP_AND,
+			Xapian::Query(&src1), Xapian::Query(&src2));
+	enq.set_query(q);
+
+	Xapian::MSet mset = enq.get_mset(0, 2);
+	TEST(!src1.at_end());
+	TEST_EQUAL(src1.get_docid(), 3);
+	TEST_EQUAL_DOUBLE(src1.get_maxweight(), 2.0);
+	mset_expect_order(mset, 1, 2);
+	for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
+	    TEST_EQUAL_DOUBLE(i.get_weight(), 7.5 - *i);
+	}
     }
 
     return true;

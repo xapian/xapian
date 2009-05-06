@@ -1,3 +1,20 @@
+Wed May 06 01:11:25 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/postingsource.h,api/postingsource.cc: Add
+	  notify_new_maxweight() method to be called by subclasses when they
+	  want to notify the matcher that their maxweight has changed
+	  significantly.  Add ExternalPostList as a friend and add
+	  register_externalpl() to be used to associate the ExternalPostList
+	  with the PostingSource.
+	* matcher/externalpostlist.cc,matcher/externalpostlist.h,
+	  matcher/queryoptimiser.cc: Register the externalpostlist with the
+	  PostingSource it's iterating through.  Add
+	  ExternalPostList::notify_new_maxweight() method for
+	  PostingSource::notify_new_maxweight() to call.
+	* docs/postingsource.rst: Document notify_new_maxweight() and the
+	  reasons for calling it.
+	* tests/api_postingsource.cc: Test the handling of maxweight.
+
 Tue May 05 19:37:56 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/Makefile.am,tests/api_db.cc,tests/api_postingsource.cc:

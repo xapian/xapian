@@ -1,5 +1,6 @@
 
 .. Copyright (C) 2008,2009 Olly Betts
+.. Copyright (C) 2009 Lemur Consulting Ltd
 
 =====================
 Xapian::PostingSource
@@ -71,6 +72,24 @@ must always be >= 0::
 
 These methods have default implementations which always return 0, for
 convenience when deriving "weight-less" subclasses.
+
+If the maximum weight that can be returned by the PostingSource has decreased
+significantly, it may be worthwhile to notify the Xapian matcher about this, so
+that it can use this information for optmisations, allowing the match process
+to finish faster.  You can notify the matcher about this by calling the
+``PostingSource::notify_new_maxweight()`` method.  However, you should take
+care not to call this method too frequently, as the resulting computation can
+be moderately expensive.
+
+It is therefore advisable only to call this after a significant decrease in
+maxweight.  Profiling your postingsource will often be the best way to
+determine how often to call it.  If it's cheap to calculate the maxweight in
+your posting source, a reasonable strategy is to decide a maximum number of
+times to call this method (eg, 10) and then to call it whenever
+``floor(new_maxweight * 10 / original_maxweight)`` changes; this ensures that
+only reasonably significant drops result in a recalculation of the weights.
+Alternatively, you could simply impose a lower limit on the number of documents
+processed before re-calling this.
 
 The ``at_end()`` method checks if the current iteration position is past the
 last entry::

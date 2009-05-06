@@ -29,6 +29,9 @@
 #include <string>
 #include <map>
 
+// Declaration of an opaque internal type.
+class ExternalPostList;
+
 namespace Xapian {
 
 /** Base class which provides an "external" source of postings.
@@ -43,9 +46,33 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
     /// Don't allow copying.
     PostingSource(const PostingSource &);
 
+    /// The ExternalPostList which notifications should be sent to.
+    ExternalPostList * externalpl;
+
+    /// Set a pointer to the external postlist.
+    void register_externalpl(ExternalPostList * externalpl_) {
+	externalpl = externalpl_;
+    }
+
+    // ExternalPostList needs to be able to call register_externalpl.
+    friend class ::ExternalPostList;
+
   protected:
     /// Allow subclasses to be instantiated.
-    PostingSource() { }
+    PostingSource() : externalpl(0) { }
+
+    /** Notify the matcher that the maximum weight has decreased.
+     *
+     *  This will potentially cause the maxweights throughout the query tree
+     *  to be re-evaluated, and can therefore be quite expensive.  On the
+     *  other hand, it will allow the new reduced maxweight to be used to
+     *  trigger query optimisations, which can greatly reduce the query
+     *  processing time.
+     *
+     *  It is therefore advisable only to call this after a significant
+     *  decrease in maxweight.
+     */
+    void notify_new_maxweight();
 
   public:
     // Destructor.
