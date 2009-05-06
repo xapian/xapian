@@ -157,7 +157,7 @@ DEFINE_TESTCASE(synonym1, backend) {
     subqueries_list.push_back(subqueries);
     // When the top-level operator is OR, the synonym part has an estimated
     // termfreq of 35.  When the top-level operator is SYNONYM, the whole query
-    // has an estimated termfreq of 35, and is in fact the same as the synonmyn
+    // has an estimated termfreq of 35, and is in fact the same as the synonym
     // part in the OR query, except that the wqf of "date" is 2.  We're
     // currently not using the wqfs of components of synonyms, so this
     // difference has no effect on the weightings.  Therefore, for the 1
