@@ -1,3 +1,9 @@
+Wed May 06 01:35:14 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_postingsource.cc: changemaxweightsource1 uses
+	  ChangeMaxweightPostingSource, which doesn't work with multi or
+	  remote, so mark the test accordingly.
+
 Wed May 06 01:11:25 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* include/xapian/postingsource.h,api/postingsource.cc: Add

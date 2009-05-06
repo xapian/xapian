@@ -508,7 +508,8 @@ class ChangeMaxweightPostingSource : public Xapian::PostingSource {
 };
 
 // Test a posting source with a variable maxweight.
-DEFINE_TESTCASE(changemaxweightsource1, backend) {
+DEFINE_TESTCASE(changemaxweightsource1, backend && !multi && !remote) {
+    // The ChangeMaxweightPostingSource doesn't work with multi or remote.
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::Enquire enq(db);
 
