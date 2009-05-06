@@ -70,19 +70,11 @@ eval {
     printf "%i results found.\n", $mset->get_matches_estimated();
     printf "Results 1-%i:\n", $mset->size();
 
-    # In 1.0.13.0 and newer you'll be able to replace this with:
-    # foreach my $m ($mset->matches()) {
-    foreach my $m (tie_mset($mset)) {
+    foreach my $m ($mset->items()) {
         printf "%i: %i%% docid=%i [%s]\n", $m->get_rank() + 1, $m->get_percent(), $m->get_docid(), $m->get_document()->get_data();
     }
 };
 if ($@) {
     print STDERR "Exception: $@\n";
     exit(1);
-}
-
-sub tie_mset {
-    my @a;
-    tie( @a, 'Search::Xapian::MSet::Tied', shift );
-    return @a;
 }
