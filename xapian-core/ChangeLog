@@ -1,3 +1,10 @@
+Wed May 06 04:02:43 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Check termfreqandwts for MatchAll queries
+	  before we check terms from the document so that the "terminate
+	  early once we've seen all the query terms" test when checking the
+	  document terms can fire in this case.
+
 Wed May 06 03:26:05 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: Remove incorrect comment accidentally

@@ -769,6 +769,13 @@ new_greatest_weight:
 	    map<string,
 		Xapian::MSet::Internal::TermFreqAndWeight>::const_iterator i;
 
+	    // Special case for MatchAll queries.
+	    i = termfreqandwts.find(string());
+	    if (i != termfreqandwts.end()) {
+		percent_scale += i->second.termweight;
+		++matching_terms;
+	    }
+
 	    Xapian::TermIterator docterms = db.termlist_begin(best->did);
 	    Xapian::TermIterator docterms_end = db.termlist_end(best->did);
 	    while (docterms != docterms_end) {
@@ -783,12 +790,7 @@ new_greatest_weight:
 		}
 		++docterms;
 	    }
-	    // Special case for MatchAll queries
-	    i = termfreqandwts.find("");
-	    if (i != termfreqandwts.end()) {
-		percent_scale += i->second.termweight;
-		++matching_terms;
-	    }
+
 	    if (matching_terms < termfreqandwts.size()) {
 		if (percent_scale == 0.0) {
 		    // This happens if the only matching terms are synonyms.
