@@ -1,3 +1,12 @@
+Wed May 06 12:13:52 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/remoteprotocol.h,net/serialise.cc: When serialising stats,
+	  serialise the termfreq and reltermfreq together, rather than in
+	  separate lists.  Results in a smaller serialised form, and
+	  matches the in-memory structure now used better. Fixes ticket
+	  #362.  This is an incompatible remote protocol change, however,
+	  so bump the major version to 32.
+
 Wed May 06 04:02:43 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: Check termfreqandwts for MatchAll queries
