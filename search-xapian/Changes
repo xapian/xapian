@@ -7,6 +7,10 @@ Revision history for Perl extension Search::Xapian.
 	  you get easy access to the MSet object itself too).
 	- Add the ability to tie an ESet to an array and a new
 	  Search::Xapian::ESet::items() method to make use of it.
+	- Add new translated version of the simple examples from the Python
+	  bindings.
+	- Add more fully featured examples: full-indexer.pl and
+	  full-searcher.pl.
 	- Add better test coverage for MatchDecider.
 
 1.1.0.0  Thu Apr 22 13:56:31 GMT 2009

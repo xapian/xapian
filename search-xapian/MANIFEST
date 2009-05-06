@@ -132,4 +132,8 @@ t/tied.t
 t/valuerange.t
 t/writabledatabase.t
 
+examples/full-indexer.pl
+examples/full-searcher.pl
+examples/simpleexpand.pl
+examples/simpleindex.pl
 examples/simplesearch.pl
