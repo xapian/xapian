@@ -5,7 +5,7 @@
 
 use Test;
 use Devel::Peek;
-BEGIN { plan tests => 20 };
+BEGIN { plan tests => 22 };
 use Search::Xapian qw(:ops);
 
 #########################
@@ -40,6 +40,15 @@ ok( $doc->get_data() );
 ok( exists $matches[1] );
 ok( !exists $matches[10] );
 ok( exists $matches[-1] );
+
+# Test that "tying by hand" still works.
+sub tie_mset {
+    my @a;
+    tie( @a, 'Search::Xapian::MSet::Tied', shift );
+    return @a;
+}
+ok( $mset = $enq->get_mset(0, 1) );
+ok( scalar(tie_mset($mset)) == 1 );
 
 my @ematches;
 ok( @ematches = $enq->matches(0, 2) );
