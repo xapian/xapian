@@ -354,38 +354,50 @@ should return a tuple of (value number, begin, end).  For example:
 </pre>
 
 
-<h2>Apache and Mod-Python</h2>
+<h2>Apache and mod_python/mod_wsgi</h2>
 
 <p>
-There is an issue with python's threading support and mod-python, which can
-cause problems when using the Xapian Python bindings from mod-python.  If you
-find that your mod-python application is hanging whenever a Xapian method is
-called, you have probably run into this problem.
+By default, both mod_python and mod_wsgi use a separate sub-interpreter for
+each application.  However, Python's sub-interpreter support is incompatible
+with the simplified GIL state API which SWIG-generated Python bindings use
+by default.  So to avoid deadlocks, you need to tell mod_python and mod_wsgi
+to run applications which use Xapian in the main interpreter as detailed below.
 </p>
 
 <p>
-By default, mod-python uses a separate instance of the python interpreter for
-each mod-python application.  However, the Xapian python bindings do not know
-how to get and release control of the thread lock unless they are running in
-the "main" python interpreter; as a result, deadlocks can occur.
+This restriction could be removed - the details are in Xapian's bugtracker - see
+<a href="http://trac.xapian.org/ticket/364">ticket #364</a> for details of
+what needs doing.
 </p>
 
-<p>
-To avoid the problem, you need to use Python version 2.4 or later, and
-need to set the "PythonInterpreter main_interpreter"
-option in the apache configuration section for all mod_python scripts which use
-xapian: this ensures that the xapian bindings are called from the
-main_interpreter, and can handle the thread locks appropriately.  An example
-configuration file using this option is available <a
-href="http://www.xapian.org/cgi-bin/bugzilla/attachment.cgi?id=121&action=view">here</a>.
-</p>
+<h3 id="mod_python">mod_python</h3>
 
 <p>
-In the longer term, we hope to be able to resolve this problem, so that
-arbitrary python interpreters can be used; but this is quite a tricky problem
-to fix, and is relatively low priority.  More details can be found in Xapian's
-bug tracker, as <a
-href="http://www.xapian.org/cgi-bin/bugzilla/show_bug.cgi?id=185">bug #185</a>.
+You need to set this option in the Apache configuration section for all
+mod_python scripts which use Xapian:
+</p>
+<pre>PythonInterpreter main_interpreter
+</pre>
+
+<p>
+You may also need to use Python &gt;= 2.4 (due to <a
+href="http://issues.apache.org/jira/browse/MODPYTHON-217">problems in Python
+2.3 with the APIs the code uses</a>).
+</p>
+
+<h3 id="mod_wsgi">mod_wsgi</h3>
+
+<p>
+You need to set the
+<a href="http://code.google.com/p/modwsgi/wiki/ConfigurationDirectives#WSGIApplicationGroup">WSGIApplicationGroup option</a> like so:
+</p>
+
+<pre>WSGIApplicationGroup %{GLOBAL}
+</pre>
+
+<p>
+The mod_wsgi documentation 
+<a href="http://code.google.com/p/modwsgi/wiki/ApplicationIssues#Python_Simplified_GIL_State_API">also discusses this issue</a>.
 </p>
 
 <address>

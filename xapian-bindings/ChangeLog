@@ -1,3 +1,10 @@
+Wed May 06 06:45:22 GMT 2009  Olly Betts <olly@survex.com>
+
+	* README,python/docs/index.html: Update documentation for mod_python
+	  issues and also document the related mod_wsgi issue.  The status
+	  is now that everything seems to work if you stick to the main
+	  interpreter (ticket#185 and ticket#364).
+
 Tue May 05 13:11:43 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	Merge from opsynonym branch:
