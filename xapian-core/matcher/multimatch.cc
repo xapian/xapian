@@ -769,42 +769,52 @@ new_greatest_weight:
 	    map<string,
 		Xapian::MSet::Internal::TermFreqAndWeight>::const_iterator i;
 
+	    // Special case for MatchAll queries.
+	    i = termfreqandwts.find(string());
+	    if (i != termfreqandwts.end()) {
+		percent_scale += i->second.termweight;
+		++matching_terms;
+	    }
+
 	    Xapian::TermIterator docterms = db.termlist_begin(best->did);
 	    Xapian::TermIterator docterms_end = db.termlist_end(best->did);
 	    while (docterms != docterms_end) {
 		i = termfreqandwts.find(*docterms);
 		if (i != termfreqandwts.end()) {
+		    LOGLINE(MATCH, "adding " << i->second.termweight <<
+			    " to percent_scale for term '" <<
+			    *docterms << "'");
 		    percent_scale += i->second.termweight;
 		    ++matching_terms;
 		    if (matching_terms == termfreqandwts.size()) break;
 		}
 		++docterms;
 	    }
-	    // Special case for MatchAll queries
-	    i = termfreqandwts.find("");
-	    if (i != termfreqandwts.end()) {
-		percent_scale += i->second.termweight;
-		++matching_terms;
-	    }
-	    if (matching_terms < termfreqandwts.size()) {
-		// OK, work out weight corresponding to 100%
-		double denom = 0;
-		for (i = termfreqandwts.begin(); i != termfreqandwts.end(); ++i)
-		    denom += i->second.termweight;
 
-		LOGVALUE(MATCH, denom);
-		LOGVALUE(MATCH, percent_scale);
-		AssertRel(percent_scale,<=,denom);
-		if (denom == 0) {
-		    // This happens if the top-level operator is OP_SYNONYM.
-		    percent_scale = 1.0 / greatest_wt;
+	    if (matching_terms < termfreqandwts.size()) {
+		if (percent_scale == 0.0) {
+		    // This happens if the only matching terms are synonyms.
+		    percent_scale = 1.0;
 		} else {
-		    denom *= greatest_wt;
-		    AssertRel(denom,>,0);
-		    percent_scale /= denom;
+		    // OK, work out weight corresponding to 100%
+		    double denom = 0;
+		    for (i = termfreqandwts.begin(); i != termfreqandwts.end(); ++i)
+			denom += i->second.termweight;
+
+		    LOGVALUE(MATCH, denom);
+		    LOGVALUE(MATCH, percent_scale);
+		    AssertRel(percent_scale,<=,denom);
+		    if (denom == 0) {
+			// This happens if the top-level operator is OP_SYNONYM.
+			percent_scale = 1.0 / greatest_wt;
+		    } else {
+			denom *= greatest_wt;
+			AssertRel(denom,>,0);
+			percent_scale /= denom;
+		    }
 		}
 	    } else {
-		// If all the terms match, the 2 sums of weights cancel
+		// If all the terms match, the 2 sums of weights cancel.
 		percent_scale = 1.0 / greatest_wt;
 	    }
 	} else {

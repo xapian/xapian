@@ -48,6 +48,13 @@ ESet::back()
     OUTPUT:
         RETVAL
 
+ESetIterator *
+ESet::get_esetiterator(doccount i)
+    CODE:
+        RETVAL = new ESetIterator((*THIS)[i]);
+    OUTPUT:
+        RETVAL
+
 string
 ESet::get_description()
 

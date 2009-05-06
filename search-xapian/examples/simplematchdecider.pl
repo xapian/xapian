@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# Simple command-line search script.
+# Simple command-line match decider example
 #
 # Copyright (C) 2003 James Aylett
 # Copyright (C) 2004,2007,2009 Olly Betts
@@ -23,10 +23,20 @@
 use strict;
 use Search::Xapian (':all');
 
-# We require at least two command line arguments.
-if (scalar @ARGV < 2) {
-    print STDERR "Usage: $0 PATH_TO_DATABASE QUERY\n";
+# This example runs a query like simplesearch does, but uses a MatchDecider
+# (mymatchdecider) to discard any document for which value 0 is equal to
+# the string passed as the second command line argument.
+
+# We require at least three command line arguments.
+if (scalar @ARGV < 3) {
+    print STDERR "Usage: $0 PATH_TO_DATABASE AVOID_VALUE QUERY\n";
     exit(1);
+}
+
+my $avoid_value;
+
+sub mymatchdecider {
+    return $_[0]->get_value(0) ne $avoid_value;
 }
 
 eval {
@@ -35,6 +45,8 @@ eval {
 
     # Start an enquire session.
     my $enquire = Search::Xapian::Enquire->new($database);
+
+    $avoid_value = shift @ARGV;
 
     # Combine the rest of the command line arguments with spaces between
     # them, so that simple queries don't have to be quoted at the shell
@@ -52,7 +64,7 @@ eval {
 
     # Find the top 10 results for the query.
     $enquire->set_query($query);
-    my $mset = $enquire->get_mset(0, 10);
+    my $mset = $enquire->get_mset(0, 10, \&mymatchdecider);
 
     # Display the results.
     printf "%i results found.\n", $mset->get_matches_estimated();

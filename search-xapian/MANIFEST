@@ -17,6 +17,7 @@ Xapian/Document.pm
 Xapian/Enquire.pm
 Xapian/ESetIterator.pm
 Xapian/ESet.pm
+Xapian/ESet/Tied.pm
 Xapian/MSetIterator.pm
 Xapian/MSet.pm
 Xapian/MSet/Tied.pm
@@ -131,4 +132,8 @@ t/tied.t
 t/valuerange.t
 t/writabledatabase.t
 
+examples/full-indexer.pl
+examples/full-searcher.pl
+examples/simpleexpand.pl
+examples/simpleindex.pl
 examples/simplesearch.pl

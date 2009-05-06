@@ -27,6 +27,8 @@
 
 #include "database.h"
 #include "document.h"
+#include "matcher/externalpostlist.h"
+
 #include "xapian/document.h"
 #include "xapian/error.h"
 #include "xapian/queryparser.h" // For sortable_unserialise().
@@ -39,6 +41,13 @@
 #include <cfloat>
 
 namespace Xapian {
+
+void
+PostingSource::notify_new_maxweight()
+{
+    if (externalpl)
+	externalpl->notify_new_maxweight();
+}
 
 PostingSource::~PostingSource() { }
 

@@ -5,6 +5,8 @@ use strict;
 use warnings;
 use Carp;
 
+use Search::Xapian::ESet::Tied;
+
 require DynaLoader;
 
 our @ISA = qw(DynaLoader);
@@ -34,6 +36,13 @@ sub new() {
   }
   bless $mset, $class;
   return $mset;
+}
+
+sub items {
+  my $self = shift;
+  my @array;
+  tie( @array, 'Search::Xapian::ESet::Tied', $self );
+  return @array;
 }
 
 1;
