@@ -88,9 +88,9 @@ for (1 .. $matches->size()) { $match++; }
 is( $match, $matches->end(), "match set returns correct endpoint");
 
 my $rset;
-ok( $rset = Search::Xapian::RSet->new(), "relevance set returned ok" );
+ok( $rset = Search::Xapian::RSet->new(), "relevance set created ok" );
 $rset->add_document( 1 );
-ok( $rset->contains( 1 ), "document added to relevance setsuccessfully" );
+ok( $rset->contains( 1 ), "document added to relevance set successfully" );
 ok( !$rset->contains( 2 ), "relevance set correctly fails to match document it does not contain" );
 $rset->remove_document( 1 );
 ok( !$rset->contains( 1 ), "document removed from relevance set successfully" );

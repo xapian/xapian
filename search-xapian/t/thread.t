@@ -23,6 +23,7 @@ plan tests => 65;
 use Search::Xapian qw(:standard);
 
 # TODO: check these classes too:
+# ESet/Tied.pm
 # MSet/Tied.pm
 # PerlStopper.pm
 # Stopper.pm

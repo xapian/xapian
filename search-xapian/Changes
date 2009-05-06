@@ -2,9 +2,11 @@ Revision history for Perl extension Search::Xapian.
 
 1.1.1.0  FIXME
 	[Changes contributed by Olly Betts]
-	- Add Search::Xapian::MSet::matches() method which returns an array
+	- Add Search::Xapian::MSet::items() method which returns an array
 	  tied to the MSet (much like Search::Xapian::Enquire::matches(), but
-	  you get access to the MSet object itself).
+	  you get easy access to the MSet object itself too).
+	- Add the ability to tie an ESet to an array and a new
+	  Search::Xapian::ESet::items() method to make use of it.
 	- Add better test coverage for MatchDecider.
 
 1.1.0.0  Thu Apr 22 13:56:31 GMT 2009

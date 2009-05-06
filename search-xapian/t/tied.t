@@ -3,11 +3,9 @@
 
 #########################
 
-# change 'tests => 1' to 'tests => last_test_to_print';
-
 use Test;
 use Devel::Peek;
-BEGIN { plan tests => 14 };
+BEGIN { plan tests => 20 };
 use Search::Xapian qw(:ops);
 
 #########################
@@ -27,7 +25,7 @@ $enq->set_query( $query );
 my $mset;
 ok( $mset = $enq->get_mset(0, 10) );
 my @matches;
-ok( @matches = $mset->matches() );
+ok( @matches = $mset->items() );
 my $match;
 ok( $match = $matches[0] );
 ok( $match->get_docid() );
@@ -49,5 +47,19 @@ ok( @ematches = $enq->matches(0, 2) );
 ok( $match = $ematches[0] );
 ok( $match->get_docid() );
 ok( $match->get_percent() );
+
+my $eset;
+my $rset;
+
+ok( $rset = Search::Xapian::RSet->new() );
+$rset->add_document( 1 );
+
+ok( $eset = $enq->get_eset( 10, $rset ) );
+ok( $eset->size() != 0 );
+
+my @eterms;
+ok( @eterms = $eset->items() );
+ok( scalar @eterms == $eset->size() );
+ok( $eterms[0]->get_termname() eq $eset->begin()->get_termname() );
 
 1;
