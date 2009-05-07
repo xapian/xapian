@@ -97,6 +97,6 @@ bool
 InMemoryAllTermsList::at_end() const
 {
     if (database->is_closed()) InMemoryDatabase::throw_database_closed();
-    Assert(!it->first.empty());
+    Assert(it == tmap->end() || !it->first.empty());
     return (it == tmap->end());
 }

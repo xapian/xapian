@@ -86,8 +86,6 @@ InMemoryPostList::InMemoryPostList(Xapian::Internal::RefCntPtr<const InMemoryDat
 	  started(false),
 	  db(db_)
 {
-    // InMemoryPostLists cannot be empty
-    Assert(pos != end);
     while (pos != end && !pos->valid) ++pos;
 }
 
