@@ -27,6 +27,8 @@
 #include "omassert.h"
 #include "debuglog.h"
 
+using namespace std;
+
 LeafPostList::~LeafPostList()
 {
     delete weight;
@@ -91,7 +93,7 @@ LeafPostList::get_termfreq_est_using_stats(
     if (term.empty()) {
 	RETURN(TermFreqs(stats.collection_size, stats.rset_size));
     }
-    std::map<std::string, TermFreqs>::const_iterator i =
-	    stats.termfreqs.find(term);
+    map<string, TermFreqs>::const_iterator i = stats.termfreqs.find(term);
+    Assert(i != stats.termfreqs.end());
     RETURN(i->second);
 }

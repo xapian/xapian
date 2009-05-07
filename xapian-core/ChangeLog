@@ -1,3 +1,8 @@
+Thu May 07 14:19:22 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/leafpostlist.cc: Add an assertion that the term in the stats.
+	  Add "using namespace std;" so we can avoid explicit std:: qualifiers.
+
 Thu May 07 13:26:21 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/: Eliminate EmptySubMatch - we can just store NULL for a
