@@ -1,3 +1,10 @@
+Thu May 07 23:13:18 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/decvalwtsource.cc,api/limitvalwtsource.cc,
+	  include/xapian/decvalwtsource.h,tests/api_valuestream.cc: Notify
+	  about changes in maxweight.  Update name() methods to to include
+	  a trailing "()" in the results.
+
 Tue Mar 31 18:00:52 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/Makefile.mk,include/Makefile.mk,include/xapian.h: Change

@@ -49,7 +49,7 @@ LimitedValueWeightPostingSource::clone() const {
 
 std::string
 LimitedValueWeightPostingSource::name() const {
-    return "Xapian::LimitedValueWeightPostingSource()";
+    return "Xapian::LimitedValueWeightPostingSource";
 }
 
 std::string

@@ -35,10 +35,11 @@ namespace Xapian {
  *
  *  However, this posting source is additionally given a range of document IDs,
  *  within which the weight is known to be decreasing.  ie, for all documents
- *  with ids A and B within this range, where A is less than B, the weight of A
- *  is less than or equal to the weight of B.  This can allow the posting
- *  source to skip to the end of the range quickly if insufficient weight is
- *  left in the posting source for a particular source.
+ *  with ids A and B within this range (including the endpoints), where A is
+ *  less than B, the weight of A is less than or equal to the weight of B.
+ *  This can allow the posting source to skip to the end of the range quickly
+ *  if insufficient weight is left in the posting source for a particular
+ *  source.
  *
  *  By default, the range is assumed to cover all document IDs.
  *
@@ -47,12 +48,26 @@ namespace Xapian {
  */
 class XAPIAN_VISIBILITY_DEFAULT DecreasingValueWeightPostingSource
 	: public Xapian::ValueWeightPostingSource {
+  protected:
     Xapian::docid range_start;
     Xapian::docid range_end;
     double curr_weight;
 
-    // Skip the iterator forward if in the decreasing range, and weight is low.
+    /// The first weight seen in the range.
+    double first_weight_in_range;
+
+    /// Whether we've seen a weight in the range yet.
+    bool seen_weight_in_range;
+
+    /// Band of weights that the last
+    int last_weight_band;
+
+    /// Flag, set to true if there are docs after the end of the range.
+    bool items_at_end;
+
+    /// Skip the iterator forward if in the decreasing range, and weight is low.
     void skip_if_in_range(Xapian::weight min_wt);
+
   public:
     DecreasingValueWeightPostingSource(Xapian::valueno slot_,
 				       Xapian::docid range_start_ = 0,
