@@ -246,13 +246,12 @@ XorPostList::get_termfreq_est_using_stats(
 
     double freqest, relfreqest;
 
-    if (stats.collection_size == 0) {
-	freqest = 0;
-    } else {
-	freqest = lfreqs.termfreq + rfreqs.termfreq
-		- (2.0 * lfreqs.termfreq * rfreqs.termfreq
-		   / stats.collection_size);
-    }
+    // Our caller should have ensured this.
+    Assert(stats.collection_size);
+
+    freqest = lfreqs.termfreq + rfreqs.termfreq
+	    - (2.0 * lfreqs.termfreq * rfreqs.termfreq
+	       / stats.collection_size);
 
     if (stats.rset_size == 0) {
 	relfreqest = 0;

@@ -121,7 +121,15 @@ LocalSubMatch::make_synonym_postlist(PostList * or_pl, MultiMatch * matcher,
     AutoPtr<SynonymPostList> res(new SynonymPostList(or_pl, matcher));
     AutoPtr<Xapian::Weight> wt(wt_factory->clone_());
 
-    TermFreqs freqs(or_pl->get_termfreq_est_using_stats(*stats));
+    TermFreqs freqs;
+    // Avoid calling get_termfreq_est_using_stats() if the database is empty
+    // so we don't need to special case that repeatedly when implementing it.
+    // FIXME: it would be nicer to handle an empty database higher up, though
+    // we need to catch the case where all the non-empty subdatabases have
+    // failed, so we can't just push this right up to the start of get_mset().
+    if (usual(stats->collection_size != 0)) {
+	freqs = or_pl->get_termfreq_est_using_stats(*stats);
+    }
     wt->init_(*stats, qlen, factor, freqs.termfreq, freqs.reltermfreq);
 
     res->set_weight(wt.release());

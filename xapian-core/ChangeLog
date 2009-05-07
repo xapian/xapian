@@ -1,3 +1,9 @@
+Thu May 07 16:46:14 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/: Check for collection_size == 0 up front so we don't need
+	  to repeatedly special case it when implementing
+	  get_termfreq_est_using_stats().
+
 Thu May 07 16:28:07 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/xorpostlist.cc: Fix typo bug - collection_size should be
