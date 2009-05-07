@@ -660,7 +660,7 @@ void ChertPostList::read_number_of_entries(const char ** posptr,
 ChertPostList::ChertPostList(Xapian::Internal::RefCntPtr<const ChertDatabase> this_db_,
 			     const string & term_,
 			     bool keep_reference)
-	: TermBasedLeafPostList(term_),
+	: LeafPostList(term_),
 	  this_db(keep_reference ? this_db_ : NULL),
 	  have_started(false),
 	  cursor(this_db_->postlist_table.cursor_get()),

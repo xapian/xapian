@@ -1,3 +1,15 @@
+Thu May 07 12:13:50 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/leafpostlist.cc,backends/chert/chert_postlist.cc,
+	  backends/chert/chert_postlist.h,
+	  backends/flint/flint_alldocspostlist.h,
+	  backends/flint/flint_postlist.cc,backends/flint/flint_postlist.h,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h,backends/remote/net_postlist.h,
+	  common/contiguousalldocspostlist.h,common/leafpostlist.h: Squash
+	  TermBasedLeafPostList into LeafPostList since there are no longer
+	  any other subclasses.
+
 Thu May 07 11:49:06 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/Makefile.mk,api/emptypostlist.cc,common/emptypostlist.h:

@@ -33,7 +33,7 @@ using namespace std;
 
 /** A postlist in a remote database.
  */
-class NetworkPostList : public TermBasedLeafPostList {
+class NetworkPostList : public LeafPostList {
     friend class RemoteDatabase;
 
     Xapian::Internal::RefCntPtr<const RemoteDatabase> db;
@@ -60,7 +60,7 @@ class NetworkPostList : public TermBasedLeafPostList {
     /// Default constructor.
     NetworkPostList(Xapian::Internal::RefCntPtr<const RemoteDatabase> db_,
 		    const string & term_)
-	: TermBasedLeafPostList(term_),
+	: LeafPostList(term_),
 	  db(db_), started(false), pos(NULL), pos_end(NULL),
 	  lastdocid(0), lastwdf(0), termfreq(0)
     {
