@@ -30,7 +30,6 @@
 #include "collapser.h"
 #include "submatch.h"
 #include "localmatch.h"
-#include "emptysubmatch.h"
 #include "omdebug.h"
 #include "omenquireinternal.h"
 
@@ -153,7 +152,8 @@ prepare_sub_matches(vector<Xapian::Internal::RefCntPtr<SubMatch> > & leaves,
 	for (size_t leaf = 0; leaf < leaves.size(); ++leaf) {
 	    if (prepared[leaf]) continue;
 	    try {
-		if (leaves[leaf]->prepare_match(nowait, stats)) {
+		SubMatch * submatch = leaves[leaf].get();
+		if (!submatch || submatch->prepare_match(nowait, stats)) {
 		    prepared[leaf] = true;
 		    --unprepared;
 		}
@@ -163,7 +163,7 @@ prepare_sub_matches(vector<Xapian::Internal::RefCntPtr<SubMatch> > & leaves,
 		LOGLINE(EXCEPTION, "Calling error handler for prepare_match() on a SubMatch.");
 		(*errorhandler)(e);
 		// Continue match without this sub-match.
-		leaves[leaf] = new EmptySubMatch;
+		leaves[leaf] = NULL;
 		prepared[leaf] = true;
 		--unprepared;
 	    }
@@ -226,7 +226,6 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 	    RemoteDatabase *rem_db = subdb->as_remotedatabase();
 	    if (rem_db) {
-		is_remote[i] = true;
 		rem_db->set_query(query, qlen, collapse_max, collapse_key,
 				  order, sort_key, sort_by, sort_value_forward,
 				  percent_cutoff, weight_cutoff, weight,
@@ -234,6 +233,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 		bool decreasing_relevance =
 		    (sort_by == REL || sort_by == REL_VAL);
 		smatch = new RemoteSubMatch(rem_db, decreasing_relevance);
+		is_remote[i] = true;
 	    } else {
 #endif /* XAPIAN_HAS_REMOTE_BACKEND */
 		smatch = new LocalSubMatch(subdb, query, qlen, subrsets[i], weight);
@@ -245,7 +245,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	    LOGLINE(EXCEPTION, "Calling error handler for creation of a SubMatch from a database and query.");
 	    (*errorhandler)(e);
 	    // Continue match without this sub-postlist.
-	    smatch = new EmptySubMatch;
+	    smatch = NULL;
 	}
 	leaves.push_back(smatch);
     }
@@ -306,6 +306,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     {
 	vector<Xapian::Internal::RefCntPtr<SubMatch> >::iterator leaf;
 	for (leaf = leaves.begin(); leaf != leaves.end(); ++leaf) {
+	    if (!(*leaf).get()) continue;
 	    try {
 		(*leaf)->start_match(0, first + maxitems,
 				     first + check_at_least, stats);
@@ -315,7 +316,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 				   "start_match() on a SubMatch.");
 		(*errorhandler)(e);
 		// Continue match without this sub-match.
-		*leaf = Xapian::Internal::RefCntPtr<SubMatch>(new EmptySubMatch);
+		*leaf = NULL;
 	    }
 	}
     }
@@ -355,7 +356,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    (*errorhandler)(e);
 	    // FIXME: check if *ALL* the remote servers have failed!
 	    // Continue match without this sub-match.
-	    leaves[i] = new EmptySubMatch;
+	    leaves[i] = NULL;
 	    pl = new EmptyPostList;
 	}
 	postlists.push_back(pl);

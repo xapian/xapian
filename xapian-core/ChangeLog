@@ -1,3 +1,9 @@
+Thu May 07 13:26:21 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/: Eliminate EmptySubMatch - we can just store NULL for a
+	  submatch which has failed but which ErrorHandler told us to continue
+	  without.
+
 Thu May 07 12:52:24 GMT 2009  Olly Betts <olly@survex.com>
 
 	* common/database.h: Update internal documentation comment -
