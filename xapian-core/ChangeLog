@@ -1,3 +1,11 @@
+Thu May 07 15:25:00 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/localmatch.cc,matcher/localmatch.h: Don't rebuild the
+	  termname -> termfreq and weight map for every subdatabase - just do
+	  it once for the first one.  Also eliminate a copy of this map.
+	  This should speed up searches a little, especially those over
+	  multiple databases.
+
 Thu May 07 15:01:24 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc,api/omqueryinternal.cc,
