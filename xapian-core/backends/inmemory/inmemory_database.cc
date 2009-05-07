@@ -407,8 +407,6 @@ InMemoryDatabase::open_post_list(const string & tname) const
 {
     if (closed) InMemoryDatabase::throw_database_closed();
     if (tname.empty()) {
-	if (termlists.empty())
-	    return new EmptyPostList;
 	Xapian::Internal::RefCntPtr<const InMemoryDatabase> ptrtothis(this);
 	return new InMemoryAllDocsPostList(ptrtothis);
     }

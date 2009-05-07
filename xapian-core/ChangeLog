@@ -1,3 +1,11 @@
+Thu May 07 05:45:48 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_backend.cc: Add tset coverage for alldocs iterator on an
+	  empty database.
+	* backends/inmemory/inmemory_database.cc: No need to special case an
+	  empty database as InMemoryAllDocsPostList handles this case
+	  correctly.
+
 Thu May 07 05:08:07 GMT 2009  Olly Betts <olly@survex.com>
 
 	* weight/weightinternal.cc: Use str() instead of om_tostring(), += to
@@ -184,7 +192,7 @@ Mon May 04 12:04:16 GMT 2009  Olly Betts <olly@survex.com>
 	  do the timing comparison, and update time_query_parse() to use
 	  CPUTimer rather than OmTime.  Tweak the "fudge factor" up from
 	  2 to 2.15 to allow for non-equal ticks due to rounding of an
-	  interval which isn't an exact multiple of 1/CLK_TCK (ticket#308). 
+	  interval which isn't an exact multiple of 1/CLK_TCK (ticket#308).
 
 Mon May 04 12:02:32 GMT 2009  Olly Betts <olly@survex.com>
 
@@ -237,7 +245,7 @@ Fri May 01 04:53:22 GMT 2009  Olly Betts <olly@survex.com>
 	* api/omdocument.cc: Don't ever store empty values explicitly, which
 	  eliminates an inconsistently handled corner case which was causing
 	  the "value frequency" to be wrong from at least one point of view.
-	  This is consistent with how user metadata works too. 
+	  This is consistent with how user metadata works too.
 	* include/xapian/document.h: Explicitly document this behaviour.
 	* tests/api_valuestats.cc: Add regression test for the above change.
 
@@ -332,7 +340,7 @@ Sat Apr 25 00:57:41 GMT 2009  Olly Betts <olly@survex.com>
 
 Fri Apr 24 22:59:34 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
-	* weight/weight.cc: Add debug logging to Weight::init_() methods. 
+	* weight/weight.cc: Add debug logging to Weight::init_() methods.
 	* net/remoteserver.cc: Fix bounds returned by Weight::Internal
 	  object in get_mset() in remote submatches, by setting the
 	  database used to read the bounds.
@@ -595,7 +603,7 @@ Fri Mar 27 07:44:59 GMT 2009  Olly Betts <olly@survex.com>
 	  reports with lcov: coverage-reconfigure which reruns configure in
 	  the source tree and coverage-check which runs "make check" and
 	  generates an HTML report in a directory called "lcov".
-	  
+
 Thu Mar 26 23:59:36 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Makefile.am,m4-macros/xapian.m4,xapian-core.spec.in: Rename
@@ -659,7 +667,7 @@ Wed Mar 25 11:44:36 GMT 2009  Olly Betts <olly@survex.com>
 
 	* configure.ac: Only put ANSI_CXXFLAGS in CXXFLAGS for the duration of
 	  configure - put it in AM_CXXFLAGS for substituting so that the user
-	  can safely override CXXFLAGS at make-time: "make CXXFLAGS=-Os" 
+	  can safely override CXXFLAGS at make-time: "make CXXFLAGS=-Os"
 
 Wed Mar 25 10:50:44 GMT 2009  Olly Betts <olly@survex.com>
 
