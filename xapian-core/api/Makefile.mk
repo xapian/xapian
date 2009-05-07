@@ -10,6 +10,7 @@ EXTRA_DIST +=\
 lib_src +=\
 	api/documentvaluelist.cc\
 	api/editdistance.cc\
+	api/emptypostlist.cc\
 	api/error.cc\
 	api/errorhandler.cc\
 	api/expanddecider.cc\
