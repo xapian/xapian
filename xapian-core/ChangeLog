@@ -1,3 +1,12 @@
+Thu May 07 15:01:24 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,api/omqueryinternal.cc,
+	  backends/remote/remote-database.cc,common/autoptr.h,
+	  expand/esetinternal.cc,matcher/localmatch.cc: Make our AutoPtr just
+	  a macro wrapper for std::auto_ptr.  Since std::auto_ptr doesn't
+	  allow assignment from a raw pointer, this requires changing such
+	  assignments into calls to auto_ptr::reset().
+
 Thu May 07 14:19:22 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/leafpostlist.cc: Add an assertion that the term in the stats.
