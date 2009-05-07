@@ -1,3 +1,11 @@
+Thu May 07 10:28:33 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/multi/multi_postlist.cc,backends/multi/multi_postlist.h:
+	  Subclass MultiPostList directly from PostList instead of from
+	  LeafPostList.  This gets rid of two unused data members per
+	  MultiPostList in exchange for having to define 5 extra "never
+	  called" methods, but 4 of these just tailcall.
+
 Thu May 07 10:26:39 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/inmemory/inmemory_alltermslist.cc,
