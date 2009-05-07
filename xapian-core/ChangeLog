@@ -1,3 +1,9 @@
+Thu May 07 12:52:24 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/database.h: Update internal documentation comment -
+	  Database::Internal::open_post_list() can no longer return
+	  EmptyPostList as it is no longer a subclass of LeafPostList.
+
 Thu May 07 12:13:50 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/leafpostlist.cc,backends/chert/chert_postlist.cc,
