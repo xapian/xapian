@@ -1,3 +1,11 @@
+Thu May 07 16:28:07 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/xorpostlist.cc: Fix typo bug - collection_size should be
+	  rset_size.  This would have lead to a floating point division by
+	  zero when XOR was used under a synonym without an RSet, but that
+	  would just give infinity, and so just give a bogus value for the
+	  rel_termfreq rather than aborting instantly.
+
 Thu May 07 16:19:52 GMT 2009  Olly Betts <olly@survex.com>
 
 	* HACKING: Update auto_ptr information.  Mention constructor syntax as

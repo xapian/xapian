@@ -254,7 +254,7 @@ XorPostList::get_termfreq_est_using_stats(
 		   / stats.collection_size);
     }
 
-    if (stats.collection_size == 0) {
+    if (stats.rset_size == 0) {
 	relfreqest = 0;
     } else {
 	relfreqest = lfreqs.reltermfreq + rfreqs.reltermfreq
