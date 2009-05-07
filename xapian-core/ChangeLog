@@ -1,3 +1,8 @@
+Thu May 07 16:19:52 GMT 2009  Olly Betts <olly@survex.com>
+
+	* HACKING: Update auto_ptr information.  Mention constructor syntax as
+	  an alternative replacement for some C-style casts.
+
 Thu May 07 15:25:00 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/localmatch.cc,matcher/localmatch.h: Don't rebuild the
