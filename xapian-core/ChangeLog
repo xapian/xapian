@@ -1,3 +1,13 @@
+Thu May 07 09:27:35 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/inmemory/inmemory_alltermslist.cc,
+	  backends/inmemory/inmemory_alltermslist.h,
+	  backends/inmemory/inmemory_database.cc:
+	  Keep a dummy entry in InMemoryDatabase::postlists so that the
+	  implementation of InMemoryAllTermsList doesn't need a "started"
+	  flag, and we can use an InMemoryPostList on the dummy item for
+	  the "term not in database" case.
+
 Thu May 07 05:45:48 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_backend.cc: Add tset coverage for alldocs iterator on an

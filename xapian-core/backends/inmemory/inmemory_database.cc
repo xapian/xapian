@@ -27,7 +27,6 @@
 
 #include "omdebug.h"
 
-#include "emptypostlist.h"
 #include "expandweight.h"
 #include "inmemory_document.h"
 #include "inmemory_alltermslist.h"
@@ -375,6 +374,10 @@ InMemoryDatabase::InMemoryDatabase()
 {
     // Updates are applied immediately so we can't support transactions.
     transaction_state = TRANSACTION_UNIMPLEMENTED;
+
+    // We keep an empty entry in postlists for convenience of implementing
+    // allterms iteration and returning a PostList for an absent term.
+    postlists.insert(make_pair(string(), InMemoryTerm()));
 }
 
 InMemoryDatabase::~InMemoryDatabase()
@@ -411,13 +414,13 @@ InMemoryDatabase::open_post_list(const string & tname) const
 	return new InMemoryAllDocsPostList(ptrtothis);
     }
     map<string, InMemoryTerm>::const_iterator i = postlists.find(tname);
-    if (i == postlists.end() || i->second.term_freq == 0)
-	return new EmptyPostList;
-
+    if (i == postlists.end() || i->second.term_freq == 0) {
+	i = postlists.begin();
+	// Check that our dummy entry for string() is present.
+	Assert(i->first.empty());
+    }
     Xapian::Internal::RefCntPtr<const InMemoryDatabase> ptrtothis(this);
-    LeafPostList * pl = new InMemoryPostList(ptrtothis, i->second, tname);
-    Assert(!pl->at_end());
-    return pl;
+    return new InMemoryPostList(ptrtothis, i->second, tname);
 }
 
 bool

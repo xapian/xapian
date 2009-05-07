@@ -24,19 +24,12 @@
 
 #include "stringutils.h"
 
-InMemoryAllTermsList::InMemoryAllTermsList(const std::map<string, InMemoryTerm> *tmap_,
-					   Xapian::Internal::RefCntPtr<const InMemoryDatabase> database_,
-					   const string & prefix_)
-	: tmap(tmap_), database(database_), started(false), prefix(prefix_)
-{
-}
-
 string
 InMemoryAllTermsList::get_termname() const
 {
     if (database->is_closed()) InMemoryDatabase::throw_database_closed();
-    Assert(started);
     Assert(!at_end());
+    Assert(!it->first.empty());
     return it->first;
 }
 
@@ -44,8 +37,8 @@ Xapian::doccount
 InMemoryAllTermsList::get_termfreq() const
 {
     if (database->is_closed()) InMemoryDatabase::throw_database_closed();
-    Assert(started);
     Assert(!at_end());
+    Assert(!it->first.empty());
     /* FIXME: this isn't quite right. */
     return it->second.docs.size();
 }
@@ -54,8 +47,8 @@ Xapian::termcount
 InMemoryAllTermsList::get_collection_freq() const
 {
     if (database->is_closed()) InMemoryDatabase::throw_database_closed();
-    Assert(started);
     Assert(!at_end());
+    Assert(!it->first.empty());
     throw Xapian::UnimplementedError("Collection frequency not implemented in InMemory backend");
 }
 
@@ -64,14 +57,18 @@ InMemoryAllTermsList::skip_to(const string &tname_)
 {
     if (database->is_closed()) InMemoryDatabase::throw_database_closed();
     string tname(tname_);
-    if (started) {
-	Assert(!at_end());
+    Assert(it != tmap->end());
+    if (!it->first.empty()) {
 	// Don't skip backwards.
-	if (tname <= get_termname()) return NULL;
+	if (tname <= it->first) return NULL;
     } else {
-	started = true;
 	// Don't skip to before where we're supposed to start.
-	if (tname < prefix) tname = prefix;
+	if (tname < prefix) {
+	    tname = prefix;
+	} else if (tname.empty()) {
+	    ++it;
+	    return NULL;
+	}
     }
     it = tmap->lower_bound(tname);
     while (it != tmap->end() && it->second.term_freq == 0) ++it;
@@ -84,11 +81,10 @@ TermList *
 InMemoryAllTermsList::next()
 {
     if (database->is_closed()) InMemoryDatabase::throw_database_closed();
-    if (!started) {
-	started = true;
+    Assert(it != tmap->end());
+    if (it->first.empty() && !prefix.empty()) {
 	it = tmap->lower_bound(prefix);
     } else {
-	Assert(!at_end());
 	++it;
     }
     while (it != tmap->end() && it->second.term_freq == 0) ++it;
@@ -101,6 +97,6 @@ bool
 InMemoryAllTermsList::at_end() const
 {
     if (database->is_closed()) InMemoryDatabase::throw_database_closed();
-    Assert(started);
+    Assert(!it->first.empty());
     return (it == tmap->end());
 }
