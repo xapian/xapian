@@ -121,7 +121,7 @@ class ChertPostListTable : public ChertTable {
 
 /** A postlist in a chert database.
  */
-class ChertPostList : public TermBasedLeafPostList {
+class ChertPostList : public LeafPostList {
     protected: // ChertModifiedPostList needs to access these.
 	/** The database we are searching.  This pointer is held so that the
 	 *  database doesn't get deleted before us, and also to give us access

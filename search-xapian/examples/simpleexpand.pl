@@ -50,7 +50,6 @@ eval {
     my $reldocs = Search::Xapian::RSet->new();
     foreach my $did (@ARGV[$sep_index + 1 .. $#ARGV]) {
         $reldocs->add_document($did);
-	print "rel: $did\n";
     }
 
     # Parse the query string to produce a Xapian::Query object.
@@ -73,9 +72,7 @@ eval {
 	printf "%i results found.\n", $mset->get_matches_estimated();
 	printf "Results 1-%i:\n", $mset->size();
 
-	# In 1.0.13.0 and newer you'll be able to replace this with:
-	# foreach my $m ($mset->matches()) {
-	foreach my $m (tie_mset($mset)) {
+	foreach my $m ($mset->items()) {
 	    printf "%i: %i%% docid=%i [%s]\n", $m->get_rank() + 1, $m->get_percent(), $m->get_docid(), $m->get_document()->get_data();
 	}
     }
@@ -86,7 +83,7 @@ eval {
 	if ($last > 4) {
 	   $last = 4;
 	} 
-	foreach my $m ((tie_mset($mset))[0..$last]) {
+	foreach my $m (($mset->items())[0..$last]) {
             $reldocs->add_document($m->get_docid());
 	}
     }
@@ -94,19 +91,11 @@ eval {
     # Get the suggested expand terms
     my $eset = $enquire->get_eset(10, $reldocs);
     printf "%i suggested additional terms\n", $eset->size();
-    my $k = $eset->begin();
-    while ($k != $eset->end()) {
+    for my $k ($eset->items()) {
         printf "%s: %f\n", $k->get_termname(), $k->get_weight();
-        ++$k;
     }
 };
 if ($@) {
     print STDERR "Exception: $@\n";
     exit(1);
-}
-
-sub tie_mset {
-    my @a;
-    tie( @a, 'Search::Xapian::MSet::Tied', shift );
-    return @a;
 }

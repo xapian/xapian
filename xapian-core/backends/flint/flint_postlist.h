@@ -102,7 +102,7 @@ class FlintPostListTable : public FlintTable {
 
 /** A postlist in a flint database.
  */
-class FlintPostList : public TermBasedLeafPostList {
+class FlintPostList : public LeafPostList {
    protected: // FlintModifiedPostList needs to access these.
 	/** The database we are searching.  This pointer is held so that the
 	 *  database doesn't get deleted before us, and also to give us access

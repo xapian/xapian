@@ -17,7 +17,6 @@ Xapian/Document.pm
 Xapian/Enquire.pm
 Xapian/ESetIterator.pm
 Xapian/ESet.pm
-Xapian/ESet/Tied.pm
 Xapian/MSetIterator.pm
 Xapian/MSet.pm
 Xapian/MSet/Tied.pm

@@ -162,12 +162,11 @@ AndPostList::get_termfreq_est_using_stats(
 
     double freqest, relfreqest;
 
-    if (stats.collection_size == 0) {
-	freqest = 0;
-    } else {
-	freqest = double(lfreqs.termfreq) *
-		double(rfreqs.termfreq) / stats.collection_size;
-    }
+    // Our caller should have ensured this.
+    Assert(stats.collection_size);
+
+    freqest = double(lfreqs.termfreq) *
+	    double(rfreqs.termfreq) / stats.collection_size;
 
     if (stats.rset_size == 0) {
 	relfreqest = 0;

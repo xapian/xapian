@@ -132,7 +132,7 @@ class InMemoryDatabase;
 
 /** A PostList in an inmemory database.
  */
-class InMemoryPostList : public TermBasedLeafPostList {
+class InMemoryPostList : public LeafPostList {
     friend class InMemoryDatabase;
     private:
 	vector<InMemoryPosting>::const_iterator pos;
@@ -170,7 +170,7 @@ class InMemoryPostList : public TermBasedLeafPostList {
 
 /** A PostList over all docs in an inmemory database.
  */
-class InMemoryAllDocsPostList : public TermBasedLeafPostList {
+class InMemoryAllDocsPostList : public LeafPostList {
     friend class InMemoryDatabase;
     private:
 	Xapian::docid did;

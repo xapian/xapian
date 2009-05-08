@@ -12,6 +12,7 @@ lib_src +=\
 	api/limitvalwtsource.cc\
 	api/documentvaluelist.cc\
 	api/editdistance.cc\
+	api/emptypostlist.cc\
 	api/error.cc\
 	api/errorhandler.cc\
 	api/expanddecider.cc\
