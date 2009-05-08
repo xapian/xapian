@@ -92,8 +92,7 @@ show_values(Database &db, docid docid, char sep)
 {
     Document doc = db.get_document(docid);
     ValueIterator v = doc.values_begin();
-    ValueIterator vend = doc.values_end();
-    while (v != vend) {
+    while (v != doc.values_end()) {
 	cout << sep << v.get_valueno() << ':' << *v;
 	++v;
     }
@@ -253,8 +252,7 @@ main(int argc, char **argv)
 	if (slot_set) {
 	    cout << "Value " << slot << " for each document:";
 	    ValueIterator it = db.valuestream_begin(slot);
-	    ValueIterator end = db.valuestream_end(slot);
-	    while (it != end) {
+	    while (it != db.valuestream_end(slot)) {
 		cout << separator << it.get_docid() << ':' << *it;
 		++it;
 	    }

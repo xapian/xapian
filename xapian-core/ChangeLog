@@ -1,3 +1,11 @@
+Fri May 08 16:00:42 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/postingsource.cc,backends/inmemory/inmemory_database.cc,
+	  examples/delve.cc,include/xapian/postingsource.h: Don't store an
+	  end iterator in a variable just to compare against it - it's now
+	  definitely more efficient to compare against the return value of
+	  the relevant _end() method.
+
 Fri May 08 15:44:07 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/valueiterator.cc,include/xapian/database.h,

@@ -328,9 +328,6 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
     /// Value stream iterator.
     Xapian::ValueIterator value_it;
 
-    /// End iterator corresponding to it.
-    Xapian::ValueIterator value_end;
-
     /// Flag indicating if we've started (true if we have).
     bool started;
 

@@ -146,15 +146,14 @@ ValuePostingSource::next(Xapian::weight min_wt)
     if (!started) {
 	started = true;
 	value_it = db.valuestream_begin(slot);
-	value_end = db.valuestream_end(slot);
     } else {
 	++value_it;
     }
 
-    if (value_it == value_end) return;
+    if (value_it == db.valuestream_end(slot)) return;
 
     if (min_wt > max_weight) {
-	value_it = value_end;
+	value_it = db.valuestream_end(slot);
 	return;
     }
 }
@@ -166,13 +165,12 @@ ValuePostingSource::skip_to(Xapian::docid min_docid,
     if (!started) {
 	started = true;
 	value_it = db.valuestream_begin(slot);
-	value_end = db.valuestream_end(slot);
 
-	if (value_it == value_end) return;
+	if (value_it == db.valuestream_end(slot)) return;
     }
 
     if (min_wt > max_weight) {
-	value_it = value_end;
+	value_it = db.valuestream_end(slot);
 	return;
     }
     value_it.skip_to(min_docid);
@@ -185,13 +183,12 @@ ValuePostingSource::check(Xapian::docid min_docid,
     if (!started) {
 	started = true;
 	value_it = db.valuestream_begin(slot);
-	value_end = db.valuestream_end(slot);
 
-	if (value_it == value_end) return true;
+	if (value_it == db.valuestream_end(slot)) return true;
     }
 
     if (min_wt > max_weight) {
-	value_it = value_end;
+	value_it = db.valuestream_end(slot);
 	return true;
     }
     return value_it.check(min_docid);
@@ -200,7 +197,7 @@ ValuePostingSource::check(Xapian::docid min_docid,
 bool
 ValuePostingSource::at_end() const
 {
-    return started && value_it == value_end;
+    return started && value_it == db.valuestream_end(slot);
 }
 
 Xapian::docid
