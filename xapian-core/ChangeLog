@@ -1,3 +1,7 @@
+Fri May 08 12:30:45 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/harness/cputimer.cc: Fix typo in the "ftime" case.
+
 Fri May 08 10:25:37 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* matcher/andpostlist.cc: Fix a swap which was the wrong way round,
