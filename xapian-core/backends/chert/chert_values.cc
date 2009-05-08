@@ -316,8 +316,8 @@ ChertValueManager::add_document(Xapian::docid did, const Xapian::Document &doc,
     // FIXME: Use BitWriter and interpolative coding?  Or is it not worthwhile
     // for this?
     string slots_used;
-    Xapian::ValueIterator it = doc.values_begin();
     Xapian::valueno prev_slot = static_cast<Xapian::valueno>(-1);
+    Xapian::ValueIterator it = doc.values_begin();
     while (it != doc.values_end()) {
 	Xapian::valueno slot = it.get_valueno();
 	string value = *it;

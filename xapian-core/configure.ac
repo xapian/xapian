@@ -84,7 +84,7 @@ fi
 
 dnl See HACKING document for details of the reasons for required versions.
 AM_INIT_AUTOMAKE([1.10.2 -Wportability tar-ustar])
-AC_CONFIG_SRCDIR([matcher/andpostlist.cc])
+AC_CONFIG_SRCDIR([matcher/multiandpostlist.cc])
 
 AC_CONFIG_HEADERS([config.h])
 

@@ -452,10 +452,10 @@ DEFINE_TESTCASE(fixedweightsource1, backend) {
 	TEST_EQUAL(src.check(5, 1.0), true);
 	TEST(!src.at_end());
 	TEST_EQUAL(src.get_docid(), 5);
-	src.skip_to(3, 1.0);
+	src.skip_to(6, 1.0);
 	TEST(!src.at_end());
 	TEST_EQUAL(src.get_docid(), 6);
-	src.skip_to(3, wt * 2);
+	src.skip_to(7, wt * 2);
 	TEST(src.at_end());
     }
 

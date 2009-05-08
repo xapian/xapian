@@ -104,4 +104,17 @@ skip_to_handling_prune(PostList * & pl, Xapian::docid did, Xapian::weight w_min,
     return true;
 }
 
+inline bool
+check_handling_prune(PostList * & pl, Xapian::docid did, Xapian::weight w_min,
+		     MultiMatch *matcher, bool & valid)
+{
+    PostList *p = pl->check(did, w_min, valid);
+    if (!p) return false;
+    delete pl;
+    pl = p;
+    // now tell matcher that maximum weights need recalculation.
+    if (matcher) matcher->recalc_maxweight();
+    return true;
+}
+
 #endif /* OM_HGUARD_BRANCHPOSTLIST_H */

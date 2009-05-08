@@ -195,7 +195,7 @@ CPPFLAGS_COMMON=-nologo -c -Zi -I.. -I..\include -I..\common -I..\win32 -W3 -EHs
 -DWIN32 -D__WIN32__ -D_WIN32 -D_WINDOWS \
 -D "HAVE_VSNPRINTF" -D "HAVE_STRDUP" -D "_USE_32BIT_TIME_T" \
 -D_CRT_SECURE_NO_DEPRECATE \
--I "$(ZLIB_INCLUDE_DIR)"
+-I"$(ZLIB_INCLUDE_DIR)"
 
 # The various parts of Xapian (but *not* the test suite or treecheck libs)
 XAPIAN_LIBS = \
