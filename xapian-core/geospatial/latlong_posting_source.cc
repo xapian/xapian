@@ -108,7 +108,7 @@ LatLongDistancePostingSource::next(weight min_wt)
 {
     ValuePostingSource::next(min_wt);
 
-    while (value_it != value_end) {
+    while (value_it != db.valuestream_end(slot)) {
 	calc_distance();
 	if (max_range == 0 || dist <= max_range)
 	    break;
@@ -122,7 +122,7 @@ LatLongDistancePostingSource::skip_to(docid min_docid,
 {
     ValuePostingSource::skip_to(min_docid, min_wt);
 
-    while (value_it != value_end) {
+    while (value_it != db.valuestream_end(slot)) {
 	calc_distance();
 	if (max_range == 0 || dist <= max_range)
 	    break;
@@ -138,7 +138,7 @@ LatLongDistancePostingSource::check(docid min_docid,
 	// check returned false, so we know the document is not in the source.
 	return false;
     }
-    if (value_it == value_end) {
+    if (value_it == db.valuestream_end(slot)) {
 	// return true, since we're definitely at the end of the list.
 	return true;
     }
