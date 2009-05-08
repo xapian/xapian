@@ -1,3 +1,8 @@
+Fri May 08 19:59:00 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* configure.ac: Change source file which autoconf looks for, since
+	  I've just removed the old one that it looked for!
+
 Fri May 08 19:28:31 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* matcher/andmaybepostlist.cc,matcher/branchpostlist.h: Call
