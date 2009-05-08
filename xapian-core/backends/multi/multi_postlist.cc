@@ -52,11 +52,43 @@ MultiPostList::~MultiPostList()
 }
 
 Xapian::doccount
-MultiPostList::get_termfreq() const
+MultiPostList::get_termfreq_min() const
 {
     // Should never get called.
     Assert(false);
     return 0;
+}
+
+Xapian::doccount
+MultiPostList::get_termfreq_max() const
+{
+    return MultiPostList::get_termfreq_min();
+}
+
+Xapian::doccount
+MultiPostList::get_termfreq_est() const
+{
+    return MultiPostList::get_termfreq_min();
+}
+
+Xapian::weight
+MultiPostList::get_maxweight() const
+{
+    return MultiPostList::get_weight();
+}
+
+Xapian::weight
+MultiPostList::get_weight() const
+{
+    // Should never get called.
+    Assert(false);
+    return 0;
+}
+
+Xapian::weight
+MultiPostList::recalc_maxweight()
+{
+    return MultiPostList::get_weight();
 }
 
 Xapian::docid

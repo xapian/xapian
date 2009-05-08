@@ -100,13 +100,15 @@ MultiAndPostList::get_termfreq_est_using_stats(
     double freqest = double(freqs.termfreq);
     double relfreqest = double(freqs.reltermfreq);
 
+    // Our caller should have ensured this.
+    Assert(stats.collection_size);
+
     for (size_t i = 1; i < n_kids; ++i) {
 	freqs = plist[i]->get_termfreq_est_using_stats(stats);
 
 	// If the collection is empty, freqest should be 0 already, so leave
 	// it alone.
-	if (stats.collection_size != 0)
-	    freqest = (freqest * freqs.termfreq) / stats.collection_size;
+	freqest = (freqest * freqs.termfreq) / stats.collection_size;
 
 	// If the rset is empty, relfreqest should be 0 already, so leave
 	// it alone.

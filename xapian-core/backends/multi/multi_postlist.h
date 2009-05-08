@@ -25,7 +25,7 @@
 #include "leafpostlist.h"
 #include <vector>
 
-class MultiPostList : public LeafPostList {
+class MultiPostList : public PostList {
     friend class Xapian::Database;
     private:
 	std::vector<LeafPostList *> postlists;
@@ -42,7 +42,13 @@ class MultiPostList : public LeafPostList {
     public:
 	~MultiPostList();
 
-	Xapian::doccount get_termfreq() const;
+	Xapian::doccount get_termfreq_min() const;
+	Xapian::doccount get_termfreq_max() const;
+	Xapian::doccount get_termfreq_est() const;
+
+	Xapian::weight get_maxweight() const;
+	Xapian::weight get_weight() const;
+	Xapian::weight recalc_maxweight();
 
 	Xapian::docid  get_docid() const;     // Gets current docid
 	Xapian::termcount get_doclength() const; // Get length of current document

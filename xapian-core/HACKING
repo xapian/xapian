@@ -419,12 +419,10 @@ Use of C++ Features
 ===================
 
 * STL:  We decided early on to embrace the C++ STL.  Some older compilers
-  don't include full support for this.  Often we can work around this, for
-  example:
-
-  * Providing our own auto_ptr implementation (AutoPtr).  This may well no
-    longer be necessary for the compilers we want to support, but needs
-    investigating.
+  don't include full support for this.  Often we can work around this, and we
+  should do where the effort is low compared to the gain (so a compiler
+  version which is widely used is more worth supporting than one which is
+  hardly used by anyone).
 
   There is now plenty of choice of compilers which provide good conformance to
   ISO C++, so if working around problems for some compiler proves too hard we
@@ -448,6 +446,10 @@ Use of C++ Features
     added in GCC 3.0.
 
   * Standard header ``<streambuf>`` (GCC < 3.0 only has ``<streambuf.h>``).
+
+  * Working auto_ptr in header ``<memory>`` (some old version of some compiler
+    had a buggy implementation - the details are lost to history, but it may
+    have been GCC 2.95, or perhaps EGCS).
 
 * RTTI (dynamic_cast<>, typeid, etc):  Needing to use RTTI features in the
   library most likely indicates a design flaw, and you should avoid use
@@ -473,8 +475,9 @@ Use of C++ Features
   namespace std into the namespace of an application which uses Xapian.
 
 * Use C++ style casts (static_cast<>, reinterpret_cast<>, and const_cast<>)
-  in preference to C style casts.  The syntax is ugly, but they do make the
-  intent much clearer which is definitely a good thing.
+  or constructor-syntax (e.g. ``double(value)``) in preference to C style
+  casts.  The syntax of the C++ casts is ugly, but they do make the intent much
+  clearer which is definitely a good thing.
 
 * std::pair<> with an STL class as one (or both) of the members can produce
   very long symbols (over 4KB!) after name mangling - long enough to overflow

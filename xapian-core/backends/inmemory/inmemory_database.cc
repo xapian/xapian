@@ -27,7 +27,6 @@
 
 #include "omdebug.h"
 
-#include "emptypostlist.h"
 #include "expandweight.h"
 #include "inmemory_document.h"
 #include "inmemory_alltermslist.h"
@@ -80,15 +79,13 @@ InMemoryDoc::add_posting(const InMemoryTermEntry & post)
 InMemoryPostList::InMemoryPostList(Xapian::Internal::RefCntPtr<const InMemoryDatabase> db_,
 				   const InMemoryTerm & imterm,
 				   const std::string & term_)
-	: TermBasedLeafPostList(term_),
+	: LeafPostList(term_),
 	  pos(imterm.docs.begin()),
 	  end(imterm.docs.end()),
 	  termfreq(imterm.term_freq),
 	  started(false),
 	  db(db_)
 {
-    // InMemoryPostLists cannot be empty
-    Assert(pos != end);
     while (pos != end && !pos->valid) ++pos;
 }
 
@@ -282,7 +279,7 @@ InMemoryTermList::positionlist_begin() const
 /////////////////////////////
 
 InMemoryAllDocsPostList::InMemoryAllDocsPostList(Xapian::Internal::RefCntPtr<const InMemoryDatabase> db_)
-	: TermBasedLeafPostList(std::string()), did(0), db(db_)
+	: LeafPostList(std::string()), did(0), db(db_)
 {
 }
 
@@ -375,6 +372,10 @@ InMemoryDatabase::InMemoryDatabase()
 {
     // Updates are applied immediately so we can't support transactions.
     transaction_state = TRANSACTION_UNIMPLEMENTED;
+
+    // We keep an empty entry in postlists for convenience of implementing
+    // allterms iteration and returning a PostList for an absent term.
+    postlists.insert(make_pair(string(), InMemoryTerm()));
 }
 
 InMemoryDatabase::~InMemoryDatabase()
@@ -407,19 +408,17 @@ InMemoryDatabase::open_post_list(const string & tname) const
 {
     if (closed) InMemoryDatabase::throw_database_closed();
     if (tname.empty()) {
-	if (termlists.empty())
-	    return new EmptyPostList;
 	Xapian::Internal::RefCntPtr<const InMemoryDatabase> ptrtothis(this);
 	return new InMemoryAllDocsPostList(ptrtothis);
     }
     map<string, InMemoryTerm>::const_iterator i = postlists.find(tname);
-    if (i == postlists.end() || i->second.term_freq == 0)
-	return new EmptyPostList;
-
+    if (i == postlists.end() || i->second.term_freq == 0) {
+	i = postlists.begin();
+	// Check that our dummy entry for string() is present.
+	Assert(i->first.empty());
+    }
     Xapian::Internal::RefCntPtr<const InMemoryDatabase> ptrtothis(this);
-    LeafPostList * pl = new InMemoryPostList(ptrtothis, i->second, tname);
-    Assert(!pl->at_end());
-    return pl;
+    return new InMemoryPostList(ptrtothis, i->second, tname);
 }
 
 bool

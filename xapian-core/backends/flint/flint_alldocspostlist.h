@@ -26,7 +26,7 @@
 
 #include "leafpostlist.h"
 
-class FlintAllDocsPostList : public TermBasedLeafPostList {
+class FlintAllDocsPostList : public LeafPostList {
     /// Don't allow assignment.
     void operator=(const FlintAllDocsPostList &);
 
@@ -51,7 +51,7 @@ class FlintAllDocsPostList : public TermBasedLeafPostList {
   public:
     FlintAllDocsPostList(Xapian::Internal::RefCntPtr<const FlintDatabase> db_,
 			 Xapian::doccount doccount_)
-      : TermBasedLeafPostList(std::string()),
+      : LeafPostList(std::string()),
 	db(db_), doccount(doccount_), cursor(db->termlist_table.cursor_get()),
 	current_did(0)
     {

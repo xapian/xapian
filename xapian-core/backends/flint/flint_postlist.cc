@@ -654,7 +654,7 @@ void FlintPostList::read_number_of_entries(const char ** posptr,
  */
 FlintPostList::FlintPostList(Xapian::Internal::RefCntPtr<const FlintDatabase> this_db_,
 			     const string & term_)
-	: TermBasedLeafPostList(term_),
+	: LeafPostList(term_),
 	  this_db(this_db_),
 	  have_started(false),
 	  cursor(this_db->postlist_table.cursor_get()),

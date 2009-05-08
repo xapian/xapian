@@ -1012,7 +1012,7 @@ Xapian::Query::Internal::flatten_subqs()
 	AutoPtr<Xapian::Query::Internal> newq(new Xapian::Query::Internal(*this));
 	delete *sq;
 	*sq = 0;
-	newq = newq->flatten_subqs();
+	newq.reset(newq->flatten_subqs());
 	*j = newq.release();
     }
 

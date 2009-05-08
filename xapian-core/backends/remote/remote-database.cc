@@ -149,10 +149,10 @@ RemoteDatabase::open_term_list(Xapian::docid did) const
 	throw Xapian::NetworkError("Bad REPLY_DOCLENGTH message received", context);
     }
 
-    AutoPtr<NetworkTermList> tlist;
-    tlist = new NetworkTermList(doclen, doccount,
-				Xapian::Internal::RefCntPtr<const RemoteDatabase>(this),
-				did);
+    AutoPtr<NetworkTermList> tlist(
+	new NetworkTermList(doclen, doccount,
+			    Xapian::Internal::RefCntPtr<const RemoteDatabase>(this),
+			    did));
     vector<NetworkTermListItem> & items = tlist->items;
 
     char type;
@@ -180,10 +180,10 @@ RemoteDatabase::open_allterms(const string & prefix) const {
 
     send_message(MSG_ALLTERMS, prefix);
 
-    AutoPtr<NetworkTermList> tlist;
-    tlist = new NetworkTermList(0, doccount,
-				Xapian::Internal::RefCntPtr<const RemoteDatabase>(this),
-				0);
+    AutoPtr<NetworkTermList> tlist(
+	new NetworkTermList(0, doccount,
+			    Xapian::Internal::RefCntPtr<const RemoteDatabase>(this),
+			    0));
     vector<NetworkTermListItem> & items = tlist->items;
 
     string message;
