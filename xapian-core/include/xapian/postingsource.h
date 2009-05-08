@@ -483,9 +483,6 @@ class XAPIAN_VISIBILITY_DEFAULT FixedWeightPostingSource : public PostingSource 
     /// Iterator over all documents.
     Xapian::PostingIterator it;
 
-    /// End iterator corresponding to it.
-    Xapian::PostingIterator end;
-
     /// The weight to return.
     Xapian::weight wt;
 

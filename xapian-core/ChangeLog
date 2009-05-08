@@ -1,3 +1,10 @@
+Fri May 08 14:42:49 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/postingsource.cc,include/xapian/postingsource.h: It is actually
+	  better not to store the end iterator in a member variable - if we
+	  explicitly call db.postlist_end(string()) then that just gets
+	  optimised to PostingSource(NULL).
+
 Fri May 08 14:02:21 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_postingsource.cc: We've decided that "going back" with

@@ -442,12 +442,11 @@ FixedWeightPostingSource::next(Xapian::weight min_wt)
     if (!started) {
 	started = true;
 	it = db.postlist_begin(string());
-	end = db.postlist_end(string());
     } else {
 	++it;
     }
 
-    if (it == end) return;
+    if (it == db.postlist_end(string())) return;
 
     if (check_docid) {
 	it.skip_to(check_docid + 1);
@@ -455,7 +454,7 @@ FixedWeightPostingSource::next(Xapian::weight min_wt)
     }
 
     if (min_wt > wt) {
-	it = end;
+	it = db.postlist_end(string());
     }
 }
 
@@ -466,9 +465,8 @@ FixedWeightPostingSource::skip_to(Xapian::docid min_docid,
     if (!started) {
 	started = true;
 	it = db.postlist_begin(string());
-	end = db.postlist_end(string());
 
-	if (it == end) return;
+	if (it == db.postlist_end(string())) return;
     }
 
     if (check_docid) {
@@ -478,7 +476,7 @@ FixedWeightPostingSource::skip_to(Xapian::docid min_docid,
     }
 
     if (min_wt > wt) {
-	it = end;
+	it = db.postlist_end(string());
 	return;
     }
     it.skip_to(min_docid);
@@ -498,7 +496,7 @@ bool
 FixedWeightPostingSource::at_end() const
 {
     if (check_docid != 0) return false;
-    return started && it == end;
+    return started && it == db.postlist_end(string());
 }
 
 Xapian::docid
