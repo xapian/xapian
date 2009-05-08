@@ -42,13 +42,18 @@ AndMaybePostList::process_next_or_skip_to(Xapian::weight w_min, PostList *ret)
     lhead = l->get_docid();
     if (lhead <= rhead) RETURN(NULL);
 
-    skip_to_handling_prune(r, lhead, w_min - lmax, matcher);
+    bool valid;
+    check_handling_prune(r, lhead, w_min - lmax, matcher, valid);
     if (r->at_end()) {
 	PostList *tmp = l;
 	l = NULL;
 	RETURN(tmp);
     }
-    rhead = r->get_docid();
+    if (valid) {
+	rhead = r->get_docid();
+    } else {
+	rhead = 0;
+    }
     RETURN(NULL);
 }
 
@@ -133,7 +138,7 @@ Xapian::docid
 AndMaybePostList::get_docid() const
 {
     DEBUGCALL(MATCH, Xapian::docid, "AndMaybePostList::get_docid", "");
-    Assert(lhead != 0 && rhead != 0); // check we've started
+    Assert(lhead != 0); // check we've started
     RETURN(lhead);
 }
 
@@ -142,7 +147,7 @@ Xapian::weight
 AndMaybePostList::get_weight() const
 {
     DEBUGCALL(MATCH, Xapian::weight, "AndMaybePostList::get_weight", "");
-    Assert(lhead != 0 && rhead != 0); // check we've started
+    Assert(lhead != 0); // check we've started
     if (lhead == rhead) RETURN(l->get_weight() + r->get_weight());
     RETURN(l->get_weight());
 }
@@ -182,7 +187,7 @@ Xapian::termcount
 AndMaybePostList::get_doclength() const
 {
     DEBUGCALL(MATCH, Xapian::termcount, "AndMaybePostList::get_doclength", "");
-    Assert(lhead != 0 && rhead != 0); // check we've started
+    Assert(lhead != 0); // check we've started
     if (lhead == rhead) AssertEq(l->get_doclength(), r->get_doclength());
     RETURN(l->get_doclength());
 }

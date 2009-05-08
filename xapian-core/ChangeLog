@@ -1,3 +1,9 @@
+Fri May 08 19:28:31 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/andmaybepostlist.cc,matcher/branchpostlist.h: Call
+	  check() instead of skip_to() on the optional branch of AND_MAYBE.
+	  This can be much faster if that branch is a posting source.
+
 Fri May 08 18:31:01 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* matcher/: Remove AndPostList, in favour of MultiAndPostList.
