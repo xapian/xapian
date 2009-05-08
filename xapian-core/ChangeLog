@@ -1,3 +1,9 @@
+Fri May 08 14:02:21 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_postingsource.cc: We've decided that "going back" with
+	  skip_to() or check() should have unspecified behaviour, so stop
+	  testing how this case behaves!
+
 Fri May 08 12:37:33 GMT 2009  Olly Betts <olly@survex.com>
 
 	* common/Makefile.mk: Ship common/win32_uuid.cc and common/win32_uuid.h
