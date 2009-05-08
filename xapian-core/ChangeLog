@@ -1,3 +1,8 @@
+Fri May 08 15:42:12 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_values.cc: Swap two statements for cosmetic
+	  reasons.
+
 Fri May 08 14:42:49 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/postingsource.cc,include/xapian/postingsource.h: It is actually
