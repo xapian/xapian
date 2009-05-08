@@ -30,7 +30,6 @@
 #include "collapser.h"
 #include "submatch.h"
 #include "localmatch.h"
-#include "emptysubmatch.h"
 #include "omdebug.h"
 #include "omenquireinternal.h"
 
@@ -153,7 +152,8 @@ prepare_sub_matches(vector<Xapian::Internal::RefCntPtr<SubMatch> > & leaves,
 	for (size_t leaf = 0; leaf < leaves.size(); ++leaf) {
 	    if (prepared[leaf]) continue;
 	    try {
-		if (leaves[leaf]->prepare_match(nowait, stats)) {
+		SubMatch * submatch = leaves[leaf].get();
+		if (!submatch || submatch->prepare_match(nowait, stats)) {
 		    prepared[leaf] = true;
 		    --unprepared;
 		}
@@ -163,7 +163,7 @@ prepare_sub_matches(vector<Xapian::Internal::RefCntPtr<SubMatch> > & leaves,
 		LOGLINE(EXCEPTION, "Calling error handler for prepare_match() on a SubMatch.");
 		(*errorhandler)(e);
 		// Continue match without this sub-match.
-		leaves[leaf] = new EmptySubMatch;
+		leaves[leaf] = NULL;
 		prepared[leaf] = true;
 		--unprepared;
 	    }
@@ -226,7 +226,6 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 	    RemoteDatabase *rem_db = subdb->as_remotedatabase();
 	    if (rem_db) {
-		is_remote[i] = true;
 		rem_db->set_query(query, qlen, collapse_max, collapse_key,
 				  order, sort_key, sort_by, sort_value_forward,
 				  percent_cutoff, weight_cutoff, weight,
@@ -234,6 +233,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 		bool decreasing_relevance =
 		    (sort_by == REL || sort_by == REL_VAL);
 		smatch = new RemoteSubMatch(rem_db, decreasing_relevance);
+		is_remote[i] = true;
 	    } else {
 #endif /* XAPIAN_HAS_REMOTE_BACKEND */
 		smatch = new LocalSubMatch(subdb, query, qlen, subrsets[i], weight);
@@ -245,7 +245,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	    LOGLINE(EXCEPTION, "Calling error handler for creation of a SubMatch from a database and query.");
 	    (*errorhandler)(e);
 	    // Continue match without this sub-postlist.
-	    smatch = new EmptySubMatch;
+	    smatch = NULL;
 	}
 	leaves.push_back(smatch);
     }
@@ -306,6 +306,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     {
 	vector<Xapian::Internal::RefCntPtr<SubMatch> >::iterator leaf;
 	for (leaf = leaves.begin(); leaf != leaves.end(); ++leaf) {
+	    if (!(*leaf).get()) continue;
 	    try {
 		(*leaf)->start_match(0, first + maxitems,
 				     first + check_at_least, stats);
@@ -315,7 +316,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 				   "start_match() on a SubMatch.");
 		(*errorhandler)(e);
 		// Continue match without this sub-match.
-		*leaf = Xapian::Internal::RefCntPtr<SubMatch>(new EmptySubMatch);
+		*leaf = NULL;
 	    }
 	}
     }
@@ -355,7 +356,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    (*errorhandler)(e);
 	    // FIXME: check if *ALL* the remote servers have failed!
 	    // Continue match without this sub-match.
-	    leaves[i] = new EmptySubMatch;
+	    leaves[i] = NULL;
 	    pl = new EmptyPostList;
 	}
 	postlists.push_back(pl);
@@ -769,42 +770,52 @@ new_greatest_weight:
 	    map<string,
 		Xapian::MSet::Internal::TermFreqAndWeight>::const_iterator i;
 
+	    // Special case for MatchAll queries.
+	    i = termfreqandwts.find(string());
+	    if (i != termfreqandwts.end()) {
+		percent_scale += i->second.termweight;
+		++matching_terms;
+	    }
+
 	    Xapian::TermIterator docterms = db.termlist_begin(best->did);
 	    Xapian::TermIterator docterms_end = db.termlist_end(best->did);
 	    while (docterms != docterms_end) {
 		i = termfreqandwts.find(*docterms);
 		if (i != termfreqandwts.end()) {
+		    LOGLINE(MATCH, "adding " << i->second.termweight <<
+			    " to percent_scale for term '" <<
+			    *docterms << "'");
 		    percent_scale += i->second.termweight;
 		    ++matching_terms;
 		    if (matching_terms == termfreqandwts.size()) break;
 		}
 		++docterms;
 	    }
-	    // Special case for MatchAll queries
-	    i = termfreqandwts.find("");
-	    if (i != termfreqandwts.end()) {
-		percent_scale += i->second.termweight;
-		++matching_terms;
-	    }
-	    if (matching_terms < termfreqandwts.size()) {
-		// OK, work out weight corresponding to 100%
-		double denom = 0;
-		for (i = termfreqandwts.begin(); i != termfreqandwts.end(); ++i)
-		    denom += i->second.termweight;
 
-		LOGVALUE(MATCH, denom);
-		LOGVALUE(MATCH, percent_scale);
-		AssertRel(percent_scale,<=,denom);
-		if (denom == 0) {
-		    // This happens if the top-level operator is OP_SYNONYM.
-		    percent_scale = 1.0 / greatest_wt;
+	    if (matching_terms < termfreqandwts.size()) {
+		if (percent_scale == 0.0) {
+		    // This happens if the only matching terms are synonyms.
+		    percent_scale = 1.0;
 		} else {
-		    denom *= greatest_wt;
-		    AssertRel(denom,>,0);
-		    percent_scale /= denom;
+		    // OK, work out weight corresponding to 100%
+		    double denom = 0;
+		    for (i = termfreqandwts.begin(); i != termfreqandwts.end(); ++i)
+			denom += i->second.termweight;
+
+		    LOGVALUE(MATCH, denom);
+		    LOGVALUE(MATCH, percent_scale);
+		    AssertRel(percent_scale,<=,denom);
+		    if (denom == 0) {
+			// This happens if the top-level operator is OP_SYNONYM.
+			percent_scale = 1.0 / greatest_wt;
+		    } else {
+			denom *= greatest_wt;
+			AssertRel(denom,>,0);
+			percent_scale /= denom;
+		    }
 		}
 	    } else {
-		// If all the terms match, the 2 sums of weights cancel
+		// If all the terms match, the 2 sums of weights cancel.
 		percent_scale = 1.0 / greatest_wt;
 	    }
 	} else {

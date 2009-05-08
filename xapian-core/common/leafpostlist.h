@@ -44,10 +44,15 @@ class LeafPostList : public PostList {
 
   protected:
     const Xapian::Weight * weight;
+
     bool need_doclength;
 
+    /// The term name for this postlist ("" for an alldocs postlist).
+    std::string term;
+
     /// Only constructable as a base class for derived classes.
-    LeafPostList() : weight(0), need_doclength(false) { }
+    LeafPostList(const std::string & term_)
+	: weight(0), need_doclength(false), term(term_) { }
 
   public:
     ~LeafPostList();
@@ -77,25 +82,7 @@ class LeafPostList : public PostList {
     Xapian::weight get_maxweight() const;
     Xapian::weight get_weight() const;
     Xapian::weight recalc_maxweight();
-};
 
-/// Abstract base class for leaf postlists based on a term.
-class TermBasedLeafPostList : public LeafPostList {
-    /// Don't allow assignment.
-    void operator=(const TermBasedLeafPostList &);
-
-    /// Don't allow copying.
-    TermBasedLeafPostList(const TermBasedLeafPostList &);
-
-  protected:
-    /// The term name for this postlist ("" for an alldocs postlist).
-    std::string term;
-
-    /// Only constructable as a base class for derived classes.
-    TermBasedLeafPostList(const std::string & term_)
-	    : LeafPostList(), term(term_) {}
-
-  public:
     TermFreqs get_termfreq_est_using_stats(
 	const Xapian::Weight::Internal & stats) const;
 };

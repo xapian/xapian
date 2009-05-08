@@ -128,22 +128,14 @@ serialise_stats(const Xapian::Weight::Internal &stats)
     result += encode_length(stats.collection_size);
     result += encode_length(stats.rset_size);
 
-    map<string, TermFreqs>::const_iterator i;
-
-    // FIXME - next time we're breaking the protocol API, do the freqs and
-    // relfreqs term-by-term in a single pass.
-
     result += encode_length(stats.termfreqs.size());
+    map<string, TermFreqs>::const_iterator i;
     for (i = stats.termfreqs.begin(); i != stats.termfreqs.end(); ++i) {
 	result += encode_length(i->first.size());
 	result += i->first;
 	result += encode_length(i->second.termfreq);
-    }
-
-    for (i = stats.termfreqs.begin(); i != stats.termfreqs.end(); ++i) {
-	result += encode_length(i->first.size());
-	result += i->first;
-	result += encode_length(i->second.reltermfreq);
+	if (stats.rset_size != 0)
+	    result += encode_length(i->second.reltermfreq);
     }
 
     return result;
@@ -166,14 +158,14 @@ unserialise_stats(const string &s)
 	size_t len = decode_length(&p, p_end, true);
 	string term(p, len);
 	p += len;
-	stat.termfreqs.insert(make_pair(term, TermFreqs(decode_length(&p, p_end, false), 0)));
-    }
-
-    while (p != p_end) {
-	size_t len = decode_length(&p, p_end, true);
-	string term(p, len);
-	p += len;
-	stat.termfreqs[term].reltermfreq = decode_length(&p, p_end, false);
+	Xapian::doccount termfreq(decode_length(&p, p_end, false));
+	if (stat.rset_size == 0) {
+	    stat.termfreqs.insert(make_pair(term, TermFreqs(termfreq, 0)));
+	} else {
+	    Xapian::doccount reltermfreq(decode_length(&p, p_end, false));
+	    stat.termfreqs.insert(make_pair(term,
+					    TermFreqs(termfreq, reltermfreq)));
+	}
     }
 
     return stat;

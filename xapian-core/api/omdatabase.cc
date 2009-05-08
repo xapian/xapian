@@ -525,9 +525,9 @@ Database::get_spelling_suggestion(const string &word,
 	LOGLINE(SPELLING, "Sub db " << i << " tl = " << (void*)tl);
 	if (tl) {
 	    if (merger.get()) {
-		merger = new OrTermList(merger.release(), tl);
+		merger.reset(new OrTermList(merger.release(), tl));
 	    } else {
-		merger = tl;
+		merger.reset(tl);
 	    }
 	}
     }
@@ -553,7 +553,7 @@ Database::get_spelling_suggestion(const string &word,
     Xapian::doccount freq_best = 0;
     while (true) {
 	TermList *ret = merger->next();
-	if (ret) merger = ret;
+	if (ret) merger.reset(ret);
 
 	if (merger->at_end()) break;
 
@@ -628,9 +628,9 @@ Database::spellings_begin() const
 	TermList * tl = internal[i]->open_spelling_wordlist();
 	if (tl) {
 	    if (merger.get()) {
-		merger = new FreqAdderOrTermList(merger.release(), tl);
+		merger.reset(new FreqAdderOrTermList(merger.release(), tl));
 	    } else {
-		merger = tl;
+		merger.reset(tl);
 	    }
 	}
     }
@@ -646,9 +646,9 @@ Database::synonyms_begin(const std::string &term) const
 	TermList * tl = internal[i]->open_synonym_termlist(term);
 	if (tl) {
 	    if (merger.get()) {
-		merger = new OrTermList(merger.release(), tl);
+		merger.reset(new OrTermList(merger.release(), tl));
 	    } else {
-		merger = tl;
+		merger.reset(tl);
 	    }
 	}
     }
@@ -664,9 +664,9 @@ Database::synonym_keys_begin(const std::string &prefix) const
 	TermList * tl = internal[i]->open_synonym_keylist(prefix);
 	if (tl) {
 	    if (merger.get()) {
-		merger = new OrTermList(merger.release(), tl);
+		merger.reset(new OrTermList(merger.release(), tl));
 	    } else {
-		merger = tl;
+		merger.reset(tl);
 	    }
 	}
     }

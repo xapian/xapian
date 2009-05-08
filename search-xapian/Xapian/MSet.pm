@@ -5,9 +5,12 @@ use strict;
 use warnings;
 use Carp;
 
+use Search::Xapian::MSet::Tied;
+
+use Tie::Array;
 require DynaLoader;
 
-our @ISA = qw(DynaLoader);
+our @ISA = qw(Tie::Array DynaLoader);
 
 # Preloaded methods go here.
 
@@ -84,11 +87,17 @@ sub convert_to_percent() {
   }
 }
 
-sub matches {
+sub items {
   my $self = shift;
   my @array;
   tie( @array, 'Search::Xapian::MSet::Tied', $self );
   return @array;
+}
+
+sub TIEARRAY {
+  my $class = shift;
+  my $eset = shift;
+  return bless $eset, $class;
 }
 
 1;

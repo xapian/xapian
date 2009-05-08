@@ -104,3 +104,14 @@ DEFINE_TESTCASE(dbstats1, backend) {
 
     return true;
 }
+
+/// Check handling of alldocs on an empty database.
+DEFINE_TESTCASE(alldocspl3, backend) {
+    Xapian::Database db = get_database(string());
+
+    TEST_EQUAL(db.get_termfreq(string()), 0);
+    TEST_EQUAL(db.get_collection_freq(string()), 0);
+    TEST(db.postlist_begin(string()) == db.postlist_end(string()));
+
+    return true;
+}

@@ -45,7 +45,7 @@ LocalSubMatch::LocalSubMatch(const Xapian::Database::Internal *db_,
 	const Xapian::RSet & omrset,
 	const Xapian::Weight *wt_factory_)
 	: orig_query(*query), qlen(qlen_), db(db_),
-	  rset(db, omrset), wt_factory(wt_factory_)
+	  rset(db, omrset), wt_factory(wt_factory_), term_info(NULL)
 {
     DEBUGCALL(MATCH, void, "LocalSubMatch::LocalSubMatch",
 	      db << ", " << query << ", " << qlen_ << ", " << omrset << ", " <<
@@ -92,13 +92,13 @@ LocalSubMatch::get_postlist_and_term_info(MultiMatch * matcher,
 {
     DEBUGCALL(MATCH, PostList *, "LocalSubMatch::get_postlist_and_term_info",
 	      matcher << ", [termfreqandwts]");
+    term_info = termfreqandwts;
 
     // Build the postlist tree for the query.  This calls
     // LocalSubMatch::postlist_from_op_leaf_query() for each term in the query,
     // which builds term_info as a side effect.
     QueryOptimiser opt(*db, *this, matcher);
     PostList * pl = opt.optimise_query(&orig_query);
-    if (termfreqandwts) *termfreqandwts = term_info;
 
     // We only need an ExtraWeightPostList if there's an extra weight
     // contribution.
@@ -121,7 +121,15 @@ LocalSubMatch::make_synonym_postlist(PostList * or_pl, MultiMatch * matcher,
     AutoPtr<SynonymPostList> res(new SynonymPostList(or_pl, matcher));
     AutoPtr<Xapian::Weight> wt(wt_factory->clone_());
 
-    TermFreqs freqs(or_pl->get_termfreq_est_using_stats(*stats));
+    TermFreqs freqs;
+    // Avoid calling get_termfreq_est_using_stats() if the database is empty
+    // so we don't need to special case that repeatedly when implementing it.
+    // FIXME: it would be nicer to handle an empty database higher up, though
+    // we need to catch the case where all the non-empty subdatabases have
+    // failed, so we can't just push this right up to the start of get_mset().
+    if (usual(stats->collection_size != 0)) {
+	freqs = or_pl->get_termfreq_est_using_stats(*stats);
+    }
     wt->init_(*stats, qlen, factor, freqs.termfreq, freqs.reltermfreq);
 
     res->set_weight(wt.release());
@@ -140,22 +148,27 @@ LocalSubMatch::postlist_from_op_leaf_query(const Xapian::Query::Internal *query,
     bool boolean = (factor == 0.0);
     AutoPtr<Xapian::Weight> wt;
     if (!boolean) {
-	wt = wt_factory->clone_();
+	wt.reset(wt_factory->clone_());
 	wt->init_(*stats, qlen, query->tname, query->wqf, factor);
     }
 
-    map<string, Xapian::MSet::Internal::TermFreqAndWeight>::iterator i;
-    i = term_info.find(query->tname);
-    if (i == term_info.end()) {
-	Xapian::doccount tf = stats->get_termfreq(query->tname);
-	Xapian::weight weight = boolean ? 0 : wt->get_maxpart();
-	Xapian::MSet::Internal::TermFreqAndWeight info(tf, weight);
-	LOGLINE(MATCH, "Setting term_info[" << query->tname << "] to (" << tf << ", " << weight << ")");
-	term_info.insert(make_pair(query->tname, info));
-    } else if (!boolean) {
-	i->second.termweight += wt->get_maxpart();
-	AssertEq(stats->get_termfreq(query->tname), i->second.termfreq);
-	LOGLINE(MATCH, "Increasing term_info[" << query->tname << "] to (" << i->second.termfreq << ", " << i->second.termweight << ")");
+    if (term_info) {
+	map<string, Xapian::MSet::Internal::TermFreqAndWeight>::iterator i;
+	i = term_info->find(query->tname);
+	if (i == term_info->end()) {
+	    Xapian::doccount tf = stats->get_termfreq(query->tname);
+	    Xapian::weight weight = boolean ? 0 : wt->get_maxpart();
+	    Xapian::MSet::Internal::TermFreqAndWeight info(tf, weight);
+	    LOGLINE(MATCH, "Setting term_info[" << query->tname << "] "
+		    "to (" << tf << ", " << weight << ")");
+	    term_info->insert(make_pair(query->tname, info));
+	} else if (!boolean) {
+	    i->second.termweight += wt->get_maxpart();
+	    AssertEq(stats->get_termfreq(query->tname), i->second.termfreq);
+	    LOGLINE(MATCH, "Increasing term_info[" << query->tname << "] "
+		    "to (" << i->second.termfreq << ", " <<
+		    i->second.termweight << ")");
+	}
     }
 
     LeafPostList * pl = db->open_post_list(query->tname);

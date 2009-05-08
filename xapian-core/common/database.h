@@ -222,11 +222,10 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *  @param tname  The term whose posting list is being requested.
 	 *
 	 *  @return       A pointer to the newly created posting list.
-	 *		  If the term doesn't exist, a new EmptyPostList
-	 *		  object (or an object which behaves the same way) is
-	 *		  returned instead, which makes it easier
-	 *		  to implement a search over multiple databases.
-	 *                This object must be deleted by the caller after
+	 *		  If the term doesn't exist, a LeafPostList object
+	 *		  returning no documents is returned, which makes it
+	 *		  easier to implement a search over multiple databases.
+	 *		  This object must be deleted by the caller after
 	 *                use.
 	 */
 	virtual LeafPostList * open_post_list(const string & tname) const = 0;

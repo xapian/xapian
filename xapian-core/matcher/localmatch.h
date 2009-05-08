@@ -59,8 +59,8 @@ class LocalSubMatch : public SubMatch {
     /// Weight object (used as a factory by calling create on it).
     const Xapian::Weight * wt_factory;
 
-    /// The termfreqs and weights of terms used in orig_query.
-    std::map<string, Xapian::MSet::Internal::TermFreqAndWeight> term_info;
+    /// The termfreqs and weights of terms used in orig_query, or NULL.
+    std::map<string, Xapian::MSet::Internal::TermFreqAndWeight> * term_info;
 
   public:
     /// Constructor.

@@ -5,8 +5,6 @@ use strict;
 use warnings;
 use Carp;
 
-use Search::Xapian::MSet::Tied;
-
 require DynaLoader;
 
 our @ISA = qw(DynaLoader);
@@ -58,9 +56,7 @@ sub get_mset {
 
 sub matches {
   my $self = shift;
-  my @array;
-  tie( @array, 'Search::Xapian::MSet::Tied', $self->get_mset(@_) );
-  return @array;
+  return $self->get_mset(@_)->items();
 }
 
 sub get_matching_terms_begin {

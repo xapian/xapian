@@ -25,6 +25,7 @@
 
 #include <xapian/postingsource.h>
 
+#include "multimatch.h"
 #include "omassert.h"
 #include "omdebug.h"
 
@@ -32,8 +33,10 @@ using namespace std;
 
 ExternalPostList::ExternalPostList(const Xapian::Database & db,
 				   Xapian::PostingSource *source_,
-				   double factor_)
-    : source(source_), source_is_owned(false), current(0), factor(factor_)
+				   double factor_,
+				   MultiMatch * matcher_)
+    : source(source_), source_is_owned(false), current(0), factor(factor_),
+	matcher(matcher_)
 {
     Assert(source);
     Xapian::PostingSource * newsource = source->clone();
@@ -41,6 +44,7 @@ ExternalPostList::ExternalPostList(const Xapian::Database & db,
 	source = newsource;
 	source_is_owned = true;
     }
+    source->register_externalpl(this);
     source->init(db);
 }
 
@@ -49,6 +53,12 @@ ExternalPostList::~ExternalPostList()
     if (source_is_owned) {
 	delete source;
     }
+}
+
+void
+ExternalPostList::notify_new_maxweight()
+{
+    matcher->recalc_maxweight();
 }
 
 Xapian::doccount

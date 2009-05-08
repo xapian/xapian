@@ -156,6 +156,209 @@ Fri Mar 14 16:35:06 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 	* include/xapian/unicode.h: Correct typos in documentation
 	  comments.
 
+Fri May 08 05:16:50 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/postingsource.cc: Another string concatention.
+
+Fri May 08 05:04:55 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/postingsource.cc: Use str() instead of om_tostring() and build
+	  up strings using +=.
+
+Fri May 08 04:37:05 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/postingsource.cc: "using namespace std;".
+
+Thu May 07 16:46:14 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/: Check for collection_size == 0 up front so we don't need
+	  to repeatedly special case it when implementing
+	  get_termfreq_est_using_stats().
+
+Thu May 07 16:28:07 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/xorpostlist.cc: Fix typo bug - collection_size should be
+	  rset_size.  This would have lead to a floating point division by
+	  zero when XOR was used under a synonym without an RSet, but that
+	  would just give infinity, and so just give a bogus value for the
+	  rel_termfreq rather than aborting instantly.
+
+Thu May 07 16:19:52 GMT 2009  Olly Betts <olly@survex.com>
+
+	* HACKING: Update auto_ptr information.  Mention constructor syntax as
+	  an alternative replacement for some C-style casts.
+
+Thu May 07 15:25:00 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/localmatch.cc,matcher/localmatch.h: Don't rebuild the
+	  termname -> termfreq and weight map for every subdatabase - just do
+	  it once for the first one.  Also eliminate a copy of this map.
+	  This should speed up searches a little, especially those over
+	  multiple databases.
+
+Thu May 07 15:01:24 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,api/omqueryinternal.cc,
+	  backends/remote/remote-database.cc,common/autoptr.h,
+	  expand/esetinternal.cc,matcher/localmatch.cc: Make our AutoPtr just
+	  a macro wrapper for std::auto_ptr.  Since std::auto_ptr doesn't
+	  allow assignment from a raw pointer, this requires changing such
+	  assignments into calls to auto_ptr::reset().
+
+Thu May 07 14:19:22 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/leafpostlist.cc: Add an assertion that the term in the stats.
+	  Add "using namespace std;" so we can avoid explicit std:: qualifiers.
+
+Thu May 07 13:26:21 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/: Eliminate EmptySubMatch - we can just store NULL for a
+	  submatch which has failed but which ErrorHandler told us to continue
+	  without.
+
+Thu May 07 12:52:24 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/database.h: Update internal documentation comment -
+	  Database::Internal::open_post_list() can no longer return
+	  EmptyPostList as it is no longer a subclass of LeafPostList.
+
+Thu May 07 12:13:50 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/leafpostlist.cc,backends/chert/chert_postlist.cc,
+	  backends/chert/chert_postlist.h,
+	  backends/flint/flint_alldocspostlist.h,
+	  backends/flint/flint_postlist.cc,backends/flint/flint_postlist.h,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h,backends/remote/net_postlist.h,
+	  common/contiguousalldocspostlist.h,common/leafpostlist.h: Squash
+	  TermBasedLeafPostList into LeafPostList since there are no longer
+	  any other subclasses.
+
+Thu May 07 11:49:06 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/Makefile.mk,api/emptypostlist.cc,common/emptypostlist.h:
+	  Reimplement EmptyPostList from scratch, and inherit from PostList
+	  not LeafPostList.
+
+Thu May 07 11:19:34 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/mergepostlist.cc: Add explicit '#include "omassert.h"'.
+
+Thu May 07 10:28:33 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/multi/multi_postlist.cc,backends/multi/multi_postlist.h:
+	  Subclass MultiPostList directly from PostList instead of from
+	  LeafPostList.  This gets rid of two unused data members per
+	  MultiPostList in exchange for having to define 5 extra "never
+	  called" methods, but 4 of these just tailcall.
+
+Thu May 07 10:26:39 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/inmemory/inmemory_alltermslist.cc,
+	  backends/inmemory/inmemory_database.cc: Fix assertion failures and
+	  a SEGV in an assertion test.
+
+Thu May 07 09:27:35 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/inmemory/inmemory_alltermslist.cc,
+	  backends/inmemory/inmemory_alltermslist.h,
+	  backends/inmemory/inmemory_database.cc:
+	  Keep a dummy entry in InMemoryDatabase::postlists so that the
+	  implementation of InMemoryAllTermsList doesn't need a "started"
+	  flag, and we can use an InMemoryPostList on the dummy item for
+	  the "term not in database" case.
+
+Thu May 07 05:45:48 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_backend.cc: Add tset coverage for alldocs iterator on an
+	  empty database.
+	* backends/inmemory/inmemory_database.cc: No need to special case an
+	  empty database as InMemoryAllDocsPostList handles this case
+	  correctly.
+
+Thu May 07 05:08:07 GMT 2009  Olly Betts <olly@survex.com>
+
+	* weight/weightinternal.cc: Use str() instead of om_tostring(), += to
+	  build up strings, and fix a cut-and-paste comment error.
+
+Wed May 06 13:03:40 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* net/serialise.cc: Better serialisation - don't include the
+	  reltermfreqs if the rset_size is 0, since they'll all be 0 too.
+
+Wed May 06 12:13:52 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/remoteprotocol.h,net/serialise.cc: When serialising stats,
+	  serialise the termfreq and reltermfreq together, rather than in
+	  separate lists.  Results in a smaller serialised form, and
+	  matches the in-memory structure now used better. Fixes ticket
+	  #362.  This is an incompatible remote protocol change, however,
+	  so bump the major version to 32.
+
+Wed May 06 04:02:43 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Check termfreqandwts for MatchAll queries
+	  before we check terms from the document so that the "terminate
+	  early once we've seen all the query terms" test when checking the
+	  document terms can fire in this case.
+
+Wed May 06 03:26:05 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Remove incorrect comment accidentally
+	  committed in r12623.
+
+Wed May 06 03:18:42 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_opsynonym.cc: Fix comment typo.
+
+Wed May 06 01:35:14 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_postingsource.cc: changemaxweightsource1 uses
+	  ChangeMaxweightPostingSource, which doesn't work with multi or
+	  remote, so mark the test accordingly.
+
+Wed May 06 01:11:25 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/postingsource.h,api/postingsource.cc: Add
+	  notify_new_maxweight() method to be called by subclasses when they
+	  want to notify the matcher that their maxweight has changed
+	  significantly.  Add ExternalPostList as a friend and add
+	  register_externalpl() to be used to associate the ExternalPostList
+	  with the PostingSource.
+	* matcher/externalpostlist.cc,matcher/externalpostlist.h,
+	  matcher/queryoptimiser.cc: Register the externalpostlist with the
+	  PostingSource it's iterating through.  Add
+	  ExternalPostList::notify_new_maxweight() method for
+	  PostingSource::notify_new_maxweight() to call.
+	* docs/postingsource.rst: Document notify_new_maxweight() and the
+	  reasons for calling it.
+	* tests/api_postingsource.cc: Test the handling of maxweight.
+
+Tue May 05 19:37:56 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/Makefile.am,tests/api_db.cc,tests/api_postingsource.cc:
+	  Split the tests of PostingSource subclasses out of api_db.cc; I'm
+	  about to add some more, and bloating api_db.cc further is
+	  unworkable.
+
+Tue May 05 18:23:02 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* docs/postingsource.rst,include/xapian/postingsource.h:
+	  Documentation updates to describe way that init() is called
+	  again if a PostingSource is reused.  Fixes #352.
+
+Tue May 05 16:05:48 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_opsynonym.cc: Test that the top document has a weight
+	  of 100%, which is should do for all the current examples here.
+
+Tue May 05 16:03:29 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/multimatch.cc: Add logging to keep track of the weights
+	  being added to percent_scale.  If the percent_scale total is 0.0,
+	  which can happen if the top document only matches synonym terms,
+	  force percent_scale to 1.0, to avoid an assertion failure.
+
 Tue May 05 13:41:57 GMT 2009  Olly Betts <olly@survex.com>
 
 	* common/str.h: Fix swapped parameters in string ctor in code for
@@ -259,7 +462,7 @@ Mon May 04 12:04:16 GMT 2009  Olly Betts <olly@survex.com>
 	  do the timing comparison, and update time_query_parse() to use
 	  CPUTimer rather than OmTime.  Tweak the "fudge factor" up from
 	  2 to 2.15 to allow for non-equal ticks due to rounding of an
-	  interval which isn't an exact multiple of 1/CLK_TCK (ticket#308). 
+	  interval which isn't an exact multiple of 1/CLK_TCK (ticket#308).
 
 Mon May 04 12:02:32 GMT 2009  Olly Betts <olly@survex.com>
 
@@ -312,7 +515,7 @@ Fri May 01 04:53:22 GMT 2009  Olly Betts <olly@survex.com>
 	* api/omdocument.cc: Don't ever store empty values explicitly, which
 	  eliminates an inconsistently handled corner case which was causing
 	  the "value frequency" to be wrong from at least one point of view.
-	  This is consistent with how user metadata works too. 
+	  This is consistent with how user metadata works too.
 	* include/xapian/document.h: Explicitly document this behaviour.
 	* tests/api_valuestats.cc: Add regression test for the above change.
 
@@ -407,7 +610,7 @@ Sat Apr 25 00:57:41 GMT 2009  Olly Betts <olly@survex.com>
 
 Fri Apr 24 22:59:34 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
-	* weight/weight.cc: Add debug logging to Weight::init_() methods. 
+	* weight/weight.cc: Add debug logging to Weight::init_() methods.
 	* net/remoteserver.cc: Fix bounds returned by Weight::Internal
 	  object in get_mset() in remote submatches, by setting the
 	  database used to read the bounds.
@@ -670,7 +873,7 @@ Fri Mar 27 07:44:59 GMT 2009  Olly Betts <olly@survex.com>
 	  reports with lcov: coverage-reconfigure which reruns configure in
 	  the source tree and coverage-check which runs "make check" and
 	  generates an HTML report in a directory called "lcov".
-	  
+
 Thu Mar 26 23:59:36 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Makefile.am,m4-macros/xapian.m4,xapian-core.spec.in: Rename
@@ -734,7 +937,7 @@ Wed Mar 25 11:44:36 GMT 2009  Olly Betts <olly@survex.com>
 
 	* configure.ac: Only put ANSI_CXXFLAGS in CXXFLAGS for the duration of
 	  configure - put it in AM_CXXFLAGS for substituting so that the user
-	  can safely override CXXFLAGS at make-time: "make CXXFLAGS=-Os" 
+	  can safely override CXXFLAGS at make-time: "make CXXFLAGS=-Os"
 
 Wed Mar 25 10:50:44 GMT 2009  Olly Betts <olly@survex.com>
 

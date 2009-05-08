@@ -159,7 +159,7 @@ ESet::Internal::expand(Xapian::termcount max_esize,
 	TermList * new_root = tree->next();
 	if (new_root) {
 	    LOGLINE(EXPAND, "Replacing the root of the termlist tree");
-	    tree = new_root;
+	    tree.reset(new_root);
 	}
 
 	if (tree->at_end()) break;

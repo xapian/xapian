@@ -24,14 +24,18 @@
 #include "weightinternal.h"
 
 #include "omassert.h"
-#include "utils.h" // For om_tostring().
+#include "str.h"
 
 using namespace std;
 
-std::string
+string
 TermFreqs::get_description() const {
-    return std::string("TermFreqs(") + om_tostring(termfreq) + ", " +
-	    om_tostring(reltermfreq) + ")";
+    string desc("TermFreqs(");
+    desc += str(termfreq);
+    desc += ", ";
+    desc += str(reltermfreq);
+    desc += ")";
+    return desc;
 }
 
 namespace Xapian {
@@ -88,7 +92,7 @@ void
 Weight::Internal::set_reltermfreq(const string & term, Xapian::doccount rtfreq)
 {
     // Can be called a second time, if a term occurs multiple times in the
-    // query; if this happens, the termfreq should be the same each time.
+    // query; if this happens, the reltermfreq should be the same each time.
     Assert(termfreqs.find(term) == termfreqs.end() ||
 	   termfreqs.find(term)->second.reltermfreq == 0 ||
 	   termfreqs.find(term)->second.reltermfreq == rtfreq);
@@ -99,11 +103,11 @@ string
 Weight::Internal::get_description() const
 {
     string desc = "Weight::Internal(totlen=";
-    desc += om_tostring(total_length);
+    desc += str(total_length);
     desc += ", collection_size=";
-    desc += om_tostring(collection_size);
+    desc += str(collection_size);
     desc += ", rset_size=";
-    desc += om_tostring(rset_size);
+    desc += str(rset_size);
     desc += ')';
     return desc;
 }
