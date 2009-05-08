@@ -1,3 +1,8 @@
+Fri May 08 05:04:55 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/postingsource.cc: Use str() instead of om_tostring() and build
+	  up strings using +=.
+
 Fri May 08 04:37:05 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/postingsource.cc: "using namespace std;".

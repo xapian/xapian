@@ -36,7 +36,7 @@
 #include "omassert.h"
 #include "serialise.h"
 #include "serialise-double.h"
-#include "utils.h"
+#include "str.h"
 
 #include <cfloat>
 
@@ -287,7 +287,10 @@ ValueWeightPostingSource::init(const Database & db_)
 string
 ValueWeightPostingSource::get_description() const
 {
-    return "Xapian::ValueWeightPostingSource(slot=" + om_tostring(slot) + ")";
+    string desc("Xapian::ValueWeightPostingSource(slot=");
+    desc += str(slot);
+    desc += ")";
+    return desc;
 }
 
 
@@ -390,7 +393,10 @@ ValueMapPostingSource::init(const Database & db_)
 string
 ValueMapPostingSource::get_description() const
 {
-    return "Xapian::ValueMapPostingSource(slot=" + om_tostring(slot) + ")";
+    string desc("Xapian::ValueMapPostingSource(slot=");
+    desc += str(slot);
+    desc += ")";
+    return desc;
 }
 
 
@@ -544,7 +550,10 @@ FixedWeightPostingSource::init(const Xapian::Database & db_)
 string
 FixedWeightPostingSource::get_description() const
 {
-    return "Xapian::FixedWeightPostingSource(wt=" + om_tostring(wt) + ")";
+    string desc("Xapian::FixedWeightPostingSource(wt=");
+    desc += str(wt);
+    desc += ")";
+    return desc;
 }
 
 }
