@@ -86,7 +86,7 @@ AndPostList::AndPostList(PostList *left_, PostList *right_,
 	  dbsize(dbsize_)
 {
     DEBUGCALL(MATCH, void, "AndPostList", left_ << ", " << right_ << ", " << matcher_ << ", " << dbsize_ << ", " << replacement);
-    if (l->get_termfreq_est() > r->get_termfreq_est()) swap(l, r);
+    if (l->get_termfreq_est() < r->get_termfreq_est()) swap(l, r);
     if (replacement) {
 	// Initialise the maxweights from the kids so we can avoid forcing
 	// a full maxweight recalc

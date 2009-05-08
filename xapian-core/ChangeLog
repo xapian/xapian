@@ -1,3 +1,14 @@
+Fri May 08 10:25:37 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/andpostlist.cc: Fix a swap which was the wrong way round,
+	  so that we call next() on the subpostlist with the lower
+	  frequency, rather than the one with the higher frequency.  This
+	  should improve performance in many situations, and I don't think
+	  it's likely to slow anything down.  It also fixes some cases
+	  where optimisation of an AND_MAYBE to an AND results in a slower
+	  search, such that search times went down when more hits were
+	  requested.
+
 Fri May 08 08:48:14 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/externalpostlist.cc: ExternalPostList::get_doclength()
