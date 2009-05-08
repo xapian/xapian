@@ -112,7 +112,7 @@ ExternalPostList::get_weight() const
 Xapian::termcount
 ExternalPostList::get_doclength() const
 {
-    // FIXME
+    Assert(false);
     return 0;
 }
 

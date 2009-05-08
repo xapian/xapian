@@ -1,3 +1,8 @@
+Fri May 08 08:48:14 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/externalpostlist.cc: ExternalPostList::get_doclength()
+	  should never get called, so make it "Assert(false)".
+
 Fri May 08 05:16:50 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/postingsource.cc: Another string concatention.
