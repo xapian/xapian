@@ -352,8 +352,8 @@ ValueMapPostingSource::name() const
 string
 ValueMapPostingSource::serialise() const
 {
-    string result;
-    result = encode_length(slot) + serialise_double(default_weight);
+    string result = encode_length(slot);
+    result += serialise_double(default_weight);
 
     map<string, double>::const_iterator i;
     for (i = weight_map.begin(); i != weight_map.end(); ++i) {

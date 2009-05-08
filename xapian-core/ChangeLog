@@ -1,3 +1,7 @@
+Fri May 08 05:16:50 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/postingsource.cc: Another string concatention.
+
 Fri May 08 05:04:55 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/postingsource.cc: Use str() instead of om_tostring() and build
