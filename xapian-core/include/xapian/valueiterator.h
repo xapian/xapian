@@ -1,7 +1,7 @@
 /** @file  valueiterator.h
  *  @brief Class for iterating over document values.
  */
-/* Copyright (C) 2008 Olly Betts
+/* Copyright (C) 2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,6 +32,9 @@
 
 namespace Xapian {
 
+/// @internal A proxy class for an end ValueIterator.
+class ValueIteratorEnd_ { };
+
 /// Class for iterating over document values.
 class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
   public:
@@ -46,8 +49,14 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
     /// Copy constructor.
     ValueIterator(const ValueIterator & o);
 
+    /// @internal Copy from an end iterator proxy.
+    ValueIterator(const ValueIteratorEnd_ &);
+
     /// Assignment.
     ValueIterator & operator=(const ValueIterator & o);
+
+    /// @internal Assignment of an end iterator proxy.
+    ValueIterator & operator=(const ValueIteratorEnd_ &);
 
     /** Default constructor.
      *
@@ -165,7 +174,43 @@ operator==(const ValueIterator &a, const ValueIterator &b)
 }
 
 inline bool
+operator==(const ValueIterator &a, const ValueIteratorEnd_ &)
+{
+    return a.internal.get() == NULL;
+}
+
+inline bool
+operator==(const ValueIteratorEnd_ &a, const ValueIterator &b)
+{
+    return b == a;
+}
+
+inline bool
+operator==(const ValueIteratorEnd_ &, const ValueIteratorEnd_ &)
+{
+    return true;
+}
+
+inline bool
 operator!=(const ValueIterator &a, const ValueIterator &b)
+{
+    return !(a == b);
+}
+
+inline bool
+operator!=(const ValueIterator &a, const ValueIteratorEnd_ &b)
+{
+    return !(a == b);
+}
+
+inline bool
+operator!=(const ValueIteratorEnd_ &a, const ValueIterator &b)
+{
+    return !(a == b);
+}
+
+inline bool
+operator!=(const ValueIteratorEnd_ &a, const ValueIteratorEnd_ &b)
 {
     return !(a == b);
 }

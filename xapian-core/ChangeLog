@@ -1,3 +1,14 @@
+Fri May 08 15:44:07 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/valueiterator.cc,include/xapian/database.h,
+	  include/xapian/document.h,include/xapian/valueiterator.h: Create a
+	  new proxy object class ValueIteratorEnd_ which is returned instead
+	  of ValueIterator(NULL) for end iterators.  This class will be
+	  converted to ValueIterator(NULL) if assigned to or passed as
+	  ValueIterator, but operator== and operator!= are overloaded to
+	  handle it directly which means that the compiler no longer calls
+	  ~ValueIterator for each call which returns ValueIterator(NULL).
+
 Fri May 08 15:42:12 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_values.cc: Swap two statements for cosmetic
