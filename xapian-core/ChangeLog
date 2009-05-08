@@ -1,3 +1,7 @@
+Fri May 08 04:37:05 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/postingsource.cc: "using namespace std;".
+
 Thu May 07 16:46:14 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/: Check for collection_size == 0 up front so we don't need

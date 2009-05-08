@@ -40,6 +40,8 @@
 
 #include <cfloat>
 
+using namespace std;
+
 namespace Xapian {
 
 void
@@ -84,25 +86,25 @@ PostingSource::clone() const
     return NULL;
 }
 
-std::string
+string
 PostingSource::name() const
 {
-    return std::string();
+    return string();
 }
 
-std::string
+string
 PostingSource::serialise() const
 {
     throw Xapian::InvalidOperationError("serialise() not supported for this PostingSource");
 }
 
 PostingSource *
-PostingSource::unserialise(const std::string &) const
+PostingSource::unserialise(const string &) const
 {
     throw Xapian::InvalidOperationError("unserialise() not supported for this PostingSource");
 }
 
-std::string
+string
 PostingSource::get_description() const
 {
     return "Xapian::PostingSource subclass";
@@ -244,20 +246,20 @@ ValueWeightPostingSource::clone() const
     return new ValueWeightPostingSource(slot);
 }
 
-std::string
+string
 ValueWeightPostingSource::name() const
 {
-    return std::string("Xapian::ValueWeightPostingSource");
+    return string("Xapian::ValueWeightPostingSource");
 }
 
-std::string
+string
 ValueWeightPostingSource::serialise() const
 {
     return encode_length(slot);
 }
 
 ValueWeightPostingSource *
-ValueWeightPostingSource::unserialise(const std::string &s) const
+ValueWeightPostingSource::unserialise(const string &s) const
 {
     const char * p = s.data();
     const char * end = p + s.size();
@@ -282,7 +284,7 @@ ValueWeightPostingSource::init(const Database & db_)
     }
 }
 
-std::string
+string
 ValueWeightPostingSource::get_description() const
 {
     return "Xapian::ValueWeightPostingSource(slot=" + om_tostring(slot) + ")";
@@ -297,10 +299,10 @@ ValueMapPostingSource::ValueMapPostingSource(Xapian::valueno slot_)
 }
 
 void
-ValueMapPostingSource::add_mapping(const std::string & key, double weight)
+ValueMapPostingSource::add_mapping(const string & key, double weight)
 {
     weight_map[key] = weight;
-    max_weight_in_map = std::max(weight, max_weight_in_map);
+    max_weight_in_map = max(weight, max_weight_in_map);
 }
 
 void
@@ -319,7 +321,7 @@ ValueMapPostingSource::set_default_weight(double wt)
 Xapian::weight
 ValueMapPostingSource::get_weight() const
 {
-    std::map<std::string, double>::const_iterator wit = weight_map.find(*value_it);
+    map<string, double>::const_iterator wit = weight_map.find(*value_it);
     if (wit == weight_map.end()) {
 	return default_weight;
     }
@@ -330,7 +332,7 @@ ValueMapPostingSource *
 ValueMapPostingSource::clone() const
 {
     AutoPtr<ValueMapPostingSource> res(new ValueMapPostingSource(slot));
-    std::map<std::string, double>::const_iterator i;
+    map<string, double>::const_iterator i;
     for (i = weight_map.begin(); i != weight_map.end(); ++i) {
 	res->add_mapping(i->first, i->second);
     }
@@ -338,19 +340,19 @@ ValueMapPostingSource::clone() const
     return res.release();
 }
 
-std::string
+string
 ValueMapPostingSource::name() const
 {
-    return std::string("Xapian::ValueMapPostingSource");
+    return string("Xapian::ValueMapPostingSource");
 }
 
-std::string
+string
 ValueMapPostingSource::serialise() const
 {
-    std::string result;
+    string result;
     result = encode_length(slot) + serialise_double(default_weight);
 
-    std::map<std::string, double>::const_iterator i;
+    map<string, double>::const_iterator i;
     for (i = weight_map.begin(); i != weight_map.end(); ++i) {
 	result.append(encode_length(i->first.size()));
 	result.append(i->first);
@@ -361,7 +363,7 @@ ValueMapPostingSource::serialise() const
 }
 
 ValueMapPostingSource *
-ValueMapPostingSource::unserialise(const std::string &s) const
+ValueMapPostingSource::unserialise(const string &s) const
 {
     const char * p = s.data();
     const char * end = p + s.size();
@@ -382,10 +384,10 @@ void
 ValueMapPostingSource::init(const Database & db_)
 {
     ValuePostingSource::init(db_);
-    max_weight = std::max(max_weight_in_map, default_weight);
+    max_weight = max(max_weight_in_map, default_weight);
 }
 
-std::string
+string
 ValueMapPostingSource::get_description() const
 {
     return "Xapian::ValueMapPostingSource(slot=" + om_tostring(slot) + ")";
@@ -433,8 +435,8 @@ FixedWeightPostingSource::next(Xapian::weight min_wt)
 {
     if (!started) {
 	started = true;
-	it = db.postlist_begin(std::string());
-	end = db.postlist_end(std::string());
+	it = db.postlist_begin(string());
+	end = db.postlist_end(string());
     } else {
 	++it;
     }
@@ -457,8 +459,8 @@ FixedWeightPostingSource::skip_to(Xapian::docid min_docid,
 {
     if (!started) {
 	started = true;
-	it = db.postlist_begin(std::string());
-	end = db.postlist_end(std::string());
+	it = db.postlist_begin(string());
+	end = db.postlist_end(string());
 
 	if (it == end) return;
     }
@@ -506,20 +508,20 @@ FixedWeightPostingSource::clone() const
     return new FixedWeightPostingSource(wt);
 }
 
-std::string
+string
 FixedWeightPostingSource::name() const
 {
-    return std::string("Xapian::FixedWeightPostingSource");
+    return string("Xapian::FixedWeightPostingSource");
 }
 
-std::string
+string
 FixedWeightPostingSource::serialise() const
 {
     return serialise_double(wt);
 }
 
 FixedWeightPostingSource *
-FixedWeightPostingSource::unserialise(const std::string &s) const
+FixedWeightPostingSource::unserialise(const string &s) const
 {
     const char * p = s.data();
     const char * s_end = p + s.size();
@@ -539,11 +541,10 @@ FixedWeightPostingSource::init(const Xapian::Database & db_)
     check_docid = 0;
 }
 
-std::string
+string
 FixedWeightPostingSource::get_description() const
 {
     return "Xapian::FixedWeightPostingSource(wt=" + om_tostring(wt) + ")";
 }
-
 
 }
