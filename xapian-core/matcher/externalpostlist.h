@@ -28,6 +28,8 @@ namespace Xapian {
     class PostingSource;
 }
 
+class MultiMatch;
+
 class ExternalPostList : public PostList {
     Xapian::PostingSource * source;
     bool source_is_owned;
@@ -35,6 +37,9 @@ class ExternalPostList : public PostList {
     Xapian::docid current;
 
     double factor;
+
+    /// The matcher to notify when maximum weights change.
+    MultiMatch * matcher;
 
     /// Disallow copying.
     ExternalPostList(const ExternalPostList &);
@@ -47,8 +52,11 @@ class ExternalPostList : public PostList {
   public:
     ExternalPostList(const Xapian::Database & db,
 		     Xapian::PostingSource *source_,
-		     double factor_);
+		     double factor_,
+		     MultiMatch * matcher_);
     ~ExternalPostList();
+
+    void notify_new_maxweight();
 
     Xapian::doccount get_termfreq_min() const;
 

@@ -4,7 +4,6 @@ noinst_HEADERS +=\
 	matcher/andpostlist.h\
 	matcher/branchpostlist.h\
 	matcher/collapser.h\
-	matcher/emptysubmatch.h\
 	matcher/exactphrasepostlist.h\
 	matcher/externalpostlist.h\
 	matcher/extraweightpostlist.h\
@@ -41,7 +40,6 @@ lib_src +=\
 	matcher/andpostlist.cc\
 	matcher/branchpostlist.cc\
 	matcher/collapser.cc\
-	matcher/emptysubmatch.cc\
 	matcher/exactphrasepostlist.cc\
 	matcher/externalpostlist.cc\
 	matcher/localmatch.cc\

@@ -40,12 +40,8 @@
 // 30.5: New MSG_GETMSET which expects MSet's percent_factor to be returned.
 // 30.6: Support for OP_VALUE_GE and OP_VALUE_LE in query serialisation
 // 31: Clean up for Xapian 1.1.0
-
-// NOTE: when next breaking compatibility, address the FIXME in
-// net/serialise.cc in serialise_stats() regarding serialising the termfreq and
-// reltermfreqs together, rather than as separate lists.
-
-#define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 31
+// 32: Serialise termfreq and reltermfreqs together in serialise_stats.
+#define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 32
 #define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 0
 
 /** Message types (client -> server).

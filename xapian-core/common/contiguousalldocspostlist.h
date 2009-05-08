@@ -28,7 +28,7 @@
 #include "leafpostlist.h"
 
 /// A PostList iteratating all docids when they form a contiguous range.
-class ContiguousAllDocsPostList : public TermBasedLeafPostList {
+class ContiguousAllDocsPostList : public LeafPostList {
     /// Don't allow assignment.
     void operator=(const ContiguousAllDocsPostList &);
 
@@ -48,7 +48,7 @@ class ContiguousAllDocsPostList : public TermBasedLeafPostList {
     /// Constructor.
     ContiguousAllDocsPostList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> db_,
 			      Xapian::doccount doccount_)
-	: TermBasedLeafPostList(std::string()),
+	: LeafPostList(std::string()),
 	  db(db_), did(0), doccount(doccount_) { }
 
     /** Return the term frequency.

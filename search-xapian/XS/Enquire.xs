@@ -204,7 +204,7 @@ Enquire::get_mset1(first, maxitems, checkatleast = NO_INIT, rset = NO_INIT, func
 		    mset = THIS->get_mset(first, maxitems, checkatleast, rset);
 		    break;
 		case 6: {
-		    perlMatchDecider d = perlMatchDecider(func);
+		    perlMatchDecider d(func);
 		    mset = THIS->get_mset(first, maxitems, checkatleast, rset, &d);
 		    break;
 		}
@@ -225,7 +225,7 @@ Enquire::get_mset2(first, maxitems, func)
     SV *	func
     CODE:
 	try {
-	    perlMatchDecider d = perlMatchDecider(func);
+	    perlMatchDecider d(func);
 	    RETVAL = new MSet(THIS->get_mset(first, maxitems, 0, NULL, &d));
 	} catch (...) {
 	    handle_exception();

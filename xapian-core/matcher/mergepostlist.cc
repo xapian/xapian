@@ -26,6 +26,7 @@
 #include "emptypostlist.h"
 #include "mergepostlist.h"
 #include "branchpostlist.h"
+#include "omassert.h"
 #include "omdebug.h"
 #include "xapian/errorhandler.h"
 

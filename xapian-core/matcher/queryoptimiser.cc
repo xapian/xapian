@@ -68,7 +68,8 @@ QueryOptimiser::do_subquery(const Xapian::Query::Internal * query, double factor
 	    Assert(query->external_source);
 	    Xapian::Database wrappeddb(new ConstDatabaseWrapper(&db));
 	    RETURN(new ExternalPostList(wrappeddb,
-					query->external_source, factor));
+					query->external_source, factor,
+					matcher));
 	}
 
 	case Xapian::Query::OP_AND:
