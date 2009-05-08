@@ -1,3 +1,8 @@
+Fri May 08 12:37:33 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/Makefile.mk: Ship common/win32_uuid.cc and common/win32_uuid.h
+	  (ticket#367).
+
 Fri May 08 12:30:45 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/harness/cputimer.cc: Fix typo in the "ftime" case.
