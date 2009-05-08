@@ -83,12 +83,12 @@ CPUTimer::get_current_cputime() const
     struct timeb tb;
 #  ifdef FTIME_RETURNS_VOID
     ftime(&tb);
-    t = tb.time + (tb.millitm + 0.001);
+    t = tb.time + (tb.millitm * 0.001);
 #  else
     if (ftime(&tb) == -1) {
 	t = time(NULL);
     } else {
-	t = tb.time + (tb.millitm + 0.001);
+	t = tb.time + (tb.millitm * 0.001);
     }
 #  endif
 # else

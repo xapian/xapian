@@ -108,7 +108,8 @@ class MultiAndPostList : public PostList {
      */
     template <class RandomItor>
     MultiAndPostList(RandomItor pl_begin, RandomItor pl_end,
-		     MultiMatch * matcher_, Xapian::doccount db_size_)
+		     MultiMatch * matcher_, Xapian::doccount db_size_,
+		     bool replacement = false)
 	: did(0), n_kids(pl_end - pl_begin), plist(NULL), max_wt(NULL),
 	  max_total(0), db_size(db_size_), matcher(matcher_)
     {
@@ -126,6 +127,16 @@ class MultiAndPostList : public PostList {
 	// the longer lists based on those.
 	std::partial_sort_copy(pl_begin, pl_end, plist, plist + n_kids,
 			       ComparePostListTermFreqAscending());
+
+	if (replacement) {
+	    // Initialise the maxweights from the kids so we can avoid forcing
+	    // a full maxweight recalc
+	    for (size_t i = 0; i < n_kids; ++i) {
+		Xapian::weight new_max = plist[i]->get_maxweight();
+		max_wt[i] = new_max;
+		max_total += new_max;
+	    }
+	}
     }
 
     ~MultiAndPostList();

@@ -312,8 +312,8 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	ValueIterator valuestream_begin(Xapian::valueno slot) const;
 
 	/// Return end iterator corresponding to valuestream_begin().
-	ValueIterator valuestream_end(Xapian::valueno) const {
-	    return ValueIterator();
+	ValueIteratorEnd_ valuestream_end(Xapian::valueno) const {
+	    return ValueIteratorEnd_();
 	}
 
 	/// Get the length of a document.

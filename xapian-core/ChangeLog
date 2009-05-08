@@ -57,6 +57,90 @@ Thu Mar 05 09:08:55 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 	  include/xapian/decvalwtsource.h: Add decreasing value weight
 	  source.
 
+Fri May 08 19:59:00 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* configure.ac: Change source file which autoconf looks for, since
+	  I've just removed the old one that it looked for!
+
+Fri May 08 19:28:31 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/andmaybepostlist.cc,matcher/branchpostlist.h: Call
+	  check() instead of skip_to() on the optional branch of AND_MAYBE.
+	  This can be much faster if that branch is a posting source.
+
+Fri May 08 18:31:01 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/: Remove AndPostList, in favour of MultiAndPostList.
+	  AndPostList was only used as a decay product (by AndMaybePostList
+	  and OrPostList); for most queries, MultiAnd has pretty much
+	  indistinguishable performance as far as I can test; however, it
+	  uses check() when possible, which makes performance much better
+	  with searches involving external posting sources.  Removal also
+	  reduces the amount of code cluttering up the caches during a
+	  search, so may help speed things up in some other situations.
+
+Fri May 08 16:00:42 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/postingsource.cc,backends/inmemory/inmemory_database.cc,
+	  examples/delve.cc,include/xapian/postingsource.h: Don't store an
+	  end iterator in a variable just to compare against it - it's now
+	  definitely more efficient to compare against the return value of
+	  the relevant _end() method.
+
+Fri May 08 15:44:07 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/valueiterator.cc,include/xapian/database.h,
+	  include/xapian/document.h,include/xapian/valueiterator.h: Create a
+	  new proxy object class ValueIteratorEnd_ which is returned instead
+	  of ValueIterator(NULL) for end iterators.  This class will be
+	  converted to ValueIterator(NULL) if assigned to or passed as
+	  ValueIterator, but operator== and operator!= are overloaded to
+	  handle it directly which means that the compiler no longer calls
+	  ~ValueIterator for each call which returns ValueIterator(NULL).
+
+Fri May 08 15:42:12 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_values.cc: Swap two statements for cosmetic
+	  reasons.
+
+Fri May 08 14:42:49 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/postingsource.cc,include/xapian/postingsource.h: It is actually
+	  better not to store the end iterator in a member variable - if we
+	  explicitly call db.postlist_end(string()) then that just gets
+	  optimised to PostingSource(NULL).
+
+Fri May 08 14:02:21 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_postingsource.cc: We've decided that "going back" with
+	  skip_to() or check() should have unspecified behaviour, so stop
+	  testing how this case behaves!
+
+Fri May 08 12:37:33 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/Makefile.mk: Ship common/win32_uuid.cc and common/win32_uuid.h
+	  (ticket#367).
+
+Fri May 08 12:30:45 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/harness/cputimer.cc: Fix typo in the "ftime" case.
+
+Fri May 08 10:25:37 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/andpostlist.cc: Fix a swap which was the wrong way round,
+	  so that we call next() on the subpostlist with the lower
+	  frequency, rather than the one with the higher frequency.  This
+	  should improve performance in many situations, and I don't think
+	  it's likely to slow anything down.  It also fixes some cases
+	  where optimisation of an AND_MAYBE to an AND results in a slower
+	  search, such that search times went down when more hits were
+	  requested.
+
+Fri May 08 08:48:14 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/externalpostlist.cc: ExternalPostList::get_doclength()
+	  should never get called, so make it "Assert(false)".
+
 Fri May 08 05:16:50 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/postingsource.cc: Another string concatention.
