@@ -25,7 +25,6 @@
 
 #include "weightinternal.h"
 
-#include "autoptr.h"
 #include "debuglog.h"
 
 #include "xapian/error.h"

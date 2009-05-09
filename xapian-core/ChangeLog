@@ -1,3 +1,7 @@
+Sat May 09 09:35:32 GMT 2009  Olly Betts <olly@survex.com>
+
+	* weight/weight.cc: Doesn't use '#include "autoptr.h"'.
+
 Fri May 08 19:59:00 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* configure.ac: Change source file which autoconf looks for, since
