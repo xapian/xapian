@@ -1,3 +1,13 @@
+Sat May 09 13:38:02 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omquery.cc,api/omqueryinternal.cc,api/replication.cc,
+	  backends/alltermslist.cc,backends/chert/chert_table.cc,
+	  backends/flint/flint_table.cc,bin/xapian-compact.cc,
+	  common/bitstream.cc,common/inmemory_positionlist.h,
+	  common/positionlist.h,matcher/localmatch.h,matcher/queryoptimiser.cc,
+	  matcher/queryoptimiser.h,tests/api_wrdb.cc: Remove unused inclusions
+	  of <list>, <map>, <string>, and <vector>.
+
 Sat May 09 12:48:18 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/documentvaluelist.cc,matcher/queryoptimiser.cc: Remove unused
