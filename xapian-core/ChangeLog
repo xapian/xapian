@@ -1,3 +1,8 @@
+Sat May 09 12:48:18 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/documentvaluelist.cc,matcher/queryoptimiser.cc: Remove unused
+	  '#include "autoptr.h"'.
+
 Sat May 09 09:41:03 GMT 2009  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony,queryparser/termgenerator.cc,
