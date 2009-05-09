@@ -1,3 +1,9 @@
+Sat May 09 09:41:03 GMT 2009  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony,queryparser/termgenerator.cc,
+	  weight/bm25weight.cc,weight/boolweight.cc,weight/tradweight.cc:
+	  Remove unneeded explicit "std::" qualifiers.
+
 Sat May 09 09:35:32 GMT 2009  Olly Betts <olly@survex.com>
 
 	* weight/weight.cc: Doesn't use '#include "autoptr.h"'.

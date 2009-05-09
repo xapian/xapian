@@ -149,7 +149,7 @@ class Term {
 	: state(state_), name(name_), prefixes(prefixes_), unstemmed(unstemmed_),
 	  stem(stem_), pos(pos_) { }
 
-    std::string make_term(const string & prefix) const;
+    string make_term(const string & prefix) const;
 
     void need_positions() {
 	if (stem == QueryParser::STEM_SOME) stem = QueryParser::STEM_NONE;
@@ -399,7 +399,7 @@ is_stem_preventer(unsigned ch)
 }
 
 inline bool
-should_stem(const std::string & term)
+should_stem(const string & term)
 {
     const unsigned int SHOULD_STEM_MASK =
 	(1 << Unicode::LOWERCASE_LETTER) |
