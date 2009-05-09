@@ -1,3 +1,9 @@
+Sat May 09 14:03:34 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omquery.cc,matcher/andnotpostlist.cc,
+	  queryparser/termgenerator_internal.cc,tests/api_wrdb.cc: Remove
+	  unused inclusions of <algorithm>.
+
 Sat May 09 13:47:54 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: Remove unused inclusion of <queue>.
