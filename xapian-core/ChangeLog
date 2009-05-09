@@ -1,3 +1,7 @@
+Sat May 09 13:47:54 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Remove unused inclusion of <queue>.
+
 Sat May 09 13:38:02 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/omquery.cc,api/omqueryinternal.cc,api/replication.cc,

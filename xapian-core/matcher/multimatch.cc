@@ -56,7 +56,6 @@
 
 #include <algorithm>
 #include <cfloat> // For DBL_EPSILON.
-#include <queue>
 #include <vector>
 #include <map>
 #include <set>
