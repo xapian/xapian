@@ -26,7 +26,7 @@
 
 #include "apitest.h"
 #include "testutils.h"
-#include <iostream>
+
 using namespace std;
 
 /// Simple test of collapsing with collapse_max > 1.
