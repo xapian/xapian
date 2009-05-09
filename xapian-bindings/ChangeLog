@@ -1,3 +1,8 @@
+Sat May 09 07:59:10 GMT 2009  Olly Betts <olly@survex.com>
+
+	* xapian-head.i: Update to work with new ValueIteratorEnd_ proxy
+	  class.
+
 Wed May 06 06:45:22 GMT 2009  Olly Betts <olly@survex.com>
 
 	* README,python/docs/index.html: Update documentation for mod_python
