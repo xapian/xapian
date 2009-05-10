@@ -1,3 +1,7 @@
+Sun May 10 07:49:11 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/dbfactory.cc: Fix comment typo.
+
 Sat May 09 14:15:38 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_collapse.cc,tests/perftest/runprocess.cc: Remove unused

@@ -180,7 +180,7 @@ open_stub(Database &db, const string &file)
     // databases yet.
     //
     // 1.0.x throws DatabaseOpeningError here, but with a "Bad line" message
-    // with line number just past the end of the file, which is a bit odd.
+    // with the line number just past the end of the file, which is a bit odd.
 }
 
 static void
