@@ -1,3 +1,7 @@
+Mon May 11 02:38:26 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/postingsource.rst: Fix a typo and reword to avoid "namespaced".
+
 Mon May 11 02:30:59 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/msetpostlist.cc: Fix typo - MSetPostList::get_maxweight()

@@ -75,7 +75,7 @@ convenience when deriving "weight-less" subclasses.
 
 If the maximum weight that can be returned by the PostingSource has decreased
 significantly, it may be worthwhile to notify the Xapian matcher about this, so
-that it can use this information for optmisations, allowing the match process
+that it can use this information for optimisations, allowing the match process
 to finish faster.  You can notify the matcher about this by calling the
 ``PostingSource::notify_new_maxweight()`` method.  However, you should take
 care not to call this method too frequently, as the resulting computation can
@@ -177,7 +177,7 @@ databases will raise an exception::
 
 To work with searches across remote databases, you need to implement a few more
 methods.  Firstly, you need to implement the ``name()`` method.  This simply
-returns the (fully namespaced) name of your posting source::
+returns the name of your posting source (fully qualified with any namespace)::
 
     virtual std::string name() const;
 
