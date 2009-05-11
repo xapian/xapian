@@ -1,3 +1,7 @@
+Mon May 11 10:50:21 GMT 2009  Olly Betts <olly@survex.com>
+
+	* xapian.i: Fix for PostingSource::set_matcher_() change.
+
 Sat May 09 07:59:10 GMT 2009  Olly Betts <olly@survex.com>
 
 	* xapian-head.i: Update to work with new ValueIteratorEnd_ proxy

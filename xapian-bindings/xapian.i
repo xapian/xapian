@@ -197,6 +197,7 @@ class ValueIterator {
 #endif
 %ignore Xapian::PostingSource::clone;
 %ignore Xapian::PostingSource::unserialise;
+%ignore Xapian::PostingSource::set_matcher_;
 %include <xapian/postingsource.h>
 
 namespace Xapian {
