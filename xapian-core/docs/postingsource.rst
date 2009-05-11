@@ -62,34 +62,35 @@ PostingSources must always return documents in increasing document ID order.
 After construction, a PostingSource points to a position *before* the first
 document id - so before a docid can be read, the position must be advanced.
 
-Two methods return weight related information - ``get_weight()`` returns
-the weight for the current document, while ``get_maxweight()`` returns an
-upper bound on what ``get_weight()`` can return *from now on*.  The weights
-must always be >= 0::
+The ``get_weight()`` method returns the weight that you want to contribute
+to the current document.  This weight must always be >= 0::
 
-    virtual Xapian::weight get_maxweight() const;
     virtual Xapian::weight get_weight() const;
 
-These methods have default implementations which always return 0, for
-convenience when deriving "weight-less" subclasses.
+The default implementation of ``get_weight()`` returns 0, for convenience when
+deriving "weight-less" subclasses.
 
-If the maximum weight that can be returned by the PostingSource has decreased
-significantly, it may be worthwhile to notify the Xapian matcher about this, so
-that it can use this information for optimisations, allowing the match process
-to finish faster.  You can notify the matcher about this by calling the
-``PostingSource::notify_new_maxweight()`` method.  However, you should take
-care not to call this method too frequently, as the resulting computation can
-be moderately expensive.
+If you know an upper bound on the weight contribution, you can help the matcher
+to finish faster by telling it this bound by calling::
 
-It is therefore advisable only to call this after a significant decrease in
-maxweight.  Profiling your postingsource will often be the best way to
-determine how often to call it.  If it's cheap to calculate the maxweight in
-your posting source, a reasonable strategy is to decide a maximum number of
-times to call this method (eg, 10) and then to call it whenever
-``floor(new_maxweight * 10 / original_maxweight)`` changes; this ensures that
-only reasonably significant drops result in a recalculation of the weights.
-Alternatively, you could simply impose a lower limit on the number of documents
-processed before re-calling this.
+    void get_maxweight(Xapian::weight max_weight);
+
+Since ``get_weight()`` must always return >= 0, the upper bound must clearly
+also always be >= 0 too.
+
+This method specifies an upper bound on what ``get_weight()`` will return *from
+now on* (until the next call to ``init()``).  So if you know that the upper
+bound has decreased, you should call ``get_maxweight()`` with the new reduced
+bound.
+
+If you want to read the currently set upper bound, you can call::
+
+    Xapian::weight get_maxweight() const;
+
+This is just a getter method for a member variable in the
+``Xapian::PostingSource`` class, and is inlined from the API headers, so
+there's no point storing this yourself in your subclass - it should be just as
+efficient to call ``get_maxweight()`` whenever you want to use it.
 
 The ``at_end()`` method checks if the current iteration position is past the
 last entry::

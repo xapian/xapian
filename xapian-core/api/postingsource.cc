@@ -27,7 +27,7 @@
 
 #include "database.h"
 #include "document.h"
-#include "matcher/externalpostlist.h"
+#include "multimatch.h"
 
 #include "xapian/document.h"
 #include "xapian/error.h"
@@ -44,19 +44,17 @@ using namespace std;
 
 namespace Xapian {
 
-void
-PostingSource::notify_new_maxweight()
-{
-    if (externalpl)
-	externalpl->notify_new_maxweight();
-}
-
 PostingSource::~PostingSource() { }
 
-Xapian::weight
-PostingSource::get_maxweight() const
+void
+PostingSource::set_maxweight(Xapian::weight max_weight)
 {
-    return 0;
+    AssertRel(max_weight,<=,max_weight_);
+    if (usual(matcher_)) {
+	MultiMatch * multimatch = static_cast<MultiMatch*>(matcher_);
+	multimatch->reduce_maxweight_by(max_weight_ - max_weight);
+    }
+    max_weight_ = max_weight;
 }
 
 Xapian::weight
@@ -134,12 +132,6 @@ ValuePostingSource::get_termfreq_max() const
     return termfreq_max;
 }
 
-Xapian::weight
-ValuePostingSource::get_maxweight() const
-{
-    return max_weight;
-}
-
 void
 ValuePostingSource::next(Xapian::weight min_wt)
 {
@@ -152,7 +144,7 @@ ValuePostingSource::next(Xapian::weight min_wt)
 
     if (value_it == db.valuestream_end(slot)) return;
 
-    if (min_wt > max_weight) {
+    if (min_wt > get_maxweight()) {
 	value_it = db.valuestream_end(slot);
 	return;
     }
@@ -169,7 +161,7 @@ ValuePostingSource::skip_to(Xapian::docid min_docid,
 	if (value_it == db.valuestream_end(slot)) return;
     }
 
-    if (min_wt > max_weight) {
+    if (min_wt > get_maxweight()) {
 	value_it = db.valuestream_end(slot);
 	return;
     }
@@ -187,7 +179,7 @@ ValuePostingSource::check(Xapian::docid min_docid,
 	if (value_it == db.valuestream_end(slot)) return true;
     }
 
-    if (min_wt > max_weight) {
+    if (min_wt > get_maxweight()) {
 	value_it = db.valuestream_end(slot);
 	return true;
     }
@@ -211,7 +203,7 @@ ValuePostingSource::init(const Database & db_)
 {
     db = db_;
     started = false;
-    max_weight = DBL_MAX;
+    set_maxweight(DBL_MAX);
     try {
 	termfreq_max = db.get_value_freq(slot);
 	termfreq_est = termfreq_max;
@@ -275,9 +267,9 @@ ValueWeightPostingSource::init(const Database & db_)
     ValuePostingSource::init(db_);
 
     try {
-    	max_weight = sortable_unserialise(db.get_value_upper_bound(slot));
+	set_maxweight(sortable_unserialise(db.get_value_upper_bound(slot)));
     } catch (const Xapian::UnimplementedError &) {
-	max_weight = DBL_MAX;
+	// ValuePostingSource::init() set the maxweight to DBL_MAX.
     }
 }
 
@@ -384,7 +376,7 @@ void
 ValueMapPostingSource::init(const Database & db_)
 {
     ValuePostingSource::init(db_);
-    max_weight = max(max_weight_in_map, default_weight);
+    set_maxweight(max(max_weight_in_map, default_weight));
 }
 
 string
@@ -396,11 +388,12 @@ ValueMapPostingSource::get_description() const
     return desc;
 }
 
-
-FixedWeightPostingSource::FixedWeightPostingSource(Xapian::weight wt_)
-	: wt(wt_),
-	  started(false)
+FixedWeightPostingSource::FixedWeightPostingSource(Xapian::weight wt)
+    : started(false)
 {
+    // The weight is fixed at wt, so that's the maxweight too.  So just store wt
+    // as the maxweight and we can read it from there when we need it.
+    set_maxweight(wt);
 }
 
 Xapian::doccount
@@ -422,15 +415,9 @@ FixedWeightPostingSource::get_termfreq_max() const
 }
 
 Xapian::weight
-FixedWeightPostingSource::get_maxweight() const
-{
-    return wt;
-}
-
-Xapian::weight
 FixedWeightPostingSource::get_weight() const
 {
-    return wt;
+    return get_maxweight();
 }
 
 void
@@ -450,7 +437,7 @@ FixedWeightPostingSource::next(Xapian::weight min_wt)
 	check_docid = 0;
     }
 
-    if (min_wt > wt) {
+    if (min_wt > get_maxweight()) {
 	it = db.postlist_end(string());
     }
 }
@@ -472,7 +459,7 @@ FixedWeightPostingSource::skip_to(Xapian::docid min_docid,
 	check_docid = 0;
     }
 
-    if (min_wt > wt) {
+    if (min_wt > get_maxweight()) {
 	it = db.postlist_end(string());
 	return;
     }
@@ -506,7 +493,7 @@ FixedWeightPostingSource::get_docid() const
 FixedWeightPostingSource *
 FixedWeightPostingSource::clone() const
 {
-    return new FixedWeightPostingSource(wt);
+    return new FixedWeightPostingSource(get_maxweight());
 }
 
 string
@@ -518,7 +505,7 @@ FixedWeightPostingSource::name() const
 string
 FixedWeightPostingSource::serialise() const
 {
-    return serialise_double(wt);
+    return serialise_double(get_maxweight());
 }
 
 FixedWeightPostingSource *
@@ -546,7 +533,7 @@ string
 FixedWeightPostingSource::get_description() const
 {
     string desc("Xapian::FixedWeightPostingSource(wt=");
-    desc += str(wt);
+    desc += str(get_maxweight());
     desc += ")";
     return desc;
 }

@@ -145,23 +145,23 @@ class MyOddWeightingPostingSource : public Xapian::PostingSource {
     MyOddWeightingPostingSource(Xapian::doccount num_docs_,
 				Xapian::doccount last_docid_)
 	: num_docs(num_docs_), last_docid(last_docid_), did(0)
-    { }
+    {
+	set_maxweight(1000);
+    }
 
   public:
     MyOddWeightingPostingSource(const Xapian::Database &db)
 	: num_docs(db.get_doccount()), last_docid(db.get_lastdocid()), did(0)
     { }
 
-    PostingSource * clone() const { return new MyOddWeightingPostingSource(num_docs, last_docid); }
+    PostingSource * clone() const {
+	return new MyOddWeightingPostingSource(num_docs, last_docid);
+    }
 
     void init(const Xapian::Database &) { did = 0; }
 
     Xapian::weight get_weight() const {
 	return (did % 2) ? 1000 : 0.001;
-    }
-
-    Xapian::weight get_maxweight() const {
-	return 1000;
     }
 
     // These bounds could be better, but that's not important here.
@@ -267,10 +267,6 @@ class MyDontAskWeightPostingSource : public Xapian::PostingSource {
 	FAIL_TEST("MyDontAskWeightPostingSource::get_weight() called");
     }
 
-    Xapian::weight get_maxweight() const {
-	FAIL_TEST("MyDontAskWeightPostingSource::get_maxweight() called");
-    }
-
     // These bounds could be better, but that's not important here.
     Xapian::doccount get_termfreq_min() const { return num_docs; }
 
@@ -300,7 +296,7 @@ class MyDontAskWeightPostingSource : public Xapian::PostingSource {
     }
 };
 
-// Check that boolean use doesn't call get_weight() or get_maxweight().
+// Check that boolean use doesn't call get_weight().
 DEFINE_TESTCASE(externalsource4, backend && !remote) {
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::Enquire enq(db);
@@ -484,22 +480,18 @@ class ChangeMaxweightPostingSource : public Xapian::PostingSource {
 	return 5 - did;
     }
 
-    Xapian::weight get_maxweight() const {
-	return 5 - did;
-    }
-
     Xapian::doccount get_termfreq_min() const { return 5; }
     Xapian::doccount get_termfreq_est() const { return 5; }
     Xapian::doccount get_termfreq_max() const { return 5; }
 
     void next(Xapian::weight) {
 	++did;
-	notify_new_maxweight();
+	set_maxweight(5 - did);
     }
 
     void skip_to(Xapian::docid to_did, Xapian::weight) {
 	did = to_did;
-	notify_new_maxweight();
+	set_maxweight(5 - did);
     }
 
     bool at_end() const { return did >= 5; }

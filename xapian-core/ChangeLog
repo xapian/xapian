@@ -1,3 +1,16 @@
+Mon May 11 03:12:00 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/postingsource.cc,common/multimatch.h,docs/postingsource.rst,
+	  include/xapian/postingsource.h,matcher/externalpostlist.cc,
+	  matcher/externalpostlist.h,matcher/msetpostlist.cc,
+	  tests/api_postingsource.cc: Replace PostingSource's
+	  notify_new_maxweight() and virtual get_maxweight() mechanism with a
+	  non-virtual set_maxweight() and get_maxweight().  Currently the
+	  plumbing at the matcher end is much as before, but this API seems
+	  more obvious to the user and will allow the matcher to simply reduce
+	  its maximum weight value rather than having to recursively call
+	  recalc_maxweight() in response to this situation (ticket#340).
+
 Mon May 11 02:38:26 GMT 2009  Olly Betts <olly@survex.com>
 
 	* docs/postingsource.rst: Fix a typo and reword to avoid "namespaced".
