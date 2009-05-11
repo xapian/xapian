@@ -49,7 +49,6 @@ PostingSource::~PostingSource() { }
 void
 PostingSource::set_maxweight(Xapian::weight max_weight)
 {
-    AssertRel(max_weight,<=,max_weight_);
     if (usual(matcher_)) {
 	MultiMatch * multimatch = static_cast<MultiMatch*>(matcher_);
 	multimatch->reduce_maxweight_by(max_weight_ - max_weight);

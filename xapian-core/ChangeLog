@@ -1,3 +1,9 @@
+Mon May 11 09:03:14 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/postingsource.cc: Remove assertion checking that set_maxweight()
+	  doesn't set a lower weight - it legitimately can when we call init()
+	  on a non-clone-able PostingSource for reuse.
+
 Mon May 11 03:12:00 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/postingsource.cc,common/multimatch.h,docs/postingsource.rst,
