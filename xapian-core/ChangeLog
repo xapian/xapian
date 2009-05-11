@@ -1,3 +1,13 @@
+Mon May 11 02:30:59 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/msetpostlist.cc: Fix typo - MSetPostList::get_maxweight()
+	  with a sort ordered primarily by decreasing relevance was returning
+	  the docid for the maxweight!  This could have led to wrong results
+	  when searching multiple databases with the remote backend, but
+	  probably usually didn't matter as with BM25 the weights are usually
+	  small (often all < 1) while docids are inevitably >= 1.  No
+	  regression test for this (currently anyway).
+
 Sun May 10 07:49:11 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/dbfactory.cc: Fix comment typo.
