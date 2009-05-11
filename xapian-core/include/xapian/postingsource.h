@@ -55,7 +55,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
 
   protected:
     /// Allow subclasses to be instantiated.
-    PostingSource() : matcher_(NULL) { }
+    PostingSource() : max_weight_(0), matcher_(NULL) { }
 
     /** Set an upper bound on what get_weight() can return from now on.
      *
@@ -296,7 +296,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *  the sub-databases as the @a db parameter here.  The @a db parameter
      *  will therefore always refer to a single database.  All docids passed
      *  to, or returned from, the PostingSource refer to docids in that single
-     *  database, rather than in the multi-database. 
+     *  database, rather than in the multi-database.
      */
     virtual void init(const Database & db) = 0;
 
