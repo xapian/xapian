@@ -512,6 +512,9 @@ DEFINE_TESTCASE(changemaxweightsource1, backend && !multi && !remote) {
 	Xapian::Query q(Xapian::Query::OP_AND,
 			Xapian::Query(&src1), Xapian::Query(&src2));
 	enq.set_query(q);
+	// Set descending docid order so that the matcher isn't able to
+	// terminate early after 4 documents just because weight == maxweight.
+	enq.set_docid_order(enq.DESCENDING);
 
 	Xapian::MSet mset = enq.get_mset(0, 4);
 	TEST(src1.at_end());

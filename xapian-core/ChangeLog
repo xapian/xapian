@@ -1,3 +1,9 @@
+Mon May 11 13:07:47 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_postingsource.cc: In changemaxweightsource1, set
+	  descending docid order so that the matcher isn't able to terminate
+	  early after 4 documents just because weight == maxweight.
+
 Mon May 11 12:00:04 GMT 2009  Olly Betts <olly@survex.com>
 
 	* net/serialise.cc: Build up string using +=.
