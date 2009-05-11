@@ -70,18 +70,21 @@ to the current document.  This weight must always be >= 0::
 The default implementation of ``get_weight()`` returns 0, for convenience when
 deriving "weight-less" subclasses.
 
-If you know an upper bound on the weight contribution, you can help the matcher
-to finish faster by telling it this bound by calling::
+You also need to specify an upper bound on the value which ``get_weight()`` can
+return, which is used by the matcher to perform various optimisations.  You
+should try hard to find a bound for efficiency, but if there really isn't one
+then you can set ``DBL_MAX``::
 
     void get_maxweight(Xapian::weight max_weight);
-
-Since ``get_weight()`` must always return >= 0, the upper bound must clearly
-also always be >= 0 too.
 
 This method specifies an upper bound on what ``get_weight()`` will return *from
 now on* (until the next call to ``init()``).  So if you know that the upper
 bound has decreased, you should call ``get_maxweight()`` with the new reduced
 bound.
+
+Since ``get_weight()`` must always return >= 0, the upper bound must clearly
+also always be >= 0 too.  If you don't call ``get_maxweight()`` then the
+bound defaults to 0, to match the default implementation of ``get_weight()``.
 
 If you want to read the currently set upper bound, you can call::
 

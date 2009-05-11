@@ -1,3 +1,7 @@
+Mon May 11 11:39:49 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/postingsource.rst: Improve documentation for get_maxweight().
+
 Mon May 11 11:26:02 GMT 2009  Olly Betts <olly@survex.com>
 
 	* include/xapian/postingsource.h: Initialise max_weight_ to 0 in the
