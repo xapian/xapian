@@ -1,3 +1,8 @@
+Mon May 11 10:41:31 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_postingsource.cc: Fix get_termfreq_min(), etc for
+	  ChangeMaxweightPostingSource to return 4 not 5.
+
 Mon May 11 09:03:14 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/postingsource.cc: Remove assertion checking that set_maxweight()

@@ -480,9 +480,9 @@ class ChangeMaxweightPostingSource : public Xapian::PostingSource {
 	return 5 - did;
     }
 
-    Xapian::doccount get_termfreq_min() const { return 5; }
-    Xapian::doccount get_termfreq_est() const { return 5; }
-    Xapian::doccount get_termfreq_max() const { return 5; }
+    Xapian::doccount get_termfreq_min() const { return 4; }
+    Xapian::doccount get_termfreq_est() const { return 4; }
+    Xapian::doccount get_termfreq_max() const { return 4; }
 
     void next(Xapian::weight) {
 	++did;
