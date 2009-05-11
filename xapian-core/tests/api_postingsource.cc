@@ -473,7 +473,7 @@ class ChangeMaxweightPostingSource : public Xapian::PostingSource {
 
     Xapian::weight get_weight() const {
 	if (did > maxid_accessed) {
-	    FAIL_TEST("MyDontAskWeightPostingSource::get_weight() called "
+	    FAIL_TEST("ChangeMaxweightPostingSource::get_weight() called "
 		      "for docid " + om_tostring(did) + ", max id accessed "
 		      "should be " + om_tostring(maxid_accessed));
 	}

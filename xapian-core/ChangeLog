@@ -1,3 +1,7 @@
+Mon May 11 10:54:47 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_postingsource.cc: Fix class name in FAIL_TEST message.
+
 Mon May 11 10:41:31 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_postingsource.cc: Fix get_termfreq_min(), etc for
