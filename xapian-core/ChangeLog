@@ -1,3 +1,8 @@
+Tue May 12 14:50:57 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Rename "max_weight" variable to "max_possible"
+	  since that is what it is referred to via the MSet API.
+
 Tue May 12 12:38:11 GMT 2009  Olly Betts <olly@survex.com>
 
 	* common/safeuuid.h: Fix length of buffer to lower case - it's
