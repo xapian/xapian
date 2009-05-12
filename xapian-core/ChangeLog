@@ -1,6 +1,11 @@
+Tue May 12 12:38:11 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/safeuuid.h: Fix length of buffer to lower case - it's
+	  36, not sizeof(uuid_t).
+
 Tue May 12 02:49:34 GMT 2009  Olly Betts <olly@survex.com>
 
-	* common/safeuuid.h,configure.ac: Older verisons of libuuid don't have
+	* common/safeuuid.h,configure.ac: Older versions of libuuid don't have
 	  uuid_unparse_lower() so probe for it in configure, and if it isn't
 	  present provide an inline version in safeuuid.h (ticket#368).
 
