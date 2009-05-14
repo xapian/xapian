@@ -390,7 +390,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     vector<Xapian::Internal::MSetItem> items;
 
     // maximum weight a document could possibly have
-    const Xapian::weight max_weight = pl->recalc_maxweight();
+    const Xapian::weight max_possible = pl->recalc_maxweight();
 
     DEBUGLINE(MATCH, "pl = (" << pl->get_description() << ")");
     recalculate_w_max = false;
@@ -421,7 +421,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 					   matches_upper_bound,
 					   matches_lower_bound,
 					   matches_estimated,
-					   max_weight, greatest_wt, items,
+					   max_possible, greatest_wt, items,
 					   termfreqandwts,
 					   0));
 	return;
@@ -710,7 +710,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 			    // We're done if this is a forward boolean match
 			    // with only one database (bodgetastic, FIXME
 			    // better if we can!)
-			    if (rare(max_weight == 0 && sort_forward)) {
+			    if (rare(max_possible == 0 && sort_forward)) {
 				// In the multi database case, MergePostList
 				// currently processes each database
 				// sequentially (which actually may well be
@@ -738,7 +738,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 			// We're done if this is a forward boolean match
 			// with only one database (bodgetastic, FIXME
 			// better if we can!)
-			if (rare(max_weight == 0 && sort_forward)) {
+			if (rare(max_possible == 0 && sort_forward)) {
 			    // In the multi database case, MergePostList
 			    // currently processes each database
 			    // sequentially (which actually may well be
@@ -1082,7 +1082,7 @@ new_greatest_weight:
 				       matches_upper_bound,
 				       matches_lower_bound,
 				       matches_estimated,
-				       max_weight, greatest_wt, items,
+				       max_possible, greatest_wt, items,
 				       termfreqandwts,
 				       percent_scale));
 }

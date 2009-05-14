@@ -1,3 +1,9 @@
+Thu May 14 12:56:44 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/multimatch.cc: Rename "max_weight" variable to "max_possible"
+	  since that is what it is referred to via the MSet API.
+
 Thu May 14 12:54:47 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
