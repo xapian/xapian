@@ -44,7 +44,7 @@ FlintModifiedPostList::skip_deletes(Xapian::weight w_min)
 Xapian::doccount
 FlintModifiedPostList::get_termfreq() const
 {
-    return this_db->get_termfreq(tname);
+    return this_db->get_termfreq(term);
 }
 
 Xapian::docid
@@ -84,7 +84,7 @@ FlintModifiedPostList::read_position_list()
 	    delete poslist;
 	    poslist = NULL;
 	}
-	poslist = this_db->open_position_list(it->first, tname);
+	poslist = this_db->open_position_list(it->first, term);
 	return poslist;
     }
     return FlintPostList::read_position_list();
@@ -94,7 +94,7 @@ PositionList *
 FlintModifiedPostList::open_position_list() const
 {
     if (it != mods.end() && (FlintPostList::at_end() || it->first <= FlintPostList::get_docid())) {
-	return this_db->open_position_list(it->first, tname);
+	return this_db->open_position_list(it->first, term);
     }
     return FlintPostList::open_position_list();
 }
