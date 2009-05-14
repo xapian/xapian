@@ -67,11 +67,11 @@ DEFINE_TESTCASE(consistency3, backend) {
 }
 
 class MyPostingSource : public Xapian::PostingSource {
-    std::vector<std::pair<Xapian::docid, Xapian::weight> > weights;
-    std::vector<std::pair<Xapian::docid, Xapian::weight> >::const_iterator i;
+    vector<pair<Xapian::docid, Xapian::weight> > weights;
+    vector<pair<Xapian::docid, Xapian::weight> >::const_iterator i;
     bool started;
 
-    MyPostingSource(const std::vector<std::pair<Xapian::docid, Xapian::weight> > &weights_,
+    MyPostingSource(const vector<pair<Xapian::docid, Xapian::weight> > &weights_,
 		    Xapian::weight max_wt)
 	: weights(weights_), started(false)
     {
@@ -114,7 +114,7 @@ class MyPostingSource : public Xapian::PostingSource {
 
     Xapian::docid get_docid() const { return i->first; }
 
-    std::string get_description() const {
+    string get_description() const {
 	return "MyPostingSource";
     }
 };

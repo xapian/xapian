@@ -1,3 +1,8 @@
+Thu May 14 04:38:47 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_percentages.cc: Remove superfluous explict std::
+	  qualifiers.
+
 Thu May 14 04:36:29 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_percentages.cc: Update for the PostingSource
