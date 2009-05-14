@@ -1,3 +1,8 @@
+Thu May 14 13:23:49 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* net/serialise.cc: Build up string using +=.
+
 Thu May 14 12:56:44 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
