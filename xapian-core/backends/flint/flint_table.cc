@@ -77,7 +77,6 @@ PWRITE_PROTOTYPE
 
 #include <algorithm>  // for std::min()
 #include <string>
-#include <vector>
 
 using namespace std;
 

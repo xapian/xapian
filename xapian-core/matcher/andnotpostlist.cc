@@ -23,7 +23,6 @@
 #include <config.h>
 #include "andnotpostlist.h"
 #include "omdebug.h"
-#include <algorithm>
 
 PostList *
 AndNotPostList::advance_to_next_match(Xapian::weight w_min, PostList *ret)

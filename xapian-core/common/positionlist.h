@@ -24,8 +24,6 @@
 #ifndef OM_HGUARD_POSITIONLIST_H
 #define OM_HGUARD_POSITIONLIST_H
 
-#include <string>
-
 #include <xapian/types.h>
 #include <xapian/error.h>
 #include <xapian/positioniterator.h>

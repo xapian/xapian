@@ -1,3 +1,17 @@
+Thu May 14 10:11:00 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* matcher/queryoptimiser.cc: Remove unused '#include "autoptr.h"'.
+	* api/omquery.cc,api/omqueryinternal.cc,backends/flint/flint_table.cc,
+	  common/inmemory_positionlist.h,common/positionlist.h,
+	  matcher/localmatch.h,matcher/queryoptimiser.cc,
+	  matcher/queryoptimiser.h,tests/api_wrdb.cc: Remove unused inclusions
+	  of <list>, <map>, <string>, and <vector>.
+	* matcher/multimatch.cc: Remove unused inclusion of <queue>.
+	* api/omquery.cc,matcher/andnotpostlist.cc,
+	  queryparser/termgenerator_internal.cc,tests/api_wrdb.cc: Remove
+	  unused inclusions of <algorithm>.
+
 Thu May 14 09:19:35 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

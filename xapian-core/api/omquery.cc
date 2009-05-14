@@ -31,9 +31,6 @@
 #include <xapian/error.h>
 #include <xapian/termiterator.h>
 
-#include <vector>
-#include <map>
-#include <algorithm>
 #include <math.h>
 
 namespace Xapian {

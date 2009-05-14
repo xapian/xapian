@@ -29,7 +29,6 @@
 namespace Xapian { class Weight; }
 
 #include <map>
-#include <vector>
 
 class Stats;
 
