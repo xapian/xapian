@@ -1,3 +1,8 @@
+Thu May 14 11:10:58 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/mergepostlist.cc: Add explicit '#include "omassert.h"'.
+
 Thu May 14 10:52:56 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
