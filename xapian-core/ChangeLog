@@ -1,3 +1,10 @@
+Thu May 14 12:06:34 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/: Eliminate EmptySubMatch - we can just store NULL for a
+	  submatch which has failed but which ErrorHandler told us to continue
+	  without.
+
 Thu May 14 11:46:43 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
