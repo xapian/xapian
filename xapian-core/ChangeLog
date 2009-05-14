@@ -1,3 +1,8 @@
+Thu May 14 10:21:03 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/flint/contiguousalldocspostlist.h: Wrap comment.
+
 Thu May 14 10:11:00 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
