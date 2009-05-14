@@ -559,7 +559,7 @@ Database::get_metadata(const string & key) const
 Xapian::TermIterator
 Database::metadata_keys_begin(const std::string &prefix) const
 {
-    DEBUGAPICALL(string, "Database::metadata_keys_begin", "");
+    DEBUGAPICALL(Xapian::TermIterator, "Database::metadata_keys_begin", "");
     RETURN(TermIterator(internal[0]->open_metadata_keylist(prefix)));
 }
 
