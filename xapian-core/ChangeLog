@@ -1,3 +1,8 @@
+Thu May 14 07:20:15 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc: Correct return type in a DEBUGAPICALL macro.
+	* common/multimatch.h: Remove unused include of <map>
+
 Thu May 14 02:09:26 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_table.cc: Remove bogus parameter from DEBUGCALL
@@ -220,7 +225,7 @@ Thu Apr 02 14:17:36 GMT 2009  Olly Betts <olly@survex.com>
 	* Backport change from trunk:
 	* configure.ac: Only put ANSI_CXXFLAGS in CXXFLAGS for the duration of
 	  configure - put it in AM_CXXFLAGS for substituting so that the user
-	  can safely override CXXFLAGS at make-time: "make CXXFLAGS=-Os" 
+	  can safely override CXXFLAGS at make-time: "make CXXFLAGS=-Os"
 
 Thu Apr 02 14:10:55 GMT 2009  Olly Betts <olly@survex.com>
 
