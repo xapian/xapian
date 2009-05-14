@@ -1,3 +1,15 @@
+Thu May 14 12:46:24 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/andpostlist.cc: Fix a swap which was the wrong way round,
+	  so that we call next() on the subpostlist with the lower
+	  frequency, rather than the one with the higher frequency.  This
+	  should improve performance in many situations, and I don't think
+	  it's likely to slow anything down.  It also fixes some cases
+	  where optimisation of an AND_MAYBE to an AND results in a slower
+	  search, such that search times went down when more hits were
+	  requested.
+
 Thu May 14 12:36:02 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
