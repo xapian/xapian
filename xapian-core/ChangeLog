@@ -1,3 +1,14 @@
+Thu May 14 09:19:35 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* api/omdocument.cc: Don't ever store empty values explicitly, which
+	  eliminates an inconsistently handled corner case which was causing
+	  the "value frequency" to be wrong from at least one point of view
+	  on trunk.  This is consistent with how user metadata works too.
+	* include/xapian/document.h: Explicitly document this behaviour.
+	* tests/Makefile.am,tests/api_valuestats.cc: Add regression test for
+	  the above change.
+
 Thu May 14 07:20:15 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc: Correct return type in a DEBUGAPICALL macro.
