@@ -1,3 +1,11 @@
+Thu May 14 10:50:41 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/multimatch.cc: Check termfreqandwts for MatchAll queries
+	  before we check terms from the document so that the "terminate
+	  early once we've seen all the query terms" test when checking the
+	  document terms can fire in this case.
+
 Thu May 14 10:40:40 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
