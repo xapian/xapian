@@ -364,8 +364,6 @@ LeafPostList *
 InMemoryDatabase::open_post_list(const string & tname) const
 {
     if (tname.empty()) {
-	if (termlists.empty())
-	    return new EmptyPostList();
 	Xapian::Internal::RefCntPtr<const InMemoryDatabase> ptrtothis(this);
 	return new InMemoryAllDocsPostList(ptrtothis);
     }

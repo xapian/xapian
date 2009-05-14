@@ -1,3 +1,12 @@
+Thu May 14 10:52:56 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/api_backend.cc: Add test coverage for alldocs iterator on an
+	  empty database.
+	* backends/inmemory/inmemory_database.cc: No need to special case an
+	  empty database as InMemoryAllDocsPostList handles this case
+	  correctly.
+
 Thu May 14 10:50:41 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
