@@ -69,36 +69,31 @@ DEFINE_TESTCASE(consistency3, backend) {
 class MyPostingSource : public Xapian::PostingSource {
     std::vector<std::pair<Xapian::docid, Xapian::weight> > weights;
     std::vector<std::pair<Xapian::docid, Xapian::weight> >::const_iterator i;
-    Xapian::weight maxwt;
     bool started;
 
     MyPostingSource(const std::vector<std::pair<Xapian::docid, Xapian::weight> > &weights_,
-		    Xapian::weight maxwt_)
-	: weights(weights_), maxwt(maxwt_), started(false)
-    {}
+		    Xapian::weight max_wt)
+	: weights(weights_), started(false)
+    {
+	set_maxweight(max_wt);
+    }
 
   public:
-    MyPostingSource() : maxwt(0.0), started(false) { }
+    MyPostingSource() : started(false) { }
 
     PostingSource * clone() const
     {
-	return new MyPostingSource(weights, maxwt);
+	return new MyPostingSource(weights, get_maxweight());
     }
 
     void append_docweight(Xapian::docid did, Xapian::weight wt) {
 	weights.push_back(make_pair(did, wt));
-	if (wt > maxwt) maxwt = wt;
-    }
-
-    void set_maxweight(Xapian::weight wt) {
-	if (wt > maxwt) maxwt = wt;
+	if (wt > get_maxweight()) set_maxweight(wt);
     }
 
     void init(const Xapian::Database &) { started = false; }
 
     Xapian::weight get_weight() const { return i->second; }
-
-    Xapian::weight get_maxweight() const { return maxwt; }
 
     Xapian::doccount get_termfreq_min() const { return weights.size(); }
     Xapian::doccount get_termfreq_est() const { return weights.size(); }
