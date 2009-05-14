@@ -85,7 +85,7 @@ TermGenerator::set_flags(flags toggle, flags mask)
 void
 TermGenerator::index_text(const Xapian::Utf8Iterator & itor,
 			  Xapian::termcount weight,
-			  const std::string & prefix)
+			  const string & prefix)
 {
     internal->index_text(itor, weight, prefix, true);
 }
@@ -93,7 +93,7 @@ TermGenerator::index_text(const Xapian::Utf8Iterator & itor,
 void
 TermGenerator::index_text_without_positions(const Xapian::Utf8Iterator & itor,
 					    Xapian::termcount weight,
-					    const std::string & prefix)
+					    const string & prefix)
 {
     internal->index_text(itor, weight, prefix, false);
 }
