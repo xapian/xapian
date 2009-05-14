@@ -34,7 +34,6 @@
 
 #include "emptypostlist.h"
 #include "branchpostlist.h"
-#include "leafpostlist.h"
 #include "mergepostlist.h"
 
 #include "document.h"
