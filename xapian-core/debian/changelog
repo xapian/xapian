@@ -1,3 +1,10 @@
+xapian-core (1.0.13-1) unstable; urgency=low
+
+  * debian/TODO: Update since we now have a -dbg package with debugging
+    symbols.
+
+ -- Olly Betts <olly@survex.com>  Thu, 14 May 2009 05:35:22 +0100
+
 xapian-core (1.0.12-2) unstable; urgency=low
 
   * debian/control.in: libxapian<SOVERSION>-dbg should be section debug not
