@@ -55,7 +55,9 @@ MSetPostList::get_maxweight() const
 
     // If the MSet is sorted in descending weight order, then the maxweight we
     // can return from now on is the weight of the current item.
-    if (decreasing_relevance) RETURN(mset_internal->items[cursor].did);
+    if (decreasing_relevance) {
+	RETURN(mset_internal->items[cursor].wt);
+    }
 
     // Otherwise max_attained is the best answer we can give.
     RETURN(mset_internal->max_attained);

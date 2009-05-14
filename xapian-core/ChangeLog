@@ -1,3 +1,14 @@
+Thu May 14 12:54:47 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/msetpostlist.cc: Fix typo - MSetPostList::get_maxweight()
+	  with a sort ordered primarily by decreasing relevance was returning
+	  the docid for the maxweight!  This could have led to wrong results
+	  when searching multiple databases with the remote backend, but
+	  probably usually didn't matter as with BM25 the weights are usually
+	  small (often all < 1) while docids are inevitably >= 1.  No
+	  regression test for this (currently anyway).
+
 Thu May 14 12:50:45 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
