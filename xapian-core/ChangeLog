@@ -1,3 +1,12 @@
+Thu May 14 12:36:02 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/localmatch.cc,matcher/localmatch.h: Don't rebuild the
+	  termname -> termfreq and weight map for every subdatabase - just do
+	  it once for the first one.  Also eliminate a copy of this map.
+	  This should speed up searches a little, especially those over
+	  multiple databases.
+
 Thu May 14 12:06:34 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
