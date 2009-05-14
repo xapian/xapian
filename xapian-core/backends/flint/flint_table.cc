@@ -1564,7 +1564,7 @@ FlintTable::FlintTable(string path_, bool readonly_,
 	  lazy(lazy_)
 {
     DEBUGCALL(DB, void, "FlintTable::FlintTable",
-	      tablename_ << "," << path_ << ", " << readonly_ << ", " <<
+	      path_ << ", " << readonly_ << ", " <<
 	      compress_strategy_ << ", " << lazy_);
 }
 
