@@ -30,7 +30,6 @@
 #include <xapian.h>
 
 #include "backendmanager.h" // For XAPIAN_BIN_PATH.
-#include "omtime.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include "utils.h"
@@ -1889,46 +1888,6 @@ DEFINE_TESTCASE(lazytablebug1, writable && flint) {
     for (Xapian::TermIterator t = db.synonym_keys_begin(); t != db.synonym_keys_end(); ++t) {
 	tout << *t << endl;
     }
-
-    return true;
-}
-
-static double
-bigoaddvalue_helper(size_t num_values)
-{
-    Xapian::WritableDatabase db = get_writable_database();
-
-    Xapian::Document doc;
-    for (size_t i = 0; i < num_values; ++i) {
-	doc.add_value(i, "moo");
-    }
-
-    OmTime start = OmTime::now();
-
-    db.add_document(doc);
-    db.flush();
-
-    return (OmTime::now() - start).as_double();
-}
-
-DEFINE_TESTCASE(bigoaddvalue, writable) {
-    const size_t N = 5000;
-    double time_N = bigoaddvalue_helper(N);
-    tout << "Adding a document with " << N << " values took " << time_N
-	 << " seconds" << endl;
-    double time_10N = bigoaddvalue_helper(10 * N);
-    tout << "Adding a document with " << 10 * N << " values took " << time_10N
-	 << " seconds" << endl;
-
-    if (time_N == 0.0) {
-	// The first test completed before the timer ticked at all!
-	SKIP_TEST("Timer granularity is too coarse");
-    }
-
-    // O(n*n) is bad, but we don't require linearity - O(n*log(n)) is
-    // acceptable, so put the threshold halfway between.
-    const double ALLOWED_FACTOR = (100.0 + 10 * 2.71828) / 2.0;
-    TEST_LESSER(time_10N, time_N * ALLOWED_FACTOR);
 
     return true;
 }

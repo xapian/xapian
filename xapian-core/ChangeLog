@@ -1,3 +1,22 @@
+Fri May 15 09:37:46 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* configure.ac,tests/Makefile.am,tests/api_scalability.cc,
+	  tests/api_wrdb.cc,tests/harness/: Add new "test_scalability()" helper
+	  function which checks that an operation scales in CPU time used in
+	  the desired way.  Use this to reimplement bigoaddvalue (and rename
+	  to bigoaddvalue1 for consistency).
+	* tests/harness/cputimer.cc: If we don't have rusage() or times(), but
+	  do have ftime(), use that instead of time() so we at least get
+	  subsecond resolution (as we do currently with OmTime).
+	* tests/queryparsertest.cc: Rename qp_stem_scale1 to qp_scale1 as it
+	  has no connection with stemming.  Factor out a helper function to
+	  do the timing comparison, and update time_query_parse() to use
+	  CPUTimer rather than OmTime.  Tweak the "fudge factor" up from
+	  2 to 2.15 to allow for non-equal ticks due to rounding of an
+	  interval which isn't an exact multiple of 1/CLK_TCK (ticket#308). 
+	* tests/harness/cputimer.cc: Fix typo in the "ftime" case.
+
 Thu May 14 13:23:49 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

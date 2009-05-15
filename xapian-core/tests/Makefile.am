@@ -97,6 +97,7 @@ collated_apitest_sources = \
  api_percentages.cc \
  api_posdb.cc \
  api_query.cc \
+ api_scalability.cc \
  api_sorting.cc \
  api_spelling.cc \
  api_transdb.cc \
