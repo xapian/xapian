@@ -1,3 +1,10 @@
+Sat May 16 08:14:10 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/scriptindex.rst,scriptindex.cc: Add new "valuenumeric" action
+	  to index a value using Xapian::sortable_serialise() to allow numeric
+	  sorting (ticket#260).
+
 Sat May 16 08:02:58 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
