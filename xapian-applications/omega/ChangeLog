@@ -1,3 +1,12 @@
+Sat May 16 06:58:15 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* omindex.cc: If the filter for a filetype isn't installed, don't erase
+	  the entry from the mime_map, but instead set it to the empty string
+	  and then use this to report why we subsequently skip files with the
+	  same extension, rather than slightly misleadingly reporting "Unknown
+	  extension".
+
 Sat May 16 06:57:11 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
