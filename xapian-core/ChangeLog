@@ -1,3 +1,8 @@
+Sat May 16 05:02:35 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_version.cc: Fix comment - this file doesn't
+	  use memcpy() now.
+
 Thu May 14 04:38:47 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_percentages.cc: Remove superfluous explict std::

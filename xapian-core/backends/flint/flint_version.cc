@@ -34,7 +34,7 @@
 #endif
 
 #include <cstdio> // For rename().
-#include <cstring> // For memcmp() and memcpy().
+#include <cstring> // For memcmp().
 #include <string>
 
 #include "common/safeuuid.h"
