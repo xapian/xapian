@@ -1,3 +1,11 @@
+Sat May 16 08:51:15 GMT 2009  Olly Betts <olly@survex.com>
+
+	* python/docs/examples/simplematchdecider.py: Pick "avoid_value" from
+	  the second parameter, not the third.
+	* python/docs/examples/simplematchdecider.py,
+	  python/docs/examples/simplesearch.py: Use str.join() for simpler,
+	  clearer code.
+
 Mon May 11 12:20:31 GMT 2009  Olly Betts <olly@survex.com>
 
 	* xapian.i: Oops, make that PostingSource::register_matcher_().

@@ -3,7 +3,7 @@
 # Simple command-line search script.
 #
 # Copyright (C) 2003 James Aylett
-# Copyright (C) 2004,2007 Olly Betts
+# Copyright (C) 2004,2007,2009 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -38,10 +38,7 @@ try:
     # Combine the rest of the command line arguments with spaces between
     # them, so that simple queries don't have to be quoted at the shell
     # level.
-    query_string = sys.argv[2]
-    for arg in sys.argv[3:]:
-        query_string += ' '
-        query_string += arg
+    query_string = str.join(' ', sys.argv[2:])
 
     # Parse the query string to produce a Xapian::Query object.
     qp = xapian.QueryParser()
