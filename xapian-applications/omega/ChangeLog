@@ -1,3 +1,10 @@
+Sat May 16 08:02:58 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* omindex.cc: Drop the copyright info from the output of --version as
+	  it's perennially out of date and we don't report it for any other
+	  Xapian programs.
+
 Sat May 16 06:58:15 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
