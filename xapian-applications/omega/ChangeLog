@@ -1,3 +1,9 @@
+Sat May 16 06:57:11 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* omindex.cc: Make -s work as a short-form for --stemmer (as
+	  documented by "omindex --help" and "man omindex").
+
 Sun Apr 19 11:10:36 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS: Update for 1.0.12.
