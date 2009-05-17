@@ -1,3 +1,11 @@
+Sun May 17 12:52:41 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/: Add a new constructor to MultiAndPostList for the "decay
+	  from OrPostList or AndMaybePostList" case which takes the already
+	  know max weights to avoid having to refetch them.  Also, we know
+	  that the subpostlists of OrPostList are ordered a particular way
+	  so can avoid needing to check the order in that case.
+
 Sat May 16 05:02:35 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_version.cc: Fix comment - this file doesn't

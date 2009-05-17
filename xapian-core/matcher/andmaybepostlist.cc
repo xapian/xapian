@@ -65,10 +65,7 @@ AndMaybePostList::next(Xapian::weight w_min)
 	// we can replace the AND MAYBE with an AND
 	PostList *ret;
 	LOGLINE(MATCH, "AND MAYBE -> AND");
-	PostList * pls[2];
-	pls[0] = l;
-	pls[1] = r;
-	ret = new MultiAndPostList(pls, pls + 2, matcher, dbsize, true);
+	ret = new MultiAndPostList(l, r, lmax, rmax, matcher, dbsize, true);
 	l = r = NULL;
 	skip_to_handling_prune(ret, std::max(lhead, rhead) + 1, w_min, matcher);
 	RETURN(ret);
@@ -84,10 +81,7 @@ AndMaybePostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 	// we can replace the AND MAYBE with an AND
 	PostList *ret;
 	LOGLINE(MATCH, "AND MAYBE -> AND (in skip_to)");
-	PostList * pls[2];
-	pls[0] = l;
-	pls[1] = r;
-	ret = new MultiAndPostList(pls, pls + 2, matcher, dbsize, true);
+	ret = new MultiAndPostList(l, r, lmax, rmax, matcher, dbsize, true);
 	did = std::max(did, std::max(lhead, rhead));
 	l = r = NULL;
 	skip_to_handling_prune(ret, did, w_min, matcher);
