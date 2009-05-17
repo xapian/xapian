@@ -1,3 +1,12 @@
+Sun May 17 11:04:50 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* README: Note that the testsuite fails due to a bug in the test/unit
+	  module in Ruby 1.9.0, but applications using the bindings should
+	  work, and that the testsuite works with Ruby 1.9.1.  Drop all mention
+	  of Ruby 1.6.x as that appears to be completely dead both upstream
+	  and in the wild.
+
 Sun May 17 10:00:05 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
