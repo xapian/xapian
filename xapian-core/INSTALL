@@ -32,11 +32,10 @@ a set of suitable makefiles: http://xapian.org/download.php
 If you're using GCC, we currently recommend GCC 3.3 or newer.
 
 The minimum required GCC version is 2.95.3 (2.95.2 and earlier don't have
-the <sstream> header).  We still regularly peform test builds with 2.95.4 on
-x86 with the aim of maintaining compatibility.  However, you may experience
-spurious warning messages with this version, and on some architectures you
-might get Internal Compiler Errors (in particular, GCC 2.95 for arm usually
-fails to compile Xapian).
+the <sstream> header), but we no longer regularly perform test builds with
+this version, and the Xapian 1.1.x development series requires GCC 3.1 or
+newer.  You may experience spurious warning messages with 2.95.3, and on some
+architectures (arm particularly) you might get Internal Compiler Errors.
 
 The "GCC 2.96" supplied with older RedHat releases is also best avoided.  This
 isn't based on an official GCC release, but rather on a snapshot of GCC

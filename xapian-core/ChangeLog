@@ -1,3 +1,9 @@
+Sun May 17 13:32:06 GMT 2009  Olly Betts <olly@survex.com>
+
+	* INSTALL: We no longer regularly test build with GCC 2.95.4, so don't
+	  say we do.  Also note that GCC 3.1 is the minimum requirement for
+	  1.1.x.
+
 Sun May 17 11:14:17 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
