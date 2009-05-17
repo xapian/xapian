@@ -15,6 +15,9 @@ Sun May 17 09:43:56 GMT 2009  Olly Betts <olly@survex.com>
 	  java/org/Makefile.am which just forwards to its "xapian"
 	  subdirectory.
 
+	* xapian-bindings.spec.in: Update for where we now install the tcl8
+	  bindings.
+
 Sat May 16 14:22:50 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
