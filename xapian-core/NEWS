@@ -1,8 +1,109 @@
- 12405       olly Mon Apr 20 05:21:48 GMT 2009  Olly Betts <olly@survex.com>
+ 12731       olly Fri May 15 10:49:54 GMT 2009  Olly Betts <olly@survex.com>
+
+Xapian-core 1.0.13 (2009-05-??):
+
+API:
+
+* Xapian::Document no longer ever stores empty values explicitly.  This
+  wasn't intentional behaviour, and how this case was handled wasn't
+  documented.  The amended behaviour is consistent with how user metadata
+  is handled.  This change isn't observable using Document::get_value(),
+  but can be noticed when iterating with Document::values_begin(), using
+  Document::values_count(), or trying to delete the value with
+  Document::remove_value().  
+
+testsuite:
 
 * Fix testcase scaleweight4 not to fail on x86 when compiled with -O0.  The
   problem was in the testcase code, and was caused by excess precision in
   intermediate FP values.
+
+* Testcases which check that operations have the expected O(...) behaviour now
+  check CPU time instead of wallclock time on most platforms, which should
+  eliminate occasional failures due to load spikes due to other processes.
+  (ticket#308)
+
+* Fix test failures due to SKIP_TEST_FOR_BACKEND("inmemory") not skipping when
+  it should due to comparing char * strings with == (on trunk the return value
+  being tested is std::string rather than const char *).
+
+* Add test coverage for alldocs iterator on an empty database.
+
+matcher:
+
+* Check termfreqandwts for MatchAll queries
+	  before we check terms from the document so that the "terminate
+	  early once we've seen all the query terms" test when checking the
+	  document terms can fire in this case.
+
+* Fix typo - MSetPostList::get_maxweight()
+	  with a sort ordered primarily by decreasing relevance was returning
+	  the docid for the maxweight!  This could have led to wrong results
+	  when searching multiple databases with the remote backend, but
+	  probably usually didn't matter as with BM25 the weights are usually
+	  small (often all < 1) while docids are inevitably >= 1.  No
+	  regression test for this (currently anyway).
+
+* When an OR or ANY_MAYBE decays to an AND, we were carefully swapping the
+  children for maximum efficiency, but the condition was reversed so we were
+  in fact making things worse.  This was noticed because it was resulting in
+  the same query running faster when more results were asked for!
+
+* Only build the termname to termfreq and weight map for the first subdatabase
+  instead of rebuilding it for each one.  Also don't copy this map to return
+  it.  This should speed up searches a little, especially those over multiple
+  databases.
+
+* If a submatcher fails but ErrorHandler tells us to continue without it, we
+  just use a NULL pointer to stand in rather than allocating a special dummy
+  place-holder object.
+
+flint backend:
+
+
+quartz backend:
+
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+* Remove a lot of unused header inclusions and some unused code which should
+  make the build faster and slightly smaller.
+
+* Fix to compile under --disable-backend-flint, --disable-backend-remote, and
+  --disable-backend-inmemory.
+
+* Don't remove any built sources in "make clean" even under
+  --make-maintainer-mode as that breaks switching a tree away from
+  maintainer-mode with: make distclean;./configure
+
+* In the test coverage build, use "--coverage" instead of "-fprofile-arcs
+  -ftest-coverage".
+
+documentation:
+
+* docs/queryparser.html: Add examples of using a prefix on a phrase or
+  subexpression.
+
+examples:
+
+
+portability:
+
+
+packaging:
+
+
+debug code:
+
+* Fix build with --enable-debug.
+
+* Some more assertions added.
 
 Xapian-core 1.0.12 (2009-04-19):
 
