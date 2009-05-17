@@ -1,6 +1,12 @@
-Sun May 17 09:43:56 GMT 2009  Olly Betts <olly@survex.com>
+Sun May 17 10:00:05 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
+	* xapian-bindings.spec.in: Update for rename of XapianSharp.so to
+	  _XapianSharp.so.
+
+Sun May 17 09:43:56 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
 	* Makefile.am,configure.ac,csharp/Makefile.am,csharp/docs/Makefile.am,
 	  generic/generic.mk,guile/Makefile.am,java-swig/Makefile.am,
 	  java/Makefile.am,java/native/Makefile.am,java/org/xapian/Makefile.am,
