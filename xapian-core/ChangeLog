@@ -1,3 +1,21 @@
+Mon May 18 13:32:49 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/database.h: Correct doxygen comments for user
+	  metadata functions: get_metadata() can't throw UnimplementedError
+	  but set_metadata() can.
+	* include/xapian/database.h,tests/api_metadata.cc: Document that
+	  metadata_keys_begin() returns an end iterator if the backend doesn't
+	  support metadata, and add test coverage for this case.
+	* backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h,include/xapian/database.h,
+	  tests/api_metadata.cc,tests/harness/testrunner.cc: The test harness
+	  didn't have the inmemory backend flagged as supporting
+	  user-specified metadata, and so it's perhaps not a great surprise to
+	  discover that inmemory doesn't support it fully - you can't iterate
+	  over metadata keys, but instead get an empty iteration.  Fix this
+	  to at least throw UnimplementedError and document that this is the
+	  situation.
+
 Mon May 18 11:29:10 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/Makefile.am,tests/api_metadata.cc,tests/api_wrdb.cc: Split out

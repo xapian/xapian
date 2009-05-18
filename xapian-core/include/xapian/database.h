@@ -410,10 +410,6 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *
 	 *  @exception Xapian::InvalidArgumentError will be thrown if the
 	 *	       key supplied is empty.
-	 *
-	 *  @exception Xapian::UnimplementedError will be thrown if the
-	 *	       database backend in use doesn't support user-specified
-	 *	       metadata.
 	 */
 	std::string get_metadata(const std::string & key) const;
 
@@ -423,8 +419,17 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  databases, currently only the metadata for the first is considered
 	 *  but this behaviour may change in the future.
 	 *
+	 *  If the backend doesn't support metadata, then this method returns
+	 *  an iterator which compares equal to that returned by
+	 *  metadata_keys_end().
+	 *
 	 *  @param prefix   If non-empty, only keys with this prefix are
 	 *		    returned.
+	 *
+	 *  @exception Xapian::UnimplementedError will be thrown if the
+	 *			backend implements user-specified metadata, but
+	 *			doesn't implement iterating its keys (currently
+	 *			this happens for the InMemory backend).
 	 */
 	Xapian::TermIterator metadata_keys_begin(const std::string &prefix = std::string()) const;
 
@@ -862,6 +867,10 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *
 	 *  @exception Xapian::InvalidArgumentError will be thrown if the
 	 *             key supplied is empty.
+	 *
+	 *  @exception Xapian::UnimplementedError will be thrown if the
+	 *             database backend in use doesn't support user-specified
+	 *             metadata.
 	 */
 	void set_metadata(const std::string & key, const std::string & value);
 
