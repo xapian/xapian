@@ -300,7 +300,7 @@ broken-%-test-suite:
 # CLEAN
 #####################################################################
 
-clean: clean-objects clean-libfiles clean-examples clean-gifplot clean-test-suite clean-docs
+clean: clean-objects clean-libfiles
 
 clean-objects: clean-source
 
@@ -343,7 +343,7 @@ maintainer-clean: clean-libfiles
 
 DISTCLEAN-DEAD = config.status config.log config.cache swig.spec Makefile mkmf.log libtool
 
-distclean: distclean-objects clean-examples clean-gifplot distclean-test-suite clean-docs distclean-dead
+distclean: distclean-objects distclean-dead
 
 distclean-objects: distclean-source
 
