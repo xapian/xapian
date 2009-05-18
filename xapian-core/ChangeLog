@@ -1,3 +1,8 @@
+Mon May 18 11:29:10 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am,tests/api_metadata.cc,tests/api_wrdb.cc: Split out
+	  tests of user metadata into their own file.
+
 Sun May 17 12:52:41 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/: Add a new constructor to MultiAndPostList for the "decay
