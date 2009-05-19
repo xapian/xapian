@@ -1,3 +1,8 @@
+Tue May 19 04:48:06 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Don't test an empty $CSC further which saves a fork
+	  and avoids an odd looking message.
+
 Sat May 16 08:51:15 GMT 2009  Olly Betts <olly@survex.com>
 
 	* python/docs/examples/simplematchdecider.py: Pick "avoid_value" from

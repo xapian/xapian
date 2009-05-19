@@ -490,18 +490,20 @@ if test no != "$with_csharp" ; then
     if test -z "$CSC" ; then
       dnl csc is the Microsoft CSharp compiler.
       AC_PATH_PROGS(CSC, [csc], [])
-      dnl Chicken (the Scheme-to-C compiler) includes a tool called csc so we
-      dnl check if the output from "csc -version" includes the word chicken
-      dnl which is sufficient to distinguish Chicken's csc from Microsoft's
-      dnl csc.exe.
-      AC_MSG_CHECKING([whether $CSC is for CSharp])
-      csc_tmp=`$CSC -version 2>/dev/null|grep chicken`
-      if test -z "$csc_tmp" ; then
-	AC_MSG_RESULT(yes)
-      else
-	AC_MSG_RESULT(no)
-	CSC=
-	csc_note="$csc_note (found Chicken csc program)"
+      if test -n "$CSC" ; then
+	dnl Chicken (the Scheme-to-C compiler) includes a tool called csc so we
+	dnl check if the output from "csc -version" includes the word chicken
+	dnl which is sufficient to distinguish Chicken's csc from Microsoft's
+	dnl csc.exe.
+	AC_MSG_CHECKING([whether $CSC is for CSharp])
+	csc_tmp=`$CSC -version 2>/dev/null|grep chicken`
+	if test -z "$csc_tmp" ; then
+	  AC_MSG_RESULT(yes)
+	else
+	  AC_MSG_RESULT(no)
+	  CSC=
+	  csc_note="$csc_note (found Chicken csc program)"
+	fi
       fi
     fi
     if test -z "$CSC" ; then
