@@ -276,7 +276,7 @@ Query::Query(Query::op op_, const std::string & left, const std::string & right)
 }
 
 /* Define static members. */
-Xapian::Query Xapian::Query::MatchAll = Xapian::Query(string());
-Xapian::Query Xapian::Query::MatchNothing = Xapian::Query();
+const Xapian::Query Xapian::Query::MatchAll = Xapian::Query(string());
+const Xapian::Query Xapian::Query::MatchNothing = Xapian::Query();
 
 }

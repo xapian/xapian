@@ -1,3 +1,10 @@
+Tue May 19 08:47:55 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omquery.cc,include/xapian/query.h: Make Xapian::Query::MatchAll
+	  and Xapian::Query::MatchNothing const since they're immutable.  All
+	  the public methods are const, so this should be completely API
+	  compatible.
+
 Tue May 19 06:25:26 GMT 2009  Olly Betts <olly@survex.com>
 
 	* include/xapian/enquire.h: Document what passing maxitems=0 to
