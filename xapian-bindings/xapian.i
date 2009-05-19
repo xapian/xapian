@@ -684,9 +684,12 @@ class Remote {
 #ifdef SWIGPHP
 %apply int { Xapian::Query::op };
 #endif
-// FIXME: wrap MatchAll and MatchNothing
+#ifndef SWIGTCL
+// FIXME: wrap MatchAll and MatchNothing for other languages(except for Python,
+// which wraps them in a different way).
 %ignore Xapian::Query::MatchAll;
 %ignore Xapian::Query::MatchNothing;
+#endif
 
 %ignore Xapian::Query::internal;
 %ignore Xapian::Query::operator=;

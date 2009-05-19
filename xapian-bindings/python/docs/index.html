@@ -281,6 +281,13 @@ decide which to call).
    q = xapian.Query(xapian.Query.OP_AND, [subq, "foo", xapian.Query("bar", 2)])
 </pre>
 
+<h3>MatchAll and MatchNothing</h3>
+
+<p>
+As of 1.1.1, these are wrapped as <code>xapian.Query.MatchAll</code> and
+<code>xapian.Query.MatchNothing</code>.
+</p>
+
 <h2>Enquire</h2>
 
 <p>

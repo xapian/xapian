@@ -1022,6 +1022,10 @@ ValueRangeProcessor.__call__ = ValueRangeProcessor.__call
 del Document_unserialise
 del Query_unserialise
 
+# Add wrappers for Query::MatchAll and Query::MatchNothing
+Query.MatchAll = Query("")
+Query.MatchNothing = Query()
+
 %}
 
 /* vim:syntax=python:set expandtab: */
