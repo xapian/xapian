@@ -93,6 +93,7 @@ collated_apitest_sources = \
  api_backend.cc \
  api_db.cc \
  api_generated.cc \
+ api_metadata.cc \
  api_nodb.cc \
  api_percentages.cc \
  api_posdb.cc \
