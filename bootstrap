@@ -58,12 +58,6 @@ lazy_build() {
   # "rm -rf INST" recovers nicely.
   stamp=../INST/$package.stamp
 
-  # Temporary measure to "upgrade" from having the stamp file in BUILD.  Doing
-  # this isn't vital but saves having to rebuild needlessly and cleans up the
-  # old stamp file too.
-  # FIXME: remove once everyone has had a chance to re-bootstrap.
-  test ! -f "$package.stamp" || mv "$package.stamp" "$stamp"
-
   # Download the tarball if required.
   if [ ! -f "$tarball" ] ; then
     if [ -z "$FETCH_URL_TOOL" ] ; then
@@ -130,8 +124,6 @@ else
   if [ "$1" = "--clean" ] ; then
     shift
     rm -rf INST
-    # FIXME: remove once everyone has had a chance to re-bootstrap.
-    rm -f INST BUILD/*.stamp
   fi
 
   [ -d INST ] || mkdir INST
