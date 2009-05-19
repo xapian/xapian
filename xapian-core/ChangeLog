@@ -1,3 +1,12 @@
+Tue May 19 15:26:39 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/,backends/flint/,common/rset.h,tests/api_anydb.cc:
+	  Pass std::string by const reference rather than value (except in
+	  a few cases where we need a modifiable copy anyway) as benchmarking
+	  shows this is better even with GCC's reference counted std::string
+	  implementation (ticket#140).
+	* tests/api_anydb.cc: Use string() instead of "" for an empty string.
+
 Tue May 19 08:47:55 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/omquery.cc,include/xapian/query.h: Make Xapian::Query::MatchAll

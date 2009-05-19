@@ -67,7 +67,7 @@ class ChertSpellingTable : public ChertTable {
      *  @param dbdir		The directory the chert database is stored in.
      *  @param readonly		true if we're opening read-only, else false.
      */
-    ChertSpellingTable(std::string dbdir, bool readonly)
+    ChertSpellingTable(const std::string & dbdir, bool readonly)
 	: ChertTable("spelling", dbdir + "/spelling.", readonly, Z_DEFAULT_STRATEGY, true) { }
 
     // Merge in batched-up changes.

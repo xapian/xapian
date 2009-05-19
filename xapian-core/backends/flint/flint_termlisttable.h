@@ -42,7 +42,7 @@ class FlintTermListTable : public FlintTable {
      *  @param dbdir	    The directory the flint database is stored in.
      *  @param readonly	    true if we're opening read-only, else false.
      */
-    FlintTermListTable(std::string dbdir, bool readonly)
+    FlintTermListTable(const std::string & dbdir, bool readonly)
 	: FlintTable("termlist", dbdir + "/termlist.", readonly, Z_DEFAULT_STRATEGY) { }
 
     /** Set the termlist data for document @a did.

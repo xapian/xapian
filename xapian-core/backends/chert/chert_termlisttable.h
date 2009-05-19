@@ -42,7 +42,7 @@ class ChertTermListTable : public ChertTable {
      *  @param dbdir	    The directory the chert database is stored in.
      *  @param readonly	    true if we're opening read-only, else false.
      */
-    ChertTermListTable(std::string dbdir, bool readonly)
+    ChertTermListTable(const std::string & dbdir, bool readonly)
 	: ChertTable("termlist", dbdir + "/termlist.", readonly, Z_DEFAULT_STRATEGY) { }
 
     /** Set the termlist data for document @a did.

@@ -1562,8 +1562,8 @@ ChertTable::do_open_to_write(bool revision_supplied,
     RETURN(true);
 }
 
-ChertTable::ChertTable(const char * tablename_, string path_, bool readonly_,
-		       int compress_strategy_, bool lazy_)
+ChertTable::ChertTable(const char * tablename_, const string & path_,
+		       bool readonly_, int compress_strategy_, bool lazy_)
 	: tablename(tablename_),
 	  revision_number(0),
 	  item_count(0),

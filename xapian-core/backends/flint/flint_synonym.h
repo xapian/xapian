@@ -48,7 +48,7 @@ class FlintSynonymTable : public FlintTable {
      *  @param dbdir		The directory the flint database is stored in.
      *  @param readonly		true if we're opening read-only, else false.
      */
-    FlintSynonymTable(std::string dbdir, bool readonly)
+    FlintSynonymTable(const std::string & dbdir, bool readonly)
 	: FlintTable("synonym", dbdir + "/synonym.", readonly, Z_DEFAULT_STRATEGY, true) { }
 
     // Merge in batched-up changes.

@@ -67,7 +67,7 @@ class FlintSpellingTable : public FlintTable {
      *  @param dbdir		The directory the flint database is stored in.
      *  @param readonly		true if we're opening read-only, else false.
      */
-    FlintSpellingTable(std::string dbdir, bool readonly)
+    FlintSpellingTable(const std::string & dbdir, bool readonly)
 	: FlintTable("spelling", dbdir + "/spelling.", readonly, Z_DEFAULT_STRATEGY, true) { }
 
     // Merge in batched-up changes.

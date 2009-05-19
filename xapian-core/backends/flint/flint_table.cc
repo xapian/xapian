@@ -1536,8 +1536,8 @@ FlintTable::do_open_to_write(bool revision_supplied,
     return true;
 }
 
-FlintTable::FlintTable(const char * tablename_, string path_, bool readonly_,
-		       int compress_strategy_, bool lazy_)
+FlintTable::FlintTable(const char * tablename_, const string & path_,
+		       bool readonly_, int compress_strategy_, bool lazy_)
 	: tablename(tablename_),
 	  revision_number(0),
 	  item_count(0),
