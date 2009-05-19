@@ -1,3 +1,7 @@
+Tue May 19 09:17:41 GMT 2009  Olly Betts <olly@survex.com>
+
+	* php/util.i: %pragma(php4) -> %pragma(php) (purely cosmetic change).
+
 Tue May 19 04:48:06 GMT 2009  Olly Betts <olly@survex.com>
 
 	* configure.ac: Don't test an empty $CSC further which saves a fork
