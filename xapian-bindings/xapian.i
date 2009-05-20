@@ -368,7 +368,8 @@ class Enquire {
     const Query& get_query();
 
     void set_weighting_scheme(const Weight& weight);
-    void set_collapse_key(valueno collapse_key);
+    void set_collapse_key(Xapian::valueno collapse_key,
+                          Xapian::doccount collapse_max = 1);
 
     typedef enum {
 	ASCENDING = 1,
