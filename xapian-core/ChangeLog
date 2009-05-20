@@ -1,3 +1,8 @@
+Wed May 20 14:19:54 GMT 2009  Olly Betts <olly@survex.com>
+
+	* net/tcpclient.cc,net/tcpserver.cc: Fix xapian-tcpsrv --interface
+	  option to work on MacOS X (ticket#373).
+
 Wed May 20 13:58:09 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc,api/sortable-serialise.cc,backends/chert/,
