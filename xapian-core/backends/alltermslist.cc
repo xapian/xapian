@@ -26,8 +26,6 @@
 
 #include "omassert.h"
 
-#include <string>
-
 using namespace std;
 
 Xapian::termcount

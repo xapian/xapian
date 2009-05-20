@@ -29,6 +29,313 @@ Mon Oct 29 03:03:31 GMT 2007  Olly Betts <olly@survex.com>
 	  include/xapian.h,tests/api_db.cc,tests/api_nodb.cc,
 	  tests/api_wrdb.cc: Restore the changes.
 
+Wed May 20 14:19:54 GMT 2009  Olly Betts <olly@survex.com>
+
+	* net/tcpclient.cc,net/tcpserver.cc: Fix xapian-tcpsrv --interface
+	  option to work on MacOS X (ticket#373).
+
+Wed May 20 13:58:09 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,api/sortable-serialise.cc,backends/chert/,
+	  backends/flint/,backends/remote/remote-database.cc,
+	  common/serialise-double.cc,common/str.cc,
+	  matcher/exactphrasepostlist.cc,net/remoteconnection.cc,
+	  net/remoteserver.cc: Replace C-style casts.  Add a few missing casts.
+	  Tweak types used in a few places.
+
+Wed May 20 13:55:41 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_databasereplicator.cc,
+	  backends/flint/flint_databasereplicator.cc: Need <cstdio> for
+	  rename().  Replace C-style cast to off_t.
+
+Wed May 20 13:53:25 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/editdistance.cc: Make edist_state class uncopyable and
+	  unassignable.  Initialise maxdist in the initialiser list.
+
+Wed May 20 11:19:53 GMT 2009  Olly Betts <olly@survex.com>
+
+	* languages/steminternal.cc,languages/steminternal.h: Change C-style
+	  casts to C++-style ones.
+
+Wed May 20 10:40:03 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/str.h: Add static_cast<char>() to suppress bogus MSVC
+	  warning (ticket#377).
+
+Tue May 19 15:26:39 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/,backends/flint/,common/rset.h,tests/api_anydb.cc:
+	  Pass std::string by const reference rather than value (except in
+	  a few cases where we need a modifiable copy anyway) as benchmarking
+	  shows this is better even with GCC's reference counted std::string
+	  implementation (ticket#140).
+	* tests/api_anydb.cc: Use string() instead of "" for an empty string.
+
+Tue May 19 08:47:55 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omquery.cc,include/xapian/query.h: Make Xapian::Query::MatchAll
+	  and Xapian::Query::MatchNothing const since they're immutable.  All
+	  the public methods are const, so this should be completely API
+	  compatible.
+
+Tue May 19 06:25:26 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/enquire.h: Document what passing maxitems=0 to
+	  get_mset() does.
+
+Mon May 18 13:32:49 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/database.h: Correct doxygen comments for user
+	  metadata functions: get_metadata() can't throw UnimplementedError
+	  but set_metadata() can.
+	* include/xapian/database.h,tests/api_metadata.cc: Document that
+	  metadata_keys_begin() returns an end iterator if the backend doesn't
+	  support metadata, and add test coverage for this case.
+	* backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h,include/xapian/database.h,
+	  tests/api_metadata.cc,tests/harness/testrunner.cc: The test harness
+	  didn't have the inmemory backend flagged as supporting
+	  user-specified metadata, and so it's perhaps not a great surprise to
+	  discover that inmemory doesn't support it fully - you can't iterate
+	  over metadata keys, but instead get an empty iteration.  Fix this
+	  to at least throw UnimplementedError and document that this is the
+	  situation.
+
+Mon May 18 11:29:10 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am,tests/api_metadata.cc,tests/api_wrdb.cc: Split out
+	  tests of user metadata into their own file.
+
+Sun May 17 12:52:41 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/: Add a new constructor to MultiAndPostList for the "decay
+	  from OrPostList or AndMaybePostList" case which takes the already
+	  know max weights to avoid having to refetch them.  Also, we know
+	  that the subpostlists of OrPostList are ordered a particular way
+	  so can avoid needing to check the order in that case.
+
+Sat May 16 05:02:35 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_version.cc: Fix comment - this file doesn't
+	  use memcpy() now.
+
+Thu May 14 04:38:47 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_percentages.cc: Remove superfluous explict std::
+	  qualifiers.
+
+Thu May 14 04:36:29 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_percentages.cc: Update for the PostingSource
+	  get_maxweight() API changes.
+
+Tue May 12 14:50:57 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Rename "max_weight" variable to "max_possible"
+	  since that is what it is referred to via the MSet API.
+
+Tue May 12 12:38:11 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/safeuuid.h: Fix length of buffer to lower case - it's
+	  36, not sizeof(uuid_t).
+
+Tue May 12 02:49:34 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/safeuuid.h,configure.ac: Older versions of libuuid don't have
+	  uuid_unparse_lower() so probe for it in configure, and if it isn't
+	  present provide an inline version in safeuuid.h (ticket#368).
+
+Mon May 11 13:07:47 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_postingsource.cc: In changemaxweightsource1, set
+	  descending docid order so that the matcher isn't able to terminate
+	  early after 4 documents just because weight == maxweight.
+
+Mon May 11 12:00:04 GMT 2009  Olly Betts <olly@survex.com>
+
+	* net/serialise.cc: Build up string using +=.
+
+Mon May 11 11:39:49 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/postingsource.rst: Improve documentation for get_maxweight().
+
+Mon May 11 11:26:02 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/postingsource.h: Initialise max_weight_ to 0 in the
+	  PostingSource constructor in case nobody else sets a value for it.
+
+Mon May 11 10:54:47 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_postingsource.cc: Fix class name in FAIL_TEST message.
+
+Mon May 11 10:41:31 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_postingsource.cc: Fix get_termfreq_min(), etc for
+	  ChangeMaxweightPostingSource to return 4 not 5.
+
+Mon May 11 09:03:14 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/postingsource.cc: Remove assertion checking that set_maxweight()
+	  doesn't set a lower weight - it legitimately can when we call init()
+	  on a non-clone-able PostingSource for reuse.
+
+Mon May 11 03:12:00 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/postingsource.cc,common/multimatch.h,docs/postingsource.rst,
+	  include/xapian/postingsource.h,matcher/externalpostlist.cc,
+	  matcher/externalpostlist.h,matcher/msetpostlist.cc,
+	  tests/api_postingsource.cc: Replace PostingSource's
+	  notify_new_maxweight() and virtual get_maxweight() mechanism with a
+	  non-virtual set_maxweight() and get_maxweight().  Currently the
+	  plumbing at the matcher end is much as before, but this API seems
+	  more obvious to the user and will allow the matcher to simply reduce
+	  its maximum weight value rather than having to recursively call
+	  recalc_maxweight() in response to this situation (ticket#340).
+
+Mon May 11 02:38:26 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/postingsource.rst: Fix a typo and reword to avoid "namespaced".
+
+Mon May 11 02:30:59 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/msetpostlist.cc: Fix typo - MSetPostList::get_maxweight()
+	  with a sort ordered primarily by decreasing relevance was returning
+	  the docid for the maxweight!  This could have led to wrong results
+	  when searching multiple databases with the remote backend, but
+	  probably usually didn't matter as with BM25 the weights are usually
+	  small (often all < 1) while docids are inevitably >= 1.  No
+	  regression test for this (currently anyway).
+
+Sun May 10 07:49:11 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/dbfactory.cc: Fix comment typo.
+
+Sat May 09 14:15:38 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_collapse.cc,tests/perftest/runprocess.cc: Remove unused
+	  include of <iostream>.
+
+Sat May 09 14:03:34 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omquery.cc,matcher/andnotpostlist.cc,
+	  queryparser/termgenerator_internal.cc,tests/api_wrdb.cc: Remove
+	  unused inclusions of <algorithm>.
+
+Sat May 09 13:47:54 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Remove unused inclusion of <queue>.
+
+Sat May 09 13:38:02 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omquery.cc,api/omqueryinternal.cc,api/replication.cc,
+	  backends/alltermslist.cc,backends/chert/chert_table.cc,
+	  backends/flint/flint_table.cc,bin/xapian-compact.cc,
+	  common/bitstream.cc,common/inmemory_positionlist.h,
+	  common/positionlist.h,matcher/localmatch.h,matcher/queryoptimiser.cc,
+	  matcher/queryoptimiser.h,tests/api_wrdb.cc: Remove unused inclusions
+	  of <list>, <map>, <string>, and <vector>.
+
+Sat May 09 12:48:18 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/documentvaluelist.cc,matcher/queryoptimiser.cc: Remove unused
+	  '#include "autoptr.h"'.
+
+Sat May 09 09:41:03 GMT 2009  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony,queryparser/termgenerator.cc,
+	  weight/bm25weight.cc,weight/boolweight.cc,weight/tradweight.cc:
+	  Remove unneeded explicit "std::" qualifiers.
+
+Sat May 09 09:35:32 GMT 2009  Olly Betts <olly@survex.com>
+
+	* weight/weight.cc: Doesn't use '#include "autoptr.h"'.
+
+Fri May 08 19:59:00 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* configure.ac: Change source file which autoconf looks for, since
+	  I've just removed the old one that it looked for!
+
+Fri May 08 19:28:31 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/andmaybepostlist.cc,matcher/branchpostlist.h: Call
+	  check() instead of skip_to() on the optional branch of AND_MAYBE.
+	  This can be much faster if that branch is a posting source.
+
+Fri May 08 18:31:01 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/: Remove AndPostList, in favour of MultiAndPostList.
+	  AndPostList was only used as a decay product (by AndMaybePostList
+	  and OrPostList); for most queries, MultiAnd has pretty much
+	  indistinguishable performance as far as I can test; however, it
+	  uses check() when possible, which makes performance much better
+	  with searches involving external posting sources.  Removal also
+	  reduces the amount of code cluttering up the caches during a
+	  search, so may help speed things up in some other situations.
+
+Fri May 08 16:00:42 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/postingsource.cc,backends/inmemory/inmemory_database.cc,
+	  examples/delve.cc,include/xapian/postingsource.h: Don't store an
+	  end iterator in a variable just to compare against it - it's now
+	  definitely more efficient to compare against the return value of
+	  the relevant _end() method.
+
+Fri May 08 15:44:07 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/valueiterator.cc,include/xapian/database.h,
+	  include/xapian/document.h,include/xapian/valueiterator.h: Create a
+	  new proxy object class ValueIteratorEnd_ which is returned instead
+	  of ValueIterator(NULL) for end iterators.  This class will be
+	  converted to ValueIterator(NULL) if assigned to or passed as
+	  ValueIterator, but operator== and operator!= are overloaded to
+	  handle it directly which means that the compiler no longer calls
+	  ~ValueIterator for each call which returns ValueIterator(NULL).
+
+Fri May 08 15:42:12 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_values.cc: Swap two statements for cosmetic
+	  reasons.
+
+Fri May 08 14:42:49 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/postingsource.cc,include/xapian/postingsource.h: It is actually
+	  better not to store the end iterator in a member variable - if we
+	  explicitly call db.postlist_end(string()) then that just gets
+	  optimised to PostingSource(NULL).
+
+Fri May 08 14:02:21 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_postingsource.cc: We've decided that "going back" with
+	  skip_to() or check() should have unspecified behaviour, so stop
+	  testing how this case behaves!
+
+Fri May 08 12:37:33 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/Makefile.mk: Ship common/win32_uuid.cc and common/win32_uuid.h
+	  (ticket#367).
+
+Fri May 08 12:30:45 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/harness/cputimer.cc: Fix typo in the "ftime" case.
+
+Fri May 08 10:25:37 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/andpostlist.cc: Fix a swap which was the wrong way round,
+	  so that we call next() on the subpostlist with the lower
+	  frequency, rather than the one with the higher frequency.  This
+	  should improve performance in many situations, and I don't think
+	  it's likely to slow anything down.  It also fixes some cases
+	  where optimisation of an AND_MAYBE to an AND results in a slower
+	  search, such that search times went down when more hits were
+	  requested.
+
+Fri May 08 08:48:14 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/externalpostlist.cc: ExternalPostList::get_doclength()
+	  should never get called, so make it "Assert(false)".
+
 Fri May 08 05:16:50 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/postingsource.cc: Another string concatention.

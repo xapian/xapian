@@ -38,10 +38,8 @@
 
 #include "apitest.h"
 
-#include <algorithm>
 #include <cmath>
 #include <cstdlib>
-#include <list>
 #include <map>
 #include <string>
 
@@ -2229,19 +2227,6 @@ DEFINE_TESTCASE(postlist7, writable) {
     TEST_EQUAL(p.get_doclength(), 2);
     ++p;
     TEST(p == db_w.postlist_end("foo"));
-
-    return true;
-}
-
-/// Regression test of reading after writing but not committing.
-DEFINE_TESTCASE(writeread1, writable && metadata) {
-    Xapian::WritableDatabase db_w = get_writable_database();
-    db_w.set_metadata("1", "2");
-    string longitem(20000, 'j');
-    db_w.set_metadata("2", longitem);
-
-    string readitem = db_w.get_metadata("2");
-    TEST_EQUAL(readitem, longitem);
 
     return true;
 }

@@ -145,23 +145,23 @@ class MyOddWeightingPostingSource : public Xapian::PostingSource {
     MyOddWeightingPostingSource(Xapian::doccount num_docs_,
 				Xapian::doccount last_docid_)
 	: num_docs(num_docs_), last_docid(last_docid_), did(0)
-    { }
+    {
+	set_maxweight(1000);
+    }
 
   public:
     MyOddWeightingPostingSource(const Xapian::Database &db)
 	: num_docs(db.get_doccount()), last_docid(db.get_lastdocid()), did(0)
     { }
 
-    PostingSource * clone() const { return new MyOddWeightingPostingSource(num_docs, last_docid); }
+    PostingSource * clone() const {
+	return new MyOddWeightingPostingSource(num_docs, last_docid);
+    }
 
     void init(const Xapian::Database &) { did = 0; }
 
     Xapian::weight get_weight() const {
 	return (did % 2) ? 1000 : 0.001;
-    }
-
-    Xapian::weight get_maxweight() const {
-	return 1000;
     }
 
     // These bounds could be better, but that's not important here.
@@ -267,10 +267,6 @@ class MyDontAskWeightPostingSource : public Xapian::PostingSource {
 	FAIL_TEST("MyDontAskWeightPostingSource::get_weight() called");
     }
 
-    Xapian::weight get_maxweight() const {
-	FAIL_TEST("MyDontAskWeightPostingSource::get_maxweight() called");
-    }
-
     // These bounds could be better, but that's not important here.
     Xapian::doccount get_termfreq_min() const { return num_docs; }
 
@@ -300,7 +296,7 @@ class MyDontAskWeightPostingSource : public Xapian::PostingSource {
     }
 };
 
-// Check that boolean use doesn't call get_weight() or get_maxweight().
+// Check that boolean use doesn't call get_weight().
 DEFINE_TESTCASE(externalsource4, backend && !remote) {
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::Enquire enq(db);
@@ -452,10 +448,10 @@ DEFINE_TESTCASE(fixedweightsource1, backend) {
 	TEST_EQUAL(src.check(5, 1.0), true);
 	TEST(!src.at_end());
 	TEST_EQUAL(src.get_docid(), 5);
-	src.skip_to(3, 1.0);
+	src.skip_to(6, 1.0);
 	TEST(!src.at_end());
 	TEST_EQUAL(src.get_docid(), 6);
-	src.skip_to(3, wt * 2);
+	src.skip_to(7, wt * 2);
 	TEST(src.at_end());
     }
 
@@ -477,29 +473,25 @@ class ChangeMaxweightPostingSource : public Xapian::PostingSource {
 
     Xapian::weight get_weight() const {
 	if (did > maxid_accessed) {
-	    FAIL_TEST("MyDontAskWeightPostingSource::get_weight() called "
+	    FAIL_TEST("ChangeMaxweightPostingSource::get_weight() called "
 		      "for docid " + om_tostring(did) + ", max id accessed "
 		      "should be " + om_tostring(maxid_accessed));
 	}
 	return 5 - did;
     }
 
-    Xapian::weight get_maxweight() const {
-	return 5 - did;
-    }
-
-    Xapian::doccount get_termfreq_min() const { return 5; }
-    Xapian::doccount get_termfreq_est() const { return 5; }
-    Xapian::doccount get_termfreq_max() const { return 5; }
+    Xapian::doccount get_termfreq_min() const { return 4; }
+    Xapian::doccount get_termfreq_est() const { return 4; }
+    Xapian::doccount get_termfreq_max() const { return 4; }
 
     void next(Xapian::weight) {
 	++did;
-	notify_new_maxweight();
+	set_maxweight(5 - did);
     }
 
     void skip_to(Xapian::docid to_did, Xapian::weight) {
 	did = to_did;
-	notify_new_maxweight();
+	set_maxweight(5 - did);
     }
 
     bool at_end() const { return did >= 5; }
@@ -520,6 +512,9 @@ DEFINE_TESTCASE(changemaxweightsource1, backend && !multi && !remote) {
 	Xapian::Query q(Xapian::Query::OP_AND,
 			Xapian::Query(&src1), Xapian::Query(&src2));
 	enq.set_query(q);
+	// Set descending docid order so that the matcher isn't able to
+	// terminate early after 4 documents just because weight == maxweight.
+	enq.set_docid_order(enq.DESCENDING);
 
 	Xapian::MSet mset = enq.get_mset(0, 4);
 	TEST(src1.at_end());

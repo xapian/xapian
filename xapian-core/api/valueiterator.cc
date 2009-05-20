@@ -1,7 +1,7 @@
 /** @file valueiterator.cc
  *  @brief Class for iterating over document values.
  */
-/* Copyright (C) 2008 Olly Betts
+/* Copyright (C) 2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,10 +43,20 @@ ValueIterator::ValueIterator(Internal *internal_) : internal(internal_)
 ValueIterator::ValueIterator(const ValueIterator & o)
     : internal(o.internal) { }
 
+ValueIterator::ValueIterator(const ValueIteratorEnd_ &)
+    : internal(NULL) { }
+
 ValueIterator &
 ValueIterator::operator=(const ValueIterator & o)
 {
     internal = o.internal;
+    return *this;
+}
+
+ValueIterator &
+ValueIterator::operator=(const ValueIteratorEnd_ &)
+{
+    internal = NULL;
     return *this;
 }
 

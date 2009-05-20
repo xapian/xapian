@@ -489,9 +489,9 @@ RemoteDatabase::get_message(string &result, reply_type required_type) const
     }
     if (required_type != REPLY_MAX && type != required_type) {
 	string errmsg("Expecting reply type ");
-	errmsg += om_tostring(required_type);
+	errmsg += om_tostring(int(required_type));
 	errmsg += ", got ";
-	errmsg += om_tostring(type);
+	errmsg += om_tostring(int(type));
 	throw Xapian::NetworkError(errmsg);
     }
 

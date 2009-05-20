@@ -28,7 +28,6 @@
 
 #include "stringutils.h"
 
-#include <algorithm>
 #include <string>
 
 using namespace std;

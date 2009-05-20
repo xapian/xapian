@@ -147,7 +147,7 @@ ChertLock::lock(bool exclusive, std::string & explanation) {
 
 	// Make sure we don't hang on to open files which may get deleted but
 	// not have their disk space released until we exit.
-	int maxfd = (int)sysconf(_SC_OPEN_MAX);
+	int maxfd = static_cast<int>(sysconf(_SC_OPEN_MAX));
 	for (int i = 2; i <= maxfd; ++i) {
 	    if (i != lockfd) {
 		// Retry on EINTR; just ignore other errors (we'll get
@@ -157,7 +157,7 @@ ChertLock::lock(bool exclusive, std::string & explanation) {
 	}
 
 	// FIXME: use special statically linked helper instead of cat.
-	execl("/bin/cat", "/bin/cat", (void*)NULL);
+	execl("/bin/cat", "/bin/cat", static_cast<void*>(NULL));
 	// Emulate cat ourselves (we try to avoid this to reduce VM overhead).
 	char ch;
 	while (read(0, &ch, 1) != 0) { /* Do nothing */ }
@@ -179,7 +179,7 @@ ChertLock::lock(bool exclusive, std::string & explanation) {
     // Parent process.
     while (true) {
 	char ch;
-	int n = read(fds[0], &ch, 1);
+	ssize_t n = read(fds[0], &ch, 1);
 	if (n == 1) {
 	    why = static_cast<reason>(ch);
 	    if (why != SUCCESS) break;

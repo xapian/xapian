@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2006,2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -33,9 +33,6 @@
 #include "xapian/serialisationcontext.h"
 #include "xapian/termiterator.h"
 
-#include <vector>
-#include <map>
-#include <algorithm>
 #include <math.h>
 
 namespace Xapian {
@@ -279,7 +276,7 @@ Query::Query(Query::op op_, const std::string & left, const std::string & right)
 }
 
 /* Define static members. */
-Xapian::Query Xapian::Query::MatchAll = Xapian::Query(string());
-Xapian::Query Xapian::Query::MatchNothing = Xapian::Query();
+const Xapian::Query Xapian::Query::MatchAll = Xapian::Query(string());
+const Xapian::Query Xapian::Query::MatchNothing = Xapian::Query();
 
 }

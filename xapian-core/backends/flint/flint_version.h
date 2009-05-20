@@ -1,7 +1,7 @@
 /** @file flint_version.h
  * @brief FlintVersion class
  */
-/* Copyright (C) 2006,2007,2008 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,7 +58,10 @@ class FlintVersion {
     void read_and_check(bool readonly);
 
     /// Return pointer to 16 byte UUID.
-    const char * get_uuid() const { ensure_uuid(); return (const char *)uuid; }
+    const char * get_uuid() const {
+       	ensure_uuid();
+       	return reinterpret_cast<const char *>(uuid);
+    }
 
     /// Return UUID in the standard 36 character string format.
     std::string get_uuid_string() const {

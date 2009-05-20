@@ -1,7 +1,7 @@
 /** @file flint_io.cc
  * @brief Wrappers for low-level POSIX I/O routines.
  */
-/* Copyright (C) 2006,2007 Olly Betts
+/* Copyright (C) 2006,2007,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,7 +51,7 @@ size_t flint_io_read(int fd, char * p, size_t n, size_t min)
 void flint_io_write(int fd, const char * p, size_t n)
 {
     while (n) {
-	int c = write(fd, p, n);
+	ssize_t c = write(fd, p, n);
 	if (c < 0) {
 	    if (errno == EINTR) continue;
 	    throw Xapian::DatabaseError("Error writing to file", errno);

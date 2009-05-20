@@ -25,6 +25,19 @@
 #include "omassert.h"
 #include "debuglog.h"
 
+void
+MultiAndPostList::allocate_plist_and_max_wt()
+{
+    plist = new PostList * [n_kids];
+    try {
+	max_wt = new Xapian::weight [n_kids];
+    } catch (...) {
+	delete [] plist;
+	plist = NULL;
+	throw;
+    }
+}
+
 MultiAndPostList::~MultiAndPostList()
 {
     if (plist) {

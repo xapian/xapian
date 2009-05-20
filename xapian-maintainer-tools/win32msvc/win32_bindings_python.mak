@@ -81,7 +81,7 @@ DOTEST :
 CHECK: ALL DOTEST	
 
 DIST: "$(OUTDIR)\$(PYTHON_PACKAGE)" CHECK
-    cd $(MAKEDIR)
+    cd "$(MAKEDIR)"
     copy setup.py "$(OUTDIR)"
     if not exist "$(OUTDIR)\$(PYTHON_PACKAGE)\docs" mkdir "$(OUTDIR)\$(PYTHON_PACKAGE)\docs"
     if not exist "$(OUTDIR)\$(PYTHON_PACKAGE)\docs\examples" mkdir "$(OUTDIR)\$(PYTHON_PACKAGE)\docs\examples"
@@ -101,8 +101,8 @@ DIST: "$(OUTDIR)\$(PYTHON_PACKAGE)" CHECK
     if not exist "$(OUTDIR)/$(PYTHON_PACKAGE)/$(NULL)" mkdir "$(OUTDIR)\$(PYTHON_PACKAGE)"
 
 CPP_PROJ=$(CPPFLAGS_EXTRA)  /GR \
- /I "$(XAPIAN_CORE_REL_PYTHON)" /I "$(XAPIAN_CORE_REL_PYTHON)\include" \
- /I "$(PYTHON_INCLUDE)" /I "$(PYTHON_INCLUDE_2)" /I"." \
+ /I"$(XAPIAN_CORE_REL_PYTHON)" /I"$(XAPIAN_CORE_REL_PYTHON)\include" \
+ /I"$(PYTHON_INCLUDE)" /I"$(PYTHON_INCLUDE_2)" /I"." \
  /Fo"$(INTDIR)\\" /Tp$(INPUTNAME)
 CPP_OBJS=$(XAPIAN_CORE_REL_PYTHON)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\
 CPP_SBRS=.
@@ -155,7 +155,7 @@ generate-python-exceptions: generate-python-exceptions.in
 	f.close();"
     $(RSC) /v \
       /fo version.res \
-      /I "$(XAPIAN_CORE_REL_PYTHON)\include" \
+      /I"$(XAPIAN_CORE_REL_PYTHON)\include" \
       version.rc 
 
 

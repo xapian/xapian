@@ -35,8 +35,6 @@
 
 namespace Xapian {
 
-class ValueIterator;
-
 /// A document in the database - holds data, values, terms, and postings
 class XAPIAN_VISIBILITY_DEFAULT Document {
     public:
@@ -183,8 +181,8 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 	ValueIterator values_begin() const;
 
 	/// Equivalent end iterator for values_begin().
-	ValueIterator values_end() const {
-	    return ValueIterator();
+	ValueIteratorEnd_ values_end() const {
+	    return ValueIteratorEnd_();
 	}
 
 	/** Get the document id which is associated with this document (if any).

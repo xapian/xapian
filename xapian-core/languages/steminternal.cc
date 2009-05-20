@@ -5,7 +5,7 @@
  *
  * Copyright (c) 2001, Dr Martin Porter
  * Copyright (c) 2004,2005, Richard Boulton
- * Copyright (c) 2006,2007,2008 Olly Betts
+ * Copyright (c) 2006,2007,2008,2009 Olly Betts
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -71,7 +71,7 @@ using namespace std;
 extern symbol * create_s() {
     void * mem = malloc(HEAD + (CREATE_SIZE + 1) * sizeof(symbol));
     if (mem == NULL) throw std::bad_alloc();
-    symbol * p = (symbol *) (HEAD + (char *) mem);
+    symbol * p = reinterpret_cast<symbol*>(HEAD + static_cast<char *>(mem));
     SET_CAPACITY(p, CREATE_SIZE);
     SET_SIZE(p, CREATE_SIZE);
     return p;
@@ -117,12 +117,12 @@ extern int skip_utf8(const symbol * p, int c, int lb, int l, int n) {
  */
 static symbol * increase_size(symbol * p, int n) {
     int new_size = n + 20;
-    void * mem = realloc((char *) p - HEAD,
+    void * mem = realloc(reinterpret_cast<char *>(p) - HEAD,
                          HEAD + (new_size + 1) * sizeof(symbol));
     if (mem == NULL) {
         throw std::bad_alloc();
     }
-    symbol * q = (symbol *) (HEAD + (char *)mem);
+    symbol * q = reinterpret_cast<symbol*>(HEAD + static_cast<char *>(mem));
     SET_CAPACITY(q, new_size);
     return q;
 }

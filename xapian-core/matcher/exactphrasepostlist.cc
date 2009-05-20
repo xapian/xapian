@@ -41,7 +41,7 @@ ExactPhrasePostList::ExactPhrasePostList(PostList *source_,
 	delete [] poslists;
 	throw;
     }
-    for (size_t i = 0; i < n; ++i) order[i] = i;
+    for (size_t i = 0; i < n; ++i) order[i] = unsigned(i);
 }
 
 ExactPhrasePostList::~ExactPhrasePostList()

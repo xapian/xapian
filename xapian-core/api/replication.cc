@@ -47,7 +47,6 @@
 
 #include <cstdio> // For rename().
 #include <fstream>
-#include <map>
 #include <string>
 
 using namespace std;

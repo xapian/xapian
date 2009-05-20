@@ -550,6 +550,13 @@ InMemoryDatabase::get_metadata(const std::string & key) const
 	return string();
     return i->second;
 }
+ 
+TermList *
+InMemoryDatabase::open_metadata_keylist(const string &) const
+{
+    // FIXME: nobody implemented this yet...
+    throw Xapian::UnimplementedError("InMemory backend doesn't currently implement Database::metadata_keys_begin()");
+}
 
 void
 InMemoryDatabase::set_metadata(const std::string & key,
@@ -770,8 +777,7 @@ InMemoryDatabase::finish_add_doc(Xapian::docid did, const Xapian::Document &docu
     {
 	map<Xapian::valueno, string> values;
 	Xapian::ValueIterator k = document.values_begin();
-	Xapian::ValueIterator k_end = document.values_end();
-	for ( ; k != k_end; ++k) {
+	for ( ; k != document.values_end(); ++k) {
 	    values.insert(make_pair(k.get_valueno(), *k));
 	    LOGLINE(DB, "InMemoryDatabase::finish_add_doc(): adding value " <<
 			k.get_valueno() << " -> " << *k);

@@ -27,6 +27,7 @@ OBJS= \
         $(INTDIR)\backendmanager_remote.obj \
         $(INTDIR)\backendmanager_remoteprog.obj \
         $(INTDIR)\backendmanager_remotetcp.obj \
+        $(INTDIR)\cputimer.obj \
         $(INTDIR)\index_utils.obj \
         $(INTDIR)\unixcmds.obj
 
@@ -42,6 +43,7 @@ SRCS= \
         $(INTDIR)\backendmanager_remote.cc \
         $(INTDIR)\backendmanager_remoteprog.cc \
         $(INTDIR)\backendmanager_remotetcp.cc \
+        $(INTDIR)\cputimer.cc \
         $(INTDIR)\index_utils.cc \
         $(INTDIR)\unixcmds.cc
 

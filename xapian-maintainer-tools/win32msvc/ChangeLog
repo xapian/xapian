@@ -1,3 +1,9 @@
+Fri May 08 12:55:32 GMT 2009  Olly Betts <olly@survex.com>
+
+	* config.mak,win32_bindings_python.mak,win32_tests.mak,
+	  win32_testsuite.mak: Update from Peter Kelm to work with SVN trunk
+	  (ticket#366).
+
 Tue May 05 12:42:26 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* win32_matcher.mak: Add synoympostlist.cc to build.
@@ -20,7 +26,7 @@ Tue Apr 21 10:34:00 GMT 2009  Charlie Hull <charlie@lemurconsulting.com>
 	* config.h.omega.win32: define 'rare' and 'usual'
 	* makebinaries.py: fix quotes
 	* makedepend.mak, Makefile: CLEAN now also cleans makedepend
-    
+
 Wed Mar 25 12:49:00 GMT 2009  Charlie Hull <charlie@lemurconsulting.com>
 
 	* win32_weight.mak,config.mak,Makefile: add new makefile for
@@ -46,7 +52,7 @@ Thu Mar 19 11:55:00 GMT 2009  Charlie Hull <charlie@lemurconsulting.com>
 	* README: update for the above changes
 	* win32_applications_omega.mak: add new file for omindex
 	* config.h.omega.win32: Update version numbers, undefine rare()
-    
+
 Mon Feb 16 12:02:48 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* win32_bindings_csharp.mak: Remove doubled file contents.
