@@ -80,7 +80,6 @@ DecreasingValueWeightPostingSource::unserialise(const std::string &s) const {
 void
 DecreasingValueWeightPostingSource::init(const Xapian::Database & db_) {
     Xapian::ValueWeightPostingSource::init(db_);
-    seen_weight_in_range = false;
     if (range_end == 0 || db.get_doccount() <= range_end)
 	items_at_end = false;
     else
@@ -107,20 +106,7 @@ DecreasingValueWeightPostingSource::skip_if_in_range(Xapian::weight min_wt)
 		value_it = db.valuestream_end(slot);
 	    } else {
 		// Update max_weight.
-		max_weight = curr_weight;
-		if (!seen_weight_in_range) {
-		    first_weight_in_range = curr_weight;
-		    notify_new_maxweight();
-		    last_weight_band = 100;
-		} else {
-		    if (first_weight_in_range != 0) {
-			int weight_band = floor(100.0 * curr_weight / first_weight_in_range);
-			if (weight_band != last_weight_band) {
-			    notify_new_maxweight();
-			    last_weight_band = weight_band;
-			}
-		    }
-		}
+		set_maxweight(curr_weight);
 	    }
 	}
     }
@@ -128,7 +114,7 @@ DecreasingValueWeightPostingSource::skip_if_in_range(Xapian::weight min_wt)
 
 void
 DecreasingValueWeightPostingSource::next(Xapian::weight min_wt) {
-    if (max_weight < min_wt) {
+    if (get_maxweight() < min_wt) {
 	value_it = db.valuestream_end(slot);
 	return;
     }
@@ -139,7 +125,7 @@ DecreasingValueWeightPostingSource::next(Xapian::weight min_wt) {
 void
 DecreasingValueWeightPostingSource::skip_to(Xapian::docid min_docid,
 					    Xapian::weight min_wt) {
-    if (max_weight < min_wt) {
+    if (get_maxweight() < min_wt) {
 	value_it = db.valuestream_end(slot);
 	return;
     }
@@ -150,7 +136,7 @@ DecreasingValueWeightPostingSource::skip_to(Xapian::docid min_docid,
 bool
 DecreasingValueWeightPostingSource::check(Xapian::docid min_docid,
 					  Xapian::weight min_wt) {
-    if (max_weight < min_wt) {
+    if (get_maxweight() < min_wt) {
 	value_it = db.valuestream_end(slot);
 	return true;
     }

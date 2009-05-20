@@ -1,3 +1,9 @@
+Wed May 20 22:46:35 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/decvalwtsource.cc,api/limitvalwtsource.cc,
+	  include/xapian/decvalwtsource.h: Update for new (and much
+	  simpler) maxweight notification API.
+
 Fri May 08 20:30:27 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/decvalwtsource.cc: Update to handle removal of value_end.

@@ -76,7 +76,7 @@ LimitedValueWeightPostingSource::unserialise(const std::string &s) const {
 void
 LimitedValueWeightPostingSource::init(const Xapian::Database & db_) {
     Xapian::ValueWeightPostingSource::init(db_);
-    max_weight = std::min(max_weight, specified_max_weight);
+    set_maxweight(std::min(get_maxweight(), specified_max_weight));
 }
 
 std::string

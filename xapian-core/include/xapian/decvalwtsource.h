@@ -53,15 +53,6 @@ class XAPIAN_VISIBILITY_DEFAULT DecreasingValueWeightPostingSource
     Xapian::docid range_end;
     double curr_weight;
 
-    /// The first weight seen in the range.
-    double first_weight_in_range;
-
-    /// Whether we've seen a weight in the range yet.
-    bool seen_weight_in_range;
-
-    /// Band of weights that the last
-    int last_weight_band;
-
     /// Flag, set to true if there are docs after the end of the range.
     bool items_at_end;
 
