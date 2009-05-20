@@ -23,7 +23,6 @@
 #include "stringutils.h"
 
 #include <cstdio>
-#include <iostream>
 #include <string>
 
 #ifdef __WIN32__

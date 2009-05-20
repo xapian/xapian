@@ -78,7 +78,6 @@ PWRITE_PROTOTYPE
 
 #include <algorithm>  // for std::min()
 #include <string>
-#include <vector>
 
 using namespace std;
 
@@ -249,7 +248,7 @@ ChertTable::read_block(uint4 n, byte * p) const
 	    /* Read part of the block, which is not an error.  We should
 	     * continue reading the rest of the block.
 	     */
-	    m -= bytes_read;
+	    m -= int(bytes_read);
 	    p += bytes_read;
 	    offset += bytes_read;
 	}
@@ -1563,8 +1562,8 @@ ChertTable::do_open_to_write(bool revision_supplied,
     RETURN(true);
 }
 
-ChertTable::ChertTable(const char * tablename_, string path_, bool readonly_,
-		       int compress_strategy_, bool lazy_)
+ChertTable::ChertTable(const char * tablename_, const string & path_,
+		       bool readonly_, int compress_strategy_, bool lazy_)
 	: tablename(tablename_),
 	  revision_number(0),
 	  item_count(0),

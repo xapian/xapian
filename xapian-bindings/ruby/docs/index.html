@@ -173,6 +173,13 @@ decide which to call).
    q = Xapian::Query.new(Xapian::Query::OP_AND, [subq, "foo", Xapian::Query.new("bar", 2)])
 </pre>
 
+<h3>MatchAll and MatchNothing</h3>
+
+<p>
+These aren't yet wrapped for Ruby, but you can use <code>Xapian.Query.new("")</code>
+instead of MatchAll and <code>Xapian.Query.new()</code> instead of MatchNothing.
+</p>
+
 <h2>MatchDecider</h2>
 
 <p>

@@ -889,9 +889,15 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *		     want all matches, then you can pass the result
 	 *		     of calling get_doccount() on the Database object
 	 *		     (though if you are doing this so you can filter
-	 *		     results, you are likely to get better performance
-	 *		     by using Xapian's match-time filtering features
-	 *		     instead).
+	 *		     results, you are likely to get much better
+	 *		     performance by using Xapian's match-time filtering
+	 *		     features instead).  You can pass 0 for maxitems
+	 *		     which will give you an empty MSet with valid
+	 *		     statistics (such as get_matches_estimated())
+	 *		     calculated without looking at any postings, which
+	 *		     is very quick, but means the estimates may be
+	 *		     more approximate and the bounds may be much
+	 *		     looser.
 	 *  @param checkatleast  the minimum number of items to check.  Because
 	 *		     the matcher optimises, it won't consider every
 	 *		     document which might match, so the total number

@@ -39,6 +39,7 @@ OrPostList::OrPostList(PostList *left_,
 	  lhead(0), rhead(0), lmax(0), rmax(0), minmax(0), dbsize(dbsize_)
 {
     DEBUGCALL(MATCH, void, "OrPostList", left_ << ", " << right_ << ", " << matcher_ << ", " << dbsize_);
+    AssertRel(left_->get_termfreq_est(),>=,right_->get_termfreq_est());
 }
 
 PostList *
@@ -51,10 +52,7 @@ OrPostList::next(Xapian::weight w_min)
 	if (w_min > lmax) {
 	    if (w_min > rmax) {
 		LOGLINE(MATCH, "OR -> AND");
-		PostList * pls[2];
-		pls[0] = l;
-		pls[1] = r;
-		ret = new MultiAndPostList(pls, pls + 2, matcher, dbsize, true);
+		ret = new MultiAndPostList(l, r, lmax, rmax, matcher, dbsize);
 		skip_to_handling_prune(ret, std::max(lhead, rhead) + 1, w_min,
 				       matcher);
 	    } else {
@@ -115,10 +113,7 @@ OrPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 	if (w_min > lmax) {
 	    if (w_min > rmax) {
 		LOGLINE(MATCH, "OR -> AND (in skip_to)");
-		PostList * pls[2];
-		pls[0] = l;
-		pls[1] = r;
-		ret = new MultiAndPostList(pls, pls + 2, matcher, dbsize, true);
+		ret = new MultiAndPostList(l, r, lmax, rmax, matcher, dbsize);
 		did = std::max(did, std::max(lhead, rhead));
 	    } else {
 		LOGLINE(MATCH, "OR -> AND MAYBE (in skip_to) (1)");

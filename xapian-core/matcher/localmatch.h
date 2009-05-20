@@ -29,7 +29,6 @@
 #include "xapian/weight.h"
 
 #include <map>
-#include <vector>
 
 class LocalSubMatch : public SubMatch {
     /// Don't allow assignment.

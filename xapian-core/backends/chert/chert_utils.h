@@ -321,7 +321,7 @@ unpack_string(const char ** src,
 }
 
 inline string
-pack_string(string value)
+pack_string(const string & value)
 {
     return pack_uint(value.size()) + value;
 }

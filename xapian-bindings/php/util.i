@@ -29,7 +29,7 @@
 %}
 
 /* Add a section to the output from phpinfo(). */
-%pragma(php4) phpinfo="
+%pragma(php) phpinfo="
     const char * linked_version = Xapian::version_string();
     php_info_print_table_start();
     php_info_print_table_row(2, \"Xapian Support\", \"enabled\");

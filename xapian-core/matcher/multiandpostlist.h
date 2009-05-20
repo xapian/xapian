@@ -23,6 +23,7 @@
 #define XAPIAN_INCLUDED_MULTIANDPOSTLIST_H
 
 #include "multimatch.h"
+#include "omassert.h"
 #include "postlist.h"
 
 /// N-way AND postlist.
@@ -99,6 +100,12 @@ class MultiAndPostList : public PostList {
 	}
     }
 
+    /** Allocate plist and max_wt arrays of @a n_kids each.
+     *
+     *  @exceptions  std::bad_alloc.
+     */
+    void allocate_plist_and_max_wt();
+
     /// Advance the sublists to the next match.
     PostList * find_next_match(Xapian::weight w_min);
 
@@ -108,35 +115,46 @@ class MultiAndPostList : public PostList {
      */
     template <class RandomItor>
     MultiAndPostList(RandomItor pl_begin, RandomItor pl_end,
-		     MultiMatch * matcher_, Xapian::doccount db_size_,
-		     bool replacement = false)
+		     MultiMatch * matcher_, Xapian::doccount db_size_)
 	: did(0), n_kids(pl_end - pl_begin), plist(NULL), max_wt(NULL),
 	  max_total(0), db_size(db_size_), matcher(matcher_)
     {
-	plist = new PostList * [n_kids];
-	try {
-	    max_wt = new Xapian::weight [n_kids];
-	} catch (...) {
-	    delete [] plist;
-	    plist = NULL;
-	    throw;
-	}
+	allocate_plist_and_max_wt();
 
 	// Copy the postlists in ascending termfreq order, since it will
 	// be more efficient to look at the shorter lists first, and skip
 	// the longer lists based on those.
 	std::partial_sort_copy(pl_begin, pl_end, plist, plist + n_kids,
 			       ComparePostListTermFreqAscending());
+    }
 
-	if (replacement) {
-	    // Initialise the maxweights from the kids so we can avoid forcing
-	    // a full maxweight recalc
-	    for (size_t i = 0; i < n_kids; ++i) {
-		Xapian::weight new_max = plist[i]->get_maxweight();
-		max_wt[i] = new_max;
-		max_total += new_max;
+    /** Construct as the decay product of an OrPostList or AndMaybePostList.
+     *
+     *  @parameter check_order	If true, then l and r may need swapping to
+     *				ensure freq_est(l) >= freq_est(r).  This
+     *				should not be necessary for an OrPostList.
+     */
+    MultiAndPostList(PostList *l, PostList *r,
+		     Xapian::weight lmax, Xapian::weight rmax,
+		     MultiMatch * matcher_, Xapian::doccount db_size_,
+		     bool check_order = false)
+	: did(0), n_kids(2), plist(NULL), max_wt(NULL),
+	  max_total(lmax + rmax), db_size(db_size_), matcher(matcher_)
+    {
+	if (check_order) {
+	    if (l->get_termfreq_est() < r->get_termfreq_est()) {
+		std::swap(l, r);
+		std::swap(lmax, rmax);
 	    }
+	} else {
+	    AssertRel(l->get_termfreq_est(),>=,r->get_termfreq_est());
 	}
+	allocate_plist_and_max_wt();
+	// Put the least frequent postlist first.
+	plist[0] = r;
+	plist[1] = l;
+	max_wt[0] = rmax;
+	max_wt[1] = lmax;
     }
 
     ~MultiAndPostList();

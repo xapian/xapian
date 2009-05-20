@@ -30,7 +30,6 @@
 #include "postlist.h"
 
 #include <list>
-#include <string>
 #include <vector>
 
 class MultiMatch;

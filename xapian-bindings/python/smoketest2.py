@@ -63,6 +63,9 @@ def test_all():
     expect_query(xapian.Query(xapian.Query.OP_VALUE_RANGE, 0, '1', '4'),
                  "VALUE_RANGE 0 1 4")
 
+    expect_query(xapian.Query.MatchAll, "<alldocuments>")
+    expect_query(xapian.Query.MatchNothing, "")
+
     # Feature test for Query.__iter__
     term_count = 0
     for term in query2:

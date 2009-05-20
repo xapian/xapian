@@ -46,7 +46,7 @@ class ChertPositionListTable : public ChertTable {
      *  @param dbdir		The directory the chert database is stored in.
      *  @param readonly		true if we're opening read-only, else false.
      */
-    ChertPositionListTable(string dbdir, bool readonly)
+    ChertPositionListTable(const string & dbdir, bool readonly)
 	: ChertTable("position", dbdir + "/position.", readonly, DONT_COMPRESS, true) { }
 
     /// Set the position list for term tname in document did.

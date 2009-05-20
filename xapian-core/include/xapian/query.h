@@ -235,10 +235,10 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	explicit Query(Xapian::PostingSource * external_source);
 
 	/** A query which matches all documents in the database. */
-	static Xapian::Query MatchAll;
+	static const Xapian::Query MatchAll;
 
 	/** A query which matches no documents. */
-	static Xapian::Query MatchNothing;
+	static const Xapian::Query MatchNothing;
 
 	/** Get the length of the query, used by some ranking formulae.
 	 *  This value is calculated automatically - if you want to override

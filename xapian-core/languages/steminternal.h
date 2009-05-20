@@ -1,7 +1,7 @@
 /** @file steminternal.h
  *  @brief Base class for implementations of stemming algorithms
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,14 +32,38 @@
 
 typedef unsigned char symbol;
 
-#define HEAD 2*sizeof(int)
+#define HEAD (2*sizeof(int))
 
 // Cast via (void*) to avoid warnings about alignment (the pointers *are*
 // appropriately aligned).
-#define SIZE(P)        ((const int *)(const void *)(P))[-1]
-#define SET_SIZE(P, N) ((int *)(void *)(P))[-1] = N
-#define CAPACITY(P)    ((const int *)(const void *)(P))[-2]
-#define SET_CAPACITY(P, N) ((int *)(void *)(P))[-2] = N
+
+inline int
+SIZE(const symbol* p)
+{
+    const void * void_p = reinterpret_cast<const void *>(p);
+    return reinterpret_cast<const int *>(void_p)[-1];
+}
+
+inline void
+SET_SIZE(symbol* p, int n)
+{
+    void * void_p = reinterpret_cast<void *>(p);
+    reinterpret_cast<int *>(void_p)[-1] = n;
+}
+
+inline int
+CAPACITY(const symbol* p)
+{
+    const void * void_p = reinterpret_cast<const void *>(p);
+    return reinterpret_cast<const int *>(void_p)[-2];
+}
+
+inline void
+SET_CAPACITY(symbol* p, int n)
+{
+    void * void_p = reinterpret_cast<void *>(p);
+    reinterpret_cast<int *>(void_p)[-2] = n;
+}
 
 typedef int (*among_function)(Xapian::Stem::Internal *);
 
@@ -53,7 +77,7 @@ struct among {
 extern symbol * create_s();
 
 inline void lose_s(symbol * p) {
-    if (p) free((char *) p - HEAD);
+    if (p) free(reinterpret_cast<char *>(p) - HEAD);
 }
 
 extern int skip_utf8(const symbol * p, int c, int lb, int l, int n);

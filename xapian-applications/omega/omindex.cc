@@ -269,6 +269,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    // Currently we assume that text files are UTF-8 unless they have a
 	    // byte-order mark.
 	    dump = file_to_string(file);
+	    md5_string(dump, md5);
 
 	    // Look for Byte-Order Mark (BOM).
 	    if (startswith(dump, "\xfe\xff") || startswith(dump, "\xff\xfe")) {
@@ -287,7 +288,6 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    cout << "can't read \"" << file << "\" - skipping\n";
 	    return;
 	}
-	md5_string(dump, md5);
     } else if (mimetype == "application/pdf") {
 	string safefile = shell_protect(file);
 	string cmd = "pdftotext -enc UTF-8 " + safefile + " -";

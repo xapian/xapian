@@ -292,8 +292,9 @@ class XAPIAN_VISIBILITY_DEFAULT ChertTable {
 	 *  @param lazy		If true, don't create the table until it's
 	 *			needed.
 	 */
-	ChertTable(const char * tablename_, std::string path_, bool readonly_,
-		   int compress_strategy_ = DONT_COMPRESS, bool lazy = false);
+	ChertTable(const char * tablename_, const std::string & path_,
+		   bool readonly_, int compress_strategy_ = DONT_COMPRESS,
+		   bool lazy = false);
 
 	/** Close the Btree.
 	 *
