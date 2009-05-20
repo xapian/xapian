@@ -1,3 +1,9 @@
+Wed May 20 13:55:41 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_databasereplicator.cc,
+	  backends/flint/flint_databasereplicator.cc: Need <cstdio> for
+	  rename().  Replace C-style cast to off_t.
+
 Wed May 20 13:53:25 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/editdistance.cc: Make edist_state class uncopyable and

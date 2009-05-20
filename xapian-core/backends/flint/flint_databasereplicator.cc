@@ -45,6 +45,8 @@
 # include "msvc_posix_wrapper.h"
 #endif
 
+#include <cstdio> // For rename().
+
 using namespace std;
 using namespace Xapian;
 
@@ -187,7 +189,7 @@ FlintDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
 
 	    // Write the block.
 	    // FIXME - should use pwrite if that's available.
-	    if (lseek(fd, (off_t)changeset_blocksize * block_number, SEEK_SET) == -1) {
+	    if (lseek(fd, off_t(changeset_blocksize) * block_number, SEEK_SET) == -1) {
 		string msg = "Failed to seek to block ";
 		msg += om_tostring(block_number);
 		throw DatabaseError(msg, errno);
