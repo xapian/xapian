@@ -1,3 +1,8 @@
+Wed May 20 13:53:25 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/editdistance.cc: Make edist_state class uncopyable and
+	  unassignable.  Initialise maxdist in the initialiser list.
+
 Wed May 20 11:19:53 GMT 2009  Olly Betts <olly@survex.com>
 
 	* languages/steminternal.cc,languages/steminternal.h: Change C-style
