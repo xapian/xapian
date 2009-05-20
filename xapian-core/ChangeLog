@@ -1,3 +1,8 @@
+Wed May 20 10:40:03 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/str.h: Add static_cast<char>() to suppress bogus MSVC
+	  warning (ticket#377).
+
 Tue May 19 15:26:39 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/,backends/flint/,common/rset.h,tests/api_anydb.cc:
