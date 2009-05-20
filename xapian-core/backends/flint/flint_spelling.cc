@@ -541,7 +541,7 @@ FlintSpellingTermList::next()
 	    throw Xapian::DatabaseCorruptError("Bad spelling termlist");
 	current_term.resize(byte(data[p++]) ^ MAGIC_XOR_VALUE);
     }
-    size_t add;
+    unsigned add;
     if (p == data.size() ||
 	(add = byte(data[p]) ^ MAGIC_XOR_VALUE) >= data.size() - p)
 	throw Xapian::DatabaseCorruptError("Bad spelling termlist");

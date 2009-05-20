@@ -570,7 +570,7 @@ Database::get_spelling_suggestion(const string &word,
 
 	    // First check the length of the encoded UTF-8 version of term.
 	    // Each UTF-32 character is 1-4 bytes in UTF-8.
-	    if (abs((long)term.size() - (long)word.size()) > edist_best * 4) {
+	    if (abs(long(term.size()) - long(word.size())) > edist_best * 4) {
 		LOGLINE(SPELLING, "Lengths much too different");
 		continue;
 	    }
@@ -579,7 +579,7 @@ Database::get_spelling_suggestion(const string &word,
 	    // strictly.
 	    utf32_term.assign(Utf8Iterator(term), Utf8Iterator());
 
-	    if (abs((long)utf32_term.size() - (long)utf32_word.size())
+	    if (abs(long(utf32_term.size()) - long(utf32_word.size()))
 		    > edist_best) {
 		LOGLINE(SPELLING, "Lengths too different");
 		continue;
@@ -591,9 +591,9 @@ Database::get_spelling_suggestion(const string &word,
 	    }
 
 	    int edist = edit_distance_unsigned(&utf32_term[0],
-					       utf32_term.size(),
+					       int(utf32_term.size()),
 					       &utf32_word[0],
-					       utf32_word.size(),
+					       int(utf32_word.size()),
 					       edist_best);
 	    LOGLINE(SPELLING, "Edit distance " << edist);
 	    // If we have an exact match, return an empty string since there's

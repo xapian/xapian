@@ -248,7 +248,7 @@ FlintTable::read_block(uint4 n, byte * p) const
 	    /* Read part of the block, which is not an error.  We should
 	     * continue reading the rest of the block.
 	     */
-	    m -= bytes_read;
+	    m -= int(bytes_read);
 	    p += bytes_read;
 	    offset += bytes_read;
 	}
@@ -311,7 +311,7 @@ FlintTable::write_block(uint4 n, const byte * p) const
 	    /* Wrote part of the block, which is not an error.  We should
 	     * continue writing the rest of the block.
 	     */
-	    m -= bytes_written;
+	    m -= int(bytes_written);
 	    p += bytes_written;
 	    offset += bytes_written;
 	}
@@ -1039,14 +1039,16 @@ FlintTable::add(const string &key, string tag, bool already_compressed)
 
 	lazy_alloc_deflate_zstream();
 
-	deflate_zstream->next_in = (Bytef *)const_cast<char *>(tag.data());
-	deflate_zstream->avail_in = (uInt)tag.size();
+	// zlib takes a non-const pointer to the input, but doesn't modify it.
+	char * non_const_tag = const_cast<char *>(tag.data());
+	deflate_zstream->next_in = reinterpret_cast<Byte *>(non_const_tag);
+	deflate_zstream->avail_in = uInt(tag.size());
 
 	// If compressed size is >= tag.size(), we don't want to compress.
 	unsigned long blk_len = tag.size() - 1;
 	unsigned char * blk = new unsigned char[blk_len];
 	deflate_zstream->next_out = blk;
-	deflate_zstream->avail_out = (uInt)blk_len;
+	deflate_zstream->avail_out = uInt(blk_len);
 
 	int err = deflate(deflate_zstream, Z_FINISH);
 	if (err == Z_STREAM_END) {
@@ -1240,13 +1242,15 @@ FlintTable::read_tag(Cursor_ * C_, string *tag, bool keep_compressed) const
 
     lazy_alloc_inflate_zstream();
 
-    inflate_zstream->next_in = (Bytef*)const_cast<char *>(tag->data());
-    inflate_zstream->avail_in = (uInt)tag->size();
+    // zlib takes a non-const pointer to the input, but doesn't modify it.
+    char * non_const_tag = const_cast<char *>(tag->data());
+    inflate_zstream->next_in = reinterpret_cast<Byte *>(non_const_tag);
+    inflate_zstream->avail_in = uInt(tag->size());
 
     int err = Z_OK;
     while (err != Z_STREAM_END) {
 	inflate_zstream->next_out = buf;
-	inflate_zstream->avail_out = (uInt)sizeof(buf);
+	inflate_zstream->avail_out = uInt(sizeof(buf));
 	err = inflate(inflate_zstream, Z_SYNC_FLUSH);
 	if (err == Z_BUF_ERROR && inflate_zstream->avail_in == 0) {
 	    LOGLINE(DB, "Z_BUF_ERROR - faking checksum of " << inflate_zstream->adler);
@@ -1277,7 +1281,7 @@ FlintTable::read_tag(Cursor_ * C_, string *tag, bool keep_compressed) const
 	msg += om_tostring(utag.size());
 	msg += " != ";
 	// OpenBSD's zlib.h uses off_t instead of uLong for total_out.
-	msg += om_tostring((size_t)inflate_zstream->total_out);
+	msg += om_tostring(size_t(inflate_zstream->total_out));
 	throw Xapian::DatabaseCorruptError(msg);
     }
 
@@ -1311,7 +1315,7 @@ FlintCursor * FlintTable::cursor_get() const {
 bool
 FlintTable::basic_open(bool revision_supplied, flint_revision_number_t revision_)
 {
-    int ch = 'X'; /* will be 'A' or 'B' */
+    char ch = 'X'; /* will be 'A' or 'B' */
 
     {
 	const size_t BTREE_BASES = 2;
@@ -1584,7 +1588,7 @@ FlintTable::lazy_alloc_deflate_zstream() const {
 
     deflate_zstream->zalloc = reinterpret_cast<alloc_func>(0);
     deflate_zstream->zfree = reinterpret_cast<free_func>(0);
-    deflate_zstream->opaque = (voidpf)0;
+    deflate_zstream->opaque = voidpf(0);
 
     // -15 means raw deflate with 32K LZ77 window (largest)
     // memLevel 9 is the highest (8 is default)

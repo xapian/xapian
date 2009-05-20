@@ -248,7 +248,7 @@ ChertTable::read_block(uint4 n, byte * p) const
 	    /* Read part of the block, which is not an error.  We should
 	     * continue reading the rest of the block.
 	     */
-	    m -= bytes_read;
+	    m -= int(bytes_read);
 	    p += bytes_read;
 	    offset += bytes_read;
 	}

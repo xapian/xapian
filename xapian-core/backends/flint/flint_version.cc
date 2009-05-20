@@ -1,7 +1,7 @@
 /** @file flint_version.cc
  * @brief FlintVersion class
  */
-/* Copyright (C) 2006,2007,2008 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -172,7 +172,7 @@ void FlintVersion::read_and_check(bool readonly)
     }
 
     try {
-	(void)flint_io_read(fd, (char*)uuid, 16, 16);
+	(void)flint_io_read(fd, reinterpret_cast<char*>(uuid), 16, 16);
     } catch (...) {
 	uuid_clear(uuid);
 	(void)close(fd);
@@ -211,7 +211,7 @@ FlintVersion::ensure_uuid() const
 
 	uuid_generate(uuid);
 	try {
-	    flint_io_write(fd, (const char*)uuid, 16);
+	    flint_io_write(fd, reinterpret_cast<const char*>(uuid), 16);
 	} catch (...) {
 	    (void)close(fd);
 	    throw;

@@ -1,3 +1,12 @@
+Wed May 20 13:58:09 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,api/sortable-serialise.cc,backends/chert/,
+	  backends/flint/,backends/remote/remote-database.cc,
+	  common/serialise-double.cc,common/str.cc,
+	  matcher/exactphrasepostlist.cc,net/remoteconnection.cc,
+	  net/remoteserver.cc: Replace C-style casts.  Add a few missing casts.
+	  Tweak types used in a few places.
+
 Wed May 20 13:55:41 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_databasereplicator.cc,
