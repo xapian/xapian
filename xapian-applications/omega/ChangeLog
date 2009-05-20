@@ -1,3 +1,9 @@
+Wed May 20 11:24:46 GMT 2009  Olly Betts <olly@survex.com>
+
+	* omindex.cc: The MD5 checksum of a text file with a BOM was being
+	  incorrectly calculated from the contents converted to UTF-8
+	  since 1.0.7.  Noticed by Srijon Biswas.
+
 Tue May 05 12:13:17 GMT 2009  Olly Betts <olly@survex.com>
 
 	* omindex.cc: We can now use numeric_limits<> since we no longer
