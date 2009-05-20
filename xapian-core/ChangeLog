@@ -1,3 +1,8 @@
+Wed May 20 11:19:53 GMT 2009  Olly Betts <olly@survex.com>
+
+	* languages/steminternal.cc,languages/steminternal.h: Change C-style
+	  casts to C++-style ones.
+
 Wed May 20 10:40:03 GMT 2009  Olly Betts <olly@survex.com>
 
 	* common/str.h: Add static_cast<char>() to suppress bogus MSVC
