@@ -1,3 +1,8 @@
+Thu May 21 08:08:06 GMT 2009  Olly Betts <olly@survex.com>
+
+	* HACKING: Update list of Debian/Ubuntu packages needed to for a
+	  development environment.
+
 Thu May 21 06:28:00 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/databasereplicator.cc: Fix nested comment start introduced

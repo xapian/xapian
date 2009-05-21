@@ -361,7 +361,11 @@ will look for them there.
 For a recent version of Debian or Ubuntu, this command should install all the
 required documentation tools::
 
-apt-get install doxygen graphviz ghostscript texlive-latex-base texlive-extra-utils help2man python-docutils pngcrush
+apt-get install doxygen graphviz gs texlive-latex-base texlive-extra-utils texlive-base-bin texlive-fonts-extra texlive-fonts-recommended texlive-latex-extra texlive-latex-recommended help2man python-docutils pngcrush
+
+On Debian 4.0 (etch) you may also need:
+
+apt-get install texlive-pdfetex
 
 Autotools versions
 ------------------
