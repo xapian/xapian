@@ -1,3 +1,7 @@
+Thu May 21 16:22:56 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_wrdb.cc: Fix testcase consistency2 to actually be run.
+
 Thu May 21 16:22:30 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_transdb.cc: Add missing '#include "api_transdb.h"'.
