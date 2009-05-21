@@ -1,3 +1,11 @@
+Thu May 21 03:58:59 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/generate-api_generated: Call get_description() on the default
+	  constructed object to make sure that works (and doesn't try to
+	  dereference NULL, or fail some assertion, etc).  All currently
+	  checked classes are fine - this is to avoid future regressions or
+	  such problems with new classes.
+
 Wed May 20 14:19:54 GMT 2009  Olly Betts <olly@survex.com>
 
 	* net/tcpclient.cc,net/tcpserver.cc: Fix xapian-tcpsrv --interface
