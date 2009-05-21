@@ -1,3 +1,12 @@
+Thu May 21 05:00:17 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/replication.cc: Fix SEGV when calling get_description() on a
+	  default constructed DatabaseReplica.
+	* tests/generate-api_generated: Test DatabaseReplica (regression test
+	  for the above bug) and SerialisationContext.   Fix @file in the
+	  generated api_generated.cc.  Update (C) dates in generated
+	  api_generated.cc.
+
 Thu May 21 03:58:59 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/generate-api_generated: Call get_description() on the default

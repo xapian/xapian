@@ -279,7 +279,12 @@ DatabaseReplica::close()
 string
 DatabaseReplica::get_description() const
 {
-    return "DatabaseReplica(" + internal->get_description() + ")";
+    string desc("DatabaseReplica(");
+    if (internal.get()) {
+	desc += internal->get_description();
+    }
+    desc += ')';
+    return desc;
 }
 
 // Methods of DatabaseReplica::Internal

@@ -28,6 +28,7 @@ my @uncopyableclasses = qw(
 
 my %copyableclasses = (
     'Database' => '',
+    'DatabaseReplica' => '',
     'DateValueRangeProcessor' => '0',
     'Document' => '',
     'ESet' => '',
@@ -42,30 +43,32 @@ my %copyableclasses = (
     'Query' => '',
     'QueryParser' => '',
     'RSet' => '',
+    'SerialisationContext' => '',
     'SimpleStopper' => '',
     'Stem' => '',
     'StringValueRangeProcessor' => '0',
     'TermGenerator' => '',
     'TermIterator' => '',
     'ValueIterator' => '',
-    'WritableDatabase' => '',
+    'WritableDatabase' => ''
 );
 
 my %no_get_description = (
     'DateValueRangeProcessor' => 1,
     'MultiValueSorter' => 1,
     'NumberValueRangeProcessor' => 1,
+    'SerialisationContext' => 1,
     'StringValueRangeProcessor' => 1
 );
 
 print <<'END';
-/** @file api_common.cc
+/** @file api_generated.cc
  * @brief test common features of API classes
  */
 END
 print $generated_warning;
 print <<'END';
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -87,6 +90,7 @@ print <<'END';
 #include "api_generated.h"
 
 #include <xapian.h>
+#include <xapian/replication.h>
 
 #include "apitest.h"
 #include "testutils.h"
