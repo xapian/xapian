@@ -1,7 +1,6 @@
 noinst_HEADERS +=\
 	matcher/andmaybepostlist.h\
 	matcher/andnotpostlist.h\
-	matcher/andpostlist.h\
 	matcher/branchpostlist.h\
 	matcher/exactphrasepostlist.h\
 	matcher/extraweightpostlist.h\
@@ -35,7 +34,6 @@ EXTRA_DIST +=\
 libxapian_la_SOURCES +=\
 	matcher/andmaybepostlist.cc\
 	matcher/andnotpostlist.cc\
-	matcher/andpostlist.cc\
 	matcher/bm25weight.cc\
 	matcher/branchpostlist.cc\
 	matcher/exactphrasepostlist.cc\

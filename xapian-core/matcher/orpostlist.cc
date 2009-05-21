@@ -23,7 +23,7 @@
 #include <config.h>
 
 #include "orpostlist.h"
-#include "andpostlist.h"
+#include "multiandpostlist.h"
 #include "andmaybepostlist.h"
 #include "omassert.h"
 #include "omdebug.h"
@@ -50,7 +50,10 @@ OrPostList::next(Xapian::weight w_min)
 	if (w_min > lmax) {
 	    if (w_min > rmax) {
 		DEBUGLINE(MATCH, "OR -> AND");
-		ret = new AndPostList(l, r, matcher, dbsize, true);
+		PostList * pls[2];
+		pls[0] = l;
+		pls[1] = r;
+		ret = new MultiAndPostList(pls, pls + 2, matcher, dbsize, true);
 		skip_to_handling_prune(ret, std::max(lhead, rhead) + 1, w_min,
 				       matcher);
 	    } else {
@@ -111,7 +114,10 @@ OrPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 	if (w_min > lmax) {
 	    if (w_min > rmax) {
 		DEBUGLINE(MATCH, "OR -> AND (in skip_to)");
-		ret = new AndPostList(l, r, matcher, dbsize, true);
+		PostList * pls[2];
+		pls[0] = l;
+		pls[1] = r;
+		ret = new MultiAndPostList(pls, pls + 2, matcher, dbsize, true);
 		did = std::max(did, std::max(lhead, rhead));
 	    } else {
 		DEBUGLINE(MATCH, "OR -> AND MAYBE (in skip_to) (1)");

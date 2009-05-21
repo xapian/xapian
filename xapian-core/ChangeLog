@@ -1,3 +1,17 @@
+Thu May 21 16:12:06 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* matcher/: Remove AndPostList, in favour of MultiAndPostList.
+	  AndPostList was only used as a decay product (by AndMaybePostList
+	  and OrPostList); for most queries, MultiAnd has pretty much
+	  indistinguishable performance as far as I can test.  Removal also
+	  reduces the amount of code cluttering up the caches during a
+	  search, so may help speed things up in some other situations.
+	* matcher/andmaybepostlist.cc,matcher/branchpostlist.h: Call
+	  check() instead of skip_to() on the optional branch of AND_MAYBE.
+	* configure.ac: Change source file which autoconf looks for, since
+	  I've just removed the old one that it looked for!
+
 Thu May 21 15:51:47 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

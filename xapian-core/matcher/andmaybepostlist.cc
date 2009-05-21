@@ -23,7 +23,7 @@
 #include <config.h>
 
 #include "andmaybepostlist.h"
-#include "andpostlist.h"
+#include "multiandpostlist.h"
 #include "omassert.h"
 #include "omdebug.h"
 
@@ -41,13 +41,18 @@ AndMaybePostList::process_next_or_skip_to(Xapian::weight w_min, PostList *ret)
     lhead = l->get_docid();
     if (lhead <= rhead) RETURN(NULL);
 
-    skip_to_handling_prune(r, lhead, w_min - lmax, matcher);
+    bool valid;
+    check_handling_prune(r, lhead, w_min - lmax, matcher, valid);
     if (r->at_end()) {
 	PostList *tmp = l;
 	l = NULL;
 	RETURN(tmp);
     }
-    rhead = r->get_docid();
+    if (valid) {
+	rhead = r->get_docid();
+    } else {
+	rhead = 0;
+    }
     RETURN(NULL);
 }
 
@@ -59,7 +64,10 @@ AndMaybePostList::next(Xapian::weight w_min)
 	// we can replace the AND MAYBE with an AND
 	PostList *ret;
 	DEBUGLINE(MATCH, "AND MAYBE -> AND");
-	ret = new AndPostList(l, r, matcher, dbsize, true);
+	PostList * pls[2];
+	pls[0] = l;
+	pls[1] = r;
+	ret = new MultiAndPostList(pls, pls + 2, matcher, dbsize, true);
 	l = r = NULL;
 	skip_to_handling_prune(ret, std::max(lhead, rhead) + 1, w_min, matcher);
 	RETURN(ret);
@@ -75,7 +83,10 @@ AndMaybePostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 	// we can replace the AND MAYBE with an AND
 	PostList *ret;
 	DEBUGLINE(MATCH, "AND MAYBE -> AND (in skip_to)");
-	ret = new AndPostList(l, r, matcher, dbsize, true);
+	PostList * pls[2];
+	pls[0] = l;
+	pls[1] = r;
+	ret = new MultiAndPostList(pls, pls + 2, matcher, dbsize, true);
 	did = std::max(did, std::max(lhead, rhead));
 	l = r = NULL;
 	skip_to_handling_prune(ret, did, w_min, matcher);
@@ -116,7 +127,7 @@ Xapian::docid
 AndMaybePostList::get_docid() const
 {
     DEBUGCALL(MATCH, Xapian::docid, "AndMaybePostList::get_docid", "");
-    Assert(lhead != 0 && rhead != 0); // check we've started
+    Assert(lhead != 0); // check we've started
     RETURN(lhead);
 }
 
@@ -125,7 +136,7 @@ Xapian::weight
 AndMaybePostList::get_weight() const
 {
     DEBUGCALL(MATCH, Xapian::weight, "AndMaybePostList::get_weight", "");
-    Assert(lhead != 0 && rhead != 0); // check we've started
+    Assert(lhead != 0); // check we've started
     if (lhead == rhead) RETURN(l->get_weight() + r->get_weight());
     RETURN(l->get_weight());
 }
@@ -165,7 +176,7 @@ Xapian::doclength
 AndMaybePostList::get_doclength() const
 {
     DEBUGCALL(MATCH, Xapian::doclength, "AndMaybePostList::get_doclength", "");
-    Assert(lhead != 0 && rhead != 0); // check we've started
+    Assert(lhead != 0); // check we've started
     if (lhead == rhead) AssertEqDouble(l->get_doclength(), r->get_doclength());
     RETURN(l->get_doclength());
 }
