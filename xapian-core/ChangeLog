@@ -1,3 +1,8 @@
+Thu May 21 06:28:00 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/databasereplicator.cc: Fix nested comment start introduced
+	  by the previous commit.
+
 Thu May 21 06:21:39 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/replication.cc,backends/databasereplicator.cc,
