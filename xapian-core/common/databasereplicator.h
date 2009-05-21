@@ -49,7 +49,7 @@ class DatabaseReplicator {
 	/** Constructor to allow construction of subclasses from the open()
 	 *  method.
 	 */
-	DatabaseReplicator();
+	DatabaseReplicator() { }
 
     public:
 	/** Destroy the replicator.

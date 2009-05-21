@@ -44,10 +44,6 @@ using namespace std;
 
 namespace Xapian {
 
-DatabaseReplicator::DatabaseReplicator()
-{
-}
-
 DatabaseReplicator::~DatabaseReplicator()
 {
 }
