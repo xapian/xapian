@@ -1,3 +1,8 @@
+Thu May 21 05:19:37 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* geospatial/latlong_posting_source.cc: Change to new way of
+	  setting maxweight.
+
 Thu May 21 00:01:46 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/Makefile.am: Move api_geospatial.cc to avoid conflicting

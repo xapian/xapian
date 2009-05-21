@@ -70,7 +70,7 @@ LatLongDistancePostingSource::LatLongDistancePostingSource(
 	throw InvalidArgumentError(
 	    "k2 parameter to LatLongDistancePostingSource must be greater "
 	    "than 0; was " + om_tostring(k2));
-    max_weight = weight_from_distance(0, k1, k2);
+    set_maxweight(weight_from_distance(0, k1, k2));
 }
 
 LatLongDistancePostingSource::LatLongDistancePostingSource(
@@ -95,7 +95,7 @@ LatLongDistancePostingSource::LatLongDistancePostingSource(
 	throw InvalidArgumentError(
 	    "k2 parameter to LatLongDistancePostingSource must be greater "
 	    "than 0; was " + om_tostring(k2));
-    max_weight = weight_from_distance(0, k1, k2);
+    set_maxweight(weight_from_distance(0, k1, k2));
 }
 
 LatLongDistancePostingSource::~LatLongDistancePostingSource()
