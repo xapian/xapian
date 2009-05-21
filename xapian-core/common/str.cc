@@ -38,12 +38,12 @@ tostring_unsigned(T value)
     STATIC_ASSERT_UNSIGNED_TYPE(T);
     // We need a special case for 0, and we might as well handle all single
     // digit numbers with it too.
-    if (value < 10) return string(1, '0' + value);
+    if (value < 10) return string(1, '0' + char(value));
     char buf[sizeof(T) * 3];
     char * p = buf + sizeof(buf);
     do {
 	AssertRel(p,>,buf);
-	char ch = value % 10;
+	char ch(value % 10);
 	value /= 10;
 	*(--p) = ch + '0';
     } while (value);
@@ -65,7 +65,7 @@ tostring(T value)
     char * p = buf + sizeof(buf);
     do {
 	AssertRel(p,>,buf);
-	char ch = value % 10;
+	char ch(value % 10);
 	value /= 10;
 	*(--p) = ch + '0';
     } while (value);
@@ -121,15 +121,14 @@ inline string
 format(const char * fmt, T value)
 {
     char buf[128];
-    size_t size;
 #ifdef SNPRINTF
     // If -1 is returned (as pre-ISO snprintf does if the buffer is too small,
     // it will be cast to > sizeof(buf) and handled appropriately.
-    size = (size_t)SNPRINTF_ISO(buf, sizeof(buf), fmt, value);
+    size_t size(SNPRINTF_ISO(buf, sizeof(buf), fmt, value));
     AssertRel(size,<=,sizeof(buf));
     if (size > sizeof(buf)) size = sizeof(buf);
 #else
-    size = (size_t)sprintf(buf, fmt, value);
+    size_t size(sprintf(buf, fmt, value));
     // Buffer overflow.
     if (size >= sizeof(buf)) abort();
 #endif

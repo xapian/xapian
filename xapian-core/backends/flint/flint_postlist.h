@@ -58,7 +58,7 @@ class FlintPostListTable : public FlintTable {
 	 *  @param readonly_      - whether to open the table for read only
 	 *                          access.
 	 */
-	FlintPostListTable(string path_, bool readonly_)
+	FlintPostListTable(const string & path_, bool readonly_)
 	    : FlintTable("postlist", path_ + "/postlist.", readonly_) { }
 
 	/// Merge added, removed, and changed entries.

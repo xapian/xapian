@@ -63,7 +63,7 @@ class ChertPostListTable : public ChertTable {
 	 *  @param readonly_      - whether to open the table for read only
 	 *                          access.
 	 */
-	ChertPostListTable(string path_, bool readonly_)
+	ChertPostListTable(const string & path_, bool readonly_)
 	    : ChertTable("postlist", path_ + "/postlist.", readonly_),
 	      doclen_pl()
 	{ }

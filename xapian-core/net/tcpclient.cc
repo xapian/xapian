@@ -68,9 +68,10 @@ TcpClient::open_socket(const std::string & hostname, int port,
     }
 
     struct sockaddr_in remaddr;
+    memset(&remaddr, 0, sizeof(remaddr));
     remaddr.sin_family = AF_INET;
     remaddr.sin_port = htons(port);
-    memcpy(&remaddr.sin_addr, host->h_addr, sizeof(remaddr.sin_addr));
+    memcpy(&remaddr.sin_addr, host->h_addr, host->h_length);
 
 #ifdef __WIN32__
     ULONG enabled = 1;

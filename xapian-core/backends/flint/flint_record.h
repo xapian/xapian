@@ -47,7 +47,7 @@ class FlintRecordTable : public FlintTable {
 	 *  @param readonly_      - whether to open the table for read only
 	 *                          access.
 	 */
-	FlintRecordTable(string path_, bool readonly_)
+	FlintRecordTable(const string & path_, bool readonly_)
 	    : FlintTable("record", path_ + "/record.", readonly_, Z_DEFAULT_STRATEGY) { }
 
 	/** Retrieve a document from the table.

@@ -116,7 +116,7 @@ TradWeight::init(double factor)
     LOGVALUE(WTCALC, len_factor);
 }
 
-std::string
+string
 TradWeight::name() const
 {
     return "Xapian::TradWeight";

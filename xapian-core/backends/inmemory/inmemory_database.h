@@ -329,6 +329,7 @@ class InMemoryDatabase : public Xapian::Database::Internal {
     Xapian::Document::Internal * open_document(Xapian::docid did, bool lazy) const;
 
     std::string get_metadata(const std::string & key) const;
+    TermList * open_metadata_keylist(const std::string &prefix) const;
     void set_metadata(const std::string & key, const std::string & value);
 
     Xapian::termcount positionlist_count(Xapian::docid did,

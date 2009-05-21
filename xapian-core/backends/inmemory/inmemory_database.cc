@@ -550,6 +550,13 @@ InMemoryDatabase::get_metadata(const std::string & key) const
 	return string();
     return i->second;
 }
+ 
+TermList *
+InMemoryDatabase::open_metadata_keylist(const string &) const
+{
+    // FIXME: nobody implemented this yet...
+    throw Xapian::UnimplementedError("InMemory backend doesn't currently implement Database::metadata_keys_begin()");
+}
 
 void
 InMemoryDatabase::set_metadata(const std::string & key,

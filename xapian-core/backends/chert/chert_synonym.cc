@@ -1,7 +1,7 @@
 /** @file chert_synonym.cc
  * @brief Synonym data for a chert database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,7 +52,7 @@ ChertSynonymTable::merge_changes()
 	set<string>::const_iterator i;
 	for (i = last_synonyms.begin(); i != last_synonyms.end(); ++i) {
 	    const string & synonym = *i;
-	    tag += (byte)(synonym.size() ^ MAGIC_XOR_VALUE);
+	    tag += byte(synonym.size() ^ MAGIC_XOR_VALUE);
 	    tag += synonym;
 	}
 
@@ -76,7 +76,7 @@ ChertSynonymTable::add_synonym(const string & term, const string & synonym)
 	    while (p != end) {
 		size_t len;
 		if (p == end ||
-		    (len = (byte)*p ^ MAGIC_XOR_VALUE) >= size_t(end - p))
+		    (len = byte(*p) ^ MAGIC_XOR_VALUE) >= size_t(end - p))
 		    throw Xapian::DatabaseCorruptError("Bad synonym data");
 		++p;
 		last_synonyms.insert(string(p, len));
@@ -102,7 +102,7 @@ ChertSynonymTable::remove_synonym(const string & term, const string & synonym)
 	    while (p != end) {
 		size_t len;
 		if (p == end ||
-		    (len = (byte)*p ^ MAGIC_XOR_VALUE) >= size_t(end - p))
+		    (len = byte(*p) ^ MAGIC_XOR_VALUE) >= size_t(end - p))
 		    throw Xapian::DatabaseCorruptError("Bad synonym data");
 		++p;
 		last_synonyms.insert(string(p, len));
@@ -152,7 +152,7 @@ ChertSynonymTable::open_termlist(const string & term)
 	while (p != end) {
 	    size_t len;
 	    if (p == end ||
-		(len = (byte)*p ^ MAGIC_XOR_VALUE) >= size_t(end - p))
+		(len = byte(*p) ^ MAGIC_XOR_VALUE) >= size_t(end - p))
 		throw Xapian::DatabaseCorruptError("Bad synonym data");
 	    ++p;
 	    synonyms.push_back(string(p, len));

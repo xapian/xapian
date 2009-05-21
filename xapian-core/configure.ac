@@ -650,6 +650,15 @@ if test yes = "$enable_backend_flint" -o yes = "$enable_backend_chert" ; then
   if test x != x"$LIBS" ; then
     XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $LIBS"
   fi
+
+  dnl Older versions of libuuid (such as that on CentOS 4.7) don't have
+  dnl uuid_unparse_lower(), only uuid_unparse().
+  AC_LINK_IFELSE([AC_LANG_CALL([], [uuid_unparse_lower])], [found=true], [found=false])
+  if $found ; then
+    AC_DEFINE([HAVE_UUID_UNPARSE_LOWER], [1],
+	      [Define to 1 if you have the 'uuid_unparse_lower' function.])
+  fi
+
   LIBS=$SAVE_LIBS
 fi
 

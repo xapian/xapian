@@ -25,7 +25,6 @@
 
 #include "andmaybepostlist.h"
 #include "andnotpostlist.h"
-#include "autoptr.h"
 #include "const_database_wrapper.h"
 #include "emptypostlist.h"
 #include "exactphrasepostlist.h"
@@ -44,7 +43,6 @@
 
 #include <algorithm>
 #include <list>
-#include <map>
 #include <string>
 #include <vector>
 

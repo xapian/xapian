@@ -132,9 +132,9 @@ RemoteServer::get_message(Xapian::timeout timeout, string & result,
     }
     if (required_type != MSG_MAX && type != unsigned(required_type)) {
 	string errmsg("Expecting message type ");
-	errmsg += om_tostring(required_type);
+	errmsg += om_tostring(int(required_type));
 	errmsg += ", got ";
-	errmsg += om_tostring(type);
+	errmsg += om_tostring(int(type));
 	throw Xapian::NetworkError(errmsg);
     }
     return static_cast<message_type>(type);

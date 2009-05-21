@@ -115,8 +115,11 @@ unserialise_error(const string &serialised_error, const string &prefix,
 
 #include <xapian/errordispatch.h>
 
-    msg = "Unknown remote exception type " + type + ": " + msg;
-    throw Xapian::InternalError(msg, context);
+    string newmsg = "Unknown remote exception type ";
+    newmsg += type;
+    newmsg += ": ";
+    newmsg += msg;
+    throw Xapian::InternalError(newmsg, context);
 }
 
 string

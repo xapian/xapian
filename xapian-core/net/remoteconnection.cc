@@ -1,7 +1,7 @@
 /** @file  remoteconnection.cc
  *  @brief RemoteConnection class used by the remote backend.
  */
-/* Copyright (C) 2006,2007,2008 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -584,10 +584,11 @@ RemoteConnection::get_message_chunk(string &result, size_t at_least,
 }
 
 /** Write n bytes from block pointed to by p to file descriptor fd. */
-static void write_all(int fd, const char * p, size_t n)
+static void
+write_all(int fd, const char * p, size_t n)
 {
     while (n) {
-	int c = write(fd, p, n);
+	ssize_t c = write(fd, p, n);
 	if (c < 0) {
 	    if (errno == EINTR) continue;
 	    throw Xapian::NetworkError("Error writing to file", errno);

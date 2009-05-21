@@ -4,6 +4,51 @@ Tue Dec 09 00:06:44 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 	  which don't support directors, so that built-in posting sources,
 	  like the geospatial one, can be used.
 
+Wed May 20 20:55:13 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* xapian.i: Add overloaded version of set_collapse_key() to
+	  bindings which exposes the new parameter.
+
+Tue May 19 09:21:33 GMT 2009  Olly Betts <olly@survex.com>
+
+	* python/docs/index.html,python/extra.i,python/smoketest2.py,
+	  tcl8/docs/index.html,tcl8/smoketest.tcl,xapian.i: Wrap
+	  Query::MatchAll and Query::MatchNothing for Python and Tcl8 and
+	  document how they are wrapped (ticket#158).
+	* csharp/docs/index.html,php/docs/index.html,ruby/docs/index.html:
+	  Document that Query::MatchAll and Query::MatchNothing aren't wrapped
+	  for these languages yet, and to use Query("") and Query() instead.
+
+Tue May 19 09:17:41 GMT 2009  Olly Betts <olly@survex.com>
+
+	* php/util.i: %pragma(php4) -> %pragma(php) (purely cosmetic change).
+
+Tue May 19 04:48:06 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Don't test an empty $CSC further which saves a fork
+	  and avoids an odd looking message.
+
+Sat May 16 08:51:15 GMT 2009  Olly Betts <olly@survex.com>
+
+	* python/docs/examples/simplematchdecider.py: Pick "avoid_value" from
+	  the second parameter, not the third.
+	* python/docs/examples/simplematchdecider.py,
+	  python/docs/examples/simplesearch.py: Use str.join() for simpler,
+	  clearer code.
+
+Mon May 11 12:20:31 GMT 2009  Olly Betts <olly@survex.com>
+
+	* xapian.i: Oops, make that PostingSource::register_matcher_().
+
+Mon May 11 10:50:21 GMT 2009  Olly Betts <olly@survex.com>
+
+	* xapian.i: Fix for PostingSource::set_matcher_() change.
+
+Sat May 09 07:59:10 GMT 2009  Olly Betts <olly@survex.com>
+
+	* xapian-head.i: Update to work with new ValueIteratorEnd_ proxy
+	  class.
+
 Wed May 06 06:45:22 GMT 2009  Olly Betts <olly@survex.com>
 
 	* README,python/docs/index.html: Update documentation for mod_python

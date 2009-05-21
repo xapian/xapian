@@ -197,6 +197,7 @@ class ValueIterator {
 #endif
 %ignore Xapian::PostingSource::clone;
 %ignore Xapian::PostingSource::unserialise;
+%ignore Xapian::PostingSource::register_matcher_;
 %include <xapian/postingsource.h>
 
 namespace Xapian {
@@ -367,7 +368,8 @@ class Enquire {
     const Query& get_query();
 
     void set_weighting_scheme(const Weight& weight);
-    void set_collapse_key(valueno collapse_key);
+    void set_collapse_key(Xapian::valueno collapse_key,
+                          Xapian::doccount collapse_max = 1);
 
     typedef enum {
 	ASCENDING = 1,
@@ -683,9 +685,12 @@ class Remote {
 #ifdef SWIGPHP
 %apply int { Xapian::Query::op };
 #endif
-// FIXME: wrap MatchAll and MatchNothing
+#ifndef SWIGTCL
+// FIXME: wrap MatchAll and MatchNothing for other languages(except for Python,
+// which wraps them in a different way).
 %ignore Xapian::Query::MatchAll;
 %ignore Xapian::Query::MatchNothing;
+#endif
 
 %ignore Xapian::Query::internal;
 %ignore Xapian::Query::operator=;
