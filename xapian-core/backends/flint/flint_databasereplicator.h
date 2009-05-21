@@ -48,7 +48,7 @@ class FlintDatabaseReplicator : public Xapian::DatabaseReplicator {
     public:
 	FlintDatabaseReplicator(const std::string & db_dir_);
 
-	/** Virtual methods of Database::Internal. */
+	/** Virtual methods of DatabaseReplicator. */
 	//@{
 	bool check_revision_at_least(const std::string & rev,
 				     const std::string & target) const;

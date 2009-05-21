@@ -1,3 +1,9 @@
+Thu May 21 08:09:51 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_databasereplicator.h,
+	  backends/flint/flint_databasereplicator.h: Correct parent class name
+	  in doxygen comments.
+
 Thu May 21 08:08:06 GMT 2009  Olly Betts <olly@survex.com>
 
 	* HACKING: Update list of Debian/Ubuntu packages needed to for a
