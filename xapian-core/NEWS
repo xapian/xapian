@@ -1,4 +1,4 @@
- 12731       olly Fri May 15 10:49:54 GMT 2009  Olly Betts <olly@survex.com>
+ 12770       olly Wed May 20 15:03:25 GMT 2009  Olly Betts <olly@survex.com>
 
 Xapian-core 1.0.13 (2009-05-??):
 
@@ -36,14 +36,6 @@ matcher:
 	  early once we've seen all the query terms" test when checking the
 	  document terms can fire in this case.
 
-* Fix typo - MSetPostList::get_maxweight()
-	  with a sort ordered primarily by decreasing relevance was returning
-	  the docid for the maxweight!  This could have led to wrong results
-	  when searching multiple databases with the remote backend, but
-	  probably usually didn't matter as with BM25 the weights are usually
-	  small (often all < 1) while docids are inevitably >= 1.  No
-	  regression test for this (currently anyway).
-
 * When an OR or ANY_MAYBE decays to an AND, we were carefully swapping the
   children for maximum efficiency, but the condition was reversed so we were
   in fact making things worse.  This was noticed because it was resulting in
@@ -60,12 +52,22 @@ matcher:
 
 flint backend:
 
+* Fix a bug in TermIterator::skip_to() over metadata keys.
 
 quartz backend:
 
 
 remote backend:
 
+* Fix xapian-tcpsrv --interface option to work on MacOS X (ticket#373).
+
+* Fix typo - MSetPostList::get_maxweight()
+	  with a sort ordered primarily by decreasing relevance was returning
+	  the docid for the maxweight!  This could have led to wrong results
+	  when searching multiple databases with the remote backend, but
+	  probably usually didn't matter as with BM25 the weights are usually
+	  small (often all < 1) while docids are inevitably >= 1.  No
+	  regression test for this (currently anyway).
 
 inmemory backend:
 
@@ -86,6 +88,9 @@ build system:
   -ftest-coverage".
 
 documentation:
+
+* INSTALL: We no longer regularly test build with GCC 2.95.4 and we're raising
+  the minimum GCC version required to 3.1 for Xapian 1.1.x.
 
 * docs/queryparser.html: Add examples of using a prefix on a phrase or
   subexpression.
