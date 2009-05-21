@@ -1,3 +1,12 @@
+Thu May 21 12:58:22 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/databasereplicator.cc: Don't bother to check if the
+	  database path works in stat() and is a directory - the case we want
+	  to be fast is when the database does exist, and if path +
+	  "/iamflint" (or "iamchert") exists, then the check for path being a
+	  directory is redundant.  If the path isn't a flint or chert database
+	  then a generic message including the path seems sufficient.
+
 Thu May 21 09:17:15 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/databasereplicator.cc,common/databasereplicator.h: Inline

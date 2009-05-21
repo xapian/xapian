@@ -27,11 +27,8 @@
 #include "xapian/error.h"
 #include "xapian/version.h" // For XAPIAN_HAS_XXX_BACKEND.
 
-#include "fileutils.h"
 #include "omdebug.h"
 #include "utils.h"
-
-#include "safeerrno.h"
 
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 # include "chert/chert_databasereplicator.h"
@@ -49,18 +46,9 @@ DatabaseReplicator::~DatabaseReplicator()
 }
 
 DatabaseReplicator *
-DatabaseReplicator::open(const std::string & path)
+DatabaseReplicator::open(const string & path)
 {
     DEBUGCALL_STATIC(DB, void, "DatabaseReplicator::DatabaseReplicator", path);
-
-    struct stat statbuf;
-    if (stat(path, &statbuf) == -1) {
-	throw DatabaseOpeningError("Couldn't stat '" + path + "'", errno);
-    }
-
-    if (rare(!S_ISDIR(statbuf.st_mode))) {
-	throw DatabaseOpeningError("Not a regular file or directory: '" + path + "'");
-    }
 
 #ifdef XAPIAN_HAS_FLINT_BACKEND
     if (file_exists(path + "/iamflint")) {
@@ -74,7 +62,7 @@ DatabaseReplicator::open(const std::string & path)
     }
 #endif
 
-    throw DatabaseOpeningError("Couldn't detect type of database");
+    throw DatabaseOpeningError("Couldn't detect type of database: " + path);
 }
 
 }
