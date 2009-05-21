@@ -1,7 +1,7 @@
 /** @file backendmanager_remotetcp.cc
  * @brief BackendManager subclass for remotetcp databases.
  */
-/* Copyright (C) 2006,2007,2008 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -78,7 +78,8 @@ struct pid_fd {
 
 static pid_fd pid_to_fd[16];
 
-extern "C" void
+extern "C" {
+static void
 on_SIGCHLD(int /*sig*/)
 {
     int status;
@@ -95,6 +96,7 @@ on_SIGCHLD(int /*sig*/)
 	    }
 	}
     }
+}
 }
 
 static int
