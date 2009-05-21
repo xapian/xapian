@@ -45,6 +45,7 @@
 #include "serialise.h"
 #include "utils.h"
 
+#include <autoptr.h>
 #include <cstdio> // For rename().
 #include <fstream>
 #include <string>
@@ -448,9 +449,10 @@ DatabaseReplica::Internal::check_message_type(char type, char expected) const
 bool
 DatabaseReplica::Internal::possibly_make_offline_live()
 {
-    Xapian::Internal::RefCntPtr<DatabaseReplicator> replicator;
+    AutoPtr<DatabaseReplicator> replicator;
     try {
-	replicator = DatabaseReplicator::open(get_replica_path(live_id ^ 1));
+	replicator.reset(
+		DatabaseReplicator::open(get_replica_path(live_id ^ 1)));
     } catch (Xapian::DatabaseError &) {
 	return false;
     }
@@ -509,8 +511,8 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info)
 			++(info->fullcopy_count);
 		    std::string replica_uuid;
 		    {
-			Xapian::Internal::RefCntPtr<DatabaseReplicator> replicator =
-				DatabaseReplicator::open(get_replica_path(live_id ^ 1));
+			AutoPtr<DatabaseReplicator> replicator(
+				DatabaseReplicator::open(get_replica_path(live_id ^ 1)));
 			replica_uuid = replicator->get_uuid();
 		    }
 		    if (replica_uuid != offline_uuid) {
@@ -542,13 +544,14 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info)
 
 		    // Open a replicator for the live path, and apply the
 		    // changeset.
-		    Xapian::Internal::RefCntPtr<DatabaseReplicator> replicator =
-			    DatabaseReplicator::open(get_replica_path(live_id));
-		    offline_needed_revision = replicator->
-			    apply_changeset_from_conn(*conn, end_time, true);
+		    {
+			AutoPtr<DatabaseReplicator> replicator(
+				DatabaseReplicator::open(get_replica_path(live_id)));
+			offline_needed_revision = replicator->
+				apply_changeset_from_conn(*conn, end_time, true);
+		    }
 
 		    // Close the replicator and open the live db again.
-		    replicator = NULL;
 		    if (info != NULL) {
 			++(info->changeset_count);
 			info->changed = true;
@@ -559,8 +562,8 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info)
 		}
 
 		{
-		    Xapian::Internal::RefCntPtr<DatabaseReplicator> replicator =
-			    DatabaseReplicator::open(get_replica_path(live_id ^ 1));
+		    AutoPtr<DatabaseReplicator> replicator(
+			    DatabaseReplicator::open(get_replica_path(live_id ^ 1)));
 		    offline_needed_revision = replicator->
 			    apply_changeset_from_conn(*conn, end_time, false);
 		}

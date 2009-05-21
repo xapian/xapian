@@ -2,6 +2,7 @@
  * @brief Class to manage replication of databases.
  */
 /* Copyright 2008 Lemur Consulting Ltd
+ * Copyright 2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,7 +37,7 @@ namespace Xapian {
  *
  *  This is subclassed by each database backend which supports replication.
  */
-class DatabaseReplicator : public Xapian::Internal::RefCntBase {
+class DatabaseReplicator {
     private:
 	/// Copies are not allowed.
 	DatabaseReplicator(const DatabaseReplicator &);
@@ -59,8 +60,7 @@ class DatabaseReplicator : public Xapian::Internal::RefCntBase {
 	 *
 	 *  The type of the database at the path is automatically detected.
 	 */
-	static Xapian::Internal::RefCntPtr<DatabaseReplicator> open(const std::string & path);
-
+	static DatabaseReplicator * open(const std::string & path);
 
 	/** Check if the revision of the database is at least that of a target.
 	 *

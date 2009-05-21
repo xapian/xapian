@@ -2,6 +2,7 @@
  * @brief Support class for database replication.
  */
 /* Copyright 2008 Lemur Consulting Ltd
+/* Copyright 2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -51,7 +52,7 @@ DatabaseReplicator::~DatabaseReplicator()
 {
 }
 
-Xapian::Internal::RefCntPtr<DatabaseReplicator>
+DatabaseReplicator *
 DatabaseReplicator::open(const std::string & path)
 {
     DEBUGCALL_STATIC(DB, void, "DatabaseReplicator::DatabaseReplicator", path);
@@ -67,9 +68,7 @@ DatabaseReplicator::open(const std::string & path)
 
 #ifdef XAPIAN_HAS_FLINT_BACKEND
     if (file_exists(path + "/iamflint")) {
-	//return new FlintDatabaseReplicator(path);
-	DatabaseReplicator * result = new FlintDatabaseReplicator(path);
-	return result;
+	return new FlintDatabaseReplicator(path);
     }
 #endif
 
