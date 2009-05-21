@@ -1,3 +1,7 @@
+Thu May 21 16:22:30 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_transdb.cc: Add missing '#include "api_transdb.h"'.
+
 Thu May 21 12:58:22 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/databasereplicator.cc: Don't bother to check if the
