@@ -1,3 +1,8 @@
+Thu May 21 00:01:46 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/Makefile.am: Move api_geospatial.cc to avoid conflicting
+	  with clustering branch when making combined tarballs.
+
 Fri May 08 22:07:48 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* geospatial/latlong_posting_source.cc: Fix for removal of

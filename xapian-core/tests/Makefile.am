@@ -115,7 +115,6 @@ collated_apitest_sources = \
  api_collapse.cc \
  api_db.cc \
  api_generated.cc \
- api_geospatial.cc \
  api_nodb.cc \
  api_opsynonym.cc \
  api_percentages.cc \
@@ -131,6 +130,7 @@ collated_apitest_sources = \
  api_unicode.cc \
  api_valuestats.cc \
  api_valuestream.cc \
+ api_geospatial.cc \
  api_wrdb.cc
 
 apitest_SOURCES = apitest.cc $(collated_apitest_sources) \
