@@ -56,7 +56,7 @@ DEFINE_TESTCASE(metadata1, writable) {
 }
 
 // Test that metadata gets applied at same time as other changes.
-DEFINE_TESTCASE(metadata2, metadata) {
+DEFINE_TESTCASE(metadata2, metadata && !inmemory) {
     Xapian::WritableDatabase db = get_writable_database();
     Xapian::Database dbr = get_writable_database_as_database();
 
@@ -106,7 +106,7 @@ DEFINE_TESTCASE(metadata3, metadata) {
 
 // Regression test for adding a piece of metadata on its own before adding
 // other things.
-DEFINE_TESTCASE(metadata4, metadata) {
+DEFINE_TESTCASE(metadata4, metadata && !inmemory) {
     Xapian::WritableDatabase db = get_writable_database();
 
     db.set_metadata("foo", "foo");
@@ -122,7 +122,8 @@ DEFINE_TESTCASE(metadata4, metadata) {
 }
 
 // Test metadata iterators.
-DEFINE_TESTCASE(metadata5, metadata) {
+DEFINE_TESTCASE(metadata5, metadata && !inmemory) {
+    // FIXME: inmemory doesn't implement metadata iterators yet.
     Xapian::WritableDatabase db = get_writable_database();
 
     // Check that iterator on empty database returns nothing.

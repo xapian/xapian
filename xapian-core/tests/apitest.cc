@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2006,2007 Olly Betts
+ * Copyright 2003,2004,2006,2007,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -119,7 +119,7 @@ int main(int argc, char **argv)
 	bool backend = false, remote = false, transactions = false;
 	bool positional = false, writable = false, multi = false;
 	bool spelling = false, metadata = false;
-	bool quartz = false, flint = false;
+	bool quartz = false, flint = false, inmemory = false;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -132,8 +132,8 @@ int main(int argc, char **argv)
 
 	bool backend = true, remote = false, transactions = false;
 	bool positional = true, writable = true, multi = false;
-	bool spelling = false, metadata = false;
-	bool quartz = false, flint = false;
+	bool spelling = false, metadata = true;
+	bool quartz = false, flint = false, inmemory = true;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -148,7 +148,7 @@ int main(int argc, char **argv)
 	bool backend = true, remote = false, transactions = true;
 	bool positional = true, writable = true, multi = false;
 	bool spelling = true, metadata = true;
-	bool quartz = false, flint = true;
+	bool quartz = false, flint = true, inmemory = false;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -163,7 +163,7 @@ int main(int argc, char **argv)
 	bool backend = true, remote = false, transactions = false;
 	bool positional = true, writable = false, multi = true;
 	bool spelling = false, metadata = false;
-	bool quartz = false, flint = false;
+	bool quartz = false, flint = false, inmemory = false;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -178,7 +178,7 @@ int main(int argc, char **argv)
 	bool backend = true, remote = false, transactions = true;
 	bool positional = true, writable = true, multi = false;
 	bool spelling = false, metadata = false;
-	bool quartz = true, flint = false;
+	bool quartz = true, flint = false, inmemory = false;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -193,7 +193,7 @@ int main(int argc, char **argv)
 	bool backend = true, remote = true, transactions = true;
 	bool positional = true, writable = true, multi = false;
 	bool spelling = false, metadata = false;
-	bool quartz = false, flint = false;
+	bool quartz = false, flint = false, inmemory = false;
 #include "api_collated.h"
 
 	delete backendmanager;
@@ -206,7 +206,7 @@ int main(int argc, char **argv)
 	bool backend = true, remote = true, transactions = true;
 	bool positional = true, writable = true, multi = false;
 	bool spelling = false, metadata = false;
-	bool quartz = false, flint = false;
+	bool quartz = false, flint = false, inmemory = false;
 #include "api_collated.h"
 
 	delete backendmanager;
