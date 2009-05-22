@@ -1,3 +1,12 @@
+Fri May 22 05:08:20 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* api/omdatabase.cc,api/sortable-serialise.cc,backends/flint/,
+	  backends/remote/remote-database.cc,common/serialise-double.cc,
+	  matcher/exactphrasepostlist.cc,net/remoteconnection.cc,
+	  net/remoteserver.cc: Replace C-style casts.  Add a few missing casts.
+	  Tweak types used in a few places.
+
 Fri May 22 04:26:06 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

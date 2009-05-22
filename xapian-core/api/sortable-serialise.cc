@@ -1,7 +1,7 @@
 /** @file sortable-serialise.cc
  * @brief Serialise floating point values to string which sort the same way.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -106,26 +106,26 @@ Xapian::sortable_serialise(double value)
     Assert(exponent >= 0);
     if (exponent < 8) {
 	next ^= 0x20;
-	next |= (exponent << 2);
+	next |= static_cast<unsigned char>(exponent << 2);
 	if (negative ^ exponent_negative) next ^= 0x1c;
     } else {
 	Assert((exponent >> 11) == 0);
 	// Put the top 5 bits of the exponent into the lower 5 bits of the
 	// first byte:
-	next |= char(exponent >> 6);
+	next |= static_cast<unsigned char>(exponent >> 6);
 	if (negative ^ exponent_negative) next ^= 0x1f;
 	result += next;
 	// And the lower 6 bits of the exponent go into the upper 6 bits
 	// of the second byte:
-	next = char(exponent) << 2;
+	next = static_cast<unsigned char>(exponent) << 2;
 	if (negative ^ exponent_negative) next ^= 0xfc;
     }
 
     // Convert the 52 (or 53) bits of the mantissa into two 32-bit words.
     mantissa *= 1 << (negative ? 26 : 27);
-    unsigned word1 = (unsigned)mantissa;
+    unsigned word1 = static_cast<unsigned>(mantissa);
     mantissa -= word1;
-    unsigned word2 = (unsigned)(mantissa * 4294967296.0); // 1<<32
+    unsigned word2 = static_cast<unsigned>(mantissa * 4294967296.0); // 1<<32
     // If the number is positive, the first bit will always be set because 0.5
     // <= mantissa < 1, unless mantissa is zero, which we handle specially
     // above).  If the number is negative, we negate the mantissa instead of
@@ -143,16 +143,16 @@ Xapian::sortable_serialise(double value)
     }
 
     word1 &= 0x03ffffff;
-    next |= (word1 >> 24);
+    next |= static_cast<unsigned char>(word1 >> 24);
     result += next;
-    result.push_back(word1 >> 16);
-    result.push_back(word1 >> 8);
-    result.push_back(word1);
+    result.push_back(char(word1 >> 16));
+    result.push_back(char(word1 >> 8));
+    result.push_back(char(word1));
 
-    result.push_back(word2 >> 24);
-    result.push_back(word2 >> 16);
-    result.push_back(word2 >> 8);
-    result.push_back(word2);
+    result.push_back(char(word2 >> 24));
+    result.push_back(char(word2 >> 16));
+    result.push_back(char(word2 >> 8));
+    result.push_back(char(word2));
 
     // Finally, we can chop off any trailing zero bytes.
     size_t len = result.size();
@@ -169,7 +169,7 @@ Xapian::sortable_serialise(double value)
 static inline unsigned char
 numfromstr(const std::string & str, std::string::size_type pos)
 {
-    return (pos < str.size()) ? static_cast<unsigned char>(str[pos]) : 0;
+    return (pos < str.size()) ? static_cast<unsigned char>(str[pos]) : '\0';
 }
 
 double
@@ -200,7 +200,7 @@ Xapian::sortable_unserialise(const std::string & value)
     unsigned char first = numfromstr(value, 0);
     size_t i = 0;
 
-    first ^= (first & 0xc0) >> 1;
+    first ^= static_cast<unsigned char>(first & 0xc0) >> 1;
     bool negative = !(first & 0x80);
     bool exponent_negative = (first & 0x40);
     bool explen = !(first & 0x20);

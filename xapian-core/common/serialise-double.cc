@@ -1,7 +1,7 @@
 /* @file serialise-double.cc
  * @brief functions to serialise and unserialise a double
  */
-/* Copyright (C) 2006,2007,2008 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -117,7 +117,7 @@ std::string serialise_double(double v)
     size_t n = result.size();
     do {
 	unsigned char byte = static_cast<unsigned char>(v);
-	result += (char)byte;
+	result += char(byte);
 	v -= double(byte);
 	v *= 256.0;
     } while (v != 0.0 && --maxbytes);
