@@ -1,3 +1,8 @@
+Fri May 22 07:00:29 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_version.h: Initialise filename using + not +=.
+	  Fix odd whitespace in recent change.
+
 Fri May 22 05:27:56 GMT 2009  Olly Betts <olly@survex.com>
 
 	* AUTHORS: Update.
