@@ -1,4 +1,4 @@
- 12770       olly Wed May 20 15:03:25 GMT 2009  Olly Betts <olly@survex.com>
+ 12811       olly Fri May 22 09:45:51 GMT 2009  Olly Betts <olly@survex.com>
 
 Xapian-core 1.0.13 (2009-05-??):
 
@@ -20,21 +20,34 @@ testsuite:
 
 * Testcases which check that operations have the expected O(...) behaviour now
   check CPU time instead of wallclock time on most platforms, which should
-  eliminate occasional failures due to load spikes due to other processes.
+  eliminate occasional failures due to load spikes from other processes.
   (ticket#308)
 
 * Fix test failures due to SKIP_TEST_FOR_BACKEND("inmemory") not skipping when
   it should due to comparing char * strings with == (on trunk the return value
   being tested is std::string rather than const char *).
 
-* Add test coverage for alldocs iterator on an empty database.
+* Improve test coverage in several corner cases.
+
+* Fix testcase consistency2 to actually be run (fortunately it passes).
+
+* In the generated testcases, call get_description() on the default
+  constructed object of each class to make sure that works (and doesn't try to
+  dereference NULL, or fail some assertion, etc).  All currently checked
+  classes are fine - this is to avoid future regressions or such problems with
+  new classes.
+
+* In the test coverage build, use "--coverage" instead of "-fprofile-arcs
+  -ftest-coverage".
+
+* The test harness now has the inmemory backend flagged as supporting
+  user-specified metadata (apart from iteration over metadata keys).
 
 matcher:
 
-* Check termfreqandwts for MatchAll queries
-	  before we check terms from the document so that the "terminate
-	  early once we've seen all the query terms" test when checking the
-	  document terms can fire in this case.
+* If a query contains a MatchAll subquery, check for it before checking the
+  other terms so that the loop which checks how many terms match can exit
+  early if they all match.
 
 * When an OR or ANY_MAYBE decays to an AND, we were carefully swapping the
   children for maximum efficiency, but the condition was reversed so we were
@@ -50,6 +63,13 @@ matcher:
   just use a NULL pointer to stand in rather than allocating a special dummy
   place-holder object.
 
+* Remove AndPostList, in favour of MultiAndPostList.  AndPostList was only used
+  as a decay product (by AndMaybePostList and OrPostList), and doesn't appear
+  to be any faster.  Removing it reduces CPU cache pressure, and is less code
+  to maintain.
+
+* Call check() instead of skip_to() on the optional branch of AND_MAYBE.
+
 flint backend:
 
 * Fix a bug in TermIterator::skip_to() over metadata keys.
@@ -61,16 +81,17 @@ remote backend:
 
 * Fix xapian-tcpsrv --interface option to work on MacOS X (ticket#373).
 
-* Fix typo - MSetPostList::get_maxweight()
-	  with a sort ordered primarily by decreasing relevance was returning
-	  the docid for the maxweight!  This could have led to wrong results
-	  when searching multiple databases with the remote backend, but
-	  probably usually didn't matter as with BM25 the weights are usually
-	  small (often all < 1) while docids are inevitably >= 1.  No
-	  regression test for this (currently anyway).
+* Fix typo which caused us to return the docid instead of the maximum weight
+  a document from a remote match could return!  This could have led to wrong
+  results when searching multiple databases with the remote backend, but
+  probably usually didn't matter as with BM25 the weights are generally small
+  (often all < 1) while docids are inevitably >= 1.
 
 inmemory backend:
 
+* The inmemory backend doesn't support iterating over metadata keys.  Trying
+  to do so used to give an empty iteration, but has now been fixed to throw
+  UnimplementedError (and this limitation has now been documented).
 
 build system:
 
@@ -84,16 +105,37 @@ build system:
   --make-maintainer-mode as that breaks switching a tree away from
   maintainer-mode with: make distclean;./configure
 
-* In the test coverage build, use "--coverage" instead of "-fprofile-arcs
-  -ftest-coverage".
+* configure: Enable more GCC warnings - "-Woverloaded-virtual" for all
+  versions, "-Wstrict-null-sentinel" for 4.0+, "-Wlogical-op
+  -Wmissing-declarations" for 4.3+.  Notably "-Wmissing-declarations" caught
+  that consistency2 wasn't being run.
+
+* Internally, fix the few places where we pass std::string by value to pass
+  by const reference instead (except where we need a modifiable copy anyway) as
+  benchmarking shows that const reference is slightly faster and generates
+  less code with GCC's reference counted std::string implementation - with a
+  non-reference counted implementation, const reference should be much faster.
+  (ticket#140)
 
 documentation:
 
 * INSTALL: We no longer regularly test build with GCC 2.95.4 and we're raising
   the minimum GCC version required to 3.1 for Xapian 1.1.x.
 
+* Document what passing maxitems=0 to Enquire::get_mset() does.
+
 * docs/queryparser.html: Add examples of using a prefix on a phrase or
   subexpression.
+
+* Correct doxygen comments for user metadata functions:
+  Database::get_metadata() throw UnimplementedError but
+  WritableDatabase::set_metadata() can.
+
+* Document that Database::metadata_keys_begin() returns an end iterator if the
+  backend doesn't support metadata.
+
+* HACKING: Update the list of Debian/Ubuntu packages needed for a development
+  environment.
 
 examples:
 
