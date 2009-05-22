@@ -1,3 +1,9 @@
+Fri May 22 04:26:06 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* HACKING: Update list of Debian/Ubuntu packages needed to for a
+	  development environment.
+
 Fri May 22 04:18:33 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
