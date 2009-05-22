@@ -2,7 +2,6 @@ Fri May 22 09:45:51 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
 	* backends/flint/flint_version.h: Initialise filename using + not +=.
-	  Fix odd whitespace in recent change.
 
 Fri May 22 09:34:08 GMT 2009  Olly Betts <olly@survex.com>
 
