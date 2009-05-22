@@ -1,3 +1,10 @@
+Fri May 22 05:16:03 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Enable more GCC warnings - "-Woverloaded-virtual" for
+	  all versions, "-Wstrict-null-sentinel" for 4.0+, "-Wlogical-op
+	  -Wmissing-declarations" for 4.3+.  Notably "-Wmissing-declarations"
+	  caught that consistency2 wasn't being run.
+
 Fri May 22 05:15:08 GMT 2009  Olly Betts <olly@survex.com>
 
 	* languages/steminternal.cc,languages/steminternal.h: Inline simple
