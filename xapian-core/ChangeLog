@@ -1,3 +1,8 @@
+Fri May 22 05:15:08 GMT 2009  Olly Betts <olly@survex.com>
+
+	* languages/steminternal.cc,languages/steminternal.h: Inline simple
+	  Stem::Internal::Internal() constructor from header.
+
 Thu May 21 16:23:26 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/harness/backendmanager_remotetcp.cc: Make on_SIGCHLD() static.
