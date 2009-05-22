@@ -77,7 +77,8 @@ struct pid_fd {
 
 static pid_fd pid_to_fd[16];
 
-extern "C" void
+extern "C" {
+static void
 on_SIGCHLD(int /*sig*/)
 {
     int status;
@@ -94,6 +95,7 @@ on_SIGCHLD(int /*sig*/)
 	    }
 	}
     }
+}
 }
 
 static int
