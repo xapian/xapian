@@ -1,3 +1,10 @@
+Fri May 22 11:44:04 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/inmemory/inmemory_database.cc: We can trivially make
+	  Database::metadata_keys_begin() work for inmemory in the special
+	  case when there are no keys, so do so.
+	* tests/api_metadata.cc: Add test coverage for this case.
+
 Fri May 22 09:31:07 GMT 2009  Olly Betts <olly@survex.com>
 
 	* configure.ac: Only bother passing -Winit-self for GCC >= 4.3, as it
