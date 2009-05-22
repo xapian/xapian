@@ -1,3 +1,12 @@
+Fri May 22 04:18:33 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/generate-api_generated: Call get_description() on the default
+	  constructed object to make sure that works (and doesn't try to
+	  dereference NULL, or fail some assertion, etc).  All currently
+	  checked classes are fine - this is to avoid future regressions or
+	  such problems with new classes.
+
 Fri May 22 04:14:51 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

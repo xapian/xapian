@@ -51,6 +51,13 @@ my %copyableclasses = (
     'WritableDatabase' => '',
 );
 
+my %no_get_description = (
+    'DateValueRangeProcessor' => 1,
+    'MultiValueSorter' => 1,
+    'NumberValueRangeProcessor' => 1,
+    'StringValueRangeProcessor' => 1
+);
+
 print <<'END';
 /** @file api_common.cc
  * @brief test common features of API classes
@@ -112,9 +119,11 @@ for my $class (sort keys %copyableclasses) {
     if ($params ne '') {
 	$params = "($params)";
     }
+    my $get_description = ! exists $no_get_description{$class};
     my $object = lc $class;
     $class = "Xapian::$class";
     print "    $class $object$params;\n";
+    print "    (void)$object.get_description();\n" if $get_description;
     print "    $class copy_$object($object);\n";
     print "    $object = copy_$object;\n";
     if ($params =~ /InMemory/) {
