@@ -1,3 +1,12 @@
+Fri May 22 03:48:00 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/: Add a new constructor to MultiAndPostList for the "decay
+	  from OrPostList or AndMaybePostList" case which takes the already
+	  know max weights to avoid having to refetch them.  Also, we know
+	  that the subpostlists of OrPostList are ordered a particular way
+	  so can avoid needing to check the order in that case.
+
 Thu May 21 16:12:06 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
