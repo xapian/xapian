@@ -1,3 +1,9 @@
+Fri May 22 08:46:26 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* languages/steminternal.cc,languages/steminternal.h: Inline simple
+	  Stem::Internal::Internal() constructor from header.
+
 Fri May 22 08:41:25 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
