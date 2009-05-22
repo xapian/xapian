@@ -1,7 +1,7 @@
 /** @file flint_synonym.h
  * @brief Synonym data for a flint database.
  */
-/* Copyright (C) 2005,2007,2008 Olly Betts
+/* Copyright (C) 2005,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,7 +48,7 @@ class FlintSynonymTable : public FlintTable {
      *  @param dbdir		The directory the flint database is stored in.
      *  @param readonly		true if we're opening read-only, else false.
      */
-    FlintSynonymTable(std::string dbdir, bool readonly)
+    FlintSynonymTable(const std::string & dbdir, bool readonly)
 	: FlintTable(dbdir + "/synonym.", readonly, Z_DEFAULT_STRATEGY, true) { }
 
     // Merge in batched-up changes.

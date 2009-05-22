@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2007,2009 Olly Betts
  * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -58,7 +58,7 @@ class FlintPostListTable : public FlintTable {
 	 *  @param readonly_      - whether to open the table for read only
 	 *                          access.
 	 */
-	FlintPostListTable(string path_, bool readonly_)
+	FlintPostListTable(const string & path_, bool readonly_)
 	    : FlintTable(path_ + "/postlist.", readonly_) { }
 
 	/// Merge added, removed, and changed entries.

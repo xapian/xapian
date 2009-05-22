@@ -1,7 +1,7 @@
 /** @file flint_termlisttable.h
  * @brief Subclass of FlintTable which holds termlists.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ class FlintTermListTable : public FlintTable {
      *  @param dbdir	    The directory the flint database is stored in.
      *  @param readonly	    true if we're opening read-only, else false.
      */
-    FlintTermListTable(std::string dbdir, bool readonly)
+    FlintTermListTable(const std::string & dbdir, bool readonly)
 	: FlintTable(dbdir + "/termlist.", readonly, Z_DEFAULT_STRATEGY) { }
 
     /** Set the termlist data for document @a did.

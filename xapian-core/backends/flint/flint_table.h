@@ -1,7 +1,7 @@
 /* flint_table.h: Btree implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -281,7 +281,7 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	 *  @param lazy		If true, don't create the table until it's
 	 *			needed.
 	 */
-	FlintTable(string path_, bool readonly_,
+	FlintTable(const string & path_, bool readonly_,
 		   int compress_strategy_ = DONT_COMPRESS, bool lazy = false);
 
 	/** Close the Btree.

@@ -1,6 +1,6 @@
 /* flint_positionlist.h: A position list in a flint database.
  *
- * Copyright (C) 2005,2006 Olly Betts
+ * Copyright (C) 2005,2006,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -46,7 +46,7 @@ class FlintPositionListTable : public FlintTable {
      *  @param dbdir		The directory the flint database is stored in.
      *  @param readonly		true if we're opening read-only, else false.
      */
-    FlintPositionListTable(string dbdir, bool readonly)
+    FlintPositionListTable(const string & dbdir, bool readonly)
 	: FlintTable(dbdir + "/position.", readonly, DONT_COMPRESS, true) { }
 
     /// Set the position list for term tname in document did.

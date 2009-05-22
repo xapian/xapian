@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2008 Olly Betts
+ * Copyright 2002,2003,2004,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -55,7 +55,7 @@ class FlintValueTable : public FlintTable {
 	 *  @param readonly_      - whether to open the table for read only
 	 *                          access.
 	 */
-	FlintValueTable(string path_, bool readonly_)
+	FlintValueTable(const string & path_, bool readonly_)
 	    : FlintTable(path_ + "/value.", readonly_, DONT_COMPRESS, true) { }
 
 	/** Encode values as a string ready to add to the table.

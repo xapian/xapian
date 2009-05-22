@@ -59,10 +59,12 @@ print_mset_percentages(const Xapian::MSet &mset)
 }
 
 static Xapian::Query
-query(Xapian::Query::op op, string t1 = "", string t2 = "",
-      string t3 = "", string t4 = "", string t5 = "",
-      string t6 = "", string t7 = "", string t8 = "",
-      string t9 = "", string t10 = "")
+query(Xapian::Query::op op,
+      const string & t1 = string(), const string & t2 = string(),
+      const string & t3 = string(), const string & t4 = string(),
+      const string & t5 = string(), const string & t6 = string(),
+      const string & t7 = string(), const string & t8 = string(),
+      const string & t9 = string(), const string & t10 = string())
 {
     vector<string> v;
     Xapian::Stem stemmer("english");
@@ -81,10 +83,11 @@ query(Xapian::Query::op op, string t1 = "", string t2 = "",
 
 static Xapian::Query
 query(Xapian::Query::op op, Xapian::termcount parameter,
-      string t1 = "", string t2 = "",
-      string t3 = "", string t4 = "", string t5 = "",
-      string t6 = "", string t7 = "", string t8 = "",
-      string t9 = "", string t10 = "")
+      const string & t1 = string(), const string & t2 = string(),
+      const string & t3 = string(), const string & t4 = string(),
+      const string & t5 = string(), const string & t6 = string(),
+      const string & t7 = string(), const string & t8 = string(),
+      const string & t9 = string(), const string & t10 = string())
 {
     vector<string> v;
     Xapian::Stem stemmer("english");
