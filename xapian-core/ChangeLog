@@ -1,3 +1,9 @@
+Fri May 22 08:37:26 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* tests/api_transdb.cc: Add missing '#include "api_transdb.h"'.
+	* tests/api_wrdb.cc: Fix testcase consistency2 to actually be run.
+
 Fri May 22 08:20:47 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
