@@ -1096,12 +1096,3 @@ new_greatest_weight:
 				       termfreqandwts,
 				       percent_scale));
 }
-
-// This method is called by branch postlists when they rebalance
-// in order to recalculate the weights in the tree
-void
-MultiMatch::recalc_maxweight()
-{
-    DEBUGCALL(MATCH, void, "MultiMatch::recalc_maxweight", "");
-    recalculate_w_max = true;
-}

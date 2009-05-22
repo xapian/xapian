@@ -51,7 +51,7 @@ PostingSource::set_maxweight(Xapian::weight max_weight)
 {
     if (usual(matcher_)) {
 	MultiMatch * multimatch = static_cast<MultiMatch*>(matcher_);
-	multimatch->reduce_maxweight_by(max_weight_ - max_weight);
+	multimatch->recalc_maxweight();
     }
     max_weight_ = max_weight;
 }
