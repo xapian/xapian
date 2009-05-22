@@ -947,14 +947,7 @@ if test yes = "$GXX"; then
       3.*) ;;
       *) dnl GCC >= 4.0
 	dnl -Wstrict-null-sentinel was new 4.0.
-	dnl
-	dnl -Winit-self was added in GCC 3.4, but up to at least GCC 4.4 it is
-	dnl ignored by g++ which warns for this case with -Wuninitialized
-	dnl (implied by -W).  But at some point this bug (filed upstream as
-	dnl http://gcc.gnu.org/PR34772) may get fixed so we pass this option
-	dnl anyway - we don't intend to use this idiom, so any instances are
-	dnl bugs we'd like to know about.
-	AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Winit-self"
+	AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel"
 
 	case $gxx_version in
 	4.[[01]]) ;;
@@ -965,7 +958,14 @@ if test yes = "$GXX"; then
 	*)
 	  dnl -Wlogical-op and -Wmissing-declarations (for C++) were added in
 	  dnl GCC 4.3.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations" ;;
+	  dnl
+	  dnl -Winit-self was added in GCC 3.4, but up to at least GCC 4.4 it
+	  dnl is ignored by g++ which warns for this case with -Wuninitialized
+	  dnl (implied by -W).  But at some point this bug (filed upstream as
+	  dnl http://gcc.gnu.org/PR34772) may get fixed so we pass this option
+	  dnl anyway - we don't intend to use this idiom, so any instances are
+	  dnl bugs we'd like to know about.
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-overflow=1 -Winit-self -Wlogical-op -Wmissing-declarations" ;;
 	esac
 
 	dnl FIXME:

@@ -1,3 +1,8 @@
+Fri May 22 09:31:07 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Only bother passing -Winit-self for GCC >= 4.3, as it
+	  doesn't do anything for GCC <= 4.4 anyway.
+
 Fri May 22 07:00:29 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_version.h: Initialise filename using + not +=.
