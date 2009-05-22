@@ -1,3 +1,13 @@
+Fri May 22 09:34:08 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* configure.ac: Enable more GCC warnings - "-Woverloaded-virtual" for
+	  all versions, "-Wstrict-null-sentinel" for 4.0+, "-Wlogical-op
+	  -Wmissing-declarations" for 4.3+.  Notably "-Wmissing-declarations"
+	  caught that consistency2 wasn't being run.
+	* configure.ac: Only bother passing -Winit-self for GCC >= 4.3, as it
+	  doesn't do anything for GCC <= 4.4 anyway.
+
 Fri May 22 08:46:26 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
