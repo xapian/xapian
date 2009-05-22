@@ -32,9 +32,8 @@ class FlintVersion {
     std::string filename;
 
   public:
-    FlintVersion(const std::string & dbdir) : filename(dbdir) {
-	filename += "/iamflint";
-    }
+    FlintVersion(const std::string & dbdir)
+	: filename(dbdir + "/iamflint") { }
 
     /** Create the version file. */
     void create();
