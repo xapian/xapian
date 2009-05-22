@@ -10,7 +10,7 @@
  *  http://berghel.net/publications/asm/asm.php
  */
 /* Copyright (C) 2003 Richard Boulton
- * Copyright (C) 2007,2008 Olly Betts
+ * Copyright (C) 2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,6 +47,12 @@ struct edist_seq {
 
 template<class CHR>
 class edist_state {
+    /// Don't allow assignment.
+    void operator=(const edist_state &);
+
+    /// Don't allow copying.
+    edist_state(const edist_state &);
+
     edist_seq<CHR> seq1;
     edist_seq<CHR> seq2;
 
@@ -132,10 +138,9 @@ void edist_state<CHR>::edist_calc_f_kp(int k, int p)
 template<class CHR>
 edist_state<CHR>::edist_state(const CHR * ptr1, int len1,
 			      const CHR * ptr2, int len2)
-    : seq1(ptr1, len1), seq2(ptr2, len2)
+    : seq1(ptr1, len1), seq2(ptr2, len2), maxdist(len2)
 {
     Assert(len2 >= len1);
-    maxdist = len2;
     /* Each row represents a value of k, from -maxdist to maxdist. */
     int fkp_rows = maxdist * 2 + 1;
     /* Each column represents a value of p, from -1 to maxdist. */
