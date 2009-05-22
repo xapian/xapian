@@ -1,3 +1,11 @@
+Fri May 22 15:16:44 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/inmemory/inmemory_database.cc: We can trivially make
+	  Database::metadata_keys_begin() work for inmemory in the special
+	  case when there are no keys, so do so.
+	* tests/api_metadata.cc: Add test coverage for this case.
+
 Fri May 22 14:50:49 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
