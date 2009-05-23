@@ -355,10 +355,12 @@ if test yes = "$GXX"; then
     [
       dnl GCC:
       dnl
-      dnl All these options were supported by g++ 2.95 and there's little
+      dnl -Wundef and -Wshadow were supported by g++ 3.0 (though -Wshadow was
+      dnl buggy there).  We now require GCC >= 3.1, so can rely on them.
+      dnl All the other options were supported by g++ 2.95 and there's little
       dnl likelihood Xapian will build with any earlier version, so there's
       dnl not much point worrying about whether older versions had them or not.
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords"
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Wshadow"
 
       dnl The output of g++ --version seems to change with almost every minor
       dnl release so use the preprocessor macros which should be more robust.
@@ -367,31 +369,31 @@ if test yes = "$GXX"; then
       gxx_version=$gxx_major_version.$gxx_minor_version
 
       case $gxx_version in
-      2.96)
-	dnl Oddly Redhat's "2.96" doesn't support -Wundef, though real
-	dnl GCC versions before and after it do!
+      [[012]].* | 3.0)
+	AC_MSG_ERROR([Xapian requires GCC 3.1 or later (you appear to have $gxx_version)])
 	;;
-      [[012]].* | 3.0) dnl GCC < 3.1, other than 2.96
-	dnl GCC 3.0 supports -Wshadow, but it spews false positives (at least
-	dnl with 3.0.4) so we don't use it.
-	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef" ;;
-      3.*)
-	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow" ;;
+      3.*) ;;
       *) dnl GCC >= 4.0
-	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow"
+	dnl -Wstrict-null-sentinel was new 4.0.
+	AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel"
 
-	dnl -Winit-self was added in GCC 3.4, but up to at least GCC 4.2 it is
-	dnl ignored by g++ which warns for this case with -Wuninitialized
-	dnl (implied by -W).  But at some point this bug (filed upstream as
-	dnl http://gcc.gnu.org/PR34772) may get fixed so we pass this option
-	dnl anyway - we don't intend to use this idiom, so any instances are
-	dnl bugs we'd like to know about.
-	dnl
-	dnl -Wstrict-overflow is new in GCC 4.2.  Higher settings than 1 have
-	dnl proved too noisy.
 	case $gxx_version in
 	4.[[01]]) ;;
-	*) AM_CXXFLAGS="$AM_CXXFLAGS -Winit-self -Wstrict-overflow=1" ;;
+	4.2)
+	  dnl -Wstrict-overflow was new in GCC 4.2.  Higher settings than 1
+	  dnl have proved too noisy.
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-overflow=1" ;;
+	*)
+	  dnl -Wlogical-op and -Wmissing-declarations (for C++) were added in
+	  dnl GCC 4.3.
+	  dnl
+	  dnl -Winit-self was added in GCC 3.4, but up to at least GCC 4.4 it
+	  dnl is ignored by g++ which warns for this case with -Wuninitialized
+	  dnl (implied by -W).  But at some point this bug (filed upstream as
+	  dnl http://gcc.gnu.org/PR34772) may get fixed so we pass this option
+	  dnl anyway - we don't intend to use this idiom, so any instances are
+	  dnl bugs we'd like to know about.
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-overflow=1 -Winit-self -Wlogical-op -Wmissing-declarations" ;;
 	esac
 
 	dnl FIXME:
@@ -400,6 +402,9 @@ if test yes = "$GXX"; then
 	dnl to -Wtraditional-conversion and a new -Wconversion added which
 	dnl sounds useful but is a bit buggy currently.  So we should consider
 	dnl enabling -Wconversion once it is stabilised (GCC 4.4 or ...)
+	dnl
+	dnl -Wold-style-cast is interesting, but triggers for macros from
+	dnl system headers (e.g. FD_SET) (tested with GCC 4.4).
 
 	if test no = "$enable_visibility"; then
 	  AC_DEFINE(XAPIAN_DISABLE_VISIBILITY, 1, [Define to disable use of visibility attributes])

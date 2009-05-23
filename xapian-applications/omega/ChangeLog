@@ -1,3 +1,10 @@
+Sat May 23 12:21:33 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Sync warning flags used with GCC with xapian-core
+	  apart from -Woverloaded-virtual which fires for
+	  MyHtmlParser::parse_html().  That probably should be tidied up at
+	  some point, but not right now.
+
 Wed May 20 11:24:46 GMT 2009  Olly Betts <olly@survex.com>
 
 	* omindex.cc: The MD5 checksum of a text file with a BOM was being
