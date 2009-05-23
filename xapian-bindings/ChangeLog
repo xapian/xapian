@@ -1,3 +1,11 @@
+Sat May 23 07:20:39 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* README,python/docs/index.html: Update documentation for mod_python
+	  issues and also document the related mod_wsgi issue.  The status
+	  is now that everything seems to work if you stick to the main
+	  interpreter (ticket#185 and ticket#364).
+
 Sun May 17 11:04:50 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
