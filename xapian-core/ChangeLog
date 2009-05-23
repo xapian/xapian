@@ -1,3 +1,7 @@
+Sat May 23 13:55:22 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS,PLATFORMS,configure.ac: Update for 1.0.13.
+
 Sat May 23 02:55:58 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_metadata.cc: Sync metadata5 with version on trunk.

@@ -1,6 +1,4 @@
- 12811       olly Fri May 22 09:45:51 GMT 2009  Olly Betts <olly@survex.com>
-
-Xapian-core 1.0.13 (2009-05-??):
+Xapian-core 1.0.13 (2009-05-23):
 
 API:
 
@@ -49,7 +47,7 @@ matcher:
   other terms so that the loop which checks how many terms match can exit
   early if they all match.
 
-* When an OR or ANY_MAYBE decays to an AND, we were carefully swapping the
+* When an OR or ANY_MAYBE decayed to an AND, we were carefully swapping the
   children for maximum efficiency, but the condition was reversed so we were
   in fact making things worse.  This was noticed because it was resulting in
   the same query running faster when more results were asked for!
@@ -73,9 +71,6 @@ matcher:
 flint backend:
 
 * Fix a bug in TermIterator::skip_to() over metadata keys.
-
-quartz backend:
-
 
 remote backend:
 
@@ -137,20 +132,11 @@ documentation:
 * HACKING: Update the list of Debian/Ubuntu packages needed for a development
   environment.
 
-examples:
-
-
-portability:
-
-
-packaging:
-
-
 debug code:
 
 * Fix build with --enable-debug.
 
-* Some more assertions added.
+* Added some more assertions.
 
 Xapian-core 1.0.12 (2009-04-19):
 
