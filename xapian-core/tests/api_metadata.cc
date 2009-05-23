@@ -122,7 +122,7 @@ DEFINE_TESTCASE(metadata4, metadata && !inmemory) {
 }
 
 // Test metadata iterators.
-DEFINE_TESTCASE(metadata5, metadata) {
+DEFINE_TESTCASE(metadata5, writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     // Check that iterator on empty database returns nothing.
@@ -134,10 +134,14 @@ DEFINE_TESTCASE(metadata5, metadata) {
     // trivial case of there being no keys to iterate.
     SKIP_TEST_FOR_BACKEND("inmemory");
 
-    // Check iterator on a database with only metadata items.
-    db.set_metadata("foo", "val");
+    try {
+	db.set_metadata("foo", "val");
+    } catch (Xapian::UnimplementedError &) {
+	SKIP_TEST("Metadata not supported by this backend");
+    }
     db.flush();
 
+    // Check iterator on a database with only metadata items.
     iter = db.metadata_keys_begin();
     TEST(iter != db.metadata_keys_end());
     TEST_EQUAL(*iter, "foo");
