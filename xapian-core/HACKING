@@ -1238,8 +1238,8 @@ of the prefix form as described by Joe Buck on the gcc mailing list
     comes very close to eliminating any penalty from "incorrect" use of the
     postfix form.
 
-Xapian's PostingIterator, TermIterator, and PositionIterator all have only one
-data member which fits in a register.
+Xapian's PostingIterator, TermIterator, PositionIterator, and ValueIterator all
+have only one data member which fits in a register.
 
 Handy tips for aiding development
 =================================
