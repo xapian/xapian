@@ -1,3 +1,10 @@
+Sat May 23 06:24:54 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* omindex.cc: The MD5 checksum of a text file with a BOM was being
+	  incorrectly calculated from the contents converted to UTF-8
+	  since 1.0.7.  Noticed by Srijon Biswas.
+
 Sat May 16 08:14:10 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
