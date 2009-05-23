@@ -1,3 +1,7 @@
+Sat May 23 16:06:05 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from 1.0.13 and ChangeLog.
+
 Sat May 23 15:35:39 GMT 2009  Olly Betts <olly@survex.com>
 
 	* HACKING: ValueIterator is now a PIMPL class like TermIterator, etc.
