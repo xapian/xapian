@@ -1,6 +1,6 @@
 Revision history for Perl extension Search::Xapian.
 
-1.0.13.0  FIXME
+1.0.13.0  Sat May 23 15:10:39 UTC 2009
 	[Changes contributed by Olly Betts]
 	- Add Search::Xapian::MSet::matches() method which returns an array
 	  tied to the MSet (much like Search::Xapian::Enquire::matches(), but
