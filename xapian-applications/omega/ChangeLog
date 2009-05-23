@@ -1,3 +1,11 @@
+Sat May 23 12:54:08 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Sync warning flags used with GCC with xapian-core
+	  apart from -Woverloaded-virtual which fires for
+	  MyHtmlParser::parse_html().  That probably should be tidied up at
+	  some point, but not right now.
+
 Sat May 23 06:24:54 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
