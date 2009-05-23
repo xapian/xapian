@@ -8,6 +8,13 @@ Backported from SWIG SVN trunk r11192:
 	    run a little faster (in tests with Xapian on x86-64 Ubuntu 9.04,
 	    the stripped wrapper library was 11% smaller and ran 2.7% faster).
 
+Backported from SWIG SVN trunk r10970:
+
+2008-12-07: olly
+	    [PHP] Fix warnings when compiling generated wrapper with GCC 4.3.
+
+Backported from SWIG SVN trunk r10228:
+
 02/01/2008: olly
 	    [Python] Fix format string bug (SF#1882220).
 
