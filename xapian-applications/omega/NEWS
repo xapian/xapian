@@ -1,3 +1,29 @@
+Omega 1.0.13 (2009-05-23):
+
+indexers:
+
+* omindex:
+
+  + If the filter program needed for a file format isn't installed, report this
+    explicitly when skipping subsequent files with the extension instead of
+    misleadingly reporting "Unknown extension".
+
+  + Make -s actually work as a short-form for --stemmer (as documented by
+    "omindex --help" and "man omindex").
+
+  + Drop the copyright info from the output of --version as it's perennially
+    out of date and we don't report it for any other Xapian programs.
+
+* scriptindex:
+
+  + Add new "valuenumeric" action to add a document value using
+    Xapian::sortable_serialise() to allow numeric sorting (ticket#260).
+
+build system:
+
+* configure: Enable more GCC warnings - "-Wstrict-null-sentinel" for 4.0+,
+  "-Wlogical-op -Wmissing-declarations" for 4.3+.
+
 Omega 1.0.12 (2009-04-19):
 
 omega:
