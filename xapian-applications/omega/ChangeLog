@@ -1,3 +1,8 @@
+Mon May 25 13:02:22 GMT 2009  Olly Betts <olly@survex.com>
+
+	* templates/query: Remove extra "}" introduced when adding spelling
+	  support.
+
 Mon May 25 12:57:45 GMT 2009  Olly Betts <olly@survex.com>
 
 	* cgiparam.cc,commonhelp.cc: Include the corresponding header.
