@@ -84,11 +84,16 @@ sub convert_to_percent() {
   }
 }
 
-sub matches {
+sub items {
   my $self = shift;
   my @array;
   tie( @array, 'Search::Xapian::MSet::Tied', $self );
   return @array;
+}
+
+sub matches {
+    warn "Search::Xapian::MSet::matches() is deprecated - use Search::Xapian::MSet::items() method instead.\n";
+    return items(@_);
 }
 
 1;
