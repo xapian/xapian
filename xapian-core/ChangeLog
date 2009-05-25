@@ -1,3 +1,8 @@
+Mon May 25 10:57:59 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/weightinternal.h: Remove declarations of unimplemented
+	  constructors (ticket#379).
+
 Sat May 23 16:06:05 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from 1.0.13 and ChangeLog.
