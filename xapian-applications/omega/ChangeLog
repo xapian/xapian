@@ -1,3 +1,8 @@
+Mon May 25 12:56:55 GMT 2009  Olly Betts <olly@survex.com>
+
+	* cgiparam.h: Add explicit inclusions of <map> and <string> and qualify
+	  multimap and string with std::.
+
 Sat May 23 12:21:33 GMT 2009  Olly Betts <olly@survex.com>
 
 	* configure.ac: Sync warning flags used with GCC with xapian-core
