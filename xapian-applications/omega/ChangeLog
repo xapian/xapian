@@ -1,3 +1,9 @@
+Mon May 25 13:38:46 GMT 2009  Olly Betts <olly@survex.com>
+
+	* query.cc: If SERVER_PROTOCOL in the environment is set to INCLUDED,
+	  then our output is being included in another page (e.g. using SSI)
+	  so suppress the output of any HTTP headers.
+
 Mon May 25 13:02:22 GMT 2009  Olly Betts <olly@survex.com>
 
 	* templates/query: Remove extra "}" introduced when adding spelling

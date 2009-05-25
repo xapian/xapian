@@ -123,6 +123,8 @@ static string error_msg;
 
 static long int sec = 0, usec = -1;
 
+static bool suppress_http_headers = false;
+
 static const char DEFAULT_LOG_ENTRY[] =
 	"$or{$env{REMOTE_HOST},$env{REMOTE_ADDR},-}\t"
 	"[$date{$now,%d/%b/%Y:%H:%M:%S} +0000]\t"
@@ -1376,10 +1378,12 @@ eval(const string &fmt, const vector<string> &param)
 	        value = html_strip(args[0]);
 		break;
 	    case CMD_httpheader:
-		cout << args[0] << ": " << args[1] << endl;
-		if (!set_content_type && args[0].length() == 12 &&
-			strcasecmp(args[0].c_str(), "Content-Type") == 0) {
-		    set_content_type = true;
+		if (!suppress_http_headers) {
+		    cout << args[0] << ": " << args[1] << endl;
+		    if (!set_content_type && args[0].length() == 12 &&
+			    strcasecmp(args[0].c_str(), "Content-Type") == 0) {
+			set_content_type = true;
+		    }
 		}
 	        break;
 	    case CMD_id:
@@ -2080,8 +2084,14 @@ void
 parse_omegascript()
 {
     try {
+	const char * p = getenv("SERVER_PROTOCOL");
+	if (p && strcmp(p, "INCLUDED") == 0) {
+	    // We're being included in another page, so suppress headers.
+	    suppress_http_headers = true;
+	}
+
 	std::string output = eval_file(fmtname);
-	if (!set_content_type) {
+	if (!set_content_type && !suppress_http_headers) {
 	    cout << "Content-Type: text/html" << std::endl;
 	}
 	cout << std::endl;
@@ -2089,7 +2099,7 @@ parse_omegascript()
     } catch (...) {
 	// Ensure the headers have been output so that any exception gets
 	// reported rather than giving a server error.
-	if (!set_content_type) {
+	if (!set_content_type && !suppress_http_headers) {
 	    cout << "Content-Type: text/html" << std::endl;
 	}
 	cout << std::endl;
