@@ -4,6 +4,7 @@ Revision history for Perl extension Search::Xapian.
 	[Changes contributed by Olly Betts]
 	- Deprecate Search::Xapian::MSet::matches() and make it issue a
 	  warning.  Please use Search::Xapian::MSet::items() instead.
+	- Add another translated example: simplematchdecider.pl
 
 1.0.13.0  Sat May 23 15:10:39 GMT 2009
 	[Changes contributed by Olly Betts]
