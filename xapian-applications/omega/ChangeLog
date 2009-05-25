@@ -1,3 +1,7 @@
+Mon May 25 12:57:45 GMT 2009  Olly Betts <olly@survex.com>
+
+	* cgiparam.cc,commonhelp.cc: Include the corresponding header.
+
 Mon May 25 12:56:55 GMT 2009  Olly Betts <olly@survex.com>
 
 	* cgiparam.h: Add explicit inclusions of <map> and <string> and qualify
