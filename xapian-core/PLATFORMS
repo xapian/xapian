@@ -47,7 +47,6 @@ x86   |#Linux 2.6 RHELServer5 GCC 4.1.1| 1.0.4 |Passed| (td185)
 x86   |#Linux 2.6 SuSE 10 GCC 4.1.0    | 1.0.4 |Passed| (td186)
 x86   |#Linux 2.6 SuSE 10 IntelC++ 9.1 | 1.0.1 |Passed| (td186)
 x86   | Linux 2.6 Ubuntu 6.06 GCC 4.0.3| 1.0.4 |Passed| linux-i686-earlgrey
-x86   | Linux 2.6 Ubuntu 6.06 GCC 4.0.3| 1.0.4 |Passed| linux-i686-earlgrey
 x86   | Linux 2.6 Ubuntu 8.04 GCC 4.2.3| 1.0.7 |Passed| from Olly Betts
 x86   |#FreeBSD 6.2 GCC 3.4.6          | 1.0.4 |Passed| (td152)
 x86   |:kFreeBSD 7.1 Debian GCC 4.3.3  | 1.0.12|Passed|
@@ -224,7 +223,7 @@ ppc   | AIX 5.2 GCC 3.3.2              | 0.9.5 |Failed| from J.F. Dockes [10]
 $ = "roadkill" (Olly's x86 box)
 : = Debian buildd
 
-~ = Tested version from CVS shortly before this release (or after for ~ suffix)
+~ = Tested version from SVN shortly before this release (or after for ~ suffix)
 
 [1] "make check" won't work for a cross-compiled build!
 
