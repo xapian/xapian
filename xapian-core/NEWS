@@ -1,88 +1,67 @@
- 12829       olly Sat May 23 15:35:39 GMT 2009  Olly Betts <olly@survex.com>
+ 12831       olly Sat May 23 16:06:05 GMT 2009  Olly Betts <olly@survex.com>
 
 Xapian-core 1.1.1 (2009-05-2?):
 
+This release includes all changes from 1.0.13 which are relevant.
+
 API:
 
-	Merge from opsynonym branch:
-	* queryparser/queryparser.lemony: Use OP_SYNONYM instead of OP_OR
-	  for synonyms, wildcards, and partial queries.
-	* tests/queryparsertest.cc: Test use of OP_SYNONYM by query parser.
+* New Query::OP_SYNONYM operator, which matches the same documents as OP_OR,
+  but attempts to weight as if the all the subqueries were a single term with
+  their combined wdf, which should give better relevance weights.
 
-	Merge from opsynonym branch:
-	* api/omqueryinternal.cc,include/xapian/query.h,matcher/,
-	  weight/weight.cc: Implement a new OP_SYNONYM query operator,
-	  which behaves similarly to OP_OR, but produces weights for the
-	  combined set of terms as if they were a single term (by merging
-	  their wdfs).
-	* tests/Makefile.am,tests/api_opsynonym.cc: Add tests for the
-	  OP_SYNONYM operator.
-	* include/xapian/weight.h: Add a Weight::init_() method for
-	  synonym, since there isn't a single term involved.  Also,
-	  requires a method get_sumpart_needs_wdf_() to check if wdfs are
-	  needed, since the synonym weight calculation requires fetching
-	  the doclength, which is potentially expensive, in order that the
-	  wdf returned can be clamped to a sane range.  Mark the weighting
-	  methods which require WDF with need_stat(WDF).
+* QueryParser's synonym, wildcard, and partial query features now use
+  the new OP_SYNONYM operator.
 
 * PostingSource: Add new set_maxweight() method to allow subclasses to tell
   the matcher that their maximum weight has decreased.  Make get_maxweight()
   a non-virtual method of the baseclass which returns the last set maxweight
   (which will require updates to most user subclasses. (ticket#340)
 
-	* api/replication.cc: Fix SEGV when calling get_description() on a
-	  default constructed DatabaseReplica.
+* DatabaseReplica: Fix SEGV when calling get_description() on a default
+  constructed DatabaseReplica.
 
-	* api/omquery.cc,include/xapian/query.h: Make Xapian::Query::MatchAll
-	  and Xapian::Query::MatchNothing const since they're immutable.  All
-	  the public methods are const, so this should be completely API
-	  compatible.
+* Make Query::MatchAll and Query::MatchNothing const since they're immutable.
+  All the public methods of Query are const, so this should be completely API
+  compatible.
 
-	  include/xapian/document.h,include/xapian/valueiterator.h: Create a
-	  new proxy object class ValueIteratorEnd_ which is returned instead
-	  of ValueIterator(NULL) for end iterators.  This class will be
-	  converted to ValueIterator(NULL) if assigned to or passed as
-	  ValueIterator, but operator== and operator!= are overloaded to
-	  handle it directly which means that the compiler no longer calls
-	  ~ValueIterator for each call which returns ValueIterator(NULL).
-	* api/postingsource.cc,backends/inmemory/inmemory_database.cc,
-	  examples/delve.cc,include/xapian/postingsource.h: Don't store an
-	  end iterator in a variable just to compare against it - it's now
-	  definitely more efficient to compare against the return value of
-	  the relevant _end() method.
+* Methods returning an end iterator for a ValueIterator now actually return a
+  proxy object which silently converts to ValueIterator if required.  This
+  proxy object allows a comparison with an "_end()" method to be optimised
+  better so that it just ends up comparing the internal member of the iterator
+  class with NULL (previously a call to ValueIterator's destructor remained).
+  This should be API compatible, but note that it is definitely now more
+  efficient just to compare against the return value of the relevant _end()
+  method than to store the end iterator explicitly.
 
 testsuite:
 
-	* tests/api_valuestats.cc: Testcase valuestats4 requires transactions,
-	  so indicate that and remove the explicit SKIP for inmemory.
+* Testcase valuestats4 requires transactions, so indicate that and remove the
+  explicit SKIP for inmemory.
 
-	* tests/api_postingsource.cc: changemaxweightsource1 uses
-	  ChangeMaxweightPostingSource, which doesn't work with multi or
-	  remote, so mark the test accordingly.
+* Testcase changemaxweightsource1 uses ChangeMaxweightPostingSource, which
+  doesn't work with multi or remote, so mark the test accordingly.
 
-	* tests/Makefile.am,tests/api_db.cc,tests/api_postingsource.cc:
-	  Split the tests of PostingSource subclasses out of api_db.cc; I'm
-	  about to add some more, and bloating api_db.cc further is
-	  unworkable.
-
-	* tests/api_postingsource.cc: We've decided that "going back" with
+* tests/api_postingsource.cc: We've decided that "going back" with
 	  skip_to() or check() should have unspecified behaviour, so stop
 	  testing how this case behaves!
 
 matcher:
 
-	  Subclass MultiPostList directly from PostList instead of from
-	  LeafPostList.  This gets rid of two unused data members per
-	  MultiPostList in exchange for having to define 5 extra "never
-	  called" methods, but 4 of these just tailcall.
+* Subclass MultiPostList directly from PostList instead of from LeafPostList.
+  This gets rid of two unused data members per MultiPostList in exchange for
+  having to define 5 extra "never called" methods, but 4 of these just
+  tailcall.
+
+* Store termfreqs and reltermfreqs for query terms in a single map rather than
+  one map for each, which saves is more compact and likely to be faster.
 
 chert backend:
 
-	* bin/xapian-check.cc: For chert, check value stats are the correct
-	  format and that the streamed values are consistent with their stats
-	  (ticket#277).
+* xapian-check: For chert, check value stats are the correct format and that
+  the streamed values are consistent with their stats (ticket#277).
 
-	* bin/xapian-check.cc: Chert doesn't store termlist entries for
+* xapian-check: Chert doesn't store termlist entries for
 	  documents without terms, which resulted in us reporting an error when
 	  we found document ids in the doclength "postlist" which were greater
 	  than any with an entry in the termlist.  Instead compare these
@@ -95,48 +74,24 @@ flint backend:
 
 remote backend:
 
-	* common/rset.h,common/weightinternal.h,matcher/rset.cc,
-	  net/serialise.cc,weight/weightinternal.cc: Store termfreqs and
-	  reltermfreqs in a Weight::Internal in a single map; introduce a
-	  new struct (TermFreqs) for the values stored here.
-	  Remove now unused Xapian::TermFreqMap typedef.
-	* common/remoteprotocol.h,net/serialise.cc: When serialising stats,
-	  serialise the termfreq and reltermfreq together, rather than in
-	  separate lists.  Results in a smaller serialised form, and
-	  matches the in-memory structure now used better. Fixes ticket
-	  #362.  This is an incompatible remote protocol change, however,
-	  so bump the major version to 32.
-
+* When serialising stats, serialise the termfreq and reltermfreq together,
+  rather than in separate lists.  This gives a smaller serialised form, and
+  matches these both being stored in the same map now.  This is an incompatible
+  remote protocol change, so bump the major version to 32.  (ticket#362)
 
 inmemory backend:
 
-	  Keep a dummy entry in InMemoryDatabase::postlists so that the
-	  implementation of InMemoryAllTermsList doesn't need a "started"
-	  flag, and we can use an InMemoryPostList on the dummy item for
-	  the "term not in database" case.
-
-
 build system:
 
-	  include/xapian/version_h.cc,tests/harness/testsuite.cc: Drop support
-	  for GCC 2.95.3 - we now require at least 3.1
-	  as doing so eliminates some preprocessor
-	  conditionals which we aren't able to test regularly as we don't
-	  have easy access to such old GCC versions.  GCC 3.1 is nearly 7
-	  years old now, and GCC3 didn't get widespread use until later
-	  versions anyway.
-	* INSTALL: Note that Xapian 1.0.x should build with GCC 2.95.3.
+* Some build failures with --disable-backend-XXX options have been fixed, but
+  we haven't exhaustively tested all combinations.
 
-* Some of the --disable-backend-XXX options caused build failures.  Some may still do...
-
-	* common/Makefile.mk: Ship common/win32_uuid.cc and common/win32_uuid.h
-	  (ticket#367).
+* Ship common/win32_uuid.cc and common/win32_uuid.h (ticket#367).
 
 documentation:
 
-	* docs/postingsource.rst,include/xapian/postingsource.h:
-	  Documentation updates to describe way that init() is called
-	  again if a PostingSource is reused.  Fixes #352.
+* Update PostingSource documentation to describe how init() is called again if
+  a PostingSource is reused.  Gixes #352.
 
 examples:
 
@@ -145,20 +100,27 @@ portability:
 
 * Fixed to build with GCC 4.4.
 
- 	* common/safeuuid.h,configure.ac: Older versions of libuuid don't have
- 	  uuid_unparse_lower() so probe for it in configure, and if it isn't
-	  present provide an inline version in safeuuid.h (ticket#368).
+* Drop support for GCC 2.95.3 and 3.0.x - we now require at least 3.1 as doing
+  so eliminates some preprocessor conditionals which we aren't able to test
+  regularly as we don't have easy access to such old GCC versions.  GCC 3.1 is
+  nearly 7 years old now, and GCC3 didn't get widespread use until later
+  versions anyway.  If you still need to use GCC < 3.1, Xapian 1.0.x should
+  build with 2.95.3 or newer.
 
-	* common/str.h: Add static_cast<char>() to suppress bogus MSVC
-	  warning (ticket#377).
+* Older versions of libuuid don't have uuid_unparse_lower() so probe for it in
+  configure, and if it isn't present provide an inline version in safeuuid.h
+  (ticket#368).
+
+* Add static_cast<char>() to str(bool) overload to suppress bogus MSVC warning
+  (ticket#377).
 
 packaging:
 
 
 debug code:
 
-	* common/debuglog.h: Add missing initialisation of uncaught_exception
-	  in a couple of places.
+* common/debuglog.h: Add missing initialisation of uncaught_exception in a
+  couple of places.
 
 Xapian-core 1.1.0 (2009-04-22):
 
