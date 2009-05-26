@@ -43,7 +43,6 @@ $SIG{'__WARN__'} = sub { ++$warned; };
 ok( @matches = $mset->matches() );
 ok( $warned == 1 );
 $SIG{'__WARN__'} = $old_sig_warn;
-my $match;
 ok( $match = $matches[0] );
 ok( $match->get_docid() );
 ok( $match->get_percent() );
