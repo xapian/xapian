@@ -1,3 +1,8 @@
+Wed May 27 05:52:20 GMT 2009  Olly Betts <olly@survex.com>
+
+	* README: Add note about GSoC 2009 project to reimplement Perl bindings
+	  using SWIG.
+
 Wed May 20 20:55:13 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* xapian.i: Add overloaded version of set_collapse_key() to
