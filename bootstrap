@@ -295,7 +295,7 @@ fi
 
 cat <<'END_OF_CONFIGURE' >> configure.tmp
 dirs=
-XAPIAN_CONFIG=$here/xapian-core/xapian-config-1.1
+XAPIAN_CONFIG=$here/xapian-core/xapian-config
 for d in $modules ; do
   if [ "$here" = "$srcdir" ] ; then
     configure=./configure
