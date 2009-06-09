@@ -1,3 +1,39 @@
+Omega 1.1.1 (2009-06-09):
+
+indexers:
+
+* omindex:
+
+  + Check the last modification time of files before reindexing (ticket#342).
+
+  + Add "--spelling" option to index spelling correction data.
+
+* scriptindex:
+
+  + Add new "spell" action for indexing spelling correction data (ticket#296).
+
+omega:
+
+* Add $suggestion and $opt{spelling} to provide access to spelling correction
+  (ticket#296).
+
+* Add $opt{weighting} to allow the weighting scheme and parameters to be
+  specified (ticket#298).
+
+* If SERVER_PROTOCOL in the environment is set to INCLUDED, then our output is
+  being included in another page (e.g. using SSI) so suppress the output of any
+  HTTP headers.
+
+templates:
+
+* templates/query: Offer any spelling correction QueryParser gives.
+
+build system:
+
+* configure: Sync warning flags used with GCC with xapian-core apart from
+  -Woverloaded-virtual which fires for MyHtmlParser::parse_html().  That
+  probably should be tidied up at some point, but not right now.
+
 Omega 1.1.0 (2009-04-23):
 
 indexers:
