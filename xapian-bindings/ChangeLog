@@ -1,3 +1,7 @@
+Tue Jun 09 14:01:04 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Update for 1.1.1.
+
 Wed May 27 05:52:20 GMT 2009  Olly Betts <olly@survex.com>
 
 	* README: Add note about GSoC 2009 project to reimplement Perl bindings
