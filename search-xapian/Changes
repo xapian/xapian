@@ -1,6 +1,6 @@
 Revision history for Perl extension Search::Xapian.
 
-1.1.1.0  FIXME
+1.1.1.0  Tue Jun  9 13:22:07 UTC 2009
 	[Changes contributed by Olly Betts]
 	- Add Search::Xapian::MSet::items() method which returns an array
 	  tied to the MSet (much like Search::Xapian::Enquire::matches(), but
@@ -14,6 +14,8 @@ Revision history for Perl extension Search::Xapian.
 	- Add better test coverage for MatchDecider.
 	- Catch C++ exceptions from methods of Document and rethrow as Perl
 	  exceptions (ticket#284).
+	- Add dependency to regenerate Makefile if Xapian.pm changes (since the
+	  former contains a version number extracted from the latter).
 
 1.1.0.0  Thu Apr 22 13:56:31 GMT 2009
 	[Changes contributed by Andreas Marienborg and Olly Betts]
