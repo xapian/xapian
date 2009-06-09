@@ -1,3 +1,9 @@
+Tue Jun 09 13:53:16 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Don't test an empty $CSC further which saves a fork
+	  and avoids an odd looking message.
+
 Sat May 23 15:04:10 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.0.13.
