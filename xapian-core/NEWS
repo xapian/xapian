@@ -1,6 +1,4 @@
- 12831       olly Sat May 23 16:06:05 GMT 2009  Olly Betts <olly@survex.com>
-
-Xapian-core 1.1.1 (2009-05-2?):
+Xapian-core 1.1.1 (2009-06-09):
 
 This release includes all changes from 1.0.13 which are relevant.
 
@@ -42,9 +40,8 @@ testsuite:
 * Testcase changemaxweightsource1 uses ChangeMaxweightPostingSource, which
   doesn't work with multi or remote, so mark the test accordingly.
 
-* tests/api_postingsource.cc: We've decided that "going back" with
-	  skip_to() or check() should have unspecified behaviour, so stop
-	  testing how this case behaves!
+* We've decided that "going back" with skip_to() or check() should have
+  unspecified behaviour, so stop testing how this case behaves!
 
 matcher:
 
@@ -61,16 +58,12 @@ chert backend:
 * xapian-check: For chert, check value stats are the correct format and that
   the streamed values are consistent with their stats (ticket#277).
 
-* xapian-check: Chert doesn't store termlist entries for
-	  documents without terms, which resulted in us reporting an error when
-	  we found document ids in the doclength "postlist" which were greater
-	  than any with an entry in the termlist.  Instead compare these
-	  entries against db.get_last_docid() if we are checking a whole db
-	  and able to call it.  If not, suppress this check.
-
-flint backend:
-
-
+* xapian-check: Chert doesn't store termlist entries for documents without
+  terms, which resulted in us reporting an error when we found document ids in
+  the doclength "postlist" which were greater than any with an entry in the
+  termlist.  Instead compare these entries against db.get_last_docid() if we
+  are checking a whole db and the db can be opened.  If not, suppress this
+  check.
 
 remote backend:
 
@@ -78,8 +71,6 @@ remote backend:
   rather than in separate lists.  This gives a smaller serialised form, and
   matches these both being stored in the same map now.  This is an incompatible
   remote protocol change, so bump the major version to 32.  (ticket#362)
-
-inmemory backend:
 
 build system:
 
@@ -92,9 +83,6 @@ documentation:
 
 * Update PostingSource documentation to describe how init() is called again if
   a PostingSource is reused.  Gixes #352.
-
-examples:
-
 
 portability:
 
@@ -111,16 +99,15 @@ portability:
   configure, and if it isn't present provide an inline version in safeuuid.h
   (ticket#368).
 
+* Fixed to build with MSVC (ticket#379).
+
 * Add static_cast<char>() to str(bool) overload to suppress bogus MSVC warning
   (ticket#377).
 
-packaging:
-
-
 debug code:
 
-* common/debuglog.h: Add missing initialisation of uncaught_exception in a
-  couple of places.
+* common/debuglog.h: Add missing initialisation of uncaught_exception variable
+  in a couple of places.
 
 Xapian-core 1.1.0 (2009-04-22):
 
