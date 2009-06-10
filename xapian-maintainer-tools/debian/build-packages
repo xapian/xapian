@@ -68,6 +68,15 @@ DSC_PATH="$REPO_URL/pool/$VERSION/$CODENAME/source/"
 
 fetch_url "$REPO_URL/dists/$CODENAME/main/source/Sources.gz"
 
+esc_ver=`echo "$VERSION"|sed 's/\./\\\\./g'`
+case $PACKAGES in
+*" "*)
+  or='\('`echo "$PACKAGES"|sed 's/ /\\\\|/g'`'\)'
+  pkgname_re=xapian-${or}_${esc_ver}'[-.]' ;;
+*)
+  pkgname_re=xapian-${PACKAGES}_${esc_ver}'[-.]' ;;
+esac
+
 skip=yes
 gzip -dc Sources.gz | while read line ; do
   if test -n "$skip" ; then
@@ -76,10 +85,10 @@ gzip -dc Sources.gz | while read line ; do
     esac
   elif test -n "$line" ; then
     FILE=`echo "$line"|sed 's/.* //'`
-    if expr "$FILE" : ".*_${VERSION}[-.]" >/dev/null ; then
-      fetch_url "$DSC_PATH$FILE" ;;
+    if expr "$FILE" : "$pkgname_re" >/dev/null ; then
+      fetch_url "$DSC_PATH$FILE"
     else
-      echo "*** Not version $VERSION, ignoring: '$FILE'"
+      echo "*** Not version $VERSION of a package we need, ignoring: '$FILE'"
     fi
   else
     skip=yes
@@ -141,8 +150,6 @@ fi
 
 ARCHDIR=dists/$CODENAME/main/binary-$ARCH
 mkdir -p "$ARCHDIR"
-
-find pool -not -name '*.deb' -type f -print|perl -ne 'chomp;unlink'
 
 if [ "core bindings omega" = "$PACKAGES" ] ; then
   dpkg-scanpackages -a "$ARCH" "$POOL" /dev/null \
