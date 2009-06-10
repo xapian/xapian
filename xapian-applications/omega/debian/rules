@@ -18,9 +18,10 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 # USA
 
-# Codename we're building packages for.  If not explicitly specified, default
-# to that named in debian/codename and if that's not given, use "sid".
-CODENAME ?= $(shell cat debian/codename 2>/dev/null||echo sid)
+# Codename we're building packages for.  For backported packages, put the
+# codename (e.g. lenny or jaunty) in debian/codename.  If that file doesn't
+# exist, the default is sid.
+CODENAME := $(shell cat debian/codename 2>/dev/null||echo sid)
 
 # Version without the "-N" suffix.
 XAPIAN_VERSION := $(shell sed 's/.*(\([^-]*\)\(-.*\)*).*/\1/;q' debian/changelog)

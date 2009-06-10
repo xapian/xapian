@@ -1,8 +1,9 @@
 xapian-omega (1.0.13-1) unstable; urgency=low
 
   * New upstream release.
+  * debian/rules: Don't allow CODENAME to be set in the environment.
 
- -- Olly Betts <olly@survex.com>  Wed, 10 Jun 2009 06:53:46 +0100
+ -- Olly Betts <olly@survex.com>  Wed, 10 Jun 2009 06:31:42 +0000
 
 xapian-omega (1.0.12-2) unstable; urgency=low
 
