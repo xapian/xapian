@@ -1,3 +1,7 @@
+Wed Jun 10 01:12:23 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Update for 1.1.1.
+
 Tue Jun 09 14:01:04 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS: Update for 1.1.1.
