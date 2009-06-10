@@ -1,3 +1,10 @@
+xapian-bindings (1.0.13-1) unstable; urgency=low
+
+  * New upstream release.
+    + Fixes deadlocks due to bugs in mod_python. (Closes: #442006)
+
+ -- Olly Betts <olly@survex.com>  Wed, 10 Jun 2009 05:13:31 +0100
+
 xapian-bindings (1.0.12-2) unstable; urgency=low
 
   * debian/copyright: Update for 2009 (and 2008 for the code in java/).
