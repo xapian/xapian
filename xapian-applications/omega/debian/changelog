@@ -1,3 +1,9 @@
+xapian-omega (1.0.13-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Olly Betts <olly@survex.com>  Wed, 10 Jun 2009 06:53:46 +0100
+
 xapian-omega (1.0.12-2) unstable; urgency=low
 
   * debian/copyright: Update for 2009.  /usr/share/common-licenses/GPL ->
