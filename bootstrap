@@ -134,7 +134,8 @@ else
 
   # The last field is the SHA1 checksum of the tarball.
   lazy_build autoconf 2.63 tar.bz2 f15e14aa34acf871b47f659ef99a2e6707db4a18
-  lazy_build automake 1.10.2 tar.bz2 fad55795a57b82d107808ae1bf51f72eba45c921
+  AUTOCONF=$instdir/bin/autoconf \
+  lazy_build automake 1.11 tar.bz2 1ae8c15d91b8eb8728c35cf0901a02782830e9de
   lazy_build libtool 2.2.6a tar.gz 7b547877b1b78b547343e4678a531aece8949904
 
   for v in $autotools ; do
