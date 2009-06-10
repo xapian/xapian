@@ -1,5 +1,6 @@
 xapian-core (1.0.13-1) unstable; urgency=low
 
+  * New upstream release.
   * debian/TODO: Update since we now have a -dbg package with debugging
     symbols.
   * debian/control.in: Better description for libxapian<SOVERSION>-dbg.
@@ -7,7 +8,7 @@ xapian-core (1.0.13-1) unstable; urgency=low
   * Relicense the Debian packaging under the MIT/X licence.
   * debian/patch: Changes included upstream so remove.
 
- -- Olly Betts <olly@survex.com>  Wed, 10 Jun 2009 12:59:04 +0000
+ -- Olly Betts <olly@survex.com>  Wed, 10 Jun 2009 14:03:15 +0100
 
 xapian-core (1.0.12-2) unstable; urgency=low
 
