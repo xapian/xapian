@@ -1,0 +1,3 @@
+usr/lib/tcltk/xapian*
+usr/share/doc/xapian-bindings/tcl8/index.html usr/share/doc/tclxapian
+usr/share/doc/xapian-bindings/tcl8/examples/*.tcl usr/share/doc/tclxapian/examples
