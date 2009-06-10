@@ -1,3 +1,9 @@
+Wed Jun 10 04:29:43 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/serialise-double.cc,common/serialise-double.h: Relicense as
+	  MIT/X rather than GPLv2+ as these are low level routines which other
+	  projects may find useful.
+
 Tue Jun 09 14:34:20 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS: Update for 1.1.1.
