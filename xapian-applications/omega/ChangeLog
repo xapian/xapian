@@ -1,3 +1,9 @@
+Thu Jun 11 09:45:45 GMT 2009  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Extract pptx notesSlides and comments, if present.  If
+	  they aren't, unzip returns exit code 11, which we must ignore
+	  (ticket#290).
+
 Thu Jun 11 07:38:57 GMT 2009  Olly Betts <olly@survex.com>
 
 	* docs/overview.rst,omindex.cc: Handle the "macroenabled" versions of
