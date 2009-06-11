@@ -778,17 +778,21 @@ main(int argc, char **argv)
     // Plain text:
     mime_map["txt"] = "text/plain";
     mime_map["text"] = "text/plain";
+
     // HTML:
     mime_map["html"] = "text/html";
     mime_map["htm"] = "text/html";
     mime_map["shtml"] = "text/html";
     mime_map["php"] = "text/html"; // Our HTML parser knows to ignore PHP code.
+
     // PDF:
     mime_map["pdf"] = "application/pdf";
+
     // PostScript:
     mime_map["ps"] = "application/postscript";
     mime_map["eps"] = "application/postscript";
     mime_map["ai"] = "application/postscript";
+
     // OpenDocument:
     // FIXME: need to find sample documents to test all of these.
     mime_map["odt"] = "application/vnd.oasis.opendocument.text";
@@ -808,6 +812,7 @@ main(int argc, char **argv)
     mime_map["otf"] = "application/vnd.oasis.opendocument.formula-template";
     mime_map["oti"] = "application/vnd.oasis.opendocument.image-template";
     mime_map["oth"] = "application/vnd.oasis.opendocument.text-web";
+
     // OpenOffice/StarOffice documents:
     mime_map["sxc"] = "application/vnd.sun.xml.calc";
     mime_map["stc"] = "application/vnd.sun.xml.calc.template";
@@ -819,6 +824,7 @@ main(int argc, char **argv)
     mime_map["sxw"] = "application/vnd.sun.xml.writer";
     mime_map["sxg"] = "application/vnd.sun.xml.writer.global";
     mime_map["stw"] = "application/vnd.sun.xml.writer.template";
+
     // MS Office 2007 formats:
     mime_map["docx"] = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"; // Word 2007
     mime_map["dotx"] = "application/vnd.openxmlformats-officedocument.wordprocessingml.template"; // Word 2007 template
@@ -828,6 +834,25 @@ main(int argc, char **argv)
     mime_map["ppsx"] = "application/vnd.openxmlformats-officedocument.presentationml.slideshow"; // PowerPoint 2007 slideshow
     mime_map["potx"] = "application/vnd.openxmlformats-officedocument.presentationml.template"; // PowerPoint 2007 template
     mime_map["xps"] = "application/vnd.ms-xpsdocument";
+
+    // Macro-enabled variants - these appear to be the same formats as the
+    // above.  Currently we just treat them as the same mimetypes to avoid
+    // having to check for twice as many possible content-types.
+    // MS say: application/vnd.ms-word.document.macroEnabled.12
+    mime_map["docm"] = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+    // MS say: application/vnd.ms-word.template.macroEnabled.12
+    mime_map["dotm"] = "application/vnd.openxmlformats-officedocument.wordprocessingml.template";
+    // MS say: application/vnd.ms-excel.sheet.macroEnabled.12
+    mime_map["xlsm"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+    // MS say: application/vnd.ms-excel.template.macroEnabled.12
+    mime_map["xltm"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.template";
+    // MS say: application/vnd.ms-powerpoint.presentation.macroEnabled.12
+    mime_map["pptm"] = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+    // MS say: application/vnd.ms-powerpoint.slideshow.macroEnabled.12
+    mime_map["ppsm"] = "application/vnd.openxmlformats-officedocument.presentationml.slideshow";
+    // MS say: application/vnd.ms-powerpoint.presentation.macroEnabled.12
+    mime_map["potm"] = "application/vnd.openxmlformats-officedocument.presentationml.template";
+
     // Some other word processor formats:
     mime_map["doc"] = "application/msword";
     mime_map["dot"] = "application/msword"; // Word template
@@ -837,18 +862,22 @@ main(int argc, char **argv)
     mime_map["abw"] = "application/x-abiword"; // AbiWord
     mime_map["zabw"] = "application/x-abiword-compressed"; // AbiWord compressed
     mime_map["rtf"] = "text/rtf";
+
     // Other MS formats:
     mime_map["xls"] = "application/vnd.ms-excel";
     mime_map["xlb"] = "application/vnd.ms-excel";
     mime_map["xlt"] = "application/vnd.ms-excel"; // Excel template
     mime_map["ppt"] = "application/vnd.ms-powerpoint";
     mime_map["pps"] = "application/vnd.ms-powerpoint"; // Powerpoint slideshow
+
     // Perl:
     mime_map["pl"] = "text/x-perl";
     mime_map["pm"] = "text/x-perl";
     mime_map["pod"] = "text/x-perl";
+
     // TeX DVI:
     mime_map["dvi"] = "application/x-dvi";
+
     // DjVu:
     mime_map["djv"] = "image/vnd.djvu";
     mime_map["djvu"] = "image/vnd.djvu";
