@@ -1,3 +1,13 @@
+Fri Jun 12 14:37:04 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* tests/harness/backendmanager_remotetcp.cc: Fix comment typo.
+	* tests/harness/backendmanager_remotetcp.cc: Fix the mechanism for
+	  closing the file descriptors used by child xapian-tcpsrv processes
+	  once they exit, which has been broken ever since it was added nearly
+	  two years ago (sigh).  Fixes fd leaking which caused "apitest
+	  -bremotetcp" to fail on OpenBSD (ticket#382).
+
 Mon May 25 11:52:34 GMT 2009  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Remove duplicate entry; CVS -> SVN as we migrated to
