@@ -1,3 +1,7 @@
+Fri Jun 12 03:37:13 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/harness/backendmanager_remotetcp.cc: Fix comment typo.
+
 Wed Jun 10 04:29:43 GMT 2009  Olly Betts <olly@survex.com>
 
 	* common/serialise-double.cc,common/serialise-double.h: Relicense as

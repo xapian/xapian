@@ -105,7 +105,7 @@ launch_xapian_tcpsrv(const string & args)
     int port = DEFAULT_PORT;
 
     // We want to be able to get the exit status of the child process we fork
-    // in xapian-tcpsrv doesn't start listening successfully.
+    // if xapian-tcpsrv doesn't start listening successfully.
     signal(SIGCHLD, SIG_DFL);
 try_next_port:
     string cmd = XAPIAN_TCPSRV" --one-shot --interface "LOCALHOST" --port " + om_tostring(port) + " " + args;
