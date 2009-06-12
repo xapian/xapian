@@ -70,7 +70,7 @@ using namespace std;
 
 // We can't dynamically allocate memory for this because it confuses the leak
 // detector.  We only have 1-3 child fds open at once anyway, so a fixed size
-// array isn't a problem, and linear scanning isn't a problem.
+// array isn't a problem, and linear scanning isn't a problem either.
 struct pid_fd {
     pid_t pid;
     int fd;
@@ -79,6 +79,7 @@ struct pid_fd {
 static pid_fd pid_to_fd[16];
 
 extern "C" {
+
 static void
 on_SIGCHLD(int /*sig*/)
 {
@@ -89,7 +90,7 @@ on_SIGCHLD(int /*sig*/)
 	    if (pid_to_fd[i].pid == child) {
 		int fd = pid_to_fd[i].fd;
 		pid_to_fd[i].fd = -1;
-		pid_to_fd[i].pid = -1;
+		pid_to_fd[i].pid = 0;
 		// NB close() *is* safe to use in a signal handler.
 		close(fd);
 		break;
@@ -97,6 +98,7 @@ on_SIGCHLD(int /*sig*/)
 	}
     }
 }
+
 }
 
 static int
@@ -151,11 +153,13 @@ try_next_port:
 	msg += strerror(errno);
 	throw msg;
     }
+
     string output;
     while (true) {
 	char buf[256];
 	if (fgets(buf, sizeof(buf), fh) == NULL) {
 	    fclose(fh);
+	    // Wait for the child to exit.
 	    int status;
 	    if (waitpid(child, &status, 0) == -1) {
 		string msg("waitpid failed: ");
@@ -192,7 +196,7 @@ try_next_port:
     // Find a slot to track the pid->fd mapping in.  If we can't find a slot
     // it just means we'll leak the fd, so don't worry about that too much.
     for (unsigned i = 0; i < sizeof(pid_to_fd) / sizeof(pid_fd); ++i) {
-	if (pid_to_fd[i].pid == -1) {
+	if (pid_to_fd[i].pid == 0) {
 	    pid_to_fd[i].fd = tracked_fd;
 	    pid_to_fd[i].pid = child;
 	    break;

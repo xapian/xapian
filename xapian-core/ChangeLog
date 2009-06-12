@@ -1,3 +1,11 @@
+Fri Jun 12 12:45:37 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/harness/backendmanager_remotetcp.cc: Fix the mechanism for
+	  closing the file descriptors used by child xapian-tcpsrv processes
+	  once they exit, which has been broken ever since it was added nearly
+	  two years ago (sigh).  Fixes fd leaking which caused "apitest
+	  -bremotetcp" to fail on OpenBSD (ticket#382).
+
 Fri Jun 12 03:37:13 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/harness/backendmanager_remotetcp.cc: Fix comment typo.
