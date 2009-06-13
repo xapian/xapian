@@ -1,0 +1,106 @@
+Index: tests/harness/backendmanager_remotetcp.cc
+===================================================================
+--- tests/harness/backendmanager_remotetcp.cc	(revision 12895)
++++ tests/harness/backendmanager_remotetcp.cc	(revision 12900)
+@@ -69,7 +69,7 @@
+ 
+ // We can't dynamically allocate memory for this because it confuses the leak
+ // detector.  We only have 1-3 child fds open at once anyway, so a fixed size
+-// array isn't a problem, and linear scanning isn't a problem.
++// array isn't a problem, and linear scanning isn't a problem either.
+ struct pid_fd {
+     pid_t pid;
+     int fd;
+@@ -78,6 +78,7 @@
+ static pid_fd pid_to_fd[16];
+ 
+ extern "C" {
++
+ static void
+ on_SIGCHLD(int /*sig*/)
+ {
+@@ -88,7 +89,7 @@
+ 	    if (pid_to_fd[i].pid == child) {
+ 		int fd = pid_to_fd[i].fd;
+ 		pid_to_fd[i].fd = -1;
+-		pid_to_fd[i].pid = -1;
++		pid_to_fd[i].pid = 0;
+ 		// NB close() *is* safe to use in a signal handler.
+ 		close(fd);
+ 		break;
+@@ -96,6 +97,7 @@
+ 	}
+     }
+ }
++
+ }
+ 
+ static int
+@@ -104,7 +106,7 @@
+     int port = DEFAULT_PORT;
+ 
+     // We want to be able to get the exit status of the child process we fork
+-    // in xapian-tcpsrv doesn't start listening successfully.
++    // if xapian-tcpsrv doesn't start listening successfully.
+     signal(SIGCHLD, SIG_DFL);
+ try_next_port:
+     string cmd = XAPIAN_TCPSRV" --one-shot --interface "LOCALHOST" --port " + om_tostring(port) + " " + args;
+@@ -150,11 +152,13 @@
+ 	msg += strerror(errno);
+ 	throw msg;
+     }
++
+     string output;
+     while (true) {
+ 	char buf[256];
+ 	if (fgets(buf, sizeof(buf), fh) == NULL) {
+ 	    fclose(fh);
++	    // Wait for the child to exit.
+ 	    int status;
+ 	    if (waitpid(child, &status, 0) == -1) {
+ 		string msg("waitpid failed: ");
+@@ -191,7 +195,7 @@
+     // Find a slot to track the pid->fd mapping in.  If we can't find a slot
+     // it just means we'll leak the fd, so don't worry about that too much.
+     for (unsigned i = 0; i < sizeof(pid_to_fd) / sizeof(pid_fd); ++i) {
+-	if (pid_to_fd[i].pid == -1) {
++	if (pid_to_fd[i].pid == 0) {
+ 	    pid_to_fd[i].fd = tracked_fd;
+ 	    pid_to_fd[i].pid = child;
+ 	    break;
+Index: tests/api_anydb.cc
+===================================================================
+--- tests/api_anydb.cc	(revision 12895)
++++ tests/api_anydb.cc	(revision 12900)
+@@ -514,8 +514,13 @@
+     pct = mymset.convert_to_percent(i);
+     TEST_EQUAL(pct, 100);
+ 
+-    TEST_EQUAL(mymset, localmset);
+-    TEST(mset_range_is_same_percents(mymset, 0, localmset, 0, mymset.size()));
++    TEST_EQUAL(mymset.get_matches_lower_bound(), localmset.get_matches_lower_bound());
++    TEST_EQUAL(mymset.get_matches_upper_bound(), localmset.get_matches_upper_bound());
++    TEST_EQUAL(mymset.get_matches_estimated(), localmset.get_matches_estimated());
++    TEST_EQUAL_DOUBLE(mymset.get_max_attained(), localmset.get_max_attained());
++    TEST_EQUAL_DOUBLE(mymset.get_max_possible(), localmset.get_max_possible());
++    TEST_EQUAL(mymset.size(), localmset.size());
++    TEST(mset_range_is_same(mymset, 0, localmset, 0, mymset.size()));
+ 
+     // A search in which the top document doesn't have 100%
+     Xapian::Query q = query(Xapian::Query::OP_OR,
+@@ -538,8 +543,13 @@
+     TEST_GREATER(pct, 40);
+     TEST_LESSER(pct, 50);
+ 
+-    TEST_EQUAL(mymset, localmset);
+-    TEST(mset_range_is_same_percents(mymset, 0, localmset, 0, mymset.size()));
++    TEST_EQUAL(mymset.get_matches_lower_bound(), localmset.get_matches_lower_bound());
++    TEST_EQUAL(mymset.get_matches_upper_bound(), localmset.get_matches_upper_bound());
++    TEST_EQUAL(mymset.get_matches_estimated(), localmset.get_matches_estimated());
++    TEST_EQUAL_DOUBLE(mymset.get_max_attained(), localmset.get_max_attained());
++    TEST_EQUAL_DOUBLE(mymset.get_max_possible(), localmset.get_max_possible());
++    TEST_EQUAL(mymset.size(), localmset.size());
++    TEST(mset_range_is_same(mymset, 0, localmset, 0, mymset.size()));
+ 
+     return true;
+ }
