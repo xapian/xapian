@@ -1,3 +1,7 @@
+Sat Jun 13 06:30:57 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_anydb.cc: Fix reversed conditional in last but one change.
+
 Sat Jun 13 04:42:27 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_anydb.cc: Use TEST_EQUAL_DOUBLE() when comparing
