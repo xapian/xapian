@@ -1,9 +1,15 @@
 xapian-core (1.0.13-2) unstable; urgency=low
 
+  * debian/patch: Backport two patches from upstream SVN:
+    + Fix failure of topercent2 on some architectures.
+    + Fix leaking of fds used to launch xapian-tcpsrv for remotetcp test,
+      which hopefully will cure sporadic test failures on some buildds.
+  * debian/rules: Reenable testsuite on m68k now that topercent2 should pass
+    reliably.
   * debian/rules: Improve comment describing why we disable optimisation on
     alpha.
 
- -- Olly Betts <olly@survex.com>  Sat, 13 Jun 2009 11:48:35 +0100
+ -- Olly Betts <olly@survex.com>  Sat, 13 Jun 2009 10:54:22 +0000
 
 xapian-core (1.0.13-1) unstable; urgency=low
 
