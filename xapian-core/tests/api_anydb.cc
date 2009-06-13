@@ -523,7 +523,7 @@ DEFINE_TESTCASE(topercent2, backend) {
     TEST_EQUAL(mymset.get_matches_lower_bound(), localmset.get_matches_lower_bound());
     TEST_EQUAL(mymset.get_matches_upper_bound(), localmset.get_matches_upper_bound());
     TEST_EQUAL(mymset.get_matches_estimated(), localmset.get_matches_estimated());
-    TEST_EQUAL(mymset.get_max_attained(), localmset.get_max_attained());
+    TEST_EQUAL_DOUBLE(mymset.get_max_attained(), localmset.get_max_attained());
     TEST_EQUAL(mymset.size(), localmset.size());
     TEST(mset_range_is_same(mymset, 0, localmset, 0, mymset.size()));
 
@@ -551,7 +551,7 @@ DEFINE_TESTCASE(topercent2, backend) {
     TEST_EQUAL(mymset.get_matches_lower_bound(), localmset.get_matches_lower_bound());
     TEST_EQUAL(mymset.get_matches_upper_bound(), localmset.get_matches_upper_bound());
     TEST_EQUAL(mymset.get_matches_estimated(), localmset.get_matches_estimated());
-    TEST_EQUAL(mymset.get_max_attained(), localmset.get_max_attained());
+    TEST_EQUAL_DOUBLE(mymset.get_max_attained(), localmset.get_max_attained());
     TEST_EQUAL(mymset.size(), localmset.size());
     TEST(mset_range_is_same(mymset, 0, localmset, 0, mymset.size()));
 
