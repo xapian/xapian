@@ -404,7 +404,7 @@ DEFINE_TESTCASE(expandweights2, backend) {
 
     Xapian::ESet eset = enquire.get_eset(3, myrset);
     TEST_EQUAL(eset.size(), 3);
-    if (get_dbtype().substr(0, 5) != "multi") {
+    if (startswith(get_dbtype(), "multi")) {
 	// For a single database, the weights should be the same with or
 	// without USE_EXACT_TERMFREQ.
 	TEST_EQUAL_DOUBLE(eset[0].get_weight(), 6.08904001099445);
