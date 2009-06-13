@@ -1,3 +1,12 @@
+Sat Jun 13 06:44:38 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_anydb.cc: In testcase topercent2, don't expect max_attained
+	  or max_possible to be exact as rounding errors in different ways of
+	  calculating can cause small variations.  On trunk we already have
+	  similar code because the new weighting scheme stuff gives different
+	  bounds in the different cases.  This should fix testsuite failures on
+	  some of the Debian and Ubuntu buildds.
+
 Fri Jun 12 14:37:04 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:

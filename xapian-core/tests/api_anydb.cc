@@ -514,8 +514,13 @@ DEFINE_TESTCASE(topercent2, backend) {
     pct = mymset.convert_to_percent(i);
     TEST_EQUAL(pct, 100);
 
-    TEST_EQUAL(mymset, localmset);
-    TEST(mset_range_is_same_percents(mymset, 0, localmset, 0, mymset.size()));
+    TEST_EQUAL(mymset.get_matches_lower_bound(), localmset.get_matches_lower_bound());
+    TEST_EQUAL(mymset.get_matches_upper_bound(), localmset.get_matches_upper_bound());
+    TEST_EQUAL(mymset.get_matches_estimated(), localmset.get_matches_estimated());
+    TEST_EQUAL_DOUBLE(mymset.get_max_attained(), localmset.get_max_attained());
+    TEST_EQUAL_DOUBLE(mymset.get_max_possible(), localmset.get_max_possible());
+    TEST_EQUAL(mymset.size(), localmset.size());
+    TEST(mset_range_is_same(mymset, 0, localmset, 0, mymset.size()));
 
     // A search in which the top document doesn't have 100%
     Xapian::Query q = query(Xapian::Query::OP_OR,
@@ -538,8 +543,13 @@ DEFINE_TESTCASE(topercent2, backend) {
     TEST_GREATER(pct, 40);
     TEST_LESSER(pct, 50);
 
-    TEST_EQUAL(mymset, localmset);
-    TEST(mset_range_is_same_percents(mymset, 0, localmset, 0, mymset.size()));
+    TEST_EQUAL(mymset.get_matches_lower_bound(), localmset.get_matches_lower_bound());
+    TEST_EQUAL(mymset.get_matches_upper_bound(), localmset.get_matches_upper_bound());
+    TEST_EQUAL(mymset.get_matches_estimated(), localmset.get_matches_estimated());
+    TEST_EQUAL_DOUBLE(mymset.get_max_attained(), localmset.get_max_attained());
+    TEST_EQUAL_DOUBLE(mymset.get_max_possible(), localmset.get_max_possible());
+    TEST_EQUAL(mymset.size(), localmset.size());
+    TEST(mset_range_is_same(mymset, 0, localmset, 0, mymset.size()));
 
     return true;
 }
