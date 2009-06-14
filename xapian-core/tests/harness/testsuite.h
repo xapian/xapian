@@ -81,7 +81,7 @@ struct test_desc {
 extern bool verbose;
 
 /// The exception type we were expecting in TEST_EXCEPTION.
-//  Used to detect if such an exception was mishandled by a the
+//  Used to detect if such an exception was mishandled by the
 //  compiler/runtime.
 extern const char * expected_exception;
 
