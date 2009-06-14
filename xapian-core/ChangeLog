@@ -1,3 +1,9 @@
+Sun Jun 14 14:11:51 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/internaltest.cc: In testcase serialisequery1, use a helper
+	  function rather than wasting effort building a std::list with all the
+	  testcases in just so we can iterate over them.
+
 Sun Jun 14 13:52:22 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/harness/testsuite.cc: <iomanip> isn't used so remove it.

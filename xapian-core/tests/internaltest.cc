@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2006,2007,2008,2009 Olly Betts
  * Copyright 2006 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -29,7 +29,6 @@
 #include "safeerrno.h"
 
 #include <string>
-#include <list>
 
 using namespace std;
 
@@ -421,44 +420,44 @@ static bool test_serialisedoc1()
     return true;
 }
 
+static void
+serialisequery1_helper(const Xapian::Query & query)
+{
+    string before = query.internal->serialise();
+    Xapian::SerialisationContext ctx;
+    Xapian::Query::Internal * qint;
+    qint = Xapian::Query::Internal::unserialise(before, ctx);
+    string after = qint->serialise();
+    delete qint;
+    TEST(before == after);
+}
+
 // Check serialisation of queries.
 static bool test_serialisequery1()
 {
     string s;
-    list<Xapian::Query> queries;
 
-    queries.push_back(Xapian::Query("foo"));
+    serialisequery1_helper(Xapian::Query("foo"));
 
     // Regression test for bug in 0.9.10 and earlier.
-    queries.push_back(Xapian::Query("foo", 1, 1));
+    serialisequery1_helper(Xapian::Query("foo", 1, 1));
 
-    queries.push_back(Xapian::Query(Xapian::Query::OP_OR,
-				    Xapian::Query("foo", 1, 1),
-				    Xapian::Query("bar", 1, 1)));
+    serialisequery1_helper(Xapian::Query(Xapian::Query::OP_OR,
+					 Xapian::Query("foo", 1, 1),
+					 Xapian::Query("bar", 1, 1)));
 
-    const char * words[] = { "paragraph", "word" };
-    queries.push_back(Xapian::Query(Xapian::Query::OP_OR, words, words + 2));
+    static const char * words[] = { "paragraph", "word" };
+    serialisequery1_helper(Xapian::Query(Xapian::Query::OP_OR, words, words + 2));
 
-    const char * words2[] = { "milk", "on", "fridge" };
-    queries.push_back(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT,
-				    Xapian::Query(Xapian::Query::OP_OR,
-						  Xapian::Query("leave"),
-						  Xapian::Query(Xapian::Query::OP_PHRASE, words2, words2 + 3)
-						 ),
-				    2.5
-				   ));
-
-    list<Xapian::Query>::const_iterator query;
-    for (query = queries.begin(); query != queries.end(); query++) {
-	Xapian::Query::Internal * qint;
-
-	s = query->internal->serialise();
-	Xapian::SerialisationContext ctx;
-	qint = Xapian::Query::Internal::unserialise(s, ctx);
-
-	TEST(qint->serialise() == s);
-	delete qint;
-    }
+    static const char * words2[] = { "milk", "on", "fridge" };
+    serialisequery1_helper(
+	    Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT,
+			  Xapian::Query(Xapian::Query::OP_OR,
+					Xapian::Query("leave"),
+					Xapian::Query(Xapian::Query::OP_PHRASE, words2, words2 + 3)
+					),
+			  2.5)
+	    );
 
     return true;
 }
