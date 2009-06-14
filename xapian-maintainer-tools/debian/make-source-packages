@@ -58,7 +58,8 @@ make_source_package() {
   debtag=debian-`svn cat "$SVNBASE"/$2/debian/changelog|dpkg-parsechangelog -l-|sed 's/^Version: //p;d'`
   url=${DOWNLOAD_BASE}${VERSION}/$pkg-${VERSION}.tar.gz
   tarball=${pkg}_${VERSION}.orig.tar.gz
-  wget -q -nc -O "$tarball" "$url"
+  # wget exits with status 1 if -nc was passed the file already exists.
+  wget -q -nc -O "$tarball" "$url" || test $? = 1 -a -f "$tarball" || exit $?
   tar zxf "$tarball"
   cd "${pkg}-${VERSION}"
     # Checkout debian control files from SVN.
