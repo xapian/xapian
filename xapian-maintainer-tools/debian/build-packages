@@ -23,7 +23,7 @@ set -e
 
 LINTIAN_FLAGS="-l0 -I"
 
-if [ x"$1" = x--help -o "$#" -lt 2 ] ; then
+if [ x"$1" = x--help ] ; then
   echo "Usage: $0 [PACKAGES...]"
   echo
   echo "Build binary packages from source packages which are in the 'build' subdirectory."
