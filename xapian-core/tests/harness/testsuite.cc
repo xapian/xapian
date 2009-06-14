@@ -36,7 +36,6 @@
 #endif
 
 #include <algorithm>
-#include <iomanip>
 #include <iostream>
 #include <set>
 #include <streambuf>

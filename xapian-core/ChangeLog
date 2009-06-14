@@ -1,3 +1,7 @@
+Sun Jun 14 13:52:22 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/harness/testsuite.cc: <iomanip> isn't used so remove it.
+
 Sun Jun 14 13:30:34 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/harness/testsuite.h: Fix comment typo.
