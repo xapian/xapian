@@ -4,7 +4,7 @@ dnl See xapian-core's HACKING document for details of the reasons for required
 dnl versions.
 AC_PREREQ([2.63])
 
-AC_INIT([xapian-bindings], [1.1.0], [http://xapian.org/bugs])
+AC_INIT([xapian-bindings], [1.1.1], [http://xapian.org/bugs])
 
 dnl See xapian-core's HACKING document for details of the reasons for required
 dnl versions.
@@ -189,7 +189,12 @@ AC_ARG_WITH(java,
   [],
   [with_java=])
 
-case $with_python$with_php$with_ruby$with_tcl$with_guile$with_csharp$with_java in
+AC_ARG_WITH(perl,
+  AC_HELP_STRING([--with-perl], [enable Perl bindings]),
+  [],
+  [with_perl=])
+
+case $with_python$with_php$with_ruby$with_tcl$with_guile$with_csharp$with_java$with_perl in
 *yes*)
   dnl Default unspecified values to no.
   test -z "$with_python" && with_python=no
@@ -199,6 +204,7 @@ case $with_python$with_php$with_ruby$with_tcl$with_guile$with_csharp$with_java i
   test -z "$with_csharp" && with_csharp=no
   test -z "$with_java" && with_java=no
   test -z "$with_ruby" && with_ruby=no
+  test -z "$with_perl" && with_perl=no
   ;;
 esac
 
@@ -813,6 +819,26 @@ if test no != "$with_ruby" ; then
   fi
 fi
 
+if test yes = "$with_perl" ; then
+  AC_PATH_PROGS(PERL, ["${PERL-perl}"], [])
+  AC_ARG_VAR(PERL, [perl interpreter])
+  if test -n "$PERL" ;  then
+    dnl later
+    AC_MSG_CHECKING([for include directory of XS headers])
+    AC_ARG_VAR(PERL_INC, [Directory to include XS headers])
+    if test -z "$PERL_INC" ; then
+      PERL_INC=`$PERL -MConfig -e 'print $Config{archlibexp}, "/CORE";'`
+    fi
+    AC_MSG_RESULT([$PERL_INC])
+    AC_SUBST(PERL_INC)
+    BINDINGS="$BINDINGS perl"
+  else
+    if test yes = "$with_perl" ; then
+      AC_MSG_ERROR([perl not found])
+    fi
+  fi
+fi
+
 AC_SUBST(BINDINGS)
 
 dnl Set flags to control warnings (enable more, or disable annoying ones)
@@ -912,7 +938,9 @@ AC_CONFIG_FILES([Makefile
  csharp/Makefile csharp/docs/Makefile
  csharp/AssemblyInfo.cs
  ruby/Makefile ruby/docs/Makefile
- xapian-bindings.spec])
+ xapian-bindings.spec
+ perl/Makefile perl/docs/Makefile
+ ])
 dnl guile/Makefile
 AC_CONFIG_FILES([python/doxy2swig.py],
 		[chmod +x python/doxy2swig.py])
