@@ -21,8 +21,6 @@
 #ifndef XAPIAN_INCLUDED_CPUTIMER_H
 #define XAPIAN_INCLUDED_CPUTIMER_H
 
-#include <ctime>
-
 class CPUTimer {
     double start;
 

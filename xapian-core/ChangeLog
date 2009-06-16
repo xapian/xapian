@@ -1,3 +1,7 @@
+Tue Jun 16 02:15:31 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/harness/cputimer.h: Don't need '#include <ctime>'.
+
 Tue Jun 16 02:10:29 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/harness/cputimer.h: Fix naming of header multiple-inclusion
