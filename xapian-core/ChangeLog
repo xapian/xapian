@@ -1,3 +1,15 @@
+Tue Jun 16 11:20:43 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/harness/testsuite.cc,tests/harness/testsuite.h: Factor out
+	  writing out what was sent to tout and clearing it into a new
+	  method test_driver::write_and_clear_tout().
+	* tests/harness/testsuite.cc: Prefer string() to "".  When sending a
+	  colour change code, do it before the preceding space when that allows
+	  string literals to be merged.  Always give the full exception message
+	  (was conditional on --verbose).  Tidy up output for reporting the
+	  various different exception types and other failures to give more
+	  consistent output.
+
 Tue Jun 16 11:01:14 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/harness/scalability.cc: Increase the number of tests until the

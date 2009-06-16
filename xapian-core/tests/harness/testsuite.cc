@@ -94,6 +94,16 @@ string test_driver::col_red, test_driver::col_green;
 string test_driver::col_yellow, test_driver::col_reset;
 bool test_driver::use_cr = false;
 
+void
+test_driver::write_and_clear_tout()
+{
+    const string & s = tout.str();
+    if (!s.empty()) {
+	out << '\n' << s;
+	tout.str(string());
+    }
+}
+
 string
 test_driver::get_srcdir()
 {
@@ -218,7 +228,7 @@ test_driver::runtest(const test_desc *test)
 #endif
 
     while (true) {
-	tout.str("");
+	tout.str(string());
 	SignalRedirector sig; // use object so signal handlers are reset
 	if (!setjmp(jb)) {
 	    static bool catch_signals =
@@ -239,13 +249,8 @@ test_driver::runtest(const test_desc *test)
 		}
 #endif
 		if (!test->run()) {
-		    string s = tout.str();
-		    if (!s.empty()) {
-			out << '\n' << tout.str();
-			if (s[s.size() - 1] != '\n') out << endl;
-			tout.str("");
-		    }
-		    out << " " << col_red << "FAILED" << col_reset;
+		    out << col_red << " FAILED" << col_reset;
+		    write_and_clear_tout();
 		    return FAIL;
 		}
 #ifdef HAVE_VALGRIND
@@ -254,7 +259,7 @@ test_driver::runtest(const test_desc *test)
 		    // leak checks, otherwise the buffers holding the output
 		    // may be identified as a memory leak (especially if >1K of
 		    // output has been buffered it appears...)
-		    tout.str("");
+		    tout.str(string());
 #define REPORT_FAIL_VG(M) do { \
     if (verbose) { \
 	while (true) { \
@@ -336,7 +341,7 @@ test_driver::runtest(const test_desc *test)
 			// then we need to rerun the test to see if the leak is
 			// real...
 			if (runcount == 0) {
-			    out << " " << col_yellow << "PROBABLY LEAKED MEMORY - RETRYING TEST" << col_reset;
+			    out << col_yellow << " PROBABLY LEAKED MEMORY - RETRYING TEST" << col_reset;
 			    ++runcount;
 			    continue;
 			}
@@ -357,7 +362,7 @@ test_driver::runtest(const test_desc *test)
 			// if more is leaked - hopefully this shouldn't give
 			// false positives.
 			if (runcount == 0) {
-			    out << " " << col_yellow << "POSSIBLE UNRELEASED MEMORY - RETRYING TEST" << col_reset;
+			    out << col_yellow << " POSSIBLE UNRELEASED MEMORY - RETRYING TEST" << col_reset;
 			    ++runcount;
 			    continue;
 			}
@@ -367,61 +372,27 @@ test_driver::runtest(const test_desc *test)
 		}
 #endif
 	    } catch (const TestFail &) {
-		string s = tout.str();
-		if (!s.empty()) {
-		    out << '\n' << tout.str();
-		    if (s[s.size() - 1] != '\n') out << endl;
-		    tout.str("");
-		}
-		out << " " << col_red << "FAILED" << col_reset;
+		out << col_red << " FAILED" << col_reset;
+		write_and_clear_tout();
 		return FAIL;
 	    } catch (const TestSkip &) {
-		string s = tout.str();
-		if (!s.empty()) {
-		    out << '\n' << tout.str();
-		    if (s[s.size() - 1] != '\n') out << endl;
-		    tout.str("");
-		}
-		out << " " << col_yellow << "SKIPPED" << col_reset;
+		out << col_yellow << " SKIPPED" << col_reset;
+		write_and_clear_tout();
 		return SKIP;
 	    } catch (const Xapian::Error &err) {
 		string errclass = err.get_type();
 		if (expected_exception && expected_exception == errclass) {
-		    out << " " << col_yellow << "C++ FAILED TO CATCH " << errclass << col_reset;
+		    out << col_yellow << " C++ FAILED TO CATCH " << errclass << col_reset;
 		    return SKIP;
 		}
-		string s = tout.str();
-		if (!s.empty()) {
-		    out << '\n' << tout.str();
-		    if (s[s.size() - 1] != '\n') out << endl;
-		    tout.str("");
-		}
-		out << " " << col_red << errclass << col_reset;
-		if (verbose) out << err.get_description() << endl;
+		out << " " << col_red << err.get_description() << col_reset;
+		write_and_clear_tout();
 		return FAIL;
 	    } catch (const string & msg) {
-		string s = tout.str();
-		if (!s.empty()) {
-		    out << '\n' << tout.str();
-		    if (s[s.size() - 1] != '\n') out << endl;
-		    tout.str("");
-		}
-		out << " " << col_red << "EXCEPTION: ";
-		size_t cutoff = min(size_t(40), msg.size());
-		cutoff = find(msg.begin(), msg.begin() + cutoff, '\n') - msg.begin();
-		if (verbose || cutoff == msg.size())
-		    out << msg;
-		else
-		    out << msg.substr(0, cutoff) << "...";
-		out << col_reset;
+		out << col_red << " EXCEPTION std::string " << msg << col_reset;
+		write_and_clear_tout();
 		return FAIL;
 	    } catch (const std::exception & e) {
-		string s = tout.str();
-		if (!s.empty()) {
-		    out << '\n' << tout.str();
-		    if (s[s.size() - 1] != '\n') out << endl;
-		    tout.str("");
-		}
 		out << " " << col_red;
 #ifndef USE_RTTI
 		out << "std::exception";
@@ -442,43 +413,33 @@ test_driver::runtest(const test_desc *test)
 		out << name;
 # endif
 #endif
-		out << ": " << e.what();
-		out << col_reset;
+		out << ": " << e.what() << col_reset;
+		write_and_clear_tout();
 		return FAIL;
 	    } catch (...) {
-		string s = tout.str();
-		if (!s.empty()) {
-		    out << '\n' << tout.str();
-		    if (s[s.size() - 1] != '\n') out << endl;
-		    tout.str("");
-		}
-		out << " " << col_red << "UNKNOWN EXCEPTION" << col_reset;
+		out << col_red << " UNKNOWN EXCEPTION" << col_reset;
+		write_and_clear_tout();
 		return FAIL;
 	    }
-	} else {
-	    // caught signal
-	    string s = tout.str();
-	    if (!s.empty()) {
-		out << '\n' << tout.str();
-		if (s[s.size() - 1] != '\n') out << endl;
-		tout.str("");
-	    }
-	    const char *signame = "SIGNAL";
-	    switch (signum) {
-		case SIGSEGV: signame = "SIGSEGV"; break;
-		case SIGFPE: signame = "SIGFPE"; break;
-		case SIGILL: signame = "SIGILL"; break;
+	    return PASS;
+	}
+
+	// Caught a signal.
+	const char *signame = "SIGNAL";
+	switch (signum) {
+	    case SIGSEGV: signame = "SIGSEGV"; break;
+	    case SIGFPE: signame = "SIGFPE"; break;
+	    case SIGILL: signame = "SIGILL"; break;
 #ifdef SIGBUS
-		case SIGBUS: signame = "SIGBUS"; break;
+	    case SIGBUS: signame = "SIGBUS"; break;
 #endif
 #ifdef SIGSTKFLT
-		case SIGSTKFLT: signame = "SIGSTKFLT"; break;
+	    case SIGSTKFLT: signame = "SIGSTKFLT"; break;
 #endif
-	    }
-	    out << " " << col_red << signame << col_reset;
-	    return FAIL;
 	}
-	return PASS;
+	out << " " << col_red << signame << col_reset;
+	write_and_clear_tout();
+	return FAIL;
     }
 }
 
