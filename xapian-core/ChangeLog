@@ -1,3 +1,8 @@
+Tue Jun 16 02:10:29 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/harness/cputimer.h: Fix naming of header multiple-inclusion
+	  protection macro.
+
 Sun Jun 14 14:11:51 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/internaltest.cc: In testcase serialisequery1, use a helper
