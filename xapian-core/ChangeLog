@@ -1,3 +1,11 @@
+Tue Jun 16 10:58:34 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/harness/cputimer.cc: Don't bother trying to count CPU time
+	  for child processes, as it's hard to ensure that the child processes
+	  have finished with the current framework, and just counting time in
+	  the current process checks most things (the local backend tests cover
+	  much of the work done by the server part of the remote backend).
+
 Tue Jun 16 02:15:31 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/harness/cputimer.h: Don't need '#include <ctime>'.
