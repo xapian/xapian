@@ -1,3 +1,10 @@
+Tue Jun 16 11:01:14 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/harness/scalability.cc: Increase the number of tests until the
+	  first sample takes more than 0.001 seconds to avoid trying to base
+	  calculations on a length of time we probably can't reliably measure
+	  to start with.
+
 Tue Jun 16 10:58:34 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/harness/cputimer.cc: Don't bother trying to count CPU time
