@@ -97,7 +97,11 @@ lazy_build() {
     esac
 
     cd "$basename"
-    ./configure --prefix="$instdir"
+    if test -n "$AUTOCONF" ; then
+      ./configure --prefix="$instdir" AUTOCONF="$AUTOCONF"
+    else
+      ./configure --prefix="$instdir"
+    fi
     make
     make install
     cd ..
