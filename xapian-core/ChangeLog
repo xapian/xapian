@@ -1,3 +1,7 @@
+Wed Jun 17 01:23:16 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/str.cc: Fix potential warning in signed version of str().
+
 Tue Jun 16 11:20:43 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/harness/testsuite.cc,tests/harness/testsuite.h: Factor out
