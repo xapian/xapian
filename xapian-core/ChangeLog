@@ -1,3 +1,11 @@
+Fri Jun 19 07:20:55 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/harness/scalability.cc: Increase the number of tests until the
+	  first sample takes more than 0.001 seconds to avoid trying to base
+	  calculations on a length of time we probably can't reliably measure
+	  to start with.
+
 Fri Jun 19 06:12:04 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
