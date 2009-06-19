@@ -1,3 +1,8 @@
+Fri Jun 19 04:41:30 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/harness/testsuite.h: Fix comment typo.
+
 Fri Jun 19 04:36:39 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
