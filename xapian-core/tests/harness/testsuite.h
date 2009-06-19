@@ -92,6 +92,9 @@ extern std::ostringstream tout;
 
 /// The test driver.  This class takes care of running the tests.
 class test_driver {
+	/// Write out anything in tout and clear it.
+	void write_and_clear_tout();
+
     public:
 	/** A structure used to report the summary of tests passed
 	 *  and failed.
