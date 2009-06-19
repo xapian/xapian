@@ -1,3 +1,10 @@
+Fri Jun 19 04:49:09 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/internaltest.cc: In testcase serialisequery1, use a helper
+	  function rather than wasting effort building a std::list with all the
+	  testcases in just so we can iterate over them.
+
 Fri Jun 19 04:42:45 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
