@@ -1,3 +1,10 @@
+Fri Jun 19 04:36:39 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* common/serialise-double.cc,common/serialise-double.h: Relicense as
+	  MIT/X rather than GPLv2+ as these are low level routines which other
+	  projects may find useful.
+
 Sat Jun 13 06:44:38 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_anydb.cc: In testcase topercent2, don't expect max_attained
