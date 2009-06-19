@@ -34,7 +34,6 @@
 #endif
 
 #include <algorithm>
-#include <iomanip>
 #include <iostream>
 
 #ifdef HAVE_STREAMBUF

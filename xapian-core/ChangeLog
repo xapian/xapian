@@ -1,3 +1,8 @@
+Fri Jun 19 04:42:45 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/harness/testsuite.cc: <iomanip> isn't used so remove it.
+
 Fri Jun 19 04:41:30 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
