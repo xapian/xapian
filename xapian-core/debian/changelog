@@ -1,3 +1,20 @@
+xapian-core (1.0.13-3) unstable; urgency=low
+
+  * debian/patch: Backport more testsuite patches from upstream SVN:
+    + Don't bother trying to count CPU time for child processes, as it's hard
+      to ensure that the child processes have finished with the current
+      framework, and just counting time in the current process checks most
+      things (the local backend tests cover much of the work done by the
+      server part of the remote backend).
+    + Increase the number of tests until the first sample takes more than
+      0.001 seconds to avoid trying to base calculations on a length of time
+      we probably can't reliably measure to start with.
+    + Always give the full exception message (was conditional on --verbose).
+      Tidy up output for reporting the various different exception types and
+      other failures to give more consistent output.
+
+ -- Olly Betts <olly@survex.com>  Fri, 19 Jun 2009 10:43:48 +0100
+
 xapian-core (1.0.13-2) unstable; urgency=low
 
   * debian/patch: Backport two patches from upstream SVN:
