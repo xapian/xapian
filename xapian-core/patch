@@ -1,0 +1,436 @@
+Index: tests/harness/testsuite.h
+===================================================================
+--- tests/harness/testsuite.h	(revision 12826)
++++ tests/harness/testsuite.h	(revision 12925)
+@@ -81,7 +81,7 @@
+ extern bool verbose;
+ 
+ /// The exception type we were expecting in TEST_EXCEPTION.
+-//  Used to detect if such an exception was mishandled by a the
++//  Used to detect if such an exception was mishandled by the
+ //  compiler/runtime.
+ extern const char * expected_exception;
+ 
+@@ -92,6 +92,9 @@
+ 
+ /// The test driver.  This class takes care of running the tests.
+ class test_driver {
++	/// Write out anything in tout and clear it.
++	void write_and_clear_tout();
++
+     public:
+ 	/** A structure used to report the summary of tests passed
+ 	 *  and failed.
+Index: tests/harness/scalability.cc
+===================================================================
+--- tests/harness/scalability.cc	(revision 12826)
++++ tests/harness/scalability.cc	(revision 12925)
+@@ -29,6 +29,8 @@
+ test_scalability(double (*func)(unsigned), unsigned n, double threshold)
+ {
+     double time1;
++    // Increase the number of tests until we take a reliably measurable amount
++    // of time.
+     do {
+        time1 = func(n);
+        tout << "Test with " << n << " repetitions took " << time1 << " secs\n";
+@@ -36,7 +38,7 @@
+        if (n_new < n)
+ 	   SKIP_TEST("Can't count enough repetitions to be able to time test");
+        n = n_new;
+-    } while (time1 == 0.0);
++    } while (time1 <= 0.001);
+ 
+     double time10 = func(n);
+     tout << "Test with " << n << " repetitions took " << time10 << " secs\n";
+Index: tests/harness/backendmanager_remotetcp.cc
+===================================================================
+--- tests/harness/backendmanager_remotetcp.cc	(revision 12826)
++++ tests/harness/backendmanager_remotetcp.cc	(revision 12925)
+@@ -69,7 +69,7 @@
+ 
+ // We can't dynamically allocate memory for this because it confuses the leak
+ // detector.  We only have 1-3 child fds open at once anyway, so a fixed size
+-// array isn't a problem, and linear scanning isn't a problem.
++// array isn't a problem, and linear scanning isn't a problem either.
+ struct pid_fd {
+     pid_t pid;
+     int fd;
+@@ -78,6 +78,7 @@
+ static pid_fd pid_to_fd[16];
+ 
+ extern "C" {
++
+ static void
+ on_SIGCHLD(int /*sig*/)
+ {
+@@ -88,7 +89,7 @@
+ 	    if (pid_to_fd[i].pid == child) {
+ 		int fd = pid_to_fd[i].fd;
+ 		pid_to_fd[i].fd = -1;
+-		pid_to_fd[i].pid = -1;
++		pid_to_fd[i].pid = 0;
+ 		// NB close() *is* safe to use in a signal handler.
+ 		close(fd);
+ 		break;
+@@ -96,6 +97,7 @@
+ 	}
+     }
+ }
++
+ }
+ 
+ static int
+@@ -104,7 +106,7 @@
+     int port = DEFAULT_PORT;
+ 
+     // We want to be able to get the exit status of the child process we fork
+-    // in xapian-tcpsrv doesn't start listening successfully.
++    // if xapian-tcpsrv doesn't start listening successfully.
+     signal(SIGCHLD, SIG_DFL);
+ try_next_port:
+     string cmd = XAPIAN_TCPSRV" --one-shot --interface "LOCALHOST" --port " + om_tostring(port) + " " + args;
+@@ -150,11 +152,13 @@
+ 	msg += strerror(errno);
+ 	throw msg;
+     }
++
+     string output;
+     while (true) {
+ 	char buf[256];
+ 	if (fgets(buf, sizeof(buf), fh) == NULL) {
+ 	    fclose(fh);
++	    // Wait for the child to exit.
+ 	    int status;
+ 	    if (waitpid(child, &status, 0) == -1) {
+ 		string msg("waitpid failed: ");
+@@ -191,7 +195,7 @@
+     // Find a slot to track the pid->fd mapping in.  If we can't find a slot
+     // it just means we'll leak the fd, so don't worry about that too much.
+     for (unsigned i = 0; i < sizeof(pid_to_fd) / sizeof(pid_fd); ++i) {
+-	if (pid_to_fd[i].pid == -1) {
++	if (pid_to_fd[i].pid == 0) {
+ 	    pid_to_fd[i].fd = tracked_fd;
+ 	    pid_to_fd[i].pid = child;
+ 	    break;
+Index: tests/harness/cputimer.cc
+===================================================================
+--- tests/harness/cputimer.cc	(revision 12826)
++++ tests/harness/cputimer.cc	(revision 12925)
+@@ -37,7 +37,7 @@
+ #elif defined HAVE_FTIME
+ # include <sys/timeb.h>
+ #else
+-# include <time.h>
++# include <ctime>
+ #endif
+ 
+ #include <cstring>
+@@ -55,21 +55,14 @@
+ 	FAIL_TEST(string("Couldn't measure CPU for self: ") + strerror(errno));
+     }
+ 
+-    t += r.ru_utime.tv_sec + r.ru_stime.tv_sec;
+-    t += (r.ru_utime.tv_usec + r.ru_stime.tv_usec) * 0.000001;
+-
+-    if (getrusage(RUSAGE_CHILDREN, &r) == -1) {
+-	FAIL_TEST(string("Couldn't measure CPU for kids: ") + strerror(errno));
+-    }
+-
+-    t += r.ru_utime.tv_sec + r.ru_stime.tv_sec;
++    t = r.ru_utime.tv_sec + r.ru_stime.tv_sec;
+     t += (r.ru_utime.tv_usec + r.ru_stime.tv_usec) * 0.000001;
+ #elif defined HAVE_TIMES
+     struct tms b;
+     if (times(&b) == (clock_t)-1) {
+ 	FAIL_TEST(string("Couldn't measure CPU: ") + strerror(errno));
+     }
+-    t = (double)(b.tms_utime + b.tms_stime + b.tms_cutime + b.tms_cstime);
++    t = (double)(b.tms_utime + b.tms_stime);
+ # ifdef HAVE_SYSCONF
+     t /= sysconf(_SC_CLK_TCK);
+ # else
+@@ -77,8 +70,8 @@
+ # endif
+ #else
+     // FIXME: Fallback to just using wallclock time, which is probably only
+-    // going to be used on Microsoft Windows, which seems to lack an API to get
+-    // CPU time used by any children of a process.
++    // going to be used on Microsoft Windows, where nobody has implemented
++    // the code required to get the CPU time used by a process.
+ # ifdef HAVE_FTIME 
+     struct timeb tb;
+ #  ifdef FTIME_RETURNS_VOID
+Index: tests/harness/testsuite.cc
+===================================================================
+--- tests/harness/testsuite.cc	(revision 12826)
++++ tests/harness/testsuite.cc	(revision 12925)
+@@ -34,7 +34,6 @@
+ #endif
+ 
+ #include <algorithm>
+-#include <iomanip>
+ #include <iostream>
+ 
+ #ifdef HAVE_STREAMBUF
+@@ -99,6 +98,16 @@
+ string test_driver::col_yellow, test_driver::col_reset;
+ bool test_driver::use_cr = false;
+ 
++void
++test_driver::write_and_clear_tout()
++{
++    const string & s = tout.str();
++    if (!s.empty()) {
++	out << '\n' << s;
++	tout.str(string());
++    }
++}
++
+ string
+ test_driver::get_srcdir()
+ {
+@@ -223,7 +232,7 @@
+ #endif
+ 
+     while (true) {
+-	tout.str("");
++	tout.str(string());
+ 	SignalRedirector sig; // use object so signal handlers are reset
+ 	if (!setjmp(jb)) {
+ 	    static bool catch_signals =
+@@ -244,13 +253,8 @@
+ 		}
+ #endif
+ 		if (!test->run()) {
+-		    string s = tout.str();
+-		    if (!s.empty()) {
+-			out << '\n' << tout.str();
+-			if (s[s.size() - 1] != '\n') out << endl;
+-			tout.str("");
+-		    }
+-		    out << " " << col_red << "FAILED" << col_reset;
++		    out << col_red << " FAILED" << col_reset;
++		    write_and_clear_tout();
+ 		    return FAIL;
+ 		}
+ #ifdef HAVE_VALGRIND
+@@ -259,7 +263,7 @@
+ 		    // leak checks, otherwise the buffers holding the output
+ 		    // may be identified as a memory leak (especially if >1K of
+ 		    // output has been buffered it appears...)
+-		    tout.str("");
++		    tout.str(string());
+ #define REPORT_FAIL_VG(M) do { \
+     if (verbose) { \
+ 	while (true) { \
+@@ -341,7 +345,7 @@
+ 			// then we need to rerun the test to see if the leak is
+ 			// real...
+ 			if (runcount == 0) {
+-			    out << " " << col_yellow << "PROBABLY LEAKED MEMORY - RETRYING TEST" << col_reset;
++			    out << col_yellow << " PROBABLY LEAKED MEMORY - RETRYING TEST" << col_reset;
+ 			    ++runcount;
+ 			    continue;
+ 			}
+@@ -362,7 +366,7 @@
+ 			// if more is leaked - hopefully this shouldn't give
+ 			// false positives.
+ 			if (runcount == 0) {
+-			    out << " " << col_yellow << "POSSIBLE UNRELEASED MEMORY - RETRYING TEST" << col_reset;
++			    out << col_yellow << " POSSIBLE UNRELEASED MEMORY - RETRYING TEST" << col_reset;
+ 			    ++runcount;
+ 			    continue;
+ 			}
+@@ -372,61 +376,27 @@
+ 		}
+ #endif
+ 	    } catch (const TestFail &) {
+-		string s = tout.str();
+-		if (!s.empty()) {
+-		    out << '\n' << tout.str();
+-		    if (s[s.size() - 1] != '\n') out << endl;
+-		    tout.str("");
+-		}
+-		out << " " << col_red << "FAILED" << col_reset;
++		out << col_red << " FAILED" << col_reset;
++		write_and_clear_tout();
+ 		return FAIL;
+ 	    } catch (const TestSkip &) {
+-		string s = tout.str();
+-		if (!s.empty()) {
+-		    out << '\n' << tout.str();
+-		    if (s[s.size() - 1] != '\n') out << endl;
+-		    tout.str("");
+-		}
+-		out << " " << col_yellow << "SKIPPED" << col_reset;
++		out << col_yellow << " SKIPPED" << col_reset;
++		write_and_clear_tout();
+ 		return SKIP;
+ 	    } catch (const Xapian::Error &err) {
+ 		string errclass = err.get_type();
+ 		if (expected_exception && expected_exception == errclass) {
+-		    out << " " << col_yellow << "C++ FAILED TO CATCH " << errclass << col_reset;
++		    out << col_yellow << " C++ FAILED TO CATCH " << errclass << col_reset;
+ 		    return SKIP;
+ 		}
+-		string s = tout.str();
+-		if (!s.empty()) {
+-		    out << '\n' << tout.str();
+-		    if (s[s.size() - 1] != '\n') out << endl;
+-		    tout.str("");
+-		}
+-		out << " " << col_red << errclass << col_reset;
+-		if (verbose) out << err.get_description() << endl;
++		out << " " << col_red << err.get_description() << col_reset;
++		write_and_clear_tout();
+ 		return FAIL;
+ 	    } catch (const string & msg) {
+-		string s = tout.str();
+-		if (!s.empty()) {
+-		    out << '\n' << tout.str();
+-		    if (s[s.size() - 1] != '\n') out << endl;
+-		    tout.str("");
+-		}
+-		out << " " << col_red << "EXCEPTION: ";
+-		size_t cutoff = min(size_t(40), msg.size());
+-		cutoff = find(msg.begin(), msg.begin() + cutoff, '\n') - msg.begin();
+-		if (verbose || cutoff == msg.size())
+-		    out << msg;
+-		else
+-		    out << msg.substr(0, cutoff) << "...";
+-		out << col_reset;
++		out << col_red << " EXCEPTION std::string " << msg << col_reset;
++		write_and_clear_tout();
+ 		return FAIL;
+ 	    } catch (const std::exception & e) {
+-		string s = tout.str();
+-		if (!s.empty()) {
+-		    out << '\n' << tout.str();
+-		    if (s[s.size() - 1] != '\n') out << endl;
+-		    tout.str("");
+-		}
+ 		out << " " << col_red;
+ #ifndef USE_RTTI
+ 		out << "std::exception";
+@@ -447,43 +417,33 @@
+ 		out << name;
+ # endif
+ #endif
+-		out << ": " << e.what();
+-		out << col_reset;
++		out << ": " << e.what() << col_reset;
++		write_and_clear_tout();
+ 		return FAIL;
+ 	    } catch (...) {
+-		string s = tout.str();
+-		if (!s.empty()) {
+-		    out << '\n' << tout.str();
+-		    if (s[s.size() - 1] != '\n') out << endl;
+-		    tout.str("");
+-		}
+-		out << " " << col_red << "UNKNOWN EXCEPTION" << col_reset;
++		out << col_red << " UNKNOWN EXCEPTION" << col_reset;
++		write_and_clear_tout();
+ 		return FAIL;
+ 	    }
+-	} else {
+-	    // caught signal
+-	    string s = tout.str();
+-	    if (!s.empty()) {
+-		out << '\n' << tout.str();
+-		if (s[s.size() - 1] != '\n') out << endl;
+-		tout.str("");
+-	    }
+-	    const char *signame = "SIGNAL";
+-	    switch (signum) {
+-		case SIGSEGV: signame = "SIGSEGV"; break;
+-		case SIGFPE: signame = "SIGFPE"; break;
+-		case SIGILL: signame = "SIGILL"; break;
++	    return PASS;
++	}
++
++	// Caught a signal.
++	const char *signame = "SIGNAL";
++	switch (signum) {
++	    case SIGSEGV: signame = "SIGSEGV"; break;
++	    case SIGFPE: signame = "SIGFPE"; break;
++	    case SIGILL: signame = "SIGILL"; break;
+ #ifdef SIGBUS
+-		case SIGBUS: signame = "SIGBUS"; break;
++	    case SIGBUS: signame = "SIGBUS"; break;
+ #endif
+ #ifdef SIGSTKFLT
+-		case SIGSTKFLT: signame = "SIGSTKFLT"; break;
++	    case SIGSTKFLT: signame = "SIGSTKFLT"; break;
+ #endif
+-	    }
+-	    out << " " << col_red << signame << col_reset;
+-	    return FAIL;
+ 	}
+-	return PASS;
++	out << " " << col_red << signame << col_reset;
++	write_and_clear_tout();
++	return FAIL;
+     }
+ }
+ 
+Index: tests/harness/cputimer.h
+===================================================================
+--- tests/harness/cputimer.h	(revision 12826)
++++ tests/harness/cputimer.h	(revision 12925)
+@@ -18,10 +18,8 @@
+  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+  */
+ 
+-#ifndef XAPIAN_INCLUDED_UNIXCMDS_H
+-#define XAPIAN_INCLUDED_UNIXCMDS_H
+-
+-#include <ctime>
++#ifndef XAPIAN_INCLUDED_CPUTIMER_H
++#define XAPIAN_INCLUDED_CPUTIMER_H
+ 
+ class CPUTimer {
+     double start;
+@@ -38,4 +36,4 @@
+     }
+ };
+ 
+-#endif // XAPIAN_INCLUDED_UNIXCMDS_H
++#endif // XAPIAN_INCLUDED_CPUTIMER_H
+Index: tests/api_anydb.cc
+===================================================================
+--- tests/api_anydb.cc	(revision 12826)
++++ tests/api_anydb.cc	(revision 12925)
+@@ -514,8 +514,13 @@
+     pct = mymset.convert_to_percent(i);
+     TEST_EQUAL(pct, 100);
+ 
+-    TEST_EQUAL(mymset, localmset);
+-    TEST(mset_range_is_same_percents(mymset, 0, localmset, 0, mymset.size()));
++    TEST_EQUAL(mymset.get_matches_lower_bound(), localmset.get_matches_lower_bound());
++    TEST_EQUAL(mymset.get_matches_upper_bound(), localmset.get_matches_upper_bound());
++    TEST_EQUAL(mymset.get_matches_estimated(), localmset.get_matches_estimated());
++    TEST_EQUAL_DOUBLE(mymset.get_max_attained(), localmset.get_max_attained());
++    TEST_EQUAL_DOUBLE(mymset.get_max_possible(), localmset.get_max_possible());
++    TEST_EQUAL(mymset.size(), localmset.size());
++    TEST(mset_range_is_same(mymset, 0, localmset, 0, mymset.size()));
+ 
+     // A search in which the top document doesn't have 100%
+     Xapian::Query q = query(Xapian::Query::OP_OR,
+@@ -538,8 +543,13 @@
+     TEST_GREATER(pct, 40);
+     TEST_LESSER(pct, 50);
+ 
+-    TEST_EQUAL(mymset, localmset);
+-    TEST(mset_range_is_same_percents(mymset, 0, localmset, 0, mymset.size()));
++    TEST_EQUAL(mymset.get_matches_lower_bound(), localmset.get_matches_lower_bound());
++    TEST_EQUAL(mymset.get_matches_upper_bound(), localmset.get_matches_upper_bound());
++    TEST_EQUAL(mymset.get_matches_estimated(), localmset.get_matches_estimated());
++    TEST_EQUAL_DOUBLE(mymset.get_max_attained(), localmset.get_max_attained());
++    TEST_EQUAL_DOUBLE(mymset.get_max_possible(), localmset.get_max_possible());
++    TEST_EQUAL(mymset.size(), localmset.size());
++    TEST(mset_range_is_same(mymset, 0, localmset, 0, mymset.size()));
+ 
+     return true;
+ }
