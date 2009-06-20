@@ -1,3 +1,8 @@
+Sat Jun 20 07:38:56 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_table.cc,backends/flint/flint_table.cc: Fix
+	  misspelling in comment (neccessary -> necessary).
+
 Sat Jun 20 07:38:06 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_table.cc: Don't reconstruct Item(p, c) when we
