@@ -1,3 +1,9 @@
+xapian-core (1.0.13-4) UNRELEASED; urgency=low
+
+  * debian/control.in: Standards-Version: 3.8.2 (no changes required).
+
+ -- Olly Betts <olly@survex.com>  Sat, 20 Jun 2009 04:40:38 +0100
+
 xapian-core (1.0.13-3) unstable; urgency=low
 
   * debian/patch: Backport more testsuite patches from upstream SVN:
