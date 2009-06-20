@@ -1,3 +1,7 @@
+Sat Jun 20 03:31:22 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst: www.xapian.org -> xapian.org
+
 Thu Jun 11 09:45:45 GMT 2009  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Extract pptx notesSlides and comments, if present.  If
