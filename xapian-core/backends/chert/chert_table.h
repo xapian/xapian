@@ -120,10 +120,11 @@ public:
 template <class T> class Item_base {
 protected:
     T p;
+    bool leaf;
 public:
     /* Item from block address and offset to item pointer */
-    Item_base(T p_, int c, bool) : p(p_ + getint2(p_, c)) { }
-    Item_base(T p_, bool) : p(p_) { }
+    Item_base(T p_, int c, bool leaf_) : p(p_ + getint2(p_, c)), leaf(leaf_) { }
+    Item_base(T p_, bool leaf_) : p(p_), leaf(leaf_) { }
     T get_address() const { return p; }
     /** I in diagram above. */
     int size() const {
@@ -133,13 +134,16 @@ public:
     }
     bool get_compressed() const { return *p & 0x80; }
     int component_of() const {
+	Assert(leaf);
 	return getint2(p, getK(p, I2) + I2 - C2);
     }
     int components_of() const {
+	Assert(leaf);
 	return getint2(p, getK(p, I2) + I2);
     }
     Key key() const { return Key(p + I2); }
     void append_chunk(std::string * tag) const {
+	Assert(leaf);
 	/* number of bytes to extract from current component */
 	int cd = getK(p, I2) + I2 + C2;
 	int l = size() - cd;
@@ -149,6 +153,7 @@ public:
      *  level 0).
      */
     uint4 block_given_by() const {
+	Assert(!leaf);
 	AssertRel(size(),>=,BYTES_PER_BLOCK_NUMBER);
 	return getint4(p, size() - BYTES_PER_BLOCK_NUMBER);
     }
@@ -157,28 +162,31 @@ public:
 class Item : public Item_base<const byte *> {
 public:
     /* Item from block address and offset to item pointer */
-    Item(const byte * p_, int c, bool leaf)
-       	: Item_base<const byte *>(p_, c, leaf) { }
-    Item(const byte * p_, bool leaf)
-       	: Item_base<const byte *>(p_, leaf) { }
+    Item(const byte * p_, int c, bool leaf_)
+       	: Item_base<const byte *>(p_, c, leaf_) { }
+    Item(const byte * p_, bool leaf_)
+       	: Item_base<const byte *>(p_, leaf_) { }
 };
 
 class Item_wr : public Item_base<byte *> {
     void set_key_len(int x) { setint1(p, I2, x); }
 public:
     /* Item_wr from block address and offset to item pointer */
-    Item_wr(byte * p_, int c, bool leaf)
-       	: Item_base<byte *>(p_, c, leaf) { }
-    Item_wr(byte * p_, bool leaf)
-       	: Item_base<byte *>(p_, leaf) { }
+    Item_wr(byte * p_, int c, bool leaf_)
+       	: Item_base<byte *>(p_, c, leaf_) { }
+    Item_wr(byte * p_, bool leaf_)
+       	: Item_base<byte *>(p_, leaf_) { }
     void set_component_of(int i) {
+	Assert(leaf);
 	setint2(p, getK(p, I2) + I2 - C2, i);
     }
     void set_components_of(int m) {
+	Assert(leaf);
 	setint2(p, getK(p, I2) + I2, m);
     }
     // Takes size as we may be truncating newkey.
     void set_key_and_block(Key newkey, int truncate_size, uint4 n) {
+	Assert(!leaf);
 	int i = truncate_size;
 	// Read the length now because we may be copying the key over itself.
 	// FIXME that's stupid!  sort this out
@@ -201,6 +209,7 @@ public:
      *  level 0).
      */
     void set_block_given_by(uint4 n) {
+	Assert(!leaf);
 	setint4(p, size() - BYTES_PER_BLOCK_NUMBER, n);
     }
     void set_size(int l) {
@@ -210,6 +219,7 @@ public:
     /** Form an item with a null key and with block number n in the tag.
      */
     void form_null_key(uint4 n) {
+	Assert(!leaf);
 	setint4(p, I2 + K1, n);
 	set_key_len(K1);        /* null key */
 	set_size(I2 + K1 + 4);  /* total length */
@@ -229,10 +239,11 @@ public:
 
 	set_key_len(key_len + K1 + C2);
 	memmove(p + I2 + K1, key_.data(), key_len);
-	set_component_of(1);
+	if (leaf) set_component_of(1);
     }
     // FIXME passing cd here is icky
     void set_tag(int cd, const char *start, int len, bool compressed) {
+	Assert(leaf);
 	memmove(p + cd, start, len);
 	set_size(cd + len);
 	if (compressed) *p |= 0x80;

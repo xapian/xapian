@@ -1,3 +1,9 @@
+Sat Jun 20 11:58:30 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_table.h: Store the leaf flag passed to Item and
+	  Item_wr and add assertions to check that it is set consistently with
+	  how the object is used.
+
 Sat Jun 20 09:14:08 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/: Add a flag to Item and Item_wr constructors to
