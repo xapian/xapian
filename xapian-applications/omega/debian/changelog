@@ -1,3 +1,11 @@
+xapian-omega (1.0.13-2) UNRELEASED; urgency=low
+
+  * debian/control.in: Put "perl" back in "Suggests:" - "perl-base" is
+    "Priority: essential", but "perl" isn't and it's the latter which
+    contains pod2text.
+
+ -- Olly Betts <olly@survex.com>  Sat, 20 Jun 2009 01:49:12 +0100
+
 xapian-omega (1.0.13-1) unstable; urgency=low
 
   * New upstream release.
