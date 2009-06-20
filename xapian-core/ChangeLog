@@ -1,3 +1,11 @@
+Sat Jun 20 09:14:08 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/: Add a flag to Item and Item_wr constructors to
+	  indicate whether this is a leaf block or not.  This flag isn't
+	  used for anything currently.
+	* backends/chert/chert_version.cc: Bump CHERT_VERSION as the format
+	  is about to change.
+
 Sat Jun 20 07:38:56 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_table.cc,backends/flint/flint_table.cc: Fix

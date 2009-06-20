@@ -463,7 +463,7 @@ ChertTable::alter()
 	if (j == level) return;
 	j++;
 	p = C[j].p;
-	Item_wr(p, C[j].c).set_block_given_by(n);
+	Item_wr(p, C[j].c, false).set_block_given_by(n);
     }
 #endif
 }
@@ -489,16 +489,16 @@ ChertTable::find_in_block(const byte * p, Key key, bool leaf, int c)
     int j = DIR_END(p);
 
     if (c != -1) {
-	if (c < j && i < c && Item(p, c).key() <= key)
+	if (c < j && i < c && Item(p, c, leaf).key() <= key)
 	    i = c;
 	c += D2;
-	if (c < j && i < c && key < Item(p, c).key())
+	if (c < j && i < c && key < Item(p, c, leaf).key())
 	    j = c;
     }
 
     while (j - i > D2) {
 	int k = i + ((j - i)/(D2 * 2))*D2; /* mid way */
-	if (key < Item(p, k).key()) j = k; else i = k;
+	if (key < Item(p, k, leaf).key()) j = k; else i = k;
     }
     RETURN(i);
 }
@@ -526,7 +526,7 @@ ChertTable::find(Cursor * C_) const
 	report_block_full(j, C_[j].n, p);
 #endif /* BTREE_DEBUG_FULL */
 	C_[j].c = c;
-	block_to_cursor(C_, j - 1, Item(p, c).block_given_by());
+	block_to_cursor(C_, j - 1, Item(p, c, false).block_given_by());
     }
     p = C_[0].p;
     c = find_in_block(p, key, true, C_[0].c);
@@ -536,24 +536,25 @@ ChertTable::find(Cursor * C_) const
 #endif /* BTREE_DEBUG_FULL */
     C_[0].c = c;
     if (c < DIR_START) RETURN(false);
-    RETURN(Item(p, c).key() == key);
+    RETURN(Item(p, c, true).key() == key);
 }
 
-/** compact(p) compact the block at p by shuffling all the items up to the end.
+/** compact(p, leaf) compact the block at p by shuffling all the items up to
+ * the end.
 
    MAX_FREE(p) is then maximized, and is equal to TOTAL_FREE(p).
 */
 
 void
-ChertTable::compact(byte * p)
+ChertTable::compact(byte * p, bool leaf)
 {
-    LOGCALL_VOID(DB, "ChertTable::compact", (void*)p);
+    LOGCALL_VOID(DB, "ChertTable::compact", (void*)p << ", " << leaf);
     Assert(writable);
     int e = block_size;
     byte * b = buffer;
     int dir_end = DIR_END(p);
     for (int c = DIR_START; c < dir_end; c += D2) {
-	Item item(p, c);
+	Item item(p, c, leaf);
 	int l = item.size();
 	e -= l;
 	memmove(b + e, item.get_address(), l);
@@ -589,11 +590,11 @@ ChertTable::split_root(uint4 split_n)
     SET_REVISION(q, latest_revision_number + 1);
     SET_LEVEL(q, level);
     SET_DIR_END(q, DIR_START);
-    compact(q);   /* to reset TOTAL_FREE, MAX_FREE */
+    compact(q, false);   /* to reset TOTAL_FREE, MAX_FREE */
 
     /* form a null key in b with a pointer to the old root */
     byte b[10]; /* 7 is exact */
-    Item_wr item(b);
+    Item_wr item(b, false);
     item.form_null_key(split_n);
     add_item(item, level);
 }
@@ -649,7 +650,7 @@ ChertTable::enter_key(int j, Key prevkey, Key newkey)
     }
 
     byte b[UCHAR_MAX + 6];
-    Item_wr item(b);
+    Item_wr item(b, false);
     Assert(i <= 256 - I2 - C2);
     Assert(i <= (int)sizeof(b) - I2 - C2 - 4);
     item.set_key_and_block(newkey, i, blocknumber);
@@ -662,7 +663,8 @@ ChertTable::enter_key(int j, Key prevkey, Key newkey)
 	uint4 n = getint4(newkey.get_address(), newkey_len + K1 + C2);
 	int new_total_free = TOTAL_FREE(p) + newkey_len + C2;
 	// FIXME: incredibly icky going from key to item like this...
-	Item_wr(const_cast<byte*>(newkey.get_address()) - I2).form_null_key(n);
+	byte * ptr = const_cast<byte*>(newkey.get_address());
+	Item_wr(ptr - I2, false).form_null_key(n);
 	SET_TOTAL_FREE(p, new_total_free);
     }
 
@@ -671,19 +673,19 @@ ChertTable::enter_key(int j, Key prevkey, Key newkey)
     add_item(item, j);
 }
 
-/** mid_point(p) finds the directory entry in c that determines the
+/** mid_point(p, leaf) finds the directory entry in c that determines the
    approximate mid point of the data in the block at p.
  */
 
 int
-ChertTable::mid_point(byte * p)
+ChertTable::mid_point(byte * p, bool leaf)
 {
-    LOGCALL(DB, int, "ChertTable::mid_point", (void*)p);
+    LOGCALL(DB, int, "ChertTable::mid_point", (void*)p << ", " << leaf);
     int n = 0;
     int dir_end = DIR_END(p);
     int size = block_size - TOTAL_FREE(p) - dir_end;
     for (int c = DIR_START; c < dir_end; c += D2) {
-	int l = Item(p, c).size();
+	int l = Item(p, c, leaf).size();
 	n += 2 * l;
 	if (n >= size) {
 	    if (l < n - size) RETURN(c);
@@ -718,7 +720,7 @@ ChertTable::add_item_to_block(byte * p, Item_wr kt_, int c)
     Assert(new_total >= 0);
 
     if (new_max < 0) {
-	compact(p);
+	compact(p, true);
 	new_max = MAX_FREE(p) - needed;
 	Assert(new_max >= 0);
     }
@@ -753,6 +755,7 @@ ChertTable::add_item(Item_wr kt_, int j)
 
     int needed = kt_.size() + D2;
     if (TOTAL_FREE(p) < needed) {
+	bool leaf = (j == 0);
 	int m;
 	// Prepare to split p. After splitting, the block is in two halves, the
 	// lower half is split_p, the upper half p again. add_to_upper_half
@@ -762,7 +765,7 @@ ChertTable::add_item(Item_wr kt_, int j)
 	if (seq_count < 0) {
 	    // If we're not in sequential mode, we split at the mid point
 	    // of the node.
-	    m = mid_point(p);
+	    m = mid_point(p, leaf);
 	} else {
 	    // During sequential addition, split at the insert point
 	    m = c;
@@ -773,7 +776,7 @@ ChertTable::add_item(Item_wr kt_, int j)
 
 	memcpy(split_p, p, block_size);  // replicate the whole block in split_p
 	SET_DIR_END(split_p, m);
-	compact(split_p);      /* to reset TOTAL_FREE, MAX_FREE */
+	compact(split_p, leaf);      /* to reset TOTAL_FREE, MAX_FREE */
 
 	{
 	    int residue = DIR_END(p) - m;
@@ -782,7 +785,7 @@ ChertTable::add_item(Item_wr kt_, int j)
 	    SET_DIR_END(p, new_dir_end);
 	}
 
-	compact(p);      /* to reset TOTAL_FREE, MAX_FREE */
+	compact(p, leaf);      /* to reset TOTAL_FREE, MAX_FREE */
 
 	bool add_to_upper_half;
 	if (seq_count < 0) {
@@ -814,8 +817,8 @@ ChertTable::add_item(Item_wr kt_, int j)
 	/* Enter a separating key at level j + 1 between */
 	/* the last key of block split_p, and the first key of block p */
 	enter_key(j + 1,
-		  Item(split_p, DIR_END(split_p) - D2).key(),
-		  Item(p, DIR_START).key());
+		  Item(split_p, DIR_END(split_p) - D2, leaf).key(),
+		  Item(p, DIR_START, leaf).key());
     } else {
 	add_item_to_block(p, kt_, c);
 	n = C[j].n;
@@ -840,8 +843,10 @@ ChertTable::delete_item(int j, bool repeatedly)
     Assert(writable);
     byte * p = C[j].p;
     int c = C[j].c;
-    int kt_len = Item(p, c).size(); /* size of the item to be deleted */
-    int dir_end = DIR_END(p) - D2;   /* directory length will go down by 2 bytes */
+    /* size of the item to be deleted */
+    int kt_len = Item(p, c, (j == 0)).size();
+    /* directory length will go down by 2 bytes */
+    int dir_end = DIR_END(p) - D2;
 
     memmove(p + c, p + c + D2, dir_end - c);
     SET_DIR_END(p, dir_end);
@@ -861,7 +866,7 @@ ChertTable::delete_item(int j, bool repeatedly)
 	Assert(j == level);
 	while (dir_end == DIR_START + D2 && level > 0) {
 	    /* single item in the root block, so lose a level */
-	    uint4 new_root = Item(p, DIR_START).block_given_by();
+	    uint4 new_root = Item(p, DIR_START, false).block_given_by();
 	    delete [] p;
 	    C[level].p = 0;
 	    base.free_block(C[level].n);
@@ -927,7 +932,7 @@ ChertTable::add_kt(bool found)
 
 	byte * p = C[0].p;
 	int c = C[0].c;
-	Item item(p, c);
+	Item item(p, c, true);
 	int kt_size = kt.size();
 	int needed = kt_size - item.size();
 
@@ -991,7 +996,7 @@ ChertTable::delete_kt()
     }
     */
     if (found) {
-	components = Item(C[0].p, C[0].c).components_of();
+	components = Item(C[0].p, C[0].c, true).components_of();
 	alter();
 	delete_item(0, true);
     }
@@ -1226,7 +1231,7 @@ bool
 ChertTable::read_tag(Cursor * C_, string *tag, bool keep_compressed) const
 {
     LOGCALL(DB, bool, "ChertTable::read_tag", "C_, tag, " << keep_compressed);
-    Item item(C_[0].p, C_[0].c);
+    Item item(C_[0].p, C_[0].c, true);
 
     /* n components to join */
     int n = item.components_of();
@@ -1243,7 +1248,7 @@ ChertTable::read_tag(Cursor * C_, string *tag, bool keep_compressed) const
 	if (!next(C_, 0)) {
 	    throw Xapian::DatabaseCorruptError("Unexpected end of table when reading continuation of tag");
 	}
-	(void)Item(C_[0].p, C_[0].c).append_chunk(tag);
+	(void)Item(C_[0].p, C_[0].c, true).append_chunk(tag);
     }
     // At this point the cursor is on the last item - calling next will move
     // it to the next key (ChertCursor::get_tag() relies on this).
@@ -1445,7 +1450,7 @@ ChertTable::basic_open(bool revision_supplied, chert_revision_number_t revision_
     }
 
     /* kt holds constructed items as well as keys */
-    kt = Item_wr(zeroed_new(block_size));
+    kt = Item_wr(zeroed_new(block_size), true);
 
     set_max_item_size(BLOCK_CAPACITY);
 
@@ -1471,7 +1476,7 @@ ChertTable::read_root()
 	memset(p, 0, block_size);
 
 	int o = block_size - I2 - K1 - C2 - C2;
-	Item_wr(p + o).fake_root_item();
+	Item_wr(p + o, true).fake_root_item();
 
 	setD(p, DIR_START, o);         // its directory entry
 	SET_DIR_END(p, DIR_START + D2);// the directory size
@@ -1576,7 +1581,7 @@ ChertTable::ChertTable(const char * tablename_, const string & path_,
 	  handle(-1),
 	  level(0),
 	  root(0),
-	  kt(0),
+	  kt(0, true),
 	  buffer(0),
 	  base(),
 	  name(path_),
@@ -1796,7 +1801,7 @@ void ChertTable::close(bool permanent) {
     split_p = 0;
 
     delete [] kt.get_address();
-    kt = 0;
+    kt = Item_wr(0, true);
     delete [] buffer;
     buffer = 0;
 }
@@ -2220,7 +2225,7 @@ ChertTable::prev_default(Cursor * C_, int j) const
     c -= D2;
     C_[j].c = c;
     if (j > 0) {
-	block_to_cursor(C_, j - 1, Item(p, c).block_given_by());
+	block_to_cursor(C_, j - 1, Item(p, c, false).block_given_by());
     }
     RETURN(true);
 }
@@ -2244,7 +2249,7 @@ ChertTable::next_default(Cursor * C_, int j) const
     }
     C_[j].c = c;
     if (j > 0) {
-	block_to_cursor(C_, j - 1, Item(p, c).block_given_by());
+	block_to_cursor(C_, j - 1, Item(p, c, false).block_given_by());
 #ifdef BTREE_DEBUG_FULL
 	printf("Block in ChertTable:next_default");
 	report_block_full(j - 1, C_[j - 1].n, C_[j - 1].p);

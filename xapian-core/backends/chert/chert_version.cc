@@ -43,9 +43,10 @@
 using namespace std;
 
 // YYYYMMDDX where X allows multiple format revisions in a day
-#define CHERT_VERSION 200903070
+#define CHERT_VERSION 200906200
 // 200804180       Chert debuts.
 // 200903070 1.1.0 doclen bounds and wdf upper bound.
+// 200906200 1.1.2 more compact non-leaf block format.
 
 #define MAGIC_STRING "IAmChert"
 

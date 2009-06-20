@@ -122,8 +122,8 @@ protected:
     T p;
 public:
     /* Item from block address and offset to item pointer */
-    Item_base(T p_, int c) : p(p_ + getint2(p_, c)) { }
-    Item_base(T p_) : p(p_) { }
+    Item_base(T p_, int c, bool) : p(p_ + getint2(p_, c)) { }
+    Item_base(T p_, bool) : p(p_) { }
     T get_address() const { return p; }
     /** I in diagram above. */
     int size() const {
@@ -157,16 +157,20 @@ public:
 class Item : public Item_base<const byte *> {
 public:
     /* Item from block address and offset to item pointer */
-    Item(const byte * p_, int c) : Item_base<const byte *>(p_, c) { }
-    Item(const byte * p_) : Item_base<const byte *>(p_) { }
+    Item(const byte * p_, int c, bool leaf)
+       	: Item_base<const byte *>(p_, c, leaf) { }
+    Item(const byte * p_, bool leaf)
+       	: Item_base<const byte *>(p_, leaf) { }
 };
 
 class Item_wr : public Item_base<byte *> {
     void set_key_len(int x) { setint1(p, I2, x); }
 public:
     /* Item_wr from block address and offset to item pointer */
-    Item_wr(byte * p_, int c) : Item_base<byte *>(p_, c) { }
-    Item_wr(byte * p_) : Item_base<byte *>(p_) { }
+    Item_wr(byte * p_, int c, bool leaf)
+       	: Item_base<byte *>(p_, c, leaf) { }
+    Item_wr(byte * p_, bool leaf)
+       	: Item_base<byte *>(p_, leaf) { }
     void set_component_of(int i) {
 	setint2(p, getK(p, I2) + I2 - C2, i);
     }
@@ -588,9 +592,9 @@ class XAPIAN_VISIBILITY_DEFAULT ChertTable {
 	XAPIAN_NORETURN(void set_overwritten() const);
 	void block_to_cursor(Cursor *C_, int j, uint4 n) const;
 	void alter();
-	void compact(byte *p);
+	void compact(byte *p, bool leaf);
 	void enter_key(int j, Key prevkey, Key newkey);
-	int mid_point(byte *p);
+	int mid_point(byte *p, bool leaf);
 	void add_item_to_block(byte *p, Item_wr kt, int c);
 	void add_item(Item_wr kt, int j);
 	void delete_item(int j, bool repeatedly);

@@ -48,7 +48,7 @@ void ChertTableCheck::print_bytes(int n, const byte * p) const
 
 void ChertTableCheck::print_key(const byte * p, int c, int j) const
 {
-    Item item(p, c);
+    Item item(p, c, (j == 0));
     string key;
     if (item.key().length() >= 0)
 	item.key().read(&key);
@@ -65,7 +65,7 @@ void ChertTableCheck::print_key(const byte * p, int c, int j) const
 
 void ChertTableCheck::print_tag(const byte * p, int c, int j) const
 {
-    Item item(p, c);
+    Item item(p, c, (j == 0));
     string tag;
     item.append_chunk(&tag);
     if (j == 0) {
@@ -154,7 +154,7 @@ ChertTableCheck::block_check(Cursor * C_, int j, int opts)
     if (opts & OPT_FULL_TREE) report_block_full(3*(level - j), n, p);
 
     for (c = DIR_START; c < dir_end; c += D2) {
-	Item item(p, c);
+	Item item(p, c, (j == 0));
 	int o = item.get_address() - p;
 	if (o > int(block_size)) failure(21);
 	if (o - dir_end < max_free) failure(30);
@@ -163,7 +163,7 @@ ChertTableCheck::block_check(Cursor * C_, int j, int opts)
 	if (o + kt_len > int(block_size)) failure(40);
 	total_free -= kt_len;
 
-	if (c > significant_c && Item(p, c - D2).key() >= item.key())
+	if (c > significant_c && Item(p, c - D2, (j == 0)).key() >= item.key())
 	    failure(50);
     }
     if (total_free != TOTAL_FREE(p))
@@ -172,7 +172,7 @@ ChertTableCheck::block_check(Cursor * C_, int j, int opts)
     if (j == 0) return;
     for (c = DIR_START; c < dir_end; c += D2) {
 	C_[j].c = c;
-	block_to_cursor(C_, j - 1, Item(p, c).block_given_by());
+	block_to_cursor(C_, j - 1, Item(p, c, (j == 0)).block_given_by());
 
 	block_check(C_, j - 1, opts);
 
@@ -181,14 +181,14 @@ ChertTableCheck::block_check(Cursor * C_, int j, int opts)
 	 * >= the key of p, c: */
 
 	if (j == 1 && c > DIR_START)
-	    if (Item(q, DIR_START).key() < Item(p, c).key())
+	    if (Item(q, DIR_START, true).key() < Item(p, c, false).key())
 		failure(70);
 
 	/* if j > 1, and c > DIR_START, the second key of level j - 1 must be
 	 * >= the key of p, c: */
 
 	if (j > 1 && c > DIR_START && DIR_END(q) > DIR_START + D2 &&
-	    Item(q, DIR_START + D2).key() < Item(p, c).key())
+	    Item(q, DIR_START + D2, false).key() < Item(p, c, false).key())
 	    failure(80);
 
 	/* the last key of level j - 1 must be < the key of p, c + D2, if c +
@@ -196,7 +196,7 @@ ChertTableCheck::block_check(Cursor * C_, int j, int opts)
 
 	if (c + D2 < dir_end &&
 	    (j == 1 || DIR_START + D2 < DIR_END(q)) &&
-	    Item(q, DIR_END(q) - D2).key() >= Item(p, c + D2).key())
+	    Item(q, DIR_END(q) - D2, (j == 1)).key() >= Item(p, c + D2, false).key())
 	    failure(90);
 
 	if (REVISION(q) > REVISION(p)) failure(91);

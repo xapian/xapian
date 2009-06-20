@@ -100,7 +100,7 @@ ChertCursor::prev()
 		is_positioned = false;
 		RETURN(false);
 	    }
-	    if (Item(C[0].p, C[0].c).component_of() == 1) {
+	    if (Item(C[0].p, C[0].c, true).component_of() == 1) {
 		break;
 	    }
 	}
@@ -111,7 +111,7 @@ ChertCursor::prev()
 	    is_positioned = false;
 	    RETURN(false);
 	}
-	if (Item(C[0].p, C[0].c).component_of() == 1) {
+	if (Item(C[0].p, C[0].c, true).component_of() == 1) {
 	    break;
 	}
     }
@@ -134,7 +134,7 @@ ChertCursor::next()
 		is_positioned = false;
 		break;
 	    }
-	    if (Item(C[0].p, C[0].c).component_of() == 1) {
+	    if (Item(C[0].p, C[0].c, true).component_of() == 1) {
 		is_positioned = true;
 		break;
 	    }
@@ -180,7 +180,7 @@ ChertCursor::find_entry(const string &key)
 	    C[0].c = DIR_START;
 	    if (! B->prev(C, 0)) goto done;
 	}
-	while (Item(C[0].p, C[0].c).component_of() != 1) {
+	while (Item(C[0].p, C[0].c, true).component_of() != 1) {
 	    if (! B->prev(C, 0)) {
 		is_positioned = false;
 		throw Xapian::DatabaseCorruptError("find_entry failed to find any entry at all!");
@@ -229,7 +229,7 @@ ChertCursor::find_entry_ge(const string &key)
 	    is_positioned = false;
 	    RETURN(false);
 	}
-	Assert(Item(C[0].p, C[0].c).component_of() == 1);
+	Assert(Item(C[0].p, C[0].c, true).component_of() == 1);
 	get_key(&current_key);
     }
     tag_status = UNREAD;
@@ -244,7 +244,7 @@ ChertCursor::get_key(string * key) const
     Assert(B->level <= level);
     Assert(is_positioned);
 
-    (void)Item(C[0].p, C[0].c).key().read(key);
+    (void)Item(C[0].p, C[0].c, true).key().read(key);
 }
 
 bool
