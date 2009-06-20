@@ -931,7 +931,7 @@ ChertTable::add_kt(bool found)
 	int kt_size = kt.size();
 	int needed = kt_size - item.size();
 
-	components = Item(p, c).components_of();
+	components = item.components_of();
 
 	if (needed <= 0) {
 	    /* simple replacement */
