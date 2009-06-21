@@ -1,3 +1,12 @@
+Sun Jun 21 12:09:55 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_check.cc,backends/chert/chert_table.cc,
+	  backends/chert/chert_table.h: Replace duplicated macros with
+	  a single version in chert_table.h, and use DIR_START instead of
+	  a literal 11 in that header.
+	* backends/chert/chert_table.h: Add more assertions.  Use
+	  BYTES_PER_BLOCK_NUMBER instead of a literal 4 in more places.
+
 Sat Jun 20 07:38:56 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_table.cc,backends/flint/flint_table.cc: Fix

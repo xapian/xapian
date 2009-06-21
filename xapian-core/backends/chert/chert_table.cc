@@ -180,19 +180,6 @@ static inline byte *zeroed_new(size_t size)
 
 */
 
-#define REVISION(b)      static_cast<unsigned int>(getint4(b, 0))
-#define GET_LEVEL(b)     getint1(b, 4)
-#define MAX_FREE(b)      getint2(b, 5)
-#define TOTAL_FREE(b)    getint2(b, 7)
-#define DIR_END(b)       getint2(b, 9)
-#define DIR_START        11
-
-#define SET_REVISION(b, x)      setint4(b, 0, x)
-#define SET_LEVEL(b, x)         setint1(b, 4, x)
-#define SET_MAX_FREE(b, x)      setint2(b, 5, x)
-#define SET_TOTAL_FREE(b, x)    setint2(b, 7, x)
-#define SET_DIR_END(b, x)       setint2(b, 9, x)
-
 /** Flip to sequential addition block-splitting after this number of observed
  *  sequential additions (in negated form). */
 #define SEQ_START_POINT (-10)
@@ -200,7 +187,6 @@ static inline byte *zeroed_new(size_t size)
 /** Even for items of at maximum size, it must be possible to get this number of
  *  items in a block */
 #define BLOCK_CAPACITY 4
-
 
 
 /* There are two bit maps in bit_map0 and bit_map. The nth bit of bitmap is 0
