@@ -776,7 +776,7 @@ if test no != "$with_ruby" ; then
 
 	AC_ARG_VAR(RUBY_LIB, [Directory to install ruby files into])
 	if test -z "$RUBY_LIB" ; then
-	  [RUBY_LIB=`$RUBY -rrbconfig -e 'puts Config::CONFIG["sitelibdir"]'`]
+	  [RUBY_LIB=`$RUBY -rrbconfig -e 'puts Config::CONFIG["sitelibdir"]'`];
 	fi
 	AC_SUBST(RUBY_LIB)
 
@@ -824,13 +824,24 @@ if test yes = "$with_perl" ; then
   AC_ARG_VAR(PERL, [perl interpreter])
   if test -n "$PERL" ;  then
     dnl later
-    AC_MSG_CHECKING([for include directory of XS headers])
     AC_ARG_VAR(PERL_INC, [Directory to include XS headers])
     if test -z "$PERL_INC" ; then
       PERL_INC=`$PERL -MConfig -e 'print $Config{archlibexp}, "/CORE";'`
     fi
-    AC_MSG_RESULT([$PERL_INC])
     AC_SUBST(PERL_INC)
+
+    AC_ARG_VAR(PERL_LIB, [Directory to install perl files into])
+    if test -z "$PERL_LIB" ; then
+      [PERL_LIB=`$PERL -MConfig -e 'print $Config{archlibexp}, "/auto/Search/Xapian";'`];
+    fi
+    AC_SUBST(PERL_LIB)
+
+    AC_ARG_VAR(PERL_SO, [for perl module extension])
+    if test -z "$PERL_SO" ; then
+      [PERL_SO=`$PERL -MConfig -e 'print $Config{'dlext'};'`];
+    fi
+    AC_SUBST(PERL_SO)
+
     BINDINGS="$BINDINGS perl"
   else
     if test yes = "$with_perl" ; then

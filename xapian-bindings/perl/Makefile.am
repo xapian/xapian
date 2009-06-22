@@ -22,7 +22,7 @@ perllib_LTLIBRARIES = xapian.la
 
 AM_CPPFLAGS = -I$(PERL_INC)
 AM_CXXFLAGS = @SWIG_CXXFLAGS@ $(XAPIAN_CXXFLAGS)
-xapian_la_LDFLAGS = -avoid-version -module -shrext $(NO_UNDEFINED)
+xapian_la_LDFLAGS = -avoid-version -module -shrext $(PERL_SO) $(NO_UNDEFINED)
 xapian_la_SOURCES = xapian_wrap.cc
 xapian_la_LIBADD = $(XAPIAN_LIBS) $(PERL_LIBS)
 
