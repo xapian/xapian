@@ -1,3 +1,18 @@
+Sun Jun 21 21:45:28 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/xapian.pm: remove a generated file (xapian.pm) from repository.
+	* ChangeLog: add log message of revision 12910 (Mon Jun 15 17:58:09 GMT 2009).
+
+Mon Jun 15 17:58:09 GMT 2009  Kosei Moriyama <cou929@gmail.comm>
+
+	* Makefile.am,configure.ac: Add --with-perl configure option, 
+  	  and add configure test to get appropriate setting for include 
+	  path for perl.
+	* perl/Makefile.am, perl/docs/Makefile.am,
+	  perl/docs/examples/, perl/docs/index.html,
+	  perl/t/, perl/util.i, perl/xapian.pm: Add perl subdirectory to 
+	  build system.
+
 Wed May 27 05:52:20 GMT 2009  Olly Betts <olly@survex.com>
 
 	* README: Add note about GSoC 2009 project to reimplement Perl bindings
