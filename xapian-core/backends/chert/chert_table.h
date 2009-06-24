@@ -78,12 +78,19 @@
 
    Recall that item has this form:
 
-           i k
+   leaf:   i k
            | |
            I K key x C tag
              <--K-->
            <------I------>
 
+   branch:         k
+                   |
+	   blockno K key x
+	   <--B--> <--K-->
+	   <------I------>
+
+   where B = BYTES_PER_BLOCK_NUMBER
 
    item_of(p, c) returns i, the address of the item at block address p,
    directory offset c,
@@ -143,11 +150,19 @@ public:
     T get_address() const { return p; }
     /** I in diagram above. */
     int size() const {
+	if (!leaf) {
+	    int key_len = getK(p, BYTES_PER_BLOCK_NUMBER);
+	    AssertRel(key_len,>=,K1);
+	    return key_len + BYTES_PER_BLOCK_NUMBER;
+	}
 	int item_size = getint2(p, 0) & 0x7fff;
 	AssertRel(item_size,>=,5);
 	return item_size;
     }
-    bool get_compressed() const { return *p & 0x80; }
+    bool get_compressed() const {
+	Assert(leaf);
+	return *p & 0x80;
+    }
     int component_of() const {
 	Assert(leaf);
 	return getint2(p, getK(p, I2) + I2 - C2);
@@ -156,7 +171,7 @@ public:
 	Assert(leaf);
 	return getint2(p, getK(p, I2) + I2);
     }
-    Key key() const { return Key(p + I2); }
+    Key key() const { return Key(p + (leaf ? I2 : BYTES_PER_BLOCK_NUMBER)); }
     void append_chunk(std::string * tag) const {
 	Assert(leaf);
 	/* number of bytes to extract from current component */
@@ -169,8 +184,7 @@ public:
      */
     uint4 block_given_by() const {
 	Assert(!leaf);
-	AssertRel(size(),>=,BYTES_PER_BLOCK_NUMBER);
-	return getint4(p, size() - BYTES_PER_BLOCK_NUMBER);
+	return getint4(p, 0);
     }
 };
 
@@ -178,19 +192,21 @@ class Item : public Item_base<const byte *> {
 public:
     /* Item from block address and offset to item pointer */
     Item(const byte * p_, int c, bool leaf_)
-       	: Item_base<const byte *>(p_, c, leaf_) { }
+	: Item_base<const byte *>(p_, c, leaf_) { }
     Item(const byte * p_, bool leaf_)
-       	: Item_base<const byte *>(p_, leaf_) { }
+	: Item_base<const byte *>(p_, leaf_) { }
 };
 
 class Item_wr : public Item_base<byte *> {
-    void set_key_len(int x) { setint1(p, I2, x); }
+    void set_key_len(int x) {
+	setint1(p, (leaf ? I2 : BYTES_PER_BLOCK_NUMBER), x);
+    }
 public:
     /* Item_wr from block address and offset to item pointer */
     Item_wr(byte * p_, int c, bool leaf_)
-       	: Item_base<byte *>(p_, c, leaf_) { }
+	: Item_base<byte *>(p_, c, leaf_) { }
     Item_wr(byte * p_, bool leaf_)
-       	: Item_base<byte *>(p_, leaf_) { }
+	: Item_base<byte *>(p_, leaf_) { }
     void set_component_of(int i) {
 	Assert(leaf);
 	setint2(p, getK(p, I2) + I2 - C2, i);
@@ -207,18 +223,14 @@ public:
 	// FIXME that's stupid!  sort this out
 	int newkey_len = newkey.length();
 	AssertRel(i,<=,newkey_len);
-	int newsize = I2 + K1 + i + C2;
-	// Item size (BYTES_PER_BLOCK_NUMBER since tag contains block number)
-	setint2(p, 0, newsize + BYTES_PER_BLOCK_NUMBER);
 	// Key size
-	setint1(p, I2, newsize - I2);
+	setint1(p, BYTES_PER_BLOCK_NUMBER, K1 + i + C2);
 	// Copy the main part of the key, possibly truncating.
-	memmove(p + I2 + K1, newkey.get_address() + K1, i);
+	memmove(p + BYTES_PER_BLOCK_NUMBER + K1, newkey.get_address() + K1, i);
 	// Copy the count part.
-	memmove(p + I2 + K1 + i, newkey.get_address() + K1 + newkey_len, C2);
+	memmove(p + BYTES_PER_BLOCK_NUMBER + K1 + i, newkey.get_address() + K1 + newkey_len, C2);
 	// Set tag contents to block number
-//	set_block_given_by(n);
-	setint4(p, newsize, n);
+	set_block_given_by(n);
     }
 
     /** Set this item's tag to point to block n (this block should not be at
@@ -226,9 +238,10 @@ public:
      */
     void set_block_given_by(uint4 n) {
 	Assert(!leaf);
-	setint4(p, size() - BYTES_PER_BLOCK_NUMBER, n);
+	setint4(p, 0, n);
     }
     void set_size(int l) {
+	Assert(leaf);
 	AssertRel(l,>=,5);
 	setint2(p, 0, l);
     }
@@ -236,11 +249,11 @@ public:
      */
     void form_null_key(uint4 n) {
 	Assert(!leaf);
-	setint4(p, I2 + K1, n);
+	setint4(p, 0, n);
 	set_key_len(K1);        /* null key */
-	set_size(I2 + K1 + BYTES_PER_BLOCK_NUMBER);  /* total length */
     }
     void form_key(const std::string & key_) {
+	Assert(leaf);
 	std::string::size_type key_len = key_.length();
 	if (key_len > CHERT_BTREE_MAX_KEY_LEN) {
 	    // We check term length when a term is added to a document but
@@ -255,7 +268,7 @@ public:
 
 	set_key_len(key_len + K1 + C2);
 	memmove(p + I2 + K1, key_.data(), key_len);
-	if (leaf) set_component_of(1);
+	set_component_of(1);
     }
     // FIXME passing cd here is icky
     void set_tag(int cd, const char *start, int len, bool compressed) {
@@ -265,6 +278,7 @@ public:
 	if (compressed) *p |= 0x80;
     }
     void fake_root_item() {
+	Assert(leaf);
 	set_key_len(K1 + C2);   // null key length
 	set_size(I2 + K1 + 2 * C2);   // length of the item
 	set_component_of(1);
@@ -622,7 +636,7 @@ class XAPIAN_VISIBILITY_DEFAULT ChertTable {
 	void compact(byte *p, bool leaf);
 	void enter_key(int j, Key prevkey, Key newkey);
 	int mid_point(byte *p, bool leaf);
-	void add_item_to_block(byte *p, Item_wr kt, int c);
+	void add_item_to_block(byte *p, Item_wr kt, int c, bool leaf);
 	void add_item(Item_wr kt, int j);
 	void delete_item(int j, bool repeatedly);
 	int add_kt(bool found);

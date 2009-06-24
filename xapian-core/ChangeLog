@@ -1,3 +1,15 @@
+Wed Jun 24 04:19:57 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_table.cc,backends/chert/chert_table.h: Use a
+	  more compact format for items in non-leaf blocks - it's pointless
+	  storing the item size as we store the key size and the tag is always
+	  4 bytes, and the "components" 2 byte value is unused.  This saves
+	  4 bytes per item in a non-leaf block which will allow more branches
+	  at each level of the Btree, and so a shallower Btree for the same
+	  data.  This should particularly help the cold cache case, but it
+	  should reduce database size a bit and improve general performance a
+	  little too.
+
 Sun Jun 21 12:09:55 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Merge from trunk:

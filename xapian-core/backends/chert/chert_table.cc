@@ -645,12 +645,12 @@ ChertTable::enter_key(int j, Key prevkey, Key newkey)
     // worthwhile as it trades a small amount of CPU and RAM use for a small
     // saving in disk use.  Other redundant keys will still creep in though.
     if (j > 1) {
-	byte * p = C[j - 1].p;
-	uint4 n = getint4(newkey.get_address(), newkey_len + K1 + C2);
-	int new_total_free = TOTAL_FREE(p) + newkey_len + C2;
 	// FIXME: incredibly icky going from key to item like this...
 	byte * ptr = const_cast<byte*>(newkey.get_address());
-	Item_wr(ptr - I2, false).form_null_key(n);
+	Item_wr itemwr(ptr - BYTES_PER_BLOCK_NUMBER, false);
+	itemwr.form_null_key(itemwr.block_given_by());
+	byte * p = C[j - 1].p;
+	int new_total_free = TOTAL_FREE(p) + newkey_len + C2;
 	SET_TOTAL_FREE(p, new_total_free);
     }
 
@@ -684,7 +684,7 @@ ChertTable::mid_point(byte * p, bool leaf)
     RETURN(0); /* Stop compiler complaining about end of method. */
 }
 
-/** add_item_to_block(p, kt_, c) adds item kt_ to the block at p.
+/** add_item_to_block(p, kt_, c, leaf) adds item kt_ to the block at p.
 
    c is the offset in the directory that needs to be expanded to
    accommodate the new entry for the item. We know before this is
@@ -693,9 +693,9 @@ ChertTable::mid_point(byte * p, bool leaf)
 */
 
 void
-ChertTable::add_item_to_block(byte * p, Item_wr kt_, int c)
+ChertTable::add_item_to_block(byte * p, Item_wr kt_, int c, bool leaf)
 {
-    LOGCALL_VOID(DB, "ChertTable::add_item_to_block", (void*)p << ", kt_, " << c);
+    LOGCALL_VOID(DB, "ChertTable::add_item_to_block", (void*)p << ", kt_, " << c << ", " << leaf);
     Assert(writable);
     int dir_end = DIR_END(p);
     int kt_len = kt_.size();
@@ -706,7 +706,7 @@ ChertTable::add_item_to_block(byte * p, Item_wr kt_, int c)
     Assert(new_total >= 0);
 
     if (new_max < 0) {
-	compact(p, true);
+	compact(p, leaf);
 	new_max = MAX_FREE(p) - needed;
 	Assert(new_max >= 0);
     }
@@ -735,13 +735,13 @@ ChertTable::add_item(Item_wr kt_, int j)
 {
     LOGCALL_VOID(DB, "ChertTable::add_item", "kt_, " << j);
     Assert(writable);
+    bool leaf = (j == 0);
     byte * p = C[j].p;
     int c = C[j].c;
     uint4 n;
 
     int needed = kt_.size() + D2;
     if (TOTAL_FREE(p) < needed) {
-	bool leaf = (j == 0);
 	int m;
 	// Prepare to split p. After splitting, the block is in two halves, the
 	// lower half is split_p, the upper half p again. add_to_upper_half
@@ -787,12 +787,12 @@ ChertTable::add_item(Item_wr kt_, int j)
 	    Assert(seq_count < 0 || c <= DIR_START + D2);
 	    Assert(c >= DIR_START);
 	    Assert(c <= DIR_END(p));
-	    add_item_to_block(p, kt_, c);
+	    add_item_to_block(p, kt_, c, leaf);
 	    n = C[j].n;
 	} else {
 	    Assert(c >= DIR_START);
 	    Assert(c <= DIR_END(split_p));
-	    add_item_to_block(split_p, kt_, c);
+	    add_item_to_block(split_p, kt_, c, leaf);
 	    n = split_n;
 	}
 	write_block(split_n, split_p);
@@ -806,7 +806,7 @@ ChertTable::add_item(Item_wr kt_, int j)
 		  Item(split_p, DIR_END(split_p) - D2, leaf).key(),
 		  Item(p, DIR_START, leaf).key());
     } else {
-	add_item_to_block(p, kt_, c);
+	add_item_to_block(p, kt_, c, leaf);
 	n = C[j].n;
     }
     if (j == 0) {
