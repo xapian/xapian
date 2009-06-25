@@ -3,7 +3,7 @@ Section: libs
 Priority: optional
 Maintainer: Olly Betts <olly@survex.com>
 Standards-Version: 3.8.2
-Build-Depends: debhelper (>= 4.1.22), autotools-dev, zlib1g-dev
+Build-Depends: debhelper (>= 5), autotools-dev, zlib1g-dev
 Homepage: http://xapian.org/
 DM-Upload-Allowed: yes
 
