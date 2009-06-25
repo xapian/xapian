@@ -1,3 +1,8 @@
+Thu Jun 25 11:20:07 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/phrasepostlist.cc: Use Xapian::termcount(1) instead of 1u
+	  so that the code doesn't assume Xapian::termcount is unsigned int.
+
 Sun Jun 21 12:09:55 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_check.cc,backends/chert/chert_table.cc,
