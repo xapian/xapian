@@ -4,8 +4,8 @@ Priority: optional
 Maintainer: Olly Betts <olly@survex.com>
 Build-Depends: @BUILD_DEPS@ po-debconf, autotools-dev
 XS-Python-Version: all
-Standards-Version: 3.8.1
-Homepage: http://www.xapian.org/
+Standards-Version: 3.8.2
+Homepage: http://xapian.org/
 DM-Upload-Allowed: yes
 
 Package: tclxapian

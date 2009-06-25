@@ -61,7 +61,7 @@ else
 PYTHON_VERSIONS := python2.2 python2.3 python2.4
 
 # We need python itself for dh_python to work.
-BUILD_DEPS := debhelper (>= 4.1.67), python, $(PYTHON_VERSIONS:%=%-dev,)
+BUILD_DEPS := debhelper (>= 5), python, $(PYTHON_VERSIONS:%=%-dev,)
 
 endif
 
@@ -122,15 +122,13 @@ PYTHON_OLD_PACKAGES := $(shell echo "$(PYTHON_OLD_VERSIONS:%=python%-xapian $(PY
 # Build depends for PHP.  We need phpN-cli so we can run "make check" on
 # the bindings and to get the phpapi version we need to depend on.
 #
-# Currently hurd-i386 doesn't have any PHP packages, but that's no reason to
-# prevent python/tcl/ruby-loving hurd users having packaged xapian bindings.
 # Note that we check for /usr/bin/php-configN before trying to build PHP
 # bindings below.
 #
 # Only the first % in the replacement part is substituted, so we need to do
 # this in two goes.
-BUILD_DEPS += $(PHP_VERSIONS:%=php%-dev [!hurd-i386],)
-BUILD_DEPS += $(PHP_VERSIONS:%=php%-cli [!hurd-i386],)
+BUILD_DEPS += $(PHP_VERSIONS:%=php%-dev,)
+BUILD_DEPS += $(PHP_VERSIONS:%=php%-cli,)
 
 # Build depends for Tcl.  We use Tcl's stubs mechanism, so the built
 # bindings will work with any Tcl version from 8.0.6 upwards, whichever
