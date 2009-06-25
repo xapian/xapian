@@ -67,7 +67,7 @@ else
     MAKE_CHECK := make check
 endif
 
-BUILD_DEPS := debhelper (>= 4.1.22),
+BUILD_DEPS := debhelper (>= 5),
 # We need a versioned build dependency on libxapian-dev.
 BUILD_DEPS += libxapian-dev (>= $(XAPIAN_VERSION)),# NB Trailing ',' required here!
 BUILD_DEPS += libxapian-dev (<< $(XAPIAN_VERSION_CEILING)),# NB Trailing ',' required here!
