@@ -1,3 +1,9 @@
+Backported from SWIG SVN trunk r11320:
+
+2009-06-26: olly
+	    [Ruby] Fix to handle FIXNUM values greater than MAXINT passed for a
+	    double parameter.
+
 Backported from SWIG SVN trunk r11192:
 
 2009-04-29: olly
