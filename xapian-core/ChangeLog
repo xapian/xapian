@@ -1,3 +1,11 @@
+Fri Jun 26 05:42:26 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/documentvaluelist.cc,api/documentvaluelist.h: Change
+	  DocumentValueList::skip_to()'s parameter type from Xapian::valueno
+	  to Xapian::docid to agree with the type in ValueList::skip_to().
+	  This is a latent bug - it doesn't matter provided the types are
+	  actually the same (ticket#385).
+
 Thu Jun 25 11:20:07 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/phrasepostlist.cc: Use Xapian::termcount(1) instead of 1u
