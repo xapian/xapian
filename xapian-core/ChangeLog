@@ -1,3 +1,9 @@
+Sat Jun 27 07:26:41 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_postlist.cc: Adjust use of Xapian::doccount vs
+	  Xapian::termcount for consistency so things work better when these
+	  types aren't identical.
+
 Sat Jun 27 01:48:39 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/matchspy.cc: Remove unused matchspy.cc - there is an updated
