@@ -1,3 +1,8 @@
+Sat Jun 27 12:28:47 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_alltermslist.cc: Prefer 'str.resize(0)' to
+	  'str = ""'.
+
 Sat Jun 27 12:16:17 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_alltermslist.h,backends/chert/chert_postlist.h:
