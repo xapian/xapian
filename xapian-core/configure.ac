@@ -928,11 +928,10 @@ if test yes = "$GXX"; then
     [
       dnl GCC:
       dnl
-      dnl -Wundef and -Wshadow were supported by g++ 3.0 (though -Wshadow was
-      dnl buggy there).  We now require GCC >= 3.1, so can rely on them.
-      dnl All the other options were supported by g++ 2.95 and there's little
-      dnl likelihood Xapian will build with any earlier version, so there's
-      dnl not much point worrying about whether older versions had them or not.
+      dnl -Wundef was supported by g++ 3.0 and since we now require GCC >= 3.1,
+      dnl we can rely on it.
+      dnl
+      dnl All the other options were supported by g++ 2.95.
       AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Wshadow -Woverloaded-virtual"
 
       dnl The output of g++ --version seems to change with almost every minor
@@ -951,11 +950,17 @@ if test yes = "$GXX"; then
 	AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel"
 
 	case $gxx_version in
-	4.[[01]]) ;;
+	4.0) ;;
+	4.1)
+	  dnl -Wshadow was supported by g++ 3.0 (though buggy then).  But it's
+	  dnl also buggy in 4.0 (at least on Mac OS X) and warns if a parameter
+	  dnl in a static method is the same as a member variable, so only
+	  dnl enable it for GCC >= 4.1.
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wshadow" ;;
 	4.2)
 	  dnl -Wstrict-overflow was new in GCC 4.2.  Higher settings than 1
 	  dnl have proved too noisy.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-overflow=1" ;;
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wshadow -Wstrict-overflow=1" ;;
 	*)
 	  dnl -Wlogical-op and -Wmissing-declarations (for C++) were added in
 	  dnl GCC 4.3.
@@ -966,7 +971,7 @@ if test yes = "$GXX"; then
 	  dnl http://gcc.gnu.org/PR34772) may get fixed so we pass this option
 	  dnl anyway - we don't intend to use this idiom, so any instances are
 	  dnl bugs we'd like to know about.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-overflow=1 -Winit-self -Wlogical-op -Wmissing-declarations" ;;
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wshadow -Wstrict-overflow=1 -Winit-self -Wlogical-op -Wmissing-declarations" ;;
 	esac
 
 	dnl FIXME:

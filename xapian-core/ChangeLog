@@ -1,3 +1,9 @@
+Sat Jun 27 13:35:45 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: -Wshadow produces false positives with GCC 4.0, so
+	  only enable  it for >= 4.1 since we enable -Werror for
+	  maintainer-mode builds for GCC >= 4.0.
+
 Sat Jun 27 13:30:22 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/multi/multi_termlist.cc,backends/multi/multi_termlist.h:
