@@ -1,3 +1,9 @@
+Sat Jun 27 12:50:17 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_alltermslist.h,backends/flint/flint_postlist.cc,
+	  backends/flint/flint_postlist.h: Fix to use Xapian::doccount for
+	  termfreq in flint too.
+
 Sat Jun 27 12:28:47 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_alltermslist.cc: Prefer 'str.resize(0)' to

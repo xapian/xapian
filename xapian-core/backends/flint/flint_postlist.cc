@@ -358,7 +358,7 @@ FlintPostlistChunkWriter::append(FlintTable * table, Xapian::docid did,
 /** Make the data to go at the start of the very first chunk.
  */
 static inline string
-make_start_of_first_chunk(Xapian::termcount entries,
+make_start_of_first_chunk(Xapian::doccount entries,
 			  Xapian::termcount collectionfreq,
 			  Xapian::docid new_did)
 {
@@ -424,7 +424,8 @@ FlintPostlistChunkWriter::flush(FlintTable *table)
 
 	    // Extract existing counts from the first chunk so we can reinsert
 	    // them into the block we're renaming.
-	    Xapian::termcount num_ent, coll_freq;
+	    Xapian::doccount num_ent;
+	    Xapian::termcount coll_freq;
 	    {
 		cursor->read_tag();
 		const char *tagpos = cursor->current_tag.data();
@@ -561,7 +562,8 @@ FlintPostlistChunkWriter::flush(FlintTable *table)
 	    Assert(ok);
 	    Assert(!tag.empty());
 
-	    Xapian::termcount num_ent, coll_freq;
+	    Xapian::doccount num_ent;
+	    Xapian::termcount coll_freq;
 	    {
 		const char * tagpos = tag.data();
 		const char * tagend = tagpos + tag.size();
@@ -1014,7 +1016,8 @@ FlintPostListTable::merge_changes(
 	    // Read start of first chunk to get termfreq and collfreq.
 	    const char *pos = tag.data();
 	    const char *end = pos + tag.size();
-	    Xapian::termcount termfreq, collfreq;
+	    Xapian::doccount termfreq;
+	    Xapian::termcount collfreq;
 	    Xapian::docid firstdid, lastdid;
 	    bool islast;
 	    if (pos == end) {
