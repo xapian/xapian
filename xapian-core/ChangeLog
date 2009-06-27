@@ -1,3 +1,10 @@
+Sat Jun 27 11:51:25 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_table.cc: Change so add_item_to_block() can
+	  always assume there is another contiguous space in the block
+	  (previously it could assume that there was enough space, but not
+	  that it was necessarily contiguous).
+
 Sat Jun 27 09:55:19 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* include/xapian/postingsource.h,include/xapian/weight.h: Add note
