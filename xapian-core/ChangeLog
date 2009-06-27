@@ -1,3 +1,9 @@
+Sat Jun 27 09:55:19 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/postingsource.h,include/xapian/weight.h: Add note
+	  that PostingSource and Weight objects returned by clone() and
+	  unserialise() methods will be deallocated with "delete".
+
 Sat Jun 27 07:26:41 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_postlist.cc: Adjust use of Xapian::doccount vs

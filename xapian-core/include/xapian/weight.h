@@ -79,6 +79,9 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *  you would implement FooWeight::clone() like so:
      *
      *  FooWeight * FooWeight::clone() const { return new FooWeight(a, b); }
+     *
+     *  Note that the returned object will be deallocated by Xapian after use
+     *  with "delete".  It must therefore have been allocated with "new".
      */
     virtual Weight * clone() const = 0;
 
@@ -153,6 +156,9 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *  If you don't want to support the remote backend in your weighting
      *  scheme, you can just implement this to throw
      *  Xapian::UnimplementedError.
+     *
+     *  Note that the returned object will be deallocated by Xapian after use
+     *  with "delete".  It must therefore have been allocated with "new".
      */
     virtual Weight * unserialise(const std::string & s) const = 0;
 
