@@ -1,3 +1,9 @@
+Sat Jun 27 13:30:22 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/multi/multi_termlist.cc,backends/multi/multi_termlist.h:
+	  Fix return type of MultiTermList::positionlist_count() to be
+	  Xapian::termcount rather than Xapian::termpos.
+
 Sat Jun 27 12:50:17 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_alltermslist.h,backends/flint/flint_postlist.cc,
