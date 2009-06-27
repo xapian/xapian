@@ -1,3 +1,9 @@
+Sat Jun 27 01:48:39 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/matchspy.cc: Remove unused matchspy.cc - there is an updated
+	  version of this on the matchspy branch; having an old copy here
+	  is just likely to lead to confusion.
+
 Fri Jun 26 05:42:26 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/documentvaluelist.cc,api/documentvaluelist.h: Change
