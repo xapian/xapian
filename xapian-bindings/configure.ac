@@ -823,7 +823,6 @@ if test yes = "$with_perl" ; then
   AC_PATH_PROGS(PERL, ["${PERL-perl}"], [])
   AC_ARG_VAR(PERL, [perl interpreter])
   if test -n "$PERL" ;  then
-    dnl later
     AC_ARG_VAR(PERL_INC, [Directory to include XS headers])
     if test -z "$PERL_INC" ; then
       PERL_INC=`$PERL -MConfig -e 'print $Config{archlibexp}, "/CORE";'`
@@ -832,13 +831,13 @@ if test yes = "$with_perl" ; then
 
     AC_ARG_VAR(PERL_LIB, [Directory to install perl files into])
     if test -z "$PERL_LIB" ; then
-      [PERL_LIB=`$PERL -MConfig -e 'print $Config{archlibexp}, "/auto/Search/Xapian";'`];
+      [PERL_LIB=`$PERL -MConfig -e 'print $Config{sitearch};'`];
     fi
     AC_SUBST(PERL_LIB)
 
     AC_ARG_VAR(PERL_SO, [for perl module extension])
     if test -z "$PERL_SO" ; then
-      [PERL_SO=`$PERL -MConfig -e 'print $Config{'dlext'};'`];
+      [PERL_SO=`$PERL -MConfig -e 'print ".", $Config{'dlext'};'`];
     fi
     AC_SUBST(PERL_SO)
 

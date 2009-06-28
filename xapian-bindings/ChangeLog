@@ -1,3 +1,12 @@
+Sun Jun 28 17:56:03 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/Makefile.am: To override module name (from 'xapian' 
+	to 'Search::Xapian') add swig's '-module Search::Xapian' option,
+	change test environment from 'perl' to 'prove', and change directory
+	to install Xapian.pm.
+	* configure.ac: Remove '/auto/Search/Xapian' from PERL_LIB variable, 
+	and add dot into PERL_SO variable.
+
 Mon Jun 22 02:53:32 GMT 2009  Kosei Moriyama <cou929@gmail.com>
 
 	* configure.ac,perl/Makefile.am: Add configure test to get appropriate

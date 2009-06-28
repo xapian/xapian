@@ -2,7 +2,8 @@
 
 include ../generic/generic.mk
 
-TESTS_ENVIRONMENT = $(PERL)
+#TESTS_ENVIRONMENT = $(PERL)
+TESTS_ENVIRONMENT = prove
 
 ## Test programs to be run
 TESTS = t/01use.t t/02pod.t t/03podcoverage.t t/04functions.t \
@@ -16,9 +17,11 @@ EXTRA_DIST = $(TESTS) util.i $(BUILT_SOURCES)
 
 SUBDIRS = docs
 
-perllibdir = $(PERL_LIB)
-
+perllibdir = $(PERL_LIB)/auto/Search/Xapian
 perllib_LTLIBRARIES = xapian.la
+
+perlmoddir = $(PERL_LIB)/Search
+perlmod_DATA = Xapian.pm
 
 AM_CPPFLAGS = -I$(PERL_INC)
 AM_CXXFLAGS = @SWIG_CXXFLAGS@ $(XAPIAN_CXXFLAGS)
@@ -29,7 +32,7 @@ xapian_la_LIBADD = $(XAPIAN_LIBS) $(PERL_LIBS)
 if MAINTAINER_MODE
 xapian_wrap.cc: $(SWIG_sources) util.i
 	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
-	    -perl \
+	    -perl -module Search::Xapian\
 	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp $(SWIG_mainsource)
 	mv xapian_wrap_d.tmp xapian_wrap.d
 
