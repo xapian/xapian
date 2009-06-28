@@ -1,3 +1,7 @@
+Sun Jun 28 14:50:56 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/remote/net_postlist.h: Fix internal doc comment.
+
 Wed Jun 24 04:19:57 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_table.cc,backends/chert/chert_table.h: Use a
