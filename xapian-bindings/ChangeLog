@@ -1,3 +1,9 @@
+Sun Jun 28 20:44:32 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* configure.ac,perl/util.i,perl/util.i.in: Add VERSION variable 
+	into Xapian.pm. To do this, add #define directive into perl/util.i
+	and get version number from configure.
+
 Sun Jun 28 17:56:03 GMT 2009  Kosei Moriyama <cou929@gmail.com>
 
 	* perl/Makefile.am: To override module name (from 'xapian' 

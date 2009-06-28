@@ -840,6 +840,12 @@ if test yes = "$with_perl" ; then
       [PERL_SO=`$PERL -MConfig -e 'print ".", $Config{'dlext'};'`];
     fi
     AC_SUBST(PERL_SO)
+    
+    if test -z "$PERL_XAPIAN_VERSION" ; then
+      PERL_VER=`$XAPIAN_CONFIG --version`;
+      [PERL_XAPIAN_VERSION=`$PERL -e '$xver = "'"$PERL_VER"'"; $xver =~ s/.*\s//; print $xver, ".0";'`];
+    fi
+    AC_SUBST(PERL_XAPIAN_VERSION)
 
     BINDINGS="$BINDINGS perl"
   else
@@ -949,7 +955,7 @@ AC_CONFIG_FILES([Makefile
  csharp/AssemblyInfo.cs
  ruby/Makefile ruby/docs/Makefile
  xapian-bindings.spec
- perl/Makefile perl/docs/Makefile
+ perl/Makefile perl/docs/Makefile perl/util.i
  ])
 dnl guile/Makefile
 AC_CONFIG_FILES([python/doxy2swig.py],
