@@ -1,3 +1,9 @@
+Fri Jun 26 10:24:51 GMT 2009  Olly Betts <olly@survex.com>
+
+	* ruby/smoketest.rb: Add regression test for failing to accept an
+	  integer value > MAXINT for a double parameter, fixed by upgrading
+	  to using the latest SWIG SVN trunk.
+
 Wed Jun 10 01:12:23 GMT 2009  Olly Betts <olly@survex.com>
 
 	* configure.ac: Update for 1.1.1.

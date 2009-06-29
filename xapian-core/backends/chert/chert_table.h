@@ -636,7 +636,7 @@ class XAPIAN_VISIBILITY_DEFAULT ChertTable {
 	void compact(byte *p, bool leaf);
 	void enter_key(int j, Key prevkey, Key newkey);
 	int mid_point(byte *p, bool leaf);
-	void add_item_to_block(byte *p, Item_wr kt, int c, bool leaf);
+	void add_item_to_block(byte *p, Item_wr kt, int c);
 	void add_item(Item_wr kt, int j);
 	void delete_item(int j, bool repeatedly);
 	int add_kt(bool found);

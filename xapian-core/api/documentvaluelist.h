@@ -1,7 +1,7 @@
 /** @file documentvaluelist.h
  * @brief Iteration over values in a document.
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -56,7 +56,8 @@ class DocumentValueList : public ValueList {
 
     void next();
 
-    void skip_to(Xapian::valueno);
+    /// The parameter is actually a Xapian::valueno for this subclass.
+    void skip_to(Xapian::docid slot);
 
     std::string get_description() const;
 };

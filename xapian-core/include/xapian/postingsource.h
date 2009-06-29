@@ -272,6 +272,9 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
 
     /** Create object given string serialisation returned by serialise().
      *
+     *  Note that the returned object will be deallocated by Xapian after use
+     *  with "delete".  It must therefore have been allocated with "new".
+     *
      *  @param s A serialised instance of this PostingSource subclass.
      */
     virtual PostingSource * unserialise(const std::string &s) const;

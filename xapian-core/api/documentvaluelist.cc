@@ -67,7 +67,7 @@ DocumentValueList::next()
 }
 
 void
-DocumentValueList::skip_to(Xapian::valueno slot)
+DocumentValueList::skip_to(Xapian::docid slot)
 {
     it = doc->values.lower_bound(slot);
 }

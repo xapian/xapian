@@ -684,18 +684,19 @@ ChertTable::mid_point(byte * p, bool leaf)
     RETURN(0); /* Stop compiler complaining about end of method. */
 }
 
-/** add_item_to_block(p, kt_, c, leaf) adds item kt_ to the block at p.
+/** add_item_to_block(p, kt_, c) adds item kt_ to the block at p.
 
-   c is the offset in the directory that needs to be expanded to
-   accommodate the new entry for the item. We know before this is
-   called that there is enough room, so it's just a matter of byte
-   shuffling.
+   c is the offset in the directory that needs to be expanded to accommodate
+   the new entry for the item.  We know before this is called that there is
+   enough contiguous room for the item in the block, so it's just a matter of
+   shuffling up any directory entries after where we're inserting and copying
+   in the item.
 */
 
 void
-ChertTable::add_item_to_block(byte * p, Item_wr kt_, int c, bool leaf)
+ChertTable::add_item_to_block(byte * p, Item_wr kt_, int c)
 {
-    LOGCALL_VOID(DB, "ChertTable::add_item_to_block", (void*)p << ", kt_, " << c << ", " << leaf);
+    LOGCALL_VOID(DB, "ChertTable::add_item_to_block", (void*)p << ", kt_, " << c);
     Assert(writable);
     int dir_end = DIR_END(p);
     int kt_len = kt_.size();
@@ -705,11 +706,8 @@ ChertTable::add_item_to_block(byte * p, Item_wr kt_, int c, bool leaf)
 
     Assert(new_total >= 0);
 
-    if (new_max < 0) {
-	compact(p, leaf);
-	new_max = MAX_FREE(p) - needed;
-	Assert(new_max >= 0);
-    }
+    AssertRel(MAX_FREE(p),>=,needed);
+
     Assert(dir_end >= c);
 
     memmove(p + c + D2, p + c, dir_end - c);
@@ -787,12 +785,12 @@ ChertTable::add_item(Item_wr kt_, int j)
 	    Assert(seq_count < 0 || c <= DIR_START + D2);
 	    Assert(c >= DIR_START);
 	    Assert(c <= DIR_END(p));
-	    add_item_to_block(p, kt_, c, leaf);
+	    add_item_to_block(p, kt_, c);
 	    n = C[j].n;
 	} else {
 	    Assert(c >= DIR_START);
 	    Assert(c <= DIR_END(split_p));
-	    add_item_to_block(split_p, kt_, c, leaf);
+	    add_item_to_block(split_p, kt_, c);
 	    n = split_n;
 	}
 	write_block(split_n, split_p);
@@ -806,7 +804,14 @@ ChertTable::add_item(Item_wr kt_, int j)
 		  Item(split_p, DIR_END(split_p) - D2, leaf).key(),
 		  Item(p, DIR_START, leaf).key());
     } else {
-	add_item_to_block(p, kt_, c, leaf);
+	AssertRel(TOTAL_FREE(p),>=,needed);
+
+	if (MAX_FREE(p) < needed) {
+	    compact(p, leaf);
+	    AssertRel(MAX_FREE(p),>=,needed);
+	}
+
+	add_item_to_block(p, kt_, c);
 	n = C[j].n;
     }
     if (j == 0) {
