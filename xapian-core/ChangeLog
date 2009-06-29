@@ -1,3 +1,8 @@
+Mon Jun 29 06:32:52 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/remote/net_postlist.cc: Build up description string using
+	  +=.
+
 Sun Jun 28 14:50:56 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/remote/net_postlist.h: Fix internal doc comment.
