@@ -1,3 +1,7 @@
+Sun Jun 28 14:50:56 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/remote/net_postlist.h: Fix internal doc comment.
+
 Sat Jun 27 13:35:45 GMT 2009  Olly Betts <olly@survex.com>
 
 	* configure.ac: -Wshadow produces false positives with GCC 4.0, so
