@@ -1,3 +1,8 @@
+Mon Jun 29 06:33:45 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/remote/net_postlist.cc: Remove unused '#include
+	  "serialise-double.h"'.
+
 Mon Jun 29 06:32:52 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/remote/net_postlist.cc: Build up description string using

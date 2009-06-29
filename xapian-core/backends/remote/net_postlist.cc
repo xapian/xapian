@@ -24,7 +24,6 @@
 
 #include "net_postlist.h"
 #include "serialise.h"
-#include "serialise-double.h"
 
 using namespace std;
 
