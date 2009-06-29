@@ -1,7 +1,7 @@
 %include {
 /* queryparser.lemony: build a Xapian::Query object from a user query string.
  *
- * Copyright (C) 2004,2005,2006,2007,2008 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -203,12 +203,11 @@ class State {
     }
 
     valueno value_range(Query & q, Term *a, Term *b) {
-	string start = a->name;
-	string end = b->name;
-	Xapian::valueno valno = Xapian::BAD_VALUENO;
 	list<ValueRangeProcessor *>::const_iterator i;
 	for (i = qpi->valrangeprocs.begin(); i != qpi->valrangeprocs.end(); ++i) {
-	    valno = (**i)(start, end);
+	    string start = a->name;
+	    string end = b->name;
+	    Xapian::valueno valno = (**i)(start, end);
 	    if (valno != Xapian::BAD_VALUENO) {
 		delete a;
 		delete b;
@@ -223,7 +222,7 @@ class State {
 	// more thought and probably a look at queries users actually
 	// enter.
 	error = "Unknown range operation";
-	return valno;
+	return Xapian::BAD_VALUENO;
     }
 
     Query::op default_op() const { return qpi->default_op; }

@@ -1200,6 +1200,12 @@ static test test_value_range2_queries[] = {
     { "03-12-99..04-14-01", "VALUE_RANGE 1 19990312 20010414" },
     { "(test:a..test:b hello)", "(hello:(pos=1) FILTER VALUE_RANGE 3 test:a test:b)" },
     { "12..42kg 5..6kg 1..12", "0 * (VALUE_RANGE 2 \240 \256 AND (VALUE_RANGE 5 \256 \265@ OR VALUE_RANGE 5 \251 \252))" },
+    // Check that a VRP which fails to match doesn't remove a prefix or suffix.
+    // 1.0.13/1.1.1 and earlier got this wrong in some cases.
+    { "$12a..13", "VALUE_RANGE 3 $12a 13" },
+    { "$12..13b", "VALUE_RANGE 3 $12 13b" },
+    { "$12..12kg", "VALUE_RANGE 3 $12 12kg" },
+    { "12..b12kg", "VALUE_RANGE 3 12 b12kg" },
     { NULL, NULL }
 };
 
