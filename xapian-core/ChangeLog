@@ -1,3 +1,7 @@
+Wed Jul 01 04:12:22 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/spelling.rst: Omega now supports spelling correction.
+
 Mon Jun 29 08:16:13 GMT 2009  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Reset the begin and end strings
