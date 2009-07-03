@@ -1,3 +1,9 @@
+Fri Jul 03 08:57:47 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/phrasepostlist.cc: Use Xapian::termcount(1) instead of 1u
+	  so that the code doesn't assume Xapian::termcount is unsigned int.
+
 Fri Jul 03 08:54:04 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_table.cc,backends/flint/flint_table.cc: Fix
