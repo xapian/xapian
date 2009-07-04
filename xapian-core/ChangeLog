@@ -1,3 +1,9 @@
+Sat Jul 04 14:10:55 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_changesetapplier.h,
+	  backends/flint/flint_changesetapplier.h: "the the" -> "the" in
+	  comments.
+
 Sat Jul 04 14:06:39 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_btreebase.cc,backends/chert/chert_btreebase.h:
