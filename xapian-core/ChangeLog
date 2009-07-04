@@ -1,3 +1,10 @@
+Sat Jul 04 03:06:39 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/multi/multi_termlist.cc,backends/multi/multi_termlist.h:
+	  Fix return type of MultiTermList::positionlist_count() to be
+	  Xapian::termcount rather than Xapian::termpos.
+
 Sat Jul 04 02:35:40 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

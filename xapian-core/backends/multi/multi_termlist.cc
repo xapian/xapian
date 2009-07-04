@@ -83,7 +83,7 @@ bool MultiTermList::at_end() const
     return tl->at_end();
 }
 
-Xapian::termpos
+Xapian::termcount
 MultiTermList::positionlist_count() const
 {
     return tl->positionlist_count();
