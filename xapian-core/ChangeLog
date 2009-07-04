@@ -1,3 +1,10 @@
+Sat Jul 04 14:06:39 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_btreebase.cc,backends/chert/chert_btreebase.h:
+	  Make ChertTable_base::do_unpack_uint() just a static non-class
+	  function.  Use string::+= to build up the error string in it, and
+	  mark the error case as rare.
+
 Wed Jul 01 04:12:22 GMT 2009  Olly Betts <olly@survex.com>
 
 	* docs/spelling.rst: Omega now supports spelling correction.

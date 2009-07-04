@@ -1,7 +1,7 @@
 /* chert_btreebase.cc: Btree base file implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2006,2008 Olly Betts
+ * Copyright 2002,2003,2004,2006,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -137,16 +137,20 @@ ChertTable_base::~ChertTable_base()
     bit_map0 = 0;
 }
 
-bool
-ChertTable_base::do_unpack_uint(const char **start, const char *end,
-			   uint4 *dest, string &err_msg, 
-			   const string &basename,
-			   const char *varname)
+/** Do most of the error handling from unpack_uint() */
+static bool
+do_unpack_uint(const char **start, const char *end,
+	       uint4 *dest, string &err_msg, 
+	       const string &basename,
+	       const char *varname)
 {
     bool result = unpack_uint(start, end, dest);
-    if (!result) {
-	err_msg += "Unable to read " + string(varname) + " from " +
-		    basename + "\n";
+    if (rare(!result)) {
+	err_msg += "Unable to read ";
+	err_msg += varname;
+	err_msg += " from ";
+	err_msg += basename;
+	err_msg += '\n';
     }
     return result;
 }
