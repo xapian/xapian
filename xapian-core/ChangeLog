@@ -1,3 +1,9 @@
+Sat Jul 04 16:24:45 GMT 2009  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lt: Merge upstream "Check-in Number: 6749" -
+	  only changes are in code which isn't compiled due to preprocessor
+	  conditionals.
+
 Sat Jul 04 16:02:08 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/editdistance.cc: Add const to is_transposed() method
