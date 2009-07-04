@@ -222,7 +222,7 @@ class FlintDatabase : public Xapian::Database::Internal {
 	 */
 	void get_changeset_revisions(const string & path,
 				     flint_revision_number_t * startrev,
-				     flint_revision_number_t * endrev);
+				     flint_revision_number_t * endrev) const;
     public:
 	/** Create and open a flint database.
 	 *

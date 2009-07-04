@@ -379,7 +379,7 @@ FlintDatabase::get_next_revision_number() const
 void
 FlintDatabase::get_changeset_revisions(const string & path,
 				       flint_revision_number_t * startrev,
-				       flint_revision_number_t * endrev)
+				       flint_revision_number_t * endrev) const
 {
     int changes_fd = -1;
 #ifdef __WIN32__
