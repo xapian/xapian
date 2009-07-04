@@ -964,21 +964,23 @@ if test yes = "$GXX"; then
 	dnl Oddly Redhat's "2.96" doesn't support -Wundef, though real
 	dnl GCC versions before and after it do!
 	;;
-      [[012]].* | 3.0) dnl GCC < 3.1, other than 2.96
-	dnl GCC 3.0 supports -Wshadow, but it spews false positives (at least
-	dnl with 3.0.4) so we don't use it.
+      [[0123]].*) dnl GCC < 4, other than 2.96
 	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef" ;;
-      3.*)
-	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow" ;;
       *) dnl GCC >= 4.0
 	dnl -Wstrict-null-sentinel was new 4.0.
 	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow -Wstrict-null-sentinel"
 	case $gxx_version in
-	4.[[01]]) ;;
+	4.0) ;;
+	4.1)
+	  dnl -Wshadow was supported by g++ 3.0 (though buggy then).  But it's
+	  dnl also buggy in 4.0 (at least on Mac OS X) and warns if a parameter
+	  dnl in a static method is the same as a member variable, so only
+	  dnl enable it for GCC >= 4.1.
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wshadow" ;;
 	4.2)
 	  dnl -Wstrict-overflow was new in GCC 4.2.  Higher settings than 1
 	  dnl have proved too noisy.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-overflow=1" ;;
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wshadow -Wstrict-overflow=1" ;;
 	*)
 	  dnl -Wlogical-op and -Wmissing-declarations (for C++) were added in
 	  dnl GCC 4.3.
@@ -989,7 +991,7 @@ if test yes = "$GXX"; then
 	  dnl http://gcc.gnu.org/PR34772) may get fixed so we pass this option
 	  dnl anyway - we don't intend to use this idiom, so any instances are
 	  dnl bugs we'd like to know about.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-overflow=1 -Winit-self -Wlogical-op -Wmissing-declarations" ;;
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wshadow -Wstrict-overflow=1 -Winit-self -Wlogical-op -Wmissing-declarations" ;;
 	esac
 
 	dnl FIXME:

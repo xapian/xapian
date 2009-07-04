@@ -1,3 +1,10 @@
+Sat Jul 04 03:53:31 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: -Wshadow produces false positives with GCC 4.0, so
+	  only enable  it for >= 4.1 since we enable -Werror for
+	  maintainer-mode builds for GCC >= 4.0.
+
 Sat Jul 04 03:06:39 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
