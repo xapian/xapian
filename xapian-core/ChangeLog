@@ -1,3 +1,8 @@
+Sat Jul 04 16:36:59 GMT 2009  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Merge upstream "Check-in Number: 6755" - no
+	  functional changes in generated code for our parser.
+
 Sat Jul 04 16:29:24 GMT 2009  Olly Betts <olly@survex.com>
 
 	* queryparser/lemon.c: Merge upstream "Check-in Number: 6754" - no
