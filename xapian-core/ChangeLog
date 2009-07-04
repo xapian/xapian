@@ -1,3 +1,10 @@
+Sat Jul 04 02:35:40 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/flint/flint_alltermslist.h,backends/flint/flint_postlist.cc,
+	  backends/flint/flint_postlist.h: Fix to use Xapian::doccount for
+	  termfreq.
+
 Fri Jul 03 08:57:47 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
