@@ -54,14 +54,14 @@ class ChertLock {
 #if defined __CYGWIN__ || defined __WIN32__
     ChertLock(const std::string &filename_)
 	: filename(filename_), hFile(INVALID_HANDLE_VALUE) { }
-    operator bool() { return hFile != INVALID_HANDLE_VALUE; }
+    operator bool() const { return hFile != INVALID_HANDLE_VALUE; }
 #elif defined __EMX__
     ChertLock(const std::string &filename_)
 	: filename(filename_), hFile(NULLHANDLE) { }
-    operator bool() { return hFile != NULLHANDLE; }
+    operator bool() const { return hFile != NULLHANDLE; }
 #else
     ChertLock(const std::string &filename_) : filename(filename_), fd(-1) { }
-    operator bool() { return fd != -1; }
+    operator bool() const { return fd != -1; }
 #endif
     // Release any lock held when we're destroyed.
     ~ChertLock() { release(); }
