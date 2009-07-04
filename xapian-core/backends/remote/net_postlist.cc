@@ -105,5 +105,8 @@ NetworkPostList::at_end() const
 string
 NetworkPostList::get_description() const
 {
-    return "NetworkPostList(" + term + ")";
+    string desc = "NetworkPostList(";
+    desc += term;
+    desc += ')';
+    return desc;
 }

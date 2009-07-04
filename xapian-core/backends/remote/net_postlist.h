@@ -59,7 +59,7 @@ class NetworkPostList : public LeafPostList {
     }
 
   public:
-    /// Default constructor.
+    /// Constructor.
     NetworkPostList(Xapian::Internal::RefCntPtr<const RemoteDatabase> db_,
 		    const string & term_)
 	: db(db_), term(term_), started(false), pos(NULL), pos_end(NULL),
