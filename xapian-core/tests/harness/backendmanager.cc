@@ -188,6 +188,8 @@ BackendManager::getwritedb_flint_path(const string & name)
 
 #endif
 
+BackendManager::~BackendManager() { }
+
 std::string
 BackendManager::get_dbtype() const
 {

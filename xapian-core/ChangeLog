@@ -1,3 +1,8 @@
+Sun Jul 05 13:12:53 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/harness/backendmanager.cc,tests/harness/backendmanager.h: Move
+	  virtual destructor definition out of the header.
+
 Sun Jul 05 04:09:04 GMT 2009  Olly Betts <olly@survex.com>
 
 	* common/documentterm.h: Add const to OmDocumentTerm::get_wdf() method
