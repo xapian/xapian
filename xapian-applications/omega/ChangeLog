@@ -1,3 +1,8 @@
+Sun Jul 05 13:00:57 GMT 2009  Olly Betts <olly@survex.com>
+
+	* htmlparse.cc,htmlparse.h: Make HtmlParser::get_parameter() const
+	  (ticket#139).
+
 Sun Jul 05 12:59:45 GMT 2009  Olly Betts <olly@survex.com>
 
 	* cdb_init.cc: Prefer static_cast<> to C-style cast.
