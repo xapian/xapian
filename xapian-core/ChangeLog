@@ -1,3 +1,8 @@
+Sun Jul 05 16:28:54 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_database.cc,backends/flint/flint_database.h:
+	  Backport the lazyupdate changes from chert to flint.
+
 Sun Jul 05 13:12:53 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/harness/backendmanager.cc,tests/harness/backendmanager.h: Move
