@@ -1,3 +1,8 @@
+Sun Jul 05 04:09:04 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/documentterm.h: Add const to OmDocumentTerm::get_wdf() method
+	  (ticket#139).
+
 Sat Jul 04 16:45:43 GMT 2009  Olly Betts <olly@survex.com>
 
 	* queryparser/lemon.c: Merge upstream "Check-in Number: 6757" - no
