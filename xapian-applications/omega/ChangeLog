@@ -1,3 +1,9 @@
+Mon Jul 06 01:54:35 GMT 2009  Olly Betts <olly@survex.com>
+
+	* loadfile.cc: Avoid infinite loop if the file has been truncated
+	  since we read the length, or on Cygwin with the automatic end of
+	  line translation turned on.
+
 Sun Jul 05 13:00:57 GMT 2009  Olly Betts <olly@survex.com>
 
 	* htmlparse.cc,htmlparse.h: Make HtmlParser::get_parameter() const
