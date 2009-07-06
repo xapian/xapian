@@ -1,3 +1,12 @@
+Mon Jul 06 05:50:40 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/Makefile.am,perl/util.i.in:  Add some hashes such as EXPORT_TAGS
+	for exporter module. And add arrays OP_NAMES, DB_NAMES, FLAG_NAMES and 
+	STEM_NAMES to util.i.in. 
+	* perl/lib/,perl/lib/MSet/Tied.pm,perl/lib/:Rename directory 
+	name 'Xapian' to 'lib' to process Test::Pod.
+	  
+
 Sun Jun 28 20:44:32 GMT 2009  Kosei Moriyama <cou929@gmail.com>
 
 	* configure.ac,perl/util.i,perl/util.i.in: Add VERSION variable 

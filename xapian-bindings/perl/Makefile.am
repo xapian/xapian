@@ -23,6 +23,9 @@ perllib_LTLIBRARIES = xapian.la
 perlmoddir = $(PERL_LIB)/Search
 perlmod_DATA = Xapian.pm
 
+perlPODdir = $(PERL_LIB)/Search/Xapianx
+perlPOD_DATA = lib/*
+
 AM_CPPFLAGS = -I$(PERL_INC)
 AM_CXXFLAGS = @SWIG_CXXFLAGS@ $(XAPIAN_CXXFLAGS)
 xapian_la_LDFLAGS = -avoid-version -module -shrext $(PERL_SO) $(NO_UNDEFINED)
