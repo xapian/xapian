@@ -1,3 +1,11 @@
+Tue Jul 07 09:31:35 GMT 2009  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: If default_op is OP_NEAR or OP_PHRASE
+	  then make the default window size (9 + no_of_terms), like it would be
+	  for an explicit NEAR or PHRASE without an explicit window size.
+	  (ticket#254)
+	* tests/queryparsertest.cc: Add feature tests for this.
+
 Tue Jul 07 07:18:15 GMT 2009  Olly Betts <olly@survex.com>
 
 	* HACKING,api/,backends/chert/,backends/flint/,
