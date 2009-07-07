@@ -1,3 +1,8 @@
+Tue Jul 07 15:05:09 GMT 2009  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Consistently use endl not "\n" at the end of messages so
+	  that output is flushed.
+
 Tue Jul 07 07:29:21 GMT 2009  Olly Betts <olly@survex.com>
 
 	* cdb_init.cc,cdb_int.h,cgiparam.cc,configfile.cc,date.cc,
