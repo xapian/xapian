@@ -446,7 +446,8 @@ RemoteServer::msg_query(const string &message_in)
     total_stats.set_bounds_from_db(*db);
 
     Xapian::MSet mset;
-    match.get_mset(first, maxitems, check_at_least, mset, total_stats, 0, 0);
+    // FIXME - support for matchspies
+    match.get_mset(first, maxitems, check_at_least, mset, total_stats, 0, 0, 0);
 
     send_message(REPLY_RESULTS, serialise_mset(mset));
 }

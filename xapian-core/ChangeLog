@@ -1,3 +1,17 @@
+Tue Jul 07 00:12:25 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/matchspy.cc,api/omenquire.cc,api/serialisationcontext.cc,
+	  common/multimatch.h,common/omenquireinternal.h,
+	  common/serialisationcontextinternal.h,include/xapian/enquire.h,
+	  include/xapian/matchspy.h,include/xapian/serialisationcontext.h,
+	  matcher/multimatch.cc,net/remoteserver.cc,tests/: Add new
+	  MatchSpy class, designed to allow support for match spies with
+	  remote databases (when support is implemented in the remote
+	  protocol and in the subclasses).  Modify the predefined
+	  MatchDecider subclasses in matchspy.h to be MatchSpy subclasses.
+	  Add get_mset_with_matchspy() to perform matches with the
+	  MatchSpy.
+
 Wed Mar 25 15:46:24 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/api_wrdb.cc: Rename variables named "str" to "resultrepr",

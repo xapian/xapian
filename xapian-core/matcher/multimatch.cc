@@ -5,7 +5,7 @@
  * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2003 Orange PCS Ltd
  * Copyright 2003 Sam Liddicott
- * Copyright 2007,2008 Lemur Consulting Ltd
+ * Copyright 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -47,6 +47,7 @@
 #include "weightinternal.h"
 
 #include <xapian/errorhandler.h>
+#include <xapian/matchspy.h>
 #include <xapian/version.h> // For XAPIAN_HAS_REMOTE_BACKEND
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
@@ -275,8 +276,9 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		     Xapian::doccount check_at_least,
 		     Xapian::MSet & mset,
 		     const Xapian::Weight::Internal & stats,
+		     Xapian::MatchSpy *matchspy,
 		     const Xapian::MatchDecider *mdecider,
-		     const Xapian::MatchDecider *matchspy)
+		     const Xapian::MatchDecider *matchspy_legacy)
 {
     DEBUGCALL(MATCH, void, "MultiMatch::get_mset", first << ", " << maxitems
 	      << ", " << check_at_least << ", ...");
@@ -396,7 +398,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     Xapian::doccount matches_lower_bound = 0;
     Xapian::doccount matches_estimated   = pl->get_termfreq_est();
 
-    if (mdecider == NULL && matchspy == NULL) {
+    if (mdecider == NULL && matchspy_legacy == NULL) {
 	// If we have a matcher decider or match spy, the lower bound must be
 	// set to 0 as we could discard all hits.  Otherwise set it to the
 	// minimum number of entries which the postlist could return.
@@ -430,9 +432,9 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	return;
     }
 
-    // Number of documents considered by a decider or matchspy.
+    // Number of documents considered by a decider or matchspy_legacy.
     Xapian::doccount decider_considered = 0;
-    // Number of documents denied by the decider or matchspy.
+    // Number of documents denied by the decider or matchspy_legacy.
     Xapian::doccount decider_denied = 0;
 
     // Set max number of results that we want - this is used to decide
@@ -538,7 +540,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    // VAL, then new_item.wt won't yet be set, but that doesn't
 	    // matter since it's not used by the sort function.
 	    if (!mcmp(new_item, min_item)) {
-		if (matchspy == NULL && mdecider == NULL && !collapser) {
+		if (matchspy_legacy == NULL && mdecider == NULL && !collapser) {
 		    // Document was definitely suitable for mset - no more
 		    // processing needed.
 		    LOGLINE(MATCH, "Making note of match item which sorts lower than min_item");
@@ -556,14 +558,14 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		    continue;
 		}
 		// We can't drop the item, because we need to show it
-		// to the matchspy, test whether the mdecider would
+		// to the matchspy_legacy, test whether the mdecider would
 		// accept it, and/or test whether it would be collapsed.
 		LOGLINE(MATCH, "Keeping candidate which sorts lower than min_item for further investigation");
 	    }
 	}
 
 	// Use the match spy and/or decision functors (if specified).
-	if (matchspy != NULL || mdecider != NULL) {
+	if (matchspy != NULL || matchspy_legacy != NULL || mdecider != NULL) {
 	    const unsigned int multiplier = db.internal.size();
 	    Assert(multiplier != 0);
 	    Xapian::doccount n = (did - 1) % multiplier; // which actual database
@@ -577,13 +579,16 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		Xapian::Document mydoc(doc.get());
 
 		++decider_considered;
-		if (matchspy && !matchspy->operator()(mydoc)) {
+		if (matchspy_legacy && !matchspy_legacy->operator()(mydoc)) {
 		    ++decider_denied;
 		    continue;
 		}
 		if (mdecider && !mdecider->operator()(mydoc)) {
 		    ++decider_denied;
 		    continue;
+		}
+		if (matchspy) {
+		    matchspy->operator()(mydoc);
 		}
 	    }
 	}
@@ -920,7 +925,7 @@ new_greatest_weight:
 		    ", matches_upper_bound=" << matches_upper_bound);
 	}
 
-	if (matchspy || mdecider) {
+	if (matchspy_legacy || mdecider) {
 	    if (!percent_cutoff) {
 		if (!collapser) {
 		    // We're not collapsing or doing a percentage cutoff, so
@@ -984,7 +989,7 @@ new_greatest_weight:
 	       	matches_estimated = matches_lower_bound;
 	}
 
-	if (collapser || matchspy || mdecider) {
+	if (collapser || matchspy_legacy || mdecider) {
 	    LOGLINE(MATCH, "Clamping estimate between bounds: "
 		    "matches_lower_bound = " << matches_lower_bound <<
 		    ", matches_estimated = " << matches_estimated <<
@@ -1000,7 +1005,7 @@ new_greatest_weight:
 		matches_estimated = docs_matched;
 	}
 
-	if (collapser && !matchspy && !mdecider && !percent_cutoff) {
+	if (collapser && !matchspy_legacy && !mdecider && !percent_cutoff) {
 	    AssertRel(docs_matched,<=,uncollapsed_upper_bound);
 	    if (docs_matched > uncollapsed_lower_bound)
 		uncollapsed_lower_bound = docs_matched;

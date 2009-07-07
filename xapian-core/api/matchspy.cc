@@ -1,8 +1,8 @@
 /** @file matchspy.cc
- * @brief MatchDecider subclasses for use as "match spies".
+ * @brief MatchSpy implementation.
  */
 /* Copyright (C) 2007,2008,2009 Olly Betts
- * Copyright (C) 2007 Lemur Consulting Ltd
+ * Copyright (C) 2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,36 +20,75 @@
  */
 
 #include <config.h>
+#include <xapian/matchspy.h>
 
 #include <xapian/document.h>
-#include <xapian/matchspy.h>
+#include <xapian/error.h>
 #include <xapian/queryparser.h>
+
+#include <map>
+#include <string>
+#include <vector>
+
+#include "omassert.h"
+#include "serialise.h"
+#include "stringutils.h"
 
 #include <float.h>
 #include <math.h>
 
-#include <algorithm>
-#include <map>
-#include <vector>
-#include <string>
-
-#include "omassert.h"
-#include "stringutils.h"
-#include "serialise.h"
 
 using namespace std;
 
 namespace Xapian {
 
-bool 
-MultipleMatchDecider::operator()(const Xapian::Document &doc) const
-{
-    std::vector<const MatchDecider *>::const_iterator i;
-    for (i = deciders.begin(); i != deciders.end(); i++) {
-	if (!((**i)(doc))) return false;
-    }
-    return true;
+MatchSpy::~MatchSpy() {}
+
+MatchSpy *
+MatchSpy::clone() const {
+    throw Xapian::UnimplementedError("MatchSpy not suitable for use with remote searches - clone() method unimplemented");
 }
+
+std::string
+MatchSpy::name() const {
+    throw Xapian::UnimplementedError("MatchSpy not suitable for use with remote searches - name() method unimplemented");
+}
+
+std::string
+MatchSpy::serialise() const {
+    throw Xapian::UnimplementedError("MatchSpy not suitable for use with remote searches - serialise() method unimplemented");
+}
+
+MatchSpy *
+MatchSpy::unserialise(const std::string &) const {
+    throw Xapian::UnimplementedError("MatchSpy not suitable for use with remote searches - unserialise() method unimplemented");
+}
+
+std::string
+MatchSpy::serialise_results() const {
+    throw Xapian::UnimplementedError("MatchSpy not suitable for use with remote searches - serialise_results() method unimplemented");
+}
+
+void
+MatchSpy::merge_results(const std::string &) const {
+    throw Xapian::UnimplementedError("MatchSpy not suitable for use with remote searches - merge_results() method unimplemented");
+}
+
+std::string
+MatchSpy::get_description() const {
+    return "Xapian::MatchSpy()";
+}
+
+
+void 
+MultipleMatchSpy::operator()(const Xapian::Document &doc)
+{
+    std::vector<MatchSpy *>::const_iterator i;
+    for (i = spies.begin(); i != spies.end(); i++) {
+	(**i)(doc);
+    }
+}
+
 
 void
 StringListSerialiser::append(const std::string & value)
@@ -76,7 +115,6 @@ StringListUnserialiser::read_next()
     curritem.assign(pos, currlen);
     pos += currlen;
 }
-
 
 
 /** Compare two StringAndFrequency objects.
@@ -152,8 +190,8 @@ get_most_frequent_items(vector<StringAndFrequency> & result,
     }
 }
 
-bool
-ValueCountMatchSpy::operator()(const Document &doc) const
+void
+ValueCountMatchSpy::operator()(const Document &doc)
 {
     ++total;
     map<Xapian::valueno, map<string, Xapian::doccount> >::iterator i;
@@ -175,7 +213,6 @@ ValueCountMatchSpy::operator()(const Document &doc) const
 	    if (!val.empty()) ++tally[val];
 	}
     }
-    return true;
 }
 
 
@@ -186,8 +223,8 @@ ValueCountMatchSpy::get_top_values(std::vector<StringAndFrequency> & result,
     get_most_frequent_items(result, get_values(valno), maxvalues);
 }
 
-bool
-TermCountMatchSpy::operator()(const Document &doc) const
+void
+TermCountMatchSpy::operator()(const Document &doc)
 {
     ++documents_seen;
     map<std::string, map<string, Xapian::doccount> >::iterator i;
@@ -207,7 +244,6 @@ TermCountMatchSpy::operator()(const Document &doc) const
 	    ++terms_seen;
 	}
     }
-    return true;
 }
 
 void

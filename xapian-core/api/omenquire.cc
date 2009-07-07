@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
- * Copyright 2007 Lemur Consulting Ltd
+ * Copyright 2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -641,12 +641,13 @@ Enquire::Internal::get_query()
 MSet
 Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 			    Xapian::doccount check_at_least, const RSet *rset,
+			    MatchSpy *matchspy,
 			    const MatchDecider *mdecider,
-			    const MatchDecider *matchspy) const
+			    const MatchDecider *matchspy_legacy) const
 {
     DEBUGCALL(API, MSet, "Enquire::Internal::get_mset", first << ", " <<
 	      maxitems << ", " << check_at_least << ", " << rset << ", " <<
-	      mdecider << ", " << matchspy);
+	      matchspy << ", " << mdecider << ", " << matchspy_legacy);
 
     if (percent_cutoff && (sort_by == VAL || sort_by == VAL_REL)) {
 	throw Xapian::UnimplementedError("Use of a percentage cutoff while sorting primary by value isn't currently supported");
@@ -665,7 +666,7 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     // Run query and put results into supplied Xapian::MSet object.
     MSet retval;
     match.get_mset(first, maxitems, check_at_least, retval,
-		   stats, mdecider, matchspy);
+		   stats, matchspy, mdecider, matchspy_legacy);
 
     Assert(weight->name() != "bool" || retval.get_max_possible() == 0);
 
@@ -989,6 +990,25 @@ Enquire::set_sort_by_relevance_then_key(Xapian::Sorter * sorter, bool ascending)
 }
 
 MSet
+Enquire::get_mset_with_matchspy(Xapian::doccount first, Xapian::doccount maxitems,
+				Xapian::doccount check_at_least, const RSet *rset,
+				MatchSpy *matchspy) const
+{
+    // FIXME: display contents of pointer params, if they're not null.
+    DEBUGAPICALL(Xapian::MSet, "Xapian::Enquire::get_mset", first << ", " <<
+		 maxitems << ", " << check_at_least << ", " << rset << ", " <<
+		 matchspy);
+
+    try {
+	RETURN(internal->get_mset(first, maxitems, check_at_least, rset,
+				  matchspy, 0, 0));
+    } catch (Error & e) {
+	if (internal->errorhandler) (*internal->errorhandler)(e);
+	throw;
+    }
+}
+
+MSet
 Enquire::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		  Xapian::doccount check_at_least, const RSet *rset,
 		  const MatchDecider *mdecider,
@@ -1001,7 +1021,7 @@ Enquire::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
     try {
 	RETURN(internal->get_mset(first, maxitems, check_at_least, rset,
-				  mdecider, matchspy));
+				  0, mdecider, matchspy));
     } catch (Error & e) {
 	if (internal->errorhandler) (*internal->errorhandler)(e);
 	throw;

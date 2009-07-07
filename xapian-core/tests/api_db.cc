@@ -531,58 +531,6 @@ DEFINE_TESTCASE(matchfunctor2, backend && !remote) {
     return true;
 }
 
-// Test builtin match deciders
-DEFINE_TESTCASE(matchfunctor4, backend && !remote)
-{
-    Xapian::Database db(get_database("apitest_simpledata"));
-    Xapian::Enquire enquire(db);
-    enquire.set_query(Xapian::Query("this"));
-
-    myMatchDecider myfunctor;
-    Xapian::ValueCountMatchSpy myspy1(1);
-    Xapian::ValueCountMatchSpy myspy2(1);
-    Xapian::MultipleMatchDecider multidecider;
-    multidecider.append(&myspy1);
-    multidecider.append(&myfunctor);
-    multidecider.append(&myspy2);
-
-    Xapian::MSet mymset = enquire.get_mset(0, 100, 0, NULL, &multidecider);
-
-    vector<bool> docid_checked(db.get_lastdocid());
-
-    // Check that we get the expected number of matches, and that they
-    // satisfy the condition.
-    Xapian::MSetIterator i = mymset.begin();
-    TEST(i != mymset.end());
-    TEST_EQUAL(mymset.size(), 3);
-    for ( ; i != mymset.end(); ++i) {
-	const Xapian::Document doc(i.get_document());
-	TEST(myfunctor(doc));
-	docid_checked[*i] = true;
-    }
-
-    // Check that the other documents don't satisfy the condition.
-    for (Xapian::docid did = 1; did < docid_checked.size(); ++did) {
-	if (!docid_checked[did]) {
-	    TEST(!myfunctor(db.get_document(did)));
-	}
-    }
-
-    // Check that the second of our spies only saw the documents which were
-    // passed by the functor.
-    const std::map<std::string, Xapian::doccount> & vals1 = myspy1.get_values(1);
-    const std::map<std::string, Xapian::doccount> & vals2 = myspy2.get_values(1);
-    TEST(vals1.size() == 2);
-    TEST(vals1.find("h") != vals1.end());
-    TEST(vals1.find("n") != vals1.end());
-    TEST(vals1.find("h")->second == 5);
-    TEST(vals1.find("n")->second == 1);
-    TEST(vals2.size() == 1);
-    TEST(vals2.find("h") != vals2.end());
-    TEST(vals2.find("h")->second == 3);
-    return true;
-}
-
 class myMatchDecider2 : public Xapian::MatchDecider {
     public:
 	bool operator()(const Xapian::Document &doc) const {
