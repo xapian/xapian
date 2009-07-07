@@ -34,7 +34,7 @@
 #include "omassert.h"
 
 #include <algorithm>
-#include <stdlib.h>
+#include <cstdlib>
 
 using namespace std;
 

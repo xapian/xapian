@@ -22,8 +22,8 @@
 
 #include <xapian/queryparser.h>
 
-#include <float.h>
-#include <math.h>
+#include <cfloat>
+#include <cmath>
 
 #include <string>
 

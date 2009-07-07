@@ -34,7 +34,7 @@
 #include <string>
 #include <vector>
 
-#include <float.h> // For DBL_DIG.
+#include <cfloat> // For DBL_DIG.
 
 /** Class which is thrown when a test case fails.
  */

@@ -30,7 +30,7 @@
 #include "safefcntl.h"
 #include "socket_utils.h"
 
-#include <string.h>
+#include <cstring>
 #ifndef __WIN32__
 # include <netdb.h>
 # include <netinet/in.h>

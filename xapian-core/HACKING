@@ -1073,12 +1073,9 @@ to follow the style of the existing code.  In particular:
         }
     }
 
-* For standard ISO C headers, we now prefer the C++ form for ISO C headers
-  (e.g. "#include <cstdlib>" rather than "#include <stdlib.h>") for new code (a
-  *lot* of the existing code currently uses the old form, but there are a few
-  semantic differences, so we're holding off on a wholesale conversion until
-  1.1.x to avoid potentially disruptive changes with no direct benefit to
-  users).
+* For standard ISO C headers, prefer the C++ form for ISO C headers (e.g.
+  "#include <cstdlib>" rather than "#include <stdlib.h>") unless there's
+  a good reason (e.g. portability) to do otherwise.
 
 * For standard ISO C++ headers, *always* use the ISO C++ form '#include <list>'
   (pre-ISO compilers used '#include <list.h>', but GCC has generated a warning

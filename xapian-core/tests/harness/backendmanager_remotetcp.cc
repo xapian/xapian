@@ -30,7 +30,7 @@
 #include <cstring>
 
 #ifdef HAVE_FORK
-# include <signal.h>
+# include <csignal>
 # include <sys/types.h>
 # include <sys/socket.h>
 # include <sys/wait.h>

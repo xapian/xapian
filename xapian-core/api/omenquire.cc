@@ -46,7 +46,7 @@
 #include <algorithm>
 #include "autoptr.h"
 #include <cfloat>
-#include <math.h>
+#include <cmath>
 #include <vector>
 
 using namespace std;

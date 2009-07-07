@@ -62,9 +62,9 @@ PREAD_PROTOTYPE
 PWRITE_PROTOTYPE
 #endif
 
-#include <stdio.h>    /* for rename */
-#include <string.h>   /* for memmove */
-#include <limits.h>   /* for CHAR_BIT */
+#include <cstdio>    /* for rename */
+#include <cstring>   /* for memmove */
+#include <climits>   /* for CHAR_BIT */
 
 #include "chert_io.h"
 #include "chert_btreebase.h"

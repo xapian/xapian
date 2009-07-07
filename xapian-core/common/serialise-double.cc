@@ -30,8 +30,8 @@
 
 #include "serialise-double.h"
 
-#include <float.h>
-#include <math.h>
+#include <cfloat>
+#include <cmath>
 
 #include <algorithm>
 #include <string>

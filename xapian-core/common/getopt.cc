@@ -27,7 +27,7 @@
 # include <config.h>
 #endif
 
-#include <stdio.h>
+#include <cstdio>
 
 /* #ifdef out all this code if we are using the GNU C Library.  GNU getopt
    is included in the GNU C Library, and linking in this code is a waste when

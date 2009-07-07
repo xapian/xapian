@@ -25,7 +25,7 @@
 
 #include <algorithm>
 #include <string>
-#include <string.h>
+#include <cstring>
 
 /** Helper macro for STRINGIZE - the nested call is required because of how
  *  # works in macros.

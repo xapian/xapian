@@ -25,7 +25,7 @@
 
 #include <xapian.h>
 
-#include <float.h>
+#include <cfloat>
 #include "safeerrno.h"
 
 #include <string>

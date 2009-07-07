@@ -34,7 +34,7 @@
 #include "weightinternal.h"
 
 #include <string>
-#include <string.h>
+#include <cstring>
 
 using namespace std;
 
