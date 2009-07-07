@@ -34,12 +34,12 @@
 
 #include <sys/types.h>
 #include "safeunistd.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include "safefcntl.h"
 #include "safeerrno.h"
-#include <time.h>
+#include <ctime>
 
 #include <xapian.h>
 

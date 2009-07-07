@@ -30,10 +30,10 @@
 
 #include <algorithm>
 
-#include <ctype.h>
+#include <cctype>
 #include <cstring>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 using namespace std;
 

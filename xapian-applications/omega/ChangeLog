@@ -1,3 +1,12 @@
+Tue Jul 07 07:29:21 GMT 2009  Olly Betts <olly@survex.com>
+
+	* cdb_init.cc,cdb_int.h,cgiparam.cc,configfile.cc,date.cc,
+	  datematchdecider.cc,datematchdecider.h,freemem.cc,htmlparse.cc,
+	  htmlparsetest.cc,md5.cc,md5test.cc,myhtmlparse.cc,omega.cc,
+	  omindex.cc,query.cc,runfilter.cc,scriptindex.cc,strcasecmp.h,
+	  utf8converttest.cc,utils.cc: Update to use C++ forms for ISO C
+	  standard headers (ticket#330).
+
 Mon Jul 06 01:54:35 GMT 2009  Olly Betts <olly@survex.com>
 
 	* loadfile.cc: Avoid infinite loop if the file has been truncated

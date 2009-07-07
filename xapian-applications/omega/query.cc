@@ -31,14 +31,14 @@
 #include <set>
 #include <vector>
 
-#include <assert.h>
-#include <ctype.h>
+#include <cassert>
+#include <cctype>
 #include "safeerrno.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include "strcasecmp.h"
-#include <time.h>
+#include <ctime>
 
 #include "safeunistd.h"
 #include <sys/types.h>
@@ -74,7 +74,7 @@ using Xapian::Utf8Iterator;
 using Xapian::Unicode::is_wordchar;
 
 #ifndef SNPRINTF
-#include <stdarg.h>
+#include <cstdarg>
 
 static int my_snprintf(char *str, size_t size, const char *format, ...)
 {

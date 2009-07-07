@@ -22,7 +22,7 @@
 #include "freemem.h"
 
 #include <sys/types.h>
-#include <limits.h>
+#include <climits>
 #include <unistd.h>
 #ifdef HAVE_SYS_SYSCTL_H
 # include <sys/sysctl.h>

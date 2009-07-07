@@ -12,7 +12,7 @@
 # include <sys/mman.h>
 #else
 # include "safeunistd.h"
-# include <stdlib.h>
+# include <cstdlib>
 #endif
 #ifdef __WIN32__
 # include "safewindows.h"

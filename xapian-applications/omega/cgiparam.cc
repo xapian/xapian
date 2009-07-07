@@ -25,10 +25,10 @@
 
 #include "cgiparam.h"
 
-#include <stdio.h>
-#include <limits.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <climits>
+#include <cstdlib>
+#include <cstring>
 #include <map>
 #include <string>
 
