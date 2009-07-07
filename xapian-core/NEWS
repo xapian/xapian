@@ -1,3 +1,77 @@
+ 12996       olly Mon Jul 06 04:30:59 GMT 2009  Olly Betts <olly@survex.com>
+
+ 12994       olly Sun Jul 05 16:28:54 GMT 2009  Olly Betts <olly@survex.com>
+	* backends/flint/flint_database.cc,backends/flint/flint_database.h:
+	  Backport the lazyupdate changes from chert to flint.
+
+ 12993       olly Sun Jul 05 13:12:53 GMT 2009  Olly Betts <olly@survex.com>
+	* tests/harness/backendmanager.cc,tests/harness/backendmanager.h: Move
+	  virtual destructor definition out of the header.
+
+ 12990       olly Sun Jul 05 04:09:04 GMT 2009  Olly Betts <olly@survex.com>
+	* common/documentterm.h: Add const to OmDocumentTerm::get_wdf() method
+	  (ticket#139).
+ 12984       olly Sat Jul 04 16:02:08 GMT 2009  Olly Betts <olly@survex.com>
+	* api/editdistance.cc: Add const to is_transposed() method
+	  (ticket#139).
+ 12983       olly Sat Jul 04 15:19:55 GMT 2009  Olly Betts <olly@survex.com>
+	* backends/chert/chert_lock.h,backends/flint/flint_lock.h: Make
+	  ChertLock::operator bool() and FlintLock::operator bool() const
+	  (ticket#139).
+ 12982       olly Sat Jul 04 14:56:42 GMT 2009  Olly Betts <olly@survex.com>
+	* backends/chert/chert_database.cc,backends/chert/chert_database.h,
+	  backends/flint/flint_database.cc,backends/flint/flint_database.h:
+	  Make ChertDatabase::get_changeset_revisions() and
+	  FlintDatabase::get_changeset_revisions() const (ticket#139).
+
+ 12980       olly Sat Jul 04 14:06:39 GMT 2009  Olly Betts <olly@survex.com>
+	* backends/chert/chert_btreebase.cc,backends/chert/chert_btreebase.h:
+	  Make ChertTable_base::do_unpack_uint() just a static non-class
+	  function.  Use string::+= to build up the error string in it, and
+	  mark the error case as rare.
+
+trunk only:
+
+ 12971       olly Wed Jul 01 04:12:22 GMT 2009  Olly Betts <olly@survex.com>
+	* docs/spelling.rst: Omega now supports spelling correction.
+
+ 12956       olly Sat Jun 27 11:51:25 GMT 2009  Olly Betts <olly@survex.com>
+	* backends/chert/chert_table.cc: Change so add_item_to_block() can
+	  always assume there is another contiguous space in the block
+	  (previously it could assume that there was enough space, but not
+	  that it was necessarily contiguous).
+
+ 12955    richard Sat Jun 27 09:55:19 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+	* include/xapian/postingsource.h,include/xapian/weight.h: Add note
+	  that PostingSource and Weight objects returned by clone() and
+	  unserialise() methods will be deallocated with "delete".
+
+ 12957       olly Sat Jun 27 12:16:17 GMT 2009  Olly Betts <olly@survex.com>
+	* backends/chert/chert_alltermslist.h,backends/chert/chert_postlist.h:
+	  Fix to use Xapian::doccount for termfreq in more places.
+ 12954       olly Sat Jun 27 07:26:41 GMT 2009  Olly Betts <olly@survex.com>
+	* backends/chert/chert_postlist.cc: Adjust use of Xapian::doccount vs
+	  Xapian::termcount for consistency so things work better when these
+	  types aren't identical.
+ 12948       olly Fri Jun 26 05:42:26 GMT 2009  Olly Betts <olly@survex.com>
+	* api/documentvaluelist.cc,api/documentvaluelist.h: Change
+	  DocumentValueList::skip_to()'s parameter type from Xapian::valueno
+	  to Xapian::docid to agree with the type in ValueList::skip_to().
+	  This is a latent bug - it doesn't matter provided the types are
+	  actually the same (ticket#385).
+
+ 12938       olly Sun Jun 21 12:09:55 GMT 2009  Olly Betts <olly@survex.com>
+	* backends/chert/chert_check.cc,backends/chert/chert_table.cc,
+	  backends/chert/chert_table.h: Replace duplicated macros with
+	  a single version in chert_table.h, and use DIR_START instead of
+	  a literal 11 in that header.
+	* backends/chert/chert_table.h: Add more assertions.  Use
+	  BYTES_PER_BLOCK_NUMBER instead of a literal 4 in more places.
+
+ 12933       olly Sat Jun 20 07:38:06 GMT 2009  Olly Betts <olly@survex.com>
+	* backends/chert/chert_table.cc: Don't reconstruct Item(p, c) when we
+	  already have it as a local variable.
+
 Xapian-core 1.1.1 (2009-06-09):
 
 This release includes all changes from 1.0.13 which are relevant.
