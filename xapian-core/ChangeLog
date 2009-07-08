@@ -1,3 +1,8 @@
+Wed Jul 08 05:08:09 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_io.h: Use F_FULLFSYNC where available (Mac OS X
+	  currently).  (ticket#288)
+
 Tue Jul 07 09:31:35 GMT 2009  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: If default_op is OP_NEAR or OP_PHRASE
