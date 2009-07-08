@@ -1,3 +1,8 @@
+Wed Jul 08 15:30:22 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Check that we can find the valgrind/memcheck.h header
+	  as well as the valgrind binary.
+
 Wed Jul 08 14:30:53 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/harness/backendmanager_remotetcp.cc: Sort out the clash

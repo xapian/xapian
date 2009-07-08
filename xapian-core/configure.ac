@@ -488,6 +488,7 @@ if test -n "${VALGRIND-unset}" ; then
 	AC_MSG_RESULT([no])
       else
 	AC_MSG_RESULT([yes])
+	AC_CHECK_HEADERS([valgrind/memcheck.h], [], [VALGRIND=], [ ])
       fi	
     else
       dnl The valgrind detected doesn't seem to work!  Perhaps this is an
