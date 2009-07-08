@@ -89,7 +89,7 @@ on_SIGCHLD(int /*sig*/)
 	for (unsigned i = 0; i < sizeof(pid_to_fd) / sizeof(pid_fd); ++i) {
 	    if (pid_to_fd[i].pid == child) {
 		int fd = pid_to_fd[i].fd;
-		pid_to_fd[i].fd = -1;
+		pid_to_fd[i].fd = 0;
 		pid_to_fd[i].pid = 0;
 		// NB close() *is* safe to use in a signal handler.
 		close(fd);
@@ -315,14 +315,11 @@ try_next_port:
 BackendManagerRemoteTcp::BackendManagerRemoteTcp(const std::string & remote_type_)
 	: BackendManagerRemote(remote_type_)
 {
-#ifdef HAVE_FORK
-    for (unsigned i = 0; i < sizeof(pid_to_fd) / sizeof(pid_fd); ++i) {
-	pid_to_fd[i].pid = -1;
-    }
-#endif
 }
 
-BackendManagerRemoteTcp::~BackendManagerRemoteTcp() { }
+BackendManagerRemoteTcp::~BackendManagerRemoteTcp() {
+    BackendManagerRemoteTcp::clean_up();
+}
 
 std::string
 BackendManagerRemoteTcp::get_dbtype() const
@@ -376,15 +373,12 @@ void
 BackendManagerRemoteTcp::clean_up()
 {
 #ifdef HAVE_FORK
-    while(true) {
-	bool no_subpids = true;
-	for (unsigned i = 0; i < sizeof(pid_to_fd) / sizeof(pid_fd); ++i) {
-	    if (pid_to_fd[i].pid != -1) {
-		no_subpids = false;
-	    }
+try_again:
+    for (unsigned i = 0; i < sizeof(pid_to_fd) / sizeof(pid_fd); ++i) {
+	if (pid_to_fd[i].pid != 0) {
+	    sleep(1);
+	    goto try_again;
 	}
-	if (no_subpids) break;
-	sleep(1);
     }
 #endif
 }

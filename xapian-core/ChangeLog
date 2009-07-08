@@ -1,3 +1,11 @@
+Wed Jul 08 14:30:53 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/harness/backendmanager_remotetcp.cc: Sort out the clash
+	  between two different patches to fix leaking file descriptors.
+	  Also, call clean_up() from the destructor to correctly handle the
+	  case when a BackendManagerRemoteTcp is created by a test case
+	  directly.
+
 Wed Jul 08 14:17:43 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/harness/: Rename "posttest()" method to "clean_up()" - I keep
