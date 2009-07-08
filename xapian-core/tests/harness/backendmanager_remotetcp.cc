@@ -373,7 +373,7 @@ BackendManagerRemoteTcp::get_writable_database_again(const string & name)
 }
 
 void
-BackendManagerRemoteTcp::posttest()
+BackendManagerRemoteTcp::clean_up()
 {
 #ifdef HAVE_FORK
     while(true) {

@@ -1,7 +1,7 @@
 /** @file backendmanager_remotetcp.h
  * @brief BackendManager subclass for remotetcp databases.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2009 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -68,7 +68,7 @@ class BackendManagerRemoteTcp : public BackendManagerRemote {
     Xapian::WritableDatabase get_writable_database_again(const std::string & name = std::string());
 
     /// Called after each test, to perform any necessary cleanup.
-    virtual void posttest();
+    void clean_up();
 };
 
 #endif // XAPIAN_INCLUDED_BACKENDMANAGER_REMOTETCP_H
