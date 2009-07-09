@@ -88,7 +88,7 @@ on_SIGCHLD(int /*sig*/)
 	for (unsigned i = 0; i < sizeof(pid_to_fd) / sizeof(pid_fd); ++i) {
 	    if (pid_to_fd[i].pid == child) {
 		int fd = pid_to_fd[i].fd;
-		pid_to_fd[i].fd = -1;
+		pid_to_fd[i].fd = 0;
 		pid_to_fd[i].pid = 0;
 		// NB close() *is* safe to use in a signal handler.
 		close(fd);
@@ -311,7 +311,9 @@ try_next_port:
 # error Neither HAVE_FORK nor __WIN32__ is defined
 #endif
 
-BackendManagerRemoteTcp::~BackendManagerRemoteTcp() { }
+BackendManagerRemoteTcp::~BackendManagerRemoteTcp() {
+    BackendManagerRemoteTcp::clean_up();
+}
 
 const char *
 BackendManagerRemoteTcp::get_dbtype() const
@@ -401,4 +403,18 @@ BackendManagerRemoteTcp::get_writable_database_again()
 
     int port = launch_xapian_tcpsrv(args);
     return Xapian::Remote::open_writable(LOCALHOST, port);
+}
+
+void
+BackendManagerRemoteTcp::clean_up()
+{
+#ifdef HAVE_FORK
+try_again:
+    for (unsigned i = 0; i < sizeof(pid_to_fd) / sizeof(pid_fd); ++i) {
+	if (pid_to_fd[i].pid != 0) {
+	    sleep(1);
+	    goto try_again;
+	}
+    }
+#endif
 }

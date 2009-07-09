@@ -1,3 +1,12 @@
+Thu Jul 09 13:08:32 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/harness/: Add "BackendManager::clean_up()" method which is
+	  implemented by BackendManagerRemoteTcp to wait for all child
+	  processes to exit.  Currently this is only called by the dtor -
+	  it still needs to be hooked up to be called between testcases like
+	  it is on trunk.
+
 Thu Jul 09 10:56:29 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
