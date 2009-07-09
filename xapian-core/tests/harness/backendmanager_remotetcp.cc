@@ -368,11 +368,20 @@ void
 BackendManagerRemoteTcp::clean_up()
 {
 #ifdef HAVE_FORK
-try_again:
+    signal(SIGCHLD, SIG_DFL);
     for (unsigned i = 0; i < sizeof(pid_to_fd) / sizeof(pid_fd); ++i) {
-	if (pid_to_fd[i].pid != 0) {
-	    sleep(1);
-	    goto try_again;
+	pid_t child = pid_to_fd[i].pid;
+	if (child) {
+	    int status;
+	    while (waitpid(child, &status, 0) == -1 && errno == EINTR) { }
+	    // Other possible error from waitpid is ECHILD, which it seems can
+	    // only mean that the child has already exited and SIGCHLD was set
+	    // to SIG_IGN.  If we did somehow see that, the sanest response
+	    // seems to be to close the fd and move on.
+	    int fd = pid_to_fd[i].fd;
+	    pid_to_fd[i].fd = 0;
+	    pid_to_fd[i].pid = 0;
+	    close(fd);
 	}
     }
 #endif
