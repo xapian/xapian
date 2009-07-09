@@ -1,3 +1,9 @@
+Thu Jul 09 10:56:29 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/inmemory/inmemory_database.h: Use "omassert.h" not
+	  <omassert.h>.
+
 Wed Jul 08 17:11:57 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
