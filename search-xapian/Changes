@@ -1,5 +1,9 @@
 Revision history for Perl extension Search::Xapian.
 
+1.0.14.0  Thu Jul  9 08:19:01 GMT 2009
+	[Changes contributed by Olly Betts]
+ 	- Add handling of C++ exceptions from methods of Document (ticket#284).
+
 1.0.13.1  Tue May 26 13:51:18 GMT 2009
 	[Changes contributed by Olly Betts]
 	- Deprecate Search::Xapian::MSet::matches() and make it issue a
