@@ -78,7 +78,7 @@ endif
 ifneq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
     MAKE_CHECK := :
 else
-    MAKE_CHECK := $(MAKE) check
+    MAKE_CHECK := $(MAKE) check VALGRIND=
 endif
 
 commonconfflags := \

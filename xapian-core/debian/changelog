@@ -4,8 +4,12 @@ xapian-core (1.0.13-4) UNRELEASED; urgency=low
   * debian/control.in: Update required debhelper version.
   * debian/copyright: Update for the MIT/X relicensing of the serialise-double
     code.
+  * debian/rules: Explicitly disable use of valgrind for the testsuite -
+    otherwise if someone builds their own package with valgrind installed (as
+    developer boxes often do), the test suite run will take a really long
+    time.
 
- -- Olly Betts <olly@survex.com>  Tue,  7 Jul 2009 07:47:29 +0100
+ -- Olly Betts <olly@survex.com>  Thu,  9 Jul 2009 11:47:26 +0100
 
 xapian-core (1.0.13-3) unstable; urgency=low
 
