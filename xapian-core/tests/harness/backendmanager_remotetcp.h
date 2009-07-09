@@ -46,10 +46,7 @@ class BackendManagerRemoteTcp : public BackendManagerRemote {
     BackendManagerRemoteTcp(const std::string & remote_type_)
 	: BackendManagerRemote(remote_type_) { }
 
-    /** We have virtual methods and want to be able to delete derived classes
-     *  using a pointer to the base class, so we need a virtual destructor.
-     */
-    virtual ~BackendManagerRemoteTcp();
+    ~BackendManagerRemoteTcp();
 
     /// Return a string representing the current database type.
     std::string get_dbtype() const;

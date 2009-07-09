@@ -1,3 +1,8 @@
+Thu Jul 09 12:40:52 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/harness/: BackendManager has a virtual dtor, so we don't need
+	  empty virtual dtors in its subclasses.
+
 Thu Jul 09 11:40:20 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/harness/backendmanager_remotetcp.cc,

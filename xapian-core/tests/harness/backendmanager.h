@@ -124,7 +124,9 @@ class BackendManager {
     /// Constructor - set up default state.
     BackendManager() { }
 
-    /// Virtual methods, so virtual destructor.
+    /** We have virtual methods and want to be able to delete derived classes
+     *  using a pointer to the base class, so we need a virtual destructor.
+     */
     virtual ~BackendManager();
 
     /** Get the database type currently in use.
