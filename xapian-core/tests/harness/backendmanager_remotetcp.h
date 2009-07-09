@@ -43,7 +43,8 @@ class BackendManagerRemoteTcp : public BackendManagerRemote {
     Xapian::Database do_get_database(const std::vector<std::string> & files);
 
   public:
-    BackendManagerRemoteTcp(const std::string & remote_type_);
+    BackendManagerRemoteTcp(const std::string & remote_type_)
+	: BackendManagerRemote(remote_type_) { }
 
     /** We have virtual methods and want to be able to delete derived classes
      *  using a pointer to the base class, so we need a virtual destructor.

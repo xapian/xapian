@@ -312,11 +312,6 @@ try_next_port:
 # error Neither HAVE_FORK nor __WIN32__ is defined
 #endif
 
-BackendManagerRemoteTcp::BackendManagerRemoteTcp(const std::string & remote_type_)
-	: BackendManagerRemote(remote_type_)
-{
-}
-
 BackendManagerRemoteTcp::~BackendManagerRemoteTcp() {
     BackendManagerRemoteTcp::clean_up();
 }
