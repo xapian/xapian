@@ -357,7 +357,8 @@ struct TermListGreaterApproxSize {
 TermList *
 ChertSpellingTable::open_termlist(const string & word)
 {
-    if (word.size() <= 1) return NULL;
+    // This should have been handled by Database::get_spelling_suggestion().
+    AssertRel(word.size(),>,1);
 
     // Merge any pending changes to disk, but don't call commit() so they
     // won't be switched live.

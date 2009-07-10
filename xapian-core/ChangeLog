@@ -1,3 +1,10 @@
+Fri Jul 10 08:02:18 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,backends/chert/chert_spelling.cc,
+	  backends/flint/flint_spelling.cc,common/database.h: Deal with the
+	  case of get_spelling_suggestion() with an empty or single character
+	  word up front.
+
 Thu Jul 09 16:20:47 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/harness/backendmanager_remotetcp.cc: In clean_up(), only scan
