@@ -191,7 +191,8 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 		       const Xapian::Sorter * sorter_,
 		       Xapian::ErrorHandler * errorhandler_,
 		       Xapian::Weight::Internal & stats,
-		       const Xapian::Weight * weight_)
+		       const Xapian::Weight * weight_,
+		       Xapian::MatchSpy *matchspy_)
 	: db(db_), query(query_),
 	  collapse_max(collapse_max_), collapse_key(collapse_key_),
 	  percent_cutoff(percent_cutoff_), weight_cutoff(weight_cutoff_),
@@ -199,7 +200,8 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	  sort_key(sort_key_), sort_by(sort_by_),
 	  sort_value_forward(sort_value_forward_), sorter(sorter_),
 	  errorhandler(errorhandler_), weight(weight_),
-	  is_remote(db.internal.size())
+	  is_remote(db.internal.size()),
+	  matchspy(matchspy_)
 {
     DEBUGCALL(MATCH, void, "MultiMatch", db_ << ", " << query_ << ", " <<
 	      qlen << ", " << (omrset ? *omrset : Xapian::RSet()) << ", " <<
@@ -229,10 +231,10 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 		rem_db->set_query(query, qlen, collapse_max, collapse_key,
 				  order, sort_key, sort_by, sort_value_forward,
 				  percent_cutoff, weight_cutoff, weight,
-				  subrsets[i]);
+				  subrsets[i], matchspy);
 		bool decreasing_relevance =
 		    (sort_by == REL || sort_by == REL_VAL);
-		smatch = new RemoteSubMatch(rem_db, decreasing_relevance);
+		smatch = new RemoteSubMatch(rem_db, decreasing_relevance, matchspy);
 		is_remote[i] = true;
 	    } else {
 #endif /* XAPIAN_HAS_REMOTE_BACKEND */
@@ -276,7 +278,6 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		     Xapian::doccount check_at_least,
 		     Xapian::MSet & mset,
 		     const Xapian::Weight::Internal & stats,
-		     Xapian::MatchSpy *matchspy,
 		     const Xapian::MatchDecider *mdecider,
 		     const Xapian::MatchDecider *matchspy_legacy)
 {

@@ -203,6 +203,7 @@ serialise_mset(const Xapian::MSet &mset)
     const map<string, Xapian::MSet::Internal::TermFreqAndWeight> &termfreqandwts
 	= mset.internal->termfreqandwts;
 
+    result += encode_length(termfreqandwts.size());
     map<string, Xapian::MSet::Internal::TermFreqAndWeight>::const_iterator j;
     for (j = termfreqandwts.begin(); j != termfreqandwts.end(); ++j) {
 	result += encode_length(j->first.size());
@@ -215,43 +216,41 @@ serialise_mset(const Xapian::MSet &mset)
 }
 
 Xapian::MSet
-unserialise_mset(const string &s)
+unserialise_mset(const char ** p, const char * p_end)
 {
-    const char * p = s.data();
-    const char * p_end = p + s.size();
+    Xapian::doccount firstitem = decode_length(p, p_end, false);
+    Xapian::doccount matches_lower_bound = decode_length(p, p_end, false);
+    Xapian::doccount matches_estimated = decode_length(p, p_end, false);
+    Xapian::doccount matches_upper_bound = decode_length(p, p_end, false);
+    Xapian::doccount uncollapsed_lower_bound = decode_length(p, p_end, false);
+    Xapian::doccount uncollapsed_estimated = decode_length(p, p_end, false);
+    Xapian::doccount uncollapsed_upper_bound = decode_length(p, p_end, false);
+    Xapian::weight max_possible = unserialise_double(p, p_end);
+    Xapian::weight max_attained = unserialise_double(p, p_end);
 
-    Xapian::doccount firstitem = decode_length(&p, p_end, false);
-    Xapian::doccount matches_lower_bound = decode_length(&p, p_end, false);
-    Xapian::doccount matches_estimated = decode_length(&p, p_end, false);
-    Xapian::doccount matches_upper_bound = decode_length(&p, p_end, false);
-    Xapian::doccount uncollapsed_lower_bound = decode_length(&p, p_end, false);
-    Xapian::doccount uncollapsed_estimated = decode_length(&p, p_end, false);
-    Xapian::doccount uncollapsed_upper_bound = decode_length(&p, p_end, false);
-    Xapian::weight max_possible = unserialise_double(&p, p_end);
-    Xapian::weight max_attained = unserialise_double(&p, p_end);
-
-    double percent_factor = unserialise_double(&p, p_end);
+    double percent_factor = unserialise_double(p, p_end);
 
     vector<Xapian::Internal::MSetItem> items;
-    size_t msize = decode_length(&p, p_end, false);
+    size_t msize = decode_length(p, p_end, false);
     while (msize-- > 0) {
-	Xapian::weight wt = unserialise_double(&p, p_end);
-	Xapian::docid did = decode_length(&p, p_end, false);
-	size_t len = decode_length(&p, p_end, true);
-	string key(p, len);
-	p += len;
+	Xapian::weight wt = unserialise_double(p, p_end);
+	Xapian::docid did = decode_length(p, p_end, false);
+	size_t len = decode_length(p, p_end, true);
+	string key(*p, len);
+	*p += len;
 	items.push_back(Xapian::Internal::MSetItem(wt, did, key,
-						   decode_length(&p, p_end, false)));
+						   decode_length(p, p_end, false)));
     }
 
+    size_t terminfosize = decode_length(p, p_end, false);
     map<string, Xapian::MSet::Internal::TermFreqAndWeight> terminfo;
-    while (p != p_end) {
+    while (terminfosize-- > 0) {
 	Xapian::MSet::Internal::TermFreqAndWeight tfaw;
-	size_t len = decode_length(&p, p_end, true);
-	string term(p, len);
-	p += len;
-	tfaw.termfreq = decode_length(&p, p_end, false);
-	tfaw.termweight = unserialise_double(&p, p_end);
+	size_t len = decode_length(p, p_end, true);
+	string term(*p, len);
+	*p += len;
+	tfaw.termfreq = decode_length(p, p_end, false);
+	tfaw.termweight = unserialise_double(p, p_end);
 	terminfo.insert(make_pair(term, tfaw));
     }
 

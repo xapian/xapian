@@ -72,6 +72,9 @@ class MultiMatch
 	/** Is each sub-database remote? */
 	vector<bool> is_remote;
 
+	/** The matchspy to use. */
+	Xapian::MatchSpy *matchspy;
+
 	/** get the maxweight that the postlist pl may return, calling
 	 *  recalc_maxweight if recalculate_w_max is set, and unsetting it.
 	 *  Must only be called on the top of the postlist tree.
@@ -111,14 +114,14 @@ class MultiMatch
 		   const Xapian::Sorter * sorter_,
 		   Xapian::ErrorHandler * errorhandler,
 		   Xapian::Weight::Internal & stats,
-		   const Xapian::Weight *wtscheme);
+		   const Xapian::Weight *wtscheme,
+		   Xapian::MatchSpy * matchspy);
 
 	void get_mset(Xapian::doccount first,
 		      Xapian::doccount maxitems,
 		      Xapian::doccount check_at_least,
 		      Xapian::MSet & mset,
 		      const Xapian::Weight::Internal & stats,
-		      Xapian::MatchSpy * matchspy,
 		      const Xapian::MatchDecider * mdecider,
 		      const Xapian::MatchDecider * matchspy_legacy);
 

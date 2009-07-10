@@ -25,6 +25,7 @@
 #include "xapian/database.h"
 #include "xapian/enquire.h"
 #include "xapian/error.h"
+#include "xapian/matchspy.h"
 #include "xapian/valueiterator.h"
 
 #include "safeerrno.h"
@@ -420,13 +421,32 @@ RemoteServer::msg_query(const string &message_in)
     p += len;
 
     // Unserialise the RSet object.
-    Xapian::RSet rset = unserialise_rset(string(p, p_end - p));
+    len = decode_length(&p, p_end, true);
+    Xapian::RSet rset = unserialise_rset(string(p, len));
+    p += len;
+
+    // Unserialise the MatchSpy object.
+    len = decode_length(&p, p_end, true);
+    AutoPtr<Xapian::MatchSpy> spy;
+    if (len != 0) {
+	string spytype(p, len);
+	const Xapian::MatchSpy * spyclass = ctx.get_match_spy(spytype);
+	if (spyclass == NULL) {
+	    throw Xapian::InvalidArgumentError("Match spy " + spytype +
+					       " not registered");
+	}
+	p += len;
+
+	len = decode_length(&p, p_end, true);
+	spy = AutoPtr<Xapian::MatchSpy>(spyclass->unserialise(string(p, len)));
+	p += len;
+    }
 
     Xapian::Weight::Internal local_stats;
     MultiMatch match(*db, query.get(), qlen, &rset, collapse_max, collapse_key,
 		     percent_cutoff, weight_cutoff, order,
 		     sort_key, sort_by, sort_value_forward, NULL,
-		     NULL, local_stats, wt.get());
+		     NULL, local_stats, wt.get(), spy.get());
 
     send_message(REPLY_STATS, serialise_stats(local_stats));
 
@@ -446,10 +466,17 @@ RemoteServer::msg_query(const string &message_in)
     total_stats.set_bounds_from_db(*db);
 
     Xapian::MSet mset;
-    // FIXME - support for matchspies
-    match.get_mset(first, maxitems, check_at_least, mset, total_stats, 0, 0, 0);
+    match.get_mset(first, maxitems, check_at_least, mset, total_stats, 0, 0);
 
-    send_message(REPLY_RESULTS, serialise_mset(mset));
+    message = serialise_mset(mset);
+
+    string spy_results;
+    if (spy.get()) {
+	spy_results = spy->serialise_results();
+	message += encode_length(spy_results.size());
+	message += spy_results;
+    }
+    send_message(REPLY_RESULTS, message);
 }
 
 void

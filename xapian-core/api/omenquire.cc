@@ -662,11 +662,11 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		       collapse_max, collapse_key,
 		       percent_cutoff, weight_cutoff,
 		       order, sort_key, sort_by, sort_value_forward, sorter,
-		       errorhandler, stats, weight);
+		       errorhandler, stats, weight, matchspy);
     // Run query and put results into supplied Xapian::MSet object.
     MSet retval;
     match.get_mset(first, maxitems, check_at_least, retval,
-		   stats, matchspy, mdecider, matchspy_legacy);
+		   stats, mdecider, matchspy_legacy);
 
     Assert(weight->name() != "bool" || retval.get_max_possible() == 0);
 

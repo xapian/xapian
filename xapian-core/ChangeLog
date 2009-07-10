@@ -1,3 +1,10 @@
+Fri Jul 10 00:45:59 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/omenquire.cc,backends/remote/remote-database.cc,common/,
+	  matcher/multimatch.cc,matcher/remotesubmatch.cc,
+	  matcher/remotesubmatch.h,net/remoteserver.cc,net/serialise.cc:
+	  Working support for remote searches with MatchSpy.
+
 Fri Jul 10 00:44:53 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/serialisationcontext.cc: Register ValueCountMatchSpy with the

@@ -43,6 +43,7 @@
 #include <vector>
 
 #include "xapian/error.h"
+#include "xapian/matchspy.h"
 
 using namespace std;
 
@@ -536,7 +537,8 @@ RemoteDatabase::set_query(const Xapian::Query::Internal *query,
 			 bool sort_value_forward,
 			 int percent_cutoff, Xapian::weight weight_cutoff,
 			 const Xapian::Weight *wtscheme,
-			 const Xapian::RSet &omrset)
+			 const Xapian::RSet &omrset,
+			 const Xapian::MatchSpy *matchspy)
 {
     string tmp = query->serialise();
     string message = encode_length(tmp.size());
@@ -561,7 +563,24 @@ RemoteDatabase::set_query(const Xapian::Query::Internal *query,
     message += encode_length(tmp.size());
     message += tmp;
 
-    message += serialise_rset(omrset);
+    tmp = serialise_rset(omrset);
+    message += encode_length(tmp.size());
+    message += tmp;
+
+    if (matchspy != NULL) {
+	tmp = matchspy->name();
+	if (tmp.size() == 0) {
+	    throw Xapian::UnimplementedError("MatchSpy not suitable for use with remote searches - name() method returned empty string");
+	}
+	message += encode_length(tmp.size());
+	message += tmp;
+
+	tmp = matchspy->serialise();
+	message += encode_length(tmp.size());
+	message += tmp;
+    } else {
+	message += encode_length(0);
+    }
 
     send_message(MSG_QUERY, message);
 }
@@ -592,11 +611,27 @@ RemoteDatabase::send_global_stats(Xapian::doccount first,
 }
 
 void
-RemoteDatabase::get_mset(Xapian::MSet &mset)
+RemoteDatabase::get_mset(Xapian::MSet &mset, Xapian::MatchSpy * matchspy)
 {
     string message;
     get_message(message, REPLY_RESULTS);
-    mset = unserialise_mset(message);
+    const char * p = message.data();
+    const char * p_end = p + message.size();
+    mset = unserialise_mset(&p, p_end);
+
+    if (matchspy == NULL) {
+	if (p != p_end)
+	    throw Xapian::NetworkError("Junk at end of mset");
+    } else {
+	if (p == p_end)
+	    throw Xapian::NetworkError("Expected serialised matchspy");
+	size_t len = decode_length(&p, p_end, true);
+	string spyresults = string(p, len);
+	p += len;
+	if (p != p_end)
+	    throw Xapian::NetworkError("Junk after spy results");
+	matchspy->merge_results(spyresults);
+    }
 }
 
 void
