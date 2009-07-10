@@ -30,9 +30,11 @@
 #include <string>
 #include <vector>
 
+#include "autoptr.h"
 #include "omassert.h"
 #include "serialise.h"
 #include "stringutils.h"
+#include "str.h"
 
 #include <float.h>
 #include <math.h>
@@ -49,32 +51,32 @@ MatchSpy::clone() const {
     throw Xapian::UnimplementedError("MatchSpy not suitable for use with remote searches - clone() method unimplemented");
 }
 
-std::string
+string
 MatchSpy::name() const {
     throw Xapian::UnimplementedError("MatchSpy not suitable for use with remote searches - name() method unimplemented");
 }
 
-std::string
+string
 MatchSpy::serialise() const {
     throw Xapian::UnimplementedError("MatchSpy not suitable for use with remote searches - serialise() method unimplemented");
 }
 
 MatchSpy *
-MatchSpy::unserialise(const std::string &) const {
+MatchSpy::unserialise(const string &) const {
     throw Xapian::UnimplementedError("MatchSpy not suitable for use with remote searches - unserialise() method unimplemented");
 }
 
-std::string
+string
 MatchSpy::serialise_results() const {
     throw Xapian::UnimplementedError("MatchSpy not suitable for use with remote searches - serialise_results() method unimplemented");
 }
 
 void
-MatchSpy::merge_results(const std::string &) const {
+MatchSpy::merge_results(const string &) const {
     throw Xapian::UnimplementedError("MatchSpy not suitable for use with remote searches - merge_results() method unimplemented");
 }
 
-std::string
+string
 MatchSpy::get_description() const {
     return "Xapian::MatchSpy()";
 }
@@ -83,7 +85,7 @@ MatchSpy::get_description() const {
 void 
 MultipleMatchSpy::operator()(const Xapian::Document &doc)
 {
-    std::vector<MatchSpy *>::const_iterator i;
+    vector<MatchSpy *>::const_iterator i;
     for (i = spies.begin(); i != spies.end(); i++) {
 	(**i)(doc);
     }
@@ -91,7 +93,7 @@ MultipleMatchSpy::operator()(const Xapian::Document &doc)
 
 
 void
-StringListSerialiser::append(const std::string & value)
+StringListSerialiser::append(const string & value)
 {
     serialised.append(encode_length(value.size()));
     serialised.append(value);
@@ -215,21 +217,117 @@ ValueCountMatchSpy::operator()(const Document &doc)
     }
 }
 
-
 void
-ValueCountMatchSpy::get_top_values(std::vector<StringAndFrequency> & result,
+ValueCountMatchSpy::get_top_values(vector<StringAndFrequency> & result,
 				   Xapian::valueno valno, size_t maxvalues) const
 {
     get_most_frequent_items(result, get_values(valno), maxvalues);
 }
 
+MatchSpy *
+ValueCountMatchSpy::clone() const {
+    AutoPtr<ValueCountMatchSpy> res(new ValueCountMatchSpy());
+    map<Xapian::valueno, map<string, Xapian::doccount> >::const_iterator i;
+    for (i = values.begin(); i != values.end(); ++i) {
+	set<Xapian::valueno>::const_iterator j = multivalues.find(i->first);
+	res->add_slot(i->first, j != multivalues.end());
+    }
+    return res.release();
+}
+
+string
+ValueCountMatchSpy::name() const {
+    return "Xapian::ValueCountMatchSpy";
+}
+
+string
+ValueCountMatchSpy::serialise() const {
+    string result;
+    map<Xapian::valueno, map<string, Xapian::doccount> >::const_iterator i;
+    for (i = values.begin(); i != values.end(); ++i) {
+	result.append(encode_length(i->first));
+	set<Xapian::valueno>::const_iterator j = multivalues.find(i->first);
+	if (j == multivalues.end()) {
+	    result += '0';
+	} else {
+	    result += '1';
+	}
+    }
+    return result;
+}
+
+MatchSpy *
+ValueCountMatchSpy::unserialise(const string & s) const {
+    const char * p = s.data();
+    const char * end = p + s.size();
+
+    AutoPtr<ValueCountMatchSpy> res(new ValueCountMatchSpy());
+    while (p != end) {
+	Xapian::valueno new_slot = decode_length(&p, end, false);
+	if (p == end || (p[0] != '0' && p[0] != '1')) {
+	    throw Xapian::NetworkError("Expected '0' or '1' to indicate multivalues status");
+	}
+	res->add_slot(new_slot, p[0] == '1');
+	++p;
+    }
+    return res.release();
+}
+
+string
+ValueCountMatchSpy::serialise_results() const {
+    string result;
+    result.append(encode_length(total));
+    map<Xapian::valueno, map<string, Xapian::doccount> >::const_iterator i;
+    for (i = values.begin(); i != values.end(); ++i) {
+	result.append(encode_length(i->first));
+	result.append(encode_length(i->second.size()));
+	map<string, Xapian::doccount>::const_iterator j;
+	for (j = i->second.begin(); j != i->second.end(); ++j) {
+	    result.append(encode_length(j->first.size()));
+	    result.append(j->first);
+	    result.append(encode_length(j->second));
+	}
+    }
+    return result;
+}
+
+void
+ValueCountMatchSpy::merge_results(const string & s) const {
+    const char * p = s.data();
+    const char * end = p + s.size();
+
+    AutoPtr<ValueCountMatchSpy> res(new ValueCountMatchSpy());
+    total += decode_length(&p, end, false);
+    while (p != end) {
+	Xapian::valueno new_slot = decode_length(&p, end, false);
+	map<string, Xapian::doccount>::size_type items;
+	items = decode_length(&p, end, false);
+	while(items != 0) {
+	    map<string, Xapian::doccount> & tally = values[new_slot];
+	    size_t vallen = decode_length(&p, end, true);
+	    string val(p, vallen);
+	    p += vallen;
+	    Xapian::doccount freq = decode_length(&p, end, false);
+	    tally[val] += freq;
+	    --items;
+	}
+    }
+}
+
+string
+ValueCountMatchSpy::get_description() const {
+    return "Xapian::ValueCountMatchSpy(" + str(total) +
+	    "docs seen, looking in " + str(values.size()) + " slots)";
+}
+
+
 void
 TermCountMatchSpy::operator()(const Document &doc)
 {
     ++documents_seen;
-    map<std::string, map<string, Xapian::doccount> >::iterator i;
+    map<string, map<string, Xapian::doccount> >::iterator i;
     for (i = terms.begin(); i != terms.end(); ++i) {
-	std::string prefix = i->first;
+	string prefix = i->first;
 	map<string, Xapian::doccount> & tally = i->second;
 
 	TermIterator j = doc.termlist_begin();
@@ -247,8 +345,8 @@ TermCountMatchSpy::operator()(const Document &doc)
 }
 
 void
-TermCountMatchSpy::get_top_terms(std::vector<StringAndFrequency> & result,
-				 std::string prefix, size_t maxterms) const
+TermCountMatchSpy::get_top_terms(vector<StringAndFrequency> & result,
+				 string prefix, size_t maxterms) const
 {
     get_most_frequent_items(result, get_terms(prefix), maxterms);
 }

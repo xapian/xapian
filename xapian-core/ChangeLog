@@ -1,3 +1,9 @@
+Fri Jul 10 00:43:05 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/matchspy.cc,include/xapian/matchspy.h: Implement remote
+	  search support for ValueCountMatchSpy.  Also, remove unnecessary
+	  std:: declarations.
+
 Tue Jul 07 00:12:25 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/matchspy.cc,api/omenquire.cc,api/serialisationcontext.cc,

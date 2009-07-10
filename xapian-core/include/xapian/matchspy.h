@@ -312,7 +312,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
 
     /** Set tracking which value slots can have multiple values.
      *
-     *  If a valuno is in this set, its value is assumed to have been
+     *  If a valueno is in this set, its value is assumed to have been
      *  serialised by a StringListSerialiser class.
      */
     std::set<Xapian::valueno> multivalues;
@@ -378,6 +378,14 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
      *  This implementation tallies values for a matching document.
      */
     void operator()(const Xapian::Document &doc);
+
+    virtual MatchSpy * clone() const;
+    virtual std::string name() const;
+    virtual std::string serialise() const;
+    virtual MatchSpy * unserialise(const std::string & s) const;
+    virtual std::string serialise_results() const;
+    virtual void merge_results(const std::string & s) const;
+    virtual std::string get_description() const;
 };
 
 /** Class for counting the frequencies of terms in the matching documents.
