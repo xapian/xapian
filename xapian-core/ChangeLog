@@ -1,3 +1,8 @@
+Fri Jul 10 00:44:03 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_matchspy.cc: Enable tests for matchspies with remote
+	  backends (currently, not all passing).
+
 Fri Jul 10 00:43:05 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/matchspy.cc,include/xapian/matchspy.h: Implement remote

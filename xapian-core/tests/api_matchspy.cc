@@ -54,7 +54,7 @@ class SimpleMatchSpy : public Xapian::MatchSpy {
 };
 
 // Basic test of a matchspy.
-DEFINE_TESTCASE(matchspy1, backend && !remote) {
+DEFINE_TESTCASE(matchspy1, backend) {
     Xapian::Database db(get_database("apitest_simpledata"));
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("this"));
@@ -95,7 +95,7 @@ DEFINE_TESTCASE(matchspy1, backend && !remote) {
     return true;
 }
 
-DEFINE_TESTCASE(matchspy2, writable && !remote)
+DEFINE_TESTCASE(matchspy2, writable)
 {
     if (get_dbtype() == "remotetcp" || get_dbtype() == "remoteprog") {
 	SKIP_TEST("Test not supported for remote backend");
@@ -193,7 +193,7 @@ DEFINE_TESTCASE(matchspy2, writable && !remote)
     return true;
 }
 
-DEFINE_TESTCASE(matchspy3, writable && !remote)
+DEFINE_TESTCASE(matchspy3, writable)
 {
     if (get_dbtype() == "remotetcp" || get_dbtype() == "remoteprog") {
 	SKIP_TEST("Test not supported for remote backend");
@@ -283,7 +283,7 @@ DEFINE_TESTCASE(matchspy3, writable && !remote)
     return true;
 }
 
-DEFINE_TESTCASE(matchspy4, writable && !remote)
+DEFINE_TESTCASE(matchspy4, writable)
 {
     if (get_dbtype() == "remotetcp" || get_dbtype() == "remoteprog") {
 	SKIP_TEST("Test not supported for remote backend");
@@ -367,7 +367,7 @@ DEFINE_TESTCASE(matchspy4, writable && !remote)
 }
 
 // Test builtin match spies
-DEFINE_TESTCASE(matchspy5, backend && !remote)
+DEFINE_TESTCASE(matchspy5, backend)
 {
     Xapian::Database db(get_database("apitest_simpledata"));
     Xapian::Enquire enquire(db);
