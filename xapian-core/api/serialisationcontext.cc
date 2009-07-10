@@ -141,6 +141,10 @@ SerialisationContext::Internal::add_defaults()
     postingsources[source->name()] = source;
     source = new Xapian::FixedWeightPostingSource(0.0);
     postingsources[source->name()] = source;
+
+    Xapian::MatchSpy * spy;
+    spy = new Xapian::ValueCountMatchSpy();
+    matchspies[spy->name()] = spy;
 }
 
 void
