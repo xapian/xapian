@@ -1,3 +1,10 @@
+Sat Jul 11 13:09:40 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/extraweightpostlist.h:
+	  ExtraWeightPostList::read_position_list() and
+	  ExtraWeightPostList::open_position_list() aren't used, so remove
+	  them.
+
 Sat Jul 11 12:54:30 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/leafpostlist.cc,api/postlist.cc,common/leafpostlist.h,

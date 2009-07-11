@@ -95,14 +95,6 @@ class ExtraWeightPostList : public PostList {
 	    return pl->get_doclength();
 	}
 
-	virtual PositionList * read_position_list() {
-	    return pl->read_position_list();
-	}
-
-	virtual PositionList * open_position_list() const {
-	    return pl->open_position_list();
-	}
-
 	ExtraWeightPostList(PostList * pl_, Xapian::Weight *wt_,
 			    MultiMatch *matcher_)
 	    : pl(pl_), wt(wt_), matcher(matcher_),
