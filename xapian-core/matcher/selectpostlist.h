@@ -56,6 +56,10 @@ class SelectPostList : public PostList {
 	PositionList * open_position_list() const { return source->open_position_list(); }
 	bool at_end() const { return source->at_end(); }
 
+	Xapian::termcount count_matching_subqs() const {
+	    return source->count_matching_subqs();
+	}
+
 	std::string get_description() const;    
     
 	SelectPostList(PostList *source_) : source(source_) { }

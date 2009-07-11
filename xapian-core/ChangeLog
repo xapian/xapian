@@ -1,3 +1,13 @@
+Sat Jul 11 12:54:30 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/leafpostlist.cc,api/postlist.cc,common/leafpostlist.h,
+	  common/postlist.h,common/submatch.h,matcher/,tests/api_anydb.cc,
+	  tests/api_opsynonym.cc: Count how many leaf subqueries match for the
+	  document with the highest weight when calculating the percentage
+	  weights, instead of using the termlist of that document (ticket#363).
+	  Also fixes XOR with a SYNONYM subquery which could achieve 100%
+	  weight before.
+
 Fri Jul 10 08:02:18 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc,backends/chert/chert_spelling.cc,

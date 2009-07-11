@@ -192,6 +192,9 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::RefCntBase {
      */
     Internal * skip_to(Xapian::docid did) { return skip_to(did, 0.0); }
 
+    /// Count the number of leaf subqueries which match at the current position.
+    virtual Xapian::termcount count_matching_subqs() const;
+
     /// Return a string description of this object.
     virtual std::string get_description() const = 0;
 };

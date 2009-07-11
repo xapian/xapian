@@ -77,6 +77,8 @@ class AndNotPostList : public BranchPostList {
 	 * side.
 	 */
 	Xapian::termcount get_wdf() const;
+
+	Xapian::termcount count_matching_subqs() const;
 };
 
 #endif /* OM_HGUARD_ANDNOTPOSTLIST_H */

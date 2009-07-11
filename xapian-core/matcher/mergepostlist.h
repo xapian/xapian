@@ -73,6 +73,8 @@ class MergePostList : public PostList {
 	 */
 	virtual Xapian::termcount get_doclength() const;
 
+	Xapian::termcount count_matching_subqs() const;
+
 	MergePostList(vector<PostList *> plists_,
 		      MultiMatch *matcher,
 		      Xapian::ErrorHandler * errorhandler_);

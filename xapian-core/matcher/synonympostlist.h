@@ -2,6 +2,7 @@
  * @brief Combine subqueries, weighting as if they are synonyms
  */
 /* Copyright 2007,2009 Lemur Consulting Ltd
+ * Copyright 2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -88,6 +89,8 @@ class SynonymPostList : public PostList {
     Xapian::docid get_docid() const;
     Xapian::termcount get_doclength() const;
     bool at_end() const;
+
+    Xapian::termcount count_matching_subqs() const;
 
     std::string get_description() const;
 };

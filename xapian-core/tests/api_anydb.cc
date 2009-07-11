@@ -539,7 +539,7 @@ DEFINE_TESTCASE(topercent2, backend) {
     TEST(i != mymset.end());
     pct = mymset.convert_to_percent(i);
     TEST_REL(pct,>,60);
-    TEST_REL(pct,<,75);
+    TEST_REL(pct,<,76);
 
     ++i;
 

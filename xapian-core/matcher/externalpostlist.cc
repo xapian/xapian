@@ -188,6 +188,12 @@ ExternalPostList::at_end() const
     RETURN(source == NULL);
 }
 
+Xapian::termcount
+ExternalPostList::count_matching_subqs() const
+{
+    return 1;
+}
+
 string
 ExternalPostList::get_description() const
 {

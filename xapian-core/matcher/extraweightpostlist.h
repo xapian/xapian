@@ -113,6 +113,10 @@ class ExtraWeightPostList : public PostList {
 	    delete pl;
 	    delete wt;
 	}
+
+	Xapian::termcount count_matching_subqs() const {
+	    return pl->count_matching_subqs();
+	}
 };
 
 #endif /* OM_HGUARD_EXTRAWEIGHTPOSTLIST_H */

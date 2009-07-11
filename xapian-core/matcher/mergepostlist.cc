@@ -227,3 +227,10 @@ MergePostList::get_doclength() const
     Assert(current != -1);
     return plists[current]->get_doclength();
 }
+
+Xapian::termcount
+MergePostList::count_matching_subqs() const
+{
+    DEBUGCALL(MATCH, Xapian::termcount, "MergePostList::count_matching_subqs", "");
+    RETURN(plists[current]->count_matching_subqs());
+}

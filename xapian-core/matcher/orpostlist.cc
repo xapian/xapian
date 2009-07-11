@@ -299,3 +299,12 @@ OrPostList::get_wdf() const
     if (lhead > rhead) RETURN(r->get_wdf());
     RETURN(l->get_wdf() + r->get_wdf());
 }
+
+Xapian::termcount
+OrPostList::count_matching_subqs() const
+{
+    DEBUGCALL(MATCH, Xapian::termcount, "OrPostList::count_matching_subqs", "");
+    if (lhead < rhead) RETURN(l->count_matching_subqs());
+    if (lhead > rhead) RETURN(r->count_matching_subqs());
+    RETURN(l->count_matching_subqs() + r->count_matching_subqs());
+}
