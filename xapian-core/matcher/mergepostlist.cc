@@ -1,4 +1,4 @@
-/* mergepostlist.cc: MERGE of two posting lists
+/* mergepostlist.cc: merge postlists from different databases
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd

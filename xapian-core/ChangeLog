@@ -1,3 +1,8 @@
+Sat Jul 11 13:35:02 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/mergepostlist.cc: Fix file description - MergePostList can
+	  merge any number of posting lists, not just two.
+
 Sat Jul 11 13:09:40 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/extraweightpostlist.h:
