@@ -1,3 +1,9 @@
+Sun Jul 12 08:17:02 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/remotesubmatch.cc: Percentage scaling for remote results is
+	  handled in a different way, so replace FIXME with comment noting
+	  this.
+
 Sun Jul 12 05:48:17 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: Fix handling of percentage weights in various

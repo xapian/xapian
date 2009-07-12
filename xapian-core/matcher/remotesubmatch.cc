@@ -67,6 +67,8 @@ RemoteSubMatch::get_postlist_and_term_info(MultiMatch *,
     db->get_mset(mset);
     percent_factor = mset.internal->percent_factor;
     if (termfreqandwts) *termfreqandwts = mset.internal->termfreqandwts;
-    (void)total_subqs_ptr; // FIXME hmm...
+    // For remote databases we report percent_factor rather than counting the
+    // number of subqueries.
+    (void)total_subqs_ptr;
     return new MSetPostList(mset, decreasing_relevance);
 }
