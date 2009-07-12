@@ -252,8 +252,7 @@ ChertDatabase::open_tables_consistent()
 	return;
     }
 
-    // In case the position, value, synonym, and/or spelling tables don't
-    // exist yet.
+    // In case the position, synonym, and/or spelling tables don't exist yet.
     unsigned int block_size = record_table.get_block_size();
     position_table.set_block_size(block_size);
     synonym_table.set_block_size(block_size);
@@ -310,8 +309,7 @@ ChertDatabase::open_tables(chert_revision_number_t revision)
     version_file.read_and_check();
     record_table.open(revision);
 
-    // In case the position, value, synonym, and/or spelling tables don't
-    // exist yet.
+    // In case the position, synonym, and/or spelling tables don't exist yet.
     unsigned int block_size = record_table.get_block_size();
     position_table.set_block_size(block_size);
     synonym_table.set_block_size(block_size);
@@ -450,8 +448,8 @@ ChertDatabase::set_revision_number(chert_revision_number_t new_revision)
 
 	    // Write the changes to the blocks in the tables.  Do the postlist
 	    // table last, so that ends up cached the most, if the cache
-	    // available is limited.  Do the position and value tables just
-	    // before that, because they're also critical to search speed.
+	    // available is limited.  Do the position table just before that
+	    // as having that cached will also improve search performance.
 	    termlist_table.write_changed_blocks(changes_fd);
 	    synonym_table.write_changed_blocks(changes_fd);
 	    spelling_table.write_changed_blocks(changes_fd);
