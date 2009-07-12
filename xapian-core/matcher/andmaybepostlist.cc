@@ -197,6 +197,7 @@ AndMaybePostList::get_wdf() const
 Xapian::termcount
 AndMaybePostList::count_matching_subqs() const
 {
+    DEBUGCALL(MATCH, Xapian::termcount, "AndMaybePostList::count_matching_subqs", "");
     if (lhead == rhead)
 	RETURN(l->count_matching_subqs() + r->count_matching_subqs());
     RETURN(l->count_matching_subqs());
