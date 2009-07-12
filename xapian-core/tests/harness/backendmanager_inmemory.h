@@ -1,7 +1,7 @@
 /** @file backendmanager_inmemory.h
  * @brief BackendManager subclass for inmemory databases.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,11 +41,6 @@ class BackendManagerInMemory : public BackendManager {
 
   public:
     BackendManagerInMemory() { }
-
-    /** We have virtual methods and want to be able to delete derived classes
-     *  using a pointer to the base class, so we need a virtual destructor.
-     */
-    virtual ~BackendManagerInMemory();
 
     /// Return a string representing the current database type.
     const char * get_dbtype() const;

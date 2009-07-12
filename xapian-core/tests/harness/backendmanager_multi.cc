@@ -31,8 +31,6 @@
 
 using namespace std;
 
-BackendManagerMulti::~BackendManagerMulti() { }
-
 const char *
 BackendManagerMulti::get_dbtype() const
 {

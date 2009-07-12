@@ -1,3 +1,9 @@
+Sun Jul 12 16:28:37 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/harness/: BackendManager has a virtual dtor, so we don't need
+	  empty virtual dtors in its subclasses.
+
 Sun Jul 12 16:18:40 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

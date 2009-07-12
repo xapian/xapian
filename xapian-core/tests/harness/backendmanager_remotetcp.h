@@ -40,10 +40,7 @@ class BackendManagerRemoteTcp : public BackendManager {
   public:
     BackendManagerRemoteTcp() { }
 
-    /** We have virtual methods and want to be able to delete derived classes
-     *  using a pointer to the base class, so we need a virtual destructor.
-     */
-    virtual ~BackendManagerRemoteTcp();
+    ~BackendManagerRemoteTcp();
 
     /// Return a string representing the current database type.
     const char * get_dbtype() const;
