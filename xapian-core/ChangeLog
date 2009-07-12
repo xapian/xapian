@@ -1,3 +1,9 @@
+Sun Jul 12 14:47:17 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/: Add new ChertLazyTable class and subclass lazy
+	  tables from it so that we only need to implement the common
+	  differences once.
+
 Sun Jul 12 13:41:27 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/replication.cc: No point using join_paths() to append a literal

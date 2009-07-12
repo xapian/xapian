@@ -208,13 +208,8 @@ ChertDatabase::create_and_open_tables(unsigned int block_size)
     // record_table is considered to imply existence of the database.
     version_file.create();
     postlist_table.create_and_open(block_size);
-    // The position table is created lazily, but erase it in case we're
-    // overwriting an existing database and it already exists.
-    position_table.erase();
-    position_table.set_block_size(block_size);
-
+    position_table.create_and_open(block_size);
     termlist_table.create_and_open(block_size);
-
     synonym_table.create_and_open(block_size);
     spelling_table.create_and_open(block_size);
     record_table.create_and_open(block_size);
