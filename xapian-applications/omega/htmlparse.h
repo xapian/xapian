@@ -1,7 +1,7 @@
 /* htmlparse.h: simple HTML parser for omega indexer
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2006,2008 Olly Betts
+ * Copyright 2002,2006,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,7 +36,7 @@ class HtmlParser {
 	string charset;
 	static map<string, unsigned int> named_ents;
 
-	bool get_parameter(const string & param, string & value);
+	bool get_parameter(const string & param, string & value) const;
     public:
 	virtual void process_text(const string &/*text*/) { }
 	virtual void opening_tag(const string &/*tag*/) { }

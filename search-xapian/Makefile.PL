@@ -130,7 +130,8 @@ push @writemakefile_args, (
     # 'typemap' is implicitly added to this list.
     'TYPEMAPS'          => ['perlobject.map', 'typemap-errorclasses'],
     # Add "make check" as alias for "make test".
-    'depend'		=> { 'check' => 'test' },
+    # Make sure that we rebuild the Makefile if the version number changes.
+    'depend'            => { 'check' => 'test', 'Makefile' => 'Xapian.pm' },
 );
 WriteMakefile(@writemakefile_args);
 

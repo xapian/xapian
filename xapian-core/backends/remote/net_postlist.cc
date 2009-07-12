@@ -24,7 +24,6 @@
 
 #include "net_postlist.h"
 #include "serialise.h"
-#include "serialise-double.h"
 
 using namespace std;
 
@@ -104,5 +103,8 @@ NetworkPostList::at_end() const
 string
 NetworkPostList::get_description() const
 {
-    return "NetworkPostList(" + term + ")";
+    string desc = "NetworkPostList(";
+    desc += term;
+    desc += ')';
+    return desc;
 }

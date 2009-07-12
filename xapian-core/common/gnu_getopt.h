@@ -24,7 +24,7 @@
 
 // We need to include a header to get __GLIBC__ defined.  Hopefully ctype.h
 // is a safe bet.
-#include <ctype.h>
+#include <cctype>
 
 #define GNU_GETOPT_INTERFACE_VERSION 2
 #if defined __GLIBC__ && __GLIBC__ >= 2

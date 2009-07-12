@@ -28,7 +28,7 @@
 #include <sys/types.h>
 #include "safesysstat.h"
 #include "safeunistd.h"
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "configfile.h"
 

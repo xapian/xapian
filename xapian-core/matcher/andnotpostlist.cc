@@ -214,3 +214,10 @@ AndNotPostList::get_wdf() const
     DEBUGCALL(MATCH, Xapian::termcount, "AndNotPostList::get_wdf", "");
     RETURN(l->get_wdf());
 }
+
+Xapian::termcount
+AndNotPostList::count_matching_subqs() const
+{
+    DEBUGCALL(MATCH, Xapian::termcount, "AndNotPostList::count_matching_subqs", "");
+    RETURN(l->count_matching_subqs());
+}

@@ -1,7 +1,7 @@
 /** @file backendmanager_chert.h
  * @brief BackendManager subclass for chert databases.
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -48,11 +48,6 @@ class BackendManagerChert : public BackendManager {
 
   public:
     BackendManagerChert() { }
-
-    /** We have virtual methods and want to be able to delete derived classes
-     *  using a pointer to the base class, so we need a virtual destructor.
-     */
-    virtual ~BackendManagerChert();
 
     /// Return a string representing the current database type.
     std::string get_dbtype() const;

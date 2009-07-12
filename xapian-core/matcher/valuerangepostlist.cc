@@ -166,6 +166,12 @@ ValueRangePostList::at_end() const
     return (db == NULL);
 }
 
+Xapian::termcount
+ValueRangePostList::count_matching_subqs() const
+{
+    return 1;
+}
+
 string
 ValueRangePostList::get_description() const
 {

@@ -122,14 +122,17 @@ DEFINE_TESTCASE(metadata4, metadata && !inmemory) {
 }
 
 // Test metadata iterators.
-DEFINE_TESTCASE(metadata5, writable && !inmemory) {
-    // FIXME: inmemory doesn't implement metadata iterators yet.
+DEFINE_TESTCASE(metadata5, writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     // Check that iterator on empty database returns nothing.
     Xapian::TermIterator iter;
     iter = db.metadata_keys_begin();
     TEST_EQUAL(iter, db.metadata_keys_end());
+
+    // FIXME: inmemory doesn't implement metadata iterators yet, except in the
+    // trivial case of there being no keys to iterate.
+    SKIP_TEST_FOR_BACKEND("inmemory");
 
     try {
 	db.set_metadata("foo", "val");

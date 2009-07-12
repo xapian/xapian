@@ -62,13 +62,17 @@ RemoteSubMatch::start_match(Xapian::doccount first,
 
 PostList *
 RemoteSubMatch::get_postlist_and_term_info(MultiMatch *,
-	map<string, Xapian::MSet::Internal::TermFreqAndWeight> * termfreqandwts)
+	map<string, Xapian::MSet::Internal::TermFreqAndWeight> * termfreqandwts,
+	Xapian::termcount * total_subqs_ptr)
 {
     DEBUGCALL(MATCH, PostList *, "RemoteSubMatch::get_postlist_and_term_info",
-	      "[matcher], " << (void*)termfreqandwts);
+	      "[matcher], " << (void*)termfreqandwts << ", " << (void*)total_subqs_ptr);
     Xapian::MSet mset;
     db->get_mset(mset, matchspy);
     percent_factor = mset.internal->percent_factor;
     if (termfreqandwts) *termfreqandwts = mset.internal->termfreqandwts;
+    // For remote databases we report percent_factor rather than counting the
+    // number of subqueries.
+    (void)total_subqs_ptr;
     return new MSetPostList(mset, decreasing_relevance);
 }

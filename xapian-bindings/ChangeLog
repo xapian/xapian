@@ -9,6 +9,25 @@ Mon Oct 29 03:03:57 GMT 2007  Olly Betts <olly@survex.com>
 	* NEWS,csharp/Makefile.am,python/extra.i,python/pythontest.py,
 	  python/util.i,xapian.i: Restore the changes.
 
+Fri Jun 26 10:24:51 GMT 2009  Olly Betts <olly@survex.com>
+
+	* ruby/smoketest.rb: Add regression test for failing to accept an
+	  integer value > MAXINT for a double parameter, fixed by upgrading
+	  to using the latest SWIG SVN trunk.
+
+Wed Jun 10 01:12:23 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Update for 1.1.1.
+
+Tue Jun 09 14:01:04 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Update for 1.1.1.
+
+Wed May 27 05:52:20 GMT 2009  Olly Betts <olly@survex.com>
+
+	* README: Add note about GSoC 2009 project to reimplement Perl bindings
+	  using SWIG.
+
 Wed May 20 20:55:13 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* xapian.i: Add overloaded version of set_collapse_key() to

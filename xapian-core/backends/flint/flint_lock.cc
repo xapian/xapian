@@ -27,12 +27,12 @@
 
 #include "safefcntl.h"
 #include <unistd.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/wait.h>
-#include <signal.h>
-#include <string.h>
+#include <csignal>
+#include <cstring>
 #endif
 
 #include "omassert.h"

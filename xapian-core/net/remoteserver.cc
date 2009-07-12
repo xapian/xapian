@@ -29,8 +29,8 @@
 #include "xapian/valueiterator.h"
 
 #include "safeerrno.h"
-#include <signal.h>
-#include <stdlib.h>
+#include <csignal>
+#include <cstdlib>
 
 #include "autoptr.h"
 #include "serialisationcontextinternal.h"

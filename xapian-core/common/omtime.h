@@ -30,7 +30,7 @@
 #ifdef HAVE_FTIME
 #include <sys/timeb.h>   /* time */
 #endif
-#include <time.h>
+#include <ctime>
 
 #include <xapian/types.h>
 

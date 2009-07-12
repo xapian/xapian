@@ -1,7 +1,7 @@
 /** @file backendmanager_multi.cc
  * @brief BackendManager subclass for multi databases.
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007,2008,2009 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -46,8 +46,6 @@ BackendManagerMulti::BackendManagerMulti(const std::string & subtype_)
 	throw ("Unknown backend type \"" + subtype + "\" specified for multi database subdatabases");
     }
 }
-
-BackendManagerMulti::~BackendManagerMulti() { }
 
 std::string
 BackendManagerMulti::get_dbtype() const

@@ -20,6 +20,8 @@
 
 #include <config.h>
 
+#include "api_transdb.h"
+
 #include <xapian.h>
 
 #include "apitest.h"

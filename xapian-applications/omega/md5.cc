@@ -29,7 +29,7 @@
 
 #include <config.h>
 
-#include <string.h>		/* for memcpy() */
+#include <cstring>		/* for memcpy() */
 #include "md5.h"
 
 #ifndef WORDS_BIGENDIAN

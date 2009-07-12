@@ -28,7 +28,7 @@
 #include "queryparser_internal.h"
 #include "vectortermlist.h"
 
-#include <string.h>
+#include <cstring>
 
 using namespace Xapian;
 

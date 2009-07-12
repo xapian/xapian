@@ -79,8 +79,30 @@ then you can set ``DBL_MAX``::
 
 This method specifies an upper bound on what ``get_weight()`` will return *from
 now on* (until the next call to ``init()``).  So if you know that the upper
-bound has decreased, you should call ``get_maxweight()`` with the new reduced
+bound has decreased, you should call ``set_maxweight()`` with the new reduced
 bound.
+
+One thing to be aware of is that currently calling ``set_maxweight()`` during
+the match triggers an recursion through the postlist tree to recalculate the
+new overall maxweight, which takes a comparable amount of time to calculating
+the weight for a matching document.  If your maxweight reduces for nearly
+every document, you may want to profile to see if it's beneficial to notify
+every single change.  Experiments with a modified ``FixedWeightPostingSource``
+which forces a pointless recalculation for every document suggest a worst case
+overhead in search times of about 37%, but reports of profiling results for
+real world examples are most welcome.  In real cases, this overhead could
+easily be offset by the extra scope for matcher optimisations which a tighter
+maxweight bound allows.
+
+A simple approach to reducing the number of calculations is only to do it every
+N documents.  If it's cheap to calculate the maxweight in your posting source,
+a more sophisticated strategy might be to decide an absolute maximum number of
+times to update the maxweight (say 100) and then to call it whenever::
+
+    last_notified_maxweight - new_maxweight >= original_maxweight / 100.0
+
+This ensures that only reasonably significant drops result in a recalculation
+of the maxweight.
 
 Since ``get_weight()`` must always return >= 0, the upper bound must clearly
 also always be >= 0 too.  If you don't call ``get_maxweight()`` then the

@@ -1,4 +1,4 @@
-/* mergepostlist.cc: MERGE of two posting lists
+/* mergepostlist.cc: merge postlists from different databases
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
@@ -226,4 +226,11 @@ MergePostList::get_doclength() const
     DEBUGCALL(MATCH, Xapian::termcount, "MergePostList::get_doclength", "");
     Assert(current != -1);
     return plists[current]->get_doclength();
+}
+
+Xapian::termcount
+MergePostList::count_matching_subqs() const
+{
+    DEBUGCALL(MATCH, Xapian::termcount, "MergePostList::count_matching_subqs", "");
+    RETURN(plists[current]->count_matching_subqs());
 }

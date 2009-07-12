@@ -88,10 +88,11 @@ LocalSubMatch::start_match(Xapian::doccount, Xapian::doccount,
 
 PostList *
 LocalSubMatch::get_postlist_and_term_info(MultiMatch * matcher,
-	map<string, Xapian::MSet::Internal::TermFreqAndWeight> * termfreqandwts)
+	map<string, Xapian::MSet::Internal::TermFreqAndWeight> * termfreqandwts,
+	Xapian::termcount * total_subqs_ptr)
 {
     DEBUGCALL(MATCH, PostList *, "LocalSubMatch::get_postlist_and_term_info",
-	      matcher << ", [termfreqandwts]");
+	      matcher << ", [termfreqandwts], [total_subqs_ptr]");
     term_info = termfreqandwts;
 
     // Build the postlist tree for the query.  This calls
@@ -99,6 +100,7 @@ LocalSubMatch::get_postlist_and_term_info(MultiMatch * matcher,
     // which builds term_info as a side effect.
     QueryOptimiser opt(*db, *this, matcher);
     PostList * pl = opt.optimise_query(&orig_query);
+    *total_subqs_ptr = opt.get_total_subqueries();
 
     // We only need an ExtraWeightPostList if there's an extra weight
     // contribution.

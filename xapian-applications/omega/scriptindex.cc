@@ -36,8 +36,8 @@
 
 #include <cstdlib>
 #include "safeerrno.h"
-#include <stdio.h>
-#include <time.h>
+#include <cstdio>
+#include <ctime>
 #include "safeunistd.h"
 
 #include "commonhelp.h"

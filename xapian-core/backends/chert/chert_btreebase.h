@@ -126,12 +126,6 @@ class XAPIAN_VISIBILITY_DEFAULT ChertTable_base {
 
 	void extend_bit_map();
 
-	/** Do most of the error handling from unpack_uint() */
-	bool do_unpack_uint(const char **start, const char *end,
-			    uint4 *dest, std::string &err_msg,
-			    const std::string &basename,
-			    const char *varname);
-
 	/* Decoded values from the base file follow */
 	uint4 revision;
 	uint4 block_size;
