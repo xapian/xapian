@@ -1,3 +1,7 @@
+Sun Jul 12 12:05:56 GMT 2009  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Fix comment typo.
+
 Thu Jul 09 13:08:32 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
