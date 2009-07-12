@@ -1,7 +1,7 @@
 /** @file backendmanager_flint.cc
  * @brief BackendManager subclass for flint databases.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,8 +23,6 @@
 #include "backendmanager_flint.h"
 
 using namespace std;
-
-BackendManagerFlint::~BackendManagerFlint() { }
 
 std::string
 BackendManagerFlint::get_dbtype() const

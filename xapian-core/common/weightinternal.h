@@ -70,21 +70,6 @@ class Weight::Internal {
      *  collection. */
     std::map<std::string, TermFreqs> termfreqs;
 
-    /** Create a Weight::Internal object with global statistics.
-     *
-     *  All term-specific statistics will be set to 0.
-     *
-     *  @param stats  Object containing the statistics to use.
-     */
-    Internal(const Internal & stats);
-
-    /** Create a Weight::Internal object with global and term statistics.
-     *
-     *  @param stats  Object containing the statistics to use.
-     *  @param term   The term to read the term-specific statistics for.
-     */
-    Internal(const Internal & stats, const std::string & term);
-
     Internal() : total_length(0), collection_size(0), rset_size(0) { }
 
     /** Add in the supplied statistics from a sub-database. */

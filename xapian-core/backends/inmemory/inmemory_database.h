@@ -33,7 +33,7 @@
 #include <xapian/document.h>
 #include "inmemory_positionlist.h"
 #include "internaltypes.h"
-#include <omassert.h>
+#include "omassert.h"
 #include "noreturn.h"
 
 using namespace std;

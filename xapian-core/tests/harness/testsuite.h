@@ -34,7 +34,7 @@
 #include <string>
 #include <vector>
 
-#include <float.h> // For DBL_DIG.
+#include <cfloat> // For DBL_DIG.
 
 /** Class which is thrown when a test case fails.
  */
@@ -81,7 +81,7 @@ struct test_desc {
 extern bool verbose;
 
 /// The exception type we were expecting in TEST_EXCEPTION.
-//  Used to detect if such an exception was mishandled by a the
+//  Used to detect if such an exception was mishandled by the
 //  compiler/runtime.
 extern const char * expected_exception;
 
@@ -92,6 +92,9 @@ extern std::ostringstream tout;
 
 /// The test driver.  This class takes care of running the tests.
 class test_driver {
+	/// Write out anything in tout and clear it.
+	void write_and_clear_tout();
+
     public:
 	/** A structure used to report the summary of tests passed
 	 *  and failed.

@@ -77,6 +77,8 @@ class XorPostList : public BranchPostList {
 	 *  which is at the current document.
 	 */
 	Xapian::termcount get_wdf() const;
+
+	Xapian::termcount count_matching_subqs() const;
 };
 
 #endif /* OM_HGUARD_XORPOSTLIST_H */

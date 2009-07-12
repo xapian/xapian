@@ -24,7 +24,7 @@
 #include <xapian/base.h>
 #include <xapian/stem.h>
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 
 // FIXME: we might want to make Stem::Internal a virtual base class and have
@@ -127,7 +127,7 @@ class Stem::Internal : public Xapian::Internal::RefCntBase {
 
   public:
     /// Perform initialisation common to all Snowball stemmers.
-    Internal();
+    Internal() : p(create_s()), c(0), l(0), lb(0), bra(0), ket(0) { }
 
     /// Perform cleanup common to all Snowball stemmers.
     virtual ~Internal();

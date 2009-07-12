@@ -97,3 +97,9 @@ LeafPostList::get_termfreq_est_using_stats(
     Assert(i != stats.termfreqs.end());
     RETURN(i->second);
 }
+
+Xapian::termcount
+LeafPostList::count_matching_subqs() const
+{
+    return 1;
+}

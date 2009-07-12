@@ -42,9 +42,8 @@ class FlintVersion {
     void ensure_uuid() const;
 
   public:
-    FlintVersion(const std::string & dbdir) : filename(dbdir) {
-	filename += "/iamflint";
-    }
+    FlintVersion(const std::string & dbdir)
+	: filename(dbdir + "/iamflint") { }
 
     /** Create the version file. */
     void create();
@@ -59,8 +58,8 @@ class FlintVersion {
 
     /// Return pointer to 16 byte UUID.
     const char * get_uuid() const {
-       	ensure_uuid();
-       	return reinterpret_cast<const char *>(uuid);
+	ensure_uuid();
+	return reinterpret_cast<const char *>(uuid);
     }
 
     /// Return UUID in the standard 36 character string format.

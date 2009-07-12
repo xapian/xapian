@@ -1,7 +1,7 @@
 %include {
 /* queryparser.lemony: build a Xapian::Query object from a user query string.
  *
- * Copyright (C) 2004,2005,2006,2007,2008 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -203,12 +203,11 @@ class State {
     }
 
     valueno value_range(Query & q, Term *a, Term *b) {
-	string start = a->name;
-	string end = b->name;
-	Xapian::valueno valno = Xapian::BAD_VALUENO;
 	list<ValueRangeProcessor *>::const_iterator i;
 	for (i = qpi->valrangeprocs.begin(); i != qpi->valrangeprocs.end(); ++i) {
-	    valno = (**i)(start, end);
+	    string start = a->name;
+	    string end = b->name;
+	    Xapian::valueno valno = (**i)(start, end);
 	    if (valno != Xapian::BAD_VALUENO) {
 		delete a;
 		delete b;
@@ -223,7 +222,7 @@ class State {
 	// more thought and probably a look at queries users actually
 	// enter.
 	error = "Unknown range operation";
-	return valno;
+	return Xapian::BAD_VALUENO;
     }
 
     Query::op default_op() const { return qpi->default_op; }
@@ -1172,7 +1171,16 @@ TermGroup::as_group(State *state) const
 		    subqs2.push_back((*j)->get_query());
 		}
 	    }
-	    Query q_original_terms(default_op, subqs2.begin(), subqs2.end());
+	    Query q_original_terms;
+	    if (default_op == Query::OP_NEAR ||
+		default_op == Query::OP_PHRASE) {
+		q_original_terms = Query(default_op,
+					 subqs2.begin(), subqs2.end(),
+					 subqs2.size() + 9);
+	    } else {
+		q_original_terms = Query(default_op,
+					 subqs2.begin(), subqs2.end());
+	    }
 	    subqs2.clear();
 
 	    // Use the position of the first term for the synonyms.
@@ -1197,7 +1205,12 @@ TermGroup::as_group(State *state) const
 	    }
 	}
     }
-    delete this;
+
+    if (default_op == Query::OP_NEAR ||
+	default_op == Query::OP_PHRASE) {
+	return new Query(default_op, subqs.begin(), subqs.end(),
+			 subqs.size() + 9);
+    }
     return new Query(default_op, subqs.begin(), subqs.end());
 }
 
@@ -1526,7 +1539,19 @@ prob(P) ::= stop_prob(Q) RANGE_START(A) RANGE_END(B). {
 prob(P) ::= stop_term(T) stop_term(U). {
     P = new ProbQuery;
     P->query = T;
-    if (U) add_to_query(P->query, state->default_op(), U);
+    if (U) {
+	Query::op op = state->default_op();
+	if (P->query && (op == Query::OP_NEAR || op == Query::OP_NEAR)) {
+	    // If default_op is OP_NEAR or OP_PHRASE, set the window size to
+	    // 11 for the first pair of terms and it will automatically grow
+	    // by one for each subsequent term.
+	    Query * subqs[2] = { P->query, U };
+	    *(P->query) = Query(op, subqs, subqs + 2, 11);
+	    delete U;
+	} else {
+	    add_to_query(P->query, op, U);
+	}
+    }
 }
 
 prob(P) ::= prob(Q) stop_term(T). {

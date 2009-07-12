@@ -23,9 +23,9 @@
 
 #include <config.h>
 
-#include <assert.h>
-#include <stdio.h>
-#include <time.h>
+#include <cassert>
+#include <cstdio>
+#include <ctime>
 
 #include <algorithm>
 #include <cstring>

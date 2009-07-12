@@ -404,7 +404,7 @@ DEFINE_TESTCASE(expandweights2, backend) {
 
     Xapian::ESet eset = enquire.get_eset(3, myrset);
     TEST_EQUAL(eset.size(), 3);
-    if (get_dbtype().substr(0, 5) != "multi") {
+    if (!startswith(get_dbtype(), "multi")) {
 	// For a single database, the weights should be the same with or
 	// without USE_EXACT_TERMFREQ.
 	TEST_EQUAL_DOUBLE(eset[0].get_weight(), 6.08904001099445);
@@ -523,7 +523,7 @@ DEFINE_TESTCASE(topercent2, backend) {
     TEST_EQUAL(mymset.get_matches_lower_bound(), localmset.get_matches_lower_bound());
     TEST_EQUAL(mymset.get_matches_upper_bound(), localmset.get_matches_upper_bound());
     TEST_EQUAL(mymset.get_matches_estimated(), localmset.get_matches_estimated());
-    TEST_EQUAL(mymset.get_max_attained(), localmset.get_max_attained());
+    TEST_EQUAL_DOUBLE(mymset.get_max_attained(), localmset.get_max_attained());
     TEST_EQUAL(mymset.size(), localmset.size());
     TEST(mset_range_is_same(mymset, 0, localmset, 0, mymset.size()));
 
@@ -539,7 +539,7 @@ DEFINE_TESTCASE(topercent2, backend) {
     TEST(i != mymset.end());
     pct = mymset.convert_to_percent(i);
     TEST_REL(pct,>,60);
-    TEST_REL(pct,<,75);
+    TEST_REL(pct,<,76);
 
     ++i;
 
@@ -551,7 +551,7 @@ DEFINE_TESTCASE(topercent2, backend) {
     TEST_EQUAL(mymset.get_matches_lower_bound(), localmset.get_matches_lower_bound());
     TEST_EQUAL(mymset.get_matches_upper_bound(), localmset.get_matches_upper_bound());
     TEST_EQUAL(mymset.get_matches_estimated(), localmset.get_matches_estimated());
-    TEST_EQUAL(mymset.get_max_attained(), localmset.get_max_attained());
+    TEST_EQUAL_DOUBLE(mymset.get_max_attained(), localmset.get_max_attained());
     TEST_EQUAL(mymset.size(), localmset.size());
     TEST(mset_range_is_same(mymset, 0, localmset, 0, mymset.size()));
 

@@ -93,6 +93,19 @@
    components_of(p, c) returns the number marked 'C' above,
 */
 
+#define REVISION(b)      static_cast<unsigned int>(getint4(b, 0))
+#define GET_LEVEL(b)     getint1(b, 4)
+#define MAX_FREE(b)      getint2(b, 5)
+#define TOTAL_FREE(b)    getint2(b, 7)
+#define DIR_END(b)       getint2(b, 9)
+#define DIR_START        11
+
+#define SET_REVISION(b, x)      setint4(b, 0, x)
+#define SET_LEVEL(b, x)         setint1(b, 4, x)
+#define SET_MAX_FREE(b, x)      setint2(b, 5, x)
+#define SET_TOTAL_FREE(b, x)    setint2(b, 7, x)
+#define SET_DIR_END(b, x)       setint2(b, 9, x)
+
 class XAPIAN_VISIBILITY_DEFAULT Key {
     const byte *p;
 public:
@@ -108,9 +121,11 @@ public:
     bool operator>(Key key2) const { return key2 < *this; }
     bool operator<=(Key key2) const { return !(key2 < *this); }
     int length() const {
+	AssertRel(getK(p, 0),>=,3);
 	return getK(p, 0) - C2 - K1;
     }
     char operator[](size_t i) const {
+	AssertRel(i,<,(size_t)length());
 	return p[i + K1];
     }
 };
@@ -179,9 +194,10 @@ public:
 	// Read the length now because we may be copying the key over itself.
 	// FIXME that's stupid!  sort this out
 	int newkey_len = newkey.length();
+	AssertRel(i,<=,newkey_len);
 	int newsize = I2 + K1 + i + C2;
-	// Item size (4 since tag contains block number)
-	setint2(p, 0, newsize + 4);
+	// Item size (BYTES_PER_BLOCK_NUMBER since tag contains block number)
+	setint2(p, 0, newsize + BYTES_PER_BLOCK_NUMBER);
 	// Key size
 	setint1(p, I2, newsize - I2);
 	// Copy the main part of the key, possibly truncating.
@@ -208,7 +224,7 @@ public:
     void form_null_key(uint4 n) {
 	setint4(p, I2 + K1, n);
 	set_key_len(K1);        /* null key */
-	set_size(I2 + K1 + 4);  /* total length */
+	set_size(I2 + K1 + BYTES_PER_BLOCK_NUMBER);  /* total length */
     }
     void form_key(const std::string & key_) {
 	std::string::size_type key_len = key_.length();
@@ -560,7 +576,7 @@ class XAPIAN_VISIBILITY_DEFAULT ChertTable {
 	 */
 	void set_max_item_size(size_t block_capacity) {
 	    if (block_capacity > 4) block_capacity = 4;
-	    max_item_size = (block_size - 11 /*DIR_START*/ - block_capacity * D2)
+	    max_item_size = (block_size - DIR_START - block_capacity * D2)
 		/ block_capacity;
 	}
 

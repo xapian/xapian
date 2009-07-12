@@ -55,7 +55,7 @@ class FlintChangesetApplier {
     /** Read the next changeset from the file descriptor and apply it.
      *
      *  @return true if there are more changesets to apply, false if the final
-     *  changes on the the file descriptor has now been applied.
+     *  changes on the file descriptor has now been applied.
      */
     bool apply_next_changeset();
 };

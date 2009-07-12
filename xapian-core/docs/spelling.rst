@@ -1,5 +1,5 @@
 
-.. Copyright (C) 2007,2008 Olly Betts
+.. Copyright (C) 2007,2008,2009 Olly Betts
 
 ==========================
 Xapian Spelling Correction
@@ -84,6 +84,13 @@ will still be parsed, since you'll often want to ask the user "Did you mean:
 [...] ?" - if you want to automatically use the corrected form, just call
 QueryParser::parse_query() on it.
 
+Omega
+=====
+
+As of Omega 1.1.1, omindex and scriptindex support indexing spelling correction
+data and omega supports suggesting corrected spellings at search time.  See the
+Omega documentation for more details.
+
 Current Limitations
 ===================
 
@@ -109,11 +116,6 @@ Prefixed Terms
 --------------
 
 Currently spelling correction ignores prefixed terms.
-
-Omega
------
-
-Spelling correction hasn't yet been integrated into Omega.
 
 QueryParser changed word locations
 ----------------------------------

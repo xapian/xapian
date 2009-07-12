@@ -6,7 +6,7 @@
 # Originally based on smoketest.php from the PHP4 bindings.
 #
 # Copyright (C) 2006 Networked Knowledge Systems, Inc.
-# Copyright (C) 2008 Olly Betts
+# Copyright (C) 2008,2009 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -199,6 +199,13 @@ class XapianSmoketest < Test::Unit::TestCase
     query = Xapian::Query.new("foo")
     query2 = Xapian::Query.new(Xapian::Query::OP_SCALE_WEIGHT, query, 5);
     assert_equal(query2.description(), "Xapian::Query(5 * foo)")
+  end
+
+  def test_014_sortable_serialise
+    # In Xapian 1.0.13/1.1.1 and earlier, the SWIG generated wrapper code
+    # didn't handle integer values > MAXINT for double parameters.
+    v = 51767811298
+    assert_equal(v, Xapian::sortable_unserialise(Xapian::sortable_serialise(v)))
   end
 
 end # class XapianSmoketest

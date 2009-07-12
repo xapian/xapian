@@ -12,7 +12,7 @@
 # include <sys/mman.h>
 #else
 # include "safeunistd.h"
-# include <stdlib.h>
+# include <cstdlib>
 #endif
 #ifdef __WIN32__
 # include "safewindows.h"
@@ -105,7 +105,7 @@ class VoidStarOrCharStar {
     VoidStarOrCharStar(const void *p_) : p(const_cast<void*>(p_)) { }
     VoidStarOrCharStar(const char *p_) : p(const_cast<char*>(p_)) { }
     operator void*() { return p; }
-    operator char*() { return (char*)p; }
+    operator char*() { return static_cast<char*>(p); }
 };
 #endif
 

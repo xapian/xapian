@@ -35,6 +35,6 @@
 #endif
 
 // On Solaris FDSET uses memset but fails to prototype it.
-#include <string.h>
+#include <cstring>
 
 #endif // XAPIAN_INCLUDED_SAFESYSSELECT_H

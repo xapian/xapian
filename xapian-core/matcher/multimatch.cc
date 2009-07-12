@@ -56,6 +56,7 @@
 
 #include <algorithm>
 #include <cfloat> // For DBL_EPSILON.
+#include <climits> // For UINT_MAX.
 #include <vector>
 #include <map>
 #include <set>
@@ -326,6 +327,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     map<string, Xapian::MSet::Internal::TermFreqAndWeight> * termfreqandwts_ptr;
     termfreqandwts_ptr = &termfreqandwts;
 
+    Xapian::termcount total_subqs = 0;
     // Keep a count of matches which we know exist, but we won't see.  This
     // occurs when a submatch is remote, and returns a lower bound on the
     // number of matching documents which is higher than the number of
@@ -335,7 +337,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	PostList *pl;
 	try {
 	    pl = leaves[i]->get_postlist_and_term_info(this,
-						       termfreqandwts_ptr);
+						       termfreqandwts_ptr,
+						       &total_subqs);
 	    if (termfreqandwts_ptr && !termfreqandwts.empty())
 		termfreqandwts_ptr = NULL;
 	    if (is_remote[i]) {
@@ -384,6 +387,10 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     // Empty result set
     Xapian::doccount docs_matched = 0;
     Xapian::weight greatest_wt = 0;
+    Xapian::termcount greatest_wt_subqs_matched = 0;
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
+    unsigned greatest_wt_subqs_db_num = UINT_MAX;
+#endif
     vector<Xapian::Internal::MSetItem> items;
 
     // maximum weight a document could possibly have
@@ -715,6 +722,21 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	if (wt > greatest_wt) {
 new_greatest_weight:
 	    greatest_wt = wt;
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
+	    const unsigned int multiplier = db.internal.size();
+	    unsigned int db_num = (did - 1) % multiplier;
+	    if (is_remote[db_num]) {
+		// Note that the greatest weighted document came from a remote
+		// database, and which one.
+		greatest_wt_subqs_db_num = db_num;
+	    } else
+#endif
+	    {
+		greatest_wt_subqs_matched = pl->count_matching_subqs();
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
+		greatest_wt_subqs_db_num = UINT_MAX;
+#endif
+	    }
 	    if (percent_cutoff) {
 		Xapian::weight w = wt * percent_cutoff_factor;
 		if (w > min_weight) {
@@ -752,80 +774,20 @@ new_greatest_weight:
 	best = min_element(items.begin(), items.end(), mcmp);
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-	unsigned int multiplier = db.internal.size();
-	Assert(multiplier != 0);
-	Xapian::doccount n = (best->did - 1) % multiplier; // which actual database
-	// If the top result is from a remote database, then we can
-	// just use the percentage scaling calculated for that
-	// database.
-	if (is_remote[n]) {
+	if (greatest_wt_subqs_db_num != UINT_MAX) {
+	    const unsigned int n = greatest_wt_subqs_db_num;
 	    RemoteSubMatch * rem_match;
 	    rem_match = static_cast<RemoteSubMatch*>(leaves[n].get());
-	    percent_scale = rem_match->get_percent_factor();
+	    percent_scale = rem_match->get_percent_factor() / 100.0;
 	} else
 #endif
-	if (termfreqandwts.size() > 1) {
-	    Xapian::termcount matching_terms = 0;
-	    map<string,
-		Xapian::MSet::Internal::TermFreqAndWeight>::const_iterator i;
-
-	    // Special case for MatchAll queries.
-	    i = termfreqandwts.find(string());
-	    if (i != termfreqandwts.end()) {
-		percent_scale += i->second.termweight;
-		++matching_terms;
-	    }
-
-	    Xapian::TermIterator docterms = db.termlist_begin(best->did);
-	    Xapian::TermIterator docterms_end = db.termlist_end(best->did);
-	    while (docterms != docterms_end) {
-		i = termfreqandwts.find(*docterms);
-		if (i != termfreqandwts.end()) {
-		    LOGLINE(MATCH, "adding " << i->second.termweight <<
-			    " to percent_scale for term '" <<
-			    *docterms << "'");
-		    percent_scale += i->second.termweight;
-		    ++matching_terms;
-		    if (matching_terms == termfreqandwts.size()) break;
-		}
-		++docterms;
-	    }
-
-	    if (matching_terms < termfreqandwts.size()) {
-		if (percent_scale == 0.0) {
-		    // This happens if the only matching terms are synonyms.
-		    percent_scale = 1.0;
-		} else {
-		    // OK, work out weight corresponding to 100%
-		    double denom = 0;
-		    for (i = termfreqandwts.begin(); i != termfreqandwts.end(); ++i)
-			denom += i->second.termweight;
-
-		    LOGVALUE(MATCH, denom);
-		    LOGVALUE(MATCH, percent_scale);
-		    AssertRel(percent_scale,<=,denom);
-		    if (denom == 0) {
-			// This happens if the top-level operator is OP_SYNONYM.
-			percent_scale = 1.0 / greatest_wt;
-		    } else {
-			denom *= greatest_wt;
-			AssertRel(denom,>,0);
-			percent_scale /= denom;
-		    }
-		}
-	    } else {
-		// If all the terms match, the 2 sums of weights cancel.
-		percent_scale = 1.0 / greatest_wt;
-	    }
-	} else {
-	    // If there's only a single term in the query, the top document
-	    // must score 100%.
-	    percent_scale = 1.0 / greatest_wt;
+	{
+	    percent_scale = greatest_wt_subqs_matched / double(total_subqs);
+	    percent_scale /= greatest_wt;
 	}
 	Assert(percent_scale > 0);
 	if (percent_cutoff) {
-	    // FIXME: better to sort and binary chop maybe?  we
-	    // could use the sort above to find "best" too.
+	    // FIXME: better to sort and binary chop maybe?
 	    // Or we could just use a linear scan here instead.
 
 	    // trim the mset to the correct answer...
@@ -1095,13 +1057,4 @@ new_greatest_weight:
 				       max_possible, greatest_wt, items,
 				       termfreqandwts,
 				       percent_scale));
-}
-
-// This method is called by branch postlists when they rebalance
-// in order to recalculate the weights in the tree
-void
-MultiMatch::recalc_maxweight()
-{
-    DEBUGCALL(MATCH, void, "MultiMatch::recalc_maxweight", "");
-    recalculate_w_max = true;
 }

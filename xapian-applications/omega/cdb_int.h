@@ -7,7 +7,7 @@
 
 #include "cdb.h"
 #include "safeerrno.h"
-#include <string.h>
+#include <cstring>
 
 #ifndef EPROTO
 # define EPROTO EINVAL

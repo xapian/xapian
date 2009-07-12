@@ -356,7 +356,7 @@ ChertDatabase::get_next_revision_number() const
 void
 ChertDatabase::get_changeset_revisions(const string & path,
 				       chert_revision_number_t * startrev,
-				       chert_revision_number_t * endrev)
+				       chert_revision_number_t * endrev) const
 {
     int changes_fd = -1;
 #ifdef __WIN32__

@@ -62,9 +62,9 @@ PREAD_PROTOTYPE
 PWRITE_PROTOTYPE
 #endif
 
-#include <stdio.h>    /* for rename */
-#include <string.h>   /* for memmove */
-#include <limits.h>   /* for CHAR_BIT */
+#include <cstdio>    /* for rename */
+#include <cstring>   /* for memmove */
+#include <climits>   /* for CHAR_BIT */
 
 #include "chert_io.h"
 #include "chert_btreebase.h"
@@ -180,19 +180,6 @@ static inline byte *zeroed_new(size_t size)
 
 */
 
-#define REVISION(b)      static_cast<unsigned int>(getint4(b, 0))
-#define GET_LEVEL(b)     getint1(b, 4)
-#define MAX_FREE(b)      getint2(b, 5)
-#define TOTAL_FREE(b)    getint2(b, 7)
-#define DIR_END(b)       getint2(b, 9)
-#define DIR_START        11
-
-#define SET_REVISION(b, x)      setint4(b, 0, x)
-#define SET_LEVEL(b, x)         setint1(b, 4, x)
-#define SET_MAX_FREE(b, x)      setint2(b, 5, x)
-#define SET_TOTAL_FREE(b, x)    setint2(b, 7, x)
-#define SET_DIR_END(b, x)       setint2(b, 9, x)
-
 /** Flip to sequential addition block-splitting after this number of observed
  *  sequential additions (in negated form). */
 #define SEQ_START_POINT (-10)
@@ -200,7 +187,6 @@ static inline byte *zeroed_new(size_t size)
 /** Even for items of at maximum size, it must be possible to get this number of
  *  items in a block */
 #define BLOCK_CAPACITY 4
-
 
 
 /* There are two bit maps in bit_map0 and bit_map. The nth bit of bitmap is 0
@@ -698,10 +684,11 @@ ChertTable::mid_point(byte * p)
 
 /** add_item_to_block(p, kt_, c) adds item kt_ to the block at p.
 
-   c is the offset in the directory that needs to be expanded to
-   accommodate the new entry for the item. We know before this is
-   called that there is enough room, so it's just a matter of byte
-   shuffling.
+   c is the offset in the directory that needs to be expanded to accommodate
+   the new entry for the item.  We know before this is called that there is
+   enough contiguous room for the item in the block, so it's just a matter of
+   shuffling up any directory entries after where we're inserting and copying
+   in the item.
 */
 
 void
@@ -717,11 +704,8 @@ ChertTable::add_item_to_block(byte * p, Item_wr kt_, int c)
 
     Assert(new_total >= 0);
 
-    if (new_max < 0) {
-	compact(p);
-	new_max = MAX_FREE(p) - needed;
-	Assert(new_max >= 0);
-    }
+    AssertRel(MAX_FREE(p),>=,needed);
+
     Assert(dir_end >= c);
 
     memmove(p + c + D2, p + c, dir_end - c);
@@ -817,6 +801,13 @@ ChertTable::add_item(Item_wr kt_, int j)
 		  Item(split_p, DIR_END(split_p) - D2).key(),
 		  Item(p, DIR_START).key());
     } else {
+	AssertRel(TOTAL_FREE(p),>=,needed);
+
+	if (MAX_FREE(p) < needed) {
+	    compact(p);
+	    AssertRel(MAX_FREE(p),>=,needed);
+	}
+
 	add_item_to_block(p, kt_, c);
 	n = C[j].n;
     }
@@ -931,7 +922,7 @@ ChertTable::add_kt(bool found)
 	int kt_size = kt.size();
 	int needed = kt_size - item.size();
 
-	components = Item(p, c).components_of();
+	components = item.components_of();
 
 	if (needed <= 0) {
 	    /* simple replacement */
@@ -1465,7 +1456,7 @@ ChertTable::read_root()
 	byte * p = C[0].p;
 	Assert(p);
 
-	/* clear block - shouldn't be neccessary, but is a bit nicer,
+	/* clear block - shouldn't be necessary, but is a bit nicer,
 	 * and means that the same operations should always produce
 	 * the same database. */
 	memset(p, 0, block_size);

@@ -19,11 +19,11 @@
 
 #include <config.h>
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
 #include <string>
 
-#include <stdio.h>
+#include <cstdio>
 
 #include "md5wrap.h"
 

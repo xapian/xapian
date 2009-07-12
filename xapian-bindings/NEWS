@@ -1,3 +1,42 @@
+Xapian-bindings 1.1.1 (2009-06-09):
+
+This release includes all changes from 1.0.13 which are relevant to trunk.
+
+General:
+
+* Wrap the recently added extra parameter to Enquire::set_collapse_key().
+
+CSharp:
+
+* Document that Query::MatchAll and Query::MatchNothing aren't wrapped for
+  C# yet, and to use Query("") and Query() instead.
+
+* configure: If we don't find a C# compiler, don't test an empty command name
+  further which saves a fork and avoids an odd looking message.
+
+PHP:
+
+* Document that Query::MatchAll and Query::MatchNothing aren't wrapped for
+  PHP yet, and to use Query("") and Query() instead.
+
+Python:
+
+* Wrap Query::MatchAll and Query::MatchNothing for Python and document how they
+  are wrapped (ticket#158).
+
+* python/smoketest2.py,python/smoketest3.py: Update tests with FLAG_PARTIAL to
+  expect SYNONYM in generated query.
+
+Ruby:
+
+* Document that Query::MatchAll and Query::MatchNothing aren't wrapped for
+  Ruby yet, and to use Query("") and Query() instead.
+
+Tcl:
+
+* Wrap Query::MatchAll and Query::MatchNothing for Tcl and document how they
+  are wrapped (ticket#158).
+
 Xapian-bindings 1.1.0 (2009-04-22):
 
 Documentation:

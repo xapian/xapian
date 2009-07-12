@@ -29,7 +29,7 @@
 #include <map>
 #include <set>
 #include <string>
-#include <string.h> // For memcpy() and memcmp().
+#include <cstring> // For memcpy() and memcmp().
 
 struct F_fragment {
     char data[4];

@@ -1407,8 +1407,7 @@ DEFINE_TESTCASE(longpositionlist1, writable) {
 
 // Regression test for bug#110: Inconsistent sort order between pages with
 // set_sort_by_value_then_relevance.
-bool test_consistency2()
-{
+DEFINE_TESTCASE(consistency2, writable) {
     Xapian::WritableDatabase db = get_writable_database();
     char buf[2] = "X";
     int i = 0;

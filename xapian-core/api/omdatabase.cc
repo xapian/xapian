@@ -519,6 +519,7 @@ Database::get_spelling_suggestion(const string &word,
 {
     DEBUGAPICALL(string, "Database::get_spelling_suggestion",
 		 word << ", " << max_edit_distance);
+    if (word.size() <= 1) return string();
     AutoPtr<TermList> merger;
     for (size_t i = 0; i < internal.size(); ++i) {
 	TermList * tl = internal[i]->open_spelling_termlist(word);

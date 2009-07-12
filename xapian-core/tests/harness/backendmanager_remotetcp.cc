@@ -1,7 +1,7 @@
 /** @file backendmanager_remotetcp.cc
  * @brief BackendManager subclass for remotetcp databases.
  */
-/* Copyright (C) 2006,2007,2008 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -30,7 +30,7 @@
 #include <cstring>
 
 #ifdef HAVE_FORK
-# include <signal.h>
+# include <csignal>
 # include <sys/types.h>
 # include <sys/socket.h>
 # include <sys/wait.h>
@@ -70,7 +70,7 @@ using namespace std;
 
 // We can't dynamically allocate memory for this because it confuses the leak
 // detector.  We only have 1-3 child fds open at once anyway, so a fixed size
-// array isn't a problem, and linear scanning isn't a problem.
+// array isn't a problem, and linear scanning isn't a problem either.
 struct pid_fd {
     pid_t pid;
     int fd;
@@ -78,7 +78,9 @@ struct pid_fd {
 
 static pid_fd pid_to_fd[16];
 
-extern "C" void
+extern "C" {
+
+static void
 on_SIGCHLD(int /*sig*/)
 {
     int status;
@@ -87,8 +89,8 @@ on_SIGCHLD(int /*sig*/)
 	for (unsigned i = 0; i < sizeof(pid_to_fd) / sizeof(pid_fd); ++i) {
 	    if (pid_to_fd[i].pid == child) {
 		int fd = pid_to_fd[i].fd;
-		pid_to_fd[i].fd = -1;
-		pid_to_fd[i].pid = -1;
+		pid_to_fd[i].fd = 0;
+		pid_to_fd[i].pid = 0;
 		// NB close() *is* safe to use in a signal handler.
 		close(fd);
 		break;
@@ -97,13 +99,15 @@ on_SIGCHLD(int /*sig*/)
     }
 }
 
+}
+
 static int
 launch_xapian_tcpsrv(const string & args)
 {
     int port = DEFAULT_PORT;
 
     // We want to be able to get the exit status of the child process we fork
-    // in xapian-tcpsrv doesn't start listening successfully.
+    // if xapian-tcpsrv doesn't start listening successfully.
     signal(SIGCHLD, SIG_DFL);
 try_next_port:
     string cmd = XAPIAN_TCPSRV" --one-shot --interface "LOCALHOST" --port " + om_tostring(port) + " " + args;
@@ -149,11 +153,13 @@ try_next_port:
 	msg += strerror(errno);
 	throw msg;
     }
+
     string output;
     while (true) {
 	char buf[256];
 	if (fgets(buf, sizeof(buf), fh) == NULL) {
 	    fclose(fh);
+	    // Wait for the child to exit.
 	    int status;
 	    if (waitpid(child, &status, 0) == -1) {
 		string msg("waitpid failed: ");
@@ -190,7 +196,7 @@ try_next_port:
     // Find a slot to track the pid->fd mapping in.  If we can't find a slot
     // it just means we'll leak the fd, so don't worry about that too much.
     for (unsigned i = 0; i < sizeof(pid_to_fd) / sizeof(pid_fd); ++i) {
-	if (pid_to_fd[i].pid == -1) {
+	if (pid_to_fd[i].pid == 0) {
 	    pid_to_fd[i].fd = tracked_fd;
 	    pid_to_fd[i].pid = child;
 	    break;
@@ -306,17 +312,9 @@ try_next_port:
 # error Neither HAVE_FORK nor __WIN32__ is defined
 #endif
 
-BackendManagerRemoteTcp::BackendManagerRemoteTcp(const std::string & remote_type_)
-	: BackendManagerRemote(remote_type_)
-{
-#ifdef HAVE_FORK
-    for (unsigned i = 0; i < sizeof(pid_to_fd) / sizeof(pid_fd); ++i) {
-	pid_to_fd[i].pid = -1;
-    }
-#endif
+BackendManagerRemoteTcp::~BackendManagerRemoteTcp() {
+    BackendManagerRemoteTcp::clean_up();
 }
-
-BackendManagerRemoteTcp::~BackendManagerRemoteTcp() { }
 
 std::string
 BackendManagerRemoteTcp::get_dbtype() const
@@ -367,18 +365,24 @@ BackendManagerRemoteTcp::get_writable_database_again(const string & name)
 }
 
 void
-BackendManagerRemoteTcp::posttest()
+BackendManagerRemoteTcp::clean_up()
 {
 #ifdef HAVE_FORK
-    while(true) {
-	bool no_subpids = true;
-	for (unsigned i = 0; i < sizeof(pid_to_fd) / sizeof(pid_fd); ++i) {
-	    if (pid_to_fd[i].pid != -1) {
-		no_subpids = false;
-	    }
+    signal(SIGCHLD, SIG_DFL);
+    for (unsigned i = 0; i < sizeof(pid_to_fd) / sizeof(pid_fd); ++i) {
+	pid_t child = pid_to_fd[i].pid;
+	if (child) {
+	    int status;
+	    while (waitpid(child, &status, 0) == -1 && errno == EINTR) { }
+	    // Other possible error from waitpid is ECHILD, which it seems can
+	    // only mean that the child has already exited and SIGCHLD was set
+	    // to SIG_IGN.  If we did somehow see that, the sanest response
+	    // seems to be to close the fd and move on.
+	    int fd = pid_to_fd[i].fd;
+	    pid_to_fd[i].fd = 0;
+	    pid_to_fd[i].pid = 0;
+	    close(fd);
 	}
-	if (no_subpids) break;
-	sleep(1);
     }
 #endif
 }

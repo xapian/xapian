@@ -1,7 +1,7 @@
 /** @file backendmanager_multi.h
  * @brief BackendManager subclass for multi databases.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2009 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -51,11 +51,6 @@ class BackendManagerMulti : public BackendManager {
 
   public:
     BackendManagerMulti(const std::string & subtype_);
-
-    /** We have virtual methods and want to be able to delete derived classes
-     *  using a pointer to the base class, so we need a virtual destructor.
-     */
-    virtual ~BackendManagerMulti();
 
     /// Return a string representing the current database type.
     std::string get_dbtype() const;
