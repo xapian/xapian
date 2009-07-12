@@ -1,3 +1,8 @@
+Sun Jul 12 13:41:27 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/replication.cc: No point using join_paths() to append a literal
+	  leaf name, especially as we already don't elsewhere.
+
 Sun Jul 12 12:01:25 GMT 2009  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Fix memory leak accidentally
