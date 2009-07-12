@@ -1,3 +1,10 @@
+Sun Jul 12 05:48:17 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Fix handling of percentage weights in various
+	  cases when we're searching multiple remote databases or a mix of
+	  local and remote databases.
+	* tests/api_percentages.cc: Add regression test topercent3.
+
 Sat Jul 11 13:35:02 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/mergepostlist.cc: Fix file description - MergePostList can

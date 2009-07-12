@@ -56,6 +56,7 @@
 
 #include <algorithm>
 #include <cfloat> // For DBL_EPSILON.
+#include <climits> // For UINT_MAX.
 #include <vector>
 #include <map>
 #include <set>
@@ -387,6 +388,9 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     Xapian::doccount docs_matched = 0;
     Xapian::weight greatest_wt = 0;
     Xapian::termcount greatest_wt_subqs_matched = 0;
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
+    unsigned greatest_wt_subqs_db_num = UINT_MAX;
+#endif
     vector<Xapian::Internal::MSetItem> items;
 
     // maximum weight a document could possibly have
@@ -718,7 +722,21 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	if (wt > greatest_wt) {
 new_greatest_weight:
 	    greatest_wt = wt;
-	    greatest_wt_subqs_matched = pl->count_matching_subqs();
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
+	    const unsigned int multiplier = db.internal.size();
+	    unsigned int db_num = (did - 1) % multiplier;
+	    if (is_remote[db_num]) {
+		// Note that the greatest weighted document came from a remote
+		// database, and which one.
+		greatest_wt_subqs_db_num = db_num;
+	    } else
+#endif
+	    {
+		greatest_wt_subqs_matched = pl->count_matching_subqs();
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
+		greatest_wt_subqs_db_num = UINT_MAX;
+#endif
+	    }
 	    if (percent_cutoff) {
 		Xapian::weight w = wt * percent_cutoff_factor;
 		if (w > min_weight) {
@@ -756,16 +774,11 @@ new_greatest_weight:
 	best = min_element(items.begin(), items.end(), mcmp);
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-	unsigned int multiplier = db.internal.size();
-	Assert(multiplier != 0);
-	Xapian::doccount n = (best->did - 1) % multiplier; // which actual database
-	// If the top result is from a remote database, then we can
-	// just use the percentage scaling calculated for that
-	// database.
-	if (is_remote[n]) {
+	if (greatest_wt_subqs_db_num != UINT_MAX) {
+	    const unsigned int n = greatest_wt_subqs_db_num;
 	    RemoteSubMatch * rem_match;
 	    rem_match = static_cast<RemoteSubMatch*>(leaves[n].get());
-	    percent_scale = rem_match->get_percent_factor();
+	    percent_scale = rem_match->get_percent_factor() / 100.0;
 	} else
 #endif
 	{
@@ -774,8 +787,7 @@ new_greatest_weight:
 	}
 	Assert(percent_scale > 0);
 	if (percent_cutoff) {
-	    // FIXME: better to sort and binary chop maybe?  we
-	    // could use the sort above to find "best" too.
+	    // FIXME: better to sort and binary chop maybe?
 	    // Or we could just use a linear scan here instead.
 
 	    // trim the mset to the correct answer...
