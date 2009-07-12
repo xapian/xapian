@@ -1,3 +1,11 @@
+Sun Jul 12 16:53:00 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/multimatch.cc: Fix handling of percentage weights in various
+	  cases when we're searching multiple remote databases or a mix of
+	  local and remote databases.
+	* tests/api_percentages.cc: Add regression test topercent3.
+
 Sun Jul 12 16:28:37 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
