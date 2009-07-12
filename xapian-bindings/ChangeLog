@@ -1,3 +1,9 @@
+Sun Jul 12 23:47:54 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in: Fix that array OP_NAMES, DB_NAMES, FLAG_NAMES
+	and STEM_NAES could contain values correctory.
+	* perl/Makefile.am: Fix a spelling mistake.
+
 Mon Jul 06 05:50:40 GMT 2009  Kosei Moriyama <cou929@gmail.com>
 
 	* perl/Makefile.am,perl/util.i.in:  Add some hashes such as EXPORT_TAGS

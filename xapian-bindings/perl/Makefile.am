@@ -23,7 +23,7 @@ perllib_LTLIBRARIES = xapian.la
 perlmoddir = $(PERL_LIB)/Search
 perlmod_DATA = Xapian.pm
 
-perlPODdir = $(PERL_LIB)/Search/Xapianx
+perlPODdir = $(PERL_LIB)/Search/Xapian
 perlPOD_DATA = lib/*
 
 AM_CPPFLAGS = -I$(PERL_INC)

@@ -73,21 +73,21 @@ our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
 our @OP_NAMES;
 foreach (@{ $EXPORT_TAGS{'ops'} }) {
-  $OP_NAMES[eval $_] = $_;
+  $OP_NAMES[eval "\$Search::Xapian::Query::$_"] = $_;
 }
 
 our @DB_NAMES;
 foreach (@{ $EXPORT_TAGS{'db'} }) {
-  $DB_NAMES[eval $_] = $_;
+  $DB_NAMES[eval "\$Search::Xapian::$_"] = $_;
 }
 
 our @FLAG_NAMES;
 foreach (@{ $EXPORT_TAGS{'qpflags'} }) {
-  $FLAG_NAMES[eval $_] = $_;
+  $FLAG_NAMES[eval "\$Search::Xapian::QueryParser::$_"] = $_;
 }
 
 our @STEM_NAMES;
 foreach (@{ $EXPORT_TAGS{'qpstem'} }) {
-  $STEM_NAMES[eval $_] = $_;
+  $STEM_NAMES[eval "\$Search::Xapian::QueryParser::$_"] = $_;
 }
 %}
