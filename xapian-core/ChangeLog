@@ -1,3 +1,8 @@
+Sun Jul 12 12:01:25 GMT 2009  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Fix memory leak accidentally
+	  introduced in r13005.
+
 Sun Jul 12 11:40:26 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_opsynonym.cc: Remove debug "cout" calls.
