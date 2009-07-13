@@ -1,3 +1,10 @@
+Mon Jul 13 07:24:19 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* api/omdatabase.cc,backends/flint/flint_spelling.cc,common/database.h:
+	  Deal with the case of get_spelling_suggestion() with an empty or
+	  single character word up front.
+
 Sun Jul 12 16:53:00 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
