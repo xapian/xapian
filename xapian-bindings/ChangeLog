@@ -1,3 +1,12 @@
+Mon Jul 13 11:32:40 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/Makefile.am: Add swig's -const and -proxy option to 
+	wrap constant values correctly.
+	* perl/util.i.in: Add %constant directive for wraipping 
+	constant values. Fix generation process of OP_NAMES, DB_NAMES,
+	FLAG_NAMES and STEM_NAMES because of change of above constant
+	value handling.
+
 Sun Jul 12 23:47:54 GMT 2009  Kosei Moriyama <cou929@gmail.com>
 
 	* perl/util.i.in: Fix that array OP_NAMES, DB_NAMES, FLAG_NAMES

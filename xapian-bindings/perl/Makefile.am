@@ -35,7 +35,7 @@ xapian_la_LIBADD = $(XAPIAN_LIBS) $(PERL_LIBS)
 if MAINTAINER_MODE
 xapian_wrap.cc: $(SWIG_sources) util.i
 	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
-	    -perl -module Search::Xapian\
+	    -perl -module Search::Xapian -proxy -const \
 	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp $(SWIG_mainsource)
 	mv xapian_wrap_d.tmp xapian_wrap.d
 

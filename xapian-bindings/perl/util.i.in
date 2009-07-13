@@ -3,6 +3,38 @@
 
 #define VERSION "@PERL_XAPIAN_VERSION@"
 
+%constant int OP_AND = Xapian::Query::OP_AND;
+%constant int OP_OR = Xapian::Query::OP_OR;
+%constant int OP_AND_NOT = Xapian::Query::OP_AND_NOT;
+%constant int OP_XOR = Xapian::Query::OP_XOR;
+%constant int OP_AND_MAYBE = Xapian::Query::OP_AND_MAYBE;
+%constant int OP_FILTER = Xapian::Query::OP_FILTER;
+%constant int OP_NEAR = Xapian::Query::OP_NEAR;
+%constant int OP_PHRASE = Xapian::Query::OP_PHRASE;
+%constant int OP_VALUE_RANGE = Xapian::Query::OP_VALUE_RANGE;
+%constant int OP_SCALE_WEIGHT = Xapian::Query::OP_SCALE_WEIGHT;
+%constant int OP_ELITE_SET = Xapian::Query::OP_ELITE_SET;
+%constant int OP_VALUE_RANGE = Xapian::Query::OP_VALUE_RANGE;
+%constant int OP_VALUE_GE = Xapian::Query::OP_VALUE_GE;
+%constant int OP_VALUE_LE = Xapian::Query::OP_VALUE_LE;
+
+%constant int FLAG_BOOLEAN = Xapian::QueryParser::FLAG_BOOLEAN;
+%constant int FLAG_PHRASE = Xapian::QueryParser::FLAG_PHRASE;
+%constant int FLAG_LOVEHATE = Xapian::QueryParser::FLAG_LOVEHATE;
+%constant int FLAG_BOOLEAN_ANY_CASE = Xapian::QueryParser::FLAG_BOOLEAN_ANY_CASE;
+%constant int FLAG_WILDCARD = Xapian::QueryParser::FLAG_WILDCARD;
+%constant int FLAG_PURE_NOT = Xapian::QueryParser::FLAG_PURE_NOT;
+%constant int FLAG_PARTIAL = Xapian::QueryParser::FLAG_PARTIAL;
+%constant int FLAG_SPELLING_CORRECTION = Xapian::QueryParser::FLAG_SPELLING_CORRECTION;
+%constant int FLAG_SYNONYM = Xapian::QueryParser::FLAG_SYNONYM;
+%constant int FLAG_AUTO_SYNONYMS = Xapian::QueryParser::FLAG_AUTO_SYNONYMS;
+%constant int FLAG_AUTO_MULTIWORD_SYNONYMS = Xapian::QueryParser::FLAG_AUTO_MULTIWORD_SYNONYMS;
+%constant int FLAG_DEFAULT = Xapian::QueryParser::FLAG_DEFAULT;
+
+%constant int STEM_NONE = Xapian::QueryParser::STEM_NONE;
+%constant int STEM_SOME = Xapian::QueryParser::STEM_SOME;
+%constant int STEM_ALL = Xapian::QueryParser::STEM_ALL;
+
 %perlcode %{
 package Search::Xapian;	
 
@@ -73,21 +105,22 @@ our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
 our @OP_NAMES;
 foreach (@{ $EXPORT_TAGS{'ops'} }) {
-  $OP_NAMES[eval "\$Search::Xapian::Query::$_"] = $_;
+  $OP_NAMES[eval $_] = $_;
 }
 
 our @DB_NAMES;
 foreach (@{ $EXPORT_TAGS{'db'} }) {
-  $DB_NAMES[eval "\$Search::Xapian::$_"] = $_;
+  $DB_NAMES[eval $_] = $_;
 }
 
 our @FLAG_NAMES;
 foreach (@{ $EXPORT_TAGS{'qpflags'} }) {
-  $FLAG_NAMES[eval "\$Search::Xapian::QueryParser::$_"] = $_;
+  $FLAG_NAMES[eval $_] = $_;
 }
 
 our @STEM_NAMES;
 foreach (@{ $EXPORT_TAGS{'qpstem'} }) {
-  $STEM_NAMES[eval "\$Search::Xapian::QueryParser::$_"] = $_;
+  $STEM_NAMES[eval $_] = $_;
 }
+
 %}
