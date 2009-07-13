@@ -123,4 +123,5 @@ foreach (@{ $EXPORT_TAGS{'qpstem'} }) {
   $STEM_NAMES[eval $_] = $_;
 }
 
+our $VERSION = Search::Xapian::VERSION;
 %}
