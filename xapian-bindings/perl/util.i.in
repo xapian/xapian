@@ -1,8 +1,6 @@
 %rename(increment) *::next();
 %rename(increment_weight) *::next(Xapian::weight min_wt);
 
-#define VERSION "@PERL_XAPIAN_VERSION@"
-
 %constant int OP_AND = Xapian::Query::OP_AND;
 %constant int OP_OR = Xapian::Query::OP_OR;
 %constant int OP_AND_NOT = Xapian::Query::OP_AND_NOT;
@@ -37,6 +35,8 @@
 
 %perlcode %{
 package Search::Xapian;	
+
+our $VERSION = "@PERL_XAPIAN_VERSION@";
 
 # Items to export into caller's namespace by default. Note: do not export
 # names by default without a very good reason. Use EXPORT_OK instead.
@@ -122,6 +122,4 @@ our @STEM_NAMES;
 foreach (@{ $EXPORT_TAGS{'qpstem'} }) {
   $STEM_NAMES[eval $_] = $_;
 }
-
-our $VERSION = Search::Xapian::VERSION;
 %}

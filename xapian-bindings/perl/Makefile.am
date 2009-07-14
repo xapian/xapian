@@ -2,8 +2,7 @@
 
 include ../generic/generic.mk
 
-#TESTS_ENVIRONMENT = $(PERL)
-TESTS_ENVIRONMENT = prove
+TESTS_ENVIRONMENT = prove -I.libs
 
 ## Test programs to be run
 TESTS = t/01use.t t/02pod.t t/03podcoverage.t t/04functions.t \
@@ -33,7 +32,10 @@ xapian_la_SOURCES = xapian_wrap.cc
 xapian_la_LIBADD = $(XAPIAN_LIBS) $(PERL_LIBS)
 
 if MAINTAINER_MODE
-xapian_wrap.cc: $(SWIG_sources) util.i
+xapian_wrap.cc Xapian.pm: $(SWIG_sources) util.i
+	-rm -f Search Xapian
+	ln -s . Search
+	ln -s lib Xapian
 	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
 	    -perl -module Search::Xapian -proxy -const \
 	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp $(SWIG_mainsource)

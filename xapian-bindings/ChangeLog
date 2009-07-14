@@ -1,3 +1,8 @@
+Tue Jul 14 07:52:56 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/Makefile.am: Add some options for testing.
+	* perl/util.i.in: Fix for variable $VERSION.
+
 Mon Jul 13 11:43:37 GMT 2009  Kosei Moriyama <cou929@gmail.com>
 
 	* perl/util.i.in: Add a valiable $VERSION for adjusting
