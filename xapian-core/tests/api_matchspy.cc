@@ -45,7 +45,8 @@ class SimpleMatchSpy : public Xapian::MatchSpy {
     // Vector which will be filled with all the document contents seen.
     std::vector<std::string> seen;
 
-    void operator()(const Xapian::Document &doc) {
+    void operator()(const Xapian::Document &doc,
+		    Xapian::weight) {
 	// Note that this is not recommended usage of get_data() - you
 	// generally shouldn't call get_data() from inside a MatchSpy, because
 	// it is (likely to be) a slow operation resulting in considerable IO.
@@ -54,7 +55,7 @@ class SimpleMatchSpy : public Xapian::MatchSpy {
 };
 
 // Basic test of a matchspy.
-DEFINE_TESTCASE(matchspy1, backend) {
+DEFINE_TESTCASE(matchspy1, backend && !remote) {
     Xapian::Database db(get_database("apitest_simpledata"));
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("this"));
@@ -373,28 +374,40 @@ DEFINE_TESTCASE(matchspy5, backend)
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("this"));
 
-    SimpleMatchSpy myspy;
     Xapian::ValueCountMatchSpy myspy1(1);
     Xapian::ValueCountMatchSpy myspy2(1);
+    Xapian::TermCountMatchSpy myspy3("h");
     Xapian::MultipleMatchSpy multispy;
     multispy.append(&myspy1);
-    multispy.append(&myspy);
     multispy.append(&myspy2);
+    multispy.append(&myspy3);
 
     Xapian::MSet mymset = enquire.get_mset_with_matchspy(0, 100, 0, NULL, &multispy);
     TEST_EQUAL(mymset.size(), 6);
 
     const std::map<std::string, Xapian::doccount> & vals1 = myspy1.get_values(1);
     const std::map<std::string, Xapian::doccount> & vals2 = myspy2.get_values(1);
-    TEST(vals1.size() == 2);
+    const std::map<std::string, Xapian::doccount> & vals3 = myspy3.get_terms("h");
+
+    TEST_EQUAL(vals1.size(), 2);
     TEST(vals1.find("h") != vals1.end());
     TEST(vals1.find("n") != vals1.end());
-    TEST(vals1.find("h")->second == 5);
-    TEST(vals1.find("n")->second == 1);
-    TEST(vals2.size() == 2);
+    TEST_EQUAL(vals1.find("h")->second, 5);
+    TEST_EQUAL(vals1.find("n")->second, 1);
+
+    TEST_EQUAL(vals2.size(), 2);
     TEST(vals2.find("h") != vals2.end());
     TEST(vals2.find("n") != vals2.end());
-    TEST(vals2.find("h")->second == 5);
-    TEST(vals2.find("n")->second == 1);
+    TEST_EQUAL(vals2.find("h")->second, 5);
+    TEST_EQUAL(vals2.find("n")->second, 1);
+
+    TEST_EQUAL(vals3.size(), 3);
+    TEST(vals3.find("ack") != vals3.end());
+    TEST(vals3.find("as") != vals3.end());
+    TEST(vals3.find("ow") != vals3.end());
+    TEST_EQUAL(vals3.find("ack")->second, 1);
+    TEST_EQUAL(vals3.find("as")->second, 1);
+    TEST_EQUAL(vals3.find("ow")->second, 1);
+
     return true;
 }

@@ -406,15 +406,17 @@ RemoteServer::msg_query(const string &message_in)
 
     // Unserialise the Weight object.
     len = decode_length(&p, p_end, true);
-    const Xapian::Weight * wttype = ctx.get_weighting_scheme(string(p, len));
+    string wtname(p, len);
+    p += len;
+
+    const Xapian::Weight * wttype = ctx.get_weighting_scheme(wtname);
     if (wttype == NULL) {
 	// Note: user weighting schemes should be registered by adding them to
 	// a SerialisationContext, and setting the context using
 	// RemoteServer::set_context().
 	throw Xapian::InvalidArgumentError("Weighting scheme " +
-					   string(p, len) + " not registered");
+					   wtname + " not registered");
     }
-    p += len;
 
     len = decode_length(&p, p_end, true);
     AutoPtr<Xapian::Weight> wt(wttype->unserialise(string(p, len)));
@@ -438,7 +440,7 @@ RemoteServer::msg_query(const string &message_in)
 	p += len;
 
 	len = decode_length(&p, p_end, true);
-	spy = AutoPtr<Xapian::MatchSpy>(spyclass->unserialise(string(p, len)));
+	spy = AutoPtr<Xapian::MatchSpy>(spyclass->unserialise(string(p, len), ctx));
 	p += len;
     }
 

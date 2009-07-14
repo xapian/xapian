@@ -34,6 +34,7 @@
 namespace Xapian {
 
 class Document;
+class SerialisationContext;
 
 /** Abstract base class for match spies.
  *
@@ -66,8 +67,10 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy {
      *  to be terminated early.
      *
      *  @param doc The document seen by the match spy.
+     *  @param wt The weight of the document.
      */
-    virtual void operator()(const Xapian::Document &doc) = 0;
+    virtual void operator()(const Xapian::Document &doc,
+			    Xapian::weight wt) = 0;
 
     /** Clone the match spy.
      *
@@ -120,7 +123,8 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy {
      *  Note that the returned object will be deallocated by Xapian after use
      *  with "delete".  It must therefore have been allocated with "new".
      */
-    virtual MatchSpy * unserialise(const std::string & s) const;
+    virtual MatchSpy * unserialise(const std::string & s,
+				   const SerialisationContext & context) const;
 
     /** Serialise the results of this match spy.
      *
@@ -163,7 +167,19 @@ class XAPIAN_VISIBILITY_DEFAULT MultipleMatchSpy : public MatchSpy {
      */
     std::vector<MatchSpy *> spies;
 
+    /** List of spies which need to be deleted when this object is deleted.
+     */
+    std::vector<MatchSpy *> owned_spies;
+
   public:
+    /** Constructor, not using a serialisation context.
+     */
+    MultipleMatchSpy() {}
+
+    /** Destructor, which cleans up the owned spies.
+     */
+    ~MultipleMatchSpy();
+
     /** Add a match spy to the end of the list to be called.
      *
      *  Note that the caller must ensure that the spy is not deleted before
@@ -178,7 +194,16 @@ class XAPIAN_VISIBILITY_DEFAULT MultipleMatchSpy : public MatchSpy {
      *
      *  This implementation calls all the spies in turn.
      */
-    void operator()(const Xapian::Document &doc);
+    void operator()(const Xapian::Document &doc, Xapian::weight wt);
+
+    virtual MatchSpy * clone() const;
+    virtual std::string name() const;
+    virtual std::string serialise() const;
+    virtual MatchSpy * unserialise(const std::string & s,
+				   const SerialisationContext & context) const;
+    virtual std::string serialise_results() const;
+    virtual void merge_results(const std::string & s) const;
+    virtual std::string get_description() const;
 };
 
 
@@ -377,12 +402,13 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
      *
      *  This implementation tallies values for a matching document.
      */
-    void operator()(const Xapian::Document &doc);
+    void operator()(const Xapian::Document &doc, Xapian::weight wt);
 
     virtual MatchSpy * clone() const;
     virtual std::string name() const;
     virtual std::string serialise() const;
-    virtual MatchSpy * unserialise(const std::string & s) const;
+    virtual MatchSpy * unserialise(const std::string & s,
+				   const SerialisationContext & context) const;
     virtual std::string serialise_results() const;
     virtual void merge_results(const std::string & s) const;
     virtual std::string get_description() const;
@@ -481,9 +507,17 @@ class XAPIAN_VISIBILITY_DEFAULT TermCountMatchSpy : public MatchSpy {
      *
      *  This implementation tallies terms for a matching document.
      */
-    void operator()(const Xapian::Document &doc);
-};
+    void operator()(const Xapian::Document &doc, Xapian::weight wt);
 
+    virtual MatchSpy * clone() const;
+    virtual std::string name() const;
+    virtual std::string serialise() const;
+    virtual MatchSpy * unserialise(const std::string & s,
+				   const SerialisationContext & context) const;
+    virtual std::string serialise_results() const;
+    virtual void merge_results(const std::string & s) const;
+    virtual std::string get_description() const;
+};
 
 
 /** MatchSpy for classifying matching documents by their values.
