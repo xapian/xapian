@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
- * Copyright 2007,2009 Lemur Consulting Ltd
+ * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -652,11 +652,8 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	throw Xapian::UnimplementedError("Use of a percentage cutoff while sorting primary by value isn't currently supported");
     }
 
-    AutoPtr<Weight> wtautoptr;
-    Weight * wtptr = weight;
     if (weight == 0) {
-	wtautoptr = AutoPtr<Weight>(new BM25Weight);
-	wtptr = wtautoptr.get();
+	weight = new BM25Weight;
     }
 
     Xapian::Weight::Internal stats;
@@ -664,7 +661,7 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		       collapse_max, collapse_key,
 		       percent_cutoff, weight_cutoff,
 		       order, sort_key, sort_by, sort_value_forward, sorter,
-		       errorhandler, stats, wtptr);
+		       errorhandler, stats, weight);
     // Run query and put results into supplied Xapian::MSet object.
     MSet retval;
     match.get_mset(first, maxitems, check_at_least, retval,
