@@ -842,8 +842,7 @@ if test yes = "$with_perl" ; then
     AC_SUBST(PERL_SO)
     
     if test -z "$PERL_XAPIAN_VERSION" ; then
-      PERL_VER=`$XAPIAN_CONFIG --version`;
-      [PERL_XAPIAN_VERSION=`$PERL -e '$xver = "'"$PERL_VER"'"; $xver =~ s/.*\s//; print $xver, ".0";'`];
+      [PERL_XAPIAN_VERSION=$PACKAGE_VERSION.0];
     fi
     AC_SUBST(PERL_XAPIAN_VERSION)
 

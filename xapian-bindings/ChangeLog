@@ -1,3 +1,8 @@
+Tue Jul 14 15:02:44 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* configure.ac: Fix PERL_XAPIAN_VERSION to get binding's 
+	version number. Previously it gets from xaian-core's one.
+
 Tue Jul 14 07:52:56 GMT 2009  Kosei Moriyama <cou929@gmail.com>
 
 	* perl/Makefile.am: Add some options for testing.
