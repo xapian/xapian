@@ -152,7 +152,7 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	ErrorHandler * errorhandler;
 
-	mutable Weight * weight; // mutable so get_mset can set default
+	Weight * weight;
 
 	Internal(const Xapian::Database &databases, ErrorHandler * errorhandler_);
 	~Internal();

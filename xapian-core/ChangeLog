@@ -1,3 +1,10 @@
+Tue Jul 14 16:53:48 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/omenquire.cc,common/omenquireinternal.h: Tidy up mutable
+	  Weight member on Enquire::Internal class; make it non-mutable,
+	  and just make a temporary BM25Weight object if the weight member
+	  was NULL.
+
 Tue Jul 14 12:36:46 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* common/output.h: Display a "<NULL $CLASSNAME>" message in debug
