@@ -143,7 +143,11 @@ SerialisationContext::Internal::add_defaults()
     postingsources[source->name()] = source;
 
     Xapian::MatchSpy * spy;
+    spy = new Xapian::MultipleMatchSpy();
+    matchspies[spy->name()] = spy;
     spy = new Xapian::ValueCountMatchSpy();
+    matchspies[spy->name()] = spy;
+    spy = new Xapian::TermCountMatchSpy();
     matchspies[spy->name()] = spy;
 }
 

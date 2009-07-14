@@ -1,3 +1,8 @@
+Tue Jul 14 14:55:19 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/serialisationcontext.cc: Add MultipleMatchSpy and
+	  TermCountMatchSpy to serialisation context.
+
 Fri Jul 10 00:45:59 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/omenquire.cc,backends/remote/remote-database.cc,common/,
