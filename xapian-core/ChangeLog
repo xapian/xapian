@@ -1,3 +1,11 @@
+Tue Jul 14 17:29:30 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/extraweightpostlist.h:
+	  ExtraWeightPostList::read_position_list() and
+	  ExtraWeightPostList::open_position_list() aren't used, so remove
+	  them.
+
 Mon Jul 13 07:24:19 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
