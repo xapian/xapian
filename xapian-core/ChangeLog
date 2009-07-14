@@ -1,3 +1,10 @@
+Tue Jul 14 12:36:46 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/output.h: Display a "<NULL $CLASSNAME>" message in debug
+	  output when a pointer being output is NULL.  Previously, NULL
+	  Query::Internal pointers were causing segfaults with debug
+	  logging for many tests (eg, emptyquery1).
+
 Sun Jul 12 14:56:18 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_database.cc: We no longer have a "value" table
