@@ -1,3 +1,12 @@
+Tue Jul 14 17:38:12 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/harness/backendmanager_remotetcp.cc: In clean_up(), only scan
+	  through the pid_to_fd array once, and disable the signal handler
+	  and call waitpid() for any remaining pids ourselves, rather than
+	  calling sleep(1) and rechecking.  This should avoid pointless delays
+	  when the child hasn't exited when we first check.
+
 Tue Jul 14 17:29:30 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
