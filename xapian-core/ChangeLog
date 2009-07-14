@@ -1,3 +1,10 @@
+Tue Jul 14 18:53:08 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/runtest.in: Use "ulimit -n" where available to limit the
+	  number of available file descriptors to 32 so we catch file
+	  descriptor leaks sooner.
+
 Tue Jul 14 17:38:12 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
