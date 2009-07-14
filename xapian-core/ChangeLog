@@ -1,3 +1,10 @@
+Tue Jul 14 17:39:06 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/enquire.h,common/omenquireinternal.h,
+	  api/omenquire.cc: Add Enquire::add_matchspy() and
+	  Enquire::clear_matchspies(), and remove
+	  Enquire::get_mset_with_matchspy()
+
 Tue Jul 14 15:00:22 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/matchspy.cc,common/output.h,include/xapian/matchspy.h,

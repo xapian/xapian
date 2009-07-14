@@ -29,6 +29,7 @@
 #include "xapian/error.h"
 #include "xapian/errorhandler.h"
 #include "xapian/expanddecider.h"
+#include "xapian/matchspy.h"
 #include "xapian/termiterator.h"
 #include "xapian/weight.h"
 
@@ -641,13 +642,26 @@ Enquire::Internal::get_query()
 MSet
 Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 			    Xapian::doccount check_at_least, const RSet *rset,
-			    MatchSpy *matchspy,
 			    const MatchDecider *mdecider,
 			    const MatchDecider *matchspy_legacy) const
 {
     DEBUGCALL(API, MSet, "Enquire::Internal::get_mset", first << ", " <<
 	      maxitems << ", " << check_at_least << ", " << rset << ", " <<
-	      matchspy << ", " << mdecider << ", " << matchspy_legacy);
+	      mdecider << ", " << matchspy_legacy);
+    MatchSpy *matchspy = NULL;
+    AutoPtr<MultipleMatchSpy> multispy;
+    if (!spies.empty()) {
+	if (spies.size() == 1) {
+	    matchspy = spies[0];
+	} else {
+	    multispy = AutoPtr<MultipleMatchSpy>(new MultipleMatchSpy);
+	    for (vector<MatchSpy *>::const_iterator i = spies.begin();
+		 i != spies.end(); ++i) {
+		multispy->append(*i);
+	    }
+	    matchspy = multispy.get();
+	}
+    }
 
     if (percent_cutoff && (sort_by == VAL || sort_by == VAL_REL)) {
 	throw Xapian::UnimplementedError("Use of a percentage cutoff while sorting primary by value isn't currently supported");
@@ -894,6 +908,18 @@ Enquire::get_query() const
 }
 
 void
+Enquire::add_matchspy(MatchSpy * spy) {
+    DEBUGAPICALL(void, "Xapian::Enquire::add_matchspy", spy);
+    internal->spies.push_back(spy);
+}
+
+void
+Enquire::clear_matchspies() {
+    DEBUGAPICALL(const Xapian::Query &, "Xapian::Enquire::clear_matchspies", "");
+    internal->spies.clear();
+}
+
+void
 Enquire::set_weighting_scheme(const Weight &weight_)
 {
     DEBUGAPICALL(void, "Xapian::Enquire::set_weighting_scheme", "[Weight]");
@@ -990,25 +1016,6 @@ Enquire::set_sort_by_relevance_then_key(Xapian::Sorter * sorter, bool ascending)
 }
 
 MSet
-Enquire::get_mset_with_matchspy(Xapian::doccount first, Xapian::doccount maxitems,
-				Xapian::doccount check_at_least, const RSet *rset,
-				MatchSpy *matchspy) const
-{
-    // FIXME: display contents of pointer params, if they're not null.
-    DEBUGAPICALL(Xapian::MSet, "Xapian::Enquire::get_mset", first << ", " <<
-		 maxitems << ", " << check_at_least << ", " << rset << ", " <<
-		 matchspy);
-
-    try {
-	RETURN(internal->get_mset(first, maxitems, check_at_least, rset,
-				  matchspy, 0, 0));
-    } catch (Error & e) {
-	if (internal->errorhandler) (*internal->errorhandler)(e);
-	throw;
-    }
-}
-
-MSet
 Enquire::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		  Xapian::doccount check_at_least, const RSet *rset,
 		  const MatchDecider *mdecider,
@@ -1021,7 +1028,7 @@ Enquire::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
     try {
 	RETURN(internal->get_mset(first, maxitems, check_at_least, rset,
-				  0, mdecider, matchspy));
+				  mdecider, matchspy));
     } catch (Error & e) {
 	if (internal->errorhandler) (*internal->errorhandler)(e);
 	throw;

@@ -687,6 +687,32 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 */
 	const Xapian::Query & get_query() const;
 
+	/** Add a matchspy.
+	 *
+	 *  This matchspy will be called with some of the documents which match
+	 *  the query, during the match process.  Exactly which of the matching
+	 *  documents are passed to it depends on exactly when certain
+	 *  optimisations occur during the match process, but it can be
+	 *  controlled to some extent by setting the @a checkatleast parameter
+	 *  to @a get_mset().
+	 *
+	 *  In particular, if there are enough matching documents, at least the
+	 *  number specified by @a checkatleast will be passed to the matchspy.
+	 *  This means that you can force the matchspy to be shown all matching
+	 *  documents by setting @a checkatleast to the number of documents in
+	 *  the database.
+	 *
+	 *  @param matchspy  The MatchSpy subclass to add.  The caller must
+	 *                   ensure that this remains valid while the Enquire
+	 *                   object remains active, or until @a
+	 *                   clear_matchspies() is called.
+	 */
+	void add_matchspy(MatchSpy * spy);
+
+	/** Remove all the matchspies.
+	 */
+	void clear_matchspies();
+
 	/** Set the weighting scheme to use for queries.
 	 *
 	 *  @param weight_  the new weighting scheme.  If no weighting scheme
@@ -923,12 +949,6 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *
 	 *  @exception Xapian::InvalidArgumentError  See class documentation.
 	 */
-	MSet get_mset_with_matchspy(Xapian::doccount first,
-				    Xapian::doccount maxitems,
-				    Xapian::doccount checkatleast,
-				    const RSet * omrset,
-				    MatchSpy * matchspy) const;
-
 	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		      Xapian::doccount checkatleast = 0,
 		      const RSet * omrset = 0,

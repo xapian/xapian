@@ -155,6 +155,8 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 
 	mutable Weight * weight; // mutable so get_mset can set default
 
+	vector<MatchSpy *> spies;
+
 	Internal(const Xapian::Database &databases, ErrorHandler * errorhandler_);
 	~Internal();
 
@@ -171,7 +173,6 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		      Xapian::doccount check_at_least,
 		      const RSet *omrset,
-		      MatchSpy *matchspy,
 		      const MatchDecider *mdecider,
 		      const MatchDecider *matchspy_legacy) const;
 	ESet get_eset(Xapian::termcount maxitems, const RSet & omrset, int flags,
