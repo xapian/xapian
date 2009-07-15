@@ -176,6 +176,34 @@ prepare_sub_matches(vector<Xapian::Internal::RefCntPtr<SubMatch> > & leaves,
     }
 }
 
+/// Class which applies several match spies in turn.
+class MultipleMatchSpy : public Xapian::MatchSpy {
+  private:
+    /// List of match spies to call, in order.
+    std::vector<Xapian::MatchSpy *> spies;
+
+  public:
+    /// Add a match spy to the end of the list to be called.
+    void append(Xapian::MatchSpy * spy) {
+	spies.push_back(spy);
+    }
+
+    /** Implementation of virtual operator().
+     *
+     *  This implementation calls all the spies in turn.
+     */
+    void operator()(const Xapian::Document &doc, Xapian::weight wt);
+};
+
+void 
+MultipleMatchSpy::operator()(const Xapian::Document &doc, Xapian::weight wt) {
+    LOGCALL_VOID(MATCH, "MultipleMatchSpy::operator()", doc << ", " << wt);
+    vector<Xapian::MatchSpy *>::const_iterator i;
+    for (i = spies.begin(); i != spies.end(); i++) {
+	(**i)(doc, wt);
+    }
+}
+
 ////////////////////////////////////
 // Initialisation and cleaning up //
 ////////////////////////////////////
@@ -416,12 +444,12 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
     // Prepare the matchspy
     Xapian::MatchSpy *matchspy = NULL;
-    AutoPtr<Xapian::MultipleMatchSpy> multispy;
+    AutoPtr<MultipleMatchSpy> multispy;
     if (!matchspies.empty()) {
 	if (matchspies.size() == 1) {
 	    matchspy = matchspies[0];
 	} else {
-	    multispy = AutoPtr<Xapian::MultipleMatchSpy>(new Xapian::MultipleMatchSpy);
+	    multispy.reset(new MultipleMatchSpy);
 	    for (vector<Xapian::MatchSpy *>::const_iterator i = matchspies.begin();
 		 i != matchspies.end(); ++i) {
 		multispy->append(*i);

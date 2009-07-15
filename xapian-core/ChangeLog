@@ -1,3 +1,13 @@
+Wed Jul 15 12:17:48 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/matchspy.cc,api/serialisationcontext.cc,
+	  include/xapian/matchspy.h,matcher/multimatch.cc: Remove
+	  MultipleMatchSpy from the API, now that you can just set multiple
+	  match spies by calling Enquire.add_matchspy() repeatedly.  Use
+	  MultipleMatchSpy internally in MultiMatch, to call all the sub
+	  match spies (but this implementation doesn't get serialised
+	  across the network, so is much simpler).
+
 Wed Jul 15 11:35:06 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* net/remoteserver.cc: Delete the match spies after use.

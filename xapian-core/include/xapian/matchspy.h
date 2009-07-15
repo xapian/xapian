@@ -156,56 +156,6 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy {
     virtual std::string get_description() const;
 };
 
-/// Class which applies several match spies in turn.
-class XAPIAN_VISIBILITY_DEFAULT MultipleMatchSpy : public MatchSpy {
-  private:
-    /** List of match spies to call, in order.
-     *
-     *  FIXME: this should be a list of reference count pointers, so the caller
-     *  doesn't have to ensure that they're not deleted before use.  See
-     *  bug#186 for details.
-     */
-    std::vector<MatchSpy *> spies;
-
-    /** List of spies which need to be deleted when this object is deleted.
-     */
-    std::vector<MatchSpy *> owned_spies;
-
-  public:
-    /** Constructor, not using a serialisation context.
-     */
-    MultipleMatchSpy() {}
-
-    /** Destructor, which cleans up the owned spies.
-     */
-    ~MultipleMatchSpy();
-
-    /** Add a match spy to the end of the list to be called.
-     *
-     *  Note that the caller must ensure that the spy is not deleted before
-     *  it is used - the MultipleMatchSpy keeps a pointer to the supplied
-     *  spy.
-     */
-    void append(MatchSpy * spy) {
-	spies.push_back(spy);
-    }
-
-    /** Implementation of virtual operator().
-     *
-     *  This implementation calls all the spies in turn.
-     */
-    void operator()(const Xapian::Document &doc, Xapian::weight wt);
-
-    virtual MatchSpy * clone() const;
-    virtual std::string name() const;
-    virtual std::string serialise() const;
-    virtual MatchSpy * unserialise(const std::string & s,
-				   const SerialisationContext & context) const;
-    virtual std::string serialise_results() const;
-    virtual void merge_results(const std::string & s) const;
-    virtual std::string get_description() const;
-};
-
 
 /** A string with a corresponding frequency.
  */
