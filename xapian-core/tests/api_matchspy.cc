@@ -63,7 +63,8 @@ DEFINE_TESTCASE(matchspy1, backend && !remote) {
     SimpleMatchSpy myspy;
 
     Xapian::MSet nospymset = enquire.get_mset(0, 100);
-    Xapian::MSet spymset = enquire.get_mset_with_matchspy(0, 100, 0, NULL, &myspy);
+    enquire.add_matchspy(&myspy);
+    Xapian::MSet spymset = enquire.get_mset(0, 100);
 
     // Check that the match estimates aren't affected by the matchspy.
     TEST_EQUAL(nospymset, spymset);
@@ -137,7 +138,8 @@ DEFINE_TESTCASE(matchspy2, writable)
 
     enq.set_query(Xapian::Query("all"));
 
-    Xapian::MSet mset = enq.get_mset_with_matchspy(0, 10, 0, NULL, &spy);
+    enq.add_matchspy(&spy);
+    Xapian::MSet mset = enq.get_mset(0, 10);
 
     TEST_EQUAL(spy.get_total(), 25);
 
@@ -236,7 +238,8 @@ DEFINE_TESTCASE(matchspy3, writable)
 
     enq.set_query(Xapian::Query("all"));
 
-    Xapian::MSet mset = enq.get_mset_with_matchspy(0, 10, 0, NULL, &spy);
+    enq.add_matchspy(&spy);
+    Xapian::MSet mset = enq.get_mset(0, 10);
 
     TEST_EQUAL(spy.get_total(), 25);
 
@@ -325,7 +328,8 @@ DEFINE_TESTCASE(matchspy4, writable)
 
     enq.set_query(Xapian::Query("all"));
 
-    Xapian::MSet mset = enq.get_mset_with_matchspy(0, 10, 0, NULL, &spy);
+    enq.add_matchspy(&spy);
+    Xapian::MSet mset = enq.get_mset(0, 10);
 
     TEST_EQUAL(spy.get_total(), 25);
 
@@ -377,12 +381,11 @@ DEFINE_TESTCASE(matchspy5, backend)
     Xapian::ValueCountMatchSpy myspy1(1);
     Xapian::ValueCountMatchSpy myspy2(1);
     Xapian::TermCountMatchSpy myspy3("h");
-    Xapian::MultipleMatchSpy multispy;
-    multispy.append(&myspy1);
-    multispy.append(&myspy2);
-    multispy.append(&myspy3);
 
-    Xapian::MSet mymset = enquire.get_mset_with_matchspy(0, 100, 0, NULL, &multispy);
+    enquire.add_matchspy(&myspy1);
+    enquire.add_matchspy(&myspy2);
+    enquire.add_matchspy(&myspy3);
+    Xapian::MSet mymset = enquire.get_mset(0, 100);
     TEST_EQUAL(mymset.size(), 6);
 
     const std::map<std::string, Xapian::doccount> & vals1 = myspy1.get_values(1);

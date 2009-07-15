@@ -1,3 +1,12 @@
+Wed Jul 15 00:01:41 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/omenquire.cc,backends/remote/remote-database.cc,
+	  common/multimatch.h,common/remote-database.h,matcher/multimatch.cc,
+	  matcher/remotesubmatch.cc,matcher/remotesubmatch.h,
+	  net/remoteserver.cc,tests/api_matchspy.cc: Add support for
+	  passing multiple match spies directly into the remote protocol,
+	  rather than having to wrap the in a MultipleMatchSpy.
+
 Tue Jul 14 17:39:06 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* include/xapian/enquire.h,common/omenquireinternal.h,

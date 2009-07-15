@@ -29,7 +29,6 @@
 #include "xapian/error.h"
 #include "xapian/errorhandler.h"
 #include "xapian/expanddecider.h"
-#include "xapian/matchspy.h"
 #include "xapian/termiterator.h"
 #include "xapian/weight.h"
 
@@ -648,20 +647,6 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     DEBUGCALL(API, MSet, "Enquire::Internal::get_mset", first << ", " <<
 	      maxitems << ", " << check_at_least << ", " << rset << ", " <<
 	      mdecider << ", " << matchspy_legacy);
-    MatchSpy *matchspy = NULL;
-    AutoPtr<MultipleMatchSpy> multispy;
-    if (!spies.empty()) {
-	if (spies.size() == 1) {
-	    matchspy = spies[0];
-	} else {
-	    multispy = AutoPtr<MultipleMatchSpy>(new MultipleMatchSpy);
-	    for (vector<MatchSpy *>::const_iterator i = spies.begin();
-		 i != spies.end(); ++i) {
-		multispy->append(*i);
-	    }
-	    matchspy = multispy.get();
-	}
-    }
 
     if (percent_cutoff && (sort_by == VAL || sort_by == VAL_REL)) {
 	throw Xapian::UnimplementedError("Use of a percentage cutoff while sorting primary by value isn't currently supported");
@@ -676,7 +661,7 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		       collapse_max, collapse_key,
 		       percent_cutoff, weight_cutoff,
 		       order, sort_key, sort_by, sort_value_forward, sorter,
-		       errorhandler, stats, weight, matchspy);
+		       errorhandler, stats, weight, spies);
     // Run query and put results into supplied Xapian::MSet object.
     MSet retval;
     match.get_mset(first, maxitems, check_at_least, retval,

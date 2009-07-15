@@ -48,14 +48,14 @@ class RemoteSubMatch : public SubMatch {
     /// The factor to use to convert weights to percentages.
     double percent_factor;
 
-    /// The matchspy to merge results into.
-    Xapian::MatchSpy * matchspy;
+    /// The matchspies to use.
+    const vector<Xapian::MatchSpy *> & matchspies;
 
   public:
     /// Constructor.
     RemoteSubMatch(RemoteDatabase *db_,
 		   bool decreasing_relevance_,
-		   Xapian::MatchSpy * matchspy);
+		   const vector<Xapian::MatchSpy *> & matchspies);
 
     /// Fetch and collate statistics.
     bool prepare_match(bool nowait, Xapian::Weight::Internal & total_stats);
@@ -76,7 +76,7 @@ class RemoteSubMatch : public SubMatch {
     double get_percent_factor() const { return percent_factor; }
 
     /// Short-cut for single remote match.
-    void get_mset(Xapian::MSet & mset) { db->get_mset(mset, matchspy); }
+    void get_mset(Xapian::MSet & mset) { db->get_mset(mset, matchspies); }
 };
 
 #endif /* XAPIAN_INCLUDED_REMOTESUBMATCH_H */

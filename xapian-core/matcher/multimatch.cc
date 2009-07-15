@@ -27,6 +27,7 @@
 
 #include "multimatch.h"
 
+#include "autoptr.h"
 #include "collapser.h"
 #include "submatch.h"
 #include "localmatch.h"
@@ -193,7 +194,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 		       Xapian::ErrorHandler * errorhandler_,
 		       Xapian::Weight::Internal & stats,
 		       const Xapian::Weight * weight_,
-		       Xapian::MatchSpy *matchspy_)
+		       const vector<Xapian::MatchSpy *> & matchspies_)
 	: db(db_), query(query_),
 	  collapse_max(collapse_max_), collapse_key(collapse_key_),
 	  percent_cutoff(percent_cutoff_), weight_cutoff(weight_cutoff_),
@@ -202,7 +203,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	  sort_value_forward(sort_value_forward_), sorter(sorter_),
 	  errorhandler(errorhandler_), weight(weight_),
 	  is_remote(db.internal.size()),
-	  matchspy(matchspy_)
+	  matchspies(matchspies_)
 {
     DEBUGCALL(MATCH, void, "MultiMatch", db_ << ", " << query_ << ", " <<
 	      qlen << ", " << (omrset ? *omrset : Xapian::RSet()) << ", " <<
@@ -232,10 +233,10 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 		rem_db->set_query(query, qlen, collapse_max, collapse_key,
 				  order, sort_key, sort_by, sort_value_forward,
 				  percent_cutoff, weight_cutoff, weight,
-				  subrsets[i], matchspy);
+				  subrsets[i], matchspies);
 		bool decreasing_relevance =
 		    (sort_by == REL || sort_by == REL_VAL);
-		smatch = new RemoteSubMatch(rem_db, decreasing_relevance, matchspy);
+		smatch = new RemoteSubMatch(rem_db, decreasing_relevance, matchspies);
 		is_remote[i] = true;
 	    } else {
 #endif /* XAPIAN_HAS_REMOTE_BACKEND */
@@ -411,6 +412,22 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	// set to 0 as we could discard all hits.  Otherwise set it to the
 	// minimum number of entries which the postlist could return.
 	matches_lower_bound = pl->get_termfreq_min();
+    }
+
+    // Prepare the matchspy
+    Xapian::MatchSpy *matchspy = NULL;
+    AutoPtr<Xapian::MultipleMatchSpy> multispy;
+    if (!matchspies.empty()) {
+	if (matchspies.size() == 1) {
+	    matchspy = matchspies[0];
+	} else {
+	    multispy = AutoPtr<Xapian::MultipleMatchSpy>(new Xapian::MultipleMatchSpy);
+	    for (vector<Xapian::MatchSpy *>::const_iterator i = matchspies.begin();
+		 i != matchspies.end(); ++i) {
+		multispy->append(*i);
+	    }
+	    matchspy = multispy.get();
+	}
     }
 
     // Check if any results have been asked for (might just be wanting

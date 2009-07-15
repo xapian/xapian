@@ -538,7 +538,7 @@ RemoteDatabase::set_query(const Xapian::Query::Internal *query,
 			 int percent_cutoff, Xapian::weight weight_cutoff,
 			 const Xapian::Weight *wtscheme,
 			 const Xapian::RSet &omrset,
-			 const Xapian::MatchSpy *matchspy)
+			 const vector<Xapian::MatchSpy *> & matchspies)
 {
     string tmp = query->serialise();
     string message = encode_length(tmp.size());
@@ -567,19 +567,20 @@ RemoteDatabase::set_query(const Xapian::Query::Internal *query,
     message += encode_length(tmp.size());
     message += tmp;
 
-    if (matchspy != NULL) {
-	tmp = matchspy->name();
+    message += encode_length(matchspies.size());
+    for (vector<Xapian::MatchSpy *>::const_iterator i = matchspies.begin();
+	 i != matchspies.end(); ++i) {
+
+	tmp = (*i)->name();
 	if (tmp.size() == 0) {
 	    throw Xapian::UnimplementedError("MatchSpy not suitable for use with remote searches - name() method returned empty string");
 	}
 	message += encode_length(tmp.size());
 	message += tmp;
 
-	tmp = matchspy->serialise();
+	tmp = (*i)->serialise();
 	message += encode_length(tmp.size());
 	message += tmp;
-    } else {
-	message += encode_length(0);
     }
 
     send_message(MSG_QUERY, message);
@@ -611,7 +612,8 @@ RemoteDatabase::send_global_stats(Xapian::doccount first,
 }
 
 void
-RemoteDatabase::get_mset(Xapian::MSet &mset, Xapian::MatchSpy * matchspy)
+RemoteDatabase::get_mset(Xapian::MSet &mset,
+			 const vector<Xapian::MatchSpy *> & matchspies)
 {
     string message;
     get_message(message, REPLY_RESULTS);
@@ -619,19 +621,17 @@ RemoteDatabase::get_mset(Xapian::MSet &mset, Xapian::MatchSpy * matchspy)
     const char * p_end = p + message.size();
     mset = unserialise_mset(&p, p_end);
 
-    if (matchspy == NULL) {
-	if (p != p_end)
-	    throw Xapian::NetworkError("Junk at end of mset");
-    } else {
+    for (vector<Xapian::MatchSpy *>::const_iterator i = matchspies.begin();
+	 i != matchspies.end(); ++i) {
 	if (p == p_end)
 	    throw Xapian::NetworkError("Expected serialised matchspy");
 	size_t len = decode_length(&p, p_end, true);
 	string spyresults = string(p, len);
 	p += len;
-	if (p != p_end)
-	    throw Xapian::NetworkError("Junk after spy results");
-	matchspy->merge_results(spyresults);
+	(*i)->merge_results(spyresults);
     }
+    if (p != p_end)
+	throw Xapian::NetworkError("Junk at end of mset");
 }
 
 void
