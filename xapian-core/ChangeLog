@@ -1,3 +1,12 @@
+Wed Jul 15 11:08:39 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/matchspy.cc,api/serialisationcontext.cc,
+	  include/xapian/matchspy.h,tests/api_matchspy.cc: Remove
+	  TermCountMatchSpy - there's no really compelling use for it, and
+	  in many situations it will be inefficient and slow.  Much better
+	  to force users to put data they want to count into a value and use
+	  ValueCountMatchSpy.
+
 Wed Jul 15 00:01:41 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/omenquire.cc,backends/remote/remote-database.cc,

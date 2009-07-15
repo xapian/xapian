@@ -147,8 +147,6 @@ SerialisationContext::Internal::add_defaults()
     matchspies[spy->name()] = spy;
     spy = new Xapian::ValueCountMatchSpy();
     matchspies[spy->name()] = spy;
-    spy = new Xapian::TermCountMatchSpy();
-    matchspies[spy->name()] = spy;
 }
 
 void

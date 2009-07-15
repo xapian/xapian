@@ -380,17 +380,14 @@ DEFINE_TESTCASE(matchspy5, backend)
 
     Xapian::ValueCountMatchSpy myspy1(1);
     Xapian::ValueCountMatchSpy myspy2(1);
-    Xapian::TermCountMatchSpy myspy3("h");
 
     enquire.add_matchspy(&myspy1);
     enquire.add_matchspy(&myspy2);
-    enquire.add_matchspy(&myspy3);
     Xapian::MSet mymset = enquire.get_mset(0, 100);
     TEST_EQUAL(mymset.size(), 6);
 
     const std::map<std::string, Xapian::doccount> & vals1 = myspy1.get_values(1);
     const std::map<std::string, Xapian::doccount> & vals2 = myspy2.get_values(1);
-    const std::map<std::string, Xapian::doccount> & vals3 = myspy3.get_terms("h");
 
     TEST_EQUAL(vals1.size(), 2);
     TEST(vals1.find("h") != vals1.end());
@@ -403,14 +400,6 @@ DEFINE_TESTCASE(matchspy5, backend)
     TEST(vals2.find("n") != vals2.end());
     TEST_EQUAL(vals2.find("h")->second, 5);
     TEST_EQUAL(vals2.find("n")->second, 1);
-
-    TEST_EQUAL(vals3.size(), 3);
-    TEST(vals3.find("ack") != vals3.end());
-    TEST(vals3.find("as") != vals3.end());
-    TEST(vals3.find("ow") != vals3.end());
-    TEST_EQUAL(vals3.find("ack")->second, 1);
-    TEST_EQUAL(vals3.find("as")->second, 1);
-    TEST_EQUAL(vals3.find("ow")->second, 1);
 
     return true;
 }
