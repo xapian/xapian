@@ -222,7 +222,7 @@ DEFINE_TESTCASE(matchspy3, writable)
 	// (x + 1/3)*(x + 1/3).
 	doc.add_value(2, Xapian::sortable_serialise((c + 1.0/3.0) * (c + 1.0/3.0)));
 	// Reciprocal.
-	doc.add_value(3, Xapian::sortable_serialise(1.0 / c));
+	doc.add_value(3, Xapian::sortable_serialise(floor(100.0 / c)));
 
 	db.add_document(doc);
     }
@@ -247,7 +247,7 @@ DEFINE_TESTCASE(matchspy3, writable)
 	"|100:1|200:9|300:3|400:7|500:1|600:3|800:1|",
 	"|0..200:8|300..400:6|500..700:7|800..900:4|",
 	"|177..8711:9|10677..17777:4|20544..26677:3|30044..37377:3|41344..49877:3|54444..59211:2|64177:1|",
-	"|4..9:15|10..16:5|20..25:2|33:1|50:1|100:1|",
+	"|400..900:15|1000..1600:5|2000..2500:2|3300:1|5000:1|10000:1|",
 	"|",
 	""
     };
