@@ -1,3 +1,9 @@
+Wed Jul 15 14:37:19 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/rset.cc: Just pass pointer as AutoPtr constructor parameter
+	  rather constructing a temporary AutoPtr and invoking the assignment
+	  operator.
+
 Wed Jul 15 03:43:35 GMT 2009  Olly Betts <olly@survex.com>
 
 	* common/omenquireinternal.h: "class" -> "object" in doc comment.
