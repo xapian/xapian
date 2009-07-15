@@ -154,8 +154,8 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 
 	/** The weight to use for this query.
 	 *
-	 *  This is mutable so that the default BM25Weight class can be created
-	 *  lazily when first required.
+	 *  This is mutable so that the default BM25Weight object can be
+	 *  created lazily when first required.
 	 */
 	mutable Weight * weight;
 
