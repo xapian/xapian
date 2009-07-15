@@ -355,6 +355,22 @@ RemoteServer::msg_update(const string &)
     send_message(REPLY_UPDATE, message);
 }
 
+/** Structure holding a list of match spies.
+ *
+ *  The main reason for the existence of this structure is to make it easy to
+ *  ensure that the match spies are all deleted after use.
+ */
+struct MatchSpyList {
+    vector<Xapian::MatchSpy *> spies;
+
+    ~MatchSpyList() {
+	vector<Xapian::MatchSpy *>::const_iterator i;
+	for (i = spies.begin(); i != spies.end(); ++i) {
+	    delete *i;
+	}
+    }
+};
+
 void
 RemoteServer::msg_query(const string &message_in)
 {
@@ -429,7 +445,7 @@ RemoteServer::msg_query(const string &message_in)
 
     // Unserialise the MatchSpy objects.
     vector<Xapian::MatchSpy *>::size_type spycount = decode_length(&p, p_end, false);
-    vector<Xapian::MatchSpy *> matchspies;
+    MatchSpyList matchspies;
     while (spycount != 0) {
 	len = decode_length(&p, p_end, true);
 	string spytype(p, len);
@@ -441,7 +457,7 @@ RemoteServer::msg_query(const string &message_in)
 	p += len;
 
 	len = decode_length(&p, p_end, true);
-	matchspies.push_back(spyclass->unserialise(string(p, len), ctx));
+	matchspies.spies.push_back(spyclass->unserialise(string(p, len), ctx));
 	p += len;
 
 	--spycount;
@@ -451,7 +467,7 @@ RemoteServer::msg_query(const string &message_in)
     MultiMatch match(*db, query.get(), qlen, &rset, collapse_max, collapse_key,
 		     percent_cutoff, weight_cutoff, order,
 		     sort_key, sort_by, sort_value_forward, NULL,
-		     NULL, local_stats, wt.get(), matchspies);
+		     NULL, local_stats, wt.get(), matchspies.spies);
 
     send_message(REPLY_STATS, serialise_stats(local_stats));
 
@@ -475,8 +491,8 @@ RemoteServer::msg_query(const string &message_in)
 
     message = serialise_mset(mset);
 
-    for (vector<Xapian::MatchSpy *>::const_iterator i = matchspies.begin();
-	 i != matchspies.end(); ++i) {
+    for (vector<Xapian::MatchSpy *>::const_iterator i = matchspies.spies.begin();
+	 i != matchspies.spies.end(); ++i) {
 	string spy_results = (*i)->serialise_results();
 	message += encode_length(spy_results.size());
 	message += spy_results;
