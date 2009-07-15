@@ -1,3 +1,8 @@
+Wed Jul 15 03:38:55 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/runtest.in: Raise the fd limit from 32 to 64 - multi_flint
+	  tests need more than 32 fds.
+
 Tue Jul 14 20:32:52 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/omenquire.cc,common/omenquireinternal.h: Revert r13052, which
