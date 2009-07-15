@@ -1,3 +1,9 @@
+Wed Jul 15 12:47:57 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/runtest.in: Raise the fd limit from 32 to 64 - multi_flint
+	  tests need more than 32 fds.
+
 Wed Jul 15 04:36:03 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
