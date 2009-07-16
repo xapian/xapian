@@ -1,6 +1,15 @@
 %rename(increment) *::next();
 %rename(increment_weight) *::next(Xapian::weight min_wt);
 
+%rename(new1) Xapian::Query::Query(const std::string & tname);
+%rename(new1weight) Xapian::Query::Query(const std::string &tname, Xapian::termcount wqf, Xapian::termpos pos);
+%rename(new3scale) Xapian::Query::Query(Query::op op, Xapian::Query q, double parameter);
+%rename(new3range) Xapian::Query::Query(Query::op op, Xapian::valueno valno, const std::string &value);
+%rename(new4range) Xapian::Query::Query(Query::op op, Xapian::valueno valno, const std::string &begin, const std::string &end);
+
+%rename(set_query1) Xapian::Enquire::set_query(const Query & query);
+%rename(set_query2) Xapian::Enquire::set_query(const Query & query, termcount qlen);
+
 %constant int OP_AND = Xapian::Query::OP_AND;
 %constant int OP_OR = Xapian::Query::OP_OR;
 %constant int OP_AND_NOT = Xapian::Query::OP_AND_NOT;
@@ -32,6 +41,43 @@
 %constant int STEM_NONE = Xapian::QueryParser::STEM_NONE;
 %constant int STEM_SOME = Xapian::QueryParser::STEM_SOME;
 %constant int STEM_ALL = Xapian::QueryParser::STEM_ALL;
+
+%{
+#include <stdarg.h>
+%}
+
+%inline %{
+Xapian::Query * newN(int op_, int items, ...) {
+	Xapian::Query::op op = (Xapian::Query::op)op_;
+	Xapian::Query * ret;
+	va_list list;
+
+	try {
+	    vector<Xapian::Query> queries;
+	    queries.reserve(items - 1);
+	    va_start(list, items);
+
+	    for( int i = 1; i < items; i++ ) {
+	    	SV *sv = va_arg(list, SV*);
+		if (sv_isa(sv, "Search::Xapian::Query")) {
+		    Xapian::Query *query = (Xapian::Query*) SvIV((SV*) SvRV(sv));
+		    queries.push_back(*query);
+		} else if ( SvOK(sv) ) {
+		    STRLEN len;
+		    const char * ptr = SvPV(sv, len);
+		    queries.push_back(Xapian::Query(string(ptr, len)));
+		} else {
+		    croak( "USAGE: Search::Xapian::Query->new(OP, @TERMS_OR_QUERY_OBJECTS)" );
+		}
+	    }
+            ret = new Xapian::Query(op, queries.begin(), queries.end());
+	    va_end(list);
+        } catch (const Xapian::Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
+	return ret;
+}
+%}
 
 %perlcode %{
 package Search::Xapian;	
@@ -122,4 +168,74 @@ our @STEM_NAMES;
 foreach (@{ $EXPORT_TAGS{'qpstem'} }) {
   $STEM_NAMES[eval $_] = $_;
 }
+
+
+package Search::Xapian::Database;
+sub enquire {
+  my $self = shift;
+  my $enquire = Search::Xapian::Enquire->new( $self );
+  if( @_ ) {
+    $enquire->set_query( @_ );
+  }
+  return $enquire;
+}
+
+package Search::Xapian::Query;
+sub new {
+  my $class = $_[0];
+  my $query;
+
+  if( @_ == 1 ) {
+    $query = new_new1(@_);
+  } else {
+    my $op = $_[1];
+    if( $op !~ /^\d+$/ ) {
+	Carp::croak( "USAGE: $class->new('term') or $class->new(OP, <args>)" );
+    }
+    if( $op == 8 ) { # FIXME: 8 is OP_VALUE_RANGE; eliminate hardcoded literal
+      if( @_ != 4 ) {
+	Carp::croak( "USAGE: $class->new(OP_VALUE_RANGE, VALNO, START, END)" );
+      }
+      $query = new_new4range( @_ );
+    } elsif( $op == 9 ) { # FIXME: OP_SCALE_WEIGHT
+      if( @_ != 3 ) {
+        Carp::croak( "USAGE: $class->new(OP_SCALE_WEIGHT, QUERY, FACTOR)" );
+      }
+      $query = new_new3scale( @_ );
+    } elsif( $op == 11 || $op == 12 ) { # FIXME: OP_VALUE_GE, OP_VALUE_LE; eliminate hardcoded literals
+      if( @_ != 3 ) {
+        Carp::croak( "USAGE: $class->new(OP_VALUE_[GL]E, VALNO, LIMIT)" );
+      }
+      $query = new_new3range( @_ );
+    } else {
+      my $items = @_ - 2;
+      shift @_;
+      shift @_;
+      $query = Search::Xapian::newN( $op, $items, @_ );
+    }
+  }
+  return $query;
+}
+
+package Search::Xapian::Enquire;
+sub set_query {
+  my $self = shift;
+  my $query = shift;
+  if( ref( $query ) ne 'Search::Xapian::Query' ) {
+    $query = Search::Xapian::Query->new( $query, @_ );
+    $self->set_query1( $query );
+    return;
+  }
+  my $nargs = scalar(@_);
+  if( $nargs > 1) {
+    Carp::carp( "USAGE: \$enquire->set_query(\$query) or \$enquire->set_query(\$query, \$length)" );
+    exit;
+  }
+  if( $nargs == 0 ) {
+    $self->set_query1( $query );
+  } else {
+    $self->set_query2( $query, shift );
+  }
+}
+
 %}

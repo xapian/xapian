@@ -1,3 +1,9 @@
+Thu Jul 16 13:45:33 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Rename constructors of Query and Enquire::set_query,
+	add wrapper function newN for generatig new query, add function 
+	Database::enquire, Query::new and Enquire::set_query.
+
 Tue Jul 14 15:02:44 GMT 2009  Kosei Moriyama <cou929@gmail.com>
 
 	* configure.ac: Fix PERL_XAPIAN_VERSION to get binding's 
