@@ -1224,8 +1224,8 @@ class TermList {
      *  prefixes.  If so, we'll build a set of phrases, one using each prefix.
      *  This works around the limitation that a phrase cannot have multiple
      *  components which are "OR" combinations of terms, but is also probably
-     *  what users expect: ie, if a user specifies a phrase in a field, and that
-     *  field maps to multiple prefixes, the user probably wants a phrase
+     *  what users expect: i.e., if a user specifies a phrase in a field, and
+     *  that field maps to multiple prefixes, the user probably wants a phrase
      *  returned with all terms having one of those prefixes, rather than a
      *  phrase comprised of terms with differing prefixes.
      */

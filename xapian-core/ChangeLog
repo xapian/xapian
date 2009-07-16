@@ -1,3 +1,7 @@
+Thu Jul 16 04:13:48 GMT 2009  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Fix comment typo.
+
 Thu Jul 16 03:59:49 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/sorter.cc,include/xapian/sorter.h: MultiValueSorter doesn't
