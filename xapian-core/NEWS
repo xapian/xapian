@@ -1,3 +1,91 @@
+ 13066       olly Wed Jul 15 12:47:57 GMT 2009  Olly Betts <olly@survex.com>
+
+Xapian-core 1.0.14 (2009-07-1?):
+
+API:
+
+* When using more than one ValueRangeProcessor, QueryParser didn't reset the
+  begin and end strings to ignore any changes made by a ValueRangeProcessor
+  which returned false, so further ValueRangeProcessors would see any changes
+  it had made.  This is now fixed, and test coverage improved.
+
+testsuite:
+
+* The test harness code which launches xapian-tcpsrv child processes was
+  failing to close a file descriptor for each one launched due to a bug in
+  the code which is meant to track them.  This was causing apitest to fail
+  on OpenBSD (ticket#382).  Also wait between testcases for any spawned
+  xapian-tcpsrv processes to exit to avoid spurious failures when a database is
+  reused by the next testcase.
+
+* tests/runtest.in: Use "ulimit -n" where available to limit the number of
+  available file descriptors to 64 so we catch file descriptor leaks sooner.
+
+* When measuring CPU time used for scalability tests, we no longer try to
+  include the CPU time used by child processes, as we can only get that for
+  child processes which have exited and it's hard to ensure that they have
+  with the current framework.  Although this means we only tests the
+  client-side scaling for remote tests, the local backend tests cover most of
+  the work done by the server part of the remote backend.
+
+* apitest: In testcase topercent2, don't expect max_attained or max_possible to
+  be exact as rounding errors in different ways of calculating can cause small
+  variations.  On trunk we already have similar code because the new weighting
+  scheme stuff gives different bounds in the different cases.  This should fix
+  testsuite failures seen on some of the Debian and Ubuntu buildds.
+
+* The test harness now always reports the full exception message (was
+  conditional on --verbose), and output for different exception types and
+  other causes of failure is now more consistent.
+
+* For scalability tests, the test harness now increases the number of
+  repetitions until the first run takes more than 0.001 seconds, to avoid
+  trying to base calculations on a length of time we probably can't reliably
+  measure to start with.
+
+matcher:
+
+
+flint backend:
+
+* Use F_FULLFSYNC where available (Mac OS X currently) to ensure that changes
+  have been committed to disk.  (ticket#288)
+
+quartz backend:
+
+
+remote backend:
+
+* Fix handling of percentage weights in various cases when we're searching
+  multiple remote databases or a mix of local and remote databases.
+
+inmemory backend:
+
+
+build system:
+
+* configure: -Wshadow produces false positives with GCC 4.0, so only enable it
+  for >= 4.1 since we enable -Werror for maintainer-mode builds for GCC >= 4.0.
+
+* configure: Check that we can find the valgrind/memcheck.h header as well as
+  the valgrind binary.
+
+documentation:
+
+
+examples:
+
+
+portability:
+
+
+packaging:
+
+
+debug code:
+
+
+
 Xapian-core 1.0.13 (2009-05-23):
 
 API:
@@ -8,7 +96,7 @@ API:
   is handled.  This change isn't observable using Document::get_value(),
   but can be noticed when iterating with Document::values_begin(), using
   Document::values_count(), or trying to delete the value with
-  Document::remove_value().  
+  Document::remove_value().
 
 testsuite:
 
