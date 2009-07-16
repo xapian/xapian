@@ -1,7 +1,7 @@
 /** @file sorter.cc
  * @brief Build sort keys for MSet ordering
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -82,7 +82,5 @@ MultiValueSorter::operator()(const Xapian::Document & doc) const
     }
     return result;
 }
-
-MultiValueSorter::~MultiValueSorter() { }
 
 }

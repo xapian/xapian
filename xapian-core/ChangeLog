@@ -1,3 +1,8 @@
+Thu Jul 16 03:59:49 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/sorter.cc,include/xapian/sorter.h: MultiValueSorter doesn't
+	  need an explicit dtor - it's enough that Sorter has a virtual dtor.
+
 Thu Jul 16 03:29:41 GMT 2009  Olly Betts <olly@survex.com>
 
 	* AUTHORS: Add Andreas Flöter for the Solaris package howto.
