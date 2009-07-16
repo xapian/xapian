@@ -2,6 +2,7 @@
  *  @brief File and path manipulation routines.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
+ * Copyright (C) 2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,19 +30,12 @@
  *
  *  The returned path will always end with a directory separator.
  */
-XAPIAN_VISIBILITY_DEFAULT
 std::string calc_dirname(const std::string & filename);
 
 /** Join two paths together.
  *
  *  Pays attention to whether path2 is absolute or relative.
  */
-XAPIAN_VISIBILITY_DEFAULT
 std::string join_paths(const std::string & path1, const std::string & path2);
-
-/** Check if a path is an absolute path.
- */
-XAPIAN_VISIBILITY_DEFAULT
-bool isabspath(const std::string & path);
 
 #endif /* XAPIAN_INCLUDED_FILEUTILS_H */

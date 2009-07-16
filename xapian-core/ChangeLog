@@ -1,3 +1,10 @@
+Thu Jul 16 04:34:57 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/fileutils.h: Remove unnecessary XAPIAN_VISIBILITY_DEFAULT
+	  (ticket#63).
+	* common/fileutils.cc,common/fileutils.h: Make isabspath() static
+	  since it is only used by other functions in the same file.
+
 Thu Jul 16 04:13:48 GMT 2009  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Fix comment typo.
