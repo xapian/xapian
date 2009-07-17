@@ -12,7 +12,7 @@ TESTS = t/01use.t t/02pod.t t/03podcoverage.t t/04functions.t \
 
 BUILT_SOURCES = xapian_wrap.cc
 
-EXTRA_DIST = $(TESTS) util.i $(BUILT_SOURCES)
+EXTRA_DIST = util.i except.i $(TESTS) $(BUILT_SOURCES)
 
 SUBDIRS = docs
 
@@ -32,7 +32,11 @@ xapian_la_SOURCES = xapian_wrap.cc
 xapian_la_LIBADD = $(XAPIAN_LIBS) $(PERL_LIBS)
 
 if MAINTAINER_MODE
-xapian_wrap.cc Xapian.pm: $(SWIG_sources) util.i
+BUILT_SOURCES += except.i
+except.i: $(srcdir)/generate-perl-exceptions ../../xapian-core/exception_data.pm
+	$(PERL) -w -I$(srcdir)/../../xapian-core $(srcdir)/generate-perl-exceptions
+
+xapian_wrap.cc Xapian.pm: $(SWIG_sources) util.i except.i
 	-rm -f Search Xapian
 	ln -s . Search
 	ln -s lib Xapian

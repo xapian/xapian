@@ -1,3 +1,9 @@
+Fri Jul 17 14:52:41 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/Makefile.am,perl/generate-perl-exceptions: Add exception
+	wrapping refering python/generate-python-exceptions and 
+	search-xapian/handle_exception.cc .
+
 Thu Jul 16 13:45:33 GMT 2009  Kosei Moriyama <cou929@gmail.com>
 
 	* perl/util.i.in:Rename constructors of Query and Enquire::set_query,
