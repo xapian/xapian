@@ -97,6 +97,18 @@ DEFINE_TESTCASE(matchspy1, backend && !remote) {
     return true;
 }
 
+static string values_to_repr(const map<string, Xapian::doccount> & cat) {
+    string resultrepr("|");
+    map<string, Xapian::doccount>::const_iterator i;
+    for (i = cat.begin(); i != cat.end(); ++i) {
+	resultrepr += i->first;
+	resultrepr += ':';
+	resultrepr += str(i->second);
+	resultrepr += '|';
+    }
+    return resultrepr;
+}
+
 DEFINE_TESTCASE(matchspy2, writable)
 {
     if (get_dbtype() == "remotetcp" || get_dbtype() == "remoteprog") {
@@ -128,50 +140,39 @@ DEFINE_TESTCASE(matchspy2, writable)
 	db.add_document(doc);
     }
 
-    Xapian::CategorySelectMatchSpy spy;
-
-    spy.add_slot(0);
-    spy.add_slot(1);
-    spy.add_slot(3);
+    Xapian::CategorySelectMatchSpy spy0(0);
+    Xapian::CategorySelectMatchSpy spy1(1);
+    Xapian::CategorySelectMatchSpy spy3(3);
 
     Xapian::Enquire enq(db);
 
     enq.set_query(Xapian::Query("all"));
 
-    enq.add_matchspy(&spy);
+    enq.add_matchspy(&spy0);
+    enq.add_matchspy(&spy1);
+    enq.add_matchspy(&spy3);
     Xapian::MSet mset = enq.get_mset(0, 10);
 
-    TEST_EQUAL(spy.get_total(), 25);
+    TEST_EQUAL(spy0.get_total(), 25);
+    TEST_EQUAL(spy1.get_total(), 25);
+    TEST_EQUAL(spy3.get_total(), 25);
 
     static const char * results[] = {
 	"|1:1|2:9|3:3|4:7|5:1|6:3|8:1|",
 	"|0:2|1:3|2:3|3:3|4:3|5:3|6:2|7:2|8:2|9:2|",
-	"|",
 	"|1:9|2:16|",
-	"|",
-	NULL
     };
-    for (Xapian::valueno v = 0; results[v]; ++v) {
-	const map<string, Xapian::doccount> & cat = spy.get_values(v);
-	string resultrepr("|");
-	map<string, Xapian::doccount>::const_iterator i;
-	for (i = cat.begin(); i != cat.end(); ++i) {
-	    resultrepr += i->first;
-	    resultrepr += ':';
-	    resultrepr += str(i->second);
-	    resultrepr += '|';
-	}
-	tout << "value " << v << endl;
-	TEST_STRINGS_EQUAL(resultrepr, results[v]);
-    }
-
+    TEST_STRINGS_EQUAL(values_to_repr(spy0.get_values()), results[0]);
+    TEST_STRINGS_EQUAL(values_to_repr(spy1.get_values()), results[1]);
+    TEST_STRINGS_EQUAL(values_to_repr(spy3.get_values()), results[2]);
+		       
     {
 	// Test scoring evenness returns scores with the natural ordering.
-	double score0 = spy.score_categorisation(0);
+	double score0 = spy0.score_categorisation();
 	tout << "score0 = " << score0 << endl;
-	double score1 = spy.score_categorisation(1);
+	double score1 = spy1.score_categorisation();
 	tout << "score1 = " << score1 << endl;
-	double score3 = spy.score_categorisation(3);
+	double score3 = spy3.score_categorisation();
 	tout << "score3 = " << score3 << endl;
 	// 1 is obviously best, and 0 obviously worst.
 	TEST(score1 < score3);
@@ -181,11 +182,11 @@ DEFINE_TESTCASE(matchspy2, writable)
     {
 	// Test scoring evenness and about 7 categories returns scores with the
 	// natural ordering.
-	double score0 = spy.score_categorisation(0, 7);
+	double score0 = spy0.score_categorisation(7);
 	tout << "score0 = " << score0 << endl;
-	double score1 = spy.score_categorisation(1, 7);
+	double score1 = spy1.score_categorisation(7);
 	tout << "score1 = " << score1 << endl;
-	double score3 = spy.score_categorisation(3, 7);
+	double score3 = spy3.score_categorisation(7);
 	tout << "score3 = " << score3 << endl;
 	// 3 is clearly worst - 0 is arguably a little better than 1 (0 is the
 	// requested size, but 1 has a much more even split).
@@ -227,38 +228,46 @@ DEFINE_TESTCASE(matchspy3, writable)
 	db.add_document(doc);
     }
 
-    Xapian::CategorySelectMatchSpy spy;
-
-    spy.add_slot(0);
-    spy.add_slot(1);
-    spy.add_slot(2);
-    spy.add_slot(3);
+    Xapian::CategorySelectMatchSpy spy0(0);
+    Xapian::CategorySelectMatchSpy spy1(1);
+    Xapian::CategorySelectMatchSpy spy2(2);
+    Xapian::CategorySelectMatchSpy spy3(3);
 
     Xapian::Enquire enq(db);
 
     enq.set_query(Xapian::Query("all"));
 
-    enq.add_matchspy(&spy);
+    enq.add_matchspy(&spy0);
+    enq.add_matchspy(&spy1);
+    enq.add_matchspy(&spy2);
+    enq.add_matchspy(&spy3);
     Xapian::MSet mset = enq.get_mset(0, 10);
 
-    TEST_EQUAL(spy.get_total(), 25);
+    TEST_EQUAL(spy0.get_total(), 25);
+    TEST_EQUAL(spy1.get_total(), 25);
+    TEST_EQUAL(spy2.get_total(), 25);
+    TEST_EQUAL(spy3.get_total(), 25);
 
     static const string results[] = {
 	"|100:1|200:9|300:3|400:7|500:1|600:3|800:1|",
 	"|0..200:8|300..400:6|500..700:7|800..900:4|",
 	"|177..8711:9|10677..17777:4|20544..26677:3|30044..37377:3|41344..49877:3|54444..59211:2|64177:1|",
 	"|400..900:15|1000..1600:5|2000..2500:2|3300:1|5000:1|10000:1|",
-	"|",
 	""
     };
+    std::vector<Xapian::CategorySelectMatchSpy *> spies;
+    spies.push_back(&spy0);
+    spies.push_back(&spy1);
+    spies.push_back(&spy2);
+    spies.push_back(&spy3);
     for (Xapian::valueno v = 0; !results[v].empty(); ++v) {
-	bool result = spy.build_numeric_ranges(v, 7);
+	bool result = spies[v]->build_numeric_ranges(7);
 	if (results[v] == "|") {
 	    TEST(!result);
 	    continue;
 	}
 	TEST(result);
-	const map<string, Xapian::doccount> & cat = spy.get_values(v);
+	const map<string, Xapian::doccount> & cat = spies[v]->get_values();
 	TEST(cat.size() <= 7);
 	string resultrepr("|");
 	map<string, Xapian::doccount>::const_iterator i;
@@ -318,34 +327,42 @@ DEFINE_TESTCASE(matchspy4, writable)
 	db.add_document(doc);
     }
 
-    Xapian::ValueCountMatchSpy spy;
-
-    spy.add_slot(0);
-    spy.add_slot(1);
-    spy.add_slot(3);
+    Xapian::ValueCountMatchSpy spy0(0);
+    Xapian::ValueCountMatchSpy spy1(1);
+    Xapian::ValueCountMatchSpy spy3(3);
 
     Xapian::Enquire enq(db);
 
     enq.set_query(Xapian::Query("all"));
 
-    enq.add_matchspy(&spy);
+    enq.add_matchspy(&spy0);
+    enq.add_matchspy(&spy1);
+    enq.add_matchspy(&spy3);
     Xapian::MSet mset = enq.get_mset(0, 10);
 
-    TEST_EQUAL(spy.get_total(), 25);
+    TEST_EQUAL(spy0.get_total(), 25);
+    TEST_EQUAL(spy1.get_total(), 25);
+    TEST_EQUAL(spy3.get_total(), 25);
 
     static const char * results[] = {
 	"|2:9|4:7|3:3|6:3|1:1|5:1|8:1|",
 	"|1:3|2:3|3:3|4:3|5:3|0:2|6:2|7:2|8:2|9:2|",
 	"|",
 	"|2:16|1:9|",
-	"|",
 	NULL
     };
+    std::vector<Xapian::ValueCountMatchSpy *> spies;
+    spies.push_back(&spy0);
+    spies.push_back(&spy1);
+    spies.push_back(NULL);
+    spies.push_back(&spy3);
     for (Xapian::valueno v = 0; results[v]; ++v) {
 	tout << "value " << v << endl;
 	std::vector<Xapian::StringAndFrequency> allvals;
 
-	spy.get_top_values(allvals, v, 100);
+	Xapian::ValueCountMatchSpy * spy = spies[v];
+	if (spy != NULL)
+	    spy->get_top_values(allvals, 100);
 	string allvals_str("|");
 	for (size_t i = 0; i < allvals.size(); i++) {
 	    allvals_str += allvals[i].str;
@@ -359,7 +376,8 @@ DEFINE_TESTCASE(matchspy4, writable)
 	std::vector<Xapian::StringAndFrequency> vals;
 	for (size_t i = 0; i < allvals.size(); i++) {
 	    tout << "i " << i << endl;
-	    spy.get_top_values(vals, v, i);
+	    if (spy != NULL)
+		spy->get_top_values(vals, i);
 	    for (size_t j = 0; j < vals.size(); j++) {
 		tout << "j " << j << endl;
 		TEST_EQUAL(vals[j].str, allvals[j].str);
@@ -386,8 +404,8 @@ DEFINE_TESTCASE(matchspy5, backend)
     Xapian::MSet mymset = enquire.get_mset(0, 100);
     TEST_EQUAL(mymset.size(), 6);
 
-    const std::map<std::string, Xapian::doccount> & vals1 = myspy1.get_values(1);
-    const std::map<std::string, Xapian::doccount> & vals2 = myspy2.get_values(1);
+    const std::map<std::string, Xapian::doccount> & vals1 = myspy1.get_values();
+    const std::map<std::string, Xapian::doccount> & vals2 = myspy2.get_values();
 
     TEST_EQUAL(vals1.size(), 2);
     TEST(vals1.find("h") != vals1.end());

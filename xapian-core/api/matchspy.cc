@@ -74,7 +74,7 @@ MatchSpy::serialise_results() const {
 }
 
 void
-MatchSpy::merge_results(const string &) const {
+MatchSpy::merge_results(const string &) {
     throw UnimplementedError("MatchSpy not suitable for use with remote searches - merge_results() method unimplemented");
 }
 
@@ -187,43 +187,29 @@ get_most_frequent_items(vector<StringAndFrequency> & result,
 void
 ValueCountMatchSpy::operator()(const Document &doc, weight) {
     ++total;
-    map<valueno, map<string, doccount> >::iterator i;
-    for (i = values.begin(); i != values.end(); ++i) {
-	valueno valno = i->first;
-	map<string, doccount> & tally = i->second;
-
-	if (multivalues.find(valno) != multivalues.end()) {
-	    // Multiple values
-	    StringListUnserialiser j(doc.get_value(valno));
-	    StringListUnserialiser end;
-	    for (; j != end; ++j) {
-		string val(*j);
-		if (!val.empty()) ++tally[val];
-	    }
-	} else {
-	    // Single value
-	    string val(doc.get_value(valno));
-	    if (!val.empty()) ++tally[val];
+    if (multivalued) {
+	StringListUnserialiser i(doc.get_value(slot));
+	StringListUnserialiser end;
+	for (; i != end; ++i) {
+	    string val(*i);
+	    if (!val.empty()) ++values[val];
 	}
+    } else {
+	string val(doc.get_value(slot));
+	if (!val.empty()) ++values[val];
     }
 }
 
 void
 ValueCountMatchSpy::get_top_values(vector<StringAndFrequency> & result,
-				   valueno valno, size_t maxvalues) const
+				   size_t maxvalues) const
 {
-    get_most_frequent_items(result, get_values(valno), maxvalues);
+    get_most_frequent_items(result, values, maxvalues);
 }
 
 MatchSpy *
 ValueCountMatchSpy::clone() const {
-    AutoPtr<ValueCountMatchSpy> res(new ValueCountMatchSpy());
-    map<valueno, map<string, doccount> >::const_iterator i;
-    for (i = values.begin(); i != values.end(); ++i) {
-	set<valueno>::const_iterator j = multivalues.find(i->first);
-	res->add_slot(i->first, j != multivalues.end());
-    }
-    return res.release();
+    return new ValueCountMatchSpy(slot, multivalued);
 }
 
 string
@@ -234,15 +220,11 @@ ValueCountMatchSpy::name() const {
 string
 ValueCountMatchSpy::serialise() const {
     string result;
-    map<valueno, map<string, doccount> >::const_iterator i;
-    for (i = values.begin(); i != values.end(); ++i) {
-	result.append(encode_length(i->first));
-	set<valueno>::const_iterator j = multivalues.find(i->first);
-	if (j == multivalues.end()) {
-	    result += '0';
-	} else {
-	    result += '1';
-	}
+    result += encode_length(slot);
+    if (multivalued) {
+	result += '1';
+    } else {
+	result += '0';
     }
     return result;
 }
@@ -253,55 +235,50 @@ ValueCountMatchSpy::unserialise(const string & s,
     const char * p = s.data();
     const char * end = p + s.size();
 
-    AutoPtr<ValueCountMatchSpy> res(new ValueCountMatchSpy());
-    while (p != end) {
-	valueno new_slot = decode_length(&p, end, false);
-	if (p == end || (p[0] != '0' && p[0] != '1')) {
-	    throw NetworkError("Expected '0' or '1' to indicate multivalues status");
-	}
-	res->add_slot(new_slot, p[0] == '1');
-	++p;
+    valueno new_slot = decode_length(&p, end, false);
+    if (p == end || (p[0] != '0' && p[0] != '1')) {
+	throw NetworkError("Expected '0' or '1' to indicate multivalues status");
     }
-    return res.release();
+    bool new_multivalued = (p[0] == '1');
+    ++p;
+    if (p != end) {
+	throw NetworkError("Junk at end of serialised ValueCountMatchSpy");
+    }
+
+    return new ValueCountMatchSpy(new_slot, new_multivalued);
 }
 
 string
 ValueCountMatchSpy::serialise_results() const {
     LOGCALL(REMOTE, string, "ValueCountMatchSpy::serialise_results", "");
     string result;
-    result.append(encode_length(total));
-    map<valueno, map<string, doccount> >::const_iterator i;
-    for (i = values.begin(); i != values.end(); ++i) {
-	result.append(encode_length(i->first));
-	result.append(encode_length(i->second.size()));
-	map<string, doccount>::const_iterator j;
-	for (j = i->second.begin(); j != i->second.end(); ++j) {
-	    result.append(encode_length(j->first.size()));
-	    result.append(j->first);
-	    result.append(encode_length(j->second));
-	}
+    result += encode_length(total);
+    result += encode_length(values.size());
+    for (map<string, doccount>::const_iterator i = values.begin();
+	 i != values.end(); ++i) {
+	result += encode_length(i->first.size());
+	result += i->first;
+	result += encode_length(i->second);
     }
     RETURN(result);
 }
 
 void
-ValueCountMatchSpy::merge_results(const string & s) const {
+ValueCountMatchSpy::merge_results(const string & s) {
     LOGCALL_VOID(REMOTE, "ValueCountMatchSpy::merge_results", s);
     const char * p = s.data();
     const char * end = p + s.size();
 
     total += decode_length(&p, end, false);
+
+    map<string, doccount>::size_type items = decode_length(&p, end, false);
     while (p != end) {
-	valueno new_slot = decode_length(&p, end, false);
-	map<string, doccount>::size_type items;
-	items = decode_length(&p, end, false);
 	while(items != 0) {
-	    map<string, doccount> & tally = values[new_slot];
 	    size_t vallen = decode_length(&p, end, true);
 	    string val(p, vallen);
 	    p += vallen;
 	    doccount freq = decode_length(&p, end, false);
-	    tally[val] += freq;
+	    values[val] += freq;
 	    --items;
 	}
     }
@@ -317,22 +294,20 @@ ValueCountMatchSpy::get_description() const {
 inline double sqrd(double x) { return x * x; }
 
 double
-CategorySelectMatchSpy::score_categorisation(valueno valno,
-					     double desired_no_of_categories)
+CategorySelectMatchSpy::score_categorisation(double desired_no_of_categories)
 {
     if (total == 0) return 0.0;
 
-    const map<string, doccount> & cat = values[valno];
     size_t total_unset = total;
     double score = 0.0;
 
     if (desired_no_of_categories <= 0.0)
-	desired_no_of_categories = cat.size();
+	desired_no_of_categories = values.size();
 
     double avg = double(total) / desired_no_of_categories;
 
     map<string, doccount>::const_iterator i;
-    for (i = cat.begin(); i != cat.end(); ++i) {
+    for (i = values.begin(); i != values.end(); ++i) {
 	size_t count = i->second;
 	total_unset -= count;
 	score += sqrd(count - avg);
@@ -343,7 +318,7 @@ CategorySelectMatchSpy::score_categorisation(valueno valno,
     score /= sqrd(total);
 
     // Bias towards returning the number of categories requested.
-    score += 0.01 * sqrd(desired_no_of_categories - cat.size());
+    score += 0.01 * sqrd(desired_no_of_categories - values.size());
 
     return score;
 }
@@ -362,16 +337,14 @@ struct bucketval {
 };
 
 bool
-CategorySelectMatchSpy::build_numeric_ranges(valueno valno, size_t max_ranges)
+CategorySelectMatchSpy::build_numeric_ranges(size_t max_ranges)
 {
-    const map<string, doccount> & cat = values[valno];
-
     double lo = DBL_MAX, hi = -DBL_MAX;
 
     map<double, doccount> histo;
     doccount total_set = 0;
     map<string, doccount>::const_iterator i;
-    for (i = cat.begin(); i != cat.end(); ++i) {
+    for (i = values.begin(); i != values.end(); ++i) {
 	if (i->first.size() == 0) continue;
 	double v = sortable_unserialise(i->first.c_str());
 	if (v < lo) lo = v;
@@ -441,7 +414,7 @@ CategorySelectMatchSpy::build_numeric_ranges(valueno valno, size_t max_ranges)
 	discrete_categories[""] = total_unset;
     }
 
-    swap(discrete_categories, values[valno]);
+    swap(discrete_categories, values);
 
     return true;
 }

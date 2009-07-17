@@ -1,3 +1,13 @@
+Fri Jul 17 14:12:53 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/matchspy.cc,include/xapian/matchspy.h,tests/api_matchspy.cc:
+	  MatchSpy::merge_results() is no longer const, since it blatantly
+	  shouldn't be.  Change ValueCountMatchSpy to work only on a single
+	  slot, rather than a set of them.  This avoids having to do lots
+	  of lookups in a map each time operator() is called, and is more
+	  convenient for users now that Enquire takes multiple match spies
+	  implicitly.
+
 Wed Jul 15 12:55:10 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/api_matchspy.cc: Round the values stored in matchspy3, so
