@@ -1,3 +1,8 @@
+Fri Jul 17 16:32:02 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_nodb.cc: Check output of Stem::get_description() for each
+	  supported language.
+
 Thu Jul 16 04:34:57 GMT 2009  Olly Betts <olly@survex.com>
 
 	* common/fileutils.h: Remove unnecessary XAPIAN_VISIBILITY_DEFAULT
