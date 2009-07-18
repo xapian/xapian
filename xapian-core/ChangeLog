@@ -1,3 +1,9 @@
+Sat Jul 18 13:14:11 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/api_nodb.cc: Check output of Stem::get_description() for each
+	  supported language.
+
 Sat Jul 18 13:09:42 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
