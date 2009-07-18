@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2007 Olly Betts
+ * Copyright 2003,2007,2009 Olly Betts
  * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -40,8 +40,7 @@ RSetI::calculate_stats()
     for (doc = documents.begin(); doc != documents.end(); doc++) {
 	DEBUGLINE(WTCALC, "Counting reltermfreqs in document " << *doc << " [ ");
 	if (dbroot) {
-	    AutoPtr<TermList> tl =
-		AutoPtr<TermList>(dbroot->open_term_list(*doc));
+	    AutoPtr<TermList> tl(dbroot->open_term_list(*doc));
 	    tl->next();
 	    while (!tl->at_end()) {
 		// FIXME - can this lookup be done faster?
