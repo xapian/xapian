@@ -1,3 +1,13 @@
+Sat Jul 18 15:42:48 GMT 2009  Olly Betts <olly@survex.com>
+
+	* languages/compiler/generator.c,languages/steminternal.cc,
+	  languages/steminternal.h: Change how snowball generates the data used
+	  by among - instead of using pointers to the strings in struct among,
+	  store an offset into a constant pool, as this reduces the number of
+	  relocations from 5001 to 2706, which should decrease the time taken
+	  by the dynamic linker when loading the library.  This also results
+	  in slightly smaller code.
+
 Fri Jul 17 16:32:02 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_nodb.cc: Check output of Stem::get_description() for each
