@@ -1408,25 +1408,50 @@ static void generate_among_pool(struct generator * g, struct among * x) {
 	struct amongvec * v = x->b;
 	int have_funcs = 0;
 	int i;
+	char * done = check_malloc(x->literalstring_count);
+	memset(done, 0, x->literalstring_count);
 
 	g->I[0] = x->number;
-	
-	for (i = 0; i < x->literalstring_count; i++)
+
+	for (i = 0; i < x->literalstring_count; i++, v++)
 	{
+	    int j;
+	    if (v->size == 0 || done[i]) continue;
 	    g->I[1] = i;
-	    g->L[0] = v->b;
+	    /* Eliminate entries which are just substrings of other entries */
+	    for (j = 0; j < x->literalstring_count; j++) {
+		if (j == i) continue;
+		if (v->size <= v[j - i].size) {
+		    size_t offset = v[j - i].size - v->size;
+		    size_t len = v->size * sizeof(symbol);
+		    do {
+			if (memcmp(v->b, v[j - i].b + offset, len) == 0) {
+			    g->I[2] = j;
+			    if (offset) {
+				g->I[3] = offset;
+				w(g, "#define s_~I0_~I1 (s_~I0_~I2 + ~I3)~N");
+			    } else {
+				w(g, "#define s_~I0_~I1 s_~I0_~I2~N");
+			    }
+			    goto done;
+			}
+		    } while (offset--);
+		}
+	    }
 	    unless (v->size == 0) {
 		if (pool_size == 0) {
 		    w(g, "static const symbol s_pool[] = {~N");
 		}
 		g->I[2] = pool_size;
 		w(g, "#define s_~I0_~I1 ~I2~N");
+		g->L[0] = v->b;
 		w(g, "~A0,~N");
 		pool_size += v->size;
 	    }
-	    v++;
+done: ;
 	}
 
+	check_free(done);
 	x = x->next;
     }
     if (pool_size != 0) {

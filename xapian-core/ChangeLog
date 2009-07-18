@@ -1,3 +1,11 @@
+Sat Jul 18 17:12:58 GMT 2009  Olly Betts <olly@survex.com>
+
+	* languages/compiler/generator.c: Merge among table entries which are
+	  substrings of others in the same among.  We could be much cleverer
+	  and merge between amongs, and allow overlaps, etc, but this get us 
+	  a nice size reduction for a small amount of effort, so it'll do for
+	  now.
+
 Sat Jul 18 15:42:48 GMT 2009  Olly Betts <olly@survex.com>
 
 	* languages/compiler/generator.c,languages/steminternal.cc,
