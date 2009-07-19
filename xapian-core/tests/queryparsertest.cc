@@ -772,7 +772,7 @@ static bool test_qp_odd_chars1()
 // Test right truncation.
 static bool test_qp_flag_wildcard1()
 {
-#ifndef XAPIAN_HAS_BACKEND_INMEMORY
+#ifndef XAPIAN_HAS_INMEMORY_BACKEND
     SKIP_TEST("Testcase requires the InMemory backend which is disabled");
 #else
     Xapian::WritableDatabase db(Xapian::InMemory::open());
@@ -873,7 +873,7 @@ static bool test_qp_flag_wildcard1()
 // Test right truncation with prefixes.
 static bool test_qp_flag_wildcard2()
 {
-#ifndef XAPIAN_HAS_BACKEND_INMEMORY
+#ifndef XAPIAN_HAS_INMEMORY_BACKEND
     SKIP_TEST("Testcase requires the InMemory backend which is disabled");
 #else
     Xapian::WritableDatabase db(Xapian::InMemory::open());
@@ -897,7 +897,7 @@ static bool test_qp_flag_wildcard2()
 // Test partial queries.
 static bool test_qp_flag_partial1()
 {
-#ifndef XAPIAN_HAS_BACKEND_INMEMORY
+#ifndef XAPIAN_HAS_INMEMORY_BACKEND
     SKIP_TEST("Testcase requires the InMemory backend which is disabled");
 #else
     Xapian::WritableDatabase db(Xapian::InMemory::open());
@@ -1250,7 +1250,7 @@ static bool test_qp_value_range2()
 // Test NumberValueRangeProcessors with actual data.
 static bool test_qp_value_range3()
 {
-#ifndef XAPIAN_HAS_BACKEND_INMEMORY
+#ifndef XAPIAN_HAS_INMEMORY_BACKEND
     SKIP_TEST("Testcase requires the InMemory backend which is disabled");
 #else
     Xapian::WritableDatabase db(Xapian::InMemory::open());

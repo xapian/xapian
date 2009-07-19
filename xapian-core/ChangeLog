@@ -1,3 +1,9 @@
+Sun Jul 19 16:05:04 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: Reenable tests which require the inmemory
+	  backend to be enabled by fixing typo XAPIAN_HAS_BACKEND_INMEMORY ->
+	  XAPIAN_HAS_INMEMORY_BACKEND.
+
 Sun Jul 19 14:56:16 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/documentvaluelist.cc: Use str() instead of om_tostring().
