@@ -98,7 +98,12 @@ struct XAPIAN_VISIBILITY_DEFAULT ValueRangeProcessor {
  *  The end points can be any strings.
  */
 class XAPIAN_VISIBILITY_DEFAULT StringValueRangeProcessor : public ValueRangeProcessor {
+  protected:
     Xapian::valueno valno;
+
+  private:
+    bool prefix;
+    std::string str;
 
   public:
     /** Constructor.
@@ -106,20 +111,36 @@ class XAPIAN_VISIBILITY_DEFAULT StringValueRangeProcessor : public ValueRangePro
      *  @param valno_	The value number to return from operator().
      */
     StringValueRangeProcessor(Xapian::valueno valno_)
-	: valno(valno_) { }
+	: valno(valno_), str() { }
 
-    /// Any strings are valid as begin and end.
-    Xapian::valueno operator()(std::string &, std::string &) {
-	return valno;
-    }
+    /** Constructor.
+     *
+     *  @param valno_	The value number to return from operator().
+     *  @param str_     A string to look for to recognise values as belonging
+     *                  to this range.
+     *  @param prefix_	Flag specifying whether to check for str_ as a prefix
+     *			or a suffix.
+     */
+    StringValueRangeProcessor(Xapian::valueno valno_, const std::string &str_,
+			      bool prefix_ = true)
+	: valno(valno_), prefix(prefix_), str(str_) { }
+
+    /** See if <begin>..<end> is a valid string value range.
+     *
+     *  If no prefix or suffix is specified, then this always returns the
+     *  value slot specified at construction time.
+     *
+     *  If a prefix or suffix is specified, this is checked for first, and
+     *  it it doesn't match, this method returns Xapian::BAD_VALUENO.
+     */
+    Xapian::valueno operator()(std::string &, std::string &);
 };
 
 /** Handle a date range.
  *
  *  Begin and end must be dates in a recognised format.
  */
-class XAPIAN_VISIBILITY_DEFAULT DateValueRangeProcessor : public ValueRangeProcessor {
-    Xapian::valueno valno;
+class XAPIAN_VISIBILITY_DEFAULT DateValueRangeProcessor : public StringValueRangeProcessor {
     bool prefer_mdy;
     int epoch_year;
 
@@ -136,7 +157,51 @@ class XAPIAN_VISIBILITY_DEFAULT DateValueRangeProcessor : public ValueRangeProce
      */
     DateValueRangeProcessor(Xapian::valueno valno_, bool prefer_mdy_ = false,
 			    int epoch_year_ = 1970)
-	: valno(valno_), prefer_mdy(prefer_mdy_), epoch_year(epoch_year_) { }
+	: StringValueRangeProcessor(valno_),
+	  prefer_mdy(prefer_mdy_), epoch_year(epoch_year_) { }
+
+    /** Constructor.
+     *
+     *  @param valno_	    The value number to return from operator().
+     *
+     *  @param str_     A string to look for to recognise values as belonging
+     *                  to this date range.
+     *
+     *  @param prefix_  Whether to look for the string at the start or end of
+     *                  the values.  If true, the string is a prefix; if
+     *                  false, the string is a suffix (default: true).
+     *
+     *  @param prefer_mdy_  Should ambiguous dates be interpreted as
+     *			    month/day/year rather than day/month/year?
+     *			    (default: false)
+     *
+     *  @param epoch_year_  Year to use as the epoch for dates with 2 digit
+     *			    years (default: 1970, so 1/1/69 is 2069 while
+     *			    1/1/70 is 1970).
+     *
+     *  The string supplied in str_ is used by @a operator() to decide whether
+     *  the pair of strings supplied to it constitute a valid range.  If
+     *  prefix_ is true, the first value in a range must begin with str_ (and
+     *  the second value may optionally begin with str_);
+     *  if prefix_ is false, the second value in a range must end with str_
+     *  (and the first value may optionally end with str_).
+     *
+     *  If str_ is empty, the setting of prefix_ is irrelevant, and no special
+     *  strings are required at the start or end of the strings defining the
+     *  range.
+     *
+     *  The remainder of both strings defining the endpoints must be valid
+     *  dates.
+     *
+     *  For example, if str_ is "created:" and prefix_ is true, and the range
+     *  processor has been added to the queryparser, the queryparser will
+     *  accept "created:1/1/2000..31/12/2001".
+     */
+    DateValueRangeProcessor(Xapian::valueno valno_, const std::string &str_,
+			    bool prefix_ = true,
+			    bool prefer_mdy_ = false, int epoch_year_ = 1970)
+	: StringValueRangeProcessor(valno_, str_, prefix_),
+	  prefer_mdy(prefer_mdy_), epoch_year(epoch_year_) { }
 
     /** See if <begin>..<end> is a valid date value range.
      *
@@ -154,18 +219,14 @@ class XAPIAN_VISIBILITY_DEFAULT DateValueRangeProcessor : public ValueRangeProce
  *  will sort in the same order as the numbers (the same values can be
  *  used to implement a numeric sort).
  */
-class XAPIAN_VISIBILITY_DEFAULT NumberValueRangeProcessor : public ValueRangeProcessor {
-    Xapian::valueno valno;
-    bool prefix;
-    std::string str;
-
+class XAPIAN_VISIBILITY_DEFAULT NumberValueRangeProcessor : public StringValueRangeProcessor {
   public:
     /** Constructor.
      *
      *  @param valno_   The value number to return from operator().
      */
     NumberValueRangeProcessor(Xapian::valueno valno_)
-	: valno(valno_), prefix(false) { }
+	: StringValueRangeProcessor(valno_) { }
 
     /** Constructor.
      *
@@ -201,7 +262,7 @@ class XAPIAN_VISIBILITY_DEFAULT NumberValueRangeProcessor : public ValueRangePro
      */
     NumberValueRangeProcessor(Xapian::valueno valno_, const std::string &str_,
 			      bool prefix_ = true)
-	: valno(valno_), prefix(prefix_), str(str_) { }
+	: StringValueRangeProcessor(valno_, str_, prefix_) { }
 
     /** See if <begin>..<end> is a valid numeric value range.
      *

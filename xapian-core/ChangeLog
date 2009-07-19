@@ -1,3 +1,12 @@
+Sun Jul 19 16:22:01 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/valuerangeproc.cc,include/xapian/queryparser.h: Move support for
+	  a prefix/suffix from NumberValueRangeProcessor to
+	  StringValueRangeProcessor, and change NumberValueRangeProcessor and
+	  DateValueRangeProcessor to inherit from StringValueRangeProcessor so
+	  all three now support a prefix/suffix.  (ticket#220)
+	* tests/queryparsertest.cc: Add test coverage for new features.
+
 Sun Jul 19 16:05:04 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/queryparsertest.cc: Reenable tests which require the inmemory
