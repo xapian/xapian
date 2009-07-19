@@ -1,3 +1,9 @@
+Sun Jul 19 17:26:53 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc,include/xapian/query.h,matcher/localmatch.cc:
+	  Remove wqf member of Xapian::Query::Internal and store the wqf in
+	  the parameter member instead.  (ticket#280)
+
 Sun Jul 19 17:24:02 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/omqueryinternal.cc,include/xapian/query.h: Remove unused

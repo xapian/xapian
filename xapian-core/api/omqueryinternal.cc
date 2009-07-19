@@ -159,7 +159,8 @@ Xapian::Query::Internal::serialise(Xapian::termpos & curpos) const
 	result += encode_length(tname.length());
 	result += tname;
 	if (term_pos != curpos) result += '@' + encode_length(term_pos);
-	if (wqf != 1) result += '#' + encode_length(wqf);
+	// parameter is wqf.
+	if (parameter != 1) result += '#' + encode_length(parameter);
 	++curpos;
     } else if (op == Xapian::Query::Internal::OP_EXTERNAL_SOURCE) {
 	string sourcename = external_source->name();
@@ -283,9 +284,10 @@ Xapian::Query::Internal::get_description() const
 	if (term_pos != 0) {
 	    opstr += "pos=" + om_tostring(term_pos);
 	}
-	if (wqf != 1) {
+	// parameter is wqf.
+	if (parameter != 1) {
 	    if (!opstr.empty()) opstr += ",";
-	    opstr += "wqf=" + om_tostring(wqf);
+	    opstr += "wqf=" + om_tostring(parameter);
 	}
 	if (!opstr.empty()) opstr = ":(" + opstr + ")";
 	if (tname.empty()) return "<alldocuments>" + opstr;
@@ -341,7 +343,10 @@ Xapian::Query::Internal::get_description() const
 Xapian::termcount
 Xapian::Query::Internal::get_length() const
 {
-    if (is_leaf(op)) return wqf;
+    if (is_leaf(op)) {
+	// parameter is wqf.
+	return parameter;
+    }
     Xapian::termcount len = 0;
     subquery_list::const_iterator i;
     for (i = subqs.begin(); i != subqs.end(); ++i) {
@@ -646,7 +651,6 @@ Xapian::Query::Internal::Internal(const Xapian::Query::Internal &copyme)
 	  tname(copyme.tname),
 	  str_parameter(copyme.str_parameter),
 	  term_pos(copyme.term_pos),
-	  wqf(copyme.wqf),
 	  external_source(NULL),
 	  external_source_owned(false)
 {
@@ -673,10 +677,9 @@ Xapian::Query::Internal::Internal(const string & tname_, Xapian::termcount wqf_,
 		 Xapian::termpos term_pos_)
 	: op(Xapian::Query::Internal::OP_LEAF),
 	  subqs(),
-	  parameter(0),
+	  parameter(wqf_),
 	  tname(tname_),
 	  term_pos(term_pos_),
-	  wqf(wqf_),
 	  external_source(NULL),
 	  external_source_owned(false)
 {
@@ -689,7 +692,6 @@ Xapian::Query::Internal::Internal(op_t op_, Xapian::termcount parameter_)
 	  parameter(parameter_),
 	  tname(),
 	  term_pos(0),
-	  wqf(0),
 	  external_source(NULL),
 	  external_source_owned(false)
 {
@@ -724,9 +726,8 @@ Xapian::Query::Internal::Internal(op_t op_, Xapian::valueno valno,
     if (op == OP_VALUE_GE && value.empty()) {
 	// Map '<value> >= ""' to MatchAll.
 	op = OP_LEAF;
-	parameter = 0;
+	parameter = 1; // wqf
 	term_pos = 0;
-	wqf = 1;
     }
     validate_query();
 }
@@ -962,7 +963,8 @@ Xapian::Query::Internal::collapse_subqs()
 	    } else {
 		AssertEq((*s)->tname, (*sq)->tname);
 		AssertEq((*s)->term_pos, (*sq)->term_pos);
-		(*s)->wqf += (*sq)->wqf;
+		// parameter is wqf.
+		(*s)->parameter += (*sq)->parameter;
 		// Rather than incrementing sq, delete the current
 		// element, as it has been merged into the other
 		// equivalent term.

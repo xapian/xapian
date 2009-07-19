@@ -360,6 +360,8 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 	 * For ELITE_SET, the number of terms to select from those specified.
 	 *
 	 * For RANGE, the value number to apply the range test to.
+	 *
+	 * For a leaf node, this is the within query frequency of the term.
 	 */
 	Xapian::termcount parameter;
 
@@ -376,9 +378,6 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 
 	/// Position in query of this term - leaf node only
 	Xapian::termpos term_pos;
-
-	/// Within query frequency of this term - leaf node only
-	Xapian::termcount wqf;
 
 	/// External posting source.
 	Xapian::PostingSource * external_source;
@@ -398,10 +397,10 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 	 */
 	Internal * simplify_query();
 
-	/** Perform checks that query is valid. (eg, has correct number of
+	/** Perform checks that query is valid. (e.g., has correct number of
 	 *  sub queries.)  Throw an exception if not.  This is initially called
 	 *  on the query before any simplifications have been made, and after
-	 *  simplications.
+	 *  simplifications.
 	 */
 	void validate_query() const;
 
@@ -496,6 +495,8 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 	 *  that is unclear, so this is a temporary workaround.
 	 */
 	Xapian::termcount get_parameter() const { return parameter; }
+
+	Xapian::termcount get_wqf() const { return parameter; }
 
 	/** Get the length of the query, used by some ranking formulae.
 	 *  This value is calculated automatically - if you want to override
