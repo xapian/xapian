@@ -1,3 +1,10 @@
+Sun Jul 19 08:04:48 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc: Instead of dynamically building a
+	  std::list of the leafnames we need to replicate, just list them in a
+	  compact format in the source file.  Results in smaller code and
+	  should be faster and smaller at runtime.
+
 Sat Jul 18 17:12:58 GMT 2009  Olly Betts <olly@survex.com>
 
 	* languages/compiler/generator.c: Merge among table entries which are

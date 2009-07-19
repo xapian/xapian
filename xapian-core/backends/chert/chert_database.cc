@@ -67,8 +67,6 @@
 
 #include <algorithm>
 #include "autoptr.h"
-#include <cstdio> // For rename().
-#include <list>
 #include <string>
 
 using namespace std;
@@ -545,32 +543,23 @@ ChertDatabase::send_whole_database(RemoteConnection & conn,
 
     // Send all the tables.  The tables which we want to be cached best after
     // the copy finished are sent last.
-    const char * tablenames[] = {
-	"termlist",
-	"synonym",
-	"spelling",
-	"record",
-	"position",
-	"postlist"
-    };
-    list<string> filenames;
-    const char ** tablenameptr;
-    for (tablenameptr = tablenames;
-	 tablenameptr != tablenames + (sizeof(tablenames) / sizeof(const char *));
-	 ++tablenameptr) {
-	filenames.push_back(string(*tablenameptr) + ".DB");
-	filenames.push_back(string(*tablenameptr) + ".baseA");
-	filenames.push_back(string(*tablenameptr) + ".baseB");
-    };
-    filenames.push_back("iamchert");
-
-    for (list<string>::const_iterator i = filenames.begin();
-	 i != filenames.end(); ++i) {
-	string filepath = db_dir + "/" + *i;
+    static const char filenames[] =
+	"\x0b""termlist.DB""\x0e""termlist.baseA\x0e""termlist.baseB"
+	"\x0a""synonym.DB""\x0d""synonym.baseA\x0d""synonym.baseB"
+	"\x0b""spelling.DB""\x0e""spelling.baseA\x0e""spelling.baseB"
+	"\x09""record.DB""\x0c""record.baseA\x0c""record.baseB"
+	"\x0b""position.DB""\x0e""position.baseA\x0e""position.baseB"
+	"\x0b""postlist.DB""\x0e""postlist.baseA\x0e""postlist.baseB"
+	"\x08""iamchert";
+    string filepath = db_dir;
+    filepath += '/';
+    for (const char * p = filenames; *p; p += *p + 1) {
+	string leaf(p + 1, size_t(static_cast<unsigned char>(*p)));
+        filepath.replace(db_dir.size() + 1, string::npos, leaf);
 	if (file_exists(filepath)) {
 	    // FIXME - there is a race condition here - the file might get
 	    // deleted between the file_exists() test and the access to send it.
-	    conn.send_message(REPL_REPLY_DB_FILENAME, *i, end_time);
+	    conn.send_message(REPL_REPLY_DB_FILENAME, leaf, end_time);
 	    conn.send_file(REPL_REPLY_DB_FILEDATA, filepath, end_time);
 	}
     }
