@@ -1,3 +1,8 @@
+Sun Jul 19 07:49:46 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/extra.i,python/pythontest2.py: Update matchspy support,
+	  and add tests of use of matchspies.
+
 Sun Jul 19 07:49:10 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* xapian.i: Update with new MatchSpy support.

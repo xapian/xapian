@@ -32,26 +32,10 @@
             SWIG_fail;
         }
     }
-    PyObject * get_values_as_dict(Xapian::valueno valno) {
-        return value_map_to_dict($self->get_values(valno));
+    PyObject * get_values_as_dict() {
+        return value_map_to_dict($self->get_values());
     }
 }
-
-%extend TermCountMatchSpy {
-    %feature("nothread") get_terms_as_dict;
-    %exception get_terms_as_dict {
-        try {
-            $action
-        } catch (...) {
-            Xapian::SetPythonException();
-            SWIG_fail;
-        }
-    }
-    PyObject * get_terms_as_dict(std::string prefix) {
-        return value_map_to_dict($self->get_terms(prefix));
-    }
-}
-
 
 %pythoncode %{
 
@@ -1045,18 +1029,26 @@ for item in dir():
 __all__ = tuple(__all__)
 
 
-# Fix up MultipleMatchDecider so that it keeps a python reference to the
-# deciders supplied to it so that they won't be deleted before the
-# MultipleMatchDecider.  This hack can probably be removed once xapian bug #186
-# is fixed.
-_multiple_match_decider_append_orig = MultipleMatchDecider.append
-def _multiple_match_decider_append(self, decider):
+# Fix up Enquire so that it keeps a python reference to the deciders supplied
+# to it so that they won't be deleted before the Enquire object.  This hack can
+# probably be removed once xapian bug #186 is fixed.
+_enquire_add_matchspy_orig = Enquire.add_matchspy
+def _enquire_match_spy_add(self, decider):
     if not hasattr(self, '_deciders'):
         self._deciders = []
     self._deciders.append(decider)
-    _multiple_match_decider_append_orig(self, decider)
-_multiple_match_decider_append.__doc__ = MultipleMatchDecider.append.__doc__
-MultipleMatchDecider.append = _multiple_match_decider_append
+    _enquire_add_matchspy_orig(self, decider)
+_enquire_match_spy_add.__doc__ = Enquire.add_matchspy.__doc__
+Enquire.add_matchspy = _enquire_match_spy_add
+
+_enquire_clear_matchspies_orig = Enquire.clear_matchspies
+def _enquire_match_spies_clear(self):
+    _enquire_clear_matchspies_orig(self, decider)
+    if hasattr(self, '_deciders'):
+        del self._deciders
+_enquire_match_spies_clear.__doc__ = Enquire.clear_matchspies.__doc__
+Enquire.clear_matchspies = _enquire_match_spies_clear
+
 
 
 # Fix up ValueRangeProcessor by replacing its __call__ method (which doesn't
