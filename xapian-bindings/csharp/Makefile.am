@@ -26,6 +26,7 @@ XAPIAN_SWIG_CS_SRCS=\
 	Flint.cs \
 	InMemory.cs \
 	MatchDecider.cs \
+	MatchSpy.cs \
 	MSet.cs \
 	MSetIterator.cs \
 	MultiValueSorter.cs \

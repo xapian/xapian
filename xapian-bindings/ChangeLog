@@ -1,3 +1,7 @@
+Sun Jul 19 07:48:51 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* csharp/Makefile.am: Add MatchSpy.cs to build.
+
 Tue Nov 27 10:34:32 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/extra.i,python/util.i: Add "nothread" declarations for
