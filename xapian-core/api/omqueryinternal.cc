@@ -638,27 +638,6 @@ Xapian::Query::Internal::unserialise(const string &,
 }
 #endif
 
-/** Swap the contents of this with another Xapian::Query::Internal,
- *  in a way which is guaranteed not to throw.  This is
- *  used with the assignment operator to make it exception
- *  safe.
- *  It's important to adjust swap with any addition of
- *  member variables!
- */
-void
-Xapian::Query::Internal::swap(Xapian::Query::Internal &other)
-{
-    std::swap(op, other.op);
-    subqs.swap(other.subqs);
-    std::swap(parameter, other.parameter);
-    std::swap(tname, other.tname);
-    std::swap(str_parameter, other.str_parameter);
-    std::swap(term_pos, other.term_pos);
-    std::swap(wqf, other.wqf);
-    std::swap(external_source, other.external_source);
-    std::swap(external_source_owned, other.external_source_owned);
-}
-
 Xapian::Query::Internal::Internal(const Xapian::Query::Internal &copyme)
 	: Xapian::Internal::RefCntBase(),
 	  op(copyme.op),

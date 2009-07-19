@@ -1,3 +1,8 @@
+Sun Jul 19 17:24:02 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc,include/xapian/query.h: Remove unused
+	  method Xapian::Query::Internal::swap().
+
 Sun Jul 19 16:22:01 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/valuerangeproc.cc,include/xapian/queryparser.h: Move support for

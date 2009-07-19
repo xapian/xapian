@@ -386,15 +386,6 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 	/// Flag, indicating whether the external source is owned by the query.
 	bool external_source_owned;
 
-	/** swap the contents of this with another Xapian::Query::Internal,
-	 *  in a way which is guaranteed not to throw.  This is
-	 *  used with the assignment operator to make it exception
-	 *  safe.
-	 *  It's important to adjust swap with any addition of
-	 *  member variables!
-	 */
-	void swap(Query::Internal &other);
-
 	/// Copy another Xapian::Query::Internal into self.
 	void initialise_from_copy(const Query::Internal & copyme);
 
