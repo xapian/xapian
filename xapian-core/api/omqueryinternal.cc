@@ -114,6 +114,20 @@ is_leaf(Xapian::Query::Internal::op_t op)
     return (op == Xapian::Query::Internal::OP_LEAF);
 }
 
+inline bool
+is_distributable(Xapian::Query::Internal::op_t op)
+{
+    switch (op) {
+	case Xapian::Query::OP_AND:
+	case Xapian::Query::OP_OR:
+	case Xapian::Query::OP_XOR:
+	case Xapian::Query::OP_SYNONYM:
+	    return true;
+	default:
+	    return false;
+    }
+}
+
 // Methods for Xapian::Query::Internal
 
 /** serialising method, for network matches.
@@ -1047,7 +1061,7 @@ Xapian::Query::Internal::add_subquery(const Xapian::Query::Internal * subq)
     Assert(!is_leaf(op));
     if (subq == 0) {
 	subqs.push_back(0);
-    } else if (op == subq->op && (op == OP_AND || op == OP_OR || op == OP_XOR || op == OP_SYNONYM)) {
+    } else if (op == subq->op && is_distributable(op)) {
 	// Distribute the subquery.
 	for (subquery_list::const_iterator i = subq->subqs.begin();
 	     i != subq->subqs.end(); i++) {
@@ -1064,7 +1078,7 @@ Xapian::Query::Internal::add_subquery_nocopy(Xapian::Query::Internal * subq)
     Assert(!is_leaf(op));
     if (subq == 0) {
 	subqs.push_back(0);
-    } else if (op == subq->op && (op == OP_AND || op == OP_OR || op == OP_XOR || op == OP_SYNONYM)) {
+    } else if (op == subq->op && is_distributable(op)) {
 	// Distribute the subquery.
 	for (subquery_list::const_iterator i = subq->subqs.begin();
 	     i != subq->subqs.end(); i++) {

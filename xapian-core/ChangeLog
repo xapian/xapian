@@ -1,3 +1,7 @@
+Sun Jul 19 13:46:08 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc: Factor out "is_distributable()" function.
+
 Sun Jul 19 11:11:06 GMT 2009  Olly Betts <olly@survex.com>
 
 	* include/xapian/version_h.cc: Fix "dummy" -> "dummy[]" so the code
