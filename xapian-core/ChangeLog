@@ -1,3 +1,7 @@
+Sun Jul 19 14:42:15 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/msetcmp.cc: Eliminate two more relocations.
+
 Sun Jul 19 13:46:08 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/omqueryinternal.cc: Factor out "is_distributable()" function.
