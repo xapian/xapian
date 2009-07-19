@@ -1,3 +1,11 @@
+Sun Jul 19 11:11:06 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/version_h.cc: Fix "dummy" -> "dummy[]" so the code
+	  here is valid C - we only preprocess it, but since the reason for
+	  having the dummy stuff at all is to avoid problems with "smart"
+	  preprocessors which moan if the code isn't valid, this seems worth
+	  fixing.
+
 Sun Jul 19 10:21:41 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_database.cc: Backport the previous change to
