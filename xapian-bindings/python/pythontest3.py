@@ -23,7 +23,7 @@ import xapian
 import shutil
 import random
 
-from .testsuite import *
+from testsuite import *
 
 def setup_database():
     """Set up and return an inmemory database with 5 documents.
