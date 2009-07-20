@@ -1,3 +1,7 @@
+Mon Jul 20 11:58:30 GMT 2009  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Need to run doxy2swig.py from $(srcdir).
+
 Mon Jul 20 03:31:44 GMT 2009  Olly Betts <olly@survex.com>
 
 	* configure.ac,python/doxy2swig.py,python/doxy2swig.py.in: We
