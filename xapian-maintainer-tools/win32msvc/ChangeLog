@@ -1,3 +1,8 @@
+Mon Jul 20 13:38:37 GMT 2009  Olly Betts <olly@survex.com>
+
+	* win32_matcher.mak: Update for removed sources, from patch by Peter
+	  Kelm in ticket#346.
+
 Fri May 08 12:55:32 GMT 2009  Olly Betts <olly@survex.com>
 
 	* config.mak,win32_bindings_python.mak,win32_tests.mak,
