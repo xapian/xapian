@@ -1,3 +1,7 @@
+Mon Jul 20 14:51:10 GMT 2009  Olly Betts <olly@survex.com>
+
+	* python/util.i: Remove unused empty Xapian::PythonProblem C++ class.
+
 Mon Jul 20 14:46:24 GMT 2009  Olly Betts <olly@survex.com>
 
 	* python/pythontest2.py,python/pythontest3.py: Cast the result of

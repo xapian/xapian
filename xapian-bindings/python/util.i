@@ -51,7 +51,6 @@
 
 %{
 namespace Xapian {
-    class PythonProblem {};
     Query *get_py_query(PyObject *obj) {
 #if PY_VERSION_HEX < 0x02050000
 	// In Python 2.4 (and presumably earlier), PyObject_GetAttrString()
