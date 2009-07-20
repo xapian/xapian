@@ -1,3 +1,9 @@
+Mon Jul 20 14:46:24 GMT 2009  Olly Betts <olly@survex.com>
+
+	* python/pythontest2.py,python/pythontest3.py: Cast the result of
+	  integer division to an integer - in Python 3 this returns a float
+	  and even in Python 2 the cast makes the intent clearer.
+
 Mon Jul 20 14:03:39 GMT 2009  Olly Betts <olly@survex.com>
 
 	* python/extra.i,python/util.i: Use a multi-arg argout typemap to
