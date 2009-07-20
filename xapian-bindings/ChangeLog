@@ -1,3 +1,10 @@
+Mon Jul 20 03:31:44 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac,python/doxy2swig.py,python/doxy2swig.py.in: We
+	  explicitly run doxy2swig.py from the Makefile using $(PYTHON) so
+	  there is no need to AC_CONFIG_FILES it to substitute @PYTHON@ in the
+	  #! line.
+
 Mon Jul 20 02:40:09 GMT 2009  Olly Betts <olly@survex.com>
 
 	* python/pythontest3.py,python/smoketest3.py: Fix "from .testsuite

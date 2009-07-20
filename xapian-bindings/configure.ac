@@ -914,8 +914,6 @@ AC_CONFIG_FILES([Makefile
  ruby/Makefile ruby/docs/Makefile
  xapian-bindings.spec])
 dnl guile/Makefile
-AC_CONFIG_FILES([python/doxy2swig.py],
-		[chmod +x python/doxy2swig.py])
 AC_OUTPUT
 
 echo ""
