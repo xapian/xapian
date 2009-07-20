@@ -1,3 +1,10 @@
+Mon Jul 20 13:37:56 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in: Add wrapper function get_mset() and it's
+	internal function get_mset1. Fix newN() function to handle
+	multiple query argument well by introducing typemap which
+	maps perl array to SV **.
+
 Fri Jul 17 14:52:41 GMT 2009  Kosei Moriyama <cou929@gmail.com>
 
 	* perl/Makefile.am,perl/generate-perl-exceptions: Add exception
