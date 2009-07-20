@@ -1,3 +1,7 @@
+Mon Jul 20 04:48:32 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/queryoptimiser.cc: Fix build with assertions enabled.
+
 Mon Jul 20 04:47:33 GMT 2009  Olly Betts <olly@survex.com>
 
 	* include/xapian/query.h: Update doc comment - OP_SYNONYM can take any

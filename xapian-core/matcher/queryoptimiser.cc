@@ -419,7 +419,7 @@ QueryOptimiser::do_synonym(const Xapian::Query::Internal *query, double factor)
     // since conceptually the synonym is one "virtual" term.  If we were
     // to combine multiple occurrences of the same synonym expansion into
     // a single instance with wqf set, we would want to use the wqf.
-    AssertEq(query->wqf, 0);
+    AssertEq(query->get_wqf(), 0);
 
     // We build an OP_OR tree for OP_SYNONYM and then wrap it in a
     // SynonymPostList, which supplies the weights.
