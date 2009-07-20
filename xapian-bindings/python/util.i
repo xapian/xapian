@@ -42,6 +42,10 @@
 /* Wrap get_description() methods as str(). */
 %rename(__str__) get_description;
 
+/* Hide "unsafe" C++ iterator methods. */
+%rename(_metadata_keys_begin) metadata_keys_begin;
+%rename(_metadata_keys_end) metadata_keys_end;
+
 %{
 namespace Xapian {
     class PythonProblem {};

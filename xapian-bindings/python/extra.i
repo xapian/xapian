@@ -549,11 +549,6 @@ def _database_gen_metadata_keys_iter(self, prefix=""):
                     self._metadata_keys_end(prefix),
                     return_strings=True)
 Database.metadata_keys = _database_gen_metadata_keys_iter
-Database._metadata_keys_begin = Database.metadata_keys_begin
-del Database.metadata_keys_begin
-Database._metadata_keys_end = Database.metadata_keys_end
-del Database.metadata_keys_end
-
 
 # Modify Document to add an "__iter__()" method and a "termlist()" method.
 def _document_gen_termlist_iter(self):

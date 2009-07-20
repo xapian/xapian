@@ -1,3 +1,11 @@
+Mon Jul 20 12:32:10 GMT 2009  Olly Betts <olly@survex.com>
+
+	* python/extra.i,python/util.i: Rename metadata_keys_begin and
+	  metadata_keys_end using %rename rather than using delete and
+	  assignment in Python.  This should reduce start-up time for the
+	  Python bindings a fraction.  Taken from Peter Kelm's patch in
+	  ticket#246.
+
 Mon Jul 20 11:58:30 GMT 2009  Olly Betts <olly@survex.com>
 
 	* python/Makefile.am: Need to run doxy2swig.py from $(srcdir).
