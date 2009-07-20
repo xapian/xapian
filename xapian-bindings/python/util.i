@@ -43,8 +43,11 @@
 %rename(__str__) get_description;
 
 /* Hide "unsafe" C++ iterator methods. */
-%rename(_metadata_keys_begin) metadata_keys_begin;
-%rename(_metadata_keys_end) metadata_keys_end;
+%rename(_metadata_keys_begin) Xapian::Database::metadata_keys_begin;
+%rename(_metadata_keys_end) Xapian::Database::metadata_keys_end;
+
+/* We replace the get_hit() method with one which returns an MSetitem. */
+%rename(_get_hit_internal) Xapian::MSet::get_hit;
 
 %{
 namespace Xapian {

@@ -127,9 +127,6 @@ MSet.__iter__ = _mset_gen_iter
 
 MSet.__len__ = MSet.size
 
-# We replace the get_hit() method with one which returns an MSetItem.  We first
-# have to copy the internal method, so that we can call it.
-MSet._get_hit_internal = MSet.get_hit
 def _mset_getitem(self, index):
     """Get an item from the MSet.
 
