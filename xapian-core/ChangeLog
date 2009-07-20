@@ -1,3 +1,8 @@
+Mon Jul 20 04:47:33 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/query.h: Update doc comment - OP_SYNONYM can take any
+	  number of subqueries too.
+
 Sun Jul 19 17:26:53 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/omqueryinternal.cc,include/xapian/query.h,matcher/localmatch.cc:
