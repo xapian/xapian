@@ -1,3 +1,8 @@
+Mon Jul 20 13:43:48 GMT 2009  Olly Betts <olly@survex.com>
+
+	* win32_api.mak: Update for added sources, from patch by Peter Kelm in
+	  ticket#346.
+
 Mon Jul 20 13:38:37 GMT 2009  Olly Betts <olly@survex.com>
 
 	* win32_matcher.mak: Update for removed sources, from patch by Peter
