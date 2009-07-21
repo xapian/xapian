@@ -1,3 +1,9 @@
+Tue Jul 21 17:05:28 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Ignore Xapian::Query::Query for taking away
+	duplication of definition. Change some argument handling process
+	of Xapian::Query::new* functions.
+
 Mon Jul 20 13:37:56 GMT 2009  Kosei Moriyama <cou929@gmail.com>
 
 	* perl/util.i.in: Add wrapper function get_mset() and it's

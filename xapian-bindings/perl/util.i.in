@@ -6,6 +6,7 @@
 %rename(query_new3scale) Xapian::Query::Query(Query::op op, Xapian::Query q, double parameter);
 %rename(query_new3range) Xapian::Query::Query(Query::op op, Xapian::valueno valno, const std::string &value);
 %rename(query_new4range) Xapian::Query::Query(Query::op op, Xapian::valueno valno, const std::string &begin, const std::string &end);
+%ignore Xapian::Query::Query;
 
 %rename(set_query1) Xapian::Enquire::set_query(const Query & query);
 %rename(set_query2) Xapian::Enquire::set_query(const Query & query, termcount qlen);
@@ -255,7 +256,7 @@ sub new {
   my $class = $_[0];
   my $query;
 
-  if( @_ == 1 ) {
+  if( @_ == 2 ) {
     $query = new_query_new1(@_);
   } else {
     my $op = $_[1];
@@ -263,25 +264,34 @@ sub new {
 	Carp::croak( "USAGE: $class->new('term') or $class->new(OP, <args>)" );
     }
     if( $op == 8 ) { # FIXME: 8 is OP_VALUE_RANGE; eliminate hardcoded literal
-      if( @_ != 4 ) {
+      if( @_ != 5 ) {
 	Carp::croak( "USAGE: $class->new(OP_VALUE_RANGE, VALNO, START, END)" );
       }
       $query = new_query_new4range( @_ );
     } elsif( $op == 9 ) { # FIXME: OP_SCALE_WEIGHT
-      if( @_ != 3 ) {
+      if( @_ != 4 ) {
         Carp::croak( "USAGE: $class->new(OP_SCALE_WEIGHT, QUERY, FACTOR)" );
       }
       $query = new_query_new3scale( @_ );
     } elsif( $op == 11 || $op == 12 ) { # FIXME: OP_VALUE_GE, OP_VALUE_LE; eliminate hardcoded literals
-      if( @_ != 3 ) {
+      if( @_ != 4 ) {
         Carp::croak( "USAGE: $class->new(OP_VALUE_[GL]E, VALNO, LIMIT)" );
       }
       $query = new_query_new3range( @_ );
     } else {
-      my $items = @_ - 2;
       shift @_;
       shift @_;
-      $query = Search::Xapian::newN( $op, $items, \@_ );
+      my $items = scalar(@_);
+      my @arr;
+      foreach my $item (@_) {
+	  if ( ref( $item ) eq 'Search::Xapian::Query' ) {
+	      push(@arr, ref($item));
+	  } else {
+	      push(@arr, $item);
+	  }
+      }
+
+     $query = Search::Xapian::newN( $op, $items, \@arr );
     }
   }
   return $query;
