@@ -1,8 +1,104 @@
- 12996       olly Mon Jul 06 04:30:59 GMT 2009  Olly Betts <olly@survex.com>
+ 13099       olly Mon Jul 20 04:48:32 GMT 2009  Olly Betts <olly@survex.com>
+
+backport fodder:
 
  12994       olly Sun Jul 05 16:28:54 GMT 2009  Olly Betts <olly@survex.com>
 	* backends/flint/flint_database.cc,backends/flint/flint_database.h:
 	  Backport the lazyupdate changes from chert to flint.
+
+trunk only:
+
+ 13082       olly Sat Jul 18 17:12:58 GMT 2009  Olly Betts <olly@survex.com>
+	* languages/compiler/generator.c: Merge among table entries which are
+	  substrings of others in the same among.  We could be much cleverer
+	  and merge between amongs, and allow overlaps, etc, but this get us 
+	  a nice size reduction for a small amount of effort, so it'll do for
+	  now.
+
+ 13048    richard Tue Jul 14 12:36:46 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+	* common/output.h: Display a "<NULL $CLASSNAME>" message in debug
+	  output when a pointer being output is NULL.  Previously, NULL
+	  Query::Internal pointers were causing segfaults with debug
+	  logging for many tests (eg, emptyquery1).
+
+ 13086       olly Sun Jul 19 08:04:48 GMT 2009  Olly Betts <olly@survex.com>
+	* backends/chert/chert_database.cc: Instead of dynamically building a
+	  std::list of the leafnames we need to replicate, just list them in a
+	  compact format in the source file.  Results in smaller code and
+	  should be faster and smaller at runtime.
+ 13087       olly Sun Jul 19 10:21:41 GMT 2009  Olly Betts <olly@survex.com>
+	* backends/flint/flint_database.cc: Backport the previous change to
+	  flint.
+
+ 13093       olly Sun Jul 19 16:22:01 GMT 2009  Olly Betts <olly@survex.com>
+	* api/valuerangeproc.cc,include/xapian/queryparser.h: Move support for
+	  a prefix/suffix from NumberValueRangeProcessor to
+	  StringValueRangeProcessor, and change NumberValueRangeProcessor and
+	  DateValueRangeProcessor to inherit from StringValueRangeProcessor so
+	  all three now support a prefix/suffix.  (ticket#220)
+	* tests/queryparsertest.cc: Add test coverage for new features.
+
+ 13099       olly Mon Jul 20 04:48:32 GMT 2009  Olly Betts <olly@survex.com>
+	* matcher/queryoptimiser.cc: Fix build with assertions enabled.
+ 13095       olly Sun Jul 19 17:26:53 GMT 2009  Olly Betts <olly@survex.com>
+	* api/omqueryinternal.cc,include/xapian/query.h,matcher/localmatch.cc:
+	  Remove wqf member of Xapian::Query::Internal and store the wqf in
+	  the parameter member instead.  (ticket#280)
+
+broken in 1.1.1 by fix in 1.0.13 I think:
+ 13009       olly Wed Jul 08 14:30:53 GMT 2009  Olly Betts <olly@survex.com>
+	* tests/harness/backendmanager_remotetcp.cc: Sort out the clash
+	  between two different patches to fix leaking file descriptors.
+	  Also, call clean_up() from the destructor to correctly handle the
+	  case when a BackendManagerRemoteTcp is created by a test case
+	  directly.
+
+ 13038       olly Sun Jul 12 14:47:17 GMT 2009  Olly Betts <olly@survex.com>
+	* backends/chert/: Add new ChertLazyTable class and subclass lazy
+	  tables from it so that we only need to implement the common
+	  differences once.
+
+ 13025       olly Sat Jul 11 12:54:30 GMT 2009  Olly Betts <olly@survex.com>
+	* api/leafpostlist.cc,api/postlist.cc,common/leafpostlist.h,
+	  common/postlist.h,common/submatch.h,matcher/,tests/api_anydb.cc,
+	  tests/api_opsynonym.cc: Count how many leaf subqueries match for the
+	  document with the highest weight when calculating the percentage
+	  weights, instead of using the termlist of that document (ticket#363).
+	  Also fixes XOR with a SYNONYM subquery which could achieve 100%
+	  weight before.
+ 13029       olly Sun Jul 12 08:17:02 GMT 2009  Olly Betts <olly@survex.com>
+	* matcher/remotesubmatch.cc: Percentage scaling for remote results is
+	  handled in a different way, so replace FIXME with comment noting
+	  this.
+ 13030    richard Sun Jul 12 09:32:11 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+	* matcher/andmaybepostlist.cc: Add DEBUGCALL macro to
+	  count_matching_subqs() to fix build with assertions.
+ 13032       olly Sun Jul 12 09:43:06 GMT 2009  Olly Betts <olly@survex.com>
+	* matcher/queryoptimiser.cc: Don't just skip counting subqueries which
+	  are the RHS of OP_AND_NOT - skip based on factor == 0.0, which means
+	  we get the RHS of OP_FILTER too.
+	* tests/api_percentages.cc: Add topercent4 as a regression test for
+	  this.
+ 13034       olly Sun Jul 12 11:40:26 GMT 2009  Olly Betts <olly@survex.com>
+	* tests/api_opsynonym.cc: Remove debug "cout" calls.
+
+ 13005       olly Tue Jul 07 09:31:35 GMT 2009  Olly Betts <olly@survex.com>
+	* queryparser/queryparser.lemony: If default_op is OP_NEAR or OP_PHRASE
+	  then make the default window size (9 + no_of_terms), like it would be
+	  for an explicit NEAR or PHRASE without an explicit window size.
+	  (ticket#254)
+	* tests/queryparsertest.cc: Add feature tests for this.
+ 13035       olly Sun Jul 12 12:01:25 GMT 2009  Olly Betts <olly@survex.com>
+	* queryparser/queryparser.lemony: Fix memory leak accidentally
+	  introduced in r13005.
+
+ 13002       olly Tue Jul 07 07:18:15 GMT 2009  Olly Betts <olly@survex.com>
+	* HACKING,api/,backends/chert/,backends/flint/,
+	  backends/remote/remote-database.cc,common/,languages/steminternal.h,
+	  net/,queryparser/queryparser.cc,tests/harness/,tests/internaltest.cc,
+	  tests/perftest/freemem.cc,tests/perftest/perftest_randomidx.cc,
+	  tests/stemtest.cc,unicode/utf8itor.cc: Update to use C++ forms for
+	  ISO C standard headers (ticket#330).
 
  12993       olly Sun Jul 05 13:12:53 GMT 2009  Olly Betts <olly@survex.com>
 	* tests/harness/backendmanager.cc,tests/harness/backendmanager.h: Move
@@ -29,8 +125,6 @@
 	  Make ChertTable_base::do_unpack_uint() just a static non-class
 	  function.  Use string::+= to build up the error string in it, and
 	  mark the error case as rare.
-
-trunk only:
 
  12971       olly Wed Jul 01 04:12:22 GMT 2009  Olly Betts <olly@survex.com>
 	* docs/spelling.rst: Omega now supports spelling correction.
@@ -421,6 +515,80 @@ debug code:
   improvement, but will particularly speed up debug logging as that converts a
   lot of integers to strings).
 
+Xapian-core 1.0.14 (2009-07-21):
+
+API:
+
+* When using more than one ValueRangeProcessor, QueryParser didn't reset the
+  begin and end strings to ignore any changes made by a ValueRangeProcessor
+  which returned false, so further ValueRangeProcessors would see any changes
+  it had made.  This is now fixed, and test coverage improved.
+
+testsuite:
+
+* The test harness code which launches xapian-tcpsrv child processes was
+  failing to close a file descriptor for each one launched due to a bug in
+  the code which is meant to track them.  This was causing apitest to fail
+  on OpenBSD (ticket#382).  Also wait between testcases for any spawned
+  xapian-tcpsrv processes to exit to avoid spurious failures when a database is
+  reused by the next testcase.
+
+* tests/runtest.in: Use "ulimit -n" where available to limit the number of
+  available file descriptors to 64 so we catch file descriptor leaks sooner.
+
+* When measuring CPU time used for scalability tests, we no longer try to
+  include the CPU time used by child processes, as we can only get that for
+  child processes which have exited and it's hard to ensure that they have
+  with the current framework.  Although this means we only tests the
+  client-side scaling for remote tests, the local backend tests cover most of
+  the work done by the server part of the remote backend.
+
+* apitest: In testcase topercent2, don't expect max_attained or max_possible to
+  be exact as rounding errors in different ways of calculating can cause small
+  variations.  On trunk we already have similar code because the new weighting
+  scheme stuff gives different bounds in the different cases.  This should fix
+  testsuite failures seen on some of the Debian and Ubuntu buildds.
+
+* The test harness now always reports the full exception message (was
+  conditional on --verbose), and output for different exception types and
+  other causes of failure is now more consistent.
+
+* For scalability tests, the test harness now increases the number of
+  repetitions until the first run takes more than 0.001 seconds, to avoid
+  trying to base calculations on a length of time we probably can't reliably
+  measure to start with.
+
+* Add test coverage for Stem::get_description() for each supported language.
+
+* queryparsertest: Reenable tests which require the inmemory backend to be
+  enabled by fixing typo XAPIAN_HAS_BACKEND_INMEMORY ->
+  XAPIAN_HAS_INMEMORY_BACKEND.
+
+flint backend:
+
+* Use F_FULLFSYNC where available (Mac OS X currently) to ensure that changes
+  have been committed to disk.  (ticket#288)
+
+remote backend:
+
+* Fix handling of percentage weights in various cases when we're searching
+  multiple remote databases or a mix of local and remote databases.
+
+build system:
+
+* configure: -Wshadow produces false positives with GCC 4.0, so only enable it
+  for >= 4.1 since we enable -Werror for maintainer-mode builds for GCC >= 4.0.
+
+* configure: Check that we can find the valgrind/memcheck.h header as well as
+  the valgrind binary.
+
+* Change how snowball generates the data used by its among operation - instead
+  of using pointers to the strings in struct among, store an offset into a
+  constant pool, as this reduces the number of relocations by about 2300, which
+  should decrease the time taken by the dynamic linker when loading the
+  library.  This also reduces the size of the shared library significantly
+  (on x86-64 Linux, the stripped shared library is 4% smaller).
+
 Xapian-core 1.0.13 (2009-05-23):
 
 API:
@@ -431,7 +599,7 @@ API:
   is handled.  This change isn't observable using Document::get_value(),
   but can be noticed when iterating with Document::values_begin(), using
   Document::values_count(), or trying to delete the value with
-  Document::remove_value().  
+  Document::remove_value().
 
 testsuite:
 

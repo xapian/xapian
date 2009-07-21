@@ -1,3 +1,7 @@
+Tue Jul 21 17:08:41 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog and sync with 1.0.14.
+
 Mon Jul 20 04:48:32 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/queryoptimiser.cc: Fix build with assertions enabled.
