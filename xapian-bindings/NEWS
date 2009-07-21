@@ -1,3 +1,20 @@
+Xapian-bindings 1.0.14 (2009-07-21):
+
+General:
+
+* configure: If $CSC is empty, don't try to run it.  This was a cosmetic bug
+  and the only side-effect was an odd looking message.
+
+Python:
+
+* Rename methods at build-time using SWIG rather than a run-time in Python, as
+  the latter approach adds a small time overhead when the module is being
+  loaded.
+
+Ruby:
+
+* Fix to accept an integer value > MAXINT for a double parameter.
+
 Xapian-bindings 1.0.13 (2009-05-23):
 
 Packaging:
