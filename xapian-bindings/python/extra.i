@@ -103,12 +103,22 @@ class MSetIter(object):
     def __iter__(self):
         return self
 
+    # For Python2:
     def next(self):
         if self._iter == self._end:
             raise StopIteration
         else:
             r = MSetItem(self._iter, self._mset)
             self._iter.next()
+            return r
+
+    # For Python3:
+    def __next__(self):
+        if self._iter == self._end:
+            raise StopIteration
+        else:
+            r = MSetItem(self._iter, self._mset)
+            next(self._iter)
             return r
 
 
@@ -188,12 +198,22 @@ class ESetIter(object):
     def __iter__(self):
         return self
 
+    # For Python2:
     def next(self):
         if self._iter == self._end:
             raise StopIteration
         else:
             r = ESetItem(self._iter)
             self._iter.next()
+            return r
+
+    # For Python3:
+    def __next__(self):
+        if self._iter == self._end:
+            raise StopIteration
+        else:
+            r = ESetItem(self._iter)
+            next(self._iter)
             return r
 
 # Modify the ESet to allow access to the python iterators, and have other
@@ -369,9 +389,26 @@ class TermIter(object):
     def __iter__(self):
         return self
 
+    # For Python2:
     def next(self):
         if not self._moved:
             self._iter.next()
+            self._moved = True
+
+        if self._iter == self._end:
+            self._lastterm = None
+            raise StopIteration
+        else:
+            self._lastterm = self._iter.get_term()
+            self._moved = False
+            if self._return_strings:
+                return self._lastterm
+            return TermListItem(self, self._lastterm)
+
+    # For Python3:
+    def __next__(self):
+        if not self._moved:
+            next(self._iter)
             self._moved = True
 
         if self._iter == self._end:
@@ -862,9 +899,22 @@ class PostingIter(object):
     def __iter__(self):
         return self
 
+    # For Python2:
     def next(self):
         if not self._moved:
             self._iter.next()
+            self._moved = True
+
+        if self._iter == self._end:
+            raise StopIteration
+        else:
+            self._moved = False
+            return PostingItem(self)
+
+    # For Python3:
+    def __next__(self):
+        if not self._moved:
+            next(self._iter)
             self._moved = True
 
         if self._iter == self._end:
@@ -927,12 +977,22 @@ class PositionIter(object):
     def __iter__(self):
         return self
 
+    # For Python2:
     def next(self):
         if self.iter==self.end:
             raise StopIteration
         else:
             r = self.iter.get_termpos()
             self.iter.next()
+            return r
+
+    # For Python3:
+    def __next__(self):
+        if self.iter==self.end:
+            raise StopIteration
+        else:
+            r = self.iter.get_termpos()
+            next(self.iter)
             return r
 
 # Modify Database to add a "positionlist()" method.
@@ -978,12 +1038,22 @@ class ValueIter(object):
     def __iter__(self):
         return self
 
+    # For Python2:
     def next(self):
         if self.iter==self.end:
             raise StopIteration
         else:
             r = ValueItem(self.iter.get_valueno(), self.iter.get_value())
             self.iter.next()
+            return r
+
+    # For Python3:
+    def __next__(self):
+        if self.iter==self.end:
+            raise StopIteration
+        else:
+            r = ValueItem(self.iter.get_valueno(), self.iter.get_value())
+            next(self.iter)
             return r
 
 # Modify Document to add a "values()" method.
@@ -1013,6 +1083,15 @@ del Query_unserialise
 # Add wrappers for Query::MatchAll and Query::MatchNothing
 Query.MatchAll = Query("")
 Query.MatchNothing = Query()
+
+# Require to support the non-pythonic iterators for Python 3 - these can be
+# removed once support for the non-pythonic iterators is dropped in 1.3.0.
+ESetIterator.__next__ = lambda self: ESetIterator.next(self)
+MSetIterator.__next__ = lambda self: MSetIterator.next(self)
+PostingIterator.__next__ = lambda self: PostingIterator.next(self)
+PositionIterator.__next__ = lambda self: PositionIterator.next(self)
+TermIterator.__next__ = lambda self: TermIterator.next(self)
+ValueIterator.__next__ = lambda self: ValueIterator.next(self)
 
 %}
 
