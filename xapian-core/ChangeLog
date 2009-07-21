@@ -1,3 +1,9 @@
+Tue Jul 21 05:13:02 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* api/omqueryinternal.cc,include/xapian/query.h: Remove unused
+	  method Xapian::Query::Internal::swap().
+
 Sat Jul 18 13:14:11 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
