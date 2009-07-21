@@ -1,3 +1,10 @@
+Tue Jul 21 12:38:54 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* loadfile.cc: Avoid infinite loop if the file has been truncated
+	  since we read the length, or on Cygwin with the automatic end of
+	  line translation turned on.
+
 Tue Jul 21 12:37:09 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
