@@ -1,3 +1,9 @@
+Tue Jul 21 13:19:22 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* python/extra.i,python/util.i: Use %rename for renaming get_hit to
+	  _get_hit_internal.  Taken from patch in ticket #246.
+
 Tue Jul 21 13:14:36 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
