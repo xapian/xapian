@@ -1,3 +1,14 @@
+Tue Jul 21 12:22:39 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* languages/compiler/generator.c,languages/steminternal.cc,
+	  languages/steminternal.h: Change how snowball generates the data used
+	  by among - instead of using pointers to the strings in struct among,
+	  store an offset into a constant pool, as this reduces the number of
+	  relocations by about 2300, which should decrease the time taken
+	  by the dynamic linker when loading the library.  This also results
+	  in a significantly smaller shared library.
+
 Tue Jul 21 11:48:13 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

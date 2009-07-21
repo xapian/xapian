@@ -88,7 +88,6 @@ static void wv(struct generator * g, struct name * p) {  /* reference to variabl
 
 static void wlitarray(struct generator * g, symbol * p) {  /* write literal array */
 
-    ws(g, "{ ");
     {
         int i;
         for (i = 0; i < SIZE(p); i++) {
@@ -107,7 +106,6 @@ static void wlitarray(struct generator * g, symbol * p) {  /* write literal arra
             if (i < SIZE(p) - 1) ws(g, ", ");
         }
     }
-    ws(g, " }");
 }
 
 static void wlitref(struct generator * g, symbol * p) {  /* write ref to literal array */
@@ -115,9 +113,9 @@ static void wlitref(struct generator * g, symbol * p) {  /* write ref to literal
     if (SIZE(p) == 0) ws(g, "0"); else {
         struct str * s = g->outbuf;
         g->outbuf = g->declarations;
-        ws(g, "static const symbol s_"); wi(g, g->literalstring_count); ws(g, "[] = ");
+        ws(g, "static const symbol s_"); wi(g, g->literalstring_count); ws(g, "[] = { ");
         wlitarray(g, p);
-        ws(g, ";\n");
+        ws(g, " };\n");
         g->outbuf = s;
         ws(g, "s_"); wi(g, g->literalstring_count);
         g->literalstring_count++;
@@ -1198,7 +1196,7 @@ static void generate_substring(struct generator * g, struct node * p) {
     }
 
     if (x->command_count == 0 && x->starter == 0) {
-        w(g, "~Mif (!(find_among~S0(~Za_~I0, ~I1, ");
+        w(g, "~Mif (!(find_among~S0(s_pool, ~Za_~I0, ~I1, ");
 	if (x->have_funcs) {
 	    w(g, "af_~I0, af");
 	} else {
@@ -1207,7 +1205,7 @@ static void generate_substring(struct generator * g, struct node * p) {
 	wp(g, "))) ~f", p);
 	wp(g, shown_comment ? "~N" : "~C", p);
     } else {
-        w(g, "~Mamong_var = find_among~S0(~Za_~I0, ~I1, ");
+        w(g, "~Mamong_var = find_among~S0(s_pool, ~Za_~I0, ~I1, ");
 	if (x->have_funcs) {
 	    w(g, "af_~I0, af");
 	} else {
@@ -1402,25 +1400,46 @@ static void generate_routine_headers(struct generator * g) {
     }
 }
 
+static unsigned pool_size = 0;
+
+static void generate_among_pool(struct generator * g, struct among * x) {
+
+    while (x) {
+	struct amongvec * v = x->b;
+	int have_funcs = 0;
+	int i;
+
+	g->I[0] = x->number;
+	
+	for (i = 0; i < x->literalstring_count; i++)
+	{
+	    g->I[1] = i;
+	    g->L[0] = v->b;
+	    unless (v->size == 0) {
+		if (pool_size == 0) {
+		    w(g, "static const symbol s_pool[] = {~N");
+		}
+		g->I[2] = pool_size;
+		w(g, "#define s_~I0_~I1 ~I2~N");
+		w(g, "~A0,~N");
+		pool_size += v->size;
+	    }
+	    v++;
+	}
+
+	x = x->next;
+    }
+    if (pool_size != 0) {
+	w(g, "};~N~N");
+    }
+}
+
 static void generate_among_table(struct generator * g, struct among * x) {
 
     struct amongvec * v = x->b;
     int have_funcs = 0;
 
     g->I[0] = x->number;
-    {
-        int i;
-        for (i = 0; i < x->literalstring_count; i++)
-        {
-            g->I[1] = i;
-            g->I[2] = v->size;
-            g->L[0] = v->b;
-            unless (v->size == 0)
-                w(g, "static const symbol s_~I0_~I1[~I2] = ~A0;~N");
-            v++;
-        }
-    }
-
     g->I[1] = x->literalstring_count;
     w(g, "~N~Mstatic const struct among a_~I0[~I1] =~N{~N");
 
@@ -1505,6 +1524,8 @@ static void generate_amongs(struct generator * g) {
 
 	w(g, "};~N~N");
     }
+
+    generate_among_pool(g, x);
 
     until (x == 0) {
         generate_among_table(g, x);
