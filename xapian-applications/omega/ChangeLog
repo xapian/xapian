@@ -1,3 +1,8 @@
+Tue Jul 21 12:37:09 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/overview.rst: www.xapian.org -> xapian.org
+
 Sat May 23 13:59:40 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.0.13.
