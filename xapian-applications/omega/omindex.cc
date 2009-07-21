@@ -208,7 +208,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	try {
 	    text = file_to_string(file);
 	} catch (ReadError) {
-	    cout << "can't read \"" << file << "\" - skipping\n";
+	    cout << "can't read \"" << file << "\" - skipping" << endl;
 	    return;
 	}
 	MyHtmlParser p;
@@ -227,7 +227,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    // indexing is disallowed
 	}
 	if (!p.indexing_allowed) {
-	    cout << "indexing disallowed by meta tag - skipping\n";
+	    cout << "indexing disallowed by meta tag - skipping" << endl;
 	    return;
 	}
 	dump = p.dump;
@@ -256,7 +256,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 		// FIXME: What charset is the file?  Look at contents?
 	    }
 	} catch (ReadError) {
-	    cout << "can't read \"" << file << "\" - skipping\n";
+	    cout << "can't read \"" << file << "\" - skipping" << endl;
 	    return;
 	}
     } else if (mimetype == "application/pdf") {
@@ -265,7 +265,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	try {
 	    dump = stdout_to_string(cmd);
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping\n";
+	    cout << "\"" << cmd << "\" failed - skipping" << endl;
 	    return;
 	}
 	get_pdf_metainfo(safefile, title, keywords);
@@ -315,7 +315,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    xmlparser.parse_html(stdout_to_string(cmd));
 	    dump = xmlparser.dump;
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping\n";
+	    cout << "\"" << cmd << "\" failed - skipping" << endl;
 	    return;
 	}
 
@@ -334,7 +334,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	try {
 	    dump = stdout_to_string(cmd);
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping\n";
+	    cout << "\"" << cmd << "\" failed - skipping" << endl;
 	    return;
 	}
     } else if (mimetype == "application/vnd.ms-excel") {
@@ -342,7 +342,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	try {
 	    dump = stdout_to_string(cmd);
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping\n";
+	    cout << "\"" << cmd << "\" failed - skipping" << endl;
 	    return;
 	}
     } else if (mimetype == "application/vnd.ms-powerpoint") {
@@ -350,7 +350,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	try {
 	    dump = stdout_to_string(cmd);
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping\n";
+	    cout << "\"" << cmd << "\" failed - skipping" << endl;
 	    return;
 	}
     } else if (startswith(mimetype, "application/vnd.openxmlformats-officedocument.")) {
@@ -364,7 +364,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    args = " ppt/slides/slide*.xml";
 	} else {
 	    // Don't know how to index this type.
-	    cout << "unknown Office 2007 MIME subtype - skipping\n";
+	    cout << "unknown Office 2007 MIME subtype - skipping" << endl;
 	    return;
 	}
 	string safefile = shell_protect(file);
@@ -374,7 +374,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    xmlparser.parse_html(stdout_to_string(cmd));
 	    dump = xmlparser.dump;
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping\n";
+	    cout << "\"" << cmd << "\" failed - skipping" << endl;
 	    return;
 	}
     } else if (mimetype == "application/vnd.wordperfect") {
@@ -385,7 +385,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	try {
 	    dump = stdout_to_string(cmd);
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping\n";
+	    cout << "\"" << cmd << "\" failed - skipping" << endl;
 	    return;
 	}
     } else if (mimetype == "application/vnd.ms-works") {
@@ -394,7 +394,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	try {
 	    dump = stdout_to_string(cmd);
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping\n";
+	    cout << "\"" << cmd << "\" failed - skipping" << endl;
 	    return;
 	}
     } else if (mimetype == "application/x-abiword") {
@@ -406,7 +406,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    dump = xmlparser.dump;
 	    md5_string(text, md5);
 	} catch (ReadError) {
-	    cout << "can't read \"" << file << "\" - skipping\n";
+	    cout << "can't read \"" << file << "\" - skipping" << endl;
 	    return;
 	}
     } else if (mimetype == "application/x-abiword-compressed") {
@@ -417,7 +417,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    xmlparser.parse_html(stdout_to_string(cmd));
 	    dump = xmlparser.dump;
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping\n";
+	    cout << "\"" << cmd << "\" failed - skipping" << endl;
 	    return;
 	}
     } else if (mimetype == "text/rtf") {
@@ -430,14 +430,14 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    // produce them.
 	    p.parse_html(stdout_to_string(cmd), "iso-8859-1", true);
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping\n";
+	    cout << "\"" << cmd << "\" failed - skipping" << endl;
 	    return;
 	} catch (bool) {
 	    // MyHtmlParser throws a bool to abandon parsing at </body> or when
 	    // indexing is disallowed
 	}
 	if (!p.indexing_allowed) {
-	    cout << "indexing disallowed by meta tag - skipping\n";
+	    cout << "indexing disallowed by meta tag - skipping" << endl;
 	    return;
 	}
 	dump = p.dump;
@@ -452,7 +452,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    dump = stdout_to_string(cmd);
 	    convert_to_utf8(dump, "ISO-8859-1");
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping\n";
+	    cout << "\"" << cmd << "\" failed - skipping" << endl;
 	    return;
 	}
     } else if (mimetype == "application/x-dvi") {
@@ -466,7 +466,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    dump = stdout_to_string(cmd);
 	    convert_to_utf8(dump, "ISO-8859-1");
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping\n";
+	    cout << "\"" << cmd << "\" failed - skipping" << endl;
 	    return;
 	}
     } else if (mimetype == "image/vnd.djvu") {
@@ -478,7 +478,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	try {
 	    dump = stdout_to_string(cmd);
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping\n";
+	    cout << "\"" << cmd << "\" failed - skipping" << endl;
 	    return;
 	}
     } else if (mimetype == "application/vnd.ms-xpsdocument") {
@@ -498,18 +498,18 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    xpsparser.parse_html(dump);
 	    dump = xpsparser.dump;
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping\n";
+	    cout << "\"" << cmd << "\" failed - skipping" << endl;
 	    return;
 	}
     } else {
 	// Don't know how to index this type.
-	cout << "unknown MIME type - skipping\n";
+	cout << "unknown MIME type - skipping" << endl;
 	return;
     }
 
     // Compute the MD5 of the file if we haven't already.
     if (md5.empty() && md5_file(file, md5) == 0) {
-	cout << "failed to read file to calculate MD5 checksum - skipping\n";
+	cout << "failed to read file to calculate MD5 checksum - skipping" << endl;
 	return;
     }
 
@@ -889,8 +889,8 @@ main(int argc, char **argv)
 	    try {
 		stemmer = Xapian::Stem(optarg);
 	    } catch (const Xapian::Error &) {
-		cerr << "Unknown stemming language '" << optarg << "'.\n";
-		cerr << "Available language names are: "
+		cerr << "Unknown stemming language '" << optarg << "'.\n"
+			"Available language names are: "
 		     << Xapian::Stem::get_available_languages() << endl;
 		return 1;
 	    }
@@ -903,11 +903,11 @@ main(int argc, char **argv)
     }
 
     if (dbpath.empty()) {
-	cerr << PROG_NAME": you must specify a database with --db.\n";
+	cerr << PROG_NAME": you must specify a database with --db." << endl;
 	return 1;
     }
     if (baseurl.empty()) {
-	cerr << PROG_NAME": --url not specified, assuming `/'.\n";
+	cerr << PROG_NAME": --url not specified, assuming `/'." << endl;
     }
     // baseurl mustn't end '/' or you end up with the wrong URL
     // (//thing is different to /thing). We could probably make this
@@ -962,7 +962,7 @@ main(int argc, char **argv)
 	    }
 	}
 	db.flush();
-	// cout << "\n\nNow we have " << db.get_doccount() << " documents.\n";
+	// cout << "\n\nNow we have " << db.get_doccount() << " documents." << endl;
 	exitcode = 0;
     } catch (const Xapian::Error &e) {
 	cout << "Exception: " << e.get_msg() << endl;

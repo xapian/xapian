@@ -1,3 +1,9 @@
+Tue Jul 21 12:43:13 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* omindex.cc: Consistently use endl not "\n" at the end of messages so
+	  that output is flushed.
+
 Tue Jul 21 12:38:54 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
