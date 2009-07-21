@@ -1,3 +1,8 @@
+Tue Jul 21 17:20:01 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/Makefile.am:Fix the way of compile xapian_wrap.cc
+	and Xapian.pm for multiple file compilation.
+
 Tue Jul 21 17:05:28 GMT 2009  Kosei Moriyama <cou929@gmail.com>
 
 	* perl/util.i.in:Ignore Xapian::Query::Query for taking away

@@ -36,7 +36,10 @@ BUILT_SOURCES += except.i
 except.i: $(srcdir)/generate-perl-exceptions ../../xapian-core/exception_data.pm
 	$(PERL) -w -I$(srcdir)/../../xapian-core $(srcdir)/generate-perl-exceptions
 
-xapian_wrap.cc Xapian.pm: $(SWIG_sources) util.i except.i
+xapian_wrap.cc Xapian.pm: xapian_wrap.stamp
+	@stamp=xapian_wrap.stamp; $(make_many_locked)
+xapian_wrap.stamp: $(SWIG_sources) util.i except.i
+	$(multitarget_begin)
 	-rm -f Search Xapian
 	ln -s . Search
 	ln -s lib Xapian
@@ -44,10 +47,11 @@ xapian_wrap.cc Xapian.pm: $(SWIG_sources) util.i except.i
 	    -perl -module Search::Xapian -proxy -const \
 	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp $(SWIG_mainsource)
 	mv xapian_wrap_d.tmp xapian_wrap.d
+	$(multitarget_end)
 
 -include xapian_wrap.d
 
-CLEANFILES = $(BUILT_SOURCES)
+CLEANFILES = $(BUILT_SOURCES) xapian_wrap.stamp
 else
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 endif
