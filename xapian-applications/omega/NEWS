@@ -1,3 +1,17 @@
+Omega 1.0.14 (2009-07-21):
+
+indexers:
+
+* omindex: Make sure that output is flushed after every message, not just after
+  some of them.
+
+portability:
+
+* Avoid infinite loop in omindex and scriptindex when reading files under
+  Cygwin with automatic end of line translation enabled.  This same bug can
+  also manifest on Unix platforms if the file is truncated by another process
+  while being read.
+
 Omega 1.0.13 (2009-05-23):
 
 indexers:
