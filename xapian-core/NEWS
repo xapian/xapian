@@ -1,6 +1,4 @@
- 13116       olly Tue Jul 21 12:22:39 GMT 2009  Olly Betts <olly@survex.com>
-
-Xapian-core 1.0.14 (2009-07-2?):
+Xapian-core 1.0.14 (2009-07-21):
 
 API:
 
@@ -49,24 +47,15 @@ testsuite:
   enabled by fixing typo XAPIAN_HAS_BACKEND_INMEMORY ->
   XAPIAN_HAS_INMEMORY_BACKEND.
 
-matcher:
-
-
 flint backend:
 
 * Use F_FULLFSYNC where available (Mac OS X currently) to ensure that changes
   have been committed to disk.  (ticket#288)
 
-quartz backend:
-
-
 remote backend:
 
 * Fix handling of percentage weights in various cases when we're searching
   multiple remote databases or a mix of local and remote databases.
-
-inmemory backend:
-
 
 build system:
 
@@ -80,23 +69,8 @@ build system:
   of using pointers to the strings in struct among, store an offset into a
   constant pool, as this reduces the number of relocations by about 2300, which
   should decrease the time taken by the dynamic linker when loading the
-  library.  This also results in a significantly smaller shared library.
-
-documentation:
-
-
-examples:
-
-
-portability:
-
-
-packaging:
-
-
-debug code:
-
-
+  library.  This also reduces the size of the shared library significantly
+  (on x86-64 Linux, the stripped shared library is 4% smaller).
 
 Xapian-core 1.0.13 (2009-05-23):
 
