@@ -1,6 +1,6 @@
- 13066       olly Wed Jul 15 12:47:57 GMT 2009  Olly Betts <olly@survex.com>
+ 13116       olly Tue Jul 21 12:22:39 GMT 2009  Olly Betts <olly@survex.com>
 
-Xapian-core 1.0.14 (2009-07-1?):
+Xapian-core 1.0.14 (2009-07-2?):
 
 API:
 
@@ -43,6 +43,12 @@ testsuite:
   trying to base calculations on a length of time we probably can't reliably
   measure to start with.
 
+* Add test coverage for Stem::get_description() for each supported language.
+
+* queryparsertest: Reenable tests which require the inmemory backend to be
+  enabled by fixing typo XAPIAN_HAS_BACKEND_INMEMORY ->
+  XAPIAN_HAS_INMEMORY_BACKEND.
+
 matcher:
 
 
@@ -69,6 +75,12 @@ build system:
 
 * configure: Check that we can find the valgrind/memcheck.h header as well as
   the valgrind binary.
+
+* Change how snowball generates the data used by its among operation - instead
+  of using pointers to the strings in struct among, store an offset into a
+  constant pool, as this reduces the number of relocations by about 2300, which
+  should decrease the time taken by the dynamic linker when loading the
+  library.  This also results in a significantly smaller shared library.
 
 documentation:
 
