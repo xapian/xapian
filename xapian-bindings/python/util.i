@@ -65,6 +65,10 @@ namespace Xapian {
 %rename(__str__) get_description;
 
 
+/* Hide "unsafe" C++ iterator methods. */
+%rename(_metadata_keys_begin) metadata_keys_begin;
+%rename(_metadata_keys_end) metadata_keys_end;
+
 %{
 namespace Xapian {
     Query *get_py_query(PyObject *obj) {
