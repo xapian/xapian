@@ -2,7 +2,7 @@
 /* python/extra.i: Xapian scripting python interface additional code.
  *
  * Copyright (C) 2003,2004,2005 James Aylett
- * Copyright (C) 2005,2006,2007 Olly Betts
+ * Copyright (C) 2005,2006,2007,2009 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -1050,11 +1050,6 @@ for item in dir():
         continue
     __all__.append(item)
 __all__ = tuple(__all__)
-
-
-# Fix up ValueRangeProcessor by replacing its __call__ method (which doesn't
-# work) with its __call() method (which we define with an %extend in util.i)
-ValueRangeProcessor.__call__ = ValueRangeProcessor.__call
 
 %}
 
