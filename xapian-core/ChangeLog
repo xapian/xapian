@@ -1,3 +1,8 @@
+Tue Jul 21 11:46:26 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/msetcmp.cc: Eliminate two more relocations.
+
 Tue Jul 21 09:23:13 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
