@@ -1,3 +1,8 @@
+Tue Jul 21 03:37:38 GMT 2009  Olly Betts <olly@survex.com>
+
+	* python/extra.i: Python 3 doesn't support unbound methods, so use
+	  lambda to work around this in a way which also works with Python 2.
+
 Mon Jul 20 14:51:10 GMT 2009  Olly Betts <olly@survex.com>
 
 	* python/util.i: Remove unused empty Xapian::PythonProblem C++ class.

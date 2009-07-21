@@ -125,7 +125,7 @@ def _mset_gen_iter(self):
     return MSetIter(self)
 MSet.__iter__ = _mset_gen_iter
 
-MSet.__len__ = MSet.size
+MSet.__len__ = lambda self: MSet.size(self)
 
 def _mset_getitem(self, index):
     """Get an item from the MSet.
@@ -208,7 +208,7 @@ def _eset_gen_iter(self):
     return ESetIter(self)
 ESet.__iter__ = _eset_gen_iter
 
-ESet.__len__ = ESet.size
+ESet.__len__ = lambda self: ESet.size(self)
 
 
 #######################################
