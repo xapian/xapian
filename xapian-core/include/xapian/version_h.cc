@@ -1,7 +1,7 @@
 // version_h.cc - template used by configure to generate xapian/version.h
 // (for portability, files run through $CXXCPP must have extension .c .cc or .C)
 #include <config.h>
-const char * dummy = {
+const char * dummy[] = {
 "// version.h: Define preprocesor symbols for the library version.",
 "// If using GCC, also check the C++ ABI version is compatible with that used",
 "// to build the library.",

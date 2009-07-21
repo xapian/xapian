@@ -1,3 +1,12 @@
+Tue Jul 21 11:48:13 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/version_h.cc: Fix "dummy" -> "dummy[]" so the code
+	  here is valid C - we only preprocess it, but since the reason for
+	  having the dummy stuff at all is to avoid problems with "smart"
+	  preprocessors which moan if the code isn't valid, this seems worth
+	  fixing.
+
 Tue Jul 21 11:46:26 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
