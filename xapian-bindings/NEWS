@@ -1,3 +1,20 @@
+ 13111       olly Tue Jul 21 04:38:51 GMT 2009  Olly Betts <olly@survex.com>
+
+Towards Python 3 support:
+ 13111       olly Tue Jul 21 04:38:51 GMT 2009  Olly Betts <olly@survex.com>
+	* python/extra.i: Sort out iterators to work with the Python 3
+	  next()/__next__() changes.  (ticket#246)
+ 13110       olly Tue Jul 21 03:37:38 GMT 2009  Olly Betts <olly@survex.com>
+	* python/extra.i: Python 3 doesn't support unbound methods, so use
+	  lambda to work around this in a way which also works with Python 2.
+ 13108       olly Mon Jul 20 14:46:24 GMT 2009  Olly Betts <olly@survex.com>
+	* python/pythontest2.py,python/pythontest3.py: Cast the result of
+	  integer division to an integer - in Python 3 this returns a float
+	  and even in Python 2 the cast makes the intent clearer.
+ 13096       olly Mon Jul 20 02:40:09 GMT 2009  Olly Betts <olly@survex.com>
+	* python/pythontest3.py,python/smoketest3.py: Fix "from .testsuite
+	  import *" to "from testsuite import *".
+
 Xapian-bindings 1.1.1 (2009-06-09):
 
 This release includes all changes from 1.0.13 which are relevant to trunk.
@@ -92,6 +109,69 @@ Python:
 * Python now flags deprecation warnings for the single argument form and old
   parameter name (ascending) in set_sort_by_key(), set_sort_by_value() and
   friends.
+
+Xapian-bindings 1.0.14 (2009-07-21):
+
+General:
+
+* configure: If $CSC is empty, don't try to run it.  This was a cosmetic bug
+  and the only side-effect was an odd looking message.
+
+Python:
+
+* Rename methods at build-time using SWIG rather than a run-time in Python, as
+  the latter approach adds a small time overhead when the module is being
+  loaded.
+
+Ruby:
+
+* Fix to accept an integer value > MAXINT for a double parameter.
+
+Xapian-bindings 1.0.13 (2009-05-23):
+
+Packaging:
+
+* xapian-bindings.spec: Update C# packaging for rename of XapianSharp.so to
+  _XapianSharp.so in 1.0.11.
+  
+* xapian-bindings.spec: Update Tcl8 packaging for where we now install the
+  bindings since 1.0.6.
+
+PHP:
+
+* Backport fix from SWIG SVN for misuse of formatted error function in
+  SWIG-generated code.
+
+Python:
+
+* Change the SWIG-generated wrapper code so it doesn't attempt to acquire
+  Python's Global Interpreter Lock (GIL) in situations where we know that it
+  will already be locked.  This avoids some dead-locks with mod_python (due to
+  mod_python bugs which are apparently unlikely to ever be fixed), and results
+  in smaller wrappers which run a little faster (in tests with Xapian on x86-64
+  Ubuntu 9.04, the stripped wrapper library was 11% smaller and ran 2.7%
+  faster). (ticket#185)
+
+* README,python/docs/index.html: Update documentation of the above mod_python
+  issue and also document the related mod_wsgi issue.  The status is now that
+  everything seems to work if you stick to the main interpreter (ticket#364).
+
+* Backport fix from SWIG SVN for misuse of formatted error function in
+  SWIG-generated code.
+
+* python/docs/examples/simplematchdecider.py: Read "avoid_value" from the
+  second parameter, not the third.
+
+* python/docs/examples/simplematchdecider.py,
+  python/docs/examples/simplesearch.py: Make use of str.join() for simpler,
+  clearer code.
+
+Ruby:
+
+* README: Note that the testsuite fails due to a bug in the test/unit module in
+  Ruby 1.9.0, but applications using the bindings should work, and that the
+  testsuite works with Ruby 1.9.1.  Drop all mention of Ruby 1.6.x as that
+  appears to be completely dead both upstream and in the wild.
 
 Xapian-bindings 1.0.12 (2009-04-19):
 

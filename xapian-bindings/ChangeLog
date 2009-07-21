@@ -1,3 +1,7 @@
+Tue Jul 21 17:12:06 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog and sync with 1.0.13 and 1.0.14.
+
 Tue Jul 21 04:38:51 GMT 2009  Olly Betts <olly@survex.com>
 
 	* python/extra.i: Sort out iterators to work with the Python 3
