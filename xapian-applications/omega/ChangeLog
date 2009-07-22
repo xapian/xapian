@@ -1,3 +1,7 @@
+Wed Jul 22 04:33:29 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog and sync with 1.0.13 and 1.0.14.
+
 Tue Jul 07 15:05:09 GMT 2009  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Consistently use endl not "\n" at the end of messages so

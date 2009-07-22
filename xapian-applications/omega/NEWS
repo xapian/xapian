@@ -1,3 +1,16 @@
+ 13006       olly Tue Jul 07 15:05:09 GMT 2009  Olly Betts <olly@survex.com>
+
+trunk only:
+
+ 12893       olly Thu Jun 11 09:45:45 GMT 2009  Olly Betts <olly@survex.com>
+	* omindex.cc: Extract pptx notesSlides and comments, if present.  If
+	  they aren't, unzip returns exit code 11, which we must ignore
+	  (ticket#290).
+
+ 12892       olly Thu Jun 11 07:38:57 GMT 2009  Olly Betts <olly@survex.com>
+	* docs/overview.rst,omindex.cc: Handle the "macroenabled" versions of
+	  MS Office 2007 files too (ticket#290).
+
 Omega 1.1.1 (2009-06-09):
 
 indexers:
@@ -53,6 +66,46 @@ build system:
 * The build system is now bootstrapped with newer versions of autoconf and
   libtool which should produce smaller files and speed up configure and
   make.
+
+Omega 1.0.14 (2009-07-21):
+
+indexers:
+
+* omindex: Make sure that output is flushed after every message, not just after
+  some of them.
+
+portability:
+
+* Avoid infinite loop in omindex and scriptindex when reading files under
+  Cygwin with automatic end of line translation enabled.  This same bug can
+  also manifest on Unix platforms if the file is truncated by another process
+  while being read.
+
+Omega 1.0.13 (2009-05-23):
+
+indexers:
+
+* omindex:
+
+  + If the filter program needed for a file format isn't installed, report this
+    explicitly when skipping subsequent files with the extension instead of
+    misleadingly reporting "Unknown extension".
+
+  + Make -s actually work as a short-form for --stemmer (as documented by
+    "omindex --help" and "man omindex").
+
+  + Drop the copyright info from the output of --version as it's perennially
+    out of date and we don't report it for any other Xapian programs.
+
+* scriptindex:
+
+  + Add new "valuenumeric" action to add a document value using
+    Xapian::sortable_serialise() to allow numeric sorting (ticket#260).
+
+build system:
+
+* configure: Enable more GCC warnings - "-Wstrict-null-sentinel" for 4.0+,
+  "-Wlogical-op -Wmissing-declarations" for 4.3+.
 
 Omega 1.0.12 (2009-04-19):
 
