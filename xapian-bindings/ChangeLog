@@ -1,3 +1,13 @@
+Wed Jul 22 15:23:39 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Add wrapper functions for Stem::stem_word,
+	WritableDatabase::replace_document_by_term, 
+	writabledatabase::delete_document_by_term, 
+	some ValueIterator functions and some TermIterator functions.
+	Add operator overload support for ValueIterator and 
+	TermIterator, but now double quotation operator is
+	commented out temporarily to avoid error.
+
 Tue Jul 21 17:20:01 GMT 2009  Kosei Moriyama <cou929@gmail.com>
 
 	* perl/Makefile.am:Fix the way of compile xapian_wrap.cc
