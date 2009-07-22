@@ -119,7 +119,8 @@ ChertDatabaseReplicator::process_changeset_chunk_base(const string & tablename,
     int fd = ::open(tmp_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
 #endif
     if (fd == -1) {
-	string msg = "Failed to open " + tmp_path;
+	string msg = "Failed to open ";
+	msg += tmp_path;
 	throw DatabaseError(msg, errno);
     }
     {
@@ -172,7 +173,8 @@ ChertDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
     int fd = ::open(db_path.c_str(), O_WRONLY | O_BINARY, 0666);
 #endif
     if (fd == -1) {
-	string msg = "Failed to open " + db_path;
+	string msg = "Failed to open ";
+	msg += db_path;
 	throw DatabaseError(msg, errno);
     }
     {
