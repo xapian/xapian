@@ -118,6 +118,10 @@ FlintDatabaseReplicator::process_changeset_chunk_base(const string & tablename,
 #else
     int fd = ::open(tmp_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
 #endif
+    if (fd == -1) {
+	string msg = "Failed to open " + tmp_path;
+	throw DatabaseError(msg, errno);
+    }
     {
 	fdcloser closer(fd);
 
@@ -167,6 +171,10 @@ FlintDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
 #else
     int fd = ::open(db_path.c_str(), O_WRONLY | O_BINARY, 0666);
 #endif
+    if (fd == -1) {
+	string msg = "Failed to open " + db_path;
+	throw DatabaseError(msg, errno);
+    }
     {
 	fdcloser closer(fd);
 
