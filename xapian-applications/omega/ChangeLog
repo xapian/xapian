@@ -1,3 +1,7 @@
+Thu Jul 23 04:12:02 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update for 1.1.2.
+
 Wed Jul 22 04:33:29 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog and sync with 1.0.13 and 1.0.14.
