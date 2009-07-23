@@ -10,8 +10,8 @@ class FileAccesses(object):
         self.max_offset = 0
         self.data = []
 
-    def append(self, start_time, offset, elapsed, write):
-        self.data.append((start_time, offset, elapsed, write))
+    def append(self, start_time, offset, elapsed, optype):
+        self.data.append((start_time, offset, elapsed, optype))
         if self.max_offset < offset:
             self.max_offset = offset
 
@@ -23,12 +23,12 @@ class AllAccesses(object):
         self.data = {}
         self.total_time = 0
 
-    def append(self, filename, offset, elapsed, write):
+    def append(self, filename, offset, elapsed, optype):
         fileaccesses = self.data.get(filename, None)
         if fileaccesses is None:
             fileaccesses = FileAccesses()
             self.data[filename] = fileaccesses
-        fileaccesses.append(self.total_time, offset, elapsed, write)
+        fileaccesses.append(self.total_time, offset, elapsed, optype)
         self.total_time += elapsed
 
     def files_count(self):
@@ -54,9 +54,9 @@ class DrawPanel(wx.Panel):
         wx.EVT_PAINT(self, self.onPaint)
 
         self.data = AllAccesses()
-        for filename, offset, elapsed, write in data:
+        for filename, offset, elapsed, optype in data:
             #elapsed = 0.0005
-            self.data.append(filename, offset, elapsed, write)
+            self.data.append(filename, offset, elapsed, optype)
 
     def onPaint(self, event=None):
         # this is the wx drawing surface/canvas
@@ -94,24 +94,31 @@ class DrawPanel(wx.Panel):
 
             maxoffset_sum += data.max_offset
 
-            for starttime, offset, elapsed, write in data:
+            for starttime, offset, elapsed, optype in data:
                 xpos = left + xscale * starttime
                 pointwid = xscale * elapsed
                 if pointwid < 1: pointwid = 1
 
-                if write:
-                        dc.SetPen(wx.Pen("blue", 1))
-                        counts[2] += 1
-                else:
+                if optype == 'w':
+                    dc.SetPen(wx.Pen("blue", 1))
+                    counts[2] += 1
+                    y = base_y + (yscale * offset)
+                    dc.DrawLine(xpos, hgt - y, xpos + pointwid, hgt - y)
+
+                elif optype == 'r':
                     if elapsed < 0.001:
                         dc.SetPen(wx.Pen("dark green", 1))
                         counts[0] += 1
                     else:
                         dc.SetPen(wx.Pen("red", 1))
                         counts[1] += 1
+                    y = base_y + (yscale * offset)
+                    dc.DrawLine(xpos, hgt - y, xpos + pointwid, hgt - y)
 
-                y = base_y + (yscale * offset)
-                dc.DrawLine(xpos, hgt - y, xpos + pointwid, hgt - y)
+                elif optype == 's':
+                    dc.SetPen(wx.Pen("light blue", 1))
+                    dc.DrawLine(xpos, hgt - base_y, xpos, hgt - top_y)
+
         print "Drawn: [green, red, blue] =", counts
         if counts[1] > 0:
             print "blue/red =", float(counts[0]) / counts[1]
@@ -124,11 +131,6 @@ def show_data(app, data, title):
     frame.Show(True)
 
 def read_data(filename):
-    open_pattern = re.compile(r'open\("([^"]*)", .*\) = ([0-9]+) <([0-9.]+)>$')
-    llseek_pattern = re.compile(r'_llseek\(([0-9]+), ([0-9]+), .*\) = 0 <([0-9.]+)>$')
-    read_pattern = re.compile(r'read\(([0-9]+), .*, ([0-9]+)\) = .* <([0-9.]+)>$')
-    pread64_pattern = re.compile(r'pread64\(([0-9]+), .*, 8192, ([0-9]+)\) = 8192 <([0-9.]+)>$')
-    pwrite64_pattern = re.compile(r'pwrite64\(([0-9]+), .*, 8192, ([0-9]+)\) = 8192 <([0-9.]+)>$')
     fd = open(filename)
     fds = {}
     try:
@@ -136,38 +138,28 @@ def read_data(filename):
         just_seeked = None
         for line in fd:
             line = line.strip()
-            mo = open_pattern.search(line)
-            if mo:
-                fdnum = int(mo.group(2))
-                fds[fdnum] = mo.group(1)
+            if line[0] == 'o':
+                fdnum, filename = line[1:].split(',', 1)
+                fds[int(fdnum)] = filename
                 continue
-            mo = pread64_pattern.search(line)
-            if mo:
-                fdnum = int(mo.group(1))
+
+            if line[0] == 'r':
+                fdnum, offset, len = map(int, line[1:].split(',', 2))
                 filename = fds.get(fdnum, str(fdnum))
-                data.append((filename, int(mo.group(2)), float(mo.group(3)), 0))
+                data.append((filename, offset, len, line[0]))
                 continue
-            mo = pwrite64_pattern.search(line)
-            if mo:
-                fdnum = int(mo.group(1))
+
+            if line[0] == 'w':
+                fdnum, offset, len = map(int, line[1:].split(',', 2))
                 filename = fds.get(fdnum, str(fdnum))
-                data.append((filename, int(mo.group(2)), float(mo.group(3)), 1))
+                data.append((filename, offset, len, line[0]))
                 continue
-            if just_seeked:
-                mo = read_pattern.search(line)
-                if mo:
-                    fdnum = int(mo.group(1))
-                    if just_seeked[0] != fdnum:
-                        continue
-                    filename = fds.get(fdnum, str(fdnum))
-                    data.append((filename, just_seeked[1], just_seeked[2] + float(mo.group(3)), 0))
-                    continue
-            just_seeked = None
-            mo = llseek_pattern.search(line)
-            if mo:
-                #print mo.group(1)
-                just_seeked = (int(mo.group(1)), int(mo.group(2)), float(mo.group(3)))
+
+            if line[0] == 's':
+                fdnum = int(line[1:-1])
+                data.append((filename, 0, 0, line[0]))
                 continue
+
         return data
     finally:
         fd.close()
@@ -177,6 +169,5 @@ if __name__ == '__main__':
     # data file should be produced by strace -T
     filename = sys.argv[1]
     data = read_data(filename)
-    print "%d read seek-read calls" % (len(data))
-    show_data(app, data, "%d seek-read calls, from %s" % (len(data), filename))
+    show_data(app, data, "%d io calls, from %s" % (len(data), filename))
     app.MainLoop()
