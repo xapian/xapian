@@ -1,19 +1,11 @@
- 13111       olly Tue Jul 21 04:38:51 GMT 2009  Olly Betts <olly@survex.com>
+Xapian-bindings 1.1.2 (2009-07-23):
 
-Towards Python 3 support:
- 13111       olly Tue Jul 21 04:38:51 GMT 2009  Olly Betts <olly@survex.com>
-	* python/extra.i: Sort out iterators to work with the Python 3
-	  next()/__next__() changes.  (ticket#246)
- 13110       olly Tue Jul 21 03:37:38 GMT 2009  Olly Betts <olly@survex.com>
-	* python/extra.i: Python 3 doesn't support unbound methods, so use
-	  lambda to work around this in a way which also works with Python 2.
- 13108       olly Mon Jul 20 14:46:24 GMT 2009  Olly Betts <olly@survex.com>
-	* python/pythontest2.py,python/pythontest3.py: Cast the result of
-	  integer division to an integer - in Python 3 this returns a float
-	  and even in Python 2 the cast makes the intent clearer.
- 13096       olly Mon Jul 20 02:40:09 GMT 2009  Olly Betts <olly@survex.com>
-	* python/pythontest3.py,python/smoketest3.py: Fix "from .testsuite
-	  import *" to "from testsuite import *".
+This release includes all changes from 1.0.14 which are relevant to trunk.
+
+Python:
+
+* Several changes towards fully supporting Python 3, but more work is required.
+  (ticket#246)
 
 Xapian-bindings 1.1.1 (2009-06-09):
 
