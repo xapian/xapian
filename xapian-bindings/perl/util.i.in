@@ -233,6 +233,12 @@ std::string get_termname() {
 }
 }
 
+%extend Xapian::SimpleStopper {
+bool stop_word(std::string term) {
+     return (*self)(term);
+}
+}
+
 %perlcode %{
 package Search::Xapian;	
 
@@ -433,4 +439,27 @@ use overload '++' => sub { $_[0]->inc() },
 #            '""' => sub { $_[0]->get_termname() },
              'fallback' => 1;
 
+package Search::Xapian::QueryParser;
+sub new {
+  my $class = shift;
+  my $qp = Search::Xapianc::new_QueryParser();
+
+  bless $qp, $class;
+  $qp->set_database(@_) if scalar(@_) == 1;
+
+  return $qp;
+}
+
+package Search::Xapian::SimpleStopper;
+sub new {
+    my $class = shift;
+    my $stopper = Search::Xapianc::new_SimpleStopper();
+
+    bless $stopper, $class;
+    foreach (@_) {
+	$stopper->add($_);
+    }
+
+    return $stopper;
+}
 %}
