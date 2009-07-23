@@ -1,3 +1,8 @@
+Thu Jul 23 12:06:37 GMT 2009  Olly Betts <olly@survex.com>
+
+	* templates/inc/toptermsjs: Use double-quotes rather than single quotes
+	  for parameter values on the <script> tag.
+
 Thu Jul 23 11:29:43 GMT 2009  Olly Betts <olly@survex.com>
 
 	* docs/omegascript.rst: Document that $date uses UTC.  (ticket#314)
