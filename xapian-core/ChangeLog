@@ -1,3 +1,29 @@
+Fri Jul 24 15:33:12 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/doxygen_api_conf.in: Major doxygen config overhaul:
+	  + STRIP_FROM_PATH: Strip include from header names.
+	  + JAVADOC_AUTOBRIEF: Re-enable as we have lost most of our brief
+	    descriptions - we can fix up the few cases where this caused
+	    problems with an explicit @brief.
+	  + BUILTIN_STL_SUPPORT: Enable for slightly STL-related stuff.
+	  + DISTRIBUTE_GROUP_DOC: Enable so group members get the group's
+	    comments.
+	  + EXTRACT_STATIC, EXTRACT_LOCAL_CLASSES: Disable since we don't
+	    need these.
+	  + SHOW_NAMESPACES: Disable to hide the "Xapian" namespace.
+	  + QUIET: Enable for less doxygen chatter.
+	  + WARN_LOGFILE: Unset so warnings go to stderr to encourage us to
+	    actually fix them!
+	  + EXCLUDE: Hide base.h, deprecated.h, errordispatch.h, visibility.h.
+	  + HTML_DYNAMIC_SECTIONS: Enable so the class diagrams are hidden by
+	    default but can be "expanded" to be viewed.
+	  + COLLABORATION_GRAPH: Disable as these don't ever seem useful in
+	    the API docs.
+	  + TEMPLATE_RELATIONS: Disable as we don't want to see template
+	    instantiations in inheritance diagrams.
+	  + DOT_MULTI_TARGETS: Enable for faster dot processsing.  Needs
+	    graphviz ">1.8.10", but that's really old now.
+
 Fri Jul 24 13:00:24 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* bin/xapian-compact.cc: Fix to work with the metainfo key stored
