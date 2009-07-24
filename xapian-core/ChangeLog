@@ -1,3 +1,8 @@
+Fri Jul 24 13:00:24 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* bin/xapian-compact.cc: Fix to work with the metainfo key stored
+	  in the latest format of chert databases.
+
 Fri Jul 24 10:32:32 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_values.cc: Avoid doing pointless work by trying

@@ -199,9 +199,12 @@ encode_valuestats(Xapian::doccount freq,
 static void
 merge_postlists(FlintTable * out, vector<Xapian::docid>::const_iterator offset,
 		vector<string>::const_iterator b, vector<string>::const_iterator e,
-		Xapian::docid tot_off)
+		Xapian::docid tot_off, bool is_chert)
 {
     totlen_t tot_totlen = 0;
+    Xapian::termcount doclen_lbound = static_cast<Xapian::termcount>(-1);
+    Xapian::termcount wdf_ubound = 0;
+    Xapian::termcount doclen_ubound = 0;
     priority_queue<PostlistCursor *, vector<PostlistCursor *>, PostlistCursorGt> pq;
     for ( ; b != e; ++b, ++offset) {
 	FlintTable *in = new FlintTable("postlist", *b, true);
@@ -226,6 +229,26 @@ merge_postlists(FlintTable * out, vector<Xapian::docid>::const_iterator offset,
 	    if (!F_unpack_uint(&data, end, &dummy_did)) {
 		throw Xapian::DatabaseCorruptError("Tag containing meta information is corrupt.");
 	    }
+	    if (is_chert) {
+		Xapian::termcount doclen_lbound_tmp;
+		if (!F_unpack_uint(&data, end, &doclen_lbound_tmp)) {
+		    throw Xapian::DatabaseCorruptError("Tag containing meta information is corrupt.");
+		}
+		doclen_lbound = min(doclen_lbound, doclen_lbound_tmp);
+
+		Xapian::termcount wdf_ubound_tmp;
+		if (!F_unpack_uint(&data, end, &wdf_ubound_tmp)) {
+		    throw Xapian::DatabaseCorruptError("Tag containing meta information is corrupt.");
+		}
+		wdf_ubound = max(wdf_ubound, wdf_ubound_tmp);
+
+		Xapian::termcount doclen_ubound_tmp;
+		if (!F_unpack_uint(&data, end, &doclen_ubound_tmp)) {
+		    throw Xapian::DatabaseCorruptError("Tag containing meta information is corrupt.");
+		}
+		doclen_ubound_tmp += wdf_ubound_tmp;
+		doclen_ubound = max(doclen_ubound, doclen_ubound_tmp);
+	    }
 	    totlen_t totlen = 0;
 	    if (!F_unpack_uint_last(&data, end, &totlen)) {
 		throw Xapian::DatabaseCorruptError("Tag containing meta information is corrupt.");
@@ -244,6 +267,11 @@ merge_postlists(FlintTable * out, vector<Xapian::docid>::const_iterator offset,
 
     {
 	string tag = F_pack_uint(tot_off);
+	if (is_chert) {
+	    tag += F_pack_uint(doclen_lbound);
+	    tag += F_pack_uint(wdf_ubound);
+	    tag += F_pack_uint(doclen_ubound - wdf_ubound);
+	}
 	tag += F_pack_uint_last(tot_totlen);
 	out->add(string("", 1), tag);
     }
@@ -766,7 +794,8 @@ merge_synonyms(FlintTable * out,
 static void
 multimerge_postlists(FlintTable * out, const char * tmpdir,
 		     Xapian::docid tot_off,
-		     vector<string> tmp, vector<Xapian::docid> off)
+		     vector<string> tmp, vector<Xapian::docid> off,
+		     bool is_chert)
 {
     unsigned int c = 0;
     while (tmp.size() > 3) {
@@ -789,7 +818,7 @@ multimerge_postlists(FlintTable * out, const char * tmpdir,
 	    // Use maximum blocksize for temporary tables.
 	    tmptab.create_and_open(65536);
 
-	    merge_postlists(&tmptab, off.begin() + i, tmp.begin() + i, tmp.begin() + j, 0);
+	    merge_postlists(&tmptab, off.begin() + i, tmp.begin() + i, tmp.begin() + j, 0, is_chert);
 	    if (c > 0) {
 		for (unsigned int k = i; k < j; ++k) {
 		    unlink((tmp[k] + "DB").c_str());
@@ -805,7 +834,7 @@ multimerge_postlists(FlintTable * out, const char * tmpdir,
 	swap(off, newoff);
 	++c;
     }
-    merge_postlists(out, off.begin(), tmp.begin(), tmp.end(), tot_off);
+    merge_postlists(out, off.begin(), tmp.begin(), tmp.end(), tot_off, is_chert);
     if (c > 0) {
 	for (size_t k = 0; k < tmp.size(); ++k) {
 	    unlink((tmp[k] + "DB").c_str());
@@ -1115,11 +1144,11 @@ main(int argc, char **argv)
 		case POSTLIST:
 		    if (multipass && inputs.size() > 3) {
 			multimerge_postlists(&out, destdir, tot_off,
-					     inputs, offset);
+					     inputs, offset, backend == CHERT);
 		    } else {
 			merge_postlists(&out, offset.begin(),
 					inputs.begin(), inputs.end(),
-					tot_off);
+					tot_off, backend == CHERT);
 		    }
 		    break;
 		case SPELLING:
