@@ -1,3 +1,9 @@
+Fri Jul 24 10:32:32 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_values.cc: Avoid doing pointless work by trying
+	  to delete non-existent lists of values when we're just adding
+	  documents.
+
 Fri Jul 24 05:32:34 GMT 2009  Olly Betts <olly@survex.com>
 
 	* docs/doxygen_api_conf.in: Update with "doxygen -u" using doxygen
