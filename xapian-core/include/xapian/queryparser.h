@@ -84,9 +84,9 @@ struct XAPIAN_VISIBILITY_DEFAULT ValueRangeProcessor {
     /// Destructor.
     virtual ~ValueRangeProcessor();
 
-    /** See if <begin>..<end> is a valid value range.
+    /** Check for a valid range of this type.
      *
-     *  If this ValueRangeProcessor recognises <begin>..<end> it returns the
+     *  If this ValueRangeProcessor recognises BEGIN..END it returns the
      *  value number of range filter on.  Otherwise it returns
      *  Xapian::BAD_VALUENO.
      */
@@ -125,7 +125,7 @@ class XAPIAN_VISIBILITY_DEFAULT StringValueRangeProcessor : public ValueRangePro
 			      bool prefix_ = true)
 	: valno(valno_), prefix(prefix_), str(str_) { }
 
-    /** See if <begin>..<end> is a valid string value range.
+    /** Check for a valid range of this type.
      *
      *  If no prefix or suffix is specified, then this always returns the
      *  value slot specified at construction time.
@@ -203,9 +203,9 @@ class XAPIAN_VISIBILITY_DEFAULT DateValueRangeProcessor : public StringValueRang
 	: StringValueRangeProcessor(valno_, str_, prefix_),
 	  prefer_mdy(prefer_mdy_), epoch_year(epoch_year_) { }
 
-    /** See if <begin>..<end> is a valid date value range.
+    /** Check for a valid range of this type.
      *
-     *  If <begin>..<end> is a sensible date range, this method returns the
+     *  If BEGIN..END is a sensible date range, this method returns the
      *  value number of range filter on.  Otherwise it returns
      *  Xapian::BAD_VALUENO.
      */
@@ -264,9 +264,9 @@ class XAPIAN_VISIBILITY_DEFAULT NumberValueRangeProcessor : public StringValueRa
 			      bool prefix_ = true)
 	: StringValueRangeProcessor(valno_, str_, prefix_) { }
 
-    /** See if <begin>..<end> is a valid numeric value range.
+    /** Check for a valid range of this type.
      *
-     *  If <begin>..<end> is a valid numeric value range, and has the
+     *  If BEGIN..END is a valid numeric value range, and has the
      *  appropriate prefix or suffix (if specified) required for this
      *  NumberValueRangeProcessor, this method returns the value number of
      *  range filter on, and sets begin and end to the appropriate serialised

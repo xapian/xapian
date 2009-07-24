@@ -122,12 +122,14 @@ class XAPIAN_VISIBILITY_DEFAULT TermIterator {
 	//@}
 };
 
+/// Equality test for TermIterator objects.
 inline bool
 operator==(const TermIterator &a, const TermIterator &b)
 {
     return (a.internal.get() == b.internal.get());
 }
 
+/// Inequality test for TermIterator objects.
 inline bool
 operator!=(const TermIterator &a, const TermIterator &b)
 {

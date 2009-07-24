@@ -79,6 +79,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 
 	    /** Find occurrences of a list of terms with all the terms
 	     *  occurring within a specified window of positions.
+	     *
 	     *  Each occurrence of a term must be at a different position,
 	     *  but the order they appear in is irrelevant.
 	     *
@@ -89,8 +90,9 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 
 	    /** Find occurrences of a list of terms with all the terms
 	     *  occurring within a specified window of positions, and all
-	     *  the terms appearing in the order specified.  Each occurrence
-	     *  of a term must be at a different position.
+	     *  the terms appearing in the order specified.
+	     *
+	     *  Each occurrence of a term must be at a different position.
 	     *
 	     *  The window parameter should be specified for this operation,
 	     *  but will default to the number of terms in the list.

@@ -396,11 +396,13 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
 	//@}
 };
 
+/// Equality test for MSetIterator objects.
 inline bool operator==(const MSetIterator &a, const MSetIterator &b)
 {
     return (a.index == b.index);
 }
 
+/// Inequality test for MSetIterator objects.
 inline bool operator!=(const MSetIterator &a, const MSetIterator &b)
 {
     return (a.index != b.index);
@@ -540,11 +542,13 @@ class XAPIAN_VISIBILITY_DEFAULT ESetIterator {
 	//@}
 };
 
+/// Equality test for ESetIterator objects.
 inline bool operator==(const ESetIterator &a, const ESetIterator &b)
 {
     return (a.index == b.index);
 }
 
+/// Inequality test for ESetIterator objects.
 inline bool operator!=(const ESetIterator &a, const ESetIterator &b)
 {
     return (a.index != b.index);
