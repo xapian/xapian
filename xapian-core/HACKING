@@ -287,9 +287,9 @@ versions of the tools required, we either include the source to these tools in
 the SVN repo directly (in the case of Snowball and Lemon), or pull them in to
 an SVN checkout using svn:externals (SWIG), or the bootstrap script will lazily
 download, build, and install them within the source tree (autoconf, automake,
-and libtool).  To download the source tarballs for these, bootstrap will use
-wget or curl if installed.  If not, it will give an error telling you the
-URL to download from by hand and where to copy the file to.
+libtool, and doxygen).  To download the source tarballs for these, bootstrap
+will use wget or curl if installed.  If not, it will give an error telling you
+the URL to download from by hand and where to copy the file to.
 
 Bootstrap will then run autoreconf on each of the checked-out subdirectories,
 and generate a top-level configure script.  This configure script allows you to
@@ -342,9 +342,9 @@ documentation), but you can configure and build.
 
 The documentation tools are:
 
-* doxygen (v1.5.2 is used for snapshots and releases; 1.4.6 produced incomplete
-  documentation for Xapian::Query).
-* dot (part of Graphviz)
+* doxygen (v1.5.9 is used for 1.1.x snapshots and releases; 1.4.6 produced
+  incomplete documentation for Xapian::Query).
+* dot (part of Graphviz.  Doxygen's DOT_MULTI_TARGETS option apparently needs ">1.8.10")
 * gs (part of Ghostscript)
 * pdflatex (in texlive-latex-base on Debian/Ubuntu)
 * epstopdf (in texlive-extra-utils on Debian/Ubuntu)
