@@ -1081,8 +1081,8 @@ AC_CONFIG_FILES([
  Makefile
  tests/Makefile
  docs/Makefile
- docs/doxygen_api_conf
- docs/doxygen_full_conf
+ docs/doxygen_api.conf
+ docs/doxygen_source.conf
  xapian-core.spec
  ])
 AC_CONFIG_FILES([tests/runtest], [chmod +x tests/runtest])

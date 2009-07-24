@@ -451,7 +451,7 @@ WARN_FORMAT            = "$file:$line: $text"
 # and error messages should be written. If left blank the output is written 
 # to stderr.
 
-WARN_LOGFILE           = doxygen_full_warnings
+WARN_LOGFILE           = doxygen_source_warnings
 
 #---------------------------------------------------------------------------
 # configuration options related to the input files
@@ -671,13 +671,13 @@ HTML_FILE_EXTENSION    = .html
 # each generated HTML page. If it is left blank doxygen will generate a 
 # standard header.
 
-HTML_HEADER            = @top_srcdir@/docs/doxygen_full_header.html_tmpl
+HTML_HEADER            = @top_srcdir@/docs/doxygen_source_header.html_tmpl
 
 # The HTML_FOOTER tag can be used to specify a personal HTML footer for 
 # each generated HTML page. If it is left blank doxygen will generate a 
 # standard footer.
 
-HTML_FOOTER            = @top_srcdir@/docs/doxygen_full_footer.html_tmpl
+HTML_FOOTER            = @top_srcdir@/docs/doxygen_source_footer.html_tmpl
 
 # The HTML_STYLESHEET tag can be used to specify a user-defined cascading 
 # style sheet that is used by each HTML page. It can be used to 

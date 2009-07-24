@@ -1,3 +1,8 @@
+Fri Jul 24 16:23:31 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac,docs/: Rename doxygen configuration files from "_conf"
+	  to ".conf".  Rename doxygen_full.conf to doxygen_source.conf, etc.
+
 Fri Jul 24 16:02:39 GMT 2009  Olly Betts <olly@survex.com>
 
 	* HACKING: Update to note that doxygen is now installed in-tree, and
