@@ -1,3 +1,9 @@
+Sun Jul 26 10:14:32 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/doxygen_api.conf.in,docs/doxygen_source.conf.in: Change
+	  @PACKAGE@ to @PACKAGE_NAME@ and @VERSION@ to @PACKAGE_VERSION@ to
+	  reflect modern autotools usage.
+
 Fri Jul 24 16:23:31 GMT 2009  Olly Betts <olly@survex.com>
 
 	* configure.ac,docs/: Rename doxygen configuration files from "_conf"
