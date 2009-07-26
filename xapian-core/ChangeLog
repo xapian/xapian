@@ -1,3 +1,41 @@
+Sun Jul 26 13:06:45 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/doxygen_api.conf.in: More fettling to try to get better output:
+	  + Wrap long comments.
+	  + Quote arguments containing @...@ substitutions as they could
+	    conceivably contain spaces.
+	  + ALWAYS_DETAILED_SEC = NO: since a detailed section with no extra
+	    information is pointless.
+	  + STRIP_FROM_PATH, INCLUDE_PATH: Add "@top_builddir@/include" for
+	    VPATH builds.
+	  + HIDE_UNDOC_MEMBERS = YES: otherwise @internal members show up
+	    (with no documentation).
+	  + HIDE_FRIEND_COMPOUNDS = YES: as friend declarations in the API
+	    headers are implementation details.
+	  + SHOW_INCLUDE_FILES = NO: users should just include <xapian.h>
+	    for all their API needs.
+	  + GENERATE_TODOLIST, GENERATE_TESTLIST, GENERATE_BUGLIST: all set to
+	    NO as we don't want these in the API documentation.
+	  + SHOW_NAMESPACES = YES: We have several sub-namespaces so these are
+	    useful to document.
+	  + INPUT: Prepend "@top_builddir@/include/xapian/version.h" so that
+	    XAPIAN_HAS_FLINT_BACKEND, etc are defined before parsing other
+	    headers.
+	  + EXCLUDE: remove all entries and use EXCLUDE_PATTERNS instead.
+	  + EXCLUDE_PATTERNS: Include entries corresponding to those in EXCLUDE
+	    and add */derefwrapper.h and */.* (the latter avoids trying to look
+	    in .svn or any other hidden files or directories).
+	  + REFERENCES_LINK_SOURCE = NO: Improves output.
+	  + VERBATIM_HEADERS = NO: The verbatim headers aren't very
+	    interesting.
+	  + PREDEFINED: Define XAPIAN_VISIBILITY_DEFAULT and
+	    XAPIAN_DEPRECATED(D)=D as doxygen seem reluctant to parse included
+	    files.
+	  + EXPAND_AS_DEFINED: Remove XAPIAN_VISIBILITY_DEFAULT and
+	    XAPIAN_DEPRECATED as these are now handled by PREDEFINED.
+	  + EXTERNAL_GROUPS = NO, GROUP_GRAPHS = NO: We don't use groups so
+	    disable these.
+
 Sun Jul 26 10:14:32 GMT 2009  Olly Betts <olly@survex.com>
 
 	* docs/doxygen_api.conf.in,docs/doxygen_source.conf.in: Change
