@@ -179,6 +179,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
     //@}
 };
 
+/// Functions associated with handling Unicode characters.
 namespace Unicode {
 
 /** Each Unicode character is in exactly one of these categories. */

@@ -1,3 +1,8 @@
+Sun Jul 26 13:59:42 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/unicode.h: Add documentation comment for namespace
+	  Unicode.
+
 Sun Jul 26 13:58:44 GMT 2009  Olly Betts <olly@survex.com>
 
 	* include/xapian/dbfactory.h: Add documentation comments for the
