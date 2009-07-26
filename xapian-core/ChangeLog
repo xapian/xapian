@@ -1,3 +1,12 @@
+Sun Jul 26 17:10:23 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/decvalwtsource.cc,api/limitvalwtsource.cc,include/Makefile.mk,
+	  include/xapian.h,include/xapian/decvalwtsource.h,
+	  include/xapian/limitvalwtsource.h,include/xapian/postingsource.h:
+	  Remove the limitvalwtsource.h and decvalwtsource.h headers - put
+	  their contents into postingsource.h instead.  Add documentation
+	  comments for LimitedValueWeightPostingSource.
+
 Wed May 20 22:46:35 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/decvalwtsource.cc,api/limitvalwtsource.cc,

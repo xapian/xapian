@@ -20,7 +20,7 @@
 
 #include <config.h>
 
-#include "xapian/decvalwtsource.h"
+#include "xapian/postingsource.h"
 #include "xapian/error.h"
 #include "serialise.h"
 #include "serialise-double.h"

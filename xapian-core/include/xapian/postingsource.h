@@ -313,6 +313,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
     virtual std::string get_description() const;
 };
 
+
 /** A posting source which generates weights from a value slot.
  *
  *  This is a base class for classes which generate weights using values stored
@@ -380,6 +381,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
     void init(const Database & db_);
 };
 
+
 /** A posting source which reads weights from a value slot.
  *
  *  This returns entries for all documents in the given database which have a
@@ -416,6 +418,100 @@ class XAPIAN_VISIBILITY_DEFAULT ValueWeightPostingSource
 
     std::string get_description() const;
 };
+
+
+/** Read weights from a value which is known to decrease as docid increases.
+ *
+ *  This posting source can be used, like ValueWeightPostingSource, to add a
+ *  weight contribution to a query based on the values stored in a slot.  The
+ *  values in the slot must be serialised as by @a sortable_serialise().
+ *
+ *  However, this posting source is additionally given a range of document IDs,
+ *  within which the weight is known to be decreasing.  ie, for all documents
+ *  with ids A and B within this range (including the endpoints), where A is
+ *  less than B, the weight of A is less than or equal to the weight of B.
+ *  This can allow the posting source to skip to the end of the range quickly
+ *  if insufficient weight is left in the posting source for a particular
+ *  source.
+ *
+ *  By default, the range is assumed to cover all document IDs.
+ *
+ *  The ordering property can be arranged at index time, or by sorting an
+ *  indexed database to produce a new, sorted, database.
+ */
+class XAPIAN_VISIBILITY_DEFAULT DecreasingValueWeightPostingSource
+	: public Xapian::ValueWeightPostingSource {
+  protected:
+    Xapian::docid range_start;
+    Xapian::docid range_end;
+    double curr_weight;
+
+    /// Flag, set to true if there are docs after the end of the range.
+    bool items_at_end;
+
+    /// Skip the iterator forward if in the decreasing range, and weight is low.
+    void skip_if_in_range(Xapian::weight min_wt);
+
+  public:
+    DecreasingValueWeightPostingSource(Xapian::valueno slot_,
+				       Xapian::docid range_start_ = 0,
+				       Xapian::docid range_end_ = 0);
+
+    Xapian::weight get_weight() const;
+    DecreasingValueWeightPostingSource * clone() const;
+    std::string name() const;
+    std::string serialise() const;
+    DecreasingValueWeightPostingSource * unserialise(const std::string &s) const;
+    void init(const Xapian::Database & db_);
+
+    void next(Xapian::weight min_wt);
+    void skip_to(Xapian::docid min_docid, Xapian::weight min_wt);
+    bool check(Xapian::docid min_docid, Xapian::weight min_wt);
+
+    std::string get_description() const;
+};
+
+
+/** Read weights from a value slot, limiting them to a fixed maximum value.
+ *
+ *  The weights must be stored in the value slot with the @a
+ *  sortable_serialise() encoding, as used by ValueWeightPostingSource
+ *
+ *  The main reason for the existence of this class is that in the default
+ *  database backends for release series 1.0 or earlier, no statistics
+ *  indicating the maximum value in the slot are stored.  Passing an explicit
+ *  maximum allows the matcher to optimise better, so using this class with an
+ *  appropriate maximum can give a significant performance boost.
+ *
+ *  Once such backends are removed, this class is likely to be deprecated and
+ *  removed, in favour of simply using ValueWeightPostingSource, which will
+ *  automatically use the statistics about the maximum value stored in the slot
+ *  when it is available.
+ */
+class XAPIAN_VISIBILITY_DEFAULT LimitedValueWeightPostingSource
+	: public Xapian::ValueWeightPostingSource {
+
+    /// The maximum weight to return, as passed to the constructor.
+    Xapian::weight specified_max_weight;
+  public:
+    /** Construct a ValuePostingSource.
+     *
+     *  @param slot_ The value slot to read values from.
+     *  @param specified_max_weight_ The maximum weight to return.
+     */
+    LimitedValueWeightPostingSource(Xapian::valueno slot_,
+				    Xapian::weight specified_max_weight_);
+
+    Xapian::weight get_weight() const;
+    LimitedValueWeightPostingSource * clone() const;
+    std::string name() const;
+    std::string serialise() const;
+    LimitedValueWeightPostingSource * unserialise(const std::string &s) const;
+    void init(const Xapian::Database & db_);
+
+    std::string get_description() const;
+};
+
 
 /** A posting source which looks up weights in a map using values as the key.
  *
@@ -465,6 +561,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueMapPostingSource
 
     std::string get_description() const;
 };
+
 
 /** A posting source which returns a fixed weight for all documents.
  *
