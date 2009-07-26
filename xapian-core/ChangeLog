@@ -1,3 +1,8 @@
+Sun Jul 26 14:28:25 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/doxygen_source.conf.in: Update roughly in-line with apidoc
+	  changes.  I've not looked at the output much though.
+
 Sun Jul 26 14:00:14 GMT 2009  Olly Betts <olly@survex.com>
 
 	* include/xapian/database.h: Remove documentation comment for namespace
