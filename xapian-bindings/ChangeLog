@@ -1,3 +1,8 @@
+Sun Jul 26 17:38:04 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/doxy2swig.py: Restore patch to doxy2swig.py, which got
+	  removed by a recent merge from trunk.
+
 Sun Jul 26 17:34:22 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* xapian.i: Remove references to decvalwtsource.h and
