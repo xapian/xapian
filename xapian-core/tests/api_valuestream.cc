@@ -302,8 +302,7 @@ DEFINE_TESTCASE(fixedweightsource2, !backend) {
     return true;
 }
 
-/** Test DecreasingValueWeightPostingSource.
- */
+// Test DecreasingValueWeightPostingSource.
 DEFINE_TESTCASE(decvalwtsource1, writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
@@ -413,10 +412,8 @@ DEFINE_TESTCASE(decvalwtsource1, writable) {
     return true;
 }
 
-/** Test DecreasingValueWeightPostingSource with out-of-order sections at
- *  start, and with repeated weights.
- *
- */
+// Test DecreasingValueWeightPostingSource with out-of-order sections at
+// start, and with repeated weights.
 DEFINE_TESTCASE(decvalwtsource2, writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
@@ -544,6 +541,93 @@ DEFINE_TESTCASE(decvalwtsource2, writable) {
 	src.next(1.5);
 	TEST(src.at_end());
     }
+
+    return true;
+}
+
+// Test DecreasingValueWeightPostingSource with an actual query.
+DEFINE_TESTCASE(decvalwtsource3, writable) {
+    Xapian::WritableDatabase db = get_writable_database();
+
+    Xapian::Document doc;
+    doc.add_term("foo");
+    doc.add_value(1, Xapian::sortable_serialise(1));
+    db.add_document(doc);
+    doc.add_value(1, Xapian::sortable_serialise(3));
+    db.add_document(doc);
+    doc.add_term("bar");
+    doc.add_value(1, Xapian::sortable_serialise(3));
+    db.add_document(doc);
+    doc.add_value(1, Xapian::sortable_serialise(1));
+    db.add_document(doc);
+    db.commit();
+
+    Xapian::DecreasingValueWeightPostingSource ps(1, 2, 5);
+    Xapian::Query q(&ps);
+    Xapian::Enquire enq(db);
+    enq.set_query(q);
+
+    Xapian::MSet mset1(enq.get_mset(0, 1));
+    Xapian::MSet mset2(enq.get_mset(0, 2));
+    Xapian::MSet mset3(enq.get_mset(0, 3));
+    Xapian::MSet mset4(enq.get_mset(0, 4));
+
+    TEST_EQUAL(mset1.size(), 1);
+    TEST_EQUAL(mset2.size(), 2);
+    TEST_EQUAL(mset3.size(), 3);
+    TEST_EQUAL(mset4.size(), 4);
+
+    TEST(mset_range_is_same(mset1, 0, mset2, 0, 1));
+    TEST(mset_range_is_same(mset2, 0, mset3, 0, 2));
+    TEST(mset_range_is_same(mset3, 0, mset4, 0, 3));
+
+    return true;
+}
+
+// Test DecreasingValueWeightPostingSource with an actual query on a fixed
+// dataset (so we can cover the remote backend too).
+DEFINE_TESTCASE(decvalwtsource4, backend) {
+    Xapian::Database db = get_database("apitest_declen");
+
+    Xapian::DecreasingValueWeightPostingSource ps(11, 2, 5);
+    Xapian::Query q(&ps);
+    Xapian::Enquire enq(db);
+    enq.set_query(q);
+
+    Xapian::MSet mset1(enq.get_mset(0, 1));
+    Xapian::MSet mset2(enq.get_mset(0, 2));
+    Xapian::MSet mset3(enq.get_mset(0, 3));
+    Xapian::MSet mset4(enq.get_mset(0, 4));
+
+    TEST_EQUAL(mset1.size(), 1);
+    TEST_EQUAL(mset2.size(), 2);
+    TEST_EQUAL(mset3.size(), 3);
+    TEST_EQUAL(mset4.size(), 4);
+
+    TEST(mset_range_is_same(mset1, 0, mset2, 0, 1));
+    TEST(mset_range_is_same(mset2, 0, mset3, 0, 2));
+    TEST(mset_range_is_same(mset3, 0, mset4, 0, 3));
+
+    return true;
+}
+
+// Regression test - used to get segfaults if
+// DecreasingValueWeightPostingSource was pointed at a non-full slot.
+DEFINE_TESTCASE(decvalwtsource5, writable) {
+    Xapian::WritableDatabase db = get_writable_database();
+
+    Xapian::Document doc;
+    doc.add_value(1, Xapian::sortable_serialise(1));
+    db.commit();
+    doc.add_value(2, Xapian::sortable_serialise(1));
+    db.commit();
+
+    Xapian::DecreasingValueWeightPostingSource ps(2);
+    Xapian::Query q(&ps);
+    Xapian::Enquire enq(db);
+    enq.set_query(q);
+
+    Xapian::MSet mset1(enq.get_mset(0, 1));
 
     return true;
 }

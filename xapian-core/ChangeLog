@@ -1,3 +1,11 @@
+Sun Jul 26 22:35:39 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_valuestream.cc,tests/testdata/apitest_declen.txt: Add
+	  some further tests, to cover using the posting source with the
+	  remote backend, and performing actual queries.  Also add a
+	  regression test for slots which aren't fully used (which
+	  currently fails).
+
 Sun Jul 26 19:12:00 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/api_valuestream.cc: Test DecreasingValueWeightPostingSource
