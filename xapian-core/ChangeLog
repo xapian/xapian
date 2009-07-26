@@ -1,3 +1,8 @@
+Sun Jul 26 19:12:00 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_valuestream.cc: Test DecreasingValueWeightPostingSource
+	  with out-of-order sections and repeated weights.
+
 Sun Jul 26 17:10:23 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/decvalwtsource.cc,api/limitvalwtsource.cc,include/Makefile.mk,

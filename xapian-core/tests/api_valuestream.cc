@@ -412,3 +412,138 @@ DEFINE_TESTCASE(decvalwtsource1, writable) {
 
     return true;
 }
+
+/** Test DecreasingValueWeightPostingSource with out-of-order sections at
+ *  start, and with repeated weights.
+ *
+ */
+DEFINE_TESTCASE(decvalwtsource2, writable) {
+    Xapian::WritableDatabase db = get_writable_database();
+
+    Xapian::Document doc;
+    doc.add_value(1, Xapian::sortable_serialise(1));
+    db.add_document(doc);
+    doc.add_value(1, Xapian::sortable_serialise(3));
+    db.add_document(doc);
+    doc.add_value(1, Xapian::sortable_serialise(3));
+    db.add_document(doc);
+    doc.add_value(1, Xapian::sortable_serialise(1));
+    db.add_document(doc);
+    db.commit();
+
+    // Check basic function
+    {
+	Xapian::DecreasingValueWeightPostingSource src(1);
+	src.init(db);
+
+	src.next(0.0);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 1);
+
+	src.next(0.0);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 2);
+
+	src.next(0.0);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 3);
+
+	src.next(0.0);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 4);
+
+	src.next(0.0);
+	TEST(src.at_end());
+    }
+
+    // Check skipping to end of list due to weight
+    {
+	Xapian::DecreasingValueWeightPostingSource src(1, 2);
+	src.init(db);
+
+	src.next(1.5);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 1);
+
+	src.next(1.5);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 2);
+
+	src.next(1.5);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 3);
+
+	src.next(1.5);
+	TEST(src.at_end());
+    }
+
+    // Check behaviour with a restricted range
+    doc.add_value(1, Xapian::sortable_serialise(2));
+    db.add_document(doc);
+
+    {
+	Xapian::DecreasingValueWeightPostingSource src(1, 2, 4);
+	src.init(db);
+
+	src.next(1.5);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 1);
+
+	src.next(1.5);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 2);
+
+	src.next(1.5);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 3);
+
+	src.next(1.5);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 5);
+
+	src.next(1.5);
+	TEST(src.at_end());
+    }
+
+    {
+	Xapian::DecreasingValueWeightPostingSource src(1, 2, 4);
+	src.init(db);
+
+	TEST(src.check(1, 1.5));
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 1);
+
+	src.next(1.5);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 2);
+
+	src.skip_to(4, 1.5);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 5);
+
+	src.next(1.5);
+	TEST(src.at_end());
+    }
+
+    {
+	Xapian::DecreasingValueWeightPostingSource src(1, 2, 4);
+	src.init(db);
+
+	TEST(src.check(1, 1.5));
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 1);
+
+	src.next(1.5);
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 2);
+
+	TEST(src.check(4, 1.5));
+	TEST(!src.at_end());
+	TEST_EQUAL(src.get_docid(), 5);
+
+	src.next(1.5);
+	TEST(src.at_end());
+    }
+
+    return true;
+}
