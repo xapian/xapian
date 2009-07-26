@@ -165,6 +165,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
     // @}
 };
 
+/// Equality test for ValueIterator objects.
 inline bool
 operator==(const ValueIterator &a, const ValueIterator &b)
 {
@@ -173,42 +174,49 @@ operator==(const ValueIterator &a, const ValueIterator &b)
     return a.internal.get() == b.internal.get();
 }
 
+/// @internal Equality test for ValueIterator object again end iterator.
 inline bool
 operator==(const ValueIterator &a, const ValueIteratorEnd_ &)
 {
     return a.internal.get() == NULL;
 }
 
+/// @internal Equality test for ValueIterator object again end iterator.
 inline bool
 operator==(const ValueIteratorEnd_ &a, const ValueIterator &b)
 {
     return b == a;
 }
 
+/// @internal Equality test for end iterators.
 inline bool
 operator==(const ValueIteratorEnd_ &, const ValueIteratorEnd_ &)
 {
     return true;
 }
 
+/// Inequality test for ValueIterator objects.
 inline bool
 operator!=(const ValueIterator &a, const ValueIterator &b)
 {
     return !(a == b);
 }
 
+/// @internal Inequality test for ValueIterator object again end iterator.
 inline bool
 operator!=(const ValueIterator &a, const ValueIteratorEnd_ &b)
 {
     return !(a == b);
 }
 
+/// @internal Inequality test for ValueIterator object again end iterator.
 inline bool
 operator!=(const ValueIteratorEnd_ &a, const ValueIterator &b)
 {
     return !(a == b);
 }
 
+/// @internal Inequality test for end iterators.
 inline bool
 operator!=(const ValueIteratorEnd_ &a, const ValueIteratorEnd_ &b)
 {

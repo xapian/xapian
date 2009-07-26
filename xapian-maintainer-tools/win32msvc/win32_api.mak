@@ -18,6 +18,7 @@ ALL : "$(OUTDIR)\libapi.lib"
 OBJS= \
     $(INTDIR)/documentvaluelist.obj\
     $(INTDIR)/editdistance.obj \
+    $(INTDIR)/emptypostlist.obj \
     $(INTDIR)/error.obj \
     $(INTDIR)/errorhandler.obj \
     $(INTDIR)/expanddecider.obj \
@@ -45,6 +46,7 @@ OBJS= \
 SRCS= \
     $(INTDIR)/documentvaluelist.cc\
     $(INTDIR)/editdistance.cc\
+    $(INTDIR)/emptypostlist.cc\
     $(INTDIR)/error.cc\
     $(INTDIR)/errorhandler.cc\
     $(INTDIR)/expanddecider.cc\

@@ -220,3 +220,24 @@ DEFINE_TESTCASE(topercent3, remote) {
 
     return true;
 }
+
+// Regression test for bug introduced temporarily by the "percent without
+// termlist" patch.
+DEFINE_TESTCASE(topercent4, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+
+    Xapian::Query query(Xapian::Query::OP_FILTER,
+			Xapian::Query("paragraph"),
+			Xapian::Query("queri"));
+    query = Xapian::Query(Xapian::Query::OP_XOR,
+			  query, Xapian::Query("rubbish"));
+
+    enquire.set_query(query);
+    Xapian::MSet mset = enquire.get_mset(0, 10);
+
+    // We should get 50% not 33%.
+    TEST(!mset.empty());
+    TEST_EQUAL(mset[0].get_percent(), 50);
+
+    return true;
+}

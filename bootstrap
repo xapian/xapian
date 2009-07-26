@@ -27,8 +27,8 @@ fi
 trap 'echo "Bootstrap failed"' EXIT
 set -e
 
-# The variables which specify the autotools to use.
-autotools="AUTORECONF AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE ACLOCAL LIBTOOLIZE"
+# The variables which specify the autotools to use.  And doxygen.
+autotools="AUTORECONF AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE ACLOCAL LIBTOOLIZE DOXYGEN"
 
 # Tool for downloading a file from a URL (currently wget or curl).
 FETCH_URL_TOOL=
@@ -72,7 +72,12 @@ lazy_build() {
 	exit 1
       fi
     fi
-    $FETCH_URL_TOOL "ftp://ftp.gnu.org/gnu/$package/$tarball"
+    case $package in
+    doxygen)
+      $FETCH_URL_TOOL "ftp://ftp.stack.nl/pub/users/dimitri/$tarball" ;;
+    *)
+      $FETCH_URL_TOOL "ftp://ftp.gnu.org/gnu/$package/$tarball" ;;
+    esac
   fi
 
   if [ -f "$stamp" ] ; then
@@ -98,9 +103,9 @@ lazy_build() {
 
     cd "$basename"
     if test -n "$AUTOCONF" ; then
-      ./configure --prefix="$instdir" AUTOCONF="$AUTOCONF"
+      ./configure --prefix "$instdir" AUTOCONF="$AUTOCONF"
     else
-      ./configure --prefix="$instdir"
+      ./configure --prefix "$instdir"
     fi
     make
     make install
@@ -137,6 +142,7 @@ else
   cd BUILD
 
   # The last field is the SHA1 checksum of the tarball.
+  lazy_build doxygen 1.5.9 src.tar.gz 6211b850bdaa2198e35546e4299a27774c957ece
   lazy_build autoconf 2.63 tar.bz2 f15e14aa34acf871b47f659ef99a2e6707db4a18
   AUTOCONF=$instdir/bin/autoconf \
   lazy_build automake 1.11 tar.bz2 1ae8c15d91b8eb8728c35cf0901a02782830e9de

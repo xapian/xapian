@@ -17,10 +17,8 @@ ALL : "$(OUTDIR)\libmatcher.lib"
 OBJS= \
     $(INTDIR)\andmaybepostlist.obj\
     $(INTDIR)\andnotpostlist.obj\
-    $(INTDIR)\andpostlist.obj\
     $(INTDIR)\branchpostlist.obj\
     $(INTDIR)\collapser.obj\
-    $(INTDIR)\emptysubmatch.obj\
     $(INTDIR)\exactphrasepostlist.obj\
     $(INTDIR)\externalpostlist.obj\
     $(INTDIR)\localmatch.obj\
@@ -44,10 +42,8 @@ OBJS= \
 SRCS= \
     $(INTDIR)\andmaybepostlist.cc\
     $(INTDIR)\andnotpostlist.cc\
-    $(INTDIR)\andpostlist.cc\
     $(INTDIR)\branchpostlist.cc\
     $(INTDIR)\collapser.cc\
-    $(INTDIR)\emptysubmatch.cc\
     $(INTDIR)\exactphrasepostlist.cc\
     $(INTDIR)\externalpostlist.cc\
     $(INTDIR)\localmatch.cc\
