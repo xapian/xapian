@@ -1280,15 +1280,15 @@ This is a (hopefully complete) list of the jobs which need doing:
 * Update the version in configure.ac for each module (xapian-core, omega, and
   xapian-bindings), and the library version info in xapian-core's configure.ac
 
-* Update the status of bug reports fixed by this release from "fixed" to
-  "released":
-  http://trac.xapian.org/report/12
-  Make sure the submitters are mentioned in the "thanks" list in AUTHORS.
+* Make sure the submitters of fixed bugs are mentioned in the "thanks" list in
+  xapian-core/AUTHORS.  Check the list for the appropriate milestone::
+
+  http://trac.xapian.org/query?col=id&col=summary&col=reporter&milestone=1.0.14
 
 * On atreus, svn tag the source trees for the new revision - use the
   svn-tag-release script, running it with the new version number, for example:
 
-  xapian-maintainer-tools/svn-tag-release 0.9.0
+  xapian-maintainer-tools/svn-tag-release 1.0.14
 
   This script also generates tarballs for the new release and copies them
   across to the website.
@@ -1300,7 +1300,8 @@ This is a (hopefully complete) list of the jobs which need doing:
   http://trac.xapian.org/admin/ticket/milestones
 
 * Mark the current milestone as completed.  In order to do so, any unfixed bugs
-  with this milestone will need to be updated to the milestone you just added.
+  with this milestone will need to be moved to another milestone (most likely
+  the milestone you just added).
 
 * Update the website: version.php in the CVS module www.xapian.org contains the
   latest version and the date it was released.
@@ -1354,10 +1355,11 @@ updated as follows:
   new source packages for the various Debian and Ubuntu versions we provide
   packages for.  Currently this script must be run on atreus.
 
-* Build debs for oldstable, stable, unstable, dapper, edgy, feisty, and gutsy.
-  The scripts xapian-maintainer-tools/debian/create-chroot and
-  xapian-maintainer-tools/debian/build-packages allow building these in
-  a series of chroots on a single machine using pbuilder.
+* Build debs for oldstable, stable, unstable, dapper, hardy, intrepid, jaunty.
+  The Ubuntu packages are now built in a PPA in Launchpad.  Alternatively, the
+  scripts xapian-maintainer-tools/debian/create-chroot and
+  xapian-maintainer-tools/debian/build-packages allow building these in a
+  series of chroots on a single machine using pbuilder.
 
 
 
