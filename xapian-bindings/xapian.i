@@ -199,8 +199,6 @@ class ValueIterator {
 %ignore Xapian::PostingSource::unserialise;
 %ignore Xapian::PostingSource::register_matcher_;
 %include <xapian/postingsource.h>
-%include <xapian/decvalwtsource.h>
-%include <xapian/limitvalwtsource.h>
 
 namespace Xapian {
 
