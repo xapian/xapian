@@ -37,7 +37,6 @@
 #include <xapian/valueiterator.h>
 #include <xapian/visibility.h>
 
-/// The Xapian library lives in the Xapian namespace.
 namespace Xapian {
 
 /** This class is used to access a database, or a group of databases.
