@@ -1,3 +1,8 @@
+Sun Jul 26 13:57:29 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/version_h.cc: Add documentation comments for the
+	  generated version.h, and all the preprocessor defines it contains.
+
 Sun Jul 26 13:56:15 GMT 2009  Olly Betts <olly@survex.com>
 
 	* include/xapian.h: Consistently say "linked with" rather than "linked

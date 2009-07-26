@@ -2,10 +2,9 @@
 // (for portability, files run through $CXXCPP must have extension .c .cc or .C)
 #include <config.h>
 const char * dummy[] = {
-"// version.h: Define preprocesor symbols for the library version.",
-"// If using GCC, also check the C++ ABI version is compatible with that used",
-"// to build the library.",
-"//",
+"/** @file version.h",
+" * @brief Define preprocesor symbols for the library version",
+" */",
 "// Copyright (C) 2002,2004,2005,2006,2007,2008,2009 Olly Betts",
 "//",
 "// This program is free software; you can redistribute it and/or",
@@ -91,26 +90,46 @@ const char * dummy[] = {
 "#endif",
 #endif
 "",
+"/// The version of Xapian as a C string literal.",
 "#define XAPIAN_VERSION ",STRING_VERSION,
+"",
+"/** The major component of the Xapian version.",
+" *  E.g. for Xapian 1.0.14 this would be: 1",
+" */",
 "#define XAPIAN_MAJOR_VERSION ",MAJOR_VERSION,
+"",
+"/** The minor component of the Xapian version.",
+" *  E.g. for Xapian 1.0.14 this would be: 0",
+" */",
 "#define XAPIAN_MINOR_VERSION ",MINOR_VERSION,
+"",
+"/** The revision component of the Xapian version.",
+" *  E.g. for Xapian 1.0.14 this would be: 14",
+" */",
 "#define XAPIAN_REVISION ",REVISION,
 "",
+"/// XAPIAN_HAS_CHERT_BACKEND Defined if the chert backend is enabled.",
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 "#define XAPIAN_HAS_CHERT_BACKEND 1",
 #else
 "/* #undef XAPIAN_HAS_CHERT_BACKEND */",
 #endif
+"",
+"/// XAPIAN_HAS_FLINT_BACKEND Defined if the flint backend is enabled.",
 #ifdef XAPIAN_HAS_FLINT_BACKEND
 "#define XAPIAN_HAS_FLINT_BACKEND 1",
 #else
 "/* #undef XAPIAN_HAS_FLINT_BACKEND */",
 #endif
+"",
+"/// XAPIAN_HAS_INMEMORY_BACKEND Defined if the inmemory backend is enabled.",
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
 "#define XAPIAN_HAS_INMEMORY_BACKEND 1",
 #else
 "/* #undef XAPIAN_HAS_INMEMORY_BACKEND */",
 #endif
+"",
+"/// XAPIAN_HAS_REMOTE_BACKEND Defined if the remote backend is enabled.",
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 "#define XAPIAN_HAS_REMOTE_BACKEND 1",
 #else
