@@ -1,3 +1,9 @@
+Sun Jul 26 13:56:15 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian.h: Consistently say "linked with" rather than "linked
+	  to" in some cases.  Put documentation comment for namespace Xapian
+	  in this file.
+
 Sun Jul 26 13:06:45 GMT 2009  Olly Betts <olly@survex.com>
 
 	* docs/doxygen_api.conf.in: More fettling to try to get better output:
