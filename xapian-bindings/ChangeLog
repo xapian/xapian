@@ -1,3 +1,11 @@
+Sun Jul 26 21:55:47 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/doxy2swig.py: Tell textwrap not to break long words -
+	  fixes a load of places in the documentation comments where C++
+	  names and type names were cut in two.  Also fixes a problem on
+	  the postingsource branch where actual python identifiers were
+	  being cut in two (for some very long identifiers).
+
 Thu Jul 23 04:13:02 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.1.2.
