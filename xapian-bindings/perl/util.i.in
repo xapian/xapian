@@ -239,6 +239,18 @@ bool stop_word(std::string term) {
 }
 }
 
+%inline %{
+Xapian::WritableDatabase * new3_WritableDatabase() {
+	Xapian::WritableDatabase * retval;
+        try {
+	    retval = new Xapian::WritableDatabase(Xapian::InMemory::open());
+        }
+        catch (const Xapian::Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
+}
+%}
+
 %perlcode %{
 package Search::Xapian;	
 
@@ -461,5 +473,17 @@ sub new {
     }
 
     return $stopper;
+}
+
+package Search::Xapian::WritableDatabase;
+sub new {
+  my $pkg = shift;
+  my $self;
+  if( scalar(@_) == 0 ) {
+    $self = Search::Xapianc::new3_WritableDatabase(@_);
+  } else {
+    $self = Search::Xapianc::new_WritableDatabase(@_);
+  }
+  bless $self, $pkg if defined($self);
 }
 %}

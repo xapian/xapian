@@ -1,3 +1,9 @@
+Mon Jul 27 06:40:28 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Add function new3_WritableDatabase and
+	WritableDatabase::new to construct WritableDatabase
+	correctly.
+
 Thu Jul 23 16:58:26 GMT 2009  Kosei Moriyama <cou929@gmail.com>
 
 	* perl/util.i.in: Wrap functions SimpleStopper::stop_word, 
