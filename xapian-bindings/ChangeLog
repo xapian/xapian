@@ -1,3 +1,9 @@
+Mon Jul 27 09:31:45 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Add operator overload support for PositionIterator,
+	fix new3_WritableDatabase, and TermIterator::clone for overloading 
+	operator '='.
+
 Mon Jul 27 06:40:28 GMT 2009  Kosei Moriyama <cou929@gmail.com>
 
 	* perl/util.i.in:Add function new3_WritableDatabase and

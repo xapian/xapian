@@ -241,15 +241,28 @@ bool stop_word(std::string term) {
 
 %inline %{
 Xapian::WritableDatabase * new3_WritableDatabase() {
-	Xapian::WritableDatabase * retval;
         try {
-	    retval = new Xapian::WritableDatabase(Xapian::InMemory::open());
+	    return new Xapian::WritableDatabase(Xapian::InMemory::open());
         }
         catch (const Xapian::Error &error) {
             croak( "Exception: %s", error.get_msg().c_str() );
         }
 }
 %}
+
+%extend Xapian::PositionIterator {
+void inc() {
+       ++(*self);
+}
+
+bool equal1(Xapian::PositionIterator * that) {
+     return ((*self) == (*that));
+}
+
+bool nequal1(Xapian::PositionIterator * that) {
+     return ((*self) != (*that));
+}
+}
 
 %perlcode %{
 package Search::Xapian;	
@@ -448,8 +461,16 @@ use overload '++' => sub { $_[0]->inc() },
 	     'ne' => sub { $_[0]->nequal($_[1]) },
 	     '==' => sub { $_[0]->equal($_[1]) },
 	     '!=' => sub { $_[0]->nequal($_[1]) },
-#            '""' => sub { $_[0]->get_termname() },
+#             '""' => sub { $_[0]->get_termname() },
              'fallback' => 1;
+
+sub clone() {
+  my $self = shift;
+  my $class = ref( $self );
+  my $copy = new( $self );
+  bless $copy, $class;
+  return $copy;
+}
 
 package Search::Xapian::QueryParser;
 sub new {
@@ -486,4 +507,43 @@ sub new {
   }
   bless $self, $pkg if defined($self);
 }
+
+package Search::Xapian::PositionIterator;
+use UNIVERSAL qw( isa );
+use overload '++' => sub { $_[0]->inc() },
+             '='  => sub { $_[0]->clone() },
+	     'eq' => sub { $_[0]->equal($_[1]) },
+	     'ne' => sub { $_[0]->nequal($_[1]) },
+	     '==' => sub { $_[0]->equal($_[1]) },
+	     '!=' => sub { $_[0]->nequal($_[1]) },
+             '""' => sub { $_[0]->get_description() },
+             '0+' => sub { $_[0]->get_termpos() },
+             'fallback' => 1;
+
+sub clone() {
+  my $self = shift;
+  my $class = ref( $self );
+  my $copy = new( $self );
+  bless $copy, $class;
+  return $copy;
+}
+
+sub equal() {
+  my ($self, $other) = @_;
+  if( isa($other, 'Search::Xapian::PositionIterator') ) {
+    $self->equal1($other);
+  } else {
+    ($self+0) == ($other+0);
+  }
+}
+
+sub nequal() {
+  my ($self, $other) = @_;
+  if( isa($other, 'Search::Xapian::PositionIterator') ) {
+    $self->nequal1($other);
+  } else {
+    ($self+0) != ($other+0);
+  }
+}
+
 %}
