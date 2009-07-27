@@ -1081,10 +1081,25 @@ to follow the style of the existing code.  In particular:
   (pre-ISO compilers used '#include <list.h>', but GCC has generated a warning
   for this form for years, and GCC 4.3 dropped support entirely).
 
-* When passing an empty string to a method expecting ``const std::string &``
-  prefer ``std::string()`` to ``""`` or ``std::string("")`` as the first form
-  is more likely to directly use a special "empty string representation" (it
-  does with GCC at least).
+* Some guidelines for efficient use of std::string:
+
+  + When passing an empty string to a method expecting ``const std::string &``
+    prefer ``std::string()`` to ``""`` or ``std::string("")`` as the first form
+    is more likely to directly use a special "empty string representation" (it
+    does with GCC at least).
+
+  + Use ``std::string::assign()`` rather than building a temporary string
+    object and assigning that.  For example, ``foo = std::string(ptr, len);``
+    is better written as ``foo.assign(ptr, len);``.
+
+  + It's generally better to build up strings using ``+=`` rather than
+    combining series of components with ``+``.  So ``foo = a + " and " + c`` is
+    better written as ``foo = a; foo += " and "; foo += c;``.  It's possible
+    for compilers to handle the former without a lot of temporary string
+    objects by returning a proxy object to allow the concatenation to happen
+    lazily, but not all compilers do this, and it's likely to still have some
+    overhead.  Note that GCC 4.1 seems to produce larger code in some cases for
+    the latter approach, but it's a definite win with GCC 4.4.
 
 * Prefer ``new SomeClass`` to ``new SomeClass()``, since the latter tends to
   lead one to write ``SomeClass foo();` which is a function prototype, and not
