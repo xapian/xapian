@@ -370,7 +370,7 @@ apt-get install texlive-pdfetex
 Autotools versions
 ------------------
 
-* autoconf 2.63 is recommended and a hard minimum requirement.
+* autoconf 2.64 is recommended and a hard minimum requirement.
 
   autoconf 2.57 fixes the annoying chmod warnings on FreeBSD.
 
@@ -384,6 +384,8 @@ Autotools versions
 
   autoconf 2.63 fixes a regression in AC_C_BIGENDIAN introduced in 2.62
   (Omega uses this macro).
+
+  autoconf 2.64 generates smaller configure scripts by using shell functions.
 
 * automake 1.10.2 is recommended and a hard minimum requirement.
 

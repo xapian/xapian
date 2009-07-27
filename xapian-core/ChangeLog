@@ -1,3 +1,7 @@
+Mon Jul 27 04:50:45 GMT 2009  Olly Betts <olly@survex.com>
+
+	* HACKING: Now using autoconf 2.64.
+
 Mon Jul 27 04:46:17 GMT 2009  Olly Betts <olly@survex.com>
 
 	* HACKING: Add note about preferring std::string::assign(), and also
