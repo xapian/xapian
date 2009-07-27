@@ -407,10 +407,10 @@ RemoteDatabase::read_value_stats(Xapian::valueno valno) const
 	mru_valno = valno;
 	mru_valstats.freq = decode_length(&p, p_end, false);
 	size_t len = decode_length(&p, p_end, true);
-	mru_valstats.lower_bound = string(p, len);
+	mru_valstats.lower_bound.assign(p, len);
 	p += len;
 	len = decode_length(&p, p_end, true);
-	mru_valstats.upper_bound = string(p, len);
+	mru_valstats.upper_bound.assign(p, len);
 	p += len;
 	if (p != p_end) {
 	    throw Xapian::NetworkError("Bad REPLY_VALUESTATS message received", context);

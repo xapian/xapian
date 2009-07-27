@@ -1,3 +1,10 @@
+Mon Jul 27 04:45:15 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_lock.cc,backends/chert/chert_utils.h,
+	  backends/flint/flint_lock.cc,backends/flint/flint_utils.h,
+	  backends/remote/remote-database.cc: Use std::string::assign() rather
+	  than constructing a temporary string object to assign.
+
 Sun Jul 26 16:08:10 GMT 2009  Olly Betts <olly@survex.com>
 
 	* AUTHORS: Update for bugs fixed in 1.0.14.
