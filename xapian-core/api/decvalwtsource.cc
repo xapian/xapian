@@ -116,6 +116,7 @@ void
 DecreasingValueWeightPostingSource::next(Xapian::weight min_wt) {
     if (get_maxweight() < min_wt) {
 	value_it = db.valuestream_end(slot);
+	started = true;
 	return;
     }
     Xapian::ValueWeightPostingSource::next(min_wt);
@@ -127,6 +128,7 @@ DecreasingValueWeightPostingSource::skip_to(Xapian::docid min_docid,
 					    Xapian::weight min_wt) {
     if (get_maxweight() < min_wt) {
 	value_it = db.valuestream_end(slot);
+	started = true;
 	return;
     }
     Xapian::ValueWeightPostingSource::skip_to(min_docid, min_wt);
@@ -138,6 +140,7 @@ DecreasingValueWeightPostingSource::check(Xapian::docid min_docid,
 					  Xapian::weight min_wt) {
     if (get_maxweight() < min_wt) {
 	value_it = db.valuestream_end(slot);
+	started = true;
 	return true;
     }
     bool valid = Xapian::ValueWeightPostingSource::check(min_docid, min_wt);

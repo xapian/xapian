@@ -1,3 +1,9 @@
+Tue Jul 28 00:33:42 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/decvalwtsource.cc: Fix decvalwtsource5, by ensuring that
+	  next(), skipt_to() and check() set "started" to true, even if
+	  they're aborting due to a low maxweight.
+
 Tue Jul 28 00:16:56 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/api_valuestream.cc: Extend test coverage in
