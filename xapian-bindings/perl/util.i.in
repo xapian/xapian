@@ -264,6 +264,10 @@ bool nequal1(Xapian::PositionIterator * that) {
 }
 }
 
+%rename(set_stopper0) Xapian::QueryParser::set_stopper();
+%rename(set_stopper1) Xapian::QueryParser::set_stopper(const Stopper * stopper);
+%rename(add_valuerangeprocessor1) Xapian::QueryParser::add_valuerangeprocessor(Xapian::ValueRangeProcessor * vrproc);
+
 %perlcode %{
 package Search::Xapian;	
 
@@ -481,6 +485,18 @@ sub new {
   $qp->set_database(@_) if scalar(@_) == 1;
 
   return $qp;
+}
+
+sub set_stopper {
+    ($self, $stopper) = @_;
+    $self{_stopper} = $stopper;
+    set_stopper1( @_ );
+}
+
+sub add_valuerangeprocessor {
+    ($self, $vrproc) = @_;
+    $self{_vrproc} = $vrproc;
+    add_valuerangeprocessor1( @_ );
 }
 
 package Search::Xapian::SimpleStopper;

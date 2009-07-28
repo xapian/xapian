@@ -1,3 +1,8 @@
+Tue Jul 28 03:56:45 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Fix set_stopper to keep SimpleStopper reference
+	in object for it won't be deleted. Same fix for add_valuerangeprocessor.
+
 Mon Jul 27 09:31:45 GMT 2009  Kosei Moriyama <cou929@gmail.com>
 
 	* perl/util.i.in:Add operator overload support for PositionIterator,
