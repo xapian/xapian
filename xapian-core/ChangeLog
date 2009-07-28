@@ -1,3 +1,16 @@
+Tue Jul 28 16:35:54 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	Merge from postingsources branch:
+	* api/Makefile.mk,api/decvalwtsource.cc,api/serialisationcontext.cc,
+	  include/xapian/postingsource.h: Add
+	  DecreasingValueWeightPostingSource class, which reads weights
+	  from a value slot in which a significant range of the values are
+	  in decreasing order.  This functions similarly to
+	  ValueWeightPostingSource, but can be much more efficient.
+	* tests/api_valuestream.cc,tests/testdata/apitest_declen.txt:
+	  Tests, and some associated constructed test data, for
+	  DecreasingValueWeightPostingSource.
+
 Mon Jul 27 04:50:45 GMT 2009  Olly Betts <olly@survex.com>
 
 	* HACKING: Now using autoconf 2.64.
