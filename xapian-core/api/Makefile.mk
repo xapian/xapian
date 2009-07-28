@@ -9,7 +9,6 @@ EXTRA_DIST +=\
 
 lib_src +=\
 	api/decvalwtsource.cc\
-	api/limitvalwtsource.cc\
 	api/documentvaluelist.cc\
 	api/editdistance.cc\
 	api/emptypostlist.cc\
@@ -17,6 +16,7 @@ lib_src +=\
 	api/errorhandler.cc\
 	api/expanddecider.cc\
 	api/leafpostlist.cc\
+	api/limitvalwtsource.cc\
 	api/omdatabase.cc\
 	api/omdocument.cc\
 	api/omenquire.cc\

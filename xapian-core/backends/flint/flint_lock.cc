@@ -190,7 +190,7 @@ FlintLock::lock(bool exclusive, std::string & explanation) {
 	}
 	if (n == 0) {
 	    // EOF means the lock failed.
-	    explanation = std::string("Got EOF reading from child process");
+	    explanation.assign("Got EOF reading from child process");
 	    break;
 	}
 	if (errno != EINTR) {
