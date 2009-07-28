@@ -268,6 +268,13 @@ bool nequal1(Xapian::PositionIterator * that) {
 %rename(set_stopper1) Xapian::QueryParser::set_stopper(const Stopper * stopper);
 %rename(add_valuerangeprocessor1) Xapian::QueryParser::add_valuerangeprocessor(Xapian::ValueRangeProcessor * vrproc);
 
+%rename(set_stopper0) Xapian::TermGenerator::set_stopper();
+%rename(set_stopper1) Xapian::TermGenerator::set_stopper(const Xapian::Stopper * stopper);
+
+%rename(set_sort_by_key1) Xapian::Enquire::set_sort_by_key(Xapian::MultiValueSorter * sorter, bool ascending);
+%rename(set_sort_by_key_then_relevance1) Xapian::Enquire::set_sort_by_key_then_relevance(Xapian::MultiValueSorter * sorter, bool ascending);
+%rename(set_sort_by_relevance_then_key1) Xapian::Enquire::set_sort_by_relevance_then_key(Xapian::MultiValueSorter * sorter, bool ascending);
+
 %perlcode %{
 package Search::Xapian;	
 
@@ -448,6 +455,27 @@ sub get_mset {
   return $self->get_mset1( @_ );
 }
 
+sub set_sort_by_key {
+    my $self = $_[0];
+    my $sorter = $_[1];
+    $self{_sorter} = $sorter;
+    set_sort_by_key1( @_ );
+}
+
+sub set_sort_by_key_then_relevance {
+    my $self = $_[0];
+    my $sorter = $_[1];
+    $self{_sorter} = $sorter;
+    set_sort_by_key_then_relevance1( @_ );
+}
+
+sub set_sort_by_relevance_then_key {
+    my $self = $_[0];
+    my $sorter = $_[1];
+    $self{_sorter} = $sorter;
+    set_sort_by_relevance_then_key1( @_ );
+}
+
 package Search::Xapian::ValueIterator;
 use overload '++' => sub { $_[0]->inc() },
              '='  => sub { $_[0]->clone() },
@@ -488,13 +516,13 @@ sub new {
 }
 
 sub set_stopper {
-    ($self, $stopper) = @_;
+    my ($self, $stopper) = @_;
     $self{_stopper} = $stopper;
     set_stopper1( @_ );
 }
 
 sub add_valuerangeprocessor {
-    ($self, $vrproc) = @_;
+    my ($self, $vrproc) = @_;
     $self{_vrproc} = $vrproc;
     add_valuerangeprocessor1( @_ );
 }
@@ -562,4 +590,10 @@ sub nequal() {
   }
 }
 
+package Search::Xapian::TermGenerator;
+sub set_stopper {
+    my ($self, $stopper) = @_;
+    $self{_stopper} = $stopper;
+    set_stopper1( @_ );
+}
 %}

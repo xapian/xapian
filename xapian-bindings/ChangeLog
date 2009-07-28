@@ -1,3 +1,10 @@
+Tue Jul 28 06:09:40 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Fix set_stopper of TermGenerator to keep 
+	SimpleStopper reference	in the object for it won't be deleted. 
+	Similar fix for set_sort_by_key, set_sort_by_key_then_relevance,
+	set_sort_by_relevance_then_key to keep MultiValueSorter.
+
 Tue Jul 28 03:56:45 GMT 2009  Kosei Moriyama <cou929@gmail.com>
 
 	* perl/util.i.in:Fix set_stopper to keep SimpleStopper reference
