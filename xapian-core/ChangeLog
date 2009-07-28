@@ -1,3 +1,11 @@
+Tue Jul 28 00:16:56 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_valuestream.cc: Extend test coverage in
+	  decvalwtsource5.  Also, DecreasingValueWeightPostingSource
+	  doesn't work with multidbs, because the docids specified need to
+	  be for the individual sub database used, so don't run
+	  decvalwtsource4 with multi backends.
+
 Sun Jul 26 22:41:31 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/serialisationcontext.cc: Register the decreasing and limited
