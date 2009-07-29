@@ -58,7 +58,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *  The string is not copied into the iterator, so it must remain valid
      *  while the iteration is in progress.
      *
-     *  @param p A pointer to the start of the string to read.
+     *  @param p_ A pointer to the start of the string to read.
      *
      *  @param len The length of the string to read.
      */
@@ -90,7 +90,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *  next called.  The string is not copied into the iterator, so it must
      *  remain valid while the iteration is in progress.
      *
-     *  @param p A pointer to the start of the null terminated string to read.
+     *  @param p_ A pointer to the start of the null terminated string to read.
      */
     explicit Utf8Iterator(const char *p_);
 
@@ -100,7 +100,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *  next called.  The string is not copied into the iterator, so it must
      *  remain valid while the iteration is in progress.
      *
-     *  @param p A pointer to the start of the string to read.
+     *  @param p_ A pointer to the start of the string to read.
      *
      *  @param len The length of the string to read.
      */

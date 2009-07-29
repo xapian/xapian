@@ -1,3 +1,8 @@
+Wed Jul 29 09:01:12 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/unicode.h: Fix @param names to match parameter names.
+
 Tue Jul 21 16:05:30 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.0.14.
