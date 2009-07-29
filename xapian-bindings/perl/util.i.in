@@ -523,7 +523,7 @@ sub set_stopper {
 
 sub add_valuerangeprocessor {
     my ($self, $vrproc) = @_;
-    $self{_vrproc} = $vrproc;
+    push @{$self{_vrproc}}, $vrproc;
     add_valuerangeprocessor1( @_ );
 }
 

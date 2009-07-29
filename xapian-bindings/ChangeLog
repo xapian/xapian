@@ -1,3 +1,10 @@
+Wed Jul 29 01:24:34 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Fix add_valuerangeprocessor to push 
+	ValueRangeProcessors object into it's member array
+	since storing all ValueRangeProcessors objects which
+	added.
+
 Tue Jul 28 06:09:40 GMT 2009  Kosei Moriyama <cou929@gmail.com>
 
 	* perl/util.i.in:Fix set_stopper of TermGenerator to keep 
