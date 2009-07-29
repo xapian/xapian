@@ -206,6 +206,7 @@ EXTRA_DIST +=\
 	testdata/apitest_manydocs.txt \
 	testdata/apitest_sortconsist.txt \
 	testdata/apitest_sortrel.txt \
+	testdata/apitest_declen.txt \
 	testdata/etext.txt \
 	testdata/flint-0.9.9/flicklock \
 	testdata/flint-0.9.9/iamflint \
