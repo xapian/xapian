@@ -101,11 +101,13 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
 	//@}
 };
 
+/// Equality test for ValueIterator objects.
 inline bool operator==(const ValueIterator &a, const ValueIterator &b)
 {
     return (a.index == b.index);
 }
 
+/// Inequality test for ValueIterator objects.
 inline bool operator!=(const ValueIterator &a, const ValueIterator &b)
 {
     return (a.index != b.index);

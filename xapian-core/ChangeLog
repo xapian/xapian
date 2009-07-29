@@ -1,3 +1,8 @@
+Wed Jul 29 09:24:53 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/: Documentation comment tweaks.
+
 Wed Jul 29 09:01:12 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

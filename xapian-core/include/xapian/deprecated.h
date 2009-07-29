@@ -1,6 +1,7 @@
-// deprecated.h: Define XAPIAN_DEPRECATED() macro.
-//
-// Copyright (C) 2006,2007 Olly Betts
+/** @file deprecated.h
+ * @brief Define XAPIAN_DEPRECATED() macro.
+ */
+// Copyright (C) 2006,2007,2009 Olly Betts
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
