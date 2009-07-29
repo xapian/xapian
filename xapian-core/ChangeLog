@@ -1,3 +1,7 @@
+Wed Jul 29 09:44:15 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
 Wed Jul 29 09:29:45 GMT 2009  Olly Betts <olly@survex.com>
 
 	* include/xapian/valueiterator.h: Fix typos ("again" -> "and").

@@ -1,3 +1,142 @@
+ 13200       olly Wed Jul 29 09:29:45 GMT 2009  Olly Betts <olly@survex.com>
+
+ 13183       olly Mon Jul 27 04:46:17 GMT 2009  Olly Betts <olly@survex.com>
+	* HACKING: Add note about preferring std::string::assign(), and also
+	  one about building up strings using +=.
+
+ 13182       olly Mon Jul 27 04:45:15 GMT 2009  Olly Betts <olly@survex.com>
+	* backends/chert/chert_lock.cc,backends/chert/chert_utils.h,
+	  backends/flint/flint_lock.cc,backends/flint/flint_utils.h,
+	  backends/remote/remote-database.cc: Use std::string::assign() rather
+	  than constructing a temporary string object to assign.
+
+ 13172       olly Sun Jul 26 16:08:10 GMT 2009  Olly Betts <olly@survex.com>
+	* AUTHORS: Update for bugs fixed in 1.0.14.
+
+ 13171       olly Sun Jul 26 16:03:54 GMT 2009  Olly Betts <olly@survex.com>
+	* HACKING: Update the release checklist.
+
+ 13170       olly Sun Jul 26 14:28:25 GMT 2009  Olly Betts <olly@survex.com>
+	* docs/doxygen_source.conf.in: Update roughly in-line with apidoc
+	  changes.  I've not looked at the output much though.
+
+ 13164       olly Sun Jul 26 13:06:45 GMT 2009  Olly Betts <olly@survex.com>
+	* docs/doxygen_api.conf.in: More fettling to try to get better output:
+	  + Wrap long comments.
+	  + Quote arguments containing @...@ substitutions as they could
+	    conceivably contain spaces.
+	  + ALWAYS_DETAILED_SEC = NO: since a detailed section with no extra
+	    information is pointless.
+	  + STRIP_FROM_PATH, INCLUDE_PATH: Add "@top_builddir@/include" for
+	    VPATH builds.
+	  + HIDE_UNDOC_MEMBERS = YES: otherwise @internal members show up
+	    (with no documentation).
+	  + HIDE_FRIEND_COMPOUNDS = YES: as friend declarations in the API
+	    headers are implementation details.
+	  + SHOW_INCLUDE_FILES = NO: users should just include <xapian.h>
+	    for all their API needs.
+	  + GENERATE_TODOLIST, GENERATE_TESTLIST, GENERATE_BUGLIST: all set to
+	    NO as we don't want these in the API documentation.
+	  + SHOW_NAMESPACES = YES: We have several sub-namespaces so these are
+	    useful to document.
+	  + INPUT: Prepend "@top_builddir@/include/xapian/version.h" so that
+	    XAPIAN_HAS_FLINT_BACKEND, etc are defined before parsing other
+	    headers.
+	  + EXCLUDE: remove all entries and use EXCLUDE_PATTERNS instead.
+	  + EXCLUDE_PATTERNS: Include entries corresponding to those in EXCLUDE
+	    and add */derefwrapper.h and */.* (the latter avoids trying to look
+	    in .svn or any other hidden files or directories).
+	  + REFERENCES_LINK_SOURCE = NO: Improves output.
+	  + VERBATIM_HEADERS = NO: The verbatim headers aren't very
+	    interesting.
+	  + PREDEFINED: Define XAPIAN_VISIBILITY_DEFAULT and
+	    XAPIAN_DEPRECATED(D)=D as doxygen seem reluctant to parse included
+	    files.
+	  + EXPAND_AS_DEFINED: Remove XAPIAN_VISIBILITY_DEFAULT and
+	    XAPIAN_DEPRECATED as these are now handled by PREDEFINED.
+	  + EXTERNAL_GROUPS = NO, GROUP_GRAPHS = NO: We don't use groups so
+	    disable these.
+
+backport fodder:
+
+ 13158       olly Fri Jul 24 15:33:12 GMT 2009  Olly Betts <olly@survex.com>
+	* docs/doxygen_api_conf.in: Major doxygen config overhaul:
+	  + STRIP_FROM_PATH: Strip include from header names.
+	  + JAVADOC_AUTOBRIEF: Re-enable as we have lost most of our brief
+	    descriptions - we can fix up the few cases where this caused
+	    problems with an explicit @brief.
+	  + BUILTIN_STL_SUPPORT: Enable for slightly STL-related stuff.
+	  + DISTRIBUTE_GROUP_DOC: Enable so group members get the group's
+	    comments.
+	  + EXTRACT_STATIC, EXTRACT_LOCAL_CLASSES: Disable since we don't
+	    need these.
+	  + SHOW_NAMESPACES: Disable to hide the "Xapian" namespace.
+	  + QUIET: Enable for less doxygen chatter.
+	  + WARN_LOGFILE: Unset so warnings go to stderr to encourage us to
+	    actually fix them!
+	  + EXCLUDE: Hide base.h, deprecated.h, errordispatch.h, visibility.h.
+	  + HTML_DYNAMIC_SECTIONS: Enable so the class diagrams are hidden by
+	    default but can be "expanded" to be viewed.
+	  + COLLABORATION_GRAPH: Disable as these don't ever seem useful in
+	    the API docs.
+	  + TEMPLATE_RELATIONS: Disable as we don't want to see template
+	    instantiations in inheritance diagrams.
+	  + DOT_MULTI_TARGETS: Enable for faster dot processsing.  Needs
+	    graphviz ">1.8.10", but that's really old now.
+
+ 13154       olly Fri Jul 24 05:32:34 GMT 2009  Olly Betts <olly@survex.com>
+	* docs/doxygen_api_conf.in: Update with "doxygen -u" using doxygen
+	  1.5.9 and then trim trailing whitespace.
+
+trunk:
+
+ 13197       olly Wed Jul 29 06:18:41 GMT 2009  Olly Betts <olly@survex.com>
+	* tests/Makefile.am: Actually distribute testdata/apitest_declen.txt
+	  - new test data from the postingsources branch merge.
+
+ 13194    richard Tue Jul 28 16:38:55 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+	Merge from postingsources branch:
+	* tests/generate-api_generated: Test get_description() methods of
+	  Xapian::PostingSource subclasses. 
+
+ 13193    richard Tue Jul 28 16:35:54 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+	Merge from postingsources branch:
+	* api/Makefile.mk,api/decvalwtsource.cc,api/serialisationcontext.cc,
+	  include/xapian/postingsource.h: Add
+	  DecreasingValueWeightPostingSource class, which reads weights
+	  from a value slot in which a significant range of the values are
+	  in decreasing order.  This functions similarly to
+	  ValueWeightPostingSource, but can be much more efficient.
+	* tests/api_valuestream.cc,tests/testdata/apitest_declen.txt:
+	  Tests, and some associated constructed test data, for
+	  DecreasingValueWeightPostingSource.
+
+ 13185       olly Mon Jul 27 04:50:45 GMT 2009  Olly Betts <olly@survex.com>
+	* HACKING: Now using autoconf 2.64.
+
+ 13163       olly Sun Jul 26 10:14:32 GMT 2009  Olly Betts <olly@survex.com>
+	* docs/doxygen_api.conf.in,docs/doxygen_source.conf.in: Change
+	  @PACKAGE@ to @PACKAGE_NAME@ and @VERSION@ to @PACKAGE_VERSION@ to
+	  reflect modern autotools usage.
+
+ 13162       olly Fri Jul 24 16:23:31 GMT 2009  Olly Betts <olly@survex.com>
+	* configure.ac,docs/: Rename doxygen configuration files from "_conf"
+	  to ".conf".  Rename doxygen_full.conf to doxygen_source.conf, etc.
+
+ 13161       olly Fri Jul 24 16:02:39 GMT 2009  Olly Betts <olly@survex.com>
+	* HACKING: Update to note that doxygen is now installed in-tree, and
+	  that we now use 1.5.9 for 1.1.x snapshots and releases, and that
+	  graphviz ">1.8.10" is now required.
+
+ 13157    richard Fri Jul 24 13:00:24 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+	* bin/xapian-compact.cc: Fix to work with the metainfo key stored
+	  in the latest format of chert databases.
+
+ 13156       olly Fri Jul 24 10:32:32 GMT 2009  Olly Betts <olly@survex.com>
+	* backends/chert/chert_values.cc: Avoid doing pointless work by trying
+	  to delete non-existent lists of values when we're just adding
+	  documents.
+
 Xapian-core 1.1.2 (2009-07-23):
 
 This release includes all changes from 1.0.14 which are relevant.
