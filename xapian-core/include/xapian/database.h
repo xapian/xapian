@@ -35,7 +35,6 @@
 #include <xapian/termiterator.h>
 #include <xapian/visibility.h>
 
-/// The Xapian library lives in the Xapian namespace.
 namespace Xapian {
 
 class Document;

@@ -60,9 +60,11 @@
 
 #include <xapian/deprecated.h>
 
+/// The Xapian namespace contains public interfaces for the Xapian library.
+namespace Xapian {
+
 // Functions returning library version:
 
-namespace Xapian {
 /** Report the version string of the library which the program is linked with.
  *
  * This may be different to the version compiled against (given by
@@ -79,7 +81,7 @@ const char * version_string();
 XAPIAN_VISIBILITY_DEFAULT
 XAPIAN_DEPRECATED(const char * xapian_version_string());
 
-/** Report the major version of the library which the program is linked to.
+/** Report the major version of the library which the program is linked with.
  *
  * This may be different to the version compiled against (given by
  * XAPIAN_MAJOR_VERSION) if shared libraries are being used.
@@ -95,7 +97,7 @@ int major_version();
 XAPIAN_VISIBILITY_DEFAULT
 XAPIAN_DEPRECATED(int xapian_major_version());
 
-/** Report the minor version of the library which the program is linked to.
+/** Report the minor version of the library which the program is linked with.
  *
  * This may be different to the version compiled against (given by
  * XAPIAN_MINOR_VERSION) if shared libraries are being used.
@@ -111,7 +113,7 @@ int minor_version();
 XAPIAN_VISIBILITY_DEFAULT
 XAPIAN_DEPRECATED(int xapian_minor_version());
 
-/** Report the revision of the library which the program is linked to.
+/** Report the revision of the library which the program is linked with.
  *
  * This may be different to the version compiled against (given by
  * XAPIAN_REVISION) if shared libraries are being used.

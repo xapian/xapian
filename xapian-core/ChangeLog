@@ -1,3 +1,18 @@
+Wed Jul 29 09:42:09 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* include/xapian.h: Consistently say "linked with" rather than "linked
+	  to" in some cases.  Put documentation comment for namespace Xapian
+	  in this file.
+	* include/xapian/version_h.cc: Add documentation comments for the
+	  generated version.h, and all the preprocessor defines it contains.
+	* include/xapian/dbfactory.h: Add documentation comments for the
+	  backend namespaces (InMemory, etc).
+	* include/xapian/unicode.h: Add documentation comment for namespace
+	  Unicode.
+	* include/xapian/database.h: Remove documentation comment for namespace
+	  Xapian - this is now documented in xapian.h.
+
 Wed Jul 29 09:24:53 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
