@@ -6,7 +6,7 @@
 # change 'tests => 1' to 'tests => last_test_to_print';
 
 use Test::More;
-BEGIN { plan tests => 77 };
+BEGIN { plan tests => 80 };
 use Search::Xapian qw(:standard);
 
 #########################
@@ -91,6 +91,9 @@ foreach my $backend ("inmemory", "auto") {
 eval {
   my $badstem = Search::Xapian::Stem->new( 'gibberish' );
 };
-ok( $@ =~ /^Exception: Language code gibberish unknown at \S+ line \d+\.$/ );
+ok($@);
+ok(ref($@), "Search::Xapian::InvalidArgumentError");
+ok(UNIVERSAL::isa($@, 'Search::Xapian::Error'));
+ok($@->get_msg, "Language code gibberish unknown");
 
 1;

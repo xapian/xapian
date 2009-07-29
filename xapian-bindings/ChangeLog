@@ -1,3 +1,8 @@
+Wed Jul 29 10:04:51 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/t/index.t,perl/t/parser.t: Fix exception tests because
+	previous test suppose working of XS binding with bug.
+
 Wed Jul 29 01:24:34 GMT 2009  Kosei Moriyama <cou929@gmail.com>
 
 	* perl/util.i.in:Fix add_valuerangeprocessor to push 

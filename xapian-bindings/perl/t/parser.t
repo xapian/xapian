@@ -6,7 +6,7 @@
 
 use Test;
 use Devel::Peek;
-BEGIN { plan tests => 53 };
+BEGIN { plan tests => 56 };
 use Search::Xapian qw(:standard);
 ok(1); # If we made it this far, we're ok.
 
@@ -137,7 +137,10 @@ $qp = Search::Xapian::QueryParser->new;
 eval {
     $qp->parse_query('other* AND', FLAG_BOOLEAN|FLAG_WILDCARD);
 };
-ok( $@ =~ /^Exception: Syntax: <expression> AND <expression> at \S+ line \d+\.$/ );
+ok($@);
+ok(ref($@), "Search::Xapian::QueryParserError", "correct class for exception");
+ok(UNIVERSAL::isa($@, 'Search::Xapian::Error'));
+ok($@->get_msg, "Syntax: <expression> AND <expression>", "get_msg works");
 
 # Check FLAG_DEFAULT is wrapped (new in 1.0.11.0).
 ok( $qp->parse_query('hello world', FLAG_DEFAULT|FLAG_BOOLEAN_ANY_CASE) );
