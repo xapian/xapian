@@ -174,14 +174,14 @@ operator==(const ValueIterator &a, const ValueIterator &b)
     return a.internal.get() == b.internal.get();
 }
 
-/// @internal Equality test for ValueIterator object again end iterator.
+/// @internal Equality test for ValueIterator object and end iterator.
 inline bool
 operator==(const ValueIterator &a, const ValueIteratorEnd_ &)
 {
     return a.internal.get() == NULL;
 }
 
-/// @internal Equality test for ValueIterator object again end iterator.
+/// @internal Equality test for ValueIterator object and end iterator.
 inline bool
 operator==(const ValueIteratorEnd_ &a, const ValueIterator &b)
 {
@@ -202,14 +202,14 @@ operator!=(const ValueIterator &a, const ValueIterator &b)
     return !(a == b);
 }
 
-/// @internal Inequality test for ValueIterator object again end iterator.
+/// @internal Inequality test for ValueIterator object and end iterator.
 inline bool
 operator!=(const ValueIterator &a, const ValueIteratorEnd_ &b)
 {
     return !(a == b);
 }
 
-/// @internal Inequality test for ValueIterator object again end iterator.
+/// @internal Inequality test for ValueIterator object and end iterator.
 inline bool
 operator!=(const ValueIteratorEnd_ &a, const ValueIterator &b)
 {
