@@ -1,3 +1,11 @@
+Wed Jul 29 12:34:55 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* backends/flint/flint_utils.h: Use std::string::assign() rather
+	  than constructing a temporary string object to assign.
+	* HACKING: Add note about preferring std::string::assign(), and also
+	  one about building up strings using +=.
+
 Wed Jul 29 09:42:09 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
