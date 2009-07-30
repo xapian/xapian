@@ -1,5 +1,7 @@
-xapian-core (1.0.13-4) UNRELEASED; urgency=low
+xapian-core (1.0.14-1) unstable; urgency=low
 
+  * New upstream release.
+    + debian/patch: Changes included upstream so remove.
   * debian/control.in: Standards-Version: 3.8.2 (no changes required).
   * debian/control.in: Update required debhelper version.
   * debian/copyright: Update for the MIT/X relicensing of the serialise-double
@@ -9,7 +11,7 @@ xapian-core (1.0.13-4) UNRELEASED; urgency=low
     developer boxes often do), the test suite run will take a really long
     time.
 
- -- Olly Betts <olly@survex.com>  Thu,  9 Jul 2009 11:47:26 +0100
+ -- Olly Betts <olly@survex.com>  Thu, 30 Jul 2009 03:01:21 +0100
 
 xapian-core (1.0.13-3) unstable; urgency=low
 
