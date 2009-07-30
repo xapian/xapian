@@ -305,10 +305,10 @@ binary-arch: build install
 	dh_makeshlibs
 	# This allows the rules file to be used for backports to releases
 	# which predate python-central.  Once python-central is in all the
-	# Debian and Ubuntu releases we want to build packages for, this can
-	# be replaced by just "dh_pycentral".
+	# Debian and Ubuntu releases we want to build packages for, the
+	# second case can be removed.
 ifeq ($(USE_PYVERSIONS), yes)
-	dh_pycentral
+	DH_PYCENTRAL=include-links dh_pycentral
 else
 	# Recent Lintian versions warn if this file matches: /^\s+dh_python\s/
 	# But we need to call dh_python for backports, so to avoid the warning
