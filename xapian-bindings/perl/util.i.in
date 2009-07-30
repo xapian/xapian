@@ -177,6 +177,21 @@ std::string get_value() {
 
 %ignore Xapian::WritableDatabase::replace_document(Xapian::docid, Xapian::Document * document);
 %ignore Xapian::WritableDatabase::delete_document(Xapian::docid did);
+
+%feature("shadow") Xapian::WritableDatabase::WritableDatabase
+%{
+sub new {
+  my $pkg = shift;
+  my $self;
+  if( scalar(@_) == 0 ) {
+    $self = Search::Xapianc::new3_WritableDatabase(@_);
+  } else {
+    $self = Search::Xapianc::new_WritableDatabase(@_);
+  }
+  bless $self, $pkg if defined($self);
+}
+%}
+
 %extend Xapian::WritableDatabase {
 void replace_document(Xapian::docid, Xapian::Document * document) {
         try {
@@ -215,6 +230,17 @@ void delete_document_by_term(std::string unique_term) {
 }
 }
 
+%inline %{
+Xapian::WritableDatabase * new3_WritableDatabase() {
+        try {
+	    return new Xapian::WritableDatabase(Xapian::InMemory::open());
+        }
+        catch (const Xapian::Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
+}
+%}
+
 %extend Xapian::TermIterator {
 Xapian::TermIterator * inc() {
      return new Xapian::TermIterator(++(*self));
@@ -233,22 +259,26 @@ std::string get_termname() {
 }
 }
 
+%feature("shadow") Xapian::SimpleStopper::SimpleStopper
+%{
+sub new {
+    my $class = shift;
+    my $stopper = Search::Xapianc::new_SimpleStopper();
+
+    bless $stopper, $class;
+    foreach (@_) {
+	$stopper->add($_);
+    }
+
+    return $stopper;
+}
+%}
+
 %extend Xapian::SimpleStopper {
 bool stop_word(std::string term) {
      return (*self)(term);
 }
 }
-
-%inline %{
-Xapian::WritableDatabase * new3_WritableDatabase() {
-        try {
-	    return new Xapian::WritableDatabase(Xapian::InMemory::open());
-        }
-        catch (const Xapian::Error &error) {
-            croak( "Exception: %s", error.get_msg().c_str() );
-        }
-}
-%}
 
 %extend Xapian::PositionIterator {
 void inc() {
@@ -263,6 +293,19 @@ bool nequal1(Xapian::PositionIterator * that) {
      return ((*self) != (*that));
 }
 }
+
+%feature("shadow") Xapian::QueryParser::QueryParser
+%{
+sub new {
+  my $class = shift;
+  my $qp = Search::Xapianc::new_QueryParser();
+
+  bless $qp, $class;
+  $qp->set_database(@_) if scalar(@_) == 1;
+
+  return $qp;
+}
+%}
 
 %rename(set_stopper0) Xapian::QueryParser::set_stopper();
 %rename(set_stopper1) Xapian::QueryParser::set_stopper(const Stopper * stopper);
@@ -505,15 +548,6 @@ sub clone() {
 }
 
 package Search::Xapian::QueryParser;
-sub new {
-  my $class = shift;
-  my $qp = Search::Xapianc::new_QueryParser();
-
-  bless $qp, $class;
-  $qp->set_database(@_) if scalar(@_) == 1;
-
-  return $qp;
-}
 
 sub set_stopper {
     my ($self, $stopper) = @_;
@@ -525,31 +559,6 @@ sub add_valuerangeprocessor {
     my ($self, $vrproc) = @_;
     push @{$self{_vrproc}}, $vrproc;
     add_valuerangeprocessor1( @_ );
-}
-
-package Search::Xapian::SimpleStopper;
-sub new {
-    my $class = shift;
-    my $stopper = Search::Xapianc::new_SimpleStopper();
-
-    bless $stopper, $class;
-    foreach (@_) {
-	$stopper->add($_);
-    }
-
-    return $stopper;
-}
-
-package Search::Xapian::WritableDatabase;
-sub new {
-  my $pkg = shift;
-  my $self;
-  if( scalar(@_) == 0 ) {
-    $self = Search::Xapianc::new3_WritableDatabase(@_);
-  } else {
-    $self = Search::Xapianc::new_WritableDatabase(@_);
-  }
-  bless $self, $pkg if defined($self);
 }
 
 package Search::Xapian::PositionIterator;

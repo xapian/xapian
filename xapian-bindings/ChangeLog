@@ -1,3 +1,9 @@
+Thu Jul 30 11:54:33 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Modifying some proxy functions using %feature("shadow")
+	directive for removing repeatedly defined functions (constructor of 
+	QueryParser, SimpleStopper and WritableDatabase).
+
 Wed Jul 29 10:04:51 GMT 2009  Kosei Moriyama <cou929@gmail.com>
 
 	* perl/t/index.t,perl/t/parser.t: Fix exception tests because
