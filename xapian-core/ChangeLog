@@ -1,3 +1,10 @@
+Fri Jul 31 13:18:35 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/flint/flint_modifiedpostlist.cc: Fix FlintModifiedPostList
+	  to skip added-but-then-deleted-before-flush documents.  (ticket#392)
+	* tests/api_backend.cc: Add regression test modifiedpostlist1.
+
 Fri Jul 31 12:37:08 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
