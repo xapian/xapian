@@ -1,3 +1,8 @@
+Fri Jul 31 12:35:04 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* HACKING: Update the release checklist.
+
 Wed Jul 29 16:35:09 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
