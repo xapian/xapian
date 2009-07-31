@@ -1,3 +1,8 @@
+Fri Jul 31 16:32:19 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Add constant variable FLAG_SPELLING for 
+	TermGenerator::set_flags().
+
 Fri Jul 31 16:28:53 GMT 2009  Kosei Moriyama <cou929@gmail.com>
 
 	* perl/util.i.in:Replace get_mset() definition to %rename.
