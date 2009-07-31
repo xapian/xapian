@@ -22,7 +22,7 @@
 import sys
 import xapian
 
-from .testsuite import *
+from testsuite import *
 
 def test_all():
     # Test the version number reporting functions give plausible results.

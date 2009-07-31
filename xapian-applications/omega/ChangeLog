@@ -1,3 +1,31 @@
+Thu Jul 23 12:07:24 GMT 2009  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Remove pointless fallback code.
+
+Thu Jul 23 12:06:37 GMT 2009  Olly Betts <olly@survex.com>
+
+	* templates/inc/toptermsjs: Use double-quotes rather than single quotes
+	  for parameter values on the <script> tag.
+
+Thu Jul 23 11:29:43 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.rst: Document that $date uses UTC.  (ticket#314)
+
+Thu Jul 23 11:26:15 GMT 2009  Olly Betts <olly@survex.com>
+
+	* templates/query: If JavaScript is available, convert the
+	  $field{modtime} to a string on the client-side so that the timezone
+	  is correct.  If JavaScript isn't available, fall back to the existing
+	  behaviour of using UTC.  (ticket#314)
+
+Thu Jul 23 04:12:02 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update for 1.1.2.
+
+Wed Jul 22 04:33:29 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog and sync with 1.0.13 and 1.0.14.
+
 Tue Jul 07 15:05:09 GMT 2009  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Consistently use endl not "\n" at the end of messages so

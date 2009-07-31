@@ -24,7 +24,6 @@
 
 #include "api_opsynonym.h"
 
-#include<iostream>
 #include <map>
 #include <set>
 #include <vector>
@@ -388,12 +387,10 @@ DEFINE_TESTCASE(synonym4, backend) {
 	Xapian::Query query2(*i, or_query, date_query);
 
 	enquire.set_query(query1);
-	cout << query1.get_description() << endl;
 	tout << "query1:" << query1 << '\n';
 	Xapian::MSet mset1 = enquire.get_mset(0, db.get_doccount());
 	tout << "mset1:" << mset1 << '\n';
 	enquire.set_query(query2);
-	cout << query2.get_description() << endl;
 	tout << "query2:" << query2 << '\n';
 	Xapian::MSet mset2 = enquire.get_mset(0, db.get_doccount());
 	tout << "mset2:" << mset2 << '\n';

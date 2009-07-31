@@ -1,4 +1,4 @@
-#!@PYTHON@
+#!/usr/bin/python
 """Doxygen XML to SWIG docstring converter.
 
 Converts Doxygen generated XML files into a file containing docstrings
@@ -364,7 +364,7 @@ class Doxy2SWIG:
             elif i.find('// File:') > -1: # leave comments alone.
                 ret.extend([i, '\n'])
             else:
-                _tmp = textwrap.fill(i.strip())
+                _tmp = textwrap.fill(i.strip(), break_long_words=False)
                 _tmp = self.lead_spc.sub(r'\1"\2', _tmp)
                 ret.extend([_tmp, '\n\n'])
         return ret

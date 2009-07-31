@@ -1,5 +1,8 @@
 Revision history for Perl extension Search::Xapian.
 
+1.1.2.0  Thu Jul 23 04:14:29 UTC 2009
+	[This release includes all changes from 1.0.14 which are relevant.]
+
 1.1.1.0  Tue Jun  9 13:22:07 UTC 2009
 	[Changes contributed by Olly Betts]
 	- Add Search::Xapian::MSet::items() method which returns an array
@@ -27,6 +30,26 @@ Revision history for Perl extension Search::Xapian.
 	  However, there's still a wrinkle in this change - you can't currently
 	  run "make install" in a tree configured to use an uninstalled
 	  xapian-core.
+
+1.0.14.0  Tue Jul 21 16:10:19 GMT 2009
+	[Changes contributed by Olly Betts]
+ 	- Add handling of C++ exceptions from methods of Document (ticket#284).
+
+1.0.13.1  Tue May 26 13:51:18 GMT 2009
+	[Changes contributed by Olly Betts]
+	- Deprecate Search::Xapian::MSet::matches() and make it issue a
+	  warning.  Please use Search::Xapian::MSet::items() instead.
+	- Add another translated example: simplematchdecider.pl
+
+1.0.13.0  Sat May 23 15:10:39 GMT 2009
+	[Changes contributed by Olly Betts]
+	- Add Search::Xapian::MSet::matches() method which returns an array
+	  tied to the MSet (much like Search::Xapian::Enquire::matches(), but
+	  you get access to the MSet object itself).
+	- Add new translated version of the simple examples from the Python
+	  bindings.
+	- Add more fully featured examples: full-indexer.pl and
+	  full-searcher.pl.
 
 1.0.12.0  Sun Apr 19 11:18:04 GMT 2009
 	[Changes contributed by Olly Betts]

@@ -293,7 +293,8 @@ DatabaseReplica::get_description() const
 void
 DatabaseReplica::Internal::update_stub_database() const
 {
-    string stub_path = join_paths(path, "XAPIANDB");
+    string stub_path = path;
+    stub_path += "/XAPIANDB";
     string tmp_path = stub_path;
     tmp_path += ".tmp";
     {

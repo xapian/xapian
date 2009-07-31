@@ -1,3 +1,19 @@
+Mon Jul 20 13:52:53 GMT 2009  Olly Betts <olly@survex.com>
+
+	* config.mak,win32_bindings_python.mak: Update to include Python 3.0
+	  support, ready for when then bindings support this.  From patch in
+	  ticket #346.
+
+Mon Jul 20 13:43:48 GMT 2009  Olly Betts <olly@survex.com>
+
+	* win32_api.mak: Update for added sources, from patch by Peter Kelm in
+	  ticket#346.
+
+Mon Jul 20 13:38:37 GMT 2009  Olly Betts <olly@survex.com>
+
+	* win32_matcher.mak: Update for removed sources, from patch by Peter
+	  Kelm in ticket#346.
+
 Fri May 08 12:55:32 GMT 2009  Olly Betts <olly@survex.com>
 
 	* config.mak,win32_bindings_python.mak,win32_tests.mak,

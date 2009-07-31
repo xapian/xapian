@@ -29,6 +29,76 @@ Mon Oct 29 03:03:57 GMT 2007  Olly Betts <olly@survex.com>
 	* NEWS,csharp/Makefile.am,python/extra.i,python/pythontest.py,
 	  python/util.i,xapian.i: Restore the changes.
 
+Sun Jul 26 21:55:47 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/doxy2swig.py: Tell textwrap not to break long words -
+	  fixes a load of places in the documentation comments where C++
+	  names and type names were cut in two.  Also fixes a problem on
+	  the postingsource branch where actual python identifiers were
+	  being cut in two (for some very long identifiers).
+
+Thu Jul 23 04:13:02 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update for 1.1.2.
+
+Tue Jul 21 17:12:06 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog and sync with 1.0.13 and 1.0.14.
+
+Tue Jul 21 04:38:51 GMT 2009  Olly Betts <olly@survex.com>
+
+	* python/extra.i: Sort out iterators to work with the Python 3
+	  next()/__next__() changes.  (ticket#246)
+
+Tue Jul 21 03:37:38 GMT 2009  Olly Betts <olly@survex.com>
+
+	* python/extra.i: Python 3 doesn't support unbound methods, so use
+	  lambda to work around this in a way which also works with Python 2.
+
+Mon Jul 20 14:51:10 GMT 2009  Olly Betts <olly@survex.com>
+
+	* python/util.i: Remove unused empty Xapian::PythonProblem C++ class.
+
+Mon Jul 20 14:46:24 GMT 2009  Olly Betts <olly@survex.com>
+
+	* python/pythontest2.py,python/pythontest3.py: Cast the result of
+	  integer division to an integer - in Python 3 this returns a float
+	  and even in Python 2 the cast makes the intent clearer.
+
+Mon Jul 20 14:03:39 GMT 2009  Olly Betts <olly@survex.com>
+
+	* python/extra.i,python/util.i: Use a multi-arg argout typemap to
+	  avoid having to mess around with ValueRangeProcessor.__call__().
+
+Mon Jul 20 12:54:51 GMT 2009  Olly Betts <olly@survex.com>
+
+	* python/extra.i,python/util.i: Use %rename for renaming get_hit to
+	  _get_hit_internal.  Taken from patch in ticket #246.
+
+Mon Jul 20 12:32:10 GMT 2009  Olly Betts <olly@survex.com>
+
+	* python/extra.i,python/util.i: Rename metadata_keys_begin and
+	  metadata_keys_end using %rename rather than using delete and
+	  assignment in Python.  This should reduce start-up time for the
+	  Python bindings a fraction.  Taken from Peter Kelm's patch in
+	  ticket#246.
+
+Mon Jul 20 11:58:30 GMT 2009  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Need to run doxy2swig.py from $(srcdir).
+
+Mon Jul 20 03:31:44 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac,python/doxy2swig.py,python/doxy2swig.py.in: We
+	  explicitly run doxy2swig.py from the Makefile using $(PYTHON) so
+	  there is no need to AC_CONFIG_FILES it to substitute @PYTHON@ in the
+	  #! line.
+
+Mon Jul 20 02:40:09 GMT 2009  Olly Betts <olly@survex.com>
+
+	* python/pythontest3.py,python/smoketest3.py: Fix "from .testsuite
+	  import *" to "from testsuite import *".
+
 Fri Jun 26 10:24:51 GMT 2009  Olly Betts <olly@survex.com>
 
 	* ruby/smoketest.rb: Add regression test for failing to accept an

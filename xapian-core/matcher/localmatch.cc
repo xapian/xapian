@@ -151,7 +151,7 @@ LocalSubMatch::postlist_from_op_leaf_query(const Xapian::Query::Internal *query,
     AutoPtr<Xapian::Weight> wt;
     if (!boolean) {
 	wt.reset(wt_factory->clone_());
-	wt->init_(*stats, qlen, query->tname, query->wqf, factor);
+	wt->init_(*stats, qlen, query->tname, query->get_wqf(), factor);
     }
 
     if (term_info) {

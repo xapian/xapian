@@ -4,7 +4,7 @@ dnl See xapian-core's HACKING document for details of the reasons for required
 dnl versions.
 AC_PREREQ([2.63])
 
-AC_INIT([xapian-bindings], [1.1.1], [http://xapian.org/bugs])
+AC_INIT([xapian-bindings], [1.1.2], [http://xapian.org/bugs])
 
 dnl See xapian-core's HACKING document for details of the reasons for required
 dnl versions.
@@ -914,8 +914,6 @@ AC_CONFIG_FILES([Makefile
  ruby/Makefile ruby/docs/Makefile
  xapian-bindings.spec])
 dnl guile/Makefile
-AC_CONFIG_FILES([python/doxy2swig.py],
-		[chmod +x python/doxy2swig.py])
 AC_OUTPUT
 
 echo ""

@@ -269,6 +269,12 @@ DEFINE_TESTCASE(stemlangs1, !backend) {
 	string language = langs.substr(i, spc - i);
 	tout << "checking language code '" << language << "' works" << endl;
 	Xapian::Stem stemmer(language);
+	if (language.size() > 2) {
+	    string expected("Xapian::Stem(");
+	    expected += language;
+	    expected += ')';
+	    TEST_EQUAL(stemmer.get_description(), expected);
+	}
 
 	if (spc == string::npos) break;
 	i = spc + 1;

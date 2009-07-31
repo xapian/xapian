@@ -1,7 +1,7 @@
 /** \file dbfactory.h
  * \brief Factory functions for constructing Database and WritableDatabase objects
  */
-/* Copyright (C) 2005,2006,2007,2008 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,6 +33,7 @@ namespace Xapian {
 class Database;
 class WritableDatabase;
 
+/// Database factory functions which determine the database type automatically.
 namespace Auto {
 
 /** Construct a Database object for a stub database file.
@@ -58,6 +59,7 @@ WritableDatabase open_stub(const std::string &file, int action);
 }
 
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
+/// Database factory functions for the inmemory backend.
 namespace InMemory {
 
 /** Construct a WritableDatabase object for a new, empty InMemory database.
@@ -72,6 +74,7 @@ WritableDatabase open();
 #endif
 
 #ifdef XAPIAN_HAS_CHERT_BACKEND
+/// Database factory functions for the chert backend.
 namespace Chert {
 
 /** Construct a Database object for read-only access to a Chert database.
@@ -107,6 +110,7 @@ open(const std::string &dir, int action, int block_size = 8192);
 #endif
 
 #ifdef XAPIAN_HAS_FLINT_BACKEND
+/// Database factory functions for the flint backend.
 namespace Flint {
 
 /** Construct a Database object for read-only access to a Flint database.
@@ -142,6 +146,7 @@ open(const std::string &dir, int action, int block_size = 8192);
 #endif
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
+/// Database factory functions for the remote backend.
 namespace Remote {
 
 /** Construct a Database object for read-only access to a remote database

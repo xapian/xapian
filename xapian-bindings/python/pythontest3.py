@@ -23,7 +23,7 @@ import xapian
 import shutil
 import random
 
-from .testsuite import *
+from testsuite import *
 
 def setup_database():
     """Set up and return an inmemory database with 5 documents.
@@ -939,7 +939,7 @@ def test_postingsource():
             self.current = -1
 
         def get_termfreq_min(self): return 0
-        def get_termfreq_est(self): return self.max / 2
+        def get_termfreq_est(self): return int(self.max / 2)
         def get_termfreq_max(self): return self.max
         def next(self, minweight):
             self.current += 2
