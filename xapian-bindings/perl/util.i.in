@@ -96,60 +96,7 @@ Xapian::Query * newN(int op_, int items, SV ** q) {
 }
 %}
 
-%extend Xapian::Enquire {
-Xapian::MSet * get_mset1(int items, ...) {
-	Xapian::MSet * RETVAL;
-	try {
-	    va_list list;
-	    Xapian::Enquire * THIS;
-
-	    Xapian::doccount first;
-	    Xapian::doccount maxitems;
-	    Xapian::doccount checkatleast;
-	    Xapian::RSet *   rset;
-
-	    va_start(list, items);
-	    THIS = va_arg(list, Xapian::Enquire *);
-
-	    for( int i = 1; i < items; i++ ) {
-	    	 switch (i) {
-		 	case 1:
-			     first = va_arg(list, Xapian::doccount);
-			     break;
-		 	case 2:
-			     maxitems = va_arg(list, Xapian::doccount);
-			     break;
-		 	case 3:
-			     checkatleast = va_arg(list, Xapian::doccount);
-			     break;
-		 	case 4:
-			     rset = va_arg(list, Xapian::RSet *);
-			     break;
-		 }
-	    }
-
-	    Xapian::MSet mset;
-	    switch (items) {
-		case 3:
-		    mset = THIS->get_mset(first, maxitems);
-		    break;
-		case 4:
-		    mset = THIS->get_mset(first, maxitems, checkatleast);
-		    break;
-		case 5:
-		    mset = THIS->get_mset(first, maxitems, checkatleast, rset);
-		    break;
-		default:
-		    croak("Bad parameter count for get_mset1");
-	    }
-	    RETVAL = new Xapian::MSet(mset);
-	    va_end(list);
-	} catch (...) {
-	    Xapian::handle_exception();
-	}
-	return RETVAL;
-}
-}
+%rename(get_mset1) Xapian::Enquire::get_mset;
 
 %extend Xapian::Stem {
 std::string stem_word(std::string word) {

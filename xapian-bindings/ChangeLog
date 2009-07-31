@@ -1,3 +1,7 @@
+Fri Jul 31 16:28:53 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Replace get_mset() definition to %rename.
+
 Thu Jul 30 11:54:33 GMT 2009  Kosei Moriyama <cou929@gmail.com>
 
 	* perl/util.i.in:Modifying some proxy functions using %feature("shadow")
