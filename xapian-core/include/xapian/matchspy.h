@@ -281,13 +281,6 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
     /// The slot to count.
     Xapian::valueno slot;
 
-    /** Whether the slot contains multiple values.
-     *
-     *  If true, the values are assumed to have been serialised by a
-     *  StringListSerialiser class.
-     */
-    bool multivalued;
-
     /// Total number of documents seen by the match spy.
     Xapian::doccount total;
 
@@ -296,14 +289,14 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
 
   public:
     /// Construct an empty ValueCountMatchSpy.
-    ValueCountMatchSpy() : slot(-1), multivalued(false), total(0) {}
+    ValueCountMatchSpy() : slot(-1), total(0) {}
 
     /** Construct a MatchSpy which counts the values in a particular slot.
      *
      *  Further slots can be added by calling @a add_slot().
      */
-    ValueCountMatchSpy(Xapian::valueno slot_, bool multivalued_=false)
-	    : slot(slot_), multivalued(multivalued_), total(0) {
+    ValueCountMatchSpy(Xapian::valueno slot_)
+	    : slot(slot_), total(0) {
     }
 
     /// Return the values seen in the slot.
@@ -344,59 +337,113 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
     virtual std::string get_description() const;
 };
 
-
-/** MatchSpy for classifying matching documents by their values.
- */
-class XAPIAN_VISIBILITY_DEFAULT CategorySelectMatchSpy :
-	public ValueCountMatchSpy {
+/// Class for counting the frequencies of values in the matching documents.
+class XAPIAN_VISIBILITY_DEFAULT MultiValueCountMatchSpy : public ValueCountMatchSpy {
   public:
-    /** Construct a MatchSpy which classifies matching documents based on the
-     *  values in a particular slot.
+    /// Construct an empty MultiValueCountMatchSpy.
+    MultiValueCountMatchSpy() {}
+
+    /** Construct a MatchSpy which counts the values in a particular slot.
+     *
+     *  Further slots can be added by calling @a add_slot().
      */
-    CategorySelectMatchSpy(Xapian::valueno slot_, bool multivalued_=false)
-	    : ValueCountMatchSpy(slot_, multivalued_) {
+    MultiValueCountMatchSpy(Xapian::valueno slot_)
+	    : ValueCountMatchSpy(slot_) {
     }
 
-    /** Return a score reflecting how "good" a categorisation is.
+    /** Implementation of virtual operator().
      *
-     *  If you don't want to show a poor categorisation, or have multiple
-     *  categories and only space in your user interface to show a few, you
-     *  want to be able to decide how "good" a categorisation is.  We define a
-     *  good categorisation as one which offers a fairly even split, and
-     *  (optionally) about a specified number of options.
-     *
-     *  @param desired_no_of_categories	    The desired number of categories -
-     *		this is a floating point value, so you can ask for 5.5 if you'd
-     *		like "about 5 or 6 categories".  The default is to desire the
-     *		number of categories that there actually are, so the score then
-     *		only reflects how even the split is.
-     *
-     *  @return A score for the categorisation for the value - lower is
-     *		better, with a perfectly even split across the right number
-     *		of categories scoring 0.
+     *  This implementation tallies values for a matching document.
      */
-    double score_categorisation(double desired_no_of_categories = 0.0);
+    void operator()(const Xapian::Document &doc, Xapian::weight wt);
 
-    /** Turn a category containing sort-encoded numeric values into a set of
-     *  ranges.
-     *
-     *  For "continuous" values (such as price, height, weight, etc), there
-     *  will usually be too many different values to offer the user, and the
-     *  user won't want to restrict to an exact value anyway.
-     *
-     *  This method produces a set of ranges for a particular value number.
-     *  The ranges replace the category data for the value - the keys
-     *  are either empty (entry for "no value set"), <= 9 bytes long (a
-     *  singleton encoded value), or > 9 bytes long (the first 9 bytes are
-     *  the encoded range start, the rest the encoded range end).
-     *
-     *  @param max_ranges   Group into at most this many ranges.
-     *
-     *  @return true if ranges could be built; false if not (e.g. all values
-     *		the same, no values set, or other reasons).
-     */
-    bool build_numeric_ranges(size_t max_ranges);
+    virtual MatchSpy * clone() const;
+    virtual std::string name() const;
+    virtual std::string serialise() const;
+    virtual MatchSpy * unserialise(const std::string & s,
+				   const SerialisationContext & context) const;
+    virtual std::string get_description() const;
 };
+
+
+/** A numeric range.
+ *
+ *  This is used to represent ranges of values returned by the match spies.
+ */
+struct XAPIAN_VISIBILITY_DEFAULT NumericRange {
+    /** The lower value in the range.
+     */
+    double lower;
+
+    /** The upper value in the range.
+     */
+    double upper;
+
+    bool operator<(const NumericRange & other) const { 
+	if (lower < other.lower) return true;
+	if (lower > other.lower) return false;
+	return (upper < other.upper);
+    }
+};
+
+
+/** Return a score reflecting how evenly divided a set of values is.
+ *
+ *  If you don't want to show a poor categorisation, or have multiple
+ *  categories and only space in your user interface to show a few, you want to
+ *  be able to decide how "good" a categorisation is.  One definition of "good"
+ *  is that it offers a fairly even split of the available values, and
+ *  (optionally) about a specified number of options.
+ *
+ *  @param values The values making up the categorisation, together with their
+ *  frequencies.
+ *
+ *  @param total The total number of documents seen.
+ *
+ *  @param desired_no_of_categories The desired number of categories - this is
+ *  a floating point value, so you can ask for 5.5 if you'd like "about 5 or 6
+ *  categories".  The default is to desire the number of categories that there
+ *  actually are, so the score then only reflects how even the split is.
+
+ *  @return A score for the categorisation for the value - lower is better,
+ *  with a perfectly even split across the right number of categories scoring
+ *  0.
+ */
+//@{
+double XAPIAN_VISIBILITY_DEFAULT score_evenness(
+	const std::map<std::string, Xapian::doccount> & values,
+	Xapian::doccount total,
+	double desired_no_of_categories = 0.0);
+double XAPIAN_VISIBILITY_DEFAULT score_evenness(
+	const std::map<Xapian::NumericRange, Xapian::doccount> & values,
+	Xapian::doccount total,
+	double desired_no_of_categories = 0.0);
+double XAPIAN_VISIBILITY_DEFAULT score_evenness(
+	const ValueCountMatchSpy & spy,
+	double desired_no_of_categories = 0.0);
+//@}
+
+
+/** Turn a category containing sort-encoded numeric values into a set of
+ *  ranges.
+ *
+ *  For "continuous" values (such as price, height, weight, etc), there will
+ *  usually be too many different values to offer the user, and the user won't
+ *  want to restrict to an exact value anyway.
+ *
+ *  This method produces a set of NumericRange objects for a particular value
+ *  number.
+ *
+ *  @param result     Used to return the resulting ranges.
+ *  @param values     The values representing the initial numbers.
+ *  @param max_ranges Group into at most this many ranges.
+ *
+ *  @return The number of values seen.
+ */
+doccount XAPIAN_VISIBILITY_DEFAULT build_numeric_ranges(
+	std::map<Xapian::NumericRange, Xapian::doccount> & result,
+	const std::map<std::string, Xapian::doccount> & values,
+	size_t max_ranges);
 
 }
 

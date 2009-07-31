@@ -1,3 +1,19 @@
+Fri Jul 31 18:11:53 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/matchspy.cc,include/xapian/matchspy.h: Split
+	  ValueCountMatchSpy into two - ValueCountMatchSpy now assumes that
+	  the values are stored in the slot as-is, and the new
+	  MultiValueCountMatchSpy assumes that the values stored have been
+	  passed through a StringListSerialiser.  Also, remove
+	  CategorySelectMatchSpy (since it isn't really useful to have this
+	  as a subclass of a match spy, particularly now that there isn't a
+	  clear parent class.  Instead, add equivalents of the methods it
+	  provided as functions: score_evenness() and
+	  build_numeric_ranges().  Represent numeric ranges with a new
+	  Xapian::NumericRange class, rather than forcing users to unpick
+	  them from a serialised string.
+	* tests/api_matchspy.cc: Test new organisation of matchspies.
+
 Fri Jul 17 14:12:53 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/matchspy.cc,include/xapian/matchspy.h,tests/api_matchspy.cc:

@@ -140,9 +140,9 @@ DEFINE_TESTCASE(matchspy2, writable)
 	db.add_document(doc);
     }
 
-    Xapian::CategorySelectMatchSpy spy0(0);
-    Xapian::CategorySelectMatchSpy spy1(1);
-    Xapian::CategorySelectMatchSpy spy3(3);
+    Xapian::ValueCountMatchSpy spy0(0);
+    Xapian::ValueCountMatchSpy spy1(1);
+    Xapian::ValueCountMatchSpy spy3(3);
 
     Xapian::Enquire enq(db);
 
@@ -168,30 +168,40 @@ DEFINE_TESTCASE(matchspy2, writable)
 		       
     {
 	// Test scoring evenness returns scores with the natural ordering.
-	double score0 = spy0.score_categorisation();
+	double score0 = Xapian::score_evenness(spy0);
 	tout << "score0 = " << score0 << endl;
-	double score1 = spy1.score_categorisation();
+	double score1 = Xapian::score_evenness(spy1);
 	tout << "score1 = " << score1 << endl;
-	double score3 = spy3.score_categorisation();
+	double score3 = Xapian::score_evenness(spy3);
 	tout << "score3 = " << score3 << endl;
 	// 1 is obviously best, and 0 obviously worst.
 	TEST(score1 < score3);
 	TEST(score3 < score0);
+
+	// Check that the using the expanded form gives the same results.
+	double score0_check = Xapian::score_evenness(spy0.get_values(), spy0.get_total());
+	tout << "score0_check = " << score0_check << endl;
+	TEST_EQUAL(score0, score0_check);
     }
 
     {
 	// Test scoring evenness and about 7 categories returns scores with the
 	// natural ordering.
-	double score0 = spy0.score_categorisation(7);
+	double score0 = Xapian::score_evenness(spy0, 7);
 	tout << "score0 = " << score0 << endl;
-	double score1 = spy1.score_categorisation(7);
+	double score1 = Xapian::score_evenness(spy1, 7);
 	tout << "score1 = " << score1 << endl;
-	double score3 = spy3.score_categorisation(7);
+	double score3 = Xapian::score_evenness(spy3, 7);
 	tout << "score3 = " << score3 << endl;
 	// 3 is clearly worst - 0 is arguably a little better than 1 (0 is the
 	// requested size, but 1 has a much more even split).
 	TEST(score0 < score1);
 	TEST(score1 < score3);
+
+	// Check that the using the expanded form gives the same results.
+	double score0_check = Xapian::score_evenness(spy0.get_values(), spy0.get_total());
+	tout << "score0_check = " << score0_check << endl;
+	TEST_EQUAL(score0, score0_check);
     }
 
     return true;
@@ -228,10 +238,10 @@ DEFINE_TESTCASE(matchspy3, writable)
 	db.add_document(doc);
     }
 
-    Xapian::CategorySelectMatchSpy spy0(0);
-    Xapian::CategorySelectMatchSpy spy1(1);
-    Xapian::CategorySelectMatchSpy spy2(2);
-    Xapian::CategorySelectMatchSpy spy3(3);
+    Xapian::ValueCountMatchSpy spy0(0);
+    Xapian::ValueCountMatchSpy spy1(1);
+    Xapian::ValueCountMatchSpy spy2(2);
+    Xapian::ValueCountMatchSpy spy3(3);
 
     Xapian::Enquire enq(db);
 
@@ -255,34 +265,30 @@ DEFINE_TESTCASE(matchspy3, writable)
 	"|400..900:15|1000..1600:5|2000..2500:2|3300:1|5000:1|10000:1|",
 	""
     };
-    std::vector<Xapian::CategorySelectMatchSpy *> spies;
+    std::vector<Xapian::ValueCountMatchSpy *> spies;
     spies.push_back(&spy0);
     spies.push_back(&spy1);
     spies.push_back(&spy2);
     spies.push_back(&spy3);
     for (Xapian::valueno v = 0; !results[v].empty(); ++v) {
-	bool result = spies[v]->build_numeric_ranges(7);
+	Xapian::doccount total_seen;
+	std::map<Xapian::NumericRange, Xapian::doccount> ranges;
+	total_seen = Xapian::build_numeric_ranges(ranges, spies[v]->get_values(), 7);
 	if (results[v] == "|") {
-	    TEST(!result);
+	    TEST_EQUAL(total_seen, 0);
 	    continue;
 	}
-	TEST(result);
-	const map<string, Xapian::doccount> & cat = spies[v]->get_values();
-	TEST(cat.size() <= 7);
+	TEST_NOT_EQUAL(total_seen, 0);
+	TEST(ranges.size() <= 7);
 	string resultrepr("|");
-	map<string, Xapian::doccount>::const_iterator i;
-	for (i = cat.begin(); i != cat.end(); ++i) {
-	    if (i->first.size() > 9) {
-		double start = Xapian::sortable_unserialise((i->first).substr(0, 9));
-		double end = Xapian::sortable_unserialise((i->first).substr(9));
-		start = floor(start * 100);
-		end = floor(end * 100);
-		resultrepr += str(start);
+	map<Xapian::NumericRange, Xapian::doccount>::const_iterator i;
+	for (i = ranges.begin(); i != ranges.end(); ++i) {
+	    if (i->first.lower != i->first.upper) {
+		resultrepr += str(floor(i->first.lower * 100));
 		resultrepr += "..";
-		resultrepr += str(end);
+		resultrepr += str(floor(i->first.upper * 100));
 	    } else {
-		double start = Xapian::sortable_unserialise((i->first).substr(0, 9));
-		start = floor(start * 100);
+		double start = floor(i->first.lower * 100);
 		resultrepr += str(start);
 	    }
 	    resultrepr += ':';

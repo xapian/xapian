@@ -187,17 +187,8 @@ get_most_frequent_items(vector<StringAndFrequency> & result,
 void
 ValueCountMatchSpy::operator()(const Document &doc, weight) {
     ++total;
-    if (multivalued) {
-	StringListUnserialiser i(doc.get_value(slot));
-	StringListUnserialiser end;
-	for (; i != end; ++i) {
-	    string val(*i);
-	    if (!val.empty()) ++values[val];
-	}
-    } else {
-	string val(doc.get_value(slot));
-	if (!val.empty()) ++values[val];
-    }
+    string val(doc.get_value(slot));
+    if (!val.empty()) ++values[val];
 }
 
 void
@@ -209,7 +200,7 @@ ValueCountMatchSpy::get_top_values(vector<StringAndFrequency> & result,
 
 MatchSpy *
 ValueCountMatchSpy::clone() const {
-    return new ValueCountMatchSpy(slot, multivalued);
+    return new ValueCountMatchSpy(slot);
 }
 
 string
@@ -221,11 +212,6 @@ string
 ValueCountMatchSpy::serialise() const {
     string result;
     result += encode_length(slot);
-    if (multivalued) {
-	result += '1';
-    } else {
-	result += '0';
-    }
     return result;
 }
 
@@ -236,16 +222,11 @@ ValueCountMatchSpy::unserialise(const string & s,
     const char * end = p + s.size();
 
     valueno new_slot = decode_length(&p, end, false);
-    if (p == end || (p[0] != '0' && p[0] != '1')) {
-	throw NetworkError("Expected '0' or '1' to indicate multivalues status");
-    }
-    bool new_multivalued = (p[0] == '1');
-    ++p;
     if (p != end) {
 	throw NetworkError("Junk at end of serialised ValueCountMatchSpy");
     }
 
-    return new ValueCountMatchSpy(new_slot, new_multivalued);
+    return new ValueCountMatchSpy(new_slot);
 }
 
 string
@@ -291,10 +272,64 @@ ValueCountMatchSpy::get_description() const {
 }
 
 
+void
+MultiValueCountMatchSpy::operator()(const Document &doc, weight) {
+    ++total;
+    StringListUnserialiser i(doc.get_value(slot));
+    StringListUnserialiser end;
+    for (; i != end; ++i) {
+	string val(*i);
+	if (!val.empty()) ++values[val];
+    }
+}
+
+MatchSpy *
+MultiValueCountMatchSpy::clone() const {
+    return new MultiValueCountMatchSpy(slot);
+}
+
+string
+MultiValueCountMatchSpy::name() const {
+    return "Xapian::MultiValueCountMatchSpy";
+}
+
+string
+MultiValueCountMatchSpy::serialise() const {
+    string result;
+    result += encode_length(slot);
+    return result;
+}
+
+MatchSpy *
+MultiValueCountMatchSpy::unserialise(const string & s,
+				     const SerialisationContext &) const{
+    const char * p = s.data();
+    const char * end = p + s.size();
+
+    valueno new_slot = decode_length(&p, end, false);
+    if (p != end) {
+	throw NetworkError("Junk at end of serialised MultiValueCountMatchSpy");
+    }
+
+    return new MultiValueCountMatchSpy(new_slot);
+}
+
+string
+MultiValueCountMatchSpy::get_description() const {
+    return "Xapian::MultiValueCountMatchSpy(" + str(total) +
+	    " docs seen, looking in " + str(values.size()) + " slots)";
+}
+
+
 inline double sqrd(double x) { return x * x; }
 
-double
-CategorySelectMatchSpy::score_categorisation(double desired_no_of_categories)
+/** Calculate a score based on how evenly distributed the frequencies of a set
+ *  of values are.
+ */
+template<class T> double
+do_score_evenness(const map<T, doccount> & values,
+		  doccount total,
+		  double desired_no_of_categories)
 {
     if (total == 0) return 0.0;
 
@@ -306,7 +341,7 @@ CategorySelectMatchSpy::score_categorisation(double desired_no_of_categories)
 
     double avg = double(total) / desired_no_of_categories;
 
-    map<string, doccount>::const_iterator i;
+    typename map<T, doccount>::const_iterator i;
     for (i = values.begin(); i != values.end(); ++i) {
 	size_t count = i->second;
 	total_unset -= count;
@@ -323,6 +358,27 @@ CategorySelectMatchSpy::score_categorisation(double desired_no_of_categories)
     return score;
 }
 
+double score_evenness(const map<string, doccount> & values,
+		      doccount total,
+		      double desired_no_of_categories) {
+    return do_score_evenness(values, total, desired_no_of_categories);
+}
+
+double score_evenness(const map<NumericRange, doccount> & values,
+		      doccount total,
+		      double desired_no_of_categories) {
+    return do_score_evenness(values, total, desired_no_of_categories);
+}
+
+double score_evenness(const ValueCountMatchSpy & spy,
+		      double desired_no_of_categories) {
+    return do_score_evenness(spy.get_values(), spy.get_total(),
+			     desired_no_of_categories);
+}
+
+
+/** A bucket, used when building numeric ranges.
+ */
 struct bucketval {
     size_t count;
     double min, max;
@@ -336,10 +392,12 @@ struct bucketval {
     }
 };
 
-bool
-CategorySelectMatchSpy::build_numeric_ranges(size_t max_ranges)
+doccount build_numeric_ranges(map<NumericRange, doccount> & result,
+			      const map<string, doccount> & values,
+			      size_t max_ranges)
 {
     double lo = DBL_MAX, hi = -DBL_MAX;
+    result.clear();
 
     map<double, doccount> histo;
     doccount total_set = 0;
@@ -356,11 +414,15 @@ CategorySelectMatchSpy::build_numeric_ranges(size_t max_ranges)
 
     if (total_set == 0) {
 	// No set values.
-	return false;
+	return total_set;
     }
     if (lo == hi) {
 	// All set values are the same.
-	return false;
+	NumericRange range;
+	range.lower = lo;
+	range.upper = hi;
+	result[range] = total_set;
+	return total_set;
     }
 
     double sizeby = max(fabs(hi), fabs(lo));
@@ -400,23 +462,13 @@ CategorySelectMatchSpy::build_numeric_ranges(size_t max_ranges)
     map<string, doccount> discrete_categories;
     for (size_t b = 0; b < bucket.size(); ++b) {
 	if (bucket[b].count == 0) continue;
-	string encoding = sortable_serialise(bucket[b].min);
-	if (bucket[b].min != bucket[b].max) {
-	    // Pad the start to 9 bytes with zeros.
-	    encoding.resize(9);
-	    encoding += sortable_serialise(bucket[b].max);
-	}
-	discrete_categories[encoding] = bucket[b].count;
+	NumericRange range;
+	range.lower = bucket[b].min;
+	range.upper = bucket[b].max;
+	result[range] = bucket[b].count;
     }
 
-    size_t total_unset = total - total_set;
-    if (total_unset) {
-	discrete_categories[""] = total_unset;
-    }
-
-    swap(discrete_categories, values);
-
-    return true;
+    return total_set;
 }
 
 }
