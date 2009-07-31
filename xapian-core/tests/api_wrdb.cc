@@ -1958,23 +1958,3 @@ DEFINE_TESTCASE(modifyvalues1, writable) {
 
     return true;
 }
-
-/** Regression test for bug in ModifiedPostList iteration
- */
-DEFINE_TESTCASE(modifiedpostlist1, writable) {
-    Xapian::WritableDatabase db = get_writable_database();
-    Xapian::Document a, b;
-    Xapian::Enquire enq(db);
-   
-    a.add_term("T");
-    enq.set_query(Xapian::Query("T"));
-   
-    db.replace_document(2, a);
-    db.commit();
-    db.replace_document(1, a);
-    db.replace_document(1, b);
-   
-    mset_expect_order(enq.get_mset(0, 2), 2);
-   
-    return true;
-}
