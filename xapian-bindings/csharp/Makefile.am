@@ -38,6 +38,8 @@ XAPIAN_SWIG_CS_SRCS=\
 	QueryParser.cs \
 	Remote.cs \
 	RSet.cs \
+	SWIGTYPE_p_std__mapT_Xapian__NumericRange_unsigned_int_t.cs \
+	SWIGTYPE_p_std__mapT_std__string_unsigned_int_t.cs \
 	SWIGTYPE_p_std__string.cs \
 	SWIGTYPE_p_std__vectorT_std__string_t.cs \
 	SWIGTYPE_p_std__vectorT_Xapian__Query_t.cs \
@@ -51,6 +53,7 @@ XAPIAN_SWIG_CS_SRCS=\
 	TermGenerator.cs \
 	TermIterator.cs \
 	TradWeight.cs \
+	ValueCountMatchSpy.cs \
 	ValueIterator.cs \
 	ValueRangeProcessor.cs \
 	Version.cs \

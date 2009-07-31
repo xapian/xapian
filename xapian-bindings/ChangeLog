@@ -1,3 +1,10 @@
+Fri Jul 31 18:16:22 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* xapian.i: Ignore the Xapian::NumericRange::operator<, which was
+	  causing an error when building the PHP bindings (but not the
+	  Python bindings, for some reason).
+	* csharp/Makefile.am: Add the new generated files.
+
 Sun Jul 19 07:49:46 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/extra.i,python/pythontest2.py: Update matchspy support,

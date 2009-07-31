@@ -487,6 +487,7 @@ class Enquire {
     }
 }
 
+%ignore Xapian::NumericRange::operator<;
 %include <xapian/matchspy.h>
 
 namespace Xapian {
