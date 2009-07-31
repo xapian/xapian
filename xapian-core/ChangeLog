@@ -1,3 +1,8 @@
+Fri Jul 31 12:37:08 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* AUTHORS: Sync with version on trunk.
+
 Fri Jul 31 12:35:04 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
