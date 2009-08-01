@@ -1,3 +1,8 @@
+Sat Aug 01 09:58:32 GMT 2009  Olly Betts <olly@survex.com>
+
+	* php/Makefile.am,php/smoketest.php,php/smoketest5.php: Merged the PHP
+	  "smoketest" back together now we don't need to support PHP4 as well.
+
 Sun Jul 26 21:55:47 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/doxy2swig.py: Tell textwrap not to break long words -
