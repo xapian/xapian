@@ -284,6 +284,16 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	FlintTable(const string & path_, bool readonly_,
 		   int compress_strategy_ = DONT_COMPRESS, bool lazy = false);
 
+#ifdef XAPIAN_COMPILING_FLINT_TABLE_CC
+	/// For ABI compatibility with xapian-compact from Xapian 1.0.1.
+	FlintTable(string path_, bool readonly_,
+ 		   int compress_strategy_ = DONT_COMPRESS);
+
+	/// For ABI compatibility with xapian-compact from Xapian 1.0.2-1.0.12.
+	FlintTable(string path_, bool readonly_,
+ 		   int compress_strategy_, bool lazy);
+#endif
+
 	/** Close the Btree.
 	 *
 	 *  Any outstanding changes (ie, changes made without commit() having
@@ -484,6 +494,9 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	 *	is unsuitable.
 	 */
 	void create_and_open(unsigned int blocksize);
+
+	/// For ABI compatibility with xapian-compact from Xapian 1.0.1.
+	void create(unsigned int block_size_);
 
 	void set_full_compaction(bool parity);
 

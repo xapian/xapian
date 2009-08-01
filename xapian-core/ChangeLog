@@ -1,3 +1,10 @@
+Sat Aug 01 14:07:46 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_table.cc,backends/flint/flint_table.h: Add
+	  kludge to restore ABI compatibility with 1.0.11 and 1.0.12.  More
+	  work is needed to fix it with earlier versions, though 1.0.1 and
+	  1.0.7 seem to work too (probably by luck).
+
 Fri Jul 31 13:18:35 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
