@@ -125,9 +125,9 @@ class StringAndFreqCmpByFreq {
     /// If equal, compare by the str, to provide a stable sort order.
     bool operator()(const StringAndFrequency &a,
 		    const StringAndFrequency &b) const {
-	if (a.frequency > b.frequency) return true;
-	if (a.frequency < b.frequency) return false;
-	if (a.str > b.str) return false;
+	if (a.get_frequency() > b.get_frequency()) return true;
+	if (a.get_frequency() < b.get_frequency()) return false;
+	if (a.get_string() > b.get_string()) return false;
 	return true;
     }
 };
@@ -418,9 +418,7 @@ doccount build_numeric_ranges(map<NumericRange, doccount> & result,
     }
     if (lo == hi) {
 	// All set values are the same.
-	NumericRange range;
-	range.lower = lo;
-	range.upper = hi;
+	NumericRange range(lo, hi);
 	result[range] = total_set;
 	return total_set;
     }
@@ -462,9 +460,7 @@ doccount build_numeric_ranges(map<NumericRange, doccount> & result,
     map<string, doccount> discrete_categories;
     for (size_t b = 0; b < bucket.size(); ++b) {
 	if (bucket[b].count == 0) continue;
-	NumericRange range;
-	range.lower = bucket[b].min;
-	range.upper = bucket[b].max;
+	NumericRange range(bucket[b].min, bucket[b].max);
 	result[range] = bucket[b].count;
     }
 

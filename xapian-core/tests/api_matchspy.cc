@@ -283,12 +283,12 @@ DEFINE_TESTCASE(matchspy3, writable)
 	string resultrepr("|");
 	map<Xapian::NumericRange, Xapian::doccount>::const_iterator i;
 	for (i = ranges.begin(); i != ranges.end(); ++i) {
-	    if (i->first.lower != i->first.upper) {
-		resultrepr += str(floor(i->first.lower * 100));
+	    if (i->first.get_lower() != i->first.get_upper()) {
+		resultrepr += str(floor(i->first.get_lower() * 100));
 		resultrepr += "..";
-		resultrepr += str(floor(i->first.upper * 100));
+		resultrepr += str(floor(i->first.get_upper() * 100));
 	    } else {
-		double start = floor(i->first.lower * 100);
+		double start = floor(i->first.get_lower() * 100);
 		resultrepr += str(start);
 	    }
 	    resultrepr += ':';
@@ -371,9 +371,9 @@ DEFINE_TESTCASE(matchspy4, writable)
 	    spy->get_top_values(allvals, 100);
 	string allvals_str("|");
 	for (size_t i = 0; i < allvals.size(); i++) {
-	    allvals_str += allvals[i].str;
+	    allvals_str += allvals[i].get_string();
 	    allvals_str += ':';
-	    allvals_str += str(allvals[i].frequency);
+	    allvals_str += str(allvals[i].get_frequency());
 	    allvals_str += '|';
 	}
 	tout << allvals_str << endl;
@@ -386,8 +386,8 @@ DEFINE_TESTCASE(matchspy4, writable)
 		spy->get_top_values(vals, i);
 	    for (size_t j = 0; j < vals.size(); j++) {
 		tout << "j " << j << endl;
-		TEST_EQUAL(vals[j].str, allvals[j].str);
-		TEST_EQUAL(vals[j].frequency, allvals[j].frequency);
+		TEST_EQUAL(vals[j].get_string(), allvals[j].get_string());
+		TEST_EQUAL(vals[j].get_frequency(), allvals[j].get_frequency());
 	    }
 	}
     }

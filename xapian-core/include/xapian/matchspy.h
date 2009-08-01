@@ -157,15 +157,6 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy {
 };
 
 
-/** A string with a corresponding frequency.
- */
-struct XAPIAN_VISIBILITY_DEFAULT StringAndFrequency {
-    std::string str;
-    Xapian::doccount frequency;
-    StringAndFrequency(std::string str_, Xapian::doccount frequency_)
-	    : str(str_), frequency(frequency_) {}
-};
-
 /// Class to serialise a list of strings in a form suitable for
 /// ValueCountMatchSpy.
 class XAPIAN_VISIBILITY_DEFAULT StringListSerialiser {
@@ -193,6 +184,7 @@ class XAPIAN_VISIBILITY_DEFAULT StringListSerialiser {
     /// Get the serialised result.
     const std::string & get() const { return serialised; }
 };
+
 
 /// Class to unserialise a list of strings serialised by a StringListSerialiser.
 /// The class can be used as an iterator: use the default constructor to get
@@ -275,6 +267,21 @@ inline bool operator!=(const StringListUnserialiser & a,
     return (a.pos != b.pos);
 }
 
+
+/** A string with a corresponding frequency.
+ */
+class XAPIAN_VISIBILITY_DEFAULT StringAndFrequency {
+    std::string str;
+    Xapian::doccount frequency;
+  public:
+    StringAndFrequency(std::string str_, Xapian::doccount frequency_)
+	    : str(str_), frequency(frequency_) {}
+
+    std::string get_string() const { return str; }
+    Xapian::doccount get_frequency() const { return frequency; }
+};
+
+
 /// Class for counting the frequencies of values in the matching documents.
 class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
   protected:
@@ -337,6 +344,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
     virtual std::string get_description() const;
 };
 
+
 /// Class for counting the frequencies of values in the matching documents.
 class XAPIAN_VISIBILITY_DEFAULT MultiValueCountMatchSpy : public ValueCountMatchSpy {
   public:
@@ -370,14 +378,19 @@ class XAPIAN_VISIBILITY_DEFAULT MultiValueCountMatchSpy : public ValueCountMatch
  *
  *  This is used to represent ranges of values returned by the match spies.
  */
-struct XAPIAN_VISIBILITY_DEFAULT NumericRange {
-    /** The lower value in the range.
-     */
+class XAPIAN_VISIBILITY_DEFAULT NumericRange {
+    /// The lower value in the range.
     double lower;
 
-    /** The upper value in the range.
-     */
+    /// The upper value in the range.
     double upper;
+
+  public:
+    NumericRange(double lower_, double upper_)
+	    : lower(lower_), upper(upper_) {}
+
+    double get_lower() const { return lower; }
+    double get_upper() const { return upper; }
 
     bool operator<(const NumericRange & other) const { 
 	if (lower < other.lower) return true;
