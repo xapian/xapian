@@ -644,7 +644,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		    if (!calculated_weight) {
 			wt = pl->get_weight();
 			new_item.wt = wt;
-			calculated_weight = wt;
+			calculated_weight = true;
 		    }
 		    matchspy->operator()(mydoc, wt);
 		}

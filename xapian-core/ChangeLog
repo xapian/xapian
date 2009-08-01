@@ -1,3 +1,8 @@
+Sat Aug 01 15:25:49 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Set calculated_weight to true rather than the
+	  document's weight!
+
 Sat Aug 01 15:03:02 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_matchspy.cc: Fix cut-and-paste error in @file.
