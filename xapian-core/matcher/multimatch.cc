@@ -180,13 +180,11 @@ prepare_sub_matches(vector<Xapian::Internal::RefCntPtr<SubMatch> > & leaves,
 class MultipleMatchSpy : public Xapian::MatchSpy {
   private:
     /// List of match spies to call, in order.
-    std::vector<Xapian::MatchSpy *> spies;
+    const std::vector<Xapian::MatchSpy *> & spies;
 
   public:
-    /// Add a match spy to the end of the list to be called.
-    void append(Xapian::MatchSpy * spy) {
-	spies.push_back(spy);
-    }
+    MultipleMatchSpy(const std::vector<Xapian::MatchSpy *> & spies_)
+	    : spies(spies_) {}
 
     /** Implementation of virtual operator().
      *
@@ -444,17 +442,12 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
     // Prepare the matchspy
     Xapian::MatchSpy *matchspy = NULL;
-    AutoPtr<MultipleMatchSpy> multispy;
+    MultipleMatchSpy multispy(matchspies);
     if (!matchspies.empty()) {
 	if (matchspies.size() == 1) {
 	    matchspy = matchspies[0];
 	} else {
-	    multispy.reset(new MultipleMatchSpy);
-	    for (vector<Xapian::MatchSpy *>::const_iterator i = matchspies.begin();
-		 i != matchspies.end(); ++i) {
-		multispy->append(*i);
-	    }
-	    matchspy = multispy.get();
+	    matchspy = &multispy;
 	}
     }
 

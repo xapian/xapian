@@ -1,3 +1,9 @@
+Sat Aug 01 18:28:20 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/multimatch.cc: Don't take a copy of the vector of
+	  MatchSpy pointers in MultipleMatchSpy: instead, just use a
+	  reference to the vector passed to MultiMatch.
+
 Sat Aug 01 15:40:47 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: When checking if we have at least one of
