@@ -1,4 +1,4 @@
-/** @file api_opsynonym.cc
+/** @file api_matchspy.cc
  * @brief tests of MatchSpy usage
  */
 /* Copyright 2007,2009 Lemur Consulting Ltd
