@@ -1,3 +1,7 @@
+Sat Aug 01 15:29:24 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Prefer "++i" to "i++".
+
 Sat Aug 01 15:25:49 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: Set calculated_weight to true rather than the
