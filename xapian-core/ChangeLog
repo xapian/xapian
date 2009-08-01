@@ -1,3 +1,9 @@
+Sat Aug 01 15:40:47 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: When checking if we have at least one of
+	  several features enabled, or all of several features disabled, check
+	  for matchspy_legacy last since we expect it not to be used now.
+
 Sat Aug 01 15:29:24 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: Prefer "++i" to "i++".

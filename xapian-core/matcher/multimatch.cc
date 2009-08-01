@@ -593,7 +593,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    // VAL, then new_item.wt won't yet be set, but that doesn't
 	    // matter since it's not used by the sort function.
 	    if (!mcmp(new_item, min_item)) {
-		if (matchspy_legacy == NULL && mdecider == NULL && !collapser) {
+		if (mdecider == NULL && !collapser && matchspy_legacy == NULL) {
 		    // Document was definitely suitable for mset - no more
 		    // processing needed.
 		    LOGLINE(MATCH, "Making note of match item which sorts lower than min_item");
@@ -618,7 +618,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	}
 
 	// Use the match spy and/or decision functors (if specified).
-	if (matchspy != NULL || matchspy_legacy != NULL || mdecider != NULL) {
+	if (matchspy != NULL || mdecider != NULL || matchspy_legacy != NULL) {
 	    const unsigned int multiplier = db.internal.size();
 	    Assert(multiplier != 0);
 	    Xapian::doccount n = (did - 1) % multiplier; // which actual database
@@ -938,7 +938,7 @@ new_greatest_weight:
 		    ", matches_upper_bound=" << matches_upper_bound);
 	}
 
-	if (matchspy_legacy || mdecider) {
+	if (mdecider || matchspy_legacy) {
 	    if (!percent_cutoff) {
 		if (!collapser) {
 		    // We're not collapsing or doing a percentage cutoff, so
@@ -1002,7 +1002,7 @@ new_greatest_weight:
 	       	matches_estimated = matches_lower_bound;
 	}
 
-	if (collapser || matchspy_legacy || mdecider) {
+	if (collapser || mdecider || matchspy_legacy) {
 	    LOGLINE(MATCH, "Clamping estimate between bounds: "
 		    "matches_lower_bound = " << matches_lower_bound <<
 		    ", matches_estimated = " << matches_estimated <<
@@ -1018,7 +1018,7 @@ new_greatest_weight:
 		matches_estimated = docs_matched;
 	}
 
-	if (collapser && !matchspy_legacy && !mdecider && !percent_cutoff) {
+	if (collapser && !mdecider && !percent_cutoff && !matchspy_legacy) {
 	    AssertRel(docs_matched,<=,uncollapsed_upper_bound);
 	    if (docs_matched > uncollapsed_lower_bound)
 		uncollapsed_lower_bound = docs_matched;
