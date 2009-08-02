@@ -1,7 +1,7 @@
 /** @file matchspy.h
  * @brief MatchSpy implementation.
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007,2008,2009 Olly Betts
  * Copyright (C) 2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -163,10 +163,14 @@ class XAPIAN_VISIBILITY_DEFAULT StringAndFrequency {
     std::string str;
     Xapian::doccount frequency;
   public:
+    /// Construct a StringAndFrequency object.
     StringAndFrequency(std::string str_, Xapian::doccount frequency_)
 	    : str(str_), frequency(frequency_) {}
 
+    /// Return the string.
     std::string get_string() const { return str; }
+
+    /// Return the frequency.
     Xapian::doccount get_frequency() const { return frequency; }
 };
 
@@ -246,12 +250,21 @@ class XAPIAN_VISIBILITY_DEFAULT NumericRange {
     double upper;
 
   public:
+    /** Construct a NumericRange object.
+     *
+     *  @param lower_ The start of the range.
+     *  @param upper_ The end of the range.
+     */
     NumericRange(double lower_, double upper_)
 	    : lower(lower_), upper(upper_) {}
 
+    /// Get the start of the range.
     double get_lower() const { return lower; }
+
+    /// Get the end of the range.
     double get_upper() const { return upper; }
 
+    /// Provide an ordering of NumericRange objects.
     bool operator<(const NumericRange & other) const {
 	if (lower < other.lower) return true;
 	if (lower > other.lower) return false;
