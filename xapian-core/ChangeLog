@@ -1,3 +1,8 @@
+Sun Aug 02 11:59:56 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/matchspy.h: Use Xapian::BAD_VALUENO instead of a
+	  literal -1.
+
 Sun Aug 02 11:50:28 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_matchspy.cc: Use "++i" rather than "i++" for consitency.

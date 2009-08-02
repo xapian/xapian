@@ -296,7 +296,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
 
   public:
     /// Construct an empty ValueCountMatchSpy.
-    ValueCountMatchSpy() : slot(-1), total(0) {}
+    ValueCountMatchSpy() : slot(Xapian::BAD_VALUENO), total(0) {}
 
     /** Construct a MatchSpy which counts the values in a particular slot.
      *
@@ -392,7 +392,7 @@ class XAPIAN_VISIBILITY_DEFAULT NumericRange {
     double get_lower() const { return lower; }
     double get_upper() const { return upper; }
 
-    bool operator<(const NumericRange & other) const { 
+    bool operator<(const NumericRange & other) const {
 	if (lower < other.lower) return true;
 	if (lower > other.lower) return false;
 	return (upper < other.upper);
