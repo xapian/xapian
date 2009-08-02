@@ -226,15 +226,15 @@ value_map_to_dict(const std::map<std::string, Xapian::doccount> & vals)
     size_t pos = 0;
     for (std::vector<Xapian::StringAndFrequency>::const_iterator i = $1->begin();
          i != $1->end(); ++i) {
-        PyObject * str = PyString_FromStringAndSize((*i).str.data(),
-                                                    (*i).str.size());
+        PyObject * str = PyString_FromStringAndSize((*i).get_string().data(),
+                                                    (*i).get_string().size());
 	if (str == 0) {
             Py_DECREF($result);
             $result = NULL;
             SWIG_fail;
         }
 
-        PyObject * l = PyInt_FromLong((*i).frequency);
+        PyObject * l = PyInt_FromLong((*i).get_frequency());
 	if (l == 0) {
             Py_DECREF($result);
             Py_DECREF(str);
