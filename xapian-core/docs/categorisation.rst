@@ -64,7 +64,7 @@ so::
 
 The ``10000`` in the call to ``get_mset()`` tells Xapian to check at least
 10000 documents, so the ``spy`` object will be passed at least 10000 documents
-to tally category information from (unless less than 10000 documents match the
+to tally category information from (unless fewer than 10000 documents match the
 query, in which case it will see all of them).  Setting this higher will make
 the counts exact, but Xapian will have to do more work for most queries so
 searches will be slower.
