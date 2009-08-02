@@ -427,3 +427,45 @@ DEFINE_TESTCASE(matchspy5, backend)
 
     return true;
 }
+
+class MySpy : public Xapian::MatchSpy {
+    void operator()(const Xapian::Document &, Xapian::weight) {
+    }
+};
+
+// Test exceptions from matchspy base class, and get_description method.
+DEFINE_TESTCASE(matchspy6, !backend)
+{
+    MySpy spy;
+
+    TEST_EXCEPTION(Xapian::UnimplementedError, spy.clone());
+    TEST_EXCEPTION(Xapian::UnimplementedError, spy.name());
+    TEST_EXCEPTION(Xapian::UnimplementedError, spy.serialise());
+    TEST_EXCEPTION(Xapian::UnimplementedError,
+		   spy.unserialise(std::string(),
+				   Xapian::SerialisationContext()));
+    TEST_EXCEPTION(Xapian::UnimplementedError, spy.serialise_results());
+    TEST_EXCEPTION(Xapian::UnimplementedError,
+		   spy.merge_results(std::string()));
+    TEST_EQUAL(spy.get_description(), "Xapian::MatchSpy()");
+
+    return true;
+}
+
+/// Test that NumericRange comparisons work correctly.
+DEFINE_TESTCASE(numericrange1, !backend)
+{
+    Xapian::NumericRange n1(0, 0);
+    Xapian::NumericRange n2(0, 1);
+    Xapian::NumericRange n3(1, 1);
+    Xapian::NumericRange n4(2, 1);
+
+    TEST(!(n1 < n1));
+    TEST(n1 < n2);
+    TEST(!(n2 < n1));
+    TEST(n2 < n3);
+    TEST(!(n3 < n2));
+    TEST(n3 < n4);
+    TEST(!(n4 < n3));
+    return true;
+}

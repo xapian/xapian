@@ -1,3 +1,8 @@
+Sun Aug 02 12:07:32 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_matchspy.cc: Test some edge cases shown up by coverage
+	  testing.
+
 Sun Aug 02 11:59:56 GMT 2009  Olly Betts <olly@survex.com>
 
 	* include/xapian/matchspy.h: Use Xapian::BAD_VALUENO instead of a
