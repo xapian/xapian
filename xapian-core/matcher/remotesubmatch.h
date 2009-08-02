@@ -26,7 +26,9 @@
 #include "remote-database.h"
 #include "xapian/weight.h"
 
-class Xapian::MatchSpy;
+namespace Xapian {
+    class MatchSpy;
+}
 
 /// Class for performing matching on a remote database.
 class RemoteSubMatch : public SubMatch {
