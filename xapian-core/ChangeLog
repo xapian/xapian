@@ -1,3 +1,12 @@
+Sun Aug 02 15:09:13 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/remote/remote-database.cc,common/serialise.h,
+	  net/remoteserver.cc,net/serialise.cc: Put the serialised MSet last in
+	  REPLY_RESULTS as then it doesn't need to know its own length (so the
+	  encoding is the same size it used to be in the non-matchspy case),
+	  and we avoid having to check for there being "junk" data left over
+	  after unserialising.
+
 Sun Aug 02 14:39:18 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/remotesubmatch.h: Fix to build with GCC 4.4.1.

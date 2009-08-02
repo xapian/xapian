@@ -132,12 +132,12 @@ std::string serialise_mset(const Xapian::MSet &mset);
 
 /** Unserialise a serialised Xapian::MSet object.
  *
- *  @param p	 Pointer to pointer to start of the string to unserialise.
- *  @param p_end Pointer to end of the string to unserialise.
+ *  @param p	 Pointer to the start of the string to unserialise.
+ *  @param p_end Pointer to the end of the string to unserialise.
  *
  *  @return	The unserialised Xapian::MSet object.
  */
-Xapian::MSet unserialise_mset(const char ** p, const char * p_end);
+Xapian::MSet unserialise_mset(const char * p, const char * p_end);
 
 /** Serialise a Xapian::RSet object.
  *

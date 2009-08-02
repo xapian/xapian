@@ -619,10 +619,9 @@ RemoteDatabase::get_mset(Xapian::MSet &mset,
     get_message(message, REPLY_RESULTS);
     const char * p = message.data();
     const char * p_end = p + message.size();
-    mset = unserialise_mset(&p, p_end);
 
-    for (vector<Xapian::MatchSpy *>::const_iterator i = matchspies.begin();
-	 i != matchspies.end(); ++i) {
+    vector<Xapian::MatchSpy *>::const_iterator i;
+    for (i = matchspies.begin(); i != matchspies.end(); ++i) {
 	if (p == p_end)
 	    throw Xapian::NetworkError("Expected serialised matchspy");
 	size_t len = decode_length(&p, p_end, true);
@@ -630,8 +629,7 @@ RemoteDatabase::get_mset(Xapian::MSet &mset,
 	p += len;
 	(*i)->merge_results(spyresults);
     }
-    if (p != p_end)
-	throw Xapian::NetworkError("Junk at end of mset");
+    mset = unserialise_mset(p, p_end);
 }
 
 void
