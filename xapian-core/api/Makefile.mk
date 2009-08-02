@@ -16,6 +16,7 @@ lib_src +=\
 	api/errorhandler.cc\
 	api/expanddecider.cc\
 	api/leafpostlist.cc\
+	api/matchspy.cc\
 	api/omdatabase.cc\
 	api/omdocument.cc\
 	api/omenquire.cc\

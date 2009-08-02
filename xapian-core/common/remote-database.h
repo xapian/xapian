@@ -143,6 +143,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
      * @param weight_cutoff		Weight cutoff.
      * @param wtscheme			Weighting scheme.
      * @param omrset			The rset.
+     * @param matchspies                The matchspies to use.  NULL if none.
      */
     void set_query(const Xapian::Query::Internal *query,
 		   Xapian::termcount qlen,
@@ -154,7 +155,8 @@ class RemoteDatabase : public Xapian::Database::Internal {
 		   bool sort_value_forward,
 		   int percent_cutoff, Xapian::weight weight_cutoff,
 		   const Xapian::Weight *wtscheme,
-		   const Xapian::RSet &omrset);
+		   const Xapian::RSet &omrset,
+		   const vector<Xapian::MatchSpy *> & matchspies);
 
     /** Get the stats from the remote server.
      *
@@ -169,7 +171,8 @@ class RemoteDatabase : public Xapian::Database::Internal {
 			   const Xapian::Weight::Internal &stats);
 
     /// Get the MSet from the remote server.
-    void get_mset(Xapian::MSet &mset);
+    void get_mset(Xapian::MSet &mset,
+		  const vector<Xapian::MatchSpy *> & matchspies);
 
     /// Get remote termlist.
     TermList * open_term_list(Xapian::docid did) const;

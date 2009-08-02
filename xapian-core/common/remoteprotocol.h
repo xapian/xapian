@@ -41,7 +41,8 @@
 // 30.6: Support for OP_VALUE_GE and OP_VALUE_LE in query serialisation
 // 31: Clean up for Xapian 1.1.0
 // 32: Serialise termfreq and reltermfreqs together in serialise_stats.
-#define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 32
+// 33: Support for passing matchspies over the remote connection.
+#define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 33
 #define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 0
 
 /** Message types (client -> server).

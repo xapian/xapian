@@ -27,11 +27,16 @@
 #include "remote-database.h"
 #include "weightinternal.h"
 
-RemoteSubMatch::RemoteSubMatch(RemoteDatabase *db_, bool decreasing_relevance_)
-	: db(db_), decreasing_relevance(decreasing_relevance_)
+RemoteSubMatch::RemoteSubMatch(RemoteDatabase *db_,
+			       bool decreasing_relevance_,
+			       const vector<Xapian::MatchSpy *> & matchspies_)
+	: db(db_),
+	  decreasing_relevance(decreasing_relevance_),
+	  matchspies(matchspies_)
 {
     DEBUGCALL(MATCH, void, "RemoteSubMatch",
-	      db_ << ", " << decreasing_relevance_);
+	      db_ << ", " << decreasing_relevance_ << ", " <<
+	      "matchspies");
 }
 
 bool
@@ -64,7 +69,7 @@ RemoteSubMatch::get_postlist_and_term_info(MultiMatch *,
     DEBUGCALL(MATCH, PostList *, "RemoteSubMatch::get_postlist_and_term_info",
 	      "[matcher], " << (void*)termfreqandwts << ", " << (void*)total_subqs_ptr);
     Xapian::MSet mset;
-    db->get_mset(mset);
+    db->get_mset(mset, matchspies);
     percent_factor = mset.internal->percent_factor;
     if (termfreqandwts) *termfreqandwts = mset.internal->termfreqandwts;
     // For remote databases we report percent_factor rather than counting the

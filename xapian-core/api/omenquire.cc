@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
- * Copyright 2007 Lemur Consulting Ltd
+ * Copyright 2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -642,11 +642,11 @@ MSet
 Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 			    Xapian::doccount check_at_least, const RSet *rset,
 			    const MatchDecider *mdecider,
-			    const MatchDecider *matchspy) const
+			    const MatchDecider *matchspy_legacy) const
 {
     DEBUGCALL(API, MSet, "Enquire::Internal::get_mset", first << ", " <<
 	      maxitems << ", " << check_at_least << ", " << rset << ", " <<
-	      mdecider << ", " << matchspy);
+	      mdecider << ", " << matchspy_legacy);
 
     if (percent_cutoff && (sort_by == VAL || sort_by == VAL_REL)) {
 	throw Xapian::UnimplementedError("Use of a percentage cutoff while sorting primary by value isn't currently supported");
@@ -661,11 +661,11 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		       collapse_max, collapse_key,
 		       percent_cutoff, weight_cutoff,
 		       order, sort_key, sort_by, sort_value_forward, sorter,
-		       errorhandler, stats, weight);
+		       errorhandler, stats, weight, spies);
     // Run query and put results into supplied Xapian::MSet object.
     MSet retval;
     match.get_mset(first, maxitems, check_at_least, retval,
-		   stats, mdecider, matchspy);
+		   stats, mdecider, matchspy_legacy);
 
     Assert(weight->name() != "bool" || retval.get_max_possible() == 0);
 
@@ -890,6 +890,18 @@ Enquire::get_query() const
 	if (internal->errorhandler) (*internal->errorhandler)(e);
 	throw;
     }
+}
+
+void
+Enquire::add_matchspy(MatchSpy * spy) {
+    DEBUGAPICALL(void, "Xapian::Enquire::add_matchspy", spy);
+    internal->spies.push_back(spy);
+}
+
+void
+Enquire::clear_matchspies() {
+    DEBUGAPICALL(const Xapian::Query &, "Xapian::Enquire::clear_matchspies", "");
+    internal->spies.clear();
 }
 
 void

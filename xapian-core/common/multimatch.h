@@ -2,6 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002,2003,2004,2005,2006,2007,2009 Olly Betts
+ * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -71,6 +72,9 @@ class MultiMatch
 	/** Is each sub-database remote? */
 	vector<bool> is_remote;
 
+	/// The matchspies to use.
+	const vector<Xapian::MatchSpy *> & matchspies;
+
 	/** get the maxweight that the postlist pl may return, calling
 	 *  recalc_maxweight if recalculate_w_max is set, and unsetting it.
 	 *  Must only be called on the top of the postlist tree.
@@ -110,7 +114,8 @@ class MultiMatch
 		   const Xapian::Sorter * sorter_,
 		   Xapian::ErrorHandler * errorhandler,
 		   Xapian::Weight::Internal & stats,
-		   const Xapian::Weight *wtscheme);
+		   const Xapian::Weight *wtscheme,
+		   const vector<Xapian::MatchSpy *> & matchspies_);
 
 	void get_mset(Xapian::doccount first,
 		      Xapian::doccount maxitems,
@@ -118,7 +123,7 @@ class MultiMatch
 		      Xapian::MSet & mset,
 		      const Xapian::Weight::Internal & stats,
 		      const Xapian::MatchDecider * mdecider,
-		      const Xapian::MatchDecider * matchspy);
+		      const Xapian::MatchDecider * matchspy_legacy);
 
 	/** Called by postlists to indicate that they've rearranged themselves
 	 *  and the maxweight now possible is smaller.

@@ -1,3 +1,21 @@
+Sun Aug 02 12:15:43 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	Merge from matchspy branch.
+	* api/,backends/remote/remote-database.cc,common/,docs/Makefile.am,
+	  docs/categorisation.rst,include/Makefile.mk,include/xapian.h,
+	  include/xapian/enquire.h,include/xapian/matchspy.h,
+	  include/xapian/serialisationcontext.h,matcher/multimatch.cc,
+	  matcher/remotesubmatch.cc,matcher/remotesubmatch.h,
+	  net/remoteserver.cc,net/serialise.cc,tests/Makefile.am,
+	  tests/api_matchspy.cc: Add new-style Xapian::MatchSpy class,
+	  which is a pure "spy" class, rather than being able to take a
+	  decision on whether a spy is applied before or after a result.
+	  This class is also designed to work with remote databases,
+	  passing the results back in serialised form.  Also, add
+	  ValueCountMatchSpy, which counts the occurrences of each value in
+	  a slot in the search results seen (useful for faceted or
+	  categorisation systems).
+
 Fri Jul 31 12:50:57 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_backend.cc,tests/api_wrdb.cc: Move new test

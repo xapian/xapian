@@ -115,6 +115,7 @@ collated_apitest_sources = \
  api_collapse.cc \
  api_db.cc \
  api_generated.cc \
+ api_matchspy.cc \
  api_metadata.cc \
  api_nodb.cc \
  api_opsynonym.cc \

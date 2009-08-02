@@ -25,6 +25,7 @@
 #include "xapian/database.h"
 #include "xapian/enquire.h"
 #include "xapian/error.h"
+#include "xapian/matchspy.h"
 #include "xapian/valueiterator.h"
 
 #include "safeerrno.h"
@@ -354,6 +355,22 @@ RemoteServer::msg_update(const string &)
     send_message(REPLY_UPDATE, message);
 }
 
+/** Structure holding a list of match spies.
+ *
+ *  The main reason for the existence of this structure is to make it easy to
+ *  ensure that the match spies are all deleted after use.
+ */
+struct MatchSpyList {
+    vector<Xapian::MatchSpy *> spies;
+
+    ~MatchSpyList() {
+	vector<Xapian::MatchSpy *>::const_iterator i;
+	for (i = spies.begin(); i != spies.end(); ++i) {
+	    delete *i;
+	}
+    }
+};
+
 void
 RemoteServer::msg_query(const string &message_in)
 {
@@ -405,28 +422,52 @@ RemoteServer::msg_query(const string &message_in)
 
     // Unserialise the Weight object.
     len = decode_length(&p, p_end, true);
-    const Xapian::Weight * wttype = ctx.get_weighting_scheme(string(p, len));
+    string wtname(p, len);
+    p += len;
+
+    const Xapian::Weight * wttype = ctx.get_weighting_scheme(wtname);
     if (wttype == NULL) {
 	// Note: user weighting schemes should be registered by adding them to
 	// a SerialisationContext, and setting the context using
 	// RemoteServer::set_context().
 	throw Xapian::InvalidArgumentError("Weighting scheme " +
-					   string(p, len) + " not registered");
+					   wtname + " not registered");
     }
-    p += len;
 
     len = decode_length(&p, p_end, true);
     AutoPtr<Xapian::Weight> wt(wttype->unserialise(string(p, len)));
     p += len;
 
     // Unserialise the RSet object.
-    Xapian::RSet rset = unserialise_rset(string(p, p_end - p));
+    len = decode_length(&p, p_end, true);
+    Xapian::RSet rset = unserialise_rset(string(p, len));
+    p += len;
+
+    // Unserialise the MatchSpy objects.
+    vector<Xapian::MatchSpy *>::size_type spycount = decode_length(&p, p_end, false);
+    MatchSpyList matchspies;
+    while (spycount != 0) {
+	len = decode_length(&p, p_end, true);
+	string spytype(p, len);
+	const Xapian::MatchSpy * spyclass = ctx.get_match_spy(spytype);
+	if (spyclass == NULL) {
+	    throw Xapian::InvalidArgumentError("Match spy " + spytype +
+					       " not registered");
+	}
+	p += len;
+
+	len = decode_length(&p, p_end, true);
+	matchspies.spies.push_back(spyclass->unserialise(string(p, len), ctx));
+	p += len;
+
+	--spycount;
+    }
 
     Xapian::Weight::Internal local_stats;
     MultiMatch match(*db, query.get(), qlen, &rset, collapse_max, collapse_key,
 		     percent_cutoff, weight_cutoff, order,
 		     sort_key, sort_by, sort_value_forward, NULL,
-		     NULL, local_stats, wt.get());
+		     NULL, local_stats, wt.get(), matchspies.spies);
 
     send_message(REPLY_STATS, serialise_stats(local_stats));
 
@@ -448,7 +489,15 @@ RemoteServer::msg_query(const string &message_in)
     Xapian::MSet mset;
     match.get_mset(first, maxitems, check_at_least, mset, total_stats, 0, 0);
 
-    send_message(REPLY_RESULTS, serialise_mset(mset));
+    message = serialise_mset(mset);
+
+    for (vector<Xapian::MatchSpy *>::const_iterator i = matchspies.spies.begin();
+	 i != matchspies.spies.end(); ++i) {
+	string spy_results = (*i)->serialise_results();
+	message += encode_length(spy_results.size());
+	message += spy_results;
+    }
+    send_message(REPLY_RESULTS, message);
 }
 
 void

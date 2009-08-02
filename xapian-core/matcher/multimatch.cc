@@ -5,7 +5,7 @@
  * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2003 Orange PCS Ltd
  * Copyright 2003 Sam Liddicott
- * Copyright 2007,2008 Lemur Consulting Ltd
+ * Copyright 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -47,6 +47,7 @@
 #include "weightinternal.h"
 
 #include <xapian/errorhandler.h>
+#include <xapian/matchspy.h>
 #include <xapian/version.h> // For XAPIAN_HAS_REMOTE_BACKEND
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
@@ -174,6 +175,32 @@ prepare_sub_matches(vector<Xapian::Internal::RefCntPtr<SubMatch> > & leaves,
     }
 }
 
+/// Class which applies several match spies in turn.
+class MultipleMatchSpy : public Xapian::MatchSpy {
+  private:
+    /// List of match spies to call, in order.
+    const std::vector<Xapian::MatchSpy *> & spies;
+
+  public:
+    MultipleMatchSpy(const std::vector<Xapian::MatchSpy *> & spies_)
+	    : spies(spies_) {}
+
+    /** Implementation of virtual operator().
+     *
+     *  This implementation calls all the spies in turn.
+     */
+    void operator()(const Xapian::Document &doc, Xapian::weight wt);
+};
+
+void 
+MultipleMatchSpy::operator()(const Xapian::Document &doc, Xapian::weight wt) {
+    LOGCALL_VOID(MATCH, "MultipleMatchSpy::operator()", doc << ", " << wt);
+    vector<Xapian::MatchSpy *>::const_iterator i;
+    for (i = spies.begin(); i != spies.end(); ++i) {
+	(**i)(doc, wt);
+    }
+}
+
 ////////////////////////////////////
 // Initialisation and cleaning up //
 ////////////////////////////////////
@@ -191,7 +218,8 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 		       const Xapian::Sorter * sorter_,
 		       Xapian::ErrorHandler * errorhandler_,
 		       Xapian::Weight::Internal & stats,
-		       const Xapian::Weight * weight_)
+		       const Xapian::Weight * weight_,
+		       const vector<Xapian::MatchSpy *> & matchspies_)
 	: db(db_), query(query_),
 	  collapse_max(collapse_max_), collapse_key(collapse_key_),
 	  percent_cutoff(percent_cutoff_), weight_cutoff(weight_cutoff_),
@@ -199,7 +227,8 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	  sort_key(sort_key_), sort_by(sort_by_),
 	  sort_value_forward(sort_value_forward_), sorter(sorter_),
 	  errorhandler(errorhandler_), weight(weight_),
-	  is_remote(db.internal.size())
+	  is_remote(db.internal.size()),
+	  matchspies(matchspies_)
 {
     DEBUGCALL(MATCH, void, "MultiMatch", db_ << ", " << query_ << ", " <<
 	      qlen << ", " << (omrset ? *omrset : Xapian::RSet()) << ", " <<
@@ -229,10 +258,10 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 		rem_db->set_query(query, qlen, collapse_max, collapse_key,
 				  order, sort_key, sort_by, sort_value_forward,
 				  percent_cutoff, weight_cutoff, weight,
-				  subrsets[i]);
+				  subrsets[i], matchspies);
 		bool decreasing_relevance =
 		    (sort_by == REL || sort_by == REL_VAL);
-		smatch = new RemoteSubMatch(rem_db, decreasing_relevance);
+		smatch = new RemoteSubMatch(rem_db, decreasing_relevance, matchspies);
 		is_remote[i] = true;
 	    } else {
 #endif /* XAPIAN_HAS_REMOTE_BACKEND */
@@ -277,7 +306,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		     Xapian::MSet & mset,
 		     const Xapian::Weight::Internal & stats,
 		     const Xapian::MatchDecider *mdecider,
-		     const Xapian::MatchDecider *matchspy)
+		     const Xapian::MatchDecider *matchspy_legacy)
 {
     DEBUGCALL(MATCH, void, "MultiMatch::get_mset", first << ", " << maxitems
 	      << ", " << check_at_least << ", ...");
@@ -403,11 +432,22 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     Xapian::doccount matches_lower_bound = 0;
     Xapian::doccount matches_estimated   = pl->get_termfreq_est();
 
-    if (mdecider == NULL && matchspy == NULL) {
+    if (mdecider == NULL && matchspy_legacy == NULL) {
 	// If we have a matcher decider or match spy, the lower bound must be
 	// set to 0 as we could discard all hits.  Otherwise set it to the
 	// minimum number of entries which the postlist could return.
 	matches_lower_bound = pl->get_termfreq_min();
+    }
+
+    // Prepare the matchspy
+    Xapian::MatchSpy *matchspy = NULL;
+    MultipleMatchSpy multispy(matchspies);
+    if (!matchspies.empty()) {
+	if (matchspies.size() == 1) {
+	    matchspy = matchspies[0];
+	} else {
+	    matchspy = &multispy;
+	}
     }
 
     // Check if any results have been asked for (might just be wanting
@@ -437,9 +477,9 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	return;
     }
 
-    // Number of documents considered by a decider or matchspy.
+    // Number of documents considered by a decider or matchspy_legacy.
     Xapian::doccount decider_considered = 0;
-    // Number of documents denied by the decider or matchspy.
+    // Number of documents denied by the decider or matchspy_legacy.
     Xapian::doccount decider_denied = 0;
 
     // Set max number of results that we want - this is used to decide
@@ -545,7 +585,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    // VAL, then new_item.wt won't yet be set, but that doesn't
 	    // matter since it's not used by the sort function.
 	    if (!mcmp(new_item, min_item)) {
-		if (matchspy == NULL && mdecider == NULL && !collapser) {
+		if (mdecider == NULL && !collapser && matchspy_legacy == NULL) {
 		    // Document was definitely suitable for mset - no more
 		    // processing needed.
 		    LOGLINE(MATCH, "Making note of match item which sorts lower than min_item");
@@ -563,14 +603,14 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		    continue;
 		}
 		// We can't drop the item, because we need to show it
-		// to the matchspy, test whether the mdecider would
+		// to the matchspy_legacy, test whether the mdecider would
 		// accept it, and/or test whether it would be collapsed.
 		LOGLINE(MATCH, "Keeping candidate which sorts lower than min_item for further investigation");
 	    }
 	}
 
 	// Use the match spy and/or decision functors (if specified).
-	if (matchspy != NULL || mdecider != NULL) {
+	if (matchspy != NULL || mdecider != NULL || matchspy_legacy != NULL) {
 	    const unsigned int multiplier = db.internal.size();
 	    Assert(multiplier != 0);
 	    Xapian::doccount n = (did - 1) % multiplier; // which actual database
@@ -584,13 +624,21 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		Xapian::Document mydoc(doc.get());
 
 		++decider_considered;
-		if (matchspy && !matchspy->operator()(mydoc)) {
+		if (matchspy_legacy && !matchspy_legacy->operator()(mydoc)) {
 		    ++decider_denied;
 		    continue;
 		}
 		if (mdecider && !mdecider->operator()(mydoc)) {
 		    ++decider_denied;
 		    continue;
+		}
+		if (matchspy) {
+		    if (!calculated_weight) {
+			wt = pl->get_weight();
+			new_item.wt = wt;
+			calculated_weight = true;
+		    }
+		    matchspy->operator()(mydoc, wt);
 		}
 	    }
 	}
@@ -882,7 +930,7 @@ new_greatest_weight:
 		    ", matches_upper_bound=" << matches_upper_bound);
 	}
 
-	if (matchspy || mdecider) {
+	if (mdecider || matchspy_legacy) {
 	    if (!percent_cutoff) {
 		if (!collapser) {
 		    // We're not collapsing or doing a percentage cutoff, so
@@ -946,7 +994,7 @@ new_greatest_weight:
 	       	matches_estimated = matches_lower_bound;
 	}
 
-	if (collapser || matchspy || mdecider) {
+	if (collapser || mdecider || matchspy_legacy) {
 	    LOGLINE(MATCH, "Clamping estimate between bounds: "
 		    "matches_lower_bound = " << matches_lower_bound <<
 		    ", matches_estimated = " << matches_estimated <<
@@ -962,7 +1010,7 @@ new_greatest_weight:
 		matches_estimated = docs_matched;
 	}
 
-	if (collapser && !matchspy && !mdecider && !percent_cutoff) {
+	if (collapser && !mdecider && !percent_cutoff && !matchspy_legacy) {
 	    AssertRel(docs_matched,<=,uncollapsed_upper_bound);
 	    if (docs_matched > uncollapsed_lower_bound)
 		uncollapsed_lower_bound = docs_matched;
