@@ -34,6 +34,27 @@ Mon Oct 29 03:03:57 GMT 2007  Olly Betts <olly@survex.com>
 	* NEWS,csharp/Makefile.am,python/extra.i,python/pythontest.py,
 	  python/util.i,xapian.i: Restore the changes.
 
+Sun Aug 02 12:21:05 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/pythontest3.py: Sync with pythontest2.
+
+Sun Aug 02 12:19:24 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	Merge from matchspy branch
+	* csharp/Makefile.am,python/extra.i,python/pythontest2.py,
+	  python/util.i,xapian.i: Add support for new MatchSpy class, and
+	  the matchspy.h header.
+
+Sat Aug 01 10:07:02 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/pythontest3.py: Update to match pythontest2.py (after 2to3
+	  conversion).
+
+Sat Aug 01 09:58:32 GMT 2009  Olly Betts <olly@survex.com>
+
+	* php/Makefile.am,php/smoketest.php,php/smoketest5.php: Merged the PHP
+	  "smoketest" back together now we don't need to support PHP4 as well.
+
 Sun Jul 26 21:55:47 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/doxy2swig.py: Tell textwrap not to break long words -
