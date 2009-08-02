@@ -27,7 +27,6 @@
 
 #include "multimatch.h"
 
-#include "autoptr.h"
 #include "collapser.h"
 #include "submatch.h"
 #include "localmatch.h"
