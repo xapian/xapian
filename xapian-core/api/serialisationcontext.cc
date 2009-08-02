@@ -122,6 +122,8 @@ SerialisationContext::Internal::add_defaults()
     Xapian::PostingSource * source;
     source = new Xapian::ValueWeightPostingSource(0);
     postingsources[source->name()] = source;
+    source = new Xapian::DecreasingValueWeightPostingSource(0);
+    postingsources[source->name()] = source;
     source = new Xapian::ValueMapPostingSource(0);
     postingsources[source->name()] = source;
     source = new Xapian::FixedWeightPostingSource(0.0);

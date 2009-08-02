@@ -1,7 +1,7 @@
 /** @file leafpostlist.h
  * @brief Abstract base class for leaf postlists.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2009 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -85,6 +85,8 @@ class LeafPostList : public PostList {
 
     TermFreqs get_termfreq_est_using_stats(
 	const Xapian::Weight::Internal & stats) const;
+
+    Xapian::termcount count_matching_subqs() const;
 };
 
 #endif // XAPIAN_INCLUDED_LEAFPOSTLIST_H

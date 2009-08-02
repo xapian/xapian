@@ -4,6 +4,105 @@ Tue Dec 09 00:06:44 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 	  which don't support directors, so that built-in posting sources,
 	  like the geospatial one, can be used.
 
+Sat Aug 01 10:07:02 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/pythontest3.py: Update to match pythontest2.py (after 2to3
+	  conversion).
+
+Sat Aug 01 09:58:32 GMT 2009  Olly Betts <olly@survex.com>
+
+	* php/Makefile.am,php/smoketest.php,php/smoketest5.php: Merged the PHP
+	  "smoketest" back together now we don't need to support PHP4 as well.
+
+Sun Jul 26 21:55:47 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/doxy2swig.py: Tell textwrap not to break long words -
+	  fixes a load of places in the documentation comments where C++
+	  names and type names were cut in two.  Also fixes a problem on
+	  the postingsource branch where actual python identifiers were
+	  being cut in two (for some very long identifiers).
+
+Thu Jul 23 04:13:02 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update for 1.1.2.
+
+Tue Jul 21 17:12:06 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog and sync with 1.0.13 and 1.0.14.
+
+Tue Jul 21 04:38:51 GMT 2009  Olly Betts <olly@survex.com>
+
+	* python/extra.i: Sort out iterators to work with the Python 3
+	  next()/__next__() changes.  (ticket#246)
+
+Tue Jul 21 03:37:38 GMT 2009  Olly Betts <olly@survex.com>
+
+	* python/extra.i: Python 3 doesn't support unbound methods, so use
+	  lambda to work around this in a way which also works with Python 2.
+
+Mon Jul 20 14:51:10 GMT 2009  Olly Betts <olly@survex.com>
+
+	* python/util.i: Remove unused empty Xapian::PythonProblem C++ class.
+
+Mon Jul 20 14:46:24 GMT 2009  Olly Betts <olly@survex.com>
+
+	* python/pythontest2.py,python/pythontest3.py: Cast the result of
+	  integer division to an integer - in Python 3 this returns a float
+	  and even in Python 2 the cast makes the intent clearer.
+
+Mon Jul 20 14:03:39 GMT 2009  Olly Betts <olly@survex.com>
+
+	* python/extra.i,python/util.i: Use a multi-arg argout typemap to
+	  avoid having to mess around with ValueRangeProcessor.__call__().
+
+Mon Jul 20 12:54:51 GMT 2009  Olly Betts <olly@survex.com>
+
+	* python/extra.i,python/util.i: Use %rename for renaming get_hit to
+	  _get_hit_internal.  Taken from patch in ticket #246.
+
+Mon Jul 20 12:32:10 GMT 2009  Olly Betts <olly@survex.com>
+
+	* python/extra.i,python/util.i: Rename metadata_keys_begin and
+	  metadata_keys_end using %rename rather than using delete and
+	  assignment in Python.  This should reduce start-up time for the
+	  Python bindings a fraction.  Taken from Peter Kelm's patch in
+	  ticket#246.
+
+Mon Jul 20 11:58:30 GMT 2009  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Need to run doxy2swig.py from $(srcdir).
+
+Mon Jul 20 03:31:44 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac,python/doxy2swig.py,python/doxy2swig.py.in: We
+	  explicitly run doxy2swig.py from the Makefile using $(PYTHON) so
+	  there is no need to AC_CONFIG_FILES it to substitute @PYTHON@ in the
+	  #! line.
+
+Mon Jul 20 02:40:09 GMT 2009  Olly Betts <olly@survex.com>
+
+	* python/pythontest3.py,python/smoketest3.py: Fix "from .testsuite
+	  import *" to "from testsuite import *".
+
+Fri Jun 26 10:24:51 GMT 2009  Olly Betts <olly@survex.com>
+
+	* ruby/smoketest.rb: Add regression test for failing to accept an
+	  integer value > MAXINT for a double parameter, fixed by upgrading
+	  to using the latest SWIG SVN trunk.
+
+Wed Jun 10 01:12:23 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Update for 1.1.1.
+
+Tue Jun 09 14:01:04 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Update for 1.1.1.
+
+Wed May 27 05:52:20 GMT 2009  Olly Betts <olly@survex.com>
+
+	* README: Add note about GSoC 2009 project to reimplement Perl bindings
+	  using SWIG.
+
 Wed May 20 20:55:13 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* xapian.i: Add overloaded version of set_collapse_key() to

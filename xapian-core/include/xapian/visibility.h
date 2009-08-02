@@ -1,5 +1,6 @@
-// visibility.h: Define XAPIAN_VISIBILITY macro.
-//
+/** @file visibility.h
+ * @brief Define XAPIAN_VISIBILITY macro.
+ */
 // Copyright (C) 2007 Olly Betts
 //
 // This program is free software; you can redistribute it and/or modify

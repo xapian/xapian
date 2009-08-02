@@ -1,7 +1,7 @@
 /** @file chert_synonym.h
  * @brief Synonym data for a chert database.
  */
-/* Copyright (C) 2005,2007,2008 Olly Betts
+/* Copyright (C) 2005,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,14 +25,14 @@
 
 #include "alltermslist.h"
 #include "database.h"
-#include "chert_table.h"
+#include "chert_lazytable.h"
 #include "omdebug.h"
 #include "termlist.h"
 
 #include <set>
 #include <string>
 
-class ChertSynonymTable : public ChertTable {
+class ChertSynonymTable : public ChertLazyTable {
     /// The last term which was updated.
     mutable std::string last_term;
 
@@ -49,7 +49,8 @@ class ChertSynonymTable : public ChertTable {
      *  @param readonly		true if we're opening read-only, else false.
      */
     ChertSynonymTable(const std::string & dbdir, bool readonly)
-	: ChertTable("synonym", dbdir + "/synonym.", readonly, Z_DEFAULT_STRATEGY, true) { }
+	: ChertLazyTable("synonym", dbdir + "/synonym.", readonly,
+			 Z_DEFAULT_STRATEGY) { }
 
     // Merge in batched-up changes.
     void merge_changes();
@@ -93,13 +94,6 @@ class ChertSynonymTable : public ChertTable {
 
     bool is_modified() const {
 	return !last_term.empty() || ChertTable::is_modified();
-    }
-
-    void create_and_open(unsigned int blocksize) {
-	// The synonym table is created lazily, but erase it in case we're
-	// overwriting an existing database and it already exists.
-	ChertTable::erase();
-	ChertTable::set_block_size(blocksize);
     }
 
     void flush_db() {

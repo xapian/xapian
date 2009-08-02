@@ -222,7 +222,7 @@ class ChertDatabase : public Xapian::Database::Internal {
 	 */
 	void get_changeset_revisions(const string & path,
 				     chert_revision_number_t * startrev,
-				     chert_revision_number_t * endrev);
+				     chert_revision_number_t * endrev) const;
     public:
 	/** Create and open a chert database.
 	 *

@@ -113,6 +113,8 @@ class AndMaybePostList : public BranchPostList {
 	 *  when the ANDMAYBE is part of a synonym.
 	 */
 	Xapian::termcount get_wdf() const;
+
+	Xapian::termcount count_matching_subqs() const;
 };
 
 #endif /* OM_HGUARD_ANDMAYBEPOSTLIST_H */

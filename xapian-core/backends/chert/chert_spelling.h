@@ -23,13 +23,13 @@
 
 #include <xapian/types.h>
 
-#include "chert_table.h"
+#include "chert_lazytable.h"
 #include "termlist.h"
 
 #include <map>
 #include <set>
 #include <string>
-#include <string.h> // For memcpy() and memcmp().
+#include <cstring> // For memcpy() and memcmp().
 
 struct fragment {
     char data[4];
@@ -52,7 +52,7 @@ inline bool operator<(const fragment &a, const fragment &b) {
     return memcmp(a.data, b.data, 4) < 0;
 }
 
-class ChertSpellingTable : public ChertTable {
+class ChertSpellingTable : public ChertLazyTable {
     void toggle_fragment(fragment frag, const string & word);
 
     std::map<std::string, Xapian::termcount> wordfreq_changes;
@@ -68,7 +68,8 @@ class ChertSpellingTable : public ChertTable {
      *  @param readonly		true if we're opening read-only, else false.
      */
     ChertSpellingTable(const std::string & dbdir, bool readonly)
-	: ChertTable("spelling", dbdir + "/spelling.", readonly, Z_DEFAULT_STRATEGY, true) { }
+	: ChertLazyTable("spelling", dbdir + "/spelling.", readonly,
+			 Z_DEFAULT_STRATEGY) { }
 
     // Merge in batched-up changes.
     void merge_changes();
@@ -89,13 +90,6 @@ class ChertSpellingTable : public ChertTable {
 
     bool is_modified() const {
 	return !wordfreq_changes.empty() || ChertTable::is_modified();
-    }
-
-    void create_and_open(unsigned int blocksize) {
-	// The spelling table is created lazily, but erase it in case we're
-	// overwriting an existing database and it already exists.
-	ChertTable::erase();
-	ChertTable::set_block_size(blocksize);
     }
 
     void flush_db() {

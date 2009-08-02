@@ -33,7 +33,7 @@
 #include "xapian/serialisationcontext.h"
 #include "xapian/termiterator.h"
 
-#include <math.h>
+#include <cmath>
 
 namespace Xapian {
 

@@ -129,11 +129,6 @@ static symbol * increase_size(symbol * p, int n) {
 
 namespace Xapian {
 
-Stem::Internal::Internal()
-    : p(create_s()), c(0), l(0), lb(0), bra(0), ket(0)
-{
-}
-
 Stem::Internal::~Internal()
 {
     lose_s(p);
@@ -246,7 +241,11 @@ int Stem::Internal::eq_s_b(int s_size, const symbol * s) {
     return 1;
 }
 
-int Stem::Internal::find_among(const struct among * v, int v_size, const unsigned char * fnum, const among_function * f) {
+int
+Stem::Internal::find_among(const symbol * pool, const struct among * v,
+			   int v_size, const unsigned char * fnum,
+			   const among_function * f)
+{
     int i = 0;
     int j = v_size;
 
@@ -265,7 +264,7 @@ int Stem::Internal::find_among(const struct among * v, int v_size, const unsigne
         const struct among * w = v + k;
 	for (int x = common; x < w->s_size; x++) {
 	    if (c_orig + common == l) { diff = -1; break; }
-	    diff = q[common] - w->s[x];
+	    diff = q[common] - (pool + w->s)[x];
 	    if (diff != 0) break;
 	    common++;
 	}
@@ -300,7 +299,11 @@ int Stem::Internal::find_among(const struct among * v, int v_size, const unsigne
 }
 
 /* find_among_b is for backwards processing. Same comments apply */
-int Stem::Internal::find_among_b(const struct among * v, int v_size, const unsigned char * fnum, const among_function * f) {
+int
+Stem::Internal::find_among_b(const symbol * pool, const struct among * v,
+			     int v_size, const unsigned char * fnum,
+			     const among_function * f)
+{
     int i = 0;
     int j = v_size;
 
@@ -319,7 +322,7 @@ int Stem::Internal::find_among_b(const struct among * v, int v_size, const unsig
 	const struct among * w = v + k;
 	for (int x = w->s_size - 1 - common; x >= 0; x--) {
 	    if (c_orig - common == lb) { diff = -1; break; }
-	    diff = q[- common] - w->s[x];
+	    diff = q[- common] - (pool + w->s)[x];
 	    if (diff != 0) break;
 	    common++;
 	}

@@ -147,7 +147,7 @@ NearPostList::get_wdf() const
 
     // Ensure that we always return a wdf of at least 1, since we know there
     // was at least one occurrence of the phrase.
-    return std::max(wdf, 1u);
+    return std::max(wdf, Xapian::termcount(1));
 }
 
 TermFreqs
@@ -275,7 +275,7 @@ PhrasePostList::get_wdf() const
 
     // Ensure that we always return a wdf of at least 1, since we know there
     // was at least one occurrence of the phrase.
-    return std::max(wdf / 2, 1u);
+    return std::max(wdf / 2, Xapian::termcount(1));
 }
 
 TermFreqs

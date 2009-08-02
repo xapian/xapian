@@ -33,7 +33,7 @@
 #include <xapian/error.h>
 #include "omassert.h"
 
-#include <limits.h>
+#include <climits>
 
 #include <algorithm>
 #include <cstring>

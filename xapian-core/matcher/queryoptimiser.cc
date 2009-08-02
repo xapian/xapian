@@ -59,10 +59,15 @@ QueryOptimiser::do_subquery(const Xapian::Query::Internal * query, double factor
 
     switch (query->op) {
 	case Xapian::Query::Internal::OP_LEAF:
-	    if (query->tname.empty()) factor = 0.0;
+	    if (factor != 0.0) {
+		++total_subqs;
+		if (query->tname.empty()) factor = 0.0;
+	    }
 	    RETURN(localsubmatch.postlist_from_op_leaf_query(query, factor));
 
 	case Xapian::Query::Internal::OP_EXTERNAL_SOURCE: {
+	    if (factor != 0.0)
+		++total_subqs;
 	    Assert(query->external_source);
 	    Xapian::Database wrappeddb(new ConstDatabaseWrapper(&db));
 	    RETURN(new ExternalPostList(wrappeddb,
@@ -81,8 +86,16 @@ QueryOptimiser::do_subquery(const Xapian::Query::Internal * query, double factor
 	case Xapian::Query::OP_ELITE_SET:
 	    RETURN(do_or_like(query, factor));
 
-	case Xapian::Query::OP_SYNONYM:
-	    RETURN(do_synonym(query, factor));
+	case Xapian::Query::OP_SYNONYM: {
+	    // Save and restore total_subqs so we only add one for the whole
+	    // OP_SYNONYM subquery (or none if we're not weighted).
+	    Xapian::termcount save_total_subqs = total_subqs;
+	    PostList * pl = do_synonym(query, factor);
+	    total_subqs = save_total_subqs;
+	    if (factor != 0.0)
+		++total_subqs;
+	    RETURN(pl);
+	}
 
 	case Xapian::Query::OP_AND_NOT: {
 	    AssertEq(query->subqs.size(), 2);
@@ -99,6 +112,8 @@ QueryOptimiser::do_subquery(const Xapian::Query::Internal * query, double factor
 	}
 
 	case Xapian::Query::OP_VALUE_RANGE: {
+	    if (factor != 0.0)
+		++total_subqs;
 	    Xapian::valueno valno(query->parameter);
 	    const string & range_begin = query->tname;
 	    const string & range_end = query->str_parameter;
@@ -106,12 +121,16 @@ QueryOptimiser::do_subquery(const Xapian::Query::Internal * query, double factor
 	}
 
 	case Xapian::Query::OP_VALUE_GE: {
+	    if (factor != 0.0)
+		++total_subqs;
 	    Xapian::valueno valno(query->parameter);
 	    const string & range_begin = query->tname;
 	    RETURN(new ValueGePostList(&db, valno, range_begin));
 	}
 
 	case Xapian::Query::OP_VALUE_LE: {
+	    if (factor != 0.0)
+		++total_subqs;
 	    Xapian::valueno valno(query->parameter);
 	    const string & range_end = query->tname;
 	    RETURN(new ValueRangePostList(&db, valno, "", range_end));
@@ -400,7 +419,7 @@ QueryOptimiser::do_synonym(const Xapian::Query::Internal *query, double factor)
     // since conceptually the synonym is one "virtual" term.  If we were
     // to combine multiple occurrences of the same synonym expansion into
     // a single instance with wqf set, we would want to use the wqf.
-    AssertEq(query->wqf, 0);
+    AssertEq(query->get_wqf(), 0);
 
     // We build an OP_OR tree for OP_SYNONYM and then wrap it in a
     // SynonymPostList, which supplies the weights.

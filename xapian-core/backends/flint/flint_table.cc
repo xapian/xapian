@@ -62,9 +62,9 @@ PREAD_PROTOTYPE
 PWRITE_PROTOTYPE
 #endif
 
-#include <stdio.h>    /* for rename */
-#include <string.h>   /* for memmove */
-#include <limits.h>   /* for CHAR_BIT */
+#include <cstdio>    /* for rename */
+#include <cstring>   /* for memmove */
+#include <climits>   /* for CHAR_BIT */
 
 #include "flint_io.h"
 #include "flint_btreebase.h"
@@ -1444,7 +1444,7 @@ FlintTable::read_root()
 	byte * p = C[0].p;
 	Assert(p);
 
-	/* clear block - shouldn't be neccessary, but is a bit nicer,
+	/* clear block - shouldn't be necessary, but is a bit nicer,
 	 * and means that the same operations should always produce
 	 * the same database. */
 	memset(p, 0, block_size);

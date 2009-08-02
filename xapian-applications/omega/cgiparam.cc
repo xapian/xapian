@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 James Aylett
  * Copyright 2001 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,10 +23,12 @@
 
 #include <config.h>
 
-#include <stdio.h>
-#include <limits.h>
-#include <stdlib.h>
-#include <string.h>
+#include "cgiparam.h"
+
+#include <cstdio>
+#include <climits>
+#include <cstdlib>
+#include <cstring>
 #include <map>
 #include <string>
 

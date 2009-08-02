@@ -43,13 +43,13 @@
 # include <netinet/tcp.h>
 # include <arpa/inet.h>
 # include <netdb.h>
-# include <signal.h>
+# include <csignal>
 # include <sys/wait.h>
 #endif
 
 #include <iostream>
 
-#include <string.h>
+#include <cstring>
 #include <sys/types.h>
 
 using namespace std;

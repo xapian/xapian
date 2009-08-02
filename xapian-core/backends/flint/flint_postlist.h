@@ -253,7 +253,7 @@ class FlintPostList : public LeafPostList {
 	/// Read the number of entries and the collection frequency.
 	static void read_number_of_entries(const char ** posptr,
 					   const char * end,
-					   Xapian::termcount * number_of_entries_ptr,
+					   Xapian::doccount * number_of_entries_ptr,
 					   Xapian::termcount * collection_freq_ptr);
 };
 

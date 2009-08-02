@@ -24,7 +24,7 @@
 #include <xapian/base.h>
 #include <xapian/stem.h>
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 
 // FIXME: we might want to make Stem::Internal a virtual base class and have
@@ -69,7 +69,7 @@ typedef int (*among_function)(Xapian::Stem::Internal *);
 
 struct among {
     int s_size;		/* length of search string (in symbols) */
-    const symbol * s;	/* search string */
+    unsigned s;		/* offset in pool to search string */
     int substring_i;	/* index to longest matching substring */
     int result;		/* result of the lookup */
 };
@@ -104,8 +104,10 @@ class Stem::Internal : public Xapian::Internal::RefCntBase {
     int eq_v(const symbol * v) { return eq_s(SIZE(v), v); }
     int eq_v_b(const symbol * v) { return eq_s_b(SIZE(v), v); }
 
-    int find_among(const struct among * v, int v_size, const unsigned char * fnum, const among_function * f);
-    int find_among_b(const struct among * v, int v_size, const unsigned char * fnum, const among_function * f);
+    int find_among(const symbol *pool, const struct among * v, int v_size,
+		   const unsigned char * fnum, const among_function * f);
+    int find_among_b(const symbol *pool, const struct among * v, int v_size,
+		     const unsigned char * fnum, const among_function * f);
 
     int replace_s(int c_bra, int c_ket, int s_size, const symbol * s);
     int slice_from_s(int s_size, const symbol * s);
@@ -127,7 +129,7 @@ class Stem::Internal : public Xapian::Internal::RefCntBase {
 
   public:
     /// Perform initialisation common to all Snowball stemmers.
-    Internal();
+    Internal() : p(create_s()), c(0), l(0), lb(0), bra(0), ket(0) { }
 
     /// Perform cleanup common to all Snowball stemmers.
     virtual ~Internal();

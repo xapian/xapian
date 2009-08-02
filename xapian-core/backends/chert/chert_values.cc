@@ -351,7 +351,11 @@ ChertValueManager::add_document(Xapian::docid did, const Xapian::Document &doc,
 	prev_slot = slot;
 	++it;
     }
-    swap(slots[did], slots_used);
+    if (slots_used.empty() && slots.find(did) == slots.end()) {
+	// Adding a new document with no values which we didn't just remove.
+    } else {
+	swap(slots[did], slots_used);
+    }
 }
 
 void
@@ -361,10 +365,11 @@ ChertValueManager::delete_document(Xapian::docid did,
     map<Xapian::docid, string>::iterator it = slots.find(did);
     string s;
     if (it != slots.end()) {
-	s = it->second;
+	swap(s, it->second);
     } else {
 	// Get from table, making a swift exit if this document has no values.
 	if (!termlist_table->get_exact_entry(make_slot_key(did), s)) return;
+	slots.insert(make_pair(did, string()));
     }
     const char * p = s.data();
     const char * end = p + s.size();

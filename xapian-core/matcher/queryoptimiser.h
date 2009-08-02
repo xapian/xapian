@@ -44,6 +44,13 @@ class QueryOptimiser {
 
     MultiMatch * matcher;
 
+    /** How many leaf subqueries there are.
+     *
+     *  Used for scaling percentages when the highest weighted document doesn't
+     *  "match all terms".
+     */
+    Xapian::termcount total_subqs;
+
     /** Optimise a Xapian::Query::Internal subtree into a PostList subtree.
      *
      *  @param query	The subtree to optimise.
@@ -102,11 +109,13 @@ class QueryOptimiser {
 		   LocalSubMatch & localsubmatch_,
 		   MultiMatch * matcher_)
 	: db(db_), db_size(db.get_doccount()), localsubmatch(localsubmatch_),
-	  matcher(matcher_) { }
+	  matcher(matcher_), total_subqs(0) { }
 
     PostList * optimise_query(Xapian::Query::Internal * query) {
 	return do_subquery(query, 1.0);
     }
+
+    Xapian::termcount get_total_subqueries() const { return total_subqs; }
 };
 
 #endif // XAPIAN_INCLUDED_QUERYOPTIMISER_H

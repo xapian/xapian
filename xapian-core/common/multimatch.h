@@ -123,13 +123,8 @@ class MultiMatch
 	/** Called by postlists to indicate that they've rearranged themselves
 	 *  and the maxweight now possible is smaller.
 	 */
-        void recalc_maxweight();
-
-	/// Reduce the maximum weight by @a reduction.
-	void reduce_maxweight_by(Xapian::weight reduction) {
-	    // FIXME: We should be just reducing the current maxweight value
-	    // by "reduction" rather than forcing a full recalculation.
-	    if (reduction > 0) recalculate_w_max = true;
+        void recalc_maxweight() {
+	    recalculate_w_max = true;
 	}
 };
 

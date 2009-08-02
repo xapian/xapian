@@ -25,7 +25,7 @@
 #include <sys/types.h>
 #include "safeerrno.h"
 #include "safefcntl.h"
-#include <stdio.h>
+#include <cstdio>
 #ifdef HAVE_SYS_TIME_H
 # include <sys/time.h>
 #endif
@@ -41,7 +41,7 @@
 #include "safeunistd.h"
 
 #if defined HAVE_FORK && defined HAVE_SOCKETPAIR && defined HAVE_SETRLIMIT
-# include <signal.h>
+# include <csignal>
 #endif
 
 #include "freemem.h"

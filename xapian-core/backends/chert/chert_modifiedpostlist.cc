@@ -32,6 +32,9 @@ void
 ChertModifiedPostList::skip_deletes(Xapian::weight w_min)
 {
     while (!ChertPostList::at_end()) {
+	while (it != mods.end() && it->second.first == 'D' &&
+	       it->first < ChertPostList::get_docid())
+	    ++it;
 	if (it == mods.end()) return;
 	if (it->first != ChertPostList::get_docid()) return;
 	if (it->second.first != 'D') return;
@@ -52,6 +55,7 @@ ChertModifiedPostList::get_docid() const
 {
     if (it == mods.end()) return ChertPostList::get_docid();
     if (ChertPostList::at_end()) return it->first;
+    Assert(it->second.first != 'D');
     return min(it->first, ChertPostList::get_docid());
 }
 

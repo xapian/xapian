@@ -1,7 +1,7 @@
 /** @file postlist.cc
  * @brief Abstract base class for postlists.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,9 +20,11 @@
 
 #include <config.h>
 
+#include "postlist.h"
+
 #include <xapian/error.h>
 
-#include "postlist.h"
+#include "omassert.h"
 
 using namespace std;
 
@@ -67,6 +69,13 @@ PostList::check(Xapian::docid did, Xapian::weight w_min, bool &valid)
 {
     valid = true;
     return skip_to(did, w_min);
+}
+
+Xapian::termcount
+PostList::count_matching_subqs() const
+{
+    Assert(false);
+    return 0;
 }
 
 }

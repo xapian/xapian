@@ -315,7 +315,7 @@ unpack_string(const char ** src,
 	return false;
     }
 
-    result = string(*src, length);
+    result.assign(*src, length);
     *src += length;
     return true;
 }

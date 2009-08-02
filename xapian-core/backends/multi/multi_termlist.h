@@ -48,7 +48,7 @@ class MultiTermList : public TermList {
 	TermList * next();
 	bool   at_end() const;
 
-	Xapian::termpos positionlist_count() const;
+	Xapian::termcount positionlist_count() const;
 
 	Xapian::PositionIterator positionlist_begin() const;
 

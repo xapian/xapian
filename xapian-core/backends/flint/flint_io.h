@@ -1,7 +1,7 @@
 /** @file flint_io.h
  * @brief Wrappers for low-level POSIX I/O routines.
  */
-/* Copyright (C) 2006,2007 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,9 +32,24 @@
  */
 inline bool flint_io_sync(int fd)
 {
-    // If we have it, prefer fdatasync() as it avoids updating the access time
-    // so is probably a little more efficient.
+#ifdef F_FULLFSYNC
+    /* Only supported on Mac OS X (at the time of writing at least).
+     *
+     * This call ensures that data has actually been written to disk, not just
+     * to the drive's write cache, so it provides better protection from power
+     * failures, etc.  It does take longer though.
+     *
+     * According to the sqlite sources, this shouldn't fail on a local FS so
+     * a failure means that the file system doesn't support this operation and
+     * therefore it's best to fallback to fdatasync()/fsync().
+     */
+    if (fcntl(fd, F_FULLFSYNC, 0) == 0)
+	return true;
+#endif
+
 #if defined HAVE_FDATASYNC
+    // If we have it, prefer fdatasync() over fsync() as the former avoids
+    // updating the access time so is probably a little more efficient.
     return fdatasync(fd) == 0;
 #elif defined HAVE_FSYNC
     return fsync(fd) == 0;

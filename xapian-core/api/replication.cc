@@ -45,6 +45,7 @@
 #include "serialise.h"
 #include "utils.h"
 
+#include <autoptr.h>
 #include <cstdio> // For rename().
 #include <fstream>
 #include <string>
@@ -279,7 +280,12 @@ DatabaseReplica::close()
 string
 DatabaseReplica::get_description() const
 {
-    return "DatabaseReplica(" + internal->get_description() + ")";
+    string desc("DatabaseReplica(");
+    if (internal.get()) {
+	desc += internal->get_description();
+    }
+    desc += ')';
+    return desc;
 }
 
 // Methods of DatabaseReplica::Internal
@@ -287,7 +293,8 @@ DatabaseReplica::get_description() const
 void
 DatabaseReplica::Internal::update_stub_database() const
 {
-    string stub_path = join_paths(path, "XAPIANDB");
+    string stub_path = path;
+    stub_path += "/XAPIANDB";
     string tmp_path = stub_path;
     tmp_path += ".tmp";
     {
@@ -443,9 +450,10 @@ DatabaseReplica::Internal::check_message_type(char type, char expected) const
 bool
 DatabaseReplica::Internal::possibly_make_offline_live()
 {
-    Xapian::Internal::RefCntPtr<DatabaseReplicator> replicator;
+    string replica_path(get_replica_path(live_id ^ 1));
+    AutoPtr<DatabaseReplicator> replicator;
     try {
-	replicator = DatabaseReplicator::open(get_replica_path(live_id ^ 1));
+	replicator.reset(DatabaseReplicator::open(replica_path));
     } catch (Xapian::DatabaseError &) {
 	return false;
     }
@@ -466,7 +474,7 @@ DatabaseReplica::Internal::possibly_make_offline_live()
     live_id ^= 1;
     // Open the database first, so that if there's a problem, an exception
     // will be thrown before we make the new database live.
-    live_db = WritableDatabase(get_replica_path(live_id), Xapian::DB_OPEN);
+    live_db = WritableDatabase(replica_path, Xapian::DB_OPEN);
     update_stub_database();
     remove_offline_db();
     return true;
@@ -491,8 +499,7 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info)
     OmTime end_time;
 
     while (true) {
-	char type;
-	type = conn->sniff_next_message_type(end_time);
+	char type = conn->sniff_next_message_type(end_time);
 	switch (type) {
 	    case REPL_REPLY_END_OF_CHANGES:
 		RETURN(false);
@@ -502,10 +509,10 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info)
 		    apply_db_copy(end_time);
 		    if (info != NULL)
 			++(info->fullcopy_count);
-		    std::string replica_uuid;
+		    string replica_uuid;
 		    {
-			Xapian::Internal::RefCntPtr<DatabaseReplicator> replicator =
-				DatabaseReplicator::open(get_replica_path(live_id ^ 1));
+			AutoPtr<DatabaseReplicator> replicator(
+				DatabaseReplicator::open(get_replica_path(live_id ^ 1)));
 			replica_uuid = replicator->get_uuid();
 		    }
 		    if (replica_uuid != offline_uuid) {
@@ -534,28 +541,29 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info)
 		if (!have_offline_db) {
 		    // Close the live db.
 		    live_db = WritableDatabase();
+		    string replica_path(get_replica_path(live_id));
 
 		    // Open a replicator for the live path, and apply the
 		    // changeset.
-		    Xapian::Internal::RefCntPtr<DatabaseReplicator> replicator =
-			    DatabaseReplicator::open(get_replica_path(live_id));
-		    offline_needed_revision = replicator->
-			    apply_changeset_from_conn(*conn, end_time, true);
+		    {
+			AutoPtr<DatabaseReplicator> replicator(
+				DatabaseReplicator::open(replica_path));
+			offline_needed_revision = replicator->
+				apply_changeset_from_conn(*conn, end_time, true);
+		    }
 
 		    // Close the replicator and open the live db again.
-		    replicator = NULL;
 		    if (info != NULL) {
 			++(info->changeset_count);
 			info->changed = true;
 		    }
-		    live_db = WritableDatabase(get_replica_path(live_id),
-					       Xapian::DB_OPEN);
+		    live_db = WritableDatabase(replica_path, Xapian::DB_OPEN);
 		    RETURN(true);
 		}
 
 		{
-		    Xapian::Internal::RefCntPtr<DatabaseReplicator> replicator =
-			    DatabaseReplicator::open(get_replica_path(live_id ^ 1));
+		    AutoPtr<DatabaseReplicator> replicator(
+			    DatabaseReplicator::open(get_replica_path(live_id ^ 1)));
 		    offline_needed_revision = replicator->
 			    apply_changeset_from_conn(*conn, end_time, false);
 		}

@@ -26,6 +26,7 @@
 #include <xapian.h>
 
 #include "apitest.h"
+#include "backendmanager_local.h"
 #include "testutils.h"
 
 #include <cfloat>
@@ -191,6 +192,52 @@ DEFINE_TESTCASE(pctcutoff5, backend) {
 
     enquire.set_sort_by_value_then_relevance(0, true);
     TEST_EXCEPTION(Xapian::UnimplementedError, mset = enquire.get_mset(0, 10));
+
+    return true;
+}
+
+// Regression test for bug fixed in 1.0.14.
+DEFINE_TESTCASE(topercent3, remote) {
+    BackendManagerLocal local_manager;
+    local_manager.set_datadir(test_driver::get_srcdir() + "/testdata/");
+    Xapian::Database db;
+    db.add_database(get_database("apitest_simpledata"));
+    db.add_database(local_manager.get_database("apitest_simpledata"));
+
+    Xapian::Enquire enquire(db);
+    enquire.set_sort_by_value(1, false);
+
+    const char * terms[] = { "paragraph", "banana" };
+    enquire.set_query(Xapian::Query(Xapian::Query::OP_OR, terms, terms + 2));
+
+    Xapian::MSet mset = enquire.get_mset(0, 20);
+
+    Xapian::MSetIterator i;
+    for (i = mset.begin(); i != mset.end(); ++i) {
+	// We should never achieve 100%.
+	TEST_REL(i.get_percent(),<,100);
+    }
+
+    return true;
+}
+
+// Regression test for bug introduced temporarily by the "percent without
+// termlist" patch.
+DEFINE_TESTCASE(topercent4, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+
+    Xapian::Query query(Xapian::Query::OP_FILTER,
+			Xapian::Query("paragraph"),
+			Xapian::Query("queri"));
+    query = Xapian::Query(Xapian::Query::OP_XOR,
+			  query, Xapian::Query("rubbish"));
+
+    enquire.set_query(query);
+    Xapian::MSet mset = enquire.get_mset(0, 10);
+
+    // We should get 50% not 33%.
+    TEST(!mset.empty());
+    TEST_EQUAL(mset[0].get_percent(), 50);
 
     return true;
 }

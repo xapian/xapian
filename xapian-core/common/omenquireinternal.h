@@ -30,7 +30,7 @@
 #include "xapian/sorter.h"
 
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 #include <map>
 #include <set>
 
@@ -152,7 +152,12 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	ErrorHandler * errorhandler;
 
-	mutable Weight * weight; // mutable so get_mset can set default
+	/** The weight to use for this query.
+	 *
+	 *  This is mutable so that the default BM25Weight object can be
+	 *  created lazily when first required.
+	 */
+	mutable Weight * weight;
 
 	Internal(const Xapian::Database &databases, ErrorHandler * errorhandler_);
 	~Internal();

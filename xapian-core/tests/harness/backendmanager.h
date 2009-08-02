@@ -1,7 +1,7 @@
 /* backendmanager.h
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -124,8 +124,10 @@ class BackendManager {
     /// Constructor - set up default state.
     BackendManager() { }
 
-    /// Virtual methods, so virtual destructor.
-    virtual ~BackendManager() { } // FIXME: move out of header
+    /** We have virtual methods and want to be able to delete derived classes
+     *  using a pointer to the base class, so we need a virtual destructor.
+     */
+    virtual ~BackendManager();
 
     /** Get the database type currently in use.
      */
@@ -167,7 +169,7 @@ class BackendManager {
     virtual Xapian::WritableDatabase get_writable_database_again(const std::string & name = std::string());
 
     /// Called after each test, to perform any necessary cleanup.
-    virtual void posttest();
+    virtual void clean_up();
 
     /// Get the command line required to run xapian-progsrv.
     static const char * get_xapian_progsrv_command();

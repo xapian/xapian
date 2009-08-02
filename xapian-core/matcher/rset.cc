@@ -41,8 +41,7 @@ RSetI::calculate_stats()
 	Assert(*doc);
 	LOGLINE(WTCALC, "Counting reltermfreqs in document " << *doc << " [ ");
 	if (dbroot) {
-	    AutoPtr<TermList> tl =
-		AutoPtr<TermList>(dbroot->open_term_list(*doc));
+	    AutoPtr<TermList> tl(dbroot->open_term_list(*doc));
 	    tl->next();
 	    while (!tl->at_end()) {
 		// FIXME - can this lookup be done faster?

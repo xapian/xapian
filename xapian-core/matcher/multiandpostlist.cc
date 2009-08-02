@@ -250,3 +250,13 @@ MultiAndPostList::get_wdf() const
     }
     return totwdf;
 }
+
+Xapian::termcount
+MultiAndPostList::count_matching_subqs() const
+{
+    Xapian::termcount total = 0;
+    for (size_t i = 0; i < n_kids; ++i) {
+	total += plist[i]->count_matching_subqs();
+    }
+    return total;
+}

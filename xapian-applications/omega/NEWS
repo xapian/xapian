@@ -1,3 +1,50 @@
+Omega 1.1.2 (2009-07-23):
+
+indexers:
+
+* omindex:
+
+  + Handle the "macroenabled" versions of MS Office 2007 files too
+    (ticket#290).
+
+  + Extract pptx notesSlides and comments, if present.  (ticket#290).
+
+Omega 1.1.1 (2009-06-09):
+
+indexers:
+
+* omindex:
+
+  + Check the last modification time of files before reindexing (ticket#342).
+
+  + Add "--spelling" option to index spelling correction data.
+
+* scriptindex:
+
+  + Add new "spell" action for indexing spelling correction data (ticket#296).
+
+omega:
+
+* Add $suggestion and $opt{spelling} to provide access to spelling correction
+  (ticket#296).
+
+* Add $opt{weighting} to allow the weighting scheme and parameters to be
+  specified (ticket#298).
+
+* If SERVER_PROTOCOL in the environment is set to INCLUDED, then our output is
+  being included in another page (e.g. using SSI) so suppress the output of any
+  HTTP headers.
+
+templates:
+
+* templates/query: Offer any spelling correction QueryParser gives.
+
+build system:
+
+* configure: Sync warning flags used with GCC with xapian-core apart from
+  -Woverloaded-virtual which fires for MyHtmlParser::parse_html().  That
+  probably should be tidied up at some point, but not right now.
+
 Omega 1.1.0 (2009-04-23):
 
 indexers:
@@ -17,6 +64,46 @@ build system:
 * The build system is now bootstrapped with newer versions of autoconf and
   libtool which should produce smaller files and speed up configure and
   make.
+
+Omega 1.0.14 (2009-07-21):
+
+indexers:
+
+* omindex: Make sure that output is flushed after every message, not just after
+  some of them.
+
+portability:
+
+* Avoid infinite loop in omindex and scriptindex when reading files under
+  Cygwin with automatic end of line translation enabled.  This same bug can
+  also manifest on Unix platforms if the file is truncated by another process
+  while being read.
+
+Omega 1.0.13 (2009-05-23):
+
+indexers:
+
+* omindex:
+
+  + If the filter program needed for a file format isn't installed, report this
+    explicitly when skipping subsequent files with the extension instead of
+    misleadingly reporting "Unknown extension".
+
+  + Make -s actually work as a short-form for --stemmer (as documented by
+    "omindex --help" and "man omindex").
+
+  + Drop the copyright info from the output of --version as it's perennially
+    out of date and we don't report it for any other Xapian programs.
+
+* scriptindex:
+
+  + Add new "valuenumeric" action to add a document value using
+    Xapian::sortable_serialise() to allow numeric sorting (ticket#260).
+
+build system:
+
+* configure: Enable more GCC warnings - "-Wstrict-null-sentinel" for 4.0+,
+  "-Wlogical-op -Wmissing-declarations" for 4.3+.
 
 Omega 1.0.12 (2009-04-19):
 

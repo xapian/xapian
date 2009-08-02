@@ -56,7 +56,7 @@ tostring(T value)
 {
     // We need a special case for 0, and we might as well handle all single
     // digit positive numbers with it too.
-    if (value < 10 && value >= 0) return string(1, '0' + value);
+    if (value < 10 && value >= 0) return string(1, '0' + char(value));
 
     bool negative = (value < 0);
     if (negative) value = -value;

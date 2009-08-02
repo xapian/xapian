@@ -27,12 +27,12 @@
 
 #include "safefcntl.h"
 #include <unistd.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/wait.h>
-#include <signal.h>
-#include <string.h>
+#include <csignal>
+#include <cstring>
 #endif
 
 #include "omassert.h"
@@ -190,7 +190,7 @@ FlintLock::lock(bool exclusive, std::string & explanation) {
 	}
 	if (n == 0) {
 	    // EOF means the lock failed.
-	    explanation = std::string("Got EOF reading from child process");
+	    explanation.assign("Got EOF reading from child process");
 	    break;
 	}
 	if (errno != EINTR) {
