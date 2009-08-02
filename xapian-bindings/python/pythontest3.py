@@ -1289,6 +1289,33 @@ def test_preserve_enquire_sorter():
     enq.set_query(xapian.Query('foo'))
     enq.get_mset(0, 10)
 
+def test_matchspy():
+    """Test use of matchspies.
+
+    """
+    db = setup_database()
+    query = xapian.Query(xapian.Query.OP_OR, "was", "it")
+    enq = xapian.Enquire(db)
+    enq.set_query(query)
+
+    def set_matchspy_deref(enq):
+        """Set a matchspy, and then drop the reference, to check that it
+        doesn't get deleted too soon.
+        """
+        spy = xapian.ValueCountMatchSpy(0)
+        enq.add_matchspy(spy)
+        del spy
+    set_matchspy_deref(enq)
+    mset = enq.get_mset(0, 10)
+    expect(len(mset), 5)
+
+    spy = xapian.ValueCountMatchSpy(0)
+    enq.add_matchspy(spy)
+    mset = enq.get_mset(0, 10)
+    expect(spy.get_values_as_dict(), {'zero': 1})
+    expect(spy.get_total(), 5)
+    expect(spy.get_top_values(10), [('zero', 1)])
+
 # Run all tests (ie, callables with names starting "test_").
 if not runtests(globals(), sys.argv[1:]):
     sys.exit(1)
