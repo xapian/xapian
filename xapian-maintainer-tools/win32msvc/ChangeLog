@@ -1,3 +1,7 @@
+Sun Aug 02 12:22:52 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* win32_api.mak: Add matchspy files.
+
 Mon Jul 20 13:52:53 GMT 2009  Olly Betts <olly@survex.com>
 
 	* config.mak,win32_bindings_python.mak: Update to include Python 3.0
