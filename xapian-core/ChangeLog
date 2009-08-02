@@ -1,3 +1,7 @@
+Sun Aug 02 11:50:28 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_matchspy.cc: Use "++i" rather than "i++" for consitency.
+
 Sun Aug 02 11:49:38 GMT 2009  Olly Betts <olly@survex.com>
 
 	* include/xapian/enquire.h: Fix parameter name in @param to match that

@@ -370,7 +370,7 @@ DEFINE_TESTCASE(matchspy4, writable)
 	if (spy != NULL)
 	    spy->get_top_values(allvals, 100);
 	string allvals_str("|");
-	for (size_t i = 0; i < allvals.size(); i++) {
+	for (size_t i = 0; i < allvals.size(); ++i) {
 	    allvals_str += allvals[i].get_string();
 	    allvals_str += ':';
 	    allvals_str += str(allvals[i].get_frequency());
@@ -380,7 +380,7 @@ DEFINE_TESTCASE(matchspy4, writable)
 	TEST_STRINGS_EQUAL(allvals_str, results[v]);
 
 	std::vector<Xapian::StringAndFrequency> vals;
-	for (size_t i = 0; i < allvals.size(); i++) {
+	for (size_t i = 0; i < allvals.size(); ++i) {
 	    tout << "i " << i << endl;
 	    if (spy != NULL)
 		spy->get_top_values(vals, i);
