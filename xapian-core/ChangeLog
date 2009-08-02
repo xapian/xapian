@@ -1,3 +1,10 @@
+Sun Aug 02 16:17:24 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/remote/remote-database.cc,net/remoteserver.cc: We were
+	  ignoring any trailing junk after the matchspies in MSG_GETMSET, so
+	  change to not send a count of them and just unpack until we run out
+	  of data.
+
 Sun Aug 02 15:47:30 GMT 2009  Olly Betts <olly@survex.com>
 
 	* common/remoteprotocol.h: Note the versions in which recent protocol
