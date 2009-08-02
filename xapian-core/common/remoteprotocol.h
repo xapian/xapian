@@ -39,9 +39,9 @@
 // 30.4: New query operator OP_SCALE_WEIGHT.
 // 30.5: New MSG_GETMSET which expects MSet's percent_factor to be returned.
 // 30.6: Support for OP_VALUE_GE and OP_VALUE_LE in query serialisation
-// 31: Clean up for Xapian 1.1.0
-// 32: Serialise termfreq and reltermfreqs together in serialise_stats.
-// 33: Support for passing matchspies over the remote connection.
+// 31: 1.1.0 Clean up for Xapian 1.1.0
+// 32: 1.1.1 Serialise termfreq and reltermfreqs together in serialise_stats.
+// 33: 1.1.4 Support for passing matchspies over the remote connection.
 #define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 33
 #define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 0
 
