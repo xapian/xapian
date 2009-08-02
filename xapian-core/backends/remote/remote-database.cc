@@ -626,7 +626,7 @@ RemoteDatabase::get_mset(Xapian::MSet &mset,
 	if (p == p_end)
 	    throw Xapian::NetworkError("Expected serialised matchspy");
 	size_t len = decode_length(&p, p_end, true);
-	string spyresults = string(p, len);
+	string spyresults(p, len);
 	p += len;
 	(*i)->merge_results(spyresults);
     }

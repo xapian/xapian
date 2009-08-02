@@ -1,3 +1,8 @@
+Sun Aug 02 14:27:44 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/remote/remote-database.cc: Don't assign a temporary string
+	  object.
+
 Sun Aug 02 13:50:14 GMT 2009  Olly Betts <olly@survex.com>
 
 	* include/xapian/matchspy.h: Add missing documentation comments.
