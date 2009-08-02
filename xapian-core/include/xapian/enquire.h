@@ -706,7 +706,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *  documents by setting @a checkatleast to the number of documents in
 	 *  the database.
 	 *
-	 *  @param matchspy  The MatchSpy subclass to add.  The caller must
+	 *  @param spy       The MatchSpy subclass to add.  The caller must
 	 *                   ensure that this remains valid while the Enquire
 	 *                   object remains active, or until @a
 	 *                   clear_matchspies() is called.
