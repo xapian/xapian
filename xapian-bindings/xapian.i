@@ -356,6 +356,7 @@ class ExpandDecider {
 #endif
 
 class Database;
+class MatchSpy;
 class Query;
 class Sorter;
 
@@ -366,6 +367,9 @@ class Enquire {
 
     void set_query(const Query & query, termcount qlen = 0);
     const Query& get_query();
+
+    void add_matchspy(MatchSpy * spy);
+    void clear_matchspies();
 
     void set_weighting_scheme(const Weight& weight);
     void set_collapse_key(Xapian::valueno collapse_key,
@@ -440,6 +444,9 @@ class Enquire {
 
 }
 
+%ignore Xapian::SerialisationContext::operator=;
+%include <xapian/serialisationcontext.h>
+
 /* Generated code won't compile if directors are enabled.  Disable for now
  * while we investigate.
  *
@@ -465,6 +472,9 @@ class Enquire {
 %warnfilter(842) Xapian::BM25Weight::unserialise;
 %warnfilter(842) Xapian::TradWeight::unserialise;
 %include <xapian/weight.h>
+
+%ignore Xapian::NumericRange::operator<;
+%include <xapian/matchspy.h>
 
 namespace Xapian {
 
@@ -746,9 +756,6 @@ class Remote {
 %ignore Xapian::DatabaseReplica::DatabaseReplica(const DatabaseReplica &);
 %include <xapian/replication.h>
 %include <xapian/valuesetmatchdecider.h>
-
-%ignore Xapian::SerialisationContext::operator=;
-%include <xapian/serialisationcontext.h>
 
 namespace Xapian {
 
