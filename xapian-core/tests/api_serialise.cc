@@ -1,5 +1,5 @@
 /** @file api_serialise.cc
- * @brief Tests of closing databases.
+ * @brief Tests of serialisation functionality.
  */
 /* Copyright 2009 Lemur Consulting Ltd
  *

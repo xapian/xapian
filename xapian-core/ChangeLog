@@ -1,3 +1,7 @@
+Mon Aug 03 06:40:28 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_serialise.cc: Fix copy-and-pasted @brief.
+
 Sun Aug 02 16:21:54 GMT 2009  Olly Betts <olly@survex.com>
 
 	* common/remoteprotocol.h: Correction: protocol version 33 will debut
