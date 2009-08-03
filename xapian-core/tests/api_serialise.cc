@@ -2,6 +2,7 @@
  * @brief Tests of serialisation functionality.
  */
 /* Copyright 2009 Lemur Consulting Ltd
+ * Copyright 2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +24,9 @@
 #include "api_serialise.h"
 
 #include <xapian.h>
+
+#include <exception>
+#include <stdexcept>
 
 #include "apitest.h"
 #include "testutils.h"
@@ -282,7 +286,7 @@ DEFINE_TESTCASE(serialise_query4, !backend) {
     return true;
 }
 
-// Test for memory leaks when registering posting sources or weights twice.
+/// Test for memory leaks when registering posting sources or weights twice.
 DEFINE_TESTCASE(double_register_leak, !backend) {
     MyPostingSource2 s1("foo");
     Xapian::BM25Weight w1;
@@ -295,6 +299,108 @@ DEFINE_TESTCASE(double_register_leak, !backend) {
     ctx.register_weighting_scheme(w1);
     ctx.register_weighting_scheme(w1);
     ctx.register_weighting_scheme(w1);
+
+    return true;
+}
+
+class ExceptionalPostingSource : public Xapian::PostingSource {
+  public:
+    typedef enum { NONE, CLONE, DTOR } failmode;
+
+    failmode fail;
+
+    PostingSource * & allocated;
+
+    ExceptionalPostingSource(failmode fail_, PostingSource * & allocated_)
+       	: fail(fail_), allocated(allocated_) { }
+
+    ~ExceptionalPostingSource() {
+	if (fail == DTOR) {
+	    throw runtime_error(string("arfle barfle gloop?"));
+	}
+    }
+
+    string name() const {
+	return "ExceptionalPostingSource";
+    }
+
+    PostingSource * clone() const {
+	if (fail == CLONE)
+	    throw bad_alloc();
+	allocated = new ExceptionalPostingSource(fail, allocated);
+	return allocated;
+    }
+
+    void init(const Xapian::Database &) { }
+
+    Xapian::doccount get_termfreq_min() const { return 0; }
+    Xapian::doccount get_termfreq_est() const { return 1; }
+    Xapian::doccount get_termfreq_max() const { return 2; }
+
+    void next(Xapian::weight) { }
+
+    void skip_to(Xapian::docid, Xapian::weight) { }
+
+    bool at_end() const { return true; }
+    Xapian::docid get_docid() const { return 0; }
+};
+
+/// Check that exceptions when registering are handled well.
+DEFINE_TESTCASE(serialisationcontext1, !backend) {
+    // Test that a replacement object throwing bad_alloc is handled.
+    {
+	Xapian::SerialisationContext context;
+
+	Xapian::PostingSource * ptr = NULL;
+	ExceptionalPostingSource eps(ExceptionalPostingSource::NONE, ptr);
+	context.register_posting_source(eps);
+	try {
+	    Xapian::PostingSource * ptr_clone = NULL;
+	    ExceptionalPostingSource eps_clone(ExceptionalPostingSource::CLONE,
+					       ptr_clone);
+	    context.register_posting_source(eps_clone);
+	    return false;
+	} catch (const bad_alloc &) {
+	}
+
+	// Either the old entry should be removed, or it should work.
+	const Xapian::PostingSource * p;
+        p = context.get_posting_source("ExceptionalPostingSource");
+	if (p) {
+	    TEST_EQUAL(p->name(), "ExceptionalPostingSource");
+	}
+    }
+
+    // Test that the replaced object throwing runtime_error is handled.
+    {
+	Xapian::SerialisationContext context;
+
+	Xapian::PostingSource * ptr_dtor = NULL;
+	ExceptionalPostingSource eps_dtor(ExceptionalPostingSource::DTOR,
+					  ptr_dtor);
+	context.register_posting_source(eps_dtor);
+	// Prevent eps_dtor's dtor from throwing an exception.
+	eps_dtor.fail = ExceptionalPostingSource::NONE;
+
+	try {
+	    Xapian::PostingSource * ptr = NULL;
+	    ExceptionalPostingSource eps(ExceptionalPostingSource::NONE, ptr);
+	    context.register_posting_source(eps);
+	    return false;
+	} catch (const runtime_error &) {
+	}
+
+	// Either the old entry should be removed, or it should work.
+	const Xapian::PostingSource * p;
+        p = context.get_posting_source("ExceptionalPostingSource");
+	if (p) {
+	    TEST_EQUAL(p->name(), "ExceptionalPostingSource");
+	}
+
+	// Because the destructor threw an exception, the memory allocated for
+	// the object didn't get released.
+	operator delete(ptr_dtor);
+    }
 
     return true;
 }

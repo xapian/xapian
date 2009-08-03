@@ -31,6 +31,8 @@
 #include "serialisationcontextinternal.h"
 #include "omdebug.h"
 
+#include <algorithm>
+
 using namespace std;
 
 namespace Xapian {
@@ -217,24 +219,29 @@ SerialisationContext::Internal::register_posting_source(const Xapian::PostingSou
         throw Xapian::InvalidOperationError("Unable to register posting source - name() method returns empty string.");
     }
 
-    map<string, Xapian::PostingSource *>::const_iterator i;
-    i = postingsources.find(sourcename);
-    if (i != postingsources.end()) {
-	delete i->second;
+    pair<map<string, Xapian::PostingSource *>::iterator, bool> r;
+    r = postingsources.insert(make_pair(sourcename,
+			      static_cast<Xapian::PostingSource *>(NULL)));
+    if (!r.second) {
+	// Existing element with this key, so replace the pointer with NULL
+	// and delete the existing pointer.
+	//
+	// If the delete throws, this will leave a NULL entry in the map, but
+	// that won't affect behaviour as we return NULL for "not found"
+	// anyway.  The memory used will be leaked if the dtor throws, but
+	// throwing exceptions from the dtor is bad form, so that's not a big
+	// problem.
+	PostingSource * p = NULL;
+	swap(p, r.first->second);
+	delete p;
     }
 
     Xapian::PostingSource * sourceclone = source.clone();
     if (!sourceclone) {
-	postingsources.erase(sourcename);
-        throw Xapian::InvalidOperationError("Unable to register posting source - clone() method returns NULL.");
+	throw Xapian::InvalidOperationError("Unable to register posting source - clone() method returns NULL.");
     }
-    try {
-	postingsources[sourcename] = sourceclone;
-    } catch(...) {
-	delete sourceclone;
-	postingsources.erase(sourcename);
-	throw;
-    }
+
+    r.first->second = sourceclone;
 }
 
 const Xapian::PostingSource *

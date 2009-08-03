@@ -1,3 +1,10 @@
+Mon Aug 03 11:40:31 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/serialisationcontext.cc: Fix to handle the clone() method or dtor
+	  of a PostingSource subclass throwing exceptions.
+	* tests/api_serialise.cc: Add new testcase serialisationcontext1 as a
+	  regression test for this.
+
 Mon Aug 03 06:40:28 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_serialise.cc: Fix copy-and-pasted @brief.
