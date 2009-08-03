@@ -1,3 +1,8 @@
+Mon Aug 03 12:45:08 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* geospatial/latlongparse.lt: Update with changes from upstream
+	  CVS, to match new version of lemon used.
+
 Thu May 21 05:19:37 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* geospatial/latlong_posting_source.cc: Change to new way of
