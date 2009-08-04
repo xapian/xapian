@@ -135,6 +135,7 @@ COPYMAKFILES:
    if exist $(XAPIAN_APPLICATIONS) copy win32_applications_omega.mak $(XAPIAN_APPLICATIONS)\Makefile
    if exist $(XAPIAN_APPLICATIONS) copy config.mak $(XAPIAN_APPLICATIONS)
    if exist $(XAPIAN_APPLICATIONS) copy config.h.omega.win32 $(XAPIAN_APPLICATIONS)\config.h
+   if exist $(XAPIAN_APPLICATIONS) copy config.h.omega.win32 $(XAPIAN_APPLICATIONS)\common\config.h
 
 # Test for tools that we MUST have   
 TESTFORTOOLS: makedepend.exe
@@ -151,6 +152,9 @@ MAKEALLBINDINGS: ALL COPYMAKFILES
 
    nmake PYTHON_VER=25 CLEAN
    nmake PYTHON_VER=25 DIST
+   
+   nmake PYTHON_VER=26 CLEAN
+   nmake PYTHON_VER=26 DIST
    
    cd $(XAPIAN_BINDINGS)\php
    nmake CLEAN

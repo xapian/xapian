@@ -71,6 +71,22 @@ PYTHON_INCLUDE_2_25=$(PYTHON_DIR_25)\PC
 # includes any version numbers and debug suffixes ('_d'))
 PYTHON_LIB_DIR_25=$(PYTHON_DIR_25)\libs
 
+# Python folder for 2.6
+PYTHON_DIR_26=c:\Python26
+# Python executable
+PYTHON_EXE_26=$(PYTHON_DIR_26)\python.exe 
+ #PYTHON_INCLUDE : Set this to the directory that contains python.h
+PYTHON_INCLUDE_26=$(PYTHON_DIR_26)\include
+#A 'PC' directory is also included for people building from a source tree.
+PYTHON_INCLUDE_2_26=$(PYTHON_DIR_26)\PC
+
+# PYTHON_LIB_DIR : Set this to the directory containing python*.lib
+# It should only be necessary to change this for source builds of Python,
+# where the files are in 'PCBuild' rather than 'libs' (this magically works
+# as Python uses a #pragma to reference the library base name - which
+# includes any version numbers and debug suffixes ('_d'))
+PYTHON_LIB_DIR_26=$(PYTHON_DIR_26)\libs
+
 # Python folder for 3.0
 PYTHON_DIR_30=c:\Program Files\Python30
 # Python executable
