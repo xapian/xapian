@@ -452,9 +452,13 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *
      *  If any prefixes are specified for the empty field name (i.e. you
      *  call this method with an empty string as the first parameter)
-     *  these prefixes will be used as the default prefix.  If you do
-     *  this and also specify the @c default_prefix parameter to
-     *  @c parse_query(), then the @c default_prefix parameter will override.
+     *  these prefixes will be used for terms without a field specifier.
+     *  If you do this and also specify the @c default_prefix parameter to @c
+     *  parse_query(), then the @c default_prefix parameter will override.
+     *
+     *  If the prefix parameter is empty, then "field:word" will produce the
+     *  term "word" (and this can be one of several prefixes for a particular
+     *  field, or for terms without a field specifier).
      *
      *  If you call @c add_prefix() and @c add_boolean_prefix() for the
      *  same value of @a field, a @c Xapian::InvalidOperationError exception
