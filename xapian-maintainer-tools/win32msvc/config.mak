@@ -24,7 +24,7 @@ NULL=nul
 # win32_applications_omega.mak
 # win32_bindings_python.mak
 # and any other bindings mak files
-XAPIAN_APPLICATIONS=..\..\xapian-applications\omega
+XAPIAN_APPLICATIONS=..\..\xapian-omega
 XAPIAN_BINDINGS=..\..\xapian-bindings
 
 #  ------------- Perl settings-------------
@@ -70,6 +70,22 @@ PYTHON_INCLUDE_2_25=$(PYTHON_DIR_25)\PC
 # as Python uses a #pragma to reference the library base name - which
 # includes any version numbers and debug suffixes ('_d'))
 PYTHON_LIB_DIR_25=$(PYTHON_DIR_25)\libs
+
+# Python folder for 2.6
+PYTHON_DIR_26=c:\Python26
+# Python executable
+PYTHON_EXE_26=$(PYTHON_DIR_26)\python.exe 
+ #PYTHON_INCLUDE : Set this to the directory that contains python.h
+PYTHON_INCLUDE_26=$(PYTHON_DIR_26)\include
+#A 'PC' directory is also included for people building from a source tree.
+PYTHON_INCLUDE_2_26=$(PYTHON_DIR_26)\PC
+
+# PYTHON_LIB_DIR : Set this to the directory containing python*.lib
+# It should only be necessary to change this for source builds of Python,
+# where the files are in 'PCBuild' rather than 'libs' (this magically works
+# as Python uses a #pragma to reference the library base name - which
+# includes any version numbers and debug suffixes ('_d'))
+PYTHON_LIB_DIR_26=$(PYTHON_DIR_26)\libs
 
 # -------------end Python settings-------------
 

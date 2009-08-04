@@ -16,8 +16,6 @@ BUILD_LIBRARIES = "$(OUTDIR)\libtest.lib"
 ALL : $(BUILD_LIBRARIES) 
 
 OBJS= \
-        $(INTDIR)\testsuite.obj \
-        $(INTDIR)\testutils.obj \
         $(INTDIR)\backendmanager.obj \
         $(INTDIR)\backendmanager_flint.obj \
         $(INTDIR)\backendmanager_quartz.obj \
@@ -25,12 +23,14 @@ OBJS= \
         $(INTDIR)\backendmanager_multi.obj \
         $(INTDIR)\backendmanager_remoteprog.obj \
         $(INTDIR)\backendmanager_remotetcp.obj \
+        $(INTDIR)\cputimer.obj \
         $(INTDIR)\index_utils.obj \
+        $(INTDIR)\scalability.obj \
+        $(INTDIR)\testsuite.obj \
+        $(INTDIR)\testutils.obj \
         $(INTDIR)\unixcmds.obj
 
 SRCS= \
-        $(INTDIR)\testsuite.cc \
-        $(INTDIR)\testutils.cc \
         $(INTDIR)\backendmanager.cc \
         $(INTDIR)\backendmanager_flint.cc \
         $(INTDIR)\backendmanager_quartz.cc \
@@ -38,7 +38,11 @@ SRCS= \
         $(INTDIR)\backendmanager_multi.cc \
         $(INTDIR)\backendmanager_remoteprog.cc \
         $(INTDIR)\backendmanager_remotetcp.cc \
+        $(INTDIR)\cputimer.cc \
         $(INTDIR)\index_utils.cc \
+        $(INTDIR)\scalability.cc \
+        $(INTDIR)\testsuite.cc \
+        $(INTDIR)\testutils.cc \
         $(INTDIR)\unixcmds.cc
 
 CLEAN :

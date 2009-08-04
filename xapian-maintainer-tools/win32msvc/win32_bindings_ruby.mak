@@ -46,6 +46,7 @@ DIST: CHECK
     if not exist "$(OUTDIR)\dist\docs\examples/$(NULL)" mkdir "$(OUTDIR)\dist\docs\examples"           
     copy "$(OUTDIR)\xapian.rb" "$(OUTDIR)\dist"
     copy "$(OUTDIR)\_xapian.so" "$(OUTDIR)\dist"
+    copy "$(OUTDIR)\zlib1.dll" "$(OUTDIR)\dist" 
     if exist docs copy docs\*.htm* "$(OUTDIR)\dist\docs"
     if exist docs\rdocs xcopy docs\rdocs\*.* "$(OUTDIR)\dist\docs\rdocs" /s
     if exist docs\examples xcopy docs\examples\*.* "$(OUTDIR)\dist\docs\examples" /s

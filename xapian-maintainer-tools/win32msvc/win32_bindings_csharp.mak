@@ -17,7 +17,7 @@ INTDIR=.
 
 # Note we have two DLLs: the Assembly is built by the Csharp compiler and references the Binding which is built by the C compiler
 ASSEMBLY=XapianCSharp
-BINDING=XapianSharp
+BINDING=_XapianSharp
 
 XAPIAN_SWIG_CSHARP_SRCS=\
 	Auto.cs \

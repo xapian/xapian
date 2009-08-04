@@ -61,14 +61,17 @@ APITEST_OBJS= \
     "$(OUTDIR)\api_backend.obj" \
     "$(OUTDIR)\api_db.obj" \
     "$(OUTDIR)\api_generated.obj" \
+    "$(OUTDIR)\api_metadata.obj" \
     "$(OUTDIR)\api_nodb.obj" \
     "$(OUTDIR)\api_percentages.obj" \
     "$(OUTDIR)\api_posdb.obj" \
     "$(OUTDIR)\api_query.obj" \
+    "$(OUTDIR)\api_scalability.obj" \
     "$(OUTDIR)\api_sorting.obj" \
     "$(OUTDIR)\api_spelling.obj" \
     "$(OUTDIR)\api_transdb.obj" \
     "$(OUTDIR)\api_unicode.obj" \
+    "$(OUTDIR)\api_valuestats.obj" \
     "$(OUTDIR)\api_wrdb.obj" 
     
 BTREETEST_OBJS= "$(OUTDIR)\btreetest.obj"
@@ -89,14 +92,17 @@ SRC = \
     "$(INTDIR)\api_backend.cc" \
     "$(INTDIR)\api_db.cc" \
     "$(INTDIR)\api_generated.cc" \
+    "$(INTDIR)\api_metadata.cc" \
     "$(INTDIR)\api_nodb.cc" \
     "$(INTDIR)\api_percentages.cc" \
     "$(INTDIR)\api_posdb.cc" \
     "$(INTDIR)\api_query.cc" \
+    "$(INTDIR)\api_scalability.cc" \
     "$(INTDIR)\api_sorting.cc" \
     "$(INTDIR)\api_spelling.cc" \
     "$(INTDIR)\api_transdb.cc" \
     "$(INTDIR)\api_unicode.cc" \
+    "$(INTDIR)\api_valuestats.cc" \
     "$(INTDIR)\api_wrdb.cc" \
     "$(INTDIR)\btreetest.cc" \
     "$(INTDIR)\internaltest.cc" \
@@ -110,14 +116,17 @@ COLLATED_APITEST_SOURCES= \
     "$(INTDIR)\api_backend.cc" \
     "$(INTDIR)\api_db.cc" \
     "$(INTDIR)\api_generated.cc" \
+    "$(INTDIR)\api_metadata.cc" \
     "$(INTDIR)\api_nodb.cc" \
     "$(INTDIR)\api_percentages.cc" \
     "$(INTDIR)\api_posdb.cc" \
     "$(INTDIR)\api_query.cc" \
+    "$(INTDIR)\api_scalability.cc" \
     "$(INTDIR)\api_sorting.cc" \
     "$(INTDIR)\api_spelling.cc" \
     "$(INTDIR)\api_transdb.cc" \
     "$(INTDIR)\api_unicode.cc" \
+    "$(INTDIR)\api_valuestats.cc" \
     "$(INTDIR)\api_wrdb.cc" 
     
 COLLATED_APITEST_HEADERS=\
@@ -179,7 +188,7 @@ CPP_SBRS=.
 api_collated.h: collate-apitest $(COLLATED_APITEST_SOURCES)
     $(PERL_EXE) "$(INTDIR)/collate-apitest" "$(INTDIR)" api_collated.h $(COLLATED_APITEST_SOURCES) 
     
-api_generated.cc: generate-api_generated
+"$(INTDIR)\api_generated.cc": generate-api_generated
     $(PERL_EXE) "$(INTDIR)/generate-api_generated" > api_generated.cc
     
 LINK32=link.exe

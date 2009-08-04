@@ -1,3 +1,7 @@
+Mon Jun 22 15:30:00 GMT 2009  Charlie Hull <charlie@flax.co.uk>
+
+    * Makefile, win32_bindings_python.mak, config.mak, makebinaries.py: add Python 2.6 option 
+
 Tue Apr 21 13:33:51 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* makebinaries.py: fix quotes and add various extra bits of output
