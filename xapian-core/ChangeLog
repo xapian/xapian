@@ -1,3 +1,12 @@
+Tue Aug 04 13:11:26 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/postingsource.cc: Throw UnimplementedError rather than
+	  InvalidOperationError from PostingSource::serialise() and
+	  PostingSource::unserialise() for consistency with MatchSpy.
+	* include/xapian/postingsource.h: Document this behaviour (previously
+	  we didn't say what the default implementation actually did).
+	* tests/api_serialise.cc: Add test coverage.
+
 Mon Aug 03 11:40:31 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/serialisationcontext.cc: Fix to handle the clone() method or dtor

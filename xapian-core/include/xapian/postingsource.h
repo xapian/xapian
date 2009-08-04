@@ -267,6 +267,9 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *  The serialised parameters should represent the configuration of the
      *  posting source, but need not (indeed, should not) represent the current
      *  iteration state.
+     *
+     *  If you don't want to support the remote backend, you can use the
+     *  default implementation which simply throws Xapian::UnimplementedError.
      */
     virtual std::string serialise() const;
 
@@ -274,6 +277,9 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *
      *  Note that the returned object will be deallocated by Xapian after use
      *  with "delete".  It must therefore have been allocated with "new".
+     *
+     *  If you don't want to support the remote backend, you can use the
+     *  default implementation which simply throws Xapian::UnimplementedError.
      *
      *  @param s A serialised instance of this PostingSource subclass.
      */

@@ -345,7 +345,7 @@ class ExceptionalPostingSource : public Xapian::PostingSource {
     Xapian::docid get_docid() const { return 0; }
 };
 
-/// Check that exceptions when registering are handled well.
+/// Check that exceptions when registering a postingsource are handled well.
 DEFINE_TESTCASE(serialisationcontext1, !backend) {
     // Test that a replacement object throwing bad_alloc is handled.
     {
@@ -353,6 +353,8 @@ DEFINE_TESTCASE(serialisationcontext1, !backend) {
 
 	Xapian::PostingSource * ptr = NULL;
 	ExceptionalPostingSource eps(ExceptionalPostingSource::NONE, ptr);
+	TEST_EXCEPTION(Xapian::UnimplementedError, eps.serialise());
+	TEST_EXCEPTION(Xapian::UnimplementedError, eps.unserialise(string()));
 	context.register_posting_source(eps);
 	try {
 	    Xapian::PostingSource * ptr_clone = NULL;
