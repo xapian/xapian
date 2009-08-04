@@ -64,9 +64,6 @@ make_source_package() {
   cd "${pkg}-${VERSION}"
     # Checkout debian control files from SVN.
     svn export -q "${SVNROOT}/tags/${debtag}/$pkg" debian
-    if [ -r debian/patch ]; then
-      patch --force --no-backup-if-mismatch -p0 <debian/patch
-    fi
     # Generate any generated control files.
     debian/rules maint
     debuild ${BUILDPACKAGE_SRC_OPTS}
