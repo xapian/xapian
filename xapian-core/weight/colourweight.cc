@@ -44,7 +44,7 @@ ColourWeight::get_sumpart(Xapian::termcount wdf,
 
 Xapian::weight 
 ColourWeight::get_maxpart() const {
-    return std::max(colour_sum, BM25Weight::get_maxpart()); 
+    return std::max(1.0, BM25Weight::get_maxpart()); 
 }
 
 Xapian::weight
