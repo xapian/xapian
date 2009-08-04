@@ -105,11 +105,12 @@ maintclean: clean
 	rm -rf debian/xapian-tools
 	rm -rf debian/tmp
 
-debian/control: debian/rules debian/control.in
+debian/control: debian/rules debian/control.in debian/compat debian/patches/series
 	rm -f debian/control.tmp
 	sed -e 's/@LIBXAPIAN_SOVERSION@/$(libxapian_soversion)/g' \
 	    -e 's/@LIBXAPIAN_DEV_SOVERSION@/$(libxapian_dev_soversion)/g' \
 	    -e 's/@BINARY_VERSION@/$(BINARY_VERSION)/g' \
+	    -e 's/@BUILD_DEPS@/debhelper (>= $(shell cat debian/compat)),$(shell grep -qv '^#' debian/patches/series && echo " quilt,")/g' \
 	     debian/control.in > debian/control.tmp
 	mv debian/control.tmp debian/control
 
@@ -215,4 +216,10 @@ clean: debian/control
 	dh_clean
 	rm -f build-stamp configure-stamp
 
-.PHONY: maint maintclean configure build install binary binary-arch binary-indep clean
+.PHONY: maint maintclean configure build install binary binary-arch binary-indep clean patch unpatch
+
+# Include quilt's fragment if it is installed.
+-include /usr/share/quilt/quilt.make
+
+# Dummy patch and unpatch targets in case quilt isn't installed.
+patch unpatch:
