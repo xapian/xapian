@@ -1,3 +1,8 @@
+Tue Aug 04 15:49:54 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Explicitly document that an empty
+	  prefix argument to QueryParser::add_prefix() means "no prefix".
+
 Tue Aug 04 13:11:26 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/postingsource.cc: Throw UnimplementedError rather than
