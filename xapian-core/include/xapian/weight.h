@@ -442,6 +442,30 @@ class XAPIAN_VISIBILITY_DEFAULT BM25Weight : public Weight {
     Xapian::weight get_maxextra() const;
 };
 
+
+/** Experimental Xapian::Weight subclass for use when searching for colours.
+ *
+ *  This class is in many ways a nasty hack - in particular, we only want the
+ *  ColourWeight to apply to certain terms, but there's no way to do that at
+ *  present in Xapian, so we instead set the wdf to a very high value, and have
+ *  special case handling for any term with a wdf over a certain threshold.  For terms with a wdf under the threshold, this class behaves the same as BM25Weight.
+ */
+
+class XAPIAN_VISIBILITY_DEFAULT ColourWeight : public BM25Weight {
+    public:
+	static const Xapian::termcount trigger = 10000;
+	static const Xapian::weight colour_sum = 1000;
+	std::string name() const;
+
+	Xapian::weight get_sumpart(Xapian::termcount wdf,
+				   Xapian::termcount doclen) const;
+	Xapian::weight get_maxpart() const;
+
+	Xapian::weight get_sumextra(Xapian::termcount doclen) const;
+	Xapian::weight get_maxextra() const;
+};
+
+
 /** Xapian::Weight subclass implementing the traditional probabilistic formula.
  *
  * This class implements the "traditional" Probabilistic Weighting scheme, as
