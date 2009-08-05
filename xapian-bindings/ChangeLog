@@ -1,3 +1,9 @@
+Wed Aug 05 14:39:50 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+        * perl/util.i.in:Remove new object constructing operation
+        in TermIterator's inc() function. Because it prevents a
+        destruction of other object (such as WritableDatabase).
+
 Fri Jul 31 16:32:19 GMT 2009  Kosei Moriyama <cou929@gmail.com>
 
 	* perl/util.i.in:Add constant variable FLAG_SPELLING for 

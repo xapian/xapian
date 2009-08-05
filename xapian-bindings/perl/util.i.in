@@ -192,7 +192,7 @@ Xapian::WritableDatabase * new3_WritableDatabase() {
 
 %extend Xapian::TermIterator {
 Xapian::TermIterator * inc() {
-     return new Xapian::TermIterator(++(*self));
+     ++(*self);
 }
 
 bool equal(Xapian::TermIterator * that) {
