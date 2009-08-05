@@ -175,7 +175,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 *
 	 *  @deprecated This method is deprecated because it isn't useful,
 	 *  since none of the current query operators can be usefully
-	 *  applied to a single subquery with a parameter value.
+	 *  applied to a single subquery without a parameter value.
 	 */
 	XAPIAN_DEPRECATED(Query(Query::op op_, Xapian::Query q));
 
