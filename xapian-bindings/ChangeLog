@@ -1,3 +1,7 @@
+Wed Aug 05 06:44:50 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* ruby/util.i: Rename constants to start with an upper case letter.
+
 Sun Aug 02 12:21:05 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/pythontest3.py: Sync with pythontest2.

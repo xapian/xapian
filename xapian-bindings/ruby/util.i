@@ -141,6 +141,10 @@
 %rename("stopper=") set_stopper;
 %rename("weighting_scheme=") set_weighting_scheme;
 
+// Constants
+%rename("Trigger") trigger;
+%rename("ColourSum") colour_sum;
+
 // Booleans
 %predicate empty;
 
