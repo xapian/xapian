@@ -40,8 +40,9 @@ endif
 libxapian_soversion:=$(shell sed 's/^LIBRARY_VERSION_INFO=\([0-9][0-9]*\):[0-9][0-9]*:\([0-9][0-9]*\).*/\1-\2/p;d' configure.ac)
 libxapian_soversion:=$(shell echo $$(($(libxapian_soversion))))
 
-# For now, we're only supporting installation of the latest development
-# files.  Changes to the API should be rare, so this seems reasonable.
+# For now, we don't support installation of development files for multiple
+# versions concurrently.  Incompatible ABI changes should be rare, so this
+# seems reasonable.
 libxapian_dev_soversion=
 
 export DH_OPTIONS
@@ -143,7 +144,7 @@ configure-stamp: debian/control
 	# Touch the stamp file, to avoid repeating the configure step.
 	touch $@
 
-build: build-stamp
+build: $(QUILT_STAMPFN) build-stamp
 build-stamp: configure
 	dh_testdir
 	$(MAKE) -C build
@@ -208,7 +209,7 @@ binary-arch: build install
 	dh_md5sums
 	dh_builddeb
 
-clean: debian/control
+clean: debian/control unpatch
 	dh_testdir
 	dh_testroot
 	rm -rf build

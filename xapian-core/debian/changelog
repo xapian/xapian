@@ -1,11 +1,15 @@
-xapian-core (1.0.14-2) UNRELEASED; urgency=low
+xapian-core (1.0.14-2) unstable; urgency=medium
 
+  * "urgency=medium" as 1.0.14-1 has aged 5 days and only FTBFS on alpha
+    because of a new ulimit in the testsuite in 1.0.14-1.
   * debian/rules,debian/control.in,debian/patches/series: Add support for
     managing patches with quilt, but only add quilt as a build dependency
     if there are patches.  Also autogenerate the versioned dependency on
     debhelper using debian/compat.
+  * debian/patches/runtest-no-fd-ulimit-on-alpha.patch: Fix FTBFS on alpha
+    by disabling the new fd ulimit in the test harness on that architecture.
 
- -- Olly Betts <olly@survex.com>  Tue,  4 Aug 2009 16:10:16 +0100
+ -- Olly Betts <olly@survex.com>  Wed, 05 Aug 2009 02:53:41 +0000
 
 xapian-core (1.0.14-1) unstable; urgency=low
 
