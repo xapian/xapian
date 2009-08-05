@@ -1,3 +1,10 @@
+Wed Aug 05 14:42:34 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Replace each iterator's function 'inc()' 
+	to 'increment()', which is macro 'NEXT' defined in xapian.i
+	and renamed in per/util.i, because both two function's 
+	operation is same.
+
 Wed Aug 05 14:39:50 GMT 2009  Kosei Moriyama <cou929@gmail.com>
 
         * perl/util.i.in:Remove new object constructing operation

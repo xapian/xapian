@@ -107,10 +107,6 @@ std::string stem_word(std::string word) {
 }
 
 %extend Xapian::ValueIterator {
-void inc() {
-    (*self)++;
-}
-
 bool equal(Xapian::ValueIterator * that) {
      return ((*self) == (*that));
 }
@@ -191,10 +187,6 @@ Xapian::WritableDatabase * new3_WritableDatabase() {
 %}
 
 %extend Xapian::TermIterator {
-Xapian::TermIterator * inc() {
-     ++(*self);
-}
-
 bool equal(Xapian::TermIterator * that) {
      return ((*self) == (*that));
 }
@@ -230,10 +222,6 @@ bool stop_word(std::string term) {
 }
 
 %extend Xapian::PositionIterator {
-void inc() {
-       ++(*self);
-}
-
 bool equal1(Xapian::PositionIterator * that) {
      return ((*self) == (*that));
 }
@@ -469,7 +457,7 @@ sub set_sort_by_relevance_then_key {
 }
 
 package Search::Xapian::ValueIterator;
-use overload '++' => sub { $_[0]->inc() },
+use overload '++' => sub { $_[0]->increment() },
              '='  => sub { $_[0]->clone() },
 	     'eq' => sub { $_[0]->equal($_[1]) },
 	     'ne' => sub { $_[0]->nequal($_[1]) },
@@ -479,7 +467,7 @@ use overload '++' => sub { $_[0]->inc() },
              'fallback' => 1;
 
 package Search::Xapian::TermIterator;
-use overload '++' => sub { $_[0]->inc() },
+use overload '++' => sub { $_[0]->increment() },
              '='  => sub { $_[0]->clone() },
 	     'eq' => sub { $_[0]->equal($_[1]) },
 	     'ne' => sub { $_[0]->nequal($_[1]) },
@@ -512,7 +500,7 @@ sub add_valuerangeprocessor {
 
 package Search::Xapian::PositionIterator;
 use UNIVERSAL qw( isa );
-use overload '++' => sub { $_[0]->inc() },
+use overload '++' => sub { $_[0]->increment() },
              '='  => sub { $_[0]->clone() },
 	     'eq' => sub { $_[0]->equal($_[1]) },
 	     'ne' => sub { $_[0]->nequal($_[1]) },
