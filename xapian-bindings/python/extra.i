@@ -22,6 +22,21 @@
  */
 %}
 
+%extend ValueCountMatchSpy {
+    %feature("nothread") get_values_as_dict;
+    %exception get_values_as_dict {
+        try {
+            $action
+        } catch (...) {
+            Xapian::SetPythonException();
+            SWIG_fail;
+        }
+    }
+    PyObject * get_values_as_dict() {
+        return value_map_to_dict($self->get_values());
+    }
+}
+
 %pythoncode %{
 
 # Set the documentation format - this is used by tools like "epydoc" to decide
@@ -1074,6 +1089,28 @@ for item in dir():
         continue
     __all__.append(item)
 __all__ = tuple(__all__)
+
+
+# Fix up Enquire so that it keeps a python reference to the deciders supplied
+# to it so that they won't be deleted before the Enquire object.  This hack can
+# probably be removed once xapian bug #186 is fixed.
+_enquire_add_matchspy_orig = Enquire.add_matchspy
+def _enquire_match_spy_add(self, decider):
+    if not hasattr(self, '_deciders'):
+        self._deciders = []
+    self._deciders.append(decider)
+    _enquire_add_matchspy_orig(self, decider)
+_enquire_match_spy_add.__doc__ = Enquire.add_matchspy.__doc__
+Enquire.add_matchspy = _enquire_match_spy_add
+
+_enquire_clear_matchspies_orig = Enquire.clear_matchspies
+def _enquire_match_spies_clear(self):
+    _enquire_clear_matchspies_orig(self, decider)
+    if hasattr(self, '_deciders'):
+        del self._deciders
+_enquire_match_spies_clear.__doc__ = Enquire.clear_matchspies.__doc__
+Enquire.clear_matchspies = _enquire_match_spies_clear
+
 
 
 # Remove static methods which shouldn't be in the API.

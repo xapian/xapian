@@ -4,6 +4,17 @@ Tue Dec 09 00:06:44 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 	  which don't support directors, so that built-in posting sources,
 	  like the geospatial one, can be used.
 
+Sun Aug 02 12:21:05 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/pythontest3.py: Sync with pythontest2.
+
+Sun Aug 02 12:19:24 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	Merge from matchspy branch
+	* csharp/Makefile.am,python/extra.i,python/pythontest2.py,
+	  python/util.i,xapian.i: Add support for new MatchSpy class, and
+	  the matchspy.h header.
+
 Sat Aug 01 10:07:02 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/pythontest3.py: Update to match pythontest2.py (after 2to3

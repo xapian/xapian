@@ -4,6 +4,7 @@
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -39,6 +40,7 @@ class Database;
 class Document;
 class ErrorHandler;
 class ExpandDecider;
+class MatchSpy;
 class MSetIterator;
 class Query;
 class Weight;
@@ -688,6 +690,32 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *	       not yet been set.
 	 */
 	const Xapian::Query & get_query() const;
+
+	/** Add a matchspy.
+	 *
+	 *  This matchspy will be called with some of the documents which match
+	 *  the query, during the match process.  Exactly which of the matching
+	 *  documents are passed to it depends on exactly when certain
+	 *  optimisations occur during the match process, but it can be
+	 *  controlled to some extent by setting the @a checkatleast parameter
+	 *  to @a get_mset().
+	 *
+	 *  In particular, if there are enough matching documents, at least the
+	 *  number specified by @a checkatleast will be passed to the matchspy.
+	 *  This means that you can force the matchspy to be shown all matching
+	 *  documents by setting @a checkatleast to the number of documents in
+	 *  the database.
+	 *
+	 *  @param spy       The MatchSpy subclass to add.  The caller must
+	 *                   ensure that this remains valid while the Enquire
+	 *                   object remains active, or until @a
+	 *                   clear_matchspies() is called.
+	 */
+	void add_matchspy(MatchSpy * spy);
+
+	/** Remove all the matchspies.
+	 */
+	void clear_matchspies();
 
 	/** Set the weighting scheme to use for queries.
 	 *

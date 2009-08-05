@@ -24,11 +24,14 @@
 #include "xapian/serialisationcontext.h"
 
 #include "xapian/error.h"
+#include "xapian/matchspy.h"
 #include "xapian/postingsource.h"
 #include "xapian/weight.h"
 
 #include "serialisationcontextinternal.h"
 #include "omdebug.h"
+
+#include <algorithm>
 
 using namespace std;
 
@@ -78,7 +81,6 @@ SerialisationContext::get_weighting_scheme(const string & name) const
     RETURN(internal->get_weighting_scheme(name));
 }
 
-
 void
 SerialisationContext::register_posting_source(const Xapian::PostingSource &source)
 {
@@ -91,6 +93,20 @@ SerialisationContext::get_posting_source(const string & name) const
 {
     LOGCALL(API, const Xapian::PostingSource *, "Xapian::SerialisationContext::get_posting_source", name);
     RETURN(internal->get_posting_source(name));
+}
+
+void
+SerialisationContext::register_match_spy(const Xapian::MatchSpy &spy)
+{
+    LOGCALL_VOID(API, "Xapian::SerialisationContext::register_match_spy", spy.name());
+    internal->register_match_spy(spy);
+}
+
+const Xapian::MatchSpy *
+SerialisationContext::get_match_spy(const string & name) const
+{
+    LOGCALL(API, const Xapian::MatchSpy *, "Xapian::SerialisationContext::get_match_spy", name);
+    RETURN(internal->get_match_spy(name));
 }
 
 
@@ -106,6 +122,7 @@ SerialisationContext::Internal::~Internal()
 {
     clear_weighting_schemes();
     clear_posting_sources();
+    clear_match_spies();
 }
 
 void
@@ -128,6 +145,10 @@ SerialisationContext::Internal::add_defaults()
     postingsources[source->name()] = source;
     source = new Xapian::FixedWeightPostingSource(0.0);
     postingsources[source->name()] = source;
+
+    Xapian::MatchSpy * spy;
+    spy = new Xapian::ValueCountMatchSpy();
+    matchspies[spy->name()] = spy;
 }
 
 void
@@ -144,6 +165,15 @@ SerialisationContext::Internal::clear_posting_sources()
 {
     map<string, Xapian::PostingSource *>::const_iterator i;
     for (i = postingsources.begin(); i != postingsources.end(); ++i) {
+	delete i->second;
+    }
+}
+
+void
+SerialisationContext::Internal::clear_match_spies()
+{
+    map<string, Xapian::MatchSpy *>::const_iterator i;
+    for (i = matchspies.begin(); i != matchspies.end(); ++i) {
 	delete i->second;
     }
 }
@@ -189,24 +219,29 @@ SerialisationContext::Internal::register_posting_source(const Xapian::PostingSou
         throw Xapian::InvalidOperationError("Unable to register posting source - name() method returns empty string.");
     }
 
-    map<string, Xapian::PostingSource *>::const_iterator i;
-    i = postingsources.find(sourcename);
-    if (i != postingsources.end()) {
-	delete i->second;
+    pair<map<string, Xapian::PostingSource *>::iterator, bool> r;
+    r = postingsources.insert(make_pair(sourcename,
+			      static_cast<Xapian::PostingSource *>(NULL)));
+    if (!r.second) {
+	// Existing element with this key, so replace the pointer with NULL
+	// and delete the existing pointer.
+	//
+	// If the delete throws, this will leave a NULL entry in the map, but
+	// that won't affect behaviour as we return NULL for "not found"
+	// anyway.  The memory used will be leaked if the dtor throws, but
+	// throwing exceptions from the dtor is bad form, so that's not a big
+	// problem.
+	PostingSource * p = NULL;
+	swap(p, r.first->second);
+	delete p;
     }
 
     Xapian::PostingSource * sourceclone = source.clone();
     if (!sourceclone) {
-	postingsources.erase(sourcename);
-        throw Xapian::InvalidOperationError("Unable to register posting source - clone() method returns NULL.");
+	throw Xapian::InvalidOperationError("Unable to register posting source - clone() method returns NULL.");
     }
-    try {
-	postingsources[sourcename] = sourceclone;
-    } catch(...) {
-	delete sourceclone;
-	postingsources.erase(sourcename);
-	throw;
-    }
+
+    r.first->second = sourceclone;
 }
 
 const Xapian::PostingSource *
@@ -215,6 +250,45 @@ SerialisationContext::Internal::get_posting_source(const string & name) const
     map<string, Xapian::PostingSource *>::const_iterator i;
     i = postingsources.find(name);
     if (i == postingsources.end()) {
+	return NULL;
+    }
+    return i->second;
+}
+
+void
+SerialisationContext::Internal::register_match_spy(const Xapian::MatchSpy &spy)
+{
+    string spyname = spy.name();
+    if (spyname.empty()) {
+        throw Xapian::InvalidOperationError("Unable to register match spy - name() method returns empty string.");
+    }
+
+    map<string, Xapian::MatchSpy *>::const_iterator i;
+    i = matchspies.find(spyname);
+    if (i != matchspies.end()) {
+	delete i->second;
+    }
+
+    Xapian::MatchSpy * spyclone = spy.clone();
+    if (!spyclone) {
+	matchspies.erase(spyname);
+        throw Xapian::InvalidOperationError("Unable to register match spy - clone() method returns NULL.");
+    }
+    try {
+	matchspies[spyname] = spyclone;
+    } catch(...) {
+	delete spyclone;
+	matchspies.erase(spyname);
+	throw;
+    }
+}
+
+const Xapian::MatchSpy *
+SerialisationContext::Internal::get_match_spy(const string & name) const
+{
+    map<string, Xapian::MatchSpy *>::const_iterator i;
+    i = matchspies.find(name);
+    if (i == matchspies.end()) {
 	return NULL;
     }
     return i->second;

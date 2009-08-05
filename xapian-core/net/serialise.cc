@@ -215,11 +215,8 @@ serialise_mset(const Xapian::MSet &mset)
 }
 
 Xapian::MSet
-unserialise_mset(const string &s)
+unserialise_mset(const char * p, const char * p_end)
 {
-    const char * p = s.data();
-    const char * p_end = p + s.size();
-
     Xapian::doccount firstitem = decode_length(&p, p_end, false);
     Xapian::doccount matches_lower_bound = decode_length(&p, p_end, false);
     Xapian::doccount matches_estimated = decode_length(&p, p_end, false);
@@ -240,8 +237,8 @@ unserialise_mset(const string &s)
 	size_t len = decode_length(&p, p_end, true);
 	string key(p, len);
 	p += len;
-	items.push_back(Xapian::Internal::MSetItem(wt, did, key,
-						   decode_length(&p, p_end, false)));
+	Xapian::doccount collapse_cnt = decode_length(&p, p_end, false);
+	items.push_back(Xapian::Internal::MSetItem(wt, did, key, collapse_cnt));
     }
 
     map<string, Xapian::MSet::Internal::TermFreqAndWeight> terminfo;
