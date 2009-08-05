@@ -99,6 +99,40 @@ static string
 shell_protect(const string & file)
 {
     string safefile = file;
+#ifdef __WIN32__
+    bool need_to_quote = false;
+    for (string::iterator i = safefile.begin(); i != safefile.end(); ++i) {
+	unsigned char ch = *i;
+	if (!isalnum(ch) && ch < 128) {
+	    if (ch == '/') {
+		// Convert Unix path separators to backslashes.  C library
+		// functions understand "/" in paths, but external commands
+		// generally don't, and also may interpret a leading '/' as
+		// introducing a command line option.
+		*i = '\\';
+	    } else if (ch == ' ') {
+		need_to_quote = true;
+	    } else if (ch < 32 || strchr("<>\"|*?", ch)) {
+		// Check for invalid characters in the filename.
+		string m("Invalid character '");
+		m += ch;
+		m += "' in filename \"";
+		m += file;
+		m += '"';
+		throw m;
+	    }
+	}
+    }
+    if (safefile[0] == '-') {
+	// If the filename starts with a '-', protect it from being treated as
+	// an option by prepending ".\".
+	safefile.insert(0, ".\\");
+    }
+    if (need_to_quote) {
+	safefile.insert(0, "\"");
+	safefile += '"';
+    }
+#else
     string::size_type p = 0;
     if (!safefile.empty() && safefile[0] == '-') {
 	// If the filename starts with a '-', protect it from being treated as
@@ -115,6 +149,7 @@ shell_protect(const string & file)
 	}
 	++p;
     }
+#endif
     return safefile;
 }
 

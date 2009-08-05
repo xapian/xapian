@@ -567,12 +567,10 @@ RemoteDatabase::set_query(const Xapian::Query::Internal *query,
     message += encode_length(tmp.size());
     message += tmp;
 
-    message += encode_length(matchspies.size());
-    for (vector<Xapian::MatchSpy *>::const_iterator i = matchspies.begin();
-	 i != matchspies.end(); ++i) {
-
+    vector<Xapian::MatchSpy *>::const_iterator i;
+    for (i = matchspies.begin(); i != matchspies.end(); ++i) {
 	tmp = (*i)->name();
-	if (tmp.size() == 0) {
+	if (tmp.empty()) {
 	    throw Xapian::UnimplementedError("MatchSpy not suitable for use with remote searches - name() method returned empty string");
 	}
 	message += encode_length(tmp.size());
@@ -619,19 +617,17 @@ RemoteDatabase::get_mset(Xapian::MSet &mset,
     get_message(message, REPLY_RESULTS);
     const char * p = message.data();
     const char * p_end = p + message.size();
-    mset = unserialise_mset(&p, p_end);
 
-    for (vector<Xapian::MatchSpy *>::const_iterator i = matchspies.begin();
-	 i != matchspies.end(); ++i) {
+    vector<Xapian::MatchSpy *>::const_iterator i;
+    for (i = matchspies.begin(); i != matchspies.end(); ++i) {
 	if (p == p_end)
 	    throw Xapian::NetworkError("Expected serialised matchspy");
 	size_t len = decode_length(&p, p_end, true);
-	string spyresults = string(p, len);
+	string spyresults(p, len);
 	p += len;
 	(*i)->merge_results(spyresults);
     }
-    if (p != p_end)
-	throw Xapian::NetworkError("Junk at end of mset");
+    mset = unserialise_mset(p, p_end);
 }
 
 void

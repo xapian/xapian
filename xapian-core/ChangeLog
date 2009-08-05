@@ -219,6 +219,74 @@ Mon Oct 29 03:03:31 GMT 2007  Olly Betts <olly@survex.com>
 	  include/xapian.h,tests/api_db.cc,tests/api_nodb.cc,
 	  tests/api_wrdb.cc: Restore the changes.
 
+Tue Aug 04 15:49:54 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Explicitly document that an empty
+	  prefix argument to QueryParser::add_prefix() means "no prefix".
+
+Tue Aug 04 13:11:26 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/postingsource.cc: Throw UnimplementedError rather than
+	  InvalidOperationError from PostingSource::serialise() and
+	  PostingSource::unserialise() for consistency with MatchSpy.
+	* include/xapian/postingsource.h: Document this behaviour (previously
+	  we didn't say what the default implementation actually did).
+	* tests/api_serialise.cc: Add test coverage.
+
+Mon Aug 03 11:40:31 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/serialisationcontext.cc: Fix to handle the clone() method or dtor
+	  of a PostingSource subclass throwing exceptions.
+	* tests/api_serialise.cc: Add new testcase serialisationcontext1 as a
+	  regression test for this.
+
+Mon Aug 03 06:40:28 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_serialise.cc: Fix copy-and-pasted @brief.
+
+Sun Aug 02 16:21:54 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/remoteprotocol.h: Correction: protocol version 33 will debut
+	  in 1.1.3 not 1.1.4.
+
+Sun Aug 02 16:20:28 GMT 2009  Olly Betts <olly@survex.com>
+
+	* docs/remote_protocol.html: Update to document protocol version 33.
+
+Sun Aug 02 16:17:24 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/remote/remote-database.cc,net/remoteserver.cc: We were
+	  ignoring any trailing junk after the matchspies in MSG_GETMSET, so
+	  change to not send a count of them and just unpack until we run out
+	  of data.
+
+Sun Aug 02 15:47:30 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/remoteprotocol.h: Note the versions in which recent protocol
+	  versions were introduced.
+
+Sun Aug 02 15:09:13 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/remote/remote-database.cc,common/serialise.h,
+	  net/remoteserver.cc,net/serialise.cc: Put the serialised MSet last in
+	  REPLY_RESULTS as then it doesn't need to know its own length (so the
+	  encoding is the same size it used to be in the non-matchspy case),
+	  and we avoid having to check for there being "junk" data left over
+	  after unserialising.
+
+Sun Aug 02 14:39:18 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/remotesubmatch.h: Fix to build with GCC 4.4.1.
+
+Sun Aug 02 14:27:44 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/remote/remote-database.cc: Don't assign a temporary string
+	  object.
+
+Sun Aug 02 13:50:14 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/matchspy.h: Add missing documentation comments.
+
 Sun Aug 02 12:15:43 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	Merge from matchspy branch.

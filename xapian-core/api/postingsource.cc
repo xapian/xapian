@@ -92,13 +92,13 @@ PostingSource::name() const
 string
 PostingSource::serialise() const
 {
-    throw Xapian::InvalidOperationError("serialise() not supported for this PostingSource");
+    throw Xapian::UnimplementedError("serialise() not supported for this PostingSource");
 }
 
 PostingSource *
 PostingSource::unserialise(const string &) const
 {
-    throw Xapian::InvalidOperationError("unserialise() not supported for this PostingSource");
+    throw Xapian::UnimplementedError("unserialise() not supported for this PostingSource");
 }
 
 string

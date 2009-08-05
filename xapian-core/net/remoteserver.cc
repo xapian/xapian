@@ -443,10 +443,9 @@ RemoteServer::msg_query(const string &message_in)
     Xapian::RSet rset = unserialise_rset(string(p, len));
     p += len;
 
-    // Unserialise the MatchSpy objects.
-    vector<Xapian::MatchSpy *>::size_type spycount = decode_length(&p, p_end, false);
+    // Unserialise any MatchSpy objects.
     MatchSpyList matchspies;
-    while (spycount != 0) {
+    while (p != p_end) {
 	len = decode_length(&p, p_end, true);
 	string spytype(p, len);
 	const Xapian::MatchSpy * spyclass = ctx.get_match_spy(spytype);
@@ -459,8 +458,6 @@ RemoteServer::msg_query(const string &message_in)
 	len = decode_length(&p, p_end, true);
 	matchspies.spies.push_back(spyclass->unserialise(string(p, len), ctx));
 	p += len;
-
-	--spycount;
     }
 
     Xapian::Weight::Internal local_stats;
@@ -489,14 +486,14 @@ RemoteServer::msg_query(const string &message_in)
     Xapian::MSet mset;
     match.get_mset(first, maxitems, check_at_least, mset, total_stats, 0, 0);
 
-    message = serialise_mset(mset);
-
-    for (vector<Xapian::MatchSpy *>::const_iterator i = matchspies.spies.begin();
-	 i != matchspies.spies.end(); ++i) {
+    message.resize(0);
+    vector<Xapian::MatchSpy *>::const_iterator i;
+    for (i = matchspies.spies.begin(); i != matchspies.spies.end(); ++i) {
 	string spy_results = (*i)->serialise_results();
 	message += encode_length(spy_results.size());
 	message += spy_results;
     }
+    message += serialise_mset(mset);
     send_message(REPLY_RESULTS, message);
 }
 
