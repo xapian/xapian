@@ -16,6 +16,7 @@ INTDIR=.\
 ALL : "$(OUTDIR)\libapi.lib" 
 
 OBJS= \
+    $(INTDIR)/decvalwtsource.obj\
     $(INTDIR)/documentvaluelist.obj\
     $(INTDIR)/editdistance.obj \
     $(INTDIR)/emptypostlist.obj \
@@ -45,6 +46,7 @@ OBJS= \
     $(INTDIR)/version.obj
     
 SRCS= \
+    $(INTDIR)/decvalwtsource.cc\
     $(INTDIR)/documentvaluelist.cc\
     $(INTDIR)/editdistance.cc\
     $(INTDIR)/emptypostlist.cc\

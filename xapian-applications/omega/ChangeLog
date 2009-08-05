@@ -1,3 +1,8 @@
+Wed Aug 05 03:50:54 GMT 2009  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Implement correct handling of paths when calling
+	  external filter programs on Microsoft Windows.
+
 Thu Jul 23 12:07:24 GMT 2009  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Remove pointless fallback code.

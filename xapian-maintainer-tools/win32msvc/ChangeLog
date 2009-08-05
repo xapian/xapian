@@ -1,3 +1,8 @@
+Tue Aug 04 15:30:00 GMT 2009  Charlie Hull <charlie@flax.co.uk>
+
+	* Makefile, win32_bindings_python.mak, config.mak, makebinaries.py:
+	  Add Python 2.6 option.
+
 Sun Aug 02 12:22:52 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* win32_api.mak: Add matchspy files.
