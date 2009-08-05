@@ -221,6 +221,13 @@ decide which to call).
    $q = new XapianQuery(XapianQuery::OP_AND, array($subq, "foo", new XapianQuery("bar", 2)));
 </pre>
 
+<h3>MatchAll and MatchNothing</h3>
+
+<p>
+These aren't yet wrapped for PHP, but you can use <code>XapianQuery("")</code>
+instead of MatchAll and <code>XapianQuery()</code> instead of MatchNothing.
+</p>
+
 <h2>Enquire</h2>
 
 <p>

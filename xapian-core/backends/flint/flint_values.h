@@ -55,7 +55,7 @@ class FlintValueTable : public FlintTable {
 	 *  @param readonly_      - whether to open the table for read only
 	 *                          access.
 	 */
-	FlintValueTable(string path_, bool readonly_)
+	FlintValueTable(const string & path_, bool readonly_)
 	    : FlintTable("value", path_ + "/value.", readonly_, DONT_COMPRESS, true) { }
 
 	/** Encode values as a string ready to add to the table.

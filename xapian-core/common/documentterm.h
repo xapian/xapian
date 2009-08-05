@@ -108,7 +108,7 @@ class OmDocumentTerm {
     }
 
     /// Get the wdf
-    Xapian::termcount get_wdf() { return wdf; }
+    Xapian::termcount get_wdf() const { return wdf; }
 
     /// Return a string describing this object.
     string get_description() const;

@@ -25,7 +25,6 @@
 #include <xapian/types.h>
 #include <xapian/error.h>
 
-#include <string>
 #include <vector>
 #include "positionlist.h"
 #include "documentterm.h"

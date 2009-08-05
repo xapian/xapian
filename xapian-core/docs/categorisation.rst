@@ -1,5 +1,6 @@
 
 .. Copyright (C) 2007 Olly Betts
+.. Copyright (C) 2009 Lemur Consulting Ltd
 
 =============================
 Xapian Categorisation Support
@@ -14,7 +15,8 @@ Xapian provides functionality which allows you to dynamically generate complete
 lists of category values which feature in matching documents.  There are
 numerous potential uses this can be put to, but a common one is to offer the
 user the ability to narrow down their search by filtering it to only include
-documents with a particular value of a particular category.
+documents with a particular value of a particular category.  This is often
+referred to as ``faceted search``.
 
 Some categories are numeric and can take many different values (examples
 include price, width, and height).  The number of different values will often
@@ -43,45 +45,49 @@ group, you should encode the numeric value as a string using
 Searching
 ---------
 
-At search time, you need to pass a ``Xapian::MatchSpy`` object to
-``Xapian::Enquire::get_mset()``, like so::
+At search time, you need to pass a ``Xapian::ValueCountMatchSpy`` object for
+each category you want to look at to ``Xapian::Enquire::add_matchspy()``, like
+so::
 
-    Xapian::MatchSpy spy;
-
-    spy.add_category(0);
-    spy.add_category(1);
-    spy.add_category(3);
+    Xapian::ValueCountMatchSpy spy0(0);
+    Xapian::ValueCountMatchSpy spy1(1);
+    Xapian::ValueCountMatchSpy spy3(3);
 
     Xapian::Enquire enq(db);
+    enq.add_matchspy(spy0);
+    enq.add_matchspy(spy1);
+    enq.add_matchspy(spy3);
 
     enq.set_query(query);
 
     Xapian::MSet mset = enq.get_mset(0, 10, 10000, NULL, NULL, &spy);
 
-The ``10000`` in the call to ``get_mset`` tells Xapian to check at least
+The ``10000`` in the call to ``get_mset()`` tells Xapian to check at least
 10000 documents, so the ``spy`` object will be passed at least 10000 documents
-to tally category information from (unless less than 10000 documents match
-the query, in which case it will see all of them).  Setting this higher will
-make the counts exact, but Xapian will have to do more work for most queries
-so searches will be slower.
+to tally category information from (unless fewer than 10000 documents match the
+query, in which case it will see all of them).  Setting this higher will make
+the counts exact, but Xapian will have to do more work for most queries so
+searches will be slower.
 
-The ``spy`` object now contains the category information.  You can find out
-how many documents it looked at by calling ``spy.get_total()``.  You can
-read the values for category ``cat_no`` like this::
+The ``spy`` objects now contain the category information.  You can find out how
+many documents they looked at by calling ``spy0.get_total()``.  (All the spies
+will have looked at the same number of documents.)  You can read the values
+from, say, ``spy0`` like this::
 
-    const map<string, size_t> & cat = spy.get_categories(cat_no);
+    const map<string, size_t> & cat = spy0.get_values();
     map<string, size_t>::const_iterator i;
     for (i = cat.begin(); i != cat.end(); ++i) {
         cout << i->first << ": " << i->second << endl;
     }
 
-You calculate the score for category ``cat_no`` like so::
+You can calculate a score to indicate how evenly spread the values are using
+the ``score_evenness`` function like so::
 
-    double score = spy.score_categorisation(cat_num);
+    double score = Xapian::score_evenness(spy0);
 
 Or if you prefer categories with 4 or 5 values::
 
-    double score = spy.score_categorisation(cat_num, 4.5);
+    double score = Xapian::score_evenness(spy0, 4.5);
 
 The smaller the score, the better - a perfectly even split with exactly the
 number of entries asked (or with no preference given for the number of entries)
@@ -89,45 +95,43 @@ scores 0.  You should experiment to find a suitable threshold for your
 application, but to give you a rough idea, a suitable threshold is likely to be
 less than one.
 
-The scoring uses a sum of squared differences (currently that is - this should
+The scoring uses a sum of squared differences (currently, that is - this should
 probably be regarded as an implementation detail which could change in the
 future if we find a better algorithm).
 
-You would build ranges from numeric values for value ``cat_no``, asking for at
-most ``num_ranges`` ranges like so::
+You can build ranges from numeric values for the values returned from spy
+``spy0``, asking for at most ``num_ranges`` ranges like so::
 
-    bool result = spy.build_numeric_ranges(cat_no, num_ranges);
+    std::map<Xapian::NumericRange, Xapian::doccount> result;
+    Xapian::doccount values_seen;
+    values_seen = build_numeric_ranges(result, spy0.get_values(), num_ranges);
 
-If ranges could not be built (for example, because all documents have the
-same value for ``cat_no``), ``false`` is returned.  Otherwise ``true`` is
-returned, and the spy object's category map for value ``cat_no`` is modified
-to consist of ranges.  Keys are now built of strings returned by
-``Xapian::sortable_serialise()`` - either a single string if there is only
-one number in a particular range, or for a range a string padded to 9 bytes
-with zero bytes, with a second string appended.
+Here, ``result`` will be filled with a set of numeric ranges (holding at most
+``num_ranges`` ranges), and ``values_seen`` will be the count of the number of
+values seen (note - this may be different from the number of documents seen by
+the matchspy, since some may have no value stored in the slot).
+
+If there are no values seen by the spy, ``result`` will be empty.  If all the
+values seen by the spy are the same, ``result`` will contain a single entry,
+with a single range with the same start and end points.
 
 Restricting by category values
 ------------------------------
 
-If you're using the categorisation to offer the user choices for narrowing
-down their search results, you then need to be able to apply a suitable
-filter.
+If you're using the categorisation to offer the user choices for narrowing down
+their search results, you then need to be able to apply a suitable filter.
 
-For a range, the best way is to use ``Xapian::Query::OP_VALUE_RANGE`` to
+For a range, the easiest way is to use ``Xapian::Query::OP_VALUE_RANGE`` to
 build a filter query, and then combine this with the user's query using
 ``Xapian::Query::OP_FILTER``.
 
-For a single value, you could use ``Xapian::Query::OP_VALUE_RANGE`` with
-the same start and end, or ``Xapian::MatchDecider``, but it's probably
-most efficient to also index the categories as suitably prefixed boolean
-terms and use those for filtering.
+For a single value, you could use ``Xapian::Query::OP_VALUE_RANGE`` with the
+same start and end, or ``Xapian::MatchDecider``, but it's probably most
+efficient to also index the categories as suitably prefixed boolean terms and
+use those for filtering.
 
 Current Limitations
 ===================
 
-It's not currently possible to build logarithmic ranges without writing
-your own subclass.
-
-It's not possible to try building different ranges because the original
-data is overwritten.  If it's actually useful to do this, the API needs
-adjusting.
+It's not currently possible to build logarithmic ranges with
+``build_numeric_ranges``.

@@ -772,7 +772,7 @@ static bool test_qp_odd_chars1()
 // Test right truncation.
 static bool test_qp_flag_wildcard1()
 {
-#ifndef XAPIAN_HAS_BACKEND_INMEMORY
+#ifndef XAPIAN_HAS_INMEMORY_BACKEND
     SKIP_TEST("Testcase requires the InMemory backend which is disabled");
 #else
     Xapian::WritableDatabase db(Xapian::InMemory::open());
@@ -873,7 +873,7 @@ static bool test_qp_flag_wildcard1()
 // Test right truncation with prefixes.
 static bool test_qp_flag_wildcard2()
 {
-#ifndef XAPIAN_HAS_BACKEND_INMEMORY
+#ifndef XAPIAN_HAS_INMEMORY_BACKEND
     SKIP_TEST("Testcase requires the InMemory backend which is disabled");
 #else
     Xapian::WritableDatabase db(Xapian::InMemory::open());
@@ -897,7 +897,7 @@ static bool test_qp_flag_wildcard2()
 // Test partial queries.
 static bool test_qp_flag_partial1()
 {
-#ifndef XAPIAN_HAS_BACKEND_INMEMORY
+#ifndef XAPIAN_HAS_INMEMORY_BACKEND
     SKIP_TEST("Testcase requires the InMemory backend which is disabled");
 #else
     Xapian::WritableDatabase db(Xapian::InMemory::open());
@@ -1200,6 +1200,12 @@ static test test_value_range2_queries[] = {
     { "03-12-99..04-14-01", "VALUE_RANGE 1 19990312 20010414" },
     { "(test:a..test:b hello)", "(hello:(pos=1) FILTER VALUE_RANGE 3 test:a test:b)" },
     { "12..42kg 5..6kg 1..12", "0 * (VALUE_RANGE 2 \240 \256 AND (VALUE_RANGE 5 \256 \265@ OR VALUE_RANGE 5 \251 \252))" },
+    // Check that a VRP which fails to match doesn't remove a prefix or suffix.
+    // 1.0.13/1.1.1 and earlier got this wrong in some cases.
+    { "$12a..13", "VALUE_RANGE 3 $12a 13" },
+    { "$12..13b", "VALUE_RANGE 3 $12 13b" },
+    { "$12..12kg", "VALUE_RANGE 3 $12 12kg" },
+    { "12..b12kg", "VALUE_RANGE 3 12 b12kg" },
     { NULL, NULL }
 };
 
@@ -1244,7 +1250,7 @@ static bool test_qp_value_range2()
 // Test NumberValueRangeProcessors with actual data.
 static bool test_qp_value_range3()
 {
-#ifndef XAPIAN_HAS_BACKEND_INMEMORY
+#ifndef XAPIAN_HAS_INMEMORY_BACKEND
     SKIP_TEST("Testcase requires the InMemory backend which is disabled");
 #else
     Xapian::WritableDatabase db(Xapian::InMemory::open());
@@ -1398,6 +1404,89 @@ static bool test_qp_value_daterange1()
     Xapian::DateValueRangeProcessor vrp_date(1, true, 1960);
     qp.add_valuerangeprocessor(&vrp_date);
     for (test *p = test_value_daterange1_queries; p->query; ++p) {
+	string expect, parsed;
+	if (p->expect)
+	    expect = p->expect;
+	else
+	    expect = "parse error";
+	try {
+	    Xapian::Query qobj = qp.parse_query(p->query);
+	    parsed = qobj.get_description();
+	    expect = string("Xapian::Query(") + expect + ')';
+	} catch (const Xapian::QueryParserError &e) {
+	    parsed = e.get_msg();
+	} catch (const Xapian::Error &e) {
+	    parsed = e.get_description();
+	} catch (...) {
+	    parsed = "Unknown exception!";
+	}
+	tout << "Query: " << p->query << '\n';
+	TEST_STRINGS_EQUAL(parsed, expect);
+    }
+    return true;
+}
+
+static test test_value_daterange2_queries[] = {
+    { "created:12/03/99..12/04/01", "VALUE_RANGE 1 19991203 20011204" },
+    { "modified:03-12-99..04-14-01", "VALUE_RANGE 2 19990312 20010414" },
+    { "accessed:01/30/70..02/02/69", "VALUE_RANGE 3 19700130 20690202" },
+    { "1999-03-12..2001-04-14", "Unknown range operation" },
+    { "12/03/99..created:12/04/01", "Unknown range operation" },
+    { "12/03/99created:..12/04/01", "Unknown range operation" },
+    { "12/03/99..12/04/01created:", "Unknown range operation" },
+    { "12/03/99..02", "Unknown range operation" },
+    { "1999-03-12..2001", "Unknown range operation" },
+    { NULL, NULL }
+};
+
+// Feature test DateValueRangeProcessor with prefixes (added in 1.1.2).
+static bool test_qp_value_daterange2()
+{
+    Xapian::QueryParser qp;
+    Xapian::DateValueRangeProcessor vrp_cdate(1, "created:", true, true, 1970);
+    Xapian::DateValueRangeProcessor vrp_mdate(2, "modified:", true, true, 1970);
+    Xapian::DateValueRangeProcessor vrp_adate(3, "accessed:", true, true, 1970);
+    qp.add_valuerangeprocessor(&vrp_cdate);
+    qp.add_valuerangeprocessor(&vrp_mdate);
+    qp.add_valuerangeprocessor(&vrp_adate);
+    for (test *p = test_value_daterange2_queries; p->query; ++p) {
+	string expect, parsed;
+	if (p->expect)
+	    expect = p->expect;
+	else
+	    expect = "parse error";
+	try {
+	    Xapian::Query qobj = qp.parse_query(p->query);
+	    parsed = qobj.get_description();
+	    expect = string("Xapian::Query(") + expect + ')';
+	} catch (const Xapian::QueryParserError &e) {
+	    parsed = e.get_msg();
+	} catch (const Xapian::Error &e) {
+	    parsed = e.get_description();
+	} catch (...) {
+	    parsed = "Unknown exception!";
+	}
+	tout << "Query: " << p->query << '\n';
+	TEST_STRINGS_EQUAL(parsed, expect);
+    }
+    return true;
+}
+
+static test test_value_stringrange1_queries[] = {
+    { "tag:bar..foo", "VALUE_RANGE 1 bar foo" },
+    { "bar..foo", "VALUE_RANGE 0 bar foo" },
+    { NULL, NULL }
+};
+
+// Feature test StringValueRangeProcessor with prefixes (added in 1.1.2).
+static bool test_qp_value_stringrange1()
+{
+    Xapian::QueryParser qp;
+    Xapian::StringValueRangeProcessor vrp_default(0);
+    Xapian::StringValueRangeProcessor vrp_tag(1, "tag:", true);
+    qp.add_valuerangeprocessor(&vrp_tag);
+    qp.add_valuerangeprocessor(&vrp_default);
+    for (test *p = test_value_stringrange1_queries; p->query; ++p) {
 	string expect, parsed;
 	if (p->expect)
 	    expect = p->expect;
@@ -1855,6 +1944,78 @@ static bool test_qp_scale1()
     return true;
 }
 
+static test test_near_queries[] = {
+    { "simple-example", "(simple:(pos=1) PHRASE 2 example:(pos=2))" },
+    { "stock -cooking", "(Zstock:(pos=1) AND_NOT Zcook:(pos=2))" },
+// FIXME: these give NEAR 2
+//    { "foo -baz bar", "((Zfoo:(pos=1) NEAR 11 Zbar:(pos=3)) AND_NOT Zbaz:(pos=2))" },
+//    { "one +two three", "(Ztwo:(pos=2) AND_MAYBE (Zone:(pos=1) NEAR 11 Zthree:(pos=3)))" },
+    { "foo bar", "(Zfoo:(pos=1) NEAR 11 Zbar:(pos=2))" },
+    { "foo bar baz", "(Zfoo:(pos=1) NEAR 12 Zbar:(pos=2) NEAR 12 Zbaz:(pos=3))" },
+    { "gtk+ -gnome", "(Zgtk+:(pos=1) AND_NOT Zgnome:(pos=2))" },
+    { "c++ -d--", "(Zc++:(pos=1) AND_NOT Zd:(pos=2))" },
+    { "\"c++ library\"", "(c++:(pos=1) PHRASE 2 library:(pos=2))" },
+    { "author:orwell animal farm", "(ZAorwel:(pos=1) NEAR 12 Zanim:(pos=2) NEAR 12 Zfarm:(pos=3))" },
+    { "author:Orwell Animal Farm", "(Aorwell:(pos=1) NEAR 12 animal:(pos=2) NEAR 12 farm:(pos=3))" },
+    { "beer NOT \"orange juice\"", "(Zbeer:(pos=1) AND_NOT (orange:(pos=2) PHRASE 2 juice:(pos=3)))" },
+    { "beer AND NOT lager", "(Zbeer:(pos=1) AND_NOT Zlager:(pos=2))" },
+    { "A OR B NOT C", "(a:(pos=1) OR (b:(pos=2) AND_NOT c:(pos=3)))" },
+    { "A OR B AND NOT C", "(a:(pos=1) OR (b:(pos=2) AND_NOT c:(pos=3)))" },
+    { "A OR B XOR C", "(a:(pos=1) OR (b:(pos=2) XOR c:(pos=3)))" },
+    { "A XOR B NOT C", "(a:(pos=1) XOR (b:(pos=2) AND_NOT c:(pos=3)))" },
+    { "one AND two", "(Zone:(pos=1) AND Ztwo:(pos=2))" },
+    { "NOT windows", "Syntax: <expression> NOT <expression>" },
+    { "a AND (NOT b)", "Syntax: <expression> NOT <expression>" },
+    { "AND NOT windows", "Syntax: <expression> AND NOT <expression>" },
+    { "gordian NOT", "Syntax: <expression> NOT <expression>" },
+    { "gordian AND NOT", "Syntax: <expression> AND NOT <expression>" },
+    { "foo OR (something AND)", "Syntax: <expression> AND <expression>" },
+    { "OR foo", "Syntax: <expression> OR <expression>" },
+    { "XOR", "Syntax: <expression> XOR <expression>" },
+    { "hard\xa0space", "(Zhard:(pos=1) NEAR 11 Zspace:(pos=2))" },
+    { NULL, NULL }
+};
+
+static bool test_qp_near1()
+{
+    Xapian::QueryParser queryparser;
+    queryparser.set_stemmer(Xapian::Stem("english"));
+    queryparser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
+    queryparser.add_prefix("author", "A");
+    queryparser.add_prefix("writer", "A");
+    queryparser.add_prefix("title", "XT");
+    queryparser.add_prefix("subject", "XT");
+    queryparser.add_prefix("authortitle", "A");
+    queryparser.add_prefix("authortitle", "XT");
+    queryparser.add_boolean_prefix("site", "H");
+    queryparser.add_boolean_prefix("site2", "J");
+    queryparser.add_boolean_prefix("multisite", "H");
+    queryparser.add_boolean_prefix("multisite", "J");
+    queryparser.add_boolean_prefix("category", "XCAT");
+    queryparser.set_default_op(Xapian::Query::OP_NEAR);
+    for (test *p = test_near_queries; p->query; ++p) {
+	string expect, parsed;
+	if (p->expect)
+	    expect = p->expect;
+	else
+	    expect = "parse error";
+	try {
+	    Xapian::Query qobj = queryparser.parse_query(p->query);
+	    parsed = qobj.get_description();
+	    expect = string("Xapian::Query(") + expect + ')';
+	} catch (const Xapian::QueryParserError &e) {
+	    parsed = e.get_msg();
+	} catch (const Xapian::Error &e) {
+	    parsed = e.get_description();
+	} catch (...) {
+	    parsed = "Unknown exception!";
+	}
+	tout << "Query: " << p->query << '\n';
+	TEST_STRINGS_EQUAL(parsed, expect);
+    }
+    return true;
+}
+
 /// Test cases for the QueryParser.
 static test_desc tests[] = {
     TESTCASE(queryparser1),
@@ -1874,6 +2035,8 @@ static test_desc tests[] = {
     TESTCASE(qp_value_range2),
     TESTCASE(qp_value_range3),
     TESTCASE(qp_value_daterange1),
+    TESTCASE(qp_value_daterange2),
+    TESTCASE(qp_value_stringrange1),
     TESTCASE(qp_value_customrange1),
     TESTCASE(qp_stoplist1),
     TESTCASE(qp_spell1),
@@ -1883,6 +2046,7 @@ static test_desc tests[] = {
     TESTCASE(qp_synonym3),
     TESTCASE(qp_stem_all1),
     TESTCASE(qp_scale1),
+    TESTCASE(qp_near1),
     END_OF_TESTCASES
 };
 

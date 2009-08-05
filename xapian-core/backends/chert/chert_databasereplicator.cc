@@ -45,6 +45,8 @@
 # include "msvc_posix_wrapper.h"
 #endif
 
+#include <cstdio> // For rename().
+
 using namespace std;
 using namespace Xapian;
 
@@ -116,6 +118,11 @@ ChertDatabaseReplicator::process_changeset_chunk_base(const string & tablename,
 #else
     int fd = ::open(tmp_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
 #endif
+    if (fd == -1) {
+	string msg = "Failed to open ";
+	msg += tmp_path;
+	throw DatabaseError(msg, errno);
+    }
     {
 	fdcloser closer(fd);
 
@@ -165,6 +172,11 @@ ChertDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
 #else
     int fd = ::open(db_path.c_str(), O_WRONLY | O_BINARY, 0666);
 #endif
+    if (fd == -1) {
+	string msg = "Failed to open ";
+	msg += db_path;
+	throw DatabaseError(msg, errno);
+    }
     {
 	fdcloser closer(fd);
 
@@ -187,7 +199,7 @@ ChertDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
 
 	    // Write the block.
 	    // FIXME - should use pwrite if that's available.
-	    if (lseek(fd, (off_t)changeset_blocksize * block_number, SEEK_SET) == -1) {
+	    if (lseek(fd, off_t(changeset_blocksize) * block_number, SEEK_SET) == -1) {
 		string msg = "Failed to seek to block ";
 		msg += om_tostring(block_number);
 		throw DatabaseError(msg, errno);

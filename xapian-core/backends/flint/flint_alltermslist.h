@@ -1,6 +1,6 @@
 /* flint_alltermslist.h: A termlist containing all terms in a flint database.
  *
- * Copyright (C) 2005,2007,2008 Olly Betts
+ * Copyright (C) 2005,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -54,7 +54,7 @@ class FlintAllTermsList : public AllTermsList {
      *  collection frequency for the current term yet.  We need to call
      *  read_termfreq_and_collfreq() to read these.
      */
-    mutable Xapian::termcount termfreq;
+    mutable Xapian::doccount termfreq;
 
     /// The collection frequency of the term at the current position.
     mutable Xapian::termcount collfreq;

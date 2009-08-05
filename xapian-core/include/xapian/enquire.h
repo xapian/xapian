@@ -4,6 +4,7 @@
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -39,6 +40,7 @@ class Database;
 class Document;
 class ErrorHandler;
 class ExpandDecider;
+class MatchSpy;
 class MSetIterator;
 class Query;
 class Weight;
@@ -396,11 +398,13 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
 	//@}
 };
 
+/// Equality test for MSetIterator objects.
 inline bool operator==(const MSetIterator &a, const MSetIterator &b)
 {
     return (a.index == b.index);
 }
 
+/// Inequality test for MSetIterator objects.
 inline bool operator!=(const MSetIterator &a, const MSetIterator &b)
 {
     return (a.index != b.index);
@@ -540,11 +544,13 @@ class XAPIAN_VISIBILITY_DEFAULT ESetIterator {
 	//@}
 };
 
+/// Equality test for ESetIterator objects.
 inline bool operator==(const ESetIterator &a, const ESetIterator &b)
 {
     return (a.index == b.index);
 }
 
+/// Inequality test for ESetIterator objects.
 inline bool operator!=(const ESetIterator &a, const ESetIterator &b)
 {
     return (a.index != b.index);
@@ -684,6 +690,32 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *	       not yet been set.
 	 */
 	const Xapian::Query & get_query() const;
+
+	/** Add a matchspy.
+	 *
+	 *  This matchspy will be called with some of the documents which match
+	 *  the query, during the match process.  Exactly which of the matching
+	 *  documents are passed to it depends on exactly when certain
+	 *  optimisations occur during the match process, but it can be
+	 *  controlled to some extent by setting the @a checkatleast parameter
+	 *  to @a get_mset().
+	 *
+	 *  In particular, if there are enough matching documents, at least the
+	 *  number specified by @a checkatleast will be passed to the matchspy.
+	 *  This means that you can force the matchspy to be shown all matching
+	 *  documents by setting @a checkatleast to the number of documents in
+	 *  the database.
+	 *
+	 *  @param spy       The MatchSpy subclass to add.  The caller must
+	 *                   ensure that this remains valid while the Enquire
+	 *                   object remains active, or until @a
+	 *                   clear_matchspies() is called.
+	 */
+	void add_matchspy(MatchSpy * spy);
+
+	/** Remove all the matchspies.
+	 */
+	void clear_matchspies();
 
 	/** Set the weighting scheme to use for queries.
 	 *
@@ -889,9 +921,15 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *		     want all matches, then you can pass the result
 	 *		     of calling get_doccount() on the Database object
 	 *		     (though if you are doing this so you can filter
-	 *		     results, you are likely to get better performance
-	 *		     by using Xapian's match-time filtering features
-	 *		     instead).
+	 *		     results, you are likely to get much better
+	 *		     performance by using Xapian's match-time filtering
+	 *		     features instead).  You can pass 0 for maxitems
+	 *		     which will give you an empty MSet with valid
+	 *		     statistics (such as get_matches_estimated())
+	 *		     calculated without looking at any postings, which
+	 *		     is very quick, but means the estimates may be
+	 *		     more approximate and the bounds may be much
+	 *		     looser.
 	 *  @param checkatleast  the minimum number of items to check.  Because
 	 *		     the matcher optimises, it won't consider every
 	 *		     document which might match, so the total number

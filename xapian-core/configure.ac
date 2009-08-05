@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT([xapian-core], [1.1.0], [http://xapian.org/bugs])
+AC_INIT([xapian-core], [1.1.2], [http://xapian.org/bugs])
 dnl See HACKING document for details of the reasons for required versions.
 AC_PREREQ([2.63])
 dnl Extract from the libtool info manual:
@@ -30,7 +30,9 @@ dnl    then set AGE to 0.
 dnl
 dnl LIBRARY_VERSION_INFO for libxapian-1.1:
 dnl 0:0:0 1.1.0 Reset as library renamed
-LIBRARY_VERSION_INFO=0:0:0
+dnl 1:0:0 1.1.1 PostingSource::get_maxweight() no longer virtual
+dnl 2:0:0 1.1.2 Query::Internal::wqf removed
+LIBRARY_VERSION_INFO=2:0:0
 AC_SUBST(LIBRARY_VERSION_INFO)
 
 LIBRARY_VERSION_SUFFIX=-1.1
@@ -84,7 +86,7 @@ fi
 
 dnl See HACKING document for details of the reasons for required versions.
 AM_INIT_AUTOMAKE([1.10.2 -Wportability tar-ustar])
-AC_CONFIG_SRCDIR([matcher/andpostlist.cc])
+AC_CONFIG_SRCDIR([matcher/multiandpostlist.cc])
 
 AC_CONFIG_HEADERS([config.h])
 
@@ -487,6 +489,7 @@ if test -n "${VALGRIND-unset}" ; then
 	AC_MSG_RESULT([no])
       else
 	AC_MSG_RESULT([yes])
+	AC_CHECK_HEADERS([valgrind/memcheck.h], [], [VALGRIND=], [ ])
       fi	
     else
       dnl The valgrind detected doesn't seem to work!  Perhaps this is an
@@ -650,6 +653,15 @@ if test yes = "$enable_backend_flint" -o yes = "$enable_backend_chert" ; then
   if test x != x"$LIBS" ; then
     XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $LIBS"
   fi
+
+  dnl Older versions of libuuid (such as that on CentOS 4.7) don't have
+  dnl uuid_unparse_lower(), only uuid_unparse().
+  AC_LINK_IFELSE([AC_LANG_CALL([], [uuid_unparse_lower])], [found=true], [found=false])
+  if $found ; then
+    AC_DEFINE([HAVE_UUID_UNPARSE_LOWER], [1],
+	      [Define to 1 if you have the 'uuid_unparse_lower' function.])
+  fi
+
   LIBS=$SAVE_LIBS
 fi
 
@@ -918,12 +930,11 @@ if test yes = "$GXX"; then
     [
       dnl GCC:
       dnl
-      dnl -Wundef and -Wshadow were supported by g++ 3.0 (though -Wshadow was
-      dnl buggy there).  We now require GCC >= 3.1, so can rely on them.
-      dnl All the other options were supported by g++ 2.95 and there's little
-      dnl likelihood Xapian will build with any earlier version, so there's
-      dnl not much point worrying about whether older versions had them or not.
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Wshadow"
+      dnl -Wundef was supported by g++ 3.0 and since we now require GCC >= 3.1,
+      dnl we can rely on it.
+      dnl
+      dnl All the other options were supported by g++ 2.95.
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Wshadow -Woverloaded-virtual"
 
       dnl The output of g++ --version seems to change with almost every minor
       dnl release so use the preprocessor macros which should be more robust.
@@ -937,19 +948,32 @@ if test yes = "$GXX"; then
 	;;
       3.*) ;;
       *) dnl GCC >= 4.0
+	dnl -Wstrict-null-sentinel was new 4.0.
+	AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel"
 
-	dnl -Winit-self was added in GCC 3.4, but up to at least GCC 4.2 it is
-	dnl ignored by g++ which warns for this case with -Wuninitialized
-	dnl (implied by -W).  But at some point this bug (filed upstream as
-	dnl http://gcc.gnu.org/PR34772) may get fixed so we pass this option
-	dnl anyway - we don't intend to use this idiom, so any instances are
-	dnl bugs we'd like to know about.
-	dnl
-	dnl -Wstrict-overflow is new in GCC 4.2.  Higher settings than 1 have
-	dnl proved too noisy.
 	case $gxx_version in
-	4.[[01]]) ;;
-	*) AM_CXXFLAGS="$AM_CXXFLAGS -Winit-self -Wstrict-overflow=1" ;;
+	4.0) ;;
+	4.1)
+	  dnl -Wshadow was supported by g++ 3.0 (though buggy then).  But it's
+	  dnl also buggy in 4.0 (at least on Mac OS X) and warns if a parameter
+	  dnl in a static method is the same as a member variable, so only
+	  dnl enable it for GCC >= 4.1.
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wshadow" ;;
+	4.2)
+	  dnl -Wstrict-overflow was new in GCC 4.2.  Higher settings than 1
+	  dnl have proved too noisy.
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wshadow -Wstrict-overflow=1" ;;
+	*)
+	  dnl -Wlogical-op and -Wmissing-declarations (for C++) were added in
+	  dnl GCC 4.3.
+	  dnl
+	  dnl -Winit-self was added in GCC 3.4, but up to at least GCC 4.4 it
+	  dnl is ignored by g++ which warns for this case with -Wuninitialized
+	  dnl (implied by -W).  But at some point this bug (filed upstream as
+	  dnl http://gcc.gnu.org/PR34772) may get fixed so we pass this option
+	  dnl anyway - we don't intend to use this idiom, so any instances are
+	  dnl bugs we'd like to know about.
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wshadow -Wstrict-overflow=1 -Winit-self -Wlogical-op -Wmissing-declarations" ;;
 	esac
 
 	dnl FIXME:
@@ -958,6 +982,9 @@ if test yes = "$GXX"; then
 	dnl to -Wtraditional-conversion and a new -Wconversion added which
 	dnl sounds useful but is a bit buggy currently.  So we should consider
 	dnl enabling -Wconversion once it is stabilised (GCC 4.4 or ...)
+	dnl
+	dnl -Wold-style-cast is interesting, but triggers for macros from
+	dnl system headers (e.g. FD_SET) (tested with GCC 4.4).
 
 	if test no = "$enable_visibility"; then
 	  AC_DEFINE(XAPIAN_DISABLE_VISIBILITY, 1, [Define to disable use of visibility attributes])
@@ -1054,8 +1081,8 @@ AC_CONFIG_FILES([
  Makefile
  tests/Makefile
  docs/Makefile
- docs/doxygen_api_conf
- docs/doxygen_full_conf
+ docs/doxygen_api.conf
+ docs/doxygen_source.conf
  xapian-core.spec
  ])
 AC_CONFIG_FILES([tests/runtest], [chmod +x tests/runtest])

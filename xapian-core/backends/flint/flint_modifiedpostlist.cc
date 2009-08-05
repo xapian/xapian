@@ -32,6 +32,9 @@ void
 FlintModifiedPostList::skip_deletes(Xapian::weight w_min)
 {
     while (!FlintPostList::at_end()) {
+	while (it != mods.end() && it->second.first == 'D' &&
+	       it->first < FlintPostList::get_docid())
+	    ++it;
 	if (it == mods.end()) return;
 	if (it->first != FlintPostList::get_docid()) return;
 	if (it->second.first != 'D') return;
@@ -52,6 +55,7 @@ FlintModifiedPostList::get_docid() const
 {
     if (it == mods.end()) return FlintPostList::get_docid();
     if (FlintPostList::at_end()) return it->first;
+    Assert(it->second.first != 'D');
     return min(it->first, FlintPostList::get_docid());
 }
 

@@ -1,7 +1,7 @@
 /** @file backendmanager_remoteprog.cc
  * @brief BackendManager subclass for remoteprog databases.
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007,2008,2009 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -32,8 +32,6 @@
 #endif
 
 using namespace std;
-
-BackendManagerRemoteProg::~BackendManagerRemoteProg() { }
 
 std::string
 BackendManagerRemoteProg::get_dbtype() const

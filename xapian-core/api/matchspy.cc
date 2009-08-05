@@ -1,8 +1,8 @@
 /** @file matchspy.cc
- * @brief MatchDecider subclasses for use as "match spies".
+ * @brief MatchSpy implementation.
  */
 /* Copyright (C) 2007,2008,2009 Olly Betts
- * Copyright (C) 2007 Lemur Consulting Ltd
+ * Copyright (C) 2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,63 +20,68 @@
  */
 
 #include <config.h>
+#include <xapian/matchspy.h>
 
 #include <xapian/document.h>
-#include <xapian/matchspy.h>
+#include <xapian/error.h>
 #include <xapian/queryparser.h>
+#include <xapian/serialisationcontext.h>
+
+#include <map>
+#include <string>
+#include <vector>
+
+#include "autoptr.h"
+#include "debuglog.h"
+#include "omassert.h"
+#include "serialise.h"
+#include "stringutils.h"
+#include "str.h"
 
 #include <float.h>
 #include <math.h>
 
-#include <algorithm>
-#include <map>
-#include <vector>
-#include <string>
-
-#include "omassert.h"
-#include "stringutils.h"
-#include "serialise.h"
 
 using namespace std;
 
 namespace Xapian {
 
-bool 
-MultipleMatchDecider::operator()(const Xapian::Document &doc) const
-{
-    std::vector<const MatchDecider *>::const_iterator i;
-    for (i = deciders.begin(); i != deciders.end(); i++) {
-	if (!((**i)(doc))) return false;
-    }
-    return true;
+MatchSpy::~MatchSpy() {}
+
+MatchSpy *
+MatchSpy::clone() const {
+    throw UnimplementedError("MatchSpy not suitable for use with remote searches - clone() method unimplemented");
+}
+
+string
+MatchSpy::name() const {
+    throw UnimplementedError("MatchSpy not suitable for use with remote searches - name() method unimplemented");
+}
+
+string
+MatchSpy::serialise() const {
+    throw UnimplementedError("MatchSpy not suitable for use with remote searches - serialise() method unimplemented");
+}
+
+MatchSpy *
+MatchSpy::unserialise(const string &, const SerialisationContext &) const {
+    throw UnimplementedError("MatchSpy not suitable for use with remote searches - unserialise() method unimplemented");
+}
+
+string
+MatchSpy::serialise_results() const {
+    throw UnimplementedError("MatchSpy not suitable for use with remote searches - serialise_results() method unimplemented");
 }
 
 void
-StringListSerialiser::append(const std::string & value)
-{
-    serialised.append(encode_length(value.size()));
-    serialised.append(value);
+MatchSpy::merge_results(const string &) {
+    throw UnimplementedError("MatchSpy not suitable for use with remote searches - merge_results() method unimplemented");
 }
 
-void
-StringListUnserialiser::read_next()
-{
-    if (pos == NULL) {
-	return;
-    }
-    if (pos == serialised.data() + serialised.size()) {
-	pos = NULL;
-	curritem.resize(0);
-	return;
-    }
-
-    // FIXME - decode_length will throw a NetworkError if the length is too
-    // long - should be a more appropriate error.
-    size_t currlen = decode_length(&pos, serialised.data() + serialised.size(), true);
-    curritem.assign(pos, currlen);
-    pos += currlen;
+string
+MatchSpy::get_description() const {
+    return "Xapian::MatchSpy()";
 }
-
 
 
 /** Compare two StringAndFrequency objects.
@@ -93,9 +98,9 @@ class StringAndFreqCmpByFreq {
     /// If equal, compare by the str, to provide a stable sort order.
     bool operator()(const StringAndFrequency &a,
 		    const StringAndFrequency &b) const {
-	if (a.frequency > b.frequency) return true;
-	if (a.frequency < b.frequency) return false;
-	if (a.str > b.str) return false;
+	if (a.get_frequency() > b.get_frequency()) return true;
+	if (a.get_frequency() < b.get_frequency()) return false;
+	if (a.get_string() > b.get_string()) return false;
 	return true;
     }
 };
@@ -118,7 +123,7 @@ class StringAndFreqCmpByFreq {
  */
 static void
 get_most_frequent_items(vector<StringAndFrequency> & result,
-			const map<string, Xapian::doccount> & items,
+			const map<string, doccount> & items,
 			size_t maxitems)
 {
     result.clear();
@@ -126,7 +131,7 @@ get_most_frequent_items(vector<StringAndFrequency> & result,
     StringAndFreqCmpByFreq cmpfn;
     bool is_heap(false);
 
-    for (map<string, Xapian::doccount>::const_iterator i = items.begin();
+    for (map<string, doccount>::const_iterator i = items.begin();
 	 i != items.end(); i++) {
 	Assert(result.size() <= maxitems);
 	result.push_back(StringAndFrequency(i->first, i->second));
@@ -152,85 +157,116 @@ get_most_frequent_items(vector<StringAndFrequency> & result,
     }
 }
 
-bool
-ValueCountMatchSpy::operator()(const Document &doc) const
-{
+void
+ValueCountMatchSpy::operator()(const Document &doc, weight) {
     ++total;
-    map<Xapian::valueno, map<string, Xapian::doccount> >::iterator i;
-    for (i = values.begin(); i != values.end(); ++i) {
-	Xapian::valueno valno = i->first;
-	map<string, Xapian::doccount> & tally = i->second;
-
-	if (multivalues.find(valno) != multivalues.end()) {
-	    // Multiple values
-	    StringListUnserialiser j(doc.get_value(valno));
-	    StringListUnserialiser end;
-	    for (; j != end; ++j) {
-		string val(*j);
-		if (!val.empty()) ++tally[val];
-	    }
-	} else {
-	    // Single value
-	    string val(doc.get_value(valno));
-	    if (!val.empty()) ++tally[val];
-	}
-    }
-    return true;
-}
-
-
-void
-ValueCountMatchSpy::get_top_values(std::vector<StringAndFrequency> & result,
-				   Xapian::valueno valno, size_t maxvalues) const
-{
-    get_most_frequent_items(result, get_values(valno), maxvalues);
-}
-
-bool
-TermCountMatchSpy::operator()(const Document &doc) const
-{
-    ++documents_seen;
-    map<std::string, map<string, Xapian::doccount> >::iterator i;
-    for (i = terms.begin(); i != terms.end(); ++i) {
-	std::string prefix = i->first;
-	map<string, Xapian::doccount> & tally = i->second;
-
-	TermIterator j = doc.termlist_begin();
-	j.skip_to(prefix);
-	for (; j != doc.termlist_end() && startswith((*j), prefix); ++j) {
-	    ++tally[(*j).substr(prefix.size())];
-	    ++terms_seen;
-	}
-    }
-    return true;
+    string val(doc.get_value(slot));
+    if (!val.empty()) ++values[val];
 }
 
 void
-TermCountMatchSpy::get_top_terms(std::vector<StringAndFrequency> & result,
-				 std::string prefix, size_t maxterms) const
+ValueCountMatchSpy::get_top_values(vector<StringAndFrequency> & result,
+				   size_t maxvalues) const
 {
-    get_most_frequent_items(result, get_terms(prefix), maxterms);
+    get_most_frequent_items(result, values, maxvalues);
 }
+
+MatchSpy *
+ValueCountMatchSpy::clone() const {
+    return new ValueCountMatchSpy(slot);
+}
+
+string
+ValueCountMatchSpy::name() const {
+    return "Xapian::ValueCountMatchSpy";
+}
+
+string
+ValueCountMatchSpy::serialise() const {
+    string result;
+    result += encode_length(slot);
+    return result;
+}
+
+MatchSpy *
+ValueCountMatchSpy::unserialise(const string & s,
+				const SerialisationContext &) const{
+    const char * p = s.data();
+    const char * end = p + s.size();
+
+    valueno new_slot = decode_length(&p, end, false);
+    if (p != end) {
+	throw NetworkError("Junk at end of serialised ValueCountMatchSpy");
+    }
+
+    return new ValueCountMatchSpy(new_slot);
+}
+
+string
+ValueCountMatchSpy::serialise_results() const {
+    LOGCALL(REMOTE, string, "ValueCountMatchSpy::serialise_results", "");
+    string result;
+    result += encode_length(total);
+    result += encode_length(values.size());
+    for (map<string, doccount>::const_iterator i = values.begin();
+	 i != values.end(); ++i) {
+	result += encode_length(i->first.size());
+	result += i->first;
+	result += encode_length(i->second);
+    }
+    RETURN(result);
+}
+
+void
+ValueCountMatchSpy::merge_results(const string & s) {
+    LOGCALL_VOID(REMOTE, "ValueCountMatchSpy::merge_results", s);
+    const char * p = s.data();
+    const char * end = p + s.size();
+
+    total += decode_length(&p, end, false);
+
+    map<string, doccount>::size_type items = decode_length(&p, end, false);
+    while (p != end) {
+	while(items != 0) {
+	    size_t vallen = decode_length(&p, end, true);
+	    string val(p, vallen);
+	    p += vallen;
+	    doccount freq = decode_length(&p, end, false);
+	    values[val] += freq;
+	    --items;
+	}
+    }
+}
+
+string
+ValueCountMatchSpy::get_description() const {
+    return "Xapian::ValueCountMatchSpy(" + str(total) +
+	    " docs seen, looking in " + str(values.size()) + " slots)";
+}
+
 
 inline double sqrd(double x) { return x * x; }
 
-double
-CategorySelectMatchSpy::score_categorisation(Xapian::valueno valno,
-					     double desired_no_of_categories)
+/** Calculate a score based on how evenly distributed the frequencies of a set
+ *  of values are.
+ */
+template<class T> double
+do_score_evenness(const map<T, doccount> & values,
+		  doccount total,
+		  double desired_no_of_categories)
 {
     if (total == 0) return 0.0;
 
-    const map<string, Xapian::doccount> & cat = values[valno];
     size_t total_unset = total;
     double score = 0.0;
 
     if (desired_no_of_categories <= 0.0)
-	desired_no_of_categories = cat.size();
+	desired_no_of_categories = values.size();
 
     double avg = double(total) / desired_no_of_categories;
 
-    map<string, Xapian::doccount>::const_iterator i;
-    for (i = cat.begin(); i != cat.end(); ++i) {
+    typename map<T, doccount>::const_iterator i;
+    for (i = values.begin(); i != values.end(); ++i) {
 	size_t count = i->second;
 	total_unset -= count;
 	score += sqrd(count - avg);
@@ -241,11 +277,32 @@ CategorySelectMatchSpy::score_categorisation(Xapian::valueno valno,
     score /= sqrd(total);
 
     // Bias towards returning the number of categories requested.
-    score += 0.01 * sqrd(desired_no_of_categories - cat.size());
+    score += 0.01 * sqrd(desired_no_of_categories - values.size());
 
     return score;
 }
 
+double score_evenness(const map<string, doccount> & values,
+		      doccount total,
+		      double desired_no_of_categories) {
+    return do_score_evenness(values, total, desired_no_of_categories);
+}
+
+double score_evenness(const map<NumericRange, doccount> & values,
+		      doccount total,
+		      double desired_no_of_categories) {
+    return do_score_evenness(values, total, desired_no_of_categories);
+}
+
+double score_evenness(const ValueCountMatchSpy & spy,
+		      double desired_no_of_categories) {
+    return do_score_evenness(spy.get_values(), spy.get_total(),
+			     desired_no_of_categories);
+}
+
+
+/** A bucket, used when building numeric ranges.
+ */
 struct bucketval {
     size_t count;
     double min, max;
@@ -259,32 +316,35 @@ struct bucketval {
     }
 };
 
-bool
-CategorySelectMatchSpy::build_numeric_ranges(Xapian::valueno valno, size_t max_ranges)
+doccount build_numeric_ranges(map<NumericRange, doccount> & result,
+			      const map<string, doccount> & values,
+			      size_t max_ranges)
 {
-    const map<string, Xapian::doccount> & cat = values[valno];
-
     double lo = DBL_MAX, hi = -DBL_MAX;
+    result.clear();
 
-    map<double, Xapian::doccount> histo;
-    Xapian::doccount total_set = 0;
-    map<string, Xapian::doccount>::const_iterator i;
-    for (i = cat.begin(); i != cat.end(); ++i) {
-	double v = Xapian::sortable_unserialise(i->first.c_str());
+    map<double, doccount> histo;
+    doccount total_set = 0;
+    map<string, doccount>::const_iterator i;
+    for (i = values.begin(); i != values.end(); ++i) {
+	if (i->first.size() == 0) continue;
+	double v = sortable_unserialise(i->first.c_str());
 	if (v < lo) lo = v;
 	if (v > hi) hi = v;
-	Xapian::doccount count = i->second;
+	doccount count = i->second;
 	histo[v] = count;
 	total_set += count;
     }
 
     if (total_set == 0) {
 	// No set values.
-	return false;
+	return total_set;
     }
     if (lo == hi) {
 	// All set values are the same.
-	return false;
+	NumericRange range(lo, hi);
+	result[range] = total_set;
+	return total_set;
     }
 
     double sizeby = max(fabs(hi), fabs(lo));
@@ -300,10 +360,11 @@ CategorySelectMatchSpy::build_numeric_ranges(Xapian::valueno valno, size_t max_r
     vector<bucketval> bucket(n_buckets + 1);
     while (true) {
 	size_t n_used = 0;
-	map<double, Xapian::doccount>::const_iterator j;
+	map<double, doccount>::const_iterator j;
 	for (j = histo.begin(); j != histo.end(); ++j) {
 	    double v = j->first;
 	    size_t b = size_t(floor((v - start) / unit));
+	    if (b > n_buckets) b = n_buckets; // FIXME - Hacky workaround to ensure that b is in range.
 	    if (bucket[b].count == 0) ++n_used;
 	    bucket[b].update(j->second, v);
 	}
@@ -320,26 +381,14 @@ CategorySelectMatchSpy::build_numeric_ranges(Xapian::valueno valno, size_t max_r
 	bucket.resize(n_buckets + 1);
     }
 
-    map<string, Xapian::doccount> discrete_categories;
+    map<string, doccount> discrete_categories;
     for (size_t b = 0; b < bucket.size(); ++b) {
 	if (bucket[b].count == 0) continue;
-	string encoding = Xapian::sortable_serialise(bucket[b].min);
-	if (bucket[b].min != bucket[b].max) {
-	    // Pad the start to 9 bytes with zeros.
-	    encoding.resize(9);
-	    encoding += Xapian::sortable_serialise(bucket[b].max);
-	}
-	discrete_categories[encoding] = bucket[b].count;
+	NumericRange range(bucket[b].min, bucket[b].max);
+	result[range] = bucket[b].count;
     }
 
-    size_t total_unset = total - total_set;
-    if (total_unset) {
-	discrete_categories[""] = total_unset;
-    }
-
-    swap(discrete_categories, values[valno]);
-
-    return true;
+    return total_set;
 }
 
 }

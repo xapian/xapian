@@ -282,8 +282,9 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	 *  @param lazy		If true, don't create the table until it's
 	 *			needed.
 	 */
-	FlintTable(const char * tablename_, std::string path_, bool readonly_,
-		   int compress_strategy_ = DONT_COMPRESS, bool lazy = false);
+	FlintTable(const char * tablename_, const std::string & path_,
+		   bool readonly_, int compress_strategy_ = DONT_COMPRESS,
+		   bool lazy = false);
 
 	/** Close the Btree.
 	 *

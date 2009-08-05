@@ -58,7 +58,7 @@ class FlintPostListTable : public FlintTable {
 	 *  @param readonly_      - whether to open the table for read only
 	 *                          access.
 	 */
-	FlintPostListTable(string path_, bool readonly_)
+	FlintPostListTable(const string & path_, bool readonly_)
 	    : FlintTable("postlist", path_ + "/postlist.", readonly_) { }
 
 	/// Merge added, removed, and changed entries.
@@ -253,7 +253,7 @@ class FlintPostList : public LeafPostList {
 	/// Read the number of entries and the collection frequency.
 	static void read_number_of_entries(const char ** posptr,
 					   const char * end,
-					   Xapian::termcount * number_of_entries_ptr,
+					   Xapian::doccount * number_of_entries_ptr,
 					   Xapian::termcount * collection_freq_ptr);
 };
 

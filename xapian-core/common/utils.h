@@ -30,7 +30,7 @@ using std::string;
 
 #include "str.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <sys/types.h>
 #include "safesysstat.h"
 #include "safeunistd.h"

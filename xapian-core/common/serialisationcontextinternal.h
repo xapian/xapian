@@ -31,6 +31,7 @@
 namespace Xapian {
     class Weight;
     class PostingSource;
+    class MatchSpy;
 }
 
 class Xapian::SerialisationContext::Internal
@@ -41,6 +42,9 @@ class Xapian::SerialisationContext::Internal
     /// Registered external posting sources.
     std::map<std::string, Xapian::PostingSource *> postingsources;
 
+    /// Registered match spies.
+    std::map<std::string, Xapian::MatchSpy *> matchspies;
+
     /// Add the standard default weighting schemes and posting sources.
     void add_defaults();
 
@@ -49,6 +53,9 @@ class Xapian::SerialisationContext::Internal
 
     /// Clear all registered posting sources from the context.
     void clear_posting_sources();
+
+    /// Clear all registered match spies from the context.
+    void clear_match_spies();
 
   public:
     Internal();
@@ -77,6 +84,19 @@ class Xapian::SerialisationContext::Internal
      */
     const Xapian::PostingSource *
 	    get_posting_source(const std::string & name) const;
+
+    /// Register a user-defined match spy class.
+    void register_match_spy(const Xapian::MatchSpy &spy);
+
+    /** Get a match spy given a name.
+     *
+     *  The returned match spy is owned by the context object.
+     *
+     *  Returns NULL if the match spy could not be found.
+     */
+    const Xapian::MatchSpy *
+	    get_match_spy(const std::string & name) const;
+
 };
 
 #endif // XAPIAN_INCLUDED_SERIALISATIONCONTEXTINTERNAL_H

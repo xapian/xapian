@@ -298,6 +298,8 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 
 	/** Create a termlist tree from trigrams of @a word.
 	 *
+	 *  You can assume word.size() > 1.
+	 *
 	 *  If there are no trigrams, returns NULL.
 	 */
 	virtual TermList * open_spelling_termlist(const string & word) const;

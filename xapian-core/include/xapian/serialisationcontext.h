@@ -31,6 +31,7 @@ namespace Xapian {
 // Forward declarations.
 class Weight;
 class PostingSource;
+class MatchSpy;
 
 /** A context for serialisation.
  *
@@ -92,6 +93,18 @@ class XAPIAN_VISIBILITY_DEFAULT SerialisationContext {
      */
     const Xapian::PostingSource *
 	    get_posting_source(const std::string & name) const;
+
+    /// Register a user-defined match spy class.
+    void register_match_spy(const Xapian::MatchSpy &spy);
+
+    /** Get a match spy given a name.
+     *
+     *  The returned match spy is owned by the context object.
+     *
+     *  Returns NULL if the match spy could not be found.
+     */
+    const Xapian::MatchSpy *
+	    get_match_spy(const std::string & name) const;
 };
 
 }

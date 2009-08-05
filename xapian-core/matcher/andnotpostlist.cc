@@ -25,7 +25,6 @@
 #include "andnotpostlist.h"
 #include "omassert.h"
 #include "omdebug.h"
-#include <algorithm>
 
 PostList *
 AndNotPostList::advance_to_next_match(Xapian::weight w_min, PostList *ret)
@@ -214,4 +213,11 @@ AndNotPostList::get_wdf() const
 {
     DEBUGCALL(MATCH, Xapian::termcount, "AndNotPostList::get_wdf", "");
     RETURN(l->get_wdf());
+}
+
+Xapian::termcount
+AndNotPostList::count_matching_subqs() const
+{
+    DEBUGCALL(MATCH, Xapian::termcount, "AndNotPostList::count_matching_subqs", "");
+    RETURN(l->count_matching_subqs());
 }

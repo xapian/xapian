@@ -23,7 +23,7 @@
 #include "freemem.h"
 
 #include <sys/types.h>
-#include <limits.h>
+#include <climits>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif

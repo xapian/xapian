@@ -4,7 +4,7 @@
  * Copyright (C) 1999,2000,2001 BrightStation PLC
  * Copyright (C) 2002 Ananova Ltd
  * Copyright (C) 2002,2003 James Aylett
- * Copyright (C) 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -42,9 +42,15 @@
 /* Wrap get_description() methods as str(). */
 %rename(__str__) get_description;
 
+/* Hide "unsafe" C++ iterator methods. */
+%rename(_metadata_keys_begin) Xapian::Database::metadata_keys_begin;
+%rename(_metadata_keys_end) Xapian::Database::metadata_keys_end;
+
+/* We replace the get_hit() method with one which returns an MSetitem. */
+%rename(_get_hit_internal) Xapian::MSet::get_hit;
+
 %{
 namespace Xapian {
-    class PythonProblem {};
     Query *get_py_query(PyObject *obj) {
 #if PY_VERSION_HEX < 0x02050000
 	// In Python 2.4 (and presumably earlier), PyObject_GetAttrString()
@@ -163,6 +169,91 @@ namespace Xapian {
 %#endif
 	if (str == 0) return NULL;
 	if (PyList_Append($result, str) == -1) return NULL;
+    }
+}
+
+%{
+/* Typemap for returning a map of ints keyed by strings: converts to a dict.
+ * This is used for @a ValueCountMatchSpy::get_values().
+ * The GIL must be held when this is called.
+ */
+PyObject *
+value_map_to_dict(const std::map<std::string, Xapian::doccount> & vals)
+{
+    PyObject * result = PyDict_New();
+    if (result == 0) {
+	return NULL;
+    }
+
+    std::map<std::string, Xapian::doccount>::const_iterator i;
+    for (i = vals.begin(); i != vals.end(); ++i) {
+        PyObject * str = PyString_FromStringAndSize((*i).first.data(),
+                                                    (*i).first.size());
+	if (str == 0) {
+            Py_DECREF(result);
+            result = NULL;
+            return NULL;
+        }
+
+        PyObject * l = PyInt_FromLong((*i).second);
+	if (l == 0) {
+            Py_DECREF(str);
+            Py_DECREF(result);
+            result = NULL;
+            return NULL;
+        }
+
+	if (PyDict_SetItem(result, str, l) == -1) {
+            Py_DECREF(result);
+            result = NULL;
+            return NULL;
+        }
+        Py_DECREF(str);
+        Py_DECREF(l);
+    }
+    return result;
+}
+%}
+
+/** Typemap pair for getting the return value from @a ValueCountMatchSpy::get_top_values().
+ */
+%typemap(in, numinputs=0) std::vector<Xapian::StringAndFrequency> & result (std::vector<Xapian::StringAndFrequency> temp) {
+    $1 = &temp;
+}
+%typemap(argout) std::vector<Xapian::StringAndFrequency> & result {
+    Py_DECREF($result);
+    $result = PyList_New($1->size());
+    size_t pos = 0;
+    for (std::vector<Xapian::StringAndFrequency>::const_iterator i = $1->begin();
+         i != $1->end(); ++i) {
+        PyObject * str = PyString_FromStringAndSize((*i).get_string().data(),
+                                                    (*i).get_string().size());
+	if (str == 0) {
+            Py_DECREF($result);
+            $result = NULL;
+            SWIG_fail;
+        }
+
+        PyObject * l = PyInt_FromLong((*i).get_frequency());
+	if (l == 0) {
+            Py_DECREF($result);
+            Py_DECREF(str);
+            $result = NULL;
+            SWIG_fail;
+        }
+
+	PyObject *t = PyTuple_New(2);
+	if (t == 0) {
+            Py_DECREF($result);
+            Py_DECREF(str);
+            Py_DECREF(l);
+            $result = NULL;
+            SWIG_fail;
+        }
+        PyTuple_SetItem(t, 0, str);
+        PyTuple_SetItem(t, 1, l);
+
+        PyList_SetItem($result, pos++, t);
     }
 }
 
@@ -463,24 +554,11 @@ SWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
     ptr = (std::string *)0;
 }
 
-/* Extend ValueRangeProcessor to have a method with named parameters vrpbegin
- * and vrpend.  We only have to do this so that we have parameter names which
- * aren't used anywhere else, so that we can then write specific typemaps for
- * them.  If SWIG allowed us to apply a typemap only to a specific method, we
- * wouldn't need to do this. */
-namespace Xapian {
-    %extend ValueRangeProcessor {
-        Xapian::valueno __call(std::string &vrpbegin, std::string &vrpend) {
-            return (*self)(vrpbegin, vrpend);
-        }
-    }
-}
-
 /* These typemaps handle ValueRangeProcessors, which take non-const references
- * to std::string and modify the strings.  They rely on no other methods
- * existing which use the parameter names "vrpbegin" and "vrpend". */
-%typemap(in) std::string &vrpbegin (std::string temp),
-             std::string &vrpend (std::string temp) {
+ * to std::string and modify the strings.
+ */
+%typemap(in) std::string &begin (std::string temp),
+             std::string &end (std::string temp) {
     std::string *ptr = (std::string *)0;
     int res = SWIG_AsPtr_std_string($input, &ptr);
     if (!SWIG_IsOK(res) || !ptr) {
@@ -490,7 +568,7 @@ namespace Xapian {
     $1 = &temp;
     if (SWIG_IsNewObj(res)) delete ptr;
 }
-%typemap(argout) std::string &vrpbegin {
+%typemap(argout) (std::string &begin, std::string &end) {
     PyObject * str;
     PyObject * newresult;
 
@@ -515,14 +593,11 @@ namespace Xapian {
         SWIG_fail;
     }
     PyTuple_SetItem($result, 1, str);
-}
-%typemap(argout) std::string &vrpend {
-    PyObject * str;
 
 %#if PY_VERSION_HEX >= 0x03000000
-    str = PyBytes_FromStringAndSize($1->data(), $1->size());
+    str = PyBytes_FromStringAndSize($2->data(), $2->size());
 %#else
-    str = PyString_FromStringAndSize($1->data(), $1->size());
+    str = PyString_FromStringAndSize($2->data(), $2->size());
 %#endif
     if (str == 0) {
         Py_DECREF($result);

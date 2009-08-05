@@ -26,10 +26,10 @@
 #ifdef __WIN32__
 
 #include "msvc_dirent.h"
-#include <errno.h>
+#include <cerrno>
 #include <io.h> /* _findfirst and _findnext set errno iff they return -1 */
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 
 #ifdef __cplusplus
 extern "C"

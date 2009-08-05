@@ -1,6 +1,6 @@
 # Simple test that we can load the xapian module and run a simple test
 #
-# Copyright (C) 2004,2006 Olly Betts
+# Copyright (C) 2004,2006,2009 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -80,13 +80,23 @@ if { [query1 get_description] != "Xapian::Query((smoke PHRASE 3 test PHRASE 3 tu
 xapian::Query smoke "smoke"
 xapian::Query query2 $xapian::Query_OP_XOR [list smoke query1 "string" ]
 if { [query2 get_description] != "Xapian::Query((smoke XOR (smoke PHRASE 3 test PHRASE 3 tuple) XOR string))" } {
-    puts stderr "Unexpected query2.get_description()"
+    puts stderr "Unexpected query2 get_description"
     exit 1
 }
 set subqs [list "a" "b"]
 xapian::Query query3 $xapian::Query_OP_OR $subqs
 if { [query3 get_description] != "Xapian::Query((a OR b))" } {
-    puts stderr "Unexpected query3.get_description()"
+    puts stderr "Unexpected query3 get_description"
+    exit 1
+}
+
+if { [$xapian::Query_MatchAll get_description] != "Xapian::Query(<alldocuments>)" } {
+    puts stderr "Unexpected Query_MatchAll get_description"
+    exit 1
+}
+
+if { [$xapian::Query_MatchNothing get_description] != "Xapian::Query()" } {
+    puts stderr "Unexpected Query_MatchNothing get_description"
     exit 1
 }
 

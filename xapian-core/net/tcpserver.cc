@@ -43,13 +43,13 @@
 # include <netinet/tcp.h>
 # include <arpa/inet.h>
 # include <netdb.h>
-# include <signal.h>
+# include <csignal>
 # include <sys/wait.h>
 #endif
 
 #include <iostream>
 
-#include <string.h>
+#include <cstring>
 #include <sys/types.h>
 
 using namespace std;
@@ -167,6 +167,7 @@ TcpServer::get_listening_socket(const std::string & host, int port,
     }
 
     struct sockaddr_in addr;
+    memset(&addr, 0, sizeof(addr));
     addr.sin_family = AF_INET;
     addr.sin_port = htons(port);
     if (host.empty()) {
@@ -191,7 +192,7 @@ TcpServer::get_listening_socket(const std::string & host, int port,
 		);
 	}
 
-	memcpy(&addr.sin_addr, hostent->h_addr, sizeof(addr.sin_addr));
+	memcpy(&addr.sin_addr, hostent->h_addr, hostent->h_length);
     }
 
     retval = bind(socketfd,

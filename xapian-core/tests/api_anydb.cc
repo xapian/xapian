@@ -59,10 +59,12 @@ print_mset_percentages(const Xapian::MSet &mset)
 }
 
 static Xapian::Query
-query(Xapian::Query::op op, string t1 = "", string t2 = "",
-      string t3 = "", string t4 = "", string t5 = "",
-      string t6 = "", string t7 = "", string t8 = "",
-      string t9 = "", string t10 = "")
+query(Xapian::Query::op op,
+      const string & t1 = string(), const string & t2 = string(),
+      const string & t3 = string(), const string & t4 = string(),
+      const string & t5 = string(), const string & t6 = string(),
+      const string & t7 = string(), const string & t8 = string(),
+      const string & t9 = string(), const string & t10 = string())
 {
     vector<string> v;
     Xapian::Stem stemmer("english");
@@ -81,10 +83,11 @@ query(Xapian::Query::op op, string t1 = "", string t2 = "",
 
 static Xapian::Query
 query(Xapian::Query::op op, Xapian::termcount parameter,
-      string t1 = "", string t2 = "",
-      string t3 = "", string t4 = "", string t5 = "",
-      string t6 = "", string t7 = "", string t8 = "",
-      string t9 = "", string t10 = "")
+      const string & t1 = string(), const string & t2 = string(),
+      const string & t3 = string(), const string & t4 = string(),
+      const string & t5 = string(), const string & t6 = string(),
+      const string & t7 = string(), const string & t8 = string(),
+      const string & t9 = string(), const string & t10 = string())
 {
     vector<string> v;
     Xapian::Stem stemmer("english");
@@ -401,7 +404,7 @@ DEFINE_TESTCASE(expandweights2, backend) {
 
     Xapian::ESet eset = enquire.get_eset(3, myrset);
     TEST_EQUAL(eset.size(), 3);
-    if (get_dbtype().substr(0, 5) != "multi") {
+    if (!startswith(get_dbtype(), "multi")) {
 	// For a single database, the weights should be the same with or
 	// without USE_EXACT_TERMFREQ.
 	TEST_EQUAL_DOUBLE(eset[0].get_weight(), 6.08904001099445);
@@ -520,7 +523,7 @@ DEFINE_TESTCASE(topercent2, backend) {
     TEST_EQUAL(mymset.get_matches_lower_bound(), localmset.get_matches_lower_bound());
     TEST_EQUAL(mymset.get_matches_upper_bound(), localmset.get_matches_upper_bound());
     TEST_EQUAL(mymset.get_matches_estimated(), localmset.get_matches_estimated());
-    TEST_EQUAL(mymset.get_max_attained(), localmset.get_max_attained());
+    TEST_EQUAL_DOUBLE(mymset.get_max_attained(), localmset.get_max_attained());
     TEST_EQUAL(mymset.size(), localmset.size());
     TEST(mset_range_is_same(mymset, 0, localmset, 0, mymset.size()));
 
@@ -536,7 +539,7 @@ DEFINE_TESTCASE(topercent2, backend) {
     TEST(i != mymset.end());
     pct = mymset.convert_to_percent(i);
     TEST_REL(pct,>,60);
-    TEST_REL(pct,<,75);
+    TEST_REL(pct,<,76);
 
     ++i;
 
@@ -548,7 +551,7 @@ DEFINE_TESTCASE(topercent2, backend) {
     TEST_EQUAL(mymset.get_matches_lower_bound(), localmset.get_matches_lower_bound());
     TEST_EQUAL(mymset.get_matches_upper_bound(), localmset.get_matches_upper_bound());
     TEST_EQUAL(mymset.get_matches_estimated(), localmset.get_matches_estimated());
-    TEST_EQUAL(mymset.get_max_attained(), localmset.get_max_attained());
+    TEST_EQUAL_DOUBLE(mymset.get_max_attained(), localmset.get_max_attained());
     TEST_EQUAL(mymset.size(), localmset.size());
     TEST(mset_range_is_same(mymset, 0, localmset, 0, mymset.size()));
 

@@ -116,6 +116,8 @@ collated_apitest_sources = \
  api_db.cc \
  api_docsim.cc \
  api_generated.cc \
+ api_matchspy.cc \
+ api_metadata.cc \
  api_nodb.cc \
  api_opsynonym.cc \
  api_percentages.cc \
@@ -206,6 +208,7 @@ EXTRA_DIST +=\
 	testdata/apitest_manydocs.txt \
 	testdata/apitest_sortconsist.txt \
 	testdata/apitest_sortrel.txt \
+	testdata/apitest_declen.txt \
 	testdata/etext.txt \
 	testdata/flint-0.9.9/flicklock \
 	testdata/flint-0.9.9/iamflint \

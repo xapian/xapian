@@ -1,7 +1,7 @@
 /* functions to deal with CGI parameters
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2007 Olly Betts
+ * Copyright 2002,2007,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,7 +21,10 @@
 #ifndef OMEGA_INCLUDED_CGIPARAM_H
 #define OMEGA_INCLUDED_CGIPARAM_H
 
-typedef multimap<string, string>::const_iterator MCI;
+#include <map>
+#include <string>
+
+typedef std::multimap<std::string, std::string>::const_iterator MCI;
 
 /* decode the query from NAME=VALUE pairs given on the command line */
 extern void decode_argv(char **argv);
@@ -35,6 +38,6 @@ extern void decode_post();
 /* decode the query as a GET */
 extern void decode_get();
 
-extern multimap<string, string> cgi_params;
+extern std::multimap<std::string, std::string> cgi_params;
 
 #endif // OMEGA_INCLUDED_CGIPARAM_H

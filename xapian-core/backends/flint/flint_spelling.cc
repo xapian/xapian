@@ -357,7 +357,8 @@ struct TermListGreaterApproxSize {
 TermList *
 FlintSpellingTable::open_termlist(const string & word)
 {
-    if (word.size() <= 1) return NULL;
+    // This should have been handled by Database::get_spelling_suggestion().
+    AssertRel(word.size(),>,1);
 
     // Merge any pending changes to disk, but don't call commit() so they
     // won't be switched live.
@@ -541,7 +542,7 @@ FlintSpellingTermList::next()
 	    throw Xapian::DatabaseCorruptError("Bad spelling termlist");
 	current_term.resize(byte(data[p++]) ^ MAGIC_XOR_VALUE);
     }
-    size_t add;
+    unsigned add;
     if (p == data.size() ||
 	(add = byte(data[p]) ^ MAGIC_XOR_VALUE) >= data.size() - p)
 	throw Xapian::DatabaseCorruptError("Bad spelling termlist");

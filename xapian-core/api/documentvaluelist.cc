@@ -1,7 +1,7 @@
 /** @file documentvaluelist.cc
  * @brief Iteration over values in a document.
  */
-/* Copyright (C) 2008 Olly Betts
+/* Copyright (C) 2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,11 +24,9 @@
 
 #include "document.h"
 #include "omassert.h"
-#include "utils.h"
+#include "str.h"
 
 #include "xapian/error.h"
-
-#include "autoptr.h"
 
 using namespace std;
 
@@ -69,7 +67,7 @@ DocumentValueList::next()
 }
 
 void
-DocumentValueList::skip_to(Xapian::valueno slot)
+DocumentValueList::skip_to(Xapian::docid slot)
 {
     it = doc->values.lower_bound(slot);
 }
@@ -80,7 +78,7 @@ DocumentValueList::get_description() const
     string desc = "DocumentValueList(";
     if (!at_end()) {
 	desc += "slot=";
-	desc += om_tostring(get_valueno());
+	desc += str(get_valueno());
 	desc += ", value=\"";
 	desc += get_value();
 	desc += "\")";

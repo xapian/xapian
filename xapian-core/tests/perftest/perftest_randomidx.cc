@@ -23,7 +23,7 @@
 
 #include "perftest/perftest_randomidx.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <xapian.h>
 

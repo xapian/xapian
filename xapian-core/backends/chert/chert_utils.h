@@ -315,13 +315,13 @@ unpack_string(const char ** src,
 	return false;
     }
 
-    result = string(*src, length);
+    result.assign(*src, length);
     *src += length;
     return true;
 }
 
 inline string
-pack_string(string value)
+pack_string(const string & value)
 {
     return pack_uint(value.size()) + value;
 }

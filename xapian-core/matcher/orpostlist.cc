@@ -24,7 +24,7 @@
 #include <config.h>
 
 #include "orpostlist.h"
-#include "andpostlist.h"
+#include "multiandpostlist.h"
 #include "andmaybepostlist.h"
 #include "omassert.h"
 #include "omdebug.h"
@@ -39,6 +39,7 @@ OrPostList::OrPostList(PostList *left_,
 	  lhead(0), rhead(0), lmax(0), rmax(0), minmax(0), dbsize(dbsize_)
 {
     DEBUGCALL(MATCH, void, "OrPostList", left_ << ", " << right_ << ", " << matcher_ << ", " << dbsize_);
+    AssertRel(left_->get_termfreq_est(),>=,right_->get_termfreq_est());
 }
 
 PostList *
@@ -51,7 +52,7 @@ OrPostList::next(Xapian::weight w_min)
 	if (w_min > lmax) {
 	    if (w_min > rmax) {
 		LOGLINE(MATCH, "OR -> AND");
-		ret = new AndPostList(l, r, matcher, dbsize, true);
+		ret = new MultiAndPostList(l, r, lmax, rmax, matcher, dbsize);
 		skip_to_handling_prune(ret, std::max(lhead, rhead) + 1, w_min,
 				       matcher);
 	    } else {
@@ -112,7 +113,7 @@ OrPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 	if (w_min > lmax) {
 	    if (w_min > rmax) {
 		LOGLINE(MATCH, "OR -> AND (in skip_to)");
-		ret = new AndPostList(l, r, matcher, dbsize, true);
+		ret = new MultiAndPostList(l, r, lmax, rmax, matcher, dbsize);
 		did = std::max(did, std::max(lhead, rhead));
 	    } else {
 		LOGLINE(MATCH, "OR -> AND MAYBE (in skip_to) (1)");
@@ -297,4 +298,13 @@ OrPostList::get_wdf() const
     if (lhead < rhead) RETURN(l->get_wdf());
     if (lhead > rhead) RETURN(r->get_wdf());
     RETURN(l->get_wdf() + r->get_wdf());
+}
+
+Xapian::termcount
+OrPostList::count_matching_subqs() const
+{
+    DEBUGCALL(MATCH, Xapian::termcount, "OrPostList::count_matching_subqs", "");
+    if (lhead < rhead) RETURN(l->count_matching_subqs());
+    if (lhead > rhead) RETURN(r->count_matching_subqs());
+    RETURN(l->count_matching_subqs() + r->count_matching_subqs());
 }

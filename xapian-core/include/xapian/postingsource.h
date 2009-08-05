@@ -29,9 +29,6 @@
 #include <string>
 #include <map>
 
-// Declaration of an opaque internal type.
-class ExternalPostList;
-
 namespace Xapian {
 
 /** Base class which provides an "external" source of postings.
@@ -46,35 +43,49 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
     /// Don't allow copying.
     PostingSource(const PostingSource &);
 
-    /// The ExternalPostList which notifications should be sent to.
-    ExternalPostList * externalpl;
+    /// The current upper bound on what get_weight() can return.
+    double max_weight_;
 
-    /// Set a pointer to the external postlist.
-    void register_externalpl(ExternalPostList * externalpl_) {
-	externalpl = externalpl_;
-    }
-
-    // ExternalPostList needs to be able to call register_externalpl.
-    friend class ::ExternalPostList;
+    /** The object to inform of maxweight changes.
+     *
+     *  We store this as a (void*) to avoid needing to declare an internal
+     *  type in an external header.  It's actually (MultiMatch *).
+     */
+    void * matcher_;
 
   protected:
     /// Allow subclasses to be instantiated.
-    PostingSource() : externalpl(0) { }
+    PostingSource() : max_weight_(0), matcher_(NULL) { }
 
-    /** Notify the matcher that the maximum weight has decreased.
+    /** Set an upper bound on what get_weight() can return from now on.
      *
-     *  This will potentially cause the maxweights throughout the query tree
-     *  to be re-evaluated, and can therefore be quite expensive.  On the
-     *  other hand, it will allow the new reduced maxweight to be used to
-     *  trigger query optimisations, which can greatly reduce the query
-     *  processing time.
+     *  This upper bound is used by the matcher to perform various
+     *  optimisations, so if you can return a good bound, then matches
+     *  will generally run faster.
      *
-     *  It is therefore advisable only to call this after a significant
-     *  decrease in maxweight.
+     *  This method should be called after calling init(), and may be called
+     *  during iteration if the upper bound drops.
+     *
+     *  It is valid for the posting source to have returned a higher value from
+     *  get_weight() earlier in the iteration, but the posting source must not
+     *  return a higher value from get_weight() than the currently set upper
+     *  bound, and the upper bound must not be increased (until init() has been
+     *  called).
+     *
+     *  If you don't call this method, the upper bound will default to 0, for
+     *  convenience when implementing "weight-less" PostingSource subclasses.
      */
-    void notify_new_maxweight();
+    void set_maxweight(Xapian::weight max_weight);
 
   public:
+    /** @private @internal Set the object to inform of maxweight changes.
+     *
+     *  This method is for internal use only - it would be private except that
+     *  would force us to forward declare an internal class in an external API
+     *  header just to make it a friend.
+     */
+    void register_matcher_(void * matcher) { matcher_ = matcher; }
+
     // Destructor.
     virtual ~PostingSource();
 
@@ -103,20 +114,8 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      */
     virtual Xapian::doccount get_termfreq_max() const = 0;
 
-    /** Return an upper bound on what get_weight() can return from now on.
-     *
-     *  It is valid for the posting source to have returned a higher value from
-     *  get_weight() earlier in the iteration, but the posting source must not
-     *  return a higher value from get_weight() than this return value later in
-     *  the iteration (until init() has been called).
-     *
-     *  This default implementation always returns 0, for convenience when
-     *  implementing "weight-less" PostingSource subclasses.
-     *
-     *  Xapian will always call init() on a PostingSource before calling this
-     *  for the first time.
-     */
-    virtual Xapian::weight get_maxweight() const;
+    /// Return the currently set upper bound on what get_weight() can return.
+    Xapian::weight get_maxweight() const { return max_weight_; }
 
     /** Return the weight contribution for the current document.
      *
@@ -268,10 +267,19 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *  The serialised parameters should represent the configuration of the
      *  posting source, but need not (indeed, should not) represent the current
      *  iteration state.
+     *
+     *  If you don't want to support the remote backend, you can use the
+     *  default implementation which simply throws Xapian::UnimplementedError.
      */
     virtual std::string serialise() const;
 
     /** Create object given string serialisation returned by serialise().
+     *
+     *  Note that the returned object will be deallocated by Xapian after use
+     *  with "delete".  It must therefore have been allocated with "new".
+     *
+     *  If you don't want to support the remote backend, you can use the
+     *  default implementation which simply throws Xapian::UnimplementedError.
      *
      *  @param s A serialised instance of this PostingSource subclass.
      */
@@ -297,7 +305,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *  the sub-databases as the @a db parameter here.  The @a db parameter
      *  will therefore always refer to a single database.  All docids passed
      *  to, or returned from, the PostingSource refer to docids in that single
-     *  database, rather than in the multi-database. 
+     *  database, rather than in the multi-database.
      */
     virtual void init(const Database & db) = 0;
 
@@ -311,11 +319,16 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
     virtual std::string get_description() const;
 };
 
+
 /** A posting source which generates weights from a value slot.
  *
  *  This is a base class for classes which generate weights using values stored
  *  in the specified slot. For example, ValueWeightPostingSource uses
  *  sortable_unserialise to convert values directly to weights.
+ *
+ *  The upper bound on the weight returned is set to DBL_MAX.  Subclasses
+ *  should call set_maxweight() in their init() methods after calling
+ *  ValuePostingSource::init() if they know a tighter bound on the weight.
  */
 class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
   protected:
@@ -328,18 +341,8 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
     /// Value stream iterator.
     Xapian::ValueIterator value_it;
 
-    /// End iterator corresponding to it.
-    Xapian::ValueIterator value_end;
-
     /// Flag indicating if we've started (true if we have).
     bool started;
-
-    /** An upper bound on the weight returned.
-     *
-     *  Subclasses should set this in their @a init() method if they know a
-     *  bound on the weight.  It defaults to DBL_MAX.
-     */
-    double max_weight;
 
     /** A lower bound on the term frequency.
      *
@@ -373,8 +376,6 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
     Xapian::doccount get_termfreq_est() const;
     Xapian::doccount get_termfreq_max() const;
 
-    Xapian::weight get_maxweight() const;
-
     void next(Xapian::weight min_wt);
     void skip_to(Xapian::docid min_docid, Xapian::weight min_wt);
     bool check(Xapian::docid min_docid, Xapian::weight min_wt);
@@ -386,6 +387,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
     void init(const Database & db_);
 };
 
+
 /** A posting source which reads weights from a value slot.
  *
  *  This returns entries for all documents in the given database which have a
@@ -393,6 +395,10 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
  *  applying sortable_unserialise to the value stored in the slot (so the
  *  values stored should probably have been calculated by applying
  *  sortable_serialise to a floating point number at index time).
+ *
+ *  The upper bound on the weight returned is set using the upper bound on the
+ *  values in the specified slot, or DBL_MAX if value bounds aren't supported
+ *  by the current backend.
  *
  *  For efficiency, this posting source doesn't check that the stored values
  *  are valid in any way, so it will never raise an exception due to invalid
@@ -418,6 +424,59 @@ class XAPIAN_VISIBILITY_DEFAULT ValueWeightPostingSource
 
     std::string get_description() const;
 };
+
+
+/** Read weights from a value which is known to decrease as docid increases.
+ *
+ *  This posting source can be used, like ValueWeightPostingSource, to add a
+ *  weight contribution to a query based on the values stored in a slot.  The
+ *  values in the slot must be serialised as by @a sortable_serialise().
+ *
+ *  However, this posting source is additionally given a range of document IDs,
+ *  within which the weight is known to be decreasing.  ie, for all documents
+ *  with ids A and B within this range (including the endpoints), where A is
+ *  less than B, the weight of A is less than or equal to the weight of B.
+ *  This can allow the posting source to skip to the end of the range quickly
+ *  if insufficient weight is left in the posting source for a particular
+ *  source.
+ *
+ *  By default, the range is assumed to cover all document IDs.
+ *
+ *  The ordering property can be arranged at index time, or by sorting an
+ *  indexed database to produce a new, sorted, database.
+ */
+class XAPIAN_VISIBILITY_DEFAULT DecreasingValueWeightPostingSource
+	: public Xapian::ValueWeightPostingSource {
+  protected:
+    Xapian::docid range_start;
+    Xapian::docid range_end;
+    double curr_weight;
+
+    /// Flag, set to true if there are docs after the end of the range.
+    bool items_at_end;
+
+    /// Skip the iterator forward if in the decreasing range, and weight is low.
+    void skip_if_in_range(Xapian::weight min_wt);
+
+  public:
+    DecreasingValueWeightPostingSource(Xapian::valueno slot_,
+				       Xapian::docid range_start_ = 0,
+				       Xapian::docid range_end_ = 0);
+
+    Xapian::weight get_weight() const;
+    DecreasingValueWeightPostingSource * clone() const;
+    std::string name() const;
+    std::string serialise() const;
+    DecreasingValueWeightPostingSource * unserialise(const std::string &s) const;
+    void init(const Xapian::Database & db_);
+
+    void next(Xapian::weight min_wt);
+    void skip_to(Xapian::docid min_docid, Xapian::weight min_wt);
+    bool check(Xapian::docid min_docid, Xapian::weight min_wt);
+
+    std::string get_description() const;
+};
+
 
 /** A posting source which looks up weights in a map using values as the key.
  *
@@ -468,6 +527,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueMapPostingSource
     std::string get_description() const;
 };
 
+
 /** A posting source which returns a fixed weight for all documents.
  *
  *  This returns entries for all documents in the given database, with a fixed
@@ -483,12 +543,6 @@ class XAPIAN_VISIBILITY_DEFAULT FixedWeightPostingSource : public PostingSource 
     /// Iterator over all documents.
     Xapian::PostingIterator it;
 
-    /// End iterator corresponding to it.
-    Xapian::PostingIterator end;
-
-    /// The weight to return.
-    Xapian::weight wt;
-
     /// Flag indicating if we've started (true if we have).
     bool started;
 
@@ -498,15 +552,14 @@ class XAPIAN_VISIBILITY_DEFAULT FixedWeightPostingSource : public PostingSource 
   public:
     /** Construct a FixedWeightPostingSource.
      *
-     *  @param wt_ The fixed weight to return.
+     *  @param wt The fixed weight to return.
      */
-    FixedWeightPostingSource(Xapian::weight wt_);
+    FixedWeightPostingSource(Xapian::weight wt);
 
     Xapian::doccount get_termfreq_min() const;
     Xapian::doccount get_termfreq_est() const;
     Xapian::doccount get_termfreq_max() const;
 
-    Xapian::weight get_maxweight() const;
     Xapian::weight get_weight() const;
 
     void next(Xapian::weight min_wt);

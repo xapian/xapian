@@ -1,7 +1,7 @@
 /** @file steminternal.h
  *  @brief Base class for implementations of stemming algorithms
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,7 +24,7 @@
 #include <xapian/base.h>
 #include <xapian/stem.h>
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 
 // FIXME: we might want to make Stem::Internal a virtual base class and have
@@ -32,20 +32,44 @@
 
 typedef unsigned char symbol;
 
-#define HEAD 2*sizeof(int)
+#define HEAD (2*sizeof(int))
 
 // Cast via (void*) to avoid warnings about alignment (the pointers *are*
 // appropriately aligned).
-#define SIZE(P)        ((const int *)(const void *)(P))[-1]
-#define SET_SIZE(P, N) ((int *)(void *)(P))[-1] = N
-#define CAPACITY(P)    ((const int *)(const void *)(P))[-2]
-#define SET_CAPACITY(P, N) ((int *)(void *)(P))[-2] = N
+
+inline int
+SIZE(const symbol* p)
+{
+    const void * void_p = reinterpret_cast<const void *>(p);
+    return reinterpret_cast<const int *>(void_p)[-1];
+}
+
+inline void
+SET_SIZE(symbol* p, int n)
+{
+    void * void_p = reinterpret_cast<void *>(p);
+    reinterpret_cast<int *>(void_p)[-1] = n;
+}
+
+inline int
+CAPACITY(const symbol* p)
+{
+    const void * void_p = reinterpret_cast<const void *>(p);
+    return reinterpret_cast<const int *>(void_p)[-2];
+}
+
+inline void
+SET_CAPACITY(symbol* p, int n)
+{
+    void * void_p = reinterpret_cast<void *>(p);
+    reinterpret_cast<int *>(void_p)[-2] = n;
+}
 
 typedef int (*among_function)(Xapian::Stem::Internal *);
 
 struct among {
     int s_size;		/* length of search string (in symbols) */
-    const symbol * s;	/* search string */
+    unsigned s;		/* offset in pool to search string */
     int substring_i;	/* index to longest matching substring */
     int result;		/* result of the lookup */
 };
@@ -53,7 +77,7 @@ struct among {
 extern symbol * create_s();
 
 inline void lose_s(symbol * p) {
-    if (p) free((char *) p - HEAD);
+    if (p) free(reinterpret_cast<char *>(p) - HEAD);
 }
 
 extern int skip_utf8(const symbol * p, int c, int lb, int l, int n);
@@ -80,8 +104,10 @@ class Stem::Internal : public Xapian::Internal::RefCntBase {
     int eq_v(const symbol * v) { return eq_s(SIZE(v), v); }
     int eq_v_b(const symbol * v) { return eq_s_b(SIZE(v), v); }
 
-    int find_among(const struct among * v, int v_size, const unsigned char * fnum, const among_function * f);
-    int find_among_b(const struct among * v, int v_size, const unsigned char * fnum, const among_function * f);
+    int find_among(const symbol *pool, const struct among * v, int v_size,
+		   const unsigned char * fnum, const among_function * f);
+    int find_among_b(const symbol *pool, const struct among * v, int v_size,
+		     const unsigned char * fnum, const among_function * f);
 
     int replace_s(int c_bra, int c_ket, int s_size, const symbol * s);
     int slice_from_s(int s_size, const symbol * s);
@@ -103,7 +129,7 @@ class Stem::Internal : public Xapian::Internal::RefCntBase {
 
   public:
     /// Perform initialisation common to all Snowball stemmers.
-    Internal();
+    Internal() : p(create_s()), c(0), l(0), lb(0), bra(0), ket(0) { }
 
     /// Perform cleanup common to all Snowball stemmers.
     virtual ~Internal();

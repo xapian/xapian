@@ -29,7 +29,6 @@
 #include "xapian/weight.h"
 
 #include <map>
-#include <vector>
 
 class LocalSubMatch : public SubMatch {
     /// Don't allow assignment.
@@ -81,7 +80,8 @@ class LocalSubMatch : public SubMatch {
 
     /// Get PostList and term info.
     PostList * get_postlist_and_term_info(MultiMatch *matcher,
-	std::map<string, Xapian::MSet::Internal::TermFreqAndWeight> *termfreqandwts);
+	std::map<string, Xapian::MSet::Internal::TermFreqAndWeight> *termfreqandwts,
+	Xapian::termcount * total_subqs_ptr);
 
     /** Convert a postlist into a synonym postlist.
      */

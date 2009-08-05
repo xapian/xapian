@@ -2,7 +2,7 @@
  *  @brief File and path manipulation routines.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
- * Copyright (C) 2008 Olly Betts
+ * Copyright (C) 2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,28 @@
 #include <string>
 
 using namespace std;
+
+static bool
+isabspath(const string & path)
+{
+    // Empty paths are never absolute.
+    if (path.empty()) return false;
+#ifdef __WIN32__
+    // On windows, paths may begin with a drive letter - but the part after the
+    // drive letter may still be relative.
+    if (path.size() >= 2 && path[1] == ':') {
+	if (path.size() == 2) return false;
+	if (path[2] != '/' && path[2] != '\\') return false;
+	return true;
+    }
+    if (path[0] != '/' && path[0] != '\\') return false;
+    return true;
+#else
+    // Assume we're on a unix system.
+    if (path[0] != '/') return false;
+    return true;
+#endif
+}
 
 string
 calc_dirname(const string & filename)
@@ -80,27 +102,5 @@ join_paths(const string & path1, const string & path2)
     if (isabspath(path2)) return path2;
     if (path1[path1.size() - 1] == '/') return path1 + path2;
     return path1 + "/" + path2;
-#endif
-}
-
-bool
-isabspath(const string & path)
-{
-    // Empty paths are never absolute.
-    if (path.empty()) return false;
-#ifdef __WIN32__
-    // On windows, paths may begin with a drive letter - but the part after the
-    // drive letter may still be relative.
-    if (path.size() >= 2 && path[1] == ':') {
-	if (path.size() == 2) return false;
-	if (path[2] != '/' && path[2] != '\\') return false;
-	return true;
-    }
-    if (path[0] != '/' && path[0] != '\\') return false;
-    return true;
-#else
-    // Assume we're on a unix system.
-    if (path[0] != '/') return false;
-    return true;
 #endif
 }

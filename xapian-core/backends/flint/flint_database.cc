@@ -379,7 +379,7 @@ FlintDatabase::get_next_revision_number() const
 void
 FlintDatabase::get_changeset_revisions(const string & path,
 				       flint_revision_number_t * startrev,
-				       flint_revision_number_t * endrev)
+				       flint_revision_number_t * endrev) const
 {
     int changes_fd = -1;
 #ifdef __WIN32__
@@ -579,34 +579,25 @@ FlintDatabase::send_whole_database(RemoteConnection & conn,
 
     // Send all the tables.  The tables which we want to be cached best after
     // the copy finished are sent last.
-    const char * tablenames[] = {
-	"termlist",
-	"synonym",
-	"spelling",
-	"record",
-	"position",
-	"value",
-	"postlist"
-    };
-    list<string> filenames;
-    const char ** tablenameptr;
-    for (tablenameptr = tablenames;
-	 tablenameptr != tablenames + (sizeof(tablenames) / sizeof(const char *));
-	 ++tablenameptr) {
-	filenames.push_back(string(*tablenameptr) + ".DB");
-	filenames.push_back(string(*tablenameptr) + ".baseA");
-	filenames.push_back(string(*tablenameptr) + ".baseB");
-    };
-    filenames.push_back("iamflint");
-    filenames.push_back("uuid");
-
-    for (list<string>::const_iterator i = filenames.begin();
-	 i != filenames.end(); ++i) {
-	string filepath = db_dir + "/" + *i;
+    static const char filenames[] =
+	"\x0b""termlist.DB""\x0e""termlist.baseA\x0e""termlist.baseB"
+	"\x0a""synonym.DB""\x0d""synonym.baseA\x0d""synonym.baseB"
+	"\x0b""spelling.DB""\x0e""spelling.baseA\x0e""spelling.baseB"
+	"\x09""record.DB""\x0c""record.baseA\x0c""record.baseB"
+	"\x0b""position.DB""\x0e""position.baseA\x0e""position.baseB"
+	"\x08""value.DB""\x0b""value.baseA\x0b""value.baseB"
+	"\x0b""postlist.DB""\x0e""postlist.baseA\x0e""postlist.baseB"
+	"\x08""iamflint"
+	"\x04""uuid";
+    string filepath = db_dir;
+    filepath += '/';
+    for (const char * p = filenames; *p; p += *p + 1) {
+	string leaf(p + 1, size_t(static_cast<unsigned char>(*p)));
+        filepath.replace(db_dir.size() + 1, string::npos, leaf);
 	if (file_exists(filepath)) {
 	    // FIXME - there is a race condition here - the file might get
 	    // deleted between the file_exists() test and the access to send it.
-	    conn.send_message(REPL_REPLY_DB_FILENAME, *i, end_time);
+	    conn.send_message(REPL_REPLY_DB_FILENAME, leaf, end_time);
 	    conn.send_file(REPL_REPLY_DB_FILEDATA, filepath, end_time);
 	}
     }
@@ -1027,7 +1018,9 @@ FlintWritableDatabase::FlintWritableDatabase(const string &dir, int action,
 	  doclens(),
 	  mod_plists(),
 	  change_count(0),
-	  flush_threshold(0)
+	  flush_threshold(0),
+	  modify_shortcut_document(NULL),
+	  modify_shortcut_docid(0)
 {
     DEBUGCALL(DB, void, "FlintWritableDatabase", dir << ", " << action << ", "
 	      << block_size);
@@ -1182,6 +1175,13 @@ FlintWritableDatabase::delete_document(Xapian::docid did)
     DEBUGCALL(DB, void, "FlintWritableDatabase::delete_document", did);
     Assert(did != 0);
 
+    if (rare(modify_shortcut_docid == did)) {
+	// The modify_shortcut document can't be used for a modification
+	// shortcut now, because it's been deleted!
+	modify_shortcut_document = NULL;
+	modify_shortcut_docid = 0;
+    }
+
     // Remove the record.  If this fails, just propagate the exception since
     // the state should still be consistent (most likely it's
     // DocNotFoundError).
@@ -1268,65 +1268,74 @@ FlintWritableDatabase::replace_document(Xapian::docid did,
 	    return;
 	}
 
-	// OK, now add entries to remove the postings in the underlying record.
-	Xapian::Internal::RefCntPtr<const FlintWritableDatabase> ptrtothis(this);
-	FlintTermList termlist(ptrtothis, did);
-
-	termlist.next();
-	while (!termlist.at_end()) {
-	    string tname = termlist.get_termname();
-	    termcount wdf = termlist.get_wdf();
-
-	    map<string, pair<termcount_diff, termcount_diff> >::iterator i;
-	    i = freq_deltas.find(tname);
-	    if (i == freq_deltas.end()) {
-		freq_deltas.insert(make_pair(tname, make_pair(-1, -termcount_diff(wdf))));
+	// Check for a document read from this database being replaced - ie, a
+	// modification operation.
+	bool modifying = false;
+	if (modify_shortcut_docid &&
+	    document.internal->get_docid() == modify_shortcut_docid) {
+	    if (document.internal.get() == modify_shortcut_document) {
+		// We have a docid, it matches, and the pointer matches, so we
+		// can skip modification of any data which hasn't been modified
+		// in the document.
+		modifying = true;
+		LOGLINE(DB, "Detected potential document modification shortcut.");
 	    } else {
-		--i->second.first;
-		i->second.second -= wdf;
+		// The modify_shortcut document can't be used for a
+		// modification shortcut now, because it's about to be
+		// modified.
+		modify_shortcut_document = NULL;
+		modify_shortcut_docid = 0;
 	    }
+	}
+  
+	if (!modifying || document.internal->terms_modified()) {
+	    // FIXME - in the case where there is overlap between the new
+	    // termlist and the old termlist, it would be better to compare the
+	    // two lists, and make the minimum set of modifications required.
+	    // This would lead to smaller changesets for replication, and
+	    // probably be faster overall.
 
-	    // Remove did from tname's postlist
-	    map<string, map<docid, pair<char, termcount> > >::iterator j;
-	    j = mod_plists.find(tname);
-	    if (j == mod_plists.end()) {
-		map<docid, pair<char, termcount> > m;
-		j = mod_plists.insert(make_pair(tname, m)).first;
-	    }
-
-	    map<docid, pair<char, termcount> >::iterator k;
-	    k = j->second.find(did);
-	    if (k == j->second.end()) {
-		j->second.insert(make_pair(did, make_pair('D', 0u)));
-	    } else {
-		// Modifying a document we added/modified since the last flush.
-		k->second = make_pair('D', 0u);
-	    }
+	    // First, add entries to remove the postings in the underlying record.
+	    Xapian::Internal::RefCntPtr<const FlintWritableDatabase> ptrtothis(this);
+	    FlintTermList termlist(ptrtothis, did);
 
 	    termlist.next();
-	}
+	    while (!termlist.at_end()) {
+		string tname = termlist.get_termname();
+		termcount wdf = termlist.get_wdf();
 
-	total_length -= termlist.get_doclength();
+		map<string, pair<termcount_diff, termcount_diff> >::iterator i;
+		i = freq_deltas.find(tname);
+		if (i == freq_deltas.end()) {
+		    freq_deltas.insert(make_pair(tname, make_pair(-1, -termcount_diff(wdf))));
+		} else {
+		    --i->second.first;
+		    i->second.second -= wdf;
+		}
 
-	// Replace the record
-	record_table.replace_record(document.get_data(), did);
+		// Remove did from tname's postlist
+		map<string, map<docid, pair<char, termcount> > >::iterator j;
+		j = mod_plists.find(tname);
+		if (j == mod_plists.end()) {
+		    map<docid, pair<char, termcount> > m;
+		    j = mod_plists.insert(make_pair(tname, m)).first;
+		}
 
-	// FIXME: we read the values delete them and then replace in case
-	// they come from where they're going!  Better to ask Document
-	// nicely and shortcut in this case!
-	{
-	    Xapian::ValueIterator value = document.values_begin();
-	    Xapian::ValueIterator value_end = document.values_end();
-	    string s;
-	    value_table.encode_values(s, value, value_end);
+		map<docid, pair<char, termcount> >::iterator k;
+		k = j->second.find(did);
+		if (k == j->second.end()) {
+		    j->second.insert(make_pair(did, make_pair('D', 0u)));
+		} else {
+		    // Modifying a document we added/modified since the last flush.
+		    k->second = make_pair('D', 0u);
+		}
 
-	    // Replace the values.
-	    value_table.delete_all_values(did);
-	    value_table.set_encoded_values(did, s);
-	}
+		termlist.next();
+	    }
 
-	flint_doclen_t new_doclen = 0;
-	{
+	    total_length -= termlist.get_doclength();
+
+	    flint_doclen_t new_doclen = 0;
 	    Xapian::TermIterator term = document.termlist_begin();
 	    Xapian::TermIterator term_end = document.termlist_end();
 	    for ( ; term != term_end; ++term) {
@@ -1372,15 +1381,34 @@ FlintWritableDatabase::replace_document(Xapian::docid did,
 		    position_table.delete_positionlist(did, tname);
 		}
 	    }
+	    LOGLINE(DB, "Calculated doclen for replacement document " << did << " as " << new_doclen);
+
+	    // Set the termlist
+	    termlist_table.set_termlist(did, document, new_doclen);
+
+	    // Set the new document length
+	    doclens[did] = new_doclen;
+	    total_length += new_doclen;
 	}
-	LOGLINE(DB, "Calculated doclen for replacement document " << did << " as " << new_doclen);
 
-	// Set the termlist
-	termlist_table.set_termlist(did, document, new_doclen);
+	if (!modifying || document.internal->data_modified()) {
+	    // Replace the record
+	    record_table.replace_record(document.get_data(), did);
+	}
 
-	// Set the new document length
-	doclens[did] = new_doclen;
-	total_length += new_doclen;
+	if (!modifying || document.internal->values_modified()) {
+	    // FIXME: we read the values delete them and then replace in case
+	    // they come from where they're going!  Better to ask Document
+	    // nicely and shortcut in this case!
+	    Xapian::ValueIterator value = document.values_begin();
+	    Xapian::ValueIterator value_end = document.values_end();
+	    string s;
+	    value_table.encode_values(s, value, value_end);
+
+	    // Replace the values.
+	    value_table.delete_all_values(did);
+	    value_table.set_encoded_values(did, s);
+	}
     } catch (const Xapian::DocNotFoundError &) {
 	(void)add_document_(did, document);
 	return;
@@ -1397,6 +1425,18 @@ FlintWritableDatabase::replace_document(Xapian::docid did,
 	flush_postlist_changes();
 	if (!transaction_active()) apply();
     }
+}
+
+Xapian::Document::Internal *
+FlintWritableDatabase::open_document(Xapian::docid did, bool lazy) const
+{
+    DEBUGCALL(DB, Xapian::Document::Internal *, "FlintWritableDatabase::open_document",
+	      did << ", " << lazy);
+    modify_shortcut_document = FlintDatabase::open_document(did, lazy);
+    // Store the docid only after open_document() successfully returns, so an
+    // attempt to open a missing document doesn't overwrite this.
+    modify_shortcut_docid = did;
+    RETURN(modify_shortcut_document);
 }
 
 Xapian::termcount
@@ -1545,5 +1585,14 @@ FlintWritableDatabase::set_metadata(const string & key, const string & value)
 	postlist_table.del(btree_key);
     } else {
 	postlist_table.add(btree_key, value);
+    }
+}
+
+void
+FlintWritableDatabase::invalidate_doc_object(Xapian::Document::Internal * obj) const
+{
+    if (obj == modify_shortcut_document) {
+	modify_shortcut_document = NULL;
+	modify_shortcut_docid = 0;
     }
 }

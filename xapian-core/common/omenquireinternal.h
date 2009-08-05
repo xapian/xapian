@@ -3,6 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,7 +31,7 @@
 #include "xapian/sorter.h"
 
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 #include <map>
 #include <set>
 
@@ -152,7 +153,14 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	ErrorHandler * errorhandler;
 
-	mutable Weight * weight; // mutable so get_mset can set default
+	/** The weight to use for this query.
+	 *
+	 *  This is mutable so that the default BM25Weight object can be
+	 *  created lazily when first required.
+	 */
+	mutable Weight * weight;
+
+	vector<MatchSpy *> spies;
 
 	Internal(const Xapian::Database &databases, ErrorHandler * errorhandler_);
 	~Internal();
@@ -169,8 +177,9 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 	const Query & get_query();
 	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		      Xapian::doccount check_at_least,
-		      const RSet *omrset, const MatchDecider *mdecider,
-		      const MatchDecider *matchspy) const;
+		      const RSet *omrset,
+		      const MatchDecider *mdecider,
+		      const MatchDecider *matchspy_legacy) const;
 	ESet get_eset(Xapian::termcount maxitems, const RSet & omrset, int flags,
 		      double k, const ExpandDecider *edecider) const;
 

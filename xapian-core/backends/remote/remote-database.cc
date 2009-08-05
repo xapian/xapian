@@ -24,7 +24,7 @@
 #include "remote-database.h"
 
 #include "safeerrno.h"
-#include <signal.h>
+#include <csignal>
 
 #include "autoptr.h"
 #include "emptypostlist.h"
@@ -43,6 +43,7 @@
 #include <vector>
 
 #include "xapian/error.h"
+#include "xapian/matchspy.h"
 
 using namespace std;
 
@@ -407,10 +408,10 @@ RemoteDatabase::read_value_stats(Xapian::valueno valno) const
 	mru_valno = valno;
 	mru_valstats.freq = decode_length(&p, p_end, false);
 	size_t len = decode_length(&p, p_end, true);
-	mru_valstats.lower_bound = string(p, len);
+	mru_valstats.lower_bound.assign(p, len);
 	p += len;
 	len = decode_length(&p, p_end, true);
-	mru_valstats.upper_bound = string(p, len);
+	mru_valstats.upper_bound.assign(p, len);
 	p += len;
 	if (p != p_end) {
 	    throw Xapian::NetworkError("Bad REPLY_VALUESTATS message received", context);
@@ -489,9 +490,9 @@ RemoteDatabase::get_message(string &result, reply_type required_type) const
     }
     if (required_type != REPLY_MAX && type != required_type) {
 	string errmsg("Expecting reply type ");
-	errmsg += om_tostring(required_type);
+	errmsg += om_tostring(int(required_type));
 	errmsg += ", got ";
-	errmsg += om_tostring(type);
+	errmsg += om_tostring(int(type));
 	throw Xapian::NetworkError(errmsg);
     }
 
@@ -536,7 +537,8 @@ RemoteDatabase::set_query(const Xapian::Query::Internal *query,
 			 bool sort_value_forward,
 			 int percent_cutoff, Xapian::weight weight_cutoff,
 			 const Xapian::Weight *wtscheme,
-			 const Xapian::RSet &omrset)
+			 const Xapian::RSet &omrset,
+			 const vector<Xapian::MatchSpy *> & matchspies)
 {
     string tmp = query->serialise();
     string message = encode_length(tmp.size());
@@ -561,7 +563,23 @@ RemoteDatabase::set_query(const Xapian::Query::Internal *query,
     message += encode_length(tmp.size());
     message += tmp;
 
-    message += serialise_rset(omrset);
+    tmp = serialise_rset(omrset);
+    message += encode_length(tmp.size());
+    message += tmp;
+
+    vector<Xapian::MatchSpy *>::const_iterator i;
+    for (i = matchspies.begin(); i != matchspies.end(); ++i) {
+	tmp = (*i)->name();
+	if (tmp.empty()) {
+	    throw Xapian::UnimplementedError("MatchSpy not suitable for use with remote searches - name() method returned empty string");
+	}
+	message += encode_length(tmp.size());
+	message += tmp;
+
+	tmp = (*i)->serialise();
+	message += encode_length(tmp.size());
+	message += tmp;
+    }
 
     send_message(MSG_QUERY, message);
 }
@@ -592,11 +610,24 @@ RemoteDatabase::send_global_stats(Xapian::doccount first,
 }
 
 void
-RemoteDatabase::get_mset(Xapian::MSet &mset)
+RemoteDatabase::get_mset(Xapian::MSet &mset,
+			 const vector<Xapian::MatchSpy *> & matchspies)
 {
     string message;
     get_message(message, REPLY_RESULTS);
-    mset = unserialise_mset(message);
+    const char * p = message.data();
+    const char * p_end = p + message.size();
+
+    vector<Xapian::MatchSpy *>::const_iterator i;
+    for (i = matchspies.begin(); i != matchspies.end(); ++i) {
+	if (p == p_end)
+	    throw Xapian::NetworkError("Expected serialised matchspy");
+	size_t len = decode_length(&p, p_end, true);
+	string spyresults(p, len);
+	p += len;
+	(*i)->merge_results(spyresults);
+    }
+    mset = unserialise_mset(p, p_end);
 }
 
 void

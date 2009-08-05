@@ -24,7 +24,7 @@
 # error You must #include <config.h> before #include "strcasecmp.h"
 #endif
 
-#include <string.h>
+#include <cstring>
 #ifdef HAVE_STRINGS_H
 // On Solaris, strcasecmp is in strings.h.
 # include <strings.h>

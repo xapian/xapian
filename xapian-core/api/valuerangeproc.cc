@@ -1,7 +1,7 @@
 /** @file valuerangeproc.cc
  * @brief Standard ValueRangeProcessor subclass implementations
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,39 @@
 #include "stringutils.h"
 
 using namespace std;
+
+namespace Xapian {
+
+Xapian::valueno
+StringValueRangeProcessor::operator()(string &begin, string &end)
+{
+    if (str.size()) {
+	if (prefix) {
+	    // If there's a prefix, require it on the start of the range.
+	    if (!startswith(begin, str)) {
+		// Prefix not given.
+		return Xapian::BAD_VALUENO;
+	    }
+	    begin.erase(0, str.size());
+	    // But it's optional on the end of the range, e.g. $10..50
+	    if (startswith(end, str)) {
+		end.erase(0, str.size());
+	    }
+	} else {
+	    // If there's a suffix, require it on the end of the range.
+	    if (!endswith(end, str)) {
+		// Suffix not given.
+		return Xapian::BAD_VALUENO;
+	    }
+	    end.resize(end.size() - str.size());
+	    // But it's optional on the start of the range, e.g. 10..50kg
+	    if (endswith(begin, str)) {
+		begin.resize(begin.size() - str.size());
+	    }
+	}
+    }
+    return valno;
+}
 
 static bool
 decode_xxy(const string & s, int & x1, int &x2, int &y)
@@ -70,8 +103,11 @@ vet_dm(int d, int m)
 }
 
 Xapian::valueno
-Xapian::DateValueRangeProcessor::operator()(string &begin, string &end)
+DateValueRangeProcessor::operator()(string &begin, string &end)
 {
+    if (StringValueRangeProcessor::operator()(begin, end) == BAD_VALUENO)
+	return BAD_VALUENO;
+
     if (begin.size() == 8 && end.size() == 8 &&
 	begin.find_first_not_of("0123456789") == string::npos &&
 	end.find_first_not_of("0123456789") == string::npos) {
@@ -145,44 +181,10 @@ Xapian::DateValueRangeProcessor::operator()(string &begin, string &end)
 }
 
 Xapian::valueno
-Xapian::NumberValueRangeProcessor::operator()(string &begin, string &end)
+NumberValueRangeProcessor::operator()(string &begin, string &end)
 {
-    size_t b_b = 0, e_b = 0;
-    size_t b_e = string::npos, e_e = string::npos;
-
-    if (str.size()) {
-	if (prefix) {
-	    // If there's a prefix, require it on the start of the range.
-	    if (!startswith(begin, str)) {
-		// Prefix not given.
-		return Xapian::BAD_VALUENO;
-	    }
-	    b_b = str.size();
-	    // But it's optional on the end of the range, e.g. $10..50
-	    if (startswith(end, str)) {
-		e_b = str.size();
-	    }
-	} else {
-	    // If there's a suffix, require it on the end of the range.
-	    if (!endswith(end, str)) {
-		// Suffix not given.
-		return Xapian::BAD_VALUENO;
-	    }
-	    e_e = end.size() - str.size();
-	    // But it's optional on the start of the range, e.g. 10..50kg
-	    if (endswith(begin, str)) {
-		b_e = begin.size() - str.size();
-	    }
-	}
-    }
-
-    // Adjust begin string if necessary.
-    if (b_e != string::npos)
-	begin.resize(b_e);
-
-    // Adjust end string if necessary.
-    if (e_e != string::npos)
-	end.resize(e_e);
+    if (StringValueRangeProcessor::operator()(begin, end) == BAD_VALUENO)
+	return BAD_VALUENO;
 
     // Parse the numbers to floating point.
     double beginnum, endnum;
@@ -190,9 +192,9 @@ Xapian::NumberValueRangeProcessor::operator()(string &begin, string &end)
     char * endptr;
 
     errno = 0;
-    startptr = begin.c_str() + b_b;
+    startptr = begin.c_str();
     beginnum = strtod(startptr, &endptr);
-    if (endptr != startptr - b_b + begin.size())
+    if (endptr != startptr + begin.size())
 	// Invalid characters in string
 	return Xapian::BAD_VALUENO;
     if (errno)
@@ -200,9 +202,9 @@ Xapian::NumberValueRangeProcessor::operator()(string &begin, string &end)
 	return Xapian::BAD_VALUENO;
 
     errno = 0;
-    startptr = end.c_str() + e_b;
+    startptr = end.c_str();
     endnum = strtod(startptr, &endptr);
-    if (endptr != startptr - e_b + end.size())
+    if (endptr != startptr + end.size())
 	// Invalid characters in string
 	return Xapian::BAD_VALUENO;
     if (errno)
@@ -213,4 +215,6 @@ Xapian::NumberValueRangeProcessor::operator()(string &begin, string &end)
     end.assign(Xapian::sortable_serialise(endnum));
 
     return valno;
+}
+
 }

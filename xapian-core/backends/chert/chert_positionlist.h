@@ -1,6 +1,6 @@
 /* chert_positionlist.h: A position list in a chert database.
  *
- * Copyright (C) 2005,2006,2008 Olly Betts
+ * Copyright (C) 2005,2006,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,7 +23,7 @@
 
 #include <xapian/types.h>
 
-#include "chert_table.h"
+#include "chert_lazytable.h"
 #include "chert_utils.h"
 #include "positionlist.h"
 
@@ -32,7 +32,7 @@
 
 using namespace std;
 
-class ChertPositionListTable : public ChertTable {
+class ChertPositionListTable : public ChertLazyTable {
     static string make_key(Xapian::docid did, const string & tname) {
 	return pack_uint_preserving_sort(did) + tname;
     }
@@ -46,8 +46,9 @@ class ChertPositionListTable : public ChertTable {
      *  @param dbdir		The directory the chert database is stored in.
      *  @param readonly		true if we're opening read-only, else false.
      */
-    ChertPositionListTable(string dbdir, bool readonly)
-	: ChertTable("position", dbdir + "/position.", readonly, DONT_COMPRESS, true) { }
+    ChertPositionListTable(const string & dbdir, bool readonly)
+	: ChertLazyTable("position", dbdir + "/position.", readonly,
+			 DONT_COMPRESS) { }
 
     /// Set the position list for term tname in document did.
     void set_positionlist(Xapian::docid did, const string & tname,

@@ -197,6 +197,7 @@ class ValueIterator {
 #endif
 %ignore Xapian::PostingSource::clone;
 %ignore Xapian::PostingSource::unserialise;
+%ignore Xapian::PostingSource::register_matcher_;
 %include <xapian/postingsource.h>
 
 namespace Xapian {
@@ -355,6 +356,7 @@ class ExpandDecider {
 #endif
 
 class Database;
+class MatchSpy;
 class Query;
 class Sorter;
 
@@ -366,8 +368,12 @@ class Enquire {
     void set_query(const Query & query, termcount qlen = 0);
     const Query& get_query();
 
+    void add_matchspy(MatchSpy * spy);
+    void clear_matchspies();
+
     void set_weighting_scheme(const Weight& weight);
-    void set_collapse_key(valueno collapse_key);
+    void set_collapse_key(Xapian::valueno collapse_key,
+                          Xapian::doccount collapse_max = 1);
 
     typedef enum {
 	ASCENDING = 1,
@@ -438,6 +444,9 @@ class Enquire {
 
 }
 
+%ignore Xapian::SerialisationContext::operator=;
+%include <xapian/serialisationcontext.h>
+
 /* Generated code won't compile if directors are enabled.  Disable for now
  * while we investigate.
  *
@@ -463,6 +472,9 @@ class Enquire {
 %warnfilter(842) Xapian::BM25Weight::unserialise;
 %warnfilter(842) Xapian::TradWeight::unserialise;
 %include <xapian/weight.h>
+
+%ignore Xapian::NumericRange::operator<;
+%include <xapian/matchspy.h>
 
 namespace Xapian {
 
@@ -683,9 +695,12 @@ class Remote {
 #ifdef SWIGPHP
 %apply int { Xapian::Query::op };
 #endif
-// FIXME: wrap MatchAll and MatchNothing
+#ifndef SWIGTCL
+// FIXME: wrap MatchAll and MatchNothing for other languages(except for Python,
+// which wraps them in a different way).
 %ignore Xapian::Query::MatchAll;
 %ignore Xapian::Query::MatchNothing;
+#endif
 
 %ignore Xapian::Query::internal;
 %ignore Xapian::Query::operator=;
@@ -748,9 +763,6 @@ class Remote {
 %ignore Xapian::DatabaseReplica::DatabaseReplica(const DatabaseReplica &);
 %include <xapian/replication.h>
 %include <xapian/valuesetmatchdecider.h>
-
-%ignore Xapian::SerialisationContext::operator=;
-%include <xapian/serialisationcontext.h>
 
 namespace Xapian {
 

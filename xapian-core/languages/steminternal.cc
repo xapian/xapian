@@ -5,7 +5,7 @@
  *
  * Copyright (c) 2001, Dr Martin Porter
  * Copyright (c) 2004,2005, Richard Boulton
- * Copyright (c) 2006,2007,2008 Olly Betts
+ * Copyright (c) 2006,2007,2008,2009 Olly Betts
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -71,7 +71,7 @@ using namespace std;
 extern symbol * create_s() {
     void * mem = malloc(HEAD + (CREATE_SIZE + 1) * sizeof(symbol));
     if (mem == NULL) throw std::bad_alloc();
-    symbol * p = (symbol *) (HEAD + (char *) mem);
+    symbol * p = reinterpret_cast<symbol*>(HEAD + static_cast<char *>(mem));
     SET_CAPACITY(p, CREATE_SIZE);
     SET_SIZE(p, CREATE_SIZE);
     return p;
@@ -117,22 +117,17 @@ extern int skip_utf8(const symbol * p, int c, int lb, int l, int n) {
  */
 static symbol * increase_size(symbol * p, int n) {
     int new_size = n + 20;
-    void * mem = realloc((char *) p - HEAD,
+    void * mem = realloc(reinterpret_cast<char *>(p) - HEAD,
                          HEAD + (new_size + 1) * sizeof(symbol));
     if (mem == NULL) {
         throw std::bad_alloc();
     }
-    symbol * q = (symbol *) (HEAD + (char *)mem);
+    symbol * q = reinterpret_cast<symbol*>(HEAD + static_cast<char *>(mem));
     SET_CAPACITY(q, new_size);
     return q;
 }
 
 namespace Xapian {
-
-Stem::Internal::Internal()
-    : p(create_s()), c(0), l(0), lb(0), bra(0), ket(0)
-{
-}
 
 Stem::Internal::~Internal()
 {
@@ -246,7 +241,11 @@ int Stem::Internal::eq_s_b(int s_size, const symbol * s) {
     return 1;
 }
 
-int Stem::Internal::find_among(const struct among * v, int v_size, const unsigned char * fnum, const among_function * f) {
+int
+Stem::Internal::find_among(const symbol * pool, const struct among * v,
+			   int v_size, const unsigned char * fnum,
+			   const among_function * f)
+{
     int i = 0;
     int j = v_size;
 
@@ -265,7 +264,7 @@ int Stem::Internal::find_among(const struct among * v, int v_size, const unsigne
         const struct among * w = v + k;
 	for (int x = common; x < w->s_size; x++) {
 	    if (c_orig + common == l) { diff = -1; break; }
-	    diff = q[common] - w->s[x];
+	    diff = q[common] - (pool + w->s)[x];
 	    if (diff != 0) break;
 	    common++;
 	}
@@ -300,7 +299,11 @@ int Stem::Internal::find_among(const struct among * v, int v_size, const unsigne
 }
 
 /* find_among_b is for backwards processing. Same comments apply */
-int Stem::Internal::find_among_b(const struct among * v, int v_size, const unsigned char * fnum, const among_function * f) {
+int
+Stem::Internal::find_among_b(const symbol * pool, const struct among * v,
+			     int v_size, const unsigned char * fnum,
+			     const among_function * f)
+{
     int i = 0;
     int j = v_size;
 
@@ -319,7 +322,7 @@ int Stem::Internal::find_among_b(const struct among * v, int v_size, const unsig
 	const struct among * w = v + k;
 	for (int x = w->s_size - 1 - common; x >= 0; x--) {
 	    if (c_orig - common == lb) { diff = -1; break; }
-	    diff = q[- common] - w->s[x];
+	    diff = q[- common] - (pool + w->s)[x];
 	    if (diff != 0) break;
 	    common++;
 	}
