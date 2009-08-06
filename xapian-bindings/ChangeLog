@@ -1,3 +1,7 @@
+Thu Aug 06 08:29:25 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Wrap operator overload of MSetIterator.
+
 Wed Aug 05 14:42:34 GMT 2009  Kosei Moriyama <cou929@gmail.com>
 
 	* perl/util.i.in:Replace each iterator's function 'inc()' 

@@ -542,4 +542,36 @@ sub set_stopper {
     $self{_stopper} = $stopper;
     set_stopper1( @_ );
 }
-%}
+
+package Search::Xapian::MSetIterator;
+use overload '++' => sub { $_[0]->increment() },
+	     '--' => sub { $_[0]->prev() },
+             '='  => sub { $_[0]->clone() },
+	     'eq' => sub { $_[0]->equal($_[1]) },
+	     'ne' => sub { $_[0]->nequal($_[1]) },
+	     '==' => sub { $_[0]->equal($_[1]) },
+	     '!=' => sub { $_[0]->nequal($_[1]) },
+             'fallback' => 1;
+
+sub clone {
+  my $self = shift;
+  my $class = ref( $self );
+  my $copy = new( $self );
+  bless $copy, $class;
+  return $copy;
+}
+%} 
+
+%extend Xapian::MSetIterator {
+Xapian::docid get_docid() {
+     return self->operator*();
+}
+
+bool equal(Xapian::MSetIterator * that) {
+     return ((*self) == (*that));
+}
+
+bool nequal(Xapian::MSetIterator * that) {
+     return ((*self) != (*that));
+}
+}
