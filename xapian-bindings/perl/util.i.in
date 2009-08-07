@@ -114,10 +114,6 @@ bool equal(Xapian::ValueIterator * that) {
 bool nequal(Xapian::ValueIterator * that) {
      return ((*self) != (*that));
 }
-
-std::string get_value() {
-     return self->operator*();
-}
 }
 
 %ignore Xapian::WritableDatabase::replace_document(Xapian::docid, Xapian::Document * document);
@@ -194,11 +190,9 @@ bool equal(Xapian::TermIterator * that) {
 bool nequal(Xapian::TermIterator * that) {
      return ((*self) != (*that));
 }
+}
 
-std::string get_termname() {
-     return self->operator*();
-}
-}
+%rename(get_termname) Xapian::TermIterator::get_term;
 
 %feature("shadow") Xapian::SimpleStopper::SimpleStopper
 %{
@@ -463,7 +457,6 @@ use overload '++' => sub { $_[0]->increment() },
 	     'ne' => sub { $_[0]->nequal($_[1]) },
 	     '==' => sub { $_[0]->equal($_[1]) },
 	     '!=' => sub { $_[0]->nequal($_[1]) },
-#	     '""' => sub { $_[0]->get_value() },
              'fallback' => 1;
 
 package Search::Xapian::TermIterator;
@@ -473,7 +466,6 @@ use overload '++' => sub { $_[0]->increment() },
 	     'ne' => sub { $_[0]->nequal($_[1]) },
 	     '==' => sub { $_[0]->equal($_[1]) },
 	     '!=' => sub { $_[0]->nequal($_[1]) },
-#             '""' => sub { $_[0]->get_termname() },
              'fallback' => 1;
 
 sub clone() {

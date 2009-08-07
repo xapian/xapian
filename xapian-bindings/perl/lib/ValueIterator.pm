@@ -62,8 +62,7 @@ Search::Xapian::ValueIterator - Iterate over value slots in a document.
 
 This object represents a stream of document values. It overloads C<++> for
 advancing the iterator, or you can explicitly call the C<inc> method.
-This class also overloads C<eq>, C<ne>, C<==>, C<!=>, and C<"">
-(stringification).
+This class also overloads C<eq>, C<ne>, C<==> and C<!=>.
 
 =head1 METHODS
 
@@ -85,8 +84,7 @@ Return the number of the value slot at the current position.
 
 =item get_value
 
-Return the string in the value slot at current position.  Also overloaded as
-the C<""> operator.
+Return the string in the value slot at current position.
 
 =item get_description
 

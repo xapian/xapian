@@ -62,8 +62,7 @@ Search::Xapian::TermIterator - Iterate over sets of terms.
 
 This object represents a stream of terms. It overloads C<++> for
 advancing the iterator, or you can explicitly call the C<inc> method.
-This class also overloads C<eq>, C<ne>, C<==>, C<!=>, and C<"">
-(stringification).
+This class also overloads C<eq>, C<ne>, C<==>, and C<!=>.
 
 =head1 METHODS
 

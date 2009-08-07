@@ -1,3 +1,11 @@
+Fri Aug 07 06:03:05 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/lib/TermIterator.pm,perl/lib/ValueIterator.pm,
+	perl/t/document.t,perl/t/index.t,perl/util.i.in:
+	Remove "" operator wrapping, modify test cases and 
+	pod documents. Because modifying SWIG is needed to 
+	support "" operator.
+
 Thu Aug 06 08:29:25 GMT 2009  Kosei Moriyama <cou929@gmail.com>
 
 	* perl/util.i.in:Wrap operator overload of MSetIterator.
