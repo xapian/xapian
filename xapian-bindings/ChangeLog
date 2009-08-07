@@ -1,3 +1,10 @@
+Fri Aug 07 15:29:21 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Add tie support of MSetIterator and
+	ESetIterator. Wrap function MSet::matches() and 
+	MSet::items(). Add class MSet::Tied. Wrap overload operators
+	of ESet.
+
 Fri Aug 07 06:03:05 GMT 2009  Kosei Moriyama <cou929@gmail.com>
 
 	* perl/lib/TermIterator.pm,perl/lib/ValueIterator.pm,

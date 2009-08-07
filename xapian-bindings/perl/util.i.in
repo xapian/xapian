@@ -450,6 +450,11 @@ sub set_sort_by_relevance_then_key {
     set_sort_by_relevance_then_key1( @_ );
 }
 
+sub matches {
+  my $self = shift;
+  return $self->get_mset(@_)->items();
+}
+
 package Search::Xapian::ValueIterator;
 use overload '++' => sub { $_[0]->increment() },
              '='  => sub { $_[0]->clone() },
@@ -552,7 +557,7 @@ sub clone {
   bless $copy, $class;
   return $copy;
 }
-%} 
+%}
 
 %extend Xapian::MSetIterator {
 Xapian::docid get_docid() {
@@ -565,5 +570,95 @@ bool equal(Xapian::MSetIterator * that) {
 
 bool nequal(Xapian::MSetIterator * that) {
      return ((*self) != (*that));
+}
+}
+
+%perlcode %{
+package Search::Xapian::MSet;
+use Tie::Array;
+our @ISA = qw(Tie::Array);
+
+sub items {
+  my $self = shift;
+  my @array;
+  tie( @array, 'Search::Xapian::MSet::Tied', $self );
+  return @array;
+}
+
+sub TIEARRAY {
+  my $class = shift;
+  my $mset = shift;
+  return bless $mset, $class;
+}
+
+sub FETCHSIZE {
+    my $self = shift;
+    return $self->get_matches_estimated();
+}
+
+package Search::Xapian::MSet::Tied;
+our @ISA = qw(Search::Xapian::MSet);
+
+package Search::Xapian::ESet;
+sub items {
+  my $self = shift;
+  my @array;
+  tie( @array, 'Search::Xapian::ESet', $self );
+  return @array;
+}
+
+use overload '++' => sub { $_[0]->increment() },
+	     '--' => sub { $_[0]->prev() },
+             '='  => sub { $_[0]->clone() },
+	     'eq' => sub { $_[0]->equal($_[1]) },
+	     'ne' => sub { $_[0]->nequal($_[1]) },
+	     '==' => sub { $_[0]->equal($_[1]) },
+	     '!=' => sub { $_[0]->nequal($_[1]) },
+             'fallback' => 1;
+
+sub clone() {
+  my $self = shift;
+  my $class = ref( $self );
+  my $copy = new( $self );
+  bless $copy, $class;
+  return $copy;
+}
+
+sub TIEARRAY {
+  my $class = shift;
+  my $eset = shift;
+  return bless $eset, $class;
+}
+
+sub FETCHSIZE {
+    my $self = shift;
+    return $self->size();
+}
+
+%}
+
+%extend Xapian::MSet {
+Xapian::MSetIterator FETCH(int index) {
+    return ((*self)[index]);
+}
+}
+
+%extend Xapian::ESet {
+Xapian::ESetIterator FETCH(int index) {
+    return ((*self)[index]);
+}
+}
+
+%extend Xapian::ESetIterator {
+std::string get_termname() {
+    return self->operator*();
+}
+
+bool equal(Xapian::ESetIterator * that) {
+    return ((*self) == (*that));
+}
+
+bool nequal(Xapian::ESetIterator * that) {
+    return ((*self) != (*that));
 }
 }
