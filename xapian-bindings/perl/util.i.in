@@ -593,7 +593,7 @@ sub TIEARRAY {
 
 sub FETCHSIZE {
     my $self = shift;
-    return $self->get_matches_estimated();
+    return $self->size();
 }
 
 package Search::Xapian::MSet::Tied;
