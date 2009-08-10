@@ -1,3 +1,8 @@
+Mon Aug 10 13:25:22 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/matchspy.cc: Use <cfloat> and <cmath> rather than <float.h> and
+	  <math.h> (regression from merging the matchspy branch).
+
 Mon Aug 10 13:01:57 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/,bin/xapian-tcpsrv.cc,common/,docs/postingsource.rst,

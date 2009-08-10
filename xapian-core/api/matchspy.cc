@@ -38,8 +38,8 @@
 #include "stringutils.h"
 #include "str.h"
 
-#include <float.h>
-#include <math.h>
+#include <cfloat>
+#include <cmath>
 
 using namespace std;
 
