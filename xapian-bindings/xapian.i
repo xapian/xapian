@@ -444,8 +444,8 @@ class Enquire {
 
 }
 
-%ignore Xapian::SerialisationContext::operator=;
-%include <xapian/serialisationcontext.h>
+%ignore Xapian::Registry::operator=;
+%include <xapian/registry.h>
 
 /* Generated code won't compile if directors are enabled.  Disable for now
  * while we investigate.
