@@ -34,7 +34,7 @@
 namespace Xapian {
 
 class Document;
-class SerialisationContext;
+class Registry;
 
 /** Abstract base class for match spies.
  *
@@ -124,7 +124,7 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy {
      *  with "delete".  It must therefore have been allocated with "new".
      */
     virtual MatchSpy * unserialise(const std::string & s,
-				   const SerialisationContext & context) const;
+				   const Registry & context) const;
 
     /** Serialise the results of this match spy.
      *
@@ -231,7 +231,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
     virtual std::string name() const;
     virtual std::string serialise() const;
     virtual MatchSpy * unserialise(const std::string & s,
-				   const SerialisationContext & context) const;
+				   const Registry & context) const;
     virtual std::string serialise_results() const;
     virtual void merge_results(const std::string & s);
     virtual std::string get_description() const;

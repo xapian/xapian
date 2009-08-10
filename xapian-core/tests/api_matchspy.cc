@@ -2,6 +2,7 @@
  * @brief tests of MatchSpy usage
  */
 /* Copyright 2007,2009 Lemur Consulting Ltd
+ * Copyright 2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -442,8 +443,7 @@ DEFINE_TESTCASE(matchspy6, !backend)
     TEST_EXCEPTION(Xapian::UnimplementedError, spy.name());
     TEST_EXCEPTION(Xapian::UnimplementedError, spy.serialise());
     TEST_EXCEPTION(Xapian::UnimplementedError,
-		   spy.unserialise(std::string(),
-				   Xapian::SerialisationContext()));
+		   spy.unserialise(std::string(), Xapian::Registry()));
     TEST_EXCEPTION(Xapian::UnimplementedError, spy.serialise_results());
     TEST_EXCEPTION(Xapian::UnimplementedError,
 		   spy.merge_results(std::string()));

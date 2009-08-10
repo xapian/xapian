@@ -1,5 +1,5 @@
-/** @file serialisationcontextinternal.h
- * @brief Internals of SerialisationContext object.
+/** @file registryinternal.h
+ * @brief Internals of Xapian::Registry object.
  */
 /* Copyright 2009 Lemur Consulting Ltd
  * Copyright 2009 Olly Betts
@@ -19,11 +19,11 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef XAPIAN_INCLUDED_SERIALISATIONCONTEXTINTERNAL_H
-#define XAPIAN_INCLUDED_SERIALISATIONCONTEXTINTERNAL_H
+#ifndef XAPIAN_INCLUDED_REGISTRYINTERNAL_H
+#define XAPIAN_INCLUDED_REGISTRYINTERNAL_H
 
 #include "xapian/base.h"
-#include "xapian/serialisationcontext.h"
+#include "xapian/registry.h"
 
 #include <map>
 #include <string>
@@ -34,9 +34,8 @@ namespace Xapian {
     class MatchSpy;
 }
 
-class Xapian::SerialisationContext::Internal
-	: public Xapian::Internal::RefCntBase {
-    friend class Xapian::SerialisationContext;
+class Xapian::Registry::Internal : public Xapian::Internal::RefCntBase {
+    friend class Xapian::Registry;
 
     /// Registered weighting schemes.
     std::map<std::string, Xapian::Weight *> wtschemes;
@@ -47,16 +46,16 @@ class Xapian::SerialisationContext::Internal
     /// Registered match spies.
     std::map<std::string, Xapian::MatchSpy *> matchspies;
 
-    /// Add the standard default weighting schemes and posting sources.
+    /// Add the standard subclasses provided in the API.
     void add_defaults();
 
-    /// Clear all registered weighting schemes from the context.
+    /// Clear all registered weighting schemes.
     void clear_weighting_schemes();
 
-    /// Clear all registered posting sources from the context.
+    /// Clear all registered posting sources.
     void clear_posting_sources();
 
-    /// Clear all registered match spies from the context.
+    /// Clear all registered match spies.
     void clear_match_spies();
 
   public:
@@ -64,4 +63,4 @@ class Xapian::SerialisationContext::Internal
     ~Internal();
 };
 
-#endif // XAPIAN_INCLUDED_SERIALISATIONCONTEXTINTERNAL_H
+#endif // XAPIAN_INCLUDED_REGISTRYINTERNAL_H

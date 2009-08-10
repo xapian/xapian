@@ -1,5 +1,5 @@
-/** @file serialisationcontext.cc
- * @brief Context for looking up objects during unserialisation.
+/** @file registry.cc
+ * @brief Class for looking up user subclasses during unserialisation.
  */
 /* Copyright (C) 2006,2007,2008,2009 Olly Betts
  * Copyright (C) 2006,2007,2009 Lemur Consulting Ltd
@@ -21,14 +21,14 @@
 
 #include <config.h>
 
-#include "xapian/serialisationcontext.h"
+#include "xapian/registry.h"
 
 #include "xapian/error.h"
 #include "xapian/matchspy.h"
 #include "xapian/postingsource.h"
 #include "xapian/weight.h"
 
-#include "serialisationcontextinternal.h"
+#include "registryinternal.h"
 #include "omdebug.h"
 
 #include <algorithm>
@@ -82,29 +82,29 @@ lookup_object(map<string, T*> registry, const string & name)
 
 namespace Xapian {
 
-SerialisationContext::SerialisationContext(const SerialisationContext & other)
+Registry::Registry(const Registry & other)
 	: internal(other.internal)
 {
-    LOGCALL_CTOR(API, "Xapian::SerialisationContext::SerialisationContext", "other");
+    LOGCALL_CTOR(API, "Xapian::Registry::Registry", "other");
 }
 
-SerialisationContext &
-SerialisationContext::operator=(const SerialisationContext & other)
+Registry &
+Registry::operator=(const Registry & other)
 {
-    LOGCALL(API, Xapian::SerialisationContext &, "Xapian::SerialisationContext::operator=", "other");
+    LOGCALL(API, Xapian::Registry &, "Xapian::Registry::operator=", "other");
     internal = other.internal;
     return(*this);
 }
 
-SerialisationContext::SerialisationContext()
-	: internal(new SerialisationContext::Internal())
+Registry::Registry()
+	: internal(new Registry::Internal())
 {
-    LOGCALL_CTOR(API, "Xapian::SerialisationContext::SerialisationContext", "");
+    LOGCALL_CTOR(API, "Xapian::Registry::Registry", "");
 }
 
-SerialisationContext::~SerialisationContext()
+Registry::~Registry()
 {
-    LOGCALL_DTOR(API, "Xapian::SerialisationContext::~SerialisationContext");
+    LOGCALL_DTOR(API, "Xapian::Registry::~Registry");
 
     // Note - we don't need to do anything special in this destructor, but it
     // does need to be explicitly defined because the definition of the
@@ -113,49 +113,49 @@ SerialisationContext::~SerialisationContext()
 }
 
 void
-SerialisationContext::register_weighting_scheme(const Xapian::Weight &wt)
+Registry::register_weighting_scheme(const Xapian::Weight &wt)
 {
-    LOGCALL_VOID(API, "Xapian::SerialisationContext::register_weighting_scheme", wt.name());
+    LOGCALL_VOID(API, "Xapian::Registry::register_weighting_scheme", wt.name());
     register_object(internal->wtschemes, wt);
 }
 
 const Xapian::Weight *
-SerialisationContext::get_weighting_scheme(const string & name) const
+Registry::get_weighting_scheme(const string & name) const
 {
-    LOGCALL(API, const Xapian::Weight *, "Xapian::SerialisationContext::get_weighting_scheme", name);
+    LOGCALL(API, const Xapian::Weight *, "Xapian::Registry::get_weighting_scheme", name);
     RETURN(lookup_object(internal->wtschemes, name));
 }
 
 void
-SerialisationContext::register_posting_source(const Xapian::PostingSource &source)
+Registry::register_posting_source(const Xapian::PostingSource &source)
 {
-    LOGCALL_VOID(API, "Xapian::SerialisationContext::register_posting_source", source.name());
+    LOGCALL_VOID(API, "Xapian::Registry::register_posting_source", source.name());
     register_object(internal->postingsources, source);
 }
 
 const Xapian::PostingSource *
-SerialisationContext::get_posting_source(const string & name) const
+Registry::get_posting_source(const string & name) const
 {
-    LOGCALL(API, const Xapian::PostingSource *, "Xapian::SerialisationContext::get_posting_source", name);
+    LOGCALL(API, const Xapian::PostingSource *, "Xapian::Registry::get_posting_source", name);
     RETURN(lookup_object(internal->postingsources, name));
 }
 
 void
-SerialisationContext::register_match_spy(const Xapian::MatchSpy &spy)
+Registry::register_match_spy(const Xapian::MatchSpy &spy)
 {
-    LOGCALL_VOID(API, "Xapian::SerialisationContext::register_match_spy", spy.name());
+    LOGCALL_VOID(API, "Xapian::Registry::register_match_spy", spy.name());
     register_object(internal->matchspies, spy);
 }
 
 const Xapian::MatchSpy *
-SerialisationContext::get_match_spy(const string & name) const
+Registry::get_match_spy(const string & name) const
 {
-    LOGCALL(API, const Xapian::MatchSpy *, "Xapian::SerialisationContext::get_match_spy", name);
+    LOGCALL(API, const Xapian::MatchSpy *, "Xapian::Registry::get_match_spy", name);
     RETURN(lookup_object(internal->matchspies, name));
 }
 
 
-SerialisationContext::Internal::Internal()
+Registry::Internal::Internal()
 	: Xapian::Internal::RefCntBase(),
           wtschemes(),
 	  postingsources()
@@ -163,7 +163,7 @@ SerialisationContext::Internal::Internal()
     add_defaults();
 }
 
-SerialisationContext::Internal::~Internal()
+Registry::Internal::~Internal()
 {
     clear_weighting_schemes();
     clear_posting_sources();
@@ -171,7 +171,7 @@ SerialisationContext::Internal::~Internal()
 }
 
 void
-SerialisationContext::Internal::add_defaults()
+Registry::Internal::add_defaults()
 {
     Xapian::Weight * weight;
     weight = new Xapian::BM25Weight;
@@ -197,7 +197,7 @@ SerialisationContext::Internal::add_defaults()
 }
 
 void
-SerialisationContext::Internal::clear_weighting_schemes()
+Registry::Internal::clear_weighting_schemes()
 {
     map<string, Xapian::Weight*>::const_iterator i;
     for (i = wtschemes.begin(); i != wtschemes.end(); ++i) {
@@ -206,7 +206,7 @@ SerialisationContext::Internal::clear_weighting_schemes()
 }
 
 void
-SerialisationContext::Internal::clear_posting_sources()
+Registry::Internal::clear_posting_sources()
 {
     map<string, Xapian::PostingSource *>::const_iterator i;
     for (i = postingsources.begin(); i != postingsources.end(); ++i) {
@@ -215,7 +215,7 @@ SerialisationContext::Internal::clear_posting_sources()
 }
 
 void
-SerialisationContext::Internal::clear_match_spies()
+Registry::Internal::clear_match_spies()
 {
     map<string, Xapian::MatchSpy *>::const_iterator i;
     for (i = matchspies.begin(); i != matchspies.end(); ++i) {

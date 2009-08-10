@@ -211,25 +211,25 @@ DEFINE_TESTCASE(serialise_query2, !backend) {
     return true;
 }
 
-// Test for unserialising a query using the default context.
+// Test for unserialising a query using the default registry.
 DEFINE_TESTCASE(serialise_query3, !backend) {
     Xapian::ValueWeightPostingSource s1(10);
     Xapian::Query q(&s1);
-    Xapian::SerialisationContext ctx;
-    Xapian::Query q2 = Xapian::Query::unserialise(q.serialise(), ctx);
+    Xapian::Registry reg;
+    Xapian::Query q2 = Xapian::Query::unserialise(q.serialise(), reg);
     TEST_EQUAL(q.get_description(), q2.get_description());
     TEST_EQUAL(q.get_description(), "Xapian::Query(PostingSource(Xapian::ValueWeightPostingSource(slot=10)))");
 
     Xapian::ValueMapPostingSource s2(11);
     s2.set_default_weight(5.0);
     q = Xapian::Query(&s2);
-    q2 = Xapian::Query::unserialise(q.serialise(), ctx);
+    q2 = Xapian::Query::unserialise(q.serialise(), reg);
     TEST_EQUAL(q.get_description(), q2.get_description());
     TEST_EQUAL(q.get_description(), "Xapian::Query(PostingSource(Xapian::ValueMapPostingSource(slot=11)))");
 
     Xapian::FixedWeightPostingSource s3(5.5);
     q = Xapian::Query(&s3);
-    q2 = Xapian::Query::unserialise(q.serialise(), ctx);
+    q2 = Xapian::Query::unserialise(q.serialise(), reg);
     TEST_EQUAL(q.get_description(), q2.get_description());
     TEST_EQUAL(q.get_description(), "Xapian::Query(PostingSource(Xapian::FixedWeightPostingSource(wt=5.5)))");
 
@@ -276,11 +276,11 @@ DEFINE_TESTCASE(serialise_query4, !backend) {
     std::string serialised = q.serialise();
 
     TEST_EXCEPTION(Xapian::InvalidArgumentError, Xapian::Query::unserialise(serialised));
-    Xapian::SerialisationContext ctx;
-    TEST_EXCEPTION(Xapian::InvalidArgumentError, Xapian::Query::unserialise(serialised, ctx));
+    Xapian::Registry reg;
+    TEST_EXCEPTION(Xapian::InvalidArgumentError, Xapian::Query::unserialise(serialised, reg));
 
-    ctx.register_posting_source(s1);
-    Xapian::Query q2 = Xapian::Query::unserialise(serialised, ctx);
+    reg.register_posting_source(s1);
+    Xapian::Query q2 = Xapian::Query::unserialise(serialised, reg);
     TEST_EQUAL(q.get_description(), q2.get_description());
 
     return true;
@@ -291,14 +291,14 @@ DEFINE_TESTCASE(double_register_leak, !backend) {
     MyPostingSource2 s1("foo");
     Xapian::BM25Weight w1;
 
-    Xapian::SerialisationContext ctx;
-    ctx.register_posting_source(s1);
-    ctx.register_posting_source(s1);
-    ctx.register_posting_source(s1);
+    Xapian::Registry reg;
+    reg.register_posting_source(s1);
+    reg.register_posting_source(s1);
+    reg.register_posting_source(s1);
 
-    ctx.register_weighting_scheme(w1);
-    ctx.register_weighting_scheme(w1);
-    ctx.register_weighting_scheme(w1);
+    reg.register_weighting_scheme(w1);
+    reg.register_weighting_scheme(w1);
+    reg.register_weighting_scheme(w1);
 
     return true;
 }
@@ -346,28 +346,28 @@ class ExceptionalPostingSource : public Xapian::PostingSource {
 };
 
 /// Check that exceptions when registering a postingsource are handled well.
-DEFINE_TESTCASE(serialisationcontext1, !backend) {
+DEFINE_TESTCASE(registry1, !backend) {
     // Test that a replacement object throwing bad_alloc is handled.
     {
-	Xapian::SerialisationContext context;
+	Xapian::Registry reg;
 
 	Xapian::PostingSource * ptr = NULL;
 	ExceptionalPostingSource eps(ExceptionalPostingSource::NONE, ptr);
 	TEST_EXCEPTION(Xapian::UnimplementedError, eps.serialise());
 	TEST_EXCEPTION(Xapian::UnimplementedError, eps.unserialise(string()));
-	context.register_posting_source(eps);
+	reg.register_posting_source(eps);
 	try {
 	    Xapian::PostingSource * ptr_clone = NULL;
 	    ExceptionalPostingSource eps_clone(ExceptionalPostingSource::CLONE,
 					       ptr_clone);
-	    context.register_posting_source(eps_clone);
+	    reg.register_posting_source(eps_clone);
 	    return false;
 	} catch (const bad_alloc &) {
 	}
 
 	// Either the old entry should be removed, or it should work.
 	const Xapian::PostingSource * p;
-        p = context.get_posting_source("ExceptionalPostingSource");
+        p = reg.get_posting_source("ExceptionalPostingSource");
 	if (p) {
 	    TEST_EQUAL(p->name(), "ExceptionalPostingSource");
 	}
@@ -375,26 +375,26 @@ DEFINE_TESTCASE(serialisationcontext1, !backend) {
 
     // Test that the replaced object throwing runtime_error is handled.
     {
-	Xapian::SerialisationContext context;
+	Xapian::Registry reg;
 
 	Xapian::PostingSource * ptr_dtor = NULL;
 	ExceptionalPostingSource eps_dtor(ExceptionalPostingSource::DTOR,
 					  ptr_dtor);
-	context.register_posting_source(eps_dtor);
+	reg.register_posting_source(eps_dtor);
 	// Prevent eps_dtor's dtor from throwing an exception.
 	eps_dtor.fail = ExceptionalPostingSource::NONE;
 
 	try {
 	    Xapian::PostingSource * ptr = NULL;
 	    ExceptionalPostingSource eps(ExceptionalPostingSource::NONE, ptr);
-	    context.register_posting_source(eps);
+	    reg.register_posting_source(eps);
 	    return false;
 	} catch (const runtime_error &) {
 	}
 
 	// Either the old entry should be removed, or it should work.
 	const Xapian::PostingSource * p;
-        p = context.get_posting_source("ExceptionalPostingSource");
+        p = reg.get_posting_source("ExceptionalPostingSource");
 	if (p) {
 	    TEST_EQUAL(p->name(), "ExceptionalPostingSource");
 	}
@@ -447,26 +447,26 @@ class ExceptionalWeight : public Xapian::Weight {
 };
 
 /// Check that exceptions when registering are handled well.
-DEFINE_TESTCASE(serialisationcontext2, !backend) {
+DEFINE_TESTCASE(registry2, !backend) {
     // Test that a replacement object throwing bad_alloc is handled.
     {
-	Xapian::SerialisationContext context;
+	Xapian::Registry reg;
 
 	Xapian::Weight * ptr = NULL;
 	ExceptionalWeight ewt(ExceptionalWeight::NONE, ptr);
-	context.register_weighting_scheme(ewt);
+	reg.register_weighting_scheme(ewt);
 	try {
 	    Xapian::Weight * ptr_clone = NULL;
 	    ExceptionalWeight ewt_clone(ExceptionalWeight::CLONE,
 					       ptr_clone);
-	    context.register_weighting_scheme(ewt_clone);
+	    reg.register_weighting_scheme(ewt_clone);
 	    return false;
 	} catch (const bad_alloc &) {
 	}
 
 	// Either the old entry should be removed, or it should work.
 	const Xapian::Weight * p;
-        p = context.get_weighting_scheme("ExceptionalWeight");
+        p = reg.get_weighting_scheme("ExceptionalWeight");
 	if (p) {
 	    TEST_EQUAL(p->name(), "ExceptionalWeight");
 	}
@@ -474,26 +474,26 @@ DEFINE_TESTCASE(serialisationcontext2, !backend) {
 
     // Test that the replaced object throwing runtime_error is handled.
     {
-	Xapian::SerialisationContext context;
+	Xapian::Registry reg;
 
 	Xapian::Weight * ptr_dtor = NULL;
 	ExceptionalWeight ewt_dtor(ExceptionalWeight::DTOR,
 					  ptr_dtor);
-	context.register_weighting_scheme(ewt_dtor);
+	reg.register_weighting_scheme(ewt_dtor);
 	// Prevent ewt_dtor's dtor from throwing an exception.
 	ewt_dtor.fail = ExceptionalWeight::NONE;
 
 	try {
 	    Xapian::Weight * ptr = NULL;
 	    ExceptionalWeight ewt(ExceptionalWeight::NONE, ptr);
-	    context.register_weighting_scheme(ewt);
+	    reg.register_weighting_scheme(ewt);
 	    return false;
 	} catch (const runtime_error &) {
 	}
 
 	// Either the old entry should be removed, or it should work.
 	const Xapian::Weight * p;
-        p = context.get_weighting_scheme("ExceptionalWeight");
+        p = reg.get_weighting_scheme("ExceptionalWeight");
 	if (p) {
 	    TEST_EQUAL(p->name(), "ExceptionalWeight");
 	}
@@ -539,26 +539,26 @@ class ExceptionalMatchSpy : public Xapian::MatchSpy {
 };
 
 /// Check that exceptions when registering are handled well.
-DEFINE_TESTCASE(serialisationcontext3, !backend) {
+DEFINE_TESTCASE(registry3, !backend) {
     // Test that a replacement object throwing bad_alloc is handled.
     {
-	Xapian::SerialisationContext context;
+	Xapian::Registry reg;
 
 	Xapian::MatchSpy * ptr = NULL;
 	ExceptionalMatchSpy ems(ExceptionalMatchSpy::NONE, ptr);
-	context.register_match_spy(ems);
+	reg.register_match_spy(ems);
 	try {
 	    Xapian::MatchSpy * ptr_clone = NULL;
 	    ExceptionalMatchSpy ems_clone(ExceptionalMatchSpy::CLONE,
 					  ptr_clone);
-	    context.register_match_spy(ems_clone);
+	    reg.register_match_spy(ems_clone);
 	    return false;
 	} catch (const bad_alloc &) {
 	}
 
 	// Either the old entry should be removed, or it should work.
 	const Xapian::MatchSpy * p;
-        p = context.get_match_spy("ExceptionalMatchSpy");
+        p = reg.get_match_spy("ExceptionalMatchSpy");
 	if (p) {
 	    TEST_EQUAL(p->name(), "ExceptionalMatchSpy");
 	}
@@ -566,25 +566,25 @@ DEFINE_TESTCASE(serialisationcontext3, !backend) {
 
     // Test that the replaced object throwing runtime_error is handled.
     {
-	Xapian::SerialisationContext context;
+	Xapian::Registry reg;
 
 	Xapian::MatchSpy * ptr_dtor = NULL;
 	ExceptionalMatchSpy ems_dtor(ExceptionalMatchSpy::DTOR, ptr_dtor);
-	context.register_match_spy(ems_dtor);
+	reg.register_match_spy(ems_dtor);
 	// Prevent ems_dtor's dtor from throwing an exception.
 	ems_dtor.fail = ExceptionalMatchSpy::NONE;
 
 	try {
 	    Xapian::MatchSpy * ptr = NULL;
 	    ExceptionalMatchSpy ems(ExceptionalMatchSpy::NONE, ptr);
-	    context.register_match_spy(ems);
+	    reg.register_match_spy(ems);
 	    return false;
 	} catch (const runtime_error &) {
 	}
 
 	// Either the old entry should be removed, or it should work.
 	const Xapian::MatchSpy * p;
-        p = context.get_match_spy("ExceptionalMatchSpy");
+        p = reg.get_match_spy("ExceptionalMatchSpy");
 	if (p) {
 	    TEST_EQUAL(p->name(), "ExceptionalMatchSpy");
 	}

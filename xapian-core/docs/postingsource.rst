@@ -186,12 +186,13 @@ Multiple databases, and remote databases
 ========================================
 
 In order to work with searches across multiple databases, or in remote
-databases, some additional methods need to be implemented on
-Xapian::PostingSources.  The first of these is ``clone()``, which is used for
-multi database searches.  This method should just return a newly allocated
-instance of the same posting source class, initialised in the same way as the
-source that clone() was called on.  The returned source will be deallocated by
-the caller (using "delete" - so you should allocate it with "new").
+databases, some additional methods need to be implemented in your
+Xapian::PostingSource subclass.  The first of these is ``clone()``, which is
+used for multi database searches.  This method should just return a newly
+allocated instance of the same posting source class, initialised in the same
+way as the source that clone() was called on.  The returned source will be
+deallocated by the caller (using "delete" - so you should allocate it with
+"new").
 
 If you don't care about supporting searches across multiple databases, you can
 simply return NULL from this method.  In fact, the default implementation does
@@ -217,13 +218,12 @@ any information about the current iteration position of the PostingSource::
     virtual PostingSource * unserialise(const std::string &s) const;
 
 Finally, you need to make a remote server which knows about your PostingSource.
-Currently, the only way to do this is to hack the source slightly, and compile
-your own.  To do this, you need to edit ``xapian-core/bin/xapian-tcpsrv.cc``
-and find the ``register_user_weighting_schemes()`` function.  At the end of
-this function, add the lines::
+Currently, the only way to do this is to modify the source slightly, and
+compile your own xapian-tcpsrv.  To do this, you need to edit
+``xapian-core/bin/xapian-tcpsrv.cc`` and find the
+``register_user_weighting_schemes()`` function.  If ``MyPostingSource`` is your
+posting source, at the end of this function, add these lines::
 
-    SerialisationContext context;
-    context.register_postingsource(MyPostingSource());
-    server.set_context(context);
-
-Where ``MyPostingSource`` is your posting source.
+    Xapian::Registry registry;
+    registry.register_postingsource(MyPostingSource());
+    server.set_registry(registry);

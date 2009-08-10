@@ -22,9 +22,9 @@
 #ifndef XAPIAN_INCLUDED_REMOTESERVER_H
 #define XAPIAN_INCLUDED_REMOTESERVER_H
 
-#include "xapian/serialisationcontext.h"
 #include "xapian/database.h"
 #include "xapian/postingsource.h"
+#include "xapian/registry.h"
 #include "xapian/visibility.h"
 #include "xapian/weight.h"
 
@@ -66,10 +66,8 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
      */
     Xapian::timeout idle_timeout;
 
-    /** The context, used for registering weight schemes and posting
-     *  sources.
-     */
-    Xapian::SerialisationContext ctx;
+    /// The registry, which allows unserialisation of user subclasses.
+    Xapian::Registry reg;
 
     /// Accept a message from the client.
     message_type get_message(Xapian::timeout timeout, std::string & result,
@@ -173,15 +171,11 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
      */
     void run();
 
-    /// Get the context used for (un)serialisation.
-    const Xapian::SerialisationContext & get_context() const {
-	return ctx;
-    }
+    /// Get the registry used for (un)serialisation.
+    const Xapian::Registry & get_registry() const { return reg; }
 
-    /// Set the context used for (un)serialisation.
-    void set_context(const Xapian::SerialisationContext & new_ctx) {
-	ctx = new_ctx;
-    }
+    /// Set the registry used for (un)serialisation.
+    void set_registry(const Xapian::Registry & reg_) { reg = reg_; }
 };
 
 #endif // XAPIAN_INCLUDED_REMOTESERVER_H
