@@ -80,10 +80,13 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *
      *  FooWeight * FooWeight::clone() const { return new FooWeight(a, b); }
      *
+     *  If you don't want to support the remote backend, you can use the
+     *  default implementation which simply returns NULL.
+     *
      *  Note that the returned object will be deallocated by Xapian after use
      *  with "delete".  It must therefore have been allocated with "new".
      */
-    virtual Weight * clone() const = 0;
+    virtual Weight * clone() const;
 
     /// A bitmask of the statistics this weighting scheme needs.
     stat_flags stats_needed;
@@ -126,7 +129,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 
     /** Return the name of this weighting scheme.
      *
-     *  This name is used by the remote backend.  It is passed with the
+     *  This name is used by the remote backend.  It is passed along with the
      *  serialised parameters to the remote server so that it knows which class
      *  to create.
      *
@@ -134,33 +137,30 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *  your class is called FooWeight, return "FooWeight" from this method
      *  (Xapian::BM25Weight returns "Xapian::BM25Weight" here).
      *
-     *  If you don't want to support the remote backend in your weighting
-     *  scheme, you can just implement this to throw
-     *  Xapian::UnimplementedError.
+     *  If you don't want to support the remote backend, you can use the
+     *  default implementation which simply returns an empty string.
      */
-    virtual std::string name() const = 0;
+    virtual std::string name() const;
 
     /** Return this object's parameters serialised as a single string.
      *
-     *  If you don't want to support the remote backend in your weighting
-     *  scheme, you can just implement this to throw
-     *  Xapian::UnimplementedError.
+     *  If you don't want to support the remote backend, you can use the
+     *  default implementation which simply throws Xapian::UnimplementedError.
      */
-    virtual std::string serialise() const = 0;
+    virtual std::string serialise() const;
 
     /** Unserialise parameters.
      *
      *  This method unserialises parameters serialised by the @a serialise()
      *  method and allocates and returns a new object initialised with them.
      *
-     *  If you don't want to support the remote backend in your weighting
-     *  scheme, you can just implement this to throw
-     *  Xapian::UnimplementedError.
+     *  If you don't want to support the remote backend, you can use the
+     *  default implementation which simply throws Xapian::UnimplementedError.
      *
      *  Note that the returned object will be deallocated by Xapian after use
      *  with "delete".  It must therefore have been allocated with "new".
      */
-    virtual Weight * unserialise(const std::string & s) const = 0;
+    virtual Weight * unserialise(const std::string & s) const;
 
     /** Calculate the weight contribution for this object's term to a document.
      *

@@ -1,3 +1,9 @@
+Mon Aug 10 06:15:23 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/weight.h,weight/weight.cc: Add default implementations
+	  of Weight methods name(), serialise(), unserialise(), and clone() for
+	  consistency with PostingSource and MatchSpy.
+
 Mon Aug 10 03:29:12 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_postingsource.cc: Tweak header include order.
