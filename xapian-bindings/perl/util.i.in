@@ -662,3 +662,90 @@ bool nequal(Xapian::ESetIterator * that) {
     return ((*self) != (*that));
 }
 }
+
+%perlcode %{
+package Search::Xapian::LogicError;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::PositionIterator;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::PostingIterator;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::TermIterator;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::ValueIterator;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::Document;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::PostingSource;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::ValuePostingSource;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::ValueWeightPostingSource;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::ValueMapPostingSource;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::FixedWeightPostingSource;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::MSet;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::MSetIterator;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::ESet;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::ESetIterator;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::RSet;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::MatchDecider;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::Enquire;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::Weight;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::BoolWeight;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::BM25Weight;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::TradWeight;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::Database;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::WritableDatabase;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::Query;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::Stopper;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::SimpleStopper;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::ValueRangeProcessor;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::StringValueRangeProcessor;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::DateValueRangeProcessor;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::NumberValueRangeProcessor;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::QueryParser;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::Stem;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::TermGenerator;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::Sorter;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::MultiValueSorter;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::ReplicationInfo;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::DatabaseMaster;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::DatabaseReplica;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::ValueSetMatchDecider;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::SerialisationContext;
+sub CLONE_SKIP { 1 }
+package Search::Xapian::MSet::Tied;
+sub CLONE_SKIP { 1 }
+%}

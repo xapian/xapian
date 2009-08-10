@@ -1,3 +1,7 @@
+Mon Aug 10 16:03:10 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Add CLONE_SKIP functions for thread support.
+
 Sat Aug 08 03:35:37 GMT 2009  Kosei Moriyama <cou929@gmail.com>
 
 	* perl/util.i.in:Fix internal function call of MSet::FETCH.
