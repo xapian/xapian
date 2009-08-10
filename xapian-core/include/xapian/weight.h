@@ -71,23 +71,6 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
     /// Don't allow assignment.
     void operator=(const Weight &);
 
-    /** Clone this object.
-     *
-     *  This method allocates and returns a copy of the object it is called on.
-     *
-     *  If your subclass is called FooWeight and has parameters a and b, then
-     *  you would implement FooWeight::clone() like so:
-     *
-     *  FooWeight * FooWeight::clone() const { return new FooWeight(a, b); }
-     *
-     *  If you don't want to support the remote backend, you can use the
-     *  default implementation which simply returns NULL.
-     *
-     *  Note that the returned object will be deallocated by Xapian after use
-     *  with "delete".  It must therefore have been allocated with "new".
-     */
-    virtual Weight * clone() const;
-
     /// A bitmask of the statistics this weighting scheme needs.
     stat_flags stats_needed;
 
@@ -126,6 +109,23 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 
     /** Virtual destructor, because we have virtual methods. */
     virtual ~Weight();
+
+    /** Clone this object.
+     *
+     *  This method allocates and returns a copy of the object it is called on.
+     *
+     *  If your subclass is called FooWeight and has parameters a and b, then
+     *  you would implement FooWeight::clone() like so:
+     *
+     *  FooWeight * FooWeight::clone() const { return new FooWeight(a, b); }
+     *
+     *  If you don't want to support the remote backend, you can use the
+     *  default implementation which simply returns NULL.
+     *
+     *  Note that the returned object will be deallocated by Xapian after use
+     *  with "delete".  It must therefore have been allocated with "new".
+     */
+    virtual Weight * clone() const;
 
     /** Return the name of this weighting scheme.
      *
@@ -196,15 +196,6 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *  optimisations, so strive to make the bound as tight as possible.
      */
     virtual Xapian::weight get_maxextra() const = 0;
-
-    /** @private @internal Helper method for cloning Xapian::Weight objects.
-     *
-     *  This avoids us having to forward-declare internal classes in the
-     *  external API headers in order to make them friends of Xapian::Weight.
-     *
-     *  You should not call this method from your own code.
-     */
-    Weight * clone_() const { return clone(); }
 
     /** @private @internal Initialise this object to calculate weights for term
      *  @a term.

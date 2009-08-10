@@ -1,3 +1,9 @@
+Mon Aug 10 10:29:13 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,include/xapian/weight.h,matcher/localmatch.cc:
+	  Make Weight::clone() public, and remove Weight::clone_() as it is
+	  no longer required.
+
 Mon Aug 10 07:55:04 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* HACKING: Add section on ordering of include files, and fix a few
