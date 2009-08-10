@@ -312,7 +312,7 @@ class ExceptionalPostingSource : public Xapian::PostingSource {
     PostingSource * & allocated;
 
     ExceptionalPostingSource(failmode fail_, PostingSource * & allocated_)
-       	: fail(fail_), allocated(allocated_) { }
+	: fail(fail_), allocated(allocated_) { }
 
     ~ExceptionalPostingSource() {
 	if (fail == DTOR) {
@@ -397,6 +397,196 @@ DEFINE_TESTCASE(serialisationcontext1, !backend) {
         p = context.get_posting_source("ExceptionalPostingSource");
 	if (p) {
 	    TEST_EQUAL(p->name(), "ExceptionalPostingSource");
+	}
+
+	// Because the destructor threw an exception, the memory allocated for
+	// the object didn't get released.
+	operator delete(ptr_dtor);
+    }
+
+    return true;
+}
+
+class ExceptionalWeight : public Xapian::Weight {
+  public:
+    typedef enum { NONE, CLONE, DTOR } failmode;
+
+    failmode fail;
+
+    Weight * & allocated;
+
+    ExceptionalWeight(failmode fail_, Weight * & allocated_)
+	: fail(fail_), allocated(allocated_) { }
+
+    ~ExceptionalWeight() {
+	if (fail == DTOR) {
+	    throw runtime_error(string("arfle barfle gloop?"));
+	}
+    }
+
+    string name() const {
+	return "ExceptionalWeight";
+    }
+
+    Weight * clone() const {
+	if (fail == CLONE)
+	    throw bad_alloc();
+	allocated = new ExceptionalWeight(fail, allocated);
+	return allocated;
+    }
+
+    void init(double) { }
+
+    Xapian::weight get_sumpart(Xapian::termcount, Xapian::termcount) const {
+	return 0;
+    }
+    Xapian::weight get_maxpart() const { return 0; }
+
+    Xapian::weight get_sumextra(Xapian::termcount) const { return 0; }
+    Xapian::weight get_maxextra() const { return 0; }
+};
+
+/// Check that exceptions when registering are handled well.
+DEFINE_TESTCASE(serialisationcontext2, !backend) {
+    // Test that a replacement object throwing bad_alloc is handled.
+    {
+	Xapian::SerialisationContext context;
+
+	Xapian::Weight * ptr = NULL;
+	ExceptionalWeight ewt(ExceptionalWeight::NONE, ptr);
+	context.register_weighting_scheme(ewt);
+	try {
+	    Xapian::Weight * ptr_clone = NULL;
+	    ExceptionalWeight ewt_clone(ExceptionalWeight::CLONE,
+					       ptr_clone);
+	    context.register_weighting_scheme(ewt_clone);
+	    return false;
+	} catch (const bad_alloc &) {
+	}
+
+	// Either the old entry should be removed, or it should work.
+	const Xapian::Weight * p;
+        p = context.get_weighting_scheme("ExceptionalWeight");
+	if (p) {
+	    TEST_EQUAL(p->name(), "ExceptionalWeight");
+	}
+    }
+
+    // Test that the replaced object throwing runtime_error is handled.
+    {
+	Xapian::SerialisationContext context;
+
+	Xapian::Weight * ptr_dtor = NULL;
+	ExceptionalWeight ewt_dtor(ExceptionalWeight::DTOR,
+					  ptr_dtor);
+	context.register_weighting_scheme(ewt_dtor);
+	// Prevent ewt_dtor's dtor from throwing an exception.
+	ewt_dtor.fail = ExceptionalWeight::NONE;
+
+	try {
+	    Xapian::Weight * ptr = NULL;
+	    ExceptionalWeight ewt(ExceptionalWeight::NONE, ptr);
+	    context.register_weighting_scheme(ewt);
+	    return false;
+	} catch (const runtime_error &) {
+	}
+
+	// Either the old entry should be removed, or it should work.
+	const Xapian::Weight * p;
+        p = context.get_weighting_scheme("ExceptionalWeight");
+	if (p) {
+	    TEST_EQUAL(p->name(), "ExceptionalWeight");
+	}
+
+	// Because the destructor threw an exception, the memory allocated for
+	// the object didn't get released.
+	operator delete(ptr_dtor);
+    }
+
+    return true;
+}
+
+class ExceptionalMatchSpy : public Xapian::MatchSpy {
+  public:
+    typedef enum { NONE, CLONE, DTOR } failmode;
+
+    failmode fail;
+
+    MatchSpy * & allocated;
+
+    ExceptionalMatchSpy(failmode fail_, MatchSpy * & allocated_)
+	: fail(fail_), allocated(allocated_) { }
+
+    ~ExceptionalMatchSpy() {
+	if (fail == DTOR) {
+	    throw runtime_error(string("arfle barfle gloop?"));
+	}
+    }
+
+    string name() const {
+	return "ExceptionalMatchSpy";
+    }
+
+    MatchSpy * clone() const {
+	if (fail == CLONE)
+	    throw bad_alloc();
+	allocated = new ExceptionalMatchSpy(fail, allocated);
+	return allocated;
+    }
+
+    void operator()(const Xapian::Document &, Xapian::weight) {
+    }
+};
+
+/// Check that exceptions when registering are handled well.
+DEFINE_TESTCASE(serialisationcontext3, !backend) {
+    // Test that a replacement object throwing bad_alloc is handled.
+    {
+	Xapian::SerialisationContext context;
+
+	Xapian::MatchSpy * ptr = NULL;
+	ExceptionalMatchSpy ems(ExceptionalMatchSpy::NONE, ptr);
+	context.register_match_spy(ems);
+	try {
+	    Xapian::MatchSpy * ptr_clone = NULL;
+	    ExceptionalMatchSpy ems_clone(ExceptionalMatchSpy::CLONE,
+					  ptr_clone);
+	    context.register_match_spy(ems_clone);
+	    return false;
+	} catch (const bad_alloc &) {
+	}
+
+	// Either the old entry should be removed, or it should work.
+	const Xapian::MatchSpy * p;
+        p = context.get_match_spy("ExceptionalMatchSpy");
+	if (p) {
+	    TEST_EQUAL(p->name(), "ExceptionalMatchSpy");
+	}
+    }
+
+    // Test that the replaced object throwing runtime_error is handled.
+    {
+	Xapian::SerialisationContext context;
+
+	Xapian::MatchSpy * ptr_dtor = NULL;
+	ExceptionalMatchSpy ems_dtor(ExceptionalMatchSpy::DTOR, ptr_dtor);
+	context.register_match_spy(ems_dtor);
+	// Prevent ems_dtor's dtor from throwing an exception.
+	ems_dtor.fail = ExceptionalMatchSpy::NONE;
+
+	try {
+	    Xapian::MatchSpy * ptr = NULL;
+	    ExceptionalMatchSpy ems(ExceptionalMatchSpy::NONE, ptr);
+	    context.register_match_spy(ems);
+	    return false;
+	} catch (const runtime_error &) {
+	}
+
+	// Either the old entry should be removed, or it should work.
+	const Xapian::MatchSpy * p;
+        p = context.get_match_spy("ExceptionalMatchSpy");
+	if (p) {
+	    TEST_EQUAL(p->name(), "ExceptionalMatchSpy");
 	}
 
 	// Because the destructor threw an exception, the memory allocated for

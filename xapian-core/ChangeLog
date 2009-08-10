@@ -1,3 +1,12 @@
+Mon Aug 10 06:55:45 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/serialisationcontext.cc,common/serialisationcontextinternal.h:
+	  Refactor to use a template function to implement the exception safe
+	  approach I implemented for PostingSource, and use it for MatchSpy
+	  and Weight too.
+	* tests/api_serialise.cc: Add tests for exception safety of MatchSpy
+	  and Weight with SerialisationContext.
+
 Mon Aug 10 06:15:23 GMT 2009  Olly Betts <olly@survex.com>
 
 	* include/xapian/weight.h,weight/weight.cc: Add default implementations

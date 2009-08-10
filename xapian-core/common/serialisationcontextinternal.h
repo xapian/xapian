@@ -36,6 +36,8 @@ namespace Xapian {
 
 class Xapian::SerialisationContext::Internal
 	: public Xapian::Internal::RefCntBase {
+    friend class Xapian::SerialisationContext;
+
     /// Registered weighting schemes.
     std::map<std::string, Xapian::Weight *> wtschemes;
 
@@ -60,43 +62,6 @@ class Xapian::SerialisationContext::Internal
   public:
     Internal();
     ~Internal();
-
-    /// Register a weighting scheme with the context.
-    void register_weighting_scheme(const Xapian::Weight &wt);
-
-    /** Get a weighting scheme given a name.
-     *
-     *  The returned weighting scheme is owned by the context object.
-     *
-     *  Returns NULL if the weighting scheme could not be found.
-     */
-    const Xapian::Weight *
-	    get_weighting_scheme(const std::string & name) const;
-
-    /// Register a user-defined posting source class.
-    void register_posting_source(const Xapian::PostingSource &source);
-
-    /** Get a posting source given a name.
-     *
-     *  The returned posting source is owned by the context object.
-     *
-     *  Returns NULL if the posting source could not be found.
-     */
-    const Xapian::PostingSource *
-	    get_posting_source(const std::string & name) const;
-
-    /// Register a user-defined match spy class.
-    void register_match_spy(const Xapian::MatchSpy &spy);
-
-    /** Get a match spy given a name.
-     *
-     *  The returned match spy is owned by the context object.
-     *
-     *  Returns NULL if the match spy could not be found.
-     */
-    const Xapian::MatchSpy *
-	    get_match_spy(const std::string & name) const;
-
 };
 
 #endif // XAPIAN_INCLUDED_SERIALISATIONCONTEXTINTERNAL_H
