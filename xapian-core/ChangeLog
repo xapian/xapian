@@ -1,3 +1,7 @@
+Mon Aug 10 11:23:23 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Start to update from ChangeLog.
+
 Mon Aug 10 10:29:13 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,include/xapian/weight.h,matcher/localmatch.cc:
