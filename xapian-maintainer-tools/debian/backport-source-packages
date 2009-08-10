@@ -1,5 +1,5 @@
 #!/bin/sh
-# Backport Debian source package for Search::Xapian.
+# Backport Debian source packages for Xapian.
 #
 # Copyright (C) 2004 Richard Boulton
 # Copyright (C) 2006,2007,2008,2009 Olly Betts
@@ -24,25 +24,34 @@
 
 set -e
 
-# FIXME: determine this automatically, or on the command line?
-# $VERSION holds the version number as defined in configure.in.
-VERSION=1.0.13.0
-SUFFIX=-1
-
 VALID_CODENAMES='lenny etch jaunty intrepid hardy dapper'
 
-if [ x"$1" = x--help ] ; then
-  echo "Usage: $0 [CODENAME...]"
+if [ x"$1" = x--help -o $# -lt 2 ] ; then
+  echo "Usage: $0 SOURCE_PKG VERSION [CODENAME...]"
   echo
+  echo "e.g.: $0 xapian-core 1.0.13.0-1 jaunty"
   echo 'If no codenames are specified, the default is to backport for all of them.'
   echo
   echo "Currently, the recognised values are: $VALID_CODENAMES"
   exit 0
 fi
 
+PKG=$1
+shift
+VERSION=$2
+shift
+
+SUFFIX=`echo "$VERSION"|sed 's/.*-/-/'`
+VERSION=`echo "$VERSION"|sed 's/-[^-]*$//'`
+
+SECTION=libs
+case $PKG in
+xapian-omega) SECTION=web ;;
+esac
+
 # Debian/Ubuntu codename or codenames to build for.
 # This will be overridden by the command line arguments, if any were passed.
-CODENAMES=${VALID_CODENAMES}
+CODENAMES=$VALID_CODENAMES
 
 # Options to pass to dpkg-buildpackage when building source packages
 BUILDPACKAGE_SRC_OPTS="-us -uc -d -S"
@@ -62,8 +71,10 @@ adjust_changelog() {
 
 build_it() {
   adjust_changelog
-  if [ -r debian/patch ]; then
-    patch -p0 <debian/patch
+  if x"$PKG" != xlibsearch-xapian-perl ; then
+    echo "$CODENAME" > debian/codename
+    # Generates control from control.in (and maybe other files).
+    debian/rules CODENAME="$CODENAME"
   fi
   # The default -si only looks for *exactly* -0 or -1.
   include_src_opt=-sa
@@ -91,7 +102,7 @@ for CODENAME in $CODENAMES ; do
     exit 1
   fi
 
-trap "echo \"make-source-packages failed\"" EXIT
+trap "echo \"backport-source-packages failed\"" EXIT
 
 # $BACKPORT_SUFFIX holds a suffix to be added to the debian version number for
 # the backport.
@@ -119,14 +130,14 @@ esac
 mkdir -p build
 cd build
   # FIXME: sort out gpg verifying instead of using -u
-  dget -u "http://ftp.nz.debian.org/debian/pool/main/libs/libsearch-xapian-perl/libsearch-xapian-perl_$VERSION$SUFFIX.dsc"
-  cd libsearch-xapian-perl-${VERSION}
+  dget -u "http://ftp.nz.debian.org/debian/pool/main/$SECTION/${PKG}/${PKG}_$VERSION$SUFFIX.dsc"
+  cd ${PKG}-${VERSION}
     build_it
   cd ..
-  rm -rf libsearch-xapian-perl-${VERSION}
+  rm -rf ${PKG}-${VERSION}
 cd ..
 
-echo "Backported for $CODENAME successfully"
+echo "Backported ${PKG} ${VERSION} for $CODENAME successfully"
 done
 
 trap - EXIT
