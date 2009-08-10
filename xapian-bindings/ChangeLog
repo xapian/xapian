@@ -1,3 +1,14 @@
+Mon Aug 10 16:11:37 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/t/search.t: Modifire some tests to use get_termname() 
+	instead of stringification operator because now we haven't 
+	support it, and remove some machdecider tests since we also 
+	haven't support it.
+	* perl/util.i.in:Fix MSetIterator::clone(), remove 
+	MSetIterator::get_docid() since same function is already
+	defined at xapian.i, and add overloaded operators of 
+	ESetIterator.
+
 Mon Aug 10 16:03:10 GMT 2009  Kosei Moriyama <cou929@gmail.com>
 
 	* perl/util.i.in:Add CLONE_SKIP functions for thread support.

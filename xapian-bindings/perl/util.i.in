@@ -550,20 +550,15 @@ use overload '++' => sub { $_[0]->increment() },
 	     '!=' => sub { $_[0]->nequal($_[1]) },
              'fallback' => 1;
 
-sub clone {
+sub clone() {
   my $self = shift;
   my $class = ref( $self );
-  my $copy = new( $self );
-  bless $copy, $class;
-  return $copy;
+  bless $self, $class;
+  return $self;
 }
 %}
 
 %extend Xapian::MSetIterator {
-Xapian::docid get_docid() {
-     return self->operator*();
-}
-
 bool equal(Xapian::MSetIterator * that) {
      return ((*self) == (*that));
 }
@@ -748,4 +743,24 @@ package Search::Xapian::SerialisationContext;
 sub CLONE_SKIP { 1 }
 package Search::Xapian::MSet::Tied;
 sub CLONE_SKIP { 1 }
+%}
+
+%perlcode %{
+package Search::Xapian::ESetIterator;
+use overload '++' => sub { $_[0]->increment() },
+	     '--' => sub { $_[0]->prev() },
+             '='  => sub { $_[0]->clone() },
+	     'eq' => sub { $_[0]->equal($_[1]) },
+	     'ne' => sub { $_[0]->nequal($_[1]) },
+	     '==' => sub { $_[0]->equal($_[1]) },
+	     '!=' => sub { $_[0]->nequal($_[1]) },
+             'fallback' => 1;
+
+sub clone() {
+  my $self = shift;
+  my $class = ref( $self );
+  my $copy = new( $self );
+  bless $copy, $class;
+  return $copy;
+}
 %}

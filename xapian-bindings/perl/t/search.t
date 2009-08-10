@@ -6,7 +6,7 @@
 # change 'tests => 1' to 'tests => last_test_to_print';
 
 use Test::More;
-BEGIN { plan tests => 114 };
+BEGIN { plan tests => 108 };
 use Search::Xapian qw(:ops);
 
 #########################
@@ -102,25 +102,6 @@ is( $matches3->size, $matches->size, "rset doesn't change mset size" );
 ok( $matches3 = $enq->get_mset(0, 10, 11, $rset), "get_mset with check_at_least and rset" );
 is( $matches3->size, $matches->size, "rset and check_at_least don't change mset size" );
 
-my $d;
-# This was generating a warning converting "0" to an RSet object:
-ok( $matches3 = $enq->get_mset(0, 10,
-			sub { $d = $#_; return $_[0]->get_value(0) ne ""; }),
-       	"get_mset with matchdecider" );
-ok( defined $d, "matchdecider was called" );
-ok( $d == 1, "matchdecider got an argument" );
-
-sub mdecider {
-    $d = $#_;
-    return $_[0]->get_value(0) ne "";
-}
-
-$d = undef;
-ok( $matches3 = $enq->get_mset(0, 10, \&mdecider),
-       	"get_mset with named matchdecider function" );
-ok( defined $d, "matchdecider was called" );
-ok( $d == 1, "matchdecider got an argument" );
-
 my $eset;
 ok( $eset = $enq->get_eset( 10, $rset ), "can get expanded terms set" );
 is( $eset->size(), 1, "expanded terms set of correct size" );
@@ -160,18 +141,18 @@ ok( $tradweight = Search::Xapian::TradWeight->new() );
 
 my $alltermit = $db->allterms_begin();
 ok( $alltermit != $db->allterms_end() );
-ok( "$alltermit" eq 'one' );
+ok( $alltermit->get_termname() eq 'one' );
 ok( ++$alltermit != $db->allterms_end() );
-ok( "$alltermit" eq 'test' );
+ok( $alltermit->get_termname() eq 'test' );
 ok( ++$alltermit != $db->allterms_end() );
-ok( "$alltermit" eq 'two' );
+ok( $alltermit->get_termname() eq 'two' );
 ok( ++$alltermit == $db->allterms_end() );
 
 $alltermit = $db->allterms_begin('t');
 ok( $alltermit != $db->allterms_end('t') );
-ok( "$alltermit" eq 'test' );
+ok( $alltermit->get_termname() eq 'test' );
 ok( ++$alltermit != $db->allterms_end('t') );
-ok( "$alltermit" eq 'two' );
+ok( $alltermit->get_termname() eq 'two' );
 ok( ++$alltermit == $db->allterms_end('t') );
 
 # Check that non-string scalars get coerced.
