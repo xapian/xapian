@@ -1,3 +1,7 @@
+Mon Aug 10 03:29:12 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_postingsource.cc: Tweak header include order.
+
 Tue Aug 04 15:49:54 GMT 2009  Olly Betts <olly@survex.com>
 
 	* include/xapian/queryparser.h: Explicitly document that an empty
