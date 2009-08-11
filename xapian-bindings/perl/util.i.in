@@ -245,10 +245,6 @@ sub new {
 %rename(set_stopper0) Xapian::TermGenerator::set_stopper();
 %rename(set_stopper1) Xapian::TermGenerator::set_stopper(const Xapian::Stopper * stopper);
 
-%rename(set_sort_by_key1) Xapian::Enquire::set_sort_by_key(Xapian::MultiValueSorter * sorter, bool ascending);
-%rename(set_sort_by_key_then_relevance1) Xapian::Enquire::set_sort_by_key_then_relevance(Xapian::MultiValueSorter * sorter, bool ascending);
-%rename(set_sort_by_relevance_then_key1) Xapian::Enquire::set_sort_by_relevance_then_key(Xapian::MultiValueSorter * sorter, bool ascending);
-
 %perlcode %{
 package Search::Xapian;	
 
@@ -427,27 +423,6 @@ sub get_mset {
     }
   }
   return $self->get_mset1( @_ );
-}
-
-sub set_sort_by_key {
-    my $self = $_[0];
-    my $sorter = $_[1];
-    $self{_sorter} = $sorter;
-    set_sort_by_key1( @_ );
-}
-
-sub set_sort_by_key_then_relevance {
-    my $self = $_[0];
-    my $sorter = $_[1];
-    $self{_sorter} = $sorter;
-    set_sort_by_key_then_relevance1( @_ );
-}
-
-sub set_sort_by_relevance_then_key {
-    my $self = $_[0];
-    my $sorter = $_[1];
-    $self{_sorter} = $sorter;
-    set_sort_by_relevance_then_key1( @_ );
 }
 
 sub matches {
@@ -764,3 +739,34 @@ sub clone() {
   return $copy;
 }
 %}
+
+%feature("shadow") Xapian::Enquire::set_sort_by_key
+%{
+sub set_sort_by_key {
+    my $self = $_[0];
+    my $sorter = $_[1];
+    $self{_sorter} = $sorter;
+    Search::Xapianc::Enquire_set_sort_by_key( @_ );
+}
+%}
+
+%feature("shadow") Xapian::Enquire::set_sort_by_key_then_relevance
+%{
+sub set_sort_by_key_then_relevance {
+    my $self = $_[0];
+    my $sorter = $_[1];
+    $self{_sorter} = $sorter;
+    Search::Xapianc::Enquire_set_sort_by_key_then_relevance( @_ );
+}
+%}
+
+%feature("shadow") Xapian::Enquire::set_sort_by_relevance_then_key
+%{
+sub set_sort_by_relevance_then_key {
+    my $self = $_[0];
+    my $sorter = $_[1];
+    $self{_sorter} = $sorter;
+    Search::Xapianc::Enquire_set_sort_by_relevance_then_key( @_ );
+}
+%}
+

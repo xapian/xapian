@@ -1,3 +1,9 @@
+Tue Aug 11 10:01:50 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Fix set_sort_by_key(), set_sort_by_key_then_relevance()
+	and set_sort_by_relevance_then_key() of Enquire using %feature("shadow")
+	directive.
+
 Mon Aug 10 16:11:37 GMT 2009  Kosei Moriyama <cou929@gmail.com>
 
 	* perl/t/search.t: Modifire some tests to use get_termname() 
