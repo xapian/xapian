@@ -151,7 +151,7 @@ if MAINTAINER_MODE
 BUILT_SOURCES += include/xapian/error.h include/xapian/errordispatch.h
 
 include/xapian/error.h include/xapian/errordispatch.h: generate-exceptions exception_data.pm
-	$(PERL) -w -I"$(srcdir)" generate-exceptions
+	$(PERL) -w -I"$(srcdir)" "$(srcdir)/generate-exceptions"
 endif
 
 if !MAINTAINER_NO_DOCS

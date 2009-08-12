@@ -1,3 +1,8 @@
+Wed Aug 12 17:33:53 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Fix generate-exceptions change to work in a VPATH
+	  build.
+
 Wed Aug 12 15:57:44 GMT 2009  Olly Betts <olly@survex.com>
 
 	* exception_data.pm: Add new SerialisationError.
