@@ -1,3 +1,11 @@
+Wed Aug 12 15:19:05 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac,generate-exceptions,generate-exceptions.in:
+	  It's not very useful to be able to run generate-exceptions outside
+	  the build system, and it only gets the #! line substituted, so just
+	  move those runes into Makefile.am and reduce the number of files that
+	  configure needs to generate by one.
+
 Mon Aug 10 13:25:22 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/matchspy.cc: Use <cfloat> and <cmath> rather than <float.h> and
