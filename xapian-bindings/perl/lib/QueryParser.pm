@@ -1,43 +1,5 @@
 package Search::Xapian::QueryParser;
 
-use 5.006;
-use strict;
-use warnings;
-
-require DynaLoader;
-
-our @ISA = qw(DynaLoader);
-
-# Preloaded methods go here.
-
-# In a new thread, copy objects of this class to unblessed, undef values.
-sub CLONE_SKIP { 1 }
-
-use overload '='  => sub { $_[0]->clone() },
-             'fallback' => 1;
-
-sub clone() {
-  my $self = shift;
-  my $class = ref( $self );
-  my $copy = new2( $self );
-  bless $copy, $class;
-  return $copy;
-}
-
-sub new() {
-  my $class = shift;
-  my $qp = new0();
-
-  bless $qp, $class;
-  $qp->set_database(@_) if scalar(@_) == 1;
-
-  return $qp;
-}
-
-1;
-
-__END__
-
 =head1 NAME
 
 Search::Xapian::QueryParser - Parse a query string into a Search::Xapian::Query object

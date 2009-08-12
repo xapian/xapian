@@ -1,59 +1,5 @@
 package Search::Xapian::ValueIterator;
 
-use 5.006;
-use strict;
-use warnings;
-use Carp;
-
-require DynaLoader;
-
-our @ISA = qw(DynaLoader);
-
-# Preloaded methods go here.
-
-# In a new thread, copy objects of this class to unblessed, undef values.
-sub CLONE_SKIP { 1 }
-
-use overload '++' => sub { $_[0]->inc() },
-             '='  => sub { $_[0]->clone() },
-	     'eq' => sub { $_[0]->equal($_[1]) },
-	     'ne' => sub { $_[0]->nequal($_[1]) },
-	     '==' => sub { $_[0]->equal($_[1]) },
-	     '!=' => sub { $_[0]->nequal($_[1]) },
-             '""' => sub { $_[0]->get_value() },
-             'fallback' => 1;
-
-sub clone() {
-  my $self = shift;
-  my $class = ref( $self );
-  my $copy = new2( $self );
-  bless $copy, $class;
-  return $copy;
-}
-
-sub new() {
-  my $class = shift;
-  my $iterator;
-  my $invalid_args;
-  if( scalar(@_) == 0 ) {
-    $iterator = new1();
-  } elsif( scalar(@_) == 1 and ref( $_[1] ) eq $class ) {
-    $iterator = new2(@_);
-  } else {
-    $invalid_args = 1;
-  }
-  if( $invalid_args ) {
-    Carp::carp( "USAGE: $class->new(), $class->new(\$iterator)" );
-    exit;
-  }
-  bless $iterator, $class;
-  return $iterator;
-}
-
-1;
-
-__END__
-
 =head1 NAME 
 
 Search::Xapian::ValueIterator - Iterate over value slots in a document.
@@ -62,7 +8,8 @@ Search::Xapian::ValueIterator - Iterate over value slots in a document.
 
 This object represents a stream of document values. It overloads C<++> for
 advancing the iterator, or you can explicitly call the C<inc> method.
-This class also overloads C<eq>, C<ne>, C<==> and C<!=>.
+This class also overloads C<eq>, C<ne>, C<==>, C<!=>, and C<"">
+(stringification).
 
 =head1 METHODS
 
@@ -84,7 +31,8 @@ Return the number of the value slot at the current position.
 
 =item get_value
 
-Return the string in the value slot at current position.
+Return the string in the value slot at current position.  Also overloaded as
+the C<""> operator.
 
 =item get_description
 

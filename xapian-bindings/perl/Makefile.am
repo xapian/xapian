@@ -2,13 +2,10 @@
 
 include ../generic/generic.mk
 
-TESTS_ENVIRONMENT = prove -I.libs
+TESTS_ENVIRONMENT = prove -I.libs -Ilib
 
 ## Test programs to be run
-TESTS = t/01use.t t/02pod.t t/03podcoverage.t t/04functions.t \
-	t/create.t t/databasemodified.t t/document.t t/exception.t \
-	t/index.t t/parser.t t/search.t t/sorter.t t/termgenerator.t \
-	t/thread.t t/tied.t t/valuerange.t t/writabledatabase.t
+TESTS = t/*.t
 
 BUILT_SOURCES = xapian_wrap.cc
 

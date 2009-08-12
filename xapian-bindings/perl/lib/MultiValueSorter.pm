@@ -1,32 +1,5 @@
 package Search::Xapian::MultiValueSorter;
 
-use 5.006;
-use strict;
-use warnings;
-
-require DynaLoader;
-
-our @ISA = qw(DynaLoader);
-
-# Preloaded methods go here.
-
-# In a new thread, copy objects of this class to unblessed, undef values.
-sub CLONE_SKIP { 1 }
-
-sub new() {
-  my $class = shift;
-  my $obj = new0();
-
-  bless $obj, $class;
-  foreach (@_) { $obj->add($_) }
-
-  return $obj;
-}
-
-1;
-
-__END__
-
 =head1 NAME
 
 Search::Xapian::MultiValueSorter - allows sorting by a several values.

@@ -1,3 +1,10 @@
+Wed Aug 12 06:22:31 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/Makefile.am,perl/lib/,perl/lib/MSet/Tied.pm,perl/lib/,
+	perl/util.i.in:Remove perl code from lib/*.pm files, add pod
+	document of Search::Xapian to util.i.in, and fix test environment
+	and test programs in Makefile.am.
+
 Tue Aug 11 10:01:50 GMT 2009  Kosei Moriyama <cou929@gmail.com>
 
 	* perl/util.i.in:Fix set_sort_by_key(), set_sort_by_key_then_relevance()
