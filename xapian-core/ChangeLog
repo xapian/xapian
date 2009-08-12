@@ -1,3 +1,9 @@
+Wed Aug 12 15:57:44 GMT 2009  Olly Betts <olly@survex.com>
+
+	* exception_data.pm: Add new SerialisationError.
+	* common/serialise-double.cc: Throw SerialisationError or InternalError
+	  instead of NetworkError.
+
 Wed Aug 12 15:19:05 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.ac,generate-exceptions,generate-exceptions.in:
