@@ -9,7 +9,7 @@ TESTS = t/*.t
 
 BUILT_SOURCES = xapian_wrap.cc
 
-EXTRA_DIST = util.i except.i $(TESTS) $(BUILT_SOURCES)
+EXTRA_DIST = util.i except.i index.html $(TESTS) $(BUILT_SOURCES)
 
 SUBDIRS = docs
 
@@ -32,6 +32,10 @@ if MAINTAINER_MODE
 BUILT_SOURCES += except.i
 except.i: $(srcdir)/generate-perl-exceptions ../../xapian-core/exception_data.pm
 	$(PERL) -w -I$(srcdir)/../../xapian-core $(srcdir)/generate-perl-exceptions
+
+BUILT_SOURCES += index.html
+index.html: Xapian.pm
+	pod2html Xapian.pm > docs/index.html
 
 xapian_wrap.cc Xapian.pm: xapian_wrap.stamp
 	@stamp=xapian_wrap.stamp; $(make_many_locked)

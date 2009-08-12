@@ -1,3 +1,8 @@
+Wed Aug 12 12:59:30 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/Makefile.am,perl/docs/index.html:Fix Makefile to
+	generate docs/index.html from pod document of Search::Xapian.
+
 Wed Aug 12 09:32:17 GMT 2009  Kosei Moriyama <cou929@gmail.com>
 
 	* perl/util.i.in:Remove and replace some lines and clean
