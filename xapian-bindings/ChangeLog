@@ -1,3 +1,8 @@
+Wed Aug 12 14:11:49 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* INSTALL,perl/util.i.in:Add and fix some lines to describe
+	SWIG based perl biding.
+
 Wed Aug 12 12:59:30 GMT 2009  Kosei Moriyama <cou929@gmail.com>
 
 	* perl/Makefile.am,perl/docs/index.html:Fix Makefile to

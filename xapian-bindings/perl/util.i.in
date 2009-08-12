@@ -1,6 +1,8 @@
 %{
 /* perl/util.i: custom Perl typemaps for xapian-bindings
  *
+ * Based on the perl XS wrapper files.
+ *
  * Copyright (C) 2009 Kosei Moriyama
  *
  * This program is free software; you can redistribute it and/or
@@ -747,7 +749,7 @@ sub CLONE_SKIP { 1 }
 # Pod document of Search::Xapian
 =head1 NAME
 
-Search::Xapian - Perl XS frontend to the Xapian C++ search library.
+Search::Xapian - Perl frontend to the Xapian C++ search library.
 
 =head1 SYNOPSIS
 
@@ -981,7 +983,7 @@ Returns the revision of the Xapian C++ library being used.  E.g. for
 Xapian 1.0.9 this would return 9.  In a stable release series, Xapian libraries
 with the same minor and major versions are usually ABI compatible, so this
 often won't match the third component of $Search::Xapian::VERSION (which is the
-version of the Search::Xapian XS wrappers).
+version of the Search::Xapian wrappers).
 
 =back
 
