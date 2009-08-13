@@ -1,3 +1,9 @@
+Thu Aug 13 15:15:39 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/queryparser.h: Explicitly document that an empty
+	  prefix argument to QueryParser::add_prefix() means "no prefix".
+
 Thu Aug 13 15:12:20 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_table.cc,backends/flint/flint_table.h: Back out
