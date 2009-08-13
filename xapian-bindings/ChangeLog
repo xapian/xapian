@@ -1,3 +1,7 @@
+Thu Aug 13 12:36:41 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/util.i.in:Fix some lines and clean up code.
+
 Wed Aug 12 14:11:49 GMT 2009  Kosei Moriyama <cou929@gmail.com>
 
 	* INSTALL,perl/util.i.in:Add and fix some lines to describe
