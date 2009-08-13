@@ -1,3 +1,11 @@
+xapian-core (1.0.15-1) UNRELEASED; urgency=low
+
+  * New upstream release.
+  * xapian-tools now depends on the same version of libxapian15 to avoid
+    problems with some undocumented symbols xapian-compact uses.
+
+ -- Olly Betts <olly@survex.com>  Thu, 13 Aug 2009 05:18:07 +0100
+
 xapian-core (1.0.14-2) unstable; urgency=medium
 
   * "urgency=medium" as 1.0.14-1 has aged 5 days and only FTBFS on alpha
