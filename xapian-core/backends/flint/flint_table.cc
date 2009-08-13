@@ -22,9 +22,6 @@
 
 #include <config.h>
 
-// Part of a fix for a minor ABI incompatibility.
-#define XAPIAN_COMPILING_FLINT_TABLE_CC 1
-
 #include <xapian/error.h>
 
 #include "safeerrno.h"
@@ -1574,70 +1571,6 @@ FlintTable::FlintTable(const string & path_, bool readonly_,
 	      compress_strategy_ << ", " << lazy_);
 }
 
-FlintTable::FlintTable(string path_, bool readonly_,
-		       int compress_strategy_)
-	: revision_number(0),
-	  item_count(0),
-	  block_size(0),
-	  latest_revision_number(0),
-	  both_bases(false),
-	  base_letter('A'),
-	  faked_root_block(true),
-	  sequential(true),
-	  handle(-1),
-	  level(0),
-	  root(0),
-	  kt(0),
-	  buffer(0),
-	  base(),
-	  name(path_),
-	  seq_count(0),
-	  changed_n(0),
-	  changed_c(0),
-	  max_item_size(0),
-	  Btree_modified(false),
-	  full_compaction(false),
-	  writable(!readonly_),
-	  split_p(0),
-	  compress_strategy(compress_strategy_),
-	  deflate_zstream(NULL),
-	  inflate_zstream(NULL),
-	  lazy(false)
-{
-}
-
-FlintTable::FlintTable(string path_, bool readonly_,
-		       int compress_strategy_, bool lazy_)
-	: revision_number(0),
-	  item_count(0),
-	  block_size(0),
-	  latest_revision_number(0),
-	  both_bases(false),
-	  base_letter('A'),
-	  faked_root_block(true),
-	  sequential(true),
-	  handle(-1),
-	  level(0),
-	  root(0),
-	  kt(0),
-	  buffer(0),
-	  base(),
-	  name(path_),
-	  seq_count(0),
-	  changed_n(0),
-	  changed_c(0),
-	  max_item_size(0),
-	  Btree_modified(false),
-	  full_compaction(false),
-	  writable(!readonly_),
-	  split_p(0),
-	  compress_strategy(compress_strategy_),
-	  deflate_zstream(NULL),
-	  inflate_zstream(NULL),
-	  lazy(lazy_)
-{
-}
-
 void
 FlintTable::lazy_alloc_deflate_zstream() const {
     if (usual(deflate_zstream)) {
@@ -1787,14 +1720,6 @@ FlintTable::create_and_open(unsigned int block_size_)
 
     // Any errors are thrown if revision_supplied is false.
     (void)do_open_to_write(false, 0, true);
-}
-
-// For ABI compatibility with 1.0.1.
-void
-FlintTable::create(unsigned int block_size_)
-{
-    // The 1.0.1 code will call open() again, but that's harmless.
-    create_and_open(block_size_);
 }
 
 FlintTable::~FlintTable() {
