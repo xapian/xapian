@@ -25,7 +25,7 @@
 #include <xapian/document.h>
 #include <xapian/error.h>
 #include <xapian/queryparser.h>
-#include <xapian/serialisationcontext.h>
+#include <xapian/registry.h>
 
 #include <map>
 #include <string>
@@ -38,9 +38,8 @@
 #include "stringutils.h"
 #include "str.h"
 
-#include <float.h>
-#include <math.h>
-
+#include <cfloat>
+#include <cmath>
 
 using namespace std;
 
@@ -64,7 +63,7 @@ MatchSpy::serialise() const {
 }
 
 MatchSpy *
-MatchSpy::unserialise(const string &, const SerialisationContext &) const {
+MatchSpy::unserialise(const string &, const Registry &) const {
     throw UnimplementedError("MatchSpy not suitable for use with remote searches - unserialise() method unimplemented");
 }
 
@@ -216,8 +215,8 @@ ValueCountMatchSpy::serialise() const {
 }
 
 MatchSpy *
-ValueCountMatchSpy::unserialise(const string & s,
-				const SerialisationContext &) const{
+ValueCountMatchSpy::unserialise(const string & s, const Registry &) const
+{
     const char * p = s.data();
     const char * end = p + s.size();
 

@@ -34,6 +34,11 @@ Mon Oct 29 03:03:57 GMT 2007  Olly Betts <olly@survex.com>
 	* NEWS,csharp/Makefile.am,python/extra.i,python/pythontest.py,
 	  python/util.i,xapian.i: Restore the changes.
 
+Mon Aug 10 13:09:12 GMT 2009  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,xapian.i: Update for SerialisationContext to
+	  Registry rename.
+
 Sun Aug 02 12:21:05 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/pythontest3.py: Sync with pythontest2.

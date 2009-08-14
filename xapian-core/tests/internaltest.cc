@@ -424,9 +424,9 @@ static void
 serialisequery1_helper(const Xapian::Query & query)
 {
     string before = query.internal->serialise();
-    Xapian::SerialisationContext ctx;
+    Xapian::Registry reg;
     Xapian::Query::Internal * qint;
-    qint = Xapian::Query::Internal::unserialise(before, ctx);
+    qint = Xapian::Query::Internal::unserialise(before, reg);
     string after = qint->serialise();
     delete qint;
     TEST(before == after);

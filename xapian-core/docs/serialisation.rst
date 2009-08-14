@@ -56,16 +56,15 @@ all the PostingSource subclasses used in the query must implement the
 `postingsource topic document <postingsource.html>`_ for details of these).
 In addition, a special form of unserialise must be used::
 
-    static Query unserialise(const std::string & s,
-			     const SerialisationContext & ctx);
+    static Query unserialise(const std::string & s, const Registry & registry);
 
-The ``SerialisationContext`` passed to this method must know about all the
-custom posting sources used in the query.  You can tell a SerialisationContext
+The ``Registry`` passed to this method must know about all the
+custom posting sources used in the query.  You can tell a Registry
 about a custom posting source using the
-``SerialisationContext::register_posting_source`` method::
+``Registry::register_posting_source`` method::
 
     void register_posting_source(const Xapian::PostingSource &source);
 
-Note that SerialisationContext objects always know about built-in posting sources
+Note that Registry objects always know about built-in posting sources
 (such as ``ValueWeightPostingSource``), so you don't need to call
 ``register_posting_source()`` for them.

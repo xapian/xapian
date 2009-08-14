@@ -909,7 +909,7 @@ Enquire::set_weighting_scheme(const Weight &weight_)
 {
     DEBUGAPICALL(void, "Xapian::Enquire::set_weighting_scheme", "[Weight]");
     // Clone first in case doing so throws an exception.
-    Weight * wt = weight_.clone_();
+    Weight * wt = weight_.clone();
     swap(wt, internal->weight);
     delete wt;
 }

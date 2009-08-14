@@ -1,7 +1,8 @@
-/** @file serialisationcontext.h
- * @brief Context for looking up objects during unserialisation.
+/** @file registry.h
+ * @brief Class for looking up user subclasses during unserialisation.
  */
 /* Copyright 2009 Lemur Consulting Ltd
+ * Copyright 2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,8 +20,8 @@
  * USA
  */
 
-#ifndef XAPIAN_INCLUDED_SERIALISATIONCONTEXT_H
-#define XAPIAN_INCLUDED_SERIALISATIONCONTEXT_H
+#ifndef XAPIAN_INCLUDED_REGISTRY_H
+#define XAPIAN_INCLUDED_REGISTRY_H
 
 #include <xapian/base.h>
 #include <xapian/visibility.h>
@@ -29,18 +30,18 @@
 namespace Xapian {
 
 // Forward declarations.
-class Weight;
-class PostingSource;
 class MatchSpy;
+class PostingSource;
+class Weight;
 
-/** A context for serialisation.
+/** Registry for user subclasses.
  *
- *  This context is used to look up weighting schemes and posting sources when
- *  unserialising.
+ *  This class provides a way for the remote server to look up user subclasses
+ *  when unserialising.
  */
-class XAPIAN_VISIBILITY_DEFAULT SerialisationContext {
+class XAPIAN_VISIBILITY_DEFAULT Registry {
   public:
-    /// Class holding details of the context.
+    /// Class holding details of the registry.
     class Internal;
 
   private:
@@ -48,34 +49,33 @@ class XAPIAN_VISIBILITY_DEFAULT SerialisationContext {
     Xapian::Internal::RefCntPtr<Internal> internal;
 
   public:
-
-    /** Copy the context.
+    /** Copy constructor.
      *
      *  The internals are reference counted, so copying is cheap.
      */
-    SerialisationContext(const SerialisationContext & other);
+    Registry(const Registry & other);
 
-    /** Assign to the context - the copy is shallow.
+    /** Assignment operator.
      *
      *  The internals are reference counted, so assignment is cheap.
      */
-    SerialisationContext & operator=(const SerialisationContext & other);
+    Registry & operator=(const Registry & other);
 
-    /** Default constructor: makes a context with default settings.
+    /** Default constructor.
      *
-     *  The context will contain all standard weighting schemes and
-     *  posting sources.
+     *  The registry will contain all standard subclasses of user-subclassable
+     *  classes.
      */
-    SerialisationContext();
+    Registry();
 
-    ~SerialisationContext();
+    ~Registry();
 
-    /// Register a weighting scheme with the context.
+    /// Register a weighting scheme.
     void register_weighting_scheme(const Xapian::Weight &wt);
 
-    /** Get a weighting scheme given a name.
+    /** Get the weighting scheme given a name.
      *
-     *  The returned weighting scheme is owned by the context object.
+     *  The returned weighting scheme is owned by the registry object.
      *
      *  Returns NULL if the weighting scheme could not be found.
      */
@@ -87,7 +87,7 @@ class XAPIAN_VISIBILITY_DEFAULT SerialisationContext {
 
     /** Get a posting source given a name.
      *
-     *  The returned posting source is owned by the context object.
+     *  The returned posting source is owned by the registry object.
      *
      *  Returns NULL if the posting source could not be found.
      */
@@ -99,7 +99,7 @@ class XAPIAN_VISIBILITY_DEFAULT SerialisationContext {
 
     /** Get a match spy given a name.
      *
-     *  The returned match spy is owned by the context object.
+     *  The returned match spy is owned by the registry object.
      *
      *  Returns NULL if the match spy could not be found.
      */
@@ -109,4 +109,4 @@ class XAPIAN_VISIBILITY_DEFAULT SerialisationContext {
 
 }
 
-#endif /* XAPIAN_INCLUDED_SERIALISATIONCONTEXT_H */
+#endif /* XAPIAN_INCLUDED_REGISTRY_H */

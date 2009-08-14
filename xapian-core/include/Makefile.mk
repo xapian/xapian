@@ -25,8 +25,8 @@ xapianinclude_HEADERS =\
 	include/xapian/postingsource.h\
 	include/xapian/query.h\
 	include/xapian/queryparser.h\
+	include/xapian/registry.h\
 	include/xapian/replication.h\
-	include/xapian/serialisationcontext.h\
 	include/xapian/sorter.h\
 	include/xapian/stem.h\
 	include/xapian/termgenerator.h\

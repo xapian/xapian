@@ -44,7 +44,7 @@ struct SortPosName;
 namespace Xapian {
 
 class PostingSource;
-class SerialisationContext;
+class Registry;
 
 /** Class representing a query.
  *
@@ -287,16 +287,16 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 
 	/** Unserialise a query from a string produced by serialise().
 	 *
-	 *  The supplied context will be used to attempt to unserialise any
+	 *  The supplied registry will be used to attempt to unserialise any
 	 *  external PostingSource leaf nodes.  This method will fail if the
 	 *  query contains any external PostingSource leaf nodes which are not
-	 *  registered in the context.
+	 *  registered in the registry.
 	 *
 	 *  @param s The string representing the serialised query.
-	 *  @param context A context to use when unserialising the query.
+	 *  @param registry Xapian::Registry to use.
 	 */
 	static Query unserialise(const std::string & s,
-				 const SerialisationContext & context);
+				 const Registry & registry);
 
 	/// Return a string describing this object.
 	std::string get_description() const;
@@ -459,7 +459,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 	~Internal();
 
 	static Xapian::Query::Internal * unserialise(const std::string &s,
-						     const SerialisationContext & context);
+						     const Registry & registry);
 
 	/** Add a subquery. */
 	void add_subquery(const Query::Internal * subq);
