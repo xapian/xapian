@@ -9,3 +9,4 @@ Search::Xapian::DocNotFoundError -  Indicates an attempt to access a document no
 
 
 =cut
+1;

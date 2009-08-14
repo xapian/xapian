@@ -13,3 +13,4 @@ This is an abstract base class for weighting schemes in Xapian.
 L<Search::Xapian>,L<Search::Xapian::BoolWeight>,L<Search::Xapian::BM25Weight>
 
 =cut
+1;

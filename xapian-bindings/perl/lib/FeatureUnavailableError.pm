@@ -11,3 +11,4 @@ Search::Xapian::FeatureUnavailableError -  Indicates an attempt to use a feature
 
 
 =cut
+1;

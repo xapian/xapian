@@ -128,3 +128,4 @@ Get the number of elements indexed by a certain term.
 L<Search::Xapian>,L<Search::Xapian::Enquire>,L<Search::Xapian::WritableDatabase>
 
 =cut
+1;

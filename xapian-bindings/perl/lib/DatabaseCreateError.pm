@@ -9,3 +9,4 @@ Search::Xapian::DatabaseCreateError -  DatabaseCreateError indicates a failure t
 
 
 =cut
+1;

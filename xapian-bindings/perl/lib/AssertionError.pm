@@ -14,3 +14,4 @@ Search::Xapian::AssertionError -  AssertionError is thrown if a logical assertio
 
 
 =cut
+1;

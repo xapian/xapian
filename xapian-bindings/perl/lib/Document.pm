@@ -103,3 +103,4 @@ Return a description of this object.
 L<Search::Xapian::Database>
 
 =cut
+1;

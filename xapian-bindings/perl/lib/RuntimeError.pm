@@ -13,3 +13,4 @@ Search::Xapian::RuntimeError -  The base class for exceptions indicating errors 
 
 
 =cut
+1;

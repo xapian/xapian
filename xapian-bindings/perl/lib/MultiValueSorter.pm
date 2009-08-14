@@ -39,3 +39,4 @@ is specified and is false.
   http://www.xapian.org/docs/sourcedoc/html/classXapian_1_1MultiValueSorter.html
 
 =cut
+1;

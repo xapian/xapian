@@ -8,3 +8,4 @@ Search::Xapian::RangeError -  RangeError indicates an attempt to access outside 
 
 
 =cut
+1;

@@ -9,3 +9,4 @@ Search::Xapian::DatabaseLockError -  DatabaseLockError indicates failure to lock
 
 
 =cut
+1;

@@ -9,3 +9,4 @@ Search::Xapian::NetworkTimeoutError -  Indicates a timeout expired while communi
 
 
 =cut
+1;

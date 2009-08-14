@@ -1,3 +1,7 @@
+Fri Aug 14 16:45:44 GMT 2009  Kosei Moriyama <cou929@gmail.com>
+
+	* perl/lib/:Add "1;" into end of lib/*.pm files.
+
 Thu Aug 13 12:36:41 GMT 2009  Kosei Moriyama <cou929@gmail.com>
 
 	* perl/util.i.in:Fix some lines and clean up code.

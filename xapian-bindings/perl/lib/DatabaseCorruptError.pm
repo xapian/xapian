@@ -9,3 +9,4 @@ Search::Xapian::DatabaseCorruptError -  DatabaseCorruptError indicates database 
 
 
 =cut
+1;

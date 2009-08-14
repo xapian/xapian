@@ -9,3 +9,4 @@ Search::Xapian::NetworkError -  Indicates a problem communicating with a remote 
 
 
 =cut
+1;

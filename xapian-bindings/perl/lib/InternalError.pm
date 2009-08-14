@@ -9,3 +9,4 @@ Search::Xapian::InternalError -  InternalError indicates a runtime problem of so
 
 
 =cut
+1;

@@ -31,3 +31,4 @@ Optional context information, returned as a string
 Returns any error string from errno or similar associated with this error
 
 =cut
+1;

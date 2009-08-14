@@ -9,3 +9,4 @@ Search::Xapian::UnimplementedError -  UnimplementedError indicates an attempt to
 
 
 =cut
+1;

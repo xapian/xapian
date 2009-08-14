@@ -56,3 +56,4 @@ Return a description of this object.  Also implemented as stringification.
 L<Search::Xapian>,L<Search::Xapian::Document>
 
 =cut
+1;

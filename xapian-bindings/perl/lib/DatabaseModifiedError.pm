@@ -12,3 +12,4 @@ Search::Xapian::DatabaseModifiedError -  DatabaseModifiedError indicates a datab
 
 
 =cut
+1;

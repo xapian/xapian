@@ -8,3 +8,4 @@ Search::Xapian::InvalidOperationError -  InvalidOperationError indicates the API
 
 
 =cut
+1;

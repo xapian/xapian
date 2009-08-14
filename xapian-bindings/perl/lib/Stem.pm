@@ -30,3 +30,4 @@ Returns the stemmed form of the given word.
 L<Search::Xapian>, L<Search::Xapian::QueryParser>, L<Search::Xapian::TermGenerator>
 
 =cut
+1;

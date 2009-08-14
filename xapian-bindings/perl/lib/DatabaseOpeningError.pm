@@ -9,3 +9,4 @@ Search::Xapian::DatabaseOpeningError -  DatabaseOpeningError indicates failure t
 
 
 =cut
+1;

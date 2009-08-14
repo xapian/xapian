@@ -9,3 +9,4 @@ Search::Xapian::QueryParserError -  Indicates a query string can't be parsed.
 
 
 =cut
+1;

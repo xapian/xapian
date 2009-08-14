@@ -129,3 +129,4 @@ Re-open the database. makes sure you have a fresh db handle.
 L<Search::Xapian>,L<Search::Xapian::Enquire>,L<Search::Xapian::Database>
 
 =cut
+1;

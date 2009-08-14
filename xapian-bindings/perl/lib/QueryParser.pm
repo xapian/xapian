@@ -120,3 +120,4 @@ Returns a string describing this object.
   http://www.xapian.org/docs/sourcedoc/html/classXapian_1_1QueryParser.html
 
 =cut
+1;

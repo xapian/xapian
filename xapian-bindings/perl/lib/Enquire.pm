@@ -164,3 +164,4 @@ Return a description of this object.
 L<Search::Xapian::Query>, L<Search::Xapian::Database>
 
 =cut
+1;

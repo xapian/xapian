@@ -11,3 +11,4 @@ Search::Xapian::LogicError -  The base class for exceptions indicating errors in
 
 
 =cut
+1;

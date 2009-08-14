@@ -17,3 +17,4 @@ Search::Xapian::DatabaseVersionError -  DatabaseVersionError indicates that a da
 
 
 =cut
+1;

@@ -8,3 +8,4 @@ Search::Xapian::InvalidArgumentError -  InvalidArgumentError indicates an invali
 
 
 =cut
+1;

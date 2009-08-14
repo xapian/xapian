@@ -23,3 +23,4 @@ Constructor. Takes no arguments.
 L<Search::Xapian>,L<Search::Xapian::Enquire>
 
 =cut
+1;

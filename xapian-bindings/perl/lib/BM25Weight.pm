@@ -24,3 +24,4 @@ Constructor. Either takes no parameters, or the 4 BM25 parameters
 L<Search::Xapian>,L<Search::Xapian::Enquire>
 
 =cut
+1;

@@ -9,3 +9,4 @@ Search::Xapian::DatabaseError -  DatabaseError indicates some sort of database r
 
 
 =cut
+1;

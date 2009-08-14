@@ -71,3 +71,4 @@ as the C<ne> and C<!=> operators.
 L<Search::Xapian>,L<Search::Xapian::Document>
 
 =cut
+1;

@@ -77,3 +77,4 @@ Return a description of this object.
 L<Search::Xapian>,L<Search::Xapian::Database>
 
 =cut
+1;
