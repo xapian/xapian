@@ -588,18 +588,12 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
     if (!skip_duplicates) {
 	// If this document has already been indexed, update the existing
 	// entry.
-	try {
-	    Xapian::docid did = db.replace_document(urlterm, newdocument);
-	    if (did < updated.size()) {
-		updated[did] = true;
-		cout << "updated." << endl;
-	    } else {
-		cout << "added." << endl;
-	    }
-	} catch (...) {
-	    // FIXME: is this ever actually needed?
-	    db.add_document(newdocument);
-	    cout << "added (failed re-seek for duplicate)." << endl;
+	Xapian::docid did = db.replace_document(urlterm, newdocument);
+	if (did < updated.size()) {
+	    updated[did] = true;
+	    cout << "updated." << endl;
+	} else {
+	    cout << "added." << endl;
 	}
     } else {
 	// If this were a duplicate, we'd have skipped it above.
