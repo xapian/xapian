@@ -1,3 +1,11 @@
+ 13273       olly Wed Aug 05 03:50:54 GMT 2009  Olly Betts <olly@survex.com>
+
+ 13147       olly Thu Jul 23 11:26:15 GMT 2009  Olly Betts <olly@survex.com>
+	* templates/query: If JavaScript is available, convert the
+	  $field{modtime} to a string on the client-side so that the timezone
+	  is correct.  If JavaScript isn't available, fall back to the existing
+	  behaviour of using UTC.  (ticket#314)
+
 Omega 1.1.2 (2009-07-23):
 
 indexers:
