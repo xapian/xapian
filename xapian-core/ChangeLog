@@ -1,3 +1,11 @@
+Mon Aug 17 16:51:10 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/multimatch.cc: When sorting by non-pure-relevance, ensure
+	  that the document is shown to the matchspy even if it couldn't
+	  get in the mset.
+	* tests/api_matchspy.cc: Extend matchspy4 to include a regression
+	  test for this.
+
 Mon Aug 17 11:51:24 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/matchspy.cc,include/xapian/matchspy.h: Add overload for

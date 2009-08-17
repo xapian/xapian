@@ -333,24 +333,45 @@ DEFINE_TESTCASE(matchspy4, writable)
 	db.add_document(doc);
     }
 
-    Xapian::ValueCountMatchSpy spy0(0);
-    Xapian::ValueCountMatchSpy spy1(1);
-    Xapian::ValueCountMatchSpy spy3(3);
+    // We're going to run the match twice - once sorted by relevance, and once
+    // sorted by a value.  This is a regression test - the matcher used to fail
+    // to show some documents to the spy when sorting by non-pure-relevance.
+    Xapian::ValueCountMatchSpy spya0(0);
+    Xapian::ValueCountMatchSpy spya1(1);
+    Xapian::ValueCountMatchSpy spya3(3);
+    Xapian::ValueCountMatchSpy spyb0(0);
+    Xapian::ValueCountMatchSpy spyb1(1);
+    Xapian::ValueCountMatchSpy spyb3(3);
 
-    Xapian::Enquire enq(db);
+    Xapian::Enquire enqa(db);
+    Xapian::Enquire enqb(db);
 
-    enq.set_query(Xapian::Query("all"));
+    enqa.set_query(Xapian::Query("all"));
+    enqb.set_query(Xapian::Query("all"));
 
-    enq.add_matchspy(&spy0);
-    enq.add_matchspy(&spy1);
-    enq.add_matchspy(&spy3);
-    Xapian::MSet mset = enq.get_mset(0, 10);
+    enqa.add_matchspy(&spya0);
+    enqa.add_matchspy(&spya1);
+    enqa.add_matchspy(&spya3);
+    enqb.add_matchspy(&spyb0);
+    enqb.add_matchspy(&spyb1);
+    enqb.add_matchspy(&spyb3);
 
-    TEST_EQUAL(spy0.get_total(), 25);
-    TEST_EQUAL(spy1.get_total(), 25);
-    TEST_EQUAL(spy3.get_total(), 25);
+    Xapian::MSet mseta = enqa.get_mset(0, 10);
+    enqb.set_sort_by_value(0, false);
+    Xapian::MSet msetb = enqb.get_mset(0, 10, 100);
+
+    TEST_EQUAL(spya0.get_total(), 25);
+    TEST_EQUAL(spya1.get_total(), 25);
+    TEST_EQUAL(spya3.get_total(), 25);
+    TEST_EQUAL(spyb0.get_total(), 25);
+    TEST_EQUAL(spyb1.get_total(), 25);
+    TEST_EQUAL(spyb3.get_total(), 25);
 
     static const char * results[] = {
+	"|2:9|4:7|3:3|6:3|1:1|5:1|8:1|",
+	"|1:3|2:3|3:3|4:3|5:3|0:2|6:2|7:2|8:2|9:2|",
+	"|",
+	"|2:16|1:9|",
 	"|2:9|4:7|3:3|6:3|1:1|5:1|8:1|",
 	"|1:3|2:3|3:3|4:3|5:3|0:2|6:2|7:2|8:2|9:2|",
 	"|",
@@ -358,10 +379,14 @@ DEFINE_TESTCASE(matchspy4, writable)
 	NULL
     };
     std::vector<Xapian::ValueCountMatchSpy *> spies;
-    spies.push_back(&spy0);
-    spies.push_back(&spy1);
+    spies.push_back(&spya0);
+    spies.push_back(&spya1);
     spies.push_back(NULL);
-    spies.push_back(&spy3);
+    spies.push_back(&spya3);
+    spies.push_back(&spyb0);
+    spies.push_back(&spyb1);
+    spies.push_back(NULL);
+    spies.push_back(&spyb3);
     for (Xapian::valueno v = 0; results[v]; ++v) {
 	tout << "value " << v << endl;
 	std::vector<Xapian::StringAndFrequency> allvals;
