@@ -1,3 +1,9 @@
+Mon Aug 17 11:51:24 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/matchspy.cc,include/xapian/matchspy.h: Add overload for
+	  score_evenness to allow a NumericRanges object to be passed to
+	  it.
+
 Mon Aug 17 07:36:57 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/matchspy.cc,include/xapian/matchspy.h: Replace
