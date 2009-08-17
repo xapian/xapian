@@ -272,18 +272,17 @@ DEFINE_TESTCASE(matchspy3, writable)
     spies.push_back(&spy2);
     spies.push_back(&spy3);
     for (Xapian::valueno v = 0; !results[v].empty(); ++v) {
-	Xapian::doccount total_seen;
-	std::map<Xapian::NumericRange, Xapian::doccount> ranges;
-	total_seen = Xapian::build_numeric_ranges(ranges, spies[v]->get_values(), 7);
+	Xapian::NumericRanges ranges(spies[v]->get_values(), 7);
 	if (results[v] == "|") {
-	    TEST_EQUAL(total_seen, 0);
+	    TEST_EQUAL(ranges.get_values_seen(), 0);
 	    continue;
 	}
-	TEST_NOT_EQUAL(total_seen, 0);
-	TEST(ranges.size() <= 7);
+	TEST_NOT_EQUAL(ranges.get_values_seen(), 0);
+	TEST(ranges.get_ranges().size() <= 7);
 	string resultrepr("|");
 	map<Xapian::NumericRange, Xapian::doccount>::const_iterator i;
-	for (i = ranges.begin(); i != ranges.end(); ++i) {
+	for (i = ranges.get_ranges().begin();
+	     i != ranges.get_ranges().end(); ++i) {
 	    if (i->first.get_lower() != i->first.get_upper()) {
 		resultrepr += str(floor(i->first.get_lower() * 100));
 		resultrepr += "..";

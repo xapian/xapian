@@ -1,3 +1,7 @@
+Sat Aug 15 11:31:56 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
 Wed Aug 05 03:50:54 GMT 2009  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Implement correct handling of paths when calling
