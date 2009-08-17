@@ -1,3 +1,12 @@
+Mon Aug 17 07:36:57 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/matchspy.cc,include/xapian/matchspy.h: Replace
+	  build_numeric_ranges() function with a NumericRanges object,
+	  whose constructor is passed the values and which exposes the
+	  calculated ranges via a getter.
+	* tests/api_matchspy.cc: Update tests to use new NumericRanges
+	  object instead of build_numeric_ranges().
+
 Wed Aug 12 17:33:53 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Fix generate-exceptions change to work in a VPATH

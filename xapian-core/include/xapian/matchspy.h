@@ -310,26 +310,45 @@ double XAPIAN_VISIBILITY_DEFAULT score_evenness(
 //@}
 
 
-/** Turn a category containing sort-encoded numeric values into a set of
- *  ranges.
- *
- *  For "continuous" values (such as price, height, weight, etc), there will
- *  usually be too many different values to offer the user, and the user won't
- *  want to restrict to an exact value anyway.
- *
- *  This method produces a set of NumericRange objects for a particular value
- *  number.
- *
- *  @param result     Used to return the resulting ranges.
- *  @param values     The values representing the initial numbers.
- *  @param max_ranges Group into at most this many ranges.
- *
- *  @return The number of values seen.
- */
-doccount XAPIAN_VISIBILITY_DEFAULT build_numeric_ranges(
-	std::map<Xapian::NumericRange, Xapian::doccount> & result,
-	const std::map<std::string, Xapian::doccount> & values,
-	size_t max_ranges);
+/// A set of numeric ranges, with corresponding frequencies.
+class XAPIAN_VISIBILITY_DEFAULT NumericRanges {
+    /** The ranges of values, together with the frequency sum of each range.
+     */
+    std::map<Xapian::NumericRange, Xapian::doccount> ranges;
+
+    /** @return The total number of values seen.
+     *
+     *  This is the sum of the frequencies for all the values supplied.
+     */
+    doccount values_seen;
+
+  public:
+    /// Construct an empty NumericRanges object.
+    NumericRanges() : values_seen(0) {}
+
+    /** Construct a NumericRanges from values and a target number of ranges.
+     *
+     *  The values supplied should be sort-encoded numeric values.
+     *
+     *  For "continuous" values (such as price, height, weight, etc), there
+     *  will usually be too many different values to offer the user, and the
+     *  user won't want to restrict to an exact value anyway.
+     *
+     *  This method produces a set of NumericRange objects for a particular
+     *  value number.
+     *
+     *  @param values     The values representing the initial numbers.
+     *  @param max_ranges Group into at most this many ranges.
+     */
+    NumericRanges(const std::map<std::string, Xapian::doccount> & values,
+		  size_t max_ranges);
+
+    /// Get the number of values seen.
+    doccount get_values_seen() const { return values_seen; }
+
+    /// Get the ranges.
+    const std::map<Xapian::NumericRange, Xapian::doccount> & get_ranges() const { return ranges; }
+};
 
 }
 
