@@ -25,7 +25,7 @@
 
 #include "omqueryinternal.h"
 
-#include "serialisationcontextinternal.h"
+#include "registryinternal.h"
 #include "omdebug.h"
 #include "utils.h"
 #include "serialise.h"
@@ -418,16 +418,15 @@ class QUnserial {
     const char *p;
     const char *end;
     Xapian::termpos curpos;
-    const Xapian::SerialisationContext & ctx;
+    const Xapian::Registry & reg;
 
     Xapian::Query::Internal * readquery();
     Xapian::Query::Internal * readexternal();
     Xapian::Query::Internal * readcompound();
 
   public:
-    QUnserial(const string & s,
-	      const Xapian::SerialisationContext & ctx_)
-	    : p(s.c_str()), end(p + s.size()), curpos(1), ctx(ctx_) { }
+    QUnserial(const string & s, const Xapian::Registry & reg_)
+	    : p(s.c_str()), end(p + s.size()), curpos(1), reg(reg_) { }
     Xapian::Query::Internal * decode();
 };
 
@@ -482,7 +481,7 @@ QUnserial::readexternal()
 
     size_t length = decode_length(&p, end, true);
     string sourcename(p, length);
-    const Xapian::PostingSource * source = ctx.get_posting_source(sourcename);
+    const Xapian::PostingSource * source = reg.get_posting_source(sourcename);
     if (source == NULL) {
 	throw Xapian::InvalidArgumentError("PostingSource " + sourcename +
 					   " not registered");
@@ -626,18 +625,17 @@ QUnserial::readcompound() {
 
 Xapian::Query::Internal *
 Xapian::Query::Internal::unserialise(const string &s,
-		const Xapian::SerialisationContext & ctx)
+				     const Xapian::Registry & reg)
 {
     Assert(s.length() > 1);
-    QUnserial u(s, ctx);
+    QUnserial u(s, reg);
     Xapian::Query::Internal * qint = u.decode();
     AssertEq(s, qint->serialise());
     return qint;
 }
 #else
 Xapian::Query::Internal *
-Xapian::Query::Internal::unserialise(const string &,
-		const Xapian::SerialisationContext & ctx)
+Xapian::Query::Internal::unserialise(const string &, const Xapian::Registry &)
 {
     throw Xapian::InternalError("query serialisation not compiled in");
 }

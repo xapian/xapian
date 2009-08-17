@@ -25,7 +25,7 @@
 #include <xapian/document.h>
 #include <xapian/error.h>
 #include <xapian/queryparser.h>
-#include <xapian/serialisationcontext.h>
+#include <xapian/registry.h>
 
 #include <map>
 #include <string>
@@ -38,9 +38,8 @@
 #include "stringutils.h"
 #include "str.h"
 
-#include <float.h>
-#include <math.h>
-
+#include <cfloat>
+#include <cmath>
 
 using namespace std;
 
@@ -64,7 +63,7 @@ MatchSpy::serialise() const {
 }
 
 MatchSpy *
-MatchSpy::unserialise(const string &, const SerialisationContext &) const {
+MatchSpy::unserialise(const string &, const Registry &) const {
     throw UnimplementedError("MatchSpy not suitable for use with remote searches - unserialise() method unimplemented");
 }
 
@@ -189,8 +188,8 @@ ValueCountMatchSpy::serialise() const {
 }
 
 MatchSpy *
-ValueCountMatchSpy::unserialise(const string & s,
-				const SerialisationContext &) const{
+ValueCountMatchSpy::unserialise(const string & s, const Registry &) const
+{
     const char * p = s.data();
     const char * end = p + s.size();
 
@@ -316,12 +315,11 @@ struct bucketval {
     }
 };
 
-doccount build_numeric_ranges(map<NumericRange, doccount> & result,
-			      const map<string, doccount> & values,
-			      size_t max_ranges)
+NumericRanges::NumericRanges(const map<string, doccount> & values,
+			     size_t max_ranges)
+	: values_seen(0)
 {
     double lo = DBL_MAX, hi = -DBL_MAX;
-    result.clear();
 
     map<double, doccount> histo;
     doccount total_set = 0;
@@ -338,13 +336,14 @@ doccount build_numeric_ranges(map<NumericRange, doccount> & result,
 
     if (total_set == 0) {
 	// No set values.
-	return total_set;
+	return;
     }
     if (lo == hi) {
 	// All set values are the same.
 	NumericRange range(lo, hi);
-	result[range] = total_set;
-	return total_set;
+	ranges[range] = total_set;
+	values_seen = total_set;
+	return;
     }
 
     double sizeby = max(fabs(hi), fabs(lo));
@@ -385,10 +384,10 @@ doccount build_numeric_ranges(map<NumericRange, doccount> & result,
     for (size_t b = 0; b < bucket.size(); ++b) {
 	if (bucket[b].count == 0) continue;
 	NumericRange range(bucket[b].min, bucket[b].max);
-	result[range] = bucket[b].count;
+	ranges[range] = bucket[b].count;
     }
 
-    return total_set;
+    values_seen = total_set;
 }
 
 }

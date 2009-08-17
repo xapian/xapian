@@ -1092,7 +1092,6 @@ AC_CONFIG_FILES([tests/perftest/get_machine_info], [chmod +x tests/perftest/get_
 AC_CONFIG_FILES([xapian-config], [chmod +x xapian-config])
 AC_CONFIG_FILES([makemanpage], [chmod +x makemanpage])
 AC_CONFIG_FILES([docs/gen_codestructure_doc], [chmod +x docs/gen_codestructure_doc])
-AC_CONFIG_FILES([generate-exceptions], [chmod +x generate-exceptions])
 AC_CONFIG_FILES([languages/generate-allsnowballheaders], [chmod +x languages/generate-allsnowballheaders])
 AC_OUTPUT
 

@@ -11,6 +11,81 @@ Tue Aug 04 16:00:05 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 	  Initial (fairly unpleasant hack) implementation of ColourWeight
 	  class.
 
+Mon Aug 17 07:36:57 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/matchspy.cc,include/xapian/matchspy.h: Replace
+	  build_numeric_ranges() function with a NumericRanges object,
+	  whose constructor is passed the values and which exposes the
+	  calculated ranges via a getter.
+	* tests/api_matchspy.cc: Update tests to use new NumericRanges
+	  object instead of build_numeric_ranges().
+
+Wed Aug 12 17:33:53 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Fix generate-exceptions change to work in a VPATH
+	  build.
+
+Wed Aug 12 15:57:44 GMT 2009  Olly Betts <olly@survex.com>
+
+	* exception_data.pm: Add new SerialisationError.
+	* common/serialise-double.cc: Throw SerialisationError or InternalError
+	  instead of NetworkError.
+
+Wed Aug 12 15:19:05 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac,generate-exceptions,generate-exceptions.in:
+	  It's not very useful to be able to run generate-exceptions outside
+	  the build system, and it only gets the #! line substituted, so just
+	  move those runes into Makefile.am and reduce the number of files that
+	  configure needs to generate by one.
+
+Mon Aug 10 13:25:22 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/matchspy.cc: Use <cfloat> and <cmath> rather than <float.h> and
+	  <math.h> (regression from merging the matchspy branch).
+
+Mon Aug 10 13:01:57 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/,bin/xapian-tcpsrv.cc,common/,docs/postingsource.rst,
+	  docs/serialisation.rst,include/Makefile.mk,include/xapian.h,
+	  include/xapian/,net/remoteserver.cc,tests/: Rename
+	  SerialisationContext to Registry.
+
+Mon Aug 10 11:23:23 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Start to update from ChangeLog.
+
+Mon Aug 10 10:29:13 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,include/xapian/weight.h,matcher/localmatch.cc:
+	  Make Weight::clone() public, and remove Weight::clone_() as it is
+	  no longer required.
+
+Mon Aug 10 07:55:04 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* HACKING: Add section on ordering of include files, and fix a few
+	  formatting issues to make this file into valid restructured text
+	  again.
+
+Mon Aug 10 06:55:45 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/serialisationcontext.cc,common/serialisationcontextinternal.h:
+	  Refactor to use a template function to implement the exception safe
+	  approach I implemented for PostingSource, and use it for MatchSpy
+	  and Weight too.
+	* tests/api_serialise.cc: Add tests for exception safety of MatchSpy
+	  and Weight with SerialisationContext.
+
+Mon Aug 10 06:15:23 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/weight.h,weight/weight.cc: Add default implementations
+	  of Weight methods name(), serialise(), unserialise(), and clone() for
+	  consistency with PostingSource and MatchSpy.
+
+Mon Aug 10 03:29:12 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_postingsource.cc: Tweak header include order.
+
 Tue Aug 04 15:49:54 GMT 2009  Olly Betts <olly@survex.com>
 
 	* include/xapian/queryparser.h: Explicitly document that an empty
