@@ -1,3 +1,8 @@
+Mon Aug 17 08:00:11 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/matchspy.cc,include/xapian/matchspy.h: Update reference to
+	  SerialisationContext to say Registry.
+
 Sun Aug 02 12:07:32 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/api_matchspy.cc: Test some edge cases shown up by coverage

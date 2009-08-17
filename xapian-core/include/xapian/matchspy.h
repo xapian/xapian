@@ -373,7 +373,7 @@ class XAPIAN_VISIBILITY_DEFAULT MultiValueCountMatchSpy : public ValueCountMatch
     virtual std::string name() const;
     virtual std::string serialise() const;
     virtual MatchSpy * unserialise(const std::string & s,
-				   const SerialisationContext & context) const;
+				   const Registry & context) const;
     virtual std::string get_description() const;
 };
 

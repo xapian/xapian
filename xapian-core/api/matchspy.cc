@@ -301,7 +301,7 @@ MultiValueCountMatchSpy::serialise() const {
 
 MatchSpy *
 MultiValueCountMatchSpy::unserialise(const string & s,
-				     const SerialisationContext &) const{
+				     const Registry &) const{
     const char * p = s.data();
     const char * end = p + s.size();
 
