@@ -23,8 +23,9 @@
 
 #include "api_postingsource.h"
 
-#include <string>
 #include <xapian.h>
+
+#include <string>
 
 #include "testutils.h"
 #include "utils.h"

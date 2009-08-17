@@ -25,7 +25,7 @@
 
 #include "omdebug.h"
 
-#include <math.h>
+#include <cmath>
 #include <map>
 
 Xapian::DocSimCosine::~DocSimCosine()

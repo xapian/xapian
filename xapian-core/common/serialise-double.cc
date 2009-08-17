@@ -108,7 +108,7 @@ std::string serialise_double(double v)
 	    result += char(exp + 128);
 	} else {
 	    if (exp < -32768 || exp > 32767) {
-		throw Xapian::NetworkError("Insane exponent in floating point number");
+		throw Xapian::InternalError("Insane exponent in floating point number");
 	    }
 	    result += negative ? char(0x8f) : char(0x0f);
 	    result += char(unsigned(exp + 32768) & 0xff);
@@ -138,7 +138,7 @@ std::string serialise_double(double v)
 double unserialise_double(const char ** p, const char *end)
 {
     if (end - *p < 2) {
-	throw Xapian::NetworkError("Bad encoded double: insufficient data");
+	throw Xapian::SerialisationError("Bad encoded double: insufficient data");
     }
     unsigned char first = *(*p)++;
     if (first == 0 && *(*p) == 0) {
@@ -154,7 +154,7 @@ double unserialise_double(const char ** p, const char *end)
 	int bigexp = static_cast<unsigned char>(*(*p)++);
 	if (exp == 15) {
 	    if (*p == end) {
-		throw Xapian::NetworkError("Bad encoded double: short large exponent");
+		throw Xapian::SerialisationError("Bad encoded double: short large exponent");
 	    }
 	    exp = bigexp | (static_cast<unsigned char>(*(*p)++) << 8);
 	    exp -= 32768;
@@ -166,7 +166,7 @@ double unserialise_double(const char ** p, const char *end)
     }
 
     if (size_t(end - *p) < mantissa_len) {
-	throw Xapian::NetworkError("Bad encoded double: short mantissa");
+	throw Xapian::SerialisationError("Bad encoded double: short mantissa");
     }
 
     double v = 0.0;

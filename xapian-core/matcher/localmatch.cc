@@ -104,7 +104,7 @@ LocalSubMatch::get_postlist_and_term_info(MultiMatch * matcher,
 
     // We only need an ExtraWeightPostList if there's an extra weight
     // contribution.
-    AutoPtr<Xapian::Weight> extra_wt(wt_factory->clone_());
+    AutoPtr<Xapian::Weight> extra_wt(wt_factory->clone());
     extra_wt->init_(*stats, qlen);
     if (extra_wt->get_maxextra() != 0.0) {
 	pl = new ExtraWeightPostList(pl, extra_wt.release(), matcher);
@@ -121,7 +121,7 @@ LocalSubMatch::make_synonym_postlist(PostList * or_pl, MultiMatch * matcher,
 	      "[or_pl], [matcher], " << factor);
     LOGVALUE(MATCH, or_pl->get_termfreq_est());
     AutoPtr<SynonymPostList> res(new SynonymPostList(or_pl, matcher));
-    AutoPtr<Xapian::Weight> wt(wt_factory->clone_());
+    AutoPtr<Xapian::Weight> wt(wt_factory->clone());
 
     TermFreqs freqs;
     // Avoid calling get_termfreq_est_using_stats() if the database is empty
@@ -150,7 +150,7 @@ LocalSubMatch::postlist_from_op_leaf_query(const Xapian::Query::Internal *query,
     bool boolean = (factor == 0.0);
     AutoPtr<Xapian::Weight> wt;
     if (!boolean) {
-	wt.reset(wt_factory->clone_());
+	wt.reset(wt_factory->clone());
 	wt->init_(*stats, qlen, query->tname, query->get_wqf(), factor);
     }
 

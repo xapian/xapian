@@ -56,8 +56,8 @@
 // Stemming
 #include <xapian/stem.h>
 
-// Serialisation support
-#include <xapian/serialisationcontext.h>
+// Subclass registry
+#include <xapian/registry.h>
 
 // Unicode support
 #include <xapian/unicode.h>

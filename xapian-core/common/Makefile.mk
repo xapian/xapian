@@ -33,6 +33,7 @@ noinst_HEADERS +=\
 	common/positionlist.h\
 	common/postlist.h\
 	common/progclient.h\
+	common/registryinternal.h\
 	common/remoteconnection.h\
 	common/remote-database.h\
 	common/remoteprotocol.h\
@@ -52,7 +53,6 @@ noinst_HEADERS +=\
 	common/safeuuid.h\
 	common/safewindows.h\
 	common/safewinsock2.h\
-	common/serialisationcontextinternal.h\
 	common/serialise-double.h\
 	common/serialise.h\
 	common/socket_utils.h\

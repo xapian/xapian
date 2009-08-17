@@ -33,7 +33,6 @@
 #include <cstdlib>
 
 #include "autoptr.h"
-#include "serialisationcontextinternal.h"
 #include "multimatch.h"
 #include "omassert.h"
 #include "omtime.h"
@@ -380,7 +379,7 @@ RemoteServer::msg_query(const string &message_in)
 
     // Unserialise the Query.
     len = decode_length(&p, p_end, true);
-    AutoPtr<Xapian::Query::Internal> query(Xapian::Query::Internal::unserialise(string(p, len), ctx));
+    AutoPtr<Xapian::Query::Internal> query(Xapian::Query::Internal::unserialise(string(p, len), reg));
     p += len;
 
     // Unserialise assorted Enquire settings.
@@ -425,11 +424,11 @@ RemoteServer::msg_query(const string &message_in)
     string wtname(p, len);
     p += len;
 
-    const Xapian::Weight * wttype = ctx.get_weighting_scheme(wtname);
+    const Xapian::Weight * wttype = reg.get_weighting_scheme(wtname);
     if (wttype == NULL) {
 	// Note: user weighting schemes should be registered by adding them to
-	// a SerialisationContext, and setting the context using
-	// RemoteServer::set_context().
+	// a Registry, and setting the context using
+	// RemoteServer::set_registry().
 	throw Xapian::InvalidArgumentError("Weighting scheme " +
 					   wtname + " not registered");
     }
@@ -448,7 +447,7 @@ RemoteServer::msg_query(const string &message_in)
     while (p != p_end) {
 	len = decode_length(&p, p_end, true);
 	string spytype(p, len);
-	const Xapian::MatchSpy * spyclass = ctx.get_match_spy(spytype);
+	const Xapian::MatchSpy * spyclass = reg.get_match_spy(spytype);
 	if (spyclass == NULL) {
 	    throw Xapian::InvalidArgumentError("Match spy " + spytype +
 					       " not registered");
@@ -456,7 +455,7 @@ RemoteServer::msg_query(const string &message_in)
 	p += len;
 
 	len = decode_length(&p, p_end, true);
-	matchspies.spies.push_back(spyclass->unserialise(string(p, len), ctx));
+	matchspies.spies.push_back(spyclass->unserialise(string(p, len), reg));
 	p += len;
     }
 

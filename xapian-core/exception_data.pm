@@ -1,6 +1,6 @@
-# exception_data.pm: details of the exception heirarchy used by Xapian.
+# exception_data.pm: details of the exception hierarchy used by Xapian.
 #
-# Copyright (C) 2003,2004,2006,2007,2008 Olly Betts
+# Copyright (C) 2003,2004,2006,2007,2008,2009 Olly Betts
 # Copyright (C) 2007 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
@@ -23,7 +23,7 @@ use Exporter;
 @EXPORT = qw($copyright $generated_warning @baseclasses @classes %subclasses);
 
 $copyright = <<'EOF';
-/* Copyright (C) 2003,2004,2006,2007 Olly Betts
+/* Copyright (C) 2003,2004,2006,2007,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -172,6 +172,10 @@ DOC
 
 errorclass('QueryParserError', 'RuntimeError', <<'DOC');
 /** Indicates a query string can't be parsed. */
+DOC
+
+errorclass('SerialisationError', 'RuntimeError', <<'DOC');
+/** Indicates an error in the std::string serialisation of an object. */
 DOC
 
 errorclass('RangeError', 'RuntimeError', <<'DOC');

@@ -46,9 +46,11 @@ def setup_database():
     db.add_document(doc)
     doc.set_data("was it warm? two")
     doc.add_term("two", 2)
+    doc.add_value(0, xapian.sortable_serialise(2))
     db.add_document(doc)
     doc.set_data("was it warm? three")
     doc.add_term("three", 3)
+    doc.add_value(0, xapian.sortable_serialise(1.5))
     db.add_document(doc)
     doc.set_data("was it warm? four it")
     doc.add_term("four", 4)
@@ -56,7 +58,7 @@ def setup_database():
     doc.add_posting("it", 7)
     doc.add_value(5, 'five')
     doc.add_value(9, 'nine')
-    doc.add_value(0, 'zero')
+    doc.add_value(0, xapian.sortable_serialise(2))
     db.add_document(doc)
 
     expect(db.get_doccount(), 5)
@@ -656,7 +658,7 @@ def test_value_iter():
     items = list(doc.values())
     expect(len(items), 3)
     expect(items[0].num, 0)
-    expect(items[0].value, 'zero')
+    expect(items[0].value, xapian.sortable_serialise(2))
     expect(items[1].num, 5)
     expect(items[1].value, 'five')
     expect(items[2].num, 9)
@@ -1312,9 +1314,22 @@ def test_matchspy():
     spy = xapian.ValueCountMatchSpy(0)
     enq.add_matchspy(spy)
     mset = enq.get_mset(0, 10)
-    expect(spy.get_values_as_dict(), {'zero': 1})
+    expect(spy.get_values_as_dict(), {
+           xapian.sortable_serialise(1.5): 1,
+           xapian.sortable_serialise(2): 2,
+          })
     expect(spy.get_total(), 5)
-    expect(spy.get_top_values(10), [('zero', 1)])
+    expect(spy.get_top_values(10), [
+           (xapian.sortable_serialise(2), 2),
+           (xapian.sortable_serialise(1.5), 1),
+    ])
+    ranges = xapian.NumericRanges(spy.get_values(), 5)
+    expect(ranges.get_values_seen(), 3)
+    expect(ranges.get_ranges_as_dict(), {(1.5, 1.5): 1, (2.0, 2.0): 2})
+
+    ranges = xapian.NumericRanges(spy.get_values(), 1)
+    expect(ranges.get_values_seen(), 3)
+    expect(ranges.get_ranges_as_dict(), {(1.5, 2): 3})
 
 # Run all tests (ie, callables with names starting "test_").
 if not runtests(globals(), sys.argv[1:]):
