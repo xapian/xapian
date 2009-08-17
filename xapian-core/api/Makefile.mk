@@ -27,8 +27,8 @@ lib_src +=\
 	api/omtermlistiterator.cc\
 	api/postingsource.cc\
 	api/postlist.cc\
+	api/registry.cc\
 	api/replication.cc\
-	api/serialisationcontext.cc\
 	api/sortable-serialise.cc\
 	api/sorter.cc\
 	api/termlist.cc\

@@ -112,4 +112,28 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length,
 
 Weight::~Weight() { }
 
+string
+Weight::name() const
+{
+    return string();
+}
+
+string
+Weight::serialise() const
+{
+    throw Xapian::UnimplementedError("serialise() not supported for this Xapian::Weight subclass");
+}
+
+Weight *
+Weight::unserialise(const string &) const
+{
+    throw Xapian::UnimplementedError("unserialise() not supported for this Xapian::Weight subclass");
+}
+
+Weight *
+Weight::clone() const
+{
+    return NULL;
+}
+
 }
