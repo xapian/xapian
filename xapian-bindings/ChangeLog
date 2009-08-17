@@ -1,3 +1,13 @@
+Mon Aug 17 07:39:32 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/extra.i: Add support to the NumericRanges object to get
+	  the ranges as a dict.
+	* python/util.i: Fix a memory leak on error (in theory - I've not
+	  got a way to generate this error, so haven't been able to produce
+	  the leak or test the fix).
+	* python/pythontest2.py: Update tests to cover new NumericRanges
+	  object.
+
 Mon Aug 10 13:09:12 GMT 2009  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am,xapian.i: Update for SerialisationContext to

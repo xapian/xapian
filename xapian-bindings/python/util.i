@@ -204,6 +204,8 @@ value_map_to_dict(const std::map<std::string, Xapian::doccount> & vals)
         }
 
 	if (PyDict_SetItem(result, str, l) == -1) {
+            Py_DECREF(str);
+            Py_DECREF(l);
             Py_DECREF(result);
             result = NULL;
             return NULL;
