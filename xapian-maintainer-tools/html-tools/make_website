@@ -1,0 +1,124 @@
+#!/bin/sh
+#
+# This is (currently) heavily based around the build layout that James
+# uses. However if you build in your *checkout* (ie don't use VPATH),
+# the script should pick things up. If you VPATH build, do so in a
+# build/ directory off the main checkout (so at the same level as
+# xapian-core etc.), or change the $build setup below.
+
+set -e
+
+# Comment these out for release or something
+XAPROOT="http://tartarus.org/james/xapian/"
+OUTDIR="/home/james/pub/http/xapian"
+
+# Detect (this can surely be broken, so don't stress it)
+BASEDIR=`dirname $0`/../../
+
+if [ "x$OUTDIR" = "x" ]; then
+  outdir=/srv/www/xapian.org
+else
+  outdir=$OUTDIR
+fi
+if [ "$XAPROOT" = "x" ]; then
+  xaproot=http://xapian.org/
+else
+  xaproot=$XAPROOT
+fi
+
+thisdir=$BASEDIR/xapian-maintainer-tools/html-tools
+templates=$thisdir/templates
+root=$BASEDIR
+if [ -f $root/xapian-core/docs/Makefile ]; then
+  build=$root
+else
+  build=$root/build
+fi
+
+PYTHON=/usr/bin/python
+
+echo -n "Creating directories..."
+mkdir -p $outdir
+for d in about download support; do
+  mkdir -p $outdir/`basename $d`
+done
+mkdir -p $outdir/docs
+mkdir -p $outdir/docs/apidoc
+mkdir -p $outdir/docs/omega
+for d in csharp python ruby php tcl8; do
+  mkdir -p $outdir/docs/bindings/$d
+done
+echo " done."
+
+### WEBSITE - MD (directory structure)
+echo -n "Building website from Markdown..."
+for i in `find $root/xapian-website -name '*.md'`; do
+  j=`echo $i|sed "s#$root/xapian-website/##; s/\.md//"`
+  $thisdir/genpage $i with-sidebar $j $xaproot > $outdir/$j.html
+done
+echo " done."
+echo -n "Building website from HTML fragments..."
+for i in `find $root/xapian-website -name '*.hcontent'`; do
+  j=`echo $i|sed "s#$root/xapian-website/##; s/\.hcontent//"`
+  # set as PHP (since some of them are), and kill the XML preamble,
+  # which PHP doesn't like with short_open_tag on, which for some ghastly
+  # reason is the Debian default
+  $PYTHON $thisdir/genhtml.py $templates/with-sidebar-html.html $i outroot=$xaproot xaproot=$xaproot thisdir=$thisdir inuri=$j PYTHON=$PYTHON | sed '1 d;' > $outdir/$j.php
+done
+echo " done."
+
+### DOCS - MD (no directory structure)
+echo -n "Building core docs from Markdown..."
+for i in $root/xapian-core/docs/*.md; do
+  j=`basename $i .md`
+  #echo $i $j
+  $thisdir/genpage $i docs $j $xaproot > $outdir/docs/$j.html
+done
+echo " done."
+
+### DOCS - HTML (no directory structure)
+echo -n "Building core docs from HTML fragments..."
+for i in $root/xapian-core/docs/*.hcontent; do
+  j=`basename $i .hcontent`
+  $PYTHON $thisdir/genhtml.py $templates/docs-html.html $i outroot=$xaproot xaproot=$xaproot thisdir=$thisdir docsmenu=$thisdir/menu-docs.html inuri=$j localflag= PYTHON=$PYTHON > $outdir/docs/$j.html
+done
+echo " done."
+
+### DOCS - OMEGA (no directory structure)
+echo -n "Building Omega docs from Markdown..."
+for i in `find $root/xapian-applications/omega/docs -name '*.md'`; do
+  j=`echo $i|sed "s#$root/xapian-applications/omega/docs/#omega/#;"`
+  k=`echo $j|sed 's#.md$##'`
+  $thisdir/genpage $i docs $j $xaproot > $outdir/docs/$k.html
+done
+echo " done."
+
+### DOCS - BINDINGS (directory structure)
+echo -n "Building bindings docs from Markdown..."
+dirs=`find $root/xapian-bindings -type d -path '*docs'`
+for dir in $dirs; do
+  for i in `find $dir -name '*.md'`; do
+    j=`echo $i|sed "s#$root/xapian-bindings/#bindings/#; s#docs/##;"`
+    k=`echo $j|sed 's#.md$##'`
+    $thisdir/genpage $i docs $j $xaproot > $outdir/docs/$k.html
+  done
+done
+echo " done."
+
+### DOCS - EXTRA
+echo -n "Building Doxygen docs (in $build/xapian-core/docs)..."
+make -C $build/xapian-core/docs doxygen_api_docs
+echo " done."
+echo -n "Copying Doxygen docs..."
+cp -a $build/xapian-core/docs/apidoc/ $outdir/docs/
+echo " done."
+
+### AUXILIARY FILES
+echo -n "Copying additional files..."
+cp $thisdir/style.css $outdir/
+cp $thisdir/xapian-logo.png $outdir/
+cp $thisdir/graded-background.png $outdir/
+cp $build/xapian-core/docs/code_structure.html $outdir/
+cp $root/xapian-website/version.php $outdir/
+echo "DirectoryIndex index.php index.html" > $outdir/.htaccess
+echo " done."

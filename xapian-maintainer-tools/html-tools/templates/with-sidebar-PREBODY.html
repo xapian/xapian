@@ -1,0 +1,14 @@
+    <div id='header'>
+      <div id='project-name'><a href='$(xaproot)'><img src='$(outroot)xapian-logo.png' width='400' height='100' alt='Xapian' /></a></div>
+      <div id='tools'>
+	<form id='search' method='get' action='$(xaproot)search'><p>
+	  <label for='q'>Search this website:</label>
+	  <input id='q' name='q' type='text' />
+	  <input value='Search' type='submit' />
+	</p></form>
+{ $(PYTHON) $(thisdir)/genmenu.py $(thisdir)/menu-main.html $(inuri) $(xaproot) }
+      </div>
+    </div>
+
+    <div id='content'>
+      <div class='content-block'>

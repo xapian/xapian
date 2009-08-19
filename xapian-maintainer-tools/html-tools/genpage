@@ -1,0 +1,79 @@
+#!/bin/sh
+#
+# genpage [-l] <infile> <type> [<inuri> [<xaproot>]]
+#
+# for website generation, type = docs or with-sidebar:
+#
+# XX.md docs
+# XX.md with-sidebar
+#
+# for local docs generation, type = docs, docs-omega, docs-bindings etc
+# which affects the local menu to use (menu-<type>-local.html)
+#
+# -l XX.md docs-omega
+
+set -e
+
+thisdir=`dirname $0`
+xaproot=http://xapian.org/
+stylesheet=style.css
+
+if [ "x$1" = "x-l" ]; then
+  infile=$2
+  type=docs
+  docsmenu=${thisdir}/menu-$3-local.html
+  localflag=-b
+  # really unpleasant hack, I apologise: silently, we know that
+  # the bindings docs are two levels deep not one
+  if [ "$3" = "docs-bindings" ]; then
+    outroot="../"
+    stylesheet=../style.css
+    localflag="-b -r ../"
+  fi
+  shift
+else
+  outroot='REPLACE_WITH_XAPROOT'
+  docsmenu=${thisdir}/menu-docs.html
+  infile=$1
+  type=$2
+  localflag=
+fi
+
+if [ "x$3" != "x" ]; then
+  inuri=$3
+  if [ "x$4" != "x" ]; then
+    xaproot=$4
+  fi
+else
+  inuri=$infile
+fi
+
+#if [ "x$4" != "x" ]; then
+#  docsmenu=${thisdir}/$4.html
+#fi
+
+if [ "x$outroot" = "xREPLACE_WITH_XAPROOT" ]; then
+  outroot=$xaproot
+  stylesheet="$xaproot$stylesheet"
+fi
+
+PYTHON=/usr/bin/python
+
+prebodytemplate=${thisdir}/templates/$type-PREBODY.html
+postbodytemplate=${thisdir}/templates/$type-POSTBODY.html
+headerextratemplate=${thisdir}/templates/header-extra.html
+
+prebodytmp=`mktemp`
+$PYTHON ${thisdir}/genhtml.py $prebodytemplate $infile inuri=$inuri outroot=$outroot xaproot=$xaproot thisdir=$thisdir docsmenu=$docsmenu localflag="$localflag" PYTHON=$PYTHON > $prebodytmp
+postbodytmp=`mktemp`
+$PYTHON ${thisdir}/genhtml.py $postbodytemplate $infile inuri=$inuri outroot=$outroot xaproot=$xaproot thisdir=$thisdir localflag="$localflag" PYTHON=$PYTHON > $postbodytmp
+headerextratmp=`mktemp`
+$PYTHON ${thisdir}/genhtml.py $headerextratemplate $infile inuri=$inuri outroot=$outroot xaproot=$xaproot thisdir=$thisdir localflag="$localflag" PYTHON=$PYTHON > $headerextratmp
+if [ $type = "docs" ]; then
+  pandoc --css=$stylesheet --toc --standalone --smart --include-before-body=$prebodytmp --include-after-body=$postbodytmp --include-in-header=$headerextratmp $infile
+else
+  pandoc --css=$stylesheet --standalone --smart --include-before-body=$prebodytmp --include-after-body=$postbodytmp --include-in-header=$headerextratmp $infile
+fi
+unlink $prebodytmp
+unlink $postbodytmp
+unlink $headerextratmp

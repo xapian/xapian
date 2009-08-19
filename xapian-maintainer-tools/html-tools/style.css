@@ -1,0 +1,323 @@
+/* Xapian.org stylesheet (c) copyright James Aylett 2008, 2009 */
+
+/* resets */
+div,dl,dt,dd,li,form,fieldset,blockquote,thead,tbody,tfoot,tr { margin: 0; padding: 0; }
+h1,h2,h3,h4,h5,h6 { margin: 0; padding: 0; font-size: 100%; }
+
+/* Core stuff */
+body {
+  font-family: Verdana, Candara, Tahoma, sans-serif; /* RR & MB */
+  margin: 0;
+  padding: 0;
+  color: black;
+  background-color: white;
+  font-size: 12pt;
+  xmax-width: 1200px;
+}
+
+p, pre, dl, blockquote {
+  font-size: 1em;
+  line-height: 1.5em;
+  margin: 0 0 1.5em 0;
+}
+
+table {
+  border: none;
+  font-size: 1em;
+  line-height: 1.5em;
+  margin: 0 0 1.5em 0;
+  padding: 0;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+th,td,caption {
+  margin: 0;
+  text-align: left;
+  padding: 0 0.5em 0 0.5em;
+  vertical-align: baseline;
+}
+
+caption {
+  text-align: center;
+  font-style: italic;
+}
+
+code {
+  font-family: monospace;
+  background-color: rgb(220,220,220);
+  color: black;
+}
+
+pre > code {
+  display: block;
+  width: 100%;
+  padding-left: 0.2em;
+  padding-right: 0.2em;
+}
+
+blockquote > code {
+  display: block;
+  width: 100%;
+  padding-left: 0.2em;
+  padding-right: 0.2em;
+}
+
+ul {
+  font-size: 1em;
+  line-height: 1.5em;
+  margin: 0 0 1.5em 0;
+  padding: 0 0.2em 0 2em;
+  list-style: disc outside;
+  xbackground-color: green;
+}
+
+ol {
+  font-size: 1em;
+  line-height: 1.5em;
+  margin: 0 0 1.5em 0;
+  padding: 0 0.2em 0 2em;
+  list-style: decimal outside;
+  xbackground-color: green;
+}
+
+/* lists within lists shouldn't have spacing after them */
+ul ul,
+ol ul,
+ol ol,
+ul ol {
+  margin: 0;
+}
+
+a {
+  text-decoration: none;
+  color: rgb(0,162,204);
+}
+
+a:hover {
+  text-decoration: underline;
+  color: rgb(0,162,204);
+}
+
+a:visited {
+  color: rgb(0,162,204);
+}
+
+dt {  }
+dd {
+  padding-left: 4em;
+}
+
+/* Header styling */
+#header {
+  margin: 0 0 1.5em 0; /* 1.5em = 18pt, giving desired vertical pacing */
+  padding: 0.2em 0 0 0;
+  position: relative;
+  height: 100px;
+  min-width: 900px; /* prevent tool/logo overlap: FIXME doesn't work with font scaling */
+  background: url('graded-background.png') repeat-y 0 0 rgb(220,220,220);
+}
+
+#header div#project-name {
+  font-size: 18pt;
+  line-height: 1em;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  left: 0.2em;
+  top: 0;
+  width: 400px;
+  height: 100px;
+}
+
+#header div#project-name a img {
+  border: none;
+}
+
+#header #tools {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  text-align: right;
+}
+
+#header ul.menu {
+  margin: 0 0 15px 0; /* 15px should actually be 20px - descender of font; however works sufficiently with font scaling */
+  padding: 0 0.5em 0 0.5em;
+  list-style: none;
+}
+#header ul.menu li {
+  display: inline;
+}
+#header ul.menu li + li:before {
+  display: inline;
+  content: " | ";
+}
+
+#header ul.menu li.selected > a {
+  font-weight: bold;
+}
+
+#header form#search { 
+  margin: 0 0 0.5em 0;
+  line-height: 1.5em;
+  padding: 0 0.5em 0 0.5em;
+}
+
+#header form#search p {
+  margin: 0;
+  padding: 0;
+}
+
+form#search label { font-weight: bold; }
+form#search input[type='text'] { border: 1px solid black; }
+
+/* Main content styling */
+#content {
+  margin: 0;
+  padding: 0;
+  clear: both;
+}
+
+.main-content {
+  margin: 0;
+  padding: 0;
+  float: left;
+  width: 80%;
+}
+
+.sidebar {
+  margin: 0;
+  padding: 0;
+  float: left;
+  width: 20%;
+}
+
+/* For boxed pages (eg: homepage) */
+.content-box {
+  /* total width of a content-box: 600px */
+  /* FIXME not entirely happy with the way this works... */
+  margin: 0 5px 0 5px;
+  padding: 0;
+  width: 590px;
+  display: inline;
+  float: left;
+}
+
+/* For standard pages */
+.content-block {
+  margin: 0 5px 0 5px;
+  padding: 0;
+}
+
+/* For documentation pages */
+#content ul.menu {
+  float: left;
+  width: 20%;
+  border-right: 1px solid black;
+}
+
+#content ul.menu + .content-block {
+  float: right;
+  width: 75%;
+}
+
+div#toc ul ul {
+  margin-bottom: 0;
+}
+
+/* In-page menu styling */
+#content ul.menu, #content ul.menu ul {
+  list-style: none;
+  margin-left: 0;
+  padding-left: 1em;
+}
+#content ul.menu li p {
+  margin: 0;
+}
+#content ul.menu li a {
+  color: black;
+}
+#content ul.menu li.selected > a {
+  font-weight: bold;
+}
+
+/* Actual content styling */
+
+h1, h2 {
+  /* 14pt in a 18pt line space, with 18pt further spacing (14pt m, 4pt p).
+   * The horizontal padding is 6pt, the same as 0.5em for 12pt body text.
+   */
+  font-size: 14pt;
+  background-color: rgb(220,220,220);
+  margin: 0 0 1em 0;
+  padding: 0.143em 0.429em 0.143em 0.429em; /* 0.143 = 4/14/2; 0.429 = 6/14 */
+  line-height: 1.286em;
+  font-weight: normal;
+}
+
+h2 {
+  background: transparent;
+}
+
+h3 {
+  font-size: 12pt;
+  font-weight: bold;
+  padding: 0 0.5em 0 0.5em;
+  line-height: 1.5em;
+  margin: 0 0 1.5em 0;
+}
+
+/*
+h2, h3 {
+  font-size: 12pt;
+  font-weight: bold;
+  padding: 0 0.5em 0 0.5em;
+  line-height: 1.5em;
+  margin: 0 0 1.5em 0;
+}
+
+h3 {
+  font-weight; normal;
+  font-style: italic;
+}
+*/
+
+p.note {
+  color: red;
+  border-left: 10px solid red;
+}
+
+.content-box p.note, .content-block p.note {
+  margin-left: 0.5em;
+}
+
+.content-box p, .content-block p {
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+}
+
+.content-block pre, .content-block blockquote {
+  padding-left: 2em;
+  padding-right: 2em;
+}
+
+.content-block dl {
+  margin-left: 2em;
+}
+
+.content-box li p, .content-block li p {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* Address/footer styling */
+address {
+  clear: both;
+  text-align: center;
+  font-size: 12pt;
+  background-color: rgb(220,220,220);
+  display: block;
+  margin: 1em 0 0 0;
+  padding: 0.2em 0.5em 0.2em 0.5em;
+}

@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.DTD">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-gb">
+  <head>
+    <title>{ $(PYTHON) $(thisdir)/gettitle.py $< }</title>
+    <link rel='stylesheet' type='text/css' media='all' href='$(outroot)style.css' />
+    <link rel="shortcut icon" type="image/ico" href="http://xapian.org/favicon.ico" />
+  </head>
+
+  <body>
+    <div id='header'>
+      <div id='project-name'><a href='$(xaproot)'><img src='$(outroot)xapian-logo.png' width='400' height='100' alt='Xapian' /></a></div>
+      <div id='tools'>
+	<form id='search' method='get' action='$(xaproot)search'><p>
+	  <label for='q'>Search this website:</label>
+	  <input id='q' name='q' type='text' />
+	  <input value='Search' type='submit' />
+	</p></form>
+{ $(PYTHON) $(thisdir)/genmenu.py $(thisdir)/menu-main.html $(inuri) $(xaproot) }
+      </div>
+    </div>
+
+    <div id='content'>
+<!--      <div class='main-content'>-->
+{ $(PYTHON) $(thisdir)/versions.py $< }
+<!--      </div>
+      <div class='sidebar'>
+      <div class='content-block'>
+        <h1>Download</h1>
+        <h2>Latest release (2008-03-17)</h2>
+        <ul title='Download options'>
+	  <li><a href='http://static.xapian.org/releases/source/1.0.6/xapian-core-1.0.6.tar.gz'>core 1.0.6</a></li>
+
+	  <li><a href='http://static.xapian.org/releases/source/1.0.6/xapian-omega-1.0.6.tar.gz'>omega 1.0.6</a></li>
+	  <li><a href='http://static.xapian.org/releases/source/1.0.6/xapian-bindings-1.0.6.tar.gz'>bindings 1.0.6</a></li>
+	  <li><a href='http://static.xapian.org/releases/source/1.0.6/Search-Xapian-1.0.6.0.tar.gz'>Search::Xapian Perl bindings 1.0.6.0</a></li>
+	</ul>
+        <p>Other options are available from <a href='/download/'>the download page</a>.</p>
+      </div>
+      </div>-->
+    </div>
+    <address>
+      &#169; The Xapian Developers 2001-2009. All Rights Reserved.
+    </address>
+  </body>
+</html>
