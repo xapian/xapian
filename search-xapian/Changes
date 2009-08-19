@@ -1,5 +1,10 @@
 Revision history for Perl extension Search::Xapian.
 
+	[Changes contributed by Frank Lichtenheld]
+	- Run POD coverage tests if TEST_POD_COVERAGE is set rather than
+	  TEST_POD so that the other POD tests can easily be enabled without
+	  enabling the coverage tests.
+
 1.0.14.0  Tue Jul 21 16:10:19 GMT 2009
 	[Changes contributed by Olly Betts]
  	- Add handling of C++ exceptions from methods of Document (ticket#284).
