@@ -1,0 +1,53 @@
+<? include "version.php"; ?>
+
+<div class='content-block'>
+<h1>Welcome to the Xapian project website</h1>
+
+<p>Xapian is an Open Source Search Engine Library, released under the <a href="http://www.opensource.org/licenses/gpl-license.php">GPL</a>. It's written in <a href="/docs/apidoc/html/annotated.html">C++</a>, with bindings to allow use from <a href="/docs/bindings/perl/Search/Xapian.html">Perl</a>, <a href="/docs/bindings/python/">Python</a>, <a href="/docs/bindings/php/">PHP</a>, <a href="http://svn.xapian.org/trunk/xapian-bindings/java/README?revision=HEAD" xhref="/docs/bindings/java/">Java</a>, <a href="/docs/bindings/tcl8/">Tcl</a>, <a href="/docs/bindings/csharp/">C#</a> and <a href="/docs/bindings/ruby/">Ruby</a> (so far!).</p>
+
+<p>Xapian is a highly adaptable toolkit which allows developers to easily add advanced indexing and search facilities to their own applications.  It uses the <a href='docs/intro_ir.html'>Probabilistic Information Retrieval model</a> and also supports a rich set of boolean query operators.</p>
+
+<p>The <a href="download">latest stable version is <?echo $version;?></a>,
+released on <?echo $release_date;?>.</p>
+
+<?if ($version_d !== null) {?>
+<p>The <a href="http://article.gmane.org/gmane.comp.search.xapian.general/7593"
+>latest development version is <?echo $version_d;?></a>,
+released on <?echo $release_date_d;?>.</p>
+<?}?>
+
+</div>
+
+<div class='content-block'>
+<h1>Omega: search for your website</h1>
+<p>
+If you're after a packaged search engine for your website, you should take a look at <a href='docs/omega/'>Omega</a>. Unlike most other website search solutions, Xapian's versatility allows you to extend Omega to meet your needs as they grow. If you need to, you can replace all parts of Omega one by one as your requirements change, and keep on using the same database you started with.
+</p>
+
+<p>
+Omega operates on a set of databases. Each database is created and updated separately using either omindex or <a href='docs/omega/scriptindex'>scriptindex</a>. You can search these databases (or any other Xapian database with suitable contents) via a web front-end provided by <a href='docs/omega/cgiparams'>omega</a>, a CGI application. A search can also be done over more than one database at once.
+</p>
+</div>
+
+<div class='content-block'>
+<h1>Documentation</h1>
+
+<p>There is lots of <a href='docs/'>documentation</a> available, from <a href='docs/quickstart'>how to get started with Xapian</a>, through <a href='docs/apidoc/html/annotated.html'>using the library</a>, to advanced topics such as <a href='docs/admin_notes'>system administration</a> and <a href='docs/scalability'>scaling</a>. There's also information about Xapian's internals, if you want to get involved in development, and of course details of how to use all the Xapian tools, including the <a href='docs/omega/'>Omega search engine</a>.</p>
+
+</div>
+
+<div class='content-block'>
+<h1>Support</h1>
+<p>If you run into problems not covered by <a href='docs/'>the documentation</a>, then you can ask on <a href='support/lists'>the xapian-discuss mailing list</a>, or the <a href='irc:irc.freenode.net/xapian'>#xapian IRC channel</a>; there is also useful information in <a href='http://trac.xapian.org/wiki/'>the wiki</a> of our <a href='http://trac.xapian.org/'>support <span class='amp'>&amp;</span> development area</a>, where you can also <a href='http://trac.xapian.org/report/1'>report bugs</a> or file feature requests for future development.</p>
+
+<p>The following companies offer support contracts and consultancy services for Xapian, and can also develop bespoke applications to meet your needs. Please visit their websites for more information and contact details.</p>
+<ul title='Companies offering commercial support for Xapian'>
+  <li><a href='http://oligarchy.co.uk/'>Oligarchy Ltd</a></li>
+  <li><a href='http://lemurconsulting.com/'>Lemur Consulting Ltd</a></li>
+</ul>
+</div>
+
+<div class='content-block'>
+<h1>Getting involved</h1>
+<p>The Xapian developers hang out on the <a href='irc:irc.freenode.net/xapian'>#xapian</a> and <a href='irc:irc.freenode.net/xapian-devel'>#xapian-devel</a> IRC channels on freenode (the latter is for discussing the development <em>of</em> Xapian, rather than questions about using it); the community also has a number of <a href='support/lists'>mailing lists</a> where discussions take place. There's also a <a href='http://trac.xapian.org/wiki/'>wiki</a>, <a href='http://trac.xapian.org/report/1'>bug tracking</a>, and the source code itself is available in our <a href='http://trac.xapian.org/browser/'>Subversion repository</a>. Take them all together, eat something healthy, and dive in - we'll be there to catch you.</p>
+</div>
