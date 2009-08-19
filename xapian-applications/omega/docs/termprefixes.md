@@ -1,6 +1,6 @@
-=============
-Term Prefixes
-=============
+% Terms in Omega
+
+## Overview
 
 Xapian itself doesn't put any restrictions on the contents of a term, other
 than that terms can't be empty, and there's an upper limit on the length
@@ -27,56 +27,59 @@ something without a standard prefix, you create your own starting with an X
 you're prefixing starts with a capital, add a ":" between prefix and term to
 resolve ambiguity about where the prefix ends and the term begins.
 
+### Allocated prefixes
+
 Here's the current allocation list:
 
-A	
-        Author
-D	
-        Date (numeric format: YYYYMMDD or "latest" - e.g. D20050224 or Dlatest)
-G	
-        newsGroup (or similar entity - e.g. a web forum name)
-H	
-        Hostname
-K	
-        Keyword
-L	
-        ISO Language code
-M	
-        Month (numeric format: YYYYMM)
-N	
-        ISO couNtry code (or domaiN name)
-P	
-        Pathname
-Q	
-        uniQue id
-R	
-        Raw (i.e. unstemmed) term (unused by Xapian since 1.0.0)
-S	
-        Subject (or title)
-T	
-        mimeType
-U	
-        full URL of indexed document - if the resulting term would be > 240
-	characters, a hashing scheme is used to prevent overflowing
-	the Xapian term length limit (see omindex for how to do this).
-W	
-        "weak" (approximately 10 day intervals, taken as YYYYMMD from
-	the D term, and changing the last digit to a '2' if it's a '3')
-	(unused by Xapian since 0.9.7)
-X	
-        longer prefix for user-defined use
-Y	
-        year (four digits)
-Z	
-        stemmed term
+**A**
+:   Author
+**D**
+:   Date (numeric format: YYYYMMDD or "latest" - e.g. D20050224 or Dlatest)
+**G**
+:   newsGroup (or similar entity - e.g. a web forum name)
+**H**
+:   Hostname
+**K**
+:   Keyword
+**L**
+:   ISO Language code
+**M**
+:   Month (numeric format: YYYYMM)
+**N**
+:   ISO couNtry code (or domaiN name)
+**P**
+:   Pathname
+**Q**
+:   uniQue id
+**R**
+:   Raw (i.e. unstemmed) term (unused by Xapian since 1.0.0)
+**S**
+:   Subject (or title)
+**T**
+:   mimeType
+**U**
+:   full URL of indexed document - if the resulting term would be > 240
+    characters, a hashing scheme is used to prevent overflowing
+    the Xapian term length limit (see omindex for how to do this).
+**W**
+:   "weak" (approximately 10 day intervals, taken as YYYYMMD from
+    the D term, and changing the last digit to a '2' if it's a '3')
+    (unused by Xapian since 0.9.7)
+**X**
+:   longer prefix for user-defined use
+**Y**
+:   year (four digits)
+**Z**
+:   stemmed term
 
 Reserved but currently unallocated: BCEFIJOV
 
 There are two main uses for prefixes - boolean filters and probabilistic
 (i.e. free text) fields.
 
-Boolean Filters
-===============
+## Using prefixes terms
+
+### Boolean Filters
 
 If the documents being indexed represent people, you might have a gender
 field (e.g. M for Male, F for Female, X for Unknown).  Gender doesn't have
@@ -86,7 +89,7 @@ will be indexed by one of XGENDERm, XGENDERf, or XGENDERx.
 
 If you're indexing using scriptindex, and have a field in the input file
 which can be "gender=M", etc, then your index script would have a rule
-such as::
+such as:
 
     gender : lower boolean=XGENDER
 
@@ -94,7 +97,7 @@ You can then restrict a search in Omega by passing a B parameter with one
 of these as the value, e.g. B=XGENDERf
 
 In your HTML search form, you can allow the user to select this using a set of
-radio buttons::
+radio buttons:
 
     Gender:<br>
     <input type="radio" name="B" value=""> any<br>
@@ -106,7 +109,7 @@ boolean filters, you can make use of Omega's preprocessing of CGI parameter
 names by calling them "B 1", "B 2", etc (names are truncated at the first
 space - see `cgiparams.html <cgiparams.html>`_ for full details).
 
-You can also use a select tag::
+You can also use a select tag:
 
     Gender:
     <select name="B">
@@ -118,11 +121,11 @@ You can also use a select tag::
 
 You can also allow the user to restrict a search with a boolean filter
 specified in text query (e.g. sex:f -> XGENDERf) by adding this to the
-start of your OmegaScript template::
+start of your OmegaScript template:
 
     $setmap{boolprefix,sex,XGENDER}
 
-Multiple aliases are allowed::
+Multiple aliases are allowed:
 
     $setmap{boolprefix,sex,XGENDER,gender,XGENDER}
 
@@ -130,8 +133,7 @@ This decoupling of internal and external names is also useful if you want
 to offer search frontends in more than one language, as it allows the
 prefixes the user sees to be translated.
 
-Probabilistic Fields
-====================
+### Probabilistic Fields
 
 Say you want to index the title of the document such that the user can
 search within the title by specifying title:report (for example) in their
@@ -139,17 +141,17 @@ query.
 
 Title has standard prefix S, so you'd generate terms as normal, but then
 add an "S" prefix.  If you're using scriptindex, then you do this by
-adding "index=S" to the scriptindex rule like so::
+adding "index=S" to the scriptindex rule like so:
 
     title : field=title index=S
 
 You then need to tell Xapian::QueryParser that "title:" maps to an "S" prefix.
 If you're using Omega, then you do so by adding this to your OmegaScript
-template (at the start is best)::
+template (at the start is best):
 
     $setmap{prefix,title,S}
 
-Or if you're writing your own search frontend, like this::
+Or if you're writing your own search frontend, like this:
 
     Xapian::QueryParser qp;
     qp.add_prefix("subject", "S");

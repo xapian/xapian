@@ -6,26 +6,31 @@ if MAINTAINER_MODE
 export ACLOCAL AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE
 endif
 
-RSTDOCS = \
-	cgiparams.rst\
-	omegascript.rst\
-	overview.rst\
-	quickstart.rst\
-	scriptindex.rst\
-	termprefixes.rst
+MDDOCS = \
+	cgiparams.md\
+	omegascript.md\
+	overview.md\
+	quickstart.md\
+	scriptindex.md\
+	termprefixes.md\
+	index.md
 
-RSTHTML = $(RSTDOCS:.rst=.html)
+MDHTML = $(MDDOCS:.md=.html)
 
 # Files which should be put in the distribution by automake
-EXTRA_DIST = $(RSTDOCS)
+EXTRA_DIST = $(MDDOCS)
+
+toolsdir=$(srcdir)/../../../xapian-maintainer-tools/html-tools
 
 if !MAINTAINER_NO_DOCS
-dist_doc_DATA = $(RSTHTML)
+dist_doc_DATA = $(MDHTML) \
+	$(toolsdir)/style.css $(toolsdir)/xapian-logo.png \
+	$(toolsdir)/graded-background.png
 endif
 
-MAINTAINERCLEANFILES = $(RSTHTML)
+MAINTAINERCLEANFILES = $(MDHTML)
 
 if DOCUMENTATION_RULES
-.rst.html:
-	$(RST2HTML) --exit-status=warning $< $@
+.md.html:
+	$(toolsdir)/genpage -l $< docs-omega > $@
 endif

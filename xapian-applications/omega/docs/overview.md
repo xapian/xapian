@@ -1,29 +1,25 @@
-==============
-Omega overview
-==============
+% Omega overview
 
 If you just want a very quick overview, you might prefer to read the
-`quick-start guide <quickstart.html>`_.
+[quick-start guide](quickstart.html).
 
 Omega operates on a set of databases.  Each database is created and updated
-separately using either omindex or `scriptindex <scriptindex.html>`_.  You can
+separately using either omindex or [scriptindex](scriptindex.html).  You can
 search these databases (or any other Xapian database with suitable contents)
 via a web front-end provided by omega, a CGI application.  A search can also be
 done over more than one database at once.
 
-There are separate documents covering `CGI parameters <cgiparams.html>`_, the
-`Term Prefixes <termprefixes.html>`_ which are conventionally used, and 
-`OmegaScript <omegascript.html>`_, the language used to define omega's web
+There are separate documents covering [CGI parameters](cgiparams.html), the
+[Term Prefixes](termprefixes.html) which are conventionally used, and 
+[OmegaScript](omegascript.html), the language used to define omega's web
 interface.  Omega ships with several OmegaScript templates and you can
 use these, modify them, or just write your own.  See the "Supplied Templates"
 section below for details of the supplied templates.
 
 Omega parses queries using the ``Xapian::QueryParser`` class - for the supported
-syntax, see queryparser.html in the xapian-core documentation
-- available online at: http://xapian.org/docs/queryparser.html
+syntax, see [queryparser.html in the xapian-core documentation](http://xapian.org/docs/queryparser.html).
 
-Term construction
-=================
+## Term construction
 
 Documents within an omega database are stored with two types of terms:
 those used for probabilistic searching (the CGI parameter 'P'), and
@@ -48,9 +44,9 @@ against the P(robabilistic) terms. This will look something like::
 		       /      \
 		      /        \
 		 P-terms      [     AND     ]
-			       /     | ... \
-			      /
-			[    OR    ]
+		               /     | ... \
+		              /
+		        [    OR    ]
 		       /      | ... \
 		    B(F,1) B(F,2)...B(F,n)
 
@@ -78,8 +74,7 @@ terms starting 100 beyond title terms, and keyword terms starting 100
 beyond body terms. This allows queries using positional data without
 causing false matches across the different types of term.
 
-Sites
-=====
+## Sites
 
 Within a database, Omega supports multiple sites. These are recorded
 using boolean terms (see 'Term construction', above) to allow
@@ -89,13 +84,13 @@ Sites work by having all documents within them having a common base
 URL. For instance, you might have two sites, one for your press area
 and one for your product descriptions:
 
-	- \http://example.com/press/index.html
-	- \http://example.com/press/bigrelease.html
-	- \http://example.com/products/bigproduct.html
-	- \http://example.com/products/littleproduct.html
+- http://example.com/press/index.html
+- http://example.com/press/bigrelease.html
+- http://example.com/products/bigproduct.html
+- http://example.com/products/littleproduct.html
 
-You could index all documents within \http://example.com/press/ using a
-site of '/press', and all within \http://example.com/products/ using
+You could index all documents within http://example.com/press/ using a
+site of '/press', and all within http://example.com/products/ using
 '/products'.
 
 Sites are also useful because omindex indexes documents through the
@@ -104,7 +99,7 @@ URL to file system mapping which puts all documents under one
 hierarchy, you'll need to index each separate section as a site.
 
 An obvious example of this is the way that many web servers map URLs
-of the form <\http://example.com/~<username>/> to a directory within
+of the form http://example.com/~<username>/ to a directory within
 that user's home directory (such as ~<username>/pub on a Unix
 system). In this case, you can index each user's home page separately,
 as a site of the form '/~<username>'. You can then use boolean
@@ -114,17 +109,16 @@ group of them), or omit such terms to search everyone's pages.
 Note that the site specified when you index is used to build the
 complete URL that the results page links to. Thus while sites will
 typically want to be relative to the hostname part of the URL (e.g.
-'/site' rather than '\http://example.com/site'), you can use them
+'/site' rather than 'http://example.com/site'), you can use them
 to have a single search across several different hostnames. This will
 still work if you actually store each distinct hostname in a different
 database.
 
-omindex operation
-=================
+## omindex operation
 
-omindex is fairly simple to use, for example::
+omindex is fairly simple to use, for example:
 
-  omindex --db default --url http://example.com/ /var/www/example.com
+    omindex --db default --url http://example.com/ /var/www/example.com
 
 For a full list of command line options supported, see ``man omindex``
 or ``omindex --help``.
@@ -133,7 +127,7 @@ You *must* specify the database to index into (it's created if it doesn't
 exist, but parent directories must exist).  You will often also want to specify
 the base URL (which is used as the site, and can be relative to the hostname -
 starts '/' - or absolute - starts with a scheme, e.g.
-'\http://example.com/products/').  If not specified, the base URL defaults to
+'http://example.com/products/').  If not specified, the base URL defaults to
 ``/``.
 
 You also need to tell omindex which directory to index. This should be
@@ -145,28 +139,28 @@ second being a relative directory within that to index.
 For instance, in the example above, if you separate your products by
 size, you might end up with:
 
-	- \http://example.com/press/index.html
-	- \http://example.com/press/bigrelease.html
-	- \http://example.com/products/large/bigproduct.html
-	- \http://example.com/products/small/littleproduct.html
+- http://example.com/press/index.html
+- http://example.com/press/bigrelease.html
+- http://example.com/products/large/bigproduct.html
+- http://example.com/products/small/littleproduct.html
 
 If the entire website is stored in the file system under the directory
 /www/example, then you would probably index the site in two
 passes, one for the '/press' site and one for the '/products' site. You
-might use the following commands::
+might use the following commands:
 
-$ omindex -p --db /var/lib/omega/data/default --url /press /www/example/press
-$ omindex -p --db /var/lib/omega/data/default --url /products /www/example/products
+    $ omindex -p --db /var/lib/omega/data/default --url /press /www/example/press
+    $ omindex -p --db /var/lib/omega/data/default --url /products /www/example/products
 
 If you add a new large products, but don't want to reindex the whole of
-the products section, you could do::
+the products section, you could do:
 
-$ omindex -p --db /var/lib/omega/data/default --url /products /www/example/products large
+    $ omindex -p --db /var/lib/omega/data/default --url /products /www/example/products large
 
 and just the large products will be reindexed. You need to do it like that, and
-not as::
+not as:
 
-$ omindex -p --db /var/lib/omega/data/default --url /products/large /www/example/products/large
+    $ omindex -p --db /var/lib/omega/data/default --url /products/large /www/example/products/large
 
 because that would make the large products part of a new site,
 '/products/large', which is unlikely to be what you want, as large
@@ -195,12 +189,9 @@ know):
   .odi, .odm, .ott, .ots, .otp, .otg, .otc, .otf, .oti, .oth) if unzip is
   available
 * MS Word documents (.doc, .dot) if antiword is available
-* MS Excel documents (.xls, .xlb, .xlt) if xls2csv is available (comes with
-  catdoc)
-* MS Powerpoint documents (.ppt, .pps) if catppt is available (comes with
-  catdoc)
-* MS Office 2007 documents (.docx, .docm, .dotx, .dotm, .xlsx, .xlsm, .xltx,
-  .xltm, .pptx, .pptm, .potx, .potm, .ppsx, .ppsm) if unzip is available
+* MS Excel documents (.xls, .xlb, .xlt) if xls2csv is available (comes with catdoc)
+* MS Powerpoint documents (.ppt, .pps) if catppt is available (comes with catdoc)
+* MS Office 2007 documents (.docx, .docm, .dotx, .dotm, .xlsx, .xlsm, .xltx, .xltm, .pptx, .pptm, .potx, .potm, .ppsx, .ppsm) if unzip is available
 * Wordperfect documents (.wpd) if wpd2text is available (comes with libwpd)
 * MS Works documents (.wps, .wpt) if wps2text is available (comes with libwps)
 * AbiWord documents (.abw)
@@ -212,9 +203,9 @@ know):
 * XPS files (.xps) if unzip is available
 
 If you have additional extensions that represent one of these types, you need
-to add an additional MIME mapping using the --mime-type option. For instance::
+to add an additional MIME mapping using the --mime-type option. For instance:
 
-$ omindex --db /var/lib/omega/data/default --url /press /www/example/press  --mime-type doc:application/postscript
+    $ omindex --db /var/lib/omega/data/default --url /press /www/example/press  --mime-type doc:application/postscript
 
 The syntax of --mime-type is 'ext:type', where ext is the extension of
 a file of that type (everything after the last '.'), and type is one
@@ -306,48 +297,43 @@ merge all the databases together when searching.
 a certain number of directories.  If you wish to replicate the old
 --no-recurse option, use ----depth-limit=1.
 
-HTML Parsing
-============
+## HTML Parsing 
 
-The document ``<title>`` tag is used as the document title, the 'description'
-META tag (if present) is used for the document snippet, and the 'keywords'
-META tag (if present) is indexed as extra document text.
+The document ``<title>`` tag is used as the document title, the 'description' 
+META tag (if present) is used for the document snippet, and the 'keywords' 
+META tag (if present) is indexed as extra document text. 
 
-The HTML parser will look for the 'robots' META tag, and won't index pages
-which are marked as ``noindex`` or ``none``, for example any of the following::
+ The HTML parser will look for the 'robots' META tag, and won't index pages 
+ which are marked as ``noindex`` or ``none``, for example any of the following:
 
     <meta name="robots" content="noindex,nofollow">
     <meta name="robots" content="noindex">
     <meta name="robots" content="none">
 
-The parser also understand ht://dig comments to mark sections of the document
-to not index (for example, you can use this to avoid indexing navigation links
-or standard headers/footers) - for example::
+The parser also understand ht://dig comments to mark sections of the document 
+to not index (for example, you can use this to avoid indexing navigation links 
+or standard headers/footers) - for example:: 
 
-    Index this bit <!--htdig_noindex-->but <b>not</b> this<!--/htdig_noindex>
+    Index this bit <!--htdig_noindex-->but <b>not</b> this<!--/htdig_noindex> 
 
-Boolean terms
-=============
+## Boolean terms
 
 omindex will create the following boolean terms when it indexes a
 document:
 
 T	
-        MIME type
+:        MIME type
 H	
-        hostname of site (if supplied - this term won't exist if you index a
+:        hostname of site (if supplied - this term won't exist if you index a
         site with base URL '/press', for instance)
 P	
-        path of site (i.e. the rest of the site base URL)
+:        path of site (i.e. the rest of the site base URL)
 U	
-        full URL of indexed document - if the resulting term would be > 240
+:        full URL of indexed document - if the resulting term would be > 240
 	characters, a hashing scheme is used to prevent omindex overflowing
 	the Xapian term length limit.
-
-
-
 D	
-        date (numeric format: YYYYMMDD)
+:        date (numeric format: YYYYMMDD)
 	date can also have the magical form "latest" - a document indexed
 	by the term Dlatest matches any date-range without an end date.
 	You can index dynamic documents which are always up to date
@@ -355,12 +341,11 @@ D
 	you'll probably also want to set the value containing the timestamp to
 	a "max" value so dynamic documents match a date in the far future).
 M	
-        month (numeric format: YYYYMM)
+:        month (numeric format: YYYYMM)
 Y	
-        year (four digits)
+:        year (four digits)
 
-omega configuration
-===================
+## omega configuration
 
 Most of the omega CGI configuration is dynamic, by setting CGI
 parameters. However some things must be configured using a
@@ -388,19 +373,18 @@ Omega databases), 'template_dir' (the directory containing the OmegaScript
 templates), and 'log_dir' (the directory which the OmegaScript $log command
 writes log files to).
 
-The default values (used if no configuration file is found) are::
+The default values (used if no configuration file is found) are:
 
- database_dir /var/lib/omega/data
- template_dir /var/lib/omega/templates
- log_dir /var/log/omega
+    database_dir /var/lib/omega/data
+    template_dir /var/lib/omega/templates
+    log_dir /var/log/omega
 
 Note that, with apache, environment variables may be set using mod_env, and
 with apache 1.3.7 or later this may be used inside a .htaccess file.  This
 makes it reasonably easy to share a single system installed copy of Omega
 between multiple users.
 
-Supplied Templates
-==================
+## Supplied Templates
 
 The OmegaScript templates supplied with Omega are:
 
@@ -423,8 +407,7 @@ There are also "helper fragments" used by the templates above:
    by default as radio buttons.
  * toptermsjs - Provides some JavaScript used by the topterms template.
 
-Document data construction
-==========================
+## Document data construction
 
 This is only useful if you need to inject your own documents into the
 database independently of omindex, such as if you are indexing
@@ -434,21 +417,21 @@ in some way, such as documents generated from reasonably static
 database contents.
 
 The document data field stores some summary information about the
-document, in the following (sample) format::
+document, in the following (sample) format:
 
- url=<baseurl>
- sample=<sample>
- caption=<title>
- type=<mimetype>
+    url=<baseurl>
+    sample=<sample>
+    caption=<title>
+    type=<mimetype>
 
 Further fields may be added (although omindex doesn't currently add any
 others), and may be looked up from OmegaScript using the $field{}
 command.
 
 As of Omega 0.9.3, you can alternatively add something like this near the
-start of your OmegaScript template::
+start of your OmegaScript template:
 
-$set{fieldnames,$split{caption sample url}}
+    $set{fieldnames,$split{caption sample url}}
 
 Then you need only give the field values in the document data, which can
 save a lot of space in a large database.  With the setting of fieldnames
