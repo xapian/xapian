@@ -442,10 +442,13 @@ if test x"$enable_documentation" = xyes ; then
   AC_PATH_PROG(HELP2MAN, help2man, [])
   test -z "$HELP2MAN" && AC_MSG_ERROR([help2man is required to build documentation])
 
-  dnl Check for rst2html. (Needed to make HTML from reStructuredText format)
-  dnl Also look for rst2html.py, which archlinux reportedly installs it as.
-  AC_PATH_PROGS(RST2HTML, [rst2html rst2html.py], [])
-  test -z "$RST2HTML" && AC_MSG_ERROR([rst2html is required to build documentation])
+  dnl Check for pandoc. (Needed to make HTML from Markdown format)
+  AC_PATH_PROGS(PANDOC, [pandoc], [])
+  test -z "$PANDOC" && AC_MSG_ERROR([pandoc is required to build documentation])
+
+  dnl Check for python. (Needed to do various helper jobs in building HTML)
+  AC_PATH_PROGS(PYTHON, [python], [])
+  test -z "$PYTHON" && AC_MSG_ERROR([python is required to build documentation])
 
   dnl Check for pngcrush, which we optionally use to reduce the size of the
   dnl PNG files which doxygen generates.  We can get by without it, so don't

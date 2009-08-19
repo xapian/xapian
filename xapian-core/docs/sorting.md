@@ -1,14 +1,8 @@
+% Sorting of Search Results
 
-.. Copyright (C) 2007 Olly Betts
+<!-- Copyright (C) 2007 Olly Betts -->
 
-=========================
-Sorting of Search Results
-=========================
-
-.. contents:: Table of contents
-
-Introduction
-============
+## Introduction
 
 By default, Xapian orders search results by decreasing relevance score.
 However, it also allows results to be ordered by other criteria, or
@@ -21,8 +15,7 @@ to descending using ``enquire.set_docid_order(enquire.DESCENDING);``.  If you
 have no preference, you can tell Xapian to use whatever order is most efficient
 using ``enquire.set_docid_order(enquire.DONT_CARE);``.
 
-Sorting by Relevance
-====================
+## Sorting by Relevance
 
 The BM25 weighting formula which Xapian uses by default has a number of
 parameters.  We have picked some default parameter values which do a good job
@@ -31,7 +24,7 @@ indexed and the type of queries being run, so you may be able to improve the
 effectiveness of your search system by adjusting these values, but it's a
 fiddly process to tune them so people tend not to bother.
 
-See the `BM25 documentation <bm25.html>`_ for more details of BM25.
+See the [BM25 documentation](bm25.html) for more details of BM25.
 
 The other included weighting schemes are ``TradWeight`` and ``BoolWeight``.
 
@@ -47,7 +40,7 @@ in the form of a sum over the matching terms, plus an extra term which depends
 on term-independent statistics (such as the normalised document length).
 
 For example, here's an implementation of "coordinate matching" - each matching
-term scores one point::
+term scores one point:
 
     class CoordinateWeight : public Xapian::Weight {
       public:
@@ -72,11 +65,10 @@ term scores one point::
 	bool get_sumpart_needs_doclength() const { return false; }
     };
 
-.. FIXME: add a more complex example once user-defined weight classes can
-   see the statistics.
+<!-- FIXME: add a more complex example once user-defined weight classes can
+   see the statistics. -->
 
-Sorting by Other Properties
-===========================
+## Sorting by Other Properties
 
 If you want to offer a "sort by date" feature, and can arrange for documents to
 be indexed in date order (or a close-enough approximation), then you can
@@ -88,15 +80,14 @@ There's no inherent reason why this technique can't be used for sorting by
 something other than date, but it's usually much easier to arrange for new
 documents to arrive in date order than in other orders.
 
-Sorting by Value
-----------------
+### Sorting by Value
 
 You can order documents by comparing a specified document value.  Note that the
 comparison used compares the byte values in the value (i.e. it's a string sort
 ignoring locale), so ``1`` < ``10`` < ``2``.  If you want to encode the value
 such that it sorts numerically, use ``Xapian::sortable_serialise()`` to encode
 values at index time - this works equally will on integers and floating point
-values::
+values:
 
     Xapian::Document doc;
     doc.add_value(0, Xapian::sortable_serialise(price));
@@ -115,8 +106,7 @@ sort, depending if/how you want relevance used in the ordering:
    default BM25 weighting, which rarely assigns identical scores to
    different documents.
 
-Sorting by Generated Key
-------------------------
+### Sorting by Generated Key
 
 To allow more elaborate sorting schemes, Xapian allows you to provide a functor
 object subclassed from ``Xapian::Sorter`` which generates a sort key for each

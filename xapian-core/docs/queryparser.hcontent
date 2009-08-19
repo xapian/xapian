@@ -1,10 +1,3 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML>
-<HEAD>
-<TITLE>Xapian::QueryParser Syntax</TITLE>
-</HEAD>
-<BODY BGCOLOR="white" TEXT="black">
-
 <H1>Xapian::QueryParser Syntax</H1>
 
 <P>This document describes the query syntax supported by the
@@ -74,12 +67,13 @@ cases such as filenames and email addresses (e.g. /etc/passwd or president@white
 
 <H3>Searching within a probabilistic field</H3>
 
-<P>If the database has been indexed with prefixes on probabilistic terms
-from certain fields, you can set up a prefix map so that the user can
-search within those fields.  For example <code>author:dickens title:shop</code>
-might find documents by dickens with shop in the title.  You can also specify a
-prefix on a quoted phrase (e.g. <code>author:"charles&nbsp;dickens"</code>) or
-on a bracketed subexpression (e.g. <code>title:(mice men)</code>).
+<P>If the database has been indexed with prefixes on probabilistic
+terms from certain fields, you can set up a prefix map so that the
+user can search within those fields.  For example <code>author:dickens
+title:shop</code> might find documents by dickens with shop in the
+title.  You can also specify a prefix on a quoted phrase (eg
+<code>author:"charles&#160;dickens"</code>) or on a bracketed
+expression.
 
 <H3>Searching for proper names</H3>
 
@@ -147,5 +141,3 @@ flag in the flags argument of
 <code>Xapian::QueryParser::parse_query(<i>query_string</i>, <i>flags</i>)</code>
 to enable it, and tell the QueryParser which database to expand wildcards from
 using the <code>QueryParser::set_database(<i>database</i>)</code> method.
-</BODY>
-</HTML>

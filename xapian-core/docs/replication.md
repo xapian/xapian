@@ -1,16 +1,12 @@
-.. Copyright (C) 2008 Lemur Consulting Ltd
-.. Copyright (C) 2008 Olly Betts
+% Xapian Database Replication Users Guide
 
-=======================================
-Xapian Database Replication Users Guide
-=======================================
+<!--  Copyright (C) 2008 Lemur Consulting Ltd
+      Copyright (C) 2008 Olly Betts
+-->
 
-.. warning:: This feature is currently experimental.  Both the API for replication and the format of changesets on disk are liable to change between releases without warning.
+<p class='note'>This feature is currently experimental.  Both the API for replication and the format of changesets on disk are liable to change between releases without warning.</p>
 
-.. contents:: Table of contents
-
-Introduction
-============
+## Introduction
 
 It is often desirable to maintain multiple copies of a Xapian database, having
 a "master" database which modifications are made on, and a set of secondary
@@ -24,18 +20,14 @@ following characteristics:
  - Data transfer is (at most) proportional to the size of the updates, rather
    than the size of the database, to allow frequent small updates to large
    databases to be replicated efficiently.
-
  - Searching (on the slave databases) and indexing (on the master database) can
    continue during synchronisation.
-
  - Data cached (in memory) on the slave databases is not discarded (unless it's
    actually out of date) as updates arrive, to ensure that searches continue to
    be performed quickly during and after updates.
-
  - Synchronising each slave database involves low overhead (both IO and CPU) on
    the server holding the master database, so that many slaves can be updated
    from a single master without overloading it.
-
  - Database synchronisation can be recovered after network outages or server
    failures without manual intervention and without excessive data transfer.
 
@@ -47,23 +39,23 @@ modifications are made.
 
 This document gives an overview of how and why to use the replication protocol.
 For technical details of the implementation of the replication protocol, see
-the separate `Replication Protocol <replication_protocol.html>`_ document.
+the separate [Replication Protocol](replication_protocol.html) document.
 
-Backend Support
-===============
+## Backend Support
 
-Replication supports the flint and chert databases, and can cleanly handle the
-master switching database type (a full copy is sent in this situation).  It
-doesn't make a lot of sense to support replication for the remote backend.
-Replication of inmemory databases isn't currently available.  We have a longer
-term aim to replace the current inmemory backend with the current disk based
-backend (e.g. chert) but storing its data in memory.  Once this is done, it
-would probably be easy to support replication of inmemory databases.
+Replication supports the flint and chert databases, and can cleanly
+handle the master switching database type (a full copy is sent in this
+situation).  It doesn't make a lot of sense to support replication for
+the remote backend.  Replication of inmemory databases isn't currently
+available.  We have a longer term aim to replace the current inmemory
+backend with the current disk based backend (e.g. chert) but storing
+its data in memory.  Once this is done, it would probably be easy to
+support replication of inmemory databases.
 
-Setting up replicated databases
-===============================
 
-.. FIXME - expand this section.
+## Setting up replicated databases
+
+<!-- FIXME - expand this section. -->
 
 To replicate a database efficiently from one master machine to other machines,
 there is one configuration step to be performed on the master machine, and two
@@ -76,14 +68,15 @@ This will cause changeset files to be created whenever a transaction is
 performed, which allow the transaction to be replaced efficiently on a replica
 of the database.
 
-Secondly, also on the master machine, run the `xapian-replicate-server` server
-to serve the databases which are to be replicated.  This takes various
-parameters to control the directory that databases are found in, and the
-network interface to serve on.  The `--help` option will cause usage
-information to be displayed.  For example, if `/var/search/dbs`` contains a
-set of Xapian databases to be replicated::
+Secondly, also on the master machine, run the
+`xapian-replicate-server` server to serve the databases which are to
+be replicated.  This takes various parameters to control the directory
+that databases are found in, and the network interface to serve on.
+The `--help` option will cause usage information to be displayed.  For
+example, if `/var/search/dbs` contains a set of Xapian databases to
+be replicated:
 
-  ./xapian-replicate-server /var/search/dbs -p 7010
+    ./xapian-replicate-server /var/search/dbs -p 7010
 
 would run a server allowing access to these databases, on port 7010.
 
@@ -92,9 +85,9 @@ individual database up-to-date.  This will contact the server on the specified
 host and port, and copy the database with the name (on the master) specified in
 the `-m` option to the client.  One non-option argument is required - this is
 the name that the database should be stored in on the slave machine.  For
-example, contacting the above server from the same machine::
+example, contacting the above server from the same machine:
 
-  ./xapian-replicate -h 127.0.0.1 -p 7010 -m foo foo2
+    ./xapian-replicate -h 127.0.0.1 -p 7010 -m foo foo2
 
 would produce a database "foo2" containing a replica of the database
 "/var/search/dbs/foo".
@@ -104,56 +97,48 @@ This may be particularly useful for the client, to allow a shell script to be
 used to cycle through a set of databases, updating each in turn (and then
 probably sleeping for a period).
 
-Limitations
-===========
+## Limitations 
 
-It is possible to confuse the replication system in some cases, such that an
-invalid database will be produced on the client.  However, this is easy to
-avoid in practice.
+It is possible to confuse the replication system in some cases, such that an 
+invalid database will be produced on the client.  However, this is easy to 
+avoid in practice. 
 
-To confuse the replication system, the following needs to happen:
+To confuse the replication system, the following needs to happen: 
 
- - Start with two databases, A and B.
- - Start a replication of database A.
- - While the replication is in progress, swap B in place of A (ie, by moving
-   the files around, such that B is now at the path of A).
- - While the replication is still in progress, swap A back in place of B.
+ - Start with two databases, A and B. 
+ - Start a replication of database A. 
+ - While the replication is in progress, swap B in place of A (ie, by moving 
+   the files around, such that B is now at the path of A). 
+ - While the replication is still in progress, swap A back in place of B. 
 
-If this happens, the replication process will not detect the change in
-database, and you are likely to end up with a database on the client which
-contains parts of A and B mixed together.  You will need to delete the damaged
-database on the client, and re-run the replication.
+If this happens, the replication process will not detect the change in 
+database, and you are likely to end up with a database on the client which 
+contains parts of A and B mixed together.  You will need to delete the damaged 
+database on the client, and re-run the replication. 
 
-To avoid this, simply avoid swapping a database back in place of another one.
-Or at least, if you must do this, wait until any replications in progress when
+To avoid this, simply avoid swapping a database back in place of another one. 
+Or at least, if you must do this, wait until any replications in progress when 
 you were using the original database have finished.
 
-
-Alternative approaches
-======================
+## Alternative approaches
 
 Without using the database replication protocol, there are various ways in
 which the "single master, multiple slaves" setup could be implemented.
 
  - Copy database from master to all slaves after each update, then swap the new
    database for the old.
-
  - Synchronise databases from the master to the slaves using rsync.
-
  - Keep copy of database on master from before each update, and use a binary
    diff algorithm (e.g., xdelta) to calculate the changes, and then apply these
    same changes to the databases on each slave.
-
  - Serve database from master to slaves over NFS (or other remote file system).
-
  - Use the "remote database backend" facility of Xapian to allow slave servers
    to search the database directly on the master.
 
 All of these could be made to work but have various drawbacks, and fail to
-satisfy all the desired characteristics.  Let's examine them in detail:
+satisfy all the desired characteristics.  Let's examine them in detail.
 
-Copying database after each update
-----------------------------------
+### Copying database after each update
 
 Databases could be pushed to the slaves after each update simply by copying the
 entire database from the master (using scp, ftp, http or one of the many other
@@ -180,8 +165,7 @@ of the live database will be dropped from the cache resulting in poor
 performance during the update, or some of the new database will not initially
 be present in the cache after update.
 
-Synchronise database using rsync
---------------------------------
+### Synchronise database using rsync
 
 Rsync works by calculating hashes for the content on the client and the server,
 sending the hashes from the client to the server, and then calculating (on the
@@ -201,8 +185,7 @@ a read-only snapshot copy cheaply (and without encountering poor caching
 behaviour), but filesystems with support for this are not always available, and
 may require considerable effort to set up even if they are available.
 
-Use a binary diff algorithm
----------------------------
+### Use a binary diff algorithm
 
 If a copy of the database on the master before the update was kept, a binary
 diff algorithm (such as "xdelta") could be used to compare the old and new
@@ -215,8 +198,7 @@ the same problems as previously discussed.  A copy or snapshot would also need
 to be taken on the slave, since a patch from xdelta couldn't safely be applied
 to a live database.
 
-Serve database from master to slaves over NFS
----------------------------------------------
+### Serve database from master to slaves over NFS
 
 NFS allows a section of a filesystem to be exported to a remote host.  Xapian
 is quite capable of searching a database which is exported in such a manner,
@@ -255,8 +237,7 @@ the slaves will have to fetch all the blocks required for their search across
 the network, which will likely result in extremely slow search times until the
 cache on the slaves gets populated properly again.
 
-Use the "remote database backend" facility
-------------------------------------------
+### Use the "remote database backend" facility
 
 Xapian has supported a "remote" database backend since the very early days of
 the project.  This allows a search to be run against a database on a remote

@@ -1,20 +1,14 @@
-.. Copyright (C) 2007 Olly Betts
+% Xapian 1.0 Term Indexing/Querying Scheme
 
-========================================
-Xapian 1.0 Term Indexing/Querying Scheme
-========================================
+<!-- Copyright (C) 2007 Olly Betts -->
 
-.. contents:: Table of contents
-
-Introduction
-============
+## Introduction
 
 In Xapian 1.0, the default indexing scheme has been changed significantly, to address
 lessons learned from observing the old scheme in real world use.  This document
 describes the new scheme, with references to differences from the old.
 
-Stemming
-========
+## Stemming
 
 The most obvious difference is the handling of stemmed forms.
 
@@ -44,8 +38,7 @@ mistakenly trigger for pasted text) has been removed.  This feature was there to
 support Omega's topterms adding stemmed forms, but Omega no longer needs to do this
 as it can suggest unstemmed forms instead.
 
-Word Characters
-===============
+## Word Characters
 
 By default, Unicode characters of category CONNECTOR_PUNCTUATION (``_`` and a
 handful of others) are now word characters, which provides better indexing of

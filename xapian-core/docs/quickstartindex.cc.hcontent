@@ -1,8 +1,3 @@
-<HTML>
-<HEAD>
-<TITLE>quickstartindex.cc.html</TITLE>
-</HEAD>
-<BODY BGcolor=#ffffff TEXT=#000000>
 <PRE>
 <FONT color=#0000ff>/* quickstartindex.cc: Simplest possible indexer
  *
@@ -63,5 +58,3 @@
     }
 }
 </PRE>
-</BODY>
-</HTML>

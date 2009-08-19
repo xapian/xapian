@@ -1,5 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
+toolsdir=$(srcdir)/../../xapian-maintainer-tools/html-tools
+
 if MAINTAINER_MODE
 # Export these so that we run the locally installed autotools when building
 # from a bootstrapped SVN tree.
@@ -11,23 +13,25 @@ endif
 # being run.  For "make all", "make check", etc we carefully skip any docs
 # which we don't have the tools to generate.
 
-HTMLDOCS = index.html internals.html install.html intro_ir.html overview.html \
- stemming.html quickstart.html remote.html remote_protocol.html \
- matcherdesign.html tests.html scalability.html \
- bm25.html code_structure.html queryparser.html \
- quickstartexpand.cc.html quickstartindex.cc.html quickstartsearch.cc.html
+HTMLDOCS = internals.hcontent intro_ir.hcontent overview.hcontent \
+ quickstart.hcontent remote_protocol.hcontent \
+ matcherdesign.hcontent tests.hcontent bm25.hcontent \
+ code_structure.hcontent queryparser.hcontent \
+ quickstartexpand.cc.hcontent quickstartindex.cc.hcontent quickstartsearch.cc.hcontent
+HCONTENTHTML = $(HTMLDOCS:.hcontent=.html)
 
-RSTDOCS = admin_notes.rst categorisation.rst deprecation.rst glossary.rst \
- postingsource.rst replication.rst replication_protocol.rst \
- sorting.rst serialisation.rst spelling.rst synonyms.rst \
- termgenerator.rst valueranges.rst
-RSTHTML = $(RSTDOCS:.rst=.html)
+MDDOCS = index.md install.md stemming.md remote.md bleeding.md \
+ scalability.md admin_notes.md deprecation.md glossary.md \
+ postingsource.md replication.md replication_protocol.md \
+ sorting.md serialisation.md spelling.md synonyms.md \
+ termgenerator.md valueranges.md categorisation.md
+MDHTML = $(MDDOCS:.md=.html)
 
 # Files which should be put in the distribution by automake
 EXTRA_DIST = doxygen_api.conf.in doxygen_source.conf.in \
 	doxygen_api_header.html_tmpl doxygen_api_footer.html_tmpl \
 	doxygen_source_header.html_tmpl doxygen_source_footer.html_tmpl \
-	$(RSTDOCS) \
+	$(MDDOCS) \
 	dir_contents
 
 # Other files which should be distributed
@@ -56,7 +60,9 @@ if !MAINTAINER_NO_DOCS
 # Build API docs with doxygen
 all-local: doxygen_api_docs
 
-dist_doc_DATA = $(HTMLDOCS) $(RSTHTML) apidoc.pdf
+dist_doc_DATA = $(HCONTENTHTML) $(MDHTML) apidoc.pdf \
+	$(toolsdir)/style.css $(toolsdir)/xapian-logo.png \
+	$(toolsdir)/graded-background.png
 
 install-data-local: doxygen_api_docs
 	$(mkinstalldirs) $(DESTDIR)$(docdir)/apidoc/html
@@ -81,7 +87,7 @@ uninstall-local:
 
 MAINTAINERCLEANFILES = doxygen_api.conf doxygen_source.conf \
 	code_structure.html apidoc.pdf \
-	$(RSTHTML)
+	$(MDHTML) $(HCONTENTHTML)
 
 .PHONY: doxygen_source_docs doxygen_api_docs doxygen_docs
 
@@ -128,6 +134,11 @@ sourcedoc/html/index.html: $(SOURCEDOC_SRC) $(APIDOC_SRC) \
 	rm -rf sourcedoc
 	top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN) doxygen_source.conf
 
-.rst.html:
-	$(RST2HTML) --exit-status=warning $< $@
+# Depends $(toolsdir)/genhtml.py $(toolsdir)/getmenu.py $(toolsdir)/menu-docs-local.html $(toolsdir)/templates/docs-html.html
+.hcontent.html:
+	$(PYTHON) $(toolsdir)/genhtml.py $(toolsdir)/templates/docs-html.html $< outroot= xaproot=http://xapian.org/ thisdir=$(toolsdir) docsmenu=$(toolsdir)/menu-docs-local.html localflag=-b inuri= PYTHON=$(PYTHON) > $@
+
+# Depends $(toolsdir)/genpage $(toolsdir)/genhtml.py $(toolsdir)/getmenu.py $(toolsdir)/menu-docs-local.html $(toolsdir)/templates/docs-PREBODY.html $(toolsdir)/templates/docs-POSTBODY.html $(toolsdir)/templates/header-extra.html
+.md.html:
+	$(toolsdir)/genpage -l $< docs > $@
 endif

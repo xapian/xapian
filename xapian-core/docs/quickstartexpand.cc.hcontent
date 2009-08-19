@@ -1,8 +1,3 @@
-<HTML>
-<HEAD>
-<TITLE>quickstartexpand.cc.html</TITLE>
-</HEAD>
-<BODY BGcolor=#ffffff TEXT=#000000>
 <PRE>
 <FONT color=#0000ff>/* quickstartexpand.cc: Simplest possible query expansion
  *
@@ -123,5 +118,3 @@
     }
 }
 </PRE>
-</BODY>
-</HTML>

@@ -1,10 +1,3 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML>
-<HEAD>
-<TITLE>Xapian: Tests</TITLE>
-</HEAD>
-<BODY BGCOLOR="white" TEXT="black">
-
 <H1>Tests</H1>
 
 <H2>Contents</H2>
@@ -106,5 +99,3 @@ TEST_EQUAL are all in <code>tests/harness/testsuite.h</code>. They're pretty sim
 use.
 
 <!-- FOOTER $Author$ $Date$ $Id$ -->
-</BODY>
-</HTML>

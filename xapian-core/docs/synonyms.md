@@ -1,14 +1,8 @@
+% Xapian Synonym Support
 
-.. Copyright (C) 2007,2008 Olly Betts
+<!-- Copyright (C) 2007,2008 Olly Betts -->
 
-======================
-Xapian Synonym Support
-======================
-
-.. contents:: Table of contents
-
-Introduction
-============
+## Introduction
 
 Xapian provides support for storing a synonym dictionary, or thesaurus.  This
 can be used by the Xapian::QueryParser class to expand terms in user query
@@ -17,16 +11,14 @@ synonym operator (``~``).
 
 Note that Xapian doesn't offer automated generation of the synonym dictionary.
 
-Model
-=====
+## Model
 
 The model for the synonym dictionary is that a term or group of consecutive
 terms can have one or more synonym terms.  A group of consecutive terms is
 specified in the dictionary by simply joining them with a single space between
 each one.
 
-QueryParser Integration
-=======================
+## QueryParser Integration
 
 In order for any of the synonym features of the QueryParser to work, you must
 call ``QueryParser::set_database()`` to specify the database to use.
@@ -58,20 +50,17 @@ starting with that term is expanded.  After expansion, the QueryParser will
 look for further possible expansions starting with the term after the last
 term in the expanded group.
 
-Current Limitations
-===================
+## Current Limitations
 
-Explicit multi-word synonyms
-----------------------------
+### Explicit multi-word synonyms
 
 There ought to be a way to explicitly request expansion of multi-term synonyms,
 probably with the syntax ``~"stock market"``.  This hasn't been implemented
 yet though.
 
-Backend Support
----------------
+### Backend Support
 
 Currently synonyms are only supported by flint and chert databases.  They work
-with a single database or multiple databases (use Database::add_database() as
+with a single database or multiple databases (use ``Database::add_database()`` as
 usual).  We've no plans to support them for the InMemory backend, but we do
 intend to support them for the remote backend in the future.

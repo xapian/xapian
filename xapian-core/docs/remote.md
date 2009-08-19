@@ -1,70 +1,61 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML>
-<HEAD>
-<TITLE>Xapian: Remote Backend</TITLE>
-</HEAD>
-<BODY BGCOLOR="white" TEXT="black">
+% Remote Backend
 
-<H1>Remote Backend</H1>
-
-<P>This document describes how to make use of the facilities in Xapian
+This document describes how to make use of the facilities in Xapian
 for distributed searches.
 
-<H2>Overview</H2>
+## Overview
 
-<P>There are two sides to the distributed searching.  The client end is the
+There are two sides to the distributed searching.  The client end is the
 program initiating the search on behalf of a user, and the server end is
 the program which provides a searching interface over a set of databases
 for the client.  There can be many servers, with many clients sharing
 them.  In theory, a server can also be a client to other servers, but
 this may not be very useful or efficient.
 
-<P>The client runs queries in the same way that it would on local databases
+The client runs queries in the same way that it would on local databases
 - the difference is in how the database is opened.
 Once the database is opened, the query process is identical to any other.
 Using a stub database with "auto" backend is a good way to wrap up access to
 a remote database in a neat way.
 
-<P>The remote backend currently support two client/server methods: prog and
+The remote backend currently support two client/server methods: prog and
 tcp.  They both use the same protocol, although different means to contact
 the server.
 
-<H2>The Prog Method</H2>
+## The Prog Method
 
-<P>The prog method spawns a program when the database is opened, and
+The prog method spawns a program when the database is opened, and
 communicates with it over a pipe.  This can be used to connect to a
 remote Xapian database across an SSH tunnel for example, providing
 authentication and encryption.  The xapian-progsrv program is designed
 to be the program at the far end of the connection.
 
-<P>From the client end, create the database with <code>Xapian::Database database(Xapian::Remote::open(<i>program</i>, <i>args</i>));</code> - for example:
+From the client end, create the database with <code>Xapian::Database database(Xapian::Remote::open(<i>program</i>, <i>args</i>));</code> - for example:
 
-<pre>
-Xapian::Database database(Xapian::Remote::open("ssh", "search.example.com xapian-progsrv /var/lib/xapian/data/db1"));
-</pre>
+    Xapian::Database database(Xapian::Remote::open("ssh",
+            "search.example.com xapian-progsrv /var/lib/xapian/data/db1"));
 
-<P>If the program has no path, the PATH environment variable is used.
+If the program has no path, the PATH environment variable is used.
 
-<h2>The TCP Method</h2>
+## The TCP Method
 
-<P>The tcp method uses TCP/IP sockets to connect to a running server on a remote
+The tcp method uses TCP/IP sockets to connect to a running server on a remote
 machine (or indeed a local one, but that's rather pointless!)
 
-<P>From the client end, create the database with <code>Xapian::Database database(Xapian::Remote::open(<i>host</i>, <i>port</i>));</code> - for example:
+From the client end, create the database with <code>Xapian::Database database(Xapian::Remote::open(<i>host</i>, <i>port</i>));</code> - for example:
 
-<pre>
-Xapian::Database database(Xapian::Remote::open("searchserver", 33333));
-</pre>
+    Xapian::Database database(Xapian::Remote::open("searchserver", 33333));
 
 The host is the server's hostname, the port is the tcp port on the server to
 use.
 
-<P>The server is xapian-tcpsrv, which is installed by xapian-core's
+The server is xapian-tcpsrv, which is installed by xapian-core's
 "<code>make&nbsp;install</code>".
 This should be started and left running in the background before searches
 are performed.
 
-<P>The arguments xapian-tcpsrv currently knows are:
+The arguments xapian-tcpsrv currently knows are:
+
 <dl>
 <dt> --port PORTNUM
 <dd>        (required) the port to listen on.
@@ -80,24 +71,22 @@ are performed.
 <dt>    --quiet
 <dd>	Minimal output.
 </dl>
+
 One or more databases need to be specified by listing their directories - they
 are opened using the "auto" pseudo-backend.
 
-<P>Once started, the server will run and listen for connections on the
+Once started, the server will run and listen for connections on the
 configured port.  Each connection is handled by a forked child process
 (or a new thread under Windows), so concurrent read access is supported.
 
-<H2>Notes</H2>
+## Notes
 
-<P>A remote search should behave just like the equivalent local one, except
+A remote search should behave just like the equivalent local one, except
 a few features aren't currently implemented (e.g. spelling, synonyms, user
 metadata).
 
-<P>Exceptions are propagated across the link and thrown again at the client end.
+Exceptions are propagated across the link and thrown again at the client end.
 
-<P>The remote backend now support writable databases.  Just start
+The remote backend now support writable databases.  Just start
 <code>xapian-progsrv</code> or <code>xapian-tcpsrv</code> with the
 option <code>--writable</code>.  Only one database may be specified.
-<!-- FOOTER $Author$ $Date$ $Id$ -->
-</BODY>
-</HTML>
