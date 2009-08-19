@@ -26,3 +26,13 @@ DISTCHECK_CONFIGURE_FLAGS = XAPIAN_CONFIG="$(XAPIAN_CONFIG)" \
 	RUBY_LIB="`pwd`/../_inst/tmp_rubylib" \
 	RUBY_LIB_ARCH="`pwd`/../_inst/tmp_rubylibarch" \
 	TCL_LIB="`pwd`/../_inst/tmp_tcllib"
+
+# FIXME: this is wrong. Should be in EXTRA_DIST? Hmm.
+# See the */docs/Makefile.am and do something similar.
+if !MAINTAINER_NO_DOCS
+toolsdir=$(srcdir)/../xapian-maintainer-tools/html-tools
+docdatadir=$(docdir)
+dist_docdata_DATA = $(toolsdir)/style.css \
+	$(toolsdir)/xapian-logo.png \
+	$(toolsdir)/graded-background.png
+endif

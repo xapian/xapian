@@ -13,4 +13,17 @@ dist_exampledata_DATA =\
 	examples/SimpleExpand.cs
 
 docdatadir = $(docdir)/csharp
+EXTRA_DIST = index.html
+
+toolsdir=$(srcdir)/../../../xapian-maintainer-tools/html-tools
+
+if !MAINTAINER_NO_DOCS
 dist_docdata_DATA = index.html
+endif
+
+MAINTAINERCLEANFILES = index.html
+
+if DOCUMENTATION_RULES
+.md.html:
+	$(toolsdir)/genpage -l $< docs-bindings > $@
+endif

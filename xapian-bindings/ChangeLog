@@ -1,3 +1,14 @@
+Wed Aug 19 18:00:53 GMT 2009  James Aylett <james@tartarus.org>
+
+	* Makefile.am,configure.ac,csharp/docs/Makefile.am,
+	  csharp/docs/index.html,csharp/docs/index.md,php/docs/Makefile.am,
+	  php/docs/index.html,php/docs/index.md,python/docs/Makefile.am,
+	  python/docs/index.html,python/docs/index.md,ruby/docs/Makefile.am,
+	  ruby/docs/index.html,ruby/docs/index.md,tcl8/docs/Makefile.am,
+	  tcl8/docs/index.html,tcl8/docs/index.md: use Markdown instead
+	  of plain HTML files for documentation. Use pandoc to generate
+	  the final HTML.
+
 Mon Aug 17 12:46:17 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* csharp/Makefile.am: Add missing assemblys.

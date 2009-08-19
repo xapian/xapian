@@ -202,6 +202,26 @@ case $with_python$with_php$with_ruby$with_tcl$with_guile$with_csharp$with_java i
   ;;
 esac
 
+AC_ARG_ENABLE(documentation,
+  [AS_HELP_STRING([--enable-documentation], [enable make rules to rebuild documentation [default=maintainer-mode]])],
+  [case ${enableval} in
+    yes|no) ;;
+    *) AC_MSG_ERROR([bad value ${enableval} for --enable-documentation]) ;;
+  esac])
+test -z "$enable_documentation" && enable_documentation=$USE_MAINTAINER_MODE
+AM_CONDITIONAL(DOCUMENTATION_RULES, test x"$enable_documentation" = xyes)
+AM_CONDITIONAL(MAINTAINER_NO_DOCS, test x"$USE_MAINTAINER_MODE$enable_documentation" = xyesno)
+
+if test x"$enable_documentation" = xyes; then
+  dnl Check for pandoc. (Needed to make HTML from Markdown format)
+  AC_PATH_PROGS(PANDOC, [pandoc], [])
+  test -z "$PANDOC" && AC_MSG_ERROR([pandoc is required to build documentation])
+
+  dnl Check for python. (Needed to do various helper jobs in building HTML)
+  AC_PATH_PROGS(PYTHON, [python], [])
+  test -z "$PYTHON" && AC_MSG_ERROR([python is required to build documentation])
+fi
+
 BINDINGS=
 
 if test no != "$with_python" ; then

@@ -1,6 +1,4 @@
-<html><head><title>C# bindings for Xapian</title></head>
-<body>
-<h1>C# bindings for Xapian</h1>
+% C# bindings for Xapian
 
 <p>
 The C# bindings for Xapian are packaged in the <code>Xapian</code> namespace
@@ -23,7 +21,7 @@ zero byte safe.  If you try to handle string containing zero bytes, you'll
 find they get truncated at the zero byte.
 </p>
 
-<h2>Unicode Support</h2>
+## Unicode Support
 
 <p>
 In Xapian 1.0.0 and later, the Xapian::Stem, Xapian::QueryParser, and
@@ -41,7 +39,7 @@ Microsoft's implementation.  If you try it, please report how well
 it works (or how badly it fails...)
 </p>
 
-<h2>Method Naming Conventions</h2>
+## Method Naming Conventions
 
 <p>
    Methods are renamed to use the "CamelCase" capitalisation convention which C#
@@ -49,7 +47,7 @@ it works (or how badly it fails...)
    <code>get_description</code>.
 </p>
 
-<h2>Exceptions</h2>
+## Exceptions
 
 <p>
    Exceptions are thrown as SWIG exceptions instead of Xapian
@@ -59,7 +57,7 @@ it works (or how badly it fails...)
    their associated string.
 </p>
 
-<h2>Iterators</h2>
+## Iterators
 
 <p>
    The C#-wrapped iterators work much like their C++ counterparts, with
@@ -74,7 +72,7 @@ it works (or how badly it fails...)
    }
 </pre>
 
-<h2>Iterator dereferencing</h2>
+## Iterator dereferencing
 
 <p>
    C++ iterators are often dereferenced to get information, eg
@@ -97,7 +95,7 @@ it works (or how badly it fails...)
    available unchanged.
 </p>
    
-<h2>MSet</h2>
+## MSet
 
 <p>
    MSet objects have some additional methods to simplify access (these
@@ -112,7 +110,7 @@ it works (or how badly it fails...)
 <tr><td><code>GetDocumentId(index)</code></td><td><code>GetHit(index).GetDocId()</code></td></tr>
 </table>
 
-<h2>Non-Class Functions</h2>
+## Non-Class Functions
 
 <p>The C++ API contains a few non-class functions (the Database factory
 functions, and some functions reporting version information), but C# doesn't
@@ -120,26 +118,26 @@ allow functions which aren't in a class so these are wrapped as static
 member functions of abstract classes like so:
 <ul>
 <ul>
-<li> <code>Xapian::version_string()</code> is wrapped as <code>Xapian.Version.String()</code>
-<li> <code>Xapian::major_version()</code> is wrapped as <code>Xapian.Version.Major()</code>
-<li> <code>Xapian::minor_version()</code> is wrapped as <code>Xapian.Version.Minor()</code>
-<li> <code>Xapian::revision()</code> is wrapped as <code>Xapian.Version.Revision()</code>
+<li> <code>Xapian::version_string()</code> is wrapped as <code>Xapian.Version.String()</code></li>
+<li> <code>Xapian::major_version()</code> is wrapped as <code>Xapian.Version.Major()</code></li>
+<li> <code>Xapian::minor_version()</code> is wrapped as <code>Xapian.Version.Minor()</code></li>
+<li> <code>Xapian::revision()</code> is wrapped as <code>Xapian.Version.Revision()</code></li>
 </ul>
 <ul>
-<li> <code>Xapian::Auto::open_stub()</code> is wrapped as <code>Xapian.Auto.OpenStub()</code>
-<li> <code>Xapian::Chert::open()</code> is wrapped as <code>Xapian.Chert.Open()</code>
+<li> <code>Xapian::Auto::open_stub()</code> is wrapped as <code>Xapian.Auto.OpenStub()</code></li>
+<li> <code>Xapian::Chert::open()</code> is wrapped as <code>Xapian.Chert.Open()</code></li>
 <li> <code>Xapian::Flint::open()</code> is wrapped as <code>Xapian.Flint.Open()</code>
-<li> <code>Xapian::InMemory::open()</code> is wrapped as <code>Xapian.InMemory.Open()</code>
+<li> <code>Xapian::InMemory::open()</code> is wrapped as <code>Xapian.InMemory.Open()</code></li>
 <li> <code>Xapian::Remote::open()</code> is wrapped as <code>Xapian.Remote.Open()</code> (both
 the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to
-decide which to call).
+decide which to call).</li>
 <li> <code>Xapian::Remote::open_writable()</code> is wrapped as <code>Xapian.Remote.OpenWritable()</code> (both
 the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to
-decide which to call).
+decide which to call).</li>
 </ul>
 </ul>
 
-<h2>Constants</h2>
+## Constants
 
 <p>
    The <code>Xapian::DB_*</code> constants are currently wrapped in a Xapian
@@ -153,7 +151,7 @@ decide which to call).
    The naming here needs sorting out...
 </p>
 
-<h2>Query</h2>
+## Query
 
 <p>
    In C++ there's a Xapian::Query constructor which takes a query operator and
@@ -175,16 +173,14 @@ decide which to call).
 </pre>
 -->
 
-<h3>MatchAll and MatchNothing</h3>
+## MatchAll and MatchNothing
 
-<p>
-These aren't yet wrapped for C#, but you can use <code>xapian.Query("")</code>
-instead of MatchAll and <code>xapian.Query()</code> instead of MatchNothing.
-</p>
+These aren't yet wrapped for C#, but you can use `xapian.Query("")`
+instead of MatchAll and `xapian.Query()` instead of MatchNothing.
 
 <!-- FIXME: Need to define the custom output typemap to handle this if it
 actually seems useful...
-<h2>Enquire</h2>
+## Enquire
 
 <p>
    There is an additional method <code>GetMatchingTerms()</code> which takes
@@ -194,7 +190,7 @@ actually seems useful...
 </p>
 -->
 
-<h2>MatchDecider</h2>
+## MatchDecider
 
 <p>
 Custom MatchDeciders can be created in C#; simply subclass
@@ -203,16 +199,8 @@ Apply method that will do the work. The simplest example (which does nothing
 useful) would be as follows:
 </p>
 
-<pre>
-class MyMatchDecider : Xapian.MatchDecider {
-    public override bool Apply(Xapian.Document doc) {
-	return true;
+    class MyMatchDecider : Xapian.MatchDecider {
+        public override bool Apply(Xapian.Document doc) {
+            return true;
+        }
     }
-}
-</pre>
-
-<address>
-Last updated $Date: 2005-12-12T02:56:23.742308Z $
-</address>
-</body>
-</html>

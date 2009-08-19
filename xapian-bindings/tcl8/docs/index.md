@@ -1,25 +1,23 @@
-<html><head><title>Tcl8 bindings for Xapian</title></head>
-<body>
-<h1>Tcl8 bindings for Xapian</h1>
+% Tcl8 bindings for Xapian
 
-<p>
+
 The Tcl8 bindings for Xapian are packaged in the <code>xapian</code> namespace,
 and largely follow the C++ API, with the following differences and
 additions. Tcl8 strings and lists, etc., are converted automatically
 in the bindings, so generally it should just work as expected.
-</p>
 
-<p>
+
+
 The <code>examples</code> subdirectory contains examples showing how to use the
 Tcl8 bindings based on the simple examples from <code>xapian-examples</code>:
 <a href="examples/simpleindex.tcl">simpleindex.tcl</a>,
 <a href="examples/simplesearch.tcl">simplesearch.tcl</a>,
 <a href="examples/simpleexpand.tcl">simpleexpand.tcl</a>.
-</p>
 
-<h2>Unicode Support</h2>
 
-<p>
+## Unicode Support
+
+
 In Xapian 1.0.0 and later, the Xapian::Stem, Xapian::QueryParser, and
 Xapian::TermGenerator classes all assume text is in UTF-8.  Tcl8 uses
 UTF-8 as its internal representation, except that ASCII nul (character value
@@ -27,17 +25,17 @@ UTF-8 as its internal representation, except that ASCII nul (character value
 <code>\xc0\x80</code>.  We don't current convert this to/from
 <code>\x00</code> so you should avoid passing strings containing ASCII nul
 to/from Xapian from Tcl8.
-</p>
 
-<h2>Destructors</h2>
 
-<p>
+## Destructors
+
+
    To destroy an object <code><i>obj</i></code>, you need to use one of
    <code><i>obj</i> -delete</code> or <code>rename <i>obj</i> ""</code>
    (either should work, but see below).
-</p>
 
-<p>
+
+
    SWIG's Tcl wrapping doesn't handle an object returned by a factory function
    correctly.  This only matters for the Xapian::WritableDatabase class, and we
    avoid wrapping the problematic factory functions to avoid setting a
@@ -46,63 +44,56 @@ to/from Xapian from Tcl8.
    You can just use a <code>Xapian::WritableDatabase</code> constructor
    instead (and set <code>XAPIAN_PREFER_CHERT</code> in the environment to
    select chert rather than flint).
-</p>
 
-<p>
+
+
   Michael Schlenker reports that this form works (i.e. the destructor gets
   called):
 
-<blockquote><pre>
-xapian::WritableDatabase xapiandb testdir $::xapian::DB_CREATE_OR_OVERWRITE
-rename xapiandb ""
-</pre></blockquote>
+    xapian::WritableDatabase xapiandb testdir $::xapian::DB_CREATE_OR_OVERWRITE
+    rename xapiandb ""
 
   However, apparently none of these forms works:
 
-<blockquote><pre>
-xapian::WritableDatabase xapiandb testdir $::xapian::DB_CREATE_OR_OVERWRITE
-set db xapiandb
-$db -delete
+    xapian::WritableDatabase xapiandb testdir $::xapian::DB_CREATE_OR_OVERWRITE
+    set db xapiandb
+    $db -delete
 
-set db [xapian::WritableDatabase xapiandb testdir $::xapian::DB_CREATE_OR_OVERWRITE]
-$db -delete
+    set db [xapian::WritableDatabase xapiandb testdir $::xapian::DB_CREATE_OR_OVERWRITE]
+    $db -delete
 
-set db [xapian::WritableDatabase xapiandb testdir $::xapian::DB_CREATE_OR_OVERWRITE]
-rename $db ""
-</pre></blockquote>
-</p>
+    set db [xapian::WritableDatabase xapiandb testdir $::xapian::DB_CREATE_OR_OVERWRITE]
+    rename $db ""
 
-<h2>Exceptions</h2>
 
-<p>
+## Exceptions
+
+
 Xapian::Error exceptions can be handled in Tcl like so:
-</p>
 
-<pre>
-if [catch {
-    # Code which might throw an exception.
-} msg] {
-    # Code to handle exceptions.
-    # $errorCode is "XAPIAN <error_class>" (e.g. "XAPIAN DocNotFoundError".)
-    # $msg is the result of calling get_msg() on the Xapian::Error object.
-}
-</pre>
+    if [catch {
+        # Code which might throw an exception.
+    } msg] {
+        # Code to handle exceptions.
+        # $errorCode is "XAPIAN <error_class>" (e.g. "XAPIAN DocNotFoundError".)
+        # $msg is the result of calling get_msg() on the Xapian::Error object.
+    }
 
-<h2>Iterators</h2>
+## Iterators
 
-<p>
+
    All iterators support <code>next</code> and <code>equals</code> methods
    to move through and test iterators (as for all language bindings).
    MSetIterator and ESetIterator also support <code>prev</code>.
-</p>
 
-<h2>Iterator dereferencing</h2>
 
-<p>
+## Iterator dereferencing
+
+
    C++ iterators are often dereferenced to get information, eg
    <code>(*it)</code>. With Tcl8 these are all mapped to named methods, as
    follows:
-</p>
+
 
 <table title='Iterator deferencing methods'>
 <thead><td>Iterator</td><td>Dereferencing method</td></thead>
@@ -114,17 +105,17 @@ if [catch {
 <tr><td>ESetIterator</td>	<td><code>get_term</code></td></tr>
 </table>
 
-<p>
+
    Other methods, such as <code>MSetIterator::get_document</code>, are
    available under the same names.
-</p>
-   
-<h2>MSet</h2>
 
-<p>
+   
+## MSet
+
+
    MSet objects have some additional methods to simplify access (these
    work using the C++ array dereferencing):
-</p>
+
 
 <table title='MSet additional methods'>
 <thead><td>Method name</td><td>Explanation</td></thead>
@@ -134,81 +125,62 @@ if [catch {
 <tr><td><code>mset get_docid index</code></td><td><code>[mset get_hit index] get_docid</code></td></tr>
 </table>
 
-<h2>Non-Class Functions</h2>
+## Non-Class Functions
 
-<p>The C++ API contains a few non-class functions (the Database factory
+The C++ API contains a few non-class functions (the Database factory
 functions, and some functions reporting version information), which are
 wrapped like so for Tcl:
-<ul>
-<ul>
-<li> <code>Xapian::version_string()</code> is wrapped as <code>xapian::version_string</code>
-<li> <code>Xapian::major_version()</code> is wrapped as <code>xapian::major_version</code>
-<li> <code>Xapian::minor_version()</code> is wrapped as <code>xapian::minor_version</code>
-<li> <code>Xapian::revision()</code> is wrapped as <code>xapian::revision</code>
-</ul>
 
-<ul>
-<li> <code>Xapian::Auto::open_stub()</code> is wrapped as <code>xapian::open_stub</code>
-<li> <code>Xapian::Chert::open()</code> is wrapped as <code>xapian::chert_open</code> (but note that the WritableDatabase version isn't wrapped - see
-the 'Destructors' section above for an explanation).
-<li> <code>Xapian::Flint::open()</code> is wrapped as <code>xapian::flint_open</code> (but note that the WritableDatabase version isn't wrapped - see
-the 'Destructors' section above for an explanation).
-<li> <code>Xapian::InMemory::open()</code> is wrapped as <code>xapian::inmemory_open</code>
-<li> <code>Xapian::Remote::open()</code> is wrapped as <code>xapian::remote_open</code> (both
-the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to
-decide which to call).
-<li> <code>Xapian::Remote::open_writable()</code> is wrapped as <code>xapian::remote_open_writable</code> (both
-the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to
-decide which to call).
-</ul>
-</ul>
+* <code>Xapian::version_string()</code> is wrapped as <code>xapian::version_string</code>
+* <code>Xapian::major_version()</code> is wrapped as <code>xapian::major_version</code>
+* <code>Xapian::minor_version()</code> is wrapped as <code>xapian::minor_version</code>
+* <code>Xapian::revision()</code> is wrapped as <code>xapian::revision</code>
 
-<h2>Constants</h2>
+* <code>Xapian::Auto::open_stub()</code> is wrapped as <code>xapian::open_stub</code>
+* <code>Xapian::Chert::open()</code> is wrapped as <code>xapian::chert_open</code> (but note that the WritableDatabase version isn't wrapped - see the 'Destructors' section above for an explanation).
+* <code>Xapian::Flint::open()</code> is wrapped as <code>xapian::flint_open</code> (but note that the WritableDatabase version isn't wrapped - see the 'Destructors' section above for an explanation).
+* <code>Xapian::InMemory::open()</code> is wrapped as <code>xapian::inmemory_open</code>
+* <code>Xapian::Remote::open()</code> is wrapped as <code>xapian::remote_open</code> (both the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to decide which to call).
+* <code>Xapian::Remote::open_writable()</code> is wrapped as <code>xapian::remote_open_writable</code> (both the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to decide which to call).
 
-<p>
-   For Tcl, constants are wrapped as <code>$xapian::<i>CONSTANT_NAME</i></code>
-   or <code>$xapian::<i>ClassName<i>_<i>CONSTANT_NAME</i></code>.
-   So <code>Xapian::DB_CREATE_OR_OPEN</code> is available as
-   <code>$xapian::DB_CREATE_OR_OPEN</code>, <code>Xapian::Query::OP_OR</code> is
-   available as <code>$xapian::Query_OP_OR</code>, and so on.
+## Constants
+
+For Tcl, constants are wrapped as:
+
+    $xapian::<i>CONSTANT_NAME</i>
+
+or:
+
+    $xapian::<i>ClassName<i>_<i>CONSTANT_NAME</i>
+
+So ``Xapian::DB_CREATE_OR_OPEN`` is available as ``$xapian::DB_CREATE_OR_OPEN``, ``Xapian::Query::OP_OR`` is available as ``$xapian::Query_OP_OR``, and so on.
 </p>
 
-<h2>Query</h2>
 
-<p>
+## Query
+
+
    In C++ there's a Xapian::Query constructor which takes a query operator and
    start/end iterators specifying a number of terms or queries, plus an optional
    parameter.  In Tcl, this is wrapped to accept a Tcl list
    to give the terms/queries, and you can specify
    a mixture of terms and queries if you wish.  For example:
-</p>
 
-<pre>
-   set terms [list "hello" "world"]
-   xapian::Query subq $xapian::Query_OP_AND $terms
-   xapian::Query bar_term "bar" 2
-   xapian::Query query $xapian::Query_OP_AND [list subq "foo" bar_term]
-</pre>
 
-<h3>MatchAll and MatchNothing</h3>
+    set terms [list "hello" "world"]
+    xapian::Query subq $xapian::Query_OP_AND $terms
+    xapian::Query bar_term "bar" 2
+    xapian::Query query $xapian::Query_OP_AND [list subq "foo" bar_term]
 
-<p>
+## MatchAll and MatchNothing
+
 As of Xapian 1.1.1, these are wrapped for Tcl as
-<code>$xapian::Query_MatchAll</code> and
-<code>$xapian::Query_MatchNothing</code>.
-</p>
+`$xapian::Query_MatchAll` and `$xapian::Query_MatchNothing`.
 
-<h2>Enquire</h2>
+## Enquire
 
-<p>
+
    There is an additional method <code>get_matching_terms</code> which takes
    an MSetIterator and returns a list of terms in the current query which
    match the document given by that iterator.  You may find this
    more convenient than using the TermIterator directly.
-</p>
-
-<address>
-Last updated $Date$
-</address>
-</body>
-</html>

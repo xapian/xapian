@@ -1,6 +1,4 @@
-<html><head><title>PHP bindings for Xapian</title></head>
-<body>
-<h1>PHP bindings for Xapian</h1>
+% PHP bindings for Xapian
 
 <p>
 The PHP bindings for Xapian are packaged in the <code>xapian</code>
@@ -48,7 +46,7 @@ bindings may of course also be used under CGI, Apache's modphp, ISAPI,
 etc.
 </p>
 
-<h2>Installation</h2>
+## Installation
 
 <p>
 Assuming you have a suitable version of PHP installed, running
@@ -92,31 +90,33 @@ You also need to add <code>include&nbsp;"xapian.php"</code>
 to your PHP scripts which use Xapian in order to get the PHP class wrappers.
 </p>
 
-<h2>Exceptions</h2>
+## Exceptions
 
 <p>
 Exceptions thrown by Xapian are translated into PHP Exception objects
 which are thrown into the PHP script.
 </p>
 
-<h2>Object orientation</h2>
+## Object orientation
 
 <p>
 As of Xapian 0.9.7, the PHP bindings use a PHP object oriented style.
 </p>
 
-<p>
-In order to construct an object, use
-<code>$object = new XapianClassName(...);</code>.  Objects are destroyed
-when they go out of scope - to explicitly destroy an object you can use
-<code>unset($object);</code> or <code>$object = Null;</code>
-</p>
+In order to construct an object, use:
+
+    $object = new XapianClassName(...);
+
+Objects are destroyed when they go out of scope - to explicitly destroy an object you can use:
+
+    unset($object);</code> or <code>$object = Null;
+
 
 <p>
 You invoke a method on an object using <code>$object-&gt;method_name()</code>.
 </p>
 
-<h2>Unicode Support</h2>
+## Unicode Support
 
 <p>
 In Xapian 1.0.0 and later, the Xapian::Stem, Xapian::QueryParser, and
@@ -128,7 +128,7 @@ to convert them to UTF-8 before passing them to Xapian, and
 when reading values back from Xapian.
 </p>
 
-<h2>Iterators</h2>
+## Iterators
 
 <p>
    All iterators support <code>next()</code> and <code>equals()</code> methods
@@ -136,7 +136,7 @@ when reading values back from Xapian.
    MSetIterator and ESetIterator also support <code>prev()</code>.
 </p>
 
-<h2>Iterator dereferencing</h2>
+## Iterator dereferencing
 
 <p>
    C++ iterators are often dereferenced to get information, eg
@@ -159,7 +159,7 @@ when reading values back from Xapian.
    available unchanged.
 </p>
    
-<h2>MSet</h2>
+## MSet
 
 <p>
    MSet objects have some additional methods to simplify access (these
@@ -174,7 +174,7 @@ when reading values back from Xapian.
 <tr><td><code>get_docid(index)</code></td><td><code>get_hit(index)-&gt;get_docid()</code></td></tr>
 </table>
 
-<h2>Database Factory Functions</h2>
+## Database Factory Functions
 
 <ul>
 <li> <code>Xapian::Auto::open_stub(<i>file</i>)</code> is wrapped as <code>Xapian::auto_open_stub(<i>file</i>)</code>
@@ -189,7 +189,7 @@ the TCP and "program" versions are wrapped - the SWIG wrapper checks the paramet
 decide which to call).
 </ul>
 
-<h2>Constants</h2>
+## Constants
 
 <p>
    Constants are wrapped as <code>const</code> members of the appropriate class.
@@ -198,7 +198,7 @@ decide which to call).
    available as <code>XapianQuery::OP_OR</code>, and so on.
 </p>
 
-<h2>Functions</h2>
+## Functions
 
 <p>
    Non-class functions are wrapped in the natural way, so the C++
@@ -206,29 +206,24 @@ decide which to call).
    name in PHP.
 </p>
 
-<h2>Query</h2>
+## Query
 
-<p>
-   In C++ there's a Xapian::Query constructor which takes a query operator and
-   start/end iterators specifying a number of terms or queries, plus an optional
-   parameter.  In PHP, this is wrapped to accept an array listing the terms
-   and/or queries (you can specify a mixture of terms and queries if you wish)
-   For example:
-</p>
+In C++ there's a ``Xapian::Query`` constructor which takes a query operator and
+start/end iterators specifying a number of terms or queries, plus an optional
+parameter.  In PHP, this is wrapped to accept an array listing the terms
+and/or queries (you can specify a mixture of terms and queries if you wish).
+For example:
 
-<pre>
-   $subq = new XapianQuery(XapianQuery::OP_AND, "hello", "world");
-   $q = new XapianQuery(XapianQuery::OP_AND, array($subq, "foo", new XapianQuery("bar", 2)));
-</pre>
+    $subq = new XapianQuery(XapianQuery::OP_AND, "hello", "world");
+    $q = new XapianQuery(XapianQuery::OP_AND,
+                         array($subq, "foo", new XapianQuery("bar", 2)));
 
-<h3>MatchAll and MatchNothing</h3>
+## MatchAll and MatchNothing
 
-<p>
-These aren't yet wrapped for PHP, but you can use <code>XapianQuery("")</code>
-instead of MatchAll and <code>XapianQuery()</code> instead of MatchNothing.
-</p>
+These aren't yet wrapped for PHP, but you can use `XapianQuery("")`
+instead of MatchAll and `XapianQuery()` instead of MatchNothing.
 
-<h2>Enquire</h2>
+## Enquire
 
 <p>
    There is an additional method <code>get_matching_terms()</code> which takes
@@ -236,9 +231,3 @@ instead of MatchAll and <code>XapianQuery()</code> instead of MatchNothing.
    match the document given by that iterator.  You may find this
    more convenient than using the TermIterator directly.
 </p>
-
-<address>
-Last updated $Date$
-</address>
-</body>
-</html>

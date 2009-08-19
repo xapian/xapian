@@ -11,8 +11,7 @@ dist_exampledata_DATA = examples/simpleexpand.rb examples/simpleindex.rb \
  examples/simplesearch.rb examples/simplematchdecider.rb
 
 docdatadir = $(docdir)/ruby
-dist_docdata_DATA = index.html
-EXTRA_DIST = rdocs
+EXTRA_DIST = rdocs index.html
 
 install-data-local:
 	$(mkinstalldirs) $(DESTDIR)$(docdatadir)
@@ -42,4 +41,17 @@ rdocs: rdocs/index.html
 rdocs/index.html: ../xapian.rb
 	rm -rf rdocs
 	$(RDOC) --op rdocs $(srcdir)/../xapian.rb
+endif
+
+toolsdir=$(srcdir)/../../../xapian-maintainer-tools/html-tools
+
+if !MAINTAINER_NO_DOCS
+dist_docdata_DATA = index.html
+endif
+
+MAINTAINERCLEANFILES = index.html
+
+if DOCUMENTATION_RULES
+.md.html:
+	$(toolsdir)/genpage -l $< docs-bindings > $@
 endif

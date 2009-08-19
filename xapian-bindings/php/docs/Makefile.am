@@ -7,10 +7,23 @@ export ACLOCAL AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE
 endif
 
 exampledatadir = $(docdir)/php/examples
-dist_exampledata_DATA =\
-	examples/simplesearch.php5\
-       	examples/simpleindex.php5\
-       	examples/simpleexpand.php5
+dist_exampledata_DATA = \
+	examples/simplesearch.php5 \
+	examples/simpleindex.php5 \
+	examples/simpleexpand.php5
 
 docdatadir = $(docdir)/php
+EXTRA_DIST = index.html
+
+toolsdir=$(srcdir)/../../../xapian-maintainer-tools/html-tools
+
+if !MAINTAINER_NO_DOCS
 dist_docdata_DATA = index.html
+endif
+
+MAINTAINERCLEANFILES = index.html
+
+if DOCUMENTATION_RULES
+.md.html:
+	$(toolsdir)/genpage -l $< docs-bindings > $@
+endif
