@@ -1,3 +1,9 @@
+Thu Aug 20 13:12:43 GMT 2009  James Aylett <james@tartarus.org>
+
+	* HACKING: update build-reqs for documentation now
+	  we're using pandoc not rst2html; also note specific
+	  fink packages required for Mac OS
+
 Wed Aug 19 18:02:37 GMT 2009  James Aylett <james@tartarus.org>
 
 	* configure.ac,docs: use Markdown instead of RST and some

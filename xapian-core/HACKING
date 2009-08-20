@@ -350,7 +350,8 @@ The documentation tools are:
 * epstopdf (in texlive-extra-utils on Debian/Ubuntu)
 * makeindex (in texlive-base-bin on Debian/Ubuntu)
 * help2man
-* rst2html or rst2html.py (in python-docutils on Debian/Ubuntu)
+* pandoc (if this isn't in your distribution, install haskell from
+  <http://hackage.haskell.org/platform/> and then run `cabal install pandoc`)
 * pngcrush (optional - used to reduce the size of PNG files in the HTML
   apidocs)
 
@@ -361,11 +362,15 @@ will look for them there.
 For a recent version of Debian or Ubuntu, this command should install all the
 required documentation tools::
 
-    apt-get install doxygen graphviz gs texlive-latex-base texlive-extra-utils texlive-base-bin texlive-fonts-extra texlive-fonts-recommended texlive-latex-extra texlive-latex-recommended help2man python-docutils pngcrush
+    apt-get install doxygen graphviz gs texlive-latex-base texlive-extra-utils texlive-base-bin texlive-fonts-extra texlive-fonts-recommended texlive-latex-extra texlive-latex-recommended help2man pandoc pngcrush
 
-On Debian 4.0 (etch) you may also need:
+On Debian 4.0 (etch), in additional to installing pandoc yourself, you may also need::
 
-apt-get install texlive-pdfetex
+    apt-get install texlive-pdfetex
+
+On Mac OS 10.5 using fink 0.9, the following should give you everything except pandoc::
+
+    sudo apt-get install tetex-base doxygen help2man pngcrush
 
 Autotools versions
 ------------------
