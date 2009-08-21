@@ -818,9 +818,12 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 
 	/** Set the sorting to be by value only.
 	 *
-	 *  NB sorting of values uses a string comparison, so you'll need to
-	 *  store numbers padded with leading zeros or spaces, or with the
-	 *  number of digits prepended.
+	 *  Note that sorting by values uses a string comparison, so to use
+	 *  this to sort by a numeric value you'll need to store the numeric
+	 *  values in a manner which sorts appropriately.  For example, you
+	 *  could use Xapian::sortable_serialise() (which works for floating
+	 *  point numbers as well as integers), or store numbers padded with
+	 *  leading zeros or spaces, or with the number of digits prepended.
 	 *
 	 * @param sort_key  value number to sort on.
 	 *
@@ -843,9 +846,12 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	/** Set the sorting to be by value, then by relevance for documents
 	 *  with the same value.
 	 *
-	 *  NB sorting of values uses a string comparison, so you'll need to
-	 *  store numbers padded with leading zeros or spaces, or with the
-	 *  number of digits prepended.
+	 *  Note that sorting by values uses a string comparison, so to use
+	 *  this to sort by a numeric value you'll need to store the numeric
+	 *  values in a manner which sorts appropriately.  For example, you
+	 *  could use Xapian::sortable_serialise() (which works for floating
+	 *  point numbers as well as integers), or store numbers padded with
+	 *  leading zeros or spaces, or with the number of digits prepended.
 	 *
 	 * @param sort_key  value number to sort on.
 	 *

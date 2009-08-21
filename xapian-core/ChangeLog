@@ -1,3 +1,10 @@
+Fri Aug 21 12:14:13 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/enquire.h: Update documentaiton comments for
+	  set_sort_by_value() and set_sort_by_value_the_relevance() to
+	  mention sortable_serialise() as a good way to store values if you
+	  want to sort by them.
+
 Mon Aug 17 16:51:10 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* matcher/multimatch.cc: When sorting by non-pure-relevance, ensure
