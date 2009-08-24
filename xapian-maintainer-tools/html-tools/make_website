@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # This is (currently) heavily based around the build layout that James
 # uses. However if you build in your *checkout* (ie don't use VPATH),
@@ -9,8 +9,12 @@
 set -e
 
 # Comment these out for release or something
-XAPROOT="http://tartarus.org/james/xapian/"
-OUTDIR="/home/james/pub/http/xapian"
+if [ "x$XAPROOT" = "x" ]; then
+  XAPROOT="http://tartarus.org/james/xapian/"
+fi
+if [ "x$OUTDIR" = "x" ]; then
+  OUTDIR="/home/james/pub/http/xapian"
+fi
 
 # Detect (this can surely be broken, so don't stress it)
 BASEDIR=`dirname $0`/../../
@@ -39,7 +43,7 @@ PYTHON=/usr/bin/python
 
 echo -n "Creating directories..."
 mkdir -p $outdir
-for d in about download support; do
+for d in about support; do
   mkdir -p $outdir/`basename $d`
 done
 mkdir -p $outdir/docs
@@ -107,10 +111,10 @@ echo " done."
 
 ### DOCS - EXTRA
 echo -n "Building Doxygen docs (in $build/xapian-core/docs)..."
-make -C $build/xapian-core/docs doxygen_api_docs
+make -q -C $build/xapian-core/docs doxygen_api_docs
 echo " done."
 echo -n "Copying Doxygen docs..."
-cp -a $build/xapian-core/docs/apidoc/ $outdir/docs/
+cp -Rp $build/xapian-core/docs/apidoc/ $outdir/docs/apidoc/
 echo " done."
 
 ### AUXILIARY FILES
@@ -118,7 +122,7 @@ echo -n "Copying additional files..."
 cp $thisdir/style.css $outdir/
 cp $thisdir/xapian-logo.png $outdir/
 cp $thisdir/graded-background.png $outdir/
-cp $build/xapian-core/docs/code_structure.html $outdir/
+cp $build/xapian-core/docs/code_structure.html $outdir/docs/
 cp $root/xapian-website/version.php $outdir/
 echo "DirectoryIndex index.php index.html" > $outdir/.htaccess
 echo " done."
