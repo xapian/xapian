@@ -1,7 +1,5 @@
 #!/usr/bin/python
 #
-# $Id$
-#
 # Read in an HTML fragment file (.hcontent) and extra a reasonable
 # title for the page.
 #
