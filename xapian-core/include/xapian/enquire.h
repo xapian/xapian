@@ -876,9 +876,12 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 
 	/** Set the sorting to be by relevance then value.
 	 *
-	 *  NB sorting of values uses a string comparison, so you'll need to
-	 *  store numbers padded with leading zeros or spaces, or with the
-	 *  number of digits prepended.
+	 *  Note that sorting by values uses a string comparison, so to use
+	 *  this to sort by a numeric value you'll need to store the numeric
+	 *  values in a manner which sorts appropriately.  For example, you
+	 *  could use Xapian::sortable_serialise() (which works for floating
+	 *  point numbers as well as integers), or store numbers padded with
+	 *  leading zeros or spaces, or with the number of digits prepended.
 	 *
 	 *  Note that with the default BM25 weighting scheme parameters,
 	 *  non-identical documents will rarely have the same weight, so
