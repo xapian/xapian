@@ -1,7 +1,5 @@
 #!/usr/bin/python
 #
-# $Id$
-#
 # Read in an XHTML fragment file containing a <ul> element to be
 # treated as a menu, and spit it out with the 'selected' class applied
 # to the relevant <li> element.
@@ -37,9 +35,10 @@ def check_prefix(localpath, menupath, localmenu=False, localroot=None):
     # specific articles, but the top menu is categories.
     # (You need to ensure that you pass in the source *URI*
     # for the top menu rather than the source filename.)
+    #sys.stderr.write("check: %s, %s, %s, %s\n" % (localpath, menupath, localmenu, localroot,))
     if localmenu:
-        return localpath.endswith(menupath)
-        #return localpath == menupath
+        #return localpath.endswith(menupath)
+        return localpath == menupath
     else:
         return localpath.startswith(menupath)
 
@@ -124,5 +123,12 @@ if __name__=='__main__':
     process(dom, localpath, uriroot, verbose, localmenu, localbuild, localroot)
     out = dom.toxml('utf-8')
     outl = out.split('\n')
-    out = '\n'.join(outl[1:]) # get rid of XML preamble
+    XML_PREAMBLE = '<?xml version="1.0" encoding="utf-8"?>'
+    if outl[0] == XML_PREAMBLE:
+        out = '\n'.join(outl[1:]) # get rid of XML preamble
+    elif outl[0].startswith(XML_PREAMBLE):
+        outl[0] = outl[0][len(XML_PREAMBLE):]
+        out = '\n'.join(outl)
+    else:
+        out = '\n'.join(outl)
     print out
