@@ -998,7 +998,7 @@ Submitting Patches:
 If you have a patch to fix a problem in Xapian, or to add a new feature,
 please send it to us for inclusion.  Any major changes should be discussed
 on the xapian-devel mailing list first:
-<http://xapian.org/lists.php>
+<http://xapian.org/support/lists>
 
 We find patches in unified diff format easiest to read.  If you're using a
 SVN checkout just use "svn diff" to generate the diff.  If you're working
@@ -1355,10 +1355,10 @@ This is a (hopefully complete) list of the jobs which need doing:
   with this milestone will need to be moved to another milestone (most likely
   the milestone you just added).
 
-* Update the website: version.php in the CVS module www.xapian.org contains the
-  latest version and the date it was released.
+* Update the website: version.php in xapian-website contains the latest version
+  and the date it was released.
 
-* Run /home/olly/tmp/xapian-website-update/update_website.sh
+* Run xapian-maintainer-tools/htmltools/make_website
 
 * Update the wiki:
 

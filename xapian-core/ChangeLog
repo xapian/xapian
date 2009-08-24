@@ -1,3 +1,8 @@
+Mon Aug 24 14:06:40 GMT 2009  James Aylett <james@tartarus.org>
+
+	* HACKING: update a URL reference; and new website
+	  build instructions in release actions
+
 Mon Aug 24 14:05:42 GMT 2009  James Aylett <james@tartarus.org>
 
 	* AUTHORS,INSTALL,debian/copyright: update URL references
