@@ -2,6 +2,10 @@ Wed Aug 05 06:44:50 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* ruby/util.i: Rename constants to start with an upper case letter.
 
+Mon Aug 17 12:46:17 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* csharp/Makefile.am: Add missing assemblys.
+
 Mon Aug 17 07:39:32 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/extra.i: Add support to the NumericRanges object to get

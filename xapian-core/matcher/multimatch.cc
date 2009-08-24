@@ -591,6 +591,10 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		    LOGLINE(MATCH, "Making note of match item which sorts lower than min_item");
 		    ++docs_matched;
 		    if (!calculated_weight) wt = pl->get_weight();
+		    if (matchspy) {
+			Xapian::Document mydoc(doc.get());
+			matchspy->operator()(mydoc, wt);
+		    }
 		    if (wt > greatest_wt) goto new_greatest_weight;
 		    continue;
 		}

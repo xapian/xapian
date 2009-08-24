@@ -87,7 +87,6 @@ CLEAN: COPYMAKFILES
    cd ..\win32
    -@erase ..\config.h 
    -@erase ..\include\xapian\version.h
-   -@erase ..\generate-exceptions
    -@erase ..\include\xapian\error.h
    -@erase ..\include\xapian\errordispatch.h
    if exist "$(XAPIAN_DEBUG_OR_RELEASE)" rmdir $(XAPIAN_DEBUG_OR_RELEASE)\ /s /q
@@ -174,9 +173,6 @@ MAKEALLBINDINGS: ALL COPYMAKFILES
    
 # Header files generated automatically from various .in files
 MAKEHEADERS: ..\include\xapian\error.h ..\include\xapian\version.h
-
-..\generate-exceptions: ..\generate-exceptions.in Makefile
-    $(PERL_EXE) -pe "BEGIN{$$perl=shift @ARGV} s,\@PERL\@,$$perl," "$(PERL_EXE)" ..\generate-exceptions.in > ..\generate-exceptions
 
 ..\include\xapian\error.h: ..\generate-exceptions
     cd..
