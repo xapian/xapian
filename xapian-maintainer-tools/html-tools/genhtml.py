@@ -1,7 +1,5 @@
 #!/usr/bin/python
 #
-# $Id$
-#
 # Read in a template file, performing substitutions for {...}.
 #
 # python genhtml.py <template> <input> [NAME=VALUE ...]
