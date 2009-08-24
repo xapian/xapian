@@ -1,7 +1,7 @@
 " Vim syntax file
 " Language:	OmegaScript
 " Maintainer:	Richard Boulton <Richard Boulton>
-" URL:		http://www.xapian.org/
+" URL:		http://xapian.org/
 " Last Change:  2002 Aug 16
 
 " To install: place this file in ~/.vim/syntax/omegascript.vim

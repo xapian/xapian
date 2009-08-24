@@ -1,3 +1,8 @@
+Mon Aug 24 13:59:41 GMT 2009  James Aylett <james@tartarus.org>
+
+	* debian/control.in,extra/omegascript.vim,templates/query:
+	  www.xapian.org -> xapian.org
+
 Mon Aug 24 13:59:07 GMT 2009  James Aylett <james@tartarus.org>
 
 	* docs/Makefile.am: copy aux files from x-m-t/html-tools into
