@@ -1,3 +1,9 @@
+Mon Aug 24 02:26:40 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* AUTHORS: Add Michael Vogt, who suggested adding a comment about
+	  sortable_serialise to set_sort_by_value().
+
 Mon Aug 24 02:23:55 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
