@@ -18,6 +18,7 @@ thisdir=`dirname $0`
 xaproot=http://xapian.org/
 stylesheet=style.css
 
+frob_infile=0
 if [ "x$1" = "x-l" ]; then
   infile=$2
   type=docs
@@ -25,10 +26,17 @@ if [ "x$1" = "x-l" ]; then
   localflag=-b
   # really unpleasant hack, I apologise: silently, we know that
   # the bindings docs are two levels deep not one
-  if [ "$3" = "docs-bindings" ]; then
+  if [ "x$3" = "xdocs-bindings" ]; then
     outroot="../"
     stylesheet=../style.css
     localflag="-b -r ../"
+  fi
+  # another hack: we build omega docs with a default (calculated) <inuri>,
+  # but this is calculated from the *full path* that make passes as <infile>
+  # so we want to just grab the basename
+  # (this has to be done later, so just set a flag for now)
+  if [ "x$3" = "xdocs-omega" ]; then
+    frob_infile=1
   fi
   shift
 else
@@ -45,7 +53,11 @@ if [ "x$3" != "x" ]; then
     xaproot=$4
   fi
 else
-  inuri=$infile
+  if [ "x$frob_infile" = "x1" ]; then
+    inuri=`basename $infile`
+  else
+    inuri=$infile
+  fi
 fi
 
 #if [ "x$4" != "x" ]; then
