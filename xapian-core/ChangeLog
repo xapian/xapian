@@ -15,8 +15,8 @@ Fri Aug 21 12:21:59 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 Fri Aug 21 12:14:13 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
-	* include/xapian/enquire.h: Update documentaiton comments for
-	  set_sort_by_value() and set_sort_by_value_the_relevance() to
+	* include/xapian/enquire.h: Update documentation comments for
+	  set_sort_by_value() and set_sort_by_value_then_relevance() to
 	  mention sortable_serialise() as a good way to store values if you
 	  want to sort by them.
 
