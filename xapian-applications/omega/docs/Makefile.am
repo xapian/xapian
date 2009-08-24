@@ -16,19 +16,22 @@ MDDOCS = \
 	index.md
 
 MDHTML = $(MDDOCS:.md=.html)
+AUXFILES = style.css xapian-logo.png graded-background.png
 
 # Files which should be put in the distribution by automake
-EXTRA_DIST = $(MDDOCS)
+EXTRA_DIST = $(MDDOCS) $(AUXFILES)
 
 toolsdir=$(srcdir)/../../../xapian-maintainer-tools/html-tools
-
 if !MAINTAINER_NO_DOCS
-dist_doc_DATA = $(MDHTML) \
-	$(toolsdir)/style.css $(toolsdir)/xapian-logo.png \
-	$(toolsdir)/graded-background.png
+dist_doc_DATA = $(MDHTML) $(AUXFILES)
+
+$(AUXFILES):
+	cp $(toolsdir)/style.css style.css
+	cp $(toolsdir)/xapian-logo.png xapian-logo.png
+	cp $(toolsdir)/graded-background.png graded-background.png
 endif
 
-MAINTAINERCLEANFILES = $(MDHTML)
+MAINTAINERCLEANFILES = $(MDHTML) $(AUXFILES)
 
 if DOCUMENTATION_RULES
 .md.html:
