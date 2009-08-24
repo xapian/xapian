@@ -25,7 +25,7 @@ get updates automatically.
 
 
 There are some links on our
-[download page] (http://xapian.org/download.php) but it's likely
+[download page] (http://xapian.org/download) but it's likely
 that Xapian packages are available for platforms we aren't aware of.  Feel
 free to let us know and we'll add a link.
 
@@ -43,7 +43,7 @@ remove the link.
 
 
 The first step is to obtain a copy of the software from the
-[Xapian download page] (http://xapian.org/download.php)</a>.
+[Xapian download page] (http://xapian.org/download)</a>.
 
 
 ### Unpacking
@@ -73,7 +73,7 @@ all you need to know.
 
 Building for MSVC is currently handled using a separately maintained set of
 makefiles - you can find a link to these on the 
-[Xapian download page] (http://xapian.org/download.php).
+[Xapian download page] (http://xapian.org/download).
 
 
 
@@ -138,6 +138,6 @@ you'll need to take to run scripts which use the bindings if you do.
 ### Building from SVN
 
 If you wish to help develop Xapian, read 
-[how to build from the Xapian subversion repository](http://xapian.org/bleeding.php).
+[how to build from the Xapian subversion repository](http://xapian.org/docs/bleeding).
 
 <!-- FOOTER $Author$ $Date$ $Id$ -->

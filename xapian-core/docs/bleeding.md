@@ -2,7 +2,7 @@
 
 
 If you want a stable version of Xapian, we recommend using a
-[released version](http://xapian.org/download.php).  But if you're happy to cope
+[released version](http://xapian.org/download).  But if you're happy to cope
 with potential breakage and want to try the latest development code, or
 do development yourself, you can access our version control system
 which runs on Subversion (known as SVN for short.)

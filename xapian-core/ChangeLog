@@ -1,3 +1,8 @@
+Mon Aug 24 14:00:49 GMT 2009  James Aylett <james@tartarus.org>
+
+	* docs/bleeding.md,docs/install.md: download.php -> download,
+	  bleeding.php -> docs/bleeding
+
 Thu Aug 20 13:12:43 GMT 2009  James Aylett <james@tartarus.org>
 
 	* HACKING: update build-reqs for documentation now
