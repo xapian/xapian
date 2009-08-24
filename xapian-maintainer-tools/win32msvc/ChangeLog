@@ -1,3 +1,8 @@
+Mon Aug 24 10:40:00 GMT 2009  Charlie Hull <charlie@flax.co.uk>
+
+	* Makefile: Remove rules to make generate-exceptions.
+	* win32_api.mak: Remove serialisationcontext.cc, add registry.cc
+
 Tue Aug 04 15:30:00 GMT 2009  Charlie Hull <charlie@flax.co.uk>
 
 	* Makefile, win32_bindings_python.mak, config.mak, makebinaries.py:

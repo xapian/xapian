@@ -31,6 +31,8 @@ XAPIAN_SWIG_CS_SRCS=\
 	MSetIterator.cs \
 	MultiValueSorter.cs \
 	NumberValueRangeProcessor.cs \
+	NumericRange.cs \
+	NumericRanges.cs \
 	PositionIterator.cs \
 	PostingIterator.cs \
 	PostingSource.cs \

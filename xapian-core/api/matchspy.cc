@@ -298,6 +298,11 @@ double score_evenness(const ValueCountMatchSpy & spy,
     return do_score_evenness(spy.get_values(), spy.get_total(),
 			     desired_no_of_categories);
 }
+double score_evenness(const NumericRanges & ranges,
+		      double desired_no_of_categories) {
+    return do_score_evenness(ranges.get_ranges(), ranges.get_values_seen(),
+			     desired_no_of_categories);
+}
 
 
 /** A bucket, used when building numeric ranges.
