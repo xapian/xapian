@@ -1,3 +1,7 @@
+Mon Aug 24 14:05:42 GMT 2009  James Aylett <james@tartarus.org>
+
+	* AUTHORS,INSTALL,debian/copyright: update URL references
+ 
 Mon Aug 24 14:04:14 GMT 2009  James Aylett <james@tartarus.org>
 
 	* docs/Makefile.am: copy aux files from x-m-t/html-tools into
