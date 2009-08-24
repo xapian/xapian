@@ -12,9 +12,10 @@ endif
 
 ACLOCAL_AMFLAGS = -I m4
 
+AUXFILES = style.css xapian-logo.png graded-background.png
 EXTRA_DIST = xapian.i xapian-head.i generic/except.i \
     xapian-bindings.spec.in xapian-bindings.spec skiptest \
-    xapian-version.h.in xapian-version.h HACKING TODO
+    xapian-version.h.in xapian-version.h HACKING TODO $(AUXFILES)
 DISTCLEANFILES = xapian-version.h
 
 SUBDIRS = @BINDINGS@
@@ -27,12 +28,14 @@ DISTCHECK_CONFIGURE_FLAGS = XAPIAN_CONFIG="$(XAPIAN_CONFIG)" \
 	RUBY_LIB_ARCH="`pwd`/../_inst/tmp_rubylibarch" \
 	TCL_LIB="`pwd`/../_inst/tmp_tcllib"
 
-# FIXME: this is wrong. Should be in EXTRA_DIST? Hmm.
-# See the */docs/Makefile.am and do something similar.
 if !MAINTAINER_NO_DOCS
 toolsdir=$(srcdir)/../xapian-maintainer-tools/html-tools
-docdatadir=$(docdir)
-dist_docdata_DATA = $(toolsdir)/style.css \
-	$(toolsdir)/xapian-logo.png \
-	$(toolsdir)/graded-background.png
+dist_doc_DATA = $(AUXFILES)
+
+$(AUXFILES):
+	cp $(toolsdir)/style.css style.css
+	cp $(toolsdir)/xapian-logo.png xapian-logo.png
+	cp $(toolsdir)/graded-background.png graded-background.png
 endif
+
+MAINTAINERCLEANFILES = $(AUXFILES)

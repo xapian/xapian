@@ -1,3 +1,8 @@
+Mon Aug 24 13:58:14 GMT 2009  James Aylett <james@tartarus.org>
+
+	* Makefile.am: copy aux files from x-m-t/html-tools into
+	  the docs builddir before copying/archiving out
+
 Mon Aug 24 13:57:46 GMT 2009  James Aylett <james@tartarus.org>
 
 	* debian/control.in: www.xapian.org -> xapian.org
