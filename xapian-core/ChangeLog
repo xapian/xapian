@@ -1,3 +1,9 @@
+Mon Aug 24 02:23:55 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/enquire.h: Also update the documentation comment for
+	  set_sort_by_relevance_then_value() to mention sortable_serialise().
+
 Mon Aug 24 02:23:06 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
