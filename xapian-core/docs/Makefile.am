@@ -13,12 +13,13 @@ endif
 # being run.  For "make all", "make check", etc we carefully skip any docs
 # which we don't have the tools to generate.
 
-HTMLDOCS = internals.hcontent intro_ir.hcontent overview.hcontent \
+HCONTENTDOCS = internals.hcontent intro_ir.hcontent overview.hcontent \
  quickstart.hcontent remote_protocol.hcontent \
  matcherdesign.hcontent tests.hcontent bm25.hcontent \
- code_structure.hcontent queryparser.hcontent \
+ queryparser.hcontent \
  quickstartexpand.cc.hcontent quickstartindex.cc.hcontent quickstartsearch.cc.hcontent
-HCONTENTHTML = $(HTMLDOCS:.hcontent=.html)
+HCONTENTHTML = $(HCONTENTDOCS:.hcontent=.html)
+HTMLDOCS = $(HCONTENTHTML) code_structure.html
 
 MDDOCS = index.md install.md stemming.md remote.md bleeding.md \
  scalability.md admin_notes.md deprecation.md glossary.md \
@@ -27,11 +28,13 @@ MDDOCS = index.md install.md stemming.md remote.md bleeding.md \
  termgenerator.md valueranges.md categorisation.md
 MDHTML = $(MDDOCS:.md=.html)
 
+AUXFILES = style.css xapian-logo.png graded-background.png
+
 # Files which should be put in the distribution by automake
 EXTRA_DIST = doxygen_api.conf.in doxygen_source.conf.in \
 	doxygen_api_header.html_tmpl doxygen_api_footer.html_tmpl \
 	doxygen_source_header.html_tmpl doxygen_source_footer.html_tmpl \
-	$(MDDOCS) \
+	$(MDDOCS) $(HCONTENTDOCS) $(AUXFILES) \
 	dir_contents
 
 # Other files which should be distributed
@@ -60,9 +63,7 @@ if !MAINTAINER_NO_DOCS
 # Build API docs with doxygen
 all-local: doxygen_api_docs
 
-dist_doc_DATA = $(HCONTENTHTML) $(MDHTML) apidoc.pdf \
-	$(toolsdir)/style.css $(toolsdir)/xapian-logo.png \
-	$(toolsdir)/graded-background.png
+dist_doc_DATA = $(HTMLDOCS) $(MDHTML) $(AUXFILES) apidoc.pdf
 
 install-data-local: doxygen_api_docs
 	$(mkinstalldirs) $(DESTDIR)$(docdir)/apidoc/html
@@ -70,6 +71,11 @@ install-data-local: doxygen_api_docs
 	$(INSTALL_DATA) `test -f apidoc/html/index.html || echo $(srcdir)/`apidoc/html/*.png $(DESTDIR)$(docdir)/apidoc/html
 	$(INSTALL_DATA) `test -f apidoc/html/index.html || echo $(srcdir)/`apidoc/html/*.css $(DESTDIR)$(docdir)/apidoc/html
 	$(INSTALL_DATA) `test -f apidoc/html/index.html || echo $(srcdir)/`apidoc/html/*.html $(DESTDIR)$(docdir)/apidoc/html
+
+$(AUXFILES):
+	cp $(toolsdir)/style.css style.css
+	cp $(toolsdir)/xapian-logo.png xapian-logo.png
+	cp $(toolsdir)/graded-background.png graded-background.png
 endif
 
 ###############################
@@ -87,7 +93,7 @@ uninstall-local:
 
 MAINTAINERCLEANFILES = doxygen_api.conf doxygen_source.conf \
 	code_structure.html apidoc.pdf \
-	$(MDHTML) $(HCONTENTHTML)
+	$(MDHTML) $(HTMLDOCS) $(AUXFILES)
 
 .PHONY: doxygen_source_docs doxygen_api_docs doxygen_docs
 
@@ -136,7 +142,7 @@ sourcedoc/html/index.html: $(SOURCEDOC_SRC) $(APIDOC_SRC) \
 
 # Depends $(toolsdir)/genhtml.py $(toolsdir)/getmenu.py $(toolsdir)/menu-docs-local.html $(toolsdir)/templates/docs-html.html
 .hcontent.html:
-	$(PYTHON) $(toolsdir)/genhtml.py $(toolsdir)/templates/docs-html.html $< outroot= xaproot=http://xapian.org/ thisdir=$(toolsdir) docsmenu=$(toolsdir)/menu-docs-local.html localflag=-b inuri= PYTHON=$(PYTHON) > $@
+	$(PYTHON) $(toolsdir)/genhtml.py $(toolsdir)/templates/docs-html.html $< outroot= xaproot=http://xapian.org/ thisdir=$(toolsdir) docsmenu=$(toolsdir)/menu-docs-local.html localflag=-b inuri=`basename $<` PYTHON=$(PYTHON) > $@
 
 # Depends $(toolsdir)/genpage $(toolsdir)/genhtml.py $(toolsdir)/getmenu.py $(toolsdir)/menu-docs-local.html $(toolsdir)/templates/docs-PREBODY.html $(toolsdir)/templates/docs-POSTBODY.html $(toolsdir)/templates/header-extra.html
 .md.html:

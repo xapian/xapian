@@ -1,3 +1,9 @@
+Mon Aug 24 14:04:14 GMT 2009  James Aylett <james@tartarus.org>
+
+	* docs/Makefile.am: copy aux files from x-m-t/html-tools into
+	  the docs builddir before copying/archiving out; also fix
+	  bug in menu highlighting for HTML fragment docs
+
 Mon Aug 24 14:00:49 GMT 2009  James Aylett <james@tartarus.org>
 
 	* docs/bleeding.md,docs/install.md: download.php -> download,
