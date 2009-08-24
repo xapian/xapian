@@ -1,3 +1,8 @@
+Mon Aug 24 14:07:30 GMT 2009  James Aylett <james@tartarus.org>
+
+	* docs/xapian-queryserver-manpage.but: update URL
+	  reference
+
 Thu Nov 16 03:06:14 GMT 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: As of xapian-core 0.8.0, XO_LIB_XAPIAN doesn't need to

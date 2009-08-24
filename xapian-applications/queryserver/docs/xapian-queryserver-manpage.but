@@ -45,7 +45,7 @@ Written by Richard Boulton.
 \S1{man-xapqs-bugs} REPORTING BUGS
 
 Please report bugs using Xapian's online bugzilla system at
-\W{http://www.xapian.org/bugs.php}\cw{http://www.xapian.org/bugs.php}
+\W{http://xapian.org/bugs}\cw{http://xapian.org/bugs}
 
 \S1{man-xapqs-copyright} COPYRIGHT
 
