@@ -1,3 +1,7 @@
+Mon Aug 24 13:56:50 GMT 2009  James Aylett <james@tartarus.org>
+
+	* ruby/docs/index.md: www.xapian.org -> xapian.org
+
 Wed Aug 19 18:00:53 GMT 2009  James Aylett <james@tartarus.org>
 
 	* Makefile.am,configure.ac,csharp/docs/Makefile.am,
