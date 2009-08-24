@@ -1,3 +1,7 @@
+Mon Aug 24 13:57:46 GMT 2009  James Aylett <james@tartarus.org>
+
+	* debian/control.in: www.xapian.org -> xapian.org
+
 Mon Aug 24 13:56:50 GMT 2009  James Aylett <james@tartarus.org>
 
 	* ruby/docs/index.md: www.xapian.org -> xapian.org
