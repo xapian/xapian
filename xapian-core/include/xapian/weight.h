@@ -445,7 +445,7 @@ class XAPIAN_VISIBILITY_DEFAULT BM25Weight : public Weight {
 class XAPIAN_VISIBILITY_DEFAULT ColourWeight : public BM25Weight {
     public:
 	static const Xapian::termcount trigger = 10000;
-	static const Xapian::weight colour_sum = 1000;
+	static const Xapian::weight colour_sum;
 	std::string name() const;
 
 	Xapian::weight get_sumpart(Xapian::termcount wdf,

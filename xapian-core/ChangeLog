@@ -1,3 +1,10 @@
+Mon Aug 24 13:20:38 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/weight.h,weight/colourweight.cc: Fix to not
+	  initialise a non-integral static const variable in the header:
+	  breaks Visual C++, and is apparently a G++ extension that it
+	  works at all.
+
 Tue Aug 04 16:05:05 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* weight/colourweight.cc: Correct bound on weight - the wdfs are

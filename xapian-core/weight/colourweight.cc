@@ -26,6 +26,8 @@
 
 namespace Xapian {
 
+const Xapian::weight ColourWeight::colour_sum = 1000;
+
 std::string
 ColourWeight::name() const {
     return "Xapian::ColourWeight";
