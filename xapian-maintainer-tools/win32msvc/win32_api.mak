@@ -33,10 +33,10 @@ OBJS= \
     $(INTDIR)/omquery.obj \
     $(INTDIR)/omqueryinternal.obj \
     $(INTDIR)/omtermlistiterator.obj \
-    $(INTDIR)/postlist.obj \
     $(INTDIR)/postingsource.obj \
+    $(INTDIR)/postlist.obj \
+    $(INTDIR)/registry.obj \
     $(INTDIR)/replication.obj \
-    $(INTDIR)/serialisationcontext.obj \
     $(INTDIR)/sortable-serialise.obj \
     $(INTDIR)/sorter.obj \
     $(INTDIR)/termlist.obj \
@@ -63,10 +63,10 @@ SRCS= \
     $(INTDIR)/omquery.cc\
     $(INTDIR)/omqueryinternal.cc\
     $(INTDIR)/omtermlistiterator.cc\
-    $(INTDIR)/postlist.cc\
     $(INTDIR)/postingsource.cc \
+    $(INTDIR)/postlist.cc\
+    $(INTDIR)/registry.cc \
     $(INTDIR)/replication.cc \
-    $(INTDIR)/serialisationcontext.cc \
     $(INTDIR)/sortable-serialise.cc\
     $(INTDIR)/sorter.cc\
     $(INTDIR)/termlist.cc\

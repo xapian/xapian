@@ -224,6 +224,42 @@ Mon Oct 29 03:03:31 GMT 2007  Olly Betts <olly@survex.com>
 	  include/xapian.h,tests/api_db.cc,tests/api_nodb.cc,
 	  tests/api_wrdb.cc: Restore the changes.
 
+Mon Aug 24 02:19:06 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/enquire.h: Also update the documentation comment for
+	  set_sort_by_relevance_then_value() to mention sortable_serialise().
+
+Fri Aug 21 14:35:35 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* Makefile.am: Add generate-exceptions to EXTRA_DIST - was missing
+	  from tarballs.
+
+Fri Aug 21 12:21:59 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* AUTHORS: Add Michael Vogt, who suggested adding a comment about
+	  sortable_serialise to set_sort_by_value().
+
+Fri Aug 21 12:14:13 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/enquire.h: Update documentation comments for
+	  set_sort_by_value() and set_sort_by_value_then_relevance() to
+	  mention sortable_serialise() as a good way to store values if you
+	  want to sort by them.
+
+Mon Aug 17 16:51:10 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/multimatch.cc: When sorting by non-pure-relevance, ensure
+	  that the document is shown to the matchspy even if it couldn't
+	  get in the mset.
+	* tests/api_matchspy.cc: Extend matchspy4 to include a regression
+	  test for this.
+
+Mon Aug 17 11:51:24 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/matchspy.cc,include/xapian/matchspy.h: Add overload for
+	  score_evenness to allow a NumericRanges object to be passed to
+	  it.
+
 Mon Aug 17 07:36:57 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/matchspy.cc,include/xapian/matchspy.h: Replace

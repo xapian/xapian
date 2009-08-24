@@ -34,6 +34,10 @@ Mon Oct 29 03:03:57 GMT 2007  Olly Betts <olly@survex.com>
 	* NEWS,csharp/Makefile.am,python/extra.i,python/pythontest.py,
 	  python/util.i,xapian.i: Restore the changes.
 
+Mon Aug 17 12:46:17 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* csharp/Makefile.am: Add missing assemblys.
+
 Mon Aug 17 07:39:32 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/extra.i: Add support to the NumericRanges object to get

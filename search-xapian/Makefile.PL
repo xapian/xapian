@@ -9,7 +9,12 @@ $ExtUtils::MakeMaker::Recognized_Att_Keys{XAPIAN_CONFIG} = 1;
 my $builddir;
 
 my $srcdir = $0;
-if ($srcdir =~ s!/[^/]*$!!) {
+if ($srcdir =~ s!/([^/]*)$!!) {
+    # Set $0 to be just the leafname.  If we don't, WriteMakefile() reruns this
+    # script for reasons unknown, leading to a seemingly infinite loop
+    # consuming increasing amounts of memory.  With setting $0, it still reruns
+    # this script, but only once.
+    $0 = $1;
     chomp($builddir = `pwd`);
     chdir $srcdir;
 }
