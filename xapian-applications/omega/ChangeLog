@@ -1,3 +1,7 @@
+Tue Aug 25 10:29:07 GMT 2009  Olly Betts <olly@survex.com>
+
+	* gen-omegascript-vim: Need to create "extra" for a VPATH build.
+
 Tue Aug 25 08:39:00 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Fix for VPATH build.
