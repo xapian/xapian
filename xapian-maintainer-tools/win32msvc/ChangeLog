@@ -1,3 +1,7 @@
+Tue Aug 25 16:31:53 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* win32_weight.mak: Add colourweight.cc and .obj.
+
 Mon Aug 24 10:40:00 GMT 2009  Charlie Hull <charlie@flax.co.uk>
 
 	* Makefile: Remove rules to make generate-exceptions.
