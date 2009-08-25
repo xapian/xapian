@@ -266,7 +266,7 @@ documentation:
   subexpression.
 
 * Correct doxygen comments for user metadata functions:
-  Database::get_metadata() throw UnimplementedError but
+  Database::get_metadata() can't throw UnimplementedError but
   WritableDatabase::set_metadata() can.
 
 * Document that Database::metadata_keys_begin() returns an end iterator if the

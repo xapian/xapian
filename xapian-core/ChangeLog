@@ -1,3 +1,7 @@
+Tue Aug 25 11:08:28 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Add missing "can't" in entry for 1.0.13.
+
 Tue Aug 25 11:07:23 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS: Start to update from ChangeLog.
