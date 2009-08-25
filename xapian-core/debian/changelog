@@ -7,8 +7,9 @@ xapian-core (1.0.15-1) UNRELEASED; urgency=low
   * debian/rules: Set DEB_HOST_ARCH by calling dpkg-architecture if it isn't
     already set so that behaviour is the same when running debian/rules "by
     hand".
+  * debian/control.in: Standards-Version: 3.8.3 (no changes required).
 
- -- Olly Betts <olly@survex.com>  Tue, 18 Aug 2009 12:34:52 +0100
+ -- Olly Betts <olly@survex.com>  Tue, 18 Aug 2009 12:37:11 +0100
 
 xapian-core (1.0.14-2) unstable; urgency=medium
 
