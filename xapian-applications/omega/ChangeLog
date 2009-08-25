@@ -1,3 +1,11 @@
+Tue Aug 25 06:38:08 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Makefile.am,extra/omegascript.vim,extra/omegascript.vim.in,
+	  gen-omegascript-vim: The list of OmegaScript commands in the vim
+	  mode was rather out of date, and a few commands were misclassified.
+	  Fix both problems and avoid future recurrences by automatically
+	  generating those lists from the command list in query.cc.
+
 Sat Aug 15 11:31:56 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
