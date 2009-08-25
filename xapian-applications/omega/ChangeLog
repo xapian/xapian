@@ -1,3 +1,7 @@
+Tue Aug 25 08:39:00 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Fix for VPATH build.
+
 Tue Aug 25 06:38:08 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Makefile.am,extra/omegascript.vim,extra/omegascript.vim.in,
