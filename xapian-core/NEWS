@@ -1,3 +1,72 @@
+ 13372       olly Tue Aug 25 02:27:15 GMT 2009  Olly Betts <olly@survex.com>
+
+Xapian-core 1.0.15 (2009-08-2?):
+
+API:
+
+
+testsuite:
+
+	* tests/harness/testsuite.cc: Fix not to report heaps of bogus errors
+	  under valgrind 3.5.0.
+
+matcher:
+
+
+flint backend:
+
+	* backends/flint/flint_modifiedpostlist.cc: Fix FlintModifiedPostList
+	  to skip added-but-then-deleted-before-flush documents.  (ticket#392)
+
+quartz backend:
+
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+
+documentation:
+
+	* docs/doxygen_api_conf.in: Update with most of the safer changes from
+	  the recent patches on trunk.
+	* include/xapian.h: Consistently say "linked with" rather than "linked
+	  to" in some cases.  Put documentation comment for namespace Xapian
+	  in this file.
+	* include/xapian/version_h.cc: Add documentation comments for the
+	  generated version.h, and all the preprocessor defines it contains.
+	* include/xapian/dbfactory.h: Add documentation comments for the
+	  backend namespaces (InMemory, etc).
+	* include/xapian/unicode.h: Add documentation comment for namespace
+	  Unicode.
+	* include/xapian/database.h: Remove documentation comment for namespace
+	  Xapian - this is now documented in xapian.h.
+
+	* include/xapian/queryparser.h: Explicitly document that an empty
+	  prefix argument to QueryParser::add_prefix() means "no prefix".
+
+	* include/xapian/enquire.h: Also update the documentation comment for
+	  set_sort_by_relevance_then_value() to mention sortable_serialise().
+	* include/xapian/enquire.h: Update documentation comments for
+	  set_sort_by_value() and set_sort_by_value_then_relevance() to
+	  mention sortable_serialise() as a good way to store values if you
+	  want to sort by them.
+
+examples:
+
+
+portability:
+
+
+packaging:
+
+
+debug code:
+
 Xapian-core 1.0.14 (2009-07-21):
 
 API:
