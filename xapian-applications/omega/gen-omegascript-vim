@@ -34,7 +34,7 @@ my $noparam = join(' ', @noparam);
 my $param = join(' ', @param);
 
 open I, "$srcdir/extra/omegascript.vim.in" or die $!;
-mkdir 0755, 'extra' unless $srcdir eq '.' || -d 'extra';
+mkdir('extra', 0755) unless $srcdir eq '.' || -d 'extra';
 open O, '>', 'extra/omegascript.vim.tmp' or die $!;
 while (<I>) {
     s/\@([A-Z_]+)\@/var($1)/eg;
