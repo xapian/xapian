@@ -1,3 +1,8 @@
+Wed Aug 26 14:55:33 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* ruby/docs/index.html: www.xapian.org -> xapian.org.
+
 Wed Aug 26 06:00:37 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
