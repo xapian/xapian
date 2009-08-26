@@ -1,3 +1,8 @@
+Wed Aug 26 14:19:21 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* templates/query: www.xapian.org -> xapian.org.
+
 Wed Aug 26 05:08:31 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
