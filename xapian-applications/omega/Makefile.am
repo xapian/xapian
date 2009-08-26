@@ -8,7 +8,12 @@ SUBDIRS = . docs
 
 INCLUDES = -I$(top_srcdir)/common
 
+BUILT_SOURCES = extra/omegascript.vim
+
 EXTRA_DIST =\
+	extra/omegascript.vim \
+	extra/omegascript.vim.in \
+	gen-omegascript-vim \
 	templates/query \
 	templates/topterms \
 	templates/opensearch \
@@ -136,6 +141,11 @@ omindex.1: omindex$(EXEEXT) makemanpage
 
 scriptindex.1: scriptindex$(EXEEXT) makemanpage
 	./makemanpage ./scriptindex $(srcdir)/scriptindex.cc scriptindex.1
+endif
+
+if MAINTAINER_MODE
+extra/omegascript.vim: extra/omegascript.vim.in query.cc configure.ac
+	$(PERL) $(srcdir)/gen-omegascript-vim "$(srcdir)" "$(PACKAGE_VERSION)"
 endif
 
 DISTCHECK_CONFIGURE_FLAGS = "XAPIAN_CONFIG=$(XAPIAN_CONFIG)"

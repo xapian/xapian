@@ -1,8 +1,8 @@
 " Vim syntax file
 " Language:	OmegaScript
-" Maintainer:	Richard Boulton <Richard Boulton>
-" URL:		http://www.xapian.org/
-" Last Change:  2002 Aug 16
+" Maintainer:	Xapian developers <xapian-discuss@lists.xapian.org>
+" URL:		http://xapian.org/
+" Version:	@VERSION@
 
 " To install: place this file in ~/.vim/syntax/omegascript.vim
 " and then create or add the following lines, without the "'s commenting
@@ -29,12 +29,12 @@ endif
 runtime! syntax/html.vim
 unlet b:current_syntax
 
-" Html included in commands
+" HTML included in commands.
 " Just do very basic highlighting, because it is likely to be only a fragment.
-" Can't sensibly insist on matching angle brackets, even.
+" We can't even sensibly insist on matching angle brackets.
 syn match omegaScriptHTML contained +[<>="]+ 
 
-" I _think_ omegascript is case sensitive
+" OmegaScript commands are case sensitive
 syn case match
 
 " tag names
@@ -52,10 +52,10 @@ syn match omegaScriptCommentStart contained "{"
 syn region omegaScriptComment matchgroup=omegaScriptCommentStart start="${" end="}" contains=omegaScriptCommentBracePair,omegaScriptComment keepend extend
 
 " All keywords which can take parameters
-syn keyword omegaScriptKW contained add allterms and cgi cgilist collapse date def div env eq field filesize freq ge gt highlight hitlist hostname html htmlstrip if include le list lt map max min mod mul ne nice not opt or prettyterm range record relevant set setmap setrelevant slice sub topterms url
+syn keyword omegaScriptKW contained @OMEGASCRIPT_PARAM@
 
 " All keywords which can take no parameters
-syn keyword omegaScriptCommandKW contained add allterms collapse dbname defaultop error fmt freqs hitsperpage id last lastpage msize percentage query querydescription queryterms record relevant relevants score setrelevant terms thispage topdoc topterms version
+syn keyword omegaScriptCommandKW contained @OMEGASCRIPT_NO_PARAM@
 
 " Deprecated keywords
 syn keyword omegaScriptCommandKWDeprecated contained freqs
