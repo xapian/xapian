@@ -1,3 +1,7 @@
+Wed Aug 26 14:44:33 GMT 2009  Olly Betts <olly@survex.com>
+
+	* ruby/docs/index.html: www.xapian.org -> xapian.org.
+
 Wed Aug 26 05:37:25 GMT 2009  Olly Betts <olly@survex.com>
 
 	* python/Makefile.am: No need for "./" relative path on sourced file.
