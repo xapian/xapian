@@ -1,3 +1,10 @@
+Wed Aug 26 18:12:50 GMT 2009  James Aylett <james@tartarus.org>
+
+	* csharp/docs/index.md,php/docs/index.md,python/docs/index.md,
+	  ruby/docs/index.md,tcl8/docs/index.md: link to C++ api docs
+	  (on website, since we don't know where they are in a local
+	  install)
+
 Mon Aug 24 13:58:14 GMT 2009  James Aylett <james@tartarus.org>
 
 	* Makefile.am: copy aux files from x-m-t/html-tools into

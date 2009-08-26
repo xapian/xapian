@@ -2,8 +2,7 @@
 
 <p>
 The PHP bindings for Xapian are packaged in the <code>xapian</code>
-extension.  The PHP API provided by this extension largely follows Xapian's C++
-API.  This document lists the differences and additions.
+extension.  The PHP API provided by this extension largely follows Xapian's  <a href="http://xapian.org/docs/apidoc/html/annotated">C++ API</a>.  This document lists the differences and additions.
 </p>
 
 <p>

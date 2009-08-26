@@ -1,7 +1,7 @@
 % Python bindings for Xapian
 
 The Python bindings for Xapian are packaged in the <code>xapian</code> module,
-and largely follow the C++ API, with the following differences and
+and largely follow the  <a href="http://xapian.org/docs/apidoc/html/annotated">C++ API</a>, with the following differences and
 additions. Python strings and lists, etc., are converted automatically
 in the bindings, so generally it should just work as expected.
 
