@@ -8,16 +8,8 @@
 
 set -e
 
-# Comment these out for release or something
-if [ "x$XAPROOT" = "x" ]; then
-  XAPROOT="http://tartarus.org/james/xapian/"
-fi
-if [ "x$OUTDIR" = "x" ]; then
-  OUTDIR="/home/james/pub/http/xapian"
-fi
-
 # Detect (this can surely be broken, so don't stress it)
-BASEDIR=`dirname $0`/../../
+BASEDIR=`dirname $0`/../..
 
 if [ "x$OUTDIR" = "x" ]; then
   outdir=/srv/www/xapian.org
@@ -30,16 +22,32 @@ else
   xaproot=$XAPROOT
 fi
 
+echo "Setting up..."
+
+if [ ! -d $outdir ]; then
+  echo    "  Default output directory not present; making local copy."
+  outdir=$BASEDIR/website
+fi
+
 thisdir=$BASEDIR/xapian-maintainer-tools/html-tools
 templates=$thisdir/templates
 root=$BASEDIR
 if [ -f $root/xapian-core/docs/Makefile ]; then
   build=$root
+  buildun=
 else
   build=$root/build
+  buildun=..
 fi
 
+echo "  Checkout: $root"
+echo "  Build: $build"
+echo "  Output: $outdir"
+echo "  URL: $xaproot"
+echo
+
 PYTHON=/usr/bin/python
+PNGCRUSH=`which pngcrush`
 
 echo -n "Creating directories..."
 mkdir -p $outdir
@@ -110,11 +118,35 @@ done
 echo " done."
 
 ### DOCS - EXTRA
-echo -n "Building Doxygen docs (in $build/xapian-core/docs)..."
-make -q -C $build/xapian-core/docs doxygen_api_docs
+echo -n "Building API docs..."
+mkdir -p $thisdir/tmp
+
+# Wrangle the doxygen configuration into shape
+sed "s#^OUTPUT_DIRECTORY.*\$#OUTPUT_DIRECTORY=$buildun/../../$thisdir/tmp/apidoc#; s#^HTML_HEADER.*\$#HTML_HEADER=$buildun/../../$thisdir/tmp/doxygen_header#; s#^HTML_FOOTER.*\$#HTML_FOOTER=$buildun/../../$thisdir/tmp/doxygen_footer#;" < $build/xapian-core/docs/doxygen_api.conf > $thisdir/tmp/doxygen_api.conf
+
+# Make the header and footer
+$PYTHON $thisdir/genhtml.py $thisdir/templates/docs-doxygen-PREBODY.html "" localflag= outroot= xaproot=http://xapian.org/ thisdir=$thisdir docsmenu=$thisdir/menu-docs.html inuri=apidoc/html/annotated PYTHON=$PYTHON > $thisdir/tmp/doxygen_header
+$PYTHON $thisdir/genhtml.py $thisdir/templates/docs-doxygen-POSTBODY.html "" localflag= outroot= xaproot=http://xapian.org/ thisdir=$thisdir docsmenu=$thisdir/menu-docs.html inuri=apidoc/html/annotated PYTHON=$PYTHON > $thisdir/tmp/doxygen_footer
+
+# Taken from xapian-core/docs/Makefile.am, adapted to bash syntax
+rm -rf $thisdir/tmp/apidoc
+pushd $build/xapian-core/docs
+$buildun/../../INST/bin/doxygen $buildun/../../$thisdir/tmp/doxygen_api.conf
+popd
+if test "x$PNGCRUSH" != x ; then \
+  for png in $thisdir/tmp/apidoc/html/*.png ; do \
+    $PNGCRUSH -q $png ${png}T && mv ${png}T $png ; \
+  done \
+fi
+
 echo " done."
 echo -n "Copying Doxygen docs..."
-cp -Rp $build/xapian-core/docs/apidoc/ $outdir/docs/apidoc/
+cp -Rp $thisdir/tmp/apidoc/ $outdir/docs/apidoc/
+# Frob the generated CSS from doxygen so it doesn't blat our rules. (They need to learn about SCOPING.)
+sed '/{/ s/^/.content-block /; /{/ s/,/, .content-block /g;' < $thisdir/tmp/apidoc/html/doxygen.css > $outdir/docs/apidoc/html/doxygen.css
+echo " done."
+echo -n "Cleaning Doxygen build..."
+rm -rf $thisdir/tmp
 echo " done."
 
 ### AUXILIARY FILES
