@@ -63,7 +63,7 @@ xapian.pyo: xapian.py _xapian$(PYTHON_SO)
 
 _xapian$(PYTHON_SO): _xapian.la
 	$(LIBTOOL) --config > libtoolconfig.tmp
-	. ./libtoolconfig.tmp; cp $$objdir/_xapian$(PYTHON_SO) .
+	. libtoolconfig.tmp; cp $$objdir/_xapian$(PYTHON_SO) .
 	rm -f libtoolconfig.tmp
 
 CLEANFILES = \

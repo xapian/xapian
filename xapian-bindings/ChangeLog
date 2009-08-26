@@ -1,3 +1,8 @@
+Wed Aug 26 06:00:37 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* python/Makefile.am: No need for "./" relative path on sourced file.
+
 Mon Aug 24 22:42:40 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
