@@ -114,7 +114,7 @@ case $build_os in
 *** to make sure you have a UNIX-like find installed and fix your PATH, then
 *** rerun configure.  For more information, see:
 ***
-***   http://www.cygwin.com/faq/faq_3.html#SEC41
+***   http://www.cygwin.com/faq/faq-nochunks.html#faq.using.find
 ])
     fi
   ;;
@@ -305,9 +305,9 @@ else
       case `$CXX -V 2>&1` in
       *Sun\ C++*)
 	dnl Select ANSI conforming STL - for more information see:
-	dnl http://developers.sun.com/prodtech/cc/articles/cmp_stlport_libCstd.html
+	dnl http://developers.sun.com/solaris/articles/cmp_stlport_libCstd.html
 	dnl and:
-	dnl http://developers.sun.com/prodtech/cc/documentation/ss9_docs/mr/READMEs/c++_faq.html#bb13
+	dnl http://developers.sun.com/sunstudio/documentation/ss12/mr/READMEs/c++_faq.html#Coding12
 	dnl (Looks like -features=tmplife was added around 2000 so just pass
 	dnl it unconditionally)
 	ANSI_CXXFLAGS="-library=stlport4 -features=tmplife" ;;
