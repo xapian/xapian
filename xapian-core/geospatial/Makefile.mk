@@ -21,7 +21,8 @@ geospatial_lemon_built_sources =\
 EXTRA_DIST += $(geospatial_lemon_built_sources)\
 	geospatial/dir_contents\
 	geospatial/Makefile\
-	geospatial/latlongparse.lemony
+	geospatial/latlongparse.lemony\
+	geospatial/latlongparse.lt
 
 if MAINTAINER_MODE
 geospatial/latlongparse_internal.cc geospatial/latlongparse_token.h: \

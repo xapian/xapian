@@ -1,3 +1,7 @@
+Wed Aug 26 11:49:29 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* geospatial/Makefile.mk: Add latlongparse.lt to distributions.
+
 Mon Aug 03 12:45:08 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* geospatial/latlongparse.lt: Update with changes from upstream
