@@ -477,6 +477,12 @@ Database::Internal::collect_document(Xapian::docid did) const
     return open_document(did, true);
 }
 
+void
+Database::Internal::invalidate_doc_object(Xapian::Document::Internal *) const
+{
+    // Do nothing, by default
+}
+
 RemoteDatabase *
 Database::Internal::as_remotedatabase()
 {
