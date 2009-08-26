@@ -1,3 +1,8 @@
+Wed Aug 26 12:58:51 GMT 2009  Olly Betts <olly@survex.com>
+
+	* HACKING: Update URLs.  Remove duplicated text about updating RoadMap
+	  from the release checklist.
+
 Wed Aug 26 10:56:07 GMT 2009  Olly Betts <olly@survex.com>
 
 	* configure.ac: Update various URLs.

@@ -541,9 +541,6 @@ Web Resources
 The "C++ FAQ Lite" covers many frequently asked C++ questions:
 http://www.parashift.com/c++-faq-lite/
 
-The libstdc++-porting-howto discusses various C++ portability issues:
-http://gcc.gnu.org/onlinedocs/libstdc++/17_intro/porting-howto.html
-
 Header Portability Issues
 -------------------------
 
@@ -993,7 +990,7 @@ Submitting Patches:
 If you have a patch to fix a problem in Xapian, or to add a new feature,
 please send it to us for inclusion.  Any major changes should be discussed
 on the xapian-devel mailing list first:
-<http://xapian.org/lists.php>
+<http://xapian.org/lists>
 
 We find patches in unified diff format easiest to read.  If you're using a
 SVN checkout just use "svn diff" to generate the diff.  If you're working
@@ -1321,8 +1318,8 @@ This is a (hopefully complete) list of the jobs which need doing:
 
 * Update the NEWS files using information from the ChangeLog files
 
-* Update the PLATFORMS file.  Don't forget to use reports from the tinderbox:
-  http://www.oligarchy.co.uk/tinderbox/xapian/status.html
+* Update the PLATFORMS file.  Don't forget to use reports from automated
+  builds: http://trac.xapian.org/wiki/AutomatedBuilds
 
 * Update the version in configure.ac for each module (xapian-core, omega, and
   xapian-bindings), and the library version info in xapian-core's configure.ac
@@ -1359,9 +1356,7 @@ This is a (hopefully complete) list of the jobs which need doing:
 
   Create a new page http://wiki.xapian.org/ReleaseNotes/X.Y.Z and link it into
   http://wiki.xapian.org/ReleaseNotes in place of the old current release link,
-  which should be moved to the archived section.  Also update
-  http://wiki.xapian.org/RoadMap to record the date of the release and the
-  estimated date for the next release.
+  which should be moved to the archived section.
 
   Also update the roadmap at http://wiki.xapian.org/RoadMap by recording the
   date of this release and adding an entry for the next release with an
