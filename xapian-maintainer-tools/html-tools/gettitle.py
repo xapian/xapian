@@ -1,7 +1,8 @@
 #!/usr/bin/python
 #
-# Read in an HTML fragment file (.hcontent) and extra a reasonable
-# title for the page.
+# Read in an HTML fragment file (.hcontent) and extract a reasonable
+# title for the page. If we can't do that, assume it's the downloads
+# page (which fails because of the amount of PHP in it).
 #
 # python gettitle.py <sourcefile>
 #
