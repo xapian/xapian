@@ -55,7 +55,7 @@ if __name__=="__main__":
             repl = p.read()
             r = p.close()
             if r!=None:
-                sys.stderr.write("Error running `%s`: %i\n" % (cmd, r))
+                sys.stderr.write("Error running `%s`: %i\n" % (cmd, r >> 8))
                 sys.exit(1)
             line = line[0:opos] + repl + line[cpos+1:]
             nxt = opos + len(repl)
