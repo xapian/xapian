@@ -1,5 +1,6 @@
 Revision history for Perl extension Search::Xapian.
 
+1.0.15.0  Wed Aug 26 14:59:31 GMT 2009
 	[Changes contributed by Frank Lichtenheld]
 	- Run POD coverage tests if TEST_POD_COVERAGE is set rather than
 	  TEST_POD so that the other POD tests can easily be enabled without
