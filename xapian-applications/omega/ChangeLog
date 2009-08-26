@@ -1,3 +1,7 @@
+Wed Aug 26 14:17:06 GMT 2009  Olly Betts <olly@survex.com>
+
+	* templates/query: www.xapian.org -> xapian.org.
+
 Tue Aug 25 11:15:38 GMT 2009  Olly Betts <olly@survex.com>
 
 	* gen-omegascript-vim: Fix swapped arguments to perl mkdir function.
