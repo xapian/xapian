@@ -1,3 +1,11 @@
+xapian-bindings (1.0.15-1) unstable; urgency=low
+
+  * New upstream release.
+  * Fix typo in package descriptions.
+  * debian/control.in: Standards-Version: 3.8.3 (no changes required).
+
+ -- Olly Betts <olly@survex.com>  Thu, 27 Aug 2009 02:01:39 +0000
+
 xapian-bindings (1.0.14-1) unstable; urgency=low
 
   * New upstream release.

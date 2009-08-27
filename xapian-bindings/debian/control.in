@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Olly Betts <olly@survex.com>
 Build-Depends: @BUILD_DEPS@ po-debconf, autotools-dev
 XS-Python-Version: all
-Standards-Version: 3.8.2
+Standards-Version: 3.8.3
 Homepage: http://xapian.org/
 DM-Upload-Allowed: yes
 
@@ -17,7 +17,7 @@ Description: Xapian search engine interface for Tcl
  This package provides Xapian Tcl bindings which should work with any version
  of Tcl >= 8.1 (by using Tcl's stubs mechanism.)
  .
- The Xapian search engine library is a highly adaptable toolkit to allow
+ The Xapian search engine library is a highly adaptable toolkit which allows
  developers to easily add advanced indexing and search facilities to their own
  applications.  It implements the probabilistic model of information retrieval,
  and provides facilities for performing ranked free-text searches, relevance
@@ -36,7 +36,7 @@ Suggests: xapian-doc
 Description: Xapian search engine interface for Ruby 1.8
  This package provides Xapian Ruby bindings built for Ruby 1.8.
  .
- The Xapian search engine library is a highly adaptable toolkit to allow
+ The Xapian search engine library is a highly adaptable toolkit which allows
  developers to easily add advanced indexing and search facilities to their own
  applications.  It implements the probabilistic model of information retrieval,
  and provides facilities for performing ranked free-text searches, relevance
@@ -60,7 +60,7 @@ Description: Xapian search engine interface for Python
  This package provides Xapian Python bindings for all the packaged versions
  of Python.
  .
- The Xapian search engine library is a highly adaptable toolkit to allow
+ The Xapian search engine library is a highly adaptable toolkit which allows
  developers to easily add advanced indexing and search facilities to their own
  applications.  It implements the probabilistic model of information retrieval,
  and provides facilities for performing ranked free-text searches, relevance
