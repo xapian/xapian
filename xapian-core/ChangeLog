@@ -1,3 +1,8 @@
+Thu Aug 27 03:05:33 GMT 2009  Olly Betts <olly@survex.com>
+
+	* HACKING: Add note to document the reason for any exceptions to the
+	  rule to use C++ forms of ISO C headers.
+
 Wed Aug 26 13:07:07 GMT 2009  Olly Betts <olly@survex.com>
 
 	* AUTHORS,INSTALL,docs/install.html: Drop .php from xapian.org URLs.
