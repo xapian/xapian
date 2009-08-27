@@ -11,7 +11,7 @@ xapian-core (1.0.15-1) unstable; urgency=low
   * debian/patches/runtest-no-fd-ulimit-on-alpha.patch: Add a description of
     the patch.
 
- -- Olly Betts <olly@survex.com>  Thu, 27 Aug 2009 01:57:30 +0000
+ -- Olly Betts <olly@survex.com>  Thu, 27 Aug 2009 03:17:52 +0100
 
 xapian-core (1.0.14-2) unstable; urgency=medium
 

@@ -1,3 +1,9 @@
+The Debian alpha buildd runs out of fds with this ulimit in place.  It's
+undiagnosed why currently, but the GCC compilefarm alpha box is down and
+and I got no response on #debian-alpha or #debian-devel.  The ulimit is
+really to make sure we catch a new fd leak on our dev boxes rather than
+when a user on OpenBSD or similar hits it, so just disable it on alpha
+for now.
 Index: xapian-core/tests/runtest.in
 ===================================================================
 --- xapian-core.orig/tests/runtest.in	2009-08-05 02:58:13.000000000 +1200
@@ -11,7 +17,7 @@ Index: xapian-core/tests/runtest.in
 +"Linux alpha")
 +  # The Debian alpha buildd runs out of fds with this ulimit in place.  It's
 +  # undiagnosed why currently, but the GCC compilefarm alpha box is down and
-+  # and I got no response on #debian-alpha or #debian-devel.  This addition is
++  # and I got no response on #debian-alpha or #debian-devel.  The ulimit is
 +  # really to make sure we catch a new fd leak on our dev boxes rather than
 +  # when a user on OpenBSD or similar hits it, so just disable it on alpha
 +  # for now.
