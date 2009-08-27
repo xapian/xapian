@@ -1,9 +1,9 @@
-xapian-omega (1.0.15-1) UNRELEASED; urgency=low
+xapian-omega (1.0.15-1) unstable; urgency=low
 
   * New upstream release.
   * debian/control.in: Standards-Version: 3.8.3 (no changes required).
 
- -- Olly Betts <olly@survex.com>  Tue, 25 Aug 2009 02:58:01 +0100
+ -- Olly Betts <olly@survex.com>  Thu, 27 Aug 2009 01:59:43 +0000
 
 xapian-omega (1.0.14-1) unstable; urgency=low
 
