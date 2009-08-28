@@ -247,14 +247,17 @@ fi
 dnl Check processor endianness.
 AC_C_BIGENDIAN
 
-if test x"$enable_documentation" = xyes; then
-  dnl Check for perl. (Needed to make man pages from "--help" output).
+if test x"$USE_MAINTAINER_MODE" = xyes; then
+  dnl Check for perl. (Needed to make man pages from "--help" output, and to
+  dnl make the omegascript vim syntax mode.)
   AC_PATH_PROG(PERL, perl, [])
   test -z "$PERL" && AC_MSG_ERROR([perl is required in maintainer mode])
+fi
 
+if test x"$enable_documentation" = xyes; then
   dnl Check for help2man. (Needed to make man pages from "--help" output).
   AC_PATH_PROG(HELP2MAN, help2man, [])
-  test -z "$HELP2MAN" && AC_MSG_ERROR([help2man is required in maintainer mode])
+  test -z "$HELP2MAN" && AC_MSG_ERROR([help2man is required to build documentation])
 
   dnl Check for rst2html. (Needed to make HTML from reStructuredText format)
   dnl Also look for rst2html.py, which archlinux reportedly installs it as.

@@ -1,3 +1,9 @@
+Fri Aug 28 15:30:07 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* configure.ac: Check for PERL if in maintainer mode, not just when
+	  building documentation, because making the omegascript vim syntax
+	  mode requires it.
+
 Wed Aug 26 14:17:06 GMT 2009  Olly Betts <olly@survex.com>
 
 	* templates/query: www.xapian.org -> xapian.org.
