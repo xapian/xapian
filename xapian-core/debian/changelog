@@ -1,3 +1,12 @@
+xapian-core (1.0.15-2) karmic; urgency=low
+
+  * debian/rules: Include /usr/share/quilt/quilt.make much earlier so that
+    QUILT_STAMPFN is actually set when we try to use it.  This means that
+    the patch(es) will actually be applied (presumably 1.0.14-2 built on
+    alpha just by luck).
+
+ -- Olly Betts <olly@survex.com>  Fri, 28 Aug 2009 02:23:14 +0000
+
 xapian-core (1.0.15-1) unstable; urgency=low
 
   * New upstream release.
