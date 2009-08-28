@@ -51,6 +51,7 @@ export DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 export DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 export DEB_HOST_ARCH ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
 
+confflags := --prefix=/usr --sysconfdir=/etc
 ifeq ($(DEB_BUILD_GNU_TYPE), $(DEB_HOST_GNU_TYPE))
     confflags += --build $(DEB_HOST_GNU_TYPE)
     ifeq ($(DEB_HOST_ARCH), alpha)
@@ -67,11 +68,26 @@ else
     DEB_BUILD_OPTIONS += nocheck
 endif
 
+ifeq ($(DEB_HOST_ARCH), avr32)
+    # The avr32 buildd is repeatedly failing with "Took too long", so disable
+    # optimisation for now for a faster build.
+    DEB_BUILD_OPTIONS += noopt
+endif
+
+CFLAGS :=
+CXXFLAGS := -g
+
+ifeq ($(DEB_HOST_ARCH), hurd-i386)
+    # Testcase topercent2 is failing, which smells like excess precision
+    # to me, so let's try forcing -ffloat-store.
+    CXXFLAGS += -ffloat-store
+endif
+
 # Handle DEB_BUILD_OPTIONS.  Note that dh_strip handles nostrip for us.
-ifneq (,$(filter noopt,$(DEB_BUILD_OPTIONS)))
-    confflags += CFLAGS=-O0 CXXFLAGS=-O0
-else
-    confflags += CFLAGS=-O2 CXXFLAGS=-O2
+
+ifeq (,$(filter noopt,$(DEB_BUILD_OPTIONS)))
+    CFLAGS += -O2
+    CXXFLAGS += -O2
 endif
 ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
     NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
@@ -83,14 +99,11 @@ else
     MAKE_CHECK := $(MAKE) check VALGRIND=
 endif
 
-commonconfflags := \
-	$(confflags) \
-	--prefix=/usr \
-	--sysconfdir=/etc
+confflags += CFLAGS=$(CFLAGS) CXXFLAGS=$(CXXFLAGS)
 
 # With GCC3 and later this won't make a huge difference, but it'll save
 # a bit of time and diskspace while building.
-commonconfflags += --disable-dependency-tracking
+confflags += --disable-dependency-tracking
 
 maint: \
 	debian/control \
@@ -145,7 +158,7 @@ configure-stamp: $(QUILT_STAMPFN) debian/control
 
 	# Configure in a subdirectory, for neatness.
 	mkdir -p build
-	cd build && ../configure $(commonconfflags)
+	cd build && ../configure $(confflags)
 
 	# Touch the stamp file, to avoid repeating the configure step.
 	touch $@
