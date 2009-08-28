@@ -10,7 +10,7 @@ xapian-core (1.0.15-2) unstable; urgency=low
   * debian/rules: Add -ffloat-store for i386-hurd to try to get topercent2 to
     pass.
 
- -- Olly Betts <olly@survex.com>  Fri, 28 Aug 2009 03:24:54 +0000
+ -- Olly Betts <olly@survex.com>  Fri, 28 Aug 2009 05:09:14 +0000
 
 xapian-core (1.0.15-1) unstable; urgency=low
 

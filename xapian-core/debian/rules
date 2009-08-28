@@ -99,7 +99,7 @@ else
     MAKE_CHECK := $(MAKE) check VALGRIND=
 endif
 
-confflags += CFLAGS=$(CFLAGS) CXXFLAGS=$(CXXFLAGS)
+confflags += CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)"
 
 # With GCC3 and later this won't make a huge difference, but it'll save
 # a bit of time and diskspace while building.
