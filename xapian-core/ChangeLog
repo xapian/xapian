@@ -1,3 +1,8 @@
+Sun Aug 30 23:28:25 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/gnu_getopt.h: Make optarg, optind, opterr, and optopt extern
+	  "C" to avoid linkage clash with these symbols on Mac OS X 10.6.
+	
 Thu Aug 27 03:05:33 GMT 2009  Olly Betts <olly@survex.com>
 
 	* HACKING: Add note to document the reason for any exceptions to the

@@ -57,10 +57,12 @@ gnu_getopt_long_only(int argc_, char *const *argv_, const char *shortopts_,
 
 #else
 
+extern "C" {
 extern char *optarg;
 extern int optind;
 extern int opterr;
 extern int optopt;
+}
 
 struct option {
     const char *name;
