@@ -1,38 +1,24 @@
- 13290       olly Mon Aug 10 10:29:13 GMT 2009  Olly Betts <olly@survex.com>
-
- 13289    richard Mon Aug 10 07:55:04 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
-	* HACKING: Add section on ordering of include files, and fix a few
-	  formatting issues to make this file into valid restructured text
-	  again.
-
- 13264       olly Tue Aug 04 15:49:54 GMT 2009  Olly Betts <olly@survex.com>
-	* include/xapian/queryparser.h: Explicitly document that an empty
-	  prefix argument to QueryParser::add_prefix() means "no prefix".
-
- 13255       olly Sun Aug 02 16:20:28 GMT 2009  Olly Betts <olly@survex.com>
-	* docs/remote_protocol.html: Update to document protocol version 33.
- 13243    richard Sun Aug 02 12:15:43 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
-	Merge from matchspy branch.
-	* api/,backends/remote/remote-database.cc,common/,docs/Makefile.am,
-	  docs/categorisation.rst,include/Makefile.mk,include/xapian.h,
-	  include/xapian/enquire.h,include/xapian/matchspy.h,
-	  include/xapian/serialisationcontext.h,matcher/multimatch.cc,
-	  matcher/remotesubmatch.cc,matcher/remotesubmatch.h,
-	  net/remoteserver.cc,net/serialise.cc,tests/Makefile.am,
-	  tests/api_matchspy.cc: Add new-style Xapian::MatchSpy class,
-	  which is a pure "spy" class, rather than being able to take a
-	  decision on whether a spy is applied before or after a result.
-	  This class is also designed to work with remote databases,
-	  passing the results back in serialised form.  Also, add
-	  ValueCountMatchSpy, which counts the occurrences of each value in
-	  a slot in the search results seen (useful for faceted or
-	  categorisation systems).
-
- 13215       olly Thu Jul 30 16:30:06 GMT 2009  Olly Betts <olly@survex.com>
-	* backends/chert/chert_modifiedpostlist.cc: Fix ChertModifiedPostList
-	  to skip added-but-then-deleted-before-flush documents.  (ticket#392)
+ 13434       olly Mon Aug 31 04:14:58 GMT 2009  Olly Betts <olly@survex.com>
 
 backport fodder:
+
+ 13433       olly Mon Aug 31 01:30:01 GMT 2009  Olly Betts <olly@survex.com>
+	* common/getopt.cc: Use USE_GLIBC_GNUGETOPT from gnu_getopt.h rather
+	  than repeating the conditionals used to determine it here.  Rename
+	  __getopt_initialized to getopt_initialized and make it static.
+	  Rename _getopt_initialize() to getopt_initialize().
+
+ 13432       olly Mon Aug 31 01:24:29 GMT 2009  Olly Betts <olly@survex.com>
+	* common/gnu_getopt.h: Update (C) dates.  Markup file description for
+	  doxygen.  Fix comment reference to ctype.h as we now use <cctype>.
+
+ 13431       olly Sun Aug 30 23:28:25 GMT 2009  Olly Betts <olly@survex.com>
+	* common/gnu_getopt.h: Make optarg, optind, opterr, and optopt extern
+	  "C" to avoid linkage clash with these symbols on Mac OS X 10.6.
+	
+ 13421       olly Thu Aug 27 03:05:33 GMT 2009  Olly Betts <olly@survex.com>
+	* HACKING: Add note to document the reason for any exceptions to the
+	  rule to use C++ forms of ISO C headers.
 
  13170       olly Sun Jul 26 14:28:25 GMT 2009  Olly Betts <olly@survex.com>
 	* docs/doxygen_source.conf.in: Update roughly in-line with apidoc
@@ -105,45 +91,93 @@ Mostly backported already:
 
 trunk:
 
- 13197       olly Wed Jul 29 06:18:41 GMT 2009  Olly Betts <olly@survex.com>
-	* tests/Makefile.am: Actually distribute testdata/apitest_declen.txt
-	  - new test data from the postingsources branch merge.
- 13194    richard Tue Jul 28 16:38:55 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
-	Merge from postingsources branch:
-	* tests/generate-api_generated: Test get_description() methods of
-	  Xapian::PostingSource subclasses. 
- 13193    richard Tue Jul 28 16:35:54 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
-	Merge from postingsources branch:
-	* api/Makefile.mk,api/decvalwtsource.cc,api/serialisationcontext.cc,
-	  include/xapian/postingsource.h: Add
-	  DecreasingValueWeightPostingSource class, which reads weights
+Xapian-core 1.1.3 (2009-09-??):
+
+
+API:
+
+* exception_data.pm: Add new SerialisationError.
+	* common/serialise-double.cc: Throw SerialisationError or InternalError
+	  instead of NetworkError.
+
+* Rename Xapian::SerialisationContext to Xapian::Registry.
+
+* Add DecreasingValueWeightPostingSource class, which reads weights
 	  from a value slot in which a significant range of the values are
 	  in decreasing order.  This functions similarly to
 	  ValueWeightPostingSource, but can be much more efficient.
-	* tests/api_valuestream.cc,tests/testdata/apitest_declen.txt:
-	  Tests, and some associated constructed test data, for
-	  DecreasingValueWeightPostingSource.
 
- 13185       olly Mon Jul 27 04:50:45 GMT 2009  Olly Betts <olly@survex.com>
-	* HACKING: Now using autoconf 2.64.
+* Add new-style Xapian::MatchSpy class,
+	  which is a pure "spy" class, rather than being able to take a
+	  decision on whether a spy is applied before or after a result.
+	  This class is also designed to work with remote databases,
+	  passing the results back in serialised form.  Also, add
+	  ValueCountMatchSpy, which counts the occurrences of each value in
+	  a slot in the search results seen (useful for faceted or
+	  categorisation systems).
 
- 13162       olly Fri Jul 24 16:23:31 GMT 2009  Olly Betts <olly@survex.com>
-	* configure.ac,docs/: Rename doxygen configuration files from "_conf"
-	  to ".conf".  Rename doxygen_full.conf to doxygen_source.conf, etc.
+ 13327    richard Mon Aug 17 11:51:24 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+	* api/matchspy.cc,include/xapian/matchspy.h: Add overload for
+	  score_evenness to allow a NumericRanges object to be passed to
+	  it.
+	* api/matchspy.cc,include/xapian/matchspy.h: Replace
+	  build_numeric_ranges() function with a NumericRanges object,
+	  whose constructor is passed the values and which exposes the
+	  calculated ranges via a getter.
+	* tests/api_matchspy.cc: Update tests to use new NumericRanges
+	  object instead of build_numeric_ranges().
 
- 13161       olly Fri Jul 24 16:02:39 GMT 2009  Olly Betts <olly@survex.com>
-	* HACKING: Update to note that doxygen is now installed in-tree, and
-	  that we now use 1.5.9 for 1.1.x snapshots and releases, and that
-	  graphviz ">1.8.10" is now required.
+testsuite:
 
- 13157    richard Fri Jul 24 13:00:24 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
-	* bin/xapian-compact.cc: Fix to work with the metainfo key stored
-	  in the latest format of chert databases.
 
- 13156       olly Fri Jul 24 10:32:32 GMT 2009  Olly Betts <olly@survex.com>
-	* backends/chert/chert_values.cc: Avoid doing pointless work by trying
-	  to delete non-existent lists of values when we're just adding
-	  documents.
+matcher:
+
+
+chert backend:
+
+ 13215       olly Thu Jul 30 16:30:06 GMT 2009  Olly Betts <olly@survex.com>
+	* backends/chert/chert_modifiedpostlist.cc: Fix ChertModifiedPostList
+	  to skip added-but-then-deleted-before-flush documents.  (ticket#392)
+
+* Fix to work with the metainfo key stored in the latest format of chert
+  databases.
+
+* Avoid doing pointless work by trying to delete non-existent lists of values
+  when we're just adding documents.
+
+flint backend:
+
+
+remote backend:
+
+* Remote protocol major version has changed to support serialising MatchSpy
+  object.
+
+inmemory backend:
+
+
+build system:
+
+* This release uses autoconf 2.64 rather than 2.63.  This means configure now
+  makes use of shell functions, which makes it ~13% smaller, and should also
+  make it execute faster.
+
+* This release uses doxygen 1.5.9 to generate the API documentation.
+
+documentation:
+
+
+examples:
+
+
+portability:
+
+
+packaging:
+
+
+debug code:
+
 
 Xapian-core 1.1.2 (2009-07-23):
 
