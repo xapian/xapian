@@ -93,6 +93,7 @@ trunk:
 
 Xapian-core 1.1.3 (2009-09-??):
 
+This release includes all changes from 1.0.15 which are relevant.
 
 API:
 
@@ -591,6 +592,40 @@ debug code:
   improvement, but will particularly speed up debug logging as that converts a
   lot of integers to strings).
 
+Xapian-core 1.0.15 (2009-08-26):
+
+testsuite:
+
+* Fix the test harness not to report heaps of bogus errors when using valgrind
+  3.5.0.
+
+flint backend:
+
+* Backport the lazy update changes from 1.1.2:
+
+  WritableDatabase::replace_document() now updates the database lazily in
+  simple cases - for example, if you just change a document's values and
+  replace it with the same docid, then the terms and document data aren't
+  needlessly rewritten.  Caveats: currently we only check if you've looked at
+  the values/terms/data, not if they've actually been modified, and only keep
+  track of the last document read.
+
+* Fix PostingIterator::skip_to() on an unflushed WritableDatabase to skip
+  documents which were added and deleted since the last flush.  (ticket#392)
+
+documentation:
+
+* Overhaul the doxygen options we use and tweak various documentation comments
+  to improve the generated API documentation.
+
+* Explicitly document that an empty prefix argument to
+  QueryParser::add_prefix() means "no prefix".
+
+* Update the documentation comments for Enable::set_sort_by_value(),
+  set_sort_by_value_then_relevance(), and set_sort_by_relevance_then_value() to
+  mention sortable_serialise() as a good way to store numeric values for
+  sorting.
+
 Xapian-core 1.0.14 (2009-07-21):
 
 API:
@@ -790,7 +825,7 @@ documentation:
   subexpression.
 
 * Correct doxygen comments for user metadata functions:
-  Database::get_metadata() throw UnimplementedError but
+  Database::get_metadata() can't throw UnimplementedError but
   WritableDatabase::set_metadata() can.
 
 * Document that Database::metadata_keys_begin() returns an end iterator if the
