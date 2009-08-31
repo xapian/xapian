@@ -1,3 +1,7 @@
+Mon Aug 31 04:14:58 GMT 2009  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Sync with 1.0.15.
+
 Mon Aug 31 01:30:01 GMT 2009  Olly Betts <olly@survex.com>
 
 	* common/getopt.cc: Use USE_GLIBC_GNUGETOPT from gnu_getopt.h rather
