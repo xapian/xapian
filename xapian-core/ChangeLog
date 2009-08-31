@@ -1,3 +1,9 @@
+Mon Aug 31 10:57:30 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* common/gnu_getopt.h: Make optarg, optind, opterr, and optopt extern
+	  "C" to avoid linkage clash with these symbols on Mac OS X 10.6.
+
 Wed Aug 26 14:07:49 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.0.15.
