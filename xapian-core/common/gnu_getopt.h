@@ -1,7 +1,7 @@
-/* gnu_getopt.h: Wrappers to allow GNU getopt to be used cleanly from C++ code.
- *
- * ----START-LICENCE----
- * Copyright 2004 Olly Betts
+/** @file gnu_getopt.h
+ * @brief Wrappers to allow GNU getopt to be used cleanly from C++ code.
+ */
+/* Copyright 2004,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +22,7 @@
 #ifndef XAPIAN_INCLUDED_GNU_GETOPT_H
 #define XAPIAN_INCLUDED_GNU_GETOPT_H
 
-// We need to include a header to get __GLIBC__ defined.  Hopefully ctype.h
+// We need to include a header to get __GLIBC__ defined.  Hopefully <cctype>
 // is a safe bet.
 #include <cctype>
 

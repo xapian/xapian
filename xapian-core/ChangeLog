@@ -1,3 +1,8 @@
+Mon Aug 31 01:24:29 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/gnu_getopt.h: Update (C) dates.  Markup file description for
+	  doxygen.  Fix comment reference to ctype.h as we now use <cctype>.
+
 Sun Aug 30 23:28:25 GMT 2009  Olly Betts <olly@survex.com>
 
 	* common/gnu_getopt.h: Make optarg, optind, opterr, and optopt extern
