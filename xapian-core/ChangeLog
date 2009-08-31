@@ -1,3 +1,10 @@
+Mon Aug 31 01:30:01 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/getopt.cc: Use USE_GLIBC_GNUGETOPT from gnu_getopt.h rather
+	  than repeating the conditionals used to determine it here.  Rename
+	  __getopt_initialized to getopt_initialized and make it static.
+	  Rename _getopt_initialize() to getopt_initialize().
+
 Mon Aug 31 01:24:29 GMT 2009  Olly Betts <olly@survex.com>
 
 	* common/gnu_getopt.h: Update (C) dates.  Markup file description for
