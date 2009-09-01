@@ -1,3 +1,7 @@
+Tue Sep 01 12:04:13 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Send stderr output from ldconfig to config.log.
+
 Tue Sep 01 10:35:51 GMT 2009  Olly Betts <olly@survex.com>
 
 	* AUTHORS,common/safeuuid.h: Fix uuid_unparse_lower() replacement for

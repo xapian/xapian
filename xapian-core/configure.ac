@@ -141,7 +141,7 @@ case $host_os in
   linux*)
     dnl Extract search path from ldconfig which is more reliable than the way
     dnl vanilla libtool extracts them from ld.so.conf.
-    d=`/sbin/ldconfig -N -X -v 3>/dev/null|$SED 's,^\(/.*\):\( (.*)\)\?$,\1,p;d'|tr '\n' ' '`
+    d=`/sbin/ldconfig -N -X -v 2>&5|$SED 's,^\(/.*\):\( (.*)\)\?$,\1,p;d'|tr '\n' ' '`
     test -z "$d" || sys_lib_dlsearch_path_spec=$d
     ;;
 esac
