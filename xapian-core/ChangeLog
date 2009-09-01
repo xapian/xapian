@@ -1,3 +1,8 @@
+Tue Sep 01 10:35:51 GMT 2009  Olly Betts <olly@survex.com>
+
+	* AUTHORS,common/safeuuid.h: Fix uuid_unparse_lower() replacement for
+	  older libuuid to actually compile (really fixes ticket#368).
+
 Mon Aug 31 05:58:55 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS: Sync with 1.0.15.

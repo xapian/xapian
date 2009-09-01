@@ -32,9 +32,10 @@
  * uuid_unparse_lower(), only uuid_unparse(). */
 inline void uuid_unparse_lower(const uuid_t uu, char *out) {
     uuid_unparse(uu, out);
-    /* Characters in uu are either 0-9, a-z, '-', or A-Z.  A-Z is mapped to a-z
-     * by bitwise or with 0x20, and the others already have this bit set. */
-    for (size_t i = 0; i < 36; ++i) *i |= 0x20;
+    /* Characters in out are either 0-9, a-z, '-', or A-Z.  A-Z is mapped to
+     * a-z by bitwise or with 0x20, and the others already have this bit set.
+     */
+    for (size_t i = 0; i < 36; ++i) out[i] |= 0x20;
 }
 # endif
 
