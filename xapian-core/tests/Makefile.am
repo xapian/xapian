@@ -123,6 +123,7 @@ collated_apitest_sources = \
  api_posdb.cc \
  api_postingsource.cc \
  api_query.cc \
+ api_queryopt.cc \
  api_replicate.cc \
  api_scalability.cc \
  api_serialise.cc \

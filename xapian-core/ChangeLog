@@ -1,3 +1,10 @@
+Thu Sep 03 00:29:27 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/andmaybepostlist.cc: For AndMaybe, if the RHS has a
+	  maximum possible weight of 0, we now decay to just the LHS.
+	* tests/Makefile.am,tests/api_queryopt.cc: Test coverage that this
+	  optimisation doesn't break anything.
+
 Tue Sep 01 12:04:13 GMT 2009  Olly Betts <olly@survex.com>
 
 	* configure.ac: Send stderr output from ldconfig to config.log.
