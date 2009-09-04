@@ -1,3 +1,9 @@
+Fri Sep 04 11:24:26 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* docs/categorisation.rst: Remove out-of-date call to get_mset()
+	  which passed a MatchSpy in - spies are now set with
+	  add_matchspy() before get_mset() is called.
+
 Thu Sep 03 00:29:27 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* matcher/andmaybepostlist.cc: For AndMaybe, if the RHS has a
