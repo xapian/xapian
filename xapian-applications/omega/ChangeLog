@@ -1,3 +1,10 @@
+Wed Sep 09 13:45:02 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Check for PERL if in maintainer mode, not just when
+	  building documentation, because making the omegascript vim syntax
+	  mode requires it.
+
 Wed Sep 09 13:39:41 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
