@@ -1,3 +1,8 @@
+Wed Sep 09 13:32:25 GMT 2009  Olly Betts <olly@survex.com>
+
+	* omega.cc,query.cc,query.h: Fix cross-site scripting vulnerability in
+	  reporting of exceptions (CVE-2009-2947).
+
 Fri Aug 28 15:30:07 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* configure.ac: Check for PERL if in maintainer mode, not just when
