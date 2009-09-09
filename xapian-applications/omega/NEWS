@@ -1,3 +1,8 @@
+Omega 1.0.16 (2009-09-09):
+
+* omega: Fix cross-site scripting vulnerability in reporting of exceptions
+  (CVE-2009-2947).
+
 Omega 1.0.15 (2009-08-26):
 
 general:
