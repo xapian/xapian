@@ -1,3 +1,11 @@
+Wed Sep 09 13:36:58 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/andmaybepostlist.cc,tests/Makefile.am,tests/api_queryopt.cc:
+	  Back out patch from r13440 which introduced a new optimisation
+	  for AND_MAYBE when the maximum weight of the RHS becomes zero,
+	  due to various undesirable side effects.  I've put the patch into
+	  ticket #400 with an explanation.
+
 Wed Sep 09 01:54:05 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_postlist.cc,tests/api_backend.cc: Fix

@@ -42,14 +42,6 @@ AndMaybePostList::process_next_or_skip_to(Xapian::weight w_min, PostList *ret)
     lhead = l->get_docid();
     if (lhead <= rhead) RETURN(NULL);
 
-    if (rmax == 0) {
-	// If RHS can't supply any weight, it can be ignored for the AndMaybe,
-	// so we decay to be just the LHS.
-	PostList *tmp = l;
-	l = NULL;
-	RETURN(tmp);
-    }
-
     bool valid;
     check_handling_prune(r, lhead, w_min - lmax, matcher, valid);
     if (r->at_end()) {
