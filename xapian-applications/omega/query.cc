@@ -486,7 +486,7 @@ percent_encode(const string &str)
     }
 }
 
-static string
+string
 html_escape(const string &str)
 {
     string res;
