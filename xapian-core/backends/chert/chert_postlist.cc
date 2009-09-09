@@ -1049,6 +1049,9 @@ ChertPostListTable::merge_changes(
 {
     DEBUGCALL(DB, void, "ChertPostListTable::merge_changes", "mod_plists, doclens, freq_deltas");
 
+    // The cursor in the doclen_pl will no longer be valid, so reset it.
+    doclen_pl.reset(0);
+
     LOGVALUE(DB, doclens.size());
     if (!doclens.empty()) {
 	// Ensure there's a first chunk.
