@@ -1,3 +1,17 @@
+Xapian-core 1.0.16 (2009-09-09):
+
+flint backend:
+
+* Fix a typo which stopped this fix in 1.0.12 from working (ticket #398):
+
+  If we fail to get the lock after we spawn the child lock process (the common
+  case is because the database is already open for writing) then we now clean
+  up the child process properly.
+
+portability:
+
+* Fix build failure on Mac OS X 10.6.
+
 Xapian-core 1.0.15 (2009-08-26):
 
 testsuite:
