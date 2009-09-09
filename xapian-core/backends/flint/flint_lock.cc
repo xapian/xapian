@@ -203,7 +203,7 @@ FlintLock::lock(bool exclusive, std::string & explanation) {
     close(fds[0]);
 
     int status;
-    while (waitpid(pid, &status, 0) < 0) {
+    while (waitpid(child, &status, 0) < 0) {
 	if (errno != EINTR) break;
     }
 

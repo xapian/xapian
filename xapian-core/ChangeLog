@@ -1,3 +1,12 @@
+Wed Sep 09 00:02:47 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_lock.cc,backends/flint/flint_lock.cc: Fix a
+	  typo which stopped this fix in 1.0.12 from working (ticket #398):
+
+	  If we fail to get the lock after we spawn the child lock process
+	  (the common case is because the database is already open for
+	  writing) then we now clean up the child process properly.
+
 Fri Sep 04 11:24:26 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* docs/categorisation.rst: Remove out-of-date call to get_mset()
