@@ -6,6 +6,8 @@ Revision history for Perl extension Search::Xapian.
 	  QueryParser::get_default_op().
 	- examples/simpleexpand.pl: Use MSet::items() (new in 1.0.13.1).
 	  Remove debug print statement left in by accident.
+	- Add dependency to regenerate Makefile if Xapian.pm changes (since the
+	  former contains a version number extracted from the latter).
 
 1.0.15.0  Wed Aug 26 14:59:31 GMT 2009
 	[Changes contributed by Frank Lichtenheld]
@@ -15,7 +17,7 @@ Revision history for Perl extension Search::Xapian.
 
 1.0.14.0  Tue Jul 21 16:10:19 GMT 2009
 	[Changes contributed by Olly Betts]
- 	- Add handling of C++ exceptions from methods of Document (ticket#284).
+	- Add handling of C++ exceptions from methods of Document (ticket#284).
 
 1.0.13.1  Tue May 26 13:51:18 GMT 2009
 	[Changes contributed by Olly Betts]
