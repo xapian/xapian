@@ -1,3 +1,7 @@
+Thu Sep 10 13:24:52 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Default to looking for xapian-config-1.1.
+
 Thu Sep 10 06:49:10 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS: Sync changes from 1.0.15 and 1.0.16 and update from ChangeLog.
