@@ -113,15 +113,16 @@ WriteMakefile(
 #       AUTHOR     => 'Alex Bowley <kilinrax@cpan.org>') : ()),
     $libsvar		=> $libs, # e.g., '-lm'
     'DEFINE'		=> '', # e.g., '-DHAVE_SOMETHING'
-    'CC'                => $CC,
+    'CC'		=> $CC,
     'CCFLAGS'		=> $CCFLAGS,
-    'LD'                => $LD,
+    'LD'		=> $LD,
     'INC'		=> $inc, # e.g., '-I/usr/include/other'
-    'XSOPT'             => '-C++',
-    # 'typemap' is implicitly added to this list.
-    'TYPEMAPS'          => ['perlobject.map'],
+    'XSOPT'		=> '-C++',
+    # 'typemap'		is implicitly added to this list.
+    'TYPEMAPS'		=> ['perlobject.map'],
     # Add "make check" as alias for "make test".
-    'depend'		=> { 'check' => 'test' },
+    # Make sure that we rebuild the Makefile if the version number changes.
+    'depend'		=> { 'check' => 'test', 'Makefile' => 'Xapian.pm' },
 );
 
 my $VERSION = "unknown";
