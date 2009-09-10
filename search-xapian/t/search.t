@@ -6,7 +6,7 @@
 # change 'tests => 1' to 'tests => last_test_to_print';
 
 use Test::More;
-BEGIN { plan tests => 109 };
+BEGIN { plan tests => 114 };
 use Search::Xapian qw(:ops);
 
 #########################
@@ -88,9 +88,9 @@ for (1 .. $matches->size()) { $match++; }
 is( $match, $matches->end(), "match set returns correct endpoint");
 
 my $rset;
-ok( $rset = Search::Xapian::RSet->new(), "relevance set returned ok" );
+ok( $rset = Search::Xapian::RSet->new(), "relevance set created ok" );
 $rset->add_document( 1 );
-ok( $rset->contains( 1 ), "document added to relevance setsuccessfully" );
+ok( $rset->contains( 1 ), "document added to relevance set successfully" );
 ok( !$rset->contains( 2 ), "relevance set correctly fails to match document it does not contain" );
 $rset->remove_document( 1 );
 ok( !$rset->contains( 1 ), "document removed from relevance set successfully" );
@@ -102,8 +102,24 @@ is( $matches3->size, $matches->size, "rset doesn't change mset size" );
 ok( $matches3 = $enq->get_mset(0, 10, 11, $rset), "get_mset with check_at_least and rset" );
 is( $matches3->size, $matches->size, "rset and check_at_least don't change mset size" );
 
+my $d;
 # This was generating a warning converting "0" to an RSet object:
-ok( $matches3 = $enq->get_mset(0, 10, sub { return 1; }), "get_mset with matchdecider" );
+ok( $matches3 = $enq->get_mset(0, 10,
+			sub { $d = scalar @_; return $_[0]->get_value(0) ne ""; }),
+       	"get_mset with matchdecider" );
+ok( defined $d, "matchdecider was called" );
+ok( $d == 1, "matchdecider got an argument" );
+
+sub mdecider {
+    $d = scalar @_;
+    return $_[0]->get_value(0) ne "";
+}
+
+$d = undef;
+ok( $matches3 = $enq->get_mset(0, 10, \&mdecider),
+       	"get_mset with named matchdecider function" );
+ok( defined $d, "matchdecider was called" );
+ok( $d == 1, "matchdecider got an argument" );
 
 my $eset;
 ok( $eset = $enq->get_eset( 10, $rset ), "can get expanded terms set" );

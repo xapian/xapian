@@ -60,52 +60,48 @@ class PerlStopper : public Stopper {
 };
 
 class perlMatchDecider : public Xapian::MatchDecider {
-    private:
-	SV *callback;
-    public:
-	perlMatchDecider(SV *func) {
-	    callback = newSVsv(func);
-	}
+    SV *callback;
 
-	~perlMatchDecider() {
-	    SvREFCNT_dec(callback);
-	}
+  public:
+    perlMatchDecider(SV *func) {
+	callback = newSVsv(func);
+    }
 
-	bool operator()(const Xapian::Document &doc) const {
-	    dSP;
-	    Document *pdoc;
+    ~perlMatchDecider() {
+	SvREFCNT_dec(callback);
+    }
 
-	    ENTER;
-	    SAVETMPS;
+    bool operator()(const Xapian::Document &doc) const {
+	dSP;
 
-	    PUSHMARK(SP);
+	ENTER;
+	SAVETMPS;
 
-	    pdoc = new Document();
-	    *pdoc = doc;
+	PUSHMARK(SP);
 
-	    SV *arg;
-	    arg = sv_newmortal();
-	    sv_setref_pv(arg, "Search::Xapian::Document", (void *)pdoc);
-	    XPUSHs(arg);
+	SV *arg = sv_newmortal();
 
-	    PUTBACK;
+	Document *pdoc = new Document(doc);
+	sv_setref_pv(arg, "Search::Xapian::Document", (void *)pdoc);
+	XPUSHs(arg);
 
-	    int count = call_sv(callback, G_SCALAR);
+	PUTBACK;
 
-	    SPAGAIN;
-	    if (count != 1)
-		croak("callback function should return 1 value, got %d", count);
+	int count = call_sv(callback, G_SCALAR);
 
-	    SV *decide_result = POPs;
-	    int decide_actual_result = SvIV(decide_result);
+	SPAGAIN;
+	if (count != 1)
+	    croak("callback function should return 1 value, got %d", count);
 
-	    PUTBACK;
+	int decide_actual_result = POPi;
 
-	    FREETMPS;
-	    LEAVE;
+	PUTBACK;
 
-	    return decide_actual_result;
-	}
+	FREETMPS;
+	LEAVE;
+
+	return decide_actual_result;
+    }
 };
 
 MODULE = Search::Xapian		PACKAGE = Search::Xapian

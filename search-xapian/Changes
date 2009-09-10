@@ -9,6 +9,7 @@ Revision history for Perl extension Search::Xapian.
 	  accident.
 	- Add dependency to regenerate Makefile if Xapian.pm changes (since the
 	  former contains a version number extracted from the latter).
+	- Add better test coverage for MatchDecider.
 
 1.0.15.0  Wed Aug 26 14:59:31 GMT 2009
 	[Changes contributed by Frank Lichtenheld]
