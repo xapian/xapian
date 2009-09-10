@@ -1,6 +1,6 @@
 Revision history for Perl extension Search::Xapian.
 
-1.0.16.0  Wed Sep  9 23:41:37 UTC 2009
+1.0.16.0  Thu Sep 10 06:26:08 UTC 2009
 	[Changes contributed by Olly Betts]
 	- Improve documentation of QueryParser::set_default_op() and
 	  QueryParser::get_default_op().
