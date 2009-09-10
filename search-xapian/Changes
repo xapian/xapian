@@ -37,6 +37,17 @@ Revision history for Perl extension Search::Xapian.
 	  run "make install" in a tree configured to use an uninstalled
 	  xapian-core.
 
+1.0.16.0  Thu Sep 10 06:26:08 UTC 2009
+	[Changes contributed by Olly Betts]
+	- Improve documentation of QueryParser::set_default_op() and
+	  QueryParser::get_default_op().
+	- examples/: Use MSet::items() (new in 1.0.13.1).
+	- examples/simpleexpand.pl: Remove debug print statement left in by
+	  accident.
+	- Add dependency to regenerate Makefile if Xapian.pm changes (since the
+	  former contains a version number extracted from the latter).
+	- Add better test coverage for MatchDecider.
+
 1.0.15.0  Wed Aug 26 14:59:31 GMT 2009
 	[Changes contributed by Frank Lichtenheld]
 	- Run POD coverage tests if TEST_POD_COVERAGE is set rather than
