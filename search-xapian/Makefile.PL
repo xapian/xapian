@@ -126,17 +126,17 @@ push @writemakefile_args, (
 #       AUTHOR     => 'Alex Bowley <kilinrax@cpan.org>') : ()),
     $libsvar		=> $libs, # e.g., '-lm'
     'DEFINE'		=> '', # e.g., '-DHAVE_SOMETHING'
-    'CC'                => $CC,
+    'CC'		=> $CC,
     'CCFLAGS'		=> $CCFLAGS,
-    'LD'                => $LD,
+    'LD'		=> $LD,
     'INC'		=> $inc, # e.g., '-I/usr/include/other'
     'OBJECT'		=> '$(BASEEXT)$(OBJ_EXT) handle_exception$(OBJ_EXT)',
-    'XSOPT'             => '-C++',
+    'XSOPT'		=> '-C++',
     # 'typemap' is implicitly added to this list.
-    'TYPEMAPS'          => ['perlobject.map', 'typemap-errorclasses'],
+    'TYPEMAPS'		=> ['perlobject.map', 'typemap-errorclaveses'],
     # Add "make check" as alias for "make test".
     # Make sure that we rebuild the Makefile if the version number changes.
-    'depend'            => { 'check' => 'test', 'Makefile' => 'Xapian.pm' },
+    'depend'		=> { 'check' => 'test', 'Makefile' => 'Xapian.pm' },
 );
 WriteMakefile(@writemakefile_args);
 
