@@ -1,3 +1,8 @@
+Thu Sep 10 02:17:56 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Clarify the documentation comments for
+	  QueryParser::set_default_op() and QueryParser::get_default_op().
+
 Wed Sep 09 13:36:58 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* matcher/andmaybepostlist.cc,tests/Makefile.am,tests/api_queryopt.cc:
