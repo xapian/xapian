@@ -4,6 +4,8 @@ Revision history for Perl extension Search::Xapian.
 	[Changes contributed by Olly Betts]
 	- Improve documentation of QueryParser::set_default_op() and
 	  QueryParser::get_default_op().
+	- examples/simpleexpand.pl: Use MSet::items() (new in 1.0.13.1).
+	  Remove debug print statement left in by accident.
 
 1.0.15.0  Wed Aug 26 14:59:31 GMT 2009
 	[Changes contributed by Frank Lichtenheld]
