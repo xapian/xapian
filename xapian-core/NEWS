@@ -1,4 +1,4 @@
- 13434       olly Mon Aug 31 04:14:58 GMT 2009  Olly Betts <olly@survex.com>
+ 13453       olly Thu Sep 10 02:17:56 GMT 2009  Olly Betts <olly@survex.com>
 
 backport fodder:
 
@@ -12,10 +12,6 @@ backport fodder:
 	* common/gnu_getopt.h: Update (C) dates.  Markup file description for
 	  doxygen.  Fix comment reference to ctype.h as we now use <cctype>.
 
- 13431       olly Sun Aug 30 23:28:25 GMT 2009  Olly Betts <olly@survex.com>
-	* common/gnu_getopt.h: Make optarg, optind, opterr, and optopt extern
-	  "C" to avoid linkage clash with these symbols on Mac OS X 10.6.
-	
  13421       olly Thu Aug 27 03:05:33 GMT 2009  Olly Betts <olly@survex.com>
 	* HACKING: Add note to document the reason for any exceptions to the
 	  rule to use C++ forms of ISO C headers.
@@ -93,7 +89,7 @@ trunk:
 
 Xapian-core 1.1.3 (2009-09-??):
 
-This release includes all changes from 1.0.15 which are relevant.
+This release includes all changes from 1.0.15 and 1.0.16 which are relevant.
 
 API:
 
@@ -140,6 +136,10 @@ chert backend:
 	* backends/chert/chert_modifiedpostlist.cc: Fix ChertModifiedPostList
 	  to skip added-but-then-deleted-before-flush documents.  (ticket#392)
 
+	* backends/chert/chert_postlist.cc,tests/api_backend.cc: Fix
+	  WritableDatabase::get_doclength() to work properly after a call to
+	  commit for the chert backend (ticket#397).
+
 * Fix to work with the metainfo key stored in the latest format of chert
   databases.
 
@@ -165,6 +165,8 @@ build system:
 
 * This release uses doxygen 1.5.9 to generate the API documentation.
 
+	* configure.ac: Send stderr output from ldconfig to config.log.
+
 documentation:
 
 
@@ -173,6 +175,8 @@ examples:
 
 portability:
 
+	* AUTHORS,common/safeuuid.h: Fix uuid_unparse_lower() replacement for
+	  older libuuid to actually compile (really fixes ticket#368).
 
 packaging:
 
@@ -591,6 +595,25 @@ debug code:
 * Faster integer to string functions inside the library (this is a general
   improvement, but will particularly speed up debug logging as that converts a
   lot of integers to strings).
+
+Xapian-core 1.0.16 (2009-09-10):
+
+flint backend:
+
+* Fix a typo which stopped this fix in 1.0.12 from working (ticket #398):
+
+  If we fail to get the lock after we spawn the child lock process (the common
+  case is because the database is already open for writing) then we now clean
+  up the child process properly.
+
+documentation:
+
+* Improve API documentation of QueryParser::set_default_op() and
+  QueryParser::get_default_op().
+
+portability:
+
+* Fix build failure on Mac OS X 10.6.
 
 Xapian-core 1.0.15 (2009-08-26):
 
