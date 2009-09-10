@@ -111,7 +111,7 @@ ok( defined $d, "matchdecider was called" );
 ok( $d == 1, "matchdecider got an argument" );
 
 sub mdecider {
-    $d = $#_;
+    $d = scalar @_;
     return $_[0]->get_value(0) ne "";
 }
 
