@@ -1,3 +1,8 @@
+Thu Sep 10 13:24:29 GMT 2009  Olly Betts <olly@survex.com>
+
+	* m4-macros/xapian-1.1.m4: Report the default xapian-config
+	  basename in configure's --help output.
+
 Thu Sep 10 12:55:48 GMT 2009  Olly Betts <olly@survex.com>
 
 	* m4-macros/xapian-1.1.m4: Add optional third parameter to

@@ -28,7 +28,7 @@ m4_ifdef([AC_PROVIDE_IFELSE],
 # was added in Xapian 1.1.3.
 AC_DEFUN([XO_LIB_XAPIAN],
 [
-  AC_ARG_VAR(XAPIAN_CONFIG, [Location of xapian-config])
+  AC_ARG_VAR(XAPIAN_CONFIG, [Location of xapian-config (default:] ifelse([$3], [], xapian-config, [$3]) [on PATH)])
   AC_PATH_PROG(XAPIAN_CONFIG, ifelse([$3], [], xapian-config, [$3]), [])
   if test -z "$XAPIAN_CONFIG"; then
     ifelse([$2], ,
