@@ -3,6 +3,8 @@ Revision history for Perl extension Search::Xapian.
 	Work around odd rerunning of Makefile.PL by MakeMaker when srcdir !=
 	builddir.
 	- Wrap new Xapian::SerialisationError class.
+	- Ship simplematchdecider.pl example, which was added in 1.0.13.1 but
+	  accidentally not added to 1.1.1.0.
 
 1.1.2.0  Thu Jul 23 04:14:29 UTC 2009
 	[This release includes all changes from 1.0.14 which are relevant.]

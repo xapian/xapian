@@ -137,4 +137,5 @@ examples/full-indexer.pl
 examples/full-searcher.pl
 examples/simpleexpand.pl
 examples/simpleindex.pl
+examples/simplematchdecider.pl
 examples/simplesearch.pl
