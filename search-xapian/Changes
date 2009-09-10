@@ -35,9 +35,15 @@ Revision history for Perl extension Search::Xapian.
 	  run "make install" in a tree configured to use an uninstalled
 	  xapian-core.
 
+1.0.15.0  Wed Aug 26 14:59:31 GMT 2009
+	[Changes contributed by Frank Lichtenheld]
+	- Run POD coverage tests if TEST_POD_COVERAGE is set rather than
+	  TEST_POD so that the other POD tests can easily be enabled without
+	  enabling the coverage tests.
+
 1.0.14.0  Tue Jul 21 16:10:19 GMT 2009
 	[Changes contributed by Olly Betts]
- 	- Add handling of C++ exceptions from methods of Document (ticket#284).
+	- Add handling of C++ exceptions from methods of Document (ticket#284).
 
 1.0.13.1  Tue May 26 13:51:18 GMT 2009
 	[Changes contributed by Olly Betts]
