@@ -20,7 +20,7 @@ dnl Run tests using the C++ compiler.
 AC_LANG_CPLUSPLUS
 
 dnl Check for xapian-core.
-XO_LIB_XAPIAN
+XO_LIB_XAPIAN([], [], [xapian-config-1.1])
 
 dnl We want XAPIAN_CXXFLAGS to be used for configure tests.
 save_CXXFLAGS=$CXXFLAGS
