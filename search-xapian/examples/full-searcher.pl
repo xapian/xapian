@@ -131,7 +131,7 @@ eval {
 	   $mset->get_matches_estimated();
     print "Results 1-$msize:\n";
 
-    foreach my $m (tie_mset($mset)) {
+    foreach my $m ($mset->items()) {
         printf "#%u: Score %u%%: %s\n",
 	      $m->get_rank() + 1,
 	      $m->get_percent(),
@@ -142,12 +142,4 @@ if ($@) {
     # Report the exception which we've caught.
     print STDERR "Exception: $@\n";
     exit 1;
-}
-
-# Helper function which allows a Search::Xapian::MSet to be accessed as if it
-# were a Perl array.
-sub tie_mset {
-    my @a;
-    tie( @a, 'Search::Xapian::MSet::Tied', shift );
-    return @a;
 }

@@ -4,8 +4,9 @@ Revision history for Perl extension Search::Xapian.
 	[Changes contributed by Olly Betts]
 	- Improve documentation of QueryParser::set_default_op() and
 	  QueryParser::get_default_op().
-	- examples/simpleexpand.pl: Use MSet::items() (new in 1.0.13.1).
-	  Remove debug print statement left in by accident.
+	- examples/: Use MSet::items() (new in 1.0.13.1).
+	- examples/simpleexpand.pl: Remove debug print statement left in by
+	  accident.
 	- Add dependency to regenerate Makefile if Xapian.pm changes (since the
 	  former contains a version number extracted from the latter).
 
