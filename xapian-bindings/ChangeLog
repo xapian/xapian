@@ -1,3 +1,7 @@
+Thu Sep 10 13:33:57 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Comment tweak.
+
 Thu Sep 10 13:24:52 GMT 2009  Olly Betts <olly@survex.com>
 
 	* configure.ac: Default to looking for xapian-config-1.1.
