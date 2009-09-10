@@ -1,7 +1,7 @@
 # Get XAPIAN_CXXFLAGS, XAPIAN_LIBS, and XAPIAN_VERSION from xapian-config and
 # AC_SUBST() them.
 
-# serial 7
+# serial 8
 
 # AC_PROVIDE_IFELSE(MACRO-NAME, IF-PROVIDED, IF-NOT-PROVIDED)
 # -----------------------------------------------------------
@@ -12,7 +12,7 @@ m4_ifdef([AC_PROVIDE_IFELSE],
 		 [m4_ifdef([AC_PROVIDE_$1],
 			   [$2], [$3])])])
 
-# XO_LIB_XAPIAN([ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]])
+# XO_LIB_XAPIAN([ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND[ ,XAPIAN-CONFIG]]])
 # --------------------------------------------------------
 # AC_SUBST-s XAPIAN_CXXFLAGS, XAPIAN_LIBS, and XAPIAN_VERSION for use in
 # Makefile.am
@@ -21,10 +21,15 @@ m4_ifdef([AC_PROVIDE_IFELSE],
 # appropriate AC_MSG_ERROR is used as a default ACTION-IF-NOT-FOUND.
 # This allows XO_LIB_XAPIAN to be used without any arguments in the
 # common case where Xapian is a requirement (rather than optional).
+#
+# XAPIAN-CONFIG provides the default name for the xapian-config script
+# (which the user can override with "./configure XAPIAN_CONFIG=/path/to/it").
+# If unset, the default is xapian-config.  Support for this third parameter
+# was added in Xapian 1.1.3.
 AC_DEFUN([XO_LIB_XAPIAN],
 [
   AC_ARG_VAR(XAPIAN_CONFIG, [Location of xapian-config])
-  AC_PATH_PROG(XAPIAN_CONFIG, xapian-config, [])
+  AC_PATH_PROG(XAPIAN_CONFIG, ifelse([$3], [], xapian-config, [$3]), [])
   if test -z "$XAPIAN_CONFIG"; then
     ifelse([$2], ,
       [ifelse([$1], , [

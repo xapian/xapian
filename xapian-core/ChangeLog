@@ -1,3 +1,9 @@
+Thu Sep 10 12:55:48 GMT 2009  Olly Betts <olly@survex.com>
+
+	* m4-macros/xapian-1.1.m4: Add optional third parameter to
+	  XO_LIB_XAPIAN which specifies the basename for the "xapian-config"
+	  script (defaults to "xapian-config" to give the current behaviour).
+
 Thu Sep 10 06:39:17 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS: Update with changes in 1.0.16 and from ChangeLog.
