@@ -87,7 +87,6 @@ class perlMatchDecider : public Xapian::MatchDecider {
 	Document *pdoc = new Document(doc);
 	sv_setref_pv(arg, "Search::Xapian::Document", (void *)pdoc);
 	XPUSHs(arg);
-	XPUSHs(arg);
 
 	PUTBACK;
 
