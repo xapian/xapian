@@ -1,4 +1,4 @@
-Omega 1.0.16 (2009-09-09):
+Omega 1.0.16 (2009-09-10):
 
 * omega: Fix cross-site scripting vulnerability in reporting of exceptions
   (CVE-2009-2947).
