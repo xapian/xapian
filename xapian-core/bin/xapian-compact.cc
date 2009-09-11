@@ -1104,7 +1104,8 @@ main(int argc, char **argv)
 	    dest += '.';
 
 	    FlintTable out(t->name, dest, false, t->compress_strategy, t->lazy);
-	    if (!t->lazy) {
+	    bool output_exists = !t->lazy;
+	    if (output_exists) {
 		out.create_and_open(block_size);
 	    } else {
 		out.erase();
@@ -1131,6 +1132,7 @@ main(int argc, char **argv)
 		struct stat sb;
 		if (stat(s + "DB", &sb) == 0) {
 		    in_size += sb.st_size / 1024;
+		    output_exists = true;
 		} else {
 		    // We get ENOENT for an optional table.
 		    bad_stat = (errno != ENOENT);
@@ -1138,7 +1140,10 @@ main(int argc, char **argv)
 		inputs.push_back(s);
 	    }
 
-	    if (inputs.empty()) continue;
+	    if (!output_exists) {
+		cout << '\r' << t->name << ": doesn't exist" << endl;
+		continue;
+	    }
 
 	    switch (t->type) {
 		case POSTLIST:
