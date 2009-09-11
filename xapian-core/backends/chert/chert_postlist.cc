@@ -70,6 +70,18 @@ ChertPostListTable::get_doclength(Xapian::docid did,
     return doclen_pl->get_wdf();
 }
 
+bool
+ChertPostListTable::document_exists(Xapian::docid did,
+				    Xapian::Internal::RefCntPtr<const ChertDatabase> db) const
+{
+    if (!doclen_pl.get()) {
+	// Don't keep a reference back to the database, since this
+	// would make a reference loop.
+	doclen_pl.reset(new ChertPostList(db, string(), false));
+    }
+    return (doclen_pl->jump_to(did));
+}
+
 // How big should chunks in the posting list be?  (They
 // will grow slightly bigger than this, but not more than a
 // few bytes extra) - FIXME: tune this value to try to

@@ -280,7 +280,7 @@ class ValueUpdater {
 void
 ChertValueManager::merge_changes()
 {
-    {
+    if (termlist_table->is_open()) {
 	map<Xapian::docid, string>::const_iterator i;
 	for (i = slots.begin(); i != slots.end(); ++i) {
 	    const string & enc = i->second;
@@ -347,8 +347,10 @@ ChertValueManager::add_document(Xapian::docid did, const Xapian::Document &doc,
         }
 
 	add_value(did, slot, value);
-	slots_used += pack_uint(slot - prev_slot - 1);
-	prev_slot = slot;
+	if (termlist_table->is_open()) {
+	    slots_used += pack_uint(slot - prev_slot - 1);
+	    prev_slot = slot;
+	}
 	++it;
     }
     if (slots_used.empty() && slots.find(did) == slots.end()) {
@@ -362,6 +364,7 @@ void
 ChertValueManager::delete_document(Xapian::docid did,
 				   map<Xapian::valueno, ValueStats> & value_stats)
 {
+    Assert(termlist_table->is_open());
     map<Xapian::docid, string>::iterator it = slots.find(did);
     string s;
     if (it != slots.end()) {
@@ -442,6 +445,8 @@ ChertValueManager::get_all_values(map<Xapian::valueno, string> & values,
 				  Xapian::docid did) const
 {
     Assert(values.empty());
+    if (!termlist_table->is_open())
+	throw Xapian::FeatureUnavailableError("Database has no termlist");
     map<Xapian::docid, string>::const_iterator i = slots.find(did);
     string s;
     if (i != slots.end()) {
