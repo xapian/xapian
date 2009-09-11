@@ -1,3 +1,8 @@
+Fri Sep 11 03:17:17 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_table.h: Improve documentation of "handle"
+	  member.
+
 Thu Sep 10 13:24:29 GMT 2009  Olly Betts <olly@survex.com>
 
 	* m4-macros/xapian-1.1.m4: Report the default xapian-config

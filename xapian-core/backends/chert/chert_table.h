@@ -662,7 +662,13 @@ class XAPIAN_VISIBILITY_DEFAULT ChertTable {
 	 */
 	bool sequential;
 
-	/// corresponding file handle
+	/** File descriptor of the table.
+	 *
+	 *  If the table is lazily created and doesn't yet exist, this will be
+	 *  -1.
+	 *
+	 *  If close() has been called, this will be -2.
+	 */
 	int handle;
 
 	/// number of levels, counting from 0
