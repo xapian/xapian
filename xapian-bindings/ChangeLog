@@ -1,3 +1,8 @@
+Fri Sep 11 00:50:38 GMT 2009  Olly Betts <olly@survex.com>
+
+	* xapian-bindings.spec.in: Add support for building RPM packages of
+	  Ruby, from a patch from Ben Walton.
+
 Fri Sep 11 00:28:47 GMT 2009  Olly Betts <olly@survex.com>
 
 	* xapian-bindings.spec.in: Improve package summaries - the files are

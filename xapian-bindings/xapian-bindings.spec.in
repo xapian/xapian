@@ -7,6 +7,7 @@
 #	--without csharp	Disable C# bindings
 #	--without php		Disable PHP bindings
 #	--without python	Disable Python bindings
+#	--without ruby		Disable Ruby bindings
 #	--without tcl8		Disable Tcl8 bindings
 
 %if 0%{?!_without_python:1}
@@ -15,6 +16,10 @@
 
 %if 0%{?!_without_php:1}
 %define php_extension_dir %(php-config --extension-dir)
+%endif
+
+%if 0%{?!_without_ruby:1}
+%define ruby_ver %(ruby -e "print RUBY_VERSION")
 %endif
 
 %if 0%{?!_without_tcl8:1}
@@ -36,6 +41,9 @@ BuildRequires: python-devel >= 2.3
 %if 0%{?!_without_php:1}
 BuildRequires: php-devel >= 5.0
 %endif
+%if 0%{?!_without_ruby:1}
+BuildRequires: ruby-devel >= 1.8
+%endif
 %if 0%{?!_without_tcl8:1}
 BuildRequires: tcl-devel >= 8.1
 %endif
@@ -51,6 +59,19 @@ Xapian is an Open Source Probabilistic Information Retrieval Library. It
 offers a highly adaptable toolkit that allows developers to easily add advanced
 indexing and search facilities to applications. This package provides the
 files needed for scripts which use Xapian.
+
+%if 0%{?!_without_ruby:1}
+%package ruby
+Group: Development/Libraries
+Summary: Files needed for Ruby scripts which use Xapian.
+Requires: %{name} = %{version}, ruby >= %{ruby_ver}
+
+%description ruby
+Xapian is an Open Source Probabilistic Information Retrieval framework. It
+offers a highly adaptable toolkit that allows developers to easily add advanced
+indexing and search facilities to applications. This package provides the
+files needed for developing and running Ruby scripts which use Xapian.
+%endif
 
 %if 0%{?!_without_python:1}
 %package python
@@ -115,7 +136,7 @@ files needed for developing and running C# applications which use Xapian.
 # that doesn't matter here as we don't package it.
 autoreconf --force
 # Only build the bindings we want.
-%configure %{?!_without_python:--with-python} %{?!_without_php:--with-php} %{?!_without_tcl8:--with-tcl} %{?!_without_csharp:--with-csharp}
+%configure %{?!_without_python:--with-python} %{?!_without_php:--with-php} %{?!_without_tcl8:--with-tcl} %{?!_without_csharp:--with-csharp} %{?!_without_ruby:--with-ruby}
 make
 
 %install
@@ -155,6 +176,15 @@ make install DESTDIR=%{buildroot}
 %{php_extension_dir}/xapian.so
 %{_datadir}/php/xapian.php
 %doc %{_datadir}/doc/%{name}-php-%{version}
+%endif
+
+%if 0%{?!_without_ruby:1}
+%files ruby
+%defattr(-, root, root)
+%{_libdir}/ruby
+/usr/lib/ruby
+%defattr(0644, root, root)
+%{_docdir}/xapian-bindings/ruby/
 %endif
 
 %if 0%{?!_without_tcl8:1}
