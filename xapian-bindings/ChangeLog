@@ -1,3 +1,9 @@
+Fri Sep 11 00:28:47 GMT 2009  Olly Betts <olly@survex.com>
+
+	* xapian-bindings.spec.in: Improve package summaries - the files are
+	  needed to *use* scripts as well as to develop them.  Use "Tcl"
+	  instead of "TCL" as the former is more conventional.
+
 Thu Sep 10 13:33:57 GMT 2009  Olly Betts <olly@survex.com>
 
 	* configure.ac: Comment tweak.
