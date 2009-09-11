@@ -1,3 +1,9 @@
+Fri Sep 11 00:56:07 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* xapian-bindings.spec.in: Add support for building RPM packages of
+	  Ruby, from a patch from Ben Walton.
+
 Fri Sep 11 00:55:00 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
