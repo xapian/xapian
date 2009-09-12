@@ -2,8 +2,9 @@ xapian-core (1.0.16-1) unstable; urgency=low
 
   * debian/rules: Force nocheck into DEB_BUILD_OPTIONS on avr32 to try to stop
     the build from timing out.
+  * debian/README.source: Added.
 
- -- Olly Betts <olly@survex.com>  Sat, 12 Sep 2009 03:01:38 +0100
+ -- Olly Betts <olly@survex.com>  Sat, 12 Sep 2009 11:08:29 +0100
 
 xapian-core (1.0.15-2) unstable; urgency=low
 
