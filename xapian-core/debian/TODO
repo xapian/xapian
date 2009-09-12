@@ -1,7 +1,7 @@
 A section 3 man page should be written to describe libxapian (see the libxml
 manpage for example.)
 
-We could also produce debug variant of the libxapian pacakge, built with
+We could also produce debug variant of the libxapian package, built with
 --enable-assertions and/or --enable-log.
 
 xapian-doc: in index.html, there is one broken link (which occurs in two
