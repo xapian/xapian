@@ -57,6 +57,7 @@ MSetPostList::get_maxweight() const
     // can return from now on is the weight of the current item.
     if (decreasing_relevance) {
 	// FIXME: This is actually a reduction in the maxweight...
+	if (at_end()) RETURN(0);
 	RETURN(mset_internal->items[cursor].wt);
     }
 
