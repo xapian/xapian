@@ -144,3 +144,17 @@ DEFINE_TESTCASE(doclenaftercommit1, writable) {
     TEST_EQUAL(db.get_doclength(1), 0);;
     return true;
 }
+
+DEFINE_TESTCASE(valuesaftercommit1, writable) {
+    Xapian::WritableDatabase db = get_writable_database();
+    Xapian::Document doc;
+    doc.add_value(0, "value");
+    db.replace_document(2, doc);
+    db.commit();
+    db.replace_document(1, doc);
+    db.replace_document(3, doc);
+    TEST_EQUAL(db.get_document(3).get_value(0), "value");
+    db.commit();
+    TEST_EQUAL(db.get_document(3).get_value(0), "value");
+    return true;
+}

@@ -1,3 +1,9 @@
+Sat Sep 12 03:41:04 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_values.cc: Fix code to find the first docid in
+	  the net chunk (ticket#399).
+	* tests/api_backend.cc: Add regression test from Rich Lane.
+
 Fri Sep 11 11:14:49 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/,bin/xapian-check.cc,bin/xapian-compact.cc: Add

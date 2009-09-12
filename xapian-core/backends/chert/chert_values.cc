@@ -123,7 +123,7 @@ ChertValueManager::get_chunk_containing_did(Xapian::valueno slot,
     bool exact = cursor->find_entry(make_valuechunk_key(slot, did));
     if (!exact) {
 	// If we didn't find a chunk starting with docid did, then we need
-	// to check that the chunk:
+	// to check if the chunk contains did.
 	const char * p = cursor->current_key.data();
 	const char * end = p + cursor->current_key.size();
 
@@ -235,7 +235,8 @@ class ValueUpdater {
 		// We found an exact match, so the first docid is the one
 		// we looked for.
 		first_did = did;
-	    } else if (!cursor->after_end()) {
+	    } else {
+		Assert(!cursor->after_end());
 		// Otherwise we need to unpack it from the key we found.
 		// We may have found a non-value-chunk entry in which case
 		// docid_from_key() returns 0.
@@ -252,13 +253,13 @@ class ValueUpdater {
 		// FIXME:swap(cursor->current_tag, ctag);
 		ctag = cursor->current_tag;
 		reader.assign(ctag.data(), ctag.size(), first_did);
-		if (cursor->next()) {
-		    const string & key = cursor->current_key;
-		    Xapian::docid next_first_did = docid_from_key(slot, key);
-		    if (next_first_did) last_allowed_did = next_first_did - 1;
-		    Assert(last_allowed_did);
-		    AssertRel(last_allowed_did,>=,first_did);
-		}
+	    }
+	    if (cursor->next()) {
+		const string & key = cursor->current_key;
+		Xapian::docid next_first_did = docid_from_key(slot, key);
+		if (next_first_did) last_allowed_did = next_first_did - 1;
+		Assert(last_allowed_did);
+		AssertRel(last_allowed_did,>=,first_did);
 	    }
 	}
 
