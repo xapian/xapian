@@ -1,3 +1,11 @@
+xapian-omega (1.0.15-2) unstable; urgency=high
+
+ * SECURITY UPDATE:
+ * Fix cross-site scripting vulnerability in reporting of exceptions
+   (CVE-2009-2947).
+
+ -- Olly Betts <olly@survex.com>  Wed, 09 Sep 2009 05:05:14 +0000
+
 xapian-omega (1.0.15-1) unstable; urgency=low
 
   * New upstream release.
@@ -299,7 +307,7 @@ xapian-omega (0.9.4-2) unstable; urgency=low
 xapian-omega (0.9.4-1) unstable; urgency=low
 
   * New upstream release (no package was made for 0.9.3)
-  * Documentation improvements. 
+  * Documentation improvements.
   * omindex: new option --preserve-nonduplicates
   * omindex,scriptindex: new option --stemmer to choose stemmer.
   * omindex: Add support for OpenDocument formats.
