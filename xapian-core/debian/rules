@@ -70,16 +70,16 @@ endif
 
 ifeq ($(DEB_HOST_ARCH), avr32)
     # The avr32 buildd is repeatedly failing with "Took too long", so disable
-    # optimisation for now for a faster build.
-    DEB_BUILD_OPTIONS += noopt
+    # optimisation and the testsuite for now for a faster build.
+    DEB_BUILD_OPTIONS += noopt nocheck
 endif
 
 CFLAGS :=
 CXXFLAGS := -g
 
 ifeq ($(DEB_HOST_ARCH), hurd-i386)
-    # Testcase topercent2 is failing, which smells like excess precision
-    # to me, so let's try forcing -ffloat-store.
+    # Testcase topercent2 fails without -ffloat-store - smells like an excess
+    # precision issue.
     CXXFLAGS += -ffloat-store
 endif
 
