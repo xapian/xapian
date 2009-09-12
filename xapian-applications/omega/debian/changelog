@@ -1,8 +1,15 @@
+xapian-omega (1.0.16-1) unstable; urgency=low
+
+  * New upstream release.
+    + Incorporates fix for CVE-2009-2947.
+
+ -- Olly Betts <olly@survex.com>  Sat, 12 Sep 2009 14:17:13 +0100
+
 xapian-omega (1.0.15-2) unstable; urgency=high
 
- * SECURITY UPDATE:
- * Fix cross-site scripting vulnerability in reporting of exceptions
-   (CVE-2009-2947).
+  * SECURITY UPDATE:
+  * Fix cross-site scripting vulnerability in reporting of exceptions
+    (CVE-2009-2947).
 
  -- Olly Betts <olly@survex.com>  Wed, 09 Sep 2009 05:05:14 +0000
 
