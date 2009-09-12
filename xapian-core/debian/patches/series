@@ -1,1 +1,1 @@
-runtest-no-fd-ulimit-on-alpha.patch
+runtest-use-lsof-to-judge-fd-ulimit.patch
