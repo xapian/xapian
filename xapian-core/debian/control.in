@@ -3,7 +3,7 @@ Section: libs
 Priority: optional
 Maintainer: Olly Betts <olly@survex.com>
 Standards-Version: 3.8.3
-Build-Depends: @BUILD_DEPS@ autotools-dev, zlib1g-dev
+Build-Depends: @BUILD_DEPS@ autotools-dev, zlib1g-dev, lsof
 Homepage: http://xapian.org/
 DM-Upload-Allowed: yes
 
