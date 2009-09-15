@@ -1,3 +1,9 @@
+Tue Sep 15 03:07:59 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* python/Makefile.am: Restore the "./" path to the sourced file
+	  libtoolconfig.tmp as ksh requires it.
+
 Fri Sep 11 00:56:07 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
