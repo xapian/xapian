@@ -1,3 +1,8 @@
+Tue Sep 15 02:11:06 GMT 2009  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Restore the "./" path to the sourced file
+	  libtoolconfig.tmp as ksh requires it.
+
 Fri Sep 11 00:50:38 GMT 2009  Olly Betts <olly@survex.com>
 
 	* xapian-bindings.spec.in: Add support for building RPM packages of
