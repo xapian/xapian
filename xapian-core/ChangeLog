@@ -1,3 +1,8 @@
+Wed Sep 16 02:40:13 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_table.cc,backends/flint/flint_table.cc:
+	  Eliminate a couple of assertions which can never fire.
+
 Sat Sep 12 04:05:35 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/msetpostlist.cc: Fix MSetPostList not to read off the end of
