@@ -1,3 +1,8 @@
+Thu Sep 17 15:13:55 GMT 2009  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,python/generate-python-exceptions,xapian.i:
+	  Update for the Sorter->KeyMaker changes.
+
 Thu Sep 17 13:11:47 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
