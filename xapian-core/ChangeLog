@@ -1,3 +1,11 @@
+Thu Sep 17 11:58:21 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/msetpostlist.cc: Fix MSetPostList not to read off the end of
+	  the MSet if get_maxweight() is called when at_end().  This can
+	  happen but the testcase was too large to send so sadly no
+	  regression test I'm afraid.
+
 Thu Sep 10 06:30:41 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS: Final update for 1.0.16.
