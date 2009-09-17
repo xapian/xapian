@@ -1,3 +1,7 @@
+Thu Sep 17 13:11:47 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
 Thu Sep 17 12:59:22 GMT 2009  Olly Betts <olly@survex.com>
 
 	* xapian.i: Ignore PostingSource::serialise(), Weight::serialise()

@@ -1,8 +1,36 @@
- 13399       olly Wed Aug 26 14:44:33 GMT 2009  Olly Betts <olly@survex.com>
+ 13521       olly Thu Sep 17 12:59:22 GMT 2009  Olly Betts <olly@survex.com>
 
- 13328    richard Mon Aug 17 12:46:17 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
-	* csharp/Makefile.am: Add missing assemblys.
- 13320    richard Mon Aug 17 07:39:32 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+Xapian-bindings 1.1.3 (2009-09-1?):
+
+Documentation:
+
+General:
+
+* configure: Default to looking for xapian-config-1.1 unless XAPIAN_CONFIG is
+  specified.
+
+* Wrap the new MatchSpy class, and associated things.
+
+* Don't wrap PostingSource::serialise(), Weight::serialise() and
+  Weight::unserialise() as they aren't useful from the bindings.
+
+Packaging:
+
+Portability:
+
+CSharp:
+
+Guile:
+
+Java:
+
+PHP:
+
+* Merged the PHP "smoketest" back together now we don't need to support
+  PHP4 as well.
+
+Python:
+
 	* python/extra.i: Add support to the NumericRanges object to get
 	  the ranges as a dict.
 	* python/util.i: Fix a memory leak on error (in theory - I've not
@@ -11,21 +39,9 @@
 	* python/pythontest2.py: Update tests to cover new NumericRanges
 	  object.
 
- 13245    richard Sun Aug 02 12:21:05 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
-	* python/pythontest3.py: Sync with pythontest2.
- 13244    richard Sun Aug 02 12:19:24 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
-	Merge from matchspy branch
-	* csharp/Makefile.am,python/extra.i,python/pythontest2.py,
-	  python/util.i,xapian.i: Add support for new MatchSpy class, and
-	  the matchspy.h header.
+Ruby:
 
- 13226    richard Sat Aug 01 10:07:02 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
-	* python/pythontest3.py: Update to match pythontest2.py (after 2to3
-	  conversion).
-
- 13225       olly Sat Aug 01 09:58:32 GMT 2009  Olly Betts <olly@survex.com>
-	* php/Makefile.am,php/smoketest.php,php/smoketest5.php: Merged the PHP
-	  "smoketest" back together now we don't need to support PHP4 as well.
+Tcl:
 
 Xapian-bindings 1.1.2 (2009-07-23):
 
