@@ -1,100 +1,20 @@
- 13453       olly Thu Sep 10 02:17:56 GMT 2009  Olly Betts <olly@survex.com>
+ 13517       olly Thu Sep 17 10:20:35 GMT 2009  Olly Betts <olly@survex.com>
 
-backport fodder:
-
- 13433       olly Mon Aug 31 01:30:01 GMT 2009  Olly Betts <olly@survex.com>
-	* common/getopt.cc: Use USE_GLIBC_GNUGETOPT from gnu_getopt.h rather
-	  than repeating the conditionals used to determine it here.  Rename
-	  __getopt_initialized to getopt_initialized and make it static.
-	  Rename _getopt_initialize() to getopt_initialize().
-
- 13432       olly Mon Aug 31 01:24:29 GMT 2009  Olly Betts <olly@survex.com>
-	* common/gnu_getopt.h: Update (C) dates.  Markup file description for
-	  doxygen.  Fix comment reference to ctype.h as we now use <cctype>.
-
- 13421       olly Thu Aug 27 03:05:33 GMT 2009  Olly Betts <olly@survex.com>
-	* HACKING: Add note to document the reason for any exceptions to the
-	  rule to use C++ forms of ISO C headers.
-
- 13170       olly Sun Jul 26 14:28:25 GMT 2009  Olly Betts <olly@survex.com>
-	* docs/doxygen_source.conf.in: Update roughly in-line with apidoc
-	  changes.  I've not looked at the output much though.
-
-Mostly backported already:
- 13164       olly Sun Jul 26 13:06:45 GMT 2009  Olly Betts <olly@survex.com>
-	* docs/doxygen_api.conf.in: More fettling to try to get better output:
-	  + Wrap long comments.
-	  + Quote arguments containing @...@ substitutions as they could
-	    conceivably contain spaces.
-	  + ALWAYS_DETAILED_SEC = NO: since a detailed section with no extra
-	    information is pointless.
-	  + STRIP_FROM_PATH, INCLUDE_PATH: Add "@top_builddir@/include" for
-	    VPATH builds.
-	  + HIDE_UNDOC_MEMBERS = YES: otherwise @internal members show up
-	    (with no documentation).
-	  + HIDE_FRIEND_COMPOUNDS = YES: as friend declarations in the API
-	    headers are implementation details.
-	  + SHOW_INCLUDE_FILES = NO: users should just include <xapian.h>
-	    for all their API needs.
-	  + GENERATE_TODOLIST, GENERATE_TESTLIST, GENERATE_BUGLIST: all set to
-	    NO as we don't want these in the API documentation.
-	  + SHOW_NAMESPACES = YES: We have several sub-namespaces so these are
-	    useful to document.
-	  + INPUT: Prepend "@top_builddir@/include/xapian/version.h" so that
-	    XAPIAN_HAS_FLINT_BACKEND, etc are defined before parsing other
-	    headers.
-	  + EXCLUDE: remove all entries and use EXCLUDE_PATTERNS instead.
-	  + EXCLUDE_PATTERNS: Include entries corresponding to those in EXCLUDE
-	    and add */derefwrapper.h and */.* (the latter avoids trying to look
-	    in .svn or any other hidden files or directories).
-	  + REFERENCES_LINK_SOURCE = NO: Improves output.
-	  + VERBATIM_HEADERS = NO: The verbatim headers aren't very
-	    interesting.
-	  + PREDEFINED: Define XAPIAN_VISIBILITY_DEFAULT and
-	    XAPIAN_DEPRECATED(D)=D as doxygen seem reluctant to parse included
-	    files.
-	  + EXPAND_AS_DEFINED: Remove XAPIAN_VISIBILITY_DEFAULT and
-	    XAPIAN_DEPRECATED as these are now handled by PREDEFINED.
-	  + EXTERNAL_GROUPS = NO, GROUP_GRAPHS = NO: We don't use groups so
-	    disable these.
- 13158       olly Fri Jul 24 15:33:12 GMT 2009  Olly Betts <olly@survex.com>
-	* docs/doxygen_api_conf.in: Major doxygen config overhaul:
-	  + STRIP_FROM_PATH: Strip include from header names.
-	  + JAVADOC_AUTOBRIEF: Re-enable as we have lost most of our brief
-	    descriptions - we can fix up the few cases where this caused
-	    problems with an explicit @brief.
-	  + BUILTIN_STL_SUPPORT: Enable for slightly STL-related stuff.
-	  + DISTRIBUTE_GROUP_DOC: Enable so group members get the group's
-	    comments.
-	  + EXTRACT_STATIC, EXTRACT_LOCAL_CLASSES: Disable since we don't
-	    need these.
-	  + SHOW_NAMESPACES: Disable to hide the "Xapian" namespace.
-	  + QUIET: Enable for less doxygen chatter.
-	  + WARN_LOGFILE: Unset so warnings go to stderr to encourage us to
-	    actually fix them!
-	  + EXCLUDE: Hide base.h, deprecated.h, errordispatch.h, visibility.h.
-	  + HTML_DYNAMIC_SECTIONS: Enable so the class diagrams are hidden by
-	    default but can be "expanded" to be viewed.
-	  + COLLABORATION_GRAPH: Disable as these don't ever seem useful in
-	    the API docs.
-	  + TEMPLATE_RELATIONS: Disable as we don't want to see template
-	    instantiations in inheritance diagrams.
-	  + DOT_MULTI_TARGETS: Enable for faster dot processsing.  Needs
-	    graphviz ">1.8.10", but that's really old now.
- 13154       olly Fri Jul 24 05:32:34 GMT 2009  Olly Betts <olly@survex.com>
-	* docs/doxygen_api_conf.in: Update with "doxygen -u" using doxygen
-	  1.5.9 and then trim trailing whitespace.
-
-trunk:
-
-Xapian-core 1.1.3 (2009-09-??):
+Xapian-core 1.1.3 (2009-09-1?):
 
 This release includes all changes from 1.0.15 and 1.0.16 which are relevant.
 
 API:
 
-* exception_data.pm: Add new SerialisationError.
-	* common/serialise-double.cc: Throw SerialisationError or InternalError
+* Rename Xapian::Sorter to Xapian::KeyMaker, paving the way for using it to
+  build collapse keys too.
+
+* Resolve the inconsistency in MultiValueSorter::add()'s "forward" parameter
+  versus the "reverse" parameters which the Enquire sorting functions now take
+  by replacing the method with MultiKeyMaker::add_value() with a "reverse"
+  parameter.  (ticket#359)
+
+* common/serialise-double.cc: Throw SerialisationError or InternalError
 	  instead of NetworkError.
 
 * Rename Xapian::SerialisationContext to Xapian::Registry.
@@ -129,16 +49,20 @@ testsuite:
 
 matcher:
 
+* Fix MSetPostList not to read off the end of
+	  the MSet if get_maxweight() is called when at_end().  This can
+	  happen but the testcase was too large to send so sadly no
+	  regression test I'm afraid.
 
 chert backend:
 
- 13215       olly Thu Jul 30 16:30:06 GMT 2009  Olly Betts <olly@survex.com>
-	* backends/chert/chert_modifiedpostlist.cc: Fix ChertModifiedPostList
-	  to skip added-but-then-deleted-before-flush documents.  (ticket#392)
+* xapian-compact: Don't report an absent lazy input table as 0 size.
 
-	* backends/chert/chert_postlist.cc,tests/api_backend.cc: Fix
-	  WritableDatabase::get_doclength() to work properly after a call to
-	  commit for the chert backend (ticket#397).
+* Fix ChertModifiedPostList to skip added-but-then-deleted-before-flush
+  documents.  (ticket#392)
+
+* Fix WritableDatabase::get_doclength() to work properly after a call to commit
+  for the chert backend (ticket#397).
 
 * Fix to work with the metainfo key stored in the latest format of chert
   databases.
@@ -146,8 +70,15 @@ chert backend:
 * Avoid doing pointless work by trying to delete non-existent lists of values
   when we're just adding documents.
 
+* Fix code to find the first docid in the next chunk (ticket#399).
+
+* Add support for chert databases without a termlist table (ticket#181).
+  Currently the only way to create such a database is to create a chert
+  database and do "rm termlist.*".
+
 flint backend:
 
+* xapian-compact: Don't report an absent lazy input table as 0 size.
 
 remote backend:
 
@@ -165,18 +96,23 @@ build system:
 
 * This release uses doxygen 1.5.9 to generate the API documentation.
 
-	* configure.ac: Send stderr output from ldconfig to config.log.
+* configure: Send stderr output from ldconfig to config.log.
+
+* Add optional third parameter to XO_LIB_XAPIAN autoconf macro which specifies
+  the basename for the "xapian-config" script (defaults to "xapian-config" to
+  give the current behaviour).
 
 documentation:
 
+* Minor improvements to the formatting of the collated API documentation.
 
 examples:
 
 
 portability:
 
-	* AUTHORS,common/safeuuid.h: Fix uuid_unparse_lower() replacement for
-	  older libuuid to actually compile (really fixes ticket#368).
+* Fix uuid_unparse_lower() replacement for older libuuid to actually compile
+  (really fixes ticket#368).
 
 packaging:
 
