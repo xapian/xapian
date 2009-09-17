@@ -42,7 +42,7 @@ MultiValueKeyMaker::operator()(const Xapian::Document & doc) const
     // Don't crash if valnos is empty.
     if (rare(i == valnos.end())) return result;
 
-    bool all_empty_forwards = true;
+    size_t last_not_empty_forwards = 0;
     while (true) {
 	// All values (except for the last if it's sorted forwards) need to
 	// be adjusted.
@@ -51,12 +51,17 @@ MultiValueKeyMaker::operator()(const Xapian::Document & doc) const
 	string v = doc.get_value(i->first);
 	bool reverse_sort = i->second;
 
-	if (all_empty_forwards && (reverse_sort || !v.empty()))
-	    all_empty_forwards = false;
+	if (reverse_sort || !v.empty())
+	    last_not_empty_forwards = result.size();
 
 	if (++i == valnos.end() && !reverse_sort) {
-	    // No need to adjust the last value if it's sorted forwards.
-	    result += v;
+	    if (v.empty()) {
+		// Trim off all the trailing empty forwards values.
+		result.resize(last_not_empty_forwards);
+	    } else {
+		// No need to adjust the last value if it's sorted forwards.
+		result += v;
+	    }
 	    break;
 	}
 
@@ -71,6 +76,7 @@ MultiValueKeyMaker::operator()(const Xapian::Document & doc) const
 	    }
 	    result.append("\xff\xff", 2);
 	    if (i == valnos.end()) break;
+	    last_not_empty_forwards = result.size();
 	} else {
 	    // For a forward ordered value (unless it's the last value), we
 	    // convert any '\0' to "\0\xff".  We insert "\0\0" after the
@@ -83,10 +89,11 @@ MultiValueKeyMaker::operator()(const Xapian::Document & doc) const
 		j = nul;
 	    }
 	    result.append(v, j, string::npos);
+	    if (!v.empty())
+		last_not_empty_forwards = result.size();
 	    result.append("\0", 2);
 	}
     }
-    if (all_empty_forwards) return string();
     return result;
 }
 

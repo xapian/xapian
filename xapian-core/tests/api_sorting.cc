@@ -203,3 +203,24 @@ DEFINE_TESTCASE(sortfunctorempty1,backend && !remote) {
 
     return true;
 }
+
+DEFINE_TESTCASE(multivaluekeymaker1,!backend) {
+    const int keys[] = { 0, 1, 2, 3 };
+    Xapian::MultiValueKeyMaker sorter(keys, keys + 4);
+
+    Xapian::Document doc;
+    TEST_EQUAL(sorter(doc), string());
+
+    doc.add_value(1, "foo");
+    TEST_EQUAL(sorter(doc), string("\0\0foo", 5));
+    doc.add_value(1, string("f\0o", 3));
+    TEST_EQUAL(sorter(doc), string("\0\0f\0\xffo", 6));
+    doc.add_value(3, "xyz");
+    TEST_EQUAL(sorter(doc), string("\0\0f\0\xffo\0\0\0\0xyz", 13));
+
+    sorter.add_value(4, true);
+    TEST_EQUAL(sorter(doc), string("\0\0f\0\xffo\0\0\0\0xyz\0\0\xff\xff", 17));
+
+    return true;
+}
+

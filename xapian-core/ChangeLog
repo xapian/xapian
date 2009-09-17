@@ -1,3 +1,11 @@
+Thu Sep 17 10:20:35 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/keymaker.cc: Implement Richard's idea of not encoding any
+	  trailing, forward sorted, empty values which is a generalisation
+	  of encoding all forward sorted, empty values as an empty string.
+	* tests/api_sorting.cc: Add new testcase multivaluekeymaker1 to
+	  check encodings are as expected.
+
 Thu Sep 17 07:15:10 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/,common/multimatch.h,common/omenquireinternal.h,
