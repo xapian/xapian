@@ -196,6 +196,7 @@ class ValueIterator {
 %feature("director") Xapian::PostingSource;
 #endif
 %ignore Xapian::PostingSource::clone;
+%ignore Xapian::PostingSource::serialise;
 %ignore Xapian::PostingSource::unserialise;
 %ignore Xapian::PostingSource::register_matcher_;
 %include <xapian/postingsource.h>
@@ -466,11 +467,10 @@ class Enquire {
 %ignore Xapian::Weight::operator=;
 %ignore Xapian::Weight::Weight(const Weight &);
 %ignore Xapian::Weight::clone;
+%ignore Xapian::Weight::serialise;
+%ignore Xapian::Weight::unserialise;
 %ignore Xapian::Weight::clone_;
 %ignore Xapian::Weight::init_;
-%warnfilter(842) Xapian::BoolWeight::unserialise;
-%warnfilter(842) Xapian::BM25Weight::unserialise;
-%warnfilter(842) Xapian::TradWeight::unserialise;
 %include <xapian/weight.h>
 
 %ignore Xapian::NumericRange::operator<;
