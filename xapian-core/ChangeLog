@@ -1,3 +1,9 @@
+Thu Sep 17 07:13:25 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/valuesetmatchdecider.cc,include/xapian/valuesetmatchdecider.h:
+	  Inline trivial constructor from header.  Add explicit '#include
+	  "xapian/document.h"'.
+
 Thu Sep 17 05:22:50 GMT 2009  Olly Betts <olly@survex.com>
 
 	* HACKING: Document how to use the XAPIAN_DEPRECATED() macro to
