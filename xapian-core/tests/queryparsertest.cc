@@ -1668,6 +1668,51 @@ static bool test_qp_spell2()
     return true;
 }
 
+static test test_mispelled_wildcard_queries[] = {
+    { "doucment", "document" },
+    { "doucment*", "" },
+    { "doucment* seearch", "doucment* search" },
+    { "doucment* search", "" },
+    { NULL, NULL }
+};
+
+// Test spelling correction in the QueryParser with wildcards.
+static bool test_qp_spellwild1()
+{
+    mkdir(".flint", 0755);
+    string dbdir = ".flint/qp_spell3";
+    Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+
+    db.add_spelling("document");
+    db.add_spelling("search");
+    db.add_spelling("paragraph");
+    db.add_spelling("band");
+
+    Xapian::QueryParser qp;
+    qp.set_database(db);
+
+    for (test *p = test_mispelled_queries; p->query; ++p) {
+	Xapian::Query q;
+	q = qp.parse_query(p->query,
+			   Xapian::QueryParser::FLAG_SPELLING_CORRECTION |
+			   Xapian::QueryParser::FLAG_BOOLEAN |
+			   Xapian::QueryParser::FLAG_WILDCARD);
+	tout << "Query: " << p->query << endl;
+	TEST_STRINGS_EQUAL(qp.get_corrected_query_string(), p->expect);
+    }
+    for (test *p = test_mispelled_wildcard_queries; p->query; ++p) {
+	Xapian::Query q;
+	q = qp.parse_query(p->query,
+			   Xapian::QueryParser::FLAG_SPELLING_CORRECTION |
+			   Xapian::QueryParser::FLAG_BOOLEAN |
+			   Xapian::QueryParser::FLAG_WILDCARD);
+	tout << "Query: " << p->query << endl;
+	TEST_STRINGS_EQUAL(qp.get_corrected_query_string(), p->expect);
+    }
+
+    return true;
+}
+
 static test test_synonym_queries[] = {
     { "searching", "(Zsearch:(pos=1) SYNONYM Zfind:(pos=1) SYNONYM Zlocate:(pos=1))" },
     { "search", "(Zsearch:(pos=1) SYNONYM find:(pos=1))" },
@@ -2047,6 +2092,7 @@ static test_desc tests[] = {
     TESTCASE(qp_stem_all1),
     TESTCASE(qp_scale1),
     TESTCASE(qp_near1),
+    TESTCASE(qp_spellwild1),
     END_OF_TESTCASES
 };
 

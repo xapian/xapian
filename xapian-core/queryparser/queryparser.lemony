@@ -936,8 +936,11 @@ phrased_term:
 				       unstemmed_term, stem_term, term_pos++);
 
 	    // Check spelling, if we're a normal term, and any of the prefixes
-	    // are empty.
-	    if ((flags & FLAG_SPELLING_CORRECTION) && !was_acronym) {
+	    // are empty, and the word isn't a wildcard.
+	    if ((flags & FLAG_SPELLING_CORRECTION) && !was_acronym &&
+		!((flags & FLAG_WILDCARD) && 
+		  (mode == DEFAULT || mode == IN_GROUP) &&
+		  it != end && *it == '*')) {
 		list<string>::const_iterator prefixiter;
 		for (prefixiter = prefixinfo->prefixes.begin();
 		     prefixiter != prefixinfo->prefixes.end();
