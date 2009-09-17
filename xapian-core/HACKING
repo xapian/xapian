@@ -965,6 +965,16 @@ semicolon and any "definition" part, for example::
         XAPIAN_DEPRECATED(static const int OLD_CONSTANT) = 42;
     };
 
+Mark a class as deprecated by inserting ``XAPIAN_DEPRECATED()`` after the class
+keyword like so::
+
+    class XAPIAN_DEPRECATED() Foo {
+      public:
+        Foo() { };
+
+        // ...
+    };
+
 To avoid compilation errors with older GCC versions (noted with GCC 3.3.5),
 you can't mark a method which is defined inline in a class with
 XAPIAN_DEPRECATED (this works with recent GCC versions though)::
