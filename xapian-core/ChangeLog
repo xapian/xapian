@@ -1,3 +1,15 @@
+Thu Sep 17 07:15:10 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/,common/multimatch.h,common/omenquireinternal.h,
+	  docs/deprecation.rst,docs/sorting.rst,include/Makefile.mk,
+	  include/xapian.h,include/xapian/enquire.h,include/xapian/keymaker.h,
+	  include/xapian/sorter.h,matcher/multimatch.cc,tests/Makefile.am,
+	  tests/api_sorting.cc,tests/api_sortingold.cc: Rename Sorter to
+	  KeyMaker, paving the way for using it to build collapse keys too.
+	  Resolve the inconsistency in MultiValueSorter::add()'s "forward"
+	  parameter by replacing it with MultiKeyMaker::add_value() with a
+	  "reverse" parameter.  (ticket#359)
+
 Thu Sep 17 07:13:25 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/valuesetmatchdecider.cc,include/xapian/valuesetmatchdecider.h:

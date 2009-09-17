@@ -942,7 +942,7 @@ Enquire::set_sort_by_relevance()
 }
 
 void
-Enquire::set_sort_by_value(Xapian::valueno sort_key, bool ascending)
+Enquire::set_sort_by_value(valueno sort_key, bool ascending)
 {
     internal->sorter = NULL;
     internal->sort_key = sort_key;
@@ -951,8 +951,7 @@ Enquire::set_sort_by_value(Xapian::valueno sort_key, bool ascending)
 }
 
 void
-Enquire::set_sort_by_value_then_relevance(Xapian::valueno sort_key,
-					  bool ascending)
+Enquire::set_sort_by_value_then_relevance(valueno sort_key, bool ascending)
 {
     internal->sorter = NULL;
     internal->sort_key = sort_key;
@@ -961,8 +960,7 @@ Enquire::set_sort_by_value_then_relevance(Xapian::valueno sort_key,
 }
 
 void
-Enquire::set_sort_by_relevance_then_value(Xapian::valueno sort_key,
-					  bool ascending)
+Enquire::set_sort_by_relevance_then_value(valueno sort_key, bool ascending)
 {
     internal->sorter = NULL;
     internal->sort_key = sort_key;
@@ -971,27 +969,27 @@ Enquire::set_sort_by_relevance_then_value(Xapian::valueno sort_key,
 }
 
 void
-Enquire::set_sort_by_key(Xapian::Sorter * sorter, bool ascending)
+Enquire::set_sort_by_key(KeyMaker * sorter, bool ascending)
 {
     if (sorter == NULL)
-	throw Xapian::InvalidArgumentError("sorter can't be NULL");
+	throw InvalidArgumentError("sorter can't be NULL");
     internal->sorter = sorter;
     internal->sort_by = Internal::VAL;
     internal->sort_value_forward = ascending;
 }
 
 void
-Enquire::set_sort_by_key_then_relevance(Xapian::Sorter * sorter, bool ascending)
+Enquire::set_sort_by_key_then_relevance(KeyMaker * sorter, bool ascending)
 {
     if (sorter == NULL)
-	throw Xapian::InvalidArgumentError("sorter can't be NULL");
+	throw InvalidArgumentError("sorter can't be NULL");
     internal->sorter = sorter;
     internal->sort_by = Internal::VAL_REL;
     internal->sort_value_forward = ascending;
 }
 
 void
-Enquire::set_sort_by_relevance_then_key(Xapian::Sorter * sorter, bool ascending)
+Enquire::set_sort_by_relevance_then_key(KeyMaker * sorter, bool ascending)
 {
     if (sorter == NULL)
 	throw Xapian::InvalidArgumentError("sorter can't be NULL");
@@ -1022,7 +1020,7 @@ Enquire::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
 ESet
 Enquire::get_eset(Xapian::termcount maxitems, const RSet & rset, int flags,
-		    double k, const ExpandDecider * edecider) const
+		  double k, const ExpandDecider * edecider) const
 {
     // FIXME: display contents of pointer params and rset, if they're not
     // null.

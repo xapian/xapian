@@ -1,5 +1,5 @@
-/** @file api_sorting.cc
- * @brief tests of MSet sorting
+/** @file api_sortingold.cc
+ * @brief tests of deprecated MSet sorting
  */
 /* Copyright (C) 2007,2008,2009 Olly Betts
  *
@@ -20,8 +20,9 @@
 
 #include <config.h>
 
-#include "api_sorting.h"
+#include "api_sortingold.h"
 
+#define XAPIAN_DEPRECATED(D) D
 #include <xapian.h>
 
 #include "apitest.h"
@@ -29,13 +30,13 @@
 
 using namespace std;
 
-DEFINE_TESTCASE(sortfunctor1,backend && !remote) {
+DEFINE_TESTCASE(oldsortfunctor1,backend && !remote) {
     Xapian::Enquire enquire(get_database("apitest_sortrel"));
     enquire.set_query(Xapian::Query("woman"));
 
     {
 	const int keys[] = { 3, 1 };
-	Xapian::MultiValueKeyMaker sorter(keys, keys + 2);
+	Xapian::MultiValueSorter sorter(keys, keys + 2);
 
 	enquire.set_sort_by_key(&sorter, true);
 	Xapian::MSet mset = enquire.get_mset(0, 10);
@@ -43,9 +44,9 @@ DEFINE_TESTCASE(sortfunctor1,backend && !remote) {
     }
 
     {
-	Xapian::MultiValueKeyMaker sorter;
-	sorter.add_value(3);
-	sorter.add_value(1, true);
+	Xapian::MultiValueSorter sorter;
+	sorter.add(3);
+	sorter.add(1, false);
 
 	enquire.set_sort_by_key(&sorter, true);
 	Xapian::MSet mset = enquire.get_mset(0, 10);
@@ -53,10 +54,10 @@ DEFINE_TESTCASE(sortfunctor1,backend && !remote) {
     }
 
     {
-	Xapian::MultiValueKeyMaker sorter;
-	sorter.add_value(100); // Value 100 isn't set.
-	sorter.add_value(3);
-	sorter.add_value(1, true);
+	Xapian::MultiValueSorter sorter;
+	sorter.add(100); // Value 100 isn't set.
+	sorter.add(3);
+	sorter.add(1, false);
 
 	enquire.set_sort_by_key(&sorter, true);
 	Xapian::MSet mset = enquire.get_mset(0, 10);
@@ -64,9 +65,9 @@ DEFINE_TESTCASE(sortfunctor1,backend && !remote) {
     }
 
     {
-	Xapian::MultiValueKeyMaker sorter;
-	sorter.add_value(10); // Value 10 isn't always set.
-	sorter.add_value(1, true);
+	Xapian::MultiValueSorter sorter;
+	sorter.add(10); // Value 10 isn't always set.
+	sorter.add(1, false);
 
 	enquire.set_sort_by_key(&sorter, true);
 	Xapian::MSet mset = enquire.get_mset(0, 10);
@@ -77,7 +78,7 @@ DEFINE_TESTCASE(sortfunctor1,backend && !remote) {
 }
 
 /// Test reverse sort functor.
-DEFINE_TESTCASE(sortfunctor2,writable && !remote) {
+DEFINE_TESTCASE(oldsortfunctor2,writable && !remote) {
     Xapian::WritableDatabase db = get_writable_database();
     Xapian::Document doc;
     doc.add_term("foo");
@@ -96,52 +97,52 @@ DEFINE_TESTCASE(sortfunctor2,writable && !remote) {
     enquire.set_query(Xapian::Query("foo"));
 
     {
-	Xapian::MultiValueKeyMaker sorter;
-	sorter.add_value(0);
+	Xapian::MultiValueSorter sorter;
+	sorter.add(0);
 	enquire.set_sort_by_key(&sorter, true);
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 5, 4, 3, 2, 1);
     }
 
     {
-	Xapian::MultiValueKeyMaker sorter;
-	sorter.add_value(0, true);
+	Xapian::MultiValueSorter sorter;
+	sorter.add(0, false);
 	enquire.set_sort_by_key(&sorter, true);
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 1, 2, 3, 4, 5);
     }
 
     {
-	Xapian::MultiValueKeyMaker sorter;
-	sorter.add_value(0);
-	sorter.add_value(1);
+	Xapian::MultiValueSorter sorter;
+	sorter.add(0);
+	sorter.add(1);
 	enquire.set_sort_by_key(&sorter, true);
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 5, 4, 3, 2, 1);
     }
 
     {
-	Xapian::MultiValueKeyMaker sorter;
-	sorter.add_value(0, true);
-	sorter.add_value(1);
+	Xapian::MultiValueSorter sorter;
+	sorter.add(0, false);
+	sorter.add(1);
 	enquire.set_sort_by_key(&sorter, true);
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 1, 2, 3, 4, 5);
     }
 
     {
-	Xapian::MultiValueKeyMaker sorter;
-	sorter.add_value(0);
-	sorter.add_value(1, true);
+	Xapian::MultiValueSorter sorter;
+	sorter.add(0);
+	sorter.add(1, false);
 	enquire.set_sort_by_key(&sorter, true);
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 5, 4, 3, 2, 1);
     }
 
     {
-	Xapian::MultiValueKeyMaker sorter;
-	sorter.add_value(0, true);
-	sorter.add_value(1, true);
+	Xapian::MultiValueSorter sorter;
+	sorter.add(0, false);
+	sorter.add(1, false);
 	enquire.set_sort_by_key(&sorter, true);
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 1, 2, 3, 4, 5);
@@ -150,19 +151,19 @@ DEFINE_TESTCASE(sortfunctor2,writable && !remote) {
     return true;
 }
 
-class NeverUseMeKeyMaker : public Xapian::KeyMaker {
+class NeverUseMeSorter : public Xapian::Sorter {
   public:
     std::string operator() (const Xapian::Document &) const
     {
-	FAIL_TEST("NeverUseMeKeyMaker was called");
+	FAIL_TEST("NeverUseMeSorter was called");
     }
 };
 
 /// Regression test for changing away from a sorter.
-DEFINE_TESTCASE(changesorter1, backend) {
+DEFINE_TESTCASE(oldchangesorter1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("word"));
-    NeverUseMeKeyMaker sorter;
+    NeverUseMeSorter sorter;
 
     enquire.set_sort_by_key(&sorter, true);
     enquire.set_sort_by_value(0, true);
@@ -188,13 +189,13 @@ DEFINE_TESTCASE(changesorter1, backend) {
 }
 
 /// Regression test - an empty MultiValueSorter hung in 1.0.9 and earlier.
-DEFINE_TESTCASE(sortfunctorempty1,backend && !remote) {
+DEFINE_TESTCASE(oldsortfunctorempty1,backend && !remote) {
     Xapian::Enquire enquire(get_database("apitest_sortrel"));
     enquire.set_query(Xapian::Query("woman"));
 
     {
 	int i;
-	Xapian::MultiValueKeyMaker sorter(&i, &i);
+	Xapian::MultiValueSorter sorter(&i, &i);
 
 	enquire.set_sort_by_key(&sorter, true);
 	Xapian::MSet mset = enquire.get_mset(0, 10);

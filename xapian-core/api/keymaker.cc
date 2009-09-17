@@ -1,5 +1,5 @@
-/** @file sorter.cc
- * @brief Build sort keys for MSet ordering
+/** @file keymaker.cc
+ * @brief Build key strings for MSet ordering or collapsing.
  */
 /* Copyright (C) 2007,2009 Olly Betts
  *
@@ -20,7 +20,9 @@
 
 #include <config.h>
 
-#include <xapian/sorter.h>
+#include "xapian/keymaker.h"
+
+#include "xapian/document.h"
 
 #include <string>
 #include <vector>
@@ -29,7 +31,64 @@ using namespace std;
 
 namespace Xapian {
 
-Sorter::~Sorter() { }
+KeyMaker::~KeyMaker() { }
+
+string
+MultiValueKeyMaker::operator()(const Xapian::Document & doc) const
+{
+    string result;
+
+    vector<pair<Xapian::valueno, bool> >::const_iterator i = valnos.begin();
+    // Don't crash if valnos is empty.
+    if (rare(i == valnos.end())) return result;
+
+    bool all_empty_forwards = true;
+    while (true) {
+	// All values (except for the last if it's sorted forwards) need to
+	// be adjusted.
+	//
+	// FIXME: allow Xapian::BAD_VALNO to mean "relevance?"
+	string v = doc.get_value(i->first);
+	bool reverse_sort = i->second;
+
+	if (all_empty_forwards && (reverse_sort || !v.empty()))
+	    all_empty_forwards = false;
+
+	if (++i == valnos.end() && !reverse_sort) {
+	    // No need to adjust the last value if it's sorted forwards.
+	    result += v;
+	    break;
+	}
+
+	if (reverse_sort) {
+	    // For a reverse ordered value, we subtract each byte from '\xff',
+	    // except for '\0' which we convert to "\xff\0".  We insert
+	    // "\xff\xff" after the encoded value.
+	    for (string::const_iterator j = v.begin(); j != v.end(); ++j) {
+		unsigned char ch(*j);
+		result += char(255 - ch);
+		if (ch == 0) result += '\0';
+	    }
+	    result.append("\xff\xff", 2);
+	    if (i == valnos.end()) break;
+	} else {
+	    // For a forward ordered value (unless it's the last value), we
+	    // convert any '\0' to "\0\xff".  We insert "\0\0" after the
+	    // encoded value.
+	    string::size_type j = 0, nul;
+	    while ((nul = v.find('\0', j)) != string::npos) {
+		++nul;
+		result.append(v, j, nul - j);
+		result += '\xff';
+		j = nul;
+	    }
+	    result.append(v, j, string::npos);
+	    result.append("\0", 2);
+	}
+    }
+    if (all_empty_forwards) return string();
+    return result;
+}
 
 string
 MultiValueSorter::operator()(const Xapian::Document & doc) const

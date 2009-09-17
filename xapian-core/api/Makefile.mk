@@ -15,6 +15,7 @@ lib_src +=\
 	api/error.cc\
 	api/errorhandler.cc\
 	api/expanddecider.cc\
+	api/keymaker.cc\
 	api/leafpostlist.cc\
 	api/matchspy.cc\
 	api/omdatabase.cc\
@@ -30,7 +31,6 @@ lib_src +=\
 	api/registry.cc\
 	api/replication.cc\
 	api/sortable-serialise.cc\
-	api/sorter.cc\
 	api/termlist.cc\
 	api/valueiterator.cc\
 	api/valuerangeproc.cc\

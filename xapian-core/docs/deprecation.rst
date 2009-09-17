@@ -177,6 +177,30 @@ Deprecated Remove Feature name                        Upgrade suggestion and com
                                                       ``Enquire::set_sort_by_key_then_relevance(Xapian::Sorter * sorter)``
                                                       ``Enquire::set_sort_by_relevance_then_value(Xapian::valueno sort_key)``
                                                       ``Enquire::set_sort_by_relevance_then_key(Xapian::Sorter * sorter)``
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.1.3       1.3.0 ``Sorter`` abstract base class.     Use ``KeyMaker`` class instead, which has the same semantics, but has
+                                                      been renamed to indicate that the keys produced may be used for purposes
+                                                      other than sorting (we plan to allow collapsing on generated keys in the
+                                                      future).
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.1.3       1.3.0 ``MultiValueSorter`` class.         Use ``MultiValueKeyMaker`` class instead.  Note that
+                                                      ``MultiValueSorter::add()`` becomes ``MultiValueKeyMaker::add_value()``,
+                                                      but the sense of the direction flag is reversed (to be consistent with
+                                                      ``Enquire::set_sort_by_value()``), so::
+ 
+                                                        MultiValueSorter sorter;
+                                                        // Primary ordering is forwards on value 4.
+                                                        sorter.add(4);
+                                                        // Secondary ordering is reverse on value 5.
+                                                        sorter.add(5, false);
+                                                     
+                                                      becomes::
+ 
+                                                        MultiValueKeyMaker sorter;
+                                                        // Primary ordering is forwards on value 4.
+                                                        sorter.add_value(4);
+                                                        // Secondary ordering is reverse on value 5.
+                                                        sorter.add_value(5, true);
 ========== ====== =================================== ========================================================================
 
 Bindings

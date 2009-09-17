@@ -29,7 +29,7 @@
 
 #include <xapian/base.h>
 #include <xapian/deprecated.h>
-#include <xapian/sorter.h>
+#include <xapian/keymaker.h>
 #include <xapian/types.h>
 #include <xapian/termiterator.h>
 #include <xapian/visibility.h>
@@ -839,7 +839,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *
 	 * @param reverse   If true, reverses the sort order.
          */
-	void set_sort_by_key(Xapian::Sorter * sorter, bool reverse);
+	void set_sort_by_key(Xapian::KeyMaker * sorter, bool reverse);
 
 	XAPIAN_DEPRECATED(void set_sort_by_key(Xapian::Sorter * sorter));
 
@@ -869,7 +869,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *
 	 * @param reverse   If true, reverses the sort order.
 	 */
-	void set_sort_by_key_then_relevance(Xapian::Sorter * sorter,
+	void set_sort_by_key_then_relevance(Xapian::KeyMaker * sorter,
 					    bool reverse);
 
 	XAPIAN_DEPRECATED(void set_sort_by_key_then_relevance(Xapian::Sorter * sorter));
@@ -913,7 +913,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *
 	 * @param reverse   If true, reverses the sort order.
 	 */
-	void set_sort_by_relevance_then_key(Xapian::Sorter * sorter,
+	void set_sort_by_relevance_then_key(Xapian::KeyMaker * sorter,
 					    bool reverse);
 
 	XAPIAN_DEPRECATED(void set_sort_by_relevance_then_key(Xapian::Sorter * sorter));
