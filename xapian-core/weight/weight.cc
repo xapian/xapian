@@ -130,10 +130,4 @@ Weight::unserialise(const string &) const
     throw Xapian::UnimplementedError("unserialise() not supported for this Xapian::Weight subclass");
 }
 
-Weight *
-Weight::clone() const
-{
-    return NULL;
-}
-
 }

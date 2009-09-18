@@ -1,3 +1,10 @@
+Fri Sep 18 08:36:34 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/weight.h,weight/weight.cc: Remove default
+	  implementation of Weight::clone() which returns NULL - we always
+	  need clone() to be implemented because it's called for every term
+	  in the query, not just used for the remote backend.
+
 Fri Sep 18 08:02:08 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,docs/deprecation.rst,include/xapian/enquire.h: Mark
