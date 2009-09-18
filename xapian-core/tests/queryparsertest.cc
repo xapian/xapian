@@ -1691,7 +1691,8 @@ static bool test_qp_spellwild1()
     Xapian::QueryParser qp;
     qp.set_database(db);
 
-    for (test *p = test_mispelled_queries; p->query; ++p) {
+    test *p;
+    for (p = test_mispelled_queries; p->query; ++p) {
 	Xapian::Query q;
 	q = qp.parse_query(p->query,
 			   Xapian::QueryParser::FLAG_SPELLING_CORRECTION |
@@ -1700,7 +1701,7 @@ static bool test_qp_spellwild1()
 	tout << "Query: " << p->query << endl;
 	TEST_STRINGS_EQUAL(qp.get_corrected_query_string(), p->expect);
     }
-    for (test *p = test_mispelled_wildcard_queries; p->query; ++p) {
+    for (p = test_mispelled_wildcard_queries; p->query; ++p) {
 	Xapian::Query q;
 	q = qp.parse_query(p->query,
 			   Xapian::QueryParser::FLAG_SPELLING_CORRECTION |
