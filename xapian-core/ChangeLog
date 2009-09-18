@@ -1,3 +1,10 @@
+Fri Sep 18 02:33:55 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: For testcase qp_spellwild1: Fix the dbdir
+	  to qp_spellwild1 to match the testname;  Fix the ordering of
+	  TESTCASE macros to match the order of the test functions;  Note that
+	  this is a regression test and the versions the bug will be fixed in.
+
 Fri Sep 18 01:25:37 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/queryparsertest.cc: Fix to work with the old scoping rules for

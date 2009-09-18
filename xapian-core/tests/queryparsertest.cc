@@ -1677,10 +1677,11 @@ static test test_mispelled_wildcard_queries[] = {
 };
 
 // Test spelling correction in the QueryParser with wildcards.
+// Regression test for bug fixed in 1.1.3 and 1.0.17.
 static bool test_qp_spellwild1()
 {
     mkdir(".flint", 0755);
-    string dbdir = ".flint/qp_spell3";
+    string dbdir = ".flint/qp_spellwild1";
     Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 
     db.add_spelling("document");
@@ -2087,13 +2088,13 @@ static test_desc tests[] = {
     TESTCASE(qp_stoplist1),
     TESTCASE(qp_spell1),
     TESTCASE(qp_spell2),
+    TESTCASE(qp_spellwild1),
     TESTCASE(qp_synonym1),
     TESTCASE(qp_synonym2),
     TESTCASE(qp_synonym3),
     TESTCASE(qp_stem_all1),
     TESTCASE(qp_scale1),
     TESTCASE(qp_near1),
-    TESTCASE(qp_spellwild1),
     END_OF_TESTCASES
 };
 
