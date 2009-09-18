@@ -957,6 +957,10 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *		     assumed to be a relatively expensive test so may
 	 *		     be applied in a lazier fashion.
 	 *
+	 *		     @deprecated this parameter is deprecated - use the
+	 *		     newer MatchSpy class and add_matchspy() method
+	 *		     instead.
+	 *
 	 *  @return	     A Xapian::MSet object containing the results of the
 	 *		     query.
 	 *
@@ -965,8 +969,13 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		      Xapian::doccount checkatleast = 0,
 		      const RSet * omrset = 0,
-		      const MatchDecider * mdecider = 0,
-		      const MatchDecider * matchspy = 0) const;
+		      const MatchDecider * mdecider = 0) const;
+	XAPIAN_DEPRECATED(
+	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
+		      Xapian::doccount checkatleast,
+		      const RSet * omrset,
+		      const MatchDecider * mdecider,
+		      const MatchDecider * matchspy) const);
 	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		      const RSet * omrset,
 		      const MatchDecider * mdecider = 0) const {

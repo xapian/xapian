@@ -1,3 +1,10 @@
+Fri Sep 18 08:02:08 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,docs/deprecation.rst,include/xapian/enquire.h: Mark
+	  and document the matchspy parameter of Enquire::get_mset() as
+	  deprecated in favour of the new MatchSpy class and
+	  Enquire::add_matchspy().
+
 Fri Sep 18 07:58:11 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/perftest/perftest_matchdecider.cc: Don't pass default values

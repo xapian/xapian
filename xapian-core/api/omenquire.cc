@@ -1018,6 +1018,25 @@ Enquire::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     }
 }
 
+MSet
+Enquire::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
+		  Xapian::doccount check_at_least, const RSet *rset,
+		  const MatchDecider *mdecider) const
+{
+    // FIXME: display contents of pointer params, if they're not null.
+    DEBUGAPICALL(Xapian::MSet, "Xapian::Enquire::get_mset", first << ", " <<
+		 maxitems << ", " << check_at_least << ", " << rset << ", " <<
+		 mdecider);
+
+    try {
+	RETURN(internal->get_mset(first, maxitems, check_at_least, rset,
+				  mdecider, NULL));
+    } catch (Error & e) {
+	if (internal->errorhandler) (*internal->errorhandler)(e);
+	throw;
+    }
+}
+
 ESet
 Enquire::get_eset(Xapian::termcount maxitems, const RSet & rset, int flags,
 		  double k, const ExpandDecider * edecider) const
