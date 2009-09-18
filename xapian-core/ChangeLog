@@ -1,3 +1,10 @@
+Fri Sep 18 13:23:00 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Actually use any flags we determine are needed to
+	  switch the compiler to proper ANSI C++ mode, when building
+	  xapian-core - this stopped working in 1.0.12, breaking support for
+	  HP's aCC, Compaq's cxx, Sun's CC, and SGI's CC.
+
 Fri Sep 18 12:40:37 GMT 2009  Olly Betts <olly@survex.com>
 
 	* include/xapian/matchspy.h: Mark ValueCountMatchSpy, NumericRange,

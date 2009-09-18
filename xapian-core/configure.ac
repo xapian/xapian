@@ -250,6 +250,7 @@ dnl Only works for ldflags which can be specified anywhere on the link line.
 AC_SUBST(ldflags)
 
 WARNING_CXXFLAGS=
+ANSI_CXXFLAGS=
 AC_MSG_CHECKING([for $CXX options to enable ANSI C++ mode])
 if test yes = "$GXX"; then
   AC_MSG_RESULT([none required])
@@ -1007,7 +1008,7 @@ if test yes = "$GXX"; then
     ])
 else
   dnl WARNING_CXXFLAGS is set above.
-  AM_CXXFLAGS="$WARNING_CXXFLAGS"
+  AM_CXXFLAGS="$AM_CXXFLAGS $WARNING_CXXFLAGS"
 fi
 
 AH_BOTTOM(
