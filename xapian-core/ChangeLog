@@ -1,3 +1,8 @@
+Fri Sep 18 12:40:37 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/matchspy.h: Mark ValueCountMatchSpy, NumericRange,
+	  NumericRanges, and score_evenness() as experimental.
+
 Fri Sep 18 08:36:34 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* include/xapian/weight.h,weight/weight.cc: Remove default
