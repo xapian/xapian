@@ -1,3 +1,8 @@
+Fri Sep 18 07:58:11 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/perftest/perftest_matchdecider.cc: Don't pass default values
+	  for optional parameters to Enquire::get_mset().
+
 Fri Sep 18 02:36:43 GMT 2009  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: If FLAG_PARTIAL is specified, don't
