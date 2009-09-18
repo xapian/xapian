@@ -1715,6 +1715,44 @@ static bool test_qp_spellwild1()
     return true;
 }
 
+static test test_mispelled_partial_queries[] = {
+    { "doucment", "" },
+    { "doucment ", "document " },
+    { "documen", "" },
+    { "documen ", "document " },
+    { "seearch documen", "search documen" },
+    { "search documen", "" },
+    { NULL, NULL }
+};
+
+// Test spelling correction in the QueryParser with FLAG_PARTIAL.
+// Regression test for bug fixed in 1.1.3 and 1.0.17.
+static bool test_qp_spellpartial1()
+{
+    mkdir(".flint", 0755);
+    string dbdir = ".flint/qp_spellpartial1";
+    Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+
+    db.add_spelling("document");
+    db.add_spelling("search");
+    db.add_spelling("paragraph");
+    db.add_spelling("band");
+
+    Xapian::QueryParser qp;
+    qp.set_database(db);
+
+    for (test *p = test_mispelled_partial_queries; p->query; ++p) {
+	Xapian::Query q;
+	q = qp.parse_query(p->query,
+			   Xapian::QueryParser::FLAG_SPELLING_CORRECTION |
+			   Xapian::QueryParser::FLAG_PARTIAL);
+	tout << "Query: " << p->query << endl;
+	TEST_STRINGS_EQUAL(qp.get_corrected_query_string(), p->expect);
+    }
+
+    return true;
+}
+
 static test test_synonym_queries[] = {
     { "searching", "(Zsearch:(pos=1) SYNONYM Zfind:(pos=1) SYNONYM Zlocate:(pos=1))" },
     { "search", "(Zsearch:(pos=1) SYNONYM find:(pos=1))" },
@@ -2089,6 +2127,7 @@ static test_desc tests[] = {
     TESTCASE(qp_spell1),
     TESTCASE(qp_spell2),
     TESTCASE(qp_spellwild1),
+    TESTCASE(qp_spellpartial1),
     TESTCASE(qp_synonym1),
     TESTCASE(qp_synonym2),
     TESTCASE(qp_synonym3),

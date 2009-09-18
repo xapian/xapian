@@ -1,3 +1,10 @@
+Fri Sep 18 02:36:43 GMT 2009  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: If FLAG_PARTIAL is specified, don't
+	  try to spell correct a term at the end of the query which we attempt
+	  to expand as partial.
+	* tests/queryparsertest.cc: Add regression test qp_spellpartial1.
+
 Fri Sep 18 02:33:55 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/queryparsertest.cc: For testcase qp_spellwild1: Fix the dbdir
