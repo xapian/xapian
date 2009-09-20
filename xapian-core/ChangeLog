@@ -1,3 +1,11 @@
+Sun Sep 20 09:24:18 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Actually use any flags we determine are needed to
+	  switch the compiler to proper ANSI C++ mode, when building
+	  xapian-core - this stopped working in 1.0.12, breaking support for
+	  HP's aCC, Compaq's cxx, Sun's CC, and SGI's CC.
+
 Thu Sep 17 11:58:21 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
