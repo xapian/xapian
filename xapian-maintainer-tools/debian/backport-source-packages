@@ -24,6 +24,8 @@
 
 set -e
 
+MIRROR=http://ftp.nz.debian.org/debian/
+
 VALID_CODENAMES='lenny etch jaunty intrepid hardy dapper'
 
 if [ x"$1" = x--help -o $# -lt 2 ] ; then
@@ -37,17 +39,12 @@ if [ x"$1" = x--help -o $# -lt 2 ] ; then
 fi
 
 PKG=$1
-shift
 VERSION=$2
+shift
 shift
 
 SUFFIX=`echo "$VERSION"|sed 's/.*-/-/'`
 VERSION=`echo "$VERSION"|sed 's/-[^-]*$//'`
-
-SECTION=libs
-case $PKG in
-xapian-omega) SECTION=web ;;
-esac
 
 # Debian/Ubuntu codename or codenames to build for.
 # This will be overridden by the command line arguments, if any were passed.
@@ -64,25 +61,27 @@ adjust_changelog() {
     # --force-bad-version needed for backporting, since the "new" version may
     # be less than the "old".  Direct stdin from /dev/null to prevent dch
     # stopping to confirm the bad version is OK.
-    dch --force-bad-version -v "$backport_version" -D "$CODENAME-backports" \
+    dch --force-bad-version -v "$backport_version" -D "$CODENAME" \
 	"Rebuild for $CODENAME backports." < /dev/null
   fi
 }
 
 build_it() {
   adjust_changelog
-  if x"$PKG" != xlibsearch-xapian-perl ; then
+  if [ x"$PKG" != xlibsearch-xapian-perl ] ; then
     echo "$CODENAME" > debian/codename
     # Generates control from control.in (and maybe other files).
-    debian/rules CODENAME="$CODENAME"
+    fakeroot debian/rules maintclean maint CODENAME="$CODENAME"
   fi
   # The default -si only looks for *exactly* -0 or -1.
+  # FIXME: We don't really want to upload the orig tarball for all Ubuntu
+  # backports but we may need to upload it once if it isn't already in the
+  # archive.  So for now, just upload it for jaunty, and make sure to upload
+  # that first...
   include_src_opt=-sa
-  case `dpkg-parsechangelog|sed 's/^Version: //p;d'` in
-  *-[01]) ;;
-  *-[01][~.]*) ;;
-  *) include_src_opt=-sd ;;
-  esac
+  if [ jaunty != "$CODENAME" ] ; then
+    include_src_opt=-sd
+  fi
   debuild ${BUILDPACKAGE_SRC_OPTS} $include_src_opt
 }
 
@@ -129,8 +128,18 @@ esac
 # and build source packages
 mkdir -p build
 cd build
-  # FIXME: sort out gpg verifying instead of using -u
-  dget -u "http://ftp.nz.debian.org/debian/pool/main/$SECTION/${PKG}/${PKG}_$VERSION$SUFFIX.dsc"
+  case $PKG in
+  lib*) DIR=`echo $PKG|cut -c1,2,3,4` ;;
+  *) DIR=`echo $PKG|cut -c1` ;;
+  esac
+  DSC=${PKG}_$VERSION$SUFFIX.dsc
+  if [ -f "$DSC" ] ; then
+    [ -d backup ] || mkdir backup
+    mv "$DSC" backup
+    dget -b "file://`pwd`/backup/$DSC"
+  else
+    dget "${MIRROR}pool/main/$DIR/$PKG/$DSC"
+  fi
   cd ${PKG}-${VERSION}
     build_it
   cd ..
