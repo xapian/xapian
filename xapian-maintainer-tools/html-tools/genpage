@@ -17,6 +17,7 @@ set -e
 thisdir=`dirname $0`
 xaproot=http://xapian.org/
 stylesheet=style.css
+subtype=
 
 frob_infile=0
 if [ "x$1" = "x-l" ]; then
@@ -24,12 +25,13 @@ if [ "x$1" = "x-l" ]; then
   type=docs
   docsmenu=${thisdir}/menu-$3-local.html
   localflag=-b
-  # really unpleasant hack, I apologise: silently, we know that
-  # the bindings docs are two levels deep not one
+  # bindings don't have a menu for local docs, so record the state ($3 used only in xapian-bindings builds)
+  # also a hack because bindings docs are (currently) two levels deep, which is unusual for local docs
   if [ "x$3" = "xdocs-bindings" ]; then
     outroot="../"
     stylesheet=../style.css
     localflag="-b -r ../"
+    subtype="-bindings"
   fi
   # another hack: we build omega docs with a default (calculated) <inuri>,
   # but this is calculated from the *full path* that make passes as <infile>
@@ -71,8 +73,26 @@ fi
 
 PYTHON=/usr/bin/python
 
-prebodytemplate=${thisdir}/templates/$type-PREBODY.html
-postbodytemplate=${thisdir}/templates/$type-POSTBODY.html
+defaultprebodytemplate=${thisdir}/templates/$type-PREBODY.html
+if [ "x$subtype" != "x" ]; then
+    prebodytemplate=${thisdir}/templates/$type$subtype-PREBODY.html
+else
+    prebodytemplate=$defaultprebodytemplate
+fi
+if [ ! -f $prebodytemplate ]; then
+    prebodytemplate=$defaultprebodytemplate
+fi
+
+defaultpostbodytemplate=${thisdir}/templates/$type-POSTBODY.html
+if [ "x$subtype" != "x" ]; then
+    postbodytemplate=${thisdir}/templates/$type$subtype-POSTBODY.html
+else
+    postbodytemplate=$defaultpostbodytemplate
+fi
+if [ ! -f $postbodytemplate ]; then
+    postbodytemplate=$defaultpostbodytemplate
+fi
+
 headerextratemplate=${thisdir}/templates/header-extra.html
 
 prebodytmp=`mktemp`
