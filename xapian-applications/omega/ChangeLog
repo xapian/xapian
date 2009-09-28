@@ -1,3 +1,8 @@
+Mon Sep 28 17:28:33 GMT 2009  James Aylett <james@tartarus.org>
+
+	* docs/omegascript.md: fix definition list formatting
+	  and code block indentation
+
 Mon Aug 24 13:59:41 GMT 2009  James Aylett <james@tartarus.org>
 
 	* debian/control.in,extra/omegascript.vim,templates/query:
