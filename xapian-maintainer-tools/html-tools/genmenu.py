@@ -37,8 +37,8 @@ def check_prefix(localpath, menupath, localmenu=False, localroot=None):
     # for the top menu rather than the source filename.)
     #sys.stderr.write("check: %s, %s, %s, %s\n" % (localpath, menupath, localmenu, localroot,))
     if localmenu:
-        #return localpath.endswith(menupath)
-        return localpath == menupath
+        return localpath.endswith(menupath)
+        #return localpath == menupath
     else:
         return localpath.startswith(menupath)
 
