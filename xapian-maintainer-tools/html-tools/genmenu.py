@@ -16,7 +16,7 @@
 import getopt, sys, urlparse
 import xml.dom, xml.dom.minidom
 
-def check_prefix(localpath, menupath, localmenu=False, localroot=None):
+def check_prefix(localpath, menupath, localmenu=False, localroot=None, localbuild=False):
     # menupath won't contain any suffix; localpath will.
     # Only support the ones we actually use.
     # localroot is *only* used to generate the bindings, where the source
@@ -37,8 +37,10 @@ def check_prefix(localpath, menupath, localmenu=False, localroot=None):
     # for the top menu rather than the source filename.)
     #sys.stderr.write("check: %s, %s, %s, %s\n" % (localpath, menupath, localmenu, localroot,))
     if localmenu:
-        return localpath.endswith(menupath)
-        #return localpath == menupath
+        if localbuild:
+            return localpath.endswith(menupath)
+        else:
+            return localpath == menupath
     else:
         return localpath.startswith(menupath)
 
@@ -48,7 +50,7 @@ def process(node, localpath, uriroot=None, verbose=False, localmenu=False, local
             if child.nodeType==child.ELEMENT_NODE and child.nodeName=='a':
                 if verbose:
                     sys.stderr.write("li a[href=%s] << %s\n" % (child.getAttribute('href'), localpath))
-                if check_prefix(localpath, child.getAttribute('href'), localmenu, localroot):
+                if check_prefix(localpath, child.getAttribute('href'), localmenu, localroot, localbuild):
                     classes = node.getAttribute('class')
                     if classes!='':
                         classes += ' '
