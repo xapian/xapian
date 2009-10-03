@@ -1,5 +1,9 @@
 Revision history for Perl extension Search::Xapian.
 
+	[Changes contributed by Olly Betts]
+	- Fix to build with compilers other than GCC by disabling Perl's
+	  #define for bool.  (ticket#404)
+
 1.0.16.0  Thu Sep 10 06:26:08 UTC 2009
 	[Changes contributed by Olly Betts]
 	- Improve documentation of QueryParser::set_default_op() and
