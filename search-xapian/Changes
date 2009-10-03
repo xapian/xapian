@@ -5,6 +5,8 @@ Revision history for Perl extension Search::Xapian.
 	- Wrap new Xapian::SerialisationError class.
 	- Ship simplematchdecider.pl example, which was added in 1.0.13.1 but
 	  accidentally not added to 1.1.1.0.
+	- Fix to build with compilers other than GCC by disabling Perl's
+	  #define for bool.  (ticket#404)
 
 1.1.2.0  Thu Jul 23 04:14:29 UTC 2009
 	[This release includes all changes from 1.0.14 which are relevant.]
