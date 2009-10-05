@@ -1,3 +1,8 @@
+Mon Oct 05 08:53:05 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* HACKING: Note the command needed to get the uuid library
+	  installed on fedora, since it's rather non-obvious.
+
 Sat Oct 03 20:11:48 GMT 2009  Olly Betts <olly@survex.com>
 
 	* unicode/tclUniData.cc: Update Unicode character database to Unicode
