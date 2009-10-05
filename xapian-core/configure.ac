@@ -642,14 +642,14 @@ if test yes = "$enable_backend_flint" -o yes = "$enable_backend_chert" ; then
 
   dnl Check for uuid/uuid.h.
   AC_CHECK_HEADERS(uuid/uuid.h, [], [
-    AC_MSG_ERROR([uuid/uuid.h not found - required for chert and flint (you may need to install the uuid-dev or libuuid-devel package)])
+    AC_MSG_ERROR([uuid/uuid.h not found - required for chert and flint (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
     ], [ ])
 
   dnl Check for uuid_generate in -luuid.
   SAVE_LIBS=$LIBS
   LIBS=
   AC_SEARCH_LIBS([uuid_generate], [uuid], [], [
-    AC_MSG_ERROR([uuid_generate() not found in -luuid - required for chert and flint (you may need to install the uuid-dev or libuuid-devel package)])
+    AC_MSG_ERROR([uuid_generate() not found in -luuid - required for chert and flint (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
     ])
   if test x != x"$LIBS" ; then
     XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $LIBS"
