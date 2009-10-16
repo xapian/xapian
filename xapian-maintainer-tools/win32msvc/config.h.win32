@@ -175,6 +175,11 @@
 # pragma warning(disable:4996)
 #endif
 
+/* Disable MSVC warning about macros with missing parameters */
+#ifdef _MSC_VER
+# pragma warning(disable:4003)
+#endif
+
 /* Define rare() as identity, since we don't have this in MSVC (See
  * the section "Branch Prediction Hints" in xapian-core/HACKING) */
 #define rare(COND) (COND)

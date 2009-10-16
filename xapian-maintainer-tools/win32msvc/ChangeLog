@@ -1,3 +1,10 @@
+Fri Oct 16 09:04:00 GMT 2009  Charlie Hull <charlie@flax.co.uk>
+
+	* config.h.win32,config.h.omega.win32: disable warning about macros
+	  with missing parameters.
+	* win32_tests.mak: add api_sortingold.cc
+	* win32_api.mak: remove sorter.cc, add keymaker.cc
+
 Mon Aug 24 10:40:00 GMT 2009  Charlie Hull <charlie@flax.co.uk>
 
 	* Makefile: Remove rules to make generate-exceptions.
