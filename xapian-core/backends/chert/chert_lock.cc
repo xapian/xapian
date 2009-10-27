@@ -148,7 +148,7 @@ ChertLock::lock(bool exclusive, std::string & explanation) {
 	// Make sure we don't hang on to open files which may get deleted but
 	// not have their disk space released until we exit.
 	int maxfd = static_cast<int>(sysconf(_SC_OPEN_MAX));
-	for (int i = 2; i <= maxfd; ++i) {
+	for (int i = 2; i < maxfd; ++i) {
 	    if (i != lockfd) {
 		// Retry on EINTR; just ignore other errors (we'll get
 		// EBADF if the fd isn't open so that's OK).

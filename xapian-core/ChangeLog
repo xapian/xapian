@@ -1,3 +1,10 @@
+Tue Oct 27 00:42:59 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_lock.cc,backends/flint/flint_lock.cc: Don't
+	  try to close the fd one more than the maximum allowable.
+	  (ticket#408)
+	* AUTHORS: Add Carl Worth for the patch.
+
 Mon Oct 05 09:00:58 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* configure.ac: Mention e2fsprogs-devel in the message thrown up by
