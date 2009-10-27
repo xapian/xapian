@@ -1,3 +1,9 @@
+Tue Oct 27 16:17:09 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* win32_applications_omega.mak: Remove dirent.cc, update path to
+	  getopt.cc, add freemem.cc, add mkdtemp.obj to OMINDEX objects,
+	  and rename UTF8TEST_OBJS to UTF8CONVERTTEST_OBJS.
+
 Fri Oct 16 09:04:00 GMT 2009  Charlie Hull <charlie@flax.co.uk>
 
 	* config.h.win32,config.h.omega.win32: disable warning about macros
