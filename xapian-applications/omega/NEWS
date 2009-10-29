@@ -1,10 +1,38 @@
- 13273       olly Wed Aug 05 03:50:54 GMT 2009  Olly Betts <olly@survex.com>
+ 13480       olly Thu Sep 10 13:33:06 GMT 2009  Olly Betts <olly@survex.com>
 
- 13147       olly Thu Jul 23 11:26:15 GMT 2009  Olly Betts <olly@survex.com>
-	* templates/query: If JavaScript is available, convert the
-	  $field{modtime} to a string on the client-side so that the timezone
-	  is correct.  If JavaScript isn't available, fall back to the existing
-	  behaviour of using UTC.  (ticket#314)
+Omega 1.1.3 (2009-09-1?):
+
+This release includes all changes from 1.0.15 and 1.0.16 which are relevant.
+
+general:
+
+documentation:
+
+indexers:
+
+* omindex:
+
+* scriptindex:
+
+omega:
+
+templates:
+
+* templates/query: If JavaScript is available, convert $field{modtime} to a
+  string on the client-side so that the timezone is correct.  If JavaScript
+  isn't available, fall back to the existing behaviour of using UTC.
+  (ticket#314)
+
+testsuite:
+
+build system:
+
+* configure: Default to looking for xapian-config-1.1 unless XAPIAN_CONFIG is
+  specified.
+
+portability:
+
+packaging:
 
 Omega 1.1.2 (2009-07-23):
 
@@ -72,6 +100,36 @@ build system:
 * The build system is now bootstrapped with newer versions of autoconf and
   libtool which should produce smaller files and speed up configure and
   make.
+
+Omega 1.0.16 (2009-09-10):
+
+* omega: Fix cross-site scripting vulnerability in reporting of exceptions
+  (CVE-2009-2947).
+
+Omega 1.0.15 (2009-08-26):
+
+general:
+
+* omegascript.vim: The list of OmegaScript commands in the vim mode was rather
+  out of date, and a few commands were misclassified.  Fix both problems and
+  avoid future recurrences by automatically generating those lists from the
+  command list in query.cc.
+
+documentation:
+
+* omegascript.html: Document that $date uses UTC.  (ticket#314)
+
+templates:
+
+* query: Link to "xapian.org" rather than "www.xapian.org".
+
+* inc/toptermsjs: Use double-quotes rather than single quotes for parameter
+  values on the <script> tag.
+
+portability:
+
+* omindex: Implement correct handling of paths when calling external filter
+  programs on Microsoft Windows.
 
 Omega 1.0.14 (2009-07-21):
 

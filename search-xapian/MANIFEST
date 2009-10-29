@@ -90,6 +90,7 @@ Xapian/NetworkTimeoutError.pm
 Xapian/QueryParserError.pm
 Xapian/RangeError.pm
 Xapian/RuntimeError.pm
+Xapian/SerialisationError.pm
 Xapian/UnimplementedError.pm
 XS/AssertionError.xs
 XS/DatabaseCorruptError.xs
@@ -111,6 +112,7 @@ XS/NetworkTimeoutError.xs
 XS/QueryParserError.xs
 XS/RangeError.xs
 XS/RuntimeError.xs
+XS/SerialisationError.xs
 XS/UnimplementedError.xs
 
 t/01use.t
@@ -135,4 +137,5 @@ examples/full-indexer.pl
 examples/full-searcher.pl
 examples/simpleexpand.pl
 examples/simpleindex.pl
+examples/simplematchdecider.pl
 examples/simplesearch.pl

@@ -190,9 +190,7 @@ ChertDatabase::~ChertDatabase()
 bool
 ChertDatabase::database_exists() {
     DEBUGCALL(DB, bool, "ChertDatabase::database_exists", "");
-    RETURN(record_table.exists() &&
-	   postlist_table.exists() &&
-	   termlist_table.exists());
+    RETURN(record_table.exists() && postlist_table.exists());
 }
 
 void
@@ -216,8 +214,7 @@ ChertDatabase::create_and_open_tables(unsigned int block_size)
 
     // Check consistency
     chert_revision_number_t revision = record_table.get_open_revision_number();
-    if (revision != termlist_table.get_open_revision_number() ||
-	revision != postlist_table.get_open_revision_number()) {
+    if (revision != postlist_table.get_open_revision_number()) {
 	throw Xapian::DatabaseCreateError("Newly created tables are not in consistent state");
     }
 
@@ -250,9 +247,10 @@ ChertDatabase::open_tables_consistent()
 	return;
     }
 
-    // In case the position, synonym, and/or spelling tables don't exist yet.
+    // Set the block_size for optional tables as they may not currently exist.
     unsigned int block_size = record_table.get_block_size();
     position_table.set_block_size(block_size);
+    termlist_table.set_block_size(block_size);
     synonym_table.set_block_size(block_size);
     spelling_table.set_block_size(block_size);
 
@@ -307,9 +305,10 @@ ChertDatabase::open_tables(chert_revision_number_t revision)
     version_file.read_and_check();
     record_table.open(revision);
 
-    // In case the position, synonym, and/or spelling tables don't exist yet.
+    // Set the block_size for optional tables as they may not currently exist.
     unsigned int block_size = record_table.get_block_size();
     position_table.set_block_size(block_size);
+    termlist_table.set_block_size(block_size);
     synonym_table.set_block_size(block_size);
     spelling_table.set_block_size(block_size);
 
@@ -903,6 +902,8 @@ ChertDatabase::open_term_list(Xapian::docid did) const
 {
     DEBUGCALL(DB, TermList *, "ChertDatabase::open_term_list", did);
     Assert(did != 0);
+    if (!termlist_table.is_open())
+	throw Xapian::FeatureUnavailableError("Database has no termlist");
 
     Xapian::Internal::RefCntPtr<const ChertDatabase> ptrtothis(this);
     RETURN(new ChertTermList(ptrtothis, did));
@@ -1144,8 +1145,9 @@ ChertWritableDatabase::add_document_(Xapian::docid did,
 	}
 	LOGLINE(DB, "Calculated doclen for new document " << did << " as " << new_doclen);
 
-	// Set the termlist
-	termlist_table.set_termlist(did, document, new_doclen);
+	// Set the termlist.
+	if (termlist_table.is_open())
+	    termlist_table.set_termlist(did, document, new_doclen);
 
 	// Set the new document length
 	Assert(doclens.find(did) == doclens.end() || doclens[did] == static_cast<Xapian::termcount>(-1));
@@ -1183,6 +1185,9 @@ ChertWritableDatabase::delete_document(Xapian::docid did)
 {
     DEBUGCALL(DB, void, "ChertWritableDatabase::delete_document", did);
     Assert(did != 0);
+
+    if (!termlist_table.is_open())
+	throw Xapian::FeatureUnavailableError("Database has no termlist");
 
     if (rare(modify_shortcut_docid == did)) {
 	// The modify_shortcut document can't be used for a modification
@@ -1242,7 +1247,8 @@ ChertWritableDatabase::delete_document(Xapian::docid did)
 	}
 
 	// Remove the termlist.
-	termlist_table.delete_termlist(did);
+	if (termlist_table.is_open())
+	    termlist_table.delete_termlist(did);
 
 	// Mark this document as removed.
 	doclens[did] = static_cast<Xapian::termcount>(-1);
@@ -1275,6 +1281,16 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 	    // replacing an existing document.
 	    (void)add_document_(did, document);
 	    return;
+	}
+
+	if (!termlist_table.is_open()) {
+	    // We can replace an *unused* docid <= last_docid too.
+	    Xapian::Internal::RefCntPtr<const ChertDatabase> ptrtothis(this);
+	    if (!postlist_table.document_exists(did, ptrtothis)) {
+		(void)add_document_(did, document);
+		return;
+	    }
+	    throw Xapian::FeatureUnavailableError("Database has no termlist");
 	}
 
 	// Check for a document read from this database being replaced - ie, a
@@ -1394,8 +1410,9 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 	    }
 	    LOGLINE(DB, "Calculated doclen for replacement document " << did << " as " << new_doclen);
 
-	    // Set the termlist
-	    termlist_table.set_termlist(did, document, new_doclen);
+	    // Set the termlist.
+	    if (termlist_table.is_open())
+		termlist_table.set_termlist(did, document, new_doclen);
 
 	    // Set the new document length
 	    doclens[did] = new_doclen;

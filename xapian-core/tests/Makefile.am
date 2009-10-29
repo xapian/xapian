@@ -127,6 +127,7 @@ collated_apitest_sources = \
  api_scalability.cc \
  api_serialise.cc \
  api_sorting.cc \
+ api_sortingold.cc \
  api_spelling.cc \
  api_transdb.cc \
  api_unicode.cc \

@@ -19,6 +19,7 @@ xapianinclude_HEADERS =\
 	include/xapian/enquire.h\
 	include/xapian/errorhandler.h\
 	include/xapian/expanddecider.h\
+	include/xapian/keymaker.h\
 	include/xapian/matchspy.h\
 	include/xapian/positioniterator.h\
 	include/xapian/postingiterator.h\
@@ -27,7 +28,6 @@ xapianinclude_HEADERS =\
 	include/xapian/queryparser.h\
 	include/xapian/registry.h\
 	include/xapian/replication.h\
-	include/xapian/sorter.h\
 	include/xapian/stem.h\
 	include/xapian/termgenerator.h\
 	include/xapian/termiterator.h\

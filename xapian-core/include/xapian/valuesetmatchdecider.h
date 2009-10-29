@@ -2,7 +2,7 @@
  *  \brief MatchDecider subclass for filtering results by value.
  */
 /* Copyright 2008 Lemur Consulting Limited
- * Copyright 2008 Olly Betts
+ * Copyright 2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -53,14 +53,15 @@ class XAPIAN_VISIBILITY_DEFAULT ValueSetMatchDecider : public MatchDecider {
   public:
     /** Construct a ValueSetMatchDecider.
      *
-     *  @param valuenum The value slot number to look in.
+     *  @param slot The value slot number to look in.
      *
-     *  @param inclusive If true, match decider accepts documents which have a
+     *  @param inclusive_ If true, match decider accepts documents which have a
      *  value in the specified slot which is a member of the test set; if
      *  false, match decider accepts documents which do not have a value in the
      *  specified slot.
      */
-    ValueSetMatchDecider(Xapian::valueno valuenum, bool inclusive);
+    ValueSetMatchDecider(Xapian::valueno slot, bool inclusive_)
+	: valuenum(slot), inclusive(inclusive_) { }
 
     /** Add a value to the test set.
      *

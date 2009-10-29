@@ -64,6 +64,7 @@ APITEST_OBJS= \
     "$(INTDIR)\api_replicate.obj" \
     "$(INTDIR)\api_serialise.obj" \
     "$(OUTDIR)\api_sorting.obj" \
+    "$(OUTDIR)\api_sortingold.obj" \
     "$(OUTDIR)\api_spelling.obj" \
     "$(OUTDIR)\api_transdb.obj" \
     "$(OUTDIR)\api_unicode.obj" \
@@ -96,6 +97,7 @@ SRC = \
     "$(INTDIR)\api_replicate.cc" \
     "$(INTDIR)\api_serialise.cc" \
     "$(INTDIR)\api_sorting.cc" \
+    "$(INTDIR)\api_sortingold.cc" \
     "$(INTDIR)\api_spelling.cc" \
     "$(INTDIR)\api_transdb.cc" \
     "$(INTDIR)\api_unicode.cc" \
@@ -123,6 +125,7 @@ COLLATED_APITEST_SOURCES= \
     "$(INTDIR)\api_replicate.cc" \
     "$(INTDIR)\api_serialise.cc" \
     "$(INTDIR)\api_sorting.cc" \
+    "$(INTDIR)\api_sortingold.cc" \
     "$(INTDIR)\api_spelling.cc" \
     "$(INTDIR)\api_transdb.cc" \
     "$(INTDIR)\api_unicode.cc" \
@@ -144,6 +147,7 @@ COLLATED_APITEST_HEADERS=\
     "$(INTDIR)\api_replicate.h" \
     "$(INTDIR)\api_serialise.h" \
     "$(INTDIR)\api_sorting.h" \
+    "$(INTDIR)\api_sortingold.h" \
     "$(INTDIR)\api_spelling.h" \
     "$(INTDIR)\api_transdb.h" \
     "$(INTDIR)\api_unicode.h" \

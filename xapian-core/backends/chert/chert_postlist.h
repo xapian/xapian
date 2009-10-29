@@ -117,6 +117,10 @@ class ChertPostListTable : public ChertTable {
 	/** Returns the length of document @a did. */
 	Xapian::termcount get_doclength(Xapian::docid did,
 					Xapian::Internal::RefCntPtr<const ChertDatabase> db) const;
+
+	/** Check if document @a did exists. */
+	bool document_exists(Xapian::docid did,
+			     Xapian::Internal::RefCntPtr<const ChertDatabase> db) const;
 };
 
 /** A postlist in a chert database.

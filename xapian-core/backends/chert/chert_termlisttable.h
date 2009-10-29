@@ -1,7 +1,7 @@
 /** @file chert_termlisttable.h
  * @brief Subclass of ChertTable which holds termlists.
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 
 #include <xapian/types.h>
 
-#include "chert_table.h"
+#include "chert_lazytable.h"
 #include "chert_utils.h"
 
 #include <string>
@@ -32,7 +32,7 @@ namespace Xapian {
 class Document;
 }
 
-class ChertTermListTable : public ChertTable {
+class ChertTermListTable : public ChertLazyTable {
   public:
     /** Create a new ChertTermListTable object.
      *
@@ -43,7 +43,8 @@ class ChertTermListTable : public ChertTable {
      *  @param readonly	    true if we're opening read-only, else false.
      */
     ChertTermListTable(const std::string & dbdir, bool readonly)
-	: ChertTable("termlist", dbdir + "/termlist.", readonly, Z_DEFAULT_STRATEGY) { }
+	: ChertLazyTable("termlist", dbdir + "/termlist.", readonly,
+			 Z_DEFAULT_STRATEGY) { }
 
     /** Set the termlist data for document @a did.
      *
@@ -64,6 +65,17 @@ class ChertTermListTable : public ChertTable {
 
     /// Returns the document length for document @a did.
     chert_doclen_t get_doclength(Xapian::docid did) const;
+
+    /** Non-lazy override of ChertLazyTable::create_and_open().
+     *
+     * Don't create lazily, but if the termlist is deleted, work without it.
+     *
+     *  This method isn't virtual, but we never call it such that it needs to
+     *  be.
+     */
+    void create_and_open(unsigned int blocksize) {
+	ChertTable::create_and_open(blocksize);
+    }
 };
 
 #endif // XAPIAN_INCLUDED_CHERT_TERMLISTTABLE_H

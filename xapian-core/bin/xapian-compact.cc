@@ -1103,6 +1103,54 @@ main(int argc, char **argv)
 	    dest += t->name;
 	    dest += '.';
 
+	    bool output_will_exist = !t->lazy;
+
+	    // Sometimes stat can fail for benign reasons (e.g. >= 2GB file
+	    // on certain systems).
+	    bool bad_stat = false;
+
+	    off_t in_size = 0;
+
+	    vector<string> inputs;
+	    inputs.reserve(sources.size());
+	    size_t inputs_present = 0;
+	    for (vector<string>::const_iterator src = sources.begin();
+		 src != sources.end(); ++src) {
+		string s(*src);
+		s += t->name;
+		s += '.';
+
+		struct stat sb;
+		if (stat(s + "DB", &sb) == 0) {
+		    in_size += sb.st_size / 1024;
+		    output_will_exist = true;
+		    ++inputs_present;
+		} else if (errno != ENOENT) {
+		    // We get ENOENT for an optional table.
+		    bad_stat = true;
+		    output_will_exist = true;
+		    ++inputs_present;
+		}
+		inputs.push_back(s);
+	    }
+
+	    if (backend == CHERT && t->type == TERMLIST) {
+		if (inputs_present != sources.size()) {
+		    if (inputs_present != 0) {
+			cout << '\r' << t->name << ": " << inputs_present
+			     << " of " << sources.size() << " inputs present "
+				"so suppressing output" << endl;
+			continue;
+		    }
+		    output_will_exist = false;
+		}
+	    }
+
+	    if (!output_will_exist) {
+		cout << '\r' << t->name << ": doesn't exist" << endl;
+		continue;
+	    }
+
 	    FlintTable out(t->name, dest, false, t->compress_strategy, t->lazy);
 	    if (!t->lazy) {
 		out.create_and_open(block_size);
@@ -1113,32 +1161,6 @@ main(int argc, char **argv)
 
 	    out.set_full_compaction(compaction != STANDARD);
 	    if (compaction == FULLER) out.set_max_item_size(1);
-
-	    // Sometimes stat can fail for benign reasons (e.g. >= 2GB file
-	    // on certain systems).
-	    bool bad_stat = false;
-
-	    off_t in_size = 0;
-
-	    vector<string> inputs;
-	    inputs.reserve(sources.size());
-	    for (vector<string>::const_iterator src = sources.begin();
-		 src != sources.end(); ++src) {
-		string s(*src);
-		s += t->name;
-		s += '.';
-
-		struct stat sb;
-		if (stat(s + "DB", &sb) == 0) {
-		    in_size += sb.st_size / 1024;
-		} else {
-		    // We get ENOENT for an optional table.
-		    bad_stat = (errno != ENOENT);
-		}
-		inputs.push_back(s);
-	    }
-
-	    if (inputs.empty()) continue;
 
 	    switch (t->type) {
 		case POSTLIST:

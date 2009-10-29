@@ -38,10 +38,6 @@ require DynaLoader;
 
 our @ISA = qw(DynaLoader);
 
-# Items to export into caller's namespace by default. Note: do not export
-# names by default without a very good reason. Use EXPORT_OK instead.
-# Do not simply export all your public functions/methods/constants.
-
 # This allows declaration	use Search::Xapian ':all';
 # If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
 # will save memory.
@@ -99,8 +95,10 @@ $EXPORT_TAGS{standard} = [ @{ $EXPORT_TAGS{'ops'} },
 $EXPORT_TAGS{all} = [ @{ $EXPORT_TAGS{'standard'} }, @{ $EXPORT_TAGS{'enq_order'} } ];
 
 
+# Names which can be exported.
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
+# Don't export any names by default.
 our @EXPORT = qw( );
 
 bootstrap Search::Xapian $VERSION;

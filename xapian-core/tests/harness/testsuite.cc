@@ -314,9 +314,9 @@ test_driver::runtest(const test_desc *test)
 		    }
 		    lseek(vg_log_fd, curpos, SEEK_SET);
 
-		    VALGRIND_DO_LEAK_CHECK;
 		    int vg_errs2 = VALGRIND_COUNT_ERRORS;
 		    vg_errs = vg_errs2 - vg_errs;
+		    VALGRIND_DO_LEAK_CHECK;
 		    long vg_leaks2 = 0, vg_dubious2 = 0, vg_reachable2 = 0;
 		    long dummy;
 		    VALGRIND_COUNT_LEAKS(vg_leaks2, vg_dubious2, vg_reachable2,

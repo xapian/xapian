@@ -114,7 +114,7 @@ case $build_os in
 *** to make sure you have a UNIX-like find installed and fix your PATH, then
 *** rerun configure.  For more information, see:
 ***
-***   http://www.cygwin.com/faq/faq_3.html#SEC41
+***   http://www.cygwin.com/faq/faq-nochunks.html#faq.using.find
 ])
     fi
   ;;
@@ -141,7 +141,7 @@ case $host_os in
   linux*)
     dnl Extract search path from ldconfig which is more reliable than the way
     dnl vanilla libtool extracts them from ld.so.conf.
-    d=`/sbin/ldconfig -N -X -v 3>/dev/null|$SED 's,^\(/.*\):\( (.*)\)\?$,\1,p;d'|tr '\n' ' '`
+    d=`/sbin/ldconfig -N -X -v 2>&5|$SED 's,^\(/.*\):\( (.*)\)\?$,\1,p;d'|tr '\n' ' '`
     test -z "$d" || sys_lib_dlsearch_path_spec=$d
     ;;
 esac
@@ -250,6 +250,7 @@ dnl Only works for ldflags which can be specified anywhere on the link line.
 AC_SUBST(ldflags)
 
 WARNING_CXXFLAGS=
+ANSI_CXXFLAGS=
 AC_MSG_CHECKING([for $CXX options to enable ANSI C++ mode])
 if test yes = "$GXX"; then
   AC_MSG_RESULT([none required])
@@ -305,9 +306,9 @@ else
       case `$CXX -V 2>&1` in
       *Sun\ C++*)
 	dnl Select ANSI conforming STL - for more information see:
-	dnl http://developers.sun.com/prodtech/cc/articles/cmp_stlport_libCstd.html
+	dnl http://developers.sun.com/solaris/articles/cmp_stlport_libCstd.html
 	dnl and:
-	dnl http://developers.sun.com/prodtech/cc/documentation/ss9_docs/mr/READMEs/c++_faq.html#bb13
+	dnl http://developers.sun.com/sunstudio/documentation/ss12/mr/READMEs/c++_faq.html#Coding12
 	dnl (Looks like -features=tmplife was added around 2000 so just pass
 	dnl it unconditionally)
 	ANSI_CXXFLAGS="-library=stlport4 -features=tmplife" ;;
@@ -641,14 +642,14 @@ if test yes = "$enable_backend_flint" -o yes = "$enable_backend_chert" ; then
 
   dnl Check for uuid/uuid.h.
   AC_CHECK_HEADERS(uuid/uuid.h, [], [
-    AC_MSG_ERROR([uuid/uuid.h not found - required for chert and flint (you may need to install the uuid-dev or libuuid-devel package)])
+    AC_MSG_ERROR([uuid/uuid.h not found - required for chert and flint (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
     ], [ ])
 
   dnl Check for uuid_generate in -luuid.
   SAVE_LIBS=$LIBS
   LIBS=
   AC_SEARCH_LIBS([uuid_generate], [uuid], [], [
-    AC_MSG_ERROR([uuid_generate() not found in -luuid - required for chert and flint (you may need to install the uuid-dev or libuuid-devel package)])
+    AC_MSG_ERROR([uuid_generate() not found in -luuid - required for chert and flint (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
     ])
   if test x != x"$LIBS" ; then
     XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $LIBS"
@@ -1007,7 +1008,7 @@ if test yes = "$GXX"; then
     ])
 else
   dnl WARNING_CXXFLAGS is set above.
-  AM_CXXFLAGS="$WARNING_CXXFLAGS"
+  AM_CXXFLAGS="$AM_CXXFLAGS $WARNING_CXXFLAGS"
 fi
 
 AH_BOTTOM(

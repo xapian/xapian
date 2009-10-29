@@ -1,7 +1,7 @@
 #!/bin/sh
 # @configure_input@
 #
-# Copyright (C) 2002,2003,2004,2005,2006,2007 Olly Betts
+# Copyright (C) 2002,2003,2004,2005,2006,2007,2009 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -108,7 +108,8 @@ set_I_for_uninstalled() {
 # Extract dlname from a libtool .la file.
 extract_dlname() {
     dlname=
-    eval `grep ^dlname= "$1" 2>/dev/null`
+    # Need to quote ^ for Solaris /bin/sh.
+    eval `grep '^dlname=' "$1" 2>/dev/null`
 }
 
 # Extract dependency_libs recursively from a libtool .la file, converting
@@ -126,7 +127,8 @@ extract_dependency_libs() {
 # Internal helper function for extract_dependency_libs.
 extract_dependency_libs_() {
     dependency_libs=
-    eval `grep ^dependency_libs= "$1" 2>/dev/null`
+    # Need to quote ^ for Solaris /bin/sh.
+    eval `grep '^dependency_libs=' "$1" 2>/dev/null`
     dependency_libs=`echo " $dependency_libs "|sed "s/$mws/ /g"`
     while true ; do
 	file=`echo "$dependency_libs"|sed "s,$pat"',\2\3\4.la,'`

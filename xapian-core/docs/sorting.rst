@@ -1,5 +1,5 @@
 
-.. Copyright (C) 2007 Olly Betts
+.. Copyright (C) 2007,2009 Olly Betts
 
 =========================
 Sorting of Search Results
@@ -119,17 +119,17 @@ Sorting by Generated Key
 ------------------------
 
 To allow more elaborate sorting schemes, Xapian allows you to provide a functor
-object subclassed from ``Xapian::Sorter`` which generates a sort key for each
+object subclassed from ``Xapian::KeyMaker`` which generates a sort key for each
 matching document which is under consideration.  This is called at most once
 for each document, and then the generated sort keys are ordered by comparing
 byte values (i.e. with a string sort ignoring locale).
 
-There's a standard subclass ``Xapian::MultiValueSorter`` which allows sorting
+There's a standard subclass ``Xapian::MultiValueKeyMaker`` which allows sorting
 on more than one document value (so the first document value specified
 determines the order except among groups which have the same value, when
 the second document value specified is used, and so on).
 
-``Xapian::Sorter`` can also be subclassed to offer features such as "sort by
+``Xapian::KeyMaker`` can also be subclassed to offer features such as "sort by
 geographical distance".  A subclass could take a coordinate pair - e.g.
 (latitude, longitude) - for the user's location and sort results using
 coordinates stored in a document value so that the nearest results ranked

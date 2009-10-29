@@ -2209,9 +2209,7 @@ FlintTable::next_default(Cursor_ * C_, int j) const
     c += D2;
     Assert((unsigned)c < block_size);
     // Sometimes c can be DIR_END(p) + 2 here it appears...
-    if (c > DIR_END(p)) c = DIR_END(p);
-    Assert(c <= DIR_END(p));
-    if (c == DIR_END(p)) {
+    if (c >= DIR_END(p)) {
 	if (j == level) return false;
 	if (!next_default(C_, j + 1)) return false;
 	c = DIR_START;

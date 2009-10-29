@@ -279,6 +279,10 @@ If you want to build Omega, you'll also need::
 
     apt-get install libpcre3-dev
 
+On fedora, the uuid library can be installed by doing::
+
+    yum install e2fsprogs-devel
+
 The SVN repository does not contain any automatically generated files
 (such as configure, Makefile.in, Snowball-generated stemmers, Lemon-generated
 parsers, SWIG-generated code, etc) because experience shows it's best to keep
@@ -540,9 +544,6 @@ Web Resources
 
 The "C++ FAQ Lite" covers many frequently asked C++ questions:
 http://www.parashift.com/c++-faq-lite/
-
-The libstdc++-porting-howto discusses various C++ portability issues:
-http://gcc.gnu.org/onlinedocs/libstdc++/17_intro/porting-howto.html
 
 Header Portability Issues
 -------------------------
@@ -968,6 +969,16 @@ semicolon and any "definition" part, for example::
         XAPIAN_DEPRECATED(static const int OLD_CONSTANT) = 42;
     };
 
+Mark a class as deprecated by inserting ``XAPIAN_DEPRECATED()`` after the class
+keyword like so::
+
+    class XAPIAN_DEPRECATED() Foo {
+      public:
+        Foo() { };
+
+        // ...
+    };
+
 To avoid compilation errors with older GCC versions (noted with GCC 3.3.5),
 you can't mark a method which is defined inline in a class with
 XAPIAN_DEPRECATED (this works with recent GCC versions though)::
@@ -993,7 +1004,7 @@ Submitting Patches:
 If you have a patch to fix a problem in Xapian, or to add a new feature,
 please send it to us for inclusion.  Any major changes should be discussed
 on the xapian-devel mailing list first:
-<http://xapian.org/lists.php>
+<http://xapian.org/lists>
 
 We find patches in unified diff format easiest to read.  If you're using a
 SVN checkout just use "svn diff" to generate the diff.  If you're working
@@ -1106,8 +1117,9 @@ to follow the style of the existing code.  In particular:
     }
 
 * For standard ISO C headers, prefer the C++ form for ISO C headers (e.g.
-  "#include <cstdlib>" rather than "#include <stdlib.h>") unless there's
-  a good reason (e.g. portability) to do otherwise.
+  "#include <cstdlib>" rather than "#include <stdlib.h>") unless there's a good
+  reason (e.g. portability) to do otherwise.  Be sure to document such exceptions
+  to avoid another developer changing them to the standard form.
 
 * For standard ISO C++ headers, *always* use the ISO C++ form '#include <list>'
   (pre-ISO compilers used '#include <list.h>', but GCC has generated a warning
@@ -1321,8 +1333,8 @@ This is a (hopefully complete) list of the jobs which need doing:
 
 * Update the NEWS files using information from the ChangeLog files
 
-* Update the PLATFORMS file.  Don't forget to use reports from the tinderbox:
-  http://www.oligarchy.co.uk/tinderbox/xapian/status.html
+* Update the PLATFORMS file.  Don't forget to use reports from automated
+  builds: http://trac.xapian.org/wiki/AutomatedBuilds
 
 * Update the version in configure.ac for each module (xapian-core, omega, and
   xapian-bindings), and the library version info in xapian-core's configure.ac
@@ -1359,9 +1371,7 @@ This is a (hopefully complete) list of the jobs which need doing:
 
   Create a new page http://wiki.xapian.org/ReleaseNotes/X.Y.Z and link it into
   http://wiki.xapian.org/ReleaseNotes in place of the old current release link,
-  which should be moved to the archived section.  Also update
-  http://wiki.xapian.org/RoadMap to record the date of the release and the
-  estimated date for the next release.
+  which should be moved to the archived section.
 
   Also update the roadmap at http://wiki.xapian.org/RoadMap by recording the
   date of this release and adding an entry for the next release with an

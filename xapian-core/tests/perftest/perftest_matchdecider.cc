@@ -93,14 +93,14 @@ DEFINE_TESTCASE(valuesetmatchdecider1, writable && !remote && !inmemory) {
     logger.searching_start("No match decider");
     logger.search_start();
     enquire.set_query(query);
-    Xapian::MSet mset = enquire.get_mset(0, 10, 0, NULL, NULL, NULL);
+    Xapian::MSet mset = enquire.get_mset(0, 10);
     logger.search_end(query, mset);
     TEST(mset.size() == 10);
     TEST(mset.get_matches_lower_bound() <= runsize);
     TEST(mset.get_matches_upper_bound() <= runsize);
 
     logger.search_start();
-    mset = enquire.get_mset(0, 10, 0, NULL, NULL, NULL);
+    mset = enquire.get_mset(0, 10);
     logger.search_end(query, mset);
     TEST(mset.size() == 10);
     TEST(mset.get_matches_lower_bound() <= runsize);
@@ -116,7 +116,7 @@ DEFINE_TESTCASE(valuesetmatchdecider1, writable && !remote && !inmemory) {
 	logger.searching_start("Match decider accepting " + om_tostring(i + 1) + "%");
 	logger.search_start();
 	enquire.set_query(query);
-	mset = enquire.get_mset(0, 10, 0, NULL, &md, NULL);
+	mset = enquire.get_mset(0, 10, 0, NULL, &md);
 	logger.search_end(query, mset);
 	TEST_EQUAL(mset.size(), 10);
 	TEST_REL(mset.get_matches_lower_bound(),<=,runsize * (i + 1) / 100);
@@ -128,7 +128,7 @@ DEFINE_TESTCASE(valuesetmatchdecider1, writable && !remote && !inmemory) {
 	Xapian::MSet mset2;
 	logger.search_start();
 	enquire.set_query(query2);
-	mset2 = enquire.get_mset(0, 10, 0, NULL, NULL, NULL);
+	mset2 = enquire.get_mset(0, 10);
 	logger.search_end(query2, mset2);
 	TEST_EQUAL(mset2.size(), 10);
 	TEST_REL(mset2.get_matches_lower_bound(),<=,runsize * (i + 1) / 100);
