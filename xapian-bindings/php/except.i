@@ -25,6 +25,7 @@
 static void
 XapianExceptionHandler()
 {
+    TSRMLS_FETCH();
     string msg;
     try {
 	// Rethrow so we can look at the exception if it was a Xapian::Error.
