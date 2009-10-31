@@ -1,4 +1,28 @@
- 13517       olly Thu Sep 17 10:20:35 GMT 2009  Olly Betts <olly@survex.com>
+ 13553       olly Sat Oct 31 06:59:19 GMT 2009  Olly Betts <olly@survex.com>
+
+ 13553       olly Sat Oct 31 06:59:19 GMT 2009  Olly Betts <olly@survex.com>
+	* include/xapian/enquire.h: Fix deprecation warnings when building with
+	  recent GCC.
+
+ 13552       olly Sat Oct 31 02:46:04 GMT 2009  Olly Betts <olly@survex.com>
+	* tests/queryparsertest.cc: Add another test query string to cover a
+	  case we didn't previously check.
+
+ 13548       olly Tue Oct 27 00:42:59 GMT 2009  Olly Betts <olly@survex.com>
+	* backends/chert/chert_lock.cc,backends/flint/flint_lock.cc: Don't
+	  try to close the fd one more than the maximum allowable.
+	  (ticket#408)
+	* AUTHORS: Add Carl Worth for the patch.
+
+ 13533       olly Fri Sep 18 13:23:00 GMT 2009  Olly Betts <olly@survex.com>
+	* configure.ac: Actually use any flags we determine are needed to
+	  switch the compiler to proper ANSI C++ mode, when building
+	  xapian-core - this stopped working in 1.0.12, breaking support for
+	  HP's aCC, Compaq's cxx, Sun's CC, and SGI's CC.
+
+ 13532       olly Fri Sep 18 12:40:37 GMT 2009  Olly Betts <olly@survex.com>
+	* include/xapian/matchspy.h: Mark ValueCountMatchSpy, NumericRange,
+	  NumericRanges, and score_evenness() as experimental.
 
 Xapian-core 1.1.3 (2009-09-1?):
 
@@ -6,53 +30,52 @@ This release includes all changes from 1.0.15 and 1.0.16 which are relevant.
 
 API:
 
+* Update Unicode character database to Unicode 5.2.  (ticket#351)
+
 * Rename Xapian::Sorter to Xapian::KeyMaker, paving the way for using it to
-  build collapse keys too.
+  build collapse keys too.  Xapian::Sorter remains for compatibility (and is
+  now a subclass of Xapian::KeyMaker) but is deprecated.
 
 * Resolve the inconsistency in MultiValueSorter::add()'s "forward" parameter
   versus the "reverse" parameters which the Enquire sorting functions now take
-  by replacing the method with MultiKeyMaker::add_value() with a "reverse"
-  parameter.  (ticket#359)
+  by replacing the class with MultiKeyMaker with a renamed method add_value()
+  with a "reverse" parameter.  MultiValueSorter remains with the old semantics
+  for compatibility but is deprecated.  (ticket#359)
 
-* common/serialise-double.cc: Throw SerialisationError or InternalError
-	  instead of NetworkError.
+* QueryParser: Don't apply spelling correction to wildcarded terms, or to terms
+  at the end of the query which we expand under FLAG_PARTIAL.
+
+* Add new Error subclass SerialisationError which we throw for serialisation
+  related errors (which previously mostly threw NetworkError.
 
 * Rename Xapian::SerialisationContext to Xapian::Registry.
 
-* Add DecreasingValueWeightPostingSource class, which reads weights
-	  from a value slot in which a significant range of the values are
-	  in decreasing order.  This functions similarly to
-	  ValueWeightPostingSource, but can be much more efficient.
+* Add DecreasingValueWeightPostingSource class, which reads weights from a
+  value slot in which a significant range of the values are in decreasing
+  order.  This functions similarly to ValueWeightPostingSource, but can be much
+  more efficient.
 
-* Add new-style Xapian::MatchSpy class,
-	  which is a pure "spy" class, rather than being able to take a
-	  decision on whether a spy is applied before or after a result.
-	  This class is also designed to work with remote databases,
-	  passing the results back in serialised form.  Also, add
-	  ValueCountMatchSpy, which counts the occurrences of each value in
-	  a slot in the search results seen (useful for faceted or
-	  categorisation systems).
+* Add new Xapian::MatchSpy class:
 
- 13327    richard Mon Aug 17 11:51:24 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
-	* api/matchspy.cc,include/xapian/matchspy.h: Add overload for
-	  score_evenness to allow a NumericRanges object to be passed to
-	  it.
-	* api/matchspy.cc,include/xapian/matchspy.h: Replace
-	  build_numeric_ranges() function with a NumericRanges object,
-	  whose constructor is passed the values and which exposes the
-	  calculated ranges via a getter.
-	* tests/api_matchspy.cc: Update tests to use new NumericRanges
-	  object instead of build_numeric_ranges().
+  + This replaces the use of Xapian::MatchDecider as a "matchspy", which is now
+    deprecated.  The new class only inspects, and can't reject.  It can work
+    with remote databases, with the results being serialised to return them
+    across the link.
+
+  + Add subclass ValueCountMatchSpy, which counts the occurrences of each value
+    in a slot in the search results seen (useful for faceted or categorisation
+    systems).  The results can be grouped into ranges using the NumericRange
+    and NumericRanges classes, and the score_evenness() function.  This API is
+    currently experimental.
+
+* Remove default implementation of Weight::clone() which returns NULL.  We
+  always need clone() to be implemented because it's called for every term
+  in the query, not just used for the remote backend.
 
 testsuite:
 
 
 matcher:
-
-* Fix MSetPostList not to read off the end of
-	  the MSet if get_maxweight() is called when at_end().  This can
-	  happen but the testcase was too large to send so sadly no
-	  regression test I'm afraid.
 
 chert backend:
 
@@ -83,7 +106,11 @@ flint backend:
 remote backend:
 
 * Remote protocol major version has changed to support serialising MatchSpy
-  object.
+  objects.
+
+* Fixed not to sometimes read off the end of the returned matches when
+  searching multiple databases, some of which are remote, and when the primary
+  ordering is by relevance.
 
 inmemory backend:
 
@@ -94,14 +121,20 @@ build system:
   makes use of shell functions, which makes it ~13% smaller, and should also
   make it execute faster.
 
-* This release uses doxygen 1.5.9 to generate the API documentation.
-
 * configure: Send stderr output from ldconfig to config.log.
 
 * Add optional third parameter to XO_LIB_XAPIAN autoconf macro which specifies
   the basename for the "xapian-config" script (defaults to "xapian-config" to
   give the current behaviour).
 
+* This release uses doxygen 1.5.9 to generate the API documentation.
+
+ 13546    richard Mon Oct 05 09:00:58 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+	* configure.ac: Mention e2fsprogs-devel in the message thrown up by
+	  configure, too.
+ 13545    richard Mon Oct 05 08:53:05 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+	* HACKING: Note the command needed to get the uuid library
+	  installed on fedora, since it's rather non-obvious.
 documentation:
 
 * Minor improvements to the formatting of the collated API documentation.
@@ -111,8 +144,10 @@ examples:
 
 portability:
 
-* Fix uuid_unparse_lower() replacement for older libuuid to actually compile
-  (really fixes ticket#368).
+* Fix our uuid_unparse_lower() replacement for older libuuid to actually
+  compile (really fixes ticket#368).
+
+* Fix xapian-config to work with Solaris 10 /bin/sh.  (ticket#405)
 
 packaging:
 
