@@ -1,3 +1,8 @@
+Sat Oct 31 02:46:04 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: Add another test query string to cover a
+	  case we didn't previously check.
+
 Tue Oct 27 00:42:59 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_lock.cc,backends/flint/flint_lock.cc: Don't
