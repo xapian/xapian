@@ -1,3 +1,8 @@
+Sat Oct 31 06:59:19 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/enquire.h: Fix deprecation warnings when building with
+	  recent GCC.
+
 Sat Oct 31 02:46:04 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/queryparsertest.cc: Add another test query string to cover a
