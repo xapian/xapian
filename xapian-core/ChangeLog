@@ -1,3 +1,10 @@
+Sun Nov 01 22:10:54 GMT 2009  Olly Betts <olly@survex.com>
+
+	* examples/delve.cc,examples/quest.cc: Extend exception handling to the
+	  whole of main.  Xapian::Stem("english") can't actually throw, but
+	  that's not obvious to static analysis tools, and it is more robust
+	  to wrap the whole of main, and reduces indentation.
+
 Sun Nov 01 21:27:05 GMT 2009  Olly Betts <olly@survex.com>
 
 	* bin/xapian-compact.cc: Add missing exception catch for const char *.
