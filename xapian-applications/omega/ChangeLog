@@ -1,3 +1,10 @@
+Sun Nov 01 09:15:52 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* cgiparam.h: Add explicit inclusions of <map> and <string> and qualify
+	  multimap and string with std::.
+	* cgiparam.cc,commonhelp.cc: Include the corresponding header.
+
 Thu Sep 10 06:32:49 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS: Touch 1.0.16 release date.
