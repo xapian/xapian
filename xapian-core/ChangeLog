@@ -1,3 +1,10 @@
+Sun Nov 01 21:27:05 GMT 2009  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Add missing exception catch for const char *.
+	  The only case which currently throws this is an "impossible"
+	  situation, but if we're going to check for it, the reporting of
+	  failure should actually work.  Identified by Coverity's Scan.
+
 Sun Nov 01 07:56:38 GMT 2009  Olly Betts <olly@survex.com>
 
 	* examples/quest.cc: Tighten up the type of the error we catch to

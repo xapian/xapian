@@ -1266,5 +1266,8 @@ main(int argc, char **argv)
     } catch (const Xapian::Error &error) {
 	cerr << argv[0] << ": " << error.get_description() << endl;
 	exit(1);
+    } catch (const char * msg) {
+	cerr << argv[0] << ": " << msg << endl;
+	exit(1);
     }
 }
