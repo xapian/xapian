@@ -1,3 +1,8 @@
+Sun Nov 01 07:56:38 GMT 2009  Olly Betts <olly@survex.com>
+
+	* examples/quest.cc: Tighten up the type of the error we catch to
+	  detect an unknown stemming language.
+
 Sat Oct 31 07:16:11 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
