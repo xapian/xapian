@@ -1,3 +1,10 @@
+Mon Nov 02 06:47:01 GMT 2009  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: Extend exception handling to the whole of main.
+	  Xapian::Stem("english") can't actually throw, but that's not obvious
+	  to static analysis tools, and it is more robust to wrap the whole of
+	  main, and reduces indentation.
+
 Mon Nov 02 06:32:41 GMT 2009  Olly Betts <olly@survex.com>
 
 	* omindex.cc,scriptindex.cc: Tighten up the type of the error we catch

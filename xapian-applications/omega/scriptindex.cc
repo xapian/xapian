@@ -711,7 +711,7 @@ again:
 
 int
 main(int argc, char **argv)
-{
+try {
     // If the database already exists, default to updating not overwriting.
     int database_mode = Xapian::DB_CREATE_OR_OPEN;
     verbose = false;
@@ -777,57 +777,53 @@ main(int argc, char **argv)
 
     parse_index_script(argv[1]);
 
-    // Catch any Xapian::Error exceptions thrown.
-    try {
-	// Open the database.
-	Xapian::WritableDatabase database;
-	while (true) {
-	    try {
-		database = Xapian::WritableDatabase(argv[0], database_mode);
-		break;
-	    } catch (const Xapian::DatabaseLockError &) {
-		// Sleep and retry if we get a Xapian::DatabaseLockError -
-		// this just means that another process is updating the
-		// database.
-		cout << "Database locked ... retrying" << endl;
-		sleep(1);
-	    }
+    // Open the database.
+    Xapian::WritableDatabase database;
+    while (true) {
+	try {
+	    database = Xapian::WritableDatabase(argv[0], database_mode);
+	    break;
+	} catch (const Xapian::DatabaseLockError &) {
+	    // Sleep and retry if we get a Xapian::DatabaseLockError - this
+	    // just means that another process is updating the database.
+	    cout << "Database locked ... retrying" << endl;
+	    sleep(1);
 	}
-
-	Xapian::TermGenerator indexer;
-	indexer.set_stemmer(stemmer);
-	// Set the database for spellings to be added to by the "spell" action.
-	indexer.set_database(database);
-
-	addcount = 0;
-	repcount = 0;
-	delcount = 0;
-
-	if (argc == 2) {
-	    // Read from stdin.
-	    index_file("<stdin>", cin, database, indexer);
-	} else {
-	    // Read file(s) listed on the command line.
-	    for (int i = 2; i < argc; ++i) {
-		ifstream stream(argv[i]);
-		if (stream) {
-		    index_file(argv[i], stream, database, indexer);
-		} else {
-		    cout << "Can't open file " << argv[i] << endl;
-		}
-	    }
-	}
-
-	cout << "records (added, replaced, deleted) = (" << addcount <<
-		", " << repcount << ", " << delcount << ")" << endl;
-    } catch (const Xapian::Error &error) {
-	cout << "Exception: " << error.get_msg() << endl;
-	exit(1);
-    } catch (const std::bad_alloc &) {
-	cout << "Exception: std::bad_alloc" << endl;
-	exit(1);
-    } catch (...) {
-	cout << "Unknown Exception" << endl;
-	exit(1);
     }
+
+    Xapian::TermGenerator indexer;
+    indexer.set_stemmer(stemmer);
+    // Set the database for spellings to be added to by the "spell" action.
+    indexer.set_database(database);
+
+    addcount = 0;
+    repcount = 0;
+    delcount = 0;
+
+    if (argc == 2) {
+	// Read from stdin.
+	index_file("<stdin>", cin, database, indexer);
+    } else {
+	// Read file(s) listed on the command line.
+	for (int i = 2; i < argc; ++i) {
+	    ifstream stream(argv[i]);
+	    if (stream) {
+		index_file(argv[i], stream, database, indexer);
+	    } else {
+		cout << "Can't open file " << argv[i] << endl;
+	    }
+	}
+    }
+
+    cout << "records (added, replaced, deleted) = (" << addcount << ", "
+	 << repcount << ", " << delcount << ")" << endl;
+} catch (const Xapian::Error &error) {
+    cout << "Exception: " << error.get_msg() << endl;
+    exit(1);
+} catch (const std::bad_alloc &) {
+    cout << "Exception: std::bad_alloc" << endl;
+    exit(1);
+} catch (...) {
+    cout << "Unknown Exception" << endl;
+    exit(1);
 }
