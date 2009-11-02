@@ -1,3 +1,8 @@
+Mon Nov 02 06:32:41 GMT 2009  Olly Betts <olly@survex.com>
+
+	* omindex.cc,scriptindex.cc: Tighten up the type of the error we catch
+	  to detect an unknown stemming language.
+
 Thu Sep 17 12:13:10 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
