@@ -1,3 +1,7 @@
+Mon Nov 02 09:32:22 GMT 2009  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Use delete[] (not delete) for array allocated by new[].
+
 Mon Nov 02 07:08:13 GMT 2009  Olly Betts <olly@survex.com>
 
 	* runfilter.cc: Fix likely crash if read() is interrupted by a signal.
