@@ -475,3 +475,12 @@ DEFINE_TESTCASE(emptymset1, !backend) {
 		   emptymset.get_termfreq("foo"));
     return true;
 }
+
+// Regression test: asking for a metadata on empty Database used to segfault.
+DEFINE_TESTCASE(emptydb_metadata1, !backend) {
+    Xapian::Database db;
+    TEST_EQUAL(db.get_metadata("foo"), std::string());
+    TEST_EQUAL(db.metadata_keys_begin(),
+	       db.metadata_keys_end());
+    return true;
+}

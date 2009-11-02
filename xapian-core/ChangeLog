@@ -1,3 +1,11 @@
+Mon Nov 02 08:10:03 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/omdatabase.cc: Check that internal is not empty before
+	  referencing its first element, in get_metadata() and
+	  metadata_keys_begin(), to avoid a potential segfault.
+	* tests/api_nodb.cc: Add emptydb_metadata1, a regression test for
+	  this bug.
+
 Sun Nov 01 22:10:54 GMT 2009  Olly Betts <olly@survex.com>
 
 	* examples/delve.cc,examples/quest.cc: Extend exception handling to the
