@@ -224,3 +224,13 @@ DEFINE_TESTCASE(multivaluekeymaker1,!backend) {
     return true;
 }
 
+DEFINE_TESTCASE(sortfunctorremote1,remote) {
+    Xapian::Enquire enquire(get_database(string()));
+    NeverUseMeKeyMaker sorter;
+    enquire.set_query(Xapian::Query("word"));
+    enquire.set_sort_by_key(&sorter, true);
+    TEST_EXCEPTION(Xapian::UnimplementedError,
+	Xapian::MSet mset = enquire.get_mset(0, 10);
+    );
+    return true;
+}

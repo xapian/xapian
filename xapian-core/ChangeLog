@@ -1,3 +1,11 @@
+Tue Nov 03 02:43:12 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Xapian::Sorter isn't supported with the remote
+	  backend so throw UnimplementedError rather than giving incorrect
+	  results.  (ticket#384)
+	* tests/api_sorting.cc: Add sortfunctorremote1 test this exception is
+	  actually thrown.
+
 Tue Nov 03 01:26:57 GMT 2009  Olly Betts <olly@survex.com>
 
 	* common/database.h: Fix vertical whitespace glitch.
