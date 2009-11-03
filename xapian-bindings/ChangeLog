@@ -1,3 +1,8 @@
+Tue Nov 03 06:09:39 GMT 2009  Olly Betts <olly@survex.com>
+
+	* java/native/Enquire.cc: Fix memory leak when passing a matchdecider
+	  to Enquire::get_mset().
+
 Thu Oct 29 09:40:54 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* php/except.i: Add a call to TSRMLS_FETCH to start of
