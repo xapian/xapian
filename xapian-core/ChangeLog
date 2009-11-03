@@ -1,3 +1,8 @@
+Tue Nov 03 06:08:43 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/generate-api_generated: Update MultiValueSorter to
+	  MultiValueKeyMaker.
+
 Tue Nov 03 05:51:23 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_sorting.cc,tests/api_sortingold.cc: Fix changesorter1 and
