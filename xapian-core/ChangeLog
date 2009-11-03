@@ -1,3 +1,9 @@
+Tue Nov 03 05:51:23 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_sorting.cc,tests/api_sortingold.cc: Fix changesorter1 and
+	  oldchangesorter1 to not be run for the remote backend where they will
+	  now fail with UnimplementedError.
+
 Tue Nov 03 02:43:12 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: Xapian::Sorter isn't supported with the remote

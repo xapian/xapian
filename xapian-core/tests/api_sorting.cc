@@ -159,7 +159,7 @@ class NeverUseMeKeyMaker : public Xapian::KeyMaker {
 };
 
 /// Regression test for changing away from a sorter.
-DEFINE_TESTCASE(changesorter1, backend) {
+DEFINE_TESTCASE(changesorter1, backend && !remote) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("word"));
     NeverUseMeKeyMaker sorter;
