@@ -760,7 +760,10 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *
 	 *  The intended use is to allow UIDs from another system to easily
 	 *  be mapped to terms in Xapian, although this method probably has
-	 *  other uses.
+	 *  other uses.  If you are using this method in this way, you will
+	 *  need to add the unique term to the document before calling it
+	 *  (using Document::add_term) - this method does not add the unique
+	 *  term to the document automatically.
 	 *
 	 *  Note that changes to the database won't be immediately committed to
 	 *  disk; see commit() for more details.

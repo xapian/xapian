@@ -1,3 +1,9 @@
+Tue Nov 03 12:12:09 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/database.h: Make it more clear that you need to
+	  add the unique term to the document if you want to use
+	  replace_document() to use external unique IDs for documents.
+
 Tue Nov 03 06:08:43 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/generate-api_generated: Update MultiValueSorter to
