@@ -1,3 +1,7 @@
+Tue Nov 03 01:26:57 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/database.h: Fix vertical whitespace glitch.
+
 Mon Nov 02 08:10:03 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/omdatabase.cc: Check that internal is not empty before
