@@ -1,3 +1,8 @@
+Wed Nov 04 00:54:38 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/: Sync with latest version from xapian-core to pick up getopt
+	  fix for Mac OS X 10.6.
+
 Mon Nov 02 09:32:22 GMT 2009  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Use delete[] (not delete) for array allocated by new[].
