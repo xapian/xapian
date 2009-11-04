@@ -758,12 +758,11 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  term, the lowest document ID will be used for the document,
 	 *  otherwise a new document ID will be generated as for add_document.
 	 *
-	 *  The intended use is to allow UIDs from another system to easily
-	 *  be mapped to terms in Xapian, although this method probably has
-	 *  other uses.  If you are using this method in this way, you will
-	 *  need to add the unique term to the document before calling it
-	 *  (using Document::add_term) - this method does not add the unique
-	 *  term to the document automatically.
+	 *  One common use is to allow UIDs from another system to easily be
+	 *  mapped to terms in Xapian.  Note that this method doesn't
+	 *  automatically add unique_term as a term, so you'll need to call
+	 *  document.add_term(unique_term) first when using replace_document()
+	 *  in this way.
 	 *
 	 *  Note that changes to the database won't be immediately committed to
 	 *  disk; see commit() for more details.
