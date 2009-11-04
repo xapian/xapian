@@ -39,7 +39,7 @@ operator<<(std::ostream & os, const CLASS & object) { \
 #define XAPIAN_OUTPUT_FUNCTION_PTR(CLASS) \
 inline std::ostream & \
 operator<<(std::ostream & os, const CLASS * object) { \
-    if (object == NULL) return os << "<NULL " #CLASS ">"; \
+    if (object == NULL) return os << "(" #CLASS "*)0"; \
     return os << object->get_description(); \
 }
 

@@ -1,3 +1,7 @@
+Wed Nov 04 04:11:38 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/output.h: Use C++ syntax for NULL with a type in log output.
+
 Wed Nov 04 04:02:09 GMT 2009  Olly Betts <olly@survex.com>
 
 	* queryparser/lemon.c: Avoid trivial memory leak.
