@@ -1,3 +1,10 @@
+Wed Nov 04 01:51:41 GMT 2009  Olly Betts <olly@survex.com>
+
+	* freemem.cc: On Linux, _SC_AVPHYS_PAGES excludes pages used by the OS
+	  VM cache, so will often return a really low value, so instead use
+	  _SC_PHYS_PAGES.  Reported by Rune Kock in Debian bug#548987.  Also
+	  explains ticket#358.
+
 Wed Nov 04 00:54:38 GMT 2009  Olly Betts <olly@survex.com>
 
 	* common/: Sync with latest version from xapian-core to pick up getopt
