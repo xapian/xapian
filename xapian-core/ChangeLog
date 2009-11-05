@@ -1,3 +1,8 @@
+Thu Nov 05 03:55:37 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/safeuuid.h: Fix to work with uuid libraries which lack const
+	  qualifiers.  Fixes build failure on Solaris.
+
 Thu Nov 05 00:15:24 GMT 2009  Olly Betts <olly@survex.com>
 
 	* HACKING: Update details of debian packaging.

@@ -27,7 +27,35 @@
 #else
 # include <uuid/uuid.h>
 
-# ifndef HAVE_UUID_UNPARSE_LOWER
+// Some UUID libraries lack const qualifiers.  Solaris is a particular
+// example which survives today (2009).  The libuuid from e2fsprogs gained
+// const qualifiers in 2001.
+# ifndef uuid_compare
+#  define uuid_compare(UU1, UU2) \
+     (uuid_compare)(*const_cast<uuid_t*>(&(UU1)), *const_cast<uuid_t*>(&(UU2)))
+# endif
+# ifndef uuid_copy
+#  define uuid_copy(DST, SRC) (uuid_copy)((DST), *const_cast<uuid_t*>(&(SRC)))
+# endif
+# ifndef uuid_is_null
+#  define uuid_is_null(UU) (uuid_is_null)(*const_cast<uuid_t*>(&(UU)))
+# endif
+# ifndef uuid_parse
+#  define uuid_parse(IN, UU) (uuid_parse)(const_cast<char*>(IN), (UU))
+# endif
+# ifndef uuid_time
+#  define uuid_time(UU, TV) (uuid_time)(*const_cast<uuid_t*>(&(UU)), (TV))
+# endif
+# ifndef uuid_unparse
+#  define uuid_unparse(UU, O) (uuid_unparse)(*const_cast<uuid_t*>(&(UU)), (O))
+# endif
+
+# ifdef HAVE_UUID_UNPARSE_LOWER
+#  ifndef uuid_unparse_lower
+#   define uuid_unparse_lower(UU, O) \
+      (uuid_unparse_lower)(*const_cast<uuid_t*>(&(UU)), (O))
+#  endif
+# else
 /* Older versions of libuuid (such as that on CentOS 4.7) don't have
  * uuid_unparse_lower(), only uuid_unparse(). */
 inline void uuid_unparse_lower(const uuid_t uu, char *out) {
