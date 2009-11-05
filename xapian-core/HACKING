@@ -1392,32 +1392,58 @@ for which packages have been produced (currently xapian-core, xapian-bindings
 and xapian-applications/omega).  After each release, these should be
 updated as follows:
 
-* If any patches are being applied when building the debian package
-  (ie, there is a patch file "debian/patch"), and these patches are
-  now incorporated into the release, remove or update the patch file.
+* If there are any patch files in "debian/patches", check if these have been
+  incorporated into the new release, and if so remove them and update
+  "debian/patches/series".  If there are no patches left and
+  "debian/patches/series" is empty or only contains lines starting with a "#"
+  then the dependency on quilt is automatically omitted.
 
 * Update the debian/changelog file, being sure to keep it in the
   standard Debian format (the easiest way is to use the dch utility
-  like so: "dch -v 0.9.7-1".  The new version number should be the
-  version number of the release followed by "-1" (ie, a debian
+  like so: "dch -v 1.0.14-1".  The new version number should be the
+  version number of the release followed by "-1" (i.e., a debian
   patch number of 1).  The changelog message should indicate that
   there is a new upstream release, and should mention any significant
   changes in the new release.
 
-* Use xapian-maintainer-tools/debian/svn-tag-debs to tag all the files in the
-  debian control directory with the tag "debian-VERSION-1" - eg, for a new
-  release of version 0.9.6, tag with "debian-0.9.6-1".
+* Run ``xapian-maintainer-tools/debian/svn-tag-debs`` to tag all the files in the
+  debian control directory - e.g., for a new release of version 1.0.14, it tags
+  with "tags/debian-1.0.14-1".
 
-* Use xapian-maintainer-tools/debian/make-source-packages to make and upload
-  new source packages for the various Debian and Ubuntu versions we provide
-  packages for.  Currently this script must be run on atreus.
+* ``cd xapian-maintainer-tools/debian``
 
-* Build debs for oldstable, stable, unstable, dapper, hardy, intrepid, jaunty.
-  The Ubuntu packages are now built in a PPA in Launchpad.  Alternatively, the
-  scripts xapian-maintainer-tools/debian/create-chroot and
-  xapian-maintainer-tools/debian/build-packages allow building these in a
-  series of chroots on a single machine using pbuilder.
+* Run ``./make-source-packages`` to make new source packages for Debian unstable.
 
+* Run ``sudo ./build-packages`` to build binary packages from these source
+  packages.
 
+* Test the packages.
+
+* Run ``debsign build/*_amd64.changes`` to GPG sign the packages.
+
+* Run ``dput build/*_amd64.changes`` to upload them to Debian.
+
+* For the Ubuntu backports::
+
+   ./backport-source-packages xapian-core 1.0.15-1 jaunty intrepid hardy dapper
+   ./backport-source-packages xapian-omega 1.0.15-1 jaunty intrepid hardy dapper
+   ./backport-source-packages xapian-bindings 1.0.15-1 jaunty intrepid hardy dapper
+
+  And once libsearch-xapian-perl is uploaded to Debian unstable::
+
+   ./backport-source-packages libsearch-xapian-perl 1.0.15.0-1 jaunty intrepid hardy
+
+  Then sign::
+
+   debsign build/*99*_source.changes
+
+  Upload::
+
+   dput xapian-backports build/xapian-core*99*_source.changes
+
+  Wait for that to have a chance to build, and then::
+
+   dput xapian-backports build/xapian-[bo]*99*_source.changes
+   dput xapian-backports build/libsearch-xapian-perl*_source.changes
 
 .. vim: syntax=
