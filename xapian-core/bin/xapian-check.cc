@@ -30,7 +30,7 @@
 #include "chert_cursor.h"
 #include "chert_table.h"
 #include "chert_types.h"
-#include "chert_utils.h"
+#include "pack.h"
 
 #include "internaltypes.h"
 

@@ -26,9 +26,9 @@
 
 #include "chert_cursor.h"
 #include "chert_database.h"
-#include "chert_utils.h"
 #include "noreturn.h"
 #include "omdebug.h"
+#include "pack.h"
 #include "utils.h"
 
 Xapian::doccount
@@ -345,11 +345,11 @@ PostlistChunkWriter::append(ChertTable * table, Xapian::docid did,
 	    chunk.resize(0);
 	    orig_key = ChertPostListTable::make_key(tname, first_did);
 	} else {
-	    chunk.append(pack_uint(did - current_did - 1));
+	    pack_uint(chunk, did - current_did - 1);
 	}
     }
     current_did = did;
-    chunk.append(pack_uint(wdf));
+    pack_uint(chunk, wdf);
 }
 
 /** Make the data to go at the start of the very first chunk.
@@ -359,7 +359,11 @@ make_start_of_first_chunk(Xapian::doccount entries,
 			  Xapian::termcount collectionfreq,
 			  Xapian::docid new_did)
 {
-    return pack_uint(entries) + pack_uint(collectionfreq) + pack_uint(new_did - 1);
+    string chunk;
+    pack_uint(chunk, entries);
+    pack_uint(chunk, collectionfreq);
+    pack_uint(chunk, new_did - 1);
+    return chunk;
 }
 
 /** Make the data to go at the start of a standard chunk.
@@ -370,8 +374,10 @@ make_start_of_chunk(bool new_is_last_chunk,
 		    Xapian::docid new_final_did)
 {
     Assert(new_final_did >= new_first_did);
-    return pack_bool(new_is_last_chunk) +
-	    pack_uint(new_final_did - new_first_did);
+    string chunk;
+    pack_bool(chunk, new_is_last_chunk);
+    pack_uint(chunk, new_final_did - new_first_did);
+    return chunk;
 }
 
 static void

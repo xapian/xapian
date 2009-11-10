@@ -45,11 +45,11 @@
 #include "chert_record.h"
 #include "chert_spellingwordslist.h"
 #include "chert_termlist.h"
-#include "chert_utils.h"
 #include "chert_valuelist.h"
 #include "chert_values.h"
 #include "omdebug.h"
 #include "omtime.h"
+#include "pack.h"
 #include "remoteconnection.h"
 #include "replicationprotocol.h"
 #include "serialise.h"
@@ -434,12 +434,12 @@ ChertDatabase::set_revision_number(chert_revision_number_t new_revision)
 	    string buf;
 	    chert_revision_number_t old_revision = get_revision_number();
 	    buf += CHANGES_MAGIC_STRING;
-	    buf += pack_uint(CHANGES_VERSION);
-	    buf += pack_uint(old_revision);
-	    buf += pack_uint(new_revision);
+	    pack_uint(buf, CHANGES_VERSION);
+	    pack_uint(buf, old_revision);
+	    pack_uint(buf, new_revision);
 
-	    // FIXME - if DANGEROUS mode is in use, this should contain pack_uint(1u)
-	    buf += pack_uint(0u); // Changes can be applied to a live database.
+	    // FIXME - if DANGEROUS mode is in use, this should be 1 not 0.
+	    pack_uint(buf, 0u); // Changes can be applied to a live database.
 
 	    chert_io_write(changes_fd, buf.data(), buf.size());
 
@@ -464,7 +464,7 @@ ChertDatabase::set_revision_number(chert_revision_number_t new_revision)
 	string changes_tail; // Data to be appended to the changes file
 	if (changes_fd >= 0) {
 	    changes_tail += '\0';
-	    changes_tail += pack_uint(new_revision);
+	    pack_uint(changes_tail, new_revision);
 	}
 	record_table.commit(new_revision, changes_fd, &changes_tail);
 
@@ -537,7 +537,7 @@ ChertDatabase::send_whole_database(RemoteConnection & conn,
     string uuid = get_uuid();
     buf += encode_length(uuid.size());
     buf += uuid;
-    buf += pack_uint(get_revision_number());
+    pack_uint(buf, get_revision_number());
     conn.send_message(REPL_REPLY_DB_HEADER, buf, end_time);
 
     // Send all the tables.  The tables which we want to be cached best after
@@ -625,7 +625,7 @@ ChertDatabase::write_changesets_to_fd(int fd,
 
 		string buf;
 		needed_rev_num = get_revision_number();
-		buf += pack_uint(needed_rev_num);
+		pack_uint(buf, needed_rev_num);
 		conn.send_message(REPL_REPLY_DB_FOOTER, buf, end_time);
 		if (info != NULL && start_rev_num == needed_rev_num)
 		    info->changed = true;
@@ -639,7 +639,7 @@ ChertDatabase::write_changesets_to_fd(int fd,
 		// database transfer.
 
 		string buf;
-		buf += pack_uint(start_rev_num + 1);
+		pack_uint(buf, start_rev_num + 1);
 		conn.send_message(REPL_REPLY_DB_FOOTER, buf, end_time);
 		need_whole_db = true;
 	    }
@@ -1010,7 +1010,7 @@ ChertDatabase::get_revision_info() const
 {
     DEBUGCALL(DB, string, "ChertDatabase::get_revision_info", "");
     string buf;
-    buf += pack_uint(get_revision_number());
+    pack_uint(buf, get_revision_number());
     RETURN(buf);
 }
 

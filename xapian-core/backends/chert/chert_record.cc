@@ -20,14 +20,24 @@
  */
 
 #include <config.h>
+
 #include "chert_record.h"
-#include "chert_utils.h"
-#include "utils.h"
+
 #include <xapian/error.h>
 #include "omassert.h"
 #include "omdebug.h"
+#include "pack.h"
+#include "utils.h"
 
 using std::string;
+
+inline string
+make_key(Xapian::docid did)
+{
+    string key;
+    pack_uint_preserving_sort(key, did);
+    return key;
+}
 
 string
 ChertRecordTable::get_record(Xapian::docid did) const
@@ -35,7 +45,7 @@ ChertRecordTable::get_record(Xapian::docid did) const
     DEBUGCALL(DB, string, "ChertRecordTable::get_record", did);
     string tag;
 
-    if (!get_exact_entry(chert_docid_to_key(did), tag)) {
+    if (!get_exact_entry(make_key(did), tag)) {
 	throw Xapian::DocNotFoundError("Document " + om_tostring(did) + " not found.");
     }
 
@@ -54,13 +64,13 @@ void
 ChertRecordTable::replace_record(const string & data, Xapian::docid did)
 {
     DEBUGCALL(DB, void, "ChertRecordTable::replace_record", data << ", " << did);
-    add(chert_docid_to_key(did), data);
+    add(make_key(did), data);
 }
 
 void
 ChertRecordTable::delete_record(Xapian::docid did)
 {
     DEBUGCALL(DB, void, "ChertRecordTable::delete_record", did);
-    if (!del(chert_docid_to_key(did)))
+    if (!del(make_key(did)))
 	throw Xapian::DocNotFoundError("Can't delete non-existent document #" + om_tostring(did));
 }

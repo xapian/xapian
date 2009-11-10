@@ -27,8 +27,8 @@
 #include "expandweight.h"
 #include "chert_positionlist.h"
 #include "chert_termlist.h"
-#include "chert_utils.h"
 #include "omassert.h"
+#include "pack.h"
 #include "utils.h"
 
 using namespace std;
@@ -40,7 +40,8 @@ ChertTermList::ChertTermList(Xapian::Internal::RefCntPtr<const ChertDatabase> db
     DEBUGCALL(DB, void, "ChertTermList",
 	      "[RefCntPtr<const ChertDatabase>], " << did_);
 
-    if (!db->termlist_table.get_exact_entry(chert_docid_to_key(did), data))
+    if (!db->termlist_table.get_exact_entry(ChertTermListTable::make_key(did),
+					    data))
 	throw Xapian::DocNotFoundError("No termlist for document " + om_tostring(did));
 
     pos = data.data();

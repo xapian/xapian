@@ -26,9 +26,9 @@
 #include "chert_cursor.h"
 #include "chert_postlist.h"
 #include "chert_termlist.h"
-#include "chert_utils.h"
 #include "document.h"
 #include "omdebug.h"
+#include "pack.h"
 
 #include "xapian/error.h"
 #include "xapian/valueiterator.h"
@@ -51,7 +51,10 @@ make_slot_key(Xapian::docid did)
     // Add an extra character so that it can't clash with a termlist entry key
     // and will sort just after the corresponding termlist entry key.
     // FIXME: should we store this in the *same entry* as the list of terms?
-    RETURN(chert_docid_to_key(did) + string(1, '\0'));
+    string key;
+    pack_uint_preserving_sort(key, did);
+    key += '\0';
+    RETURN(key);
 }
 
 /** Generate a key for a value statistics item. */
@@ -59,7 +62,9 @@ inline string
 make_valuestats_key(Xapian::valueno slot)
 {
     DEBUGCALL_STATIC(DB, string, "make_valuestats_key", slot);
-    RETURN(string("\0\xd0", 2) + pack_uint_last(slot));
+    string key("\0\xd0", 2);
+    pack_uint_last(key, slot);
+    RETURN(key);
 }
 
 void
@@ -178,10 +183,10 @@ class ValueUpdater {
 	    new_first_did = did;
 	} else {
 	    AssertRel(did,>,prev_did);
-	    tag += pack_uint(did - prev_did - 1);
+	    pack_uint(tag, did - prev_did - 1);
 	}
 	prev_did = did;
-	tag += pack_string(value);
+	pack_string(tag, value);
 	if (tag.size() >= CHUNK_SIZE_THRESHOLD) write_tag();
     }
 
@@ -349,7 +354,7 @@ ChertValueManager::add_document(Xapian::docid did, const Xapian::Document &doc,
 
 	add_value(did, slot, value);
 	if (termlist_table->is_open()) {
-	    slots_used += pack_uint(slot - prev_slot - 1);
+	    pack_uint(slots_used, slot - prev_slot - 1);
 	    prev_slot = slot;
 	}
 	++it;
@@ -522,8 +527,9 @@ ChertValueManager::set_value_stats(map<Xapian::valueno, ValueStats> & value_stat
 	string key = make_valuestats_key(i->first);
 	const ValueStats & stats = i->second;
 	if (stats.freq != 0) {
-	    string new_value = pack_uint(stats.freq);
-	    new_value += pack_string(stats.lower_bound);
+	    string new_value;
+	    pack_uint(new_value, stats.freq);
+	    pack_string(new_value, stats.lower_bound);
 	    // We don't store or count empty values, so neither of the bounds
 	    // can be empty.  So we can safely store an empty upper bound when
 	    // the bounds are equal.

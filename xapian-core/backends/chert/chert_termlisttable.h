@@ -24,7 +24,7 @@
 #include <xapian/types.h>
 
 #include "chert_lazytable.h"
-#include "chert_utils.h"
+#include "pack.h"
 
 #include <string>
 
@@ -34,6 +34,12 @@ class Document;
 
 class ChertTermListTable : public ChertLazyTable {
   public:
+    static std::string make_key(Xapian::docid did) {
+	std::string key;
+	pack_uint_preserving_sort(key, did);
+	return key;
+    }
+
     /** Create a new ChertTermListTable object.
      *
      *  This method does not create or open the table on disk - you
@@ -61,7 +67,7 @@ class ChertTermListTable : public ChertLazyTable {
      *
      *  @param did  The docid to delete the termlist data for.
      */
-    void delete_termlist(Xapian::docid did) { del(chert_docid_to_key(did)); }
+    void delete_termlist(Xapian::docid did) { del(make_key(did)); }
 
     /// Returns the document length for document @a did.
     chert_doclen_t get_doclength(Xapian::docid did) const;

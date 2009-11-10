@@ -69,10 +69,10 @@ PWRITE_PROTOTYPE
 #include "chert_io.h"
 #include "chert_btreebase.h"
 #include "chert_cursor.h"
-#include "chert_utils.h"
 
 #include "omassert.h"
 #include "omdebug.h"
+#include "pack.h"
 #include "unaligned.h"
 #include "utils.h"
 
@@ -1920,10 +1920,9 @@ ChertTable::write_changed_blocks(int changes_fd)
     if (faked_root_block) return;
 
     string buf;
-    buf += pack_uint(2u); // Indicate the item is a list of blocks
-    buf += pack_uint(strlen(tablename));
-    buf += tablename;
-    buf += pack_uint(block_size);
+    pack_uint(buf, 2u); // Indicate the item is a list of blocks
+    pack_string(buf, tablename);
+    pack_uint(buf, block_size);
     chert_io_write(changes_fd, buf.data(), buf.size());
 
     // Compare the old and new bitmaps to find blocks which have changed, and
@@ -1933,7 +1932,8 @@ ChertTable::write_changed_blocks(int changes_fd)
     try {
 	base.calculate_last_block();
 	while (base.find_changed_block(&n)) {
-	    buf = pack_uint(n + 1);
+	    buf.resize(0);
+	    pack_uint(buf, n + 1);
 	    chert_io_write(changes_fd, buf.data(), buf.size());
 
 	    // Read block n.
@@ -1950,7 +1950,8 @@ ChertTable::write_changed_blocks(int changes_fd)
 	delete[] p;
 	throw;
     }
-    buf = pack_uint(0u);
+    buf.resize(0);
+    pack_uint(buf, 0u);
     chert_io_write(changes_fd, buf.data(), buf.size());
 }
 

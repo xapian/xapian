@@ -26,16 +26,16 @@
 # include "msvc_posix_wrapper.h"
 #endif
 
+#include <xapian/error.h>
+
 #include "chert_btreebase.h"
 #include "chert_io.h"
-#include "chert_utils.h"
-#include "utils.h"
-#include <xapian/error.h>
 #include "omassert.h"
-
-#include <climits>
+#include "pack.h"
+#include "utils.h"
 
 #include <algorithm>
+#include <climits>
 #include <cstring>
 
 using namespace std;
@@ -291,21 +291,21 @@ ChertTable_base::write_to_file(const string &filename,
     calculate_last_block();
 
     string buf;
-    buf += pack_uint(revision);
-    buf += pack_uint(CURR_FORMAT);
-    buf += pack_uint(block_size);
-    buf += pack_uint(static_cast<uint4>(root));
-    buf += pack_uint(static_cast<uint4>(level));
-    buf += pack_uint(static_cast<uint4>(bit_map_size));
-    buf += pack_uint(static_cast<uint4>(item_count));
-    buf += pack_uint(static_cast<uint4>(last_block));
-    buf += pack_uint(have_fakeroot);
-    buf += pack_uint(sequential);
-    buf += pack_uint(revision);
+    pack_uint(buf, revision);
+    pack_uint(buf, CURR_FORMAT);
+    pack_uint(buf, block_size);
+    pack_uint(buf, static_cast<uint4>(root));
+    pack_uint(buf, static_cast<uint4>(level));
+    pack_uint(buf, static_cast<uint4>(bit_map_size));
+    pack_uint(buf, static_cast<uint4>(item_count));
+    pack_uint(buf, static_cast<uint4>(last_block));
+    pack_uint(buf, have_fakeroot);
+    pack_uint(buf, sequential);
+    pack_uint(buf, revision);
     if (bit_map_size > 0) {
 	buf.append(reinterpret_cast<const char *>(bit_map), bit_map_size);
     }
-    buf += pack_uint(revision);  // REVISION2
+    pack_uint(buf, revision);  // REVISION2
 
 #ifdef __WIN32__
     int h = msvc_posix_open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);
@@ -321,10 +321,10 @@ ChertTable_base::write_to_file(const string &filename,
 
     if (changes_fd >= 0) {
 	string changes_buf;
-	changes_buf += pack_uint(1u); // Indicate the item is a base file.
-	changes_buf += pack_string(tablename);
+	pack_uint(changes_buf, 1u); // Indicate the item is a base file.
+	pack_string(changes_buf, tablename);
 	changes_buf += base_letter; // The base file letter.
-	changes_buf += pack_uint(buf.size());
+	pack_uint(changes_buf, buf.size());
 	chert_io_write(changes_fd, changes_buf.data(), changes_buf.size());
 	chert_io_write(changes_fd, buf.data(), buf.size());
 	if (changes_tail != NULL) {
