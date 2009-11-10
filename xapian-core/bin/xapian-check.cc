@@ -853,7 +853,7 @@ check_chert_table(const char * tablename, string filename, int opts,
 
 	    bool bad = false;
 	    while (pos != end) {
-		Xapian::doccount current_wdf;
+		Xapian::doccount current_wdf = 0;
 		bool got_wdf = false;
 		// If there was a previous term, how much to reuse.
 		if (!current_tname.empty()) {

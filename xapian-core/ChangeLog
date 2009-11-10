@@ -1,12 +1,7 @@
-Tue Nov 10 12:24:34 GMT 2009  Olly Betts <olly@survex.com>
+Tue Nov 10 22:27:47 GMT 2009  Olly Betts <olly@survex.com>
 
-	* backends/chert/,bin/xapian-check.cc,common/pack.h: Rewrite the
-	  packing and unpacking functions more efficiently.  As well as being
-	  generally faster, the pack functions now take a reference to a string
-	  to append to, which avoids creating a lot of temporary string
-	  objects.  Indexing HTML files with omindex is 5-10% faster.
-	  Searching for "The" on gmane (which results in a lot of unpacking of
-	  postings and document lengths) is about 35% faster.  (ticket#326)
+	* bin/xapian-check.cc: Fix compiler warning introduced by previous
+	  change.
 
 Thu Nov 05 03:55:37 GMT 2009  Olly Betts <olly@survex.com>
 
