@@ -19,6 +19,16 @@ Tue Nov 10 22:27:47 GMT 2009  Olly Betts <olly@survex.com>
 	* bin/xapian-check.cc: Fix compiler warning introduced by previous
 	  change.
 
+Tue Nov 10 12:24:34 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/,bin/xapian-check.cc,common/pack.h: Rewrite the
+	  packing and unpacking functions more efficiently.  As well as being
+	  generally faster, the pack functions now take a reference to a string
+	  to append to, which avoids creating a lot of temporary string
+	  objects.  Indexing HTML files with omindex is 5-10% faster.
+	  Searching for "The" on gmane (which results in a lot of unpacking of
+	  postings and document lengths) is about 35% faster.  (ticket#326)
+
 Thu Nov 05 03:55:37 GMT 2009  Olly Betts <olly@survex.com>
 
 	* common/safeuuid.h: Fix to work with uuid libraries which lack const
@@ -363,7 +373,7 @@ Sun Aug 30 23:28:25 GMT 2009  Olly Betts <olly@survex.com>
 
 	* common/gnu_getopt.h: Make optarg, optind, opterr, and optopt extern
 	  "C" to avoid linkage clash with these symbols on Mac OS X 10.6.
-	
+
 Thu Aug 27 03:05:33 GMT 2009  Olly Betts <olly@survex.com>
 
 	* HACKING: Add note to document the reason for any exceptions to the
@@ -616,7 +626,7 @@ Tue Jul 28 16:38:55 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	Merge from postingsources branch:
 	* tests/generate-api_generated: Test get_description() methods of
-	  Xapian::PostingSource subclasses. 
+	  Xapian::PostingSource subclasses.
 
 Tue Jul 28 16:35:54 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
@@ -885,7 +895,7 @@ Sat Jul 18 17:12:58 GMT 2009  Olly Betts <olly@survex.com>
 
 	* languages/compiler/generator.c: Merge among table entries which are
 	  substrings of others in the same among.  We could be much cleverer
-	  and merge between amongs, and allow overlaps, etc, but this get us 
+	  and merge between amongs, and allow overlaps, etc, but this get us
 	  a nice size reduction for a small amount of effort, so it'll do for
 	  now.
 
