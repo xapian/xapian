@@ -411,3 +411,12 @@ DEFINE_TESTCASE(opvaluege1, !backend) {
     TEST_STRINGS_EQUAL(query.get_description(), Xapian::Query::MatchAll.get_description());
     return true;
 }
+
+// Regression test: asking for a metadata on empty Database used to segfault.
+DEFINE_TESTCASE(emptydb_metadata1, !backend) {
+    Xapian::Database db;
+    TEST_EQUAL(db.get_metadata("foo"), std::string());
+    TEST_EQUAL(db.metadata_keys_begin(),
+	       db.metadata_keys_end());
+    return true;
+}

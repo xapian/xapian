@@ -1,3 +1,12 @@
+Wed Nov 11 23:51:13 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* api/omdatabase.cc: Check that internal is not empty before
+	  referencing its first element, in get_metadata() and
+	  metadata_keys_begin(), to avoid a potential segfault.
+	* tests/api_nodb.cc: Add emptydb_metadata1, a regression test for
+	  this bug.
+
 Wed Nov 11 23:47:12 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

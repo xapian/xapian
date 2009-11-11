@@ -554,6 +554,7 @@ Database::get_metadata(const string & key) const
     DEBUGAPICALL(string, "Database::get_metadata", key);
     if (key.empty())
 	throw InvalidArgumentError("Empty metadata keys are invalid");
+    if (internal.empty()) RETURN(std::string());
     RETURN(internal[0]->get_metadata(key));
 }
 
@@ -561,6 +562,7 @@ Xapian::TermIterator
 Database::metadata_keys_begin(const std::string &prefix) const
 {
     DEBUGAPICALL(Xapian::TermIterator, "Database::metadata_keys_begin", "");
+    if (internal.empty()) RETURN(TermIterator(NULL));
     RETURN(TermIterator(internal[0]->open_metadata_keylist(prefix)));
 }
 
