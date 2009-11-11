@@ -1,3 +1,10 @@
+Wed Nov 11 23:43:14 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/flint/flint_lock.cc: Don't try to close the fd one more than
+	  the maximum allowable.  (ticket#408)
+	* AUTHORS: Add Carl Worth for the patch.
+
 Thu Oct 01 21:21:25 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
