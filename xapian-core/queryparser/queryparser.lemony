@@ -1208,6 +1208,8 @@ TermGroup::as_group(State *state) const
 
     delete this;
 
+    if (subqs.empty()) return NULL;
+
     if (default_op == Query::OP_NEAR ||
 	default_op == Query::OP_PHRASE) {
 	return new Query(default_op, subqs.begin(), subqs.end(),

@@ -1,3 +1,10 @@
+Wed Nov 11 12:23:48 GMT 2009  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Fix handling of a group of stopwords
+	  which notably caused issues when default_op was OP_AND, but could
+	  probably manifest in other cases too.  Fixes ticket#406.
+	* tests/queryparsertest.cc: Add regression test qp_stopword_group1.
+
 Wed Nov 11 10:54:58 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_version.h,common/safeuuid.h: Fix workaround for
