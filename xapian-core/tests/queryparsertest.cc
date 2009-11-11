@@ -570,6 +570,7 @@ static test test_or_queries[] = {
     { "site:1 site:2 site2:2", "0 * ((H1 OR H2) AND J2)" },
     { "site:1 OR site:2", "(0 * H1 OR 0 * H2)" },
     { "site:1 AND site:2", "(0 * H1 AND 0 * H2)" },
+    { "foo AND site:2", "(Zfoo:(pos=1) AND 0 * H2)" },
 #if 0
     { "A site:1 site:2", "(a FILTER (H1 OR H2))" },
     { "A (site:1 OR site:2)", "(a FILTER (H1 OR H2))" },

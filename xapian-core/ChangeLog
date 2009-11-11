@@ -1,3 +1,9 @@
+Wed Nov 11 23:47:12 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/queryparsertest.cc: Add another test query string to cover a
+	  case we didn't previously check.
+
 Wed Nov 11 23:43:14 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
