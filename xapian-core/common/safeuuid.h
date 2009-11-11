@@ -29,36 +29,19 @@
 
 // Some UUID libraries lack const qualifiers.  Solaris is a particular
 // example which survives today (2009).  The libuuid from e2fsprogs gained
-// const qualifiers in 2001.
-# ifndef uuid_compare
-#  define uuid_compare(UU1, UU2) \
-     (uuid_compare)(*const_cast<uuid_t*>(&(UU1)), *const_cast<uuid_t*>(&(UU2)))
-# endif
-# ifndef uuid_copy
-#  define uuid_copy(DST, SRC) (uuid_copy)((DST), *const_cast<uuid_t*>(&(SRC)))
-# endif
-# ifndef uuid_is_null
-#  define uuid_is_null(UU) (uuid_is_null)(*const_cast<uuid_t*>(&(UU)))
-# endif
+// const qualifiers in 2001.  It's hard to cast uuid_t suitably as it is a
+// typedef for an array in at least some implementations, but we probably can't
+// safely assume that.  We don't need to pass const uuid_t, but we do need to
+// pass const char *, so fix that with a macro wrapper for uuid_parse().
 # ifndef uuid_parse
 #  define uuid_parse(IN, UU) (uuid_parse)(const_cast<char*>(IN), (UU))
 # endif
-# ifndef uuid_time
-#  define uuid_time(UU, TV) (uuid_time)(*const_cast<uuid_t*>(&(UU)), (TV))
-# endif
-# ifndef uuid_unparse
-#  define uuid_unparse(UU, O) (uuid_unparse)(*const_cast<uuid_t*>(&(UU)), (O))
-# endif
 
-# ifdef HAVE_UUID_UNPARSE_LOWER
-#  ifndef uuid_unparse_lower
-#   define uuid_unparse_lower(UU, O) \
-      (uuid_unparse_lower)(*const_cast<uuid_t*>(&(UU)), (O))
-#  endif
-# else
+# ifndef HAVE_UUID_UNPARSE_LOWER
 /* Older versions of libuuid (such as that on CentOS 4.7) don't have
- * uuid_unparse_lower(), only uuid_unparse(). */
-inline void uuid_unparse_lower(const uuid_t uu, char *out) {
+ * uuid_unparse_lower(), only uuid_unparse().  NB uu parameter not const
+ * as uuid_unparse may take a non-const uuid_t parameter. */
+inline void uuid_unparse_lower(uuid_t uu, char *out) {
     uuid_unparse(uu, out);
     /* Characters in out are either 0-9, a-z, '-', or A-Z.  A-Z is mapped to
      * a-z by bitwise or with 0x20, and the others already have this bit set.

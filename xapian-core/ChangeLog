@@ -1,3 +1,8 @@
+Wed Nov 11 10:54:58 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_version.h,common/safeuuid.h: Fix workaround for
+	  uuid.h headers which lack const to actually work on Solaris.
+
 Wed Nov 11 10:53:50 GMT 2009  Olly Betts <olly@survex.com>
 
 	* common/Makefile.mk: Need to ship new pack.h header.
