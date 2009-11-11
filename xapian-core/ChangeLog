@@ -1,3 +1,7 @@
+Wed Nov 11 10:53:50 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/Makefile.mk: Need to ship new pack.h header.
+
 Tue Nov 10 22:27:47 GMT 2009  Olly Betts <olly@survex.com>
 
 	* bin/xapian-check.cc: Fix compiler warning introduced by previous
