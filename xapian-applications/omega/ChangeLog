@@ -1,3 +1,9 @@
+Wed Nov 11 04:52:25 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Also check for socketpair with -lxnet if it isn't found
+	  without, which enables resource limits on Solaris, and possibly some
+	  other platforms.  Fixes ticket#412.
+
 Wed Nov 04 01:51:41 GMT 2009  Olly Betts <olly@survex.com>
 
 	* freemem.cc: On Linux, _SC_AVPHYS_PAGES excludes pages used by the OS
