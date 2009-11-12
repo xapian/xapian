@@ -1,6 +1,6 @@
 /* quest.cc - Command line search tool using Xapian::QueryParser.
  *
- * Copyright (C) 2004,2005,2006,2007,2008 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -93,7 +93,7 @@ main(int argc, char **argv)
 		case 's':
 		    try {
 			stemmer = Xapian::Stem(optarg);
-		    } catch (const Xapian::Error &) {
+		    } catch (const Xapian::InvalidArgumentError &) {
 			cerr << "Unknown stemming language '" << optarg
 			     << "'.\n"
 				"Available language names are: "
