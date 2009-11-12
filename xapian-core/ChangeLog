@@ -1,3 +1,8 @@
+Thu Nov 12 08:30:07 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/collapser.h: Remove spurious comma after last entry in enum,
+	  which Sun's C++ compiler warns about.
+
 Thu Nov 12 00:24:55 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: Sorter -> KeyMaker in an exception message.
