@@ -1,3 +1,9 @@
+Thu Nov 12 00:44:24 GMT 2009  Olly Betts <olly@survex.com>
+
+	* bin/quartzcompact.cc: Backport missing exception catch for
+	  const char * from xapian-compact.cc.  Not applicable to trunk as
+	  quartz support has been removed there.
+
 Thu Nov 12 00:42:14 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
