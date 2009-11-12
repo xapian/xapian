@@ -1,3 +1,11 @@
+Thu Nov 12 01:18:11 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* queryparser/queryparser.lemony: Fix handling of a group of stopwords
+	  which notably caused issues when default_op was OP_AND, but could
+	  probably manifest in other cases too.  Fixes ticket#406.
+	* tests/queryparsertest.cc: Add regression test qp_stopword_group1.
+
 Thu Nov 12 01:08:47 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
