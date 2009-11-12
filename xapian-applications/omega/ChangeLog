@@ -1,3 +1,8 @@
+Thu Nov 12 01:29:46 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* omindex.cc: Use delete[] (not delete) for array allocated by new[].
+
 Thu Nov 12 01:28:43 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

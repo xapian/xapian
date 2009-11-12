@@ -161,7 +161,7 @@ static bool ensure_tmpdir() {
 	tmpdir.assign(dir_template);
 	tmpdir += '/';
     }
-    delete dir_template;
+    delete [] dir_template;
     return (p != NULL);
 }
 
