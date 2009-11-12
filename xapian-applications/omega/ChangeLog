@@ -1,3 +1,9 @@
+Thu Nov 12 01:26:17 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* omindex.cc,scriptindex.cc: Tighten up the type of the error we catch
+	  to detect an unknown stemming language.
+
 Sun Nov 01 09:15:52 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:

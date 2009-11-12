@@ -917,7 +917,7 @@ main(int argc, char **argv)
 	case 's':
 	    try {
 		stemmer = Xapian::Stem(optarg);
-	    } catch (const Xapian::Error &) {
+	    } catch (const Xapian::InvalidArgumentError &) {
 		cerr << "Unknown stemming language '" << optarg << "'.\n"
 			"Available language names are: "
 		     << Xapian::Stem::get_available_languages() << endl;
