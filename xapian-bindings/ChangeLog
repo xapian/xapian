@@ -1,3 +1,9 @@
+Thu Nov 12 02:26:17 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* java/native/Enquire.cc: Fix memory leak when passing a matchdecider
+	  to Enquire::get_mset().
+
 Tue Sep 15 03:07:59 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

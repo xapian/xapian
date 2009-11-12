@@ -185,8 +185,13 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_enquire_1get_1mset (JNIEnv *en
         MSet *mset;
 
 	rset = rsetid > -1 ?_rset->get(rsetid) : NULL;
-	mdecider = md ? new JavaMatchDecider(env, clazz, md) : NULL;
-	mset = new MSet (e->get_mset(first, maxitems, rset, mdecider));
+
+	if (md) {
+	    JavaMatchDecider mdecider(env, clazz, md);
+	    mset = new MSet (e->get_mset(first, maxitems, rset, &mdecider));
+	} else {
+	    mset = new MSet (e->get_mset(first, maxitems, rset));
+	}
 
         return _mset->put(mset);
     CATCH(-1)
