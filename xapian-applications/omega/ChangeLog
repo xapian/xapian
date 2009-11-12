@@ -1,3 +1,9 @@
+Thu Nov 12 01:28:43 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* runfilter.cc: Fix likely crash if read() is interrupted by a signal.
+	  Identified by Coverity's Scan.
+
 Thu Nov 12 01:26:17 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

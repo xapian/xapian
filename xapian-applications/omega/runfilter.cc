@@ -131,12 +131,14 @@ stdout_to_string(const string &cmd)
 	ssize_t res = read(fd, buf, sizeof(buf));
 	if (res == 0) break;
 	if (res == -1) {
-	    if (errno != EINTR) {
-		close(fd);
-		int status;
-		(void)waitpid(child, &status, 0);
-		throw ReadError();
+	    if (errno == EINTR) {
+		// read() interrupted by a signal, so retry.
+		continue;
 	    }
+	    close(fd);
+	    int status;
+	    (void)waitpid(child, &status, 0);
+	    throw ReadError();
 	}
 	out.append(buf, res);
     }
