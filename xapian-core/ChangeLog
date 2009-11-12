@@ -1,3 +1,8 @@
+Thu Nov 12 00:01:55 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/database.h: Tweak documentation comments about
+	  committing changes.
+
 Wed Nov 11 12:23:48 GMT 2009  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Fix handling of a group of stopwords
