@@ -1,3 +1,10 @@
+Thu Nov 12 01:35:20 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Also check for socketpair with -lxnet if it isn't found
+	  without, which enables resource limits on Solaris, and possibly some
+	  other platforms.  Fixes ticket#412.
+
 Thu Nov 12 01:30:37 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
