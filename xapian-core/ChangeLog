@@ -1,3 +1,8 @@
+Thu Nov 12 00:06:42 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/database.h: Backport various documentation comment
+	  improvements from trunk.
+
 Wed Nov 11 23:51:13 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

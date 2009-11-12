@@ -223,7 +223,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  This method returns a Xapian::Document object which provides the
 	 *  information about a document.
 	 *
-	 *  @param did   The document id for which to retrieve the data.
+	 *  @param did   The document id of the document to retrieve.
 	 *
 	 *  @return      A Xapian::Document object containing the document data
 	 *
@@ -390,7 +390,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 */
 	void operator=(const WritableDatabase &other);
 
-	/** Flush to disk any modifications made to the database.
+	/** Commit any pending modifications made to the database.
 	 *
 	 *  For efficiency reasons, when performing multiple updates to a
 	 *  database it is best (indeed, almost essential) to make as many
@@ -408,12 +408,12 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  performed or not performed at all: it is then up to the
 	 *  application to work out which operations need to be repeated.
 	 *
-	 *  It's not valid to call flush within a transaction.
+	 *  It's not valid to call flush() within a transaction.
 	 *
-	 *  Beware of calling flush too frequently: this will have a severe
-	 *  performance cost.
+	 *  Beware of calling flush() too frequently: this will make indexing
+	 *  take much longer.
 	 *
-	 *  Note that flush need not be called explicitly: it will be called
+	 *  Note that flush() need not be called explicitly: it will be called
 	 *  automatically when the database is closed, or when a sufficient
 	 *  number of modifications have been made.  By default, this is every
 	 *  10000 documents added, deleted, or modified.  This value is rather
@@ -441,14 +441,13 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  either be committed by calling commit_transaction() or aborted
 	 *  by calling cancel_transaction().
 	 *
-	 *  By default, a transaction implicitly calls flush before and after
-	 *  so that the modifications stand and fall without affecting
+	 *  By default, a transaction implicitly calls flush() before and
+	 *  after so that the modifications stand and fall without affecting
 	 *  modifications before or after.
 	 *
-	 *  The downside of this flushing is that small transactions cause
-	 *  modifications to be frequently flushed which can harm indexing
-	 *  performance in the same way that explicitly calling flush
-	 *  frequently can.
+	 *  The downside of these implicit calls to flush() is that small
+	 *  transactions can harm indexing performance in the same way that
+	 *  explicitly calling flush() frequently can.
 	 *
 	 *  If you're applying atomic groups of changes and only wish to
 	 *  ensure that each group is either applied or not applied, then
@@ -498,7 +497,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	void commit_transaction();
 
 	/** Abort the transaction currently in progress, discarding the
-	 *  potential modifications made to the database.
+	 *  pending modifications made to the database.
 	 *
 	 *  If an error occurs in this method, an exception will be thrown,
 	 *  but the transaction will be cancelled anyway.
@@ -533,7 +532,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  As with all database modification operations, the effect is
 	 *  atomic: the document will either be fully added, or the document
 	 *  fails to be added and an exception is thrown (possibly at a
-	 *  later time when flush is called or the database is closed).
+	 *  later time when flush() is called or the database is closed).
 	 *
 	 *  @param document The new document to be added.
 	 *
@@ -558,7 +557,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  As with all database modification operations, the effect is
 	 *  atomic: the document will either be fully removed, or the document
 	 *  fails to be removed and an exception is thrown (possibly at a
-	 *  later time when flush is called or the database is closed).
+	 *  later time when flush() is called or the database is closed).
 	 *
 	 *  @param did     The document ID of the document to be removed.
 	 *
@@ -611,7 +610,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  As with all database modification operations, the effect is
 	 *  atomic: the document will either be fully replaced, or the document
 	 *  fails to be replaced and an exception is thrown (possibly at a
-	 *  later time when flush is called or the database is closed).
+	 *  later time when flush() is called or the database is closed).
 	 *
 	 *  @param did     The document ID of the document to be replaced.
 	 *  @param document The new document.
@@ -632,11 +631,16 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  term, the lowest document ID will be used for the document,
 	 *  otherwise a new document ID will be generated as for add_document.
 	 *
-	 *  A major use is for convenience when UIDs from another system are
-	 *  mapped to terms in Xapian, although this method has other uses
-	 *  (for example, you could add a "deletion date" term to documents at
-	 *  index time and use this method to delete all documents due for
-	 *  deletion on a particular date).
+	 *  One common use is to allow UIDs from another system to easily be
+	 *  mapped to terms in Xapian.  Note that this method doesn't
+	 *  automatically add unique_term as a term, so you'll need to call
+	 *  document.add_term(unique_term) first when using replace_document()
+	 *  in this way.
+	 *
+	 *  Another possible use is to allow groups of documents to be marked for
+	 *  later deletion - for example, you could add a "deletion date" term
+	 *  to documents at index time and use this method to easily and efficiently
+	 *  delete all documents due for deletion on a particular date.
 	 *
 	 *  Note that changes to the database won't be immediately committed to
 	 *  disk; see flush() for more details.
@@ -645,7 +649,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  atomic: the document(s) will either be fully replaced, or the
 	 *  document(s) fail to be replaced and an exception is thrown
 	 *  (possibly at a
-	 *  later time when flush is called or the database is closed).
+	 *  later time when flush() is called or the database is closed).
 	 *
 	 *  @param unique_term    The "unique" term.
 	 *  @param document The new document.
