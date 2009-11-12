@@ -1,3 +1,11 @@
+Thu Nov 12 01:30:37 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* freemem.cc: On Linux, _SC_AVPHYS_PAGES excludes pages used by the OS
+	  VM cache, so will often return a really low value, so instead use
+	  _SC_PHYS_PAGES.  Reported by Rune Kock in Debian bug#548987.  Also
+	  explains ticket#358.
+
 Thu Nov 12 01:29:46 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

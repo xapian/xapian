@@ -1,6 +1,6 @@
 /* freemem.cc: determine how much free physical memory there is.
  *
- * Copyright (C) 2007,2008 Olly Betts
+ * Copyright (C) 2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,10 +52,16 @@ get_free_physical_memory()
 {
     long pagesize = 1;
     long pages = -1;
-#if defined(_SC_PAGESIZE) && defined(_SC_AVPHYS_PAGES)
-    /* Linux: */
+#if defined(_SC_PAGESIZE) && defined(_SC_PHYS_PAGES)
+    /* Linux:
+     * _SC_AVPHYS_PAGES is "available memory", but that excludes memory being
+     * used by the OS VM cache, which will often be almost all memory which
+     * isn't otherwise used, so used _SC_PHYS_PAGES which is just memory -
+     * that's good enough for Omega's use where we really just want to avoid
+     * runaway filter processes for dragging down the system.
+     */
     pagesize = sysconf(_SC_PAGESIZE);
-    pages = sysconf(_SC_AVPHYS_PAGES);
+    pages = sysconf(_SC_PHYS_PAGES);
 #elif defined HAVE_SYSMP 
     /* IRIX: (rminfo64 and MPSA_RMINFO64?) */
     struct rminfo meminfo;
