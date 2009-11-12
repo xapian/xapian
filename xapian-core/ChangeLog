@@ -1,3 +1,7 @@
+Thu Nov 12 00:24:55 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Sorter -> KeyMaker in an exception message.
+
 Thu Nov 12 00:01:55 GMT 2009  Olly Betts <olly@survex.com>
 
 	* include/xapian/database.h: Tweak documentation comments about

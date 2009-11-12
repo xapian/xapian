@@ -256,7 +256,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	    RemoteDatabase *rem_db = subdb->as_remotedatabase();
 	    if (rem_db) {
 		if (sorter) {
-		    throw Xapian::UnimplementedError("Xapian::Sorter not supported for the remote backend");
+		    throw Xapian::UnimplementedError("Xapian::KeyMaker not supported for the remote backend");
 		}
 		rem_db->set_query(query, qlen, collapse_max, collapse_key,
 				  order, sort_key, sort_by, sort_value_forward,
