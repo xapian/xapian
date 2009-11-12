@@ -1,3 +1,14 @@
+Thu Nov 12 00:28:33 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* matcher/multimatch.cc: Xapian::Sorter isn't supported with the remote
+	  backend so throw UnimplementedError rather than giving incorrect
+	  results.  (ticket#384)
+	* tests/api_sorting.cc: Add sortfunctorremote1 test this exception is
+	  actually thrown.
+	* tests/api_sorting.cc: Fix changesorter1 to not be run for the remote
+	  backend where they will now fail with UnimplementedError.
+
 Thu Nov 12 00:06:42 GMT 2009  Olly Betts <olly@survex.com>
 
 	* include/xapian/database.h: Backport various documentation comment

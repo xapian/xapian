@@ -159,7 +159,7 @@ class NeverUseMeSorter : public Xapian::Sorter {
 };
 
 /// Regression test for changing away from a sorter.
-DEFINE_TESTCASE(changesorter1, backend) {
+DEFINE_TESTCASE(changesorter1, backend && !remote) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("word"));
     NeverUseMeSorter sorter;
@@ -201,5 +201,16 @@ DEFINE_TESTCASE(sortfunctorempty1,backend && !remote) {
 	mset_expect_order(mset, 1, 2, 3, 4, 5, 6, 7, 8, 9);
     }
 
+    return true;
+}
+
+DEFINE_TESTCASE(sortfunctorremote1,remote) {
+    Xapian::Enquire enquire(get_database(string()));
+    NeverUseMeSorter sorter;
+    enquire.set_query(Xapian::Query("word"));
+    enquire.set_sort_by_key(&sorter, true);
+    TEST_EXCEPTION(Xapian::UnimplementedError,
+	Xapian::MSet mset = enquire.get_mset(0, 10);
+    );
     return true;
 }
