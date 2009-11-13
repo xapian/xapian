@@ -1,3 +1,8 @@
+Fri Nov 13 02:25:50 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_lock.cc,backends/flint/flint_lock.cc: Add
+	  "using namespace std;" and drop the explicit std:: qualifiers.
+
 Fri Nov 13 02:11:18 GMT 2009  Olly Betts <olly@survex.com>
 
 	* common/str.cc: Use assignment to initialise a size_t - the current
