@@ -38,7 +38,7 @@ struct fragment {
     fragment() { }
 
     // Allow implicit conversion.
-    fragment(char data_[4]) { memcpy(data, data_, 4); }
+    fragment(char data_[4]) { std::memcpy(data, data_, 4); }
 
     char & operator[] (unsigned i) { return data[i]; }
     const char & operator[] (unsigned i) const { return data[i]; }
@@ -49,7 +49,7 @@ struct fragment {
 };
 
 inline bool operator<(const fragment &a, const fragment &b) {
-    return memcmp(a.data, b.data, 4) < 0;
+    return std::memcmp(a.data, b.data, 4) < 0;
 }
 
 class ChertSpellingTable : public ChertLazyTable {

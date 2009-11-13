@@ -38,7 +38,7 @@ struct F_fragment {
     F_fragment() { }
 
     // Allow implicit conversion.
-    F_fragment(char data_[4]) { memcpy(data, data_, 4); }
+    F_fragment(char data_[4]) { std::memcpy(data, data_, 4); }
 
     char & operator[] (unsigned i) { return data[i]; }
     const char & operator[] (unsigned i) const { return data[i]; }
@@ -49,7 +49,7 @@ struct F_fragment {
 };
 
 inline bool operator<(const F_fragment &a, const F_fragment &b) {
-    return memcmp(a.data, b.data, 4) < 0;
+    return std::memcmp(a.data, b.data, 4) < 0;
 }
 
 class FlintSpellingTable : public FlintTable {

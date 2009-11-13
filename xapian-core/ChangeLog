@@ -1,3 +1,11 @@
+Fri Nov 13 02:27:48 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_spelling.h,backends/chert/chert_table.h,
+	  backends/flint/flint_spelling.h,backends/flint/flint_table.h,
+	  common/getopt.cc,common/stringutils.h,languages/steminternal.h:
+	  Add missing std:: qualifiers for functions in <cstring>, <cstdlib>,
+	  etc.
+
 Fri Nov 13 02:25:50 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_lock.cc,backends/flint/flint_lock.cc: Add
