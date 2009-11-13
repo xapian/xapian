@@ -1118,8 +1118,10 @@ to follow the style of the existing code.  In particular:
 
 * For standard ISO C headers, prefer the C++ form for ISO C headers (e.g.
   "#include <cstdlib>" rather than "#include <stdlib.h>") unless there's a good
-  reason (e.g. portability) to do otherwise.  Be sure to document such exceptions
-  to avoid another developer changing them to the standard form.
+  reason (e.g. portability) to do otherwise.  Be sure to document such
+  exceptions to avoid another developer changing them to the standard form.
+  Global exceptions: <signal.h> (lots of POSIX stuff which e.g. Sun's compiler
+  doesn't provide in <csignal>).
 
 * For standard ISO C++ headers, *always* use the ISO C++ form '#include <list>'
   (pre-ISO compilers used '#include <list.h>', but GCC has generated a warning

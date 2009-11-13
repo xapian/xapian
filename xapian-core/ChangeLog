@@ -1,3 +1,13 @@
+Fri Nov 13 02:03:28 GMT 2009  Olly Betts <olly@survex.com>
+
+	* HACKING,backends/chert/chert_lock.cc,backends/flint/flint_lock.cc,
+	  backends/remote/remote-database.cc,net/remoteserver.cc,
+	  net/tcpserver.cc,tests/harness/backendmanager_remotetcp.cc,
+	  tests/harness/testsuite.cc: Sun C++'s <csignal> (not unreasonably)
+	  excludes non-ISO-C functions which are in <signal.h> - for example,
+	  kill() (which POSIX specifies).  So revert <csignal> to <signal.h>
+	  and document this as a global exception.
+
 Thu Nov 12 08:30:07 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/collapser.h: Remove spurious comma after last entry in enum,

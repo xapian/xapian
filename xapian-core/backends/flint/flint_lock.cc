@@ -31,7 +31,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/wait.h>
-#include <csignal>
+#include <signal.h>
 #include <cstring>
 #endif
 

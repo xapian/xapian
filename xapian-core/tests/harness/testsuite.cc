@@ -48,7 +48,7 @@
 #include "gnu_getopt.h"
 
 #include <csetjmp>
-#include <csignal>
+#include <signal.h>
 
 #include <exception>
 #ifdef USE_RTTI
