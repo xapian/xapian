@@ -1,3 +1,9 @@
+Mon Nov 16 09:08:12 GMT 2009  Olly Betts <olly@survex.com>
+
+	* utf8converttest.cc: Charset "8859_1" isn't understood by Solaris
+	  libiconv, and isn't likely to be specified on a page, so just
+	  test it for our built-in convertor and GNU libc.
+
 Wed Nov 11 04:52:25 GMT 2009  Olly Betts <olly@survex.com>
 
 	* configure.ac: Also check for socketpair with -lxnet if it isn't found
