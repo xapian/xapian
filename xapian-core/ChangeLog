@@ -1,3 +1,8 @@
+Mon Nov 16 02:15:14 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_version.cc: Add "using namespace std;" and drop
+	  the explicit std:: qualifiers.
+
 Fri Nov 13 02:27:48 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_spelling.h,backends/chert/chert_table.h,

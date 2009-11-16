@@ -39,7 +39,7 @@
 
 #include "common/safeuuid.h"
 
-using std::string;
+using namespace std;
 
 // YYYYMMDDX where X allows multiple format revisions in a day
 #define FLINT_VERSION 200709120
