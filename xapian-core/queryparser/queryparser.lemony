@@ -590,15 +590,18 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags,
     unsigned newprev = ' ';
 main_lex_loop:
     enum {
-	DEFAULT, IN_QUOTES, IN_PREFIXED_QUOTES, IN_PHRASED_TERM, IN_GROUP
+	DEFAULT, IN_QUOTES, IN_PREFIXED_QUOTES, IN_PHRASED_TERM, IN_GROUP,
+	EXPLICIT_SYNONYM
     } mode = DEFAULT;
     while (it != end && !state.error) {
 	bool last_was_operator = false;
+	if (mode == EXPLICIT_SYNONYM) mode = DEFAULT;
 	if (false) {
 just_had_operator:
 	    if (it == end) break;
-	    last_was_operator = true;
 	    mode = DEFAULT;
+just_had_synonym_operator:
+	    last_was_operator = true;
 	}
 	if (mode == IN_PHRASED_TERM) mode = DEFAULT;
 	if (is_whitespace(*it)) {
@@ -737,17 +740,18 @@ just_had_operator:
 	      case '~': // Synonym expansion.
 		// Ignore at the end of the query string.
 		if (it == end) goto done;
-		if (prev > ' ' && prev != '+' && prev != '-' && prev != '(') {
-		    // Or if not after whitespace, +, -, or an open bracket.
-		    break;
-		}
-		if (!is_wordchar(*it)) {
-		    // Ignore if not followed by a word character.
-		    break;
-		}
 		if (mode == DEFAULT && (flags & FLAG_SYNONYM)) {
+		    if (prev > ' ' && strchr("+-(", prev) == NULL) {
+			// Or if not after whitespace, +, -, or an open bracket.
+			break;
+		    }
+		    if (!is_wordchar(*it)) {
+			// Ignore if not followed by a word character.
+			break;
+		    }
 		    Parse(pParser, SYNONYM, NULL, &state);
-		    goto just_had_operator;
+		    mode = EXPLICIT_SYNONYM;
+		    goto just_had_synonym_operator;
 		}
 		break;
 	    }
@@ -763,7 +767,8 @@ just_had_operator:
 
 	// A term, a prefix, or a boolean operator.
 	const PrefixInfo * prefixinfo = NULL;
-	if ((mode == DEFAULT || mode == IN_GROUP) && !prefixmap.empty()) {
+	if ((mode == DEFAULT || mode == IN_GROUP || mode == EXPLICIT_SYNONYM) &&
+	    !prefixmap.empty()) {
 	    // Check for a fieldname prefix (e.g. title:historical).
 	    Utf8Iterator p = find_if(it, end, is_not_wordchar);
 	    if (p != end && *p == ':' && ++p != end && *p > ' ' && *p != ')') {
@@ -781,7 +786,8 @@ just_had_operator:
 
 		    if (prefixinfo->filter) {
 			// Drop out of IN_GROUP if we're in it.
-			mode = DEFAULT;
+			if (mode == IN_GROUP)
+			    mode = DEFAULT;
 			// Can't boolean filter prefix a subexpression or
 			// phrase; just use anything following the prefix
 			// until the next space or ')' as part of the boolean
