@@ -1,3 +1,10 @@
+Tue Nov 17 23:05:35 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* utf8converttest.cc: Charset "8859_1" isn't understood by Solaris
+	  libiconv, and isn't likely to be specified on a page, so just
+	  test it for our built-in convertor and GNU libc.
+
 Thu Nov 12 02:04:02 GMT 2009  Olly Betts <olly@survex.com>
 
 	* common/: Sync with xapian-core - the only relevant change is the
