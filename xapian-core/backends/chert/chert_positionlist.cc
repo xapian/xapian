@@ -25,8 +25,8 @@
 #include <xapian/types.h>
 
 #include "bitstream.h"
-#include "chert_utils.h"
 #include "omdebug.h"
+#include "pack.h"
 
 #include <string>
 #include <vector>
@@ -48,14 +48,16 @@ ChertPositionListTable::set_positionlist(Xapian::docid did,
 
     string key = make_key(did, tname);
 
+    string s;
+    pack_uint(s, poscopy.back());
+
     if (poscopy.size() == 1) {
 	// Special case for single entry position list.
-	add(key, pack_uint(poscopy[0]));
+	add(key, s);
 	return;
     }
 
-    BitWriter wr(pack_uint(poscopy.back()));
-
+    BitWriter wr(s);
     wr.encode(poscopy[0], poscopy.back());
     wr.encode(poscopy.size() - 2, poscopy.back() - poscopy[0]);
     wr.encode_interpolative(poscopy, 0, poscopy.size() - 1);
@@ -70,7 +72,7 @@ ChertPositionListTable::positionlist_count(Xapian::docid did,
 	      did << ", " << term);
 
     string data;
-    if (!get_exact_entry(pack_uint_preserving_sort(did) + term, data)) {
+    if (!get_exact_entry(make_key(did, term), data)) {
 	// There's no positional information for this term.
 	return 0;
     }
@@ -106,7 +108,7 @@ ChertPositionList::read_data(const ChertTable * table, Xapian::docid did,
     positions.clear();
 
     string data;
-    if (!table->get_exact_entry(pack_uint_preserving_sort(did) + tname, data)) {
+    if (!table->get_exact_entry(ChertPositionListTable::make_key(did, tname), data)) {
 	// There's no positional information for this term.
 	current_pos = positions.begin();
 	return false;

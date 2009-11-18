@@ -24,7 +24,7 @@
 #include "remote-database.h"
 
 #include "safeerrno.h"
-#include <csignal>
+#include <signal.h>
 
 #include "autoptr.h"
 #include "emptypostlist.h"

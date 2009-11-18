@@ -77,7 +77,7 @@ struct among {
 extern symbol * create_s();
 
 inline void lose_s(symbol * p) {
-    if (p) free(reinterpret_cast<char *>(p) - HEAD);
+    if (p) std::free(reinterpret_cast<char *>(p) - HEAD);
 }
 
 extern int skip_utf8(const symbol * p, int c, int lb, int l, int n);

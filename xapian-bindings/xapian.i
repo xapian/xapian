@@ -37,10 +37,12 @@ using namespace std;
 %include typemaps.i
 %include exception.i
 
-// Parse the visibility and deprecation support header files, so we don't get
-// errors when we %include other Xapian headers.
+// Parse the visibility support header, so we don't get errors when we %include
+// other Xapian headers.
 %include <xapian/visibility.h>
-%include <xapian/deprecated.h>
+
+// Kill the macro magic for deprecation warnings.
+#define XAPIAN_DEPRECATED()
 
 // This includes a language specific util.i, thanks to judicious setting of
 // the include path.
@@ -196,6 +198,7 @@ class ValueIterator {
 %feature("director") Xapian::PostingSource;
 #endif
 %ignore Xapian::PostingSource::clone;
+%ignore Xapian::PostingSource::serialise;
 %ignore Xapian::PostingSource::unserialise;
 %ignore Xapian::PostingSource::register_matcher_;
 %include <xapian/postingsource.h>
@@ -358,7 +361,7 @@ class ExpandDecider {
 class Database;
 class MatchSpy;
 class Query;
-class Sorter;
+class KeyMaker;
 
 class Enquire {
   public:
@@ -386,16 +389,22 @@ class Enquire {
     void set_cutoff(int percent_cutoff, weight weight_cutoff = 0);
 
     void set_sort_by_relevance();
-    void set_sort_by_value(Xapian::valueno sort_key, bool ascending = true);
+    void set_sort_by_value(Xapian::valueno sort_key, bool reverse);
+    void set_sort_by_value(Xapian::valueno sort_key);
     void set_sort_by_value_then_relevance(Xapian::valueno sort_key,
-					  bool ascending = true);
+					  bool reverse);
+    void set_sort_by_value_then_relevance(Xapian::valueno sort_key);
     void set_sort_by_relevance_then_value(Xapian::valueno sort_key,
-					  bool ascending = true);
-    void set_sort_by_key(Xapian::Sorter * sorter, bool ascending = true);
-    void set_sort_by_key_then_relevance(Xapian::Sorter * sorter,
-                                        bool ascending = true);
-    void set_sort_by_relevance_then_key(Xapian::Sorter * sorter,
-                                        bool ascending = true);
+					  bool reverse);
+    void set_sort_by_relevance_then_value(Xapian::valueno sort_key);
+    void set_sort_by_key(Xapian::KeyMaker * sorter, bool reverse);
+    void set_sort_by_key(Xapian::Sorter * sorter);
+    void set_sort_by_key_then_relevance(Xapian::KeyMaker * sorter,
+                                        bool reverse);
+    void set_sort_by_key_then_relevance(Xapian::Sorter * sorter);
+    void set_sort_by_relevance_then_key(Xapian::KeyMaker * sorter,
+                                        bool reverse);
+    void set_sort_by_relevance_then_key(Xapian::Sorter * sorter);
 
     static const int INCLUDE_QUERY_TERMS = 1;
     static const int USE_EXACT_TERMFREQ = 2;
@@ -466,11 +475,10 @@ class Enquire {
 %ignore Xapian::Weight::operator=;
 %ignore Xapian::Weight::Weight(const Weight &);
 %ignore Xapian::Weight::clone;
+%ignore Xapian::Weight::serialise;
+%ignore Xapian::Weight::unserialise;
 %ignore Xapian::Weight::clone_;
 %ignore Xapian::Weight::init_;
-%warnfilter(842) Xapian::BoolWeight::unserialise;
-%warnfilter(842) Xapian::BM25Weight::unserialise;
-%warnfilter(842) Xapian::TradWeight::unserialise;
 %include <xapian/weight.h>
 
 %ignore Xapian::NumericRange::operator<;
@@ -748,8 +756,8 @@ class Remote {
 %ignore Xapian::TermGenerator::TermGenerator(const TermGenerator &);
 %include <xapian/termgenerator.h>
 
-%feature("director") Xapian::Sorter;
-%include <xapian/sorter.h>
+%feature("director") Xapian::KeyMaker;
+%include <xapian/keymaker.h>
 
 %ignore Xapian::DatabaseReplica::internal;
 %ignore Xapian::DatabaseReplica::operator=;

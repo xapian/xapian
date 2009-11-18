@@ -28,7 +28,7 @@
 #include "xapian/document.h"
 #include "xapian/enquire.h"
 #include "xapian/query.h"
-#include "xapian/sorter.h"
+#include "xapian/keymaker.h"
 
 #include <algorithm>
 #include <cmath>
@@ -147,7 +147,7 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 	sort_setting sort_by;
 	bool sort_value_forward;
 
-	Sorter * sorter;
+	KeyMaker * sorter;
 
 	/** The error handler, if set.  (0 if not set).
 	 */

@@ -31,7 +31,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/wait.h>
-#include <csignal>
+#include <signal.h>
 #include <cstring>
 #endif
 
@@ -41,8 +41,10 @@
 #include <sys/cygwin.h>
 #endif
 
+using namespace std;
+
 ChertLock::reason
-ChertLock::lock(bool exclusive, std::string & explanation) {
+ChertLock::lock(bool exclusive, string & explanation) {
     // Currently we only support exclusive locks.
     (void)exclusive;
     Assert(exclusive);
@@ -76,14 +78,14 @@ ChertLock::lock(bool exclusive, std::string & explanation) {
     int lockfd = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
     if (lockfd < 0) {
 	// Couldn't open lockfile.
-	explanation = std::string("Couldn't open lockfile: ") + strerror(errno);
+	explanation = string("Couldn't open lockfile: ") + strerror(errno);
 	return UNKNOWN;
     }
 
     int fds[2];
     if (socketpair(AF_UNIX, SOCK_STREAM, PF_UNSPEC, fds) < 0) {
 	// Couldn't create socketpair.
-	explanation = std::string("Couldn't create socketpair: ") + strerror(errno);
+	explanation = string("Couldn't create socketpair: ") + strerror(errno);
 	close(lockfd);
 	return UNKNOWN;
     }
@@ -148,7 +150,7 @@ ChertLock::lock(bool exclusive, std::string & explanation) {
 	// Make sure we don't hang on to open files which may get deleted but
 	// not have their disk space released until we exit.
 	int maxfd = static_cast<int>(sysconf(_SC_OPEN_MAX));
-	for (int i = 2; i <= maxfd; ++i) {
+	for (int i = 2; i < maxfd; ++i) {
 	    if (i != lockfd) {
 		// Retry on EINTR; just ignore other errors (we'll get
 		// EBADF if the fd isn't open so that's OK).
@@ -169,7 +171,7 @@ ChertLock::lock(bool exclusive, std::string & explanation) {
 
     if (child == -1) {
 	// Couldn't fork.
-	explanation = std::string("Couldn't fork: ") + strerror(errno);
+	explanation = string("Couldn't fork: ") + strerror(errno);
 	close(fds[0]);
 	return UNKNOWN;
     }
@@ -195,7 +197,7 @@ ChertLock::lock(bool exclusive, std::string & explanation) {
 	}
 	if (errno != EINTR) {
 	    // Treat unexpected errors from read() as failure to get the lock.
-	    explanation = std::string("Error reading from child process: ") + strerror(errno);
+	    explanation = string("Error reading from child process: ") + strerror(errno);
 	    break;
 	}
     }
@@ -203,7 +205,7 @@ ChertLock::lock(bool exclusive, std::string & explanation) {
     close(fds[0]);
 
     int status;
-    while (waitpid(pid, &status, 0) < 0) {
+    while (waitpid(child, &status, 0) < 0) {
 	if (errno != EINTR) break;
     }
 

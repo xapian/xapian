@@ -570,6 +570,7 @@ static test test_or_queries[] = {
     { "site:1 site:2 site2:2", "0 * ((H1 OR H2) AND J2)" },
     { "site:1 OR site:2", "(0 * H1 OR 0 * H2)" },
     { "site:1 AND site:2", "(0 * H1 AND 0 * H2)" },
+    { "foo AND site:2", "(Zfoo:(pos=1) AND 0 * H2)" },
 #if 0
     { "A site:1 site:2", "(a FILTER (H1 OR H2))" },
     { "A (site:1 OR site:2)", "(a FILTER (H1 OR H2))" },
@@ -1668,6 +1669,91 @@ static bool test_qp_spell2()
     return true;
 }
 
+static test test_mispelled_wildcard_queries[] = {
+    { "doucment", "document" },
+    { "doucment*", "" },
+    { "doucment* seearch", "doucment* search" },
+    { "doucment* search", "" },
+    { NULL, NULL }
+};
+
+// Test spelling correction in the QueryParser with wildcards.
+// Regression test for bug fixed in 1.1.3 and 1.0.17.
+static bool test_qp_spellwild1()
+{
+    mkdir(".flint", 0755);
+    string dbdir = ".flint/qp_spellwild1";
+    Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+
+    db.add_spelling("document");
+    db.add_spelling("search");
+    db.add_spelling("paragraph");
+    db.add_spelling("band");
+
+    Xapian::QueryParser qp;
+    qp.set_database(db);
+
+    test *p;
+    for (p = test_mispelled_queries; p->query; ++p) {
+	Xapian::Query q;
+	q = qp.parse_query(p->query,
+			   Xapian::QueryParser::FLAG_SPELLING_CORRECTION |
+			   Xapian::QueryParser::FLAG_BOOLEAN |
+			   Xapian::QueryParser::FLAG_WILDCARD);
+	tout << "Query: " << p->query << endl;
+	TEST_STRINGS_EQUAL(qp.get_corrected_query_string(), p->expect);
+    }
+    for (p = test_mispelled_wildcard_queries; p->query; ++p) {
+	Xapian::Query q;
+	q = qp.parse_query(p->query,
+			   Xapian::QueryParser::FLAG_SPELLING_CORRECTION |
+			   Xapian::QueryParser::FLAG_BOOLEAN |
+			   Xapian::QueryParser::FLAG_WILDCARD);
+	tout << "Query: " << p->query << endl;
+	TEST_STRINGS_EQUAL(qp.get_corrected_query_string(), p->expect);
+    }
+
+    return true;
+}
+
+static test test_mispelled_partial_queries[] = {
+    { "doucment", "" },
+    { "doucment ", "document " },
+    { "documen", "" },
+    { "documen ", "document " },
+    { "seearch documen", "search documen" },
+    { "search documen", "" },
+    { NULL, NULL }
+};
+
+// Test spelling correction in the QueryParser with FLAG_PARTIAL.
+// Regression test for bug fixed in 1.1.3 and 1.0.17.
+static bool test_qp_spellpartial1()
+{
+    mkdir(".flint", 0755);
+    string dbdir = ".flint/qp_spellpartial1";
+    Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+
+    db.add_spelling("document");
+    db.add_spelling("search");
+    db.add_spelling("paragraph");
+    db.add_spelling("band");
+
+    Xapian::QueryParser qp;
+    qp.set_database(db);
+
+    for (test *p = test_mispelled_partial_queries; p->query; ++p) {
+	Xapian::Query q;
+	q = qp.parse_query(p->query,
+			   Xapian::QueryParser::FLAG_SPELLING_CORRECTION |
+			   Xapian::QueryParser::FLAG_PARTIAL);
+	tout << "Query: " << p->query << endl;
+	TEST_STRINGS_EQUAL(qp.get_corrected_query_string(), p->expect);
+    }
+
+    return true;
+}
+
 static test test_synonym_queries[] = {
     { "searching", "(Zsearch:(pos=1) SYNONYM Zfind:(pos=1) SYNONYM Zlocate:(pos=1))" },
     { "search", "(Zsearch:(pos=1) SYNONYM find:(pos=1))" },
@@ -2016,6 +2102,87 @@ static bool test_qp_near1()
     return true;
 }
 
+static test test_stopword_group_or_queries[] = {
+    { "this is a test", "test:(pos=4)" },
+    { "test*", "(test:(pos=1) SYNONYM testable:(pos=1) SYNONYM tester:(pos=1))" },
+    { "a test*", "(test:(pos=2) SYNONYM testable:(pos=2) SYNONYM tester:(pos=2))" },
+    { "is a test*", "(test:(pos=3) SYNONYM testable:(pos=3) SYNONYM tester:(pos=3))" },
+    { "this is a test*", "(test:(pos=4) SYNONYM testable:(pos=4) SYNONYM tester:(pos=4))" },
+    { "this is a us* test*", "(user:(pos=4) OR (test:(pos=5) SYNONYM testable:(pos=5) SYNONYM tester:(pos=5)))" },
+    { "this is a user test*", "(user:(pos=4) OR (test:(pos=5) SYNONYM testable:(pos=5) SYNONYM tester:(pos=5)))" },
+    { NULL, NULL }
+};
+
+static test test_stopword_group_and_queries[] = {
+    { "this is a test", "test:(pos=4)" },
+    { "test*", "(test:(pos=1) SYNONYM testable:(pos=1) SYNONYM tester:(pos=1))" },
+    { "a test*", "(test:(pos=2) SYNONYM testable:(pos=2) SYNONYM tester:(pos=2))" },
+    // Two stopwords + one wildcard failed in 1.0.16
+    { "is a test*", "(test:(pos=3) SYNONYM testable:(pos=3) SYNONYM tester:(pos=3))" },
+    // Three stopwords + one wildcard failed in 1.0.16
+    { "this is a test*", "(test:(pos=4) SYNONYM testable:(pos=4) SYNONYM tester:(pos=4))" },
+    // Three stopwords + two wildcards failed in 1.0.16
+    { "this is a us* test*", "(user:(pos=4) AND (test:(pos=5) SYNONYM testable:(pos=5) SYNONYM tester:(pos=5)))" },
+    { "this is a user test*", "(user:(pos=4) AND (test:(pos=5) SYNONYM testable:(pos=5) SYNONYM tester:(pos=5)))" },
+    { NULL, NULL }
+};
+
+// Regression test for bug fixed in 1.0.17 and 1.1.3.
+static bool test_qp_stopword_group1()
+{
+#ifndef XAPIAN_HAS_INMEMORY_BACKEND
+    SKIP_TEST("Testcase requires the InMemory backend which is disabled");
+#else
+    Xapian::WritableDatabase db(Xapian::InMemory::open());
+    Xapian::Document doc;
+    doc.add_term("test");
+    doc.add_term("tester");
+    doc.add_term("testable");
+    doc.add_term("user");
+    db.add_document(doc);
+
+    Xapian::SimpleStopper stopper;
+    stopper.add("this");
+    stopper.add("is");
+    stopper.add("a");
+
+    Xapian::QueryParser qp;
+    qp.set_stopper(&stopper);
+    qp.set_database(db);
+
+    // Process test cases with OP_OR first, then with OP_AND.
+    qp.set_default_op(Xapian::Query::OP_OR);
+    test *p = test_stopword_group_or_queries;
+    for (int i = 1; i <= 2; ++i) {
+	for ( ; p->query; ++p) {
+	    string expect, parsed;
+	    if (p->expect)
+		expect = p->expect;
+	    else
+		expect = "parse error";
+	    try {
+		Xapian::Query qobj = qp.parse_query(p->query, qp.FLAG_WILDCARD);
+		parsed = qobj.get_description();
+		expect = string("Xapian::Query(") + expect + ')';
+	    } catch (const Xapian::QueryParserError &e) {
+		parsed = e.get_msg();
+	    } catch (const Xapian::Error &e) {
+		parsed = e.get_description();
+	    } catch (...) {
+		parsed = "Unknown exception!";
+	    }
+	    tout << "Query: " << p->query << '\n';
+	    TEST_STRINGS_EQUAL(parsed, expect);
+	}
+
+	qp.set_default_op(Xapian::Query::OP_AND);
+	p = test_stopword_group_and_queries;
+    }
+
+    return true;
+#endif
+}
+
 /// Test cases for the QueryParser.
 static test_desc tests[] = {
     TESTCASE(queryparser1),
@@ -2041,12 +2208,15 @@ static test_desc tests[] = {
     TESTCASE(qp_stoplist1),
     TESTCASE(qp_spell1),
     TESTCASE(qp_spell2),
+    TESTCASE(qp_spellwild1),
+    TESTCASE(qp_spellpartial1),
     TESTCASE(qp_synonym1),
     TESTCASE(qp_synonym2),
     TESTCASE(qp_synonym3),
     TESTCASE(qp_stem_all1),
     TESTCASE(qp_scale1),
     TESTCASE(qp_near1),
+    TESTCASE(qp_stopword_group1),
     END_OF_TESTCASES
 };
 

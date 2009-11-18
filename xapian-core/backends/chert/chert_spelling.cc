@@ -25,9 +25,9 @@
 
 #include "expandweight.h"
 #include "chert_spelling.h"
-#include "chert_utils.h"
 #include "omassert.h"
 #include "ortermlist.h"
+#include "pack.h"
 
 #include <algorithm>
 #include <map>
@@ -182,7 +182,9 @@ ChertSpellingTable::merge_changes()
     for (j = wordfreq_changes.begin(); j != wordfreq_changes.end(); ++j) {
 	string key = "W" + j->first;
 	if (j->second) {
-	    add(key, pack_uint_last(j->second));
+	    string tag;
+	    pack_uint_last(tag, j->second);
+	    add(key, tag);
 	} else {
 	    del(key);
 	}

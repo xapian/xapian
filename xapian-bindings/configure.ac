@@ -4,7 +4,7 @@ dnl See xapian-core's HACKING document for details of the reasons for required
 dnl versions.
 AC_PREREQ([2.63])
 
-AC_INIT([xapian-bindings], [1.1.2], [http://xapian.org/bugs])
+AC_INIT([xapian-bindings], [1.1.3], [http://xapian.org/bugs])
 
 dnl See xapian-core's HACKING document for details of the reasons for required
 dnl versions.
@@ -67,8 +67,8 @@ AC_PROG_CXX
 dnl Run tests using the C++ compiler.
 AC_LANG_CPLUSPLUS
 
-dnl Check for libxapian
-XO_LIB_XAPIAN
+dnl Check for xapian-core.
+XO_LIB_XAPIAN([], [], [xapian-config-1.1])
 
 dnl We want XAPIAN_CXXFLAGS to be used for configure tests, so add it to
 dnl CXXFLAGS for the duration of configure.

@@ -29,7 +29,7 @@
 #include "xapian/valueiterator.h"
 
 #include "safeerrno.h"
-#include <csignal>
+#include <signal.h>
 #include <cstdlib>
 
 #include "autoptr.h"

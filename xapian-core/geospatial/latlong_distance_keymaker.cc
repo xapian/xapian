@@ -1,5 +1,5 @@
-/** \file latlong_distance_sorter.cc
- * \brief LatLongDistanceSorter implementation.
+/** \file latlong_distance_keymaker.cc
+ * \brief LatLongDistanceKeyMaker implementation.
  */
 /* Copyright 2008 Lemur Consulting Ltd
  *
@@ -28,7 +28,7 @@
 using namespace Xapian;
 
 std::string
-LatLongDistanceSorter::operator()(const Document &doc) const
+LatLongDistanceKeyMaker::operator()(const Document &doc) const
 {
     std::string val(doc.get_value(valno));
     LatLongCoords doccoords = LatLongCoords::unserialise(val);

@@ -24,7 +24,6 @@
 
 #include "chert_cursor.h"
 #include "chert_synonym.h"
-#include "chert_utils.h"
 #include "stringutils.h"
 #include "vectortermlist.h"
 

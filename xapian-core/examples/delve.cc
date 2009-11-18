@@ -154,8 +154,7 @@ show_termlists(Database &db,
 static Stem stemmer;
 
 int
-main(int argc, char **argv)
-{
+main(int argc, char **argv) try {
     if (argc > 1 && argv[1][0] == '-') {
 	if (strcmp(argv[1], "--help") == 0) {
 	    cout << PROG_NAME" - "PROG_DESC"\n\n";
@@ -232,92 +231,90 @@ main(int argc, char **argv)
 	}
     }
 
-    try {
-	if (terms.empty() && recnos.empty() && !slot_set) {
-	    // Show some statistics about the database.
-	    show_db_stats(db);
-	    return 0;
+    if (terms.empty() && recnos.empty() && !slot_set) {
+	// Show some statistics about the database.
+	show_db_stats(db);
+	return 0;
+    }
+
+    if (!recnos.empty()) {
+	if (showvalues) {
+	    show_values(db, recnos.begin(), recnos.end());
 	}
 
-	if (!recnos.empty()) {
-	    if (showvalues) {
-		show_values(db, recnos.begin(), recnos.end());
-	    }
-
-	    if (showdocdata) {
-		show_docdata(db, recnos.begin(), recnos.end());
-	    }
+	if (showdocdata) {
+	    show_docdata(db, recnos.begin(), recnos.end());
 	}
+    }
 
-	if (slot_set) {
-	    cout << "Value " << slot << " for each document:";
-	    ValueIterator it = db.valuestream_begin(slot);
-	    while (it != db.valuestream_end(slot)) {
-		cout << separator << it.get_docid() << ':' << *it;
-		++it;
+    if (slot_set) {
+	cout << "Value " << slot << " for each document:";
+	ValueIterator it = db.valuestream_begin(slot);
+	while (it != db.valuestream_end(slot)) {
+	    cout << separator << it.get_docid() << ':' << *it;
+	    ++it;
+	}
+	cout << endl;
+    }
+
+    if (terms.empty()) {
+	show_termlists(db, recnos.begin(), recnos.end());
+	return 0;
+    }
+
+    vector<string>::const_iterator i;
+    for (i = terms.begin(); i != terms.end(); i++) {
+	string term = stemmer(*i);
+	PostingIterator p = db.postlist_begin(term);
+	PostingIterator pend = db.postlist_end(term);
+	if (p == pend) {
+	    cout << "term `" << term << "' not in database\n";
+	    continue;
+	}
+	if (recnos.empty()) {
+	    // Display posting list
+	    cout << "Posting List for term `" << term << "' (termfreq "
+		 << db.get_termfreq(term) << ", collfreq "
+		 << db.get_collection_freq(term) << ", wdf_max "
+		 << db.get_wdf_upper_bound(term) << "):";
+	    while (p != pend) {
+		cout << separator << *p;
+		if (verbose) {
+		    cout << ' ' << p.get_wdf()
+			<< ' ' << p.get_doclength();
+		}
+		if (showvalues) show_values(db, *p, ' ');
+		if (showdocdata) show_docdata(db, *p, ' ');
+		p++;
 	    }
 	    cout << endl;
-	}
-
-	if (terms.empty()) {
-	    show_termlists(db, recnos.begin(), recnos.end());
-	    return 0;
-	}
-
-	vector<string>::const_iterator i;
-	for (i = terms.begin(); i != terms.end(); i++) {
-	    string term = stemmer(*i);
-	    PostingIterator p = db.postlist_begin(term);
-	    PostingIterator pend = db.postlist_end(term);
-	    if (p == pend) {
-		cout << "term `" << term << "' not in database\n";
-		continue;
-	    }
-	    if (recnos.empty()) {
-		// Display posting list
-		cout << "Posting List for term `" << term << "' (termfreq "
-		     << db.get_termfreq(term) << ", collfreq "
-		     << db.get_collection_freq(term) << ", wdf_max "
-		     << db.get_wdf_upper_bound(term) << "):";
-		while (p != pend) {
-		    cout << separator << *p;
-		    if (verbose) {
-			cout << ' ' << p.get_wdf()
-			    << ' ' << p.get_doclength();
-		    }
-		    if (showvalues) show_values(db, *p, ' ');
-		    if (showdocdata) show_docdata(db, *p, ' ');
-		    p++;
-		}
-		cout << endl;
-	    } else {
-		// Display position lists
-		vector<docid>::const_iterator j;
-		for (j = recnos.begin(); j != recnos.end(); j++) {
-		    p.skip_to(*j);
-		    if (p == pend || *p != *j) {
-			cout << "term `" << term <<
-			    "' doesn't index document #" << *j << endl;
-		    } else {
-			cout << "Position List for term `" << term
-			    << "', record #" << *j << ':';
-			try {
-			    PositionIterator pos = p.positionlist_begin();
-			    PositionIterator posend = p.positionlist_end();
-			    while (pos != posend) {
-				cout << separator << *pos;
-				++pos;
-			    }
-			    cout << endl;
-			} catch (const Error &e) {
-			    cout << "Error: " << e.get_description() << endl;
+	} else {
+	    // Display position lists
+	    vector<docid>::const_iterator j;
+	    for (j = recnos.begin(); j != recnos.end(); j++) {
+		p.skip_to(*j);
+		if (p == pend || *p != *j) {
+		    cout << "term `" << term <<
+			"' doesn't index document #" << *j << endl;
+		} else {
+		    cout << "Position List for term `" << term
+			<< "', record #" << *j << ':';
+		    try {
+			PositionIterator pos = p.positionlist_begin();
+			PositionIterator posend = p.positionlist_end();
+			while (pos != posend) {
+			    cout << separator << *pos;
+			    ++pos;
 			}
+			cout << endl;
+		    } catch (const Error &e) {
+			cout << "Error: " << e.get_description() << endl;
 		    }
 		}
 	    }
 	}
-    } catch (const Error &e) {
-	cout << "\nError: " << e.get_description() << endl;
-	return 1;
     }
+} catch (const Error &e) {
+    cout << "\nError: " << e.get_description() << endl;
+    return 1;
 }

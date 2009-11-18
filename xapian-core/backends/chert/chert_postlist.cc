@@ -26,9 +26,9 @@
 
 #include "chert_cursor.h"
 #include "chert_database.h"
-#include "chert_utils.h"
 #include "noreturn.h"
 #include "omdebug.h"
+#include "pack.h"
 #include "utils.h"
 
 Xapian::doccount
@@ -68,6 +68,18 @@ ChertPostListTable::get_doclength(Xapian::docid did,
     if (!doclen_pl->jump_to(did))
 	throw Xapian::DocNotFoundError("Document " + om_tostring(did) + " not found");
     return doclen_pl->get_wdf();
+}
+
+bool
+ChertPostListTable::document_exists(Xapian::docid did,
+				    Xapian::Internal::RefCntPtr<const ChertDatabase> db) const
+{
+    if (!doclen_pl.get()) {
+	// Don't keep a reference back to the database, since this
+	// would make a reference loop.
+	doclen_pl.reset(new ChertPostList(db, string(), false));
+    }
+    return (doclen_pl->jump_to(did));
 }
 
 // How big should chunks in the posting list be?  (They
@@ -333,11 +345,11 @@ PostlistChunkWriter::append(ChertTable * table, Xapian::docid did,
 	    chunk.resize(0);
 	    orig_key = ChertPostListTable::make_key(tname, first_did);
 	} else {
-	    chunk.append(pack_uint(did - current_did - 1));
+	    pack_uint(chunk, did - current_did - 1);
 	}
     }
     current_did = did;
-    chunk.append(pack_uint(wdf));
+    pack_uint(chunk, wdf);
 }
 
 /** Make the data to go at the start of the very first chunk.
@@ -347,7 +359,11 @@ make_start_of_first_chunk(Xapian::doccount entries,
 			  Xapian::termcount collectionfreq,
 			  Xapian::docid new_did)
 {
-    return pack_uint(entries) + pack_uint(collectionfreq) + pack_uint(new_did - 1);
+    string chunk;
+    pack_uint(chunk, entries);
+    pack_uint(chunk, collectionfreq);
+    pack_uint(chunk, new_did - 1);
+    return chunk;
 }
 
 /** Make the data to go at the start of a standard chunk.
@@ -358,8 +374,10 @@ make_start_of_chunk(bool new_is_last_chunk,
 		    Xapian::docid new_final_did)
 {
     Assert(new_final_did >= new_first_did);
-    return pack_bool(new_is_last_chunk) +
-	    pack_uint(new_final_did - new_first_did);
+    string chunk;
+    pack_bool(chunk, new_is_last_chunk);
+    pack_uint(chunk, new_final_did - new_first_did);
+    return chunk;
 }
 
 static void
@@ -1048,6 +1066,9 @@ ChertPostListTable::merge_changes(
     const map<string, pair<Xapian::termcount_diff, Xapian::termcount_diff> > & freq_deltas)
 {
     DEBUGCALL(DB, void, "ChertPostListTable::merge_changes", "mod_plists, doclens, freq_deltas");
+
+    // The cursor in the doclen_pl will no longer be valid, so reset it.
+    doclen_pl.reset(0);
 
     LOGVALUE(DB, doclens.size());
     if (!doclens.empty()) {

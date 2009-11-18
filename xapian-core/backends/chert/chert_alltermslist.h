@@ -75,7 +75,9 @@ class ChertAllTermsList : public AllTermsList {
 	if (prefix.empty()) {
 	    cursor->find_entry_lt(string("\x00\xff", 2));
 	} else {
-	    cursor->find_entry_lt(pack_string_preserving_sort(prefix));
+	    string key;
+	    pack_string_preserving_sort(key, prefix);
+	    cursor->find_entry_lt(key);
 	}
     }
 

@@ -30,7 +30,7 @@
 #include "chert_cursor.h"
 #include "chert_table.h"
 #include "chert_types.h"
-#include "chert_utils.h"
+#include "pack.h"
 
 #include "internaltypes.h"
 
@@ -186,12 +186,15 @@ main(int argc, char **argv)
 		table += '/';
 		table += *t;
 		cout << *t << ":\n";
-		if (strcmp(*t, "position") == 0 ||
-		    strcmp(*t, "spelling") == 0 ||
-		    strcmp(*t, "synonym") == 0) {
-		    // These are created lazily, so may not exist.
+		if (strcmp(*t, "record") != 0 && strcmp(*t, "postlist") != 0) {
+		    // Other tables are created lazily, so may not exist.
 		    if (!file_exists(table + ".DB")) {
-			cout << "Lazily created, and not yet used.\n" << endl;
+			if (strcmp(*t, "termlist") == 0) {
+			    cout << "Not present.\n";
+			} else {
+			    cout << "Lazily created, and not yet used.\n";
+			}
+			cout << endl;
 			continue;
 		    }
 		}
@@ -850,7 +853,7 @@ check_chert_table(const char * tablename, string filename, int opts,
 
 	    bool bad = false;
 	    while (pos != end) {
-		Xapian::doccount current_wdf;
+		Xapian::doccount current_wdf = 0;
 		bool got_wdf = false;
 		// If there was a previous term, how much to reuse.
 		if (!current_tname.empty()) {

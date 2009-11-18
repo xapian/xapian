@@ -25,7 +25,7 @@
 #include <xapian/enquire.h>
 #include <xapian/postingsource.h>
 #include <xapian/query.h>
-#include <xapian/sorter.h>
+#include <xapian/keymaker.h>
 #include <xapian/visibility.h>
 #include <string>
 #include <set>
@@ -613,7 +613,7 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistancePostingSource : public ValuePosti
     std::string get_description() const;
 };
 
-/** Sorter subclass which sorts by distance from a latitude/longitude.
+/** KeyMaker subclass which sorts by distance from a latitude/longitude.
  *
  *  Results are ordered by the distance from a fixed point, or list of points,
  *  calculated according to the metric supplied.  If multiple points are
@@ -621,25 +621,25 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistancePostingSource : public ValuePosti
  *  document) , the closest pointwise distance is returned.
  *
  *  Note that you will usually want to use the "descending" sort order with
- *  this sorter, in order to sort in descending order of distance.
+ *  this KeyMaker, in order to sort in descending order of distance.
  */
-class XAPIAN_VISIBILITY_DEFAULT LatLongDistanceSorter : public Sorter {
+class XAPIAN_VISIBILITY_DEFAULT LatLongDistanceKeyMaker : public KeyMaker {
     Xapian::valueno valno;
     LatLongCoords centre;
     const LatLongMetric & metric;
 
   public:
-    LatLongDistanceSorter(Xapian::valueno valno_,
-			  const LatLongCoords & centre_,
-			  const LatLongMetric & metric_)
+    LatLongDistanceKeyMaker(Xapian::valueno valno_,
+			    const LatLongCoords & centre_,
+			    const LatLongMetric & metric_)
 	    : valno(valno_),
 	      centre(centre_),
 	      metric(metric_)
     {}
 
-    LatLongDistanceSorter(Xapian::valueno valno_,
-			  const LatLongCoord & centre_,
-			  const LatLongMetric & metric_)
+    LatLongDistanceKeyMaker(Xapian::valueno valno_,
+			    const LatLongCoord & centre_,
+			    const LatLongMetric & metric_)
 	    : valno(valno_),
 	      centre(),
 	      metric(metric_)
@@ -649,6 +649,8 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistanceSorter : public Sorter {
 
     std::string operator()(const Xapian::Document & doc) const;
 };
+
+class XAPIAN_VISIBILITY_DEFAULT XAPIAN_DEPRECATED() LatLongDistanceSorter : public LatLongDistanceKeyMaker { };
 
 }
 

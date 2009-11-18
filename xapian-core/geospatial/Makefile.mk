@@ -56,7 +56,7 @@ endif
 
 lib_src += \
 	geospatial/htmcalc.cc \
-	geospatial/latlong_distance_sorter.cc \
+	geospatial/latlong_distance_keymaker.cc \
 	geospatial/latlong_match_decider.cc \
 	geospatial/latlong_posting_source.cc \
 	geospatial/latlongcoord.cc \

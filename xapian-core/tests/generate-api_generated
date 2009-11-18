@@ -41,7 +41,7 @@ my %copyableclasses = (
     'Enquire' => 'Xapian::InMemory::open()',
     'MSet' => '',
     'MSetIterator' => '',
-    'MultiValueSorter' => '',
+    'MultiValueKeyMaker' => '',
     'NumberValueRangeProcessor' => '0, ""',
     'PositionIterator' => '',
     'PostingIterator' => '',
@@ -60,7 +60,7 @@ my %copyableclasses = (
 
 my %no_get_description = (
     'DateValueRangeProcessor' => 1,
-    'MultiValueSorter' => 1,
+    'MultiValueKeyMaker' => 1,
     'NumberValueRangeProcessor' => 1,
     'Registry' => 1,
     'StringValueRangeProcessor' => 1,

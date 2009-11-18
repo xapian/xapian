@@ -60,10 +60,10 @@ so::
 
     enq.set_query(query);
 
-    Xapian::MSet mset = enq.get_mset(0, 10, 10000, NULL, NULL, &spy);
+    Xapian::MSet mset = enq.get_mset(0, 10, 10000);
 
 The ``10000`` in the call to ``get_mset()`` tells Xapian to check at least
-10000 documents, so the ``spy`` object will be passed at least 10000 documents
+10000 documents, so the MatchSpies will be passed at least 10000 documents
 to tally category information from (unless fewer than 10000 documents match the
 query, in which case it will see all of them).  Setting this higher will make
 the counts exact, but Xapian will have to do more work for most queries so

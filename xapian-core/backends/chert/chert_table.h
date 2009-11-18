@@ -1,7 +1,7 @@
 /* chert_table.h: Btree implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -201,9 +201,9 @@ public:
 	// Key size
 	setint1(p, I2, newsize - I2);
 	// Copy the main part of the key, possibly truncating.
-	memmove(p + I2 + K1, newkey.get_address() + K1, i);
+	std::memmove(p + I2 + K1, newkey.get_address() + K1, i);
 	// Copy the count part.
-	memmove(p + I2 + K1 + i, newkey.get_address() + K1 + newkey_len, C2);
+	std::memmove(p + I2 + K1 + i, newkey.get_address() + K1 + newkey_len, C2);
 	// Set tag contents to block number
 //	set_block_given_by(n);
 	setint4(p, newsize, n);
@@ -240,12 +240,12 @@ public:
 	}
 
 	set_key_len(key_len + K1 + C2);
-	memmove(p + I2 + K1, key_.data(), key_len);
+	std::memmove(p + I2 + K1, key_.data(), key_len);
 	set_component_of(1);
     }
     // FIXME passing cd here is icky
     void set_tag(int cd, const char *start, int len, bool compressed) {
-	memmove(p + cd, start, len);
+	std::memmove(p + cd, start, len);
 	set_size(cd + len);
 	if (compressed) *p |= 0x80;
     }
@@ -358,6 +358,12 @@ class XAPIAN_VISIBILITY_DEFAULT ChertTable {
 	 *	not present, etc).
 	 */
 	bool open(chert_revision_number_t revision_);
+
+	/** Return true if this table is open.
+	 *
+	 *  NB If the table is lazy and doesn't yet exist, returns false.
+	 */
+	bool is_open() const { return handle >= 0; }
 
 	/** Flush any outstanding changes to the DB file of the table.
 	 *
@@ -662,7 +668,13 @@ class XAPIAN_VISIBILITY_DEFAULT ChertTable {
 	 */
 	bool sequential;
 
-	/// corresponding file handle
+	/** File descriptor of the table.
+	 *
+	 *  If the table is lazily created and doesn't yet exist, this will be
+	 *  -1.
+	 *
+	 *  If close() has been called, this will be -2.
+	 */
 	int handle;
 
 	/// number of levels, counting from 0
