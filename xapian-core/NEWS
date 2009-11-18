@@ -1,32 +1,8 @@
- 13553       olly Sat Oct 31 06:59:19 GMT 2009  Olly Betts <olly@survex.com>
-
- 13553       olly Sat Oct 31 06:59:19 GMT 2009  Olly Betts <olly@survex.com>
-	* include/xapian/enquire.h: Fix deprecation warnings when building with
-	  recent GCC.
-
- 13552       olly Sat Oct 31 02:46:04 GMT 2009  Olly Betts <olly@survex.com>
-	* tests/queryparsertest.cc: Add another test query string to cover a
-	  case we didn't previously check.
-
- 13548       olly Tue Oct 27 00:42:59 GMT 2009  Olly Betts <olly@survex.com>
-	* backends/chert/chert_lock.cc,backends/flint/flint_lock.cc: Don't
-	  try to close the fd one more than the maximum allowable.
-	  (ticket#408)
-	* AUTHORS: Add Carl Worth for the patch.
-
- 13533       olly Fri Sep 18 13:23:00 GMT 2009  Olly Betts <olly@survex.com>
-	* configure.ac: Actually use any flags we determine are needed to
-	  switch the compiler to proper ANSI C++ mode, when building
-	  xapian-core - this stopped working in 1.0.12, breaking support for
-	  HP's aCC, Compaq's cxx, Sun's CC, and SGI's CC.
-
- 13532       olly Fri Sep 18 12:40:37 GMT 2009  Olly Betts <olly@survex.com>
-	* include/xapian/matchspy.h: Mark ValueCountMatchSpy, NumericRange,
-	  NumericRanges, and score_evenness() as experimental.
+ 13611       olly Mon Nov 16 08:35:52 GMT 2009  Olly Betts <olly@survex.com>
 
 Xapian-core 1.1.3 (2009-09-1?):
 
-This release includes all changes from 1.0.15 and 1.0.16 which are relevant.
+This release includes all changes from 1.0.15-1.0.17 which are relevant.
 
 API:
 
@@ -72,12 +48,22 @@ API:
   always need clone() to be implemented because it's called for every term
   in the query, not just used for the remote backend.
 
+* Mark ValueCountMatchSpy, NumericRange, NumericRanges, and score_evenness() as
+  experimental.
+
 testsuite:
 
 
 matcher:
 
 chert backend:
+
+* Rewrite the low level packing and unpacking functions more efficiently.  As
+  well as being generally faster, the pack functions now take a reference to a
+  string to append to, which avoids creating a lot of temporary string objects.
+  Indexing HTML files with omindex is 5-10% faster.  Searching for "The" on
+  gmane (which results in a lot of unpacking of postings and document lengths)
+  is about 35% faster.  (ticket#326)
 
 * xapian-compact: Don't report an absent lazy input table as 0 size.
 
@@ -129,12 +115,11 @@ build system:
 
 * This release uses doxygen 1.5.9 to generate the API documentation.
 
- 13546    richard Mon Oct 05 09:00:58 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 	* configure.ac: Mention e2fsprogs-devel in the message thrown up by
 	  configure, too.
- 13545    richard Mon Oct 05 08:53:05 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 	* HACKING: Note the command needed to get the uuid library
 	  installed on fedora, since it's rather non-obvious.
+
 documentation:
 
 * Minor improvements to the formatting of the collated API documentation.
@@ -144,6 +129,8 @@ examples:
 
 portability:
 
+* Fix code to compile with Sun's C++ compiler.
+ 
 * Fix our uuid_unparse_lower() replacement for older libuuid to actually
   compile (really fixes ticket#368).
 
@@ -154,6 +141,7 @@ packaging:
 
 debug code:
 
+* Use C++ syntax for NULL with a type in log output.
 
 Xapian-core 1.1.2 (2009-07-23):
 
@@ -566,6 +554,53 @@ debug code:
 * Faster integer to string functions inside the library (this is a general
   improvement, but will particularly speed up debug logging as that converts a
   lot of integers to strings).
+
+xapian-core 1.0.17 (2009-11-18):
+
+API:
+
+* QueryParser:
+
+  + Fix handling of a group of two or more terms which are all stopwords which
+    notably caused issues when default_op was OP_AND, but could probably
+    manifest in other cases too.  Fixes ticket#406.
+
+  + Fix interaction of FLAG_PARTIAL and FLAG_SYNONYM.  (ticket#407)
+
+* Database: A database created via the default constructor no longer causes a
+  segfault when the methods get_metadata() or metadata_keys_begin() are called.
+
+flint backend:
+
+* Don't try to close the fd one more than the maximum allowable when locking
+  the database.  Harmless, except it causes a warning when running under
+  valgrind.  (ticket#408)
+
+remote backend:
+
+* Xapian::Sorter isn't supported with the remote backend so throw
+  UnimplementedError rather than giving incorrect results.  (ticket#384)
+
+* Fix potential reading off the end of the MSet which is returned internally
+  by the remote server.
+
+documentation:
+
+* Various documentation comment improvements for the Database class.
+
+examples:
+
+* examples/quest.cc: Tighten up the type of the error we catch to detect an
+  unknown stemming language.
+
+portability:
+
+* xapian-config: Need to quote ^ for Solaris /bin/sh.
+
+* configure: Actually use any flags we determine are needed to switch the
+  compiler to proper ANSI C++ mode, when building xapian-core - this stopped
+  working in 1.0.12, breaking support for HP's aCC, Compaq's cxx, Sun's CC, and
+  SGI's CC.
 
 Xapian-core 1.0.16 (2009-09-10):
 

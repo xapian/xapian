@@ -1,3 +1,7 @@
+Wed Nov 18 02:34:30 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from 1.0.17 and ChangeLog.
+
 Mon Nov 16 08:35:52 GMT 2009  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Fix interaction of FLAG_PARTIAL and
