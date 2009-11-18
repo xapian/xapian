@@ -1,54 +1,29 @@
- 13568       olly Tue Nov 03 06:09:39 GMT 2009  Olly Betts <olly@survex.com>
-
-Xapian-bindings 1.1.3 (2009-09-1?):
-
-Documentation:
+Xapian-bindings 1.1.3 (2009-11-18):
 
 General:
 
 * configure: Default to looking for xapian-config-1.1 unless XAPIAN_CONFIG is
   specified.
 
-* Wrap the new MatchSpy class, and associated things.
+* Wrap the new MatchSpy class, and associated features.
 
 * Don't wrap PostingSource::serialise(), Weight::serialise() and
   Weight::unserialise() as they aren't useful from the bindings.
 
-	* csharp/Makefile.am,python/generate-python-exceptions,xapian.i:
-	  Update for the Sorter->KeyMaker changes.
-
-Packaging:
-
-Portability:
-
-	* php/except.i: Add a call to TSRMLS_FETCH to start of
-	  XapianExceptionHandler(), as seems to be required by PHP if
-	  compiled with multithreaded mode.  Fixes #411.
-
-CSharp:
-
-Guile:
-
-Java:
+* Update for the Sorter to KeyMaker changes.
 
 PHP:
 
+* Fix PHP bindings to build when PHP has been compiled in multithreaded mode,
+  as in standardly is on Microsoft Windows.  Fixes #411.
+
 * Merged the PHP "smoketest" back together now we don't need to support
-  PHP4 as well.
+  PHP4 now.
 
 Python:
 
-	* python/extra.i: Add support to the NumericRanges object to get
-	  the ranges as a dict.
-	* python/util.i: Fix a memory leak on error (in theory - I've not
-	  got a way to generate this error, so haven't been able to produce
-	  the leak or test the fix).
-	* python/pythontest2.py: Update tests to cover new NumericRanges
-	  object.
-
-Ruby:
-
-Tcl:
+* Fix a memory leak on error (in theory - we've not got a way to generate this
+  error, so haven't been able to reproduce the leak or test the fix).
 
 Xapian-bindings 1.1.2 (2009-07-23):
 
