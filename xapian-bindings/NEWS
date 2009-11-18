@@ -1,4 +1,4 @@
- 13521       olly Thu Sep 17 12:59:22 GMT 2009  Olly Betts <olly@survex.com>
+ 13568       olly Tue Nov 03 06:09:39 GMT 2009  Olly Betts <olly@survex.com>
 
 Xapian-bindings 1.1.3 (2009-09-1?):
 
@@ -14,9 +14,16 @@ General:
 * Don't wrap PostingSource::serialise(), Weight::serialise() and
   Weight::unserialise() as they aren't useful from the bindings.
 
+	* csharp/Makefile.am,python/generate-python-exceptions,xapian.i:
+	  Update for the Sorter->KeyMaker changes.
+
 Packaging:
 
 Portability:
+
+	* php/except.i: Add a call to TSRMLS_FETCH to start of
+	  XapianExceptionHandler(), as seems to be required by PHP if
+	  compiled with multithreaded mode.  Fixes #411.
 
 CSharp:
 
@@ -146,6 +153,23 @@ Python:
 * Python now flags deprecation warnings for the single argument form and old
   parameter name (ascending) in set_sort_by_key(), set_sort_by_value() and
   friends.
+
+Xapian-bindings 1.0.17 (2009-11-18):
+
+Packaging:
+
+* Improve RPM package summaries - the files are needed to *use* scripts as well
+  as to develop them.  Use "Tcl" instead of "TCL" as the former is more
+  conventional.
+
+Portability:
+
+* python/Makefile.am: Restore the "./" path to the sourced file
+  libtoolconfig.tmp as ksh requires it.
+
+Java:
+
+* Fix memory leak when passing a MatchDecider to Enquire::get_mset().
 
 Xapian-bindings 1.0.16 (2009-09-10):
 
