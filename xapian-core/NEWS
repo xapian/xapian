@@ -1,6 +1,4 @@
- 13611       olly Mon Nov 16 08:35:52 GMT 2009  Olly Betts <olly@survex.com>
-
-Xapian-core 1.1.3 (2009-09-1?):
+Xapian-core 1.1.3 (2009-09-18):
 
 This release includes all changes from 1.0.15-1.0.17 which are relevant.
 
@@ -48,14 +46,6 @@ API:
   always need clone() to be implemented because it's called for every term
   in the query, not just used for the remote backend.
 
-* Mark ValueCountMatchSpy, NumericRange, NumericRanges, and score_evenness() as
-  experimental.
-
-testsuite:
-
-
-matcher:
-
 chert backend:
 
 * Rewrite the low level packing and unpacking functions more efficiently.  As
@@ -98,9 +88,6 @@ remote backend:
   searching multiple databases, some of which are remote, and when the primary
   ordering is by relevance.
 
-inmemory backend:
-
-
 build system:
 
 * This release uses autoconf 2.64 rather than 2.63.  This means configure now
@@ -115,17 +102,9 @@ build system:
 
 * This release uses doxygen 1.5.9 to generate the API documentation.
 
-	* configure.ac: Mention e2fsprogs-devel in the message thrown up by
-	  configure, too.
-	* HACKING: Note the command needed to get the uuid library
-	  installed on fedora, since it's rather non-obvious.
-
 documentation:
 
 * Minor improvements to the formatting of the collated API documentation.
-
-examples:
-
 
 portability:
 
@@ -135,9 +114,6 @@ portability:
   compile (really fixes ticket#368).
 
 * Fix xapian-config to work with Solaris 10 /bin/sh.  (ticket#405)
-
-packaging:
-
 
 debug code:
 

@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT([xapian-core], [1.1.2], [http://xapian.org/bugs])
+AC_INIT([xapian-core], [1.1.3], [http://xapian.org/bugs])
 dnl See HACKING document for details of the reasons for required versions.
 AC_PREREQ([2.63])
 dnl Extract from the libtool info manual:
@@ -32,7 +32,8 @@ dnl LIBRARY_VERSION_INFO for libxapian-1.1:
 dnl 0:0:0 1.1.0 Reset as library renamed
 dnl 1:0:0 1.1.1 PostingSource::get_maxweight() no longer virtual
 dnl 2:0:0 1.1.2 Query::Internal::wqf removed
-LIBRARY_VERSION_INFO=2:0:0
+dnl 3:0:0 1.1.3 Default implementation of Weight::clone() removed.
+LIBRARY_VERSION_INFO=3:0:0
 AC_SUBST(LIBRARY_VERSION_INFO)
 
 LIBRARY_VERSION_SUFFIX=-1.1
@@ -354,11 +355,13 @@ dnl The maths functions we use include: exp log ceil fabs sqrt
 AC_MSG_CHECKING([if -lm is required for maths functions])
 dnl Don't use a constant argument to log as the compiler might simply evaluate
 dnl the whole expression at compile time.
-AC_TRY_LINK([#include <math.h>
-#include <stdlib.h>], [double a = log((double)rand());], [AC_MSG_RESULT(no)], [
+AC_TRY_LINK([#include <cmath>
+#include <cstdlib>
+using namespace std;], [double a = log((double)rand());], [AC_MSG_RESULT(no)], [
     LIBS="-lm $LIBS"
-    AC_TRY_LINK([#include <math.h>
-#include <stdlib.h>], [double a = log((double)rand());],
+    AC_TRY_LINK([#include <cmath>
+#include <cstdlib>
+using namespace std;], [double a = log((double)rand());],
 	[AC_MSG_RESULT(yes)],
 	[AC_MSG_ERROR([Failed to link a C++ program using log()])
     ])
@@ -531,8 +534,9 @@ for func in snprintf _snprintf ; do
   AC_RUN_IFELSE([
     AC_LANG_PROGRAM(
       [[
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
+using namespace std;
       ]],
       dnl Return different exit status for each error so we can see which
       dnl check failed by consulting config.log.
