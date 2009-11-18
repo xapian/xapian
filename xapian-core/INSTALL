@@ -20,7 +20,9 @@ already if you're using Linux, FreeBSD, or similar.  You may need to install a
 zlib 1.2.x as it apparently fixes a memory leak in deflateInit2 (which Xapian
 uses) and decompression is supposed to be about 20% faster than with 1.1.x.
 
-Xapian 1.1.0 and higher also requires libuuid from e2fsprogs.
+Xapian 1.1.0 and higher also requires libuuid which you can find in e2fsprogs
+(on Fedora, the package to install is e2fsprogs-devel).  On Microsoft Windows
+this isn't required, as we use built in UUID functionality instead.
 
 Compilers
 =========

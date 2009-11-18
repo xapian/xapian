@@ -1,3 +1,8 @@
+Wed Nov 18 10:13:59 GMT 2009  Olly Betts <olly@survex.com>
+
+	* INSTALL: Note the package to install for building against libuuid on
+	  Fedora, and note that libuuid isn't required on Microsoft Windows.
+
 Wed Nov 18 02:34:30 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from 1.0.17 and ChangeLog.
