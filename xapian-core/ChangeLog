@@ -1,3 +1,9 @@
+Wed Nov 18 16:33:01 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* bin/xapian-check.cc: Fix compiler warning (with gcc-4.2) that did
+	  could be used uninitialised: it couldn't be, but it's hard for a
+	  compiler to see that.
+
 Wed Nov 18 12:48:17 GMT 2009  Richard Boulton <richard@tartarus.org>
 
 	* AUTHORS: Update my email address.
