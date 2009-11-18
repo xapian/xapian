@@ -1,3 +1,7 @@
+Wed Nov 18 10:39:59 GMT 2009  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Update from 1.0.17.
+
 Wed Nov 18 10:31:49 GMT 2009  Olly Betts <olly@survex.com>
 
 	* INSTALL: Improve text about zlib dependency.
