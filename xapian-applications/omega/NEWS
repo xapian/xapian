@@ -1,3 +1,33 @@
+Omega 1.0.17 (2009-11-18):
+
+indexers:
+
+* omindex:
+
+  + On Linux, change the memory limit on external filters to use _SC_PHYS_PAGES
+    since _SC_AVPHYS_PAGES excludes pages used by the OS cache and so will
+    often report a really low value.  Fixes Debian bug#548987 and ticket#358.
+
+  + Fix likely crash when reading output from external filter program if read()
+    is interrupted by a signal.
+
+  + Fix potential crash when indexing PostScript files (fixed by using delete[]
+    (not delete) for array allocated by new[]).
+
+testsuite:
+
+* utf8converttest: Charset "8859_1" isn't understood by Solaris libiconv, and
+  isn't a standard charset name, so just test it when using our built-in
+  converter and GNU libc.
+
+portability:
+
+* Fix build failure on Mac OS X 10.6.
+
+* Also check for socketpair() in -lxnet if it isn't found without, which
+  enables resource limits on external filter programs called by omindex on
+  Solaris, and possibly some other platforms.  Fixes ticket#412.
+
 Omega 1.0.16 (2009-09-10):
 
 * omega: Fix cross-site scripting vulnerability in reporting of exceptions
