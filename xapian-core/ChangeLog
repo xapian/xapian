@@ -1,3 +1,7 @@
+Wed Nov 18 12:21:09 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/valuelist.h: Fix internal documentation comment.
+
 Wed Nov 18 10:40:54 GMT 2009  Olly Betts <olly@survex.com>
 
 	* configure.ac: Use <cstdlib>, <cmath>, <cstdio>, <cstring> for
