@@ -1,3 +1,20 @@
+Xapian-bindings 1.0.17 (2009-11-18):
+
+Packaging:
+
+* Improve RPM package summaries - the files are needed to *use* scripts as well
+  as to develop them.  Use "Tcl" instead of "TCL" as the former is more
+  conventional.
+
+Portability:
+
+* python/Makefile.am: Restore the "./" path to the sourced file
+  libtoolconfig.tmp as ksh requires it.
+
+Java:
+
+* Fix memory leak when passing a MatchDecider to Enquire::get_mset().
+
 Xapian-bindings 1.0.16 (2009-09-10):
 
 Python:
