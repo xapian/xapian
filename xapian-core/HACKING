@@ -279,6 +279,10 @@ If you want to build Omega, you'll also need::
 
     apt-get install libpcre3-dev
 
+On fedora, the uuid library can be installed by doing::
+
+    yum install e2fsprogs-devel
+
 The SVN repository does not contain any automatically generated files
 (such as configure, Makefile.in, Snowball-generated stemmers, Lemon-generated
 parsers, SWIG-generated code, etc) because experience shows it's best to keep
@@ -540,9 +544,6 @@ Web Resources
 
 The "C++ FAQ Lite" covers many frequently asked C++ questions:
 http://www.parashift.com/c++-faq-lite/
-
-The libstdc++-porting-howto discusses various C++ portability issues:
-http://gcc.gnu.org/onlinedocs/libstdc++/17_intro/porting-howto.html
 
 Header Portability Issues
 -------------------------
@@ -968,6 +969,16 @@ semicolon and any "definition" part, for example::
         XAPIAN_DEPRECATED(static const int OLD_CONSTANT) = 42;
     };
 
+Mark a class as deprecated by inserting ``XAPIAN_DEPRECATED()`` after the class
+keyword like so::
+
+    class XAPIAN_DEPRECATED() Foo {
+      public:
+        Foo() { };
+
+        // ...
+    };
+
 To avoid compilation errors with older GCC versions (noted with GCC 3.3.5),
 you can't mark a method which is defined inline in a class with
 XAPIAN_DEPRECATED (this works with recent GCC versions though)::
@@ -993,7 +1004,7 @@ Submitting Patches:
 If you have a patch to fix a problem in Xapian, or to add a new feature,
 please send it to us for inclusion.  Any major changes should be discussed
 on the xapian-devel mailing list first:
-<http://xapian.org/lists.php>
+<http://xapian.org/lists>
 
 We find patches in unified diff format easiest to read.  If you're using a
 SVN checkout just use "svn diff" to generate the diff.  If you're working
@@ -1106,8 +1117,11 @@ to follow the style of the existing code.  In particular:
     }
 
 * For standard ISO C headers, prefer the C++ form for ISO C headers (e.g.
-  "#include <cstdlib>" rather than "#include <stdlib.h>") unless there's
-  a good reason (e.g. portability) to do otherwise.
+  "#include <cstdlib>" rather than "#include <stdlib.h>") unless there's a good
+  reason (e.g. portability) to do otherwise.  Be sure to document such
+  exceptions to avoid another developer changing them to the standard form.
+  Global exceptions: <signal.h> (lots of POSIX stuff which e.g. Sun's compiler
+  doesn't provide in <csignal>).
 
 * For standard ISO C++ headers, *always* use the ISO C++ form '#include <list>'
   (pre-ISO compilers used '#include <list.h>', but GCC has generated a warning
@@ -1321,8 +1335,8 @@ This is a (hopefully complete) list of the jobs which need doing:
 
 * Update the NEWS files using information from the ChangeLog files
 
-* Update the PLATFORMS file.  Don't forget to use reports from the tinderbox:
-  http://www.oligarchy.co.uk/tinderbox/xapian/status.html
+* Update the PLATFORMS file.  Don't forget to use reports from automated
+  builds: http://trac.xapian.org/wiki/AutomatedBuilds
 
 * Update the version in configure.ac for each module (xapian-core, omega, and
   xapian-bindings), and the library version info in xapian-core's configure.ac
@@ -1359,9 +1373,7 @@ This is a (hopefully complete) list of the jobs which need doing:
 
   Create a new page http://wiki.xapian.org/ReleaseNotes/X.Y.Z and link it into
   http://wiki.xapian.org/ReleaseNotes in place of the old current release link,
-  which should be moved to the archived section.  Also update
-  http://wiki.xapian.org/RoadMap to record the date of the release and the
-  estimated date for the next release.
+  which should be moved to the archived section.
 
   Also update the roadmap at http://wiki.xapian.org/RoadMap by recording the
   date of this release and adding an entry for the next release with an
@@ -1382,32 +1394,58 @@ for which packages have been produced (currently xapian-core, xapian-bindings
 and xapian-applications/omega).  After each release, these should be
 updated as follows:
 
-* If any patches are being applied when building the debian package
-  (ie, there is a patch file "debian/patch"), and these patches are
-  now incorporated into the release, remove or update the patch file.
+* If there are any patch files in "debian/patches", check if these have been
+  incorporated into the new release, and if so remove them and update
+  "debian/patches/series".  If there are no patches left and
+  "debian/patches/series" is empty or only contains lines starting with a "#"
+  then the dependency on quilt is automatically omitted.
 
 * Update the debian/changelog file, being sure to keep it in the
   standard Debian format (the easiest way is to use the dch utility
-  like so: "dch -v 0.9.7-1".  The new version number should be the
-  version number of the release followed by "-1" (ie, a debian
+  like so: "dch -v 1.0.14-1".  The new version number should be the
+  version number of the release followed by "-1" (i.e., a debian
   patch number of 1).  The changelog message should indicate that
   there is a new upstream release, and should mention any significant
   changes in the new release.
 
-* Use xapian-maintainer-tools/debian/svn-tag-debs to tag all the files in the
-  debian control directory with the tag "debian-VERSION-1" - eg, for a new
-  release of version 0.9.6, tag with "debian-0.9.6-1".
+* Run ``xapian-maintainer-tools/debian/svn-tag-debs`` to tag all the files in the
+  debian control directory - e.g., for a new release of version 1.0.14, it tags
+  with "tags/debian-1.0.14-1".
 
-* Use xapian-maintainer-tools/debian/make-source-packages to make and upload
-  new source packages for the various Debian and Ubuntu versions we provide
-  packages for.  Currently this script must be run on atreus.
+* ``cd xapian-maintainer-tools/debian``
 
-* Build debs for oldstable, stable, unstable, dapper, hardy, intrepid, jaunty.
-  The Ubuntu packages are now built in a PPA in Launchpad.  Alternatively, the
-  scripts xapian-maintainer-tools/debian/create-chroot and
-  xapian-maintainer-tools/debian/build-packages allow building these in a
-  series of chroots on a single machine using pbuilder.
+* Run ``./make-source-packages`` to make new source packages for Debian unstable.
 
+* Run ``sudo ./build-packages`` to build binary packages from these source
+  packages.
 
+* Test the packages.
+
+* Run ``debsign build/*_amd64.changes`` to GPG sign the packages.
+
+* Run ``dput build/*_amd64.changes`` to upload them to Debian.
+
+* For the Ubuntu backports::
+
+   ./backport-source-packages xapian-core 1.0.15-1 jaunty intrepid hardy dapper
+   ./backport-source-packages xapian-omega 1.0.15-1 jaunty intrepid hardy dapper
+   ./backport-source-packages xapian-bindings 1.0.15-1 jaunty intrepid hardy dapper
+
+  And once libsearch-xapian-perl is uploaded to Debian unstable::
+
+   ./backport-source-packages libsearch-xapian-perl 1.0.15.0-1 jaunty intrepid hardy
+
+  Then sign::
+
+   debsign build/*99*_source.changes
+
+  Upload::
+
+   dput xapian-backports build/xapian-core*99*_source.changes
+
+  Wait for that to have a chance to build, and then::
+
+   dput xapian-backports build/xapian-[bo]*99*_source.changes
+   dput xapian-backports build/libsearch-xapian-perl*_source.changes
 
 .. vim: syntax=

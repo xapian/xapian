@@ -31,6 +31,7 @@ noinst_HEADERS +=\
 	common/ortermlist.h\
 	common/output.h\
 	common/positionlist.h\
+	common/pack.h\
 	common/postlist.h\
 	common/progclient.h\
 	common/registryinternal.h\

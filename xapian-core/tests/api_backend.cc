@@ -134,3 +134,27 @@ DEFINE_TESTCASE(modifiedpostlist1, writable) {
    
     return true;
 }
+
+/// Regression test for chert bug fixed in 1.1.3 (ticket#397).
+DEFINE_TESTCASE(doclenaftercommit1, writable) {
+    Xapian::WritableDatabase db = get_writable_database();
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_doclength(1));
+    db.replace_document(1, Xapian::Document());
+    db.commit();
+    TEST_EQUAL(db.get_doclength(1), 0);;
+    return true;
+}
+
+DEFINE_TESTCASE(valuesaftercommit1, writable) {
+    Xapian::WritableDatabase db = get_writable_database();
+    Xapian::Document doc;
+    doc.add_value(0, "value");
+    db.replace_document(2, doc);
+    db.commit();
+    db.replace_document(1, doc);
+    db.replace_document(3, doc);
+    TEST_EQUAL(db.get_document(3).get_value(0), "value");
+    db.commit();
+    TEST_EQUAL(db.get_document(3).get_value(0), "value");
+    return true;
+}

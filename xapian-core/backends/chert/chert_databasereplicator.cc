@@ -31,10 +31,10 @@
 #include "chert_record.h"
 #include "chert_replicate_internal.h"
 #include "chert_types.h"
-#include "chert_utils.h"
 #include "chert_version.h"
 #include "omdebug.h"
 #include "omtime.h"
+#include "pack.h"
 #include "remoteconnection.h"
 #include "replicationprotocol.h"
 #include "safeerrno.h"
@@ -345,7 +345,8 @@ ChertDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
     if (ptr != end)
 	throw NetworkError("Junk found at end of changeset");
 
-    buf = pack_uint(reqrev);
+    buf.resize(0);
+    pack_uint(buf, reqrev);
     RETURN(buf);
 }
 

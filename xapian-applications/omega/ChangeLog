@@ -1,3 +1,107 @@
+Wed Nov 18 10:48:47 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update for 1.1.3.
+
+Wed Nov 18 02:37:34 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from 1.0.17 and ChangeLog.
+
+Mon Nov 16 09:08:12 GMT 2009  Olly Betts <olly@survex.com>
+
+	* utf8converttest.cc: Charset "8859_1" isn't understood by Solaris
+	  libiconv, and isn't likely to be specified on a page, so just
+	  test it for our built-in convertor and GNU libc.
+
+Wed Nov 11 04:52:25 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Also check for socketpair with -lxnet if it isn't found
+	  without, which enables resource limits on Solaris, and possibly some
+	  other platforms.  Fixes ticket#412.
+
+Wed Nov 04 01:51:41 GMT 2009  Olly Betts <olly@survex.com>
+
+	* freemem.cc: On Linux, _SC_AVPHYS_PAGES excludes pages used by the OS
+	  VM cache, so will often return a really low value, so instead use
+	  _SC_PHYS_PAGES.  Reported by Rune Kock in Debian bug#548987.  Also
+	  explains ticket#358.
+
+Wed Nov 04 00:54:38 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/: Sync with latest version from xapian-core to pick up getopt
+	  fix for Mac OS X 10.6.
+
+Mon Nov 02 09:32:22 GMT 2009  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Use delete[] (not delete) for array allocated by new[].
+
+Mon Nov 02 07:08:13 GMT 2009  Olly Betts <olly@survex.com>
+
+	* runfilter.cc: Fix likely crash if read() is interrupted by a signal.
+	  Identified by Coverity's Scan.
+
+Mon Nov 02 06:47:01 GMT 2009  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: Extend exception handling to the whole of main.
+	  Xapian::Stem("english") can't actually throw, but that's not obvious
+	  to static analysis tools, and it is more robust to wrap the whole of
+	  main, and reduces indentation.
+
+Mon Nov 02 06:32:41 GMT 2009  Olly Betts <olly@survex.com>
+
+	* omindex.cc,scriptindex.cc: Tighten up the type of the error we catch
+	  to detect an unknown stemming language.
+
+Thu Sep 17 12:13:10 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
+Thu Sep 10 13:33:06 GMT 2009  Olly Betts <olly@survex.com>
+
+	* configure.ac: Default to looking for xapian-config-1.1.
+
+Thu Sep 10 06:46:55 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Sync changes from 1.0.15 and 1.0.16.
+
+Wed Sep 09 13:32:25 GMT 2009  Olly Betts <olly@survex.com>
+
+	* omega.cc,query.cc,query.h: Fix cross-site scripting vulnerability in
+	  reporting of exceptions (CVE-2009-2947).
+
+Fri Aug 28 15:30:07 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* configure.ac: Check for PERL if in maintainer mode, not just when
+	  building documentation, because making the omegascript vim syntax
+	  mode requires it.
+
+Wed Aug 26 14:17:06 GMT 2009  Olly Betts <olly@survex.com>
+
+	* templates/query: www.xapian.org -> xapian.org.
+
+Tue Aug 25 11:15:38 GMT 2009  Olly Betts <olly@survex.com>
+
+	* gen-omegascript-vim: Fix swapped arguments to perl mkdir function.
+
+Tue Aug 25 10:39:29 GMT 2009  Olly Betts <olly@survex.com>
+
+	* gen-omegascript-vim: Add GPL licence boilerplate.
+
+Tue Aug 25 10:29:07 GMT 2009  Olly Betts <olly@survex.com>
+
+	* gen-omegascript-vim: Need to create "extra" for a VPATH build.
+
+Tue Aug 25 08:39:00 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Fix for VPATH build.
+
+Tue Aug 25 06:38:08 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Makefile.am,extra/omegascript.vim,extra/omegascript.vim.in,
+	  gen-omegascript-vim: The list of OmegaScript commands in the vim
+	  mode was rather out of date, and a few commands were misclassified.
+	  Fix both problems and avoid future recurrences by automatically
+	  generating those lists from the command list in query.cc.
+
 Sat Aug 15 11:31:56 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.

@@ -1,3 +1,30 @@
+Xapian-bindings 1.1.3 (2009-11-18):
+
+General:
+
+* configure: Default to looking for xapian-config-1.1 unless XAPIAN_CONFIG is
+  specified.
+
+* Wrap the new MatchSpy class, and associated features.
+
+* Don't wrap PostingSource::serialise(), Weight::serialise() and
+  Weight::unserialise() as they aren't useful from the bindings.
+
+* Update for the Sorter to KeyMaker changes.
+
+PHP:
+
+* Fix PHP bindings to build when PHP has been compiled in multithreaded mode,
+  as in standardly is on Microsoft Windows.  Fixes #411.
+
+* Merged the PHP "smoketest" back together now we don't need to support
+  PHP4 now.
+
+Python:
+
+* Fix a memory leak on error (in theory - we've not got a way to generate this
+  error, so haven't been able to reproduce the leak or test the fix).
+
 Xapian-bindings 1.1.2 (2009-07-23):
 
 This release includes all changes from 1.0.14 which are relevant to trunk.
@@ -101,6 +128,38 @@ Python:
 * Python now flags deprecation warnings for the single argument form and old
   parameter name (ascending) in set_sort_by_key(), set_sort_by_value() and
   friends.
+
+Xapian-bindings 1.0.17 (2009-11-18):
+
+Packaging:
+
+* Improve RPM package summaries - the files are needed to *use* scripts as well
+  as to develop them.  Use "Tcl" instead of "TCL" as the former is more
+  conventional.
+
+Portability:
+
+* python/Makefile.am: Restore the "./" path to the sourced file
+  libtoolconfig.tmp as ksh requires it.
+
+Java:
+
+* Fix memory leak when passing a MatchDecider to Enquire::get_mset().
+
+Xapian-bindings 1.0.16 (2009-09-10):
+
+Python:
+
+* Improved docstrings for QueryParser::set_default_op() and
+  QueryParser::get_default_op() (automatically generated from changes in
+  xapian-core).
+
+Xapian-bindings 1.0.15 (2009-08-26):
+
+Python:
+
+* Don't break long words when wrapping text in the generated API documentation
+  comments as this was causing identifiers to be broken in two.
 
 Xapian-bindings 1.0.14 (2009-07-21):
 

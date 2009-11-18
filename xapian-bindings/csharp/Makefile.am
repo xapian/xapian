@@ -25,10 +25,12 @@ XAPIAN_SWIG_CS_SRCS=\
 	ExpandDecider.cs \
 	Flint.cs \
 	InMemory.cs \
+	KeyMaker.cs \
 	MatchDecider.cs \
 	MatchSpy.cs \
 	MSet.cs \
 	MSetIterator.cs \
+	MultiValueKeyMaker.cs \
 	MultiValueSorter.cs \
 	NumberValueRangeProcessor.cs \
 	NumericRange.cs \

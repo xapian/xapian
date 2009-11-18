@@ -166,7 +166,7 @@ static bool ensure_tmpdir() {
 	tmpdir.assign(dir_template);
 	tmpdir += '/';
     }
-    delete dir_template;
+    delete [] dir_template;
     return (p != NULL);
 }
 
@@ -990,7 +990,7 @@ main(int argc, char **argv)
 	case 's':
 	    try {
 		stemmer = Xapian::Stem(optarg);
-	    } catch (const Xapian::Error &) {
+	    } catch (const Xapian::InvalidArgumentError &) {
 		cerr << "Unknown stemming language '" << optarg << "'.\n"
 			"Available language names are: "
 		     << Xapian::Stem::get_available_languages() << endl;

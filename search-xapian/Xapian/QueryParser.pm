@@ -82,12 +82,19 @@ Set the Search::Xapian::Stopper object to be used for identifying stopwords.
 
 =item set_default_op <operator>
 
-Set default operator for joining elements. Useful values are
-OP_AND and OP_OR.  See L<Search::Xapian> for descriptions of these constants.
+Set the default operator.
+
+This operator is used to combine non-filter query items when no
+explicit operator is used.
+
+The most useful values for this are OP_OR (the default) and OP_AND.
+OP_NEAR and OP_PHRASE can also be useful.
+
+See L<Search::Xapian> for descriptions of these constants.
 
 =item get_default_op
 
-Returns the default operator for joining elements.
+Returns the current default operator.
 
 =item set_database <database>
 

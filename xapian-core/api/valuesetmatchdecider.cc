@@ -2,6 +2,7 @@
  *  \brief MatchDecider subclass for filtering results by value.
  */
 /* Copyright 2008 Lemur Consulting Limited
+ * Copyright 2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,16 +21,14 @@
  */
 
 #include <config.h>
-#include <xapian/valuesetmatchdecider.h>
+
+#include "xapian/valuesetmatchdecider.h"
+
+#include "xapian/document.h"
 
 using namespace std;
 
 namespace Xapian {
-
-ValueSetMatchDecider::ValueSetMatchDecider(Xapian::valueno valuenum_, bool inclusive_) 
-	: valuenum(valuenum_), inclusive(inclusive_)
-{
-}
 
 bool 
 ValueSetMatchDecider::operator()(const Xapian::Document& doc) const

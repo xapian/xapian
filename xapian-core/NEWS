@@ -1,149 +1,123 @@
- 13290       olly Mon Aug 10 10:29:13 GMT 2009  Olly Betts <olly@survex.com>
+Xapian-core 1.1.3 (2009-09-18):
 
- 13289    richard Mon Aug 10 07:55:04 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
-	* HACKING: Add section on ordering of include files, and fix a few
-	  formatting issues to make this file into valid restructured text
-	  again.
+This release includes all changes from 1.0.15-1.0.17 which are relevant.
 
- 13264       olly Tue Aug 04 15:49:54 GMT 2009  Olly Betts <olly@survex.com>
-	* include/xapian/queryparser.h: Explicitly document that an empty
-	  prefix argument to QueryParser::add_prefix() means "no prefix".
+API:
 
- 13255       olly Sun Aug 02 16:20:28 GMT 2009  Olly Betts <olly@survex.com>
-	* docs/remote_protocol.html: Update to document protocol version 33.
- 13243    richard Sun Aug 02 12:15:43 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
-	Merge from matchspy branch.
-	* api/,backends/remote/remote-database.cc,common/,docs/Makefile.am,
-	  docs/categorisation.rst,include/Makefile.mk,include/xapian.h,
-	  include/xapian/enquire.h,include/xapian/matchspy.h,
-	  include/xapian/serialisationcontext.h,matcher/multimatch.cc,
-	  matcher/remotesubmatch.cc,matcher/remotesubmatch.h,
-	  net/remoteserver.cc,net/serialise.cc,tests/Makefile.am,
-	  tests/api_matchspy.cc: Add new-style Xapian::MatchSpy class,
-	  which is a pure "spy" class, rather than being able to take a
-	  decision on whether a spy is applied before or after a result.
-	  This class is also designed to work with remote databases,
-	  passing the results back in serialised form.  Also, add
-	  ValueCountMatchSpy, which counts the occurrences of each value in
-	  a slot in the search results seen (useful for faceted or
-	  categorisation systems).
+* Update Unicode character database to Unicode 5.2.  (ticket#351)
 
- 13215       olly Thu Jul 30 16:30:06 GMT 2009  Olly Betts <olly@survex.com>
-	* backends/chert/chert_modifiedpostlist.cc: Fix ChertModifiedPostList
-	  to skip added-but-then-deleted-before-flush documents.  (ticket#392)
+* Rename Xapian::Sorter to Xapian::KeyMaker, paving the way for using it to
+  build collapse keys too.  Xapian::Sorter remains for compatibility (and is
+  now a subclass of Xapian::KeyMaker) but is deprecated.
 
-backport fodder:
+* Resolve the inconsistency in MultiValueSorter::add()'s "forward" parameter
+  versus the "reverse" parameters which the Enquire sorting functions now take
+  by replacing the class with MultiKeyMaker with a renamed method add_value()
+  with a "reverse" parameter.  MultiValueSorter remains with the old semantics
+  for compatibility but is deprecated.  (ticket#359)
 
- 13170       olly Sun Jul 26 14:28:25 GMT 2009  Olly Betts <olly@survex.com>
-	* docs/doxygen_source.conf.in: Update roughly in-line with apidoc
-	  changes.  I've not looked at the output much though.
+* QueryParser: Don't apply spelling correction to wildcarded terms, or to terms
+  at the end of the query which we expand under FLAG_PARTIAL.
 
-Mostly backported already:
- 13164       olly Sun Jul 26 13:06:45 GMT 2009  Olly Betts <olly@survex.com>
-	* docs/doxygen_api.conf.in: More fettling to try to get better output:
-	  + Wrap long comments.
-	  + Quote arguments containing @...@ substitutions as they could
-	    conceivably contain spaces.
-	  + ALWAYS_DETAILED_SEC = NO: since a detailed section with no extra
-	    information is pointless.
-	  + STRIP_FROM_PATH, INCLUDE_PATH: Add "@top_builddir@/include" for
-	    VPATH builds.
-	  + HIDE_UNDOC_MEMBERS = YES: otherwise @internal members show up
-	    (with no documentation).
-	  + HIDE_FRIEND_COMPOUNDS = YES: as friend declarations in the API
-	    headers are implementation details.
-	  + SHOW_INCLUDE_FILES = NO: users should just include <xapian.h>
-	    for all their API needs.
-	  + GENERATE_TODOLIST, GENERATE_TESTLIST, GENERATE_BUGLIST: all set to
-	    NO as we don't want these in the API documentation.
-	  + SHOW_NAMESPACES = YES: We have several sub-namespaces so these are
-	    useful to document.
-	  + INPUT: Prepend "@top_builddir@/include/xapian/version.h" so that
-	    XAPIAN_HAS_FLINT_BACKEND, etc are defined before parsing other
-	    headers.
-	  + EXCLUDE: remove all entries and use EXCLUDE_PATTERNS instead.
-	  + EXCLUDE_PATTERNS: Include entries corresponding to those in EXCLUDE
-	    and add */derefwrapper.h and */.* (the latter avoids trying to look
-	    in .svn or any other hidden files or directories).
-	  + REFERENCES_LINK_SOURCE = NO: Improves output.
-	  + VERBATIM_HEADERS = NO: The verbatim headers aren't very
-	    interesting.
-	  + PREDEFINED: Define XAPIAN_VISIBILITY_DEFAULT and
-	    XAPIAN_DEPRECATED(D)=D as doxygen seem reluctant to parse included
-	    files.
-	  + EXPAND_AS_DEFINED: Remove XAPIAN_VISIBILITY_DEFAULT and
-	    XAPIAN_DEPRECATED as these are now handled by PREDEFINED.
-	  + EXTERNAL_GROUPS = NO, GROUP_GRAPHS = NO: We don't use groups so
-	    disable these.
- 13158       olly Fri Jul 24 15:33:12 GMT 2009  Olly Betts <olly@survex.com>
-	* docs/doxygen_api_conf.in: Major doxygen config overhaul:
-	  + STRIP_FROM_PATH: Strip include from header names.
-	  + JAVADOC_AUTOBRIEF: Re-enable as we have lost most of our brief
-	    descriptions - we can fix up the few cases where this caused
-	    problems with an explicit @brief.
-	  + BUILTIN_STL_SUPPORT: Enable for slightly STL-related stuff.
-	  + DISTRIBUTE_GROUP_DOC: Enable so group members get the group's
-	    comments.
-	  + EXTRACT_STATIC, EXTRACT_LOCAL_CLASSES: Disable since we don't
-	    need these.
-	  + SHOW_NAMESPACES: Disable to hide the "Xapian" namespace.
-	  + QUIET: Enable for less doxygen chatter.
-	  + WARN_LOGFILE: Unset so warnings go to stderr to encourage us to
-	    actually fix them!
-	  + EXCLUDE: Hide base.h, deprecated.h, errordispatch.h, visibility.h.
-	  + HTML_DYNAMIC_SECTIONS: Enable so the class diagrams are hidden by
-	    default but can be "expanded" to be viewed.
-	  + COLLABORATION_GRAPH: Disable as these don't ever seem useful in
-	    the API docs.
-	  + TEMPLATE_RELATIONS: Disable as we don't want to see template
-	    instantiations in inheritance diagrams.
-	  + DOT_MULTI_TARGETS: Enable for faster dot processsing.  Needs
-	    graphviz ">1.8.10", but that's really old now.
- 13154       olly Fri Jul 24 05:32:34 GMT 2009  Olly Betts <olly@survex.com>
-	* docs/doxygen_api_conf.in: Update with "doxygen -u" using doxygen
-	  1.5.9 and then trim trailing whitespace.
+* Add new Error subclass SerialisationError which we throw for serialisation
+  related errors (which previously mostly threw NetworkError.
 
-trunk:
+* Rename Xapian::SerialisationContext to Xapian::Registry.
 
- 13197       olly Wed Jul 29 06:18:41 GMT 2009  Olly Betts <olly@survex.com>
-	* tests/Makefile.am: Actually distribute testdata/apitest_declen.txt
-	  - new test data from the postingsources branch merge.
- 13194    richard Tue Jul 28 16:38:55 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
-	Merge from postingsources branch:
-	* tests/generate-api_generated: Test get_description() methods of
-	  Xapian::PostingSource subclasses. 
- 13193    richard Tue Jul 28 16:35:54 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
-	Merge from postingsources branch:
-	* api/Makefile.mk,api/decvalwtsource.cc,api/serialisationcontext.cc,
-	  include/xapian/postingsource.h: Add
-	  DecreasingValueWeightPostingSource class, which reads weights
-	  from a value slot in which a significant range of the values are
-	  in decreasing order.  This functions similarly to
-	  ValueWeightPostingSource, but can be much more efficient.
-	* tests/api_valuestream.cc,tests/testdata/apitest_declen.txt:
-	  Tests, and some associated constructed test data, for
-	  DecreasingValueWeightPostingSource.
+* Add DecreasingValueWeightPostingSource class, which reads weights from a
+  value slot in which a significant range of the values are in decreasing
+  order.  This functions similarly to ValueWeightPostingSource, but can be much
+  more efficient.
 
- 13185       olly Mon Jul 27 04:50:45 GMT 2009  Olly Betts <olly@survex.com>
-	* HACKING: Now using autoconf 2.64.
+* Add new Xapian::MatchSpy class:
 
- 13162       olly Fri Jul 24 16:23:31 GMT 2009  Olly Betts <olly@survex.com>
-	* configure.ac,docs/: Rename doxygen configuration files from "_conf"
-	  to ".conf".  Rename doxygen_full.conf to doxygen_source.conf, etc.
+  + This replaces the use of Xapian::MatchDecider as a "matchspy", which is now
+    deprecated.  The new class only inspects, and can't reject.  It can work
+    with remote databases, with the results being serialised to return them
+    across the link.
 
- 13161       olly Fri Jul 24 16:02:39 GMT 2009  Olly Betts <olly@survex.com>
-	* HACKING: Update to note that doxygen is now installed in-tree, and
-	  that we now use 1.5.9 for 1.1.x snapshots and releases, and that
-	  graphviz ">1.8.10" is now required.
+  + Add subclass ValueCountMatchSpy, which counts the occurrences of each value
+    in a slot in the search results seen (useful for faceted or categorisation
+    systems).  The results can be grouped into ranges using the NumericRange
+    and NumericRanges classes, and the score_evenness() function.  This API is
+    currently experimental.
 
- 13157    richard Fri Jul 24 13:00:24 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
-	* bin/xapian-compact.cc: Fix to work with the metainfo key stored
-	  in the latest format of chert databases.
+* Remove default implementation of Weight::clone() which returns NULL.  We
+  always need clone() to be implemented because it's called for every term
+  in the query, not just used for the remote backend.
 
- 13156       olly Fri Jul 24 10:32:32 GMT 2009  Olly Betts <olly@survex.com>
-	* backends/chert/chert_values.cc: Avoid doing pointless work by trying
-	  to delete non-existent lists of values when we're just adding
-	  documents.
+chert backend:
+
+* Rewrite the low level packing and unpacking functions more efficiently.  As
+  well as being generally faster, the pack functions now take a reference to a
+  string to append to, which avoids creating a lot of temporary string objects.
+  Indexing HTML files with omindex is 5-10% faster.  Searching for "The" on
+  gmane (which results in a lot of unpacking of postings and document lengths)
+  is about 35% faster.  (ticket#326)
+
+* xapian-compact: Don't report an absent lazy input table as 0 size.
+
+* Fix ChertModifiedPostList to skip added-but-then-deleted-before-flush
+  documents.  (ticket#392)
+
+* Fix WritableDatabase::get_doclength() to work properly after a call to commit
+  for the chert backend (ticket#397).
+
+* Fix to work with the metainfo key stored in the latest format of chert
+  databases.
+
+* Avoid doing pointless work by trying to delete non-existent lists of values
+  when we're just adding documents.
+
+* Fix code to find the first docid in the next chunk (ticket#399).
+
+* Add support for chert databases without a termlist table (ticket#181).
+  Currently the only way to create such a database is to create a chert
+  database and do "rm termlist.*".
+
+flint backend:
+
+* xapian-compact: Don't report an absent lazy input table as 0 size.
+
+remote backend:
+
+* Remote protocol major version has changed to support serialising MatchSpy
+  objects.
+
+* Fixed not to sometimes read off the end of the returned matches when
+  searching multiple databases, some of which are remote, and when the primary
+  ordering is by relevance.
+
+build system:
+
+* This release uses autoconf 2.64 rather than 2.63.  This means configure now
+  makes use of shell functions, which makes it ~13% smaller, and should also
+  make it execute faster.
+
+* configure: Send stderr output from ldconfig to config.log.
+
+* Add optional third parameter to XO_LIB_XAPIAN autoconf macro which specifies
+  the basename for the "xapian-config" script (defaults to "xapian-config" to
+  give the current behaviour).
+
+* This release uses doxygen 1.5.9 to generate the API documentation.
+
+documentation:
+
+* Minor improvements to the formatting of the collated API documentation.
+
+portability:
+
+* Fix code to compile with Sun's C++ compiler.
+ 
+* Fix our uuid_unparse_lower() replacement for older libuuid to actually
+  compile (really fixes ticket#368).
+
+* Fix xapian-config to work with Solaris 10 /bin/sh.  (ticket#405)
+
+debug code:
+
+* Use C++ syntax for NULL with a type in log output.
 
 Xapian-core 1.1.2 (2009-07-23):
 
@@ -557,6 +531,106 @@ debug code:
   improvement, but will particularly speed up debug logging as that converts a
   lot of integers to strings).
 
+xapian-core 1.0.17 (2009-11-18):
+
+API:
+
+* QueryParser:
+
+  + Fix handling of a group of two or more terms which are all stopwords which
+    notably caused issues when default_op was OP_AND, but could probably
+    manifest in other cases too.  Fixes ticket#406.
+
+  + Fix interaction of FLAG_PARTIAL and FLAG_SYNONYM.  (ticket#407)
+
+* Database: A database created via the default constructor no longer causes a
+  segfault when the methods get_metadata() or metadata_keys_begin() are called.
+
+flint backend:
+
+* Don't try to close the fd one more than the maximum allowable when locking
+  the database.  Harmless, except it causes a warning when running under
+  valgrind.  (ticket#408)
+
+remote backend:
+
+* Xapian::Sorter isn't supported with the remote backend so throw
+  UnimplementedError rather than giving incorrect results.  (ticket#384)
+
+* Fix potential reading off the end of the MSet which is returned internally
+  by the remote server.
+
+documentation:
+
+* Various documentation comment improvements for the Database class.
+
+examples:
+
+* examples/quest.cc: Tighten up the type of the error we catch to detect an
+  unknown stemming language.
+
+portability:
+
+* xapian-config: Need to quote ^ for Solaris /bin/sh.
+
+* configure: Actually use any flags we determine are needed to switch the
+  compiler to proper ANSI C++ mode, when building xapian-core - this stopped
+  working in 1.0.12, breaking support for HP's aCC, Compaq's cxx, Sun's CC, and
+  SGI's CC.
+
+Xapian-core 1.0.16 (2009-09-10):
+
+flint backend:
+
+* Fix a typo which stopped this fix in 1.0.12 from working (ticket #398):
+
+  If we fail to get the lock after we spawn the child lock process (the common
+  case is because the database is already open for writing) then we now clean
+  up the child process properly.
+
+documentation:
+
+* Improve API documentation of QueryParser::set_default_op() and
+  QueryParser::get_default_op().
+
+portability:
+
+* Fix build failure on Mac OS X 10.6.
+
+Xapian-core 1.0.15 (2009-08-26):
+
+testsuite:
+
+* Fix the test harness not to report heaps of bogus errors when using valgrind
+  3.5.0.
+
+flint backend:
+
+* Backport the lazy update changes from 1.1.2:
+
+  WritableDatabase::replace_document() now updates the database lazily in
+  simple cases - for example, if you just change a document's values and
+  replace it with the same docid, then the terms and document data aren't
+  needlessly rewritten.  Caveats: currently we only check if you've looked at
+  the values/terms/data, not if they've actually been modified, and only keep
+  track of the last document read.
+
+* Fix PostingIterator::skip_to() on an unflushed WritableDatabase to skip
+  documents which were added and deleted since the last flush.  (ticket#392)
+
+documentation:
+
+* Overhaul the doxygen options we use and tweak various documentation comments
+  to improve the generated API documentation.
+
+* Explicitly document that an empty prefix argument to
+  QueryParser::add_prefix() means "no prefix".
+
+* Update the documentation comments for Enable::set_sort_by_value(),
+  set_sort_by_value_then_relevance(), and set_sort_by_relevance_then_value() to
+  mention sortable_serialise() as a good way to store numeric values for
+  sorting.
+
 Xapian-core 1.0.14 (2009-07-21):
 
 API:
@@ -756,7 +830,7 @@ documentation:
   subexpression.
 
 * Correct doxygen comments for user metadata functions:
-  Database::get_metadata() throw UnimplementedError but
+  Database::get_metadata() can't throw UnimplementedError but
   WritableDatabase::set_metadata() can.
 
 * Document that Database::metadata_keys_begin() returns an end iterator if the

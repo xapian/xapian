@@ -239,8 +239,8 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *  @return	Pointer to a new ValueList object which should be
 	 *		deleted by the caller once it is no longer needed.
 	 */
-
 	virtual ValueList * open_value_list(Xapian::valueno slot) const;
+
 	/** Open a term list.
 	 *
 	 *  This is a list of all the terms contained by a given document.

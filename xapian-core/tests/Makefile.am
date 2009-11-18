@@ -123,11 +123,13 @@ collated_apitest_sources = \
  api_percentages.cc \
  api_posdb.cc \
  api_postingsource.cc \
+ api_qpbackend.cc \
  api_query.cc \
  api_replicate.cc \
  api_scalability.cc \
  api_serialise.cc \
  api_sorting.cc \
+ api_sortingold.cc \
  api_spelling.cc \
  api_transdb.cc \
  api_unicode.cc \

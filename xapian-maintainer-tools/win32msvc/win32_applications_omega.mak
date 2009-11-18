@@ -45,7 +45,7 @@ OMINDEX_OBJS= \
  omindex.obj myhtmlparse.obj htmlparse.obj\
  getopt.obj commonhelp.obj utils.obj hashterm.obj loadfile.obj md5.obj\
  md5wrap.obj xmlparse.obj metaxmlparse.obj utf8convert.obj sample.obj diritor.obj\
- runfilter.obj freemem.obj msvc_dirent.obj xpsxmlparse.obj
+ runfilter.obj freemem.obj msvc_dirent.obj xpsxmlparse.obj mkdtemp.obj
 	
 	
 SCRIPTINDEX_OBJS= \
@@ -60,7 +60,7 @@ htmlparsetest.obj myhtmlparse.obj htmlparse.obj utf8convert.obj
 MD5TEST_OBJS= \
 md5test.obj md5wrap.obj md5.obj
 
-UTF8TEST_OBJS= \
+UTF8CONVERTTEST_OBJS= \
 utf8converttest.obj utf8convert.obj
 
 SRCS= \
@@ -92,11 +92,10 @@ SRCS= \
  	"$(INTDIR)\utf8convert.cc" \
 	"$(INTDIR)\sample.cc" \
 	"$(INTDIR)\portability\mkdtemp.cc" \
-	"$(INTDIR)\dirent.cc" \
 	"$(INTDIR)\scriptindex.cc" \
 	"$(INTDIR)\myhtmlparse.cc" \
 	"$(INTDIR)\htmlparse.cc" \
-	"$(INTDIR)\getopt.cc" \
+	"$(INTDIR)\common\getopt.cc" \
 	"$(INTDIR)\commonhelp.cc" \
 	"$(INTDIR)\utils.cc" \
 	"$(INTDIR)\hashterm.cc" \
@@ -114,7 +113,8 @@ SRCS= \
 	"$(INTDIR)\diritor.cc" \
 	"$(INTDIR)\runfilter.cc" \
     "$(OUTDIR)\xpsxmlparse.cc" \
-    "$(OUTDIR)\weight.cc"
+    "$(OUTDIR)\weight.cc" \
+    "$(OUTDIR)\freemem.cc"
     
 	
 CLEAN :

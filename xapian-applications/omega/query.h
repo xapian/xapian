@@ -43,4 +43,6 @@ class OmegaExpandDecider : public Xapian::ExpandDecider {
     bool operator()(const string & term) const;
 };
 
+std::string html_escape(const std::string &str);
+
 #endif // OMEGA_INCLUDED_QUERY_H

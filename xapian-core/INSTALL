@@ -13,14 +13,19 @@ the following 3 simple steps:
 Prerequisites
 =============
 
-You'll need to install zlib (http://www.zlib.net/) before you can build Xapian.
-The zlib library is very widely used, so you'll probably have it installed
-already if you're using Linux, FreeBSD, or similar.  You may need to install a
-"zlib development" package to get the zlib library headers.  We recommend using
-zlib 1.2.x as it apparently fixes a memory leak in deflateInit2 (which Xapian
-uses) and decompression is supposed to be about 20% faster than with 1.1.x.
+You'll need to have zlib installed (http://www.zlib.net/) before you can build
+Xapian.  The zlib library is very widely used, so you'll probably have it
+installed already if you're using Linux, FreeBSD, or similar, but you may need
+to install a "zlib development" package to get the zlib library headers.
 
-Xapian 1.1.0 and higher also requires libuuid from e2fsprogs.
+We recommend using zlib 1.2.x as it apparently fixes a memory leak in
+deflateInit2 (which Xapian uses) and decompression is supposed to be about 20%
+faster than with 1.1.x, but it's pretty unlikely you'll have an older version
+installed these days.
+
+Xapian 1.1.0 and higher also requires libuuid which you can find in e2fsprogs
+(on Fedora, the package to install is e2fsprogs-devel).  On Microsoft Windows
+this isn't required, as we use built in UUID functionality instead.
 
 Compilers
 =========
@@ -29,7 +34,7 @@ We aim to support compilation with any C++ compiler which conforms to ISO C++,
 or a reasonable approximation to it.
 
 If you're using MS Visual C++, see the Xapian download page for a link to
-a set of suitable makefiles: http://xapian.org/download.php
+a set of suitable makefiles: http://xapian.org/download
 
 If you're using GCC, we currently recommend GCC 3.3 or newer.
 

@@ -86,7 +86,7 @@ class ChertPostListTable : public ChertTable {
 	/// Compose a key from a termname and docid.
 	static string make_key(const string & term, Xapian::docid did) {
 	    string key = make_key(term);
-	    key += pack_uint_preserving_sort(did);
+	    pack_uint_preserving_sort(key, did);
 	    return key;
 	}
 
@@ -95,7 +95,9 @@ class ChertPostListTable : public ChertTable {
 	    // Special case for doclen lists.
 	    if (term.empty()) return string("\x00\xe0", 2);
 
-	    return pack_string_preserving_sort(term);
+	    string key;
+	    pack_string_preserving_sort(key, term);
+	    return key;
 	}
 
 	bool term_exists(const string & term) const {
@@ -117,6 +119,10 @@ class ChertPostListTable : public ChertTable {
 	/** Returns the length of document @a did. */
 	Xapian::termcount get_doclength(Xapian::docid did,
 					Xapian::Internal::RefCntPtr<const ChertDatabase> db) const;
+
+	/** Check if document @a did exists. */
+	bool document_exists(Xapian::docid did,
+			     Xapian::Internal::RefCntPtr<const ChertDatabase> db) const;
 };
 
 /** A postlist in a chert database.

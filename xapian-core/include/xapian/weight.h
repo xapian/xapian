@@ -119,13 +119,10 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *
      *  FooWeight * FooWeight::clone() const { return new FooWeight(a, b); }
      *
-     *  If you don't want to support the remote backend, you can use the
-     *  default implementation which simply returns NULL.
-     *
      *  Note that the returned object will be deallocated by Xapian after use
      *  with "delete".  It must therefore have been allocated with "new".
      */
-    virtual Weight * clone() const;
+    virtual Weight * clone() const = 0;
 
     /** Return the name of this weighting scheme.
      *

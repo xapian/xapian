@@ -45,11 +45,11 @@
 // Searching
 #include <xapian/enquire.h>
 #include <xapian/expanddecider.h>
+#include <xapian/keymaker.h>
 #include <xapian/matchspy.h>
 #include <xapian/postingsource.h>
 #include <xapian/query.h>
 #include <xapian/queryparser.h>
-#include <xapian/sorter.h>
 #include <xapian/valuesetmatchdecider.h>
 #include <xapian/weight.h>
 

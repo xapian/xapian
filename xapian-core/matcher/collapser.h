@@ -33,7 +33,7 @@ typedef enum {
     EMPTY,
     ADDED,
     REJECTED,
-    REPLACED,
+    REPLACED
 } collapse_result;
 
 /// Class tracking information for a given value of the collapse key.

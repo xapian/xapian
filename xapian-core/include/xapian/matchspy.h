@@ -175,7 +175,11 @@ class XAPIAN_VISIBILITY_DEFAULT StringAndFrequency {
 };
 
 
-/// Class for counting the frequencies of values in the matching documents.
+/** Class for counting the frequencies of values in the matching documents.
+ *
+ *  Warning: this API is currently experimental, and is liable to change
+ *  between releases without warning.
+ */
 class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
   protected:
     /// The slot to count.
@@ -241,6 +245,9 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
 /** A numeric range.
  *
  *  This is used to represent ranges of values returned by the match spies.
+ *
+ *  Warning: this API is currently experimental, and is liable to change
+ *  between releases without warning.
  */
 class XAPIAN_VISIBILITY_DEFAULT NumericRange {
     /// The lower value in the range.
@@ -316,6 +323,9 @@ class XAPIAN_VISIBILITY_DEFAULT NumericRanges {
 
 /** Return a score reflecting how evenly divided a set of values is.
  *
+ *  Warning: this API is currently experimental, and is liable to change
+ *  between releases without warning.
+ *
  *  If you don't want to show a poor categorisation, or have multiple
  *  categories and only space in your user interface to show a few, you want to
  *  be able to decide how "good" a categorisation is.  One definition of "good"
@@ -331,7 +341,7 @@ class XAPIAN_VISIBILITY_DEFAULT NumericRanges {
  *  a floating point value, so you can ask for 5.5 if you'd like "about 5 or 6
  *  categories".  The default is to desire the number of categories that there
  *  actually are, so the score then only reflects how even the split is.
-
+ *
  *  @return A score for the categorisation for the value - lower is better,
  *  with a perfectly even split across the right number of categories scoring
  *  0.

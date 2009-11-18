@@ -105,13 +105,13 @@ is( $matches3->size, $matches->size, "rset and check_at_least don't change mset 
 my $d;
 # This was generating a warning converting "0" to an RSet object:
 ok( $matches3 = $enq->get_mset(0, 10,
-			sub { $d = $#_; return $_[0]->get_value(0) ne ""; }),
+			sub { $d = scalar @_; return $_[0]->get_value(0) ne ""; }),
        	"get_mset with matchdecider" );
 ok( defined $d, "matchdecider was called" );
 ok( $d == 1, "matchdecider got an argument" );
 
 sub mdecider {
-    $d = $#_;
+    $d = scalar @_;
     return $_[0]->get_value(0) ne "";
 }
 

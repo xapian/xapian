@@ -24,7 +24,7 @@
 #include <xapian/types.h>
 
 #include "chert_lazytable.h"
-#include "chert_utils.h"
+#include "pack.h"
 #include "positionlist.h"
 
 #include <string>
@@ -33,11 +33,14 @@
 using namespace std;
 
 class ChertPositionListTable : public ChertLazyTable {
-    static string make_key(Xapian::docid did, const string & tname) {
-	return pack_uint_preserving_sort(did) + tname;
+  public:
+    static string make_key(Xapian::docid did, const string & term) {
+	string key;
+	pack_uint_preserving_sort(key, did);
+	key += term;
+	return key;
     }
 
-  public:
     /** Create a new ChertPositionListTable object.
      *
      *  This method does not create or open the table on disk - you

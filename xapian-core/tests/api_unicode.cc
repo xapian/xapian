@@ -103,11 +103,19 @@ DEFINE_TESTCASE(unicode1,!backend) {
     TEST_EQUAL(Unicode::get_category(0xa3), Unicode::CURRENCY_SYMBOL);
     // U+0242 was added in Unicode 5.0.0.
     TEST_EQUAL(Unicode::get_category(0x242), Unicode::LOWERCASE_LETTER);
+    // U+11A7 was added in Unicode 5.2.0.
+    TEST_EQUAL(Unicode::get_category(0x11A7), Unicode::OTHER_LETTER);
+    // U+9FCB was added in Unicode 5.2.0.
+    TEST_EQUAL(Unicode::get_category(0x9FCB), Unicode::OTHER_LETTER);
+    // U+FA6C was added in Unicode 5.2.0.
+    TEST_EQUAL(Unicode::get_category(0xFA6C), Unicode::OTHER_LETTER);
     TEST_EQUAL(Unicode::get_category(0xFFFF), Unicode::UNASSIGNED);
     // Test characters outside BMP.
     TEST_EQUAL(Unicode::get_category(0x10345), Unicode::OTHER_LETTER);
     TEST_EQUAL(Unicode::get_category(0x10FFFD), Unicode::PRIVATE_USE);
     TEST_EQUAL(Unicode::get_category(0x10FFFF), Unicode::UNASSIGNED);
+    // U+1109A was added in Unicode 5.2.0.
+    TEST_EQUAL(Unicode::get_category(0x1109a), Unicode::OTHER_LETTER);
     // Test some invalid Unicode values.
     TEST_EQUAL(Unicode::get_category(0x110000), Unicode::UNASSIGNED);
     TEST_EQUAL(Unicode::get_category(0xFFFFFFFF), Unicode::UNASSIGNED);

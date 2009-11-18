@@ -409,10 +409,20 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
     /// Set the stopper.
     void set_stopper(const Stopper *stop = NULL);
 
-    /** Set the default boolean operator. */
+    /** Set the default operator.
+     *
+     *  This operator is used to combine non-filter query items when no
+     *  explicit operator is used.
+     *
+     *  The most useful values for this are OP_OR (the default) and OP_AND.
+     *  OP_NEAR and OP_PHRASE can also be useful.
+     *
+     *  So for example, 'weather forecast' is parsed as if it were 'weather OR
+     *  forecast' by default.
+     */
     void set_default_op(Query::op default_op);
 
-    /** Get the default boolean operator. */
+    /** Get the current default operator. */
     Query::op get_default_op() const;
 
     /// Specify the database being searched.

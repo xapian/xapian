@@ -22,8 +22,8 @@
 
 #include "chert_alltermslist.h"
 #include "chert_postlist.h"
-#include "chert_utils.h"
 
+#include "pack.h"
 #include "stringutils.h"
 
 void
@@ -122,7 +122,9 @@ ChertAllTermsList::skip_to(const string &term)
     // the current term.
     termfreq = 0;
 
-    if (cursor->find_entry_ge(pack_string_preserving_sort(term))) {
+    string key;
+    pack_string_preserving_sort(key, term);
+    if (cursor->find_entry_ge(key)) {
 	// The exact term we asked for is there, so just copy it rather than
 	// wasting effort unpacking it from the key.
 	current_term = term;
