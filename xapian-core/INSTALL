@@ -13,12 +13,15 @@ the following 3 simple steps:
 Prerequisites
 =============
 
-You'll need to install zlib (http://www.zlib.net/) before you can build Xapian.
-The zlib library is very widely used, so you'll probably have it installed
-already if you're using Linux, FreeBSD, or similar.  You may need to install a
-"zlib development" package to get the zlib library headers.  We recommend using
-zlib 1.2.x as it apparently fixes a memory leak in deflateInit2 (which Xapian
-uses) and decompression is supposed to be about 20% faster than with 1.1.x.
+You'll need to have zlib installed (http://www.zlib.net/) before you can build
+Xapian.  The zlib library is very widely used, so you'll probably have it
+installed already if you're using Linux, FreeBSD, or similar, but you may need
+to install a "zlib development" package to get the zlib library headers.
+
+We recommend using zlib 1.2.x as it apparently fixes a memory leak in
+deflateInit2 (which Xapian uses) and decompression is supposed to be about 20%
+faster than with 1.1.x, but it's pretty unlikely you'll have an older version
+installed these days.
 
 Xapian 1.1.0 and higher also requires libuuid which you can find in e2fsprogs
 (on Fedora, the package to install is e2fsprogs-devel).  On Microsoft Windows
