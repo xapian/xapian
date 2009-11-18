@@ -1,72 +1,49 @@
- 13596       olly Thu Nov 12 01:18:11 GMT 2009  Olly Betts <olly@survex.com>
-
-Xapian-core 1.0.17 (2009-11-??):
-
+xapian-core 1.0.17 (2009-11-18):
 
 API:
 
-	* queryparser/queryparser.lemony: Fix handling of a group of stopwords
-	  which notably caused issues when default_op was OP_AND, but could
-	  probably manifest in other cases too.  Fixes ticket#406.
+* QueryParser:
 
-	* matcher/multimatch.cc: Xapian::Sorter isn't supported with the remote
-	  backend so throw UnimplementedError rather than giving incorrect
-	  results.  (ticket#384)
+  + Fix handling of a group of two or more terms which are all stopwords which
+    notably caused issues when default_op was OP_AND, but could probably
+    manifest in other cases too.  Fixes ticket#406.
 
-	* api/omdatabase.cc: Check that internal is not empty before
-	  referencing its first element, in get_metadata() and
-	  metadata_keys_begin(), to avoid a potential segfault.
+  + Fix interaction of FLAG_PARTIAL and FLAG_SYNONYM.  (ticket#407)
 
-testsuite:
-
-
-matcher:
-
-	* matcher/msetpostlist.cc: Fix MSetPostList not to read off the end of
-	  the MSet if get_maxweight() is called when at_end().  This can
-	  happen but the testcase was too large to send so sadly no
-	  regression test I'm afraid.
+* Database: A database created via the default constructor no longer causes a
+  segfault when the methods get_metadata() or metadata_keys_begin() are called.
 
 flint backend:
 
-	* backends/flint/flint_lock.cc: Don't try to close the fd one more than
-	  the maximum allowable.  (ticket#408)
-
-quartz backend:
-
+* Don't try to close the fd one more than the maximum allowable when locking
+  the database.  Harmless, except it causes a warning when running under
+  valgrind.  (ticket#408)
 
 remote backend:
 
+* Xapian::Sorter isn't supported with the remote backend so throw
+  UnimplementedError rather than giving incorrect results.  (ticket#384)
 
-inmemory backend:
-
-
-build system:
-
+* Fix potential reading off the end of the MSet which is returned internally
+  by the remote server.
 
 documentation:
 
-	* include/xapian/database.h: Backport various documentation comment
-	  improvements from trunk.
+* Various documentation comment improvements for the Database class.
 
 examples:
 
-	* examples/quest.cc: Tighten up the type of the error we catch to
-	  detect an unknown stemming language.
+* examples/quest.cc: Tighten up the type of the error we catch to detect an
+  unknown stemming language.
 
 portability:
 
-	* xapian-config.in: Need to quote ^ for Solaris /bin/sh.
+* xapian-config: Need to quote ^ for Solaris /bin/sh.
 
-	* configure.ac: Actually use any flags we determine are needed to
-	  switch the compiler to proper ANSI C++ mode, when building
-	  xapian-core - this stopped working in 1.0.12, breaking support for
-	  HP's aCC, Compaq's cxx, Sun's CC, and SGI's CC.
-
-packaging:
-
-
-debug code:
+* configure: Actually use any flags we determine are needed to switch the
+  compiler to proper ANSI C++ mode, when building xapian-core - this stopped
+  working in 1.0.12, breaking support for HP's aCC, Compaq's cxx, Sun's CC, and
+  SGI's CC.
 
 Xapian-core 1.0.16 (2009-09-10):
 
