@@ -1,3 +1,8 @@
+Thu Nov 19 12:03:52 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/multi/multi_valuelist.cc: Fix to handle the case where all
+	  the sublists turn out to be empty when we first call next().
+
 Thu Nov 19 11:12:53 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/inmemory/: Set the document data and values lazily for the

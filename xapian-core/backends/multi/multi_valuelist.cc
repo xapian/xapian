@@ -150,6 +150,8 @@ MultiValueList::next()
 		++i;
 	    }
 	}
+	if (rare(valuelists.empty()))
+	    return;
 	make_heap(valuelists.begin(), valuelists.end(),
 		  CompareSubValueListsByDocId());
     } else {
