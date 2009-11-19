@@ -1,3 +1,9 @@
+xapian-bindings (1.0.17-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Olly Betts <olly@survex.com>  Thu, 19 Nov 2009 04:13:17 +0000
+
 xapian-bindings (1.0.16-2) unstable; urgency=low
 
   * Fix non-POSIX use of ".", fixing regression introduced in 1.0.15.
