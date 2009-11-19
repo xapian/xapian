@@ -1,3 +1,8 @@
+Thu Nov 19 01:15:03 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/pack.h: Remove incorrect assertion and document what NULL
+	  parameter value means in this case.
+
 Wed Nov 18 16:33:01 GMT 2009  Richard Boulton <richard@tartarus.org>
 
 	* bin/xapian-check.cc: Fix compiler warning (with gcc-4.2) that did

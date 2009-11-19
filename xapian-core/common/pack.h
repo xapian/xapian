@@ -206,7 +206,7 @@ pack_uint(std::string & s, U value)
  *
  *  @param p	    Pointer to pointer to the current position in the string.
  *  @param end	    Pointer to the end of the string.
- *  @param result   Where to store the result.
+ *  @param result   Where to store the result (or NULL to just skip it).
  */
 template<class U>
 inline bool
@@ -214,7 +214,6 @@ unpack_uint(const char ** p, const char * end, U * result)
 {
     // Check U is an unsigned type.
     STATIC_ASSERT_UNSIGNED_TYPE(U);
-    Assert(result);
 
     const char * ptr = *p;
     const char * start = ptr;
