@@ -1,7 +1,7 @@
 /** @file inmemory_document.h
  * @brief A document read from a InMemoryDatabase.
  */
-/* Copyright (C) 2008 Olly Betts
+/* Copyright (C) 2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,21 +32,12 @@ class InMemoryDocument : public Xapian::Document::Internal {
     /// Don't allow copying.
     InMemoryDocument(const InMemoryDocument &);
 
-    /// InMemoryDocument::open_document() needs to call our private constructor.
+    /// InMemoryDatabase::open_document() needs to call our private constructor.
     friend class InMemoryDatabase;
 
-    /// Private constructor - only called by InMemoryDocument::open_document().
-    InMemoryDocument(const Xapian::Database::Internal *db, Xapian::docid did_,
-		     const string & data_,
-		     const map<Xapian::valueno, string> &values_)
-	: Xapian::Document::Internal(db, did_)
-    {
-	set_data(data_);
-	// Need to make a copy of values_ as set_all_values() may modify the
-	// parameter passed to it.
-	map<Xapian::valueno, string> values_copy(values_);
-	set_all_values(values_copy);
-    }
+    /// Private constructor - only called by InMemoryDatabase::open_document().
+    InMemoryDocument(const Xapian::Database::Internal *db, Xapian::docid did_)
+	: Xapian::Document::Internal(db, did_) { }
 
   public:
     /** Implementation of virtual methods @{ */

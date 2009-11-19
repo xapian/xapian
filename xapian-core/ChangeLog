@@ -1,3 +1,11 @@
+Thu Nov 19 11:12:53 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/inmemory/: Set the document data and values lazily for the
+	  inmemory backend too.  They're much less costly to fetch than if
+	  a disk access may be needed, but it avoids a copy of the respective
+	  data if they aren't needed, and either could potentially be large.
+	  Consistency here also makes things easier to understand.
+
 Thu Nov 19 08:47:24 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/omdocument.cc: Prefer string() to "".
