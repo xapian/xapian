@@ -1,3 +1,10 @@
+Thu Nov 19 06:19:05 GMT 2009  Olly Betts <olly@survex.com>
+
+	* bin/xapian-check.cc: Rework the checking of postlist chunks into
+	  a cleaner approach which should report errors better, and
+	  eliminate the (probably) impossible "did might not be initialised"
+	  path which GCC 4.2 spotted.
+
 Thu Nov 19 01:15:03 GMT 2009  Olly Betts <olly@survex.com>
 
 	* common/pack.h: Remove incorrect assertion and document what NULL
