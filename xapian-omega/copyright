@@ -1,0 +1,82 @@
+This is the Debian package of the Xapian Omega search system.  This
+package was originally created and maintained by Richard Boulton
+<richard@tartarus.org>.  It is currently maintained by Olly Betts
+<olly@survex.com>.
+
+It was downloaded from http://xapian.org/download
+
+Upstream Authors:
+
+        Olly Betts <olly@survex.com>
+        James Aylett <tartarus@users.sourceforge.net>
+        Sam Liddicott <samjam@users.sourceforge.net>
+	Ananova Ltd
+	BrightStation PLC
+	Intercede 1749 Ltd
+	Lemur Consulting Ltd
+	Thomas Viehmann
+	Frank J Bruzzaniti
+
+Copyright:
+
+  Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+  Copyright (C) 2001,2005 James Aylett
+  Copyright (C) 2001 Sam Liddicott
+  Copyright (C) 2001,2002 Ananova Ltd
+  Copyright (C) 1999,2000,2001 BrightStation PLC
+  Copyright (C) 2002 Intercede 1749 Ltd
+  Copyright (C) 2001,2003 Lemur Consulting Ltd.
+  Copyright (C) 2008 Thomas Viehmann
+  Copyright (C) 2009 Frank J Bruzzaniti
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License as
+  published by the Free Software Foundation; either version 2 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+
+  See /usr/share/common-licenses/GPL-2 for the full text of the GNU GPL.
+
+The cdb reading code in files cdb.h, cdb_int.h, cdb_init.cc, cdb_find.cc,
+cdb_hash.cc, and cdb_unpack.cc is based on code from tinycdb released into the
+public domain by Michael Tokarev:
+
+  This file is a part of tinycdb package by Michael Tokarev, mjt@corpit.ru.
+  Public domain.
+
+The code to produce MD5 message-digests in files md5.cc and md5.h is based on
+code written and released into the public domain by Colin Plumb:
+
+  This code was written by Colin Plumb in 1993, no copyright is claimed.
+  This code is in the public domain; do with it what you wish.
+
+The Debian packaging is licensed under the MIT/X licence:
+
+  Copyright (C) 2004,2005,2006 Lemur Consulting Ltd
+  Copyright (C) 2006,2007,2008,2009 Olly Betts
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to
+  deal in the Software without restriction, including without limitation the
+  rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+  sell copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+ 
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+ 
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+  IN THE SOFTWARE.
