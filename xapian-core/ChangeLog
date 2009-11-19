@@ -1,3 +1,10 @@
+Thu Nov 19 07:38:29 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,backends/multi/Makefile.mk,
+	  backends/multi/multi_valuelist.cc,common/Makefile.mk,
+	  common/multivaluelist.h,tests/api_valuestream.cc: Implement support
+	  for iterating valuestreams for multidatabases.
+
 Thu Nov 19 06:19:05 GMT 2009  Olly Betts <olly@survex.com>
 
 	* bin/xapian-check.cc: Rework the checking of postlist chunks into

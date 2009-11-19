@@ -37,6 +37,7 @@
 #include "../backends/multi/multi_termlist.h"
 #include "alltermslist.h"
 #include "multialltermslist.h"
+#include "multivaluelist.h"
 #include "database.h"
 #include "editdistance.h"
 #include "ortermlist.h"
@@ -394,9 +395,8 @@ Database::valuestream_begin(Xapian::valueno slot) const
 {
     DEBUGAPICALL(ValueIterator, "Database::valuestream_begin", slot);
     if (internal.empty()) RETURN(ValueIterator());
-    // FIXME: support multidatabases properly.
     if (internal.size() != 1) {
-	throw Xapian::UnimplementedError("Database::valuestream_begin() doesn't support multidatabases yet");
+	RETURN(ValueIterator(new MultiValueList(internal, slot)));
     }
     RETURN(ValueIterator(internal[0]->open_value_list(slot)));
 }
