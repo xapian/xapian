@@ -1,3 +1,11 @@
+xapian-omega (1.0.17-1) unstable; urgency=low
+
+  * New upstream release.
+    + Uses _SC_PHYS_PAGES instead of _SC_AVPHYS_PAGES to calculate the memory
+      limit to apply to external filters.  Closes: #548987
+
+ -- Olly Betts <olly@survex.com>  Thu, 19 Nov 2009 04:08:57 +0000
+
 xapian-omega (1.0.16-1) unstable; urgency=low
 
   * New upstream release.
