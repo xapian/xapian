@@ -1,3 +1,8 @@
+Fri Nov 20 11:49:07 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* win32_backends_multi.mak,win32_matcher.mak: Patch from Charlie to
+	  add valuestreamdocument.cc and multi_valuelist.cc to build.
+
 Tue Oct 27 16:17:09 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* win32_applications_omega.mak: Remove dirent.cc, update path to
