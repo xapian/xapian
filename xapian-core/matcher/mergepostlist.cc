@@ -28,18 +28,10 @@
 #include "branchpostlist.h"
 #include "omassert.h"
 #include "omdebug.h"
+#include "valuestreamdocument.h"
 #include "xapian/errorhandler.h"
 
 // NB don't prune - even with one sublist we still translate docids...
-
-MergePostList::MergePostList(std::vector<PostList *> plists_,
-			     MultiMatch *matcher_,
-			     Xapian::ErrorHandler * errorhandler_)
-	: plists(plists_), current(-1), matcher(matcher_),
-	  errorhandler(errorhandler_)
-{
-    DEBUGCALL(MATCH, void, "MergePostList::MergePostList", "std::vector<PostList *>");
-}
 
 MergePostList::~MergePostList()
 {
@@ -62,7 +54,9 @@ MergePostList::next(Xapian::weight w_min)
 	try {
 	    next_handling_prune(plists[current], w_min, matcher);
 	    if (!plists[current]->at_end()) break;
-	    current++;
+	    ++current;
+	    if (unsigned(current) >= plists.size()) break;
+	    vsdoc.new_subdb(current);
 	} catch (Xapian::Error & e) {
 	    if (errorhandler) {
 		LOGLINE(EXCEPTION, "Calling error handler in MergePostList::next().");
@@ -74,7 +68,6 @@ MergePostList::next(Xapian::weight w_min)
 		throw;
 	    }
 	}
-	if (unsigned(current) >= plists.size()) break;
 	if (matcher) matcher->recalc_maxweight();
     }
     LOGVALUE(MATCH, current);

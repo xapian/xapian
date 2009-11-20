@@ -19,6 +19,7 @@ noinst_HEADERS +=\
 	matcher/synonympostlist.h\
 	matcher/valuegepostlist.h\
 	matcher/valuerangepostlist.h\
+	matcher/valuestreamdocument.h\
 	matcher/xorpostlist.h
 
 EXTRA_DIST +=\
@@ -54,4 +55,5 @@ lib_src +=\
 	matcher/synonympostlist.cc\
 	matcher/valuegepostlist.cc\
 	matcher/valuerangepostlist.cc\
+	matcher/valuestreamdocument.cc\
 	matcher/xorpostlist.cc

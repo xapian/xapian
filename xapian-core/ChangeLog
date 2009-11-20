@@ -1,3 +1,14 @@
+Fri Nov 20 09:57:12 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/document.h,matcher/: Implement ValueStreamDocument subclass
+	  of Xapian::Document::Internal which provides a way to connect up
+	  valuestreams to uses of values during the match.  Other
+	  (non-recommended) uses of the Document passed to MatchDecider, etc
+	  are passed through to a lazily created backend Document::Internal
+	  subclass.  This should be a lot more efficient for chert.  It's
+	  unclear how it will affect performance for backends which don't store
+	  values in streams - profiling is required.
+
 Fri Nov 20 02:35:14 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/inmemory/inmemory_document.cc: Fix closedb1 on InMemory

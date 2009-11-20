@@ -44,6 +44,7 @@
 
 #include "msetcmp.h"
 
+#include "valuestreamdocument.h"
 #include "weightinternal.h"
 
 #include <xapian/errorhandler.h>
@@ -397,12 +398,16 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     }
     Assert(!postlists.empty());
 
+    ValueStreamDocument vsdoc(db);
+    ++vsdoc.ref_count;
+    Xapian::Document doc(&vsdoc);
+
     // Get a single combined postlist
     PostList *pl;
     if (postlists.size() == 1) {
 	pl = postlists.front();
     } else {
-	pl = new MergePostList(postlists, this, errorhandler);
+	pl = new MergePostList(postlists, this, vsdoc, errorhandler);
     }
 
     LOGLINE(MATCH, "pl = (" << pl->get_description() << ")");
@@ -570,17 +575,15 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    calculated_weight = true;
 	}
 
-	Xapian::Internal::RefCntPtr<Xapian::Document::Internal> doc;
 	Xapian::docid did = pl->get_docid();
+	vsdoc.set_document(did);
 	LOGLINE(MATCH, "Candidate document id " << did << " wt " << wt);
 	Xapian::Internal::MSetItem new_item(wt, did);
 	if (sort_by != REL) {
-	    doc = db.get_document_lazily(did);
-	    Assert(doc.get());
 	    if (sorter) {
-		new_item.sort_key = (*sorter)(Xapian::Document(doc.get()));
+		new_item.sort_key = (*sorter)(doc);
 	    } else {
-		new_item.sort_key = doc->get_value(sort_key);
+		new_item.sort_key = vsdoc.get_value(sort_key);
 	    }
 
 	    // We're sorting by value (in part at least), so compare the item
@@ -595,8 +598,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		    ++docs_matched;
 		    if (!calculated_weight) wt = pl->get_weight();
 		    if (matchspy) {
-			Xapian::Document mydoc(doc.get());
-			matchspy->operator()(mydoc, wt);
+			matchspy->operator()(doc, wt);
 		    }
 		    if (wt > greatest_wt) goto new_greatest_weight;
 		    continue;
@@ -624,18 +626,12 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    // If the results are from a remote database, then the functor will
 	    // already have been applied there so we can skip this step.
 	    if (!is_remote[n]) {
-		if (doc.get() == 0) {
-		    doc = db.get_document_lazily(did);
-		    Assert(doc.get());
-		}
-		Xapian::Document mydoc(doc.get());
-
 		++decider_considered;
-		if (matchspy_legacy && !matchspy_legacy->operator()(mydoc)) {
+		if (matchspy_legacy && !matchspy_legacy->operator()(doc)) {
 		    ++decider_denied;
 		    continue;
 		}
-		if (mdecider && !mdecider->operator()(mydoc)) {
+		if (mdecider && !mdecider->operator()(doc)) {
 		    ++decider_denied;
 		    continue;
 		}
@@ -645,7 +641,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 			new_item.wt = wt;
 			calculated_weight = true;
 		    }
-		    matchspy->operator()(mydoc, wt);
+		    matchspy->operator()(doc, wt);
 		}
 	    }
 	}
@@ -661,7 +657,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	// Perform collapsing on key if requested.
 	if (collapser) {
 	    collapse_result res;
-	    res = collapser.process(new_item, pl, db, doc, mcmp);
+	    res = collapser.process(new_item, pl, vsdoc, mcmp);
 	    if (res == REJECTED) {
 		// If we're sorting by relevance primarily, then we throw away
 		// the lower weighted document anyway.
