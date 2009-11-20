@@ -493,3 +493,37 @@ DEFINE_TESTCASE(numericrange1, !backend)
     TEST(!(n4 < n3));
     return true;
 }
+
+// Regression test for underflow in numeric ranges.
+// See ticket #321 for more details.
+DEFINE_TESTCASE(numericrange2, writable)
+{
+    Xapian::WritableDatabase db = get_writable_database("");
+    static double values[] = { 11.95, 14.50, 60.00 };
+
+    int j;
+    for (j = 0; j != 3; ++j) {
+	Xapian::Document doc;
+	doc.add_value(0, Xapian::sortable_serialise(values[j]));
+	db.add_document(doc);
+    }
+    db.flush();
+    Xapian::Enquire enq(db);
+    enq.set_query(Xapian::Query::MatchAll);
+    Xapian::ValueCountMatchSpy spy(0);
+    enq.add_matchspy(&spy);
+    enq.get_mset(0, 10);
+
+    Xapian::NumericRanges ranges(spy.get_values(), 1000);
+    const std::map<Xapian::NumericRange, Xapian::doccount> & r = ranges.get_ranges();
+
+    TEST_EQUAL(r.size(), 3);
+    std::map<Xapian::NumericRange, Xapian::doccount>::const_iterator i;
+    for (j = 0, i = r.begin(); i != r.end(); ++i, ++j) {
+	TEST_EQUAL(i->first.get_lower(), i->first.get_upper());
+	TEST_EQUAL(i->second, 1);
+	TEST_EQUAL(i->first.get_lower(), values[j]);
+    }
+
+    return true;
+}

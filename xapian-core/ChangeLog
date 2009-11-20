@@ -1,3 +1,8 @@
+Fri Nov 20 16:19:13 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* tests/api_matchspy.cc: Add regression test for underflow in
+	  numeric ranges (based on python version in ticket #321).
+
 Fri Nov 20 10:54:08 GMT 2009  Olly Betts <olly@survex.com>
 
 	* matcher/valuestreamdocument.cc: Use check() instead of skip_to() in
