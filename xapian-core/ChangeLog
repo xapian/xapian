@@ -1,3 +1,8 @@
+Fri Nov 20 02:35:14 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/inmemory/inmemory_document.cc: Fix closedb1 on InMemory
+	  backend, broken by recent commit.
+
 Thu Nov 19 12:03:52 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/multi/multi_valuelist.cc: Fix to handle the case where all

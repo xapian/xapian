@@ -46,6 +46,7 @@ InMemoryDocument::do_get_all_values(map<Xapian::valueno, string> &values_) const
     LOGCALL_VOID(DB, "InMemoryDocument::do_get_all_values", "[&values_]");
     const InMemoryDatabase * db;
     db = static_cast<const InMemoryDatabase*>(database.get());
+    if (db->closed) InMemoryDatabase::throw_database_closed();
     values_ = db->valuelists[did - 1];
 }
 
@@ -55,5 +56,6 @@ InMemoryDocument::do_get_data() const
     LOGCALL(DB, string, "InMemoryDocument::do_get_data", "");
     const InMemoryDatabase * db;
     db = static_cast<const InMemoryDatabase*>(database.get());
+    if (db->closed) InMemoryDatabase::throw_database_closed();
     RETURN(db->doclists[did - 1]);
 }
