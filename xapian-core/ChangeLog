@@ -1,3 +1,8 @@
+Fri Nov 20 10:54:08 GMT 2009  Olly Betts <olly@survex.com>
+
+	* matcher/valuestreamdocument.cc: Use check() instead of skip_to() in
+	  ValueStreamDocument.
+
 Fri Nov 20 09:57:12 GMT 2009  Olly Betts <olly@survex.com>
 
 	* common/document.h,matcher/: Implement ValueStreamDocument subclass
