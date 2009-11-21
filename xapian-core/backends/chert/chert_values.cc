@@ -94,6 +94,41 @@ ValueChunkReader::next()
 }
 
 void
+ValueChunkReader::skip_to(Xapian::docid target)
+{
+    if (p == NULL || target <= did)
+	return;
+
+    size_t value_len;
+    while(p != end) {
+	// Get the next docid
+	Xapian::docid delta;
+	if (rare(!unpack_uint(&p, end, &delta)))
+	    throw Xapian::DatabaseCorruptError("Failed to unpack streamed value docid");
+	did += delta + 1;
+
+	// Get the length of the string
+	if (rare(!unpack_uint(&p, end, &value_len))) {
+	    throw Xapian::DatabaseCorruptError("Failed to unpack streamed value length");
+	}
+
+	// Check that it's not too long
+	if (rare(value_len > size_t(end - p))) {
+	    throw Xapian::DatabaseCorruptError("Failed to unpack streamed value");
+	}
+
+	// Assign the value and return only if we've reached the target
+	if (did >= target) {
+	    value.assign(p, value_len);
+	    p += value_len;
+	    return;
+	}
+	p += value_len;
+    }
+    p = NULL;
+}
+
+void
 ChertValueManager::add_value(Xapian::docid did, Xapian::valueno slot,
 			     const string & val)
 {

@@ -1,3 +1,11 @@
+Sat Nov 21 17:39:23 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* backends/chert/chert_values.cc,backends/chert/chert_values.h:
+	  Make ValueChunkReader::skip_to() assign the value to a string
+	  only when the target has been reached.  Saves a lot of
+	  unneccessary string copying - on a benchmark of mydeco data,
+	  improves time for 100 queries from 3.66s to 3.10s.
+
 Sat Nov 21 01:13:26 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/: Make arrays which don't need to be modified const.
