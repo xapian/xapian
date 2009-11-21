@@ -1,6 +1,6 @@
 /* termgentest.cc: Tests of Xapian::TermGenerator
  *
- * Copyright (C) 2002,2003,2004,2005,2006,2007,2008 Olly Betts
+ * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -58,7 +58,7 @@ struct test {
     const char *expect;
 };
 
-static test test_simple[] = {
+static const test test_simple[] = {
     // A basic test with a hyphen
     { "", "simple-example", "example[2] simple[1]" },
     { "cont,weight=2",
@@ -642,7 +642,7 @@ static bool test_termgen1()
     termgen.set_document(doc);
     string prefix;
 
-    for (test *p = test_simple; p->text; ++p) {
+    for (const test *p = test_simple; p->text; ++p) {
 	int weight = 1;
 	bool new_doc = true;
 	bool nopos = false;
@@ -755,7 +755,7 @@ static bool test_tg_spell2()
 }
 
 /// Test cases for the TermGenerator.
-static test_desc tests[] = {
+static const test_desc tests[] = {
     TESTCASE(termgen1),
     TESTCASE(tg_spell1),
     TESTCASE(tg_spell2),

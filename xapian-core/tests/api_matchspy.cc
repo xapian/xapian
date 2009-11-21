@@ -499,7 +499,7 @@ DEFINE_TESTCASE(numericrange1, !backend)
 DEFINE_TESTCASE(numericrange2, writable)
 {
     Xapian::WritableDatabase db = get_writable_database();
-    static double values[] = { 11.95, 14.50, 60.00 };
+    static const double values[] = { 11.95, 14.50, 60.00 };
 
     int j;
     for (j = 0; j != 3; ++j) {

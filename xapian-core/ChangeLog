@@ -1,3 +1,7 @@
+Sat Nov 21 01:13:26 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/: Make arrays which don't need to be modified const.
+
 Sat Nov 21 00:01:04 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_matchspy.cc: The default parameter for

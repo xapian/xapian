@@ -2209,7 +2209,7 @@ DEFINE_TESTCASE(scaleweight1, backend) {
 	"leave \"milk notpresent\"",
 	NULL
     };
-    static double multipliers[] = {
+    static const double multipliers[] = {
 	-1000000, -2.5, -1, -0.5, 0, 0.5, 1, 2.5, 1000000,
 	0, 0
     };
@@ -2217,7 +2217,7 @@ DEFINE_TESTCASE(scaleweight1, backend) {
     for (const char **qstr = queries; *qstr; ++qstr) {
 	Xapian::Query query1 = qp.parse_query(*qstr);
 	tout << "query1: " << query1.get_description() << endl;
-	for (double *multp = multipliers; multp[0] != multp[1]; ++multp) {
+	for (const double *multp = multipliers; multp[0] != multp[1]; ++multp) {
 	    double mult = *multp;
 	    if (mult < 0) {
 		TEST_EXCEPTION(Xapian::InvalidArgumentError,
