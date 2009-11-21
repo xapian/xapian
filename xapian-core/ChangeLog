@@ -1,3 +1,8 @@
+Sat Nov 21 00:01:04 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_matchspy.cc: The default parameter for
+	  get_writable_database() is string(), so don't explicitly pass "".
+
 Fri Nov 20 16:19:13 GMT 2009  Richard Boulton <richard@tartarus.org>
 
 	* tests/api_matchspy.cc: Add regression test for underflow in

@@ -116,7 +116,7 @@ DEFINE_TESTCASE(matchspy2, writable)
 	SKIP_TEST("Test not supported for remote backend");
     }
 
-    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database();
     for (int c = 1; c <= 25; ++c) {
 	Xapian::Document doc;
 	doc.set_data("Document " + str(c));
@@ -214,7 +214,7 @@ DEFINE_TESTCASE(matchspy3, writable)
 	SKIP_TEST("Test not supported for remote backend");
     }
 
-    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database();
     for (int c = 1; c <= 25; ++c) {
 	Xapian::Document doc;
 	doc.set_data("Document " + str(c));
@@ -308,7 +308,7 @@ DEFINE_TESTCASE(matchspy4, writable)
 	SKIP_TEST("Test not supported for remote backend");
     }
 
-    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database();
     for (int c = 1; c <= 25; ++c) {
 	Xapian::Document doc;
 	doc.set_data("Document " + str(c));
@@ -498,7 +498,7 @@ DEFINE_TESTCASE(numericrange1, !backend)
 // See ticket #321 for more details.
 DEFINE_TESTCASE(numericrange2, writable)
 {
-    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database();
     static double values[] = { 11.95, 14.50, 60.00 };
 
     int j;
