@@ -100,7 +100,7 @@ ValueChunkReader::skip_to(Xapian::docid target)
 	return;
 
     size_t value_len;
-    while(p != end) {
+    while (p != end) {
 	// Get the next docid
 	Xapian::docid delta;
 	if (rare(!unpack_uint(&p, end, &delta)))

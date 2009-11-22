@@ -1,3 +1,9 @@
+Sun Nov 22 13:12:39 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/matchspy.cc,backends/chert/chert_values.cc,
+	  languages/steminternal.cc: Tweak whitespace after while to be
+	  consistent.
+
 Sat Nov 21 17:39:23 GMT 2009  Richard Boulton <richard@tartarus.org>
 
 	* backends/chert/chert_values.cc,backends/chert/chert_values.h:
