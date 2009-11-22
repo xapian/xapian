@@ -1,3 +1,11 @@
+Sun Nov 22 14:20:51 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_postlist.cc: When skipping through a chunk of
+	  postings to find the one we want, don't bother to unpack the wdf
+	  values we're skipping over, which should save a significant amount
+	  of time in certain cases where the profile data shows we spend
+	  something like 1/3 of the time in the function where this happens.
+
 Sun Nov 22 13:12:39 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/matchspy.cc,backends/chert/chert_values.cc,
