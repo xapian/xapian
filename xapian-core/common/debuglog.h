@@ -124,6 +124,21 @@ class DebugLogger {
     }
 };
 
+namespace Xapian {
+    /** Dummy type for "no arguments".
+     *
+     *  We pull this into the global namespace, and overload operator<< so that
+     *  writing it to a stream should generate no code.
+     */
+    typedef enum { NO_ARGS } NoArguments_;
+}
+
+inline std::ostream & operator<<(std::ostream &o, Xapian::NoArguments_) {
+    return o;
+}
+
+using Xapian::NO_ARGS;
+
 extern DebugLogger xapian_debuglogger__;
 
 /** Log message @a MSG of category @a CATEGORY. */

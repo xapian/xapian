@@ -32,7 +32,7 @@
 #include <xapian/unicode.h>
 
 #include "omassert.h"
-#include "omdebug.h"
+#include "debuglog.h"
 #include "../backends/multi/multi_postlist.h"
 #include "../backends/multi/multi_termlist.h"
 #include "alltermslist.h"
@@ -54,26 +54,26 @@ namespace Xapian {
 
 Database::Database()
 {
-    DEBUGAPICALL(void, "Database::Database", "");
+    LOGCALL_CTOR(API, "Database::Database", NO_ARGS);
 }
 
 Database::Database(Database::Internal *internal_)
 {
-    DEBUGAPICALL(void, "Database::Database", "Database::Internal");
+    LOGCALL_CTOR(API, "Database::Database", "Database::Internal");
     Xapian::Internal::RefCntPtr<Database::Internal> newi(internal_);
     internal.push_back(newi);
 }
 
 Database::Database(const Database &other)
 {
-    DEBUGAPICALL(void, "Database::Database", "Database");
+    LOGCALL_CTOR(API, "Database::Database", "Database");
     internal = other.internal;
 }
 
 void
 Database::operator=(const Database &other)
 {
-    DEBUGAPICALL(void, "Database::operator=", "Database");
+    LOGCALL_VOID(API, "Database::operator=", "Database");
     if (this == &other) {
 	LOGLINE(API, "Database assigned to itself");
 	return;
@@ -84,13 +84,13 @@ Database::operator=(const Database &other)
 
 Database::~Database()
 {
-    DEBUGAPICALL(void, "Database::~Database", "");
+    LOGCALL_DTOR(API, "Database::~Database");
 }
 
 void
 Database::reopen()
 {
-    DEBUGAPICALL(void, "Database::reopen", "");
+    LOGCALL_VOID(API, "Database::reopen", NO_ARGS);
     vector<Xapian::Internal::RefCntPtr<Database::Internal> >::iterator i;
     for (i = internal.begin(); i != internal.end(); ++i) {
 	(*i)->reopen();
@@ -100,7 +100,7 @@ Database::reopen()
 void
 Database::close()
 {
-    DEBUGAPICALL(void, "Database::close", "");
+    LOGCALL_VOID(API, "Database::close", NO_ARGS);
     vector<Xapian::Internal::RefCntPtr<Database::Internal> >::iterator i;
     for (i = internal.begin(); i != internal.end(); ++i) {
 	(*i)->close();
@@ -110,7 +110,7 @@ Database::close()
 void
 Database::add_database(const Database & database)
 {
-    DEBUGAPICALL(void, "Database::add_database", "Database");
+    LOGCALL_VOID(API, "Database::add_database", "Database");
     if (this == &database) {
 	LOGLINE(API, "Database added to itself");
 	throw Xapian::InvalidArgumentError("Can't add a Database to itself");
@@ -124,7 +124,7 @@ Database::add_database(const Database & database)
 PostingIterator
 Database::postlist_begin(const string &tname) const
 {
-    DEBUGAPICALL(PostingIterator, "Database::postlist_begin", tname);
+    LOGCALL(API, PostingIterator, "Database::postlist_begin", tname);
 
     // Don't bother checking that the term exists first.  If it does, we
     // just end up doing more work, and if it doesn't, we save very little
@@ -159,7 +159,7 @@ Database::postlist_begin(const string &tname) const
 TermIterator
 Database::termlist_begin(Xapian::docid did) const
 {
-    DEBUGAPICALL(TermIterator, "Database::termlist_begin", did);
+    LOGCALL(API, TermIterator, "Database::termlist_begin", did);
     if (did == 0) throw InvalidArgumentError("Document ID 0 is invalid");
 
     unsigned int multiplier = internal.size();
@@ -187,7 +187,7 @@ Database::allterms_begin() const
 TermIterator
 Database::allterms_begin(const std::string & prefix) const
 {
-    DEBUGAPICALL(TermIterator, "Database::allterms_begin", "");
+    LOGCALL(API, TermIterator, "Database::allterms_begin", NO_ARGS);
     if (internal.empty()) RETURN(TermIterator(NULL));
 
     if (internal.size() == 1)
@@ -199,7 +199,7 @@ Database::allterms_begin(const std::string & prefix) const
 bool
 Database::has_positions() const
 {
-    DEBUGAPICALL(bool, "Database::has_positions", "");
+    LOGCALL(API, bool, "Database::has_positions", NO_ARGS);
     // If any sub-database has positions, the combined database does.
     vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); ++i) {
@@ -211,7 +211,7 @@ Database::has_positions() const
 PositionIterator
 Database::positionlist_begin(Xapian::docid did, const string &tname) const
 {
-    DEBUGAPICALL(PositionIterator, "Database::positionlist_begin",
+    LOGCALL(API, PositionIterator, "Database::positionlist_begin",
 		 did << ", " << tname);
     if (tname.empty())
 	throw InvalidArgumentError("Zero length terms are invalid");
@@ -228,7 +228,7 @@ Database::positionlist_begin(Xapian::docid did, const string &tname) const
 Xapian::doccount
 Database::get_doccount() const
 {
-    DEBUGAPICALL(Xapian::doccount, "Database::get_doccount", "");
+    LOGCALL(API, Xapian::doccount, "Database::get_doccount", NO_ARGS);
     Xapian::doccount docs = 0;
     vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); ++i) {
@@ -240,7 +240,7 @@ Database::get_doccount() const
 Xapian::docid
 Database::get_lastdocid() const
 {
-    DEBUGAPICALL(Xapian::docid, "Database::get_lastdocid", "");
+    LOGCALL(API, Xapian::docid, "Database::get_lastdocid", NO_ARGS);
     Xapian::docid did = 0;
 
     unsigned int multiplier = internal.size();
@@ -255,7 +255,7 @@ Database::get_lastdocid() const
 Xapian::doclength
 Database::get_avlength() const
 {
-    DEBUGAPICALL(Xapian::doclength, "Database::get_avlength", "");
+    LOGCALL(API, Xapian::doclength, "Database::get_avlength", NO_ARGS);
     Xapian::doccount docs = 0;
     Xapian::doclength totlen = 0;
 
@@ -275,7 +275,7 @@ Database::get_avlength() const
 Xapian::doccount
 Database::get_termfreq(const string & tname) const
 {
-    DEBUGAPICALL(Xapian::doccount, "Database::get_termfreq", tname);
+    LOGCALL(API, Xapian::doccount, "Database::get_termfreq", tname);
     if (tname.empty()) RETURN(get_doccount());
 
     Xapian::doccount tf = 0;
@@ -289,7 +289,7 @@ Database::get_termfreq(const string & tname) const
 Xapian::termcount
 Database::get_collection_freq(const string & tname) const
 {
-    DEBUGAPICALL(Xapian::termcount, "Database::get_collection_freq", tname);
+    LOGCALL(API, Xapian::termcount, "Database::get_collection_freq", tname);
     if (tname.empty()) RETURN(get_doccount());
 
     Xapian::termcount cf = 0;
@@ -303,7 +303,7 @@ Database::get_collection_freq(const string & tname) const
 Xapian::doccount
 Database::get_value_freq(Xapian::valueno valno) const
 {
-    DEBUGAPICALL(Xapian::doccount, "Database::get_value_freq", valno);
+    LOGCALL(API, Xapian::doccount, "Database::get_value_freq", valno);
 
     Xapian::doccount vf = 0;
     vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
@@ -316,7 +316,7 @@ Database::get_value_freq(Xapian::valueno valno) const
 string
 Database::get_value_lower_bound(Xapian::valueno valno) const
 {
-    DEBUGAPICALL(string, "Database::get_value_lower_bound", valno);
+    LOGCALL(API, string, "Database::get_value_lower_bound", valno);
 
     if (rare(internal.empty())) RETURN(string());
 
@@ -333,7 +333,7 @@ Database::get_value_lower_bound(Xapian::valueno valno) const
 std::string
 Database::get_value_upper_bound(Xapian::valueno valno) const
 {
-    DEBUGAPICALL(std::string, "Database::get_value_upper_bound", valno);
+    LOGCALL(API, std::string, "Database::get_value_upper_bound", valno);
 
     std::string full_ub;
     vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
@@ -348,7 +348,7 @@ Database::get_value_upper_bound(Xapian::valueno valno) const
 Xapian::termcount
 Database::get_doclength_lower_bound() const
 {
-    LOGCALL(API, Xapian::termcount, "Database::get_doclength_lower_bound", "");
+    LOGCALL(API, Xapian::termcount, "Database::get_doclength_lower_bound", NO_ARGS);
 
     if (rare(internal.empty())) RETURN(0);
 
@@ -365,7 +365,7 @@ Database::get_doclength_lower_bound() const
 Xapian::termcount
 Database::get_doclength_upper_bound() const
 {
-    LOGCALL(API, Xapian::termcount, "Database::get_doclength_upper_bound", "");
+    LOGCALL(API, Xapian::termcount, "Database::get_doclength_upper_bound", NO_ARGS);
 
     Xapian::termcount full_ub = 0;
     vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
@@ -393,7 +393,7 @@ Database::get_wdf_upper_bound(const string & term) const
 ValueIterator
 Database::valuestream_begin(Xapian::valueno slot) const
 {
-    DEBUGAPICALL(ValueIterator, "Database::valuestream_begin", slot);
+    LOGCALL(API, ValueIterator, "Database::valuestream_begin", slot);
     if (internal.empty()) RETURN(ValueIterator());
     if (internal.size() != 1) {
 	RETURN(ValueIterator(new MultiValueList(internal, slot)));
@@ -404,7 +404,7 @@ Database::valuestream_begin(Xapian::valueno slot) const
 Xapian::termcount
 Database::get_doclength(Xapian::docid did) const
 {
-    DEBUGAPICALL(Xapian::termcount, "Database::get_doclength", did);
+    LOGCALL(API, Xapian::termcount, "Database::get_doclength", did);
     if (did == 0) throw InvalidArgumentError("Document ID 0 is invalid");
 
     unsigned int multiplier = internal.size();
@@ -417,7 +417,7 @@ Database::get_doclength(Xapian::docid did) const
 Document
 Database::get_document(Xapian::docid did) const
 {
-    DEBUGAPICALL(Document, "Database::get_document", did);
+    LOGCALL(API, Document, "Database::get_document", did);
     if (did == 0) throw InvalidArgumentError("Document ID 0 is invalid");
 
     unsigned int multiplier = internal.size();
@@ -446,7 +446,7 @@ Database::get_document_lazily(Xapian::docid did) const
 bool
 Database::term_exists(const string & tname) const
 {
-    DEBUGAPICALL(bool, "Database::term_exists", tname);
+    LOGCALL(API, bool, "Database::term_exists", tname);
     if (tname.empty()) {
 	RETURN(get_doccount() != 0);
     }
@@ -460,7 +460,7 @@ Database::term_exists(const string & tname) const
 void
 Database::keep_alive()
 {
-    DEBUGAPICALL(void, "Database::keep_alive", "");
+    LOGCALL_VOID(API, "Database::keep_alive", NO_ARGS);
     vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); ++i) {
 	(*i)->keep_alive();
@@ -517,7 +517,7 @@ string
 Database::get_spelling_suggestion(const string &word,
 				  unsigned max_edit_distance) const
 {
-    DEBUGAPICALL(string, "Database::get_spelling_suggestion",
+    LOGCALL(API, string, "Database::get_spelling_suggestion",
 		 word << ", " << max_edit_distance);
     if (word.size() <= 1) return string();
     AutoPtr<TermList> merger;
@@ -623,7 +623,7 @@ Database::get_spelling_suggestion(const string &word,
 TermIterator
 Database::spellings_begin() const
 {
-    DEBUGAPICALL(TermIterator, "Database::spellings_begin", "");
+    LOGCALL(API, TermIterator, "Database::spellings_begin", NO_ARGS);
     AutoPtr<TermList> merger;
     for (size_t i = 0; i < internal.size(); ++i) {
 	TermList * tl = internal[i]->open_spelling_wordlist();
@@ -641,7 +641,7 @@ Database::spellings_begin() const
 TermIterator
 Database::synonyms_begin(const std::string &term) const
 {
-    DEBUGAPICALL(TermIterator, "Database::synonyms_begin", term);
+    LOGCALL(API, TermIterator, "Database::synonyms_begin", term);
     AutoPtr<TermList> merger;
     for (size_t i = 0; i < internal.size(); ++i) {
 	TermList * tl = internal[i]->open_synonym_termlist(term);
@@ -659,7 +659,7 @@ Database::synonyms_begin(const std::string &term) const
 TermIterator
 Database::synonym_keys_begin(const std::string &prefix) const
 {
-    DEBUGAPICALL(TermIterator, "Database::synonyms_keys_begin", prefix);
+    LOGCALL(API, TermIterator, "Database::synonyms_keys_begin", prefix);
     AutoPtr<TermList> merger;
     for (size_t i = 0; i < internal.size(); ++i) {
 	TermList * tl = internal[i]->open_synonym_keylist(prefix);
@@ -677,7 +677,7 @@ Database::synonym_keys_begin(const std::string &prefix) const
 string
 Database::get_metadata(const string & key) const
 {
-    DEBUGAPICALL(string, "Database::get_metadata", key);
+    LOGCALL(API, string, "Database::get_metadata", key);
     if (key.empty())
 	throw InvalidArgumentError("Empty metadata keys are invalid");
     if (internal.empty()) RETURN(std::string());
@@ -687,7 +687,7 @@ Database::get_metadata(const string & key) const
 Xapian::TermIterator
 Database::metadata_keys_begin(const std::string &prefix) const
 {
-    DEBUGAPICALL(Xapian::TermIterator, "Database::metadata_keys_begin", "");
+    LOGCALL(API, Xapian::TermIterator, "Database::metadata_keys_begin", NO_ARGS);
     if (internal.empty()) RETURN(TermIterator(NULL));
     RETURN(TermIterator(internal[0]->open_metadata_keylist(prefix)));
 }
@@ -695,7 +695,7 @@ Database::metadata_keys_begin(const std::string &prefix) const
 std::string
 Database::get_uuid() const
 {
-    DEBUGAPICALL(std::string, "Database::get_uuid", "");
+    LOGCALL(API, std::string, "Database::get_uuid", NO_ARGS);
     string uuid;
     for (size_t i = 0; i < internal.size(); ++i) {
 	string sub_uuid = internal[i]->get_uuid();
@@ -713,32 +713,31 @@ Database::get_uuid() const
 
 WritableDatabase::WritableDatabase() : Database()
 {
-    DEBUGAPICALL(void, "WritableDatabase::WritableDatabase", "");
+    LOGCALL_CTOR(API, "WritableDatabase::WritableDatabase", NO_ARGS);
 }
 
 WritableDatabase::WritableDatabase(Database::Internal *internal_)
 	: Database(internal_)
 {
-    DEBUGAPICALL(void, "WritableDatabase::WritableDatabase",
-		 "Database::Internal");
+    LOGCALL_CTOR(API, "WritableDatabase::WritableDatabase", "Database::Internal");
 }
 
 WritableDatabase::WritableDatabase(const WritableDatabase &other)
 	: Database(other)
 {
-    DEBUGAPICALL(void, "WritableDatabase::WritableDatabase", "WritableDatabase");
+    LOGCALL_CTOR(API, "WritableDatabase::WritableDatabase", "WritableDatabase");
 }
 
 void
 WritableDatabase::operator=(const WritableDatabase &other)
 {
-    DEBUGAPICALL(void, "WritableDatabase::operator=", "WritableDatabase");
+    LOGCALL_VOID(API, "WritableDatabase::operator=", "WritableDatabase");
     Database::operator=(other);
 }
 
 WritableDatabase::~WritableDatabase()
 {
-    DEBUGAPICALL(void, "WritableDatabase::~WritableDatabase", "");
+    LOGCALL_DTOR(API, "WritableDatabase::~WritableDatabase");
 }
 
 XAPIAN_NORETURN(static void only_one_subdatabase_allowed());
@@ -750,7 +749,7 @@ static void only_one_subdatabase_allowed()
 void
 WritableDatabase::commit()
 {
-    DEBUGAPICALL(void, "WritableDatabase::commit", "");
+    LOGCALL_VOID(API, "WritableDatabase::commit", NO_ARGS);
     if (internal.size() != 1) only_one_subdatabase_allowed();
     internal[0]->commit();
 }
@@ -758,7 +757,7 @@ WritableDatabase::commit()
 void
 WritableDatabase::begin_transaction(bool flushed)
 {
-    DEBUGAPICALL(void, "WritableDatabase::begin_transaction", "");
+    LOGCALL_VOID(API, "WritableDatabase::begin_transaction", NO_ARGS);
     if (internal.size() != 1) only_one_subdatabase_allowed();
     internal[0]->begin_transaction(flushed);
 }
@@ -766,7 +765,7 @@ WritableDatabase::begin_transaction(bool flushed)
 void
 WritableDatabase::commit_transaction()
 {
-    DEBUGAPICALL(void, "WritableDatabase::commit_transaction", "");
+    LOGCALL_VOID(API, "WritableDatabase::commit_transaction", NO_ARGS);
     if (internal.size() != 1) only_one_subdatabase_allowed();
     internal[0]->commit_transaction();
 }
@@ -774,7 +773,7 @@ WritableDatabase::commit_transaction()
 void
 WritableDatabase::cancel_transaction()
 {
-    DEBUGAPICALL(void, "WritableDatabase::cancel_transaction", "");
+    LOGCALL_VOID(API, "WritableDatabase::cancel_transaction", NO_ARGS);
     if (internal.size() != 1) only_one_subdatabase_allowed();
     internal[0]->cancel_transaction();
 }
@@ -783,7 +782,7 @@ WritableDatabase::cancel_transaction()
 Xapian::docid
 WritableDatabase::add_document(const Document & document)
 {
-    DEBUGAPICALL(Xapian::docid, "WritableDatabase::add_document", document);
+    LOGCALL(API, Xapian::docid, "WritableDatabase::add_document", document);
     if (internal.size() != 1) only_one_subdatabase_allowed();
     RETURN(internal[0]->add_document(document));
 }
@@ -791,7 +790,7 @@ WritableDatabase::add_document(const Document & document)
 void
 WritableDatabase::delete_document(Xapian::docid did)
 {
-    DEBUGAPICALL(void, "WritableDatabase::delete_document", did);
+    LOGCALL_VOID(API, "WritableDatabase::delete_document", did);
     if (internal.size() != 1) only_one_subdatabase_allowed();
     if (did == 0) throw InvalidArgumentError("Document ID 0 is invalid");
     internal[0]->delete_document(did);
@@ -800,7 +799,7 @@ WritableDatabase::delete_document(Xapian::docid did)
 void
 WritableDatabase::delete_document(const std::string & unique_term)
 {
-    DEBUGAPICALL(void, "WritableDatabase::delete_document", unique_term);
+    LOGCALL_VOID(API, "WritableDatabase::delete_document", unique_term);
     if (internal.size() != 1) only_one_subdatabase_allowed();
     if (unique_term.empty())
 	throw InvalidArgumentError("Empty termnames are invalid");
@@ -810,7 +809,7 @@ WritableDatabase::delete_document(const std::string & unique_term)
 void
 WritableDatabase::replace_document(Xapian::docid did, const Document & document)
 {
-    DEBUGAPICALL(void, "WritableDatabase::replace_document",
+    LOGCALL_VOID(API, "WritableDatabase::replace_document",
 		 did << ", " << document);
     if (internal.size() != 1) only_one_subdatabase_allowed();
     if (did == 0) throw Xapian::InvalidArgumentError("Document ID 0 is invalid");
@@ -821,7 +820,7 @@ Xapian::docid
 WritableDatabase::replace_document(const std::string & unique_term,
 				   const Document & document)
 {
-    DEBUGAPICALL(Xapian::docid, "WritableDatabase::replace_document",
+    LOGCALL(API, Xapian::docid, "WritableDatabase::replace_document",
 		 unique_term << ", " << document);
     if (internal.size() != 1) only_one_subdatabase_allowed();
     if (unique_term.empty())
@@ -833,7 +832,7 @@ void
 WritableDatabase::add_spelling(const std::string & word,
 			       Xapian::termcount freqinc) const
 {
-    DEBUGAPICALL(void, "WritableDatabase::add_spelling",
+    LOGCALL_VOID(API, "WritableDatabase::add_spelling",
 		 word << ", " << freqinc);
     if (internal.size() != 1) only_one_subdatabase_allowed();
     internal[0]->add_spelling(word, freqinc);
@@ -843,7 +842,7 @@ void
 WritableDatabase::remove_spelling(const std::string & word,
 				  Xapian::termcount freqdec) const
 {
-    DEBUGAPICALL(void, "WritableDatabase::remove_spelling",
+    LOGCALL_VOID(API, "WritableDatabase::remove_spelling",
 		 word << ", " << freqdec);
     if (internal.size() != 1) only_one_subdatabase_allowed();
     internal[0]->remove_spelling(word, freqdec);
@@ -853,7 +852,7 @@ void
 WritableDatabase::add_synonym(const std::string & term,
 			      const std::string & synonym) const
 {
-    DEBUGAPICALL(void, "WritableDatabase::add_synonym",
+    LOGCALL_VOID(API, "WritableDatabase::add_synonym",
 		 term << ", " << synonym);
     if (internal.size() != 1) only_one_subdatabase_allowed();
     internal[0]->add_synonym(term, synonym);
@@ -863,7 +862,7 @@ void
 WritableDatabase::remove_synonym(const std::string & term,
 				 const std::string & synonym) const
 {
-    DEBUGAPICALL(void, "WritableDatabase::remove_synonym",
+    LOGCALL_VOID(API, "WritableDatabase::remove_synonym",
 		 term << ", " << synonym);
     if (internal.size() != 1) only_one_subdatabase_allowed();
     internal[0]->remove_synonym(term, synonym);
@@ -872,7 +871,7 @@ WritableDatabase::remove_synonym(const std::string & term,
 void
 WritableDatabase::clear_synonyms(const std::string & term) const
 {
-    DEBUGAPICALL(void, "WritableDatabase::clear_synonyms", term);
+    LOGCALL_VOID(API, "WritableDatabase::clear_synonyms", term);
     if (internal.size() != 1) only_one_subdatabase_allowed();
     internal[0]->clear_synonyms(term);
 }
@@ -880,7 +879,7 @@ WritableDatabase::clear_synonyms(const std::string & term) const
 void
 WritableDatabase::set_metadata(const string & key, const string & value)
 {
-    DEBUGAPICALL(void, "WritableDatabase::set_metadata", key << ", " << value);
+    LOGCALL_VOID(API, "WritableDatabase::set_metadata", key << ", " << value);
     if (internal.size() != 1) only_one_subdatabase_allowed();
     if (key.empty())
 	throw InvalidArgumentError("Empty metadata keys are invalid");

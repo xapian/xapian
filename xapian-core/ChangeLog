@@ -1,3 +1,11 @@
+Mon Nov 23 14:01:51 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/debuglog.h: Add "NO_ARGS" which can be used for debug logging
+	  when a function or method takes no arguments.  The main advantage
+	  over "" is that no extra code is generated for it.
+	* api/omdatabase.cc: Convert to use debuglog.h fully.
+	* api/matchspy.cc,api/omdatabase.cc: Make use of NO_ARGS.
+
 Mon Nov 23 09:10:55 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_cursor.cc,backends/flint/flint_cursor.cc,

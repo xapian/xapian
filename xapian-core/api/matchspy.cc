@@ -203,7 +203,7 @@ ValueCountMatchSpy::unserialise(const string & s, const Registry &) const
 
 string
 ValueCountMatchSpy::serialise_results() const {
-    LOGCALL(REMOTE, string, "ValueCountMatchSpy::serialise_results", "");
+    LOGCALL(REMOTE, string, "ValueCountMatchSpy::serialise_results", NO_ARGS);
     string result;
     result += encode_length(total);
     result += encode_length(values.size());
