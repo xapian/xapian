@@ -25,7 +25,7 @@
 
 #include "debuglog.h"
 
-#ifdef XAPIAN_DEBUG_VERBOSE
+#ifdef XAPIAN_DEBUG_LOG
 
 #include "omtime.h"
 #include "output.h"
@@ -195,7 +195,7 @@ class Timer {
 #define DEBUGCALL(r,t,a,b) (void)0
 #define DEBUGCALL_STATIC(r,t,a,b) (void)0
 
-#endif /* XAPIAN_DEBUG_VERBOSE */
+#endif /* XAPIAN_DEBUG_LOG */
 
 #define DEBUGAPICALL(r,a,b) DEBUGCALL(APICALL,r,a,b)
 #define DEBUGAPICALL_STATIC(r,a,b) DEBUGCALL_STATIC(APICALL,r,a,b)

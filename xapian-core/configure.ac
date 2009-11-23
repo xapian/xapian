@@ -899,7 +899,7 @@ if test yes = "$enable_assertions"; then
 fi
 
 if test yes = "$enable_log"; then
-  AC_DEFINE(XAPIAN_DEBUG_VERBOSE,,
+  AC_DEFINE(XAPIAN_DEBUG_LOG,,
     [Define if you want a log of methods called and other debug messages])
 fi
 

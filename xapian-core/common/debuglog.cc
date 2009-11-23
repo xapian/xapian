@@ -20,7 +20,7 @@
 
 #include <config.h>
 
-#ifdef XAPIAN_DEBUG_VERBOSE
+#ifdef XAPIAN_DEBUG_LOG
 
 #include "debuglog.h"
 
@@ -140,4 +140,4 @@ DebugLogger::log_line(debuglog_categories category, const string & msg)
     }
 }
 
-#endif // XAPIAN_DEBUG_VERBOSE
+#endif // XAPIAN_DEBUG_LOG

@@ -21,7 +21,7 @@
 #ifndef XAPIAN_INCLUDED_DEBUGLOG_H
 #define XAPIAN_INCLUDED_DEBUGLOG_H
 
-#ifdef XAPIAN_DEBUG_VERBOSE
+#ifdef XAPIAN_DEBUG_LOG
 
 #include "output.h"
 
