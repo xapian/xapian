@@ -1735,7 +1735,7 @@ ChertTable::create_and_open(unsigned int block_size_)
     base_.set_block_size(block_size_);
     base_.set_have_fakeroot(true);
     base_.set_sequential(true);
-    base_.write_to_file(name + "baseA", 'A', "", -1, NULL);
+    base_.write_to_file(name + "baseA", 'A', string(), -1, NULL);
 
     /* remove the alternative base file, if any */
     sys_unlink_if_exists(name + "baseB");

@@ -80,7 +80,7 @@ using namespace Xapian;
 
 // Magic key in the postlist table (which corresponds to an invalid docid) is
 // used to store the next free docid and total length of all documents.
-static const string METAINFO_KEY("", 1);
+static const string METAINFO_KEY(1, '\0');
 
 /** Delete file, throwing an error if we can't delete it (but not if it
  *  doesn't exist).
@@ -728,7 +728,7 @@ FlintDatabase::write_changesets_to_fd(int fd,
 	    }
 	}
     }
-    conn.send_message(REPL_REPLY_END_OF_CHANGES, "", end_time);
+    conn.send_message(REPL_REPLY_END_OF_CHANGES, string(), end_time);
 }
 
 void

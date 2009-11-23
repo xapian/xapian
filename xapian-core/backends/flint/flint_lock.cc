@@ -60,7 +60,7 @@ FlintLock::lock(bool exclusive, string & explanation) {
 		       NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     if (hFile != INVALID_HANDLE_VALUE) return SUCCESS;
     if (GetLastError() == ERROR_ALREADY_EXISTS) return INUSE;
-    explanation = "";
+    explanation = string();
     return UNKNOWN;
 #elif defined __EMX__
     APIRET rc;
@@ -71,7 +71,7 @@ FlintLock::lock(bool exclusive, string & explanation) {
 		 NULL);
     if (rc == NO_ERROR) return SUCCESS;
     if (rc == ERROR_ACCESS_DENIED) return INUSE;
-    explanation = "";
+    explanation = string();
     return UNKNOWN;
 #else
     Assert(fd == -1);

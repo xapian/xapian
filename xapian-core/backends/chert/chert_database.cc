@@ -585,7 +585,7 @@ ChertDatabase::write_changesets_to_fd(int fd,
 	need_whole_db = true;
     }
 
-    RemoteConnection conn(-1, fd, "");
+    RemoteConnection conn(-1, fd, string());
     OmTime end_time;
 
     // While the starting revision number is less than the latest revision
@@ -689,7 +689,7 @@ ChertDatabase::write_changesets_to_fd(int fd,
 	    }
 	}
     }
-    conn.send_message(REPL_REPLY_END_OF_CHANGES, "", end_time);
+    conn.send_message(REPL_REPLY_END_OF_CHANGES, string(), end_time);
 }
 
 void

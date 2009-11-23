@@ -1,6 +1,6 @@
 /* flint_alltermslist.cc: A termlist containing all terms in a flint database.
  *
- * Copyright (C) 2005,2007,2008 Olly Betts
+ * Copyright (C) 2005,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -88,7 +88,7 @@ FlintAllTermsList::next()
     while (true) {
 	cursor->next();
 	if (cursor->after_end()) {
-	    current_term = "";
+	    current_term.resize(0);
 	    break;
 	}
 
@@ -101,7 +101,7 @@ FlintAllTermsList::next()
 	if (!startswith(current_term, prefix)) {
 	    // We've reached the end of the prefixed terms.
 	    cursor->to_end();
-	    current_term = "";
+	    current_term.resize(0);
 	    break;
 	}
 
@@ -128,7 +128,7 @@ FlintAllTermsList::skip_to(const string &term)
 	current_term = term;
     } else {
 	if (cursor->after_end()) {
-	    current_term = "";
+	    current_term.resize(0);
 	    RETURN(NULL);
 	}
 
@@ -142,7 +142,7 @@ FlintAllTermsList::skip_to(const string &term)
     if (!startswith(current_term, prefix)) {
 	// We've reached the end of the prefixed terms.
 	cursor->to_end();
-	current_term = "";
+	current_term.resize(0);
     }
 
     RETURN(NULL);

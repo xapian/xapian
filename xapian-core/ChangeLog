@@ -1,3 +1,10 @@
+Mon Nov 23 08:08:45 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/chert/chert_lock.cc,
+	  backends/chert/chert_table.cc,backends/flint/: Use string() or
+	  s.resize(0) instead of "".  Use string(1, '\0') instead of
+	  string("", 1).
+
 Sun Nov 22 14:20:51 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_postlist.cc: When skipping through a chunk of
