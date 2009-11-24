@@ -1,3 +1,9 @@
+Tue Nov 24 10:49:40 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* docsim/cluster.cc: Make functions which are only used internally
+	  static, to avoid error (with -Wmissing-declarations) with GCC 4.3
+	  or later, and since they should be anyway.
+
 Thu Mar 26 22:49:00 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* docsim/cluster.cc,include/xapian/cluster.h: Remove various unused

@@ -270,12 +270,13 @@ struct ClusterMerge {
     ClusterMerge(int i_, int j_, double dist_) : i(i_), j(j_), dist(dist_) {}
 };
 
-bool operator<(const ClusterMerge & a, const ClusterMerge & b)
+static bool operator<(const ClusterMerge & a, const ClusterMerge & b)
 {
     return a.dist < b.dist;
 }
 
-double get_distance(const vector<double> & distance, int docs, int i, int j)
+static double get_distance(const vector<double> & distance, int docs,
+			   int i, int j)
 {
     if (i == j) return 0.0;
     if (i < j) {
@@ -286,8 +287,8 @@ double get_distance(const vector<double> & distance, int docs, int i, int j)
     return distance[i * docs + j];
 }
 
-void set_distance(vector<double> & distance, int docs, int i, int j,
-		  double dist)
+static void set_distance(vector<double> & distance, int docs, int i, int j,
+			 double dist)
 {
     if (i < j) {
 	int tmp = i;
