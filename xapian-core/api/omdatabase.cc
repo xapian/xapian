@@ -50,6 +50,12 @@
 
 using namespace std;
 
+XAPIAN_NORETURN(static void no_subdatabases());
+static void no_subdatabases()
+{
+    throw Xapian::DocNotFoundError("No subdatabases");
+}
+
 namespace Xapian {
 
 Database::Database()
@@ -134,7 +140,8 @@ Database::postlist_begin(const string &tname) const
     if (internal.size() == 1)
 	RETURN(PostingIterator(internal[0]->open_post_list(tname)));
 
-    if (rare(internal.size() == 0)) RETURN(PostingIterator(NULL));
+    if (rare(internal.size() == 0))
+	RETURN(PostingIterator(NULL));
 
     vector<LeafPostList *> pls;
     try {
@@ -163,6 +170,8 @@ Database::termlist_begin(Xapian::docid did) const
     if (did == 0) throw InvalidArgumentError("Document ID 0 is invalid");
 
     unsigned int multiplier = internal.size();
+    if (rare(multiplier == 0))
+	no_subdatabases();
     TermList *tl;
     if (multiplier == 1) {
 	// There's no need for the MultiTermList wrapper in the common case
@@ -188,12 +197,15 @@ TermIterator
 Database::allterms_begin(const std::string & prefix) const
 {
     LOGCALL(API, TermIterator, "Database::allterms_begin", NO_ARGS);
-    if (internal.empty()) RETURN(TermIterator(NULL));
-
-    if (internal.size() == 1)
-	RETURN(TermIterator(internal[0]->open_allterms(prefix)));
-
-    RETURN(TermIterator(new MultiAllTermsList(internal, prefix)));
+    TermList * tl;
+    if (rare(internal.size() == 0)) {
+	tl = NULL;
+    } else if (internal.size() == 1) {
+	tl = internal[0]->open_allterms(prefix);
+    } else {
+	tl = new MultiAllTermsList(internal, prefix);
+    }
+    RETURN(TermIterator(tl));
 }
 
 bool
@@ -218,10 +230,10 @@ Database::positionlist_begin(Xapian::docid did, const string &tname) const
     if (did == 0) throw InvalidArgumentError("Document ID 0 is invalid");
 
     unsigned int multiplier = internal.size();
-    Assert(multiplier != 0);
+    if (rare(multiplier == 0))
+	no_subdatabases();
     Xapian::doccount n = (did - 1) % multiplier; // which actual database
     Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
-
     RETURN(PositionIterator(internal[n]->open_position_list(m, tname)));
 }
 
@@ -244,7 +256,6 @@ Database::get_lastdocid() const
     Xapian::docid did = 0;
 
     unsigned int multiplier = internal.size();
-    Assert(multiplier != 0);
     for (Xapian::doccount i = 0; i < multiplier; ++i) {
 	Xapian::docid did_i = internal[i]->get_lastdocid();
 	if (did_i) did = std::max(did, (did_i - 1) * multiplier + i + 1);
@@ -394,10 +405,10 @@ ValueIterator
 Database::valuestream_begin(Xapian::valueno slot) const
 {
     LOGCALL(API, ValueIterator, "Database::valuestream_begin", slot);
-    if (internal.empty()) RETURN(ValueIterator());
-    if (internal.size() != 1) {
+    if (internal.size() == 0)
+       	RETURN(ValueIterator());
+    if (internal.size() != 1)
 	RETURN(ValueIterator(new MultiValueList(internal, slot)));
-    }
     RETURN(ValueIterator(internal[0]->open_value_list(slot)));
 }
 
@@ -408,7 +419,8 @@ Database::get_doclength(Xapian::docid did) const
     if (did == 0) throw InvalidArgumentError("Document ID 0 is invalid");
 
     unsigned int multiplier = internal.size();
-    Assert(multiplier != 0);
+    if (rare(multiplier == 0))
+	no_subdatabases();
     Xapian::doccount n = (did - 1) % multiplier; // which actual database
     Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
     RETURN(internal[n]->get_doclength(m));
@@ -421,7 +433,8 @@ Database::get_document(Xapian::docid did) const
     if (did == 0) throw InvalidArgumentError("Document ID 0 is invalid");
 
     unsigned int multiplier = internal.size();
-    Assert(multiplier != 0);
+    if (rare(multiplier == 0))
+	no_subdatabases();
     Xapian::doccount n = (did - 1) % multiplier; // which actual database
     Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
 

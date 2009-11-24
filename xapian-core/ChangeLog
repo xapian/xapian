@@ -1,3 +1,12 @@
+Tue Nov 24 12:33:12 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc: Fix many Xapian::Database methods to behave better
+	  on a database with no subdatabases, such as is constructed by
+	  Database().
+	* tests/Makefile.am,tests/api_nodb.cc,tests/api_none.cc: Expand
+	  emptydb_metadata1 to also regression test these other cases, and
+	  rename to nosubdatabases1.
+
 Mon Nov 23 14:01:51 GMT 2009  Olly Betts <olly@survex.com>
 
 	* common/debuglog.h: Add "NO_ARGS" which can be used for debug logging
