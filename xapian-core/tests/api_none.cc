@@ -33,7 +33,7 @@
 using namespace std;
 
 // Regression test: various methods on Database() used to segfault or cause
-// division by 0.  Fixed in 1.1.4 and 1.0.18.
+// division by 0.  Fixed in 1.1.4 and 1.0.18.  Ticket#415.
 DEFINE_TESTCASE(nosubdatabases1, !backend) {
     Xapian::Database db;
     TEST_EQUAL(db.get_metadata("foo"), std::string());
