@@ -50,6 +50,12 @@
 
 using namespace std;
 
+XAPIAN_NORETURN(static void docid_zero_invalid());
+static void docid_zero_invalid()
+{
+    throw Xapian::InvalidArgumentError("Document ID 0 is invalid");
+}
+
 XAPIAN_NORETURN(static void no_subdatabases());
 static void no_subdatabases()
 {
@@ -167,7 +173,8 @@ TermIterator
 Database::termlist_begin(Xapian::docid did) const
 {
     LOGCALL(API, TermIterator, "Database::termlist_begin", did);
-    if (did == 0) throw InvalidArgumentError("Document ID 0 is invalid");
+    if (did == 0)
+	docid_zero_invalid();
 
     unsigned int multiplier = internal.size();
     if (rare(multiplier == 0))
@@ -227,7 +234,8 @@ Database::positionlist_begin(Xapian::docid did, const string &tname) const
 		 did << ", " << tname);
     if (tname.empty())
 	throw InvalidArgumentError("Zero length terms are invalid");
-    if (did == 0) throw InvalidArgumentError("Document ID 0 is invalid");
+    if (did == 0)
+	docid_zero_invalid();
 
     unsigned int multiplier = internal.size();
     if (rare(multiplier == 0))
@@ -416,7 +424,8 @@ Xapian::termcount
 Database::get_doclength(Xapian::docid did) const
 {
     LOGCALL(API, Xapian::termcount, "Database::get_doclength", did);
-    if (did == 0) throw InvalidArgumentError("Document ID 0 is invalid");
+    if (did == 0)
+	docid_zero_invalid();
 
     unsigned int multiplier = internal.size();
     if (rare(multiplier == 0))
@@ -430,7 +439,8 @@ Document
 Database::get_document(Xapian::docid did) const
 {
     LOGCALL(API, Document, "Database::get_document", did);
-    if (did == 0) throw InvalidArgumentError("Document ID 0 is invalid");
+    if (did == 0)
+	docid_zero_invalid();
 
     unsigned int multiplier = internal.size();
     if (rare(multiplier == 0))
@@ -446,7 +456,8 @@ Document::Internal *
 Database::get_document_lazily(Xapian::docid did) const
 {
     DEBUGCALL(DB, Document::Internal *, "Database::get_document_lazily", did);
-    if (did == 0) throw InvalidArgumentError("Document ID 0 is invalid");
+    if (did == 0)
+	docid_zero_invalid();
 
     unsigned int multiplier = internal.size();
     Assert(multiplier != 0);
@@ -805,7 +816,8 @@ WritableDatabase::delete_document(Xapian::docid did)
 {
     LOGCALL_VOID(API, "WritableDatabase::delete_document", did);
     if (internal.size() != 1) only_one_subdatabase_allowed();
-    if (did == 0) throw InvalidArgumentError("Document ID 0 is invalid");
+    if (did == 0)
+	docid_zero_invalid();
     internal[0]->delete_document(did);
 }
 
@@ -825,7 +837,8 @@ WritableDatabase::replace_document(Xapian::docid did, const Document & document)
     LOGCALL_VOID(API, "WritableDatabase::replace_document",
 		 did << ", " << document);
     if (internal.size() != 1) only_one_subdatabase_allowed();
-    if (did == 0) throw Xapian::InvalidArgumentError("Document ID 0 is invalid");
+    if (did == 0)
+	docid_zero_invalid();
     internal[0]->replace_document(did, document);
 }
 
