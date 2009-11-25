@@ -1,3 +1,7 @@
+Wed Nov 25 04:37:38 GMT 2009  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Fix typos in --help output.
+
 Wed Nov 25 04:22:26 GMT 2009  Olly Betts <olly@survex.com>
 
 	* bin/xapian-compact.cc: Prune unused docids off the end of database
