@@ -1,3 +1,10 @@
+Wed Nov 25 12:50:54 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/flint/flint_lock.cc: Fix locking code to work if stdin
+	  and/or stdout have been closed.
+	* tests/api_backend.cc: Add regression test lockfilefd0or1.
+
 Wed Nov 18 10:34:46 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
