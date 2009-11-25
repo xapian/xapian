@@ -1011,28 +1011,42 @@ main(int argc, char **argv)
 	    }
 
 	    Xapian::Database db(srcdir);
-	    Xapian::docid last = 0;
+	    Xapian::docid first = 0, last = 0;
 
 	    // "Empty" databases might have spelling or synonym data so can't
 	    // just be completely ignored.
-	    if (db.get_doccount() != 0) {
-		last = db.get_lastdocid();
+	    Xapian::doccount num_docs = db.get_doccount();
+	    if (num_docs != 0) {
+		Xapian::PostingIterator it = db.postlist_begin(string());
+		// This test should never fail, since db.get_doccount() is
+		// non-zero!
+		if (it != db.postlist_end(string()))
+		    first = *it;
 
-		if (renumber) {
+		if (renumber && first) {
 		    // Prune any unused docids off the start of this source
 		    // database.
-		    Xapian::PostingIterator it = db.postlist_begin(string());
-		    // This test should never fail, since db.get_doccount() is
-		    // non-zero!
-		    if (it != db.postlist_end(string())) {
-			// tot_off could wrap here, but it's unsigned, so
-			// that's OK.
-			tot_off -= (*it - 1);
-		    }
+		    //
+		    // tot_off could wrap here, but it's unsigned, so that's
+		    // OK.
+		    tot_off -= (first - 1);
+		}
 
-		    // FIXME: get_lastdocid() returns a "high water mark" - we
-		    // should prune unused docids off the end of each source
-		    // database as well as off the start.
+		// There may be unused documents at the end of the range.
+		// Binary chop using skip_to to find the last actually used
+		// document id.
+		last = db.get_lastdocid();
+		Xapian::docid last_lbound = first + num_docs - 1;
+		while (last_lbound < last) {
+		    Xapian::docid mid;
+		    mid = last_lbound + (last - last_lbound + 1) / 2;
+		    it.skip_to(mid);
+		    if (it == db.postlist_end(string())) {
+			last = mid - 1;
+			it = db.postlist_begin(string());
+			continue;
+		    }
+		    last_lbound = *it;
 		}
 	    }
 	    offset.push_back(tot_off);

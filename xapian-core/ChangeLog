@@ -1,3 +1,8 @@
+Wed Nov 25 04:22:26 GMT 2009  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Prune unused docids off the end of database
+	  when merging multiple databases with renumbering.
+
 Wed Nov 25 03:12:24 GMT 2009  Olly Betts <olly@survex.com>
 
 	* bin/xapian-compact.cc: Use string() instead of "" and string(1, '\0')
