@@ -1,3 +1,9 @@
+Wed Nov 25 05:49:37 GMT 2009  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Extend --no-renumber to support merging
+	  databases, but only if they have disjoint ranges of used document
+	  ids.
+
 Wed Nov 25 04:37:38 GMT 2009  Olly Betts <olly@survex.com>
 
 	* bin/xapian-compact.cc: Fix typos in --help output.
