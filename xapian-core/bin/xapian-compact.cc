@@ -107,7 +107,7 @@ class PostlistCursor : private FlintCursor {
     PostlistCursor(FlintTable *in, Xapian::docid offset_)
 	: FlintCursor(in), offset(offset_), firstdid(0)
     {
-	find_entry("");
+	find_entry(string());
 	next();
     }
 
@@ -273,7 +273,7 @@ merge_postlists(FlintTable * out, vector<Xapian::docid>::const_iterator offset,
 	    tag += F_pack_uint(doclen_ubound - wdf_ubound);
 	}
 	tag += F_pack_uint_last(tot_totlen);
-	out->add(string("", 1), tag);
+	out->add(string(1, '\0'), tag);
     }
 
     string last_key;
@@ -430,7 +430,7 @@ merge_postlists(FlintTable * out, vector<Xapian::docid>::const_iterator offset,
 
 struct MergeCursor : public FlintCursor {
     MergeCursor(FlintTable *in) : FlintCursor(in) {
-	find_entry("");
+	find_entry(string());
 	next();
     }
 
@@ -857,7 +857,7 @@ merge_docid_keyed(const char * tablename,
 	if (in.get_entry_count() == 0) continue;
 
 	FlintCursor cur(&in);
-	cur.find_entry("");
+	cur.find_entry(string());
 
 	string key;
 	while (cur.next()) {
@@ -1021,10 +1021,10 @@ main(int argc, char **argv)
 		if (renumber) {
 		    // Prune any unused docids off the start of this source
 		    // database.
-		    Xapian::PostingIterator it = db.postlist_begin("");
+		    Xapian::PostingIterator it = db.postlist_begin(string());
 		    // This test should never fail, since db.get_doccount() is
 		    // non-zero!
-		    if (it != db.postlist_end("")) {
+		    if (it != db.postlist_end(string())) {
 			// tot_off could wrap here, but it's unsigned, so
 			// that's OK.
 			tot_off -= (*it - 1);

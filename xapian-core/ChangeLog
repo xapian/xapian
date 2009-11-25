@@ -1,3 +1,8 @@
+Wed Nov 25 03:12:24 GMT 2009  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Use string() instead of "" and string(1, '\0')
+	  instead of string("", 1).
+
 Wed Nov 25 02:34:10 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_lock.cc: Fix locking code to work if stdin
