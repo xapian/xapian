@@ -79,15 +79,16 @@ ChertLock::lock(bool exclusive, string & explanation) {
     if (lockfd < 0) {
 	// Couldn't open lockfile.
 	explanation = string("Couldn't open lockfile: ") + strerror(errno);
-	return UNKNOWN;
+	return ((errno == EMFILE || errno == ENFILE) ? FDLIMIT : UNKNOWN);
     }
 
     int fds[2];
     if (socketpair(AF_UNIX, SOCK_STREAM, PF_UNSPEC, fds) < 0) {
 	// Couldn't create socketpair.
 	explanation = string("Couldn't create socketpair: ") + strerror(errno);
-	close(lockfd);
-	return UNKNOWN;
+	reason why = ((errno == EMFILE || errno == ENFILE) ? FDLIMIT : UNKNOWN);
+	(void)close(lockfd);
+	return why;
     }
 
     pid_t child = fork();

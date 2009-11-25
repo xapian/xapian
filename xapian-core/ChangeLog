@@ -1,3 +1,9 @@
+Wed Nov 25 00:59:05 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/chert/chert_lock.cc,
+	  backends/chert/chert_lock.h: Add "FDLIMIT" reason code for why
+	  locking failing.
+
 Tue Nov 24 12:44:56 GMT 2009  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc: Factor out throwing an exception for docid 0 not

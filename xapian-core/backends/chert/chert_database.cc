@@ -517,6 +517,8 @@ ChertDatabase::get_database_write_lock(bool creating)
 	    msg += ": already locked";
 	} else if (why == ChertLock::UNSUPPORTED) {
 	    msg += ": locking probably not supported by this FS";
+	} else if (why == ChertLock::FDLIMIT) {
+	    msg += ": too many open files";
 	} else if (why == ChertLock::UNKNOWN) {
 	    if (!explanation.empty())
 		msg += ": " + explanation;
