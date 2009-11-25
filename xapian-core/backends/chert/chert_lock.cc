@@ -82,6 +82,38 @@ ChertLock::lock(bool exclusive, string & explanation) {
 	return ((errno == EMFILE || errno == ENFILE) ? FDLIMIT : UNKNOWN);
     }
 
+    // If stdin and/or stdout have been closed, it is possible that lockfd could
+    // be 0 or 1.  We need fds 0 and 1 to be available in the child process to
+    // be stdin and stdout, and we can't use dup() on lockfd after locking it,
+    // as the lock won't be transferred, so we handle this corner case here by
+    // using dup() once or twice to get lockfd to be >= 2.
+    if (rare(lockfd < 2)) {
+	// Note this temporarily requires one or two spare fds to work, but
+	// then we need two spare for socketpair() to succeed below anyway.
+	int lockfd_dup = dup(lockfd);
+	if (rare(lockfd_dup < 2)) {
+	    int eno = 0;
+	    if (lockfd_dup < 0) {
+		eno = errno;
+		close(lockfd);
+	    } else {
+		int lockfd_dup2 = dup(lockfd);
+		if (lockfd_dup2 < 0) {
+		    eno = errno;
+		}
+		close(lockfd);
+		close(lockfd_dup);
+		lockfd = lockfd_dup2;
+	    }
+	    if (eno) {
+		return ((eno == EMFILE || eno == ENFILE) ? FDLIMIT : UNKNOWN);
+	    }
+	} else {
+	    close(lockfd);
+	    lockfd = lockfd_dup;
+	}
+    }
+
     int fds[2];
     if (socketpair(AF_UNIX, SOCK_STREAM, PF_UNSPEC, fds) < 0) {
 	// Couldn't create socketpair.

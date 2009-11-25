@@ -1,3 +1,10 @@
+Wed Nov 25 02:34:10 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_lock.cc: Fix locking code to work if stdin
+	  and/or stdout have been closed.
+	* backends/flint/flint_lock.cc: Backport fix to flint.
+	* tests/api_backend.cc: Add regression test lockfilefd0or1.
+
 Wed Nov 25 00:59:05 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_database.cc,backends/chert/chert_lock.cc,

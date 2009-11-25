@@ -31,6 +31,8 @@
 
 #include "apitest.h"
 
+#include "safeunistd.h"
+
 using namespace std;
 
 /// Regression test - lockfile should honour umask, was only user-readable.
@@ -156,5 +158,47 @@ DEFINE_TESTCASE(valuesaftercommit1, writable) {
     TEST_EQUAL(db.get_document(3).get_value(0), "value");
     db.commit();
     TEST_EQUAL(db.get_document(3).get_value(0), "value");
+    return true;
+}
+
+DEFINE_TESTCASE(lockfilefd0or1, flint || chert) {
+#if !defined __WIN32__ && !defined __CYGWIN__ && !defined __EMX__
+    int old_stdin = dup(0);
+    int old_stdout = dup(1);
+    try {
+	// With fd 0 available.
+	close(0);
+	{
+	    Xapian::WritableDatabase db = get_writable_database();
+	    TEST_EXCEPTION(Xapian::DatabaseLockError,
+			   (void)get_writable_database_again());
+	}
+	// With fd 0 and fd 1 available.
+	close(1);
+	{
+	    Xapian::WritableDatabase db = get_writable_database();
+	    TEST_EXCEPTION(Xapian::DatabaseLockError,
+			   (void)get_writable_database_again());
+	}
+	// With fd 1 available.
+	dup2(old_stdin, 0);
+	{
+	    Xapian::WritableDatabase db = get_writable_database();
+	    TEST_EXCEPTION(Xapian::DatabaseLockError,
+			   (void)get_writable_database_again());
+	}
+    } catch (...) {
+	dup2(old_stdin, 0);
+	dup2(old_stdout, 1);
+	close(old_stdin);
+	close(old_stdout);
+	throw;
+    }
+
+    dup2(old_stdout, 1);
+    close(old_stdin);
+    close(old_stdout);
+#endif
+
     return true;
 }
