@@ -1,3 +1,8 @@
+Wed Nov 25 05:59:13 GMT 2009  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: In the --no-renumber case, just set offset[]
+	  entries to zero to start with rather than fixing them up later.
+
 Wed Nov 25 05:49:37 GMT 2009  Olly Betts <olly@survex.com>
 
 	* bin/xapian-compact.cc: Extend --no-renumber to support merging

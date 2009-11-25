@@ -1065,7 +1065,8 @@ main(int argc, char **argv)
 		}
 	    }
 	    offset.push_back(tot_off);
-	    tot_off += last;
+	    if (renumber)
+		tot_off += last;
 	    used_ranges.push_back(make_pair(first, last));
 
 	    sources.push_back(string(srcdir) + '/');
@@ -1095,7 +1096,6 @@ main(int argc, char **argv)
 
 		swap(sources_[j], sources[n]);
 		used_ranges_[j] = used_ranges[n];
-		offset[j] = 0;
 
 		const pair<Xapian::docid, Xapian::docid> p = used_ranges[n];
 		// Skip empty databases.
