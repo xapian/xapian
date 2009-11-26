@@ -1,3 +1,9 @@
+Thu Nov 26 00:39:49 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* languages/steminternal.cc: Tweak whitespace after while to be
+	  consistent.
+
 Thu Nov 26 00:38:13 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

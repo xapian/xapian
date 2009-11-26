@@ -259,7 +259,7 @@ Stem::Internal::find_among(const symbol * pool, const struct among * v,
 
     int first_key_inspected = 0;
 
-    while(1) {
+    while (1) {
         int k = i + ((j - i) >> 1);
         int diff = 0;
         int common = common_i < common_j ? common_i : common_j; /* smaller */
@@ -284,7 +284,7 @@ Stem::Internal::find_among(const symbol * pool, const struct among * v,
             first_key_inspected = 1;
         }
     }
-    while(1) {
+    while (1) {
         const struct among * w = v + i;
         if (common_i >= w->s_size) {
             c = c_orig + w->s_size;
@@ -317,7 +317,7 @@ Stem::Internal::find_among_b(const symbol * pool, const struct among * v,
 
     int first_key_inspected = 0;
 
-    while(1) {
+    while (1) {
         int k = i + ((j - i) >> 1);
         int diff = 0;
         int common = common_i < common_j ? common_i : common_j;
@@ -337,7 +337,7 @@ Stem::Internal::find_among_b(const symbol * pool, const struct among * v,
             first_key_inspected = 1;
         }
     }
-    while(1) {
+    while (1) {
 	const struct among * w = v + i;
         if (common_i >= w->s_size) {
             c = c_orig - w->s_size;
