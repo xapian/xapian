@@ -39,7 +39,7 @@ tostring_unsigned(T value)
     // We need a special case for 0, and we might as well handle all single
     // digit numbers with it too.
     if (value < 10) return string(1, '0' + char(value));
-    char buf[sizeof(T) * 3];
+    char buf[(sizeof(T) * 5 + 1) / 2];
     char * p = buf + sizeof(buf);
     do {
 	AssertRel(p,>,buf);
@@ -61,7 +61,7 @@ tostring(T value)
     bool negative = (value < 0);
     if (negative) value = -value;
 
-    char buf[sizeof(T) * 3 + 1];
+    char buf[(sizeof(T) * 5 + 1) / 2 + 1];
     char * p = buf + sizeof(buf);
     do {
 	AssertRel(p,>,buf);

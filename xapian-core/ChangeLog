@@ -1,3 +1,10 @@
+Thu Nov 26 02:26:43 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/str.cc: Tweak the length calculation for the buffer used by
+	  str() when converting integers to strings so that the buffer is
+	  exactly the minimum required size for integers of size 1, 2, 4,
+	  and 8 bytes, and only a byte extra for 16 byte integers.
+
 Wed Nov 25 05:59:13 GMT 2009  Olly Betts <olly@survex.com>
 
 	* bin/xapian-compact.cc: In the --no-renumber case, just set offset[]
