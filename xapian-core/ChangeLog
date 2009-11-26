@@ -1,3 +1,8 @@
+Thu Nov 26 00:42:46 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* bin/xapian-compact.cc: Fix typos in --help output.
+
 Thu Nov 26 00:39:49 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
