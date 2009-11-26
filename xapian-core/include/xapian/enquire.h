@@ -841,7 +841,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
          */
 	void set_sort_by_key(Xapian::KeyMaker * sorter, bool reverse);
 
-	XAPIAN_DEPRECATED(void set_sort_by_key(Xapian::Sorter * sorter));
+	XAPIAN_DEPRECATED(void set_sort_by_key(Xapian::KeyMaker * sorter));
 
 	/** Set the sorting to be by value, then by relevance for documents
 	 *  with the same value.
@@ -872,7 +872,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	void set_sort_by_key_then_relevance(Xapian::KeyMaker * sorter,
 					    bool reverse);
 
-	XAPIAN_DEPRECATED(void set_sort_by_key_then_relevance(Xapian::Sorter * sorter));
+	XAPIAN_DEPRECATED(void set_sort_by_key_then_relevance(Xapian::KeyMaker * sorter));
 
 	/** Set the sorting to be by relevance then value.
 	 *
@@ -916,7 +916,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	void set_sort_by_relevance_then_key(Xapian::KeyMaker * sorter,
 					    bool reverse);
 
-	XAPIAN_DEPRECATED(void set_sort_by_relevance_then_key(Xapian::Sorter * sorter));
+	XAPIAN_DEPRECATED(void set_sort_by_relevance_then_key(Xapian::KeyMaker * sorter));
 
 	/** Get (a portion of) the match set for the current query.
 	 *
@@ -1108,7 +1108,7 @@ Enquire::set_sort_by_value(Xapian::valueno sort_key)
 }
 
 inline void
-Enquire::set_sort_by_key(Xapian::Sorter * sorter)
+Enquire::set_sort_by_key(Xapian::KeyMaker * sorter)
 {
     return set_sort_by_key(sorter, true);
 }
@@ -1120,7 +1120,7 @@ Enquire::set_sort_by_value_then_relevance(Xapian::valueno sort_key)
 }
 
 inline void
-Enquire::set_sort_by_key_then_relevance(Xapian::Sorter * sorter)
+Enquire::set_sort_by_key_then_relevance(Xapian::KeyMaker * sorter)
 {
     return set_sort_by_key_then_relevance(sorter, true);
 }
@@ -1132,7 +1132,7 @@ Enquire::set_sort_by_relevance_then_value(Xapian::valueno sort_key)
 }
 
 inline void
-Enquire::set_sort_by_relevance_then_key(Xapian::Sorter * sorter)
+Enquire::set_sort_by_relevance_then_key(Xapian::KeyMaker * sorter)
 {
     return set_sort_by_relevance_then_key(sorter, true);
 }

@@ -1,12 +1,12 @@
-/** @file valuelist.h
- * @brief Abstract base class for value streams.
+/** @file multivaluelist.h
+ * @brief Class for merging ValueList objects from subdatabases.
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007,2008,2009 Olly Betts
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -18,44 +18,56 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef XAPIAN_INCLUDED_VALUELIST_H
-#define XAPIAN_INCLUDED_VALUELIST_H
+#ifndef XAPIAN_INCLUDED_MULTIVALUELIST_H
+#define XAPIAN_INCLUDED_MULTIVALUELIST_H
+
+#include "valuelist.h"
+
+#include "database.h"
 
 #include <string>
+#include <vector>
 
-#include <xapian/base.h>
-#include <xapian/types.h>
-#include <xapian/valueiterator.h>
+struct SubValueList;
 
-/// Abstract base class for value streams.
-class Xapian::ValueIterator::Internal : public Xapian::Internal::RefCntBase {
+/// Class for merging ValueList objects from subdatabases.
+class MultiValueList : public ValueList {
     /// Don't allow assignment.
-    void operator=(const Internal &);
+    void operator=(const MultiValueList &);
 
     /// Don't allow copying.
-    Internal(const Internal &);
+    MultiValueList(const MultiValueList &);
 
-  protected:
-    /// Only constructable as a base class for derived classes.
-    Internal() { }
+    /// Current docid (or 0 if we haven't started yet).
+    Xapian::docid current_docid;
+
+    /// Vector of sub-valuelists which we use as a heap.
+    std::vector<SubValueList *> valuelists;
+
+    /// The value slot we're iterating over.
+    Xapian::valueno slot;
+
+    size_t multiplier;
 
   public:
-    /** We have virtual methods and want to be able to delete derived classes
-     *  using a pointer to the base class, so we need a virtual destructor.
-     */
-    virtual ~Internal();
+    /// Constructor.
+    MultiValueList(const std::vector<Xapian::Internal::RefCntPtr<Xapian::Database::Internal> > & dbs,
+		   Xapian::valueno slot_);
+
+    /// Destructor.
+    ~MultiValueList();
 
     /// Return the docid at the current position.
-    virtual Xapian::docid get_docid() const = 0;
+    Xapian::docid get_docid() const;
 
     /// Return the value at the current position.
-    virtual std::string get_value() const = 0;
+    std::string get_value() const;
 
     /// Return the value slot for the current position/this iterator.
-    virtual Xapian::valueno get_valueno() const = 0;
+    Xapian::valueno get_valueno() const;
 
     /// Return true if the current position is past the last entry in this list.
-    virtual bool at_end() const = 0;
+    bool at_end() const;
 
     /** Advance the current position to the next document in the value stream.
      *
@@ -63,14 +75,14 @@ class Xapian::ValueIterator::Internal : public Xapian::Internal::RefCntBase {
      *  must be called before any methods which need the context of
      *  the current position.
      */
-    virtual void next() = 0;
+    void next();
 
     /** Skip forward to the specified docid.
      *
      *  If the specified docid isn't in the list, position ourselves on the
      *  first document after it (or at_end() if no greater docids are present).
      */
-    virtual void skip_to(Xapian::docid) = 0;
+    void skip_to(Xapian::docid);
 
     /** Check if the specified docid occurs in this valuestream.
      *
@@ -78,7 +90,7 @@ class Xapian::ValueIterator::Internal : public Xapian::Internal::RefCntBase {
      *  exists in the database.
      *
      *  This method acts like skip_to() if that can be done at little extra
-     *  cost, in which case it then returns true.
+     *  cost, in which case it then sets @a valid to true.
      *
      *  Otherwise it simply checks if a particular docid is present.  If it
      *  is, it returns true.  If it isn't, it returns false, and leaves the
@@ -90,14 +102,10 @@ class Xapian::ValueIterator::Internal : public Xapian::Internal::RefCntBase {
      *
      *  The default implementation calls skip_to().
      */
-    virtual bool check(Xapian::docid did);
+    bool check(Xapian::docid did);
 
     /// Return a string description of this object.
-    virtual std::string get_description() const = 0;
+    std::string get_description() const;
 };
 
-// In the external API headers, this class is Xapian::ValueIterator::Internal,
-// but in the library code it's known as "ValueList" in most places.
-typedef Xapian::ValueIterator::Internal ValueList;
-
-#endif // XAPIAN_INCLUDED_VALUELIST_H
+#endif // XAPIAN_INCLUDED_MULTIVALUELIST_H

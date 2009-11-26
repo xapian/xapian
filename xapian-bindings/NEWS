@@ -19,50 +19,32 @@ Python:
 * Add test of a ValueCountMatchSpy, a TermCountMatchSpy and a
   MultipleMatchDecider.
 
- 13521       olly Thu Sep 17 12:59:22 GMT 2009  Olly Betts <olly@survex.com>
-
-Xapian-bindings 1.1.3 (2009-09-1?):
-
-Documentation:
+Xapian-bindings 1.1.3 (2009-11-18):
 
 General:
 
 * configure: Default to looking for xapian-config-1.1 unless XAPIAN_CONFIG is
   specified.
 
-* Wrap the new MatchSpy class, and associated things.
+* Wrap the new MatchSpy class, and associated features.
 
 * Don't wrap PostingSource::serialise(), Weight::serialise() and
   Weight::unserialise() as they aren't useful from the bindings.
 
-Packaging:
-
-Portability:
-
-CSharp:
-
-Guile:
-
-Java:
+* Update for the Sorter to KeyMaker changes.
 
 PHP:
 
+* Fix PHP bindings to build when PHP has been compiled in multithreaded mode,
+  as in standardly is on Microsoft Windows.  Fixes #411.
+
 * Merged the PHP "smoketest" back together now we don't need to support
-  PHP4 as well.
+  PHP4 now.
 
 Python:
 
-	* python/extra.i: Add support to the NumericRanges object to get
-	  the ranges as a dict.
-	* python/util.i: Fix a memory leak on error (in theory - I've not
-	  got a way to generate this error, so haven't been able to produce
-	  the leak or test the fix).
-	* python/pythontest2.py: Update tests to cover new NumericRanges
-	  object.
-
-Ruby:
-
-Tcl:
+* Fix a memory leak on error (in theory - we've not got a way to generate this
+  error, so haven't been able to reproduce the leak or test the fix).
 
 Xapian-bindings 1.1.2 (2009-07-23):
 
@@ -167,6 +149,23 @@ Python:
 * Python now flags deprecation warnings for the single argument form and old
   parameter name (ascending) in set_sort_by_key(), set_sort_by_value() and
   friends.
+
+Xapian-bindings 1.0.17 (2009-11-18):
+
+Packaging:
+
+* Improve RPM package summaries - the files are needed to *use* scripts as well
+  as to develop them.  Use "Tcl" instead of "TCL" as the former is more
+  conventional.
+
+Portability:
+
+* python/Makefile.am: Restore the "./" path to the sourced file
+  libtoolconfig.tmp as ksh requires it.
+
+Java:
+
+* Fix memory leak when passing a MatchDecider to Enquire::get_mset().
 
 Xapian-bindings 1.0.16 (2009-09-10):
 

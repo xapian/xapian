@@ -26,9 +26,9 @@
 #include <xapian/error.h>
 #include <xapian/termiterator.h>
 
-#include "chert_utils.h"
 #include "omassert.h"
 #include "omdebug.h"
+#include "pack.h"
 #include "stringutils.h"
 #include "utils.h"
 
@@ -44,25 +44,26 @@ ChertTermListTable::set_termlist(Xapian::docid did,
     DEBUGCALL(DB, void, "ChertTermListTable::set_termlist",
 	      did << ", " << doc << ", " << doclen);
 
-    string tag = pack_uint(doclen);
+    string tag;
+    pack_uint(tag, doclen);
 
     Xapian::doccount termlist_size = doc.termlist_count();
     if (termlist_size == 0) {
 	// doclen is sum(wdf) so should be zero if there are no terms.
 	Assert(doclen == 0);
 	Assert(doc.termlist_begin() == doc.termlist_end());
-	add(chert_docid_to_key(did), string());
+	add(make_key(did), string());
 	return;
     }
 
     Xapian::TermIterator t = doc.termlist_begin();
     if (t != doc.termlist_end()) {
-	tag += pack_uint(termlist_size);
+	pack_uint(tag, termlist_size);
 	string prev_term = *t;
 
 	tag += prev_term.size();
 	tag += prev_term;
-	tag += pack_uint(t.get_wdf());
+	pack_uint(tag, t.get_wdf());
 	--termlist_size;
 
 	while (++t != doc.termlist_end()) {
@@ -98,7 +99,7 @@ ChertTermListTable::set_termlist(Xapian::docid did,
 		tag.append(term.data() + reuse, term.size() - reuse);
 		// FIXME: pack wdf after reuse next time we rejig the format
 		// incompatibly.
-		tag += pack_uint(wdf);
+		pack_uint(tag, wdf);
 	    }
 
 	    prev_term = *t;
@@ -106,7 +107,7 @@ ChertTermListTable::set_termlist(Xapian::docid did,
 	}
     }
     Assert(termlist_size == 0);
-    add(chert_docid_to_key(did), tag);
+    add(make_key(did), tag);
 }
 
 chert_doclen_t
@@ -115,7 +116,7 @@ ChertTermListTable::get_doclength(Xapian::docid did) const
     DEBUGCALL(DB, chert_doclen_t, "ChertTermListTable::get_doclength", did);
 
     string tag;
-    if (!get_exact_entry(chert_docid_to_key(did), tag))
+    if (!get_exact_entry(make_key(did), tag))
 	throw Xapian::DocNotFoundError("No termlist found for document " +
 				       om_tostring(did));
 

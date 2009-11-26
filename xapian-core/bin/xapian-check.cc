@@ -30,7 +30,7 @@
 #include "chert_cursor.h"
 #include "chert_table.h"
 #include "chert_types.h"
-#include "chert_utils.h"
+#include "pack.h"
 
 #include "internaltypes.h"
 
@@ -415,7 +415,7 @@ check_chert_table(const char * tablename, string filename, int opts,
 			Xapian::termcount termlist_doclen = 0;
 			if (did < doclens.size())
 			    termlist_doclen = doclens[did];
-			
+
 			if (doclen != termlist_doclen) {
 			    cout << "doclen " << doclen << " doesn't match "
 				 << termlist_doclen
@@ -595,15 +595,34 @@ check_chert_table(const char * tablename, string filename, int opts,
 		++errors;
 		continue;
 	    }
-	    if (current_term.empty()) {
+	    if (!current_term.empty() && term != current_term) {
+		// The term changed unexpectedly.
+		if (pos == end) {
+		    cout << "No last chunk for term `" << current_term
+			 << "'" << endl;
+		    current_term.resize(0);
+		} else {
+		    cout << "Mismatch in follow-on chunk in posting "
+			"list for term `" << current_term << "' (got `"
+			<< term << "')" << endl;
+		    current_term = term;
+		    tf = cf = 0;
+		    lastdid = 0;
+		}
+		++errors;
+	    }
+	    if (pos == end) {
+		// First chunk.
+		if (term == current_term) {
+		    // This probably isn't possible.
+		    cout << "First posting list chunk for term `"
+			 << term << "' follows previous chunk for the same "
+			 "term" << endl;
+		    ++errors;
+		}
 		current_term = term;
 		tf = cf = 0;
-		if (pos != end) {
-		    cout << "Extra bytes after key for first chunk of "
-			"posting list for term `" << term << "'" << endl;
-		    ++errors;
-		    continue;
-		}
+
 		// Unpack extra header from first chunk.
 		cursor->read_tag();
 		pos = cursor->current_tag.data();
@@ -628,29 +647,23 @@ check_chert_table(const char * tablename, string filename, int opts,
 		}
 		++did;
 	    } else {
-		if (term != current_term) {
-		    if (pos == end) {
-			cout << "No last chunk for term `" << term << "'"
-			     << endl;
-		    } else {
-			cout << "Mismatch in follow-on chunk in posting "
-			    "list for term `" << current_term << "' (got `"
-			    << term << "')" << endl;
-		    }
+		// Continuation chunk.
+		if (current_term.empty()) {
+		    cout << "First chunk for term `" << current_term << "' "
+			 "is a continuation chunk" << endl;
 		    ++errors;
 		    current_term = term;
 		}
-		if (pos != end) {
-		    if (!unpack_uint_preserving_sort(&pos, end, &did)) {
-			cout << "Failed to unpack did from key" << endl;
-			++errors;
-			continue;
-		    }
-		    if (did <= lastdid) {
-			cout << "First did in this chunk is <= last in "
-			    "prev chunk" << endl;
-			++errors;
-		    }
+		AssertEq(current_term, term);
+		if (!unpack_uint_preserving_sort(&pos, end, &did)) {
+		    cout << "Failed to unpack did from key" << endl;
+		    ++errors;
+		    continue;
+		}
+		if (did <= lastdid) {
+		    cout << "First did in this chunk is <= last in "
+			"prev chunk" << endl;
+		    ++errors;
 		}
 		cursor->read_tag();
 		pos = cursor->current_tag.data();
@@ -853,7 +866,7 @@ check_chert_table(const char * tablename, string filename, int opts,
 
 	    bool bad = false;
 	    while (pos != end) {
-		Xapian::doccount current_wdf;
+		Xapian::doccount current_wdf = 0;
 		bool got_wdf = false;
 		// If there was a previous term, how much to reuse.
 		if (!current_tname.empty()) {

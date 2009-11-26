@@ -587,7 +587,7 @@ static bool test_strbool1()
 // ##################################################################
 
 /// The lists of tests to perform
-test_desc tests[] = {
+static const test_desc tests[] = {
     {"except1",			test_except1},
     {"exception1",		test_exception1},
     {"refcnt1",			test_refcnt1},

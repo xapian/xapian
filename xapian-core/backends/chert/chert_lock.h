@@ -49,6 +49,7 @@ class ChertLock {
 	SUCCESS, // We got the lock!
 	INUSE, // Already locked by someone else.
 	UNSUPPORTED, // Locking probably not supported (e.g. NFS without lockd).
+	FDLIMIT, // Process hit its file descriptor limit.
 	UNKNOWN // The attempt failed for some unspecified reason.
     } reason;
 #if defined __CYGWIN__ || defined __WIN32__

@@ -230,7 +230,7 @@ ValueCountMatchSpy::unserialise(const string & s, const Registry &) const
 
 string
 ValueCountMatchSpy::serialise_results() const {
-    LOGCALL(REMOTE, string, "ValueCountMatchSpy::serialise_results", "");
+    LOGCALL(REMOTE, string, "ValueCountMatchSpy::serialise_results", NO_ARGS);
     string result;
     result += encode_length(total);
     result += encode_length(values.size());
@@ -253,7 +253,7 @@ ValueCountMatchSpy::merge_results(const string & s) {
 
     map<string, doccount>::size_type items = decode_length(&p, end, false);
     while (p != end) {
-	while(items != 0) {
+	while (items != 0) {
 	    size_t vallen = decode_length(&p, end, true);
 	    string val(p, vallen);
 	    p += vallen;

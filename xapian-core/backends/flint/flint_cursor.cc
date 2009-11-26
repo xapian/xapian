@@ -31,7 +31,7 @@
 #include "omassert.h"
 #include "omdebug.h"
 
-#ifdef XAPIAN_DEBUG_VERBOSE
+#ifdef XAPIAN_DEBUG_LOG
 static string
 hex_display_encode(const string & input)
 {

@@ -69,8 +69,7 @@ CollapseData::add_item(const Xapian::Internal::MSetItem & item,
 collapse_result
 Collapser::process(Xapian::Internal::MSetItem & item,
 		   PostList * postlist,
-		   const Xapian::Database & db,
-		   Xapian::Internal::RefCntPtr<Xapian::Document::Internal> & doc,
+		   Xapian::Document::Internal & vsdoc,
 		   const MSetCmp & mcmp)
 {
     ++docs_considered;
@@ -79,12 +78,8 @@ Collapser::process(Xapian::Internal::MSetItem & item,
     if (key_ptr) {
 	item.collapse_key = *key_ptr;
     } else {
-	// Otherwise use a lazily created Document object to get the value.
-	if (!doc.get()) {
-	    doc = db.get_document_lazily(item.did);
-	    Assert(doc.get());
-	}
-	item.collapse_key = doc->get_value(slot);
+	// Otherwise use the Document object to get the value.
+	item.collapse_key = vsdoc.get_value(slot);
     }
 
     if (item.collapse_key.empty()) {

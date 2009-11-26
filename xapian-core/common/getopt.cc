@@ -37,6 +37,8 @@
 
 #include <cstdio>
 
+using std::fprintf;
+
 #ifdef VMS
 # include <unixlib.h>
 #endif

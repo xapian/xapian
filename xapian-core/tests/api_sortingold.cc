@@ -160,7 +160,7 @@ class NeverUseMeSorter : public Xapian::Sorter {
 };
 
 /// Regression test for changing away from a sorter.
-DEFINE_TESTCASE(oldchangesorter1, backend) {
+DEFINE_TESTCASE(oldchangesorter1, backend && !remote) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("word"));
     NeverUseMeSorter sorter;

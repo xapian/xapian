@@ -118,10 +118,12 @@ collated_apitest_sources = \
  api_matchspy.cc \
  api_metadata.cc \
  api_nodb.cc \
+ api_none.cc \
  api_opsynonym.cc \
  api_percentages.cc \
  api_posdb.cc \
  api_postingsource.cc \
+ api_qpbackend.cc \
  api_query.cc \
  api_replicate.cc \
  api_scalability.cc \

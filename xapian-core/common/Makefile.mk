@@ -22,6 +22,7 @@ noinst_HEADERS +=\
 	common/msvc_posix_wrapper.h\
 	common/multialltermslist.h\
 	common/multimatch.h\
+	common/multivaluelist.h\
 	common/noreturn.h\
 	common/omassert.h\
 	common/omdebug.h\
@@ -31,6 +32,7 @@ noinst_HEADERS +=\
 	common/ortermlist.h\
 	common/output.h\
 	common/positionlist.h\
+	common/pack.h\
 	common/postlist.h\
 	common/progclient.h\
 	common/registryinternal.h\

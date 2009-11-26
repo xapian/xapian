@@ -31,7 +31,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/wait.h>
-#include <csignal>
+#include <signal.h>
 #include <cstring>
 #endif
 
@@ -41,8 +41,10 @@
 #include <sys/cygwin.h>
 #endif
 
+using namespace std;
+
 FlintLock::reason
-FlintLock::lock(bool exclusive, std::string & explanation) {
+FlintLock::lock(bool exclusive, string & explanation) {
     // Currently we only support exclusive locks.
     (void)exclusive;
     Assert(exclusive);
@@ -58,7 +60,7 @@ FlintLock::lock(bool exclusive, std::string & explanation) {
 		       NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     if (hFile != INVALID_HANDLE_VALUE) return SUCCESS;
     if (GetLastError() == ERROR_ALREADY_EXISTS) return INUSE;
-    explanation = "";
+    explanation = string();
     return UNKNOWN;
 #elif defined __EMX__
     APIRET rc;
@@ -69,21 +71,53 @@ FlintLock::lock(bool exclusive, std::string & explanation) {
 		 NULL);
     if (rc == NO_ERROR) return SUCCESS;
     if (rc == ERROR_ACCESS_DENIED) return INUSE;
-    explanation = "";
+    explanation = string();
     return UNKNOWN;
 #else
     Assert(fd == -1);
     int lockfd = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
     if (lockfd < 0) {
 	// Couldn't open lockfile.
-	explanation = std::string("Couldn't open lockfile: ") + strerror(errno);
+	explanation = string("Couldn't open lockfile: ") + strerror(errno);
 	return UNKNOWN;
+    }
+
+    // If stdin and/or stdout have been closed, it is possible that lockfd could
+    // be 0 or 1.  We need fds 0 and 1 to be available in the child process to
+    // be stdin and stdout, and we can't use dup() on lockfd after locking it,
+    // as the lock won't be transferred, so we handle this corner case here by
+    // using dup() once or twice to get lockfd to be >= 2.
+    if (rare(lockfd < 2)) {
+	// Note this temporarily requires one or two spare fds to work, but
+	// then we need two spare for socketpair() to succeed below anyway.
+	int lockfd_dup = dup(lockfd);
+	if (rare(lockfd_dup < 2)) {
+	    int eno = 0;
+	    if (lockfd_dup < 0) {
+		eno = errno;
+		close(lockfd);
+	    } else {
+		int lockfd_dup2 = dup(lockfd);
+		if (lockfd_dup2 < 0) {
+		    eno = errno;
+		}
+		close(lockfd);
+		close(lockfd_dup);
+		lockfd = lockfd_dup2;
+	    }
+	    if (eno) {
+		return UNKNOWN;
+	    }
+	} else {
+	    close(lockfd);
+	    lockfd = lockfd_dup;
+	}
     }
 
     int fds[2];
     if (socketpair(AF_UNIX, SOCK_STREAM, PF_UNSPEC, fds) < 0) {
 	// Couldn't create socketpair.
-	explanation = std::string("Couldn't create socketpair: ") + strerror(errno);
+	explanation = string("Couldn't create socketpair: ") + strerror(errno);
 	close(lockfd);
 	return UNKNOWN;
     }
@@ -169,7 +203,7 @@ FlintLock::lock(bool exclusive, std::string & explanation) {
 
     if (child == -1) {
 	// Couldn't fork.
-	explanation = std::string("Couldn't fork: ") + strerror(errno);
+	explanation = string("Couldn't fork: ") + strerror(errno);
 	close(fds[0]);
 	return UNKNOWN;
     }
@@ -195,7 +229,7 @@ FlintLock::lock(bool exclusive, std::string & explanation) {
 	}
 	if (errno != EINTR) {
 	    // Treat unexpected errors from read() as failure to get the lock.
-	    explanation = std::string("Error reading from child process: ") + strerror(errno);
+	    explanation = string("Error reading from child process: ") + strerror(errno);
 	    break;
 	}
     }

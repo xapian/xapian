@@ -34,6 +34,19 @@ Mon Oct 29 03:03:57 GMT 2007  Olly Betts <olly@survex.com>
 	* NEWS,csharp/Makefile.am,python/extra.i,python/pythontest.py,
 	  python/util.i,xapian.i: Restore the changes.
 
+Wed Nov 18 10:56:54 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update for 1.1.3.
+
+Wed Nov 18 02:56:22 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from 1.0.17 and ChangeLog.
+
+Tue Nov 03 06:09:39 GMT 2009  Olly Betts <olly@survex.com>
+
+	* java/native/Enquire.cc: Fix memory leak when passing a matchdecider
+	  to Enquire::get_mset().
+
 Thu Oct 29 09:40:54 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* php/except.i: Add a call to TSRMLS_FETCH to start of

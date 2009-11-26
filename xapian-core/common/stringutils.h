@@ -1,7 +1,7 @@
 /** @file stringutils.h
  * @brief Various handy helpers which std::string really should provide.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,13 +51,13 @@ startswith(const std::string & s, char pfx)
 inline bool
 startswith(const std::string & s, const char * pfx, size_t len)
 {
-    return s.size() >= len && (memcmp(s.data(), pfx, len) == 0);
+    return s.size() >= len && (std::memcmp(s.data(), pfx, len) == 0);
 }
 
 inline bool
 startswith(const std::string & s, const char * pfx)
 {
-    return startswith(s, pfx, strlen(pfx));
+    return startswith(s, pfx, std::strlen(pfx));
 }
 
 inline bool
@@ -75,13 +75,13 @@ endswith(const std::string & s, char sfx)
 inline bool
 endswith(const std::string & s, const char * sfx, size_t len)
 {
-    return s.size() >= len && (memcmp(s.data() + s.size() - len, sfx, len) == 0);
+    return s.size() >= len && (std::memcmp(s.data() + s.size() - len, sfx, len) == 0);
 }
 
 inline bool
 endswith(const std::string & s, const char * sfx)
 {
-    return endswith(s, sfx, strlen(sfx));
+    return endswith(s, sfx, std::strlen(sfx));
 }
 
 inline bool

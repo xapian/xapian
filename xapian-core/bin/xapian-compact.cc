@@ -22,6 +22,7 @@
 
 #include "safeerrno.h"
 
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <queue>
@@ -64,10 +65,11 @@ static void show_usage() {
 "  -m, --multipass   If merging more than 3 databases, merge the postlists in\n"
 "                    multiple passes (which is generally faster but requires\n"
 "                    more disk space for temporary files)\n"
-"      --no-renumber Preserve the numbering of document ids (useful if you\n"
-"                    external references to them, or have set the to match\n"
+"      --no-renumber Preserve the numbering of document ids (useful if you have\n"
+"                    external references to them, or have set them to match\n"
 "                    unique ids from an external source).  Currently this\n"
-"                    option isn't supported when merging databases.\n"
+"                    option is only supported when merging databases if they\n"
+"                    have disjoint ranges of used document ids\n"
 "  --help            display this help and exit\n"
 "  --version         output version information and exit" << endl;
 }
@@ -107,7 +109,7 @@ class PostlistCursor : private FlintCursor {
     PostlistCursor(FlintTable *in, Xapian::docid offset_)
 	: FlintCursor(in), offset(offset_), firstdid(0)
     {
-	find_entry("");
+	find_entry(string());
 	next();
     }
 
@@ -273,7 +275,7 @@ merge_postlists(FlintTable * out, vector<Xapian::docid>::const_iterator offset,
 	    tag += F_pack_uint(doclen_ubound - wdf_ubound);
 	}
 	tag += F_pack_uint_last(tot_totlen);
-	out->add(string("", 1), tag);
+	out->add(string(1, '\0'), tag);
     }
 
     string last_key;
@@ -430,7 +432,7 @@ merge_postlists(FlintTable * out, vector<Xapian::docid>::const_iterator offset,
 
 struct MergeCursor : public FlintCursor {
     MergeCursor(FlintTable *in) : FlintCursor(in) {
-	find_entry("");
+	find_entry(string());
 	next();
     }
 
@@ -857,7 +859,7 @@ merge_docid_keyed(const char * tablename,
 	if (in.get_entry_count() == 0) continue;
 
 	FlintCursor cur(&in);
-	cur.find_entry("");
+	cur.find_entry(string());
 
 	string key;
 	while (cur.next()) {
@@ -885,6 +887,18 @@ merge_docid_keyed(const char * tablename,
 	}
     }
 }
+
+class CmpByFirstUsed {
+    const vector<pair<Xapian::docid, Xapian::docid> > & used_ranges;
+
+  public:
+    CmpByFirstUsed(const vector<pair<Xapian::docid, Xapian::docid> > & ur)
+	: used_ranges(ur) { }
+
+    bool operator()(size_t a, size_t b) {
+	return used_ranges[a].first < used_ranges[b].first;
+    }
+};
 
 int
 main(int argc, char **argv)
@@ -955,21 +969,17 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    if (!renumber && argc - optind > 2) {
-	cout << argv[0]
-	     << ": --no-renumber isn't currently supported when merging databases."
-	     << endl;
-	exit(1);
-    }
-
     // Path to the database to create.
     const char *destdir = argv[argc - 1];
 
     try {
 	vector<string> sources;
 	vector<Xapian::docid> offset;
+	vector<pair<Xapian::docid, Xapian::docid> > used_ranges;
 	sources.reserve(argc - 1 - optind);
 	offset.reserve(argc - 1 - optind);
+	if (!renumber)
+	    used_ranges.reserve(argc - 1 - optind);
 	Xapian::docid tot_off = 0;
 	enum { UNKNOWN, FLINT, CHERT } backend = UNKNOWN;
 	const char * backend_names[] = { NULL, "flint", "chert" };
@@ -1011,34 +1021,102 @@ main(int argc, char **argv)
 	    }
 
 	    Xapian::Database db(srcdir);
-	    Xapian::docid last = 0;
+	    Xapian::docid first = 0, last = 0;
 
 	    // "Empty" databases might have spelling or synonym data so can't
 	    // just be completely ignored.
-	    if (db.get_doccount() != 0) {
-		last = db.get_lastdocid();
+	    Xapian::doccount num_docs = db.get_doccount();
+	    if (num_docs != 0) {
+		Xapian::PostingIterator it = db.postlist_begin(string());
+		// This test should never fail, since db.get_doccount() is
+		// non-zero!
+		if (it == db.postlist_end(string())) {
+		    cerr << argv[0] << ": database '" << srcdir << "' has "
+			 << num_docs << " documents, but iterating all "
+			 "documents finds none" << endl;
+		    exit(1);
+		}
+		first = *it;
 
-		if (renumber) {
+		if (renumber && first) {
 		    // Prune any unused docids off the start of this source
 		    // database.
-		    Xapian::PostingIterator it = db.postlist_begin("");
-		    // This test should never fail, since db.get_doccount() is
-		    // non-zero!
-		    if (it != db.postlist_end("")) {
-			// tot_off could wrap here, but it's unsigned, so
-			// that's OK.
-			tot_off -= (*it - 1);
-		    }
+		    //
+		    // tot_off could wrap here, but it's unsigned, so that's
+		    // OK.
+		    tot_off -= (first - 1);
+		}
 
-		    // FIXME: get_lastdocid() returns a "high water mark" - we
-		    // should prune unused docids off the end of each source
-		    // database as well as off the start.
+		// There may be unused documents at the end of the range.
+		// Binary chop using skip_to to find the last actually used
+		// document id.
+		last = db.get_lastdocid();
+		Xapian::docid last_lbound = first + num_docs - 1;
+		while (last_lbound < last) {
+		    Xapian::docid mid;
+		    mid = last_lbound + (last - last_lbound + 1) / 2;
+		    it.skip_to(mid);
+		    if (it == db.postlist_end(string())) {
+			last = mid - 1;
+			it = db.postlist_begin(string());
+			continue;
+		    }
+		    last_lbound = *it;
 		}
 	    }
 	    offset.push_back(tot_off);
-	    tot_off += last;
+	    if (renumber)
+		tot_off += last;
+	    used_ranges.push_back(make_pair(first, last));
 
 	    sources.push_back(string(srcdir) + '/');
+	}
+
+	if (!renumber && sources.size() > 1) {
+	    // We want to process the sources in ascending order of first
+	    // docid.  So we create a vector "order" with ascending integers
+	    // and then sort so the indirected order is right.  Then we reorder
+	    // the vectors into that order and check the ranges are disjoint.
+	    vector<size_t> order;
+	    order.reserve(sources.size());
+	    for (size_t i = 0; i < sources.size(); ++i)
+		order.push_back(i);
+
+	    sort(order.begin(), order.end(), CmpByFirstUsed(used_ranges));
+
+	    // Reorder the vectors to be in ascending of first docid, and
+	    // set all the offsets to 0.
+	    vector<string> sources_(sources.size());
+	    vector<pair<Xapian::docid, Xapian::docid> > used_ranges_;
+	    used_ranges_.reserve(sources.size());
+
+	    Xapian::docid last_start = 0, last_end = 0;
+	    for (size_t j = 0; j != order.size(); ++j) {
+		size_t n = order[j];
+
+		swap(sources_[j], sources[n]);
+		used_ranges_[j] = used_ranges[n];
+
+		const pair<Xapian::docid, Xapian::docid> p = used_ranges[n];
+		// Skip empty databases.
+		if (p.first == 0 && p.second == 0)
+		    continue;
+		// Check for overlap with the previous database's range.
+		if (p.first <= last_end) {
+		    cout << argv[0]
+			<< ": when merging databases, --no-renumber is only currently supported if the databases have disjoint ranges of used document ids.\n";
+		    cout << sources[order[j - 1]] << " has range "
+			 << last_start << "-" << last_end << '\n';
+		    cout << sources[n] << " has range "
+			 << p.first << "-" << p.second << endl;
+		    exit(1);
+		}
+		last_start = p.first;
+		last_end = p.second;
+	    }
+
+	    swap(sources, sources_);
+	    swap(used_ranges, used_ranges_);
 	}
 
 	// If the destination database directory doesn't exist, create it.
@@ -1265,6 +1343,9 @@ main(int argc, char **argv)
 	}
     } catch (const Xapian::Error &error) {
 	cerr << argv[0] << ": " << error.get_description() << endl;
+	exit(1);
+    } catch (const char * msg) {
+	cerr << argv[0] << ": " << msg << endl;
 	exit(1);
     }
 }

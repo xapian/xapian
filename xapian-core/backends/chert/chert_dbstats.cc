@@ -67,16 +67,17 @@ ChertDatabaseStats::read(ChertPostListTable & postlist_table)
 void
 ChertDatabaseStats::write(ChertPostListTable & postlist_table) const
 {
-    string data = pack_uint(last_docid);
-    data += pack_uint(doclen_lbound);
-    data += pack_uint(wdf_ubound);
+    string data;
+    pack_uint(data, last_docid);
+    pack_uint(data, doclen_lbound);
+    pack_uint(data, wdf_ubound);
     // doclen_ubound should always be >= wdf_ubound, so we store the
     // difference as it may encode smaller.  wdf_ubound is likely to
     // be larger than doclen_lbound.
-    data += pack_uint(doclen_ubound - wdf_ubound);
+    pack_uint(data, doclen_ubound - wdf_ubound);
     // Micro-optimisation: total_doclen is likely to be the largest value, so
     // store it last as pack_uint_last() uses a slightly more compact encoding
     // - this could save us a few bytes!
-    data += pack_uint_last(total_doclen);
+    pack_uint_last(data, total_doclen);
     postlist_table.add(DATABASE_STATS_KEY, data);
 }

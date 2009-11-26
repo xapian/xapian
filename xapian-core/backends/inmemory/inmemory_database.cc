@@ -537,8 +537,7 @@ InMemoryDatabase::open_document(Xapian::docid did, bool lazy) const
 	throw Xapian::DocNotFoundError(string("Docid ") + om_tostring(did) +
 				 string(" not found"));
     }
-    return new InMemoryDocument(this, did, doclists[did - 1],
-				valuelists[did - 1]);
+    return new InMemoryDocument(this, did);
 }
 
 std::string
@@ -711,7 +710,6 @@ InMemoryDatabase::replace_document(Xapian::docid did,
     if (closed) InMemoryDatabase::throw_database_closed();
 
     if (doc_exists(did)) { 
-	doclists[did - 1] = "";
 	map<Xapian::valueno, string>::const_iterator j;
 	for (j = valuelists[did-1].begin(); j != valuelists[did-1].end(); ++j) {
 	    map<Xapian::valueno, ValueStats>::iterator i;
@@ -721,7 +719,6 @@ InMemoryDatabase::replace_document(Xapian::docid did,
 		i->second.upper_bound.resize(0);
 	    }
 	}
-	valuelists[did - 1].clear();
 
 	totlen -= doclengths[did - 1];
 	totdocs--;

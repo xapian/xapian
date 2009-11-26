@@ -26,7 +26,7 @@
 #include <xapian/types.h>
 
 #include "chert_spellingwordslist.h"
-#include "chert_utils.h"
+#include "pack.h"
 #include "stringutils.h"
 
 ChertSpellingWordsList::~ChertSpellingWordsList()
