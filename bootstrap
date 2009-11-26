@@ -143,7 +143,7 @@ else
 
   # The last field is the SHA1 checksum of the tarball.
   lazy_build doxygen 1.5.9 src.tar.gz 6211b850bdaa2198e35546e4299a27774c957ece
-  lazy_build autoconf 2.64 tar.bz2 dfbcdbd7dd74a52130dda324e9d94ee0b8551466
+  lazy_build autoconf 2.65 tar.bz2 9126ffb8d7d59f38f305ef53e208531d4b75bb87
   AUTOCONF=$instdir/bin/autoconf \
   lazy_build automake 1.11 tar.bz2 1ae8c15d91b8eb8728c35cf0901a02782830e9de
   lazy_build libtool 2.2.6a tar.gz 7b547877b1b78b547343e4678a531aece8949904
