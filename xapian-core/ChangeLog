@@ -1,3 +1,10 @@
+Thu Nov 26 00:34:41 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* bin/xapian-check.cc: Fix compiler warning (with gcc-4.2) that did
+	  could be used uninitialised: it couldn't be, but it's hard for a
+	  compiler to see that.
+
 Thu Nov 26 00:10:26 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:

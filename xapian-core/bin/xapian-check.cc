@@ -365,7 +365,7 @@ check_table(string filename, int opts)
 	    end = pos + key.size();
 
 	    string term;
-	    Xapian::docid did;
+	    Xapian::docid did = 0;
 	    if (!unpack_string_preserving_sort(&pos, end, term)) {
 		cout << "Error unpacking termname from key" << endl;
 		++errors;
