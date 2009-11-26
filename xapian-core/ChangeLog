@@ -1,3 +1,8 @@
+Thu Nov 26 00:38:13 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* api/omdocument.cc: Prefer string() to "".
+
 Thu Nov 26 00:34:41 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
