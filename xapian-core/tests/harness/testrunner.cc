@@ -1,7 +1,7 @@
 /** \file testrunner.cc
  *  \brief Run multiple tests for different backends.
  */
-/* Copyright 2008 Lemur Consulting Ltd
+/* Copyright 2008,2009 Lemur Consulting Ltd
  * Copyright 2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
@@ -58,10 +58,10 @@ static BackendProperties backend_properties[] = {
 	       "synonyms,replicas,flint" },
     { "multi_flint", "backend,positional,multi" },
     { "multi_chert", "backend,positional,valuestats,multi" },
-    { "remoteprog_flint", "backend,remote,transactions,positional,writable" },
-    { "remotetcp_flint", "backend,remote,transactions,positional,writable" },
-    { "remoteprog_chert", "backend,remote,transactions,positional,valuestats,writable" },
-    { "remotetcp_chert", "backend,remote,transactions,positional,valuestats,writable" },
+    { "remoteprog_flint", "backend,remote,transactions,positional,writable,metadata" },
+    { "remotetcp_flint", "backend,remote,transactions,positional,writable,metadata" },
+    { "remoteprog_chert", "backend,remote,transactions,positional,valuestats,writable,metadata" },
+    { "remotetcp_chert", "backend,remote,transactions,positional,valuestats,writable,metadata" },
     { NULL, NULL }
 };
 

@@ -2,7 +2,7 @@
  *  @brief Remote backend database class
  */
 /* Copyright (C) 2006,2007,2008,2009 Olly Betts
- * Copyright (C) 2007 Lemur Consulting Ltd
+ * Copyright (C) 2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -722,4 +722,22 @@ string
 RemoteDatabase::get_uuid() const
 {
     return uuid;
+}
+
+string
+RemoteDatabase::get_metadata(const string & key) const
+{
+  send_message(MSG_GETMETADATA, key);
+  string metadata;
+  get_message(metadata, REPLY_METADATA);
+  return metadata;
+}
+
+void
+RemoteDatabase::set_metadata(const string & key, const string & value)
+{
+  string data = encode_length(key.size());
+  data += key;
+  data += value;
+  send_message(MSG_SETMETADATA, data);
 }
