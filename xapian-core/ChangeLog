@@ -224,6 +224,16 @@ Mon Oct 29 03:03:31 GMT 2007  Olly Betts <olly@survex.com>
 	  include/xapian.h,tests/api_db.cc,tests/api_nodb.cc,
 	  tests/api_wrdb.cc: Restore the changes.
 
+Mon Nov 30 05:42:43 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/remote/remote-database.cc,common/remote-database.h,
+	  common/remoteprotocol.h,common/remoteserver.h,
+	  docs/remote_protocol.html,net/remoteserver.cc,tests/api_metadata.cc,
+	  tests/harness/testrunner.cc: Add support for
+	  WritableDatabase::set_metadata() and Database::get_metadata() to the
+	  remote backend (based largely on patch in #178).
+	* AUTHORS: Thanks to Paul Rudin for patch.
+
 Thu Nov 26 07:25:15 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS: Start to update from ChangeLog.

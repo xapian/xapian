@@ -185,6 +185,8 @@ RemoteServer::run()
 		&RemoteServer::msg_replacedocumentterm,
 		&RemoteServer::msg_deletedocument,
 		&RemoteServer::msg_writeaccess,
+		&RemoteServer::msg_getmetadata,
+		&RemoteServer::msg_setmetadata,
 		// MSG_GETMSET - used during a conversation.
 		// MSG_SHUTDOWN - handled by get_message().
 	    };
@@ -657,4 +659,24 @@ RemoteServer::msg_replacedocumentterm(const string & message)
     Xapian::docid did = wdb->replace_document(unique_term, unserialise_document(string(p, p_end)));
 
     send_message(REPLY_ADDDOCUMENT, encode_length(did));
+}
+
+void
+RemoteServer::msg_getmetadata(const string & message)
+{
+    send_message(REPLY_METADATA, db->get_metadata(message));
+}
+
+void
+RemoteServer::msg_setmetadata(const string & message)
+{
+    if (!wdb)
+	throw Xapian::InvalidOperationError("Server is read-only");
+    const char *p = message.data();
+    const char *p_end = p + message.size();
+    size_t keylen = decode_length(&p, p_end, false);
+    string key(p, keylen);
+    p += keylen;
+    string val(p, p_end - p);
+    wdb->set_metadata(key, val);
 }
