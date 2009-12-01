@@ -37,11 +37,9 @@
 
 using namespace std;
 
-static Xapian::WritableDatabase
-make_sparse_db(const string & name, const string & s)
+static void
+make_sparse_db(Xapian::WritableDatabase &db, const string & s)
 {
-    Xapian::WritableDatabase db = get_named_writable_database(name);
-
     // Need non-const pointer for strtoul(), but data isn't modified.
     char * p = const_cast<char *>(s.c_str());
 
@@ -79,7 +77,6 @@ make_sparse_db(const string & name, const string & s)
     }
 
     db.commit();
-    return db;
 }
 
 static void
@@ -99,10 +96,15 @@ inline int system(const string & cmd) { return system(cmd.c_str()); }
 DEFINE_TESTCASE(compactnorenumber1, chert || flint) {
     int status;
 
-    make_sparse_db("compactnorenumber1a", "5-7 24 76 987 1023-1027 9999 !9999");
-    make_sparse_db("compactnorenumber1b", "1027-1030");
-    make_sparse_db("compactnorenumber1c", "1028-1040");
-    make_sparse_db("compactnorenumber1d", "3000 999999 !999999");
+    (void)get_database("compactnorenumber1a", make_sparse_db,
+		       "5-7 24 76 987 1023-1027 9999 !9999");
+    (void)get_database("compactnorenumber1b", make_sparse_db,
+		       "1027-1030");
+    (void)get_database("compactnorenumber1c", make_sparse_db,
+		       "1028-1040");
+    (void)get_database("compactnorenumber1d", make_sparse_db,
+		       "3000 999999 !999999");
+
     string cmd = "../bin/xapian-compact >/dev/null 2>&1 --no-renumber ";
     string a = get_named_writable_database_path("compactnorenumber1a") + ' ';
     string b = get_named_writable_database_path("compactnorenumber1b") + ' ';
