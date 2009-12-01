@@ -1,3 +1,9 @@
+Tue Dec 01 13:49:54 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/api_db.cc: Rename matchfunctor<n> to matchdecider<n> to match
+	  current terminology.
+
 Tue Dec 01 13:43:57 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
