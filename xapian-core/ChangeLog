@@ -1,3 +1,10 @@
+Tue Dec 01 09:35:53 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* include/xapian/matchspy.h: Remove out-of-date reference to
+	  add_slot(), which no longer exists: users are expected to use
+	  multiple ValueCountMatchSpies if they need to monitor more than
+	  one slot.
+
 Tue Dec 01 08:04:17 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/Makefile.am,tests/api_compact.cc: Add test coverage for
