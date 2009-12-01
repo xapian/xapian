@@ -89,7 +89,7 @@ BackendManagerRemote::get_remote_database_args(const std::vector<std::string> & 
 }
 
 std::string
-BackendManagerRemote::get_writable_database_as_database_args(const std::string & name)
+BackendManagerRemote::get_writable_database_as_database_args()
 {
     std::string args = "-t300000 ";
 #ifdef XAPIAN_HAS_FLINT_BACKEND
@@ -102,15 +102,13 @@ BackendManagerRemote::get_writable_database_as_database_args(const std::string &
 	args += ".chert/";
     }
 #endif
-    if (name.empty())
-	args += last_wdb_name;
-    args += name;
+    args += last_wdb_name;
 
     return args;
 }
 
 std::string
-BackendManagerRemote::get_writable_database_again_args(const std::string & name)
+BackendManagerRemote::get_writable_database_again_args()
 {
     std::string args = "-t300000 --writable ";
 #ifdef XAPIAN_HAS_FLINT_BACKEND
@@ -123,9 +121,7 @@ BackendManagerRemote::get_writable_database_again_args(const std::string & name)
 	args += ".chert/";
     }
 #endif
-    if (name.empty())
-	args += last_wdb_name;
-    args += name;
+    args += last_wdb_name;
 
     return args;
 }

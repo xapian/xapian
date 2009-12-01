@@ -220,6 +220,36 @@ BackendManager::get_database(const string & file)
     return do_get_database(vector<string>(1, file));
 }
 
+Xapian::Database
+BackendManager::get_database(const std::string &dbname,
+			     void (*gen)(Xapian::WritableDatabase&,
+					 const std::string &),
+			     const std::string &arg)
+{
+    string dbleaf = "db__";
+    dbleaf += dbname;
+    const string & path = get_writable_database_path(dbleaf);
+    try {
+	return Xapian::Database(path);
+    } catch (const Xapian::DatabaseOpeningError &) {
+    }
+    rm_rf(path);
+
+    string tmp_dbleaf(dbleaf);
+    tmp_dbleaf += '~';
+    string tmp_path(path);
+    tmp_path += '~';
+
+    {
+	Xapian::WritableDatabase wdb = get_writable_database(tmp_dbleaf,
+							     string());
+	gen(wdb, arg);
+    }
+    rename(tmp_path.c_str(), path.c_str());
+
+    return Xapian::Database(path);
+}
+
 string
 BackendManager::get_database_path(const vector<string> & files)
 {
@@ -254,7 +284,7 @@ BackendManager::get_remote_database(const vector<string> &, unsigned int)
 }
 
 Xapian::Database
-BackendManager::get_writable_database_as_database(const string &)
+BackendManager::get_writable_database_as_database()
 {
     string msg = "Backend ";
     msg += get_dbtype();
@@ -263,7 +293,7 @@ BackendManager::get_writable_database_as_database(const string &)
 }
 
 Xapian::WritableDatabase
-BackendManager::get_writable_database_again(const string &)
+BackendManager::get_writable_database_again()
 {
     string msg = "Backend ";
     msg += get_dbtype();

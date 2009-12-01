@@ -349,17 +349,17 @@ BackendManagerRemoteTcp::get_remote_database(const vector<string> & files,
 }
 
 Xapian::Database
-BackendManagerRemoteTcp::get_writable_database_as_database(const string & name)
+BackendManagerRemoteTcp::get_writable_database_as_database()
 {
-    string args = get_writable_database_as_database_args(name);
+    string args = get_writable_database_as_database_args();
     int port = launch_xapian_tcpsrv(args);
     return Xapian::Remote::open(LOCALHOST, port);
 }
 
 Xapian::WritableDatabase
-BackendManagerRemoteTcp::get_writable_database_again(const string & name)
+BackendManagerRemoteTcp::get_writable_database_again()
 {
-    string args = get_writable_database_again_args(name);
+    string args = get_writable_database_again_args();
     int port = launch_xapian_tcpsrv(args);
     return Xapian::Remote::open_writable(LOCALHOST, port);
 }

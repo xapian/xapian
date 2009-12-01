@@ -1,3 +1,16 @@
+Tue Dec 01 12:37:24 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/apitest.cc,tests/harness/backendmanager.cc,
+	  tests/harness/backendmanager.h: Move generator function variant of
+	  get_database() to BackendManager, and tweak it to build the database
+	  under a temporary path and rename it once built, to avoid leaving a
+	  partial database in place if interrupted.
+	* tests/perftest/perftest_matchdecider.cc: Use this mechanism to lazily
+	  generate test databases.
+	* tests/harness/: Remove the optional name parameter from various
+	  BackendManager methods as it was only used by perftest and is no
+	  longer needed.
+
 Tue Dec 01 11:00:35 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/apitest.cc,tests/apitest.h: Add mechanism for caching databases

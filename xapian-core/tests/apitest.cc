@@ -59,22 +59,12 @@ get_database(const string &dbname, const string &dbname2)
 }
 
 Xapian::Database
-get_database(const std::string &db,
+get_database(const std::string &dbname,
 	     void (*gen)(Xapian::WritableDatabase&,
 			 const std::string &),
 	     const std::string &arg)
 {
-    try {
-	return Xapian::Database(get_named_writable_database_path(db));
-    } catch (const Xapian::DatabaseOpeningError &) {
-    }
-
-    {
-	Xapian::WritableDatabase wdb = get_named_writable_database(db);
-	gen(wdb, arg);
-    }
-
-    return Xapian::Database(get_named_writable_database_path(db));
+    return backendmanager->get_database(dbname, gen, arg);
 }
 
 string
