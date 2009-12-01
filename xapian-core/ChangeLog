@@ -1,3 +1,10 @@
+Tue Dec 01 13:43:57 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/api_db.cc: Don't run matchfunctor3 under remote backends as
+	  MatchDecider isn't actually supported there (uncovered by recent
+	  change to throw UnimplementedError in this case).
+
 Tue Dec 01 13:41:02 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
