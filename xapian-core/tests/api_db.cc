@@ -541,7 +541,7 @@ class myMatchDecider2 : public Xapian::MatchDecider {
 
 
 // Regression test for lower bound using functor, sorting and collapsing.
-DEFINE_TESTCASE(matchfunctor3, backend) {
+DEFINE_TESTCASE(matchfunctor3, backend && !remote) {
     Xapian::Database db(get_database("etext"));
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query(""));

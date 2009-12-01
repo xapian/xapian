@@ -1,3 +1,9 @@
+Tue Dec 01 10:51:23 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_db.cc: Don't run matchfunctor3 under remote backends as
+	  MatchDecider isn't actually supported there (uncovered by recent
+	  change to throw UnimplementedError in this case).
+
 Tue Dec 01 09:35:53 GMT 2009  Richard Boulton <richard@tartarus.org>
 
 	* include/xapian/matchspy.h: Remove out-of-date reference to
