@@ -1,3 +1,10 @@
+Tue Dec 01 05:51:52 GMT 2009  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,common/multimatch.h,matcher/multimatch.cc,
+	  net/remoteserver.cc: Throw UnimplementedError if a matchdecider or
+	  "legacy" matchspy is used with the remote backend.
+	* tests/api_backend.cc: Add regression test matchdecider4.
+
 Mon Nov 30 05:42:43 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/remote/remote-database.cc,common/remote-database.h,

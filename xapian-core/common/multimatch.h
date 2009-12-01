@@ -56,8 +56,6 @@ class MultiMatch
 
 	bool sort_value_forward;
 
-	const Xapian::KeyMaker * sorter;
-
 	/// ErrorHandler
 	Xapian::ErrorHandler * errorhandler;
 
@@ -95,9 +93,11 @@ class MultiMatch
 	 *  @param qlen      The query length
 	 *  @param omrset    The relevance set (or NULL for no RSet)
 	 *  @param errorhandler Errorhandler object
-	 *  @param sorter    Xapian::KeyMaker functor (or NULL for no KeyMaker)
 	 *  @param stats     The stats object to add our stats to.
 	 *  @param wtscheme  Weighting scheme
+	 *  @param matchspies_ Any the MatchSpy objects in use.
+	 *  @param have_sorter Is there a sorter in use?
+	 *  @param have_mdecider Is there a Xapian::MatchDecider in use?
 	 */
 	MultiMatch(const Xapian::Database &db_,
 		   const Xapian::Query::Internal * query,
@@ -111,19 +111,24 @@ class MultiMatch
 		   Xapian::valueno sort_key_,
 		   Xapian::Enquire::Internal::sort_setting sort_by_,
 		   bool sort_value_forward_,
-		   const Xapian::KeyMaker * sorter_,
 		   Xapian::ErrorHandler * errorhandler,
 		   Xapian::Weight::Internal & stats,
 		   const Xapian::Weight *wtscheme,
-		   const vector<Xapian::MatchSpy *> & matchspies_);
+		   const vector<Xapian::MatchSpy *> & matchspies_,
+		   bool have_sorter, bool have_mdecider);
 
+	/** Run the match and generate an MSet object.
+	 *
+	 *  @param sorter    Xapian::KeyMaker functor (or NULL for no KeyMaker)
+	 */
 	void get_mset(Xapian::doccount first,
 		      Xapian::doccount maxitems,
 		      Xapian::doccount check_at_least,
 		      Xapian::MSet & mset,
 		      const Xapian::Weight::Internal & stats,
 		      const Xapian::MatchDecider * mdecider,
-		      const Xapian::MatchDecider * matchspy_legacy);
+		      const Xapian::MatchDecider * matchspy_legacy,
+		      const Xapian::KeyMaker * sorter);
 
 	/** Called by postlists to indicate that they've rearranged themselves
 	 *  and the maxweight now possible is smaller.
