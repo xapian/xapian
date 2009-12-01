@@ -1134,6 +1134,10 @@ to follow the style of the existing code.  In particular:
     is more likely to directly use a special "empty string representation" (it
     does with GCC at least).
 
+  + To make a string object empty, ``s.resize(0)`` (if you want to keep the
+    current reserved space) or ``s = string()`` (if you don't) seem the best
+    options.
+
   + Use ``std::string::assign()`` rather than building a temporary string
     object and assigning that.  For example, ``foo = std::string(ptr, len);``
     is better written as ``foo.assign(ptr, len);``.
@@ -1146,6 +1150,10 @@ to follow the style of the existing code.  In particular:
     lazily, but not all compilers do this, and it's likely to still have some
     overhead.  Note that GCC 4.1 seems to produce larger code in some cases for
     the latter approach, but it's a definite win with GCC 4.4.
+
+  * ``std::string(1, '\0')`` seems to be slightly more efficient than
+    ``std::string("", 1)`` for constructing a std::string containing a single
+    ASCII nul character.
 
 * Prefer ``new SomeClass`` to ``new SomeClass()``, since the latter tends to
   lead one to write ``SomeClass foo();` which is a function prototype, and not
