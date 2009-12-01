@@ -415,7 +415,7 @@ RemoteServer::msg_query(const string &message_in)
     MultiMatch match(*db, query.get(), qlen, &rset, collapse_key,
 		     percent_cutoff, weight_cutoff, order,
 		     sort_key, sort_by, sort_value_forward, NULL,
-		     NULL, local_stats, wt.get());
+		     local_stats, wt.get(), false, false);
 
     send_message(REPLY_STATS, serialise_stats(local_stats));
 
@@ -453,7 +453,7 @@ RemoteServer::msg_query(const string &message_in)
     Stats total_stats(unserialise_stats(message));
 
     Xapian::MSet mset;
-    match.get_mset(first, maxitems, check_at_least, mset, total_stats, 0, 0);
+    match.get_mset(first, maxitems, check_at_least, mset, total_stats, 0, 0, 0);
 
     if (type == MSG_GETMSET_PRE_30_3 || type == MSG_GETMSET_PRE_30_5) {
 	send_message(REPLY_RESULTS_PRE_30_5, serialise_mset_pre_30_5(mset));

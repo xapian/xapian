@@ -23,6 +23,7 @@
 
 #include "api_backend.h"
 
+#define XAPIAN_DEPRECATED(X) X
 #include <xapian.h>
 
 #include "testsuite.h"
@@ -153,6 +154,42 @@ DEFINE_TESTCASE(lockfilefd0or1, flint) {
     close(old_stdin);
     close(old_stdout);
 #endif
+
+    return true;
+}
+
+struct MyMatchDecider : public Xapian::MatchDecider {
+    mutable bool called;
+  
+    MyMatchDecider() : called(false) { }
+
+    bool operator()(const Xapian::Document &) const {
+	called = true;
+	return true;
+    }
+};
+
+/// Test Xapian::MatchDecider with remote backend fails.
+DEFINE_TESTCASE(matchdecider4, remote) {
+    Xapian::Database db(get_database("apitest_simpledata"));
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query("paragraph"));
+
+    MyMatchDecider mdecider, mspyold;
+    Xapian::MSet mset;
+
+    TEST_EXCEPTION(Xapian::UnimplementedError,
+	mset = enquire.get_mset(0, 10, NULL, &mdecider));
+    TEST(!mdecider.called);
+
+    TEST_EXCEPTION(Xapian::UnimplementedError,
+	mset = enquire.get_mset(0, 10, 0, NULL, NULL, &mspyold));
+    TEST(!mspyold.called);
+
+    TEST_EXCEPTION(Xapian::UnimplementedError,
+	mset = enquire.get_mset(0, 10, 0, NULL, &mdecider, &mspyold));
+    TEST(!mdecider.called);
+    TEST(!mspyold.called);
 
     return true;
 }

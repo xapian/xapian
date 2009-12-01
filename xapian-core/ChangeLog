@@ -1,3 +1,12 @@
+Tue Dec 01 13:41:02 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* api/omenquire.cc,common/multimatch.h,matcher/multimatch.cc,
+	  net/remoteserver.cc: Throw UnimplementedError if a matchdecider or
+	  "legacy" matchspy is used with the remote backend.
+	* tests/api_backend.cc: Add regression test matchdecider4.
+	* tests/api_backend.cc: Clean up matchdecider4.
+
 Thu Nov 26 00:42:46 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
