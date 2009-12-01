@@ -217,34 +217,25 @@ struct MyMatchDecider : public Xapian::MatchDecider {
 
 /// Test Xapian::MatchDecider with remote backend fails.
 DEFINE_TESTCASE(matchdecider4, remote) {
-    {
-	Xapian::Database db(get_database("apitest_simpledata"));
-	Xapian::Enquire enquire(db);
-	enquire.set_query(Xapian::Query("paragraph"));
-    }
+    Xapian::Database db(get_database("apitest_simpledata"));
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query("paragraph"));
+
     MyMatchDecider mdecider, mspyold;
     Xapian::MSet mset;
+
     TEST_EXCEPTION(Xapian::UnimplementedError,
 	mset = enquire.get_mset(0, 10, NULL, &mdecider));
     TEST(!mdecider.called);
 
-    {
-	Xapian::Database db(get_database("apitest_simpledata"));
-	Xapian::Enquire enquire(db);
-	enquire.set_query(Xapian::Query("paragraph"));
-    }
     TEST_EXCEPTION(Xapian::UnimplementedError,
 	mset = enquire.get_mset(0, 10, 0, NULL, NULL, &mspyold));
     TEST(!mspyold.called);
 
-    {
-	Xapian::Database db(get_database("apitest_simpledata"));
-	Xapian::Enquire enquire(db);
-	enquire.set_query(Xapian::Query("paragraph"));
-    }
     TEST_EXCEPTION(Xapian::UnimplementedError,
 	mset = enquire.get_mset(0, 10, 0, NULL, &mdecider, &mspyold));
     TEST(!mdecider.called);
     TEST(!mspyold.called);
+
     return true;
 }
