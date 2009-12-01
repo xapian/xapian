@@ -1,3 +1,8 @@
+Tue Dec 01 08:04:17 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am,tests/api_compact.cc: Add test coverage for
+	  xapian-compact --no-renumber with multiple databases.
+
 Tue Dec 01 06:25:47 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_backend.cc: Clean up matchdecider4.

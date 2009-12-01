@@ -113,6 +113,7 @@ collated_apitest_sources = \
  api_backend.cc \
  api_closedb.cc \
  api_collapse.cc \
+ api_compact.cc \
  api_db.cc \
  api_generated.cc \
  api_matchspy.cc \
