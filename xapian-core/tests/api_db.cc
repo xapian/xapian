@@ -370,7 +370,7 @@ class myMatchDecider : public Xapian::MatchDecider {
 };
 
 // Test Xapian::MatchDecider functor.
-DEFINE_TESTCASE(matchfunctor1, backend && !remote) {
+DEFINE_TESTCASE(matchdecider1, backend && !remote) {
     Xapian::Database db(get_database("apitest_simpledata"));
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("this"));
@@ -499,7 +499,7 @@ DEFINE_TESTCASE(matchfunctor1, backend && !remote) {
 }
 
 // Test Xapian::MatchDecider functor used as a match spy.
-DEFINE_TESTCASE(matchfunctor2, backend && !remote) {
+DEFINE_TESTCASE(matchdecider2, backend && !remote) {
     Xapian::Database db(get_database("apitest_simpledata"));
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("this"));
@@ -541,7 +541,7 @@ class myMatchDecider2 : public Xapian::MatchDecider {
 
 
 // Regression test for lower bound using functor, sorting and collapsing.
-DEFINE_TESTCASE(matchfunctor3, backend && !remote) {
+DEFINE_TESTCASE(matchdecider3, backend && !remote) {
     Xapian::Database db(get_database("etext"));
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query(""));

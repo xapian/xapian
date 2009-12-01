@@ -1,3 +1,8 @@
+Tue Dec 01 10:59:50 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_db.cc: Rename matchfunctor<n> to matchdecider<n> to match
+	  current terminology.
+
 Tue Dec 01 10:51:23 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_db.cc: Don't run matchfunctor3 under remote backends as
