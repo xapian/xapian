@@ -1,3 +1,55 @@
+ 13701       olly Tue Dec 01 13:49:54 GMT 2009  Olly Betts <olly@survex.com>
+
+Xapian-core 1.0.18 (2009-??-??):
+
+API:
+
+* Fix many Xapian::Database methods to behave better on a database with no
+  subdatabases, such as is constructed by Database().  ticket#415.
+
+testsuite:
+
+* apitest: Rename matchfunctor<n> to matchdecider<n> to match current terminology.
+
+matcher:
+
+
+flint backend:
+
+* Fix locking code to work if stdin and/or stdout have been closed.
+
+* xapian-compact: Fix typos in --help output.
+
+quartz backend:
+
+
+remote backend:
+
+* Throw UnimplementedError if a MatchDecider is used with the remote backend.
+
+inmemory backend:
+
+
+build system:
+
+
+documentation:
+
+* INSTALL: Improve text about zlib dependency.
+
+examples:
+
+
+portability:
+
+* Fix compiler warning with GCC 4.2.
+
+packaging:
+
+
+debug code:
+
+
 xapian-core 1.0.17 (2009-11-18):
 
 API:
