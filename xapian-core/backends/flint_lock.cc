@@ -42,6 +42,8 @@
 #include <sys/cygwin.h>
 #endif
 
+#include "xapian/error.h"
+
 using namespace std;
 
 FlintLock::reason
