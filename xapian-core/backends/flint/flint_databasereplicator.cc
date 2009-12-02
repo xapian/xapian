@@ -225,19 +225,7 @@ FlintDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
     string explanation;
     FlintLock::reason why = lock.lock(true, explanation);
     if (why != FlintLock::SUCCESS) {
-	string msg("Unable to get write lock on ");
-	msg += db_dir;
-	if (why == FlintLock::INUSE) {
-	    msg += ": already locked";
-	} else if (why == FlintLock::UNSUPPORTED) {
-	    msg += ": locking probably not supported by this FS";
-	} else if (why == FlintLock::FDLIMIT) {
-	    msg += ": too many open files";
-	} else if (why == FlintLock::UNKNOWN) {
-	    if (!explanation.empty())
-		msg += ": " + explanation;
-	}
-	throw DatabaseLockError(msg);
+	lock.throw_databaselockerror(why, db_dir, explanation);
     }
 
     char type = conn.get_message_chunked(end_time);

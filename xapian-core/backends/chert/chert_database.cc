@@ -507,19 +507,7 @@ ChertDatabase::get_database_write_lock(bool creating)
 	    msg += '\'';
 	    throw Xapian::DatabaseOpeningError(msg);
 	}
-	string msg("Unable to acquire database write lock on ");
-	msg += db_dir;
-	if (why == FlintLock::INUSE) {
-	    msg += ": already locked";
-	} else if (why == FlintLock::UNSUPPORTED) {
-	    msg += ": locking probably not supported by this FS";
-	} else if (why == FlintLock::FDLIMIT) {
-	    msg += ": too many open files";
-	} else if (why == FlintLock::UNKNOWN) {
-	    if (!explanation.empty())
-		msg += ": " + explanation;
-	}
-	throw Xapian::DatabaseLockError(msg);
+	lock.throw_databaselockerror(why, db_dir, explanation);
     }
 }
 

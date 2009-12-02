@@ -1,3 +1,12 @@
+Wed Dec 02 14:30:40 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,
+	  backends/chert/chert_databasereplicator.cc,
+	  backends/flint/flint_database.cc,
+	  backends/flint/flint_databasereplicator.cc,backends/flint_lock.cc,
+	  backends/flint_lock.h: Factor out 4 copies of the same code to
+	  report why Xapian failed to get a lock.
+
 Wed Dec 02 10:05:27 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/Makefile.mk,backends/chert/,backends/flint/,

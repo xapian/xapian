@@ -85,7 +85,14 @@ class FlintLock {
      *  the reason for the failure.
      */
     reason lock(bool exclusive, std::string & explanation);
+
+    /// Release the lock.
     void release();
+
+    /// Throw Xapian::DatabaseLockError.
+    void throw_databaselockerror(FlintLock::reason why,
+				 const std::string & db_dir,
+				 const std::string & explanation);
 };
 
 #endif // XAPIAN_INCLUDED_FLINT_LOCK_H
