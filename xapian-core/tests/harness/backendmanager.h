@@ -167,6 +167,12 @@ class BackendManager {
     /// Get the path of a database instance, if such a thing exists (single file case).
     std::string get_database_path(const std::string &file);
 
+    /// Get the path of a generated database instance.
+    std::string get_database_path(const std::string &dbname,
+				  void (*gen)(Xapian::WritableDatabase&,
+					      const std::string &),
+				  const std::string &arg);
+
     /// Get a writable database instance.
     virtual Xapian::WritableDatabase get_writable_database(const std::string & name, const std::string & file);
 

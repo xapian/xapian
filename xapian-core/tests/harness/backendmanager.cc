@@ -250,6 +250,37 @@ BackendManager::get_database(const std::string &dbname,
     return Xapian::Database(path);
 }
 
+std::string
+BackendManager::get_database_path(const std::string &dbname,
+				  void (*gen)(Xapian::WritableDatabase&,
+					      const std::string &),
+				  const std::string &arg)
+{
+    string dbleaf = "db__";
+    dbleaf += dbname;
+    const string & path = get_writable_database_path(dbleaf);
+    try {
+	(void)Xapian::Database(path);
+	return path;
+    } catch (const Xapian::DatabaseOpeningError &) {
+    }
+    rm_rf(path);
+
+    string tmp_dbleaf(dbleaf);
+    tmp_dbleaf += '~';
+    string tmp_path(path);
+    tmp_path += '~';
+
+    {
+	Xapian::WritableDatabase wdb = get_writable_database(tmp_dbleaf,
+							     string());
+	gen(wdb, arg);
+    }
+    rename(tmp_path.c_str(), path.c_str());
+
+    return path;
+}
+
 string
 BackendManager::get_database_path(const vector<string> & files)
 {

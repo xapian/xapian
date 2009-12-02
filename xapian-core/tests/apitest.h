@@ -38,6 +38,11 @@ Xapian::Database get_database(const std::string &db,
 
 std::string get_database_path(const std::string &db);
 
+std::string get_database_path(const std::string &db,
+			      void (*gen)(Xapian::WritableDatabase&,
+					  const std::string &),
+			      const std::string &arg = std::string());
+
 Xapian::WritableDatabase get_writable_database(const std::string &db = std::string());
 
 Xapian::WritableDatabase get_named_writable_database(const std::string &name, const std::string &source = std::string());

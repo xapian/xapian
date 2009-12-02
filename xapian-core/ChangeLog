@@ -1,3 +1,10 @@
+Wed Dec 02 02:49:14 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_compact.cc,tests/apitest.cc,tests/apitest.h,
+	  tests/harness/backendmanager.cc,tests/harness/backendmanager.h: Add
+	  get_database_path() variant which takes a generator function and use
+	  it so that the right database names are used in compactnorenumber1.
+
 Tue Dec 01 12:37:24 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/apitest.cc,tests/harness/backendmanager.cc,
