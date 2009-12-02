@@ -37,7 +37,7 @@
 #include "chert_replicate_internal.h"
 #include "chert_document.h"
 #include "chert_io.h"
-#include "chert_lock.h"
+#include "../flint_lock.h"
 #include "chert_metadata.h"
 #include "chert_modifiedpostlist.h"
 #include "chert_positionlist.h"
@@ -113,11 +113,7 @@ ChertDatabase::ChertDatabase(const string &chert_dir, int action,
 	  synonym_table(db_dir, readonly),
 	  spelling_table(db_dir, readonly),
 	  record_table(db_dir, readonly),
-	  // Keep the same lockfile name as flint since the locking is
-	  // compatible and this avoids the possibility of creating a chert and
-	  // flint database in the same directory (which will result in one
-	  // being corrupt since the Btree filenames overlap).
-	  lock(db_dir + "/flintlock"),
+	  lock(db_dir),
 	  max_changesets(0)
 {
     DEBUGCALL(DB, void, "ChertDatabase", chert_dir << ", " << action <<
@@ -503,9 +499,9 @@ ChertDatabase::get_database_write_lock(bool creating)
 {
     DEBUGCALL(DB, void, "ChertDatabase::get_database_write_lock", creating);
     string explanation;
-    ChertLock::reason why = lock.lock(true, explanation);
-    if (why != ChertLock::SUCCESS) {
-	if (why == ChertLock::UNKNOWN && !creating && !database_exists()) {
+    FlintLock::reason why = lock.lock(true, explanation);
+    if (why != FlintLock::SUCCESS) {
+	if (why == FlintLock::UNKNOWN && !creating && !database_exists()) {
 	    string msg("No chert database found at path `");
 	    msg += db_dir;
 	    msg += '\'';
@@ -513,13 +509,13 @@ ChertDatabase::get_database_write_lock(bool creating)
 	}
 	string msg("Unable to acquire database write lock on ");
 	msg += db_dir;
-	if (why == ChertLock::INUSE) {
+	if (why == FlintLock::INUSE) {
 	    msg += ": already locked";
-	} else if (why == ChertLock::UNSUPPORTED) {
+	} else if (why == FlintLock::UNSUPPORTED) {
 	    msg += ": locking probably not supported by this FS";
-	} else if (why == ChertLock::FDLIMIT) {
+	} else if (why == FlintLock::FDLIMIT) {
 	    msg += ": too many open files";
-	} else if (why == ChertLock::UNKNOWN) {
+	} else if (why == FlintLock::UNKNOWN) {
 	    if (!explanation.empty())
 		msg += ": " + explanation;
 	}

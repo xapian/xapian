@@ -1,6 +1,7 @@
-/* flint_lock.h: database locking for flint backend.
- *
- * Copyright (C) 2005,2006,2007 Olly Betts
+/** @file flint_lock.h
+ * @brief Flint-compatible database locking.
+ */
+/* Copyright (C) 2005,2006,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -49,18 +50,29 @@ class FlintLock {
 	SUCCESS, // We got the lock!
 	INUSE, // Already locked by someone else.
 	UNSUPPORTED, // Locking probably not supported (e.g. NFS without lockd).
+	FDLIMIT, // Process hit its file descriptor limit.
 	UNKNOWN // The attempt failed for some unspecified reason.
     } reason;
 #if defined __CYGWIN__ || defined __WIN32__
     FlintLock(const std::string &filename_)
-	: filename(filename_), hFile(INVALID_HANDLE_VALUE) { }
+	: filename(filename_), hFile(INVALID_HANDLE_VALUE) {
+	// Keep the same lockfile name as flint since the locking is
+	// compatible and this avoids the possibility of creating a chert and
+	// flint database in the same directory (which will result in one
+	// being corrupt since the Btree filenames overlap).
+	filename += "/flintlock";
+    }
     operator bool() const { return hFile != INVALID_HANDLE_VALUE; }
 #elif defined __EMX__
     FlintLock(const std::string &filename_)
-	: filename(filename_), hFile(NULLHANDLE) { }
+	: filename(filename_), hFile(NULLHANDLE) {
+	filename += "/flintlock";
+    }
     operator bool() const { return hFile != NULLHANDLE; }
 #else
-    FlintLock(const std::string &filename_) : filename(filename_), fd(-1) { }
+    FlintLock(const std::string &filename_) : filename(filename_), fd(-1) {
+	filename += "/flintlock";
+    }
     operator bool() const { return fd != -1; }
 #endif
     // Release any lock held when we're destroyed.

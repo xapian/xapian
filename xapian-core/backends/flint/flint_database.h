@@ -33,7 +33,7 @@
 #include "flint_termlisttable.h"
 #include "flint_values.h"
 #include "flint_version.h"
-#include "flint_lock.h"
+#include "../flint_lock.h"
 
 #include "flint_types.h"
 

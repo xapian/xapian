@@ -35,7 +35,7 @@
 #include "flint_alltermslist.h"
 #include "flint_document.h"
 #include "flint_io.h"
-#include "flint_lock.h"
+#include "../flint_lock.h"
 #include "flint_metadata.h"
 #include "flint_modifiedpostlist.h"
 #include "flint_positionlist.h"
@@ -115,7 +115,7 @@ FlintDatabase::FlintDatabase(const string &flint_dir, int action,
 	  synonym_table(db_dir, readonly),
 	  spelling_table(db_dir, readonly),
 	  record_table(db_dir, readonly),
-	  lock(db_dir + "/flintlock"),
+	  lock(db_dir),
 	  total_length(0),
 	  lastdocid(0),
 	  max_changesets(0)
@@ -554,6 +554,8 @@ FlintDatabase::get_database_write_lock(bool creating)
 	    msg += ": already locked";
 	} else if (why == FlintLock::UNSUPPORTED) {
 	    msg += ": locking probably not supported by this FS";
+	} else if (why == FlintLock::FDLIMIT) {
+	    msg += ": too many open files";
 	} else if (why == FlintLock::UNKNOWN) {
 	    if (!explanation.empty())
 		msg += ": " + explanation;

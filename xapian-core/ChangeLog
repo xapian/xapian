@@ -1,3 +1,10 @@
+Wed Dec 02 10:05:27 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/Makefile.mk,backends/chert/,backends/flint/,
+	  backends/flint_lock.cc,backends/flint_lock.h: Factor out a single
+	  version of the "flint-compatible locking code" and use it from both
+	  flint and chert.
+
 Wed Dec 02 02:49:14 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_compact.cc,tests/apitest.cc,tests/apitest.h,

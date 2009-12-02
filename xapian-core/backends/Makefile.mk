@@ -1,4 +1,5 @@
 noinst_HEADERS +=\
+	backends/flint_lock.h\
 	backends/slowvaluelist.h
 
 EXTRA_DIST +=\
@@ -20,11 +21,13 @@ endif
 
 if BUILD_BACKEND_FLINT
 lib_src +=\
-	backends/contiguousalldocspostlist.cc
+	backends/contiguousalldocspostlist.cc\
+	backends/flint_lock.cc
 else
 if BUILD_BACKEND_CHERT
 lib_src +=\
-        backends/contiguousalldocspostlist.cc
+        backends/contiguousalldocspostlist.cc\
+	backends/flint_lock.cc
 endif
 endif
 

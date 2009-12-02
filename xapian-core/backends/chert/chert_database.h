@@ -34,7 +34,7 @@
 #include "chert_termlisttable.h"
 #include "chert_values.h"
 #include "chert_version.h"
-#include "chert_lock.h"
+#include "../flint_lock.h"
 #include "chert_types.h"
 #include "valuestats.h"
 
@@ -107,7 +107,7 @@ class ChertDatabase : public Xapian::Database::Internal {
 	ChertRecordTable record_table;
 
 	/// Lock object.
-	ChertLock lock;
+	FlintLock lock;
 
 	/// Total length of all documents including uncommitted modifications.
 	mutable totlen_t total_length;
