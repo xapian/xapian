@@ -24,9 +24,10 @@
 
 set -e
 
+#MIRROR=http://ftp.de.debian.org/debian/
 MIRROR=http://ftp.nz.debian.org/debian/
 
-VALID_CODENAMES='lenny etch jaunty intrepid hardy dapper'
+VALID_CODENAMES='lenny etch karmic jaunty intrepid hardy dapper'
 
 if [ x"$1" = x--help -o $# -lt 2 ] ; then
   echo "Usage: $0 SOURCE_PKG VERSION [CODENAME...]"
@@ -68,19 +69,23 @@ adjust_changelog() {
 
 build_it() {
   adjust_changelog
+  # The default -si only looks for *exactly* -0 or -1.
+  # FIXME: We don't really want to upload the orig tarball for all Ubuntu
+  # backports but we may need to upload it once if it isn't already in the
+  # archive.  So for now, just upload it for dapper (or hardy for
+  # libsearch-xapian-perl) as that gets uploaded first in alphabetical order.
+  include_src_opt=-sa
   if [ x"$PKG" != xlibsearch-xapian-perl ] ; then
     echo "$CODENAME" > debian/codename
     # Generates control from control.in (and maybe other files).
     fakeroot debian/rules maintclean maint CODENAME="$CODENAME"
-  fi
-  # The default -si only looks for *exactly* -0 or -1.
-  # FIXME: We don't really want to upload the orig tarball for all Ubuntu
-  # backports but we may need to upload it once if it isn't already in the
-  # archive.  So for now, just upload it for jaunty, and make sure to upload
-  # that first...
-  include_src_opt=-sa
-  if [ jaunty != "$CODENAME" ] ; then
-    include_src_opt=-sd
+    if [ hardy != "$CODENAME" ] ; then
+      include_src_opt=-sd
+    fi
+  else
+    if [ dapper != "$CODENAME" ] ; then
+      include_src_opt=-sd
+    fi
   fi
   debuild ${BUILDPACKAGE_SRC_OPTS} $include_src_opt
 }
