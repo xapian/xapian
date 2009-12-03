@@ -3,8 +3,9 @@ xapian-core (1.0.17-2) UNRELEASED; urgency=low
   * debian/control.in:
     + Remove "DM-Upload-Allowed: yes" as I'm now a DD.
     + Add "Vcs-Browser:" and "Vcs-svn:".
+  * debian/rules: Update licence boilerplate from GPLv2+ to MIT/X.
 
- -- Olly Betts <olly@survex.com>  Thu, 03 Dec 2009 03:42:18 +0000
+ -- Olly Betts <olly@survex.com>  Thu, 03 Dec 2009 03:53:32 +0000
 
 xapian-core (1.0.17-1) unstable; urgency=low
 
