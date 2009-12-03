@@ -1,3 +1,10 @@
+Thu Dec 03 10:08:28 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* tests/api_compact.cc: Cast character value in string constructor
+	  to a char; without this we were getting a stack overflow and
+	  general nastiness on i386, which we hypothesise was due to the
+	  wrong overload for string() being picked.
+
 Wed Dec 02 23:10:50 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/flint_lock.cc: Add missing include of xapian/error.h.

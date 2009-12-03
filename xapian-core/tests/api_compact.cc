@@ -67,7 +67,7 @@ make_sparse_db(Xapian::WritableDatabase &db, const string & s)
 		string id = str(first);
 		doc.set_data(id);
 		doc.add_term("Q" + str(first));
-		doc.add_term(string(first % 7 + 1, (first % 26) + 'a'));
+		doc.add_term(string(first % 7 + 1, char((first % 26) + 'a')));
 		db.replace_document(first, doc);
 	    }
 	} while (first++ < last);
