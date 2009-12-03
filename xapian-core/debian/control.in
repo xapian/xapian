@@ -5,7 +5,8 @@ Maintainer: Olly Betts <olly@survex.com>
 Standards-Version: 3.8.3
 Build-Depends: @BUILD_DEPS@ autotools-dev, zlib1g-dev
 Homepage: http://xapian.org/
-DM-Upload-Allowed: yes
+Vcs-Browser: http://trac.xapian.org/browser/branches/1.0/xapian-core
+Vcs-svn: svn://svn.xapian.org/xapian/branches/1.0/xapian-core
 
 Package: libxapian@LIBXAPIAN_SOVERSION@
 Architecture: any
