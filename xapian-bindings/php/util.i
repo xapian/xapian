@@ -134,7 +134,7 @@
 	 * Passing 1 as the last parameter of add_next_index_stringl() tells
 	 * PHP to copy the string pointed to by p, so it won't be modified.
 	 */
-	string term = *i;
+	const string & term = *i;
 	char *p = const_cast<char*>(term.data());
 	add_next_index_stringl($result, p, term.length(), 1);
     }
