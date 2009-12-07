@@ -638,7 +638,7 @@ class XAPIAN_VISIBILITY_DEFAULT ChertTable {
 	chert_revision_number_t revision_number;
 
 	/** keeps a count of the number of items in the B-tree. */
-	uint4 item_count;
+	chert_tablesize_t item_count;
 
 	/** block size of the B tree in bytes */
 	unsigned int block_size;

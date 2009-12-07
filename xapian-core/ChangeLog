@@ -1,3 +1,11 @@
+Mon Dec 07 04:32:46 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/: Use > 32 bit type to keep count of items in a
+	  table.  This fixes misreporting by xapian-check, and in the very
+	  unlikely case where the counter has just wrapped to 0, makes
+	  xapian-compact not mistakenly think tables are empty and the
+	  matcher ignore positional information.
+
 Thu Dec 03 10:08:28 GMT 2009  Richard Boulton <richard@tartarus.org>
 
 	* tests/api_compact.cc: Cast character value in string constructor
