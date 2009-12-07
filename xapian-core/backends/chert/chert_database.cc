@@ -966,8 +966,7 @@ ChertDatabase::open_synonym_keylist(const string & prefix) const
     ChertCursor * cursor = synonym_table.cursor_get();
     if (!cursor) return NULL;
     return new ChertSynonymTermList(Xapian::Internal::RefCntPtr<const ChertDatabase>(this),
-				    cursor, synonym_table.get_entry_count(),
-				    prefix);
+				    cursor, prefix);
 }
 
 string
