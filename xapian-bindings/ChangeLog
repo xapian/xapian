@@ -1,3 +1,9 @@
+Mon Dec 07 01:15:49 GMT 2009  Olly Betts <olly@survex.com>
+
+	* ruby/docs/Makefile.am: Run rdoc with the current directory set to
+	  where xapian.rb is so we don't build absolute paths into the
+	  generated HTML.  Should address part of ticket#417.
+
 Thu Dec 03 06:07:07 GMT 2009  Olly Betts <olly@survex.com>
 
 	* php/util.i: Use const string & instead of string.

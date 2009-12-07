@@ -41,5 +41,5 @@ rdocs: rdocs/index.html
 
 rdocs/index.html: ../xapian.rb
 	rm -rf rdocs
-	$(RDOC) --op rdocs $(srcdir)/../xapian.rb
+	cd "$(srcdir)/.." && $(RDOC) --op "$(abs_builddir)/rdocs" xapian.rb
 endif
