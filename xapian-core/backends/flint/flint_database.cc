@@ -958,8 +958,7 @@ FlintDatabase::open_synonym_keylist(const string & prefix) const
     FlintCursor * cursor = synonym_table.cursor_get();
     if (!cursor) return NULL;
     return new FlintSynonymTermList(Xapian::Internal::RefCntPtr<const FlintDatabase>(this),
-				    cursor, synonym_table.get_entry_count(),
-				    prefix);
+				    cursor, prefix);
 }
 
 string

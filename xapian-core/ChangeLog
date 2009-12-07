@@ -1,3 +1,9 @@
+Mon Dec 07 04:56:42 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_database.cc,backends/flint/flint_synonym.h:
+	  Eliminate "size" private member of FlintSynonymTermList which is set
+	  but never used.
+
 Mon Dec 07 04:49:54 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_database.cc,backends/chert/chert_synonym.h:
