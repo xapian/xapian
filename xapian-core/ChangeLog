@@ -1,3 +1,7 @@
+Tue Dec 08 08:23:12 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_cursor.h: Tweak whitespace in comment.
+
 Mon Dec 07 04:56:42 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_database.cc,backends/flint/flint_synonym.h:

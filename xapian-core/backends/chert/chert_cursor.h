@@ -160,7 +160,7 @@ class XAPIAN_VISIBILITY_DEFAULT ChertCursor {
 	 *
 	 *  If cursor is unpositioned, the result is simply false.
 	 *
-	 *  If cursor  is positioned, and points to the very last item in the
+	 *  If cursor is positioned, and points to the very last item in the
 	 *  Btree the cursor is made unpositioned, and the result is false.
 	 *  Otherwise the cursor is moved to the next item in the B-tree,
 	 *  and the result is true.
