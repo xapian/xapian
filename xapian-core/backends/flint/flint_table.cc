@@ -1576,6 +1576,20 @@ FlintTable::FlintTable(const char * tablename_, const string & path_,
 	      compress_strategy_ << ", " << lazy_);
 }
 
+bool
+FlintTable::really_empty() const
+{
+    if (handle < 0) {
+	if (handle == -2) {
+	    FlintTable::throw_database_closed();
+	}
+	return true;
+    }
+    FlintCursor cur(const_cast<FlintTable*>(this));
+    cur.find_entry(string());
+    return !cur.next();
+}
+
 void
 FlintTable::lazy_alloc_deflate_zstream() const {
     if (usual(deflate_zstream)) {

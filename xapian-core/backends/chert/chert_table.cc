@@ -1589,6 +1589,20 @@ ChertTable::ChertTable(const char * tablename_, const string & path_,
 		 compress_strategy_ << ", " << lazy_);
 }
 
+bool
+ChertTable::really_empty() const
+{
+    if (handle < 0) {
+	if (handle == -2) {
+	    ChertTable::throw_database_closed();
+	}
+	return true;
+    }
+    ChertCursor cur(const_cast<ChertTable*>(this));
+    cur.find_entry(string());
+    return !cur.next();
+}
+
 void
 ChertTable::lazy_alloc_deflate_zstream() const {
     if (usual(deflate_zstream)) {

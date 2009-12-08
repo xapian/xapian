@@ -1,3 +1,14 @@
+Tue Dec 08 12:03:08 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/chert/chert_table.cc,
+	  backends/chert/chert_table.h,backends/flint/flint_database.cc,
+	  backends/flint/flint_table.cc,backends/flint/flint_table.h,
+	  bin/xapian-compact.cc,bin/xapian-inspect.cc: Add empty() method to
+	  FlintTable and ChertTable which works completely reliably even if
+	  the item count has wrapped.
+	* tests/api_closedb.cc: Add closedb3 for coverage of get_doccount() and 
+	  has_positions().
+
 Tue Dec 08 08:23:12 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_cursor.h: Tweak whitespace in comment.

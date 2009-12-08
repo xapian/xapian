@@ -147,3 +147,18 @@ DEFINE_TESTCASE(closedb2, backend && writable && !remote && !inmemory) {
 
     return true;
 }
+
+/// Check API methods which might either work or throw an exception.
+DEFINE_TESTCASE(closedb3, backend) {
+    Xapian::Database db(get_database("etext"));
+    db.close();
+    try {
+	TEST(db.has_positions());
+    } catch (const Xapian::DatabaseError &) {
+    }
+    try {
+	TEST_EQUAL(db.get_doccount(), 566);
+    } catch (const Xapian::DatabaseError &) {
+    }
+    return true;
+}

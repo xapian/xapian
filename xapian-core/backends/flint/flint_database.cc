@@ -858,7 +858,7 @@ FlintDatabase::term_exists(const string & term) const
 bool
 FlintDatabase::has_positions() const
 {
-    return position_table.get_entry_count() > 0;
+    return !position_table.empty();
 }
 
 LeafPostList *

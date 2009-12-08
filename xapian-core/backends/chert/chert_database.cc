@@ -855,7 +855,7 @@ ChertDatabase::term_exists(const string & term) const
 bool
 ChertDatabase::has_positions() const
 {
-    return position_table.get_entry_count() > 0;
+    return !position_table.empty();
 }
 
 LeafPostList *
