@@ -1180,13 +1180,13 @@ next_doclen_chunk:
 		    del(current_key);
 		    continue;
 		}
-		AutoPtr<ChertCursor> cursor(cursor_get());
-		bool found = cursor->find_entry(current_key);
+		MutableChertCursor cursor(this);
+		bool found = cursor.find_entry(current_key);
 		Assert(found);
 		if (!found) continue; // Reduce damage!
-		while (cursor->del()) {
-		    const char *kpos = cursor->current_key.data();
-		    const char *kend = kpos + cursor->current_key.size();
+		while (cursor.del()) {
+		    const char *kpos = cursor.current_key.data();
+		    const char *kend = kpos + cursor.current_key.size();
 		    if (!check_tname_in_key_lite(&kpos, kend, tname)) break;
 		}
 		continue;

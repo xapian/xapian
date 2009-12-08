@@ -72,6 +72,7 @@ class XAPIAN_VISIBILITY_DEFAULT ChertCursor {
 	/// Assignment not allowed
         ChertCursor & operator=(const ChertCursor &);
 
+    protected:
 	/** Whether the cursor is positioned at a valid entry.
 	 *
 	 *  false initially, and after the cursor has dropped
@@ -79,6 +80,7 @@ class XAPIAN_VISIBILITY_DEFAULT ChertCursor {
 	 */
 	bool is_positioned;
 
+    private:
 	/** Whether the cursor is off the end of the table.
 	 */
 	bool is_after_end;
@@ -86,9 +88,11 @@ class XAPIAN_VISIBILITY_DEFAULT ChertCursor {
 	/** Status of the current_tag member. */
 	enum { UNREAD, UNCOMPRESSED, COMPRESSED } tag_status;
 
+    protected:
 	/// The Btree table
-	ChertTable * B;
+	const ChertTable * B;
 
+    private:
 	/// Pointer to an array of Cursors
 	Cursor * C;
 
@@ -128,7 +132,7 @@ class XAPIAN_VISIBILITY_DEFAULT ChertCursor {
 	 *  attached to is destroyed.  It's safe to destroy the ChertCursor
 	 *  after the Btree though, you just may not use the ChertCursor.
 	 */
-	ChertCursor(ChertTable *B);
+	ChertCursor(const ChertTable *B);
 
 	/** Destroy the ChertCursor */
 	~ChertCursor();
@@ -226,15 +230,33 @@ class XAPIAN_VISIBILITY_DEFAULT ChertCursor {
 	 */
 	bool after_end() const { return is_after_end; }
 
-	/** Delete the current key/tag pair, leaving the cursor on the next
-	 *  entry.
-	 *
-	 *  @return false if the cursor ends up unpositioned.
-	 */
-	bool del();
-
 	/// Return a pointer to the ChertTable we're a cursor for.
-	ChertTable * get_table() const { return B; }
+	const ChertTable * get_table() const { return B; }
+};
+
+class MutableChertCursor : public ChertCursor {
+  public:
+    /** Create a mutable cursor attached to a Btree.
+     *
+     *  A mutable cursor allows the items to be deleted.
+     *
+     *  Creates a cursor, which can be used to remember a position inside
+     *  the B-tree. The position is simply the item (key and tag) to which
+     *  the cursor points. A cursor is either positioned or unpositioned,
+     *  and is initially unpositioned.
+     *
+     *  NB: You must not try to use a MutableChertCursor after the Btree it is
+     *  attached to is destroyed.  It's safe to destroy the MutableChertCursor
+     *  after the Btree though, you just may not use the MutableChertCursor.
+     */
+    MutableChertCursor(ChertTable *B_) : ChertCursor(B_) { }
+
+    /** Delete the current key/tag pair, leaving the cursor on the next
+     *  entry.
+     *
+     *  @return false if the cursor ends up unpositioned.
+     */
+    bool del();
 };
 
 #endif /* OM_HGUARD_CHERT_CURSOR_H */

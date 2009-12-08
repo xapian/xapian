@@ -1,3 +1,12 @@
+Tue Dec 08 13:05:36 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_cursor.cc,backends/chert/chert_cursor.h,
+	  backends/chert/chert_postlist.cc: Add MutableChertCursor subclass of
+	  ChertCursor and implement del() there rather than in ChertCursor.
+	  This means we can use the C++ type system to track whether we got
+	  a const or non-const ChertTable * and so whether it is safe to
+	  cast away that const and delete the entry the cursor points to.
+
 Tue Dec 08 12:03:08 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_database.cc,backends/chert/chert_table.cc,
