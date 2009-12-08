@@ -1,3 +1,9 @@
+Tue Dec 08 23:56:46 GMT 2009  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: Don't bomb out if indexing is disallowed or we hit
+	  </body> for a document which had an overridden character set.
+	  Fixes ticket#410.
+
 Wed Nov 18 10:48:47 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.1.3.
