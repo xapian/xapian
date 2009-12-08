@@ -80,11 +80,11 @@ class XAPIAN_VISIBILITY_DEFAULT ChertCursor {
 	 */
 	bool is_positioned;
 
-    private:
 	/** Whether the cursor is off the end of the table.
 	 */
 	bool is_after_end;
 
+    private:
 	/** Status of the current_tag member. */
 	enum { UNREAD, UNCOMPRESSED, COMPRESSED } tag_status;
 
