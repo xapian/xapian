@@ -1,3 +1,10 @@
+Wed Dec 09 03:28:08 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* scriptindex.cc: Don't bomb out if indexing is disallowed or we hit
+	  </body> for a document which had an overridden character set.
+	  Fixes ticket#410.
+
 Wed Nov 18 01:21:09 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update fro 1.0.17.
