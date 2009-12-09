@@ -1,3 +1,10 @@
+Wed Dec 09 00:20:38 GMT 2009  Olly Betts <olly@survex.com>
+
+	* htmlparse.cc: Make the default charset "utf-8" not "UTF-8" as we
+	  lower case explicitly specified character sets to compare to see
+	  if we need to reparse, so this avoids a reparse when UTF-8 is
+	  explicitly specified as well as the default.
+
 Tue Dec 08 23:56:46 GMT 2009  Olly Betts <olly@survex.com>
 
 	* scriptindex.cc: Don't bomb out if indexing is disallowed or we hit
