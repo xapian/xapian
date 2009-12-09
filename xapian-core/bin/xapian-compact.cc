@@ -161,7 +161,7 @@ merge_postlists(FlintTable * out, vector<Xapian::docid>::const_iterator offset,
     for ( ; b != e; ++b, ++offset) {
 	FlintTable *in = new FlintTable(*b, true);
 	in->open();
-	if (!in->get_entry_count()) {
+	if (in->empty()) {
 	    // Skip empty tables.
 	    delete in;
 	    continue;
@@ -398,7 +398,7 @@ merge_spellings(FlintTable * out,
     for ( ; b != e; ++b) {
 	FlintTable *in = new FlintTable(*b, true, DONT_COMPRESS, true);
 	in->open();
-	if (in->get_entry_count()) {
+	if (!in->empty()) {
 	    // The MergeCursor takes ownership of FlintTable in and is
 	    // responsible for deleting it.
 	    pq.push(new MergeCursor(in));
@@ -561,7 +561,7 @@ merge_synonyms(FlintTable * out,
     for ( ; b != e; ++b) {
 	FlintTable *in = new FlintTable(*b, true, DONT_COMPRESS, true);
 	in->open();
-	if (in->get_entry_count()) {
+	if (!in->empty()) {
 	    // The MergeCursor takes ownership of FlintTable in and is
 	    // responsible for deleting it.
 	    pq.push(new MergeCursor(in));
@@ -698,7 +698,7 @@ merge_docid_keyed(FlintTable *out, const vector<string> & inputs,
 
 	FlintTable in(inputs[i], true, DONT_COMPRESS, lazy);
 	in.open();
-	if (in.get_entry_count() == 0) continue;
+	if (in.empty()) continue;
 
 	FlintCursor cur(&in);
 	cur.find_entry("");

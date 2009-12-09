@@ -1,3 +1,11 @@
+Wed Dec 09 03:23:59 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/flint/flint_database.cc,backends/flint/flint_table.cc,
+	  backends/flint/flint_table.h,bin/xapian-compact.cc,
+	  bin/xapian-inspect.cc: Add empty() method to FlintTable which works
+	  completely reliably even if the item count has wrapped.
+
 Wed Dec 09 03:06:30 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
