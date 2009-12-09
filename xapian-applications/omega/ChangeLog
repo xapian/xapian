@@ -1,3 +1,8 @@
+Wed Dec 09 03:55:24 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* myhtmlparse.cc: Add missing "using namespace std;".
+
 Wed Dec 09 03:54:07 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
