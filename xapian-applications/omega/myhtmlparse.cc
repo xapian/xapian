@@ -28,6 +28,8 @@
 #include <cctype>
 #include <cstring>
 
+using namespace std;
+
 inline void
 lowercase_string(string &str)
 {

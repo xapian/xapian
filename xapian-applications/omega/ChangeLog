@@ -1,3 +1,7 @@
+Wed Dec 09 00:26:19 GMT 2009  Olly Betts <olly@survex.com>
+
+	* myhtmlparse.cc: Add missing "using namespace std;".
+
 Wed Dec 09 00:20:38 GMT 2009  Olly Betts <olly@survex.com>
 
 	* htmlparse.cc: Make the default charset "utf-8" not "UTF-8" as we
