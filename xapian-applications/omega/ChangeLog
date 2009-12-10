@@ -1,3 +1,7 @@
+Wed Dec 10 00:15:10 GMT 2009  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
 Wed Dec 09 00:26:19 GMT 2009  Olly Betts <olly@survex.com>
 
 	* myhtmlparse.cc: Add missing "using namespace std;".
