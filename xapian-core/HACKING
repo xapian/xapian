@@ -1006,6 +1006,9 @@ please send it to us for inclusion.  Any major changes should be discussed
 on the xapian-devel mailing list first:
 <http://xapian.org/lists>
 
+Also, please read the following section on licensing of patches before
+submitting a patch.
+
 We find patches in unified diff format easiest to read.  If you're using a
 SVN checkout just use "svn diff" to generate the diff.  If you're working
 from a tarball, compare against the original versions of files using
@@ -1164,6 +1167,27 @@ patches from you, or received helpful reports or advice, we will add your name
 to the AUTHORS file (unless you specifically request us not to).  If you see we
 have forgotten to do this, please draw it to our attention so that we can
 address the omission.
+
+Licensing of patches
+====================
+
+If you want a patch to be considered for inclusion in the Xapian sources, you
+must own the copyright on this patch.  Employers often claim copyright on code
+written by their employees (even if the code is written in their spare time),
+so please check with your employer if this applies.  Be aware that even if you
+are a student your university may try and claim some rights on code which you
+write.
+
+Patches which are submitted to Xapian will only be included if they are
+licensed for distribution under all of the following licenses:
+
+ - GPL version 2 and all later versions (see the file "COPYING" for details).
+ - MIT/X license (see the file "COPYING_MIT" for details).
+
+The current distribution of Xapian contains many files which are only licensed
+under the GPL, but we are working towards being able to distribute Xapian under
+a more permissive license, and are not willing to accept patches which we will
+have to rewrite before this can happen.
 
 Developers with SVN access:
 ===========================
