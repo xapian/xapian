@@ -1,3 +1,8 @@
+Fri Dec 11 16:51:22 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* common/documentterm.h: Fix some documentation comments which were
+	  trivially incorrect or incomplete.
+
 Fri Dec 11 11:05:19 GMT 2009  Richard Boulton <richard@tartarus.org>
 
 	* COPYING_MIT,HACKING: Add details of our policy for accepting
