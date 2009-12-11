@@ -1,3 +1,10 @@
+Fri Dec 11 19:39:34 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* tests/api_posdb.cc: Add a basic test of adding a document, and
+	  modifying its positions.  Found one bug already, but the line
+	  which triggers this is commented out for now so that we don't
+	  break the snapshotters until it's fixed.
+
 Fri Dec 11 16:51:22 GMT 2009  Richard Boulton <richard@tartarus.org>
 
 	* common/documentterm.h: Fix some documentation comments which were
