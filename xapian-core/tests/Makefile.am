@@ -126,6 +126,7 @@ collated_apitest_sources = \
  api_postingsource.cc \
  api_qpbackend.cc \
  api_query.cc \
+ api_replacedoc.cc \
  api_replicate.cc \
  api_scalability.cc \
  api_serialise.cc \

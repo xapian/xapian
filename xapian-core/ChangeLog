@@ -1,3 +1,8 @@
+Sat Dec 12 13:07:51 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* tests/Makefile.am,tests/api_posdb.cc,tests/api_replacedoc.cc:
+	  Split my recently added replacedoc test out into a new file.
+
 Sat Dec 12 12:58:22 GMT 2009  Richard Boulton <richard@tartarus.org>
 
 	* tests/api_posdb.cc: Extend test of document modification to cover
