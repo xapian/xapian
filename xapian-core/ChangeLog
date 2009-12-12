@@ -1,3 +1,10 @@
+Sat Dec 12 04:24:42 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/flint/flint_database.cc,
+	  common/document.h: If a document is replaced with itself unmodified,
+	  we no longer increase the automatic flush counter.
+	* tests/api_backend.cc: Add regression test replacedoc7.
+
 Fri Dec 11 19:39:34 GMT 2009  Richard Boulton <richard@tartarus.org>
 
 	* tests/api_posdb.cc: Add a basic test of adding a document, and

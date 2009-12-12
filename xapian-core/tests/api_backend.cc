@@ -239,3 +239,44 @@ DEFINE_TESTCASE(matchdecider4, remote) {
 
     return true;
 }
+
+/** Check that replacing an unmodified document doesn't increase the automatic
+ *  flush counter.  Regression test for bug fixed in 1.1.4/1.0.18.
+ */
+DEFINE_TESTCASE(replacedoc7, writable && !inmemory && !remote) {
+    // The inmemory backend doesn't batch changes, so there's nothing to
+    // check there.
+    //
+    // The remote backend doesn't implement the lazy replacement of documents
+    // optimisation currently.
+    Xapian::WritableDatabase db(get_writable_database());
+    Xapian::Document doc;
+    doc.set_data("fish");
+    doc.add_term("Hlocalhost");
+    doc.add_posting("hello", 1);
+    doc.add_posting("world", 2);
+    doc.add_value(1, "myvalue");
+    db.add_document(doc);
+    db.commit();
+
+    // We add a second document, and then replace the first document with
+    // itself 10000 times.  If the document count for the database reopened
+    // read-only is 2, then we triggered an automatic commit.
+
+    doc.add_term("XREV2");
+    db.add_document(doc);
+
+    for (int i = 0; i < 10000; ++i) {
+	doc = db.get_document(1);
+	db.replace_document(1, doc);
+    }
+
+    Xapian::Database rodb(get_writable_database_as_database());
+    TEST_EQUAL(rodb.get_doccount(), 1);
+
+    db.flush();
+    rodb.reopen();
+
+    TEST_EQUAL(rodb.get_doccount(), 2);
+    return true;
+}

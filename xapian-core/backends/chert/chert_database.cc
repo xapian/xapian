@@ -1287,6 +1287,10 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 		// We have a docid, it matches, and the pointer matches, so we
 		// can skip modification of any data which hasn't been modified
 		// in the document.
+		if (!document.internal->modified()) {
+		    // If the document is unchanged, we've nothing to do.
+		    return;
+		}
 		modifying = true;
 		LOGLINE(DB, "Detected potential document modification shortcut.");
 	    } else {
