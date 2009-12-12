@@ -1,3 +1,8 @@
+Sat Dec 12 12:58:22 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* tests/api_posdb.cc: Extend test of document modification to cover
+	  removing the last term in the document, too.
+
 Sat Dec 12 12:57:43 GMT 2009  Richard Boulton <richard@tartarus.org>
 
 	* backends/chert/chert_database.cc,backends/flint/flint_database.cc:
