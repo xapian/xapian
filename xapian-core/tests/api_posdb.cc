@@ -692,8 +692,7 @@ DEFINE_TESTCASE(poslistupdate1, positional && writable) {
     // around here.
     Xapian::PositionIterator posit(db.positionlist_begin(1, "pos"));
     string posrepr = positions_to_string(posit, db.positionlist_end(1, "pos"));
-    // FIXME - commented out to avoid breaking trunk, for now.
-    //TEST_EQUAL(posrepr, "");
+    TEST_EQUAL(posrepr, "");
 
     doc = db.get_document(1);
     doc.add_term("pos");

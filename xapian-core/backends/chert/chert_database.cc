@@ -1313,6 +1313,7 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 	    // record.
 	    Xapian::Internal::RefCntPtr<const ChertWritableDatabase> ptrtothis(this);
 	    ChertTermList termlist(ptrtothis, did);
+	    Xapian::TermIterator term = document.termlist_begin();
 
 	    termlist.next();
 	    while (!termlist.at_end()) {
@@ -1346,15 +1347,19 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 		    k->second = make_pair('D', 0u);
 		}
 
+		term.skip_to(tname);
+		if (term != document.termlist_end()) {
+		    position_table.delete_positionlist(did, tname);
+		}
+
 		termlist.next();
 	    }
 
 	    stats.delete_document(termlist.get_doclength());
 
 	    chert_doclen_t new_doclen = 0;
-	    Xapian::TermIterator term = document.termlist_begin();
-	    Xapian::TermIterator term_end = document.termlist_end();
-	    for ( ; term != term_end; ++term) {
+	    for (term = document.termlist_begin();
+		 term != document.termlist_end(); ++term) {
 		termcount wdf = term.get_wdf();
 		// Calculate the new document length
 		new_doclen += wdf;

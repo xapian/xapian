@@ -1,3 +1,9 @@
+Sat Dec 12 11:30:23 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* backends/chert/chert_database.cc,backends/flint/flint_database.cc,
+	  tests/api_posdb.cc: Delete old positionlist chunks in
+	  replace_document().  Uncomment part of test which tested this.
+
 Sat Dec 12 04:24:42 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_database.cc,backends/flint/flint_database.cc,
