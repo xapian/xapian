@@ -46,8 +46,12 @@ bin_xapian_check_SOURCES =\
 	bin/xapian-check-flint.h
 bin_xapian_check_LDADD = $(ldflags) libchertcheck.la libflintcheck.la $(libxapian_la)
 
-bin_xapian_compact_CPPFLAGS = -I$(top_srcdir)/backends/flint
-bin_xapian_compact_SOURCES = bin/xapian-compact.cc
+bin_xapian_compact_CPPFLAGS = -I$(top_srcdir)/backends/flint -I$(top_srcdir)/backends/chert
+bin_xapian_compact_SOURCES =\
+	bin/xapian-compact.cc\
+	bin/xapian-compact-chert.cc\
+	bin/xapian-compact-flint.cc\
+	bin/xapian-compact.h
 bin_xapian_compact_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
 
 bin_xapian_inspect_CPPFLAGS = -I$(top_srcdir)/backends/flint

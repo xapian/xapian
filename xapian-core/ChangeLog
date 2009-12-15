@@ -1,3 +1,8 @@
+Tue Dec 15 13:08:33 GMT 2009  Olly Betts <olly@survex.com>
+
+	* bin/: Split apart the flint and chert compaction code.  Should be
+	  no change in functionality.
+
 Tue Dec 15 10:11:10 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_alltermslist.cc: Tweak to not apply the
@@ -96,7 +101,7 @@ Tue Dec 08 12:03:08 GMT 2009  Olly Betts <olly@survex.com>
 	  bin/xapian-compact.cc,bin/xapian-inspect.cc: Add empty() method to
 	  FlintTable and ChertTable which works completely reliably even if
 	  the item count has wrapped.
-	* tests/api_closedb.cc: Add closedb3 for coverage of get_doccount() and 
+	* tests/api_closedb.cc: Add closedb3 for coverage of get_doccount() and
 	  has_positions().
 
 Tue Dec 08 08:23:12 GMT 2009  Olly Betts <olly@survex.com>
