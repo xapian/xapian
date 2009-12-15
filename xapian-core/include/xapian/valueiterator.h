@@ -32,7 +32,7 @@
 
 namespace Xapian {
 
-/// @internal A proxy class for an end ValueIterator.
+/// @private @internal A proxy class for an end ValueIterator.
 class ValueIteratorEnd_ { };
 
 /// Class for iterating over document values.
@@ -75,10 +75,10 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
     ValueIterator & operator++();
 
     /// Advance the iterator to the next position (postfix version).
-    DerefStringWrapper_ operator++(int) {
-	std::string value(**this);
+    DerefWrapper_<std::string> operator++(int) {
+	const std::string & value(**this);
 	operator++();
-	return DerefStringWrapper_(value);
+	return DerefWrapper_<std::string>(value);
     }
 
     /** Return the docid at the current position.

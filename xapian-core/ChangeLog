@@ -1,3 +1,8 @@
+Tue Dec 15 08:24:04 GMT 2009  Olly Betts <olly@survex.com>
+
+	* include/xapian/: Convert DerefStringWrapper_ to a templated
+	  DerefWrapper_ and use it instead of DocIDWrapper and TermPosWrapper.
+
 Tue Dec 15 08:23:08 GMT 2009  Olly Betts <olly@survex.com>
 
 	* include/xapian/query.h: Mark Query::Internal as @private for doxygen.
