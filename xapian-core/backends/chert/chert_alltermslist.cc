@@ -89,7 +89,7 @@ ChertAllTermsList::next()
 	cursor->next();
 	if (cursor->after_end()) {
 	    current_term.resize(0);
-	    break;
+	    RETURN(NULL);
 	}
 
 	const char *p = cursor->current_key.data();
