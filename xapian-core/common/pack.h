@@ -48,6 +48,7 @@ unpack_bool(const char ** p, const char * end, bool * result)
 {
     Assert(result);
     const char * & ptr = *p;
+    Assert(ptr);
     char ch;
     if (rare(ptr == end || ((ch = *ptr++ - '0') &~ 1))) {
 	ptr = NULL;
@@ -93,6 +94,7 @@ unpack_uint_last(const char ** p, const char * end, U * result)
     Assert(result);
 
     const char * ptr = *p;
+    Assert(ptr);
     *p = end;
 
     // Check for overflow.
@@ -156,6 +158,7 @@ unpack_uint_preserving_sort(const char ** p, const char * end, U * result)
     Assert(result);
 
     const char * ptr = *p;
+    Assert(ptr);
 
     if (rare(ptr == end)) {
 	return false;
@@ -216,6 +219,7 @@ unpack_uint(const char ** p, const char * end, U * result)
     STATIC_ASSERT_UNSIGNED_TYPE(U);
 
     const char * ptr = *p;
+    Assert(ptr);
     const char * start = ptr;
 
     // Check the length of the encoded integer first.
@@ -288,6 +292,7 @@ pack_string(std::string & s, const std::string & value)
 inline void
 pack_string(std::string & s, const char * ptr)
 {
+    Assert(ptr);
     size_t len = std::strlen(ptr);
     pack_uint(s, len);
     s.append(ptr, len);
@@ -352,6 +357,7 @@ unpack_string_preserving_sort(const char ** p, const char * end,
     result.resize(0);
 
     const char *ptr = *p;
+    Assert(ptr);
 
     while (ptr != end) {
 	char ch = *ptr++;
@@ -376,7 +382,7 @@ unpack_string_preserving_sort(const char ** p, const char * end,
     }
 
     *p = NULL;
-    return true;
+    return false;
 }
 
 #endif // XAPIAN_INCLUDED_PACK_H

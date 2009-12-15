@@ -1,3 +1,9 @@
+Tue Dec 15 03:59:44 GMT 2009  Olly Betts <olly@survex.com>
+
+	* common/pack.h: Return false not true if
+	  unpack_string_preserving_sort() fails.  Add assertions that the
+	  source pointer isn't NULL to all the functions.
+
 Tue Dec 15 02:30:24 GMT 2009  Olly Betts <olly@survex.com>
 
 	* examples/delve.cc: Improve phrasing ("unique terms" -> "distinct
