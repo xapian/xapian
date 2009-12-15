@@ -1,3 +1,8 @@
+Tue Dec 15 02:30:24 GMT 2009  Olly Betts <olly@survex.com>
+
+	* examples/delve.cc: Improve phrasing ("unique terms" -> "distinct
+	  terms").
+
 Sat Dec 12 13:07:51 GMT 2009  Richard Boulton <richard@tartarus.org>
 
 	* tests/Makefile.am,tests/api_posdb.cc,tests/api_replacedoc.cc:

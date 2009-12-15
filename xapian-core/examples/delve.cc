@@ -83,7 +83,7 @@ show_db_stats(Database &db)
 	    ++terms;
 	    ++t;
 	}
-	cout << "number of unique terms = " << terms << endl;
+	cout << "number of distinct terms = " << terms << endl;
     }
 }
 
