@@ -1,3 +1,17 @@
+Wed Dec 16 12:03:13 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/,bin/Makefile.mk,common/pack.h: Change the packing
+	  of uints and strings into sortable keys in chert databases, which
+	  reduces database size by 2.5% in tests.  This means an incompatible
+	  change in the chert format.
+	* bin/xapian-chert-update.cc: Utility to update a chert database from
+	  the old format to the new format.  It works much like xapian-compact
+	  so should take a similar amount of time (and results in a compact
+	  database).
+	* tests/api_wrdb.cc: Adjust the test which checks a string of zero
+	  bytes fails in the correct way - 126 zero bytes is now handled, so
+	  we need 127 to check the failure mode.
+
 Wed Dec 16 11:52:27 GMT 2009  Olly Betts <olly@survex.com>
 
 	* bin/xapian-compact.cc: Ensure that the resultant database has a

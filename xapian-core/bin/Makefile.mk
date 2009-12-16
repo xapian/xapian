@@ -5,6 +5,7 @@ EXTRA_DIST +=\
 ## FIXME: if BUILD_BACKEND_FLINT
 bin_PROGRAMS +=\
 	bin/xapian-check\
+	bin/xapian-chert-update\
 	bin/xapian-compact\
 	bin/xapian-inspect\
 	bin/xapian-replicate\
@@ -13,6 +14,7 @@ bin_PROGRAMS +=\
 if !MAINTAINER_NO_DOCS
 dist_man_MANS +=\
 	bin/xapian-check.1\
+	bin/xapian-chert-update.1\
 	bin/xapian-compact.1\
 	bin/xapian-inspect.1\
 	bin/xapian-replicate.1\
@@ -45,6 +47,10 @@ bin_xapian_check_SOURCES =\
 	bin/xapian-check-flint.cc\
 	bin/xapian-check-flint.h
 bin_xapian_check_LDADD = $(ldflags) libchertcheck.la libflintcheck.la $(libxapian_la)
+
+bin_xapian_chert_update_CPPFLAGS = -I$(top_srcdir)/backends/flint -I$(top_srcdir)/backends/chert
+bin_xapian_chert_update_SOURCES = bin/xapian-chert-update.cc
+bin_xapian_chert_update_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
 
 bin_xapian_compact_CPPFLAGS = -I$(top_srcdir)/backends/flint -I$(top_srcdir)/backends/chert
 bin_xapian_compact_SOURCES =\
@@ -82,6 +88,9 @@ bin/quartzdump.1: bin/quartzdump$(EXEEXT) makemanpage
 
 bin/xapian-check.1: bin/xapian-check$(EXEEXT) makemanpage
 	./makemanpage bin/xapian-check $(srcdir)/bin/xapian-check.cc bin/xapian-check.1
+
+bin/xapian-chert-update.1: bin/xapian-chert-update$(EXEEXT) makemanpage
+	./makemanpage bin/xapian-chert-update $(srcdir)/bin/xapian-chert-update.cc bin/xapian-chert-update.1
 
 bin/xapian-compact.1: bin/xapian-compact$(EXEEXT) makemanpage
 	./makemanpage bin/xapian-compact $(srcdir)/bin/xapian-compact.cc bin/xapian-compact.1

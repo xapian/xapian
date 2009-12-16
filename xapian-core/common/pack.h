@@ -26,6 +26,23 @@
 
 #include "omassert.h"
 
+#include "xapian/types.h"
+
+/** How many bits to store the length of a sortable uint in.
+ *
+ *  Setting this to 2 limits us to 2**32 documents in the database.  If set
+ *  to 3, then 2**64 documents are possible, but the database format isn't
+ *  compatible.
+ */
+const unsigned int SORTABLE_UINT_LOG2_MAX_BYTES = 2;
+
+/// Calculated value used below.
+const unsigned int SORTABLE_UINT_MAX_BYTES = 1 << SORTABLE_UINT_LOG2_MAX_BYTES;
+
+/// Calculated value used below.
+const unsigned int SORTABLE_UINT_1ST_BYTE_MASK =
+	(0xffu >> SORTABLE_UINT_LOG2_MAX_BYTES);
+
 /** Append an encoded bool to a string.
  *
  *  @param s		The string to append to.
@@ -115,6 +132,10 @@ unpack_uint_last(const char ** p, const char * end, U * result)
  *  The appended string data will sort in the same order as the unsigned
  *  integer being encoded.
  *
+ *  Note that the first byte of the encoding will never be \xff, so it is
+ *  safe to store the result of this function immediately after the result of
+ *  pack_string_preserving_sort().
+ *
  *  @param s		The string to append to.
  *  @param value	The unsigned integer to encode.
  */
@@ -124,18 +145,18 @@ pack_uint_preserving_sort(std::string & s, U value)
 {
     // Check U is an unsigned type.
     STATIC_ASSERT_UNSIGNED_TYPE(U);
-    STATIC_ASSERT(sizeof(U) < 256);
+    STATIC_ASSERT(sizeof(U) <= SORTABLE_UINT_MAX_BYTES);
 
     char tmp[sizeof(U) + 1];
     char * p = tmp + sizeof(tmp);
 
-    while (value) {
+    do {
 	*--p = char(value & 0xff);
 	value >>= 8;
-    }
+    } while (value &~ SORTABLE_UINT_1ST_BYTE_MASK);
 
-    char len = static_cast<char>(tmp + sizeof(tmp) - p);
-    *--p = len;
+    unsigned char len = static_cast<unsigned char>(tmp + sizeof(tmp) - p);
+    *--p = char((len - 1) << (8 - SORTABLE_UINT_LOG2_MAX_BYTES) | value);
     s.append(p, len + 1);
 }
 
@@ -164,7 +185,9 @@ unpack_uint_preserving_sort(const char ** p, const char * end, U * result)
 	return false;
     }
 
-    size_t len = size_t(static_cast<unsigned char>(*ptr++));
+    unsigned char len_byte = static_cast<unsigned char>(*ptr++);
+    *result = len_byte & SORTABLE_UINT_1ST_BYTE_MASK;
+    size_t len = (len_byte >> (8 - SORTABLE_UINT_LOG2_MAX_BYTES)) + 1;
 
     if (rare(size_t(end - ptr) < len)) {
 	return false;
@@ -178,7 +201,6 @@ unpack_uint_preserving_sort(const char ** p, const char * end, U * result)
 	return false;
     }
 
-    *result = 0;
     while (ptr != end) {
 	*result = (*result << 8) | U(static_cast<unsigned char>(*ptr++));
     }
@@ -325,11 +347,23 @@ unpack_string(const char ** p, const char * end, std::string & result)
 
 /** Append an encoded std::string to a string, preserving the sort order.
  *
+ *  The byte which follows this encoded value *must not* be \xff, or the sort
+ *  order won't be correct.  You may need to store a padding byte (\0 say) to
+ *  ensure this.  Note that pack_uint_preserving_sort() can never produce
+ *  \xff as its first byte so is safe to use immediately afterwards.
+ *
  *  @param s		The string to append to.
  *  @param value	The std::string to encode.
+ *  @param last		If true, this is the last thing to be encoded in this
+ *			string - see note below (default: false)
+ *
+ *  It doesn't make sense to use pack_string_preserving_sort() if nothing can
+ *  ever follow, but if optional items can, you can set last=true in cases
+ *  where nothing does and get a shorter encoding in those cases.
  */
 inline void
-pack_string_preserving_sort(std::string & s, const std::string & value)
+pack_string_preserving_sort(std::string & s, const std::string & value,
+			    bool last = false)
 {
     std::string::size_type b = 0, e;
     while ((e = value.find('\0', b)) != std::string::npos) {
@@ -339,7 +373,7 @@ pack_string_preserving_sort(std::string & s, const std::string & value)
 	b = e;
     }
     s.append(value, b, std::string::npos);
-    s.append("\0", 2);
+    if (!last) s += '\0';
 }
 
 /** Decode a "sort preserved" std::string from a string.
@@ -362,27 +396,43 @@ unpack_string_preserving_sort(const char ** p, const char * end,
     while (ptr != end) {
 	char ch = *ptr++;
 	if (rare(ch == '\0')) {
-	    if (rare(ptr == end)) {
-		// Ran out of data expecting '\0' or '\xff'.
+	    if (usual(ptr == end || *ptr != '\xff')) {
 		break;
 	    }
-
-	    char ch2 = *ptr++;
-	    if (!ch2) {
-		*p = ptr;
-		return true;
-	    }
-
-	    if (rare(ch2 != '\xff')) {
-		// Expected '\0' or '\xff'.
-		break;
-	    }
+	    ++ptr;
 	}
 	result += ch;
     }
+    *p = ptr;
+    return true;
+}
 
-    *p = NULL;
-    return false;
+inline std::string
+pack_chert_postlist_key(const std::string &term)
+{
+    // Special case for doclen lists.
+    if (term.empty())
+	return std::string("\x00\xe0", 2);
+
+    std::string key;
+    pack_string_preserving_sort(key, term, true);
+    return key;
+}
+
+inline std::string
+pack_chert_postlist_key(const std::string &term, Xapian::docid did)
+{
+    // Special case for doclen lists.
+    if (term.empty()) {
+	std::string key("\x00\xe0", 2);
+	pack_uint_preserving_sort(key, did);
+	return key;
+    }
+
+    std::string key;
+    pack_string_preserving_sort(key, term);
+    pack_uint_preserving_sort(key, did);
+    return key;
 }
 
 #endif // XAPIAN_INCLUDED_PACK_H

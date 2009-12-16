@@ -1691,9 +1691,9 @@ DEFINE_TESTCASE(termtoolong1, writable) {
 
     {
 	// Currently flint and chert escape zero byte from terms in keys for
-	// some tables, so a term with 126 zero bytes won't work either.
+	// some tables, so a term with 127 zero bytes won't work either.
 	Xapian::Document doc;
-	doc.add_term(string(126, '\0'));
+	doc.add_term(string(127, '\0'));
 	db.add_document(doc);
 	try {
 	    db.commit();

@@ -122,8 +122,7 @@ ChertAllTermsList::skip_to(const string &term)
     // the current term.
     termfreq = 0;
 
-    string key;
-    pack_string_preserving_sort(key, term);
+    string key = pack_chert_postlist_key(term);
     if (cursor->find_entry_ge(key)) {
 	// The exact term we asked for is there, so just copy it rather than
 	// wasting effort unpacking it from the key.
