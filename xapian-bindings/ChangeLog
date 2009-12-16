@@ -1,3 +1,9 @@
+Wed Dec 16 08:21:43 GMT 2009  Olly Betts <olly@survex.com>
+
+	* ruby/Makefile.am,ruby/docs/Makefile.am,ruby/generate-rdoc-stubs,
+	  ruby/xapian.rb: Generate entries in the rdocs for all classes which
+	  aren't documented via xapian.rb.  Fixes ticket#417.
+
 Mon Dec 07 01:15:49 GMT 2009  Olly Betts <olly@survex.com>
 
 	* ruby/docs/Makefile.am: Run rdoc with the current directory set to

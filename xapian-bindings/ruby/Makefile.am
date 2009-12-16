@@ -7,11 +7,11 @@ TESTS_ENVIRONMENT = $(RUBY) -I.libs -I$(srcdir)
 ## Test programs to be run
 TESTS = smoketest.rb
 
-BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h
+BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h rdoc.rb
 
 EXTRA_DIST = util.i $(TESTS) $(BUILT_SOURCES)
 
-SUBDIRS = docs
+SUBDIRS = . docs
 
 rubylibdir = $(RUBY_LIB)
 dist_rubylib_DATA = xapian.rb
@@ -57,6 +57,9 @@ xapian_wrap.stamp: $(SWIG_sources) util.i
 	$(multitarget_end)
 
 -include xapian_wrap.d
+
+rdoc.rb: generate-rdoc-stubs xapian.rb ../../xapian-core/docs/apidoc/xml/index.xml
+	$(PERL) $(srcdir)/generate-rdoc-stubs
 
 CLEANFILES = $(BUILT_SOURCES) xapian_wrap.stamp
 else
