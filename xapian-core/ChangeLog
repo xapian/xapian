@@ -1,3 +1,9 @@
+Wed Dec 16 09:57:27 GMT 2009  Olly Betts <olly@survex.com>
+
+	* examples/quest.cc: If no database is specified, still parse the query
+	  and report get_description() on it as this provides a useful way to
+	  see how a query parses.
+
 Wed Dec 16 00:40:51 GMT 2009  Olly Betts <olly@survex.com>
 
 	* languages/german.sbl,languages/german2.sbl: Update the german and
