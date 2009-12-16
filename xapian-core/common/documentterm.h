@@ -73,7 +73,7 @@ class OmDocumentTerm {
      */
     term_positions positions;
 
-    /** Add a position to the posting list.
+    /** Add a position to the position list.
      *
      *  This adds an entry to the list of positions, unless
      *  there is already one for the specified position.
@@ -85,13 +85,14 @@ class OmDocumentTerm {
      */
     void add_position(Xapian::termpos tpos);
 
-    /** Remove an entry from the posting list.
+    /** Remove an entry from the position list.
      *
      *  This removes an entry from the list of positions.
      *
      *  This does not change the value of the wdf.
      *
-     *  @exception Xapian::InvalidArgumentError is thrown if the 
+     *  @exception Xapian::InvalidArgumentError is thrown if the position does
+     *  not occur in the position list.
      */
     void remove_position(Xapian::termpos tpos);
 

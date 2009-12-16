@@ -1,3 +1,9 @@
+Wed Dec 16 14:03:58 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* common/documentterm.h: Fix some documentation comments which were
+	  trivially incorrect or incomplete.
+
 Wed Dec 09 03:23:59 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
