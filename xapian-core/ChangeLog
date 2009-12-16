@@ -1,3 +1,12 @@
+Wed Dec 16 11:52:27 GMT 2009  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Ensure that the resultant database has a
+	  fresh UUID (previously chert copied the UUID from the first input,
+	  while flint didn't set a UUID so one was generated on demand when
+	  next requested, if the database is writable.
+	* tests/api_compact.cc: Add tests that a UUID is set and that it is
+	  different from that of the input.
+
 Wed Dec 16 09:57:27 GMT 2009  Olly Betts <olly@survex.com>
 
 	* examples/quest.cc: If no database is specified, still parse the query

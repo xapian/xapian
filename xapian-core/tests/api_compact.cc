@@ -29,10 +29,11 @@
 
 #include <xapian.h>
 
-#include "str.h"
 #include <cstdlib>
 #include <sys/wait.h>
 
+#include "str.h"
+#include "utils.h"
 #include "unixcmds.h"
 
 using namespace std;
@@ -91,13 +92,16 @@ check_sparse_uid_terms(const string & path)
     }
 }
 
-inline int system(const string & cmd) { return system(cmd.c_str()); }
-
 DEFINE_TESTCASE(compactnorenumber1, chert || flint) {
     int status;
 
     string a = get_database_path("compactnorenumber1a", make_sparse_db,
 				 "5-7 24 76 987 1023-1027 9999 !9999");
+    string a_uuid;
+    {
+	Xapian::Database db(a);
+	a_uuid = db.get_uuid();
+    }
     a += ' ';
     string b = get_database_path("compactnorenumber1b", make_sparse_db,
 				 "1027-1030");
@@ -116,6 +120,25 @@ DEFINE_TESTCASE(compactnorenumber1, chert || flint) {
     status = system(cmd + a + out);
     TEST_EQUAL(WEXITSTATUS(status), 0);
     check_sparse_uid_terms(out);
+
+    {
+	if (get_dbtype() == "flint") {
+	    // Flint creates its uuid file if it doesn't already exist, so we
+	    // need a white box test to ensure xapian-compact created it.
+	    TEST(file_exists(out + "/uuid"));
+	}
+	TEST(!dir_exists(out + "/donor"));
+	Xapian::Database db(out);
+	// xapian-compact should change the UUID of the database, but didn't
+	// prior to 1.0.18/1.1.4.
+	string out_uuid = db.get_uuid();
+	TEST_NOT_EQUAL(a_uuid, out_uuid);
+	TEST_EQUAL(out_uuid.size(), 36);
+	TEST_NOT_EQUAL(out_uuid, "00000000-0000-0000-0000-000000000000");
+
+	// White box test - ensure that the donor database is removed.
+	TEST(!dir_exists(out + "/donor"));
+    }
 
     rm_rf(out);
     status = system(cmd + a + c + out);

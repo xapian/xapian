@@ -1,7 +1,7 @@
 /** @file xapian-compact.cc
  * @brief Compact a flint or chert database, or merge and compact several.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,14 +26,23 @@
 #include "safeerrno.h"
 
 #include <algorithm>
-#include <fstream>
 #include <iostream>
 
 #include <cstdio> // for rename()
 #include <cstdlib>
 #include <cstring>
+#include "safesysstat.h"
 #include <sys/types.h>
 #include "utils.h"
+
+#include "safeunistd.h"
+#include "safefcntl.h"
+
+#ifdef __WIN32__
+# include "safewindows.h"
+#endif
+
+#include "stringutils.h"
 
 #include <xapian.h>
 
@@ -66,6 +75,86 @@ static void show_usage() {
 "                    have disjoint ranges of used document ids\n"
 "  --help            display this help and exit\n"
 "  --version         output version information and exit" << endl;
+}
+
+/// Append filename argument arg to command cmd with suitable escaping.
+static bool
+append_filename_argument(string & cmd, const string & arg) {
+#ifdef __WIN32__
+    cmd.reserve(cmd.size() + arg.size() + 3);
+    cmd += " \"";
+    for (string::const_iterator i = arg.begin(); i != arg.end(); ++i) {
+	if (*i == '/') {
+	    // Convert Unix path separators to backslashes.  C library
+	    // functions understand "/" in paths, but we are going to
+	    // call commands like "deltree" or "rd" which don't.
+	    cmd += '\\';
+	} else if (*i < 32 || strchr("<>\"|*?", *i)) {
+	    // Check for illegal characters in filename.
+	    return false;
+	} else {
+	    cmd += *i;
+	}
+    }
+    cmd += '"';
+#else
+    // Allow for escaping a few characters.
+    cmd.reserve(cmd.size() + arg.size() + 10);
+
+    // Prevent a leading "-" on the filename being interpreted as a command
+    // line option.
+    if (arg[0] == '-')
+	cmd += " ./";
+    else
+	cmd += ' ';
+
+    for (string::const_iterator i = arg.begin(); i != arg.end(); ++i) {
+	// Don't escape a few safe characters which are common in filenames.
+	if (!C_isalnum(*i) && strchr("/._-", *i) == NULL) {
+	    cmd += '\\';
+	}
+	cmd += *i;
+    }
+#endif
+    return true;
+}
+
+#ifdef __WIN32__
+static bool running_on_win9x() {
+    static int win9x = -1;
+    if (win9x == -1) {
+	OSVERSIONINFO info;
+	memset(&info, 0, sizeof(OSVERSIONINFO));
+	info.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+	if (GetVersionEx(&info)) {
+	    win9x = (info.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS);
+	}
+    }
+    return win9x;
+}
+#endif
+
+/// Remove a directory and contents, just like the Unix "rm -rf" command.
+static void rm_rf(const string &filename) {
+    // Check filename exists and is actually a directory
+    struct stat sb;
+    if (filename.empty() || stat(filename, &sb) != 0 || !S_ISDIR(sb.st_mode))
+	return;
+
+#ifdef __WIN32__
+    string cmd;
+    if (running_on_win9x()) {
+	// For 95-like systems:
+	cmd = "deltree /y";
+    } else {
+	// For NT-like systems:
+	cmd = "rd /s /q";
+    }
+#else
+    string cmd("rm -rf");
+#endif
+    if (!append_filename_argument(cmd, filename)) return;
+    system(cmd);
 }
 
 class CmpByFirstUsed {
@@ -163,6 +252,7 @@ main(int argc, char **argv)
 	Xapian::docid tot_off = 0;
 	enum { UNKNOWN, FLINT, CHERT } backend = UNKNOWN;
 	const char * backend_names[] = { NULL, "flint", "chert" };
+	const char * backend_version_files[] = { NULL, "/iamflint", "/iamchert" };
 	for (int i = optind; i < argc - 1; ++i) {
 	    const char *srcdir = argv[i];
 	    // Check destdir isn't the same as any source directory...
@@ -326,48 +416,40 @@ main(int argc, char **argv)
 			  multipass, tot_off);
 	}
 
-	// Copy over the version file ("iamflint" or "iamchert").
-	// FIXME: We may need to do something smarter that just copying an
-	// arbitrary version file if the version file format changes...
-	string dest = destdir;
-	dest += "/iam";
-	dest += backend_names[backend];
-	dest += ".tmp";
+	// Create the version file ("iamflint" or "iamchert").
+	//
+	// This file contains a UUID, and we want the copy to have a fresh
+	// UUID since its revision counter is reset to 1.  Currently the
+	// easiest way to do this is to create a dummy "donor" database and
+	// harvest its version file.
+	string donor = destdir;
+	donor += "/donor.tmp";
 
-	string src(argv[optind]);
-	src += "/iam";
-	src += backend_names[backend];
-
-	ifstream input(src.c_str());
-	char buf[1024];
-	input.read(buf, sizeof(buf));
-	if (!input.eof()) {
-	    if (!input) {
-		cerr << argv[0] << ": error reading '" << src << "': "
-		     << strerror(errno) << endl;
+	if (backend == CHERT) {
+	    (void)Xapian::Chert::open(donor, Xapian::DB_CREATE_OR_OVERWRITE);
+	} else {
+	    (void)Xapian::Flint::open(donor, Xapian::DB_CREATE_OR_OVERWRITE);
+	    string from = donor;
+	    from += "/uuid";
+	    string to(destdir);
+	    to += "/uuid";
+	    if (rename(from.c_str(), to.c_str()) == -1) {
+		cerr << argv[0] << ": cannot rename '" << from << "' to '"
+		     << to << "': " << strerror(errno) << endl;
 		exit(1);
 	    }
-	    // Version file should be about 12 bytes, not > 1024!
-	    cerr << argv[0] << ": version file '" << src << "' too large!"
-		 << endl;
+	}
+	string from = donor;
+	from += backend_version_files[backend];
+	string to(destdir);
+	to += backend_version_files[backend];
+	if (rename(from.c_str(), to.c_str()) == -1) {
+	    cerr << argv[0] << ": cannot rename '" << from << "' to '"
+		 << to << "': " << strerror(errno) << endl;
 	    exit(1);
 	}
-	ofstream output(dest.c_str());
-	if (!output.write(buf, input.gcount())) {
-	    cerr << argv[0] << ": error writing '" << dest << "': "
-		 << strerror(errno) << endl;
-	    exit(1);
-	}
-	output.close();
 
-	string version = destdir;
-	version += "/iam";
-	version += backend_names[backend];
-	if (rename(dest.c_str(), version.c_str()) == -1) {
-	    cerr << argv[0] << ": cannot rename '" << dest << "' to '"
-		 << version << "': " << strerror(errno) << endl;
-	    exit(1);
-	}
+	rm_rf(donor);
     } catch (const Xapian::Error &error) {
 	cerr << argv[0] << ": " << error.get_description() << endl;
 	exit(1);
