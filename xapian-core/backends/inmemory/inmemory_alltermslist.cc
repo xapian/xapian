@@ -31,10 +31,6 @@ InMemoryAllTermsList::InMemoryAllTermsList(const std::map<string, InMemoryTerm> 
 {
 }
 
-InMemoryAllTermsList::~InMemoryAllTermsList()
-{
-}
-
 string
 InMemoryAllTermsList::get_termname() const
 {

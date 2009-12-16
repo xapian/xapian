@@ -46,14 +46,12 @@ class InMemoryAllTermsList : public AllTermsList
 	bool started;
 
 	string prefix;
+
     public:
-	/// Standard constructor for base class.
+	/// Constructor.
 	InMemoryAllTermsList(const std::map<string, InMemoryTerm> *tmap_,
 			     Xapian::Internal::RefCntPtr<const InMemoryDatabase> database_,
 			     const string & prefix);
-
-	/// Standard destructor for base class.
-	~InMemoryAllTermsList();
 
 	// Gets current termname
 	string get_termname() const;
