@@ -1,3 +1,7 @@
+Wed Dec 16 12:56:45 GMT 2009  Olly Betts <olly@survex.com>
+
+	* ruby/docs/Makefile.am: Fix previous change to work in VPATH build.
+
 Wed Dec 16 08:21:43 GMT 2009  Olly Betts <olly@survex.com>
 
 	* ruby/Makefile.am,ruby/docs/Makefile.am,ruby/generate-rdoc-stubs,
