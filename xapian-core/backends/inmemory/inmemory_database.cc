@@ -22,7 +22,6 @@
  */
 
 #include <config.h>
-#include <stdio.h>
 
 #include "omdebug.h"
 
@@ -36,7 +35,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <xapian/error.h>
 #include <xapian/valueiterator.h>

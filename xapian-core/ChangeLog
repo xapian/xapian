@@ -1,3 +1,8 @@
+Wed Dec 16 14:41:49 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/inmemory/inmemory_database.cc: Backport removal of unused
+	  #include directives from trunk.
+
 Wed Dec 16 14:03:58 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
