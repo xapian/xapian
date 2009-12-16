@@ -1,3 +1,9 @@
+Wed Dec 16 00:40:51 GMT 2009  Olly Betts <olly@survex.com>
+
+	* languages/german.sbl,languages/german2.sbl: Update the german and
+	  german2 stemming algorithms to the latest versions from Snowball.
+	  These add an extra rule for the "-nisse" ending.
+
 Tue Dec 15 13:08:33 GMT 2009  Olly Betts <olly@survex.com>
 
 	* bin/: Split apart the flint and chert compaction code.  Should be
