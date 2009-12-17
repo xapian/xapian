@@ -1,3 +1,11 @@
+Thu Dec 17 01:37:23 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/api_posdb.cc: Add a basic test of adding a document, and
+	  modifying its positions.  Found one bug already, but the line
+	  which triggers this is commented out for now so that we don't
+	  break the snapshotters until it's fixed.
+
 Wed Dec 16 14:42:54 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/inmemory/inmemory_alltermslist.cc,
