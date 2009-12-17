@@ -1,3 +1,12 @@
+Thu Dec 17 14:07:19 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/flint/flint_alltermslist.cc: Tweak to not apply the
+	  prefix test in the "at end" case.
+	* backends/flint/flint_alltermslist.cc: There's no point checking
+	  follow-on chunks match the prefix - the first chunk we'll hit
+	  which doesn't match has to be an initial chunk for a term.
+
 Thu Dec 17 13:44:42 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
