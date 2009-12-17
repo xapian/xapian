@@ -1,3 +1,9 @@
+Thu Dec 17 13:18:38 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* examples/delve.cc: Improve phrasing ("unique terms" -> "distinct
+	  terms").
+
 Thu Dec 17 13:16:23 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
