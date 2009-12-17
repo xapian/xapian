@@ -1,3 +1,8 @@
+Thu Dec 17 13:26:28 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/query.h: Mark Query::Internal as @private for doxygen.
+
 Thu Dec 17 13:18:38 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

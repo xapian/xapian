@@ -276,7 +276,7 @@ Query::Query(Query::op op_, Iterator qbegin, Iterator qend, termcount parameter)
     }
 }
 
-/// @internal Internal class, implementing most of Xapian::Query.
+/// @private @internal Internal class, implementing most of Xapian::Query.
 class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCntBase {
     friend class ::LocalSubMatch;
     friend class ::MultiMatch;
