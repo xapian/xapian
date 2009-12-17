@@ -1,3 +1,11 @@
+Thu Dec 17 13:16:23 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/chert/chert_database.cc,backends/flint/flint_database.cc,
+	  common/document.h: If a document is replaced with itself unmodified,
+	  we no longer increase the automatic flush counter.
+	* tests/api_backend.cc: Add regression test replacedoc7.
+
 Thu Dec 17 12:35:37 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
