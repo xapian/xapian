@@ -1095,24 +1095,53 @@ DEFINE_TESTCASE(replacedoc4, writable) {
 DEFINE_TESTCASE(replacedoc5, writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
-    Xapian::Document doc1;
-    doc1.add_posting("hello", 1);
-    doc1.add_posting("world", 2);
+    {
+	Xapian::Document doc;
+	doc.add_posting("hello", 1);
+	doc.add_posting("world", 2);
 
-    Xapian::docid did = db.add_document(doc1);
-    TEST_EQUAL(did, 1);
-    db.commit();
+	Xapian::docid did = db.add_document(doc);
+	TEST_EQUAL(did, 1);
+	db.commit();
+    }
 
-    Xapian::Document doc2 = db.get_document(1);
-    TEST(db.has_positions());
-    TEST(db.positionlist_begin(1, "hello") != db.positionlist_end(1, "hello"));
-    TEST(db.positionlist_begin(1, "world") != db.positionlist_end(1, "world"));
-    db.replace_document(1, doc2);
-    db.commit();
+    {
+	Xapian::Document doc = db.get_document(1);
+	TEST(db.has_positions());
+	TEST(db.positionlist_begin(1, "hello") != db.positionlist_end(1, "hello"));
+	TEST(db.positionlist_begin(1, "world") != db.positionlist_end(1, "world"));
+	db.replace_document(1, doc);
+	db.commit();
 
-    TEST(db.has_positions());
-    TEST(db.positionlist_begin(1, "hello") != db.positionlist_end(1, "hello"));
-    TEST(db.positionlist_begin(1, "world") != db.positionlist_end(1, "world"));
+	TEST(db.has_positions());
+	TEST(db.positionlist_begin(1, "hello") != db.positionlist_end(1, "hello"));
+	TEST(db.positionlist_begin(1, "world") != db.positionlist_end(1, "world"));
+    }
+
+    // Chert and flint now spot simple cases of replacing the same document and
+    // don't do needless work.  Force them to actually do the replacement to
+    // make sure that case works.
+
+    {
+	Xapian::Document doc;
+	doc.add_term("Q2");
+	db.add_document(doc);
+	db.commit();
+    }
+
+    {
+	Xapian::Document doc = db.get_document(1);
+	TEST(db.has_positions());
+	TEST(db.positionlist_begin(1, "hello") != db.positionlist_end(1, "hello"));
+	TEST(db.positionlist_begin(1, "world") != db.positionlist_end(1, "world"));
+	(void)db.get_document(2);
+	db.replace_document(1, doc);
+	db.commit();
+
+	TEST(db.has_positions());
+	TEST(db.positionlist_begin(1, "hello") != db.positionlist_end(1, "hello"));
+	TEST(db.positionlist_begin(1, "world") != db.positionlist_end(1, "world"));
+    }
 
     return true;
 }

@@ -1,3 +1,11 @@
+Thu Dec 17 11:16:51 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_wrdb.cc: The regression test replacedoc5 no longer actually
+	  checks for the situation it was written for, due to the shortcutting
+	  we now do in flint and chert when replacing a document with itself,
+	  so extend it with a check with that behaviour suppressed (fortunately
+	  it still passes).
+
 Wed Dec 16 12:03:13 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/,bin/Makefile.mk,common/pack.h: Change the packing
