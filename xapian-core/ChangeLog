@@ -1,3 +1,7 @@
+Thu Dec 17 11:57:31 GMT 2009  Olly Betts <olly@survex.com>
+
+	* tests/api_replacedoc.cc: Fix to test the right variable.
+
 Thu Dec 17 11:16:51 GMT 2009  Olly Betts <olly@survex.com>
 
 	* tests/api_wrdb.cc: The regression test replacedoc5 no longer actually
