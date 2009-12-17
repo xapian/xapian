@@ -695,7 +695,30 @@ DEFINE_TESTCASE(poslistupdate1, positional && writable) {
 	       "Term(pos2, wdf=1, pos=[])");
 
     doc = db.get_document(1);
+    doc.add_posting("pos3", 1);
+    doc.add_posting("pos3", 5);
+    db.replace_document(1, doc);
+    db.flush();
+    TEST_EQUAL(docterms_to_string(db, 1),
+	       "Term(pos, wdf=2, pos=[2, 3]), "
+	       "Term(pos2, wdf=1, pos=[]), "
+	       "Term(pos3, wdf=2, pos=[1, 5])");
+
+    doc = db.get_document(1);
     doc.remove_term("pos");
+    db.replace_document(1, doc);
+    db.flush();
+    TEST_EQUAL(docterms_to_string(db, 1),
+	       "Term(pos2, wdf=1, pos=[]), "
+	       "Term(pos3, wdf=2, pos=[1, 5])");
+
+    // Regression test: the old positionlist fragment used to be left lying
+    // around here.
+    TEST_EXCEPTION(Xapian::RangeError,
+	Xapian::PositionIterator posit(db.positionlist_begin(1, "pos")));
+
+    doc = db.get_document(1);
+    doc.remove_term("pos3");
     db.replace_document(1, doc);
     db.flush();
     TEST_EQUAL(docterms_to_string(db, 1),
@@ -703,9 +726,8 @@ DEFINE_TESTCASE(poslistupdate1, positional && writable) {
 
     // Regression test: the old positionlist fragment used to be left lying
     // around here.
-    // FIXME - commented out to avoid breaking build, for now.
-    // TEST_EXCEPTION(Xapian::RangeError,
-    //	Xapian::PositionIterator posit(db.positionlist_begin(1, "pos")));
+    TEST_EXCEPTION(Xapian::RangeError,
+	Xapian::PositionIterator posit(db.positionlist_begin(1, "pos3")));
 
     doc = db.get_document(1);
     doc.add_term("pos");

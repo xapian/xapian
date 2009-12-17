@@ -4,7 +4,8 @@
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
- * Copyright 2006 Richard Boulton
+ * Copyright 2006 Lemur Consulting Ltd
+ * Copyright 2009 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -942,6 +943,7 @@ FlintWritableDatabase::replace_document(Xapian::docid did,
 	    // First, add entries to remove the postings in the underlying record.
 	    Xapian::Internal::RefCntPtr<const FlintWritableDatabase> ptrtothis(this);
 	    FlintTermList termlist(ptrtothis, did);
+	    Xapian::TermIterator term = document.termlist_begin();
 
 	    termlist.next();
 	    while (!termlist.at_end()) {
@@ -974,15 +976,19 @@ FlintWritableDatabase::replace_document(Xapian::docid did,
 		    k->second = make_pair('D', 0u);
 		}
 
+		term.skip_to(tname);
+		if (term == document.termlist_end() || *term != tname) {
+		    position_table.delete_positionlist(did, tname);
+		}
+
 		termlist.next();
 	    }
 
 	    total_length -= termlist.get_doclength();
 
 	    flint_doclen_t new_doclen = 0;
-	    Xapian::TermIterator term = document.termlist_begin();
-	    Xapian::TermIterator term_end = document.termlist_end();
-	    for ( ; term != term_end; ++term) {
+	    for (term = document.termlist_begin();
+		 term != document.termlist_end(); ++term) {
 		// Calculate the new document length
 		termcount wdf = term.get_wdf();
 		new_doclen += wdf;
