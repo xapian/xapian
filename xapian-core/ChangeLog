@@ -1,3 +1,10 @@
+Thu Dec 17 13:44:42 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* examples/quest.cc: If no database is specified, still parse the query
+	  and report get_description() on it as this provides a useful way to
+	  see how a query parses.
+
 Thu Dec 17 13:26:28 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
