@@ -39,7 +39,7 @@ BUILT_SOURCES = rdocs/index.html
 
 rdocs: rdocs/index.html
 
-rdocs/index.html: ../xapian.rb
+rdocs/index.html: ../xapian.rb ../rdoc.rb
 	rm -rf rdocs
-	$(RDOC) --op rdocs $(srcdir)/../xapian.rb
+	cd "$(srcdir)/.." && $(RDOC) --op "$(abs_builddir)/rdocs" xapian.rb `test -f rdoc.rb || echo "$(abs_builddir)/../"`rdoc.rb
 endif

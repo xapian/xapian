@@ -1,3 +1,17 @@
+Sat Dec 19 01:07:10 GMT 2009  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* ruby/docs/Makefile.am: Run rdoc with the current directory set to
+	  where xapian.rb is so we don't build absolute paths into the
+	  generated HTML.  Should address part of ticket#417.
+	* ruby/Makefile.am,ruby/docs/Makefile.am,ruby/generate-rdoc-stubs,
+	  ruby/xapian.rb: Generate entries in the rdocs for all classes which
+	  aren't documented via xapian.rb.  Fixes ticket#417.
+	* ruby/docs/Makefile.am: Fix previous change to work in VPATH build.
+	* ruby/docs/Makefile.am: Fix previous fix.
+	* ruby/docs/Makefile.am: Fix fix for previous fix.
+	* ruby/docs/Makefile.am: Fix the fixed fix for the previous fix.
+
 Wed Nov 18 01:55:10 GMT 2009  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Updatefor 1.0.17.

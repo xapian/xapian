@@ -101,7 +101,6 @@ module Xapian
       return other.is_a?(Xapian::Match) && other.docid == @docid && other.rank == @rank && 
         other.weight == @weight && other.collapse_count == @collapse_count && other.percent == @percent
     end
-
   end # class Xapian::Match
 
   # Ruby wrapper for an ExpandTerm, i.e. a Xapian::ESetIterator in C++
@@ -135,6 +134,9 @@ module Xapian
     end
   end # Xapian::Value
 
+  # Refer to the
+  # {Xapian::Document C++ API documentation}[http://xapian.org/docs/apidoc/html/classXapian_1_1Document.html]
+  # for methods not specific to Ruby.
   #--
   # Extend Xapian::Document with a nice wrapper for its nasty input_iterators
   class Xapian::Document
@@ -152,6 +154,9 @@ module Xapian
 
   end # class Xapian::Document
 
+  # Refer to the
+  # {Xapian::Query C++ API documentation}[http://xapian.org/docs/apidoc/html/classXapian_1_1Query.html]
+  # for methods not specific to Ruby.
   #--
   # Extend Xapian::Query with a nice wrapper for its dangerous iterators
   class Xapian::Query
@@ -163,6 +168,9 @@ module Xapian
     end
   end # Xapian::Query
 
+  # Refer to the
+  # {Xapian::Enquire C++ API documentation}[http://xapian.org/docs/apidoc/html/classXapian_1_1Enquire.html]
+  # for methods not specific to Ruby.
   #--
   # Extend Xapian::Enquire with a nice wrapper for its dangerous iterators
   class Xapian::Enquire
@@ -176,6 +184,10 @@ module Xapian
     end
   end # Xapian::Enquire
 
+  # Refer to the
+  # {Xapian::MSet C++ API documentation}[http://xapian.org/docs/apidoc/html/classXapian_1_1MSet.html]
+  # for methods not specific to Ruby.
+  #--
   # MSetIterators are not dangerous, just inconvenient to use within a Ruby
   # programming idiom. So we wrap them.
   class Xapian::MSet
@@ -188,6 +200,10 @@ module Xapian
     end # matches
   end # Xapian::MSet
 
+  # Refer to the
+  # {Xapian::ESet C++ API documentation}[http://xapian.org/docs/apidoc/html/classXapian_1_1ESet.html]
+  # for methods not specific to Ruby.
+  #--
   # ESetIterators are not dangerous, just inconvenient to use within a Ruby
   # programming idiom. So we wrap them.
   class Xapian::ESet
@@ -220,8 +236,11 @@ module Xapian
     end
   end # Xapian::Posting
 
+  # Refer to the
+  # {Xapian::Database C++ API documentation}[http://xapian.org/docs/apidoc/html/classXapian_1_1Database.html]
+  # for methods not specific to Ruby.
   #--
-  # Wrap some dangerous iterators..
+  # Wrap some dangerous iterators.
   class Xapian::Database
     # Returns an Array of all Xapian::Terms for this database.
     def allterms
@@ -248,7 +267,6 @@ module Xapian
       }
     end # termlist(docid)
     
-
     # Returns an Array of Xapian::Termpos objects for the given term (a String)
     # in the given docid.
     def positionlist(docid, term)
@@ -257,8 +275,6 @@ module Xapian
         item.termpos
       }
     end # positionlist
-
   end # Xapian::Database
-
 
 end # Xapian module
