@@ -1,3 +1,7 @@
+Sat Dec 19 05:21:46 GMT 2009  Olly Betts <olly@survex.com>
+
+	* ruby/generate-rdoc-stubs: Add new file missed from last commit.
+
 Sat Dec 19 01:07:10 GMT 2009  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
