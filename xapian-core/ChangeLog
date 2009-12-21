@@ -1,3 +1,9 @@
+Mon Dec 21 08:12:55 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_alldocsmodifiedpostlist.cc,
+	  backends/chert/chert_alldocsmodifiedpostlist.h: Change reference
+	  parameter to const reference.
+
 Mon Dec 21 03:19:09 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_database.cc,backends/flint/flint_database.cc:
