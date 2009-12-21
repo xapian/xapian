@@ -1,3 +1,8 @@
+Mon Dec 21 09:41:57 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc: Update comment about
+	  MAX_SAFE_TERM_LENGTH to reflect the key format changes.
+
 Mon Dec 21 08:12:55 GMT 2009  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_alldocsmodifiedpostlist.cc,
