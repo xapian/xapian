@@ -1,3 +1,11 @@
+Mon Dec 21 03:19:09 GMT 2009  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/flint/flint_database.cc:
+	  Replacing a document deleted since the last flush failed to update
+	  the collection frequency and wdf, and caused an assertion failure
+	  when assertions were enabled.
+	* tests/api_backend.cc: Add regression test replacedoc8.
+
 Sun Dec 20 07:26:30 GMT 2009  Olly Betts <olly@survex.com>
 
 	* configure.ac: Divert to AS_MESSAGE_LOG_FD rather than literal fd 5.
@@ -63,7 +71,6 @@ Wed Dec 16 00:40:51 GMT 2009  Olly Betts <olly@survex.com>
 	  german2 stemming algorithms to the latest versions from Snowball.
 	  These add an extra rule for the "-nisse" ending.
 
->>>>>>> .r13771
 Tue Dec 15 13:08:33 GMT 2009  Olly Betts <olly@survex.com>
 
 	* bin/: Split apart the flint and chert compaction code.  Should be

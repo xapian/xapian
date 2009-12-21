@@ -280,3 +280,30 @@ DEFINE_TESTCASE(replacedoc7, writable && !inmemory && !remote) {
     TEST_EQUAL(rodb.get_doccount(), 2);
     return true;
 }
+
+/** Check that replacing a document deleted since the last flush works.
+ *  Prior to 1.1.4/1.0.18, this failed to update the collection frequency and
+ *  wdf, and caused an assertion failure when assertions were enabled.
+ */
+DEFINE_TESTCASE(replacedoc8, writable) {
+    Xapian::WritableDatabase db(get_writable_database());
+    {
+	Xapian::Document doc;
+	doc.set_data("fish");
+	doc.add_term("takeaway");
+	db.add_document(doc);
+    }
+    db.delete_document(1);
+    {
+	Xapian::Document doc;
+	doc.set_data("chips");
+	doc.add_term("takeaway", 2);
+	db.replace_document(1, doc);
+    }
+    db.flush();
+    TEST_EQUAL(db.get_collection_freq("takeaway"), 2);
+    Xapian::PostingIterator p = db.postlist_begin("takeaway");
+    TEST(p != db.postlist_end("takeaway"));
+    TEST_EQUAL(p.get_wdf(), 2);
+    return true;
+}
