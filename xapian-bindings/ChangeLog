@@ -1,3 +1,10 @@
+Tue Dec 22 12:37:20 GMT 2009  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,csharp/docs/index.html,java-swig/Makefile.am,
+	  php/docs/index.html,python/docs/index.html,ruby/docs/index.html,
+	  tcl8/docs/index.html,xapian-head.i,xapian.i: Update for the new
+	  Brass backend.
+
 Fri Dec 18 00:47:34 GMT 2009  Olly Betts <olly@survex.com>
 
 	* ruby/docs/Makefile.am: Fix the fixed fix for the previous fix.
